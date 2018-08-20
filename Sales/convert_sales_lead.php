@@ -1,9 +1,10 @@
 <?php require_once('../include.php');
 checkAuthorised('sales');
+$lead_convert_to = get_config($dbc, 'lead_convert_to');
 
 function invalid_id() { ?>
 	<script>
-		alert("Invalid Sales Lead, unable to save to Customers.");
+		alert("Invalid Sales Lead, unable to save to <?= $lead_convert_to ?>.");
 		window.history.back();
 	</script>
 	exit();
@@ -12,7 +13,6 @@ function invalid_id() { ?>
 if(empty($_GET['leadid'])) {
 	invalid_id();
 } else {
-    $lead_convert_to = get_config($dbc, 'lead_convert_to');
     $won_status = get_config($dbc, 'lead_status_won');
     $lost_status = get_config($dbc, 'lead_status_lost');
 	if($result = mysqli_query($dbc, "SELECT * FROM `sales` WHERE `salesid`='".$_GET['leadid']."'")) {
