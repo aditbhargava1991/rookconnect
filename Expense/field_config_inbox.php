@@ -1,6 +1,14 @@
 <?php /* Field Configuration for Expenses */
 
 if (isset($_POST['submit'])) {
+    $role_arr = $_POST['approval_role']; 
+    mysqli_query($dbc, "TRUNCATE TABLE `expense_approval_levels`");
+    if(!empty($role_arr)){
+        $key = '1';
+        foreach($role_arr as $key=>$ra){
+            mysqli_query($dbc, "INSERT INTO `expense_approval_levels` (`expense_approval_role_id`,`expense_role_sorting`) values('".$ra."','".$key."') ");
+        }
+    }
     $expense = implode(',',$_POST['expense']);
     $expense_defaults = implode(',',$_POST['expense_defaults']);
     $expense_mode = $_POST['expense_mode'];
@@ -362,7 +370,73 @@ $expense_mode = $get_expense_config['expense_mode'];
 		</div>
 	</div>
 	
-	
+	<div class="manage_levels" style="display: none;">
+		<div class="standard-dashboard-body-content">
+        <div class="dashboard-item dashboard-item2 full-height">
+            <div class="form-horizontal block-group block-group-noborder full-height">
+                <!--<label class="hide-titles-mob col-sm-4 pull-right"><span class="popover-examples list-inline" style="margin:0;"><a data-toggle="tooltip" data-placement="top" title="Select the Category to which you can attach other contacts, such as business."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
+                    Active Level</label>--><div class="clearfix"></div>
+                <?php 
+                $approval_levels = mysqli_query($dbc, "SELECT expense_approval_role_id FROM `expense_approval_levels` ORDER BY expense_role_sorting");
+                $app_row = mysqli_fetch_all($approval_levels);
+                if(!empty($app_row)){
+                foreach($app_row as $app) {
+                ?>
+                    <div class="form-group tab-group">
+                        <label class="col-sm-4">Levels:<br /></label>
+                        <div class="col-sm-5">
+                        	<select name="approval_role[]" class="form-control approval_role">
+                            <?php 
+                            $security_levels = mysqli_query($dbc, "SELECT * FROM `security_level_names` WHERE `active` > 0 AND `identifier` NOT LIKE 'FFMCUST_%'");
+                            while($row = mysqli_fetch_assoc($security_levels)) {
+                            ?>
+                            	<option <?= $app[0] == $row['id'] ? 'selected="selected"' : '' ?> value="<?= $row['id']?>"><?= $row['label']?></option>
+                            <?php
+                            }
+                            ?>
+                            </select>
+                        </div>
+                        <div class="col-sm-1">
+                            <label class="show-on-mob">Attach to approval level</label>
+                            <!--<input type="radio" name="business_category" <?= $app['expense_approval_active'] == '1' ? 'checked' : '' ?> value="<?= $app['expense_approval_role_id'] ?>"> -->
+                        </div>
+                        <div class="col-sm-2">
+                            <img src="../img/icons/ROOK-add-icon.png" class="inline-img pull-right" onclick="add_option();">
+                            <img src="../img/remove.png" class="inline-img pull-right" onclick="remove_option(this);">
+                            <img src="../img/icons/drag_handle.png" class="inline-img drag-handle pull-right">
+                        </div>
+                    </div>
+                <?php }
+                    }else{ ?>
+                    <div class="form-group tab-group">
+                        <label class="col-sm-4">Levels:<br /></label>
+                        <div class="col-sm-5">
+                        <select name="approval_role[]" class="form-control approval_role">
+                        <?php
+                        $security_levels = mysqli_query($dbc, "SELECT * FROM `security_level_names` WHERE `active` > 0 AND `identifier` NOT LIKE 'FFMCUST_%'");
+                        while($row = mysqli_fetch_assoc($security_levels)) {
+                        ?>
+                        	<option value="<?= $row['id']?>"><?= $row['label']?></option>
+                        <?php
+                        }
+                        ?>
+                        </select>
+                        </div>
+                        <div class="col-sm-1">
+                            <label class="show-on-mob">Attach to approval level</label>
+                            <!--<input type="radio" name="business_category" value="">-->
+                        </div>
+                        <div class="col-sm-2">
+                            <img src="../img/icons/ROOK-add-icon.png" class="inline-img pull-right" onclick="add_option();">
+                            <img src="../img/remove.png" class="inline-img pull-right" onclick="remove_option(this);">
+                            <img src="../img/icons/drag_handle.png" class="inline-img drag-handle pull-right">
+                        </div>
+                    </div>
+                <?php }?>
+            </div>
+        </div><!-- .dashboard-item -->
+    </div><!-- .standard-dashboard-body-content -->
+	</div>
 	
 	<div class="style_div" style="display: none;">
 		<h3>Expense Tile Mode</h3>
@@ -378,13 +452,29 @@ $expense_mode = $get_expense_config['expense_mode'];
 				handle: '.sort-handle',
 				items: 'label:not(.no-sort)'
 			});
+
+			$('.approval_role').change(save_fields);
+			$('.block-group').sortable({
+				connectWith: '.block-group',
+				handle: '.drag-handle',
+				items: '.tab-group',
+				update: save_fields
+			});
 		});
+		function save_fields() {
+			var options = [];
+			var business_category = '';
+			$('.approval_role').each(function() {
+				this.value = this.value.replace(',','');
+				options.push(this.value);
+			});
+		}
 		function add_option() {
 			var row = $('.tab-group').last();
 			var clone = row.clone();
 			clone.find('input').val('');
 			row.after(clone);
-			$('[name=<?= FOLDER_NAME ?>_tabs]').off('change', save_fields).change(save_fields);
+			$('.approval_role').off('change', save_fields).change(save_fields);
 		}
 		function remove_option(target) {
 			if($('.tab-group').length <= 0) {

@@ -96,10 +96,37 @@ $tab_config = ','.get_config($dbc, 'expense_tabs').','; ?>
 								while($pending_cat = $pending_cats->fetch_assoc()) { ?>
 									<a href="?filter_id=pending&filter_cat=<?= $pending_cat['category'] ?>"><li class="sidebar-higher-level <?= $_GET['filter_id'] == 'pending' && $_GET['filter_cat'] == $pending_cat['category'] ? 'active' : '' ?>"><?= $pending_cat['descript'] ?><span class='pull-right'><?= $pending_cat['count'] ?></span></li></a>
 								<?php } ?>
-								<a href="?filter_id=pending"><li class="sidebar-higher-level <?= $_GET['filter_id'] == 'pending' && empty($_GET['filter_cat']) ? 'active' : '' ?>">All Expenses<span class='pull-right'><?= $tab_counts['pending'] ?></span></li></a>
+								<a href="?filter_id=pending"><li class="sidebar-higher-level <?= $_GET['filter_id'] == 'pending' && empty($_GET['filter_cat']) && empty($_GET['filter_tab']) ? 'active' : '' ?>">All Expenses<span class='pull-right'><?= $tab_counts['pending'] ?></span></li></a>
+								<?php 
+            					$approval_levels = mysqli_query($dbc, "SELECT a.expense_role_sorting, b.label FROM `expense_approval_levels` a inner join `security_level_names` b on a.expense_approval_role_id = b.id ORDER BY expense_role_sorting");
+            					while($app_row = mysqli_fetch_assoc($approval_levels)){
+            					?>
+            					<a href="?filter_id=pending&filter_tab=<?= $app_row['label'].'_'.$app_row['expense_role_sorting']?>"><li class="sidebar-higher-level <?= $_GET['filter_tab'] == $app_row['label'].'_'.$app_row['expense_role_sorting'] && empty($_GET['filter_cat']) ? 'active' : '' ?>"><?= $app_row['label']?> Approval<span class='pull-right'><?= $tab_counts['pending'] ?></span></li></a>
+            					<?php } ?>
 							</ul>
 						</li>
 					</div>
+					
+					<?php 
+					/*$approval_levels = mysqli_query($dbc, "SELECT a.expense_role_sorting, b.label FROM `expense_approval_levels` a inner join `security_level_names` b on a.expense_approval_role_id = b.id ORDER BY expense_role_sorting");
+					while($app_row = mysqli_fetch_assoc($approval_levels)){*/
+					?>
+					<!-- <div>
+						<span class="popover-examples pull-left inline-img"><a data-toggle="tooltip" data-placement="top" title="View all Expenses that have been approved and are awaiting payment."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
+						<li class="sidebar-higher-level highest-level"><a data-target="#role_approved_<?= $app_row['expense_role_sorting']?>" data-toggle="collapse" class="cursor-hand <?= $_GET['filter_id'] == 'approved' ? 'active' : 'collapsed' ?>"><?=$app_row['label']?> <br> &nbsp;Approved<span class="arrow"></span></a>
+							<ul id="role_approved_<?= $app_row['expense_role_sorting']?>" class="collapse <?= $_GET['filter_id'] == $app_row['label'].'_'.$app_row['expense_role_sorting'] ? 'in' : '' ?>">
+								<?php $approved_cats = $dbc->query("SELECT `categories`.`EC` `category`, CONCAT(`categories`.`EC`,': ',`expense`.`category`) `descript`, COUNT(*) `count` FROM `expense` LEFT JOIN (SELECT `EC`,`category` FROM `expense_categories` WHERE `deleted`=0 GROUP BY `category`) `categories` ON `expense`.`category`=`categories`.`category` WHERE `deleted`=0 AND `reimburse` > 0 AND IFNULL(`categories`.`category`,'') != '' AND `status` IN ('Approved') ".($approvals > 0 ? '' : "AND `staff` IN ('{$_SESSION['contactid']}','".get_contact($dbc, $_SESSION['contactid'])."')")." GROUP BY `expense`.`category` ORDER BY `categories`.`EC`");
+								while($approved_cat = $approved_cats->fetch_assoc()) { ?>
+									<a href="?filter_id=<?= $app_row['label'].'_'.$app_row['expense_role_sorting']?>&filter_cat=<?= $approved_cat['category'] ?>"><li class="sidebar-higher-level <?= $_GET['filter_id'] == $app_row['label'].'_'.$app_row['expense_role_sorting'] && $_GET['filter_cat'] == $approved_cat['category'] ? 'active' : '' ?>"><?= $approved_cat['descript'] ?><span class='pull-right'><?= $approved_cat['count'] ?></span></li></a>
+								<?php } ?>
+								<a href="?filter_id=<?= $app_row['label'].'_'.$app_row['expense_role_sorting']?>"><li class="sidebar-higher-level <?= $_GET['filter_id'] == $app_row['label'].'_'.$app_row['expense_role_sorting'] && empty($_GET['filter_cat']) ? 'active' : '' ?>">All Expenses<span class='pull-right'><?= $tab_counts['approved'] ?></span></li></a>
+							</ul>
+						</li>
+					</div> -->
+					<?php
+					//}
+					?>
+					
 					<div>
 						<span class="popover-examples pull-left inline-img"><a data-toggle="tooltip" data-placement="top" title="View all Expenses that have been approved and are awaiting payment."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
 						<li class="sidebar-higher-level highest-level"><a data-target="#approved_cats" data-toggle="collapse" class="cursor-hand <?= $_GET['filter_id'] == 'approved' ? 'active' : 'collapsed' ?>">Approved<span class="arrow"></span></a>
