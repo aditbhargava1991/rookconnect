@@ -1,16 +1,18 @@
 <?php /* Field Configuration for Expenses */
+/*Comment Section*/
 
 if (isset($_POST['submit'])) {
     $expense = implode(',',$_POST['expense']);
     $expense_defaults = implode(',',$_POST['expense_defaults']);
+    $expense_mode = $_POST['expense_mode'];
 	mysqli_query($dbc, "INSERT INTO `field_config_expense` (`tab`) SELECT 'current_month' FROM (SELECT COUNT(*) rows FROM `field_config_expense` WHERE `tab`='current_month') num WHERE num.rows=0");
-	mysqli_query($dbc, "UPDATE `field_config_expense` SET `expense_dashboard`='$expense_defaults' WHERE `tab`='current_month'");
+	mysqli_query($dbc, "UPDATE `field_config_expense` SET `expense_dashboard`='$expense_defaults', `expense_mode`='$expense_mode' WHERE `tab`='current_month'");
 
     $expense_category_field = implode(',',$_POST['expense_category_field']);
 	$tab_category = $_POST['expense_category_field_name'];
 	if($tab_category != '') {
 		mysqli_query($dbc, "INSERT INTO `field_config_expense` (`tab`) SELECT 'category_".$tab_category."' FROM (SELECT COUNT(*) rows FROM `field_config_expense` WHERE `tab`='category_".$tab_category."') num WHERE num.rows=0");
-		mysqli_query($dbc, "UPDATE `field_config_expense` SET `expense_dashboard`='$expense_category_field' WHERE `tab`='category_".$tab_category."'");
+		mysqli_query($dbc, "UPDATE `field_config_expense` SET `expense_dashboard`='$expense_category_field', `expense_mode`='$expense_mode' WHERE `tab`='category_".$tab_category."'");
 	}
 
 	$tab = '%';
@@ -179,32 +181,27 @@ if (isset($_POST['submit'])) {
 	$all_ids = implode(',',array_filter($_POST['cat_id']));
     $date_of_archival = date('Y-m-d');
 	$delete_rows = mysqli_query($dbc, "UPDATE `expense_categories` SET `deleted`=1, `date_of_archival` = '$date_of_archival' WHERE `expense_tab` LIKE '$tab' AND `categoryid` NOT IN ($all_ids)");
-  $before_change = "";
-	$history = "Expense entry has been updated. <br />";
-	add_update_history($dbc, 'expenses_history', $history, '', $before_change);
+
 	foreach($_POST['cat_id'] as $row => $id) {
 		$category = $_POST['category'][$row];
 		$heading = $_POST['cat_heading'][$row];
 		$amount = $_POST['cat_amount'][$row];
 		$gl = $_POST['heading_code'][$row];
 		$ec = floor($gl / 1000) * 1000;
-    $before_change = "";
+
 		if($heading != '' && $category != '') {
 			if($id == '') {
 				//$ec = mysqli_fetch_array(mysqli_query($dbc, "SELECT `EC` FROM `expense_categories` WHERE `category`='$category' AND `deleted`=0 AND `expense_tab` LIKE '$tab' UNION SELECT IFNULL(MAX(`EC`),0) + 1000 FROM `expense_categories` WHERE `expense_tab` LIKE '$tab' AND `deleted`=0"))['EC'];
 				//$gl = mysqli_fetch_array(mysqli_query($dbc, "SELECT `GL` FROM `expense_categories` WHERE `categoryid`='$id' AND `deleted`=0 UNION SELECT IFNULL(MAX(`GL`),$ec) + 1 FROM `expense_categories` WHERE `expense_tab` LIKE '$tab' AND `category`='$category' AND `deleted`=0"))['GL'];
 				$query = "INSERT INTO `expense_categories` (`expense_tab`, `category`, `EC`, `heading`, `GL`, `amount`)
 					VALUES ('business', '$category', '$ec', '$heading', '$gl', '$amount')";
-          $history = "Expense catogries entry has been added. <br />";
 			} else {
 				$old_cat = preg_replace('/[^a-z]/','_',strtolower(mysqli_fetch_array(mysqli_query($dbc, "SELECT `category` FROM `expense_categories` WHERE `categoryid`='$id'"))['category']));
 				$new_cat = preg_replace('/[^a-z]/','_',strtolower($category));
 				mysqli_query($dbc, "UPDATE `field_config_expense` SET `tab`='category_".$new_cat."' WHERE `tab`='category_".$old_cat."'");
 				$query = "UPDATE `expense_categories` SET `category`='$category', `EC`='$ec', `heading`='$heading', `GL`='$gl', `amount`='$amount' WHERE `categoryid`='$id'";
-        $history = "Expense catogries entry has been updated. <br />";
 			}
 			mysqli_query($dbc, $query);
-      add_update_history($dbc, 'expenses_history', $history, '', $before_change);
 		}
 	}
 	// Categories
@@ -213,10 +210,10 @@ if (isset($_POST['submit'])) {
 }
 
 // Variables
-$config_sql = "SELECT * FROM (SELECT expense, expense_dashboard, exchange_buffer, gst_name, gst_amt, pst_name, pst_amt, hst_name, hst_amt, expense_types, expense_rows, tab FROM field_config_expense
+$config_sql = "SELECT * FROM (SELECT expense, expense_dashboard, exchange_buffer, gst_name, gst_amt, pst_name, pst_amt, hst_name, hst_amt, expense_types, expense_rows, tab, expense_mode FROM field_config_expense
 	WHERE `tab`='current_month' OR `tab` LIKE 'category_%' UNION SELECT
 	'Flight,Hotel,Breakfast,Lunch,Dinner,Beverages,Transportation,Entertainment,Gas,Misc',
-	'Description,Date,Receipt,Type,Day Expense,Amount,Tax,Total', '0', 'GST', '5', 'PST', '0', 'HST', '0', 'Meals,Tip', 1, '') settings ORDER BY `tab` DESC";
+	'Description,Date,Receipt,Type,Day Expense,Amount,Tax,Total', '0', 'GST', '5', 'PST', '0', 'HST', '0', 'Meals,Tip', 1, '', '') settings ORDER BY `tab` DESC";
 $get_expense_config = mysqli_fetch_assoc(mysqli_query($dbc,$config_sql));
 $value_config = ','.$get_expense_config['expense'].',';
 $db_config = ','.$get_expense_config['expense_dashboard'].',';
@@ -229,7 +226,7 @@ $hst_amt = trim($get_expense_config['hst_amt'],',');
 $expense_types = trim(','.$get_expense_config['expense_types'].',',',');
 $expense_rows = $get_expense_config['expense_rows'];
 $exchange_buffer = $get_expense_config['exchange_buffer'];
-
+$expense_mode = $get_expense_config['expense_mode'];
 ?>
 <div class="expense-settings-container">
 <form id="form1" name="form1" method="post"	action="" enctype="multipart/form-data" class="form-horizontal" role="form">
@@ -361,8 +358,8 @@ $exchange_buffer = $get_expense_config['exchange_buffer'];
 	</div>
 	<div class="style_div" style="display: none;">
 		<h3>Expense Tile Mode</h3>
-		<label class="form-checkbox"><input type="radio" name="expense_mode" value="tables"> Table Mode</label>
-		<label class="form-checkbox"><input type="radio" name="expense_mode" value="inbox" checked> Inbox Mode</label>
+		<label class="form-checkbox"><input type="radio" name="expense_mode" value="tables" <?php if($expense_mode == 'tables'){ echo "checked";}?>> Table Mode</label>
+		<label class="form-checkbox"><input type="radio" name="expense_mode" value="inbox" <?php if($expense_mode == 'inbox'){ echo "checked";}?>> Inbox Mode</label>
 	</div>
 	<div class="expense_defaults_div" style="display: none;">
 		<h3>Expense Fields</h3>
