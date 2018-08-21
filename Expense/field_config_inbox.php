@@ -362,39 +362,7 @@ $expense_mode = $get_expense_config['expense_mode'];
 		</div>
 	</div>
 	
-	<div class="manage_levels" style="display: none;">
-		<div class="standard-dashboard-body-content">
-        <div class="dashboard-item dashboard-item2 full-height">
-            <div class="form-horizontal block-group block-group-noborder full-height">
-                <label class="hide-titles-mob col-sm-4 pull-right"><span class="popover-examples list-inline" style="margin:0;"><a data-toggle="tooltip" data-placement="top" title="Select the Category to which you can attach other contacts, such as business."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
-                    Active Level</label><div class="clearfix"></div>
-                <?php /*$tabs = explode(',',get_config($dbc, FOLDER_NAME.'_tabs'));
-                $staff = array_search('Staff',$tabs);
-                if($staff !== FALSE) {
-                    unset($tabs[$staff]);
-                }*/
-			$tab = $i = '';
-                //foreach($tabs as $i => $tab) { ?>
-                    <div class="form-group tab-group">
-                        <label class="col-sm-4">Levels:<br /></label>
-                        <div class="col-sm-5">
-                            <input name="<?= FOLDER_NAME ?>_tabs" type="text" value="<?= $tab ?>" class="form-control"/>
-                        </div>
-                        <div class="col-sm-1">
-                            <label class="show-on-mob">Attach Contacts to This Category</label>
-                            <input type="radio" name="business_category" <?= BUSINESS_CAT == $tab ? 'checked' : '' ?> value="<?= $i ?>">
-                        </div>
-                        <div class="col-sm-2">
-                            <img src="../img/icons/ROOK-add-icon.png" class="inline-img pull-right" onclick="add_option();">
-                            <img src="../img/remove.png" class="inline-img pull-right" onclick="remove_option(this);">
-                            <img src="../img/icons/drag_handle.png" class="inline-img drag-handle pull-right">
-                        </div>
-                    </div>
-                <?php //} ?>
-            </div>
-        </div><!-- .dashboard-item -->
-    </div><!-- .standard-dashboard-body-content -->
-	</div>
+	
 	
 	<div class="style_div" style="display: none;">
 		<h3>Expense Tile Mode</h3>
@@ -411,6 +379,20 @@ $expense_mode = $get_expense_config['expense_mode'];
 				items: 'label:not(.no-sort)'
 			});
 		});
+		function add_option() {
+			var row = $('.tab-group').last();
+			var clone = row.clone();
+			clone.find('input').val('');
+			row.after(clone);
+			$('[name=<?= FOLDER_NAME ?>_tabs]').off('change', save_fields).change(save_fields);
+		}
+		function remove_option(target) {
+			if($('.tab-group').length <= 0) {
+				add_option();
+			}
+			$(target).closest('.form-group').remove();
+			save_fields();
+		}
 		</script>
 		<?php $db_config = explode(',',trim($db_config,','));
 		$db_config_arr = array_filter(array_unique(array_merge($db_config,explode(',','Exchange,Tips,Third Tax,Local Tax,Tax,Description,Date,Work Order,Project,Province,Country,Vendor,Category,Heading,Reimburse,Receipt'))));
