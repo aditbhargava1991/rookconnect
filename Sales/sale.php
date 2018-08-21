@@ -17,18 +17,24 @@ $lead = $dbc->query("SELECT `businessid`, `contactid`, `lead_created_by`,`create
 <script type="text/javascript">
 $(document).ready(function() {
     $(window).resize(function() {
-		var available_height = window.innerHeight - $('footer:visible').outerHeight() - $('#sales_div .tile-container').offset().top - 1;
-		if(available_height > 200) {
-            $('#sales_div .tile-sidebar, #sales_div .tile-content').height(available_height);
+        var available_height = window.innerHeight - $('footer:visible').outerHeight() - $('#sales_div .tile-container').offset().top - 1;
+        if(available_height > 200) {
+            $('#sales_div .tile-sidebar').height(available_height);
             $('#sales_div .main-screen-white').height(available_height);
-		}
+            $('.tile-content').height('auto');
+            $('.tile-content').css('overflow-x','hidden');
+            $('#sales_div .main-screen-white').height('auto');
+            $('#sales_div .main-screen-white .standard-body-content').height(available_height - $('#sales_div .main-screen-white .standard-body-title').height());
+            $('#sales_div .main-screen-white .standard-body-content').css('overflow-x','hidden');
+            $('#sales_div .main-screen-white .standard-body-content').css('overflow-y','auto');
+            $('#sales_div .main-screen-white .standard-body-content').css('margin-top',$('#sales_div .main-screen-white .standard-body-title').height()+'px');
+        }
 	}).resize();
 
-    //$('.main-screen-white').height($('.tile-content').height() - 96);
     $('.main-screen-white').css('overflow-x','hidden');
     var $sections = $('.accordion-block-details');
-    $('.main-screen-white').on('scroll', function(){
-        var currentScroll = $('.main-screen .tile-container').offset().top + $('.main-screen-white').find('.preview-block-header').height();
+    $('.standard-body-content').on('scroll', function(){
+        var currentScroll = $('.main-screen .tile-container').offset().top + $('.standard-body-content').find('.preview-block-header').height();
         var $currentSection;
         $sections.each(function(){
             var divPosition = $(this).offset().top;
@@ -300,7 +306,7 @@ $(document).ready(function() {
                         if (strpos($value_config, ',History,') !== false) { ?>
                             <a href="#history"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_history" id="nav_history">History</li></a><?php
                         } ?>
-                        <li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_history" id="nav_history"><?= SALES_NOUN ?> Created by <?= $salesid > 0 ? $lead['lead_created_by'] : get_contact($dbc, $_SESSION['contactid']) ?> on <?= $salesid > 0 ? $lead['created_date'] : date('Y-m-d') ?></li>
+                        <li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_history" id="nav_history"><?= SALES_NOUN ?> Created by<br /><?= $salesid > 0 ? $lead['lead_created_by'] : get_contact($dbc, $_SESSION['contactid']) ?><br /> on <?= $salesid > 0 ? $lead['created_date'] : date('Y-m-d') ?></li>
                     </ul>
                 </div><!-- .tile-sidebar -->
 

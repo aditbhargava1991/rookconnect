@@ -18,7 +18,11 @@ $lead_convert_to = get_config($dbc, 'lead_convert_to'); ?>
                 <?php if(!empty($get_config_lost_status) && !empty($lead_convert_to)) { ?>
                     <a href="convert_sales_lead.php?leadid=<?= $salesid ?>&won_lead=lost" class="btn brand-btn">Mark as <?= $get_config_lost_status ?></a>
                 <?php } ?>
-                <input type="button" onclick="javascript:window.location.replace('<?= WEBSITE_URL; ?>/Sales/sale.php?p=details&id=<?=$salesid;?>&a=staffinfo');" value="Edit" class="btn brand-btn btn-small" />
+	            <?php if(IFRAME_PAGE) { ?>
+	                <div class="pull-right"><input type="button" onclick="javascript:window.top.location = '<?= WEBSITE_URL; ?>/Sales/sale.php?p=details&id=<?=$salesid;?>&a=staffinfo';" value="Open Full Window" class="btn brand-btn btn-small" /></div>
+	            <?php } else { ?>
+	                <div class="pull-right"><input type="button" onclick="javascript:window.location.replace('<?= WEBSITE_URL; ?>/Sales/sale.php?p=details&id=<?=$salesid;?>&a=staffinfo');" value="Edit" class="btn brand-btn btn-small" /></div>
+	            <?php } ?>
             </div>
             <div class="clearfix"></div>
         </h3>

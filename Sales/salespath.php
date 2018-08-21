@@ -1,15 +1,25 @@
-<div class="form-horizontal"><?php $quick_actions = explode(',',get_config($dbc, 'quick_action_icons'));
+<div class="form-horizontal">
+<?php $quick_actions = explode(',',get_config($dbc, 'quick_action_icons'));
 $task_colours = explode(',',mysqli_fetch_assoc(mysqli_query($dbc,"SELECT `flag_colours` FROM task_dashboard"))['flag_colours']);
 $flag_colours = explode(',', get_config($dbc, "ticket_colour_flags"));
 $show_tasks = $tasks_only ? true : tile_enabled($dbc, 'tasks');
 $show_forms = $tasks_only ? false : tile_enabled($dbc, 'intake');
 $show_checklists = $tasks_only ? false : tile_enabled($dbc, 'checklist');
-$sales_lead = $dbc->query("SELECT * FROM `sales` WHERE `salesid`='$salesid'")->fetch_assoc(); ?>
+$flag_labels = explode('#*#', get_config($dbc, "ticket_colour_flag_names"));
+$sales_lead = $dbc->query("SELECT * FROM `sales` WHERE `salesid`='$salesid'")->fetch_assoc();
+
+if(!empty($sales_lead['flag_label'])) {
+    $flag_colour = $sales_lead['flag_colour'];
+    $flag_label = $sales_lead['flag_label'];
+} else if(!empty($sales_lead['flag_colour'])) {
+    $flag_colour = $sales_lead['flag_colour'];
+    $flag_label = $flag_labels[array_search($sales_lead['flag_colour'], $flag_colours)];
+} ?>
 <script>
 $(document).ready(function() {
 	milestoneActions();
-		sortableItems();
-		DoubleScroll(document.getElementById('scrum_tickets'));
+    sortableItems();
+    DoubleScroll(document.getElementById('scrum_tickets'));
 });
 
 function changeEndAme(sel) {
@@ -648,61 +658,62 @@ function checklist_attach_file(checklist) {
 	$('[name='+file_id+']').click();
 }
 </script>
-	<?php 
-	$staff_list = sort_contacts_query(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name` FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `deleted`=0 AND `status` > 0"));
-	?>
-	<div class="dialog_addintake" title="Select an Intake Form" style="display: none;">
-		<div class="form-group">
-			<label class="col-sm-4 control-label">Intake Form:</label>
-			<div class="col-sm-8">
-				<select name="add_intakeform" class="chosen-select-deselect form-control">
-					<option></option>
-					<?php $form_types = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `intake_forms` WHERE `deleted` = 0"),MYSQLI_ASSOC);
-					foreach ($form_types as $form_type) {
-						echo '<option value="'.$form_type['intakeformid'].'">'.$form_type['form_name'].'</option>';
-					} ?>
-				</select>
-			</div>
-		</div>
-	</div>
-    <?php if($_GET['p'] == 'salespath') { ?>
-	<div id="sales_path_div" class="main-screen-white standard-body" style="padding-left: 0; padding-right: 0; border: none;">
-		<div class="standard-body-title">
-			<h3><?= SALES_NOUN.' #'.$salesid ?> Path: <?= get_contact($dbc, $sales_lead['contactid'], 'name_company') ?></h3>
-		</div>
-		<div class="standard-body-content">
-        <?php } ?>
-			<div class="double_scroll_div" style="overflow-x: auto; overflow-y: hidden;"><div style="width: 2240px; padding-top: 1px;">&nbsp;</div></div>
-				<div id="scrum_tickets" class="scrum_tickets">
-					<?php $path = get_field_value('sales_path', 'sales', 'salesid', $salesid);
+<?php $staff_list = sort_contacts_query(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name` FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `deleted`=0 AND `status` > 0")); ?>
+<div class="dialog_addintake" title="Select an Intake Form" style="display: none;">
+    <div class="form-group">
+        <label class="col-sm-4 control-label">Intake Form:</label>
+        <div class="col-sm-8">
+            <select name="add_intakeform" class="chosen-select-deselect form-control">
+                <option></option>
+                <?php $form_types = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `intake_forms` WHERE `deleted` = 0"),MYSQLI_ASSOC);
+                foreach ($form_types as $form_type) {
+                    echo '<option value="'.$form_type['intakeformid'].'">'.$form_type['form_name'].'</option>';
+                } ?>
+            </select>
+        </div>
+    </div>
+</div>
+<?php if($_GET['p'] == 'salespath') { ?>
+<div id="sales_path_div" class="main-screen-white standard-body" style="padding-left: 0; padding-right: 0; border: none;">
+    <div class="standard-body-title" data-id="<?= $salesid ?>" style="<?= empty($flag_colour) ? '' : 'background-color:#'.$flag_colour.';' ?>position:absolute;z-index:1;width:100%;">
+        <h3><?= SALES_NOUN.' #'.$salesid ?> Path: <?= get_contact($dbc, $sales_lead['contactid'], 'name_company') ?>
+            <div class="pull-right"><?php include('quick_actions.php'); ?></div>
+            <span class="flag-label" data-colour="<?= $flag_colour ?>"><?= $flag_label ?></span>
+        </h3>
+    </div>
+    <div class="standard-body-content">
+    <?php } ?>
+        <div class="double_scroll_div" style="overflow-x: auto; overflow-y: hidden;"><div style="width: 2240px; padding-top: 1px;">&nbsp;</div></div>
+            <div id="scrum_tickets" class="scrum_tickets">
+                <?php $path = get_field_value('sales_path', 'sales', 'salesid', $salesid);
 
-					$tabs = get_field_value('milestone timeline', 'sales_path', 'pathid', $path);
-					$each_tab = explode('#*#', $tabs['milestone']);
-					$timeline = explode('#*#', $tabs['timeline']);
-					$prior_sort = 0;
-					foreach($each_tab as $i => $milestone) {
-						$milestone_rows = $dbc->query("SELECT `sort` FROM `sales_path_custom_milestones` WHERE `salesid`='$salesid' AND `salesid` > 0 AND `milestone`='$milestone'");
-						if($milestone_rows->num_rows > 0) {
-							$prior_sort = $milestone_rows->fetch_assoc()['sort'];
-						} else {
-							$dbc->query("INSERT INTO `sales_path_custom_milestones` (`salesid`,`milestone`,`label`,`sort`) VALUES ('$salesid','$milestone','$milestone','$prior_sort')");
-						}
-					}
-					$milestoneid = ($_GET['milestone'] > 0 ? $_GET['milestone'] : 0);
-					$milestones = $dbc->query("SELECT `id`, `milestone`, `label`, `sort`, 'sales_path_custom_milestones' `table` FROM `sales_path_custom_milestones` WHERE `deleted`=0 AND `salesid`='$salesid' AND `salesid` > 0 AND '$milestoneid' IN (`id`,0) AND `milestone` != '' UNION SELECT 0, '', '', 9999999, 'sales_path_custom_milestones' `table` ORDER BY `sort`, `id`");
-					while($milestone_row = $milestones->fetch_assoc()) {
-						$cat_tab = $milestone_row['milestone'];
-						$label = $milestone_row['label'] ?: 'Tasks';
-						$task_result = mysqli_query($dbc, "SELECT * FROM tasklist WHERE IFNULL(sales_milestone,'')='$cat_tab' AND IFNULL(archived_date,'0000-00-00')='0000-00-00' AND deleted=0 AND `salesid`='$salesid' AND `salesid` > 0 ORDER BY tasklistid DESC");
-						$task_count = mysqli_num_rows($task_result) ?: 0;
-						$form_result = mysqli_query($dbc, "SELECT * FROM intake WHERE IFNULL(sales_milestone,'')='$cat_tab' AND deleted=0 AND ((`contactid` IN (SELECT `contactid` FROM `sales` WHERE `salesid`='$salesid' AND `salesid` > 0) AND `contactid` > 0) || (`salesid`='$salesid' AND `salesid` > 0)) ORDER BY received_date DESC");
-						$form_count = mysqli_num_rows($form_result) ?: 0;
-						$checklist_result = mysqli_query($dbc, "SELECT * FROM `checklist` WHERE IFNULL(sales_milestone,'')='$cat_tab' AND deleted=0 AND `salesid`='$salesid' AND `salesid` > 0");
-						$checklist_count = mysqli_num_rows($checklist_result) ?: 0;
-						
-						$status = str_replace("#","FFMHASH",str_replace(" ","FFMSPACE",str_replace("&","FFMEND",$cat_tab)));
+                $tabs = get_field_value('milestone timeline', 'sales_path', 'pathid', $path);
+                $each_tab = explode('#*#', $tabs['milestone']);
+                $timeline = explode('#*#', $tabs['timeline']);
+                $prior_sort = 0;
+                foreach($each_tab as $i => $milestone) {
+                    $milestone_rows = $dbc->query("SELECT `sort` FROM `sales_path_custom_milestones` WHERE `salesid`='$salesid' AND `salesid` > 0 AND `milestone`='$milestone'");
+                    if($milestone_rows->num_rows > 0) {
+                        $prior_sort = $milestone_rows->fetch_assoc()['sort'];
+                    } else {
+                        $dbc->query("INSERT INTO `sales_path_custom_milestones` (`salesid`,`milestone`,`label`,`sort`) VALUES ('$salesid','$milestone','$milestone','$prior_sort')");
+                    }
+                }
+                $milestoneid = ($_GET['milestone'] > 0 ? $_GET['milestone'] : 0);
+                $milestones = $dbc->query("SELECT `id`, `milestone`, `label`, `sort`, 'sales_path_custom_milestones' `table` FROM `sales_path_custom_milestones` WHERE `deleted`=0 AND `salesid`='$salesid' AND `salesid` > 0 AND '$milestoneid' IN (`id`,0) AND `milestone` != '' UNION SELECT 0, '', '', 9999999, 'sales_path_custom_milestones' `table` ORDER BY `sort`, `id`");
+                while($milestone_row = $milestones->fetch_assoc()) {
+                    $cat_tab = $milestone_row['milestone'];
+                    $label = $milestone_row['label'] ?: 'Tasks';
+                    $task_result = mysqli_query($dbc, "SELECT * FROM tasklist WHERE IFNULL(sales_milestone,'')='$cat_tab' AND IFNULL(archived_date,'0000-00-00')='0000-00-00' AND deleted=0 AND `salesid`='$salesid' AND `salesid` > 0 ORDER BY tasklistid DESC");
+                    $task_count = mysqli_num_rows($task_result) ?: 0;
+                    $form_result = mysqli_query($dbc, "SELECT * FROM intake WHERE IFNULL(sales_milestone,'')='$cat_tab' AND deleted=0 AND ((`contactid` IN (SELECT `contactid` FROM `sales` WHERE `salesid`='$salesid' AND `salesid` > 0) AND `contactid` > 0) || (`salesid`='$salesid' AND `salesid` > 0)) ORDER BY received_date DESC");
+                    $form_count = mysqli_num_rows($form_result) ?: 0;
+                    $checklist_result = mysqli_query($dbc, "SELECT * FROM `checklist` WHERE IFNULL(sales_milestone,'')='$cat_tab' AND deleted=0 AND `salesid`='$salesid' AND `salesid` > 0");
+                    $checklist_count = mysqli_num_rows($checklist_result) ?: 0;
+                    
+                    $status = str_replace("#","FFMHASH",str_replace(" ","FFMSPACE",str_replace("&","FFMEND",$cat_tab)));
 
-						echo '<ul id="sortable'.$i.'" class="sortable_milestone connectedSortable '.($milestoneid > 0 ? 'full-width' : '').' '.$status.' '.($i > 0 ? 'hidden-xs' : '').'" style="padding-top:0;">'; ?>
+                    echo '<ul id="sortable'.$i.'" class="sortable_milestone connectedSortable '.($milestoneid > 0 ? 'full-width' : '').' '.$status.' '.($i > 0 ? 'hidden-xs' : '').'" style="padding-top:0;">'; ?>
 
 							<div class="info-block-header" data-table="sales_path_custom_milestones">
 							<h4><?= $milestoneid > 0 ? '<span>'.$label.'</span>'.$alert : '<a href="?p=salespath&id='.$_GET['id'].'&milestone='.$milestone_row['id'].'">'. $label .'</a>'. $alert ?>
@@ -722,161 +733,164 @@ function checklist_attach_file(checklist) {
 
 						echo '<li class="new_task_box no-sort"><input onChange="changeEndAme(this)" data-milestone="'.$cat_tab.'" name="add_task" placeholder="Quick Add" id="add_new_task '.$status.' '.$task_path.' '.$taskboardid.'" type="text" class="form-control" style="max-width:96%;" /></li>';
 
-						while($row = mysqli_fetch_array( $task_result )) {
-							if ( $row['status']==$status_complete ) {
-								$style_strikethrough = 'text-decoration:line-through;';
-							} else {
-								$style_strikethrough = '';
-							}
-							$border_colour = '';
-							foreach(explode(',',$row['contactid'].','.$row['alerts_enabled']) as $userid) {
-								if($userid > 0 && $border_colour == '') {
-									$border_colour = get_contact($dbc, $userid, 'calendar_color');
-								}
-							}
-								echo '<li id="'.$row['tasklistid'].'" data-id-field="tasklistid" data-table="tasklist" class="ui-state-default '.$class_on.'" style="'.($row['flag_colour'] == '' ? '' : 'background-color: '.$row['flag_colour'].';').($border_colour == '' ? '' : 'border-style:solid;border-color: '.$border_colour.';border-width:3px;').'">';
+                    while($row = mysqli_fetch_array( $task_result )) {
+                        if ( $row['status']==$status_complete ) {
+                            $style_strikethrough = 'text-decoration:line-through;';
+                        } else {
+                            $style_strikethrough = '';
+                        }
+                        $border_colour = '';
+                        foreach(explode(',',$row['contactid'].','.$row['alerts_enabled']) as $userid) {
+                            if($userid > 0 && $border_colour == '') {
+                                $border_colour = get_contact($dbc, $userid, 'calendar_color');
+                            }
+                        }
+                            echo '<li id="'.$row['tasklistid'].'" data-id-field="tasklistid" data-table="tasklist" class="ui-state-default '.$class_on.'" style="'.($row['flag_colour'] == '' ? '' : 'background-color: '.$row['flag_colour'].';').($border_colour == '' ? '' : 'border-style:solid;border-color: '.$border_colour.';border-width:3px;').'">';
 
-							$businessid = $url_tab=='Business' ? $row['businessid'] : '';
-							$clientid = $url_tab=='Client' ? $row['clientid'] : '';
-							
-							$past = 0;
+                        $businessid = $url_tab=='Business' ? $row['businessid'] : '';
+                        $clientid = $url_tab=='Client' ? $row['clientid'] : '';
+                        
+                        $past = 0;
 
-							$date = new DateTime($row['task_tododate']);
-							$now = new DateTime();
+                        $date = new DateTime($row['task_tododate']);
+                        $now = new DateTime();
 
-							if($date < $now && $row['status'] != $status_complete) {
-								$past = 1;
-							} ?>
-							<div class="row">
-								
-								<h4 style="<?= $style_strikethrough ?>"><input type="checkbox" name="status" value="<?= $row['tasklistid'] ?>" class="form-checkbox no-margin" onchange="mark_done(this);" <?= ( $row['status'] == $status_complete ) ? 'checked' : '' ?> />
-                                    <img class="drag_handle pull-right inline-img" src="../img/icons/drag_handle.png" />
-									<a href="" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Tasks/add_task.php?type=<?=$row['status']?>&tasklistid=<?=$row['tasklistid']?>', '50%', false, false, $('.iframe_overlay').closest('.container').outerHeight() + 20); return false;">Task #<?= $row['tasklistid'] ?></a>: <?= ($url_tab=='Business') ? get_contact($dbc, $businessid, 'name') . ': ' : '' ?><?= ($url_tab=='Client') ? get_contact($dbc, $clientid) . ': ' : '' ?><?=limit_text($row['heading'], 5 )?>
-							<?php
-							echo '<span class="pull-right small">';
-							if ( $row['company_staff_sharing'] ) {
-								foreach ( array_filter(explode(',', $row['company_staff_sharing'])) as $staffid ) {
-									profile_id($dbc, $staffid);
-								}
-							} else {
-								profile_id($dbc, $row['contactid']);
-							}
-							echo '</span></h4></span></div>';
-							
-							echo '<div class="clearfix"></div>';
-							$documents = mysqli_query($dbc, "SELECT `created_by`, `created_date`, `document` FROM `task_document` WHERE `tasklistid`='{$row['tasklistid']}' ORDER BY `taskdocid` DESC");
-							if ( $documents->num_rows > 0 ) { ?>
-								<div class="form-group clearfix">
-									<div class="updates_<?= $row['tasklistid'] ?> col-sm-12"><?php
-										while ( $row_doc=mysqli_fetch_assoc($documents) ) { ?>
-											<div class="note_block row">
-												<div class="col-xs-1"><?= profile_id($dbc, $row_doc['created_by']); ?></div>
-												<div class="col-xs-11" style="<?= $style_strikethrough ?>">
-													<div><a href="../Tasks/download/<?= $row_doc['document'] ?>"><?= $row_doc['document'] ?></a></div>
-													<div><em>Added by <?= get_contact($dbc, $row_doc['created_by']); ?> on <?= $row_doc['created_date']; ?></em></div>
-												</div>
-												<div class="clearfix"></div>
-											</div>
-											<hr class="margin-vertical" /><?php
-										} ?>
-									</div>
-									<div class="clearfix"></div>
-								</div><?php
-							}
-							$comments = mysqli_query($dbc, "SELECT `created_by`, `created_date`, `comment` FROM `task_comments` WHERE `tasklistid`='{$row['tasklistid']}' AND `deleted`=0 ORDER BY `taskcommid` DESC");
-							if ( $comments->num_rows > 0 ) {
-                                $odd_even = 0; ?>
-								<div class="form-group clearfix">
-									<div class="updates_<?= $row['tasklistid'] ?> col-sm-12"><?php
-										while ( $row_comment=mysqli_fetch_assoc($comments) ) {
-                                            $bg_class = $odd_even % 2 == 0 ? 'row-even-bg' : 'row-odd-bg'; ?>
-											<div class="note_block row <?= $bg_class ?>">
-												<div class="col-xs-1"><?= profile_id($dbc, $row_comment['created_by']); ?></div>
-												<div class="col-xs-11" style="<?= $style_strikethrough ?>">
-													<div><?= html_entity_decode($row_comment['comment']); ?></div>
-													<div><em>Added by <?= get_contact($dbc, $row_comment['created_by']); ?> on <?= $row_comment['created_date']; ?></em></div>
-												</div>
-												<div class="clearfix"></div>
-											</div><?php
-                                            $odd_even++;
-										} ?>
-									</div>
-									<div class="clearfix"></div>
-								</div><?php
-							}
+                        if($date < $now && $row['status'] != $status_complete) {
+                            $past = 1;
+                        } ?>
+                        <div class="row">
+                            
+                            <h4 style="<?= $style_strikethrough ?>"><input type="checkbox" name="status" value="<?= $row['tasklistid'] ?>" class="form-checkbox no-margin" onchange="mark_done(this);" <?= ( $row['status'] == $status_complete ) ? 'checked' : '' ?> />
+                                <a href="" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Tasks/add_task.php?type=<?=$row['status']?>&tasklistid=<?=$row['tasklistid']?>', '50%', false, false, $('.iframe_overlay').closest('.container').outerHeight() + 20); return false;">Task #<?= $row['tasklistid'] ?></a>: <?= ($url_tab=='Business') ? get_contact($dbc, $businessid, 'name') . ': ' : '' ?><?= ($url_tab=='Client') ? get_contact($dbc, $clientid) . ': ' : '' ?><?=limit_text($row['heading'], 5 )?>
+                        <?php
+                        echo '<span class="pull-right small">';
+                        if ( $row['company_staff_sharing'] ) {
+                            foreach ( array_filter(explode(',', $row['company_staff_sharing'])) as $staffid ) {
+                                profile_id($dbc, $staffid);
+                            }
+                        } else {
+                            profile_id($dbc, $row['contactid']);
+                        }
+                        echo '</span></h4></span></div>';
+                        
+                        echo '<div class="clearfix"></div>';
+                        $documents = mysqli_query($dbc, "SELECT `created_by`, `created_date`, `document` FROM `task_document` WHERE `tasklistid`='{$row['tasklistid']}' ORDER BY `taskdocid` DESC");
+                        if ( $documents->num_rows > 0 ) { ?>
+                            <div class="form-group clearfix">
+                                <div class="updates_<?= $row['tasklistid'] ?> col-sm-12"><?php
+                                    while ( $row_doc=mysqli_fetch_assoc($documents) ) { ?>
+                                        <div class="note_block row">
+                                            <div class="col-xs-1"><?= profile_id($dbc, $row_doc['created_by']); ?></div>
+                                            <div class="col-xs-11" style="<?= $style_strikethrough ?>">
+                                                <div><a href="../Tasks/download/<?= $row_doc['document'] ?>"><?= $row_doc['document'] ?></a></div>
+                                                <div><em>Added by <?= get_contact($dbc, $row_doc['created_by']); ?> on <?= $row_doc['created_date']; ?></em></div>
+                                            </div>
+                                            <div class="clearfix"></div>
+                                        </div>
+                                        <hr class="margin-vertical" /><?php
+                                    } ?>
+                                </div>
+                                <div class="clearfix"></div>
+                            </div><?php
+                        }
+                        $comments = mysqli_query($dbc, "SELECT `created_by`, `created_date`, `comment` FROM `task_comments` WHERE `tasklistid`='{$row['tasklistid']}' AND `deleted`=0 ORDER BY `taskcommid` DESC");
+                        if ( $comments->num_rows > 0 ) {
+                            $odd_even = 0; ?>
+                            <div class="form-group clearfix">
+                                <div class="updates_<?= $row['tasklistid'] ?> col-sm-12"><?php
+                                    while ( $row_comment=mysqli_fetch_assoc($comments) ) {
+                  $bg_class = $odd_even % 2 == 0 ? 'row-even-bg' : 'row-odd-bg'; ?>
+                                        <div class="note_block row <?= $bg_class ?>">
+                                            <div class="col-xs-1"><?= profile_id($dbc, $row_comment['created_by']); ?></div>
+                                            <div class="col-xs-11" style="<?= $style_strikethrough ?>">
+                                                <div><?= html_entity_decode($row_comment['comment']); ?></div>
+                                                <div><em>Added by <?= get_contact($dbc, $row_comment['created_by']); ?> on <?= $row_comment['created_date']; ?></em></div>
+                                            </div>
+                                            <div class="clearfix"></div>
+                                        </div><?php
+                                        $odd_even++;
+                                    } ?>
+                                </div>
+                                <div class="clearfix"></div>
+                            </div><?php
+                        }
+
+                        echo '<span class="pull-right action-icons" style="width: 100%;" data-task="'.$row['tasklistid'].'">';
+                            $mobile_url_tab = trim($_GET['tab']);
+                            if (in_array('edit', $quick_actions)) { ?>
+                                <span title="Edit Task" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Tasks/add_task.php?type=<?=$row['status']?>&tasklistid=<?=$row['tasklistid']?>', '50%', false, false, $('.iframe_overlay').closest('.container').outerHeight() + 20); return false;"><img src="<?=WEBSITE_URL?>/img/icons/ROOK-edit-icon.png" class="inline-img" onclick="return false;"></span><?php
+                            }
+                            echo in_array('flag_manual', $quick_actions) ? '<span title="Flag This!" onclick="task_manual_flag_item(this); return false;"><img src="../img/icons/ROOK-flag-icon.png" class="inline-img" onclick="return false;"></span>' : '';
+                            echo !in_array('flag_manual', $quick_actions) && in_array('flag', $quick_actions) ? '<span title="Flag This!" onclick="task_flag_item(this); return false;"><img src="../img/icons/ROOK-flag-icon.png" class="inline-img" onclick="return false;"></span>' : '';
+                            echo $row['projectid'] > 0 && in_array('sync', $quick_actions) ? '<span title="Sync to External Path" onclick="task_sync_task(this); return false;"><img src="../img/icons/ROOK-sync-icon.png" class="inline-img" onclick="return false;"></span>' : '';
+                            echo in_array('alert', $quick_actions) ? '<span title="Send Alert" onclick="task_send_alert(this); return false;"><img src="../img/icons/ROOK-alert-icon.png" class="inline-img" onclick="return false;"></span>' : '';
+                            echo in_array('email', $quick_actions) ? '<span title="Send Email" onclick="task_send_email(this); return false;"><img src="../img/icons/ROOK-email-icon.png" class="inline-img" onclick="return false;"></span>' : '';
+                            echo in_array('reminder', $quick_actions) ? '<span title="Schedule Reminder" onclick="task_send_reminder(this); return false;"><img src="../img/icons/ROOK-reminder-icon.png" class="inline-img" onclick="return false;"></span>' : '';
+                            echo in_array('attach', $quick_actions) ? '<span title="Attach File(s)" onclick="task_attach_file(this); return false;"><img src="../img/icons/ROOK-attachment-icon.png" class="inline-img" onclick="return false;"></span>' : '';
+                            echo in_array('reply', $quick_actions) ? '<span title="Comment" onclick="task_send_reply(this); return false;"><img src="../img/icons/ROOK-reply-icon.png" class="inline-img" onclick="return false;"></span>' : '';
+                            echo in_array('time', $quick_actions) ? '<span title="Add Time" onclick="task_quick_add_time(this); return false;"><img src="../img/icons/ROOK-timer-icon.png" class="inline-img" onclick="return false;"></span>' : '';
+                            echo in_array('time', $quick_actions) ? '<span title="Track Time" onclick="task_track_time(this); return false;"><img src="../img/icons/ROOK-timer-icon.png" class="inline-img" onclick="return false;"></span>' : '';
+                            echo in_array('archive', $quick_actions) ? '<span title="Archive Task" onclick="task_archive(this); return false;"><img src="../img/icons/ROOK-trash-icon.png" class="inline-img" onclick="return false;"></span>' : '';
+                            echo '<img class="drag_handle pull-right inline-img" src="../img/icons/drag_handle.png" />';
+                        echo '</span>';
+                        if(in_array('flag_manual',$quick_actions)) { ?>
+                            <span class="col-sm-3 text-center flag_field_labels" style="display:none;">Label</span><span class="col-sm-3 text-center flag_field_labels" style="display:none;">Colour</span><span class="col-sm-3 text-center flag_field_labels" style="display:none;">Start Date</span><span class="col-sm-3 text-center flag_field_labels" style="display:none;">End Date</span>
+                            <div class="col-sm-3"><input type='text' name='label' value='<?= $row['flag_label'] ?>' class="form-control" style="display:none;"></div>
+                            <div class="col-sm-3"><select name='colour' class="form-control" style="display:none;background-color:#<?= $row['flag_colour'] ?>;font-weight:bold;" onchange="$(this).css('background-color','#'+$(this).find('option:selected').val());">
+                                    <option value="FFFFFF" style="background-color:#FFFFFF;">No Flag</option>
+                                    <?php foreach($task_colours as $flag_colour) { ?>
+                                        <option <?= $row['flag_colour'] == $flag_colour ? 'selected' : '' ?> value="<?= $flag_colour ?>" style="background-color:#<?= $flag_colour ?>;"></option>
+                                    <?php } ?>
+                                </select></div>
+                            <div class="col-sm-3"><input type='text' name='flag_start' value='<?= $row['flag_start'] ?>' class="form-control datepicker" style="display:none;"></div>
+                            <div class="col-sm-3"><input type='text' name='flag_end' value='<?= $row['flag_end'] ?>' class="form-control datepicker" style="display:none;"></div>
+                            <button class="btn brand-btn pull-right" name="flag_it" onclick="return false;" style="display:none;">Flag This</button>
+                            <button class="btn brand-btn pull-right" name="flag_cancel" onclick="return false;" style="display:none;">Cancel</button>
+                            <button class="btn brand-btn pull-right" name="flag_off" onclick="return false;" style="display:none;">Remove Flag</button>
+                        <?php }
+                        echo '<input type="text" name="reply_'.$row['tasklistid'].'" style="display:none; margin-top: 2em;" class="form-control" />';
+                        echo '<input type="text" name="task_time_'.$row['tasklistid'].'" style="display:none; margin-top: 2em;" class="form-control timepicker" />'; ?>
+                        <div class="timer_block_<?= $row['tasklistid'] ?>" style="display:none; margin-top:2.2em;">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Timer:</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="timer_<?= $row['tasklistid'] ?>" id="timer_value" style="float:left;" class="form-control timer" placeholder="0 sec" />&nbsp;&nbsp;
+                                    <a class="btn btn-success start-timer-btn brand-btn mobile-block">Start</a>
+                                    <a class="btn stop-timer-btn hidden brand-btn mobile-block" data-id="<?= $row['tasklistid'] ?>">Stop</a>
+                                </div>
+                            </div>
+                        </div><?php
+                        echo '<input type="text" name="reminder_'.$row['tasklistid'].'" style="display:none; margin-top: 2em;" class="form-control datepicker" />';
+                        echo '<input type="file" name="attach_'.$row['tasklistid'].'" style="display:none;" class="form-control" />';
+                        echo '<div style="display:none;" class="assign_milestone"><select class="chosen-select-deselect" data-id="'.$row['tasklistid'].'"><option value="unassign">Unassigned</option>';
+                        foreach(array_unique(array_filter(explode('#*#',mysqli_fetch_assoc(mysqli_query($dbc, "SELECT GROUP_CONCAT(`project_path_milestone`.`milestone` SEPARATOR '#*#') `milestones` FROM `project` LEFT JOIN `project_path_milestone` ON CONCAT(',',`project`.`external_path`,',') LIKE CONCAT('%,',`project_path_milestone`.`project_path_milestone`,',%') WHERE `projectid`='".$row['projectid']."'"))['milestones']))) as $external_milestone) { ?>
+                                <option <?= $external_milestone == $row['external'] ? 'selected' : '' ?> value="<?= $external_milestone ?>"><?= $external_milestone ?></option>
+                        <?php }
+                        echo '</select></div><div class="clearfix"></div>';
                             
 
-							echo '<span class="pull-right action-icons" style="width: 100%;" data-task="'.$row['tasklistid'].'">';
-								$mobile_url_tab = trim($_GET['tab']);
-								echo in_array('flag_manual', $quick_actions) ? '<span title="Flag This!" onclick="task_manual_flag_item(this); return false;"><img src="../img/icons/ROOK-flag-icon.png" class="inline-img" onclick="return false;"></span>' : '';
-								echo !in_array('flag_manual', $quick_actions) && in_array('flag', $quick_actions) ? '<span title="Flag This!" onclick="task_flag_item(this); return false;"><img src="../img/icons/ROOK-flag-icon.png" class="inline-img" onclick="return false;"></span>' : '';
-								echo $row['projectid'] > 0 && in_array('sync', $quick_actions) ? '<span title="Sync to External Path" onclick="task_sync_task(this); return false;"><img src="../img/icons/ROOK-sync-icon.png" class="inline-img" onclick="return false;"></span>' : '';
-								echo in_array('alert', $quick_actions) ? '<span title="Send Alert" onclick="task_send_alert(this); return false;"><img src="../img/icons/ROOK-alert-icon.png" class="inline-img" onclick="return false;"></span>' : '';
-								echo in_array('email', $quick_actions) ? '<span title="Send Email" onclick="task_send_email(this); return false;"><img src="../img/icons/ROOK-email-icon.png" class="inline-img" onclick="return false;"></span>' : '';
-								echo in_array('reminder', $quick_actions) ? '<span title="Schedule Reminder" onclick="task_send_reminder(this); return false;"><img src="../img/icons/ROOK-reminder-icon.png" class="inline-img" onclick="return false;"></span>' : '';
-								echo in_array('attach', $quick_actions) ? '<span title="Attach File(s)" onclick="task_attach_file(this); return false;"><img src="../img/icons/ROOK-attachment-icon.png" class="inline-img" onclick="return false;"></span>' : '';
-								echo in_array('reply', $quick_actions) ? '<span title="Comment" onclick="task_send_reply(this); return false;"><img src="../img/icons/ROOK-reply-icon.png" class="inline-img" onclick="return false;"></span>' : '';
-								echo in_array('time', $quick_actions) ? '<span title="Add Time" onclick="task_quick_add_time(this); return false;"><img src="../img/icons/ROOK-timer-icon.png" class="inline-img" onclick="return false;"></span>' : '';
-								echo in_array('time', $quick_actions) ? '<span title="Track Time" onclick="task_track_time(this); return false;"><img src="../img/icons/ROOK-timer-icon.png" class="inline-img" onclick="return false;"></span>' : '';
-								echo in_array('archive', $quick_actions) ? '<span title="Archive Task" onclick="task_archive(this); return false;"><img src="../img/icons/ROOK-trash-icon.png" class="inline-img" onclick="return false;"></span>' : '';
-							echo '</span>';
-							if(in_array('flag_manual',$quick_actions)) { ?>
-								<span class="col-sm-3 text-center flag_field_labels" style="display:none;">Label</span><span class="col-sm-3 text-center flag_field_labels" style="display:none;">Colour</span><span class="col-sm-3 text-center flag_field_labels" style="display:none;">Start Date</span><span class="col-sm-3 text-center flag_field_labels" style="display:none;">End Date</span>
-								<div class="col-sm-3"><input type='text' name='label' value='<?= $row['flag_label'] ?>' class="form-control" style="display:none;"></div>
-								<div class="col-sm-3"><select name='colour' class="form-control" style="display:none;background-color:#<?= $row['flag_colour'] ?>;font-weight:bold;" onchange="$(this).css('background-color','#'+$(this).find('option:selected').val());">
-										<option value="FFFFFF" style="background-color:#FFFFFF;">No Flag</option>
-										<?php foreach($task_colours as $flag_colour) { ?>
-											<option <?= $row['flag_colour'] == $flag_colour ? 'selected' : '' ?> value="<?= $flag_colour ?>" style="background-color:#<?= $flag_colour ?>;"></option>
-										<?php } ?>
-									</select></div>
-								<div class="col-sm-3"><input type='text' name='flag_start' value='<?= $row['flag_start'] ?>' class="form-control datepicker" style="display:none;"></div>
-								<div class="col-sm-3"><input type='text' name='flag_end' value='<?= $row['flag_end'] ?>' class="form-control datepicker" style="display:none;"></div>
-								<button class="btn brand-btn pull-right" name="flag_it" onclick="return false;" style="display:none;">Flag This</button>
-								<button class="btn brand-btn pull-right" name="flag_cancel" onclick="return false;" style="display:none;">Cancel</button>
-								<button class="btn brand-btn pull-right" name="flag_off" onclick="return false;" style="display:none;">Remove Flag</button>
-							<?php }
-							echo '<input type="text" name="reply_'.$row['tasklistid'].'" style="display:none; margin-top: 2em;" class="form-control" />';
-							echo '<input type="text" name="task_time_'.$row['tasklistid'].'" style="display:none; margin-top: 2em;" class="form-control timepicker" />'; ?>
-							<div class="timer_block_<?= $row['tasklistid'] ?>" style="display:none; margin-top:2.2em;">
-								<div class="form-group">
-									<label class="col-sm-4 control-label">Timer:</label>
-									<div class="col-sm-8">
-										<input type="text" name="timer_<?= $row['tasklistid'] ?>" id="timer_value" style="float:left;" class="form-control timer" placeholder="0 sec" />&nbsp;&nbsp;
-										<a class="btn btn-success start-timer-btn brand-btn mobile-block">Start</a>
-										<a class="btn stop-timer-btn hidden brand-btn mobile-block" data-id="<?= $row['tasklistid'] ?>">Stop</a>
-									</div>
-								</div>
-							</div><?php
-							echo '<input type="text" name="reminder_'.$row['tasklistid'].'" style="display:none; margin-top: 2em;" class="form-control datepicker" />';
-							echo '<input type="file" name="attach_'.$row['tasklistid'].'" style="display:none;" class="form-control" />';
-							echo '<div style="display:none;" class="assign_milestone"><select class="chosen-select-deselect" data-id="'.$row['tasklistid'].'"><option value="unassign">Unassigned</option>';
-							foreach(array_unique(array_filter(explode('#*#',mysqli_fetch_assoc(mysqli_query($dbc, "SELECT GROUP_CONCAT(`project_path_milestone`.`milestone` SEPARATOR '#*#') `milestones` FROM `project` LEFT JOIN `project_path_milestone` ON CONCAT(',',`project`.`external_path`,',') LIKE CONCAT('%,',`project_path_milestone`.`project_path_milestone`,',%') WHERE `projectid`='".$row['projectid']."'"))['milestones']))) as $external_milestone) { ?>
-									<option <?= $external_milestone == $row['external'] ? 'selected' : '' ?> value="<?= $external_milestone ?>"><?= $external_milestone ?></option>
-							<?php }
-							echo '</select></div><div class="clearfix"></div>';
+                        echo '</li>';
+                    }
+                    while($row = mysqli_fetch_array( $ticket_result )) {
+                        $border_colour = '';
+                        foreach(explode(',',$row['contactid'].','.$row['alerts_enabled']) as $userid) {
+                            if($userid > 0 && $border_colour == '') {
+                                $border_colour = get_contact($dbc, $userid, 'calendar_color');
+                            }
+                        }
+                            echo '<li id="'.$row['ticketid'].' data-id-field="ticketid" data-table="tickets" class="ui-state-default '.$class_on.'" style="'.($row['flag_colour'] == '' ? '' : 'background-color: '.$row['flag_colour'].';').($border_colour == '' ? '' : 'border-style:solid;border-color: '.$border_colour.';border-width:3px;').'">';
 
-							echo '</li>';
-						}
-						while($row = mysqli_fetch_array( $ticket_result )) {
-							$border_colour = '';
-							foreach(explode(',',$row['contactid'].','.$row['alerts_enabled']) as $userid) {
-								if($userid > 0 && $border_colour == '') {
-									$border_colour = get_contact($dbc, $userid, 'calendar_color');
-								}
-							}
-								echo '<li id="'.$row['ticketid'].' data-id-field="ticketid" data-table="tickets" class="ui-state-default '.$class_on.'" style="'.($row['flag_colour'] == '' ? '' : 'background-color: '.$row['flag_colour'].';').($border_colour == '' ? '' : 'border-style:solid;border-color: '.$border_colour.';border-width:3px;').'">';
+                        $businessid = $url_tab=='Business' ? $row['businessid'] : '';
+                        $clientid = $url_tab=='Client' ? $row['clientid'] : '';
+                        
+                        $past = 0;
 
-							$businessid = $url_tab=='Business' ? $row['businessid'] : '';
-							$clientid = $url_tab=='Client' ? $row['clientid'] : '';
-							
-							$past = 0;
+                        $date = new DateTime($row['to_do_date']);
+                        $now = new DateTime();
 
-							$date = new DateTime($row['to_do_date']);
-							$now = new DateTime();
-
-							if($date < $now && $row['status'] != $status_complete) {
-								$past = 1;
-							}
+                        if($date < $now && $row['status'] != $status_complete) {
+                            $past = 1;
+                        }
 
 							echo '<span class="pull-right action-icons" style="width: 100%;" data-ticket="'.$row['ticketid'].'">';
 								$mobile_url_tab = trim($_GET['tab']);
@@ -924,17 +938,17 @@ function checklist_attach_file(checklist) {
 										echo '<div class="clearfix"></div>';
 									}
 
-									echo '<div class="form-group">
-										<label class="col-sm-4">PDF:</label>
-										<div class="col-sm-8"><a href="'.WEBSITE_URL.'/Intake/'.$row['intake_file'].'" target="_blank">View PDF <img class="inline-img" src="../img/pdf.png"></a></div>
-									</div>';
-									echo '<div class="clearfix"></div>';
+                                echo '<div class="form-group">
+                                    <label class="col-sm-4">PDF:</label>
+                                    <div class="col-sm-8"><a href="'.WEBSITE_URL.'/Intake/'.$row['intake_file'].'" target="_blank">View PDF <img class="inline-img" src="../img/pdf.png"></a></div>
+                                </div>';
+                                echo '<div class="clearfix"></div>';
 
-									echo '<div class="form-group">
-										<label class="col-sm-4">Last Updated Date:</label>
-										<div class="col-sm-8">'.$row['received_date'].'</div>
-									</div>';
-									echo '<div class="clearfix"></div>'; ?>
+                                echo '<div class="form-group">
+                                    <label class="col-sm-4">Last Updated Date:</label>
+                                    <div class="col-sm-8">'.$row['received_date'].'</div>
+                                </div>';
+                                echo '<div class="clearfix"></div>'; ?>
 
 									<div style="display:none;" class="assign_milestone"><select class="chosen-select-deselect"><option value="unassign">Unassigned</option>
 										<?php foreach($external_path as $external_milestone) { ?>
@@ -1010,52 +1024,51 @@ function checklist_attach_file(checklist) {
 								<?php }
 								echo '<div class="clearfix"></div>'; ?>
 
-								<div style="display:none;" class="assign_milestone"><select class="chosen-select-deselect"><option value="unassign">Unassigned</option>
-									<?php foreach($external_path as $external_milestone) { ?>
-										<option <?= $external_milestone == $item_external ? 'selected' : '' ?> value="<?= $external_milestone ?>"><?= $external_milestone ?></option>
-									<?php } ?></select></div>
-								<div class="select_users" style="display:none;">
-									<select data-placeholder="Select Staff" multiple class="chosen-select-deselect"><option></option>
-									<?php foreach($staff_list as $staff) { ?>
-										<option value="<?= $staff['contactid'] ?>"><?= $staff['first_name'].' '.$staff['last_name'] ?></option>
-									<?php } ?>
-									</select>
-									<button class="submit_button btn brand-btn pull-right">Submit</button>
-									<button class="cancel_button btn brand-btn pull-right">Cancel</button>
-								</div><?php
-								echo '<div class="row"><h4><a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Checklist/checklist.php?view='.$row['checklistid'].'&iframe_slider=1\'); return false;">'.$row['checklist_name'].'</a></h4></div><div class="clearfix"></div>';
-								echo '<input type="text" name="reminder" value="" class="form-control datepicker" style="border:0;height:0;margin:0;padding:0;width:0;float:right;">';
+                            <div style="display:none;" class="assign_milestone"><select class="chosen-select-deselect"><option value="unassign">Unassigned</option>
+                                <?php foreach($external_path as $external_milestone) { ?>
+                                    <option <?= $external_milestone == $item_external ? 'selected' : '' ?> value="<?= $external_milestone ?>"><?= $external_milestone ?></option>
+                                <?php } ?></select></div>
+                            <div class="select_users" style="display:none;">
+                                <select data-placeholder="Select Staff" multiple class="chosen-select-deselect"><option></option>
+                                <?php foreach($staff_list as $staff) { ?>
+                                    <option value="<?= $staff['contactid'] ?>"><?= $staff['first_name'].' '.$staff['last_name'] ?></option>
+                                <?php } ?>
+                                </select>
+                                <button class="submit_button btn brand-btn pull-right">Submit</button>
+                                <button class="cancel_button btn brand-btn pull-right">Cancel</button>
+                            </div><?php
+                            echo '<div class="row"><h4><a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Checklist/checklist.php?view='.$row['checklistid'].'&iframe_slider=1\'); return false;">'.$row['checklist_name'].'</a></h4></div><div class="clearfix"></div>';
+                            echo '<input type="text" name="reminder" value="" class="form-control datepicker" style="border:0;height:0;margin:0;padding:0;width:0;float:right;">';
 
-								$checklistid = $row['checklistid'];
-								$_GET['view'] = $checklistid;
-								$_GET['override_block'] = 'true';
-								$_GET['hide_header'] = 'true';
-								$_GET['different_function_name'] = 'true';
-						        echo '<div class="checklist_screen" data-querystring="view='.$checklistid.'&override_block=true&hide_header=true&different_function_name=true">';
-								include('../Checklist/view_checklist.php');
-								echo '</div>';
+                            $checklistid = $row['checklistid'];
+                            $_GET['view'] = $checklistid;
+                            $_GET['override_block'] = 'true';
+                            $_GET['hide_header'] = 'true';
+                            $_GET['different_function_name'] = 'true';
+                            echo '<div class="checklist_screen" data-querystring="view='.$checklistid.'&override_block=true&hide_header=true&different_function_name=true">';
+                            include('../Checklist/view_checklist.php');
+                            echo '</div>';
 
-								echo '<div class="clearfix"></div>';
-							echo '</li>';
-							}
-						} ?>
-						
-							<li class="no-sort">
-								<?php if($show_checklists && strpos($value_config, ',Sales Lead Path Checklists,') !== FALSE) { ?>
-									<a href="" onclick="overlayIFrameSlider('<?= WEBSITE_URL ?>/Checklist/edit_checklist.php?edit=NEW&salesid=<?= $_GET['id'] ?>&sales_milestone=<?= $status ?>'); return false;" data-milestone="<?= $milestone_row['milestone'] ?>" class="btn brand-btn pull-right">Add Checklist</a>
-								<?php } ?>
-								<?php if($show_forms && strpos($value_config, ',Sales Lead Path Intake,') !== FALSE) { ?>
-									<a href="" onclick="addIntakeForm(this); return false;" data-milestone="<?= $milestone_row['milestone'] ?>" class="btn brand-btn pull-right">Add Intake</a>
-								<?php } ?>
-								<a href="" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Tasks/add_task.php?tab=sales&sales_milestone_timeline=<?=$status?>&task_path=<?=$task_path?>&salesid=<?=$_GET['id']?>', '50%', false, false, $('.iframe_overlay').closest('.container').outerHeight() + 20); return false;" class="btn brand-btn pull-right">Add Task</a></li><?php
+                            echo '<div class="clearfix"></div>';
+                        echo '</li>';
+                        }
+                    } ?>
+                    
+                        <li class="no-sort">
+                            <?php if($show_checklists && strpos($value_config, ',Sales Lead Path Checklists,') !== FALSE) { ?>
+                                <a href="" onclick="overlayIFrameSlider('<?= WEBSITE_URL ?>/Checklist/edit_checklist.php?edit=NEW&salesid=<?= $_GET['id'] ?>&sales_milestone=<?= $status ?>'); return false;" data-milestone="<?= $milestone_row['milestone'] ?>" class="btn brand-btn pull-right">Add Checklist</a>
+                            <?php } ?>
+                            <?php if($show_forms && strpos($value_config, ',Sales Lead Path Intake,') !== FALSE) { ?>
+                                <a href="" onclick="addIntakeForm(this); return false;" data-milestone="<?= $milestone_row['milestone'] ?>" class="btn brand-btn pull-right">Add Intake</a>
+                            <?php } ?>
+                            <a href="" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Tasks/add_task.php?tab=sales&sales_milestone_timeline=<?=$status?>&task_path=<?=$task_path?>&salesid=<?=$_GET['id']?>', '50%', false, false, $('.iframe_overlay').closest('.container').outerHeight() + 20); return false;" class="btn brand-btn pull-right">Add Task</a></li><?php
 
-						echo '</ul>';
-						$i++;
-					} ?>
-				</div>
-            <?php if($_GET['p'] == 'salespath') { ?>
-			</div>
-		</div>
-        <?php } ?>
-	</div>
+                    echo '</ul>';
+                    $i++;
+                } ?>
+            </div>
+        <?php if($_GET['p'] == 'salespath') { ?>
+        </div>
+    </div>
 </div>
+<?php } ?>
