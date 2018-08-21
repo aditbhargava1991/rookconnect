@@ -144,7 +144,7 @@ function rem_doc(img) {
     line.find('[data-table][name="deleted"]').val(1).change();
 }
 function add_note() {
-    overlayIFrameSlider('../sales/add_sales_comment.php?salesid='+$('[name=salesid]').val(),'auto',true,true);
+    overlayIFrameSlider('../Sales/add_sales_comment.php?salesid='+$('[name=salesid]').val(),'auto',true,true);
 }
 
 // Open the profile for the nearest contact
