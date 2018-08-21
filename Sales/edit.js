@@ -41,6 +41,21 @@ function saveFieldMethod(field) {
         }
     } else {
         var save_value = field.value;
+        if($(field).data('table') == 'sales' && field.name == 'businessid' && save_value == 'New Business') {
+            $.post('sales_ajax_all.php?action=new_business', { }, function(response) {
+                $('[name=businessid][data-table=sales]').append('<option selected value="'+response+'">New Business</option>').val(response).change();
+            });
+            doneSaving();
+            return;
+        } else if($(field).data('table') == 'sales' && field.name == 'contactid' && save_value == 'New Contact') {
+            $.post('sales_ajax_all.php?action=new_lead', {
+                    businessid: $('[name=businessid][data-table=sales]').val()
+                }, function(response) {
+                $(field).append('<option selected value="'+response+'">New Sales Lead Contact</option>').val(response).change();
+            });
+            doneSaving();
+            return;
+        }
         if($(field).data('concat') != undefined) {
             var save_value = [];
             $('[data-table][name="'+field.name+'"]').each(function() {
@@ -81,6 +96,11 @@ function saveFieldMethod(field) {
                 } else if(response > 0) {
                     $('[data-table="'+$(field).data('table')+'"]').data('id',response);
                 }
+                if($(field).data('table') == 'sales' && field_name == 'businessid') {
+                    reload_business();
+                } else if ($(field).data('table') == 'sales' && field_name == 'contactid') {
+                    reload_contacts();
+                }
                 doneSaving();
             }
         });
@@ -92,7 +112,13 @@ function add_row(img) {
     var line = $(img).closest('.row');
     var clone = line.clone();
     clone.find('input,select').val('').find('option').show();
+    clone.find('.sub_details').remove();
     line.after(clone);
+    if(clone.offset().top < $('.standard-body-title').offset().top + $('.standard-body-title').outerHeight() || clone.offset().top > window.innerHeight - 200) {
+        try {
+            $('.standard-body-content').scrollTop($('.standard-body-content').scrollTop() + clone.offset().top - $('.standard-body-title').offset().top - $('.standard-body-title').outerHeight());
+        } catch(err) { }
+    }
     init_page();
 }
 function rem_row(img) {

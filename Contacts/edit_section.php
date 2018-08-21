@@ -97,7 +97,9 @@ function viewOnlyFields(div) {
 }
 </script>
 <form class="form-horizontal <?= in_array($tab_data[0], $subtabs_viewonly) || $_GET['read'] == 'only' ? 'viewonly_fields' : '' ?>">
-	<h4><?= ($tab_label=='Payment Information') ? 'Payment &amp; Billing Information' : $tab_label; ?></h4>
+    <?php if(!$hide_section_heading) { ?>
+        <h4><?= ($tab_label=='Payment Information') ? 'Payment &amp; Billing Information' : $tab_label; ?></h4>
+    <?php } ?>
 	<?php if ($tab_data[0] == 'emergency_contacts' && in_array('Emergency Contact Multiple',$field_config)) {
 		$multiple = count(explode('*#*', $contact['emergency_first_name']));
 		$div = '<div class="emergency_contact_multiple">';

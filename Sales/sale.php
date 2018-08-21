@@ -73,9 +73,9 @@ $(document).ready(function() {
     
     <?php foreach(explode(',',$lead['contactid']) as $contactid) {
         if($contactid > 0) { ?>
-            $('#nav_leadinfo').click(function() {<?php
+            $('#nav_contact_<?= $contactid ?>').click(function() {<?php
                 if ( isset($_GET['p']) && $_GET['p']!='details' ) {
-                    echo 'window.location.replace("?p=details&id='.$_GET['id'].'&a=leadinfo");';
+                    echo 'window.location.replace("?p=details&id='.$_GET['id'].'&a=contact_'.$contactid.'");';
                 } ?>
                 $('[id^=nav_]').removeClass('active');
                 $(this).addClass('active');
@@ -271,10 +271,8 @@ $(document).ready(function() {
                                 if($contactid > 0) { ?>
                                     <a href="#contact_<?= $contactid ?>"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_contact_<?= $contactid ?>" id="nav_contact_<?= $contactid ?>"><?= get_contact($dbc, $contactid) ?></li></a>
                                 <?php }
-                            }
-                            if($lead['businessid'] > 0) { ?>
-                                <a href="#business"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_business" id="nav_business"><?= get_contact($dbc, $lead['businessid'], 'name_company') ?></li></a>
-                            <?php }
+                            } ?>
+                            <a href="#business"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_business" id="nav_business"><?= get_contact($dbc, $lead['businessid'], 'name_company') ?></li></a><?php
                         }
                         if (strpos($value_config, ',Service,') !== false) { ?>
                             <a href="#services"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_services" id="nav_services">Services</li></a><?php
