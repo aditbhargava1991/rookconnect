@@ -1,4 +1,5 @@
 <?php /* Field Configuration for Expenses */
+/*Comment Section*/
 
 if (isset($_POST['submit'])) {
     $expense = implode(',',$_POST['expense']);
