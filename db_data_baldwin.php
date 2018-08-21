@@ -474,5 +474,56 @@
     }
     //2018-08-09 - Ticket #8583 - Payroll: By Staff
 
+    //2018-08-20 - Ticket #8609 - Calendar Security
+    if(!mysqli_query($dbc, "CREATE TABLE `field_config_calendar_security` (
+        `fieldconfigid` int(11) NOT NULL,
+        `role` varchar(500) NOT NULL,
+        `allowed_roles` text NOT NULL,
+        `allowed_ticket_types` text NOT NULL)")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `holiday_update_reminders`
+        ADD PRIMARY KEY (`reminderid`)")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `holiday_update_reminders`
+        MODIFY `reminderid` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-08-20 - Ticket #8609 - Calendar Security
+
+    //2018-08-16 - Ticket #8623 - Shifts
+    if(!mysqli_query($dbc, "ALTER TABLE `contacts_shifts` ADD `security_level` varchar(500) AFTER `contactid`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-08-16 - Ticket #8623 - Shifts
+
+    //2018-08-15 - Ticket #8552 - Temporary Profile Link
+    if(!mysqli_query($dbc, "ALTER TABLE `contacts` ADD `update_url_key` varchar(500)")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `contacts` ADD `update_url_expiry` date NOT NULL")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `contacts` ADD `update_url_role` varchar(500)")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-08-15 - Ticket #8552 - Temporary Profile Link
+
+    //2018-08-14 - Ticket #7563 - POS Different Types
+    if(!mysqli_query($dbc, "ALTER TABLE `invoice` ADD `type` varchar(500) AFTER `tile_name`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-08-14 - Ticket #7563 - POS Different Types
+
+    //2018-08-14 - Ticket #8490 - Time Sheets
+    if(!mysqli_query($dbc, "ALTER TABLE `contacts_shifts` ADD `set_hours` int(1) NOT NULL DEFAULT 0")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `time_cards` ADD `shiftid` int(11) NOT NULL DEFAULT 0 AFTER `salesid`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-08-14 - Ticket #8490 - Time Sheets
+
     echo "Baldwin's DB Changes Done<br />\n";
 ?>

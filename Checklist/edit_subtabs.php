@@ -55,8 +55,11 @@
 
     echo '<script type="text/javascript"> window.location.replace("?"); </script>';
 } ?>
-<h2><a href="?" class="show-on-mob"><img src="../img/icons/ROOK-back-icon.png" style="height:2em;"></a>
-<?= ($_GET['edittab'] > 0 ? 'Edit Category' : 'Add New Category') ?></h2>
+<div class="standard-body-title">
+    <h3><a href="?" class="show-on-mob"><img src="../img/icons/ROOK-back-icon.png" style="height:2em;"></a>
+    <?= ($_GET['edittab'] > 0 ? 'Edit Category' : 'Add New Category') ?></h3>
+</div>
+<div class="standard-body-content padded">
 <form id="form1" name="form1" method="post" action="" enctype="multipart/form-data" class="form-horizontal" role="form">
 
 <?php if($_GET['edittab'] != 'NEW') {
@@ -120,14 +123,13 @@ function changeSubTabShared(select) {
 </div>
 
 <div class="form-group clearfix">
-	<div class="col-sm-3 pull-left">
+	<div class="pull-right">
+		<button name="submit" value="submit" class="btn brand-btn pull-right">Submit</button>
+		<span class="popover-examples list-inline pull-right" style="margin:5px 5px 0 5px;"><a data-toggle="tooltip" data-placement="top" title="Click here to save the Checklist Sub Tab."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
 		<span class="popover-examples list-inline" style="margin:0 3px 0 0;"><a data-toggle="tooltip" data-placement="top" title="If you click this, the current Sub Tab will not be saved."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
-		<a href="checklist.php" class="btn brand-btn btn-lg">Back</a>
-	</div>
-	<div class="col-sm-3 pull-right">
-		<button name="submit" value="submit" class="btn brand-btn btn-lg pull-right">Submit</button>
-		<span class="popover-examples list-inline pull-right" style="margin:15px 5px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Click here to save the Checklist Sub Tab."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
+		<a href="checklist.php" class="btn brand-btn">Cancel</a>
 	</div>
 </div>
 
 </form>
+</div>

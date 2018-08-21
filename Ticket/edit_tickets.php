@@ -571,7 +571,7 @@ $(document).ready(function() {
 				ready = false;
 			}
 		});
-		if(ready && $('[name=arrived][value=1]').length != $('[name=completed][value=1]').not('.no_time').length || $.inArray($('[name=timer]').val(),['',undefined]) < 0) {
+		if(ready && ($('[name=arrived][value=1]').length != $('[name=completed][value=1]').not('.no_time').length && $('[name=completed][value=0]').not('.no_time').length > 0) || $.inArray($('[name=timer]').val(),['',undefined]) < 0) {
 			setTimeout(function() {
 				alert("This <?= TICKET_NOUN ?> is currently actively tracking time.");
 			}, 0);

@@ -11,6 +11,11 @@ if($_GET['archivetab'] > 0) {
 	unset($_GET['archivetab']);
 }
 $security = get_security($dbc, 'checklist'); ?>
+<style>
+@media (max-width:767px) {
+    .show-on-mob2 { display:block; }
+}
+</style>
 <script>
 $(document).ready(function() {
 	$(window).resize(function() {
@@ -68,7 +73,7 @@ if(empty($_GET['subtabid']) && empty($_GET['edit']) && empty($_GET['view']) && e
 	$_GET['subtabid'] = 'favourites';
 } ?>
 <?php if($_GET['iframe_slider'] != 1) { ?>
-<div class="container bg-white">
+<div class="container">
 	<div class="iframe_overlay" style="display:none;">
 		<div class="iframe">
 			<div class="iframe_loading">Loading...</div>
@@ -82,14 +87,14 @@ if(empty($_GET['subtabid']) && empty($_GET['edit']) && empty($_GET['view']) && e
 	</div>
 	<div class="row hide_on_iframe">
 		<div class="main-screen">
-			<div class="tile-header"><div class="scale-to-fill">
+			<div class="tile-header standard-header"><div class="scale-to-fill">
 				<h1 class="gap-left <?= (empty($_GET['view']) && empty($_GET['edit']) && empty($_GET['edittab']) ? '' : 'hide-titles-mob') ?>"><a href="?">Checklists</a>
-					<span class="show-on-mob"> <a href="" onclick="$('.report_link').toggleClass('hide-titles-mob'); $(this).find('img').toggleClass('counterclockwise'); return false;"><img src="<?= WEBSITE_URL ?>/img/icons/dropdown-arrow.png" style="height: 0.5em; margin: margin: 0.25em 0 0.25em 0.25em;" class="counterclockwise"></a></span><?php
+					<?php
 					if($security['config'] == 1) {
 						echo '<div class="pull-right">';
-							echo '<span class="popover-examples list-inline" style="margin:0 4px 0 5px;"><a data-toggle="tooltip" data-placement="top" title="Click here for the settings within this tile. Any changes will appear on your dashboard.">';
+							echo '<span class="popover-examples list-inline" style="margin:0 0 0 5px;"><a data-toggle="tooltip" data-placement="top" title="Click here for the settings within this tile. Any changes will appear on your dashboard.">';
 							echo '<img src="' . WEBSITE_URL . '/img/info.png" width="20"></a></span>';
-							echo '<a href="field_config.php" class="mobile-block"><img title="Tile Settings" src="../img/icons/settings-4.png" class="settings-classic wiggle-me inline-img small"></a>';
+							echo '<a href="field_config.php" class="mobile-block"><img title="Tile Settings" src="../img/icons/settings-4.png" class="settings-classic wiggle-me inline-img" width="30" style="margin-top:0"></a>';
 						echo '</div>';
 					}
 					if($security['edit'] > 0) { ?>
@@ -98,19 +103,7 @@ if(empty($_GET['subtabid']) && empty($_GET['edit']) && empty($_GET['view']) && e
 							<a href="?edit=NEW"><img src="../img/icons/ROOK-add-icon.png" class="small inline-img"></a>
 						</div><?php
 					} ?>
-
-					<div class='pull-right not_filter hide-titles-mob report_link'>
-						<span class='popover-examples list-inline'><a data-toggle='tooltip' data-placement='top' title='Click here to see all Checklist activity.'><img src='<?= WEBSITE_URL ?>/img/info.png' width='20'></a></span>
-						<?php if ( strpos($tab_config, 'reporting') !== false && check_subtab_persmission($dbc, 'checklist', ROLE, 'reporting')===true ) { ?>
-							<a href='?reports=view'><button type='button' class='btn brand-btn mobile-block icon-pie-chart <?= (!empty($_GET['reports']) ? 'active_tab' : '') ?>'>Reporting</button></a>
-						<?php } else { ?>
-							<button type="button" class="btn disabled-btn mobile-block icon-pie-chart">Reporting</button>
-						<?php } ?>
-					</div>
-
-
-
-
+                    
 					<div class="pull-right hide-titles-mob">
 						<a href="" class="btn brand-btn mobile-block gap-bottom pull-right offset-right-5" onclick="$('.not_filter').toggle(); $('.filter_box').toggle().focus(); $(this).text($(this).text() == 'Filter Checklists' ? 'Close Filter Options' : 'Filter Checklists'); filter_checklists(''); return false;">Filter Checklists</a>
 					</div>
@@ -118,9 +111,20 @@ if(empty($_GET['subtabid']) && empty($_GET['edit']) && empty($_GET['view']) && e
 					<?php if($security['edit'] > 0) { ?>
 						<div class="pull-right not_filter hide-titles-mob">
 							<a href="?edit=NEW" class="btn brand-btn mobile-block gap-bottom pull-right offset-right-5">Add Checklist</a>
-							<span class="popover-examples list-inline pull-right" style="margin:0 2px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Click here to add a Checklist."><img src="<?= WEBSITE_URL ?>/img/info.png" width="20"></a></span>
+							<span class="popover-examples list-inline pull-right" style="margin:0 2px 0 5px;"><a data-toggle="tooltip" data-placement="top" title="Click here to add a Checklist."><img src="<?= WEBSITE_URL ?>/img/info.png" width="20"></a></span>
 						</div>
 					<?php } ?>
+
+					<div class='pull-right not_filter report_link'>
+						<span class='popover-examples list-inline'><a data-toggle='tooltip' data-placement='top' title='Click here to see all Checklist activity.'><img src='<?= WEBSITE_URL ?>/img/info.png' width='20'></a></span>
+						<?php if ( strpos($tab_config, 'reporting') !== false && check_subtab_persmission($dbc, 'checklist', ROLE, 'reporting')===true ) { ?>
+							<a href='?reports=view'><img src="../img/icons/pie-chart.png" alt="Reporting" title="Reporting" class="show-on-mob offset-right-5" /></a>
+                            <a href='?reports=view'><button type='button' class='btn brand-btn mobile-block icon-pie-chart hide-titles-mob <?= (!empty($_GET['reports']) ? 'active_tab' : '') ?>'>Reporting</button></a>
+						<?php } else { ?>
+							<img src="../img/icons/pie-chart.png" alt="Reporting" title="Reporting" class="show-on-mob offset-right-5" />
+                            <button type="button" class="btn disabled-btn mobile-block icon-pie-chart hide-titles-mob">Reporting</button>
+						<?php } ?>
+					</div>
 
                     <?php
                     $get_checklist = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT COUNT(checklistid) AS checklistid FROM checklist WHERE checklist_tile=1"));
@@ -139,7 +143,7 @@ if(empty($_GET['subtabid']) && empty($_GET['edit']) && empty($_GET['view']) && e
                 $note = $notes['note'];
 
                 if ( !empty($note) && !$_GET['reports'] ) { ?>
-                    <div class="notice double-gap-bottom popover-examples">
+                    <div class="notice double-gap-bottom popover-examples hide-titles-mob">
                         <div class="col-sm-1 notice-icon"><img src="../img/info.png" class="wiggle-me" width="25"></div>
                         <div class="col-sm-11">
                             <span class="notice-name">NOTE:</span>
@@ -163,7 +167,8 @@ if(empty($_GET['subtabid']) && empty($_GET['edit']) && empty($_GET['view']) && e
                 -->
 			</div></div>
 
-			<div class="sidebar show-on-mob panel-group block-panels col-xs-12" <?= (empty($_GET['view']) && empty($_GET['edit']) && empty($_GET['edittab']) && empty($_GET['reports']) ? '' : 'style="display:none;"') ?> id="category_accordions">
+			<!-- Mobile View -->
+            <div class="sidebar show-on-mob panel-group block-panels col-xs-12" <?= (empty($_GET['view']) && empty($_GET['edit']) && empty($_GET['edittab']) && empty($_GET['reports']) ? '' : 'style="display:none;"') ?> id="category_accordions">
 				<div class="panel panel-default <?= (in_array('favourites',$hidden_categories) ? 'non-visible" style="display:none;' : '') ?>">
 					<div class="panel-heading">
 						<h4 class="panel-title">
@@ -368,7 +373,9 @@ if(empty($_GET['subtabid']) && empty($_GET['edit']) && empty($_GET['view']) && e
 					</div>
 				<?php } ?>
 			</div>
-			<div class="tile-sidebar inherit-height sidebar sidebar-override double-gap-top hide-titles-mob collapsible">
+            
+            <!-- Desktop View -->
+			<div class="tile-sidebar sidebar hide-titles-mob standard-collapsible">
 				<ul>
 					<a href="?subtabid=favourites" class="<?= (in_array('favourites',$hidden_categories) ? 'non-visible" style="display:none;' : '') ?>"><li <?= $_GET['subtabid'] == 'favourites' ? 'class="active blue"' : '' ?>>Favourites<img src="<?= (in_array('favourites',$hidden_categories) ? '../img/plus.png' : '../img/remove.png') ?>" class="pull-right" style="height:1em; margin: 0 0 0 0.5em;" data-category="favourites" onclick="add_remove_hidden_category(this); return false;"><span class='pull-right'><?= $tab_counts['favourites'] ?></span></li></a>
 					<?php if(strpos($tab_config,'private') !== FALSE) { ?><a href="?subtabid=private" class="<?= (in_array('private',$hidden_categories) ? 'non-visible" style="display:none;' : '') ?>"><li <?= $_GET['subtabid'] == 'private' ? 'class="active blue"' : '' ?>>Private<img src="<?= (in_array('private',$hidden_categories) ? '../img/plus.png' : '../img/remove.png') ?>" class="pull-right" style="height:1em; margin: 0 0 0 0.5em;" data-category="private" onclick="add_remove_hidden_category(this); return false;"><span class='pull-right'><?= $tab_counts['private'] ?></span></li></a><?php } ?>
@@ -391,8 +398,8 @@ if(empty($_GET['subtabid']) && empty($_GET['edit']) && empty($_GET['view']) && e
 			</div>
 <?php } ?>
 			<div class="scale-to-fill has-main-screen <?= (empty($_GET['view']) && empty($_GET['edit']) && empty($_GET['edittab']) && empty($_GET['reports']) ? 'hide-titles-mob' : '') ?>">
-				<div class="checklist_screen main-screen" data-querystring='<?= $_SERVER['QUERY_STRING'] ?>'>
-				<?php if(!empty($_GET['view'])) {
+				<div class="checklist_screen main-screen standard-body" data-querystring='<?= $_SERVER['QUERY_STRING'] ?>'><?php
+                if(!empty($_GET['view'])) {
 					include('view_checklist.php');
 				} else if(!empty($_GET['edit'])) {
 					include('edit_checklist.php');

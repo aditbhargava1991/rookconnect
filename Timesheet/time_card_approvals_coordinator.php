@@ -210,7 +210,14 @@ function viewTicket(a) {
 						} else {
 							$staff_members = sort_contacts_query(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name` FROM `contacts` WHERE `deleted` = 0 AND `status` > 0 AND `contactid` IN (SELECT `staff` FROM `time_cards`) AND `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY.$security_query));
 						}
-						foreach($staff_members as $staff_id) { ?>
+						$prev_staff = '';
+						$next_staff = '';
+						foreach($staff_members as $key => $staff_id) {
+							if(in_array($staff_id['contactid'], $search_staff_list) && empty($next_staff) && empty($prev_staff)) {
+                                $keys = array_keys($staff_members);
+                                $prev_staff = $staff_members[$keys[array_search($key, $keys)-1]]['contactid'];
+                                $next_staff = $staff_members[$keys[array_search($key, $keys)+1]]['contactid'];
+							} ?>
 							<option <?php if (in_array($staff_id['contactid'], $search_staff_list) || in_array('ALL_STAFF',$search_staff_list)) { echo " selected"; } ?> value='<?php echo $staff_id['contactid']; ?>'><?php echo $staff_id['full_name']; ?></option>
 							<?php if(in_array('ALL_STAFF',$search_staff_list)) {
 								$search_staff_list[] = $staff_id['contactid'];
@@ -257,6 +264,13 @@ function viewTicket(a) {
                     <button type="submit" name="search_user_submit" value="Search" class="btn brand-btn mobile-block">Search</button>
                     <button type="button" onclick="$('[name^=search_staff]').find('option').prop('selected',false); $('[name^=search_staff]').find('option[value=ALL_STAFF]').prop('selected',true).change(); $('[name=search_user_submit]').click(); return false;" name="display_all_inventory" value="Display All" class="btn brand-btn mobile-block">Display All</button>
                   </div>
+	                <?php if(count($search_staff_list) == 1 && $search_staff_list[0] != 'ALL_STAFF' && !empty($search_staff_list)) { ?>
+	                	<div class="clearfix"></div>
+	                	<div class="col-sm-12">
+							<a href="?tab=<?= $_GET['tab'] ?>&pay_period=<?= $current_period ?>&search_site=<?= $search_site ?>&search_staff[]=<?= $next_staff ?>" class="btn brand-btn mobile-block pull-right">Next Staff</a>
+							<a href="?tab=<?= $_GET['tab'] ?>&pay_period=<?= $current_period ?>&search_site=<?= $search_site ?>&search_staff[]=<?= $prev_staff ?>" class="btn brand-btn mobile-block pull-right">Previous Staff</a>
+						</div>
+	                <?php } ?>
                 </div>
 </form>
         <br><br><br>

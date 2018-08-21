@@ -18,7 +18,10 @@ if($serviceid > 0 && isset($_POST['ratecardid'])) {
 		$profit_dollar = filter_var($_POST['profit_dollar'][$i],FILTER_SANITIZE_STRING);
 		$price = filter_var($_POST['price'][$i],FILTER_SANITIZE_STRING);
 		if($serviceid > 0 && $cost > 0) {
+			$before_change = capture_before_change($dbc, 'services', 'cost', 'serviceid', $serviceid);
 			$dbc->query("UPDATE `services` SET `cost`='$cost' WHERE `serviceid`='$serviceid'");
+    	$history = capture_after_change('cost', $cost);
+			add_update_history($dbc, 'service_history', $history, '', $before_change);
 		}
 
 		if(!empty($start_date.$end_date.$alert_date.$alert_staff.$uom.$cost.$profit_percent.$profit_dollar.$price)) {

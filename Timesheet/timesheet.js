@@ -122,3 +122,36 @@ function saveFieldMethod(field) {
         }, doneSaving);
     }
 }
+function displayPDFOptions(a) {
+    var href = $(a).prop('href');
+    $('#dialog-pdf-options').dialog({
+        resizable: false,
+        height: "auto",
+        width: ($(window).width() <= 500 ? $(window).width() : 500),
+        modal: true,
+        open: function() {
+            $('[name="pdf_options"]').prop('checked',true);
+            $('[name="payroll_pdf_options"]').prop('checked',true);
+        },
+        buttons: {
+            "Submit": function() {
+                $(this).dialog('close');
+                var value_config = [];
+                $('[name="pdf_options"]:checked').each(function() {
+                    value_config.push(this.value);
+                });
+                value_config = value_config.join(',');
+                var payroll_value_config = [];
+                $('[name="pdf_payroll_options"]:checked').each(function() {
+                    payroll_value_config.push(this.value);
+                });
+                payroll_value_config = payroll_value_config.join(',');
+                href += '&value_config='+value_config+'&payroll_value_config='+payroll_value_config;
+                window.open(href, '_blank');
+            },
+            Cancel: function() {
+                $(this).dialog('close');
+            }
+        }
+    });
+}

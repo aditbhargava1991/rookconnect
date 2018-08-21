@@ -46,8 +46,14 @@ if(isset($_POST['submit'])) {
 			if($id == '') {
 				$sql_expense = "INSERT INTO `expense` (`expense_for`, `category`, `contact`, `staff`, `title`, `description`, `country`, `province`, `currency`, `exchange_rate`, `ex_date`, `work_order`, `type`, `day_expense`, `amount`, `tips`, `balance`, `pst`, `gst`, `hst`, `total`, `reimburse`, `comments`)
 					VALUES ('$expense_tab', '$category', '$contact', '$staff', '$heading', '$description', '$country', '$province', '$currency', '$exchange_rate', '$date', '$work_order', '$type', '$day_expense', '$amount', '$tips', '$budget', '$local_tax', '$tax', '$third_tax', '$total', '$reimburse', '$comments')";
+          $before_change = "";
+          $history = "Expense entry has been added. <br />";
+      	  add_update_history($dbc, 'expenses_history', $history, '', $before_change);
 			} else {
 				$sql_expense = "UPDATE `expense` SET `category`='$category', `contact`='$contact', `title`='$heading', `description`='$description', `country`='$country', `province`='$province', `currency`='$currency', `exchange_rate`='$exchange_rate', `ex_date`='$date', `work_order`='$work_order', `type`='$type', `day_expense`='$day_expense', `amount`='$amount', `tips`='$tips', `balance`='$budget', `pst`='$local_tax', `gst`='$tax', `hst`='$third_tax', `total`='$total', `reimburse`='$reimburse' WHERE `expenseid`='$id'";
+        $before_change = "";
+        $history = "Expense entry has been updated. <br />";
+    	  add_update_history($dbc, 'expenses_history', $history, '', $before_change);
 			}
 			mysqli_query($dbc, $sql_expense);
 
@@ -75,30 +81,58 @@ if(isset($_POST['submit'])) {
 		imagepng($img, 'download/'.$sign_file);
 		foreach($_POST['expenseid'] as $key => $value) {
 			if($value != '') {
+        $before_change = capture_before_change($dbc, 'expense', 'status', 'expenseid', $value);
+        $before_change .= capture_before_change($dbc, 'expense', 'submit_by', 'expenseid', $value);
+        $before_change .= capture_before_change($dbc, 'expense', 'submit_date', 'expenseid', $value);
+        $before_change .= capture_before_change($dbc, 'expense', 'submit_sign', 'expenseid', $value);
 				$submit_sql = "UPDATE `expense` SET `status`='Submitted', `submit_by`='".$_SESSION['contactid']."', `submit_date`='".date('Y-m-d')."', `submit_sign`='$sign_file' WHERE `expenseid`='$value'";
 				mysqli_query($dbc,$submit_sql);
+        $history = capture_after_change('status', 'Submitted');
+        $history .= capture_after_change('submit_by', $_SESSION['contactid']);
+        $history .= capture_after_change('submit_date', date('Y-m-d'));
+        $history .= capture_after_change('submit_sign', $sign_file);
+    	  add_update_history($dbc, 'expenses_history', $history, '', $before_change);
 			}
 		}
 	} else if($_POST['submit'] == 'payable') {
 		imagepng($img, 'download/'.$sign_file);
 		foreach($_POST['expenseid'] as $key => $value) {
 			if($value != '') {
+
+        $before_change = capture_before_change($dbc, 'expense', 'status', 'expenseid', $value);
+        $before_change .= capture_before_change($dbc, 'expense', 'approval_by', 'expenseid', $value);
+        $before_change .= capture_before_change($dbc, 'expense', 'approval_date', 'expenseid', $value);
+        $before_change .= capture_before_change($dbc, 'expense', 'approval_sign', 'expenseid', $value);
 				$submit_sql = "UPDATE `expense` SET `status`='Approved', `approval_by`='".$_SESSION['contactid']."', `approval_date`='".date('Y-m-d')."', `approval_sign`='$sign_file' WHERE `expenseid`='$value'";
 				mysqli_query($dbc,$submit_sql);
+        $history = capture_after_change('status', 'Approved');
+        $history .= capture_after_change('approval_by', $_SESSION['contactid']);
+        $history .= capture_after_change('approval_date', date('Y-m-d'));
+        $history .= capture_after_change('approval_sign', $sign_file);
+    	  add_update_history($dbc, 'expenses_history', $history, '', $before_change);
 			}
 		}
 	} else if($_POST['submit'] == 'paid') {
 		imagepng($img, 'download/'.$sign_file);
 		foreach($_POST['expenseid'] as $key => $value) {
 			if($value != '') {
+        $before_change = capture_before_change($dbc, 'expense', 'status', 'expenseid', $value);
+        $before_change .= capture_before_change($dbc, 'expense', 'paid_by', 'expenseid', $value);
+        $before_change .= capture_before_change($dbc, 'expense', 'paid_date', 'expenseid', $value);
+        $before_change .= capture_before_change($dbc, 'expense', 'paid_sign', 'expenseid', $value);
 				$submit_sql = "UPDATE `expense` SET `status`='Paid', `paid_by`='".$_SESSION['contactid']."', `paid_date`='".date('Y-m-d')."', `paid_sign`='$sign_file' WHERE `expenseid`='$value'";
 				mysqli_query($dbc,$submit_sql);
+        $history = capture_after_change('status', 'Paid');
+        $history .= capture_after_change('paid_by', $_SESSION['contactid']);
+        $history .= capture_after_change('paid_date', date('Y-m-d'));
+        $history .= capture_after_change('paid_sign', $sign_file);
+    	  add_update_history($dbc, 'expenses_history', $history, '', $before_change);
 			}
 		}
 	} else if($_POST['submit'] == 'export') {
 		require_once('../tcpdf/tcpdf.php');
 		ob_clean();
-		
+
 		$get_config = mysqli_fetch_array(mysqli_query($dbc, "SELECT `pdf_logo`, `pdf_header` FROM `field_config_expense`"));
 		$head_logo = get_config($dbc, 'expense_logo');
 		$pdf_header = get_config($dbc, 'expense_header');
@@ -163,11 +197,11 @@ if(isset($_POST['submit'])) {
 		$margin_height = ($head_logo == '' && $pdf_header == '' ? 15 : 30);
 		$pdf->SetMargins(PDF_MARGIN_LEFT, $margin_height, PDF_MARGIN_RIGHT);
 		$pdf->AddPage();
-		
+
 		$pdf->SetFont('helvetica', '', 14);
 		$pdf->Write(0, 'Expense Report for '.$display_month.' for '.$staff_name, '', 0, 'C', true, 0, false, false, 0);
 		$pdf->Ln();
-		
+
 		$html = '<table border="1" cellpadding=2 cellspacing=0 style="width:100%">';
 		$html .= "<tr>";
 		$colspan = $totalspan = $tempcol = 0;
@@ -275,7 +309,7 @@ if(isset($_POST['submit'])) {
 		$colspan++;
 		$html .= '<th align="center">Expense Status</th>';
 		$html .= "</tr>";
-		
+
 		$total_amount = 0;
 		$total_tips = 0;
 		$total_hst = 0;
@@ -331,7 +365,7 @@ if(isset($_POST['submit'])) {
 					$reimburse = $row['reimburse'];
 					$comments = $row['comments'];
 				}
-				
+
 				$html .= "<tr>";
 				$html .= '<td align="center">'.$cat_row['gl_code'].'</td>';
 				foreach($db_config_arr as $field) {
@@ -414,7 +448,7 @@ if(isset($_POST['submit'])) {
 			}
 		}
 		$html .= "<td></td></tr></table>";
-		
+
 		$category_query = mysqli_query($dbc, $categories_sql);
 		$html .= "<h3>Summary by Categories</h3>";
 		$html .= '<table border="1" cellpadding=2 cellspacing=0 style="width:67%"><tr><th>Category & Heading</th><th>Expense Amount</th><th>Tax</th><th>Total</th></tr>';
@@ -439,7 +473,7 @@ if(isset($_POST['submit'])) {
 		}
 		$html .= "<tr><td><b>Totals</b></td><td><b>$".number_format($final_amt, 2, '.', '')."</b></td><td><b>$".number_format($final_tax, 2, '.', '')."</b></td><td><b>$".number_format($final_total, 2, '.', '')."</b></td></tr>";
 		$html .= "</table>";
-		
+
 		$pdf->SetFont('helvetica', '', 8);
 		$pdf->setCellHeightRatio(1.75);
 		$pdf->writeHTML($html, true, false, true, false, '');
@@ -546,7 +580,7 @@ function calcTotal() {
 	var total_pst = 0;
 	var total_budget = 0;
 	var total_total = 0;
-	
+
 	$('[name="currency[]"]').each(function () {
 		var id = $(this).find('option:selected').data('currency');
 		var date = $(this).closest('tr').find('[name="ex_date[]"]').val();
@@ -918,7 +952,7 @@ while($cat_row = mysqli_fetch_array($category_query)) {
 			$amount = $cat_amount;
 			$province = 'N/A';
 		}
-		
+
 		echo "<tr>";
 		if($status == '' || ($status == 'Submitted' && $current_tab == 'manager') || ($status == 'Approved' && $current_tab == 'payables')) {
 			echo "<input type='hidden' name='expenseid[]' value='".$id."'>";
@@ -927,7 +961,7 @@ while($cat_row = mysqli_fetch_array($category_query)) {
 			echo '<input type="hidden" name="exchange_rate[]" value="'.$exchange.'">';
 			echo '<input type="hidden" name="category[]" value="'.$cat_row['category'].'">';
 			echo '<input type="hidden" name="heading[]" value="'.$cat_row['heading'].'">'.$cat_row['gl_code'].'</td>';
-			
+
 			foreach($db_config_arr as $field) {
 				if($field == 'Contact') {
 					echo '<td data-title="Expense Contact"><select data-placeholder="Choose a Contact..." name="contact[]" data-value="'.$contact.'" class="chosen-select-deselect form-control"></select></td>';

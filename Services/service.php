@@ -34,14 +34,14 @@ include ('../include.php'); ?>
                 $( "#new_category" ).hide();
             }
         });
-        
+
         /* if($(window).width() > 767) {
             resizeScreen();
             $(window).resize(function() {
                 resizeScreen();
             });
         } */
-        
+
         var hash = window.location.hash.substr(1);
         if (hash != '') {
             $('#nav_'+hash).click();
@@ -53,7 +53,7 @@ include ('../include.php'); ?>
             $('.tile-sidebar li').removeClass('active');
             $(this).closest('li').addClass('active');
         });
-        
+
         var $sections = $('.accordion-block-details');
         var $subsections = $('.accordion-block-details-sub');
         $('.main-screen').on('scroll', function(){
@@ -85,7 +85,7 @@ include ('../include.php'); ?>
                 current_tab.push($(this).data('tab-name'));
             }
         });
-    
+
         $(window).resize(function() {
             $('.main-screen').css('padding-bottom',0);
             if($('.main-screen .main-screen').is(':visible') && $('.sidebar').is(':visible')) {
@@ -102,7 +102,7 @@ include ('../include.php'); ?>
             }
         }).resize();
     });
-    
+
     function resizeScreen() {
         var view_height = $(window).height() > 800 ? $(window).height() : 800;
         //$('.scale-to-fill .main-screen, .tile-sidebar').height($('.tile-container').height());
@@ -130,7 +130,7 @@ if (isset($_POST['add_service'])) {
 	} else {
 		$category = filter_var($_POST['category'],FILTER_SANITIZE_STRING);
 	}
-    
+
     $invoice_description = filter_var(htmlentities($_POST['invoice_description']),FILTER_SANITIZE_STRING);
     $ticket_description = filter_var(htmlentities($_POST['ticket_description']),FILTER_SANITIZE_STRING);
     $name = filter_var($_POST['name'],FILTER_SANITIZE_STRING);
@@ -148,7 +148,7 @@ if (isset($_POST['add_service'])) {
     } else {
         $quote_description = filter_var(htmlentities($_POST['quote_description']),FILTER_SANITIZE_STRING);
     }
-    
+
     $final_retail_price = filter_var($_POST['final_retail_price'],FILTER_SANITIZE_STRING);
     $admin_price = filter_var($_POST['admin_price'],FILTER_SANITIZE_STRING);
     $wholesale_price = filter_var($_POST['wholesale_price'],FILTER_SANITIZE_STRING);
@@ -191,19 +191,28 @@ if (isset($_POST['add_service'])) {
         $result_insert_vendor = mysqli_query($dbc, $query_insert);
 		$serviceid = $dbc->insert_id;
         $url = 'Added';
+        $before_change = "";
+				$history = "Service entry has been added. <br />";
+	  		add_update_history($dbc, 'service_history', $history, '', $before_change);
     } else {
         $serviceid = $_POST['serviceid'];
         $query_update = "UPDATE `services` SET `service_type` = '$service_type', `category` = '$category',`service_code` = '$service_code', `heading` = '$heading', `cost` = '$cost', `description` = '$description', `quote_description` = '$quote_description', `invoice_description` = '$invoice_description', `ticket_description` = '$ticket_description', `final_retail_price` = '$final_retail_price', `admin_price` = '$admin_price', `wholesale_price` = '$wholesale_price', `commercial_price` = '$commercial_price', `client_price` = '$client_price', `purchase_order_price` = '$purchase_order_price', `sales_order_price` = '$sales_order_price', `minimum_billable` = '$minimum_billable', `hourly_rate` = '$hourly_rate', `estimated_hours` = '$estimated_hours', `actual_hours` = '$actual_hours', `msrp` = '$msrp', `name` = '$name', `fee` = '$fee', `unit_price` = '$unit_price', `unit_cost` = '$unit_cost', `rent_price` = '$rent_price', `rental_days` = '$rental_days', `rental_weeks` = '$rental_weeks', `rental_months` = '$rental_months', `rental_years` = '$rental_years', `reminder_alert` = '$reminder_alert', `daily` = '$daily', `weekly` = '$weekly', `monthly` = '$monthly', `annually` = '$annually', `total_days` = '$total_days', `total_hours` = '$total_hours', `total_km` = '$total_km', `total_miles` = '$total_miles', `include_in_so` = '$include_in_so', `include_in_po` = '$include_in_po', `include_in_pos` = '$include_in_pos', `gst_exempt` = '$gst_exempt', `appointment_type` = '$appointment_type', `quantity` = '$quantity', `checklist`='$checklist' WHERE `serviceid` = '$serviceid'";
         $result_update_vendor = mysqli_query($dbc, $query_update);
         $url = 'Updated';
+        $before_change = "";
+				$history = "Service with service id $serviceid has been updated. <br />";
+	  		add_update_history($dbc, 'service_history', $history, '', $before_change);
     }
 	if($_FILES['service_image']['name'] != '') {
 		if (!file_exists('download')) {
 			mkdir('download', 0777, true);
 		}
 		$filename = file_safe_str($_FILES['service_image']['name']);
-		move_uploaded_file($_FILES["service_image"]["tmp_name"], "download/".$filename) ;
+		move_uploaded_file($_FILES["service_image"]["tmp_name"], "download/".$filename);
+    $before_change = capture_before_change($dbc, 'services', 'service_image', 'serviceid', $serviceid);
 		$dbc->query("UPDATE `services` SET `service_image`='$filename' WHERE `serviceid`='$serviceid'");
+    $history = capture_after_change('service_image', $filename);
+    add_update_history($dbc, 'service_history', $history, '', $before_change);
 	}
 
     echo '<script type="text/javascript">window.location.replace("index.php?c='.bin2hex($category).'");</script>';
@@ -218,7 +227,7 @@ $value_config = ','.$get_field_config['services'].','; ?>
             include('tile_header.php');
             $page      = preg_replace('/\PL/u', '', $_GET['p']);
             $serviceid = preg_replace('/[^0-9]/', '', $_GET['id']); ?>
-            
+
             <!--
             <div class="tile-bar">
                 <ul>
@@ -226,7 +235,7 @@ $value_config = ','.$get_field_config['services'].','; ?>
                     <li class="<?= ( $page=='preview' ) ? 'active' : ''; ?>"><a href="?p=preview&id=<?=$serviceid;?>">Preview</a></li>
                 </ul>
             </div>-- .tile-bar -->
-            
+
             <div class="tile-container">
                 <?php if($page == 'preview') { ?>
                     <div class="show-on-mob full-width pad-left pad-right pad-bottom" style="border-bottom:1px solid #ACA9A9; margin-bottom:-5px;">
@@ -278,7 +287,7 @@ $value_config = ','.$get_field_config['services'].','; ?>
                         } ?>
                     </ul>
                 </div><!-- .tile-sidebar -->
-                
+
                 <!-- Main Screen -->
                 <div class="scale-to-fill tile-content has-main-screen" style="padding:0;">
                     <div class="main-screen override-main-screen full-height no-overflow-x"><?php
@@ -293,7 +302,7 @@ $value_config = ','.$get_field_config['services'].','; ?>
                         } ?>
                     </div><!-- .main-screen -->
                 </div><!-- .tile-content -->
-                
+
                 <div class="clearfix"></div>
             </div><!-- .tile-container -->
 

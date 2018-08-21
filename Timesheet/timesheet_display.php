@@ -298,6 +298,7 @@ var useProfileSig = function(chk) {
     $mileage_rate_total = 0;
     $mileage_cost_total = 0;
     $row = mysqli_fetch_array($result);
+    $date_total = ['HOURS'=>0,'REG'=>0,'EXTRA'=>0,'RELIEF'=>0,'SLEEP'=>0,'SICK_ADJ'=>0,'SICK'=>0,'STAT_AVAIL'=>0,'STAT'=>0,'VACA_AVAIL'=>0,'VACA'=>0,'BREAKS'=>0,'TRAINING'=>0,'DRIVE'=>0];
     $total = ['HOURS'=>0,'REG'=>0,'EXTRA'=>0,'RELIEF'=>0,'SLEEP'=>0,'SICK_ADJ'=>0,'SICK'=>0,'STAT_AVAIL'=>0,'STAT'=>0,'VACA_AVAIL'=>0,'VACA'=>0,'BREAKS'=>0,'TRAINING'=>0,'DRIVE'=>0];
     while(strtotime($date) <= strtotime($search_end_date)) {
         $ids = ['HOURS'=>0,'REG'=>0,'EXTRA'=>0,'RELIEF'=>0,'SLEEP'=>0,'SICK_ADJ'=>0,'SICK'=>0,'STAT_AVAIL'=>0,'STAT'=>0,'VACA_AVAIL'=>0,'VACA'=>0,'BREAKS'=>0,'TRAINING'=>0,'DRIVE'=>0];
@@ -359,6 +360,7 @@ var useProfileSig = function(chk) {
             }
             foreach($total as $key => $value) {
                 $total[$key] += $hrs[$key];
+                $date_total[$key] += $hrs[$key];
             }
             $timecardid = $row['time_cards_id'];
             $ticket_attached_id = $row['ticket_attached_id'];
@@ -423,6 +425,8 @@ var useProfileSig = function(chk) {
                     $hrs['REG'] = 0;
                     $total['REG'] -= $hrs['TRAINING'];
                     $total['TRAINING'] += $hrs['TRAINING'];
+                    $date_total['REG'] -= $hrs['TRAINING'];
+                    $date_total['TRAINING'] += $hrs['TRAINING'];
                 } else {
                     $hrs['TRAINING'] = 0;
                 }
@@ -434,6 +438,8 @@ var useProfileSig = function(chk) {
                 $hrs['REG'] = 0;
                 $total['REG'] -= $hrs['DRIVE'];
                 $total['DRIVE'] += $hrs['DRIVE'];
+                $date_total['REG'] -= $hrs['DRIVE'];
+                $date_total['DRIVE'] += $hrs['DRIVE'];
             } else if(in_array('start_day_tile',$value_config) && empty($row['ticketid'])) {
                 $driving_time = 'Driving Time';
             } else {
@@ -461,6 +467,7 @@ var useProfileSig = function(chk) {
                 $show_separator = 1;
             }
         } else {
+            $date_total = ['HOURS'=>0,'REG'=>0,'EXTRA'=>0,'RELIEF'=>0,'SLEEP'=>0,'SICK_ADJ'=>0,'SICK'=>0,'STAT_AVAIL'=>0,'STAT'=>0,'VACA_AVAIL'=>0,'VACA'=>0,'BREAKS'=>0,'TRAINING'=>0,'DRIVE'=>0];
             $hrs = ['REG'=>0,'EXTRA'=>0,'RELIEF'=>0,'SLEEP'=>0,'SICK_ADJ'=>0,'SICK'=>0,'STAT_AVAIL'=>0,'STAT'=>0,'VACA_AVAIL'=>0,'VACA'=>0,'BREAKS'=>0,'TRAINING'=>0];
             $comments = '';
             $mileage = 0;
@@ -497,7 +504,7 @@ var useProfileSig = function(chk) {
         foreach($position_list as $position) {
             $position_options .= '<option '.($position[0] == $time_type ? 'selected' : '').' value="'.$position[0].'">'.$position[0].'</option>';
         }
-        echo '<tr style="'.$hl_colour.'" class="'.($show_separator==1 ? 'theme-color-border-bottom' : '').'">
+        echo '<tr style="'.$hl_colour.'" class="'.($show_separator==1 && !in_array('total_per_day',$value_config) ? 'theme-color-border-bottom' : '').'">
             <input type="hidden" name="date" value="'.$date.'">
             <input type="hidden" name="staff" value="'.$search_staff.'">
             <input type="hidden" name="siteid" value="'.$search_site.'">
@@ -538,7 +545,7 @@ var useProfileSig = function(chk) {
             '.(in_array('vaca_hrs',$value_config) ? '<td data-title="Vacation Hours" style="text-align:center"><input type="hidden" name="time_cards_id" value="'.$ids['VACA_AVAIL'].'"><input type="hidden" name="type_of_time" value="Vac Hrs."><input type="text" '.($mod == 'readonly' ? 'readonly' : '').' name="total_hrs" value="'.(empty($hrs['VACA_AVAIL']) ? '' : ($timesheet_time_format == 'decimal' ? number_format($hrs['VACA_AVAIL'],2) : time_decimal2time($hrs['VACA_AVAIL']))).'" class="form-control '.($mod == 'readonly' ? 'no-timepicker' : 'timepicker').'"></td>' : '').'
             '.(in_array('vaca_used',$value_config) ? '<td data-title="Vacation Hours Taken" style="text-align:center"><input type="hidden" name="time_cards_id" value="'.$ids['VACA'].'"><input type="hidden" name="type_of_time" value="Vac Hrs.Taken"><input type="text" '.($mod == 'readonly' ? 'readonly' : '').' name="total_hrs" value="'.(empty($hrs['VACA']) ? '' : ($timesheet_time_format == 'decimal' ? number_format($hrs['VACA'],2) : time_decimal2time($hrs['VACA']))).'" class="form-control '.($mod == 'readonly' ? 'no-timepicker' : 'timepicker').'"></td>' : '').'
             '.(in_array('breaks',$value_config) ? '<td data-title="Breaks" style="text-align:center">'.(empty($hrs['BREAKS']) ? '' : ($timesheet_time_format == 'decimal' ? number_format($hrs['BREAKS'],2) : time_decimal2time($hrs['BREAKS']))).'</td>' : '').'
-            '.(in_array('view_ticket',$value_config) ? '<td data-title="'.TICKET_NOUN.'" style="text-align:center">'.(!empty($attached_ticketid) ? '<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Ticket/edit_tickets.php?edit='.$attached_ticketid.'&calendar_view=true\',\'auto\',false,true, $(\'#timesheet_div\').outerHeight()); return false;" data-ticketid="'.$attached_ticketid.'" class="view_ticket" '.($attached_ticketid > 0 ? '' : 'style="display:none;"').'>View</a>' : '').'</td>' : '').'
+            '.(in_array('view_ticket',$value_config) ? '<td data-title="'.TICKET_NOUN.'" style="text-align:center">'.(!empty($attached_ticketid) ? '<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Ticket/index.php?edit='.$attached_ticketid.'&calendar_view=true\',\'auto\',false,true, $(\'#timesheet_div\').outerHeight()); return false;" data-ticketid="'.$attached_ticketid.'" class="view_ticket" '.($attached_ticketid > 0 ? '' : 'style="display:none;"').'>View</a>' : '').'</td>' : '').'
             '.(strpos($timesheet_payroll_fields, ',Expenses Owed,') !== FALSE ? '<td data-title="Expenses Owed">$'.($expenses_owed > 0 ? number_format($expenses_owed,2) : '0.00').'</td>' : '').'
             '.(strpos($timesheet_payroll_fields, ',Mileage,') !== FALSE ? '<td data-title="Mileage">'.($mileage > 0 ? number_format($mileage,2) : '0.00').'</td>' : '').'
             '.(strpos($timesheet_payroll_fields, ',Mileage Rate,') !== FALSE ? '<td data-title="Mileage Rate">$'.($mileage_rate > 0 ? number_format($mileage_rate,2) : '0.00').'</td>' : '').'
@@ -547,8 +554,34 @@ var useProfileSig = function(chk) {
             '.(in_array('signature',$value_config) && $current_page == 'time_cards.php' ? '<td data-title="Signature" style="text-align:center" class="'.($show_separator==1 ? 'theme-color-border-bottom' : '').'">'.(!empty($all_signatures[$date]) ? '<img src="../Timesheet/download/'.$all_signatures[$date].'" style="height: 50%; width: auto;">' : ($security['edit'] > 0 ? '<label class="form-checkbox"><input type="checkbox" name="add_signature" onclick="addSignature(this);" value="'.$date.'"></label>' : '')).'</td>' : '').'
             '.($current_page != 'time_cards.php' ? '<td data-title="Select to Mark Paid"><label '.($mod == 'readonly' ? 'class="readonly-block"' : '').'><input type="checkbox" name="approv" data-uncheck="'.($current_page == 'payroll.php' ? 'Y' : 'N').'" value="'.($current_page == 'payroll.php' ? 'P' : 'Y').'" '.($mod == 'readonly' ? ($current_page == 'payroll.php' && $approv == 'P' ? 'checked' : ($current_page != 'payroll.php' && $approv == 'Y' ? 'checked' : '')).' readonly' : '').' /></label></td>' : '');
         echo '</tr>';
+        if(in_array('total_per_day',$value_config) && $date != $row['date']) {
+            echo '<tr style="font-weight: bold;" class="'.($show_separator==1 ? 'theme-color-border-bottom' : '').'">
+                <td data-title="" colspan="'.$colspan.'">Day Totals</td>
+                '.(in_array($layout,['position_dropdown', 'ticket_task']) ? '<td data-title="Hours">'.($timesheet_time_format == 'decimal' ? number_format($date_total['REG'],2) : time_decimal2time($date_total['REG'])).'</td>' : '').'
+                '.(in_array('reg_hrs',$value_config) || in_array('payable_hrs',$value_config) ? '<td data-title="'.(in_array('payable_hrs',$value_config) ? 'Payable' : 'Regular').' Hours">'.($timesheet_time_format == 'decimal' ? number_format($date_total['REG'],2) : time_decimal2time($date_total['REG'])).'</td>' : '').'
+                '.(in_array('start_day_tile_separate',$value_config) ? '<td data-title="Extra Hours">'.($timesheet_time_format == 'decimal' ? number_format($date_total['DRIVE'],2) : time_decimal2time($date_total['DRIVE'])).'</td>' : '').'
+                '.(in_array('extra_hrs',$value_config) ? '<td data-title="Extra Hours">'.($timesheet_time_format == 'decimal' ? number_format($date_total['EXTRA'],2) : time_decimal2time($date_total['EXTRA'])).'</td>' : '').'
+                '.(in_array('relief_hrs',$value_config) ? '<td data-title="Relief Hours">'.($timesheet_time_format == 'decimal' ? number_format($date_total['RELIEF'],2) : time_decimal2time($date_total['RELIEF'])).'</td>' : '').'
+                '.(in_array('sleep_hrs',$value_config) ? '<td data-title="Sleep Hours">'.($timesheet_time_format == 'decimal' ? number_format($date_total['SLEEP'],2) : time_decimal2time($date_total['SLEEP'])).'</td>' : '').'
+                '.(in_array('training_hrs',$value_config) ? '<td data-title="Training Hours">'.($timesheet_time_format == 'decimal' ? number_format($date_total['TRAINING'],2) : time_decimal2time($date_total['TRAINING'])).'</td>' : '').'
+                '.(in_array('sick_hrs',$value_config) ? '<td data-title="Sick Time Adjustment">'.($timesheet_time_format == 'decimal' ? number_format($date_total['SICK_ADJ'],2) : time_decimal2time($date_total['SICK_ADJ'])).'</td>' : '').'
+                '.(in_array('sick_used',$value_config) ? '<td data-title="Sick Hours Taken">'.($timesheet_time_format == 'decimal' ? number_format($date_total['SICK'],2) : time_decimal2time($date_total['SICK'])).'</td>' : '').'
+                '.(in_array('stat_hrs',$value_config) ? '<td data-title="Stat Hours">'.($timesheet_time_format == 'decimal' ? number_format($date_total['STAT_AVAIL'],2) : time_decimal2time($date_total['STAT_AVAIL'])).'</td>' : '').'
+                '.(in_array('stat_used',$value_config) ? '<td data-title="Stat Hours Taken">'.($timesheet_time_format == 'decimal' ? number_format($date_total['STAT'],2) : time_decimal2time($date_total['STAT'])).'</td>' : '').'
+                '.(in_array('vaca_hrs',$value_config) ? '<td data-title="Vacation Hours">'.($timesheet_time_format == 'decimal' ? number_format($date_total['VACA_AVAIL'],2) : time_decimal2time($date_total['VACA_AVAIL'])).'</td>' : '').'
+                '.(in_array('vaca_used',$value_config) ? '<td data-title="Vacation Hours Taken">'.($timesheet_time_format == 'decimal' ? number_format($date_total['VACA'],2) : time_decimal2time($date_total['VACA'])).'</td>' : '').'
+                '.(in_array('breaks',$value_config) ? '<td data-title="Breaks">'.($timesheet_time_format == 'decimal' ? number_format($date_total['BREAKS'],2) : time_decimal2time($date_total['BREAKS'])).'</td>' : '').'
+                '.(in_array('view_ticket',$value_config) ? '<td data-title=""></td>' : '').'
+                '.(strpos($timesheet_payroll_fields, ',Expenses Owed,') !== FALSE ? '<td data-title="Total Expenses Owed">$'.($expenses_owed > 0 ? number_format($expenses_owed,2) : '0.00').'</td>' : '').'
+                '.(strpos($timesheet_payroll_fields, ',Mileage,') !== FALSE ? '<td data-title="Total Mileage">'.($mileage_total > 0 ? number_format($mileage_total,2) : '0.00').'</td>' : '').'
+                '.(strpos($timesheet_payroll_fields, ',Mileage Rate,') !== FALSE ? '<td data-title="Total Mileage Rate">$'.($mileage_rate_total > 0 ? number_format($mileage_rate_total,2) : '0.00').'</td>' : '').'
+                '.(strpos($timesheet_payroll_fields, ',Mileage Total,') !== FALSE ? '<td data-title="Total Mileage Cost">$'.($mileage_cost_total > 0 ? number_format($mileage_cost_total,2) : '0.00').'</td>' : '').'
+                <td data-title="" colspan="'.((in_array('comment_box',$value_config) ? 1 : 0) + ($current_page != 'time_cards.php' ? 1 : (in_array('signature',$value_config) ? 1 : 0))).'"></td>
+            </tr>';
+        }
         if(!in_array($layout,['position_dropdown', 'ticket_task','multi_line']) || $date != $row['date']) {
             $date = date("Y-m-d", strtotime("+1 day", strtotime($date)));
+            $date_total = ['HOURS'=>0,'REG'=>0,'EXTRA'=>0,'RELIEF'=>0,'SLEEP'=>0,'SICK_ADJ'=>0,'SICK'=>0,'STAT_AVAIL'=>0,'STAT'=>0,'VACA_AVAIL'=>0,'VACA'=>0,'BREAKS'=>0,'TRAINING'=>0,'DRIVE'=>0];
         }
         $post_i++;
     }

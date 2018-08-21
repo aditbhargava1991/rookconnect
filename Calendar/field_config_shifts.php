@@ -159,6 +159,12 @@ $contact_category = $get_field_config['contact_category'];
                     </div>
                 </div>
                 <div class="form-group">
+                    <label for="time" class="col-sm-4 control-label">Security Level Defaults:</label>
+                    <div class="col-sm-8">
+                        <label class="form-checkbox"><input type="checkbox" name="enabled_fields[]" value="security_level" <?= (strpos($enabled_fields, ',security_level,') !== FALSE ? 'checked' : '') ?>></label>
+                    </div>
+                </div>
+                <div class="form-group">
                     <label for="time" class="col-sm-4 control-label">Time:</label>
                     <div class="col-sm-8">
                         <label class="form-checkbox"><input type="checkbox" name="enabled_fields[]" value="time" <?= (strpos($enabled_fields, ',time,') !== FALSE ? 'checked' : '') ?>></label>

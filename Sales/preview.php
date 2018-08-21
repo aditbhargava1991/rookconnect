@@ -1,10 +1,29 @@
 <!-- Sales Lead Preview --><?php
 $salesid = preg_replace('/[^0-9]/', '', $_GET['id']);
-$lead    = mysqli_query($dbc, "SELECT * FROM `sales` WHERE `sales`.`salesid`='{$salesid}'"); ?>
+$lead    = mysqli_query($dbc, "SELECT * FROM `sales` WHERE `sales`.`salesid`='{$salesid}'");
+$get_config_won_status = get_config($dbc, 'lead_status_won');
+$get_config_lost_status = get_config($dbc, 'lead_status_lost');
+$get_config_retained = get_config($dbc, 'lead_status_retained');
+$lead_convert_to = get_config($dbc, 'lead_convert_to'); ?>
 <div class="main-screen standard-body gap-bottom overflow-y">
     <div class="standard-body-title pad-left">
         <h3><?= SALES_NOUN ?> #<?= $salesid ?>
-            <div class="pull-right"><input type="button" onclick="javascript:window.location.replace('<?= WEBSITE_URL; ?>/Sales/sale.php?p=details&id=<?=$salesid;?>&a=staffinfo');" value="Edit" class="btn brand-btn btn-small" /></div>
+            <?php if(IFRAME_PAGE) { ?>
+              <div class="pull-right">
+                  <?php if(!empty($get_config_won_status) && !empty($lead_convert_to)) { ?>
+                      <a href="convert_sales_lead.php?leadid=<?= $salesid ?>&won_lead=true" class="btn brand-btn">Mark as <?= $get_config_won_status ?></a>
+                  <?php } ?>
+                  <?php if(!empty($get_config_retained) && !empty($lead_convert_to)) { ?>
+                      <a href="convert_sales_lead.php?leadid=<?= $salesid ?>&won_lead=keep" class="btn brand-btn">Add to  <?= $lead_convert_to ?></a>
+                  <?php } ?>
+                  <?php if(!empty($get_config_lost_status) && !empty($lead_convert_to)) { ?>
+                      <a href="convert_sales_lead.php?leadid=<?= $salesid ?>&won_lead=lost" class="btn brand-btn">Mark as <?= $get_config_lost_status ?></a>
+                  <?php } ?>
+                  <input type="button" onclick="javascript:window.location.replace('<?= WEBSITE_URL; ?>/Sales/sale.php?p=details&id=<?=$salesid;?>&a=staffinfo');" value="Edit" class="btn brand-btn btn-small" />
+              </div>
+            <?php } else { ?>
+                <div class="pull-right"><input type="button" onclick="javascript:window.location.replace('<?= WEBSITE_URL; ?>/Sales/sale.php?p=details&id=<?=$salesid;?>&a=staffinfo');" value="Edit" class="btn brand-btn btn-small" /></div>
+            <?php } ?>
             <div class="clearfix"></div>
         </h3>
     </div>

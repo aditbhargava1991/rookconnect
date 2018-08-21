@@ -168,6 +168,21 @@ function loadPanel() {
 			</div>
 		</div>
 	</div>
+	<div class="panel panel-default">
+		<div class="panel-heading">
+			<h4 class="panel-title">
+				<a data-toggle="collapse" data-parent="#settings_accordions" href="#collapse_update_url">
+					Update Profile Email<span class="glyphicon glyphicon-plus"></span>
+				</a>
+			</h4>
+		</div>
+
+		<div id="collapse_update_url" class="panel-collapse collapse">
+			<div class="panel-body" data-file="field_config_update_url.php">
+				Loading...
+			</div>
+		</div>
+	</div>
 </div>
 <!-- Sidebar -->
 <div class="standard-collapsible hide-titles-mob tile-sidebar sidebar">
@@ -185,6 +200,7 @@ function loadPanel() {
 		<a href="?settings=import"><li class="<?= $_GET['settings'] == 'import' ? 'active blue' : '' ?>">Import</li></a>
 		<a href="?settings=text_templates"><li class="<?= $_GET['settings'] == 'text_templates' ? 'active blue' : '' ?>">Text Editor Templates</li></a>
 		<a href="?settings=bus_card"><li class="<?= $_GET['settings'] == 'bus_card' ? 'active blue' : '' ?>">Business Card Templates</li></a>
+		<a href="?settings=update_url"><li class="<?= $_GET['settings'] == 'update_url' ? 'active blue' : '' ?>">Update Profile Email</li></a>
 	</ul>
 </div>
 <div class='scale-to-fill has-main-screen tile-content hide-titles-mob'>
@@ -229,6 +245,10 @@ function loadPanel() {
 		case 'text_templates':
 			$body_title = 'Text Editor Templates';
 			$include_file = 'field_config_text_templates.php';
+			break;
+		case 'update_url':
+			$body_title = 'Update Profile Email';
+			$include_file = 'field_config_update_url.php';
 			break;
 		case 'dashboard':
 		default:

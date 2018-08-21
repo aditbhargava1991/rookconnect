@@ -35,11 +35,11 @@
         <?php if (in_array('My Communications', $daysheet_button_config)) { ?>
             <a href="?tab=communications&daily_date=<?= date('Y-m-d') ?>&side_content=my_communications&date_display=daily"><li class="<?= $_GET['tab'] == 'communications' ? 'active' : '' ?>">My Communications</li></a>
         <?php } ?>
+        <?php if (in_array('My Sales', $daysheet_button_config)) { ?>
+            <a href="?tab=sales&daily_date=<?= date('Y-m-d') ?>&side_content=my_sales&date_display=daily"><li class="<?= $_GET['tab'] == 'sales' ? 'active' : '' ?>">My <?= SALES_TILE ?></li></a>
+        <?php } ?>
         <?php if (in_array('My Support', $daysheet_button_config)) { ?>
             <a href="?tab=support&daily_date=<?= date('Y-m-d') ?>&side_content=my_support&date_display=daily"><li class="<?= $_GET['tab'] == 'checklists' ? 'active' : '' ?>">My Support Requests</li></a>
-        <?php } ?>
-        <?php if (in_array('My Communications', $daysheet_button_config)) { ?>
-            <a href="?tab=communications&daily_date=<?= date('Y-m-d') ?>&side_content=my_communications&date_display=daily"><li class="<?= $_GET['tab'] == 'communications' ? 'active' : '' ?>">My Communications</li></a>
         <?php } ?>
         <?php if (in_array('My Shifts', $daysheet_button_config)) { ?>
             <a href="?tab=shifts&daily_date=<?= date('Y-m-d') ?>&side_content=my_shifts&date_display=daily"><li class="<?= $_GET['tab'] == 'shifts' ? 'active' : '' ?>">My Shifts</li></a>

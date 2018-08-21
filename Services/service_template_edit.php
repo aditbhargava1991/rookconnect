@@ -8,9 +8,19 @@ if(isset($_POST['save_template'])) {
 		$query_insert = "INSERT INTO `services_service_templates` (`name`, `serviceid`, `service_category`) VALUES ('$template_name', '$serviceids', '$service_category')";
 		$result_insert = mysqli_query($dbc, $query_insert);
 		$templateid = mysqli_insert_id($dbc);
+		$before_change = "";
+		$history = "Service Template entry has been added. <br />";
+		add_update_history($dbc, 'service_history', $history, '', $before_change);
 	} else {
+		$before_change = capture_before_change($dbc, 'services_service_templates', 'name', 'templateid', $templateid);
+		$before_change .= capture_before_change($dbc, 'services_service_templates', 'serviceid', 'templateid', $templateid);
+		$before_change .= capture_before_change($dbc, 'services_service_templates', 'service_category', 'templateid', $templateid);
 		$query_update = "UPDATE `services_service_templates` SET `name` = '$template_name', `serviceid` = '$serviceids', `service_category` = '$service_category' WHERE `templateid` = '$templateid'";
 		$result_update = mysqli_query($dbc, $query_update);
+		$history = capture_after_change('name', $template_name);
+		$history .= capture_after_change('serviceid', $serviceids);
+		$history .= capture_after_change('service_category', $service_category);
+		add_update_history($dbc, 'service_history', $history, '', $before_change);
 	}
 
 	echo '<script>window.location.href = "?templateid='.$templateid.'";</script>';
@@ -49,7 +59,7 @@ function changeType(sel) {
 		}
 		$(block).find('[name="heading[]"] option').hide();
 		$(block).find('[name="heading[]"] option'+filter).show();
-		$(block).find('[name="heading[]"]').trigger('change.select2');	
+		$(block).find('[name="heading[]"]').trigger('change.select2');
 	}
 }
 function addService() {
@@ -147,7 +157,7 @@ $template = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `services_servi
 									while($service_row = $service_categories->fetch_assoc()) { ?>
 										<option data-category="<?= $service_row['category'] ?>" data-service-type="<?= $service_row['service_type'] ?>" value="<?= $service_row['serviceid'] ?>" <?= $service_row['serviceid'] == $service['serviceid'] ? 'selected' : '' ?>><?= $service_row['heading'] ?></option>
 									<?php } ?>
-								</select>								
+								</select>
 							</td>
 							<td data-title="Function">
 		                        <img src="../img/icons/ROOK-add-icon.png" class="inline-img pull-right" onclick="addService();">

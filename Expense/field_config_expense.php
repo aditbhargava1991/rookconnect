@@ -7,7 +7,7 @@ if (isset($_POST['submit'])) {
     $expense_mode = $_POST['expense_mode'];
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'expense_mode' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='expense_mode') num WHERE num.rows = 0");
 	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='$expense_mode' WHERE `name`='expense_mode'");
-	
+
     $expense = implode(',',$_POST['expense']);
     $expense_dashboard = implode(',',$_POST['expense_dashboard']);
 
@@ -21,7 +21,7 @@ if (isset($_POST['submit'])) {
     $gst_amt = filter_var($_POST['gst_amt'],FILTER_SANITIZE_STRING);
     $expense_rows = filter_var($_POST['expense_rows'],FILTER_SANITIZE_STRING);
 	$exchange_buffer = filter_var($_POST['exchange_buffer'] / 100,FILTER_SANITIZE_STRING);
-	
+
     $expense_tabs = implode(',',$_POST['expense_tabs']);
 	$get_field_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT COUNT(fieldconfigid) AS fieldconfigid FROM field_config_expense WHERE `tab`='$tab'"));
     if($get_field_config['fieldconfigid'] > 0) {
@@ -174,6 +174,9 @@ if (isset($_POST['submit'])) {
 	// Categories
 	$all_ids = implode(',',$_POST['cat_id']);
 	$delete_rows = mysqli_query($dbc, "UPDATE `expense_categories` SET `deleted`=0 WHERE `expense_tab`='$tab' AND `categoryid` NOT IN ($all_ids)");
+  $before_change = "";
+	$history = "Expense entry has been updated. <br />";
+	add_update_history($dbc, 'expenses_history', $history, '', $before_change);
 	foreach($_POST['cat_id'] as $row => $id) {
 		$category = $_POST['category'][$row];
 		$heading = $_POST['cat_heading'][$row];
@@ -184,17 +187,21 @@ if (isset($_POST['submit'])) {
 		$q3 = $_POST['cat_q3'][$row];
 		$q4 = $_POST['cat_q4'][$row];
 		$annual = $_POST['cat_annual'][$row];
-		
+
 		if($category != '' || $heading != '') {
 			$ec = mysqli_fetch_array(mysqli_query($dbc, "SELECT `EC` FROM `expense_categories` WHERE `category`='$category' AND `expense_tab`='$tab' UNION SELECT IFNULL(MAX(`EC`),0) + 1000 FROM `expense_categories` WHERE `expense_tab`='$tab'"))['EC'];
 			$gl = mysqli_fetch_array(mysqli_query($dbc, "SELECT `GL` FROM `expense_categories` WHERE `categoryid`='$id' UNION SELECT IFNULL(MAX(`GL`),$ec) + 1 FROM `expense_categories` WHERE `expense_tab`='$tab' AND `category`='$category'"))['GL'];
+      $before_change = "";
 			if($id == '') {
 				$query = "INSERT INTO `expense_categories` (`expense_tab`, `category`, `EC`, `heading`, `GL`, `amount`, `monthly`, `q1`, `q2`, `q3`, `q4`, `annual`)
 					VALUES ('$tab', '$category', '$ec', '$heading', '$gl', '$amount', '$monthly', '$q1', '$q2', '$q3', '$q4', '$annual')";
+        $history = "Expense catogries entry has been added. <br />";
 			} else {
 				$query = "UPDATE `expense_categories` SET `expense_tab`='$tab', `category`='$category', `EC`='$ec', `heading`='$heading', `GL`='$gl', `amount`='$amount', `monthly`='$monthly', `q1`='$q1', `q2`='$q2', `q3`='$q3', `q4`='$q4', `annual`='$annual' WHERE `categoryid`='$id'";
+        $history = "Expense catogries entry has been updated. <br />";
 			}
 			mysqli_query($dbc, $query);
+      add_update_history($dbc, 'expenses_history', $history, '', $before_change);
 		}
 	}
 	// Categories
@@ -399,7 +406,7 @@ $(document).ready(function() {
 			</div>
 		</div>
 	</div>
-		
+
 <?php if($tab != 'budget' && $tab != 'manager' && $tab != 'payables' && $tab != 'report'): ?>
 		<div class="panel panel-default">
 			<div class="panel-heading">
@@ -591,7 +598,7 @@ $(document).ready(function() {
 				</div>
 			</div>
 		</div>
-		
+
 		<div class="panel panel-default">
 			<div class="panel-heading">
 				<h4 class="panel-title">

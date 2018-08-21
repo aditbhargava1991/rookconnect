@@ -39,18 +39,14 @@ if($get_pos_tax != '') {
 }
 
 // Invoice Logo
-$pos_logo = get_config($dbc, 'invoice_logo');
-if($pos_logo != '') {
-	if(file_exists('download/'.$pos_logo)) {
-		$pos_logo = 'download/'.$pos_logo;
-	} else if(file_exists('../Invoice/download/'.$pos_logo)) {
-		$pos_logo = '../Invoice/download/'.$pos_logo;
-	} else if(file_exists('../POSAdvanced/download/'.$pos_logo)) {
-		$pos_logo = '../POSAdvanced/download/'.$pos_logo;
-	} else {
-		$pos_logo = '';
-	}
+$logo = 'download/'.get_config($dbc, 'invoice_logo');
+if(!file_exists($logo)) {
+    $logo = '../POSAdvanced/'.$logo;
+    if(!file_exists($logo)) {
+        $logo = '';
+    }
 }
+DEFINE('INVOICE_LOGO', $logo);
 $invoice_footer = get_config($dbc, 'invoice_footer');
 $payment_type = explode('#*#', $point_of_sell['payment_type']);
 
@@ -97,7 +93,7 @@ $html .= '<table style="border: 2px solid black;" width="100%" cellspacing="0" c
 			<table width="100%" cellpadding="3" cellspacing="0">
 				<tr height="27px">
 					<td rowspan="5" width="18%" style="border:1px solid black;">
-						'.($pos_logo != '' ? '<img src="'.$pos_logo.'" style="width:100px;">' : '').'
+						'.(INVOICE_LOGO != '' ? '<img src="'.INVOICE_LOGO.'" style="width:100px;">' : '').'
 					</td>
 					<td width="32%" colspan="3" style="border:1px solid black;">
 						Invoice To '.get_contact($dbc, $point_of_sell['businessid'],'name').'

@@ -1,4 +1,8 @@
 <!-- Next Actions -->
+<?php $get_config_won_status = get_config($dbc, 'lead_status_won');
+$get_config_lost_status = get_config($dbc, 'lead_status_lost');
+$get_config_retained = get_config($dbc, 'lead_status_retained');
+$lead_convert_to = get_config($dbc, 'lead_convert_to'); ?>
 <div class="accordion-block-details padded" id="nextaction">
     <div class="accordion-block-details-heading"><h4>Next Actions</h4></div>
     
@@ -38,10 +42,19 @@
                     $selected = ( $status == $cat_tab ) ? 'selected="selected"' : '';
                     echo '<option '. $selected .' value="'. $cat_tab .'">'. $cat_tab .'</option>';
                 } ?>
-                <option <?= ($status == 'Customers' ? 'selected ' : ''); ?>value="Customers">Customer</option>
+                <option <?= ($status == 'Customers' ? 'selected ' : ''); ?>value="Customers"><?= $lead_convert_to ?></option>
             </select>
         </div>
         <div class="clearfix"></div>
     </div>
     
+    <?php if(!empty($get_config_won_status) && !empty($lead_convert_to)) { ?>
+        <a href="convert_sales_lead.php?leadid=<?= $salesid ?>&won_lead=true" class="btn brand-btn">Mark as <?= $get_config_won_status ?></a>
+    <?php } ?>
+    <?php if(!empty($get_config_retained) && !empty($lead_convert_to)) { ?>
+        <a href="convert_sales_lead.php?leadid=<?= $salesid ?>&won_lead=keep" class="btn brand-btn">Add to  <?= $lead_convert_to ?></a>
+    <?php } ?>
+    <?php if(!empty($get_config_lost_status) && !empty($lead_convert_to)) { ?>
+        <a href="convert_sales_lead.php?leadid=<?= $salesid ?>&won_lead=lost" class="btn brand-btn">Mark as <?= $get_config_lost_status ?></a>
+    <?php } ?>
 </div><!-- .accordion-block-details -->

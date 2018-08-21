@@ -78,6 +78,9 @@ function viewTicket(a) {
 </script>
 
 <div class="container" id="timesheet_div">
+    <div id="dialog-pdf-options" title="Select PDF Fields" style="display: none;">
+        <?php echo get_pdf_options($dbc, (get_config($dbc,'timesheet_payroll_styling') == 'Both' && $_GET['subtab'] != 'Detailed' ? 'EGS' : get_config($dbc, 'timesheet_payroll_styling')),  'payroll'); ?>
+    </div>
 	<div class="iframe_overlay" style="display:none; margin-top: -20px;margin-left:-15px;">
 		<div class="iframe">
 			<div class="iframe_loading">Loading...</div>
@@ -193,7 +196,14 @@ function viewTicket(a) {
                         <option></option>
                         <option <?= in_array('ALL',$search_staff_list) ? 'selected' : '' ?> value="ALL">All Staff</option>
 						<?php $query = sort_contacts_query(mysqli_query($dbc,"SELECT distinct(`time_cards`.`staff`), `contacts`.`contactid`, `contacts`.`first_name`, `contacts`.`last_name`, `contacts`.`status` FROM `time_cards` LEFT JOIN `contacts` ON `contacts`.`contactid` = `time_cards`.`staff` WHERE `time_cards`.`staff` > 0 AND `contacts`.`deleted`=0".$security_query));
-						foreach($query as $staff_row) { ?>
+                        $prev_staff = '';
+                        $next_staff = '';
+						foreach($query as $key => $staff_row) {
+                            if(in_array($staff_row['contactid'], $search_staff_list) && empty($next_staff) && empty($prev_staff)) {
+                                $keys = array_keys($query);
+                                $prev_staff = $query[$keys[array_search($key, $keys)-1]]['contactid'];
+                                $next_staff = $query[$keys[array_search($key, $keys)+1]]['contactid'];
+                            } ?>
 							<option data-security-level='<?= $staff_row['role'] ?>' data-status="<?= $staff_row['status'] ?>" <?php if (in_array($staff_row['contactid'],$search_staff_list) !== FALSE && $search_staff_list != '') { echo " selected"; } ?> value='<?php echo  $staff_row['contactid']; ?>' ><?php echo $staff_row['full_name']; ?></option><?php
 							if(in_array('ALL',$search_staff_list)) {
                                 $search_staff_list[] = $staff_id['contactid'];
@@ -230,7 +240,14 @@ function viewTicket(a) {
                         } else {
                             $staff_members = sort_contacts_query(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name` FROM `contacts` WHERE `deleted` = 0 AND `status` > 0 AND `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY.$security_query));
                         }
-                        foreach($staff_members as $staff_id) { ?>
+                        $prev_staff = '';
+                        $next_staff = '';
+                        foreach($staff_members as $key => $staff_id) {
+                            if(in_array($staff_id['contactid'], $search_staff_list) && empty($next_staff) && empty($prev_staff)) {
+                                $keys = array_keys($staff_members);
+                                $prev_staff = $staff_members[$keys[array_search($key, $keys)-1]]['contactid'];
+                                $next_staff = $staff_members[$keys[array_search($key, $keys)+1]]['contactid'];
+                            } ?>
                             <option <?php if (in_array($staff_id['contactid'], $search_staff_list) || in_array('ALL_STAFF',$search_staff_list)) { echo " selected"; } ?> value='<?php echo $staff_id['contactid']; ?>'><?php echo $staff_id['full_name']; ?></option><?php
                             if(in_array('ALL_STAFF',$search_staff_list)) {
                                 $search_staff_list[] = $staff_id['contactid'];
@@ -284,10 +301,14 @@ function viewTicket(a) {
                     <button type="submit" name="search_user_submit" value="Search" class="btn brand-btn mobile-block">Search</button>
                     <button type="button" onclick="$('[name^=search_staff]').find('option').prop('selected',false); $('[name^=search_staff]').find('option[value=<?= $timesheet_payroll_styling == 'EGS' ? 'ALL' : 'ALL_STAFF' ?>]').prop('selected',true).change(); $('[name=search_user_submit]').click(); return false;" name="display_all_inventory" value="Display All" class="btn brand-btn mobile-block">Display All</button><?php
                     
-                    if($timesheet_payroll_styling == 'EGS') {
-                        $search_staff_query = implode('&search_staff%5B%5D=', $search_staff_list); ?>
-                        <a target="_blank" href="<?= WEBSITE_URL ?>/Timesheet/reporting.php?export=pdf_egs&search_staff%5B%5D=<?php echo $search_staff_query; ?>&search_start_date=<?php echo $search_start_date; ?>&search_end_date=<?php echo $search_end_date; ?>&search_position=<?php echo $search_position; ?>&search_project=<?php echo $search_project; ?>&search_ticket=<?php echo $search_ticket; ?>&tab=payroll&see_staff=<?= $_GET['see_staff'] ?>" title="PDF"><img src="<?php echo WEBSITE_URL; ?>/img/pdf.png" style="height:100%; margin:0;" /></a><?php
+                    if($timesheet_payroll_styling == 'EGS') { ?>
+                        <a target="_blank" href="<?= WEBSITE_URL ?>/Timesheet/reporting.php?export=pdf_egs&search_staff=<?php echo (!empty($_GET['see_staff']) ? $_GET['see_staff'] : implode(',', $search_staff_list)); ?>&search_start_date=<?php echo $search_start_date; ?>&search_end_date=<?php echo $search_end_date; ?>&search_position=<?php echo $search_position; ?>&search_project=<?php echo $search_project; ?>&search_ticket=<?php echo $search_ticket; ?>&tab=<?= $_GET['tab'] ?>&see_staff=<?= $_GET['see_staff'] ?>&timesheet_tab=payroll" onclick="displayPDFOptions(this); return false;" title="PDF"><img src="<?php echo WEBSITE_URL; ?>/img/pdf.png" style="height:100%; margin:0;" /></a><?php
                     } ?>
+                <?php if(count($search_staff_list) == 1 && $search_staff_list[0] != 'ALL_STAFF' && !empty($search_staff_list)) { ?>
+                    <div class="clearfix"></div>
+                    <a href="?tab=<?= $_GET['tab'] ?>&subtab=<?= $_GET['subtab'] ?>&pay_period=<?= $current_period ?>&search_site=<?= $search_site ?>&search_staff[]=<?= $next_staff ?>&see_staff=<?= !empty($_GET['see_staff']) ? $next_staff : '' ?>" class="btn brand-btn mobile-block pull-right">Next Staff</a>
+                    <a href="?tab=<?= $_GET['tab'] ?>&subtab=<?= $_GET['subtab'] ?>&pay_period=<?= $current_period ?>&search_site=<?= $search_site ?>&search_staff[]=<?= $prev_staff ?>&see_staff=<?= !empty($_GET['see_staff']) ? $prev_staff : '' ?>" class="btn brand-btn mobile-block pull-right">Previous Staff</a>
+                <?php } ?>
                 </div>
             </div>
         </form>

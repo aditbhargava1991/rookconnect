@@ -1510,7 +1510,7 @@ function reloadTab(name) {
 	}
 }
 function reload_billing() {
-	$('#collapse_billing,#tab_section_ticket_billing').load('../Ticket/edit_ticket_tab.php?tab=ticket_billing&ticketid='+ticketid, function() {
+	$('#collapse_billing .panel-body,#tab_section_ticket_billing').load('../Ticket/edit_ticket_tab.php?tab=ticket_billing&ticketid='+ticketid, function() {
 		setSave();
 		initSelectOnChanges();
 		initInputs('#collapse_billing');
@@ -1677,7 +1677,7 @@ function reload_hidden_services() {
 	});
 }
 function reload_service_extra_billing() {
-	$('#collapse_ticket_service_extra_billing,#tab_section_ticket_service_extra_billing').load('../Ticket/edit_ticket_tab.php?tab=ticket_service_extra_billing&ticketid='+ticketid, function() {
+	$('#collapse_ticket_service_extra_billing .panel-body,#tab_section_ticket_service_extra_billing').load('../Ticket/edit_ticket_tab.php?tab=ticket_service_extra_billing&ticketid='+ticketid, function() {
 		setSave();
 		initSelectOnChanges();
 		initInputs('#collapse_ticket_service_extra_billing');
@@ -1685,7 +1685,7 @@ function reload_service_extra_billing() {
 	});
 }
 function reload_contact_notes() {
-	$('#collapse_ticket_contact_notes,#tab_section_ticket_contact_notes').load('../Ticket/edit_ticket_tab.php?tab=ticket_contact_notes&ticketid='+ticketid, function() {
+	$('#collapse_ticket_contact_notes .panel-body,#tab_section_ticket_contact_notes').load('../Ticket/edit_ticket_tab.php?tab=ticket_contact_notes&ticketid='+ticketid, function() {
 		setSave();
 		initSelectOnChanges();
 		initInputs('#collapse_ticket_contact_notes');
@@ -1693,7 +1693,7 @@ function reload_contact_notes() {
 	});
 }
 function reload_site() {
-	$('#collapse_ticket_location,#tab_section_ticket_location').load('../Ticket/edit_ticket_tab.php?tab=ticket_location&ticketid='+ticketid, function() {
+	$('#collapse_ticket_location .panel-body,#tab_section_ticket_location').load('../Ticket/edit_ticket_tab.php?tab=ticket_location&ticketid='+ticketid, function() {
 		setSave();
 		initSelectOnChanges();
 		initInputs('#collapse_ticket_contact_notes');
@@ -1701,7 +1701,8 @@ function reload_site() {
 	});
 }
 function reload_complete() {
-	$('#collapse_ticket_complete,#tab_section_ticket_complete').load('../Ticket/edit_ticket_tab.php?tab=ticket_complete&ticketid='+ticketid, function() {
+	destroyInputs($('#collapse_ticket_complete,#tab_section_ticket_complete'));
+	$('#collapse_ticket_complete .panel-body,#tab_section_ticket_complete').load('../Ticket/edit_ticket_tab.php?tab=ticket_complete&ticketid='+ticketid, function() {
 		setSave();
 		initSelectOnChanges();
 		initInputs('#collapse_ticket_complete');

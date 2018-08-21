@@ -41,10 +41,14 @@ $(document).ready(function() {
 	});
 
 	$("#patientid").change(function() {
+		var type = '';
+		if($('[name="type"]').val() != undefined) {
+			type = $('[name="type"]').val();
+		}
 		if ($(this).val()=='NEW') {
-            overlayIFrameSlider('add_contact.php', '50%', false, false, $('.iframe_overlay').closest('.container').outerHeight() + 20);
+            overlayIFrameSlider('add_contact.php?type='+type, '50%', false, false, $('.iframe_overlay').closest('.container').outerHeight() + 20);
         } else {
-            window.location = 'add_invoice.php?contactid='+this.value;
+            window.location = 'add_invoice.php?contactid='+this.value+'&type='+type;
         }
 	});
 
@@ -437,16 +441,26 @@ $(document).ready(function() {
 	$(".refund_tb").hide();
 	$(".treatment_plan").hide();
 
-	$('.serviceid').each(function () {
+	/* $('.serviceid').each(function () {
 		var service_id = this.id;
 		var service = $("#"+service_id+" option:selected").text();
 
 		if (service.toLowerCase().indexOf("assessment") > 0) {
 			$(".treatment_plan").show();
 		}
-	});
-
+	}); */
 });
+$(document).on('change', 'select[name="type"]', function() { changeInvoiceType(); });
+
+function changeInvoiceType() {
+	var invoiceid = $('[name="invoiceid"]').val() != undefined ? $('[name="invoiceid"]').val() : 0;
+	var type = '';
+	if($('[name="type"]').val() != undefined) {
+		type = $('[name="type"]').val();
+	}
+
+	window.location.href = "?invoiceid="+invoiceid+"&type="+type;
+}
 
 function changeInsurance(sel) {
 	var proValue = sel.value;
@@ -528,7 +542,7 @@ function changeService(sel) {
 	var arr = typeId.split('_');
 	var invoiceid = $("#invoiceid").val();
 
-	$('.serviceid').each(function () {
+	//$('.serviceid').each(function () {
 		var service_id = this.id;
 		var service = $("#"+service_id+" option:selected").text();
 		var editable = $(this).find('option:selected').data('editable');
@@ -541,7 +555,7 @@ function changeService(sel) {
 		if (service.toLowerCase().indexOf("assessment") > 0) {
 			$(".treatment_plan").show();
 		}
-	});
+	//});
 
 	$.ajax({    //create an ajax request to load_page.php
 		type: "GET",
@@ -616,7 +630,12 @@ function changeProduct(sel) {
 	var arr = proId.split('_');
 	var inventoryid = $("#inventoryid_"+arr[1]).val();
 	var invtype = $("#invtype_"+arr[1]).val();
-	var pricing = $('[name=pricing]').val();
+    var linepricing = $('#linepricing_'+arr[1]).val();
+    if (linepricing == '' || linepricing == null) {
+        var pricing = $('[name=pricing]').val();
+    } else {
+        var pricing = linepricing;
+    }
 
 	if(invtype == 'WCB') {
 		invtype = 'wcb_price';
@@ -639,7 +658,11 @@ function changeProduct(sel) {
             success: function(response){
                 response = response.split('#*#');
                 var total_with_gst = +response[0] + (response[1] == 1 ? 0 : Math.round(+response[0] * +$('#tax_rate').val()) / 100);
-                $("#unitprice_"+arr[1]).val(parseFloat(response[0]).toFixed(2)).closest('.form-group').find('[name="insurer_payment_amt[]"]').first().val(total_with_gst);
+                if ( response[0] != '' ) {
+                    $("#unitprice_"+arr[1]).val(parseFloat(response[0]).toFixed(2)).closest('.form-group').find('[name="insurer_payment_amt[]"]').first().val(total_with_gst);
+                } else {
+                    $("#unitprice_"+arr[1]).val(0.00);
+                }
                 $("#sellprice_"+arr[1]).closest('div').find('[name="inventory_gst_exempt[]"]').val(response[1]);
                 $("#sellprice_"+arr[1]).val(parseFloat($("#quantity_"+arr[1]).val()*response[0]).toFixed(2));
                 countTotalPrice();
@@ -1141,10 +1164,12 @@ function add_product_row() {
 	clone.find('.quantity').attr('id', 'quantity_'+inc_pro).val(1);
 	clone.find('.adjust').attr('id', 'adjust_'+inc_pro);
 	clone.find('.sellprice').attr('id', 'sellprice_'+inc_pro);
+	clone.find('.linepricing').attr('id', 'linepricing_'+inc_pro);
 	resetChosen(clone.find("[id^=inventoryid]"));
 	resetChosen(clone.find("[id^=inventorycat]"));
 	resetChosen(clone.find("[id^=inventorypart]"));
 	resetChosen(clone.find("[id^=invtype]"));
+	resetChosen(clone.find("[id^=linepricing]"));
 	var max_row = get_max_insurer_row();
 	clone.find('.insurer_row_id').val(max_row);
 	clone.find('[name="insurer_row_applied[]"]').val(max_row);

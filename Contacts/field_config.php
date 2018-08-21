@@ -207,6 +207,21 @@ function loadPanel() {
 			</div>
 		</div>
 	</div>
+	<div class="panel panel-default">
+		<div class="panel-heading">
+			<h4 class="panel-title">
+				<a data-toggle="collapse" data-parent="#settings_accordions" href="#collapse_update_url">
+					Update Profile Email<span class="glyphicon glyphicon-plus"></span>
+				</a>
+			</h4>
+		</div>
+
+		<div id="collapse_update_url" class="panel-collapse collapse">
+			<div class="panel-body" data-file="field_config_update_url.php">
+				Loading...
+			</div>
+		</div>
+	</div>
 </div>
 <div class="tile-sidebar sidebar hide-titles-mob standard-collapsible">
     <ul class=''>
@@ -223,6 +238,7 @@ function loadPanel() {
         <a href="?settings=id_card_fields"><li class="<?= $_GET['settings'] == 'id_card_fields' ? 'active blue' : '' ?>">ID Card Fields</li></a>
         <a href="?settings=import"><li class="<?= $_GET['settings'] == 'import' ? 'active blue' : '' ?>">Import Contacts</li></a>
         <a href="?settings=security"><li class="<?= $_GET['settings'] == 'security' ? 'active blue' : '' ?>">Security Settings</li></a>
+        <a href="?settings=update_url"><li class="<?= $_GET['settings'] == 'update_url' ? 'active blue' : '' ?>">Update Profile Email</li></a>
         <?php if(tile_visible($dbc, 'vpl') && FOLDER_NAME == 'vendors') { ?>
 	        <a href="?settings=vpl_tabs"><li class="<?= $_GET['settings'] == 'vpl_tabs' ? 'active blue' : '' ?>">Vendor Price List - Tabs</li></a>
 	        <a href="?settings=vpl_fields"><li class="<?= $_GET['settings'] == 'vpl_fields' ? 'active blue' : '' ?>">Vendor Price List - Fields</li></a>
@@ -285,6 +301,9 @@ function loadPanel() {
 			break;
 		case 'security':
 			include('field_config_security.php');
+			break;
+		case 'update_url':
+			include('field_config_update_url.php');
 			break;
 		case 'regions':
 		default:

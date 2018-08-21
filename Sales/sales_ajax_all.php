@@ -552,6 +552,7 @@ if($_GET['action'] == 'setting_lead_status') {
 	set_config($dbc, 'sales_lead_status', filter_var($_GET['sales_lead_status'],FILTER_SANITIZE_STRING));
 	set_config($dbc, 'lead_status_won', filter_var($_GET['lead_status_won'],FILTER_SANITIZE_STRING));
 	set_config($dbc, 'lead_status_lost', filter_var($_GET['lead_status_lost'],FILTER_SANITIZE_STRING));
+	set_config($dbc, 'lead_status_retained', filter_var($_GET['lead_status_retained'],FILTER_SANITIZE_STRING));
 	set_config($dbc, 'lead_convert_to', filter_var($_GET['lead_convert_to'],FILTER_SANITIZE_STRING));
 }
 if($_GET['action'] == 'setting_auto_archive') {
@@ -597,6 +598,20 @@ if($_GET['action'] == 'update_fields') {
                 foreach(array_filter(explode(',',get_field_value('contactid', $table, $id_field, $id))) as $contactid) {
                     $dbc->query("UPDATE `contacts` SET `category`='$lead_convert_to' WHERE `contactid`='$contactid'");
                 }
+            }
+        } else if($field == 'status' && $value == 'Customers') {
+            $get_config_retained = get_config($dbc, 'lead_status_retained');
+            $lead_convert_to = get_config($dbc, 'lead_convert_to');
+            if(!empty($lead_convert_to)) {
+                foreach(array_filter(explode(',',get_field_value('contactid', $table, $id_field, $id))) as $contactid) {
+                    $dbc->query("UPDATE `contacts` SET `category`='$lead_convert_to' WHERE `contactid`='$contactid'");
+                }
+            }
+            
+            if(!empty($get_config_retained)) {
+                $value = $get_config_retained;
+            } else {
+                $value = $prior;
             }
         }
         
