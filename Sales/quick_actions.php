@@ -1,5 +1,6 @@
 <?php include_once('project_dialog.php'); ?>
 <!-- Quick Action Scripts -->
+<div class="clearfix"></div>
 <script>
 $(document).ready(function() {
     $('.track_time .start').off('click',start_time).click(start_time);
