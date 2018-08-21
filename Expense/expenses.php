@@ -19,7 +19,7 @@ $tab_config = ','.get_config($dbc, 'expense_tabs').','; ?>
 	<div class="row">
 		<?php if(get_config($dbc, 'expense_mode') == 'inbox') {
 			$approvals = approval_visible_function($dbc, 'expense');
-			$tab_counts = mysqli_fetch_array(mysqli_query($dbc, "SELECT SUM(IF(`status` NOT IN ('Approved','Paid'),1,0)) pending, SUM(IF(`status` IN ('Approved'),1,0)) approved, SUM(IF(`status` IN ('Paid'),1,0)) paid, SUM(IF(`status` IN ('Declined'),1,0)) declined
+			$tab_counts = mysqli_fetch_array(mysqli_query($dbc, "SELECT SUM(*) all, SUM(IF(`status` NOT IN ('Approved','Paid'),1,0)) pending, SUM(IF(`status` IN ('Approved'),1,0)) approved, SUM(IF(`status` IN ('Paid'),1,0)) paid, SUM(IF(`status` IN ('Declined'),1,0)) declined
 				FROM `expense` WHERE (`staff`='{$_SESSION['contactid']}' OR '$approvals'='1') AND `deleted`=0")); ?>
 			<h1>
                 <div class="pull-left">Expense Tracking<?php
@@ -80,6 +80,14 @@ $tab_config = ','.get_config($dbc, 'expense_tabs').','; ?>
 			<div class="tile-sidebar sidebar collapsible hide-titles-mob">
 				<ul>
 					<h3><a href="?filter_id=all" <?= !isset($_GET['filter_id']) ? 'class="active"' : '' ?>>Expenses</a></h3>
+					<div>
+						<span class="popover-examples pull-left inline-img"><a data-toggle="tooltip" data-placement="top" title="View and edit all Expenses that have been entered."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
+						<li class="sidebar-higher-level highest-level"><a data-target="#all_cats" data-toggle="collapse" class="cursor-hand <?= $_GET['filter_id'] == 'all' ? 'active' : 'collapsed' ?>">My Expenses<span class="arrow"></span></a>
+							<ul id="all_cats" class="collapse <?= $_GET['filter_id'] == 'all' ? 'in' : '' ?>">
+								<a href="?filter_id=all"><li class="sidebar-higher-level <?= $_GET['filter_id'] == 'all' && empty($_GET['filter_cat']) ? 'active' : '' ?>">All Expenses<span class='pull-right'><?= $tab_counts['all'] ?></span></li></a>
+							</ul>
+						</li>
+					</div>
 					<div>
 						<span class="popover-examples pull-left inline-img"><a data-toggle="tooltip" data-placement="top" title="View, edit and approve all Expenses that have been entered and are still pending."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
 						<li class="sidebar-higher-level highest-level"><a data-target="#pending_cats" data-toggle="collapse" class="cursor-hand <?= $_GET['filter_id'] == 'pending' ? 'active' : 'collapsed' ?>">Pending<span class="arrow"></span></a>
