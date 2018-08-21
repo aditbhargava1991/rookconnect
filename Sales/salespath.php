@@ -715,23 +715,23 @@ function checklist_attach_file(checklist) {
 
                     echo '<ul id="sortable'.$i.'" class="sortable_milestone connectedSortable '.($milestoneid > 0 ? 'full-width' : '').' '.$status.' '.($i > 0 ? 'hidden-xs' : '').'" style="padding-top:0;">'; ?>
 
-                        <div class="info-block-header" data-table="sales_path_custom_milestones">
-                        <h4><?= $milestoneid > 0 ? '<span>'.$label.'</span>'.$alert : '<a href="?p=salespath&id='.$_GET['id'].'&milestone='.$milestone_row['id'].'">'. $label .'</a>'. $alert ?>
-                            <img class="small no-gap-top milestone_name cursor-hand inline-img pull-left" src="../img/icons/ROOK-edit-icon.png">
-                            <img class="small no-gap-top milestone_drag cursor-hand inline-img pull-right" src="../img/icons/drag_handle.png">
-                            <img class="small milestone_add cursor-hand no-gap-top inline-img pull-right" src="../img/icons/ROOK-add-icon.png">
-                            <img class="small milestone_rem cursor-hand no-gap-top inline-img pull-right" src="../img/remove.png">
-                            <input type="hidden" name="sort" value="<?= $milestone_row['sort'] ?>"></h4>
-                            <input type="text" name="milestone_name" data-milestone="<?= $cat_tab ?>" data-id="<?= $milestone_row['id'] ?>" data-table="<?= $milestone_row['table'] ?>" value="<?= $label ?>" style="display:none;" class="form-control">
-                            <div class="small">
-                                <?php if($show_tasks) { ?> TASKS: <?= $task_count ?><?php } ?><?php if($show_forms && strpos($value_config, ',Sales Lead Path Intake,') !== FALSE) { ?> INTAKE: <?= $form_count ?><?php } ?><?php if($show_checklists && strpos($value_config, ',Sales Lead Path Checklists,') !== FALSE) { ?> CHECKLISTS: <?= $checklist_count ?><?php } ?>
-                            </div>
-                            <div class="clearfix"></div>
-                        <div class="clearfix"></div>
-                    </div><?php
+							<div class="info-block-header" data-table="sales_path_custom_milestones">
+							<h4><?= $milestoneid > 0 ? '<span>'.$label.'</span>'.$alert : '<a href="?p=salespath&id='.$_GET['id'].'&milestone='.$milestone_row['id'].'">'. $label .'</a>'. $alert ?>
+								<img class="small no-gap-top milestone_name cursor-hand inline-img" src="../img/icons/ROOK-edit-icon.png">
+								<img class="small no-gap-top milestone_drag cursor-hand inline-img pull-right" src="../img/icons/drag_handle.png">
+								<img class="small milestone_rem cursor-hand no-gap-top inline-img pull-right" src="../img/remove.png">
+								<img class="small milestone_add cursor-hand no-gap-top inline-img pull-right" src="../img/icons/ROOK-add-icon.png">
+								<input type="hidden" name="sort" value="<?= $milestone_row['sort'] ?>"></h4>
+								<input type="text" name="milestone_name" data-milestone="<?= $cat_tab ?>" data-id="<?= $milestone_row['id'] ?>" data-table="<?= $milestone_row['table'] ?>" value="<?= $label ?>" style="display:none;" class="form-control">
+								<div class="small">
+									<?php if($show_tasks) { ?> TASKS: <?= $task_count ?><?php } ?><?php if($show_forms && strpos($value_config, ',Sales Lead Path Intake,') !== FALSE) { ?> INTAKE: <?= $form_count ?><?php } ?><?php if($show_checklists && strpos($value_config, ',Sales Lead Path Checklists,') !== FALSE) { ?> CHECKLISTS: <?= $checklist_count ?><?php } ?>
+								</div>
+                                
+								<div class="clearfix"></div>
+							<div class="clearfix"></div>
+						</div><?php
 
-                    echo '<li class="new_task_box no-sort"><span class="popover-examples list-inline"><a data-toggle="tooltip" data-placement="top" title="Click here to quickly add a task and then hit Enter."><img src="' . WEBSITE_URL . '/img/info.png" width="20"></a></span>
-                        <input onChange="changeEndAme(this)" data-milestone="'.$cat_tab.'" name="add_task" placeholder="Quick Add" id="add_new_task '.$status.' '.$task_path.' '.$taskboardid.'" type="text" class="form-control" style="max-width:96%;" /></li>';
+						echo '<li class="new_task_box no-sort"><input onChange="changeEndAme(this)" data-milestone="'.$cat_tab.'" name="add_task" placeholder="Quick Add" id="add_new_task '.$status.' '.$task_path.' '.$taskboardid.'" type="text" class="form-control" style="max-width:96%;" /></li>';
 
                     while($row = mysqli_fetch_array( $task_result )) {
                         if ( $row['status']==$status_complete ) {

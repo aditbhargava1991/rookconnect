@@ -1,3 +1,38 @@
+<script>
+$(document).ready(function() {
+	allow_sort();
+});
+
+// Allow drag and dropping
+function allow_sort() {
+    $('.dashboard-container').sortable({
+        handle: '.status_handle',
+        items: '.info-block-container',
+        update: function(event, element) {
+            var status_list = [];
+            $('input[name=status_name]').each(function() {
+                status_list.push(this.value);
+            });
+            $.post('sales_ajax_all.php?action=dashboard_lead_statuses', {
+                sales_lead_status: status_list
+            });
+        }
+    });
+	$('.info-block-details').sortable({
+        connectWith: '.info-block-details',
+		items: '.info-block-detail',
+		handle: '.lead-handle',
+		update: function(event, element) {
+			$.ajax({
+				url: 'sales_ajax_all.php?fill=changeLeadStatus&salesid='+element.item.data('id')+'&status='+element.item.closest('.info-block').data('status'),
+				success: function() {
+					window.location.reload();
+				}
+			});
+		}
+	});
+}
+</script>
 <!-- Sales Dashboard -->
 <div class="main-screen-white horizontal-scroll no-overflow-y dashboard-container" style="height:95%"><?php
 	$project_security = get_security($dbc, 'project');
@@ -8,9 +43,15 @@
     foreach ( explode(',', $statuses) as $status ) { ?>
         <div class="col-xs-12 col-sm-6 col-md-4 gap-top info-block-container">
             <div class="info-block" data-status="<?= $status ?>">
+                <input type="text" class="form-control pull-left" name="status_name" value="<?= $status ?>" style="display:none;">
                 <a href="?p=filter&s=<?= $status ?>"><div class="info-block-header">
-                    <h4><?= $status; ?></h4><?php
-                    $count = mysqli_fetch_assoc ( mysqli_query($dbc, "SELECT COUNT(`status`) AS `count` FROM `sales` WHERE `status`='{$status}' AND `deleted`=0" . $query_mod) );
+                    <h4><span><?= $status; ?></span>
+                        <img src="../img/icons/ROOK-edit-icon.png" class="inline-img small" onclick="edit_status(this); return false;">
+                        <img src="../img/icons/drag_handle.png" class="inline-img small pull-right status_handle" onclick="return false;">
+                        <img src="../img/remove.png" class="inline-img small pull-right" onclick="rem_status(this); return false;">
+                        <img src="../img/icons/ROOK-add-icon.png" class="inline-img small pull-right" onclick="add_status(this); return false;">
+                    </h4>
+                    <?php $count = mysqli_fetch_assoc ( mysqli_query($dbc, "SELECT COUNT(`status`) AS `count` FROM `sales` WHERE `status`='{$status}' AND `deleted`=0" . $query_mod) );
                     echo '<div class="info-block-small">' . $count['count'] . '</div>'; ?>
                 </div></a>
                 <div class="info-block-details padded"><?php
@@ -32,6 +73,7 @@
 							$lead_count++; ?>
                             <div class="info-block-detail" data-id="<?= $row['salesid'] ?>" style="<?= $lead_count > 10 ? 'display: none;' : '' ?> <?= empty($flag_colour) ? '' : 'background-color:#'.$flag_colour.';' ?>" data-searchable="<?= get_client($dbc, $row['businessid']); ?> <?= get_contact($dbc, $row['contactid']); ?>" data-colour="<?= $flag_colour ?>">
                                 <span class="flag-label"><?= $flag_label ?></span>
+                                <img src="../img/icons/drag_handle.png" class="inline-img pull-right lead-handle" />
 								<a href="sale.php?p=preview&id=<?= $row['salesid'] ?>"><div class="row set-row-height">
                                     <div class="col-sm-12"><?= get_client($dbc, $row['businessid']); ?><img class="inline-img" src="../img/icons/ROOK-edit-icon.png">
 										<b class="pull-right"><?= '$' . ($row['lead_value'] > 0) ? number_format($row['lead_value'], 2) : '0:00' ; ?></b></div>
@@ -46,7 +88,6 @@
                                             }
                                         }
                                         echo rtrim($contacts, ', '); ?>
-										<img src="../img/icons/drag_handle.png" class="inline-img pull-right lead-handle" />
                                     </div>
                                 </div></a>
 
