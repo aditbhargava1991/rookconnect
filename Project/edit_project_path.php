@@ -4,7 +4,6 @@ include_once('../include.php'); ?>
 
 function mark_done(sel) {
     var task_id = sel.value;
-    alert(task_id);
     var status = '';
     if ( $(sel).is(':checked') ) {
         status = '<?= $status_complete ?>';
@@ -762,7 +761,7 @@ if($_GET['tab'] != 'scrum_board' && !in_array($pathid,['AllSB','SB'])) {
 					<?php } ?>
 				</select></div>
 				<img class="inline-img pull-right no-toggle black-color small" src="../img/project-path.png" title="Select the <?= PROJECT_NOUN ?> Path" onclick="$('.path_select').show(); $(this).hide();">
-				<img class="inline-img pull-right no-toggle black-color small" src="../img/icons/ROOK-add-icon.png" title="Add / Remove Path" onclick="overlayIFrameSlider('edit_project_path_select.php?projectid=<?= $projectid ?>','75%',true)">
+				<img class="inline-img pull-right no-toggle black-color small" src="../img/icons/ROOK-add-icon.png" title="Add / Remove Path" onclick="overlayIFrameSlider('../Project/edit_project_path_select.php?projectid=<?= $projectid ?>','75%',true)">
 			<?php } ?>
 		<?php } ?>
 		</h3></form>

@@ -38,7 +38,7 @@ if($type == 'Ticket') {
 		(in_array('reminder',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-reminder-icon.png" class="inline-img reminder-icon" title="Schedule Reminder">' : '').
 		(in_array('attach',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-attachment-icon.png" class="inline-img attach-icon" title="Attach File">' : '').
 		(in_array('reply',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-reply-icon.png" class="inline-img reply-icon" title="Add Note">' : '').
-		(in_array('archive',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-trash-icon.png" class="inline-img archive-icon" title="Archive">' : '');
+		(in_array('archive',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/trash-icon-red.png" class="inline-img archive-icon" title="Archive">' : '');
 	$status_icon = get_ticket_status_icon($dbc, $item['status']);
 	if(!empty($status_icon)) {
 		if($status_icon == 'initials') {
@@ -278,7 +278,7 @@ if($type == 'Ticket') {
 		(in_array('reply',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-reply-icon.png" class="inline-img reply-icon" title="Reply">' : '').
 		(in_array('time',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-timer-icon.png" class="inline-img time-icon" title="Add Time">' : '').
 		(in_array('timer',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-timer2-icon.png" class="inline-img timer-icon" title="Track Time">' : '').
-		(in_array('archive',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-trash-icon.png" class="inline-img archive-icon" title="Archive">' : '');
+		(in_array('archive',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/trash-icon-red.png" class="inline-img archive-icon" title="Archive">' : '');
 
 	$label = '<input type="checkbox" name="status" data-table="tasklist" data-id="'.$item['tasklistid'].'" onchange="mark_done(this);" data-id-field="tasklistid" '.($item['status'] == $status_complete ? 'checked' : '').' data-incomplete="'.$status_incomplete.'" value="'.$item['tasklistid'].'" class="form-checkbox no-margin small pull-left" '.(!($security['edit'] > 0) ? 'readonly disabled' : '').'>
 		<div class="pull-left" style="max-width: calc(100% - 4em);margin:0 0.5em;"><a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Tasks_Updated/add_task.php?type='.$item['status'].'&tasklistid='.$item['tasklistid'].'\', \'50%\', false, false, $(\'.iframe_overlay\').closest(\'.container\').outerHeight() + 20); return false;">Task #'.$item['tasklistid'].'</a>: '.html_entity_decode($item['heading']).'</div>
@@ -334,7 +334,7 @@ if($type == 'Ticket') {
 		(!in_array('flag_manual',$quick_actions) && in_array('flag',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-flag-icon.png" class="inline-img flag-icon" title="Flag This!">' : '').
 		(in_array('email',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-email-icon.png" class="inline-img email-icon" title="Send Email">' : '').
 		(in_array('reminder',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-reminder-icon.png" class="inline-img reminder-icon" title="Schedule Reminder">' : '').
-		(in_array('archive',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-trash-icon.png" class="inline-img archive-icon" title="Archive">' : '');
+		(in_array('archive',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/trash-icon-red.png" class="inline-img archive-icon" title="Archive">' : '');
 	$label = '<div style="display:inline-block; width:calc(100% - 2em);" class="double-pad-bottom">Intake #'.$item['intakeid'].': '.html_entity_decode($intake_form['form_name']).'</div>
 		<input type="hidden" name="comment" value="" data-name="comment" data-table="intake_comments" data-id-field="intakecommid" data-id="" data-type="'.$item['intakeid'].'" data-type-field="intakeid">';
 
@@ -376,7 +376,7 @@ if($type == 'Ticket') {
 		(in_array('email',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-email-icon.png" class="inline-img email-icon" title="Send Email">' : '').
 		(in_array('reminder',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-reminder-icon.png" class="inline-img reminder-icon" title="Schedule Reminder">' : '').
 		(in_array('attach',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-attachment-icon.png" class="inline-img" data-checklist="'.$item['checklistid'].'" onclick="checklist_attach_file(this); return false;" title="Attach File">' : '').
-		(in_array('archive',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-trash-icon.png" class="inline-img archive-icon" title="Archive">' : '');
+		(in_array('archive',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/trash-icon-red.png" class="inline-img archive-icon" title="Archive">' : '');
 	$label = '<a target="_blank" href="../Checklist/checklist.php?view='.$item['checklistid'].'" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Checklist/checklist.php?view='.$item['checklistid'].'&iframe_slider=1\'); return false;">'.$item['checklist_name'].'</a>';
     $contents = 'INCLUDE_CHECKLIST#*#'.$item['checklistid'];
 } ?>

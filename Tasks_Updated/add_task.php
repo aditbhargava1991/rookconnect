@@ -841,7 +841,7 @@ function mark_done(sel) {
             </h3>-->
             <h3 class="inline"><?= !empty($_GET['tasklistid']) ? 'Edit' : 'Add' ?> Task<?= !empty($_GET['tasklistid']) ? ' #'.$_GET['tasklistid'].': '.$task_heading : '' ?></h3>
             <div class="pull-right"><a href=""><img src="../img/icons/ROOK-status-rejected.jpg" alt="Close" title="Close" class="inline-img" /></a></div>
-            <?php if(!empty($_GET['tasklistid'])) { ?><button name="" type='button' value="" class="delete_task pull-right image-btn" style="margin-top:3px;"><img class="no-margin small" src="../img/icons/ROOK-trash-icon.png" alt="Delete Task" width="25"></button><?php } ?>
+            <?php if(!empty($_GET['tasklistid'])) { ?><button name="" type='button' value="" class="delete_task pull-right image-btn" style="margin-top:3px;"><img class="no-margin small" src="../img/icons/trash-icon-red.png" alt="Delete Task" width="25"></button><?php } ?>
 
             <div class="clearfix"></div>
 
@@ -1386,7 +1386,7 @@ function mark_done(sel) {
             <div class="form-group pull-right">
                 <a href="<?php echo $back_url; ?>" class="btn brand-btn pull-left">Cancel</a>
                 <button name="tasklist" value="tasklist" class="btn brand-btn pull-right">Submit</button>
-                <?php if(!empty($_GET['tasklistid'])) { ?><button name="" type='button' value="" class="delete_task pull-right image-btn"><img class="no-margin small" src="../img/icons/ROOK-trash-icon.png" alt="Delete Task" width="30"></button><?php } ?>
+                <?php if(!empty($_GET['tasklistid'])) { ?><button name="" type='button' value="" class="delete_task pull-right image-btn"><img class="no-margin small" src="../img/icons/trash-icon-red.png" alt="Delete Task" width="30"></button><?php } ?>
                 <div class="clearfix"></div>
             </div>
         </form>
