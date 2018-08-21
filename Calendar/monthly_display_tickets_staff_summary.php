@@ -17,7 +17,7 @@ while($team = mysqli_fetch_assoc($teams)) {
 
 $all_staff = [];
 $all_teams = [];
-$tickets = mysqli_query($dbc,"SELECT * FROM `tickets` WHERE `deleted`=0 AND (`internal_qa_date` = '$new_today_date' OR `deliverable_date` = '$new_today_date' OR '$new_today_date' BETWEEN `to_do_date` AND IFNULL(NULLIF(`to_do_end_date`,'0000-00-00'),`to_do_date`)) AND `status` NOT IN ('Archive','Done')");
+$tickets = mysqli_query($dbc,"SELECT * FROM `tickets` WHERE `deleted`=0 AND (`internal_qa_date` = '$new_today_date' OR `deliverable_date` = '$new_today_date' OR '$new_today_date' BETWEEN `to_do_date` AND IFNULL(NULLIF(`to_do_end_date`,'0000-00-00'),`to_do_date`)) AND `status` NOT IN ('Archive','Done')".$allowed_ticket_types_query);
 while($row = mysqli_fetch_assoc($tickets)) {
 	if($row['internal_qa_date'] == $new_today_date) {
 		$all_contacts = array_filter(array_unique(explode(',', $row['internal_qa_contactid'])));

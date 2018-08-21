@@ -44,27 +44,6 @@ $allowed_dispatch_staff = count($contact_security['dispatch_staff_access']) > 0 
 $allowed_dispatch_team = count($contact_security['dispatch_team_access']) > 0 ? $contact_security['dispatch_team_access'] : 1;
 $allowed_dispatch_contractors = count($contact_security['dispatch_contractor_access']) > 0 ? $contact_security['dispatch_contractor_access'] : 1;
 
-$allowed_roles = [];
-$allowed_ticket_types = [];
-foreach(explode(',', ROLE) as $session_role) {
-    $field_config = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `field_config_calendar_security` WHERE `role` = '$session_role'"));
-    $allowed_roles = array_merge($allowed_roles, explode(',', $field_config['allowed_roles']));
-    $allowed_ticket_types = array_merge($allowed_ticket_types, explode(',', $field_config['allowed_ticket_types']));
-}
-$allowed_roles = array_unique(array_filter($allowed_roles));
-$allowed_ticket_types = array_unique(array_filter($allowed_ticket_types));
-$allowed_roles_query = '';
-$allowed_ticket_types_query = '';
-if(!empty($allowed_roles)) {
-    $allowed_roles_query = " AND (CONCAT(',',`role`,',') LIKE '%,".implode(",%' OR CONCAT(',',`role`,',') LIKE '%,", $allowed_roles).",%')";
-}
-if(!empty($allowed_ticket_types)) {
-    if(in_array(get_config($dbc, 'default_ticket_type'), $allowed_ticket_types)) {
-        $allowed_ticket_types[] = '';
-    }
-    $allowed_ticket_types_query = " AND IFNULL(`tickets`.`ticket_type`,'') IN ('".implode("','", $allowed_ticket_types)."')";
-}
-
 $calendar_checkmark_tickets = get_config($dbc, 'calendar_checkmark_tickets');
 $calendar_checkmark_status = get_config($dbc, 'calendar_checkmark_status');
 if(empty($calendar_checkmark_status)) {
@@ -205,6 +184,27 @@ asort($allowed_regions);
 asort($contact_locations);
 asort($allowed_locations);
 asort($contact_classifications);
+
+$allowed_roles = [];
+$allowed_ticket_types = [];
+foreach(explode(',', ROLE) as $session_role) {
+    $field_config = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `field_config_calendar_security` WHERE `role` = '$session_role' AND `calendar_type` ='".$_GET['type']."'"));
+    $allowed_roles = array_merge($allowed_roles, explode(',', $field_config['allowed_roles']));
+    $allowed_ticket_types = array_merge($allowed_ticket_types, explode(',', $field_config['allowed_ticket_types']));
+}
+$allowed_roles = array_unique(array_filter($allowed_roles));
+$allowed_ticket_types = array_unique(array_filter($allowed_ticket_types));
+$allowed_roles_query = '';
+$allowed_ticket_types_query = '';
+if(!empty($allowed_roles)) {
+    $allowed_roles_query = " AND (CONCAT(',',`role`,',') LIKE '%,".implode(",%' OR CONCAT(',',`role`,',') LIKE '%,", $allowed_roles).",%')";
+}
+if(!empty($allowed_ticket_types)) {
+    if(in_array(get_config($dbc, 'default_ticket_type'), $allowed_ticket_types)) {
+        $allowed_ticket_types[] = '';
+    }
+    $allowed_ticket_types_query = " AND IFNULL(`tickets`.`ticket_type`,'') IN ('".implode("','", $allowed_ticket_types)."')";
+}
 
 $page_query = $_GET;
 
