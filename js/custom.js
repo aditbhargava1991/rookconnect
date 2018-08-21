@@ -326,6 +326,11 @@ function initIconColors() {
 	            src.match('/icons/clock-button.png') ||
 	            src.match('/icons/save.png') ||
                 src.match('/clear-checklist.png') ||
+                src.match('/home_phone.PNG') ||
+                src.match('/cell_phone.PNG') ||
+                src.match('/project-path.png') ||
+                src.match('/id-card.png') ||
+                src.match('/job.png') ||
                 src.match('/icons/recurring.png') ) {
 	            if ( !self.hasClass('white-color') && !self.hasClass('black-color') ) {
 	                self.addClass('theme-color-icon');
