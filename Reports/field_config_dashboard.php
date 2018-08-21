@@ -384,6 +384,9 @@ if (isset($_POST['submit'])) {
         <div class="col-sm-4">
             <label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."Ticket Manifest Summary".',') !== FALSE) { echo " checked"; } ?> value="Ticket Manifest Summary" name="reports_dashboard[]"> Manifest Daily Summary</label>
         </div>
+        <div class="col-sm-4">
+            <label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."Employee Payroll Report".',') !== FALSE) { echo " checked"; } ?> value="Employee Payroll Report" name="reports_dashboard[]"> Employee Payroll Report</label>
+        </div>
 	<div class="clearfix"></div>
 
 
