@@ -537,6 +537,17 @@ if($_GET['action'] == 'setting_fields_dashboard') {
 if($_GET['action'] == 'setting_next_action') {
 	set_config($dbc, 'sales_next_action', filter_var($_GET['sales_next_action'],FILTER_SANITIZE_STRING));
 }
+if($_GET['action'] == 'dashboard_lead_statuses') {
+    if($_POST['action'] == 'rename') {
+        $prior = filter_var($_POST['prior_status'],FILTER_SANITIZE_STRING);
+        $post = filter_var($_POST['post_status'],FILTER_SANITIZE_STRING);
+        $dbc->query("UPDATE `sales` SET `status`='$post' WHERE `status`='$prior' AND `deleted`=0");
+    } else if($_POST['action'] == 'remove') {
+        $prior = filter_var($_POST['prior_status'],FILTER_SANITIZE_STRING);
+        $dbc->query("UPDATE `sales` SET `deleted`='1' WHERE `status`='$prior' AND `deleted`=0");
+    }
+	set_config($dbc, 'sales_lead_status', implode(',',$_POST['sales_lead_status']));
+}
 if($_GET['action'] == 'setting_lead_status') {
 	set_config($dbc, 'sales_lead_status', filter_var($_GET['sales_lead_status'],FILTER_SANITIZE_STRING));
 	set_config($dbc, 'lead_status_won', filter_var($_GET['lead_status_won'],FILTER_SANITIZE_STRING));

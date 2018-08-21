@@ -1,17 +1,6 @@
 <script>
 $(document).ready(function() {
-	$('.main-screen-white').sortable({
-		items: '.info-block-detail',
-		handle: '.lead-handle',
-		update: function(event, element) {
-			$.ajax({
-				url: 'sales_ajax_all.php?fill=changeLeadStatus&salesid='+element.item.data('id')+'&status='+element.item.closest('.info-block').data('status'),
-				success: function() {
-					window.location.reload();
-				}
-			});
-		}
-	});
+	allow_sort();
 
     $('.track_time .start').on('click', function() {
         $(this).closest('.track_time').find('.timer').timer({
@@ -274,6 +263,87 @@ function contactFilter(sel) {
     dialog.find('[name=clientid]').trigger('change.select2');
 }
 $(document).on('change', '.dialog select[name=clientid]', function() { contactFilter(this); });
+// Status Edit Functions
+function edit_status(img) {
+    var item = $(img).closest('.info-block');
+    var prior_status = item.find('input[name=status_name]').val();
+    item.find('h4').hide();
+    item.find('input[name=status_name]').show().focus().off('blur').blur(function() {
+        if(this.value != prior_status) {
+            var status_list = [];
+            $('input[name=status_name]').each(function() {
+                status_list.push(this.value);
+            });
+            item.find('h4 span').text(this.value);
+            item.find('a').attr('href','?p=filter&s='+this.value);
+            item.data('status',this.value);
+            $.post('sales_ajax_all.php?action=dashboard_lead_statuses', {
+                action: 'rename',
+                prior_status: prior_status,
+                post_status: this.value,
+                sales_lead_status: status_list
+            });
+        }
+        $(this).hide();
+        item.find('h4').show();
+    });
+}
+function add_status(img) {
+    $('.dashboard-container').sortable('destroy');
+	$('.main-screen-white').sortable('destroy');
+    var item = $(img).closest('.info-block-container');
+    var clone = item.clone();
+    clone.find('.info-block-detail').remove();
+    clone.find('h4 span').text('New Status');
+    clone.find('input[name=status_name]').val('New Status');
+    clone.find('a').attr('href','?p=filter&s='+'New Status');
+    clone.data('status','New Status');
+    item.after(clone);
+    allow_sort();
+}
+function rem_status(img) {
+    if(confirm("Are you sure you want to remove this status? All <?= SALES_TILE ?> with this status will be archived.")) {
+        $(img).closest('.info-block-container').remove();
+        var status_list = [];
+        $('input[name=status_name]').each(function() {
+            status_list.push(this.value);
+        });
+        $.post('sales_ajax_all.php?action=dashboard_lead_statuses', {
+            action: 'remove',
+            prior_status: $(img).closest('.info-block').find('input[name=status_name]').val(),
+            sales_lead_status: status_list
+        });
+    }
+}
+// Allow drag and dropping
+function allow_sort() {
+    $('.dashboard-container').sortable({
+        handle: '.status_handle',
+        items: '.info-block-container',
+        update: function(event, element) {
+            var status_list = [];
+            $('input[name=status_name]').each(function() {
+                status_list.push(this.value);
+            });
+            $.post('sales_ajax_all.php?action=dashboard_lead_statuses', {
+                sales_lead_status: status_list
+            });
+        }
+    });
+	$('.info-block-details').sortable({
+        connectWith: '.info-block-details',
+		items: '.info-block-detail',
+		handle: '.lead-handle',
+		update: function(event, element) {
+			$.ajax({
+				url: 'sales_ajax_all.php?fill=changeLeadStatus&salesid='+element.item.data('id')+'&status='+element.item.closest('.info-block').data('status'),
+				success: function() {
+					window.location.reload();
+				}
+			});
+		}
+	});
+}
 </script>
 <!-- Dialog -->
 <div id="dialog_choose_project" title="Select <?= PROJECT_NOUN ?> to Assign" class="dialog" style="display:none;">
@@ -335,9 +405,15 @@ $(document).on('change', '.dialog select[name=clientid]', function() { contactFi
     foreach ( explode(',', $statuses) as $status ) { ?>
         <div class="col-xs-12 col-sm-6 col-md-4 gap-top info-block-container">
             <div class="info-block" data-status="<?= $status ?>">
+                <input type="text" class="form-control pull-left" name="status_name" value="<?= $status ?>" style="display:none;">
                 <a href="?p=filter&s=<?= $status ?>"><div class="info-block-header">
-                    <h4><?= $status; ?></h4><?php
-                    $count = mysqli_fetch_assoc ( mysqli_query($dbc, "SELECT COUNT(`status`) AS `count` FROM `sales` WHERE `status`='{$status}' AND `deleted`=0" . $query_mod) );
+                    <h4><span><?= $status; ?></span>
+                        <img src="../img/icons/ROOK-edit-icon.png" class="inline-img small" onclick="edit_status(this); return false;">
+                        <img src="../img/icons/drag_handle.png" class="inline-img small pull-right status_handle" onclick="return false;">
+                        <img src="../img/remove.png" class="inline-img small pull-right" onclick="rem_status(this); return false;">
+                        <img src="../img/icons/ROOK-add-icon.png" class="inline-img small pull-right" onclick="add_status(this); return false;">
+                    </h4>
+                    <?php $count = mysqli_fetch_assoc ( mysqli_query($dbc, "SELECT COUNT(`status`) AS `count` FROM `sales` WHERE `status`='{$status}' AND `deleted`=0" . $query_mod) );
                     echo '<div class="info-block-small">' . $count['count'] . '</div>'; ?>
                 </div></a>
                 <div class="info-block-details padded"><?php
@@ -359,6 +435,7 @@ $(document).on('change', '.dialog select[name=clientid]', function() { contactFi
 							$lead_count++; ?>
                             <div class="info-block-detail" data-id="<?= $row['salesid'] ?>" style="<?= $lead_count > 10 ? 'display: none;' : '' ?> <?= empty($flag_colour) ? '' : 'background-color:#'.$flag_colour.';' ?>" data-searchable="<?= get_client($dbc, $row['businessid']); ?> <?= get_contact($dbc, $row['contactid']); ?>" data-colour="<?= $flag_colour ?>">
                                 <span class="flag-label"><?= $flag_label ?></span>
+                                <img src="../img/icons/drag_handle.png" class="inline-img pull-right lead-handle" />
 								<a href="sale.php?p=preview&id=<?= $row['salesid'] ?>"><div class="row set-row-height">
                                     <div class="col-sm-12"><?= get_client($dbc, $row['businessid']); ?><img class="inline-img" src="../img/icons/ROOK-edit-icon.png">
 										<b class="pull-right"><?= '$' . ($row['lead_value'] > 0) ? number_format($row['lead_value'], 2) : '0:00' ; ?></b></div>
@@ -373,7 +450,6 @@ $(document).on('change', '.dialog select[name=clientid]', function() { contactFi
                                             }
                                         }
                                         echo rtrim($contacts, ', '); ?>
-										<img src="../img/icons/drag_handle.png" class="inline-img pull-right lead-handle" />
                                     </div>
                                 </div></a>
 
