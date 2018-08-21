@@ -182,6 +182,8 @@ function allow_sort() {
                                     <div class="col-sm-5">Follow Up:</div>
                                     <div class="col-sm-7"><input type="text" name="follow_up" value="<?= $row['new_reminder'] ?>" class="form-control datepicker" onchange="changeLeadFollowUpDate(this);" id="fsid_<?= $row['salesid'] ?>" /></div>
                                 </div>
+                                
+                                <div class="clearfix"></div>
                                 <?php include('quick_actions.php'); ?>
                             </div><?php
                         } ?>
