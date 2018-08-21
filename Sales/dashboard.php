@@ -2,7 +2,61 @@
 $(document).ready(function() {
 	allow_sort();
 });
+$(document).on('change', 'select[name="status"]', function() { changeLeadStatus(this); });
+$(document).on('change', 'select[name="next_action"]', function() { changeLeadNextAction(this); });
 
+// Status Edit Functions
+function edit_status(img) {
+    var item = $(img).closest('.info-block');
+    var prior_status = item.find('input[name=status_name]').val();
+    item.find('h4').hide();
+    item.find('input[name=status_name]').show().focus().off('blur').blur(function() {
+        if(this.value != prior_status) {
+            var status_list = [];
+            $('input[name=status_name]').each(function() {
+                status_list.push(this.value);
+            });
+            item.find('h4 span').text(this.value);
+            item.find('a').attr('href','?p=filter&s='+this.value);
+            item.data('status',this.value);
+            $.post('sales_ajax_all.php?action=dashboard_lead_statuses', {
+                action: 'rename',
+                prior_status: prior_status,
+                post_status: this.value,
+                sales_lead_status: status_list
+            });
+        }
+        $(this).hide();
+        item.find('h4').show();
+    });
+}
+function add_status(img) {
+    $('.dashboard-container').sortable('destroy');
+	$('.main-screen-white').sortable('destroy');
+    var item = $(img).closest('.info-block-container');
+    var clone = item.clone();
+    clone.find('.info-block-detail').remove();
+    clone.find('h4 span').text('New Status');
+    clone.find('input[name=status_name]').val('New Status');
+    clone.find('a').attr('href','?p=filter&s='+'New Status');
+    clone.data('status','New Status');
+    item.after(clone);
+    allow_sort();
+}
+function rem_status(img) {
+    if(confirm("Are you sure you want to remove this status? All <?= SALES_TILE ?> with this status will be archived.")) {
+        $(img).closest('.info-block-container').remove();
+        var status_list = [];
+        $('input[name=status_name]').each(function() {
+            status_list.push(this.value);
+        });
+        $.post('sales_ajax_all.php?action=dashboard_lead_statuses', {
+            action: 'remove',
+            prior_status: $(img).closest('.info-block').find('input[name=status_name]').val(),
+            sales_lead_status: status_list
+        });
+    }
+}
 // Allow drag and dropping
 function allow_sort() {
     $('.dashboard-container').sortable({
