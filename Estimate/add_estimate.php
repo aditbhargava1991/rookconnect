@@ -75,6 +75,10 @@ if (isset($_POST['save'])) {
     $result_insert_customer = mysqli_query($dbc, $query_insert_customer);
     $estimateid = mysqli_insert_id($dbc);
 
+		$before_change = '';
+		$history = "Estimates entry has been added. <br />";
+		add_update_history($dbc, 'estimates_history', $history, '', $before_change);
+
     insert_day_overview($dbc, $who_added, 'Estimate', $when_added, '', 'Added Estimate '.$estimate_name);
 
 	//Details
@@ -112,12 +116,20 @@ if (isset($_POST['save'])) {
 
     $result_insert_detail = mysqli_query($dbc, $query_insert_detail);
 
+		$before_change = '';
+		$history = "Estimates details entry has been added. <br />";
+		add_update_history($dbc, 'estimates_history', $history, '', $before_change);
+
     $document = $_FILES["document"]["name"];
     for($i = 0; $i < count($_FILES['document']['name']); $i++) {
         if($document[$i] != '') {
             move_uploaded_file($_FILES["document"]["tmp_name"][$i], "download/" . $_FILES["document"]["name"][$i]) ;
             $query_insert_upload = "INSERT INTO `estimate_document` (`estimateid`, `upload`) VALUES ('$estimateid', '$document[$i]')";
             $result_insert_upload = mysqli_query($dbc, $query_insert_upload);
+
+						$before_change = '';
+            $history = "Estimates documents entry has been added. <br />";
+            add_update_history($dbc, 'estimates_history', $history, '', $before_change);
         }
     }
 
@@ -2588,6 +2600,10 @@ if (isset($_POST['submit'])) {
     $query_update_report = "UPDATE `estimate_detail` SET `detail_detail` = '$detail_detail', `detail_issue` = '$detail_issue', `detail_problem` = '$detail_problem', `detail_technical_uncertainty` = '$detail_technical_uncertainty', `detail_base_knowledge` = '$detail_base_knowledge', `detail_do` = '$detail_do', `detail_already_known` = '$detail_already_known', `detail_sources` = '$detail_sources', `detail_current_designs` = '$detail_current_designs', `detail_known_techniques` = '$detail_known_techniques', `detail_review_needed` = '$detail_review_needed', `detail_looking_to_achieve` = '$detail_looking_to_achieve', `detail_plan` = '$detail_plan', `detail_next_steps` = '$detail_next_steps', `detail_learnt` = '$detail_learnt', `detail_discovered` = '$detail_discovered', `detail_tech_advancements` = '$detail_tech_advancements', `detail_work` = '$detail_work', `detail_adjustments_needed` = '$detail_adjustments_needed', `detail_future_designs` = '$detail_future_designs', `detail_check` = '$detail_check', `detail_objective` = '$detail_objective', `detail_gap` = '$detail_gap', `detail_targets` = '$detail_targets', `detail_audience` = '$detail_audience', `detail_strategy` = '$detail_strategy', `detail_desired_outcome` = '$detail_desired_outcome', `detail_actual_outcome` = '$detail_actual_outcome', `detail_quote_note`='$detail_note' WHERE `estimateid` = '$estimateid'";
     $result_update_report = mysqli_query($dbc, $query_update_report);
 
+		$before_change = '';
+		$history = "Estimates detail entry has been updated for estimate id $estimateid. <br />";
+		add_update_history($dbc, 'estimates_history', $history, '', $before_change);
+
     // Put the html portions together
 	$base_field_config = ','.mysqli_fetch_assoc(mysqli_query($dbc,"SELECT config_fields FROM field_config_estimate WHERE `fieldconfigestimateid` = 1"))['config_fields'].',';
 	$quote_html = '';
@@ -2813,6 +2829,10 @@ if (isset($_POST['submit'])) {
     $query_update_report = "UPDATE `estimate` SET `siteid` = '$siteid', `afe_number` = '$afe_number', `payment_terms` = '$payment_terms', `payment_due` = '$payment_due', `companyrcid` = '$maincompanyrcid', `rate_card_type` = '$ratecardtype', `created_date` = '$created_date', `start_date` = '$start_date', `expiry_date` = '$expiry_date', `estimated_completed_date` = '$estimated_completed_date', `completion_date` = '$completion_date', `estimate_name` = '$estimate_name', `package` = '$package', `promotion` = '$promotion', `material` = '$material', `services` = '$services', `products` = '$products', `sred` = '$sred', `labour` = '$labour', `client` = '$client', `customer` = '$customer', `inventory` = '$inventory', `equipment` = '$equipment', `staff` = '$staff', `contractor` = '$contractor', `expense` = '$expense', `vendor` = '$vendor', `custom` = '$custom', `other_detail` = '$other', `total_price` = '$total_price', `total_price_cad` = '$total_cad', `total_price_usd` = '$total_usd', `estimate_data` = '$html_1', `estimate_data_split` = '$html_split', `quote_mode`='$quote_mode', `quote_multiple`='$quote_multiple', `quote_html`='$quote_html', `review_profit_loss` = '$review_profit_loss_1',  `review_budget` = '$review_budget_1', `status` = 'Submitted', `history` = CONCAT(history,'$history'), `budget_price` = '$budget_price', `financial_cost` = '$financial_cost', `financial_price` = '$financial_price',`financial_profit` = '$financial_profit',`financial_margin` = '$financial_margin', `financial_plus_minus` = '$financial_plus_minus', `assign_staffid` = '$assign_staffid' WHERE `estimateid` = '$estimateid'";
     $result_update_report = mysqli_query($dbc, $query_update_report) or die(mysqli_error($dbc));
 
+		$before_change = '';
+		$history = "Estimates entry has been updated for estimate id $estimateid. <br />";
+		add_update_history($dbc, 'estimates_history', $history, '', $before_change);
+
     //Comment
     $type = '';
     $note_heading = filter_var($_POST['note_heading'],FILTER_SANITIZE_STRING);
@@ -2828,9 +2848,16 @@ if (isset($_POST['submit'])) {
         if($type != '') {
             $query_insert_ca = "INSERT INTO `estimate_comment` (`estimateid`, `comment`, `email_comment`, `created_date`, `created_by`, `type`, `note_heading`) VALUES ('$estimateid', '$t_comment', '$email_comment', '$created_date', '$created_by', '$type', '$note_heading')";
             $result_insert_ca = mysqli_query($dbc, $query_insert_ca);
+
+						$before_change = '';
+            $history = "Estimates comment entry has been added. <br />";
+            add_update_history($dbc, 'estimates_history', $history, '', $before_change);
         } else {
             $query_update_report = "UPDATE `estimate_detail` SET `$note_heading` = CONCAT($note_heading,'$t_comment') WHERE `estimateid` = '$estimateid'";
             $result_update_report = mysqli_query($dbc, $query_update_report);
+						$before_change = '';
+						$history = "Estimates detail entry has been updated for estimate id $estimateid. <br />";
+						add_update_history($dbc, 'estimates_history', $history, '', $before_change);
         }
 
         if ($_POST['send_email_on_comment'] == 'Yes') {
@@ -2858,6 +2885,10 @@ if (isset($_POST['submit'])) {
             move_uploaded_file($_FILES["document"]["tmp_name"][$i], "download/" . $_FILES["document"]["name"][$i]) ;
             $query_insert_upload = "INSERT INTO `estimate_document` (`estimateid`, `upload`) VALUES ('$estimateid', '$document[$i]')";
             $result_insert_upload = mysqli_query($dbc, $query_insert_upload);
+
+						$before_change = '';
+            $history = "Estimates document entry has been added. <br />";
+            add_update_history($dbc, 'estimates_history', $history, '', $before_change);
         }
     }
 

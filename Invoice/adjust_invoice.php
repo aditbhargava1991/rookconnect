@@ -564,8 +564,8 @@ if (isset($_POST['submit_btn'])) {
                             </div>
 
                             <div class="col-sm-2">
-                                <img src="<?= WEBSITE_URL ?>/img/plus.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right" onclick="add_service_row();">
-                                <img src="<?= WEBSITE_URL ?>/img/remove.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right" onclick="rem_service_row(this);">
+                                <img src="<?= WEBSITE_URL ?>/img/remove.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right cursor-hand" onclick="rem_service_row(this);">
+                                <img src="<?= WEBSITE_URL ?>/img/icons/ROOK-add-icon.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right cursor-hand" onclick="add_service_row();">
                             </div>
 
                             <div class="col-sm-12 pay-div"></div>
@@ -598,7 +598,9 @@ if (isset($_POST['submit_btn'])) {
                         $col4 = 1;
                         $col5 = 0;
                     } else if(in_array('inventory_cat',$field_config) && in_array('inventory_part',$field_config) && in_array('inventory_price',$field_config)) {
-                        $col1 = $col2 = $col3 = 2;
+                        //$col1 = $col2 = $col3 = 2;
+                        $col1 = 1;
+                        $col2 = $col3 = 2;
                         $col5 = 1;
                         $col4 = 0;
                     } else if(in_array('inventory_cat',$field_config) && in_array('inventory_type',$field_config) && in_array('inventory_price',$field_config)) {
@@ -828,9 +830,9 @@ if (isset($_POST['submit_btn'])) {
                                     </select>
                                 </div>
                             </div>
-                            <div class="col-sm-2">
-                                <img src="<?= WEBSITE_URL ?>/img/plus.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right" onclick="add_product_row();">
-                                <img src="<?= WEBSITE_URL ?>/img/remove.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right" onclick="rem_product_row(this);">
+                            <div class="col-sm-1">
+                                <img src="<?= WEBSITE_URL ?>/img/remove.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right cursor-hand" onclick="rem_product_row(this);">
+                                <img src="<?= WEBSITE_URL ?>/img/icons/ROOK-add-icon.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right cursor-hand" onclick="add_product_row();">
                             </div>
                             <div class="col-sm-12 pay-div"></div>
                         </div>
@@ -910,8 +912,8 @@ if (isset($_POST['submit_btn'])) {
                                 </div>
                                 <div class="col-sm-2 <?= empty($package) ? '' : 'return_block' ?>">
                                     <?php if(empty($package)) { ?>
-                                        <img src="<?= WEBSITE_URL ?>/img/plus.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right" onclick="add_package_row();">
-                                        <img src="<?= WEBSITE_URL ?>/img/remove.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right" onclick="rem_package_row(this);">
+                                        <img src="<?= WEBSITE_URL ?>/img/remove.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right cursor-hand" onclick="rem_package_row(this);">
+                                        <img src="<?= WEBSITE_URL ?>/img/icons/ROOK-add-icon.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right cursor-hand" onclick="add_package_row();">
                                     <?php } else { ?>
                                         <label><input type="checkbox" name="packagerow_refund[]" value="<?= $insurer_row_id ?>" onchange="countTotalPrice()"> Refund</label>
                                     <?php }
@@ -975,8 +977,8 @@ if (isset($_POST['submit_btn'])) {
                                 </div>
                                 <div class="col-sm-2 <?= empty($misc_item) ? '' : 'return_block' ?>">
                                     <?php if(empty($misc_item)) { ?>
-                                        <img src="<?= WEBSITE_URL ?>/img/plus.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right" onclick="add_misc_row();">
-                                        <img src="<?= WEBSITE_URL ?>/img/remove.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right" onclick="rem_misc_row(this);">
+                                        <img src="<?= WEBSITE_URL ?>/img/remove.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right cursor-hand" onclick="rem_misc_row(this);">
+                                        <img src="<?= WEBSITE_URL ?>/img/icons/ROOK-add-icon.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right cursor-hand" onclick="add_misc_row();">
                                     <?php } else { ?>
                                         <label class="show-on-mob">Refund Qty:</label>
                                         <input type="number" name="misc_return[]" step="any" max="0" min="<?= -$misc_qty ?>" value="0" onchange="countTotalPrice()" class="form-control <?= (empty($misc_item) ? '' : 'misc_qty') ?>">
@@ -1188,8 +1190,8 @@ if (isset($_POST['submit_btn'])) {
                                 </select>
                             </span>
                             <span class="col-sm-1">
-                                <img src="<?= WEBSITE_URL ?>/img/plus.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right" onclick="addmore();" title="Add Additional Appointment">
-                                <img src="<?= WEBSITE_URL ?>/img/remove.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right" onclick="removeclass(this);" title="Remove this Row">
+                                <img src="<?= WEBSITE_URL ?>/img/remove.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right cursor-hand" onclick="removeclass(this);" title="Remove this Row">
+                                <img src="<?= WEBSITE_URL ?>/img/icons/ROOK-add-icon.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right cursor-hand" onclick="addmore();" title="Add Additional Appointment">
                             </span><div class="clearfix"></div>
                         </div>
                     </div>
@@ -1417,8 +1419,8 @@ if (isset($_POST['submit_btn'])) {
                                 <input name="payment_price[]" type="text" id="payment_price_0" class="form-control payment_price" onchange="countTotalPrice();" />
                             </div>
                             <div class="col-sm-1">
-                                <img src="<?= WEBSITE_URL ?>/img/plus.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right" onclick="add_patient_payment_row();">
-                                <img src="<?= WEBSITE_URL ?>/img/remove.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right" onclick="rem_patient_payment_row(this);">
+                                <img src="<?= WEBSITE_URL ?>/img/remove.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right cursor-hand" onclick="rem_patient_payment_row(this);">
+                                <img src="<?= WEBSITE_URL ?>/img/icons/ROOK-add-icon.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right cursor-hand" onclick="add_patient_payment_row();">
                             </div>
                         </div>
 
@@ -1602,8 +1604,8 @@ function pay_mode_selected(paid) {
 					'<a href="#job_file" data-toggle="tooltip" data-placement="top" title="The portion that the <?= count($payer_config) > 1 ? 'Third Party' : $payer_config[0] ?> will pay before tax. The applicable tax will be added to this amount."><img src="<?= WEBSITE_URL ?>/img/info.png" width="20"></a></span></label>'+
 				'<div class="col-sm-2"><input type="number" step="any" name="insurer_payment_amt[]" class="form-control" value="0" onchange="countTotalPrice();">'+
 					'<input type="hidden" name="insurer_row_applied[]" value=""></div>'+
-				'<div class="col-sm-2"><img src="<?= WEBSITE_URL ?>/img/plus.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right" onclick="add_insurer_row(this);">'+
-					'<img src="<?= WEBSITE_URL ?>/img/remove.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right" onclick="rem_insurer_row(this);"></div></div>');
+				'<div class="col-sm-2"><img src="<?= WEBSITE_URL ?>/img/remove.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right cursor-hand" onclick="rem_insurer_row(this);">'+
+					'<img src="<?= WEBSITE_URL ?>/img/icons/ROOK-add-icon.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right cursor-hand" onclick="add_insurer_row(this);"></div></div>');
 			$('[name="insurerid[]"]').select2({
                 width: '100%'
             });
@@ -1678,8 +1680,8 @@ function addmore()
 							'</select></p>'+
 							'</span>'+
 							'<span class="col-sm-1">'+
-							'<img src="<?= WEBSITE_URL ?>/img/plus.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right" onclick="addmore();" title="Add Additional Appointment">'+
-							'<img src="<?= WEBSITE_URL ?>/img/remove.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right" onclick="removeclass(this);" title="Remove this Row">'+
+							'<img src="<?= WEBSITE_URL ?>/img/remove.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right cursor-hand" onclick="removeclass(this);" title="Remove this Row">'+
+							'<img src="<?= WEBSITE_URL ?>/img/icons/ROOK-add-icon.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right cursor-hand" onclick="addmore();" title="Add Additional Appointment">'+
 							'</span><div class="clearfix"></div>'+
 						'</div>';
 	jQuery(insertstring).insertAfter('.' + classname);

@@ -162,13 +162,8 @@ while($row = mysqli_fetch_assoc($tickets)) {
 
     $column .= '<div class="calendar_block calendarSortable" data-ticket="'.$row['ticketid'].'" data-region="'.$row['region'].'" data-blocktype="'.$row['block_type'].'" data-business="'.$row['businessid'].'" data-client="'.$row['clientid'].'" data-contact="'.implode(',',$all_contacts).'" data-team="'.$teams_list[implode(',',$all_contacts)].'">';
 	$column .= '<span class="sortable-blocks" style="display:block; margin: 0.5em; padding:5px; color:black; border-radius: 10px; background-color:'.$row['calendar_color'].';'.$ticket_styling.'"><a href="" onclick="'.($edit_access == 1 ? 'overlayIFrameSlider(\''.WEBSITE_URL.'/Ticket/index.php?calendar_view=true&edit='.$row['ticketid'].'\');' : '').'return false;">';
-	$column .= $recurring_icon.'<b>'.get_ticket_label($dbc, $row, null, null, $calendar_ticket_label).($row['sub_label'] != '' ? '-'.$row['sub_label'] : '').'</b>'.
-		'<br />Staff: '.$assigned_staff.
-		(in_array('project',$calendar_ticket_card_fields) ? '<br />'.PROJECT_NOUN.' #'.$row['projectid'].' '.$row['project_name'] : '').
-		(in_array('customer',$calendar_ticket_card_fields) ? '<br />'.'Customer: '.get_contact($dbc, $row['businessid'], 'name') : '').
-		(in_array('client',$calendar_ticket_card_fields) ? '<br />'.'Client: '.$clients : '').
-		(in_array('time',$calendar_ticket_card_fields) ? '<br />'."(".$estimated_time.") ".$current_start_time." - ".$current_end_time : '');
-	$column .= '<br />'."Status: ".$row['status']."</b>";
+	$column .= $recurring_icon;
+	$column .= calendarTicketLabel($dbc, $row, $max_time, $current_start_time, $current_end_time);
 
 	$column .= '</a></span>';
 	$column .= '</div>';

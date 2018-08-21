@@ -112,8 +112,10 @@ function setUrlWithCurrentDate() {
 <?php $calendar_ticket_hover_staff = get_config($dbc, 'calendar_ticket_hover_staff'); ?>
 function initTicketHoverStaff() {
 	<?php if($calendar_ticket_hover_staff == 1 && $_GET['type'] != 'schedule' && $_GET['type'] != 'event') { ?>
-		$('.calendar_view .used-block,.calendar_table .sortable-blocks').off('mouseover').on('mouseover', function() {
-			displayTicketStaff(this);
+		$('.calendar_view .used-block,.calendar_table .sortable-blocks').off('mouseover').on('mouseover', function(e) {
+			if(!$(e.target).hasClass('drag-handle') && !$(e.target).hasClass('ui-resizable-handle')) {
+				displayTicketStaff(this);
+			}
 		});
 		$('.calendar_view .used-block,.calendar_table .sortable-blocks').off('mouseout').on('mouseout', function() {
 			hideTicketStaff();
@@ -1206,6 +1208,7 @@ function retrieve_items_month(anchor, calendar_date = '', force_show = false, te
 		var block_type = $('#retrieve_block_type').val();
 		var contact = $(block).data($('#retrieve_contact').val());
 		var calendar_view = $('#calendar_view').val();
+		var calendar_mode = $('#calendar_mode').val();
 		if(teamid != '' && teamid > 0) {
 			block_type = 'team';
 			contact = teamid;
@@ -1229,7 +1232,7 @@ function retrieve_items_month(anchor, calendar_date = '', force_show = false, te
 			calendar_dates.forEach(function(calendar_date) {
 				//For each date of this contact, retrieve items
 				var load_request = $.ajax({
-					url: '../Calendar/monthly_display_load.php?<?= http_build_query($_GET) ?>&type='+type+'&block_type='+block_type+'&view='+calendar_view,
+					url: '../Calendar/monthly_display_load.php?<?= http_build_query($_GET) ?>&type='+type+'&block_type='+block_type+'&view='+calendar_view+'&mode='+calendar_mode,
 					method: 'POST',
 					data: {
 						contact_id: contact,

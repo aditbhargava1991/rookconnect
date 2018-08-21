@@ -181,7 +181,6 @@ if (isset($_POST['submit'])) {
         </div>
     <div class="clearfix"></div>
 
-
     <h3>Marketing</h3>
         <div class="col-sm-4">
             <label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."CRM Recommendations - By Customer".',') !== FALSE) { echo " checked"; } ?> value="CRM Recommendations - By Customer" name="reports_dashboard[]"> CRM Recommendations - By Customer</label>
@@ -590,6 +589,9 @@ if (isset($_POST['submit'])) {
 	</div>
   <div class="col-sm-4">
 		<label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."History Services History".',') !== FALSE) { echo " checked"; } ?> value="History Services History" name="reports_dashboard[]"> Services History</label>
+	</div>
+  <div class="col-sm-4">
+		<label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."History Estimates History".',') !== FALSE) { echo " checked"; } ?> value="History Estimates History" name="reports_dashboard[]"> Estimates History</label>
 	</div>
   <div class="col-sm-4">
 		<label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."History Expenses History".',') !== FALSE) { echo " checked"; } ?> value="History Expenses History" name="reports_dashboard[]"> Expenses History</label>

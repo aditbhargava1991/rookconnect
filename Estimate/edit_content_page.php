@@ -4,6 +4,9 @@ $id = $_GET['id'];
 if(isset($_POST['submit'])) {
 	$content = filter_var(htmlentities($_POST['content']),FILTER_SANITIZE_STRING);
 	$dbc->query("UPDATE `estimate_content_page` SET `content`='$content' WHERE `id`='$id'");
+	$before_change = '';
+	$history = "Estimates content page entry has been updated for estimate id $estimateid. <br />";
+	add_update_history($dbc, 'estimates_history', $history, '', $before_change);
 }
 if($id > 0) {
 	$page = $dbc->query("SELECT `content` FROM `estimate_content_page` WHERE `id`='$id'")->fetch_assoc(); ?>

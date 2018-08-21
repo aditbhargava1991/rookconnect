@@ -441,14 +441,14 @@ $(document).ready(function() {
 	$(".refund_tb").hide();
 	$(".treatment_plan").hide();
 
-	$('.serviceid').each(function () {
+	/* $('.serviceid').each(function () {
 		var service_id = this.id;
 		var service = $("#"+service_id+" option:selected").text();
 
 		if (service.toLowerCase().indexOf("assessment") > 0) {
 			$(".treatment_plan").show();
 		}
-	});
+	}); */
 });
 $(document).on('change', 'select[name="type"]', function() { changeInvoiceType(); });
 
@@ -542,7 +542,7 @@ function changeService(sel) {
 	var arr = typeId.split('_');
 	var invoiceid = $("#invoiceid").val();
 
-	$('.serviceid').each(function () {
+	//$('.serviceid').each(function () {
 		var service_id = this.id;
 		var service = $("#"+service_id+" option:selected").text();
 		var editable = $(this).find('option:selected').data('editable');
@@ -555,7 +555,7 @@ function changeService(sel) {
 		if (service.toLowerCase().indexOf("assessment") > 0) {
 			$(".treatment_plan").show();
 		}
-	});
+	//});
 
 	$.ajax({    //create an ajax request to load_page.php
 		type: "GET",
@@ -658,7 +658,11 @@ function changeProduct(sel) {
             success: function(response){
                 response = response.split('#*#');
                 var total_with_gst = +response[0] + (response[1] == 1 ? 0 : Math.round(+response[0] * +$('#tax_rate').val()) / 100);
-                $("#unitprice_"+arr[1]).val(parseFloat(response[0]).toFixed(2)).closest('.form-group').find('[name="insurer_payment_amt[]"]').first().val(total_with_gst);
+                if ( response[0] != '' ) {
+                    $("#unitprice_"+arr[1]).val(parseFloat(response[0]).toFixed(2)).closest('.form-group').find('[name="insurer_payment_amt[]"]').first().val(total_with_gst);
+                } else {
+                    $("#unitprice_"+arr[1]).val(0.00);
+                }
                 $("#sellprice_"+arr[1]).closest('div').find('[name="inventory_gst_exempt[]"]').val(response[1]);
                 $("#sellprice_"+arr[1]).val(parseFloat($("#quantity_"+arr[1]).val()*response[0]).toFixed(2));
                 countTotalPrice();

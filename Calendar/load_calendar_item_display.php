@@ -549,37 +549,7 @@ foreach($calendar_table[0][0] as $calendar_row => $calendar_cell) {
 					if($ticket_status_color_code == 1 && !empty($ticket_status_color[$status])) {
 						$cur_html .= '<div class="ticket-status-color" style="background-color: '.$ticket_status_color[$status].';"></div>';
 					}
-					$cur_html .= '<b>'.get_ticket_label($dbc, $ticket, null, null, $calendar_ticket_label).(empty($calendar_ticket_label) ? $ticket['location_description'] : '').($ticket['sub_label'] != '' ? '-'.$ticket['sub_label'] : '').'</b>'.
-						(in_array('project',$calendar_ticket_card_fields) ? '<br />'.PROJECT_NOUN.' #'.$ticket['projectid'].' '.$ticket['project_name'].'<br />' : '').
-						(in_array('customer',$calendar_ticket_card_fields) ? '<br />'.'Customer: '.get_contact($dbc, $ticket['businessid'], 'name') : '').
-						(in_array('time',$calendar_ticket_card_fields) ? '<br />'.(!empty($max_time) && $max_time != '00:00:00' ? "(".$max_time.") " : '').$start_time." - ".$end_time : '');
-					if(in_array('available',$calendar_ticket_card_fields)) {
-						if($ticket['pickup_start_available'].$ticket['pickup_end_available'] != '') {
-							$cur_html .= '<br />'."Available ";
-							if($ticket['pickup_end_available'] == '') {
-								$cur_html .= "After ".$ticket['pickup_start_available'];
-							} else if($ticket['pickup_start_available'] == '') {
-								$cur_html .= "Before ".$ticket['pickup_end_available'];
-							} else {
-								$cur_html .= "Between ".$ticket['pickup_start_available']." and ".$ticket['pickup_end_available'];
-							}
-						}
-					}
-					$cur_html .= (in_array('address',$calendar_ticket_card_fields) ? '<br />'.$ticket['pickup_name'].($ticket['pickup_name'] != '' ? '<br />' : ' ').$ticket['client_name'].($ticket['client_name'] != '' ? '<br />' : ' ').$ticket['pickup_address'].($ticket['pickup_address'] != '' ? '<br />' : ' ').$ticket['pickup_city'] : '');
-					$cur_html .= '<br />'."Status: ".$status;
-					if(in_array('ticket_notes',$calendar_ticket_card_fields)) {
-						$ticket_notes = mysqli_query($dbc, "SELECT * FROM `ticket_comment` WHERE `ticketid` = '".$ticket['ticketid']."' AND `deleted` = 0");
-						if(mysqli_num_rows($ticket_notes) > 0) {
-							$cur_html .= "<br />Notes: ";
-							while($ticket_note = mysqli_fetch_assoc($ticket_notes)) {
-								$cur_html .= "<br />".trim(trim(html_entity_decode($ticket_note['comment']),"<p>"),"</p>")."<br />";
-								$cur_html .= "<em>Added by ".get_contact($dbc, $ticket_note['created_by'])." at ".$ticket_note['created_date']."</em>";
-							}
-						}
-					}
-					if(in_array('delivery_notes',$calendar_ticket_card_fields) && !empty($ticket['delivery_notes'])) {
-						$cur_html .= '<br />Delivery Notes: '.html_entity_decode($ticket['delivery_notes']);
-					}
+					$cur_html .= calendarTicketLabel($dbc, $ticket, $max_time, $start_time, $end_time);
 					$cur_html .= "</b></div>";
 					$cur_html .= "<div class='clearfix'></div></div>".($ticket_view_access == 1 ? "</a>" : "");
 					$row_htmls[] = $cur_html;
@@ -686,37 +656,7 @@ foreach($calendar_table[0][0] as $calendar_row => $calendar_cell) {
 				if($ticket_status_color_code == 1 && !empty($ticket_status_color[$status])) {
 					$row_html .= '<div class="ticket-status-color" style="background-color: '.$ticket_status_color[$status].';"></div>';
 				}
-				$row_html .= '<b>'.get_ticket_label($dbc, $ticket, null, null, $calendar_ticket_label).(empty($calendar_ticket_label) ? $ticket['location_description'] : '').($ticket['sub_label'] != '' ? '-'.$ticket['sub_label'] : '').'</b>'.
-					(in_array('project',$calendar_ticket_card_fields) ? '<br />'.PROJECT_NOUN.' #'.$ticket['projectid'].' '.$ticket['project_name'].'<br />' : '').
-					(in_array('customer',$calendar_ticket_card_fields) ? '<br />'.'Customer: '.get_contact($dbc, $ticket['businessid'], 'name') : '').
-					(in_array('time',$calendar_ticket_card_fields) ? '<br />'.(!empty($max_time) && $max_time != '00:00:00' ? "(".$max_time.") " : '').$start_time." - ".$end_time : '');
-				if(in_array('available',$calendar_ticket_card_fields)) {
-					if($ticket['pickup_start_available'].$ticket['pickup_end_available'] != '') {
-						$row_html .= '<br />'."Available ";
-						if($ticket['pickup_end_available'] == '') {
-							$row_html .= "After ".$ticket['pickup_start_available'];
-						} else if($ticket['pickup_start_available'] == '') {
-							$row_html .= "Before ".$ticket['pickup_end_available'];
-						} else {
-							$row_html .= "Between ".$ticket['pickup_start_available']." and ".$ticket['pickup_end_available'];
-						}
-					}
-				}
-				$row_html .= (in_array('address',$calendar_ticket_card_fields) ? '<br />'.$ticket['pickup_name'].($ticket['pickup_name'] != '' ? '<br />' : ' ').$ticket['client_name'].($ticket['client_name'] != '' ? '<br />' : ' ').$ticket['pickup_address'].($ticket['pickup_address'] != '' ? '<br />' : ' ').$ticket['pickup_city'] : '');
-				$row_html .= '<br />'."Status: ".$status;
-				if(in_array('ticket_notes',$calendar_ticket_card_fields)) {
-					$ticket_notes = mysqli_query($dbc, "SELECT * FROM `ticket_comment` WHERE `ticketid` = '".$ticket['ticketid']."' AND `deleted` = 0");
-					if(mysqli_num_rows($ticket_notes) > 0) {
-						$row_html .= "<br />Notes: ";
-						while($ticket_note = mysqli_fetch_assoc($ticket_notes)) {
-							$row_html .= "<br />".trim(trim(html_entity_decode($ticket_note['comment']),"<p>"),"</p>")."<br />";
-							$row_html .= "<em>Added by ".get_contact($dbc, $ticket_note['created_by'])." at ".$ticket_note['created_date']."</em>";
-						}
-					}
-				}
-				if(in_array('delivery_notes',$calendar_ticket_card_fields) && !empty($ticket['delivery_notes'])) {
-					$row_html .= '<br />Delivery Notes: '.html_entity_decode($ticket['delivery_notes']);
-				}
+				$row_html .= calendarTicketLabel($dbc, $ticket, $max_time, $start_time, $end_time);
 				$row_html .= "</b></span>";
 				if($ticket['scheduled_lock'] > 0) {
 					$row_html .= "<div class='drag-handle full-height' title='Time is locked for this ".TICKET_NOUN."' onclick='changeScheduledTime(this);'><img class='black-color pull-right inline-img no-slider' src='../img/icons/lock.png'></div>";
@@ -986,24 +926,9 @@ foreach($calendar_table[0][0] as $calendar_row => $calendar_cell) {
 				if($ticket_status_color_code == 1 && !empty($ticket_status_color[$status])) {
 					$row_html .= '<div class="ticket-status-color" style="background-color: '.$ticket_status_color[$status].';"></div>';
 				}
-				$row_html .= $recurring_icon.'<b>'.get_ticket_label($dbc, $ticket, null, null, $calendar_ticket_label).($ticket['sub_label'] != '' ? '-'.$ticket['sub_label'] : '').'</b>'.
-					(in_array('project',$calendar_ticket_card_fields) ? '<br />'.PROJECT_NOUN.' #'.$ticket['projectid'].' '.$ticket['project_name'].'<br />' : '').
-					(in_array('customer',$calendar_ticket_card_fields) ? '<br />'.'Customer: '.get_contact($dbc, $ticket['businessid'], 'name') : '').
-					(in_array('client',$calendar_ticket_card_fields) ? '<br />'.'Client: '.$clients : '').
-					(in_array('time',$calendar_ticket_card_fields) ? '<br />'."(".$estimated_time.") ".$current_start_time." - ".$current_end_time : '');
-				if(in_array('available',$calendar_ticket_card_fields)) {
-					if($ticket['pickup_start_available'].$ticket['pickup_end_available'] != '') {
-						$row_html .= '<br />'."Available ";
-						if($ticket['pickup_end_available'] == '') {
-							$row_html .= "After ".$ticket['pickup_start_available'];
-						} else if($ticket['pickup_start_available'] == '') {
-							$row_html .= "Before ".$ticket['pickup_end_available'];
-						} else {
-							$row_html .= "Between ".$ticket['pickup_start_available']." and ".$ticket['pickup_end_available'];
-						}
-					}
-				}
-				$row_html .= '<br />'."Status: ".$status."</b></span><div class='drag-handle full-height' title='Drag Me!'><img class='black-color pull-right inline-img drag-handle' src='".WEBSITE_URL."/img/icons/drag_handle.png'></div></div>".($ticket_view_access == 1 ? "</a>" : "");
+				$row_html .= $recurring_icon;
+        $row_html .= calendarTicketLabel($dbc, $ticket, $max_time, $current_start_time, $current_end_time);
+				$row_html .= "</b></span><div class='drag-handle full-height' title='Drag Me!'><img class='black-color pull-right inline-img drag-handle' src='".WEBSITE_URL."/img/icons/drag_handle.png'></div></div>".($ticket_view_access == 1 ? "</a>" : "");
 			}
 		} else if ($calendar_col[$calendar_row][0] == 'workorder') {
 			$workorder = $calendar_col[$calendar_row][1];

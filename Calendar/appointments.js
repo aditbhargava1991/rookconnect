@@ -239,7 +239,7 @@ if(window.location.pathname != '/Calendar/calendars_mobile.php' && $('[name="edi
 										alert('This item was recently updated by someone. Your Calendar will be updated with the latest data.');
 										reload_all_data();
 									} else {
-										if(old_contact != contact && item_type == 'ticket' && calendar_type != 'schedule' && calendar_type != 'event') {
+										if(old_contact != contact && item_type == 'ticket' && calendar_type != 'schedule' && calendar_type != 'event' && page_mode != 'client') {
 										    $( "#dialog-staff-add" ).dialog({
 												resizable: false,
 												height: "auto",

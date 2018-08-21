@@ -234,6 +234,7 @@ if ( !empty($note) ) { ?>
 		padding-right:0;
 	}
 }
+.dashboard-icon { margin-right:8px; width:18px; }
 </style>
 <div class="hide-on-mobile"><?php include('../Contacts/contacts_export.php'); ?></div>
 <div class="standard-dashboard-body-content">
@@ -259,39 +260,39 @@ if ( !empty($note) ) { ?>
 						</div>
                         <?php } ?>
 					<div class="col-sm-6">
-						<img src="../img/person.PNG" class="inline-img"><?= '<a href=\'?category='.$row['category'].'&edit='.$row['contactid'].'&from='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']).'\'>'.($row['category'] == 'Business' ? decryptIt($row['name']) : ($row['category'] == 'Sites' ? ($row['display_name'] != '' ? $row['display_name'] : $row['site_name']) : ($row['name'] != '' ? decryptIt($row['name']).': ' : '').decryptIt($row['first_name']) . ' ' . decryptIt($row['last_name']))).'</a>' ?>
+						<img src="../img/person.PNG" class="inline-img dashboard-icon"><?= '<a href=\'?category='.$row['category'].'&edit='.$row['contactid'].'&from='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']).'\'>'.($row['category'] == 'Business' ? decryptIt($row['name']) : ($row['category'] == 'Sites' ? ($row['display_name'] != '' ? $row['display_name'] : $row['site_name']) : ($row['name'] != '' ? decryptIt($row['name']).': ' : '').decryptIt($row['first_name']) . ' ' . decryptIt($row['last_name']))).'</a>' ?>
 					</div>
 					<?php if(in_array('Business', $field_display) && $row['businessid'] > 0): ?>
 						<div class="col-sm-6">
-							<img src="../img/business.PNG" class="inline-img"><?php echo get_contact($dbc, $row['businessid'], 'name'); ?>
+							<img src="../img/business.PNG" class="inline-img dashboard-icon"><?php echo get_contact($dbc, $row['businessid'], 'name'); ?>
 						</div>
 					<?php endif; ?>
 					<?php if(in_array('Email Address', $field_display)): ?>
 						<div class="col-sm-6">
-							<a href="mailto:<?= decryptIt($row['email_address']) ?>"><img src="../img/email.PNG" class="inline-img"><?= decryptIt($row['email_address']) ?></a>
+							<a href="mailto:<?= decryptIt($row['email_address']) ?>"><img src="../img/email.PNG" class="inline-img dashboard-icon"><?= decryptIt($row['email_address']) ?></a>
 						</div>
 					<?php endif; ?>
 					<?php if(in_array('Site', $field_display)): ?>
 						<div class="col-sm-6">
-							<img src="../img/project-path.png" class="inline-img"><?= $row['site_name'] ?>
+							<img src="../img/project-path.png" class="inline-img dashboard-icon"><?= $row['site_name'] ?>
 						</div>
 					<?php endif; ?>
 					<?php if(in_array('Address', $field_display)): ?>
 						<div class="col-sm-6">
 							<?php $address = ($row['business_address'] ?: ($row['address'] ?: ($row['mailing_address'] ?: ($row['ship_to_address'] ?: get_address($dbc, $row['businessid'])))));
 							$address = str_replace("<br>", ", ", $address); ?>
-							<a class="show-on-mob" href="maps:<?= trim($address,', ') ?>"><img src="../img/address.PNG" class="inline-img"><?php echo rtrim(trim($address), ','); ?></a>
-							<a class="hide-on-mobile" href="https://maps.google.com/maps/place/<?= trim($address,', ') ?>"><img src="../img/address.PNG" class="inline-img"><?php echo rtrim(trim($address), ','); ?></a>
+							<a class="show-on-mob" href="maps:<?= trim($address,', ') ?>"><img src="../img/address.PNG" class="inline-img dashboard-icon"><?php echo rtrim(trim($address), ','); ?></a>
+							<a class="hide-on-mobile" href="https://maps.google.com/maps/place/<?= trim($address,', ') ?>"><img src="../img/address.PNG" class="inline-img dashboard-icon"><?php echo rtrim(trim($address), ','); ?></a>
 						</div>
 						<?php if($row['google_maps_address'].$row['ship_google_link'] != ''): ?>
 							<div class="col-sm-6">
-								<a href="<?= $row['google_maps_address'] ?: $row['ship_google_link'] ?>"><img src="../img/address.PNG" class="inline-img">Google Maps</a>
+								<a href="<?= $row['google_maps_address'] ?: $row['ship_google_link'] ?>"><img src="../img/address.PNG" class="inline-img dashboard-icon">Google Maps</a>
 							</div>
 						<?php endif; ?>
 					<?php endif; ?>
 					<?php if(in_array('Pronoun', $field_display)): ?>
 						<div class="col-sm-6">
-							<img src="../img/gender.png" class="inline-img"><?php switch($row['preferred_pronoun']) {
+							<img src="../img/gender.png" class="inline-img dashboard-icon"><?php switch($row['preferred_pronoun']) {
 								case 1: echo "She/Her"; break;
 								case 2: echo "He/Him"; break;
 								case 3: echo "They/Them"; break;
@@ -302,32 +303,32 @@ if ( !empty($note) ) { ?>
 					<?php endif; ?>
 					<?php if(in_array('Birthdate', $field_display)): ?>
 						<div class="col-sm-6">
-							<img src="../img/birthday.png" class="inline-img"><?= $row['birth_date'] ?><?= ( $row['birth_date']=='0000-00-00' || empty($row['birth_date']) ) ? '' : ' Age: '.date_diff(date_create($row['birth_date']), date_create('now'))->y ?>
+							<img src="../img/birthday.png" class="inline-img dashboard-icon"><?= $row['birth_date'] ?><?= ( $row['birth_date']=='0000-00-00' || empty($row['birth_date']) ) ? '' : ' Age: '.date_diff(date_create($row['birth_date']), date_create('now'))->y ?>
 						</div>
 					<?php endif; ?>
 					<?php if(in_array_any(['Office Phone','Home Phone','Cell Phone'],$field_display)) { ?>
 						<div class="col-sm-6">
 							<?php if($row['office_phone'] && in_array('Office Phone', $field_display)): ?>
-								<a href="tel:<?= decryptIt($row['office_phone']) ?>"><img src="../img/office_phone.PNG" class="inline-img"><?= decryptIt($row['office_phone']); ?></a>
+								<a href="tel:<?= decryptIt($row['office_phone']) ?>"><img src="../img/office_phone.PNG" class="inline-img dashboard-icon"><?= decryptIt($row['office_phone']); ?></a>
 							<?php endif; ?>
 							<?php if($row['home_phone'] && in_array('Home Phone', $field_display)): ?>
-								<a href="tel:<?= decryptIt($row['home_phone']) ?>"><img src="../img/home_phone.PNG" class="inline-img"><?= decryptIt($row['home_phone']); ?></a>
+								<a href="tel:<?= decryptIt($row['home_phone']) ?>"><img src="../img/home_phone.PNG" class="inline-img dashboard-icon"><?= decryptIt($row['home_phone']); ?></a>
 							<?php endif; ?>
 							<?php if($row['cell_phone'] && in_array('Cell Phone', $field_display)): ?>
-								<a href="tel:<?= decryptIt($row['cell_phone']) ?>"><img src="../img/cell_phone.PNG" class="inline-img"><?= decryptIt($row['cell_phone']); ?></a>
+								<a href="tel:<?= decryptIt($row['cell_phone']) ?>"><img src="../img/cell_phone.PNG" class="inline-img dashboard-icon"><?= decryptIt($row['cell_phone']); ?></a>
 							<?php endif; ?>
 						</div>
 					<?php } ?>
 					<?php if(in_array('Social', $field_display)) { ?>
 						<div class="col-sm-6">
-							<?php if($row['linkedin'] != '') { ?><a href="<?= $row['linkedin'] ?>"><img src="../img/icons/social/linkedin.png" class="inline-img" /> LinkedIn</a><?php } ?>
-							<?php if($row['facebook'] != '') { ?><a href="<?= $row['facebook'] ?>"><img src="../img/icons/social/facebook.png" class="inline-img" /> Facebook</a><?php } ?>
-							<?php if($row['twitter'] != '') { ?><a href="<?= $row['twitter'] ?>"><img src="../img/icons/social/twitter.png" class="inline-img" /> Twitter</a><?php } ?>
-							<?php if($row['google_plus'] != '') { ?><a href="<?= $row['google_plus'] ?>"><img src="../img/icons/social/google+.png" class="inline-img" /> Google+</a><?php } ?>
-							<?php if($row['instagram'] != '') { ?><a href="<?= $row['instagram'] ?>"><img src="../img/icons/social/instagram.png" class="inline-img" /> Instagram</a><?php } ?>
-							<?php if($row['pinterest'] != '') { ?><a href="<?= $row['pinterest'] ?>"><img src="../img/icons/social/pinterest.png" class="inline-img" /> Pinterest</a><?php } ?>
-							<?php if($row['youtube'] != '') { ?><a href="<?= $row['youtube'] ?>"><img src="../img/icons/social/youtube.png" class="inline-img" /> YouTube</a><?php } ?>
-							<?php if($row['blog'] != '') { ?><a href="<?= $row['blog'] ?>"><img src="../img/icons/social/rss.png" class="inline-img" /> Blog</a><?php } ?>
+							<?php if($row['linkedin'] != '') { ?><a href="<?= $row['linkedin'] ?>"><img src="../img/icons/social/linkedin.png" class="inline-img dashboard-icon" /> LinkedIn</a><?php } ?>
+							<?php if($row['facebook'] != '') { ?><a href="<?= $row['facebook'] ?>"><img src="../img/icons/social/facebook.png" class="inline-img dashboard-icon" /> Facebook</a><?php } ?>
+							<?php if($row['twitter'] != '') { ?><a href="<?= $row['twitter'] ?>"><img src="../img/icons/social/twitter.png" class="inline-img dashboard-icon" /> Twitter</a><?php } ?>
+							<?php if($row['google_plus'] != '') { ?><a href="<?= $row['google_plus'] ?>"><img src="../img/icons/social/google+.png" class="inline-img dashboard-icon" /> Google+</a><?php } ?>
+							<?php if($row['instagram'] != '') { ?><a href="<?= $row['instagram'] ?>"><img src="../img/icons/social/instagram.png" class="inline-img dashboard-icon" /> Instagram</a><?php } ?>
+							<?php if($row['pinterest'] != '') { ?><a href="<?= $row['pinterest'] ?>"><img src="../img/icons/social/pinterest.png" class="inline-img dashboard-icon" /> Pinterest</a><?php } ?>
+							<?php if($row['youtube'] != '') { ?><a href="<?= $row['youtube'] ?>"><img src="../img/icons/social/youtube.png" class="inline-img dashboard-icon" /> YouTube</a><?php } ?>
+							<?php if($row['blog'] != '') { ?><a href="<?= $row['blog'] ?>"><img src="../img/icons/social/rss.png" class="inline-img dashboard-icon" /> Blog</a><?php } ?>
 						</div>
 					<?php } ?>
 					<?php if(in_array('Website', $field_display)): ?>

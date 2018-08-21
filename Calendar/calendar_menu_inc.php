@@ -10,7 +10,7 @@
                 <a href='<?= WEBSITE_URL ?>/Ticket/index.php?edit=0' onclick='overlayIFrameSlider(this.href+"&calendar_view=true"); return false;' class="block-label pull-right">New <?= TICKET_NOUN ?></a><?php
             }
         }
-        if($use_shifts !== '' && $_GET['mode'] != 'staff_summary' && $_GET['mode'] != 'ticket_summary') {
+        if($use_shifts !== '' && $_GET['mode'] != 'staff_summary' && $_GET['mode'] != 'ticket_summary' && $_GET['mode'] != 'client') {
             $shift_fields = ','.mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_contacts_shifts`"))['enabled_fields'].',';
             if(strpos($shift_fields, ',shifts_report,') !== FALSE) { ?>
                 <a href="" onclick='overlayIFrameSlider("<?= WEBSITE_URL ?>/Calendar/shifts_report.php?region=<?= $_GET['region'] ?>"); return false;' class="block-label pull-right shift_btn" <?= $_GET['type'] != 'shift' ? 'style="display:none;"' : '' ?>>Shifts Report</a>
@@ -34,7 +34,7 @@
                 <a href="" onclick='overlayIFrameSlider("<?= WEBSITE_URL ?>/Calendar/shifts.php?<?= http_build_query($page_query) ?>&shiftid=IMPORT"); return false;' class="block-label pull-right shift_btn" <?= $_GET['type'] != 'shift' ? 'style="display:none;"' : '' ?>>Import Shifts</a>
             <?php }
         }
-        if($use_shifts !== '' && $edit_access == 1 && $_GET['mode'] != 'staff_summary' && $_GET['mode'] != 'ticket_summary') {
+        if($use_shifts !== '' && $edit_access == 1 && $_GET['mode'] != 'staff_summary' && $_GET['mode'] != 'ticket_summary' && $_GET['mode'] != 'client') {
             if(!empty($_GET['shiftid'])) {
                 unset($page_query['shiftid']);
             } else {
@@ -93,7 +93,7 @@
             $page_query['add_reminder'] = $_GET['add_reminder'];
         } ?>
         <?php
-        if($all_tickets_button !== '' && $edit_access == 1 && $_GET['view'] != 'monthly' && $_GET['mode'] != 'staff_summary' && $_GET['mode'] != 'ticket_summary') {
+        if($all_tickets_button !== '' && $edit_access == 1 && $_GET['view'] != 'monthly' && $_GET['mode'] != 'staff_summary' && $_GET['mode'] != 'ticket_summary' && $_GET['mode'] != 'client') {
             unset($page_query['equipment_assignmentid']);
             unset($page_query['offline']);
             unset($page_query['teamid']);
@@ -122,7 +122,7 @@
             $page_query['add_reminder'] = $_GET['add_reminder'];
         } ?>
         <?php
-        if($use_unbooked !== '' && $edit_access == 1 && $_GET['mode'] != 'staff_summary' && $_GET['mode'] != 'ticket_summary') {
+        if($use_unbooked !== '' && $edit_access == 1 && $_GET['mode'] != 'staff_summary' && $_GET['mode'] != 'ticket_summary' && $_GET['mode'] != 'client') {
             unset($page_query['equipment_assignmentid']);
             unset($page_query['offline']);
             unset($page_query['teamid']);
