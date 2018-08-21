@@ -88,6 +88,7 @@ if (isset($_POST['submit'])) {
                     <option value="Import Summary" <?= $mobile_landing_subtab_config['value']=='Import Summary' ? 'selected="selected"' : '' ?>>Import Summary Report</option>
                     <option value="Import Details" <?= $mobile_landing_subtab_config['value']=='Import Details' ? 'selected="selected"' : '' ?>>Detailed Import Report</option>
                     <option value="Ticket Manifest Summary" <?= $mobile_landing_subtab_config['value']=='Ticket Manifest Summary' ? 'selected="selected"' : '' ?>>Manifest Daily Summary</option>
+                    <option value="Employee Payroll Report" <?= $mobile_landing_subtab_config['value']=='Employee Payroll Report' ? 'selected="selected"' : '' ?>>Employee Payroll Report</option>
                 </optgroup>
                 <optgroup label="Sales">
                     <option value="Validation by Therapist" <?= $mobile_landing_subtab_config['value']=='Validation by Therapist' ? 'selected="selected"' : '' ?>>Validation by Therapist</option>
@@ -251,6 +252,7 @@ if (isset($_POST['submit'])) {
                     <option value="Import Summary" <?= $desktop_landing_subtab_config['value']=='Import Summary' ? 'selected="selected"' : '' ?>>Import Summary Report</option>
                     <option value="Import Details" <?= $desktop_landing_subtab_config['value']=='Import Details' ? 'selected="selected"' : '' ?>>Detailed Import Report</option>
                     <option value="Ticket Manifest Summary" <?= $desktop_landing_subtab_config['value']=='Ticket Manifest Summary' ? 'selected="selected"' : '' ?>>Manifest Daily Summary</option>
+                    <option value="Employee Payroll Report" <?= $desktop_landing_subtab_config['value']=='Employee Payroll Report' ? 'selected="selected"' : '' ?>>Employee Payroll Report</option>
                 </optgroup>
                 <optgroup label="Sales">
                     <option value="Validation by Therapist" <?= $desktop_landing_subtab_config['value']=='Validation by Therapist' ? 'selected="selected"' : '' ?>>Validation by Therapist</option>

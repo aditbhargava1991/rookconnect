@@ -208,7 +208,7 @@ function report_output($dbc, $staffids, $approved, $starttime, $endtime, $output
 				$min_time = [];
 				$max_time = [];
 				for($cur_day = $starttime; strtotime($cur_day) <= strtotime($endtime); $cur_day = date('Y-m-d', strtotime($cur_day.' + 1 day'))) {
-					$query = mysqli_query($dbc, "SELECT * FROM `time_cards` WHERE `staff` = '$staffid' AND `date` = '$cur_day' AND `deleted` = 0 ".$approv_query." ORDER BY `date`, IFNULL(DATE_FORMAT(CONCAT_WS(' ',DATE(NOW()),`start_time`),'%H:%i'),STR_TO_DATE(`start_time`,'%l:%i %p')) ASC, IFNULL(DATE_FORMAT(CONCAT_WS(' ',DATE(NOW()),`end_time`),'%H:%i'),STR_TO_DATE(`end_time`,'%l:%i %p')) ASC");
+					$query = mysqli_query($dbc, "SELECT * FROM `time_cards` WHERE `staff` = '$staffid' AND `date` = '$cur_day' AND `deleted` = 0 $approv_query ORDER BY `date`, IFNULL(DATE_FORMAT(CONCAT_WS(' ',DATE(NOW()),`start_time`),'%H:%i'),STR_TO_DATE(`start_time`,'%l:%i %p')) ASC, IFNULL(DATE_FORMAT(CONCAT_WS(' ',DATE(NOW()),`end_time`),'%H:%i'),STR_TO_DATE(`end_time`,'%l:%i %p')) ASC");
 					while($row = mysqli_fetch_assoc($query)) {
 						if(!empty($row['start_time']) && (strtotime($row['start_time']) < strtotime($min_time[$cur_day]) || empty($min_time[$cur_day]))) {
 							$min_time[$cur_day] = date('h:i a', strtotime($row['start_time']));
@@ -262,7 +262,7 @@ function report_output($dbc, $staffids, $approved, $starttime, $endtime, $output
 			}
 		}
 	} else {
-		$report_page .= '<h3> No Staff Selected</h3>';
+		$report_page .= '<h3>No Staff Selected</h3>';
 	}
     return $report_page;
 }
