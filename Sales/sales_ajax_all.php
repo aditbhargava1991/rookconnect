@@ -661,4 +661,13 @@ if($_GET['action'] == 'upload_files') {
     $history = $type." named ".$filename." added.";
     add_update_history($dbc, 'sales_history', $history.'<br />', '', '', $salesid);
 }
+if($_GET['action'] == 'new_business') {
+    $dbc->query("INSERT INTO `contacts` (`category`,`name`) VALUES ('".BUSINESS_CAT."','".encryptIt('New '.BUSINESS_CAT)."')");
+    echo $dbc->insert_id;
+}
+if($_GET['action'] == 'new_lead') {
+    $businessid = filter_var($_POST['businessid'],FILTER_SANITIZE_STRING);
+    $dbc->query("INSERT INTO `contacts` (`category`,`first_name`,`businessid`) VALUES ('Sales Leads','".encryptIt('New Sales Lead')."','$businessid')");
+    echo $dbc->insert_id;
+}
 ?>
