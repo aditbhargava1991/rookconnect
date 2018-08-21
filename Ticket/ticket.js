@@ -576,6 +576,7 @@ function saveFieldMethod(field) {
 						}
 					}
 					if(response > 0) {
+						$('[name=contactid]').first().change();
 						$('[name="status"]').change();
 						if(table_name == 'contacts' && field_name == 'site_name') {
 							$('[name=siteid],[name="siteid[]"]').find('option[value="MANUAL"]').prop('selected', false);
