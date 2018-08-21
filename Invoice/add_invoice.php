@@ -755,8 +755,8 @@ if(in_array('touch',$ux_options) && (!in_array('standard',$ux_options) || $_GET[
                                 </div>
 
                                 <div class="col-sm-1">
-									<img src="<?= WEBSITE_URL ?>/img/plus.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right" onclick="add_service_row();">
-									<img src="<?= WEBSITE_URL ?>/img/remove.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right" onclick="rem_service_row(this);">
+									<img src="<?= WEBSITE_URL ?>/img/remove.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right cursor-hand" onclick="rem_service_row(this);">
+									<img src="<?= WEBSITE_URL ?>/img/icons/ROOK-add-icon.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right cursor-hand" onclick="add_service_row();">
                                 </div>
 
                                 <div class="col-sm-12 pay-div"></div>
@@ -807,8 +807,8 @@ if(in_array('touch',$ux_options) && (!in_array('standard',$ux_options) || $_GET[
 						</div>
 
 						<div class="col-sm-1">
-							<img src="<?= WEBSITE_URL ?>/img/plus.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right" onclick="add_service_row();">
-							<img src="<?= WEBSITE_URL ?>/img/remove.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right" onclick="rem_service_row(this);">
+							<img src="<?= WEBSITE_URL ?>/img/remove.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right cursor-hand" onclick="rem_service_row(this);">
+							<img src="<?= WEBSITE_URL ?>/img/icons/ROOK-add-icon.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right cursor-hand" onclick="add_service_row();">
 						</div>
 
 						<div class="col-sm-12 pay-div"></div>
@@ -990,8 +990,8 @@ if(in_array('touch',$ux_options) && (!in_array('standard',$ux_options) || $_GET[
 										<input name="inventory_gst_exempt[]" type="hidden" value="<?= $gst_exempt ?>" />
                                     </div>
 									<div class="col-sm-1">
-										<img src="<?= WEBSITE_URL ?>/img/plus.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right" onclick="add_product_row();">
-										<img src="<?= WEBSITE_URL ?>/img/remove.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right" onclick="rem_product_row(this);">
+										<img src="<?= WEBSITE_URL ?>/img/remove.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right cursor-hand" onclick="rem_product_row(this);">
+										<img src="<?= WEBSITE_URL ?>/img/icons/ROOK-add-icon.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right cursor-hand" onclick="add_product_row();">
 									</div>
 									<div class="col-sm-12 pay-div"></div>
                                 </div>
@@ -1075,8 +1075,8 @@ if(in_array('touch',$ux_options) && (!in_array('standard',$ux_options) || $_GET[
                             </div>
                         </div>
 						<div class="col-sm-1">
-							<img src="<?= WEBSITE_URL ?>/img/plus.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right" onclick="add_product_row();">
-							<img src="<?= WEBSITE_URL ?>/img/remove.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right" onclick="rem_product_row(this);">
+							<img src="<?= WEBSITE_URL ?>/img/remove.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right cursor-hand" onclick="rem_product_row(this);">
+							<img src="<?= WEBSITE_URL ?>/img/icons/ROOK-add-icon.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right cursor-hand" onclick="add_product_row();">
 						</div>
 						<div class="col-sm-12 pay-div"></div>
 					</div>
@@ -1135,8 +1135,8 @@ if(in_array('touch',$ux_options) && (!in_array('standard',$ux_options) || $_GET[
 								<input name="package_gst_exempt[]" type="hidden" value="0" />
 							</div>
 							<div class="col-sm-1">
-								<img src="<?= WEBSITE_URL ?>/img/plus.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right" onclick="add_package_row();">
-								<img src="<?= WEBSITE_URL ?>/img/remove.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right" onclick="rem_package_row(this);">
+								<img src="<?= WEBSITE_URL ?>/img/remove.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right cursor-hand" onclick="rem_package_row(this);">
+								<img src="<?= WEBSITE_URL ?>/img/icons/ROOK-add-icon.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right cursor-hand" onclick="add_package_row();">
 							</div>
 							<div class="col-sm-12 pay-div"></div>
 						</div>
@@ -1186,8 +1186,8 @@ if(in_array('touch',$ux_options) && (!in_array('standard',$ux_options) || $_GET[
 								<input name="misc_row_id[]" type="hidden" value="<?= $insurer_row_id++ ?>" class="insurer_row_id" />
 							</div>
 							<div class="col-sm-1">
-								<img src="<?= WEBSITE_URL ?>/img/plus.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right" onclick="add_misc_row();">
-								<img src="<?= WEBSITE_URL ?>/img/remove.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right" onclick="rem_misc_row(this);">
+								<img src="<?= WEBSITE_URL ?>/img/remove.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right cursor-hand" onclick="rem_misc_row(this);">
+								<img src="<?= WEBSITE_URL ?>/img/icons/ROOK-add-icon.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right cursor-hand" onclick="add_misc_row();">
 							</div>
 							<div class="col-sm-12 pay-div"></div>
 						</div>
@@ -1652,8 +1652,8 @@ if(in_array('touch',$ux_options) && (!in_array('standard',$ux_options) || $_GET[
                             </select>
                         </span>
                         <span class="col-sm-1">
-							<img src="<?= WEBSITE_URL ?>/img/plus.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right" onclick="addmore();" title="Add Additional Appointment">
-							<img src="<?= WEBSITE_URL ?>/img/remove.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right" onclick="removeclass(this);" title="Remove this Row">
+							<img src="<?= WEBSITE_URL ?>/img/remove.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right cursor-hand" onclick="removeclass(this);" title="Remove this Row">
+							<img src="<?= WEBSITE_URL ?>/img/icons/ROOK-add-icon.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right cursor-hand" onclick="addmore();" title="Add Additional Appointment">
                         </span><div class="clearfix"></div>
                     </div>
                 </div>
@@ -1893,8 +1893,8 @@ if(in_array('touch',$ux_options) && (!in_array('standard',$ux_options) || $_GET[
                                 <input name="payment_price[]" value="<?php echo $patient_payment_pay[1];?>" type="text" class="form-control payment_price" onchange="countTotalPrice();" />
                             </div>
 							<div class="col-sm-1">
-								<img src="<?= WEBSITE_URL ?>/img/plus.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right" onclick="add_patient_payment_row();">
-								<img src="<?= WEBSITE_URL ?>/img/remove.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right" onclick="rem_patient_payment_row(this);">
+								<img src="<?= WEBSITE_URL ?>/img/remove.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right cursor-hand" onclick="rem_patient_payment_row(this);">
+								<img src="<?= WEBSITE_URL ?>/img/icons/ROOK-add-icon.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right cursor-hand" onclick="add_patient_payment_row();">
 							</div>
                         </div>
                     <?php }
@@ -1920,8 +1920,8 @@ if(in_array('touch',$ux_options) && (!in_array('standard',$ux_options) || $_GET[
 							<input name="payment_price[]" type="text" id="payment_price_0" class="form-control payment_price" onchange="countTotalPrice();" />
 						</div>
 						<div class="col-sm-1">
-							<img src="<?= WEBSITE_URL ?>/img/plus.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right" onclick="add_patient_payment_row();">
-							<img src="<?= WEBSITE_URL ?>/img/remove.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right" onclick="rem_patient_payment_row(this);">
+							<img src="<?= WEBSITE_URL ?>/img/remove.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right cursor-hand" onclick="rem_patient_payment_row(this);">
+							<img src="<?= WEBSITE_URL ?>/img/icons/ROOK-add-icon.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right cursor-hand" onclick="add_patient_payment_row();">
 						</div>
 					</div>
 
@@ -2141,8 +2141,8 @@ function pay_mode_selected(paid) {
 					'<a href="#job_file" data-toggle="tooltip" data-placement="top" title="The portion that the <?= count($payer_config) > 1 ? 'Third Party' : $payer_config[0] ?> will pay."><img src="<?= WEBSITE_URL ?>/img/info.png" width="20"></a></span></label>'+
 				'<div class="col-sm-2"><input type="number" step="any" name="insurer_payment_amt[]" class="form-control" value="0" onchange="countTotalPrice();">'+
 					'<input type="hidden" name="insurer_row_applied[]" value=""></div>'+
-				'<div class="col-sm-2"><img src="<?= WEBSITE_URL ?>/img/plus.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right" onclick="add_insurer_row(this);">'+
-					'<img src="<?= WEBSITE_URL ?>/img/remove.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right" onclick="rem_insurer_row(this);"></div></div>');
+				'<div class="col-sm-2"><img src="<?= WEBSITE_URL ?>/img/remove.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right cursor-hand" onclick="rem_insurer_row(this);">'+
+					'<img src="<?= WEBSITE_URL ?>/img/icons/ROOK-add-icon.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right cursor-hand" onclick="add_insurer_row(this);"></div></div>');
 			$('[name="insurerid[]"]').select2({
                 width: '100%'
             });
@@ -2217,8 +2217,8 @@ function addmore()
 							'</select></p>'+
 							'</span>'+
 							'<span class="col-sm-1">'+
-							'<img src="<?= WEBSITE_URL ?>/img/plus.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right" onclick="addmore();" title="Add Additional Appointment">'+
-							'<img src="<?= WEBSITE_URL ?>/img/remove.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right" onclick="removeclass(this);" title="Remove this Row">'+
+							'<img src="<?= WEBSITE_URL ?>/img/remove.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right cursor-hand" onclick="removeclass(this);" title="Remove this Row">'+
+							'<img src="<?= WEBSITE_URL ?>/img/icons/ROOK-add-icon.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right cursor-hand" onclick="addmore();" title="Add Additional Appointment">'+
 							'</span><div class="clearfix"></div>'+
 						'</div>';
 	jQuery(insertstring).insertAfter('.' + classname);

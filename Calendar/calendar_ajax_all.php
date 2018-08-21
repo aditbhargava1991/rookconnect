@@ -484,6 +484,13 @@ if($_GET['fill'] == 'move_appt') {
 				} else if($old_contact != $contact) {
 					$contact_query = "`internal_qa_contactid` = ',$contact,',";
 				}
+				if($_POST['mode'] == 'client') {
+					if($old_contact != $contact) {
+						$contact_query = "`clientid` = ',$contact,',";
+					} else {
+						$contact_query = '';
+					}
+				}
 				$sql = "UPDATE `tickets` SET $contact_query `internal_qa_start_time` = '$start_time', `internal_qa_end_time` = '$end_time', `internal_qa_date` = '$start_date' WHERE `ticketid` = '$ticketid'";
 				$offline_table[] = 'tickets';
 				$offline_tableid[] = $ticketid;
@@ -515,6 +522,13 @@ if($_GET['fill'] == 'move_appt') {
 					$contact_query = "`deliverable_contactid` = '$deliverable_contactid',";
 				} else if($old_contact != $contact) {
 					$contact_query = "`deliverable_contactid` = ',$contact,',";
+				}
+				if($_POST['mode'] == 'client') {
+					if($old_contact != $contact) {
+						$contact_query = "`clientid` = ',$contact,',";
+					} else {
+						$contact_query = '';
+					}
 				}
 				$sql = "UPDATE `tickets` SET $contact_query `deliverable_start_time` = '$start_time', `deliverable_end_time` = '$end_time', `deliverable_date` = '$start_date' WHERE `ticketid` = '$ticketid'";
 				$offline_table[] = 'tickets';
@@ -557,6 +571,14 @@ if($_GET['fill'] == 'move_appt') {
 					$contacts = array_filter(array_unique(explode(',',$ticket['contactid'])));
 				}
 				$contact_query = "`contactid` = ',".implode(',',$contacts).",', ";
+				if($_POST['mode'] == 'client') {
+					$contacts = '';
+					if($old_contact != $contact) {
+						$contact_query = "`clientid` = ',$contact,',";
+					} else {
+						$contact_query = '';
+					}
+				}
 				foreach($contacts as $contact) {
 					if(strtolower(get_contact($dbc, $contact, 'category')) == 'staff') {
 						if($td_blocktype == 'team') {
@@ -651,7 +673,11 @@ if($_GET['fill'] == 'move_appt') {
 			$ticket = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticketid` = '$ticketid'"));
 			$all_contacts = $ticket['contactid'].','.$ticket['deliverable_contactid'].','.$ticket['internal_qa_contactid'];
 			$all_contacts = array_merge(array_filter(explode(',', $all_contacts)),$all_contacts_old);
-			echo json_encode($all_contacts);
+			if($_POST['mode'] == 'client') {
+				echo json_encode([$old_contact,$contact]);
+			} else {
+				echo json_encode($all_contacts);
+			}
 		}
 	} else if($_POST['item'] == 'ticket_schedule') {
 		$id = $_POST['id'];
@@ -1996,7 +2022,16 @@ if($_GET['fill'] == 'move_appt_month') {
 		$add_staff = $_POST['add_staff'];
 		$ticket = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT *, IFNULL(NULLIF(`to_do_end_date`,'0000-00-00'),`to_do_date`) `to_do_end_date` FROM `tickets` WHERE `ticketid` = '$ticketid'"));
 		$status = $ticket['status'];
-		if($add_staff == 1 && !empty($contactid)) {
+		if($_POST['mode'] == 'client') {
+			$contacts = '';
+			if ($status == 'Internal QA') {
+				$contactid = trim($ticket['internal_qa_contactid'],',');
+			} else if ($status == 'Customer QA') {
+				$contactid = trim($ticket['deliverable_contactid'],',');
+			} else {
+				$contactid = trim($ticket['contactid'],',');
+			}
+		} else if($add_staff == 1 && !empty($contactid)) {
 			$td_blocktype = $new_td_blocktype;
 			if($td_blocktype == 'team') {
 				$teamid = $contactid;

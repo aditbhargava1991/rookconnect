@@ -140,6 +140,10 @@ echo '<input type="hidden" name="ticket_view_access" value="'.$ticket_view_acces
 		$retrieve_collapse = 'collapse_contact';
 		$retrieve_block_type = '';
 		$retrieve_contact = 'contact';
+	} else if($_GET['type'] == 'ticket' && $_GET['mode'] == 'client') {
+		$retrieve_collapse = 'collapse_clients';
+		$retrieve_block_type = '';
+		$retrieve_contact = 'client';
 	} else {
 		$retrieve_collapse = 'collapse_staff';
 		$retrieve_block_type = '';
@@ -356,12 +360,15 @@ echo '<input type="hidden" name="ticket_view_access" value="'.$ticket_view_acces
 					<a href="?type=shift&mode=client&view=<?= $_GET['view'] ?>&region=<?= $_GET['region'] ?>"><span class="block-item <?= $_GET['mode'] == 'client' ? 'active' : '' ?>" style="float: left;"><?= $shift_client_type ?></span></a>
 					<a href="?type=shift&mode=staff&view=<?= $_GET['view'] ?>&region=<?= $_GET['region'] ?>"><span class="block-item <?= $_GET['mode'] != 'client' && $_GET['mode'] != 'tickets' ? 'active' : '' ?>" style="float: left;">Staff</span></a>
 				<?php }
-			} else if($_GET['type'] == 'ticket' && in_array('Ticket Calendar', $calendar_types) && check_subtab_persmission($dbc, 'calendar_rook', ROLE, 'Ticket Calendar') && ($staff_summary == 1 || $ticket_summary == 1)) { ?>
+			} else if($_GET['type'] == 'ticket' && in_array('Ticket Calendar', $calendar_types) && check_subtab_persmission($dbc, 'calendar_rook', ROLE, 'Ticket Calendar') && ($staff_summary == 1 || $ticket_summary_tab == 1 || $client_tab == 1)) { ?>
 				<a href="?type=ticket&mode=&view=<?= $_GET['view'] ?>&region=<?= $_GET['region'] ?>"><span class="block-item <?= empty($_GET['mode']) || $_GET['mode'] == 'staff' ? 'active' : '' ?>" style="float: left;">Staff</span></a>
+				<?php if($client_tab == 1) { ?>
+					<a href="?type=ticket&mode=client&view=<?= $_GET['view'] ?>&region=<?= $_GET['region'] ?>"><span class="block-item <?= $_GET['mode'] == 'client' ? 'active' : '' ?>" style="float: left;">Client</span></a>
+				<?php } ?>
 				<?php if($staff_summary == 1) { ?>
 					<a href="?type=ticket&mode=staff_summary&view=<?= $_GET['view'] ?>&region=<?= $_GET['region'] ?>"><span class="block-item <?= $_GET['mode'] == 'staff_summary' ? 'active' : '' ?>" style="float: left;">Staff Summary</span></a>
 				<?php } ?>
-				<?php if($ticket_summary == 1) { ?>
+				<?php if($ticket_summary_tab == 1) { ?>
 					<a href="?type=ticket&mode=ticket_summary&view=<?= $_GET['view'] ?>&region=<?= $_GET['region'] ?>"><span class="block-item <?= $_GET['mode'] == 'ticket_summary' ? 'active' : '' ?>" style="float: left;"><?= TICKET_NOUN ?> Summary</span></a>
 				<?php }
 			} ?>

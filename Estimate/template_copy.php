@@ -6,8 +6,14 @@
 	$headings = mysqli_query($dbc, "SELECT `heading` FROM `estimate_scope` WHERE `estimateid`='$estimateid' AND `deleted`=0 GROUP BY `heading`");
 	while($heading = mysqli_fetch_assoc($headings)['heading']) {
 		mysqli_query($dbc, "INSERT INTO `estimate_template_headings` (`template_id`, `heading_name`) VALUES ('$templateid','$heading')");
+		$before_change = '';
+		$history = "Estimates template heading entry has been added. <br />";
+		add_update_history($dbc, 'estimates_history', $history, '', $before_change);
 		$headingid = mysqli_insert_id($dbc);
 		mysqli_query($dbc, "INSERT INTO `estimate_template_lines` (`heading_id`, `src_table`, `description`, `src_id`, `qty`, `sort_order`) SELECT '$headingid', `src_table`, `description`, `src_id`, `qty`, `sort_order` FROM `estimate_scope` WHERE `estimateid`='$estimateid' AND `heading`='$heading' AND `deleted`=0");
+		$before_change = '';
+		$history = "Estimates template line entry has been added. <br />";
+		add_update_history($dbc, 'estimates_history', $history, '', $before_change);
 	}
 
 	echo "<script> window.location.replace('?template=".$templateid."'); </script>";

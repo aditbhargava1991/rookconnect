@@ -25,7 +25,7 @@ $(document).ready(function() {
 	reload_all_data_month();
 
 	//Display active blocks when collapsed
-	displayActiveBlocks();
+	displayActiveBlocksAuto();
 	$('.collapsible .sidebar .panel').on('hidden.bs.collapse', function() {
 		$(this).next('.active_blocks').show();
 	});
@@ -50,13 +50,13 @@ function toggle_columns(type = global_type) {
 		global_type = 'staff';
 	} else if(type == 'team') {
 		$('#collapse_equipment').find('.block-item').removeClass('active');
-		$('#collapse_staff').find('.block-item').removeClass('active');
-		$('#collapse_contractors').find('.block-item').removeClass('active');
+		$('[id^=collapse_staff]').find('.block-item').removeClass('active');
+		$('[id^=collapse_contractors]').find('.block-item').removeClass('active');
 		global_type = 'team';
 	} else {
-		$('#collapse_staff').find('.block-item').removeClass('active');
+		$('[id^=collapse_staff]').find('.block-item').removeClass('active');
 		$('#collapse_teams').find('.block-item').removeClass('active');
-		$('#collapse_contractors').find('.block-item').removeClass('active');
+		$('[id^=collapse_contractors]').find('.block-item').removeClass('active');
 		global_type = '';
 	}
 	$('.active_blocks .block-item,.active_blocks').hide();
@@ -249,7 +249,7 @@ function toggle_columns(type = global_type) {
 		$('.active_blocks_teams .block-item').filter(function() { return $(this).data('teamid') == teamid; }).show();
 	});
 	// Hide staff that are not attached to selected regions/classifications/location
-	$('#collapse_staff,#collapse_contractors').find('.block-item').each(function() {
+	$('[id^=collapse_staff],[id^=collapse_contractors]').find('.block-item').each(function() {
 		var this_region = $(this).data('region');
 		var this_classification = $(this).data('classification');
 		var this_location = $(this).data('location');
@@ -262,7 +262,7 @@ function toggle_columns(type = global_type) {
 	});
     
 	// Filter selected staff
-	$('#collapse_staff,#collapse_contractors').find('.block-item.active').each(function() {
+	$('[id^=collapse_staff],[id^=collapse_contractors]').find('.block-item.active').each(function() {
 		var staffid = $(this).data('staff');
 		staff.push(parseInt(staffid));
 		if(type == 'staff') {
@@ -317,17 +317,7 @@ function toggle_columns(type = global_type) {
 		});
 	}
 	resize_calendar_view_monthly();
-	displayActiveBlocks();
-}
-function displayActiveBlocks() {
-	$('.active_blocks').each(function() {
-		var accordion = $(this).data('accordion');
-		if($('#'+accordion).hasClass('in')) {
-			$(this).hide();
-		} else {
-			$(this).show();
-		}
-	});
+	displayActiveBlocksAuto();
 }
 </script>
 <?php
@@ -363,18 +353,18 @@ if (empty($equipment_category)) {
 						}
 						$color_box = '<span style="height: 15px; width: 15px; background-color: '.$color_styling.'; border: 1px solid black; float: right;"></span>';
 						if(in_array($region, $allowed_regions)) {
-							echo "<a href='' onclick='$(this).closest(\".panel\").find(\".block-item\").not($(this).find(\".block-item\")).removeClass(\"active\"); $(this).find(\".block-item\").toggleClass(\"active\"); toggle_columns(); return false;'><div class='block-item ".(in_array($region,$active_regions) ? 'active' : '')."' data-region='".$region."'>".$region.$color_box."</div></a>";
+							echo "<a href='' onclick='$(this).closest(\".panel\").find(\".block-item\").not($(this).find(\".block-item\")).removeClass(\"active\"); $(this).find(\".block-item\").toggleClass(\"active\"); toggle_columns(); return false;'><div class='block-item ".(in_array($region,$active_regions) ? 'active' : '')."' data-region='".$region."' data-activevalue='".$region."'>".$region.$color_box."</div></a>";
 						}
 					}
-					echo "<a href='' onclick='$(this).closest(\".panel\").find(\".block-item\").not($(this).find(\".block-item\")).removeClass(\"active\"); $(this).find(\".block-item\").toggleClass(\"active\"); toggle_columns(); return false;'><div class='block-item ".(in_array('**UNASSIGNED**',$active_regions) ? 'active' : '')."' data-region='**UNASSIGNED**'>Unassigned Region</div></a>"; ?>
+					echo "<a href='' onclick='$(this).closest(\".panel\").find(\".block-item\").not($(this).find(\".block-item\")).removeClass(\"active\"); $(this).find(\".block-item\").toggleClass(\"active\"); toggle_columns(); return false;'><div class='block-item ".(in_array('**UNASSIGNED**',$active_regions) ? 'active' : '')."' data-region='**UNASSIGNED**' data-activevalue='**UNASSIGNED**'>Unassigned Region</div></a>"; ?>
 					</div>
 				</div>
 			</div>
 			<div class="active_blocks_regions active_blocks" data-accordion="collapse_region" style="display: none;">
 				<?php foreach($region_list as $region) { ?>
-					<div class="block-item active" data-region="<?= $region ?>"><?= $region ?></div> 
+					<div class="block-item active" data-activevalue="<?= $region ?>"><?= $region ?></div> 
 				<?php } ?>
-				<div class="block-item active" data-region="**UNASSIGNED**">Unassigned Region</div>
+				<div class="block-item active" data-activevalue="**UNASSIGNED**">Unassigned Region</div>
 			</div>
 			<?php } ?>
             
@@ -392,17 +382,17 @@ if (empty($equipment_category)) {
 					<div class="panel-body panel-body-height" style="overflow-y: auto; padding: 0;"><?php $active_locations = array_filter(explode(',',get_user_settings()['appt_calendar_locations']));
 					$location_list = $allowed_locations;
 					foreach($location_list as $location) {
-						echo "<a href='' onclick='$(this).find(\".block-item\").toggleClass(\"active\"); toggle_columns(); return false;'><div class='block-item ".(in_array($location,$active_locations) ? 'active' : '')."' data-location='".$location."'>".$location."</div></a>";
+						echo "<a href='' onclick='$(this).find(\".block-item\").toggleClass(\"active\"); toggle_columns(); return false;'><div class='block-item ".(in_array($location,$active_locations) ? 'active' : '')."' data-location='".$location."' data-activevalue='".$location."'>".$location."</div></a>";
 					}
-					echo "<a href='' onclick='$(this).find(\".block-item\").toggleClass(\"active\"); toggle_columns(); return false;'><div class='block-item ".(in_array('**UNASSIGNED**',$active_locations) ? 'active' : '')."' data-location='**UNASSIGNED**'>Unassigned Location</div></a>"; ?>
+					echo "<a href='' onclick='$(this).find(\".block-item\").toggleClass(\"active\"); toggle_columns(); return false;'><div class='block-item ".(in_array('**UNASSIGNED**',$active_locations) ? 'active' : '')."' data-location='**UNASSIGNED**' data-activevalue='**UNASSIGNED**'>Unassigned Location</div></a>"; ?>
 					</div>
 				</div>
 			</div>
 			<div class="active_blocks_locations active_blocks" data-accordion="collapse_locations" style="display: none;">
 				<?php foreach($location_list as $location) { ?>
-					<div class="block-item active" data-location="<?= $location ?>"><?= $location ?></div> 
+					<div class="block-item active" data-activevalue="<?= $location ?>"><?= $location ?></div> 
 				<?php } ?>
-				<div class="block-item active" data-location="**UNASSIGNED**">Unassigned Location</div>
+				<div class="block-item active" data-activevalue="**UNASSIGNED**">Unassigned Location</div>
 			</div>
 			<?php } ?>
             
@@ -419,17 +409,17 @@ if (empty($equipment_category)) {
 				<div id="collapse_classifications" class="panel-collapse collapse">
 					<div class="panel-body panel-body-height" style="overflow-y: auto; padding: 0; height: auto;"><?php $active_classifications = array_filter(explode(',',get_user_settings()['appt_calendar_classifications']));
 					foreach($contact_classifications as $i => $classification) {
-						echo "<a href='' onclick='$(this).find(\".block-item\").toggleClass(\"active\"); toggle_columns(); return false;'><div class='block-item ".(in_array($classification,$active_classifications) ? 'active' : '')."' data-regions='".json_encode($classification_regions[$i])."' data-classification='".$classification."'>".getClassificationLogo($dbc, $classification, $classification_logos[$i]).$classification."<span class='id-circle active_user_count pull-right' style='background-color: #00ff00; font-family: \"Open Sans\"; display: none;' onmouseover='displayActiveUsers(this);' onmouseout='hideActiveUsers();'>0</span></div></a>";
+						echo "<a href='' onclick='$(this).find(\".block-item\").toggleClass(\"active\"); toggle_columns(); return false;'><div class='block-item ".(in_array($classification,$active_classifications) ? 'active' : '')."' data-regions='".json_encode($classification_regions[$i])."' data-classification='".$classification."' data-activevalue='".$classification."'>".getClassificationLogo($dbc, $classification, $classification_logos[$i]).$classification."<span class='id-circle active_user_count pull-right' style='background-color: #00ff00; font-family: \"Open Sans\"; display: none;' onmouseover='displayActiveUsers(this);' onmouseout='hideActiveUsers();'>0</span></div></a>";
 					}
-					echo "<a href='' onclick='$(this).find(\".block-item\").toggleClass(\"active\"); toggle_columns(); return false;'><div class='block-item ".(in_array('**UNASSIGNED**',$active_classifications) ? 'active' : '')."' data-regions='[]' data-classification='**UNASSIGNED**'><span data-classification='**UNASSIGNED**' class='id-circle' style='background-color: #6DCFF6; font-family: \"Open Sans\";'>UC</span>Unassigned Classification</div></a>"; ?>
+					echo "<a href='' onclick='$(this).find(\".block-item\").toggleClass(\"active\"); toggle_columns(); return false;'><div class='block-item ".(in_array('**UNASSIGNED**',$active_classifications) ? 'active' : '')."' data-regions='[]' data-classification='**UNASSIGNED**' data-activevalue='**UNASSIGNED**'><span data-classification='**UNASSIGNED**' class='id-circle' style='background-color: #6DCFF6; font-family: \"Open Sans\";'>UC</span>Unassigned Classification</div></a>"; ?>
 					</div>
 				</div>
 			</div>
 			<div class="active_blocks_classifications active_blocks" data-accordion="collapse_classifications" style="display: none;">
 				<?php foreach($contact_classifications as $classification) { ?>
-					<div class="block-item active" data-classification="<?= $classification ?>"><?= $classification ?></div> 
+					<div class="block-item active" data-activevalue="<?= $classification ?>"><?= $classification ?></div> 
 				<?php } ?>
-				<div class="block-item active" data-classification="**UNASSIGNED**">Unassigned Classification</div>
+				<div class="block-item active" data-activevalue="**UNASSIGNED**">Unassigned Classification</div>
 			</div>
 			<?php } ?>
         
@@ -448,14 +438,14 @@ if (empty($equipment_category)) {
 							<?php $active_clients = array_filter(explode(',',get_user_settings()['appt_calendar_clients']));
 							$client_list = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `contacts` WHERE `deleted` = 0 AND `status` = 1 AND `category` = '".$client_type."'".$region_query),MYSQLI_ASSOC));
 							foreach($client_list as $clientid) {
-								echo "<a href='' onclick='$(this).find(\".block-item\").toggleClass(\"active\"); toggle_columns(); return false;'><div class='block-item ".(in_array($clientid,$active_clients) ? 'active' : '')."' data-client='".$clientid."' data-region='".get_contact($dbc, $clientid, 'region')."' data-classification='".get_contact($dbc, $clientid, 'classification')."' data-location='".get_contact($dbc, $clientid, 'location')."'>".(!empty(get_client($dbc, $clientid)) ? get_client($dbc, $clientid) : get_contact($dbc, $clientid))."</div></a>";
+								echo "<a href='' onclick='$(this).find(\".block-item\").toggleClass(\"active\"); toggle_columns(); return false;'><div class='block-item ".(in_array($clientid,$active_clients) ? 'active' : '')."' data-client='".$clientid."' data-region='".get_contact($dbc, $clientid, 'region')."' data-classification='".get_contact($dbc, $clientid, 'classification')."' data-location='".get_contact($dbc, $clientid, 'location')."' data-activevalue='".$clientid."'>".(!empty(get_client($dbc, $clientid)) ? get_client($dbc, $clientid) : get_contact($dbc, $clientid))."</div></a>";
 							} ?>
 						</div>
 					</div>
 				</div>
 				<div class="active_blocks_customers active_blocks" data-accordion="collapse_customers" style="display: none;">
 					<?php foreach($client_list as $clientid) { ?>
-						<div class="block-item active" data-client="<?= $clientid ?>"><?= (!empty(get_client($dbc, $clientid)) ? get_client($dbc, $clientid) : get_contact($dbc, $clientid)) ?></div> 
+						<div class="block-item active" data-activevalue="<?= $clientid ?>"><?= (!empty(get_client($dbc, $clientid)) ? get_client($dbc, $clientid) : get_contact($dbc, $clientid)) ?></div> 
 					<?php } ?>
 				</div>
 			<?php } ?>
@@ -496,84 +486,164 @@ if (empty($equipment_category)) {
 							// $equip_regions = implode('*#*',array_filter(array_unique([$equipment['region'], $equip_assign['region']])));
 							// $equip_locations = implode('*#*',array_filter(array_unique([$equipment['location'], $equip_assign['location']])));
 							// $equip_classifications = implode('*#*',array_filter(array_unique([$equipment['classification'], $equip_assign['classification']])));
-							echo "<a href='' onclick='$(this).find(\".block-item\").toggleClass(\"active\"); toggle_columns(\"\"); return false;'><div class='block-item ".(in_array($equipment['equipmentid'],$active_equipment) ? 'active' : '')."' data-equipment='".$equipment['equipmentid']."' data-client='".$clientids."' data-region='".$equip_regions."' data-classification='".$equip_classifications."' data-location='".$equip_locations."'>".$equipment['label'].$classification_label."</div></a>";
+							echo "<a href='' onclick='$(this).find(\".block-item\").toggleClass(\"active\"); toggle_columns(\"\"); return false;'><div class='block-item ".(in_array($equipment['equipmentid'],$active_equipment) ? 'active' : '')."' data-equipment='".$equipment['equipmentid']."' data-client='".$clientids."' data-region='".$equip_regions."' data-classification='".$equip_classifications."' data-location='".$equip_locations."' data-activevalue='".$equipment['equipmentid']."'>".$equipment['label'].$classification_label."</div></a>";
 						} ?>
 					</div>
 				</div>
 			</div>
 			<div class="active_blocks_equipment active_blocks" data-accordion="collapse_equipment" style="display: none;">
 				<?php foreach($equip_list as $equipment) { ?>
-					<div class="block-item active" data-equipment="<?= $equipment['equipmentid'] ?>"><?= $equipment['label'] ?></div> 
+					<div class="block-item active" data-activevalue="<?= $equipment['equipmentid'] ?>"><?= $equipment['label'] ?></div> 
 				<?php } ?>
 			</div>
 
 			<?php if($allowed_dispatch_staff > 0 && $_GET['mode'] != 'contractors') { ?>
-			<div class="panel panel-default">
-				<div class="panel-heading">
-					<h4 class="panel-title">
-						<a data-toggle="collapse" data-parent="#category_accordions" href="#collapse_staff" >
-							<span style="display: inline-block; width: calc(100% - 6em);">Staff</span><span class="glyphicon glyphicon-plus"></span>
-						</a>
-					</h4>
-				</div>
+				<?php if($staff_split_security != 1) { ?>
+					<div class="panel panel-default">
+						<div class="panel-heading">
+							<h4 class="panel-title">
+								<a data-toggle="collapse" data-parent="#category_accordions" href="#collapse_staff" >
+									<span style="display: inline-block; width: calc(100% - 6em);">Staff</span><span class="glyphicon glyphicon-plus"></span>
+								</a>
+							</h4>
+						</div>
 
-				<div id="collapse_staff" class="panel-collapse collapse <?= $_GET['mode'] == 'staff' ? 'in' : '' ?>">
-					<div class="panel-body" style="overflow-y: auto; padding: 0;">
-					<?php $active_staff = array_filter(explode(',',get_user_settings()['appt_calendar_staff']));
-					$get_field_config = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_equip_assign`"));
-					$contact_category = !empty($get_field_config) ? explode(',', $get_field_config['contact_category']) : '';
-					$staff_list = sort_contacts_query(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name` FROM `contacts` WHERE `category` IN (".("'".implode("','",$contact_category)."'").") AND `deleted`=0 AND `status`=1 AND `show_hide_user`=1 AND IFNULL(`calendar_enabled`,1)=1".$region_query));
-					foreach ($staff_list as $staff_row) {
-						$staff_id = $staff_row['contactid'];
-						$staff_equipassigns = mysqli_fetch_array(mysqli_query($dbc, "SELECT GROUP_CONCAT(DISTINCT ea.`equipment_assignmentid` SEPARATOR ',') as ea_list, GROUP_CONCAT(DISTINCT ea.`equipmentid` SEPARATOR ',') as eq_list FROM `equipment_assignment` ea LEFT JOIN `equipment_assignment_staff` eas ON ea.`equipment_assignmentid` = eas.`equipment_assignmentid` WHERE ea.`deleted` = 0 AND (DATE(`start_date`) BETWEEN '$date_month_start' AND '$date_month_end' OR DATE(`end_date`) BETWEEN '$date_month_start' AND '$date_month_end') AND ((eas.`contactid` = '$staff_id' AND eas.`deleted` = 0) $teams_query) AND CONCAT(',',ea.`hide_staff`,',') NOT LIKE '%,$staff_id,%'"));
-						echo "<a href='' onclick='$(this).find(\".block-item\").toggleClass(\"active\"); toggle_columns(\"staff\"); return false;'><div class='block-item ".(in_array($staff_id,$active_staff) ? 'active' : '')."' data-staff='$staff_id' data-category='".get_contact($dbc, $staff_id, 'category_contact')."' data-region='".get_contact($dbc, $staff_id, 'region')."' data-classification='".get_contact($dbc, $staff_id, 'classification')."' data-location='".get_contact($dbc, $staff_id, 'location')."' data-equipassign='".$staff_equipassigns['ea_list']."' data-equipment='".$staff_equipassigns['eq_list']."'>";
-						profile_id($dbc, $staff_id);
-						echo $staff_row['full_name']."</div></a>";
-					}
+						<div id="collapse_staff" class="panel-collapse collapse <?= $_GET['mode'] == 'staff' ? 'in' : '' ?>">
+							<div class="panel-body" style="overflow-y: auto; padding: 0;">
+							<?php $active_staff = array_filter(explode(',',get_user_settings()['appt_calendar_staff']));
+							$get_field_config = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_equip_assign`"));
+							$contact_category = !empty($get_field_config) ? explode(',', $get_field_config['contact_category']) : '';
+							$staff_list = sort_contacts_query(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name` FROM `contacts` WHERE `category` IN (".("'".implode("','",$contact_category)."'").") AND `deleted`=0 AND `status`=1 AND `show_hide_user`=1 AND IFNULL(`calendar_enabled`,1)=1".$region_query.$allowed_roles_query));
+							foreach ($staff_list as $staff_row) {
+								$staff_id = $staff_row['contactid'];
+								$staff_equipassigns = mysqli_fetch_array(mysqli_query($dbc, "SELECT GROUP_CONCAT(DISTINCT ea.`equipment_assignmentid` SEPARATOR ',') as ea_list, GROUP_CONCAT(DISTINCT ea.`equipmentid` SEPARATOR ',') as eq_list FROM `equipment_assignment` ea LEFT JOIN `equipment_assignment_staff` eas ON ea.`equipment_assignmentid` = eas.`equipment_assignmentid` WHERE ea.`deleted` = 0 AND (DATE(`start_date`) BETWEEN '$date_month_start' AND '$date_month_end' OR DATE(`end_date`) BETWEEN '$date_month_start' AND '$date_month_end') AND ((eas.`contactid` = '$staff_id' AND eas.`deleted` = 0) $teams_query) AND CONCAT(',',ea.`hide_staff`,',') NOT LIKE '%,$staff_id,%'"));
+								echo "<a href='' onclick='$(this).find(\".block-item\").toggleClass(\"active\"); toggle_columns(\"staff\"); return false;'><div class='block-item ".(in_array($staff_id,$active_staff) ? 'active' : '')."' data-staff='$staff_id' data-category='".get_contact($dbc, $staff_id, 'category_contact')."' data-region='".get_contact($dbc, $staff_id, 'region')."' data-classification='".get_contact($dbc, $staff_id, 'classification')."' data-location='".get_contact($dbc, $staff_id, 'location')."' data-equipassign='".$staff_equipassigns['ea_list']."' data-equipment='".$staff_equipassigns['eq_list']."' data-activevalue='".$staff_id."'>";
+								profile_id($dbc, $staff_id);
+								echo $staff_row['full_name']."</div></a>";
+							}
 
-					?>
+							?>
+							</div>
+						</div>
 					</div>
-				</div>
-			</div>
-			<div class="active_blocks_staff active_blocks" data-accordion="collapse_staff" style="display: none;">
-				<?php foreach($staff_list as $staff_row) { ?>
-					<div class="block-item active" data-staff="<?= $staff_row['contactid'] ?>"><?= $staff_row['full_name'] ?></div> 
-				<?php } ?>
-			</div>
+					<div class="active_blocks_staff active_blocks" data-accordion="collapse_staff" style="display: none;">
+						<?php foreach($staff_list as $staff_row) { ?>
+							<div class="block-item active" data-activevalue="<?= $staff_row['contactid'] ?>"><?= $staff_row['full_name'] ?></div> 
+						<?php } ?>
+					</div>
+				<?php } else {
+					$collapse_in = $_GET['mode'] == 'staff' ? 'in' : '';
+					foreach(get_security_levels($dbc) as $security_label => $security_level) {
+						if(empty($allowed_roles) || in_array($security_level, $allowed_roles)) { ?>
+							<div class="panel panel-default">
+								<div class="panel-heading">
+									<h4 class="panel-title">
+										<a data-toggle="collapse" data-parent="#category_accordions" href="#collapse_staff_<?= config_safe_str($security_level) ?>" >
+											<span style="display: inline-block; width: calc(100% - 6em);"><?= $security_label ?></span><span class="glyphicon glyphicon-plus"></span>
+										</a>
+									</h4>
+								</div>
+
+								<div id="collapse_staff_<?= config_safe_str($security_level) ?>" class="panel-collapse collapse <?php echo $collapse_in; $collapse_in = ''; ?>">
+									<div class="panel-body" style="overflow-y: auto; padding: 0;">
+									<?php $active_staff = array_filter(explode(',',get_user_settings()['appt_calendar_staff']));
+									$get_field_config = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_equip_assign`"));
+									$contact_category = !empty($get_field_config) ? explode(',', $get_field_config['contact_category']) : '';
+									$staff_list = sort_contacts_query(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name` FROM `contacts` WHERE `category` IN (".("'".implode("','",$contact_category)."'").") AND `deleted`=0 AND `status`=1 AND `show_hide_user`=1 AND IFNULL(`calendar_enabled`,1)=1 AND CONCAT(',',`role`,',') LIKE '%,$security_level,%'".$region_query.$allowed_roles_query));
+									foreach ($staff_list as $staff_row) {
+										$staff_id = $staff_row['contactid'];
+										$staff_equipassigns = mysqli_fetch_array(mysqli_query($dbc, "SELECT GROUP_CONCAT(DISTINCT ea.`equipment_assignmentid` SEPARATOR ',') as ea_list, GROUP_CONCAT(DISTINCT ea.`equipmentid` SEPARATOR ',') as eq_list FROM `equipment_assignment` ea LEFT JOIN `equipment_assignment_staff` eas ON ea.`equipment_assignmentid` = eas.`equipment_assignmentid` WHERE ea.`deleted` = 0 AND (DATE(`start_date`) BETWEEN '$date_month_start' AND '$date_month_end' OR DATE(`end_date`) BETWEEN '$date_month_start' AND '$date_month_end') AND ((eas.`contactid` = '$staff_id' AND eas.`deleted` = 0) $teams_query) AND CONCAT(',',ea.`hide_staff`,',') NOT LIKE '%,$staff_id,%'"));
+										echo "<a href='' onclick='$(this).find(\".block-item\").toggleClass(\"active\"); toggle_columns(\"staff\"); return false;'><div class='block-item ".(in_array($staff_id,$active_staff) ? 'active' : '')."' data-staff='$staff_id' data-category='".get_contact($dbc, $staff_id, 'category_contact')."' data-region='".get_contact($dbc, $staff_id, 'region')."' data-classification='".get_contact($dbc, $staff_id, 'classification')."' data-location='".get_contact($dbc, $staff_id, 'location')."' data-equipassign='".$staff_equipassigns['ea_list']."' data-equipment='".$staff_equipassigns['eq_list']."' data-activevalue='".$staff_id."'>";
+										profile_id($dbc, $staff_id);
+										echo $staff_row['full_name']."</div></a>";
+									}
+
+									?>
+									</div>
+								</div>
+							</div>
+							<div class="active_blocks_staff active_blocks" data-accordion="collapse_staff_<?= config_safe_str($security_level) ?>" style="display: none;">
+								<?php foreach($staff_list as $staff_row) { ?>
+									<div class="block-item active" data-activevalue="<?= $staff_row['contactid'] ?>"><?= $staff_row['full_name'] ?></div> 
+								<?php } ?>
+							</div>
+						<?php }
+					}
+				} ?>
 			<?php } ?>
 			<?php if($allowed_dispatch_contractors > 0 && !empty($contractor_category) && $_GET['mode'] != 'staff') { ?>
-			<div class="panel panel-default">
-				<div class="panel-heading">
-					<h4 class="panel-title">
-						<a data-toggle="collapse" data-parent="#category_accordions" href="#collapse_contractors" >
-							<span style="display: inline-block; width: calc(100% - 6em);">Contractors</span><span class="glyphicon glyphicon-plus"></span>
-						</a>
-					</h4>
-				</div>
+				<?php if($contractor_split_security != 1) { ?>
+					<div class="panel panel-default">
+						<div class="panel-heading">
+							<h4 class="panel-title">
+								<a data-toggle="collapse" data-parent="#category_accordions" href="#collapse_contractors" >
+									<span style="display: inline-block; width: calc(100% - 6em);">Contractors</span><span class="glyphicon glyphicon-plus"></span>
+								</a>
+							</h4>
+						</div>
+            
+						<div id="collapse_contractors" class="panel-collapse collapse <?= $_GET['mode'] == 'contractors' ? 'in' : '' ?>">
+							<div class="panel-body" style="overflow-y: auto; padding: 0;">
+							<?php $active_staff = array_filter(explode(',',get_user_settings()['appt_calendar_staff']));
+							$get_field_config = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_equip_assign`"));
+							$contractor_category = !empty($get_field_config['contractor_category']) ? explode(',', $get_field_config['contractor_category']) : '';
+							$staff_list = sort_contacts_query(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name`, `name`, `category`, `category_contact`, `region`, `classification`, `con_locations` FROM `contacts` WHERE `category` IN (".("'".implode("','",$contractor_category)."'").") AND `deleted`=0 AND `status`=1 AND `show_hide_user`=1 AND IFNULL(`calendar_enabled`,1)=1".$region_query.$allowed_roles_query));
+							foreach ($staff_list as $staff_row) {
+		                        $staff_id = $staff_row['contactid'];
+								$staff_equipassigns = mysqli_fetch_array(mysqli_query($dbc, "SELECT GROUP_CONCAT(DISTINCT ea.`equipment_assignmentid` SEPARATOR ',') as ea_list, GROUP_CONCAT(DISTINCT ea.`equipmentid` SEPARATOR ',') as eq_list FROM `equipment_assignment` ea LEFT JOIN `equipment_assignment_staff` eas ON ea.`equipment_assignmentid` = eas.`equipment_assignmentid` WHERE ea.`deleted` = 0 AND (DATE(`start_date`) BETWEEN '$date_month_start' AND '$date_month_end' OR DATE(`end_date`) BETWEEN '$date_month_start' AND '$date_month_end') AND ((eas.`contactid` = '$staff_id' AND eas.`deleted` = 0) $teams_query) AND CONCAT(',',ea.`hide_staff`,',') NOT LIKE '%,$staff_id,%'"));
+								echo "<a href='' onclick='$(this).find(\".block-item\").toggleClass(\"active\"); toggle_columns(\"staff\"); return false;'><div class='block-item ".(in_array($staff_id,$active_staff) ? 'active' : '')."' data-staff='$staff_id' data-category='".$staff_row['category_contact']."' data-region='".$staff_row['region']."' data-classification='".$staff_row['classification']."' data-location='".$staff_row['con_locations']."' data-equipassign='".$staff_equipassigns['ea_list']."' data-equipment='".$staff_equipassigns['eq_list']."' data-contractor='1' data-activevalue='".$staff_id."'>";
+								profile_id($dbc, $staff_id);
+								echo $staff_row['full_name']."</div></a>";
+							}
 
-				<div id="collapse_contractors" class="panel-collapse collapse <?= $_GET['mode'] == 'contractors' ? 'in' : '' ?>">
-					<div class="panel-body" style="overflow-y: auto; padding: 0;">
-					<?php $active_staff = array_filter(explode(',',get_user_settings()['appt_calendar_staff']));
-					$get_field_config = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_equip_assign`"));
-					$contractor_category = !empty($get_field_config['contractor_category']) ? explode(',', $get_field_config['contractor_category']) : '';
-					$staff_list = sort_contacts_query(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name`, `name`, `category`, `category_contact`, `region`, `classification`, `con_locations` FROM `contacts` WHERE `category` IN (".("'".implode("','",$contractor_category)."'").") AND `deleted`=0 AND `status`=1 AND `show_hide_user`=1 AND IFNULL(`calendar_enabled`,1)=1".$region_query));
-					foreach ($staff_list as $staff_row) {
-                        $staff_id = $staff_row['contactid'];
-						$staff_equipassigns = mysqli_fetch_array(mysqli_query($dbc, "SELECT GROUP_CONCAT(DISTINCT ea.`equipment_assignmentid` SEPARATOR ',') as ea_list, GROUP_CONCAT(DISTINCT ea.`equipmentid` SEPARATOR ',') as eq_list FROM `equipment_assignment` ea LEFT JOIN `equipment_assignment_staff` eas ON ea.`equipment_assignmentid` = eas.`equipment_assignmentid` WHERE ea.`deleted` = 0 AND (DATE(`start_date`) BETWEEN '$date_month_start' AND '$date_month_end' OR DATE(`end_date`) BETWEEN '$date_month_start' AND '$date_month_end') AND ((eas.`contactid` = '$staff_id' AND eas.`deleted` = 0) $teams_query) AND CONCAT(',',ea.`hide_staff`,',') NOT LIKE '%,$staff_id,%'"));
-						echo "<a href='' onclick='$(this).find(\".block-item\").toggleClass(\"active\"); toggle_columns(\"staff\"); return false;'><div class='block-item ".(in_array($staff_id,$active_staff) ? 'active' : '')."' data-staff='$staff_id' data-category='".$staff_row['category_contact']."' data-region='".$staff_row['region']."' data-classification='".$staff_row['classification']."' data-location='".$staff_row['con_locations']."' data-equipassign='".$staff_equipassigns['ea_list']."' data-equipment='".$staff_equipassigns['eq_list']."' data-contractor='1'>";
-						profile_id($dbc, $staff_id);
-						echo $staff_row['full_name']."</div></a>";
-					}
-
-					?>
+							?>
+							</div>
+						</div>
 					</div>
-				</div>
-			</div>
-			<div class="active_blocks_contractors active_blocks" data-accordion="collapse_contractors" style="display: none;">
-				<?php foreach($staff_list as $staff_row) { ?>
-					<div class="block-item active" data-staff="<?= $staff_row['contactid'] ?>"><?= $staff_row['full_name'] ?></div> 
-				<?php } ?>
-			</div>
+					<div class="active_blocks_contractors active_blocks" data-accordion="collapse_contractors" style="display: none;">
+						<?php foreach($staff_list as $staff_row) { ?>
+							<div class="block-item active" data-activevalue="<?= $staff_row['contactid'] ?>"><?= $staff_row['full_name'] ?></div> 
+						<?php } ?>
+					</div>
+				<?php } else {
+					$collapse_in = $_GET['mode'] == 'contractors' ? 'in' : '';
+					foreach(get_security_levels($dbc) as $security_label => $security_level) {
+						if(empty($allowed_roles) || in_array($security_level, $allowed_roles)) { ?>
+							<div class="panel panel-default">
+								<div class="panel-heading">
+									<h4 class="panel-title">
+										<a data-toggle="collapse" data-parent="#category_accordions" href="#collapse_contractors_<?= config_safe_str($security_level) ?>" >
+											<span style="display: inline-block; width: calc(100% - 6em);">Contractors - <?= $security_label ?></span><span class="glyphicon glyphicon-plus"></span>
+										</a>
+									</h4>
+								</div>
+
+								<div id="collapse_contractors_<?= config_safe_str($security_level) ?>" class="panel-collapse collapse <?= $_GET['mode'] == 'contractors' ? 'in' : '' ?>">
+									<div class="panel-body" style="overflow-y: auto; padding: 0;">
+									<?php $active_staff = array_filter(explode(',',get_user_settings()['appt_calendar_staff']));
+									$get_field_config = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_equip_assign`"));
+									$contractor_category = !empty($get_field_config['contractor_category']) ? explode(',', $get_field_config['contractor_category']) : '';
+									$staff_list = sort_contacts_query(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name`, `name`, `category`, `category_contact`, `region`, `classification`, `con_locations` FROM `contacts` WHERE `category` IN (".("'".implode("','",$contractor_category)."'").") AND `deleted`=0 AND `status`=1 AND `show_hide_user`=1 AND IFNULL(`calendar_enabled`,1)=1 AND CONCAT(',',`role`,',') LIKE '%,$security_level,%'".$region_query.$allowed_roles_query));
+									foreach ($staff_list as $staff_row) {
+				                        $staff_id = $staff_row['contactid'];
+										$staff_equipassigns = mysqli_fetch_array(mysqli_query($dbc, "SELECT GROUP_CONCAT(DISTINCT ea.`equipment_assignmentid` SEPARATOR ',') as ea_list, GROUP_CONCAT(DISTINCT ea.`equipmentid` SEPARATOR ',') as eq_list FROM `equipment_assignment` ea LEFT JOIN `equipment_assignment_staff` eas ON ea.`equipment_assignmentid` = eas.`equipment_assignmentid` WHERE ea.`deleted` = 0 AND (DATE(`start_date`) BETWEEN '$date_month_start' AND '$date_month_end' OR DATE(`end_date`) BETWEEN '$date_month_start' AND '$date_month_end') AND ((eas.`contactid` = '$staff_id' AND eas.`deleted` = 0) $teams_query) AND CONCAT(',',ea.`hide_staff`,',') NOT LIKE '%,$staff_id,%'"));
+										echo "<a href='' onclick='$(this).find(\".block-item\").toggleClass(\"active\"); toggle_columns(\"staff\"); return false;'><div class='block-item ".(in_array($staff_id,$active_staff) ? 'active' : '')."' data-staff='$staff_id' data-category='".$staff_row['category_contact']."' data-region='".$staff_row['region']."' data-classification='".$staff_row['classification']."' data-location='".$staff_row['con_locations']."' data-equipassign='".$staff_equipassigns['ea_list']."' data-equipment='".$staff_equipassigns['eq_list']."' data-contractor='1' data-activevalue='".$staff_id."'>";
+										profile_id($dbc, $staff_id);
+										echo $staff_row['full_name']."</div></a>";
+									}
+
+									?>
+									</div>
+								</div>
+							</div>
+							<div class="active_blocks_contractors active_blocks" data-accordion="collapse_contractors" style="display: none;">
+								<?php foreach($staff_list as $staff_row) { ?>
+									<div class="block-item active" data-activevalue="<?= $staff_row['contactid'] ?>"><?= $staff_row['full_name'] ?></div> 
+								<?php } ?>
+							</div>
+						<?php }
+					}
+				} ?>
 			<?php } ?>
 			<?php if(get_config($dbc, 'scheduling_teams') !== '' && $allowed_dispatch_team > 0) { ?>
 			<div class="panel panel-default">
@@ -602,7 +672,7 @@ if (empty($equipment_category)) {
                             $team_contactids = implode(',', $team_contactids);
 		                    $team_equipassigns = mysqli_fetch_array(mysqli_query($dbc, "SELECT GROUP_CONCAT(DISTINCT ea.`equipment_assignmentid` SEPARATOR ',') as ea_list, GROUP_CONCAT(DISTINCT ea.`equipmentid` SEPARATOR ',') as eq_list FROM `equipment_assignment` ea LEFT JOIN `equipment_assignment_staff` eas ON ea.`equipment_assignmentid` = eas.`equipment_assignmentid` WHERE ea.`deleted` = 0 AND (DATE(`start_date`) BETWEEN '$date_month_start' AND '$date_month_end' OR DATE(`end_date`) BETWEEN '$date_month_start' AND '$date_month_end') AND ((',$team_contactids,' LIKE CONCAT('%,',eas.`contactid`,',%') AND eas.`deleted` = 0) OR `teamid` = '".$row['teamid']."')"));
 							// $team_equipassigns = mysqli_fetch_array(mysqli_query($dbc, "SELECT GROUP_CONCAT(DISTINCT `equipment_assignmentid` SEPARATOR ',') as ea_list FROM `equipment_assignment` WHERE `deleted` = 0 AND (DATE(`start_date`) BETWEEN '$date_month_start' AND '$date_month_end' OR DATE(`end_date`) BETWEEN '$date_month_start' AND '$date_month_end') AND `teamid` = '".$row['teamid']."'"))['ea_list'];
-							echo "<a href='' onclick='$(this).find(\".block-item\").toggleClass(\"active\"); toggle_columns(\"team\"); return false;'><div class='block-item ".(in_array($row['teamid'],$active_teams) ? 'active' : '')."' data-teamid='".$row['teamid']."' data-contactids='".$team_contactids."' data-region='".$row['region']."' data-location='".$row['location']."' data-classification='".$row['classification']."' data-equipassign='".$team_equipassigns['ea_list']."' data-equipment='".$team_equipassigns['eq_list']."'><span style=''>$team_name</span></div></a>";
+							echo "<a href='' onclick='$(this).find(\".block-item\").toggleClass(\"active\"); toggle_columns(\"team\"); return false;'><div class='block-item ".(in_array($row['teamid'],$active_teams) ? 'active' : '')."' data-teamid='".$row['teamid']."' data-contactids='".$team_contactids."' data-region='".$row['region']."' data-location='".$row['location']."' data-classification='".$row['classification']."' data-equipassign='".$team_equipassigns['ea_list']."' data-equipment='".$team_equipassigns['eq_list']."' data-activevalue='".$row['teamid']."'><span style=''>$team_name</span></div></a>";
 						} ?>
 					</div>
 				</div>
@@ -611,7 +681,7 @@ if (empty($equipment_category)) {
 				<?php $team_list = mysqli_query($dbc, "SELECT * FROM `teams` WHERE `deleted` = 0 AND (DATE(`start_date`) <= DATE(CURDATE()) OR `start_date` IS NULL OR `start_date` = '' OR `start_date` = '0000-00-00') AND (DATE(`end_date`) >= DATE(CURDATE()) OR `end_date` IS NULL OR `end_date` = '' OR `end_date` = '0000-00-00')".$region_query);
 				$active_teams = array_filter(explode(',',get_user_settings()['appt_calendar_teams']));
 				while($row = mysqli_fetch_array($team_list)) { ?>
-					<div class="block-item active" data-teamid="<?= $row['teamid'] ?>"><?= get_team_name($dbc, $row['teamid']) ?></div> 
+					<div class="block-item active" data-activevalue="<?= $row['teamid'] ?>"><?= get_team_name($dbc, $row['teamid']) ?></div> 
 				<?php } ?>
 			</div>
 			<?php } ?>

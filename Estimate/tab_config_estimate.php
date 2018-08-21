@@ -20,6 +20,10 @@ Dashboard
 		}
 	}
 
+	$before_change = '';
+	$history = "Estimates tab entry has been added. <br />";
+	add_update_history($dbc, 'estimates_history', $history, '', $before_change);
+
 	?>
 <?php endif; ?>
 <div class="pad-left">
