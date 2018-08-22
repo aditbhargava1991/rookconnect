@@ -330,9 +330,12 @@ function changeLevel(sel) {
                 <div class="col-sm-8">
                     <select data-placeholder="Select a Task Path..." name="task_path" class="chosen-select-deselect form-control" width="380">
                         <option></option><?php
-                        $query = mysqli_query($dbc,"SELECT project_path_milestone, project_path FROM project_path_milestone order by project_path");
-                        while($row = mysqli_fetch_array($query)) { ?>
-                            <option <?php if ($row['project_path_milestone'] == $get_board['task_path']) { echo " selected"; } ?> value='<?php echo  $row['project_path_milestone']; ?>' ><?php echo $row['project_path']; ?></option><?php
+                        $query = mysqli_query($dbc,"SELECT project_path_milestone, project_path, milestone FROM project_path_milestone order by project_path");
+                        while($row = mysqli_fetch_array($query)) {
+                            $milestone = str_replace("#*#", ",", $row['milestone']);
+                            ?>
+                            <option <?php if ($row['project_path_milestone'] == $get_board['task_path']) { echo " selected"; } ?> value='<?php echo  $row['project_path_milestone']; ?>' ><?php echo '<b>'.$row['project_path'].'</b>'.' ('.$milestone.')'; ?></option>
+                            <?php
                         } ?>
                     </select>
                 </div>

@@ -30,7 +30,7 @@ function profile_id($dbc, $contactid, $echo = true) {
 		} else {
 			$initials = ($user['initials'] == '' ? ($user['first_name'].$user['last_name'].$user['name'] == '' ? '?' : substr(decryptIt($user['name']),0,1).substr(decryptIt($user['first_name']),0,1).substr(decryptIt($user['last_name']),0,1)) : $user['initials']);
 			$colour = ($user['calendar_color'] == '' ? '#6DCFF6' : $user['calendar_color']);
-			$output = '<span title="'.decryptIt($user['name']).decryptIt($user['first_name']).' '.decryptIt($user['last_name']).'" class="id-circle" style="background-color:'.$colour.'; font-family: \'Open Sans\';">'.(!empty($initials) ? $initials : '&nbsp;').'</span>';
+			$output = '<span title="'.decryptIt($user['name']).decryptIt($user['first_name']).' '.decryptIt($user['last_name']).'" class="id-circle no-toggle" style="background-color:'.$colour.'; font-family: \'Open Sans\';">'.(!empty($initials) ? $initials : '&nbsp;').'</span>';
 		}
 	}
 	if($echo) {

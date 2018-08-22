@@ -100,18 +100,6 @@ if (isset($_POST['tasklist'])) {
         $result_insert_ca = mysqli_query($dbc, $query_insert_ca);
 		$tasklistid = mysqli_insert_id($dbc);
 
-        if($task_category = 'Zen Earth Corp' || $task_category = 'Green Earth Energy' || $task_category = 'Green Life Can') {
-            if (strpos(WEBSITE_URL, 'zenearthcorp.rookconnect.com') !== FALSE || strpos(WEBSITE_URL, 'greenearthenergysolutions.rookconnect.com') !== FALSE || strpos(WEBSITE_URL, 'greenlifecan.rookconnect.com') !== FALSE) {
-
-                $zenearth_rook_db = @mysqli_connect('localhost', 'zen_rook_user', 'R0bot587tw3ak', 'zenearth_rook_db');
-                $gees_rook_db = @mysqli_connect('localhost', 'zen_rook_user', 'R0bot587tw3ak', 'gees_rook_db');
-                $glcllc_rook_db = @mysqli_connect('localhost', 'zen_rook_user', 'R0bot587tw3ak', 'glcllc_rook_db');
-
-                $result_insert_ca = mysqli_query($zenearth_rook_db, $query_insert_ca);
-                $result_insert_ca = mysqli_query($gees_rook_db, $query_insert_ca);
-                $result_insert_ca = mysqli_query($glcllc_rook_db, $query_insert_ca);
-            }
-        }
 		$project_history .= ($project_history == '' ? '' : '<br />').get_contact($dbc, $_SESSION['contactid']).' added Task #'.$tasklistid.' for this project at '.date('Y-m-d H:i');
         insert_day_overview($dbc, $_SESSION['contactid'], 'Task', date('Y-m-d'), '', 'Created Task #'.$tasklistid.(!empty($task_heading) ? ': '.$task_heading : ''), $tasklistid);
 
@@ -122,19 +110,7 @@ if (isset($_POST['tasklist'])) {
 
         $result_update_vendor = mysqli_query($dbc, $query_update_vendor);
 
-        if($task_category = 'Zen Earth Corp' || $task_category = 'Green Earth Energy' || $task_category = 'Green Life Can') {
-
-        if (strpos(WEBSITE_URL, 'zenearthcorp.rookconnect.com') !== FALSE || strpos(WEBSITE_URL, 'greenearthenergysolutions.rookconnect.com') !== FALSE || strpos(WEBSITE_URL, 'greenlifecan.rookconnect.com') !== FALSE) {
-                $zenearth_rook_db = @mysqli_connect('localhost', 'zen_rook_user', 'R0bot587tw3ak', 'zenearth_rook_db');
-                $gees_rook_db = @mysqli_connect('localhost', 'zen_rook_user', 'R0bot587tw3ak', 'gees_rook_db');
-                $glcllc_rook_db = @mysqli_connect('localhost', 'zen_rook_user', 'R0bot587tw3ak', 'glcllc_rook_db');
-
-                $result_update_vendor = mysqli_query($zenearth_rook_db, $query_update_vendor);
-                $result_update_vendor = mysqli_query($gees_rook_db, $query_update_vendor);
-                $result_update_vendor = mysqli_query($glcllc_rook_db, $query_update_vendor);
-            }
-        }
-		$project_history .= ($project_history == '' ? '' : '<br />').get_contact($dbc, $_SESSION['contactid']).' updated Task #'.$tasklistid.' for this project at '.date('Y-m-d H:i');
+    	$project_history .= ($project_history == '' ? '' : '<br />').get_contact($dbc, $_SESSION['contactid']).' updated Task #'.$tasklistid.' for this project at '.date('Y-m-d H:i');
         insert_day_overview($dbc, $_SESSION['contactid'], 'Task', date('Y-m-d'), '', 'Updated Task #'.$tasklistid.(!empty($task_heading) ? ': '.$task_heading : ''), $tasklistid);
     }
 
@@ -238,9 +214,7 @@ if (isset($_POST['tasklist'])) {
 $(document).ready(function () {
 
     if ($('[name=tasklistid]').val() != '' ) {
-        //alert(1);
         var id_value = $('[name=tasklistid]').val();
-        //alert(id_value);
         var task_board_type = $('[name=task_board_type]').val();
         if(task_board_type == 'Private') {
             $('.hide_task_board_name').show();
@@ -274,19 +248,39 @@ $(document).ready(function () {
             $('.taskpath_section_display').hide();
         }
     } else {
-               // alert(2);
-
         $('.project_section_display').hide();
         $('.contact_section_display').hide();
         $('.sales_section_display').hide();
         $('.taskpath_section_display').hide();
     }
 
+    if(window.location.href.indexOf("task_path") > -1) {
+            $('.taskpath_section_display').show();
+    }
+
+    if(window.location.href.indexOf("tab=Private") > -1) {
+        $('.sales_section_display').hide();
+        $('.hide_task_board_name').show();
+        $('.taskpath_section_display').show();
+    }
+
+    if(window.location.href.indexOf("tab=sales") > -1) {
+        $('.sales_section_display').show();
+        $('.hide_task_board_name').hide();
+        $('.taskpath_section_display').hide();
+    }
+
+    if(window.location.href.indexOf("tab=path&") > -1) {
+        $('.hide_task_board_name').hide();
+        $('.taskpath_section_display').show();
+        $('.project_section_display').show();
+    }
+
     $('[name=task_projectid]').on('change', function(){
         var task_projectid = $(this).val();
 		$.ajax({
 			type: "GET",
-			url: "task_ajax_all.php?fill=task_projectid&task_projectid="+task_projectid,
+			url: "../Tasks_Updated/task_ajax_all.php?fill=task_projectid&task_projectid="+task_projectid,
 			dataType: "html",   //expect html to be returned
 			success: function(response){
 				$('[name=task_path]').html(response);
@@ -332,7 +326,7 @@ $(document).ready(function () {
 
 		$.ajax({
 			type: "GET",
-			url: "task_ajax_all.php?fill=task_board_type&task_board_type="+task_board_type,
+			url: "../Tasks_Updated/task_ajax_all.php?fill=task_board_type&task_board_type="+task_board_type,
 			dataType: "html",   //expect html to be returned
 			success: function(response){
 				$('[name=task_board]').html(response);
@@ -349,8 +343,30 @@ $(document).ready(function () {
         var id_value = 0;
         var url_fill = '';
 
+        var task_board_type = $('[name=task_board_type]').val();
+
+        var task_path = $('[name=task_path]').val();
+
+        var task_milestone_timeline = $('[name=task_milestone_timeline]').val();
+        var task_milestone_timeline = task_milestone_timeline.replace(" ", "FFMSPACE");
+        var task_milestone_timeline = task_milestone_timeline.replace("&", "FFMEND");
+        var task_milestone_timeline = task_milestone_timeline.replace("#", "FFMHASH");
+
         if ( typeof $('[name=tasklistid]').val() != 'undefined' ) {
             id_value = $('[name=tasklistid]').val();
+        }
+
+        if (task_board_type == 'Project' ) {
+            var projectid = $('[name=task_projectid]').val();
+            var task_board = 0;
+        } else {
+            var projectid = 0;
+            var task_board = $('[name=task_board]').val();
+        }
+        if (task_board_type == 'Sales' ) {
+            var salesid = $('[name=task_salesid]').val();
+        } else {
+            var salesid = 0;
         }
 
         if ( id_value == 0 ) {
@@ -360,9 +376,14 @@ $(document).ready(function () {
         }
 
         $.ajax({
-            url: 'task_ajax_all.php?fill='+url_fill,
+            url: '../Tasks_Updated/task_ajax_all.php?fill='+url_fill,
             method: 'POST',
             data: {
+                task_board: task_board,
+                task_path: task_path,
+                task_milestone_timeline: task_milestone_timeline,
+                projectid: projectid,
+                salesid: salesid,
                 table: table_name,
                 field: field_name,
                 field_value: field_value,
@@ -393,7 +414,7 @@ $(document).ready(function () {
         }
 		$.ajax({
 			type: "GET",
-			url: "task_ajax_all.php?fill=task_path&board_name="+board_name,
+			url: "../Tasks_Updated/task_ajax_all.php?fill=task_path&board_name="+board_name,
 			dataType: "html",   //expect html to be returned
 			success: function(response){
 				$('[name=task_path]').html(response);
@@ -408,7 +429,7 @@ $(document).ready(function () {
 		if (result) {
 			$.ajax({    //create an ajax request to load_page.php
 				type: "GET",
-				url: "task_ajax_all.php?fill=delete_task&taskid=<?php echo $_GET['tasklistid']; ?>",
+				url: "../Tasks_Updated/task_ajax_all.php?fill=delete_task&taskid=<?php echo $_GET['tasklistid']; ?>",
 				dataType: "html",   //expect html to be returned
 				success: function(response){
 					alert('You have successfully deleted this task.');
@@ -421,9 +442,18 @@ $(document).ready(function () {
 
 	$("#task_path").change(function() {
 		var task_path = $("#task_path").val();
+        var task_board = $('[name=task_board]').val();
+        var task_board_type = $('[name=task_board_type]').val();
+
+        if (task_board_type == 'Project' ) {
+            var projectid = $('[name=task_projectid]').val();
+        } else {
+            var projectid = 0;
+        }
+
 		$.ajax({
 			type: "GET",
-			url: "task_ajax_all.php?fill=project_path_milestone&project_path="+task_path,
+			url: "../Tasks_Updated/task_ajax_all.php?fill=project_path_milestone&projectid="+projectid+"&task_board_type="+task_board_type+"&project_path="+task_path+"&task_board="+task_board,
 			dataType: "html",   //expect html to be returned
 			success: function(response){
 				$('#task_milestone_timeline').html(response);
@@ -448,7 +478,7 @@ $(document).ready(function () {
 		var userid = this.value;
         $.ajax({    //create an ajax request to load_page.php
             type: "GET",
-            url: "task_ajax_all.php?fill=filltaskboards&user="+userid,
+            url: "../Tasks_Updated/task_ajax_all.php?fill=filltaskboards&user="+userid,
             dataType: "html",   //expect html to be returned
             success: function(response){
 				$('[name=task_board]').html(response).trigger("change.select2");
@@ -459,7 +489,7 @@ $(document).ready(function () {
 		var businessid = this.value;
         $.ajax({    //create an ajax request to load_page.php
             type: "GET",
-            url: "task_ajax_all.php?fill=fillcontact&businessid="+businessid,
+            url: "../Tasks_Updated/task_ajax_all.php?fill=fillcontact&businessid="+businessid,
             dataType: "html",   //expect html to be returned
             success: function(response){
                 var arr = response.split('*FFM*');
@@ -479,7 +509,7 @@ $(document).ready(function () {
 		if(save_reply != '') {
 			$.ajax({
 				type: 'POST',
-				url: 'task_ajax_all.php?fill=addtaskreply',
+				url: '../Tasks_Updated/task_ajax_all.php?fill=addtaskreply',
 				dataType: 'html',
 				data: { taskid: task_id, reply: save_reply },
 				success: function(response) {
@@ -535,12 +565,12 @@ $(document).ready(function () {
 		if ( taskid!='' && typeof taskid!='undefined' && timer_value!='' ) {
             $.ajax({
                 type: "GET",
-                url: "task_ajax_all.php?fill=stop_timer&taskid="+taskid+"&timer_value="+timer_value+"&contactid="+contactid,
+                url: "../Tasks_Updated/task_ajax_all.php?fill=stop_timer&taskid="+taskid+"&timer_value="+timer_value+"&contactid="+contactid,
                 dataType: "html",
                 success: function(response) {
                     $.ajax({
                         method: 'POST',
-                        url: 'task_ajax_all.php?fill=taskreply',
+                        url: '../Tasks_Updated/task_ajax_all.php?fill=taskreply',
                         data: { taskid: taskid, reply: 'Tracked time: '+timer_value },
                         success: function(result) {
                             $('.added-time').append('Tracked time: '+timer_value);
@@ -555,12 +585,12 @@ $(document).ready(function () {
         if ( projectid!='' && typeof projectid!='undefined' && timer_value_project!='' ) {
             $.ajax({
                 type: "GET",
-                url: "task_ajax_all.php?fill=stop_timer_project&taskid="+timertaskid+"&projectid="+projectid+"&timer_value_project="+timer_value_project+"&contactid="+contactid,
+                url: "../Tasks_Updated/task_ajax_all.php?fill=stop_timer_project&taskid="+timertaskid+"&projectid="+projectid+"&timer_value_project="+timer_value_project+"&contactid="+contactid,
                 dataType: "html",
                 success: function(response) {
                     $.ajax({
                         method: 'POST',
-                        url: 'task_ajax_all.php?fill=taskreply',
+                        url: '../Tasks_Updated/task_ajax_all.php?fill=taskreply',
                         data: { taskid: timertaskid, reply: 'Time tracked to Project # '+projectid+' '+timer_value_project },
                         success: function(result) {
                             $('.added-time-project').append('Tracked time: '+timer_value_project);
@@ -573,12 +603,12 @@ $(document).ready(function () {
         if ( (businessid!='' || clientid!='') && timer_value_contact!='' ) {
             $.ajax({
                 type: "GET",
-                url: "task_ajax_all.php?fill=stop_timer_contact&taskid="+timertaskid+"&businessid="+businessid+"&clientid="+clientid+"&timer_value_contact="+timer_value_contact+"&contactid="+contactid,
+                url: "../Tasks_Updated/task_ajax_all.php?fill=stop_timer_contact&taskid="+timertaskid+"&businessid="+businessid+"&clientid="+clientid+"&timer_value_contact="+timer_value_contact+"&contactid="+contactid,
                 dataType: "html",
                 success: function(response) {
                     $.ajax({
                         method: 'POST',
-                        url: 'task_ajax_all.php?fill=taskreply',
+                        url: '../Tasks_Updated/task_ajax_all.php?fill=taskreply',
                         data: { taskid: timertaskid, reply: 'Time tracked to contact '+timer_value_contact },
                         success: function(result) {
                             $('.added-time-contact').append('Tracked time: '+timer_value_contact);
@@ -600,12 +630,12 @@ function quick_add_time(task) {
 		if(time != '' && time != '00:00') {
 			$.ajax({
 				method: 'POST',
-				url: 'task_ajax_all.php?fill=task_quick_time',
+				url: '../Tasks_Updated/task_ajax_all.php?fill=task_quick_time',
 				data: { id: task_id, time: time+':00' },
 				complete: function(result) {
                     $.ajax({
                         method: 'POST',
-                        url: 'task_ajax_all.php?fill=taskreply',
+                        url: '../Tasks_Updated/task_ajax_all.php?fill=taskreply',
                         data: { taskid: task_id, reply: 'Time added '+time+':00' },
                         complete: function(result) {}
                     });
@@ -646,12 +676,12 @@ function manual_add_time(task) {
         if( time!='' && time!='00:00') {
 			$.ajax({
 				method: 'POST',
-				url: 'task_ajax_all.php?fill=manual_add_time',
+				url: '../Tasks_Updated/task_ajax_all.php?fill=manual_add_time',
 				data: { taskid: taskid, time: time+':00', timer: timer, projectid: projectid, businessid: businessid, clientid: clientid, contactid: contactid },
 				success: function(response) {
                     $.ajax({
                         method: 'POST',
-                        url: 'task_ajax_all.php?fill=taskreply',
+                        url: '../Tasks_Updated/task_ajax_all.php?fill=taskreply',
                         data: { taskid: taskid, reply: 'Time added to '+type+' '+time+':00' },
                         success: function(result) {
                             $('.'+timer).append('Added time: '+time);
@@ -663,10 +693,10 @@ function manual_add_time(task) {
     });
 }
 
-function closePopup(){
-    window.opener.location.reload();
-    window.close();
-}
+//function closePopup(){
+//    window.opener.location.reload();
+//    window.close();
+//}
 
 function flag_item(task) {
 	task_id = $(task).data('tasklistid');
@@ -677,7 +707,7 @@ function flag_item(task) {
     }
 	$.ajax({
 		method: "POST",
-		url: "task_ajax_all.php?fill=taskflag",
+		url: "../Tasks_Updated/task_ajax_all.php?fill=taskflag",
 		data: { type:'task', id:task_id, colour:colour },
 		complete: function(result) {
 			console.log(result.responseText);
@@ -698,7 +728,7 @@ function mark_done(sel) {
 
     $.ajax({
         type: "GET",
-        url: "task_ajax_all.php?fill=mark_done&taskid="+task_id+'&status='+status,
+        url: "../Tasks_Updated/task_ajax_all.php?fill=mark_done&taskid="+task_id+'&status='+status,
         dataType: "html",
         success: function(response){}
     });
@@ -748,8 +778,8 @@ function mark_done(sel) {
 
             $task_contactid = $_SESSION['contactid'];
 
-            $contact_section_display = 'display:none;';
-            $project_section_display = 'display:none;';
+            //$contact_section_display = 'display:none;';
+            //$project_section_display = 'display:none;';
 
             if(!empty($_GET['tasklistid'])) {
                 $tasklistid = $_GET['tasklistid'];
@@ -778,11 +808,14 @@ function mark_done(sel) {
                 if($task_projectid > 0) {
                     $board_security = 'Project';
                 }
+
+                /*
                 if ( $board_security=='Client' ) {
                     $contact_section_display = 'display:block;';
                 } else if ( $board_security=='Project' ) {
                     $project_section_display = 'display:block;';
                 }
+                */
 
             } else if(!empty($_GET['projectid'])) {
                 $task_projectid = $_GET['projectid'];
@@ -790,12 +823,13 @@ function mark_done(sel) {
                 $task_businessid = $project['businessid'];
                 $task_contactid = $project['clientid'];
                 $task_path = $project['project_path'];
-                $project_section_display = 'display:block;';
+                //$project_section_display = 'display:block;';
                 $board_security = 'Project';
 
             } else if ($_GET['tab'] == 'sales') {
 				$task_salesid = $_GET['salesid'];
 				$sales_milestone = $_GET['sales_milestone_timeline'];
+                $board_security = 'Sales';
 			} else if ( !empty($_GET['category']) ) {
                 $url_cat = filter_var($_GET['category'], FILTER_VALIDATE_INT);
                 $url_tab = filter_var($_GET['tab'], FILTER_SANITIZE_STRING);
@@ -808,21 +842,25 @@ function mark_done(sel) {
                 $task_businessid = $get_task_board['businessid'];
                 $task_clientid = $get_task_board['contactid'];
 
+                /*
                 if ( $board_security=='Client' ) {
                     $contact_section_display = 'display:block;';
                 } else if ( $board_security=='Project' ) {
                     $project_section_display = 'display:block;';
                 }
+                */
 
             } else if ( empty($_GET['category']) && !empty($_GET['tab']) ) {
                 $url_tab = filter_var($_GET['tab'], FILTER_SANITIZE_STRING);
                 $board_security = $url_tab;
 
+                /*
                 if ( $board_security=='Client' ) {
                     $contact_section_display = 'display:block;';
                 } else if ( $board_security=='Project' ) {
                     $project_section_display = 'display:block;';
                 }
+                */
             }
 
             if(!empty($_GET['tasklistid'])) {
@@ -991,9 +1029,21 @@ function mark_done(sel) {
             <div class="form-group">
                 <label for="site_name" class="col-sm-4 control-label">Milestone & Timeline:</label>
                 <div class="col-sm-8">
+                <?php
+                   		$task_milestone_timeline = str_replace("FFMEND","&",$task_milestone_timeline);
+                        $task_milestone_timeline = str_replace("FFMSPACE"," ",$task_milestone_timeline);
+                        $task_milestone_timeline = str_replace("FFMHASH","#",$task_milestone_timeline);
+                ?>
                     <select data-placeholder="Select a Milestone & Timeline..." name="task_milestone_timeline" id="task_milestone_timeline" data-table="tasklist" data-field="task_milestone_timeline"  class="chosen-select-deselect form-control" width="580">
                         <option value=""></option>
                         <?php
+
+                        $query = mysqli_query($dbc,"SELECT milestone FROM taskboard_path_custom_milestones WHERE taskboard='$task_board'");
+                        while($row = mysqli_fetch_array($query)) { ?>
+                            <option <?php if ( $row['milestone'] == $task_milestone_timeline) { echo " selected"; } ?> value='<?php echo  $row['milestone']; ?>' ><?php echo $row['milestone']; ?></option><?php
+                        }
+
+                        /*
                         $each_tab = explode('#*#', get_project_path_milestone($dbc, $task_path, 'milestone'));
                         $timeline = explode('#*#', get_project_path_milestone($dbc, $task_path, 'timeline'));
 
@@ -1003,6 +1053,7 @@ function mark_done(sel) {
                            <?php
                            $j++;
                         }
+                        */
                       ?>
                     </select>
                 </div>
@@ -1186,7 +1237,7 @@ function mark_done(sel) {
 
             <div class="form-group clearfix">
                 <label for="first_name" class="col-sm-4 control-label text-right">
-                    <img src="../img/icons/ROOK-edit-icon.png" class="inline-img" /> Task Name:
+                    <!-- <img src="../img/icons/ROOK-edit-icon.png" class="inline-img" /> --> Task Name:
                 </label>
                 <div class="col-sm-8">
 					<?php $groups = $dbc->query("SELECT `category` FROM `task_types` WHERE `deleted`=0 GROUP BY `category` ORDER BY MIN(`sort`), MIN(`id`)");
@@ -1229,7 +1280,7 @@ function mark_done(sel) {
 
             <div class="form-group clearfix">
                 <label for="first_name" class="col-sm-4 control-label">
-                    <img src="../img/icons/ROOK-flag-icon.png" class="inline-img" /> Flag This:
+                    <!-- <img src="../img/icons/ROOK-flag-icon.png" class="inline-img" /> --> Flag This:
                 </label>
                 <div class="col-sm-8">
                     <a class="btn brand-btn" data-tasklistid="<?= $tasklistid ?>" onclick="flag_item(this);">Flag</a>
@@ -1239,7 +1290,7 @@ function mark_done(sel) {
 
 			<div class="form-group">
 				<label for="site_name" class="col-sm-4 control-label">
-                    <img src="../img/icons/ROOK-alert-icon.png" class="inline-img" /> Send Alert:
+                    <!-- <img src="../img/icons/ROOK-alert-icon.png" class="inline-img" />-->  Send Alert:
                 </label>
 				<div class="col-sm-8">
 					<select data-placeholder="Select Staff..." multiple name="alerts_enabled[]" data-table="tasklist" data-field="alerts_enabled" class="chosen-select-deselect form-control" width="380">
@@ -1253,7 +1304,7 @@ function mark_done(sel) {
 			</div>
 			<div class="form-group">
 				<label for="site_name" class="col-sm-4 control-label">
-                    <img src="../img/icons/ROOK-email-icon.png" class="inline-img" /> Send Email:
+                    <!-- <img src="../img/icons/ROOK-email-icon.png" class="inline-img" /> --> Send Email:
                 </label>
 				<div class="col-sm-8">
 					<select data-placeholder="Select Staff..." multiple name="emails_enabled[]" class="chosen-select-deselect form-control" width="380">
@@ -1267,7 +1318,7 @@ function mark_done(sel) {
 			</div>
 			<div class="form-group">
 				<label for="site_name" class="col-sm-4 control-label">
-                    <img src="../img/icons/ROOK-reminder-icon.png" class="inline-img" /> Schedule Reminder:
+                    <!-- <img src="../img/icons/ROOK-reminder-icon.png" class="inline-img" /> --> Schedule Reminder:
                 </label>
 				<div class="col-sm-8">
 					<input type="text" class="form-control datepicker" name="schedule_reminder" />
@@ -1275,7 +1326,7 @@ function mark_done(sel) {
 			</div>
             <div class="form-group">
                 <label for="additional_note" class="col-sm-4 control-label">
-                    <img src="../img/icons/ROOK-attachment-icon.png" class="inline-img" /> Attach File(s):
+                   <!-- <img src="../img/icons/ROOK-attachment-icon.png" class="inline-img" />--> Attach File(s):
                     <span class="popover-examples list-inline">&nbsp;
                         <a href="#job_file" data-toggle="tooltip" data-placement="top" title="File name cannot contain apostrophes, quotations or commas"><img src="<?php echo WEBSITE_URL;?>/img/info.png" width="20"></a>
                     </span>
@@ -1325,7 +1376,7 @@ function mark_done(sel) {
 
             <div class="form-group clearfix">
                 <label for="task_comment" class="col-sm-4 control-label text-right">
-                    <img src="../img/icons/ROOK-reply-icon.png" class="inline-img" /> Comments:
+                    <!-- <img src="../img/icons/ROOK-reply-icon.png" class="inline-img" /> --> Comments:
                 </label>
                 <div class="col-sm-8">
                     <!-- <input type="text" name="task_comment" id="task_comment" class="form-control" width="65536" /> -->
@@ -1358,12 +1409,12 @@ function mark_done(sel) {
             <div class="form-group clearfix">
                 <?= $slider_layout != 'accordion' ? '<h4>Time Tracking</h4>' : '' ?>
                 <h5>Track Time To Task</h5>
-                <label for="first_name" class="col-xs-3 control-label text-right"><img src="../img/icons/ROOK-timer-icon.png" class="inline-img" /> Add Time:</label>
+                <label for="first_name" class="col-xs-3 control-label text-right"><!-- <img src="../img/icons/ROOK-timer-icon.png" class="inline-img" />--> Add Time:</label>
                 <div class="col-xs-3">
                     <!-- <input name="task_work_time" type="text" value="00:00" data-table="tasklist" data-field="work_time" class="timepicker form-control" /> -->
                     <input name="task_work_time" type="text" value="00:00" class="timepicker form-control" onchange="quick_add_time(this);" />
                 </div>
-                <label for="first_name" class="col-xs-3 control-label text-right"><img src="../img/icons/ROOK-timer2-icon.png" class="inline-img" /> Track Time:</label>
+                <label for="first_name" class="col-xs-3 control-label text-right"><!-- <img src="../img/icons/ROOK-timer2-icon.png" class="inline-img" /> --> Track Time:</label>
                 <div class="col-xs-3">
                     <input type="text" name="timer_<?= $tasklistid ?>" id="timer_value" class="form-control timer" placeholder="0 sec" />
                     <a class="btn btn-success start-timer-btn brand-btn mobile-block">Start</a>

@@ -38,7 +38,25 @@ if($_GET['fill'] == 'task_projectid') {
 
 if($_GET['fill'] == 'project_path_milestone') {
     $project_path = $_GET['project_path'];
+    $task_board = $_GET['task_board'];
+    $task_board_type = $_GET['task_board_type'];
+    $projectid = $_GET['projectid'];
+
 	echo '<option value=""></option>';
+
+    if($task_board_type == 'Project') {
+        $query = mysqli_query($dbc,"SELECT milestone FROM project_path_custom_milestones WHERE projectid='$projectid'");
+        while($row = mysqli_fetch_array($query)) { ?>
+            <option value='<?php echo  $row['milestone']; ?>' ><?php echo $row['milestone']; ?></option><?php
+        }
+    } else {
+        $query = mysqli_query($dbc,"SELECT milestone FROM taskboard_path_custom_milestones WHERE taskboard='$task_board'");
+        while($row = mysqli_fetch_array($query)) { ?>
+            <option value='<?php echo  $row['milestone']; ?>' ><?php echo $row['milestone']; ?></option><?php
+        }
+    }
+
+    /*
     $each_tab = explode('#*#', get_project_path_milestone($dbc, $project_path, 'milestone'));
     $timeline = explode('#*#', get_project_path_milestone($dbc, $project_path, 'timeline'));
     $j=0;
@@ -46,6 +64,7 @@ if($_GET['fill'] == 'project_path_milestone') {
         echo "<option value='". $cat_tab."'>".$cat_tab.' : '.$timeline[$j].'</option>';
         $j++;
     }
+    */
 }
 
 if($_GET['fill'] == 'delete_task') {
@@ -423,7 +442,24 @@ if($_GET['fill'] == 'insert_fields') {
     $created_date = date('Y-m-d');
 
     $result = mysqli_query($dbc, "INSERT INTO `$table` (`$field`, `created_date`, `created_by`) VALUES ('$field_value', '$created_date', '$created_by')");
-    echo mysqli_insert_id($dbc);
+    $tasklistid = mysqli_insert_id($dbc);
+
+    $task_board = filter_var($_POST['task_board'],FILTER_SANITIZE_STRING);
+    $task_path = filter_var($_POST['task_path'],FILTER_SANITIZE_STRING);
+    $task_milestone_timeline = filter_var($_POST['task_milestone_timeline'],FILTER_SANITIZE_STRING);
+    $projectid = filter_var($_POST['projectid'],FILTER_SANITIZE_STRING);
+    $salesid = filter_var($_POST['salesid'],FILTER_SANITIZE_STRING);
+    $contactid = $_SESSION['contactid'];
+	$updated_date = date('Y-m-d H:i:s');
+
+	$task_milestone_timeline = str_replace("FFMEND","&",$task_milestone_timeline);
+    $task_milestone_timeline = str_replace("FFMSPACE"," ",$task_milestone_timeline);
+    $task_milestone_timeline = str_replace("FFMHASH","#",$task_milestone_timeline);
+
+    $query_update_vendor = "UPDATE `tasklist` SET `task_board` = '$task_board', `salesid` = '$salesid', `projectid` = '$projectid', `task_path` = '$task_path', `task_milestone_timeline` = '$task_milestone_timeline', `project_milestone` = '$task_milestone_timeline', `contactid` = '$contactid', `updated_by` = '$contactid', `updated_date` = '$updated_date' WHERE `tasklistid` = '$tasklistid'";
+    $result_update_vendor = mysqli_query($dbc, $query_update_vendor);
+
+    echo $tasklistid;
 }
 if($_GET['fill'] == 'update_fields') {
     $table = filter_var($_POST['table'],FILTER_SANITIZE_STRING);
@@ -439,6 +475,23 @@ if($_GET['fill'] == 'update_fields') {
     $updated_date = date('Y-m-d');
 
     $result = mysqli_query($dbc, "UPDATE `$table` SET `$field`='$field_value', `updated_by`='$updated_by', `updated_date`='$updated_date' WHERE `$id_field`='$id_value'");
+
+    $task_board = filter_var($_POST['task_board'],FILTER_SANITIZE_STRING);
+    $task_path = filter_var($_POST['task_path'],FILTER_SANITIZE_STRING);
+    $task_milestone_timeline = filter_var($_POST['task_milestone_timeline'],FILTER_SANITIZE_STRING);
+    $projectid = filter_var($_POST['projectid'],FILTER_SANITIZE_STRING);
+    $salesid = filter_var($_POST['salesid'],FILTER_SANITIZE_STRING);
+    $contactid = $_SESSION['contactid'];
+	$updated_date = date('Y-m-d H:i:s');
+
+	$task_milestone_timeline = str_replace("FFMEND","&",$task_milestone_timeline);
+    $task_milestone_timeline = str_replace("FFMSPACE"," ",$task_milestone_timeline);
+    $task_milestone_timeline = str_replace("FFMHASH","#",$task_milestone_timeline);
+
+    $query_update_vendor = "UPDATE `tasklist` SET `task_board` = '$task_board', `salesid` = '$salesid', `projectid` = '$projectid', `task_path` = '$task_path', `task_milestone_timeline` = '$task_milestone_timeline', `project_milestone` = '$task_milestone_timeline', `contactid` = '$contactid', `updated_by` = '$contactid', `updated_date` = '$updated_date' WHERE `tasklistid` = '$tasklistid'";
+    $result_update_vendor = mysqli_query($dbc, $query_update_vendor);
+
+    echo $id_value;
 }
 
 

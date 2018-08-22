@@ -158,7 +158,13 @@ if(isset($_POST['tasks_slider_layout'])) {
                     <div id="collapse_tasks" class="panel-collapse collapse">
                         <div class="panel-body">
                             <div class="form-group" id="no-more-tables">
-								<?php $groups = $dbc->query("SELECT `category` FROM `task_types` WHERE `deleted`=0 GROUP BY `category` ORDER BY MIN(`sort`), MIN(`id`)");
+
+    						    <?php $groups = $dbc->query("SELECT `category` FROM `task_types` WHERE `deleted`=0 GROUP BY `category` ORDER BY MIN(`sort`), MIN(`id`)");
+                                $num_rows = mysqli_num_rows($groups);
+                                if($num_rows == 0) {
+                                    $dbc->query("INSERT INTO `task_types` (`category`, `description`, `details`, `qty`, `sort`, `deleted`) VALUES ('Fresh Focus Media', NULL, NULL, NULL, '0', '0')");
+                                }
+
 								while($group = $groups->fetch_array()) {
 									$group_names[] = $group[0];
 								}
