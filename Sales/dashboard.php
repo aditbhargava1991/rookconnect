@@ -116,7 +116,7 @@ function allow_sort() {
                     echo '<div class="info-block-small">' . $count['count'] . '</div>'; ?>
                 </div></a>
                 <div class="info-block-details padded"><?php
-                    $result = mysqli_query($dbc, "SELECT * FROM `sales` WHERE `status`='{$status}' AND `deleted`=0" . $query_mod);
+                    $result = mysqli_query($dbc, "SELECT * FROM `sales` WHERE `status`='{$status}' AND `deleted`=0" . $query_mod.' LIMIT 0,10');
 					$lead_count = 0;
                     if ( $result->num_rows > 0 ) {
                         while ( $row=mysqli_fetch_assoc($result) ) {

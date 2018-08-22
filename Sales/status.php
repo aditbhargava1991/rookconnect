@@ -30,12 +30,16 @@ if(isset($_GET['s'])) {
 $(document).on('change', 'select[name="status"]', function() { changeLeadStatus(this); });
 $(document).on('change', 'select[name="next_action"]', function() { changeLeadNextAction(this); });
 </script>
-<?php
-$leads  = mysqli_query($dbc, "SELECT * FROM `sales` WHERE ".$filter.$query_mod);
+<?php $rowsPerPage = $_GET['pagerows'] > 0 ? $_GET['pagerows'] : 25;
+$_GET['page'] = $_GET['page'] ?: 1;
+$offset = ($_GET['page'] > 0 ? $_GET['page'] - 1 : 0) * $rowsPerPage;
+$leads  = mysqli_query($dbc, "SELECT * FROM `sales` WHERE ".$filter.$query_mod." LIMIT $offset, $rowsPerPage");
+$lead_count  = "SELECT COUNT(*) numrows FROM `sales` WHERE ".$filter.$query_mod;
     echo '<div class="main-screen-white horizontal-scroll standard-dashboard-body" style="border: none; background: none;">';
     echo '<div class="standard-dashboard-body-title"><h3>'.$page_title.'</h3></div>';
 if ( $leads->num_rows > 0 ) {
     $i = 1;
+    display_pagination($dbc, $lead_count, $_GET['page'], ($_GET['pagerows'] > 0 ? $_GET['pagerows'] : $rowsPerPage), true, 25);
     while ( $row=mysqli_fetch_assoc($leads) ) {
 		$flag_colour = $flag_label = '';
 		if(!empty($row['flag_label'])) {

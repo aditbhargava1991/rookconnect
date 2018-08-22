@@ -1122,8 +1122,8 @@ function checklist_attach_file(checklist) {
                     $i++;
                 } ?>
             </div>
-        <?php if($_GET['p'] == 'salespath') { ?>
         </div>
+        <?php if($_GET['p'] == 'salespath') { ?>
     </div>
 </div>
 <?php } ?>

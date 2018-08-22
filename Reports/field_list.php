@@ -53,7 +53,8 @@ $operations_reports = [
 	'Rate Card Report'=>['report_operations_rate_cards.php','Rate Cards Report','Rate Card Report','rate_card_report'],
 	'Import Summary'=>['report_import_summary.php','Import Summary Report','Import Summary','import_summary'],
 	'Import Details'=>['report_import_details.php','Detailed Import Report','Import Details','import_details'],
-	'Ticket Manifest Summary'=>['report_daily_manifest_summary.php','Manifest Daily Summary','Ticket Manifest Summary','ticket_manifest_summary']
+	'Ticket Manifest Summary'=>['report_daily_manifest_summary.php','Manifest Daily Summary','Ticket Manifest Summary','ticket_manifest_summary'],
+	'Employee Payroll Report'=>['report_employee_payroll_report.php','Employee Payroll Report','Employee Payroll Report','employee_payroll_report']
 ];
 $sales_reports = [
 	'Validation by Therapist'=>['report_daily_validation.php','Validation by Therapist','Validation by Therapist','pt_validation'],
