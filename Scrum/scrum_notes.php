@@ -1,12 +1,14 @@
 <?php if(empty($_GET['date'])) {
 	$scrum_list = $dbc->query("SELECT * FROM `daysheet_notepad` WHERE `contactid`=0 AND `date` != '' ORDER BY `date` DESC");
 	if($scrum_list->num_rows > 0) { ?>
-		<table class="table table-bordered">
-			<tr class="hidden-sm hidden-xs">
-				<th>Entry</th>
-				<th>Staff</th>
-				<th>Date Created</th>
-			</tr>
+		<table class="table table-bordered table-striped">
+            <thead>
+                <tr class="hidden-sm hidden-xs">
+                    <th>Entry</th>
+                    <th>Staff</th>
+                    <th>Date Created</th>
+                </tr>
+            </thead>
 			<?php while($notes = $scrum_list->fetch_assoc()) {
 				$note = strip_tags(html_entity_decode($notes['notes']));
 				$offset = strrpos($note,' ',150); ?>

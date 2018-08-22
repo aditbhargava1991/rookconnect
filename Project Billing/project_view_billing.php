@@ -38,14 +38,14 @@
 		<?php $projectid = $_GET['projectid'];
 		$project = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `project` WHERE `projectid`='$projectid'"));
 
-		echo '<table class="table table-bordered">';
-		echo '<tr class="hidden-xs hidden-sm">
+		echo '<table class="table table-bordered table-striped">';
+		echo '<thead><tr class="hidden-xs hidden-sm">
 			<th>Type</th>
 			<th>Heading</th>
 			<th>Description</th>
 			<th>'.ESTIMATE_TILE.' Price</th>
 			<th>Generate Invoice</th>
-			</tr>';
+			</tr></thead>';
 
 		$items = [];
 		$packages = array_filter(explode('**',$project['package']));

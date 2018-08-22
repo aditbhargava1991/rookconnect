@@ -38,15 +38,17 @@ $form_list = mysqli_query($dbc, "SELECT `form_id`, `name`, `assigned_tile` FROM 
 if(mysqli_num_rows($form_list) > 0) {
 	$form_count = "SELECT COUNT(*) numrows FROM `user_forms` WHERE `deleted`=0 $subtab_query $type_query";
 	echo display_pagination($dbc, $form_count, $pageNum, $rowsPerPage); ?>
-	<table class="table table-bordered">
-		<tr class="hidden-sm hidden-xs">
-			<th>Name</th>
-			<?php if ($type != 'templates') { ?>
-				<th>Assigned Tiles</th>
-			<?php } ?>
-			<!-- <th>History</th> -->
-			<th>Function</th>
-		</tr>
+	<table class="table table-bordered table-striped">
+        <thead>
+            <tr class="hidden-sm hidden-xs">
+                <th>Name</th>
+                <?php if ($type != 'templates') { ?>
+                    <th>Assigned Tiles</th>
+                <?php } ?>
+                <!-- <th>History</th> -->
+                <th>Function</th>
+            </tr>
+        </thead>
 		<?php while($form = mysqli_fetch_array($form_list)) { ?>
 			<tr>
 				<td data-title="Form Name"><?= $form['name'] ?></td>

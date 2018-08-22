@@ -124,11 +124,13 @@ function saveConfig() {
 		</div>
 	</div>
 	<div id="no-more-tables">
-		<table class="table table-bordered" id="email_alerts">
-			<tr class="hidden-xs">
-				<th>Email Alerts</th>
-				<th>Activate</th>
-			</tr>
+		<table class="table table-bordered table-striped" id="email_alerts">
+            <thead>
+                <tr class="hidden-xs">
+                    <th>Email Alerts</th>
+                    <th>Activate</th>
+                </tr>
+            </thead>
 			<?php include('../Settings/notification_fields.php');
 			foreach($notification_fields as $noti_value => $noti_field) { ?>
 				<tr>

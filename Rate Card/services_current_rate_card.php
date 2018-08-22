@@ -41,7 +41,8 @@
 		echo display_pagination($dbc, $count_sql, $pageNum, $rowsPerPage);
 
 		 ?>
-		<table class="table table-bordered">
+		<table class="table table-bordered table-striped">
+            <thead>
 			<tr class="hidden-xs hidden-sm">
 					<th>Code</th>
                     <th>Heading</th>
@@ -59,6 +60,7 @@
                     <th>History</th>
                     <th>Functions</th>
 			</tr>
+            </thead>
 		<?php // Table Rows
 		while($row = mysqli_fetch_array($result)) {
 			echo '<tr>';

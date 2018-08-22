@@ -58,9 +58,9 @@ checkAuthorised('fund_development');
                 $get_field_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT fund_development_funding FROM field_config"));
                 $value_config = ','.$get_field_config['fund_development_funding'].',';
 
-                echo "<table class='table table-bordered'>";
+                echo "<table class='table table-bordered table-striped'>";
 
-                echo "<tr class='hidden-xs hidden-sm'>";
+                echo "<thead><tr class='hidden-xs hidden-sm'>";
                 if (strpos($value_config, ','."Funding For".',') !== FALSE) {
                     echo '<th>Funding For</th>';
                     $enable_row_count++;
@@ -108,7 +108,7 @@ checkAuthorised('fund_development');
                     echo '<th>Budget</th>';
                 //}
                 echo '<th>Function</th>';
-                echo "</tr>";
+                echo "</tr></thead>";
             } else{
                 echo "<div class='clearfix'><h2>No Record Found.</h2></div>";
             }

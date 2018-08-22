@@ -111,8 +111,8 @@ $level = trim(ROLE,',');
 				echo display_pagination($dbc, $query, $pageNum, $rowsPerPage);
 				// Pagination Finish //
 
-				echo "<table class='table table-bordered'>";
-				echo "<tr class='hidden-xs hidden-sm'>
+				echo "<table class='table table-bordered table-striped'>";
+				echo "<thead><tr class='hidden-xs hidden-sm'>
 						".(strpos($dashboard_config,',site_name,') !== false ? "<th>Site name</th>" : "")."
 						".(strpos($dashboard_config,',customer,') !== false ? "<th>Customer</th>" : "")."
 						".(strpos($dashboard_config,',website,') !== false ? "<th>Website</th>" : "")."
@@ -121,7 +121,7 @@ $level = trim(ROLE,',');
 						".(strpos($dashboard_config,',phone,') !== false ? "<th>Phone Number</th>" : "")."
 						".(strpos($dashboard_config,',fax,') !== false ? "<th>Fax Number</th>" : "")."
 						<th>Function</th>
-						</tr>";
+						</tr></thead>";
 
 				while($row = mysqli_fetch_array( $result ))
 				{

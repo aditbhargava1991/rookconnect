@@ -79,8 +79,8 @@ $value = $config['settings']['Choose Fields for Holidays Dashboard'];
                 $get_field_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT ".$tb_field." FROM field_config"));
                 $value_config = ','.$get_field_config[$tb_field].',';
 
-                echo "<table class='table table-bordered'>";
-                echo "<tr class='hidden-xs hidden-sm'>";
+                echo "<table class='table table-bordered table-striped'>";
+                echo "<thead><tr class='hidden-xs hidden-sm'>";
 
                 foreach($value['data'] as $tab_name => $tabs) {
                     foreach($tabs as $field) {
@@ -90,7 +90,7 @@ $value = $config['settings']['Choose Fields for Holidays Dashboard'];
                     }
                 }
                     echo '<th>Function</th>';
-                echo "</tr>";
+                echo "</tr></thead>";
             } else {
                 echo "<h2>No Record Found.</h2>";
             }

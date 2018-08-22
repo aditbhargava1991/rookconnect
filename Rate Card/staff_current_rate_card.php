@@ -86,7 +86,8 @@ function filter_rates() {
 		echo display_pagination($dbc, $count_sql, $pageNum, $rowsPerPage);
 		
 		// Table Headers ?>
-		<table id="rate_table" class="table table-bordered">
+		<table id="rate_table" class="table table-bordered table-striped">
+            <thead>
 			<tr class="hidden-xs hidden-sm">
 				<?php if(strpos($db_conf,'card') !== false): ?>
 					<th style="max-width: 50%; width:40em;">Staff</th><?php endif; ?>
@@ -171,6 +172,7 @@ function filter_rates() {
 				<?php if(strpos($db_conf,'function') !== false): ?>
 					<th style="text-align:center;">Functions</th><?php endif; ?>
 			</tr>
+            </thead>
 		<?php // Table Rows
 		$staff_sql = "SELECT `contactid`, `last_name`, `first_name` FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `deleted`=0 AND `status` > 0";
 		$staff_result = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, $staff_sql),MYSQLI_ASSOC));

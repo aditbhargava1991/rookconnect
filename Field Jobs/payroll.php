@@ -73,13 +73,13 @@ function form_action_set() {
 			$datediff = $now - $your_date;
 			$total_days = floor($datediff/(60*60*24));
 
-			echo "<table class='table table-bordered'>";
-			echo "<tr class='hidden-xs hidden-sm'><th>&nbsp;</th>";
+			echo "<table class='table table-bordered table-striped'>";
+			echo "<thead><tr class='hidden-xs hidden-sm'><th>&nbsp;</th>";
 			for($i=0;$i<=$total_days;$i++) {
 				echo "<th>".$display_date."</th>";
 				$display_date = date('Y-m-d',strtotime($display_date . "+1 days"));
 			}
-			echo "</tr>";
+			echo "</tr></thead>";
 			echo "<tr class='hidden-xs hidden-sm'><th>Name</th>";
 			for($i=0;$i<=$total_days;$i++) {
 				echo "<th>Reg-OT-Sub-Travel</th>";
@@ -140,8 +140,8 @@ function form_action_set() {
 			$query_check_credentials = "SELECT *, SUM(reg) AS reg_hours, SUM(ot) AS ot_hours, SUM(sub) AS sub_hours, SUM(travel) AS travel_hours FROM field_payroll WHERE DATE(created_date) = CURDATE() GROUP BY created_date, contactid, positionid";
 
 			$result = mysqli_query($dbc, $query_check_credentials);
-			echo "<table class='table table-bordered'>";
-			echo "<tr class='hidden-xs hidden-sm'>
+			echo "<table class='table table-bordered table-striped'>";
+			echo "<thead><tr class='hidden-xs hidden-sm'>
 			<th></th>
 			<th>".date('Y-m-d')."</th>
 			</tr>";
@@ -153,7 +153,7 @@ function form_action_set() {
 			<th>Total OT</th>
 			<th>Total Sub</th>
 			<th>Total Travel</th>
-			</tr>";
+			</tr></thead>";
 
 			$employeeid = 0;
 			$positions = '';

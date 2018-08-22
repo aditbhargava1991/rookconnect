@@ -120,13 +120,15 @@ checkAuthorised('project_workflow');
 		<?php
 			if($_GET['type']=='active'){
 		?>
-			<table class='table table-bordered'>
-				<tr class='hidden-xs hidden-sm'>
-					<th>SR No.</th>
-					<th>Project Workflow Name</th>
-					<th>Tabs</th>
-					<th>Function</th>
-				</tr>
+			<table class='table table-bordered table-striped'>
+                <thead>
+                    <tr class='hidden-xs hidden-sm'>
+                        <th>SR No.</th>
+                        <th>Project Workflow Name</th>
+                        <th>Tabs</th>
+                        <th>Function</th>
+                    </tr>
+                </thead>
 				<?php
 					$project_workflow_query=mysqli_query($dbc,"SELECT * FROM project_workflow where deleted = 0 ORDER BY project_workflow_id DESC");
 					while($project_workflow_row = mysqli_fetch_array($project_workflow_query)) {
@@ -157,7 +159,8 @@ checkAuthorised('project_workflow');
             $rate_card = mysqli_fetch_array(mysqli_query($dbc, "SELECT IF(SUM(`admin_enabled`) > 0, 'turn_on', 'turn_off') on_or_off FROM `tile_security` WHERE `tile_name`='rate_card'"))[0];
             $products = mysqli_fetch_array(mysqli_query($dbc, "SELECT IF(SUM(`admin_enabled`) > 0, 'turn_on', 'turn_off') on_or_off FROM `tile_security` WHERE `tile_name`='products'"))[0];
 		    $vpl = mysqli_fetch_array(mysqli_query($dbc, "SELECT IF(SUM(`admin_enabled`) > 0, 'turn_on', 'turn_off') on_or_off FROM `tile_security` WHERE `tile_name`='vpl'"))[0]; ?>
-        <table class='table table-bordered'>
+        <table class='table table-bordered table-striped'>
+            <thead>
             <tr class='hidden-sm '>
                 <th>What details should be available in projects?</th>
                 <th>
@@ -171,6 +174,7 @@ checkAuthorised('project_workflow');
                 </span>
                 Turn Off Tile</th>
             </tr>
+            </thead>
 
             <?php if (strpos($assets, 'turn_on') !== FALSE) { ?>
             <tr>

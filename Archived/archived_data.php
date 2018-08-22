@@ -326,8 +326,8 @@ switch($archive) {
                         // Added Pagination //
                         echo display_pagination($dbc, $query, $pageNum, $rowsPerPage);
                         // Pagination Finish //
-                        echo "<table border='2' cellpadding='10' class='table'>";
-                        echo "<tr class='dont-hide'>
+                        echo "<table border='2' cellpadding='10' class='table table-striped'>";
+                        echo "<thead><tr class='dont-hide'>
                                 <th>Contact ID</th>
 								<th>Category</th>
                                 <th>Name</th>
@@ -335,7 +335,7 @@ switch($archive) {
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
-						echo "</tr>";
+						echo "</tr></thead>";
                         } else{
                             echo "<h2>No Record Found.</h2>";
                         }
@@ -382,8 +382,8 @@ switch($archive) {
                         // Added Pagination //
                         echo display_pagination($dbc, $query, $pageNum, $rowsPerPage);
                         // Pagination Finish //
-                        echo "<table border='2' cellpadding='10' class='table'>";
-                        echo "<tr class='dont-hide'>
+                        echo "<table border='2' cellpadding='10' class='table table-striped'>";
+                        echo "<thead><tr class='dont-hide'>
                                 <th>Contact ID</th>
 								<th>Category</th>
                                 <th>Name</th>
@@ -391,7 +391,7 @@ switch($archive) {
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
-						echo "</tr>";
+						echo "</tr></thead>";
                         } else{
                             echo "<h2>No Record Found.</h2>";
                         }
@@ -443,8 +443,8 @@ switch($archive) {
                     echo display_pagination($dbc, $query, $pageNum, $rowsPerPage);
                     // Pagination Finish //
 
-                    echo "<table class='table table-bordered'>";
-                    echo "<tr class='hidden-xs hidden-sm'>
+                    echo "<table class='table table-bordered table-striped'>";
+                    echo "<thead><tr class='hidden-xs hidden-sm'>
                     <th>ID#</th>
                     <th>Business</th>
                     <th>Contact</th>
@@ -456,7 +456,7 @@ switch($archive) {
                     if($edit_access > 0) {
                         echo "<th>Restore</th>";
                     }
-					echo "</tr>";
+					echo "</tr></thead>";
                 } else{
                     echo "<div class='clearfix'><h2>No Record Found.</h2></div>";
                 }
@@ -513,8 +513,8 @@ switch($archive) {
 
                         $num_rows = mysqli_num_rows($result);
                         if($num_rows > 0) {
-                        echo "<table border='2' cellpadding='10' class='table'>";
-                        echo "<tr>
+                        echo "<table border='2' cellpadding='10' class='table table-striped'>";
+                        echo "<thead><tr>
 								<th>Inventory ID</th>
                                 <th>Category</th>
                                 <th>Name</th>
@@ -522,7 +522,7 @@ switch($archive) {
                         if($edit_access > 0) {
                             echo "<th>Restore</th>";
                         }
-						echo "</tr>";
+						echo "</tr></thead>";
                         } else{
                             echo "<h2>No Record Found.</h2>";
                         }
@@ -557,8 +557,8 @@ switch($archive) {
 
                         $num_rows = mysqli_num_rows($result);
                         if($num_rows > 0) {
-                        echo "<table border='2' cellpadding='10' class='table'>";
-                        echo "<tr>
+                        echo "<table border='2' cellpadding='10' class='table table-striped'>";
+                        echo "<thead><tr>
                                 <th>Serial Number</th>
                                 <th>Unit Number</th>
                                 <th>Type</th>
@@ -571,7 +571,7 @@ switch($archive) {
                         if($edit_access > 0) {
                             echo "<th>Restore</th>";
                         }
-						echo "</tr>";
+						echo "</tr></thead>";
                         } else{
                             echo "<h2>No Record Found.</h2>";
                         }
@@ -612,8 +612,8 @@ switch($archive) {
 
                         $num_rows = mysqli_num_rows($result);
                         if($num_rows > 0) {
-                        echo "<table border='2' cellpadding='10' class='table'>";
-                        echo "<tr>
+                        echo "<table border='2' cellpadding='10' class='table table-striped'>";
+                        echo "<thead><tr>
 								<th>Bid#</th>
 								<th>Client</th>
 								<th>Created Date</th>
@@ -621,7 +621,7 @@ switch($archive) {
                         if($edit_access > 0) {
                             echo "<th>Restore</th>";
                         }
-						echo "</tr>";
+						echo "</tr></thead>";
                         } else{
                             echo "<h2>No Record Found.</h2>";
                         }
@@ -686,7 +686,7 @@ switch($archive) {
 							// Added Pagination //
 							echo display_pagination($dbc, $query, $pageNum, $rowsPerPage);
 							// Pagination Finish //
-							echo "<table border='2' cellpadding='10' class='table'>";
+							echo "<table border='2' cellpadding='10' class='table table-striped'>";
 							echo "<thead><tr class='hidden-xs hidden-sm'>
 								<th>Information</th>
                                 <th>Date of Archival</th>";
@@ -752,7 +752,7 @@ switch($archive) {
 							// Added Pagination //
 							echo display_pagination($dbc, $query, $pageNum, $rowsPerPage);
 							// Pagination Finish //
-							echo "<table border='2' cellpadding='10' class='table'>";
+							echo "<table border='2' cellpadding='10' class='table table-striped'>";
 							echo "<thead><tr class='hidden-xs hidden-sm'>
 								<th>Information</th>
                                 <th>Date of Archival</th>";
@@ -818,7 +818,7 @@ switch($archive) {
 							// Added Pagination //
 							echo display_pagination($dbc, $query, $pageNum, $rowsPerPage);
 							// Pagination Finish //
-							echo "<table border='2' cellpadding='10' class='table'>";
+							echo "<table border='2' cellpadding='10' class='table table-striped'>";
 							echo "<thead><tr class='hidden-xs hidden-sm'>
 								<th>Information</th>
                                 <th>Date of Archival</th>";
@@ -886,7 +886,7 @@ switch($archive) {
 							// Added Pagination //
 							echo display_pagination($dbc, $query, $pageNum, $rowsPerPage);
 							// Pagination Finish //
-							echo "<table border='2' cellpadding='10' class='table'>";
+							echo "<table border='2' cellpadding='10' class='table table-striped'>";
 							echo "<thead><tr class='hidden-xs hidden-sm'>
 								<th>PO Status</th>
 								<th>Information</th>
@@ -957,7 +957,7 @@ switch($archive) {
 							// Added Pagination //
 							echo display_pagination($dbc, $query, $pageNum, $rowsPerPage);
 							// Pagination Finish //
-							echo "<table border='2' cellpadding='10' class='table'>";
+							echo "<table border='2' cellpadding='10' class='table table-striped'>";
 							echo "<thead><tr class='hidden-xs hidden-sm'>
 								<th>Work Ticket Status</th>
 								<th>Information</th>
@@ -1029,7 +1029,7 @@ switch($archive) {
 							// Added Pagination //
 							echo display_pagination($dbc, $query, $pageNum, $rowsPerPage);
 							// Pagination Finish //
-							echo "<table border='2' cellpadding='10' class='table'>";
+							echo "<table border='2' cellpadding='10' class='table table-striped'>";
 							echo "<thead><tr class='hidden-xs hidden-sm'>
 								<th>Information</th>
                                 <th>Date of Archival</th>";
@@ -1075,8 +1075,8 @@ switch($archive) {
 
                         $num_rows = mysqli_num_rows($result);
                         if($num_rows > 0) {
-                        echo "<table border='2' cellpadding='10' class='table'>";
-                        echo "<tr>
+                        echo "<table border='2' cellpadding='10' class='table table-striped'>";
+                        echo "<thead><tr>
 								<th>Work Order #</th>
 								<th>Business</th>
 								<th>Status</th>
@@ -1084,7 +1084,7 @@ switch($archive) {
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
-						echo "</tr>";
+						echo "</tr></thead>";
                         } else{
                             echo "<h2>No Record Found.</h2>";
                         }
@@ -1119,8 +1119,8 @@ switch($archive) {
 
                         $num_rows = mysqli_num_rows($result);
                         if($num_rows > 0) {
-                        echo "<table border='2' cellpadding='10' class='table'>";
-                        echo "<tr>
+                        echo "<table border='2' cellpadding='10' class='table table-striped'>";
+                        echo "<thead><tr>
 								<th>Certificate Type</th>
 								<th>Title</th>
 								<th>Name</th>
@@ -1128,7 +1128,7 @@ switch($archive) {
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
-						echo "</tr>";
+						echo "</tr></thead>";
                         } else{
                             echo "<h2>No Record Found.</h2>";
                         }
@@ -1163,8 +1163,8 @@ switch($archive) {
 
                         $num_rows = mysqli_num_rows($result);
                         if($num_rows > 0) {
-                        echo "<table border='2' cellpadding='10' class='table'>";
-                        echo "<tr>
+                        echo "<table border='2' cellpadding='10' class='table table-striped'>";
+                        echo "<thead><tr>
 								<th>Tile</th>
 								<th>Sub Tab</th>
 								<th>Description</th>
@@ -1172,7 +1172,7 @@ switch($archive) {
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
-						echo "</tr>";
+						echo "</tr></thead>";
                         } else{
                             echo "<h2>No Record Found.</h2>";
                         }
@@ -1207,14 +1207,14 @@ switch($archive) {
 
                         $num_rows = mysqli_num_rows($result);
                         if($num_rows > 0) {
-                        echo "<table border='2' cellpadding='10' class='table'>";
-                        echo "<tr>
+                        echo "<table border='2' cellpadding='10' class='table table-striped'>";
+                        echo "<thead><tr>
 								<th>Description</th>
                                 <th>Date of Archival</th>";
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
-						echo "</tr>";
+						echo "</tr></thead>";
                         } else{
                             echo "<h2>No Record Found.</h2>";
                         }
@@ -1248,14 +1248,14 @@ switch($archive) {
 
                         $num_rows = mysqli_num_rows($result);
                         if($num_rows > 0) {
-                        echo "<table border='2' cellpadding='10' class='table'>";
-                        echo "<tr>
+                        echo "<table border='2' cellpadding='10' class='table table-striped'>";
+                        echo "<thead><tr>
 								<th>Heading</th>
                                 <th>Date of Archival</th>";
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
-						echo "</tr>";
+						echo "</tr></thead>";
                         } else{
                             echo "<h2>No Record Found.</h2>";
                         }
@@ -1289,14 +1289,14 @@ switch($archive) {
 
                         $num_rows = mysqli_num_rows($result);
                         if($num_rows > 0) {
-                        echo "<table border='2' cellpadding='10' class='table'>";
-                        echo "<tr>
+                        echo "<table border='2' cellpadding='10' class='table table-striped'>";
+                        echo "<thead><tr>
 								<th>Heading</th>
                                 <th>Date of Archival</th>";
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
-						echo "</tr>";
+						echo "</tr></thead>";
                         } else{
                             echo "<h2>No Record Found.</h2>";
                         }
@@ -1330,14 +1330,14 @@ switch($archive) {
 
                         $num_rows = mysqli_num_rows($result);
                         if($num_rows > 0) {
-                        echo "<table border='2' cellpadding='10' class='table'>";
-                        echo "<tr>
+                        echo "<table border='2' cellpadding='10' class='table table-striped'>";
+                        echo "<thead><tr>
 								<th>Heading</th>
                                 <th>Date of Archival</th>";
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
-						echo "</tr>";
+						echo "</tr></thead>";
                         } else{
                             echo "<h2>No Record Found.</h2>";
                         }
@@ -1371,8 +1371,8 @@ switch($archive) {
 
                         $num_rows = mysqli_num_rows($result);
                         if($num_rows > 0) {
-                        echo "<table border='2' cellpadding='10' class='table'>";
-                        echo "<tr>
+                        echo "<table border='2' cellpadding='10' class='table table-striped'>";
+                        echo "<thead><tr>
 								<th>Checklist Name</th>
 								<th>Security</th>
 								<th>Checklist Type</th>
@@ -1380,7 +1380,7 @@ switch($archive) {
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
-						echo "</tr>";
+						echo "</tr></thead>";
                         } else{
                             echo "<h2>No Record Found.</h2>";
                         }
@@ -1416,8 +1416,8 @@ switch($archive) {
 
                         $num_rows = mysqli_num_rows($result);
                         if($num_rows > 0) {
-                        echo "<table border='2' cellpadding='10' class='table'>";
-                        echo "<tr>
+                        echo "<table border='2' cellpadding='10' class='table table-striped'>";
+                        echo "<thead><tr>
 								<th>Client Document Type</th>
 								<th>Category</th>
 								<th>Title</th>
@@ -1426,7 +1426,7 @@ switch($archive) {
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
-						echo "</tr>";
+						echo "</tr></thead>";
                         } else{
                             echo "<h2>No Record Found.</h2>";
                         }
@@ -1463,8 +1463,8 @@ switch($archive) {
 
                         $num_rows = mysqli_num_rows($result);
                         if($num_rows > 0) {
-                        echo "<table border='2' cellpadding='10' class='table'>";
-                        echo "<tr>
+                        echo "<table border='2' cellpadding='10' class='table table-striped'>";
+                        echo "<thead><tr>
 								<th>Internal Document Type</th>
 								<th>Category</th>
 								<th>Title</th>
@@ -1473,7 +1473,7 @@ switch($archive) {
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
-						echo "</tr>";
+						echo "</tr></thead>";
                         } else{
                             echo "<h2>No Record Found.</h2>";
                         }
@@ -1510,8 +1510,8 @@ switch($archive) {
 
                         $num_rows = mysqli_num_rows($result);
                         if($num_rows > 0) {
-                        echo "<table border='2' cellpadding='10' class='table'>";
-                        echo "<tr>
+                        echo "<table border='2' cellpadding='10' class='table table-striped'>";
+                        echo "<thead><tr>
 								<th>Password Type</th>
 								<th>Category</th>
 								<th>Heading</th>
@@ -1520,7 +1520,7 @@ switch($archive) {
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
-						echo "</tr>";
+						echo "</tr></thead>";
                         } else{
                             echo "<h2>No Record Found.</h2>";
                         }
@@ -1557,15 +1557,15 @@ switch($archive) {
 
                         $num_rows = mysqli_num_rows($result);
                         if($num_rows > 0) {
-                        echo "<table border='2' cellpadding='10' class='table'>";
-                        echo "<tr>
+                        echo "<table border='2' cellpadding='10' class='table table-striped'>";
+                        echo "<thead><tr>
 								<th>Tile Heading</th>
 								<th>Document</th>
                                 <th>Date of Archival</th>";
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
-						echo "</tr>";
+						echo "</tr></thead>";
                         } else{
                             echo "<h2>No Record Found.</h2>";
                         }
@@ -1600,8 +1600,8 @@ switch($archive) {
 
                         $num_rows = mysqli_num_rows($result);
                         if($num_rows > 0) {
-                        echo "<table border='2' cellpadding='10' class='table'>";
-                        echo "<tr>
+                        echo "<table border='2' cellpadding='10' class='table table-striped'>";
+                        echo "<thead><tr>
 								<th>Type Heading</th>
 								<th>Support Type</th>
 								<th>Client Info</th>
@@ -1609,7 +1609,7 @@ switch($archive) {
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
-						echo "</tr>";
+						echo "</tr></thead>";
                         } else{
                             echo "<h2>No Record Found.</h2>";
                         }
@@ -1647,15 +1647,15 @@ switch($archive) {
 
                         $num_rows = mysqli_num_rows($result);
                         if($num_rows > 0) {
-                        echo "<table border='2' cellpadding='10' class='table'>";
-                        echo "<tr>
+                        echo "<table border='2' cellpadding='10' class='table table-striped'>";
+                        echo "<thead><tr>
 								<th>Tile Name</th>
 								<th>Project Path</th>
                                 <th>Date of Archival</th>";
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
-						echo "</tr>";
+						echo "</tr></thead>";
                         } else{
                             echo "<h2>No Record Found.</h2>";
                         }
@@ -1692,8 +1692,8 @@ switch($archive) {
 
                         $num_rows = mysqli_num_rows($result);
                         if($num_rows > 0) {
-                        echo "<table border='2' cellpadding='10' class='table'>";
-                        echo "<tr>
+                        echo "<table border='2' cellpadding='10' class='table table-striped'>";
+                        echo "<thead><tr>
 								<th>Category</th>
 								<th>Sub Category</th>
 								<th>Name</th>
@@ -1701,7 +1701,7 @@ switch($archive) {
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
-						echo "</tr>";
+						echo "</tr></thead>";
                         } else{
                             echo "<h2>No Record Found.</h2>";
                         }
@@ -1739,8 +1739,8 @@ switch($archive) {
 
                         $num_rows = mysqli_num_rows($result);
                         if($num_rows > 0) {
-                        echo "<table border='2' cellpadding='10' class='table'>";
-                        echo "<tr>
+                        echo "<table border='2' cellpadding='10' class='table table-striped'>";
+                        echo "<thead><tr>
 								<th>Category</th>
 								<th>Sub Category</th>
 								<th>Name</th>
@@ -1748,7 +1748,7 @@ switch($archive) {
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
-						echo "</tr>";
+						echo "</tr></thead>";
                         } else{
                             echo "<h2>No Record Found.</h2>";
                         }
@@ -1786,8 +1786,8 @@ switch($archive) {
 
                         $num_rows = mysqli_num_rows($result);
                         if($num_rows > 0) {
-                        echo "<table border='2' cellpadding='10' class='table'>";
-                        echo "<tr>
+                        echo "<table border='2' cellpadding='10' class='table table-striped'>";
+                        echo "<thead><tr>
 								<th>Tab</th>
 								<th>Category</th>
 								<th>Form</th>
@@ -1797,7 +1797,7 @@ switch($archive) {
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
-						echo "</tr>";
+						echo "</tr></thead>";
                         } else{
                             echo "<h2>No Record Found.</h2>";
                         }
@@ -1872,8 +1872,8 @@ switch($archive) {
 
                         $num_rows = mysqli_num_rows($result);
                         if($num_rows > 0) {
-                        echo "<table border='2' cellpadding='10' class='table'>";
-                        echo "<tr>
+                        echo "<table border='2' cellpadding='10' class='table table-striped'>";
+                        echo "<thead><tr>
 								<th>Service Type</th>
 								<th>".TICKET_NOUN." Heading</th>
 								<th>Sub Heading</th>
@@ -1882,7 +1882,7 @@ switch($archive) {
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
-						echo "</tr>";
+						echo "</tr></thead>";
                         } else{
                             echo "<h2>No Record Found.</h2>";
                         }
@@ -1921,8 +1921,8 @@ switch($archive) {
 
                         $num_rows = mysqli_num_rows($result);
                         if($num_rows > 0) {
-                        echo "<table border='2' cellpadding='10' class='table'>";
-                        echo "<tr>
+                        echo "<table border='2' cellpadding='10' class='table table-striped'>";
+                        echo "<thead><tr>
 								<th>Location</th>
 								<th>Short Description</th>
 								<th>Work Performed</th>
@@ -1930,7 +1930,7 @@ switch($archive) {
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
-						echo "</tr>";
+						echo "</tr></thead>";
                         } else{
                             echo "<h2>No Record Found.</h2>";
                         }
@@ -1968,15 +1968,15 @@ switch($archive) {
 
                         $num_rows = mysqli_num_rows($result);
                         if($num_rows > 0) {
-                        echo "<table border='2' cellpadding='10' class='table'>";
-                        echo "<tr>
+                        echo "<table border='2' cellpadding='10' class='table table-striped'>";
+                        echo "<thead><tr>
 								<th>Business</th>
 								<th>".ESTIMATE_TILE." Name</th>
                                 <th>Date of Archival</th>";
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
-						echo "</tr>";
+						echo "</tr></thead>";
                         } else{
                             echo "<h2>No Record Found.</h2>";
                         }
@@ -2013,15 +2013,15 @@ switch($archive) {
 
                         $num_rows = mysqli_num_rows($result);
                         if($num_rows > 0) {
-                        echo "<table border='2' cellpadding='10' class='table'>";
-                        echo "<tr>
+                        echo "<table border='2' cellpadding='10' class='table table-striped'>";
+                        echo "<thead><tr>
 								<th>Quote Name</th>
 								<th>Total Cost</th>
                                 <th>Date of Archival</th>";
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
-						echo "</tr>";
+						echo "</tr></thead>";
                         } else{
                             echo "<h2>No Record Found.</h2>";
                         }
@@ -2058,8 +2058,8 @@ switch($archive) {
 
                         $num_rows = mysqli_num_rows($result);
                         if($num_rows > 0) {
-                        echo "<table border='2' cellpadding='10' class='table'>";
-                        echo "<tr>
+                        echo "<table border='2' cellpadding='10' class='table table-striped'>";
+                        echo "<thead><tr>
 								<th>Communication Id</th>
 								<th>Subject</th>
 								<th>Status</th>
@@ -2067,7 +2067,7 @@ switch($archive) {
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
-						echo "</tr>";
+						echo "</tr></thead>";
                         } else{
                             echo "<h2>No Record Found.</h2>";
                         }
@@ -2105,8 +2105,8 @@ switch($archive) {
 
                         $num_rows = mysqli_num_rows($result);
                         if($num_rows > 0) {
-                        echo "<table border='2' cellpadding='10' class='table'>";
-                        echo "<tr>
+                        echo "<table border='2' cellpadding='10' class='table table-striped'>";
+                        echo "<thead><tr>
 								<th>Title</th>
 								<th>Description</th>
 								<th>Newsboard Type</th>
@@ -2114,7 +2114,7 @@ switch($archive) {
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
-						echo "</tr>";
+						echo "</tr></thead>";
                         } else{
                             echo "<h2>No Record Found.</h2>";
                         }
@@ -2228,8 +2228,8 @@ switch($archive) {
                             if($search_user == '' && $search_invoiceid == '' && $search_date == '') {
                                 echo display_pagination($dbc, $query, $pageNum, $rowsPerPage);
                             }
-                            echo "<table border='2' cellpadding='10' class='table'>";
-                            echo "<tr>";
+                            echo "<table border='2' cellpadding='10' class='table table-striped'>";
+                            echo "<thead><tr>";
                             echo "<th>Invoice#</th>
                             <th>Invoice Date</th>
                             <th>Patient</th>
@@ -2338,8 +2338,8 @@ switch($archive) {
 
                         $num_rows = mysqli_num_rows($result);
                         if($num_rows > 0) {
-                        echo "<table border='2' cellpadding='10' class='table'>";
-                        echo "<tr>
+                        echo "<table border='2' cellpadding='10' class='table table-striped'>";
+                        echo "<thead><tr>
                                 <th>Staff</th>
                                 <th>Contacts</th>
                                 <th>Timeline</th>
@@ -2349,7 +2349,7 @@ switch($archive) {
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
-						echo "</tr>";
+						echo "</tr></thead>";
                         } else{
                             echo "<h2>No Record Found.</h2>";
                         }
@@ -2407,8 +2407,8 @@ switch($archive) {
 
                         $num_rows = mysqli_num_rows($result);
                         if($num_rows > 0) {
-                        echo "<table border='2' cellpadding='10' class='table'>";
-                        echo "<tr>
+                        echo "<table border='2' cellpadding='10' class='table table-striped'>";
+                        echo "<thead><tr>
                                 <th>Heading</th>
                                 <th>Expense Date</th>
                                 <th>Description</th>
@@ -2418,7 +2418,7 @@ switch($archive) {
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
-						echo "</tr>";
+						echo "</tr></thead>";
                         } else{
                             echo "<h2>No Record Found.</h2>";
                         }
@@ -2458,8 +2458,8 @@ switch($archive) {
 
                         $num_rows = mysqli_num_rows($result);
                         if($num_rows > 0) {
-                        echo "<table border='2' cellpadding='10' class='table'>";
-                        echo "<tr>
+                        echo "<table border='2' cellpadding='10' class='table table-striped'>";
+                        echo "<thead><tr>
                                 <th>Invoice Date</th>
                                 <th>Invoice Name</th>
                                 <th>Total Amount</th>
@@ -2468,7 +2468,7 @@ switch($archive) {
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
-						echo "</tr>";
+						echo "</tr></thead>";
                         } else{
                             echo "<h2>No Record Found.</h2>";
                         }
@@ -2507,8 +2507,8 @@ switch($archive) {
 
                         $num_rows = mysqli_num_rows($result);
                         if($num_rows > 0) {
-                        echo "<table border='2' cellpadding='10' class='table'>";
-                        echo "<tr>
+                        echo "<table border='2' cellpadding='10' class='table table-striped'>";
+                        echo "<thead><tr>
                                 <th>Invoice Date</th>
                                 <th>Invoice Name</th>
                                 <th>Total Amount</th>
@@ -2517,7 +2517,7 @@ switch($archive) {
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
-						echo "</tr>";
+						echo "</tr></thead>";
                         } else{
                             echo "<h2>No Record Found.</h2>";
                         }
@@ -2556,8 +2556,8 @@ switch($archive) {
 
                         $num_rows = mysqli_num_rows($result);
                         if($num_rows > 0) {
-                        echo "<table border='2' cellpadding='10' class='table'>";
-                        echo "<tr>
+                        echo "<table border='2' cellpadding='10' class='table table-striped'>";
+                        echo "<thead><tr>
                                 <th>Invoice Date</th>
                                 <th>Invoice Name</th>
                                 <th>Total Amount</th>
@@ -2566,7 +2566,7 @@ switch($archive) {
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
-						echo "</tr>";
+						echo "</tr></thead>";
                         } else{
                             echo "<h2>No Record Found.</h2>";
                         }
@@ -2605,8 +2605,8 @@ switch($archive) {
 
                         $num_rows = mysqli_num_rows($result);
                         if($num_rows > 0) {
-                        echo "<table border='2' cellpadding='10' class='table'>";
-                        echo "<tr>
+                        echo "<table border='2' cellpadding='10' class='table table-striped'>";
+                        echo "<thead><tr>
                                 <th>Code</th>
                                 <th>Part Number</th>
                                 <th>Category</th>
@@ -2614,7 +2614,7 @@ switch($archive) {
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
-						echo "</tr>";
+						echo "</tr></thead>";
                         } else{
                             echo "<h2>No Record Found.</h2>";
                         }
@@ -2652,8 +2652,8 @@ switch($archive) {
 
                         $num_rows = mysqli_num_rows($result);
                         if($num_rows > 0) {
-                        echo "<table border='2' cellpadding='10' class='table'>";
-                        echo "<tr>
+                        echo "<table border='2' cellpadding='10' class='table table-striped'>";
+                        echo "<thead><tr>
                                 <th>Budget Name</th>
                                 <th>Staff Lead</th>
                                 <th>Business</th>
@@ -2662,7 +2662,7 @@ switch($archive) {
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
-						echo "</tr>";
+						echo "</tr></thead>";
                         } else{
                             echo "<h2>No Record Found.</h2>";
                         }
@@ -2701,8 +2701,8 @@ switch($archive) {
 
                         $num_rows = mysqli_num_rows($result);
                         if($num_rows > 0) {
-                        echo "<table border='2' cellpadding='10' class='table'>";
-                        echo "<tr>
+                        echo "<table border='2' cellpadding='10' class='table table-striped'>";
+                        echo "<thead><tr>
                                 <th>Title</th>
 								<th>Category</th>
                                 <th>Revised Date</th>
@@ -2710,7 +2710,7 @@ switch($archive) {
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
-						echo "</tr>";
+						echo "</tr></thead>";
                         } else{
                             echo "<h2>No Record Found.</h2>";
                         }
@@ -2748,8 +2748,8 @@ switch($archive) {
 
                         $num_rows = mysqli_num_rows($result);
                         if($num_rows > 0) {
-                        echo "<table border='2' cellpadding='10' class='table'>";
-                        echo "<tr>
+                        echo "<table border='2' cellpadding='10' class='table table-striped'>";
+                        echo "<thead><tr>
                                 <th>Title</th>
 								<th>Category</th>
                                 <th>Description</th>
@@ -2758,7 +2758,7 @@ switch($archive) {
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
-						echo "</tr>";
+						echo "</tr></thead>";
                         } else{
                             echo "<h2>No Record Found.</h2>";
                         }
@@ -2797,8 +2797,8 @@ switch($archive) {
 
                         $num_rows = mysqli_num_rows($result);
                         if($num_rows > 0) {
-                        echo "<table border='2' cellpadding='10' class='table'>";
-                        echo "<tr>
+                        echo "<table border='2' cellpadding='10' class='table table-striped'>";
+                        echo "<thead><tr>
                                 <th>Staff Document Type</th>
                                 <th>Category</th>
                                 <th>Title</th>
@@ -2843,8 +2843,8 @@ switch($archive) {
 
                         $num_rows = mysqli_num_rows($result);
                         if($num_rows > 0) {
-                        echo "<table border='2' cellpadding='10' class='table'>";
-                        echo "<tr>
+                        echo "<table border='2' cellpadding='10' class='table table-striped'>";
+                        echo "<thead><tr>
                                 <th>Form</th>
                                 <th>Category</th>
                                 <th>Heading</th>
@@ -2852,7 +2852,7 @@ switch($archive) {
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
-						echo "</tr>";
+						echo "</tr></thead>";
                         } else{
                             echo "<h2>No Record Found.</h2>";
                         }
@@ -2887,8 +2887,8 @@ switch($archive) {
 
                         $num_rows = mysqli_num_rows($result);
                         if($num_rows > 0) {
-                        echo "<table border='2' cellpadding='10' class='table'>";
-                        echo "<tr>
+                        echo "<table border='2' cellpadding='10' class='table table-striped'>";
+                        echo "<thead><tr>
                                 <th>Reminder Type</th>
                                 <th>Reminder By</th>
                                 <th>Subject</th>
@@ -2897,7 +2897,7 @@ switch($archive) {
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
-						echo "</tr>";
+						echo "</tr></thead>";
                         } else{
                             echo "<h2>No Record Found.</h2>";
                         }
@@ -2933,8 +2933,8 @@ switch($archive) {
 
                         $num_rows = mysqli_num_rows($result);
                         if($num_rows > 0) {
-                        echo "<table border='2' cellpadding='10' class='table'>";
-                        echo "<tr>
+                        echo "<table border='2' cellpadding='10' class='table table-striped'>";
+                        echo "<thead><tr>
                                 <th>Service Type</th>
                                 <th>Category</th>
                                 <th>Heading</th>
@@ -2942,7 +2942,7 @@ switch($archive) {
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
-						echo "</tr>";
+						echo "</tr></thead>";
                         } else{
                             echo "<h2>No Record Found.</h2>";
                         }
@@ -2977,8 +2977,8 @@ switch($archive) {
 
                         $num_rows = mysqli_num_rows($result);
                         if($num_rows > 0) {
-                        echo "<table border='2' cellpadding='10' class='table'>";
-                        echo "<tr>
+                        echo "<table border='2' cellpadding='10' class='table table-striped'>";
+                        echo "<thead><tr>
                                 <th>Labour Type</th>
                                 <th>Heading</th>
                                 <th>Cost</th>
@@ -2986,7 +2986,7 @@ switch($archive) {
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
-						echo "</tr>";
+						echo "</tr></thead>";
                         } else{
                             echo "<h2>No Record Found.</h2>";
                         }
@@ -3021,8 +3021,8 @@ switch($archive) {
 
                         $num_rows = mysqli_num_rows($result);
                         if($num_rows > 0) {
-                        echo "<table border='2' cellpadding='10' class='table'>";
-                        echo "<tr>
+                        echo "<table border='2' cellpadding='10' class='table table-striped'>";
+                        echo "<thead><tr>
                                 <th>Service Type</th>
                                 <th>Category</th>
                                 <th>Headig</th>
@@ -3030,7 +3030,7 @@ switch($archive) {
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
-						echo "</tr>";
+						echo "</tr></thead>";
                         } else{
                             echo "<h2>No Record Found.</h2>";
                         }
@@ -3065,8 +3065,8 @@ switch($archive) {
 
                         $num_rows = mysqli_num_rows($result);
                         if($num_rows > 0) {
-                        echo "<table border='2' cellpadding='10' class='table'>";
-                        echo "<tr>
+                        echo "<table border='2' cellpadding='10' class='table table-striped'>";
+                        echo "<thead><tr>
                                 <th>Product Type</th>
                                 <th>Category</th>
                                 <th>Headig</th>
@@ -3074,7 +3074,7 @@ switch($archive) {
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
-						echo "</tr>";
+						echo "</tr></thead>";
                         } else{
                             echo "<h2>No Record Found.</h2>";
                         }
@@ -3109,8 +3109,8 @@ switch($archive) {
 
                         $num_rows = mysqli_num_rows($result);
                         if($num_rows > 0) {
-                        echo "<table border='2' cellpadding='10' class='table'>";
-                        echo "<tr>
+                        echo "<table border='2' cellpadding='10' class='table table-striped'>";
+                        echo "<thead><tr>
                                 <th>Service Type</th>
                                 <th>Category</th>
                                 <th>Headig</th>
@@ -3118,7 +3118,7 @@ switch($archive) {
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
-						echo "</tr>";
+						echo "</tr></thead>";
                         } else{
                             echo "<h2>No Record Found.</h2>";
                         }
@@ -3153,8 +3153,8 @@ switch($archive) {
 
                         $num_rows = mysqli_num_rows($result);
                         if($num_rows > 0) {
-                        echo "<table border='2' cellpadding='10' class='table'>";
-                        echo "<tr>
+                        echo "<table border='2' cellpadding='10' class='table table-striped'>";
+                        echo "<thead><tr>
                                 <th>Service Type</th>
                                 <th>Category</th>
                                 <th>Headig</th>
@@ -3162,7 +3162,7 @@ switch($archive) {
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
-						echo "</tr>";
+						echo "</tr></thead>";
                         } else{
                             echo "<h2>No Record Found.</h2>";
                         }
@@ -3212,8 +3212,8 @@ switch($archive) {
                         $num_rows += mysqli_num_rows($result8);
 
                         if($num_rows > 0) {
-                        echo "<table border='2' cellpadding='10' class='table'>";
-                        echo "<tr>
+                        echo "<table border='2' cellpadding='10' class='table table-striped'>";
+                        echo "<thead><tr>
                                 <th>Chart Type</th>
                                 <th>Client/Business</th>
                                 <th>Time</th>
@@ -3221,7 +3221,7 @@ switch($archive) {
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
-						echo "</tr>";
+						echo "</tr></thead>";
                         } else{
                             echo "<h2>No Record Found.</h2>";
                         }
@@ -3340,8 +3340,8 @@ switch($archive) {
 
                         $num_rows = mysqli_num_rows($result);
                         if($num_rows > 0) {
-                        echo "<table border='2' cellpadding='10' class='table'>";
-                        echo "<tr>
+                        echo "<table border='2' cellpadding='10' class='table table-striped'>";
+                        echo "<thead><tr>
                                 <th>Support Contact Category</th>
                                 <th>Category</th>
                                 <th>Planned Activity</th>
@@ -3349,7 +3349,7 @@ switch($archive) {
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
-						echo "</tr>";
+						echo "</tr></thead>";
                         } else{
                             echo "<h2>No Record Found.</h2>";
                         }
@@ -3385,8 +3385,8 @@ switch($archive) {
 						$num_rows += mysqli_num_rows($result1);
 
                         if($num_rows > 0) {
-                            echo "<table border='2' cellpadding='10' class='table'>";
-                            echo "<tr>
+                            echo "<table border='2' cellpadding='10' class='table table-striped'>";
+                            echo "<thead><tr>
                                     <th>Type</th>
                                     <th>Funding For</th>
                                     <th>Staff</th>
@@ -3418,8 +3418,8 @@ switch($archive) {
 						$result2 = mysqli_query($dbc, "select * from fund_development_funder where deleted=1");
 						$num_rows2 += mysqli_num_rows($result2);
 						if($num_rows2 > 0) {
-                            echo "<table border='2' cellpadding='10' class='table'>";
-                            echo "<tr>
+                            echo "<table border='2' cellpadding='10' class='table table-striped'>";
+                            echo "<thead><tr>
                                     <th>Type</th>
                                     <th>Funding For</th>
                                     <th>First Name</th>
@@ -3470,8 +3470,8 @@ switch($archive) {
 
                         $num_rows = mysqli_num_rows($result);
                         if($num_rows > 0) {
-                        echo "<table border='2' cellpadding='10' class='table'>";
-                        echo "<tr>
+                        echo "<table border='2' cellpadding='10' class='table table-striped'>";
+                        echo "<thead><tr>
                                 <th>Contact</th>
                                 <th>Category</th>
                                 <th>Heading</th>
@@ -3481,7 +3481,7 @@ switch($archive) {
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
-						echo "</tr>";
+						echo "</tr></thead>";
                         } else{
                             echo "<h2>No Record Found.</h2>";
                         }
@@ -3518,15 +3518,15 @@ switch($archive) {
 
                         $num_rows = mysqli_num_rows($result);
                         if($num_rows > 0) {
-                        echo "<table border='2' cellpadding='10' class='table'>";
-                        echo "<tr>
+                        echo "<table border='2' cellpadding='10' class='table table-striped'>";
+                        echo "<thead><tr>
                                 <th>Category</th>
                                 <th>Support Contact</th>
                                 <th>Date of Archival</th>";
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
-						echo "</tr>";
+						echo "</tr></thead>";
                         } else{
                             echo "<h2>No Record Found.</h2>";
                         }
@@ -3560,15 +3560,15 @@ switch($archive) {
 
                         $num_rows = mysqli_num_rows($result);
                         if($num_rows > 0) {
-                        echo "<table border='2' cellpadding='10' class='table'>";
-                        echo "<tr>
+                        echo "<table border='2' cellpadding='10' class='table table-striped'>";
+                        echo "<thead><tr>
                                 <th>Contact Category</th>
                                 <th>Contact</th>
                                 <th>Date of Archival</th>";
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
-						echo "</tr>";
+						echo "</tr></thead>";
                         } else{
                             echo "<h2>No Record Found.</h2>";
                         }
@@ -3602,8 +3602,8 @@ switch($archive) {
 
                         $num_rows = mysqli_num_rows($result);
                         if($num_rows > 0) {
-                        echo "<table border='2' cellpadding='10' class='table'>";
-                        echo "<tr>
+                        echo "<table border='2' cellpadding='10' class='table table-striped'>";
+                        echo "<thead><tr>
                                 <th>Staff</th>
                                 <th>Position</th>
                                 <th>Date Created</th>
@@ -3611,7 +3611,7 @@ switch($archive) {
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
-						echo "</tr>";
+						echo "</tr></thead>";
                         } else{
                             echo "<h2>No Record Found.</h2>";
                         }

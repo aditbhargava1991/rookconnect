@@ -361,42 +361,44 @@ if ( isset ( $_POST['search_invoice_submit'] ) ) {
                     echo display_pagination($dbc, $query, $pageNum, $rowsPerPage);
                 // Pagination Finish //
 
-                echo "<table class='table table-bordered'>";
-                echo "<tr class='hidden-xs hidden-sm'>";
-                    if (strpos($value_config, ','."Invoice #".',') !== FALSE) {
-                        echo '<th>Invoice #</th>';
-                    }
-                    if (strpos($value_config, ','."Invoice Date".',') !== FALSE) {
-                        echo '<th>Invoice Date</th>';
-                    }
-                    if (strpos($value_config, ','."Customer".',') !== FALSE) {
-                        echo '<th>Customer</th>';
-                    }
-                    if (strpos($value_config, ','."Total Price".',') !== FALSE) {
-                        echo '<th>Total Price</th>';
-                    }
-                    echo '<th>Due Date</th>';
-                    if (strpos($value_config, ','."Invoice PDF".',') !== FALSE) {
-                        echo '<th>Invoice PDF</th>';
-                    }
-                    if (strpos($value_config, ','."Comment".',') !== FALSE) {
-                        echo '<th>Comment</th>';
-                    }
-					if (strpos($value_config, ','."Edit POS".',') !== FALSE) {
-						echo '<th>Edit POS</th>';
-					}
-                    if (strpos($value_config, ','."Status".',') !== FALSE) {
-                        echo '<th>Status</th>';
-                    }
-					if (strpos($value_config, ','."Send") !== FALSE) {
-                      ?><th>Email PDF<br><div class='selectall selectbutton' title='This will select all PDFs on the current page.'>Select All</div></th><?php
-                    }
+                echo "<table class='table table-bordered table-striped'>";
+                    echo "<thead>";
+                        echo "<tr class='hidden-xs hidden-sm'>";
+                            if (strpos($value_config, ','."Invoice #".',') !== FALSE) {
+                                echo '<th>Invoice #</th>';
+                            }
+                            if (strpos($value_config, ','."Invoice Date".',') !== FALSE) {
+                                echo '<th>Invoice Date</th>';
+                            }
+                            if (strpos($value_config, ','."Customer".',') !== FALSE) {
+                                echo '<th>Customer</th>';
+                            }
+                            if (strpos($value_config, ','."Total Price".',') !== FALSE) {
+                                echo '<th>Total Price</th>';
+                            }
+                            echo '<th>Due Date</th>';
+                            if (strpos($value_config, ','."Invoice PDF".',') !== FALSE) {
+                                echo '<th>Invoice PDF</th>';
+                            }
+                            if (strpos($value_config, ','."Comment".',') !== FALSE) {
+                                echo '<th>Comment</th>';
+                            }
+                            if (strpos($value_config, ','."Edit POS".',') !== FALSE) {
+                                echo '<th>Edit POS</th>';
+                            }
+                            if (strpos($value_config, ','."Status".',') !== FALSE) {
+                                echo '<th>Status</th>';
+                            }
+                            if (strpos($value_config, ','."Send") !== FALSE) {
+                              ?><th>Email PDF<br><div class='selectall selectbutton' title='This will select all PDFs on the current page.'>Select All</div></th><?php
+                            }
 
-                    if(get_config($dbc, 'pay_multiple_ar_invoices') !== '' && get_config($dbc, 'pay_multiple_ar_invoices') !== NULL) {
-                        echo '<th>Pay</th>';
-                    }
+                            if(get_config($dbc, 'pay_multiple_ar_invoices') !== '' && get_config($dbc, 'pay_multiple_ar_invoices') !== NULL) {
+                                echo '<th>Pay</th>';
+                            }
 
-                echo "</tr>";
+                        echo "</tr>";
+                    echo "</thead>";
             } else{
                 echo "<h2>No Record Found.</h2>";
             }
