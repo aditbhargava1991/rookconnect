@@ -312,15 +312,17 @@ function changePOSStatus(sel) {
 
 		<br clear='all' />
 		<div id='no-more-tables'>
-			<table class='table table-bordered'>
-				<tr class='hidden-xs hidden-sm'>
-					<th width="6%"><div class="popover-examples list-inline" style="margin:2px 5px 5px 0"><a data-toggle="tooltip" data-placement="top" title="Purchase Order Number as selected on the Order Form."><img src="<?= WEBSITE_URL; ?>/img/info-w.png" width="20"></a></div>P.O. #</th>
-					<th width="6%"><div class="popover-examples list-inline" style="margin:2px 5px 5px 0"><a data-toggle="tooltip" data-placement="top" title="Purchase Order Date as selected on the Order Form."><img src="<?= WEBSITE_URL; ?>/img/info-w.png" width="20"></a></div>P.O. Date</th>
-					<th width="12%"><div class="popover-examples list-inline" style="margin:2px 5px 5px 0"><a data-toggle="tooltip" data-placement="top" title="Vendor name as selected on the Order Form."><img src="<?= WEBSITE_URL; ?>/img/info-w.png" width="20"></a></div>Vendor</th>
-					<th width="8%"><div class="popover-examples list-inline" style="margin:2px 5px 5px 0"><a data-toggle="tooltip" data-placement="top" title="Total Price as selected on the Order Form."><img src="<?= WEBSITE_URL; ?>/img/info-w.png" width="20"></a></div>Total Price</th>
-					<th width="6%"><div class="popover-examples list-inline" style="margin:2px 5px 5px 0"><a data-toggle="tooltip" data-placement="top" title="Purchase Order created into a PDF document. This opens in a new tab on your computer."><img src="<?= WEBSITE_URL; ?>/img/info-w.png" width="20"></a></div>P.O. PDF</th>
-					<th width="8%"><div class="popover-examples list-inline" style="margin:2px 5px 5px 0"><a data-toggle="tooltip" data-placement="top" title="Check this box to send one or several Purchase Orders in a PDF document, then enter the desired email in the Emails box."><img src="<?= WEBSITE_URL; ?>/img/info-w.png" width="20"></a></div>Email PDF<br><div class='selectall selectbutton' title='This will select all PDFs on the current page.'>Select All</div></th>
-				</tr><?php
+			<table class='table table-bordered table-striped'>
+                <thead>
+                    <tr class='hidden-xs hidden-sm'>
+                        <th width="6%"><div class="popover-examples list-inline" style="margin:2px 5px 5px 0"><a data-toggle="tooltip" data-placement="top" title="Purchase Order Number as selected on the Order Form."><img src="<?= WEBSITE_URL; ?>/img/info-w.png" width="20"></a></div>P.O. #</th>
+                        <th width="6%"><div class="popover-examples list-inline" style="margin:2px 5px 5px 0"><a data-toggle="tooltip" data-placement="top" title="Purchase Order Date as selected on the Order Form."><img src="<?= WEBSITE_URL; ?>/img/info-w.png" width="20"></a></div>P.O. Date</th>
+                        <th width="12%"><div class="popover-examples list-inline" style="margin:2px 5px 5px 0"><a data-toggle="tooltip" data-placement="top" title="Vendor name as selected on the Order Form."><img src="<?= WEBSITE_URL; ?>/img/info-w.png" width="20"></a></div>Vendor</th>
+                        <th width="8%"><div class="popover-examples list-inline" style="margin:2px 5px 5px 0"><a data-toggle="tooltip" data-placement="top" title="Total Price as selected on the Order Form."><img src="<?= WEBSITE_URL; ?>/img/info-w.png" width="20"></a></div>Total Price</th>
+                        <th width="6%"><div class="popover-examples list-inline" style="margin:2px 5px 5px 0"><a data-toggle="tooltip" data-placement="top" title="Purchase Order created into a PDF document. This opens in a new tab on your computer."><img src="<?= WEBSITE_URL; ?>/img/info-w.png" width="20"></a></div>P.O. PDF</th>
+                        <th width="8%"><div class="popover-examples list-inline" style="margin:2px 5px 5px 0"><a data-toggle="tooltip" data-placement="top" title="Check this box to send one or several Purchase Orders in a PDF document, then enter the desired email in the Emails box."><img src="<?= WEBSITE_URL; ?>/img/info-w.png" width="20"></a></div>Email PDF<br><div class='selectall selectbutton' title='This will select all PDFs on the current page.'>Select All</div></th>
+                    </tr>
+                </thead><?php
 
 		for($i = $offset; $i < $num_rows && $i < $rowsPerPage * $pageNum; $i++)
 		{

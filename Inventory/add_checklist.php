@@ -215,12 +215,14 @@ checkAuthorised('inventory');
 		$result = mysqli_query($dbc, $query_check_credentials);
 		$num_rows = mysqli_num_rows($result);
 		if($num_rows > 0) {
-			echo "<table class='table table-bordered' style='width:100%;'>
+			echo "<table class='table table-bordered table-striped' style='width:100%;'>
+            <thead>
 			<tr class='hidden-xs hidden-sm'>
 			<th>Link / Document</th>
 			<th>Date</th>
 			<th>Attached By</th>
-			</tr>";
+			</tr>
+            </thead>";
 			while($row = mysqli_fetch_array($result)) {
 				echo '<tr>';
 				if(empty($row['document'])) {

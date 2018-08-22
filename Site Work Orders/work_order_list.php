@@ -113,18 +113,20 @@
 <?php $work_orders = mysqli_query($dbc, "SELECT * FROM `site_work_orders` WHERE `status`".($wo_type == 'Pending' ? "='Pending'" : " NOT IN ('Pending', 'Archived')")." $query_clause ORDER BY `workorderid` DESC");
 if(mysqli_num_rows($work_orders) > 0): ?>
 <div id="no-more-tables">
-	<table class="table table-bordered">
-		<tr class="hidden-sm hidden-xs">
-			<th>Work Order #</th>
-			<th>Site</th>
-			<th>Staff & Crew</th>
-			<th>Services</th>
-			<th>Equipment</th>
-			<th>Material</th>
-			<th>PO</th>
-			<th>PDF</th>
-			<th>Function</th>
-		</tr>
+	<table class="table table-bordered table-striped">
+		<thead>
+            <tr class="hidden-sm hidden-xs">
+                <th>Work Order #</th>
+                <th>Site</th>
+                <th>Staff & Crew</th>
+                <th>Services</th>
+                <th>Equipment</th>
+                <th>Material</th>
+                <th>PO</th>
+                <th>PDF</th>
+                <th>Function</th>
+            </tr>
+        </thead>
 		<?php while($work_order = mysqli_fetch_array($work_orders))
 		{
 			$crew_list = [ 'Lead: '.get_contact($dbc, $work_order['staff_lead']) ];

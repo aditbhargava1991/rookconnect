@@ -104,7 +104,8 @@ foreach($project_tabs as $item) {
                                 $get_field_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT incident_report_dashboard FROM field_config_incident_report"));
                                 $value_config = ','.$get_field_config['incident_report_dashboard'].',';
 
-                                echo "<table class='table table-bordered'>";
+                                echo "<table class='table table-bordered table-striped'>";
+                                echo "<thead>";
                                 echo "<tr class='hidden-xs hidden-sm'>";
                                     if (strpos($value_config, ','."Program".',') !== FALSE) {
                                         echo '<th>Program</th>';
@@ -152,6 +153,7 @@ foreach($project_tabs as $item) {
                                         echo '<th>Function</th>';
                                     }
                                 echo "</tr>";
+                                echo "</thead>";
 
                                 while($row = mysqli_fetch_array( $result ))
                                 {

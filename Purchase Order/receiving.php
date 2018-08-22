@@ -311,8 +311,8 @@ function changePOSStatus(sel) {
 	}
 
 	if($num_rowss > 0) {
-		echo "<br clear='all' /><div id='no-more-tables'><table class='table table-bordered'>";
-		echo "<tr class='hidden-xs hidden-sm'>";
+		echo "<br clear='all' /><div id='no-more-tables'><table class='table table-bordered table-striped'>";
+		echo "<thead><tr class='hidden-xs hidden-sm'>";
 			if (strpos($value_config, ','."Invoice #".',') !== FALSE) {
 				echo '<th width="6%"><div class="popover-examples list-inline" style="margin:2px 5px 5px 0"><a data-toggle="tooltip" data-placement="top" title="Purchase Order Number as selected on the Order Form."><img src="'. WEBSITE_URL .'/img/info-w.png" width="20"></a></div>P.O. #</th>';
 			}
@@ -354,7 +354,7 @@ function changePOSStatus(sel) {
 			if (strpos($value_config, ','."Send to Anyone".',') !== FALSE) {
 			  ?><th width="8%"><div class="popover-examples list-inline" style="margin:2px 5px 5px 0"><a data-toggle="tooltip" data-placement="top" title="Check this box to send one or several Purchase Orders in a PDF document, then enter the desired email in the Emails box."><img src="<?= WEBSITE_URL; ?>/img/info-w.png" width="20"></a></div>Email PDF<br><div class='selectall selectbutton' title='This will select all PDFs on the current page.'>Select All</div></th><?php
 			}
-		echo "</tr>";
+		echo "</tr></thead>";
 
 		while($roww = mysqli_fetch_array( $resultt )) {
 			$style2 = '';

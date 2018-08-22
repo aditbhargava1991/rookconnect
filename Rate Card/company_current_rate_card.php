@@ -63,14 +63,14 @@ if (!empty($_GET['action'])) :
         // Added Pagination //
         echo display_pagination($dbc, $query, $pageNum, $rowsPerPage);
         // Pagination Finish //
-        $html .= '<table border="1px" style="padding:3px; border:1px solid black;">';
-        $html .= '<tr style="background-color:grey; color:black;">
+        $html .= '<table class="table table-striped" border="1px" style="padding:3px; border:1px solid black;">';
+        $html .= '<thead><tr style="background-color:grey; color:black;">
             <th>Client</th>
             <th>Rate Card Name</th>
             <th>Rate Card Category</th>
             <th>Total Cost</th>
             <th>Last Edited</th>
-            </tr>';
+            </tr></thead>';
     } else {
         $html .= "<h2>No Record Found.</h2>";
     }
@@ -133,7 +133,8 @@ if($num_rows > 0 || $universal_categories) {
 	echo display_pagination($dbc, $query, $pageNum, $rowsPerPage);
 	// Pagination Finish //
 
-	echo "<table class='table table-bordered'>";
+	echo "<table class='table table-bordered table-striped'>";
+	echo "<thead>";
 	echo '<tr class="hidden-xs hidden-sm">
 		'.(strpos($db_config,',card,')!==false?'<th>Rate Card Name</th>':'').'
 		'.(strpos($db_config,',category,')!==false?'<th>Rate Card Category</th>':'').'
@@ -142,7 +143,7 @@ if($num_rows > 0 || $universal_categories) {
 		'.(strpos($db_config,',alert_staff,')!==false?'<th>Alert Staff</th>':'').'
 		'.(strpos($db_config,',total_cost,')!==false?'<th>Total Cost</th>':'').'
 		<th>Function</th>
-		</tr>';
+		</tr></thead>';
 
 	/*if($universal_categories) {
 		echo '<tr>';

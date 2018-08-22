@@ -246,94 +246,96 @@ if(!isset($_GET['staff_status'])) {
 				<?php
                 $value_config = ','.$get_field_config['certificate_dashboard'].',';
 
-                echo "<table class='table table-bordered'>";
-                echo "<tr class='hidden-sm hidden-xs'>";
-                    if (strpos($value_config, ','."Staff".',') !== FALSE) {
-                        echo '<th>Staff</th>';
-                    }
-                    if (strpos($value_config, ','."Certificate Code".',') !== FALSE) {
-                        echo '<th>Certificate Code</th>';
-                    }
-                    if (strpos($value_config, ','."Certificate Type".',') !== FALSE) {
-                        echo '<th>Certificate Type</th>';
-                    }
-                    if (strpos($value_config, ','."Category".',') !== FALSE) {
-                        echo '<th>Category</th>';
-                    }
-                    if (strpos($value_config, ','."Title".',') !== FALSE) {
-                        echo '<th>Title</th>';
-                    }
+                echo "<table class='table table-bordered table-striped'>";
+                    echo "<thead>";
+                        echo "<tr class='hidden-sm hidden-xs'>";
+                            if (strpos($value_config, ','."Staff".',') !== FALSE) {
+                                echo '<th>Staff</th>';
+                            }
+                            if (strpos($value_config, ','."Certificate Code".',') !== FALSE) {
+                                echo '<th>Certificate Code</th>';
+                            }
+                            if (strpos($value_config, ','."Certificate Type".',') !== FALSE) {
+                                echo '<th>Certificate Type</th>';
+                            }
+                            if (strpos($value_config, ','."Category".',') !== FALSE) {
+                                echo '<th>Category</th>';
+                            }
+                            if (strpos($value_config, ','."Title".',') !== FALSE) {
+                                echo '<th>Title</th>';
+                            }
 
-                    if (strpos($value_config, ','."Issue Date".',') !== FALSE) {
-                        echo '<th>Issue Date</th>';
-                    }
-                    if (strpos($value_config, ','."Expiry Date".',') !== FALSE) {
-                        echo '<th>Expiry Date</th>';
-                    }
-                    if (strpos($value_config, ','."Reminder Date".',') !== FALSE) {
-                        echo '<th>Reminder Date</th>';
-                    }
+                            if (strpos($value_config, ','."Issue Date".',') !== FALSE) {
+                                echo '<th>Issue Date</th>';
+                            }
+                            if (strpos($value_config, ','."Expiry Date".',') !== FALSE) {
+                                echo '<th>Expiry Date</th>';
+                            }
+                            if (strpos($value_config, ','."Reminder Date".',') !== FALSE) {
+                                echo '<th>Reminder Date</th>';
+                            }
 
-                    if (strpos($value_config, ','."Uploader".',') !== FALSE) {
-                        echo '<th>Documents</th>';
-                    }
-                    if (strpos($value_config, ','."Link".',') !== FALSE) {
-                        echo '<th>Link</th>';
-                    }
-                    if (strpos($value_config, ','."Heading".',') !== FALSE) {
-                        echo '<th>Heading</th>';
-                    }
-                    if (strpos($value_config, ','."Name".',') !== FALSE) {
-                        echo '<th>Name</th>';
-                    }
-                    if (strpos($value_config, ','."Fee".',') !== FALSE) {
-                        echo '<th>Fee</th>';
-                    }
-                    if (strpos($value_config, ','."Cost".',') !== FALSE) {
-                        echo '<th>Cost</th>';
-                    }
-                    if (strpos($value_config, ','."Description".',') !== FALSE) {
-                        echo '<th>Description</th>';
-                    }
-                    if (strpos($value_config, ','."Quote Description".',') !== FALSE) {
-                        echo '<th>Quote Description</th>';
-                    }
-                    if (strpos($value_config, ','."Invoice Description".',') !== FALSE) {
-                        echo '<th>Invoice Description</th>';
-                    }
-                    if (strpos($value_config, ','."Ticket Description".',') !== FALSE) {
-                        echo '<th>'.TICKET_NOUN.' Description</th>';
-                    }
-                    if (strpos($value_config, ','."Final Retail Price".',') !== FALSE) {
-                        echo '<th>Final Retail Price</th>';
-                    }
-                    if (strpos($value_config, ','."Admin Price".',') !== FALSE) {
-                        echo '<th>Admin Price</th>';
-                    }
-                    if (strpos($value_config, ','."Wholesale Price".',') !== FALSE) {
-                        echo '<th>Wholesale Price</th>';
-                    }
-                    if (strpos($value_config, ','."Commercial Price".',') !== FALSE) {
-                        echo '<th>Commercial Price</th>';
-                    }
-                    if (strpos($value_config, ','."Client Price".',') !== FALSE) {
-                        echo '<th>Client Price</th>';
-                    }
-                    if (strpos($value_config, ','."Minimum Billable".',') !== FALSE) {
-                        echo '<th>Minimum Billable</th>';
-                    }
-                    if (strpos($value_config, ','."Estimated Hours".',') !== FALSE) {
-                        echo '<th>Estimated Hours</th>';
-                    }
-                    if (strpos($value_config, ','."Actual Hours".',') !== FALSE) {
-                        echo '<th>Actual Hours</th>';
-                    }
-                    if (strpos($value_config, ','."MSRP".',') !== FALSE) {
-                        echo '<th>MSRP</th>';
-                    }
-					echo '<th>Status</th>';
-                    echo '<th>Function</th>';
-                    echo "</tr>";
+                            if (strpos($value_config, ','."Uploader".',') !== FALSE) {
+                                echo '<th>Documents</th>';
+                            }
+                            if (strpos($value_config, ','."Link".',') !== FALSE) {
+                                echo '<th>Link</th>';
+                            }
+                            if (strpos($value_config, ','."Heading".',') !== FALSE) {
+                                echo '<th>Heading</th>';
+                            }
+                            if (strpos($value_config, ','."Name".',') !== FALSE) {
+                                echo '<th>Name</th>';
+                            }
+                            if (strpos($value_config, ','."Fee".',') !== FALSE) {
+                                echo '<th>Fee</th>';
+                            }
+                            if (strpos($value_config, ','."Cost".',') !== FALSE) {
+                                echo '<th>Cost</th>';
+                            }
+                            if (strpos($value_config, ','."Description".',') !== FALSE) {
+                                echo '<th>Description</th>';
+                            }
+                            if (strpos($value_config, ','."Quote Description".',') !== FALSE) {
+                                echo '<th>Quote Description</th>';
+                            }
+                            if (strpos($value_config, ','."Invoice Description".',') !== FALSE) {
+                                echo '<th>Invoice Description</th>';
+                            }
+                            if (strpos($value_config, ','."Ticket Description".',') !== FALSE) {
+                                echo '<th>'.TICKET_NOUN.' Description</th>';
+                            }
+                            if (strpos($value_config, ','."Final Retail Price".',') !== FALSE) {
+                                echo '<th>Final Retail Price</th>';
+                            }
+                            if (strpos($value_config, ','."Admin Price".',') !== FALSE) {
+                                echo '<th>Admin Price</th>';
+                            }
+                            if (strpos($value_config, ','."Wholesale Price".',') !== FALSE) {
+                                echo '<th>Wholesale Price</th>';
+                            }
+                            if (strpos($value_config, ','."Commercial Price".',') !== FALSE) {
+                                echo '<th>Commercial Price</th>';
+                            }
+                            if (strpos($value_config, ','."Client Price".',') !== FALSE) {
+                                echo '<th>Client Price</th>';
+                            }
+                            if (strpos($value_config, ','."Minimum Billable".',') !== FALSE) {
+                                echo '<th>Minimum Billable</th>';
+                            }
+                            if (strpos($value_config, ','."Estimated Hours".',') !== FALSE) {
+                                echo '<th>Estimated Hours</th>';
+                            }
+                            if (strpos($value_config, ','."Actual Hours".',') !== FALSE) {
+                                echo '<th>Actual Hours</th>';
+                            }
+                            if (strpos($value_config, ','."MSRP".',') !== FALSE) {
+                                echo '<th>MSRP</th>';
+                            }
+                            echo '<th>Status</th>';
+                            echo '<th>Function</th>';
+                        echo "</tr>";
+                    echo "</thead>";
             } else {
                 echo "<h2>No Record Found.</h2>";
             }
