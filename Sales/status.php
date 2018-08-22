@@ -47,17 +47,19 @@ if ( $leads->num_rows > 0 ) {
             if($flag_label_row !== FALSE) {
                 $flag_label = $flag_labels[$flag_label_row];
             }
-		} ?>
-        <div class="main-screen-white silver-border gap-bottom info-block-detail" data-id="<?= $row['salesid'] ?>" style="height:auto; <?= empty($flag_colour) ? '' : 'background-color: #'.$flag_colour ?>" data-searchable="<?= get_client($dbc, $row['businessid']); ?> <?= get_contact($dbc, $row['contactid']); ?>">
+		}
+        $lead_colour = get_contact($dbc, $row['primary_staff'], 'calendar_color'); ?>
+        <div class="main-screen-white silver-border gap-bottom info-block-detail" data-id="<?= $row['salesid'] ?>" style="height:auto; <?= empty($flag_colour) ? '' : 'background-color: #'.$flag_colour.';' ?> <?= empty($lead_colour) ? '' : 'border: 3px solid '.$lead_colour.' !important;' ?>" data-searchable="<?= get_client($dbc, $row['businessid']); ?> <?= get_contact($dbc, $row['contactid']); ?>">
             <div class="col-xs-12 gap-top horizontal-block-container">
                 <div class="horizontal-block">
                     <div class="horizontal-block-header">
 						<span class="flag-label"><?= $flag_label ?></span>
-                        <h4 class="col-md-6"><a href="sale.php?p=preview&id=<?= $row['salesid'] ?>">Sales Lead <?= $i; ?> <img class="inline-img" src="../img/icons/ROOK-edit-icon.png"></a></h4>
+                        <h4 class="col-md-6"><a href="sale.php?p=preview&id=<?= $row['salesid'] ?>">Sales Lead <?= $row['salesid']; ?> <img class="inline-img" src="../img/icons/ROOK-edit-icon.png"></a></h4>
                         <div class="col-md-6"></div>
                         <div class="clearfix"></div>
                     </div>
                     <div class="clearfix"></div>
+                    <?php include('quick_actions.php'); ?>
                     <div class="horizontal-block-details">
                         <div class="col-xs-12 col-md-4">
                             <div class="col-xs-6 default-color">Business:</div>
@@ -106,7 +108,6 @@ if ( $leads->num_rows > 0 ) {
 
                     </div>
                     <div class="clearfix"></div>
-                    <?php include('quick_actions.php'); ?>
                 </div>
             </div><!-- .horizontal-block-container -->
             <div class="clearfix"></div>
