@@ -310,7 +310,8 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
                 //if($search_user == '' && $search_invoiceid == '' && $search_date == '') {
                 //    echo display_pagination($dbc, $query, $pageNum, $rowsPerPage);
                 //}
-                echo "<table border='2' cellpadding='10' class='table'>";
+                echo "<table border='2' cellpadding='10' class='table table-striped'>";
+                echo "<thead>";
                 echo "<tr class='hidden-xs'>";
                 echo "<th>Invoice #</th>
                 <th>Invoice Date</th>
@@ -319,7 +320,7 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
                 <th>Paid</th>
                 <th>Invoice PDF</th>
                 <th>Function</th>
-                </tr>";
+                </tr></thead>";
             } else {
                 //echo "<h2>No Record Found.</h2>";
             }

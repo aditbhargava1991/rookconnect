@@ -54,7 +54,8 @@ if (isset($_POST['submit'])) {
 
     $num_rows = mysqli_num_rows($result);
     if($num_rows > 0) {
-        echo "<table class='table table-bordered'>";
+        echo "<table class='table table-bordered table-striped'>";
+        echo "<thead>";
         echo "<tr class='hidden-xs hidden-sm'>
         <th>Date Added</th>
         <th>Added By</th>";
@@ -107,6 +108,7 @@ if (isset($_POST['submit'])) {
         echo "<th>".SALES_ORDER_NOUN." Price</th>";
         }
         echo "</tr>";
+        echo "</thead>";
     } else {
         echo "<h2>No Record Found.</h2>";
     }

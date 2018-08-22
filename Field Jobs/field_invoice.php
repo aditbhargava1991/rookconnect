@@ -148,8 +148,8 @@ $edit_access = vuaed_visible_function($dbc, 'field_jobs'); ?>
 
         $num_rows = mysqli_num_rows($result);
         if($num_rows > 0) {
-        echo "<table class='table table-bordered'>";
-        echo "<tr class='hidden-xs hidden-sm'>
+        echo "<table class='table table-bordered table-striped'>";
+        echo "<thead><tr class='hidden-xs hidden-sm'>
                 ".(strpos($dashboard_config,'invoice') !== false ? "<th>Invoice#</th>" : "")."
                 ".(strpos($dashboard_config,'job') !== false ? "<th>Job#</th>" : "")."
                 ".(strpos($dashboard_config,'customer') !== false ? "<th>Customer</th>" : "")."
@@ -160,7 +160,7 @@ $edit_access = vuaed_visible_function($dbc, 'field_jobs'); ?>
                 } else {
                 echo "<th>Date paid</th>";
                 }
-                echo "</tr>";
+                echo "</tr></thead>";
         } else {
             echo "<h2>No Record Found.</h2>";
         }
