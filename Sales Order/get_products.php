@@ -542,7 +542,7 @@ checkAuthorised('sales_order');
                     $heading_html .= '<div class="col-sm-3 mandatory_quantity" '.($mandatory_quantity == 0 ? 'style="display: none;"' : '').'><input type="number" name="mandatory_quantity" value="'.$mandatory_quantity.'" class="form-control"></div>';
                     $heading_html .= '<div class="col-sm-2"><button onclick="saveHeading(this); return false;" class="btn brand-btn" data-category="'.$_GET['category'].'" data-contact-category="'.$contact_category.'" data-heading-name="'.$heading_name.'">Save</button></div>';
                     $heading_html .= '</div></div></div>';
-                    $heading_html .= '<table id="no-more-tables" class="table table-bordered product_table">';
+                    $heading_html .= '<table id="no-more-tables" class="table table-bordered table-striped product_table">';
                     $heading_html .= '<thead>';
                     $heading_html .= '<tr class="hidden-xs">';
                     $heading_html .= '<th width="20%">Category</th>';

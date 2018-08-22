@@ -183,9 +183,9 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
 		<div class="notice double-gap-bottom popover-examples">
 			<div class="col-sm-1 notice-icon"><img src="<?= WEBSITE_URL; ?>/img/info.png" class="wiggle-me" width="25"></div>
 			<div class="col-sm-11"><span class="notice-name">NOTE:</span>
-			<br>To Refund: Click Refund / Adjustments under the Function heading for the invoice you wish to access. Search by Customer, Invoice # and/or Invoice Date and click Search. Click the red Refund checkbox. You will now see the details of the customer invoice that can be refunded.
+			<br>To Refund: Click Refund / Adjustments under the Function heading for the invoice you wish to access. Search by <?= $purchaser_label ?>, Invoice # and/or Invoice Date and click Search. Click the red Refund checkbox. You will now see the details of the <?= $purchaser_label ?> invoice that can be refunded.
             <br>
-            To Adjust: Adjustment is used for adding to an existing invoice, such as when a service was not added to an invoice when it was created. Click Refund / Adjustments under the Function heading for the invoice you wish to access. Search by Customer, Invoice # and/or Invoice Date and click Search. Click the blue Adjustment checkbox.  You will now see the details of the customer invoice that can be adjusted.</div>
+            To Adjust: Adjustment is used for adding to an existing invoice, such as when a service was not added to an invoice when it was created. Click Refund / Adjustments under the Function heading for the invoice you wish to access. Search by <?= $purchaser_label ?>, Invoice # and/or Invoice Date and click Search. Click the blue Adjustment checkbox.  You will now see the details of the <?= $purchaser_label ?> invoice that can be adjusted.</div>
 			<div class="clearfix"></div>
 		</div>
         <?php
@@ -219,9 +219,9 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
             <div class="row">
                 <div class="col-sm-5">
                     <div class="row">
-                        <div class="col-sm-4"><label for="search_user" class="control-label">Search by Customer:</label></div>
+                        <div class="col-sm-4"><label for="search_user" class="control-label">Search by <?= $purchaser_label ?>:</label></div>
                         <div class="col-sm-8">
-                            <select data-placeholder="Select a Customer" name="search_user" id="search_user" class="chosen-select-deselect form-control" width="380">
+                            <select data-placeholder="Select a <?= $purchaser_label ?>" name="search_user" id="search_user" class="chosen-select-deselect form-control" width="380">
                                 <option value=""></option>
                                 <?php
                                 /* function lastNameSort($a, $b) {
@@ -337,7 +337,7 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
                 echo "<tr class='hidden-xs'>";
                 echo "<th>Invoice #</th>
                 <th>Invoice Date</th>
-                <th>Customer</th>
+                <th>".$purchaser_label."</th>
                 <th>Total</th>
                 <th>Paid</th>
                 <th>Invoice PDF</th>
@@ -348,21 +348,27 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
             }
 
             $final_total = 0;
-            while($row = mysqli_fetch_array( $result ))
+            $src_row = false;
+            $src_ids = [];
+            while($src_row || $row = mysqli_fetch_array( $result ))
             {
+                if(!$src_row && in_array($row['invoiceid'],$src_ids)) {
+                    continue;
+                }
+                $src_row = false;
                 $patientid = $row['patientid'];
                 $invoiceid = $row['invoiceid'];
 
                 echo '<tr>';
 
-                echo '<td data-title="Invoice #">' . ($row['invoice_type'] == 'New' ? '#'.$row['invoiceid'] : $row['invoice_type'].' #'.$row['invoiceid'].'<br />For Invoice #'.$row['invoiceid_src']) . '</td>';
+                echo '<td data-title="Invoice #">' . ($row['invoice_type'] == 'New' ? '#'.$row['invoiceid'] : $row['invoice_type'].' #'.$row['invoiceid']).($row['invoiceid_src'] > 0 ? '<br />For Invoice #'.$row['invoiceid_src'] : '') . '</td>';
                 echo '<td data-title="Date">' . $row['invoice_date'] . '</td>';
 
                 if($row['patientid'] != 0) {
 					//echo '<td><a href="../Contacts/add_contacts.php?category=Patient&contactid='.$row['patientid'].'&from_url='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']).'">'.get_contact($dbc, $row['patientid']). '</a></td>';
-                    echo '<td data-title="Customer"><a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/'.CONTACTS_TILE.'/contacts_inbox.php?edit='.$row['patientid'].'\', \'auto\', false, true, $(\'#invoice_div\').outerHeight()+20); return false;">'. get_contact($dbc, $row['patientid']) .'</a></td>';
+                    echo '<td data-title="'.$purchaser_label.'"><a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/'.CONTACTS_TILE.'/contacts_inbox.php?edit='.$row['patientid'].'\', \'auto\', false, true, $(\'#invoice_div\').outerHeight()+20); return false;">'. get_contact($dbc, $row['patientid']) .'</a></td>';
                 } else {
-                    echo '<td data-title="Customer">-</td>';
+                    echo '<td data-title="'.$purchaser_label.'">-</td>';
                 }
 
                 //echo '<td>' . $row['service_date'] . '</td>';
@@ -405,22 +411,26 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
 
                 echo '<td data-title="Paid">' . $paid . '</td>';
 
+                echo '<td data-title="Invoice PDF">';
                 if($row['final_price'] != '' && $row['invoice_type'] != 'Saved') {
                     $name_of_file = 'download/invoice_'.$row['invoiceid'].'.pdf';
                     if(file_exists($name_of_file)) {
                         //$md5 = md5_file($name_of_file);
                         //if($md5 == $row['invoice_md5']) {
-                            echo '<td data-title="Invoice PDF"><a href="'.$name_of_file.'" target="_blank">Invoice #'.$row['invoiceid'].' <img src="'.WEBSITE_URL.'/img/pdf.png" title="PDF"></a>';
+                            echo '<a href="'.$name_of_file.'" target="_blank">Invoice #'.$row['invoiceid'].' <img src="'.WEBSITE_URL.'/img/pdf.png" title="PDF"></a><br />';
                             //echo '| <a href=\'unpaid_invoice.php?action=email&invoiceid='.$row['invoiceid'].'&patientid='.$patientid.'\' >Email</a></td>';
                         //} else {
                         //    echo '<td>(Error : File has been Changed)</td>';
                         //}
-                    } else {
-                        echo '<td>-</td>';
                     }
-                } else {
-                    echo '<td>-</td>';
                 }
+                if($row['invoiceid_src'] > 0) {
+                    $name_of_file = 'download/invoice_'.$row['invoiceid_src'].'.pdf';
+                    if(file_exists($name_of_file)) {
+                        echo '<a href="'.$name_of_file.'" target="_blank">Primary Invoice #'.$row['invoiceid_src'].' <img src="'.WEBSITE_URL.'/img/pdf.png" title="PDF"></a>';
+                    }
+                }
+                echo '</td>';
 
 				/* echo '<td>';
                 if($row['patient_payment_receipt'] == 1) {
@@ -511,6 +521,11 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
 
                 $final_total += $row['final_price'];
                 echo "</tr>";
+                if($row['invoiceid_src'] > 0) {
+                    $row = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `invoice` WHERE `invoiceid`='".$row['invoiceid_src']."'"));
+                    $src_row = true;
+                    $src_ids[] = $row['invoiceid'];
+                }
             }
 
             echo "<tr>";

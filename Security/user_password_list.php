@@ -1,13 +1,15 @@
 <?php include_once('../include.php');
 checkAuthorised('security');
 ob_clean(); ?>
-<tr class="hidden-sm hidden-xs">
-	<th>Name</th>
-	<th>User Name</th>
-	<th>Email Address</th>
-	<th>Password Status</th>
-	<th>Function</th>
-</tr>
+<thead>
+    <tr class="hidden-sm hidden-xs">
+        <th>Name</th>
+        <th>User Name</th>
+        <th>Email Address</th>
+        <th>Password Status</th>
+        <th>Function</th>
+    </tr>
+</thead>
 <?php foreach(sort_contacts_query(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name`, `name`, `email_address`, `user_name`, `password`, `password_date`, `password_update` FROM `contacts` WHERE IFNULL(`user_name`,'') != '' AND `deleted`=0 AND `status`>0")) as $user) { ?>
 	<tr>
 		<td data-title="Name"><?= $user['name'].($user['name'] != '' && $user['first_name'].$user['last_name'] != '' ? ': ' : '').$user['first_name'].' '.$user['last_name'] ?></td>

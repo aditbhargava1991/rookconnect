@@ -26,6 +26,28 @@ while($empty_time_card = mysqli_fetch_assoc($empty_time_cards)) {
 	mysqli_query($dbc, "UPDATE `time_cards` SET `staff` = '".$empty_time_card['item_id']."' WHERE `time_cards_id` = '".$empty_time_card['time_cards_id']."'");
 }
 
+//Insert any Time Sheet records for Staff that have Set Hours, and overwrite existing Regular Hours for those days with the Set Hours
+include_once('../Calendar/calendar_functions_inc.php');
+$today_date = date('Y-m-d');
+$set_hours = mysqli_query($dbc, "SELECT * FROM `contacts_shifts` WHERE `set_hours` = 1 AND `deleted` = 0");
+while($row = mysqli_fetch_assoc($set_hours)) {
+	$staff_id = $row['contactid'];
+	$start_date = $row['startdate'];
+	$end_date = empty(str_replace('0000-00-00','',$row['enddate'])) ? '9999-12-31' : $row['enddate'];
+	if($staff_id > 0 && !empty(str_replace('0000-00-00','',$start_date))) {
+		mysqli_query($dbc, "UPDATE `time_cards` SET `deleted` = 1 WHERE `date` BETWEEN '$start_date' AND '$end_date' AND `staff` = '$staff_id' AND `type_of_time` NOT IN ('Extra Hrs.','Relief Hrs.','Sleep Hrs.','Sick Time Adj.','Sick Hrs.Taken','Stat Hrs.','Stat Hrs.Taken','Vac Hrs.','Vac Hrs.Taken','Break') AND `shiftid` = 0");
+		for($cur_day = $start_date; strtotime($cur_day) <= strtotime($today_date); $cur_day = date('Y-m-d', strtotime($cur_day.' + 1 day'))) {
+			$day_of_week = date('l', strtotime($cur_day));
+			$shifts = checkShiftIntervals($dbc, $staff_id, $day_of_week, $cur_day, '', '', ' AND `set_hours` = 1');
+			foreach($shifts as $shift) {
+				$shiftid = $shift['shiftid'];
+				$total_hrs = ((strtotime($shift['endtime']) - strtotime($shift['starttime']))/3600);
+				mysqli_query($dbc, "INSERT INTO `time_cards` (`staff`, `date`, `shiftid`, `type_of_time`, `total_hrs`, `comment_box`) SELECT '$staff_id', '$cur_day', '$shiftid', 'Regular Hrs.', '$total_hrs', 'Added from Set Hours.' FROM (SELECT COUNT(*) `rows` FROM `time_cards` WHERE `staff` = '$staff_id' AND `date` = '$cur_day' AND `shiftid` = '$shiftid') `num` WHERE `num`.`rows` = 0");
+			}
+		}
+	}
+}
+
 // error_reporting(0);
 
 global $config;
@@ -69,8 +91,41 @@ $config['tabs'] = $ordered_tabs;
 
 $config['hours_types'] = ['REG_HRS','DIRECT_HRS','INDIRECT_HRS','EXTRA_HRS','RELIEF_HRS','SLEEP_HRS','SICK_ADJ','SICK_HRS','STAT_AVAIL','STAT_HRS','VACA_AVAIL','VACA_HRS','TRACKED_HRS','BREAKS'];
 
-
 $timesheet_start_tile = get_config($dbc, 'timesheet_start_tile');
+
+$config['pdf_options'] = [
+	'schedule' => 'Schedule',
+	'scheduled' => 'Scheduled Hours',
+	'view_ticket' => 'View '.TICKET_NOUN,
+	'ticketid' => TICKET_NOUN,
+	'show_hours' => 'Hours',
+	'total_tracked_hrs' => 'Total Tracked Hours',
+	'start_time' => 'Start Time',
+	'end_time' => 'End Time',
+	'start_time_editable' => 'Start Time',
+	'end_time_editable' => 'End Time',
+	'planned_hrs' => 'Planned Hours',
+	'tracked_hrs' => 'Tracked Hours',
+	'total_tracked_time' => 'Total Tracked Time',
+	'total_tracked_hrs' => 'Time Tracked',
+	'reg_hrs' => 'Regular Hours',
+	'payable_hrs' => 'Payable Hours',
+	'start_day_tile_separate' => $timesheet_start_tile,
+	'extra_hrs' => 'Extra Hours',
+	'relief_hrs' => 'Relief Hours',
+	'sleep_hrs' => 'Sleep Hours',
+	'training_hrs' => 'Training Hours',
+	'sick_hrs' => 'Sick Time Adjustment',
+	'sick_used' => 'Sick Hours Taken',
+	'stat_hrs' => 'Stat Hours',
+	'stat_used' => 'Stat Hours Taken',
+	'vaca_hrs' => 'Vacation Hours',
+	'vaca_used' => 'Vacation Hours Taken',
+	'breaks' => 'Breaks',
+	'comment_box' => 'Comments',
+	'signature' => 'Parent/Guardian Signature',
+	'total_per_day' => 'Day Totals'
+];
 
 /* Time Cards */
 $config['settings']['Choose Fields for Time Sheets']['config_field'] = 'time_cards';
@@ -133,7 +188,8 @@ $config['settings']['Choose Fields for Time Sheets']['data'] = array(
 			array('Approve All Checkbox', 'hidden', 'approve_all'),
 			array('Show Time Overlaps', 'hidden', 'time_overlaps'),
 			array('Editable Dates', 'hidden', 'editable_dates'),
-			array('Combine Staff on Report', 'tab', 'staff_combine')
+			array('Combine Staff on Report', 'tab', 'staff_combine'),
+			array('Day Totals', 'hidden', 'total_per_day')
 		)
 );
 
@@ -281,7 +337,8 @@ $config['settings']['Choose Fields for Total Hours Tracked Layout']['data'] = ar
 			array('Vacation Hrs', 'hidden', 'vaca_hrs'),
 			array('Vacation Taken', 'hidden', 'vaca_used'),
 			array('Comments', 'hidden', 'comment_box'),
-			array('Combine Staff on Report', 'tab', 'staff_combine')
+			array('Combine Staff on Report', 'tab', 'staff_combine'),
+			array('Day Totals', 'hidden', 'total_per_day')
 		)
 );
 
@@ -777,9 +834,9 @@ function get_time_sheet($start_date = '', $end_date = '', $limits = '', $group =
 	}
 }
 
-function get_ticket_labels($dbc, $date, $staff, $layout = '', $time_cards_id) {
+function get_ticket_labels($dbc, $date, $staff, $layout = '', $time_cards_id, $format = '') {
 	$ticket_labels = [];
-	$sql = "SELECT `ticketid` FROM `time_cards` WHERE `date` = '$date' AND `staff` = '$staff'";
+	$sql = "SELECT `ticketid` FROM `time_cards` WHERE `date` = '$date' AND `staff` = '$staff' AND `deleted` = 0";
 	if(($layout == 'multi_line' || $layout == 'position_dropdown' || $layout == 'ticket_task') && isset($time_cards_id)) {
 		$sql .= " AND `time_cards_id` = '$time_cards_id'";
 	}
@@ -788,23 +845,28 @@ function get_ticket_labels($dbc, $date, $staff, $layout = '', $time_cards_id) {
 		$ticket = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticketid` = '{$row['ticketid']}'"));
 		$ticket_label = get_ticket_label($dbc, $ticket);
 		if(!empty($ticket_label) && $ticket_label != '-') {
-			$ticket_labels[] = get_ticket_label($dbc, $ticket);
+			if($format == 'pdf') {
+				$ticket_labels[] = get_ticket_label($dbc, $ticket);
+			} else {
+				$ticket_labels[] = '<a href="'.WEBSITE_URL.'/Ticket/index.php?edit='.$ticket['ticketid'].'" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Ticket/index.php?edit='.$ticket['ticketid'].'&calendar_view=true\',\'auto\',false,true, $(\'#timesheet_div\').outerHeight()); return false;">'.get_ticket_label($dbc, $ticket).'</a>';
+			}
 		}
 	}
 	$ticket_labels = implode('<br />', $ticket_labels);
 	return $ticket_labels;
 }
-
 function get_ticket_planned_hrs($dbc, $date, $staff, $layout = '', $time_cards_id) {
 	$planned_hrs = [];
-	$sql = "SELECT ta.*, t.`start_time`, t.`end_time` FROM `tickets` t LEFT JOIN `ticket_attached` ta ON t.`ticketid` = ta.`ticketid` WHERE t.`deleted` = 0 AND ta.`deleted` = 0 AND ta.`src_table` IN ('Staff','Staff_Tasks') AND ta.`item_id` = '$staff' AND t.`to_do_date` = '$date'";
-	if($layout == 'multi_line' && isset($time_cards_id)) {
-		$ticketid = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `ticketid` FROM `time_cards` WHERE `time_cards_id` = '$time_cards_id' AND '$time_cards_id' > 0"))['ticketid'];
-		$sql .= " AND t.`ticketid` = '$ticketid' AND '$ticketid' > 0";
+	$sql = "SELECT ta.*, t.`start_time`, t.`end_time` FROM `time_cards` tc LEFT JOIN `tickets` t ON t.`ticketid` = tc.`ticketid` LEFT JOIN `ticket_attached` ta ON ta.`id` = tc.`ticket_attached_id` WHERE t.`deleted` = 0 AND ta.`deleted` = 0 AND tc.`deleted` = 0 AND tc.`ticketid` > 0 AND tc.`date` = '$date'";
+	if(($layout == 'multi_line' || $layout == 'position_dropdown' || $layout == 'ticket_task') && isset($time_cards_id)) {
+		$sql .= " AND tc.`time_cards_id` = '$time_cards_id'";
 	}
+	$sql .= " GROUP BY tc.`ticket_attached_id`";
 	$query = mysqli_query($dbc, $sql);
 	while($row = mysqli_fetch_assoc($query)) {
-		$planned_hrs[] = $row['start_time'].' - '.$row['end_time'];
+		if(!empty(str_replace('00:00','',$row['start_time'])) || !empty(str_replace('00:00','',$row['end_time']))) {
+			$planned_hrs[] = $row['start_time'].' - '.$row['end_time'];
+		}
 	}
 	$planned_hrs = implode('<br />', $planned_hrs);
 	if(empty($planned_hrs)) {
@@ -813,14 +875,13 @@ function get_ticket_planned_hrs($dbc, $date, $staff, $layout = '', $time_cards_i
 		return $planned_hrs;
 	}
 }
-
 function get_ticket_tracked_hrs($dbc, $date, $staff, $layout = '', $time_cards_id) {
 	$tracked_hrs = [];
-	$sql = "SELECT ta.*, t.`start_time`, t.`end_time` FROM `tickets` t LEFT JOIN `ticket_attached` ta ON t.`ticketid` = ta.`ticketid` WHERE t.`deleted` = 0 AND ta.`deleted` = 0 AND ta.`src_table` IN ('Staff','Staff_Tasks') AND ta.`item_id` = '$staff' AND t.`to_do_date` = '$date'";
-	if($layout == 'multi_line' && isset($time_cards_id)) {
-		$ticketid = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `ticketid` FROM `time_cards` WHERE `time_cards_id` = '$time_cards_id' AND '$time_cards_id' > 0"))['ticketid'];
-		$sql .= " AND t.`ticketid` = '$ticketid' AND '$ticketid' > 0";
+	$sql = "SELECT ta.*, t.`start_time`, t.`end_time` FROM `time_cards` tc LEFT JOIN `tickets` t ON t.`ticketid` = tc.`ticketid` LEFT JOIN `ticket_attached` ta ON ta.`id` = tc.`ticket_attached_id` WHERE t.`deleted` = 0 AND ta.`deleted` = 0 AND tc.`deleted` = 0 AND tc.`ticketid` > 0 AND tc.`date` = '$date'";
+	if(($layout == 'multi_line' || $layout == 'position_dropdown' || $layout == 'ticket_task') && isset($time_cards_id)) {
+		$sql .= " AND tc.`time_cards_id` = '$time_cards_id'";
 	}
+	$sql .= " GROUP BY tc.`ticket_attached_id`";
 	$query = mysqli_query($dbc, $sql);
 	while($row = mysqli_fetch_assoc($query)) {
 		$tracked_hrs[] = $row['checked_in'].' - '.$row['checked_out'];
@@ -832,15 +893,14 @@ function get_ticket_tracked_hrs($dbc, $date, $staff, $layout = '', $time_cards_i
 		return $tracked_hrs;
 	}
 }
-
 function get_ticket_total_tracked_time($dbc, $date, $staff, $layout = '', $time_cards_id) {
 	$timesheet_time_format = get_config($dbc, 'timesheet_time_format');
 	$tracked_time = [];
-	$sql = "SELECT ta.*, t.`start_time`, t.`end_time` FROM `tickets` t LEFT JOIN `ticket_attached` ta ON t.`ticketid` = ta.`ticketid` WHERE t.`deleted` = 0 AND ta.`deleted` = 0 AND ta.`src_table` IN ('Staff','Staff_Tasks') AND ta.`item_id` = '$staff' AND t.`to_do_date` = '$date'";
-	if($layout == 'multi_line' && isset($time_cards_id)) {
-		$ticketid = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `ticketid` FROM `time_cards` WHERE `time_cards_id` = '$time_cards_id' AND '$time_cards_id' > 0"))['ticketid'];
-		$sql .= " AND t.`ticketid` = '$ticketid' AND '$ticketid' > 0";
+	$sql = "SELECT ta.*, t.`start_time`, t.`end_time` FROM `time_cards` tc LEFT JOIN `tickets` t ON t.`ticketid` = tc.`ticketid` LEFT JOIN `ticket_attached` ta ON ta.`id` = tc.`ticket_attached_id` WHERE t.`deleted` = 0 AND ta.`deleted` = 0 AND tc.`deleted` = 0 AND tc.`ticketid` > 0 AND tc.`date` = '$date'";
+	if(($layout == 'multi_line' || $layout == 'position_dropdown' || $layout == 'ticket_task') && isset($time_cards_id)) {
+		$sql .= " AND tc.`time_cards_id` = '$time_cards_id'";
 	}
+	$sql .= " GROUP BY tc.`ticket_attached_id`";
 	$query = mysqli_query($dbc, $sql);
 	while($row = mysqli_fetch_assoc($query)) {
 		$curr_tracked_time = 0;
@@ -872,4 +932,47 @@ function is_training_hrs($dbc, $time_cards_id) {
 		}
 	}
 	return $training_hrs;
+}
+
+function get_pdf_options($dbc, $styling = '', $timesheet_tab = '') {
+	global $config;
+	$layout = get_config($dbc, 'timesheet_layout');
+	if($styling == 'EGS') {
+		$value_config = explode(',',get_field_config($dbc, 'time_cards_total_hrs_layout'));
+		if(empty(array_filter($value_config))) {
+			$value_config = ['reg_hrs','overtime_hrs','doubletime_hrs'];
+		}
+	} else {
+		$value_config = explode(',',get_field_config($dbc, 'time_cards'));
+		if(!in_array('reg_hrs',$value_config) && !in_array('direct_hrs',$value_config) && !in_array('payable_hrs',$value_config) && !in_array($layout, ['ticket_task','position_dropdown'])) {
+		    $value_config = array_merge($value_config,['reg_hrs','extra_hrs','relief_hrs','sleep_hrs','sick_hrs','sick_used','stat_hrs','stat_used','vaca_hrs','vaca_used']);
+		}
+	}
+	$timesheet_payroll_fields = '';
+	if($timesheet_tab == 'payroll') {
+		$timesheet_payroll_fields = ','.get_config($dbc, 'timesheet_payroll_fields').',';
+	}
+
+	$options_html = '';
+	foreach($value_config as $value) {
+		foreach($config['pdf_options'] as $key => $label) {
+			if($key == $value) {
+				$options_html .= '<label class="form-checkbox"><input type="checkbox" name="pdf_options" value="'.$key.'" checked>'.$label.'</input></label>';
+			}
+		}
+		if(strpos($timesheet_payroll_fields, ',Expenses Owed,') !== FALSE) {
+			$options_html .= '<label class="form-checkbox"><input type="checkbox" name="payroll_pdf_options" value="Expenses Owed" checked>Expenses Owed</input></label>';
+		}
+		if(strpos($timesheet_payroll_fields, ',Mileage,') !== FALSE) {
+			$options_html .= '<label class="form-checkbox"><input type="checkbox" name="payroll_pdf_options" value="Mileage" checked>Mileage</input></label>';
+		}
+		if(strpos($timesheet_payroll_fields, ',Mileage Rate,') !== FALSE) {
+			$options_html .= '<label class="form-checkbox"><input type="checkbox" name="payroll_pdf_options" value="Mileage Rate" checked>Mileage Rate</input></label>';
+		}
+		if(strpos($timesheet_payroll_fields, ',Mileage Total,') !== FALSE) {
+			$options_html .= '<label class="form-checkbox"><input type="checkbox" name="payroll_pdf_options" value="Mileage Total" checked>Mileage Total</input></label>';
+		}
+	}
+
+	return $options_html;
 }

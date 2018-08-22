@@ -33,10 +33,10 @@ if($_GET['subtabid'] == 'project') {
 }
 switch($_GET['subtabid']) {
 	default:
-		echo "<h2>".$subtab['name'].($_GET['subtabid'] > 0 ?
+		echo "<div class='standard-body-title'><h3>".$subtab['name'].($_GET['subtabid'] > 0 ?
 			"<span class='pull-right double-gap-right'><a href='?archivetab=".$_GET['subtabid']."'><img src='".WEBSITE_URL."/img/icons/ROOK-trash-icon.png'/></a></span>
 			<span class='pull-right double-gap-right'><a href='?edittab=".$_GET['subtabid']."'><img src='".WEBSITE_URL."/img/icons/ROOK-edit-icon.png'/></a></span>" :
-			($_GET['subtabid'] == 'project' ? '<div class="pull-right col-sm-6"><select class="chosen-select-deselect form-control filter_projects"><option></option>'.implode('',$project_list).'</select></div>' : ''))."</h2>";
+			($_GET['subtabid'] == 'project' ? '<div class="pull-right col-sm-6"><select class="chosen-select-deselect form-control filter_projects"><option></option>'.implode('',$project_list).'</select></div>' : ''))."</h3></div>";
 }
 $subtab_list = mysqli_query($dbc, "SELECT * FROM (SELECT `checklist`.`checklistid`,`checklist`.`businessid`,`checklist`.`projectid`,`checklist`.`ticketid`,`checklist`.`client_projectid`,`checklist`.`security`,`checklist`.`assign_staff`,`checklist`.`checklist_type`,`checklist`.`reset_day`,`checklist`.`reset_time`,`checklist`.`checklist_name`,`checklist`.`flag_colour`,`checklist`.`alerts_enabled`,`checklist`.`created_by`,`checklist`.`deleted`,`checklist`.`subtabid`, `checklist_subtab`.`name`, IFNULL(`project`.`project_name`,`client_project`.`project_name`) `final_project_name`, IFNULL(`project`.`projectid`,`client_project`.`projectid`) `final_projectid` FROM `checklist` LEFT JOIN `checklist_subtab` ON `checklist`.`subtabid`=`checklist_subtab`.`subtabid` LEFT JOIN `project` ON `checklist`.`projectid`=`project`.`projectid` LEFT JOIN `client_project` ON `checklist`.`client_projectid`=`client_project`.`projectid` WHERE (`assign_staff` LIKE '%,{$_SESSION['contactid']},%' OR `assign_staff`=',ALL,') AND `checklist`.`deleted`=0 $tab_filter ORDER BY `final_project_name`) `checklists` UNION
 	SElECT `checklistid`,'','0','','','','ALL',`checklist_item` `checklist_type`,'','',`checklist_name`,'','','',`deleted`,'',`checklist_name` `name`,'','' FROM `item_checklist`");

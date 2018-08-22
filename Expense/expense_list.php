@@ -11,13 +11,17 @@
 	$filter_description = filter_var($_POST['filter_description'],FILTER_SANITIZE_STRING);
 	$filter_warnings = filter_var(implode(',',$_POST['filter_warnings']),FILTER_SANITIZE_STRING);
 	$filter_name = filter_var($_POST['filter_name'],FILTER_SANITIZE_STRING);
+	$before_change = "";
 	if($_GET['filter_id'] > 0) {
 		$query = "UPDATE `expense_filters` SET `user`='$filter_staff', `date_start`='$filter_min_date', `date_end`='$filter_max_date', `status`='$filter_status', `amt_min`='$filter_amt_min', `amt_max`='$filter_amt_max', `merchant`='$filter_merchants', `category`='$filter_category', `receipt`='$filter_receipt', `warning`='$filter_warnings', `description`='$filter_description', `filter_name`='$filter_name' WHERE `filter_id`='{$_GET['filter_id']}'";
+		$history = "Expense entry has been updated. <br />";
 	} else {
 		$query = "INSERT INTO `expense_filters` (`owner`, `user`, `date_start`, `date_end`, `status`, `amt_min`, `amt_max`, `merchant`, `category`, `receipt`, `description`, `warning`, `filter_name`)
 			VALUES ('".$_SESSION['contactid']."', '$filter_staff', '$filter_min_date', '$filter_max_date', '$filter_status', '$filter_amt_min', '$filter_amt_max', '$filter_merchants', '$filter_category', '$filter_receipt', '$filter_description', '$filter_warnings', '$filter_name')";
+		$history = "Expense entry has been added. <br />";
 	}
 	$result = mysqli_query($dbc, $query);
+	add_update_history($dbc, 'expenses_history', $history, '', $before_change);
 	$filter_id = ($_GET['filter_id'] > 0 ? $_GET['filter_id'] : mysqli_insert_id($dbc));
 	echo "<script> window.location.replace('?filter_id=$filter_id'); </script>";
 } else if($_GET['filter_id'] > 0) {
@@ -146,7 +150,7 @@ function filter_expenses() {
 			}
 		});
 	});
-	
+
 	//Hide empty lists
 	$('ul.chained-list').each(function() {
 		$(this).show();
@@ -154,7 +158,7 @@ function filter_expenses() {
 			$(this).hide();
 		}
 	});
-	
+
 	//Prepend filter labels
 	if(filter_labels != '') {
 		$('.expense-list').prepend(filter_labels+'<div class="clearfix"></div>')
@@ -551,7 +555,7 @@ while($expense = mysqli_fetch_array($expense_list)) {
 	$warnings = '';
 	echo "<a href='' onclick='overlayIFrame(\"edit_expense.php?edit={$expense['expenseid']}\"); return false;' data-visible='$visibility' data-staff='{$expense['staff']}' data-date='{$expense['ex_date']}' data-status='{$expense['ex_status']}' ";
 	echo "data-amt='{$expense['total']}' data-merchant='' data-category='{$expense['category']}' data-receipt='".($expense['ex_file'] != '' ? 'yes' : 'no')."' data-description='".strtolower($expense['description'])."' data-warning='$warnings'>";
-	
+
     echo '<li>';
         echo "<div class='middle-valign col-sm-2 col-xs-12 expense-col-1'>";
             if($expense['staff'] > 0) {
@@ -564,13 +568,13 @@ while($expense = mysqli_fetch_array($expense_list)) {
                 echo '</span>';
             }
         echo '</div>';
-        
+
         echo '<div class="middle-valign col-sm-7 col-xs-12 expense-col-2">';
             echo '<p style="font-weight:bold;">'.($expense['staff'] > 0 ? get_contact($dbc, $expense['staff']) : $expense['staff'])."</p>";
             echo '<p style="font-size:0.7em;">'.html_entity_decode($expense['description']).'</p>';
             echo '<p style="font-size:0.7em; color:#888;">'.date('F j, Y', strtotime($expense['ex_date'])).'</p>';
         echo '</div>';
-	
+
         echo "<div class='middle-valign col-sm-3 col-xs-12 expense-col-3'>$";
             echo number_format($expense['total'],2)."<br />";
             if($expense['status'] == 'Approved') {

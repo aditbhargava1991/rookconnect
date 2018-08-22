@@ -179,14 +179,16 @@ if(mysqli_num_rows($result) > 0) { ?>
 			<input type="text" class="form-control" name="email_address" value="<?= get_email($dbc, $_SESSION['contactid']) ?>">
 		</div>
 	</div>
-	<table class='table table-bordered'>
-		<tr class="hidden-xs hidden-sm">
-			<th>Form Name</th>
-			<th>User / Email Address</th>
-			<th>Due Date</th>
-			<th>Status</th>
-			<th>Completed <button type="submit" name="send_follow_up_email" value="Submit" class="btn brand-btn">Send</button></th>
-		</tr>
+	<table class='table table-bordered table-striped'>
+        <thead>
+            <tr class="hidden-xs hidden-sm">
+                <th>Form Name</th>
+                <th>User / Email Address</th>
+                <th>Due Date</th>
+                <th>Status</th>
+                <th>Completed <button type="submit" name="send_follow_up_email" value="Submit" class="btn brand-btn">Send</button></th>
+            </tr>
+        </thead>
 	<?php while($row = mysqli_fetch_array( $result ))
 	{
 		$deadline = $row['due_date'];

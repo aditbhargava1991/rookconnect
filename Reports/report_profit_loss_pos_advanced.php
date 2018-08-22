@@ -230,7 +230,6 @@ function report_profit_loss($dbc, $starttime, $endtime, $table_style, $table_row
     } else {
         $total = 0;
         $costs = 0;
-
         $report_validation = mysqli_query($dbc, "SELECT `i`.`invoiceid`, `i`.`inventoryid`, `i`.`sell_price`, `i`.`quantity`, `i`.`payment_type`, `l`.`unit_price` FROM `invoice` `i` LEFT JOIN `invoice_lines` `l` ON (`i`.`invoiceid` = `l`.`invoiceid`) WHERE (`i`.`invoice_date` BETWEEN '$starttime' AND '$endtime') AND `i`.`deleted`=0 GROUP BY `i`.`invoiceid`");
 
         if($report_validation->num_rows > 0) {

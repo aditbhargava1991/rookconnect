@@ -40,8 +40,8 @@ checkAuthorised('properties');
 
             $num_rows = mysqli_num_rows($result);
             if($num_rows > 0) {
-            echo "<table class='table table-bordered'>";
-            echo "<tr class='hidden-xs hidden-sm'>";
+            echo "<table class='table table-bordered table-striped'>";
+            echo "<thead><tr class='hidden-xs hidden-sm'>";
                 echo "<th>Property Name</th>
                     <th>Short Name</th>
                     <th>Type</th>

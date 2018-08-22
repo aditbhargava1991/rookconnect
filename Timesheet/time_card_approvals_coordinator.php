@@ -22,6 +22,7 @@ checkAuthorised('timesheet');
 include 'config.php';
 
 $value = $config['settings']['Choose Fields for Time Sheets Dashboard'];
+$field_config = get_field_config($dbc, 'time_cards_dashboard');
 
 ?>
 <script type="text/javascript">
@@ -33,6 +34,44 @@ $(document).ready(function() {
 		});
 	});
 });
+$(document).on('change', 'select[name="search_staff[]"]', function() { filterStaff(this); });
+$(document).on('change', 'select[name="search_group"]', function() { filterStaff(this); });
+function filterStaff(sel) {
+  var staff_sel = $('select[name="search_staff[]"');
+  if(sel.name == "search_staff[]") {
+    if($(staff_sel).val().indexOf('ALL') > -1) {
+      $(staff_sel).find('option').prop('selected', false);
+      $(staff_sel).find('option').filter(function() { return $(this).val() > 0 && $(this).data('status') > 0; }).prop('selected', true);
+      $(staff_sel).trigger('change.select2');
+    }
+  } else if(sel.name == "search_group") {
+    if($(sel).val() != '') {
+      var staff = $(sel).find('option:selected').data('staff');
+      if(staff.length == 0) {
+        staff = [''];
+      }
+      $(staff_sel).find('option').prop('selected', false);
+      staff.forEach(function(staffid) {
+        $(staff_sel).find('option').filter(function() { return $(this).val() == staffid }).prop('selected', true);
+        $(staff_sel).trigger('change.select2');
+      });
+    }
+  } else if(sel.name == "search_security") {
+    if($(sel).val() != '') {
+      var security_level = $(sel).val();
+      $(staff_sel).find('option').prop('selected', false);
+      $(staff_sel).find('option').each(function() {
+        if($(this).val() > 0) {
+          var security_levels = ','+$(this).data('security-level')+',';
+          if(security_levels.indexOf(security_level) > -1) {
+            $(this).prop('selected', true);
+          }
+        }
+      });
+      $(staff_sel).trigger('change.select2');
+    }
+  }
+}
 function approveAll(chk, all = '') {
 	if($(chk).is(':checked')) {
 		if(all == 'ALL') {
@@ -112,6 +151,30 @@ function viewTicket(a) {
 		        $security_query = " AND (".implode(" OR ", $security_query).")";
 		    }
 			?>  
+			<?php if(strpos($field_config, ',search_by_groups,') !== FALSE) { ?>
+			  <div class="col-lg-2 col-md-3 col-sm-4 col-xs-12">
+				<label for="site_name" class="control-label">Search By Group:</label>
+			  </div>
+				<div class="col-lg-4 col-md-3 col-sm-8 col-xs-12">
+				  <select data-placeholder="Select a Group" name="search_group" class="chosen-select-deselect form-control">
+					<option></option>
+					<?php foreach(explode('#*#',get_config($dbc, 'ticket_groups')) as $group) {
+					  $group = explode(',',$group);
+					  $group_name = $group[0];
+					  $group_staff = [];
+					  foreach ($group as $staff) {
+						if ($staff > 0) {
+						  $group_staff[] = $staff;
+						}
+					  }
+					  if(count($group) > 1) { ?>
+						<option data-staff='<?= json_encode($group_staff) ?>' value="<?= $group_name ?>"><?= $group_name ?></option>
+					  <?php }
+					} ?>
+				  </select>
+				</div>
+				<?php $search_clearfix++ ?>
+			<?php } ?>
 
         <div class="col-lg-2 col-md-3 col-sm-4 col-xs-4">
                   <label for="site_name" class="control-label">Search By Staff:</label>
@@ -147,7 +210,14 @@ function viewTicket(a) {
 						} else {
 							$staff_members = sort_contacts_query(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name` FROM `contacts` WHERE `deleted` = 0 AND `status` > 0 AND `contactid` IN (SELECT `staff` FROM `time_cards`) AND `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY.$security_query));
 						}
-						foreach($staff_members as $staff_id) { ?>
+						$prev_staff = '';
+						$next_staff = '';
+						foreach($staff_members as $key => $staff_id) {
+							if(in_array($staff_id['contactid'], $search_staff_list) && empty($next_staff) && empty($prev_staff)) {
+                                $keys = array_keys($staff_members);
+                                $prev_staff = $staff_members[$keys[array_search($key, $keys)-1]]['contactid'];
+                                $next_staff = $staff_members[$keys[array_search($key, $keys)+1]]['contactid'];
+							} ?>
 							<option <?php if (in_array($staff_id['contactid'], $search_staff_list) || in_array('ALL_STAFF',$search_staff_list)) { echo " selected"; } ?> value='<?php echo $staff_id['contactid']; ?>'><?php echo $staff_id['full_name']; ?></option>
 							<?php if(in_array('ALL_STAFF',$search_staff_list)) {
 								$search_staff_list[] = $staff_id['contactid'];
@@ -194,6 +264,13 @@ function viewTicket(a) {
                     <button type="submit" name="search_user_submit" value="Search" class="btn brand-btn mobile-block">Search</button>
                     <button type="button" onclick="$('[name^=search_staff]').find('option').prop('selected',false); $('[name^=search_staff]').find('option[value=ALL_STAFF]').prop('selected',true).change(); $('[name=search_user_submit]').click(); return false;" name="display_all_inventory" value="Display All" class="btn brand-btn mobile-block">Display All</button>
                   </div>
+	                <?php if(count($search_staff_list) == 1 && $search_staff_list[0] != 'ALL_STAFF' && !empty($search_staff_list)) { ?>
+	                	<div class="clearfix"></div>
+	                	<div class="col-sm-12">
+							<a href="?tab=<?= $_GET['tab'] ?>&pay_period=<?= $current_period ?>&search_site=<?= $search_site ?>&search_staff[]=<?= $next_staff ?>" class="btn brand-btn mobile-block pull-right">Next Staff</a>
+							<a href="?tab=<?= $_GET['tab'] ?>&pay_period=<?= $current_period ?>&search_site=<?= $search_site ?>&search_staff[]=<?= $prev_staff ?>" class="btn brand-btn mobile-block pull-right">Previous Staff</a>
+						</div>
+	                <?php } ?>
                 </div>
 </form>
         <br><br><br>

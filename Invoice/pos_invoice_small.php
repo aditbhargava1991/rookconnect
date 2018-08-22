@@ -53,10 +53,14 @@ if($get_pos_tax != '') {
 }
 //Tax
 
-$pos_logo = get_config($dbc, 'pos_logo');
-$invoice_footer = html_entity_decode(get_config($dbc, 'invoice_footer'));
-
-DEFINE('POS_LOGO', $pos_logo);
+$logo = 'download/'.get_config($dbc, 'invoice_logo');
+if(!file_exists($logo)) {
+    $logo = '../POSAdvanced/'.$logo;
+    if(!file_exists($logo)) {
+        $logo = '';
+    }
+}
+DEFINE('INVOICE_LOGO', $logo);
 DEFINE('INVOICE_FOOTER', $invoice_footer);
 DEFINE('INVOICE_DATE', $get_invoice['invoice_date']);
 DEFINE('INVOICEID', $invoiceid);
@@ -113,13 +117,7 @@ $pdf->SetFont('helvetica', '', 8);
 
 $html = '';
 
-$html .= '<p style="text-align:center;"><img src="';
-if(file_exists('../Invoice/download/POS_LOGO')) {
-	$html .= '../Invoice/download/'. POS_LOGO;
-} else if(file_exists('../POSAdvanced/download/POS_LOGO')) {
-	$html .= '../POSAdvanced/download/'. POS_LOGO;
-}
-$html .= '" width="100" /><br /><br />Invoice #: '. INVOICEID .'<br />Date: '. INVOICE_DATE .'<br />Payment Type: '. PAYMENT_TYPE .'</p>';
+$html .= '<p style="text-align:center;"><img src="'.INVOICE_LOGO.'" width="100" /><br /><br />Invoice #: '. INVOICEID .'<br />Date: '. INVOICE_DATE .'<br />Payment Type: '. PAYMENT_TYPE .'</p>';
 //$html .= '<br /><br /><br /><p style="text-align:center;">'. ( (!empty($customer['name'])) ? decryptIt($customer['name']) . '<br />' : '' ) . decryptIt($customer['first_name']) .' '. decryptIt($customer['last_name']) .'<br />'. ( (!empty($customer['mailing_address'])) ? $customer['mailing_address'] . '<br />' : '' ) . ( (!empty($customer['city'])) ? $customer['city'] . '<br />' : '' ) . ( (!empty($customer['postal_code'])) ? $customer['postal_code'] . '<br />' : '' ) . ( (!empty($customer['cell_phone'])) ? decryptIt($customer['cell_phone']) . '<br />' : '' ) . ( (!empty($customer['email_address'])) ? ecryptIt($customer['email_address']) : '' ) . '</p>';
 
 if($client_tax_number != '') {

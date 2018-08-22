@@ -10,15 +10,24 @@ if ( $_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit']) ) {
 		if(empty($intakeformid)) {
 			mysqli_query($dbc, "INSERT INTO `intake_forms` (`user_form_id`, `category`, `form_name`, `expiry_date`) VALUES ('$user_form_id', '$form_category', '$form_name', '$expiry_date')");
 			$intakeformid = mysqli_insert_id($dbc);
+			$before_change = "";
+      $history = "Intake Form entry has been added. <br />";
+	    add_update_history($dbc, 'intake_history', $history, '', $before_change);
 		} else {
 			mysqli_query($dbc, "UPDATE `intake_forms` SET `user_form_id` = '$user_form_id', `category` = '$form_category', `form_name` = '$form_name', `expiry_date` = '$expiry_date' WHERE `intakeformid` = '$intakeformid'");
+			$before_change = "";
+			$history = "Intake form entry has been updated for User form id - $user_form_id. <br />";
+			add_update_history($dbc, 'intake_history', $history, '', $before_change);
 		}
 		$existing_forms[] = $intakeformid;
 	}
         $date_of_archival = date('Y-m-d');
 
 	$existing_forms = implode(',', $existing_forms);
+	$before_change = "";
 	mysqli_query($dbc, "UPDATE `intake_forms` SET `deleted` = 1, `date_of_archival` = '$date_of_archival' WHERE `intakeformid` NOT IN ($existing_forms)");
+	$history = "Intake form entry has been updated. <br />";
+	add_update_history($dbc, 'intake_history', $history, '', $before_change);
 
 	echo '<script type="text/javascript"> window.location.replace("field_config.php?tab=software_forms");</script>';
 }

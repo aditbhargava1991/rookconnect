@@ -7,9 +7,15 @@ if(isset($_POST['save_intake'])) {
 
 	if(!empty($intakeformid)) {
 		mysqli_query($dbc, "UPDATE `intake_forms` SET `user_form_id` = '$user_form_id', `form_name` = '$form_name', `expiry_date` = '$expiry_date' WHERE `intakeformid` = '$intakeformid'");
+		$before_change = "";
+		$history = "Intake entry has been updated for User form name - $form_name. <br />";
+		add_update_history($dbc, 'intake_history', $history, '', $before_change);
 	} else {
 		mysqli_query($dbc, "INSERT INTO `intake_forms` (`user_form_id`, `form_name`, `expiry_date`) VALUES ('$user_form_id', '$form_name', '$expiry_date')");
 		$intakeformid = mysqli_insert_id($dbc);
+		$before_change = "";
+		$history = "Intake Form entry has been added. <br />";
+		add_update_history($dbc, 'intake_history', $history, '', $before_change);
 	}
 
 	echo '<script type="text/javascript"> window.location.href = "../Intake/intake.php?tab=softwareforms"; </script>';

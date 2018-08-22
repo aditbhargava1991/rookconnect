@@ -203,10 +203,10 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
 					<div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
 						<div class="col-sm-4">
 							<label for="site_name" class="control-label">
-								Search By Customer:</label>
+								Search By <?= $purchaser_label ?>:</label>
 						</div>
 						<div class="col-sm-8">
-							<select name="contactid" data-placeholder="Select Customer..." class="chosen-select-deselect form-control width-me">
+							<select name="contactid" data-placeholder="Select <?= $purchaser_label ?>..." class="chosen-select-deselect form-control width-me">
 								<option value=""></option><?php
 								$query = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc,"SELECT contactid, name, first_name, last_name FROM contacts WHERE `contactid` IN (SELECT `patientid` FROM `invoice`) AND `deleted`=0 AND `status`>0"),MYSQLI_ASSOC));
                                 foreach($query as $id) {
@@ -230,7 +230,7 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
 									<option <?= ($search_delivery == 'Company Delivery' ? 'selected' : '') ?> value="Company Delivery">Company Delivery</option>
 									<option <?= ($search_delivery == 'Drop Ship' ? 'selected' : '') ?> value="Drop Ship">Drop Ship</option>
 									<option <?= ($search_delivery == 'Shipping' ? 'selected' : '') ?> value="Shipping">Shipping</option>
-									<option <?= ($search_delivery == 'Shipping on Customer Account' ? 'selected' : '') ?> value="Shipping on Customer Account">Shipping on Customer Account</option>
+									<option <?= ($search_delivery == 'Shipping on Customer Account' ? 'selected' : '') ?> value="Shipping on Customer Account">Shipping on <?= $purchaser_label ?> Account</option>
 								</select>
 							</div>
 						</div>
@@ -321,42 +321,50 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
                     echo display_pagination($dbc, $query, $pageNum, $rowsPerPage);
                 // Pagination Finish //
 
-                echo "<br /><div id='no-more-tables'><table class='table table-bordered'>";
-                echo "<tr class='hidden-xs hidden-sm'>";
-                    if (strpos($value_config, ','."invoiceid".',') !== FALSE) {
-                        echo '<th>Invoice #</th>';
-                    }
-                    if (strpos($value_config, ','."invoice_date".',') !== FALSE) {
-                        echo '<th>Invoice Date</th>';
-                    }
-                    if (strpos($value_config, ','."customer".',') !== FALSE) {
-                        echo '<th>Customer</th>';
-                    }
-                    if (strpos($value_config, ','."total_price".',') !== FALSE) {
-                        echo '<th>Total Price</th>';
-                    }
-                    if (strpos($value_config, ','."payment_type".',') !== FALSE) {
-                        echo '<th>Payment Type</th>';
-                    }
-                    if (strpos($value_config, ','."delivery".',') !== FALSE) {
-                        echo '<th>Delivery/Shipping Type</th>';
-                    }
-                    if (strpos($value_config, ','."invoice_pdf".',') !== FALSE) {
-                        echo '<th>Invoice PDF</th>';
-                    }
-                    if (strpos($value_config, ','."comment".',') !== FALSE) {
-                        echo '<th>Comment</th>';
-                    }
-                    if (strpos($value_config, ','."status".',') !== FALSE) {
-                        echo '<th>Status</th>';
-                    }
-					if (strpos($value_config, ','."send") !== FALSE) {
-                      ?><th>Email PDF<br><div class='selectall btn brand-btn' title='This will select all PDFs on the current page.'>Select All</div></th><?php
-                    }
-                echo "</tr>";
+                echo "<br /><div id='no-more-tables'><table class='table table-bordered table-striped'>";
+                    echo "<thead>";
+                        echo "<tr class='hidden-xs hidden-sm'>";
+                            if (strpos($value_config, ','."invoiceid".',') !== FALSE) {
+                                echo '<th>Invoice #</th>';
+                            }
+                            if (strpos($value_config, ','."invoice_date".',') !== FALSE) {
+                                echo '<th>Invoice Date</th>';
+                            }
+                            if (strpos($value_config, ','."customer".',') !== FALSE) {
+                                echo '<th>'.$purchaser_label.'</th>';
+                            }
+                            if (strpos($value_config, ','."total_price".',') !== FALSE) {
+                                echo '<th>Total Price</th>';
+                            }
+                            if (strpos($value_config, ','."payment_type".',') !== FALSE) {
+                                echo '<th>Payment Type</th>';
+                            }
+                            if (strpos($value_config, ','."delivery".',') !== FALSE) {
+                                echo '<th>Delivery/Shipping Type</th>';
+                            }
+                            if (strpos($value_config, ','."invoice_pdf".',') !== FALSE) {
+                                echo '<th>Invoice PDF</th>';
+                            }
+                            if (strpos($value_config, ','."comment".',') !== FALSE) {
+                                echo '<th>Comment</th>';
+                            }
+                            if (strpos($value_config, ','."status".',') !== FALSE) {
+                                echo '<th>Status</th>';
+                            }
+                            if (strpos($value_config, ','."send") !== FALSE) {
+                              ?><th>Email PDF<br><div class='selectall btn brand-btn' title='This will select all PDFs on the current page.'>Select All</div></th><?php
+                            }
+                        echo "</tr>";
+                    echo "</thead>";
 
-				while($invoice = mysqli_fetch_array( $result ))
-				{
+                $src_row = false;
+                $src_ids = [];
+                while($src_row || $invoice = mysqli_fetch_array( $result ))
+                {
+                    if(!$src_row && in_array($invoice['invoiceid'],$src_ids)) {
+                        continue;
+                    }
+                    $src_row = false;
 					$invoice_pdf = 'download/invoice_'.$invoice['invoiceid'].'.pdf';
 					$style = '';
 					if($invoice['status'] == 'Posted Past Due') {
@@ -369,7 +377,7 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
 					echo "<tr>";
 
 					if (strpos($value_config, ','."invoiceid".',') !== FALSE) {
-						echo '<td data-title="Invoice #">' .($invoice['invoice_type'] == 'New' ? '' : $invoice['invoice_type'].' #'). $invoice['invoiceid'] . '</td>';
+						echo '<td data-title="Invoice #">' .($invoice['invoice_type'] == 'New' ? '' : $invoice['invoice_type'].' #'). $invoice['invoiceid'].($invoice['invoiceid_src'] > 0 ? '<br />For Invoice #'.$invoice['invoiceid_src'] : '') . '</td>';
 					}
 
 
@@ -378,7 +386,7 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
 						echo '<td data-title="Invoice Date" style="white-space: nowrap; ">'.$invoice['invoice_date'].'</td>';
 					}
 					if (strpos($value_config, ','."customer".',') !== FALSE) {
-						echo '<td data-title="Customer"><a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/'.CONTACTS_TILE.'/contacts_inbox.php?edit='.$invoice['patientid'].'\', \'auto\', false, true, $(\'#invoice_div\').outerHeight()+20); return false;">' . get_contact($dbc, $contactid, 'name_company') . '</a></td>';
+						echo '<td data-title="'.$purchaser_label.'"><a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/'.CONTACTS_TILE.'/contacts_inbox.php?edit='.$invoice['patientid'].'\', \'auto\', false, true, $(\'#invoice_div\').outerHeight()+20); return false;">' . get_contact($dbc, $contactid, 'name_company') . '</a></td>';
 					}
 					if (strpos($value_config, ','."total_price".',') !== FALSE) {
 						echo '<td data-title="Total Price" align="right">$' . number_format($invoice['final_price'],2) . '</td>';
@@ -392,8 +400,11 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
 					if (strpos($value_config, ','."invoice_pdf".',') !== FALSE) {
 						echo '<td data-title="Invoice PDF">';
 						if(file_exists($invoice_pdf)) {
-							echo '<a target="_blank" href="'.$invoice_pdf.'">Invoice #'.$invoice['invoiceid'].' <img src="'.WEBSITE_URL.'/img/pdf.png" title="PDF"></a>';
+							echo '<a target="_blank" href="'.$invoice_pdf.'">Invoice #'.$invoice['invoiceid'].' <img src="'.WEBSITE_URL.'/img/pdf.png" title="PDF"></a><br />';
 						}
+                        if($invoice['invoiceid_src'] > 0 && file_exists('../'.FOLDER_NAME.'/Download/invoice_'.$invoice['invoiceid_src'].'.pdf')) {
+							echo '<a target="_blank" href="'.'../'.FOLDER_NAME.'/Download/invoice_'.$invoice['invoiceid_src'].'.pdf'.'">Primary Invoice #'.$invoice['invoiceid_src'].' <img src="'.WEBSITE_URL.'/img/pdf.png" title="PDF"></a><br />';
+                        }
 						echo '</td>';
 					}
 					if (strpos($value_config, ','."comment".',') !== FALSE) {
@@ -401,16 +412,21 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
 					}
 					if (strpos($value_config, ','."status".',') !== FALSE) {
 						echo '<td data-title="Status">';
-						?>
-						<select name="status[]" data-invoiceid="<?= $invoice['invoiceid'] ?>" class="chosen-select-deselect form-control">
-							<option value=""></option>
-							<option value="Posted" <?php if ($invoice['status'] == "Posted") { echo " selected"; } ?> >Posted</option>
-							<option value="Posted Past Due" <?php if ($invoice['status'] == "Posted Past Due") { echo " selected"; } ?> >Posted Past Due</option>
-							<option value="Completed" <?php if ($invoice['status'] == "Completed") { echo " selected"; } ?> >Completed</option>
-							<option value="Void" <?php if ($invoice['status'] == "Void") { echo " selected"; } ?> >Void</option>
-							<option value="Archived" <?php if ($invoice['status'] == "Archived") { echo " selected"; } ?> >Archive</option>
-						</select>
-					<?php
+                            switch($invoice['status']) {
+                                case 'Completed':
+                                    echo 'Paid';
+                                    break;
+                                case 'Void':
+                                    echo 'Voided';
+                                    break;
+                                case 'Saved':
+                                    echo 'Saved';
+                                    break;
+                                case 'Posted':
+                                default:
+                                    echo 'Accounts Receivable';
+                                    break;
+                            }
 						echo '</td>';
 						}
 						if (strpos($value_config, ','."send") !== FALSE) {
@@ -422,6 +438,11 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
 							echo '</td>';
 						}
 					echo "</tr>";
+                    if($invoice['invoiceid_src'] > 0) {
+                        $invoice = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `invoice` WHERE `invoiceid`='".$invoice['invoiceid_src']."'"));
+                        $src_row = true;
+                        $src_ids[] = $invoice['invoiceid'];
+                    }
 
 				}
 
@@ -445,7 +466,7 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
 					<div class="col-sm-8"><input type="text" class="form-control" name="sender" value="<?php echo get_email($dbc, $_SESSION['contactid']); ?>"></div>
 				</div>
 				<div class="form-group">
-					<label class="col-sm-4 control-label" for="customer">Send to Customer</label>
+					<label class="col-sm-4 control-label" for="customer">Send to <?= $purchaser_label ?></label>
 					<div class="col-sm-8"><input type="checkbox" checked class="" id="customer" name="customer" value="customer" style="height:1.5em;width:1.5em;"></div>
 				</div>
 				<div class="form-group">

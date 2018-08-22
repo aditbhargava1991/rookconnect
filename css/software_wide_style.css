@@ -4,6 +4,7 @@
 .no-overflow-y { overflow-y:hidden !important; }
 .no-overflow-x { overflow-x:hidden !important; }
     .no-overflow-x img { height:auto; max-width:100% !important; }
+.no-overflow { overflow:hidden !important; }
 .set-relative { position:relative; }
 .set-favourite { position:absolute; top:5px; right:5px; }
 .flex-columns {
@@ -2430,6 +2431,10 @@ ul.guide-index li { font-weight:bold; list-style-type:none; margin-top:20px; mar
 	margin-left: 1em !important;
 	margin-right: 1em !important;
 }
+.margin-horiz-2 {
+	margin-left: 2em !important;
+	margin-right: 2em !important;
+}
 .margin-vertical {
 	margin-top: 1em !important;
 	margin-bottom: 1em !important;
@@ -2925,7 +2930,7 @@ ul.select2-results__options {
 	border-bottom: 1px solid #ACA9A9;
 }
 .standard-body-title h3 {
-	margin: 20px;
+	margin: 18px;
 }
 .standard-body-content {
 	background-color: #FFFFFF;
@@ -3290,5 +3295,8 @@ position: relative;
 }
 
 .row-even-bg, .row-odd-bg { padding:5px 10px; }
-    .row-even-bg { background-color:#f6f6f6; }
+    .row-even-bg, .table-striped > tbody > tr:nth-of-type(even) { background-color:#f6f6f6; }
     .row-odd-bg { background-color:#e9e9e9; }
+    
+.table-responsive { overflow-y:hidden; width:100%; }
+.table-responsive .table { overflow-y:auto; }

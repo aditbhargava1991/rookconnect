@@ -6,9 +6,12 @@ if(isset($_POST['submit'])) {
 	if($policy_id == 'NEW') {
 		mysqli_query($dbc, "INSERT INTO `expense_policy` (`name`) VALUES ('NEW')");
 		$policy_id = mysqli_insert_id($dbc);
+		$before_change = "";
+		$history = "Expense Policy entry has been added. <br />";
+		add_update_history($dbc, 'expenses_history', $history, '', $before_change);
 	}
 	$fields = [];
-	
+
 	foreach($_POST as $field_name => $value) {
 		switch($field_name) {
 			case 'name': $fields[] = "`name`='".filter_var($value, FILTER_SANITIZE_STRING)."'"; break;
@@ -22,6 +25,9 @@ if(isset($_POST['submit'])) {
 		}
 	}
 	mysqli_query($dbc,"UPDATE `expense_policy` SET ".implode(',', $fields)." WHERE `policy_id`='$policy_id'");
+	$before_change = "";
+	$history = "Expense policy entry has been updated for policy id $policy_id. <br />";
+	add_update_history($dbc, 'expenses_history', $history, '', $before_change);
 }
 
 $policy_id = $_GET['edit'];

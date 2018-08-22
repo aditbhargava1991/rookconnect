@@ -8,6 +8,7 @@ if(!empty($_GET['ids'])) {
 				<div class="drag-handle full-height" title="Drag Me!">
 					<img class="drag-handle black-color inline-img pull-right" src="'.WEBSITE_URL.'/img/icons/drag_handle.png" />
 				</div>
+                <img src="../img/icons/ROOK-trash-icon.png" class="inline-img cursor-hand pull-right margin-horiz-2" onclick="archive(this); return false;" title="Archive '.TICKET_NOUN.'">
 				<a href="'.WEBSITE_URL.'/Ticket/index.php?edit='.$ticket['ticketid'].'" data-ticketid="'.$ticket['ticketid'].'" onclick=\'
 				overlayIFrameSlider(this.href+"&calendar_view=true","auto",true,true); return false;\' style="text-decoration: none; display: block;">
 				'.get_ticket_label($dbc, $ticket).($ticket['sub_label'] != '' ? '-'.$ticket['sub_label'] : '').($ticket['scheduled_lock'] > 0 ? '<img class="inline-img" title="Time has been Locked" src="../img/icons/lock.png">' : '').'<br />
@@ -40,6 +41,7 @@ if(!empty($_GET['unassign_type'])) {
 				<div class="drag-handle full-height" title="Drag Me!">
 					<img class="drag-handle black-color inline-img pull-right" src="'.WEBSITE_URL.'/img/icons/drag_handle.png" />
 				</div>
+				<img src="../img/icons/ROOK-trash-icon.png" class="inline-img cursor-hand pull-right margin-horiz-2" onclick="archive(this); return false;" title="Archive '.TICKET_NOUN.'">
 				<a href="'.WEBSITE_URL.'/Ticket/index.php?edit='.$ticket['ticketid'].'" data-ticketid="'.$ticket['ticketid'].'" onclick=\'
 				overlayIFrameSlider(this.href+"&calendar_view=true","auto",true,true); return false;\' style="text-decoration: none; display: block;">
 				'.get_ticket_label($dbc, $ticket).($ticket['sub_label'] != '' ? '-'.$ticket['sub_label'] : '').($ticket['scheduled_lock'] > 0 ? '<img class="inline-img" title="Time has been Locked" src="../img/icons/lock.png">' : '').'<br />
@@ -56,4 +58,14 @@ if(!empty($_GET['unassign_type'])) {
 			echo $unbooked_html;
 		}
 	}
+} ?>
+<script>
+function archive(img) {
+    if(confirm('Are you sure you want to archive this <?= TICKET_NOUN ?>?')) {
+        var block = $(img).closest('.block-item');
+        var ticketid = block.data('ticketid');
+        block.hide();
+        $.post('optimize_ajax.php?action=archive', { id: ticketid, field: 'ticketid', table: 'tickets' });
+    }
 }
+</script>

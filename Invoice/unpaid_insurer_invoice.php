@@ -35,7 +35,7 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
 		<div class="notice double-gap-bottom popover-examples">
 			<div class="col-sm-1 notice-icon"><img src="<?= WEBSITE_URL; ?>/img/info.png" class="wiggle-me" width="25"></div>
 			<div class="col-sm-11"><span class="notice-name">NOTE:</span>
-			Generate Unpaid Insurer reports from here. Select the customer's name from the drop down menu, then select the insurer from the drop down menu to display all unpaid insurer invoices related to that customer and insurer.</div>
+			Generate Unpaid <?= $payer_label ?> reports from here. Select the <?= $purchaser_label ?> name from the drop down menu, then select the <?= $payer_label ?> from the drop down menu to display all unpaid <?= $payer_label ?> invoices related to that <?= $purchaser_label ?> and <?= $payer_label ?>.</div>
 			<div class="clearfix"></div>
 		</div>
 
@@ -50,9 +50,9 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
 			}
             ?>
             <div class="form-group">
-              <label for="site_name" class="col-sm-4 control-label">Search by Customer:</label>
+              <label for="site_name" class="col-sm-4 control-label">Search by <?= $purchaser_label ?>:</label>
               <div class="col-sm-8">
-                  <select data-placeholder="Select a Customer" name="search_user" id="search_user" class="chosen-select-deselect form-control" width="380">
+                  <select data-placeholder="Select a <?= $purchaser_label ?>" name="search_user" id="search_user" class="chosen-select-deselect form-control" width="380">
                   <option value=""></option>
                   <?php
                     $query = mysqli_query($dbc,"SELECT distinct(patientid) FROM invoice WHERE paid = 'Waiting on Insurer' AND final_price IS NOT NULL AND serviceid IS NOT NULL AND serviceid != ','");
@@ -70,15 +70,15 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
                 <button type="submit" name="search_user_submit" id="search_user_submit" value="Search" class="btn brand-btn mobile-block">Search</button>
                 <!--<button type="submit" name="display_all_inventory" value="Display All" class="btn brand-btn mobile-block">Display All</button>-->
 				<span class="popover-examples list-inline">
-					<a href="#job_file" data-toggle="tooltip" data-placement="top" title="Select an insurer from the dropdown, then click on the checkbox at the end of each row to select the item(s) you wish to print before you click the Print button."><img src="<?php echo WEBSITE_URL;?>/img/info.png" width="20"></a>
+					<a href="#job_file" data-toggle="tooltip" data-placement="top" title="Select an <?= $payer_label ?> from the dropdown, then click on the checkbox at the end of each row to select the item(s) you wish to print before you click the Print button."><img src="<?php echo WEBSITE_URL;?>/img/info.png" width="20"></a>
 				</span>
                 <button type="submit" name="printpdf" id="printpdf" value="Print Report" class="btn brand-btn pull-right">Print</button>
             </div>
 
             <div class="form-group">
-              <label for="site_name" class="col-sm-4 control-label">Select Insurer:</label>
+              <label for="site_name" class="col-sm-4 control-label">Select <?= $payer_label ?>:</label>
               <div class="col-sm-8">
-                <select data-placeholder="Select an Insurer" id="insurerid" name="insurerid" class="chosen-select-deselect form-control" width="380">
+                <select data-placeholder="Select an <?= $payer_label ?>" id="insurerid" name="insurerid" class="chosen-select-deselect form-control" width="380">
                   <option value=""></option>
                   <?php
                     $insurerid = get_all_form_contact($dbc, $search_user, 'insurerid');

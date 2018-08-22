@@ -3,6 +3,10 @@ checkAuthorised('calendar_rook');
 error_reporting(0);
 if (isset($_POST['submit'])) {
     $contactid = filter_var($_POST['shift_contactid'],FILTER_SANITIZE_STRING);
+    $security_level = filter_var($_POST['shift_security_level'],FILTER_SANITIZE_STRING);
+    if(!empty($security_level)) {
+        $contactid = 0;
+    }
     $clientid = filter_var($_POST['shift_clientid'],FILTER_SANITIZE_STRING);
     $startdate = filter_var($_POST['shift_startdate'],FILTER_SANITIZE_STRING);
     $enddate = filter_var($_POST['shift_enddate'],FILTER_SANITIZE_STRING);
@@ -29,9 +33,10 @@ if (isset($_POST['submit'])) {
         $repeat_days = filter_var(implode(',',$_POST['shift_repeat_days']),FILTER_SANITIZE_STRING);
     }
     $notes = filter_var(htmlentities($_POST['shift_notes']),FILTER_SANITIZE_STRING);
+    $set_hours = filter_var($_POST['set_hours'],FILTER_SANITIZE_STRING);
 
     if (empty($_POST['shiftid'])) {
-        $query = "INSERT INTO `contacts_shifts` (`contactid`, `clientid`, `startdate`, `enddate`, `starttime`, `endtime`, `availability`, `break_starttime`, `break_endtime`, `dayoff_type`, `repeat_type`, `repeat_interval`, `repeat_days`, `notes`) VALUES ('$contactid', '$clientid', '$startdate', '$enddate', '$starttime', '$endtime', '$availability', '$break_starttime', '$break_endtime', '$dayoff_type', '$repeat_type', '$repeat_interval', '$repeat_days', '$notes')";
+        $query = "INSERT INTO `contacts_shifts` (`contactid`, `security_level`, `clientid`, `startdate`, `enddate`, `starttime`, `endtime`, `availability`, `break_starttime`, `break_endtime`, `dayoff_type`, `repeat_type`, `repeat_interval`, `repeat_days`, `notes`, `set_hours`) VALUES ('$contactid', '$security_level', '$clientid', '$startdate', '$enddate', '$starttime', '$endtime', '$availability', '$break_starttime', '$break_endtime', '$dayoff_type', '$repeat_type', '$repeat_interval', '$repeat_days', '$notes', '$set_hours')";
         $result = mysqli_query($dbc, $query);
         $shiftid = mysqli_insert_id($dbc);
     } else {
@@ -48,7 +53,7 @@ if (isset($_POST['submit'])) {
                     $sql = "UPDATE `contacts_shifts` SET `hide_days` = '$hide_days' WHERE `shiftid` = '$shiftid'";
                     mysqli_query($dbc, $sql);
 
-                    $query = "INSERT INTO `contacts_shifts` (`contactid`, `clientid`, `startdate`, `enddate`, `starttime`, `endtime`, `availability`, `break_starttime`, `break_endtime`, `dayoff_type`, `notes`) VALUES ('$contactid', '$clientid', '$shift_current_date', '$shift_current_date', '$starttime', '$endtime', '$availability', '$break_starttime', '$break_endtime', '$dayoff_type', '$notes')";
+                    $query = "INSERT INTO `contacts_shifts` (`contactid`, `security_level`, `clientid`, `startdate`, `enddate`, `starttime`, `endtime`, `availability`, `break_starttime`, `break_endtime`, `dayoff_type`, `notes`, `set_hours`) VALUES ('$contactid', '$security_level', '$clientid', '$shift_current_date', '$shift_current_date', '$starttime', '$endtime', '$availability', '$break_starttime', '$break_endtime', '$dayoff_type', '$notes', '$set_hours')";
                     $result = mysqli_query($dbc, $query);
                     $shiftid = mysqli_insert_id($dbc);
                     break;
@@ -57,18 +62,18 @@ if (isset($_POST['submit'])) {
                     $sql = "UPDATE `contacts_shifts` SET `enddate` = '$end_date' WHERE `shiftid` = '$shiftid'";
                     mysqli_query($dbc, $sql);
 
-                    $query = "INSERT INTO `contacts_shifts` (`contactid`, `clientid`, `startdate`, `enddate`, `starttime`, `endtime`, `availability`, `break_starttime`, `break_endtime`, `dayoff_type`, `repeat_type`, `repeat_interval`, `repeat_days`, `notes`) VALUES ('$contactid', '$clientid', '$shift_current_date', '$enddate', '$starttime', '$availability', '$endtime', '$break_starttime', '$break_endtime', '$dayoff_type', '$repeat_type', '$repeat_interval', '$repeat_days', '$notes')";
+                    $query = "INSERT INTO `contacts_shifts` (`contactid`, `security_level`, `clientid`, `startdate`, `enddate`, `starttime`, `endtime`, `availability`, `break_starttime`, `break_endtime`, `dayoff_type`, `repeat_type`, `repeat_interval`, `repeat_days`, `notes`, `set_hours`) VALUES ('$contactid', '$security_level', '$clientid', '$shift_current_date', '$enddate', '$starttime', '$availability', '$endtime', '$break_starttime', '$break_endtime', '$dayoff_type', '$repeat_type', '$repeat_interval', '$repeat_days', '$notes', '$set_hours')";
                     $result = mysqli_query($dbc, $query);
                     $shiftid = mysqli_insert_id($dbc);
                     break;
                 case 'all':
                 default:
-                    $query = "UPDATE `contacts_shifts` SET `contactid` = '$contactid', `clientid` = '$clientid', `startdate` = '$startdate', `enddate` = '$enddate', `starttime` = '$starttime', `endtime` = '$endtime', `availability` = '$availability', `break_starttime` = '$break_starttime', `break_endtime` = '$break_endtime', `dayoff_type` = '$dayoff_type', `repeat_type` = '$repeat_type', `repeat_interval` = '$repeat_interval', `repeat_days` = '$repeat_days', `notes` = '$notes' WHERE `shiftid` = '$shiftid'";
+                    $query = "UPDATE `contacts_shifts` SET `contactid` = '$contactid', `security_level` = '$security_level', `clientid` = '$clientid', `startdate` = '$startdate', `enddate` = '$enddate', `starttime` = '$starttime', `endtime` = '$endtime', `availability` = '$availability', `break_starttime` = '$break_starttime', `break_endtime` = '$break_endtime', `dayoff_type` = '$dayoff_type', `repeat_type` = '$repeat_type', `repeat_interval` = '$repeat_interval', `repeat_days` = '$repeat_days', `notes` = '$notes' WHERE `shiftid` = '$shiftid'";
                     $result = mysqli_query($dbc, $query);
                     break;
             }
         } else {
-            $query = "UPDATE `contacts_shifts` SET `contactid` = '$contactid', `clientid` = '$clientid', `startdate` = '$startdate', `enddate` = '$enddate', `starttime` = '$starttime', `endtime` = '$endtime', `availability` = '$availability', `break_starttime` = '$break_starttime', `break_endtime` = '$break_endtime', `dayoff_type` = '$dayoff_type', `repeat_type` = '$repeat_type', `repeat_interval` = '$repeat_interval', `repeat_days` = '$repeat_days', `notes` = '$notes' WHERE `shiftid` = '$shiftid'";
+            $query = "UPDATE `contacts_shifts` SET `contactid` = '$contactid', `security_level` = '$security_level', `clientid` = '$clientid', `startdate` = '$startdate', `enddate` = '$enddate', `starttime` = '$starttime', `endtime` = '$endtime', `availability` = '$availability', `break_starttime` = '$break_starttime', `break_endtime` = '$break_endtime', `dayoff_type` = '$dayoff_type', `repeat_type` = '$repeat_type', `repeat_interval` = '$repeat_interval', `repeat_days` = '$repeat_days', `notes` = '$notes' WHERE `shiftid` = '$shiftid'";
             $result = mysqli_query($dbc, $query);
         }
     }
@@ -142,6 +147,7 @@ $contactid = '';
 if(isset($_GET['shift_staffid'])) {
     $contactid = $_GET['shift_staffid'];
 }
+$security_level = '';
 $clientid = '';
 if(isset($_GET['shift_clientid'])) {
     $clientid = $_GET['shift_clientid'];
@@ -171,10 +177,15 @@ $repeat_interval = '';
 $repeat_days = '';
 $notes = '';
 $hours_type = 'Regular Hrs.';
+$set_hours = 0;
+if(isset($_GET['set_hours'])) {
+    $set_hours = $_GET['set_hours'];
+}
 if (!empty($shiftid)) {
     $get_shifts = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `contacts_shifts` WHERE `shiftid` = '$shiftid'"));
 
     $contactid = $get_shifts['contactid'];
+    $security_level = $get_shifts['security_level'];
     $clientid = $get_shifts['clientid'];
     $startdate = $get_shifts['startdate'];
     $enddate = $get_shifts['enddate'];
@@ -193,6 +204,7 @@ if (!empty($shiftid)) {
         $shift_current_date = date('Y-m-d', strtotime($_GET['current_day']));
         $recurring = date('Y-m-d', strtotime($startdate)) == date('Y-m-d', strtotime($enddate)) ? 'no' : 'yes';
     }
+    $set_hours = $get_shifts['set_hours'];
 }
 ?>
 <script type="text/javascript">
@@ -431,7 +443,7 @@ function ajaxDeleteShift(shifts, current_day) {
     var shiftid = $('[name="shiftid"]').val();
     $.ajax({
         type: 'GET',
-        url: '../Calendar/calendar_ajax_all.php?fill=delete_shift&shiftid='+shiftid+'&shifts='+shifts+'&current_day='+current_day+'&offline='+offline_mode,
+        url: '../Calendar/calendar_ajax_all.php?fill=delete_shift&shiftid='+shiftid+'&shifts='+shifts+'&current_day='+current_day,
         dataType: 'html',
         success: function(response) {
             window.location.href = "?<?php unset($page_query['shiftid']); echo http_build_query($page_query); $page_query['shiftid'] = $shiftid; ?>";
@@ -474,6 +486,15 @@ function changeShiftAvailability() {
         $('[name="shift_endtime"]').css('pointer-events', '');
     }
 }
+function createShiftFor(input) {
+    if(input.value == 'security_level') {
+        $('.security_level_div').show();
+        $('.staff_div').hide();
+    } else {
+        $('.security_level_div').hide();
+        $('.staff_div').show();
+    }
+}
 </script>
 
 <?php $lock_date = get_config($dbc, 'staff_schedule_lock_date'); ?>
@@ -492,6 +513,17 @@ function changeShiftAvailability() {
     </div>
     <form name="form1" method="post" action="" enctype="multipart/form-data" class="form-horizontal" role="form" id="shiftform">
         <?php if($shiftid != 'IMPORT') { ?>
+            <?php if($set_hours > 0) { ?>
+                <div class="notice double-gap-bottom popover-examples">
+                    <div class="col-sm-1 notice-icon"><img src="../img/info.png" class="wiggle-me" width="25"></div>
+                    <div class="col-sm-11">
+                        <span class="notice-name">NOTE:</span>
+                        You are adding Set Hours. This type of Scheduling will affect your Time Sheets and will overwrite any Regular Hours with these Set Hours. Leave End Date blank to keep Set Hours ongoing.
+                    </div>
+                    <div class="clearfix"></div>
+                </div>
+            <?php } ?>
+            <input type="hidden" name="set_hours" value="<?= $set_hours ?>">
             <input type="hidden" name="shiftid" value="<?= $shiftid ?>">
             <input type="hidden" name="recurring" value="<?= $recurring ?>">
             <input type="hidden" name="edit_type" value="">
@@ -504,16 +536,50 @@ function changeShiftAvailability() {
             </label>
             <?php } ?>
 
-            <label for="contactid" class="super-label">Staff:
-            <select data-placeholder="Select Staff" name="shift_contactid" class="chosen-select-deselect">
-                <option></option>
-                <?php
-                    $query = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `deleted` = 0 AND `status` = 1"),MYSQLI_ASSOC));
-                    foreach ($query as $id) {
-                        echo '<option value="'.$id.'"'.($id == $contactid ? ' selected' : '').'>'.get_contact($dbc, $id).'</option>';
-                    }
-                ?>
-            </select></label>
+            <?php if (strpos($enabled_fields, ',security_level,') !== FALSE || !empty($security_level)) { ?>
+                <label for="security_level" class="super-label">Create Shift For:</label>
+                <div class="row">
+                    <div class="col-xs-6">
+                        <div class="form-group">
+                            <div class="pull-left"><input type="radio" id="create_shift_for" name="create_shift_for" value="staff"<?= empty($security_level) ? ' checked' : '' ?> onclick="createShiftFor(this)" style="position: relative; top: 0.3em;"></div>
+                            <label for="dayoff_type" class="form-label pull-left pad-left pad-top">Staff</label>
+                            <div class="clearfix"></div>
+                        </div>
+                    </div>
+                    <div class="col-xs-6">
+                        <div class="form-group">
+                            <div class="pull-left"><input type="radio" id="create_shift_for" name="create_shift_for" value="security_level"<?= !empty($security_level) ? ' checked' : '' ?> onclick="createShiftFor(this)" style="position: relative; top: 0.3em;"></div>
+                            <label for="dayoff_type" class="form-label pull-left pad-left pad-top">Security Level</label>
+                            <div class="clearfix"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="security_level_div" <?= empty($security_level) ? 'style="display:none;"' : '' ?>>
+                    <label for="contactid" class="super-label">Security Level:
+                    <select data-placeholder="Select Security Level" name="shift_security_level" class="chosen-select-deselect">
+                        <option></option>
+                        <?php $on_security = get_security_levels($dbc);
+                        foreach($on_security as $security_label => $security_value) {
+                            echo '<option value="'.$security_value.'"'.($security_value == $security_level ? ' selected' : '').'>'.$security_label.'</option>';
+                        }
+                        ?>
+                    </select></label>
+                </div>
+            <?php } ?>
+
+            <div class="staff_div" <?= !empty($security_level) ? 'style="display:none;"' : '' ?>>
+                <label for="contactid" class="super-label">Staff:
+                <select data-placeholder="Select Staff" name="shift_contactid" class="chosen-select-deselect">
+                    <option></option>
+                    <?php
+                        $query = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `deleted` = 0 AND `status` = 1"),MYSQLI_ASSOC));
+                        foreach ($query as $id) {
+                            echo '<option value="'.$id.'"'.($id == $contactid ? ' selected' : '').'>'.get_contact($dbc, $id).'</option>';
+                        }
+                    ?>
+                </select></label>
+            </div>
 
             <?php if (!empty($contact_category)) { ?>
                 <label for="clientid" class="super-label"><?= $contact_category ?>:

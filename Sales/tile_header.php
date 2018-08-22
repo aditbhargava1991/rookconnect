@@ -50,6 +50,7 @@
             </div>
 			<img class="inline-img pull-right btn-horizontal-collapse" src="../img/icons/pie-chart.png">
 		<?php } ?>
+        <img class="no-toggle statusIcon pull-right no-margin inline-img small" title="" src="" data-original-title="">
     </div>
     <div class="clearfix"></div>
 </div><!-- .tile-header -->

@@ -235,8 +235,8 @@ function actionDate(sel) {
 
         $num_rows = mysqli_num_rows($result);
         if($num_rows > 0) {
-        echo "<table class='table table-bordered'>";
-        echo "<tr class='hidden-xs hidden-sm'>
+        echo "<table class='table table-bordered table-striped'>";
+        echo "<thead><tr class='hidden-xs hidden-sm'>
                 ".(strpos($dashboard_config,',job,') !== false ? "<th>Job#</th>" : "")."
                 ".(strpos($dashboard_config,',contact,') !== false ? "<th>Customer<br>Contact</th>" : "")."
                 ".(strpos($dashboard_config,',site,') !== false ? "<th>Site Location</th><th>Description</th>" : "")."
@@ -250,7 +250,7 @@ function actionDate(sel) {
                     echo "<th>Invoice</th>
                     <th>Function</th>";
                 }
-                echo "</tr>";
+                echo "</tr></thead>";
         } else {
             echo "<h2>No Record Found.</h2>";
         }

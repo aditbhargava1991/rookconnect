@@ -36,7 +36,7 @@ $(document).ready(function() {
 		<div class="notice double-gap-bottom popover-examples">
 			<div class="col-sm-1 notice-icon"><img src="<?= WEBSITE_URL; ?>/img/info.png" class="wiggle-me" width="25"></div>
 			<div class="col-sm-11"><span class="notice-name">NOTE:</span>
-			Check In displays all appointments for the current day (in the Today sub tab) as well as by Staff (in staff name sub tabs), and gives the user the ability to check a customer in (by clicking Check In in the patient row). This will change the symbol on the calendar to Checked In. If an appointment is highlighted red, the customer is a Late Cancellation or a No-Show. If an appointment is highlighted yellow, the customer is Late.</div>
+			Check In displays all appointments for the current day (in the Today sub tab) as well as by Staff (in staff name sub tabs), and gives the user the ability to check a customer in (by clicking Check In in the <?= $purchaser_label ?> row). This will change the symbol on the calendar to Checked In. If an appointment is highlighted red, the customer is a Late Cancellation or a No-Show. If an appointment is highlighted yellow, the customer is Late.</div>
 			<div class="clearfix"></div>
 		</div>
             <center>
@@ -129,7 +129,7 @@ $(document).ready(function() {
                     echo '<tr>
                     <th>Booking ID</th>
                     <th>Booking Date</th>
-                    <th>Patient</th>
+                    <th>'.$purchaser_label.'</th>
                     <th>Injury</th>
                     <th>Document</th>
                     <th>Therapist</th>

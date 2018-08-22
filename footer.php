@@ -169,7 +169,7 @@ if(isMobile.any()) {
 						jQuery(this).parent().prependTo(".complete-mobile");
 				}
 				else {
-					if(parentitemname == 'form1' || parentclassname.indexOf('tab-container') >= 0)
+					if(parentitemname == 'form1' || newitemclass.indexOf('tab-container') >= 0)
 						jQuery(this).appendTo(".complete-mobile");
 					else if((newitemclass.indexOf(" tab") >= 0 || newitemclass == "nav-subtab" || newitemclass=="popover-examples list-inline") && newitemclass.indexOf(" tab-container") < 0)
 						jQuery(this).parent().parent().appendTo(".complete-mobile");

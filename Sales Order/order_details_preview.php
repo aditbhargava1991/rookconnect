@@ -80,11 +80,13 @@ include('details_preview_functions.php'); ?>
 				if(mysqli_num_rows($notes) > 0) { ?>
 					<div id="no-more-tables">
 						<h5>ORDER NOTES</h5>
-						<table class="table table-bordered">
-							<tr class="hidden-sm hidden-xs">
-								<th>Note</th>
-								<th>Created</th>
-							</tr>
+						<table class="table table-bordered table-striped">
+							<thead>
+                                <tr class="hidden-sm hidden-xs">
+                                    <th>Note</th>
+                                    <th>Created</th>
+                                </tr>
+                            </thead>
 							<?php while($note = mysqli_fetch_assoc($notes)) { ?>
 								<tr>
 									<td data-title="Note"><?= html_entity_decode($note['note']) ?></td>

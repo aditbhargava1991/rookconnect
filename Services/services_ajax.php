@@ -9,7 +9,7 @@ if($_GET['action'] == 'save_template_field') {
 	$template_id = filter_var($_POST['template_id'],FILTER_SANITIZE_STRING);
 	$field_name = filter_var($_POST['field_name'],FILTER_SANITIZE_STRING);
 	$value = filter_var($_POST['value'],FILTER_SANITIZE_STRING);
-	
+
 	$sql = "";
 	if($table == 'services_templates') {
 		if(!is_numeric($template_id)) {
@@ -23,6 +23,9 @@ if($_GET['action'] == 'save_template_field') {
 			mysqli_query($dbc, "INSERT INTO `services_templates_headings` () VALUES ()");
 			$heading_id = mysqli_insert_id($dbc);
 			echo $heading_id;
+			$before_change = "";
+			$history = "Service template headings entry has been added. <br />";
+			add_update_history($dbc, 'service_history', $history, '', $before_change);
 		}
 		$sql = "UPDATE `$table` SET `$field_name`='$value', `template_id`='$template_id' WHERE `id`='$heading_id'";
 	}

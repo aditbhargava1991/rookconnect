@@ -92,12 +92,13 @@ function newStatusChange(sel) {
 </head>
 <body>
 <?php include_once ('../navigation.php');
-?>
+$payer_config = explode(',',get_config($dbc, 'invoice_payer_contact'));
+define('PAYER_LABEL', count($payer_config) > 1 ? 'Third Party' : $payer_config[0]); ?>
 
 <div class="container triple-pad-bottom">
     <div class="row">
         <div class="col-md-12">
-        <h2>Insurer Accounts Receivable</h2>
+        <h2><?= PAYER_LABEL ?> Accounts Receivable</h2>
 		
         <?php if(config_visible_function($dbc, (FOLDER_NAME == 'posadvanced' ? 'posadvanced' : 'check_out')) == 1) {
             echo '<a href="field_config_invoice.php" class="mobile-block pull-right "><img style="width: 50px;" title="Tile Settings" src="../img/icons/settings-4.png" class="settings-classic wiggle-me"></a>';
@@ -109,7 +110,7 @@ function newStatusChange(sel) {
             <div class="notice double-gap-bottom popover-examples">
             <div class="col-sm-1 notice-icon"><img src="<?= WEBSITE_URL; ?>/img/info.png" class="wiggle-me" width="25"></div>
             <div class="col-sm-11"><span class="notice-name">NOTE:</span>
-            The Insurer Paid A/R Report displays payments made by the insurer on behalf of the customer or UI.</div>
+            The <?= PAYER_LABEL ?> Paid A/R Report displays payments made by the <?= PAYER_LABEL ?> on behalf of the <?= $purchaser_label ?> or U<?= substr(PAYER_LABEL,0,1) ?>.</div>
             <div class="clearfix"></div>
             </div>
 
@@ -161,14 +162,14 @@ function newStatusChange(sel) {
 						<input name="endtime" type="text" style="width:100px" class="datepicker" value="<?php echo $endtime; ?>">
 
 					<label for="site_name" class="col-sm-1 control-label">
-						<span class="popover-examples list-inline" style="margin:0 5px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Search for invoice(s) by insurer."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
-						Insurer:
+						<span class="popover-examples list-inline" style="margin:0 5px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Search for invoice(s) by <?= PAYER_LABEL ?>."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
+						<?= PAYER_LABEL ?>:
 					</label>
 					<div class="col-sm-8" style="width:auto;">
-						<select data-placeholder="Choose a Insurer..." name="insurer" class="chosen-select-deselect form-control" width="380">
+						<select data-placeholder="Choose a <?= PAYER_LABEL ?>..." name="insurer" class="chosen-select-deselect form-control" width="380">
 							<option value="">Display All</option>
 							<?php
-								$query = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc,"SELECT contactid, first_name, last_name FROM contacts WHERE category='Insurer' AND deleted=0 AND `status`=1"),MYSQLI_ASSOC));
+								$query = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc,"SELECT contactid, first_name, last_name FROM contacts WHERE category IN ('".implode("','",$payer_config)."') AND deleted=0 AND `status`=1"),MYSQLI_ASSOC));
 								foreach($query as $id) {
 									$selected = '';
 									$selected = $id == $insurer ? 'selected = "selected"' : '';
@@ -179,7 +180,7 @@ function newStatusChange(sel) {
 					</div>
 					
 					<label for="site_name" class="col-sm-1 control-label">
-						<span class="popover-examples list-inline" style="margin:0 5px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Search for invoice(s) by insurer."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
+						<span class="popover-examples list-inline" style="margin:0 5px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Search for invoice(s) by <?= PAYER_LABEL ?>."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
 						Paid Type:
 					</label>
 					<div class="col-sm-8" style="width:auto;">
@@ -197,8 +198,8 @@ function newStatusChange(sel) {
 				Invoice #:
 				<input name="invoice_no" type="text" class="form-control1" value="<?php echo $invoice_no; ?>">
 
-				<span class="popover-examples list-inline" style="margin:0 5px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Search by the generated UI #."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
-				UI #:
+				<span class="popover-examples list-inline" style="margin:0 5px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Search by the generated U<?= substr(PAYER_LABEL,0,1) ?> #."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
+				U<?= substr(PAYER_LABEL,0,1) ?> #:
 				<input name="ui_no" type="text" class="form-control1" value="<?php echo $ui_no; ?>">
 			</div>
 
@@ -243,10 +244,10 @@ function report_receivables($dbc, $starttime, $endtime, $table_style, $table_row
     $report_data .= '<table border="1px" class="table table-bordered" style="'.$table_style.'">';
     $report_data .= '<tr style="'.$table_row_style.'">
     <th>Invoice#</th>
-    <th>UI#</th>
+    <th>U'.substr(PAYER_LABEL,0,1).'#</th>
     <th>Service Date</th>
     <th>Invoice Date</th>
-    <th>Insurer</th>
+    <th>'.PAYER_LABEL.'</th>
     <th>Price</th>
     <th>Paid Type</th>
     <th>Number</th>

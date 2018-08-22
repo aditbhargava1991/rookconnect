@@ -34,6 +34,7 @@ function reports_tiles($dbc) {
             $_GET['type'] = $report_tabs[0];
         } ?>
 
+        <!-- Mobile View -->
         <div class="show-on-mob panel-group block-panels col-xs-12 form-horizontal" id="mobile_tabs">
             <?php if(in_array('operations',$report_tabs)) { ?>
                 <div class="panel panel-default">
@@ -97,7 +98,7 @@ function reports_tiles($dbc) {
                     </div>
 
                     <div id="collapse_marketing" class="panel-collapse collapse">
-                        <div class="panel-body" data-file-name="report_tiles.php?type=ar&mobile_view=true">
+                        <div class="panel-body" data-file-name="report_tiles.php?type=marketing&mobile_view=true">
                             Loading...
                         </div>
                     </div>
@@ -114,7 +115,7 @@ function reports_tiles($dbc) {
                     </div>
 
                     <div id="collapse_compensation" class="panel-collapse collapse">
-                        <div class="panel-body" data-file-name="report_tiles.php?type=ar&mobile_view=true">
+                        <div class="panel-body" data-file-name="report_tiles.php?type=compensation&mobile_view=true">
                             Loading...
                         </div>
                     </div>
@@ -131,7 +132,7 @@ function reports_tiles($dbc) {
                     </div>
 
                     <div id="collapse_pnl" class="panel-collapse collapse">
-                        <div class="panel-body" data-file-name="report_tiles.php?type=ar&mobile_view=true">
+                        <div class="panel-body" data-file-name="report_tiles.php?type=pnl&mobile_view=true">
                             Loading...
                         </div>
                     </div>
@@ -148,7 +149,7 @@ function reports_tiles($dbc) {
                     </div>
 
                     <div id="collapse_customer" class="panel-collapse collapse">
-                        <div class="panel-body" data-file-name="report_tiles.php?type=ar&mobile_view=true">
+                        <div class="panel-body" data-file-name="report_tiles.php?type=customer&mobile_view=true">
                             Loading...
                         </div>
                     </div>
@@ -165,7 +166,7 @@ function reports_tiles($dbc) {
                     </div>
 
                     <div id="collapse_staff" class="panel-collapse collapse">
-                        <div class="panel-body" data-file-name="report_tiles.php?type=ar&mobile_view=true">
+                        <div class="panel-body" data-file-name="report_tiles.php?type=staff&mobile_view=true">
                             Loading...
                         </div>
                     </div>
@@ -182,7 +183,7 @@ function reports_tiles($dbc) {
                     </div>
 
                     <div id="collapse_staff" class="panel-collapse collapse">
-                        <div class="panel-body" data-file-name="report_tiles.php?type=ar&mobile_view=true">
+                        <div class="panel-body" data-file-name="report_tiles.php?type=history&mobile_view=true">
                             Loading...
                         </div>
                     </div>
@@ -199,7 +200,7 @@ function reports_tiles($dbc) {
                     </div>
 
                     <div id="collapse_staff1" class="panel-collapse collapse">
-                        <div class="panel-body" data-file-name="report_tiles.php?type=ar&mobile_view=true">
+                        <div class="panel-body" data-file-name="report_tiles.php?type=estimates&mobile_view=true">
                             Loading...
                         </div>
                     </div>
@@ -207,6 +208,7 @@ function reports_tiles($dbc) {
             <?php } ?>
         </div>
 
+        <!-- Desktop View -->
     	<div class="tile-sidebar sidebar hide-titles-mob standard-collapsible">
             <ul>
 
@@ -310,12 +312,14 @@ function reports_tiles_content($dbc) {
             $('[name=select_report]').off('change').change(function() {
                 var panel = $(this).closest('.panel').find('.panel-body');
                 if(this.value != '') {
+                    var new_url = this.value;
                     $.ajax({
                         url: this.value+'&mobile_view=true',
                         method: 'POST',
                         response: 'html',
                         success: function(response) {
                             panel.html(response);
+                            window.history.replaceState(null, '', new_url);
                         }
                     });
                 }
@@ -329,19 +333,19 @@ function reports_tiles_content($dbc) {
             <select class="chosen-select-deselect" data-placeholder="Select Report" name="select_report">
                 <option></option>
                 <?php
-                    /* Hide Kristi from accessing Profit & Loss report on SEA (temp fix)
-                     * Code also added on report_profit_loss.php */
-                    $contactid = $_SESSION['contactid'];
-                    if ( $_SERVER['SERVER_NAME'] == 'sea-alberta.rookconnect.com' || $_SERVER['SERVER_NAME'] == 'sea-regina.rookconnect.com' || $_SERVER['SERVER_NAME'] == 'sea-saskatoon.rookconnect.com' || $_SERVER['SERVER_NAME'] == 'sea-vancouver.rookconnect.com' || $_SERVER['SERVER_NAME'] == 'sea.freshfocussoftware.com' ) {
-                        $results = mysqli_query ( $dbc, "SELECT `user_name` FROM `contacts` WHERE `contactid`='$contactid'");
-                        while ( $row = mysqli_fetch_assoc ( $results) ) {
-                            $user_name = $row[ 'user_name' ];
-                            if ( $user_name == 'kristi' ) {
-                                $sea_kristi = true;
-                                break;
-                            }
+                /* Hide Kristi from accessing Profit & Loss report on SEA (temp fix)
+                 * Code also added on report_profit_loss.php */
+                $contactid = $_SESSION['contactid'];
+                if ( $_SERVER['SERVER_NAME'] == 'sea-alberta.rookconnect.com' || $_SERVER['SERVER_NAME'] == 'sea-regina.rookconnect.com' || $_SERVER['SERVER_NAME'] == 'sea-saskatoon.rookconnect.com' || $_SERVER['SERVER_NAME'] == 'sea-vancouver.rookconnect.com' || $_SERVER['SERVER_NAME'] == 'sea.freshfocussoftware.com' ) {
+                    $results = mysqli_query ( $dbc, "SELECT `user_name` FROM `contacts` WHERE `contactid`='$contactid'");
+                    while ( $row = mysqli_fetch_assoc ( $results) ) {
+                        $user_name = $row[ 'user_name' ];
+                        if ( $user_name == 'kristi' ) {
+                            $sea_kristi = true;
+                            break;
                         }
                     }
+                }
 
                 $sorted_reports = [];
 
@@ -433,8 +437,10 @@ function reports_tiles_content($dbc) {
                         echo '<option data-file="'.$report[0].'" value="?type='.$report[2].'&report='.$report[1].'" '.($_GET['report'] == $report[1] ? 'selected' : '').'>'.$key.'</option>';
                     }
                 }
-                ?>
-        </select>
-    </div><div class="clearfix"></div>
-    <?php include('../Reports/'.$report_list[$_GET['report']][0]);
+            ?>
+            </select>
+        </div>
+        <div class="clearfix"></div>
+        <?php include('../Reports/'.$report_list[$_GET['report']][0]); ?>
+    </div><?php
 }

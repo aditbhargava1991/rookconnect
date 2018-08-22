@@ -126,7 +126,8 @@ function tile_data($dbc, $tile_name, $is_mobile = FALSE) {
 			case 'scrum': return ['link'=>"Scrum/scrum.php?category=All",'name'=>'Scrum']; break;
 			case 'communication': return ['link'=>"Communication/tasks.php?category=All",'name'=>'Communication Tasks']; break;
 			case 'communication_schedule': return ['link'=>"Communication Schedule/communication.php",'name'=>'Communication']; break;
-			case 'email_communication': return ['link'=>"Email Communication/email_communication.php?type=Internal",'name'=>'Email Communication']; break;
+			//case 'email_communication': return ['link'=>"Email Communication/email_communication.php?type=Internal",'name'=>'Email Communication']; break;
+			case 'email_communication': return ['link'=>"Email Communication/index.php",'name'=>'Email Communication']; break;
 			case 'phone_communication': return ['link'=>"Phone Communication/phone_communication.php?type=Internal",'name'=>'Phone Communication']; break;
 			case 'punch_card': return ['link'=>"Punch Card/punch_card.php?title=time_clock",'name'=>'Time Clock']; break;
 			case 'sign_in_time': return ['link'=>"Punch Card/punch_card.php?title=sign_in",'name'=>'Sign In']; break;

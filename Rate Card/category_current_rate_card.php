@@ -20,45 +20,47 @@
 		echo display_pagination($dbc, $count_sql, $pageNum, $rowsPerPage);
 		
 		// Table Headers ?>
-		<table class="table table-bordered">
-			<tr class="hidden-xs hidden-sm">
-				<th>Rate Card</th>
-				<th>Category</th>
-                <?php if(strpos($db_config, ',start_end_dates,') !== FALSE) { ?>
-                    <th>Start Date</th>
-                <?php } ?>
-                <?php if(strpos($db_config, ',start_end_dates,') !== FALSE) { ?>
-                    <th>End Date</th>
-                <?php } ?>
-                <?php if(strpos($db_config, ',alert_date,') !== FALSE) { ?>
-                    <th>Alert Date</th>
-                <?php } ?>
-                <?php if(strpos($db_config, ',alert_staff,') !== FALSE) { ?>
-                    <th>Alert Staff</th>
-                <?php } ?>
-                <?php if(strpos($db_config, ',created_by,') !== FALSE) { ?>
-                    <th>Created By</th>
-                <?php } ?>
-                <?php if(strpos($db_config, ',uom,') !== FALSE) { ?>
-                    <th>UOM</th>
-                <?php } ?>
-                <?php if(strpos($db_config, ',cost,') !== FALSE) { ?>
-                    <th>Cost</th>
-                <?php } ?>
-                <?php if(strpos($db_config, ',margin,') !== FALSE) { ?>
-                    <th>Profit %</th>
-                <?php } ?>
-                <?php if(strpos($db_config, ',profit,') !== FALSE) { ?>
-                    <th>Profit $</th>
-                <?php } ?>
-                <?php if(strpos($db_config, ',unit_price,') !== FALSE) { ?>
-                    <th>Price</th>
-                <?php } ?>
-                <?php if($edit_security == 1) { ?>
-                    <th>History</th>
-                    <th>Function</th>
-                <?php } ?>
-			</tr>
+		<table class="table table-bordered table-striped">
+            <thead>
+                <tr class="hidden-xs hidden-sm">
+                    <th>Rate Card</th>
+                    <th>Category</th>
+                    <?php if(strpos($db_config, ',start_end_dates,') !== FALSE) { ?>
+                        <th>Start Date</th>
+                    <?php } ?>
+                    <?php if(strpos($db_config, ',start_end_dates,') !== FALSE) { ?>
+                        <th>End Date</th>
+                    <?php } ?>
+                    <?php if(strpos($db_config, ',alert_date,') !== FALSE) { ?>
+                        <th>Alert Date</th>
+                    <?php } ?>
+                    <?php if(strpos($db_config, ',alert_staff,') !== FALSE) { ?>
+                        <th>Alert Staff</th>
+                    <?php } ?>
+                    <?php if(strpos($db_config, ',created_by,') !== FALSE) { ?>
+                        <th>Created By</th>
+                    <?php } ?>
+                    <?php if(strpos($db_config, ',uom,') !== FALSE) { ?>
+                        <th>UOM</th>
+                    <?php } ?>
+                    <?php if(strpos($db_config, ',cost,') !== FALSE) { ?>
+                        <th>Cost</th>
+                    <?php } ?>
+                    <?php if(strpos($db_config, ',margin,') !== FALSE) { ?>
+                        <th>Profit %</th>
+                    <?php } ?>
+                    <?php if(strpos($db_config, ',profit,') !== FALSE) { ?>
+                        <th>Profit $</th>
+                    <?php } ?>
+                    <?php if(strpos($db_config, ',unit_price,') !== FALSE) { ?>
+                        <th>Price</th>
+                    <?php } ?>
+                    <?php if($edit_security == 1) { ?>
+                        <th>History</th>
+                        <th>Function</th>
+                    <?php } ?>
+                </tr>
+            </thead>
 		<?php // Table Rows
 		while($row = mysqli_fetch_array($result)) {
 			echo '<tr>'; ?>

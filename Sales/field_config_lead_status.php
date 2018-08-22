@@ -15,7 +15,7 @@ function saveFields() {
 
 	$.ajax({    //create an ajax request to load_page.php
 		type: "GET",
-		url: 'sales_ajax_all.php?action=setting_lead_status&sales_lead_status='+$('[name=sales_lead_status]').val()+'&lead_status_won='+$('[name=lead_status_won]').val()+'&lead_status_lost='+$('[name=lead_status_lost]').val()+'&lead_convert_to='+$('[name=lead_convert_to]').val(),
+		url: 'sales_ajax_all.php?action=setting_lead_status&sales_lead_status='+$('[name=sales_lead_status]').val()+'&lead_status_won='+$('[name=lead_status_won]').val()+'&lead_status_lost='+$('[name=lead_status_lost]').val()+'&lead_status_retained='+$('[name=lead_status_retained]').val()+'&lead_convert_to='+$('[name=lead_convert_to]').val(),
 		dataType: "html",   //expect html to be returned
 		success: function(response){
 		}
@@ -55,6 +55,18 @@ function saveFields() {
                     <option value="">Select Status</option><?php
                     foreach($lead_statuses as $value):
                         $selected = ($get_config_lost_status == $value) ? 'selected="selected"' : ''; ?>
+                        <option <?= $selected; ?> value="<?= $value; ?>"><?= $value; ?></option><?php
+                    endforeach; ?>
+                </select>
+            </div>
+
+            <label for="company_name" class="col-sm-4 control-label"><span class="popover-examples list-inline"><a style="margin:0 5px 0 0;" data-toggle="tooltip" data-placement="top" title="Select the Lead Status that will be used for successful sales leads that will be retained for future use."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span> Retained Successful <?= SALES_NOUN ?> Status:</label>
+            <div class="col-sm-8"><?php
+                $get_config_retained = get_config($dbc, 'lead_status_retained'); ?>
+                <select name="lead_status_retained" class="form-control">
+                    <option value="">Select Status</option><?php
+                    foreach($lead_statuses as $value):
+                        $selected = ($get_config_retained == $value) ? 'selected="selected"' : ''; ?>
                         <option <?= $selected; ?> value="<?= $value; ?>"><?= $value; ?></option><?php
                     endforeach; ?>
                 </select>

@@ -438,80 +438,89 @@
 } else if ($field_option == "Account Statement") {
 	$tmp = $contactid;
 	$contactid = $_GET['edit']; ?>
-	<script>
-	function update_statement_table() {
-		var injuryid = $('[name=statement_search_injury]').val();
-		var from_date = $('[name=statement_search_from]').val();
-		var to_date = $('[name=statement_search_to]').val();
-		var options = $('[name="statement_options[]"]:checked').map( function() { return this.value; }).get().join(",");
-		$.ajax({
-			url: '../Contacts/add_contact_ajax.php?fill=statement',
-			method: 'POST',
-			data: { contact: '<?= $contactid ?>', injury: injuryid, from: from_date, to: to_date, option_list: options },
-			success: function(response) {
-				$('#statement_table_body').html(response);
-			}
-		});
-	}
-	function reset_statement_table() {
-		$('[name=statement_search_injury] option:selected').removeAttr('selected');
-		$('[name=statement_search_injury]').trigger('change.select2');
-		$('[name=statement_search_from]').val('');
-		$('[name=statement_search_to]').val('');
-		$('[name="statement_options[]"]:checked').removeAttr('checked');
-		$('[name="statement_options[]"][value="outstanding"]').prop('checked','checked');
-		$('[name="statement_options[]"][value="paid"]').prop('checked','checked');
-		$('[name="statement_options[]"][value="payments"]').prop('checked','checked');
-		update_statement_table();
-	}
-	function print_statement_table() {
-		var injuryid = $('[name=statement_search_injury]').val();
-		var from_date = $('[name=statement_search_from]').val();
-		var to_date = $('[name=statement_search_to]').val();
-		var options = $('[name="statement_options[]"]:checked').map( function() { return this.value; }).get().join(",");
-		$.ajax({
-			url: '../Contacts/add_contact_ajax.php?fill=statement_pdf',
-			method: 'POST',
-			data: { contact: '<?= $contactid ?>', injury: injuryid, from: from_date, to: to_date, option_list: options },
-			success: function(response) {
-				window.open(response);
-			}
-		});
-	}
-	$(document).ready(function() {
-		update_statement_table();
-	});
-	</script>
+    <script>
+    function update_statement_table() {
+        var injuryid = $('[name=statement_search_injury]').val();
+        var from_date = $('[name=statement_search_from]').val();
+        var to_date = $('[name=statement_search_to]').val();
+        var options = $('[name="statement_options[]"]:checked').map( function() { return this.value; }).get().join(",");
+        $.ajax({
+            url: '../Contacts/add_contact_ajax.php?fill=statement',
+            method: 'POST',
+            data: { contact: '<?= $contactid ?>', injury: injuryid, from: from_date, to: to_date, option_list: options },
+            success: function(response) {
+                $('#statement_table_body').html(response);
+            }
+        });
+    }
+    <?php if($hide_filter_options) { } else { ?>
+        function reset_statement_table() {
+            $('[name=statement_search_injury] option:selected').removeAttr('selected');
+            $('[name=statement_search_injury]').trigger('change.select2');
+            $('[name=statement_search_from]').val('');
+            $('[name=statement_search_to]').val('');
+            $('[name="statement_options[]"]:checked').removeAttr('checked');
+            $('[name="statement_options[]"][value="outstanding"]').prop('checked','checked');
+            $('[name="statement_options[]"][value="paid"]').prop('checked','checked');
+            $('[name="statement_options[]"][value="payments"]').prop('checked','checked');
+            update_statement_table();
+        }
+        function print_statement_table() {
+            var injuryid = $('[name=statement_search_injury]').val();
+            var from_date = $('[name=statement_search_from]').val();
+            var to_date = $('[name=statement_search_to]').val();
+            var options = $('[name="statement_options[]"]:checked').map( function() { return this.value; }).get().join(",");
+            $.ajax({
+                url: '../Contacts/add_contact_ajax.php?fill=statement_pdf',
+                method: 'POST',
+                data: { contact: '<?= $contactid ?>', injury: injuryid, from: from_date, to: to_date, option_list: options },
+                success: function(response) {
+                    window.open(response);
+                }
+            });
+        }
+    <?php } ?>
+    $(document).ready(function() {
+        update_statement_table();
+    });
+    </script>
     <h3><?= get_contact($dbc, $contactid) ?> Account Statement</h3>
-	<div class="search-group">
-		<div class="form-group col-lg-9 col-md-8 col-sm-12 col-xs-12">
-			<div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
-				<div class="col-sm-4">
-					<label for="site_name" class="control-label">
-						<span class="popover-examples list-inline" style="margin:0 2px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Check the options to display for the statement."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
-						Include Invoices:</label>
-				</div>
-				<div class="col-sm-8">
-					<label class="form-checkbox"><input type="checkbox" name="statement_options[]" value="saved"> Include Saved (Unbilled) Invoices</label>
-					<label class="form-checkbox"><input type="checkbox" checked name="statement_options[]" value="outstanding"> Include Oustanding Invoices</label>
-					<label class="form-checkbox"><input type="checkbox" checked name="statement_options[]" value="paid"> Include Paid Invoices</label>
-					<label class="form-checkbox"><input type="checkbox" checked name="statement_options[]" value="payments"> Show Payment Transactions</label>
-					<label class="form-checkbox"><input type="checkbox" checked name="statement_options[]" value="insurer"> Show Insurer Transactions</label>
-				</div>
-			</div>
-		</div>
-		<div class="form-group col-lg-3 col-md-4 col-sm-12 col-xs-12">
-			<div style="display:inline-block; padding: 0 0.5em;">
-				<span class="popover-examples list-inline"><a data-toggle="tooltip" data-placement="top" title="Click here after you have selected your options."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
-				<button name="statement_update" value="Search" class="btn brand-btn mobile-block" onclick="update_statement_table(); return false;">Search</button>
-				<span class="popover-examples list-inline"><a data-toggle="tooltip" data-placement="top" title="Click to refresh the table and display the full invoice."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
-				<button name="statement_reset" value="Display All" class="btn brand-btn mobile-block" onclick="reset_statement_table(); return false;">Display All</button><br />
-				<span class="popover-examples list-inline"><a data-toggle="tooltip" data-placement="top" title="Click to download the PDF of the Account Statement."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
-				<button name="statement_pdf" value="PDF" class="btn brand-btn mobile-block" onclick="print_statement_table(); return false;">Print Statement</button>
-			</div>
-		</div>
-		<div class="clearfix"></div>
-	</div>
+    <?php if($hide_filter_options) { ?>
+        <input type="checkbox" checked name="statement_options[]" value="outstanding" style="display:none;">
+        <input type="checkbox" checked name="statement_options[]" value="paid" style="display:none;">
+        <input type="checkbox" checked name="statement_options[]" value="payments" style="display:none;">
+        <input type="checkbox" checked name="statement_options[]" value="insurer" style="display:none;">
+    <?php } else { ?>
+        <div class="search-group">
+            <div class="form-group col-lg-9 col-md-8 col-sm-12 col-xs-12">
+                <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+                    <div class="col-sm-4">
+                        <label for="site_name" class="control-label">
+                            <span class="popover-examples list-inline" style="margin:0 2px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Check the options to display for the statement."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
+                            Include Invoices:</label>
+                    </div>
+                    <div class="col-sm-8">
+                        <label class="form-checkbox"><input type="checkbox" name="statement_options[]" value="saved"> Include Saved (Unbilled) Invoices</label>
+                        <label class="form-checkbox"><input type="checkbox" checked name="statement_options[]" value="outstanding"> Include Oustanding Invoices</label>
+                        <label class="form-checkbox"><input type="checkbox" checked name="statement_options[]" value="paid"> Include Paid Invoices</label>
+                        <label class="form-checkbox"><input type="checkbox" checked name="statement_options[]" value="payments"> Show Payment Transactions</label>
+                        <label class="form-checkbox"><input type="checkbox" checked name="statement_options[]" value="insurer"> Show Insurer Transactions</label>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group col-lg-3 col-md-4 col-sm-12 col-xs-12">
+                <div style="display:inline-block; padding: 0 0.5em;">
+                    <span class="popover-examples list-inline"><a data-toggle="tooltip" data-placement="top" title="Click here after you have selected your options."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
+                    <button name="statement_update" value="Search" class="btn brand-btn mobile-block" onclick="update_statement_table(); return false;">Search</button>
+                    <span class="popover-examples list-inline"><a data-toggle="tooltip" data-placement="top" title="Click to refresh the table and display the full invoice."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
+                    <button name="statement_reset" value="Display All" class="btn brand-btn mobile-block" onclick="reset_statement_table(); return false;">Display All</button><br />
+                    <span class="popover-examples list-inline"><a data-toggle="tooltip" data-placement="top" title="Click to download the PDF of the Account Statement."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
+                    <button name="statement_pdf" value="PDF" class="btn brand-btn mobile-block" onclick="print_statement_table(); return false;">Print Statement</button>
+                </div>
+            </div>
+            <div class="clearfix"></div>
+        </div>
+    <?php } ?>
 	<div id="no-more-tables">
 		<table border="1px" class="table table-bordered">
 			<tr class="hidden-sm hidden-xs">

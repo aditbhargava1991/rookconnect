@@ -18,7 +18,10 @@ if($serviceid > 0 && isset($_POST['ratecardid'])) {
 		$profit_dollar = filter_var($_POST['profit_dollar'][$i],FILTER_SANITIZE_STRING);
 		$price = filter_var($_POST['price'][$i],FILTER_SANITIZE_STRING);
 		if($serviceid > 0 && $cost > 0) {
+			$before_change = capture_before_change($dbc, 'services', 'cost', 'serviceid', $serviceid);
 			$dbc->query("UPDATE `services` SET `cost`='$cost' WHERE `serviceid`='$serviceid'");
+    	$history = capture_after_change('cost', $cost);
+			add_update_history($dbc, 'service_history', $history, '', $before_change);
 		}
 
 		if(!empty($start_date.$end_date.$alert_date.$alert_staff.$uom.$cost.$profit_percent.$profit_dollar.$price)) {
@@ -40,4 +43,5 @@ if($serviceid > 0 && isset($_POST['ratecardid'])) {
 	$rate_cards_keep = "'".implode("','", $rate_cards_keep)."'";
     $date_of_archival = date('Y-m-d');
     mysqli_query($dbc, "UPDATE `company_rate_card` SET `deleted` = 1, `date_of_archival` = '$date_of_archival' WHERE `item_id` = '$serviceid' AND `tile_name` LIKE 'Services' AND `companyrcid` NOT IN ($rate_cards_keep)");
+
 }

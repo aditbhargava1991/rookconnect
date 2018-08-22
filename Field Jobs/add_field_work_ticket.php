@@ -1159,8 +1159,9 @@ if (isset($_POST['submit'])) {
 	$total_cost = round($grand_total, 2);
     $sub_total_wt = round($sub_total, 2);
     $gst_wt = round($gst, 2);
+    $subextra_total = round(number_format((float)($other_subtotal+$sub_pay_rate_card), 2, '.', ''), 2);
 
-	$query_update_wt = "UPDATE `field_work_ticket` SET `crew_total` = '$crew_total', `equip_total` = '$equip_total', `material_total` = '$material_subtotal', `subextra_total` = '$sub_pay_rate_card',    `sub_total` = '$sub_total_wt', `gst` = '$gst_wt', `total_cost` = '$total_cost' WHERE `workticketid` = '$in_number'";
+	$query_update_wt = "UPDATE `field_work_ticket` SET `crew_total` = '$crew_total', `equip_total` = '$equip_total', `material_total` = '$material_subtotal', `subextra_total` = '$subextra_total',    `sub_total` = '$sub_total_wt', `gst` = '$gst_wt', `total_cost` = '$total_cost' WHERE `workticketid` = '$in_number'";
 	$result_update_wt	= mysqli_query($dbc, $query_update_wt);
 
 	echo '<script type="text/javascript"> window.location.replace("field_work_ticket.php"); </script>';

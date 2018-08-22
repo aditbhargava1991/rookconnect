@@ -52,7 +52,7 @@ if(isset($_POST['upload_file']) && !empty($_FILES['csv_file']['tmp_name'])) {
 	alert('The CSV has been imported!');
 	function get_details() {
 		equip_scroll = $('.equip_list').scrollTop();
-		$('.equip_list').html('<h4>Loading Equipment...</h4>').load(encodeURI('assign_equipment_list.php?date=<?= $date ?>&region=<?= $region ?>&classification=<?= $classification ?>'));
+		$('.equip_list').html('<h4>Loading Equipment...</h4>').load(encodeURI('assign_equipment_list.php?date=<?= $date ?>&region=<?= $region ?>&classification=<?= $classification ?>&staff_only=1'));
 		$('.ticket_list').html('<h4>Loading <?= TICKET_TILE ?>...</h4>').load(encodeURI('assign_imported_tickets.php?unassign_type=<?= $ticket_type ?>&ids='+$('.ticket_list').data('ids')), function() { setTicketAssign(); });
 	}
 	var ticketid = '';

@@ -576,6 +576,7 @@ function saveFieldMethod(field) {
 						}
 					}
 					if(response > 0) {
+						$('[name=contactid]').first().change();
 						$('[name="status"]').change();
 						if(table_name == 'contacts' && field_name == 'site_name') {
 							$('[name=siteid],[name="siteid[]"]').find('option[value="MANUAL"]').prop('selected', false);
@@ -712,7 +713,7 @@ function saveFieldMethod(field) {
 					} else if(field_name == 'sign_off_signature') {
 						$.ajax({
 							async: false,
-							url: '../Ticket/ticket_ajax_all.php?action=complete&ticketid='+current_ticketid+($('[name=complete_force]').val() > 0 ? '&force=true' : ''),
+							url: '../Ticket/ticket_ajax_all.php?action=complete&ticketid='+current_ticketid+($('[name=complete_force]').val() > 0 || finishing_ticket ? '&force=true' : ''),
 							dataType: 'json',
 							success: function(response) {
 								alert(response.message);
@@ -1510,7 +1511,7 @@ function reloadTab(name) {
 	}
 }
 function reload_billing() {
-	$('#collapse_billing,#tab_section_ticket_billing').load('../Ticket/edit_ticket_tab.php?tab=ticket_billing&ticketid='+ticketid, function() {
+	$('#collapse_billing .panel-body,#tab_section_ticket_billing').load('../Ticket/edit_ticket_tab.php?tab=ticket_billing&ticketid='+ticketid, function() {
 		setSave();
 		initSelectOnChanges();
 		initInputs('#collapse_billing');
@@ -1659,11 +1660,25 @@ function reload_service_checklist() {
 			initInputs('.service_checklist');
 			initSelectOnChanges();
 			calculateTimeEstimate();
+			reload_hidden_services();
+		}
+	});
+}
+function reload_hidden_services() {
+	destroyInputs($('.hidden_services'));
+	$.ajax({
+		url: '../Ticket/add_ticket_info_service.php?ticketid='+ticketid+'&action_mode='+$('#action_mode').val()+'&reload_hidden_services=1',
+		dataType: 'html',
+		success: function(response) {
+			$('.hidden_services').html(response);
+			initInputs('.hidden_services');
+			initSelectOnChanges();
+			calculateTimeEstimate();
 		}
 	});
 }
 function reload_service_extra_billing() {
-	$('#collapse_ticket_service_extra_billing,#tab_section_ticket_service_extra_billing').load('../Ticket/edit_ticket_tab.php?tab=ticket_service_extra_billing&ticketid='+ticketid, function() {
+	$('#collapse_ticket_service_extra_billing .panel-body,#tab_section_ticket_service_extra_billing').load('../Ticket/edit_ticket_tab.php?tab=ticket_service_extra_billing&ticketid='+ticketid, function() {
 		setSave();
 		initSelectOnChanges();
 		initInputs('#collapse_ticket_service_extra_billing');
@@ -1671,7 +1686,7 @@ function reload_service_extra_billing() {
 	});
 }
 function reload_contact_notes() {
-	$('#collapse_ticket_contact_notes,#tab_section_ticket_contact_notes').load('../Ticket/edit_ticket_tab.php?tab=ticket_contact_notes&ticketid='+ticketid, function() {
+	$('#collapse_ticket_contact_notes .panel-body,#tab_section_ticket_contact_notes').load('../Ticket/edit_ticket_tab.php?tab=ticket_contact_notes&ticketid='+ticketid, function() {
 		setSave();
 		initSelectOnChanges();
 		initInputs('#collapse_ticket_contact_notes');
@@ -1679,7 +1694,7 @@ function reload_contact_notes() {
 	});
 }
 function reload_site() {
-	$('#collapse_ticket_location,#tab_section_ticket_location').load('../Ticket/edit_ticket_tab.php?tab=ticket_location&ticketid='+ticketid, function() {
+	$('#collapse_ticket_location .panel-body,#tab_section_ticket_location').load('../Ticket/edit_ticket_tab.php?tab=ticket_location&ticketid='+ticketid, function() {
 		setSave();
 		initSelectOnChanges();
 		initInputs('#collapse_ticket_contact_notes');
@@ -1687,7 +1702,8 @@ function reload_site() {
 	});
 }
 function reload_complete() {
-	$('#collapse_ticket_complete,#tab_section_ticket_complete').load('../Ticket/edit_ticket_tab.php?tab=ticket_complete&ticketid='+ticketid, function() {
+	destroyInputs($('#collapse_ticket_complete,#tab_section_ticket_complete'));
+	$('#collapse_ticket_complete .panel-body,#tab_section_ticket_complete').load('../Ticket/edit_ticket_tab.php?tab=ticket_complete&ticketid='+ticketid, function() {
 		setSave();
 		initSelectOnChanges();
 		initInputs('#collapse_ticket_complete');
@@ -2508,6 +2524,16 @@ function checkoutAll(button) {
 		finishing_ticket = true;
 	}
 	reload_summary();
+	$('[name="summary_signature"]').each(function() {
+		if(this.value != "") {
+			$('[name="summary_signature"][value=""]').val(this.value);
+		}
+	});
+	$('[name="sign_off_signature"]').each(function() {
+		if(this.value != "") {
+			$('[name="sign_off_signature"][value=""]').val(this.value);
+		}
+	});
 	if($(button).data('require-signature') != undefined && $(button).data('require-signature') == 1 && ($('[name="summary_signature"]').val() == undefined || $('[name="summary_signature"]').val() == '') && ($('[name="sign_off_signature"]').val() == undefined || $('[name="sign_off_signature"]').val() == '')) {
 		alert("A signature is required.");
 		finishing_ticket = false;

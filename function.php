@@ -2580,6 +2580,10 @@ function sort_contacts_query($contact_query, $sort_order = 'auto') {
     		if($contact['full_name'] == '') {
     			$contact['full_name'] = '-';
     		}
+    		$contact['person_name'] = trim($contact['first_name'].' '.$contact['last_name']);
+    		if($contact['person_name'] == '') {
+    			$contact['person_name'] = '-';
+    		}
 
     		$sorted[$key] = $contact;
         }

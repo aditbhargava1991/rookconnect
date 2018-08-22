@@ -42,9 +42,15 @@ if (isset($_POST['expense_submit'])) {
 			$sql_expense = "UPDATE `expense` SET `expense_for`='$expense_for', `contact`='$contact', `staff`='$staff', `category`='$category', `title`='$title', `description`='$description', `ex_date`='$ex_date', `ex_file`='".filter_var($ex_file[$i],FILTER_SANITIZE_STRING)."', `type`='$type',
 				`day_expense`='$day_expense', `amount`='$amount', `balance`='$balance', `pst`='$pst', `gst`='$gst', `total`='$total', `status`='$status', `comments`=CONCAT(IF(IFNULL(`comments`,'') = '', '', CONCAT(`comments`,'<br />')),'$comments')
 				WHERE `expenseid`='".$_GET['expenseid']."'";
+        $before_change = "";
+        $history = "Expense entry has been updated. <br />";
+    	  add_update_history($dbc, 'expenses_history', $history, '', $before_change);
 		} else {
 			$sql_expense = "INSERT INTO `expense` (`expense_for`, `contact`, `staff`, `category`, `title`, `description`, `ex_date`, `ex_file`, `type`, `day_expense`, `amount`, `balance`, `pst`, `gst`, `total`, `status`, `comments`)
 				VALUES ('$expense_for', '$contact', '$staff', '$category', '$title', '$description', '$ex_date', '".filter_var($ex_file[$i],FILTER_SANITIZE_STRING)."', '$type', '$day_expense', '$amount', '$balance', '$pst', '$gst', '$total', '$status', '$comments')";
+        $before_change = "";
+        $history = "Expense entry has been added. <br />";
+    	  add_update_history($dbc, 'expenses_history', $history, '', $before_change);
 		}
         $result_expense = mysqli_query($dbc, $sql_expense);
     }

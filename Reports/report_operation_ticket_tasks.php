@@ -71,7 +71,7 @@ if (isset($_GET['printpdf'])) {
 	$pdf->SetFooterMargin(PDF_MARGIN_FOOTER);
 	$pdf->SetAutoPageBreak(TRUE, PDF_MARGIN_BOTTOM);
 
-	foreach(report_output($dbc, $starttimepdf, $endtimepdf, $createstartpdf, $createendpdf, $businessidpdf, $siteidpdf, $ticketidpdf, $projectidpdf, $hide_staffpdf, $hide_wopdf, $disable_staffpdf, 'padding:3px; border:1px solid black;', '', '', 'print') as $html) {
+	foreach(report_output($dbc, $starttimepdf, $endtimepdf, $createstartpdf, $createendpdf, $businessidpdf, $siteidpdf, $ticketidpdf, $extra_ticketpdf, $projectidpdf, $hide_staffpdf, $hide_wopdf, $disable_staffpdf, 'padding:3px; border:1px solid black;', '', '', 'print') as $html) {
 		$pdf->AddPage('L','LETTER');
 		$pdf->SetFont('helvetica','',9);
 		$pdf->writeHTML($html, true, false, true, false, '');
@@ -85,6 +85,7 @@ if (isset($_GET['printpdf'])) {
 	<script type="text/javascript" language="Javascript">
 	window.open('Download/activity_report_<?= $today_date ?>.pdf', 'fullscreen=yes');
 	</script><?php
+	$_GET['search_email_submit'] = 1;
     $starttime = $starttimepdf;
     $endtime = $endtimepdf;
     $createstart = $createstartpdf;
@@ -355,6 +356,7 @@ function report_output($dbc, $starttime, $endtime, $createstart, $createend, $bu
 	$cur_row = 0;
 	if(count($site_list) > 0) {
 		foreach($site_list as $siteid) {
+			$report_data = '';
 			$siteid = filter_var($siteid,FILTER_SANITIZE_STRING);
 			$site_head = $report_head;
 			foreach(sort_contacts_query($dbc->query("SELECT `display_name`,`site_name`,`mailing_address`,`city`,`province`,`zip_code`,`ship_to_address`,`ship_city`,`ship_state`,`ship_zip`,`business_street`,`business_city`,`business_state`,`business_zip` FROM `contacts` WHERE `contactid`='$siteid'")) as $site) {

@@ -4,7 +4,7 @@ include_once('../Ticket/field_list.php');
 if(!empty($_GET['reload_table'])) {
 	ob_clean();
 	$ticketid = $_GET['ticketid'];
-	$get_ticket = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticket` = '$ticketid'"));
+	$get_ticket = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticketid` = '$ticketid'"));
 	$value_config = get_field_config($dbc, 'tickets');
 	if($get_ticket['ticket_type'] != '') {
 		$value_config .= get_config($dbc, 'ticket_fields_'.$get_ticket['ticket_type']).',';

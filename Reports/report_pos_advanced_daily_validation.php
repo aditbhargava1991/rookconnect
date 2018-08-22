@@ -185,16 +185,16 @@ function report_daily_validation($dbc, $starttime, $endtime, $table_style, $tabl
             }
 
             $report_data .= '<tr nobr="true">';
-                $report_data .= '<th colspan="3">Total Invoices : '.$total.'</th>';
-                $report_data .= '<th style="text-align:right">' . number_format($sub_total, 2) . '</th>';
-                $report_data .= '<th style="text-align:right">' . number_format($discount_value, 2) . '</th>';
-                $report_data .= '<th style="text-align:right">' . number_format($delivery, 2) . '</th>';
-                $report_data .= '<th style="text-align:right">' . number_format($assembly, 2) . '</th>';
-                $report_data .= '<th style="text-align:right">' . number_format($total_before_tax, 2) . '</th>';
-                $report_data .= '<th style="text-align:right">' . number_format($gst, 2) . '</th>';
-                $report_data .= '<th style="text-align:right">' . number_format($pst, 2) . '</th>';
-                $report_data .= '<th style="text-align:right">' . number_format($total_price, 2) . '</th>';
-                $report_data .= '<th>&nbsp;</th>';
+                $report_data .= '<td colspan="3"><b>Total Invoices : '.$total.'</b></td>';
+                $report_data .= '<td style="text-align:right" data-title="Sub Total"><b>' . number_format($sub_total, 2) . '</b></td>';
+                $report_data .= '<td style="text-align:right" data-title="Discount"><b>' . number_format($discount_value, 2) . '</b></td>';
+                $report_data .= '<td style="text-align:right" data-title="Delivery"><b>' . number_format($delivery, 2) . '</b></td>';
+                $report_data .= '<td style="text-align:right" data-title="Assembly"><b>' . number_format($assembly, 2) . '</b></td>';
+                $report_data .= '<td style="text-align:right" data-title="Total Before Tax"><b>' . number_format($total_before_tax, 2) . '</b></td>';
+                $report_data .= '<td style="text-align:right" data-title="GST"><b>' . number_format($gst, 2) . '</b></td>';
+                $report_data .= '<td style="text-align:right" data-title="PST"><b>' . number_format($pst, 2) . '</b></td>';
+                $report_data .= '<td style="text-align:right" data-title="Total"><b>' . number_format($total_price, 2) . '</b></td>';
+                $report_data .= '<td>&nbsp;</td>';
             $report_data .= "</tr>";
             $report_data .= '</table>';
         }

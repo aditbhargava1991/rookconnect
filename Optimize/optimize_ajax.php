@@ -61,3 +61,16 @@ else if($_GET['action'] == 'assign_ticket_deliveries') {
 		$start_time = date('H:i',strtotime($start_time.' + '.$increment));
 	}
 }
+else if($_GET['action'] == 'archive') {
+    $id = filter_var($_POST['id'],FILTER_SANITIZE_STRING);
+    $field = filter_var($_POST['field'],FILTER_SANITIZE_STRING);
+    $table = filter_var($_POST['table'],FILTER_SANITIZE_STRING);
+    if($table == 'tickets' && $field == 'ticketid') {
+        $dbc->query("UPDATE `ticket_schedule` SET `deleted`=1 WHERE `$field`='$id'");
+        $ticketid = $id;
+    } else {
+        $ticketid = $dbc->query("SELECT `ticketid` FROM `$table` WHERE `$field`='$id'")->fetch_array()[0];
+    }
+    $dbc->query("UPDATE `$table` SET `deleted`=0 WHERE `$field`='$id'");
+    $dbc->query("INSERT INTO `ticket_history` (`ticketid`,`userid`,`src`,`description`) VALUES ('$ticketid','".$_SESSION['contactid']."','Trip Optimizer','Row #$id of $table archived')");
+}

@@ -17,7 +17,7 @@ $salesid = filter_var($_GET['id'],FILTER_SANITIZE_STRING); ?>
 						<tr>
 							<td data-title="User"><?= $row['updated_by'] ?></td>
 							<td data-title="Date"><?= date('Y-m-d', strtotime($row['created_date'])) ?></td>
-							<td data-title="Description"><?= $row['history'] ?></td>
+							<td data-title="Description"><?= html_entity_decode($row['history']) ?></td>
 						</tr>
 					<?php } ?>
 				</table>

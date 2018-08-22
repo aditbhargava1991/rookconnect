@@ -255,16 +255,33 @@ foreach($security_levels as $security_level) {
 								include('../Contacts/contact_profile.php');
 								echo '<input type="hidden" name="overview_page" value="1">';
 							} else {
-								$query_main = mysqli_query($dbc,"SELECT accordion, subtab FROM field_config_contacts WHERE tab='Staff' AND `accordion` IS NOT NULL ORDER BY IFNULL(`subtab`,'') = '$subtab', IFNULL(`order`,`configcontactid`)");
+								$staff_cat_query = [];
+								if(!empty($staff_category)) {
+									foreach(array_filter(explode(',', $staff_category)) as $staff_cat) {
+										$staff_cat_query[] = " `tab`='Staff_".config_safe_str($staff_cat)."'";
+									}
+								}
+								if(!empty($staff_cat_query)) {
+									$staff_cat_query = " OR ".implode(" OR ", $staff_cat_query);
+								} else {
+									$staff_cat_query = "";
+								}
+								$query_main = mysqli_query($dbc,"SELECT accordion, subtab, tab FROM field_config_contacts `main_table` WHERE (tab='Staff' ".$staff_cat_query.") AND `accordion` IS NOT NULL AND (`tab` = 'Staff' OR `accordion` NOT IN (SELECT `accordion` FROM `field_config_contacts` `other_table` WHERE `tab` = 'Staff' AND IFNULL(`accordion`,'') != '' AND `main_table`.`subtab` = `other_table`.`subtab`)) ORDER BY IFNULL(`subtab`,'') = '$subtab', IFNULL(`order`,`configcontactid`)");
 								$field_exists = [];
 
 								$j=0;
 								while($row_main = mysqli_fetch_array($query_main)) {
 									$accordion = $row_main['accordion'];
 									$this_tab = $row_main['subtab'];
-									$get_field_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT contacts FROM field_config_contacts WHERE tab='Staff' AND subtab='$this_tab' AND accordion='$accordion'"));
+									$get_field_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT contacts FROM field_config_contacts WHERE tab='".$row_main['tab']."' AND subtab='$this_tab' AND accordion='$accordion'"));
 
 									$value_config = explode(',',$get_field_config['contacts']);
+									if(!empty($staff_category) && $row_main['tab'] == 'Staff') {
+										foreach(array_filter(explode(',', $staff_category)) as $staff_cat) {
+											$cat_value_config = explode(',',mysqli_fetch_assoc(mysqli_query($dbc,"SELECT contacts FROM field_config_contacts WHERE tab='Staff_".config_safe_str($staff_cat)."' AND subtab='$this_tab' AND accordion='$accordion'"))['contacts']);
+											$value_config = array_merge($value_config, $cat_value_config);
+										}
+									}
 
 									foreach($value_config as $value_i => $value_field) {
 										if(in_array($value_field, $field_exists)) {

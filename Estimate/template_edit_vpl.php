@@ -11,6 +11,9 @@ if(!empty($_POST['submit'])) {
         	$sort_order++;
             $query_insert = "INSERT INTO `estimate_template_lines` (`heading_id`, `src_table`, `src_id`, `qty`, `sort_order`, `product_pricing`) VALUES ('$heading_id', 'vpl', '$inventoryid', '$quantity', '$sort_order', '$product_pricing')";
             mysqli_query($dbc, $query_insert);
+						$before_change = '';
+						$history = "Estimates template line entry has been added. <br />";
+						add_update_history($dbc, 'estimates_history', $history, '', $before_change);
         }
     }
 }

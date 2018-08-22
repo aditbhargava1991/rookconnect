@@ -74,11 +74,12 @@ function waiting_on_collection(sel) {
 </head>
 <body>
 <?php include_once ('../navigation.php');
-?>
+$payer_config = explode(',',get_config($dbc, 'invoice_payer_contact'));
+define('PAYER_LABEL', count($payer_config) > 1 ? 'Third Party' : $payer_config[0]); ?>
 
 <div class="container triple-pad-bottom">
     <div class="row">
-        <h2>UI Invoice Report</h2>
+        <h2>U<?= substr(PAYER_LABEL,0,1) ?> Invoice Report</h2>
         <?php if(config_visible_function($dbc, (FOLDER_NAME == 'posadvanced' ? 'posadvanced' : 'check_out')) == 1) {
             echo '<a href="field_config_invoice.php" class="mobile-block pull-right "><img style="width: 50px;" title="Tile Settings" src="../img/icons/settings-4.png" class="settings-classic wiggle-me"></a>';
         } ?>
@@ -90,7 +91,7 @@ function waiting_on_collection(sel) {
             <div class="notice double-gap-bottom popover-examples">
             <div class="col-sm-1 notice-icon"><img src="<?= WEBSITE_URL; ?>/img/info.png" class="wiggle-me" width="25"></div>
             <div class="col-sm-11"><span class="notice-name">NOTE:</span>
-            UI Reports are grouped receivables (this tab displays the groups and their total amounts). </div>
+            U<?= substr(PAYER_LABEL,0,1) ?> Reports are grouped receivables (this tab displays the groups and their total amounts). </div>
             <div class="clearfix"></div>
             </div>
 
@@ -121,14 +122,14 @@ function waiting_on_collection(sel) {
 
             <div class="form-group">
                 <label for="site_name" class="col-sm-2 control-label">
-					<span class="popover-examples list-inline" style="margin:0 5px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Search for invoice(s) by insurer."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
-					Insurer:
+					<span class="popover-examples list-inline" style="margin:0 5px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Search for invoice(s) by <?= PAYER_LABEL ?>."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
+					<?= PAYER_LABEL ?>:
 				</label>
                 <div class="col-sm-8" style="width:auto">
-                    <select data-placeholder="Choose a Insurer..." name="insurer" class="chosen-select-deselect form-control" width="380">
+                    <select data-placeholder="Choose a <?= PAYER_LABEL ?>..." name="insurer" class="chosen-select-deselect form-control" width="380">
                         <option value="">Display All</option>
 						<?php
-							$query = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc,"SELECT contactid, first_name, last_name FROM contacts WHERE category='Insurer' AND deleted=0 AND `status`=1"),MYSQLI_ASSOC));
+							$query = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc,"SELECT contactid, first_name, last_name FROM contacts WHERE category IN ('".implode("','",$payer_config)."') AND deleted=0 AND `status`=1"),MYSQLI_ASSOC));
 							foreach($query as $id) {
 								$selected = '';
 								$selected = $id == $insurer ? 'selected = "selected"' : '';
@@ -142,12 +143,12 @@ function waiting_on_collection(sel) {
                 Invoice #:
                 <input name="invoice_no" type="text" class="form-control1" value="<?php echo $invoice_no; ?>">
 
-                <span class="popover-examples list-inline" style="margin:0 5px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Search by the generated UI #."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
-                UI #:
+                <span class="popover-examples list-inline" style="margin:0 5px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Search by the generated U<?= substr(PAYER_LABEL,0,1) ?> #."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
+                U<?= substr(PAYER_LABEL,0,1) ?> #:
                 <input name="ui_no" type="text" class="form-control1" value="<?php echo $ui_no; ?>">
 
-                <span class="popover-examples list-inline" style="margin:0 5px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Search by the total value of the generated UI."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
-                UI Total $:
+                <span class="popover-examples list-inline" style="margin:0 5px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Search by the total value of the generated U<?= substr(PAYER_LABEL,0,1) ?>."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
+                U<?= substr(PAYER_LABEL,0,1) ?> Total $:
                 <input name="ui_total" type="text" class="form-control1" value="<?php echo $ui_total; ?>">
 			<br><br>
 			<div style="text-align:center">
@@ -180,11 +181,11 @@ function report_receivables($dbc, $table_style, $table_row_style, $grand_total_s
 
     $report_data .= '<table border="1px" class="table table-bordered" style="'.$table_style.'">';
     $report_data .= '<tr style="'.$table_row_style.'">
-    <th>UI#</th>
+    <th>U'.substr(PAYER_LABEL,0,1).'#</th>
     <th>Invoice#</th>
     <th>Service Date</th>
     <th>Invoice Date</th>
-    <th>Insurer</th>
+    <th>'.PAYER_LABEL.'</th>
     <th>Amount Receivable</th>
     </tr>';
 

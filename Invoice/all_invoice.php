@@ -184,7 +184,7 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
 		<div class="notice double-gap-bottom popover-examples">
 			<div class="col-sm-1 notice-icon"><img src="<?= WEBSITE_URL; ?>/img/info.png" class="wiggle-me" width="25"></div>
 			<div class="col-sm-11"><span class="notice-name">NOTE:</span>
-			All invoices can be accessed, viewed in a PDF, emailed to the customer, refunded or archived from here. Invoices can be searched by customer name, invoice # or invoice date.</div>
+			All invoices can be accessed, viewed in a PDF, emailed to the <?= $purchaser_label ?>, refunded or archived from here. Invoices can be searched by <?= $purchaser_label ?> name, invoice # or invoice date.</div>
 			<div class="clearfix"></div>
 		</div>
         <?php
@@ -218,9 +218,9 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
             <div class="row">
                 <div class="col-sm-5">
                     <div class="row">
-                        <label class="col-sm-4">Search by Customer:</label>
+                        <label class="col-sm-4">Search by <?= $purchaser_label ?>:</label>
                         <div class="col-sm-8">
-                            <select data-placeholder="Select a Customer" name="search_user" id="search_user" class="chosen-select-deselect form-control" width="380">
+                            <select data-placeholder="Select <?= $purchaser_label ?>" name="search_user" id="search_user" class="chosen-select-deselect form-control" width="380">
                                 <option value=""></option><?php
                                 /* $query = mysqli_query($dbc,"SELECT distinct(patientid) FROM invoice WHERE deleted = 0 AND patientid != 0");
                                 while($row = mysqli_fetch_array($query)) { ?>
@@ -310,37 +310,44 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
                 //if($search_user == '' && $search_invoiceid == '' && $search_date == '') {
                 //    echo display_pagination($dbc, $query, $pageNum, $rowsPerPage);
                 //}
-                echo "<table border='2' cellpadding='10' class='table'>";
+                echo "<table border='2' cellpadding='10' class='table table-striped'>";
+                echo "<thead>";
                 echo "<tr class='hidden-xs'>";
                 echo "<th>Invoice #</th>
                 <th>Invoice Date</th>
-                <th>Customer</th>
+                <th>".$purchaser_label."</th>
                 <th>Total</th>
                 <th>Paid</th>
                 <th>Invoice PDF</th>
                 <th>Function</th>
-                </tr>";
+                </tr></thead>";
             } else {
                 //echo "<h2>No Record Found.</h2>";
             }
 
             $final_total = 0;
-            while($row = mysqli_fetch_array( $result ))
+            $src_row = false;
+            $src_ids = [];
+            while($src_row || $row = mysqli_fetch_array( $result ))
             {
+                if(!$src_row && in_array($row['invoiceid'],$src_ids)) {
+                    continue;
+                }
+                $src_row = false;
                 $patientid = $row['patientid'];
                 $invoiceid = $row['invoiceid'];
 
                 echo '<tr>';
 
-                echo '<td data-title="Invoice #">' . ($row['invoice_type'] == 'New' ? '#'.$row['invoiceid'] : $row['invoice_type'].' #'.$row['invoiceid'].'<br />For Invoice #'.$row['invoiceid_src']) . '</td>';
+                echo '<td data-title="Invoice #">' . ($row['invoice_type'] == 'New' ? '#'.$row['invoiceid'] : $row['invoice_type'].' #'.$row['invoiceid']).($row['invoiceid_src'] > 0 ? '<br />For Invoice #'.$row['invoiceid_src'] : '') . '</td>';
                 echo '<td data-title="Date">' . $row['invoice_date'] . '</td>';
 
                 if($row['patientid'] != 0) {
 					//echo '<td><a class="iframe_open" id="'.$row['patientid'].'">'.get_contact($dbc, $row['patientid']). '</a></td>';
-					echo '<td data-title="Customer"><a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/'.CONTACTS_TILE.'/contacts_inbox.php?edit='.$row['patientid'].'\', \'auto\', false, true, $(\'#invoice_div\').outerHeight()+20); return false;">'.get_contact($dbc, $row['patientid']). '</a></td>';
+					echo '<td data-title="'.$purchaser_label.'"><a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/'.CONTACTS_TILE.'/contacts_inbox.php?edit='.$row['patientid'].'\', \'auto\', false, true, $(\'#invoice_div\').outerHeight()+20); return false;">'.get_contact($dbc, $row['patientid']). '</a></td>';
                     //echo '<td>'.get_contact($dbc, $row['patientid']). '</td>';
                 } else {
-                    echo '<td data-title="Customer">Non Customer</td>';
+                    echo '<td data-title="'.$purchaser_label.'">Non '.$purchaser_label.'</td>';
                 }
 
                 //echo '<td>' . $row['service_date'] . '</td>';
@@ -386,21 +393,17 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
 
                 echo '<td data-title="Paid">' . $paid . '</td>';
 
+                echo '<td>';
                 if($row['final_price'] != '' && $row['invoice_type'] != 'Saved') {
                     $name_of_file = 'Download/invoice_'.$row['invoiceid'].'.pdf';
                     if(file_exists($name_of_file)) {
-                        //$md5 = md5_file($name_of_file);
-                        //if($md5 == $row['invoice_md5']) {
-                            echo '<td><a href="'.$name_of_file.'" target="_blank">Invoice #'.$row['invoiceid'].' <img src="'.WEBSITE_URL.'/img/pdf.png" title="PDF"> </a> | <a href=\'unpaid_invoice.php?action=email&invoiceid='.$row['invoiceid'].'&patientid='.$patientid.'\' >Email</a></td>';
-                        //} else {
-                        //    echo '<td>(Error : File has been Changed)</td>';
-                        //}
-                    } else {
-                        echo '<td>-</td>';
+                        echo '<a href="'.$name_of_file.'" target="_blank">Invoice #'.$row['invoiceid'].' <img src="'.WEBSITE_URL.'/img/pdf.png" title="PDF"> </a> | <a href=\'unpaid_invoice.php?action=email&invoiceid='.$row['invoiceid'].'&patientid='.$patientid.'\' >Email</a><br />';
                     }
-                } else {
-                    echo '<td>-</td>';
+                    if($row['invoiceid_src'] > 0 && file_exists('Download/invoice_'.$row['invoiceid_src'].'.pdf')) {
+                        echo '<a href="'.'Download/invoice_'.$row['invoiceid_src'].'.pdf'.'" target="_blank">Invoice #'.$row['invoiceid_src'].' <img src="'.WEBSITE_URL.'/img/pdf.png" title="PDF"> </a> | <a href=\'unpaid_invoice.php?action=email&invoiceid='.$row['invoiceid_src'].'&patientid='.$patientid.'\' >Email</a><br />';
+                    }
                 }
+                echo '</td>';
 
 				/* echo '<td>';
                 if($row['patient_payment_receipt'] == 1) {
@@ -491,6 +494,11 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
 
                 $final_total += $row['final_price'];
                 echo "</tr>";
+                if($row['invoiceid_src'] > 0) {
+                    $row = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `invoice` WHERE `invoiceid`='".$row['invoiceid_src']."'"));
+                    $src_row = true;
+                    $src_ids[] = $row['invoiceid'];
+                }
             }
 
             echo "<tr>";

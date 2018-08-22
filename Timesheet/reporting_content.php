@@ -1,4 +1,5 @@
-<?php include_once('../include.php'); ?>
+<?php include_once('../include.php');
+$timesheet_reporting_styling = get_config($dbc,'timesheet_reporting_styling'); ?>
 
 <script type="text/javascript" src="timesheet.js"></script>
 <script type="text/javascript">
@@ -49,6 +50,9 @@ function viewTicket(a) {
 
 
 <form id="form1" name="form1" method="get" enctype="multipart/form-data" class="form-horizontal timesheet_div" role="form">
+<div id="dialog-pdf-options" title="Select PDF Fields" style="display: none;">
+  <?php echo get_pdf_options($dbc, $timesheet_reporting_styling); ?>
+</div>
 <input type="hidden" name="tab" value="<?= $_GET['tab'] ?>">
 <input type="hidden" name="type" value="<?= $_GET['type'] ?>">
 <input type="hidden" name="report" value="<?= $_GET['report'] ?>">
@@ -236,11 +240,11 @@ function viewTicket(a) {
                 if($timesheet_reporting_styling == 'EGS') {
                 $search_staff_query = implode('search_staff%5B%5D=', explode(',',$search_staff)); ?>
 
-                <a target="_blank" href="<?= WEBSITE_URL ?>/Timesheet/reporting.php?export=pdf_egs&search_staff%5B%5D=<?php echo $search_staff_query; ?>&search_start_date=<?php echo $search_start_date; ?>&search_end_date=<?php echo $search_end_date; ?>&search_position=<?php echo $search_position; ?>&search_project=<?php echo $search_project; ?>&search_ticket=<?php echo $search_ticket; ?>&see_staff=<?= $_GET['see_staff'] ?>" title="PDF"><img src="<?php echo WEBSITE_URL; ?>/img/pdf.png" style="height:100%; margin:0;" /></a>
+                <a target="_blank" href="<?= WEBSITE_URL ?>/Timesheet/reporting.php?export=pdf_egs&search_staff=<?php echo $search_staff; ?>&search_start_date=<?php echo $search_start_date; ?>&search_end_date=<?php echo $search_end_date; ?>&search_position=<?php echo $search_position; ?>&search_project=<?php echo $search_project; ?>&search_ticket=<?php echo $search_ticket; ?>&see_staff=<?= $_GET['see_staff'] ?>&timesheet_tab=reporting" onclick="displayPDFOptions(this); return false;" title="PDF"><img src="<?php echo WEBSITE_URL; ?>/img/pdf.png" style="height:100%; margin:0;" /></a>
 
 
                 <?php } else { ?>
-                <a target="_blank" href="<?= WEBSITE_URL ?>/Timesheet/reporting.php?export=pdf&search_staff=<?php echo $search_staff; ?>&search_start_date=<?php echo $search_start_date; ?>&search_end_date=<?php echo $search_end_date; ?>&search_position=<?php echo $search_position; ?>&search_project=<?php echo $search_project; ?>&search_ticket=<?php echo $search_ticket; ?>" title="PDF"><img src="<?php echo WEBSITE_URL; ?>/img/pdf.png" style="height:100%; margin:0;" /></a>
+                <a target="_blank" href="<?= WEBSITE_URL ?>/Timesheet/reporting.php?export=pdf&search_staff=<?php echo $search_staff; ?>&search_start_date=<?php echo $search_start_date; ?>&search_end_date=<?php echo $search_end_date; ?>&search_position=<?php echo $search_position; ?>&search_project=<?php echo $search_project; ?>&search_ticket=<?php echo $search_ticket; ?>" onclick="displayPDFOptions(this); return false;" title="PDF"><img src="<?php echo WEBSITE_URL; ?>/img/pdf.png" style="height:100%; margin:0;" /></a>
 
                 <?php } ?>
 
@@ -264,7 +268,6 @@ function viewTicket(a) {
 
     <div id="no-more-tables">
 		<?php
-        $timesheet_reporting_styling = get_config($dbc,'timesheet_reporting_styling');
         if($timesheet_reporting_styling == 'EGS') {
             echo get_egs_hours_report($dbc, $search_staff, $search_start_date, $search_end_date,$search_staff);
         } else {

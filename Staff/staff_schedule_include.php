@@ -1,5 +1,8 @@
 <?php
 include_once ('../Calendar/calendar_functions_inc.php');
+if(!empty($_GET['contactid'])) {
+	$contactid = $_GET['contactid'];
+}
 ?>
 </head>
 <script type="text/javascript">
@@ -111,7 +114,30 @@ if(!empty($_GET['from_url'])) {
 }
 if(!empty($_POST['from_url'])) {
 	$from_url = $_POST['from_url'];
-} ?>
+}
+
+$staff_category = get_contact($dbc, $_GET['contactid'], 'staff_category');
+$staff_cat_query = [];
+if(!empty($staff_category)) {
+    foreach(array_filter(explode(',', $staff_category)) as $staff_cat) {
+        $staff_cat_query[] = " `tab`='Staff_".config_safe_str($staff_cat)."'";
+    }
+}
+if(!empty($staff_cat_query)) {
+    $staff_cat_query = " OR ".implode(" OR ", $staff_cat_query);
+} else {
+    $staff_cat_query = "";
+}
+$get_field_config = mysqli_query($dbc, "SELECT `contacts` FROM `field_config_contacts` `main_table` WHERE (`tab` = 'Staff' ".$staff_cat_query.") AND `accordion` IS NOT NULL AND `subtab` = 'schedule'");
+$value_config = [];
+while($row = mysqli_fetch_assoc($get_field_config)) {
+    $value_config[] = $row['contacts'];
+}
+$value_config = ','.implode(',',$value_config).',';
+if(empty(trim($value_config,','))) {
+	$value_config = ',Scheduled Days/Hours,';
+}
+?>
 <div id="staff_div" class="container">
 	<div class="iframe_overlay" style="display:none; margin-top: -20px;margin-left:-15px;">
 		<div class="iframe">
@@ -150,13 +176,6 @@ if(!empty($_POST['from_url'])) {
                 	<?php include('tile_sidebar.php'); ?>
                 </div><!-- .tile-sidebar -->
 
-                <!-- Scalable Sidebar -->
-                <?php if($_GET['shiftid']) : ?>
-	                <div class="scalable pull-right unbooked_view" style="height: 30em; overflow: auto;">
-	                	<?php include('../Calendar/shifts.php'); ?>
-	                </div>
-	            <?php endif; ?>
-
 				<!-- Main Screen -->
                 <div class="has-main-screen scale-to-fill tile-content set-section-height" style="padding: 0; overflow-y: auto;">
                     <div class="main-screen-details main-screen override-main-screen <?= $subtab != 'id_card' ? 'standard-body' : '' ?>" style="height: inherit;">
@@ -164,65 +183,141 @@ if(!empty($_POST['from_url'])) {
                             <h3>Staff Schedule</h3>
                         </div>
                         <div class='standard-body-content pad-top pad-left pad-right pad-bottom'>
-							<div class="col-sm-12">
-								<h4 class="col-sm-4">Staff Schedule <?php if(approval_visible_function($dbc, 'staff') > 0) { ?><img class="inline-img" title="Lock all schedules before a selected date." src="../img/icons/locked-1.png" onclick="$('[name=staff_schedule_lock_date]').focus();"><input type="text" style="border:0; width:0;" class="no-pad datepicker config_value" name="staff_schedule_lock_date" value="<?= $lock_date ?>"><?php } ?></h4>
-								<div class="col-sm-4">
-									<label class="control-label">Date:</label>
-									<input type="text" name="calendar_date" value="<?= $calendar_date ?>" class="form-control inline datepicker">
-									<button type="submit" name="submit_date" class="btn brand-btn mobile-block">Submit</button>
-									<button type="submit" name="calendar_today" class="btn brand-btn mobile-block">Today</button>
-								</div>
-								<div class="col-sm-4">
-								    <?php $enabled_fields = ','.mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_contacts_shifts`"))['enabled_fields'].',';
-								    if (strpos($enabled_fields, ',import_button,') !== FALSE) { ?>
-										<a href="" onclick="overlayIFrameSlider('<?= WEBSITE_URL ?>/Calendar/shifts.php?shiftid=IMPORT&hideaddbutton=true&shift_contactid=<?= $contact_id ?>'); return false;" class="btn brand-btn pull-right">Import</a>
-								    <?php }
-								    if (strpos($enabled_fields, ',export_button') !== FALSE) { ?>
-								        <a href="" onclick="exportShifts(<?= $contact_id ?>); return false;" class="btn brand-btn pull-right">Export</a>
-								    <?php } ?>
-									<a href="" onclick="overlayIFrameSlider('<?= WEBSITE_URL ?>/Calendar/shifts.php?shiftid=NEW&shift_staffid=<?= $contact_id ?>&hideaddbutton=true'); return false;" class="btn brand-btn pull-right">Add Shift</a>
-								</div>
-							</div>
-							<div class="clearfix"></div>
-							<?php for($cur_day = 1; $cur_day <= $days_in_month; $cur_day++) {
-								$today_date = $cur_day.'-'.$month.'-'.$year;
-								$new_today_date = date_format(date_create_from_format('j-n-Y', $today_date), 'Y-m-d');
-								$day_of_week = date('l', strtotime($new_today_date));
-								$shifts = checkShiftIntervals($dbc, $contact_id, $day_of_week, $new_today_date, 'all'); ?>
-								<div class="shift_day double-gap-left">
-									<h4 style="font-weight: normal;"><?= date('F d, Y', strtotime($new_today_date)) ?></h4>
-									<ul>
-									<?php if(!empty($shifts)) {
-										$total_booked_time = 0;
-										foreach($shifts as $shift) {
-											echo '<li>';
-											echo ($shift['startdate'] < $lock_date ? '' : '<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Calendar/shifts.php?shiftid='.$shift['shiftid'].'&hideaddbutton=true\'); return false;" >');
-											if(!empty($shift['dayoff_type'])) {
-												echo 'Day Off: '.date('h:i a', strtotime($shift['starttime'])).' - '.date('h:i a', strtotime($shift['endtime'])).'<br>';
-												echo 'Day Off Type: '.$shift['dayoff_type'];
+
+                        	<?php if(strpos($value_config, ',Set Days/Hours,') !== FALSE) { ?>
+                        		<div class="set_hours">
+									<div class="col-sm-12">
+										<h4 class="col-sm-4">Staff Schedule - Set Hours</h4>
+										<div class="col-sm-4">
+											<label class="control-label">Date:</label>
+											<input type="text" name="calendar_date" value="<?= $calendar_date ?>" class="form-control inline datepicker">
+											<button type="submit" name="submit_date" class="btn brand-btn mobile-block">Submit</button>
+											<button type="submit" name="calendar_today" class="btn brand-btn mobile-block">Today</button>
+										</div>
+										<div class="col-sm-4">
+										    <?php $enabled_fields = ','.mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_contacts_shifts`"))['enabled_fields'].',';
+										    if (strpos($enabled_fields, ',import_button,') !== FALSE) { ?>
+												<a href="" onclick="overlayIFrameSlider('<?= WEBSITE_URL ?>/Calendar/shifts.php?shiftid=IMPORT&hideaddbutton=true&shift_contactid=<?= $contact_id ?>'); return false;" class="btn brand-btn pull-right">Import</a>
+										    <?php }
+										    if (strpos($enabled_fields, ',export_button') !== FALSE) { ?>
+										        <a href="" onclick="exportShifts(<?= $contact_id ?>); return false;" class="btn brand-btn pull-right">Export</a>
+										    <?php } ?>
+											<a href="" onclick="overlayIFrameSlider('<?= WEBSITE_URL ?>/Calendar/shifts.php?shiftid=NEW&shift_staffid=<?= $contact_id ?>&hideaddbutton=true&set_hours=1'); return false;" class="btn brand-btn pull-right">Add Set Hours</a>
+										</div>
+									</div>
+									<div class="clearfix"></div>
+									<?php $day_of_week = date('l', strtotime($today_date));
+									$first_day = date('Y-m-d', strtotime('last Sunday', strtotime($today_date)));
+									$last_day = date('Y-m-d', strtotime('next Saturday', strtotime($today_date)));
+									if($day_of_week == 'Sunday') {
+										$first_day = $today_date;
+									} else if($day_of_week == 'Saturday') {
+										$last_day = $today_date;
+									}
+									for($cur_day = $first_day; strtotime($cur_day) <= strtotime($last_day); $cur_day = date('Y-m-d', strtotime($cur_day.' + 1 day'))) {
+										$day_of_week = date('l', strtotime($cur_day));
+										$shifts = checkShiftIntervals($dbc, $contact_id, $day_of_week, $cur_day, 'all', '', ' AND `set_hours` = 1'); ?>
+										<div class="shift_day double-gap-left">
+											<h4 style="font-weight: normal;"><?= date('l, F d, Y', strtotime($cur_day)) ?></h4>
+											<ul>
+												<?php if(!empty($shifts)) {
+													$total_booked_time = 0;
+													foreach($shifts as $shift) {
+														echo '<li>';
+														echo ($shift['startdate'] < $lock_date ? '' : '<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Calendar/shifts.php?shiftid='.$shift['shiftid'].'&hideaddbutton=true\'); return false;" >');
+														if(!empty($shift['dayoff_type'])) {
+															echo 'Day Off: '.date('h:i a', strtotime($shift['starttime'])).' - '.date('h:i a', strtotime($shift['endtime'])).'<br>';
+															echo 'Day Off Type: '.$shift['dayoff_type'];
+														} else {
+															$total_booked_time += (strtotime($shift['endtime']) - strtotime($shift['starttime']));
+															echo 'Hours: '.date('h:i a', strtotime($shift['starttime'])).' - '.date('h:i a', strtotime($shift['endtime']));
+															if(!empty($shift['break_starttime']) && !empty($shift['break_endtime'])) {
+																echo '<br>';
+																echo 'Break: '.date('h:i a', strtotime($shift['break_starttime'])).' - '.date('h:i a', strtotime($shift['break_endtime']));
+															}
+															if(!empty($shift['clientid'])) {
+																echo '<br>';
+																echo get_contact($dbc, $shift['clientid'], 'category').': ';
+																echo get_contact($dbc, $shift['clientid']);
+															}
+														}
+														echo ($shift['startdate'] < $lock_date ? '' : '</a>');
+														echo '</li>';
+													}
+													echo '<br>Total Booked Time: '.(sprintf('%02d', floor($total_booked_time / 3600)).':'.sprintf('%02d', floor($total_booked_time % 3600 / 60))).'';
+												} else {
+													echo 'No Hours Found.';
+												} ?>
+											</ul>
+										</div>
+									<?php } ?>
+                        		</div>
+                        		<hr>
+                        	<?php } ?>
+
+                        	<?php if(strpos($value_config, ',Scheduled Days/Hours,') !== FALSE) { ?>
+	                        	<div class="shifts_hours">
+									<div class="col-sm-12">
+										<h4 class="col-sm-4">Staff Schedule <?php if(approval_visible_function($dbc, 'staff') > 0) { ?><img class="inline-img" title="Lock all schedules before a selected date." src="../img/icons/locked-1.png" onclick="$('[name=staff_schedule_lock_date]').focus();"><input type="text" style="border:0; width:0;" class="no-pad datepicker config_value" name="staff_schedule_lock_date" value="<?= $lock_date ?>"><?php } ?></h4>
+										<div class="col-sm-4">
+											<label class="control-label">Date:</label>
+											<input type="text" name="calendar_date" value="<?= $calendar_date ?>" class="form-control inline datepicker">
+											<button type="submit" name="submit_date" class="btn brand-btn mobile-block">Submit</button>
+											<button type="submit" name="calendar_today" class="btn brand-btn mobile-block">Today</button>
+										</div>
+										<div class="col-sm-4">
+										    <?php $enabled_fields = ','.mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_contacts_shifts`"))['enabled_fields'].',';
+										    if (strpos($enabled_fields, ',import_button,') !== FALSE) { ?>
+												<a href="" onclick="overlayIFrameSlider('<?= WEBSITE_URL ?>/Calendar/shifts.php?shiftid=IMPORT&hideaddbutton=true&shift_contactid=<?= $contact_id ?>'); return false;" class="btn brand-btn pull-right">Import</a>
+										    <?php }
+										    if (strpos($enabled_fields, ',export_button') !== FALSE) { ?>
+										        <a href="" onclick="exportShifts(<?= $contact_id ?>); return false;" class="btn brand-btn pull-right">Export</a>
+										    <?php } ?>
+											<a href="" onclick="overlayIFrameSlider('<?= WEBSITE_URL ?>/Calendar/shifts.php?shiftid=NEW&shift_staffid=<?= $contact_id ?>&hideaddbutton=true'); return false;" class="btn brand-btn pull-right">Add Shift</a>
+										</div>
+									</div>
+									<div class="clearfix"></div>
+									<?php for($cur_day = 1; $cur_day <= $days_in_month; $cur_day++) {
+										$today_date = $cur_day.'-'.$month.'-'.$year;
+										$new_today_date = date_format(date_create_from_format('j-n-Y', $today_date), 'Y-m-d');
+										$day_of_week = date('l', strtotime($new_today_date));
+										$shifts = checkShiftIntervals($dbc, $contact_id, $day_of_week, $new_today_date, 'all'); ?>
+										<div class="shift_day double-gap-left">
+											<h4 style="font-weight: normal;"><?= date('l, F d, Y', strtotime($new_today_date)) ?></h4>
+											<ul>
+											<?php if(!empty($shifts)) {
+												$total_booked_time = 0;
+												foreach($shifts as $shift) {
+													echo '<li>';
+													echo ($shift['startdate'] < $lock_date ? '' : '<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Calendar/shifts.php?shiftid='.$shift['shiftid'].'&hideaddbutton=true\'); return false;" >');
+													if(!empty($shift['dayoff_type'])) {
+														echo 'Day Off: '.date('h:i a', strtotime($shift['starttime'])).' - '.date('h:i a', strtotime($shift['endtime'])).'<br>';
+														echo 'Day Off Type: '.$shift['dayoff_type'];
+													} else {
+														$total_booked_time += (strtotime($shift['endtime']) - strtotime($shift['starttime']));
+														echo 'Shift: '.date('h:i a', strtotime($shift['starttime'])).' - '.date('h:i a', strtotime($shift['endtime']));
+														if(!empty($shift['break_starttime']) && !empty($shift['break_endtime'])) {
+															echo '<br>';
+															echo 'Break: '.date('h:i a', strtotime($shift['break_starttime'])).' - '.date('h:i a', strtotime($shift['break_endtime']));
+														}
+														if(!empty($shift['clientid'])) {
+															echo '<br>';
+															echo get_contact($dbc, $shift['clientid'], 'category').': ';
+															echo get_contact($dbc, $shift['clientid']);
+														}
+													}
+													echo ($shift['startdate'] < $lock_date ? '' : '</a>');
+													echo '</li>';
+												}
+												echo '<br>Total Booked Time: '.(sprintf('%02d', floor($total_booked_time / 3600)).':'.sprintf('%02d', floor($total_booked_time % 3600 / 60))).'';
 											} else {
-												$total_booked_time += (strtotime($shift['endtime']) - strtotime($shift['starttime']));
-												echo 'Shift: '.date('h:i a', strtotime($shift['starttime'])).' - '.date('h:i a', strtotime($shift['endtime']));
-												if(!empty($shift['break_starttime']) && !empty($shift['break_endtime'])) {
-													echo '<br>';
-													echo 'Break: '.date('h:i a', strtotime($shift['break_starttime'])).' - '.date('h:i a', strtotime($shift['break_endtime']));
-												}
-												if(!empty($shift['clientid'])) {
-													echo '<br>';
-													echo get_contact($dbc, $shift['clientid'], 'category').': ';
-													echo get_contact($dbc, $shift['clientid']);
-												}
-											}
-											echo ($shift['startdate'] < $lock_date ? '' : '</a>');
-											echo '</li>';
-										}
-										echo '<br>Total Booked Time: '.(sprintf('%02d', floor($total_booked_time / 3600)).':'.sprintf('%02d', floor($total_booked_time % 3600 / 60))).'';
-									} else {
-										echo 'No Shifts Found.';
-									} ?>
-									</ul>
+												echo 'No Shifts Found.';
+											} ?>
+											</ul>
+										</div>
+										<hr style="height: 1px; border: 0; border-top: 1px solid #ccc;">
+									<?php } ?>
 								</div>
-								<hr style="height: 1px; border: 0; border-top: 1px solid #ccc;">
 							<?php } ?>
 						</div>
 					</div>
