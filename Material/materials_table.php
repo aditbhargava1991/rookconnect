@@ -43,54 +43,56 @@ if($num_rows > 0) {
 	}
 	// Pagination Finish //
 
-	echo "<table class='table table-bordered'>";
-	echo "<tr class='hidden-xs hidden-sm'>";
-		if (strpos($value_config, ','."Code".',') !== FALSE) {
-			echo '<th>Code</th>';
-		}
-		if (strpos($value_config, ','."Category".',') !== FALSE) {
-			echo '<th>Category</th>';
-		}
-		if (strpos($value_config, ','."Sub-Category".',') !== FALSE) {
-			echo '<th>Sub-Category</th>';
-		}
+	echo "<table class='table table-bordered table-striped'>";
+        echo "<thead>";
+            echo "<tr class='hidden-xs hidden-sm'>";
+                if (strpos($value_config, ','."Code".',') !== FALSE) {
+                    echo '<th>Code</th>';
+                }
+                if (strpos($value_config, ','."Category".',') !== FALSE) {
+                    echo '<th>Category</th>';
+                }
+                if (strpos($value_config, ','."Sub-Category".',') !== FALSE) {
+                    echo '<th>Sub-Category</th>';
+                }
 
-		if (strpos($value_config, ','."Material Name".',') !== FALSE) {
-			echo '<th>Material Name</th>';
-		}
-		if (strpos($value_config, ','."Description".',') !== FALSE) {
-			echo '<th>Description</th>';
-		}
-		if (strpos($value_config, ','."Quote Description".',') !== FALSE) {
-			echo '<th>Quote Description</th>';
-		}
-		if (strpos($value_config, ','."Vendor".',') !== FALSE) {
-			echo '<th>Vendor</th>';
-		}
-		if (strpos($value_config, ','."Width".',') !== FALSE) {
-			echo '<th>Width</th>';
-		}
+                if (strpos($value_config, ','."Material Name".',') !== FALSE) {
+                    echo '<th>Material Name</th>';
+                }
+                if (strpos($value_config, ','."Description".',') !== FALSE) {
+                    echo '<th>Description</th>';
+                }
+                if (strpos($value_config, ','."Quote Description".',') !== FALSE) {
+                    echo '<th>Quote Description</th>';
+                }
+                if (strpos($value_config, ','."Vendor".',') !== FALSE) {
+                    echo '<th>Vendor</th>';
+                }
+                if (strpos($value_config, ','."Width".',') !== FALSE) {
+                    echo '<th>Width</th>';
+                }
 
-		if (strpos($value_config, ','."Length".',') !== FALSE) {
-			echo '<th>Length</th>';
-		}
-		if (strpos($value_config, ','."Units".',') !== FALSE) {
-			echo '<th>Units</th>';
-		}
-		if (strpos($value_config, ','."Unit Weight".',') !== FALSE) {
-			echo '<th>Unit Weight</th>';
-		}
-		if (strpos($value_config, ','."Weight Per Feet".',') !== FALSE) {
-			echo '<th>Weight Per Foot</th>';
-		}
-		if (strpos($value_config, ','."Quantity".',') !== FALSE) {
-			echo '<th>Quantity</th>';
-		}
-		if (strpos($value_config, ','."Price".',') !== FALSE) {
-			echo '<th>Price</th>';
-		}
-		echo '<th>Function</th>';
-		echo "</tr>";
+                if (strpos($value_config, ','."Length".',') !== FALSE) {
+                    echo '<th>Length</th>';
+                }
+                if (strpos($value_config, ','."Units".',') !== FALSE) {
+                    echo '<th>Units</th>';
+                }
+                if (strpos($value_config, ','."Unit Weight".',') !== FALSE) {
+                    echo '<th>Unit Weight</th>';
+                }
+                if (strpos($value_config, ','."Weight Per Feet".',') !== FALSE) {
+                    echo '<th>Weight Per Foot</th>';
+                }
+                if (strpos($value_config, ','."Quantity".',') !== FALSE) {
+                    echo '<th>Quantity</th>';
+                }
+                if (strpos($value_config, ','."Price".',') !== FALSE) {
+                    echo '<th>Price</th>';
+                }
+                echo '<th>Function</th>';
+            echo "</tr>";
+        echo "</thead>";
 } else{
 	echo "<h2>No Record Found.</h2>";
 }

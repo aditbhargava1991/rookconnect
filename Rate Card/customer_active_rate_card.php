@@ -142,7 +142,8 @@ if (!empty($_GET['action'])):
 		echo display_pagination($dbc, $query, $pageNum, $rowsPerPage);
 		// Pagination Finish // ?>
 
-		<table class="table table-bordered">
+		<table class="table table-bordered table-striped">
+        <thead>
 		<tr class="hidden-xs hidden-sm">
 			<th>Client</th>
 			<th>Rate Card Name</th>
@@ -163,6 +164,7 @@ if (!empty($_GET['action'])):
 			<th>Function</th>
 			<th>Last Edited</th>
 		</tr>
+        </thead>
 		<?php
 		while($row = mysqli_fetch_array( $result )) {
 			echo '<tr>';

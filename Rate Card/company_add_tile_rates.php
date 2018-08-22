@@ -45,7 +45,8 @@ $row = mysqli_fetch_array($result); ?>
 	</div>-->
 	<div id="bd_accordion" class="panel-group">
 		<div id="no-more-tables">
-			<table width="100%" id="rate_table" class="table table-bordered">
+			<table width="100%" id="rate_table" class="table table-bordered table-striped">
+                <thead>
 				<tr class="hidden-xs hidden-sm">
 					<?php foreach($field_order as $field_data) {
 						$data = explode('***',$field_data);
@@ -144,6 +145,7 @@ $row = mysqli_fetch_array($result); ?>
 					} ?>
 					<th style="text-align:center;">Function</label>
 				</tr>
+                </thead>
 
 				<?php do {
 					$rate_id = $row['companyrcid'];
@@ -382,15 +384,17 @@ $row = mysqli_fetch_array($result); ?>
 
 								<div id="collapse_<?= $i ?>" class="panel-collapse collapse">
 									<div class="panel-body">
-										<table class="table table-bordered" style="background-color: transparent;">
-											<tr class="hidden-sm hidden-xs">
-												<th>Description</th>
-												<th>Quantity</th>
-												<th>UoM</th>
-												<th>Unit Cost</th>
-												<th>Subtotal</th>
-												<th></th>
-											</tr>
+										<table class="table table-bordered table-striped" style="background-color: transparent;">
+                                            <thead>
+                                                <tr class="hidden-sm hidden-xs">
+                                                    <th>Description</th>
+                                                    <th>Quantity</th>
+                                                    <th>UoM</th>
+                                                    <th>Unit Cost</th>
+                                                    <th>Subtotal</th>
+                                                    <th></th>
+                                                </tr>
+                                            </thead>
 											<?php while($breakdown = mysqli_fetch_array($breakdown_result)) { ?>
 												<tr><input type='hidden' name='bd_<?= $rate_id ?>[]' value='<?= $breakdown['rcbid'] ?>'>
 													<td data-title="Description"><input type="text" name="bd_description_<?= $rate_id ?>[]" value="<?= $breakdown['description'] ?>" onchange="syncDetails(this);" placeholder="Description" class="form-control"></td>

@@ -58,6 +58,17 @@
         $lead_source_cid = $get_lead_source['contactid'];
         $lead_source_bid = $get_lead_source['businessid'];
     } ?>
+    <input type="hidden" id="salesid" name="salesid" value="<?= $salesid ?>" />	
+    <script>	
+    $(document).ready(function() {	
+        init_page();	
+    });	
+    function init_page() {	
+        destroyInputs();	
+        $('[data-table]').off('change',saveField).change(saveField);	
+        initInputs();	
+    }
+    </script>
 
     <div class="main-screen-white standard-body" style="padding-left: 0; padding-right: 0; border: none;">
         <div class="standard-body-title" style="<?= empty($flag_colour) ? '' : 'background-color:#'.$flag_colour.';' ?>position:absolute;z-index:1;width:100%;" data-id="<?= $salesid ?>">
@@ -83,14 +94,12 @@
 				echo "<div>";
                 include('details_lead_info.php');
 				echo "</div><hr>";
-                if(count(array_filter(explode(',',$contactid))) > 0) {
-                    include('details_contacts.php');
-                }
-                if ($businessid > 0) {
-                    echo "<div>";
-                    include('details_business.php');
-                    echo "</div><hr>";
-                }
+                echo "<div>";
+                include('details_contacts.php');
+                echo "</div>";
+                echo "<div>";
+                include('details_business.php');
+                echo "</div><hr>";
             }
             if (strpos($value_config, ',Service,') !== false) {
 				echo "<div>";

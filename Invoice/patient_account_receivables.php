@@ -191,15 +191,15 @@ function report_receivables($dbc, $starttime, $endtime, $table_style, $table_row
 
     $report_data .= '<a href="" onclick="pay_receivables(\'all\'); return false;" class="btn brand-btn pull-right">Pay All</a>
         <span class="popover-examples list-inline pull-right" style="margin:0 0 0 0;"><a data-toggle="tooltip" data-placement="top" title="Click here to enter the payment details for all listed invoices."><img src="'. WEBSITE_URL .'/img/info.png" width="20"></a></span>';
-    $report_data .= '<table border="1px" class="table table-bordered" style="'.$table_style.'">';
-    $report_data .= '<tr style="'.$table_row_style.'">
+    $report_data .= '<table border="1px" class="table table-bordered table-striped" style="'.$table_style.'">';
+    $report_data .= '<thead><tr style="'.$table_row_style.'">
     <th>Invoice#</th>
     <th>Service Date</th>
     <th>Invoice Date</th>
     <th>'.PURCHASER.'</th>
     <th>Amount Receivable</th>
     <th>Pay</th>
-    </tr>';
+    </tr></thead>';
 
     $amt_to_bill = 0;
     while($row_report = mysqli_fetch_array($report_service)) {

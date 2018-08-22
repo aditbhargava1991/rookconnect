@@ -550,8 +550,8 @@ checkAuthorised('inventory');
 				            $result = mysqli_query($dbc, $query_check_credentials);
 				            $num_rows = mysqli_num_rows($result);
 						    if($num_rows > 0) {
-								echo "<form><div id='no-more-tables'><table border='2' cellpadding='10' class='table'>";
-				                echo "<tr class='hidden-xs hidden-sm'>
+								echo "<form><div id='no-more-tables'><table border='2' cellpadding='10' class='table table-striped'>";
+				                echo "<thead><tr class='hidden-xs hidden-sm'>
 				                <th>Category</th>
 								<th>Name</th>
 								<th>Shipping $</th>
@@ -567,7 +567,7 @@ checkAuthorised('inventory');
 				                <th>Actual Inventory</th>
 				                <th>Variance</th>
 								";
-				                echo "</tr>";
+				                echo "</tr></thead>";
 
 
 				            } else{

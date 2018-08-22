@@ -45,7 +45,8 @@
 		echo display_pagination($dbc, $count_sql, $pageNum, $rowsPerPage);
 
 		 ?>
-		<table id="no-more-tables" class="table table-bordered">
+		<table id="no-more-tables" class="table table-bordered table-striped">
+            <thead>
 			<tr class="hidden-xs hidden-sm">
 				<th>Rate Card</th>
                 <?php if(strpos($db_config, ',category,') !== FALSE) { ?>
@@ -89,6 +90,7 @@
                     <th>Function</th>
                 <?php } ?>
 			</tr>
+            </thead>
 		<?php // Table Rows
 		while($row = mysqli_fetch_array($result)) { ?>
             <tr>

@@ -454,8 +454,8 @@ if ($_GET['fill']=='loadItemDetails') {
 
     $item_list = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `$table` WHERE $filter_query"),MYSQLI_ASSOC);
 
-    $html = '<table class="table table-bordered">';
-    $html .= '<tr class="hidden-xs">';
+    $html = '<table class="table table-bordered table-striped">';
+    $html .= '<thead><tr class="hidden-xs">';
 
     foreach ($field_config as $key => $field) {
         if (in_array($field, $price_types)) {
@@ -493,7 +493,7 @@ if ($_GET['fill']=='loadItemDetails') {
     if($name != '**NEW_ITEM**') {
         $html .= '<th width="5%">Add Item</th>';
     }
-    $html .= '</tr>';
+    $html .= '</tr></thead>';
 
     if($name == '**NEW_ITEM**') {
         $html .= '<tr>';

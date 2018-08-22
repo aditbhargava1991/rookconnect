@@ -98,8 +98,8 @@ $num_rows = mysqli_num_rows($result);
 
 if($num_rows > 0) {
     echo display_pagination($dbc, $query, $pageNum, $rowsPerPage);
-    echo "<table class='table table-bordered'>";
-    echo "<tr class='hidden-xs hidden-sm'>";
+    echo "<table class='table table-bordered table-striped'>";
+    echo "<thead><tr class='hidden-xs hidden-sm'>";
 	if (strpos($value_config, ','."Work Order".',') !== FALSE) {
         echo '<th>Work Order#</th>';
     }
@@ -270,7 +270,7 @@ if($num_rows > 0) {
 	if (strpos($value_config, ','."History".',') !== FALSE) {
         echo '<th>History</th>';
     }
-        echo "</tr>";
+        echo "</tr></thead>";
     } else {
         echo "<h2>No Record Found.</h2>";
     }

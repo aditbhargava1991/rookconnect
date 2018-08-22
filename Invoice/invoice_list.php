@@ -321,39 +321,41 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
                     echo display_pagination($dbc, $query, $pageNum, $rowsPerPage);
                 // Pagination Finish //
 
-                echo "<br /><div id='no-more-tables'><table class='table table-bordered'>";
-                echo "<tr class='hidden-xs hidden-sm'>";
-                    if (strpos($value_config, ','."invoiceid".',') !== FALSE) {
-                        echo '<th>Invoice #</th>';
-                    }
-                    if (strpos($value_config, ','."invoice_date".',') !== FALSE) {
-                        echo '<th>Invoice Date</th>';
-                    }
-                    if (strpos($value_config, ','."customer".',') !== FALSE) {
-                        echo '<th>'.$purchaser_label.'</th>';
-                    }
-                    if (strpos($value_config, ','."total_price".',') !== FALSE) {
-                        echo '<th>Total Price</th>';
-                    }
-                    if (strpos($value_config, ','."payment_type".',') !== FALSE) {
-                        echo '<th>Payment Type</th>';
-                    }
-                    if (strpos($value_config, ','."delivery".',') !== FALSE) {
-                        echo '<th>Delivery/Shipping Type</th>';
-                    }
-                    if (strpos($value_config, ','."invoice_pdf".',') !== FALSE) {
-                        echo '<th>Invoice PDF</th>';
-                    }
-                    if (strpos($value_config, ','."comment".',') !== FALSE) {
-                        echo '<th>Comment</th>';
-                    }
-                    if (strpos($value_config, ','."status".',') !== FALSE) {
-                        echo '<th>Status</th>';
-                    }
-					if (strpos($value_config, ','."send") !== FALSE) {
-                      ?><th>Email PDF<br><div class='selectall btn brand-btn' title='This will select all PDFs on the current page.'>Select All</div></th><?php
-                    }
-                echo "</tr>";
+                echo "<br /><div id='no-more-tables'><table class='table table-bordered table-striped'>";
+                    echo "<thead>";
+                        echo "<tr class='hidden-xs hidden-sm'>";
+                            if (strpos($value_config, ','."invoiceid".',') !== FALSE) {
+                                echo '<th>Invoice #</th>';
+                            }
+                            if (strpos($value_config, ','."invoice_date".',') !== FALSE) {
+                                echo '<th>Invoice Date</th>';
+                            }
+                            if (strpos($value_config, ','."customer".',') !== FALSE) {
+                                echo '<th>'.$purchaser_label.'</th>';
+                            }
+                            if (strpos($value_config, ','."total_price".',') !== FALSE) {
+                                echo '<th>Total Price</th>';
+                            }
+                            if (strpos($value_config, ','."payment_type".',') !== FALSE) {
+                                echo '<th>Payment Type</th>';
+                            }
+                            if (strpos($value_config, ','."delivery".',') !== FALSE) {
+                                echo '<th>Delivery/Shipping Type</th>';
+                            }
+                            if (strpos($value_config, ','."invoice_pdf".',') !== FALSE) {
+                                echo '<th>Invoice PDF</th>';
+                            }
+                            if (strpos($value_config, ','."comment".',') !== FALSE) {
+                                echo '<th>Comment</th>';
+                            }
+                            if (strpos($value_config, ','."status".',') !== FALSE) {
+                                echo '<th>Status</th>';
+                            }
+                            if (strpos($value_config, ','."send") !== FALSE) {
+                              ?><th>Email PDF<br><div class='selectall btn brand-btn' title='This will select all PDFs on the current page.'>Select All</div></th><?php
+                            }
+                        echo "</tr>";
+                    echo "</thead>";
 
                 $src_row = false;
                 $src_ids = [];

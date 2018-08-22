@@ -2209,15 +2209,17 @@ if(!empty($_GET['inventoryid'])) {
                                       <?php if (strpos($value_config, ','."Change Log".',') !== FALSE) { ?>
                                       <div class="form-group" id="no-more-tables">
                     					<h4>Log of changes to Inventory cost and quantity</h4>
-                                        <table class="table table_bordered">
-                    						<tr class="hidden-xs hidden-sm">
-                    							<th>User</th>
-                    							<th>Units Added</th>
-                    							<th>Cost of Units</th>
-                    							<th>Averaged Cost</th>
-                    							<th>Date</th>
-                    							<th>Source of Change</th>
-                    						</tr>
+                                        <table class="table table_bordered table-striped">
+                                            <thead>
+                                                <tr class="hidden-xs hidden-sm">
+                                                    <th>User</th>
+                                                    <th>Units Added</th>
+                                                    <th>Cost of Units</th>
+                                                    <th>Averaged Cost</th>
+                                                    <th>Date</th>
+                                                    <th>Source of Change</th>
+                                                </tr>
+                                            </thead>
                     						<?php $change_results = mysqli_query($dbc, "SELECT * FROM `inventory_change_log` WHERE `inventoryid` = '$inventoryid'");
                     						if(mysqli_num_rows($change_results) > 0) {
                     							while($change_row = mysqli_fetch_array($change_results)) { ?>
@@ -2271,13 +2273,15 @@ if(!empty($_GET['inventoryid'])) {
                                       <?php if (strpos($value_config, ','."Change Qty".',') !== FALSE) { ?>
                                       <div class="form-group" id="no-more-tables">
                     					<h4>Log of changes to Inventory cost and quantity</h4>
-                                        <table class="table table_bordered">
-                    						<tr class="hidden-xs hidden-sm">
-                    							<th>User</th>
-                    							<th>Units Added</th>
-                    							<th>Date</th>
-                    							<th>Source of Change</th>
-                    						</tr>
+                                        <table class="table table_bordered table-striped">
+                    						<thead>
+                                                <tr class="hidden-xs hidden-sm">
+                                                    <th>User</th>
+                                                    <th>Units Added</th>
+                                                    <th>Date</th>
+                                                    <th>Source of Change</th>
+                                                </tr>
+                                            </thead>
                     						<?php $change_results = mysqli_query($dbc, "SELECT * FROM `inventory_change_log` WHERE `inventoryid` = '$inventoryid'");
                     						if(mysqli_num_rows($change_results) > 0) {
                     							while($change_row = mysqli_fetch_array($change_results)) { ?>
