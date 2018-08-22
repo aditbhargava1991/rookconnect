@@ -41,6 +41,7 @@ if($serviceid > 0 && isset($_POST['ratecardid'])) {
 		}
 	}
 	$rate_cards_keep = "'".implode("','", $rate_cards_keep)."'";
-	        $date_of_archival = date('Y-m-d');
-mysqli_query($dbc, "UPDATE `company_rate_card` SET `deleted` = 1, `date_of_archival` = '$date_of_archival' WHERE `item_id` = '$serviceid' AND `tile_name` LIKE 'Services' AND `ratecardid` NOT IN ($rate_cards_keep)");
+    $date_of_archival = date('Y-m-d');
+    mysqli_query($dbc, "UPDATE `company_rate_card` SET `deleted` = 1, `date_of_archival` = '$date_of_archival' WHERE `item_id` = '$serviceid' AND `tile_name` LIKE 'Services' AND `companyrcid` NOT IN ($rate_cards_keep)");
+
 }
