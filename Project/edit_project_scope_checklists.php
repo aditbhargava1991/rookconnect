@@ -283,7 +283,7 @@ function setActions() {
 							<img src="<?= WEBSITE_URL ?>/img/icons/ROOK-attachment-icon.png" class="inline-img attach-icon" title="Attach File">
 							<img src="<?= WEBSITE_URL ?>/img/icons/ROOK-reply-icon.png" class="inline-img reply-icon" title="Reply">
 							<img src="<?= WEBSITE_URL ?>/img/icons/ROOK-timer-icon.png" class="inline-img time-icon" title="Add Time">
-							<img src="<?= WEBSITE_URL ?>/img/icons/ROOK-trash-icon.png" class="inline-img archive-icon" title="Archive">
+							<img src="<?= WEBSITE_URL ?>/img/icons/trash-icon-red.png" class="inline-img archive-icon" title="Archive">
 						<?php } ?>
 					</div>
 					<?php foreach(explode(',',$task['alerts_enabled']) as $assignid) {

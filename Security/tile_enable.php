@@ -751,6 +751,10 @@ $(document).ready(function() {
                                         <?php echo tile_config_function($dbc, 'tasks'); ?>
                                     </tr>
                                     <tr>
+                                        <td data-title="Comment">Tasks (Updated)</td>
+                                        <?php echo tile_config_function($dbc, 'tasks_updated'); ?>
+                                    </tr>
+                                    <tr>
                                         <td data-title="Comment">Trip Optimizer</td>
                                         <?php echo tile_config_function($dbc, 'optimize'); ?>
                                     </tr>
@@ -1021,6 +1025,10 @@ $(document).ready(function() {
 								<tr>
 									<td data-title="Comment">Tasks</td>
 									<?php echo tile_config_function($dbc, 'tasks'); ?>
+								</tr>
+								<tr>
+									<td data-title="Comment">Tasks (Updated)</td>
+									<?php echo tile_config_function($dbc, 'tasks_updated'); ?>
 								</tr>
 							</table>
 						</div>

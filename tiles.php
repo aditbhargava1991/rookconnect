@@ -116,6 +116,7 @@ if($_SESSION['tile_list_updated'] + 30 < time() || $_SERVER['PHP_SELF'] == '/Set
 			'gao',
 			'checklist',
 			'tasks',
+			'tasks_updated',
 			'scrum',
 			'communication',
 			'communication_schedule',
@@ -227,7 +228,7 @@ if($_SESSION['tile_list_updated'] + 30 < time() || $_SERVER['PHP_SELF'] == '/Set
 			if($tile_info['name'] == 'Therapist') {
 				$tile_info['name'] = 'Therapists';
 			}
-			
+
 			$_SESSION['tile_list'][] = ['tile' => $tile_name, 'label' => 'Tile: '.$tile_info['name'],'key'=>$tile_info['name'],'link' => WEBSITE_URL.'/'.$tile_info['link']];
 		}
 	}
@@ -238,7 +239,7 @@ if(!$no_display) {
 	// This is defined in home.php to create the tile layout, otherwise it uses the list item format of the menus
 	$item_start = (empty($item_start) ? '<li>' : $item_start);
 	$item_end = (empty($item_end) ? '</li>' : $item_end);
-	
+
 	$dashboard_arr = array_filter(explode('*#*',$dashboard_list));
 	if(count($dashboard_arr) == 0) {
 		foreach($_SESSION['tile_list'] as $tile_data) {

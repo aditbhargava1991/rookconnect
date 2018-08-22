@@ -1616,6 +1616,9 @@ function get_tile_names($tile_list) {
 			case 'tasks':
 				$tiles[] = 'Tasks';
 				break;
+			case 'tasks_updated':
+				$tiles[] = 'Tasks (Updated)';
+				break;
 			case 'agenda_meeting':
 				$tiles[] = 'Agendas & Meetings';
 				break;
@@ -1941,7 +1944,10 @@ function get_subtabs($tile_name) {
             $subtabs = array('Dashboard', 'Add Multiple Products');
             break;
         case 'tasks':
-            $subtabs = array('Summary', 'Private Tasks', 'Shared Tasks', 'Project Tasks', 'Contact Tasks', 'Reporting');
+            $subtabs = array('Summary', 'Private Tasks', 'Shared Tasks', 'Project Tasks', 'Contact Tasks', 'Sales Tasks', 'Reporting');
+            break;
+        case 'tasks_updated':
+            $subtabs = array('Summary', 'Private Tasks', 'Shared Tasks', 'Project Tasks', 'Contact Tasks', 'Sales Tasks', 'Reporting');
             break;
         case 'agenda_meeting':
             $subtabs = array('Agendas', 'Meetings');

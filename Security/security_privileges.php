@@ -725,6 +725,14 @@ function go_to_dashboard(target) {
 				<?php echo security_tile_config_function('tasks', get_privileges($dbc, 'tasks',$level), 1, $level_url); ?>
 			</tr>
 			<?php } ?>
+
+			<?php if(strpos($on_security, ',tasks_updated,') !== FALSE) { ?>
+			<tr data-dashboard='<?= (in_array('tasks_updated', $dashboard_list) ? 'current' : '') ?>'>
+				<td data-title="Comment">Tasks (Updated)</td>
+				<?php echo security_tile_config_function('tasks_updated', get_privileges($dbc, 'tasks_updated',$level), 1, $level_url); ?>
+			</tr>
+			<?php } ?>
+
 			<?php if(strpos($on_security, ',optimize,') !== FALSE) { ?>
 			<tr data-dashboard='<?= (in_array('optimize', $dashboard_list) ? 'current' : '') ?>'>
 				<td data-title="Comment">Trip Optimizer</td>

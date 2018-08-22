@@ -64,7 +64,7 @@ foreach ($each_tab as $cat_tab) {
 		echo '<span style="display:inline-block; text-align:center; width:12.5%;" title="Attach File" onclick="ticket_attach_file(this); return false;"><img src="'.WEBSITE_URL.'/img/icons/ROOK-attachment-icon.png" style="height:1.5em;" onclick="return false;"></span>';
 		echo '<span style="display:inline-block; text-align:center; width:12.5%;" title="Add Note" onclick="ticket_send_reply(this); return false;"><img src="'.WEBSITE_URL.'/img/icons/ROOK-reply-icon.png" style="height:1.5em;" onclick="return false;"></span>';
 		echo '<span style="display:inline-block; text-align:center; width:12.5%;" title="Add Time" onclick="ticket_add_time(this); return false;"><img src="'.WEBSITE_URL.'/img/icons/ROOK-timer-icon.png" style="height:1.5em;" onclick="return false;"></span>';
-		echo '<span style="display:inline-block; text-align:center; width:12.5%;" title="Archive Item" onclick="ticket_archive(this); return false;"><img src="'.WEBSITE_URL.'/img/icons/ROOK-trash-icon.png" style="height:1.5em;" onclick="return false;"></span>';
+		echo '<span style="display:inline-block; text-align:center; width:12.5%;" title="Archive Item" onclick="ticket_archive(this); return false;"><img src="'.WEBSITE_URL.'/img/icons/trash-icon-red.png" style="height:1.5em;" onclick="return false;"></span>';
 		echo '</span><div class="clearfix"></div>'.TICKET_NOUN.' #'.$row['ticketid'].' : '.limit_text($row['heading'], 5 ). '<br><em>['.$row['status'].$status_date.']</em>';
 		echo '<img class="drag_handle pull-right" src="'.WEBSITE_URL.'/img/icons/hold.png" style="height:1.5em; width:1.5em;" />';
 		echo '<input type="text" name="ticket_reply_'.$row['ticketid'].'" style="display:none;" class="form-control" />';
@@ -88,7 +88,7 @@ foreach ($each_tab as $cat_tab) {
 			echo '<span style="display:inline-block; text-align:center; width:11%" title="Attach File" onclick="attach_file(this); return false;"><img src="'.WEBSITE_URL.'/img/icons/ROOK-attachment-icon.png" style="height:1.5em;" onclick="return false;"></span>';
 			echo '<span style="display:inline-block; text-align:center; width:11%" title="Reply" onclick="send_reply(this); return false;"><img src="'.WEBSITE_URL.'/img/icons/ROOK-reply-icon.png" style="height:1.5em;" onclick="return false;"></span>';
 			echo '<span style="display:inline-block; text-align:center; width:11%" title="Add Time" onclick="add_time(this); return false;"><img src="'.WEBSITE_URL.'/img/icons/ROOK-timer-icon.png" style="height:1.5em;" onclick="return false;"></span>';
-			echo '<span style="display:inline-block; text-align:center; width:11%" title="Archive Item" onclick="archive(this); return false;"><img src="'.WEBSITE_URL.'/img/icons/ROOK-trash-icon.png" style="height:1.5em;" onclick="return false;"></span>';
+			echo '<span style="display:inline-block; text-align:center; width:11%" title="Archive Item" onclick="archive(this); return false;"><img src="'.WEBSITE_URL.'/img/icons/trash-icon-red.png" style="height:1.5em;" onclick="return false;"></span>';
 			echo '</span>';
 			echo '<input type="text" name="reply_'.$row['tasklistid'].'" style="display:none;" class="form-control" />';
 			echo '<input type="text" name="tasklist_time_'.$row['tasklistid'].'" style="display:none;" class="form-control timepicker" />';

@@ -459,6 +459,7 @@ checkAuthorised();
         $contracts = $get_config['contracts'];
         $products = $get_config['products'];
         $tasks = $get_config['tasks'];
+        $tasks_updated = $get_config['tasks_updated'];
         $agenda_meeting = $get_config['agenda_meeting'];
         $sales = $get_config['sales'];
         $gantt_chart = $get_config['gantt_chart'];
@@ -1029,6 +1030,10 @@ checkAuthorised();
                                     <tr>
                                         <td data-title="Comment">Tasks</td>
                                         <?php echo tile_config_function($dbc, 'tasks', 'admin'); ?>
+                                    </tr>
+                                    <tr>
+                                        <td data-title="Comment">Tasks (Updated)</td>
+                                        <?php echo tile_config_function($dbc, 'tasks_updated', 'admin'); ?>
                                     </tr>
                                     <tr>
                                         <td data-title="Comment">Trip Optimizer</td>

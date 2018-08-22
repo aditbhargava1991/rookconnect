@@ -1028,7 +1028,7 @@ checkAuthorised('security');
 					}
 
 					/* Tasks tile subtab settings */
-					if ( $tile == 'tasks' ) { ?>
+					if ( $tile == 'tasks' || $tile == 'tasks_updated') { ?>
 						<tr><td>My Tasks</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'my' ); ?></tr>
 						<tr><td>Company Tasks</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'company' ); ?></tr>
 						<tr><td>Community Tasks</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'community' ); ?></tr>

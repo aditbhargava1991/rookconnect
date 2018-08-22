@@ -71,6 +71,7 @@ error_reporting(0);
 			case 'newsboard': $tile_name = 'News Board'; break;
 			case 'scrum': $tile_name = 'Scrum'; break;
 			case 'tasks': $tile_name = 'Tasks'; break;
+			case 'tasks_updated': $tile_name = 'Tasks (Updated)'; break;
 			case 'estimate': $tile_name = ESTIMATE_TILE; break;
 			case 'quote': $tile_name = 'Quote'; break;
 			case 'field_ticket_estimates': $tile_name = 'Field Ticket Estimates'; break;

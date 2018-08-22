@@ -429,7 +429,7 @@
     if ( mysqli_num_rows($result) > 0 ) {
 		echo '<ul>';
         while ( $row_tasks=mysqli_fetch_assoc($result) ) { ?>
-            <li><a href="" onclick="overlayIFrameSlider('../Tasks/add_task.php?tasklistid=<?=$row_tasks['tasklistid']?>', '50%', false, true, $('.iframe_overlay').closest('.container').outerHeight() + 20); return false;">Task #<?= $row_tasks['tasklistid'] ?>: <?= $row_tasks['heading'] ?></a></li><?php
+            <li><a href="" onclick="overlayIFrameSlider('../Tasks_Updated/add_task.php?tasklistid=<?=$row_tasks['tasklistid']?>', '50%', false, true, $('.iframe_overlay').closest('.container').outerHeight() + 20); return false;">Task #<?= $row_tasks['tasklistid'] ?>: <?= $row_tasks['heading'] ?></a></li><?php
         }
         echo '</ul>';
 	} else {
