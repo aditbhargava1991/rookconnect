@@ -168,6 +168,12 @@ function loadTickets() {
 				project.push($(this).data('project'));
 			}
 		});
+		var projectid = [];
+		$('.active.blue [data-projectid]').each(function() {
+			if($(this).data('projectid') > 0) {
+				projectid.push($(this).data('projectid'));
+			}
+		});
 		var po = [];
 		$('.active.blue [data-po]').each(function() {
 			if($(this).data('po') != '') {
@@ -189,6 +195,7 @@ function loadTickets() {
 					(creator.indexOf(ticket.created_by * 1) >= 0 || creator.length == 0) &&
 					(po.indexOf(ticket.po) >= 0 || po.length == 0) &&
 					(project.indexOf(ticket.project) >= 0 || project.length == 0) &&
+					(projectid.indexOf(ticket.projectid) >= 0 || projectid.length == 0) &&
 					(status.indexOf(ticket.status) >= 0 || (status.length == 0 && ticket.status != 'Done' && ticket.status != 'Archive') || status.indexOf('ALL_STATUS') >= 0) &&
 					($('.active.blue').closest('[data-type]').first().data('limit') == undefined || $('.active.blue').closest('[data-type]').first().data('limit') > i)) {
 					filter_list.push(ticket);
@@ -720,6 +727,16 @@ IF(!IFRAME_PAGE) { ?>
 									<?php foreach($project_types as $cat_tab_value => $cat_tab) {
 										$row = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT COUNT(*) `count` FROM `tickets` WHERE `projectid` IN (SELECT `projectid` FROM `project` WHERE `deleted`=0 AND `projecttype`='$cat_tab_value') AND `deleted`=0 AND `status` NOT IN ('Done','Archive','Archived','On Hold','Pending') AND '".$_GET['tile_name']."' IN (`ticket_type`,'') $filter")); ?>
 										<li class="sidebar-higher-level"><a href="" data-project="<?= $cat_tab_value ?>" onclick="$('.search_list').val(''); $(this).closest('li').toggleClass('active blue'); loadTickets(); return false;"><?= $cat_tab ?><span class="pull-right"><?= $row['count'] ?></span></a></li>
+									<?php } ?>
+								</ul>
+							</li>
+						<?php } ?>
+						<?php if(in_array('Project ID',$db_sort)) { ?>
+							<li class="sidebar-higher-level"><a class="collapsed cursor-hand" data-toggle="collapse" data-target="#filter_project_<?= $type ?>"><?= PROJECT_TILE ?><span class="arrow"></span></a>
+								<ul class="collapse" id="filter_project_<?= $type ?>" style="overflow: hidden;">
+									<?php $project_list = $dbc->query("SELECT `tickets`.`projectid`, COUNT(*) `count` FROM `tickets` LEFT JOIN `project` ON `tickets`.`projectid` = `project`.`projectid` WHERE `tickets`.`projectid` > 0 AND `tickets`.`deleted` = 0 AND `project`.`deleted` = 0 AND `tickets`.`status` NOT IN ('Done','Archive','Archived','On Hold','Pending') AND '".$_GET['tile_name']."' IN (`tickets`.`ticket_type`,'') $filter GROUP BY `tickets`.`projectid`");
+									while($project_item = $project_list->fetch_assoc()) { ?>
+										<li class="sidebar-higher-level"><a href="" data-projectid="<?= $project_item['projectid'] ?>" onclick="$('.search_list').val(''); $(this).closest('li').toggleClass('active blue'); loadTickets(); return false;"><?= get_project_label($dbc, $dbc->query("SELECT * FROM `project` WHERE `projectid` = '".$project_item['projectid']."'")->fetch_assoc()) ?><span class="pull-right"><?= $project_item['count'] ?></span></a></li>
 									<?php } ?>
 								</ul>
 							</li>
@@ -1314,6 +1331,19 @@ IF(!IFRAME_PAGE) { ?>
 				$tickets = $dbc->query("SELECT COUNT(*) count, `businessid` FROM `tickets` WHERE `deleted`=0 AND `status` != 'Archive' AND `businessid` > 0 $match_business GROUP BY `businessid`");
 				while($ticket = $tickets->fetch_assoc()) {
 					$block .= '<p>'.(in_array('Business',$db_sort) ? '<a class="cursor-hand" onclick="$(\'[data-business=\\\''.$ticket['businessid'].'\\\']\').first().click().parents(\'li\').each(function() { $(this).find(\'a\').first().filter(\'.collapsed\').click(); });">' : '').get_contact($dbc, $ticket['businessid'],'name').(in_array('Business',$db_sort) ? '</a>' : '').': '.$ticket['count'].'</p>';
+					$block_length += 17;
+				}
+			$block .= '</div>';
+			$blocks[] = [$block_length, $block];
+			$total_length += $block_length;
+		}
+		if(in_array('Project',$db_summary)) {
+			$block_length = 68;
+			$block = '<div class="overview-block">
+				<h4>'.TICKET_TILE.' per '.PROJECT_NOUN.' Type</h4>';
+				foreach($project_types as $cat_tab_value => $cat_tab) {
+					$ticket = $dbc->query("SELECT COUNT(*) count FROM `tickets` WHERE `deleted`=0 AND `status` != 'Archive' AND `projectid` > 0  AND `projectid` IN (SELECT `projectid` FROM `project` WHERE `deleted` = 0 AND `projecttype` = '$cat_tab_value')")->fetch_assoc();
+					$block .= '<p>'.(in_array('Project',$db_sort) ? '<a class="cursor-hand" onclick="$(\'[data-project=\\\''.$cat_tab_value.'\\\']\').first().click().parents(\'li\').each(function() { $(this).find(\'a\').first().filter(\'.collapsed\').click(); });">' : '').$cat_tab.(in_array('Project',$db_sort) ? '</a>' : '').': '.$ticket['count'].'</p>';
 					$block_length += 17;
 				}
 			$block .= '</div>';
