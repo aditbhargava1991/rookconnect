@@ -96,6 +96,14 @@ $(document).ready(function() {
 			panel.html('<h4>No <?= TICKET_TILE ?> Found</h4>');
 		}
 	});
+    
+    $('.tile-sidebar .highest-level .top-a').click(function() {
+        $(this).each(function() {
+            if ( $('.tile-sidebar .highest-level .top-a').data('parent') == '#accordion' ) {
+                $('.tile-sidebar .highest-level .top-ul').removeClass('in');
+            }
+        });
+    });
 });
 var ticket_list = [];
 var current_ticket_search_key = '';
@@ -600,8 +608,8 @@ function setTotalBudgetTime(input) {
 }
 </script><?php
 IF(!IFRAME_PAGE) { ?>
-	<div class="tile-sidebar sidebar sidebar-override hide-titles-mob standard-collapsible">
-		<ul>
+	<div id="accordion" class="tile-sidebar sidebar sidebar-override hide-titles-mob standard-collapsible panel-group">
+		<ul class="panel">
 			<li class="standard-sidebar-searchbox"><input type="text" class="form-control search_list" placeholder="Search <?= TICKET_TILE ?>"></li>
 			<?php $active_tab = true;
 			if(!in_array('Disable',$db_summary)) { ?>
@@ -677,8 +685,8 @@ IF(!IFRAME_PAGE) { ?>
 					});
 				});
 				</script>
-				<li class="sidebar-higher-level highest-level" data-type="<?= $type ?>" <?= $file_name != '' ? 'data-form="'.$file_name.'"' : '' ?>><a class="cursor-hand collapsed" data-toggle="collapse" data-target="#<?= $type ?>"><?= $type_name ?><span class="arrow" /></a>
-					<ul class="collapse" id="<?= $type ?>" style="overflow: hidden;">
+				<li class="sidebar-higher-level highest-level" data-type="<?= $type ?>" <?= $file_name != '' ? 'data-form="'.$file_name.'"' : '' ?>><a class="top-a cursor-hand collapsed" data-parent="#accordion" data-toggle="collapse" data-target="#<?= $type ?>"><?= $type_name ?><span class="arrow" /></a>
+					<ul class="top-ul collapse" id="<?= $type ?>" style="overflow: hidden;">
 						<?php if(in_array('Staff',$db_sort) || in_array('Deliverable Date',$db_sort)) { ?>
 							<li class="sidebar-higher-level"><a class="collapsed cursor-hand" data-toggle="collapse" data-target="#filter_staff_<?= $type ?>">Staff<span class="arrow"></span></a>
 								<ul class="collapse" id="filter_staff_<?= $type ?>" style="overflow: hidden;">
@@ -766,8 +774,8 @@ IF(!IFRAME_PAGE) { ?>
 				include_once('../Project/project_administration_functions.php');
 				$admin_groups = $dbc->query("SELECT `id`, `name`,`region`,`classification`,`location`,`customer` FROM `field_config_project_admin` WHERE CONCAT(',',`contactid`,',') LIKE '%".$_SESSION['contactid']."%' AND `deleted`=0");
 				if($admin_groups->num_rows > 0) { ?>
-					<li class="sidebar-higher-level"><a class="cursor-hand <?= substr($_GET['tab'],0,14) == 'administration' ? 'active blue' : 'collapsed' ?>" data-toggle="collapse" data-target="#tab_admin">Administration<span class="arrow"></span></a>
-						<ul id="tab_admin" class="collapse <?= substr($_GET['tab'],0,14) == 'administration' ? 'in' : '' ?>">
+					<li class="sidebar-higher-level highest-level"><a class="top-a cursor-hand <?= substr($_GET['tab'],0,14) == 'administration' ? 'active blue' : 'collapsed' ?>" data-parent="#accordion" data-toggle="collapse" data-target="#tab_admin">Administration<span class="arrow"></span></a>
+						<ul id="tab_admin" class="top-ul collapse <?= substr($_GET['tab'],0,14) == 'administration' ? 'in' : '' ?>">
 							<?php while($admin_group = $admin_groups->fetch_assoc()) {
 								$other_groups = $dbc->query("SELECT GROUP_CONCAT(`region` SEPARATOR ''',''') `regions`, GROUP_CONCAT(`classification` SEPARATOR ''',''') `classifications` FROM `field_config_project_admin` WHERE `id`!='{$admin_group['id']}' AND `deleted`=0")->fetch_assoc(); ?>
 								<h4><?= $admin_group['name'].
@@ -843,8 +851,8 @@ IF(!IFRAME_PAGE) { ?>
 				<?php }
 			} ?>
 			<?php if(in_array('Invoicing',$db_config) && check_subtab_persmission($dbc, 'ticket', ROLE, 'invoice') === TRUE && !($strict_view > 0)) { ?>
-				<li class="sidebar-higher-level"><a class="cursor-hand <?= $_GET['tab'] == 'invoice' ? 'active blue' : 'collapsed' ?>" data-toggle="collapse" data-target="#tab_invoice">Accounting<span class="arrow"></span></a>
-					<ul id="tab_invoice" class="collapse <?= $_GET['tab'] == 'invoice' ? 'in' : '' ?>">
+				<li class="sidebar-higher-level highest-level"><a class="top-a cursor-hand <?= $_GET['tab'] == 'invoice' ? 'active blue' : 'collapsed' ?>" data-parent="#accordion" data-toggle="collapse" data-target="#tab_invoice">Accounting<span class="arrow"></span></a>
+					<ul id="tab_invoice" class="top-ul collapse <?= $_GET['tab'] == 'invoice' ? 'in' : '' ?>">
 						<?php $inv_count = $dbc->query("SELECT SUM(IF(`invoice`.`invoiceid` IS NULL, 1, 0)) `unbilled`, SUM(IF(`invoice`.`invoiceid` IS NULL, 0, 1)) `billed` FROM `tickets` LEFT JOIN `invoice` ON CONCAT(',',`invoice`.`ticketid`,',') LIKE CONCAT('%,',`tickets`.`ticketid`,',%') WHERE `tickets`.`deleted`=0 ".(in_array('Administration',$db_config) ?"AND `approvals` IS NOT NULL" : ''))->fetch_assoc(); ?>
 						<li class="sidebar-lower-level <?= $_GET['tab'] == 'invoice' && $_GET['status'] == 'unbilled' ? 'active blue' : '' ?>"><a href="?tile_name=<?= $_GET['tile_name'] ?>&tab=invoice&status=unbilled">Unbilled<span class="pull-right"><?= $inv_count['unbilled'] ?></span></a></li>
 						<li class="sidebar-lower-level <?= $_GET['tab'] == 'invoice' && $_GET['status'] == 'billed' ? 'active blue' : '' ?>"><a href="?tile_name=<?= $_GET['tile_name'] ?>&tab=invoice&status=billed">Billed<span class="pull-right"><?= $inv_count['billed'] > 25 ? 'Last 25' : $inv_count['billed'] ?></span></a></li>
@@ -854,8 +862,8 @@ IF(!IFRAME_PAGE) { ?>
 			<?php if(in_array('Manifest',$db_config) && check_subtab_persmission($dbc, 'ticket', ROLE, 'manifest') === TRUE && !($strict_view > 0)) {
 				$manifest_fields = explode(',',get_config($dbc, 'ticket_manifest_fields'));
 				$recent_inventory = get_config($dbc, 'recent_inventory'); ?>
-				<li class="sidebar-higher-level"><a class="cursor-hand <?= $_GET['tab'] == 'manifest' ? 'active blue' : 'collapsed' ?>" data-toggle="collapse" data-target="#tab_manifests">Manifests<span class="arrow"></span></a>
-					<ul id="tab_manifests" class="collapse <?= $_GET['tab'] == 'manifest' ? 'in' : '' ?>">
+				<li class="sidebar-higher-level highest-level"><a class="top-a cursor-hand <?= $_GET['tab'] == 'manifest' ? 'active blue' : 'collapsed' ?>" data-parent="#accordion" data-toggle="collapse" data-target="#tab_manifests">Manifests<span class="arrow"></span></a>
+					<ul id="tab_manifests" class="top-ul collapse <?= $_GET['tab'] == 'manifest' ? 'in' : '' ?>">
 						<li class="sidebar-lower-level <?= $_GET['tab'] == 'manifest' && $_GET['site'] == 'recent' ? 'active blue' : '' ?>"><a href="?tile_name=<?= $_GET['tile_name'] ?>&tab=manifest&site=recent">Last <?= $recent_manifests ?> Manifests</a></li>
 						<?php if(in_array('sort_top',$manifest_fields)) { ?>
 							<li class="sidebar-lower-level <?= $_GET['tab'] == 'manifest' && $_GET['site'] == 'top_25' ? 'active blue' : '' ?>"><a href="?tile_name=<?= $_GET['tile_name'] ?>&tab=manifest&site=top_25">Last <?= $recent_inventory ?> Line Items</a></li>
