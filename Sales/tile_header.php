@@ -17,20 +17,13 @@
                 <span class="popover-examples list-inline pull-right" style="margin:5px 5px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Click here for the settings within this tile. Any changes made will appear on your dashboard."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
             </div><?php
         } ?>
-        <div class="pull-right gap-left top-button-1"><?php
-            if ( check_subtab_persmission($dbc, 'sales', ROLE, 'reports') === TRUE ) { ?>
-                <a href="reports.php"><button type="button" class="btn brand-btn icon-pie-chart">Reports</button></a><?php
-            } else { ?>
-                <button type="button" class="btn disabled-btn icon-pie-chart">Reports</button><?php
-            } ?>
-        </div><?php
-        if ( vuaed_visible_function($dbc, 'sales') == 1 ) { ?>
+        <?php if ( vuaed_visible_function($dbc, 'sales') == 1 ) { ?>
             <div class="pull-right double-gap-left top-button-2">
                 <a href="sale.php?p=details" class="btn brand-btn mobile-block pull-right">New <?= SALES_NOUN ?></a>
                 <span class="popover-examples list-inline pull-right" style="margin:7px 5px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Add sales lead details here."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
             </div><?php
         }
-        if ( !isset($_GET['edit']) && !isset($_GET['view']) ) { ?>
+        if (!isset($_GET['edit']) && !isset($_GET['view']) && !isset($_GET['id']) && basename($_SERVER['SCRIPT_FILENAME']) != 'reports.php' && basename($_SERVER['SCRIPT_FILENAME']) != 'field_config.php') { ?>
             <div class="pull-right top-dashboard">
                 <img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-Speedometer.png" height="30" class="pull-right gap-left cursor-hand" onclick="$('.dashboard_select').toggle();">
                 <div class="dashboard_select pull-right" style="display: none;">
@@ -48,6 +41,8 @@
                     </select>
                 </div>
             </div>
+        <?php } ?>
+        <?php if (basename($_SERVER['SCRIPT_FILENAME']) != 'reports.php' && basename($_SERVER['SCRIPT_FILENAME']) != 'field_config.php') { ?>
 			<img class="inline-img pull-right btn-horizontal-collapse" src="../img/icons/pie-chart.png">
 		<?php } ?>
         <img class="no-toggle statusIcon pull-right no-margin inline-img small" title="" src="" data-original-title="">
