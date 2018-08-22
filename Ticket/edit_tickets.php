@@ -555,20 +555,30 @@ $(document).ready(function() {
 	window.onbeforeunload = function() {
 		var ready = ticketid > 0 || ticketid == 'multi' || <?= IFRAME_PAGE ? 'true' : 'false' ?>;
 		$('[name=projectid],select[name=businessid]').not('[type=checkbox]').each(function() {
-			if(!no_verify && this.value == '' && $(this).attr('type') != 'hidden' && (this.name != 'projectid' || $('[name=piece_work]').filter(function() { return this.value != ''; }).length != 1) && ready) {
-				<?php $incomplete_status = get_config($dbc, 'incomplete_ticket_status_'.$ticket_type);
-				if($incomplete_status == '') {
-					$incomplete_status = get_config($dbc, 'incomplete_ticket_status');
-				}
-				if($incomplete_status != '') { ?>
-					$('[name=status]').val('<?= $incomplete_status ?>').change();
-				<?php } ?>
+			if(!no_verify && this.value == '' && $(this).attr('type') != 'hidden' && (this.name != 'projectid' || $('[name=piece_work]').filter(function() { return this.value != ''; }).length != 1)) {
 				var target = this;
-				setTimeout(function() {
-					alert("Please fill in the "+$(target).closest('.form-group').find('label').text().split("\n")[0].replace(/^[^a-zA-Z0-9()]*/g,'').replace(/[^a-zA-Z0-9()]*$/g,'')+".");
-					$('.main-screen .default_screen').scrollTop($('.main-screen .default_screen').scrollTop() + $(target).offset().top - $('.main-screen .default_screen').offset().top - 30);
-				}, 0);
-				ready = false;
+				if($(target).is('select')) {
+					var select2 = $(target).next('.select2');
+					$(select2).find('.select2-selection').css('background-color', 'red');
+					$(select2).find('.select2-selection__placeholder').css('color', 'white');
+				} else {
+					$(target).css('background-color', 'red');
+				}
+				if(ready) {
+					<?php $incomplete_status = get_config($dbc, 'incomplete_ticket_status_'.$ticket_type);
+					if($incomplete_status == '') {
+						$incomplete_status = get_config($dbc, 'incomplete_ticket_status');
+					}
+					if($incomplete_status != '') { ?>
+						$('[name=status]').val('<?= $incomplete_status ?>').change();
+					<?php } ?>
+					setTimeout(function() {
+						alert("Please fill in the "+$(target).closest('.form-group').find('label').text().split("\n")[0].replace(/^[^a-zA-Z0-9()]*/g,'').replace(/[^a-zA-Z0-9()]*$/g,'')+".");
+						$('.main-screen .default_screen').scrollTop($('.main-screen .default_screen').scrollTop() + $(target).offset().top - $('.main-screen .default_screen').offset().top - 30);
+						$(target).focus();
+					}, 0);
+					ready = false;
+				}
 			}
 		});
 		if(ready && ($('[name=arrived][value=1]').length != $('[name=completed][value=1]').not('.no_time').length && $('[name=completed][value=0]').not('.no_time').length > 0) || $.inArray($('[name=timer]').val(),['',undefined]) < 0) {
