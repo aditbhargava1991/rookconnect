@@ -69,8 +69,11 @@
     $endtime = $endtimepdf;
 	$checklist = $checklistpdf;
 } ?>
-<h2><a href="?" class="show-on-mob"><img src="../img/icons/ROOK-back-icon.png" style="height:2em;"></a>
-Reporting</h2>
+
+<div class="standard-body-title">
+    <h3>Reporting</h3>
+</div>
+
 <form name="form_sites" method="post" action="" class="form-horizontal" role="form">
 	<?php if (isset($_POST['search_checklist_report'])) {
 		$starttime = $_POST['starttime'];
@@ -87,27 +90,40 @@ Reporting</h2>
 		$checklist == '';
 	} ?>
 
-	<div class="form-group">
-		<div class="col-sm-10">
-			<label class="col-sm-2 control-label">From:</label><div class="col-sm-4"><input name="starttime" type="text" class="datepicker form-control" value="<?php echo $starttime; ?>"></div>
-			<label class="col-sm-2 control-label">Until:</label><div class="col-sm-4"><input name="endtime" type="text" class="datepicker form-control" value="<?php echo $endtime; ?>"></div>
-			<label class="col-sm-2 control-label">Checklist:</label><div class="col-sm-4"><select data-placeholder="Select Checklist" name="checklist" class="chosen-select-deselect">
-					<option <?= empty($checklist) ? 'selected' : '' ?> value="ALL">All Checklists</option>
-					<?php $checklists = mysqli_query($dbc, "SELECT `checklist_name` FROM `checklist` WHERE `deleted`=0");
-					while($list = htmlentities(mysqli_fetch_assoc($checklists)['checklist_name'])) { ?>
-						<option <?= $checklist == $list ? 'selected' : '' ?> value="<?= $list ?>"><?= $list ?></option>
-					<?php } ?>
-				</select></div>
+	<div class="form-group padded">
+		<div class="row">
+			<label class="col-sm-2 control-label">From:</label>
+            <div class="col-sm-4"><input name="starttime" type="text" class="datepicker form-control" value="<?php echo $starttime; ?>"></div>
+			<label class="col-sm-2 control-label">Until:</label>
+            <div class="col-sm-4"><input name="endtime" type="text" class="datepicker form-control" value="<?php echo $endtime; ?>"></div>
+			<label class="col-sm-2 control-label">Checklist:</label>
+            <div class="col-sm-4">
+                <select data-placeholder="Select Checklist" name="checklist" class="chosen-select-deselect">
+                    <option <?= empty($checklist) ? 'selected' : '' ?> value="ALL">All Checklists</option>
+                    <?php $checklists = mysqli_query($dbc, "SELECT `checklist_name` FROM `checklist` WHERE `deleted`=0");
+                    while($list = htmlentities(mysqli_fetch_assoc($checklists)['checklist_name'])) { ?>
+                        <option <?= $checklist == $list ? 'selected' : '' ?> value="<?= $list ?>"><?= $list ?></option>
+                    <?php } ?>
+                </select>
+            </div>
+            <label class="col-sm-2 control-label"></label>
+            <div class="col-sm-4">
+                <button type="submit" name="search_checklist_report" value="Search" class="btn brand-btn mobile-block pull-right">Submit</button>
+                <a href="" class="btn brand-btn mobile-block pull-right">Current</a>
+            </div>
 		</div>
-		<div class="col-sm-2"><button type="submit" name="search_checklist_report" value="Search" class="btn brand-btn mobile-block">Submit</button>
-			<a href="" class="btn brand-btn mobile-block">Current</a></div>
-		<button type="submit" name="printpdf" value="Print Report" class="btn brand-btn pull-right">Print Report</button>
-
+        
 		<input type="hidden" name="starttimepdf" value="<?php echo $starttime; ?>">
 		<input type="hidden" name="endtimepdf" value="<?php echo $endtime; ?>">
 	</div>
+    
+    <button type="submit" name="printpdf" value="Print Report" class="pull-right gap-right gap-bottom"><img src="../img/pdf.png" alt="Print Report" title="Print Report" /></button>
+    
+    <div class="clearfix"></div>
 
-	<?php echo report_checklist($dbc, $starttime, $endtime, $checklist, '', '', ''); ?>
+    <div id="no-more-tables">
+        <?php echo report_checklist($dbc, $starttime, $endtime, $checklist, '', '', ''); ?>
+    </div>
 </form><?php
 
 function report_checklist($dbc, $starttime, $endtime, $checklist, $table_style, $table_row_style, $grand_total_style) {
@@ -131,14 +147,14 @@ function report_checklist($dbc, $starttime, $endtime, $checklist, $table_style, 
 
     $num_rows = mysqli_num_rows($result);
     if($num_rows > 0) {
-        $report_data .= '<table border="1px" class="table table-bordered" style="'.$table_style.'">';
-        $report_data .= '<tr style="'.$table_row_style.'"><th>Date</th>
+        $report_data .= '<table border="1px" class="table table-bordered table-striped" style="'.$table_style.'">';
+        $report_data .= '<thead><tr style="'.$table_row_style.'"><th>Date</th>
             <th>User</th>
             <th>Sub Tab</th>
             <th>Checklist Type</th>
             <th>Checklist Name</th>
             <th>Report</th>
-            </tr>';
+            </tr></thead>';
     
 		while($row = mysqli_fetch_array( $result ))
 		{

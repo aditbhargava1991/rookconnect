@@ -45,7 +45,8 @@
 		echo display_pagination($dbc, $count_sql, $pageNum, $rowsPerPage);
 
 		 ?>
-		<table id="no-more-tables" class="table table-bordered">
+		<table id="no-more-tables" class="table table-bordered table-striped">
+            <thead>
 			<tr class="hidden-xs hidden-sm">
                 <?php if(strpos($db_config, ',labour_type,') !== FALSE) { ?>
                     <th>Labour Type</th>
@@ -91,6 +92,7 @@
                     <th>Function</th>
                 <?php } ?>
 			</tr>
+            </thead>
 		<?php // Table Rows
 		while($row = mysqli_fetch_array($result)) { ?>
             <tr>
@@ -146,7 +148,7 @@
                     <td data-title="Function"><a href="?type=labour&card=labour&status=add&id=<?= $row['ratecardid'] ?>">Edit</a> | <a href="" data-id="<?= $row['ratecardid'] ?>" onclick="deleteRateCard(this); return false;">Delete</a></td>
                 <?php } else if($edit_security == 1) { ?>
                     <td data-title="History"></td>
-                    <td data-title="Function"><a href="?type=labour&card=labour&status=add&t=<?= $_GET['t'] ?>&labourid=<?= $row['labourid'] ?>">Create</a></td>
+                    <td data-title="Function"><a href="?type=labour&card=labour&status=add&t=<?= $_GET['t'] ?>&<?= $row['companyrcid'] > 0 ? 'id='.$row['companyrcid'] : 'labourid='.$row['labourid'] ?>"><?= $row['companyrcid'] > 0 ? 'Edit' : 'Create' ?></a></td>
                 <?php } ?>
             </tr>
 		<?php } ?>

@@ -13,7 +13,7 @@ var addTime = function() {
 				url: 'sales_ajax_all.php?action=lead_time',
 				data: { id: '<?= $salesid ?>', time: time+':00' },
 				success: function() {
-					reloadTime();
+					reload_time();
 				}
 			});
 		}
@@ -33,7 +33,7 @@ var toggleTimeTracking = function() {
 				url: 'sales_ajax_all.php?action=lead_time',
 				data: { id: '<?= $salesid ?>', time: timer_value },
 				success: function() {
-					reloadTime();
+					reload_time();
 				}
 			});
         }
@@ -45,9 +45,9 @@ var toggleTimeTracking = function() {
         });
 	}
 }
-var reloadTime = function() {
+var reload_time = function() {
 	$.get('details_time.php?id=<?= $salesid ?>', function(response) {
-		$('#time').closest('div').html(response);
+		$('#time').parents('div').first().html(response);
 	});
 }
 </script>
@@ -62,14 +62,20 @@ var reloadTime = function() {
 				<th>Date</th>
 				<th>Time</th>
 			</tr>
-			<?php $time_tracked = $dbc->query("SELECT * FROM `time_cards` WHERE `deleted`=0 AND `salesid`='$salesid'");
+			<?php $total_time = 0;
+            $time_tracked = $dbc->query("SELECT * FROM `time_cards` WHERE `deleted`=0 AND `salesid`='$salesid' AND `salesid` > 0");
 			while($time_row = $time_tracked->fetch_assoc()) { ?>
 				<tr>
 					<td data-title="User"><?= get_contact($dbc, $time_row['staff']) ?></td>
 					<td data-title="Date"><?= $time_row['date'] ?></td>
 					<td data-title="Time"><?= time_decimal2time($time_row['total_hrs']) ?></td>
 				</tr>
-			<?php } ?>
+                <?php $total_time += $time_row['total_hrs'];
+            } ?>
+            <tr>
+                <td colspan="2">Total</td>
+                <td data-title="Total"><?= time_decimal2time($total_time) ?></td>
+            </tr>
 		</table>
 	</div>
 	

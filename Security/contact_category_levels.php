@@ -15,11 +15,13 @@
 </script>
    
 <div id="no-more-tables">
-	<table class="table table-bordered">
-		<tr class="hidden-xs">
-			<th>Contact Category</th>
-			<th>Default Security Level</th>
-		</tr>
+	<table class="table table-bordered table-striped">
+        <thead>
+            <tr class="hidden-xs">
+                <th>Contact Category</th>
+                <th>Default Security Level</th>
+            </tr>
+        </thead>
 		<?php $on_security = get_security_levels($dbc);
 		$category_list = mysqli_query($dbc, "SELECT DISTINCT `category` FROM `contacts` WHERE `deleted` = 0 AND `status` = 1 ORDER BY `category`");
 		while($category = mysqli_fetch_assoc($category_list)) {

@@ -292,6 +292,12 @@ else if($_GET['action'] == 'stop_holiday_update_noti') {
     $page = filter_var($_POST['page'],FILTER_SANITIZE_STRING);
 	$comment_history = '';
 	$session_user = get_contact($dbc, $_SESSION['contactid']);
+    if($_POST['save_type'] == 'multi' && $field == 'approv') {
+        $prior = filter_var($_POST['prior_approv'],FILTER_SANITIZE_STRING);
+        $comment_history .= $session_user.' updated '.$field.' from '.$prior.' to '.$value.'.<br>';
+        $dbc->query("UPDATE `time_cards` SET `approv`='$value', `comment_box` = '".$time_card['comment_box'].htmlentities($comment_history)."' WHERE `staff`='$staff' AND `date`='$date' AND IFNULL(`business`,'') LIKE '%$siteid%' AND `approv`='$prior' AND `deleted`=0");
+        return;
+    }
     if(!($id > 0) && $layout == '') {
         $id = $dbc->query("SELECT MAX(`time_cards_id`) `time_cards_id` FROM `time_cards` WHERE `staff`='$staff' AND `date`='$date' AND '$siteid' IN (`business`,'') AND '$projectid' IN (`projectid`,'') AND '$ticketid' IN (`ticketid`,'') AND '$clientid' IN (`clientid`,'') AND '$attach_id' IN (`ticket_attached_id`,'') AND '$type_of_time' IN (`type_of_time`,'')")->fetch_assoc()['time_cards_id'];
         $total_hours = $dbc->query("SELECT SUM(`total_hrs`) `total`, IF(`time_cards_id`='$id',`total_hrs`,0) `row_hours` FROM `time_cards` WHERE `staff`='$staff' AND `date`='$date' AND '$siteid' IN (`business`,'') AND '$projectid' IN (`projectid`,'') AND '$ticketid' IN (`ticketid`,'') AND '$clientid' IN (`clientid`,'') AND '$attach_id' IN (`ticket_attached_id`,'') AND '$type_of_time' IN (`type_of_time`,'')")->fetch_assoc();

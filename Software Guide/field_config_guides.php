@@ -25,7 +25,7 @@ if ( !empty($guideid) ) {
             <div class="col-sm-12"><textarea name="additional_guide"><?= html_entity_decode($additional_guide) ?></textarea></div>
             <div class="col-sm-12 gap-top">
                 <div class="row">
-                    <div class="col-sm-6"><a class="cursor-hand delete-additional-guide"><img src="../img/icons/trash-icon-red.png" width="30" alt="Delete" /></a></div>
+                    <div class="col-sm-6"><a class="cursor-hand delete-additional-guide"><img src="../img/icons/ROOK-trash-icon.png" width="30" alt="Delete" /></a></div>
                     <div class="col-sm-6 text-right"><input type="submit" name="submit_guide" value="Submit" class="btn brand-btn" /></div>
                     <div class="clearfix"></div>
                 </div>

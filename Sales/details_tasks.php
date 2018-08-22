@@ -17,4 +17,8 @@
         <div class="clearfix double-gap-bottom"></div>
     </div>
 
+
+    <?php $tasks_only = true;
+    include('salespath.php'); ?>
+
 </div><!-- .accordion-block-details -->

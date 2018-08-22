@@ -136,16 +136,18 @@
 		// Display pagination
 		echo display_pagination($dbc, $sql_count, $pageNum, $rowsPerPage); ?>
 
-		<table class="table table-bordered">
-			<tr class="hidden-xs hidden-sm">
-				<th style="width:25em;">Staff Name</th>
-				<th>Security Level</th>
-				<th>Effective Privileges</th>
-				<?= count($region_list) > 0 ? '<th>Allowed Regions</th>' : '' ?>
-				<?= count($location_list) > 0 ? '<th>Allowed Locations</th>' : '' ?>
-				<?= count($classification_list) > 0 ? '<th>Allowed Classifications</th>' : '' ?>
-				<?= count($position_list) > 0 ? '<th>Allowed Positions</th>' : '' ?>
-			</tr><?php
+		<table class="table table-bordered table-striped">
+			<thead>
+                <tr class="hidden-xs hidden-sm">
+                    <th style="width:25em;">Staff Name</th>
+                    <th>Security Level</th>
+                    <th>Effective Privileges</th>
+                    <?= count($region_list) > 0 ? '<th>Allowed Regions</th>' : '' ?>
+                    <?= count($location_list) > 0 ? '<th>Allowed Locations</th>' : '' ?>
+                    <?= count($classification_list) > 0 ? '<th>Allowed Classifications</th>' : '' ?>
+                    <?= count($position_list) > 0 ? '<th>Allowed Positions</th>' : '' ?>
+                </tr>
+            </thead><?php
 
 			foreach ($sorted_list as $row) {
 				$name = '';

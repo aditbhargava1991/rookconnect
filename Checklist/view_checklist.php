@@ -51,6 +51,7 @@ $(document).ready(function() {
 		$('.hide_on_iframe').show();
 	});
 });
+
 function <?= $diff_function ?>choose_user(target, type, id, date) {
 	var title	= 'Choose a User';
 	$('iframe').load(function() {
@@ -344,14 +345,14 @@ function <?= $diff_function ?>export_pdf(checklist) {
 	});
 }
 function <?= $diff_function ?>mark_favourite(button) {
-	if(button.src.includes('filled')) {
-		button.src = '<?= WEBSITE_URL ?>/img/blank_star.png';
+	if(button.src.includes('full')) {
+		button.src = '<?= WEBSITE_URL ?>/img/blank_favourite.png';
 	} else {
-		button.src = '<?= WEBSITE_URL ?>/img/filled_star.png';
+		button.src = '<?= WEBSITE_URL ?>/img/full_favourite.png';
 	}
 	$.ajax({
 		type: "GET",
-		url: "../Checklist/checklist_ajax.php?fill=mark_favourite&checklistid="+$(button).data('id')+"&status="+button.src.includes('filled'),
+		url: "../Checklist/checklist_ajax.php?fill=mark_favourite&checklistid="+$(button).data('id')+"&status="+button.src.includes('full'),
 		dataType: "html",
 		success: function(response) {
 			reloadChecklistScreen($(checklist).closest('.checklist_screen'));
@@ -369,36 +370,41 @@ $quick_actions = explode(',',get_config($dbc, 'quick_action_icons')); ?>
 
 <form name="form_sites1" method="post" action="" class="form-inline" role="form" <?= ($checklist['flag_colour'] == '' ? '' : 'style="background-color: #'.$checklist['flag_colour'].';"') ?>>
 <?php if($hide_header != 'true') { ?>
-<h2>
-    <div class="pull-left">
-        <div class="pull-left show-on-mob"><a href="?"><img src="../img/icons/mobile-back-arrow.png" style="height:auto;"></a></div>
-        <div class="pull-left cursor-hand id-circle-other pad-top"><img src="<?= WEBSITE_URL ?>/img/<?= (in_array($checklist['checklistid'],explode(',',$user_settings['checklist_fav'])) ? 'filled' : 'blank') ?>_star.png" onclick="<?= $diff_function ?>mark_favourite(this);" data-id="<?= $checklist['checklistid'] ?>" /></div>
-        <div class="pull-left id-circle-other pad-top pad-left"><?= $checklist['checklist_name']; ?></div><?php
-        foreach(array_filter(array_unique(explode(',',$checklist['assign_staff']))) as $assigned_staff) {
-            if($assigned_staff == 'ALL') {
-                echo '<div class="pull-left id-circle" style="background-color:#6DCFF6">All</div>';
-            } else {
-                profile_id($dbc, $assigned_staff);
-            }
-        } ?>
+    <div class="standard-body-title">
+        <a href="?" class="show-on-mob show-on-mob2"><img src="../img/icons/ROOK-back-icon.png" class="pull-left" style="width:14%;"></a>
+        <h3 class="pull-left">
+            <div class="pull-left">
+                
+                <div class="pull-left id-circle-other pad-top pad-left"><?= $checklist['checklist_name']; ?></div><?php
+                foreach(array_filter(array_unique(explode(',',$checklist['assign_staff']))) as $assigned_staff) {
+                    if($assigned_staff == 'ALL') {
+                        echo '<div class="pull-left id-circle" style="background-color:#6DCFF6">All</div>';
+                    } else {
+                        profile_id($dbc, $assigned_staff);
+                    }
+                } ?>
+            </div>
+            <span class="pull-right hide-on-mobile" data-checklist="BOARD<?= $checklistid; ?>">
+                <div class="pull-left cursor-hand id-circle-other offset-top-5 gap-right"><img src="<?= WEBSITE_URL ?>/img/<?= (in_array($checklist['checklistid'],explode(',',$user_settings['checklist_fav'])) ? 'full' : 'blank') ?>_favourite.png" onclick="<?= $diff_function ?>mark_favourite(this);" data-id="<?= $checklist['checklistid'] ?>" class="inline-img" /></div>
+                <?php if($security['edit'] > 0) { ?><a class="header-icon" title="Edit Checklist" href="<?= $link.$_GET['view'] ?>"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-edit-icon.png" class="inline-img" /></a><?php } ?>
+                <?php if(in_array('flag',$quick_actions)) { ?><span class="header-icon" title="Flag This!" onclick="<?= $diff_function ?>flag_item(this); return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-flag-icon.png" class="inline-img" /></span><?php } ?>
+                <?php if(in_array('alert',$quick_actions)) { ?><span class="header-icon" title="Send Alert" onclick="<?= $diff_function ?>send_alert(this); return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-alert-icon.png" class="inline-img" /></span><?php } ?>
+                <?php if(in_array('email',$quick_actions)) { ?><span class="header-icon" title="Send Email" onclick="<?= $diff_function ?>send_email(this); return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-email-icon.png" class="inline-img" /></span><?php } ?>
+                <?php if(in_array('reminder',$quick_actions)) { ?><span class="header-icon" title="Schedule Reminder" onclick="<?= $diff_function ?>send_reminder(this); return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-reminder-icon.png" class="inline-img" /></span><?php } ?>
+                <?php if(in_array('attach',$quick_actions)) { ?><span class="header-icon" title="Attach File" onclick="<?= $diff_function ?>attach_file(this); return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-attachment-icon.png" class="inline-img" /></span><?php } ?>
+                <span class="header-icon" title="Download Checklist" onclick="<?= $diff_function ?>export_pdf(this); return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-download-icon.png" class="inline-img" /></span>
+                <?php if($security['edit'] > 0 && in_array('archive',$quick_actions)) { ?><span class="header-icon" title="Archive Checklist" onclick="<?= $diff_function ?>archive(this); return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-trash-icon.png" class="inline-img" /></span><?php }
+                /*
+                if(trim($checklist['assign_staff'],',') == $_SESSION['contactid']) { ?>
+                    <span class="block-label" style="margin: 0.25em;">Private</span><?php
+                } */ ?>
+                <br />
+                <input type="text" name="reminder_board_<?php echo $checklistid; ?>" style="display:none; margin-top:2em;" class="form-control datepicker" />
+            </span>
+            <div class="clearfix"></div>
+        </h3>
+        <div class="clearfix"></div>
     </div>
-    <span class="pull-right hide-on-mobile" data-checklist="BOARD<?= $checklistid; ?>">
-        <?php if(in_array('flag',$quick_actions)) { ?><span class="header-icon" title="Flag This!" onclick="<?= $diff_function ?>flag_item(this); return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-flag-icon.png" /></span><?php } ?>
-        <?php if(in_array('alert',$quick_actions)) { ?><span class="header-icon" title="Send Alert" onclick="<?= $diff_function ?>send_alert(this); return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-alert-icon.png" /></span><?php } ?>
-        <?php if(in_array('email',$quick_actions)) { ?><span class="header-icon" title="Send Email" onclick="<?= $diff_function ?>send_email(this); return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-email-icon.png" /></span><?php } ?>
-        <?php if(in_array('reminder',$quick_actions)) { ?><span class="header-icon" title="Schedule Reminder" onclick="<?= $diff_function ?>send_reminder(this); return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-reminder-icon.png" /></span><?php } ?>
-        <?php if(in_array('attach',$quick_actions)) { ?><span class="header-icon" title="Attach File" onclick="<?= $diff_function ?>attach_file(this); return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-attachment-icon.png" /></span><?php } ?>
-        <span class="header-icon" title="Download Checklist" onclick="<?= $diff_function ?>export_pdf(this); return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-download-icon.png" /></span>
-        <?php if($security['edit'] > 0 && in_array('archive',$quick_actions)) { ?><span class="header-icon" title="Archive Checklist" onclick="<?= $diff_function ?>archive(this); return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-trash-icon.png" /></span><?php }
-        if(trim($checklist['assign_staff'],',') == $_SESSION['contactid']) { ?>
-            <span class="block-label" style="margin: 0.25em;">Private</span><?php
-        } ?>
-        <?php if($security['edit'] > 0) { ?><a class="header-icon" title="Edit Checklist" href="<?= $link.$_GET['view'] ?>"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-edit-icon.png" /></a><?php } ?>
-        <br />
-        <input type="text" name="reminder_board_<?php echo $checklistid; ?>" style="display:none; margin-top:2em;" class="form-control datepicker" />
-    </span>
-    <div class="clearfix"></div>
-</h2>
 <?php } ?>
 
 <?php
@@ -485,11 +491,11 @@ if($num_rows > 0) { ?>
 	echo '</table>';
 } ?>
 
-    <div class="tab-container">
+    <div class="standard-body-content" style="margin-top:-1px">
         <input type="file" name="attach_board_<?= $checklistid; ?>" style="display:none;" />
         <input type="hidden" name="checklistid" value="<?= $checklistid ?>" />
         <input type="hidden" name="from_tile" value="<?= $_GET['from_tile'] ?>" /><?php
-        echo '<ul id="sortable'.$i.'" class="connectedChecklist">';
+        echo '<ul id="sortable'.$i.'" class="connectedChecklist full-width">';
 			if($security['edit'] > 0) {
 				echo '<li class="new_task_box no-sort">
 					<div class="col-sm-1"></div>
@@ -509,10 +515,9 @@ if($num_rows > 0) { ?>
                 echo '<li id="'.$row['checklistnameid'].'" class="ui-state-default '. ($first_class==1 ? 'ui-state-default-first' : '') .'" '.($row['flag_colour'] == '' ? '' : 'style="background-color: #'.$row['flag_colour'].';"').'>';
                 $first_class=0;
                     echo '<span class="">
-                        <div class="col-sm-1 col-xs-2 middle-valign text-center"><input title="Complete" type="checkbox" onclick="checklistChange(this);" data-ticket="'.(count(array_filter(explode(',',$checklist['ticketid']))) > 1 ? $_GET['ticketid'] : '').'" value="'.$row['checklistnameid'].'" name="checklistnameid[]" /></div>';
+                        <!-- <div class="col-sm-1 col-xs-2 middle-valign text-center"><input title="Complete" type="checkbox" onclick="checklistChange(this);" data-ticket="'.(count(array_filter(explode(',',$checklist['ticketid']))) > 1 ? $_GET['ticketid'] : '').'" value="'.$row['checklistnameid'].'" name="checklistnameid[]" /></div> -->';
 
-                        echo '<span class="col-sm-11 middle-valign" data-checklist="'.$row['checklistnameid'].'">';
-
+                        echo '<span class="col-sm-12 middle-valign" data-checklist="'.$row['checklistnameid'].'">';
 							if(in_array('flag_manual',$quick_actions)) { ?>
 								<span class="col-sm-3 text-center flag_field_labels" style="display:none;">Label</span><span class="col-sm-3 text-center flag_field_labels" style="display:none;">Colour</span><span class="col-sm-3 text-center flag_field_labels" style="display:none;">Start Date</span><span class="col-sm-3 text-center flag_field_labels" style="display:none;">End Date</span>
 								<div class="col-sm-3"><input type='text' name='label' value='<?= $row['flag_label'] ?>' class="form-control" style="display:none;"></div>
@@ -528,42 +533,52 @@ if($num_rows > 0) { ?>
 								<button class="btn brand-btn pull-right" name="flag_cancel" onclick="return false;" style="display:none;">Cancel</button>
 								<button class="btn brand-btn pull-right" name="flag_off" onclick="return false;" style="display:none;">Remove Flag</button>
 							<?php }
-                            echo '<input type="text" name="reply_'.$row['checklistnameid'].'" style="display:none; margin-top: 2em;" class="form-control" />';
-                            echo '<input type="text" name="checklist_time_'.$row['checklistnameid'].'" style="display:none; margin-top: 2em;" class="form-control timepicker" />';
-                            echo '<input type="text" name="reminder_'.$row['checklistnameid'].'" style="display:none; margin-top: 2em;" class="form-control datepicker" />';
-                            echo '<input type="file" name="attach_'.$row['checklistnameid'].'" style="display:none;" class="form-control" />';
-                            echo '<span class="display-field col-sm-12"><input type="text" name="edit_'.$row['checklistnameid'].'" style="display:none;" class="form-control" value="'.explode('<p>',html_entity_decode($row['checklist']))[0].'" />';
-                            echo '#'.$row['checklistnameid'].': '.preg_replace_callback('/\[PROFILE ([0-9]+)\]/',profile_callback,html_entity_decode($row['checklist']));
+                            echo '<span class="display-field col-sm-12">
+                                <span class="col-xs-12 col-sm-11">
+                                    <input title="Complete" type="checkbox" onclick="checklistChange(this);" data-ticket="'.(count(array_filter(explode(',',$checklist['ticketid']))) > 1 ? $_GET['ticketid'] : '').'" value="'.$row['checklistnameid'].'" name="checklistnameid[]" />&nbsp;
+                                    <input type="text" name="edit_'.$row['checklistnameid'].'" style="display:none;" class="form-control pull-left" value="'.explode('<p>',html_entity_decode($row['checklist']))[0].'" />';
+                                    echo '#'.$row['checklistnameid'].': '.preg_replace_callback('/\[PROFILE ([0-9]+)\]/',profile_callback,html_entity_decode($row['checklist']));
+                                    echo $security['edit'] > 0 && in_array('edit',$quick_actions) ? '&nbsp;<span class="" title="Edit" onclick="'.$diff_function.'edit_item(this); return false;"><img src="'.WEBSITE_URL.'/img/icons/ROOK-edit-icon.png" style="height:100%;" onclick="return false;" class="inline-img cursor-hand"></span>' : '';
+                                echo '</span>';
+                                echo '<span class="col-sm-1">';
+                                    echo '<span class="middle-valign drag_handle-container pull-right"><img class="drag_handle" src="'.WEBSITE_URL.'/img/icons/drag_handle.png" style="margin:0.25em; height:1.25em; width:1.25em;" /></span>';
+                                echo '</span>';
+                            echo '</span>';
 							foreach(explode(',',$row['alerts_enabled']) as $alertid) {
 								if($alertid > 0) {
-									echo '<span class="pull-left small col-sm-12">';
+									echo '<span class="pull-left small">';
 									profile_id($dbc, $alertid);
 									echo ' Assigned to '.get_contact($dbc, $alertid).'</span>';
 								}
 							}
-							echo '</span>&nbsp;&nbsp;';
+                        echo '</span>';
 
-                        echo '<span class="col-sm-11 middle-valign" data-checklist="'.$row['checklistnameid'].'">
+                        echo '<span class="col-sm-12 gap-top" data-checklist="'.$row['checklistnameid'].'">
 							<span class="action-icons">';
-								echo $security['edit'] > 0 && in_array('edit',$quick_actions) ? '<span class="" title="Edit" onclick="'.$diff_function.'edit_item(this); return false;"><img src="'.WEBSITE_URL.'/img/icons/ROOK-edit-icon.png" style="height:100%;" onclick="return false;" class="inline-img"></span>' : '';
+								//echo $security['edit'] > 0 && in_array('edit',$quick_actions) ? '<span class="" title="Edit" onclick="'.$diff_function.'edit_item(this); return false;"><img src="'.WEBSITE_URL.'/img/icons/ROOK-edit-icon.png" style="height:100%;" onclick="return false;" class="inline-img"></span>' : '';
 								echo in_array('flag_manual',$quick_actions) ? '<span class="" title="Flag This!" onclick="'.$diff_function.'manual_flag_item(this); return false;"><img src="'.WEBSITE_URL.'/img/icons/ROOK-flag-icon.png" style="height:100%;" onclick="return false;" class="inline-img"></span>' : '';
 								echo !in_array('flag_manual',$quick_actions) && in_array('flag',$quick_actions) ? '<span class="" title="Flag This!" onclick="'.$diff_function.'flag_item(this); return false;"><img src="'.WEBSITE_URL.'/img/icons/ROOK-flag-icon.png" style="height:100%;" onclick="return false;" class="inline-img"></span>' : '';
-								echo in_array('reply',$quick_actions) ? '<span class="" title="Reply" onclick="'.$diff_function.'send_reply(this); return false;"><img src="'.WEBSITE_URL.'/img/icons/ROOK-reply-icon.png" style="height:100%;" onclick="return false;" class="inline-img"></span>' : '';
+								echo in_array('reply',$quick_actions) ? '<span class="" title="Add Note" onclick="'.$diff_function.'send_reply(this); return false;"><img src="'.WEBSITE_URL.'/img/icons/ROOK-reply-icon.png" style="height:100%;" onclick="return false;" class="inline-img"></span>' : '';
 								echo in_array('attach',$quick_actions) ? '<span class="" title="Attach File" onclick="'.$diff_function.'attach_file(this); return false;"><img src="'.WEBSITE_URL.'/img/icons/ROOK-attachment-icon.png" style="height:100%;" onclick="return false;" class="inline-img"></span>' : '';
 								echo in_array('alert',$quick_actions) ? '<span class="" title="Send Alert" onclick="'.$diff_function.'send_alert(this); return false;"><img src="'.WEBSITE_URL.'/img/icons/ROOK-alert-icon.png" style="height:100%;" onclick="return false;" class="inline-img"></span>' : '';
 								echo in_array('email',$quick_actions) ? '<span class="" title="Send Email" onclick="'.$diff_function.'send_email(this); return false;"><img src="'.WEBSITE_URL.'/img/icons/ROOK-email-icon.png" style="height:100%;" onclick="return false;" class="inline-img"></span>' : '';
 								echo in_array('reminder',$quick_actions) ? '<span class="" title="Schedule Reminder" onclick="'.$diff_function.'send_reminder(this); return false;"><img src="'.WEBSITE_URL.'/img/icons/ROOK-reminder-icon.png" style="height:100%;" onclick="return false;" class="inline-img"></span>': '';
 								echo in_array('time',$quick_actions) ? '<span class="" title="Add Time" onclick="'.$diff_function.'add_time(this); return false;"><img src="'.WEBSITE_URL.'/img/icons/ROOK-timer-icon.png" style="height:100%;" onclick="return false;" class="inline-img"></span>' : '';
 								echo $security['edit'] > 0 && in_array('archive',$quick_actions) ? '<span class="" title="Archive Item" onclick="'.$diff_function.'archive(this); return false;"><img src="'.WEBSITE_URL.'/img/icons/ROOK-trash-icon.png" style="height:100%;" onclick="return false;" class="inline-img"></span>' : '';
-								echo '<span class=" middle-valign text-center drag_handle-container"><img class="drag_handle" src="'.WEBSITE_URL.'/img/icons/drag_handle.png" style="margin:0.25em; height:1.25em; width:1.25em;" /></span>';
+								//echo '<span class=" middle-valign text-center drag_handle-container"><img class="drag_handle" src="'.WEBSITE_URL.'/img/icons/drag_handle.png" style="margin:0.25em; height:1.25em; width:1.25em;" /></span>';
 								echo '<div class="clearfix"></div>';
 							echo '</span>';
 							echo '<div class="clearfix"></div>';
 
                             $documents = mysqli_query($dbc, "SELECT * FROM checklist_name_document WHERE checklistnameid='".$row['checklistnameid']."' AND `deleted`=0");
                             while($doc = mysqli_fetch_array($documents)) {
-                                echo '<div><a href="../Checklist/download/'.$doc['document'].'">'.$doc['document'].' (Uploaded by '.get_staff($dbc, $doc['created_by']).' on '.$doc['created_date'].')</a></div>';
+                                echo '<div class="gap-top"><a href="../Checklist/download/'.$doc['document'].'">'.$doc['document'].' (Uploaded by '.get_staff($dbc, $doc['created_by']).' on '.$doc['created_date'].')</a></div>';
                             }
+                            
+                            echo '<input type="text" name="reply_'.$row['checklistnameid'].'" style="display:none; margin-top: 2em;" class="form-control" />';
+                            echo '<input type="text" name="checklist_time_'.$row['checklistnameid'].'" style="display:none; margin-top: 2em;" class="form-control timepicker" />';
+                            echo '<input type="text" name="reminder_'.$row['checklistnameid'].'" style="display:none; margin-top: 2em;" class="form-control datepicker reminder" onfocusout="$(this).hide();" />';
+                            echo '<input type="file" name="attach_'.$row['checklistnameid'].'" style="display:none;" class="form-control" />';
 						echo '</span>';
 						echo '<div class="clearfix"></div>';
                     // echo '<div class="col-sm-1 middle-valign text-center drag_handle-container"></div>';
@@ -585,8 +600,8 @@ if($num_rows > 0) { ?>
         if ( $result->num_rows > 0 ) {
             echo '<div class="clearfix double-gap-top"></div>';
 
-            echo '<h4 class="connectedChecklistTitle">Completed</h4>';
-            echo '<ul class="connectedChecklist border-bottom-none">';
+            echo '<h4 class="connectedChecklistTitle full-width pad-left">Completed</h4>';
+            echo '<ul class="connectedChecklist full-width border-bottom-none double-gap-bottom">';
                 while($row = mysqli_fetch_array( $result )) {
                     $info = ' : '.$row['updated_date']. ' : '.$row['updated_by'];
                     echo '<li id="'.$row['checklistnameid'].'" title="Incomplete" class="ui-state-default no-sort">';

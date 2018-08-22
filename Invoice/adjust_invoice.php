@@ -564,8 +564,8 @@ if (isset($_POST['submit_btn'])) {
                             </div>
 
                             <div class="col-sm-2">
-                                <img src="<?= WEBSITE_URL ?>/img/plus.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right" onclick="add_service_row();">
-                                <img src="<?= WEBSITE_URL ?>/img/remove.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right" onclick="rem_service_row(this);">
+                                <img src="<?= WEBSITE_URL ?>/img/remove.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right cursor-hand" onclick="rem_service_row(this);">
+                                <img src="<?= WEBSITE_URL ?>/img/icons/ROOK-add-icon.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right cursor-hand" onclick="add_service_row();">
                             </div>
 
                             <div class="col-sm-12 pay-div"></div>
@@ -585,19 +585,22 @@ if (isset($_POST['submit_btn'])) {
                     }
 
                     //Calculate Column Widths
-                    $col1 = 2;
+                    $col1 = 1;
                     $col2 = 2;
                     $col3 = 2;
                     $col4 = 1;
                     $col5 = 1;
-                    $col6 = 1;
+                    $col6 = 2;
                     $col7 = 2;
+                    $col8 = 1;
                     if(in_array('inventory_cat',$field_config) && in_array('inventory_part',$field_config) && in_array('inventory_type',$field_config)) {
                         $col1 = $col2 = $col3 = 2;
                         $col4 = 1;
                         $col5 = 0;
                     } else if(in_array('inventory_cat',$field_config) && in_array('inventory_part',$field_config) && in_array('inventory_price',$field_config)) {
-                        $col1 = $col2 = $col3 = 2;
+                        //$col1 = $col2 = $col3 = 2;
+                        $col1 = 1;
+                        $col2 = $col3 = 2;
                         $col5 = 1;
                         $col4 = 0;
                     } else if(in_array('inventory_cat',$field_config) && in_array('inventory_type',$field_config) && in_array('inventory_price',$field_config)) {
@@ -617,8 +620,10 @@ if (isset($_POST['submit_btn'])) {
                         $col3 = $col4 = 2;
                         $col2 = $col5 = 0;
                     } else if(in_array('inventory_cat',$field_config) && in_array('inventory_price',$field_config)) {
-                        $col1 = 3;
-                        $col3 = $col5 = 2;
+                        //$col1 = 3;
+                        $col3 = 3;
+                        //$col3 = $col5 = 2;
+                        $col5 = 2;
                         $col2 = $col4 = 0;
                     } else if(in_array('inventory_part',$field_config) && in_array('inventory_type',$field_config)) {
                         $col2 = 3;
@@ -807,9 +812,27 @@ if (isset($_POST['submit_btn'])) {
                                 <input name="inventory_row_id[]" type="hidden" value="<?= $insurer_row_id++ ?>" class="insurer_row_id" />
                                 <input name="inventory_gst_exempt[]" type="hidden" value="0" />
                             </div>
-                            <div class="col-sm-2">
-                                <img src="<?= WEBSITE_URL ?>/img/plus.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right" onclick="add_product_row();">
-                                <img src="<?= WEBSITE_URL ?>/img/remove.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right" onclick="rem_product_row(this);">
+                            <div class="col-sm-<?= $col8 ?> col-pricing" <?= (in_array('pricing',$field_config) ? '' : 'style="display:none;"') ?>>
+                                <img src="../img/icons/ROOK-edit-icon.png" alt="Edit Pricing" title="Edit Pricing" width="30" class="cursor-hand" onclick="$(this).hide(); $(this).closest('.col-pricing').find('.pricing-div').show();" />
+                                <div class="pricing-div" style="display:none;">
+                                    <select data-placeholder="Select Pricing" id="linepricing_0" name="linepricing[]" class="chosen-select-deselect form-control linepricing" onchange="changeProduct($('#inventoryid_'+this.id.split('_')[1]).get(0));">
+                                        <option></option>
+                                        <?php if(in_array('price_admin', $field_config)) { ?><option <?= ($pricing == 'admin_price' ? 'selected' : '') ?> value="admin_price">Admin Price</option><?php } ?>
+                                        <?php if(in_array('price_client', $field_config)) { ?><option <?= ($pricing == 'client_price' ? 'selected' : '') ?> value="client_price">Client Price</option><?php } ?>
+                                        <?php if(in_array('price_commercial', $field_config)) { ?><option <?= ($pricing == 'commercial_price' ? 'selected' : '') ?> value="commercial_price">Commercial Price</option><?php } ?>
+                                        <?php if(in_array('price_distributor', $field_config)) { ?><option <?= ($pricing == 'distributor_price' ? 'selected' : '') ?> value="distributor_price">Distributor Price</option><?php } ?>
+                                        <?php if(in_array('price_retail', $field_config)) { ?><option <?= ($pricing == 'final_retail_price' || $pricing == '' ? 'selected' : '') ?> value="final_retail_price">Final Retail Price</option><?php } ?>
+                                        <?php if(in_array('price_preferred', $field_config)) { ?><option <?= ($pricing == 'preferred_price' ? 'selected' : '') ?> value="preferred_price">Preferred Price</option><?php } ?>
+                                        <?php if(in_array('price_po', $field_config)) { ?><option <?= ($pricing == 'purchase_order_price' ? 'selected' : '') ?> value="purchase_order_price">Purchase Order Price</option><?php } ?>
+                                        <?php if(in_array('price_sales', $field_config)) { ?><option <?= ($pricing == 'sales_order_price' ? 'selected' : '') ?> value="sales_order_price"><?= SALES_ORDER_NOUN ?> Price</option><?php } ?>
+                                        <?php if(in_array('price_web', $field_config)) { ?><option <?= ($pricing == 'web_price' ? 'selected' : '') ?> value="web_price">Web Price</option><?php } ?>
+                                        <?php if(in_array('price_wholesale', $field_config)) { ?><option <?= ($pricing == 'wholesale_price' ? 'selected' : '') ?> value="wholesale_price">Wholesale Price</option><?php } ?>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-sm-1">
+                                <img src="<?= WEBSITE_URL ?>/img/remove.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right cursor-hand" onclick="rem_product_row(this);">
+                                <img src="<?= WEBSITE_URL ?>/img/icons/ROOK-add-icon.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right cursor-hand" onclick="add_product_row();">
                             </div>
                             <div class="col-sm-12 pay-div"></div>
                         </div>
@@ -889,8 +912,8 @@ if (isset($_POST['submit_btn'])) {
                                 </div>
                                 <div class="col-sm-2 <?= empty($package) ? '' : 'return_block' ?>">
                                     <?php if(empty($package)) { ?>
-                                        <img src="<?= WEBSITE_URL ?>/img/plus.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right" onclick="add_package_row();">
-                                        <img src="<?= WEBSITE_URL ?>/img/remove.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right" onclick="rem_package_row(this);">
+                                        <img src="<?= WEBSITE_URL ?>/img/remove.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right cursor-hand" onclick="rem_package_row(this);">
+                                        <img src="<?= WEBSITE_URL ?>/img/icons/ROOK-add-icon.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right cursor-hand" onclick="add_package_row();">
                                     <?php } else { ?>
                                         <label><input type="checkbox" name="packagerow_refund[]" value="<?= $insurer_row_id ?>" onchange="countTotalPrice()"> Refund</label>
                                     <?php }
@@ -954,8 +977,8 @@ if (isset($_POST['submit_btn'])) {
                                 </div>
                                 <div class="col-sm-2 <?= empty($misc_item) ? '' : 'return_block' ?>">
                                     <?php if(empty($misc_item)) { ?>
-                                        <img src="<?= WEBSITE_URL ?>/img/plus.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right" onclick="add_misc_row();">
-                                        <img src="<?= WEBSITE_URL ?>/img/remove.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right" onclick="rem_misc_row(this);">
+                                        <img src="<?= WEBSITE_URL ?>/img/remove.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right cursor-hand" onclick="rem_misc_row(this);">
+                                        <img src="<?= WEBSITE_URL ?>/img/icons/ROOK-add-icon.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right cursor-hand" onclick="add_misc_row();">
                                     <?php } else { ?>
                                         <label class="show-on-mob">Refund Qty:</label>
                                         <input type="number" name="misc_return[]" step="any" max="0" min="<?= -$misc_qty ?>" value="0" onchange="countTotalPrice()" class="form-control <?= (empty($misc_item) ? '' : 'misc_qty') ?>">
@@ -1167,8 +1190,8 @@ if (isset($_POST['submit_btn'])) {
                                 </select>
                             </span>
                             <span class="col-sm-1">
-                                <img src="<?= WEBSITE_URL ?>/img/plus.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right" onclick="addmore();" title="Add Additional Appointment">
-                                <img src="<?= WEBSITE_URL ?>/img/remove.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right" onclick="removeclass(this);" title="Remove this Row">
+                                <img src="<?= WEBSITE_URL ?>/img/remove.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right cursor-hand" onclick="removeclass(this);" title="Remove this Row">
+                                <img src="<?= WEBSITE_URL ?>/img/icons/ROOK-add-icon.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right cursor-hand" onclick="addmore();" title="Add Additional Appointment">
                             </span><div class="clearfix"></div>
                         </div>
                     </div>
@@ -1396,8 +1419,8 @@ if (isset($_POST['submit_btn'])) {
                                 <input name="payment_price[]" type="text" id="payment_price_0" class="form-control payment_price" onchange="countTotalPrice();" />
                             </div>
                             <div class="col-sm-1">
-                                <img src="<?= WEBSITE_URL ?>/img/plus.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right" onclick="add_patient_payment_row();">
-                                <img src="<?= WEBSITE_URL ?>/img/remove.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right" onclick="rem_patient_payment_row(this);">
+                                <img src="<?= WEBSITE_URL ?>/img/remove.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right cursor-hand" onclick="rem_patient_payment_row(this);">
+                                <img src="<?= WEBSITE_URL ?>/img/icons/ROOK-add-icon.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right cursor-hand" onclick="add_patient_payment_row();">
                             </div>
                         </div>
 
@@ -1527,6 +1550,18 @@ $(document).ready(function() {
 		echo "pay_mode_selected('$paid');";
 	} ?>
 });
+$(document).on('change', 'select[name="linepricing[]"]', function() {
+    var rowid = this.id.split('_')[1];
+    if ($('#linepricing_'+rowid+' option:selected').val()=='admin_price') {
+        $('#unitprice_'+rowid).attr('readonly', false);
+    } else {
+        $('#unitprice_'+rowid).attr('readonly', true);
+    }
+    updatePricing();
+});
+$(document).on('change', '[name="unit_price[]"]', function() {
+    adminPrice(this);
+});
 $(document).on('change', 'select[name="app_type"]', function() { changeApptType(this.value); });
 $(document).on('change', 'select[name="pricing"]', function() { updatePricing(); });
 $(document).on('change', 'select[name="paid"]', function() { pay_mode_selected(this.value); });
@@ -1569,8 +1604,8 @@ function pay_mode_selected(paid) {
 					'<a href="#job_file" data-toggle="tooltip" data-placement="top" title="The portion that the <?= count($payer_config) > 1 ? 'Third Party' : $payer_config[0] ?> will pay before tax. The applicable tax will be added to this amount."><img src="<?= WEBSITE_URL ?>/img/info.png" width="20"></a></span></label>'+
 				'<div class="col-sm-2"><input type="number" step="any" name="insurer_payment_amt[]" class="form-control" value="0" onchange="countTotalPrice();">'+
 					'<input type="hidden" name="insurer_row_applied[]" value=""></div>'+
-				'<div class="col-sm-2"><img src="<?= WEBSITE_URL ?>/img/plus.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right" onclick="add_insurer_row(this);">'+
-					'<img src="<?= WEBSITE_URL ?>/img/remove.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right" onclick="rem_insurer_row(this);"></div></div>');
+				'<div class="col-sm-2"><img src="<?= WEBSITE_URL ?>/img/remove.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right cursor-hand" onclick="rem_insurer_row(this);">'+
+					'<img src="<?= WEBSITE_URL ?>/img/icons/ROOK-add-icon.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right cursor-hand" onclick="add_insurer_row(this);"></div></div>');
 			$('[name="insurerid[]"]').select2({
                 width: '100%'
             });
@@ -1645,8 +1680,8 @@ function addmore()
 							'</select></p>'+
 							'</span>'+
 							'<span class="col-sm-1">'+
-							'<img src="<?= WEBSITE_URL ?>/img/plus.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right" onclick="addmore();" title="Add Additional Appointment">'+
-							'<img src="<?= WEBSITE_URL ?>/img/remove.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right" onclick="removeclass(this);" title="Remove this Row">'+
+							'<img src="<?= WEBSITE_URL ?>/img/remove.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right cursor-hand" onclick="removeclass(this);" title="Remove this Row">'+
+							'<img src="<?= WEBSITE_URL ?>/img/icons/ROOK-add-icon.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right cursor-hand" onclick="addmore();" title="Add Additional Appointment">'+
 							'</span><div class="clearfix"></div>'+
 						'</div>';
 	jQuery(insertstring).insertAfter('.' + classname);

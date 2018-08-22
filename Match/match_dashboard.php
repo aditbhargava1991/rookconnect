@@ -109,8 +109,8 @@ $(document).ready(function() {
                     $get_field_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT medication_dashboard FROM field_config"));
                     $value_config = ','.$get_field_config['medication_dashboard'].',';
 
-                    echo "<table class='table table-bordered'>";
-                    echo "<tr class='hidden-xs hidden-sm'>";
+                    echo "<table class='table table-bordered table-striped'>";
+                    echo "<thead><tr class='hidden-xs hidden-sm'>";
                         echo '<th>Staff</th>';
                         echo '<th>Contacts</th>';
                         echo '<th>Timeline</th>';
@@ -119,7 +119,7 @@ $(document).ready(function() {
                         echo '<th>Status</th>';
                         echo '<th>History</th>';
                         echo '<th>Function</th>';
-                        echo "</tr>";
+                        echo "</tr></thead>";
                 } else {
                     echo "<h2>No Record Found.</h2>";
                 }

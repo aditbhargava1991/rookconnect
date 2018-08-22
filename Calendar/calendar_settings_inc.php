@@ -43,6 +43,7 @@ if(!empty($allowed_equipment)) {
 $allowed_dispatch_staff = count($contact_security['dispatch_staff_access']) > 0 ? $contact_security['dispatch_staff_access'] : 1;
 $allowed_dispatch_team = count($contact_security['dispatch_team_access']) > 0 ? $contact_security['dispatch_team_access'] : 1;
 $allowed_dispatch_contractors = count($contact_security['dispatch_contractor_access']) > 0 ? $contact_security['dispatch_contractor_access'] : 1;
+
 $calendar_checkmark_tickets = get_config($dbc, 'calendar_checkmark_tickets');
 $calendar_checkmark_status = get_config($dbc, 'calendar_checkmark_status');
 if(empty($calendar_checkmark_status)) {
@@ -183,6 +184,27 @@ asort($allowed_regions);
 asort($contact_locations);
 asort($allowed_locations);
 asort($contact_classifications);
+
+$allowed_roles = [];
+$allowed_ticket_types = [];
+foreach(explode(',', ROLE) as $session_role) {
+    $field_config = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `field_config_calendar_security` WHERE `role` = '$session_role' AND `calendar_type` ='".$_GET['type']."'"));
+    $allowed_roles = array_merge($allowed_roles, explode(',', $field_config['allowed_roles']));
+    $allowed_ticket_types = array_merge($allowed_ticket_types, explode(',', $field_config['allowed_ticket_types']));
+}
+$allowed_roles = array_unique(array_filter($allowed_roles));
+$allowed_ticket_types = array_unique(array_filter($allowed_ticket_types));
+$allowed_roles_query = '';
+$allowed_ticket_types_query = '';
+if(!empty($allowed_roles)) {
+    $allowed_roles_query = " AND (CONCAT(',',`role`,',') LIKE '%,".implode(",%' OR CONCAT(',',`role`,',') LIKE '%,", $allowed_roles).",%')";
+}
+if(!empty($allowed_ticket_types)) {
+    if(in_array(get_config($dbc, 'default_ticket_type'), $allowed_ticket_types)) {
+        $allowed_ticket_types[] = '';
+    }
+    $allowed_ticket_types_query = " AND IFNULL(`tickets`.`ticket_type`,'') IN ('".implode("','", $allowed_ticket_types)."')";
+}
 
 $page_query = $_GET;
 
@@ -386,6 +408,16 @@ switch($_GET['type']) {
         $service_date = get_config($dbc, 'scheduling_service_date');
         $passed_service = get_config($dbc, 'scheduling_passed_service');
         $columns_group_regions = get_config($dbc, 'scheduling_columns_group_regions');
+        $staff_split_security = get_config($dbc, 'scheduling_staff_split_security');
+        $contractor_split_security = get_config($dbc, 'scheduling_contractor_split_security');
+        $drag_multiple = get_config($dbc, 'scheduling_drag_multiple');
+        $customer_roles = array_filter(explode(',',get_config($dbc, 'scheduling_customer_roles')));
+        $is_customer = false;
+        foreach(array_filter(explode(',',ROLE)) as $session_role) {
+            if(in_array($session_role,$customer_roles)) {
+                $is_customer = true;
+            }
+        }
         break;
     case 'estimates':
         $config_type = 'estimates';
@@ -434,7 +466,8 @@ switch($_GET['type']) {
         $client_staff_freq = get_config($dbc, 'ticket_client_staff_freq');
         $client_draggable = get_config($dbc, 'ticket_client_draggable');
         $staff_summary = get_config($dbc, 'ticket_staff_summary');
-        $ticket_summary = get_config($dbc, 'ticket_ticket_summary');
+        $ticket_summary_tab = get_config($dbc, 'ticket_ticket_summary_tab');
+        $client_tab = get_config($dbc, 'ticket_client_tab');
 
         $mobile_calendar_views = [''=>'Staff'];
         $mobile_calendar_view = 'Staff';

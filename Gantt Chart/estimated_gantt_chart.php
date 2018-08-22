@@ -134,15 +134,15 @@ function endDate(sel) {
             echo display_pagination($dbc, $query, $pageNum, $rowsPerPage);
             // Pagination Finish //
 
-            echo '<div id="no-more-tables"><table class="table table-bordered">';
-            echo '<tr class="hidden-xs hidden-sm">
+            echo '<div id="no-more-tables"><table class="table table-bordered table-striped">';
+            echo '<thead><tr class="hidden-xs hidden-sm">
                 <th>Business</th>
                 <th>Service</th>
                 <th>Heading</th>
                 <th>Phase</th>
                 <th>Start Date</th>
                 <th>End Date</th>
-                </tr>';
+                </tr></thead>';
         } else {
             echo "<h2>No Record Found.</h2>";
         }

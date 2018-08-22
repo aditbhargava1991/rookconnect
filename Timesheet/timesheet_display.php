@@ -268,13 +268,13 @@ var useProfileSig = function(chk) {
             <?php if(in_array('approve_all', $value_config) && in_array($current_page, ['time_card_approvals_coordinator.php','time_card_approvals_manager.php'])) { ?><br><label><input type="checkbox" name="select_all_approve" onclick="approveAll(this);"> Select All<?php } ?></th><?php } ?>
     </tr>
     <?php // Get Ticket, task, and position lists
-    if(!isset($ticket_list)) {
+    if(!isset($position_list) && in_array($layout, ['position_dropdown'])) {
         $position_list = $_SERVER['DBC']->query("SELECT `position` FROM (SELECT `name` `position` FROM `positions` WHERE `deleted`=0 UNION SELECT `type_of_time` `position` FROM `time_cards` WHERE `deleted`=0) `list` WHERE IFNULL(`position`,'') != '' GROUP BY `position` ORDER BY `position`")->fetch_all();
     }
-    if(!isset($ticket_list)) {
+    if(!isset($ticket_list) && in_array($layout, ['ticket_task'])) {
         $ticket_list = $dbc->query("SELECT * FROM `tickets` WHERE `deleted` = 0 AND `status` != 'Archive'")->fetch_all(MYSQLI_ASSOC);
     }
-    if(!isset($task_list)) {
+    if(!isset($task_list) && in_array($layout, ['ticket_task'])) {
         $task_list = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `task_types` WHERE `deleted` = 0 ORDER BY `category`"),MYSQLI_ASSOC);
     }
     $sql = "SELECT `time_cards_id`, `date`, SUM(IF(`type_of_time` NOT IN ('Extra Hrs.','Relief Hrs.','Sleep Hrs.','Sick Time Adj.','Sick Hrs.Taken','Stat Hrs.','Stat Hrs.Taken','Vac Hrs.','Vac Hrs.Taken','Break'),`total_hrs`,0)) REG_HRS,

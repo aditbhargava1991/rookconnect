@@ -417,10 +417,16 @@ function removeNewRow(button) {
     $value_config = ','.$get_field_config['task'].',';
     ?>
 
-	<h2>
-        <a href="?<?= $checklistid > 0 ? 'view='.$checklistid : '' ?>" class="show-on-mob pull-left"><img src="../img/icons/ROOK-back-icon.png" style="height:2em; width:1em;"></a>
-        <div class="col-xs-11 col-sm-12 pad-5"><input type="text" class="form-control create-input" value="<?= $checklist_name ?>" name="checklist_name" placeholder="Name your checklist..." /></div>
-    </h2>
+	<div class="standard-body-title">
+        <a href="?<?= $checklistid > 0 ? 'view='.$checklistid : '' ?>" class="show-on-mob pull-left gap-right"><img src="../img/icons/ROOK-back-icon.png" style="height:100%; width:47%;"></a>
+        <h3><?= isset($_GET['edit']) && $_GET['edit']=='NEW' ? 'Add' : 'Edit' ?> <?= $checklist_name ?> Checklist</h3>
+    </div>
+    
+    
+    <div class="row">
+        <div class="col-sm-12 padded"><input type="text" class="form-control create-input" value="<?= $checklist_name ?>" name="checklist_name" placeholder="Name your checklist..." /></div>
+    </div>
+    
 	<div class="clearfix"></div>
 
     <div class="main-screen-container">
@@ -847,7 +853,7 @@ function removeNewRow(button) {
 			</div><!-- #edit_accordions -->
 		</div><!-- .pad-left-15-desktop -->
 
-        <div class="form-group col-sm-6 col-xs-12 pull-left block-group">
+        <div class="form-group col-sm-6 col-xs-12 pull-left block-group" style="margin-top:7px;">
             <div class="form-group clearfix">
                 <?php
                 if($_GET['edit'] > 0) {
@@ -892,7 +898,7 @@ function removeNewRow(button) {
             </div>
             <div class="pull-right">
                 <span class="popover-examples list-inline" style="margin:0;"><a data-toggle="tooltip" data-placement="top" title="If you click this, the current Checklist will not be saved."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
-                <a href="<?= $url ?>" class="btn brand-btn btn-white offset-right-5">Cancel</a>
+                <a href="<?= $url ?>" class="btn brand-btn offset-right-5">Cancel</a>
             </div>
         </div>
     </div><!-- .main-screen-container -->

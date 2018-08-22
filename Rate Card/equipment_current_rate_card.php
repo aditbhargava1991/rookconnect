@@ -27,7 +27,8 @@
 		echo display_pagination($dbc, $count_sql, $pageNum, $rowsPerPage);
 		
 		// Table Headers ?>
-		<table class="table table-bordered">
+		<table class="table table-bordered table-striped">
+            <thead>
 			<tr class="hidden-xs hidden-sm">
 				<th>Rate Card</th>
 				<th>Category</th>
@@ -66,6 +67,7 @@
                     <th>Function</th>
                 <?php } ?>
 			</tr>
+            </thead>
 		<?php // Table Rows
 		while($row = mysqli_fetch_array($result)) {
 			echo '<tr>'; ?>
@@ -114,7 +116,7 @@
 					<td data-title="Function"><a href="?type=equipment&card=equipment&status=add&id=<?= $row['companyrcid'] ?>">Edit</a> | <a href="" data-id="<?= $row['companyrcid'] ?>" onclick="deleteRateCard(this); return false;">Delete</a></td>
                 <?php } else if($edit_security == 1) { ?>
                     <td data-title="History"></td>
-                    <td data-title="Function"><a href="?type=equipment&card=equipment&status=add&task=<?= $row['id'] ?>">Create</a></td>
+                    <td data-title="Function"><a href="?type=equipment&card=equipment&status=add&equipment=<?= $row['equipmentid'] ?>">Create</a></td>
                 <?php } ?>
 			<?php echo '</tr>';
 		} ?>

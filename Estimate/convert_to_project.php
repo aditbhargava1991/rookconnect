@@ -7,7 +7,7 @@ $projectid = $_GET['projectid'];
 $max_sort = 0;
 if($projectid > 0) {
 	$max_sort = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT MAX(`sort_order`) max_sort FROM `project_scope` WHERE `projectid`='$projectid'"))['max_sort'];
-	
+
 	$user = decryptIt($_SESSION['first_name']).' '.decryptIt($_SESSION['last_name']);
 	mysqli_query($dbc, "INSERT INTO `project_history` (`updated_by`, `description`, `projectid`) VALUES ('$user', 'Estimate #$estimate attached to ".PROJECT_NOUN."', '$projectid')");
 } else {
@@ -23,7 +23,11 @@ if($projectid > 0) {
 }
 mysqli_query($dbc, "INSERT INTO `project_scope` (`projectid`,`estimateline`,`heading`,`description`,`src_table`,`src_id`,`rate_card`,`uom`,`qty`,`cost`,`profit`,`margin`,`price`,`retail`,`multiple`,`sort_order`)
 	SELECT '$projectid',`id`,`heading`,`description`,`src_table`,`src_id`,`rate_card`,`uom`,`qty`,`cost`,`profit`,`margin`,`price`,`retail`,`multiple`,`sort_order`+$max_sort FROM `estimate_scope` WHERE `estimateid`='$estimate' AND `deleted`=0");
-mysqli_query($dbc, "UPDATE `estimate` SET `projectid`='$projectid', `status`='$status', `status_date`=DATE(NOW()) WHERE `estimateid`='$estimate'"); ?>
+mysqli_query($dbc, "UPDATE `estimate` SET `projectid`='$projectid', `status`='$status', `status_date`=DATE(NOW()) WHERE `estimateid`='$estimate'");
+$before_change = '';
+$history = "Estimates detail entry has been updated for estimate id $estimate. <br />";
+add_update_history($dbc, 'estimates_history', $history, '', $before_change);
+?>
 <script>
 window.location.replace('../Project/projects.php?edit=<?= $projectid ?>');
 </script>

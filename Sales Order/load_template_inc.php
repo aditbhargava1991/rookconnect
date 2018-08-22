@@ -141,7 +141,7 @@ function removeItem(a) {
 							            </div>
 							        </div>
 							    </div>
-			                	<table id="no-more-tables" class="table table-bordered product_table">
+			                	<table id="no-more-tables" class="table table-bordered table-striped product_table">
 			                		<thead>
 				                		<tr class="hidden-xs">
 				                			<th width="20%">Category</th>

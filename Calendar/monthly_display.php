@@ -15,6 +15,10 @@ $calendar_month = date("n", strtotime($search_month.' '.$search_year));
 $calendar_year = $search_year;
 $quick_add = get_config($dbc, 'shift_calendar_quick_add');
 $edit_access = vuaed_visible_function($dbc, 'calendar_rook');
+if($is_customer) {
+	$edit_access = 0;
+}
+$ticket_view_access = tile_visible($dbc, 'ticket');
 
 $page_query = $_GET;
 $all_contacts = $_POST['all_contacts'];

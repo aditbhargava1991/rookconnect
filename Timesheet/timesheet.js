@@ -104,8 +104,22 @@ function saveFieldMethod(field) {
             }
         });
     });
-    if(block_length == 0) {
+    if(block_length == 0 && field.name != 'approv') {
         doneSaving();
+    } else if(block_length == 0 && field.name == 'approv') {
+        var block = $(this);
+        $.post('time_cards_ajax.php?action=update_time', {
+            field: field.name,
+            value: field.value,
+            save_type: 'multi',
+            date: line.find('[name=date]').val(),
+            staff: line.find('[name=staff]').val(),
+            siteid: line.find('[name=siteid]').val(),
+            projectid: line.find('[name=projectid]').val(),
+            clientid: line.find('[name=clientid]').val(),
+            ticketid: line.find('[name=ticketid]').val(),
+            prior_approv: field.checked ? line.find('[data-uncheck]').data('uncheck') : field.value
+        }, doneSaving);
     }
 }
 function displayPDFOptions(a) {

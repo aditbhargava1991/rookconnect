@@ -92,7 +92,8 @@ if($num_rows > 0) {
 		display_pagination($dbc, $query_count, $pageNum, $rowsPerPage);
 		echo '</div>';
 	}
-	echo "<table class='table table-bordered'>";
+	echo "<table class='table table-bordered table-striped'>";
+	echo "<thead>";
 	echo "<tr ".($_GET['no_search'] == 'true' ? '' : "class='hidden-xs hidden-sm'").">";
 		if (isset($_GET['order_list'])) {
 			echo '<th>Include in Order List';
@@ -447,6 +448,7 @@ if($num_rows > 0) {
 			echo '<th><span class="popover-examples" style="margin:0 2px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Transfer, Edit, or Archive an inventory item."><img src="' . WEBSITE_URL . '/img/info-w.png" width="18"></a></span> Function</th>';
 		}
 		echo "</tr>";
+		echo "</thead>";
 	$editable = vuaed_visible_function($dbc, 'inventory');
 	while($row = mysqli_fetch_array( $result ))
 	{

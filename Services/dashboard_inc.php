@@ -63,10 +63,10 @@
                             <h5><a href="service.php?p=preview&id=<?=$row['serviceid']?>"><?= $row['heading'] ?></a></h5>
 							<?php $rate = $dbc->query("SELECT `companyrcid`, `cust_price`, `uom` FROM `company_rate_card` WHERE `item_id`='{$row['serviceid']}' AND `tile_name` LIKE 'Services' AND `deleted`=0 AND `start_date` < DATE(NOW()) AND IFNULL(NULLIF(`end_date`,'0000-00-00'),'9999-12-31') > DATE(NOW())")->fetch_assoc(); ?>
 							<h5><?php if (strpos($value_config, ','."Rate Card Rate".',') !== FALSE && $rate_card_access['visible'] > 0) {
-								echo 'Rate: $'.number_format($rate['cust_price'],2).' '.$rate['uom'].'';
+								echo 'Rate: '.($rate['companyrcid'] > 0 ? '$'.number_format($rate['cust_price'],2).' '.$rate['uom'] : 'N/A');
 							}
 							if (strpos($value_config, ','."Rate Card".',') !== FALSE && $rate_card_access['edit'] > 0) {
-								echo ' | <a href="../Rate Card/ratecards.php?card=services&type=services&t='.$row['category'].'&status=add&'.($rate['companyrcid`'] > 0 ? 'id='.$rate['companyrcid`'] : 'service='.$row['serviceid']).'" onclick="overlayIFrameSlider(this.href); return false;">'.($rate['companyrcid`'] > 0 ? 'View' : 'Create').' Rate Card</a>';
+								echo ' | <a href="../Rate Card/ratecards.php?card=services&type=services&t='.$row['category'].'&status=add&'.($rate['companyrcid'] > 0 ? 'id='.$rate['companyrcid'] : 'service='.$row['serviceid']).'" onclick="overlayIFrameSlider(this.href); return false;">'.($rate['companyrcid'] > 0 ? 'View' : 'Create').' Rate Card</a>';
 							} ?></h5>
                             <a href="service.php?p=details&id=<?=$row['serviceid']?>">Edit</a> | <a href="../delete_restore.php?action=delete&serviceid=<?=$row['serviceid']?>&cat=<?=$url_cat?>" onclick="return confirm(\'Are you sure you want to archive this service?\')">Archive</a>
                         </div>

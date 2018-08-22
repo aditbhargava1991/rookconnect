@@ -10,6 +10,10 @@ if (isset($_POST['submit'])) {
 	$query = "UPDATE `estimate_tab` SET estimate_tab_config = ',$config_fields,' WHERE `estimate_tab_id` = '$tab_id'";
 	$result = mysqli_query($dbc, $query);
 
+  $before_change = '';
+	$history = "Estimates tab config has been updated. <br />";
+	add_update_history($dbc, 'estimates_history', $history, '', $before_change);
+
     echo '<script type="text/javascript"> </script>';
 }
 ?>

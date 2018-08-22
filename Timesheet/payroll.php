@@ -199,7 +199,7 @@ function viewTicket(a) {
                         $prev_staff = '';
                         $next_staff = '';
 						foreach($query as $key => $staff_row) {
-                            if(count($search_staff_list) == 1 && in_array($staff_row['contactid'], $search_staff_list)) {
+                            if(in_array($staff_row['contactid'], $search_staff_list) && empty($next_staff) && empty($prev_staff)) {
                                 $keys = array_keys($query);
                                 $prev_staff = $query[$keys[array_search($key, $keys)-1]]['contactid'];
                                 $next_staff = $query[$keys[array_search($key, $keys)+1]]['contactid'];
@@ -243,9 +243,10 @@ function viewTicket(a) {
                         $prev_staff = '';
                         $next_staff = '';
                         foreach($staff_members as $key => $staff_id) {
-                            if(count($search_staff_list) == 1 && in_array($staff_id['contactid'], $search_staff_list)) {
-                                $prev_staff = $staff_members[$key-1]['contactid'];
-                                $next_staff = $staff_members[$key+1]['contactid'];
+                            if(in_array($staff_id['contactid'], $search_staff_list) && empty($next_staff) && empty($prev_staff)) {
+                                $keys = array_keys($staff_members);
+                                $prev_staff = $staff_members[$keys[array_search($key, $keys)-1]]['contactid'];
+                                $next_staff = $staff_members[$keys[array_search($key, $keys)+1]]['contactid'];
                             } ?>
                             <option <?php if (in_array($staff_id['contactid'], $search_staff_list) || in_array('ALL_STAFF',$search_staff_list)) { echo " selected"; } ?> value='<?php echo $staff_id['contactid']; ?>'><?php echo $staff_id['full_name']; ?></option><?php
                             if(in_array('ALL_STAFF',$search_staff_list)) {
