@@ -51,7 +51,10 @@ if($_POST['filter_save'] == 'filter') {
 }
 if(!empty($_GET['filter_cat'])) {
 	$filter_cat = $dbc->query("SELECT `category` FROM `expense_categories` WHERE `EC`='".filter_var($_GET['filter_cat'],FILTER_SANITIZE_STRING)."'")->fetch_assoc()['category'];
-} ?>
+} 
+$last_app_id = mysqli_fetch_array(mysqli_query($dbc, "SELECT `expense_approval_role_id` FROM `expense_approval_levels` ORDER BY expense_role_sorting DESC limit 0,1"));
+$lid = $last_app_id['expense_approval_role_id'];
+?>
 <script>
 toggle_filter = function() {
 	if($('.toggle-filter').text() == 'Filter Expenses') {
@@ -514,14 +517,16 @@ if($_GET['filter_id'] == '' || $_GET['filter_id'] == 'all'){
 <div class="clearfix">&nbsp;</div>
 <?php
 }
+$appid = explode('_',$_GET['filter_tab']);
+$pre = $appid[1]-1 ;
 ?>
 
 <?php if($approvals == 1) {
 	$expense_list = mysqli_query($dbc, "SELECT IF(`status`='','Submitted',`status`) ex_status, `expense`.* FROM `expense` WHERE `deleted`=0 AND `reimburse` > 0 AND '$filter_cat' IN (`category`,'') ".$filter_date." ORDER BY IF(`status`='Declined',4,IF(`status`='Paid',3,IF(`status`='Approved',2,1))), `ex_date` DESC");
-	$status_count = mysqli_fetch_array(mysqli_query($dbc, "SELECT SUM(IF(`status`!='Approved' AND `status`!='Paid',1,0)) submitted, SUM(IF(`status`='Approved',1,0)) approved, SUM(IF(`status`='Paid',1,0)) paid, SUM(IF(`status`='Declined',1,0)) declined FROM `expense` WHERE `deleted`=0 AND `reimburse` > 0 AND '$filter_cat' IN (`category`,'') ".$filter_date." "));
+	$status_count = mysqli_fetch_array(mysqli_query($dbc, "SELECT SUM(IF(`status`!='Approved' AND `status`!='Paid',1,0)) submitted, SUM(IF(`status`='Approved' and `approved_by`='$pre',1,0)) approved, SUM(IF(`status`='Paid',1,0)) paid, SUM(IF(`status`='Declined',1,0)) declined FROM `expense` WHERE `deleted`=0 AND `reimburse` > 0 AND '$filter_cat' IN (`category`,'') ".$filter_date." "));
 } else {
 	$expense_list = mysqli_query($dbc, "SELECT IF(`status`='','Submitted',`status`) ex_status, `expense`.* FROM `expense` WHERE `deleted`=0 AND `reimburse` > 0 AND '$filter_cat' IN (`category`,'') AND `staff` IN ('{$_SESSION['contactid']}','".get_contact($dbc, $_SESSION['contactid'])."') ".$filter_date." ORDER BY IF(`status`='Declined',4,IF(`status`='Paid',3,IF(`status`='Approved',2,1))), `ex_date` DESC");
-	$status_count = mysqli_fetch_array(mysqli_query($dbc, "SELECT SUM(IF(`status`!='Approved' AND `status`!='Paid',1,0)) submitted, SUM(IF(`status`='Approved',1,0)) approved, SUM(IF(`status`='Paid',1,0)) paid, SUM(IF(`status`='Declined',1,0)) declined FROM `expense` WHERE `deleted`=0 AND `reimburse` > 0 AND '$filter_cat' IN (`category`,'') AND `staff` IN ('{$_SESSION['contactid']}','".get_contact($dbc, $_SESSION['contactid'])."') ".$filter_date." "));
+	$status_count = mysqli_fetch_array(mysqli_query($dbc, "SELECT SUM(IF(`status`!='Approved' AND `status`!='Paid',1,0)) submitted, SUM(IF(`status`='Approved' and `approved_by`='$pre',1,0)) approved, SUM(IF(`status`='Paid',1,0)) paid, SUM(IF(`status`='Declined',1,0)) declined FROM `expense` WHERE `deleted`=0 AND `reimburse` > 0 AND '$filter_cat' IN (`category`,'') AND `staff` IN ('{$_SESSION['contactid']}','".get_contact($dbc, $_SESSION['contactid'])."') ".$filter_date." "));
 }
 
 $view_sql = "SELECT * FROM (SELECT expense, expense_dashboard, exchange_buffer, gst_name, gst_amt, pst_name, pst_amt, hst_name, hst_amt, expense_types, expense_rows, tab, expense_mode FROM field_config_expense
@@ -531,15 +536,16 @@ $view_sql = "SELECT * FROM (SELECT expense, expense_dashboard, exchange_buffer, 
 $get_view_expense = mysqli_fetch_assoc(mysqli_query($dbc,$view_sql));
 
 if($get_view_expense['expense_mode'] == 'inbox'){
-
+    $app_role = mysqli_fetch_array(mysqli_query($dbc, "SELECT * from expense_approval_levels where expense_role_sorting = '".$pre."' "));
 echo "<div class='expense-list' style='text-align:center;'>";
 $no_list = true;
 $status = '';
 while($expense = mysqli_fetch_array($expense_list)) {
 	if($expense['ex_status'] != $status) {
-		if($no_list) {
+	    if($no_list) {
 			$no_list = false;
 		} else {
+		    echo $status.' -- '.$status_count['approved'];
 			echo "<li class='toggle_all' onclick='toggle_all(this);' data-status='$status' style='";
 			if($status == 'Submitted' && $status_count['submitted'] <= 5) {
 				echo "display: none;";
@@ -552,13 +558,13 @@ while($expense = mysqli_fetch_array($expense_list)) {
 			}
 			echo "'>Show All</li></ul>";
 		}
-		echo "<ul class='chained-list' style='max-width: 50em;'>";
 		$status = $expense['ex_status'];
+		echo "<ul class='chained-list' style='max-width: 50em;'>";
 		if($status == 'Submitted') {
 			echo "<li ".($_GET['filter_id'] == 'approved' || $_GET['filter_id'] == 'paid' ? 'style="display:none;"' : '').">Expenses Awaiting Approval (".$status_count['submitted'].")";
 			echo "<a href='expense_pdf.php?min_date=".$filter_min_date."&max_date=".$filter_max_date."&status=Submitted' class='export'><img src='../img/icons/ROOK-download-icon.png' class='inline-img' title='Export PDF'></a></li>";
 		} else if($status == 'Approved') {
-			echo "<li ".($_GET['filter_id'] == 'pending' || $_GET['filter_id'] == 'paid' ? 'style="display:none;"' : '').">Approved &amp; Awaiting Payment (".$status_count['approved'].")";
+		    echo "<li ".( ($_GET['filter_id'] == 'pending' || $_GET['filter_id'] == 'paid') && $expense['approved_by'] != $app_role['expense_approval_role_id'] ? 'style="display:none;"' : '').">Approved &amp; Awaiting Payment (".$status_count['approved'].")";
 			echo "<a href='expense_pdf.php?min_date=".$filter_min_date."&max_date=".$filter_max_date."&status=Approved' class='export'><img src='../img/icons/ROOK-download-icon.png' class='inline-img' title='Export PDF'></a></li>";
 		} else if($status == 'Paid') {
 			echo "<li ".($_GET['filter_id'] == 'approved' || $_GET['filter_id'] == 'pending' ? 'style="display:none;"' : '').">Completed &amp; Paid (".$status_count['paid'].")";
@@ -574,12 +580,14 @@ while($expense = mysqli_fetch_array($expense_list)) {
 	$visibility = "hidden style='display:none;'";
 	switch($_GET['filter_id']) {
 	    case 'pending':
-	        if($expense['ex_status'] == 'Submitted') {
+	        if($expense['ex_status'] == 'Submitted' && $appid[1] == '0') {
+	            $visibility = "visible";
+	        }else if($expense['ex_status'] == 'Approved' && $expense['approved_by'] == $app_role['expense_approval_role_id'] ){
 	            $visibility = "visible";
 	        }
 	        break;
 	    case 'approved':
-	        if($expense['ex_status'] == 'Approved') {
+	        if($expense['ex_status'] == 'Approved' && $expense['approved_by'] == $lid) {
 	            $visibility = "visible";
 	        }
 	        break;
@@ -600,7 +608,7 @@ while($expense = mysqli_fetch_array($expense_list)) {
 	
 	$staff = mysqli_fetch_array(mysqli_query($dbc, "SELECT `initials`, `first_name`, `last_name`, `calendar_color` FROM `contacts` WHERE `contactid`='{$expense['staff']}'"));
 	$warnings = '';
-	echo "<a href='' onclick='overlayIFrame(\"edit_expense.php?edit={$expense['expenseid']}\"); return false;' data-visible='$visibility' data-staff='{$expense['staff']}' data-date='{$expense['ex_date']}' data-status='{$expense['ex_status']}' ";
+	echo "<a href='' onclick='overlayIFrame(\"edit_expense.php?edit={$expense['expenseid']}&app_id={$_GET['filter_tab']}\"); return false;' data-visible='$visibility' data-staff='{$expense['staff']}' data-date='{$expense['ex_date']}' data-status='{$expense['ex_status']}' ";
 	echo "data-amt='{$expense['total']}' data-merchant='' data-category='{$expense['category']}' data-receipt='".($expense['ex_file'] != '' ? 'yes' : 'no')."' data-description='".strtolower($expense['description'])."' data-warning='$warnings'>";
 	
 	echo '<li>';
@@ -697,7 +705,7 @@ while($expense = mysqli_fetch_array($expense_list)) {
                     }
                     break;
                 case 'approved':
-                    if($expense['ex_status'] == 'Approved') {
+                    if($expense['ex_status'] == 'Approved' && $expense['approved_by'] == $lid) {
                         $visibility = "";
                     }
                     break;
@@ -723,7 +731,7 @@ while($expense = mysqli_fetch_array($expense_list)) {
             //echo "<td data-title='Projects'>".$expense['projectid']."</td>";
             //echo "<td data-title='Category'>".$expense['category']."</td>";
             echo "<td data-title='Status'>".$expense['ex_status']."</td>";
-            echo "<td data-title='Function'><a href='' onclick='overlayIFrame(\"edit_expense.php?edit={$expense['expenseid']}\"); return false;'>Edit</a></td>";
+            echo "<td data-title='Function'><a href='' onclick='overlayIFrame(\"edit_expense.php?edit={$expense['expenseid']}&app_id={$_GET['filter_tab']}\"); return false;'>Edit</a></td>";
             echo "</tr>";
         }
         

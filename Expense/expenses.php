@@ -96,12 +96,12 @@ $tab_config = ','.get_config($dbc, 'expense_tabs').','; ?>
 								while($pending_cat = $pending_cats->fetch_assoc()) { ?>
 									<a href="?filter_id=pending&filter_cat=<?= $pending_cat['category'] ?>"><li class="sidebar-higher-level <?= $_GET['filter_id'] == 'pending' && $_GET['filter_cat'] == $pending_cat['category'] ? 'active' : '' ?>"><?= $pending_cat['descript'] ?><span class='pull-right'><?= $pending_cat['count'] ?></span></li></a>
 								<?php } ?>
-								<a href="?filter_id=pending"><li class="sidebar-higher-level <?= $_GET['filter_id'] == 'pending' && empty($_GET['filter_cat']) && empty($_GET['filter_tab']) ? 'active' : '' ?>">All Expenses<span class='pull-right'><?= $tab_counts['pending'] ?></span></li></a>
+								<!-- <a href="?filter_id=pending"><li class="sidebar-higher-level <?= $_GET['filter_id'] == 'pending' && empty($_GET['filter_cat']) && empty($_GET['filter_tab']) ? 'active' : '' ?>">All Expenses<span class='pull-right'><?= $tab_counts['pending'] ?></span></li></a> -->
 								<?php 
-            					$approval_levels = mysqli_query($dbc, "SELECT a.expense_role_sorting, b.label FROM `expense_approval_levels` a inner join `security_level_names` b on a.expense_approval_role_id = b.id ORDER BY expense_role_sorting");
+            					$approval_levels = mysqli_query($dbc, "SELECT a.expense_approval_role_id, a.expense_role_sorting, b.label FROM `expense_approval_levels` a inner join `security_level_names` b on a.expense_approval_role_id = b.id ORDER BY expense_role_sorting");
             					while($app_row = mysqli_fetch_assoc($approval_levels)){
             					?>
-            					<a href="?filter_id=pending&filter_tab=<?= $app_row['label'].'_'.$app_row['expense_role_sorting']?>"><li class="sidebar-higher-level <?= $_GET['filter_tab'] == $app_row['label'].'_'.$app_row['expense_role_sorting'] && empty($_GET['filter_cat']) ? 'active' : '' ?>"><?= $app_row['label']?> Approval<span class='pull-right'><?= $tab_counts['pending'] ?></span></li></a>
+            					<a href="?filter_id=pending&filter_tab=<?= $app_row['expense_approval_role_id'].'_'.$app_row['expense_role_sorting']?>"><li class="sidebar-higher-level <?= $_GET['filter_tab'] == $app_row['expense_approval_role_id'].'_'.$app_row['expense_role_sorting'] && empty($_GET['filter_cat']) ? 'active' : '' ?>"><?= $app_row['label']?> Approval<span class='pull-right'><?= $tab_counts['pending'] ?></span></li></a>
             					<?php } ?>
 							</ul>
 						</li>
