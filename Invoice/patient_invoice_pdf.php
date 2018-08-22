@@ -12,7 +12,14 @@
 			$footer_text = '<p style="color: #37C6F4; font-size: 14; font-weight: bold; text-align: center;">Your next appointment is '.date('d/m/y',strtotime($next_booking['appoint_date']))." at ".date('G:ia',strtotime($next_booking['appoint_date'])).'</p>';
 		}
 		$footer_text .= html_entity_decode(get_config($dbc, 'invoice_footer'));
-		DEFINE('INVOICE_LOGO', get_config($dbc, 'invoice_logo'));
+        $logo = 'download/'.get_config($dbc, 'invoice_logo');
+        if(!file_exists($logo)) {
+            $logo = '../POSAdvanced/'.$logo;
+            if(!file_exists($logo)) {
+                $logo = '';
+            }
+        }
+		DEFINE('INVOICE_LOGO', $logo);
 		DEFINE('INVOICE_HEADER', html_entity_decode(get_config($dbc, 'invoice_header')));
 		DEFINE('INVOICE_FOOTER', $footer_text);
 		$invoiceid = $get_invoice['invoiceid'];
@@ -25,7 +32,7 @@
 				//Page header
 				public function Header() {
 					if(INVOICE_LOGO != '') {
-						$image_file = 'download/'.INVOICE_LOGO;
+						$image_file = INVOICE_LOGO;
 						$image_size = getimagesize($image_file);
 						$width = ''; // Max 80
 						$height = ''; // Max 25

@@ -3,13 +3,13 @@
 	 * This file accepts the PDF Intake Form submissions from websites and
 	 * insert the data into `intake` table
 	 */
- 
+
 	include('../database_connection.php');
-	
+
 	/* Headers for mail */
 	$headers  = "MIME-Version: 1.0\r\n";
 	$headers .= "Content-Type: text/html; charset=ISO-8859-1\r\n";
-			
+
 	$uploaddir	= realpath('./download') . '/';
 	$uploadfile	= $uploaddir . basename($_FILES['file_contents']['name']);
 
@@ -30,15 +30,18 @@
 			$phone			= $_POST['phone'];
 			$intake_file	= 'download/' . htmlspecialchars(basename($_FILES['file_contents']['name']), ENT_QUOTES);
 			$received_date	= date('Y-m-d');
-			
+
 			$insert_query = "INSERT INTO `intake` (`category`, `name`, `email`, `phone`, `intake_file`, `received_date`) VALUES ('{$category}', '{$name}', '{$email}', '{$phone}', '{$intake_file}', '{$received_date}')";
 			$results = mysqli_query($dbc, $insert_query);
+      $before_change = "";
+      $history = "Intake entry has been added. <br />";
+	    add_update_history($dbc, 'intake_history', $history, '', $before_change);
 			//echo ( mysqli_error($dbc) ) ? mysqli_error($dbc) : 'Inserted!';
 		} else {
 			//echo "Possible file upload attack!\n";
 		}
 	}
-	
+
 	/*
 	echo '<br /><br />Here is some more debugging info:<br />';
 	print_r($_FILES);

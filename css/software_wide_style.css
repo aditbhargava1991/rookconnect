@@ -4,6 +4,7 @@
 .no-overflow-y { overflow-y:hidden !important; }
 .no-overflow-x { overflow-x:hidden !important; }
     .no-overflow-x img { height:auto; max-width:100% !important; }
+.no-overflow { overflow:hidden !important; }
 .set-relative { position:relative; }
 .set-favourite { position:absolute; top:5px; right:5px; }
 .flex-columns {
@@ -2929,7 +2930,7 @@ ul.select2-results__options {
 	border-bottom: 1px solid #ACA9A9;
 }
 .standard-body-title h3 {
-	margin: 20px;
+	margin: 18px;
 }
 .standard-body-content {
 	background-color: #FFFFFF;
@@ -3294,5 +3295,8 @@ position: relative;
 }
 
 .row-even-bg, .row-odd-bg { padding:5px 10px; }
-    .row-even-bg { background-color:#f6f6f6; }
+    .row-even-bg, .table-striped > tbody > tr:nth-of-type(even) { background-color:#f6f6f6; }
     .row-odd-bg { background-color:#e9e9e9; }
+    
+.table-responsive { overflow-y:hidden; width:100%; }
+.table-responsive .table { overflow-y:auto; }

@@ -18,7 +18,7 @@ if (isset($_POST['submit_patient'])) {
 		$query_update_in = "UPDATE `invoice_patient` SET `paid` = '$payment_type', `paid_date` = '$paid_date', `receipt_file`=CONCAT(IFNULL(CONCAT(`receipt_file`,'#*#'),''),'$payment_receipt') WHERE `invoicepatientid` = '$value'";
 		$result_update_in = mysqli_query($dbc, $query_update_in);
 		$invoice_info = mysqli_fetch_array(mysqli_query($dbc, "SELECT `invoice`.`patientid`, `invoice`.`invoice_date`, `invoice`.`invoiceid`, `invoice`.`therapistsid`, `invoice_patient`.`patient_price`, `invoice_patient`.`sub_total`, `invoice_patient`.`gst_amt` FROM `invoice_patient` LEFT JOIN `invoice` ON `invoice_patient`.`invoiceid`=`invoice`.`invoiceid` WHERE `invoice_patient`.`invoicepatientid`='$value'"));
-		$query_update_in = "UPDATE `invoice` SET `patient_payment_receipt` = '1' WHERE `invoiceid` = '".$invoice_info['invoiceid']."'";
+		$query_update_in = "UPDATE `invoice` SET `patient_payment_receipt` = '1', `status`='Completed', `paid`='Yes', `payment_type`=REPLACE(`payment_type`,'On Account','$payment_type') WHERE `invoiceid` = '".$invoice_info['invoiceid']."'";
         $result_update_in = mysqli_query($dbc, $query_update_in);
 		$patientid = $invoice_info['patientid'];
 		$patient_ids[] = $invoice_info['patientid'];

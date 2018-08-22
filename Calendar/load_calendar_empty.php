@@ -34,6 +34,9 @@ $day_end = get_config($dbc, $config_type.'_day_end');
 $day_period = get_config($dbc, $config_type.'_increments');
 $current_row = strtotime($day_start);
 $calendar_table[0][0]['title'] = "Time";
+if(!empty($use_shifts)) {
+	$calendar_table[0][0]['shifts'] = "Shifts";
+}
 if(get_config($dbc, $config_type.'_calendar_notes') == '1') { $calendar_table[0][0]['notes'] = "Notes"; }
 $calendar_table[0][0]['warnings'] = "Warnings";
 $appointment_calendar = 'weekly';

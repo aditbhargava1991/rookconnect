@@ -121,8 +121,8 @@ function selectCategory(sel) {
 
         $num_rows = mysqli_num_rows($result);
         if($num_rows > 0) {
-            echo "<table class='table table-bordered'>";
-            echo '<tr class="hidden-xs hidden-sm">
+            echo "<table class='table table-bordered table-striped'>";
+            echo '<thead><tr class="hidden-xs hidden-sm">
                 <th>Client</th>
                 <th>Rate Card Name</th>
                 <th>Total Cost</th>
@@ -148,7 +148,7 @@ function selectCategory(sel) {
                 </th>
                 <th>Edit</th>
                 <th>Last Edited</th>
-                </tr>';
+                </tr></thead>';
         } else {
             echo "<h2>No Record Found.</h2>";
         }

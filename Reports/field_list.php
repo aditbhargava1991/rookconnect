@@ -53,7 +53,8 @@ $operations_reports = [
 	'Rate Card Report'=>['report_operations_rate_cards.php','Rate Cards Report','Rate Card Report','rate_card_report'],
 	'Import Summary'=>['report_import_summary.php','Import Summary Report','Import Summary','import_summary'],
 	'Import Details'=>['report_import_details.php','Detailed Import Report','Import Details','import_details'],
-	'Ticket Manifest Summary'=>['report_daily_manifest_summary.php','Manifest Daily Summary','Ticket Manifest Summary','ticket_manifest_summary']
+	'Ticket Manifest Summary'=>['report_daily_manifest_summary.php','Manifest Daily Summary','Ticket Manifest Summary','ticket_manifest_summary'],
+	'Employee Payroll Report'=>['report_employee_payroll_report.php','Employee Payroll Report','Employee Payroll Report','employee_payroll_report']
 ];
 $sales_reports = [
 	'Validation by Therapist'=>['report_daily_validation.php','Validation by Therapist','Validation by Therapist','pt_validation'],
@@ -179,6 +180,10 @@ $history_reports = [
 	'History Vendor Price List History'=>['reports_vpl_history.php','Vendor Price List History','History Vendor Price List History','history_vpl_history'],
 	'History Rate Card History'=>['reports_ratecard_history.php','Rate Card History','History Rate Card History','history_ratecard_history'],
 	'History Purchase Order History'=>['reports_po_history.php','Purchase Order History','History Purchase Order History','history_po_history'],
+	'History Intake History'=>['reports_intake_history.php','Intake History','History Intake History','history_intake_history'],
+	'History Services History'=>['reports_services_history.php','Services History','History Services History','history_services_history'],
+	'History Expenses History'=>['reports_expenses_history.php','Expenses History','History Expenses History','history_expenses_history'],
+	'History Estimates History'=>['reports_estimates_history.php','Estimates History','History Estimates History','history_estimates_history'],
 ];
 $estimates_reports = [
 	'Estimate Report'=>['reports_estimate_report.php','Estimate Report','Estimate Report','reports_estimate_report'],

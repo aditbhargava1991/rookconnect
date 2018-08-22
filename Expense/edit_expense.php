@@ -6,9 +6,12 @@ if(isset($_POST['submit'])) {
 	if(empty($expenseid)) {
 		mysqli_query($dbc, "INSERT INTO `expense` (`status`,`submit_by`,`submit_date`) VALUES ('Submitted','".$_SESSION['contactid']."','".date('Y-m-d')."')");
 		$expenseid = mysqli_insert_id($dbc);
+		$before_change = "";
+		$history = "Expense entry has been added. <br />";
+		add_update_history($dbc, 'expenses_history', $history, '', $before_change);
 	}
 	$fields = [];
-	
+
 	if(!empty($_FILES['ex_file']['name'])) {
 		$file = $_FILES['ex_file']['tmp_name'];
 		$filename = $_FILES['ex_file']['name'];
@@ -62,15 +65,37 @@ if(isset($_POST['submit'])) {
 		}
 	}
 	mysqli_query($dbc,"UPDATE `expense` SET ".implode(',', $fields)." WHERE `expenseid`='$expenseid'");
-	
+	$before_change = "";
+	$history = "Expense entry has been updated for expense id $expenseid. <br />";
+	add_update_history($dbc, 'expenses_history', $history, '', $before_change);
+
+
 	if($_POST['submit'] == 'approve') {
+		$before_change = capture_before_change($dbc, 'expense', 'status', 'expenseid', $expenseid);
+		$before_change .= capture_before_change($dbc, 'expense', 'approval_date', 'expenseid', $expenseid);
+		$before_change .= capture_before_change($dbc, 'expense', 'approval_by', 'expenseid', $expenseid);
 		mysqli_query($dbc,"UPDATE `expense` SET `status`='Approved', `approval_date`='".date('Y-m-d')."', `approval_by`='".$_SESSION['contactid']."' WHERE `expenseid`='$expenseid'");
+		$history = capture_after_change('status', 'Approved');
+		$history .= capture_after_change('approval_date', date('Y-m-d'));
+		$history .= capture_after_change('approval_by', $_SESSION['contactid']);
+		add_update_history($dbc, 'expenses_history', $history, '', $before_change);
+
 	} else if($_POST['submit'] == 'decline') {
+		$before_change = capture_before_change($dbc, 'expense', 'status', 'expenseid', $expenseid);
 		mysqli_query($dbc,"UPDATE `expense` SET `status`='Declined' WHERE `expenseid`='$expenseid'");
+		$history = capture_after_change('status', 'Declined');
+		add_update_history($dbc, 'expenses_history', $history, '', $before_change);
 	} else if($_POST['submit'] == 'pay') {
+		$before_change = capture_before_change($dbc, 'expense', 'status', 'expenseid', $expenseid);
+		$before_change .= capture_before_change($dbc, 'expense', 'paid_date', 'expenseid', $expenseid);
+		$before_change .= capture_before_change($dbc, 'expense', 'paid_by', 'expenseid', $expenseid);
 		mysqli_query($dbc,"UPDATE `expense` SET `status`='Paid', `paid_date`='".date('Y-m-d')."', `paid_by`='".$_SESSION['contactid']."' WHERE `expenseid`='$expenseid'");
+		$history = capture_after_change('status', 'Approved');
+		$history .= capture_after_change('paid_date', date('Y-m-d'));
+		$history .= capture_after_change('paid_by', $_SESSION['contactid']);
+		add_update_history($dbc, 'expenses_history', $history, '', $before_change);
 	}
-	
+
 	echo "<script> window.location.replace('?'); </script>";
 }
 
@@ -154,7 +179,7 @@ function calcTotal() {
 	$('[name=gst]').val((amt * gst_rate / 100).toFixed(2));
 	$('[name=pst]').val((amt * pst_rate / 100).toFixed(2));
 	$('[name=hst]').val((amt * hst_rate / 100).toFixed(2));
-	
+
 	var currency = $('[name=currency]').val();
 	var ex_date = $('[name=ex_date]').val() == '' || $('[name=ex_date]').val() == undefined  ? '<?= date('Y-m-d') ?>' : $('[name=ex_date]').val();
 	var exchange_rate = 1;
@@ -169,7 +194,7 @@ function calcTotal() {
 		}
 		$('[name=exchange_rate]').val(exchange_rate);
 	}
-	
+
 	$('[name=total]').val((amt * (100 + gst_rate + pst_rate + hst_rate) / 100 * exchange_rate).toFixed(2));
 }
 function format_money(input) {

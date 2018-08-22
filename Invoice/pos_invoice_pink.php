@@ -56,27 +56,27 @@ if($get_pos_tax != '') {
 }
 //Tax
 
-$pos_logo = get_config($dbc, 'invoice_logo');
+$logo = 'download/'.get_config($dbc, 'invoice_logo');
+if(!file_exists($logo)) {
+    $logo = '../POSAdvanced/'.$logo;
+    if(!file_exists($logo)) {
+        $logo = '';
+    }
+}
+DEFINE('POS_LOGO', $logo);
 $invoice_header = get_config($dbc, 'invoice_header');
 $invoice_footer = get_config($dbc, 'invoice_footer');
 $payment_type = explode('#*#', $point_of_sell['payment_type']);
 
 DEFINE('INVOICE_HEADER', $invoice_header);
 DEFINE('INVOICE_FOOTER', $invoice_footer);
-DEFINE('POS_LOGO', $pos_logo);
 DEFINE('INVOICEID', $posid);
 DEFINE('INVOICE_DATE', $point_of_sell['invoice_date']);
 
 class MYPDF extends TCPDF {
 	/* Page Header */
 	public function Header() {
-		$image_file = 'download/'.POS_LOGO;
-		if(!file_exists($image_file)) {
-			$image_file = '../Invoice/download'.POS_LOGO;
-			if(!file_exists($image_file)) {
-				$image_file = '../POSAdvanced/download/'.POS_LOGO;
-			}
-		}
+		$image_file = POS_LOGO;
 		if(file_get_contents($image_file)) {
 			$image_file = $image_file;
 		} else {

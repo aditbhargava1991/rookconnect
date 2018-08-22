@@ -174,8 +174,8 @@
                 echo display_pagination($dbc, $query, $pageNum, $rowsPerPage);
                 // Pagination Finish //
 
-                echo "<table class='table table-bordered'>";
-                echo "<tr class='hidden-xs hidden-sm'>";
+                echo "<table class='table table-bordered table-striped'>";
+                echo "<thead><tr class='hidden-xs hidden-sm'>";
                     if (strpos($value_config, ','."Business".',') !== FALSE) {
                         echo '<th>Business</th>';
                     }
@@ -243,7 +243,7 @@
                         echo '<th>MSRP</th>';
                     }
                     echo '<th>Function</th>';
-				echo "</tr>";
+				echo "</tr></thead>";
 
 				$password_list = sort_contacts_array(mysqli_fetch_all($result,MYSQLI_ASSOC));
 				foreach($password_list as $id) {

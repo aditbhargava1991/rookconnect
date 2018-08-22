@@ -88,6 +88,7 @@ if (isset($_POST['submit'])) {
                     <option value="Import Summary" <?= $mobile_landing_subtab_config['value']=='Import Summary' ? 'selected="selected"' : '' ?>>Import Summary Report</option>
                     <option value="Import Details" <?= $mobile_landing_subtab_config['value']=='Import Details' ? 'selected="selected"' : '' ?>>Detailed Import Report</option>
                     <option value="Ticket Manifest Summary" <?= $mobile_landing_subtab_config['value']=='Ticket Manifest Summary' ? 'selected="selected"' : '' ?>>Manifest Daily Summary</option>
+                    <option value="Employee Payroll Report" <?= $mobile_landing_subtab_config['value']=='Employee Payroll Report' ? 'selected="selected"' : '' ?>>Employee Payroll Report</option>
                 </optgroup>
                 <optgroup label="Sales">
                     <option value="Validation by Therapist" <?= $mobile_landing_subtab_config['value']=='Validation by Therapist' ? 'selected="selected"' : '' ?>>Validation by Therapist</option>
@@ -251,6 +252,7 @@ if (isset($_POST['submit'])) {
                     <option value="Import Summary" <?= $desktop_landing_subtab_config['value']=='Import Summary' ? 'selected="selected"' : '' ?>>Import Summary Report</option>
                     <option value="Import Details" <?= $desktop_landing_subtab_config['value']=='Import Details' ? 'selected="selected"' : '' ?>>Detailed Import Report</option>
                     <option value="Ticket Manifest Summary" <?= $desktop_landing_subtab_config['value']=='Ticket Manifest Summary' ? 'selected="selected"' : '' ?>>Manifest Daily Summary</option>
+                    <option value="Employee Payroll Report" <?= $desktop_landing_subtab_config['value']=='Employee Payroll Report' ? 'selected="selected"' : '' ?>>Employee Payroll Report</option>
                 </optgroup>
                 <optgroup label="Sales">
                     <option value="Validation by Therapist" <?= $desktop_landing_subtab_config['value']=='Validation by Therapist' ? 'selected="selected"' : '' ?>>Validation by Therapist</option>
@@ -373,6 +375,10 @@ if (isset($_POST['submit'])) {
                   <option value="History Vendor Price List History" <?= $desktop_landing_subtab_config['value']=='History Vendor Price List History' ? 'selected="selected"' : '' ?>>Vendor Price List History</option>
                   <option value="History Rate Card History" <?= $desktop_landing_subtab_config['value']=='History Rate Card History' ? 'selected="selected"' : '' ?>>Rate Card History</option>
                   <option value="History Purchase Order History" <?= $desktop_landing_subtab_config['value']=='History Purchase Order History' ? 'selected="selected"' : '' ?>>Purchase Order History</option>
+                  <option value="History Intake History" <?= $desktop_landing_subtab_config['value']=='History Intake History' ? 'selected="selected"' : '' ?>>Intake History</option>
+                  <option value="History Services History" <?= $desktop_landing_subtab_config['value']=='History Services History' ? 'selected="selected"' : '' ?>>Services History</option>
+                  <option value="History Expenses History" <?= $desktop_landing_subtab_config['value']=='History Expenses History' ? 'selected="selected"' : '' ?>>Expenses History</option>
+                  <option value="History Estimates History" <?= $desktop_landing_subtab_config['value']=='History Estimates History' ? 'selected="selected"' : '' ?>>Estimates History</option>
               </optgroup>
               <optgroup label="Estimates">
                   <option value="Estimate Report" <?= $desktop_landing_subtab_config['value']=='Estimate Report' ? 'selected="selected"' : '' ?>>Estimate Report</option>

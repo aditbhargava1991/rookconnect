@@ -65,22 +65,46 @@ if(!empty($_POST['complete_form'])) {
         $query_insert_upload = "INSERT INTO `intake` (`intakeformid`, `pdf_id`, `name`, `email`, `phone`, `intake_file`, `received_date`) VALUES ('$intakeformid', '$pdf_id', '$name', '$email', '$phone', 'download/$pdf_name', '$today_date')";
         $result_insert_upload = mysqli_query($dbc, $query_insert_upload);
         $intakeid = mysqli_insert_id($dbc);
+        $before_change = "";
+        $history = "Intake entry has been added. <br />";
+  	    add_update_history($dbc, 'intake_history', $history, '', $before_change);
     } else {
         $new_intake = false;
+        $before_change = capture_before_change($dbc, 'intake', 'pdf_id', 'intakeid', $intakeid);
+        $before_change .= capture_before_change($dbc, 'intake', 'name', 'intakeid', $intakeid);
+        $before_change .= capture_before_change($dbc, 'intake', 'email', 'intakeid', $intakeid);
+        $before_change .= capture_before_change($dbc, 'intake', 'phone', 'intakeid', $intakeid);
+        $before_change .= capture_before_change($dbc, 'intake', 'intake_file', 'intakeid', $intakeid);
+        $before_change .= capture_before_change($dbc, 'intake', 'received_date', 'intakeid', $intakeid);
+
         $query_update_upload = "UPDATE `intake` SET `pdf_id` = '$pdf_id', `name` = '$name', `email` = '$email', `phone` = '$phone', `intake_file` = 'download/$pdf_name', `received_date` = '$today_date' WHERE `intakeid` = '$intakeid'";
         $result_update_upload = mysqli_query($dbc, $query_update_upload);
+
+        $history = capture_after_change('pdf_id', $pdf_id);
+        $history .= capture_after_change('name', $name);
+        $history .= capture_after_change('email', $email);
+        $history .= capture_after_change('phone', $phone);
+        $history .= capture_after_change('intake_file', $pdf_name);
+        $history .= capture_after_change('received_date', $today_date);
+
+    	  add_update_history($dbc, 'intake_history', $history, '', $before_change);
     }
 
     $pdf->writeHTML(utf8_encode('<form action="" method="POST">'.$pdf_text.'</form>'), true, false, true, false, '');
 
     include('../Form Builder/generate_form_pdf_page.php');
+    $before_change = capture_before_change($dbc, 'intake', 'ticket_description', 'intakeid', $intakeid);
+
     mysqli_query($dbc, "UPDATE `intake` SET `ticket_description` = '".htmlentities($ticket_description)."' WHERE `intakeid` = '$intakeid'");
+
+    $history = capture_after_change('ticket_description', htmlentities($ticket_description));
+	  add_update_history($dbc, 'intake_history', $history, '', $before_change);
 
     if(!file_exists('download')) {
         mkdir('download', 0777, true);
     }
     $pdf->Output('download/'.$pdf_name, 'F');
-    
+
     if(empty($_SESSION['contactid'])) {
         $url = $_SERVER['REQUEST_URI'].'&complete=true';
     } else if(!empty($_POST['projectid'])) {
@@ -99,12 +123,26 @@ if(!empty($_POST['complete_form'])) {
         if(!empty($_POST['projectid'])) {
             $projectid = $_POST['projectid'];
             $project_milestone = $_POST['project_milestone'];
-            mysqli_query($dbc, "UPDATE `intake` SET `projectid` = '$projectid', `project_milestone` = '$project_milestone' $assigned_date_query WHERE `intakeid` = '$intakeid'");  
+            $before_change = capture_before_change($dbc, 'intake', 'projectid', 'intakeid', $intakeid);
+            $before_change .= capture_before_change($dbc, 'intake', 'project_milestone', 'intakeid', $intakeid);
+
+            mysqli_query($dbc, "UPDATE `intake` SET `projectid` = '$projectid', `project_milestone` = '$project_milestone' $assigned_date_query WHERE `intakeid` = '$intakeid'");
+
+            $history = capture_after_change('projectid', $projectid);
+            $history .= capture_after_change('project_milestone', $project_milestone);
+        	  add_update_history($dbc, 'intake_history', $history, '', $before_change);
         } else if(!empty($_POST['salesid'])) {
             $salesid = $_POST['salesid'];
             $sales_milestone = $_POST['sales_milestone'];
+            $before_change = capture_before_change($dbc, 'intake', 'salesid', 'intakeid', $intakeid);
+            $before_change .= capture_before_change($dbc, 'intake', 'sales_milestone', 'intakeid', $intakeid);
+
             mysqli_query($dbc, "UPDATE `intake` SET `salesid` = '$salesid', `sales_milestone` = '$sales_milestone' $assigned_date_query WHERE `intakeid` = '$intakeid'");
-            
+
+            $history = capture_after_change('salesid', $salesid);
+            $history .= capture_after_change('sales_milestone', $sales_milestone);
+        	  add_update_history($dbc, 'intake_history', $history, '', $before_change);
+
             include('../Intake/attach_services_sales.php');
         }
 
@@ -182,7 +220,7 @@ if(!empty($_POST['complete_form'])) {
             <div class="gap-top double-gap-bottom"><a href="intake.php?tab=softwareforms" class="btn config-btn">Back to Dashboard</a></div>
         <?php } ?>
     <?php } ?>
-    
+
     <form name="assign_form" method="post" action="" class="form-horizontal" role="form" <?= $user_form_layout == 'Sidebar' ? 'style="padding: 0; margin: 0; border-top: 1px solid #E1E1E1;"' : '' ?>>
         <input type="hidden" name="intakeformid" value="<?= $intakeformid ?>">
         <input type="hidden" name="salesid" value="<?= $_GET['salesid'] ?>">

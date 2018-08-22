@@ -855,7 +855,6 @@ function get_ticket_labels($dbc, $date, $staff, $layout = '', $time_cards_id, $f
 	$ticket_labels = implode('<br />', $ticket_labels);
 	return $ticket_labels;
 }
-
 function get_ticket_planned_hrs($dbc, $date, $staff, $layout = '', $time_cards_id) {
 	$planned_hrs = [];
 	$sql = "SELECT ta.*, t.`start_time`, t.`end_time` FROM `time_cards` tc LEFT JOIN `tickets` t ON t.`ticketid` = tc.`ticketid` LEFT JOIN `ticket_attached` ta ON ta.`id` = tc.`ticket_attached_id` WHERE t.`deleted` = 0 AND ta.`deleted` = 0 AND tc.`deleted` = 0 AND tc.`ticketid` > 0 AND tc.`date` = '$date'";
@@ -876,7 +875,6 @@ function get_ticket_planned_hrs($dbc, $date, $staff, $layout = '', $time_cards_i
 		return $planned_hrs;
 	}
 }
-
 function get_ticket_tracked_hrs($dbc, $date, $staff, $layout = '', $time_cards_id) {
 	$tracked_hrs = [];
 	$sql = "SELECT ta.*, t.`start_time`, t.`end_time` FROM `time_cards` tc LEFT JOIN `tickets` t ON t.`ticketid` = tc.`ticketid` LEFT JOIN `ticket_attached` ta ON ta.`id` = tc.`ticket_attached_id` WHERE t.`deleted` = 0 AND ta.`deleted` = 0 AND tc.`deleted` = 0 AND tc.`ticketid` > 0 AND tc.`date` = '$date'";
@@ -895,7 +893,6 @@ function get_ticket_tracked_hrs($dbc, $date, $staff, $layout = '', $time_cards_i
 		return $tracked_hrs;
 	}
 }
-
 function get_ticket_total_tracked_time($dbc, $date, $staff, $layout = '', $time_cards_id) {
 	$timesheet_time_format = get_config($dbc, 'timesheet_time_format');
 	$tracked_time = [];

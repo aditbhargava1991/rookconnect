@@ -788,7 +788,7 @@ function get_hours_report($dbc, $staff, $search_start_date, $search_end_date, $s
                         $mileage_total += $mileage;
 
                         //Mileage Rate
-                        $mileage_customer = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `clientid` FROM `tickets` WHERE `ticketid` = '".$row['ticketid']."' AND '".$row['ticketid']."'"))['clientid'];
+                        $mileage_customer = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `clientid` FROM `tickets` WHERE `ticketid` = '".$row['ticketid']."' AND '".$row['ticketid']."' > 0"))['clientid'];
                         $mileage_rate = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `mileage` `price` FROM `rate_card` WHERE `clientid` = '$mileage_customer' AND '$mileage_customer' > 0 AND `deleted` = 0 AND `on_off` = 1 AND DATE(NOW()) BETWEEN `start_date` AND IFNULL(NULLIF(`end_date`,'0000-00-00'),'9999-12-31') UNION
                             SELECT `cust_price` `price` FROM `company_rate_card` WHERE LOWER(`tile_name`)='mileage' AND `deleted`=0 AND DATE(NOW()) BETWEEN `start_date` AND IFNULL(NULLIF(`end_date`,'0000-00-00'),'9999-12-31')"))['price'];
                         $mileage_rate_total += $mileage_rate;
@@ -1155,6 +1155,11 @@ function get_hours_report($dbc, $staff, $search_start_date, $search_end_date, $s
                 if($tab == 'payroll') {
                 	$limits .= " AND (`approv` = 'Y' OR `approv` = 'P')";
                 }
+                if($timesheet_payroll_layout == 'group_days') {
+                	$group_by = 'date';
+                } else {
+                	$group_by = 'time_cards_id';
+                }
 
                 $sql = "SELECT `time_cards_id`, `date`, SUM(IF(`type_of_time` NOT IN ('Extra Hrs.','Relief Hrs.','Sleep Hrs.','Sick Time Adj.','Sick Hrs.Taken','Stat Hrs.','Stat Hrs.Taken','Vac Hrs.','Vac Hrs.Taken','Break'),`total_hrs`,0)) REG_HRS,
 			        SUM(IF(`type_of_time`='Extra Hrs.',`total_hrs`,0)) EXTRA_HRS,
@@ -1164,7 +1169,7 @@ function get_hours_report($dbc, $staff, $search_start_date, $search_end_date, $s
 			        SUM(IF(`type_of_time`='Vac Hrs.',`total_hrs`,0)) VACA_AVAIL, SUM(IF(`type_of_time`='Vac Hrs.Taken',`total_hrs`,0)) VACA_HRS,
 			        SUM(`highlight`) HIGHLIGHT, SUM(`manager_highlight`) MANAGER,
 			        GROUP_CONCAT(DISTINCT `comment_box` SEPARATOR ', ') COMMENTS, SUM(`timer_tracked`) TRACKED_HRS, SUM(IF(`type_of_time`='Break',`total_hrs`,0)) BREAKS, `type_of_time`, `ticket_attached_id`, `ticketid`, `start_time`, `end_time`, `approv`, `coord_approvals`, `manager_approvals`, `manager_name`, `coordinator_name`
-			        FROM `time_cards` WHERE `date` >= '$search_start_date' AND `date` <= '$search_end_date' $limits AND `deleted`=0 GROUP BY `time_cards_id` ORDER BY `date`, IFNULL(DATE_FORMAT(CONCAT_WS(' ',DATE(NOW()),`start_time`),'%H:%i'),STR_TO_DATE(`start_time`,'%l:%i %p')) ASC, IFNULL(DATE_FORMAT(CONCAT_WS(' ',DATE(NOW()),`end_time`),'%H:%i'),STR_TO_DATE(`end_time`,'%l:%i %p')) ASC";
+			        FROM `time_cards` WHERE `date` >= '$search_start_date' AND `date` <= '$search_end_date' $limits AND `deleted`=0 GROUP BY `$group_by` ORDER BY `date`, IFNULL(DATE_FORMAT(CONCAT_WS(' ',DATE(NOW()),`start_time`),'%H:%i'),STR_TO_DATE(`start_time`,'%l:%i %p')) ASC, IFNULL(DATE_FORMAT(CONCAT_WS(' ',DATE(NOW()),`end_time`),'%H:%i'),STR_TO_DATE(`end_time`,'%l:%i %p')) ASC";
 		        $result = mysqli_fetch_all(mysqli_query($dbc, $sql),MYSQLI_ASSOC);
                 $date = $search_start_date;
                 $i = 0;
@@ -1215,6 +1220,7 @@ function get_hours_report($dbc, $staff, $search_start_date, $search_end_date, $s
 			                $hrs['DRIVE'] = 0;
 			            }
                     } else {
+			            $hrs = ['ROW_HRS'=>0,'OVERTIME'=>0,'DOUBLETIME'=>0,'REG'=>0,'EXTRA'=>0,'RELIEF'=>0,'SLEEP'=>0,'SICK_ADJ'=>0,'SICK'=>0,'STAT_AVAIL'=>0,'STAT'=>0,'VACA_AVAIL'=>0,'VACA'=>0,'BREAKS'=>0,'TRAINING'=>0,'TRACKED_HRS'=>0];
                         $row = '';
                     }
 
@@ -1228,7 +1234,7 @@ function get_hours_report($dbc, $staff, $search_start_date, $search_end_date, $s
 	                	$hrs['OVERTIME'] = $hrs['REG'] - $timesheet_payroll_overtime;
 	                	$hrs['REG'] -= $hrs['OVERTIME'];
 	                	$total['REG'] -= $hrs['OVERTIME'];
-	                	$total['DOUBLETIME'] += $hrs['OVERTIME'];
+	                	$total['OVERTIME'] += $hrs['OVERTIME'];
 	                }
 
                     if($date != $row['date']) {
@@ -1248,8 +1254,8 @@ function get_hours_report($dbc, $staff, $search_start_date, $search_end_date, $s
 	                (in_array('reg_hrs',$value_config) ? '<td align="right" style="border-top:1px solid #ddd; border-right:1px solid #ddd;" data-title="Total Reg.">'.($timesheet_time_format == 'decimal' ? number_format($total['REG'],2) : time_decimal2time($total['REG'])).' h</td>' : '').
                     (in_array('start_day_tile_separate',$value_config) ? '<td align="right" style="border-top:1px solid #ddd; border-right:1px solid #ddd;" data-title="Total '.$timesheet_start_tile.'">'.(empty($total['DRIVE']) ? ($timesheet_time_format == 'decimal' ? '0.00' : '0:00') : ($timesheet_time_format == 'decimal' ? number_format($total['DRIVE'],2) : time_decimal2time($total['DRIVE']))).' h</td>' : '').
                     (in_array('payable_hrs',$value_config) ? '<td align="right" style="border-top:1px solid #ddd; border-right:1px solid #ddd;" data-title="Total Payable Hours">'.(empty($total['REG']) ? ($timesheet_time_format == 'decimal' ? '0.00' : '0:00') : ($timesheet_time_format == 'decimal' ? number_format($total['REG'],2) : time_decimal2time($total['REG']))).' h</td>' : '').
-                    (in_array('overtime_hrs',$value_config) ? '<td align="right" style="border-top:1px solid #ddd; border-right:1px solid #ddd;" data-title="Total Over">'.($timesheet_time_format == 'decimal' ? number_format($$total['OVERTIME'],2) : time_decimal2time($$total['OVERTIME'])).' h</td>' : '').
-                    (in_array('doubletime_hrs',$value_config) ? '<td align="right" style="border-top:1px solid #ddd; border-right:1px solid #ddd;" data-title="Total Double">'.($timesheet_time_format == 'decimal' ? number_format($$total['DOUBLETIME'],2) : time_decimal2time($$total['DOUBLETIME'])).' h</td>' : '').
+                    (in_array('overtime_hrs',$value_config) ? '<td align="right" style="border-top:1px solid #ddd; border-right:1px solid #ddd;" data-title="Total Over">'.($timesheet_time_format == 'decimal' ? number_format($total['OVERTIME'],2) : time_decimal2time($total['OVERTIME'])).' h</td>' : '').
+                    (in_array('doubletime_hrs',$value_config) ? '<td align="right" style="border-top:1px solid #ddd; border-right:1px solid #ddd;" data-title="Total Double">'.($timesheet_time_format == 'decimal' ? number_format($total['DOUBLETIME'],2) : time_decimal2time($total['DOUBLETIME'])).' h</td>' : '').
                     (in_array('extra_hrs',$value_config) ? '<td align="right" style="border-top:1px solid #ddd; border-right:1px solid #ddd;" data-title="Total Extra Hours">'.(empty($total['EXTRA']) ? ($timesheet_time_format == 'decimal' ? '0.00' : '0:00') : ($timesheet_time_format == 'decimal' ? number_format($total['EXTRA'],2) : time_decimal2time($total['EXTRA']))).' h</td>' : '').
                     (in_array('relief_hrs',$value_config) ? '<td align="right" style="border-top:1px solid #ddd; border-right:1px solid #ddd;" data-title="Total Relief Hours">'.(empty($total['RELIEF']) ? ($timesheet_time_format == 'decimal' ? '0.00' : '0:00') : ($timesheet_time_format == 'decimal' ? number_format($total['RELIEF'],2) : time_decimal2time($total['RELIEF']))).' h</td>' : '').
                     (in_array('sleep_hrs',$value_config) ? '<td align="right" style="border-top:1px solid #ddd; border-right:1px solid #ddd;" data-title="Total Sleep Hours">'.(empty($total['SLEEP']) ? ($timesheet_time_format == 'decimal' ? '0.00' : '0:00') : ($timesheet_time_format == 'decimal' ? number_format($total['SLEEP'],2) : time_decimal2time($total['SLEEP']))).' h</td>' : '').

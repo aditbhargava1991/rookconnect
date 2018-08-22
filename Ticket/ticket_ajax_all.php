@@ -660,7 +660,7 @@ if($_GET['action'] == 'update_fields') {
 		$seconds = time();
 		if($field_name == 'arrived' && $value == 1) {
 			mysqli_query($dbc, "UPDATE `ticket_attached` SET `timer_start`='$seconds' WHERE `id`='$id'");
-			mysqli_query($dbc, "UPDATE `ticket_attached` SET `checked_in`='".date('h:i a')."' WHERE `id`='$id' AND `checked_in` IS NULL");
+			mysqli_query($dbc, "UPDATE `ticket_attached` SET `checked_in`='".date('h:i a')."' WHERE `id`='$id' AND IFNULL(`checked_in`,'') = ''");
 		} else {
 			$hours = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `timer_start`, `hours_tracked` FROM `ticket_attached` WHERE `id`='$id'"));
 			if($hours['timer_start'] > 0) {
@@ -709,7 +709,7 @@ if($_GET['action'] == 'update_fields') {
 				mysqli_query($dbc, "UPDATE `time_cards` SET `total_hrs` = GREATEST(IF('$time_interval' > 0,CEILING(((($seconds - `timer_start`) + IFNULL(NULLIF(`timer_tracked`,'0'),IFNULL(`total_hrs`,0))) / 3600) / '$time_interval') * '$time_interval',((($seconds - `timer_start`) + IFNULL(NULLIF(`timer_tracked`,'0'),IFNULL(`total_hrs`,0))) / 3600)),'$time_minimum'), `timer_tracked` = (($seconds - `timer_start`) + IFNULL(`timer_tracked`,0)) / 3600, `timer_start`=0, `end_time`='$time', `comment_box`=CONCAT(IFNULL(`comment_box`,''),'Signed in on ".get_ticket_label($dbc, mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticketid`='{$attached['ticketid']}'")))."') WHERE `type_of_time` NOT IN ('day_tracking','day_break') AND `ticketid`!='{$attached['ticketid']}' AND `staff`='{$attached['item_id']}' AND `timer_start` > 0");
 			}
 			mysqli_query($dbc, "UPDATE `ticket_attached` SET `checked_out`='".date('h:i a')."', `completed`=1 WHERE `id`!='$id' AND `src_table`='{$attached['src_table']}' AND `item_id`='{$attached['item_id']}' AND (`arrived`=1 AND `completed`=0)");
-			mysqli_query($dbc, "UPDATE `ticket_attached` SET `checked_in`='".date('h:i a')."' WHERE `id`='$id' AND `checked_in` IS NULL");
+			mysqli_query($dbc, "UPDATE `ticket_attached` SET `checked_in`='".date('h:i a')."' WHERE `id`='$id' AND IFNULL(`checked_in`,'') = ''");
 			if(get_config($dbc, 'ticket_force_starts_day') > 0 && $attached['item_id'] > 0) {
 				$comment = get_config($dbc, 'day_tracking_preset_note' && strpos($value_config, ',Staff Multiple Times,') === FALSE);
 				mysqli_query($dbc, "INSERT INTO `time_cards` (`staff`, `date`, `start_time`, `type_of_time`, `timer_start`, `comment_box`) VALUES ('{$attached['item_id']}', '$today', '$time', 'day_tracking', '$seconds', '$comment')");

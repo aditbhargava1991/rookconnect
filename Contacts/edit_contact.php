@@ -54,7 +54,7 @@ foreach(explode(',',get_config($dbc, $folder_name.'_classification', true, ','))
 	$classification_regions[] = $class_regions[$i];
 }
 $contact_security = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `contacts_security` WHERE `contactid`='$contactid'"));
-include('../Contacts/edit_fields.php');
+include_once('../Contacts/edit_fields.php');
 // if(in_array_starts('acc_',$field_config)) {
 	// foreach($tab_list as $tab_data) {
 		// $field_config[] = 'acc_'.$tab_data[1];
@@ -1027,7 +1027,7 @@ function removeContactForm(a, pdf_id) {
 										} else {
 											$each_tab = explode(',',get_config($dbc, $folder_name.'_tabs'));
 										} ?>
-										<?php if(($contactid > 0 && !IFRAME_PAGE && !isset($_GET['fields'])) || !in_array($_GET['category'],$each_tab)) { ?>
+										<?php if((!IFRAME_PAGE && !isset($_GET['fields'])) || !in_array($_GET['category'],$each_tab)) { ?>
 											<select name="category" data-field="category" data-table="contacts" class="form-control chosen-select-deselect"><option></option>
 												<?php foreach ($each_tab as $cat_tab) {
 													echo "<option ".($contact['category'] == $cat_tab || (empty($contact['category']) && $_GET['category'] == $cat_tab) ? 'selected' : '')." value='". $cat_tab."'>".$cat_tab.'</option>';

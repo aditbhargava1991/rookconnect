@@ -33,6 +33,10 @@ if(isset($_POST['submit'])) {
 	$heading = filter_var($_POST['heading'],FILTER_SANITIZE_STRING);
     $date_of_archival = date('Y-m-d');
 	$dbc->query("UPDATE `estimate_scope` SET `deleted`=1, `date_of_archival` = '$date_of_archival' WHERE `estimateid`='$estimateid' AND `scope_name`='$scope_name' AND `heading`='$heading' AND IFNULL(`src_table`,'')=''");
+	$before_change = '';
+	$history = "Estimates scope entry has been updated for scope name $scope_name. <br />";
+	add_update_history($dbc, 'estimates_history', $history, '', $before_change);
+
 	if($_GET['type'] == 'vpl') {
 		$pricing = filter_var($_POST['productpricing'],FILTER_SANITIZE_STRING);
 		$exchange_rate = 1;
@@ -46,6 +50,9 @@ if(isset($_POST['submit'])) {
 			$retail = $cost * $exchange_rate * $qty;
         	if($value > 0 && $qty > 0) {
 				$dbc->query("INSERT INTO `estimate_scope` (`estimateid`, `scope_name`, `heading`,`src_table`,`src_id`,`cost`,`price`,`pricing`,`qty`,`retail`,`sort_order`) VALUES ('$estimateid', '$scope_name','$heading','vpl','$value','$cost','".($pricing == 'usd_cpu' ? 0 : $cost)."','$pricing','$qty','$retail','$i')");
+				$before_change = '';
+				$history = "Estimates scope entry has been added. <br />";
+				add_update_history($dbc, 'estimates_history', $history, '', $before_change);
 			}
 		}
 	} else if($_GET['type'] == 'inventory') {
@@ -58,6 +65,9 @@ if(isset($_POST['submit'])) {
 				$dbc->query("INSERT INTO `estimate_scope` (`estimateid`, `scope_name`, `heading`,`src_table`,`src_id`,`cost`,`price`,`qty`,`retail`,`sort_order`) VALUES ('$estimateid', '$scope_name','$heading','inventory','$value','$cost','$price','$qty','$retail','$i')");
 			}
 		}
+		$before_change = '';
+		$history = "Estimates scope entry has been added. <br />";
+		add_update_history($dbc, 'estimates_history', $history, '', $before_change);
 	} else if($_GET['type'] == 'services') {
         foreach($_POST['serviceid'] as $i => $value) {
         	$cost = $_POST['cost'][$i];
@@ -68,6 +78,9 @@ if(isset($_POST['submit'])) {
 				$dbc->query("INSERT INTO `estimate_scope` (`estimateid`, `scope_name`, `heading`,`src_table`,`src_id`,`cost`,`price`,`qty`,`retail`,`sort_order`) VALUES ('$estimateid', '$scope_name','$heading','services','$value','$cost','$price','$qty','$retail','$i')");
 			}
 		}
+		$before_change = '';
+		$history = "Estimates scope entry has been added. <br />";
+		add_update_history($dbc, 'estimates_history', $history, '', $before_change);
 	} else if($_GET['type'] == 'staff') {
         foreach($_POST['staff_id'] as $i => $value) {
         	$cost = $_POST['cost'][$i];
@@ -78,6 +91,9 @@ if(isset($_POST['submit'])) {
 				$dbc->query("INSERT INTO `estimate_scope` (`estimateid`, `scope_name`, `heading`,`src_table`,`src_id`,`cost`,`price`,`qty`,`retail`,`sort_order`) VALUES ('$estimateid', '$scope_name','$heading','staff','$value','$cost','$price','$qty','$retail','$i')");
 			}
 		}
+		$before_change = '';
+		$history = "Estimates scope entry has been added. <br />";
+		add_update_history($dbc, 'estimates_history', $history, '', $before_change);
 	} else if($_GET['type'] == 'products') {
         foreach($_POST['product_id'] as $i => $value) {
         	$cost = $_POST['cost'][$i];
@@ -88,6 +104,9 @@ if(isset($_POST['submit'])) {
 				$dbc->query("INSERT INTO `estimate_scope` (`estimateid`, `scope_name`, `heading`,`src_table`,`src_id`,`cost`,`price`,`qty`,`retail`,`sort_order`) VALUES ('$estimateid', '$scope_name','$heading','products','$value','$cost','$price','$qty','$retail','$i')");
 			}
 		}
+		$before_change = '';
+		$history = "Estimates scope entry has been added. <br />";
+		add_update_history($dbc, 'estimates_history', $history, '', $before_change);
 	} else if($_GET['type'] == 'labour') {
         foreach($_POST['labour_id'] as $i => $value) {
         	$cost = $_POST['cost'][$i];
@@ -98,6 +117,9 @@ if(isset($_POST['submit'])) {
 				$dbc->query("INSERT INTO `estimate_scope` (`estimateid`, `scope_name`, `heading`,`src_table`,`src_id`,`cost`,`price`,`qty`,`retail`,`sort_order`) VALUES ('$estimateid', '$scope_name','$heading','labour','$value','$cost','$price','$qty','$retail','$i')");
 			}
 		}
+		$before_change = '';
+		$history = "Estimates scope entry has been added. <br />";
+		add_update_history($dbc, 'estimates_history', $history, '', $before_change);
 	} else if($_GET['type'] == 'material') {
         foreach($_POST['material_id'] as $i => $value) {
         	$cost = $_POST['cost'][$i];
@@ -108,6 +130,9 @@ if(isset($_POST['submit'])) {
 				$dbc->query("INSERT INTO `estimate_scope` (`estimateid`, `scope_name`, `heading`,`src_table`,`src_id`,`cost`,`price`,`qty`,`retail`,`sort_order`) VALUES ('$estimateid', '$scope_name','$heading','material','$value','$cost','$price','$qty','$retail','$i')");
 			}
 		}
+		$before_change = '';
+		$history = "Estimates scope entry has been added. <br />";
+		add_update_history($dbc, 'estimates_history', $history, '', $before_change);
 	} else if($_GET['type'] == 'position') {
         foreach($_POST['position_id'] as $i => $value) {
         	$cost = $_POST['cost'][$i];
@@ -118,6 +143,9 @@ if(isset($_POST['submit'])) {
 				$dbc->query("INSERT INTO `estimate_scope` (`estimateid`, `scope_name`, `heading`,`src_table`,`src_id`,`cost`,`price`,`qty`,`retail`,`sort_order`) VALUES ('$estimateid', '$scope_name','$heading','position','$value','$cost','$price','$qty','$retail','$i')");
 			}
 		}
+		$before_change = '';
+		$history = "Estimates scope entry has been added. <br />";
+		add_update_history($dbc, 'estimates_history', $history, '', $before_change);
 	} else if($_GET['type'] == 'equipment') {
         foreach($_POST['equipment_id'] as $i => $value) {
         	$cost = $_POST['cost'][$i];
@@ -128,6 +156,9 @@ if(isset($_POST['submit'])) {
 				$dbc->query("INSERT INTO `estimate_scope` (`estimateid`, `scope_name`, `heading`,`src_table`,`src_id`,`cost`,`price`,`qty`,`retail`,`sort_order`) VALUES ('$estimateid', '$scope_name','$heading','equipment','$value','$cost','$price','$qty','$retail','$i')");
 			}
 		}
+		$before_change = '';
+		$history = "Estimates scope entry has been added. <br />";
+		add_update_history($dbc, 'estimates_history', $history, '', $before_change);
 	} else if($_GET['type'] == 'clients') {
         foreach($_POST['client_id'] as $i => $value) {
         	$cost = $_POST['cost'][$i];
@@ -138,6 +169,9 @@ if(isset($_POST['submit'])) {
 				$dbc->query("INSERT INTO `estimate_scope` (`estimateid`, `scope_name`, `heading`,`src_table`,`src_id`,`cost`,`price`,`qty`,`retail`,`sort_order`) VALUES ('$estimateid', '$scope_name','$heading','clients','$value','$cost','$price','$qty','$retail','$i')");
 			}
 		}
+		$before_change = '';
+		$history = "Estimates scope entry has been added. <br />";
+		add_update_history($dbc, 'estimates_history', $history, '', $before_change);
 	} else {
 		$note = 0;
 		$misc = 0;
@@ -148,9 +182,24 @@ if(isset($_POST['submit'])) {
 				$value = filter_var(htmlentities($row),FILTER_SANITIZE_STRING);
 				$id = $_POST['id'][$i];
 				if($id > 0) {
+					$before_change = capture_before_change($dbc, 'estimate_scope', 'estimateid', 'id', $id);
+					$before_change .= capture_before_change($dbc, 'estimate_scope', 'scope_name', 'id', $id);
+					$before_change .= capture_before_change($dbc, 'estimate_scope', 'heading', 'id', $id);
+					$before_change .= capture_before_change($dbc, 'estimate_scope', 'description', 'id', $id);
+					$before_change .= capture_before_change($dbc, 'estimate_scope', 'rate_car', 'id', $id);
 					$dbc->query("UPDATE `estimate_scope` SET `estimateid`='$estimateid', `scope_name`='$scope_name', `heading`='$heading',`description`='$value',`rate_card`='$rate_card' WHERE `id`='$id'");
+					$history = capture_after_change('estimateid', $estimateid);
+					$history .= capture_after_change('scope_name', $scope_name);
+					$history .= capture_after_change('heading', $heading);
+					$history .= capture_after_change('description', $value);
+					$history .= capture_after_change('rate_card', $rate_card);
+					add_update_history($dbc, 'estimates_history', $history, '', $before_change);
+
 				} else {
 					$dbc->query("INSERT INTO `estimate_scope` (`estimateid`, `scope_name`, `heading`,`src_table`,`description`,`rate_card`) VALUES ('$estimateid', '$scope_name','$heading','$type','$value','$current_rate')");
+					$before_change = '';
+					$history = "Estimates scope entry has been added. <br />";
+					add_update_history($dbc, 'estimates_history', $history, '', $before_change);
 				}
 			} else if($type == 'miscellaneous') {
 				$value = filter_var($row,FILTER_SANITIZE_STRING);
@@ -162,6 +211,9 @@ if(isset($_POST['submit'])) {
 					$dbc->query("UDPATE `estimate_scope` SET `estimateid`='$estimateid', `scope_name`='$scope_name', `heading`='$heading',`description`='$description',`cost`='$cost',`qty`='$qty',`price`='$price',`rate_card`='$rate_card' WHERE `id`='$id'");
 				} else {
 					$dbc->query("INSERT INTO `estimate_scope` (`estimateid`, `scope_name`, `heading`,`src_table`,`description`,`cost`,`qty`,`price`,`rate_card`) VALUES ('$estimateid', '$scope_name','$heading','$type','$value','$cost','$qty','$price','$current_rate')");
+					$before_change = '';
+					$history = "Estimates scope entry has been added. <br />";
+					add_update_history($dbc, 'estimates_history', $history, '', $before_change);
 				}
 			} else {
 				$value = filter_var($row,FILTER_SANITIZE_STRING);
@@ -199,6 +251,9 @@ if(isset($_POST['submit'])) {
 					$cost = 0;
 				}
 				$dbc->query("INSERT INTO `estimate_scope` (`estimateid`, `scope_name`, `heading`,`src_table`,`src_id`,`cost`,`rate_card`,`sort_order`) VALUES ('$estimateid', '$scope_name','$heading','$type','$value','$cost','$current_rate','$i')");
+				$before_change = '';
+				$history = "Estimates scope entry has been added. <br />";
+				add_update_history($dbc, 'estimates_history', $history, '', $before_change);
 			}
 		}
 	}

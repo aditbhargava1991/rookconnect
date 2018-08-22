@@ -56,11 +56,17 @@ if($get_pos_tax != '') {
 }
 //Tax
 
-$pos_logo = get_config($dbc, 'invoice_logo');
 $invoice_footer = get_config($dbc, 'invoice_footer');
 $payment_type = explode('#*#', $point_of_sell['payment_type']);
 
-DEFINE('POS_LOGO', $pos_logo);
+$logo = 'download/'.get_config($dbc, 'invoice_logo');
+if(!file_exists($logo)) {
+    $logo = '../POSAdvanced/'.$logo;
+    if(!file_exists($logo)) {
+        $logo = '';
+    }
+}
+DEFINE('POS_LOGO', $logo);
 DEFINE('INVOICE_FOOTER', $invoice_footer);
 DEFINE('INVOICE_DATE', $point_of_sell['invoice_date']);
 DEFINE('INVOICEID', $posid);
@@ -74,13 +80,7 @@ if ( !class_exists('MYPDF') ) {
     class MYPDF extends TCPDF {
         //Page header
         public function Header() {
-            $image_file = 'download/'.POS_LOGO;
-            if(!file_exists($image_file)) {
-                $image_file = '../Invoice/download'.POS_LOGO;
-                if(!file_exists($image_file)) {
-                    $image_file = '../POSAdvanced/download/'.POS_LOGO;
-                }
-            }
+            $image_file = POS_LOGO;
             if(file_get_contents($image_file)) {
                 $image_file = $image_file;
             } else {
@@ -236,7 +236,7 @@ if($num_rows > 0 || $num_rows2 > 0) {
 
 	$result = mysqli_query($dbc, "SELECT * FROM invoice_lines WHERE invoiceid='$invoiceid' AND category = 'misc product'");
 	while($row = mysqli_fetch_array( $result )) {
-		$misc_product = $row['misc_product'];
+		$misc_product = $row['description'];
 		$price = $row['unit_price'];
 		$qty = $row['quantity'];
 		$returned = $row['returned_qty'];
@@ -250,7 +250,7 @@ if($num_rows > 0 || $num_rows2 > 0) {
 				$html .= '<td>'.$returned.'</td>';
 			}
 			$html .=  '<td>$'.$price.'</td>';
-			$html .=  '<td style="text-align:right; background-color:rgb(232,238,238);">$'.$price * ($qty - $returned).'</td>';
+			$html .=  '<td style="text-align:right; background-color:rgb(232,238,238);">$'.number_format(($price * ($qty - $returned)), 2).'</td>';
 			$html .= '</tr>';
 		}
 	}

@@ -1,8 +1,15 @@
 <?php //Calendar Helper Functions
-function checkShiftIntervals($dbc, $contact_id, $day_of_week, $calendar_date, $query_type, $clientid, $limits = '') {
+function checkShiftIntervals($dbc, $contact_id, $day_of_week, $calendar_date, $query_type, $clientid, $limits = '', $check_conflicts = '') {
 	$contact_query = '';
+	$role_query = '';
 	if (!empty($contact_id)) {
 		$contact_query = ' AND `contactid` = '.$contact_id;
+		$role_query = array_filter(explode(',',get_contact($dbc,$contact_id,'role')));
+		if(!empty($role_query)) {
+			$role_query = " AND `security_level` IN ('".implode("','", $role_query)."')";
+		} else {
+			$role_query = '';
+		}
 	}
 	$client_query = '';
 	if (!empty($clientid)) {
@@ -11,12 +18,24 @@ function checkShiftIntervals($dbc, $contact_id, $day_of_week, $calendar_date, $q
 	if ($query_type == 'daysoff') {
 		$all_contacts_daysoff = "SELECT * FROM `contacts_shifts` WHERE `startdate` <= '".date('Y-m-d', strtotime($calendar_date))."' AND `startdate` != '0000-00-00' AND (`enddate` >= '".date('Y-m-d', strtotime($calendar_date))."' OR `enddate`='0000-00-00') AND `deleted` = 0 AND `dayoff_type` != '' AND `dayoff_type` IS NOT NULL AND (CONCAT(',', `repeat_days`, ',') LIKE '%,".$day_of_week.",%' OR `repeat_days` = '' OR `repeat_days` IS NULL) AND CONCAT(',',`hide_days`,',') NOT LIKE '%,".$calendar_date.",%'".$contact_query.$client_query.$limits." ORDER BY STR_TO_DATE(`starttime`, '%h:%m %p') ASC";
 		$shifts_arr = mysqli_fetch_all(mysqli_query($dbc, $all_contacts_daysoff),MYSQLI_ASSOC);
+		if(empty($shifts_arr) && !empty($role_query) && empty($check_conflicts)) {
+			$all_contacts_daysoff = "SELECT * FROM `contacts_shifts` WHERE `startdate` <= '".date('Y-m-d', strtotime($calendar_date))."' AND `startdate` != '0000-00-00' AND (`enddate` >= '".date('Y-m-d', strtotime($calendar_date))."' OR `enddate`='0000-00-00') AND `deleted` = 0 AND `dayoff_type` != '' AND `dayoff_type` IS NOT NULL AND (CONCAT(',', `repeat_days`, ',') LIKE '%,".$day_of_week.",%' OR `repeat_days` = '' OR `repeat_days` IS NULL) AND CONCAT(',',`hide_days`,',') NOT LIKE '%,".$calendar_date.",%'".$role_query.$client_query.$limits." ORDER BY STR_TO_DATE(`starttime`, '%h:%m %p') ASC";
+			$shifts_arr = mysqli_fetch_all(mysqli_query($dbc, $all_contacts_daysoff),MYSQLI_ASSOC);
+		}
 	} else if ($query_type == 'all') {
 		$all_contacts_shifts = "SELECT * FROM `contacts_shifts` WHERE `startdate` <= '".date('Y-m-d', strtotime($calendar_date))."' AND `startdate` != '0000-00-00' AND (`enddate` >= '".date('Y-m-d', strtotime($calendar_date))."' OR `enddate`='0000-00-00') AND (CONCAT(',', `repeat_days`, ',') LIKE '%,".$day_of_week.",%' OR `repeat_days` = '' OR `repeat_days` IS NULL) AND `deleted` = 0 AND CONCAT(',',`hide_days`,',') NOT LIKE '%,".$calendar_date.",%'".$contact_query.$client_query.$limits." ORDER BY STR_TO_DATE(`starttime`, '%h:%m %p') ASC";
 		$shifts_arr = mysqli_fetch_all(mysqli_query($dbc, $all_contacts_shifts),MYSQLI_ASSOC);
+		if(empty($shifts_arr) && !empty($role_query) && empty($check_conflicts)) {
+			$all_contacts_shifts = "SELECT * FROM `contacts_shifts` WHERE `startdate` <= '".date('Y-m-d', strtotime($calendar_date))."' AND `startdate` != '0000-00-00' AND (`enddate` >= '".date('Y-m-d', strtotime($calendar_date))."' OR `enddate`='0000-00-00') AND (CONCAT(',', `repeat_days`, ',') LIKE '%,".$day_of_week.",%' OR `repeat_days` = '' OR `repeat_days` IS NULL) AND `deleted` = 0 AND CONCAT(',',`hide_days`,',') NOT LIKE '%,".$calendar_date.",%'".$role_query.$client_query.$limits." ORDER BY STR_TO_DATE(`starttime`, '%h:%m %p') ASC";
+			$shifts_arr = mysqli_fetch_all(mysqli_query($dbc, $all_contacts_shifts),MYSQLI_ASSOC);
+		}
 	} else {
 		$all_contacts_shifts = "SELECT * FROM `contacts_shifts` WHERE `startdate` <= '".date('Y-m-d', strtotime($calendar_date))."' AND `startdate` != '0000-00-00' AND (`enddate` >= '".date('Y-m-d', strtotime($calendar_date))."' OR `enddate`='0000-00-00') AND (CONCAT(',', `repeat_days`, ',') LIKE '%,".$day_of_week.",%' OR `repeat_days` = '' OR `repeat_days` IS NULL) AND `deleted` = 0 AND (`dayoff_type` = '' OR `dayoff_type` IS NULL) AND CONCAT(',',`hide_days`,',') NOT LIKE '%,".$calendar_date.",%'".$contact_query.$client_query.$limits." ORDER BY STR_TO_DATE(`starttime`, '%h:%m %p') ASC";
 		$shifts_arr = mysqli_fetch_all(mysqli_query($dbc, $all_contacts_shifts),MYSQLI_ASSOC);
+		if(empty($shifts_arr) && !empty($role_query) && empty($check_conflicts)) {
+			$all_contacts_shifts = "SELECT * FROM `contacts_shifts` WHERE `startdate` <= '".date('Y-m-d', strtotime($calendar_date))."' AND `startdate` != '0000-00-00' AND (`enddate` >= '".date('Y-m-d', strtotime($calendar_date))."' OR `enddate`='0000-00-00') AND (CONCAT(',', `repeat_days`, ',') LIKE '%,".$day_of_week.",%' OR `repeat_days` = '' OR `repeat_days` IS NULL) AND `deleted` = 0 AND (`dayoff_type` = '' OR `dayoff_type` IS NULL) AND CONCAT(',',`hide_days`,',') NOT LIKE '%,".$calendar_date.",%'".$role_query.$client_query.$limits." ORDER BY STR_TO_DATE(`starttime`, '%h:%m %p') ASC";
+			$shifts_arr = mysqli_fetch_all(mysqli_query($dbc, $all_contacts_shifts),MYSQLI_ASSOC);
+		}
 	}
 
 	$shifts = [];
@@ -108,9 +127,9 @@ function getContactLogo($dbc, $contactid) {
 function getShiftConflicts($dbc, $contact_id, $calendar_date, $new_starttime = '', $new_endtime = '', $shiftid = '', $clientid = '') {
 	$day_of_week = date('l', strtotime($calendar_date));
 	if(!empty($contact_id)) {
-		$shifts = checkShiftIntervals($dbc, $contact_id, $day_of_week, $calendar_date);
+		$shifts = checkShiftIntervals($dbc, $contact_id, $day_of_week, $calendar_date, 'shifts', '', '', 1);
 	} else if(!empty($clientid)) {
-		$shifts = checkShiftIntervals($dbc, '', $day_of_week, $calendar_date, 'shifts', $clientid);
+		$shifts = checkShiftIntervals($dbc, '', $day_of_week, $calendar_date, 'shifts', $clientid, 1);
 	}
 	
 	if(!empty($shiftid) && empty($new_starttime) && empty($new_endtime)) {
@@ -146,6 +165,12 @@ function getShiftConflicts($dbc, $contact_id, $calendar_date, $new_starttime = '
 function getEquipmentAssignmentBlock($dbc, $equipmentid, $view, $date) {
 	$block_html = '';
 	$reset_active = get_config($dbc, 'scheduling_reset_active');
+    $customer_roles = array_filter(explode(',',get_config($dbc, 'scheduling_customer_roles')));
+    foreach(array_filter(explode(',',ROLE)) as $session_role) {
+        if(in_array($session_role,$customer_roles)) {
+            $reset_active = 1;
+        }
+    }
 	$equip_display_classification = get_config($dbc, 'scheduling_equip_classification');
 	$active_equipment = array_filter(explode(',',get_user_settings()['appt_calendar_equipment']));
 	if($reset_active == 1) {
@@ -225,7 +250,7 @@ function getEquipmentAssignmentBlock($dbc, $equipmentid, $view, $date) {
 				$classification_label = ' - '.str_replace('*#*', ', ', $equip_classifications);
 			}
 
-			$block_html = "<a href='' onclick='$(this).find(\".block-item\").toggleClass(\"active\"); toggle_columns(\"\"); retrieve_items(this); return false;'><div class='block-item equip_assign_draggable ".(in_array($equipment['equipmentid'],$active_equipment) || $reset_active_equipment ? 'active' : '')."' data-blocktype='equipment' data-equipment='".$equipment['equipmentid']."' data-client='".$clientids."' data-region='".$equip_regions."' data-classification='".$equip_classifications."' data-location='".$equip_locations."' data-region-group='".explode('*#*',$equipment['region'])[0]."'><img class='drag-handle' src='".WEBSITE_URL."/img/icons/drag_handle.png' style='float: right; width: 2em;'>".$equipment['label'].$classification_label.$equipassign_weekly."</div></a>";
+			$block_html = "<a href='' onclick='$(this).find(\".block-item\").toggleClass(\"active\"); toggle_columns(\"\"); retrieve_items(this); return false;'><div class='block-item equip_assign_draggable ".(in_array($equipment['equipmentid'],$active_equipment) || $reset_active_equipment ? 'active' : '')."' data-blocktype='equipment' data-equipment='".$equipment['equipmentid']."' data-client='".$clientids."' data-region='".$equip_regions."' data-classification='".$equip_classifications."' data-location='".$equip_locations."' data-region-group='".explode('*#*',$equipment['region'])[0]."' data-activevalue='".$equipment['equipmentid']."'><img class='drag-handle' src='".WEBSITE_URL."/img/icons/drag_handle.png' style='float: right; width: 2em;'>".$equipment['label'].$classification_label.$equipassign_weekly."</div></a>";
 			break;
 		case 'daily':
 		default:
@@ -263,7 +288,7 @@ function getEquipmentAssignmentBlock($dbc, $equipmentid, $view, $date) {
 				$classification_label = ' - '.str_replace('*#*', ', ', $equip_classifications);
 			}
 			
-			$block_html = "<a href='' onclick='$(this).find(\".block-item\").toggleClass(\"active\"); toggle_columns(\"\"); retrieve_items(this); return false;'><div class='block-item equip_assign_draggable ".(in_array($equipment['equipmentid'],$active_equipment) || $reset_active_equipment ? 'active' : '')."' data-blocktype='equipment' data-equipment='".$equipment['equipmentid']."' data-equipassign='".$equip_assign['equipment_assignmentid']."' data-client='".$equip_assign['clientid']."' data-region='".$equip_regions."' data-classification='".$equip_locations."' data-location='".$equip_classifications."' data-region-group='".explode('*#*',$equipment['region'])[0]."'><img class='drag-handle' src='".WEBSITE_URL."/img/icons/drag_handle.png' style='float: right; width: 2em;'>".$equipment['label'].$classification_label.(empty($equip_assign) ? ' (Not Assigned)' : '')."</div></a>";
+			$block_html = "<a href='' onclick='$(this).find(\".block-item\").toggleClass(\"active\"); toggle_columns(\"\"); retrieve_items(this); return false;'><div class='block-item equip_assign_draggable ".(in_array($equipment['equipmentid'],$active_equipment) || $reset_active_equipment ? 'active' : '')."' data-blocktype='equipment' data-equipment='".$equipment['equipmentid']."' data-equipassign='".$equip_assign['equipment_assignmentid']."' data-client='".$equip_assign['clientid']."' data-region='".$equip_regions."' data-classification='".$equip_locations."' data-location='".$equip_classifications."' data-region-group='".explode('*#*',$equipment['region'])[0]."' data-activevalue='".$equipment['equipmentid']."'><img class='drag-handle' src='".WEBSITE_URL."/img/icons/drag_handle.png' style='float: right; width: 2em;'>".$equipment['label'].$classification_label.(empty($equip_assign) ? ' (Not Assigned)' : '')."</div></a>";
 			break;
 	}
 	return $block_html;
@@ -300,4 +325,74 @@ function getTeamTickets($dbc, $date, $teamid) {
 		}
 	}
 	return $tickets_list;
+}
+function calendarTicketLabel($dbc, $ticket, $max_time, $start_time, $end_time) {
+	if(is_array($max_time) || empty($max_time)) {
+		$max_time = $ticket['max_time'];
+	}
+	$calendar_ticket_diff_label = get_config($dbc, 'calendar_ticket_diff_label');
+	$calendar_ticket_label = '';
+	if($calendar_ticket_diff_label == 1) {
+	    $calendar_ticket_label = get_config($dbc, 'calendar_ticket_label');
+	}
+	$calendar_ticket_card_fields = explode(',',get_config($dbc, 'calendar_ticket_card_fields'));
+
+	$clients = [];
+	foreach(array_filter(explode(',',$ticket['clientid'])) as $clientid) {
+		$client = !empty(get_client($dbc, $clientid)) ? get_client($dbc, $clientid) : get_contact($dbc, $clientid);
+		if(!empty($client) && $client != '-') {
+			$clients[] = $client;
+		}
+	}
+	$clients = implode(', ',$clients);
+
+	$site = $ticket['siteid'];
+	$site_address = '';
+	if($site > 0) {
+        $site_address = html_entity_decode(mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `contacts` WHERE `contactid` = '".$ticket['siteid']."'"))['address']);
+	}
+	
+	$row_html = '<b>'.get_ticket_label($dbc, $ticket, null, null, $calendar_ticket_label).(empty($calendar_ticket_label) ? $ticket['location_description'] : '').($ticket['sub_label'] != '' ? '-'.$ticket['sub_label'] : '').'</b>'.
+	(in_array('project',$calendar_ticket_card_fields) ? '<br />'.PROJECT_NOUN.' #'.$ticket['projectid'].' '.$ticket['project_name'].'<br />' : '').
+	(in_array('customer',$calendar_ticket_card_fields) ? '<br />'.'Customer: '.get_contact($dbc, $ticket['businessid'], 'name') : '').
+	(in_array('client',$calendar_ticket_card_fields) ? '<br />'.'Client: '.$clients : '').
+	(in_array('site_address',$calendar_ticket_card_fields) ? '<br />'.'Site Address: '.$site_address : '').
+	(in_array('start_date',$calendar_ticket_card_fields) ? '<br />'.'Date: '.$ticket['to_do_date'] : '').
+	(in_array('time',$calendar_ticket_card_fields) ? '<br />'.(!empty($max_time) && $max_time != '00:00:00' ? "(".$max_time.") " : '').$start_time." - ".$end_time : '');
+	if(in_array('available',$calendar_ticket_card_fields)) {
+		if($ticket['pickup_start_available'].$ticket['pickup_end_available'] != '') {
+			$row_html .= '<br />'."Available ";
+			if($ticket['pickup_end_available'] == '') {
+				$row_html .= "After ".$ticket['pickup_start_available'];
+			} else if($ticket['pickup_start_available'] == '') {
+				$row_html .= "Before ".$ticket['pickup_end_available'];
+			} else {
+				$row_html .= "Between ".$ticket['pickup_start_available']." and ".$ticket['pickup_end_available'];
+			}
+		}
+	}
+	$row_html .= (in_array('address',$calendar_ticket_card_fields) ? '<br />'.$ticket['pickup_name'].($ticket['pickup_name'] != '' ? '<br />' : ' ').$ticket['client_name'].($ticket['client_name'] != '' ? '<br />' : ' ').$ticket['pickup_address'].($ticket['pickup_address'] != '' ? '<br />' : ' ').$ticket['pickup_city'] : '');
+	$row_html .= '<br />'."Status: ".$ticket['status'];
+	if(in_array('ticket_notes',$calendar_ticket_card_fields)) {
+		$ticket_notes = mysqli_query($dbc, "SELECT * FROM `ticket_comment` WHERE `ticketid` = '".$ticket['ticketid']."' AND `deleted` = 0");
+		if(mysqli_num_rows($ticket_notes) > 0) {
+			$row_html .= "<br />Notes: ";
+			while($ticket_note = mysqli_fetch_assoc($ticket_notes)) {
+				$row_html .= "<br />".trim(trim(html_entity_decode($ticket_note['comment']),"<p>"),"</p>")."<br />";
+				$row_html .= "<em>Added by ".get_contact($dbc, $ticket_note['created_by'])." at ".$ticket_note['created_date']."</em>";
+			}
+		}
+	}
+	if(in_array('delivery_notes',$calendar_ticket_card_fields) && !empty($ticket['delivery_notes'])) {
+		$row_html .= '<br />Delivery Notes: '.html_entity_decode($ticket['delivery_notes']);
+	}
+
+	return $row_html;
+}
+function getCustomerEquipment($dbc, $start_date, $end_date) {
+	$equipmentids = [];
+	for($calendar_date = $start_date; strtotime($calendar_date) <= strtotime($end_date); $calendar_date = date('Y-m-d', strtotime($calendar_date.' + 1 day'))) {
+		$equipmentids = array_merge($equipmentids, array_column(mysqli_fetch_all(mysqli_query($dbc, "SELECT DISTINCT IFNULL(`ticket_schedule`.`equipmentid`, `tickets`.`equipmentid`) `equipmentid` FROM `tickets` LEFT JOIN `ticket_schedule` ON `tickets`.`ticketid` = `ticket_schedule`.`ticketid` WHERE `tickets`.`deleted` = 0 AND `ticket_schedule`.`deleted` = 0 AND '".$calendar_date."' BETWEEN `tickets`.`to_do_date` AND `tickets`.`to_do_end_date` OR '".$calendar_date."' BETWEEN `ticket_schedule`.`to_do_date` AND IFNULL(`ticket_schedule`.`to_do_end_date`,`ticket_schedule`.`to_do_date`) AND (`tickets`.`businessid` = '".$_SESSION['contactid']."' OR CONCAT(',',`tickets`.`clientid`,',') LIKE '%,".$_SESSION['contactid'].",%')"),MYSQLI_ASSOC),'equipmentid'));
+	}
+	return $equipmentids;
 }

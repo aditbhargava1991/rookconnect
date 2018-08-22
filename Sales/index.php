@@ -19,7 +19,7 @@ include ('../include.php');
         $('.dashboard-container').css('height', 'calc(100% - '+$('.double-scroller').height()+'px)');
         
         $(window).resize(function() {
-            var available_height = window.innerHeight - $('footer:visible').outerHeight() - $('#sales_div .tile-container').offset().top - 19;
+            var available_height = window.innerHeight - $('footer:visible').outerHeight() - $('.tile-sidebar').offset().top - 19;
             if(available_height > 200) {
                 $('#sales_div .tile-sidebar, #sales_div .tile-content').height(available_height);
             }
@@ -100,6 +100,7 @@ include ('../include.php');
 <?php
 	include_once ('../navigation.php');
     checkAuthorised('sales');
+    $approvals = approval_visible_function($dbc, 'sales');
     $config_access = config_visible_function($dbc, 'sales');
     $statuses      = get_config($dbc, 'sales_lead_status');
     $next_actions  = get_config($dbc, 'sales_next_action');
@@ -141,50 +142,63 @@ include ('../include.php');
                 } ?>
 
                 <!-- Sales Stats --><?php
-                /* $lead_status = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `value` FROM `general_configuration` WHERE name='active_lead'"));
-                $lead_statuses = explode(",", $lead_status['value']);
-                $status_check = join("','",$lead_statuses); */
-                $lead_status_won = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `value` FROM `general_configuration` WHERE name='active_lead_won'"))['value'];
-                $lead_status_lost = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `value` FROM `general_configuration` WHERE name='active_lead_lost'"))['value'];
+                $lead_status_won = get_config($dbc, 'lead_status_won');
+                $lead_status_retained = get_config($dbc, 'lead_status_retained');
+                $lead_status_lost = get_config($dbc, 'lead_status_lost');
                 
-                $oppotunities = mysqli_fetch_assoc( mysqli_query($dbc, "SELECT COUNT(*) `count`, SUM(`lead_value`) `value` FROM `sales` WHERE (`status` != '$lead_status_won' AND `status` != '$lead_status_lost' AND `status` <> '') AND (`created_date` BETWEEN '". date('Y-m-01') ."' AND '". date('Y-m-d') ."')" . $query_mod) );
-                $closed = mysqli_fetch_assoc( mysqli_query($dbc, "SELECT COUNT(*) `count`, SUM(`lead_value`) `value` FROM `sales` WHERE `status`='$lead_status_won' AND (`created_date` BETWEEN '". date('Y-m-01') ."' AND '". date('Y-m-d') ."')" . $query_mod) );
-                $tasks_total = mysqli_fetch_assoc( mysqli_query($dbc, "SELECT COUNT(`t`.`tasklistid`) `count` FROM `tasklist` `t`, `sales` `s` WHERE (`t`.`clientid`>0 AND `t`.`clientid` IN (`s`.`contactid`)) AND (`s`.`created_date` BETWEEN '". date('Y-m-01') ."' AND '". date('Y-m-d') ."')") );
+                $oppotunities = mysqli_fetch_assoc( mysqli_query($dbc, "SELECT COUNT(*) `count`, SUM(`lead_value`) `value` FROM `sales` WHERE IFNULL(`status`,'') NOT IN ('$lead_status_won','$lead_status_lost','$lead_status_retained','') AND (IFNULL(NULLIF(`status_date`,''),`created_date`) BETWEEN '". date('Y-m-01') ."' AND '". date('Y-m-d') ."')" . $query_mod) );
+                $closed = mysqli_fetch_assoc( mysqli_query($dbc, "SELECT COUNT(*) `count`, SUM(`lead_value`) `value` FROM `sales` WHERE `status` IN ('$lead_status_won','$lead_status_retained') AND (`status_date` BETWEEN '". date('Y-m-01') ."' AND '". date('Y-m-d') ."')" . $query_mod) );
+                $tasks_total = mysqli_fetch_assoc( mysqli_query($dbc, "SELECT COUNT(*) `count` FROM `tasklist` `t` LEFT JOIN `sales` `s` ON `t`.`salesid`=`s`.`salesid` OR (`t`.`clientid` > 0 AND CONCAT(',',`s`.`contactid`,',') LIKE CONCAT('%,',`t`.`clientid`,',%')) WHERE (`t`.`clientid`>0 AND `t`.`clientid` IN (`s`.`contactid`)) AND (`s`.`created_date` BETWEEN '". date('Y-m-01') ."' AND '". date('Y-m-d') ."')") );
                 $estimates_total = mysqli_fetch_assoc( mysqli_query($dbc, "SELECT COUNT(`e`.`estimateid`) `count` FROM `estimate` `e`, `sales` `s` WHERE `e`.`clientid` IN (`s`.`contactid`) AND (`s`.`created_date` BETWEEN '". date('Y-m-01') ."' AND '". date('Y-m-d') ."')") ); ?>
 
                 <div class="col-xs-12 collapsible-horizontal collapsed" id="summary-div">
-                    <div class="col-xs-12 col-sm-6 col-md-3 gap-top">
+                    <div class="col-xs-6 col-sm-4 col-md-3 gap-top">
                         <div class="summary-block">
                             <div class="text-lg"><?= ( $oppotunities['count'] > 0 ) ? $oppotunities['count'] : 0; ?></div>
-                            <div>Total Opportunities in <?= date('F') ?></div>
+                            <div>Total Open <?= SALES_TILE ?> in <?= date('F') ?></div>
                         </div>
                     </div>
-                    <div class="col-xs-12 col-sm-6 col-md-3 gap-top">
+                    <div class="col-xs-6 col-sm-4 col-md-3 gap-top">
                         <div class="summary-block">
                             <div class="text-lg">$<?= ( $oppotunities['value'] > 0 ) ? number_format($oppotunities['value'], 2) : '0.00'; ?></div>
-                            <div>Total Open Opportunities in <?= date('F') ?></div>
+                            <div>Value of Open <?= SALES_TILE ?> in <?= date('F') ?></div>
                         </div>
                     </div>
-                    <div class="col-xs-12 col-sm-6 col-md-3 gap-top">
+                    <?php foreach(explode(',',get_config($dbc, 'sales_quick_reports')) as $status) {
+                        $sales_leads = mysqli_fetch_assoc( mysqli_query($dbc, "SELECT COUNT(*) `count`, SUM(`lead_value`) `value` FROM `sales` WHERE `status` IN ('$status') AND (`status_date` BETWEEN '". date('Y-m-01') ."' AND '". date('Y-m-d') ."')" . $query_mod) ); ?>
+                        <div class="col-xs-6 col-sm-4 col-md-3 gap-top">
+                            <div class="summary-block">
+                                <div class="text-lg"><?= ( $sales_leads['count'] > 0 ) ? $sales_leads['count'] : 0; ?></div>
+                                <div>Total <?= $status ?> <?= SALES_TILE ?> in <?= date('F') ?></div>
+                            </div>
+                        </div>
+                        <div class="col-xs-6 col-sm-4 col-md-3 gap-top">
+                            <div class="summary-block">
+                                <div class="text-lg">$<?= ( $sales_leads['value'] > 0 ) ? number_format($sales_leads['value'], 2) : '0.00'; ?></div>
+                                <div>Value of <?= $status ?> <?= SALES_TILE ?> in <?= date('F') ?></div>
+                            </div>
+                        </div>
+                    <?php } ?>
+                    <div class="col-xs-6 col-sm-4 col-md-3 gap-top">
                         <div class="summary-block">
                             <div class="text-lg"><?= ( $closed['count'] > 0 ) ? $closed['count'] : 0; ?></div>
-                            <div>Closed Successfully in <?= date('F') ?></div>
+                            <div>Successful <?= SALES_TILE ?> in <?= date('F') ?></div>
                         </div>
                     </div>
-                    <div class="col-xs-12 col-sm-6 col-md-3 gap-top">
+                    <div class="col-xs-6 col-sm-4 col-md-3 gap-top">
                         <div class="summary-block">
                             <div class="text-lg">$<?= ( $closed['value'] > 0 ) ? number_format($closed['value'], 2) : '0.00'; ?></div>
-                            <div>Total Value of Closed in <?= date('F') ?></div>
+                            <div>Value of Successful <?= SALES_TILE ?> in <?= date('F') ?></div>
                         </div>
 						<!--<img class="pull-right inline-img" src="../img/icons/ROOK-minus-icon.png" onclick="$('#summary-div').hide();">-->
                     </div>
-                    <div class="col-xs-12 col-sm-6 col-md-3 gap-top">
+                    <div class="col-xs-6 col-sm-4 col-md-3 gap-top">
                         <div class="summary-block">
                             <div class="text-lg"><?= ( $tasks_total['count'] > 0 ) ? $tasks_total['count'] : 0; ?></div>
                             <div>Total Tasks in <?= date('F') ?></div>
                         </div>
                     </div>
-                    <div class="col-xs-12 col-sm-6 col-md-3 gap-top">
+                    <div class="col-xs-6 col-sm-4 col-md-3 gap-top">
                         <div class="summary-block">
                             <div class="text-lg"><?= ( $estimates_total['count'] > 0 ) ? $estimates_total['count'] : 0; ?></div>
                             <div>Total Estimates in <?= date('F') ?></div>
@@ -198,37 +212,23 @@ include ('../include.php');
 
                 <!-- Sidebar -->
                 <div class="standard-collapsible tile-sidebar hide-titles-mob overflow-y">
-                    <ul>
+                    <ul id="dashboard_sidebar">
 						<li class="standard-sidebar-searchbox search-box"><input type="text" class="search-text form-control" placeholder="Search <?= SALES_TILE ?> Leads" onkeyup="searchLeads(this.value);"></li>
                         <li class="<?= ( $page=='dashboard' || empty($page) ) ? 'active' : '' ?>"><a href="index.php">Dashboard</a></li>
-                        <li class="sidebar-higher-level"><a class="<?= in_array($_GET['s'],explode(',',$statuses)) ? 'active' : 'collapsed' ?> cursor-hand" data-toggle="collapse" data-target="#collapse_status">Status<span class="arrow"></span></a>
-							<ul id="collapse_status" class="collapse"><?php
+                        <li class="sidebar-higher-level"><a class="<?= in_array($_GET['s'],explode(',',$statuses)) ? 'active' : 'collapsed' ?> cursor-hand" data-toggle="collapse" data-parent="#dashboard_sidebar" data-target="#collapse_status">Status<span class="arrow"></span></a>
+							<ul id="collapse_status" class="panel-collapse collapse <?= !empty($_GET['s']) ? 'in' : '' ?>"><?php
 								// Get Lead Statuses added in Settings->Lead Status accordion
 								foreach ( explode(',', $statuses) as $status ) {
-									if ( trim($_GET['s']==$status) ) { ?>
-										<script>
-											$(document).ready(function() {
-												$('#collapse_status').collapse('show');
-											});
-										</script><?php
-									}
 									$row_count = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT COUNT(*) `count` FROM `sales` WHERE `status`='$status' AND `deleted` = 0 " . $query_mod))['count'];
 									echo '<li class="'.($_GET['s'] == $status ? 'active' : '').'"><a href="?p=filter&s='. $status .'">'. $status .'<span class="pull-right pad-right">'.$row_count.'</span></a></li>';
 								} ?>
 							</ul>
 						</li>
-                        <li class="sidebar-higher-level"><a class="<?= !empty($_GET['contactid']) ? '' : 'collapsed' ?> cursor-hand" data-toggle="collapse" data-target="#collapse_staff">Staff<span class="arrow"></span></a>
-                            <ul id="collapse_staff" class="collapse"><?php
+                        <li class="sidebar-higher-level"><a class="<?= !empty($_GET['contactid']) ? '' : 'collapsed' ?> cursor-hand" data-toggle="collapse" data-parent="#dashboard_sidebar" data-target="#collapse_staff">Staff<span class="arrow"></span></a>
+                            <ul id="collapse_staff" class="panel-collapse collapse <?= !empty($_GET['contactid']) ? 'in' : '' ?>"><?php
                                 // Get Staff
-                                $staff_list = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `deleted` = 0 AND `status` = 1 AND `show_hide_user` = 1"),MYSQLI_ASSOC));
+                                $staff_list = array_filter(explode(',',get_config($dbc, 'sales_dashboard_users')));
                                 foreach($staff_list as $staffid) {
-                                    if ( trim($_GET['contactid']==$staffid) ) { ?>
-                                        <script>
-                                            $(document).ready(function() {
-                                                $('#collapse_staff').collapse('show');
-                                            });
-                                        </script><?php
-                                    }
                                     $row_count = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT COUNT(*) `count` FROM `sales` WHERE (CONCAT(',',`share_lead`,',') LIKE '%,$staffid,%' OR `primary_staff` = '$staffid') AND `deleted` = 0"))['count'];
                                     echo '<li class="'.($_GET['contactid'] == $staffid ? 'active' : '').'"><a href="?p=filter&contactid='. $staffid .'">'. get_contact($dbc, $staffid) .'<span class="pull-right pad-right">'.$row_count.'</span></a></li>';
                                 } ?>
@@ -236,17 +236,10 @@ include ('../include.php');
                         </li>
 						<?php $regions = array_filter(array_unique(explode(',', mysqli_fetch_array(mysqli_query($dbc, "SELECT GROUP_CONCAT(`value` SEPARATOR ',') FROM `general_configuration` WHERE `name` LIKE '%_region'"))[0])));
 						if(count($regions) > 0) { ?>
-							<li class="sidebar-higher-level"sor-hand" data-toggle="collapse" data-target="#collapse_region">Region<span class="arrow"></span></a>
-								<ul id="collapse_region" class="collapse"><?php
+							<li class="sidebar-higher-level"><a class="<?= in_array($_GET['r'],$locations) ? '' : 'collapsed' ?> cursor-hand" data-toggle="collapse" data-parent="#dashboard_sidebar" data-target="#collapse_region">Region<span class="arrow"></span></a>
+								<ul id="collapse_region" class="panel-collapse collapse <?= !empty($_GET['r']) ? 'in' : '' ?>"><?php
 									// Get Lead Statuses added in Settings->Lead Status accordion
 									foreach ( $regions as $region ) {
-										if ( trim($_GET['r'] == $region) ) { ?>
-											<script>
-												$(document).ready(function() {
-													$('#collapse_region').collapse('show');
-												});
-											</script><?php
-										}
 										$row_count = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT COUNT(*) `count` FROM `sales` WHERE `region`='$region' AND `deleted` = 0 " . $query_mod))['count'];
 										echo '<li class="'.($_GET['r'] == $region ? 'active' : '').'"><a href="?p=filter&r='. $region .'">'. $region .'<span class="pull-right pad-right">'.$row_count.'</span></a></li>';
 									} ?>
@@ -255,17 +248,10 @@ include ('../include.php');
 						<?php } ?>
 						<?php $locations =  array_filter(array_unique(explode(',', mysqli_fetch_array(mysqli_query($dbc, "SELECT GROUP_CONCAT(DISTINCT `con_locations` SEPARATOR ',') FROM `field_config_contacts`"))[0])));
 						if(count($locations) > 0) { ?>
-							<li class="sidebar-higher-level"><a class="<?= in_array($_GET['l'],$locations) ? '' : 'collapsed' ?> cursor-hand" data-toggle="collapse" data-target="#collapse_location">Location<span class="arrow"></span></a>
-								<ul id="collapse_location" class="collapse"><?php
+							<li class="sidebar-higher-level"><a class="<?= in_array($_GET['l'],$locations) ? '' : 'collapsed' ?> cursor-hand" data-toggle="collapse" data-parent="#dashboard_sidebar" data-target="#collapse_location">Location<span class="arrow"></span></a>
+								<ul id="collapse_location" class="panel-collapse collapse <?= !empty($_GET['l']) ? 'in' : '' ?>"><?php
 									// Get Lead Statuses added in Settings->Lead Status accordion
 									foreach ( $locations as $location ) {
-										if ( trim($_GET['l'] == $location) ) { ?>
-											<script>
-												$(document).ready(function() {
-													$('#collapse_location').collapse('show');
-												});
-											</script><?php
-										}
 										$row_count = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT COUNT(*) `count` FROM `sales` WHERE `location`='$location' AND `deleted` = 0 " . $query_mod))['count'];
 										echo '<li class="'.($_GET['l'] == $location ? 'active' : '').'"><a href="?p=filter&l='. $location .'">'. $location .'<span class="pull-right pad-right">'.$row_count.'</span></a></li>';
 									} ?>
@@ -274,23 +260,19 @@ include ('../include.php');
 						<?php } ?>
 						<?php $classifications = array_filter(array_unique(explode(',', mysqli_fetch_array(mysqli_query($dbc, "SELECT GROUP_CONCAT(`value` SEPARATOR ',') FROM `general_configuration` WHERE `name` LIKE '%_classification'"))[0])));
 						if(count($classifications) > 0) { ?>
-							<li class="sidebar-higher-level"><a class="<?= in_array($_GET['c'],$classifications) ? '' : 'collapsed' ?> cursor-hand" data-toggle="collapse" data-target="#collapse_classification">Classification<span class="arrow"></span></a>
-								<ul id="collapse_classification" class="collapse"><?php
+							<li class="sidebar-higher-level"><a class="<?= in_array($_GET['c'],$classifications) ? '' : 'collapsed' ?> cursor-hand" data-toggle="collapse" data-parent="#dashboard_sidebar" data-target="#collapse_classification">Classification<span class="arrow"></span></a>
+								<ul id="collapse_classification" class="panel-collapse collapse <?= !empty($_GET['c']) ? 'in' : '' ?>"><?php
 									// Get Lead Statuses added in Settings->Lead Status accordion
 									foreach ( $classifications as $classification ) {
-										if ( trim($_GET['c'] == $classification) ) { ?>
-											<script>
-												$(document).ready(function() {
-													$('#collapse_classification').collapse('show');
-												});
-											</script><?php
-										}
 										$row_count = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT COUNT(*) `count` FROM `sales` WHERE `classification`='$classification' AND `deleted` = 0 " . $query_mod))['count'];
 										echo '<li class="'.($_GET['c'] == $classification ? 'active' : '').'"><a href="?p=filter&c='. $classification .'">'. $classification .'<span class="pull-right pad-right">'.$row_count.'</span></a></li>';
 									} ?>
 								</ul>
 							</li>
 						<?php } ?>
+                        <?php if ( check_subtab_persmission($dbc, 'sales', ROLE, 'reports') === TRUE ) { ?>
+                            <li><a href="reports.php">Reports<img class="inline-img pull-right no-pad no-margin" src="../img/icons/pie-chart.png"></a></li>
+                        <?php } ?>
                     </ul>
                 </div><!-- .tile-sidebar -->
 

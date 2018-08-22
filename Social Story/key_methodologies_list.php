@@ -20,8 +20,8 @@ if(vuaed_visible_function_social($dbc)) {
 		$get_field_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT ".$tb_field." FROM field_config"));
 		$value_config = ','.$get_field_config[$tb_field].',';
 
-		echo "<table class='table table-bordered'>";
-		echo "<tr class='hidden-xs hidden-sm'>";
+		echo "<table class='table table-bordered table-striped'>";
+		echo "<thead><tr class='hidden-xs hidden-sm'>";
 
 		foreach($config['settings']['Choose Fields for Key Methodologies Dashboard']['data'] as $tab_name => $tabs) {
 			foreach($tabs as $field) {
@@ -31,7 +31,7 @@ if(vuaed_visible_function_social($dbc)) {
 			}
 		}
 			echo '<th>Function</th>';
-		echo "</tr>";
+		echo "</tr></thead>";
 	} else {
 		echo "<h2>No Record Found.</h2>";
 	}
