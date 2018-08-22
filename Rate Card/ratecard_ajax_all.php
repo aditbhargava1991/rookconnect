@@ -417,6 +417,7 @@ if($_GET['fill'] == 'eq_un_sn_config') {
 // Company Rate Card Descriptions
 if($_GET['fill'] == 'rate_card_desc') {
 	$query = '';
+    $cat = filter_var($_GET['cat'],FILTER_SANITIZE_STRING);
 	if($_GET['type'] == 'Position') {
 		$query = "SELECT `name` id, `name` descript  FROM `positions` ORDER BY `name`";
 	}
@@ -425,6 +426,9 @@ if($_GET['fill'] == 'rate_card_desc') {
 	}
 	else if($_GET['type'] == 'Equipment') {
 		$query = "SELECT `type` id, `type` descript FROM `equipment` GROUP BY `type` ORDER BY `type`";
+	}
+	else if($_GET['type'] == 'Services') {
+		$query = "SELECT `serviceid` id, `heading` descript FROM `services` WHERE '$cat' IN (`category`,'') AND `deleted`=0 ORDER BY `category`, `heading`";
 	}
 	else if($_GET['type'] == 'Expenses') {
 		$query = "SELECT * FROM (SELECT CONCAT('EC ',`ec`,': ',`category`) `id`, `category` `descript` FROM `expense_categories` WHERE `deleted`=0 ORDER BY `ec`) `categories` UNION SELECT 'Uncategorized' `id`, '' `descript`";

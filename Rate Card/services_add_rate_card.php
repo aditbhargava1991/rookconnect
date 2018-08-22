@@ -69,7 +69,7 @@ if (isset($_POST['submit'])) {
 	});
 	</script>
 	<?php $id = $_GET['id'];
-	$row = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT * FROM `service_rate_card` WHERE `serviceratecardid`='$id'")); ?>
+	$result = mysqli_query($dbc,"SELECT * FROM `company_rate_card` WHERE `companyrcid`='$id'"); ?>
 	<h3>Rate Card Information</h3>
 	<?php $rates_sql = "SELECT `rate_card_name` FROM `company_rate_card` WHERE `deleted`=0 GROUP BY `rate_card_name` ORDER BY `rate_card_name`";
 	$rate_results = mysqli_query($dbc, $rates_sql);
@@ -153,7 +153,7 @@ if (isset($_POST['submit'])) {
 				<select name="uom" data-placeholder="Select Unit of Measure..." class="chosen-select-deselect form-control">
 					<option></option>
 					<option value="NEW_UOM">Add New UoM</option>
-					<?php $uom_list = mysqli_query($dbc, "SELECT `uom` FROM (SELECT `uom` FROM `service_rate_card` WHERE `deleted` = 0 AND IFNULL(`uom`,'') != '' UNION SELECT 'Hourly' `uom` UNION SELECT 'Daily' `uom`) `uoms` GROUP BY `uom` ORDER BY `uom`");
+					<?php $uom_list = mysqli_query($dbc, "SELECT `uom` FROM (SELECT `uom` FROM `company_rate_card` WHERE `deleted` = 0 AND IFNULL(`uom`,'') != '' UNION SELECT 'Hourly' `uom` UNION SELECT 'Daily' `uom`) `uoms` GROUP BY `uom` ORDER BY `uom`");
 					while($uom = mysqli_fetch_array($uom_list)) { ?>
 						<option value="<?= $uom['uom'] ?>" <?= $uom['uom'] == $row['uom'] ? 'selected' : '' ?>><?= $uom['uom'] ?></option>
 					<?php } ?>
@@ -164,7 +164,7 @@ if (isset($_POST['submit'])) {
 	<?php } ?>
 
 	<div class='form-group clearfix'><label class='col-sm-4 control-label text-right'>Rate:</label>
-	<div class='col-sm-8'><input class='form-control' type='text' name='service_rate' value='<?php echo $row['service_rate']; ?>'></div></div>
+	<div class='col-sm-8'><input class='form-control' type='text' name='unit_price' value='<?php echo $row['cust_price']; ?>'></div></div>
 
 	<div class='form-group clearfix'><label class='col-sm-4 control-label text-right'>Admin Fee:</label>
 	<div class='col-sm-8'><input class='form-control' type='text' name='admin_fee' value='<?php echo $row['admin_fee']; ?>'></div></div>
