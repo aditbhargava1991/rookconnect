@@ -245,6 +245,7 @@ checkAuthorised();
 		$active_tab_sm = '';
 		$active_tab_fav = '';
 		$active_tab_login = '';
+		$active_tab_sync_inventory = '';
 		$title = '';
 		if(isset($_GET['email_configuration'])) {
 			$active_tab_email = 'active_tab';
@@ -276,6 +277,9 @@ checkAuthorised();
 		} else if(isset($_GET['login_page'])) {
 			$active_tab_login = 'active_tab';
 			$title = 'Default Login Page';
+		} else if(isset($_GET['sync_inventory'])) {
+			$active_tab_sync_inventory = 'active_tab';
+			$title = 'Sync Inventory Between Software';
 		} else {
 			$active_tab = 'active_tab';
 			$title = 'Software Functionality Settings';
@@ -375,6 +379,14 @@ checkAuthorised();
 							<a data-toggle="tooltip" data-placement="top" title="Reset your Demo software\'s data and configuration to a copy of your Live software."><img src="img/info.png" width="20"></a>
 						</span>
 						<a href="admin_software_config.php?reset_demo"><button type="button" class="btn brand-btn mobile-block mobile-100 ' . $active_tab_reset_demo . '">Reset Demo To Live</button></a>
+					</div>';
+
+				echo '
+					<div class="pull-left tab">
+						<span class="popover-examples no-gap-pad">
+							<a data-toggle="tooltip" data-placement="top" title="Sync Inventory between different software so the Inventory on these software are in sync."><img src="img/info.png" width="20"></a>
+						</span>
+						<a href="admin_software_config.php?sync_inventory"><button type="button" class="btn brand-btn mobile-block mobile-100 ' . $active_tab_sync_inventory . '">Sync Inventory</button></a>
 					</div>';
 			} ?>
 
@@ -1859,6 +1871,8 @@ checkAuthorised();
 			include('reset_demo_to_live.php');
 		} else if(isset($_GET['email_configuration'])) {
 			include('staff_email_configuration.php');
+		} else if(isset($_GET['sync_inventory'])) {
+			include('Admin Settings/sync_inventory.php');
 		} ?>
         </div>
     </div>
