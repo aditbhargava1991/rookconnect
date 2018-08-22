@@ -30,7 +30,7 @@
                 <span class="popover-examples list-inline pull-right" style="margin:7px 5px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Add sales lead details here."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
             </div><?php
         }
-        if ( !isset($_GET['edit']) && !isset($_GET['view']) ) { ?>
+        if (basename($_SERVER['SCRIPT_FILENAME']) == 'index.php') { ?>
             <div class="pull-right top-dashboard">
                 <img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-Speedometer.png" height="30" class="pull-right gap-left cursor-hand" onclick="$('.dashboard_select').toggle();">
                 <div class="dashboard_select pull-right" style="display: none;">

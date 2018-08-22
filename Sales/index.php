@@ -100,6 +100,7 @@ include ('../include.php');
 <?php
 	include_once ('../navigation.php');
     checkAuthorised('sales');
+    $approvals = approval_visible_function($dbc, 'sales');
     $config_access = config_visible_function($dbc, 'sales');
     $statuses      = get_config($dbc, 'sales_lead_status');
     $next_actions  = get_config($dbc, 'sales_next_action');
@@ -198,37 +199,23 @@ include ('../include.php');
 
                 <!-- Sidebar -->
                 <div class="standard-collapsible tile-sidebar hide-titles-mob overflow-y">
-                    <ul>
+                    <ul id="dashboard_sidebar">
 						<li class="standard-sidebar-searchbox search-box"><input type="text" class="search-text form-control" placeholder="Search <?= SALES_TILE ?> Leads" onkeyup="searchLeads(this.value);"></li>
                         <li class="<?= ( $page=='dashboard' || empty($page) ) ? 'active' : '' ?>"><a href="index.php">Dashboard</a></li>
-                        <li class="sidebar-higher-level"><a class="<?= in_array($_GET['s'],explode(',',$statuses)) ? 'active' : 'collapsed' ?> cursor-hand" data-toggle="collapse" data-target="#collapse_status">Status<span class="arrow"></span></a>
-							<ul id="collapse_status" class="collapse"><?php
+                        <li class="sidebar-higher-level"><a class="<?= in_array($_GET['s'],explode(',',$statuses)) ? 'active' : 'collapsed' ?> cursor-hand" data-toggle="collapse" data-parent="#dashboard_sidebar" data-target="#collapse_status">Status<span class="arrow"></span></a>
+							<ul id="collapse_status" class="panel-collapse collapse <?= !empty($_GET['s']) ? 'in' : '' ?>"><?php
 								// Get Lead Statuses added in Settings->Lead Status accordion
 								foreach ( explode(',', $statuses) as $status ) {
-									if ( trim($_GET['s']==$status) ) { ?>
-										<script>
-											$(document).ready(function() {
-												$('#collapse_status').collapse('show');
-											});
-										</script><?php
-									}
 									$row_count = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT COUNT(*) `count` FROM `sales` WHERE `status`='$status' AND `deleted` = 0 " . $query_mod))['count'];
 									echo '<li class="'.($_GET['s'] == $status ? 'active' : '').'"><a href="?p=filter&s='. $status .'">'. $status .'<span class="pull-right pad-right">'.$row_count.'</span></a></li>';
 								} ?>
 							</ul>
 						</li>
-                        <li class="sidebar-higher-level"><a class="<?= !empty($_GET['contactid']) ? '' : 'collapsed' ?> cursor-hand" data-toggle="collapse" data-target="#collapse_staff">Staff<span class="arrow"></span></a>
-                            <ul id="collapse_staff" class="collapse"><?php
+                        <li class="sidebar-higher-level"><a class="<?= !empty($_GET['contactid']) ? '' : 'collapsed' ?> cursor-hand" data-toggle="collapse" data-parent="#dashboard_sidebar" data-target="#collapse_staff">Staff<span class="arrow"></span></a>
+                            <ul id="collapse_staff" class="panel-collapse collapse <?= !empty($_GET['contactid']) ? 'in' : '' ?>"><?php
                                 // Get Staff
-                                $staff_list = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `deleted` = 0 AND `status` = 1 AND `show_hide_user` = 1"),MYSQLI_ASSOC));
+                                $staff_list = array_filter(explode(',',get_config($dbc, 'sales_dashboard_users')));
                                 foreach($staff_list as $staffid) {
-                                    if ( trim($_GET['contactid']==$staffid) ) { ?>
-                                        <script>
-                                            $(document).ready(function() {
-                                                $('#collapse_staff').collapse('show');
-                                            });
-                                        </script><?php
-                                    }
                                     $row_count = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT COUNT(*) `count` FROM `sales` WHERE (CONCAT(',',`share_lead`,',') LIKE '%,$staffid,%' OR `primary_staff` = '$staffid') AND `deleted` = 0"))['count'];
                                     echo '<li class="'.($_GET['contactid'] == $staffid ? 'active' : '').'"><a href="?p=filter&contactid='. $staffid .'">'. get_contact($dbc, $staffid) .'<span class="pull-right pad-right">'.$row_count.'</span></a></li>';
                                 } ?>
@@ -236,17 +223,10 @@ include ('../include.php');
                         </li>
 						<?php $regions = array_filter(array_unique(explode(',', mysqli_fetch_array(mysqli_query($dbc, "SELECT GROUP_CONCAT(`value` SEPARATOR ',') FROM `general_configuration` WHERE `name` LIKE '%_region'"))[0])));
 						if(count($regions) > 0) { ?>
-							<li class="sidebar-higher-level"sor-hand" data-toggle="collapse" data-target="#collapse_region">Region<span class="arrow"></span></a>
-								<ul id="collapse_region" class="collapse"><?php
+							<li class="sidebar-higher-level"><a class="<?= in_array($_GET['r'],$locations) ? '' : 'collapsed' ?> cursor-hand" data-toggle="collapse" data-parent="#dashboard_sidebar" data-target="#collapse_region">Region<span class="arrow"></span></a>
+								<ul id="collapse_region" class="panel-collapse collapse <?= !empty($_GET['r']) ? 'in' : '' ?>"><?php
 									// Get Lead Statuses added in Settings->Lead Status accordion
 									foreach ( $regions as $region ) {
-										if ( trim($_GET['r'] == $region) ) { ?>
-											<script>
-												$(document).ready(function() {
-													$('#collapse_region').collapse('show');
-												});
-											</script><?php
-										}
 										$row_count = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT COUNT(*) `count` FROM `sales` WHERE `region`='$region' AND `deleted` = 0 " . $query_mod))['count'];
 										echo '<li class="'.($_GET['r'] == $region ? 'active' : '').'"><a href="?p=filter&r='. $region .'">'. $region .'<span class="pull-right pad-right">'.$row_count.'</span></a></li>';
 									} ?>
@@ -255,17 +235,10 @@ include ('../include.php');
 						<?php } ?>
 						<?php $locations =  array_filter(array_unique(explode(',', mysqli_fetch_array(mysqli_query($dbc, "SELECT GROUP_CONCAT(DISTINCT `con_locations` SEPARATOR ',') FROM `field_config_contacts`"))[0])));
 						if(count($locations) > 0) { ?>
-							<li class="sidebar-higher-level"><a class="<?= in_array($_GET['l'],$locations) ? '' : 'collapsed' ?> cursor-hand" data-toggle="collapse" data-target="#collapse_location">Location<span class="arrow"></span></a>
-								<ul id="collapse_location" class="collapse"><?php
+							<li class="sidebar-higher-level"><a class="<?= in_array($_GET['l'],$locations) ? '' : 'collapsed' ?> cursor-hand" data-toggle="collapse" data-parent="#dashboard_sidebar" data-target="#collapse_location">Location<span class="arrow"></span></a>
+								<ul id="collapse_location" class="panel-collapse collapse <?= !empty($_GET['l']) ? 'in' : '' ?>"><?php
 									// Get Lead Statuses added in Settings->Lead Status accordion
 									foreach ( $locations as $location ) {
-										if ( trim($_GET['l'] == $location) ) { ?>
-											<script>
-												$(document).ready(function() {
-													$('#collapse_location').collapse('show');
-												});
-											</script><?php
-										}
 										$row_count = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT COUNT(*) `count` FROM `sales` WHERE `location`='$location' AND `deleted` = 0 " . $query_mod))['count'];
 										echo '<li class="'.($_GET['l'] == $location ? 'active' : '').'"><a href="?p=filter&l='. $location .'">'. $location .'<span class="pull-right pad-right">'.$row_count.'</span></a></li>';
 									} ?>
@@ -274,17 +247,10 @@ include ('../include.php');
 						<?php } ?>
 						<?php $classifications = array_filter(array_unique(explode(',', mysqli_fetch_array(mysqli_query($dbc, "SELECT GROUP_CONCAT(`value` SEPARATOR ',') FROM `general_configuration` WHERE `name` LIKE '%_classification'"))[0])));
 						if(count($classifications) > 0) { ?>
-							<li class="sidebar-higher-level"><a class="<?= in_array($_GET['c'],$classifications) ? '' : 'collapsed' ?> cursor-hand" data-toggle="collapse" data-target="#collapse_classification">Classification<span class="arrow"></span></a>
-								<ul id="collapse_classification" class="collapse"><?php
+							<li class="sidebar-higher-level"><a class="<?= in_array($_GET['c'],$classifications) ? '' : 'collapsed' ?> cursor-hand" data-toggle="collapse" data-parent="#dashboard_sidebar" data-target="#collapse_classification">Classification<span class="arrow"></span></a>
+								<ul id="collapse_classification" class="panel-collapse collapse <?= !empty($_GET['c']) ? 'in' : '' ?>"><?php
 									// Get Lead Statuses added in Settings->Lead Status accordion
 									foreach ( $classifications as $classification ) {
-										if ( trim($_GET['c'] == $classification) ) { ?>
-											<script>
-												$(document).ready(function() {
-													$('#collapse_classification').collapse('show');
-												});
-											</script><?php
-										}
 										$row_count = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT COUNT(*) `count` FROM `sales` WHERE `classification`='$classification' AND `deleted` = 0 " . $query_mod))['count'];
 										echo '<li class="'.($_GET['c'] == $classification ? 'active' : '').'"><a href="?p=filter&c='. $classification .'">'. $classification .'<span class="pull-right pad-right">'.$row_count.'</span></a></li>';
 									} ?>
