@@ -554,6 +554,7 @@ if($_GET['action'] == 'setting_lead_status') {
 	set_config($dbc, 'lead_status_lost', filter_var($_GET['lead_status_lost'],FILTER_SANITIZE_STRING));
 	set_config($dbc, 'lead_status_retained', filter_var($_GET['lead_status_retained'],FILTER_SANITIZE_STRING));
 	set_config($dbc, 'lead_convert_to', filter_var($_GET['lead_convert_to'],FILTER_SANITIZE_STRING));
+	set_config($dbc, 'sales_quick_reports', implode(',',$_POST['sales_quick_reports']));
 }
 if($_GET['action'] == 'setting_auto_archive') {
 	set_config($dbc, 'sales_auto_archive', filter_var($_GET['sales_auto_archive'],FILTER_SANITIZE_STRING));

@@ -115,7 +115,7 @@ function allow_sort() {
                     <?php $count = mysqli_fetch_assoc ( mysqli_query($dbc, "SELECT COUNT(`status`) AS `count` FROM `sales` WHERE `status`='{$status}' AND `deleted`=0" . $query_mod) );
                     echo '<div class="info-block-small">' . $count['count'] . '</div>'; ?>
                 </div></a>
-                <div class="info-block-details padded"><?php
+                <div class="info-block-details padded" style="max-height: calc(100% - 4.5em);"><?php
                     $result = mysqli_query($dbc, "SELECT * FROM `sales` WHERE `status`='{$status}' AND `deleted`=0" . $query_mod.' LIMIT 0,10');
 					$lead_count = 0;
                     if ( $result->num_rows > 0 ) {
