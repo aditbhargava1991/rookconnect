@@ -84,6 +84,8 @@ $(document).ready(function() {
 					arr.push(element);
 				} else if(element.status != null && element.status != undefined && data == 'status_'+element.status) {
 					arr.push(element);
+				} else if(element.projectid != null && element.projectid != undefined && data == 'projectid_'+element.projectid) {
+					arr.push(element);
 				}
 			});
 		}
@@ -195,7 +197,7 @@ function loadTickets() {
 					(creator.indexOf(ticket.created_by * 1) >= 0 || creator.length == 0) &&
 					(po.indexOf(ticket.po) >= 0 || po.length == 0) &&
 					(project.indexOf(ticket.project) >= 0 || project.length == 0) &&
-					(projectid.indexOf(ticket.projectid) >= 0 || projectid.length == 0) &&
+					(projectid.indexOf(ticket.projectid * 1) >= 0 || projectid.length == 0) &&
 					(status.indexOf(ticket.status) >= 0 || (status.length == 0 && ticket.status != 'Done' && ticket.status != 'Archive') || status.indexOf('ALL_STATUS') >= 0) &&
 					($('.active.blue').closest('[data-type]').first().data('limit') == undefined || $('.active.blue').closest('[data-type]').first().data('limit') > i)) {
 					filter_list.push(ticket);
@@ -1201,6 +1203,42 @@ IF(!IFRAME_PAGE) { ?>
 					</div>
 				</div>
 			<?php } ?>
+			<?php if(in_array('Project ID',$db_sort)) { ?>
+				<div class="panel panel-default">
+					<div class="panel-heading mobile_load">
+						<h4 class="panel-title">
+							<a data-toggle="collapse" data-parent="#mobile_accordions" href="#projectid_list">
+								<?= PROJECT_TILE ?><span class="glyphicon glyphicon-plus"></span>
+							</a>
+						</h4>
+					</div>
+
+					<div id="projectid_list" class="panel-collapse collapse">
+						<div class="panel-body" id="projectid_mobile_accordions" style="padding: 0; margin: -1px;">
+							<!-- <div class="show-on-mob panel-group block-panels col-xs-12 form-horizontal" style="background-color: #fff; padding: 0; margin-left: 5px; width: calc(100% - 10px);" id="project_mobile_accordions"> -->
+								<?php $project_list = $dbc->query("SELECT `tickets`.`projectid`, COUNT(*) `count` FROM `tickets` LEFT JOIN `project` ON `tickets`.`projectid` = `project`.`projectid` WHERE `tickets`.`projectid` > 0 AND `tickets`.`deleted` = 0 AND `project`.`deleted` = 0 AND `tickets`.`status` NOT IN ('Done','Archive','Archived','On Hold','Pending') AND '".$_GET['tile_name']."' IN (`tickets`.`ticket_type`,'') $filter GROUP BY `tickets`.`projectid`");
+								while($project_item = $project_list->fetch_assoc()) { ?>
+									<div class="panel panel-default">
+										<div class="panel-heading mobile_load">
+											<h4 class="panel-title">
+												<a data-toggle="collapse" data-parent="#projectid_mobile_accordions" href="#projectid_<?= $project_item['projectid'] ?>" class="double-pad-left">
+													<?= PROJECT_NOUN ?>: <?= get_project_label($dbc, $dbc->query("SELECT * FROM `project` WHERE `projectid` = '".$project_item['projectid']."'")->fetch_assoc()).' ('.$project_item['count'].')' ?><span class="glyphicon glyphicon-plus"></span>
+												</a>
+											</h4>
+										</div>
+
+										<div id="projectid_<?= $project_item['projectid'] ?>" class="panel-collapse collapse">
+											<div class="panel-body" data-accordion="projectid_<?= $project_item['projectid'] ?>">
+												Loading...
+											</div>
+										</div>
+									</div>
+								<?php } ?>
+							<!-- </div> -->
+						</div>
+					</div>
+				</div>
+			<?php } ?>
 			<?php if(in_array('Status',$db_sort)) { ?>
 				<div class="panel panel-default">
 					<div class="panel-heading mobile_load">
@@ -1324,6 +1362,38 @@ IF(!IFRAME_PAGE) { ?>
 			$blocks[] = [$block_length, $block];
 			$total_length += $block_length;
 		}
+		$week_start = date('Y-m-d', strtotime('last Sunday', strtotime(date('Y-m-d'))));
+		$week_end = date('Y-m-d', strtotime('next Saturday', strtotime(date('Y-m-d'))));
+		if(date('l') == 'Sunday') {
+			$week_start = date('Y-m-d');
+		} else if(date('l') == 'Saturday') {
+			$week_end = date('Y-m-d');
+		}
+		$overviews = ['Day Overview' => ['start_date' => date('Y-m-d'), 'end_date' => date('Y-m-d')],
+			'Week Overview' => ['start_date' => $week_start, 'end_date' => $week_end],
+			'Month Overview' => ['start_date' => date('Y-m-01'), 'end_date' => date('Y-m-t')]
+		];
+		foreach($overviews as $overview_key => $overview) {
+			$start_date = $overview['start_date'];
+			$end_date = $overview['end_date'];
+			if(in_array($overview_key,$db_summary)) {
+				$block_length = 68;
+				$block = '<div class="overview-block">
+					<h4>'.$overview_key.': '.($start_date == $end_date ? date('F jS, Y', strtotime($start_date)) : date('F jS, Y', strtotime($start_date)).' - '.date('F jS, Y', strtotime($end_date))).'</h4>';
+				$tickets = $dbc->query("SELECT *, IF(`status` = 'Internal QA',`internal_qa_date`,IF(`status` = 'Customer QA',`deliverable_date`,`to_do_date`)) `ticket_start_date` FROM `tickets` WHERE (`to_do_date` BETWEEN '$start_date' AND '$end_date' OR `to_do_end_date` BETWEEN '$start_date' AND '$end_date' OR `internal_qa_date` BETWEEN '$start_date' AND '$end_date' OR `deliverable_date` BETWEEN '$start_date' AND '$end_date') AND `deleted` = 0 AND `status` != 'Archive' ORDER BY `ticket_start_date`");
+				while($ticket = $tickets->fetch_assoc()) {
+					if($summary_urls == 'slider') {
+						$block .= '<p><a href="'.WEBSITE_URL.'/Ticket/index.php?tile_name='.$_GET['tile_name'].'&edit='.$ticket['ticketid'].'" onclick="overlayIFrameSlider(this.href+\'&calendar_view=true\'); return false;">'.$ticket['ticket_start_date'].': '.get_ticket_label($dbc, $ticket).' - '.$ticket['status'].'</a></p>';
+					} else {
+						$block .= '<p><a href="index.php?tile_name='.$_GET['tile_name'].'&edit='.$ticket['ticketid'].'&from='.urlencode(WEBSITE_URL.'/Ticket/index.php?tile_name='.$_GET['tile_name']).'">'.$ticket['ticket_start_date'].': '.get_ticket_label($dbc, $ticket).' - '.$ticket['status'].'</a></p>';
+					}
+					$block_length += 17;
+				}
+				$block .= '</div>';
+				$blocks[] = [$block_length, $block];
+				$total_length += $block_length;
+			}
+		}
 		if(in_array('Business',$db_summary)) {
 			$block_length = 68;
 			$block = '<div class="overview-block">
@@ -1344,6 +1414,19 @@ IF(!IFRAME_PAGE) { ?>
 				foreach($project_types as $cat_tab_value => $cat_tab) {
 					$ticket = $dbc->query("SELECT COUNT(*) count FROM `tickets` WHERE `deleted`=0 AND `status` != 'Archive' AND `projectid` > 0  AND `projectid` IN (SELECT `projectid` FROM `project` WHERE `deleted` = 0 AND `projecttype` = '$cat_tab_value')")->fetch_assoc();
 					$block .= '<p>'.(in_array('Project',$db_sort) ? '<a class="cursor-hand" onclick="$(\'[data-project=\\\''.$cat_tab_value.'\\\']\').first().click().parents(\'li\').each(function() { $(this).find(\'a\').first().filter(\'.collapsed\').click(); });">' : '').$cat_tab.(in_array('Project',$db_sort) ? '</a>' : '').': '.$ticket['count'].'</p>';
+					$block_length += 17;
+				}
+			$block .= '</div>';
+			$blocks[] = [$block_length, $block];
+			$total_length += $block_length;
+		}
+		if(in_array('Project ID',$db_summary)) {
+			$block_length = 68;
+			$block = '<div class="overview-block">
+				<h4>'.TICKET_TILE.' per '.PROJECT_NOUN.'</h4>';
+				$project_list = $dbc->query("SELECT `tickets`.`projectid`, COUNT(*) `count` FROM `tickets` LEFT JOIN `project` ON `tickets`.`projectid` = `project`.`projectid` WHERE `tickets`.`projectid` > 0 AND `tickets`.`deleted` = 0 AND `project`.`deleted` = 0 AND `tickets`.`status` != 'Archive' GROUP BY `tickets`.`projectid`");
+				while($project_item = $project_list->fetch_assoc()) {
+					$block .= '<p>'.(in_array('Project ID',$db_sort) ? '<a class="cursor-hand" onclick="$(\'[data-projectid=\\\''.$project_item['projectid'].'\\\']\').first().click().parents(\'li\').each(function() { $(this).find(\'a\').first().filter(\'.collapsed\').click(); });">' : '').get_project_label($dbc, $dbc->query("SELECT * FROM `project` WHERE `projectid` = '".$project_item['projectid']."'")->fetch_assoc()).(in_array('Project ID',$db_sort) ? '</a>' : '').': '.$project_item['count'].'</p>';
 					$block_length += 17;
 				}
 			$block .= '</div>';
