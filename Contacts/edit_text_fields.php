@@ -117,7 +117,7 @@
 		<input type="text" name="middle" value="<?= decryptIt($contact['middle']) ?>" data-field="middle" data-table="contacts" class="form-control">
 	</div>
 <?php } else if($field_option == 'Name') { ?>
-	<label class="col-sm-4 control-label"><?= $current_type ?> / Company Name:</label>
+	<label class="col-sm-4 control-label"><?= $current_type ?> Name:</label>
 	<div class="col-sm-8">
 		<input type="text" name="Name" value="<?= decryptIt($contact['name']) ?>" data-field="name" data-table="contacts" class="form-control">
 	</div>
