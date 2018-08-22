@@ -138,7 +138,7 @@ if($_GET['fill'] == 'add_task') {
     $created_date = date('Y-m-d');
 
     if($heading != '') {
-        echo $query_insert_log = "INSERT INTO `tasklist` (`task_milestone_timeline`, `task_path`, `heading`, `contactid`, `task_board`, `salesid`, `created_date`, `created_by`) VALUES ('$task_milestone_timeline', '$task_path', '$heading', '$contactid', '$taskboardid', '$salesid', '$created_date', '$contactid')";
+        echo $query_insert_log = "INSERT INTO `tasklist` (`task_milestone_timeline`, `task_path`, `heading`, `contactid`, `task_board`, `salesid`, `created_date`, `created_by`, `status_date`) VALUES ('$task_milestone_timeline', '$task_path', '$heading', '$contactid', '$taskboardid', '$salesid', '$created_date', '$contactid', '$created_date')";
         $result_insert_log = mysqli_query($dbc, $query_insert_log);
     }
 }
