@@ -1302,8 +1302,8 @@ if($invoice_mode != 'Adjustment') {
 			$total_amount += $total - $gst;
 			$final_amount += $total;
 			$row = $_POST['inventory_row_id'][$i];
-            $invoice_lines[] = "INSERT INTO `invoice_lines` (`invoiceid`, `description`, `category`, `quantity`, `unit_price`, `sub_total`, `gst`, `total`)
-				VALUES ('INVOICEID', '".$inventory['name'][$i]."', 'inventory', '".$_POST['quantity'][$i]."', '".$_POST['unit_price'][$i]."', '".$_POST['sell_price'][$i]."', '$gst', '$total')";
+            $invoice_lines[] = "INSERT INTO `invoice_lines` (`invoiceid`, `item_id`, `description`, `category`, `quantity`, `unit_price`, `sub_total`, `gst`, `total`)
+				VALUES ('INVOICEID', '".$inv."', '".get_inventory($dbc, $inv, 'name')."', 'inventory', '".$_POST['quantity'][$i]."', '".$_POST['unit_price'][$i]."', '".$_POST['sell_price'][$i]."', '$gst', '$total')";
 			if ( isset($_POST['insurer_row_applied']) ) {
                 foreach($_POST['insurer_row_applied'] as $j => $match_row) {
                     $applied = 0;
@@ -2074,6 +2074,8 @@ if($invoice_mode != 'Adjustment') {
 			$total_amount += $total - $gst;
 			$final_amount += $total;
 			$row = $_POST['inventory_row_id'][$i];
+            $invoice_lines[] = "INSERT INTO `invoice_lines` (`invoiceid`, `item_id`, `description`, `category`, `quantity`, `unit_price`, `sub_total`, `gst`, `total`)
+				VALUES ('INVOICEID', '".$inv."', '".get_inventory($dbc, $inv, 'name')."', 'inventory', '".$_POST['quantity'][$i]."', '".$_POST['unit_price'][$i]."', '".$_POST['sell_price'][$i]."', '$gst', '$total')";
 			foreach($_POST['insurer_row_applied'] as $j => $match_row) {
 				$applied = 0;
 				if($row == $match_row && $_POST['insurer_payment_amt'][$j] != 0) {
