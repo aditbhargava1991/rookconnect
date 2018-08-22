@@ -630,10 +630,22 @@ $(document).ready(function() {
 		reload_billing();
 	<?php } ?>
 	<?php if($is_recurrence && !($_GET['action_mode'] > 0) && !($_GET['overview_mode'] > 0)) { ?>
-		if(confirm('Would you like to edit for all Recurrences of this <?= TICKET_NOUN ?>?')) {
-			$('#sync_recurrences').val(1);
-			$('.sync_recurrences_note').show();
-		}
+		$('#dialog_edit_recurrence').dialog({
+			resizable: true,
+			height: "auto",
+			width: ($(window).width() <= 800 ? $(window).width() : 800),
+			modal: true,
+			buttons: {
+				"All Recurrences": function() {
+					$('#sync_recurrences').val(1);
+					$('.sync_recurrences_note').show();
+					$(this).dialog('close');
+				},
+				"One Occurence": function() {
+					$(this).dialog('close');
+				}
+			}
+		});
 	<?php } ?>
 });
 function loadPanel() {
@@ -849,6 +861,9 @@ var setHeading = function() {
 	            } ?>
 			</div>
 		</div>
+	</div>
+	<div id="dialog_edit_recurrence" title="Edit Recurrences?" style="display: none;">
+		Would you like to edit all recurrences for this <?= TICKET_NOUN ?> or just this one occurence?
 	</div>
 <?php } ?>
 <?php if(!empty($_GET['calendar_view'])) { ?>
