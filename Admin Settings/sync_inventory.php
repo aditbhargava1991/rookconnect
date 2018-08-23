@@ -2,6 +2,7 @@
 /*
  * Sync Inventory Between Software
  * Set the database names in database_connection.php
+ * This setting from the database is used in POS/Invoice and Inventory
  */
 include_once('include.php');
 
