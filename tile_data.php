@@ -123,6 +123,7 @@ function tile_data($dbc, $tile_name, $is_mobile = FALSE) {
             return ['link'=>'Checklist/'.$checklist_url,'name'=>'Checklist']; break;
 
 			case 'tasks': return ['link'=>"Tasks/index.php?category=All&tab=Summary",'name'=>'Tasks']; break;
+			case 'tasks_updated': return ['link'=>"Tasks_Updated/index.php?category=All&tab=Summary",'name'=>'Tasks (Updated)']; break;
 			case 'scrum': return ['link'=>"Scrum/scrum.php?category=All",'name'=>'Scrum']; break;
 			case 'communication': return ['link'=>"Communication/tasks.php?category=All",'name'=>'Communication Tasks']; break;
 			case 'communication_schedule': return ['link'=>"Communication Schedule/communication.php",'name'=>'Communication']; break;

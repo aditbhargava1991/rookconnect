@@ -154,7 +154,7 @@
                 }
                 $label = '';
                 while($task = mysqli_fetch_array($past_due_tasks)) {
-                    echo $row_open.'<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Tasks/add_task.php?tasklistid='.$task['tasklistid'].'&from_url='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']).'\'); return false;" ><span style="color: black;">'.$task['task_tododate'].' - '.($label != '' ? $label.'<br />' : '').$task['task_milestone_timeline'].' - '.get_contact($dbc, $task['businessid'], 'name').' - '.$task['heading'].'</span></a>'.$row_close;
+                    echo $row_open.'<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Tasks_Updated/add_task.php?tasklistid='.$task['tasklistid'].'&from_url='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']).'\'); return false;" ><span style="color: black;">'.$task['task_tododate'].' - '.($label != '' ? $label.'<br />' : '').$task['task_milestone_timeline'].' - '.get_contact($dbc, $task['businessid'], 'name').' - '.$task['heading'].'</span></a>'.$row_close;
                 }
                 if($daysheet_styling != 'card') {
                     echo '</ul>';

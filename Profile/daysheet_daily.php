@@ -316,7 +316,7 @@ $(document).ready(function () {
                 echo '<div class="block-group-daysheet">';
             }
 			$label = ($task['businessid'] > 0 ? get_contact($dbc, $task['businessid'], 'name').', ' : '').($task['projectid'] > 0 ? PROJECT_NOUN.' #'.$task['projectid'].' '.get_project($dbc,$task['projectid'],'project_name') : '');
-            echo '<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Tasks/add_task.php?tasklistid='.$task['tasklistid'].'&from_url='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']).'\'); return false;" ><span style="color: black;">'.($label != '' ? $label.'<br />' : '').$task['task_milestone_timeline'].' - '.get_contact($dbc, $task['businessid'], 'name').' - '.$task['heading'].'</span></a>';
+            echo '<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Tasks_Updated/add_task.php?tasklistid='.$task['tasklistid'].'&from_url='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']).'\'); return false;" ><span style="color: black;">'.($label != '' ? $label.'<br />' : '').$task['task_milestone_timeline'].' - '.get_contact($dbc, $task['businessid'], 'name').' - '.$task['heading'].'</span></a>';
             if($daysheet_styling == 'card') {
                 echo '</div>';
             }

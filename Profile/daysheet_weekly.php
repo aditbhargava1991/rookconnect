@@ -194,7 +194,7 @@ for ($current_day = $period_start; $current_day <= $period_end; $current_day = d
                 if (in_array('Tasks', $daysheet_fields_config)) {
                     foreach ($tasks_result as $task) {
 						$label = ($task['businessid'] > 0 ? get_contact($dbc, $task['businessid'], 'name').', ' : '').($task['projectid'] > 0 ? PROJECT_NOUN.' #'.$task['projectid'].' '.get_project($dbc,$task['projectid'],'project_name') : '');
-                        echo $row_open.'<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Tasks/add_task.php?tasklistid='.$task['tasklistid'].'&from_url='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']).'\'); return false;" style="color: black;">'.($label != '' ? $label.'<br />' : '').'Task: '.$task['task_milestone_timeline'].' - '.$task['heading'].'</a>'.$row_close;
+                        echo $row_open.'<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Tasks_Updated/add_task.php?tasklistid='.$task['tasklistid'].'&from_url='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']).'\'); return false;" style="color: black;">'.($label != '' ? $label.'<br />' : '').'Task: '.$task['task_milestone_timeline'].' - '.$task['heading'].'</a>'.$row_close;
                         $no_records = false;
                     }
                 }

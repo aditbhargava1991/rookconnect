@@ -74,7 +74,7 @@ function allow_sort() {
     });
 	$('.info-block-details').sortable({
         connectWith: '.info-block-details',
-		items: '.info-block-detail',
+		items: '.info-block-detail:not(.no-sort)',
 		handle: '.lead-handle',
 		update: function(event, element) {
 			$.ajax({
@@ -90,6 +90,9 @@ function allow_sort() {
 <!-- Sales Dashboard -->
 <div class="main-screen-white horizontal-scroll no-overflow-y dashboard-container" style="height:95%"><?php
 	$project_security = get_security($dbc, 'project');
+    $get_config_won_status = get_config($dbc, 'lead_status_won');
+    $get_config_lost_status = get_config($dbc, 'lead_status_lost');
+    $get_config_retained = get_config($dbc, 'lead_status_retained');
 	$estimates_active = tile_enabled($dbc, 'estimate')['user_enabled'];
 	$flag_colours = explode(',', get_config($dbc, "ticket_colour_flags"));
 	$flag_labels = explode('#*#', get_config($dbc, "ticket_colour_flag_names"));
@@ -97,19 +100,23 @@ function allow_sort() {
     foreach ( explode(',', $statuses) as $status ) { ?>
         <div class="col-xs-12 col-sm-6 col-md-4 gap-top info-block-container">
             <div class="info-block" data-status="<?= $status ?>">
-                <input type="text" class="form-control pull-left" name="status_name" value="<?= $status ?>" style="display:none;">
+                <?php if(!in_array($status, [$get_config_won_status,$get_config_lost_status,$get_config_retained])) { ?>
+                    <input type="text" class="form-control pull-left" name="status_name" value="<?= $status ?>" style="display:none;">
+                <?php } ?>
                 <a href="?p=filter&s=<?= $status ?>"><div class="info-block-header">
                     <h4><span><?= $status; ?></span>
-                        <img src="../img/icons/ROOK-edit-icon.png" class="inline-img small" onclick="edit_status(this); return false;">
                         <img src="../img/icons/drag_handle.png" class="inline-img small pull-right status_handle" onclick="return false;">
-                        <img src="../img/remove.png" class="inline-img small pull-right" onclick="rem_status(this); return false;">
-                        <img src="../img/icons/ROOK-add-icon.png" class="inline-img small pull-right" onclick="add_status(this); return false;">
+                        <?php if(!in_array($status, [$get_config_won_status,$get_config_lost_status,$get_config_retained])) { ?>
+                            <img src="../img/icons/ROOK-edit-icon.png" class="inline-img small" onclick="edit_status(this); return false;">
+                            <img src="../img/remove.png" class="inline-img small pull-right" onclick="rem_status(this); return false;">
+                            <img src="../img/icons/ROOK-add-icon.png" class="inline-img small pull-right" onclick="add_status(this); return false;">
+                        <?php } ?>
                     </h4>
                     <?php $count = mysqli_fetch_assoc ( mysqli_query($dbc, "SELECT COUNT(`status`) AS `count` FROM `sales` WHERE `status`='{$status}' AND `deleted`=0" . $query_mod) );
                     echo '<div class="info-block-small">' . $count['count'] . '</div>'; ?>
                 </div></a>
-                <div class="info-block-details padded"><?php
-                    $result = mysqli_query($dbc, "SELECT * FROM `sales` WHERE `status`='{$status}' AND `deleted`=0" . $query_mod);
+                <div class="info-block-details padded" style="max-height: calc(100% - 4.5em);"><?php
+                    $result = mysqli_query($dbc, "SELECT * FROM `sales` WHERE `status`='{$status}' AND `deleted`=0" . $query_mod.' LIMIT 0,10');
 					$lead_count = 0;
                     if ( $result->num_rows > 0 ) {
                         while ( $row=mysqli_fetch_assoc($result) ) {
@@ -124,11 +131,18 @@ function allow_sort() {
                                     $flag_label = $flag_labels[$flag_label_row];
                                 }
 							}
+                            $lead_colour = get_contact($dbc, $row['primary_staff'],'calendar_color');
 							$lead_count++; ?>
-                            <div class="info-block-detail" data-id="<?= $row['salesid'] ?>" style="<?= $lead_count > 10 ? 'display: none;' : '' ?> <?= empty($flag_colour) ? '' : 'background-color:#'.$flag_colour.';' ?>" data-searchable="<?= get_client($dbc, $row['businessid']); ?> <?= get_contact($dbc, $row['contactid']); ?>" data-colour="<?= $flag_colour ?>">
+                            <div class="info-block-detail <?= $approvals > 0 || $status != 'Pending' ? '' : 'no-sort' ?>" data-id="<?= $row['salesid'] ?>" style="<?= $lead_count > 10 ? 'display: none;' : '' ?> <?= empty($flag_colour) ? '' : 'background-color:#'.$flag_colour.';' ?> <?= empty($lead_colour) ? '' : 'border: 3px solid '.$lead_colour.' !important;' ?>" data-searchable="<?= get_client($dbc, $row['businessid']); ?> <?= get_contact($dbc, $row['contactid']); ?>" data-colour="<?= $flag_colour ?>">
                                 <span class="flag-label"><?= $flag_label ?></span>
-                                <img src="../img/icons/drag_handle.png" class="inline-img pull-right lead-handle" />
-								<a href="sale.php?p=preview&id=<?= $row['salesid'] ?>"><div class="row set-row-height">
+                                <?php if($approvals > 0 || $status != 'Pending') { ?>
+                                    <img src="../img/icons/drag_handle.png" class="inline-img pull-right lead-handle" />
+                                <?php } ?>
+                                <?php if($row['primary_staff'] > 0) { ?>
+                                    <div class="pull-right"><?= profile_id($dbc, $row['primary_staff']); ?></div>
+                                <?php } ?>
+								<a href="sale.php?p=preview&id=<?= $row['salesid'] ?>">
+                                <div class="row set-row-height" style="<?= empty($row['status']) || empty($row['next_action']) || empty($row['new_reminder']) ? 'color: red;' : '' ?>">
                                     <div class="col-sm-12"><?= get_client($dbc, $row['businessid']); ?><img class="inline-img" src="../img/icons/ROOK-edit-icon.png">
 										<b class="pull-right"><?= '$' . ($row['lead_value'] > 0) ? number_format($row['lead_value'], 2) : '0:00' ; ?></b></div>
                                 </div>
@@ -146,6 +160,7 @@ function allow_sort() {
                                 </div></a>
 
                                 <div class="clearfix"></div>
+                                <?php include('quick_actions.php'); ?>
 
 
                                 <div class="row set-row-height">
@@ -182,7 +197,6 @@ function allow_sort() {
                                     <div class="col-sm-5">Follow Up:</div>
                                     <div class="col-sm-7"><input type="text" name="follow_up" value="<?= $row['new_reminder'] ?>" class="form-control datepicker" onchange="changeLeadFollowUpDate(this);" id="fsid_<?= $row['salesid'] ?>" /></div>
                                 </div>
-                                <?php include('quick_actions.php'); ?>
                             </div><?php
                         } ?>
                     <?php } else { ?>

@@ -120,7 +120,7 @@ if(mysqli_num_rows($noti_list) > 0) {
                 break;
             case 'tasklist':
                 $task = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `tasklist` WHERE `tasklistid` = '".$row['src_id']."'"));
-                $row_html = $row_open.'<a href="../Tasks/add_task.php?tasklistid='.$task['tasklistid'].'&from_url='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']).'" >'.'Task: '.$task['task_tododate'].' - '.($label != '' ? $label.'<br />' : '').$task['task_milestone_timeline'].' - '.get_contact($dbc, $task['businessid'], 'name').' - '.$task['heading'].'</a>'.$row_close;
+                $row_html = $row_open.'<a href="../Tasks_Updated/add_task.php?tasklistid='.$task['tasklistid'].'&from_url='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']).'" >'.'Task: '.$task['task_tododate'].' - '.($label != '' ? $label.'<br />' : '').$task['task_milestone_timeline'].' - '.get_contact($dbc, $task['businessid'], 'name').' - '.$task['heading'].'</a>'.$row_close;
                 break;
             case 'checklist_actions':
                 $checklist_action = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `checklist_actions` WHERE `checklistactionid` = '".$row['src_id']."'"));
@@ -156,7 +156,7 @@ if(mysqli_num_rows($noti_list) > 0) {
                 if($row['src_table'] == 'daysheet_notepad') {
                     $day_note = mysqli_fetch_array(mysqli_query($dbc, "SELECT `notes` `comment`, 'comment' `src`, 0 `src_id`, 'Journal Note' `type`, `contactid` `user`, 0 `assigned`, `date` `created_date` FROM `daysheet_notepad` WHERE `daysheetnotepadid` = '".$row['src_id']."'"));
                 }
-                $row_html = $row_open.($day_note['src'] == 'Task' ? '<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Tasks/add_task.php?tasklistid='.$day_note['src_id'].'\'); return false;">' : ($day_note['src'] == 'Project' ? '<a href="../Project/projects.php?edit='.$day_note['src_id'].'">' : ($day_note['src'] == 'Ticket' ? '<a href="'.WEBSITE_URL.'/Ticket/index.php?edit='.$day_note['src_id'].'&action_mode='.$ticket_action_mode.'" onclick="overlayIFrameSlider(this.href+\'&calendar_view=true\'); return false;">' : '<div class="daysheet-span">'))).$day_note['type'].': '.html_entity_decode($day_note['comment']).($day_note['src'] == 'Project' || $day_note['src'] == 'Ticket' || $day_note['src'] == 'Task' ? '</a>' : '</div>');
+                $row_html = $row_open.($day_note['src'] == 'Task' ? '<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Tasks_Updated/add_task.php?tasklistid='.$day_note['src_id'].'\'); return false;">' : ($day_note['src'] == 'Project' ? '<a href="../Project/projects.php?edit='.$day_note['src_id'].'">' : ($day_note['src'] == 'Ticket' ? '<a href="'.WEBSITE_URL.'/Ticket/index.php?edit='.$day_note['src_id'].'&action_mode='.$ticket_action_mode.'" onclick="overlayIFrameSlider(this.href+\'&calendar_view=true\'); return false;">' : '<div class="daysheet-span">'))).$day_note['type'].': '.html_entity_decode($day_note['comment']).($day_note['src'] == 'Project' || $day_note['src'] == 'Ticket' || $day_note['src'] == 'Task' ? '</a>' : '</div>');
                 $row_html .= $row_close;
                 break;
         }

@@ -1,5 +1,5 @@
 <?php if (strpos($_SERVER['REQUEST_URI'],'forgot_pwd.php') === false) {
-	include_once('include.php'); 
+	include_once('include.php');
 }
 $_SERVER['page_load_info'] .= 'Nav Bar Start: '.number_format(microtime(true) - $_SERVER['REQUEST_TIME_FLOAT'],5)."\n"; ?>
 <?php if(!IFRAME_PAGE) :
@@ -81,7 +81,7 @@ $(document).ready(function() {
 		$('.switch_info_on').hide();
 		$('#info_toggle_state').val(1);
 	}
-    
+
     var fullscreen = $('#fullscreen').val();
     if ( fullscreen==1 ) {
         $('#main-header, #nav, #footer').hide();
@@ -95,7 +95,7 @@ $(document).ready(function() {
         $('.hide-header-footer-down').hide();
         $('.main-screen').removeClass('double-pad-top');
     }
-    
+
     if ( $(window).width() < 768 ) {
         var runningTicket = $('.active-ticket');
         var container = $('.container').offset().top + 20;
@@ -174,7 +174,7 @@ function software_search_end() {
 	setTimeout(function() {
 		if($('.software-search-results *:hover').length > 0) {
 			software_search_end();
-            
+
 		} else {
 			$('.software-search-results').fadeOut(250, function() {
 				$('.navbar-nav.navbar-right,.navbar-nav.scale-to-fill>li>a,.navbar-nav.scale-to-fill>li>p').removeClass('hidden');
@@ -340,7 +340,11 @@ if(!isset($_SESSION['fullscreen'])) {
                                     if(in_array('tasks',array_column($_SESSION['tile_list'],'tile'))) {
                                         $search_cats[] = 'Tasks';
                                         echo "search_categories.push('tasks');\n";
-                                    } ?>
+                                    }
+                                    if(in_array('tasks_updated',array_column($_SESSION['tile_list'],'tile'))) {
+                                        $search_cats[] = 'Tasks (Updated)';
+                                        echo "search_categories.push('tasks_updated');\n";
+                                    }                                    ?>
                                     </script>
                                     <img class="software_search cursor-hand white-color show-on-mob" src="<?= WEBSITE_URL ?>/img/Magnifying_glass_icon.png" height="20" alt="Search All <?= implode(', ',$search_cats) ?>" tabindex="1" onclick="software_search(); $('input.search-text').removeClass('hide-titles-mob'); $('input.search-text').focus(); $(this).removeClass('show-on-mob').addClass('hide-titles-mob');" />
                                     <input type="text" class="hide-titles-mob form-control software_search search-text pad-top-5" placeholder="Search All <?= implode(', ',$search_cats) ?>" onfocus="software_search();" onblur="software_search_end();">
@@ -354,7 +358,7 @@ if(!isset($_SESSION['fullscreen'])) {
                 </div><!--/.nav-collapse -->
             </div><!--/.container-fluid -->
         </div>
-        
+
         <div class="hide-header-footer-down">
             <div class="pullup down"><img src="<?= WEBSITE_URL;?>/img/pullup.png" alt="" /></div>
         </div>

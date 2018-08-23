@@ -21,7 +21,7 @@ $task_security = get_security($dbc, 'tasks');
 $_GET['status'] = empty($_GET['status']) ? 'assigned' : $_GET['status']; ?>
 <h3><!-- Tasks -->&nbsp;
 	<?php if($task_security['edit'] > 0) { ?>
-		<a href="../Tasks/add_task.php?projectid=<?= $projectid ?>&from=<?= urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']) ?>" class="btn brand-btn pull-right">New Task</a>
+		<a href="../Tasks_Updated/add_task.php?projectid=<?= $projectid ?>&from=<?= urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']) ?>" class="btn brand-btn pull-right">New Task</a>
 	<?php } ?>
 	<a href="?edit=<?= $projectid ?>&tab=tasks&status=archive" class="hide-titles-mob <?= $_GET['status'] == 'archive' ? 'active_tab' : '' ?> btn brand-btn pull-right">Archived</a>
 	<a href="?edit=<?= $projectid ?>&tab=tasks&status=assigned" class="hide-titles-mob <?= $_GET['status'] == 'assigned' ? 'active_tab' : '' ?> btn brand-btn pull-right">Scheduled</a>
@@ -45,7 +45,7 @@ $tasks = mysqli_query($dbc, "SELECT * FROM `tasklist` WHERE `projectid`='$projec
 while($task = mysqli_fetch_array($tasks)) { ?>
 	<div class="dashboard-item form-horizontal">
 		<h3><!--<a href="../Tasks/add_task.php?tasklistid=<?= $task['tasklistid'] ?>&from=<?= urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']) ?>">Task #<?= $task['tasklistid'] ?></a>-->
-        <a href="" onclick="overlayIFrameSlider('../Tasks/add_task.php?tasklistid=<?= $task['tasklistid'] ?>', '50%', false, true, $('.iframe_overlay').closest('.container').outerHeight() + 20); return false;">Task #<?= $task['tasklistid'] ?></a>
+        <a href="" onclick="overlayIFrameSlider('../Tasks_Updated/add_task.php?tasklistid=<?= $task['tasklistid'] ?>', '50%', false, true, $('.iframe_overlay').closest('.container').outerHeight() + 20); return false;">Task #<?= $task['tasklistid'] ?></a>
 		<span class="pull-right small">
 		<?php foreach(explode(',',$task['contactid']) as $assignid) {
 			if($assignid > 0) {

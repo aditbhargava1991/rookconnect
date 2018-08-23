@@ -664,7 +664,7 @@ checkAuthorised('tasks');
                         } else { ?>
                             <div class="dashboard-item"><?php
                                 if(!empty($_GET['pathid'])) {
-                                    include('edit_project_path.php');
+                                    include('../Project/edit_project_path.php');
                                 } else if ( $_GET['category'] != 'All' && empty($url_milestone) ) {
                                     include('tasks_dashboard.php');
                                 } elseif ( $url_tab=='Reporting' ) {

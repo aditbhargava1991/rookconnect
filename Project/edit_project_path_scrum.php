@@ -1,4 +1,4 @@
-<?php 
+<?php
 if(!isset($security)) {
 	$security = get_security($dbc, $tile);
 	$strict_view = strictview_visible_function($dbc, 'project');
@@ -83,7 +83,7 @@ function initDragging() {
 		$add_action = "overlayIFrameSlider('../Ticket/index.php?calendar_view=true&edit=0&projectid=".$projectid."&milestone_timeline=".urlencode($milestone)."&from=".urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI'])."'); return false;";
 		$action_title = 'Add '.TICKET_NOUN;
 	} else if(in_array('Tasks',$tab_config)) {
-		$add_action = "overlayIFrameSlider('../Tasks/add_task.php?projectid=$projectid','50%',false);";
+		$add_action = "overlayIFrameSlider('../Tasks_Updated/add_task.php?projectid=$projectid','50%',false);";
 		$action_title = 'Add Task';
 	}
 	foreach(array_unique(array_merge($ticket_status_list,$task_statuses)) as $i => $status) {

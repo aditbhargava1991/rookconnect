@@ -423,6 +423,13 @@ checkAuthorised();
             </tr>
             <?php } ?>
 
+            <?php if(strpos($on_security, ',tasks_updated,') !== FALSE) { ?>
+            <tr>
+                <td data-title="Comment">Tasks (Updated)</td>
+                <?php echo security_tile_config_function('tasks_updated', get_privileges($dbc, 'tasks_updated',$level), 0, $level_url); ?>
+            </tr>
+            <?php } ?>
+
             <tr><th colspan='4'><div style='text-align:left;width:100%;font-size:20px;'><?= ESTIMATE_TILE ?>/Quotes:</div></th></tr>
 
 			<?php if(strpos($on_security, ',estimate,') !== FALSE) { ?>

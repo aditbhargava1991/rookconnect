@@ -612,7 +612,7 @@ if($_GET['action'] == 'mark_favourite') {
 	} else if($_POST['object'] == 'task') {
 		mysqli_query($dbc, "INSERT INTO `tasklist` (`projectid`,`businessid`,`clientid`,`task`,`created_by`) SELECT `projectid`,`businessid`,`clientid`,'$description','".$_SESSION['contactid']."' FROM `project` WHERE `projectid`='$projectid'");
 		$result_id = mysqli_insert_id($dbc);
-		echo WEBSITE_URL."/Tasks/add_task.php?tasklistid=".$result_id."&from=".urlencode(WEBSITE_URL.'/Project/projects.php?edit='.$projectid.'&tab=scope');
+		echo WEBSITE_URL."/Tasks_Updated/add_task.php?tasklistid=".$result_id."&from=".urlencode(WEBSITE_URL.'/Project/projects.php?edit='.$projectid.'&tab=scope');
 	}
 	foreach($_POST['scope_lines'] as $id) {
 		$object = filter_var($_POST['object'],FILTER_SANITIZE_STRING);
