@@ -21,11 +21,6 @@ $task_statuses = explode(',',get_config($dbc, 'task_status'));
 $status_complete = $task_statuses[count($task_statuses) - 1];
 $status_incomplete = $task_statuses[0];
 
-if(IFRAME_PAGE) {
-    $slider_layout = !empty(get_config($dbc, 'tasks_slider_layout')) ? get_config($dbc, 'tasks_slider_layout') : 'accordion';
-}
-
-
 if (isset($_POST['tasklist'])) {
 	$project_history = '';
     $supportid = $_POST['supportid'];
@@ -1006,7 +1001,7 @@ if (isset($_POST['tasklist'])) {
                     <div class="accordion-block-details-heading"><h4>Project</h4></div>
 
                         <div class="form-group clearfix">
-                            <?= $slider_layout != 'accordion' ? '<h4><?= PROJECT_TILE ?></h4>' : '' ?>
+
                             <label for="first_name" class="col-sm-4 control-label text-right"><?= PROJECT_TILE ?>:</label>
                             <div class="col-sm-8">
                                 <select data-placeholder="Select <?= PROJECT_NOUN ?>..." name="task_projectid" data-table="tasklist" data-field="projectid" class="chosen-select-deselect form-control" id="task_projectid" width="380">
