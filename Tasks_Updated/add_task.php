@@ -1435,7 +1435,7 @@ function mark_done(sel) {
             <?php } ?>
 
             <div class="form-group pull-right">
-                <a href="<?php echo $back_url; ?>" class="btn brand-btn pull-left">Cancel</a>
+                <a href="index.php?category=All&tab=Summary" class="btn brand-btn pull-left">Cancel</a>
                 <button name="tasklist" value="tasklist" class="btn brand-btn pull-right">Submit</button>
                 <?php if(!empty($_GET['tasklistid'])) { ?><button name="" type='button' value="" class="delete_task pull-right image-btn"><img class="no-margin small" src="../img/icons/trash-icon-red.png" alt="Delete Task" width="30"></button><?php } ?>
                 <div class="clearfix"></div>

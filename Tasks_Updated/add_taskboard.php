@@ -428,7 +428,7 @@ function changeLevel(sel) {
             <div class="clearfix"></div>
 
             <div class="form-group pull-right double-gap-top">
-                <a href="<?= $back_url ?>" class="btn brand-btn pull-left">Cancel</a>
+                <a href="index.php?category=All&tab=Summary" class="btn brand-btn pull-left">Cancel</a>
                 <button	type="submit" name="add_tab" value="add_tab" class="btn brand-btn pull-right">Submit</button>
                 <div class="clearfix"></div>
             </div>
