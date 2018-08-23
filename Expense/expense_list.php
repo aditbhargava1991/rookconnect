@@ -535,8 +535,9 @@ $view_sql = "SELECT * FROM (SELECT expense, expense_dashboard, exchange_buffer, 
 	'Description,Date,Receipt,Type,Day Expense,Amount,Tax,Total', '0', 'GST', '5', 'PST', '0', 'HST', '0', 'Meals,Tip', 1, '', '') settings ORDER BY `tab` DESC";
 $get_view_expense = mysqli_fetch_assoc(mysqli_query($dbc,$view_sql));
 
+$app_role = mysqli_fetch_array(mysqli_query($dbc, "SELECT * from expense_approval_levels where expense_role_sorting = '".$pre."' "));
+
 if($get_view_expense['expense_mode'] == 'inbox'){
-    $app_role = mysqli_fetch_array(mysqli_query($dbc, "SELECT * from expense_approval_levels where expense_role_sorting = '".$pre."' "));
 echo "<div class='expense-list' style='text-align:center;'>";
 $no_list = true;
 $status = '';
