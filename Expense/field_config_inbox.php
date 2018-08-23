@@ -5,8 +5,9 @@ if (isset($_POST['submit'])) {
     mysqli_query($dbc, "TRUNCATE TABLE `expense_approval_levels`");
     if(!empty($role_arr)){
         $key = '1';
-        foreach($role_arr as $key=>$ra){
+        foreach($role_arr as $ra){
             mysqli_query($dbc, "INSERT INTO `expense_approval_levels` (`expense_approval_role_id`,`expense_role_sorting`) values('".$ra."','".$key."') ");
+            $key++;
         }
     }
     $expense = implode(',',$_POST['expense']);
