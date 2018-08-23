@@ -56,13 +56,13 @@ function setRevision(table, status, ticket, date = '') {
 	},function(response) {console.log(response);});
 }
 </script>
-<?php $tickets = get_administration_tickets($dbc, $_GET['tab'], $projectid);
+<?php $tickets = get_administration_tickets($dbc, $_GET['tab'], $projectid, isset($ticket_conf_list) ? $ticket_conf_list : []);
 if($tickets->num_rows > 0) { ?>
 	<div id="no-more-tables">
 		<table class="table table-bordered">
 			<tr class="hidden-sm hidden-xs">
 				<th>Date</th>
-				<th><?= TICKET_NOUN ?> (Click to View)</th>
+				<th><?= empty($ticket_noun) ? TICKET_NOUN : $ticket_noun ?> (Click to View)</th>
 				<?php if(strpos($value_config, ',Services,') !== FALSE) { ?>
 					<th>Services</th>
 				<?php } ?>
@@ -111,7 +111,7 @@ if($tickets->num_rows > 0) { ?>
 				} ?>
 				<tr>
 					<td data-title="Date"><?= $ticket['ticket_date'] ?></td>
-					<td data-title="<?= TICKET_NOUN ?>"><a href="../Ticket/index.php?edit=<?= $ticket['ticketid'] ?>" onclick="overlayIFrameSlider(this.href+'&calendar_view=true'); return false;"><?= get_ticket_label($dbc, $ticket) ?></a></td>
+					<td data-title="<?= empty($ticket_noun) ? TICKET_NOUN : $ticket_noun ?>"><a href="../Ticket/index.php?edit=<?= $ticket['ticketid'] ?>" onclick="overlayIFrameSlider(this.href+'&calendar_view=true'); return false;"><?= get_ticket_label($dbc, $ticket) ?></a></td>
 					<?php if(strpos($value_config, ',Services,') !== FALSE) {
 						foreach($services_cost as $cost_amt) {
 							$total_cost += $cost_amt;
@@ -236,5 +236,5 @@ if($tickets->num_rows > 0) { ?>
 		</table>
 	</div>
 <?php } else {
-	echo "<h3>No ".TICKET_TILE." Found.</h3>";
+	echo "<h3>No ".(empty($ticket_tile) ? TICKET_TILE : $ticket_tile)." Found.</h3>";
 } ?>

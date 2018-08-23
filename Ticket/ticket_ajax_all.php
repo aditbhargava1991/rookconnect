@@ -2920,5 +2920,11 @@ if($_GET['action'] == 'update_fields') {
     }
     echo "my my";
 	$all_rev = $dbc->query("UPDATE checklist SET checklist_tile = $checked WHERE checklistid = '$checklistid'");
+} else if($_GET['action'] == 'tile_splitting') {
+    foreach($_POST['tiles'] as $tile) {
+        $details = $tile['name'].'#*#'.$tile['noun'].'#*#'.implode('|',$tile['types']);
+        $tile = config_safe_str($tile['name']);
+        set_config($dbc, 'ticket_split_tiles_'.$tile, $details);
+    }
 }
 ?>

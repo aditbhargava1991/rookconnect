@@ -1,11 +1,6 @@
 <?php include_once('../include.php');
 include_once('../Ticket/field_list.php');
-$strict_view = strictview_visible_function($dbc, 'ticket');
-$tile_security = get_security($dbc, ($_GET['tile_name'] == '' ? 'ticket' : 'ticket_type_'.$_GET['tile_name']));
-if($strict_view > 0) {
-	$tile_security['edit'] = 0;
-	$tile_security['config'] = 0;
-}
+include_once('../Ticket/config.php');
 $back_url = tile_visible($dbc, 'Tickets') > 0 ? WEBSITE_URL.'/Ticket/tickets.php' : WEBSITE_URL.'/home.php';
 if(!empty($_GET['calendar_view'])) {
 	$reload_cache_date = date('Y-m-d');
@@ -130,7 +125,7 @@ if(!empty($_GET['edit'])) {
 		}
 	}
 
-	$ticket_type = $get_ticket['ticket_type'];
+	$ticket_type = empty($get_ticket['ticket_type']) ? $ticket_type : $get_ticket['ticket_type'];
 	$businessid = $get_ticket['businessid'] ?: $businessid;
 	$equipmentid = $get_ticket['equipmentid'];
 
@@ -207,18 +202,12 @@ if(!empty($_GET['edit'])) {
 	<input type="hidden" class="start_time" value="<?php echo $time_seconds ?>">
 	<input type="hidden" id="login_contactid" value="<?php echo $_SESSION['contactid'] ?>" />
 	<input type="hidden" id="timer_type" value="<?php echo $timer_type ?>" />
-<?php } else if(!empty($_GET['type'])) {
-	$ticket_type = filter_var($_GET['type'],FILTER_SANITIZE_STRING);
-}
+<?php }
 if(!empty(MATCH_CONTACTS) && !in_array($get_ticket['businessid'],explode(',',MATCH_CONTACTS)) && !in_array_any(array_filter(explode(',',$get_ticket['clientid'])),explode(',',MATCH_CONTACTS)) && $ticketid > 0) {
 	ob_clean();
 	header('Location: index.php');
 	exit();
-}
-if($ticket_type == '') {
-	$ticket_type = get_config($dbc, 'default_ticket_type');
-}
-?>
+} ?>
 <input type="hidden" id="ticketid" name="ticketid" value="<?php echo $ticketid ?>" />
 <input name="unlocked_tabs" type="hidden" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" value="<?= $get_ticket['unlocked_tabs'] ?>">
 <input type="hidden" name="action_mode" id="action_mode" value="<?= $_GET['action_mode'] ?>">
@@ -861,7 +850,6 @@ var setHeading = function() {
 	var no_tools = true;
 	</script>
 <?php } ?>
-<?php $ticket_tabs = array_filter(explode(',',get_config($dbc, 'ticket_tabs'))); ?>
 <?php if(empty($_GET['calendar_view']) || $calendar_ticket_slider == 'accordion') { ?>
 	<?php if($_GET['calendar_view'] == 'true') { ?>
 		<div class="col-sm-12 double-gap-top">
@@ -914,7 +902,7 @@ var setHeading = function() {
 		</div>
 		<div class="clearfix"></div>
 	<?php }
-	if(count($ticket_tabs) > 0 && !($_GET['action_mode'] > 0 || $_GET['overview_mode'] > 0) && $tile_security['edit'] > 0 && !($strict_view > 0)) { ?>
+	if(count($ticket_tabs) > 1 && !($_GET['action_mode'] > 0 || $_GET['overview_mode'] > 0) && $tile_security['edit'] > 0 && !($strict_view > 0)) { ?>
 		<div class="form-group clearfix <?= $calendar_ticket_slider != 'accordion' ? 'show-on-mob' : '' ?>">
 			<label for="ticket_type" class="col-sm-4 control-label text-right"><?= TICKET_NOUN ?> Type:</label>
 			<div class="col-sm-8">
@@ -2550,7 +2538,7 @@ var setHeading = function() {
 				echo '<h4>Awaiting Admin Approval</h4>';
 			} ?>
 			<span class="sync_recurrences_note gap-left" style="display: none; color: red;"><b>You are editing all Recurrences of this <?= TICKET_NOUN?>. Please refresh the page if you would like to edit only this occurrence.</b></span>
-			<?php if(count($ticket_tabs) > 0 && !($_GET['action_mode'] > 0 || $_GET['overview_mode'] > 0) && $tile_security['edit'] > 0 && !($strict_view > 0)) { ?>
+			<?php if(count($ticket_tabs) > 1 && !($_GET['action_mode'] > 0 || $_GET['overview_mode'] > 0) && $tile_security['edit'] > 0 && !($strict_view > 0)) { ?>
 				<div class="tab-section col-sm-12" id="tab_section_ticket_type">
 					<h3><?= TICKET_NOUN ?> Type</h3>
 					<label for="ticket_type" class="col-sm-4 control-label" style="text-align: left;"><?= TICKET_NOUN ?> Type:</label>
