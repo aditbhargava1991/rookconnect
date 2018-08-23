@@ -254,5 +254,7 @@ mysqli_query($dbc, "CREATE TABLE IF NOT EXISTS `project_timer` (
 
 mysqli_query($dbc, "ALTER TABLE `checklist` ADD `checklist_tile` INT(1) NOT NULL DEFAULT '0' AFTER `subtabid`");
 
+mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`, `value`) VALUES ('contacts_summary', 'Per Category,Per Business')");
+
     echo "Dayana's DB Changes Done<br />\n";
 ?>
