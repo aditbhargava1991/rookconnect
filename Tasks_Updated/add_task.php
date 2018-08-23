@@ -21,11 +21,6 @@ $task_statuses = explode(',',get_config($dbc, 'task_status'));
 $status_complete = $task_statuses[count($task_statuses) - 1];
 $status_incomplete = $task_statuses[0];
 
-if(IFRAME_PAGE) {
-    $slider_layout = !empty(get_config($dbc, 'tasks_slider_layout')) ? get_config($dbc, 'tasks_slider_layout') : 'accordion';
-}
-
-
 if (isset($_POST['tasklist'])) {
 	$project_history = '';
     $supportid = $_POST['supportid'];
@@ -527,6 +522,12 @@ $(document).ready(function () {
         $(this).addClass('hidden');
         $(this).next('.stop-timer-btn').removeClass('hidden');
     });
+
+    $('.full-btn').on('click', function() {
+        window.top.location.href = "add_Task_full_view.php";
+    });
+
+
     $('.stop-timer-btn').on('click', function() {
 		$(this).closest('div').find('.timer').timer('stop');
 		$(this).addClass('hidden');
@@ -693,10 +694,10 @@ function manual_add_time(task) {
     });
 }
 
-//function closePopup(){
-//    window.opener.location.reload();
-//    window.close();
-//}
+function closePopup(){
+    window.opener.location.reload();
+    window.close();
+}
 
 function flag_item(task) {
 	task_id = $(task).data('tasklistid');
@@ -878,18 +879,18 @@ function mark_done(sel) {
                 <?= (!empty($_GET['tasklistid']) ? 'Edit' : 'Add a') ?> <?= $url_tab ?> Task <?= ( !empty($tasklistid) ) ? '#'.$tasklistid : ''; */ ?>
             </h3>-->
             <h3 class="inline"><?= !empty($_GET['tasklistid']) ? 'Edit' : 'Add' ?> Task<?= !empty($_GET['tasklistid']) ? ' #'.$_GET['tasklistid'].': '.$task_heading : '' ?></h3>
-            <div class="pull-right"><a href=""><img src="../img/icons/ROOK-status-rejected.jpg" alt="Close" title="Close" class="inline-img" /></a></div>
+            <div class="pull-right"><a href=""><img src="../img/icons/ROOK-status-rejected.jpg" alt="Close" title="Close" class="inline-img  no-toggle" /></a></div>
+
+            <div class="pull-right"><img src="../img/icons/full_screen.png" alt="View Full Screen" title="View Full Screen" class="inline-img no-toggle full-btn" /></div>
+
             <?php if(!empty($_GET['tasklistid'])) { ?><button name="" type='button' value="" class="delete_task pull-right image-btn" style="margin-top:3px;"><img class="no-margin small" src="../img/icons/trash-icon-red.png" alt="Delete Task" width="25"></button><?php } ?>
 
             <div class="clearfix"></div>
 
             <hr />
 
-            <?php if($slider_layout == 'accordion') { ?>
                 <div id="accordion_tabs" class="sidebar panel-group block-panels main-screen" style="background-color: #fff; padding: 0; margin-left: 0.5em; width: calc(100% - 1em);">
-            <?php } ?>
 
-            <?php if($slider_layout == 'accordion') { ?>
                 <div class="panel panel-default">
                     <div class="panel-heading">
                         <h4 class="panel-title">
@@ -900,10 +901,8 @@ function mark_done(sel) {
                     </div>
                     <div id="collapse_task_board" class="panel-collapse collapse">
                         <div class="panel-body">
-            <?php } ?>
 
             <div class="form-group">
-                <?= $slider_layout != 'accordion' ? '<h4>Task Board</h4>' : '' ?>
                 <label for="site_name" class="col-sm-4 control-label">Task Board Type:</label>
                 <div class="col-sm-8">
                     <select data-placeholder="Select a Task Board Type..." name="task_board_type" id="task_board_type" class="chosen-select-deselect form-control" data-field="board_security" width="380">
@@ -946,17 +945,10 @@ function mark_done(sel) {
                     <input type="text" name="new_task_board" value="" data-table="tasklist" data-field="board_name" class="form-control" width="380" />
                 </div>
             </div>
-            <?php if($slider_layout == 'accordion') { ?>
                         </div>
                     </div>
                 </div>
-            <?php } else { ?>
-                <hr />
-            <?php } ?>
 
-
-
-            <?php if($slider_layout == 'accordion') { ?>
                 <div class="panel panel-default project_section_display" style="<?= $project_section_display ?>">
                     <div class="panel-heading">
                         <h4 class="panel-title">
@@ -967,7 +959,6 @@ function mark_done(sel) {
                     </div>
                     <div id="collapse_project" class="panel-collapse collapse">
                         <div class="panel-body">
-            <?php } ?>
             <div class="project-section project_section_display" style="<?= $project_section_display ?>">
                 <div class="form-group clearfix">
                     <?= $slider_layout != 'accordion' ? '<h4><?= PROJECT_TILE ?></h4>' : '' ?>
@@ -990,17 +981,11 @@ function mark_done(sel) {
                 </div>
                 <input type="hidden" name="project_milestone" value="<?= $project_milestone ?>">
 
-                <?php if($slider_layout != 'accordion') { ?>
-                    <hr />
-                <?php } ?>
             </div>
-            <?php if($slider_layout == 'accordion') { ?>
                         </div>
                     </div>
                 </div>
-            <?php } ?>
 
-            <?php if($slider_layout == 'accordion') { ?>
                 <div class="panel panel-default taskpath_section_display" style="<?= $taskpath_section_display ?>">
                     <div class="panel-heading">
                         <h4 class="panel-title">
@@ -1011,10 +996,8 @@ function mark_done(sel) {
                     </div>
                     <div id="collapse_task_path" class="panel-collapse collapse">
                         <div class="panel-body">
-            <?php } ?>
 
             <div class="form-group">
-                <?= $slider_layout != 'accordion' ? '<h4>Task Path</h4>' : '' ?>
                 <label for="site_name" class="col-sm-4 control-label">Task Path:</label>
                 <div class="col-sm-8">
                     <select data-placeholder="Select a Task Path..." id="task_path" name="task_path" data-table="tasklist" data-field="task_path" class="chosen-select-deselect form-control" width="380">
@@ -1076,15 +1059,10 @@ function mark_done(sel) {
 				<?php }
 			} ?>
 
-            <?php if($slider_layout == 'accordion') { ?>
                         </div>
                     </div>
                 </div>
-            <?php } else { ?>
-                <hr />
-            <?php } ?>
 
-            <?php if($slider_layout == 'accordion') { ?>
                 <div class="panel panel-default contact_section_display"  style="<?= $contact_section_display ?>">
                     <div class="panel-heading">
                         <h4 class="panel-title">
@@ -1095,7 +1073,6 @@ function mark_done(sel) {
                     </div>
                     <div id="collapse_contacts" class="panel-collapse collapse">
                         <div class="panel-body">
-            <?php } ?>
 
                 <div class="contact-section">
                     <div class="form-group clearfix">
@@ -1143,18 +1120,12 @@ function mark_done(sel) {
                         </div><?php
                     } ?>
 
-                    <?php if($slider_layout != 'accordion') { ?>
-                        <hr />
-                    <?php } ?>
                 </div>
-                <?php if($slider_layout == 'accordion') { ?>
                         </div>
                     </div>
                 </div>
-            <?php } ?>
 
 			<?php if(tile_enabled($dbc, 'Sales')) { ?>
-                <?php if($slider_layout == 'accordion') { ?>
                     <div class="panel panel-default sales_section_display" style="<?= $sales_section_display ?>">
                         <div class="panel-heading">
                             <h4 class="panel-title">
@@ -1165,10 +1136,8 @@ function mark_done(sel) {
                         </div>
                         <div id="collapse_sales" class="panel-collapse collapse">
                             <div class="panel-body">
-                <?php } ?>
 				<div class="sales-section">
 					<div class="form-group clearfix">
-						<?= $slider_layout != 'accordion' ? '<h4>'.SALES_TILE.'</h4>' : '' ?>
 						<label for="first_name" class="col-sm-4 control-label text-right"><?= SALES_NOUN ?>:</label>
 						<div class="col-sm-8">
 							<select data-placeholder="Select <?= SALES_NOUN ?>..." name="task_salesid" data-table="tasklist" data-field="salesid" class="chosen-select-deselect form-control" id="task_salesid" width="380">
@@ -1180,18 +1149,12 @@ function mark_done(sel) {
 					</div>
 					<input type="hidden" name="sales_milestone" data-table="tasklist" data-field="sales_milestone" value="<?= $sales_milestone ?>">
 
-                    <?php if($slider_layout != 'accordion') { ?>
-                        <hr />
-                    <?php } ?>
 				</div>
-                <?php if($slider_layout == 'accordion') { ?>
                             </div>
                         </div>
                     </div>
-                <?php } ?>
 			<?php } ?>
 
-            <?php if($slider_layout == 'accordion') { ?>
                 <div class="panel panel-default">
                     <div class="panel-heading">
                         <h4 class="panel-title">
@@ -1202,7 +1165,6 @@ function mark_done(sel) {
                     </div>
                     <div id="collapse_task_details" class="panel-collapse collapse">
                         <div class="panel-body">
-            <?php } ?>
 
             <div class="form-group clearfix">
                 <label for="first_name" class="col-sm-4 control-label text-right">Status:</label>
@@ -1386,15 +1348,10 @@ function mark_done(sel) {
             <div id="load_comments" class="form-group clearfix">
                 <?php include('task_comment_list.php'); ?>
             </div>
-            <?php if($slider_layout == 'accordion') { ?>
                         </div>
                     </div>
                 </div>
-            <?php } else { ?>
-                <hr />
-            <?php } ?>
 
-            <?php if($slider_layout == 'accordion') { ?>
                 <div class="panel panel-default">
                     <div class="panel-heading">
                         <h4 class="panel-title">
@@ -1405,7 +1362,6 @@ function mark_done(sel) {
                     </div>
                     <div id="collapse_time_tracking" class="panel-collapse collapse">
                         <div class="panel-body">
-            <?php } ?>
             <div class="form-group clearfix">
                 <?= $slider_layout != 'accordion' ? '<h4>Time Tracking</h4>' : '' ?>
                 <h5>Track Time To Task</h5>
@@ -1424,18 +1380,14 @@ function mark_done(sel) {
                 </div>
             </div>
 
-            <?php if($slider_layout == 'accordion') { ?>
                         </div>
                     </div>
                 </div>
-            <?php } ?>
 
-            <?php if($slider_layout == 'accordion') { ?>
                 </div>
-            <?php } ?>
 
             <div class="form-group pull-right">
-                <a href="<?php echo $back_url; ?>" class="btn brand-btn pull-left">Cancel</a>
+                <a href="index.php?category=All&tab=Summary" class="btn brand-btn pull-left">Cancel</a>
                 <button name="tasklist" value="tasklist" class="btn brand-btn pull-right">Submit</button>
                 <?php if(!empty($_GET['tasklistid'])) { ?><button name="" type='button' value="" class="delete_task pull-right image-btn"><img class="no-margin small" src="../img/icons/trash-icon-red.png" alt="Delete Task" width="30"></button><?php } ?>
                 <div class="clearfix"></div>

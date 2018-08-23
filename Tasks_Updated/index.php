@@ -118,11 +118,19 @@ function popUpClosed() {
                     <div class="pull-right gap-left"><a href="" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Tasks_Updated/add_taskboard.php?security=<?=$url_tab?>', '50%', false, false, $('.iframe_overlay').closest('.container').outerHeight() + 20); return false;"><button class="btn brand-btn hide-titles-mob">Add Task Board</button></a></div>
                     <!-- <div class="pull-right gap-left"><a href="" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Tasks_Updated/add_task.php?category=<?=$_GET['category']?>&tab=<?=$_GET['tab']?>', '50%', false, false, $('.iframe_overlay').closest('.container').outerHeight() + 20); return false;"><button class="btn brand-btn hide-titles-mob">Add Task</button></a></div> -->
 
+                    <?php
+                    $slider_layout = !empty(get_config($dbc, 'tasks_slider_layout')) ? get_config($dbc, 'tasks_slider_layout') : 'accordion';
+
+                    if($slider_layout == 'accordion') {
+                    ?>
                     <div class="pull-right gap-left"><a href="" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Tasks_Updated/add_task.php', '50%', false, false, $('.iframe_overlay').closest('.container').outerHeight() + 20); return false;"><button class="btn brand-btn hide-titles-mob">Add Task</button></a></div>
+                    <?php } else { ?>
+                    <div class="pull-right gap-left"><a href="../Tasks_Updated/add_task_full_view.php"><button class="btn brand-btn hide-titles-mob">Add Task</button></a></div>
+                    <?php } ?>
 
                     <img class="no-toggle statusIcon pull-right no-margin inline-img" title="" src="" />
                 </div>
-                <div class="scale-to-fill"><h1 class="gap-left"><a href="index.php">Tasks</a></h1></div>
+                <div class="scale-to-fill"><h1 class="gap-left"><a href="index.php?category=All&tab=Summary">Tasks</a></h1></div>
                 <div class="clearfix"></div>
             </div><!-- .tile-header -->
 
