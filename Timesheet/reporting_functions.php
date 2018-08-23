@@ -75,6 +75,7 @@ function get_hours_report($dbc, $staff, $search_start_date, $search_end_date, $s
 
 	foreach($staff_list as $staff) {
     $search_staff = $staff['contactid'];
+    set_stat_hours($dbc, $search_staff, $search_start_date, $search_end_date);
 
     $filter_position_query = '';
     if(!empty($search_position)) {
@@ -661,6 +662,7 @@ function get_hours_report($dbc, $staff, $search_start_date, $search_end_date, $s
 	$report_name = [];
 	foreach($staff_list as $staff) {
         $search_staff = $staff['contactid'];
+        set_stat_hours($dbc, $search_staff, $search_start_date, $search_end_date);
 
 		$report_name[] = $staff['first_name'].' '.$staff['last_name'];
 
@@ -1143,6 +1145,7 @@ function get_hours_report($dbc, $staff, $search_start_date, $search_end_date, $s
 	foreach($staff_list as $staff) {
 		$report = '';
         $search_staff = $staff['contactid'];
+        set_stat_hours($dbc, $search_staff, $search_start_date, $search_end_date);
 
 		$start_of_year = date('Y-01-01', strtotime($search_start_date));
         $total_colspan = 2;

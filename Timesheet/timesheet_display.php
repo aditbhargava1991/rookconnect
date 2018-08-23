@@ -189,7 +189,8 @@ var useProfileSig = function(chk) {
 <input type="hidden" name="current_page" value="<?= $current_page ?>">
 <table class='table table-bordered'>
     <tr class='hidden-xs hidden-sm'>
-        <?php $start_of_year = date('Y-01-01', strtotime($search_start_date));
+        <?php set_stat_hours($dbc, $search_staff, $search_start_date, $search_end_date);
+        $start_of_year = date('Y-01-01', strtotime($search_start_date));
         $sql = "SELECT IFNULL(SUM(IF(`type_of_time`='Sick Hrs.Taken',`total_hrs`,0)),0) SICK_HRS,
             IFNULL(SUM(IF(`type_of_time`='Stat Hrs.',`total_hrs`,0)),0) STAT_AVAIL,
             IFNULL(SUM(IF(`type_of_time`='Stat Hrs.Taken',`total_hrs`,0)),0) STAT_HRS,
