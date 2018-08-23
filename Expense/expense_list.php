@@ -545,7 +545,6 @@ while($expense = mysqli_fetch_array($expense_list)) {
 	    if($no_list) {
 			$no_list = false;
 		} else {
-		    echo $status.' -- '.$status_count['approved'];
 			echo "<li class='toggle_all' onclick='toggle_all(this);' data-status='$status' style='";
 			if($status == 'Submitted' && $status_count['submitted'] <= 5) {
 				echo "display: none;";
@@ -701,9 +700,9 @@ while($expense = mysqli_fetch_array($expense_list)) {
             switch($_GET['filter_id']) {
                 case 'pending':
                     if($expense['ex_status'] == 'Submitted' && $appid[1] == '1') {
-                        $visibility = "visible";
+                        $visibility = "";
                     }else if($expense['ex_status'] == 'Approved' && $expense['approved_by'] == $app_role['expense_approval_role_id'] ){
-                        $visibility = "visible";
+                        $visibility = "";
                     }
                     break;
                 case 'approved':
