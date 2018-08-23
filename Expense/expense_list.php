@@ -580,7 +580,7 @@ while($expense = mysqli_fetch_array($expense_list)) {
 	$visibility = "hidden style='display:none;'";
 	switch($_GET['filter_id']) {
 	    case 'pending':
-	        if($expense['ex_status'] == 'Submitted' && $appid[1] == '0') {
+	        if($expense['ex_status'] == 'Submitted' && $appid[1] == '1') {
 	            $visibility = "visible";
 	        }else if($expense['ex_status'] == 'Approved' && $expense['approved_by'] == $app_role['expense_approval_role_id'] ){
 	            $visibility = "visible";
