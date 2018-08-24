@@ -340,3 +340,8 @@ else if($_GET['action'] == 'stop_holiday_update_noti') {
         mysqli_query($dbc, "UPDATE `time_cards` SET `comment_box` = '".$time_card['comment_box'].htmlentities($comment_history)."' WHERE `time_cards_id` = '$id'");
 	}
 }
+else if($_GET['action'] == 'set_stat_pay') {
+	$staffid = filter_var($_POST['staffid'],FILTER_SANITIZE_STRING);
+	$stat_pay = filter_var($_POST['stat_pay'],FILTER_SANITIZE_STRING);
+	mysqli_query($dbc, "UPDATE `contacts` SET `stat_pay` = '$stat_pay' WHERE `contactid` = '$staffid'");
+}

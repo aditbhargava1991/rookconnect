@@ -933,6 +933,96 @@ if(!empty($_GET['add_service_iframe'])) { ?>
 			</div>
 			<?php $pdf_contents[] = ['Preferred Staff', get_contact($dbc, $get_ticket['preferred_staff'])]; ?>
 		<?php } ?>
+	    <?php if(strpos($value_config,',Details Where,') !== FALSE && $field_sort_field == 'Details Where') { ?>
+	        <div class="form-group">
+	            <label for="site_name" class="col-sm-4 control-label"><span class="popover-examples list-inline"><a data-toggle="tooltip" data-placement="top" title="Tile Name, Tab, and Subtab for each part of the software that should be affected"><img src="../img/info.png" width="20"></a></span> Where:</label>
+	            <div class="col-sm-8">
+	                <?= $details_where ?>"
+	            </div>
+	        </div>
+	        <?php $pdf_contents[] = ['Where', $details_where]; ?>
+	    <?php } ?>
+	    <?php if(strpos($value_config,',Details Tile,') !== FALSE && $field_sort_field == 'Details Tile') { ?>
+	        <div class="form-group">
+	            <label for="site_name" class="col-sm-4 control-label"><span class="popover-examples list-inline"><a data-toggle="tooltip" data-placement="top" title="Tile Name of the software that should be affected"><img src="../img/info.png" width="20"></a></span> Tile Name:</label>
+	            <div class="col-sm-8">
+	                <?= $get_ticket['details_tile'] ?>"
+	            </div>
+	        </div>
+	        <?php $pdf_contents[] = ['Tile Name', $get_ticket['details_tile']]; ?>
+	    <?php } ?>
+	    <?php if(strpos($value_config,',Details Tab,') !== FALSE && $field_sort_field == 'Details Tab') { ?>
+	        <div class="form-group">
+	            <label for="site_name" class="col-sm-4 control-label"><span class="popover-examples list-inline"><a data-toggle="tooltip" data-placement="top" title="Tab, and Subtab for each part of the software that should be affected"><img src="../img/info.png" width="20"></a></span> Tab / Sub Tab:</label>
+	            <div class="col-sm-8">
+	                <?= $get_ticket['details_tab'] ?>"
+	            </div>
+	        </div>
+	        <?php $pdf_contents[] = ['Tab / Sub Tab', $get_ticket['details_tab']]; ?>
+	    <?php } ?>
+	    <?php if(strpos($value_config,',Details Who,') !== FALSE && $field_sort_field == 'Details Who') { ?>
+	        <div class="form-group">
+	            <label for="site_name" class="col-sm-4 control-label"><span class="popover-examples list-inline"><a data-toggle="tooltip" data-placement="top" title="Any customers that will or may use this feature"><img src="../img/info.png" width="20"></a></span> Who:</label>
+	            <div class="col-sm-8">
+	                <?= $details_who ?>"
+	            </div>
+	        </div>
+	        <?php $pdf_contents[] = ['Who', $details_who]; ?>
+	    <?php } ?>
+	    <?php if(strpos($value_config,',Details Why,') !== FALSE && $field_sort_field == 'Details Why') { ?>
+	        <div class="form-group">
+	            <label for="site_name" class="col-sm-12 control-label"><span class="popover-examples list-inline"><a data-toggle="tooltip" data-placement="top" title="How do they want to use the feature, or what do they want it for"><img src="../img/info.png" width="20"></a></span> Why:</label>
+	            <div class="col-sm-12">
+	                <?= $details_why; ?>
+	            </div>
+	        </div>
+	        <?php $pdf_contents[] = ['Why', $details_why]; ?>
+	    <?php } ?>
+	    <?php if(strpos($value_config,',Details What,') !== FALSE && $field_sort_field == 'Details What') { ?>
+	        <div class="form-group">
+	            <label for="site_name" class="col-sm-12 control-label"><span class="popover-examples list-inline"><a data-toggle="tooltip" data-placement="top" title="Details of what needs to be done, changed, or added"><img src="../img/info.png" width="20"></a></span> What:</label>
+	            <div class="col-sm-12">
+	                <?= $details_what; ?>
+	            </div>
+	        </div>
+	        <?php $pdf_contents[] = ['What', $details_what]; ?>
+	    <?php } ?>
+	    <?php if(strpos($value_config,',Details Position,') !== FALSE && $field_sort_field == 'Details Position') { ?>
+	        <div class="form-group">
+	            <label for="site_name" class="col-sm-12 control-label"><span class="popover-examples list-inline"><a data-toggle="tooltip" data-placement="top" title="The position on the screen of the new field or button, what field it should be added after, etc."><img src="../img/info.png" width="20"></a></span> Position:</label>
+	            <div class="col-sm-12">
+	                <?= $details_position; ?>
+	            </div>
+	        </div>
+	        <?php $pdf_contents[] = ['Position', $details_position]; ?>
+	    <?php } ?>
+	  <?php if(strpos($value_config,',Service Preferred Staff,') !== FALSE && $field_sort_field == 'Service Preferred Staff') { ?>
+			<div class="form-group">
+			  <label for="site_name" class="col-sm-4 control-label">Preferred Staff:</label>
+			  <div class="col-sm-8">
+			  	<?php $preferred_staff = [];
+			  	foreach(array_filter(explode(',', $get_ticket['preferred_staff'])) as $staff_id) {
+			  		if($staff_id > 0) {
+				  		$preferred_staff[] = get_contact($dbc, $staff_id);
+			  		}
+			  	}
+			  	echo implode('<br />', $preferred_staff); ?>
+			  </div>
+			</div>
+	        <?php $pdf_contents[] = ['Preferred Staff', implode('<br />', $preferred_staff)]; ?>
+		<?php } ?>
+	  <?php if(strpos($value_config,',Service Total Price,') !== FALSE && $field_sort_field == 'Service Total Price') { ?>
+			<?php $editable = check_subtab_persmission($dbc, 'ticket', ROLE, 'edit_service_total');
+			if(check_subtab_persmission($dbc, 'ticket', ROLE, 'view_service_total')) { ?>
+				<div class="form-group">
+					<label for="site_name" class="col-sm-4 control-label">Total Price of Services:</label>
+					<div class="col-sm-8">
+						<?= $get_ticket['services_cost'] ?>
+					</div>
+				</div>
+		        <?php $pdf_contents[] = ['Total Price of Services', $get_ticket['service_cost']]; ?>
+			<?php } ?>
+		<?php } ?>
 	<?php } ?>
 	<?php } ?>
 	<?php include('add_view_ticket_checklist.php'); ?>

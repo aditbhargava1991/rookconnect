@@ -141,6 +141,12 @@ if (isset($_POST['add_ir']) || isset($_POST['save_ir'])) {
         $url = 'Updated';
     }
 
+    if(isset($_POST['save_ir'])) {
+    	mysqli_query($dbc, "UPDATE `incident_report` SET `saved` = 1 WHERE `incidentreportid` = '$incidentreportid'");
+    } else {
+    	mysqli_query($dbc, "UPDATE `incident_report` SET `saved` = 0 WHERE `incidentreportid` = '$incidentreportid'");
+    }
+
     if(!($user_form_id > 0)) {
 		$multisign_i = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `incident_report` WHERE `incidentreportid` = '$incidentreportid'"))['multisign'];
 		if(empty($multisign_i)) {

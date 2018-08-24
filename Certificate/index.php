@@ -47,7 +47,7 @@ include_once ('../navigation.php'); ?>
 				} ?>
 				<img class="no-toggle statusIcon pull-right no-margin inline-img" title="" src="" />
 				<?php if(!isset($_GET['settings']) && !isset($_GET['edit']) && !isset($_GET['status']) && !isset($_GET['report'])) { ?>
-					<img class="inline-img pull-right btn-horizontal-collapse small" src="../img/icons/pie-chart.png">
+					<img class="inline-img pull-right btn-horizontal-collapse small no-toggle" src="../img/icons/pie-chart.png" title="View Summary">
 				<?php } ?>
 				</h3>
 				<?php if(!isset($_GET['settings']) && !isset($_GET['edit']) && !isset($_GET['status']) && !isset($_GET['report'])) { ?>

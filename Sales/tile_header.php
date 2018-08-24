@@ -25,7 +25,7 @@
         }
         if (basename($_SERVER['SCRIPT_FILENAME']) == 'index.php') { ?>
             <div class="pull-right top-dashboard">
-                <img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-Speedometer.png" height="30" class="pull-right gap-left cursor-hand" onclick="$('.dashboard_select').toggle();">
+                <img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-Speedometer.png" height="30" class="pull-right gap-left cursor-hand no-toggle" title="View Dashboards" onclick="$('.dashboard_select').toggle();">
                 <div class="dashboard_select pull-right" style="display: none;">
                     <select class="chosen-select-deselect" onchange="window.location.replace('?dashboard='+this.value);">
                         <option value="<?= $_SESSION['contactid'] ?>">My Dashboard</option><?php
@@ -43,7 +43,7 @@
             </div>
         <?php } ?>
         <?php if (basename($_SERVER['SCRIPT_FILENAME']) != 'reports.php' && basename($_SERVER['SCRIPT_FILENAME']) != 'field_config.php') { ?>
-			<img class="inline-img pull-right btn-horizontal-collapse" src="../img/icons/pie-chart.png">
+			<img class="inline-img pull-right btn-horizontal-collapse no-toggle" src="../img/icons/pie-chart.png" title="View Summary">
 		<?php } ?>
         <img class="no-toggle statusIcon pull-right no-margin inline-img small" title="" src="" data-original-title="">
     </div>

@@ -106,15 +106,15 @@ function clearEstimates() {
 		foreach($statuses as $status_name => $status_id) {
 			$summary = mysqli_fetch_array(mysqli_query($dbc, "SELECT COUNT(*) total, SUM(`total_retail`) value FROM `estimate` LEFT JOIN (SELECT `estimateid`, SUM(`retail`) `total_retail` FROM `estimate_scope` WHERE `deleted`=0 GROUP BY `estimateid`) `prices` ON `estimate`.`estimateid`=`prices`.`estimateid` WHERE `deleted`=0 AND (`status`!='$closed_status' OR `status_date` >= '$closed_date') AND (`status`='$status_id' OR ('$status_id'='misc' AND `status` NOT IN ('',".implode(',',$set_status).")))".($dashboard > 0 ? " AND CONCAT(',',IFNULL(`assign_staffid`,''),',',IFNULL(`created_by`,''),',') LIKE '%,$dashboard,%'" : ""))); ?>
 			<div class="dashboard-list" data-status="<?= $status_id ?>">
-				<div class="info-block-header"><a href="?status=<?= $status_id ?>"><h4><?= $status_name ?><?php if($closed_status == $status_id) { ?><img class="inline-img small pull-right no-toggle black-color" data-original-title="Clear Completed Estimates" src="../img/clear-checklist.png" onclick="clearEstimates(); return false;"><?php } ?></h4>
+				<div class="info-block-header"><a href="?status=<?= $status_id ?>"><h4><?= $status_name ?><?php if($closed_status == $status_id) { ?><img class="inline-img small pull-right no-toggle" data-original-title="Clear Completed Estimates" src="../img/clear-checklist.png" onclick="clearEstimates(); return false;"><?php } ?></h4>
 				<div class="small"><span class="pull-left"><?= $summary['total'] ?></span><span class="pull-right">$<?= number_format($summary['value'],2) ?></span></div></a><div class="clearfix"></div></div>
 				<ul class="dashboard-list" data-status="<?= $status_id ?>">
 					<?php $estimates = mysqli_query($dbc, "SELECT `estimate`.`estimateid`, `estimate_name`, `businessid`, `clientid`, `total_price`, `status`, CURDATE() - `created_date` status_days, `estimatetype`, `projectid`, `add_to_project`, `prices`.`total_retail` FROM `estimate` LEFT JOIN (SELECT `estimateid`, SUM(`retail`) `total_retail` FROM `estimate_scope` WHERE `deleted`=0 GROUP BY `estimateid`) `prices` ON `estimate`.`estimateid`=`prices`.`estimateid` LEFT JOIN (SELECT MIN(`due_date`) due_date, `estimateid` FROM `estimate_actions` WHERE `deleted`=0 GROUP BY `estimateid`) actions ON `estimate`.`estimateid`=actions.`estimateid` WHERE (`status`='$status_id' OR ('$status_id'='misc' AND `status` NOT IN ('',".implode(',',$set_status)."))) AND (`status`!='$closed_status' OR `status_date` >= '$closed_date') AND `deleted`=0".($dashboard > 0 ? " AND CONCAT(',',IFNULL(`assign_staffid`,''),',',IFNULL(`created_by`,''),',') LIKE '%,$dashboard,%'" : "")." ORDER BY actions.`due_date`, `expiry_date` LIMIT 0,".get_config($dbc, "estimate_dashboard_length"));
 					while($estimate = mysqli_fetch_array($estimates)) {
 						$action = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `estimate_actions` WHERE `estimateid`='{$estimate['estimateid']}' AND `deleted`=0 ORDER BY `due_date` ASC")); ?>
 						<li class="dashboard-item textwrap <?= $action['due_date'] == date('Y-m-d') ? 'blue-border' : ($action['due_date'] < date('Y-m-d') ? 'red-border' : '') ?>" data-id="<?= $estimate['estimateid'] ?>">
-							<a href="?view=<?= $estimate['estimateid'] ?>"><h4><span class="text-blue"><?= ($estimate['estimate_name'] != '' ? $estimate['estimate_name'] : '[UNTITLED '.$estimate['estimatetype'].']') ?><img class="inline-img" src="../img/icons/ROOK-edit-icon.png"></span><span class="pull-right">$<?= number_format($estimate['total_retail'],2) ?></span></h4></a>
-							<img class="pull-right est_handle inline-img" src="../img/icons/drag_handle.png">
+							<a href="?view=<?= $estimate['estimateid'] ?>"><h4><span class="text-blue"><?= ($estimate['estimate_name'] != '' ? $estimate['estimate_name'] : '[UNTITLED '.$estimate['estimatetype'].']') ?><img class="inline-img no-toggle" src="../img/icons/ROOK-edit-icon.png" title="Edit"></span><span class="pull-right">$<?= number_format($estimate['total_retail'],2) ?></span></h4></a>
+							<img class="pull-right est_handle inline-img no-toggle" src="../img/icons/drag_handle.png" title="Drag">
 							<?= get_client($dbc, $estimate['businessid']) ?> <?= get_contact($dbc, $estimate['clientid']) ?> | <?= $estimate['status_days'] ?> days
 							<div class="form-group double-gap-top">
 								<label class="col-sm-4">Status:</label>
@@ -171,13 +171,13 @@ function clearEstimates() {
 							<input type="text" class="form-control" name="notes" value="" style="display:none;" data-table="estimate_notes" data-identifier="id" data-id="" data-estimate="<?= $estimate['estimateid'] ?>" onblur="$(this).val('').hide();">
 							<div class="action-icons">
 								<?php if($estimate['projectid'] > 0) { ?>
-									<a href="../Project/projects.php?edit=<?= $estimate['projectid'] ?>"><img src="../img/icons/create_project.png" class="inline-img black-color" title="View <?= PROJECT_NOUN.' #'.$estimate['projectid'] ?>"></a>
+									<a href="../Project/projects.php?edit=<?= $estimate['projectid'] ?>"><img src="../img/icons/create_project.png" class="inline-img no-toggle" title="View <?= PROJECT_NOUN.' #'.$estimate['projectid'] ?>"></a>
 								<?php } else { ?>
-									<a href="convert_to_project.php?estimate=<?= $estimate['estimateid'] ?>" onclick="overlayIFrame('convert_select_project.php?estimateid=<?= $estimate['estimateid'] ?>');return false;"><img src="../img/icons/create_project.png" class="inline-img black-color" title="<?= $estimate['add_to_project'] > 0 ? 'Attach to '.PROJECT_NOUN.' #'.$estimate['add_to_project'] : 'Create '.PROJECT_NOUN.' from '.ESTIMATE_TILE.'.' ?>"></a>
+									<a href="convert_to_project.php?estimate=<?= $estimate['estimateid'] ?>" onclick="overlayIFrame('convert_select_project.php?estimateid=<?= $estimate['estimateid'] ?>');return false;"><img src="../img/icons/create_project.png" class="inline-img no-toggle" title="<?= $estimate['add_to_project'] > 0 ? 'Attach to '.PROJECT_NOUN.' #'.$estimate['add_to_project'] : 'Create '.PROJECT_NOUN.' from '.ESTIMATE_TILE.'.' ?>"></a>
 								<?php } ?>
-								<a href="?financials=<?= $estimate['estimateid'] ?>"><img src="../img/icons/financials.png" class="inline-img" title="View <?= ESTIMATE_TILE ?> Financial Summary."></a>
-								<a href="Add Note" onclick="$(this).closest('.dashboard-item').find('[name=notes]').show().focus(); return false;"><img src="../img/notepad-icon-blue.png" class="inline-img black-color" title="Add Note to <?= ESTIMATE_TILE ?>."></a>
-							<a href="Archive" onclick="$(this).closest('.dashboard-item').find('[name=status]').val('archived').trigger('change.select2').change(); return false;"><img src="../img/icons/ROOK-trash-icon.png" class="inline-img" title="Archive the <?= ESTIMATE_TILE ?>."></a>
+								<a href="?financials=<?= $estimate['estimateid'] ?>"><img src="../img/icons/financials.png" class="inline-img no-toggle" title="View <?= ESTIMATE_TILE ?> Financial Summary."></a>
+								<a href="Add Note" onclick="$(this).closest('.dashboard-item').find('[name=notes]').show().focus(); return false;"><img src="../img/notepad-icon-blue.png" class="inline-img no-toggle" title="Add Note to <?= ESTIMATE_TILE ?>."></a>
+							<a href="Archive" onclick="$(this).closest('.dashboard-item').find('[name=status]').val('archived').trigger('change.select2').change(); return false;"><img src="../img/icons/ROOK-trash-icon.png" class="inline-img no-toggle" title="Archive the <?= ESTIMATE_TILE ?>."></a>
 							</div>
 						</li>
 					<?php } ?>

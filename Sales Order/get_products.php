@@ -526,7 +526,7 @@ checkAuthorised('sales_order');
                     $include_hours = true;
                 }
                 if($_POST['heading_name'] == 'new') {
-                    $heading_html = '<div class="heading_block" data-heading="'.$heading_name.'"><img src="'.WEBSITE_URL.'/img/icons/drag_handle.png" class="inline-img heading_handle pull-right" title="Drag me to reorder heading.">';
+                    $heading_html = '<div class="heading_block" data-heading="'.$heading_name.'"><img src="'.WEBSITE_URL.'/img/icons/drag_handle.png" class="inline-img heading_handle pull-right no-toggle" title="Drag">';
                     $heading_html .= '<div class="heading_row">';
                     $heading_html .= '<div class="row heading_row_text"><div class="col-sm-12 default-color"><b>'.$heading_name.($mandatory_quantity > 0 ? '(Mandatory Quantity: '.$mandatory_quantity.')' : '').'</b> <a href="" onclick="editHeading(this); return false;"><span style="font-size: x-small; color: #888;">EDIT HEADING</span></a></div></div>';
                     $heading_html .= '<div class="heading_row_edit" style="display: none;">';
@@ -590,7 +590,7 @@ checkAuthorised('sales_order');
                             $tr .= '<input type="hidden" name="time_estimate[]" value="">';
                         }
                         $tr .= '<td data-title="Price"><input type="number" name="product_price[]" value="'.$item_price.'" class="form-control" step="0.01"></td>';
-                        $tr .= '<td align="center"><img src="'.WEBSITE_URL.'/img/remove.png" height="20" onclick="removeItem(this);" /><img src="'.WEBSITE_URL.'/img/icons/drag_handle.png" class="inline-img sortable_handle pull-right" title="Drag me to reorder item."></td>';
+                        $tr .= '<td align="center"><img src="'.WEBSITE_URL.'/img/remove.png" height="20" onclick="removeItem(this);" /><img src="'.WEBSITE_URL.'/img/icons/drag_handle.png" class="inline-img sortable_handle pull-right no-toggle" title="Drag"></td>';
                         $tr .= '</tr>'; ?>
                         <script type="text/javascript">
                         $(function() {
