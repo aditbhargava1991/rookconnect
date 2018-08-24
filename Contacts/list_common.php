@@ -354,9 +354,9 @@ if ( !empty($note) ) { ?>
 					<div class="clearfix"></div>
                     <div class="set-favourite">
 						<?php if(strpos($row['is_favourite'],",".$_SESSION['contactid'].",") === FALSE): ?>
-							<a href="?list=<?php echo $list; ?>&favourite=<?php echo $row['contactid']; ?>"><img src="../img/blank_favourite.png" alt="Favourite" title="Click to make the contact favourite" class="inline-img pull-right small"></a>
+							<a href="?list=<?php echo $list; ?>&favourite=<?php echo $row['contactid']; ?>"><img src="../img/blank_favourite.png" alt="Favourite" title="Click to make the contact favourite" class="inline-img pull-right small no-toggle"></a>
 						<?php else: ?>
-							<a href="?list=<?php echo $list; ?>&unfavourite=<?php echo $row['contactid']; ?>"><img src="../img/full_favourite.png" alt="Favourite" title="Click to make the contact unfavourite" class="inline-img pull-right small"></a>
+							<a href="?list=<?php echo $list; ?>&unfavourite=<?php echo $row['contactid']; ?>"><img src="../img/full_favourite.png" alt="Favourite" title="Click to make the contact unfavourite" class="inline-img pull-right small no-toggle"></a>
 						<?php endif; ?>
                     </div>
 				</div>

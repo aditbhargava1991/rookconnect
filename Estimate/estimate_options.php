@@ -95,18 +95,18 @@ function saveField() {
 			<ul class="connectedChecklist page_order full-width">
 				<?php foreach(explode('#*#',$estimate['page_order'] != '' ? $estimate['page_order'] : 'table_of_contents#*#estimate_scope') as $page_id) {
 					if($page_id == 'table_of_contents') { ?>
-						<li data-value="table_of_contents">Table of Contents<img class="inline-img pull-right line_handle" src="../img/icons/drag_handle.png"></li>
+						<li data-value="table_of_contents">Table of Contents<img class="inline-img pull-right line_handle no-toggle" src="../img/icons/drag_handle.png" title="Drag"></li>
 					<?php } else if($page_id == 'estimate_scope') { ?>
-						<li data-value="estimate_scope"><?= rtrim(ESTIMATE_TILE, 's') ?> Scope<img class="inline-img pull-right line_handle" src="../img/icons/drag_handle.png"></li>
+						<li data-value="estimate_scope"><?= rtrim(ESTIMATE_TILE, 's') ?> Scope<img class="inline-img pull-right line_handle no-toggle" src="../img/icons/drag_handle.png" title="Drag"></li>
 					<?php } else { ?>
-						<li data-value="<?= $page_id ?>"><a href="edit_content_page.php?id=<?= explode('_',$page_id)[1] ?>" onclick="overlayIFrameSlider(this.href, 'auto', false, true, $('#estimates_main').height()+20); return false;">Content Page<img class="inline-img" src="../img/icons/ROOK-edit-icon.png"></a><img class="inline-img pull-right line_handle" src="../img/icons/drag_handle.png"></li>
+						<li data-value="<?= $page_id ?>"><a href="edit_content_page.php?id=<?= explode('_',$page_id)[1] ?>" onclick="overlayIFrameSlider(this.href, 'auto', false, true, $('#estimates_main').height()+20); return false;">Content Page<img class="inline-img no-toggle" src="../img/icons/ROOK-edit-icon.png" title="Edit"></a><img class="inline-img pull-right line_handle no-toggle" src="../img/icons/drag_handle.png" title="Drag"></li>
 					<?php }
 				} ?>
 			</ul>
 			<script>
 			function add_page() {
 				$.get('estimates_ajax.php?action=addContentPage', function(response) {
-					$('.page_order').append('<li data-value="page_'+response+'"><a href="edit_content_page.php?id='+response+'" onclick="overlayIFrameSlider(this.href, \'auto\', false, true); return false;">Content Page<img class="inline-img" src="../img/icons/ROOK-edit-icon.png"></a><img class="inline-img pull-right line_handle" src="../img/icons/drag_handle.png"></li>');
+					$('.page_order').append('<li data-value="page_'+response+'"><a href="edit_content_page.php?id='+response+'" onclick="overlayIFrameSlider(this.href, \'auto\', false, true); return false;">Content Page<img class="inline-img no-toggle" src="../img/icons/ROOK-edit-icon.png" title="Edit"></a><img class="inline-img pull-right line_handle no-toggle" src="../img/icons/drag_handle.png" title="Drag"></li>');
 					save_pages();
 				});
 			}

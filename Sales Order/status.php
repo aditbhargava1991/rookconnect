@@ -48,7 +48,7 @@ if ( $sales_order_temp->num_rows > 0 ) {
             <div class="col-xs-12 gap-top horizontal-block-container">
                 <div class="horizontal-block">
                     <div class="horizontal-block-header">
-                        <h4 class="col-md-6"><a href="index?p=preview&sotid=<?= $row['sotid'] ?>"><?= !empty($row['name']) ? $row['name'] : 'Sales Order Form #'.$row['sotid'] ?> <img class="inline-img" src="../img/icons/ROOK-edit-icon.png"></a></h4>
+                        <h4 class="col-md-6"><a href="index?p=preview&sotid=<?= $row['sotid'] ?>"><?= !empty($row['name']) ? $row['name'] : 'Sales Order Form #'.$row['sotid'] ?> <img class="inline-img no-toggle" src="../img/icons/ROOK-edit-icon.png" title="Edit"></a></h4>
                         <div class="col-md-6"></div>
                         <div class="clearfix"></div>
                     </div>
@@ -129,7 +129,7 @@ if ( $sales_orders->num_rows > 0 ) {
             <div class="col-xs-12 gap-top horizontal-block-container">
                 <div class="horizontal-block">
                     <div class="horizontal-block-header">
-                        <h4 class="col-md-6"><a href="index.php?p=preview&id=<?= $row['posid'] ?>"><?= !empty($row['name']) ? $row['name'] : 'Sales Order #'.$row['posid'] ?> <img class="inline-img" src="../img/icons/ROOK-edit-icon.png"></a></h4>
+                        <h4 class="col-md-6"><a href="index.php?p=preview&id=<?= $row['posid'] ?>"><?= !empty($row['name']) ? $row['name'] : 'Sales Order #'.$row['posid'] ?> <img class="inline-img no-toggle" src="../img/icons/ROOK-edit-icon.png" title="Edit"></a></h4>
                         <div class="col-md-6"></div>
                         <div class="clearfix"></div>
                     </div>

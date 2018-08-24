@@ -377,7 +377,7 @@ echo '<input type="hidden" name="ticket_view_access" value="'.$ticket_view_acces
 			<?php } ?>
             <?php if ( get_config($dbc, 'calendar_work_anniversaries')==1 ) { ?>
                     <div class="pull-right">
-                        <img src="../img/calendar.png" alt="Staff Work Anniversaries" title="Staff Work Anniversaries" style="cursor:pointer; height:36px; padding:5px 5px 0 5px;" onclick="overlayIFrameSlider('work_anniversaries.php', '50%', false, true, $('.iframe_overlay').closest('.container').outerHeight() + 20); return false;" />
+                        <img src="../img/calendar.png" alt="Staff Work Anniversaries" class="no-toggle" title="Staff Work Anniversaries" style="cursor:pointer; height:36px; padding:5px 5px 0 5px;" onclick="overlayIFrameSlider('work_anniversaries.php', '50%', false, true, $('.iframe_overlay').closest('.container').outerHeight() + 20); return false;" />
                     </div>
             <?php } ?>
 			<?php if($_GET['type'] != 'schedule' && count($contact_regions) > 0): ?>

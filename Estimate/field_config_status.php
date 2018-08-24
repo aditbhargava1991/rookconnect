@@ -90,7 +90,7 @@ function saveStatusForArchive(status_type, status) {
 		<div class="col-sm-3">
 			<label><input type="checkbox" <?= in_array($status, $summarized) ? 'checked' : '' ?> name="summarize[]" class="hide-titles-mob"></label>
 			<label class="form-checkbox show-on-mob"><input type="checkbox" <?= in_array($status, $summarized) ? 'checked' : '' ?> name="summarize[]"> Summarize on Dashboard</label>
-			<img src="../img/icons/drag_handle.png" style="height: 1.5em; margin: 0 0.25em;" class="pull-right drag-handle">
+			<img src="../img/icons/drag_handle.png" style="height: 1.5em; margin: 0 0.25em;" class="pull-right drag-handle no-toggle" title="Drag">
 			<img src="../img/icons/ROOK-add-icon.png" style="height: 1.5em; margin: 0 0.25em;" class="pull-right" onclick="addStatus();">
 			<img src="../img/remove.png" style="height: 1.5em; margin: 0 0.25em;" class="pull-right" onclick="removeStatus(this);">
 		</div>
