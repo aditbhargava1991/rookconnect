@@ -13,25 +13,16 @@ if(isset($_POST['submit'])) {
 	$contactid = $_SESSION['contactid'];
 	$tile = filter_var($_POST['tile'],FILTER_SANITIZE_STRING);
 	$staff = filter_var($_POST['staff'],FILTER_SANITIZE_STRING);
-	$date = filter_var($_POST['reminder_date'],FILTER_SANITIZE_STRING);
+    $date = date('Y/m/d');
 
     switch ($tile) {
-        case 'sales':
-            $salesid = $id;
-            $dbc->query("INSERT INTO `reminders` (`contactid`,`reminder_date`,`reminder_type`,`subject`,`body`,`src_table`,`src_tableid`) VALUES ('$staff','$date','Sales Lead Reminder','Sales Lead Reminder','".htmlentities("This is a reminder about a sales lead. Please log into the software to review the lead <a href=\"".WEBSITE_URL."/Sales/sale.php?p=details&id=$id\">here</a>.")."','sales','$id')");
-            break;
-
         case 'tasks':
             $taskid = $id;
-	        $sender = get_email($dbc, $_SESSION['contactid']);
 
-		    $subject = "A reminder about the $title task";
-		    $body = htmlentities("This is a reminder about the $title task.<br />\n<br />
-			<a href=\"".WEBSITE_URL."/Tasks_Updated/index.php?category=$id&tab=$tab\">Click here</a> to see the task board.");
 		    $result = mysqli_fetch_array(mysqli_query($dbc, "SELECT `list`.`task_board`, `list`.`heading`, `board`.`board_security` FROM `tasklist` AS `list` JOIN `task_board` AS `board` ON (`list`.`task_board`=`board`.`taskboardid`) WHERE `list`.`tasklistid`='$taskid'"));
             $tab = $result['board_security'];
-
-            $dbc->query("INSERT INTO `reminders` (`contactid`,`reminder_date`,`reminder_type`,`subject`,`body`,`src_table`,`src_tableid`, `sender`) VALUES ('$staff','$date','Task Reminder','Task Reminder','".htmlentities("This is a reminder about a Task. Please log into the software to review the Task <a href=\"".WEBSITE_URL."/Tasks_Updated/index.php?category=$id&tab=$tab\">here</a>.")."','tasklist','$id', '$sender')");
+	        $link = WEBSITE_URL."/Tasks_Updated/index.php?category=".$id."&tab=".$tab;
+	        $sql = mysqli_query($dbc, "INSERT INTO `alerts` (`alert_date`, `alert_link`, `alert_text`, `alert_user`) VALUES ('$date', '$link', 'Task Alert', '$staff')");
             break;
 
         default:
@@ -42,7 +33,7 @@ if(isset($_POST['submit'])) {
 <div class="container">
 	<div class="row">
         <form id="form1" name="form1" method="post"	action="" enctype="multipart/form-data" class="form-horizontal" role="form">
-        	<h3 class="inline">Add Reminder</h3>
+        	<h3 class="inline">Add Alert</h3>
             <div class="pull-right gap-top"><a href=""><img src="../img/icons/cancel.png" alt="Close" title="Close" class="inline-img" /></a></div>
             <div class="clearfix"></div>
             <hr />
@@ -58,12 +49,7 @@ if(isset($_POST['submit'])) {
                     </select>
                 </div>
         	</div>
-        	<div class="form-group">
-        		<label class="col-sm-4 control-label">Reminder Date:</label>
-        		<div class="col-sm-8">
-                    <input type="text" name="reminder_date" class="datepicker form-control">
-                </div>
-        	</div>
+
         	<div class="form-group pull-right">
         		<a href="" class="btn brand-btn">Back</a>
         		<button type="submit" name="submit" value="Submit" class="btn brand-btn">Submit</button>
