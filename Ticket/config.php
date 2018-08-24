@@ -69,4 +69,3 @@ if($strict_view > 0) {
 	$security['config'] = $tile_security['config'] = 0;
 }
 $db_config = explode(',',get_field_config($dbc, 'tickets_dashboard'));
-$ticketid = $_GET['edit'] > 0 ? $_GET['edit'] : 0;
