@@ -329,8 +329,8 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
 				$limit = ' LIMIT '.$offset.', '.$rowsPerPage;
 			}
 
-			$query_check_credentials = "SELECT invoiceid, invoice_type, patientid, invoice_date, final_price, payment_type, delivery_type, status, comment FROM invoice WHERE deleted = 0 AND `status` != 'Void' AND `invoiceid` IN (SELECT `invoiceid` FROM `invoice_patient` WHERE `paid`='On Account' OR `paid`='' OR `paid` IS NULL UNION SELECT `invoiceid` FROM `invoice_insurer` WHERE `paid`!='Yes') $search_clause ORDER BY invoiceid DESC $limit";
-			$query = "SELECT count(invoiceid) as numrows FROM invoice WHERE deleted = 0 AND `status` != 'Void' AND `invoiceid` IN (SELECT `invoiceid` FROM `invoice_patient` WHERE `paid`='On Account' OR `paid`='' OR `paid` IS NULL UNION SELECT `invoiceid` FROM `invoice_insurer` WHERE `paid`!='Yes') $search_clause";
+			$query_check_credentials = "SELECT invoiceid, invoice_type, patientid, invoice_date, final_price, payment_type, delivery_type, status, comment FROM invoice WHERE deleted = 0 AND `status` != 'Void' AND `invoiceid` IN (SELECT `invoiceid` FROM `invoice_patient` WHERE `paid` IN ('On Account','','Net 30 Days','Net 60 Days','Net 90 Days','Net 120 Days','No') OR `paid` IS NULL UNION SELECT `invoiceid` FROM `invoice_insurer` WHERE `paid`!='Yes') $search_clause ORDER BY invoiceid DESC $limit";
+			$query = "SELECT count(invoiceid) as numrows FROM invoice WHERE deleted = 0 AND `status` != 'Void' AND `invoiceid` IN (SELECT `invoiceid` FROM `invoice_patient` WHERE `paid` IN ('On Account','','Net 30 Days','Net 60 Days','Net 90 Days','Net 120 Days','No') OR `paid` IS NULL UNION SELECT `invoiceid` FROM `invoice_insurer` WHERE `paid`!='Yes') $search_clause";
 
             $result = mysqli_query($dbc, $query_check_credentials);
 
