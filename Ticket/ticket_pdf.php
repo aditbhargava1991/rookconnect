@@ -93,6 +93,12 @@ if(!empty($get_ticket) && $get_ticket['ticketid'] >0) {
 	$total_days = $get_ticket['total_days'];
 	$contactid = $get_ticket['contactid'];
 }
+$access_view_project_info = check_subtab_persmission($dbc, 'ticket', ROLE, 'view_project_info');
+$access_view_project_details = check_subtab_persmission($dbc, 'ticket', ROLE, 'view_project_details');
+$access_view_staff = check_subtab_persmission($dbc, 'ticket', ROLE, 'view_staff');
+$access_view_summary = check_subtab_persmission($dbc, 'ticket', ROLE, 'view_summary');
+$access_view_complete = check_subtab_persmission($dbc, 'ticket', ROLE, 'view_complete');
+$access_view_notifications = check_subtab_persmission($dbc, 'ticket', ROLE, 'view_notifications');
 $get_project = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `project` WHERE `projectid`='{$get_ticket['projectid']}'"));
 $ticket_types = [];
 $value_config = ','.get_field_config($dbc, 'tickets').',';
