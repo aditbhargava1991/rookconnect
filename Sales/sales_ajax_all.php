@@ -554,6 +554,7 @@ if($_GET['action'] == 'setting_lead_status') {
 	set_config($dbc, 'lead_status_lost', filter_var($_GET['lead_status_lost'],FILTER_SANITIZE_STRING));
 	set_config($dbc, 'lead_status_retained', filter_var($_GET['lead_status_retained'],FILTER_SANITIZE_STRING));
 	set_config($dbc, 'lead_convert_to', filter_var($_GET['lead_convert_to'],FILTER_SANITIZE_STRING));
+	set_config($dbc, 'sales_quick_reports', implode(',',$_POST['sales_quick_reports']));
 }
 if($_GET['action'] == 'setting_auto_archive') {
 	set_config($dbc, 'sales_auto_archive', filter_var($_GET['sales_auto_archive'],FILTER_SANITIZE_STRING));
@@ -660,5 +661,14 @@ if($_GET['action'] == 'upload_files') {
     $dbc->query("INSERT INTO `sales_document` (`salesid`,`document_type`,`document`,`created_date`,`created_by`) VALUES ('$salesid','$type','$filename',DATE(NOW()),'".$_SESSION['contactid']."')");
     $history = $type." named ".$filename." added.";
     add_update_history($dbc, 'sales_history', $history.'<br />', '', '', $salesid);
+}
+if($_GET['action'] == 'new_business') {
+    $dbc->query("INSERT INTO `contacts` (`category`,`name`) VALUES ('".BUSINESS_CAT."','".encryptIt('New '.BUSINESS_CAT)."')");
+    echo $dbc->insert_id;
+}
+if($_GET['action'] == 'new_lead') {
+    $businessid = filter_var($_POST['businessid'],FILTER_SANITIZE_STRING);
+    $dbc->query("INSERT INTO `contacts` (`category`,`first_name`,`businessid`) VALUES ('Sales Leads','".encryptIt('New Sales Lead')."','$businessid')");
+    echo $dbc->insert_id;
 }
 ?>

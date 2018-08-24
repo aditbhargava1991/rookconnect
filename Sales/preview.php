@@ -5,8 +5,8 @@ $get_config_won_status = get_config($dbc, 'lead_status_won');
 $get_config_lost_status = get_config($dbc, 'lead_status_lost');
 $get_config_retained = get_config($dbc, 'lead_status_retained');
 $lead_convert_to = get_config($dbc, 'lead_convert_to'); ?>
-<div class="main-screen standard-body gap-bottom overflow-y">
-    <div class="standard-body-title pad-left">
+<div class="main-screen-white standard-body gap-bottom">
+    <div class="standard-body-title pad-left" style="position:absolute;z-index:1;width:100%;">
         <h3><?= SALES_NOUN ?> #<?= $salesid ?>
             <div class="pull-right">
                 <?php if(!empty($get_config_won_status) && !empty($lead_convert_to)) { ?>

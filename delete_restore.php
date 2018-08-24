@@ -443,6 +443,9 @@ $date_of_archival = date('Y-m-d');
         if($_GET['action'] == 'delete') {
             header('Location: '.$url_return);
         }
+        if($_GET['action'] == 'restore' && !empty($_GET['from'])) {
+            header('Location: '.$_GET['from']);
+        }
     }
 
 	if(!empty($_GET['serviceratecardid'])) {
@@ -1023,7 +1026,7 @@ $date_of_archival = date('Y-m-d');
             header('Location: Purchase Order/complete.php?category='.$category.'&filter=Top');
         }
     }
-    
+
     if(!empty($_GET['checkoutid'])) {
 		$checkoutid = $_GET['checkoutid'];
         $archive_type = $_GET['archive_type'];
@@ -1033,7 +1036,7 @@ $date_of_archival = date('Y-m-d');
             header('Location: Archived/archived_data.php?archive_type='.$archive_type);
         }
     }
-    
+
 	if(!empty($_GET['archive_checklistid'])) {
         $checklistid = $_GET['archive_checklistid'];
         $archive_type = $_GET['category']; echo $archive_type;
@@ -1094,7 +1097,7 @@ $date_of_archival = date('Y-m-d');
 	if($_GET['action'] == 'delete_2') {
 		header('Location: Archived/archived_data.php?archive_type='.$category.'');
 	}
-	if($_GET['action'] == 'restore') {
+	if($_GET['action'] == 'restore' && empty($_GET['from'])) {
 		header('Location: Archived/archived_data.php?archive_type='.$category.'');
 	}
 

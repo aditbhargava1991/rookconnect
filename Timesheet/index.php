@@ -14,7 +14,8 @@ $config['tabs']['day_tracking'] = 'start_day.php';
 
 ob_clean();
 foreach($config['tabs'] as $tab_name => $tab) {
-	if($_GET['url'] == $tab || !in_array($_GET['url'], $config['tabs'])) {
+	var_dump($tab);
+	if(!empty($tab) && ($_GET['url'] == $tab || !in_array($_GET['url'], $config['tabs']))) {
 		header("Location: ".$tab);
 		exit();
 	}

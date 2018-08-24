@@ -172,7 +172,7 @@ $ticket_list = mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `deleted`=0 AND
 							}
 							foreach($book_contact_list as $contact_list_id) { ?>
 								<div class="block-item" style="border: 1px solid rgba(0,0,0,0.5); margin: 0;" data-type="appt" data-id="<?= $contact_list_id ?>">
-									<img class='drag-handle' src='<?= WEBSITE_URL ?>/img/icons/drag_handle.png' style='float: right; width: 2em;'>
+									<img class='drag-handle no-toggle' src='<?= WEBSITE_URL ?>/img/icons/drag_handle.png' style='float: right; width: 2em;' title='Drag'>
 									<?= get_contact($dbc, $contact_list_id) ?></div>
 							<?php } ?>
 						</div>

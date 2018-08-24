@@ -132,8 +132,8 @@ function changeFollowupDate(sel) {
         echo display_pagination($dbc, $query, $pageNum, $rowsPerPage);
         // Pagination Finish //
 
-        echo "<table class='table table-bordered'>";
-        echo "<tr class='hidden-xs hidden-sm'>";
+        echo "<table class='table table-bordered table-striped'>";
+        echo "<thead><tr class='hidden-xs hidden-sm'>";
         if (strpos($value_config, ','."Phone#".',') !== FALSE) {
             echo '<th>Phone#</th>';
         }
@@ -184,7 +184,7 @@ function changeFollowupDate(sel) {
             echo '<th>Follow Up Date</th>';
         }
             echo '<th>Status</th><th>Function</th>';
-            echo "</tr>";
+            echo "</tr></thead>";
         } else {
             echo "<h2>No Record Found.</h2>";
         }

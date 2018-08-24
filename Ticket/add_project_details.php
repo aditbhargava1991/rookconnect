@@ -110,7 +110,7 @@ var projectFilter = function() {
 					</select>
 				</div>
 				<div class="col-sm-1">
-					<a href="" onclick="viewProfile(this); return false;"><img class="inline-img pull-right" src="../img/person.PNG"></a>
+					<a href="" onclick="viewProfile(this); return false;"><img class="inline-img pull-right no-toggle" src="../img/person.PNG" title="View Profile"></a>
 					<a href="" onclick="$(this).closest('.form-group').find('select').val('ADD_NEW').change(); return false;"><img class="inline-img pull-right" src="../img/icons/ROOK-add-icon.png"></a>
 				</div>
 			</div>
@@ -130,7 +130,7 @@ var projectFilter = function() {
 					</select>
 				</div>
 				<div class="col-sm-1">
-					<a href="" onclick="viewProfile(this); return false;"><img class="inline-img pull-right" src="../img/person.PNG"></a>
+					<a href="" onclick="viewProfile(this); return false;"><img class="inline-img pull-right no-toggle" src="../img/person.PNG" title="View Profile"></a>
 					<a href="" onclick="$(this).closest('.form-group').find('select').val('ADD_NEW').change(); return false;"><img class="inline-img pull-right" src="../img/icons/ROOK-add-icon.png"></a>
 				</div>
 			</div>
@@ -451,19 +451,22 @@ var projectFilter = function() {
 						$show_names = true;
 					}
 					$contact_phone_list = $dbc->query("SELECT `contactid`,`first_name`,`last_name`,`name`,`office_phone`,`home_phone`,`cell_phone` FROM `contacts` WHERE `contactid` > 0 AND `contactid` IN ('{$get_ticket['businessid']}','{$get_ticket['clientid']}')");
+					$phone_numbers = '';
 					while($contact_phone = $contact_phone_list->fetch_assoc()) {
 						if($contact_phone['home_phone'] != '') {
-							echo ($show_names ? trim(decryptIt($contact['name']).($contact['name'] != '' && $contact['first_name'].$contact['last_name'] != '' ? ': ' : '').decryptIt($contact['first_name']).' '.decryptIt($contact['last_name']).': ') : '').'Home Phone: '.decryptIt($contact_phone['home_phone']).'<br />';
+							$phone_numbers .= ($show_names ? trim(decryptIt($contact['name']).($contact['name'] != '' && $contact['first_name'].$contact['last_name'] != '' ? ': ' : '').decryptIt($contact['first_name']).' '.decryptIt($contact['last_name']).': ') : '').'Home Phone: '.decryptIt($contact_phone['home_phone']).'<br />';
 						}
 						if($contact_phone['cell_phone'] != '') {
-							echo ($show_names ? trim(decryptIt($contact['name']).($contact['name'] != '' && $contact['first_name'].$contact['last_name'] != '' ? ': ' : '').decryptIt($contact['first_name']).' '.decryptIt($contact['last_name']).': ') : '').'Cell Phone: '.decryptIt($contact_phone['cell_phone']).'<br />';
+							$phone_numbers .= ($show_names ? trim(decryptIt($contact['name']).($contact['name'] != '' && $contact['first_name'].$contact['last_name'] != '' ? ': ' : '').decryptIt($contact['first_name']).' '.decryptIt($contact['last_name']).': ') : '').'Cell Phone: '.decryptIt($contact_phone['cell_phone']).'<br />';
 						}
 						if($contact_phone['office_phone'] != '') {
-							echo ($show_names ? trim(decryptIt($contact['name']).($contact['name'] != '' && $contact['first_name'].$contact['last_name'] != '' ? ': ' : '').decryptIt($contact['first_name']).' '.decryptIt($contact['last_name']).': ') : '').'Office Phone: '.decryptIt($contact_phone['office_phone']).'<br />';
+							$phone_numbers .= ($show_names ? trim(decryptIt($contact['name']).($contact['name'] != '' && $contact['first_name'].$contact['last_name'] != '' ? ': ' : '').decryptIt($contact['first_name']).' '.decryptIt($contact['last_name']).': ') : '').'Office Phone: '.decryptIt($contact_phone['office_phone']).'<br />';
 						}
-					} ?>
+					}
+					echo $phone_numbers; ?>
 				</div>
 			</div>
+			<?php $pdf_contents[] = ['Phone Numbers', $phone_numbers]; ?>
 		<?php } ?>
 
 		<?php if ( strpos($value_config, ',Detail Project,') !== false && $field_sort_field == 'Detail Project' && ($force_project == 'manual' || $force_project == '')  && $access_view_project_details > 0) { ?>
@@ -494,6 +497,26 @@ var projectFilter = function() {
 				</div>
 			</div>
 			<?php $pdf_contents[] = ['Date', $get_ticket['to_do_date']]; ?>
+		<?php } ?>
+
+		<?php if ( strpos($value_config, ',Detail Start Date Time,') !== false && $field_sort_field == 'Detail Start Date Time') { ?>
+			<div class="form-group clearfix">
+				<label for="first_name" class="col-sm-4 control-label text-right">Scheduled Start Date &amp; Time:</label>
+				<div class="col-sm-8">
+					<?= $get_ticket['to_do_date'].' '.$get_ticket['start_time'] ?>
+				</div>
+			</div>
+			<?php $pdf_contents[] = ['Scheduled Start Date & Time', $get_ticket['to_do_date'].' '.$get_ticket['start_time']]; ?>
+		<?php } ?>
+
+		<?php if ( strpos($value_config, ',Detail End Date Time,') !== false && $field_sort_field == 'Detail End Date Time') { ?>
+			<div class="form-group clearfix">
+				<label for="first_name" class="col-sm-4 control-label text-right">Scheduled End Date &amp; Time:</label>
+				<div class="col-sm-8">
+					<?= $get_ticket['to_do_end_date'].' '.$get_ticket['end_time'] ?>
+				</div>
+			</div>
+			<?php $pdf_contents[] = ['Scheduled End Date & Time', $get_ticket['to_do_end_date'].' '.$get_ticket['end_time']]; ?>
 		<?php } ?>
 
 		<?php if ( strpos($value_config, ',Detail Staff,') !== false && $field_sort_field == 'Detail Staff' && $access_view_project_details > 0) { ?>

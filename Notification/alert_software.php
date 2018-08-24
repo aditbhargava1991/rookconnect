@@ -21,9 +21,9 @@ if($noti_count > 0 && $num_rows_past == 0) {
 <?php
 $alert_icon_show = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `alert_icon` FROM `user_settings` WHERE `contactid` = '".$search_user."'"))['alert_icon'];
 if(empty($alert_icon_show)) { ?>
-    <a href="<?= $alert_url ?>" title="Planner" class="alert-button planner-icon"><img src="<?= $alert_img ?>" />
+    <a href="<?= $alert_url ?>" class="alert-button planner-icon"><img src="<?= $alert_img ?>" alt="Planner" class="no-toggle" title="Planner" data-placement="bottom" />
         <?php if($noti_count > 0) { ?>
-            <span class="planner-icon-notifications" title="Notifications"><?= $noti_count > 99 ? 99 : $noti_count ?></span>
+            <span class="planner-icon-notifications no-toggle" title="Notifications" data-placement="bottom"><?= $noti_count > 99 ? 99 : $noti_count ?></span>
         <?php } ?>
     </a>
 <?php } ?>

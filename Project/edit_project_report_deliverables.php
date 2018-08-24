@@ -69,7 +69,7 @@ function selectAll(action) {
 							$url = '';
 							if($line['table'] == 'tasklist') {
 								$label = 'Task #'.$line['id'].': '.$line['heading'];
-								$url = WEBSITE_URL.'/Tasks/add_task.php?tasklistid='.$task['tasklistid'].'&from_url='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']);
+								$url = WEBSITE_URL.'/Tasks_Updated/add_task.php?tasklistid='.$task['tasklistid'].'&from_url='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']);
 							} else {
 								$ticket = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticketid`='".$line['id']."'"));
 								$label = get_ticket_label($dbc, $ticket);

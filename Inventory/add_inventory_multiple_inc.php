@@ -273,13 +273,15 @@ if(isset($_GET['type'])) {
 
 		if($num_rows > 0) {
 			echo "<br>Currently displaying the last $num_rows rows (out of a total of $num_rowst rows).<br><br>";
-			echo "<table class='table table-bordered '>";
-				echo "<tr class='hidden-xs hidden-sm'>";
-					echo '<th>Type</th>';
-					echo '<th>Description</th>';
-					echo '<th>Date/Time</th>';
-					echo '<th>Author</th>';
-				echo "</tr>";
+			echo "<table class='table table-bordered table-striped'>";
+                echo "<thead>";
+                    echo "<tr class='hidden-xs hidden-sm'>";
+                        echo '<th>Type</th>';
+                        echo '<th>Description</th>';
+                        echo '<th>Date/Time</th>';
+                        echo '<th>Author</th>';
+                    echo "</tr>";
+                echo "</thead>";
 		} else {
 			echo "<h2 class ='list_dashboard'>No Record Found.</h2>";
 		}

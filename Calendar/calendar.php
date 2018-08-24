@@ -223,7 +223,7 @@ function draw_calendar($dbc, $month,$year){
                     if($new_today_date == date('Y-m-d',strtotime("-1 days")) || $new_today_date == date('Y-m-d',strtotime("-2 days"))) {
                         $date_color = 'block/orange.png';
                     }
-					$calendar .= '<img src="'.WEBSITE_URL.'/img/'.$date_color.'" width="10" height="10" border="0" alt="">&nbsp;<a href="'.WEBSITE_URL.'/Tasks/add_task.php?tasklistid='.$row_tasklist['tasklistid'].'&from='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']).'" id="task_'.$row_tasklist['tasklistid'].'">#'.$row_tasklist['tasklistid'].' : '.get_contact($dbc, $row_tasklist['businessid'], 'name').' ('.substr($row_tasklist['max_time'], 0, 5).')'.'</a><br>';
+					$calendar .= '<img src="'.WEBSITE_URL.'/img/'.$date_color.'" width="10" height="10" border="0" alt="">&nbsp;<a href="'.WEBSITE_URL.'/Tasks_Updated/add_task.php?tasklistid='.$row_tasklist['tasklistid'].'&from='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']).'" id="task_'.$row_tasklist['tasklistid'].'">#'.$row_tasklist['tasklistid'].' : '.get_contact($dbc, $row_tasklist['businessid'], 'name').' ('.substr($row_tasklist['max_time'], 0, 5).')'.'</a><br>';
                   //  $calendar .= '<img src="'.WEBSITE_URL.'/img/'.$date_color.'" width="10" height="10" border="0" alt="">&nbsp;<a href="#"  id="task_'.$row_tasklist['tasklistid'].'" onclick="wwindow.open(\''.WEBSITE_URL.'/Tasks/add_task.php?tasklistid='.$row_tasklist['tasklistid'].'\', \'newwindow\', \'width=1000, height=900\'); return false;">'.$row_tasklist['heading']. '</a><br>';
                 }
 

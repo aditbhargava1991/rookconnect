@@ -329,8 +329,8 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
 				$limit = ' LIMIT '.$offset.', '.$rowsPerPage;
 			}
 
-			$query_check_credentials = "SELECT invoiceid, invoice_type, patientid, invoice_date, final_price, payment_type, delivery_type, status, comment FROM invoice WHERE deleted = 0 AND `status` != 'Void' AND `invoiceid` IN (SELECT `invoiceid` FROM `invoice_patient` WHERE `paid`='On Account' OR `paid`='' OR `paid` IS NULL UNION SELECT `invoiceid` FROM `invoice_insurer` WHERE `paid`!='Yes') $search_clause ORDER BY invoiceid DESC $limit";
-			$query = "SELECT count(invoiceid) as numrows FROM invoice WHERE deleted = 0 AND `status` != 'Void' AND `invoiceid` IN (SELECT `invoiceid` FROM `invoice_patient` WHERE `paid`='On Account' OR `paid`='' OR `paid` IS NULL UNION SELECT `invoiceid` FROM `invoice_insurer` WHERE `paid`!='Yes') $search_clause";
+			$query_check_credentials = "SELECT invoiceid, invoice_type, patientid, invoice_date, final_price, payment_type, delivery_type, status, comment FROM invoice WHERE deleted = 0 AND `status` != 'Void' AND `invoiceid` IN (SELECT `invoiceid` FROM `invoice_patient` WHERE `paid` IN ('On Account','','Net 30 Days','Net 60 Days','Net 90 Days','Net 120 Days','No') OR `paid` IS NULL UNION SELECT `invoiceid` FROM `invoice_insurer` WHERE `paid`!='Yes') $search_clause ORDER BY invoiceid DESC $limit";
+			$query = "SELECT count(invoiceid) as numrows FROM invoice WHERE deleted = 0 AND `status` != 'Void' AND `invoiceid` IN (SELECT `invoiceid` FROM `invoice_patient` WHERE `paid` IN ('On Account','','Net 30 Days','Net 60 Days','Net 90 Days','Net 120 Days','No') OR `paid` IS NULL UNION SELECT `invoiceid` FROM `invoice_insurer` WHERE `paid`!='Yes') $search_clause";
 
             $result = mysqli_query($dbc, $query_check_credentials);
 
@@ -341,39 +341,41 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
                     echo display_pagination($dbc, $query, $pageNum, $rowsPerPage);
                 // Pagination Finish //
 
-                echo "<br /><div id='no-more-tables'><table class='table table-bordered'>";
-                echo "<tr class='hidden-xs hidden-sm'>";
-                    if (strpos($value_config, ','."invoiceid".',') !== FALSE) {
-                        echo '<th>Invoice #</th>';
-                    }
-                    if (strpos($value_config, ','."invoice_date".',') !== FALSE) {
-                        echo '<th>Invoice Date</th>';
-                    }
-                    if (strpos($value_config, ','."customer".',') !== FALSE) {
-                        echo '<th>'.$purchaser_label.'</th>';
-                    }
-                    if (strpos($value_config, ','."total_price".',') !== FALSE) {
-                        echo '<th>Total Price</th>';
-                    }
-                    if (strpos($value_config, ','."payment_type".',') !== FALSE) {
-                        echo '<th>Payment Type</th>';
-                    }
-                    if (strpos($value_config, ','."delivery".',') !== FALSE) {
-                        echo '<th>Delivery/Shipping Type</th>';
-                    }
-                    if (strpos($value_config, ','."invoice_pdf".',') !== FALSE) {
-                        echo '<th>Invoice PDF</th>';
-                    }
-                    if (strpos($value_config, ','."comment".',') !== FALSE) {
-                        echo '<th>Comment</th>';
-                    }
-                    if (strpos($value_config, ','."status".',') !== FALSE) {
-                        echo '<th>Status</th>';
-                    }
-					if (strpos($value_config, ','."send") !== FALSE) {
-                      ?><th>Email PDF<br><div class='selectall btn brand-btn' title='This will select all PDFs on the current page.'>Select All</div></th><?php
-                    }
-                echo "</tr>";
+                echo "<br /><div id='no-more-tables'><table class='table table-bordered table-striped'>";
+                    echo "<thead>";
+                        echo "<tr class='hidden-xs hidden-sm'>";
+                            if (strpos($value_config, ','."invoiceid".',') !== FALSE) {
+                                echo '<th>Invoice #</th>';
+                            }
+                            if (strpos($value_config, ','."invoice_date".',') !== FALSE) {
+                                echo '<th>Invoice Date</th>';
+                            }
+                            if (strpos($value_config, ','."customer".',') !== FALSE) {
+                                echo '<th>'.$purchaser_label.'</th>';
+                            }
+                            if (strpos($value_config, ','."total_price".',') !== FALSE) {
+                                echo '<th>Total Price</th>';
+                            }
+                            if (strpos($value_config, ','."payment_type".',') !== FALSE) {
+                                echo '<th>Payment Type</th>';
+                            }
+                            if (strpos($value_config, ','."delivery".',') !== FALSE) {
+                                echo '<th>Delivery/Shipping Type</th>';
+                            }
+                            if (strpos($value_config, ','."invoice_pdf".',') !== FALSE) {
+                                echo '<th>Invoice PDF</th>';
+                            }
+                            if (strpos($value_config, ','."comment".',') !== FALSE) {
+                                echo '<th>Comment</th>';
+                            }
+                            if (strpos($value_config, ','."status".',') !== FALSE) {
+                                echo '<th>Status</th>';
+                            }
+                            if (strpos($value_config, ','."send") !== FALSE) {
+                              ?><th>Email PDF<br><div class='selectall btn brand-btn' title='This will select all PDFs on the current page.'>Select All</div></th><?php
+                            }
+                        echo "</tr>";
+                    echo "</thead>";
 
                 $src_row = false;
                 $src_ids = [];

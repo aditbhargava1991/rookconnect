@@ -250,11 +250,13 @@ if($layout == '' || $layout == 'multi_line') {
 $total_time = 0; ?>
 <div id="no-more-tables">
 	<h2>Time Summary</h2>
-	<table class="table table-bordered">
-		<tr class="hidden-xs hidden-sm">
-			<th>Summary</th>
-			<th>Hours</th>
-		</tr>
+	<table class="table table-bordered table-striped">
+        <thead>
+            <tr class="hidden-xs hidden-sm">
+                <th>Summary</th>
+                <th>Hours</th>
+            </tr>
+        </thead>
 		<?php foreach($summary_times as $summary_label => $summary_time) {
 			$total_time += $summary_time; ?>
 			<tr>

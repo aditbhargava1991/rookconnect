@@ -813,7 +813,7 @@ function get_ticket_label($dbc, $ticket, $project_type = null, $project_name = n
         if(!empty($custom_label)) {
             $ticket_label = $custom_label;
         }
-		$label = str_replace(['[PROJECT_NOUN]','[PROJECTID]','[PROJECT_NAME]','[PROJECT_TYPE]','[PROJECT_TYPE_CODE]','[TICKET_NOUN]','[TICKETID]','[TICKETID-4]','[TICKET_HEADING]','[TICKET_DATE]','[YYYY]','[YY]','[YYYY-MM]','[YY-MM]','[TICKET_SCHEDULE_DATE]','[SCHEDULE_YYYY]','[SCHEDULE_YY]','[SCHEDULE_YYYY-MM]','[SCHEDULE_YY-MM]','[BUSINESS]','[CONTACT]', '[SITE_NAME]', '[TICKET_TYPE]', '[STOP_LOCATION]', '[STOP_CLIENT]', '[ORDER_NUM]'],[PROJECT_NOUN,$ticket['projectid'],$project_name,$project_type,$code,TICKET_NOUN,($ticket['main_ticketid'] > 0 ? $ticket['main_ticketid'].' '.$ticket['sub_ticket'] : $ticket['ticketid']),substr('000'.$ticket['ticketid'],-4),$ticket['heading'],$ticket['created_date'],date('Y',strtotime($ticket['created_date'])),date('y',strtotime($ticket['created_date'])),date('Y-m',strtotime($ticket['created_date'])),date('y-m',strtotime($ticket['created_date'])),$ticket['to_do_date'],date('Y',strtotime($ticket['to_do_date'])),date('y',strtotime($ticket['to_do_date'])),date('Y-m',strtotime($ticket['to_do_date'])),date('y-m',strtotime($ticket['to_do_date'])),get_client($dbc,$ticket['businessid']),get_contact($dbc,explode(',',trim($ticket['clientid'],','))[0]),get_contact($dbc, $ticket['siteid'],'site_name'),$ticket_type,$ticket['location_name'],$ticket['client_name'],$ticket['salesorderid']],($ticket['status'] == 'Archive' ? 'Archived ' : ($ticket['status'] == 'Done' ? 'Done ' : '')).$ticket_label);
+		$label = str_replace(['[PROJECT_NOUN]','[PROJECTID]','[PROJECT_NAME]','[PROJECT_TYPE]','[PROJECT_TYPE_CODE]','[TICKET_NOUN]','[TICKETID]','[TICKETID-4]','[TICKET_HEADING]','[TICKET_DATE]','[YYYY]','[YY]','[YYYY-MM]','[YY-MM]','[TICKET_SCHEDULE_DATE]','[SCHEDULE_YYYY]','[SCHEDULE_YY]','[SCHEDULE_YYYY-MM]','[SCHEDULE_YY-MM]','[BUSINESS]','[CONTACT]', '[SITE_NAME]', '[TICKET_TYPE]', '[STOP_LOCATION]', '[STOP_CLIENT]', '[ORDER_NUM]'],[PROJECT_NOUN,$ticket['projectid'],$project_name,$project_type,$code,TICKET_NOUN,($ticket['main_ticketid'] > 0 ? $ticket['main_ticketid'].' '.$ticket['sub_ticket'] : $ticket['ticketid']),substr('000'.$ticket['ticketid'],-4),$ticket['heading'],$ticket['created_date'],date('Y',strtotime($ticket['created_date'])),date('y',strtotime($ticket['created_date'])),date('Y-m',strtotime($ticket['created_date'])),date('y-m',strtotime($ticket['created_date'])),$ticket['to_do_date'],date('Y',strtotime($ticket['to_do_date'])),date('y',strtotime($ticket['to_do_date'])),date('Y-m',strtotime($ticket['to_do_date'])),date('y-m',strtotime($ticket['to_do_date'])),get_client($dbc,$ticket['businessid']),get_contact($dbc,explode(',',trim($ticket['clientid'],','))[0]),get_contact($dbc, explode(',',trim($ticket['siteid'],','))[0],'site_name'),$ticket_type,$ticket['location_name'],$ticket['client_name'],$ticket['salesorderid']],($ticket['status'] == 'Archive' ? 'Archived ' : ($ticket['status'] == 'Done' ? 'Done ' : '')).$ticket_label);
         if(empty($custom_label)) {
         	$dbc->query("UPDATE `tickets` SET `ticket_label`='".filter_var($label,FILTER_SANITIZE_STRING)."', `ticket_label_date`=CURRENT_TIMESTAMP WHERE `ticketid`='".$ticket['ticketid']."'");
         }
@@ -1621,6 +1621,9 @@ function get_tile_names($tile_list) {
 			case 'tasks':
 				$tiles[] = 'Tasks';
 				break;
+			case 'tasks_updated':
+				$tiles[] = 'Tasks (Updated)';
+				break;
 			case 'agenda_meeting':
 				$tiles[] = 'Agendas & Meetings';
 				break;
@@ -1946,7 +1949,10 @@ function get_subtabs($tile_name) {
             $subtabs = array('Dashboard', 'Add Multiple Products');
             break;
         case 'tasks':
-            $subtabs = array('Summary', 'Private Tasks', 'Shared Tasks', 'Project Tasks', 'Contact Tasks', 'Reporting');
+            $subtabs = array('Summary', 'Private Tasks', 'Shared Tasks', 'Project Tasks', 'Contact Tasks', 'Sales Tasks', 'Reporting');
+            break;
+        case 'tasks_updated':
+            $subtabs = array('Summary', 'Private Tasks', 'Shared Tasks', 'Project Tasks', 'Contact Tasks', 'Sales Tasks', 'Reporting');
             break;
         case 'agenda_meeting':
             $subtabs = array('Agendas', 'Meetings');
@@ -3194,25 +3200,29 @@ function create_recurring_tickets($dbc, $ticketid, $start_date, $end_date, $repe
         array_shift($recurring_dates);
     }
     foreach($recurring_dates as $recurring_date) {
-        //Insert into tickets with to_do_date/to_do_end_date as the recurring date
-        mysqli_query($dbc, "INSERT INTO `tickets` (`main_ticketid`, `to_do_date`, `to_do_end_date`, `is_recurrence`) VALUES ('$ticketid', '$recurring_date', '$recurring_date', 1)");
-        $new_ticketid = mysqli_insert_id($dbc);
+        $date_exists = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `main_ticketid` = '$ticketid' AND `to_do_date` = '$recurring_date'"));
+        if(empty($date_exists)) {
+            //Insert into tickets with to_do_date/to_do_end_date as the recurring date
+            mysqli_query($dbc, "INSERT INTO `tickets` (`main_ticketid`, `to_do_date`, `to_do_end_date`, `is_recurrence`) VALUES ('$ticketid', '$recurring_date', '$recurring_date', 1)");
+            $new_ticketid = mysqli_insert_id($dbc);
 
-        //Insert all ticket_attached records with the new ticketid
-        foreach($ticket_attacheds as $ticket_attached) {
-            mysqli_query($dbc, "INSERT INTO `ticket_attached` (`ticketid`, `main_id`, `is_recurrence`) VALUES ('$new_ticketid', '".$ticket_attached['id']."', 1)");
+            //Insert all ticket_attached records with the new ticketid
+            foreach($ticket_attacheds as $ticket_attached) {
+                mysqli_query($dbc, "INSERT INTO `ticket_attached` (`ticketid`, `main_id`, `is_recurrence`) VALUES ('$new_ticketid', '".$ticket_attached['id']."', 1)");
+            }
+
+            //Insert all ticket_schedule records with the new ticketid
+            foreach($ticket_schedules as $ticket_schedule) {
+                mysqli_query($dbc, "INSERT INTO `ticket_schedule` (`ticketid`, `main_id`, `is_recurrence`) VALUES ('$new_ticketid', '".$ticket_schedule['id']."', 1)");
+            }
+
+            //Insert all ticket_comment records with the new ticketid
+            foreach($ticket_comments as $ticket_comment) {
+                mysqli_query($dbc, "INSERT INTO `ticket_comment` (`ticketid`, `main_id`, `is_reccurence`) VALUES ('$new_ticketid', '".$ticket_comment['ticketcommid']."', 1)");
+            }
+        } else if(empty($date_exists['to_do_end_date'])) {
+            mysqli_query($dbc, "UPDATE `tickets` SET `to_do_end_date` = '".$date_exists['to_do_date']."' WHERE `ticketid` = '".$date_exists['ticketid']."'");
         }
-
-        //Insert all ticket_schedule records with the new ticketid
-        foreach($ticket_schedules as $ticket_schedule) {
-            mysqli_query($dbc, "INSERT INTO `ticket_schedule` (`ticketid`, `main_id`, `is_recurrence`) VALUES ('$new_ticketid', '".$ticket_schedule['id']."', 1)");
-        }
-
-        //Insert all ticket_comment records with the new ticketid
-        foreach($ticket_comments as $ticket_comment) {
-            mysqli_query($dbc, "INSERT INTO `ticket_comment` (`ticketid`, `main_id`, `is_reccurence`) VALUES ('$new_ticketid', '".$ticket_comment['ticketcommid']."', 1)");
-        }
-
         //Set last added date to the latest added date
         mysqli_query($dbc, "UPDATE `ticket_recurrences` SET `last_added_date` = '$recurring_date' WHERE `ticketid` = '$ticketid'");
     }
@@ -3275,6 +3285,7 @@ function sync_recurring_tickets($dbc, $ticketid) {
         $recurring_tickets = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `main_ticketid` = '".$ticket['main_ticketid']."' AND `is_recurrence` = 1 AND `deleted` = 0"),MYSQLI_ASSOC);
         foreach($recurring_tickets as $recurring_ticket) {
             mysqli_query($dbc, "UPDATE `tickets` SET $ticket_query WHERE `ticketid` = '".$recurring_ticket['ticketid']."'");
+            mysqli_query($dbc, "UPDATE `tickets` SET `ticket_label_date` = '' WHERE `ticketid` = '".$recurring_ticket['ticketid']."'");
 
             //Insert all ticket_attached records with the new ticketid
             foreach($ticket_attached_queries as $id => $ticket_attached_query) {

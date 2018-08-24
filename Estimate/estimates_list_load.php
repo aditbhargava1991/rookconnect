@@ -47,7 +47,7 @@ if(mysqli_num_rows($estimates_list) > 0) {
 		}
 		?>
 		<div class="dashboard-item override-dashboard-item">
-			<h4><a href="?view=<?= $estimate['estimateid'] ?>"><?= ($estimate['estimate_name'] != '' ? $estimate['estimate_name'] : '[UNTITLED '.$estimate['estimatetype'].']') ?><img class="inline-img" src="../img/icons/ROOK-edit-icon.png"></a></h4>
+			<h4><a href="?view=<?= $estimate['estimateid'] ?>"><?= ($estimate['estimate_name'] != '' ? $estimate['estimate_name'] : '[UNTITLED '.$estimate['estimatetype'].']') ?><img class="inline-img no-toggle" src="../img/icons/ROOK-edit-icon.png" title="Edit"></a></h4>
 			<div class="col-sm-4">
 				<div class="form-group">
 					<label class="col-sm-4">Customer:</label>

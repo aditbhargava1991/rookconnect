@@ -104,13 +104,13 @@ define('PURCHASER', count($purchaser_config) > 1 ? 'Customer' : $purchaser_confi
                 $invoice_no = $_POST['invoice_no'];
             }
             if (isset($_POST['search_email_all'])) {
-                $starttime = date('Y-m-d');
+                $starttime = '';
                 $endtime = date('Y-m-d');
                 $patient = '';
                 $invoice_no = '';
             }
             if($starttime == 0000-00-00) {
-                $starttime = date('Y-m-d');
+                $starttime = (in_array($rookconnect,['sea','led']) ? '' : date('Y-m-d'));
             }
 
             if($endtime == 0000-00-00) {
@@ -181,25 +181,28 @@ define('PURCHASER', count($purchaser_config) > 1 ? 'Customer' : $purchaser_confi
 
 <?php
 function report_receivables($dbc, $starttime, $endtime, $table_style, $table_row_style, $grand_total_style, $patient, $invoice_no) {
+    if($starttime == 0000-00-00) {
+        $starttime = '0000-00-00';
+    }
     if($patient != '') {
-        $report_service = mysqli_query($dbc,"SELECT ii.*, i.service_date FROM invoice_patient ii, invoice i WHERE (DATE(ii.invoice_date) >= '".$starttime."' AND DATE(ii.invoice_date) <= '".$endtime."') AND ii.paid IN ('On Account','No') AND ii.invoiceid = i.invoiceid AND i.patientid = '$patient' ORDER BY ii.invoiceid");
+        $report_service = mysqli_query($dbc,"SELECT ii.*, i.service_date FROM invoice_patient ii, invoice i WHERE (DATE(ii.invoice_date) >= '".$starttime."' AND DATE(ii.invoice_date) <= '".$endtime."') AND ii.`paid` IN ('On Account','','Net 30 Days','Net 60 Days','Net 90 Days','Net 120 Days','No') AND ii.invoiceid = i.invoiceid AND i.patientid = '$patient' AND `i`.`status` NOT IN ('Void') ORDER BY ii.invoiceid DESC");
     } else if($invoice_no != '') {
-        $report_service = mysqli_query($dbc,"SELECT ii.*, i.service_date FROM invoice_patient ii, invoice i WHERE (DATE(ii.invoice_date) >= '".$starttime."' AND DATE(ii.invoice_date) <= '".$endtime."') AND ii.paid IN ('On Account','No') AND ii.invoiceid = i.invoiceid AND i.invoiceid='$invoice_no' ORDER BY ii.invoiceid");
+        $report_service = mysqli_query($dbc,"SELECT ii.*, i.service_date FROM invoice_patient ii, invoice i WHERE (DATE(ii.invoice_date) >= '".$starttime."' AND DATE(ii.invoice_date) <= '".$endtime."') AND ii.`paid` IN ('On Account','','Net 30 Days','Net 60 Days','Net 90 Days','Net 120 Days','No') AND ii.invoiceid = i.invoiceid AND i.invoiceid='$invoice_no' AND `i`.`status` NOT IN ('Void') ORDER BY ii.invoiceid DESC");
     } else {
-        $report_service = mysqli_query($dbc,"SELECT ii.*, i.service_date FROM invoice_patient ii, invoice i WHERE (DATE(ii.invoice_date) >= '".$starttime."' AND DATE(ii.invoice_date) <= '".$endtime."') AND ii.invoiceid = i.invoiceid AND ii.paid IN ('On Account','No') ORDER BY ii.invoiceid");
+        $report_service = mysqli_query($dbc,"SELECT ii.*, i.service_date FROM invoice_patient ii, invoice i WHERE (DATE(ii.invoice_date) >= '".$starttime."' AND DATE(ii.invoice_date) <= '".$endtime."') AND ii.invoiceid = i.invoiceid AND ii.`paid` IN ('On Account','','Net 30 Days','Net 60 Days','Net 90 Days','Net 120 Days','No') AND `i`.`status` NOT IN ('Void') ORDER BY ii.invoiceid DESC");
     }
 
     $report_data .= '<a href="" onclick="pay_receivables(\'all\'); return false;" class="btn brand-btn pull-right">Pay All</a>
         <span class="popover-examples list-inline pull-right" style="margin:0 0 0 0;"><a data-toggle="tooltip" data-placement="top" title="Click here to enter the payment details for all listed invoices."><img src="'. WEBSITE_URL .'/img/info.png" width="20"></a></span>';
-    $report_data .= '<table border="1px" class="table table-bordered" style="'.$table_style.'">';
-    $report_data .= '<tr style="'.$table_row_style.'">
+    $report_data .= '<table border="1px" class="table table-bordered table-striped" style="'.$table_style.'">';
+    $report_data .= '<thead><tr style="'.$table_row_style.'">
     <th>Invoice#</th>
     <th>Service Date</th>
     <th>Invoice Date</th>
     <th>'.PURCHASER.'</th>
     <th>Amount Receivable</th>
     <th>Pay</th>
-    </tr>';
+    </tr></thead>';
 
     $amt_to_bill = 0;
     while($row_report = mysqli_fetch_array($report_service)) {
@@ -208,10 +211,10 @@ function report_receivables($dbc, $starttime, $endtime, $table_style, $table_row
         $payment_type = ltrim($row_report['payment_type'],'#*#');
 
         $report_data .= '<tr nobr="true">';
-        $report_data .= '<td>#'.$invoiceid.'</td>';
+        $report_data .= '<td>'.(file_exists('download/invoice_'.$invoiceid.'.pdf') ? '<a href="download/invoice_'.$invoiceid.'.pdf" target="_blank">#'.$invoiceid.'</a>' : '#'.$invoiceid).'</td>';
         $report_data .= '<td>'.$row_report['invoice_date'].'</td>';
         $report_data .= '<td>'.$row_report['service_date'].'</td>';
-        $report_data .= '<td>'.get_contact($dbc, $row_report['patientid']).'</td>';
+        $report_data .= '<td><a href="../Contacts/contacts_inbox.php?edit='.$row_report['patientid'].'" onclick="overlayIFrameSlider(this.href, \'auto\', false, true); return false;">'.get_contact($dbc, $row_report['patientid']).' <img class="inline-img" src="../img/person.PNG"></a></td>';
         $report_data .= '<td>'.$row_report['patient_price'].'</td>';
         $report_data .= '<td><label class="form-checkbox any-width"><input type="checkbox" class="invoice" name="invoicepatientid" value="'.$row_report['invoicepatientid'].'"> Select</label><a onclick="pay_receivables('.$row_report['invoicepatientid'].'); return false;" class="btn brand-btn" href="">Pay Now</a></td>';
         $report_data .= '<input type="hidden" name="invoiceallid" value="'.$row_report['invoicepatientid'].'">';

@@ -11,13 +11,13 @@ if (isset($_POST['add_sales'])) {
 }
 
 $salesid   = preg_replace('/[^0-9]/', '', $_GET['id']);
-$lead = $dbc->query("SELECT `businessid`, `contactid`, `lead_created_by`,`created_date` FROM `sales` WHERE `salesid`='$salesid'")->fetch_assoc(); ?>
+$lead = $dbc->query("SELECT `businessid`, `contactid`, `lead_created_by`, `created_date`, `status`, `status_date`, `next_action`, `new_reminder`, `lead_value`, `estimated_close_date` FROM `sales` WHERE `salesid`='$salesid'")->fetch_assoc(); ?>
 
 <script src="edit.js"></script>
 <script type="text/javascript">
 $(document).ready(function() {
     $(window).resize(function() {
-        var available_height = window.innerHeight - $('footer:visible').outerHeight() - $('#sales_div .tile-container').offset().top - 1;
+        var available_height = window.innerHeight - $('footer:visible').outerHeight() - $('#sales_div .tile-sidebar').offset().top - 1;
         if(available_height > 200) {
             $('#sales_div .tile-sidebar').height(available_height);
             $('#sales_div .main-screen-white').height(available_height);
@@ -73,9 +73,9 @@ $(document).ready(function() {
     
     <?php foreach(explode(',',$lead['contactid']) as $contactid) {
         if($contactid > 0) { ?>
-            $('#nav_leadinfo').click(function() {<?php
+            $('#nav_contact_<?= $contactid ?>').click(function() {<?php
                 if ( isset($_GET['p']) && $_GET['p']!='details' ) {
-                    echo 'window.location.replace("?p=details&id='.$_GET['id'].'&a=leadinfo");';
+                    echo 'window.location.replace("?p=details&id='.$_GET['id'].'&a=contact_'.$contactid.'");';
                 } ?>
                 $('[id^=nav_]').removeClass('active');
                 $(this).addClass('active');
@@ -253,6 +253,51 @@ $(document).ready(function() {
             </div> .tile-bar -->
 
             <div class="tile-container">
+                <!-- Quick Reports -->
+                <div class="col-xs-12 collapsible-horizontal collapsed" id="summary-div">
+                    <div class="col-xs-12 col-sm-4 col-md-3 gap-top">
+                        <div class="summary-block">
+                            <div class="text-lg"><?= date('Y-m-d',strtotime($lead['created_date'])) ?></div>
+                            <div>Lead Created</div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-4 col-md-3 gap-top">
+                        <div class="summary-block">
+                            <div class="text-lg"><?= $lead['status'] ?></div>
+                            <div>Since <?= $lead['status_date'] ?></div>
+                        </div>
+                    </div>
+                    <?php if(empty($lead['next_action']) || empty($lead['new_reminder'])) { ?>
+                        <div class="col-xs-12 col-sm-4 col-md-3 gap-top">
+                            <div class="summary-block text-red">
+                                <div class="text-lg">No Action</div>
+                                <div>Scheduled</div>
+                            </div>
+                        </div>
+                    <?php } else { ?>
+                        <div class="col-xs-12 col-sm-4 col-md-3 gap-top">
+                            <div class="summary-block">
+                                <div class="text-lg"><?= $lead['next_action'] ?></div>
+                                <div>Scheduled for <?= $lead['new_reminder'] ?></div>
+                            </div>
+                        </div>
+                    <?php } ?>
+                    <div class="col-xs-12 col-sm-4 col-md-3 gap-top">
+                        <div class="summary-block">
+                            <div class="text-lg">$<?= number_format($lead['lead_value'],2) ?></div>
+                            <div>Lead Value</div>
+                        </div>
+                    </div>
+                    <?php if(empty($lead['estimated_close_date'])) { ?>
+                        <div class="col-xs-12 col-sm-4 col-md-3 gap-top">
+                            <div class="summary-block">
+                                <div class="text-lg"><?= $lead['estimated_close_date'] ?></div>
+                                <div>Estimated Close Date</div>
+                            </div>
+                        </div>
+                    <?php } ?>
+                </div>
+                
                 <!-- Sidebar -->
                 <div class="standard-collapsible tile-sidebar tile-sidebar-noleftpad hide-on-mobile" <?= $_GET['iframe_slider'] == 1 ? 'style="display:none;"' : '' ?>>
                     <ul><?php
@@ -271,10 +316,8 @@ $(document).ready(function() {
                                 if($contactid > 0) { ?>
                                     <a href="#contact_<?= $contactid ?>"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_contact_<?= $contactid ?>" id="nav_contact_<?= $contactid ?>"><?= get_contact($dbc, $contactid) ?></li></a>
                                 <?php }
-                            }
-                            if($lead['businessid'] > 0) { ?>
-                                <a href="#business"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_business" id="nav_business"><?= get_contact($dbc, $lead['businessid'], 'name_company') ?></li></a>
-                            <?php }
+                            } ?>
+                            <a href="#business"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_business" id="nav_business"><?= get_contact($dbc, $lead['businessid'], 'name_company') ?></li></a><?php
                         }
                         if (strpos($value_config, ',Service,') !== false) { ?>
                             <a href="#services"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_services" id="nav_services">Services</li></a><?php

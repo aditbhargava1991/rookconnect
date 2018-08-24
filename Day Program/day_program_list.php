@@ -59,14 +59,14 @@
 		$get_field_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT medication_dashboard FROM field_config"));
 		$value_config = ','.$get_field_config['medication_dashboard'].',';
 
-		echo "<table class='table table-bordered'>";
-		echo "<tr class='hidden-xs hidden-sm'>";
+		echo "<table class='table table-bordered table-striped'>";
+		echo "<thead><tr class='hidden-xs hidden-sm'>";
 			echo '<th>Client</th>';
 			echo '<th>Date</th>';
 			echo '<th>Planned Activity</th>';
 			echo '<th>Completed Activity</th>';
 			echo '<th>Function</th>';
-			echo "</tr>";
+			echo "</tr></thead>";
 	} else {
 		echo "<h2>No Record Found.</h2>";
 	}

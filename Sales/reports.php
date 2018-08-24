@@ -7,6 +7,12 @@ include ('../include.php');
 ?>
 <script type="text/javascript">
 	$(document).ready(function(){
+        $(window).resize(function() {
+            var available_height = window.innerHeight - $('footer:visible').outerHeight() - $('.tile-sidebar').offset().top;
+            if(available_height > 200) {
+                $('#sales_div .tile-sidebar, #sales_div .tile-content').height(available_height);
+            }
+        }).resize();
     });
 </script>
 </head>
@@ -50,6 +56,7 @@ include ('../include.php');
                 <!-- Sidebar -->
                 <div class="standard-collapsible tile-sidebar hide-titles-mob overflow-y">
                     <ul>
+                        <a href="index.php"><li>Back to Dashboard</li></a>
                         <a href="?p=summary"><li class="<?= ( $page=='summary' || empty($page) ) ? 'active' : '' ?>">Monthly Summary Report</li></a>
                         <a href="?p=leadsource"><li class="<?= ( $page=='leadsource' || empty($page) ) ? 'active' : '' ?>">Lead Source Report</li></a>
                         <a href="?p=nextaction"><li class="<?= ( $page=='nextaction' || empty($page) ) ? 'active' : '' ?>">Next Action Report</li></a>

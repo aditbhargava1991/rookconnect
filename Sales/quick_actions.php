@@ -1,52 +1,4 @@
-<!-- Dialog -->
-<div id="dialog_choose_project" title="Select <?= PROJECT_NOUN ?> to Assign" class="dialog" style="display:none;">
-    <?php $project_fields = ','.mysqli_fetch_array(mysqli_query($dbc,"SELECT `config_fields` FROM field_config_project WHERE type='ALL'"))[0].',';
-    $project_configs = mysqli_query($dbc,"SELECT `config_fields` FROM field_config_project");
-    while($project_config = mysqli_fetch_array($project_configs)[0]) {
-        $project_fields .= $project_config.',';
-    }
-    $project_fields = explode(',',$project_fields);
-    if(in_array('Information Business', $project_fields)) { ?>
-        <div class="form-group">
-            <label class="col-sm-4 control-label">Filter <?= PROJECT_TILE ?> by <?= BUSINESS_CAT ?>:</label>
-            <div class="col-sm-8">
-                <select name="businessid" data-placeholder="Select <?= BUSINESS_CAT ?>" class="chosen-select-deselect form-control"><option />
-                    <?php foreach(sort_contacts_query($dbc->query("SELECT `contacts`.`contactid`, `contacts`.`name`, `contacts`.`first_name`, `contacts`.`last_name` FROM `contacts` LEFT JOIN `project` ON `contacts`.`contactid`=`project`.`businessid` WHERE `contacts`.`deleted`=0 AND `contacts`.`status`=1 AND `project`.`deleted`=0 GROUP BY `contacts`.`contactid`")) as $bus_row) { ?>
-                        <option value="<?= $bus_row['contactid'] ?>"><?= $bus_row['full_name'] ?></option>
-                    <?php } ?>
-                </select>
-            </div>
-        </div>
-        <div class="clearfix"></div>
-    <?php }
-    if(in_array('Information Contact', $project_fields)) { ?>
-        <div class="form-group">
-            <label class="col-sm-4 control-label">Filter <?= PROJECT_TILE ?> by <?= CONTACTS_NOUN ?>:</label>
-            <div class="col-sm-8">
-                <select name="clientid" data-placeholder="Select <?= CONTACTS_NOUN ?>" class="chosen-select-deselect form-control"><option />
-                    <?php foreach(sort_contacts_query($dbc->query("SELECT `contacts`.`contactid`, `contacts`.`businessid`, `contacts`.`name`, `contacts`.`first_name`, `contacts`.`last_name` FROM `contacts` LEFT JOIN `project` ON CONCAT(',',`project`.`clientid`,',') LIKE CONCAT('%,',`contacts`.`contactid`,',%') WHERE `contacts`.`deleted`=0 AND `contacts`.`status`=1 AND `project`.`deleted`=0 GROUP BY `contacts`.`contactid`")) as $cont_row) { ?>
-                        <option data-business="<?= $cont_row['businessid'] ?>" value="<?= $cont_row['contactid'] ?>"><?= $cont_row['full_name'] ?></option>
-                    <?php } ?>
-                </select>
-            </div>
-        </div>
-        <div class="clearfix"></div>
-    <?php } ?>
-    <div class="form-group">
-        <label class="col-sm-4 control-label"><?= PROJECT_TILE ?>:</label>
-        <div class="col-sm-8">
-            <select name="projectid" data-placeholder="Select <?= PROJECT_NOUN ?>" class="chosen-select-deselect form-control">
-                <option></option><?php
-                $get_projects = mysqli_query($dbc, "SELECT `projectid`, `businessid`, `clientid`, `project_name` FROM `project` WHERE project_name<>'' AND deleted=0 ORDER BY project_name");
-                if ($get_projects->num_rows>0) {
-                    while ($row_project=mysqli_fetch_assoc($get_projects)) { ?>
-                        <option data-business="<?= $row_project['businessid'] ?>" data-client=",<?= $row_project['clientid'] ?>," value="<?=$row_project['projectid']?>"><?=$row_project['project_name']?></option><?php
-                    }
-                } ?>
-            </select>
-        </div>
-    </div>
-</div>
+<?php include_once('project_dialog.php'); ?>
 <!-- Quick Action Scripts -->
 <script>
 $(document).ready(function() {
@@ -339,38 +291,38 @@ $(document).on('change', '.dialog select[name=clientid]', function() { contactFi
 <input type="text" name="time_track" class="datetimepicker form-control" style="display:none;">
 <div class="gap-bottom action-icons">
     <?php if($project_security['edit'] > 0) { ?>
-        <img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-add-icon.png" class="cursor-hand inline-img" title="Assign To A <?= PROJECT_NOUN ?>" id="<?=$row['salesid']?>" onclick="openProjectDialog(this); return false;" /><?php
+        <img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-add-icon.png" class="cursor-hand inline-img no-toggle" title="Assign To A <?= PROJECT_NOUN ?>" id="<?=$row['salesid']?>" onclick="openProjectDialog(this); return false;" /><?php
     } ?>
     <?php if($estimates_active > 0) { ?>
-        <a href="<?= WEBSITE_URL; ?>/Sales/sale.php?p=details&id=<?= $row['salesid'] ?>&a=estimate#estimate"><img src="<?= WEBSITE_URL; ?>/img/icons/create_project.png" class="inline-img black-color" title="Add Estimate" /></a>
+        <a href="<?= WEBSITE_URL; ?>/Sales/sale.php?p=details&id=<?= $row['salesid'] ?>&a=estimate#estimate"><img src="<?= WEBSITE_URL; ?>/img/icons/create_project.png" class="inline-img no-toggle" title="Add Estimate" /></a>
     <?php } ?>
     <?php if(in_array('reply',$quick_actions)) { ?>
-        <a href="Add Note" onclick="saveNote(this); return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-reply-icon.png" class="inline-img black-color" title="Add Note" /></a>
+        <a href="Add Note" onclick="saveNote(this); return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-reply-icon.png" class="inline-img no-toggle" title="Add Note" /></a>
     <?php } ?>
     <?php if(!in_array('flag_manual',$quick_actions) && in_array('flag',$quick_actions)) { ?>
-        <a href="Flag This!" onclick="flagLead(this); return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-flag-icon.png" class="inline-img black-color" title="Flag This!" /></a>
+        <a href="Flag This!" onclick="flagLead(this); return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-flag-icon.png" class="inline-img no-toggle" title="Flag This!" /></a>
     <?php } ?>
     <?php if(in_array('flag_manual',$quick_actions)) { ?>
-        <a href="Flag This!" onclick="flagLeadManual(this); return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-flag-icon.png" class="inline-img black-color" title="Flag This!" /></a>
+        <a href="Flag This!" onclick="flagLeadManual(this); return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-flag-icon.png" class="inline-img no-toggle" title="Flag This!" /></a>
     <?php } ?>
     <?php if(in_array('attach',$quick_actions)) { ?>
-        <a href="Attach File" onclick="addDocument(this); return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-attachment-icon.png" class="inline-img black-color" title="Attach File" /></a>
+        <a href="Attach File" onclick="addDocument(this); return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-attachment-icon.png" class="inline-img no-toggle" title="Attach File" /></a>
     <?php } ?>
     <?php if(in_array('email',$quick_actions)) { ?>
-        <a href="Send Email" onclick="sendEmail(this); return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-email-icon.png" class="inline-img black-color" title="Send Email" /></a>
+        <a href="Send Email" onclick="sendEmail(this); return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-email-icon.png" class="inline-img no-toggle" title="Send Email" /></a>
     <?php } ?>
     <?php if(in_array('reminder',$quick_actions)) { ?>
-        <a href="Schedule Reminder" onclick="setReminder(this); return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-reminder-icon.png" class="inline-img black-color" title="Schedule Reminder" /></a>
+        <a href="Schedule Reminder" onclick="setReminder(this); return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-reminder-icon.png" class="inline-img no-toggle" title="Schedule Reminder" /></a>
     <?php } ?>
     <?php if(in_array('time',$quick_actions)) { ?>
-        <a href="Add Time" onclick="addTime(this); return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-timer-icon.png" class="inline-img black-color" title="Add Time" /></a>
+        <a href="Add Time" onclick="addTime(this); return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-timer-icon.png" class="inline-img no-toggle" title="Add Time" /></a>
     <?php } ?>
     <?php if(in_array('timer',$quick_actions)) { ?>
-        <a href="Track Time" onclick="trackTime(this); return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-timer2-icon.png" class="inline-img black-color" title="Track Time" /></a>
+        <a href="Track Time" onclick="trackTime(this); return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-timer2-icon.png" class="inline-img no-toggle" title="Track Time" /></a>
     <?php } ?>
-    <a href="View History" onclick="viewHistory(this); return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/eyeball.png" class="inline-img black-color" title="View History" /></a>
+    <a href="View History" onclick="viewHistory(this); return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/eyeball.png" class="inline-img no-toggle" title="View History" /></a>
     <?php if(in_array('archive',$quick_actions)) { ?>
-        <a href="#" id="sales_<?= $row['salesid']; ?>" data-salesid="<?= $row['salesid']; ?>" onclick="archive_sales_lead(this); $(this).closest('.info-block-detail,.standard-body-title').hide(); return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-trash-icon.png" class="inline-img" title="Archive the Sales Lead" /></a>
+        <a href="#" id="sales_<?= $row['salesid']; ?>" data-salesid="<?= $row['salesid']; ?>" onclick="archive_sales_lead(this); $(this).closest('.info-block-detail,.standard-body-title').hide(); return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-trash-icon.png" class="inline-img no-toggle" title="Archive" /></a>
     <?php } ?>
 </div>
 <div class="clearfix"></div>

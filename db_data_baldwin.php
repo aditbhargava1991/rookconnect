@@ -482,12 +482,12 @@
         `allowed_ticket_types` text NOT NULL)")) {
         echo "Error: ".mysqli_error($dbc)."<br />\n";
     }
-    if(!mysqli_query($dbc, "ALTER TABLE `holiday_update_reminders`
-        ADD PRIMARY KEY (`reminderid`)")) {
+    if(!mysqli_query($dbc, "ALTER TABLE `field_config_calendar_security`
+        ADD PRIMARY KEY (`fieldconfigid`)")) {
         echo "Error: ".mysqli_error($dbc)."<br />\n";
     }
-    if(!mysqli_query($dbc, "ALTER TABLE `holiday_update_reminders`
-        MODIFY `reminderid` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1")) {
+    if(!mysqli_query($dbc, "ALTER TABLE `field_config_calendar_security`
+        MODIFY `fieldconfigid` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1")) {
         echo "Error: ".mysqli_error($dbc)."<br />\n";
     }
     //2018-08-20 - Ticket #8609 - Calendar Security
@@ -524,6 +524,21 @@
         echo "Error: ".mysqli_error($dbc)."<br />\n";
     }
     //2018-08-14 - Ticket #8490 - Time Sheets
+
+    //2018-08-21 - Ticket #8853 - Ticket Calendar Security
+    if(!mysqli_query($dbc, "ALTER TABLE `field_config_calendar_security` ADD `calendar_type` varchar(500) NOT NULL AFTER `fieldconfigid`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-08-21 - Ticket #8853 - Ticket Calendar Security
+
+    //2018-08-23 - Ticket #8585 - Stat Pay
+    if(!mysqli_query($dbc, "ALTER TABLE `contacts` ADD `stat_pay` varchar(500) NOT NULL")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `time_cards` ADD `holidayid` int(11) NOT NULL AFTER `shiftid`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-08-23 - Ticket #8585 - Stat Pay
 
     echo "Baldwin's DB Changes Done<br />\n";
 ?>

@@ -21,7 +21,7 @@ foreach($staff_list as $staff) {
 		if(empty($noti_config)) {
 			$noti_config = $default_config;
 		}
-		if($noti_config['enabled'] == 1 && (($noti_config['frequency'] == 'daily' && $noti_config['alert_hour'] == $current_hour) || ($noti_config['frequency'] == 'weekly' && $noti_config['alert_hour'] == $current_hour && strpos(','.$noti_config['alert_day'].',', ','.$current_day.',') !== FALSE) || $noti_config['frequency'] == 'hourly')) {
+		if($noti_config['enabled'] == 1 && (($noti_config['frequency'] == 'daily' && $noti_config['alert_hour'] == $current_hour) || ($noti_config['frequency'] == 'weekly' && $noti_config['alert_hour'] == $current_hour && strpos(','.$noti_config['alert_days'].',', ','.$current_day.',') !== FALSE) || $noti_config['frequency'] == 'hourly')) {
 			$search_user = $staff_id;
 			include(substr(dirname(__FILE__), 0, -8).'/Notification/get_notifications.php');
 			$enabled_alerts = [];

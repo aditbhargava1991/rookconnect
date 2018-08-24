@@ -1,5 +1,5 @@
 <?php if (strpos($_SERVER['REQUEST_URI'],'forgot_pwd.php') === false) {
-	include_once('include.php'); 
+	include_once('include.php');
 }
 $_SERVER['page_load_info'] .= 'Nav Bar Start: '.number_format(microtime(true) - $_SERVER['REQUEST_TIME_FLOAT'],5)."\n"; ?>
 <?php if(!IFRAME_PAGE) :
@@ -81,7 +81,7 @@ $(document).ready(function() {
 		$('.switch_info_on').hide();
 		$('#info_toggle_state').val(1);
 	}
-    
+
     var fullscreen = $('#fullscreen').val();
     if ( fullscreen==1 ) {
         $('#main-header, #nav, #footer').hide();
@@ -95,7 +95,7 @@ $(document).ready(function() {
         $('.hide-header-footer-down').hide();
         $('.main-screen').removeClass('double-pad-top');
     }
-    
+
     if ( $(window).width() < 768 ) {
         var runningTicket = $('.active-ticket');
         var container = $('.container').offset().top + 20;
@@ -174,7 +174,7 @@ function software_search_end() {
 	setTimeout(function() {
 		if($('.software-search-results *:hover').length > 0) {
 			software_search_end();
-            
+
 		} else {
 			$('.software-search-results').fadeOut(250, function() {
 				$('.navbar-nav.navbar-right,.navbar-nav.scale-to-fill>li>a,.navbar-nav.scale-to-fill>li>p').removeClass('hidden');
@@ -265,9 +265,9 @@ if(!isset($_SESSION['fullscreen'])) {
                         }
                         echo '<li>'.$profile_html .'</li>'; ?>
                         <li class="hide-header-footer">
-                            <div class="pullup"><img src="<?= WEBSITE_URL;?>/img/pullup.png" alt="" /></div>
+                            <div class="pullup"><img src="<?= WEBSITE_URL;?>/img/pullup.png" alt="" class="no-toggle" title="Hide Header &amp; Footer" data-placement="bottom" /></div>
                         </li>
-                        <li><a href="<?= WEBSITE_URL; ?>/logout.php"><img src="<?= WEBSITE_URL; ?>/img/logout-icon.png" class="offset-top-15" /></a></li>
+                        <li><a href="<?= WEBSITE_URL; ?>/logout.php"><img src="<?= WEBSITE_URL; ?>/img/logout-icon.png" class="offset-top-15 no-toggle" title="Logout" data-placement="bottom" /></a></li>
                     </ul>
                     <ul class="nav navbar-nav scale-to-fill">
                         <?php if (strpos($site_url,'forgot_pwd.php') == false) { ?>
@@ -277,12 +277,12 @@ if(!isset($_SESSION['fullscreen'])) {
                                     $logo_upload_icon = get_config($dbc, 'logo_upload_icon');
                                     if($logo_upload_icon == '') {
                                         if($logo_upload == '') {
-                                            echo '<img src="'.WEBSITE_URL.'/img/logo.png" height="30" alt="Main Dashboard" />';
+                                            echo '<img src="'.WEBSITE_URL.'/img/logo.png" height="30" alt="Home" class="no-toggle" title="Home" data-placement="bottom" />';
                                         } else {
-                                            echo '<img src="'.WEBSITE_URL.'/Settings/download/'.$logo_upload.'" height="30" alt="Main Dashboard" />';
+                                            echo '<img src="'.WEBSITE_URL.'/Settings/download/'.$logo_upload.'" height="30" alt="Home" class="no-toggle" title="Home" data-placement="bottom" />';
                                         }
                                     } else {
-                                        echo '<img src="'.WEBSITE_URL.'/Settings/download/'.$logo_upload_icon.'" height="30" alt="Main Dashboard" />';
+                                        echo '<img src="'.WEBSITE_URL.'/Settings/download/'.$logo_upload_icon.'" height="30" alt="Home" class="no-toggle" title="Home" data-placement="bottom" />';
                                     } ?>
                                 </a>
                             </li>
@@ -290,11 +290,11 @@ if(!isset($_SESSION['fullscreen'])) {
                                 <li class="pull-left"><?php include('Notification/newsboard.php'); ?></li>
                             <?php } ?>
                             <?php if(tile_visible($dbc, 'calendar_rook')): ?>
-                                <li class="pull-left"><a href="<?php echo WEBSITE_URL;?>/Calendar/calendars.php" title="Calendar" class="calendar-button"><img src="<?= WEBSITE_URL ?>/img/month-overview-blue.png" class="inline-img white-color"></a></li>
+                                <li class="pull-left"><a href="<?php echo WEBSITE_URL;?>/Calendar/calendars.php" title="Calendar" class="calendar-button"><img src="<?= WEBSITE_URL ?>/img/month-overview-blue.png" class="inline-img white-color no-toggle" title="Calendar" data-placement="bottom"></a></li>
                             <?php endif; ?>
                             <?php if($_SESSION['contactid'] > 0) { ?>
                                 <li class="pull-left"><?php include('Notification/alert_software.php'); ?></li>
-                                <li class="pull-left"><p class="no-pad-right no-pad-horiz-mobile offset-right-5"><a id="info_toggle" title="Info i Toggle"><img src="<?php echo WEBSITE_URL; ?>/img/icons/switch-off.png" style='display:none; position: relative; top: 5px;' width="50px" class="switch_info_off"><img src="<?php echo WEBSITE_URL; ?>/img/icons/switch-on.png" class="switch_info_on"  style='display:none; position: relative; top: 5px;'  width="50px"></a></p></li>
+                                <li class="pull-left"><p class="no-pad-right no-pad-horiz-mobile offset-right-5"><a id="info_toggle" title="Info i Toggle"><img src="<?php echo WEBSITE_URL; ?>/img/icons/switch-off.png" style='display:none; position: relative; top: 5px;' width="50px" class="switch_info_off no-toggle" title="Turn On Information i's" data-placement="bottom"><img src="<?php echo WEBSITE_URL; ?>/img/icons/switch-on.png" class="switch_info_on no-toggle"  style='display:none; position: relative; top: 5px;'  width="50px" title="Turn Off Information i's" data-placement="bottom"></a></p></li>
                                 <li class="scale-to-fill">
                                     <script>
                                     <?php // Get Search Categories
@@ -340,7 +340,11 @@ if(!isset($_SESSION['fullscreen'])) {
                                     if(in_array('tasks',array_column($_SESSION['tile_list'],'tile'))) {
                                         $search_cats[] = 'Tasks';
                                         echo "search_categories.push('tasks');\n";
-                                    } ?>
+                                    }
+                                    if(in_array('tasks_updated',array_column($_SESSION['tile_list'],'tile'))) {
+                                        $search_cats[] = 'Tasks (Updated)';
+                                        echo "search_categories.push('tasks_updated');\n";
+                                    }                                    ?>
                                     </script>
                                     <img class="software_search cursor-hand white-color show-on-mob" src="<?= WEBSITE_URL ?>/img/Magnifying_glass_icon.png" height="20" alt="Search All <?= implode(', ',$search_cats) ?>" tabindex="1" onclick="software_search(); $('input.search-text').removeClass('hide-titles-mob'); $('input.search-text').focus(); $(this).removeClass('show-on-mob').addClass('hide-titles-mob');" />
                                     <input type="text" class="hide-titles-mob form-control software_search search-text pad-top-5" placeholder="Search All <?= implode(', ',$search_cats) ?>" onfocus="software_search();" onblur="software_search_end();">
@@ -354,7 +358,7 @@ if(!isset($_SESSION['fullscreen'])) {
                 </div><!--/.nav-collapse -->
             </div><!--/.container-fluid -->
         </div>
-        
+
         <div class="hide-header-footer-down">
             <div class="pullup down"><img src="<?= WEBSITE_URL;?>/img/pullup.png" alt="" /></div>
         </div>

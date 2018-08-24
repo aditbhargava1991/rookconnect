@@ -73,6 +73,7 @@ $all_tiles_list = array_merge([
 		'gao',
 		'checklist',
 		'tasks',
+		'tasks_updated',
 		'scrum',
 		'communication',
 		'communication_schedule',

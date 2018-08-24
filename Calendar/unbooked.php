@@ -454,7 +454,7 @@ if($wait_list == 'ticket' || $wait_list == 'ticket_multi') { ?>
 		<?php $work_list = mysqli_query($dbc, "SELECT * FROM `workorder` WHERE IFNULL(`to_do_date`,'0000-00-00') IN ('0000-00-00','')");
 		while($workorder = mysqli_fetch_array($work_list)) { ?>
 			<a href="" onclick='overlayIFrameSlider("<?= WEBSITE_URL ?>/Work Order/edit_workorder.php?action=view&workorderid=<?= $workorder['workorderid'] ?>"); return false;' style="text-decoration: none;"><div class="block-item active" style="border: 1px solid rgba(0,0,0,0.5); margin: 0.25em 0 0;" data-type="workorder" data-id="<?= $workorder['workorderid'] ?>" data-text="<?= $workorder['heading'] ?> " data-project="<?= $workorder['projectid'] ?>" data-cust="<?= $workorder['businessid'] ?>" data-staff="<?= $workorder['contactid'] ?>">
-				<img class='drag-handle' src='<?= WEBSITE_URL ?>/img/icons/drag_handle.png' style='filter: brightness(200%); float: right; width: 2em;'>
+				<img class='drag-handle no-toggle' src='<?= WEBSITE_URL ?>/img/icons/drag_handle.png' style='filter: brightness(200%); float: right; width: 2em;' title='Drag'>
 				Work Order #<?= $workorder['ticketid'].' '.$workorder['heading'] ?><br />
 				Project #<?= $workorder['projectid'] ?><br />
 				Customer: <?= get_client($dbc, $workorder['businessid']) ?></div></a>
@@ -609,7 +609,7 @@ if($wait_list == 'ticket' || $wait_list == 'ticket_multi') { ?>
 
 				$unbooked_html .= '<a href="?'.http_build_query($page_query).'"><div class="block-item active" style="position: relative; border: 1px solid rgba(0,0,0,0.5); margin: 0.25em 0 0;" data-type="waitlist" data-id="'.$wait_line['waitlistid'].'" data-customer="'.$wait_line['patientid'].'" data-injury="'.$wait_line['injury_type'].' " data-type="'.$wait_line['appt_type'].'" data-text="'.$search_text.'" data-title="View Appointment">
                 	<div class="drag-handle full-height" title="Drag Me!">
-						<img class="drag-handle" src="'.WEBSITE_URL.'/img/icons/drag_handle.png" style="filter: brightness(200%); float: right; width: 2em;">
+						<img class="drag-handle no-toggle" src="'.WEBSITE_URL.'/img/icons/drag_handle.png" style="filter: brightness(200%); float: right; width: 2em;" title="Drag">
 					</div>
 					Patient: '.get_contact($dbc, $wait_line['patientid']).'<br />
 					Injury: '.$wait_line['injury_type'].' - '.$wait_line['injury_name'].'<br />

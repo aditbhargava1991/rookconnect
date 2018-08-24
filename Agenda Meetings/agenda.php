@@ -187,15 +187,17 @@ $value_config = ','.mysqli_fetch_assoc(mysqli_query($dbc,"SELECT * FROM field_co
             echo display_pagination($dbc, $query, $pageNum, $rowsPerPage);
             // Finish Pagination
 
-            echo "<table class='table table-bordered'>";
-            echo "<tr class='hidden-xs hidden-sm'>";
-            echo '<th>'.(strpos($value_config, ','."Business".',') !== FALSE ? BUSINESS_CAT : 'Contact').'</th>';
-            echo '<th>Date of Meeting</th>';
-            echo '<th>Time of Meeting</th>';
-            echo '<th>Location</th>';
-            echo '<th>Staff Members</th>';
-            echo '<th>Function</th>';
-            echo "</tr>";
+            echo "<table class='table table-bordered table-striped'>";
+                echo "<thead>";
+                    echo "<tr class='hidden-xs hidden-sm'>";
+                        echo '<th>'.(strpos($value_config, ','."Business".',') !== FALSE ? BUSINESS_CAT : 'Contact').'</th>';
+                        echo '<th>Date of Meeting</th>';
+                        echo '<th>Time of Meeting</th>';
+                        echo '<th>Location</th>';
+                        echo '<th>Staff Members</th>';
+                        echo '<th>Function</th>';
+                    echo "</tr>";
+                echo "</thead>";
         } else {
             echo "<h2>No Record Found.</h2>";
         }

@@ -75,13 +75,15 @@ function removeLink(link) {
 
 		echo display_pagination($dbc, $query, $pageNum, $rowsPerPage); ?>
 
-		<table class="table table-bordered">
-			<tr class="hidden-xs hidden-sm">
-				<th>Form Name</th>
-				<th>External Link</th>
-				<th>Expiry Date</th>
-				<th>Function</th>
-			</tr>
+		<table class="table table-bordered table-striped">
+            <thead>
+                <tr class="hidden-xs hidden-sm">
+                    <th>Form Name</th>
+                    <th>External Link</th>
+                    <th>Expiry Date</th>
+                    <th>Function</th>
+                </tr>
+            </thead>
 			<?php while ($row = mysqli_fetch_array($result)) { ?>
 				<tr>
 					<td data-title="Form Name"><?= $row['form_name'] ?></td>

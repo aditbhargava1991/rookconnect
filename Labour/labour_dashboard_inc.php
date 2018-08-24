@@ -44,78 +44,80 @@ $rc_subtab_access = check_subtab_persmission($dbc, 'rate_card', ROLE, 'labour');
             echo display_pagination($dbc, $query, $pageNum, $rowsPerPage);
             // Pagination Finish //
 
-            echo "<table class='table table-bordered'>";
-            echo "<tr class='hidden-xs hidden-sm'>";
-            if (strpos($value_config, ','."Labour Code".',') !== FALSE && check_dashboard_persmission($dbc, 'labour', ROLE, 'Labour Code')) {
-                echo '<th>Labour Code</th>';
-            }
-            if (strpos($value_config, ','."Labour Type".',') !== FALSE && check_dashboard_persmission($dbc, 'labour', ROLE, 'Labour Type')) {
-                echo '<th>Labour Type</th>';
-            }
-            if (strpos($value_config, ','."Category".',') !== FALSE && check_dashboard_persmission($dbc, 'labour', ROLE, 'Category')) {
-                echo '<th>Category</th>';
-            }
-            if (strpos($value_config, ','."Heading".',') !== FALSE && check_dashboard_persmission($dbc, 'labour', ROLE, 'Heading')) {
-                echo '<th>Heading</th>';
-            }
-            if (strpos($value_config, ','."Name".',') !== FALSE && check_dashboard_persmission($dbc, 'labour', ROLE, 'Name')) {
-                echo '<th>Name</th>';
-            }
-            // if (strpos($value_config, ','."Cost".',') !== FALSE) {
-            //     echo '<th>Cost</th>';
-            // }
-            if (strpos($value_config, ','."Description".',') !== FALSE && check_dashboard_persmission($dbc, 'labour', ROLE, 'Description')) {
-                echo '<th>Description</th>';
-            }
-            if (strpos($value_config, ','."Quote Description".',') !== FALSE && check_dashboard_persmission($dbc, 'labour', ROLE, 'Quote Description')) {
-                echo '<th>Quote Description</th>';
-            }
-            if (strpos($value_config, ','."Invoice Description".',') !== FALSE && check_dashboard_persmission($dbc, 'labour', ROLE, 'Invoice Descr')) {
-                echo '<th>Invoice Description</th>';
-            }
-            if (strpos($value_config, ','."Ticket Description".',') !== FALSE && check_dashboard_persmission($dbc, 'labour', ROLE, 'Ticket Description')) {
-                echo '<th>'.TICKET_NOUN.' Description</th>';
-            }
-            // if (strpos($value_config, ','."Daily Rate".',') !== FALSE) {
-            //     echo '<th>Daily Rate</th>';
-            // }
-            if (strpos($value_config, ','."WCB".',') !== FALSE && check_dashboard_persmission($dbc, 'labour', ROLE, 'WCB')) {
-                echo '<th>WCB</th>';
-            }
-            if (strpos($value_config, ','."Benefits".',') !== FALSE && check_dashboard_persmission($dbc, 'labour', ROLE, 'Benefits')) {
-                echo '<th>Benefits</th>';
-            }
-            if (strpos($value_config, ','."Salary".',') !== FALSE && check_dashboard_persmission($dbc, 'labour', ROLE, 'Salary')) {
-                echo '<th>Salary</th>';
-            }
-            if (strpos($value_config, ','."Bonus".',') !== FALSE && check_dashboard_persmission($dbc, 'labour', ROLE, 'Bonus')) {
-                echo '<th>Bonus</th>';
-            }
-            if (strpos($value_config, ','."Minimum Billable".',') !== FALSE && check_dashboard_persmission($dbc, 'labour', ROLE, 'Minimum Billable')) {
-                echo '<th>Minimum Billable</th>';
-            }
-            if (strpos($value_config, ','."Estimated Hours".',') !== FALSE && check_dashboard_persmission($dbc, 'labour', ROLE, 'Estimated Hours')) {
-                echo '<th>Estimated Hours</th>';
-            }
-            if (strpos($value_config, ','."Actual Hours".',') !== FALSE && check_dashboard_persmission($dbc, 'labour', ROLE, 'Actual Hours')) {
-                echo '<th>Actual Hours</th>';
-            }
-            if (strpos($value_config, ','."MSRP".',') !== FALSE && check_dashboard_persmission($dbc, 'labour', ROLE, 'MSRP')) {
-                echo '<th>MSRP</th>';
-            }
-            // if (strpos($value_config, ','."Hourly Rate".',') !== FALSE) {
-            //     echo '<th>Hourly Rate</th>';
-            // }
-            if (strpos($value_config, ','."Rate Card Price".',') !== FALSE && check_dashboard_persmission($dbc, 'labour', ROLE, 'Rate Card Price')) {
-                echo '<th>Rate Card Price</th>';
-            }
-            if (strpos($value_config, ','."Rate Card".',') !== FALSE && check_dashboard_persmission($dbc, 'labour', ROLE, 'Rate Card') && $rc_view_access > 0 && $rc_subtab_access) {
-                echo '<th>Rate Card</th>';
-            }
-            if (vuaed_visible_function($dbc, 'labour') == 1) {
-                echo '<th>Function</th>';
-            }
-            echo "</tr>";
+            echo "<table class='table table-bordered table-striped'>";
+                echo "<thead>";
+                    echo "<tr class='hidden-xs hidden-sm'>";
+                    if (strpos($value_config, ','."Labour Code".',') !== FALSE && check_dashboard_persmission($dbc, 'labour', ROLE, 'Labour Code')) {
+                        echo '<th>Labour Code</th>';
+                    }
+                    if (strpos($value_config, ','."Labour Type".',') !== FALSE && check_dashboard_persmission($dbc, 'labour', ROLE, 'Labour Type')) {
+                        echo '<th>Labour Type</th>';
+                    }
+                    if (strpos($value_config, ','."Category".',') !== FALSE && check_dashboard_persmission($dbc, 'labour', ROLE, 'Category')) {
+                        echo '<th>Category</th>';
+                    }
+                    if (strpos($value_config, ','."Heading".',') !== FALSE && check_dashboard_persmission($dbc, 'labour', ROLE, 'Heading')) {
+                        echo '<th>Heading</th>';
+                    }
+                    if (strpos($value_config, ','."Name".',') !== FALSE && check_dashboard_persmission($dbc, 'labour', ROLE, 'Name')) {
+                        echo '<th>Name</th>';
+                    }
+                    // if (strpos($value_config, ','."Cost".',') !== FALSE) {
+                    //     echo '<th>Cost</th>';
+                    // }
+                    if (strpos($value_config, ','."Description".',') !== FALSE && check_dashboard_persmission($dbc, 'labour', ROLE, 'Description')) {
+                        echo '<th>Description</th>';
+                    }
+                    if (strpos($value_config, ','."Quote Description".',') !== FALSE && check_dashboard_persmission($dbc, 'labour', ROLE, 'Quote Description')) {
+                        echo '<th>Quote Description</th>';
+                    }
+                    if (strpos($value_config, ','."Invoice Description".',') !== FALSE && check_dashboard_persmission($dbc, 'labour', ROLE, 'Invoice Descr')) {
+                        echo '<th>Invoice Description</th>';
+                    }
+                    if (strpos($value_config, ','."Ticket Description".',') !== FALSE && check_dashboard_persmission($dbc, 'labour', ROLE, 'Ticket Description')) {
+                        echo '<th>'.TICKET_NOUN.' Description</th>';
+                    }
+                    // if (strpos($value_config, ','."Daily Rate".',') !== FALSE) {
+                    //     echo '<th>Daily Rate</th>';
+                    // }
+                    if (strpos($value_config, ','."WCB".',') !== FALSE && check_dashboard_persmission($dbc, 'labour', ROLE, 'WCB')) {
+                        echo '<th>WCB</th>';
+                    }
+                    if (strpos($value_config, ','."Benefits".',') !== FALSE && check_dashboard_persmission($dbc, 'labour', ROLE, 'Benefits')) {
+                        echo '<th>Benefits</th>';
+                    }
+                    if (strpos($value_config, ','."Salary".',') !== FALSE && check_dashboard_persmission($dbc, 'labour', ROLE, 'Salary')) {
+                        echo '<th>Salary</th>';
+                    }
+                    if (strpos($value_config, ','."Bonus".',') !== FALSE && check_dashboard_persmission($dbc, 'labour', ROLE, 'Bonus')) {
+                        echo '<th>Bonus</th>';
+                    }
+                    if (strpos($value_config, ','."Minimum Billable".',') !== FALSE && check_dashboard_persmission($dbc, 'labour', ROLE, 'Minimum Billable')) {
+                        echo '<th>Minimum Billable</th>';
+                    }
+                    if (strpos($value_config, ','."Estimated Hours".',') !== FALSE && check_dashboard_persmission($dbc, 'labour', ROLE, 'Estimated Hours')) {
+                        echo '<th>Estimated Hours</th>';
+                    }
+                    if (strpos($value_config, ','."Actual Hours".',') !== FALSE && check_dashboard_persmission($dbc, 'labour', ROLE, 'Actual Hours')) {
+                        echo '<th>Actual Hours</th>';
+                    }
+                    if (strpos($value_config, ','."MSRP".',') !== FALSE && check_dashboard_persmission($dbc, 'labour', ROLE, 'MSRP')) {
+                        echo '<th>MSRP</th>';
+                    }
+                    // if (strpos($value_config, ','."Hourly Rate".',') !== FALSE) {
+                    //     echo '<th>Hourly Rate</th>';
+                    // }
+                    if (strpos($value_config, ','."Rate Card Price".',') !== FALSE && check_dashboard_persmission($dbc, 'labour', ROLE, 'Rate Card Price')) {
+                        echo '<th>Rate Card Price</th>';
+                    }
+                    if (strpos($value_config, ','."Rate Card".',') !== FALSE && check_dashboard_persmission($dbc, 'labour', ROLE, 'Rate Card') && $rc_view_access > 0 && $rc_subtab_access) {
+                        echo '<th>Rate Card</th>';
+                    }
+                    if (vuaed_visible_function($dbc, 'labour') == 1) {
+                        echo '<th>Function</th>';
+                    }
+                echo "</tr>";
+            echo "</thead>";
         } else {
             echo "<h2>No Record Found.</h2>";
         }

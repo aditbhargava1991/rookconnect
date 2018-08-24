@@ -256,7 +256,7 @@ do {
 				<span class="show-on-mob pull-left" onclick="$(this).closest('div').find('img').first().click();">More details</span>
 				<img class="inline-img pull-left black-color counterclockwise small" onclick="showStaff(this);" src="../img/icons/dropdown-arrow.png">
 				<input type="hidden" name="deleted" data-table="ticket_attached" data-id="<?= $staff['id'] ?>" data-id-field="id" data-type="Staff" data-type-field="src_table" value="0">
-				<a href="" onclick="viewProfile(this); return false;"><img class="inline-img pull-right" src="../img/person.PNG"></a>
+				<a href="" onclick="viewProfile(this); return false;"><img class="inline-img pull-right no-toggle" src="../img/person.PNG" title="View Profile"></a>
 				<img class="inline-img pull-right" onclick="addMulti(this, '', 'after');" src="../img/icons/ROOK-add-icon.png">
 				<?php if($access_staff === TRUE) { ?>
 					<img class="inline-img pull-right" onclick="remMulti(this);" src="../img/remove.png">

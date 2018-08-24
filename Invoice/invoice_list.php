@@ -178,24 +178,24 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
         <div class="clearfix"></div>
 		<?php include('tile_tabs.php'); ?>
 
-        <form name="invoice" method="post" action="" class="form-horizontal" role="form">
+        <form name="invoice" method="GET" action="" class="form-horizontal" role="form">
 			<?php $value_config = ','.get_config($dbc, 'invoice_dashboard').','; ?>
 			<?php $search_contact = 0;
 			$search_delivery = '';
 			$search_from = date('Y-m-01');
 			$search_to = date('Y-m-t');
-			if (isset($_POST['search_invoice_submit'])) {
-				if($_POST['contactid'] != '') {
-				   $search_contact = $_POST['contactid'];
+			if (isset($_GET['search_invoice_submit'])) {
+				if($_GET['contactid'] != '') {
+				   $search_contact = $_GET['contactid'];
 				}
-				if($_POST['type'] != '') {
-				   $search_delivery = $_POST['type'];
+				if($_GET['type'] != '') {
+				   $search_delivery = $_GET['type'];
 				}
-				if($_POST['search_from'] != '') {
-				   $search_from = $_POST['search_from'];
+				if($_GET['search_from'] != '') {
+				   $search_from = $_GET['search_from'];
 				}
-				if($_POST['search_to'] != '') {
-				   $search_to = $_POST['search_to'];
+				if($_GET['search_to'] != '') {
+				   $search_to = $_GET['search_to'];
 				}
 			} ?>
 			<div class="search-group double-gap-top">
@@ -321,39 +321,41 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
                     echo display_pagination($dbc, $query, $pageNum, $rowsPerPage);
                 // Pagination Finish //
 
-                echo "<br /><div id='no-more-tables'><table class='table table-bordered'>";
-                echo "<tr class='hidden-xs hidden-sm'>";
-                    if (strpos($value_config, ','."invoiceid".',') !== FALSE) {
-                        echo '<th>Invoice #</th>';
-                    }
-                    if (strpos($value_config, ','."invoice_date".',') !== FALSE) {
-                        echo '<th>Invoice Date</th>';
-                    }
-                    if (strpos($value_config, ','."customer".',') !== FALSE) {
-                        echo '<th>'.$purchaser_label.'</th>';
-                    }
-                    if (strpos($value_config, ','."total_price".',') !== FALSE) {
-                        echo '<th>Total Price</th>';
-                    }
-                    if (strpos($value_config, ','."payment_type".',') !== FALSE) {
-                        echo '<th>Payment Type</th>';
-                    }
-                    if (strpos($value_config, ','."delivery".',') !== FALSE) {
-                        echo '<th>Delivery/Shipping Type</th>';
-                    }
-                    if (strpos($value_config, ','."invoice_pdf".',') !== FALSE) {
-                        echo '<th>Invoice PDF</th>';
-                    }
-                    if (strpos($value_config, ','."comment".',') !== FALSE) {
-                        echo '<th>Comment</th>';
-                    }
-                    if (strpos($value_config, ','."status".',') !== FALSE) {
-                        echo '<th>Status</th>';
-                    }
-					if (strpos($value_config, ','."send") !== FALSE) {
-                      ?><th>Email PDF<br><div class='selectall btn brand-btn' title='This will select all PDFs on the current page.'>Select All</div></th><?php
-                    }
-                echo "</tr>";
+                echo "<br /><div id='no-more-tables'><table class='table table-bordered table-striped'>";
+                    echo "<thead>";
+                        echo "<tr class='hidden-xs hidden-sm'>";
+                            if (strpos($value_config, ','."invoiceid".',') !== FALSE) {
+                                echo '<th>Invoice #</th>';
+                            }
+                            if (strpos($value_config, ','."invoice_date".',') !== FALSE) {
+                                echo '<th>Invoice Date</th>';
+                            }
+                            if (strpos($value_config, ','."customer".',') !== FALSE) {
+                                echo '<th>'.$purchaser_label.'</th>';
+                            }
+                            if (strpos($value_config, ','."total_price".',') !== FALSE) {
+                                echo '<th>Total Price</th>';
+                            }
+                            if (strpos($value_config, ','."payment_type".',') !== FALSE) {
+                                echo '<th>Payment Type</th>';
+                            }
+                            if (strpos($value_config, ','."delivery".',') !== FALSE) {
+                                echo '<th>Delivery/Shipping Type</th>';
+                            }
+                            if (strpos($value_config, ','."invoice_pdf".',') !== FALSE) {
+                                echo '<th>Invoice PDF</th>';
+                            }
+                            if (strpos($value_config, ','."comment".',') !== FALSE) {
+                                echo '<th>Comment</th>';
+                            }
+                            if (strpos($value_config, ','."status".',') !== FALSE) {
+                                echo '<th>Status</th>';
+                            }
+                            if (strpos($value_config, ','."send") !== FALSE) {
+                              ?><th>Email PDF<br><div class='selectall btn brand-btn' title='This will select all PDFs on the current page.'>Select All</div></th><?php
+                            }
+                        echo "</tr>";
+                    echo "</thead>";
 
                 $src_row = false;
                 $src_ids = [];

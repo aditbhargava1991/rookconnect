@@ -140,9 +140,9 @@ if ( !empty($note) ) { ?>
                 <div class="pull-right">
                     <?php
                     if ($_GET['tab'] == 'daysheet' || $_GET['side_content'] == 'weekly' || $_GET['side_content'] == 'monthly') { ?>
-                    <a href="?daily_date=<?= $daily_date ?>&side_content=monthly" title="Monthly Overview" class="mobile-anchor"><img src="<?= WEBSITE_URL ?>/img/month-overview-blue.png" class="pull-right inline-img <?= $side_content == 'monthly' ? '' : 'black-color' ?>"></a>
-                    <a href="?daily_date=<?= $daily_date ?>&side_content=weekly" title="Weekly Overview" class="mobile-anchor"><img src="<?= WEBSITE_URL ?>/img/weekly-overview-blue.png" class="pull-right inline-img <?= !in_array($side_content,['monthly','journal','my_projects','my_tickets','my_tasks','my_checklists','my_communications','my_sales','past_due','notifications']) ? '' : 'black-color' ?>"></a>
-                    <a href="?daily_date=<?= $daily_date ?>&side_content=journal" title="Journal" class="mobile-anchor"><img src="<?= WEBSITE_URL ?>/img/notepad-icon-blue.png" class="pull-right inline-img <?= $side_content == 'journal' ? '' : 'black-color' ?>"></a>
+                    <a href="?daily_date=<?= $daily_date ?>&side_content=monthly" class="mobile-anchor"><img src="<?= WEBSITE_URL ?>/img/month-overview-blue.png" class="pull-right inline-img no-toggle <?= $side_content == 'monthly' ? '' : 'black-color' ?>" title="Monthly Overview"></a>
+                    <a href="?daily_date=<?= $daily_date ?>&side_content=weekly" class="mobile-anchor"><img src="<?= WEBSITE_URL ?>/img/weekly-overview-blue.png" class="pull-right inline-img no-toggle <?= !in_array($side_content,['monthly','journal','my_projects','my_tickets','my_tasks','my_checklists','my_communications','my_sales','past_due','notifications']) ? '' : 'black-color' ?>" title="Weekly Overview"></a>
+                    <a href="?daily_date=<?= $daily_date ?>&side_content=journal" class="mobile-anchor"><img src="<?= WEBSITE_URL ?>/img/notepad-icon-blue.png" class="pull-right inline-img no-toggle <?= $side_content == 'journal' ? '' : 'black-color' ?>" title="Journal"></a>
                     <?php } ?>
 
 
@@ -154,22 +154,22 @@ if ( !empty($note) ) { ?>
 
                     <?php
                     if ($_GET['tab'] == 'checklists') { ?>
-                    <a href="?tab=checklists&daily_date=<?= $daily_date ?>&side_content=my_checklists&date_display=monthly" title="Monthly Overview" class="mobile-anchor"><img src="<?= WEBSITE_URL ?>/img/month-overview-blue.png" class="pull-right inline-img <?= $side_content == 'monthly' ? '' : 'black-color' ?>"></a>
+                    <a href="?tab=checklists&daily_date=<?= $daily_date ?>&side_content=my_checklists&date_display=monthly" class="mobile-anchor"><img src="<?= WEBSITE_URL ?>/img/month-overview-blue.png" class="pull-right inline-img no-toggle <?= $side_content == 'monthly' ? '' : 'black-color' ?>" title="Monthly Overview"></a>
 
-                    <a href="?tab=checklists&daily_date=<?= $daily_date ?>&side_content=my_checklists&date_display=weekly" title="Weekly Overview" class="mobile-anchor"><img src="<?= WEBSITE_URL ?>/img/weekly-overview-blue.png" class="pull-right inline-img <?= !in_array($side_content,['weekly','journal','my_projects','my_tickets','my_tasks','my_checklists','my_communications','my_sales','past_due','notifications']) ? '' : 'black-color' ?>"></a>
+                    <a href="?tab=checklists&daily_date=<?= $daily_date ?>&side_content=my_checklists&date_display=weekly" class="mobile-anchor"><img src="<?= WEBSITE_URL ?>/img/weekly-overview-blue.png" class="pull-right inline-img no-toggle <?= !in_array($side_content,['weekly','journal','my_projects','my_tickets','my_tasks','my_checklists','my_communications','my_sales','past_due','notifications']) ? '' : 'black-color' ?>" title="Weekly Overview"></a>
                     <?php } ?>
 
                     <?php
                     if ($_GET['tab'] == 'communications') { ?>
-                    <a href="?tab=communications&daily_date=<?= $daily_date ?>&side_content=my_communications&date_display=monthly" title="Monthly Overview" class="mobile-anchor"><img src="<?= WEBSITE_URL ?>/img/month-overview-blue.png" class="pull-right inline-img <?= $side_content == 'monthly' ? '' : 'black-color' ?>"></a>
+                    <a href="?tab=communications&daily_date=<?= $daily_date ?>&side_content=my_communications&date_display=monthly" class="mobile-anchor"><img src="<?= WEBSITE_URL ?>/img/month-overview-blue.png" class="pull-right inline-img no-toggle <?= $side_content == 'monthly' ? '' : 'black-color' ?>" title="Monthly Overview"></a>
 
-                    <a href="?tab=communications&daily_date=<?= $daily_date ?>&side_content=my_communications&date_display=weekly" title="Weekly Overview" class="mobile-anchor"><img src="<?= WEBSITE_URL ?>/img/weekly-overview-blue.png" class="pull-right inline-img <?= !in_array($side_content,['weekly','journal','my_projects','my_tickets','my_tasks','my_checklists','my_communications','past_due','notifications']) ? '' : 'black-color' ?>"></a>
+                    <a href="?tab=communications&daily_date=<?= $daily_date ?>&side_content=my_communications&date_display=weekly" class="mobile-anchor"><img src="<?= WEBSITE_URL ?>/img/weekly-overview-blue.png" class="pull-right inline-img no-toggle <?= !in_array($side_content,['weekly','journal','my_projects','my_tickets','my_tasks','my_checklists','my_communications','past_due','notifications']) ? '' : 'black-color' ?>" title="Weekly Overview"></a>
                     <?php } ?>
 
                     <?php if ($_GET['tab'] == 'sales') { ?>
-                    <a href="?tab=saless&daily_date=<?= $daily_date ?>&side_content=my_saless&date_display=monthly" title="Monthly Overview" class="mobile-anchor"><img src="<?= WEBSITE_URL ?>/img/month-overview-blue.png" class="pull-right inline-img <?= $side_content == 'monthly' ? '' : 'black-color' ?>"></a>
+                    <a href="?tab=saless&daily_date=<?= $daily_date ?>&side_content=my_saless&date_display=monthly" class="mobile-anchor"><img src="<?= WEBSITE_URL ?>/img/month-overview-blue.png" class="pull-right inline-img no-toggle <?= $side_content == 'monthly' ? '' : 'black-color' ?>" title="Monthly Overview"></a>
 
-                    <a href="?tab=saless&daily_date=<?= $daily_date ?>&side_content=my_saless&date_display=weekly" title="Weekly Overview" class="mobile-anchor"><img src="<?= WEBSITE_URL ?>/img/weekly-overview-blue.png" class="pull-right inline-img <?= !in_array($side_content,['weekly','journal','my_projects','my_tickets','my_tasks','my_checklists','my_communications','my_sales','past_due','notifications']) ? '' : 'black-color' ?>"></a>
+                    <a href="?tab=saless&daily_date=<?= $daily_date ?>&side_content=my_saless&date_display=weekly" class="mobile-anchor"><img src="<?= WEBSITE_URL ?>/img/weekly-overview-blue.png" class="pull-right inline-img no-toggle <?= !in_array($side_content,['weekly','journal','my_projects','my_tickets','my_tasks','my_checklists','my_communications','my_sales','past_due','notifications']) ? '' : 'black-color' ?>" title="Weekly Overview"></a>
                     <?php } ?>
 
                 </div>
