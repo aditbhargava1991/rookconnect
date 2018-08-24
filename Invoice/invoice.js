@@ -630,11 +630,10 @@ function changeProduct(sel) {
 	var arr = proId.split('_');
 	var inventoryid = $("#inventoryid_"+arr[1]).val();
 	var invtype = $("#invtype_"+arr[1]).val();
+    var pricing = $('[name=pricing] option:selected').val();
     var linepricing = $('#linepricing_'+arr[1]).val();
-    if (linepricing == '' || linepricing == null) {
-        var pricing = $('[name=pricing]').val();
-    } else {
-        var pricing = linepricing;
+    if (typeof linepricing !== 'undefined' && linepricing != '' && linepricing != null) {
+        pricing = linepricing;
     }
 
 	if(invtype == 'WCB') {
