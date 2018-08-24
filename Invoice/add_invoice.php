@@ -1061,16 +1061,16 @@ if(in_array('touch',$ux_options) && (!in_array('standard',$ux_options) || $_GET[
                             <div class="pricing-div" style="display:none;">
                                 <select data-placeholder="Select Pricing" id="linepricing_0" name="linepricing[]" class="chosen-select-deselect form-control linepricing" onchange="changeProduct($('#inventoryid_'+this.id.split('_')[1]).get(0));">
                                     <option></option>
-                                    <?php if(in_array('price_admin', $field_config)) { ?><option <?= ($pricing == 'admin_price' ? 'selected' : '') ?> value="admin_price">Admin Price</option><?php } ?>
-                                    <?php if(in_array('price_client', $field_config)) { ?><option <?= ($pricing == 'client_price' ? 'selected' : '') ?> value="client_price">Client Price</option><?php } ?>
-                                    <?php if(in_array('price_commercial', $field_config)) { ?><option <?= ($pricing == 'commercial_price' ? 'selected' : '') ?> value="commercial_price">Commercial Price</option><?php } ?>
-                                    <?php if(in_array('price_distributor', $field_config)) { ?><option <?= ($pricing == 'distributor_price' ? 'selected' : '') ?> value="distributor_price">Distributor Price</option><?php } ?>
-                                    <?php if(in_array('price_retail', $field_config)) { ?><option <?= ($pricing == 'final_retail_price' || $pricing == '' ? 'selected' : '') ?> value="final_retail_price">Final Retail Price</option><?php } ?>
-                                    <?php if(in_array('price_preferred', $field_config)) { ?><option <?= ($pricing == 'preferred_price' ? 'selected' : '') ?> value="preferred_price">Preferred Price</option><?php } ?>
-                                    <?php if(in_array('price_po', $field_config)) { ?><option <?= ($pricing == 'purchase_order_price' ? 'selected' : '') ?> value="purchase_order_price">Purchase Order Price</option><?php } ?>
-                                    <?php if(in_array('price_sales', $field_config)) { ?><option <?= ($pricing == 'sales_order_price' ? 'selected' : '') ?> value="sales_order_price"><?= SALES_ORDER_NOUN ?> Price</option><?php } ?>
-                                    <?php if(in_array('price_web', $field_config)) { ?><option <?= ($pricing == 'web_price' ? 'selected' : '') ?> value="web_price">Web Price</option><?php } ?>
-                                    <?php if(in_array('price_wholesale', $field_config)) { ?><option <?= ($pricing == 'wholesale_price' ? 'selected' : '') ?> value="wholesale_price">Wholesale Price</option><?php } ?>
+                                    <?php if(in_array('price_admin', $field_config)) { ?><option value="admin_price">Admin Price</option><?php } ?>
+                                    <?php if(in_array('price_client', $field_config)) { ?><option value="client_price">Client Price</option><?php } ?>
+                                    <?php if(in_array('price_commercial', $field_config)) { ?><option value="commercial_price">Commercial Price</option><?php } ?>
+                                    <?php if(in_array('price_distributor', $field_config)) { ?><option value="distributor_price">Distributor Price</option><?php } ?>
+                                    <?php if(in_array('price_retail', $field_config)) { ?><option value="final_retail_price">Final Retail Price</option><?php } ?>
+                                    <?php if(in_array('price_preferred', $field_config)) { ?><option value="preferred_price">Preferred Price</option><?php } ?>
+                                    <?php if(in_array('price_po', $field_config)) { ?><option value="purchase_order_price">Purchase Order Price</option><?php } ?>
+                                    <?php if(in_array('price_sales', $field_config)) { ?><option value="sales_order_price"><?= SALES_ORDER_NOUN ?> Price</option><?php } ?>
+                                    <?php if(in_array('price_web', $field_config)) { ?><option value="web_price">Web Price</option><?php } ?>
+                                    <?php if(in_array('price_wholesale', $field_config)) { ?><option value="wholesale_price">Wholesale Price</option><?php } ?>
                                 </select>
                             </div>
                         </div>
