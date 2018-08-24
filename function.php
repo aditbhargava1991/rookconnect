@@ -3195,25 +3195,29 @@ function create_recurring_tickets($dbc, $ticketid, $start_date, $end_date, $repe
         array_shift($recurring_dates);
     }
     foreach($recurring_dates as $recurring_date) {
-        //Insert into tickets with to_do_date/to_do_end_date as the recurring date
-        mysqli_query($dbc, "INSERT INTO `tickets` (`main_ticketid`, `to_do_date`, `to_do_end_date`, `is_recurrence`) VALUES ('$ticketid', '$recurring_date', '$recurring_date', 1)");
-        $new_ticketid = mysqli_insert_id($dbc);
+        $date_exists = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `main_ticketid` = '$ticketid' AND `to_do_date` = '$recurring_date'"));
+        if(empty($date_exists)) {
+            //Insert into tickets with to_do_date/to_do_end_date as the recurring date
+            mysqli_query($dbc, "INSERT INTO `tickets` (`main_ticketid`, `to_do_date`, `to_do_end_date`, `is_recurrence`) VALUES ('$ticketid', '$recurring_date', '$recurring_date', 1)");
+            $new_ticketid = mysqli_insert_id($dbc);
 
-        //Insert all ticket_attached records with the new ticketid
-        foreach($ticket_attacheds as $ticket_attached) {
-            mysqli_query($dbc, "INSERT INTO `ticket_attached` (`ticketid`, `main_id`, `is_recurrence`) VALUES ('$new_ticketid', '".$ticket_attached['id']."', 1)");
+            //Insert all ticket_attached records with the new ticketid
+            foreach($ticket_attacheds as $ticket_attached) {
+                mysqli_query($dbc, "INSERT INTO `ticket_attached` (`ticketid`, `main_id`, `is_recurrence`) VALUES ('$new_ticketid', '".$ticket_attached['id']."', 1)");
+            }
+
+            //Insert all ticket_schedule records with the new ticketid
+            foreach($ticket_schedules as $ticket_schedule) {
+                mysqli_query($dbc, "INSERT INTO `ticket_schedule` (`ticketid`, `main_id`, `is_recurrence`) VALUES ('$new_ticketid', '".$ticket_schedule['id']."', 1)");
+            }
+
+            //Insert all ticket_comment records with the new ticketid
+            foreach($ticket_comments as $ticket_comment) {
+                mysqli_query($dbc, "INSERT INTO `ticket_comment` (`ticketid`, `main_id`, `is_reccurence`) VALUES ('$new_ticketid', '".$ticket_comment['ticketcommid']."', 1)");
+            }
+        } else if(empty($date_exists['to_do_end_date'])) {
+            mysqli_query($dbc, "UPDATE `tickets` SET `to_do_end_date` = '".$date_exists['to_do_date']."' WHERE `ticketid` = '".$date_exists['ticketid']."'");
         }
-
-        //Insert all ticket_schedule records with the new ticketid
-        foreach($ticket_schedules as $ticket_schedule) {
-            mysqli_query($dbc, "INSERT INTO `ticket_schedule` (`ticketid`, `main_id`, `is_recurrence`) VALUES ('$new_ticketid', '".$ticket_schedule['id']."', 1)");
-        }
-
-        //Insert all ticket_comment records with the new ticketid
-        foreach($ticket_comments as $ticket_comment) {
-            mysqli_query($dbc, "INSERT INTO `ticket_comment` (`ticketid`, `main_id`, `is_reccurence`) VALUES ('$new_ticketid', '".$ticket_comment['ticketcommid']."', 1)");
-        }
-
         //Set last added date to the latest added date
         mysqli_query($dbc, "UPDATE `ticket_recurrences` SET `last_added_date` = '$recurring_date' WHERE `ticketid` = '$ticketid'");
     }
