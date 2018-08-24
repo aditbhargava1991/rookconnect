@@ -284,9 +284,9 @@ $view_id = check_subtab_persmission($dbc, 'staff', ROLE, 'id_card');
 				<div class="clearfix"></div>
                 <div class="set-favourite">
 					<?php if(strpos($row['is_favourite'],",".$_SESSION['contactid'].",") === FALSE && $tab != 'suspended'): ?>
-						<a href="staff_edit.php?favourite=<?php echo $row['contactid']; ?>"><img src="../img/blank_favourite.png" alt="Favourite" title="Click to make the staff favourite" class="inline-img pull-right"></a>
+						<a href="staff_edit.php?favourite=<?php echo $row['contactid']; ?>"><img src="../img/blank_favourite.png" alt="Favourite" title="Click to make the staff favourite" class="inline-img pull-right no-toggle"></a>
 					<?php elseif($tab != 'suspended'): ?>
-						<a href="staff_edit.php?unfavourite=<?php echo $row['contactid']; ?>"><img src="../img/full_favourite.png" alt="Favourite" title="Click to make the staff unfavourite" class="inline-img pull-right"></a>
+						<a href="staff_edit.php?unfavourite=<?php echo $row['contactid']; ?>"><img src="../img/full_favourite.png" alt="Favourite" title="Click to make the staff unfavourite" class="inline-img pull-right no-toggle"></a>
 					<?php endif; ?>
                 </div>
 			</div>

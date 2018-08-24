@@ -105,9 +105,9 @@ function allow_sort() {
                 <?php } ?>
                 <a href="?p=filter&s=<?= $status ?>"><div class="info-block-header">
                     <h4><span><?= $status; ?></span>
-                        <img src="../img/icons/drag_handle.png" class="inline-img small pull-right status_handle" onclick="return false;">
+                        <img src="../img/icons/drag_handle.png" class="inline-img small pull-right status_handle no-toggle" onclick="return false;" title="Drag">
                         <?php if(!in_array($status, [$get_config_won_status,$get_config_lost_status,$get_config_retained])) { ?>
-                            <img src="../img/icons/ROOK-edit-icon.png" class="inline-img small" onclick="edit_status(this); return false;">
+                            <img src="../img/icons/ROOK-edit-icon.png" class="inline-img small no-toggle" onclick="edit_status(this); return false;" title="Edit">
                             <img src="../img/remove.png" class="inline-img small pull-right" onclick="rem_status(this); return false;">
                             <img src="../img/icons/ROOK-add-icon.png" class="inline-img small pull-right" onclick="add_status(this); return false;">
                         <?php } ?>
@@ -136,14 +136,14 @@ function allow_sort() {
                             <div class="info-block-detail <?= $approvals > 0 || $status != 'Pending' ? '' : 'no-sort' ?>" data-id="<?= $row['salesid'] ?>" style="<?= $lead_count > 10 ? 'display: none;' : '' ?> <?= empty($flag_colour) ? '' : 'background-color:#'.$flag_colour.';' ?> <?= empty($lead_colour) ? '' : 'border: 3px solid '.$lead_colour.' !important;' ?>" data-searchable="<?= get_client($dbc, $row['businessid']); ?> <?= get_contact($dbc, $row['contactid']); ?>" data-colour="<?= $flag_colour ?>">
                                 <span class="flag-label"><?= $flag_label ?></span>
                                 <?php if($approvals > 0 || $status != 'Pending') { ?>
-                                    <img src="../img/icons/drag_handle.png" class="inline-img pull-right lead-handle" />
+                                    <img src="../img/icons/drag_handle.png" class="inline-img pull-right lead-handle no-toggle" title="Drag" />
                                 <?php } ?>
                                 <?php if($row['primary_staff'] > 0) { ?>
                                     <div class="pull-right"><?= profile_id($dbc, $row['primary_staff']); ?></div>
                                 <?php } ?>
 								<a href="sale.php?p=preview&id=<?= $row['salesid'] ?>">
                                 <div class="row set-row-height" style="<?= empty($row['status']) || empty($row['next_action']) || empty($row['new_reminder']) ? 'color: red;' : '' ?>">
-                                    <div class="col-sm-12"><?= get_client($dbc, $row['businessid']); ?><img class="inline-img" src="../img/icons/ROOK-edit-icon.png">
+                                    <div class="col-sm-12"><?= get_client($dbc, $row['businessid']); ?><img class="inline-img no-toggle" src="../img/icons/ROOK-edit-icon.png" title="Edit">
 										<b class="pull-right"><?= '$' . ($row['lead_value'] > 0) ? number_format($row['lead_value'], 2) : '0:00' ; ?></b></div>
                                 </div>
 

@@ -31,10 +31,10 @@ function checklistAdd(textbox) {
 			$(textbox).parents('li').before('<li id="'+response+'" class="ui-state-default" style="position:relative; width:calc(100% - 10px);"><span style="cursor:pointer; font-size: 1em;">'+
 				'<input type="checkbox" onclick="checklistChange(this);" value="'+response+'" style="height: 1.25em; width: 1.25em;">'+
 				'<span class="pull-right" style="display:inline-block; width:calc(100% - 2em);" data-item="'+response+'">'+
-				'<span style="display:inline-block; text-align:center; width:25%;" title="Flag This!" onclick="checklistFlag(this); return false;"><img src="<?= WEBSITE_URL ?>/img/icons/ROOK-flag-icon.png" style="height:1.5em;" onclick="return false;"></span>'+
-				'<span style="display:inline-block; text-align:center; width:25%;" title="Attach File" onclick="checklistAttach(this); return false;"><img src="<?= WEBSITE_URL ?>/img/icons/ROOK-attachment-icon.png" style="height:1.5em;" onclick="return false;"></span>'+
-				'<span style="display:inline-block; text-align:center; width:25%;" title="Reply" onclick="checklistReply(this); return false;"><img src="<?= WEBSITE_URL ?>/img/icons/ROOK-reply-icon.png" style="height:1.5em;" onclick="return false;"></span>'+
-				'<span style="display:inline-block; text-align:center; width:25%;" title="Archive Item" onclick="checklistArchive(this); return false;"><img src="<?= WEBSITE_URL ?>/img/icons/ROOK-trash-icon.png" style="height:1.5em;" onclick="return false;"></span>'+
+				'<span style="display:inline-block; text-align:center; width:25%;" onclick="checklistFlag(this); return false;"><img class="no-toggle" src="<?= WEBSITE_URL ?>/img/icons/ROOK-flag-icon.png" style="height:1.5em;" onclick="return false; title="Flag This!""></span>'+
+				'<span style="display:inline-block; text-align:center; width:25%;" onclick="checklistAttach(this); return false;"><img class="no-toggle" src="<?= WEBSITE_URL ?>/img/icons/ROOK-attachment-icon.png" style="height:1.5em;" onclick="return false;" title="Attach File"></span>'+
+				'<span style="display:inline-block; text-align:center; width:25%;" onclick="checklistReply(this); return false;"><img class="no-toggle" src="<?= WEBSITE_URL ?>/img/icons/ROOK-reply-icon.png" style="height:1.5em;" onclick="return false;" title="Add Note"></span>'+
+				'<span style="display:inline-block; text-align:center; width:25%;" onclick="checklistArchive(this); return false;"><img class="no-toggle" src="<?= WEBSITE_URL ?>/img/icons/ROOK-trash-icon.png" style="height:1.5em;" onclick="return false;" title="Archive"></span>'+
 				'</span><input type="text" name="reply_'+response+'" style="display:none;" class="form-control" /><input type="file" name="attach_'+response+'" style="display:none;" class="form-control" /><span class="display-field">'+
 				textbox.value+'</span></span></li>');
 			$(textbox).val('');

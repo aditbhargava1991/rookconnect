@@ -74,7 +74,7 @@ if(!empty($sales_order_types)) { ?>
         }
         if ( !isset($_GET['edit']) && !isset($_GET['view']) ) { ?>
             <div class="pull-right top-dashboard">
-                <img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-Speedometer.png" height="30" class="pull-right gap-left cursor-hand" onclick="$('.dashboard_select').toggle();">
+                <img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-Speedometer.png" height="30" class="pull-right gap-left cursor-hand no-toggle" title="View Dashboards" onclick="$('.dashboard_select').toggle();">
                 <div class="dashboard_select pull-right" style="display: none;">
                     <select class="chosen-select-deselect" onchange="window.location.replace('?dashboard='+this.value);">
                         <option value="<?= $_SESSION['contactid'] ?>">My Dashboard</option><?php
@@ -89,7 +89,7 @@ if(!empty($sales_order_types)) { ?>
                     </select>
                 </div>
             </div>
-			<img class="inline-img pull-right btn-horizontal-collapse" src="../img/icons/pie-chart.png">
+			<img class="inline-img pull-right btn-horizontal-collapse no-toggle" src="../img/icons/pie-chart.png" title="View Summary">
 		<?php } ?>
     </div>
     <div class="clearfix"></div>

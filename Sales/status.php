@@ -58,7 +58,7 @@ if ( $leads->num_rows > 0 ) {
                 <div class="horizontal-block">
                     <div class="horizontal-block-header">
 						<span class="flag-label"><?= $flag_label ?></span>
-                        <h4 class="col-md-6"><a href="sale.php?p=preview&id=<?= $row['salesid'] ?>">Sales Lead <?= $row['salesid']; ?> <img class="inline-img" src="../img/icons/ROOK-edit-icon.png"></a></h4>
+                        <h4 class="col-md-6"><a href="sale.php?p=preview&id=<?= $row['salesid'] ?>">Sales Lead <?= $row['salesid']; ?> <img class="inline-img no-toggle" src="../img/icons/ROOK-edit-icon.png" title="Edit"></a></h4>
                         <div class="col-md-6"></div>
                         <div class="clearfix"></div>
                     </div>

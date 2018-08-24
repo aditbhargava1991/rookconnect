@@ -48,8 +48,8 @@ $(document).ready(function() {
 </script>
 <div class="col-sm-12 gap-top main-screen-header">
 	<h1 class="no-margin">My Journal <span class="smaller">
-		<a href="?tab=journals&date=<?= $_GET['date'] ?>"><img class="inline-img <?= $_GET['mode'] == 'week' ? 'black-color' : '' ?>" src="../img/month-overview-blue.png"></a>
-		<a href="?tab=journals&mode=week&date=<?= $_GET['date'] ?>"><img class="inline-img <?= $_GET['mode'] == 'week' ? '' : 'black-color' ?>" src="../img/weekly-overview-blue.png"></a>
+		<a href="?tab=journals&date=<?= $_GET['date'] ?>"><img class="inline-img no-toggle <?= $_GET['mode'] == 'week' ? 'black-color' : '' ?>" src="../img/month-overview-blue.png" title="Monthly Overview"></a>
+		<a href="?tab=journals&mode=week&date=<?= $_GET['date'] ?>"><img class="inline-img no-toggle <?= $_GET['mode'] == 'week' ? '' : 'black-color' ?>" src="../img/weekly-overview-blue.png" title="Weekly Overview"></a>
 	</span></h1>
 	<h4>
 		<a href="?tab=journals&mode=<?= $_GET['mode'] ?>&date=<?= $_GET['mode'] == 'week' ? date('Y-m-d', strtotime($_GET['date'].'-7days')) : date('Y-m-d', strtotime($_GET['date'].'-1day')) ?>"><img class="inline-img-height smaller" src="<?= WEBSITE_URL ?>/img/icons/back-arrow.png"></a>

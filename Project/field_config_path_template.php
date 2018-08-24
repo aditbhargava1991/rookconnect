@@ -156,7 +156,7 @@ function add_checklist(btn) {
 		'</div>' +
 		'<div class="col-sm-1">' +
 			'<img src="../img/remove.png" class="inline-img pull-right" onclick="remove_group(this);">' +
-			'<img src="../img/icons/drag_handle.png" class="inline-img pull-right group-handle" />' +
+			'<img src="../img/icons/drag_handle.png" class="inline-img pull-right group-handle no-toggle" title="Drag" />' +
 		'</div>' +
 	'</div>';
 	$(btn).closest('.block-group').find('button').first().before(item);
@@ -177,7 +177,7 @@ function add_ticket(btn) {
 		'</div>' +
 		'<div class="col-sm-1">' +
 			'<img src="../img/remove.png" class="inline-img pull-right" onclick="remove_group(this);">' +
-			'<img src="../img/icons/drag_handle.png" class="inline-img pull-right group-handle" />' +
+			'<img src="../img/icons/drag_handle.png" class="inline-img pull-right group-handle no-toggle" title="Drag" />' +
 		'</div>' +
 	'</div>';
 	$(btn).closest('.block-group').find('button').first().before(item);
@@ -192,7 +192,7 @@ function add_workorder(btn) {
 		'</div>' +
 		'<div class="col-sm-1">' +
 			'<img src="../img/remove.png" class="inline-img pull-right" onclick="remove_group(this);">' +
-			'<img src="../img/icons/drag_handle.png" class="inline-img pull-right group-handle" />' +
+			'<img src="../img/icons/drag_handle.png" class="inline-img pull-right group-handle no-toggle" title="Drag" />' +
 		'</div>' +
 	'</div>';
 	$(btn).closest('.block-group').find('button').first().before(item);
@@ -223,7 +223,7 @@ function add_workorder(btn) {
 					<input type="text" class="form-control" name="milestone" value="<?= $milestone ?>">
 				</div>
 				<div class="col-sm-1">
-					<img src="../img/icons/drag_handle.png" class="inline-img pull-right block-handle">
+					<img src="../img/icons/drag_handle.png" class="inline-img pull-right block-handle no-toggle" title="Drag">
 					<img src="../img/icons/ROOK-add-icon.png" class="inline-img pull-right" onclick="add_block();">
 					<img src="../img/remove.png" class="inline-img pull-right" onclick="remove_block(this);">
 				</div>
@@ -242,7 +242,7 @@ function add_workorder(btn) {
                             <div class="col-sm-7"><input type="text" class="form-control" name="checklist" value="<?= $checklist ?>" /></div>
                             <div class="col-sm-1">
                                 <img src="../img/remove.png" class="inline-img pull-right" onclick="remove_group(this);" />
-                                <img src="../img/icons/drag_handle.png" class="inline-img pull-right group-handle" />
+                                <img src="../img/icons/drag_handle.png" class="inline-img pull-right group-handle no-toggle" title="Drag" />
                             </div>
 						</div>
 					<?php } ?>
@@ -256,7 +256,7 @@ function add_workorder(btn) {
 							<div class="col-sm-3"><select class="chosen-select-deselect" name="ticket_service" data-service="<?= $ticket[1] ?>"><option></option></select></div>
 							<div class="col-sm-1">
 								<img src="../img/remove.png" class="inline-img pull-right" onclick="remove_group(this);" />
-                                <img src="../img/icons/drag_handle.png" class="inline-img pull-right group-handle" />
+                                <img src="../img/icons/drag_handle.png" class="inline-img pull-right group-handle no-toggle" title="Drag" />
 							</div>
 						</div>
 					<?php } ?>
@@ -268,7 +268,7 @@ function add_workorder(btn) {
 							<div class="col-sm-7"><input type="text" class="form-control" name="workorder" value="<?= $workorder ?>" /></div>
 							<div class="col-sm-1">
 								<img src="../img/remove.png" class="inline-img pull-right" onclick="remove_group(this);" />
-                                <img src="../img/icons/drag_handle.png" class="inline-img pull-right group-handle" />
+                                <img src="../img/icons/drag_handle.png" class="inline-img pull-right group-handle no-toggle" title="Drag" />
 							</div>
 						</div>
 					<?php } ?>
