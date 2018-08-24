@@ -30,40 +30,7 @@ $(document).ready(function() {
 		$('.hide_on_iframe').show();
 	});
 
-    /* Timer */
-    $('.start-timer-btn').on('click', function() {
-        $(this).closest('div').find('.timer').timer({
-            editable: true
-        });
-        $(this).addClass('hidden');
-        $(this).next('.stop-timer-btn').removeClass('hidden');
-    });
 
-    $('.stop-timer-btn').on('click', function() {
-		$(this).closest('div').find('.timer').timer('stop');
-		$(this).addClass('hidden');
-		$(this).prev('.start-timer-btn').removeClass('hidden');
-		var taskid = $(this).data('id');
-        var timer_value = $(this).closest('div').find('#timer_value').val();
-        var contactid = '<?= $_SESSION['contactid'] ?>';
-		$(this).closest('div').find('.timer').timer('remove');
-        $('.timer_block_'+taskid).toggle();
-		if ( timer_value != '' ) {
-            $.ajax({
-                type: "GET",
-                url: "task_ajax_all.php?fill=stop_timer&taskid="+taskid+"&timer_value="+timer_value+"&contactid="+contactid,
-                dataType: "html",
-                success: function(response) {
-                    $.ajax({
-                        method: 'POST',
-                        url: 'task_ajax_all.php?fill=taskreply',
-                        data: { taskid: taskid, reply: 'Time added '+timer_value },
-                        success: function(result) {}
-                    });
-                }
-            });
-        }
-	});
 
     $('.milestone_select').on('change', function(){
         if($(this).val() != '') {
@@ -203,74 +170,6 @@ function jump_to(i) {
 	$('#scrum_tickets').scrollLeft($('#sortable'+i).position().left - 40);
 }
 
-function choose_user(target, type, id, date) {
-	var title	= 'Select a Staff';
-	$('iframe').load(function() {
-		this.contentWindow.document.body.style.overflow = 'hidden';
-		this.contentWindow.document.body.style.minHeight = '0';
-		this.contentWindow.document.body.style.paddingBottom = '5em';
-		var height = $(this).contents().find('option').length * $(this).contents().find('select').height();
-		$(this).contents().find('select').data({type: type, id: id});
-		this.style.height = (height + this.contentWindow.document.body.offsetHeight + 180) + 'px';
-		$(this).contents().find('.btn').off();
-		$(this).contents().find('.btn').click(function() {
-			if($(this).closest('body').find('select').val() != '' && confirm('Are you sure you want to send the '+target+' to the selected user?')) {
-                if(target == 'alert') {
-					$.ajax({
-						method: 'POST',
-						url: 'task_ajax_all.php?fill=taskalert',
-						data: { id: id, type: type, user: $(this).closest('body').find('select').val() },
-						complete: function(result) { console.log(result.responseText); }
-					});
-                    $.ajax({
-                        method: 'POST',
-                        url: 'task_ajax_all.php?fill=taskreply',
-                        data: { taskid: id, user: $(this).closest('body').find('select').val(), reply: 'Alert added for ' },
-                        complete: function(result) { console.log(result.responseText); }
-                    });
-				}
-				else if(target == 'email') {
-					$.ajax({
-						method: 'POST',
-						url: 'task_ajax_all.php?fill=taskemail',
-						data: { id: id, type: type, user: $(this).closest('body').find('select').val() },
-						complete: function(result) { console.log(result.responseText); }
-					});
-                    $.ajax({
-                        method: 'POST',
-                        url: 'task_ajax_all.php?fill=taskreply',
-                        data: { taskid: id, user: $(this).closest('body').find('select').val(), reply: 'Email sent to ' },
-                        complete: function(result) { console.log(result.responseText); }
-                    });
-				}
-				else if(target == 'reminder') {
-					$.ajax({
-						method: 'POST',
-						url: 'task_ajax_all.php?fill=taskreminder',
-						data: { id: id, type: type, schedule: date, user: $(this).closest('body').find('select').val() },
-						complete: function(result) { console.log(result.responseText); }
-					});
-                    $.ajax({
-                        method: 'POST',
-                        url: 'task_ajax_all.php?fill=taskreply',
-                        data: { taskid: id, user: $(this).closest('body').find('select').val(), reply: 'Reminder added for ' },
-                        complete: function(result) { console.log(result.responseText); }
-                    });
-				}
-				$(this).closest('body').find('select').val('');
-				$('.close_iframer').click();
-			}
-			else if($(this).closest('body').find('select').val() == '') {
-				$('.close_iframer').click();
-			}
-		});
-	});
-	$('#iframe_instead_of_window').attr('src', '<?php echo WEBSITE_URL; ?>/Staff/select_staff.php?target='+target);
-	$('.iframe_title').text(title);
-	$('.iframe_holder').show();
-	$('.hide_on_iframe').hide();
-}
-
 function sync_task(task) {
 	var item = $(task).parents('li');
 	item.find('.assign_milestone').show().find('select').off('change').change(function() {
@@ -290,16 +189,6 @@ function sync_task(task) {
 	});
 }
 
-function send_alert(task) {
-	task_id = $(task).parents('span').data('task');
-	var type = 'task';
-	if(task_id.toString().substring(0,5) == 'BOARD') {
-		var type = 'task board';
-		task_id = task_id.substring(5);
-	}
-	choose_user('alert', type, task_id);
-}
-
 function send_email(task) {
 	task_id = $(task).parents('span').data('task');
 	var type = 'task';
@@ -310,36 +199,39 @@ function send_email(task) {
 	overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_email.php?tile=tasks&id='+task_id+'&type='+type, 'auto', false, true);
 }
 
-function send_reminder(task) {
-	task_id = $(task).parents('span').data('task');
-	var type = 'task';
-	if(task_id.toString().substring(0,5) == 'BOARD') {
-		var type = 'task board';
-		task_id = task_id.substring(5);
-	}
-	var name_id = (type == 'task board' ? 'board_' : '');
-	$('[name=reminder_'+name_id+task_id+']').show().focus();
-	$('[name=reminder_'+name_id+task_id+']').keyup(function(e) {
-		if(e.which == 13) {
-			$(this).blur();
-		}
-	});
-	$('[name=reminder_'+name_id+task_id+']').change(function() {
-		$(this).hide();
-		var date = $(this).val().trim();
-		$(this).val('');
-		if(date != '') {
-			choose_user('reminder', type, task_id, date);
-		}
-	});
-
+function send_task_reminder(task) {
+       task_id = $(task).parents('span').data('task');
+       if(task_id.toString().substring(0,5) == 'BOARD') {
+               task_id = task_id.substring(5);
+       }
+       overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_reminders.php?tile=tasks&id='+task_id, 'auto', false, true);
 }
-function send_reply(task) {
+
+function send_task_alert(task) {
+       task_id = $(task).parents('span').data('task');
+       if(task_id.toString().substring(0,5) == 'BOARD') {
+               task_id = task_id.substring(5);
+       }
+       overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_alert.php?tile=tasks&id='+task_id, 'auto', false, true);
+}
+
+
+function send_note(task) {
        task_id = $(task).parents('span').data('task');
        if(task_id.toString().substring(0,5) == 'BOARD') {
                task_id = task_id.substring(5);
        }
        overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_notes.php?tile=tasks&id='+task_id, 'auto', false, true);
+}
+
+function track_time(task) {
+    var task_id = $(task).parents('span').data('task');
+   if(task_id.toString().substring(0,5) == 'BOARD') {
+           task_id = task_id.substring(5);
+   }
+   overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_timer.php?tile=tasks&id='+task_id, 'auto', false, true);
+
+    //$('.timer_block_'+task_id).toggle();
 }
 
 function quick_add_time(task) {
@@ -364,11 +256,6 @@ function quick_add_time(task) {
 		}
 	});
 	$('[name=task_time_'+task_id+']').timepicker('show');
-}
-
-function track_time(task) {
-    var task_id = $(task).parents('span').data('task');
-    $('.timer_block_'+task_id).toggle();
 }
 
 function attach_file(task) {
@@ -947,11 +834,15 @@ function checklist_attach_file(checklist) {
                                         echo in_array('flag_manual', $quick_actions) ? '<span title="Flag This!" onclick="flag_item_manual(this); return false;"><img title="Flag This!" src="../img/icons/ROOK-flag-icon.png" class="inline-img no-toggle" onclick="return false;"></span>' : '';
                                         echo !in_array('flag_manual', $quick_actions) && in_array('flag', $quick_actions) ? '<span title="Flag This!" onclick="flag_item(this); return false;"><img src="../img/icons/ROOK-flag-icon.png" class="inline-img no-toggle" title="Flag This!" onclick="return false;"></span>' : '';
                                         echo $row['projectid'] > 0 && in_array('sync', $quick_actions) ? '<span title="Sync to External Path" onclick="sync_task(this); return false;"><img title="Sync to External Path" src="../img/icons/ROOK-sync-icon.png" class="inline-img no-toggle" onclick="return false;"></span>' : '';
-                                        echo in_array('alert', $quick_actions) ? '<span title="Send Alert" onclick="send_alert(this); return false;"><img src="../img/icons/ROOK-alert-icon.png" title="Send Alert" class="inline-img no-toggle" onclick="return false;"></span>' : '';
+                                        echo in_array('alert', $quick_actions) ? '<span title="Send Alert" onclick="send_task_alert(this); return false;"><img src="../img/icons/ROOK-alert-icon.png" title="Send Alert" class="inline-img no-toggle" onclick="return false;"></span>' : '';
                                         echo in_array('email', $quick_actions) ? '<span title="Send Email" onclick="send_email(this); return false;"><img src="../img/icons/ROOK-email-icon.png" title="Send Email" class="inline-img no-toggle" onclick="return false;"></span>' : '';
-                                        echo in_array('reminder', $quick_actions) ? '<span title="Schedule Reminder" onclick="send_reminder(this); return false;"><img title="Schedule Reminder" src="../img/icons/ROOK-reminder-icon.png" class="inline-img no-toggle" onclick="return false;"></span>' : '';
+
+                                        echo in_array('reminder', $quick_actions) ? '<span title="Schedule Reminder" onclick="send_task_reminder(this); return false;"><img title="Schedule Reminder" src="../img/icons/ROOK-reminder-icon.png" class="inline-img no-toggle" onclick="return false;"></span>' : '';
+
                                         echo in_array('attach', $quick_actions) ? '<span title="Attach File(s)" onclick="attach_file(this); return false;"><img src="../img/icons/ROOK-attachment-icon.png" title="Attach File(s)" class="inline-img no-toggle" onclick="return false;"></span>' : '';
-                                        echo in_array('reply', $quick_actions) ? '<span title="Add Note" onclick="send_reply(this); return false;"><img src="../img/icons/ROOK-reply-icon.png" title="Add Note" class="inline-img no-toggle" onclick="return false;"></span>' : '';
+
+                                        echo in_array('reply', $quick_actions) ? '<span title="Add Note" onclick="send_note(this); return false;"><img src="../img/icons/ROOK-reply-icon.png" title="Add Note" class="inline-img no-toggle" onclick="return false;"></span>' : '';
+
                                         echo in_array('time', $quick_actions) ? '<span title="Add Time" onclick="quick_add_time(this); return false;"><img src="../img/icons/ROOK-timer-icon.png" title="Add Time" class="inline-img no-toggle" onclick="return false;"></span>' : '';
                                         echo in_array('timer', $quick_actions) ? '<span title="Track Time" onclick="track_time(this); return false;"><img src="../img/icons/ROOK-timer2-icon.png" title="Track Time" class="inline-img no-toggle" onclick="return false;"></span>' : '';
                                         ?>
@@ -978,16 +869,8 @@ function checklist_attach_file(checklist) {
 									<?php }
                                     echo '<input type="text" name="reply_'.$row['tasklistid'].'" style="display:none;" class="form-control" />';
                                     echo '<input type="text" name="task_time_'.$row['tasklistid'].'" style="display:none;" class="form-control timepicker" />'; ?>
-                                    <div class="timer_block_<?= $row['tasklistid'] ?>" style="display:none; margin-top:2.2em;">
-                                        <div class="form-group">
-                                            <label class="col-sm-3 control-label">Timer:</label>
-                                            <div class="col-sm-9">
-                                                <input type="text" name="timer_<?= $row['tasklistid'] ?>" id="timer_value" style="float:left; max-width:56%;" class="form-control timer" placeholder="0 sec" />&nbsp;&nbsp;
-                                                <a class="btn btn-success start-timer-btn brand-btn mobile-block">Start</a>
-                                                <a class="btn stop-timer-btn hidden brand-btn mobile-block" data-id="<?= $row['tasklistid'] ?>">Stop</a>
-                                            </div>
-                                        </div>
-                                    </div><?php
+
+                                    <?php
                                     echo '<input type="text" name="reminder_'.$row['tasklistid'].'" style="display:none;" class="form-control datepicker" />';
                                     echo '<input type="file" name="attach_'.$row['tasklistid'].'" style="display:none;" class="form-control" />';
                                     echo '<div style="display:none;" class="assign_milestone"><select class="chosen-select-deselect" data-id="'.$row['tasklistid'].'"><option value="unassign">Unassigned</option>';
