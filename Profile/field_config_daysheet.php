@@ -135,6 +135,7 @@ $(document).ready(function() {
                 <label class="form-checkbox"><input type="checkbox" <?= in_array('Warehouse Indicator', $daysheet_ticket_fields) ? 'checked' : '' ?> name="daysheet_ticket_fields[]" value="Warehouse Indicator">Warehouse Indicator</label>
                 <label class="form-checkbox"><input type="checkbox" <?= in_array('Staff', $daysheet_ticket_fields) ? 'checked' : '' ?> name="daysheet_ticket_fields[]" value="Staff"> Staff</label>
                 <label class="form-checkbox"><input type="checkbox" <?= in_array('Customer', $daysheet_ticket_fields) ? 'checked' : '' ?> name="daysheet_ticket_fields[]" value="Customer">Customer</label>
+                <label class="form-checkbox"><input type="checkbox" <?= in_array('Service Template', $daysheet_ticket_fields) ? 'checked' : '' ?> name="daysheet_ticket_fields[]" value="Service Template">Service Template</label>
                 <label class="form-checkbox"><input type="checkbox" <?= in_array('Delivery Type', $daysheet_ticket_fields) ? 'checked' : '' ?> name="daysheet_ticket_fields[]" value="Delivery Type">Delivery Type</label>
                 <label class="form-checkbox"><input type="checkbox" <?= in_array('Address', $daysheet_ticket_fields) ? 'checked' : '' ?> name="daysheet_ticket_fields[]" value="Address">Address</label>
                 <label class="form-checkbox"><input type="checkbox" <?= in_array('Map Link', $daysheet_ticket_fields) ? 'checked' : '' ?> name="daysheet_ticket_fields[]" value="Map Link">Google Map Link</label>

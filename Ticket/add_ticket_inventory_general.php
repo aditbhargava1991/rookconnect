@@ -7,7 +7,7 @@ function copyPiece(event) {
 	var field = event.target;
 	if($(field).data('type') == 'inventory_general') {
 		$('[data-table=ticket_attached][data-type=inventory_general][name=contact_info]:checked').each(function() {
-			$(this).closest('.tab-section').find('[data-type=inventory_general][name='+field.name+']').val(field.value).change();
+			$(this).closest('.tab-section').find('[data-type=inventory_general][name="'+field.name+'"]').val(field.value).change();
 		});
 	}
 }

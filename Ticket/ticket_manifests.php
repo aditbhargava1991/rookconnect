@@ -1,15 +1,18 @@
-<?php $siteid = filter_var($_GET['site'],FILTER_SANITIZE_STRING);
+<?php include_once('config.php');
+$siteid = filter_var($_GET['site'],FILTER_SANITIZE_STRING);
 $manifest_fields = explode(',',get_config($dbc, 'ticket_manifest_fields'));
 $ticket_filter = '';
 if(in_array_starts('type ',$manifest_fields)) {
 	$type_filters = [];
 	foreach($manifest_fields as $config_field) {
 		$config_field = explode(' ',$config_field);
-		if($config_field[0] == 'type' && count($config_field) == 2) {
+		if($config_field[0] == 'type' && count($config_field) == 2 && in_array($config_field[1],$ticket_conf_list)) {
 			$type_filters[] = $config_field[1];
 		}
 	}
 	$ticket_filter = " AND `tickets`.`ticket_type` IN ('".implode("','",$type_filters)."')";
+} else if(isset($_GET['tile_name']) || isset($_GET['tile_group'])) {
+    $ticket_filter = " AND `tickets`.`ticket_type` IN ('".implode("','",$ticket_conf_list)."')";
 }
 if($siteid == 'recent') {
 	if($_GET['siteid'] > 0) {
@@ -87,7 +90,7 @@ if($siteid == 'recent') {
 		}
 		foreach($_POST['include'] as $i => $line_id) {
 			if($line_id > 0) {
-				$row = $dbc->query("SELECT `tickets`.`ticket_label`,`ticket_attached`.`po_num`,`origin`.`vendor`,`ticket_attached`.`po_line`,`ticket_attached`.`notes`,`inventory`.`inventoryid`,IFNULL(`inventory`.`quantity`,`ticket_attached`.`qty`) `qty`,IFNULL(`ticket_attached`.`siteid`,`tickets`.`siteid`) `siteid` FROM `ticket_attached` LEFT JOIN `inventory` ON `ticket_attached`.`src_table`='inventory' AND `ticket_attached`.`item_id`=`inventory`.`inventoryid` LEFT JOIN `tickets` ON `ticket_attached`.`ticketid`=`tickets`.`ticketid` LEFT JOIN `ticket_schedule` `origin` ON `tickets`.`ticketid`=`origin`.`ticketid` AND `origin`.`type`='origin' WHERE `ticket_attached`.`id`='$line_id'")->fetch_assoc();
+				$row = $dbc->query("SELECT `tickets`.`ticket_label`,IFNULL(NULLIF(`ticket_attached`.`po_num`,''),`tickets`.`purchase_order`) `po_num`,`origin`.`vendor`,`ticket_attached`.`po_line`,`ticket_attached`.`notes`,`inventory`.`inventoryid`,IFNULL(`inventory`.`quantity`,`ticket_attached`.`qty`) `qty`,IFNULL(`ticket_attached`.`siteid`,`tickets`.`siteid`) `siteid` FROM `ticket_attached` LEFT JOIN `inventory` ON `ticket_attached`.`src_table`='inventory' AND `ticket_attached`.`item_id`=`inventory`.`inventoryid` LEFT JOIN `tickets` ON `ticket_attached`.`ticketid`=`tickets`.`ticketid` LEFT JOIN `ticket_schedule` `origin` ON `tickets`.`ticketid`=`origin`.`ticketid` AND `origin`.`type`='origin' WHERE `ticket_attached`.`id`='$line_id'")->fetch_assoc();
 				$qty = empty($manual_qty[$i]) ? $row['qty'] : $manual_qty[$i];
 				if($qty > 0 && $row['inventoryid'] > 0) {
 					$old_qty = $row['qty'];
@@ -106,7 +109,7 @@ if($siteid == 'recent') {
 			} else {
 				$row = ['qty'=>'','siteid'=>$siteid];
 			}
-			$lines[] = ['file'=>$row['ticket_label'], 'po'=>$row['po_num'], 'vendor'=>($row['vendor'] > 0 ? get_contact($dbc, $row['vendor'],'name_company') : ''), 'line'=>(empty($ticket['po_line']) ? 'N/A' : $ticket['po_line']), 'qty'=>($row['qty'] > 0 ? round($row['qty'],3) : ''), 'manual_qty'=>$manual_qty[$i], 'site'=>($row['siteid'] == $siteid ? $manifest_label : ($row['siteid'] > 0 ? get_contact($dbc, $row['siteid']) : 'UNASSIGNED')), 'notes'=>$row['notes']];
+			$lines[] = ['file'=>$row['ticket_label'], 'po'=>implode('<br />',array_filter(explode('#*#',$row['po_num']))), 'vendor'=>($row['vendor'] > 0 ? get_contact($dbc, $row['vendor'],'name_company') : ''), 'line'=>(empty($ticket['po_line']) ? 'N/A' : $ticket['po_line']), 'qty'=>($row['qty'] > 0 ? round($row['qty'],3) : ''), 'manual_qty'=>$manual_qty[$i], 'site'=>($row['siteid'] == $siteid ? $manifest_label : ($row['siteid'] > 0 ? get_contact($dbc, $row['siteid']) : 'UNASSIGNED')), 'notes'=>$row['notes']];
 			if(in_array('pdf_collapse',$manifest_fields)) {
 				$columns['po'] += (!empty($row['po_num']) ? 1 : 0);
 				$columns['vendor'] += ($row['vendor'] > 0 ? 1 : 0);
@@ -136,14 +139,13 @@ if($siteid == 'recent') {
 			'.(in_array('manual qty',$manifest_fields) && $columns['manual_qty'] > 0 ? '<th style="border:1px solid black; text-align:center;">LAND TRAN PIECE COUNT</th>' : '').'
 			'.(in_array('site',$manifest_fields) && $columns['site'] > 0 ? '<th style="border:1px solid black; text-align:center;">SITE</th>' : '').'
 			'.(in_array('notes',$manifest_fields) && $columns['notes'] > 0 ? '<th style="border:1px solid black; text-align:center;">NOTES</th>' : '').'
-		</tr>
-		<tr style="background-color:'.$row_colour_1.'"><td style="font-size:5px;" colspan="'.$col_count.'">&nbsp;</td></tr>';
+		</tr>';
 			$site_notes = '';
 			if($siteid > 0) {
 				$site_notes = html_entity_decode($dbc->query("SELECT `notes` FROM `contacts_description` WHERE `contactid`='$siteid'")->fetch_assoc()['notes']);
 			}
 			foreach($lines as $i => $row) {
-				$html .= '<tr style="background-color:'.($i % 2 == 0 ? $row_colour_1 : $row_colour_2).'">
+				$html .= '<tr style="background-color:'.($i % 2 == 0 ? $row_colour_1 : $row_colour_2).'"><td style="font-size:5px;" colspan="'.$col_count.'">&nbsp;</td></tr><tr style="background-color:'.($i % 2 == 0 ? $row_colour_1 : $row_colour_2).'">
 					'.(in_array('file',$manifest_fields) ? '<td data-title="FILE #" style="text-align:center;">'.$row['file'].'</td>' : '').'
 					'.(in_array('po',$manifest_fields) && $columns['po'] > 0 ? '<td data-title="PO" style="text-align:center;">'.$row['po'].'</td>' : '').'
 					'.(in_array('vendor',$manifest_fields) && $columns['vendor'] > 0 ? '<td data-title="VENDOR / SHIPPER" style="text-align:center;">'.$row['vendor'].'</td>' : '').'
@@ -255,8 +257,8 @@ if($siteid == 'recent') {
 	$search = empty($_GET['search_manifest']) ? '' : " AND (`tickets`.`ticket_label` LIKE '%$search_key%' OR `tickets`.`purchase_order` LIKE '%$search_key%' OR `ticket_attached`.`po_num` LIKE '%$search_key%')";
 	$filter_inv = in_array('hide qty',$manifest_fields) ? 'AND IFNULL(`inventory`.`quantity`,`ticket_attached`.`qty`-`ticket_attached`.`used`) > 0' : '';
 	$filter_proj = in_array('sort_project',$manifest_fields) && !empty($_GET['type']) ? "AND `tickets`.`projectid` IN (SELECT `projectid` FROM `project` WHERE `projecttype`='".filter_var($_GET['type'],FILTER_SANITIZE_STRING)."')" : '';
-	$ticket_sql = "SELECT `tickets`.`ticketid`, `tickets`.`ticket_label`, IF(`ticket_attached`.`siteid` IN ('0','',',,') OR `ticket_attached`.`siteid` IS NULL,IF(`piece`.`siteid` IN ('0','',',,') OR `piece`.`siteid` IS NULL,`tickets`.`siteid`,`piece`.`siteid`),`ticket_attached`.`siteid`) `siteid`, `ticket_attached`.`id`, `ticket_attached`.`notes`, IFNULL(`inventory`.`quantity`,`ticket_attached`.`qty`) `qty`, GROUP_CONCAT(DISTINCT IFNULL(NULLIF(`ticket_attached`.`po_num`,''),`tickets`.`purchase_order`) SEPARATOR '#*#') `po_num`, GROUP_CONCAT(DISTINCT `ticket_attached`.`po_line` SEPARATOR ', ') `po_line`, MAX(`ticket_schedule`.`vendor`) `vendor`, GROUP_CONCAT(`ticket_attached`.`id` SEPARATOR ',') `piece_id`, GROUP_CONCAT(`ticket_attached`.`piece_type` SEPARATOR '#*#') `piece_types` FROM `tickets` LEFT JOIN `ticket_attached` ON `tickets`.`ticketid`=`ticket_attached`.`ticketid` LEFT JOIN `inventory` ON `ticket_attached`.`item_id`=`inventory`.`inventoryid` AND `ticket_attached`.`src_table`='inventory' LEFT JOIN `ticket_attached` `piece` ON `ticket_attached`.`line_id`=`piece`.`id` LEFT JOIN `ticket_schedule` ON `tickets`.`ticketid`=`ticket_schedule`.`ticketid` AND `ticket_schedule`.`type`='origin' WHERE `tickets`.`deleted`=0 AND `ticket_attached`.`deleted`=0 AND `tickets`.`status` != 'Archive' AND `ticket_attached`.`src_table` IN ('inventory','inventory_general') AND CONCAT(',',IF(`ticket_attached`.`siteid` IN ('0','',',,') OR `ticket_attached`.`siteid` IS NULL,IF(`piece`.`siteid` IN ('0','',',,') OR `piece`.`siteid` IS NULL,IF(`tickets`.`siteid` IN ('0','',',,') OR `tickets`.`siteid` IS NULL, 'na',`tickets`.`siteid`),`piece`.`siteid`),`ticket_attached`.`siteid`),',top_25,') LIKE '%,$siteid,%' $filter_inv $ticket_filter $filter_proj $search GROUP BY ".(in_array('group pieces',$manifest_fields) ? "`tickets`.`ticketid`,`ticket_attached`.`item_id`" : "`ticket_attached`.`id`")." ORDER BY ".(in_array('ticket_sort',$manifest_fields) ? "`tickets`.`ticketid` DESC," : '')." LPAD(`ticket_attached`.`po_num`,100,0), LPAD(`ticket_attached`.`po_line`,100,0), `tickets`.`ticketid`, `ticket_attached`.`id`";
-	$ticket_count = "SELECT COUNT(DISTINCT ".(in_array('group pieces',$manifest_fields) ? "`tickets`.`ticketid`" : "`ticket_attached`.`id`").") numrows FROM `tickets` LEFT JOIN `ticket_attached` ON `tickets`.`ticketid`=`ticket_attached`.`ticketid` LEFT JOIN `inventory` ON `ticket_attached`.`item_id`=`inventory`.`inventoryid` AND `ticket_attached`.`src_table`='inventory' LEFT JOIN `ticket_attached` `piece` ON `ticket_attached`.`line_id`=`piece`.`id` LEFT JOIN `ticket_schedule` ON `tickets`.`ticketid`=`ticket_schedule`.`ticketid` AND `ticket_schedule`.`type`='origin' WHERE `tickets`.`deleted`=0 AND `ticket_attached`.`deleted`=0 AND `tickets`.`status` != 'Archive' AND `ticket_attached`.`src_table` IN ('inventory','inventory_general') AND CONCAT(',',IF(`ticket_attached`.`siteid` IN ('0','',',,') OR `ticket_attached`.`siteid` IS NULL,IF(`piece`.`siteid` IN ('0','',',,') OR `piece`.`siteid` IS NULL,IF(`tickets`.`siteid` IN ('0','',',,') OR `tickets`.`siteid` IS NULL, 'na',`tickets`.`siteid`),`piece`.`siteid`),`ticket_attached`.`siteid`),',top_25,') LIKE '%,$siteid,%' $filter_inv $ticket_filter $filter_proj $search";
+	$ticket_sql = "SELECT `tickets`.`ticketid`, `tickets`.`ticket_label`, IF(`ticket_attached`.`siteid` IN ('0','',',,') OR `ticket_attached`.`siteid` IS NULL,IF(`piece`.`siteid` IN ('0','',',,') OR `piece`.`siteid` IS NULL,`tickets`.`siteid`,`piece`.`siteid`),`ticket_attached`.`siteid`) `siteid`, `ticket_attached`.`id`, `ticket_attached`.`notes`, IFNULL(`inventory`.`quantity`,`ticket_attached`.`qty`) `qty`, ".(in_array('group pieces po',$manifest_fields) ? "IFNULL(NULLIF(`ticket_attached`.`po_num`,''),`tickets`.`purchase_order`) `po_num`" : "GROUP_CONCAT(DISTINCT IFNULL(NULLIF(`ticket_attached`.`po_num`,''),`tickets`.`purchase_order`) SEPARATOR '#*#') `po_num`").", GROUP_CONCAT(DISTINCT `ticket_attached`.`po_line` SEPARATOR ', ') `po_line`, MAX(`ticket_schedule`.`vendor`) `vendor`, GROUP_CONCAT(`ticket_attached`.`id` SEPARATOR ',') `piece_id`, GROUP_CONCAT(`ticket_attached`.`piece_type` SEPARATOR '#*#') `piece_types` FROM `tickets` LEFT JOIN `ticket_attached` ON `tickets`.`ticketid`=`ticket_attached`.`ticketid` LEFT JOIN `inventory` ON `ticket_attached`.`item_id`=`inventory`.`inventoryid` AND `ticket_attached`.`src_table`='inventory' LEFT JOIN `ticket_attached` `piece` ON `ticket_attached`.`line_id`=`piece`.`id` LEFT JOIN `ticket_schedule` ON `tickets`.`ticketid`=`ticket_schedule`.`ticketid` AND `ticket_schedule`.`type`='origin' WHERE `tickets`.`deleted`=0 AND `ticket_attached`.`deleted`=0 AND `tickets`.`status` != 'Archive' AND `ticket_attached`.`src_table` IN ('inventory','inventory_general') AND CONCAT(',',IF(`ticket_attached`.`siteid` IN ('0','',',,') OR `ticket_attached`.`siteid` IS NULL,IF(`piece`.`siteid` IN ('0','',',,') OR `piece`.`siteid` IS NULL,IF(`tickets`.`siteid` IN ('0','',',,') OR `tickets`.`siteid` IS NULL, 'na',`tickets`.`siteid`),`piece`.`siteid`),`ticket_attached`.`siteid`),',top_25,') LIKE '%,$siteid,%' $filter_inv $ticket_filter $filter_proj $search GROUP BY ".(in_array('group pieces',$manifest_fields) ? "`tickets`.`ticketid`,`ticket_attached`.`item_id`" : "`ticket_attached`.`id`").(in_array('group pieces po',$manifest_fields) ? ", IFNULL(NULLIF(`ticket_attached`.`po_num`,''),`tickets`.`purchase_order`)" : '')." ORDER BY ".(in_array('ticket_sort',$manifest_fields) ? "`tickets`.`ticketid` DESC," : '')." LPAD(`ticket_attached`.`po_num`,100,0), LPAD(`ticket_attached`.`po_line`,100,0), `tickets`.`ticketid`, `ticket_attached`.`id`";
+	$ticket_count = "SELECT COUNT(DISTINCT ".(in_array('group pieces',$manifest_fields) ? "`tickets`.`ticketid`" : "`ticket_attached`.`id`").") numrows FROM `tickets` LEFT JOIN `ticket_attached` ON `tickets`.`ticketid`=`ticket_attached`.`ticketid` LEFT JOIN `inventory` ON `ticket_attached`.`item_id`=`inventory`.`inventoryid` AND `ticket_attached`.`src_table`='inventory' LEFT JOIN `ticket_attached` `piece` ON `ticket_attached`.`line_id`=`piece`.`id` LEFT JOIN `ticket_schedule` ON `tickets`.`ticketid`=`ticket_schedule`.`ticketid` AND `ticket_schedule`.`type`='origin' WHERE `tickets`.`deleted`=0 AND `ticket_attached`.`deleted`=0 AND `tickets`.`status` != 'Archive' AND `ticket_attached`.`src_table` IN ('inventory','inventory_general') AND CONCAT(',',IF(`ticket_attached`.`siteid` IN ('0','',',,') OR `ticket_attached`.`siteid` IS NULL,IF(`piece`.`siteid` IN ('0','',',,') OR `piece`.`siteid` IS NULL,IF(`tickets`.`siteid` IN ('0','',',,') OR `tickets`.`siteid` IS NULL, 'na',`tickets`.`siteid`),`piece`.`siteid`),`ticket_attached`.`siteid`),',top_25,') LIKE '%,$siteid,%' $filter_inv $ticket_filter $filter_proj $search".(in_array('group pieces po',$manifest_fields) ? " GROUP BY IFNULL(NULLIF(`ticket_attached`.`po_num`,''),`tickets`.`purchase_order`)" : '');
 	if($siteid > 0) {
 		$site_notes = html_entity_decode($dbc->query("SELECT `notes` FROM `contacts_description` WHERE `contactid`='$siteid'")->fetch_assoc()['notes']);
 		$ticket_sql .= " LIMIT $offset, $rowsPerPage";
@@ -265,6 +267,7 @@ if($siteid == 'recent') {
 	} else {
 		$ticket_sql .= " LIMIT $offset, $rowsPerPage";
 	}
+    // echo "<!--$ticket_sql-->";
 	$ticket_list = $dbc->query($ticket_sql);
 	if(in_array('ticket_search',$manifest_fields)) { ?>
 		<form class="form-horizontal" action="" method="GET">
@@ -272,7 +275,7 @@ if($siteid == 'recent') {
 			<input type="hidden" name="tab" value="<?= $_GET['tab'] ?>">
 			<input type="hidden" name="type" value="<?= $_GET['type'] ?>">
 			<div class="col-sm-4"><input type="text" name="search_manifest" value="<?= $_GET['search_manifest'] ?>" class="form-control"></div>
-			<button class="btn brand-btn pull-left" name="site" value="<?= $_GET['site'] ?>" type="submit">Search by <?= TICKET_NOUN ?></button>
+			<button class="btn brand-btn pull-left" name="site" value="<?= $_GET['site'] ?>" type="submit">Search by <?= empty($ticket_noun) ? TICKET_NOUN : $ticket_noun ?></button>
 			<div class="clearfix"></div>
 		</form>
 	<?php }
@@ -286,7 +289,7 @@ if($siteid == 'recent') {
 			<?php if($siteid != 'top_25') { display_pagination($dbc, $ticket_count, $_GET['page'], ($_GET['pagerows'] > 0 ? $_GET['pagerows'] : $rowsPerPage), true, 25); } ?>
 			<table class="table table-bordered">
 				<tr>
-					<?php if(in_array('file',$manifest_fields)) { ?><th><?= TICKET_NOUN ?></th><?php } ?>
+					<?php if(in_array('file',$manifest_fields)) { ?><th><?= empty($ticket_noun) ? TICKET_NOUN : $ticket_noun ?></th><?php } ?>
 					<th><?= SITES_CAT ?></th>
 					<?php if(in_array('po',$manifest_fields)) { ?><th>PO</th><?php } ?>
 					<?php if(in_array('line',$manifest_fields)) { ?><th>Line Item</th><?php } ?>
@@ -298,7 +301,7 @@ if($siteid == 'recent') {
 				</tr>
 				<?php while($ticket = $ticket_list->fetch_assoc()) { ?>
 					<tr>
-						<?php if(in_array('file',$manifest_fields)) { ?><td data-title="<?= TICKET_NOUN ?>"><?php if($tile_security['edit'] > 0) { ?><a href="index.php?edit=<?= $ticket['ticketid'] ?>" onclick="overlayIFrameSlider(this.href+'&calendar_view=true','auto',true,true); return false;"><?= get_ticket_label($dbc, $ticket) ?></a><?php } else { echo get_ticket_label($dbc, $ticket); } ?></td><?php } ?>
+						<?php if(in_array('file',$manifest_fields)) { ?><td data-title="<?= empty($ticket_noun) ? TICKET_NOUN : $ticket_noun ?>"><?php if($tile_security['edit'] > 0) { ?><a href="index.php?edit=<?= $ticket['ticketid'] ?>" onclick="overlayIFrameSlider(this.href+'&calendar_view=true','auto',true,true); return false;"><?= get_ticket_label($dbc, $ticket) ?></a><?php } else { echo get_ticket_label($dbc, $ticket); } ?></td><?php } ?>
 						<td data-title="<?= SITES_CAT ?>"><select name="siteid" multiple data-table="<?= in_array('group pieces',$manifest_fields) ? 'tickets' : 'ticket_attached' ?>" data-id="<?= in_array('group pieces',$manifest_fields) ? $ticket['ticketid'] : $ticket['id'] ?>" data-id-field="<?= in_array('group pieces',$manifest_fields) ? 'ticketid' : 'id' ?>" class="chosen-select-deselect" data-placeholder="Select <?= SITES_CAT ?>"><option />
 							<?php foreach($site_list as $site) { ?>
 								<option <?= in_array($site['contactid'],explode(',',$ticket['siteid'])) ? 'selected' : '' ?> value="<?= $site['contactid'] ?>"><?= $site['full_name'] ?></option>
@@ -349,6 +352,6 @@ if($siteid == 'recent') {
 			<?php } ?>
 		</form>
 	<?php } else {
-		echo '<h3>No '.TICKET_TILE.' Found</h3>';
+		echo '<h3>No '.(empty($ticket_tile) ? TICKET_TILE : $ticket_tile).' Found</h3>';
 	}
 } ?>

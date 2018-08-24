@@ -464,7 +464,8 @@ if(isset($_POST['custom_form'])) {
 			<label class="col-sm-4 control-label"><?= TICKET_NOUN ?>:</label>
 			<div class="col-sm-8">
 				<select class="chosen-select-deselect" data-placeholder="Select a Ticket" name="ticketid"><option />
-					<?php $ticket_list = $dbc->query("SELECT * FROM `tickets` WHERE `deleted`=0 AND `status` != 'Archive'".($_GET['projectid'] > 0 ? " AND `projectid`='{$_GET['projectid']}'" : ''));
+					<?php $ticket_list = "SELECT * FROM `tickets` WHERE `deleted`=0 AND `status` != 'Archive' AND `ticket_type` IN ('".implode("','",$ticket_conf_list)."')".(empty($form['ticket_types']) || $form['ticket_types'] == 'ALL' ? '' : (" AND `ticket_type` IN ('".config_safe_str($form['ticket_types'])."')")).($_GET['projectid'] > 0 ? " AND `projectid`='{$_GET['projectid']}'" : '');
+					$ticket_list = $dbc->query($ticket_list);
 					while($ticket = $ticket_list->fetch_assoc()) { ?>
 						<option value="<?= $ticket['ticketid'] ?>"><?= get_ticket_label($dbc, $ticket) ?></option>
 					<?php } ?>
