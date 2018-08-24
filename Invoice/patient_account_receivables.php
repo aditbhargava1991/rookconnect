@@ -110,7 +110,7 @@ define('PURCHASER', count($purchaser_config) > 1 ? 'Customer' : $purchaser_confi
                 $invoice_no = '';
             }
             if($starttime == 0000-00-00) {
-                $starttime = '';
+                $starttime = (in_array($rookconnect,['sea','led']) ? '' : date('Y-m-d'));
             }
 
             if($endtime == 0000-00-00) {
