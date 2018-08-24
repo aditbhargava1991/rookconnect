@@ -524,7 +524,7 @@ $(document).ready(function () {
     });
 
     $('.full-btn').on('click', function() {
-        window.top.location.href = "add_Task_full_view.php";
+        window.top.location.href = "add_task_full_view.php";
     });
 
 
