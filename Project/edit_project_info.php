@@ -358,46 +358,6 @@ function apply_template() {
 	</div>
 	<?php } ?>
 
-	<?php if (in_array('Path',$tab_config)) {    ?>
-		<div class="form-group">
-			<label class="col-sm-4"><?= in_array('External Path',$tab_config) ? 'Internal ' : '' ?><?= PROJECT_NOUN ?> Path Template:</label>
-			<div class="col-sm-8 <?= !($security['edit'] > 0) ? 'readonly-block' : '' ?>">
-				<select class="chosen-select-deselect" name="path_templates[]" multiple data-placeholder="Select a <?= PROJECT_NOUN ?> Path Template" data-template="<?= $project['project_path'] ?>">
-					<option></option>
-					<?php $paths = mysqli_query($dbc, "SELECT `project_path`, `milestone`, `timeline`, `project_path_milestone` FROM `project_path_milestone` WHERE `project_path` != '' ORDER BY `default_path` DESC");
-					while($path = mysqli_fetch_array($paths)) { ?>
-						<option <?= strpos(','.$project['project_path'].',',$path['project_path_milestone']) !== FALSE ? 'selected' : '' ?> value="<?= $path['project_path_milestone'] ?>"><?= $path['project_path'] ?>:<?php
-						$timelines = explode('#*#',$path['timeline']);
-							foreach(explode('#*#',$path['milestone']) as $i => $milestone) { ?>
-								<?= $milestone.($timelines[$i] != '' ? ' ('.$timelines[$i].')' : '') ?>;
-							<?php } ?>
-						</option>
-					<?php } ?>
-				</select>
-			</div>
-		</div>
-	<?php } ?>
-
-	<?php if (in_array('External Path',$tab_config)) { ?>
-		<div class="form-group">
-			<label class="col-sm-4">External <?= PROJECT_NOUN ?> Path Template:</label>
-			<div class="col-sm-8 <?= !($security['edit'] > 0) ? 'readonly-block' : '' ?>">
-				<select class="chosen-select-deselect" name="external_path[]" multiple data-placeholder="Select an External <?= PROJECT_NOUN ?> Path Template" data-table="project" data-id="<?= $project['projectid'] ?>" data-id-field="projectid">
-					<option></option>
-					<?php $paths = mysqli_query($dbc, "SELECT `project_path`, `milestone`, `timeline`, `project_path_milestone` FROM `project_path_milestone` WHERE `project_path` != '' ORDER BY `project_path`");
-					while($path = mysqli_fetch_array($paths)) { ?>
-						<option <?= strpos(','.$project['external_path'].',',$path['project_path_milestone']) !== FALSE ? 'selected' : '' ?> value="<?= $path['project_path_milestone'] ?>"><?= $path['project_path'] ?>:<?php
-						$timelines = explode('#*#',$path['timeline']);
-							foreach(explode('#*#',$path['milestone']) as $i => $milestone) { ?>
-								<?= $milestone.($timelines[$i] != '' ? ' ('.$timelines[$i].')' : '') ?>;
-							<?php } ?>
-						</option>
-					<?php } ?>
-				</select>
-			</div>
-		</div>
-	<?php } ?>
-
 	<div class="form-group">
 		<label class="col-sm-4"><?= PROJECT_NOUN ?> Status:</label>
 		<div class="col-sm-8 <?= !($security['edit'] > 0) ? 'readonly-block' : '' ?>">
@@ -430,34 +390,6 @@ function apply_template() {
 			<label class="col-sm-4"><?= PROJECT_NOUN ?> Short Name<span class="brand-color">*</span>:</label>
 			<div class="col-sm-8 <?= !($security['edit'] > 0) ? 'readonly-block' : '' ?>">
 				<input name="project_name" value="<?= $project['project_name'] ?>" data-table="project" data-id="<?= $project['projectid'] ?>" data-id-field="projectid" type="text" class="form-control"></p>
-			</div>
-		</div>
-	<?php } ?>
-
-	<?php if (in_array("Information Assign",$value_config)) { ?>
-		<div class="form-group">
-			<label class="col-sm-4">Project Lead:</label>
-			<div class="col-sm-8 <?= !($security['edit'] > 0) ? 'readonly-block' : '' ?>">
-				<select name="project_lead" data-placeholder="Select a Staff..." data-table="project" data-id="<?= $project['projectid'] ?>" data-id-field="projectid" class="chosen-select-deselect form-control">
-					<option></option>
-					<?php foreach(sort_contacts_query(mysqli_query($dbc, "SELECT contactid, first_name, last_name FROM contacts WHERE (category IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND deleted=0 AND `status` > 0) OR `contactid`='{$project['project_lead']}'")) as $contact) {
-						echo "<option ".($project['project_lead'] == $contact['contactid'] ? 'selected' : '')." value='". $contact['contactid']."' data-region='".$contact['region']."' data-location='".$contact['con_locations']."' data-classification='".$contact['classification']."'>".$contact['first_name'].' '.$contact['last_name'].'</option>';
-					} ?>
-				</select>
-			</div>
-		</div>
-	<?php } ?>
-
-	<?php if (in_array("Information Colead",$value_config)) { ?>
-		<div class="form-group">
-			<label class="col-sm-4">Project Co-Lead:</label>
-			<div class="col-sm-8 <?= !($security['edit'] > 0) ? 'readonly-block' : '' ?>">
-				<select name="project_colead" data-placeholder="Select a Staff..." data-table="project" data-id="<?= $project['projectid'] ?>" data-id-field="projectid" class="chosen-select-deselect form-control">
-					<option></option>
-					<?php foreach(sort_contacts_query(mysqli_query($dbc, "SELECT contactid, first_name, last_name FROM contacts WHERE (category IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND deleted=0 AND `status` > 0) OR `contactid`='{$project['project_colead']}'")) as $contact) {
-						echo "<option ".($project['project_colead'] == $contact['contactid'] ? 'selected' : '')." value='". $contact['contactid']."' data-region='".$contact['region']."' data-location='".$contact['con_locations']."' data-classification='".$contact['classification']."'>".$contact['first_name'].' '.$contact['last_name'].'</option>';
-					} ?>
-				</select>
 			</div>
 		</div>
 	<?php } ?>

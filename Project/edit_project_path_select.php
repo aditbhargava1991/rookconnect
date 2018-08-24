@@ -67,7 +67,7 @@ if($security['edit'] > 0) {
 	}
 	</script>
 	<div class="col-sm-12">
-		<h1>Add / Remove <?= PROJECT_NOUN ?> Paths for <?= get_project_label($dbc, $project) ?></h1>
+		<h1>Add / Remove <?= PROJECT_NOUN ?> Paths for <?= get_project_label($dbc, $project) ?><a href="../blank_loading_page.php"><img src="../img/icons/cancel.png" class="pull-right inline-img"></a></h1>
 		<?php $paths = mysqli_query($dbc, "SELECT * FROM `project_path_milestone` ORDER BY project_path");
         echo '<div class="panel-group" id="accordion2">';
 		while($path = mysqli_fetch_assoc($paths)) {

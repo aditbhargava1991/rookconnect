@@ -17,18 +17,20 @@ if(!isset($project)) {
         $odd_even = 0; ?>
 		<table class='table table-bordered'>
             <tr class='hidden-xs hidden-sm'>
+				<th>Date Created</th>
+				<th>Tagged</th>
+				<th>Sent To</th>
+				<th>Created By</th>
 				<th>Note</th>
-				<th>Assigned To</th>
-				<th>Date</th>
-				<th>Added By</th>
             </tr>
 			<?php while($note = mysqli_fetch_assoc($project_notes)) { ?>
                 <?php $bg_class = $odd_even % 2 == 0 ? 'row-even-bg' : 'row-odd-bg'; ?>
 				<tr class="<?= $bg_class ?>">
+					<td data-title="Date Created"><?= $note['created_date'] ?></td>
+					<td data-title="Tagged"><?= get_contact($dbc, $note['email_comment']) ?></td>
+					<td data-title="Sent To"><?= get_contact($dbc, $note['email_comment']) ?></td>
+					<td data-title="Created By"><?= get_contact($dbc, $note['created_by']) ?></td>
 					<td data-title="Note"><?= html_entity_decode($note['comment']) ?></td>
-					<td data-title="Assigned To"><?= get_contact($dbc, $note['email_comment']) ?></td>
-					<td data-title="Date"><?= $note['created_date'] ?></td>
-					<td data-title="Added By"><?= get_contact($dbc, $note['created_by']) ?></td>
 				</tr>
                 <?php $odd_even++; ?>
 			<?php } ?>

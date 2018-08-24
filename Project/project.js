@@ -225,6 +225,8 @@ function saveFieldMethod(field) {console.log('saving');
 	}
 	var value = field.value;
 	var name = field.name;
+	var table = $(field).data('table');
+	var type = $(field).data('type');
 	if(name.substr(-2) == '[]') {
 		value = '';
 		name = name.substr(0,name.length-2);
@@ -238,9 +240,15 @@ function saveFieldMethod(field) {console.log('saving');
 		});
 	} else if(name == 'to_do_date') {
 		$('[name=to_do_end_date]').val(field.value).change();
-	}
-	var table = $(field).data('table');
-	var type = $(field).data('type');
+	} else if(name == 'MANUAL' && table == 'project_detail') {
+        type = 'detail_custom_'+$(field).closest('.form-group').find('[name=type]').first().val();
+        table = 'project_comment';
+        name = 'comment';
+        $(field).data('type-field','type');
+        $(field).data('id-field','projectcommid');
+    } else if(name == 'type' && table == 'project_comment') {
+        value = 'detail_custom_'+value;
+    }
 	$.ajax({
 		url: 'projects_ajax.php?action=project_fields',
 		method: 'POST',
@@ -273,6 +281,8 @@ function saveFieldMethod(field) {console.log('saving');
 				if(salesid > 0) {
 					$.post('projects_ajax.php?action=load_sales_scope',{ project: id, sales: salesid });
 				}
+			} else if(response > 0 && type != undefined && type != '' && table == 'project_comment') {
+                $(field).closest('.form-group').find('input,textarea').data('id',response);
 			} else if(response > 0 && type != undefined && type != '') {
 				$('[data-table='+table+'][data-type='+type+']').data('id',response);
 			} else if(response > 0) {

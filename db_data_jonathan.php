@@ -265,6 +265,11 @@
 		if(!mysqli_query($dbc, "ALTER TABLE `sales` CHANGE `created_date` `created_date` DATETIME NULL DEFAULT CURRENT_TIMESTAMP")) {
 			echo "Error: ".mysqli_error($dbc)."<br />\n";
 		}
+        
+        //August 23, 2018
+		if(!mysqli_query($dbc, "ALTER TABLE `project` ADD `project_team` TEXT AFTER `project_colead`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
 		
 		set_config($dbc, 'db_version_jonathan', 8);
 	}
@@ -275,6 +280,13 @@
 			echo "Error: ".mysqli_error($dbc)."<br />\n";
 		}
 		set_config($dbc, 'update_timesheet_config', 1);
+	}
+	if(get_config($dbc, 'update_project_details_path_config') < 1) {
+		// July 9, 2018
+		if(!mysqli_query($dbc, "UPDATE `field_config_project` SET `config_tabs`=REPLACE(`config_tabs`,'Information,','Information,Details Path,Staff,')")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+		set_config($dbc, 'update_project_details_path_config', 1);
 	}
 	
 	echo "Jonathan's DB Changes Done<br />\n";
