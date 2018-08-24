@@ -3276,6 +3276,7 @@ function sync_recurring_tickets($dbc, $ticketid) {
         $recurring_tickets = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `main_ticketid` = '".$ticket['main_ticketid']."' AND `is_recurrence` = 1 AND `deleted` = 0"),MYSQLI_ASSOC);
         foreach($recurring_tickets as $recurring_ticket) {
             mysqli_query($dbc, "UPDATE `tickets` SET $ticket_query WHERE `ticketid` = '".$recurring_ticket['ticketid']."'");
+            mysqli_query($dbc, "UPDATE `tickets` SET `ticket_label_date` = '' WHERE `ticketid` = '".$recurring_ticket['ticketid']."'");
 
             //Insert all ticket_attached records with the new ticketid
             foreach($ticket_attached_queries as $id => $ticket_attached_query) {
