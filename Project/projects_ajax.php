@@ -1083,4 +1083,8 @@ if($_GET['action'] == 'mark_favourite') {
 			$dbc->query("INSERT INTO `project_scope` (`projectid`,`src_table`,`src_id`,`qty`,`cost`,`price`) VALUES ('$projectid','services','$service','1','{$service_rate['cost']}','{$service_rate['cust_price']}');");
 		}
 	}
+} else if($_GET['action'] == 'setting_contacts') {
+    set_config($dbc, 'project_lead_cats', $_POST['lead']);
+    set_config($dbc, 'project_co_lead_cats', $_POST['co']);
+    set_config($dbc, 'project_team_cats', $_POST['team']);
 }
