@@ -11,12 +11,21 @@ if($_SESSION['tile_list_updated'] + 30 < time() || $_SERVER['PHP_SELF'] == '/Set
 	}
 	// Get all of the ticket types in an array
 	$ticket_type_tile_list = [];
-	if(get_config($dbc, 'ticket_type_tiles') == 'SHOW') {
+    $ticket_type_tile_config = get_config($dbc, 'ticket_type_tiles');
+	if($ticket_type_tile_config == 'SHOW') {
 		$ticket_type_list = array_filter(explode(',',get_config($dbc,'ticket_tabs')));
 		foreach($ticket_type_list as $ticket_type_item) {
 			$ticket_type_tile_list[] = 'ticket#*#'.$ticket_type_item;
 		}
-	}
+	} else if(!empty($ticket_type_tile_config)) {
+        foreach(explode(',',$ticket_type_tile_config) as $ticket_type_item) {
+            $ticket_type_tile_list[] = 'ticket#*#'.$ticket_type_item;
+        }
+    }
+    $ticket_tile_groups = $dbc->query("SELECT `name` FROM `general_configuration` WHERE `name` LIKE 'ticket_split_tiles_%'");
+    while($ticket_tile_group = $ticket_tile_groups->fetch_assoc()) {
+        $ticket_type_tile_list[] = 'ticket_group#*#'.substr($ticket_tile_group['name'],19);
+    }
 	// Get all of the project workflow types in an array
 	$project_workflow_type_list = mysqli_query($dbc, "SELECT `tile_name` FROM `project_workflow`"); //explode(',',get_config($dbc,'project_tabs'));
 	$project_workflow_type_tile_list = [];

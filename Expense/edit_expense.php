@@ -74,7 +74,13 @@ if(isset($_POST['submit'])) {
 		$before_change = capture_before_change($dbc, 'expense', 'status', 'expenseid', $expenseid);
 		$before_change .= capture_before_change($dbc, 'expense', 'approval_date', 'expenseid', $expenseid);
 		$before_change .= capture_before_change($dbc, 'expense', 'approval_by', 'expenseid', $expenseid);
-		mysqli_query($dbc,"UPDATE `expense` SET `status`='Approved', `approval_date`='".date('Y-m-d')."', `approval_by`='".$_SESSION['contactid']."' WHERE `expenseid`='$expenseid'");
+		$before_change .= capture_before_change($dbc, 'expense', 'approved_by', 'expenseid', $expenseid);
+		$appquery = "";
+		if(isset($_GET['app_id']) && $_GET['app_id']){
+		    $appid = explode('_',$_GET['app_id']);
+		    $appquery = " ,approved_by = '".$appid[0]."' ";
+		}
+		mysqli_query($dbc,"UPDATE `expense` SET `status`='Approved', `approval_date`='".date('Y-m-d')."', `approval_by`='".$_SESSION['contactid']."' ".$appquery." WHERE `expenseid`='$expenseid'");
 		$history = capture_after_change('status', 'Approved');
 		$history .= capture_after_change('approval_date', date('Y-m-d'));
 		$history .= capture_after_change('approval_by', $_SESSION['contactid']);

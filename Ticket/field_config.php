@@ -18,6 +18,9 @@ switch($_GET['settings']) {
 	case 'tile':
 		$page_title = 'Tile Settings';
 		break;
+	case 'tile_split':
+		$page_title = 'Tile Splitting';
+		break;
 	case 'types':
 		$page_title = TICKET_NOUN.' Types';
 		break;
@@ -364,6 +367,7 @@ function loadPanel() {
 			<a href="?settings=types"><li class="<?= $_GET['settings'] == 'types' ? 'active blue' : '' ?>"><?= TICKET_NOUN ?> Types</li></a>
 			<a href="?settings=status"><li class="<?= $_GET['settings'] == 'status' ? 'active blue' : '' ?>">Statuses</li></a>
 			<a href="?settings=tile"><li class="<?= $_GET['settings'] == 'tile' ? 'active blue' : '' ?>">Tile Settings</li></a>
+			<a href="?settings=tile_split"><li class="<?= $_GET['settings'] == 'tile_split' ? 'active blue' : '' ?>">Tile Splitting</li></a>
 			<a href="?settings=administration"><li class="<?= $_GET['settings'] == 'administration' ? 'active blue' : '' ?>">Administration</li></a>
 			<a href="?settings=flags"><li class="<?= $_GET['settings'] == 'flags' ? 'active blue' : '' ?>">Quick Action Icons</li></a>
 			<a href="?settings=security"><li class="<?= $_GET['settings'] == 'security' ? 'active blue' : '' ?>">Roles &amp; Security</li></a>
@@ -404,6 +408,9 @@ function loadPanel() {
 				break;
 			case 'tile':
 				include('field_config_tile.php');
+				break;
+			case 'tile_split':
+				include('field_config_tile_split.php');
 				break;
 			case 'types':
 				include('field_config_types.php');

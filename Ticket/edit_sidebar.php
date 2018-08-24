@@ -1,25 +1,19 @@
 <?php include_once('../include.php');
 include_once('../Ticket/field_list.php');
+include_once('../Ticket/config.php');
 if(!isset($ticketid)) {
-	$strict_view = strictview_visible_function($dbc, 'ticket');
-	$tile_security = get_security($dbc, ($_GET['tile_name'] == '' ? 'ticket' : 'ticket_type_'.$_GET['tile_name']));
-	if($strict_view > 0) {
-		$tile_security['edit'] = 0;
-		$tile_security['config'] = 0;
-	}
 	$access_view_project_info = check_subtab_persmission($dbc, 'ticket', ROLE, 'view_project_info');
 	$access_view_project_details = check_subtab_persmission($dbc, 'ticket', ROLE, 'view_project_details');
 	$access_view_staff = check_subtab_persmission($dbc, 'ticket', ROLE, 'view_staff');
 	$access_view_summary = check_subtab_persmission($dbc, 'ticket', ROLE, 'view_summary');
 	$access_view_complete = check_subtab_persmission($dbc, 'ticket', ROLE, 'view_complete');
 	$access_view_notifications = check_subtab_persmission($dbc, 'ticket', ROLE, 'view_notifications');
-	$ticket_tabs = array_filter(explode(',',get_config($dbc, 'ticket_tabs')));
 	$ticketid = filter_var($_GET['ticketid'],FILTER_SANITIZE_STRING);
 	$get_ticket = $dbc->query("SELECT * FROM `tickets` WHERE `ticketid`='$ticketid'")->fetch_assoc();
 	$value_config = get_field_config($dbc, 'tickets');
 	$sort_order = explode(',',get_config($dbc, 'ticket_sortorder'));
-	if(!empty($get_ticket['ticket_type'])) {
-		$ticket_type = $get_ticket['ticket_type'];
+	if(!empty($get_ticket['type'])) {
+		$ticket_type = $get_ticket['type'];
 		$value_config .= get_config($dbc, 'ticket_fields_'.$ticket_type).',';
 		$sort_order = explode(',',get_config($dbc, 'ticket_sortorder_'.$ticket_type));
 	}
@@ -71,7 +65,7 @@ if($_GET['action_mode'] == 1) {
 	$sort_order = array_intersect($sort_order, $merged_config_fields);
 }
 ?>
-<?php if(count($ticket_tabs) > 0 && !($_GET['action_mode'] > 0)) { ?>
+<?php if(count($ticket_tabs) > 1 && !($_GET['action_mode'] > 0 || $_GET['overview_mode'] > 0) && $tile_security['edit'] > 0 && !($strict_view > 0)) { ?>
 	<a href="" data-tab-target="ticket_type"><li class="<?= $_GET['tab'] == 'ticket_type' ? 'active blue' : '' ?>"><?= TICKET_NOUN ?> Type</li></a>
 <?php } ?>
 <?php $current_heading = '';
