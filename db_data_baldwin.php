@@ -531,5 +531,11 @@
     }
     //2018-08-21 - Ticket #8853 - Ticket Calendar Security
 
+    //2018-08-24 - Ticket #8813 - Notable Happenings
+    if(!mysqli_query($dbc, "ALTER TABLE `incident_report` ADD `saved` int(1) NOT NULL DEFAULT 0 AFTER `type`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-08-24 - Ticket #8813 - Notable Happenings
+
     echo "Baldwin's DB Changes Done<br />\n";
 ?>
