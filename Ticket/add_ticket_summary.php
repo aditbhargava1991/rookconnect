@@ -163,7 +163,7 @@ if(!empty($summary_hide_positions)) {
 							</select>
 						</div>
 						<div class="col-sm-1">
-							<a href="" onclick="viewProfile(this); return false;"><img class="inline-img pull-right" src="../img/person.PNG"></a>
+							<a href="" onclick="viewProfile(this); return false;"><img class="inline-img pull-right no-toggle" src="../img/person.PNG" title="View Profile"></a>
 							<a href="" onclick="addMulti(this, 'inline'); return false;"><img class="inline-img pull-right" src="../img/icons/ROOK-add-icon.png"></a>
 							<a href="" onclick="remMulti(this); return false;"><img class="inline-img pull-right" src="../img/remove.png"></a>
 						</div>
@@ -228,7 +228,7 @@ if(!empty($summary_hide_positions)) {
 						} ?></select>
 					</div>
 					<div class="col-sm-1">
-						<a href="" onclick="viewProfile(this); return false;"><img class="inline-img pull-right" src="../img/person.PNG"></a>
+						<a href="" onclick="viewProfile(this); return false;"><img class="inline-img pull-right no-toggle" src="../img/person.PNG" title="View Profile"></a>
 					</div>
 				</div>
 			<?php } ?>
@@ -288,7 +288,7 @@ if(!empty($summary_hide_positions)) {
 						} ?></select>
 					</div>
 					<div class="col-sm-1">
-						<a href="" onclick="viewProfile(this); return false;"><img class="inline-img pull-right" src="../img/person.PNG"></a>
+						<a href="" onclick="viewProfile(this); return false;"><img class="inline-img pull-right no-toggle" src="../img/person.PNG" title="View Profile"></a>
 					</div>
 				</div>
 			<?php } ?>
@@ -348,7 +348,7 @@ if(!empty($summary_hide_positions)) {
 						} ?></select>
 					</div>
 					<div class="col-sm-1">
-						<a href="" onclick="viewProfile(this); return false;"><img class="inline-img pull-right" src="../img/person.PNG"></a>
+						<a href="" onclick="viewProfile(this); return false;"><img class="inline-img pull-right no-toggle" src="../img/person.PNG" title="View Profile"></a>
 					</div>
 				</div>
 			<?php } ?>
@@ -400,7 +400,7 @@ if(!empty($summary_hide_positions)) {
 					</div>
 					<div class="col-sm-3"><input data-disabled="<?= $summary['hours_tracked'] > 0 ? 'true' : 'false' ?>" data-table="ticket_attached" data-id="<?= $summary['id'] ?>" data-id-field="id" data-type="Staff" data-type-field="src_table" <?= !empty($summary['timer_start']) ? 'readonly' : '' ?> type="number" name="hours_tracked" value="<?= $summary['hours_tracked'] ?>" class="form-control" min="0" step="any"></div>
 					<div class="col-sm-1">
-						<a href="" onclick="viewProfile(this); return false;"><img class="inline-img pull-right" src="../img/person.PNG"></a>
+						<a href="" onclick="viewProfile(this); return false;"><img class="inline-img pull-right no-toggle" src="../img/person.PNG" title="View Profile"></a>
 						<a href="" onclick="$(this).closest('.form-group.summary').remove(); return false;"><img src="<?= WEBSITE_URL ?>/img/remove.png"></a>
 					</div>
 					<input type="hidden" name="summary_timer_start[]" value="<?= $summary['timer_start'] ?>">
@@ -436,7 +436,7 @@ if(!empty($summary_hide_positions)) {
 							echo "<option ".($staff['contactid'] == $summary['item_id'] ? 'selected' : '')." value='".$staff['contactid']."'>".$staff['first_name'].' '.$staff['last_name']."</option>";
 						} ?></select>
 						<label class="form-checkbox"><input type="checkbox" name="discrepancy" <?= $summary['discrepancy'] == 1 ? 'checked' : '' ?> data-table="ticket_attached" data-id="<?= $summary['id'] ?>" data-id-field="id" data-type="Staff" data-type-field="src_table" value="1">Do Not Require Notes</label>
-						<a href="" onclick="viewProfile(this); return false;"><img class="inline-img pull-right" src="../img/person.PNG"></a>
+						<a href="" onclick="viewProfile(this); return false;"><img class="inline-img pull-right no-toggle" src="../img/person.PNG" title="View Profile"></a>
 					</div>
 					<div class="col-sm-2"><label class="show-on-mobile">Hours:</label><input data-table="ticket_attached" data-id="<?= $summary['id'] ?>" data-id-field="id" data-type="Staff" data-type-field="src_table" <?= strpos($value_config,',Time Tracking Edit Past Date') !== FALSE && $get_ticket['to_do_date'] != '' ? 'data-date="'.$get_ticket['to_do_date'].'"' : '' ?> type="number" name="time_set" value="<?= $summary['hours_set'] ?>" class="form-control" min="0" step="any"></div>
 					<div class="col-sm-6">
@@ -451,7 +451,7 @@ if(!empty($summary_hide_positions)) {
 			<?php $members = mysqli_query($dbc, "SELECT `ticket_attached`.*, `time_cards`.`comment_box` FROM `ticket_attached` LEFT JOIN `time_cards` ON `ticket_attached`.`ticketid`=`time_cards`.`ticketid` WHERE `ticket_attached`.`tile_name`='".FOLDER_NAME."' AND `ticket_attached`.`ticketid`='$ticketid' AND `ticketid` > 0 AND `ticket_attached`.`deleted`=0 AND `ticket_attached`.`position`!='Team Lead' AND `ticket_attached`.`src_table` IN ('Members','Clients')".$query_daily);
 			while($summary = mysqli_fetch_array($members)) { ?>
 				<div class="form-group summary">
-					<div class="col-sm-4"><label class="show-on-mobile">Name:</label><?= get_contact($dbc, $summary['item_id']) ?><a href="" onclick="viewProfile(this); return false;"><img class="inline-img pull-right" src="../img/person.PNG"></a></div>
+					<div class="col-sm-4"><label class="show-on-mobile">Name:</label><?= get_contact($dbc, $summary['item_id']) ?><a href="" onclick="viewProfile(this); return false;"><img class="inline-img pull-right no-toggle" src="../img/person.PNG" title="View Profile"></a></div>
 					<div class="col-sm-2"><label class="show-on-mobile">Hours:</label><input readonly type="number" name="hours_set" value="<?= $summary['hours_set'] ?>" class="form-control"></div>
 					<div class="col-sm-6"><label class="show-on-mobile">Comment:</label><input type="text" data-table="ticket_attached" data-id="<?= $summary['id'] ?>" data-id-field="id" name="time_comment" value="" class="form-control"><?= $summary['comment_box'] ?></div>
 				</div>
@@ -475,7 +475,7 @@ if(!empty($summary_hide_positions)) {
 							echo "<option ".($staff['contactid'] == $summary['item_id'] ? 'selected' : '')." value='".$staff['contactid']."'>".$staff['first_name'].' '.$staff['last_name']."</option>";
 						} ?></select>
 						<label class="form-checkbox"><input type="checkbox" name="discrepancy" <?= $summary['discrepancy'] == 1 ? 'checked' : '' ?> data-table="ticket_attached" data-id="<?= $summary['id'] ?>" data-id-field="id" data-type="Staff" data-type-field="src_table" value="1">Do Not Require Notes</label>
-						<a href="" onclick="viewProfile(this); return false;"><img class="inline-img pull-right" src="../img/person.PNG"></a>
+						<a href="" onclick="viewProfile(this); return false;"><img class="inline-img pull-right no-toggle" src="../img/person.PNG" title="View Profile"></a>
 					</div>
 					<div class="col-sm-2"><label class="show-on-mobile">Hours:</label><input data-table="ticket_attached" data-id="<?= $summary['id'] ?>" data-id-field="id" data-type="Staff" data-type-field="src_table" <?= strpos($value_config,',Time Tracking Edit Past Date') !== FALSE && $get_ticket['to_do_date'] != '' ? 'data-date="'.$get_ticket['to_do_date'].'"' : '' ?> type="number" name="time_set" value="<?= $summary['hours_tracked'] ?>" class="form-control" min="0" step="any"></div>
 					<div class="col-sm-6">
@@ -490,7 +490,7 @@ if(!empty($summary_hide_positions)) {
 			<?php $members = mysqli_query($dbc, "SELECT `ticket_attached`.*, `time_cards`.`comment_box` FROM `ticket_attached` LEFT JOIN `time_cards` ON `ticket_attached`.`ticketid`=`time_cards`.`ticketid` WHERE `ticket_attached`.`tile_name`='".FOLDER_NAME."' AND `ticket_attached`.`ticketid`='$ticketid' AND `ticketid` > 0 AND `ticket_attached`.`deleted`=0 AND `ticket_attached`.`position`!='Team Lead' AND `ticket_attached`.`src_table` IN ('Members','Clients')".$query_daily);
 			while($summary = mysqli_fetch_array($members)) { ?>
 				<div class="form-group summary">
-					<div class="col-sm-4"><label class="show-on-mobile">Name:</label><?= get_contact($dbc, $summary['item_id']) ?><a href="" onclick="viewProfile(this); return false;"><img class="inline-img pull-right" src="../img/person.PNG"></a></div>
+					<div class="col-sm-4"><label class="show-on-mobile">Name:</label><?= get_contact($dbc, $summary['item_id']) ?><a href="" onclick="viewProfile(this); return false;"><img class="inline-img pull-right no-toggle" src="../img/person.PNG" title="View Profile"></a></div>
 					<div class="col-sm-2"><label class="show-on-mobile">Hours:</label><input readonly type="number" name="hours_tracked" value="<?= $summary['hours_tracked'] ?>" class="form-control"></div>
 					<div class="col-sm-6"><label class="show-on-mobile">Comment:</label><input type="text" data-table="ticket_attached" data-id="<?= $summary['id'] ?>" data-id-field="id" name="time_comment" value="" class="form-control"><?= $summary['comment_box'] ?></div>
 				</div>

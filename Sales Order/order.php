@@ -681,7 +681,7 @@ function updateSalesOrderName() {
                                     <?php } else { ?>
                                         <button type="submit" name="add_sales_order" value="Order Details" class="btn brand-btn">Continue To Order Details</button>
                                     <?php } ?>
-                                    <a href="#" onclick="deleteSalesOrderForm(); return false;"><img src="<?= WEBSITE_URL ?>/img/icons/ROOK-trash-icon.png"></a>
+                                    <a href="#" onclick="deleteSalesOrderForm(); return false;"><img src="<?= WEBSITE_URL ?>/img/icons/ROOK-trash-icon.png" class="no-toggle" title="Archive"></a>
                                 </div>
                             </div><!-- .preview-bar -->
                         <?php } ?>
@@ -708,7 +708,7 @@ function updateSalesOrderName() {
                                     <?php } else { ?>
                                         <button type="submit" name="add_sales_order" value="Order Details" class="btn brand-btn">Continue To Order Details</button>
                                     <?php } ?>
-                                    <a href="#" onclick="deleteSalesOrderForm(); return false;"><img src="<?= WEBSITE_URL ?>/img/icons/ROOK-trash-icon.png"></a>
+                                    <a href="#" onclick="deleteSalesOrderForm(); return false;"><img src="<?= WEBSITE_URL ?>/img/icons/ROOK-trash-icon.png" class="no-toggle" title="Archive"></a>
                                 </div>
                             </div><!-- .preview-bar -->
                         <?php } ?>

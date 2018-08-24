@@ -81,9 +81,9 @@ var reload_time = function() {
 	
     <div class="row set-row-height">
         <div class="col-xs-12">
-			<a href="" onclick="addTime(); return false;" class="btn brand-btn">Add Time <img class="inline-img" src="../img/icons/ROOK-timer-icon.png"></a>
+			<a href="" onclick="addTime(); return false;" class="btn brand-btn">Add Time <img class="inline-img no-toggle" src="../img/icons/ROOK-timer-icon.png" title="Add Time"></a>
 			<input type="text" class="timepicker" style="width:0;height:0;border:0;" name="time_add" value="">
-			<a href="" onclick="toggleTimeTracking(); return false;" class="btn brand-btn start_stop"><span>Start</span> Tracking Time <img class="inline-img" src="../img/icons/ROOK-timer2-icon.png"></a>
+			<a href="" onclick="toggleTimeTracking(); return false;" class="btn brand-btn start_stop"><span>Start</span> Tracking Time <img class="inline-img no-toggle" src="../img/icons/ROOK-timer2-icon.png" title="Track Time"></a>
 			<div class="col-sm-4" style="display:none;"><input type="text" class="form-control timer" name="time_track"></div>
         </div>
         <div class="clearfix double-gap-bottom"></div>

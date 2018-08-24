@@ -316,7 +316,7 @@ function reorderItems() {
 
 							        if ( $result->num_rows > 0 ) { ?>
 					                    <div class="sortable_heading block-group">
-					                        <img src="<?= WEBSITE_URL ?>/img/icons/drag_handle.png" class="inline-img heading_handle pull-right" title="Drag me to reorder heading.">
+					                        <img src="<?= WEBSITE_URL ?>/img/icons/drag_handle.png" class="inline-img heading_handle pull-right no-toggle" title="Drag">
 								        	<div class="heading_row inline">
 									            <div class="row heading_row_text"><div class="col-sm-12 default-color"><b><?= $heading_name.($mandatory_quantity > 0 ? ' (Mandatory Quantity: '.$mandatory_quantity.')' : '') ?></b> <a href="" onclick="editHeading(this); return false;"><span style="font-size: x-small; color: #888;">EDIT HEADING</span></a></div></div>
 									            <div class="heading_row_edit" style="display: none;">
@@ -355,7 +355,7 @@ function reorderItems() {
 								                    <div class="visible-xs-block col-xs-4"><b>Price: </b></div><div class="col-sm-2"><div class="price_text"><span class="price_text_number"><?= $row['item_price']; ?></span> <a href="" onclick="editPrice(this); return false;"><span style="font-size: x-small; color: #888;">EDIT</span></a></div><div class="price_input" style="display:none;"><input type="number" name="item_price_input" value="<?= $row['item_price']; ?>" class="form-control" onfocusout="updatePrice(this);" step="0.01"></div></div>
 								                    <!-- <div class="visible-xs-block col-xs-3"><b>Quantity: </b></div><div class="col-sm-2"><?= $row['quantity']; ?></div> -->
 								                    <div class="pull-right col-sm-1">
-								                    <a href="javascript:void(0);" onclick="deleteRow(this, 'row_'); return false;" id="delete_<?= $row['id']; ?>"><img src="<?= WEBSITE_URL; ?>/img/remove.png" height="20" /></a><img src="<?= WEBSITE_URL ?>/img/icons/drag_handle.png" class="inline-img sortable_handle gap-left" title="Drag me to reorder item."></div>
+								                    <a href="javascript:void(0);" onclick="deleteRow(this, 'row_'); return false;" id="delete_<?= $row['id']; ?>"><img src="<?= WEBSITE_URL; ?>/img/remove.png" height="20" /></a><img src="<?= WEBSITE_URL ?>/img/icons/drag_handle.png" class="inline-img sortable_handle gap-left no-toggle" title="Drag"></div>
 								                </div><?php
 								            } ?>
 								        </div>
@@ -375,7 +375,7 @@ function reorderItems() {
 		<div class="pull-right gap-top gap-right">
 		    <a href="index.php" class="btn brand-btn">Back</a>
 		    <button type="submit" id="save_template" name="save_template" value="Submit" class="btn brand-btn">Save</button>
-	        <a href="#" onclick="deleteSalesOrderTemplate(); return false;"><img src="<?= WEBSITE_URL ?>/img/icons/ROOK-trash-icon.png"></a>
+	        <a href="#" onclick="deleteSalesOrderTemplate(); return false;"><img src="<?= WEBSITE_URL ?>/img/icons/ROOK-trash-icon.png" class="no-toggle" title="Archive"></a>
 		</div>
 	</div>
 </form>

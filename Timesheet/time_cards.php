@@ -1033,8 +1033,8 @@ function addSignature(chk) {
 			$vacation_taken = $year_to_date['VACA_HRS'];
 			$sick_taken = $year_to_date['SICK_HRS']; ?>
 
-			<div class="pull-right" style="height:1.5em; margin:0.5em;"><a target="_blank" href="time_cards.php?export=pdf&search_site=<?php echo $search_site; ?>&search_staff=<?php echo $search_staff; ?>&search_start_date=<?php echo $search_start_date; ?>&search_end_date=<?php echo $search_end_date; ?>" onclick="displayPDFOptions(this); return false;" title="PDF"><img src="<?php echo WEBSITE_URL; ?>/img/pdf.png" style="height:100%; margin:0;" /></a>
-			- <a href="time_cards.php?export=csv&search_site=<?php echo $search_site; ?>&search_staff=<?php echo $search_staff; ?>&search_start_date=<?php echo $search_start_date; ?>&search_end_date=<?php echo $search_end_date; ?>" title="CSV"><img src="<?php echo WEBSITE_URL; ?>/img/csv.png" style="height:100%; margin:0;" /></a></div>
+			<div class="pull-right" style="height:1.5em; margin:0.5em;"><a target="_blank" href="time_cards.php?export=pdf&search_site=<?php echo $search_site; ?>&search_staff=<?php echo $search_staff; ?>&search_start_date=<?php echo $search_start_date; ?>&search_end_date=<?php echo $search_end_date; ?>" onclick="displayPDFOptions(this); return false;"><img src="<?php echo WEBSITE_URL; ?>/img/pdf.png" style="height:100%; margin:0;" class="no-toggle" title="PDF" /></a>
+			- <a href="time_cards.php?export=csv&search_site=<?php echo $search_site; ?>&search_staff=<?php echo $search_staff; ?>&search_start_date=<?php echo $search_start_date; ?>&search_end_date=<?php echo $search_end_date; ?>"><img src="<?php echo WEBSITE_URL; ?>/img/csv.png" style="height:100%; margin:0;" class="no-toggle" title="CSV" /></a></div>
 			<div class="clearfix"></div>
 
             <form name="timesheet" method="POST" action="add_time_cards.php">

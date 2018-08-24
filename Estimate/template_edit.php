@@ -311,7 +311,7 @@ function save_sort() {
 							<tr>
 								<td data-title="Heading Name" colspan="10">
 									<input type="text" name="heading_name" value="<?= $heading['heading_name'] ?>" data-table="estimate_template_headings" class="form-control" style="display: inline; width: calc(100% - 4em);">
-									<img src="../img/icons/drag_handle.png" width="20" class="cursor-hand pull-right gap-left gap-top heading-handle">
+									<img src="../img/icons/drag_handle.png" width="20" class="cursor-hand pull-right gap-left gap-top heading-handle no-toggle" title="Drag">
 									<img src="../img/remove.png" width="19" class="cursor-hand pull-right gap-top heading-handle" onclick="remove_heading(this);" data-table="estimate_template_headings" name="deleted">
 								</td>
 							</tr>
@@ -385,7 +385,7 @@ function save_sort() {
 										<a href="" class="breakdown active" <?= $line['src_table'] == 'miscellaneous' ? '' : 'style="display: none;"' ?> onclick="return false;"><small>+ BREAKDOWN</small></a>
 										<img src="../img/remove.png" width="15" class="cursor-hand" onclick="remove_line(this);" data-table="estimate_template_lines" data-id="<?= $line['id'] ?>" name="deleted" /><br />
 										<img src="../img/icons/ROOK-add-icon.png" width="17" class="cursor-hand offset-top-5" onclick="add_line(this);" /><br />
-										<img src="../img/icons/drag_handle.png" width="15" class="cursor-hand offset-top-5 pull-right line-handle" data-table="estimate_template_lines" data-id="<?= $line['id'] ?>" />
+										<img src="../img/icons/drag_handle.png" width="15" class="cursor-hand offset-top-5 pull-right line-handle no-toggle" data-table="estimate_template_lines" data-id="<?= $line['id'] ?>" title="Drag" />
 										</td>
 								</tr>
 							<?php } while($line = mysqli_fetch_array($lines)); ?>

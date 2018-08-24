@@ -123,7 +123,7 @@ function calcTotals(changed, changed_val, qty, cost, price, row, db_id) {
 </script>
 <div id="no-more-tables" class="col-sm-12 fit-to-screen-full overflow-y">
 	<div class='by-item' style="display:<?= empty($view) || $view=='1' ? 'block' : 'none' ?>;">
-		<h4 class="pull-left">Profit & Loss by Item for <a href="?edit=<?= $estimate['estimateid'] ?>"><?= $estimate['estimate_name'] != '' ? $estimate['estimate_name'] : ESTIMATE_TILE.' #'.$estimateid ?><img class="inline-img" src="../img/icons/ROOK-edit-icon.png"></a></h4>
+		<h4 class="pull-left">Profit & Loss by Item for <a href="?edit=<?= $estimate['estimateid'] ?>"><?= $estimate['estimate_name'] != '' ? $estimate['estimate_name'] : ESTIMATE_TILE.' #'.$estimateid ?><img class="inline-img no-toggle" src="../img/icons/ROOK-edit-icon.png" title="Edit"></a></h4>
 		<div class="pull-right gap-top">
             <a href="?edit=<?=$estimateid?>&tab=analysis&financials=<?=$estimateid?>&view=1" class="btn brand-btn pull-left active_tab">View by Item</a>
             <a href="?edit=<?=$estimateid?>&tab=analysis&financials=<?=$estimateid?>&view=2" class="btn brand-btn pull-left gap-left">View by Heading</a><?php
@@ -234,7 +234,7 @@ function calcTotals(changed, changed_val, qty, cost, price, row, db_id) {
 	
     
     <div class='by-heading' style="display:<?= !empty($view) && $view=='2' ? 'block' : 'none' ?>;">
-		<h4 class="pull-left">Profit & Loss by Heading for <a href="?edit=<?= $estimate['estimateid'] ?>"><?= $estimate['estimate_name'] != '' ? $estimate['estimate_name'] : ESTIMATE_TILE.' #'.$estimateid ?><img class="inline-img" src="../img/icons/ROOK-edit-icon.png"></a></h4>
+		<h4 class="pull-left">Profit & Loss by Heading for <a href="?edit=<?= $estimate['estimateid'] ?>"><?= $estimate['estimate_name'] != '' ? $estimate['estimate_name'] : ESTIMATE_TILE.' #'.$estimateid ?><img class="inline-img no-toggle" src="../img/icons/ROOK-edit-icon.png" title="Edit"></a></h4>
         <div class="pull-right gap-top">
             <a href="?edit=<?=$estimateid?>&tab=analysis&financials=<?=$estimateid?>&view=1" class="btn brand-btn pull-left">View by Item</a>
             <a href="?edit=<?=$estimateid?>&tab=analysis&financials=<?=$estimateid?>&view=2" class="btn brand-btn pull-left gap-left active_tab">View by Heading</a><?php
@@ -385,7 +385,7 @@ function calcTotals(changed, changed_val, qty, cost, price, row, db_id) {
     
     <?php $url_scope = filter_var($_GET['scope'], FILTER_SANITIZE_STRING); ?>
     <div class='by-scope' style="display:<?= !empty($url_scope) ? 'block' : 'none' ?>;">
-        <h4 class="pull-left">Profit & Loss by <?= $url_scope ?> for <a href="?edit=<?= $estimate['estimateid'] ?>"><?= $estimate['estimate_name'] != '' ? $estimate['estimate_name'] : ESTIMATE_TILE.' #'.$estimateid ?><img class="inline-img" src="../img/icons/ROOK-edit-icon.png"></a></h4>
+        <h4 class="pull-left">Profit & Loss by <?= $url_scope ?> for <a href="?edit=<?= $estimate['estimateid'] ?>"><?= $estimate['estimate_name'] != '' ? $estimate['estimate_name'] : ESTIMATE_TILE.' #'.$estimateid ?><img class="inline-img no-toggle" src="../img/icons/ROOK-edit-icon.png" title="Edit"></a></h4>
         <div class="pull-right gap-top">
             <a href="?edit=<?=$estimateid?>&tab=analysis&financials=<?=$estimateid?>&view=1" class="btn brand-btn pull-left">View by Item</a>
             <a href="?edit=<?=$estimateid?>&tab=analysis&financials=<?=$estimateid?>&view=2" class="btn brand-btn pull-left gap-left">View by Heading</a><?php

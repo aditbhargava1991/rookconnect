@@ -354,9 +354,9 @@ if ( !empty($note) ) { ?>
 					<div class="clearfix"></div>
                     <div class="set-favourite">
 						<?php if(strpos($row['is_favourite'],",".$_SESSION['contactid'].",") === FALSE): ?>
-							<a href="?list=<?php echo $list; ?>&favourite=<?php echo $row['contactid']; ?>"><img src="../img/blank_favourite.png" alt="Favourite" title="Click to make the contact favourite" class="inline-img pull-right small"></a>
+							<a href="?list=<?php echo $list; ?>&favourite=<?php echo $row['contactid']; ?>"><img src="../img/blank_favourite.png" alt="Favourite" title="Click to make the contact favourite" class="inline-img pull-right small no-toggle"></a>
 						<?php else: ?>
-							<a href="?list=<?php echo $list; ?>&unfavourite=<?php echo $row['contactid']; ?>"><img src="../img/full_favourite.png" alt="Favourite" title="Click to make the contact unfavourite" class="inline-img pull-right small"></a>
+							<a href="?list=<?php echo $list; ?>&unfavourite=<?php echo $row['contactid']; ?>"><img src="../img/full_favourite.png" alt="Favourite" title="Click to make the contact unfavourite" class="inline-img pull-right small no-toggle"></a>
 						<?php endif; ?>
                     </div>
 				</div>
@@ -376,8 +376,11 @@ if ( !empty($note) ) { ?>
 </div>
 <?php } else {
 
+$heading = FOLDER_NAME.'_summary';
+$contacts_summary_config = get_config($dbc, $heading);
 
-    echo '<h3 class="double-gap-left">Contact Per Category</h3>';
+if(strpos($contacts_summary_config,'Per Category') !== false) {
+    echo '<h3 class="double-gap-left">'.CONTACTS_TILE.' Per Category</h3>';
     $lists = array_filter(explode(',',get_config($dbc, FOLDER_NAME.'_tabs')));
     foreach($lists as $list_name) {
         echo '<div class="col-sm-6">';
@@ -392,8 +395,10 @@ if ( !empty($note) ) { ?>
         echo '</div>';
     }
     echo '<div class="clearfix"></div>';
+}
 
-    echo '<h3 class="double-gap-left">Contact Per Business</h3>';
+if(strpos($contacts_summary_config,'Per Business') !== false) {
+    echo '<h3 class="double-gap-left">'.CONTACTS_TILE.' Per Business</h3>';
     $lists = $dbc->query("SELECT contactid, name FROM `contacts` WHERE `deleted`=0 AND `tile_name`='".FOLDER_NAME."' AND `category`='Business' AND `status`=0");
     while($list = $lists->fetch_assoc()) {
                 $cid = $list['contactid'];
@@ -407,8 +412,10 @@ if ( !empty($note) ) { ?>
                 }
     }
     echo '<div class="clearfix"></div>';
+}
 
-    echo '<h3 class="double-gap-left">Contacts Per Gender</h3>';
+if(strpos($contacts_summary_config,'Per Gender') !== false) {
+    echo '<h3 class="double-gap-left">'.CONTACTS_TILE.' Per Gender</h3>';
     $service_categories = $dbc->query("SELECT `name`, `first_name`, `last_name`, COUNT(contactid) AS total_gender, `gender` FROM `contacts` WHERE `deleted`=0 AND `tile_name`='".FOLDER_NAME."' AND `status`=1 GROUP BY `gender`");
     while($service_row = $service_categories->fetch_assoc()) {
         echo '<div class="col-sm-6">';
@@ -421,8 +428,10 @@ if ( !empty($note) ) { ?>
         echo '</div>';
     }
     echo '<div class="clearfix"></div>';
+}
 
-    echo '<h3 class="double-gap-left">Contact Per Classification</h3>';
+if(strpos($contacts_summary_config,'Per Classification') !== false) {
+    echo '<h3 class="double-gap-left">'.CONTACTS_TILE.' Per Classification</h3>';
     $con_classifications = array_filter(explode(",", get_config($dbc, FOLDER_NAME.'_classification')));
     if(count($con_classifications) > 0) {
         foreach($con_classifications as $con_classification):
@@ -442,7 +451,40 @@ if ( !empty($note) ) { ?>
         endforeach;
     }
     echo '<div class="clearfix"></div>';
+}
 
+if(strpos($contacts_summary_config,'Per City') !== false) {
+    echo '<h3 class="double-gap-left">'.CONTACTS_TILE.' Per City</h3>';
+    $service_categories = $dbc->query("SELECT `name`, `first_name`, `last_name`, COUNT(contactid) AS total_city, `city` FROM `contacts` WHERE `deleted`=0 AND `tile_name`='".FOLDER_NAME."' AND `status`=1 GROUP BY `city`");
+    while($service_row = $service_categories->fetch_assoc()) {
+        echo '<div class="col-sm-6">';
+            echo '<div class="overview-block">';
+                if($service_row['city'] == '') {
+                    $service_row['city'] = 'Not specified';
+                }
+                echo $service_row['city'].': '.$service_row['total_city'];
+            echo '</div>';
+        echo '</div>';
+    }
+    echo '<div class="clearfix"></div>';
+}
+
+$get_current_url = "$_SERVER[REQUEST_URI]";
+if(strpos($contacts_summary_config,'Per Archived Data') !== false) {
+    echo '<h3 class="double-gap-left">'.CONTACTS_TILE.' Per Archived Data</h3>';
+	$query = mysqli_query($dbc,"SELECT contactid, `name`, `first_name`, `last_name` FROM `contacts` WHERE `deleted`=1 AND `tile_name`='".FOLDER_NAME."'");
+	while($row = mysqli_fetch_array($query)) {
+        if($row['name'] != '' || $row['first_name'] != '') {
+		echo '<div class="col-sm-6">';
+            echo '<div class="overview-block">';
+                echo decryptIt($row['name']).decryptIt($row['first_name']).' '.decryptIt($row['last_name']);
+                echo ' : <a href=\'../delete_restore.php?action=restore&from='.$get_current_url.'&contactid='.$row['contactid'].'\' onclick="return confirm(\'Are you sure?\')">Restore</a>';
+            echo '</div>';
+        echo '</div>';
+        }
+	}
+    echo '<div class="clearfix"></div>';
+}
 /*
     echo '<h3>Contact per Regions</h3>';
     $con_regions = array_filter(array_unique(explode(',', get_config($dbc, '%_region', true))));

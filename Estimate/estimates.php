@@ -112,7 +112,7 @@ if(array_filter($summary_view) && (!isset($_GET['view']) || $_GET['view'] == 'su
                         echo "<img src='".WEBSITE_URL."/img/icons/ROOK-add-icon.png' class='show-on-mob' height='30'></a></div>";
                     }
                     if(!isset($_GET['edit']) && !isset($_GET['view'])) { ?>
-						<img class="inline-img pull-right btn-horizontal-collapse hide-titles-mob small" src="../img/icons/pie-chart.png">
+						<img class="inline-img pull-right btn-horizontal-collapse hide-titles-mob small no-toggle" src="../img/icons/pie-chart.png" title="View Summary">
                         <div class="pull-right top-dashboard"><img src="../img/icons/ROOK-Speedometer.png" class="cursor-hand" height="30" onclick="$('.dashboard_select').toggle();" /></div>
                         <div class="col-sm-3 pull-right small dashboard_select" style="display: none;">
                             <select class="chosen-select-deselect dashboard_select_onchange">
