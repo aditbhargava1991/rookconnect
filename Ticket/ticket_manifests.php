@@ -1,15 +1,18 @@
-<?php $siteid = filter_var($_GET['site'],FILTER_SANITIZE_STRING);
+<?php include_once('config.php');
+$siteid = filter_var($_GET['site'],FILTER_SANITIZE_STRING);
 $manifest_fields = explode(',',get_config($dbc, 'ticket_manifest_fields'));
 $ticket_filter = '';
 if(in_array_starts('type ',$manifest_fields)) {
 	$type_filters = [];
 	foreach($manifest_fields as $config_field) {
 		$config_field = explode(' ',$config_field);
-		if($config_field[0] == 'type' && count($config_field) == 2) {
+		if($config_field[0] == 'type' && count($config_field) == 2 && in_array($config_field[1],$ticket_conf_list)) {
 			$type_filters[] = $config_field[1];
 		}
 	}
 	$ticket_filter = " AND `tickets`.`ticket_type` IN ('".implode("','",$type_filters)."')";
+} else if(isset($_GET['tile_name']) || isset($_GET['tile_group'])) {
+    $ticket_filter = " AND `tickets`.`ticket_type` IN ('".implode("','",$ticket_conf_list)."')";
 }
 if($siteid == 'recent') {
 	if($_GET['siteid'] > 0) {
@@ -264,6 +267,7 @@ if($siteid == 'recent') {
 	} else {
 		$ticket_sql .= " LIMIT $offset, $rowsPerPage";
 	}
+    // echo "<!--$ticket_sql-->";
 	$ticket_list = $dbc->query($ticket_sql);
 	if(in_array('ticket_search',$manifest_fields)) { ?>
 		<form class="form-horizontal" action="" method="GET">
@@ -271,7 +275,7 @@ if($siteid == 'recent') {
 			<input type="hidden" name="tab" value="<?= $_GET['tab'] ?>">
 			<input type="hidden" name="type" value="<?= $_GET['type'] ?>">
 			<div class="col-sm-4"><input type="text" name="search_manifest" value="<?= $_GET['search_manifest'] ?>" class="form-control"></div>
-			<button class="btn brand-btn pull-left" name="site" value="<?= $_GET['site'] ?>" type="submit">Search by <?= TICKET_NOUN ?></button>
+			<button class="btn brand-btn pull-left" name="site" value="<?= $_GET['site'] ?>" type="submit">Search by <?= empty($ticket_noun) ? TICKET_NOUN : $ticket_noun ?></button>
 			<div class="clearfix"></div>
 		</form>
 	<?php }
@@ -285,7 +289,7 @@ if($siteid == 'recent') {
 			<?php if($siteid != 'top_25') { display_pagination($dbc, $ticket_count, $_GET['page'], ($_GET['pagerows'] > 0 ? $_GET['pagerows'] : $rowsPerPage), true, 25); } ?>
 			<table class="table table-bordered">
 				<tr>
-					<?php if(in_array('file',$manifest_fields)) { ?><th><?= TICKET_NOUN ?></th><?php } ?>
+					<?php if(in_array('file',$manifest_fields)) { ?><th><?= empty($ticket_noun) ? TICKET_NOUN : $ticket_noun ?></th><?php } ?>
 					<th><?= SITES_CAT ?></th>
 					<?php if(in_array('po',$manifest_fields)) { ?><th>PO</th><?php } ?>
 					<?php if(in_array('line',$manifest_fields)) { ?><th>Line Item</th><?php } ?>
@@ -297,7 +301,7 @@ if($siteid == 'recent') {
 				</tr>
 				<?php while($ticket = $ticket_list->fetch_assoc()) { ?>
 					<tr>
-						<?php if(in_array('file',$manifest_fields)) { ?><td data-title="<?= TICKET_NOUN ?>"><?php if($tile_security['edit'] > 0) { ?><a href="index.php?edit=<?= $ticket['ticketid'] ?>" onclick="overlayIFrameSlider(this.href+'&calendar_view=true','auto',true,true); return false;"><?= get_ticket_label($dbc, $ticket) ?></a><?php } else { echo get_ticket_label($dbc, $ticket); } ?></td><?php } ?>
+						<?php if(in_array('file',$manifest_fields)) { ?><td data-title="<?= empty($ticket_noun) ? TICKET_NOUN : $ticket_noun ?>"><?php if($tile_security['edit'] > 0) { ?><a href="index.php?edit=<?= $ticket['ticketid'] ?>" onclick="overlayIFrameSlider(this.href+'&calendar_view=true','auto',true,true); return false;"><?= get_ticket_label($dbc, $ticket) ?></a><?php } else { echo get_ticket_label($dbc, $ticket); } ?></td><?php } ?>
 						<td data-title="<?= SITES_CAT ?>"><select name="siteid" multiple data-table="<?= in_array('group pieces',$manifest_fields) ? 'tickets' : 'ticket_attached' ?>" data-id="<?= in_array('group pieces',$manifest_fields) ? $ticket['ticketid'] : $ticket['id'] ?>" data-id-field="<?= in_array('group pieces',$manifest_fields) ? 'ticketid' : 'id' ?>" class="chosen-select-deselect" data-placeholder="Select <?= SITES_CAT ?>"><option />
 							<?php foreach($site_list as $site) { ?>
 								<option <?= in_array($site['contactid'],explode(',',$ticket['siteid'])) ? 'selected' : '' ?> value="<?= $site['contactid'] ?>"><?= $site['full_name'] ?></option>
@@ -348,6 +352,6 @@ if($siteid == 'recent') {
 			<?php } ?>
 		</form>
 	<?php } else {
-		echo '<h3>No '.TICKET_TILE.' Found</h3>';
+		echo '<h3>No '.(empty($ticket_tile) ? TICKET_TILE : $ticket_tile).' Found</h3>';
 	}
 } ?>

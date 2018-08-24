@@ -796,8 +796,13 @@ function get_ticket_label($dbc, $ticket, $project_type = null, $project_name = n
 			}
 		}
         $ticket_type = '';
+        $ticket_noun = TICKET_NOUN;
         if($ticket['ticket_type'] != '') {
             $ticket_tabs = explode(',',get_config($dbc, 'ticket_tabs'));
+            $tile_config = $dbc->query("SELECT `value` FROM `general_configuration` WHERE `name` LIKE 'ticket_split_tiles_%' AND (`value` LIKE '%#*#".$ticket['ticket_type']."|%' OR `value` LIKE '%|".$ticket['ticket_type']."|%' OR `value` LIKE '%#*#".$ticket['ticket_type']."')")->fetch_assoc();
+            if(!empty($tile_config)) {
+                $ticket_noun = explode('#*#',$tile_config)[1];
+            }
             foreach($ticket_tabs as $type_name) {
                 if($ticket['ticket_type'] == config_safe_str($type_name)) {
                     $ticket_type = $type_name;
