@@ -31,6 +31,9 @@ if(isset($_POST['tasks_slider_layout'])) {
 
     mysqli_query($dbc, $query_insert_dashboard);
 } else if(!empty($_POST['submit'])) {
+    $task_include_checklists = filter_var($_POST['task_include_checklists'],FILTER_SANITIZE_STRING);
+    set_config($dbc, 'task_include_checklists', $task_include_checklists);
+
 	$colours = filter_var(implode(',',$_POST['flag_colours']),FILTER_SANITIZE_STRING);
 	$flag_names = filter_var(implode('#*#',$_POST['flag_name']),FILTER_SANITIZE_STRING);
 
