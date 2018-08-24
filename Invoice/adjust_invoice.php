@@ -1550,6 +1550,14 @@ $(document).ready(function() {
 		echo "pay_mode_selected('$paid');";
 	} ?>
 });
+$(document).on('change', 'select[name="pricing"]', function() {
+    if ($('[name="pricing"] option:selected').val()=='admin_price') {
+        $('[name="unit_price[]"]').attr('readonly', false);
+    } else {
+        $('[name="unit_price[]"]').attr('readonly', true);
+    }
+    updatePricing();
+});
 $(document).on('change', 'select[name="linepricing[]"]', function() {
     var rowid = this.id.split('_')[1];
     if ($('#linepricing_'+rowid+' option:selected').val()=='admin_price') {
