@@ -270,6 +270,14 @@
 		if(!mysqli_query($dbc, "ALTER TABLE `project` ADD `project_team` TEXT AFTER `project_colead`")) {
 			echo "Error: ".mysqli_error($dbc)."<br />\n";
 		}
+        
+        //August 24, 2018
+		if(!mysqli_query($dbc, "ALTER TABLE `project_path_milestone` ADD `items` TEXT AFTER `checklist`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+		if(!mysqli_query($dbc, "ALTER TABLE `project_path_milestone` ADD `intakes` TEXT AFTER `items`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
 		
 		set_config($dbc, 'db_version_jonathan', 8);
 	}
