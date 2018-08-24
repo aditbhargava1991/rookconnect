@@ -1074,12 +1074,8 @@ if(strpos($value_config,',TEMPLATE Work Ticket') !== FALSE) {
 		}
 		if (strpos($value_config, ','."Custom Notes".',') !== FALSE && $sort_field == 'Custom Notes') {
 			$_GET['tab'] = 'custom_view_ticket_comment';
-			$custom_note_labels = get_config($dbc, 'ticket_custom_notes_type');
-			foreach(explode('#*#',$custom_note_labels) as $custom_comment_types) {
-				$acc_label = $custom_comment_types;
-				$custom_comment_types = [$custom_comment_types];
-				include('edit_ticket_tab.php');
-			}
+			$acc_label = 'Notes';
+			include('edit_ticket_tab.php');
 		}
 		if (strpos($value_config, ','."Internal Communication".',') !== FALSE && $sort_field == 'Internal Communication') {
 			$_GET['tab'] = 'internal_communication';
