@@ -159,7 +159,7 @@ $calendar_type = 'shifts';
 							}
 							foreach($book_contact_list as $contact_id) { ?>
 								<div class="block-item" style="border: 1px solid rgba(0,0,0,0.5); margin: 0;" data-type="shift" data-id="<?= $contact_id ?>">
-									<img class='drag-handle' src='<?= WEBSITE_URL ?>/img/icons/drag_handle.png' style='float: right; width: 2em;'>
+									<img class='drag-handle no-toggle' src='<?= WEBSITE_URL ?>/img/icons/drag_handle.png' style='float: right; width: 2em;' title='Drag'>
 									<?= get_contact($dbc, $contact_id) ?></div>
 							<?php } ?>
 						</div>

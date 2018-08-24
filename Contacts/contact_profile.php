@@ -103,7 +103,7 @@ $contact = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `contacts` LEFT 
 				} else {
 					$contact_url = '../Profile/';
 				}
-				echo '<img class="id-circle" src="'.$contact_url.'download/'.$contact['contactimage'].'">';
+				echo '<img class="id-circle no-toggle" src="'.$contact_url.'download/'.$contact['contactimage'].'" title="'.decryptIt($contact['name']).decryptIt($contact['first_name']).' '.decryptIt($contact['last_name']).'">';
 			} else {
 				profile_id($dbc, $contactid);
 			}

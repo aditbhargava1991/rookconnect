@@ -276,14 +276,14 @@ function setActions() {
 				<h3><div class="pull-left"><input type="checkbox" data-id="<?= $task['tasklistid'] ?>" data-id-field="tasklistid" data-table="tasklist" value="Done" name="status" <?= $task['status'] == 'Done' ? 'checked' : '' ?> <?= !($security['edit'] > 0) ? 'readonly disabled' : '' ?>> #<?= $task['tasklistid'] ?></div>
 					<div class="scale-to-fill action-icons small pad-horizontal">
 						<?php if($security['edit'] > 0) { ?>
-							<img src="<?= WEBSITE_URL ?>/img/icons/ROOK-flag-icon.png" class="inline-img flag-icon" title="Flag This!">
-							<img src="<?= WEBSITE_URL ?>/img/icons/ROOK-alert-icon.png" class="inline-img alert-icon" title="Enable Alerts">
-							<img src="<?= WEBSITE_URL ?>/img/icons/ROOK-email-icon.png" class="inline-img email-icon" title="Send Email">
-							<img src="<?= WEBSITE_URL ?>/img/icons/ROOK-reminder-icon.png" class="inline-img reminder-icon" title="Schedule Reminder">
-							<img src="<?= WEBSITE_URL ?>/img/icons/ROOK-attachment-icon.png" class="inline-img attach-icon" title="Attach File">
-							<img src="<?= WEBSITE_URL ?>/img/icons/ROOK-reply-icon.png" class="inline-img reply-icon" title="Reply">
-							<img src="<?= WEBSITE_URL ?>/img/icons/ROOK-timer-icon.png" class="inline-img time-icon" title="Add Time">
-							<img src="<?= WEBSITE_URL ?>/img/icons/trash-icon-red.png" class="inline-img archive-icon" title="Archive">
+							<img src="<?= WEBSITE_URL ?>/img/icons/ROOK-flag-icon.png" class="inline-img flag-icon no-toggle" title="Flag This!">
+							<img src="<?= WEBSITE_URL ?>/img/icons/ROOK-alert-icon.png" class="inline-img alert-icon no-toggle" title="Enable Alerts">
+							<img src="<?= WEBSITE_URL ?>/img/icons/ROOK-email-icon.png" class="inline-img email-icon no-toggle" title="Send Email">
+							<img src="<?= WEBSITE_URL ?>/img/icons/ROOK-reminder-icon.png" class="inline-img reminder-icon no-toggle" title="Schedule Reminder">
+							<img src="<?= WEBSITE_URL ?>/img/icons/ROOK-attachment-icon.png" class="inline-img attach-icon no-toggle" title="Attach File">
+							<img src="<?= WEBSITE_URL ?>/img/icons/ROOK-reply-icon.png" class="inline-img reply-icon no-toggle" title="Add Note">
+							<img src="<?= WEBSITE_URL ?>/img/icons/ROOK-timer-icon.png" class="inline-img time-icon no-toggle" title="Add Time">
+							<img src="<?= WEBSITE_URL ?>/img/icons/trash-icon-red.png" class="inline-img archive-icon no-toggle" title="Archive">
 						<?php } ?>
 					</div>
 					<?php foreach(explode(',',$task['alerts_enabled']) as $assignid) {

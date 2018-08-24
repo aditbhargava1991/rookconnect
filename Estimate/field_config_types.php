@@ -51,7 +51,7 @@ function removeType(a) {
 			<input type="text" name="estimate_type[]" class="form-control" value="<?= $type ?>">
 		</div>
 		<div class="col-sm-2">
-			<img src="../img/icons/drag_handle.png" style="height: 1.5em; margin: 0 0.25em;" class="pull-right drag-handle">
+			<img src="../img/icons/drag_handle.png" style="height: 1.5em; margin: 0 0.25em;" class="pull-right drag-handle no-toggle" title="Drag">
 			<img src="../img/icons/ROOK-add-icon.png" style="height: 1.5em; margin: 0 0.25em;" class="pull-right" onclick="addType();">
 			<img src="../img/remove.png" style="height: 1.5em; margin: 0 0.25em;" class="pull-right" onclick="removeType(this);">
 		</div>
