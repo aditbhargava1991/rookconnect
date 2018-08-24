@@ -184,6 +184,7 @@ $history_reports = [
 	'History Services History'=>['reports_services_history.php','Services History','History Services History','history_services_history'],
 	'History Expenses History'=>['reports_expenses_history.php','Expenses History','History Expenses History','history_expenses_history'],
 	'History Estimates History'=>['reports_estimates_history.php','Estimates History','History Estimates History','history_estimates_history'],
+	'History Products History'=>['reports_products_history.php','Products History','History Products History','history_products_history'],
 ];
 $estimates_reports = [
 	'Estimate Report'=>['reports_estimate_report.php','Estimate Report','Estimate Report','reports_estimate_report'],
