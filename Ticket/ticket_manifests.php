@@ -161,7 +161,7 @@ if($siteid == 'recent') {
 					'.(in_array('line',$manifest_fields) && $columns['line'] > 0 ? '<td data-title="LINE ITEM #" style="text-align:center;">'.$row['line'].'</td>' : '').'
 					'.((in_array('qty',$manifest_fields) || in_array('group pieces',$manifest_fields)) && $columns['qty'] > 0 ? '<td data-title="LAND TRAN PIECE COUNT" style="text-align:center;">'.$row['qty'].'</td>' : '').'
 					'.(in_array('manual qty',$manifest_fields) && $columns['manual_qty'] > 0 ? '<td data-title="LAND TRAN PIECE COUNT" style="text-align:center;">'.$row['manual_qty'].'</td>' : '').'
-					'.(in_array('weight',$manifest_fields) && $columns['weight'] > 0 ? '<td data-title="WEIGHT" style="text-align:center;">'.$weight.'</td>' : '').'
+					'.(in_array('weight',$manifest_fields) && $columns['weight'] > 0 ? '<td data-title="WEIGHT" style="text-align:center;">'.$row['weight'].'</td>' : '').'
 					'.(in_array('site',$manifest_fields) && $columns['site'] > 0 ? '<td data-title="SITE" style="text-align:center;">'.$row['site'].'</td>' : '').'
 					'.(in_array('notes',$manifest_fields) && $columns['notes'] > 0 ? '<td data-title="NOTES" style="text-align:center;">'.html_entity_decode($row['notes']).'</td>' : '').'
 				</tr>
@@ -172,7 +172,7 @@ if($siteid == 'recent') {
 				'.(in_array('po',$manifest_fields) && $columns['po'] > 0 ? '<td style="border-top: 1px solid black;"></td>' : '').'
 				'.(in_array('vendor',$manifest_fields) && $columns['vendor'] > 0 ? '<td style="border-top: 1px solid black;"></td>' : '').'
 				'.(in_array('line',$manifest_fields) && $columns['line'] > 0 ? '<td style="border-top: 1px solid black;"></td>' : '').'
-				'.((in_array('qty',$manifest_fields) || in_array('group pieces',$manifest_fields)) && $columns['qty'] > 0 ? '<td data-title="TOTAL LAND TRAN PIECE COUNT" style="text-align:center; border-top: 1px solid black;">'.$sum_qty.((in_array('site',$manifest_fields) && $columns['site'] > 0) || (in_array('notes',$manifest_fields) && $columns['notes'] > 0) ? '' : 'TOTAL PIECES').'</td>' : '').'
+				'.((in_array('qty',$manifest_fields) || in_array('group pieces',$manifest_fields)) && $columns['qty'] > 0 ? '<td data-title="TOTAL LAND TRAN PIECE COUNT" style="text-align:center; border-top: 1px solid black;">'.$sum_qty.((in_array('site',$manifest_fields) && $columns['site'] > 0) || (in_array('notes',$manifest_fields) && $columns['notes'] > 0) || (in_array('weight',$manifest_fields) && $columns['weight'] > 0) ? '' : ' TOTAL PIECES').'</td>' : '').'
 				'.(in_array('manual qty',$manifest_fields) && $columns['manual_qty'] > 0 ? '<td data-title="TOTAL LAND TRAN PIECE COUNT" style="text-align:center; border-top: 1px solid black;">'.$sum_qty.((in_array('site',$manifest_fields) && $columns['site'] > 0) || (in_array('notes',$manifest_fields) && $columns['notes'] > 0) || (in_array('weight',$manifest_fields) && $columns['weight'] > 0) ? '' : ' TOTAL PIECES').'</td>' : '').'
 				'.(in_array('weight',$manifest_fields) && $columns['weight'] > 0 ? '<td style="border-top: 1px solid black;">TOTAL PIECES</td>' : '').'
 				'.(in_array('site',$manifest_fields) && $columns['site'] > 0 ? '<td style="border-top: 1px solid black;">'.(in_array('weight',$manifest_fields) && $columns['weight'] > 0 ? '' : 'TOTAL PIECES').'</td>' : '').'
