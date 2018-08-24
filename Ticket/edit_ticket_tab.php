@@ -151,7 +151,7 @@ if($_GET['tab'] == 'ticket_medications') {
 	$sort_field = 'External Communication';
 }
 
-if(!isset($ticketid) && ($_GET['ticketid'] > 0 || !empty($_GET['tab'])) && !$generate_pdf) {
+if(basename($_SERVER['SCRIPT_FILENAME']) == 'edit_ticket_tab.php' && ($_GET['ticketid'] > 0 || !empty($_GET['tab'])) && !$generate_pdf) {
 	$ticketid = $_GET['edit'] = filter_var($_GET['ticketid'],FILTER_SANITIZE_STRING);
 	if(!empty($_GET['from'])) {
 		echo '<input type="hidden" name="from" value="'.$_GET['from'].'">';
