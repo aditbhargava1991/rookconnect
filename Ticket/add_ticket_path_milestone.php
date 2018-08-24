@@ -28,8 +28,9 @@
 				  ?>
 				</select>
 			<?php } else {
-				echo $milestone_timeline;
-				$pdf_contents[] = ['Milestone & Timeline', $milestone_timeline];
+				$milestone_timeline_label = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `project_path_custom_milestones` WHERE `milestone` = '$milestone_timeline'"))['label'];
+				echo $milestone_timeline_label;
+				$pdf_contents[] = ['Milestone & Timeline', $milestone_timeline_label];
 			} ?>
 		  </div>
 		</div>
