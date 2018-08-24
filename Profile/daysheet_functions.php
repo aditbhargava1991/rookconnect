@@ -36,6 +36,10 @@ function daysheet_ticket_label ($dbc, $daysheet_ticket_fields, $ticket, $status_
             $label .= '<br />Customer: '.get_contact($dbc, $ticket['clientid']);
         }
     }
+    if($ticket['service_templateid'] > 0 && in_array('Service Template', $daysheet_ticket_fields)) {
+        $service_template = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `name` FROM `services_service_templates` WHERE `templateid` = '".$ticket['service_templateid']."'"))['name'];
+        $label .= '<br />Service Template: '.$service_template;
+    }
     if(!empty($ticket['delivery_type']) && in_array('Delivery Type', $daysheet_ticket_fields)) {
         $label .= '<br />Delivery Type: '.ucfirst($ticket['delivery_type']);
     }

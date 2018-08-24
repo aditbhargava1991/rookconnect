@@ -215,6 +215,17 @@ if($ticket['flag_colour'] != '' && $ticket['flag_colour'] != 'FFFFFF') {
 			echo '</div>
 		</div>';
 	}
+	if(in_array('Service Template',$db_config)) {
+		echo '<div class="col-sm-6">
+			<label class="col-sm-4">Service Template:</label>
+			<div class="col-sm-8">';
+			$service_template = '';
+			if($ticket['service_templateid'] > 0) {
+				$service_template = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `name` FROM `services_service_templates` WHERE `templateid` = '".$ticket['service_templateid']."'"))['name'];
+			}
+			echo $service_template.'</div>
+		</div>';
+	}
 	if(in_array('Create Date',$db_config)) {
 		echo '<div class="col-sm-6">
 			<label class="col-sm-4">Date Created:</label>
