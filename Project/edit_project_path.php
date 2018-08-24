@@ -866,7 +866,19 @@ if($_GET['tab'] != 'scrum_board' && !in_array($pathid,['AllSB','SB'])) {
                                     $add_milestone = str_replace(" ","FFMSPACE",$add_milestone);
                                     $add_milestone = str_replace("#","FFMHASH",$add_milestone);
 
-                                    if(in_array('Tasks',$tab_config) || in_array('Checklists',$tab_config)) { ?><a href="../Tasks_Updated/add_task.php?tab=path&projectid=<?= $projectid ?>&project_milestone=<?= $add_milestone?>&task_path=<?=$path_name_edit?>&task_milestone_timeline=<?=$add_milestone?>" onclick="overlayIFrameSlider(this.href,'50%',true); return false;" class="btn brand-btn pull-right">Add Task</a><?php } ?>
+                                    if(in_array('Tasks',$tab_config) || in_array('Checklists',$tab_config)) { ?>
+
+                                    <?php
+                                    $slider_layout = !empty(get_config($dbc, 'tasks_slider_layout')) ? get_config($dbc, 'tasks_slider_layout') : 'accordion';
+
+                                    if($slider_layout == 'accordion') {
+                                    ?>
+                                    <a href="../Tasks_Updated/add_task.php?tab=path&projectid=<?= $projectid ?>&project_milestone=<?= $add_milestone?>&task_path=<?=$path_name_edit?>&task_milestone_timeline=<?=$add_milestone?>" onclick="overlayIFrameSlider(this.href,'50%',true); return false;" class="btn brand-btn pull-right">Add Task</a>
+                                    <?php } else { ?>
+                                    <a href="../Tasks_Updated/add_task_full_view.php?tab=path&projectid=<?= $projectid ?>&project_milestone=<?= $add_milestone?>&task_path=<?=$path_name_edit?>&task_milestone_timeline=<?=$add_milestone?>" class="btn brand-btn pull-right">Add Task</a>
+                                    <?php } ?>
+
+                                    <?php } ?>
 
 									<?php if(in_array('Checklists In Path',$tab_config)) { ?><a target="_parent" href="" onclick="overlayIFrameSlider('<?= WEBSITE_URL ?>/Checklist/edit_checklist.php?edit=NEW&projectid=<?= $projectid ?>&project_milestone=<?= urlencode($milestone) ?>'); return false;" class="btn brand-btn pull-right">New Checklist</a><?php } ?>
 									<?php if(in_array('Tasks',$tab_config) || in_array('Checklists',$tab_config)) { ?><input type="text" placeholder="Quick Add Task" name="task" onblur="addTask(this);" class="new_task form-control"><?php } ?>

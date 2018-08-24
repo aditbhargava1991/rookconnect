@@ -42,7 +42,7 @@ if(!isset($ticketid)) {
 			}
 		}
 	}
-	
+
 	$created_by = $get_ticket['created_by'];
 	$created_date = $get_ticket['created_date'];
 }
@@ -247,7 +247,7 @@ foreach($sort_order as $sort_field) { ?>
 					do { ?>
 						<a href="" data-tab-target="general_pallet_<?= $i++ ?>"><li><?= ($pallet['pallet'] != '' ? $pallet['pallet'] : 'No Pallet Assigned').': '.$pallet['items'] ?>
 							<?php if(strpos($value_config,',Inventory General Pallet Default Locked,') !== FALSE && !in_array('inventory_general_pallet_'.config_safe_str($pallet['pallet']),$unlocked_tabs)) { ?>
-								<em class="cursor-hand tab_lock_toggle_link pull-right"><img class="inline-img" src="../img/icons/lock.png"></em> 
+								<em class="cursor-hand tab_lock_toggle_link pull-right"><img class="inline-img" src="../img/icons/lock.png"></em>
 							<?php } ?></li></a>
 					<?php } while($pallet = $pallets->fetch_assoc());
 				} ?>
