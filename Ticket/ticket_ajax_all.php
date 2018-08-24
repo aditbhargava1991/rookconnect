@@ -481,9 +481,9 @@ if($_GET['action'] == 'update_fields') {
 	}
 	if(!empty($ticket_type)) {
 		$value_config .= get_config($dbc, 'ticket_fields_'.$ticket_type).',';
-		if(strpos($value_config,',Time Tracking Edit Past Date') !== FALSE && $get_ticket['to_do_date'] != '') {
-			$_POST['date'] = $get_ticket['to_do_date'];
-		}
+	}
+	if(strpos($value_config,',Time Tracking Edit Past Date') !== FALSE && $get_ticket['to_do_date'] != '') {
+		$_POST['date'] = $get_ticket['to_do_date'];
 	}
 
 	if($field_name == 'status') {

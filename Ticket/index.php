@@ -47,12 +47,40 @@ if(!empty($_GET['tile_name'])) {
 	checkAuthorised('ticket');
 }
 ?>
+<script type="text/javascript">
+function blankPDFForm() {
+	$('#dialog-blank-pdf').dialog({
+		resizable: true,
+		height: "auto",
+		width: ($(window).width() <= 800 ? $(window).width() : 800),
+		modal: true,
+		buttons: {
+			"No <?= TICKET_NOUN ?> Type": function() {
+				window.open('<?= WEBSITE_URL ?>/Ticket/ticket_pdf.php?ticketid=&ticket_type=', '_blank');
+				$(this).dialog('close');
+			},
+			<?php foreach($ticket_tabs as $type_key => $type_label) { ?>
+				"<?= $type_label ?>": function() {
+					window.open('<?= WEBSITE_URL ?>/Ticket/ticket_pdf.php?ticketid=&ticket_type=<?= $type_key ?>', '_blank');
+					$(this).dialog('close');
+				},
+			<?php } ?>
+			Cancel: function() {
+				$(this).dialog('close');
+			}
+		}
+	});
+}
+</script>
 <div class="container">
 	<div class="iframe_overlay" style="display:none;">
 		<div class="iframe">
 			<div class="iframe_loading">Loading...</div>
 			<iframe name="ticket_iframe" src=""></iframe>
 		</div>
+	</div>
+	<div id="dialog-blank-pdf" title="Select <?= TICKET_NOUN ?> Type" style="display: none;">
+		Please choose a <?= TICKET_NOUN ?> Type for your Blank PDF Form.
 	</div>
 	<div class="row">
 		<div class="main-screen">
@@ -62,7 +90,7 @@ if(!empty($_GET['tile_name'])) {
                         echo "<div class='pull-right gap-left'><a href='?settings=fields&tile_name=".$_GET['tile_name']."'><img src='".WEBSITE_URL."/img/icons/settings-4.png' class='settings-classic wiggle-me' width='30' /></a></div>";
                     }
 					if(in_array('PDF',$db_config)) {
-						echo '<a href="../Ticket/ticket_pdf.php?ticketid=&ticket_type='.$ticket_type.'" class="btn brand-btn pull-right hide-titles-mob">Blank '.TICKET_NOUN.' Form <img src="../img/pdf.png" class="inline-img smaller"></a>';
+						echo '<a href="../Ticket/ticket_pdf.php?ticketid=&ticket_type='.$ticket_type.'" onclick="blankPDFForm(); return false;" class="btn brand-btn pull-right hide-titles-mob">Blank '.TICKET_NOUN.' Form <img src="../img/pdf.png" class="inline-img smaller"></a>';
 						if($_GET['edit'] > 0) {
 							echo '<a href="../Ticket/ticket_pdf.php?ticketid='.$_GET['edit'].'&ticket_type='.$ticket_type.'" class="btn brand-btn pull-right hide-titles-mob">Print Current '.TICKET_NOUN.' <img src="../img/pdf.png" class="inline-img smaller"></a>';
 						}
