@@ -967,7 +967,7 @@ if(!empty($_GET['add_service_iframe'])) { ?>
 	                <?= $details_who ?>"
 	            </div>
 	        </div>
-	        <?php $pdf_contents[] = ['Where', $details_who]; ?>
+	        <?php $pdf_contents[] = ['Who', $details_who]; ?>
 	    <?php } ?>
 	    <?php if(strpos($value_config,',Details Why,') !== FALSE && $field_sort_field == 'Details Why') { ?>
 	        <div class="form-group">
@@ -976,7 +976,7 @@ if(!empty($_GET['add_service_iframe'])) { ?>
 	                <?= $details_why; ?>
 	            </div>
 	        </div>
-	        <?php $pdf_contents[] = ['Where', $details_why]; ?>
+	        <?php $pdf_contents[] = ['Why', $details_why]; ?>
 	    <?php } ?>
 	    <?php if(strpos($value_config,',Details What,') !== FALSE && $field_sort_field == 'Details What') { ?>
 	        <div class="form-group">
@@ -985,7 +985,7 @@ if(!empty($_GET['add_service_iframe'])) { ?>
 	                <?= $details_what; ?>
 	            </div>
 	        </div>
-	        <?php $pdf_contents[] = ['Where', $details_what]; ?>
+	        <?php $pdf_contents[] = ['What', $details_what]; ?>
 	    <?php } ?>
 	    <?php if(strpos($value_config,',Details Position,') !== FALSE && $field_sort_field == 'Details Position') { ?>
 	        <div class="form-group">
@@ -994,7 +994,7 @@ if(!empty($_GET['add_service_iframe'])) { ?>
 	                <?= $details_position; ?>
 	            </div>
 	        </div>
-	        <?php $pdf_contents[] = ['Where', $details_position]; ?>
+	        <?php $pdf_contents[] = ['Position', $details_position]; ?>
 	    <?php } ?>
 	  <?php if(strpos($value_config,',Service Preferred Staff,') !== FALSE && $field_sort_field == 'Service Preferred Staff') { ?>
 			<div class="form-group">
@@ -1009,7 +1009,7 @@ if(!empty($_GET['add_service_iframe'])) { ?>
 			  	echo implode('<br />', $preferred_staff); ?>
 			  </div>
 			</div>
-	        <?php $pdf_contents[] = ['Where', implode('<br />', $preferred_staff)]; ?>
+	        <?php $pdf_contents[] = ['Preferred Staff', implode('<br />', $preferred_staff)]; ?>
 		<?php } ?>
 	  <?php if(strpos($value_config,',Service Total Price,') !== FALSE && $field_sort_field == 'Service Total Price') { ?>
 			<?php $editable = check_subtab_persmission($dbc, 'ticket', ROLE, 'edit_service_total');
