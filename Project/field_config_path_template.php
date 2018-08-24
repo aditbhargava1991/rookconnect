@@ -144,7 +144,19 @@ function remove_block(img) {
 	$(img).closest('.block-group').remove();
 	save_path();
 }
+function add_group(img) {
+    destroyInputs();
+    var type = $(img).closest('.form-group').attr('class').split(' ')[0];
+    var clone = $(img).closest('.block-group').find('.'+type).clone();
+    clone.find('input,select').val('');
+    $(img).closest('.block-group').find('.'+type).last().after(clone);
+    initInputs();
+}
 function remove_group(img) {
+    var type = $(img).closest('.form-group').attr('class').split(' ')[0];
+    if($(img).closest('.block-group').find('.'+type).length == 1) {
+        add_group(img);
+    }
 	$(img).closest('.form-group').remove();
 	save_path();
 }
@@ -215,7 +227,8 @@ function add_workorder(btn) {
 	$tickets = explode('#*#', $template['ticket']);
 	$tasks = explode('#*#', $template['checklist']);
 	$checklists = explode('#*#', $template['items']);
-	$intake = explode('#*#', $template['intake']);
+	$intakes = explode('#*#', $template['intake']);
+    $form_list = $dbc->query("SELECT `intakeformid`, `form_name` FROM `intake_forms` WHERE `deleted`=0")->fetch_all(MYSQLI_ASSOC);
 	foreach(explode('#*#',$template['milestone']) as $i => $milestone) { ?>
 		<div class="block-group">
 			<div class="form-group">
@@ -236,30 +249,56 @@ function add_workorder(btn) {
 				</div>
 			</div>
 			<div class="block-group sortable_group_block">
-				<?php foreach(explode('*#*',$checklists[$i]) as $checklist) { ?>
-                    <div class="form-group sortable_group">
+				<?php foreach(explode('*#*',$tasks[$i]) as $task) { ?>
+                    <div class="task form-group sortable_group">
                         <label class="col-sm-4">Task:</label>
-                        <div class="col-sm-7"><input type="text" class="form-control" name="checklist" value="<?= $checklist ?>" /></div>
-                        <div class="col-sm-1">
-                            <img src="../img/remove.png" class="inline-img pull-right" onclick="remove_group(this);" />
+                        <div class="col-sm-6"><input type="text" class="form-control" name="checklist" value="<?= $task ?>" /></div>
+                        <div class="col-sm-2">
                             <img src="../img/icons/drag_handle.png" class="inline-img pull-right group-handle" />
+                            <img src="../img/remove.png" class="inline-img pull-right" onclick="remove_group(this);" />
+                            <img src="../img/icons/ROOK-add-icon.png" class="inline-img pull-right" onclick="add_group(this);" />
                         </div>
                     </div>
 				<?php } ?>
 				<?php foreach(explode('*#*',$tickets[$i]) as $ticket) {
                     $ticket = explode('FFMSPLIT',$ticket); ?>
-                    <div class="form-group sortable_group">
+                    <div class="ticket form-group sortable_group">
                         <label class="col-sm-4"><?= TICKET_NOUN ?> Heading &amp; Service:</label>
-                        <div class="col-sm-4"><input type="text" class="form-control" name="ticket_heading" value="<?= $ticket[0] ?>"></div>
+                        <div class="col-sm-3"><input type="text" class="form-control" name="ticket_heading" value="<?= $ticket[0] ?>"></div>
                         <div class="col-sm-3"><select class="chosen-select-deselect" name="ticket_service" data-service="<?= $ticket[1] ?>"><option></option></select></div>
-                        <div class="col-sm-1">
-                            <img src="../img/remove.png" class="inline-img pull-right" onclick="remove_group(this);" />
+                        <div class="col-sm-2">
                             <img src="../img/icons/drag_handle.png" class="inline-img pull-right group-handle" />
+                            <img src="../img/remove.png" class="inline-img pull-right" onclick="remove_group(this);" />
+                            <img src="../img/icons/ROOK-add-icon.png" class="inline-img pull-right" onclick="add_group(this);" />
                         </div>
                     </div>
 				<?php } ?>
-				<?php if(in_array('Tickets',$tab_config)) { ?><button class="btn brand-btn pull-right" onclick="add_ticket(this); return false;">New <?= TICKET_NOUN ?></button><?php } ?>
-				<?php if(in_array('Checklists',$tab_config) || in_array('Tasks',$tab_config)) { ?><button class="btn brand-btn pull-right" onclick="add_checklist(this); return false;">New Task</button><?php } ?>
+				<?php foreach(explode('*#*',$checklists[$i]) as $checklist) { ?>
+                    <div class="checklist form-group sortable_group">
+                        <label class="col-sm-4">Checklist:</label>
+                        <div class="col-sm-6"><input type="text" class="form-control" name="items" value="<?= $checklist ?>" /></div>
+                        <div class="col-sm-2">
+                            <img src="../img/icons/drag_handle.png" class="inline-img pull-right group-handle" />
+                            <img src="../img/remove.png" class="inline-img pull-right" onclick="remove_group(this);" />
+                            <img src="../img/icons/ROOK-add-icon.png" class="inline-img pull-right" onclick="add_group(this);" />
+                        </div>
+                    </div>
+				<?php } ?>
+				<?php foreach(explode('*#*',$intakes[$i]) as $intake) { ?>
+                    <div class="intake form-group sortable_group">
+                        <label class="col-sm-4">Intake Form:</label>
+                        <div class="col-sm-6"><select data-placeholder="Select Form" class="chosen-select-deselect" name="intake"><option />
+                                <?php foreach($form_list as $form) { ?>
+                                    <option <?= $intake == $form['intakeformid'] ? 'selected' : '' ?> value="<?= $form['intakeformid'] ?>"><?= $form['form_name'] ?></option>
+                                <?php } ?>
+                            </select></div>
+                        <div class="col-sm-2">
+                            <img src="../img/icons/drag_handle.png" class="inline-img pull-right group-handle" />
+                            <img src="../img/remove.png" class="inline-img pull-right" onclick="remove_group(this);" />
+                            <img src="../img/icons/ROOK-add-icon.png" class="inline-img pull-right" onclick="add_group(this);" />
+                        </div>
+                    </div>
+				<?php } ?>
 				<div class="clearfix"></div>
 			</div>
 		</div>
