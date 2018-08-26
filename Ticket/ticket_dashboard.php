@@ -97,25 +97,25 @@ $(document).ready(function() {
 		}
 	});
     
-    $('.tile-sidebar .highest-level .top-a').click(function() {
+    /* $('.tile-sidebar .highest-level .top-a').click(function() {
         $(this).each(function() {
             if ( $('.tile-sidebar .highest-level .top-a').data('parent') == '#accordion' ) {
                 $('.tile-sidebar .highest-level .top-ul').removeClass('in');
             }
         });
-    });
+    }); */
     
-    /* $('.tile-sidebar .highest-level .top-a').click(function() {
+    $('.tile-sidebar .highest-level .top-a').click(function() {
         $(this).each(function() {
-            if ( $(this).data('parent') == '#accordion' ) { alert('here');
-                $(this).closest('.highest-level').find('.top-ul').removeClass('in');
+            if ( $(this).data('parent') == '#accordion' ) {
+                $('.tile-sidebar .highest-level .top-ul').removeClass('in');
             }
         }).click(function() {
-            alert('second');
-            $('.tile-sidebar .highest-level .top-a').addClass('collapsed');
-            $('.tile-sidebar .highest-level .top-ul').removeClass('in');
+            //alert('second');
+            $(this).addClass('collapsed');
+            //return false;
         });
-    }); */
+    });
 });
 var ticket_list = [];
 var current_ticket_search_key = '';
