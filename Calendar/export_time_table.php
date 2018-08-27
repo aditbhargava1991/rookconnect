@@ -33,32 +33,75 @@ if(isset($_POST['export_pdf'])) {
 		if(!empty($classification)) {
 			$class_query = " AND `tickets`.`classification` = '".$classification."'";
 		}
-		for($cur_day = $start_date; strtotime($cur_day) <= strtotime($end_date); $cur_day = date('Y-m-d', strtotime($cur_day.' + 1 day'))) {
-			$sql = "SELECT IFNULL(`ticket_schedule`.`status`,`tickets`.`status`) `status`, IFNULL(`ticket_schedule`.`equipmentid`,`tickets`.`equipmentid`) `equipmentid`, `tickets`.`contactid` FROM `tickets` WHERE ('".$new_today_date."' BETWEEN `tickets`.`to_do_date` AND `tickets`.`to_do_end_date` OR '".$new_today_date."' BETWEEN `ticket_schedule`.`to_do_date` AND IFNULL(`ticket_schedule`.`to_do_end_date`,`ticket_schedule`.`to_do_date`)) AND IFNULL(IFNULL(`ticket_schedule`.`to_do_start_time`,`tickets`.`to_do_start_time`),'') != '' AND `tickets`.`deleted` = 0 AND `tickets`.`status` NOT IN ('Archive', 'Done')".$region_query.$class_query;
+		for($cur_date = $start_date; strtotime($cur_date) <= strtotime($end_date); $cur_date = date('Y-m-d', strtotime($cur_date.' + 1 day'))) {
+			$sql = "SELECT IFNULL(`ticket_schedule`.`status`,`tickets`.`status`) `status`, IFNULL(`ticket_schedule`.`equipmentid`,`tickets`.`equipmentid`) `equipmentid`, `tickets`.`contactid` FROM `tickets` LEFT JOIN `ticket_schedule` ON `tickets`.`ticketid`=`ticket_schedule`.`ticketid` AND `ticket_schedule`.`deleted`=0 WHERE ('".$cur_date."' BETWEEN `tickets`.`to_do_date` AND `tickets`.`to_do_end_date` OR '".$cur_date."' BETWEEN `ticket_schedule`.`to_do_date` AND IFNULL(`ticket_schedule`.`to_do_end_date`,`ticket_schedule`.`to_do_date`)) AND IFNULL(IFNULL(`ticket_schedule`.`to_do_start_time`,`tickets`.`to_do_start_time`),'') != '' AND `tickets`.`deleted` = 0 AND `tickets`.`status` NOT IN ('Archive', 'Done')".$region_query.$class_query;
 			$query = mysqli_query($dbc, $sql);
 			while($row = mysqli_fetch_assoc($query)) {
+				$team_contactids = [];
+				$contactids = [];
+				$equip_assign = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `equipment_assignment` WHERE `equipmentid` = '".$row['equipmentid']."' AND  '$cur_date' BETWEEN `start_date` AND `end_date` AND `deleted` = 0 AND CONCAT(',',`hide_days`,',') NOT LIKE '%,".$cur_date.",%'"));
+				$equip_assign_staffs = mysqli_query($dbc, "SELECT * FROM `equipment_assignment_staff` WHERE `deleted` = 0 AND `equipment_assignmentid` = '".$equip_assign['equipment_assignmentid']."'");
+				while($ea_staff = mysqli_fetch_assoc($equip_assign_staffs)) {
+					if(strpos(','.$equip_assign['hide_staff'].',', ','.$ea_staff['contactid'].',') === FALSE) {
+						$contactids[] = $ea_staff['contactid'];
+			    		$team_contactids[$ea_staff['contactid']] = [get_contact($dbc, $ea_staff['contactid'], 'category'), get_contact($dbc, $ea_staff['contactid']), $ea_staff['contact_position']];
+					}
+				}
+
+				$equip_assign_team = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `teams` WHERE `teamid` = '".$row['teamid']."'"));
+
+			    $team_contacts = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `teams_staff` WHERE `teamid` ='".$equip_assign_team['teamid']."' AND `deleted` = 0"),MYSQLI_ASSOC);
+			    foreach ($team_contacts as $team_contact) {
+					if(strpos(','.$equip_assign['hide_staff'].',', ','.$team_contact['contactid'].',') === FALSE) {
+						$contactids[] = $ea_staff['contactid'];
+			    		$team_contactids[$team_contact['contactid']] = [get_contact($dbc, $team_contact['contactid'], 'category'), get_contact($dbc, $team_contact['contactid']), $team_contact['contact_position']];
+			    	}
+			    }
+
 				if($export_by == 'Staff') {
-					$contactids = array_filter(explode(',',$row['contactid']));
-					// $equip_assigns = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `equipment_assignment` WHERE `"));
+					$contactids = array_filter(array_unique(array_merge(explode(',', $row['contactid']), $contactids)));
+					foreach($contactids as $contactid) {
+						if(in_array($contactid, $staffid)) {
+							if(empty($blocks[$classification][$cur_date][$contactid]['label'])) {
+								$blocks[$classification][$cur_date][$contactid]['label'] = '<b>'.get_contact($dbc, $contactid).'</b>';
+							}
+							$blocks[$classification][$cur_date][$contactid]['total']++;
+							if(in_array($row['status'], $calendar_checkmark_status)) {
+								$blocks[$classification][$cur_date][$contactid]['completed']++;
+							}
+						}
+					}
 				} else if(in_array($row['equipmentid'],$equipmentid)) {
-					$blocks[$classification][$cur_day][$equipmentid]['total']++;
+					if(empty($blocks[$classification][$cur_date][$row['equipmentid']]['label'])) {
+						$equipment_label = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT CONCAT(`category`, ' #', `unit_number`) label FROM `equipment` WHERE `equipmentid` = '".$row['equipmentid']."'"))['label'];
+						$team_name = [];;
+					    foreach ($team_contactids as $key => $value) {
+					    	$cur_staff = $value[0].': '.(!empty($value[2]) ? $value[2].': ' : '').$value[1];
+					    	$team_name[] = $cur_staff;
+					    }
+					    $team_name = implode('<br />',$team_name);
+					    $team_name = '<b>'.$equipment_label.'</b>'.(!empty($team_name) ? '<br />'.$team_name : '');
+						$blocks[$classification][$cur_date][$row['equipmentid']]['label'] = $team_name;
+					}
+					$blocks[$classification][$cur_date][$row['equipmentid']]['total']++;
 					if(in_array($row['status'], $calendar_checkmark_status)) {
-						$blocks[$classification][$cur_day][$equipmentid]['completed']++;
+						$blocks[$classification][$cur_date][$row['equipmentid']]['completed']++;
 					}
 				}
 			}
 		}
 	}
 
-	DEFINE(FORM_HEADER_TEXT, 'Time Table ('.$start_date.' - '.$end_date.')');
+	DEFINE(FORM_HEADER_TEXT, 'Time Table ('.date('M j, Y', strtotime($start_date)).' - '.date('M j, Y', strtotime($end_date)).')');
 
     class MYPDF extends TCPDF {
 
         //Page header
         public function Header() {
             if(FORM_HEADER_TEXT != '') {
+	            $this->SetFont('helvetica', '', 14);
                 $this->setCellHeightRatio(0.7);
-                $this->writeHTMLCell(0, 0, 7.5, 5, FORM_HEADER_TEXT, 0, 0, false, true, FORM_HEADER_LOGO, true);
+                $this->writeHTMLCell(0, 0, 7.5, 5, FORM_HEADER_TEXT, 0, 0, false, true, 'C', true);
             }
         }
 
@@ -70,7 +113,7 @@ if(isset($_POST['export_pdf'])) {
         }
     }
 
-    $pdf = new MYPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, 'LETTER', true, 'UTF-8', false);
+    $pdf = new MYPDF('L', PDF_UNIT, 'LETTER', true, 'UTF-8', false);
     $pdf->SetMargins(PDF_MARGIN_LEFT, 20, PDF_MARGIN_RIGHT);
     $pdf->SetAutoPageBreak(TRUE, 25);
     $pdf->AddPage();
@@ -78,16 +121,63 @@ if(isset($_POST['export_pdf'])) {
     $pdf->setCellHeightRatio(1);
 
     $table_start_date = date('Y-m-d', strtotime('last Sunday', strtotime($start_date)));
-    $table_end_date = date('Y-m-d', strtotime('next Saturday', strtotime($start_date)));
-	if(date('l') == 'Sunday') {
+    $table_end_date = date('Y-m-d', strtotime('next Saturday', strtotime($end_date)));
+	if(date('l', strtotime($start_date)) == 'Sunday') {
 		$table_start_date = $start_date;
-	} else if(date('l') == 'Saturday') {
+	}
+	if(date('l', strtotime($end_date)) == 'Saturday') {
 		$table_end_date = $end_date;
 	}
 
-	for($cur_day = $table_start_date; strtotime($cur_day) <= strtotime($table_end_date); $cur_day = date('Y-m-d', strtotime($cur_day.' + 1 day'))) {
+	$html = '';
 
+	foreach($classifications as $classification) {
+		if(!empty($classification)) {
+			$html .= '<h3>'.$classification.'</h3>';
+		}
+		for($cur_date = $table_start_date; strtotime($cur_date) < strtotime($table_end_date); $cur_date = date('Y-m-d', strtotime($cur_date.' + 7 days'))) {
+			$html .= '<table border="1" cellpadding="2">';
+			$html .= '<tr>';
+			for($table_date = $cur_date; strtotime($table_date) < strtotime(date('Y-m-d', strtotime($cur_date.' + 7 days'))); $table_date = date('Y-m-d', strtotime($table_date.' + 1 day'))) {
+				$html .= '<td style="background-color: #ccc;"><b>'.date('D M j, Y', strtotime($table_date)).'</b></td>';
+			}
+			$html .= '</tr>';
+			$html .= '</table>';
+
+			$html .= '<table border="1">';
+			$html .= '<tr>';
+			for($table_date = $cur_date; strtotime($table_date) < strtotime(date('Y-m-d', strtotime($cur_date.' + 7 days'))); $table_date = date('Y-m-d', strtotime($table_date.' + 1 day'))) {
+				$html .= '<td>';
+				$html .= '<table border="0" cellpadding="2">';
+				$block_htmls = [];
+				foreach($blocks[$classification][$table_date] as $block) {
+					$block_html = $block['label'].'<br />';
+					$block_html .= '(Completed '.(empty($block['completed']) ? 0 : $block['completed']).' of '.(empty($block['total']) ? 0 : $block['total']).' '.TICKET_TILE.')';
+					$block_htmls[] = $block_html;
+				}
+				if(!empty($block_htmls)) {
+					$html .= '<tr><td style="border-bottom: 1px solid black;">'.implode('</td></tr><tr><td style="border-bottom: 1px solid black;">', $block_htmls).'</td></tr>';
+				} else {
+					$html .= '<tr><td></td></tr>';
+				}
+				$html .= '</table></td>';
+			}
+			$html .= '</tr>';
+			$html .= '</table>';
+		}
 	}
+    $pdf->writeHTML(utf8_encode($html), true, false, true, false, '');
+
+    if(!file_exists('download')) {
+        mkdir('download', 0777, true);
+    }
+    $today_date = date('Y-m-d_H-i-a', time());
+    $file_name = 'time_table_'.$today_date.'.pdf';
+    $pdf->Output('download/'.$file_name, 'F');
+
+    echo '<script type="text/javascript">
+            window.top.open("download/'.$file_name.'", "_blank");
+        </script>';
 
 }
 $equipment_category = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_equip_assign`"))['equipment_category'];

@@ -3,6 +3,9 @@
 	<span id="calendar_date_heading" style="font-size: 2em;">&nbsp;&nbsp;<?= $date_string ?></span>
     <div class="pull-right mobile-clear-floats">
         <?php
+        if($export_time_table == 1) { ?>
+                <a href='' onclick='overlayIFrameSlider("<?= WEBSITE_URL ?>/Calendar/export_time_table.php"); return false;' class="block-label pull-right">Export Time Table</a>
+        <?php }
         if((($_GET['type'] == 'event' && vuaed_visible_function($dbc, 'calendar_rook')) || ($wait_list == 'ticket' && $new_ticket_button !== '')) && $edit_access == 1) {
             if($_GET['type'] == 'schedule') { ?>
                 <a href='' onclick='dispatchNewWorkOrder(this); return false;' class="block-label pull-right">New <?= TICKET_NOUN ?></a><?php

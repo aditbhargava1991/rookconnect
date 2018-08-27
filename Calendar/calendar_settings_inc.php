@@ -418,6 +418,7 @@ switch($_GET['type']) {
                 $is_customer = true;
             }
         }
+        $export_time_table = get_config($dbc, 'scheduling_export_time_table');
         break;
     case 'estimates':
         $config_type = 'estimates';
