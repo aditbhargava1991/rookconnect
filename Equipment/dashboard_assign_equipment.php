@@ -37,15 +37,6 @@ function send_csv() {
 $equipment_main_tabs = explode(',',get_config($dbc, 'equipment_main_tabs'));
 include_once('../Equipment/region_location_access.php'); ?>
 
-<div class="notice double-gap-bottom popover-examples">
-    <div class="col-sm-1 notice-icon"><img src="<?= WEBSITE_URL; ?>/img/info.png" class="wiggle-me" width="25"></div>
-    <div class="col-sm-11">
-        <span class="notice-name">NOTE:</span>
-        Here you can add and edit all equipment assignments
-    </div>
-    <div class="clearfix"></div>
-</div>
-
 <?php
 $category = $_GET['category'];
 $each_tab = explode(',', get_config($dbc, 'equipment_tabs'));

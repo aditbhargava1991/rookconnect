@@ -26,13 +26,6 @@ function changeCategory(sel) {
 }
 </script>
 
-<div class="notice double-gap-bottom popover-examples">
-	<div class="col-sm-1 notice-icon"><img src="<?= WEBSITE_URL; ?>/img/info.png" class="wiggle-me" width="25"></div>
-	<div class="col-sm-11"><span class="notice-name">NOTE:</span>
-	Through this section, full services records and tracking can be done on all equipment. These records are ideal for reporting, sales, year end and tracking the profit and losses on all equipment.</div>
-	<div class="clearfix"></div>
-</div>
-
 <?php $category = $_GET['category'];
 $each_tab = explode(',', get_config($dbc, 'equipment_tabs'));
 if (get_config($dbc, 'show_category_dropdown_equipment') == '1') { ?>
