@@ -38,6 +38,7 @@ if($_GET['action'] == 'mark_favourite') {
                 $result = mysqli_query($dbc, "INSERT INTO `reminders` (`contactid`, `reminder_date`, `reminder_time`, `reminder_type`, `subject`, `body`, `sender`, `src_table`, `src_tableid`)
                     VALUES ('$user', '$value', '08:00:00', 'QUICK', '$subject', '$body', '$sender', 'project', '".$id."')");
             }
+            add_update_history($dbc,'project_history',"Reminder added.",'','',$id);
     } else if($field == 'document') {
 		$folder = 'download/';
 		$basename = preg_replace('/[^\.A-Za-z0-9]/','',$_FILES['file']['name']);
@@ -47,6 +48,7 @@ if($_GET['action'] == 'mark_favourite') {
 		}
 		move_uploaded_file($_FILES['file']['tmp_name'],$folder.$filename);
 		mysqli_query($dbc, "INSERT INTO `project_document` (`projectid`,`upload`,`created_by`) VALUES ('$id','$filename','".$_SESSION['contactid']."')");
+        add_update_history($dbc,'project_history',"Document: $filename added.",'','',$id);
 	} else if($field == 'email') {
 		$sender = get_email($dbc, $_SESSION['contactid']);
 		$subject = "A reminder about a ".PROJECT_TILE;
@@ -56,6 +58,7 @@ if($_GET['action'] == 'mark_favourite') {
                     <a href='".WEBSITE_URL."/Project/projects.php?edit=$id&tile_name=project'>Click here</a> to see the ".PROJECT_TILE.".<br />\n<br />";
 			send_email($sender, $user, '', '', $subject, $body, '');
 		}
+        add_update_history($dbc,'project_history',"Email sent.",'','',$id);
 	}
 } else if($_GET['action'] == 'setting_status') {
 	$status = filter_var(implode('#*#',array_filter($_POST['status'])),FILTER_SANITIZE_STRING);
@@ -104,8 +107,8 @@ if($_GET['action'] == 'mark_favourite') {
 	$query_review = "UPDATE `project` SET `review_date` = CURRENT_TIMESTAMP, `reviewer_id` = '$contactid' WHERE `projectid`='$projectid'";
 	$result_review = mysqli_query($dbc, $query_review);
     $user = decryptIt($_SESSION['first_name']).' '.decryptIt($_SESSION['last_name']);
-	mysqli_query($dbc, "INSERT INTO `project_history` (`updated_by`, `description`, `projectid`) VALUES ('$user', '".PROJECT_NOUN." Reviewed', '$projectid')");
 	echo "Last Reviewed: ".date('Y-m-d')." by ".$contact_name;
+    add_update_history($dbc,'project_history',PROJECT_NOUN." marked as reviewed.",'','',$projectid);
 } else if($_GET['action'] == 'project_add_heading') {
 	$projectid = filter_var($_POST['project'],FILTER_SANITIZE_STRING);
 	mysqli_query($dbc, "INSERT INTO `project_scope` (`projectid`) VALUES ('$projectid')");
@@ -319,16 +322,17 @@ if($_GET['action'] == 'mark_favourite') {
 		}
 		mysqli_query($dbc, "UPDATE `$table` SET `created_date`='".date('Y-m-d')."' WHERE `$id_field`='$id'");
 		mysqli_query($dbc, "UPDATE `$table` SET `created_by`='".$_SESSION['contactid']."' WHERE `$id_field`='$id'");
-		$taskboard = get_project_task_board($projectid);
+		$taskboard = get_project_task_board($project);
 		$taskboardid = $taskboard['id'];
 		$task_path = explode('#*#',$taskboard['path'])[0];
 		mysqli_query($dbc, "UPDATE `$table` SET  `contactid`='".$_SESSION['contactid']."', `businessid`='".$project_info['businessid']."', `clientid`='".$project_info['clientid']."', `task_board`='$taskboardid' WHERE `$id_field`='$id' AND 'tasklist' = '$table'");
 		mysqli_query($dbc, "UPDATE `$table` SET  `created_by`='".$_SESSION['contactid']."' WHERE `$id_field`='$id'");
 		mysqli_query($dbc, "UPDATE `$table` SET `created_date`='".date('Y-m-d')."' WHERE `$id_field`='$id'");
-		$history = htmlentities(get_contact($dbc, $_SESSION['contactid'])." added ".($table == 'project' ? 'Project' : ($table == 'tasklist' ? 'Task' : $table))." #$id on ".date('Y-m-d h:i a'));
+		$history = get_contact($dbc, $_SESSION['contactid'])." added ".($table == 'project' ? PROJECT_NOUN : ($table == 'tasklist' ? 'Task' : $table))." #$id on ".date('Y-m-d h:i a');
 		echo $id;
 		if($table == 'project') {
 			insert_day_overview($dbc, $_SESSION['contactid'], 'Project', date('Y-m-d'), '', 'Added '.PROJECT_NOUN.' #'.$id, $id);
+            $project = $id;
 		}
 	}
 	if($table == 'project_actions') {
@@ -336,11 +340,11 @@ if($_GET['action'] == 'mark_favourite') {
 			$value = htmlentities("Follow Up #$id Completed by ".get_contact($dbc, $_SESSION['contactid'])." on ".date('Y-m-d')."<br />".$value);
 			mysqli_query($dbc, "INSERT INTO `project_comment` (`projectid`, `notes`, `created_by`) VALUES ('$project', '$value', '{$_SESSION['contactid']}')");
 			$value = 1;
-			$history = htmlentities(get_contact($dbc, $_SESSION['contactid'])." completed follow up action $id on ".date('Y-m-d h:i a'));
+			$history = get_contact($dbc, $_SESSION['contactid'])." completed follow up action $id on ".date('Y-m-d h:i a');
 		} else if($field == '') {
-			$history = htmlentities(get_contact($dbc, $_SESSION['contactid'])." added follow up action $id on ".date('Y-m-d h:i a'));
+			$history = get_contact($dbc, $_SESSION['contactid'])." added follow up action $id on ".date('Y-m-d h:i a');
 		} else {
-			$history = htmlentities(get_contact($dbc, $_SESSION['contactid'])." set follow up $field to '$value' for action $id on ".date('Y-m-d h:i a'));
+			$history = get_contact($dbc, $_SESSION['contactid'])." set follow up $field to '$value' for action $id on ".date('Y-m-d h:i a');
 		}
 	} else if($field == 'status' && $table == 'tasklist') {
 		$_POST['value'] = empty($_POST['value']) ? explode(',',get_config($dbc,'task_status'))[0] : filter_var($_POST['value'],FILTER_SANITIZE_STRING);
@@ -354,12 +358,13 @@ if($_GET['action'] == 'mark_favourite') {
 		$milestone_name = explode('&lt;br /&gt;', $milestone_name)[0];
 		$milestone_name = explode('&lt;p&gt;', $milestone_name)[0];
         insert_day_overview($dbc, $_SESSION['contactid'], 'Project', date('Y-m-d'), '', 'Updated '.PROJECT_NOUN.' #'.$project.(!empty($project_name) ? ': '.$project_name : '').' - '.($_POST['value'] > 0 ? 'Completed' : 'Unchecked').' '.$milestone_name, $id);
-	} else if($history != '') {
-		$history = htmlentities(get_contact($dbc, $_SESSION['contactid'])." set $field to '$value' on ".date('Y-m-d h:i a'));
+        $history = get_contact($dbc, $_SESSION['contactid']).' Updated '.PROJECT_NOUN.' #'.$project.(!empty($project_name) ? ': '.$project_name : '').' - '.($_POST['value'] > 0 ? 'Completed' : 'Unchecked').' '.$milestone_name;
+	} else {
+		$history .= ($history == '' ? '' : "<br />\n").get_contact($dbc, $_SESSION['contactid'])." set $field to '$value' on ".date('Y-m-d h:i a');
 	}
 	mysqli_query($dbc, "UPDATE `$table` SET `$field`=$value WHERE `$id_field`='$id'");
     $user = decryptIt($_SESSION['first_name']).' '.decryptIt($_SESSION['last_name']);
-	mysqli_query($dbc, "INSERT INTO `project_history` (`updated_by`, `description`, `projectid`) VALUES ('$user', '".htmlentities($history)."', '$projectid')");
+	add_update_history($dbc,'project_history',$history,'','',$project);
 
 	// Add Services to the Customer Rate Card, if configured
 	if($table == 'project_scope' && get_config($dbc, 'project_services_add_to_rates') == 'true') {
@@ -460,6 +465,7 @@ if($_GET['action'] == 'mark_favourite') {
 	$date_of_archival = date('Y-m-d');
 	$id = filter_var($_POST['id'],FILTER_SANITIZE_STRING);
 	$dbc->query("UPDATE `project` SET `status`='Archive', `deleted`=1 WHERE `projectid`='$id'");
+    add_update_history($dbc,'project_history',PROJECT_NOUN." archived.",'','',$id);
 } else if($_GET['action'] == 'path_template') {
 	$id = filter_var($_POST['templateid'],FILTER_SANITIZE_STRING);
 	$project_path = filter_var($_POST['template_name'],FILTER_SANITIZE_STRING);
@@ -540,6 +546,7 @@ if($_GET['action'] == 'mark_favourite') {
 		move_uploaded_file($_FILES['file']['tmp_name'],'download/'.$filename);
 		mysqli_query($dbc, "INSERT INTO `project_document` (`projectid`,`upload`,`category`,`created_by`) VALUES ('$project','$filename','$type','".$_SESSION['contactid']."')");
 	}
+    add_update_history($dbc,'project_history',"Document: $filename added.",'','',$project);
 } else if($_GET['action'] == 'create_from_scope') {
 	$projectid = filter_var($_POST['projectid'], FILTER_SANITIZE_STRING);
 	$description = '';
@@ -723,6 +730,7 @@ if($_GET['action'] == 'mark_favourite') {
 			include('pos_invoice_1.php');
 			break;
 	}
+    add_update_history($dbc,'project_history',"Invoice #$invoiceid created.",'','',$projectid);
 	ob_clean();
 	echo WEBSITE_URL."/Project/projects.php?edit=".$projectid."&tab=".$type;
 } else if($_GET['action'] == 'approve_time') {

@@ -29,6 +29,7 @@ if(mysqli_num_rows($noti_list) > 0) {
         }
 
         $row_html = '';
+        $note_label = '';
         switch($row['src_table']) {
             case 'daysheet_reminders':
                 $daysheet_reminder = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `daysheet_reminders` WHERE `daysheetreminderid` = '".$row['src_id']."'".$daysheet_reminder_query));
@@ -131,22 +132,28 @@ if(mysqli_num_rows($noti_list) > 0) {
             case 'budget_comment':
                 if($row['src_table'] == 'budget_comment') {
                     $day_note = mysqli_fetch_array(mysqli_query($dbc, "SELECT `comment`, 'comment' `src`, 0 `src_id`, 'Budget Comment' `type`, `created_by` `user`, `email_to` `assigned`, `created_date` FROM `budget_comment` WHERE `budgetcommid` = '".$row['src_id']."'"));
+                    $note_label = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `budget` WHERE `budgetid` = '".$day_note['src_id']."'"))['budget_name'];
                 }
             case 'project_comment':
                 if($row['src_table'] == 'project_comment') {
                     $day_note = mysqli_fetch_array(mysqli_query($dbc, "SELECT `comment`, 'Project' `src`, `projectid` `src_id`, 'Project Comment' `type`, `created_by` `user`, `email_comment` `assigned`, `created_date` FROM `project_comment` WHERE `projectcommid` = '".$row['src_id']."'"));
+                    $note_label = get_project_label($dbc, mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `project` WHERE `projectid` = '".$day_note['src_id']."'")));
+
                 }
             case 'task_comments':
                 if($row['src_table'] == 'task_comments') {
                     $day_note = mysqli_fetch_array(mysqli_query($dbc, "SELECT `comment`, 'Task' `src`, `tasklistid` `src_id`, 'Task Note' `type`, `created_by` `user`, 0 `assigned`, `created_date` FROM `task_comments` WHERE `taskcommid` = '".$row['src_id']."'"));
+                    $note_label = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tasklist` WHERE `tasklistid` = '".$day_note['src_id']."'"))['heading'];
                 }
             case 'ticket_comment':
                 if($row['src_table'] == 'ticket_comment') {
                     $day_note = mysqli_fetch_array(mysqli_query($dbc, "SELECT `comment`, 'Ticket' `src`, `ticketid` `src_id`, '".TICKET_NOUN." Note' `type`, `created_by` `user`, `email_comment` `assigned`, `created_date` FROM `ticket_comment` WHERE `ticketcommid` = '".$row['src_id']."'"));
+                    $note_label = get_ticket_label($dbc, mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticketid` = '".$day_note['src_id']."'")));
                 }
             case 'estimate_notes':
                 if($row['src_table'] == 'estimate_notes') {
-                    $day_note = mysqli_fetch_array(mysqli_query($dbc, "SELECT `notes` `comment`, 'comment' `src`, 0 `src_id`, 'Estimate Note' `type`, `created_by` `user`, `assigned` `assigned`, `note_date` `created_date` FROM `estimate_notes` WHERE `id` = '".$row['src_id']."'"));
+                    $day_note = mysqli_fetch_array(mysqli_query($dbc, "SELECT `notes` `comment`, 'comment' `src`, `estimateid` `src_id`, 'Estimate Note' `type`, `created_by` `user`, `assigned` `assigned`, `note_date` `created_date` FROM `estimate_notes` WHERE `id` = '".$row['src_id']."'"));
+                    $note_label = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `estimate` WHERE `estimateid` = '".$day_note['src_id']."'"))['estimate_name'];
                 }
             case 'client_daily_log_notes':
                 if($row['src_table'] == 'client_daily_log_notes') {
@@ -156,7 +163,7 @@ if(mysqli_num_rows($noti_list) > 0) {
                 if($row['src_table'] == 'daysheet_notepad') {
                     $day_note = mysqli_fetch_array(mysqli_query($dbc, "SELECT `notes` `comment`, 'comment' `src`, 0 `src_id`, 'Journal Note' `type`, `contactid` `user`, 0 `assigned`, `date` `created_date` FROM `daysheet_notepad` WHERE `daysheetnotepadid` = '".$row['src_id']."'"));
                 }
-                $row_html = $row_open.($day_note['src'] == 'Task' ? '<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Tasks_Updated/add_task.php?tasklistid='.$day_note['src_id'].'\'); return false;">' : ($day_note['src'] == 'Project' ? '<a href="../Project/projects.php?edit='.$day_note['src_id'].'">' : ($day_note['src'] == 'Ticket' ? '<a href="'.WEBSITE_URL.'/Ticket/index.php?edit='.$day_note['src_id'].'&action_mode='.$ticket_action_mode.'" onclick="overlayIFrameSlider(this.href+\'&calendar_view=true\'); return false;">' : '<div class="daysheet-span">'))).$day_note['type'].': '.html_entity_decode($day_note['comment']).($day_note['src'] == 'Project' || $day_note['src'] == 'Ticket' || $day_note['src'] == 'Task' ? '</a>' : '</div>');
+                $row_html = $row_open.($day_note['src'] == 'Task' ? '<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Tasks_Updated/add_task.php?tasklistid='.$day_note['src_id'].'\'); return false;">' : ($day_note['src'] == 'Project' ? '<a href="../Project/projects.php?edit='.$day_note['src_id'].'">' : ($day_note['src'] == 'Ticket' ? '<a href="'.WEBSITE_URL.'/Ticket/index.php?edit='.$day_note['src_id'].'&action_mode='.$ticket_action_mode.'" onclick="overlayIFrameSlider(this.href+\'&calendar_view=true\'); return false;">' : '<div class="daysheet-span">'))).(!empty($note_label) ? $note_label.'<br />' : '').$day_note['type'].': '.html_entity_decode($day_note['comment']).($day_note['src'] == 'Project' || $day_note['src'] == 'Ticket' || $day_note['src'] == 'Task' ? '</a>' : '</div>');
                 $row_html .= $row_close;
                 break;
         }

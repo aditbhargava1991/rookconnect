@@ -30,7 +30,7 @@ if(mysqli_num_rows($result) > 0) {
 		$minutes = explode(':',$time_length);
 		$total_time += ($minutes[0] * 60) + $minutes[1];
 
-		echo '<td data-title="Type">' .($row['src'] == 'ticket' ? '<a href="" onclick="overlayIFrameSlider(\'../Ticket/index.php?edit='.$row['srcid'].'\'); return false;">'.get_ticket_label($dbc, $dbc->query("SELECT * FROM `tickets` WHERE `ticketid`='".$row['srcid']."'")->fetch_assoc().'</a>') : ($row['src'] == 'task' ? '<a href="" onclick="overlayIFrameSlider(\'../Tasks_Updated/add_tasks.php?tasklistid='.$row['srcid'].'\'); return false;">'.$row['time_type'].'</a>' : $row['time_type'])) . '</td>';
+		echo '<td data-title="Type">' .($row['src'] == 'ticket' ? '<a href="" onclick="overlayIFrameSlider(\'../Ticket/index.php?edit='.$row['srcid'].'\'); return false;">'.get_ticket_label($dbc, $dbc->query("SELECT * FROM `tickets` WHERE `ticketid`='".$row['srcid']."'")->fetch_assoc().'</a>') : ($row['src'] == 'task' ? '<a href="" onclick="overlayIFrameSlider(\'../Tasks_Updated/add_task.php?tasklistid='.$row['srcid'].'\'); return false;">'.$row['time_type'].'</a>' : $row['time_type'])) . '</td>';
 		echo '<td data-title="Heading">' . html_entity_decode($row['time_heading']) . '</td>';
 		echo '<td data-title="Staff">' . get_contact($dbc, $row['time_staff']) . '</td>';
 		echo '<td data-title="Date">' . $row['time_date'] . '</td>';
