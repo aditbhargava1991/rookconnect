@@ -761,21 +761,6 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 				</div>
 			</div>
 		</div>
-		<div class="panel panel-default" style='<?= in_array('History',$tab_config) ? '' : 'display:none;' ?>'>
-			<div class="panel-heading mobile_load">
-				<h4 class="panel-title">
-					<a data-toggle="collapse" data-parent="#project_accordions" href="#collapse_history">
-						Activity History<span class="glyphicon glyphicon-plus"></span>
-					</a>
-				</h4>
-			</div>
-
-			<div id="collapse_history" class="panel-collapse collapse">
-				<div class="panel-body" data-file-name="edit_project_report_history.php?projectid=<?= $projectid ?>&projecttype=<?= $projecttype ?>">
-					Loading...
-				</div>
-			</div>
-		</div>
 		<?php $user_forms = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `field_config_project_form` WHERE `user_form_id` > 0 AND IFNULL(`subtab_name`,'') != '' AND `project_heading` = 'reporting' AND (`project_type` = 'ALL' OR `project_type` = '$projecttype') ORDER BY `project_type` <> 'ALL'"),MYSQLI_ASSOC);
 		foreach($user_forms as $user_form) { ?>
 			<div class="panel panel-default" style='<?= $_GET['edit'] > 0 ? '' : 'display:none;' ?>'>
@@ -949,6 +934,21 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 				</div>
 			</div>
 		<?php } ?>
+		<div class="panel panel-default" style='<?= in_array('History',$tab_config) ? '' : 'display:none;' ?>'>
+			<div class="panel-heading mobile_load">
+				<h4 class="panel-title">
+					<a data-toggle="collapse" data-parent="#project_accordions" href="#collapse_history">
+						Activity History<span class="glyphicon glyphicon-plus"></span>
+					</a>
+				</h4>
+			</div>
+
+			<div id="collapse_history" class="panel-collapse collapse">
+				<div class="panel-body" data-file-name="edit_project_report_history.php?projectid=<?= $projectid ?>&projecttype=<?= $projecttype ?>">
+					Loading...
+				</div>
+			</div>
+		</div>
 	</div>
 <?php } ?>
 <?php if(!IFRAME_PAGE) { ?>
@@ -1437,7 +1437,7 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 				} ?>
 			</ul>
 		<?php }
-		$sub_tabs = ['Deliverables','Gantt','Profit','Reminders','Estimated Time','Tracked Time','Time Tracked','History'];
+		$sub_tabs = ['Deliverables','Gantt','Profit','Reminders','Estimated Time','Tracked Time','Time Tracked'];
 		foreach($sub_tabs as $i => $tab) {
 			if(!in_array($tab,$tab_config)) {
 				unset($sub_tabs[$i]);
@@ -1450,7 +1450,7 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 		}
 		if(check_subtab_persmission($dbc, 'project', ROLE, 'view_reporting') && (count($sub_tabs) > 0 || count($user_forms) > 0)) {
 			$ticket_bypass = false;
-			$show_sub = in_array($_GET['tab'],['deliverables','gantt','profitloss','reminders','track_time','estimate_time','time_track','history']) || $no_sub_shown || array_key_exists($_GET['project_form_id'], $user_forms);
+			$show_sub = in_array($_GET['tab'],['deliverables','gantt','profitloss','reminders','track_time','estimate_time','time_track']) || $no_sub_shown || array_key_exists($_GET['project_form_id'], $user_forms);
 			$no_sub_shown = false; ?>
 			<a href="?edit=<?= $_GET['edit'] ?>&tab=gantt" onclick="$('.standard-collapsible ul ul:visible').not($(this).next('ul')).toggle().prev('a').find('li').toggleClass('collapsed'); $(this).next('ul').toggle(); $(this).find('li').toggleClass('collapsed'); return false;" style="<?= count($sub_tabs) > 0 ? '' : 'display:none;' ?>">
 				<li class="sidebar-higher-level <?= $show_sub ? 'active blue' : 'collapsed' ?>">Reporting<span class="arrow"></span></li></a>
@@ -1463,8 +1463,7 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 				<?php if(in_array('Estimated Time',$tab_config)) { $_GET['tab'] = ($_GET['tab'] == '' ? 'estimate_time' : $_GET['tab']); $next_tab = (!$next_set ? 'estimate_time' : $next_tab); $next_set = ($prev_set ? true : false); $prev_set = ($_GET['tab'] == 'estimate_time' ? true : $prev_set); $previous_tab = ($prev_set ? $previous_tab : 'estimate_time'); ?><a href="?edit=<?= $_GET['edit'] ?>&tab=estimate_time"><li class="sidebar-lower-level <?= $_GET['tab'] == 'estimate_time' ? 'active blue' : '' ?>">Estimated Time</li></a><?php } ?>
 				<?php if(in_array('Tracked Time',$tab_config)) { $_GET['tab'] = ($_GET['tab'] == '' ? 'track_time' : $_GET['tab']); $next_tab = (!$next_set ? 'track_time' : $next_tab); $next_set = ($prev_set ? true : false); $prev_set = ($_GET['tab'] == 'track_time' ? true : $prev_set); $previous_tab = ($prev_set ? $previous_tab : 'track_time'); ?><a href="?edit=<?= $_GET['edit'] ?>&tab=track_time"><li class="sidebar-lower-level <?= $_GET['tab'] == 'track_time' ? 'active blue' : '' ?>">Tracked Time</li></a><?php } ?>
 				<?php if(in_array('Time Tracked',$tab_config)) { $_GET['tab'] = ($_GET['tab'] == '' ? 'time_track' : $_GET['tab']); $next_tab = (!$next_set ? 'time_track' : $next_tab); $next_set = ($prev_set ? true : false); $prev_set = ($_GET['tab'] == 'time_track' ? true : $prev_set); $previous_tab = ($prev_set ? $previous_tab : 'time_track'); ?><a href="?edit=<?= $_GET['edit'] ?>&tab=time_track"><li class="sidebar-lower-level <?= $_GET['tab'] == 'time_track' ? 'active blue' : '' ?>">Total Time Tracked</li></a><?php } ?>
-				<?php if(in_array('History',$tab_config)) { $_GET['tab'] = ($_GET['tab'] == '' ? 'history' : $_GET['tab']); $next_tab = (!$next_set ? 'history' : $next_tab); $next_set = ($prev_set ? true : false); $prev_set = ($_GET['tab'] == 'history' ? true : $prev_set); $previous_tab = ($prev_set ? $previous_tab : 'history'); ?><a href="?edit=<?= $_GET['edit'] ?>&tab=history"><li class="sidebar-lower-level <?= $_GET['tab'] == 'history' ? 'active blue' : '' ?>">Activity History</li></a><?php }
-				if(count($user_forms) > 0 && $_GET['edit'] > 0) {
+				<?php if(count($user_forms) > 0 && $_GET['edit'] > 0) {
 					foreach($user_forms as $project_form_id => $subtab_name) { ?>
 						<a href="?edit=<?= $_GET['edit'] ?>&tab=user_forms&project_form_id=<?= $project_form_id ?>"><li class="sidebar-lower-level <?= $_GET['project_form_id'] == $project_form_id ? 'active blue' : '' ?>"><?= $subtab_name ?></li></a>
 					<?php }
@@ -1505,8 +1504,9 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 					<?php }
 				} ?>
 			</ul>
-		<?php } ?>
-		<li>Created <?= $project['created_by'] > 0 ? 'by '.get_contact($dbc, $project['created_by']) : '' ?> on <?= $projectid > 0 ? $project['created_date'] : date('Y-m-d') ?></li>
+		<?php }
+        if(in_array('History',$tab_config)) { $_GET['tab'] = ($_GET['tab'] == '' ? 'history' : $_GET['tab']); $next_tab = (!$next_set ? 'history' : $next_tab); $next_set = ($prev_set ? true : false); $prev_set = ($_GET['tab'] == 'history' ? true : $prev_set); $previous_tab = ($prev_set ? $previous_tab : 'history'); ?><a href="?edit=<?= $_GET['edit'] ?>&tab=history"><li class="sidebar-higher-level <?= $_GET['tab'] == 'history' ? 'active blue' : '' ?>">History</li></a><?php } ?>
+		<li>Created <?= $project['created_by'] > 0 ? 'by<br />'.get_contact($dbc, $project['created_by']).'<br />' : '' ?> on <?= $projectid > 0 ? $project['created_date'] : date('Y-m-d') ?></li>
 	</ul>
 </div>
 <?php } ?>
