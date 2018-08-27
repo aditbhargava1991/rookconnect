@@ -399,24 +399,23 @@ function changeLevel(sel) {
             <div name="new_path" style="display:none;">
                 <input type='hidden' name='path_id[]' value=''>
                 <div class='form-group'>
-                    <span class="popover-examples pull-right" style="margin:15px 5px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Click here to edit this path."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
                     <label class='col-sm-4 control-label'><a href="#" onclick="$('[name=path_]').toggle(); return false;">Task Path:</a></label>
                     <div class='col-sm-8'><input name='path_name' type='text' class='form-control' value=''></div>
                 </div>
                 <div name="path_">
                     <div class="form-group clearfix">
-                        <label class="col-sm-3 text-center">Milestone</label>
-                        <label class="col-sm-5 text-center">Timeline</label>
+                        <label class="col-xs-5 text-center">Milestone</label>
+                        <label class="col-xs-5 text-center">Timeline</label>
                     </div>
                     <div class="form-group clearfix" name="add_path_" style="display:none;">
-                        <div class="col-sm-3">
+                        <div class="col-xs-5">
                             <input name="milestone_[]" id="milestone_" value="" type="text" class="form-control milestone">
                         </div>
-                        <div class="col-sm-5">
+                        <div class="col-xs-5">
                             <input name="timeline_[]" value="" type="text" class="form-control">
                         </div>
-                        <div class="col-sm-1 m-top-mbl" >
-                            <a href="#" onclick="deleteLine(this); return false;"class="btn brand-btn">Delete</a>
+                        <div class="col-xs-1">
+                            <a href="#" onclick="deleteLine(this); return false;"><img class="small cursor-hand no-gap-top inline-img" src="../img/remove.png"></a>
                         </div>
                     </div>
                     <button class="btn brand-btn" onclick="addLine('add_path_');return false;">Add Milestone</button>
