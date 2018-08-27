@@ -41,7 +41,7 @@ while($row = mysqli_fetch_array( $result )) {
 	$client = (get_contact($dbc, $row['clientid']) != '-' ? get_contact($dbc, $row['clientid']) : get_client($dbc, $row['clientid']));
 	$equip_assign_team = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `teams` WHERE `teamid` = '".$row['teamid']."'"));
 
-    $team_contacts = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `teams_staff` WHERE `teamid` ='".$row_team['teamid']."' AND `deleted` = 0"),MYSQLI_ASSOC);
+    $team_contacts = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `teams_staff` WHERE `teamid` ='".$equip_assign_team['teamid']."' AND `deleted` = 0"),MYSQLI_ASSOC);
     foreach ($team_contacts as $team_contact) {
     	if(!empty($team_contact['contactid']) && !in_array($team_contact['contactid'], $hide_staff)) {
     		$team_contactids[$team_contact['contactid']] = [get_contact($dbc, $team_contact['contactid'], 'category'), get_contact($dbc, $team_contact['contactid']), $team_contact['contact_position']];
