@@ -133,7 +133,7 @@ $contact = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `contacts` LEFT 
             </div>
         <?php } ?>
         <?php if(in_array('POS Paid', $id_card_fields)) {
-            $inv_total = number_format($dbc->query("SELECT SUM(`patient_price`) `paid` FROM `invoice_patient` WHERE `patientid`='$contactid' AND `paid` IN ('On Account','No')")->fetch_assoc()['paid'],2); ?>
+            $inv_total = number_format($dbc->query("SELECT SUM(`patient_price`) `paid` FROM `invoice_patient` WHERE `patientid`='$contactid' AND (`paid` IN ('On Account','No','') OR `paid` LIKE 'Net %')")->fetch_assoc()['paid'],2); ?>
             <div class="col-xs-6 col-sm-4 col-md-3 col-lg-2 gap-top">
                 <div class="summary-block">
                     <span class="text-lg"><?= '$'.floor($inv_total).'.<sup>'.explode('.',$inv_total)[1].'</sup>' ?></span><br />
