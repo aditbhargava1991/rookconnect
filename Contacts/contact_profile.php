@@ -133,7 +133,7 @@ $contact = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `contacts` LEFT 
             </div>
         <?php } ?>
         <?php if(in_array('POS Paid', $id_card_fields)) {
-            $inv_total = number_format($dbc->query("SELECT SUM(`patient_price`) `paid` FROM `invoice_patient` WHERE `patientid`='$contactid' AND (`paid` IN ('On Account','No','') OR `paid` LIKE 'Net %')")->fetch_assoc()['paid'],2); ?>
+            $inv_total = number_format($dbc->query("SELECT SUM(`patient_price`) `paid` FROM `invoice_patient` WHERE `patientid`='$contactid' AND (`paid` NOT IN ('On Account','No','') AND `paid` NOT LIKE 'Net %')")->fetch_assoc()['paid'],2); ?>
             <div class="col-xs-6 col-sm-4 col-md-3 col-lg-2 gap-top">
                 <div class="summary-block">
                     <span class="text-lg"><?= '$'.floor($inv_total).'.<sup>'.explode('.',$inv_total)[1].'</sup>' ?></span><br />
@@ -142,7 +142,7 @@ $contact = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `contacts` LEFT 
             </div>
         <?php } ?>
         <?php if(in_array('POS A/R', $id_card_fields)) {
-            $patient_ar = number_format(mysqli_fetch_assoc ( mysqli_query ( $dbc, "SELECT SUM(`p`.`patient_price`) AS `patient_ar` FROM `invoice_patient` AS `p` JOIN `invoice` AS `inv` ON (`inv`.`invoiceid`=`p`.`invoiceid`) WHERE (`p`.`paid`='On Account' OR `p`.`paid`='' OR `p`.`paid` IS NULL) AND `inv`.`patientid`='$contactid'" ) )['patient_ar'],2); ?>
+            $patient_ar = number_format(mysqli_fetch_assoc ( mysqli_query ( $dbc, "SELECT SUM(`p`.`patient_price`) AS `patient_ar` FROM `invoice_patient` AS `p` JOIN `invoice` AS `inv` ON (`inv`.`invoiceid`=`p`.`invoiceid`) WHERE (IFNULL(`p`.`paid`,'') IN ('On Account','No','') OR `p`.`paid` LIKE 'Net %') AND `inv`.`patientid`='$contactid'" ) )['patient_ar'],2); ?>
             <div class="col-xs-6 col-sm-4 col-md-3 col-lg-2 gap-top">
                 <div class="summary-block">
                     <span class="text-lg"><?= '$'.($patient_ar > 0 ? '<a href="../POSAdvanced/patient_account_receivables.php?patientid='.$contactid.'&from=0000-00-00&until='.date('Y-m-d').'">' : '').floor($patient_ar).'.<sup>'.explode('.',$patient_ar)[1].'</sup>'.($patient_ar > 0 ? '</a>' : '') ?></span><br />
