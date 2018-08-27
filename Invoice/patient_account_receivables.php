@@ -171,6 +171,15 @@ define('PURCHASER', count($purchaser_config) > 1 ? 'Customer' : $purchaser_confi
             <?php
                 echo report_receivables($dbc, $starttime, $endtime, '', '', '', $patient, $invoice_no);
             ?>
+            
+            <?php $show_statement = ($patient > 0);
+            if($show_statement) {
+                $category = get_field_value('category','contacts','contactid',$patient);
+                $_GET['edit'] = $contactid = $patient;
+                $hide_filter_options = true;
+                $field_option = 'Account Statement';
+                include('../Contacts/edit_tile_data.php');
+            } ?>
 
         </form>
 
