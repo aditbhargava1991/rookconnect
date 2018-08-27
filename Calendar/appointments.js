@@ -1285,8 +1285,11 @@ function loadUnbookedList(anchor) {
 		$(anchor).removeClass('active');
 	} else {
 		var href = $(anchor).data('href');
+		var calendar_dates = JSON.parse($('#calendar_dates').val());
+		var start_date = calendar_dates.shift();
+		var end_date = calendar_dates.pop();
 		$.ajax({
-			url: '../Calendar/unbooked.php'+href,
+			url: '../Calendar/unbooked.php'+href+'&search_start_date='+start_date+'&search_end_date='+end_date,
 			success: function(response) {
 				var unbooked_html = '<div class="pull-right scalable unbooked_view" style="height: 30em; overflow: auto;">'+response+'</div>';
 				$('.calendar-screen .collapsible').after(unbooked_html);
