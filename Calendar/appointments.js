@@ -1288,6 +1288,9 @@ function loadUnbookedList(anchor) {
 		var calendar_dates = JSON.parse($('#calendar_dates').val());
 		var start_date = calendar_dates.shift();
 		var end_date = calendar_dates.pop();
+		if(end_date == undefined || end_date == '') {
+			end_date = start_date;
+		}
 		$.ajax({
 			url: '../Calendar/unbooked.php'+href+'&search_start_date='+start_date+'&search_end_date='+end_date,
 			success: function(response) {
