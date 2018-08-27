@@ -136,7 +136,7 @@ $contact = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `contacts` LEFT 
             $inv_total = $dbc->query("SELECT SUM(`patient_price`) `paid` FROM `invoice_patient` WHERE `patientid`='$contactid' AND `paid` IN ('On Account','No')")->fetch_assoc(); ?>
             <div class="col-xs-6 col-sm-4 col-md-3 col-lg-2 gap-top">
                 <div class="summary-block">
-                    <span class="text-lg"><?= '$'.floor($inv_total['paid']).'.<sup>'.explode('.',$inv_total['paid'])[1].'</sup>' ?></span><br />
+                    <span class="text-lg"><?= '$'.floor($inv_total['paid']).'.<sup>'.explode('.',number_format($inv_total['paid'],2))[1].'</sup>' ?></span><br />
                     Total Paid<br />To Date
                 </div>
             </div>
@@ -145,7 +145,7 @@ $contact = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `contacts` LEFT 
             $patient_ar = mysqli_fetch_assoc ( mysqli_query ( $dbc, "SELECT SUM(`p`.`patient_price`) AS `patient_ar` FROM `invoice_patient` AS `p` JOIN `invoice` AS `inv` ON (`inv`.`invoiceid`=`p`.`invoiceid`) WHERE (`p`.`paid`='On Account' OR `p`.`paid`='' OR `p`.`paid` IS NULL) AND `inv`.`patientid`='$contactid'" ) )['patient_ar']; ?>
             <div class="col-xs-6 col-sm-4 col-md-3 col-lg-2 gap-top">
                 <div class="summary-block">
-                    <span class="text-lg"><?= '$'.($patient_ar > 0 ? '<a href="../POSAdvanced/patient_account_receivables.php?patientid='.$contactid.'&from=0000-00-00&until='.date('Y-m-d').'">' : '').floor($patient_ar).'.<sup>'.explode('.',$patient_ar)[1].'</sup>'.($patient_ar > 0 ? '</a>' : '') ?></span><br />
+                    <span class="text-lg"><?= '$'.($patient_ar > 0 ? '<a href="../POSAdvanced/patient_account_receivables.php?patientid='.$contactid.'&from=0000-00-00&until='.date('Y-m-d').'">' : '').floor($patient_ar).'.<sup>'.explode('.',$number_format($patient_ar,2))[1].'</sup>'.($patient_ar > 0 ? '</a>' : '') ?></span><br />
                     A/R<br />&nbsp;
                 </div>
             </div>
