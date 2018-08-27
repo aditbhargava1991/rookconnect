@@ -394,9 +394,9 @@ if($wait_list == 'ticket' || $wait_list == 'ticket_multi') { ?>
 		<?php if(strpos($unbooked_filters, ',date_range,') !== FALSE) {
 			$search_placeholder[] = 'Date'; ?>
 		<label class="super-label">From Date:
-			<input type="text" name="filter_from_date" class="form-control datepicker" value="<?= date('Y-m-d') ?>" onchange="filterTickets();"></label>
+			<input type="text" name="filter_from_date" class="form-control datepicker" value="<?= !empty($_GET['search_start_date']) ? $_GET['search_start_date'] : date('Y-m-d') ?>" onchange="filterTickets();"></label>
 		<label class="super-label">To Date:
-			<input type="text" name="filter_to_date" class="form-control datepicker" value="<?= date('Y-m-d') ?>" onchange="filterTickets();"></label>
+			<input type="text" name="filter_to_date" class="form-control datepicker" value="<?= !empty($_GET['search_end_date']) ? $_GET['search_end_date'] : date('Y-m-d') ?>" onchange="filterTickets();"></label>
 		<?php } ?>
 		<?php if(strpos($unbooked_filters, ',searchbox,') !== FALSE) { ?>
 		<label class="super-label">Search:
