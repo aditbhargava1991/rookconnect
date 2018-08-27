@@ -110,10 +110,10 @@ $(document).ready(function() {
             if ( $(this).data('parent') == '#accordion' ) {
                 $('.tile-sidebar .highest-level .top-ul').removeClass('in');
             }
-        }).click(function() {
-            //alert('second');
+        }).off('click').click(function() {
+            // alert('second');
             $(this).addClass('collapsed');
-            //return false;
+            // return false;
         });
     });
 });
