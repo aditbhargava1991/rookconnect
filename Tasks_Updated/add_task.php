@@ -879,11 +879,11 @@ function mark_done(sel) {
                 <?= (!empty($_GET['tasklistid']) ? 'Edit' : 'Add a') ?> <?= $url_tab ?> Task <?= ( !empty($tasklistid) ) ? '#'.$tasklistid : ''; */ ?>
             </h3>-->
             <h3 class="inline"><?= !empty($_GET['tasklistid']) ? 'Edit' : 'Add' ?> Task<?= !empty($_GET['tasklistid']) ? ' #'.$_GET['tasklistid'].': '.$task_heading : '' ?></h3>
-            <div class="pull-right"><a href=""><img src="../img/icons/ROOK-status-rejected.jpg" alt="Close" title="Close" class="inline-img  no-toggle" /></a></div>
+            <div class="pull-right"><a href=""><img src="../img/icons/ROOK-status-rejected.jpg" alt="Close" title="Close" class="inline-img  no-toggle" data-placement="bottom" /></a></div>
 
-            <div class="pull-right"><img src="../img/icons/full_screen.png" alt="View Full Screen" title="View Full Screen" class="inline-img no-toggle full-btn" /></div>
+            <div class="pull-right"><img src="../img/icons/full_screen.png" alt="View Full Screen" title="View Full Screen" class="inline-img no-toggle full-btn" data-placement="bottom" /></div>
 
-            <?php if(!empty($_GET['tasklistid'])) { ?><button name="" type='button' value="" class="delete_task pull-right image-btn" style="margin-top:3px;"><img class="no-margin small" src="../img/icons/trash-icon-red.png" alt="Delete Task" width="25"></button><?php } ?>
+            <?php /* if(!empty($_GET['tasklistid'])) { ?><button name="" type='button' value="" class="delete_task pull-right image-btn" style="margin-top:3px;"><img class="no-margin small" src="../img/icons/trash-icon-red.png" alt="Delete Task" width="25"></button><?php } */ ?>
 
             <div class="clearfix"></div>
 
@@ -1386,10 +1386,14 @@ function mark_done(sel) {
 
                 </div>
 
-            <div class="form-group pull-right">
-                <a href="index.php?category=All&tab=Summary" class="btn brand-btn pull-left">Cancel</a>
-                <button name="tasklist" value="tasklist" class="btn brand-btn pull-right">Submit</button>
-                <?php if(!empty($_GET['tasklistid'])) { ?><button name="" type='button' value="" class="delete_task pull-right image-btn"><img class="no-margin small" src="../img/icons/trash-icon-red.png" alt="Delete Task" width="30"></button><?php } ?>
+            <div class="form-group">
+                <div class="col-sm-6">
+                    <a href="index.php?category=All&tab=Summary" class="btn brand-btn pull-right">Cancel</a>
+                    <button name="tasklist" value="tasklist" class="btn brand-btn pull-right">Submit</button>
+                </div>
+                <div class="col-sm-6">
+                    <?php if(!empty($_GET['tasklistid'])) { ?><button name="" type='button' value="" class="delete_task image-btn no-toggle" title="Archive"><img class="no-margin small" src="../img/icons/trash-icon-red.png" alt="Archive Task" width="30"></button><?php } ?>
+                </div>
                 <div class="clearfix"></div>
             </div>
         </form>
