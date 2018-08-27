@@ -20,7 +20,7 @@ if($_GET['fill'] == 'statement') {
 	$balance = $end_balance - $cust_info['credit_change'];
 	$customer = decryptIt($cust_info['first_name']).' '.decryptIt($cust_info['last_name']);
 	echo '<tr>';
-		echo '<td data-title="" colspan="7">Opening Balance</td>';
+		echo '<td data-title="" colspan="'.($cust_info['category'] == 'Patient' ? 7 : 6).'">Opening Balance</td>';
 		echo '<td data-title="Opening Balance">$'.number_format($balance,2).'</td>';
 	echo '</tr>';
 	while($line = mysqli_fetch_array($statement)) {
@@ -68,7 +68,7 @@ if($_GET['fill'] == 'statement') {
 		}
 	}
 	echo '<tr>';
-		echo '<td data-title="" colspan="7">Closing Balance</td>';
+		echo '<td data-title="" colspan="'.($cust_info['category'] == 'Patient' ? 7 : 6).'">Closing Balance</td>';
 		echo '<td data-title="Closing Balance">$'.number_format($end_balance,2).'</td>';
 	echo '</tr>';
 } else if($_GET['fill'] == 'statement_pdf') {

@@ -119,7 +119,7 @@ if((!empty($_GET['action'])) && ($_GET['action'] == 'email')) {
     // Send Email to Client
 }
 ?>
-<script type="text/javascript" src="invoice.js"></script>
+<script type="text/javascript" src="../Invoice/invoice.js"></script>
 <script type="text/javascript">
 $(document).ready(function() {
 
