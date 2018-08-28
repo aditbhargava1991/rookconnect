@@ -2799,6 +2799,7 @@ function get_reminder_url($dbc, $reminder, $slider = 0) {
                 case 'client_daily_log_notes':
                     $reminder_url = WEBSITE_URL.'/Daily Log Notes/log_note_list.php?display_contact='.$reminder['contactid'];
                     break;
+                case 'equipment':
                 case 'equipment_insurance':
                 case 'equipment_registration':
                     $reminder_url = WEBSITE_URL.'/Equipment/edit_equipment.php?edit='.$reminder['src_tableid']+'&iframe_slider=1';
@@ -2865,6 +2866,7 @@ function get_reminder_url($dbc, $reminder, $slider = 0) {
                 case 'client_daily_log_notes':
                     $reminder_url = '../Daily Log Notes/index.php?display_contact='.$reminder['contactid'];
                     break;
+                case 'equipment':
                 case 'equipment_insurance':
                 case 'equipment_registration':
                     $reminder_url = '../Equipment/index.php?edit='.$reminder['src_tableid'];
