@@ -1362,9 +1362,39 @@ function mark_done(sel) {
                     </div>
                     <div id="collapse_time_tracking" class="panel-collapse collapse">
                         <div class="panel-body">
+
+                <?php
+                    if(!empty($_GET['tasklistid'])) {
+                        $query_check_credentials = "SELECT * FROM tasklist_time WHERE tasklistid='$tasklistid' ORDER BY time_id DESC";
+                        $result = mysqli_query($dbc, $query_check_credentials);
+                        $num_rows = mysqli_num_rows($result);
+                        if($num_rows > 0) {
+                            echo "<table class='table table-bordered'>
+                            <tr>
+                            <th>Time</th>
+                            <th>Type</th>
+                            <th>Date</th>
+                            <th>Uploaded By</th>
+                            </tr>";
+                            while($row = mysqli_fetch_array($result)) {
+                                echo '<tr>';
+                                echo '<td data-title="Document">'.$row['work_time'].'</td>';
+                                if($row['src'] == 'A') {
+                                    echo '<td data-title="Document">Tracked Time</td>';
+                                } else {
+                                    echo '<td data-title="Document">Added Time</td>';
+                                }
+                                echo '<td data-title="Date">'.$row['timer_date'].'</td>';
+                                echo '<td data-title="Uploaded By">'.get_staff($dbc, $row['contactid']).'</td>';
+                                echo '</tr>';
+                            }
+                            echo '</table>';
+                        }
+                    } ?>
+
+
+
             <div class="form-group clearfix">
-                <?= $slider_layout != 'accordion' ? '<h4>Time Tracking</h4>' : '' ?>
-                <h5>Track Time To Task</h5>
                 <label for="first_name" class="col-xs-3 control-label text-right"><!-- <img src="../img/icons/ROOK-timer-icon.png" class="inline-img" />--> Add Time:</label>
                 <div class="col-xs-3">
                     <!-- <input name="task_work_time" type="text" value="00:00" data-table="tasklist" data-field="work_time" class="timepicker form-control" /> -->
