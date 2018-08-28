@@ -1113,6 +1113,15 @@ if (isset($_POST['submit'])) {
         $pdf->writeHTML($po_item, true, false, true, false, 'C');
     }
 
+    $filename = $basename = "field_work_ticket_".$in_number.".pdf";
+    $j = 0;
+    while(file_exists('download/'.$filename)) {
+        $filename = preg_replace('/(\.[a-z0-9]*)/', ' ('.++$j.')$1', $basename);
+    }
+    if(file_exists('download/'.$basename)) {
+        rename('download/'.$basename, 'download/'.$filename);
+    }
+    
 	$pdf->Output('download/field_work_ticket_'.$in_number.'.pdf', 'F');
 	// PDF
     if($_POST['submit'] == 'Submit1') {
