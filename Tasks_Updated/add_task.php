@@ -699,6 +699,24 @@ function closePopup(){
     window.close();
 }
 
+function startTicketStaff() {
+    var block = $('div.start-ticket-staff').last();
+    destroyInputs('.start-ticket-staff');
+    clone = block.clone();
+
+    clone.find('.form-control').val('');
+
+    block.after(clone);
+    initInputs('.start-ticket-staff');
+}
+function deletestartTicketStaff(button) {
+    if($('div.start-ticket-staff').length <= 1) {
+        startTicketStaff();
+    }
+    $(button).closest('div.start-ticket-staff').remove();
+    $('div.start-ticket-staff').first().find('[name="contactid"]').change();
+}
+
 function flag_item(task) {
 	task_id = $(task).data('tasklistid');
     if ( task_id=='' ) {
@@ -1226,19 +1244,34 @@ function mark_done(sel) {
                 </div>
             </div>
 
-            <div class="form-group">
-                <label for="site_name" class="col-sm-4 control-label">Assign Staff:</label>
-                <div class="col-sm-8">
-                    <select data-placeholder="Select Users" multiple name="task_userid[]" data-table="tasklist" data-field="contactid" class="chosen-select-deselect form-control" style="width: 20%;float: left;margin-right: 10px;" width="380">
-                        <option value=""></option>
-                        <?php $staff_list = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name` FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `deleted`=0 AND `status`>0"),MYSQLI_ASSOC));
-                        foreach($staff_list as $staff_id) { ?>
-                            <!-- <option <?//= ($staff_id == $_SESSION['contactid'] ? "selected" : '') ?> value='<?//=  $staff_id; ?>' ><?//= get_contact($dbc, $staff_id) ?></option> -->
-                            <option <?= (strpos(','.$task_contactid.',', ','.$staff_id.',') !== false) ? ' selected' : ''; ?> value="<?= $staff_id; ?>"><?= get_contact($dbc, $staff_id); ?></option>
-                        <?php } ?>
-                    </select>
-                </div>
-            </div>
+                        <div class="form-group">
+                            <label for="site_name" class="col-sm-4 control-label">Assign Staff:</label>
+                            <div class="col-sm-8">
+                                <div class="clearfix"></div>
+                                <div class="start-ticket-staff">
+                                    <div class="clearfix"></div>
+                                    <div class="col-sm-6">
+                                        <select data-placeholder="Select User" name="task_userid[]" data-table="tasklist" data-field="contactid" class="chosen-select-deselect form-control" style="width: 20%;float: left;margin-right: 10px;" width="380">
+                                            <option value=""></option>
+                                            <?php $staff_list = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name` FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `deleted`=0 AND `status`>0"),MYSQLI_ASSOC));
+                                            foreach($staff_list as $staff_id) { ?>
+                                                <!-- <option <?//= ($staff_id == $_SESSION['contactid'] ? "selected" : '') ?> value='<?//=  $staff_id; ?>' ><?//= get_contact($dbc, $staff_id) ?></option> -->
+                                                <option <?= (strpos(','.$task_contactid.',', ','.$staff_id.',') !== false) ? ' selected' : ''; ?> value="<?= $staff_id; ?>"><?= get_contact($dbc, $staff_id); ?></option>
+                                            <?php } ?>
+                                        </select>
+                                    </div>
+
+                                    <div class="col-sm-2">
+                                        <img class="inline-img pull-right" onclick="startTicketStaff(this);" src="../img/icons/ROOK-add-icon.png">
+                                        <img class="inline-img pull-right" onclick="deletestartTicketStaff(this);" src="../img/remove.png">
+                                    </div>
+
+                                </div>
+
+                                <br><div class="clearfix"></div>
+
+                            </div>
+                        </div>
 
             <div class="form-group clearfix">
                 <label for="first_name" class="col-sm-4 control-label">
