@@ -741,18 +741,8 @@ function checklist_attach_file(checklist) {
 							echo '<ul id="sortable'.$i.'" class="sortable_milestone connectedSortable '.$status.' '.$class_on.' '.($i > 0 ? 'hidden-xs' : '').'" style="padding-top:0;">'; ?>
 
 							<div class="info-block-header">
-
-								<h4 class="pad-top"><?= '<a href="?category='.$_GET['category'].'&tab='.$_GET['tab'].'&milestone='.$cat_tab.'" class="pull-left">'. $label .'</a>'. $alert ?>
-
-								<?php
-									 if ( empty($task_count) ) {
-										$task_count = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT COUNT(tasklistid) AS count FROM tasklist WHERE task_path='$task_path' AND task_milestone_timeline='$cat_tab' AND task_board='$taskboardid' AND `deleted`=0"));
-										$task_count = $task_count['count'];
-									}  ?>
-									 &nbsp;&nbsp;<span class="small">TASKS: <?= $task_count ?></span>
-                                <!--<a href="" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Tasks_Updated/add_milestones.php?task_board=<?=$taskboardid?>', '50%', false, false, $('.iframe_overlay').closest('.container').outerHeight() + 20); return false;"><img class="no-margin black-color inline-img pull-right" src="../img/icons/ROOK-add-icon.png" /></a>-->
-									<img class="small cursor-hand no-gap-top inline-img pull-right" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Tasks_Updated/task_history.php?label=<?=$label?>&taskboardid=<?=$taskboardid?>','auto',true,true);" src="../img/icons/eyeball.png">
-
+								<h4 class="pull-left">
+                                    <?= '<a href="?category='.$_GET['category'].'&tab='.$_GET['tab'].'&milestone='.$cat_tab.'" class="pull-left">'. $label .'</a>'. $alert ?>
 									<img class="small no-gap-top milestone_name cursor-hand inline-img pull-left gap-left" src="../img/icons/ROOK-edit-icon.png">
                                 <!--<a href="" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Tasks_Updated/add_milestones.php?task_board=<?=$taskboardid?>', '50%', false, false, $('.iframe_overlay').closest('.container').outerHeight() + 20); return false;"><img class="no-margin black-color inline-img pull-right" src="../img/icons/ROOK-add-icon.png" /></a>-->
                                 </h4>
@@ -760,7 +750,6 @@ function checklist_attach_file(checklist) {
 									<img class="small no-gap-top milestone_drag cursor-hand inline-img pull-right" style="padding-top:2px;" src="../img/icons/drag_handle.png">
 									<img class="small milestone_rem cursor-hand no-gap-top inline-img pull-right" src="../img/remove.png">
 									<img class="small milestone_add cursor-hand no-gap-top inline-img pull-right" src="../img/icons/ROOK-add-icon.png">
-
 									<img class="small cursor-hand no-gap-top inline-img pull-right" style="padding-top:3px;" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Tasks_Updated/task_history.php?label=<?=$label?>&taskboardid=<?=$taskboardid?>','auto',true,true);" src="../img/icons/eyeball.png">
 									<input type="hidden" name="sort" value="<?= $milestone_row['sort'] ?>">
                                 </div>
