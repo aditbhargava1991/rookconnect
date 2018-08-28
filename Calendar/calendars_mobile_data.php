@@ -121,7 +121,7 @@ if($_GET['mode'] == 'client') {
 	$project = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `project` WHERE `projectid` = '$mobile_calendar_contact' AND `deleted` = 0"));
 	$mobile_calendar_contact_label = get_project_label($dbc, $project);
 } else if($_GET['type'] == 'schedule' && $_GET['mode'] != 'staff') {
-	$equip_list = mysqli_fetch_all(mysqli_query($dbc, "SELECT *, CONCAT(`category`, ' #', `unit_number`) label FROM `equipment` WHERE `category`='".$equipment_category."' AND `deleted`=0"),MYSQLI_ASSOC);
+	$equip_list = mysqli_fetch_all(mysqli_query($dbc, "SELECT *, CONCAT(`category`, ' #', `unit_number`) label FROM `equipment` WHERE `deleted`=0".$equip_cat_query),MYSQLI_ASSOC);
 	foreach ($equip_list as $equipment) {
 		$equip_assign = mysqli_fetch_array(mysqli_query($dbc, "SELECT GROUP_CONCAT(DISTINCT `clientid` SEPARATOR ',') as client_list, GROUP_CONCAT(DISTINCT `region` SEPARATOR '*#*') as region_list, GROUP_CONCAT(DISTINCT `location` SEPARATOR '*#*') as location_list, GROUP_CONCAT(DISTINCT `classification` SEPARATOR '*#*') as classification_list FROM `equipment_assignment` WHERE `equipmentid` = '".$equipment['equipmentid']."' AND `deleted` = 0 AND (DATE(`start_date`) BETWEEN '$first_day' AND '$last_day' OR DATE(`end_date`) BETWEEN '$first_day' AND '$last_day')"));
 		$equip_regions = $equipment['region'].'*#*'.$equip_assign['region_list'];

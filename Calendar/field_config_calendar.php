@@ -604,6 +604,13 @@ if (isset($_POST['add_tab'])) {
 	$scheduling_customer_roles = filter_var(implode(',', $_POST['scheduling_customer_roles']),FILTER_SANITIZE_STRING);
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'scheduling_customer_roles' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='scheduling_customer_roles') num WHERE num.rows=0");
 	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$scheduling_customer_roles."' WHERE `name`='scheduling_customer_roles'");
+	if (!empty($_POST['scheduling_export_time_table'])) {
+		$scheduling_export_time_table = $_POST['scheduling_export_time_table'];
+	} else {
+		$scheduling_export_time_table = '';
+	}
+	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'scheduling_export_time_table' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='scheduling_export_time_table') num WHERE num.rows=0");
+	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$scheduling_export_time_table."' WHERE `name`='scheduling_export_time_table'");
 
 	// Sales Estimates Calendar Settings
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'estimates_day_start' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='estimates_day_start') num WHERE num.rows=0");
@@ -1140,8 +1147,13 @@ function showDefaultView(chk) {
                             	<div class="col-sm-8"><?php
                             		$calendar_reset_active_mode = get_config($dbc, 'calendar_reset_active_mode'); ?>
                             		<label class="form-checkbox"><input type="radio" name="calendar_reset_active_mode" <?= $calendar_reset_active_mode=='session_user' ? 'checked' : '' ?> value="session_user">Logged In User Only</label>
-                            		<?php $equipment_category = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_equip_assign`"))['equipment_category']; ?>
-                            		<label class="form-checkbox"><input type="radio" name="calendar_reset_active_mode" <?= $calendar_reset_active_mode=='session_user active_equip' ? 'checked' : '' ?> value="session_user active_equip">Logged In User/Assigned <?= !empty($equipment_category) ? $equipment_category : 'Truck' ?></label>
+                            		<?php 
+							        $equipment_category = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_equip_assign`"))['equipment_category'];
+							        $equipment_categories = array_filter(explode(',', $equipment_category));
+							        if(empty($equipment_categories) || count($equipment_categories) > 1) {
+							            $equipment_category = 'Equipment';
+							        } ?>
+                            		<label class="form-checkbox"><input type="radio" name="calendar_reset_active_mode" <?= $calendar_reset_active_mode=='session_user active_equip' ? 'checked' : '' ?> value="session_user active_equip">Logged In User/Assigned <?= $equipment_category ?></label>
                             	</div>
                             </div>
                             <div class="form-group">
@@ -2216,6 +2228,13 @@ function showDefaultView(chk) {
 								<div class="col-sm-8">
 									<?php $scheduling_contractor_split_security = get_config($dbc, 'scheduling_contractor_split_security'); ?>
 									<label class="form-checkbox"><input type="checkbox" name="scheduling_contractor_split_security" <?= $scheduling_contractor_split_security != '' ? 'checked' : '' ?> value="1"></label>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-4 control-label">Export Time Table Button:</label>
+								<div class="col-sm-8">
+									<?php $scheduling_export_time_table = get_config($dbc, 'scheduling_export_time_table'); ?>
+									<label class="form-checkbox"><input type="checkbox" name="scheduling_export_time_table" <?= $scheduling_export_time_table != '' ? 'checked' : '' ?> value="1"></label>
 								</div>
 							</div>
 						</div>

@@ -318,4 +318,7 @@ else if($_GET['fill'] == 'archive_equipment_assignment') {
       add_update_history($dbc, 'equipment_history', $history, '', $before_change);
 	}
 }
+else if($_GET['fill'] == 'quick_action_settings') {
+	set_config($dbc, 'quick_action_icons', filter_var($_POST['quick_action_icons'],FILTER_SANITIZE_STRING));
+}
 ?>

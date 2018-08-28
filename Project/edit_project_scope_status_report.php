@@ -69,7 +69,7 @@ if($result->num_rows > 0) {
         }
         $table .= '<tr>
             <td data-title="" colspan="5">Total</td>
-            <td data-title="Total Time">'.time_decimal2time($total_time / 3600).':00</td>
+            <td data-title="Total Time">'.time_decimal2time($total_time / 3600, true).':00</td>
         </tr>
     </table>';
 } else {
@@ -136,6 +136,8 @@ if($_GET['output'] == 'PDF') {
     exit();
 } else { ?>
     <form class="" method="GET" action="">
+        <input type="hidden" name="edit" value="<?= $_GET['edit'] ?>">
+        <input type="hidden" name="tab" value="action_item_report">
         <div class="col-sm-2 pull-right">
             <a target="_blank" href="?edit=<?= $projectid ?>&tab=action_item_report&starttime=<?= $_GET['starttime'] ?>&endtime=<?= $_GET['endtime'] ?>&staff=<?= $_GET['staff'] ?>&actions=<?= $_GET['actions'] ?>&output=PDF" class="pull-right"><img src="../img/pdf.png" class="inline-img"></a>
             <button class="btn brand-btn" name="submit" type="submit" value="search">Search</button>
