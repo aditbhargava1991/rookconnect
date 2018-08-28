@@ -183,6 +183,10 @@
         <?php
         if($equipment_assignment !== '' && $edit_access == 1) {
             $equipment_category = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_equip_assign`"))['equipment_category'];
+            $equipment_categories = array_filter(explode(',', $equipment_category));
+            if(empty($equipment_categories) || count($equipment_categories) > 1) {
+                $equipment_category = 'Equipment';
+            }
             if (!empty($equipment_category)) { ?>
                 <a href='' onclick='overlayIFrameSlider("<?= WEBSITE_URL ?>/Calendar/equip_assign.php?equipment_assignmentid=NEW&region=<?= $_GET['region'] ?>"); return false;' class="block-label pull-right"><?= $equipment_category ?> Assignment</a><?php
             }

@@ -125,6 +125,14 @@ if (isset($_POST['submit'])) {
 $get_field_config = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_equip_assign`"));
 if (!empty($get_field_config)) {
     $equipment_category = $get_field_config['equipment_category'];
+    $equipment_categories = array_filter(explode(',', $equipment_category));
+    if(empty($equipment_categories) || count($equipment_categories) > 1) {
+        $equipment_category = 'Equipment';
+    }
+    $equip_cat_query = '';
+    if(count($equipment_categories) > 0) {
+        $equip_cat_query = " AND `equipment`.`category` IN ('".implode("','", $equipment_categories)."')";
+    }
     $client_type = $get_field_config['client_type'];
     $contact_category = explode(',', $get_field_config['contact_category']);
     $position_enabled = $get_field_config['position_enabled'];

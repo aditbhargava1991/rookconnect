@@ -22,11 +22,14 @@ foreach($allowed_classifications as $allowed_classification) {
 $allowed_classifications_arr[] = " IFNULL(`tickets`.`classification`,'') = ''";
 $allowed_classifications_query = " AND (".implode(' OR ', $allowed_classifications_arr).")";
 
-if(!isset($equipment_category)) {
-	$equipment_category = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_equip_assign`"))['equipment_category'];
-	if (empty($equipment_category)) {
-		$equipment_category = 'Equipment';
-	}
+$equipment_category = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_equip_assign`"))['equipment_category'];
+$equipment_categories = array_filter(explode(',', $equipment_category));
+if(empty($equipment_categories) || count($equipment_categories) > 1) {
+    $equipment_category = 'Equipment';
+}
+$equip_cat_query = '';
+if(count($equipment_categories) > 0) {
+    $equip_cat_query = " AND `equipment`.`category` IN ('".implode("','", $equipment_categories)."')";
 }
 
 $result = mysqli_query($dbc, "SELECT ea.*, e.*, ea.`notes`, CONCAT(e.`category`, ' #', e.`unit_number`) `label`, IFNULL(NULLIF(ea.`region`,''),e.`region`) `region`, IFNULL(NULLIF(ea.`location`,''),e.`location`) `location`, IFNULL(NULLIF(ea.`classification`,''),e.`classification`) `classification` FROM `equipment_assignment` ea LEFT JOIN `equipment` e ON ea.`equipmentid` = e.`equipmentid` WHERE ea.`deleted` = 0 AND DATE(`start_date`) <= '$new_today_date' AND DATE(ea.`end_date`) >= '$new_today_date' AND CONCAT(',',ea.`hide_days`,',') NOT LIKE '%,$new_today_date,%' ORDER BY e.`category`, e.`unit_number`");

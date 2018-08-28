@@ -163,6 +163,11 @@ function getShiftConflicts($dbc, $contact_id, $calendar_date, $new_starttime = '
 	return $conflicts;
 }
 function getEquipmentAssignmentBlock($dbc, $equipmentid, $view, $date) {
+	$equipment_category = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_equip_assign`"))['equipment_category'];
+	$equipment_categories = array_filter(explode(',', $equipment_category));
+	if(empty($equipment_categories) || count($equipment_categories) > 1) {
+		$equipment_category = 'Equipment';
+	}
 	$block_html = '';
 	$reset_active = get_config($dbc, 'scheduling_reset_active');
     $customer_roles = array_filter(explode(',',get_config($dbc, 'scheduling_customer_roles')));
@@ -185,7 +190,6 @@ function getEquipmentAssignmentBlock($dbc, $equipmentid, $view, $date) {
 			} else {
 				$calendar_start = date('Y-m-d', strtotime($calendar_start));
 			}
-			$equipment_category = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_equip_assign`"))['equipment_category'];
 			$client_type = get_config($dbc, 'scheduling_client_type');
 			$calendar_type = get_config($dbc, 'scheduling_wait_list');
 			if($calendar_type == 'ticket_multi') {
@@ -204,9 +208,6 @@ function getEquipmentAssignmentBlock($dbc, $equipmentid, $view, $date) {
 			$week_end_date_check = date('Y-m-d', strtotime($calendar_start.' -'.($day - 7 + $weekly_start).' days'));
 
 			$weekly_days = explode(',',get_config($dbc, 'scheduling_weekly_days'));
-			if (!empty($equipment_category)) {
-				$equipment_category = 'Truck';
-			}
 			$clientids = [];
 			$equipassign_weekly = "<div style='margin-top: 5px;'>";
 			$equip_regions = [$equipment['region']];
@@ -260,14 +261,10 @@ function getEquipmentAssignmentBlock($dbc, $equipmentid, $view, $date) {
 			} else {
 				$calendar_start = date('Y-m-d', strtotime($calendar_start));
 			}
-			$equipment_category = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_equip_assign`"))['equipment_category'];
 			$client_type = get_config($dbc, 'scheduling_client_type');
 			$calendar_type = get_config($dbc, 'scheduling_wait_list');
 			if($calendar_type == 'ticket_multi') {
 				$calendar_type = 'ticket';
-			}
-			if (!empty($equipment_category)) {
-				$equipment_category = 'Truck';
 			}
 			$reset_active_equipment = false;
 

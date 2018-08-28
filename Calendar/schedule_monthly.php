@@ -462,9 +462,15 @@ function toggle_columns(type = global_type) {
 </script>
 <?php
 $client_type = get_config($dbc, 'scheduling_client_type');
+
 $equipment_category = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_equip_assign`"))['equipment_category'];
-if (empty($equipment_category)) {
-	$equipment_category = 'Equipment';
+$equipment_categories = array_filter(explode(',', $equipment_category));
+if(empty($equipment_categories) || count($equipment_categories) > 1) {
+    $equipment_category = 'Equipment';
+}
+$equip_cat_query = '';
+if(count($equipment_categories) > 0) {
+    $equip_cat_query = " AND `equipment`.`category` IN ('".implode("','", $equipment_categories)."')";
 }
 ?>
 <div class="hide_on_iframe ticket-calendar calendar-screen" style="padding-bottom: 0px;">
