@@ -135,16 +135,18 @@ if (!empty($equipment_assignmentid)) {
     ?>
 </select></label>
 
-<label for="clientid" class="super-label"><?= $client_type ?>:
-<select data-placeholder="Select <?= $client_type ?>" name="equip_assign_clientid" class="chosen-select-deselect">
-    <option></option>
-    <?php
-        $query = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `contacts` WHERE `deleted` = 0 AND `status` = 1 AND `category` = '".$client_type."'".$region_query),MYSQLI_ASSOC));
-        foreach ($query as $id) {
-            echo '<option value="'.$id.'"'.($id == $clientid ? ' selected' : '').'>'.(!empty(get_client($dbc, $id)) ? get_client($dbc, $id) : get_contact($dbc, $id)).'</option>';
-        }
-    ?>
-</select></label>
+<?php if(!empty($client_type)) { ?>
+    <label for="clientid" class="super-label"><?= $client_type ?>:
+    <select data-placeholder="Select <?= $client_type ?>" name="equip_assign_clientid" class="chosen-select-deselect">
+        <option></option>
+        <?php
+            $query = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `contacts` WHERE `deleted` = 0 AND `status` = 1 AND `category` = '".$client_type."'".$region_query),MYSQLI_ASSOC));
+            foreach ($query as $id) {
+                echo '<option value="'.$id.'"'.($id == $clientid ? ' selected' : '').'>'.(!empty(get_client($dbc, $id)) ? get_client($dbc, $id) : get_contact($dbc, $id)).'</option>';
+            }
+        ?>
+    </select></label>
+<?php } ?>
 
 <hr>
 
