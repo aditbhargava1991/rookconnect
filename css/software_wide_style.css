@@ -1124,8 +1124,10 @@ right: 0;
 .no-gap-pad { margin:0 !important; padding:0 !important; }
 .no-gap-top { margin-top:0 !important; }
 .no-gap-right { margin-right:0 !important; }
+.no-gap-left { margin-left:0 !important; }
 
 .no-pad-right { padding-right:0 !important; }
+.no-pad-left { padding-left:0 !important; }
 
 .text-uppercase { text-transform:uppercase; }
 
