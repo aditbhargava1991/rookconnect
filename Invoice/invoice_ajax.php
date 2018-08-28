@@ -204,7 +204,14 @@ if(!empty($_GET['action']) && $_GET['action'] == 'invoice_values') {
 
 	$ticket = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticketid` = '$ticketid'"));
 	if($ticket['ticketid'] > 0) { ?>
-		<?php foreach(explode(',',$ticket['serviceid']) as $i => $service) {
+		<?php if(!empty($ticket['serviceid'])) { ?>
+			<div class="form-group clearfix hide-titles-mob">
+				<label class="col-sm-3 text-center">Category</label>
+				<label class="col-sm-5 text-center">Service Name</label>
+				<label class="col-sm-4 text-center">Fee</label>
+			</div>
+		<?php }
+		foreach(explode(',',$ticket['serviceid']) as $i => $service) {
 			if($service > 0) {
 				$qty = explode(',',$ticket['service_qty'])[$i];
 				$fuel = explode(',',$ticket['service_fuel_charge'])[$i];
@@ -225,12 +232,12 @@ if(!empty($_GET['action']) && $_GET['action'] == 'invoice_values') {
 				$price_total = ($price * $qty + $fuel);
 				$price_total -= ($dis_type == '%' ? $discount / 100 * $price_total : $discount);
 				$service_details = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `services` WHERE `serviceid` = '$service'")); ?>
-				<div class="dis_service gap-top">
-					<div class="col-sm-2">
-						<label>Service:</label>
+				<div class="dis_service form-group">
+					<div class="col-sm-3">
+						<input type="text" readonly name="service_cat[]" value="<?= $service_details['category'] ?>" class="form-control">
 					</div>
-					<div class="col-sm-6">
-						<input type="text" readonly name="service_name[]" value="<?= (!empty($service_details['category']) ? $service_details['category'].': ' : '').$service_details['heading'] ?>" class="form-control">
+					<div class="col-sm-5">
+						<input type="text" readonly name="service_name[]" value="<?= $service_details['heading'] ?>" class="form-control">
 					</div>
 					<div class="col-sm-4">
 						<input type="text" readonly name="fee[]" value="<?= $price_total ?>" class="form-control fee" />
@@ -242,30 +249,65 @@ if(!empty($_GET['action']) && $_GET['action'] == 'invoice_values') {
 			<?php }
 		}
 		$ticket_lines = $dbc->query("SELECT * FROM `ticket_attached` WHERE `ticketid`='$ticketid' AND `deleted`=0 AND `src_table` LIKE 'Staff%'");
+		$misc_headings = false;
+		if(mysqli_num_rows($ticket_lines) > 0) {
+			$misc_headings = true; ?>
+			<div class="form-group clearfix hide-titles-mob">
+				<label class="col-sm-5 text-center">Product Name</label>
+				<label class="col-sm-3 text-center">Price</label>
+                <label class="col-sm-1 text-center">Qty</label>
+                <label class="col-sm-3 text-center">Total</label>
+			</div>
+		<?php }
 		while($line = $ticket_lines->fetch_assoc()) {
 			$description = get_contact($dbc, $line['item_id']).' - '.$line['position'];
 			$qty = !empty($line['hours_set']) ? $line['hours_set'] : $line['hours_tracked'];
 			$price = $dbc->query("SELECT * FROM `company_rate_card` WHERE `deleted`=0 AND (`cust_price` > 0 OR `hourly` > 0) AND ((`tile_name`='Staff' AND (`item_id`='".$line['item_id']."' OR `description`='all_staff')) OR (`tile_name`='Position' AND (`description`='".$line['position']."' OR `item_id`='".get_field_value('position_id','positions','name',$line['position'])."')))")->fetch_assoc();
 			$price = $price['cust_price'] > 0 ? $price['cust_price'] : $price['hourly']; ?>
-			<div class="dis_misc">
+			<div class="dis_misc form-group">
+				<div class="col-sm-5">
+					<input type="text" readonly name="misc_item[]" value="<?= $description ?>" class="form-control misc_name">
+				</div>
+				<div class="col-sm-3">
+					<input type="text" readonly name="misc_price[]" value="<?= $price ?>" onchange="setThirdPartyMisc(this); countTotalPrice()" class="form-control misc_price">
+				</div>
+				<div class="col-sm-1">
+					<input type="text" readonly name="misc_qty[]" value="<?= $qty ?>" onchange="setThirdPartyMisc(this); countTotalPrice()" class="form-control misc_qty">
+				</div>
+				<div class="col-sm-3">
+					<input type="text" readonly name="misc_total[]" value="<?= $price * $qty ?>" class="form-control misc_total">
+				</div>
 				<input type="hidden" name="misc_ticketid[]" value="<?= $ticketid ?>">
-				<input type="hidden" readonly name="misc_item[]" value="<?= $description ?>" class="form-control misc_name">
-				<input type="hidden" readonly name="misc_price[]" value="<?= $price ?>" onchange="setThirdPartyMisc(this); countTotalPrice()" class="form-control misc_price">
-				<input type="hidden" readonly name="misc_qty[]" value="<?= $qty ?>" onchange="setThirdPartyMisc(this); countTotalPrice()" class="form-control misc_qty">
-				<input type="hidden" readonly name="misc_total[]" value="<?= $price * $qty ?>" class="form-control misc_total">
 			</div>
 		<?php }
 		$ticket_lines = $dbc->query("SELECT * FROM `ticket_attached` WHERE `ticketid`='$ticketid' AND `deleted`=0 AND `src_table` LIKE 'misc_item'");
+		if(mysqli_num_rows($ticket_lines) > 0 && !$misc_headings) {
+			$misc_headings = true; ?>
+			<div class="form-group clearfix hide-titles-mob">
+				<label class="col-sm-5 text-center">Product Name</label>
+				<label class="col-sm-3 text-center">Price</label>
+                <label class="col-sm-1 text-center">Qty</label>
+                <label class="col-sm-3 text-center">Total</label>
+			</div>
+		<?php }
 		while($line = $ticket_lines->fetch_assoc()) {
 			$description = get_contact($dbc, $line['description']);
 			$qty = $line['qty'];
 			$price = $line['rate']; ?>
-			<div class="dis_misc">
+			<div class="dis_misc form-group">
+				<div class="col-sm-5">
+					<input type="text" readonly name="misc_item[]" value="<?= $description ?>" class="form-control misc_name">
+				</div>
+				<div class="col-sm-3">
+					<input type="text" readonly name="misc_price[]" value="<?= $price ?>" onchange="setThirdPartyMisc(this); countTotalPrice()" class="form-control misc_price">
+				</div>
+				<div class="col-sm-1">
+					<input type="text" readonly name="misc_qty[]" value="<?= $qty ?>" onchange="setThirdPartyMisc(this); countTotalPrice()" class="form-control misc_qty">
+				</div>
+				<div class="col-sm-3">
+					<input type="text" readonly name="misc_total[]" value="<?= $price * $qty ?>" class="form-control misc_total">
+				</div>
 				<input type="hidden" name="misc_ticketid[]" value="<?= $ticketid ?>">
-				<input type="hidden" readonly name="misc_item[]" value="<?= $description ?>" class="form-control misc_name">
-				<input type="hidden" readonly name="misc_price[]" value="<?= $price ?>" onchange="setThirdPartyMisc(this); countTotalPrice()" class="form-control misc_price">
-				<input type="hidden" readonly name="misc_qty[]" value="<?= $qty ?>" onchange="setThirdPartyMisc(this); countTotalPrice()" class="form-control misc_qty">
-				<input type="hidden" readonly name="misc_total[]" value="<?= $price * $qty ?>" class="form-control misc_total">
 			</div>
 		<?php }
 	}

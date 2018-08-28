@@ -1226,72 +1226,7 @@ if(in_array('touch',$ux_options) && (!in_array('standard',$ux_options) || $_GET[
                                 <!-- Loaded from JavaScript -->
                             </div>
                         </div>
-                    <?php }
-					if($tickets->num_rows > 0) {
-						while($ticket = $tickets->fetch_assoc()) {
-							if($ticket['ticketid'] > 0) { ?>
-								<label class="form-checkbox form-group">
-									<?php $ticketid = $ticket['ticketid'];
-									foreach(explode(',',$ticket['serviceid']) as $i => $service) {
-										if($service > 0) {
-											$qty = explode(',',$ticket['service_qty'])[$i];
-											$fuel = explode(',',$ticket['service_fuel_charge'])[$i];
-											$discount = explode(',',$ticket['service_discount'])[$i];
-											$dis_type = explode(',',$ticket['service_discount_type'])[$i];
-											$price = 0;
-											$customer_rate = $dbc->query("SELECT `services` FROM `rate_card` WHERE `clientid`='' AND `deleted`=0 AND `on_off`=1")->fetch_assoc();
-											foreach(explode('**',$customer_rate['services']) as $service_rate) {
-												$service_rate = explode('#',$service_rate);
-												if($service == $service_rate[0] && $service_rate[1] > 0) {
-													$price = $service_rate[1];
-												}
-											}
-											if(!($price > 0)) {
-												$service_rate = $dbc->query("SELECT `cust_price`, `admin_fee` FROM `company_rate_card` WHERE `deleted`=0 AND `item_id`='$service' AND `tile_name` LIKE 'Services' AND `start_date` < DATE(NOW()) AND IFNULL(NULLIF(`end_date`,'0000-00-00'),'9999-12-31') > DATE(NOW()) AND `cust_price` > 0")->fetch_assoc();
-												$price = $service_rate['cust_price'];
-											}
-											$price_total = ($price * $qty + $fuel);
-											$price_total -= ($dis_type == '%' ? $discount / 100 * $price_total : $discount); ?>
-											<div class="dis_service">
-												<input type="hidden" disabled name="serviceid[]" value="<?= $service ?>" class="serviceid">
-												<input type="hidden" disabled name="fee[]" value="<?= $price_total ?>" class="fee" />
-												<input type="hidden" disabled name="gst_exempt[]" value="0" class="gstexempt" />
-											</div>
-										<?php }
-									}
-									$ticket_lines = $dbc->query("SELECT * FROM `ticket_attached` WHERE `ticketid`='$ticketid' AND `deleted`=0 AND `src_table` LIKE 'Staff%'");
-									while($line = $ticket_lines->fetch_assoc()) {
-										$description = get_contact($dbc, $line['item_id']).' - '.$line['position'];
-										$qty = !empty($line['hours_set']) ? $line['hours_set'] : $line['hours_tracked'];
-										$price = $dbc->query("SELECT * FROM `company_rate_card` WHERE `deleted`=0 AND (`cust_price` > 0 OR `hourly` > 0) AND ((`tile_name`='Staff' AND (`item_id`='".$line['item_id']."' OR `description`='all_staff')) OR (`tile_name`='Position' AND (`description`='".$line['position']."' OR `item_id`='".get_field_value('position_id','positions','name',$line['position'])."')))")->fetch_assoc();
-										$price = $price['cust_price'] > 0 ? $price['cust_price'] : $price['hourly']; ?>
-										<div class="dis_misc">
-											<input type="hidden" disabled name="misc_item[]" value="<?= $description ?>" class="misc_name">
-											<input type="hidden" disabled name="misc_price[]" value="<?= $price ?>" onchange="setThirdPartyMisc(this); countTotalPrice()" class="misc_price">
-											<input type="hidden" disabled name="misc_qty[]" value="<?= $qty ?>" onchange="setThirdPartyMisc(this); countTotalPrice()" class="misc_qty">
-											<input type="hidden" disabled name="misc_total[]" value="<?= $price * $qty ?>" class="misc_total">
-										</div>
-									<?php }
-									$ticket_lines = $dbc->query("SELECT * FROM `ticket_attached` WHERE `ticketid`='$ticketid' AND `deleted`=0 AND `src_table` LIKE 'misc_item'");
-									while($line = $ticket_lines->fetch_assoc()) {
-										$description = get_contact($dbc, $line['description']);
-										$qty = $line['qty'];
-										$price = $line['rate']; ?>
-										<div class="dis_misc">
-											<input type="hidden" disabled name="misc_item[]" value="<?= $description ?>" class="misc_name">
-											<input type="hidden" disabled name="misc_price[]" value="<?= $price ?>" onchange="setThirdPartyMisc(this); countTotalPrice()" class="misc_price">
-											<input type="hidden" disabled name="misc_qty[]" value="<?= $qty ?>" onchange="setThirdPartyMisc(this); countTotalPrice()" class="misc_qty">
-											<input type="hidden" disabled name="misc_total[]" value="<?= $price * $qty ?>" class="misc_total">
-										</div>
-									<?php } ?>
-									<input type="checkbox" name="ticketid[]" value="<?= $ticketid ?>" onclick="billTicket(this);">
-									<a href="../Ticket/index.php?edit=<?= $ticketid ?>" onclick="overlayIFrameSlider(this.href+'&calendar_view=true','auto',true,true); return false;"><?= get_ticket_label($dbc, $ticket) ?></a>
-								</label>
-							<?php }
-						}
-					} else { ?>
-						<h3>No Unbilled <?= TICKET_TILE ?> Found</h3>
-					<?php } ?>
+                    <?php } ?>
                 </div>
             </div>
 
