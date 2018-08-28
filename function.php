@@ -3354,12 +3354,16 @@ function get_contact_teams($dbc, $contactid) {
     return $teams = mysqli_fetch_array(mysqli_query($dbc, "SELECT GROUP_CONCAT(DISTINCT `teamid` SEPARATOR ',') as teams_list FROM `teams_staff` WHERE `contactid` = '$contactid' AND `deleted` = 0"))['teams_list'];
 }
 
-function add_update_history($dbc, $table, $history, $contactid, $before_change, $salesid = '') {
+function add_update_history($dbc, $table, $history, $contactid, $before_change, $tableid = '') {
 		$user_name = get_contact($dbc, $_SESSION['contactid']);
 		$history = filter_var(htmlentities($history),FILTER_SANITIZE_STRING);
 		if($table == 'sales_history') {
 			mysqli_query($dbc, "INSERT INTO `$table` (`updated_by`) SELECT '$user_name' FROM (SELECT COUNT(*) rows FROM `$table` WHERE `updated_by`='$user_name' AND TIMEDIFF(CURRENT_TIMESTAMP,`updated_at`) < '00:30:00') num WHERE num.rows = 0");
-			mysqli_query($dbc, "UPDATE `$table` SET `salesid`=$salesid, `before_change`=CONCAT(IFNULL(`before_change`,''),'$before_change'), `history`=CONCAT(IFNULL(`history`,''),'$history'), `updated_at` = now() WHERE `updated_by`='$user_name' AND TIMEDIFF(CURRENT_TIMESTAMP,`updated_at`) < '00:15:00'");
+			mysqli_query($dbc, "UPDATE `$table` SET `salesid`=$tableid, `before_change`=CONCAT(IFNULL(`before_change`,''),'$before_change'), `history`=CONCAT(IFNULL(`history`,''),'$history'), `updated_at` = now() WHERE `updated_by`='$user_name' AND TIMEDIFF(CURRENT_TIMESTAMP,`updated_at`) < '00:15:00'");
+		}
+		else if($table == 'project_history') {
+			mysqli_query($dbc, "INSERT INTO `$table` (`updated_at`,`updated_by`,`projectid`) SELECT NOW(), '$user_name', '$tableid' FROM (SELECT COUNT(*) rows FROM `$table` WHERE `updated_by`='$user_name' AND TIMEDIFF(CURRENT_TIMESTAMP,`updated_at`) < '00:15:00' AND `projectid`='$tableid') num WHERE num.rows = 0");
+			mysqli_query($dbc, "UPDATE `$table` SET `description`=CONCAT(IFNULL(CONCAT(`description`,'&lt;br&gt;\n'),''),'$history'), `updated_at` = NOW() WHERE `updated_by`='$user_name' AND `projectid`='$tableid' AND TIMEDIFF(CURRENT_TIMESTAMP,`updated_at`) < '00:15:00'");
 		}
 		else {
 			mysqli_query($dbc, "INSERT INTO `$table` (`updated_by`, `contactid`) SELECT '$user_name', '$contactid' FROM (SELECT COUNT(*) rows FROM `$table` WHERE `updated_by`='$user_name' AND `contactid`='$contactid' AND TIMEDIFF(CURRENT_TIMESTAMP,`updated_at`) < '00:30:00') num WHERE num.rows = 0");

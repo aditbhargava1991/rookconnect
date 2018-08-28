@@ -163,6 +163,7 @@ if(count($tab_config) == 0 && count($all_config) == 0) {
 	<label class="form-checkbox"><input type="checkbox" <?= in_array('Checklists In Path', $all_config) ? 'checked disabled' : (in_array('Checklists In Path',$tab_config) ? 'checked' : '') ?> name="project_tabs[]" value="Checklists In Path">Checklists In <?= PROJECT_NOUN ?> Path</label>
 	<label class="form-checkbox"><input type="checkbox" <?= in_array('Time Clock', $all_config) ? 'checked disabled' : (in_array('Time Clock',$tab_config) ? 'checked' : '') ?> name="project_tabs[]" value="Time Clock">Time Clock</label>
 	<label class="form-checkbox-any-width pad-horiz-2"><input type="checkbox" <?= in_array('Unassigned Hide', $all_config) ? 'checked disabled' : (in_array('Unassigned Hide',$tab_config) ? 'checked' : '') ?> name="project_tabs[]" value="Unassigned Hide">Combine Unassigned and Scheduled <?= TICKET_TILE ?></label>
+	<label class="form-checkbox"><input type="checkbox" <?= in_array('Report Action Items', $all_config) ? 'checked disabled' : (in_array('Report Action Items',$tab_config) ? 'checked' : '') ?> name="project_tabs[]" value="Report Action Items">Status Report</label>
 	<?php $project_heading = 'action_item';
 	include('../Project/field_config_tabs_user_forms.php'); ?>
 </div>

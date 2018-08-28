@@ -14,7 +14,7 @@ if (isset($_POST['printpdf'])) {
     include_once ('print_unpaid_invoice.php');
 }
 ?>
-<script type="text/javascript" src="invoice.js"></script>
+<script type="text/javascript" src="../Invoice/invoice.js"></script>
 </head>
 <body>
 <?php include_once ('../navigation.php');

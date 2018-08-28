@@ -210,7 +210,7 @@ function saveDBField() {console.log('DBField');
 		});
 	}
 }
-function saveFieldMethod(field) {console.log('saving');
+function saveFieldMethod(field) {
 	if(field.value == 'MANUAL') {
 		doneSaving();
 		return false;
@@ -252,7 +252,7 @@ function saveFieldMethod(field) {console.log('saving');
 			id_field: $(field).data('id-field'),
 			type: type,
 			type_field: $(field).data('type-field'),
-			project: $(field).data('project')
+			project: $('[name=projectid]').val()
 		},
 		success: function(response) {
 			if(response > 0 && name == 'link') {

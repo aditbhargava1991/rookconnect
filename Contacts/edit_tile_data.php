@@ -526,10 +526,10 @@
 			<tr class="hidden-sm hidden-xs">
 				<th>Transaction Date</th>
 				<th>Staff</th>
-				<th>Injury</th>
+				<?= $category == 'Patient' ? '<th>Injury</th>' : '' ?>
 				<th>Services</th>
 				<th><?= $category ?></th>
-				<th>Payer</th>
+				<th>Payment Type</th>
 				<th>Payment</th>
 				<th>Balance</th>
 			</tr>
