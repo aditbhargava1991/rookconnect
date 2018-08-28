@@ -30,12 +30,29 @@ if (isset($_POST['tasklist'])) {
     }
 	$created_date = date('Y-m-d');
     $task_businessid = $_POST['task_businessid'];
+    if($task_businessid == '') {
+        $task_businessid = 0;
+    }
     $created_by = $_SESSION['contactid'];
     $task_clientid = $_POST['task_clientid'];
+    if($task_clientid == '') {
+        $task_clientid = 0;
+    }
     $task_salesid = $_POST['task_salesid'];
-	$task_projectid = $_POST['task_projectid'];
-	$task_client_projectid = '';
-	if(substr($task_projectid,0,1) == 'C') {
+    if($task_salesid == '') {
+        $task_salesid = 0;
+    }
+    $task_projectid = $_POST['task_projectid'];
+    if($task_projectid == '') {
+        $task_projectid = 0;
+    }
+
+    $task_client_projectid = '';
+    if($task_client_projectid == '') {
+        $task_client_projectid = 0;
+    }
+
+    if(substr($task_projectid,0,1) == 'C') {
 		$task_client_projectid = substr($task_projectid,1);
 		$task_projectid = '';
 	}
@@ -74,13 +91,15 @@ if (isset($_POST['tasklist'])) {
     $task = filter_var(htmlentities($_POST['task']),FILTER_SANITIZE_STRING);
 	$alerts_enabled = implode(',',$_POST['alerts_enabled']);
     $task_tododate = $_POST['task_tododate'];
+    if($task_tododate == '') {
+        $task_tododate = date('Y-m-d');
+    }
     $task_status = $_POST['task_status'];
     if($task_status == '') {
         $task_status = 'To Do';
     }
-    if($task_status == 'Archived') {
-        $archived_date = date('Y-m-d');
-    }
+    $archived_date = date('Y-m-d');
+
     $task_category = $_POST['task_category'];
 
     $task_work_time = $_POST['task_work_time'];
@@ -732,6 +751,24 @@ if (isset($_POST['tasklist'])) {
         window.close();
     }
 
+function startTicketStaff() {
+    var block = $('div.start-ticket-staff').last();
+    destroyInputs('.start-ticket-staff');
+    clone = block.clone();
+
+    clone.find('.form-control').val('');
+
+    block.after(clone);
+    initInputs('.start-ticket-staff');
+}
+function deletestartTicketStaff(button) {
+    if($('div.start-ticket-staff').length <= 1) {
+        startTicketStaff();
+    }
+    $(button).closest('div.start-ticket-staff').remove();
+    $('div.start-ticket-staff').first().find('[name="contactid"]').change();
+}
+
     function flag_item(task) {
         task_id = $(task).data('tasklistid');
         if ( task_id=='' ) {
@@ -1235,14 +1272,29 @@ if (isset($_POST['tasklist'])) {
                         <div class="form-group">
                             <label for="site_name" class="col-sm-4 control-label">Assign Staff:</label>
                             <div class="col-sm-8">
-                                <select data-placeholder="Select Users" multiple name="task_userid[]" data-table="tasklist" data-field="contactid" class="chosen-select-deselect form-control" style="width: 20%;float: left;margin-right: 10px;" width="380">
-                                    <option value=""></option>
-                                    <?php $staff_list = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name` FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `deleted`=0 AND `status`>0"),MYSQLI_ASSOC));
-                                    foreach($staff_list as $staff_id) { ?>
-                                        <!-- <option <?//= ($staff_id == $_SESSION['contactid'] ? "selected" : '') ?> value='<?//=  $staff_id; ?>' ><?//= get_contact($dbc, $staff_id) ?></option> -->
-                                        <option <?= (strpos(','.$task_contactid.',', ','.$staff_id.',') !== false) ? ' selected' : ''; ?> value="<?= $staff_id; ?>"><?= get_contact($dbc, $staff_id); ?></option>
-                                    <?php } ?>
-                                </select>
+                                <div class="clearfix"></div>
+                                <div class="start-ticket-staff">
+                                    <div class="clearfix"></div>
+                                    <div class="col-sm-6">
+                                        <select data-placeholder="Select User" name="task_userid[]" data-table="tasklist" data-field="contactid" class="chosen-select-deselect form-control" style="width: 20%;float: left;margin-right: 10px;" width="380">
+                                            <option value=""></option>
+                                            <?php $staff_list = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name` FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `deleted`=0 AND `status`>0"),MYSQLI_ASSOC));
+                                            foreach($staff_list as $staff_id) { ?>
+                                                <!-- <option <?//= ($staff_id == $_SESSION['contactid'] ? "selected" : '') ?> value='<?//=  $staff_id; ?>' ><?//= get_contact($dbc, $staff_id) ?></option> -->
+                                                <option <?= (strpos(','.$task_contactid.',', ','.$staff_id.',') !== false) ? ' selected' : ''; ?> value="<?= $staff_id; ?>"><?= get_contact($dbc, $staff_id); ?></option>
+                                            <?php } ?>
+                                        </select>
+                                    </div>
+
+                                    <div class="col-sm-2">
+                                        <img class="inline-img pull-right" onclick="startTicketStaff(this);" src="../img/icons/ROOK-add-icon.png">
+                                        <img class="inline-img pull-right" onclick="deletestartTicketStaff(this);" src="../img/remove.png">
+                                    </div>
+
+                                </div>
+
+                                <br><div class="clearfix"></div>
+
                             </div>
                         </div>
 
@@ -1361,8 +1413,36 @@ if (isset($_POST['tasklist'])) {
                 <div class="accordion-block-details padded" id="timetracking">
                     <div class="accordion-block-details-heading"><h4>Time Tracking</h4></div>
 
+                <?php
+                    if(!empty($_GET['tasklistid'])) {
+                        $query_check_credentials = "SELECT * FROM tasklist_time WHERE tasklistid='$tasklistid' ORDER BY time_id DESC";
+                        $result = mysqli_query($dbc, $query_check_credentials);
+                        $num_rows = mysqli_num_rows($result);
+                        if($num_rows > 0) {
+                            echo "<table class='table table-bordered'>
+                            <tr>
+                            <th>Time</th>
+                            <th>Type</th>
+                            <th>Date</th>
+                            <th>Uploaded By</th>
+                            </tr>";
+                            while($row = mysqli_fetch_array($result)) {
+                                echo '<tr>';
+                                echo '<td data-title="Document">'.$row['work_time'].'</td>';
+                                if($row['src'] == 'A') {
+                                    echo '<td data-title="Document">Tracked Time</td>';
+                                } else {
+                                    echo '<td data-title="Document">Added Time</td>';
+                                }
+                                echo '<td data-title="Date">'.$row['timer_date'].'</td>';
+                                echo '<td data-title="Uploaded By">'.get_staff($dbc, $row['contactid']).'</td>';
+                                echo '</tr>';
+                            }
+                            echo '</table>';
+                        }
+                    } ?>
+
                         <div class="form-group clearfix">
-                            <h5>Track Time To Task</h5>
                             <label for="first_name" class="col-xs-3 control-label text-right"><!-- <img src="../img/icons/ROOK-timer-icon.png" class="inline-img" />--> Add Time:</label>
                             <div class="col-xs-3">
                                 <!-- <input name="task_work_time" type="text" value="00:00" data-table="tasklist" data-field="work_time" class="timepicker form-control" /> -->
