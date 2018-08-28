@@ -95,6 +95,9 @@ if (isset($_POST['submit_btn'])) {
 		case 'cnt3':
 			include ('pos_invoice_contractor_3.php');
 			break;
+        case 'custom_ticket':
+            include ('pos_invoice_custom_ticket.php');
+            break;
 	}
 
     if($_POST['survey'] != '') {
@@ -336,7 +339,7 @@ if(in_array('touch',$ux_options) && (!in_array('standard',$ux_options) || $_GET[
             $payment_type = $get_invoice['payment_type'];
             $paid = $get_invoice['paid'];
             $gratuity = $get_invoice['gratuity'];
-            echo '<input type="hidden" name="ticketid[]" value="'.$get_invoice['ticketid'].'" />';
+            //echo '<input type="hidden" name="ticketid[]" value="'.$get_invoice['ticketid'].'" />';
         } else {
             echo '<input type="hidden" name="set_promotion" id="set_promotion" />';
         }
@@ -360,16 +363,16 @@ if(in_array('touch',$ux_options) && (!in_array('standard',$ux_options) || $_GET[
 			<h4 <?= (in_array('injury',$field_config) ? '' : 'style="display:none;"') ?>>Injury: <label class="detail_patient_injury pull-right"><?= (empty($_GET['invoiceid']) ? '' : $injury) ?></label></h4>
 			<h4 <?= (in_array('treatment',$field_config) ? '' : 'style="display:none;"') ?>>Treatment Plan: <label class="detail_patient_treatment pull-right"><?= (empty($_GET['invoiceid']) ? '' : $treatment_plan) ?></label></h4>
 			<h4 <?= (in_array('staff',$field_config) ? '' : 'style="display:none;"') ?>>Staff: <label class="detail_staff_name pull-right"><?= (empty($_GET['invoiceid']) ? '' : $staff) ?></label></h4>
-			<h4 <?= (in_array('services',$field_config) ? '' : 'style="display:none;"') ?>>Services</h4>
-			<div class="detail_service_list" <?= (in_array('services',$field_config) ? '' : 'style="display:none;"') ?>></div>
+			<h4 <?= (in_array('services',$field_config) || in_array('unbilled_tickets',$field_config) ? '' : 'style="display:none;"') ?>>Services</h4>
+			<div class="detail_service_list" <?= (in_array('services',$field_config) || in_array('unbilled_tickets',$field_config) ? '' : 'style="display:none;"') ?>></div>
 			<h4 <?= (in_array('inventory',$field_config) ? '' : 'style="display:none;"') ?>>Inventory</h4>
 			<div class="detail_inventory_list" <?= (in_array('inventory',$field_config) ? '' : 'style="display:none;"') ?>></div>
 			<h4 <?= (in_array('products',$field_config) ? '' : 'style="display:none;"') ?>>Products</h4>
 			<div class="detail_products_list" <?= (in_array('products',$field_config) ? '' : 'style="display:none;"') ?>></div>
 			<h4 <?= (in_array('packages',$field_config) ? '' : 'style="display:none;"') ?>>Packages</h4>
 			<div class="detail_package_list" <?= (in_array('packages',$field_config) ? '' : 'style="display:none;"') ?>></div>
-			<h4 <?= (in_array('misc_items',$field_config) ? '' : 'style="display:none;"') ?>>Miscellaneous Items</h4>
-			<div class="detail_misc_list" <?= (in_array('misc_items',$field_config) ? '' : 'style="display:none;"') ?>></div>
+			<h4 <?= (in_array('misc_items',$field_config) || in_array('unbilled_tickets',$field_config) ? '' : 'style="display:none;"') ?>>Miscellaneous Items</h4>
+			<div class="detail_misc_list" <?= (in_array('misc_items',$field_config) || in_array('unbilled_tickets',$field_config) ? '' : 'style="display:none;"') ?>></div>
 			<h4>Sub-Total: <label class="detail_sub_total_amt pull-right">$0.00</label></h4>
 			<h4 <?= (in_array('promo',$field_config) ? '' : 'style="display:none;"') ?>>Promotion: <label class="detail_promo_amt pull-right"><?= $promotionid > 0 ? '' : 'N/A' ?></label></h4>
             <h4 <?= (in_array('discount',$field_config) ? '' : 'style="display:none;"') ?>>Discount: <label class="detail_discount_amt pull-right">$0.00</label></h4>
@@ -1171,38 +1174,41 @@ if(in_array('touch',$ux_options) && (!in_array('standard',$ux_options) || $_GET[
                     </div>
 
 				    <?php $each_misc = explode(',', $misc_items);
+                    $each_misc_ticketid = explode(',', $misc_ticketid);
 					$each_misc_price = explode(',', $misc_prices);
 					$each_misc_qty = explode(',', $misc_qtys);
 					foreach($each_misc as $loop => $misc_item) {
-						$misc_price = $each_misc_price[$loop];
-						$misc_qty = $each_misc_qty[$loop]; ?>
-						<div class="additional_misc form-group clearfix">
-                            <input type="hidden" name="misc_ticketid[]" value="">
-							<div class="col-sm-5"><label class="show-on-mob">Product Name:</label>
-								<input type="text" name="misc_item[]" value="<?= $misc_item ?>" class="form-control misc_name">
-							</div>
-							<div class="col-sm-3"><label class="show-on-mob">Unit Price:</label>
-								<input type="number" step="any" min="0" name="misc_price[]" value="<?= $misc_price / $misc_qty ?>" onchange="setThirdPartyMisc(this); countTotalPrice()" class="form-control misc_price">
-							</div>
-							<div class="col-sm-1"><label class="show-on-mob">Quantity:</label>
-								<input type="number" step="any" min="0" name="misc_qty[]" value="<?= $misc_qty ?>" onchange="setThirdPartyMisc(this); countTotalPrice()" class="form-control misc_qty">
-							</div>
-							<div class="col-sm-2"><label class="show-on-mob">Total:</label>
-								<input type="number" readonly name="misc_total[]" value="<?= $misc_price ?>" class="form-control misc_total">
-								<input name="misc_row_id[]" type="hidden" value="<?= $insurer_row_id++ ?>" class="insurer_row_id" />
-							</div>
-							<div class="col-sm-1">
-								<img src="<?= WEBSITE_URL ?>/img/remove.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right cursor-hand" onclick="rem_misc_row(this);">
-								<img src="<?= WEBSITE_URL ?>/img/icons/ROOK-add-icon.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right cursor-hand" onclick="add_misc_row();">
-							</div>
-							<div class="col-sm-12 pay-div"></div>
-						</div>
-					<?php } ?>
+                        if(!($each_misc_ticketid > 0)) {
+    						$misc_price = $each_misc_price[$loop];
+    						$misc_qty = $each_misc_qty[$loop]; ?>
+    						<div class="additional_misc form-group clearfix">
+                                <input type="hidden" name="misc_ticketid[]" value="">
+    							<div class="col-sm-5"><label class="show-on-mob">Product Name:</label>
+    								<input type="text" name="misc_item[]" value="<?= $misc_item ?>" class="form-control misc_name">
+    							</div>
+    							<div class="col-sm-3"><label class="show-on-mob">Unit Price:</label>
+    								<input type="number" step="any" min="0" name="misc_price[]" value="<?= $misc_price / $misc_qty ?>" onchange="setThirdPartyMisc(this); countTotalPrice()" class="form-control misc_price">
+    							</div>
+    							<div class="col-sm-1"><label class="show-on-mob">Quantity:</label>
+    								<input type="number" step="any" min="0" name="misc_qty[]" value="<?= $misc_qty ?>" onchange="setThirdPartyMisc(this); countTotalPrice()" class="form-control misc_qty">
+    							</div>
+    							<div class="col-sm-2"><label class="show-on-mob">Total:</label>
+    								<input type="number" readonly name="misc_total[]" value="<?= $misc_price ?>" class="form-control misc_total">
+    								<input name="misc_row_id[]" type="hidden" value="<?= $insurer_row_id++ ?>" class="insurer_row_id" />
+    							</div>
+    							<div class="col-sm-1">
+    								<img src="<?= WEBSITE_URL ?>/img/remove.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right cursor-hand" onclick="rem_misc_row(this);">
+    								<img src="<?= WEBSITE_URL ?>/img/icons/ROOK-add-icon.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right cursor-hand" onclick="add_misc_row();">
+    							</div>
+    							<div class="col-sm-12 pay-div"></div>
+    						</div>
+    					<?php }
+                    } ?>
                     <div id="add_here_new_misc"></div>
                 </div>
             </div>
 
-            <div class="form-group misc_option" <?= (in_array('unbilled_tickets',$field_config) ? '' : 'style="display:none;"') ?>>
+            <div class="form-group ticket_option" <?= (in_array('unbilled_tickets',$field_config) ? '' : 'style="display:none;"') ?>>
                 <label for="additional_note" class="col-sm-2 control-label">
                 <span class="popover-examples list-inline">
                     <a href="#job_file" data-toggle="tooltip" data-placement="top" title="Add items from unbilled <?= TICKET_TILE ?> here."><img src="<?php echo WEBSITE_URL;?>/img/info.png" width="20"></a>
@@ -1210,7 +1216,7 @@ if(in_array('touch',$ux_options) && (!in_array('standard',$ux_options) || $_GET[
                 Unbilled <?= TICKET_TILE ?>:</label>
                 <div class="col-sm-7"><?php
                     $db_config = explode(',',get_field_config($dbc, 'tickets_dashboard'));
-					$tickets = $dbc->query("SELECT `tickets`.* FROM `tickets` LEFT JOIN `invoice` ON CONCAT(',',`invoice`.`ticketid`,',') LIKE CONCAT('%,',`tickets`.`ticketid`,',%') WHERE `invoice`.`invoiceid` IS NULL ".($_GET['contactid'] > 0 ? "AND (',".filter_var($_GET['contactid'],FILTER_SANITIZE_STRING).",' LIKE CONCAT(',',`tickets`.`businessid`,',',`tickets`.`clientid`,',') OR (IFNULL(`tickets`.`businessid`,0)=0 AND IFNULL(NULLIF(NULLIF(`tickets`.`clientid`,'0'),',,'),'')=''))" : "")." AND `tickets`.`deleted`=0 ".(in_array('Administration',$db_config) ?"AND IFNULL(`approvals`,'') != ''" : ''))->fetch_all(MYSQLI_ASSOC); ?>
+					$tickets = $dbc->query("SELECT `tickets`.* FROM `tickets` LEFT JOIN `invoice` ON CONCAT(',',`invoice`.`ticketid`,',') LIKE CONCAT('%,',`tickets`.`ticketid`,',%') WHERE (`invoice`.`invoiceid` IS NULL OR `invoice`.`invoiceid` = '".$invoiceid."') ".($_GET['contactid'] > 0 ? "AND (CONCAT(',',`tickets`.`businessid`,',',`tickets`.`clientid`,',') LIKE '%,".filter_var($_GET['contactid'],FILTER_SANITIZE_STRING).",%' OR (IFNULL(`tickets`.`businessid`,0)=0 AND IFNULL(NULLIF(NULLIF(`tickets`.`clientid`,'0'),',,'),'')=''))" : "")." AND `tickets`.`deleted`=0 ".(in_array('Administration',$db_config) ?"AND IFNULL(`approvals`,'') != ''" : ''))->fetch_all(MYSQLI_ASSOC); ?>
 
                     <?php foreach(explode(',', $get_invoice['ticketid']) as $invoice_ticketid) { ?>
                         <div class="invoice_ticket">
@@ -1224,6 +1230,11 @@ if(in_array('touch',$ux_options) && (!in_array('standard',$ux_options) || $_GET[
                             </select>
                             <div class="ticket_details">
                                 <!-- Loaded from JavaScript -->
+                            </div>
+                            <div class="clearfix"></div>
+                            <div class="form-group pull-right">
+                                <img src="<?= WEBSITE_URL ?>/img/remove.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right cursor-hand" onclick="rem_ticket_row(this);">
+                                <img src="<?= WEBSITE_URL ?>/img/icons/ROOK-add-icon.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right cursor-hand" onclick="add_ticket_row();">
                             </div>
                         </div>
                     <?php } ?>

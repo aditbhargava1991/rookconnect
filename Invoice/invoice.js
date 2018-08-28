@@ -9,6 +9,7 @@ var sum_adjustment = 0;
 var submit_mode = true;
 
 $(document).ready(function() {
+	$('[name="ticketid[]"]').change();
 	countTotalPrice();
 	changeApptType($('[name="app_type"]').val());
 
@@ -811,6 +812,10 @@ function setTotalPrice() {
 			var group = $(this).closest('.form-group');
 			var cat = group.find('[id^=category_] option:selected').text();
 			var label = group.find('[name="serviceid[]"] option:selected').text();
+			if(group.hasClass('dis_service')) {
+				cat = group.find('[name="service_cat[]"]').val();
+				label = group.find('[name="service_name[]"]').val();
+			}
 			var info = cat+': '+label;
 			if(label == '') {
 				info = group.find('[name=servicelabel]').val();
@@ -1303,4 +1308,22 @@ function load_ticket_details(sel) {
 		$(block).find('.ticket_details').html('');
 		setTotalPrice();
 	}
+}
+function add_ticket_row() {
+	destroyInputs('.invoice_ticket');
+	var block = $('.invoice_ticket').last();
+	var clone = $(block).clone();
+
+	$(clone).find('.ticket_details').html('');
+	$(clone).find('input,select').val('');
+
+	$(block).after(clone);
+	initInputs('.invoice_ticket');
+}
+function rem_ticket_row(btn) {
+	if($('.ticket_option .invoice_ticket').length == 1) {
+		add_ticket_row();
+	}
+	$(btn).closest('.invoice_ticket').remove();
+	countTotalPrice();
 }

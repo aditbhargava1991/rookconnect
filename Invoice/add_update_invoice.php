@@ -115,6 +115,7 @@ if($invoice_mode != 'Adjustment') {
 	}
 
 	$services = [];
+	$service_ticketids = [];
 	$service_cats = [];
 	$service_names = [];
 	$service_fees = [];
@@ -435,6 +436,7 @@ if($invoice_mode != 'Adjustment') {
 	}
 
 	$misc_names = [];
+	$misc_ticketids = [];
 	$misc_unit_prices = [];
 	$misc_qtys = [];
 	$misc_prices = [];
@@ -1766,6 +1768,9 @@ if($invoice_mode != 'Adjustment') {
 		case 'cnt3':
 			include ('pos_invoice_contractor_3.php');
 			break;
+        case 'custom_ticket':
+            include ('pos_invoice_custom_ticket.php');
+            break;
         default:
 			include('pos_invoice_1.php');
 			break;
@@ -2483,6 +2488,9 @@ if($invoice_mode != 'Adjustment') {
 		case 'cnt3':
 			include ('pos_invoice_contractor_3.php');
 			break;
+        case 'custom_ticket':
+            include ('pos_invoice_custom_ticket.php');
+            break;
 		default:
 			include('pos_invoice_1.php');
 			break;
