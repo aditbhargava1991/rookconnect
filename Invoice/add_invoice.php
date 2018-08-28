@@ -310,6 +310,7 @@ if(in_array('touch',$ux_options) && (!in_array('standard',$ux_options) || $_GET[
             echo '<input type="hidden" name="set_promotion" id="set_promotion" value="'.get_promotion($dbc, $promotionid, 'cost').'" />';
 
             $serviceid =$get_invoice['serviceid'];
+            $service_ticketid =$get_invoice['service_ticketid'];
             $fee =$get_invoice['fee'];
             $inventoryid =$get_invoice['inventoryid'];
             $sell_price =$get_invoice['sell_price'];
@@ -318,6 +319,7 @@ if(in_array('touch',$ux_options) && (!in_array('standard',$ux_options) || $_GET[
             $packageid =$get_invoice['packageid'];
             $package_cost =$get_invoice['package_cost'];
             $misc_items =$get_invoice['misc_item'];
+            $misc_ticketid =$get_invoice['misc_ticketid'];
             $misc_prices =$get_invoice['misc_price'];
             $misc_qtys =$get_invoice['misc_qty'];
 
@@ -684,12 +686,13 @@ if(in_array('touch',$ux_options) && (!in_array('standard',$ux_options) || $_GET[
 
                     if($serviceid != '') {
                         $each_serviceid = explode(',',$serviceid);
+                        $each_serviceticketid = explode(',',$service_ticketid);
                         $each_fee = explode(',',$fee);
                         $total_count = mb_substr_count($serviceid,',');
                         $id_loop = 500;
 
                         for($client_loop=0; $client_loop<=$total_count; $client_loop++) {
-                            if($each_serviceid[$client_loop] != '') {
+                            if($each_serviceid[$client_loop] != '' && !($each_serviceticketid[$client_loop] > 0)) {
                                 $serviceid = $each_serviceid[$client_loop];
                                 $fee = $each_fee[$client_loop];
                                 ?>
@@ -717,6 +720,7 @@ if(in_array('touch',$ux_options) && (!in_array('standard',$ux_options) || $_GET[
 							    </div> <!-- Quantity -->
 
                                 <div class="col-sm-5"><label class="show-on-mob">Service Name:</label>
+                                    <input type="hidden" name="service_ticketid[]" value="">
                                     <select id="<?php echo 'serviceid_'.$id_loop; ?>" data-placeholder="Select a Service..." name="serviceid[]" class="chosen-select-deselect form-control serviceid" width="380">
                                         <option value=""></option>
                                         <?php
@@ -788,6 +792,7 @@ if(in_array('touch',$ux_options) && (!in_array('standard',$ux_options) || $_GET[
 							</select>
 						</div>
 						<div class="col-sm-5"><label class="show-on-mob">Service Name:</label>
+                            <input type="hidden" name="service_ticketid[]" value="">
 							<select id="serviceid_0" data-placeholder="Select a Service..." name="serviceid[]" class="chosen-select-deselect form-control serviceid" width="380">
 								<option value=""></option>
 								<?php
@@ -1172,6 +1177,7 @@ if(in_array('touch',$ux_options) && (!in_array('standard',$ux_options) || $_GET[
 						$misc_price = $each_misc_price[$loop];
 						$misc_qty = $each_misc_qty[$loop]; ?>
 						<div class="additional_misc form-group clearfix">
+                            <input type="hidden" name="misc_ticketid[]" value="">
 							<div class="col-sm-5"><label class="show-on-mob">Product Name:</label>
 								<input type="text" name="misc_item[]" value="<?= $misc_item ?>" class="form-control misc_name">
 							</div>
@@ -1202,9 +1208,25 @@ if(in_array('touch',$ux_options) && (!in_array('standard',$ux_options) || $_GET[
                     <a href="#job_file" data-toggle="tooltip" data-placement="top" title="Add items from unbilled <?= TICKET_TILE ?> here."><img src="<?php echo WEBSITE_URL;?>/img/info.png" width="20"></a>
                 </span>
                 Unbilled <?= TICKET_TILE ?>:</label>
-                <div class="col-sm-7">
-					<?php $db_config = explode(',',get_field_config($dbc, 'tickets_dashboard'));
-					$tickets = $dbc->query("SELECT `tickets`.* FROM `tickets` LEFT JOIN `invoice` ON CONCAT(',',`invoice`.`ticketid`,',') LIKE CONCAT('%,',`tickets`.`ticketid`,',%') WHERE `invoice`.`invoiceid` IS NULL ".($_GET['contactid'] > 0 ? "AND (',".filter_var($_GET['contactid'],FILTER_SANITIZE_STRING).",' LIKE CONCAT(',',`tickets`.`businessid`,',',`tickets`.`clientid`,',') OR (IFNULL(`tickets`.`businessid`,0)=0 AND IFNULL(NULLIF(NULLIF(`tickets`.`clientid`,'0'),',,'),'')=''))" : "")." AND `tickets`.`deleted`=0 ".(in_array('Administration',$db_config) ?"AND `approvals` IS NOT NULL" : ''));
+                <div class="col-sm-7"><?php
+                    $db_config = explode(',',get_field_config($dbc, 'tickets_dashboard'));
+					$tickets = $dbc->query("SELECT `tickets`.* FROM `tickets` LEFT JOIN `invoice` ON CONCAT(',',`invoice`.`ticketid`,',') LIKE CONCAT('%,',`tickets`.`ticketid`,',%') WHERE `invoice`.`invoiceid` IS NULL ".($_GET['contactid'] > 0 ? "AND (',".filter_var($_GET['contactid'],FILTER_SANITIZE_STRING).",' LIKE CONCAT(',',`tickets`.`businessid`,',',`tickets`.`clientid`,',') OR (IFNULL(`tickets`.`businessid`,0)=0 AND IFNULL(NULLIF(NULLIF(`tickets`.`clientid`,'0'),',,'),'')=''))" : "")." AND `tickets`.`deleted`=0 ".(in_array('Administration',$db_config) ?"AND IFNULL(`approvals`,'') != ''" : ''))->fetch_all(MYSQLI_ASSOC); ?>
+
+                    <?php foreach(explode(',', $get_invoice['ticketid']) as $invoice_ticketid) { ?>
+                        <div class="invoice_ticket">
+                            <select name="ticketid[]" data-placeholder="Select a <?= TICKET_NOUN ?>" class="chosen-select-deselect">
+                                <option></option>
+                                <?php foreach($tickets as $ticket) {
+                                    if($ticket['ticketid'] > 0) {
+                                        echo '<option value="'.$ticket['ticketid'].'" '.($invoice_ticketid == $ticket['ticketid'] ? 'selected' : '').'>'.get_ticket_label($dbc, $ticket).'</option>';
+                                    }
+                                } ?>
+                            </select>
+                            <div class="ticket_details">
+                                <!-- Loaded from JavaScript -->
+                            </div>
+                        </div>
+                    <?php }
 					if($tickets->num_rows > 0) {
 						while($ticket = $tickets->fetch_assoc()) {
 							if($ticket['ticketid'] > 0) { ?>

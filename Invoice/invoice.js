@@ -451,6 +451,7 @@ $(document).ready(function() {
 	}); */
 });
 $(document).on('change', 'select[name="type"]', function() { changeInvoiceType(); });
+$(document).on('change', 'select[name="ticketid[]"]', function() { load_ticket_details(this); });
 
 function changeInvoiceType() {
 	var invoiceid = $('[name="invoiceid"]').val() != undefined ? $('[name="invoiceid"]').val() : 0;
@@ -1282,5 +1283,24 @@ function allow_edit_amount() {
 		$('.additional_payment').find('[name="payment_price[]"]').removeAttr('readonly');
 	} else {
 		$('.additional_payment').last().find('[name="payment_price[]"]').attr('readonly','readonly');
+	}
+}
+function load_ticket_details(sel) {
+	var block = $(sel).closest('.invoice_ticket');
+	var ticketid = $(sel).find('option:selected').val();
+	if(ticketid != undefined && ticketid > 0) {
+		$.ajax({
+			url: '../Invoice/invoice_ajax.php?action=load_ticket_details',
+			method: 'POST',
+			data: { ticketid: ticketid },
+			dataType: 'html',
+			success: function(response) {
+				$(block).find('.ticket_details').html(response);
+				setTotalPrice();
+			}
+		});
+	} else {
+		$(block).find('.ticket_details').html('');
+		setTotalPrice();
 	}
 }
