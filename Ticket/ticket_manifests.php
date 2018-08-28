@@ -90,7 +90,9 @@ if($siteid == 'recent') {
 		}
 		foreach($_POST['include'] as $i => $line_id) {
 			if($line_id > 0) {
+
 				$row = $dbc->query("SELECT `tickets`.`ticket_label`,IFNULL(NULLIF(`ticket_attached`.`po_num`,''),`tickets`.`purchase_order`) `po_num`,`origin`.`vendor`,`ticket_attached`.`po_line`,`ticket_attached`.`notes`,`inventory`.`inventoryid`,IFNULL(`inventory`.`quantity`,`ticket_attached`.`qty`) `qty`,IFNULL(`ticket_attached`.`siteid`,`tickets`.`siteid`) `siteid`,IFNULL(`ticket_attached`.`weight`,'') `weight`,IFNULL(`ticket_attached`.`weight_units`,'') `weight_units` FROM `ticket_attached` LEFT JOIN `inventory` ON `ticket_attached`.`src_table`='inventory' AND `ticket_attached`.`item_id`=`inventory`.`inventoryid` LEFT JOIN `tickets` ON `ticket_attached`.`ticketid`=`tickets`.`ticketid` LEFT JOIN `ticket_schedule` `origin` ON `tickets`.`ticketid`=`origin`.`ticketid` AND `origin`.`type`='origin' WHERE `ticket_attached`.`id`='$line_id'")->fetch_assoc();
+
 				$qty = empty($manual_qty[$i]) ? $row['qty'] : $manual_qty[$i];
 				if($qty > 0 && $row['inventoryid'] > 0) {
 					$old_qty = $row['qty'];
@@ -116,7 +118,9 @@ if($siteid == 'recent') {
 				$row = ['qty'=>'','siteid'=>$siteid];
 				$weight = '';
 			}
+
 			$lines[] = ['file'=>$row['ticket_label'], 'po'=>implode('<br />',array_filter(explode('#*#',$row['po_num']))), 'vendor'=>($row['vendor'] > 0 ? get_contact($dbc, $row['vendor'],'name_company') : ''), 'line'=>(empty($ticket['po_line']) ? 'N/A' : $ticket['po_line']), 'qty'=>($row['qty'] > 0 ? round($row['qty'],3) : ''), 'manual_qty'=>$manual_qty[$i], 'site'=>($row['siteid'] == $siteid ? $manifest_label : ($row['siteid'] > 0 ? get_contact($dbc, $row['siteid']) : 'UNASSIGNED')), 'notes'=>$row['notes'], 'weight'=>$weight];
+
 			if(in_array('pdf_collapse',$manifest_fields)) {
 				$columns['po'] += (!empty($row['po_num']) ? 1 : 0);
 				$columns['vendor'] += ($row['vendor'] > 0 ? 1 : 0);
