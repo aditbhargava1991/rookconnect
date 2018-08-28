@@ -1140,8 +1140,13 @@ function showDefaultView(chk) {
                             	<div class="col-sm-8"><?php
                             		$calendar_reset_active_mode = get_config($dbc, 'calendar_reset_active_mode'); ?>
                             		<label class="form-checkbox"><input type="radio" name="calendar_reset_active_mode" <?= $calendar_reset_active_mode=='session_user' ? 'checked' : '' ?> value="session_user">Logged In User Only</label>
-                            		<?php $equipment_category = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_equip_assign`"))['equipment_category']; ?>
-                            		<label class="form-checkbox"><input type="radio" name="calendar_reset_active_mode" <?= $calendar_reset_active_mode=='session_user active_equip' ? 'checked' : '' ?> value="session_user active_equip">Logged In User/Assigned <?= !empty($equipment_category) ? $equipment_category : 'Truck' ?></label>
+                            		<?php 
+							        $equipment_category = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_equip_assign`"))['equipment_category'];
+							        $equipment_categories = array_filter(explode(',', $equipment_category));
+							        if(empty($equipment_categories) || count($equipment_categories) > 1) {
+							            $equipment_category = 'Equipment';
+							        } ?>
+                            		<label class="form-checkbox"><input type="radio" name="calendar_reset_active_mode" <?= $calendar_reset_active_mode=='session_user active_equip' ? 'checked' : '' ?> value="session_user active_equip">Logged In User/Assigned <?= $equipment_category ?></label>
                             	</div>
                             </div>
                             <div class="form-group">
