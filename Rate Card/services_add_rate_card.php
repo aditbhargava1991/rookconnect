@@ -102,7 +102,7 @@ if (isset($_POST['submit'])) {
 				if($cat['heading'] != '') {
 					$service_text .= $cat['heading'];
 				}
-				echo "<option".($cat['serviceid'] == $row['serviceid'] || (!isset($_GET['id']) && $cat['serviceid'] == $_GET['service'])  ? ' selected' : '')." value='".$cat['serviceid']."'>".$service_text."</option>";
+				echo "<option".($cat['serviceid'] == $row['item_id'] || (!isset($_GET['id']) && $cat['serviceid'] == $_GET['service'])  ? ' selected' : '')." value='".$cat['serviceid']."'>".$service_text."</option>";
 			} ?>
 			</select>
 		</div>
