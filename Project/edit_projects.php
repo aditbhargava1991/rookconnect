@@ -1754,12 +1754,24 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 		} ?>
 		<?php if($body_title != '**NO_TITLE**') { ?>
 			<div class='standard-body-title'>
-				<h3><?= $body_title ?></h3>
+				<h3><?= $body_title ?>
+                    <div class="pull-right text-sm">
+                        <?php foreach(explode(',',$project['project_lead'].','.$project['project_colead'].','.$project['project_team']) as $project_staff) {
+                            if($project_staff > 0) {
+                                echo '<div class="pull-left">'.profile_id($dbc,$project_staff,false).'</div>';
+                            }
+                        }
+                        include('quick_actions.php'); ?>
+                    </div>
+                </h3>
 			</div>
 		<?php } ?>
 		<div class='standard-dashboard-body-content <?= $body_title != '**NO_TITLE**' ? 'pad-top pad-left pad-right' : '' ?>'>
-			<?php foreach($include_files as $include_file) {
+			<?php foreach($include_files as $i => $include_file) {
 				include($include_file);
+                if($i < count($include_files) - 1) {
+                    echo '<div class="clearfix"></div><hr>';
+                }
 			} ?>
 		</div>
 	</div>
