@@ -73,7 +73,7 @@ function openPathSlider() {
                 <div class="form-group" data-id="<?= $project_path_id ?>">
                     <label class="col-sm-4"><?= (empty(explode('#*#',$project['project_path_name'])[$i]) ? get_field_value('project_path','project_path_milestone','project_path_milestone',$project_path_id) : explode('#*#',$project['project_path_name'])[$i]) ?>
                         <img class="inline-img cursor-hand pull-right" src="../img/remove.png" onclick="removeInternal(this);">
-                        <img class="inline-img cursor-hand pull-right" src="../img/icons/ROOK-add-icon.png" onclick="openPathSlider();)"></label>
+                        <img class="inline-img cursor-hand pull-right" src="../img/icons/ROOK-add-icon.png" onclick="openPathSlider();"></label>
                     <div class="col-sm-8">
                     <?php $paths = mysqli_query($dbc, "SELECT * FROM `project_path_custom_milestones` WHERE `projectid`='$projectid' AND `deleted`=0 AND `path_type`='I' AND `pathid`='$project_path_id' ORDER BY `sort`, `id`");
                     while($path_milestone = $paths->fetch_assoc()) {
