@@ -583,6 +583,45 @@ function get_project_path_milestone($dbc, $project_path_milestone, $field_name) 
     $get_custom =	mysqli_fetch_assoc(mysqli_query($dbc,"SELECT $field_name FROM project_path_milestone WHERE	project_path_milestone='$project_path_milestone'"));
     return $get_custom[$field_name];
 }
+// Get the list of actual paths for the Project
+function get_project_paths($projectid) {
+    $default_template = $_SERVER['DBC']->query("SELECT * FROM `project_path_milestone` WHERE `milestone` LIKE 'to do#*#doing#*#done'");
+    if($default_template->num_rows == 0) {
+        $_SERVER['DBC']->query("INSERT INTO `project_path_milestone` (`project_path`,`milestone`) VALUES ('Basic Task List','To Do#*#Doing#*#Done')");
+    }
+    if($projectid > 0) {
+        $paths = get_field_value('project_path project_path_name', 'project', 'projectid', $projectid);
+        $project_paths = [];
+        foreach(explode(',',$paths['project_path']) as $i => $pathid) {
+            if($pathid > 0) {
+                $path['path_id'] = $pathid;
+                $path['path_name'] = explode('#*#',$paths['project_path_name'])[$i];
+                
+                // Add default milestones, if they have not yet been added
+                $milestones = explode('#*#',get_field_value('milestone','project_path_milestone','project_path_milestone',$pathid));
+                $prior_sort = 0;
+                foreach($milestones as $i => $milestone) {
+                    $milestone_rows = $_SERVER['DBC']->query("SELECT `sort` FROM `project_path_custom_milestones` WHERE `projectid`='$projectid' AND `milestone`='$milestone' AND `pathid`='$pathid' AND `path_type`='I'");
+                    if($milestone_rows->num_rows > 0) {
+                        $prior_sort = $milestone_rows->fetch_assoc()['sort'];
+                    } else if($milestone != 'Unassigned') {
+                        $_SERVER['DBC']->query("INSERT INTO `project_path_custom_milestones` (`projectid`,`milestone`,`label`,`path_type`,`pathid`,`sort`) VALUES ('$projectid','$milestone','$milestone','I','$pathid','$prior_sort')");
+                    }
+                }
+                
+                // Load the actual list of milestones into the array
+                $path['milestones'] = [];
+                $milestone_list = $_SERVER['DBC']->query("SELECT `milestones`.`id`, `milestones`.`milestone`, `milestones`.`label`  FROM `project_path_custom_milestones` `milestones` WHERE `milestones`.`projectid`='$projectid' AND `milestones`.`pathid`='$pathid' AND `milestones`.`path_type`='I' AND `milestones`.`deleted`=0 ORDER BY `milestones`.`sort`,`milestones`.`id`");
+                while($milestone_row = $milestone_list->fetch_assoc()) {
+                    $path['milestones'][] = $milestone_row;
+                }
+                $project_paths[] = $path;
+            }
+        }
+        return $project_paths;
+    }
+    return false;
+}
 function get_jobs_path_milestone($dbc, $project_path_milestone, $field_name) {
     $get_custom =	mysqli_fetch_assoc(mysqli_query($dbc,"SELECT $field_name FROM jobs_path_milestone WHERE	project_path_milestone='$project_path_milestone'"));
     return $get_custom[$field_name];
