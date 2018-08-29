@@ -29,7 +29,7 @@ $ticketid = filter_var($_GET['ticketid'],FILTER_SANITIZE_STRING);
 				<td data-title="User"><?= $name ?></td>
 				<td data-title="Description"><?= TICKET_NOUN ?> Created</td>
 			</tr>
-			<?php $result_tickets = mysqli_query($dbc, "SELECT * FROM ticket_history WHERE ticketid ='$ticketid' ORDER BY `date` ASC");
+			<?php $result_tickets = mysqli_query($dbc, "SELECT * FROM ticket_history WHERE ticketid ='$ticketid' ORDER BY `date` DESC");
 			while($history = mysqli_fetch_assoc($result_tickets)) {
 				$name = get_contact($dbc, $history['userid']);
 				if($name == '' || $name == '-') {
