@@ -176,10 +176,10 @@ if (isset($_POST['submit'])) {
 } ?>
 <script type="text/javascript">
     $(document).ready(function() {
-        $("#businessid").change(function() {
+        /* $("#businessid").change(function() {
             var comm_type = $("#comm_type").val();
             window.location = 'add_communication.php?type='+comm_type+'&bid='+this.value;
-        });
+        }); */
         $("#form1").submit(function( event ) {
             var email_communicationid = $("#email_communicationid").val();
             if(email_communicationid == undefined) {
@@ -201,6 +201,24 @@ if (isset($_POST['submit'])) {
             }
         });
     });
+    
+    function addStaff(button) {
+        var block_class = $(button).parent().parent().parent().attr('class');
+        var block = $('div.'+block_class).last();
+        destroyInputs('.'+block_class);
+        clone = block.clone();
+        clone.find('.form-control').val('');
+        block.after(clone);
+        initInputs('.'+block_class);
+    }
+    function removeStaff(button) {
+        var block_class = $(button).parent().parent().parent().attr('class');
+        if($('div.'+block_class).length <= 1) {
+            addStaff(button);
+        }
+        $(button).closest('div.'+block_class).remove();
+        $('div.'+block_class).first().find('[name="companycontact_to_emailid[]"]').change();
+    }
 </script>
 </head>
 
@@ -211,10 +229,10 @@ if (isset($_POST['submit'])) {
 ?>
 <div class="container">
     <div class="row">
-        <h3 class="gap-left pull-left">Email Communication</h3>
+        <h3 class="gap-left pull-left">Email</h3>
         <div class="pull-right offset-top-15"><a href=""><img src="../img/icons/ROOK-status-rejected.jpg" alt="Close" title="Close" class="inline-img" /></a></div>
         <div class="clearfix"></div>
-
+        
         <form id="form1" name="form1" method="post"	action="" enctype="multipart/form-data" class="form-horizontal" role="form">
         <?php
             if(!empty($_GET['category'])) {
@@ -267,19 +285,20 @@ if (isset($_POST['submit'])) {
             if (!empty($_GET['email_communicationid'])) {
                 $email_communicationid = $_GET['email_communicationid'];
                 $get_ticket = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT * FROM email_communication WHERE email_communicationid='$email_communicationid'"));
-
                 $businessid = $get_ticket['businessid'];
-
                 $contactid = $get_ticket['contactid'];
                 if($businessid == '') {
                     $businessid = get_contact($dbc, $contactid, 'businessid');
                 }
+                $to_contact = $get_ticket['to_contact'];
+                $cc_contact = $get_ticket['cc_contact'];
+                $to_staff = $get_ticket['to_staff'];
+                $cc_staff = $get_ticket['cc_staff'];
+                $new_emailid = $get_ticket['new_emailid'];
                 $ticketid = $get_ticket['ticketid'];
-
                 $projectid = $get_ticket['projectid'];
                 $followup_by = $get_ticket['follow_up_by'];
                 $followup_date = $get_ticket['follow_up_date'];
-
                 $subject = $get_ticket['subject'];
                 $email_body = $get_ticket['email_body']; ?>
                 <input type="hidden" id="email_communicationid" name="email_communicationid" value="<?php echo $email_communicationid ?>" /><?php
@@ -396,7 +415,7 @@ if (isset($_POST['submit'])) {
                     <div class="panel-heading">
                         <h4 class="panel-title">
                             <a data-toggle="collapse" data-parent="#accordion2" href="#collapse_followup" >
-                                Follow Up<span class="glyphicon glyphicon-plus"></span>
+                                Reminder<span class="glyphicon glyphicon-plus"></span>
                             </a>
                         </h4>
                     </div>

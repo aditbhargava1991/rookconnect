@@ -29,7 +29,7 @@ if (isset($_POST['loginformsubmitted'])) {
 
         if($_POST['location'] != '') {
             $redirect = $_POST['location'];
-            header("Location:".WEBSITE_URL.$redirect);
+            header("Location:".WEBSITE_URL.str_replace(WEBSITE_URL,'',$redirect));
         } else {
 			$get_config_size = get_user_settings();
 			$newsb_red = $_SESSION['newsboard_menu_choice'] != NULL ? $get_config_size['newsboard_redirect'] : '';

@@ -15,13 +15,12 @@ $result = mysqli_query($dbc, "SELECT * FROM (SELECT CONCAT('Time Sheet for ',`da
 	SELECT CONCAT('".TICKET_NOUN." #',`ticket_time_list`.`ticketid`) time_type, 'ticket' `src`, `ticket_time_list`.`ticketid` `srcid`, 'ticket_time_list' `table`, `ticket_time_list`.`id` `tableid`, `ticket_time_list`.`time_type` time_heading, `ticket_time_list`.`created_by` time_staff,  LEFT(`ticket_time_list`.`created_date`,10) time_date, MID(`ticket_time_list`.`created_date`,11) time_start, '' time_end, `ticket_time_list`.`time_length` time_length, '' `time_cards_id` FROM `ticket_time_list` WHERE `ticketid` IN (SELECT `ticketid` FROM `tickets` WHERE `projectid`='$projectid' AND `time_type`='Manual Time' AND `deleted`=0) AND `deleted`=0 UNION
 	SELECT CONCAT('Task #',`tasklist`.`tasklistid`) time_type, 'task' `src`, `tasklist`.`tasklistid` `srcid`, 'tasklist' `table`, `tasklist`.`tasklistid` `tableid`, `tasklist`.`heading` time_heading, `tasklist`.`contactid` time_staff, `tasklist`.`task_tododate` time_date, '' time_start, '' time_end, `tasklist`.`work_time` time_length, '' `time_cards_id` FROM `tasklist` WHERE `projectid`='$projectid' UNION
 	SELECT CONCAT(`tasklist`.`project_milestone`,' Task #',`tasklist`.`tasklistid`) time_type, 'task' `src`, `tasklist`.`tasklistid` `srcid`, 'tasklist_time' `table`, `tasklist_time`.`time_id` `tableid`, `tasklist`.`heading` time_heading, `tasklist_time`.`contactid` time_staff, `tasklist_time`.`timer_date` time_date, '' time_start, '' time_end, `tasklist_time`.`work_time` time_length, '' `time_cards_id` FROM `tasklist` RIGHT JOIN `tasklist_time` ON `tasklist`.`tasklistid`=`tasklist_time`.`tasklistid` WHERE `tasklist`.`projectid`='$projectid') timers ORDER BY `time_date`, `time_start`");
-echo '<h3>&nbsp;';
-	if(in_array('Reporting Track Time',$value_config)) {
-		$tracking = $dbc->query("SELECT * FROM `time_cards` WHERE (`projectid`='$projectid' OR `ticketid` IN (SELECT `ticketid` FROM `tickets` WHERE `projectid`='$projectid')) AND `staff`='".$_SESSION['contactid']."' AND `deleted`=0 AND `timer_start` > 0");
-		echo '<button class="btn brand-btn pull-right cursor-hand time_tracking" onclick="toggleProjectTracking()">'.($tracking->num_rows > 0 ? 'Stop Tracking Time' : 'Get to Work').'</button>';
-	}
-	echo ($time_cards_edit ? '<button class="btn brand-btn pull-right cursor-hand" onclick="overlayIFrameSlider(\'../Timesheet/add_time_cards.php?projectid='.$projectid.'\',\'auto\',true); return false;">Add Time</button>' : '');
-echo '<a href="?edit='.$projectid.'&tab=track_time&output=PDF" class="pull-right"><img src="../img/pdf.png" class="inline-img"></a></h3>';
+if(in_array('Reporting Track Time',$value_config)) {
+    $tracking = $dbc->query("SELECT * FROM `time_cards` WHERE (`projectid`='$projectid' OR `ticketid` IN (SELECT `ticketid` FROM `tickets` WHERE `projectid`='$projectid')) AND `staff`='".$_SESSION['contactid']."' AND `deleted`=0 AND `timer_start` > 0");
+    echo '<button class="btn brand-btn pull-right cursor-hand time_tracking" onclick="toggleProjectTracking()">'.($tracking->num_rows > 0 ? 'Stop Tracking Time' : 'Get to Work').'</button>';
+}
+echo ($time_cards_edit ? '<button class="btn brand-btn pull-right cursor-hand" onclick="overlayIFrameSlider(\'../Timesheet/add_time_cards.php?projectid='.$projectid.'\',\'auto\',true); return false;">Add Time</button>' : '');
+echo '<a href="?edit='.$projectid.'&tab=track_time&output=PDF" class="pull-right"><img src="../img/pdf.png" class="inline-img"></a>';
 if(mysqli_num_rows($result) > 0) {
     $table .= '<div id="no-more-tables"><table class="table table-bordered" style="width:100%;" cellpadding="3" cellspacing="0" border="1">';
     $table .= '<tr class="hidden-xs hidden-sm">

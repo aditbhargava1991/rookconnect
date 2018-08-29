@@ -42,6 +42,7 @@ $project_security = get_security($dbc, 'project');
         <input name="projection_service_price" value="<?php echo $project['projection_service_price']; ?>" type="text" class="form-control"></p>
     </div>
 </div>
+<div class="clearfix"></div><hr>
 
 <h3 id="head_products">Products</h3>
 <div class="form-group">
@@ -56,6 +57,7 @@ $project_security = get_security($dbc, 'project');
         <input name="projection_product_price" value="<?php echo $project['projection_product_price']; ?>" type="text" class="form-control"></p>
     </div>
 </div>
+<div class="clearfix"></div><hr>
 
 <h3 id="head_ptasks">Tasks</h3>
 <div class="form-group">
@@ -70,6 +72,7 @@ $project_security = get_security($dbc, 'project');
         <input name="projection_task_price" value="<?php echo $project['projection_task_price']; ?>" type="text" class="form-control"></p>
     </div>
 </div>
+<div class="clearfix"></div><hr>
 
 <h3 id="head_inventory">Inventory</h3>
 <div class="form-group">
@@ -84,6 +87,7 @@ $project_security = get_security($dbc, 'project');
         <input name="projection_inventory_price" value="<?php echo $project['projection_inventory_price']; ?>" type="text" class="form-control"></p>
     </div>
 </div>
+<div class="clearfix"></div><hr>
 
 <h3 id="head_admin">Admin</h3>
 <div class="form-group">
@@ -98,6 +102,7 @@ $project_security = get_security($dbc, 'project');
         <input name="projection_admin_price" value="<?php echo $project['projection_admin_price']; ?>" type="text" class="form-control"></p>
     </div>
 </div>
+<div class="clearfix"></div><hr>
 
 <div class="form-group">
     <div class="col-sm-6">

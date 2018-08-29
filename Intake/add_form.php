@@ -23,7 +23,8 @@ if(!empty($intakeid)) {
 $intake_form = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `intake_forms` WHERE `intakeformid` = '$intakeformid'"));
 $user_form_id = $intake_form['user_form_id'];
 $access_code = $intake_form['access_code'];
-$expiry_date = $intake_form['expiry_date']; ?>
+$expiry_date = $intake_form['expiry_date'];
+$value_config = get_field_config($dbc, 'intake_software_dashboard'); ?>
 
 <div class="container" style="<?= $user_form_layout == 'Sidebar' ? 'padding: 0; margin: 0;' : 'min-height: calc(100vh - 60px);' ?>">
 	<div class="dialog_attachcontact" title="Attach to Contact?" style="display: none;">
