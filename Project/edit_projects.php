@@ -60,6 +60,9 @@ foreach($query_count as $query_label => $query_value) {
 	}
 }
 $project_counts['documents'] = intval(mysqli_fetch_assoc(mysqli_query($dbc, "SELECT COUNT(*) docs FROM `project_document` WHERE `projectid`='$projectid' AND '$projectid' > 0 AND `deleted` = 0"))['docs']);
+$query_count = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `project_path`,`external_path`,`project_lead`,`project_colead`,`project_team` FROM `project` WHERE `projectid`='$projectid' AND '$projectid' > 0 AND `deleted`=0"));
+$project_counts['paths'] = count(array_filter(explode(',',$query_count['project_path'].','.$query_count['external_path'])));
+$project_counts['staff'] = count(array_filter(explode(',',$query_count['project_lead'].','.$query_count['project_colead'].','.$query_count['project_team'])));
 if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 	<?php if($_GET['iframe_slider'] == 1) { ?>
 		<h1><?= $label ?></h1>
@@ -151,17 +154,47 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 					</div>
 				</div>
 			</div>
-			<div class="panel panel-default" style='<?= in_array('Notes',$tab_config) ? '' : 'display:none;' ?>'>
+			<div class="panel panel-default" style='<?= in_array('Estimate Info',$tab_config) ? '' : 'display:none;' ?>'>
 				<div class="panel-heading mobile_load">
 					<h4 class="panel-title">
-						<a data-toggle="collapse" data-parent="#project_accordions" href="#collapse_notes">
-							<?= PROJECT_NOUN ?> Notes<span class="glyphicon glyphicon-plus"></span><span class="pull-right"><?= $project_counts['notes'] ?></span>
+						<a data-toggle="collapse" data-parent="#project_accordions" href="#collapse_est_info">
+							<?= ESTIMATE_TILE ?> Information<span class="glyphicon glyphicon-plus"></span>
 						</a>
 					</h4>
 				</div>
 
-				<div id="collapse_notes" class="panel-collapse collapse">
-					<div class="panel-body" data-file-name="edit_project_notes.php?projectid=<?= $projectid ?>&projecttype=<?= $projecttype ?>">
+				<div id="collapse_est_info" class="panel-collapse collapse">
+					<div class="panel-body" data-file-name="edit_project_estimate.php?projectid=<?= $projectid ?>&projecttype=<?= $projecttype ?>">
+						Loading...
+					</div>
+				</div>
+			</div>
+			<div class="panel panel-default" style='<?= in_array('Staff',$tab_config) ? '' : 'display:none;' ?>'>
+				<div class="panel-heading mobile_load">
+					<h4 class="panel-title">
+						<a data-toggle="collapse" data-parent="#project_accordions" href="#collapse_info">
+							Staff<span class="glyphicon glyphicon-plus"></span>
+						</a>
+					</h4>
+				</div>
+
+				<div id="collapse_info" class="panel-collapse collapse">
+					<div class="panel-body" data-file-name="edit_project_staff.php?projectid=<?= $projectid ?>&projecttype=<?= $projecttype ?>">
+						Loading...
+					</div>
+				</div>
+			</div>
+			<div class="panel panel-default" style='<?= in_array('Details Path',$tab_config) ? '' : 'display:none;' ?>'>
+				<div class="panel-heading mobile_load">
+					<h4 class="panel-title">
+						<a data-toggle="collapse" data-parent="#project_accordions" href="#collapse_info">
+							<?= PROJECT_NOUN ?> Path Templates<span class="glyphicon glyphicon-plus"></span>
+						</a>
+					</h4>
+				</div>
+
+				<div id="collapse_info" class="panel-collapse collapse">
+					<div class="panel-body" data-file-name="edit_project_path_templates.php?projectid=<?= $projectid ?>&projecttype=<?= $projecttype ?>">
 						Loading...
 					</div>
 				</div>
@@ -177,6 +210,21 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 
 				<div id="collapse_details" class="panel-collapse collapse">
 					<div class="panel-body" data-file-name="edit_project_details.php?projectid=<?= $projectid ?>&projecttype=<?= $projecttype ?>">
+						Loading...
+					</div>
+				</div>
+			</div>
+			<div class="panel panel-default" style='<?= in_array('Notes',$tab_config) ? '' : 'display:none;' ?>'>
+				<div class="panel-heading mobile_load">
+					<h4 class="panel-title">
+						<a data-toggle="collapse" data-parent="#project_accordions" href="#collapse_notes">
+							<?= PROJECT_NOUN ?> Notes<span class="glyphicon glyphicon-plus"></span><span class="pull-right"><?= $project_counts['notes'] ?></span>
+						</a>
+					</h4>
+				</div>
+
+				<div id="collapse_notes" class="panel-collapse collapse">
+					<div class="panel-body" data-file-name="edit_project_notes.php?projectid=<?= $projectid ?>&projecttype=<?= $projecttype ?>">
 						Loading...
 					</div>
 				</div>
@@ -1127,11 +1175,7 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 			</ul>
 		<?php }
 
-
-
-
-
-			$sub_tabs = ['Information','Estimate Info','Details','Notes','Documents','Dates'];
+			$sub_tabs = ['Information','Estimate Info','Staff','Details Path','Notes','Details','Documents','Dates'];
 			foreach($sub_tabs as $i => $tab) {
 				if(!in_array($tab,$tab_config)) {
 					unset($sub_tabs[$i]);
@@ -1144,7 +1188,7 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 			}
 			if(check_subtab_persmission($dbc, 'project', ROLE, 'view_details') && (count($sub_tabs) > 0 || count($user_forms) > 0) || $_GET['edit'] == 0) {
 				$ticket_bypass = false;
-				$show_sub = in_array($_GET['tab'],['info','estimate','details','notes','documents','dates']) || $no_sub_shown || empty($_GET['tab']) || array_key_exists($_GET['project_form_id'], $user_forms);
+				$show_sub = in_array($_GET['tab'],['info','estimate','details path','staff','details','notes','documents','dates']) || $no_sub_shown || empty($_GET['tab']) || array_key_exists($_GET['project_form_id'], $user_forms);
 				$no_sub_shown = false; ?>
 				<a href="?edit=<?= $_GET['edit'] ?>&tab=info" onclick="$('.standard-collapsible ul ul:visible').not($(this).next('ul')).toggle().prev('a').find('li').toggleClass('collapsed'); $(this).next('ul').toggle(); $(this).find('li').toggleClass('collapsed'); return false;" style="<?= count($sub_tabs) > 0 ? '' : 'display:none;' ?>">
 					<li class="sidebar-higher-level <?= $show_sub || $_GET['edit'] == 0 ? 'active blue' : 'collapsed' ?>"><?= PROJECT_NOUN ?> Details<span class="arrow"></span></li></a>
@@ -1154,6 +1198,8 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 						$estimate_list = true; ?>
 						<?php if(in_array('Estimate Info',$tab_config)) { $_GET['tab'] = ($_GET['tab'] == '' ? 'estimate' : $_GET['tab']); $next_tab = (!$next_set ? 'estimate' : $next_tab); $next_set = ($prev_set && !$show_sub ? true : false); $prev_set = ($_GET['tab'] == 'estimate' ? true : $prev_set); $previous_tab = ($prev_set ? $previous_tab : 'estimate'); ?><a href="?edit=<?= $_GET['edit'] ?>&tab=estimate"><li class="sidebar-lower-level <?= $_GET['tab'] == 'estimate' ? 'active blue' : '' ?>">Estimate Details</li></a><?php } ?>
 					<?php } ?>
+					<?php if(in_array('Staff',$tab_config)) { $_GET['tab'] = ($_GET['tab'] == '' ? 'path' : $_GET['tab']); $next_tab = (!$next_set ? 'staff' : $next_tab); $next_set = ($prev_set && !$show_sub ? true : false); $prev_set = ($_GET['tab'] == 'staff' ? true : $prev_set); $previous_tab = ($prev_set ? $previous_tab : 'staff'); ?><a href="?edit=<?= $_GET['edit'] ?>&tab=staff"><li class="sidebar-lower-level <?= $_GET['tab'] == 'staff' ? 'active blue' : '' ?>">Staff <span class="pull-right"><?= $project_counts['staff'] ?></span></li></a><?php } ?>
+					<?php if(in_array('Details Path',$tab_config)) { $_GET['tab'] = ($_GET['tab'] == '' ? 'details_path' : $_GET['tab']); $next_tab = (!$next_set ? 'details_path' : $next_tab); $next_set = ($prev_set && !$show_sub ? true : false); $prev_set = ($_GET['tab'] == 'details_path' ? true : $prev_set); $previous_tab = ($prev_set ? $previous_tab : 'details_path'); ?><a href="?edit=<?= $_GET['edit'] ?>&tab=details_path"><li class="sidebar-lower-level <?= $_GET['tab'] == 'details_path' ? 'active blue' : '' ?>"><?= PROJECT_NOUN ?> Path Template <span class="pull-right"><?= $project_counts['paths'] ?></span></li></a><?php } ?>
 					<?php if(in_array('Notes',$tab_config)) { $_GET['tab'] = ($_GET['tab'] == '' ? 'notes' : $_GET['tab']); $next_tab = (!$next_set ? 'notes' : $next_tab); $next_set = ($prev_set && !$show_sub ? true : false); $prev_set = ($_GET['tab'] == 'notes' ? true : $prev_set); $previous_tab = ($prev_set ? $previous_tab : 'notes'); ?><a href="?edit=<?= $_GET['edit'] ?>&tab=notes"><li class="sidebar-lower-level <?= $_GET['tab'] == 'notes' ? 'active blue' : '' ?>"><?= PROJECT_NOUN ?> Notes <span class="pull-right"><?= $project_counts['notes'] ?></span></li></a><?php } ?>
 					<?php if(in_array('Details',$tab_config)) { $_GET['tab'] = ($_GET['tab'] == '' ? 'details' : $_GET['tab']); $next_tab = (!$next_set ? 'details' : $next_tab); $next_set = ($prev_set && !$show_sub ? true : false); $prev_set = ($_GET['tab'] == 'details' ? true : $prev_set); $previous_tab = ($prev_set ? $previous_tab : 'details'); ?><a href="?edit=<?= $_GET['edit'] ?>&tab=details"><li class="sidebar-lower-level <?= $_GET['tab'] == 'details' ? 'active blue' : '' ?>"><?= PROJECT_NOUN ?> Details <span class="pull-right"><?= $project_counts['details'] ?></span></li></a><?php } ?>
 					<?php if(in_array('Documents',$tab_config)) { $_GET['tab'] = ($_GET['tab'] == '' ? 'documents' : $_GET['tab']); $next_tab = (!$next_set ? 'documents' : $next_tab); $next_set = ($prev_set && !$show_sub ? true : false); $prev_set = ($_GET['tab'] == 'documents' ? true : $prev_set); $previous_tab = ($prev_set ? $previous_tab : 'documents'); ?><a href="?edit=<?= $_GET['edit'] ?>&tab=documents"><li class="sidebar-lower-level <?= $_GET['tab'] == 'documents' ? 'active blue' : '' ?>">Documents <span class="pull-right"><?= $project_counts['documents'] ?></span></li></a><?php } ?>
@@ -1519,12 +1565,16 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 			case 'info':
 			case 'estimate':
 			case 'notes':
+			case 'details_path':
+			case 'staff':
 			case 'details':
 			case 'documents':
 			case 'dates':
 				$body_title = 'Project Details';
 				if(in_array('Information',$tab_config) || $_GET['edit'] == 0) { $include_files[] = 'edit_project_info.php'; }
 				if($estimate_list && in_array('Estimate Info',$tab_config)) { $include_files[] = 'edit_project_estimate.php'; }
+				if(in_array('Staff',$tab_config)) { $include_files[] = 'edit_project_staff.php'; }
+				if(in_array('Details Path',$tab_config)) { $include_files[] = 'edit_project_details_path.php'; }
 				if(in_array('Notes',$tab_config)) { $include_files[] = 'edit_project_notes.php'; }
 				if(in_array('Details',$tab_config)) { $include_files[] = 'edit_project_details.php'; }
 				if(in_array('Documents',$tab_config)) { $include_files[] = 'edit_project_documents.php'; }
@@ -1758,8 +1808,11 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 			</div>
 		<?php } ?>
 		<div class='standard-dashboard-body-content <?= $body_title != '**NO_TITLE**' ? 'pad-top pad-left pad-right' : '' ?>'>
-			<?php foreach($include_files as $include_file) {
+			<?php foreach($include_files as $i => $include_file) {
 				include($include_file);
+                if($i < count($include_files) - 1) {
+                    echo '<div class="clearfix"></div><hr>';
+                }
 			} ?>
 		</div>
 	</div>

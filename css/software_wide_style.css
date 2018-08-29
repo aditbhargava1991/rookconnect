@@ -293,6 +293,12 @@ div.toggle-switch {
 .text-blue {
 	color: rgb(0,168,255);
 }
+.text-md {
+	font-size: 1.25em;
+}
+.text-reg {
+	font-size: 1em;
+}
 .text-lg {
 	font-size: 2em;
 }

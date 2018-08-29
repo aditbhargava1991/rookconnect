@@ -1,3 +1,7 @@
+<?php include_once('../include.php');
+if($_GET['projectid'] > 0) {
+    $projectid = filter_var($_GET['projectid'],FILTER_SANITIZE_STRING);
+} ?>
 <div id="head_estimates">
 	<?php $estimate_list = mysqli_query($dbc, "SELECT `estimateid` FROM `estimates` WHERE `projectid`='$projectid' AND '$projectid' > 0 AND `deleted`=0");
 	if(mysqli_num_rows($estimate_list) > 0) {

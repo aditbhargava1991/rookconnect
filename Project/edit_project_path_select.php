@@ -27,13 +27,17 @@ if($security['edit'] > 0) {
 			if(pathid >= 0) {
 				paths.splice(pathid, 1);
 			}
-			savePath('project_path', paths);
+			savePath('project_path', paths, );
 		});
 		$('.add_tab.main_path').off('click').click(function() {
 			$(this).removeClass('add_tab').addClass('active_tab').text('Remove Path');
 			setButtons();
 			paths.push($(this).data('path').toString());
-			savePath('project_path', paths);
+            tickets = $(this).closest('.panel-body').find('[name=ticket]:checked').map(function() { return this.value; }).get().join('#*#');
+            tasks = $(this).closest('.panel-body').find('[name=task]:checked').map(function() { return this.value; }).get().join('#*#');
+            items = $(this).closest('.panel-body').find('[name=item]:checked').map(function() { return this.value; }).get().join('#*#');
+            intakes = $(this).closest('.panel-body').find('[name=intake]:checked').map(function() { return this.value; }).get().join('#*#');
+			savePath('project_path', paths, $(this).data('path').toString(), tickets, tasks, items, intakes);
 		});
 		$('.active_tab.external').off('click').click(function() {
 			$(this).removeClass('active_tab').addClass('add_tab').text('Add External Path to <?= PROJECT_NOUN ?>');
@@ -51,14 +55,19 @@ if($security['edit'] > 0) {
 			savePath('external_path', ex_paths);
 		});
 	}
-	function savePath(path, path_list) {
+	function savePath(path, path_list, new_path, tickets, tasks, items, intakes) {
 		$.ajax({
 			url: 'projects_ajax.php?action=update_path',
 			method: 'POST',
 			data: {
 				projectid: '<?= $projectid ?>',
 				path_list: path_list.join(','),
-				path: path
+				path: path,
+                new_path: new_path,
+                tickets: tickets,
+                tasks: tasks,
+                items: items,
+                intakes: intakes
 			},
 	        success: function(response) {
 	            console.log(response);
@@ -67,7 +76,7 @@ if($security['edit'] > 0) {
 	}
 	</script>
 	<div class="col-sm-12">
-		<h1>Add / Remove <?= PROJECT_NOUN ?> Paths for <?= get_project_label($dbc, $project) ?></h1>
+		<h1>Add / Remove <?= PROJECT_NOUN ?> Paths for <?= get_project_label($dbc, $project) ?><a href="../blank_loading_page.php"><img src="../img/icons/cancel.png" class="pull-right inline-img"></a></h1>
 		<?php $paths = mysqli_query($dbc, "SELECT * FROM `project_path_milestone` ORDER BY project_path");
         echo '<div class="panel-group" id="accordion2">';
 		while($path = mysqli_fetch_assoc($paths)) {
@@ -90,29 +99,34 @@ if($security['edit'] > 0) {
                             $milestone = explode('#*#', $path['milestone']);
                             $timeline = explode('#*#', $path['timeline']);
                             $ticket = explode('#*#', $path['ticket']);
-                            $workorder = explode('#*#', $path['workorder']);
-                            $checklist = explode('#*#', $path['checklist']);
-                            echo "<h4>Milestones</h4>";
+                            $tasks = explode('#*#', $path['checklist']);
+                            // $items = explode('#*#', $path['items']);
+                            $intakes = explode('#*#', $path['intakes']);
                             foreach($milestone as $j => $value)  {
                                 if($value != '') {
                                     echo $value. (!empty($timeline[$j]) ? ': ' : '').$timeline[$j].'<br>';
-                                    if(!empty($checklist[$j]) || !empty($ticket[$j]) || !empty($workorder[$j])) {
+                                    if(!empty($tasks[$j]) || !empty($ticket[$j]) || !empty($items[$j]) || !empty($intakes[$j])) {
                                         echo "<ul>";
-                                        foreach(explode('*#*', $ticket[$j]) as $item) {
+                                        foreach(explode('*#*', $ticket[$j]) as $i => $item) {
                                             if($item != '' && $item != 'FFMSPLIT') {
                                                 $item = explode('FFMSPLIT',$item);
                                                 $service = mysqli_fetch_array(mysqli_query($dbc, "SELECT CONCAT(`category`,': ',`heading`) service FROM `services` WHERE `serviceid`='".$item[1]."'"))['service'];
-                                                echo "<small><li>".TICKET_NOUN.": ".$item[0]." (Service: ".$service.")</li></small>";
+                                                echo "<small><li><label class='form-checkbox any-width'><input type='checkbox' checked name='ticket' value='$j|$i'>".TICKET_NOUN.": ".$item[0]." (Service: ".$service.")</label></li></small>";
                                             }
                                         }
-                                        foreach(explode('*#*', $workorder[$j]) as $item) {
+                                        foreach(explode('*#*', $tasks[$j]) as $i => $item) {
                                             if($item != '') {
-                                                echo "<small><li>Work Order: ".$item."</li></small>";
+                                                echo "<small><li><label class='form-checkbox any-width'><input type='checkbox' checked name='task' value='$j|$i'>".$item."</label></li></small>";
                                             }
                                         }
-                                        foreach(explode('*#*', $checklist[$j]) as $item) {
+                                        // foreach(explode('*#*', $items[$j]) as $i => $item) {
+                                            // if($item != '') {
+                                                // echo "<small><li><label class='form-checkbox any-width'><input type='checkbox' checked name='item' value='$j|$i'>".$item."</label></li></small>";
+                                            // }
+                                        // }
+                                        foreach(explode('*#*', $intakes[$j]) as $i => $item) {
                                             if($item != '') {
-                                                echo "<small><li>".$item."</li></small>";
+                                                echo "<small><li><label class='form-checkbox any-width'><input type='checkbox' checked name='intake' value='$j|$i'>Intake Form: ".get_field_value('form_name','intake_forms','intakeformid',$item)."</label></li></small>";
                                             }
                                         }
                                         echo "</ul>";
