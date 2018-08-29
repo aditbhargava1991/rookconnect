@@ -35,6 +35,7 @@ $(document).ready(function() {
     } ?>
 
     <?php foreach(explode('#*#',$_GET['attach_docs']) as $doc_name) {
+        $doc_name = urldecode($doc_name);
         if(file_exists($doc_name)) { ?>
             <div class="form-group">File to Attach: <a href="<?= $doc_name ?>"><?= $doc_name ?></a></div>
             <input type="hidden" name="email_file[]" value="<?= $doc_name ?>">

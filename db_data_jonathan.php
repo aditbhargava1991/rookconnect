@@ -265,6 +265,11 @@
 		if(!mysqli_query($dbc, "ALTER TABLE `sales` CHANGE `created_date` `created_date` DATETIME NULL DEFAULT CURRENT_TIMESTAMP")) {
 			echo "Error: ".mysqli_error($dbc)."<br />\n";
 		}
+        
+        //August 19, 2018
+		if(!mysqli_query($dbc, "ALTER TABLE `email_communication` ADD `salesid` INT(11) UNSIGNED NOT NULL DEFAULT 0 AFTER `contactid`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
 		
 		set_config($dbc, 'db_version_jonathan', 8);
 	}
