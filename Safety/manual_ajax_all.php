@@ -1,5 +1,5 @@
 <?php
-include ('../database_connection.php');
+include ('../include.php');
 
 if($_GET['fill'] == 'section') {
     $heading_number = $_GET['heading_number'];
@@ -74,13 +74,17 @@ if($_GET['fill'] == 'accordionview') {
 if ( $_GET['fill'] == 'managerApproval' ) {
     $action     = $_GET['action'];
 	$safetyid   = $_GET['safetyid'];
-	
+
     if ( $action=='approve' ) {
 		$query_update  = "UPDATE `safety_attendance` SET manager_approval='1' WHERE `safetyattid`='$safetyid'";
 	} elseif ( $action=='reject' ) {
 		$query_update  = "UPDATE `safety_attendance` SET manager_approval='2' WHERE `safetyattid`='$safetyid'";
     }
-    
+
 	$result_update_project = mysqli_query($dbc, $query_update);
 }
+
+$before_change = '';
+$history = "safety_attendance entry has been updated for safetyattid $assign_staff_id <br />";
+add_update_history($dbc, 'safety_history', $history, '', $before_change);
 ?>

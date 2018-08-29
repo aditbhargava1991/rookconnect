@@ -18,7 +18,7 @@
 		$(link).closest('tr').hide();
 	}
 	</script>
-	<?php $invoice_list = $dbc->query("SELECT `tickets`.* FROM `tickets` LEFT JOIN `invoice` ON CONCAT(',',`invoice`.`ticketid`,',') LIKE CONCAT('%,',`tickets`.`ticketid`,',%') WHERE `tickets`.`ticket_type` IN ('".implode("','",$ticket_conf_list)."') `invoice`.`invoiceid` IS NULL AND `tickets`.`deleted`=0 ".(in_array('Administration',$db_config) ?"AND `approvals` IS NOT NULL" : ''));
+	<?php $invoice_list = $dbc->query("SELECT `tickets`.* FROM `tickets` LEFT JOIN `invoice` ON CONCAT(',',`invoice`.`ticketid`,',') LIKE CONCAT('%,',`tickets`.`ticketid`,',%') WHERE `tickets`.`ticket_type` IN ('".implode("','",$ticket_conf_list)."') AND `invoice`.`invoiceid` IS NULL AND `tickets`.`deleted`=0 ".(in_array('Administration',$db_config) ?"AND IFNULL(`approvals`,'') != ''" : ''));
 	if($invoice_list->num_rows > 0) { ?>
 		<button class="btn brand-btn pull-right" onclick="multi_invoice(); return false;">Create Invoice for Selected</button>
 		<table class="table table-bordered">

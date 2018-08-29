@@ -1,6 +1,8 @@
 .auto-height { height:auto !important; }
 .full-height { height:100% !important; }
 .overflow-y { overflow-y:auto !important; }
+.show-overflow-y { overflow-y:visible !important; }
+.show-overflow-x { overflow-x:visible !important; }
 .no-overflow-y { overflow-y:hidden !important; }
 .no-overflow-x { overflow-x:hidden !important; }
     .no-overflow-x img { height:auto; max-width:100% !important; }
@@ -1143,8 +1145,10 @@ right: 0;
 .no-gap-pad { margin:0 !important; padding:0 !important; }
 .no-gap-top { margin-top:0 !important; }
 .no-gap-right { margin-right:0 !important; }
+.no-gap-left { margin-left:0 !important; }
 
 .no-pad-right { padding-right:0 !important; }
+.no-pad-left { padding-left:0 !important; }
 
 .text-uppercase { text-transform:uppercase; }
 

@@ -418,8 +418,11 @@ function clearCompleted(task) {
                     <br /><input type="text" name="reminder_board_<?php echo $_GET['category']; ?>" style="display:none; margin-top: 2em;" class="form-control datepicker" />
                 </span>
                 -->
+
+
                 <span class="pull-right double-gap-top" style="cursor: pointer;" data-task="BOARD<?php echo $_GET['category']; ?>">
-                    <a href=""><img src="../img/clear-checklist.png" alt="Clear Completed Tasks" title="Clear Completed Tasks" style="height:2em;" onclick="clearCompleted(this);" /></a>
+                    <span class="theme-color-icon" style="cursor:pointer; padding: 0.25em 0.5em 0.25em 0;" title="Task Board History" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Tasks/task_history.php?taskboardid=<?=$taskboardid?>');"><img src="<?php echo WEBSITE_URL; ?>/img/time-machine.png" style="height:2em;"></span>
+                    <a href=""><img src="../img/clear-checklists.png" alt="Clear Completed Tasks" title="Clear Completed Tasks" style="height:2em;" onclick="clearCompleted(this);" /></a>
                     <?php if(in_array('archive', $quick_actions)) { ?><span style="padding: 0.25em 0.5em;" title="Archive Task Board" onclick="archive(this); return false;"><img src="<?php echo WEBSITE_URL; ?>/img/icons/ROOK-trash-icon.png" style="height:2em;"></span><?php } ?>
                 </span>
                 <input type="file" name="attach_board_<?php echo $_GET['category']; ?>" style="display:none;" />
