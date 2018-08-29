@@ -94,6 +94,7 @@ switch($tile) {
                     <input type="text" name="reminder_heading" class="form-control" value="<?= $subject ?>">
                 </div>
             </div>
+
         	<div class="form-group">
         		<label class="col-sm-4 control-label">Reminder Date:</label>
         		<div class="col-sm-8">

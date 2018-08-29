@@ -201,7 +201,7 @@ function add_workorder(btn) {
 				<div class="col-sm-6">
 					<input type="text" class="form-control" name="milestone" value="<?= $milestone ?>">
 				</div>
-				<div class="col-sm-2">
+				<div class="col-sm-1">
 					<img src="../img/icons/drag_handle.png" class="inline-img pull-right block-handle no-toggle" title="Drag">
 					<img src="../img/remove.png" class="inline-img pull-right" onclick="remove_block(this);">
 					<img src="../img/icons/ROOK-add-icon.png" class="inline-img pull-right" onclick="add_block();">
