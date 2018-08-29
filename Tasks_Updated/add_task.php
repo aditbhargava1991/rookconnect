@@ -524,9 +524,10 @@ $(document).ready(function () {
     });
 
     $('.full-btn').on('click', function() {
-        window.top.location.href = "add_task_full_view.php";
+        var str = window.location.href;
+        var res = str.replace("add_task.php", "add_task_full_view.php");
+        window.top.location.href = res;
     });
-
 
     $('.stop-timer-btn').on('click', function() {
 		$(this).closest('div').find('.timer').timer('stop');
@@ -538,7 +539,7 @@ $(document).ready(function () {
 
         var projectid = '';
         if (typeof taskid == 'undefined') {
-            projectid = $(this).data('projectid'); alert(projectid);
+            projectid = $(this).data('projectid');
             if ( projectid.toString().substring(0,1)=='C' ) {
                 projectid = '';
             }

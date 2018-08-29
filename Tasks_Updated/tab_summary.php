@@ -59,7 +59,17 @@ checkAuthorised('tasks'); ?>
                 $today_tickets = $dbc->query("SELECT tasklistid, heading, status FROM `tasklist` WHERE `deleted`=0 AND created_date = '".date('Y-m-d')."'");
                 while($ticket = $today_tickets->fetch_assoc()) {
                     ?>
-                        <p><a href="" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Tasks_Updated/add_task.php?type=<?=$ticket['status']?>&tasklistid=<?=$ticket['tasklistid']?>', '50%', false, false, $('.iframe_overlay').closest('.container').outerHeight() + 20); return false;">#<?php echo $ticket['tasklistid'].' - '.$ticket['heading'] ?></a></p>
+
+                    <?php
+                    $slider_layout = !empty(get_config($dbc, 'tasks_slider_layout')) ? get_config($dbc, 'tasks_slider_layout') : 'accordion';
+
+                    if($slider_layout == 'accordion') {
+                    ?>
+                    <p><a href="" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Tasks_Updated/add_task.php?type=<?=$ticket['status']?>&tasklistid=<?=$ticket['tasklistid']?>', '50%', false, false, $('.iframe_overlay').closest('.container').outerHeight() + 20); return false;">#<?php echo $ticket['tasklistid'].' - '.$ticket['heading'] ?></a></p>
+                    <?php } else { ?>
+                    <p><a href="../Tasks_Updated/add_task_full_view.php?type=<?=$ticket['status']?>&tasklistid=<?=$ticket['tasklistid']?>">#<?php echo $ticket['tasklistid'].' - '.$ticket['heading'] ?></a></p>
+                    <?php } ?>
+
                     <?php
                     }
             echo '</div>';
@@ -71,8 +81,14 @@ checkAuthorised('tasks'); ?>
 
                 $today_tickets = $dbc->query("SELECT tasklistid, heading, status, work_time FROM `tasklist` WHERE `deleted`=0 AND task_tododate = '".date('Y-m-d')."' AND work_time = '00:00:00'");
                 while($ticket = $today_tickets->fetch_assoc()) {
+
+                    if($slider_layout == 'accordion') {
                     ?>
-                        <p><a href="" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Tasks_Updated/add_task.php?type=<?=$ticket['status']?>&tasklistid=<?=$ticket['tasklistid']?>', '50%', false, false, $('.iframe_overlay').closest('.container').outerHeight() + 20); return false;">#<?php echo $ticket['tasklistid'].' - '.$ticket['heading'].' - '.$ticket['status'].' - '.$ticket['work_time'] ?></a></p>
+                    <p><a href="" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Tasks_Updated/add_task.php?type=<?=$ticket['status']?>&tasklistid=<?=$ticket['tasklistid']?>', '50%', false, false, $('.iframe_overlay').closest('.container').outerHeight() + 20); return false;">#<?php echo $ticket['tasklistid'].' - '.$ticket['heading'].' - '.$ticket['status'].' - '.$ticket['work_time'] ?></a></p>
+                    <?php } else { ?>
+                    <p><a href="../Tasks_Updated/add_task_full_view.php?type=<?=$ticket['status']?>&tasklistid=<?=$ticket['tasklistid']?>">#<?php echo $ticket['tasklistid'].' - '.$ticket['heading'].' - '.$ticket['status'].' - '.$ticket['work_time'] ?></a></p>
+                    <?php } ?>
+
                     <?php
                     }
             echo '</div>';
@@ -84,8 +100,13 @@ checkAuthorised('tasks'); ?>
 
                 $today_tickets = $dbc->query("SELECT DISTINCT(t.tasklistid), t.heading, t.status, tt.work_time FROM `tasklist` t, tasklist_time tt WHERE t.deleted=0 AND tt.timer_date = '".date('Y-m-d')."' AND t.tasklistid = tt.tasklistid");
                 while($ticket = $today_tickets->fetch_assoc()) {
+
+                    if($slider_layout == 'accordion') {
                     ?>
-                        <p><a href="" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Tasks_Updated/add_task.php?type=<?=$ticket['status']?>&tasklistid=<?=$ticket['tasklistid']?>', '50%', false, false, $('.iframe_overlay').closest('.container').outerHeight() + 20); return false;">#<?php echo $ticket['tasklistid'].' - '.$ticket['heading'].' - '.$ticket['status'].' - '.$ticket['work_time'] ?></a></p>
+                    <p><a href="" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Tasks_Updated/add_task.php?type=<?=$ticket['status']?>&tasklistid=<?=$ticket['tasklistid']?>', '50%', false, false, $('.iframe_overlay').closest('.container').outerHeight() + 20); return false;">#<?php echo $ticket['tasklistid'].' - '.$ticket['heading'].' - '.$ticket['status'].' - '.$ticket['work_time'] ?></a></p>
+                    <?php } else { ?>
+                    <p><a href="../Tasks_Updated/add_task_full_view.php?type=<?=$ticket['status']?>&tasklistid=<?=$ticket['tasklistid']?>">#<?php echo $ticket['tasklistid'].' - '.$ticket['heading'].' - '.$ticket['status'].' - '.$ticket['work_time'] ?></a></p>
+                    <?php } ?>
                     <?php
                     }
 
