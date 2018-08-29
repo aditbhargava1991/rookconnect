@@ -326,7 +326,7 @@ else if($_GET['action'] == 'stop_holiday_update_noti') {
     } else {
         $comment_history = $session_user.' added Time record.<br>';
         $dbc->query("INSERT INTO `time_cards` (`business`,`projectid`,`ticketid`,`date`,`clientid`,`ticket_attached_id`,`staff`,`type_of_time`,`$field`) VALUES ('$siteid','$projectid','$ticketid','$date','$clientid','$attach_id','$staff','$type','$value')");
-        echo $dbc->insert_id;
+        echo $id = $dbc->insert_id;
     }
     if($attach_id > 0 && $field == 'total_hrs') {
         $dbc->query("UPDATE `ticket_attached` SET `time_set`='$value' WHERE `id`='$attach_id'");
@@ -339,6 +339,18 @@ else if($_GET['action'] == 'stop_holiday_update_noti') {
         }
         mysqli_query($dbc, "UPDATE `time_cards` SET `comment_box` = '".$time_card['comment_box'].htmlentities($comment_history)."' WHERE `time_cards_id` = '$id'");
 	}
+
+	$insert_dayoff = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `field_config_time_cards_dayoff` WHERE `hours_type` = '".$type_of_time."'"));
+    $time_card = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `time_cards` WHERE `time_cards_id` = '$id'"));
+    if(!($time_card['shiftid'] > 0) && $insert_dayoff['enabled'] == 1) {
+    	$dayoff_type = $insert_dayoff['dayoff_type'];
+    	if(empty($dayoff_type)) {
+    		$dayoff_type = 'Day Off';
+    	}
+    	mysqli_query($dbc, "INSERT INTO `contacts_shifts` (`contactid`,`startdate`,`enddate`,`dayoff_type`) VALUES ('$staff','$date','$date','$dayoff_type')");
+    	$shiftid = mysqli_insert_id($dbc);
+    	mysqli_query($dbc, "UPDATE `time_cards` SET `shiftid` = '$shiftid' WHERE `time_cards_id` = '$id'");
+    }
 }
 else if($_GET['action'] == 'set_stat_pay') {
 	$staffid = filter_var($_POST['staffid'],FILTER_SANITIZE_STRING);

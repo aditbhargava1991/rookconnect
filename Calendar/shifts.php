@@ -78,6 +78,66 @@ if (isset($_POST['submit'])) {
         }
     }
 
+    if(!empty($dayoff_type)) {
+        $total_hrs = number_format((strtotime(empty($end_time) ? '11:59 PM' : $end_time) - strtotime(empty($start_time) ? '12:00 AM' : $start_time))/3600,2);
+        $dayoff_types = '';
+        $dayoff_types_timesheet = '';
+        $get_field_config = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_contacts_shifts`"));
+        if (!empty($get_field_config)) {
+            $dayoff_types = explode(',', $get_field_config['dayoff_types']);
+            $dayoff_types_timesheet = explode(',', $get_field_config['dayoff_types_timesheet']);
+        }
+        $hide_days = array_filter(explode(',', mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `contacts_shifts` WHERE `shiftid` = '$shiftid'"))['hide_days']));
+        foreach($dayoff_types as $i => $type) {
+            if($type == $dayoff_type && !empty($dayoff_types_timesheet[$i])) {
+                $type_of_time = $dayoff_types_timesheet[$i];
+                mysqli_query($dbc, "UPDATE `time_cards` SET `deleted` = 1 WHERE `shiftid` = '".$shiftid."'");
+                $check_startdate = (empty($startdate) || strtotime(date('Y-m-d')) > strtotime($startdate)) ? date('Y-m-d') : $startdate;
+                $check_enddate =  empty($enddate) ? date(strtotime(date('Y-m-d').' + 1 month')) : $enddate;
+                for($current_date = $check_startdate; strtotime($current_date) <= strtotime($check_enddate); $current_date = date('Y-m-d', strtotime($current_date.' + 1 day'))) {
+                    $is_shift = false;
+                    if(!in_array($current_date, $hide_days)) {
+                        switch($repeat_type) {
+                            case 'weekly':
+                                $repeat_type = 'W';
+                                $start_date = date('Y-m-d', strtotime('next Sunday -1 week', strtotime($startdate)));
+                                $start_date = new DateTime($start_date);
+                                $start_date->modify($day_of_week);
+                                $end_date = new DateTime(date('Y-m-d', strtotime($calendar_date.' + 1 week')));
+                                break;
+                            case 'daily':
+                                $repeat_type = 'D';
+                                $start_date = date('Y-m-d', strtotime($startdate));
+                                $start_date = new DateTime($start_date);
+                                $end_date = new DateTime(date('Y-m-d', strtotime($calendar_date.' + 1 day')));
+                                break;
+                            case 'monthly':
+                                $repeat_type = 'M';
+                                $start_date = date('Y-m-d', strtotime($startdate));
+                                $start_date = new DateTime($start_date);
+                                $end_date = new DateTime(date('Y-m-d', strtotime($calendar_date.' + 1 month')));
+                                break;
+                        }
+                        if($interval > 1) {
+                            $interval = new DateInterval("P{$interval}{$repeat_type}");
+                            $period = new DatePeriod($start_date, $interval, $end_date);
+                            foreach($period as $period_date) {
+                                if (date('Y-m-d', strtotime($calendar_date)) == $period_date->format('Y-m-d')) {
+                                    $is_shift = true;
+                                }
+                            }
+                        } else {
+                            $is_shift = true;
+                        }
+                        if($is_shift) {
+                            mysqli_query($dbc, "INSERT INTO `time_cards` (`staff`, `date`, `shiftid`, `type_of_time`, `total_hrs`, `comment_box`) VALUES ('$contactid', '$current_date', '$shiftid', '$type_of_time', '$total_hrs', 'Time added from Day Off.')");
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     $query = $_GET;
     unset ($query['shiftid']);
     unset ($query['current_day']);
@@ -211,6 +271,7 @@ if (!empty($shiftid)) {
 $(document).ready(function() {
     window.submitForm = false;
     window.checkedConflicts = false;
+    window.checkedTicketBookingConflicts = false;
 
     $('[name="submit"]').on('click', function() {
         if($('[name="old_startdate"]').val() == $('[name="shift_startdate"]').val() && $('[name="old_enddate"]').val() == $('[name="shift_enddate"]').val()) {
@@ -227,6 +288,22 @@ $(document).ready(function() {
                     }
                 } else {
                     window.checkedConflicts = true;
+                    $('[name="submit"]').trigger('click');
+                }
+            });
+            return false;
+        } else if(!checkedTicketBookingConflicts && $('#shift_type_dayoff').is(':checked')) {
+            var conflicts = checkeTicketBookingConflicts();
+            conflicts.success(function(response) {
+                if(response != '') {
+                    if(confirm(response)) {
+                        window.checkedTicketBookingConflicts = true;
+                        $('[name="submit"]').trigger('click');
+                    } else {
+                        window.submitForm=false;
+                    }
+                } else {
+                    window.checkedTicketBookingConflicts = true;
                     $('[name="submit"]').trigger('click');
                 }
             });
@@ -308,6 +385,25 @@ $(document).ready(function() {
             url: '../Calendar/calendar_ajax_all.php?fill=check_shift_conflicts',
             method: 'POST',
             data: { shiftid: shiftid, contactid: contactid, startdate: startdate, enddate: enddate, starttime: starttime, endtime: endtime, repeat_type, repeat_days, repeat_interval: repeat_interval }
+        });
+    }
+
+    function checkeTicketBookingConflicts() {
+        var shiftid = $('[name="shiftid"]').val();
+        var contactid = $('[name="shift_contactid"]').val();
+        var startdate = $('[name="shift_startdate"]').val();
+        var enddate = $('[name="shift_enddate"]').val();
+        var repeat_type = $('[name="shift_repeat_type"]').val();
+        var repeat_days = $('[name="shift_repeat_days"]').val();
+        var repeat_interval = $('[name="shift_repeat_interval"]').val();
+        var conflicts = 0;
+        if($('[name="recurring"]').val() == 'yes' && $('[name="edit_type"]').val() == 'once') {
+            enddate = $('[name="shift_startdate"]').val();
+        }
+        return $.ajax({
+            url: '../Calendar/calendar_ajax_all.php?fill=check_ticket_booking_conflicts',
+            method: 'POST',
+            data: { shiftid: shiftid, contactid: contactid, startdate: startdate, enddate: enddate, repeat_type, repeat_days, repeat_interval: repeat_interval }
         });
     }
 });
