@@ -115,6 +115,9 @@ if (isset($_POST['submit'])) {
         }
 		try {
             send_email([$from_email => $from_name], $meeting_arr_email, $meeting_cc_arr_email , '', $_POST['subject'], $send_body, $meeting_attachment);
+            if($salesid > 0) {
+                add_update_history($dbc, 'sales', "Sent Email to Lead: ".$_POST['subject'], '', '', $salesid);
+            }
 		} catch(Exception $e) {
 			echo "<script> alert('Unable to send the email: ".$e->getMessage()."'); </script>";
 		}
