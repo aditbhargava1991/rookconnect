@@ -30,10 +30,10 @@ $(document).ready(function() {
       <div class="col-sm-8">
         <select data-placeholder="Select a Contact..." id="contactid" name="contactid" class="chosen-select-deselect form-control" width="380">
 			<option></option>
-			<?php $contact_query = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT contactid, name, first_name, last_name, email_address, category FROM contacts WHERE businessid='$businessid' AND `deleted`=0 AND `status`>0 AND `category`!='Sites'"),MYSQLI_ASSOC));
+			<?php $contact_query = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT contactid, name, first_name, last_name, email_address, category FROM contacts WHERE ('$businessid' IN (`businessid`,'') OR `contactid`='$clientid') AND `deleted`=0 AND `status`>0 AND `category`!='Sites'"),MYSQLI_ASSOC));
 			foreach($contact_query as $row) {
 				$email = get_email($dbc, $row);
-                echo "<option ".($row == $contactid ? 'selected' : '')." value='". $row."'>".get_contact($dbc, $row).' &lt;'.(empty($email) ? 'No Email Address' : $email).'&gt;</option>';
+                echo "<option ".($row == $clientid ? 'selected' : '')." value='". $row."'>".get_contact($dbc, $row).' &lt;'.(empty($email) ? 'No Email Address' : $email).'&gt;</option>';
             } ?>
         </select>
       </div>

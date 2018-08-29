@@ -50,6 +50,10 @@ if (isset($_POST['submit'])) {
             $meeting_attachment .= $file_support.'*#FFM#*';
         }
     }
+    foreach($_POST['email_file'] as $email_file) {
+        $query_insert_client_doc = "INSERT INTO `email_communicationid_upload` (`email_communicationid`, `document`, `created_by`, `created_date`) VALUES ('0', '../$document', '$created_by', '$today_date')";
+        $meeting_attachment .= $email_file.'*#FFM#*';
+    }
 
     $meeting_email_send = '';
     // Meeting Note Email
@@ -229,6 +233,10 @@ if (isset($_POST['submit'])) {
 
             if(!empty($_GET['bid'])) {
                 $businessid = $_GET['bid'];
+            }
+
+            if(!empty($_GET['cid'])) {
+                $clientid = $_GET['cid'];
             }
             
             if(!empty($_GET['projectid'])) {

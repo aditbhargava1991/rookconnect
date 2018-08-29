@@ -21,7 +21,7 @@
             <option value=''></option>
             <?php
             $cat = '';
-            $query = mysqli_query($dbc,"SELECT contactid, first_name, last_name, category, email_address FROM contacts WHERE businessid='$businessid' ORDER BY category");
+            $query = mysqli_query($dbc,"SELECT contactid, first_name, last_name, category, email_address FROM contacts WHERE ('$businessid' IN (`businessid`,'') OR `contactid`='$clientid') ORDER BY category");
             while($row = mysqli_fetch_array($query)) {
                 if($cat != $row['category']) {
                     echo '<optgroup label="'.$row['category'].'">';
@@ -30,7 +30,7 @@
                 $email_address = get_email($dbc, $row['contactid']);
                 if(trim($email_address) != '') {
                     ?>
-                    <option <?php if (strpos(','.$businesscontact_to_emailid.',', ','.$email_address.',') !== FALSE) {
+                    <option <?php if (strpos(','.$businesscontact_to_emailid.',', ','.$email_address.',') !== FALSE || $_GET['cid'] == $row['contactid']) {
                     echo " selected"; } ?> value="<?php echo $email_address; ?>"><?php echo decryptIt($row['first_name']).' '.decryptIt($row['last_name']).' : '.$email_address; ?></option>
                 <?php }
             }
@@ -48,7 +48,7 @@
             <option value=''></option>
             <?php
             $cat = '';
-            $query = mysqli_query($dbc,"SELECT contactid, first_name, last_name, category, email_address FROM contacts WHERE businessid='$businessid' ORDER BY category");
+            $query = mysqli_query($dbc,"SELECT contactid, first_name, last_name, category, email_address FROM contacts WHERE ('$businessid' IN (`businessid`,'') OR `contactid`='$clientid') ORDER BY category");
             while($row = mysqli_fetch_array($query)) {
                 if($cat != $row['category']) {
                     echo '<optgroup label="'.$row['category'].'">';

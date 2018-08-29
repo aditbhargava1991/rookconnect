@@ -68,6 +68,11 @@
         $('[data-table]').off('change',saveField).change(saveField);	
         initInputs();	
     }
+    function email_doc(img) {
+        var documents = [];
+        $(img).closest('tr,.row').find('a[href*=download]').each(function() { documents.push(this.href.replace('<?= WEBSITE_URL ?>','..')); });
+        overlayIFrameSlider('../Email Communication/add_email.php?type=external&bid=<?= $businessid ?>&cid=<?= array_values(array_filter(explode(',',$contactid)))[0] ?>&salesid=<?= $salesid ?>&attach_docs='+encodeURIComponent(documents.join('#*#')), 'auto', false, true);
+    }
     </script>
 
     <div class="main-screen-white standard-body" style="padding-left: 0; padding-right: 0; border: none;">
