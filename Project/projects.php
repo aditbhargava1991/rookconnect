@@ -2,7 +2,7 @@
 error_reporting(0);
 include_once('../include.php'); ?>
 <script src="project.js"></script>
-<script>
+<script> 
 $(document).ready(function() {
     <?php if(!empty($_GET['type']) && !isset($_GET['edit'])) { ?>
         selectType('<?= $_GET['type']?>');

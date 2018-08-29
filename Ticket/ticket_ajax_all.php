@@ -9,7 +9,7 @@ date_default_timezone_set('America/Denver');
 if(!($_SESSION['contactid'] > 0)) {
 	echo "ERROR#*#Your session has timed out. Please log in and try again.";
 	exit();
-}
+} 
 if($_GET['fill'] == 'project_path_milestone') {
     $project_path = $_GET['project_path'];
 	echo '<option value=""></option>';

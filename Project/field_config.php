@@ -13,7 +13,7 @@ function loadPanel() {
 			$(body).html(response);
 		}
 	});
-}
+} 
 </script>
 <div id='settings_accordions' class='sidebar show-on-mob panel-group block-panels col-xs-12'>
 	<div class="panel panel-default">

@@ -1,7 +1,7 @@
 <?php $project_sort = get_config($dbc, "project_sorting");
 if($project_sort == '') {
 	$project_sort = 'newest';
-}
+} 
 $summ_config = explode(',',mysqli_fetch_assoc(mysqli_query($dbc,"SELECT `config_fields` FROM field_config_project WHERE type='ALL' AND '$projecttype' != 'ALL'"))['config_fields']);
 $tab_list = [];
 $search_list = [];
