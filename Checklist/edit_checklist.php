@@ -23,6 +23,7 @@ if (isset($_POST['tasklist'])) {
 		$client_projectid = substr($projectid,1);
 		$projectid = '';
 	}
+    $project_milestone = filter_var($_POST['project_milestone'],FILTER_SANITIZE_STRING);
 	$ticketid = filter_var(implode(',',$_POST['ticketid']),FILTER_SANITIZE_STRING);
     $businessid = $_POST['businessid'];
 
@@ -93,7 +94,7 @@ if (isset($_POST['tasklist'])) {
         if($subtabid == '') {
             $subtabid = 0;
         }
-        $query_insert_ca = "INSERT INTO `checklist` (`subtabid`, `assign_staff`, `checklist_type`, `reset_day`, `reset_time`, `checklist_name`, `created_by`, `projectid`, `client_projectid`, `ticketid`, `businessid`) VALUES ('$subtabid', '$assign_staff', '$checklist_type', '$reset_day', '$reset_time', '$checklist_name', '$created_by', '$projectid', '$client_projectid', '$ticketid', '$businessid')";
+        $query_insert_ca = "INSERT INTO `checklist` (`subtabid`, `assign_staff`, `checklist_type`, `reset_day`, `reset_time`, `checklist_name`, `created_by`, `projectid`, `project_milestone`, `client_projectid`, `ticketid`, `businessid`) VALUES ('$subtabid', '$assign_staff', '$checklist_type', '$reset_day', '$reset_time', '$checklist_name', '$created_by', '$projectid', '$project_milestone', '$client_projectid', '$ticketid', '$businessid')";
         $result_insert_ca = mysqli_query($dbc, $query_insert_ca);
         $checklistid = mysqli_insert_id($dbc);
 
@@ -123,7 +124,7 @@ if (isset($_POST['tasklist'])) {
 				$before_change .= capture_before_change($dbc, 'checklist', 'client_projectid', 'checklistid', $checklistid);
 				$before_change .= capture_before_change($dbc, 'checklist', 'businessid', 'checklistid', $checklistid);
 
-        $query_update_vendor = "UPDATE `checklist` SET `subtabid` = '$subtabid', `assign_staff` = '$assign_staff', `checklist_type` = '$checklist_type', `reset_day` = '$reset_day', `reset_time` = '$reset_time', `checklist_name` = '$checklist_name', `created_by` = '$created_by', `projectid` = '$projectid', `ticketid`='$ticketid', `client_projectid` = '$client_projectid', `businessid` = '$businessid' WHERE `checklistid` = '$checklistid'";
+        $query_update_vendor = "UPDATE `checklist` SET `subtabid` = '$subtabid', `assign_staff` = '$assign_staff', `checklist_type` = '$checklist_type', `reset_day` = '$reset_day', `reset_time` = '$reset_time', `checklist_name` = '$checklist_name', `created_by` = '$created_by', `projectid` = '$projectid', `project_milestone` = '$project_milestone', `ticketid`='$ticketid', `client_projectid` = '$client_projectid', `businessid` = '$businessid' WHERE `checklistid` = '$checklistid'";
         $result_update_vendor = mysqli_query($dbc, $query_update_vendor);
 
         $report = decryptIt($_SESSION['first_name']).' '.decryptIt($_SESSION['last_name']).' Updated Checklist <b>'.$checklist_name.'</b> in '.$subtab_name.' : '.$checklist_type.' on '.date('Y-m-d');
@@ -681,6 +682,18 @@ function removeNewRow(button) {
 									</select>
 								  </div>
 								</div>
+                                <?php $tab_config = explode(',',implode(',',array_column(mysqli_fetch_all(mysqli_query($dbc,"SELECT `config_tabs` FROM field_config_project")),0)));
+                                if(in_array('Checklists In Path',$tab_config)) { ?>
+                                    <script>
+                                    $(document).ready(function() {
+                                        $('select[name=projectid]').change(function() {
+                                            projectid = $(this).val();
+                                            $('#project_path').show().load('project_path.php?projectid='+projectid+'&checklistid=<?= $checklistid ?>');
+                                        });
+                                    });
+                                    </script>
+                                    <div id="project_path"><?php include('project_path.php'); ?></div>
+                                <?php } ?>
 							</div>
 						</div>
 					</div>

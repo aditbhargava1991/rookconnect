@@ -19,10 +19,11 @@ if($fromTasks == 1) {
 else {
 	$type = $item[0];
 }
-
+$team = [];
 if($type == 'Ticket') {
 	$item = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticketid`='".$item[1]."'"));
 	$data = 'data-id="'.$item['ticketid'].'" data-table="tickets" data-name="milestone_timeline" data-id-field="ticketid"';
+    $team = explode(',',$item['contactid'].','.$item['internal_qa_contactid'].','.$item['deliverable_contactid']);
 	$colour = $item['flag_colour'];
 	$flag_label = $ticket_flag_names[$colour];
     if(!empty($item['flag_label'])) {
@@ -234,22 +235,9 @@ if($type == 'Ticket') {
 		</div>';
 	}
 	$contents .= '<div class="clearfix"></div>';
-	foreach(array_unique(explode(',',$item['contactid'].','.$item['internal_qa_contactid'].','.$item['deliverable_contactid'])) as $assignid) {
-		if($assignid > 0) {
-			if($border_colour == '') {
-				$user_colour = get_contact($dbc, $assignid, 'calendar_color');
-				if($user_colour != '') {
-					$border_colour = 'border-style:solid;border-color:'.$user_colour.';';
-				}
-			}
-			$contents .= '<span class="pull-left small col-sm-12">';
-			$contents .= profile_id($dbc, $assignid, false).' Assigned to '.get_contact($dbc, $assignid);
-			$contents .= '</span>';
-		}
-	}
-	// $contents .= '</div>';
 } else if($type == 'Task') {
 	$item = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `tasklist` WHERE `tasklistid`='".$item[1]."'"));
+    $team = explode(',',$item['contactid']);
 	$item_external = $item['external'];
 	if($item['status'] == $status_complete) {
 		$li_class = 'strikethrough';
@@ -312,19 +300,6 @@ if($type == 'Ticket') {
 		}
         $odd_even++;
 	}
-	foreach(explode(',',$item['alerts_enabled']) as $alertid) {
-		if($alertid > 0) {
-			if($border_colour == '') {
-				$user_colour = get_contact($dbc, $alertid, 'calendar_color');
-				if($user_colour != '') {
-					$border_colour = 'border-style:solid;border-color:'.$user_colour.';';
-				}
-			}
-			$contents .= '<span class="pull-left small col-sm-12">';
-			$contents .= profile_id($dbc, $alertid, false).' Assigned to '.get_contact($dbc, $alertid);
-			$contents .= '</span>';
-		}
-	}
 	$contents .= '</div><!-- .action_notifications -->';
 } else if($type == 'Intake') {
 	$item = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `intake` WHERE `intakeid`='".$item[1]."'"));
@@ -375,6 +350,7 @@ if($type == 'Ticket') {
 	</div>';
 } else if($type == 'Checklist') {
 	$item = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `checklist` WHERE `checklistid` = '".$item[1]."'"));
+    $team = explode(',',$item['assign_staff']);
 	$data = 'data-id="'.$item['checklistid'].'" data-table="checklist" data-name="project_milestone" data-id-field="checklistid"';
 	$colour = $item['flag_colour'];
 	$flag_label = $ticket_flag_names[$colour];
@@ -394,7 +370,17 @@ if($type == 'Ticket') {
     $contents = 'INCLUDE_CHECKLIST#*#'.$item['checklistid'];
 } ?>
 <li class="dashboard-item <?= $li_class ?>" <?= $data ?> data-colour="<?= $colour ?>" style="<?= $colour != '' ? 'background-color: #'.$colour.';' : '' ?><?= $border_colour ?>"><span class="flag-label"><?= $flag_label ?></span>
-	<h4><?= $label ?><?= ((($_GET['tab'] == 'path' && $_GET['pathid'] != 'MS') || $_GET['tab'] == 'path_external_path' || $_GET['tab'] == 'scrum_board') ? '<img class="pull-right milestone-handle cursor-hand no-toggle" src="../img/icons/drag_handle.png" style="height:1em;" title="Drag">' : '') ?><div class="clearfix"></div></h4>
+	<h4>
+        <span class="pull-right">
+            <?php foreach(array_unique($team) as $team_id) {
+                if($team_id > 0) {
+                    echo '<div class="" style="margin-top: -0.5em; font-size: 0.8em; display:inline;">'.profile_id($dbc, $team_id, false).'</div>';
+                }
+            } ?>
+            <?= ((($_GET['tab'] == 'path' && $_GET['pathid'] != 'MS') || $_GET['tab'] == 'path_external_path' || $_GET['tab'] == 'scrum_board') ? '<img class="milestone-handle cursor-hand no-toggle" src="../img/icons/drag_handle.png" style="height:1em;" title="Drag">' : '') ?>
+        </span>
+        <div class="scale-to-fill no-overflow-y" style=""><?= $label ?></div>
+    <div class="clearfix"></div></h4>
 	<?php if($security['edit'] > 0) { ?>
 		<div class="action-icons pad-bottom"><?= $actions ?></div>
 	<?php } ?>

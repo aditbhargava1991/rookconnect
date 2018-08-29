@@ -1021,9 +1021,17 @@ function mark_done(sel) {
                 <div class="col-sm-8">
                     <select data-placeholder="Select a Task Path..." id="task_path" name="task_path" data-table="tasklist" data-field="task_path" class="chosen-select-deselect form-control" width="380">
                         <option value=""></option><?php
-                        $query = mysqli_query($dbc,"SELECT project_path_milestone, project_path FROM project_path_milestone");
-                        while($row = mysqli_fetch_array($query)) { ?>
-                            <option <?php if ($row['project_path_milestone'] == $task_path) { echo " selected"; } ?> value='<?php echo  $row['project_path_milestone']; ?>' ><?php echo $row['project_path']; ?></option><?php
+                        $project_path_milestones = [];
+                        if($task_projectid > 0) {
+                            $project_path_milestones = get_project_paths($task_projectid);
+                            foreach($project_path_milestones as $path) { ?>
+                                <option <?= $task_path == $path['path_id'] ? 'selected' : '' ?> value='<?= $path['path_id'] ?>'><?= $path['path_name'] ?></option>
+                            <?php }
+                        } else {
+                            $query = mysqli_query($dbc,"SELECT project_path_milestone, project_path FROM project_path_milestone");
+                            while($row = mysqli_fetch_array($query)) { ?>
+                                <option <?php if ($row['project_path_milestone'] == $task_path) { echo " selected"; } ?> value='<?php echo  $row['project_path_milestone']; ?>' ><?php echo $row['project_path']; ?></option><?php
+                            }
                         } ?>
                     </select>
                 </div>
@@ -1038,11 +1046,19 @@ function mark_done(sel) {
                 ?>
                     <select data-placeholder="Select a Milestone & Timeline..." name="task_milestone_timeline" id="task_milestone_timeline" data-table="tasklist" data-field="task_milestone_timeline"  class="chosen-select-deselect form-control" width="580">
                         <option value=""></option>
-                        <?php
-
-                        $query = mysqli_query($dbc,"SELECT milestone FROM taskboard_path_custom_milestones WHERE taskboard='$task_board'");
-                        while($row = mysqli_fetch_array($query)) { ?>
-                            <option <?php if ( $row['milestone'] == $task_milestone_timeline) { echo " selected"; } ?> value='<?php echo  $row['milestone']; ?>' ><?php echo $row['milestone']; ?></option><?php
+                        <?php if($task_projectid > 0) {
+                            foreach($project_path_milestones as $path) {
+                                if($path['path_id'] == $task_path) {
+                                    foreach($path['milestones'] as $milestone) { ?>
+                                        <option <?= $task_milestone_timeline == $milestone['milestone'] ? 'selected' : '' ?> value="<?= $milestone['milestone'] ?>"><?= $milestone['label'] ?></option>
+                                    <?php }
+                                }
+                            }
+                        } else {
+                            $query = mysqli_query($dbc,"SELECT milestone FROM taskboard_path_custom_milestones WHERE taskboard='$task_board'");
+                            while($row = mysqli_fetch_array($query)) { ?>
+                                <option <?php if ( $row['milestone'] == $task_milestone_timeline) { echo " selected"; } ?> value='<?php echo  $row['milestone']; ?>' ><?php echo $row['milestone']; ?></option><?php
+                            }
                         }
 
                         /*

@@ -88,7 +88,6 @@ if ( $_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit']) ) {
 			<div class="col-sm-8">
 				<label class="form-checkbox"><input type="radio" <?php if ( strpos($value_config, ',Project,') !== false || preg_match('(,Assign Project,|,Hide Project,)', $value_config) === 0 ) { echo " checked"; } ?> value="Project" name="intake_project">Create New <?= PROJECT_NOUN ?></label>
 				<!--<label class="form-checkbox"><input type="radio" <?php if ( strpos($value_config, ',Assign Project,') !== false ) { echo " checked"; } ?> value="Assign Project" name="intake_project">Assign to Project</label>-->
-				<br />
                 <label class="form-checkbox"><input type="radio" <?php if ( strpos($value_config, ',Hide Project,') !== false ) { echo " checked"; } ?> value="Hide Project" name="intake_project">Hide</label>
 			</div>
 		</div>
