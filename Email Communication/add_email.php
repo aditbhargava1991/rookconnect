@@ -244,6 +244,12 @@ if (isset($_POST['submit'])) {
                 $businessid = get_project($dbc, $projectid, 'businessid');
                 $clientid = get_project($dbc, $projectid, 'clientid');
             }
+            if(!empty($_GET['subject'])) {
+                $subject = $_GET['subject'];
+            }
+            if(!empty($_GET['body'])) {
+                $email_body = $_GET['body'];
+            }
 
             $followup_by = '';
             $followup_date = '';
