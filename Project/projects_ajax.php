@@ -430,8 +430,9 @@ if($_GET['action'] == 'mark_favourite') {
 	$projectid = filter_var($_POST['projectid'],FILTER_SANITIZE_STRING);
 	$path_list = filter_var(trim($_POST['path_list'],','),FILTER_SANITIZE_STRING);
 	$path = filter_var($_POST['path'],FILTER_SANITIZE_STRING);
-	$new_path = filter_var($_POST['path'],FILTER_SANITIZE_STRING);
+	$new_path = filter_var($_POST['new_path'],FILTER_SANITIZE_STRING);
 	$taskboardid = get_project_task_board($projectid)['id'];
+    $project_lead = get_field_value('project_lead','project','projectid',$projectid);
 
 	if($path == 'project_path') {
 		$prior_path = explode(',',get_project($dbc, $projectid, 'project_path'));
@@ -441,21 +442,23 @@ if($_GET['action'] == 'mark_favourite') {
             if((empty($new_path) && !in_array($pathid, $prior_path)) || $pathid == $new_path) {
                 $tickets = explode('#*#',$_POST['tickets']);
                 $tasks = explode('#*#',$_POST['tasks']);
-                $items = explode('#*#',$_POST['items']);
+                // $items = explode('#*#',$_POST['items']);
                 $intakes = explode('#*#',$_POST['intakes']);
                 foreach(explode('#*#',$template['milestone']) as $i => $milestone) {
                     $milestones[] = $milestone;
 					foreach(array_filter(explode('*#*',explode('#*#',$template['ticket'])[$i])) as $j => $ticket) {
-                        if(in_array($i.'|'.$j),$tickets) {
+                        if(in_array($i.'|'.$j,$tickets)) {
                             $ticket = explode('FFMSPLIT',$ticket);
                             $heading = $ticket[0];
                             $serviceid = $ticket[1];
-                            mysqli_query($dbc, "INSERT INTO `tickets` (`projectid`, `heading`, `serviceid`, `milestone_timeline`) VALUES ('$projectid', '$heading', '$serviceid', '$milestone')");
+                            $staff = empty($_POST['ticket_staff'][$i.'|'.$j]) ? $project_lead : filter_var($_POST['ticket_staff'][$i.'|'.$j],FILTER_SANITIZE_STRING);
+                            mysqli_query($dbc, "INSERT INTO `tickets` (`projectid`, `heading`, `serviceid`, `milestone_timeline`, `contactid`, `to_do_date`) VALUES ('$projectid', '$heading', '$serviceid', '$milestone', '$staff', DATE(NOW()))");
                         }
 					}
                     foreach(array_filter(explode('*#*',explode('#*#',$template['checklist'])[$i])) as $j => $task) {
-                        if(in_array($i.'|'.$j),$tasks) {
-                            mysqli_query($dbc, "INSERT INTO `tasklist` (`task_path`, `task_board`, `projectid`, `contactid`, `heading`, `task`, `project_milestone`) VALUES ('$pathid', '$taskboardid', '$projectid', '".$_SESSION['contactid']."', '$task', '$task', '$milestone')");
+                        if(in_array($i.'|'.$j,$tasks)) {
+                            $staff = empty($_POST['task_staff'][$i.'|'.$j]) ? $project_lead : filter_var($_POST['task_staff'][$i.'|'.$j],FILTER_SANITIZE_STRING);
+                            mysqli_query($dbc, "INSERT INTO `tasklist` (`task_path`, `task_board`, `projectid`, `contactid`, `heading`, `task`, `project_milestone`, `task_tododate`) VALUES ('$pathid', '$taskboardid', '$projectid', '$staff', '$task', '$task', '$milestone', DATE(NOW()))");
                         }
 					}
                     // foreach(array_filter(explode('*#*',explode('#*#',$template['items'])[$i])) as $j => $item) {
@@ -464,7 +467,7 @@ if($_GET['action'] == 'mark_favourite') {
                         // }
 					// }
                     foreach(array_filter(explode('*#*',explode('#*#',$template['intakes'])[$i])) as $j => $intake) {
-                        if(in_array($i.'|'.$j),$intakes) {
+                        if(in_array($i.'|'.$j,$intakes)) {
                             mysqli_query($dbc, "INSERT INTO `intake` (`projectid`, `project_milestone`, `intakeformid`) VALUES ('$projectid', '$milestone', '$intake')");
                         }
 					}

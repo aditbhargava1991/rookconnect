@@ -1023,7 +1023,7 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 			$no_sub_shown = false; ?>
 			<a href="?edit=<?= $_GET['edit'] ?>&tab=summary" onclick="$('.standard-collapsible ul ul:visible').not($(this).next('ul')).toggle().prev('a').find('li').toggleClass('collapsed'); $(this).next('ul').toggle(); $(this).find('li').toggleClass('collapsed'); return false;" style="<?= count($sub_tabs) > 0 ? '' : 'display:none;' ?>">
 				<li class="sidebar-higher-level <?= $show_sub ? 'active blue' : 'collapsed' ?>">Summary<span class="arrow"></span></li></a>
-			<ul id="ul_comm" style="<?= $show_sub ? (count($sub_tabs) > 0 ? '' : 'padding-left:0;') : 'display: none;' ?>">
+			<ul id="ul_summ" style="<?= $show_sub ? (count($sub_tabs) > 0 ? '' : 'padding-left:0;') : 'display: none;' ?>">
 				<?php if(in_array('Summary',$tab_config)) { $_GET['tab'] = ($_GET['tab'] == '' ? 'summary' : $_GET['tab']); $next_tab = (!$next_set ? 'summary' : $next_tab); $next_set = ($prev_set ? true : false); $prev_set = ($_GET['tab'] == 'summary' ? true : $prev_set); $previous_tab = ($prev_set ? $previous_tab : 'summary'); ?><a href="?edit=<?= $_GET['edit'] ?>&tab=summary"><li class="sidebar-lower-level <?= $_GET['tab'] == 'summary' ? 'active blue' : '' ?>">Summary</li></a><?php } ?>
 			</ul>
 		<?php }
@@ -1162,7 +1162,7 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 			$no_sub_shown = false; ?>
 			<a href="?edit=<?= $_GET['edit'] ?>&tab=services" onclick="$('.standard-collapsible ul ul:visible').not($(this).next('ul')).toggle().prev('a').find('li').toggleClass('collapsed'); $(this).next('ul').toggle(); $(this).find('li').toggleClass('collapsed'); return false;" style="<?= count($sub_tabs) > 0 ? '' : 'display:none;' ?>">
 				<li class="sidebar-higher-level <?= $show_sub ? 'active blue' : 'collapsed' ?>">Projections<span class="arrow"></span></li></a>
-			<ul id="ul_comm" style="<?= $show_sub ? (count($sub_tabs) > 0 ? '' : 'padding-left:0;') : 'display: none;' ?>">
+			<ul id="ul_projection" style="<?= $show_sub ? (count($sub_tabs) > 0 ? '' : 'padding-left:0;') : 'display: none;' ?>">
 				<?php $_GET['tab'] = ($_GET['tab'] == '' ? 'services' : $_GET['tab']); $next_tab = (!$next_set ? 'services' : $next_tab); $next_set = ($prev_set ? true : false); $prev_set = ($_GET['tab'] == 'services' ? true : $prev_set); $previous_tab = ($prev_set ? $previous_tab : 'services'); ?><a href="?edit=<?= $_GET['edit'] ?>&tab=services"><li class="sidebar-lower-level <?= $_GET['tab'] == 'services' ? 'active blue' : '' ?>">Services</li></a>
 				<?php $_GET['tab'] = ($_GET['tab'] == '' ? 'products' : $_GET['tab']); $next_tab = (!$next_set ? 'products' : $next_tab); $next_set = ($prev_set ? true : false); $prev_set = ($_GET['tab'] == 'products' ? true : $prev_set); $previous_tab = ($prev_set ? $previous_tab : 'products'); ?><a href="?edit=<?= $_GET['edit'] ?>&tab=products"><li class="sidebar-lower-level <?= $_GET['tab'] == 'products' ? 'active blue' : '' ?>">Products</li></a>
 
@@ -1188,7 +1188,7 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 			}
 			if(check_subtab_persmission($dbc, 'project', ROLE, 'view_details') && (count($sub_tabs) > 0 || count($user_forms) > 0) || $_GET['edit'] == 0) {
 				$ticket_bypass = false;
-				$show_sub = in_array($_GET['tab'],['info','estimate','details path','staff','details','notes','documents','dates']) || $no_sub_shown || empty($_GET['tab']) || array_key_exists($_GET['project_form_id'], $user_forms);
+				$show_sub = in_array($_GET['tab'],['info','estimate','details_path','staff','details','notes','documents','dates']) || $no_sub_shown || empty($_GET['tab']) || array_key_exists($_GET['project_form_id'], $user_forms);
 				$no_sub_shown = false; ?>
 				<a href="?edit=<?= $_GET['edit'] ?>&tab=info" onclick="$('.standard-collapsible ul ul:visible').not($(this).next('ul')).toggle().prev('a').find('li').toggleClass('collapsed'); $(this).next('ul').toggle(); $(this).find('li').toggleClass('collapsed'); return false;" style="<?= count($sub_tabs) > 0 ? '' : 'display:none;' ?>">
 					<li class="sidebar-higher-level <?= $show_sub || $_GET['edit'] == 0 ? 'active blue' : 'collapsed' ?>"><?= PROJECT_NOUN ?> Details<span class="arrow"></span></li></a>
@@ -1582,17 +1582,19 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 				$include_files[] = 'next_buttons.php'; ?>
 				<script>
 				$(document).ready(function() {
-					$('.main-screen .default_screen').scrollTop($('#head_<?= $_GET['tab'] ?>').position().top);
+					setTimeout(function() { $('.main-screen .default_screen').scrollTop($('#head_<?= $_GET['tab'] ?>').position().top) }, 250);
 					$('#ul_details').find('a').off('click').click(function() {
 						var tab = this.href.split('tab=')[1];
 						$('.main-screen .default_screen').scrollTop($('#head_'+tab).position().top + $('.main-screen .default_screen').scrollTop()).scroll();
 						return false;
 					});
 					$('.main-screen .default_screen').scroll(function() {
-						var heading = $('.default_screen [id^=head]').filter(function() { return $(this).position().top < 10 }).last().attr('id').split('head_')[1];
+						var heading = [];
+                        $('.default_screen [id^=head]').filter(function() { return $(this).position().top < 10 }).last().each(function() { heading.push(this.id); });
+                        $('.default_screen [id^=head]').filter(function() { return $(this).position().top >= 10 && $(this).position().top < $('.default_screen').innerHeight(); }).each(function() { heading.push(this.id); });
 						$('#ul_details li.active.blue').removeClass('active blue');
-						$('#ul_details').find('a[href*='+heading+']').find('li').addClass('active blue');
-					});
+                        heading.forEach(function(heading) { $('#ul_details').find('a[href$='+heading.substr(5)+']').find('li').addClass('active blue'); });
+					}).scroll();
 				});
 				</script>
 				<?php break;
@@ -1652,16 +1654,18 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
                 ?>
 				<script>
 				$(document).ready(function() {
-					$('#ul_comm').find('a').off('click').click(function() {
+					$('#ul_projection').find('a').off('click').click(function() {
 						var tab = this.href.split('tab=')[1];
 						$('.main-screen .default_screen').scrollTop($('#head_'+tab).position().top + $('.main-screen .default_screen').scrollTop());
 						return false;
 					});
 					$('.main-screen .default_screen').scroll(function() {
-						var heading = $('.default_screen h3').filter(function() { return $(this).position().top < 10; }).last().attr('id').split('head_')[1];
-						$('#ul_comm li.active.blue').removeClass('active blue');
-						$('#ul_comm').find('a[href*='+heading+']').find('li').addClass('active blue');
-					});
+						var heading = [];
+                        $('.default_screen [id^=head]').filter(function() { return $(this).position().top < 10 }).last().each(function() { heading.push(this.id); });
+                        $('.default_screen [id^=head]').filter(function() { return $(this).position().top >= 10 && $(this).position().top < $('.default_screen').innerHeight(); }).each(function() { heading.push(this.id); });
+						$('#ul_projection li.active.blue').removeClass('active blue');
+                        heading.forEach(function(heading) { $('#ul_projection').find('a[href$='+heading.substr(5)+']').find('li').addClass('active blue'); });
+					}).scroll();
 					setTimeout(function() { $('.main-screen .default_screen').scrollTop($('#head_<?= $_GET['tab'] ?>').position().top); },100);
 				});
 				</script>
@@ -1685,10 +1689,12 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 						return false;
 					});
 					$('.main-screen .default_screen').scroll(function() {
-						var heading = $('.default_screen h3').filter(function() { return $(this).position().top < 10; }).last().attr('id').split('head_')[1];
+						var heading = [];
+                        $('.default_screen [id^=head]').filter(function() { return $(this).position().top < 10 }).last().each(function() { heading.push(this.id); });
+                        $('.default_screen [id^=head]').filter(function() { return $(this).position().top >= 10 && $(this).position().top < $('.default_screen').innerHeight(); }).each(function() { heading.push(this.id); });
 						$('#ul_comm li.active.blue').removeClass('active blue');
-						$('#ul_comm').find('a[href*='+heading+']').find('li').addClass('active blue');
-					});
+                        heading.forEach(function(heading) { $('#ul_comm').find('a[href$='+heading.substr(5)+']').find('li').addClass('active blue'); });
+					}).scroll();
 					setTimeout(function() { $('.main-screen .default_screen').scrollTop($('#head_<?= $_GET['tab'] ?>').position().top); },100);
 				});
 				</script>
