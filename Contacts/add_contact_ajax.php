@@ -12,7 +12,7 @@ if($_GET['fill'] == 'statement') {
 	$options = explode(',',$_POST['option_list']);
 	$balance = 0;
 	
-	$sql = "SELECT IF(`inv_status`.`invoiceid` IS NULL, 'OUTSTANDING', 'PAID') INV_TYPE, IF(`invoice`.`invoice_type`='Saved','Saved',`invoice`.`invoice_date`) tran_date, `invoice`.`therapistsid` staffid, `invoice`.`patientid` contactid, `invoice`.`injuryid`, `invoice`.`serviceid`, `invoice`.`inventoryid`, `invoice`.`quantity`, `invoice`.`packageid`, '' insurer, '' ins_payment, '' cust_pay, 0-IFNULL(`invoice`.`final_price`,0) amt FROM `invoice` LEFT JOIN (SELECT `invoiceid` FROM `invoice_insurer` WHERE `paid` IN ('Yes') UNION SELECT `invoiceid` FROM `invoice_patient` WHERE `paid` NOT IN ('No','On Account')) `inv_status` ON `invoice`.`invoiceid`=`inv_status`.`invoiceid` WHERE `invoice`.`deleted`=0 GROUP BY `invoice`.`invoiceid` UNION SELECT 'CUST_PAY', `paid_date`, 0, `patientid` contactid, 0, '', '', '', '', '', '', CONCAT('Patient: ',`paid`), SUM(IFNULL(`patient_price`,0)) FROM `invoice_patient` WHERE `paid` NOT IN ('No','On Account') GROUP BY `paid`, `paid_date`, `patientid` UNION SELECT 'INS_PAY', `invoice_insurer`.`paid_date`, 0, `invoice`.`patientid` contactid, 0, '', '', '', '', `invoice_insurer`.`insurerid`, `invoice_insurer`.`paid`, '', SUM(IFNULL(`invoice_insurer`.`insurer_price`,0)) FROM `invoice_insurer` LEFT JOIN `invoice` ON `invoice_insurer`.`invoiceid`=`invoice`.`invoiceid` WHERE `invoice_insurer`.`paid` IN ('Yes') GROUP BY `invoice_insurer`.`paid`, `invoice_insurer`.`paid_date`, `invoice_insurer`.`insurerid`";
+	$sql = "SELECT IF(`inv_status`.`invoiceid` IS NULL, 'OUTSTANDING', 'PAID') INV_TYPE, IF(`invoice`.`invoice_type`='Saved','Saved',`invoice`.`invoice_date`) tran_date, `invoice`.`therapistsid` staffid, `invoice`.`patientid` contactid, `invoice`.`injuryid`, `invoice`.`serviceid`, `invoice`.`inventoryid`, `invoice`.`quantity`, `invoice`.`packageid`, '' insurer, '' ins_payment, '' cust_pay, 0-IFNULL(`invoice`.`final_price`,0) amt FROM `invoice` LEFT JOIN (SELECT `invoiceid` FROM `invoice_insurer` WHERE `paid` IN ('Yes') UNION SELECT `invoiceid` FROM `invoice_patient` WHERE `paid` NOT IN ('No','On Account')) `inv_status` ON `invoice`.`invoiceid`=`inv_status`.`invoiceid` WHERE `invoice`.`deleted`=0 GROUP BY `invoice`.`invoiceid` UNION SELECT 'CUST_PAY', `paid_date`, 0, `patientid` contactid, 0, '', '', '', '', '', '', `paid`, SUM(IFNULL(`patient_price`,0)) FROM `invoice_patient` WHERE `paid` NOT IN ('No','On Account') GROUP BY `paid`, `paid_date`, `patientid` UNION SELECT 'INS_PAY', `invoice_insurer`.`paid_date`, 0, `invoice`.`patientid` contactid, 0, '', '', '', '', `invoice_insurer`.`insurerid`, `invoice_insurer`.`paid`, '', SUM(IFNULL(`invoice_insurer`.`insurer_price`,0)) FROM `invoice_insurer` LEFT JOIN `invoice` ON `invoice_insurer`.`invoiceid`=`invoice`.`invoiceid` WHERE `invoice_insurer`.`paid` IN ('Yes') GROUP BY `invoice_insurer`.`paid`, `invoice_insurer`.`paid_date`, `invoice_insurer`.`insurerid`";
 	
 	$statement = mysqli_query($dbc, "SELECT * FROM (".$sql.") statement WHERE `contactid`='$contact' AND '$contact' != '' ORDER BY `tran_date`");
 	$cust_info = mysqli_fetch_array(mysqli_query($dbc, "SELECT `contacts`.`contactid`, `contacts`.`category`, SUM(IF(`statement`.`tran_date`!='Saved',amt,0)) credit_change, `contacts`.`first_name`, `contacts`.`last_name`, IFNULL(`contacts`.`amount_credit`,0) credit, IFNULL(`contacts`.`amount_owing`,0) debit FROM (".$sql.") statement LEFT JOIN `contacts` ON `statement`.`contactid`=`contacts`.`contactid` WHERE `contacts`.`contactid`='$contact'"));
@@ -20,7 +20,7 @@ if($_GET['fill'] == 'statement') {
 	$balance = $end_balance - $cust_info['credit_change'];
 	$customer = decryptIt($cust_info['first_name']).' '.decryptIt($cust_info['last_name']);
 	echo '<tr>';
-		echo '<td data-title="" colspan="7">Opening Balance</td>';
+		echo '<td data-title="" colspan="'.($cust_info['category'] == 'Patient' ? 7 : 6).'">Opening Balance</td>';
 		echo '<td data-title="Opening Balance">$'.number_format($balance,2).'</td>';
 	echo '</tr>';
 	while($line = mysqli_fetch_array($statement)) {
@@ -38,7 +38,7 @@ if($_GET['fill'] == 'statement') {
 			echo '<tr>';
 				echo '<td data-title="Transaction Date">'.$line['tran_date'].'</td>';
 				echo '<td data-title="Staff">'.($line['staffid'] > 0 ? get_contact($dbc, $line['staffid']) : '').'</td>';
-				echo '<td data-title="Injury">'.$injury.'</td>';
+				echo $cust_info['category'] == 'Patient' ? '<td data-title="Injury">'.$injury.'</td>' : '';
 				echo '<td data-title="Services">';
 				foreach(explode(',',$line['serviceid']) as $service) {
 					if($service > 0) {
@@ -61,14 +61,14 @@ if($_GET['fill'] == 'statement') {
 				}
 				echo '</td>';
 				echo '<td data-title="'.$cust_info['category'].'">'.$customer.'</td>';
-				echo '<td data-title="Payer">'.($line['insurer'] > 0 ? get_client($dbc, $line['insurer']) : $line['cust_pay']).'</td>';
+				echo '<td data-title="Payment Type">'.($line['insurer'] > 0 ? get_client($dbc, $line['insurer']) : $line['cust_pay']).'</td>';
 				echo '<td data-title="Payment">$'.number_format($line['amt'],2).'</td>';
 				echo '<td data-title="Balance">$'.($line['tran_date'] != 'Saved' ? number_format($balance,2) : 'N/A').'</td>';
 			echo '</tr>';
 		}
 	}
 	echo '<tr>';
-		echo '<td data-title="" colspan="7">Closing Balance</td>';
+		echo '<td data-title="" colspan="'.($cust_info['category'] == 'Patient' ? 7 : 6).'">Closing Balance</td>';
 		echo '<td data-title="Closing Balance">$'.number_format($end_balance,2).'</td>';
 	echo '</tr>';
 } else if($_GET['fill'] == 'statement_pdf') {

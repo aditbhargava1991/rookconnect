@@ -119,16 +119,18 @@ function saveConfig() {
 		<div class="col-sm-8">
             <?php $days_of_week = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
             foreach ($days_of_week as $day_of_week_label) {
-                echo '<label style="padding-right: 0.5em; "><input type="checkbox" name="alert_days[]" value="'.$day_of_week_label.'">'.$day_of_week_label.'</label>';
+                echo '<label style="padding-right: 0.5em; "><input type="checkbox" name="alert_days[]" value="'.$day_of_week_label.'" '.(strpos(','.$noti_config['alert_days'].',', ','.$day_of_week_label.',') !== FALSE ? 'checked' : '').'>'.$day_of_week_label.'</label>';
             } ?>
 		</div>
 	</div>
 	<div id="no-more-tables">
-		<table class="table table-bordered" id="email_alerts">
-			<tr class="hidden-xs">
-				<th>Email Alerts</th>
-				<th>Activate</th>
-			</tr>
+		<table class="table table-bordered table-striped" id="email_alerts">
+            <thead>
+                <tr class="hidden-xs">
+                    <th>Email Alerts</th>
+                    <th>Activate</th>
+                </tr>
+            </thead>
 			<?php include('../Settings/notification_fields.php');
 			foreach($notification_fields as $noti_value => $noti_field) { ?>
 				<tr>

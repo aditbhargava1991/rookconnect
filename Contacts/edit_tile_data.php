@@ -429,7 +429,7 @@
     if ( mysqli_num_rows($result) > 0 ) {
 		echo '<ul>';
         while ( $row_tasks=mysqli_fetch_assoc($result) ) { ?>
-            <li><a href="" onclick="overlayIFrameSlider('../Tasks/add_task.php?tasklistid=<?=$row_tasks['tasklistid']?>', '50%', false, true, $('.iframe_overlay').closest('.container').outerHeight() + 20); return false;">Task #<?= $row_tasks['tasklistid'] ?>: <?= $row_tasks['heading'] ?></a></li><?php
+            <li><a href="" onclick="overlayIFrameSlider('../Tasks_Updated/add_task.php?tasklistid=<?=$row_tasks['tasklistid']?>', '50%', false, true, $('.iframe_overlay').closest('.container').outerHeight() + 20); return false;">Task #<?= $row_tasks['tasklistid'] ?>: <?= $row_tasks['heading'] ?></a></li><?php
         }
         echo '</ul>';
 	} else {
@@ -526,10 +526,10 @@
 			<tr class="hidden-sm hidden-xs">
 				<th>Transaction Date</th>
 				<th>Staff</th>
-				<th>Injury</th>
+				<?= $category == 'Patient' ? '<th>Injury</th>' : '' ?>
 				<th>Services</th>
 				<th><?= $category ?></th>
-				<th>Payer</th>
+				<th>Payment Type</th>
 				<th>Payment</th>
 				<th>Balance</th>
 			</tr>
@@ -2326,7 +2326,7 @@
 			url: '../Contacts/edit_addition_customer_rate_services.php?edit=<?= $contactid ?>&field_option=<?= $field_option ?>',
 			success: function(response) {
 				$('.customer_rate_div').html(response);
-				$('.customer_rate_div').find('[data-field]').not('.tile-search').off('change', saveField).change(saveField).off('keyup').keyup(syncUnsaved);
+				$('.customer_rate_div').find('[data-field]').not('.tile-search').off('blur',unsaved).blur(unsaved).off('focus',unsaved).focus(unsaved).off('change',saveField).change(saveField);
 			}
 		});
 	}
@@ -2339,7 +2339,7 @@
 			url: '../Contacts/edit_addition_customer_rate_services.php?edit=<?= $contactid ?>&load_template='+templateid+'&field_option=<?= $field_option ?>',
 			success: function(response) {
 				$('.customer_rate_div').html(response);
-				$('.customer_rate_div').find('[data-field]').not('.tile-search').off('change', saveField).change(saveField).off('keyup').keyup(syncUnsaved);
+				$('.customer_rate_div').find('[data-field]').not('.tile-search').off('blur',unsaved).blur(unsaved).off('focus',unsaved).focus(unsaved).off('change',saveField).change(saveField);
 			}
 		});
 	}
@@ -2425,7 +2425,7 @@
 					clone.find('[name="heading"]').val(serviceid);
 					table.append(clone);
 					initInputs('#'+table.attr('id'));
-					table.find('[data-field]').not('.tile-search').off('change', saveField).change(saveField).off('keyup').keyup(syncUnsaved);
+					table.find('[data-field]').not('.tile-search').off('blur',unsaved).blur(unsaved).off('focus',unsaved).focus(unsaved).off('change',saveField).change(saveField);
 					table.find('tr').last().find('[name="heading"]').change();
 				}
 			});

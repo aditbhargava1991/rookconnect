@@ -11,6 +11,94 @@ if(get_config($dbc, 'ticket_pdf_hide_blank') == 1 && $_GET['ticketid'] > 0) {
 $ticketid = filter_var($_GET['ticketid'],FILTER_SANITIZE_STRING);
 $filename = "download/output_".($ticketid > 0 ? $ticketid : 'new_'.config_safe_str(TICKET_NOUN))."_".date('Y_m_d').".pdf";
 $get_ticket = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticketid`='$ticketid'"));
+if(!empty($get_ticket) && $get_ticket['ticketid'] >0) {	
+	foreach($get_ticket as $field_id => $value) {
+		if($value == '0000-00-00' || $value == '0') {
+			$get_ticket[$field_id] = '';
+		}
+	}
+
+	$ticket_type = $get_ticket['ticket_type'];
+	$businessid = $get_ticket['businessid'] ?: $businessid;
+	$equipmentid = $get_ticket['equipmentid'];
+
+	$clientid = $get_ticket['clientid'] ?: $clientid;
+	if($businessid == '') {
+		$businessid = get_contact($dbc, $clientid, 'businessid');
+	}
+
+	$projectid = $get_ticket['projectid'];
+	$client_projectid = $get_ticket['client_projectid'];
+	$piece_work = $get_ticket['piece_work'];
+	//$projecttype = get_project($dbc, $projectid, 'projecttype');
+	$service_type = $get_ticket['service_type'];
+	$service = $get_ticket['service'];
+	$sub_heading = $get_ticket['sub_heading'];
+	$heading = $get_ticket['heading'];
+	$heading_auto = $get_ticket['heading_auto'];
+	$category = $get_ticket['category'];
+	$assign_work = $get_ticket['assign_work'];
+    $details_where = $get_ticket['details_where'];
+    $details_who = $get_ticket['details_who'];
+    $details_why = $get_ticket['details_why'];
+    $details_what = $get_ticket['details_what'];
+    $details_position = $get_ticket['details_position'];
+	$project_path = '';
+	if(!empty($projectid)) {
+		$project_path = get_project($dbc, $projectid, 'project_path');
+	} else if(!empty($client_projectid)) {
+		$project_path = get_client_project($dbc, $client_projectid, 'project_path');
+	}
+
+	$projecttype = get_project($dbc, $projectid, 'projecttype');
+	$milestone_timeline = html_entity_decode($get_ticket['milestone_timeline']);
+
+	$created_date = date('Y-m-d');
+	$login_id = $_SESSION['contactid'];
+	// AND timer_type='Break' AND end_time IS NULL
+
+	$get_ticket_timer = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT start_timer_time, timer_type FROM ticket_timer WHERE tickettimerid IN (SELECT MAX(`tickettimerid`) FROM `ticket_timer` WHERE `ticketid`='$ticketid' AND created_by='$login_id' AND `deleted` = 0)"));
+
+	$created_date = $get_ticket['created_date'];
+	$created_by = $get_ticket['created_by'];
+
+	$start_time = $get_ticket_timer['start_timer_time'];
+	$timer_type = $get_ticket_timer['timer_type'];
+
+	if($start_time == '0' || $start_time == '') {
+		$time_seconds = 0;
+	} else {
+		$time_seconds = (time()-$start_time);
+	}
+
+	$to_do_date = $get_ticket['to_do_date'];
+	$internal_qa_date = $get_ticket['internal_qa_date'];
+	$deliverable_date = $get_ticket['deliverable_date'];
+
+	$to_do_end_date = $get_ticket['to_do_end_date'];
+	$internal_qa_contactid = $get_ticket['internal_qa_contactid'];
+	$deliverable_contactid = $get_ticket['deliverable_contactid'];
+
+	$to_do_start_time = $get_ticket['to_do_start_time'] == '' ? '' : date('h:i a', strtotime($get_ticket['to_do_start_time']));
+	$to_do_end_time = $get_ticket['to_do_end_time'] == '' ? '' : date('h:i a', strtotime($get_ticket['to_do_end_time']));
+	$internal_qa_start_time = $get_ticket['internal_qa_start_time'] == '' ? '' : date('h:i a', strtotime($get_ticket['internal_qa_start_time']));
+	$internal_qa_end_time = $get_ticket['internal_qa_end_time'] == '' ? '' : date('h:i a', strtotime($get_ticket['internal_qa_end_time']));
+	$deliverable_start_time = $get_ticket['deliverable_start_time'] == '' ? '' : date('h:i a', strtotime($get_ticket['deliverable_start_time']));
+	$deliverable_end_time = $get_ticket['deliverable_end_time'] == '' ? '' : date('h:i a', strtotime($get_ticket['deliverable_end_time']));
+
+	$status = $get_ticket['status'];
+	$max_time = explode(':', $get_ticket['max_time']);
+	$max_qa_time = explode(':', $get_ticket['max_qa_time']);
+	$spent_time = $get_ticket['spent_time'];
+	$total_days = $get_ticket['total_days'];
+	$contactid = $get_ticket['contactid'];
+}
+$access_view_project_info = check_subtab_persmission($dbc, 'ticket', ROLE, 'view_project_info');
+$access_view_project_details = check_subtab_persmission($dbc, 'ticket', ROLE, 'view_project_details');
+$access_view_staff = check_subtab_persmission($dbc, 'ticket', ROLE, 'view_staff');
+$access_view_summary = check_subtab_persmission($dbc, 'ticket', ROLE, 'view_summary');
+$access_view_complete = check_subtab_persmission($dbc, 'ticket', ROLE, 'view_complete');
+$access_view_notifications = check_subtab_persmission($dbc, 'ticket', ROLE, 'view_notifications');
 $get_project = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `project` WHERE `projectid`='{$get_ticket['projectid']}'"));
 $ticket_types = [];
 $value_config = ','.get_field_config($dbc, 'tickets').',';
@@ -863,6 +951,12 @@ if(strpos($value_config,',TEMPLATE Work Ticket') !== FALSE) {
 			$acc_label = 'Materials';
 			include('edit_ticket_tab.php');
 		}
+		if (strpos($value_config, ',Miscellaneous') !== FALSE && $sort_field == 'Miscellaneous') {
+			$_GET['tab'] = 'ticket_miscellaneous';
+			$acc_label = 'Miscellaneous';
+			include('edit_ticket_tab.php');
+			$collapse_i++;
+		}
 		if (strpos($value_config, ',Inventory Basic') !== FALSE && $sort_field == 'Inventory') {
 			$_GET['tab'] = 'ticket_inventory';
 			$acc_label = 'Inventory';
@@ -889,6 +983,11 @@ if(strpos($value_config,',TEMPLATE Work Ticket') !== FALSE) {
 		}
 		if (strpos($value_config, ','."Purchase Orders".',') !== FALSE && $access_all > 0 && $sort_field == 'Purchase Orders') {
 			$_GET['tab'] = 'ticket_purchase_orders';
+			$acc_label = 'Purchase Orders';
+			include('edit_ticket_tab.php');
+		}
+		if (strpos($value_config, ','."Attached Purchase Orders".',') !== FALSE && $access_all > 0 && $sort_field == 'Attached Purchase Orders') {
+			$_GET['tab'] = 'ticket_attach_purchase_orders';
 			$acc_label = 'Purchase Orders';
 			include('edit_ticket_tab.php');
 		}
@@ -975,7 +1074,21 @@ if(strpos($value_config,',TEMPLATE Work Ticket') !== FALSE) {
 		}
 		if (strpos($value_config, ','."Custom Notes".',') !== FALSE && $sort_field == 'Custom Notes') {
 			$_GET['tab'] = 'custom_view_ticket_comment';
-			$acc_label = 'Notes';
+			$custom_note_labels = get_config($dbc, 'ticket_custom_notes_type');
+			foreach(explode('#*#',$custom_note_labels) as $custom_comment_types) {
+				$acc_label = $custom_comment_types;
+				$custom_comment_types = [$custom_comment_types];
+				include('edit_ticket_tab.php');
+			}
+		}
+		if (strpos($value_config, ','."Internal Communication".',') !== FALSE && $sort_field == 'Internal Communication') {
+			$_GET['tab'] = 'internal_communication';
+			$acc_label = 'Internal Communication';
+			include('edit_ticket_tab.php');
+		}
+		if (strpos($value_config, ','."External Communication".',') !== FALSE && $sort_field == 'External Communication') {
+			$_GET['tab'] = 'external_communication';
+			$acc_label = 'External Communication';
 			include('edit_ticket_tab.php');
 		}
 		if (strpos($value_config, ','."Notes".',') !== FALSE && $sort_field == 'Notes') {
@@ -1033,9 +1146,44 @@ if(strpos($value_config,',TEMPLATE Work Ticket') !== FALSE) {
 			$acc_label = 'Reading';
 			include('edit_ticket_tab.php');
 		}
+		if (strpos($value_config, ','."Tank Reading".',') !== FALSE && $sort_field == 'Tank Reading') {	
+			$_GET['tab'] = 'ticket_tank_readings';
+			$acc_label = 'Tank Reading';
+			include('edit_ticket_tab.php');
+		}
+		if (strpos($value_config, ','."Shipping List".',') !== FALSE && $sort_field == 'Shipping List') {
+			$_GET['tab'] = 'ticket_shipping_list';
+			$acc_label = 'Shipping List';
+			include('edit_ticket_tab.php');
+		}
 		if (strpos($value_config, ','."Other List".',') !== FALSE && $sort_field == 'Other List') {
 			$_GET['tab'] = 'ticket_other_list';
 			$acc_label = 'Other List';
+			include('edit_ticket_tab.php');
+		}
+		if (strpos($value_config, ','."Pressure".',') !== FALSE && $sort_field == 'Pressure') {
+			$_GET['tab'] = 'ticket_pressure';
+			$acc_label = 'Pressure';
+			include('edit_ticket_tab.php');
+		}
+		if (strpos($value_config, ','."Chemicals".',') !== FALSE && $sort_field == 'Chemicals') {
+			$_GET['tab'] = 'ticket_chemicals';
+			$acc_label = 'Chemicals';
+			include('edit_ticket_tab.php');
+		}
+		if (strpos($value_config, ','."Intake".',') !== FALSE && $sort_field == 'Intake') {
+			$_GET['tab'] = 'ticket_intake';
+			$acc_label = 'Intake';
+			include('edit_ticket_tab.php');
+		}
+		if (strpos($value_config, ','."History".',') !== FALSE && $sort_field == 'History') {
+			$_GET['tab'] = 'ticket_history';
+			$acc_label = 'History';
+			include('edit_ticket_tab.php');
+		}
+		if (strpos($value_config, ','."Work History".',') !== FALSE && $sort_field == 'Work History') {
+			$_GET['tab'] = 'ticket_work_history';
+			$acc_label = 'Work History';
 			include('edit_ticket_tab.php');
 		}
 		if (strpos($value_config, ','."Service Staff Checklist".',') !== FALSE && $sort_field == 'Service Staff Checklist') {

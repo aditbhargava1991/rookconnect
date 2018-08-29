@@ -46,7 +46,11 @@ if(isset($_POST['submit'])) {
 		}
 		$heading = filter_var($_POST['heading'][$i],FILTER_SANITIZE_STRING);
 		if($id > 0) {
+			$before_change = capture_before_change($dbc, 'estimate_scope', 'heading', 'id', $id);
 			$dbc->query("UPDATE `estimate_scope` SET `heading`='$heading', `sort_order`='$i' WHERE `id`='$id'");
+			$history = capture_after_change('heading', $heading);
+			add_update_history($dbc, 'estimates_history', $history, '', $before_change);
+
 		} else if(!empty($value)) {
 			if($value > 0) {
 				$general = mysqli_query($dbc, "SELECT * FROM `company_rate_card` WHERE LOWER(`tile_name`)='$type' AND `tile_name`!='miscellaneous' AND `item_id`='$value' AND `deleted`=0 AND DATE(NOW()) BETWEEN `start_date` AND IFNULL(NULLIF(`end_date`,'0000-00-00'),'9999-12-31') ORDER BY `rate_card_name` != '$rate_name'");
@@ -89,6 +93,9 @@ if(isset($_POST['submit'])) {
 				$cost = 0;
 			}
 			$dbc->query("INSERT INTO `estimate_scope` (`estimateid`, `scope_name`, `heading`,`src_table`,`".(in_array($type,['notes','miscellaneous']) ? 'description' : 'src_id')."`,`cost`,`rate_card`,`sort_order`,`pricing`) VALUES ('$estimateid', '$scope_name','$heading','$type','$value','$cost','$current_rate','$i','$product_pricing')");
+			$before_change = '';
+			$history = "Estimates scope entry has been added. <br />";
+			add_update_history($dbc, 'estimates_history', $history, '', $before_change);
 		}
 	}
 	echo "<script>window.top.location.reload(); window.location.replace('../blank_loading_page.php');</script>";
@@ -132,9 +139,9 @@ function add_item(btn) {
 	var block = $(btn).next();
 	var object = '<div class="col-sm-12">';
 	if(type == 'miscellaneous') {
-		object = object+'<h4>Miscellaneous<img class="pull-right cursor-hand line-handle inline-img" src="../img/icons/drag_handle.png"></h4><input type="hidden" name="item[]" value="|miscellaneous|"><input type="text" class="form-control" name="misc_item[]">';
+		object = object+'<h4>Miscellaneous<img class="pull-right cursor-hand line-handle inline-img no-toggle" src="../img/icons/drag_handle.png" title="Drag"></h4><input type="hidden" name="item[]" value="|miscellaneous|"><input type="text" class="form-control" name="misc_item[]">';
 	} else if(type == 'notes') {
-		object = object+'<h4>Notes<img class="pull-right cursor-hand line-handle inline-img" src="../img/icons/drag_handle.png"></h4><input type="hidden" name="item[]" value="|notes|"><textarea name="note_item[]"></textarea>';
+		object = object+'<h4>Notes<img class="pull-right cursor-hand line-handle inline-img no-toggle" src="../img/icons/drag_handle.png" title="Drag"></h4><input type="hidden" name="item[]" value="|notes|"><textarea name="note_item[]"></textarea>';
 	} else {
 		if(type != 'position') {
 			object = object+(type == 'services' ? '<div class="col-sm-4">' : '<div class="col-sm-5">')+'<select name="category" class="chosen-select-deselect form-control" name="category" data-type="'+type+'" onchange="fill_select(this);"><option></option></select></div>';
@@ -142,7 +149,7 @@ function add_item(btn) {
 		if(type == 'services') {
 			object = object+'<div class="col-sm-3"><select name="item_type" class="chosen-select-deselect form-control" data-type="'+type+'" name="type" onchange="fill_select(this);"><option></option></select></div>';
 		}
-		object = object+(type != 'position' ? (type == 'services' ? '<div class="col-sm-4">' : '<div class="col-sm-6">') : '<div class="col-sm-11">')+'<select name="item[]" class="chosen-select-deselect form-control" data-type="'+type+'"><option></option></select></div><img class="pull-right cursor-hand line-handle inline-img" src="../img/icons/drag_handle.png">';
+		object = object+(type != 'position' ? (type == 'services' ? '<div class="col-sm-4">' : '<div class="col-sm-6">') : '<div class="col-sm-11">')+'<select name="item[]" class="chosen-select-deselect form-control" data-type="'+type+'"><option></option></select></div><img class="pull-right cursor-hand line-handle inline-img no-toggle" src="../img/icons/drag_handle.png" title="Drag">';
 	}
 	object = object+'<input type="hidden" name="heading[]" value="'+$('.heading_value').first().text()+'"><div class="clearfix"></div><hr /></div>';
 	block.append(object);
@@ -370,7 +377,7 @@ function setIncluded(input) {
 	$i = 0;
 	foreach($headings as $heading_str => $heading) {
 		echo "<h3><span class='heading_name'>$heading</span>";
-		echo '<img class="inline-img small" src="../img/icons/ROOK-edit-icon.png" onclick="$(this).closest(\'h3\').find(\'*\').hide().filter(\'input\').show().focus();">';
+		echo '<img class="inline-img small no-toggle" src="../img/icons/ROOK-edit-icon.png" onclick="$(this).closest(\'h3\').find(\'*\').hide().filter(\'input\').show().focus();" title="Edit">';
 		echo '<input type="text" class="form-control" style="display:none;" name="heading_value" value="'.$heading.'" onblur="setHeading(this);"></h3>';
         echo '<div class="clearfix"></div>';
 		if($_GET['templateid'] > 0) {
@@ -383,7 +390,7 @@ function setIncluded(input) {
 		echo '<div class="col-sm-12 block-item gap-top gap-bottom">';
 		while($line = mysqli_fetch_array($lines)) {
 			echo '<div class="col-sm-12">';
-			echo '<img class="pull-right cursor-hand line-handle inline-img" src="../img/icons/drag_handle.png">';
+			echo '<img class="pull-right cursor-hand line-handle inline-img no-toggle" src="../img/icons/drag_handle.png" title="Drag">';
 			if($_GET['templateid'] > 0 || $_GET['priorid'] > 0) {
 				echo '<label class="form-checkbox pull-right any-width"><input type="checkbox" name="item[]" checked value="|'.$line['src_table'].'|'.$line['src_id'].'|'.$line['product_pricing'].'" onchange="setIncluded(this);">Include</label><input type="hidden" name="heading[]" value="'.$heading.'">';
 			} else {

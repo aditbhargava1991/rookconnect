@@ -166,15 +166,15 @@ else if($_GET['fill'] == 'checklistupload') {
 	$table = $_GET['table_name'];
 	$filename = $_FILES['file']['name'];
 	if($filename != '') {
-		if (!file_exists('../Tasks/download')) {
-			mkdir('../Tasks/download', 0777, true);
+		if (!file_exists('../Tasks_Updated/download')) {
+			mkdir('../Tasks_Updated/download', 0777, true);
 		}
 		$basefilename = $filename = preg_replace('/[^A-Za-z0-9\.]/','_',$filename);
 		$i = 0;
-		while(file_exists('../Tasks/download/'.$filename)) {
+		while(file_exists('../Tasks_Updated/download/'.$filename)) {
 			$filename = preg_replace('/(\.[A-Za-z0-9]*)/', '('.++$i.')$1', $basefilename);
 		}
-		if(!move_uploaded_file($_FILES['file']['tmp_name'], '../Tasks/download/'.$filename)) {
+		if(!move_uploaded_file($_FILES['file']['tmp_name'], '../Tasks_Updated/download/'.$filename)) {
 			echo "Error Saving Attachment: ".$filename."\n";
 		}
 		if(!mysqli_query($dbc_support, "INSERT INTO `tasklist_document` (`tasklistid`, `document`, `created_by`) VALUES ('$id', '$filename', '".get_contact($dbc, $_SESSION['contactid'])."')")) {

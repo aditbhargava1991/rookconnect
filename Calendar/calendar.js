@@ -87,8 +87,9 @@ if($('[name="edit_access"]').val() == 1) {
 					equipassign = target.data('equipassign');
 					old_td_blocktype = td.item.data('blocktype');
 					new_td_blocktype = target.data('blocktype');
+					mode = $('#calendar_mode').val();
 
-					data = { ticket_table: ticket_table, ticket_scheduleid: ticket_scheduleid, new_date: new_date, old_date: old_date, item_type: item_type, old_contact: old_contact, contact: contact, shift: shift, appt: appt, ticket: ticket, task: task, swo: swo, equipassign: equipassign, estimateaction: estimateaction, blocktype: blocktype, old_staff: old_staff, old_td_blocktype: old_td_blocktype, new_td_blocktype: new_td_blocktype };
+					data = { ticket_table: ticket_table, ticket_scheduleid: ticket_scheduleid, new_date: new_date, old_date: old_date, item_type: item_type, old_contact: old_contact, contact: contact, shift: shift, appt: appt, ticket: ticket, task: task, swo: swo, equipassign: equipassign, estimateaction: estimateaction, blocktype: blocktype, old_staff: old_staff, old_td_blocktype: old_td_blocktype, new_td_blocktype: new_td_blocktype, mode: mode };
 					if(new_date != '' && new_date != undefined) {
 						if(item_type == 'ticket_equip' || item_type == 'ticket') {
 							var recently_updated = checkTicketLastUpdated(ticket_table, ticket, ticket_scheduleid, timestamp);

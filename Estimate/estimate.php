@@ -178,8 +178,13 @@ if(!empty($_GET['estimateid']) && ($action == 'approve' || $action == 'draft')) 
 		echo insert_day_overview($dbc, $contactid, ESTIMATE_TILE, date('Y-m-d'), '', 'Approved Estimate '.$estimate_name);
 
 		$history = decryptIt(decryptIt($_SESSION['first_name'])).' '.decryptIt($_SESSION['last_name']).' Approved on '.date('Y-m-d H:i:s').'<br>';
+    $before_change = capture_before_change($dbc, 'estimate', 'status', 'estimateid', $estimateid);
+    $before_change .= capture_before_change($dbc, 'estimate', 'history', 'estimateid', $estimateid);
 		$query_update_report = "UPDATE `estimate` SET `status` = 'Pending Quote', `history` = CONCAT(history,'$history') WHERE `estimateid` = '$estimateid'";
 		$result_update_report = mysqli_query($dbc, $query_update_report);
+		$history_reports = capture_after_change('status', 'Pending Quote');
+    $history_reports .= capture_after_change('history', $history);
+		add_update_history($dbc, 'estimates_history', $history_reports, '', $before_change);
 	}
 
 	if($action == 'approve') {
@@ -216,8 +221,14 @@ if(!empty($_GET['estimateid']) && ($action == 'approve' || $action == 'draft')) 
 if((!empty($_GET['estimateid'])) && ($_GET['type'] == 'reject')) {
     $estimateid = $_GET['estimateid'];
         $date_of_archival = date('Y-m-d');
+
+    $before_change = capture_before_change($dbc, 'estimate', 'deleted', 'estimateid', $estimateid);
+    $before_change .= capture_before_change($dbc, 'estimate', 'date_of_archival', 'estimateid', $estimateid);
     $query_update_report = "UPDATE `estimate` SET `deleted` = 1, `date_of_archival` = '$date_of_archival' WHERE `estimateid` = '$estimateid'";
     $result_update_report = mysqli_query($dbc, $query_update_report);
+		$history = capture_after_change('deleted', 1);
+    $history .= capture_after_change('date_of_archival', $date_of_archival);
+		add_update_history($dbc, 'estimates_history', $history, '', $before_change);
 
     $estimate_name = get_estimate($dbc, $estimateid, 'estimate_name');
     $contactid = $_SESSION['contactid'];
@@ -231,8 +242,11 @@ if((!empty($_GET['estimateid'])) && ($_GET['type'] == 'reject')) {
 if((!empty($_GET['estimateid'])) && (!empty($_GET['status']))) {
     $estimateid = $_GET['estimateid'];
     $status = $_GET['status'];
+    $before_change = capture_before_change($dbc, 'estimate', 'status', 'estimateid', $estimateid);
     $query_update_report = "UPDATE `estimate` SET `status` = '$status' WHERE `estimateid` = '$estimateid'";
     $result_update_report = mysqli_query($dbc, $query_update_report);
+		$history = capture_after_change('status', $status);
+		add_update_history($dbc, 'estimates_history', $history, '', $before_change);
 
     if($status == 'Approve') {
         echo '<script type="text/javascript"> alert("Approved and Moved to Project."); window.location.replace("'.$current_file == 'cost_estimate.php' ? 'cost_estimate.php' : 'estimate.php'.'"); </script>';

@@ -91,7 +91,7 @@ if(in_array('Tickets',$tab_config)) {
 if(in_array('Tasks',$tab_config)) {
 	$tasks = mysqli_query($dbc, "SELECT * FROM `tasklist` WHERE `projectid`='$projectid' AND `deleted`=0 AND CONCAT(IFNULL(`tasklistid`,''),IFNULL(`status`,''),IFNULL(`heading`,'')) LIKE '%$key%'");
 	while($task = mysqli_fetch_assoc($tasks)) { ?>
-		<a href="" onclick="overlayIFrameSlider('../Tasks/add_task.php?type=&tasklistid=<?= $task['tasklistid'] ?>', '75%', true, true); return false;"><div class="dashboard-item"><h3 class="no-margin pad-5">Task #<?= $task['tasklistid'] ?> <?= $task['heading'] ?></h3></div></a>
+		<a href="" onclick="overlayIFrameSlider('../Tasks_Updated/add_task.php?type=&tasklistid=<?= $task['tasklistid'] ?>', '75%', true, true); return false;"><div class="dashboard-item"><h3 class="no-margin pad-5">Task #<?= $task['tasklistid'] ?> <?= $task['heading'] ?></h3></div></a>
 	<?php }
 }
 if(in_array('Email',$tab_config)) {

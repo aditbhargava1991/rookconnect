@@ -233,7 +233,7 @@ function go_to_dashboard(target) {
 			if($show_dashboards) {
 				$dashboards = mysqli_query($dbc, "SELECT `dashboard_id`, `name`, `tile_sort` FROM `tile_dashboards` WHERE `deleted`=0 AND (`assigned_users` IS NULL OR `assigned_users`='".$_SESSION['contactid']."')");
 				if(mysqli_num_rows($dashboards) > 0) {
-					echo '<div class="col-sm-8" style="text-align: right;"><img src="'.WEBSITE_URL.'/img/icons/ROOK-Speedometer.png" style="cursor: pointer; height: 2em;" title="Dashboards" class="dashboard_menu" onclick="$(\'#dashboard_menu\').toggle();">';
+					echo '<div class="col-sm-8" style="text-align: right;"><img src="'.WEBSITE_URL.'/img/icons/ROOK-Speedometer.png" class="no-toggle" title="Dashbaords" style="cursor: pointer; height: 2em;" title="Dashboards" class="dashboard_menu" onclick="$(\'#dashboard_menu\').toggle();">';
 					echo "<div class='col-sm-8' id='dashboard_menu' style='display: none; margin: 0 1em; text-align: center;'>";
 					echo "<select class='form-control' data-placeholder='Select a Dashboard' onchange='go_to_dashboard(this.value);'>";
 					if(in_array_any(array_filter(explode(',',ROLE)),array_filter(explode(',',',super,'.get_config($dbc,'show_all_tiles_level'))))) {

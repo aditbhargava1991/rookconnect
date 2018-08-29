@@ -44,7 +44,8 @@ if($num_rows > 0) {
 		$value_config = ','.$get_field_config['asset_dashboard'].',';
 	}
 
-	echo "<table class='table table-bordered'>";
+	echo "<table class='table table-bordered table-striped'>";
+	echo "<thead>";
 	echo "<tr class='hidden-xs hidden-sm'>";
 		if (strpos($value_config, ','."Part #".',') !== FALSE) {
 			echo '<th>Part #</th>';
@@ -266,6 +267,7 @@ if($num_rows > 0) {
 		}
 		echo '<th>Function</th>';
 		echo "</tr>";
+		echo "</thead>";
 } else{
 	echo "<h2>No Record Found.</h2>";
 }

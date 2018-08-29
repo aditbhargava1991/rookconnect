@@ -163,6 +163,11 @@ function getShiftConflicts($dbc, $contact_id, $calendar_date, $new_starttime = '
 	return $conflicts;
 }
 function getEquipmentAssignmentBlock($dbc, $equipmentid, $view, $date) {
+	$equipment_category = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_equip_assign`"))['equipment_category'];
+	$equipment_categories = array_filter(explode(',', $equipment_category));
+	if(empty($equipment_categories) || count($equipment_categories) > 1) {
+		$equipment_category = 'Equipment';
+	}
 	$block_html = '';
 	$reset_active = get_config($dbc, 'scheduling_reset_active');
     $customer_roles = array_filter(explode(',',get_config($dbc, 'scheduling_customer_roles')));
@@ -185,7 +190,6 @@ function getEquipmentAssignmentBlock($dbc, $equipmentid, $view, $date) {
 			} else {
 				$calendar_start = date('Y-m-d', strtotime($calendar_start));
 			}
-			$equipment_category = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_equip_assign`"))['equipment_category'];
 			$client_type = get_config($dbc, 'scheduling_client_type');
 			$calendar_type = get_config($dbc, 'scheduling_wait_list');
 			if($calendar_type == 'ticket_multi') {
@@ -204,9 +208,6 @@ function getEquipmentAssignmentBlock($dbc, $equipmentid, $view, $date) {
 			$week_end_date_check = date('Y-m-d', strtotime($calendar_start.' -'.($day - 7 + $weekly_start).' days'));
 
 			$weekly_days = explode(',',get_config($dbc, 'scheduling_weekly_days'));
-			if (!empty($equipment_category)) {
-				$equipment_category = 'Truck';
-			}
 			$clientids = [];
 			$equipassign_weekly = "<div style='margin-top: 5px;'>";
 			$equip_regions = [$equipment['region']];
@@ -250,7 +251,7 @@ function getEquipmentAssignmentBlock($dbc, $equipmentid, $view, $date) {
 				$classification_label = ' - '.str_replace('*#*', ', ', $equip_classifications);
 			}
 
-			$block_html = "<a href='' onclick='$(this).find(\".block-item\").toggleClass(\"active\"); toggle_columns(\"\"); retrieve_items(this); return false;'><div class='block-item equip_assign_draggable ".(in_array($equipment['equipmentid'],$active_equipment) || $reset_active_equipment ? 'active' : '')."' data-blocktype='equipment' data-equipment='".$equipment['equipmentid']."' data-client='".$clientids."' data-region='".$equip_regions."' data-classification='".$equip_classifications."' data-location='".$equip_locations."' data-region-group='".explode('*#*',$equipment['region'])[0]."'><img class='drag-handle' src='".WEBSITE_URL."/img/icons/drag_handle.png' style='float: right; width: 2em;'>".$equipment['label'].$classification_label.$equipassign_weekly."</div></a>";
+			$block_html = "<a href='' onclick='$(this).find(\".block-item\").toggleClass(\"active\"); toggle_columns(\"\"); retrieve_items(this); return false;'><div class='block-item equip_assign_draggable ".(in_array($equipment['equipmentid'],$active_equipment) || $reset_active_equipment ? 'active' : '')."' data-blocktype='equipment' data-equipment='".$equipment['equipmentid']."' data-client='".$clientids."' data-region='".$equip_regions."' data-classification='".$equip_classifications."' data-location='".$equip_locations."' data-region-group='".explode('*#*',$equipment['region'])[0]."' data-activevalue='".$equipment['equipmentid']."'><img class='drag-handle no-toggle' src='".WEBSITE_URL."/img/icons/drag_handle.png' style='float: right; width: 2em;' title='Drag'>".$equipment['label'].$classification_label.$equipassign_weekly."</div></a>";
 			break;
 		case 'daily':
 		default:
@@ -260,14 +261,10 @@ function getEquipmentAssignmentBlock($dbc, $equipmentid, $view, $date) {
 			} else {
 				$calendar_start = date('Y-m-d', strtotime($calendar_start));
 			}
-			$equipment_category = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_equip_assign`"))['equipment_category'];
 			$client_type = get_config($dbc, 'scheduling_client_type');
 			$calendar_type = get_config($dbc, 'scheduling_wait_list');
 			if($calendar_type == 'ticket_multi') {
 				$calendar_type = 'ticket';
-			}
-			if (!empty($equipment_category)) {
-				$equipment_category = 'Truck';
 			}
 			$reset_active_equipment = false;
 
@@ -288,7 +285,7 @@ function getEquipmentAssignmentBlock($dbc, $equipmentid, $view, $date) {
 				$classification_label = ' - '.str_replace('*#*', ', ', $equip_classifications);
 			}
 			
-			$block_html = "<a href='' onclick='$(this).find(\".block-item\").toggleClass(\"active\"); toggle_columns(\"\"); retrieve_items(this); return false;'><div class='block-item equip_assign_draggable ".(in_array($equipment['equipmentid'],$active_equipment) || $reset_active_equipment ? 'active' : '')."' data-blocktype='equipment' data-equipment='".$equipment['equipmentid']."' data-equipassign='".$equip_assign['equipment_assignmentid']."' data-client='".$equip_assign['clientid']."' data-region='".$equip_regions."' data-classification='".$equip_locations."' data-location='".$equip_classifications."' data-region-group='".explode('*#*',$equipment['region'])[0]."'><img class='drag-handle' src='".WEBSITE_URL."/img/icons/drag_handle.png' style='float: right; width: 2em;'>".$equipment['label'].$classification_label.(empty($equip_assign) ? ' (Not Assigned)' : '')."</div></a>";
+			$block_html = "<a href='' onclick='$(this).find(\".block-item\").toggleClass(\"active\"); toggle_columns(\"\"); retrieve_items(this); return false;'><div class='block-item equip_assign_draggable ".(in_array($equipment['equipmentid'],$active_equipment) || $reset_active_equipment ? 'active' : '')."' data-blocktype='equipment' data-equipment='".$equipment['equipmentid']."' data-equipassign='".$equip_assign['equipment_assignmentid']."' data-client='".$equip_assign['clientid']."' data-region='".$equip_regions."' data-classification='".$equip_locations."' data-location='".$equip_classifications."' data-region-group='".explode('*#*',$equipment['region'])[0]."' data-activevalue='".$equipment['equipmentid']."'><img class='drag-handle no-toggle' src='".WEBSITE_URL."/img/icons/drag_handle.png' style='float: right; width: 2em;' title='Drag'>".$equipment['label'].$classification_label.(empty($equip_assign) ? ' (Not Assigned)' : '')."</div></a>";
 			break;
 	}
 	return $block_html;
@@ -325,6 +322,74 @@ function getTeamTickets($dbc, $date, $teamid) {
 		}
 	}
 	return $tickets_list;
+}
+function calendarTicketLabel($dbc, $ticket, $max_time, $start_time, $end_time) {
+	if(is_array($max_time) || empty($max_time)) {
+		$max_time = $ticket['max_time'];
+	}
+	$calendar_ticket_diff_label = get_config($dbc, 'calendar_ticket_diff_label');
+	$calendar_ticket_label = '';
+	if($calendar_ticket_diff_label == 1) {
+	    $calendar_ticket_label = get_config($dbc, 'calendar_ticket_label');
+	}
+	$calendar_ticket_card_fields = explode(',',get_config($dbc, 'calendar_ticket_card_fields'));
+
+	$clients = [];
+	foreach(array_filter(explode(',',$ticket['clientid'])) as $clientid) {
+		$client = !empty(get_client($dbc, $clientid)) ? get_client($dbc, $clientid) : get_contact($dbc, $clientid);
+		if(!empty($client) && $client != '-') {
+			$clients[] = $client;
+		}
+	}
+	$clients = implode(', ',$clients);
+
+	$site = $ticket['siteid'];
+	$site_address = '';
+	if($site > 0) {
+        $site_address = html_entity_decode(mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `contacts` WHERE `contactid` = '".$ticket['siteid']."'"))['address']);
+	}
+	$service_template = '';
+	if($ticket['service_templateid'] > 0) {
+		$service_template = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `name` FROM `services_service_templates` WHERE `templateid` = '".$ticket['service_templateid']."'"))['name'];
+	}
+	
+	$row_html = '<b>'.get_ticket_label($dbc, $ticket, null, null, $calendar_ticket_label).(empty($calendar_ticket_label) ? $ticket['location_description'] : '').($ticket['sub_label'] != '' ? '-'.$ticket['sub_label'] : '').'</b>'.
+	(in_array('project',$calendar_ticket_card_fields) ? '<br />'.PROJECT_NOUN.' #'.$ticket['projectid'].' '.$ticket['project_name'].'<br />' : '').
+	(in_array('customer',$calendar_ticket_card_fields) ? '<br />'.'Customer: '.get_contact($dbc, $ticket['businessid'], 'name') : '').
+	(in_array('client',$calendar_ticket_card_fields) ? '<br />'.'Client: '.$clients : '').
+	(in_array('site_address',$calendar_ticket_card_fields) ? '<br />'.'Site Address: '.$site_address : '').
+	(in_array('service_template',$calendar_ticket_card_fields) ? '<br />'.'Service Template: '.$service_template : '').
+	(in_array('start_date',$calendar_ticket_card_fields) ? '<br />'.'Date: '.$ticket['to_do_date'] : '').
+	(in_array('time',$calendar_ticket_card_fields) ? '<br />'.(!empty($max_time) && $max_time != '00:00:00' ? "(".$max_time.") " : '').$start_time." - ".$end_time : '');
+	if(in_array('available',$calendar_ticket_card_fields)) {
+		if($ticket['pickup_start_available'].$ticket['pickup_end_available'] != '') {
+			$row_html .= '<br />'."Available ";
+			if($ticket['pickup_end_available'] == '') {
+				$row_html .= "After ".$ticket['pickup_start_available'];
+			} else if($ticket['pickup_start_available'] == '') {
+				$row_html .= "Before ".$ticket['pickup_end_available'];
+			} else {
+				$row_html .= "Between ".$ticket['pickup_start_available']." and ".$ticket['pickup_end_available'];
+			}
+		}
+	}
+	$row_html .= (in_array('address',$calendar_ticket_card_fields) ? '<br />'.$ticket['pickup_name'].($ticket['pickup_name'] != '' ? '<br />' : ' ').$ticket['client_name'].($ticket['client_name'] != '' ? '<br />' : ' ').$ticket['pickup_address'].($ticket['pickup_address'] != '' ? '<br />' : ' ').$ticket['pickup_city'] : '');
+	$row_html .= '<br />'."Status: ".$ticket['status'];
+	if(in_array('ticket_notes',$calendar_ticket_card_fields)) {
+		$ticket_notes = mysqli_query($dbc, "SELECT * FROM `ticket_comment` WHERE `ticketid` = '".$ticket['ticketid']."' AND `deleted` = 0");
+		if(mysqli_num_rows($ticket_notes) > 0) {
+			$row_html .= "<br />Notes: ";
+			while($ticket_note = mysqli_fetch_assoc($ticket_notes)) {
+				$row_html .= "<br />".trim(trim(html_entity_decode($ticket_note['comment']),"<p>"),"</p>")."<br />";
+				$row_html .= "<em>Added by ".get_contact($dbc, $ticket_note['created_by'])." at ".$ticket_note['created_date']."</em>";
+			}
+		}
+	}
+	if(in_array('delivery_notes',$calendar_ticket_card_fields) && !empty($ticket['delivery_notes'])) {
+		$row_html .= '<br />Delivery Notes: '.html_entity_decode($ticket['delivery_notes']);
+	}
+
+	return $row_html;
 }
 function getCustomerEquipment($dbc, $start_date, $end_date) {
 	$equipmentids = [];

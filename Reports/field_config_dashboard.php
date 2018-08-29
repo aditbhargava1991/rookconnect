@@ -179,8 +179,10 @@ if (isset($_POST['submit'])) {
       <div class="col-sm-4">
             <label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."History Expenses History".',') !== FALSE) { echo " checked"; } ?> value="History Expenses History" name="reports_dashboard[]"> Expenses History</label>
         </div>
+      <div class="col-sm-4">
+            <label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."History Products History".',') !== FALSE) { echo " checked"; } ?> value="History Products History" name="reports_dashboard[]"> Products History</label>
+        </div>
     <div class="clearfix"></div>
-
 
     <h3>Marketing</h3>
         <div class="col-sm-4">
@@ -383,6 +385,9 @@ if (isset($_POST['submit'])) {
         </div>
         <div class="col-sm-4">
             <label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."Ticket Manifest Summary".',') !== FALSE) { echo " checked"; } ?> value="Ticket Manifest Summary" name="reports_dashboard[]"> Manifest Daily Summary</label>
+        </div>
+        <div class="col-sm-4">
+            <label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."Employee Payroll Report".',') !== FALSE) { echo " checked"; } ?> value="Employee Payroll Report" name="reports_dashboard[]"> Employee Payroll Report</label>
         </div>
 	<div class="clearfix"></div>
 
@@ -592,7 +597,16 @@ if (isset($_POST['submit'])) {
 		<label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."History Services History".',') !== FALSE) { echo " checked"; } ?> value="History Services History" name="reports_dashboard[]"> Services History</label>
 	</div>
   <div class="col-sm-4">
+		<label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."History Estimates History".',') !== FALSE) { echo " checked"; } ?> value="History Estimates History" name="reports_dashboard[]"> Estimates History</label>
+	</div>
+  <div class="col-sm-4">
 		<label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."History Expenses History".',') !== FALSE) { echo " checked"; } ?> value="History Expenses History" name="reports_dashboard[]"> Expenses History</label>
+	</div>
+  <div class="col-sm-4">
+		<label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."History Products History".',') !== FALSE) { echo " checked"; } ?> value="History Products History" name="reports_dashboard[]"> Products History</label>
+	</div>
+  <div class="col-sm-4">
+		<label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."History Safety History".',') !== FALSE) { echo " checked"; } ?> value="History Safety History" name="reports_dashboard[]"> Safety History</label>
 	</div>
   <div class="clearfix"></div>
 

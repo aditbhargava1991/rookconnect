@@ -86,10 +86,10 @@ function setDoubleScroll() {
                             $counter++; ?>
                             <div class="sales-order-info info-block-detail" data-id="<?= $row['sotid'] ?>" style="<?= $counter > 10 ? 'display: none;' : '' ?>" data-searchable="<?= get_client($dbc, $row['customerid']); ?> <?= get_contact($dbc, $row['customerid']); ?>" data-type="sot">
                                 <div class="row">
-                                    <div class="col-sm-9"><a href="?p=preview&sotid=<?= $row['sotid'] ?>"><?= !empty(get_client($dbc, $row['customerid'])) ? get_client($dbc, $row['customerid']) : get_contact($dbc, $row['customerid']); ?><?= !empty($row['classification']) ? ': '.$row['classification'] : '' ?><?= !empty($row['name']) ? ' - '.$row['name'] : '' ?><img class="inline-img" src="../img/icons/ROOK-edit-icon.png" /></a></div>
+                                    <div class="col-sm-9"><a href="?p=preview&sotid=<?= $row['sotid'] ?>"><?= !empty(get_client($dbc, $row['customerid'])) ? get_client($dbc, $row['customerid']) : get_contact($dbc, $row['customerid']); ?><?= !empty($row['classification']) ? ': '.$row['classification'] : '' ?><?= !empty($row['name']) ? ' - '.$row['name'] : '' ?><img class="inline-img no-toggle" src="../img/icons/ROOK-edit-icon.png" title="Edit" /></a></div>
                                     <div class="col-sm-3 text-right">
                                         <!-- <b><a href="order.php?p=details&sotid=<?= $row['sotid'] ?>">$<?= ($row['total_price'] > 0) ? number_format($row['total_price'], 0) : '0.00' ; ?></a></b> -->
-                                        <img src="../img/icons/drag_handle.png" class="inline-img pull-right lead-handle cursor-hand" />
+                                        <img src="../img/icons/drag_handle.png" class="inline-img pull-right lead-handle cursor-hand no-toggle" title="Drag" />
                                     </div>
                                 </div>
                                 
@@ -139,10 +139,10 @@ function setDoubleScroll() {
 							$counter++; ?>
                             <div class="sales-order-info info-block-detail" data-id="<?= $row['posid'] ?>" style="<?= $counter > 10 ? 'display: none;' : '' ?>" data-searchable="<?= get_client($dbc, $row['contactid']); ?> <?= get_contact($dbc, $row['contactid']); ?>" data-type="so">
                                 <div class="row">
-                                    <div class="col-sm-9"><a href="index.php?p=preview&id=<?= $row['posid'] ?>"><?= !empty(get_client($dbc, $row['contactid'])) ? get_client($dbc, $row['contactid']) : get_contact($dbc, $row['contactid']); ?><?= !empty($row['classification']) ? ': '.$row['classification'] : '' ?><?= !empty($row['name']) ? ' - '.$row['name'] : '' ?><img class="inline-img" src="../img/icons/ROOK-edit-icon.png" /></a></div>
+                                    <div class="col-sm-9"><a href="index.php?p=preview&id=<?= $row['posid'] ?>"><?= !empty(get_client($dbc, $row['contactid'])) ? get_client($dbc, $row['contactid']) : get_contact($dbc, $row['contactid']); ?><?= !empty($row['classification']) ? ': '.$row['classification'] : '' ?><?= !empty($row['name']) ? ' - '.$row['name'] : '' ?><img class="inline-img no-toggle" src="../img/icons/ROOK-edit-icon.png" title="Edit" /></a></div>
                                     <div class="col-sm-3 text-right">
                                         <b><a href="index.php?p=preview&id=<?= $row['posid'] ?>">$<?= ($row['total_price'] > 0) ? number_format($row['total_price'], 0) : '0.00' ; ?></a></b>
-                                        <img src="../img/icons/drag_handle.png" class="inline-img pull-right lead-handle cursor-hand" />
+                                        <img src="../img/icons/drag_handle.png" class="inline-img pull-right lead-handle cursor-hand no-toggle" title="Drag" />
                                     </div>
                                 </div>
                                 

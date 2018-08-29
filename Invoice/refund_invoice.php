@@ -73,7 +73,7 @@ if (isset($_POST['submit_btn'])) {
 
 }
 ?>
-<script type="text/javascript" src="invoice.js"></script>
+<script type="text/javascript" src="../Invoice/invoice.js"></script>
 </head>
 
 <body>

@@ -481,9 +481,9 @@ if($_GET['action'] == 'update_fields') {
 	}
 	if(!empty($ticket_type)) {
 		$value_config .= get_config($dbc, 'ticket_fields_'.$ticket_type).',';
-		if(strpos($value_config,',Time Tracking Edit Past Date') !== FALSE && $get_ticket['to_do_date'] != '') {
-			$_POST['date'] = $get_ticket['to_do_date'];
-		}
+	}
+	if(strpos($value_config,',Time Tracking Edit Past Date') !== FALSE && $get_ticket['to_do_date'] != '') {
+		$_POST['date'] = $get_ticket['to_do_date'];
 	}
 
 	if($field_name == 'status') {
@@ -2920,5 +2920,11 @@ if($_GET['action'] == 'update_fields') {
     }
     echo "my my";
 	$all_rev = $dbc->query("UPDATE checklist SET checklist_tile = $checked WHERE checklistid = '$checklistid'");
+} else if($_GET['action'] == 'tile_splitting') {
+    foreach($_POST['tiles'] as $tile) {
+        $details = $tile['name'].'#*#'.$tile['noun'].'#*#'.implode('|',$tile['types']);
+        $tile = config_safe_str($tile['name']);
+        set_config($dbc, 'ticket_split_tiles_'.$tile, $details);
+    }
 }
 ?>

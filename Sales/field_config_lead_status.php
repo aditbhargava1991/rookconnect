@@ -12,10 +12,17 @@ $(document).ready(function() {
 
 function saveFields() {
 	var this_field_name = this.name;
+    var quick_reports = [];
+    $('[name=sales_quick_reports]:checked').each(function() {
+        quick_reports.push(this.value);
+    });
 
 	$.ajax({    //create an ajax request to load_page.php
-		type: "GET",
+		type: "POST",
 		url: 'sales_ajax_all.php?action=setting_lead_status&sales_lead_status='+$('[name=sales_lead_status]').val()+'&lead_status_won='+$('[name=lead_status_won]').val()+'&lead_status_lost='+$('[name=lead_status_lost]').val()+'&lead_status_retained='+$('[name=lead_status_retained]').val()+'&lead_convert_to='+$('[name=lead_convert_to]').val(),
+        data: {
+            sales_quick_reports: quick_reports
+        },
 		dataType: "html",   //expect html to be returned
 		success: function(response){
 		}
@@ -83,6 +90,14 @@ function saveFields() {
                         <option <?= $selected; ?> value="<?= $contacts_tab; ?>"><?= $contacts_tab; ?></option><?php
                     endforeach; ?>
                 </select>
+            </div>
+
+            <label for="quick_reports" class="col-sm-4 control-label"><span class="popover-examples list-inline"><a style="margin:0 5px 0 0;" data-toggle="tooltip" data-placement="top" title="Select the Statuses that should display a Quick Report at the top of the dashboard. These reports display when you click the report icon near the top right corner of the screen."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span> Display Quick Reports for Statuses:</label>
+            <div class="col-sm-8"><?php
+                $quick_reports = explode(',',get_config($dbc, 'sales_quick_reports'));
+                foreach(explode(',',get_config($dbc, 'sales_lead_status')) as $status) { ?>
+                    <label class="form-checkbox"><input type="checkbox" name="sales_quick_reports" <?= in_array($status, $quick_reports) ? 'checked' : '' ?> value="<?= $status ?>"><?= $status ?></label>
+                <?php } ?>
             </div>
         </div>
 

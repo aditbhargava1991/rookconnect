@@ -1207,7 +1207,7 @@ echo '</div>';
 if($current_tab == 'manager' || $current_tab == 'payables') {
 	$category_query = mysqli_query($dbc, $categories_sql);
 	echo "<div class='clearfix'></div><h3>Summary - For Use by Accounting Staff</h3>";
-	echo "<table class='table table-bordered'><tr class='hidden-xs hidden-sm'><th>Category & Heading</th><th>Expense Amount</th><th>Tax</th><th>Total</th></tr>";
+	echo "<table class='table table-bordered table-striped'><thead><tr class='hidden-xs hidden-sm'><th>Category & Heading</th><th>Expense Amount</th><th>Tax</th><th>Total</th></tr></thead>";
 	$final_amt = $final_tax = $final_total = 0;
 	while($cat_row = mysqli_fetch_array($category_query)) {
 		// $query_expenses and $min_rows should be set by the tab page

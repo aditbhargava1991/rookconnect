@@ -576,6 +576,7 @@ function saveFieldMethod(field) {
 						}
 					}
 					if(response > 0) {
+						$('[name=contactid]').first().change();
 						$('[name="status"]').change();
 						if(table_name == 'contacts' && field_name == 'site_name') {
 							$('[name=siteid],[name="siteid[]"]').find('option[value="MANUAL"]').prop('selected', false);
@@ -1453,7 +1454,7 @@ function updateTicketLabel() {
 				url: 'ticket_ajax_all.php?action=get_ticket_label&ticketid='+ticket,
 				success: function(response) {
 					if(response != '') {
-						$('.ticketid_span').text(response);
+						$('.ticketid_span').html(response);
 					}
 				}
 			});

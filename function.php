@@ -363,6 +363,11 @@ function set_config($dbc, $name, $value) {
 	$_SESSION['CONSTANT_UPDATED'] = 0;
 }
 function get_config($dbc, $name, $multi = false, $separator = ',') {
+    // Defined Overrided Settings
+    if($name == 'show_category_dropdown_equipment') {
+        return 0;
+    }
+
 	// Get current values
     $name = filter_var($name, FILTER_SANITIZE_STRING);
     if($name == 'all_contact_tabs') {
@@ -383,7 +388,7 @@ function get_config($dbc, $name, $multi = false, $separator = ',') {
         $sql = "SELECT `value` FROM `general_configuration` WHERE `name`='$name'";
         $get_config = mysqli_fetch_assoc(mysqli_query($dbc,$sql));
     }
-
+    
 	// Define Defaults for specific fields
 	if(str_replace(',','',$get_config['value']) == '') {
 		if($name == 'timesheet_tabs') {
@@ -577,6 +582,45 @@ function get_client_project_path_milestone($dbc, $project_path_milestone, $field
 function get_project_path_milestone($dbc, $project_path_milestone, $field_name) {
     $get_custom =	mysqli_fetch_assoc(mysqli_query($dbc,"SELECT $field_name FROM project_path_milestone WHERE	project_path_milestone='$project_path_milestone'"));
     return $get_custom[$field_name];
+}
+// Get the list of actual paths for the Project
+function get_project_paths($projectid) {
+    $default_template = $_SERVER['DBC']->query("SELECT * FROM `project_path_milestone` WHERE `milestone` LIKE 'to do#*#doing#*#done'");
+    if($default_template->num_rows == 0) {
+        $_SERVER['DBC']->query("INSERT INTO `project_path_milestone` (`project_path`,`milestone`) VALUES ('Basic Task List','To Do#*#Doing#*#Done')");
+    }
+    if($projectid > 0) {
+        $paths = get_field_value('project_path project_path_name', 'project', 'projectid', $projectid);
+        $project_paths = [];
+        foreach(explode(',',$paths['project_path']) as $i => $pathid) {
+            if($pathid > 0) {
+                $path['path_id'] = $pathid;
+                $path['path_name'] = explode('#*#',$paths['project_path_name'])[$i];
+                
+                // Add default milestones, if they have not yet been added
+                $milestones = explode('#*#',get_field_value('milestone','project_path_milestone','project_path_milestone',$pathid));
+                $prior_sort = 0;
+                foreach($milestones as $i => $milestone) {
+                    $milestone_rows = $_SERVER['DBC']->query("SELECT `sort` FROM `project_path_custom_milestones` WHERE `projectid`='$projectid' AND `milestone`='$milestone' AND `pathid`='$pathid' AND `path_type`='I'");
+                    if($milestone_rows->num_rows > 0) {
+                        $prior_sort = $milestone_rows->fetch_assoc()['sort'];
+                    } else if($milestone != 'Unassigned') {
+                        $_SERVER['DBC']->query("INSERT INTO `project_path_custom_milestones` (`projectid`,`milestone`,`label`,`path_type`,`pathid`,`sort`) VALUES ('$projectid','$milestone','$milestone','I','$pathid','$prior_sort')");
+                    }
+                }
+                
+                // Load the actual list of milestones into the array
+                $path['milestones'] = [];
+                $milestone_list = $_SERVER['DBC']->query("SELECT `milestones`.`id`, `milestones`.`milestone`, `milestones`.`label`  FROM `project_path_custom_milestones` `milestones` WHERE `milestones`.`projectid`='$projectid' AND `milestones`.`pathid`='$pathid' AND `milestones`.`path_type`='I' AND `milestones`.`deleted`=0 ORDER BY `milestones`.`sort`,`milestones`.`id`");
+                while($milestone_row = $milestone_list->fetch_assoc()) {
+                    $path['milestones'][] = $milestone_row;
+                }
+                $project_paths[] = $path;
+            }
+        }
+        return $project_paths;
+    }
+    return false;
 }
 function get_jobs_path_milestone($dbc, $project_path_milestone, $field_name) {
     $get_custom =	mysqli_fetch_assoc(mysqli_query($dbc,"SELECT $field_name FROM jobs_path_milestone WHERE	project_path_milestone='$project_path_milestone'"));
@@ -796,8 +840,13 @@ function get_ticket_label($dbc, $ticket, $project_type = null, $project_name = n
 			}
 		}
         $ticket_type = '';
+        $ticket_noun = TICKET_NOUN;
         if($ticket['ticket_type'] != '') {
             $ticket_tabs = explode(',',get_config($dbc, 'ticket_tabs'));
+            $tile_config = $dbc->query("SELECT `value` FROM `general_configuration` WHERE `name` LIKE 'ticket_split_tiles_%' AND (`value` LIKE '%#*#".$ticket['ticket_type']."|%' OR `value` LIKE '%|".$ticket['ticket_type']."|%' OR `value` LIKE '%#*#".$ticket['ticket_type']."')")->fetch_assoc();
+            if(!empty($tile_config)) {
+                $ticket_noun = explode('#*#',$tile_config)[1];
+            }
             foreach($ticket_tabs as $type_name) {
                 if($ticket['ticket_type'] == config_safe_str($type_name)) {
                     $ticket_type = $type_name;
@@ -808,7 +857,7 @@ function get_ticket_label($dbc, $ticket, $project_type = null, $project_name = n
         if(!empty($custom_label)) {
             $ticket_label = $custom_label;
         }
-		$label = str_replace(['[PROJECT_NOUN]','[PROJECTID]','[PROJECT_NAME]','[PROJECT_TYPE]','[PROJECT_TYPE_CODE]','[TICKET_NOUN]','[TICKETID]','[TICKETID-4]','[TICKET_HEADING]','[TICKET_DATE]','[YYYY]','[YY]','[YYYY-MM]','[YY-MM]','[TICKET_SCHEDULE_DATE]','[SCHEDULE_YYYY]','[SCHEDULE_YY]','[SCHEDULE_YYYY-MM]','[SCHEDULE_YY-MM]','[BUSINESS]','[CONTACT]', '[SITE_NAME]', '[TICKET_TYPE]', '[STOP_LOCATION]', '[STOP_CLIENT]', '[ORDER_NUM]'],[PROJECT_NOUN,$ticket['projectid'],$project_name,$project_type,$code,TICKET_NOUN,($ticket['main_ticketid'] > 0 ? $ticket['main_ticketid'].' '.$ticket['sub_ticket'] : $ticket['ticketid']),substr('000'.$ticket['ticketid'],-4),$ticket['heading'],$ticket['created_date'],date('Y',strtotime($ticket['created_date'])),date('y',strtotime($ticket['created_date'])),date('Y-m',strtotime($ticket['created_date'])),date('y-m',strtotime($ticket['created_date'])),$ticket['to_do_date'],date('Y',strtotime($ticket['to_do_date'])),date('y',strtotime($ticket['to_do_date'])),date('Y-m',strtotime($ticket['to_do_date'])),date('y-m',strtotime($ticket['to_do_date'])),get_client($dbc,$ticket['businessid']),get_contact($dbc,explode(',',trim($ticket['clientid'],','))[0]),get_contact($dbc, $ticket['siteid'],'site_name'),$ticket_type,$ticket['location_name'],$ticket['client_name'],$ticket['salesorderid']],($ticket['status'] == 'Archive' ? 'Archived ' : ($ticket['status'] == 'Done' ? 'Done ' : '')).$ticket_label);
+		$label = str_replace(['[PROJECT_NOUN]','[PROJECTID]','[PROJECT_NAME]','[PROJECT_TYPE]','[PROJECT_TYPE_CODE]','[TICKET_NOUN]','[TICKETID]','[TICKETID-4]','[TICKET_HEADING]','[TICKET_DATE]','[YYYY]','[YY]','[YYYY-MM]','[YY-MM]','[TICKET_SCHEDULE_DATE]','[SCHEDULE_YYYY]','[SCHEDULE_YY]','[SCHEDULE_YYYY-MM]','[SCHEDULE_YY-MM]','[BUSINESS]','[CONTACT]', '[SITE_NAME]', '[TICKET_TYPE]', '[STOP_LOCATION]', '[STOP_CLIENT]', '[ORDER_NUM]'],[PROJECT_NOUN,$ticket['projectid'],$project_name,$project_type,$code,TICKET_NOUN,($ticket['main_ticketid'] > 0 ? $ticket['main_ticketid'].' '.$ticket['sub_ticket'] : $ticket['ticketid']),substr('000'.$ticket['ticketid'],-4),$ticket['heading'],$ticket['created_date'],date('Y',strtotime($ticket['created_date'])),date('y',strtotime($ticket['created_date'])),date('Y-m',strtotime($ticket['created_date'])),date('y-m',strtotime($ticket['created_date'])),$ticket['to_do_date'],date('Y',strtotime($ticket['to_do_date'])),date('y',strtotime($ticket['to_do_date'])),date('Y-m',strtotime($ticket['to_do_date'])),date('y-m',strtotime($ticket['to_do_date'])),get_client($dbc,$ticket['businessid']),get_contact($dbc,explode(',',trim($ticket['clientid'],','))[0]),get_contact($dbc, explode(',',trim($ticket['siteid'],','))[0],'site_name'),$ticket_type,$ticket['location_name'],$ticket['client_name'],$ticket['salesorderid']],($ticket['status'] == 'Archive' ? 'Archived ' : ($ticket['status'] == 'Done' ? 'Done ' : '')).$ticket_label);
         if(empty($custom_label)) {
         	$dbc->query("UPDATE `tickets` SET `ticket_label`='".filter_var($label,FILTER_SANITIZE_STRING)."', `ticket_label_date`=CURRENT_TIMESTAMP WHERE `ticketid`='".$ticket['ticketid']."'");
         }
@@ -1616,6 +1665,9 @@ function get_tile_names($tile_list) {
 			case 'tasks':
 				$tiles[] = 'Tasks';
 				break;
+			case 'tasks_updated':
+				$tiles[] = 'Tasks (Updated)';
+				break;
 			case 'agenda_meeting':
 				$tiles[] = 'Agendas & Meetings';
 				break;
@@ -1941,7 +1993,10 @@ function get_subtabs($tile_name) {
             $subtabs = array('Dashboard', 'Add Multiple Products');
             break;
         case 'tasks':
-            $subtabs = array('Summary', 'Private Tasks', 'Shared Tasks', 'Project Tasks', 'Contact Tasks', 'Reporting');
+            $subtabs = array('Summary', 'Private Tasks', 'Shared Tasks', 'Project Tasks', 'Contact Tasks', 'Sales Tasks', 'Reporting');
+            break;
+        case 'tasks_updated':
+            $subtabs = array('Summary', 'Private Tasks', 'Shared Tasks', 'Project Tasks', 'Contact Tasks', 'Sales Tasks', 'Reporting');
             break;
         case 'agenda_meeting':
             $subtabs = array('Agendas', 'Meetings');
@@ -2625,9 +2680,9 @@ function sortByLastName($a) {
 }
 
 /* Convert Decimal Hours to Hours:Minutes */
-function time_decimal2time($decimal_time) {
+function time_decimal2time($decimal_time, $pad = false) {
 	$minutes = ceil($decimal_time * 60);
-	$hours = floor($minutes / 60);
+	$hours = ($pad ? sprintf('%02d',floor($minutes / 60)) : floor($minutes / 60));
 	$minutes -= ($hours * 60);
 	return $hours.':'.sprintf('%02d',$minutes);
 }
@@ -2774,7 +2829,7 @@ function get_reminder_url($dbc, $reminder, $slider = 0) {
         if($slider == 1) {
             $reminder_url = WEBSITE_URL.'/Project/projects.php?iframe_slider=1&edit='.$reminder_projectid;
         } else {
-            $reminder_url = '../Project/projects.php?edit='.$reminder_projectid;
+            $reminder_url = WEBSITE_URL.'/Project/projects.php?edit='.$reminder_projectid;
         }
     } else if(!empty($reminder['src_table'])) {
         if($slider == 1) {
@@ -2788,6 +2843,7 @@ function get_reminder_url($dbc, $reminder, $slider = 0) {
                 case 'client_daily_log_notes':
                     $reminder_url = WEBSITE_URL.'/Daily Log Notes/log_note_list.php?display_contact='.$reminder['contactid'];
                     break;
+                case 'equipment':
                 case 'equipment_insurance':
                 case 'equipment_registration':
                     $reminder_url = WEBSITE_URL.'/Equipment/edit_equipment.php?edit='.$reminder['src_tableid']+'&iframe_slider=1';
@@ -2840,79 +2896,80 @@ function get_reminder_url($dbc, $reminder, $slider = 0) {
         } else {
             switch($reminder['src_table']) {
                 case 'tickets':
-                    $reminder_url = '../Ticket/index.php?edit='.$reminder['src_tableid'];
+                    $reminder_url = WEBSITE_URL.'/Ticket/index.php?edit='.$reminder['src_tableid'];
                     break;
                 case 'checklist_name':
-                    $reminder_url = '../Checklist/checklist.php?view='.$reminder['src_tableid'];
+                    $reminder_url = WEBSITE_URL.'/Checklist/checklist.php?view='.$reminder['src_tableid'];
                     break;
                 case 'calllog':
-                    $reminder_url = '../Cold Call/add_call_log.php?calllogid='.$reminder['src_tableid'];
+                    $reminder_url = WEBSITE_URL.'/Cold Call/add_call_log.php?calllogid='.$reminder['src_tableid'];
                     break;
                 case 'calllog_goals':
-                    $reminder_url = '../Cold Call/field_config_call_log_goals.php?calllog_goal='.$reminder['src_tableid'];
+                    $reminder_url = WEBSITE_URL.'/Cold Call/field_config_call_log_goals.php?calllog_goal='.$reminder['src_tableid'];
                     break;
                 case 'client_daily_log_notes':
-                    $reminder_url = '../Daily Log Notes/index.php?display_contact='.$reminder['contactid'];
+                    $reminder_url = WEBSITE_URL.'/Daily Log Notes/index.php?display_contact='.$reminder['contactid'];
                     break;
+                case 'equipment':
                 case 'equipment_insurance':
                 case 'equipment_registration':
-                    $reminder_url = '../Equipment/index.php?edit='.$reminder['src_tableid'];
+                    $reminder_url = WEBSITE_URL.'/Equipment/index.php?edit='.$reminder['src_tableid'];
                     break;
                 case 'projects':
-                    $reminder_url = '../Project/projects.php?edit='.$reminder['src_tableid'];
+                    $reminder_url = WEBSITE_URL.'/Project/projects.php?edit='.$reminder['src_tableid'];
                     break;
                 case 'sales':
-                    $reminder_url = '../Sales/sale.php?p=preview&id='.$reminder['src_tableid'];
+                    $reminder_url = WEBSITE_URL.'/Sales/sale.php?p=preview&id='.$reminder['src_tableid'];
                     break;
                 case 'task_board':
-                    $reminder_url = '../Tasks/index.php?category='.$reminder['src_tableid'].'&tab='.get_task_board($dbc, $reminder['src_tableid'], 'board_security');
+                    $reminder_url = WEBSITE_URL.'/Tasks/index.php?category='.$reminder['src_tableid'].'&tab='.get_task_board($dbc, $reminder['src_tableid'], 'board_security');
                     break;
                 case 'calendar':
-                    $reminder_url = '../Calendar/calendars.php';
+                    $reminder_url = WEBSITE_URL.'/Calendar/calendars.php';
                     break;
                 case 'staff_reminders':
-                    $reminder_url = '../Staff/add_reminder.php?reminderid='.$reminder['reminderid'];
+                    $reminder_url = WEBSITE_URL.'/Staff/add_reminder.php?reminderid='.$reminder['reminderid'];
                     break;
                 case 'hr':
-                    $reminder_url = '../HR/index.php?hr='.$reminder['src_tableid'];
+                    $reminder_url = WEBSITE_URL.'/HR/index.php?hr='.$reminder['src_tableid'];
                     break;
                 case 'manuals':
-                    $reminder_url = '../HR/index.php?manual='.$reminder['src_tableid'];
+                    $reminder_url = WEBSITE_URL.'/HR/index.php?manual='.$reminder['src_tableid'];
                     break;
                 case 'contacts':
-                    $reminder_url = '../'.ucwords($reminder['reminder_type']).'/contacts_inbox.php?category='.$reminder['reminder_type'].'&edit='.$reminder['src_tableid'];
+                    $reminder_url = WEBSITE_URL.'/'.ucwords($reminder['reminder_type']).'/contacts_inbox.php?category='.$reminder['reminder_type'].'&edit='.$reminder['src_tableid'];
                     break;
                 case 'position_rate_table':
-                    $reminder_url = '../Rate Card/ratecards.php?type=position&status=add&id='.$reminder['src_tableid'];
+                    $reminder_url = WEBSITE_URL.'/Rate Card/ratecards.php?type=position&status=add&id='.$reminder['src_tableid'];
                     break;
                 case 'staff_rate_table':
-                    $reminder_url = '../Rate Card/ratecards.php?type=staff&status=add&id='.$reminder['src_tableid'];
+                    $reminder_url = WEBSITE_URL.'/Rate Card/ratecards.php?type=staff&status=add&id='.$reminder['src_tableid'];
                     break;
                 case 'equipment_rate_table':
-                    $reminder_url = '../Rate Card/ratecards.php?type=equipment&status=add&id='.$reminder['src_tableid'];
+                    $reminder_url = WEBSITE_URL.'/Rate Card/ratecards.php?type=equipment&status=add&id='.$reminder['src_tableid'];
                     break;
                 case 'category_rate_table':
-                    $reminder_url = '../Rate Card/ratecards.php?type=category&status=add&id='.$reminder['src_tableid'];
+                    $reminder_url = WEBSITE_URL.'/Rate Card/ratecards.php?type=category&status=add&id='.$reminder['src_tableid'];
                     break;
                 case 'tile_rate_card':
                     $rate_card = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tile_rate_card` WHERE `ratecardid` = '".$reminder['src_tableid']."'"));
                     switch($rate_card['tile_name']) {
                         case 'labour':
-                            $reminder_url = '../Rate Card/ratecards.php?type=labour&status=add&id='.$reminder['src_tableid'];
+                            $reminder_url = WEBSITE_URL.'/Rate Card/ratecards.php?type=labour&status=add&id='.$reminder['src_tableid'];
                             break;
                     }
                     break;
                 case 'service_rate_card':
-                    $reminder_url = '../Rate Card/ratecards.php?type=services&status=add&id='.$reminder['src_tableid'];
+                    $reminder_url = WEBSITE_URL.'/Rate Card/ratecards.php?type=services&status=add&id='.$reminder['src_tableid'];
                     break;
                 case 'company_rate_card':
-                    $reminder_url = '../Rate Card/ratecards.php?type=company&status=add&id='.$reminder['src_tableid'];
+                    $reminder_url = WEBSITE_URL.'/Rate Card/ratecards.php?type=company&status=add&id='.$reminder['src_tableid'];
                     break;
                 case 'rate_card':
-                    $reminder_url = '../Rate Card/ratecards.php?type=customer&status=add&ratecardid='.$reminder['src_tableid'];
+                    $reminder_url = WEBSITE_URL.'/Rate Card/ratecards.php?type=customer&status=add&ratecardid='.$reminder['src_tableid'];
                     break;
                 case 'holidays_update':
-                    $reminder_url = '../Timesheet/holidays.php';
+                    $reminder_url = WEBSITE_URL.'/Timesheet/holidays.php';
                     break;
             }
         }
@@ -3189,25 +3246,29 @@ function create_recurring_tickets($dbc, $ticketid, $start_date, $end_date, $repe
         array_shift($recurring_dates);
     }
     foreach($recurring_dates as $recurring_date) {
-        //Insert into tickets with to_do_date/to_do_end_date as the recurring date
-        mysqli_query($dbc, "INSERT INTO `tickets` (`main_ticketid`, `to_do_date`, `to_do_end_date`, `is_recurrence`) VALUES ('$ticketid', '$recurring_date', '$recurring_date', 1)");
-        $new_ticketid = mysqli_insert_id($dbc);
+        $date_exists = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `main_ticketid` = '$ticketid' AND `to_do_date` = '$recurring_date'"));
+        if(empty($date_exists)) {
+            //Insert into tickets with to_do_date/to_do_end_date as the recurring date
+            mysqli_query($dbc, "INSERT INTO `tickets` (`main_ticketid`, `to_do_date`, `to_do_end_date`, `is_recurrence`) VALUES ('$ticketid', '$recurring_date', '$recurring_date', 1)");
+            $new_ticketid = mysqli_insert_id($dbc);
 
-        //Insert all ticket_attached records with the new ticketid
-        foreach($ticket_attacheds as $ticket_attached) {
-            mysqli_query($dbc, "INSERT INTO `ticket_attached` (`ticketid`, `main_id`, `is_recurrence`) VALUES ('$new_ticketid', '".$ticket_attached['id']."', 1)");
+            //Insert all ticket_attached records with the new ticketid
+            foreach($ticket_attacheds as $ticket_attached) {
+                mysqli_query($dbc, "INSERT INTO `ticket_attached` (`ticketid`, `main_id`, `is_recurrence`) VALUES ('$new_ticketid', '".$ticket_attached['id']."', 1)");
+            }
+
+            //Insert all ticket_schedule records with the new ticketid
+            foreach($ticket_schedules as $ticket_schedule) {
+                mysqli_query($dbc, "INSERT INTO `ticket_schedule` (`ticketid`, `main_id`, `is_recurrence`) VALUES ('$new_ticketid', '".$ticket_schedule['id']."', 1)");
+            }
+
+            //Insert all ticket_comment records with the new ticketid
+            foreach($ticket_comments as $ticket_comment) {
+                mysqli_query($dbc, "INSERT INTO `ticket_comment` (`ticketid`, `main_id`, `is_reccurence`) VALUES ('$new_ticketid', '".$ticket_comment['ticketcommid']."', 1)");
+            }
+        } else if(empty($date_exists['to_do_end_date'])) {
+            mysqli_query($dbc, "UPDATE `tickets` SET `to_do_end_date` = '".$date_exists['to_do_date']."' WHERE `ticketid` = '".$date_exists['ticketid']."'");
         }
-
-        //Insert all ticket_schedule records with the new ticketid
-        foreach($ticket_schedules as $ticket_schedule) {
-            mysqli_query($dbc, "INSERT INTO `ticket_schedule` (`ticketid`, `main_id`, `is_recurrence`) VALUES ('$new_ticketid', '".$ticket_schedule['id']."', 1)");
-        }
-
-        //Insert all ticket_comment records with the new ticketid
-        foreach($ticket_comments as $ticket_comment) {
-            mysqli_query($dbc, "INSERT INTO `ticket_comment` (`ticketid`, `main_id`, `is_reccurence`) VALUES ('$new_ticketid', '".$ticket_comment['ticketcommid']."', 1)");
-        }
-
         //Set last added date to the latest added date
         mysqli_query($dbc, "UPDATE `ticket_recurrences` SET `last_added_date` = '$recurring_date' WHERE `ticketid` = '$ticketid'");
     }
@@ -3270,6 +3331,7 @@ function sync_recurring_tickets($dbc, $ticketid) {
         $recurring_tickets = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `main_ticketid` = '".$ticket['main_ticketid']."' AND `is_recurrence` = 1 AND `deleted` = 0"),MYSQLI_ASSOC);
         foreach($recurring_tickets as $recurring_ticket) {
             mysqli_query($dbc, "UPDATE `tickets` SET $ticket_query WHERE `ticketid` = '".$recurring_ticket['ticketid']."'");
+            mysqli_query($dbc, "UPDATE `tickets` SET `ticket_label_date` = '' WHERE `ticketid` = '".$recurring_ticket['ticketid']."'");
 
             //Insert all ticket_attached records with the new ticketid
             foreach($ticket_attached_queries as $id => $ticket_attached_query) {
@@ -3338,12 +3400,16 @@ function get_contact_teams($dbc, $contactid) {
     return $teams = mysqli_fetch_array(mysqli_query($dbc, "SELECT GROUP_CONCAT(DISTINCT `teamid` SEPARATOR ',') as teams_list FROM `teams_staff` WHERE `contactid` = '$contactid' AND `deleted` = 0"))['teams_list'];
 }
 
-function add_update_history($dbc, $table, $history, $contactid, $before_change, $salesid = '') {
+function add_update_history($dbc, $table, $history, $contactid, $before_change, $tableid = '') {
 		$user_name = get_contact($dbc, $_SESSION['contactid']);
 		$history = filter_var(htmlentities($history),FILTER_SANITIZE_STRING);
 		if($table == 'sales_history') {
 			mysqli_query($dbc, "INSERT INTO `$table` (`updated_by`) SELECT '$user_name' FROM (SELECT COUNT(*) rows FROM `$table` WHERE `updated_by`='$user_name' AND TIMEDIFF(CURRENT_TIMESTAMP,`updated_at`) < '00:30:00') num WHERE num.rows = 0");
-			mysqli_query($dbc, "UPDATE `$table` SET `salesid`=$salesid, `before_change`=CONCAT(IFNULL(`before_change`,''),'$before_change'), `history`=CONCAT(IFNULL(`history`,''),'$history'), `updated_at` = now() WHERE `updated_by`='$user_name' AND TIMEDIFF(CURRENT_TIMESTAMP,`updated_at`) < '00:15:00'");
+			mysqli_query($dbc, "UPDATE `$table` SET `salesid`=$tableid, `before_change`=CONCAT(IFNULL(`before_change`,''),'$before_change'), `history`=CONCAT(IFNULL(`history`,''),'$history'), `updated_at` = now() WHERE `updated_by`='$user_name' AND TIMEDIFF(CURRENT_TIMESTAMP,`updated_at`) < '00:15:00'");
+		}
+		else if($table == 'project_history') {
+			mysqli_query($dbc, "INSERT INTO `$table` (`updated_at`,`updated_by`,`projectid`) SELECT NOW(), '$user_name', '$tableid' FROM (SELECT COUNT(*) rows FROM `$table` WHERE `updated_by`='$user_name' AND TIMEDIFF(CURRENT_TIMESTAMP,`updated_at`) < '00:15:00' AND `projectid`='$tableid') num WHERE num.rows = 0");
+			mysqli_query($dbc, "UPDATE `$table` SET `description`=CONCAT(IFNULL(CONCAT(`description`,'&lt;br&gt;\n'),''),'$history'), `updated_at` = NOW() WHERE `updated_by`='$user_name' AND `projectid`='$tableid' AND TIMEDIFF(CURRENT_TIMESTAMP,`updated_at`) < '00:15:00'");
 		}
 		else {
 			mysqli_query($dbc, "INSERT INTO `$table` (`updated_by`, `contactid`) SELECT '$user_name', '$contactid' FROM (SELECT COUNT(*) rows FROM `$table` WHERE `updated_by`='$user_name' AND `contactid`='$contactid' AND TIMEDIFF(CURRENT_TIMESTAMP,`updated_at`) < '00:30:00') num WHERE num.rows = 0");

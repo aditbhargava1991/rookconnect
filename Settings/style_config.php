@@ -119,11 +119,13 @@ if ( !empty($note) ) { ?>
 	}
         ?>
 		<!-- If you change anything here, it should also be changed in the login_page_style.php, header.php, admin_software_config.php as well. -->
-        <table class='table table-bordered' id="caltbl">
-            <tr class='hidden-sm '>
-                <th  data-title="Software Style">Available Software Styles</th>
-                <th  data-title="Activation">Activate Style</th>
-            </tr>
+        <table class='table table-bordered table-striped' id="caltbl">
+            <thead>
+                <tr class='hidden-sm '>
+                    <th  data-title="Software Style">Available Software Styles</th>
+                    <th  data-title="Activation">Activate Style</th>
+                </tr>
+            </thead>
 			<tr>
 				<td>Default</td>
 				<td><input type='radio' onclick="handleClick(this);" name='styler' style='width:20px; height:20px;' <?php if($software_config == '') { echo "checked"; } ?> value=''></td>

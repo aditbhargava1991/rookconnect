@@ -41,7 +41,8 @@
 		echo display_pagination($dbc, $count_sql, $pageNum, $rowsPerPage);
 
 		 ?>
-		<table class="table table-bordered">
+		<table class="table table-bordered table-striped">
+            <thead>
 			<tr class="hidden-xs hidden-sm">
 					<th>Code</th>
                     <th>Heading</th>
@@ -53,18 +54,19 @@
 					<?php if(strpos($db_conf,'created_by') !== false): ?>
 						<th>Created By</th><?php endif; ?>
 				    <th>Rate</th>
-                    <th>Admin Fee</th>
 					<?php if(strpos($db_conf,'uom') !== false): ?>
 						<th>UoM</th><?php endif; ?>
+                    <th>Admin Fee</th>
                     <th>History</th>
                     <th>Functions</th>
 			</tr>
+            </thead>
 		<?php // Table Rows
 		while($row = mysqli_fetch_array($result)) {
 			echo '<tr>';
 				echo '<td data-title="Service Code">' . $row['service_code'] . '</td>';
 				echo '<td data-title="Service">' . $row['heading'] . '</td>';
-				if($row['serviceratecardid'] > 0) {
+				if($row['companyrcid'] > 0) {
 					echo '<td data-title="Effective Dates">' . $row['start_date'].' : '. $row['end_date']. '</td>';
 					if(strpos($db_conf,'alert_date') !== false):
 						echo '<td data-title="Alert Date">' . $row['alert_date'] . '</td>';
@@ -83,14 +85,14 @@
 					if(strpos($db_conf,'created_by') !== false):
 						echo '<td data-title="Created By">' . get_contact($dbc, $row['created_by']) . '</td>';
 					endif;
-					echo '<td data-title="Rate">' . $row['service_rate'] . '</td>';
-					echo '<td data-title="Admin Fee">' . $row['admin_fee'] . '</td>';
+					echo '<td data-title="Rate">' . $row['cust_price'] . '</td>';
 					if(strpos($db_conf,'uom') !== false):
 						echo '<td data-title="Unit of Measure">' . $row['uom'] . '</td>';
 					endif;
+					echo '<td data-title="Admin Fee">' . $row['admin_fee'] . '</td>';
 					echo '<td data-id="'.$row['companyrcid'].'" data-title="history" class="history-link"><a>View Changes</a></td>';
 					echo '<td data-type="equipment" data-title="functions" style="text-align:center;"><a href="?card=services&type=services&t='.$_GET['t'].'&status=add&id='.$row['companyrcid'].'">Edit</a> | ';
-					echo '<a href="../delete_restore.php?action=delete&serviceratecardid='.$row['companyrcid'].'">Delete</a></td>';
+					echo '<a href="../delete_restore.php?action=delete&companyrcid='.$row['companyrcid'].'">Delete</a></td>';
 				} else {
 					echo '<td data-title="Effective Dates"></td>';
 					if(strpos($db_conf,'alert_date') !== false):
@@ -103,10 +105,10 @@
 						echo '<td data-title="Created By"></td>';
 					endif;
 					echo '<td data-title="Rate"></td>';
-					echo '<td data-title="Admin Fee"></td>';
 					if(strpos($db_conf,'uom') !== false):
 						echo '<td data-title="Unit of Measure"></td>';
 					endif;
+					echo '<td data-title="Admin Fee"></td>';
 					echo '<td data-title="history"></td>';
 					echo '<td data-type="equipment" data-title="functions" style="text-align:center;"><a href="?card=services&type=services&t='.$_GET['t'].'&status=add&service='.$row['serviceid'].'">Create</a></td>';
 				}

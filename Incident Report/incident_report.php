@@ -13,6 +13,9 @@ $current_type = $_GET['type'];
 if(!empty($current_type)) {
     $type_query = " AND `type` = '$current_type'";
 }
+if($current_type == 'SAVED') {
+    $type_query = " AND `saved` = 1";
+}
 $project_tabs = get_config($dbc, 'project_tabs');
 if($project_tabs == '') {
     $project_tabs = 'Client,SR&ED,Internal,R&D,Business Development,Process Development,Addendum,Addition,Marketing,Manufacturing,Assembly';
@@ -46,8 +49,14 @@ foreach($project_tabs as $item) {
 
                         <form name="form_sites" method="post" action="" class="form-inline" role="form">
                             <div id="no-more-tables">
-								<?php $search_from = date('Y-m-01');
-								$search_to = date('Y-m-d');
+								<?php 
+                                if($current_type == 'SAVED') {
+                                    $search_from = '';
+                                    $search_to = '';
+                                } else {
+                                    $search_from = date('Y-m-01');
+    								$search_to = date('Y-m-d');
+                                }
 								if(isset($_POST['search_from'])) {
 									$search_from = filter_var($_POST['search_from'],FILTER_SANITIZE_STRING);
 								}
@@ -55,7 +64,7 @@ foreach($project_tabs as $item) {
 									$search_to = filter_var($_POST['search_to'],FILTER_SANITIZE_STRING);
 								} ?>
                                 <div class="preview-block">
-                                    <div class="preview-block-header"><h4><?= empty($current_type) ? 'All '.INC_REP_TILE : $current_type ?></h4></div>
+                                    <div class="preview-block-header"><h4><?= empty($current_type) ? 'All '.INC_REP_TILE : ($current_type == 'SAVED' ? 'Saved '.INC_REP_TILE : $current_type) ?></h4></div>
 									<br />
 									<div class="col-sm-5"><label class="col-sm-4">From Date:</label>
 										<div class="col-sm-8">
@@ -84,10 +93,10 @@ foreach($project_tabs as $item) {
                             $offset = ($pageNum - 1) * $rowsPerPage;
 
                             if(!empty($_POST['search_incident_reports'])) {
-                                $query_check_credentials = "SELECT * FROM incident_report WHERE (status = 'Done' OR status IS NULL) AND `deleted`=0 AND (`date_of_happening` >= '$search_from' OR `date_of_report` >= '$search_from') AND (`date_of_happening` <= '$search_to' OR `date_of_report` <= '$search_to') $view_sql $type_query";
+                                $query_check_credentials = "SELECT * FROM incident_report WHERE (status = 'Done' OR status IS NULL) AND `deleted`=0 AND ((`date_of_happening` >= '$search_from' OR '$search_from' = '') OR (`date_of_report` >= '$search_from' OR '$search_from' = '')) AND ((`date_of_happening` <= '$search_to' OR '$search_to' = '') OR (`date_of_report` <= '$search_to' OR '$search_to' = '')) $view_sql $type_query";
                             } else {
-                                $query_check_credentials = "SELECT * FROM incident_report WHERE (status = 'Done' OR status IS NULL) AND `deleted`=0 AND (`date_of_happening` >= '$search_from' OR `date_of_report` >= '$search_from') AND (`date_of_happening` <= '$search_to' OR `date_of_report` <= '$search_to') $view_sql $type_query LIMIT $offset, $rowsPerPage";
-                                $query = "SELECT count(*) as numrows FROM incident_report WHERE (status = 'Done' OR status IS NULL) AND `deleted`=0 AND (`date_of_happening` >= '$search_from' OR `date_of_report` >= '$search_from') AND (`date_of_happening` <= '$search_to' OR `date_of_report` <= '$search_to') $view_sql $type_query";
+                                $query_check_credentials = "SELECT * FROM incident_report WHERE (status = 'Done' OR status IS NULL) AND `deleted`=0 AND ((`date_of_happening` >= '$search_from' OR '$search_from' = '') OR (`date_of_report` >= '$search_from' OR '$search_from' = '')) AND ((`date_of_happening` <= '$search_to' OR '$search_to' = '') OR (`date_of_report` <= '$search_to' OR '$search_to' = '')) $view_sql $type_query LIMIT $offset, $rowsPerPage";
+                                $query = "SELECT count(*) as numrows FROM incident_report WHERE (status = 'Done' OR status IS NULL) AND `deleted`=0 AND ((`date_of_happening` >= '$search_from' OR '$search_from' = '') OR (`date_of_report` >= '$search_from' OR '$search_from' = '')) AND ((`date_of_happening` <= '$search_to' OR '$search_to' = '') OR (`date_of_report` <= '$search_to' OR '$search_to' = '')) $view_sql $type_query";
                             }
 
                             $result = mysqli_query($dbc, $query_check_credentials);
@@ -104,7 +113,8 @@ foreach($project_tabs as $item) {
                                 $get_field_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT incident_report_dashboard FROM field_config_incident_report"));
                                 $value_config = ','.$get_field_config['incident_report_dashboard'].',';
 
-                                echo "<table class='table table-bordered'>";
+                                echo "<table class='table table-bordered table-striped'>";
+                                echo "<thead>";
                                 echo "<tr class='hidden-xs hidden-sm'>";
                                     if (strpos($value_config, ','."Program".',') !== FALSE) {
                                         echo '<th>Program</th>';
@@ -152,6 +162,7 @@ foreach($project_tabs as $item) {
                                         echo '<th>Function</th>';
                                     }
                                 echo "</tr>";
+                                echo "</thead>";
 
                                 while($row = mysqli_fetch_array( $result ))
                                 {
@@ -170,6 +181,9 @@ foreach($project_tabs as $item) {
                                         $contact_list[] = get_contact($dbc, $row['completed_by']);
                                     }
                                     $contact_list = array_unique($contact_list);
+                                    if(empty($contact_list) && $current_type == 'SAVED') {
+                                        $contact_list = [''];
+                                    }
 
                                     foreach($contact_list as $contact_name) {
                                         $project = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `project` WHERE `projectid` = '".$row['projectid']."'"));

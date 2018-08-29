@@ -58,8 +58,8 @@ if (isset($_POST['upload_doc_for_po_invoice'])) {
 
         $num_rows = mysqli_num_rows($result);
         if($num_rows > 0) {
-        echo "<table class='table table-bordered'>";
-        echo "<tr class='hidden-xs hidden-sm'>
+        echo "<table class='table table-bordered table-striped'>";
+        echo "<thead><tr class='hidden-xs hidden-sm'>
                 <th>PO #</th>
                 <th>Vendor</th>
                 <th>PO</th>
@@ -68,7 +68,7 @@ if (isset($_POST['upload_doc_for_po_invoice'])) {
                 if($edit_access == 1) {
                     echo "<th>Function</th>";
                 }
-                echo "</tr>";
+                echo "</tr></thead>";
         } else {
             echo "<h2>No Record Found.</h2>";
         }

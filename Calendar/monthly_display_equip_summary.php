@@ -22,11 +22,14 @@ foreach($allowed_classifications as $allowed_classification) {
 $allowed_classifications_arr[] = " IFNULL(`tickets`.`classification`,'') = ''";
 $allowed_classifications_query = " AND (".implode(' OR ', $allowed_classifications_arr).")";
 
-if(!isset($equipment_category)) {
-	$equipment_category = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_equip_assign`"))['equipment_category'];
-	if (empty($equipment_category)) {
-		$equipment_category = 'Equipment';
-	}
+$equipment_category = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_equip_assign`"))['equipment_category'];
+$equipment_categories = array_filter(explode(',', $equipment_category));
+if(empty($equipment_categories) || count($equipment_categories) > 1) {
+    $equipment_category = 'Equipment';
+}
+$equip_cat_query = '';
+if(count($equipment_categories) > 0) {
+    $equip_cat_query = " AND `equipment`.`category` IN ('".implode("','", $equipment_categories)."')";
 }
 
 $result = mysqli_query($dbc, "SELECT ea.*, e.*, ea.`notes`, CONCAT(e.`category`, ' #', e.`unit_number`) `label`, IFNULL(NULLIF(ea.`region`,''),e.`region`) `region`, IFNULL(NULLIF(ea.`location`,''),e.`location`) `location`, IFNULL(NULLIF(ea.`classification`,''),e.`classification`) `classification` FROM `equipment_assignment` ea LEFT JOIN `equipment` e ON ea.`equipmentid` = e.`equipmentid` WHERE ea.`deleted` = 0 AND DATE(`start_date`) <= '$new_today_date' AND DATE(ea.`end_date`) >= '$new_today_date' AND CONCAT(',',ea.`hide_days`,',') NOT LIKE '%,$new_today_date,%' ORDER BY e.`category`, e.`unit_number`");
@@ -41,7 +44,7 @@ while($row = mysqli_fetch_array( $result )) {
 	$client = (get_contact($dbc, $row['clientid']) != '-' ? get_contact($dbc, $row['clientid']) : get_client($dbc, $row['clientid']));
 	$equip_assign_team = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `teams` WHERE `teamid` = '".$row['teamid']."'"));
 
-    $team_contacts = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `teams_staff` WHERE `teamid` ='".$row_team['teamid']."' AND `deleted` = 0"),MYSQLI_ASSOC);
+    $team_contacts = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `teams_staff` WHERE `teamid` ='".$equip_assign_team['teamid']."' AND `deleted` = 0"),MYSQLI_ASSOC);
     foreach ($team_contacts as $team_contact) {
     	if(!empty($team_contact['contactid']) && !in_array($team_contact['contactid'], $hide_staff)) {
     		$team_contactids[$team_contact['contactid']] = [get_contact($dbc, $team_contact['contactid'], 'category'), get_contact($dbc, $team_contact['contactid']), $team_contact['contact_position']];
@@ -71,7 +74,7 @@ while($row = mysqli_fetch_array( $result )) {
 			}
 		}
     }
-	$all_tickets_sql = "SELECT IFNULL(`ticket_schedule`.`status`,`tickets`.`status`) `status` FROM `tickets` LEFT JOIN `ticket_schedule` ON `tickets`.`ticketid`=`ticket_schedule`.`ticketid` AND `ticket_schedule`.`deleted`=0 WHERE ('".$new_today_date."' BETWEEN `tickets`.`to_do_date` AND `tickets`.`to_do_end_date` OR '".$new_today_date."' BETWEEN `ticket_schedule`.`to_do_date` AND IFNULL(`ticket_schedule`.`to_do_end_date`,`ticket_schedule`.`to_do_date`)) AND IFNULL(IFNULL(`ticket_schedule`.`to_do_start_time`,`tickets`.`to_do_start_time`),'') != '' AND (IFNULL(`ticket_schedule`.`equipmentid`,`tickets`.`equipmentid`)='".$row['equipmentid']."') AND `tickets`.`deleted` = 0 AND `tickets`.`status` NOT IN ('Archive', 'Done')".$allowed_regions_query.$allowed_locations_query.$allowed_classifications_query;
+	$all_tickets_sql = "SELECT IFNULL(`ticket_schedule`.`status`,`tickets`.`status`) `status` FROM `tickets` LEFT JOIN `ticket_schedule` ON `tickets`.`ticketid`=`ticket_schedule`.`ticketid` AND `ticket_schedule`.`deleted`=0 WHERE ('".$new_today_date."' BETWEEN `tickets`.`to_do_date` AND `tickets`.`to_do_end_date` OR '".$new_today_date."' BETWEEN `ticket_schedule`.`to_do_date` AND IFNULL(`ticket_schedule`.`to_do_end_date`,`ticket_schedule`.`to_do_date`)) AND IFNULL(IFNULL(`ticket_schedule`.`to_do_start_time`,`tickets`.`to_do_start_time`),'') != '' AND (IFNULL(`ticket_schedule`.`equipmentid`,`tickets`.`equipmentid`)='".$row['equipmentid']."') AND `tickets`.`deleted` = 0 AND `tickets`.`status` NOT IN ('Archive', 'Done')".$allowed_regions_query.$allowed_locations_query.$allowed_classifications_query.$allowed_ticket_types_query;
 	$tickets = mysqli_fetch_all(mysqli_query($dbc, $all_tickets_sql),MYSQLI_ASSOC);
 	$completed_tickets = 0;
 	foreach($tickets as $ticket) {

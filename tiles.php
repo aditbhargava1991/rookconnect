@@ -11,12 +11,21 @@ if($_SESSION['tile_list_updated'] + 30 < time() || $_SERVER['PHP_SELF'] == '/Set
 	}
 	// Get all of the ticket types in an array
 	$ticket_type_tile_list = [];
-	if(get_config($dbc, 'ticket_type_tiles') == 'SHOW') {
+    $ticket_type_tile_config = get_config($dbc, 'ticket_type_tiles');
+	if($ticket_type_tile_config == 'SHOW') {
 		$ticket_type_list = array_filter(explode(',',get_config($dbc,'ticket_tabs')));
 		foreach($ticket_type_list as $ticket_type_item) {
 			$ticket_type_tile_list[] = 'ticket#*#'.$ticket_type_item;
 		}
-	}
+	} else if(!empty($ticket_type_tile_config)) {
+        foreach(explode(',',$ticket_type_tile_config) as $ticket_type_item) {
+            $ticket_type_tile_list[] = 'ticket#*#'.$ticket_type_item;
+        }
+    }
+    $ticket_tile_groups = $dbc->query("SELECT `name` FROM `general_configuration` WHERE `name` LIKE 'ticket_split_tiles_%'");
+    while($ticket_tile_group = $ticket_tile_groups->fetch_assoc()) {
+        $ticket_type_tile_list[] = 'ticket_group#*#'.substr($ticket_tile_group['name'],19);
+    }
 	// Get all of the project workflow types in an array
 	$project_workflow_type_list = mysqli_query($dbc, "SELECT `tile_name` FROM `project_workflow`"); //explode(',',get_config($dbc,'project_tabs'));
 	$project_workflow_type_tile_list = [];
@@ -116,6 +125,7 @@ if($_SESSION['tile_list_updated'] + 30 < time() || $_SERVER['PHP_SELF'] == '/Set
 			'gao',
 			'checklist',
 			'tasks',
+			'tasks_updated',
 			'scrum',
 			'communication',
 			'communication_schedule',
@@ -227,7 +237,7 @@ if($_SESSION['tile_list_updated'] + 30 < time() || $_SERVER['PHP_SELF'] == '/Set
 			if($tile_info['name'] == 'Therapist') {
 				$tile_info['name'] = 'Therapists';
 			}
-			
+
 			$_SESSION['tile_list'][] = ['tile' => $tile_name, 'label' => 'Tile: '.$tile_info['name'],'key'=>$tile_info['name'],'link' => WEBSITE_URL.'/'.$tile_info['link']];
 		}
 	}
@@ -238,7 +248,7 @@ if(!$no_display) {
 	// This is defined in home.php to create the tile layout, otherwise it uses the list item format of the menus
 	$item_start = (empty($item_start) ? '<li>' : $item_start);
 	$item_end = (empty($item_end) ? '</li>' : $item_end);
-	
+
 	$dashboard_arr = array_filter(explode('*#*',$dashboard_list));
 	if(count($dashboard_arr) == 0) {
 		foreach($_SESSION['tile_list'] as $tile_data) {

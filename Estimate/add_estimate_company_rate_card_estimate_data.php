@@ -20,6 +20,10 @@
             $query_insert_customer = "INSERT INTO `estimate_company_rate_card` (`estimateid`, `companyrcid`, `tile_name`, `rc_type`, `heading`, `description`, `uom`, `cost`, `cust_price`, `qty`, `rc_total`) VALUES ('$estimateid', '$companyrcid', '$tile_name','$type', '$heading' , '$description', '$uom', '$cost', '$cust_price', '$qty', '$rc_total')";
             $result_insert_customer = mysqli_query($dbc, $query_insert_customer);
 
+            $before_change = '';
+            $history = "Estimates company rate card entry has been added. <br />";
+            add_update_history($dbc, 'estimates_history', $history, '', $before_change);
+
             $total_price += $rc_total;
             $total_products += $rc_total;
             $products_total += $qty;
@@ -92,6 +96,10 @@
             $query_insert_customer = "INSERT INTO `estimate_company_rate_card` (`estimateid`, `companyrcid`, `tile_name`, `rc_type`, `heading`, `description`, `uom`, `cost`, `cust_price`, `qty`, `rc_total`) VALUES ('$estimateid', '$companyrcid', '$tile_name','$type', '$heading' , '$description', '$uom', '$cost', '$cust_price', '$qty', '$rc_total')";
             $result_insert_customer = mysqli_query($dbc, $query_insert_customer);
 
+            $before_change = '';
+            $history = "Estimates company rate card entry has been added. <br />";
+            add_update_history($dbc, 'estimates_history', $history, '', $before_change);
+
             $total_price += $rc_total;
             $total_service += $rc_total;
             $service_total += $qty;
@@ -147,7 +155,7 @@
 
     //Products
     //$j = 0;
-    
+
     $total_rc_products = $_POST['total_rc_products'];
     for($j=0;$j<=$total_rc_products;$j++) {
         if($_POST['crc_products_qty_'.$j] != '' && $_POST['crc_products_qty_'.$j] != '0') {
@@ -164,9 +172,13 @@
 
             $profit = filter_var($_POST['crc_products_profit_'.$j],FILTER_SANITIZE_STRING);
             $margin = filter_var($_POST['crc_products_margin_'.$j],FILTER_SANITIZE_STRING);
-            
+
             $query_insert_products = "INSERT INTO `estimate_company_rate_card` (`estimateid`, `companyrcid`, `tile_name`, `rc_type`, `heading`, `description`, `uom`, `cost`, `cust_price`, `qty`, `rc_total`,`profit`,`margin`) VALUES ('$estimateid', '$companyrcid', '$tile_name','$type', '$heading' , '$description', '$uom', '$cost', '$cust_price', '$qty', '$rc_total','$profit','$margin')";
             $result_insert_customer = mysqli_query($dbc, $query_insert_products);
+
+            $before_change = '';
+            $history = "Estimates company rate card entry has been added. <br />";
+            add_update_history($dbc, 'estimates_history', $history, '', $before_change);
 
             $total_price += $rc_total;
             $total_products += $rc_total;
@@ -220,7 +232,7 @@
         }
         //$j++;
     }
-    
+
     //Staff
     $j = 0;
     foreach ($_POST['crc_staff_qty'] as $staffid_all) {
@@ -239,6 +251,11 @@
 
             $query_insert_customer = "INSERT INTO `estimate_company_rate_card` (`estimateid`, `companyrcid`, `tile_name`, `rc_type`, `heading`, `description`, `uom`, `cost`, `cust_price`, `qty`, `rc_total`) VALUES ('$estimateid', '$companyrcid', '$tile_name','$type', '$heading' , '$description', '$uom', '$cost', '$cust_price', '$qty', '$rc_total')";
             $result_insert_customer = mysqli_query($dbc, $query_insert_customer);
+
+            $before_change = '';
+            $history = "Estimates company rate card entry has been added. <br />";
+            add_update_history($dbc, 'estimates_history', $history, '', $before_change);
+
             $total_price += $rc_total;
             $total_products += $rc_total;
 			$cost_staff += $cost * $qty;
@@ -310,6 +327,11 @@
 
             $query_insert_customer = "INSERT INTO `estimate_company_rate_card` (`estimateid`, `companyrcid`, `tile_name`, `rc_type`, `heading`, `description`, `uom`, `cost`, `cust_price`, `qty`, `rc_total`) VALUES ('$estimateid', '$companyrcid', '$tile_name','$type', '$heading' , '$description', '$uom', '$cost', '$cust_price', '$qty', '$rc_total')";
             $result_insert_customer = mysqli_query($dbc, $query_insert_customer);
+
+            $before_change = '';
+            $history = "Estimates company rate card entry has been added. <br />";
+            add_update_history($dbc, 'estimates_history', $history, '', $before_change);
+
             $total_price += $rc_total;
             $total_products += $rc_total;
 			$cost_contractor += $cost * $qty;
@@ -380,6 +402,11 @@
 
             $query_insert_customer = "INSERT INTO `estimate_company_rate_card` (`estimateid`, `companyrcid`, `tile_name`, `rc_type`, `heading`, `description`, `uom`, `cost`, `cust_price`, `qty`, `rc_total`) VALUES ('$estimateid', '$companyrcid', '$tile_name','$type', '$heading' , '$description', '$uom', '$cost', '$cust_price', '$qty', '$rc_total')";
             $result_insert_customer = mysqli_query($dbc, $query_insert_customer);
+
+            $before_change = '';
+            $history = "Estimates company rate card entry has been added. <br />";
+            add_update_history($dbc, 'estimates_history', $history, '', $before_change);
+
             $total_price += $rc_total;
             $total_products += $rc_total;
 			$cost_client += $cost * $qty;
@@ -491,6 +518,11 @@
 
             $query_insert_customer = "INSERT INTO `estimate_company_rate_card` (`estimateid`, `companyrcid`, `tile_name`, `rc_type`, `heading`, `description`, `uom`, `cost`, `cust_price`, `qty`, `rc_total`) VALUES ('$estimateid', '$companyrcid', '$tile_name','$type', '$heading' , '$description', '$uom', '$cost', '$cust_price', '$qty', '$rc_total')";
             $result_insert_customer = mysqli_query($dbc, $query_insert_customer);
+
+            $before_change = '';
+            $history = "Estimates company rate card entry has been added. <br />";
+            add_update_history($dbc, 'estimates_history', $history, '', $before_change);
+
             $total_price += $rc_total;
             $total_products += $rc_total;
 			$cost_customer += $cost * $qty;
@@ -565,6 +597,11 @@
 
             $query_insert_inventory = "INSERT INTO `estimate_company_rate_card` (`estimateid`, `companyrcid`, `tile_name`, `rc_type`, `heading`, `description`, `uom`, `cost`, `cust_price`, `qty`, `rc_total`,`profit`,`margin`) VALUES ('$estimateid', '$companyrcid', '$tile_name','$type', '$heading' , '$description', '$uom', '$cost', '$cust_price', '$qty', '$rc_total','$profit','$margin')";
             $result_insert_inventory = mysqli_query($dbc, $query_insert_inventory);
+
+            $before_change = '';
+            $history = "Estimates company rate card entry has been added. <br />";
+            add_update_history($dbc, 'estimates_history', $history, '', $before_change);
+
             $total_price += $rc_total;
             $total_products += $rc_total;
             $products_total += $qty;
@@ -637,6 +674,11 @@
 
             $query_insert_equipment = "INSERT INTO `estimate_company_rate_card` (`estimateid`, `companyrcid`, `tile_name`, `rc_type`, `heading`, `description`, `uom`, `cost`, `cust_price`, `qty`, `rc_total`,`profit`,`margin`) VALUES ('$estimateid', '$companyrcid', '$tile_name','$type', '$heading' , '$description', '$uom', '$cost', '$cust_price', '$qty', '$rc_total','$profit','$margin')";
             $result_insert_equipment = mysqli_query($dbc, $query_insert_equipment);
+
+            $before_change = '';
+            $history = "Estimates company rate card entry has been added. <br />";
+            add_update_history($dbc, 'estimates_history', $history, '', $before_change);
+
             $total_price += $rc_total;
             $total_products += $rc_total;
             $products_total += $qty;
@@ -710,6 +752,11 @@
 
             $query_insert_labour = "INSERT INTO `estimate_company_rate_card` (`estimateid`, `companyrcid`, `tile_name`, `rc_type`, `heading`, `description`, `uom`, `cost`, `cust_price`, `qty`, `rc_total`,`profit`,`margin`) VALUES ('$estimateid', '$companyrcid', '$tile_name','$type', '$heading' , '$description', '$uom', '$cost', '$cust_price', '$qty', '$rc_total','$profit','$margin')";
             $result_insert_labour = mysqli_query($dbc, $query_insert_labour);
+
+            $before_change = '';
+            $history = "Estimates company rate card entry has been added. <br />";
+            add_update_history($dbc, 'estimates_history', $history, '', $before_change);
+
             $total_price += $rc_total;
             $total_products += $rc_total;
             $products_total += $qty;
@@ -761,7 +808,7 @@
         }
         //$j++;
     }
-	
+
     //Custom Accordions
 	$acc_config = mysqli_fetch_array(mysqli_query($dbc,"SELECT `custom_accordions` FROM `field_config_estimate`"))['custom_accordions'];
 	$accordions = explode('#*#',$acc_config);
@@ -769,13 +816,13 @@
 	$acc_fields = 0;
 	$width_factor = 0;
 	$first_acc = explode(',',$accordions[0]);
-	
+
 	$field_order = get_config($dbc, 'estimate_field_order');
 	if($field_order == '') {
 		$field_order = 'Type***#*#Heading***#*#Description***#*#UOM***Unit of Measure#*#Quantity***Qty#*#Cost***#*#Margin***% Margin#*#Profit***$ Profit#*#Price***Unit Price#*#Total***Line Total';
 	}
 	$field_order = explode('#*#',$field_order);
-	
+
     $accordion_head = '<table border="1px" style="padding:3px; border:1px solid black; width:100%;">
             <tr nobr="true" style="background-color:lightgrey; color:black;">';
 	foreach($field_order as $field_data) {
@@ -858,8 +905,13 @@
 
 				$query_insert_accordion = "INSERT INTO `estimate_company_rate_card` (`estimateid`, `companyrcid`, `tile_name`, `rc_type`, `heading`, `description`, `uom`, `cost`, `cust_price`, `qty`, `rc_total`,`profit`,`margin`) VALUES ('$estimateid', '$companyrcid', '$tile_name','$type', '$heading' , '$description', '$uom', '$cost', '$cust_price', '$qty', '$rc_total','$profit','$margin')";
 				$result_insert_accordion = mysqli_query($dbc, $query_insert_accordion);
+
+        $before_change = '';
+        $history = "Estimates company rate card entry has been added. <br />";
+        add_update_history($dbc, 'estimates_history', $history, '', $before_change);
+        
 				$total_price += $rc_total;
-				
+
 				if(empty($accordion_type_totals[$type_key])) {
 					$accordion_type_totals[$type_key] = 0;
 				}

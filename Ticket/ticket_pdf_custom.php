@@ -1,6 +1,7 @@
 <?php include_once('../include.php');
 include_once('../function.php');
 include_once('../tcpdf/tcpdf.php');
+include_once('config.php');
 ob_clean();
 $ticketid = filter_var($_GET['ticketid'],FILTER_SANITIZE_STRING);
 $form = $dbc->query("SELECT * FROM `ticket_pdf` WHERE `id`='".filter_var($_GET['form'],FILTER_SANITIZE_STRING)."'")->fetch_assoc();

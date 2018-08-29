@@ -537,12 +537,24 @@ if($_GET['action'] == 'setting_fields_dashboard') {
 if($_GET['action'] == 'setting_next_action') {
 	set_config($dbc, 'sales_next_action', filter_var($_GET['sales_next_action'],FILTER_SANITIZE_STRING));
 }
+if($_GET['action'] == 'dashboard_lead_statuses') {
+    if($_POST['action'] == 'rename') {
+        $prior = filter_var($_POST['prior_status'],FILTER_SANITIZE_STRING);
+        $post = filter_var($_POST['post_status'],FILTER_SANITIZE_STRING);
+        $dbc->query("UPDATE `sales` SET `status`='$post' WHERE `status`='$prior' AND `deleted`=0");
+    } else if($_POST['action'] == 'remove') {
+        $prior = filter_var($_POST['prior_status'],FILTER_SANITIZE_STRING);
+        $dbc->query("UPDATE `sales` SET `deleted`='1' WHERE `status`='$prior' AND `deleted`=0");
+    }
+	set_config($dbc, 'sales_lead_status', implode(',',$_POST['sales_lead_status']));
+}
 if($_GET['action'] == 'setting_lead_status') {
 	set_config($dbc, 'sales_lead_status', filter_var($_GET['sales_lead_status'],FILTER_SANITIZE_STRING));
 	set_config($dbc, 'lead_status_won', filter_var($_GET['lead_status_won'],FILTER_SANITIZE_STRING));
 	set_config($dbc, 'lead_status_lost', filter_var($_GET['lead_status_lost'],FILTER_SANITIZE_STRING));
 	set_config($dbc, 'lead_status_retained', filter_var($_GET['lead_status_retained'],FILTER_SANITIZE_STRING));
 	set_config($dbc, 'lead_convert_to', filter_var($_GET['lead_convert_to'],FILTER_SANITIZE_STRING));
+	set_config($dbc, 'sales_quick_reports', implode(',',$_POST['sales_quick_reports']));
 }
 if($_GET['action'] == 'setting_auto_archive') {
 	set_config($dbc, 'sales_auto_archive', filter_var($_GET['sales_auto_archive'],FILTER_SANITIZE_STRING));
@@ -649,5 +661,14 @@ if($_GET['action'] == 'upload_files') {
     $dbc->query("INSERT INTO `sales_document` (`salesid`,`document_type`,`document`,`created_date`,`created_by`) VALUES ('$salesid','$type','$filename',DATE(NOW()),'".$_SESSION['contactid']."')");
     $history = $type." named ".$filename." added.";
     add_update_history($dbc, 'sales_history', $history.'<br />', '', '', $salesid);
+}
+if($_GET['action'] == 'new_business') {
+    $dbc->query("INSERT INTO `contacts` (`category`,`name`) VALUES ('".BUSINESS_CAT."','".encryptIt('New '.BUSINESS_CAT)."')");
+    echo $dbc->insert_id;
+}
+if($_GET['action'] == 'new_lead') {
+    $businessid = filter_var($_POST['businessid'],FILTER_SANITIZE_STRING);
+    $dbc->query("INSERT INTO `contacts` (`category`,`first_name`,`businessid`) VALUES ('Sales Leads','".encryptIt('New Sales Lead')."','$businessid')");
+    echo $dbc->insert_id;
 }
 ?>
