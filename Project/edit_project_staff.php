@@ -1,5 +1,6 @@
 <?php error_reporting(0);
 include_once('../include.php');
+
 if(!isset($security)) {
 	$security = get_security($dbc, $tile);
 	$strict_view = strictview_visible_function($dbc, 'project');
