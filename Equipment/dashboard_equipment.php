@@ -59,8 +59,6 @@ $each_tab = explode(',', get_config($dbc, 'equipment_tabs')); ?>
 	</div>
 	<div class="clearfix"></div>
 <?php } ?>
-</div>
-<div class="clearfix double-gap-top"></div>
 
 <div id="no-more-tables"> <?php
 

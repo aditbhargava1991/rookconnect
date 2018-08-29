@@ -100,7 +100,7 @@ $(document).ready(function() {
                 }
                 if($note != '') { ?>
                     <div class="notice double-gap-top double-gap-bottom popover-examples">
-                        <div class="col-sm-1 notice-icon"><img src="http://local.host.rook/img/info.png" class="wiggle-me" width="25"></div>
+                        <div class="col-sm-1 notice-icon"><img src="../img/info.png" class="wiggle-me" width="25"></div>
                         <div class="col-sm-11"><span class="notice-name">NOTE: </span><?= $note ?></div>
                         <div class="clearfix"></div>
                     </div>
