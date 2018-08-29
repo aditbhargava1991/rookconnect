@@ -1,22 +1,22 @@
 <?php include_once('../include.php');
 checkAuthorised('services');
-if($serviceid > 0 && isset($_POST['ratecardid'])) {
+if($serviceid > 0 && isset($_POST['rate_ratecardid'])) {
 	$rate_cards_keep = [];
-	foreach($_POST['ratecardid'] as $i => $ratecardid) {
-		$row_i = filter_var($_POST['ratecard_row_i'][$i]);
+	foreach($_POST['rate_ratecardid'] as $i => $ratecardid) {
+		$row_i = filter_var($_POST['rate_ratecard_row_i'][$i]);
 
-		$start_date = filter_var($_POST['start_date'][$i],FILTER_SANITIZE_STRING);
-		$end_date = filter_var($_POST['end_date'][$i],FILTER_SANITIZE_STRING);
-		$alert_date = filter_var($_POST['alert_date'][$i],FILTER_SANITIZE_STRING);
-		$alert_staff = filter_var(implode(',',$_POST['alert_staff_'.$row_i]),FILTER_SANITIZE_STRING);
-		$uom = filter_var($_POST['uom'][$i],FILTER_SANITIZE_STRING);
+		$start_date = filter_var($_POST['rate_start_date'][$i],FILTER_SANITIZE_STRING);
+		$end_date = filter_var($_POST['rate_end_date'][$i],FILTER_SANITIZE_STRING);
+		$alert_date = filter_var($_POST['rate_alert_date'][$i],FILTER_SANITIZE_STRING);
+		$alert_staff = filter_var(implode(',',$_POST['rate_alert_staff_'.$row_i]),FILTER_SANITIZE_STRING);
+		$uom = filter_var($_POST['rate_uom'][$i],FILTER_SANITIZE_STRING);
 		if($uom == 'NEW_UOM') {
-			$uom = filter_var($_POST['uom_new'][$i],FILTER_SANITIZE_STRING);
+			$uom = filter_var($_POST['rate_uom_new'][$i],FILTER_SANITIZE_STRING);
 		}
-		$cost = filter_var($_POST['cost'][$i],FILTER_SANITIZE_STRING);
-		$profit_percent = filter_var($_POST['profit_percent'][$i],FILTER_SANITIZE_STRING);
-		$profit_dollar = filter_var($_POST['profit_dollar'][$i],FILTER_SANITIZE_STRING);
-		$price = filter_var($_POST['price'][$i],FILTER_SANITIZE_STRING);
+		$cost = filter_var($_POST['rate_cost'][$i],FILTER_SANITIZE_STRING);
+		$profit_percent = filter_var($_POST['rate_profit_percent'][$i],FILTER_SANITIZE_STRING);
+		$profit_dollar = filter_var($_POST['rate_profit_dollar'][$i],FILTER_SANITIZE_STRING);
+		$price = filter_var($_POST['rate_price'][$i],FILTER_SANITIZE_STRING);
 		if($serviceid > 0 && $cost > 0) {
 			$before_change = capture_before_change($dbc, 'services', 'cost', 'serviceid', $serviceid);
 			$dbc->query("UPDATE `services` SET `cost`='$cost' WHERE `serviceid`='$serviceid'");
