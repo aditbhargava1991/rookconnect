@@ -295,6 +295,12 @@ div.toggle-switch {
 .text-blue {
 	color: rgb(0,168,255);
 }
+.text-md {
+	font-size: 1.25em;
+}
+.text-reg {
+	font-size: 1em;
+}
 .text-lg {
 	font-size: 2em;
 }
@@ -746,6 +752,19 @@ div.main-screen ul.option-list li {
 	font-size: 1.5em;
     min-height: 3em;
 	margin: 1.5em;
+	padding: 0.5em;
+}
+ul.no-bullet {
+    list-style-type: none;
+	margin: 0;
+	padding: 0;
+	width: 100%;
+}
+ul.no-bullet li {
+	font-size: 1.15em;
+    font-weight: bold;
+    min-height: 1.25em;
+	margin-left: 1.5em;
 	padding: 0.5em;
 }
 div.main-screen ul.option-list li .id-circle {

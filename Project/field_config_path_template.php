@@ -19,7 +19,7 @@ function init_path() {
 	$('.sortable_group_block').sortable({
 		handle: '.group-handle',
 		items: '.sortable_group',
-		update: save_individual_order
+		update: save_path
 	});
 	$('[name=ticket_service]').each(function() {
 		var select = this;
@@ -39,9 +39,10 @@ function init_path() {
 function save_path() {
 	var milestone = '';
 	var timeline = '';
-	var checklist = '';
+	var tasks = '';
 	var ticket = '';
-	var workorder = '';
+    var items = '';
+    var intakes = '';
 	$('[name=milestone]').each(function() {
 		var block = $(this).closest('.block-group');
 		var delimiter = false;
@@ -50,13 +51,14 @@ function save_path() {
 		}
 		milestone += (delimiter ? '#*#' : '')+this.value;
 		timeline += (delimiter ? '#*#' : '')+block.find('[name=timeline]').val();
-		checklist += (delimiter ? '#*#' : '')+block.find('[name=checklist]').map(function() { return this.value; }).get().join('*#*');
+		tasks += (delimiter ? '#*#' : '')+block.find('[name=checklist]').filter(function() { return this.value != ''; }).map(function() { return this.value; }).get().join('*#*');
 		var ticket_list = [];
-		block.find('[name=ticket_heading]').each(function() {
+		block.find('[name=ticket_heading]').filter(function() { return this.value != ''; }).each(function() {
 			ticket_list.push(this.value+'FFMSPLIT'+$(this).closest('.form-group').find('[name=ticket_service]').val());
 		});
 		ticket += (delimiter ? '#*#' : '')+ticket_list.join('*#*');
-		workorder += (delimiter ? '#*#' : '')+block.find('[name=workorder]').map(function() { return this.value; }).get().join('*#*');
+		items += (delimiter ? '#*#' : '')+block.find('[name=items]').filter(function() { return this.value != ''; }).map(function() { return this.value; }).get().join('*#*');
+		intakes += (delimiter ? '#*#' : '')+block.find('[name=intake]').filter(function() { return this.value > 0; }).map(function() { return this.value; }).get().join('*#*');
 	});
 	$.ajax({
 		url: 'projects_ajax.php?action=path_template',
@@ -66,47 +68,10 @@ function save_path() {
 			template_name: $('[name=template_name]').val(),
 			milestone: milestone,
 			timeline: timeline,
-			checklist: checklist,
+			tasks: tasks,
 			ticket: ticket,
-			workorder: workorder
-		},
-		success: function(response) {
-			if(response > 0) {
-				$('[name=templateid]').val(response);
-			}
-		}
-	});
-}
-function save_individual_order() {
-    var milestone = '';
-    var checklist = '';
-	var ticket = '';
-	var workorder = '';
-
-    $('[name=milestone]').each(function() {
-        var block = $(this).closest('.block-group');
-        var delimiter = false;
-		if(milestone != '') {
-			delimiter = true;
-		}
-        milestone += (delimiter ? '#*#' : '')+this.value;
-        checklist += (delimiter ? '#*#' : '')+block.find('[name=checklist]').map(function() { return this.value; }).get().join('*#*');
-        var ticket_list = [];
-		block.find('[name=ticket_heading]').each(function() {
-			ticket_list.push(this.value+'FFMSPLIT'+$(this).closest('.form-group').find('[name=ticket_service]').val());
-		});
-		ticket += (delimiter ? '#*#' : '')+ticket_list.join('*#*');
-		workorder += (delimiter ? '#*#' : '')+block.find('[name=workorder]').map(function() { return this.value; }).get().join('*#*');
-    });
-
-	$.ajax({
-		url: 'projects_ajax.php?action=path_template_individual_order',
-		method: 'POST',
-		data: {
-			templateid: $('[name=templateid]').val(),
-			checklist: checklist,
-			ticket: ticket,
-			workorder: workorder
+			items: items,
+			intakes: intakes
 		},
 		success: function(response) {
 			if(response > 0) {
@@ -144,7 +109,19 @@ function remove_block(img) {
 	$(img).closest('.block-group').remove();
 	save_path();
 }
+function add_group(img) {
+    destroyInputs();
+    var type = $(img).closest('.form-group').attr('class').split(' ')[0];
+    var clone = $(img).closest('.block-group').find('.'+type).clone();
+    clone.find('input,select').val('');
+    $(img).closest('.block-group').find('.'+type).last().after(clone);
+    initInputs();
+}
 function remove_group(img) {
+    var type = $(img).closest('.form-group').attr('class').split(' ')[0];
+    if($(img).closest('.block-group').find('.'+type).length == 1) {
+        add_group(img);
+    }
 	$(img).closest('.form-group').remove();
 	save_path();
 }
@@ -213,19 +190,21 @@ function add_workorder(btn) {
 	<?php $tab_config = array_filter(array_unique(explode(',',mysqli_fetch_assoc(mysqli_query($dbc,"SELECT GROUP_CONCAT(`config_tabs` SEPARATOR ',') `config` FROM field_config_project"))['config'])));
 	$timelines = explode('#*#', $template['timelines']);
 	$tickets = explode('#*#', $template['ticket']);
-	$workorders = explode('#*#', $template['workorder']);
-	$checklists = explode('#*#', $template['checklist']);
+	$tasks = explode('#*#', $template['checklist']);
+	$checklists = explode('#*#', $template['items']);
+	$intakes = explode('#*#', $template['intakes']);
+    $form_list = $dbc->query("SELECT `intakeformid`, `form_name` FROM `intake_forms` WHERE `deleted`=0")->fetch_all(MYSQLI_ASSOC);
 	foreach(explode('#*#',$template['milestone']) as $i => $milestone) { ?>
 		<div class="block-group">
 			<div class="form-group">
 				<label class="col-sm-4">Milestone:</label>
-				<div class="col-sm-7">
+				<div class="col-sm-6">
 					<input type="text" class="form-control" name="milestone" value="<?= $milestone ?>">
 				</div>
 				<div class="col-sm-1">
 					<img src="../img/icons/drag_handle.png" class="inline-img pull-right block-handle no-toggle" title="Drag">
-					<img src="../img/icons/ROOK-add-icon.png" class="inline-img pull-right" onclick="add_block();">
 					<img src="../img/remove.png" class="inline-img pull-right" onclick="remove_block(this);">
+					<img src="../img/icons/ROOK-add-icon.png" class="inline-img pull-right" onclick="add_block();">
 				</div>
 			</div>
 			<div class="form-group">
@@ -261,21 +240,43 @@ function add_workorder(btn) {
 						</div>
 					<?php } ?>
 				<?php } ?>
-				<?php foreach(explode('*#*',$workorders[$i]) as $workorder) {
-					if($workorder != '') { ?>
-						<div class="form-group sortable_group">
-							<label class="col-sm-4">Work Order Heading:</label>
-							<div class="col-sm-7"><input type="text" class="form-control" name="workorder" value="<?= $workorder ?>" /></div>
-							<div class="col-sm-1">
-								<img src="../img/remove.png" class="inline-img pull-right" onclick="remove_group(this);" />
-                                <img src="../img/icons/drag_handle.png" class="inline-img pull-right group-handle no-toggle" title="Drag" />
-							</div>
-						</div>
-					<?php } ?>
+				<?php foreach(explode('*#*',$tasks[$i]) as $task) { ?>
+                    <div class="task form-group sortable_group">
+                        <label class="col-sm-4">Task:</label>
+                        <div class="col-sm-6"><input type="text" class="form-control" name="checklist" value="<?= $task ?>" /></div>
+                        <div class="col-sm-2">
+                            <img src="../img/icons/drag_handle.png" class="inline-img pull-right group-handle" />
+                            <img src="../img/remove.png" class="inline-img pull-right" onclick="remove_group(this);" />
+                            <img src="../img/icons/ROOK-add-icon.png" class="inline-img pull-right" onclick="add_group(this);" />
+                        </div>
+                    </div>
 				<?php } ?>
-				<?php if(in_array('Work Orders',$tab_config)) { ?><button class="btn brand-btn pull-right" onclick="add_workorder(this); return false;">New Work Order</button><?php } ?>
-				<?php if(in_array('Tickets',$tab_config)) { ?><button class="btn brand-btn pull-right" onclick="add_ticket(this); return false;">New <?= TICKET_NOUN ?></button><?php } ?>
-				<?php if(in_array('Checklists',$tab_config) || in_array('Tasks',$tab_config)) { ?><button class="btn brand-btn pull-right" onclick="add_checklist(this); return false;">New Task</button><?php } ?>
+				<?php foreach(explode('*#*',$checklists[$i]) as $checklist) { ?>
+                    <div class="checklist form-group sortable_group">
+                        <label class="col-sm-4">Checklist:</label>
+                        <div class="col-sm-6"><input type="text" class="form-control" name="items" value="<?= $checklist ?>" /></div>
+                        <div class="col-sm-2">
+                            <img src="../img/icons/drag_handle.png" class="inline-img pull-right group-handle" />
+                            <img src="../img/remove.png" class="inline-img pull-right" onclick="remove_group(this);" />
+                            <img src="../img/icons/ROOK-add-icon.png" class="inline-img pull-right" onclick="add_group(this);" />
+                        </div>
+                    </div>
+				<?php } ?>
+				<?php foreach(explode('*#*',$intakes[$i]) as $intake) { ?>
+                    <div class="intake form-group sortable_group">
+                        <label class="col-sm-4">Intake Form:</label>
+                        <div class="col-sm-6"><select data-placeholder="Select Form" class="chosen-select-deselect" name="intake"><option />
+                                <?php foreach($form_list as $form) { ?>
+                                    <option <?= $intake == $form['intakeformid'] ? 'selected' : '' ?> value="<?= $form['intakeformid'] ?>"><?= $form['form_name'] ?></option>
+                                <?php } ?>
+                            </select></div>
+                        <div class="col-sm-2">
+                            <img src="../img/icons/drag_handle.png" class="inline-img pull-right group-handle" />
+                            <img src="../img/remove.png" class="inline-img pull-right" onclick="remove_group(this);" />
+                            <img src="../img/icons/ROOK-add-icon.png" class="inline-img pull-right" onclick="add_group(this);" />
+                        </div>
+                    </div>
+				<?php } ?>
 				<div class="clearfix"></div>
 			</div>
 		</div>
@@ -320,13 +321,13 @@ function add_workorder(btn) {
 		$milestone = explode('#*#', $row['milestone']);
 		$timeline = explode('#*#', $row['timeline']);
 		$ticket = explode('#*#', $row['ticket']);
-		$workorder = explode('#*#', $row['workorder']);
-		$checklist = explode('#*#', $row['checklist']);
-		$j=0;
-		foreach($milestone as $value)  {
+		$tasks = explode('#*#', $row['checklist']);
+		$items = explode('#*#', $row['items']);
+		$intakes = explode('#*#', $row['intakes']);
+		foreach($milestone as $j => $value)  {
 			if($value != '') {
 				echo $value. (!empty($timeline[$j]) ? ': ' : '').$timeline[$j].'<br>';
-				if(!empty($checklist[$j]) || !empty($ticket[$j]) || !empty($workorder[$j])) {
+				if(!empty($tasks[$j]) || !empty($ticket[$j]) || !empty($items[$j]) || !empty($intakes[$j])) {
 					echo "<ul>";
 					foreach(explode('*#*', $ticket[$j]) as $item) {
 						if($item != '' && $item != 'FFMSPLIT') {
@@ -335,20 +336,24 @@ function add_workorder(btn) {
 							echo "<small><li>".TICKET_NOUN.": ".$item[0]." (Service: ".$service.")</li></small>";
 						}
 					}
-					foreach(explode('*#*', $workorder[$j]) as $item) {
-						if($item != '') {
-							echo "<small><li>Work Order: ".$item."</li></small>";
-						}
-					}
-					foreach(explode('*#*', $checklist[$j]) as $item) {
+					foreach(explode('*#*', $tasks[$j]) as $item) {
 						if($item != '') {
 							echo "<small><li>".$item."</li></small>";
+						}
+					}
+					// foreach(explode('*#*', $items[$j]) as $item) {
+						// if($item != '') {
+							// echo "<small><li>".$item."</li></small>";
+						// }
+					// }
+					foreach(explode('*#*', $intakes[$j]) as $item) {
+						if($item != '') {
+							echo "<small><li>Intake Form: ".get_field_value('form_name','intake_forms','intakeformid',$item)."</li></small>";
 						}
 					}
 					echo "</ul>";
 				}
 			}
-			$j++;
 		}
 		echo '</td>';
 		echo '<td data-title="Function">';
