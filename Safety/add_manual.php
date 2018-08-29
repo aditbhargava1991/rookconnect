@@ -74,6 +74,9 @@ if (isset($_POST['view_manual'])) {
 	// Insert a row if it isn't already there
 	$query_insert_row = "INSERT INTO `safety_staff` (`safetyid`, `staffid`) SELECT '$safetyid', '$staffid' FROM (SELECT COUNT(*) rows FROM `safety_staff` WHERE `safetyid`='$safetyid' AND `staffid`='$staffid') LOGTABLE WHERE rows=0";
 	mysqli_query($dbc, $query_insert_row);
+    $before_change = '';
+    $history = "Safety staff entry has been added. <br />";
+    add_update_history($dbc, 'safety_history', $history, '', $before_change);
     $query_update_ticket = "UPDATE `safety_staff` SET `done` = '1', `today_date` = '$today_date' WHERE `safetyid` = '$safetyid' AND staffid='$staffid' AND done=0";
     $result_update_ticket = mysqli_query($dbc, $query_update_ticket);
 

@@ -808,11 +808,15 @@ function checklist_attach_file(checklist) {
                                             <input type="checkbox" name="status" value="<?= $row['tasklistid'] ?>" class="form-checkbox no-margin small pull-left" onchange="mark_done(this);" <?= ( $row['status'] == $status_complete ) ? 'checked' : '' ?> />
                                             <div class="pull-left gap-left">
 
-                                            <!--
-                                            <a href="" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Tasks_Updated/add_task.php?type=<?=$row['status']?>&tasklistid=<?=$row['tasklistid']?>', '50%', false, false, $('.iframe_overlay').closest('.container').outerHeight() + 20); return false;">Task #<?= $row['tasklistid'] ?>: </a>
-                                            -->
+                                            <?php
+                                            $slider_layout = !empty(get_config($dbc, 'tasks_slider_layout')) ? get_config($dbc, 'tasks_slider_layout') : 'accordion';
 
+                                            if($slider_layout == 'accordion') {
+                                            ?>
+                                            <a href="" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Tasks_Updated/add_task.php?type=<?=$row['status']?>&tasklistid=<?=$row['tasklistid']?>', '50%', false, false, $('.iframe_overlay').closest('.container').outerHeight() + 20); return false;">Task #<?= $row['tasklistid'] ?>: </a>
+                                            <?php } else { ?>
                                             <a  href="../Tasks_Updated/add_task_full_view.php?type=<?=$row['status']?>&tasklistid=<?=$row['tasklistid']?>">Task #<?= $row['tasklistid'] ?>: </a>
+                                            <?php } ?>
 
                                             </div> &nbsp;<span><?= $row['heading']; ?></span>
                                         </h4>

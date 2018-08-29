@@ -23,6 +23,7 @@ if (isset($_POST['tasklist'])) {
 		$client_projectid = substr($projectid,1);
 		$projectid = '';
 	}
+    $project_milestone = filter_var($_POST['project_milestone'],FILTER_SANITIZE_STRING);
 	$ticketid = filter_var(implode(',',$_POST['ticketid']),FILTER_SANITIZE_STRING);
     $businessid = $_POST['businessid'];
 
@@ -93,7 +94,7 @@ if (isset($_POST['tasklist'])) {
         if($subtabid == '') {
             $subtabid = 0;
         }
-        $query_insert_ca = "INSERT INTO `checklist` (`subtabid`, `assign_staff`, `checklist_type`, `reset_day`, `reset_time`, `checklist_name`, `created_by`, `projectid`, `client_projectid`, `ticketid`, `businessid`) VALUES ('$subtabid', '$assign_staff', '$checklist_type', '$reset_day', '$reset_time', '$checklist_name', '$created_by', '$projectid', '$client_projectid', '$ticketid', '$businessid')";
+        $query_insert_ca = "INSERT INTO `checklist` (`subtabid`, `assign_staff`, `checklist_type`, `reset_day`, `reset_time`, `checklist_name`, `created_by`, `projectid`, `project_milestone`, `client_projectid`, `ticketid`, `businessid`) VALUES ('$subtabid', '$assign_staff', '$checklist_type', '$reset_day', '$reset_time', '$checklist_name', '$created_by', '$projectid', '$project_milestone', '$client_projectid', '$ticketid', '$businessid')";
         $result_insert_ca = mysqli_query($dbc, $query_insert_ca);
         $checklistid = mysqli_insert_id($dbc);
 
@@ -123,7 +124,7 @@ if (isset($_POST['tasklist'])) {
 				$before_change .= capture_before_change($dbc, 'checklist', 'client_projectid', 'checklistid', $checklistid);
 				$before_change .= capture_before_change($dbc, 'checklist', 'businessid', 'checklistid', $checklistid);
 
-        $query_update_vendor = "UPDATE `checklist` SET `subtabid` = '$subtabid', `assign_staff` = '$assign_staff', `checklist_type` = '$checklist_type', `reset_day` = '$reset_day', `reset_time` = '$reset_time', `checklist_name` = '$checklist_name', `created_by` = '$created_by', `projectid` = '$projectid', `ticketid`='$ticketid', `client_projectid` = '$client_projectid', `businessid` = '$businessid' WHERE `checklistid` = '$checklistid'";
+        $query_update_vendor = "UPDATE `checklist` SET `subtabid` = '$subtabid', `assign_staff` = '$assign_staff', `checklist_type` = '$checklist_type', `reset_day` = '$reset_day', `reset_time` = '$reset_time', `checklist_name` = '$checklist_name', `created_by` = '$created_by', `projectid` = '$projectid', `project_milestone` = '$project_milestone', `ticketid`='$ticketid', `client_projectid` = '$client_projectid', `businessid` = '$businessid' WHERE `checklistid` = '$checklistid'";
         $result_update_vendor = mysqli_query($dbc, $query_update_vendor);
 
         $report = decryptIt($_SESSION['first_name']).' '.decryptIt($_SESSION['last_name']).' Updated Checklist <b>'.$checklist_name.'</b> in '.$subtab_name.' : '.$checklist_type.' on '.date('Y-m-d');
@@ -684,6 +685,93 @@ function removeNewRow(button) {
                     </div>
                 </div>
             <?php } ?>
+				<?php if(tile_enabled($dbc, 'project')) { ?>
+					<div class="panel panel-default">
+						<div class="panel-heading">
+							<h4 class="panel-title">
+								<a data-toggle="collapse" data-parent="#edit_accordions" href="#collapse_project">
+									<?= PROJECT_NOUN ?><span class="glyphicon glyphicon-plus"></span>
+								</a>
+							</h4>
+						</div>
+
+						<div id="collapse_project" class="panel-collapse collapse">
+							<div class="panel-body">
+								<div class="form-group assign_staff">
+								  <label for="site_name" class="col-sm-4 control-label"><?= PROJECT_NOUN ?> Name:</label>
+								  <div class="col-sm-8">
+									<select data-placeholder="Select a <?= PROJECT_NOUN ?>..." name="projectid" id="projectid"  class="chosen-select-deselect form-control" width="380">
+									  <option value=""></option>
+									  <?php $project_tabs = get_config($dbc, 'project_tabs');
+										if($project_tabs == '') {
+											$project_tabs = 'Client,SR&ED,Internal,R&D,Business Development,Process Development,Addendum,Addition,Marketing,Manufacturing,Assembly';
+										}
+										$project_tabs = explode(',',$project_tabs);
+										$project_vars = [];
+										foreach($project_tabs as $item) {
+											$project_vars[] = preg_replace('/[^a-z_]/','',str_replace(' ','_',strtolower($item)));
+										}
+										$query = mysqli_query($dbc,"SELECT * FROM (SELECT projectid, projecttype, project_name FROM project WHERE businessid= '$businessid' AND deleted=0 UNION SELECT CONCAT('C',`projectid`), 'Client Project', `project_name` FROM `client_project` WHERE `deleted`=0) PROJECTS ORDER BY project_name");
+										while($row = mysqli_fetch_array($query)) {
+											if(substr($row['projectid'],0,1) == 'C') {
+												echo "<option ".($client_projectid == $row['projectid'] ? 'selected' : '')." value='".$row['projectid']."'>Client Project: ".$row['project_name'].'</option>';
+											} else {
+												foreach($project_vars as $key => $type_name) {
+													if($type_name == $row['projecttype']) {
+														echo "<option ".($projectid == $row['projectid'] ? 'selected' : '')." value='".$row['projectid']."'>".$project_tabs[$key].': '.$row['project_name'].'</option>';
+													}
+												}
+											}
+										}
+									  ?>
+									</select>
+								  </div>
+								</div>
+                                <?php $tab_config = explode(',',implode(',',array_column(mysqli_fetch_all(mysqli_query($dbc,"SELECT `config_tabs` FROM field_config_project")),0)));
+                                if(in_array('Checklists In Path',$tab_config)) { ?>
+                                    <script>
+                                    $(document).ready(function() {
+                                        $('select[name=projectid]').change(function() {
+                                            projectid = $(this).val();
+                                            $('#project_path').show().load('project_path.php?projectid='+projectid+'&checklistid=<?= $checklistid ?>');
+                                        });
+                                    });
+                                    </script>
+                                    <div id="project_path"><?php include('project_path.php'); ?></div>
+                                <?php } ?>
+							</div>
+						</div>
+					</div>
+				<?php } ?>
+				<?php if(tile_enabled($dbc, 'ticket')) { ?>
+					<div class="panel panel-default">
+						<div class="panel-heading">
+							<h4 class="panel-title">
+								<a data-toggle="collapse" data-parent="#edit_accordions" href="#collapse_ticket_list">
+									<?= TICKET_NOUN ?><span class="glyphicon glyphicon-plus"></span>
+								</a>
+							</h4>
+						</div>
+
+						<div id="collapse_ticket_list" class="panel-collapse collapse">
+							<div class="panel-body">
+								<div class="form-group assign_staff">
+								  <label for="site_name" class="col-sm-4 control-label"><?= TICKET_NOUN ?>:</label>
+								  <div class="col-sm-8">
+									<select data-placeholder="Select a <?= TICKET_NOUN ?>..." name="ticketid[]" multiple id="ticketid"  class="chosen-select-deselect form-control">
+									  <option value=""></option>
+									  <?php $query = mysqli_query($dbc,"SELECT * FROM `tickets` WHERE `deleted`=0 OR `ticketid`='$ticketid'");
+										while($row = mysqli_fetch_array($query)) {
+											echo "<option ".(in_array($row['ticketid'],explode(',',$ticketid)) ? 'selected' : '')." value='".$row['ticketid']."'>".TICKET_NOUN."# ".$row['ticketid'].' '.$row['heading'].'</option>';
+										}
+									  ?>
+									</select>
+								  </div>
+								</div>
+							</div>
+						</div>
+					</div>
+				<?php } ?>
             <?php if(tile_enabled($dbc, 'ticket')) { ?>
                 <div class="panel panel-default">
                     <div class="panel-heading">
