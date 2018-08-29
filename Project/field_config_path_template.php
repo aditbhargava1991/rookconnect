@@ -97,9 +97,11 @@ function pathDefault(sel) {
 function add_block() {
 	var block = $('[name=milestone]').last().closest('.block-group');
 	var clone = block.clone();
-	clone.find('.block-group').find('.form-group').remove();
-	clone.find('input').val('');
+	// clone.find('.block-group').find('.form-group').remove();
+    clone.find('.block-group .form-group').each(function() { remove_group($(this).find('label').first()); });
+	clone.find('input,select').val('');
 	block.after(clone);
+    destroyInputs();
 	init_path();
 }
 function remove_block(img) {
