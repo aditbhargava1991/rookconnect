@@ -34,14 +34,29 @@ function loadPanel() {
 	<div class="panel panel-default">
 		<div class="panel-heading">
 			<h4 class="panel-title">
-				<a data-toggle="collapse" data-parent="#settings_accordions" href="#collapse_status">
+				<a data-toggle="collapse" data-parent="#settings_accordions" href="#collapse_paths">
 					<?= PROJECT_NOUN ?> Path Template<span class="glyphicon glyphicon-plus"></span>
 				</a>
 			</h4>
 		</div>
 
-		<div id="collapse_status" class="panel-collapse collapse">
+		<div id="collapse_paths" class="panel-collapse collapse">
 			<div class="panel-body" data-file="field_config_path_template.php">
+				Loading...
+			</div>
+		</div>
+	</div>
+	<div class="panel panel-default">
+		<div class="panel-heading">
+			<h4 class="panel-title">
+				<a data-toggle="collapse" data-parent="#settings_accordions" href="#collapse_contacts">
+					<?= PROJECT_NOUN ?> <?= CONTACTS_TILE ?><span class="glyphicon glyphicon-plus"></span>
+				</a>
+			</h4>
+		</div>
+
+		<div id="collapse_contacts" class="panel-collapse collapse">
+			<div class="panel-body" data-file="field_config_contacts.php">
 				Loading...
 			</div>
 		</div>
@@ -70,6 +85,7 @@ function loadPanel() {
 		<a href="?settings=tile"><li class="<?= $_GET['settings'] == 'tile' ? 'active blue' : '' ?>">Tile Settings</li></a>
 		<a href="?settings=status"><li class="<?= $_GET['settings'] == 'status' ? 'active blue' : '' ?>"><?= PROJECT_NOUN ?> Status</li></a>
 		<a href="?settings=path"><li class="<?= $_GET['settings'] == 'path' ? 'active blue' : '' ?>"><?= PROJECT_NOUN ?> Path Templates</li></a>
+		<a href="?settings=contacts"><li class="<?= $_GET['settings'] == 'contacts' ? 'active blue' : '' ?>"><?= PROJECT_NOUN ?> <?= CONTACTS_TILE ?></li></a>
 		<a href="?settings=quick"><li class="<?= $_GET['settings'] == 'quick' ? 'active blue' : '' ?>">Quick Action Icons</li></a>
 		<a href="?settings=administration"><li class="<?= $_GET['settings'] == 'administration' ? 'active blue' : '' ?>">Administration</li></a>
 	</ul>
@@ -92,6 +108,9 @@ function loadPanel() {
 		break;
 	case 'path':
 		$body_title = PROJECT_NOUN.' Path Templates';
+		break;
+	case 'contacts':
+		$body_title = PROJECT_NOUN.' '.CONTACTS_TILE;
 		break;
 	case 'quick':
 		$body_title = 'Quick Action Icons';
@@ -121,6 +140,9 @@ function loadPanel() {
 				break;
 			case 'tabs':
 				include('field_config_tabs.php');
+				break;
+			case 'contacts':
+				include('field_config_contacts.php');
 				break;
 			case 'quick':
 				include('field_config_flags.php');

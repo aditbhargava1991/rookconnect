@@ -430,27 +430,46 @@ if($_GET['action'] == 'mark_favourite') {
 	$projectid = filter_var($_POST['projectid'],FILTER_SANITIZE_STRING);
 	$path_list = filter_var(trim($_POST['path_list'],','),FILTER_SANITIZE_STRING);
 	$path = filter_var($_POST['path'],FILTER_SANITIZE_STRING);
+	$new_path = filter_var($_POST['new_path'],FILTER_SANITIZE_STRING);
 	$taskboardid = get_project_task_board($projectid)['id'];
+    $project_lead = get_field_value('project_lead','project','projectid',$projectid);
 
 	if($path == 'project_path') {
 		$prior_path = explode(',',get_project($dbc, $projectid, 'project_path'));
 		$milestones = [];
 		foreach(explode(',',$path_list) as $pathid) {
 			$template = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `project_path_milestone` WHERE `project_path_milestone`='$pathid'"));
-			foreach(explode('#*#',$template['milestone']) as $i => $milestone) {
-				$milestones[] = $milestone;
-				if(!in_array($pathid, $prior_path)) {
-                    foreach(array_filter(explode('*#*',explode('#*#',$template['checklist'])[$i])) as $task) {
-						mysqli_query($dbc, "INSERT INTO `tasklist` (`task_path`, `task_board`, `projectid`, `contactid`, `heading`, `task`, `project_milestone`) VALUES ('$pathid', '$taskboardid', '$projectid', '".$_SESSION['contactid']."', '$task', '$task', '$milestone')");
+            if((empty($new_path) && !in_array($pathid, $prior_path)) || $pathid == $new_path) {
+                $tickets = explode('#*#',$_POST['tickets']);
+                $tasks = explode('#*#',$_POST['tasks']);
+                // $items = explode('#*#',$_POST['items']);
+                $intakes = explode('#*#',$_POST['intakes']);
+                foreach(explode('#*#',$template['milestone']) as $i => $milestone) {
+                    $milestones[] = $milestone;
+					foreach(array_filter(explode('*#*',explode('#*#',$template['ticket'])[$i])) as $j => $ticket) {
+                        if(in_array($i.'|'.$j,$tickets)) {
+                            $ticket = explode('FFMSPLIT',$ticket);
+                            $heading = $ticket[0];
+                            $serviceid = $ticket[1];
+                            $staff = empty($_POST['ticket_staff'][$i.'|'.$j]) ? $project_lead : filter_var($_POST['ticket_staff'][$i.'|'.$j],FILTER_SANITIZE_STRING);
+                            mysqli_query($dbc, "INSERT INTO `tickets` (`projectid`, `heading`, `serviceid`, `milestone_timeline`, `contactid`, `to_do_date`) VALUES ('$projectid', '$heading', '$serviceid', '$milestone', '$staff', DATE(NOW()))");
+                        }
 					}
-					foreach(array_filter(explode('*#*',explode('#*#',$template['ticket'])[$i])) as $ticket) {
-						$ticket = explode('FFMSPLIT',$ticket);
-						$heading = $ticket[0];
-						$serviceid = $ticket[1];
-						mysqli_query($dbc, "INSERT INTO `tickets` (`projectid`, `heading`, `serviceid`, `milestone_timeline`) VALUES ('$projectid', '$heading', '$serviceid', '$milestone')");
+                    foreach(array_filter(explode('*#*',explode('#*#',$template['checklist'])[$i])) as $j => $task) {
+                        if(in_array($i.'|'.$j,$tasks)) {
+                            $staff = empty($_POST['task_staff'][$i.'|'.$j]) ? $project_lead : filter_var($_POST['task_staff'][$i.'|'.$j],FILTER_SANITIZE_STRING);
+                            mysqli_query($dbc, "INSERT INTO `tasklist` (`task_path`, `task_board`, `projectid`, `contactid`, `heading`, `task`, `project_milestone`, `task_tododate`) VALUES ('$pathid', '$taskboardid', '$projectid', '$staff', '$task', '$task', '$milestone', DATE(NOW()))");
+                        }
 					}
-					foreach(array_filter(explode('*#*',explode('#*#',$template['workorder'])[$i])) as $workorder) {
-						mysqli_query($dbc, "INSERT INTO `workorder` (`projectid`, `heading`, `milestone_timeline`) VALUES ('$projectid', '$workorder', '$milestone')");
+                    // foreach(array_filter(explode('*#*',explode('#*#',$template['items'])[$i])) as $j => $item) {
+                        // if(in_array($i.'|'.$j),$items) {
+                            // mysqli_query($dbc, "");
+                        // }
+					// }
+                    foreach(array_filter(explode('*#*',explode('#*#',$template['intakes'])[$i])) as $j => $intake) {
+                        if(in_array($i.'|'.$j,$intakes)) {
+                            mysqli_query($dbc, "INSERT INTO `intake` (`projectid`, `project_milestone`, `intakeformid`) VALUES ('$projectid', '$milestone', '$intake')");
+                        }
 					}
 				}
 			}
@@ -471,16 +490,17 @@ if($_GET['action'] == 'mark_favourite') {
 	$project_path = filter_var($_POST['template_name'],FILTER_SANITIZE_STRING);
 	$milestone = filter_var($_POST['milestone'],FILTER_SANITIZE_STRING);
 	$timeline = filter_var($_POST['timeline'],FILTER_SANITIZE_STRING);
-	$tasks = filter_var($_POST['checklist'],FILTER_SANITIZE_STRING);
+	$tasks = filter_var($_POST['tasks'],FILTER_SANITIZE_STRING);
 	$ticket = filter_var($_POST['ticket'],FILTER_SANITIZE_STRING);
-	$workorder = filter_var($_POST['workorder'],FILTER_SANITIZE_STRING);
+	$items = filter_var($_POST['items'],FILTER_SANITIZE_STRING);
+	$intakes = filter_var($_POST['intakes'],FILTER_SANITIZE_STRING);
 
 	if($id == 'new') {
 		mysqli_query($dbc, "INSERT INTO `project_path_milestone` () VALUES ()");
 		$id = mysqli_insert_id($dbc);
 		echo $id;
 	}
-	mysqli_query($dbc, "UPDATE `project_path_milestone` SET `project_path`='$project_path',`milestone`='$milestone',`timeline`='$timeline',`checklist`='$tasks',`ticket`='$ticket',`workorder`='$workorder' WHERE `project_path_milestone`='$id'");
+	mysqli_query($dbc, "UPDATE `project_path_milestone` SET `project_path`='$project_path',`milestone`='$milestone',`timeline`='$timeline',`checklist`='$tasks',`ticket`='$ticket',`items`='$items',`intakes`='$intakes' WHERE `project_path_milestone`='$id'");
 
 } else if($_GET['action'] == 'path_template_individual_order') {
 	$id = filter_var($_POST['templateid'],FILTER_SANITIZE_STRING);
@@ -1075,6 +1095,10 @@ if($_GET['action'] == 'mark_favourite') {
 } else if($_GET['action'] == 'load_sales_scope') {
 	$projectid = filter_var($_POST['project'],FILTER_SANITIZE_STRING);
 	$salesid = filter_var($_POST['sales'],FILTER_SANITIZE_STRING);
+    // Add Sales Lead Communication to Project
+    $dbc->query("UPDATE `email_communication` SET `projectid`='$projectid' WHERE `projectid`=0 AND `salesid`='$salesid'");
+    
+    // Add Scope from Sales Lead to Project
 	$sales_scope = $dbc->query("SELECT `serviceid`,`productid` FROM `sales` WHERE `salesid`='$salesid'")->fetch_assoc();
 	foreach(explode(',',$sales_scope['serviceid']) as $service) {
 		if($service > 0) {
@@ -1091,4 +1115,8 @@ if($_GET['action'] == 'mark_favourite') {
 			$dbc->query("INSERT INTO `project_scope` (`projectid`,`src_table`,`src_id`,`qty`,`cost`,`price`) VALUES ('$projectid','services','$service','1','{$service_rate['cost']}','{$service_rate['cust_price']}');");
 		}
 	}
+} else if($_GET['action'] == 'setting_contacts') {
+    set_config($dbc, 'project_lead_cats', $_POST['lead']);
+    set_config($dbc, 'project_co_lead_cats', $_POST['co']);
+    set_config($dbc, 'project_team_cats', $_POST['team']);
 }

@@ -37,11 +37,19 @@
         $result_insert_site	= mysqli_query($dbc, $query_insert_site);
         $fieldlevelriskid = mysqli_insert_id($dbc);
 
+
+
+
+
         $attendance_staff_each = $_POST['attendance_staff'];
         for($i = 0; $i < count($_POST['attendance_staff']); $i++) {
             $query_insert_upload = "INSERT INTO `safety_attendance` (`safetyid`, `fieldlevelriskid`, `assign_staff`) VALUES ('$safetyid', '$fieldlevelriskid', '$attendance_staff_each[$i]')";
             $result_insert_upload = mysqli_query($dbc, $query_insert_upload);
         }
+
+
+
+
 
         for($i=1;$i<=$attendance_extra;$i++) {
             $att_ex = 'Extra '.$i;
@@ -49,12 +57,18 @@
             $result_insert_upload = mysqli_query($dbc, $query_insert_upload);
         }
 
+
+
+
+
         $tab = get_safety($dbc, $safetyid, 'tab');
         if($tab == 'Form') {
             $assign_staff = decryptIt($_SESSION['first_name']).' '.decryptIt($_SESSION['last_name']);
 
             $query_insert_upload = "INSERT INTO `safety_attendance` (`safetyid`, `fieldlevelriskid`, `assign_staff`, `done`) VALUES ('$safetyid', '$fieldlevelriskid', '$assign_staff', 1)";
             $result_insert_upload = mysqli_query($dbc, $query_insert_upload);
+
+
 
             include ('confined_space_entry_permit_pdf.php');
             echo confined_space_entry_permit_pdf($dbc,$safetyid, $fieldlevelriskid);
@@ -70,11 +84,18 @@
             $result_insert_upload = mysqli_query($dbc, $query_insert_upload);
         }
 
+        $before_change = '';
+        $history = "Safety attendance entry has been added. <br />";
+        add_update_history($dbc, 'safety_history', $history, '', $before_change);
     } else {
         $fieldlevelriskid = $_POST['fieldlevelriskid'];
 
         $query_update_employee = "UPDATE `safety_confined_space_entry_permit` SET `contactid` = '$contactid', `fields` = '$fields', `desc` = '$desc', `desc1` = '$desc1',`all_task` = CONCAT(all_task,'$all_task') WHERE fieldlevelriskid='$fieldlevelriskid'";
         $result_update_employee = mysqli_query($dbc, $query_update_employee);
+
+        $before_change = '';
+        $history = "safety_confined_space_entry_permit entry has been updated for fieldlevelriskid $fieldlevelriskid. <br />";
+        add_update_history($dbc, 'safety_history', $history, '', $before_change);
 
     	$sa = mysqli_query($dbc, "SELECT safetyattid FROM safety_attendance WHERE fieldlevelriskid = '$fieldlevelriskid' AND safetyid='$safetyid' AND done=0");
         while($row_sa = mysqli_fetch_array( $sa )) {
@@ -99,6 +120,10 @@
             }
         }
 
+        $before_change = '';
+        $history = "safety_attendance entry has been updated for safetyattid $assign_staff_id <br />";
+        add_update_history($dbc, 'safety_history', $history, '', $before_change);
+        
         $get_total_notdone = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT COUNT(safetyattid) AS total_notdone FROM safety_attendance WHERE	fieldlevelriskid='$fieldlevelriskid' AND safetyid='$safetyid' AND done=0"));
         if($get_total_notdone['total_notdone'] == 0) {
             include ('confined_space_entry_permit_pdf.php');

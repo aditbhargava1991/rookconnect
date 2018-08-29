@@ -748,7 +748,10 @@ function checklist_attach_file(checklist) {
                     <br /><input type="text" name="reminder_board_<?php echo $_GET['category']; ?>" style="display:none; margin-top: 2em;" class="form-control datepicker" />
                 </span>
                 -->
+
+
                 <span class="pull-right text-right double-gap-top" style="" data-task="BOARD<?php echo $_GET['category']; ?>">
+										<span class="theme-color-icon" style="cursor:pointer; padding: 0.25em 0.5em 0.25em 0;" title="Task Board History" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Tasks/task_history.php?taskboardid=<?=$taskboardid?>');"><img src="<?php echo WEBSITE_URL; ?>/img/time-machine.png" style="height:2em;"></span>
                     <!-- <span style="cursor:pointer;"><img src="../img/icons/pie-chart.png" class="gap-right" onclick="milestone_reporting(this);" /></span> -->
                     <a href=""><img src="../img/clear-checklist.png" class="" alt="Clear Completed Tasks" title="Clear Completed Tasks" style="height:2em;" onclick="clearCompleted(this);" /></a><?php
                     if ( !empty($_GET['category']) && !empty($_GET['tab']) && $_GET['tab'] != 'sales') { ?>
@@ -756,7 +759,9 @@ function checklist_attach_file(checklist) {
                     <?php }
 					if ( !empty($_GET['category']) && !empty($_GET['tab']) && in_array('archive', $quick_actions) && $_GET['tab'] != 'sales') { ?>
                         <span class="" style="cursor:pointer; padding: 0.25em 0.5em 0.25em 0;" title="Archive Task Board" onclick="task_archive(this); return false;"><img src="<?php echo WEBSITE_URL; ?>/img/icons/ROOK-trash-icon.png" style="height:2em;"></span><?php
-                    } ?><br />
+                    } ?>
+
+										<br />
                     <select class="milestone_select" style="display:none; margin-top:10px; width:100%;">
                         <option value="" disabled selected>Select Milestone...</option><?php
                         $taskboardid = isset($_GET['category']) ? trim($_GET['category']) : '';
@@ -904,7 +909,7 @@ function checklist_attach_file(checklist) {
 									<img class="small no-gap-top milestone_name cursor-hand inline-img pull-left gap-left" src="../img/icons/ROOK-edit-icon.png">
 									<img class="small no-gap-top milestone_drag cursor-hand inline-img pull-right" src="../img/icons/drag_handle.png">
 									<img class="small milestone_add cursor-hand no-gap-top inline-img pull-right" src="../img/icons/ROOK-add-icon.png">
-									<img class="small cursor-hand no-gap-top inline-img pull-right" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Tasks/task_history.php?label=<?=$label?>&taskboardid=<?=$taskboardid?>');" src="../img/time-machine.png">
+
 									<img class="small milestone_rem cursor-hand no-gap-top inline-img pull-right" src="../img/remove.png">
 
 									<input type="hidden" name="sort" value="<?= $milestone_row['sort'] ?>"></h4>

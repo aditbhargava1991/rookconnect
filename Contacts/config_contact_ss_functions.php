@@ -207,7 +207,7 @@ function get_field_contact_ss($field, $value, $dbc = '', $contact = 0, $other = 
 function contact_category_call_contact_ss($dbc, $select_id, $select_name, $contact_category_value, $disabled) {
     ?>
     <script type="text/javascript">
-    $(document).on('change', 'select[name="<?= $select_name ?>"]', function() { selectContactCategory(this); });
+    $(document).on('change', 'select[name="<?= $select_name ?>"]', function() { selectContactCategorySS(this); });
     </script>
     <div class="form-group">
         <label for="fax_number"	class="col-sm-4	control-label">Contact Category:</label>

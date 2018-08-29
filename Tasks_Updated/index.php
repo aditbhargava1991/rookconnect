@@ -63,7 +63,7 @@ $(document).ready(function() {
             });
         }
     });
-    
+
     $('.tile-sidebar .highest-level .top-a').click(function() {
         $(this).each(function() {
             if ( $(this).data('parent') == '#desktop_accordions' ) {
