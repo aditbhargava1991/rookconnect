@@ -56,6 +56,7 @@ $(document).ready(function() {
         </div>
       </div>
 
+    <!--
     <div class="form-group">
         <div class="col-sm-4">
             <a href="<?php echo $back_url; ?>" class="btn brand-btn">Back</a>
@@ -64,5 +65,6 @@ $(document).ready(function() {
             <button type="submit" name="submit" value="submit" class="btn brand-btn pull-right">Submit</button>
         </div>
     </div>
+    -->
 
 </div>

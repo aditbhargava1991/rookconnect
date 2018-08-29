@@ -61,6 +61,10 @@
         $safetyid = mysqli_insert_id($dbc);
 
         $url = 'Added';
+
+        $before_change = '';
+        $history = "Safety entry has been added. <br />";
+        add_update_history($dbc, 'safety_history', $history, '', $before_change);
     } else {
         $safetyid = $_POST['safetyid'];
 
@@ -143,6 +147,10 @@
             }
         }
     }
+
+    $before_change = '';
+    $history = "Safety upload entry has been added. <br />";
+    add_update_history($dbc, 'safety_history', $history, '', $before_change);
 
 	$return_url = 'safety.php?tab='.$tab_field.'&category='.$category;
 	if(!empty($_GET['return_url'])) {
