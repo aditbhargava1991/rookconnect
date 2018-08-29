@@ -57,7 +57,7 @@ if($field_option == 'Medication Details') { ?>
 		clone.find('[data-row-id]').data('row-id','');
 		last_med.after(clone);
 		initInputs('.meds_group');
-		$('.meds_group [data-field]').off('change', saveField).change(saveField).off('keyup').keyup(syncUnsaved);
+		$('.meds_group [data-field]').off('blur',unsaved).blur(unsaved).off('focus',unsaved).focus(unsaved).off('change',saveField).change(saveField);
 	}
 	function remMeds(img) {
 		if($('.meds_group').length == 1) {

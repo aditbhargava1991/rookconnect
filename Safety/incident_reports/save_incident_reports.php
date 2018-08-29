@@ -34,7 +34,7 @@ if(!empty($_POST['field_level_hazard'])) {
     $ir13 = filter_var(htmlentities(implode('#*#',$_POST['ir13'])),FILTER_SANITIZE_STRING);
     $ir14 = filter_var($_POST['ir14'],FILTER_SANITIZE_STRING);
     $ir15 = filter_var(htmlentities($_POST['ir15']),FILTER_SANITIZE_STRING);
-    
+
     $equipmentid = filter_var(implode(',',$_POST['equipmentid']),FILTER_SANITIZE_STRING);
     $other_driver_name = filter_var(htmlentities($_POST['other_driver_name']),FILTER_SANITIZE_STRING);
     $other_driver_address = filter_var(htmlentities($_POST['other_driver_address']),FILTER_SANITIZE_STRING);
@@ -46,7 +46,7 @@ if(!empty($_POST['field_level_hazard'])) {
     $witness_names = filter_var(htmlentities($_POST['witness_names']),FILTER_SANITIZE_STRING);
     $assign_followup = filter_var(htmlentities($_POST['assign_followup']),FILTER_SANITIZE_STRING);
     $assign_corrective = filter_var(htmlentities($_POST['assign_corrective']),FILTER_SANITIZE_STRING);
-    
+
     $funder_name = filter_var($_POST['funder_name'],FILTER_SANITIZE_STRING);
     $funder_contacted = filter_var($_POST['funder_contacted'],FILTER_SANITIZE_STRING);
     $supervisor = $_POST['supervisor'];
@@ -91,7 +91,7 @@ if(!empty($_POST['field_level_hazard'])) {
         $img = sigJsonToImage($sign);
         imagepng($img, '../Incident Report/download/sign_'.$incidentreportid.'_reporting.png');
         $url = 'Added';
-        
+
         $attendance_staff_each = $_POST['attendance_staff'];
         for($i = 0; $i < count($_POST['attendance_staff']); $i++) {
             $query_insert_upload = "INSERT INTO `safety_attendance` (`safetyid`, `fieldlevelriskid`, `assign_staff`) VALUES ('$safetyid', '$incidentreportid', '$attendance_staff_each[$i]')";
@@ -123,6 +123,10 @@ if(!empty($_POST['field_level_hazard'])) {
             $query_insert_upload = "INSERT INTO `safety_attendance` (`safetyid`, `fieldlevelriskid`, `assign_staff`, `done`) VALUES ('$safetyid', '$fieldlevelriskid', '$assign_staff', 0)";
             $result_insert_upload = mysqli_query($dbc, $query_insert_upload);
         }
+
+        $before_change = '';
+        $history = "Safety attendance entry has been added. <br />";
+        add_update_history($dbc, 'safety_history', $history, '', $before_change);
     } else {
         $incidentreportid = $_POST['incidentreportid'];
         if($upload_document != '') {
@@ -163,6 +167,10 @@ if(!empty($_POST['field_level_hazard'])) {
             }
         }
 
+        $before_change = '';
+        $history = "safety_attendance entry has been updated for safetyattid $assign_staff_id <br />";
+        add_update_history($dbc, 'safety_history', $history, '', $before_change);
+
         $get_total_notdone = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT COUNT(safetyattid) AS total_notdone FROM safety_attendance WHERE  fieldlevelriskid='$incidentreportid' AND safetyid='$safetyid' AND done=0"));
         if($get_total_notdone['total_notdone'] == 0) {
             $complete_pdf = 1;
@@ -202,7 +210,7 @@ if(!empty($_POST['field_level_hazard'])) {
     DEFINE(PDF_HEADER,html_entity_decode($pdf_header));
     DEFINE(PDF_TITLE,html_entity_decode($pdf_title));
     DEFINE(PDF_FOOTER,html_entity_decode($pdf_footer));
-    
+
     class MYPDF extends TCPDF {
 
         //Page header
@@ -234,7 +242,7 @@ if(!empty($_POST['field_level_hazard'])) {
 
     $pdf->SetHeaderData(PDF_HEADER_LOGO, PDF_HEADER_LOGO_WIDTH, false, false);
     $pdf->setFooterData(array(0,64,0), array(0,64,128));
-    
+
     $LOGO_HEIGHT = 40;
     if(PDF_LOGO != '') {
         list($img_width, $img_height, $img_type, $attr) = getimagesize(PDF_LOGO);
@@ -291,11 +299,11 @@ if(!empty($_POST['field_level_hazard'])) {
             $html .= '<tr><td><br />'.$title.':</td><td colspan="3" style="border-bottom:1px solid black">'.(empty($follow_names[$i]) ? '' : $follow_names[$i].' was contacted ('.$follow_dates[$i].') by '.$follow_who_list[$i]).'</td></tr>';
         }
         $html .= '</table>';
-        
+
         $pdf->writeHTML($html, true, false, true, false, '');
         $pdf->AddPage();
         $pdf->SetFont('helvetica', '', 10);
-        
+
         $html = '<table borders="0" width="100%" cellspacing="5"><tr><td width="25%"></td><td width="25%"></td><td width="25%"></td><td width="25%"></td></tr>';
         $html .= '<tr><td colspan="4">Recommendations on how to correct or avoid recurrence of this type of accident or incident:</td></tr>
             <tr><td colspan="4">'.$recommendations.'<br /></td></tr>
@@ -320,7 +328,7 @@ if(!empty($_POST['field_level_hazard'])) {
         $html .= '<tr><td colspan="2">'.(empty($director) ? '<br /><br /><br />' : '<img src="../Incident Report/download/sign_'.$incidentreportid.'_director.png" width="100">').'</td><td colspan="2">'.$director.'</td></tr>
             <tr><td colspan="2" align="center" style="border-top:thin solid black">Director\'s Signature</td><td colspan="2" align="center" style="border-top:thin solid black">Date</td></tr>
             </table></form>';
-        
+
         $pdf->writeHTML($html, true, false, true, false, '');
         $pdf->AddPage();
         $pdf->SetFont('helvetica', '', 10);

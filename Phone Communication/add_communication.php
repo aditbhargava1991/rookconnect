@@ -15,6 +15,9 @@ else if($communication_type == 'External') {
 	$back_url = 'phone_communication.php?type=External';
 }
 
+$from = isset($_GET['projectid']) ? 'project' : '';
+$projectid = isset($_GET['projectid']) ? filter_var($_GET['projectid'], FILTER_SANITIZE_STRING) : '';
+
 if (isset($_POST['submit'])) {
     $communication_type = $_POST['comm_type'];
     $businessid = $_POST['businessid'];
@@ -158,8 +161,14 @@ checkAuthorised('phone_communication');
 ?>
 <div class="container">
   <div class="row">
-    <h1>Phone Communication</h1>
-	<div class="pad-left gap-top double-gap-bottom"><a href="<?php echo $back_url; ?>" class="btn config-btn">Back to Dashboard</a></div>
+    <h3 class="gap-left pull-left">Phone</h3>
+    <?php if ( $from == 'project' ) { ?>
+        <div class="pull-right offset-top-15"><a href=""><img src="../img/icons/ROOK-status-rejected.jpg" alt="Close" title="Close" class="inline-img" /></a></div>
+    <?php } ?>
+    <div class="clearfix"></div>
+	<?php if ( $from != 'project' ) { ?>
+        <div class="pad-left gap-top double-gap-bottom"><a href="<?php echo $back_url; ?>" class="btn config-btn">Back to Dashboard</a></div>
+    <?php } ?>
 
 	<form id="form1" name="form1" method="post"	action="" enctype="multipart/form-data" class="form-horizontal" role="form">
     <?php
@@ -221,7 +230,7 @@ checkAuthorised('phone_communication');
         <input type="hidden" id="phone_communicationid" name="phone_communicationid" value="<?php echo $phone_communicationid ?>" />
         <?php   }      ?>
 
-        <div class="panel-group" id="accordion2">
+        <div class="panel-group <?= ($from == 'project' ? 'block-panels main-screen' : '') ?>" id="accordion2" <?= $from == 'project' ? 'style="background-color: #fff; padding: 0; margin-left: 0.5em; width: calc(100% - 1em);"' : '' ?>>
 
             <div class="panel panel-default">
                 <div class="panel-heading">
@@ -263,7 +272,7 @@ checkAuthorised('phone_communication');
                 <div class="panel-heading">
                     <h4 class="panel-title">
                         <a data-toggle="collapse" data-parent="#accordion2" href="#collapse_followup" >
-                            Follow Up<span class="glyphicon glyphicon-plus"></span>
+                            Reminder<span class="glyphicon glyphicon-plus"></span>
                         </a>
                     </h4>
                 </div>
@@ -279,18 +288,21 @@ checkAuthorised('phone_communication');
 
         </div>
 
-        <div class="form-group">
-			<p><span class="hp-red"><em>Required Fields *</em></span></p>
-        </div>
-
-        <div class="form-group">
-            <div class="col-sm-6">
-                <a href="<?php echo $back_url; ?>" class="btn brand-btn btn-lg">Back</a>
+        <?php if ( $from == 'project' ) { ?>
+            <div class="form-group">
+                <button type="submit" name="submit" value="submit" class="btn brand-btn pull-right">Submit</button>
+                <a href="" class="btn brand-btn pull-right">Cancel</a>
             </div>
-            <div class="col-sm-6">
-                <button type="submit" name="submit" value="submit" class="btn brand-btn btn-lg pull-right">Submit</button>
+        <?php } else { ?>
+            <div class="form-group">
+                <div class="col-sm-6">
+                    <a href="<?php echo $back_url; ?>" class="btn brand-btn btn-lg">Back</a>
+                </div>
+                <div class="col-sm-6">
+                    <button type="submit" name="submit" value="submit" class="btn brand-btn btn-lg pull-right">Submit</button>
+                </div>
             </div>
-        </div>
+        <?php } ?>
 
         <style>
             .chosen-container {
