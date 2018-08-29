@@ -97,7 +97,7 @@ if(!IFRAME_PAGE) { ?>
 			<div class="<?= !isset($_GET['fill_user_form']) ? 'main-screen' : '' ?> main_full_screen">
 				<div class="tile-header standard-header">
 					<div class="pull-right settings-block"><?php
-						if($security['config'] > 0) {
+						if($security['config'] > 0 && $_GET['settings']!='fields') {
 							echo "<div class='pull-right gap-left'><a href='?settings=fields'><img src='".WEBSITE_URL."/img/icons/settings-4.png' class='settings-classic wiggle-me' width='30' /></a></div>";
 						}
 						if($security['edit'] > 0) {
