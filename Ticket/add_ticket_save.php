@@ -52,7 +52,8 @@ if($piece_work != '') {
 		if($project['num'] > 0) {
             $projectid = $project['projectid'];
         } else {
-			$sql = "INSERT INTO `project` (`project_name`,`status`) VALUES ('Piece Work Project','Active Project','".$line_id."','".implode("','",$sub_vals)."')";
+			$sql = "INSERT INTO `project` (`project_name`,`status`) VALUES ('Piece Work Project','Active Project')";
+		    $result_insert_ticket = mysqli_query($dbc, $sql);
             $projectid = mysqli_insert_id($dbc);
         }
 }
