@@ -113,13 +113,13 @@ function tile_data($dbc, $tile_name, $is_mobile = FALSE) {
 			case 'gao': return ['link'=>"Gao/gao.php",'name'=>'Goals & Objectives']; break;
 
 			case 'checklist':
-            $get_checklist = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT COUNT(checklistid) AS checklistid FROM checklist WHERE (`assign_staff` LIKE '%,{$_SESSION['contactid']},%' OR `assign_staff`=',ALL,') AND `deleted`=0 AND checklist_tile=1"));
+            /* $get_checklist = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT COUNT(checklistid) AS checklistid FROM checklist WHERE (`assign_staff` LIKE '%,{$_SESSION['contactid']},%' OR `assign_staff`=',ALL,') AND `deleted`=0 AND checklist_tile=1"));
             if($get_checklist['checklistid'] > 0) {
                $checklist_url = 'checklist_tile.php';
             } else {
                $checklist_url = 'checklist.php';
-            }
-
+            } */
+            $checklist_url = 'checklist.php';
             return ['link'=>'Checklist/'.$checklist_url,'name'=>'Checklist']; break;
 
 			case 'tasks': return ['link'=>"Tasks/index.php?category=All&tab=Summary",'name'=>'Tasks']; break;
