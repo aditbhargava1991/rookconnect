@@ -1095,6 +1095,10 @@ if($_GET['action'] == 'mark_favourite') {
 } else if($_GET['action'] == 'load_sales_scope') {
 	$projectid = filter_var($_POST['project'],FILTER_SANITIZE_STRING);
 	$salesid = filter_var($_POST['sales'],FILTER_SANITIZE_STRING);
+    // Add Sales Lead Communication to Project
+    $dbc->query("UPDATE `email_communication` SET `projectid`='$projectid' WHERE `projectid`=0 AND `salesid`='$salesid'");
+    
+    // Add Scope from Sales Lead to Project
 	$sales_scope = $dbc->query("SELECT `serviceid`,`productid` FROM `sales` WHERE `salesid`='$salesid'")->fetch_assoc();
 	foreach(explode(',',$sales_scope['serviceid']) as $service) {
 		if($service > 0) {
