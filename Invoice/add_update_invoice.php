@@ -96,7 +96,7 @@ if($invoice_mode != 'Adjustment') {
 			$payment_used[] = $_POST['payment_price'][$i];
 		}
 
-        if ( $type=='On Account' ) {
+        if ( $type=='On Account' || strpos($type,'Net ') === 0 ) {
             $credit_balance += $_POST['payment_price'][$i];
             $inv_status = 'Posted';
         }
@@ -825,7 +825,7 @@ if($invoice_mode != 'Adjustment') {
 			$all_payment_type .= $payment['paid'].',';
 			mysqli_query($dbc, "INSERT INTO `invoice_patient` (`invoiceid`, `injury_type`, `invoice_date`, `patientid`, `sub_total`, `gst_amt`, `gratuity_portion`, `patient_price`, `service_category`, `service_name`, `product_name`, `paid`, `paid_date`) VALUES ('$invoiceid', '$injury_type', '$invoice_date', '$patientid', '".$payment['sub_total']."', '".$payment['gst_amt']."', '".$payment['gratuity']."', '".$payment['price']."', '".$payment['service_cat']."', '".$payment['service_name']."', '".$payment['product_name']."', '".$payment['paid']."', '$invoice_report_date')");
 
-			if($payment['paid'] == 'On Account') {
+			if($payment['paid'] == 'On Account' || strpos($payment['paid'],'Net ') === 0) {
 				$on_account += $payment['price'];
                 $inv_status = 'Posted';
 			} else if($payment['paid'] == 'Patient Account') {
@@ -1107,7 +1107,7 @@ if($invoice_mode != 'Adjustment') {
 
                     if($payment_types[$j] == 'Pro-Bono') {
                         $service_pro_bono .= $applied.',';
-                    } else if($payment_types[$j] == 'On Account') {
+                    } else if($payment_types[$j] == 'On Account' || strpos($payment_types[$j],'Net ') === 0) {
                         $on_account += $applied;
                         $inv_status = 'Posted';
                     } else {
@@ -1231,7 +1231,7 @@ if($invoice_mode != 'Adjustment') {
 
                     if($payment_types[$j] == 'Pro-Bono') {
                         $service_pro_bono .= $applied.',';
-                    } else if($payment_types[$j] == 'On Account') {
+                    } else if($payment_types[$j] == 'On Account' || strpos($payment_types[$j],'Net ') === 0) {
                         $on_account += $applied;
                         $inv_status = 'Posted';
                     } else {
@@ -1362,7 +1362,7 @@ if($invoice_mode != 'Adjustment') {
 
 				if($payment_types[$j] == 'Pro-Bono') {
 					$service_pro_bono .= $applied.',';
-				} else if($payment_types[$j] == 'On Account') {
+				} else if($payment_types[$j] == 'On Account' || strpos($payment_types[$j],'Net ') === 0) {
 					$on_account += $applied;
                     $inv_status = 'Posted';
 				} else {
@@ -1566,7 +1566,7 @@ if($invoice_mode != 'Adjustment') {
 			}
 		}
 
-		if($payment_types[$j] == 'On Account') {
+		if($payment_types[$j] == 'On Account' || strpos($payment_types[$j],'Net ') === 0) {
 			$on_account += $applied;
             $inv_status = 'Posted';
 		}
@@ -1591,7 +1591,7 @@ if($invoice_mode != 'Adjustment') {
 				'paid' => $payment_types[$j] ];
 		}
 
-		if($payment_types[$j] == 'On Account') {
+		if($payment_types[$j] == 'On Account' || strpos($payment_types[$j],'Net ') === 0) {
 			$on_account += $applied;
             $inv_status = 'Posted';
 		}
