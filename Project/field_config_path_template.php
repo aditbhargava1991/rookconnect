@@ -42,6 +42,8 @@ function save_path() {
 	var checklist = '';
 	var ticket = '';
 	var workorder = '';
+	var check_list = '';
+	var intake_form = '';
 	$('[name=milestone]').each(function() {
 		var block = $(this).closest('.block-group');
 		var delimiter = false;
@@ -57,6 +59,8 @@ function save_path() {
 		});
 		ticket += (delimiter ? '#*#' : '')+ticket_list.join('*#*');
 		workorder += (delimiter ? '#*#' : '')+block.find('[name=workorder]').map(function() { return this.value; }).get().join('*#*');
+		check_list += (delimiter ? '#*#' : '')+block.find('[name=check_list]').map(function() { return this.value; }).get().join('*#*');
+		intake_form += (delimiter ? '#*#' : '')+block.find('[name=intake_form]').map(function() { return this.value; }).get().join('*#*');
 	});
 	$.ajax({
 		url: 'projects_ajax.php?action=path_template',
@@ -68,7 +72,9 @@ function save_path() {
 			timeline: timeline,
 			checklist: checklist,
 			ticket: ticket,
-			workorder: workorder
+			workorder: workorder,
+			check_list: check_list,
+			intake_form: intake_form
 		},
 		success: function(response) {
 			if(response > 0) {
@@ -198,6 +204,34 @@ function add_workorder(btn) {
 	$(btn).closest('.block-group').find('button').first().before(item);
 	init_path();
 }
+function add_check(btn) {
+	var item = '<div class="form-group sortable_group">' +
+		'<label class="col-sm-4">Check List:</label>' +
+		'<div class="col-sm-7">' +
+			'<input type="text" class="form-control" name="check_list">' +
+		'</div>' +
+		'<div class="col-sm-1">' +
+			'<img src="../img/remove.png" class="inline-img pull-right" onclick="remove_group(this);">' +
+			'<img src="../img/icons/drag_handle.png" class="inline-img pull-right group-handle no-toggle" title="Drag" />' +
+		'</div>' +
+	'</div>';
+	$(btn).closest('.block-group').find('button').first().before(item);
+	init_path();
+}
+function add_intake(btn) {
+	var item = '<div class="form-group sortable_group">' +
+		'<label class="col-sm-4">Intake Form:</label>' +
+		'<div class="col-sm-7">' +
+			'<input type="text" class="form-control" name="intake_form">' +
+		'</div>' +
+		'<div class="col-sm-1">' +
+			'<img src="../img/remove.png" class="inline-img pull-right" onclick="remove_group(this);">' +
+			'<img src="../img/icons/drag_handle.png" class="inline-img pull-right group-handle no-toggle" title="Drag" />' +
+		'</div>' +
+	'</div>';
+	$(btn).closest('.block-group').find('button').first().before(item);
+	init_path();
+}
 </script>
 <div class="form-horizontal">
 <?php if(!empty($_GET['path'])):
@@ -273,6 +307,8 @@ function add_workorder(btn) {
 						</div>
 					<?php } ?>
 				<?php } ?>
+				<?php if(in_array('Intake',$tab_config)) { ?><button class="btn brand-btn pull-right" onclick="add_intake(this); return false;">Intake Forms</button><?php } ?>
+				<?php if(in_array('Checklists In Path',$tab_config)) { ?><button class="btn brand-btn pull-right" onclick="add_check(this); return false;">Checklist</button><?php } ?>
 				<?php if(in_array('Work Orders',$tab_config)) { ?><button class="btn brand-btn pull-right" onclick="add_workorder(this); return false;">New Work Order</button><?php } ?>
 				<?php if(in_array('Tickets',$tab_config)) { ?><button class="btn brand-btn pull-right" onclick="add_ticket(this); return false;">New <?= TICKET_NOUN ?></button><?php } ?>
 				<?php if(in_array('Checklists',$tab_config) || in_array('Tasks',$tab_config)) { ?><button class="btn brand-btn pull-right" onclick="add_checklist(this); return false;">New Task</button><?php } ?>

@@ -474,13 +474,15 @@ if($_GET['action'] == 'mark_favourite') {
 	$tasks = filter_var($_POST['checklist'],FILTER_SANITIZE_STRING);
 	$ticket = filter_var($_POST['ticket'],FILTER_SANITIZE_STRING);
 	$workorder = filter_var($_POST['workorder'],FILTER_SANITIZE_STRING);
+	$check_lists = filter_var($_POST['check_list'],FILTER_SANITIZE_STRING);
+	$intake_forms = filter_var($_POST['intake_form'],FILTER_SANITIZE_STRING);
 
 	if($id == 'new') {
 		mysqli_query($dbc, "INSERT INTO `project_path_milestone` () VALUES ()");
 		$id = mysqli_insert_id($dbc);
 		echo $id;
 	}
-	mysqli_query($dbc, "UPDATE `project_path_milestone` SET `project_path`='$project_path',`milestone`='$milestone',`timeline`='$timeline',`checklist`='$tasks',`ticket`='$ticket',`workorder`='$workorder' WHERE `project_path_milestone`='$id'");
+	mysqli_query($dbc, "UPDATE `project_path_milestone` SET `project_path`='$project_path',`milestone`='$milestone',`timeline`='$timeline',`checklist`='$tasks',`ticket`='$ticket',`workorder`='$workorder', `intake_form`='$intake_forms', `check_list`='$check_lists' WHERE `project_path_milestone`='$id'");
 
 } else if($_GET['action'] == 'path_template_individual_order') {
 	$id = filter_var($_POST['templateid'],FILTER_SANITIZE_STRING);
