@@ -213,7 +213,7 @@ var openProjectDialog = function(sel) {
             'Assign': function() {
                 var projectid = $('select[name="projectid"] option:selected').val();
                 $.ajax({
-                    url: 'sales_ajax_all.php?fill=changeCustCat&salesid='+salesid,
+                    url: 'sales_ajax_all.php?fill=changeCustCat&salesid='+salesid+'&projectid='+projectid,
                     type: "GET",
                     success: function(response) {
                         location.replace('../Project/projects.php?edit='+projectid+'&tab=info&salesid='+salesid);

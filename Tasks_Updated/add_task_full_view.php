@@ -80,8 +80,10 @@ if (isset($_POST['tasklist'])) {
     }
     $task_board_name = filter_var($_POST['task_board'], FILTER_SANITIZE_STRING);
     $task_milestone_timeline = filter_var($_POST['task_milestone_timeline'],FILTER_SANITIZE_STRING);
+	$task_milestone_timeline = str_replace(["FFMHASH","FFMSPACE","FFMEND"],["#"," ","&"],$task_milestone_timeline);
     $task_external = filter_var($_POST['external'],FILTER_SANITIZE_STRING);
 	$project_milestone = filter_var($_POST['project_milestone'],FILTER_SANITIZE_STRING);
+	$project_milestone = str_replace(["FFMHASH","FFMSPACE","FFMEND"],["#"," ","&"],$project_milestone);
     if ( empty($task_milestone_timeline) && !empty($task_projectid) ) {
         $get_task_milestone = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT ppm.project_path_milestone, ppm.milestone FROM project_path_milestone ppm, project p WHERE p.projectid='$task_projectid' AND p.project_path=ppm.project_path_milestone"));
         $milestones_list = explode('#*#', $get_task_milestone['milestone']);
@@ -819,7 +821,7 @@ function deletestartTicketStaff(button) {
 
         <form id="form1" name="form1" method="post"	action="" enctype="multipart/form-data" class="form-horizontal" role="form">
         <div class="scale-to-fill">
-            <h1 class="gap-left"><a href="?">Task</a></h1>
+            <h1 class="gap-left"><a href="index.php?category=All&tab=Summary">Task</a></h1>
         </div>
 
 
@@ -1490,3 +1492,5 @@ function deletestartTicketStaff(button) {
     </div>
 </div>
 </div>
+
+<?php include('../footer.php'); ?>

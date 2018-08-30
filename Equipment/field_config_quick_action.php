@@ -16,7 +16,7 @@ function saveGroups() {
 	});
 }
 </script>
-<?php $quick_action_icons = explode(',',get_config($dbc, 'quick_action_icons')); ?>
+<?php $quick_action_icons = explode(',',get_config($dbc, 'equipment_quick_action_icons')); ?>
 <div class="form-group">
 	<label class="col-sm-4 control-label">Quick Action Icons</label>
 	<div class="col-sm-8">

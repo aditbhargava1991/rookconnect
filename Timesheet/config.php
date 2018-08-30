@@ -176,6 +176,7 @@ $config['settings']['Choose Fields for Time Sheets']['data'] = array(
 			array('Training Hours', 'hidden', 'training_hrs'),
 			array('Sick Time', 'hidden', 'sick_hrs'),
 			array('Sick Taken', 'hidden', 'sick_used'),
+			array('Sick Taken - Check Conflicts', 'hidden', 'sick_used_conflicts'),
 			array('Stat Hours', 'hidden', 'stat_hrs'),
 			array('Stat Taken', 'hidden', 'stat_used'),
 			array('Breaks', 'hidden', 'breaks'),

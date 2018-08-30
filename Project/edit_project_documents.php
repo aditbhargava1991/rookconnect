@@ -59,7 +59,7 @@ function uploadFile() {
 			},
 			success: function(response) {
 				if(++uploaded == filecount) {
-					window.location.reload();
+					window.location.replace('?edit=<?= $projectid ?>&tab=documents');
 				}
 			}
 		});
@@ -103,6 +103,7 @@ function uploadSalesDocs() {
 					<th>Document</th>
 					<th>Category</th>
 					<th>Added By</th>
+					<th></th>
 				</tr>
 			<?php } ?>
 			<?php while($document = mysqli_fetch_array($documents)) { ?>
@@ -113,36 +114,39 @@ function uploadSalesDocs() {
 						<a href="<?= (strpos($document['link'],'http') === FALSE ? 'http://' : '').$document['link'] ?>"><?= $document['label'] == '' ? $document['link'] : $document['label'] ?></a>
 					<?php } ?>
 					<?php if($security['edit'] > 0) { ?>
-						- <input type="text" name="label" value="<?= $document['label'] ?>" data-table="project_document" data-id-field="uploadid" data-id="<?= $document['uploadid'] ?>" style="display:none;" onchange="$(this).closest('td').find('a').first().text(this.value); $(this).hide();">
-						<a href="" onclick="$(this).closest('td').find('[name=label]').show().focus(); return false;">Rename</a>
-						- <input type="hidden" name="deleted" value="1" data-table="project_document" data-id-field="uploadid" data-id="<?= $document['uploadid'] ?>">
-						<a href="" onclick="$(this).closest('td').find('[name=deleted]').change(); $(this).closest('tr').remove(); return false;">Delete</a>
+						<input type="text" name="label" class="form-control" value="<?= empty($document['label']) ? (empty($document['upload']) ? $document['link'] : $document['upload']) : $document['label'] ?>" data-table="project_document" data-id-field="uploadid" data-id="<?= $document['uploadid'] ?>" style="display:none;" onblur="$(this).closest('td').find('a').show().first().text(this.value); $(this).hide();">
+						<a href="" onclick="$(this).closest('td').find('a').hide(); $(this).closest('td').find('[name=label]').show().focus(); return false;"><img src="../img/icons/ROOK-edit-icon.png" class="inline-img"></a>
 					<?php } ?>
 					</td>
 					<td data-title="Category" <?= !($security['edit'] > 0) ? 'class="readonly-block"' : '' ?>><select name="category" class="chosen-select-deselect form-control category1" data-placeholder="Select a Category" data-table="project_document" data-id-field="uploadid" data-id="<?= $document['uploadid'] ?>">
 						<option></option>
+						<option value="MANUAL">Add New</option>
 						<?php $doc_cats = mysqli_query($dbc, "SELECT `category` FROM `project_document` WHERE `category` != '' GROUP BY `category` ORDER BY `category`");
 						while($doc_cat = mysqli_fetch_array($doc_cats)[0]) { ?>
 							<option <?= $document['category'] == $doc_cat ? 'selected' : '' ?> value="<?= $doc_cat ?>"><?= $doc_cat ?></option>
 						<?php } ?>
-						<option value="MANUAL">Add New</option>
 					</select><input type="text" name="category" data-table="project_document" data-id-field="uploadid" data-id="<?= $document['uploadid'] ?>" placeholder="Category" class="form-control" style="display:none;" onchange="setCategory(this);"></td>
 					<td data-title="Added By"><?= get_contact($dbc, $document['created_by']) ?></td>
+					<td data-title="">
+						<input type="hidden" name="deleted" value="1" data-table="project_document" data-id-field="uploadid" data-id="<?= $document['uploadid'] ?>">
+						<a href="" onclick="$('.add_doc').show(); return false;"><img src="../img/icons/ROOK-add-icon.png" class="inline-img"></a>
+						<a href="" onclick="$(this).closest('td').find('[name=deleted]').change(); $(this).closest('tr').remove(); return false;"><img src="../img/remove.png" class="inline-img"></a>
+                    </td>
 				</tr>
 			<?php } ?>
 		</table>
 	</div>
 	<?php if($security['edit'] > 0) { ?>
-		<div class="form-group">
+		<div class="form-group add_doc" style="<?= $documents->num_rows > 0 ? 'display:none;' : '' ?>">
 			<label class="col-sm-4">Documents:</label>
 			<div class="col-sm-8">
 				<select name="category" class="chosen-select-deselect form-control category2" data-placeholder="Select a Category">
 					<option></option>
+					<option value="MANUAL">Add New</option>
 					<?php $doc_cats = mysqli_query($dbc, "SELECT `category` FROM `project_document` WHERE `category` != '' GROUP BY `category` ORDER BY `category`");
 					while($doc_cat = mysqli_fetch_array($doc_cats)[0]) { ?>
 						<option <?= $document['category'] == $doc_cat ? 'selected' : '' ?> value="<?= $doc_cat ?>"><?= $doc_cat ?></option>
 					<?php } ?>
-					<option value="MANUAL">Add New</option>
 				</select><input type="text" name="category" class="form-control" style="display:none;" placeholder="Document Category" onchange="setCategory(this);">
 				<input type="file" multiple name="upload" class="form-control"><?php
 	            $row_sales_docs_query = mysqli_query($dbc, "SELECT salesdocid, document_type, document FROM sales_document WHERE salesid='$salesid'");
@@ -155,21 +159,21 @@ function uploadSalesDocs() {
 	            } ?>
 			</div>
 		</div>
-		<div class="form-group">
+		<div class="form-group add_doc" style="<?= $documents->num_rows > 0 ? 'display:none;' : '' ?>">
 			<label class="col-sm-4">Links:</label>
 			<div class="col-sm-8">
 				<select name="category" class="chosen-select-deselect form-control category2" data-placeholder="Select a Category">
 					<option></option>
+					<option value="MANUAL">Add New</option>
 					<?php $doc_cats = mysqli_query($dbc, "SELECT `category` FROM `project_document` WHERE `category` != '' GROUP BY `category` ORDER BY `category`");
 					while($doc_cat = mysqli_fetch_array($doc_cats)[0]) { ?>
 						<option <?= $document['category'] == $doc_cat ? 'selected' : '' ?> value="<?= $doc_cat ?>"><?= $doc_cat ?></option>
 					<?php } ?>
-					<option value="MANUAL">Add New</option>
 				</select><input type="text" name="category" class="form-control" style="display:none;" placeholder="Link Category" onchange="setCategory(this);">
 				<input type="text" name="link" class="form-control" data-table="project_document" data-id-field="uploadid" data-project="<?= $projectid ?>">
 			</div>
+            <a href="" class="btn brand-btn pull-right" onclick="return waitForSave(this);">Save Link</a>
 		</div>
-		<a href="" class="btn brand-btn pull-right" onclick="return waitForSave(this);">Save Link</a>
 		<div class="clearfix"></div>
 	<?php } ?>
 </div>

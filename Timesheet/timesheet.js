@@ -102,6 +102,9 @@ function saveFieldMethod(field) {
             if(block_length == 0) {
                 doneSaving();
             }
+            if($(field).data('check-conflicts') != undefined && $(field).data('check-conflicts') == 1) {
+                checkTicketBookingConflicts(field);
+            }
         });
     });
     if(block_length == 0 && field.name != 'approv') {
@@ -151,6 +154,23 @@ function displayPDFOptions(a) {
             },
             Cancel: function() {
                 $(this).dialog('close');
+            }
+        }
+    });
+}
+function checkTicketBookingConflicts(input) {
+    var row = $(input).closest('tr');
+    var startdate = $(row).find('[name="date"]').val();
+    var enddate = $(row).find('[name="date"]').val();
+    var staff = $(row).find('[name="staff"]').val();
+
+    $.ajax({
+        url: '../Calendar/calendar_ajax_all.php?fill=check_ticket_booking_conflicts',
+        method: 'POST',
+        data: { contactid: staff, startdate: startdate, enddate: enddate },
+        success:function(response) {
+            if(response != '') {
+                alert(response);
             }
         }
     });

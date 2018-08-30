@@ -85,8 +85,8 @@ function blankPDFForm() {
                     } ?>
                 </div>
                 <div class="scale-to-fill">
-					<h1 class="gap-left"><a href="?<?= $current_tile ?>"><?= $ticket_tile ?></a><?= isset($_GET['edit']) ? ($ticketid > 0 && $_GET['new_ticket'] != 'true' ? ': <span class="ticketid_span">'.get_ticket_label($dbc, mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticketid`='$ticketid'"))).'</span>' : ': <span class="ticketid_span">New '.$ticket_noun.'</span>') : '' ?>
-						<img class="no-toggle statusIcon pull-right no-margin inline-img small" title="" src="" data-original-title=""></h1>
+					<h1 class="gap-left"><a href="?tile_name=<?= $_GET['tile_name'] ?>"><?= TICKET_TILE.(!empty($_GET['tile_name']) ? ': '.$ticket_tabs[$_GET['tile_name']] : '') ?></a><?= isset($_GET['edit']) ? ($ticketid > 0 && $_GET['new_ticket'] != 'true' ? ': <span class="ticketid_span">'.get_ticket_label($dbc, mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticketid`='$ticketid'"))).'</span>' : ': <span class="ticketid_span">New '.TICKET_NOUN.'</span>') : '' ?>
+						<!-- <img class="no-toggle statusIcon pull-right no-margin inline-img small" title="" src="" data-original-title=""> --></h1>
 				</div>
                 <div class="clearfix"></div>
             </div><!-- .tile-header -->
