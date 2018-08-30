@@ -886,6 +886,7 @@ function saveFieldMethod(field) {
 					}
 
 					if(field_name == 'piece_work' && $('[name="piece_work"]').val() != '') {
+						alert('etg');
 						add_edit_project(current_ticketid);
 					}
 
