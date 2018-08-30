@@ -884,6 +884,11 @@ function saveFieldMethod(field) {
 							window.location.replace('../blank_loading_page.php');
 						}
 					}
+
+					if(field_name == 'piece_work' && $('[name="piece_work"]').val() != '') {
+						add_edit_project(current_ticketid);
+					}
+
 					doneSaving();
 				}
 			});
@@ -891,6 +896,17 @@ function saveFieldMethod(field) {
 			doneSaving();
 		}
 	});
+}
+
+function add_edit_project(current_ticketid) {
+		$.ajax({
+			type: "GET",
+			url: "task_ajax_all.php?fill=add_edit_project&ticketid="+current_ticketid,
+			dataType: "html",   //expect html to be returned
+			success: function(response){
+				alert(response);
+			}
+		});
 }
 
 function reloadOnSaved(url) {
