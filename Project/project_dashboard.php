@@ -591,7 +591,7 @@ $(document).ready(function() {
 						foreach($status_list as $status_name) {
 							$status_count = $dbc->query("SELECT `status`, COUNT(*) `count` FROM `project` WHERE `deleted`=0 AND `status`='$status_name'")->fetch_assoc()['count'];
                             if($status_count > 0) {
-							    $block .= '<a href="?tile_name'.$tile.'&tab=administration_1_'.strtolower($status_name).'__"><label class="control-label">'.$status_name.':</label> '.$status_count.'</a><br />';
+							    $block .= '<a href="?tile_name'.$tile.'&tab=administration_'.$admin_group['id'].'_'.strtolower($status_name).'__"><label class="control-label">'.$status_name.':</label> '.$status_count.'</a><br />';
 							    $block_length += 23;
                             }
 						}
