@@ -49,6 +49,16 @@ if(isset($_POST['submit'])) {
             $dbc->query("INSERT INTO `reminders` (`contactid`,`reminder_date`,`reminder_type`,`subject`,`body`,`src_table`,`src_tableid`, `sender`) VALUES ('$staff','$date','Equipment Reminder','$subject','$body','equipment','$id', '$sender')");
             break;
 
+        case 'tickets':
+            $ticketid = $id;
+            $ticket = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticketid` = '$ticketid'"));
+
+            $sender = get_email($dbc, $_SESSION['contactid']);
+            $body = htmlentities("This is a reminder about a ".TICKET_NOUN.".<br />\n<br />
+            <a href=\"".WEBSITE_URL."/Ticket/index.php?edit=$id\">Click here</a> to see the ".TICKET_NOUN.".<br />\n<br />");
+            $dbc->query("INSERT INTO `reminders` (`contactid`,`reminder_date`,`reminder_type`,`subject`,`body`,`src_table`,`src_tableid`, `sender`) VALUES ('$staff','$date','Ticket Reminder','$subject','$body','tickets','$id', '$sender')");
+            break;
+            
         default:
             break;
     }
@@ -65,6 +75,13 @@ switch($tile) {
         $equipment_label = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT *, CONCAT(`category`, ' #', `unit_number`) label FROM `equipment` WHERE `equipmentid` = '".$_GET['id']."'"))['label'];
         $subject = "A reminder about ".$equipment_label;
         break;
+    case 'tickets':
+        $ticket = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticketid` = '".$_GET['id']."'"));
+        $subject = "A reminder about a ".TICKET_NOUN." - ".get_ticket_label($dbc, $ticket);
+        break;
+}
+if(empty($_GET['contactid'])) {
+    $_GET['contactid'] = $_SESSION['contactid'];
 }
 ?>
 <?php if(empty($_GET['view'])) { ?>
@@ -87,22 +104,22 @@ switch($tile) {
                         </select>
                     </div>
                 </div>
-            </div>
-            <div class="form-group">
-                <label class="col-sm-4 control-label">Reminder Heading:</label>
-                <div class="col-sm-8">
-                    <input type="text" name="reminder_heading" class="form-control" value="<?= $subject ?>">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Reminder Heading:</label>
+                    <div class="col-sm-8">
+                        <input type="text" name="reminder_heading" class="form-control" value="<?= $subject ?>">
+                    </div>
                 </div>
-            </div>
 
-        	<div class="form-group">
-        		<label class="col-sm-4 control-label">Reminder Date:</label>
-        		<div class="col-sm-8">
-                    <input type="text" name="reminder_date" class="datepicker form-control">
-                </div>
-                <div class="form-group pull-right">
-                    <a href="" class="btn brand-btn">Back</a>
-                    <button type="submit" name="submit" value="Submit" class="btn brand-btn">Submit</button>
+            	<div class="form-group">
+            		<label class="col-sm-4 control-label">Reminder Date:</label>
+            		<div class="col-sm-8">
+                        <input type="text" name="reminder_date" class="datepicker form-control">
+                    </div>
+                    <div class="form-group pull-right">
+                        <a href="" class="btn brand-btn">Back</a>
+                        <button type="submit" name="submit" value="Submit" class="btn brand-btn">Submit</button>
+                    </div>
                 </div>
             </form>
         </div>

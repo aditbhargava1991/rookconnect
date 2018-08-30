@@ -533,7 +533,23 @@ $is_recurrence = false;
 if($get_ticket['main_ticketid'] > 0 && $get_ticket['is_recurrence'] == 1) {
 	$is_recurrence = true;
 }
-
+$quick_action_html = '';
+if(!($strict_view > 0)) {
+	$quick_actions = explode(',',get_config($dbc, 'quick_action_icons'));
+	$quick_action_html .= '<div class="action-icons pull-right">';
+	$quick_action_html .= (strpos($value_config,',Create Recurrence Button,') !== FALSE ? '<img src="'.WEBSITE_URL.'/img/month-overview-blue.png" class="inline-img no-toggle" title="Create Recurring '.TICKET_TILE .'" onclick="dialogCreateRecurrence(this);">' : '');
+	$quick_action_html .= (in_array('flag_manual',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-flag-icon.png" class="inline-img manual-flag-icon no-toggle" title="Flag This!">' : '');
+	$quick_action_html .= (!in_array('flag_manual',$quick_actions) && in_array('flag',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-flag-icon.png" class="inline-img flag-icon no-toggle" title="Flag This!">' : '');
+	$quick_action_html .= (in_array('email',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-email-icon.png" class="inline-img email-icon no-toggle" title="Send Email">' : '');
+	$quick_action_html .= (in_array('reminder',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-reminder-icon.png" class="inline-img reminder-icon no-toggle" title="Schedule Reminder">' : '');
+	$quick_action_html .= (in_array('attach',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-attachment-icon.png" class="inline-img attach-icon no-toggle" title="Attach File">' : '');
+	$quick_action_html .= (in_array('reply',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-reply-icon.png" class="inline-img reply-icon no-toggle" title="Add Note">' : '');
+	$quick_action_html .= (strpos($value_config,',Customer History,') !== FALSE ? '<img src="'.WEBSITE_URL.'/img/icons/eyeball.png" class="inline-img no-toggle" title="View Customer History" onclick="displayCustomerHistory();">' : '');
+	$quick_action_html .= (in_array('archive',$quick_actions) && $tile_security['edit'] > 0 ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-trash-icon.png" class="inline-img archive-icon no-toggle" title="Archive">' : '');
+	$quick_action_html .= '</div><br />
+		<input type="text" name="emailpdf" value="" class="form-control" style="display:none;">
+		<input type="file" name="document" value="" data-table="ticket_document" data-folder="ticket_document" style="display:none;">';
+}
 
 $global_value_config = $value_config; ?>
 
@@ -541,6 +557,7 @@ $global_value_config = $value_config; ?>
 <script>
 var no_verify = <?= IFRAME_PAGE ? 'true' : 'false' ?>;
 $(document).ready(function() {
+	setActions();
 	window.onbeforeunload = function() {
 		var ready = ticketid > 0 || ticketid == 'multi' || <?= IFRAME_PAGE ? 'true' : 'false' ?>;
 		$('[name=projectid],select[name=businessid]').not('[type=checkbox]').each(function() {
@@ -663,6 +680,94 @@ function loadPanel() {
 				setSave();
 			}
 		});
+	}
+}
+function setActions() {
+	$('.archive-icon').off('click').click(function() {
+		var ticketid = $('#ticketid').val();
+		$.ajax({
+			url: 'ticket_ajax_all.php?action=archive',
+			method: 'POST',
+			data: { ticketid: ticketid },
+			success: function(response) {
+				window.location.href = '<?= $back_url ?>';
+			}
+		});
+	});
+	$('.manual-flag-icon').off('click').click(function() {
+		var ticketid = $('#ticketid').val();
+		overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_flags.php?tile=tickets&id='+ticketid, 'auto', false, true);
+	});
+	$('.flag-icon').off('click').click(function() {
+		var ticketid = $('#ticketid').val();
+		$.ajax({
+			url: 'ticket_ajax_all.php?action=quick_actions',
+			method: 'POST',
+			data: {
+				field: 'flag_colour',
+				value: item.data('colour'),
+				table: item.data('table'),
+				id: ticketid,
+				id_field: item.data('id-field')
+			},
+			success: function(response) {
+				item.data('colour',response.substr(0,6));
+				item.css('background-color','#'+response.substr(0,6));
+				item.find('.flag-label').html(response.substr(6));
+			}
+		});
+	});
+	$('.attach-icon').off('click').click(function() {
+		var ticketid = $('#ticketid').val();
+		var item = $(this).closest('.action_items');
+		item.find('[type=file]').off('change').change(function() {
+			var fileData = new FormData();
+			fileData.append('file',$(this)[0].files[0]);
+			fileData.append('field','document');
+			fileData.append('table','ticket_document');
+			fileData.append('folder','download');
+			fileData.append('id',ticketid);
+			fileData.append('id_field','ticketid');
+			$.ajax({
+				contentType: false,
+				processData: false,
+				method: "POST",
+				url: "ticket_ajax_all.php?action=quick_actions",
+				data: fileData
+			});
+		}).click();
+	});
+	$('.reply-icon').off('click').click(function() {
+		var ticketid = $('#ticketid').val();
+		overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_notes.php?tile=tickets&id='+ticketid, 'auto', false, true);
+	});
+	$('.reminder-icon').off('click').click(function() {
+		var ticketid = $('#ticketid').val();
+		overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_reminders.php?tile=tickets&id='+ticketid, 'auto', false, true);
+	});
+	$('.email-icon').off('click').click(function() {
+		var ticketid = $('#ticketid').val();
+		overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_email.php?tile=tickets&id='+ticketid, 'auto', false, true);
+	});
+}
+function setManualFlag(ticketid = '', colour, label) {
+	if(colour == 'FFFFFF') {
+		colour = '';
+	}
+	$('.flag-label').text(label);
+
+	if(colour != '') {
+		$('.standard-body-title').css('background-color', '#'+colour);
+		$('.flag-label-block').show();
+		$('.flag-label-block').css('background-color', '#'+colour);
+		if(label != '') {
+			$('.flag-label-block').text('Flagged: '+label);
+		} else {
+			$('.flag-label-block').text('Flagged');
+		}
+	} else {
+		$('.standard-body-title').css('background-color', '');
+		$('.flag-label-block').hide();
 	}
 }
 var ticketid = 0;
@@ -895,27 +1000,12 @@ var setHeading = function() {
 					}
 					$flag_comment = $ticket_flag_names[$get_ticket['flag_colour']];
 				} ?>
-				<span class="block-label flag-label" style="background-color:#<?= $get_ticket['flag_colour'] ?>;">Flagged<?= empty($flag_comment) ? '' : ': '.$flag_comment ?></span>
-			<?php } ?></h3>
+			<?php } ?>
+			<span class="block-label flag-label-block" style="<?= $get_ticket['flag_colour'] != '' && $get_ticket['flag_colour'] != 'FFFFFF' ? '' : 'dispaly:none;' ?>background-color:#<?= $get_ticket['flag_colour'] ?>;">Flagged<?= empty($flag_comment) ? '' : ': '.$flag_comment ?></span></h3>
 			<hr>
 		</div>
 	<?php }
-	if(strpos($value_config,',Customer History,') !== FALSE && !($strict_view > 0)) { ?>
-        <div class="pull-right gap-left gap-top gap-bottom <?= $calendar_ticket_slider != 'accordion' ? 'show-on-mob' : '' ?>">
-			<a href="" onclick="displayCustomerHistory(); return false;"><img class="no-toggle" style="width: 1.5em;" src="../img/icons/eyeball.png" border="0" alt="" title="View Customer History." /></a>
-		</div>
-	<?php }
-	if(strpos($value_config,',Create Recurrence Button,') !== FALSE && $_GET['action_mode'] != 1 && $_GET['overview_mode'] != 1 && $access_any) { ?>
-        <div class="pull-right gap-left gap-top gap-bottom <?= $calendar_ticket_slider != 'accordion' ? 'show-on-mob' : '' ?>">
-			<a href="<?= $back_url ?>" onclick="dialogCreateRecurrence(this); return false"><img class="no-toggle" style="width: 1.5em;" src="../img/month-overview-blue.png" title="Create Recurring <?= TICKET_TILE ?>."></a>
-		</div>
-	<?php }
-	if(strpos($value_config,',Quick Reminder Button,') !== FALSE && !($strict_view > 0)) { ?>
-        <div class="pull-right gap-top <?= $calendar_ticket_slider != 'accordion' ? 'show-on-mob' : '' ?>">
-			<a href="" onclick="dialogQuickReminder(); return false;"><img class="no-toggle" src="../img/icons/ROOK-reminder-icon.png" style="width: 1.25em;" border="0" alt="" title="Add a Quick Reminder." /></a>
-		</div>
-		<div class="clearfix"></div>
-	<?php }
+	echo '<div class="pull-right '.($calendar_ticket_slider != 'accordion' ? 'show-on-mob' : '').'">'.$quick_action_html.'</div>';
 	if(count($ticket_tabs) > 1 && !($_GET['action_mode'] > 0 || $_GET['overview_mode'] > 0) && $tile_security['edit'] > 0 && !($strict_view > 0)) { ?>
 		<div class="form-group clearfix <?= $calendar_ticket_slider != 'accordion' ? 'show-on-mob' : '' ?>">
 			<label for="ticket_type" class="col-sm-4 control-label text-right"><?= TICKET_NOUN ?> Type:</label>
@@ -2435,7 +2525,7 @@ var setHeading = function() {
 	</div>
 	<div class="scale-to-fill has-main-screen hide-titles-mob">
 		<div class="main-screen standard-body default_screen form-horizontal" id="main_screen_block">
-			<div class="standard-body-title" <?= $ticket_layout == 'Accordions' ? 'style="display:none;"' : '' ?>>
+			<div class="standard-body-title" style="<?= $ticket_layout == 'Accordions' ? 'display:none;' : '' ?><?= $get_ticket['flag_colour'] != '' && $get_ticket['flag_colour'] != 'FFFFFF' ? 'background-color:#'.$get_ticket['flag_colour'].';' : '' ?>">
 				<h3><?= !empty($_GET['edit']) ? ($_GET['overview_mode'] > 0 ? '' : 'Edit ') : 'Add ' ?><?= TICKET_NOUN ?><?= $_GET['overview_mode'] > 0 ? ' Overview' : '' ?>
 					<?php if($_GET['action_mode'] == 1) {
 						$get_query = $_GET;
@@ -2451,21 +2541,8 @@ var setHeading = function() {
 							<a href="?<?= http_build_query($get_query); ?>" class="btn brand-btn" onclick="viewFullTicket(this); return false;">View Full <?= TICKET_NOUN ?></a>
 						</div>
 					<?php } ?>
-					<?php if(strpos($value_config,',Customer History,') !== FALSE && !($strict_view > 0)) { ?>
-				        <div class="pull-right gap-left">
-							<a href="" onclick="displayCustomerHistory(); return false;"><img class="no-toggle" style="width: 1.5em;" src="../img/icons/eyeball.png" border="0" alt="" title="View Customer History." /></a>
-						</div>
-					<?php } ?>
-					<?php if(strpos($value_config,',Create Recurrence Button,') !== FALSE && $_GET['action_mode'] != 1 && $_GET['overview_mode'] != 1 && $access_any) { ?>
-				        <div class="pull-right gap-left">
-							<a href="<?= $back_url ?>" onclick="dialogCreateRecurrence(this); return false"><img class="no-toggle" style="width: 1em;" src="../img/month-overview-blue.png" title="Create Recurring <?= TICKET_TILE ?>."></a>
-						</div>
-					<?php } ?>
-					<?php if(strpos($value_config,',Quick Reminder Button,') !== FALSE && !($strict_view > 0)) { ?>
-				        <div class="pull-right">
-							<a href="" onclick="dialogQuickReminder(); return false;"><img class="no-toggle" src="../img/icons/ROOK-reminder-icon.png" style="width: 1.25em;" border="0" alt="" title="Add a Quick Reminder." /></a>
-						</div>
-					<?php } ?>
+					<?= '<div class="pull-right" style="position: relative; bottom: 0.3em;">'.$quick_action_html.'</div>' ?>
+					<span class="flag-label" style="<?= $get_ticket['flag_colour'] != '' && $get_ticket['flag_colour'] != 'FFFFFF' ? '' : 'dispaly:none;' ?>background-color:#<?= $get_ticket['flag_colour'] ?>;"><?= $flag_comment ?></span></h3>
 				</h3>
 			</div>
 <?php } ?>
