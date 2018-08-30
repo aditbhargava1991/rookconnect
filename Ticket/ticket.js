@@ -215,6 +215,7 @@ function setSave() {
 
 function set_piece_project(sel) {
     var ticketid = sel.id;
+	alert(ticketid);
 		$.ajax({
 			type: "GET",
 			url: "ticket_ajax_all.php?fill=add_edit_project&ticketid="+ticketid,
