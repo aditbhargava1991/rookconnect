@@ -1699,6 +1699,9 @@ function get_tile_names($tile_list) {
 			case 'newsboard':
 				$tiles[] = 'News Board';
 				break;
+			case 'customer_support':
+				$tiles[] = 'Customer Support';
+				break;
 			case 'ffmsupport':
 				$tiles[] = 'FFM Support';
 				break;
