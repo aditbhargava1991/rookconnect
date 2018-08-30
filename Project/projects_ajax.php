@@ -492,6 +492,9 @@ if($_GET['action'] == 'mark_favourite') {
 	$timeline = filter_var($_POST['timeline'],FILTER_SANITIZE_STRING);
 	$tasks = filter_var($_POST['tasks'],FILTER_SANITIZE_STRING);
 	$ticket = filter_var($_POST['ticket'],FILTER_SANITIZE_STRING);
+	$workorder = filter_var($_POST['workorder'],FILTER_SANITIZE_STRING);
+	$check_lists = filter_var($_POST['check_list'],FILTER_SANITIZE_STRING);
+	$intake_forms = filter_var($_POST['intake_form'],FILTER_SANITIZE_STRING);
 	$items = filter_var($_POST['items'],FILTER_SANITIZE_STRING);
 	$intakes = filter_var($_POST['intakes'],FILTER_SANITIZE_STRING);
 
@@ -500,7 +503,9 @@ if($_GET['action'] == 'mark_favourite') {
 		$id = mysqli_insert_id($dbc);
 		echo $id;
 	}
-	mysqli_query($dbc, "UPDATE `project_path_milestone` SET `project_path`='$project_path',`milestone`='$milestone',`timeline`='$timeline',`checklist`='$tasks',`ticket`='$ticket',`items`='$items',`intakes`='$intakes' WHERE `project_path_milestone`='$id'");
+
+	mysqli_query($dbc, "UPDATE `project_path_milestone` SET `project_path`='$project_path',`milestone`='$milestone',`timeline`='$timeline',`checklist`='$tasks',`ticket`='$ticket',`workorder`='$workorder', `intake_form`='$intake_forms', `check_list`='$check_lists' WHERE `project_path_milestone`='$id'");
+
 
 } else if($_GET['action'] == 'path_template_individual_order') {
 	$id = filter_var($_POST['templateid'],FILTER_SANITIZE_STRING);
@@ -1095,6 +1100,10 @@ if($_GET['action'] == 'mark_favourite') {
 } else if($_GET['action'] == 'load_sales_scope') {
 	$projectid = filter_var($_POST['project'],FILTER_SANITIZE_STRING);
 	$salesid = filter_var($_POST['sales'],FILTER_SANITIZE_STRING);
+    // Add Sales Lead Communication to Project
+    $dbc->query("UPDATE `email_communication` SET `projectid`='$projectid' WHERE `projectid`=0 AND `salesid`='$salesid'");
+    
+    // Add Scope from Sales Lead to Project
 	$sales_scope = $dbc->query("SELECT `serviceid`,`productid` FROM `sales` WHERE `salesid`='$salesid'")->fetch_assoc();
 	foreach(explode(',',$sales_scope['serviceid']) as $service) {
 		if($service > 0) {

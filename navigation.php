@@ -294,7 +294,8 @@ if(!isset($_SESSION['fullscreen'])) {
                             <?php endif; ?>
                             <?php if($_SESSION['contactid'] > 0) { ?>
                                 <li class="pull-left"><?php include('Notification/alert_software.php'); ?></li>
-                                <li class="pull-left"><p class="no-pad-right no-pad-horiz-mobile offset-right-5"><a id="info_toggle" title="Info i Toggle"><img src="<?php echo WEBSITE_URL; ?>/img/icons/switch-off.png" style='display:none; position: relative; top: 5px;' width="50px" class="switch_info_off no-toggle" title="Turn On Information i's" data-placement="bottom"><img src="<?php echo WEBSITE_URL; ?>/img/icons/switch-on.png" class="switch_info_on no-toggle"  style='display:none; position: relative; top: 5px;'  width="50px" title="Turn Off Information i's" data-placement="bottom"></a></p></li>
+                                <li class="pull-left"><p class="no-pad-right no-pad-horiz-mobile offset-right-5"><a id="info_toggle" title="Info i Toggle"><img src="<?php echo WEBSITE_URL; ?>/img/icons/switch-off.png" style='display:none; position: relative; top: 5px;' width="50px" class="switch_info_off"><img src="<?php echo WEBSITE_URL; ?>/img/icons/switch-on.png" class="switch_info_on"  style='display:none; position: relative; top: 5px;'  width="50px"></a></p></li>
+                                <li class="pull-left"><img style="margin-top: 18px !important" class="no-toggle statusIcon pull-right no-margin inline-img" title="" src="" /></li>
                                 <li class="scale-to-fill">
                                     <script>
                                     <?php // Get Search Categories

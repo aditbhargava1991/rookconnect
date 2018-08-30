@@ -119,7 +119,7 @@ if(!IFRAME_PAGE) { ?>
 								echo "<div class='pull-right gap-left'><a href='../Profile/daysheet.php' style='font-size: 0.5em;'><button class='btn brand-btn hide-titles-mob'>Planner</button></a></div>";
 							}
 						} ?>
-						<img class="no-toggle statusIcon pull-right no-margin inline-img" title="" src="" />
+						<!-- <img class="no-toggle statusIcon pull-right no-margin inline-img" title="" src="" /> -->
 						<?php if($_GET['edit'] > 0 && ($_GET['tab'] == 'path' || ($_GET['tab'] == '' && in_array('Path',$tab_config)))) { ?>
 							<img class="inline-img pull-right btn-horizontal-collapse" src="../img/icons/pie-chart.png">
 						<?php } ?>
