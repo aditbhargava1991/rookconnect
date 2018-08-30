@@ -212,6 +212,19 @@ function setSave() {
 		update: sortScheduledStops
 	});
 }
+
+function set_piece_project(sel) {
+    var ticketid = sel.id;
+		$.ajax({
+			type: "GET",
+			url: "ticket_ajax_all.php?fill=add_edit_project&ticketid="+ticketid,
+			dataType: "html",   //expect html to be returned
+			success: function(response){
+				alert(response);
+			}
+		});
+}
+
 function getTabLocks() {
 	var lock_ids = [];
 	$('.tab-section:visible,.panel-body:visible').filter(function() { if($(this).find('[data-table]:visible').not('[data-table=ticket_comment],[data-table=ticket_document]').length > 0 && $(this).parents('[id^=tab_section_]').length == 0) { return true; } }).each(function() {
@@ -547,8 +560,7 @@ function saveFieldMethod(field) {
 					sync_recurring_data: $('#sync_recurrences').val()
 				},
 				success: function(response) {
-						alert('stg');
-					//updateTicketLabel();
+					updateTicketLabel();
 					if(field_name == 'status' && response == 'created_unscheduled_stop') {
 						reload_delivery();
 					} else if(table_name == 'ticket_attached' && field_name == 'piece_type') {
@@ -885,11 +897,6 @@ function saveFieldMethod(field) {
 							window.location.replace('../blank_loading_page.php');
 						}
 					}
-
-					if(field_name == 'piece_work' && $('[name="piece_work"]').val() != '') {
-						add_edit_project(current_ticketid);
-					}
-
 					doneSaving();
 				}
 			});
@@ -897,17 +904,6 @@ function saveFieldMethod(field) {
 			doneSaving();
 		}
 	});
-}
-
-function add_edit_project(current_ticketid) {
-		$.ajax({
-			type: "GET",
-			url: "task_ajax_all.php?fill=add_edit_project&ticketid="+current_ticketid,
-			dataType: "html",   //expect html to be returned
-			success: function(response){
-				alert(response);
-			}
-		});
 }
 
 function reloadOnSaved(url) {
