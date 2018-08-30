@@ -750,7 +750,7 @@ function checklist_attach_file(checklist) {
 									<img class="small no-gap-top milestone_drag cursor-hand inline-img pull-right" style="padding-top:2px;" src="../img/icons/drag_handle.png">
 									<img class="small milestone_rem cursor-hand no-gap-top inline-img pull-right" src="../img/remove.png">
 									<img class="small milestone_add cursor-hand no-gap-top inline-img pull-right" src="../img/icons/ROOK-add-icon.png">
-									<img class="small cursor-hand no-gap-top inline-img pull-right" style="padding-top:3px;" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Tasks_Updated/task_history.php?label=<?=$label?>&taskboardid=<?=$taskboardid?>','auto',true,true);" src="../img/icons/eyeball.png">
+									<img class="small cursor-hand no-gap-top inline-img pull-right" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Tasks_Updated/task_history.php?label=<?=$label?>&taskboardid=<?=$taskboardid?>','auto',true,true);" src="../img/icons/eyeball.png">
 									<input type="hidden" name="sort" value="<?= $milestone_row['sort'] ?>">
                                 </div>
                                 <div class="clearfix"></div>
