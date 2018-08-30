@@ -307,8 +307,8 @@ function add_intake(btn) {
 						</div>
 					<?php } ?>
 				<?php } ?>
-				<button class="btn brand-btn pull-right" onclick="add_intake(this); return false;">Intake Forms</button>
-				<button class="btn brand-btn pull-right" onclick="add_check(this); return false;">Checklist</button>
+				<button class="btn brand-btn pull-right" onclick="add_intake(this); return false;">New Intake Forms</button>
+				<button class="btn brand-btn pull-right" onclick="add_check(this); return false;">New Checklist</button>
 				<button class="btn brand-btn pull-right" onclick="add_workorder(this); return false;">New Work Order</button>
 				<button class="btn brand-btn pull-right" onclick="add_ticket(this); return false;">New <?= TICKET_NOUN ?></button>
 				<button class="btn brand-btn pull-right" onclick="add_checklist(this); return false;">New Task</button>
