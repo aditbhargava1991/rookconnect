@@ -388,7 +388,7 @@ function get_config($dbc, $name, $multi = false, $separator = ',') {
         $sql = "SELECT `value` FROM `general_configuration` WHERE `name`='$name'";
         $get_config = mysqli_fetch_assoc(mysqli_query($dbc,$sql));
     }
-    
+
 	// Define Defaults for specific fields
 	if(str_replace(',','',$get_config['value']) == '') {
 		if($name == 'timesheet_tabs') {
@@ -596,7 +596,7 @@ function get_project_paths($projectid) {
             if($pathid > 0) {
                 $path['path_id'] = $pathid;
                 $path['path_name'] = explode('#*#',$paths['project_path_name'])[$i];
-                
+
                 // Add default milestones, if they have not yet been added
                 $milestones = explode('#*#',get_field_value('milestone','project_path_milestone','project_path_milestone',$pathid));
                 $prior_sort = 0;
@@ -608,7 +608,7 @@ function get_project_paths($projectid) {
                         $_SERVER['DBC']->query("INSERT INTO `project_path_custom_milestones` (`projectid`,`milestone`,`label`,`path_type`,`pathid`,`sort`) VALUES ('$projectid','$milestone','$milestone','I','$pathid','$prior_sort')");
                     }
                 }
-                
+
                 // Load the actual list of milestones into the array
                 $path['milestones'] = [];
                 $milestone_list = $_SERVER['DBC']->query("SELECT `milestones`.`id`, `milestones`.`milestone`, `milestones`.`label`  FROM `project_path_custom_milestones` `milestones` WHERE `milestones`.`projectid`='$projectid' AND `milestones`.`pathid`='$pathid' AND `milestones`.`path_type`='I' AND `milestones`.`deleted`=0 ORDER BY `milestones`.`sort`,`milestones`.`id`");
@@ -1662,12 +1662,16 @@ function get_tile_names($tile_list) {
 			case 'products':
 				$tiles[] = 'Products';
 				break;
+
 			case 'tasks':
 				$tiles[] = 'Tasks';
 				break;
-			case 'tasks_updated':
+
+			/*
+            case 'tasks_updated':
 				$tiles[] = 'Tasks (Updated)';
 				break;
+                */
 			case 'agenda_meeting':
 				$tiles[] = 'Agendas & Meetings';
 				break;
@@ -1992,12 +1996,14 @@ function get_subtabs($tile_name) {
         case 'products':
             $subtabs = array('Dashboard', 'Add Multiple Products');
             break;
+
         case 'tasks':
             $subtabs = array('Summary', 'Private Tasks', 'Shared Tasks', 'Project Tasks', 'Contact Tasks', 'Sales Tasks', 'Reporting');
             break;
-        case 'tasks_updated':
+
+        /*case 'tasks_updated':
             $subtabs = array('Summary', 'Private Tasks', 'Shared Tasks', 'Project Tasks', 'Contact Tasks', 'Sales Tasks', 'Reporting');
-            break;
+            break;*/
         case 'agenda_meeting':
             $subtabs = array('Agendas', 'Meetings');
             break;
