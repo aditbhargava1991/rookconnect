@@ -643,13 +643,14 @@ $(document).ready(function() {
 					$blocks[] = [$block_length, $block];
 					$total_length += $block_length;
 				}
-
+				echo '<style>.hidethisblock1{display:none;;}</style>';
 				if(in_array('SUMM Colead', $summ_config) && !empty($coleads)) {
 					$block_length = 68;
-					$block = '<div class="overview-block">
+					$block = '<div class="overview-block hidethisblock1">
 						<h4>'.PROJECT_TILE.' by Co-Lead</h4>';
 						foreach($coleads as $contact) {
 							if(isset($colead_list[$contact['contactid']])) {
+							    echo '<style>.hidethisblock1{display:block !important;}</style>';
 								$block .= '<a href="?tile_name='.$tile.'&type=lead_'.$contact['contactid'].'" onclick="selectType(\'lead_'.$contact['contactid'].'\'); return false;"><label class="cursor-hand control-label">'.$contact['first_name'].' '.$contact['last_name'].':</label> '.count(array_unique($colead_list[$contact['contactid']])).'</a><br />';
 								$block_length += 23;
 							}
