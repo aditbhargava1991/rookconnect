@@ -177,6 +177,7 @@ function getEquipmentAssignmentBlock($dbc, $equipmentid, $view, $date) {
         }
     }
 	$equip_display_classification = get_config($dbc, 'scheduling_equip_classification');
+	$equip_display_classification_ticket = get_config($dbc, 'scheduling_equip_classification_ticket');
 	$active_equipment = array_filter(explode(',',get_user_settings()['appt_calendar_equipment']));
 	if($reset_active == 1) {
 		$active_equipment = [];
@@ -247,7 +248,12 @@ function getEquipmentAssignmentBlock($dbc, $equipmentid, $view, $date) {
 			$clientids = implode(',',$clientids);
 
 			$classification_label = '';
-			if($equip_display_classification == 1 && !empty($equip_classifications)) {
+			if($equip_display_classification_ticket == 1) {
+				$equip_classifications = getEquipmentTicketClassification($dbc, $equipment['equipmentid'], $week_start_date_check, $week_end_date_check);
+				if(!empty($equip_classifications)) {
+					$classification_label = ' - '.implode(', ', $equip_classifications);
+				}
+			} else if($equip_display_classification == 1 && !empty($equip_classifications)) {
 				$classification_label = ' - '.str_replace('*#*', ', ', $equip_classifications);
 			}
 
@@ -281,7 +287,12 @@ function getEquipmentAssignmentBlock($dbc, $equipmentid, $view, $date) {
 			}
 
 			$classification_label = '';
-			if($equip_display_classification == 1 && !empty($equip_classifications)) {
+			if($equip_display_classification_ticket == 1) {
+				$equip_classifications = getEquipmentTicketClassification($dbc, $equipment['equipmentid'], $calendar_start, $calendar_start);
+				if(!empty($equip_classifications)) {
+					$classification_label = ' - '.implode(', ', $equip_classifications);
+				}
+			} else if($equip_display_classification == 1 && !empty($equip_classifications)) {
 				$classification_label = ' - '.str_replace('*#*', ', ', $equip_classifications);
 			}
 			
@@ -397,4 +408,14 @@ function getCustomerEquipment($dbc, $start_date, $end_date) {
 		$equipmentids = array_merge($equipmentids, array_column(mysqli_fetch_all(mysqli_query($dbc, "SELECT DISTINCT IFNULL(`ticket_schedule`.`equipmentid`, `tickets`.`equipmentid`) `equipmentid` FROM `tickets` LEFT JOIN `ticket_schedule` ON `tickets`.`ticketid` = `ticket_schedule`.`ticketid` WHERE `tickets`.`deleted` = 0 AND `ticket_schedule`.`deleted` = 0 AND '".$calendar_date."' BETWEEN `tickets`.`to_do_date` AND `tickets`.`to_do_end_date` OR '".$calendar_date."' BETWEEN `ticket_schedule`.`to_do_date` AND IFNULL(`ticket_schedule`.`to_do_end_date`,`ticket_schedule`.`to_do_date`) AND (`tickets`.`businessid` = '".$_SESSION['contactid']."' OR CONCAT(',',`tickets`.`clientid`,',') LIKE '%,".$_SESSION['contactid'].",%')"),MYSQLI_ASSOC),'equipmentid'));
 	}
 	return $equipmentids;
+}
+function getEquipmentTicketClassification($dbc, $equipmentid, $start_date, $end_date) {
+	$classifications = [];
+
+	$tickets = mysqli_fetch_all(mysqli_query($dbc, "SELECT DISTINCT(`tickets`.`classification`) FROM `tickets` LEFT JOIN `ticket_schedule` ON `tickets`.`ticketid` = `ticket_schedule`.`ticketid` AND `ticket_schedule`.`deleted` = 0 WHERE (`tickets`.`to_do_date` BETWEEN '$start_date' AND '$end_date' OR `tickets`.`to_do_end_date` BETWEEN '$start_date' AND '$end_date' OR `ticket_schedule`.`to_do_date` BETWEEN '$start_date' AND '$end_date' OR `ticket_schedule`.`to_do_end_date` BETWEEN '$start_date' AND '$end_date' OR '$start_date' BETWEEN `tickets`.`to_do_date` AND `tickets`.`to_do_end_date` OR '$end_date' BETWEEN `ticket_schedule`.`to_do_date` AND `ticket_schedule`.`to_do_end_date`) AND IFNULL(IFNULL(`ticket_schedule`.`to_do_start_time`,`tickets`.`to_do_start_time`),'') != '' AND (IFNULL(`ticket_schedule`.`equipmentid`,`tickets`.`equipmentid`)='".$equipmentid."') AND `tickets`.`deleted` = 0 AND `tickets`.`status` NOT IN ('Archive', 'Done')"),MYSQLI_ASSOC);
+	foreach($tickets as $ticket) {
+		$classifications[] = $ticket['classification'];
+	}
+
+	return array_filter(array_unique($classifications));
 }

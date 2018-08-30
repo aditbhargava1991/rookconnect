@@ -542,6 +542,13 @@ if (isset($_POST['add_tab'])) {
 	}
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'scheduling_equip_classification' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='scheduling_equip_classification') num WHERE num.rows=0");
 	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$scheduling_equip_classification."' WHERE `name`='scheduling_equip_classification'");
+	if (!empty($_POST['scheduling_equip_classification_ticket'])) {
+		$scheduling_equip_classification_ticket = $_POST['scheduling_equip_classification_ticket'];
+	} else {
+		$scheduling_equip_classification_ticket = '';
+	}
+	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'scheduling_equip_classification_ticket' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='scheduling_equip_classification_ticket') num WHERE num.rows=0");
+	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$scheduling_equip_classification_ticket."' WHERE `name`='scheduling_equip_classification_ticket'");
 	if (!empty($_POST['scheduling_reset_active'])) {
 		$scheduling_reset_active = $_POST['scheduling_reset_active'];
 	} else {
@@ -2159,6 +2166,13 @@ function showDefaultView(chk) {
 								<div class="col-sm-8">
 									<?php $scheduling_equip_classification = get_config($dbc, 'scheduling_equip_classification'); ?>
 									<label class="form-checkbox"><input type="checkbox" name="scheduling_equip_classification" <?= $scheduling_equip_classification == 1 ? 'checked' : '' ?> value="1"></label>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-4 control-label">Equipment Display Classification - Based on <?= TICKET_TILE ?>:</label>
+								<div class="col-sm-8">
+									<?php $scheduling_equip_classification_ticket = get_config($dbc, 'scheduling_equip_classification_ticket'); ?>
+									<label class="form-checkbox"><input type="checkbox" name="scheduling_equip_classification_ticket" <?= $scheduling_equip_classification_ticket == 1 ? 'checked' : '' ?> value="1"></label>
 								</div>
 							</div>
 							<div class="form-group">
