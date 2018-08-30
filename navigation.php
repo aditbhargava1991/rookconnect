@@ -340,7 +340,7 @@ if(!isset($_SESSION['fullscreen'])) {
                                     }
 
                                     if(in_array('tasks',array_column($_SESSION['tile_list'],'tile'))) {
-                                        $search_cats[] = 'Tasks';
+                                        $search_cats[] = TASK_TILE;
                                         echo "search_categories.push('tasks');\n";
                                     }
 

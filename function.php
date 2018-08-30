@@ -8,6 +8,10 @@ if($_SESSION['CONSTANT_UPDATED'] + 600 < time()) {
 	$_SESSION['INVENTORY_TILE'] = $inventory_tile_name[0] ?: 'Inventory';
 	$_SESSION['INVENTORY_NOUN'] = !empty($inventory_tile_name[1]) ? $inventory_tile_name[1] : ($inventory_tile_name[0] == 'Inventory' ? 'Inventory' : $inventory_tile_name[0]) ?: 'Inventory';
 
+	$task_tile_name = explode('#*#',get_config($dbc, 'task_tile_name') ?: 'Task#*#Task');
+	$_SESSION['TASK_TILE'] = $task_tile_name[0] ?: 'Task';
+	$_SESSION['TASK_NOUN'] = !empty($task_tile_name[1]) ? $task_tile_name[1] : ($task_tile_name[0] == 'Task' ? 'Task' : $task_tile_name[0]) ?: 'Task';
+
 	$contacts_tile_name = explode('#*#',get_config($dbc, 'contacts_tile_name') ?: 'Contacts#*#Contact');
 	$_SESSION['CONTACTS_TILE'] = $contacts_tile_name[0] ?: 'Contacts';
 	$_SESSION['CONTACTS_NOUN'] = !empty($contacts_tile_name[1]) ? $contacts_tile_name[1] : ($contacts_tile_name[0] == 'Contacts' ? 'Contact' : $contacts_tile_name[0]) ?: 'Contact';
@@ -86,6 +90,8 @@ if($_SESSION['CONSTANT_UPDATED'] + 600 < time()) {
 }
 // Pull from SESSION instead of Database
 DEFINE('INVENTORY_TILE', $_SESSION['INVENTORY_TILE']);
+DEFINE('TASK_TILE', $_SESSION['TASK_TILE']);
+DEFINE('TASK_NOUN', $_SESSION['TASK_NOUN']);
 DEFINE('POS_ADVANCE_TILE', $_SESSION['POS_ADVANCE_TILE']);
 DEFINE('INVENTORY_NOUN', $_SESSION['INVENTORY_NOUN']);
 DEFINE('CONTACTS_TILE', $_SESSION['CONTACTS_TILE']);
@@ -1664,7 +1670,7 @@ function get_tile_names($tile_list) {
 				break;
 
 			case 'tasks':
-				$tiles[] = 'Tasks';
+				$tiles[] = TASK_TILE;
 				break;
 
 			/*

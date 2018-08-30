@@ -23,7 +23,7 @@ if(empty($_GET['tasklistid'])) {
                       <div class="note_block row <?= $odd_even_class ?>">
                           <div class="col-xs-1"><?= profile_id($dbc, $row_doc['created_by']); ?></div>
                           <div class="col-xs-11" style="<?= $style_strikethrough ?>">
-                              <div><a href="../Tasks/download/<?= $row_doc['document'] ?>"><?= $row_doc['document'] ?></a></div>
+                              <div><a href="../Tasks_Updated/download/<?= $row_doc['document'] ?>"><?= $row_doc['document'] ?></a></div>
                               <div><em>Added by <?= get_contact($dbc, $row_doc['created_by']); ?> on <?= $row_doc['created_date']; ?></em></div>
                           </div>
                           <div class="clearfix"></div>
@@ -69,7 +69,7 @@ if(empty($_GET['tasklistid'])) {
                           <div class="note_block row <?= $odd_even_class ?>">
                               <div class="col-xs-1"><?= profile_id($dbc, $row_doc['contactid']); ?></div>
                               <div class="col-xs-11" style="<?= $style_strikethrough ?>">
-                                  <div><a href="../Tasks/download/<?= $row_doc['heading'] ?>"><?= $row_doc['heading'] ?></a></div>
+                                  <div><a href="../Tasks_Updated/download/<?= $row_doc['heading'] ?>"><?= $row_doc['heading'] ?></a></div>
                                   <div><em>Added by <?= get_contact($dbc, $row_doc['contactid']); ?> on <?= $row_doc['updated_date']; ?></em></div>
                               </div>
                               <div class="clearfix"></div>
@@ -107,7 +107,7 @@ if(!empty($_GET['tasklistid'])) {
                       <div class="note_block row <?= $odd_even_class ?>">
                           <div class="col-xs-1"><?= profile_id($dbc, $row_doc['created_by']); ?></div>
                           <div class="col-xs-11" style="<?= $style_strikethrough ?>">
-                              <div><a href="../Tasks/download/<?= $row_doc['document'] ?>"><?= $row_doc['document'] ?></a></div>
+                              <div><a href="../Tasks_Updated/download/<?= $row_doc['document'] ?>"><?= $row_doc['document'] ?></a></div>
                               <div><em>Added by <?= get_contact($dbc, $row_doc['created_by']); ?> on <?= $row_doc['created_date']; ?></em></div>
                           </div>
                           <div class="clearfix"></div>
@@ -153,7 +153,7 @@ if(!empty($_GET['tasklistid'])) {
                           <div class="note_block row <?= $odd_even_class ?>">
                               <div class="col-xs-1"><?= profile_id($dbc, $row_doc['contactid']); ?></div>
                               <div class="col-xs-11" style="<?= $style_strikethrough ?>">
-                                  <div><a href="../Tasks/download/<?= $row_doc['heading'] ?>"><?= $row_doc['heading'] ?></a></div>
+                                  <div><a href="../Tasks_Updated/download/<?= $row_doc['heading'] ?>"><?= $row_doc['heading'] ?></a></div>
                                   <div><em>Added by <?= get_contact($dbc, $row_doc['contactid']); ?> on <?= $row_doc['updated_date']; ?></em></div>
                               </div>
                               <div class="clearfix"></div>

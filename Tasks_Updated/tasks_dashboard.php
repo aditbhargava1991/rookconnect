@@ -707,7 +707,7 @@ function checklist_attach_file(checklist) {
                     if($milestones->num_rows > 0) {
 						while($milestone_row = $milestones->fetch_assoc()) {
 							$cat_tab = $milestone_row['milestone'];
-							$label = $milestone_row['label'] ?: 'Tasks';
+							$label = $milestone_row['label'] ?: ''.TASK_TILE;
 							if ( $url_tab == 'Private' ) {
 								//$result = mysqli_query($dbc, "SELECT * FROM tasklist WHERE contactid IN (". $_SESSION['contactid'] .") AND (task_path='$task_path' OR '$task_path' = '') AND (task_milestone_timeline='$cat_tab' OR ('$cat_tab' = '' AND task_milestone_timeline NOT IN ('".implode("','",$each_tab)."'))) AND task_board = '$taskboardid' AND (DATE(`archived_date`) >= (DATE(NOW() - INTERVAL 3 DAY)) OR archived_date IS NULL OR archived_date = '0000-00-00') AND `deleted`=0 ORDER BY task_path ASC, tasklistid DESC");
 
@@ -833,9 +833,9 @@ function checklist_attach_file(checklist) {
 
                                             if($slider_layout == 'accordion') {
                                             ?>
-                                            <a href="" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Tasks_Updated/add_task.php?type=<?=$row['status']?>&tasklistid=<?=$row['tasklistid']?>', '50%', false, false, $('.iframe_overlay').closest('.container').outerHeight() + 20); return false;">Task #<?= $row['tasklistid'] ?>: </a>
+                                            <a href="" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Tasks_Updated/add_task.php?type=<?=$row['status']?>&tasklistid=<?=$row['tasklistid']?>', '50%', false, false, $('.iframe_overlay').closest('.container').outerHeight() + 20); return false;"><?= TASK_NOUN ?> #<?= $row['tasklistid'] ?>: </a>
                                             <?php } else { ?>
-                                            <a  href="../Tasks_Updated/add_task_full_view.php?type=<?=$row['status']?>&tasklistid=<?=$row['tasklistid']?>">Task #<?= $row['tasklistid'] ?>: </a>
+                                            <a  href="../Tasks_Updated/add_task_full_view.php?type=<?=$row['status']?>&tasklistid=<?=$row['tasklistid']?>"><?= TASK_NOUN ?> #<?= $row['tasklistid'] ?>: </a>
                                             <?php } ?>
 
                                             </div> &nbsp;<span><?= $row['heading']; ?></span>
@@ -1065,9 +1065,9 @@ function checklist_attach_file(checklist) {
 
                     if($slider_layout == 'accordion') {
                     ?>
-                    <a href="" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Tasks_Updated/add_task.php?tab=<?=$_GET['tab']?>&task_milestone_timeline=<?=$status?>&task_path=<?=$task_path?>&task_board=<?=$task_board?>&salesid=<?=$_GET['category']?>', '50%', false, false, $('.iframe_overlay').closest('.container').outerHeight() + 20); return false;" class="btn brand-btn pull-right">Add Task</a>
+                    <a href="" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Tasks_Updated/add_task.php?tab=<?=$_GET['tab']?>&task_milestone_timeline=<?=$status?>&task_path=<?=$task_path?>&task_board=<?=$task_board?>&salesid=<?=$_GET['category']?>', '50%', false, false, $('.iframe_overlay').closest('.container').outerHeight() + 20); return false;" class="btn brand-btn pull-right">Add <?= TASK_NOUN ?></a>
                     <?php } else { ?>
-                    <a href="../Tasks_Updated/add_task_full_view.php?tab=<?=$_GET['tab']?>&task_milestone_timeline=<?=$status?>&task_path=<?=$task_path?>&task_board=<?=$task_board?>&salesid=<?=$_GET['category']?>" class="btn brand-btn pull-right">Add Task</a>
+                    <a href="../Tasks_Updated/add_task_full_view.php?tab=<?=$_GET['tab']?>&task_milestone_timeline=<?=$status?>&task_path=<?=$task_path?>&task_board=<?=$task_board?>&salesid=<?=$_GET['category']?>" class="btn brand-btn pull-right">Add <?= TASK_NOUN ?></a>
                     <?php } ?>
                             <!--
                             <?php if(get_config($dbc, 'task_include_checklists') == 1) { ?><a href="" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Checklist/edit_checklist.php?edit=NEW&iframe_slider=1&add_to_taskboard=1&task_milestone_timeline=<?=$status?>&task_path=<?=$task_path?>&task_board=<?=$task_board?>', '50%', false, false, $('.iframe_overlay').closest('.container').outerHeight() + 20); return false;" class="btn brand-btn pull-right">Add Checklist</a><?php } ?>
@@ -1079,7 +1079,7 @@ function checklist_attach_file(checklist) {
 							$i++;
 						}
 					} else {
-						echo "<h3>No Tasks Found</h3>";
+						echo "<h3>No ".TASK_TILE." Found</h3>";
 					} ?>
                 </div><!-- #scrum_tickets -->
             </form><?php
