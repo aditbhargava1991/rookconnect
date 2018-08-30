@@ -13,6 +13,7 @@ if(!($_SESSION['contactid'] > 0)) {
 if($_GET['fill'] == 'add_edit_project') {
     $ticketid = $_GET['ticketid'];
     $project = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT COUNT(projectid) `num`, projectid FROM `project` WHERE `project_name` = 'Piece Work Project' AND `deleted` = 0"));
+    $projectid = 0;
     if($project['num'] > 0) {
         $projectid = $project['projectid'];
     } else {

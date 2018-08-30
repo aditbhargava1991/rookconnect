@@ -212,20 +212,6 @@ function setSave() {
 		update: sortScheduledStops
 	});
 }
-
-function set_piece_project(sel) {
-    var ticketid = sel.id;
-	alert(ticketid);
-		$.ajax({
-			type: "GET",
-			url: "ticket_ajax_all.php?fill=add_edit_project&ticketid="+ticketid,
-			dataType: "html",   //expect html to be returned
-			success: function(response){
-				alert(response);
-			}
-		});
-}
-
 function getTabLocks() {
 	var lock_ids = [];
 	$('.tab-section:visible,.panel-body:visible').filter(function() { if($(this).find('[data-table]:visible').not('[data-table=ticket_comment],[data-table=ticket_document]').length > 0 && $(this).parents('[id^=tab_section_]').length == 0) { return true; } }).each(function() {
@@ -756,6 +742,13 @@ function saveFieldMethod(field) {
 						$(field).closest('.form-group').find('.setMultiDims').change();
 					} else if(field_name == 'serviceid') {
 						$('[name=service_qty]').first().change();
+					} else if(field_name == 'piece_work') {
+						$.ajax({
+							url: '../Ticket/ticket_ajax_all.php?fill=add_edit_project&ticketid='+current_ticketid,
+							success: function(response) {
+								alert(response);
+							}
+						});
 					} else if(field_name == 'projectid') {
 						$.ajax({
 							url: '../Ticket/ticket_ajax_all.php?fill=project_paths&projectid='+save_value,
