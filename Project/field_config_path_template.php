@@ -41,7 +41,7 @@ function save_path() {
 	var timeline = '';
 	var tasks = '';
 	var ticket = '';
-    var items = '';
+    // var items = '';
     var intakes = '';
 	$('[name=milestone]').each(function() {
 		var block = $(this).closest('.block-group');
@@ -57,7 +57,7 @@ function save_path() {
 			ticket_list.push(this.value+'FFMSPLIT'+$(this).closest('.form-group').find('[name=ticket_service]').val());
 		});
 		ticket += (delimiter ? '#*#' : '')+ticket_list.join('*#*');
-		items += (delimiter ? '#*#' : '')+block.find('[name=items]').filter(function() { return this.value != ''; }).map(function() { return this.value; }).get().join('*#*');
+		// items += (delimiter ? '#*#' : '')+block.find('[name=items]').filter(function() { return this.value != ''; }).map(function() { return this.value; }).get().join('*#*');
 		intakes += (delimiter ? '#*#' : '')+block.find('[name=intake]').filter(function() { return this.value > 0; }).map(function() { return this.value; }).get().join('*#*');
 	});
 	$.ajax({
@@ -70,7 +70,6 @@ function save_path() {
 			timeline: timeline,
 			tasks: tasks,
 			ticket: ticket,
-			items: items,
 			intakes: intakes
 		},
 		success: function(response) {
@@ -190,10 +189,10 @@ function add_workorder(btn) {
 		</div>
 	</div>
 	<?php $tab_config = array_filter(array_unique(explode(',',mysqli_fetch_assoc(mysqli_query($dbc,"SELECT GROUP_CONCAT(`config_tabs` SEPARATOR ',') `config` FROM field_config_project"))['config'])));
-	$timelines = explode('#*#', $template['timelines']);
+	$timelines = explode('#*#', $template['timeline']);
 	$tickets = explode('#*#', $template['ticket']);
 	$tasks = explode('#*#', $template['checklist']);
-	$checklists = explode('#*#', $template['items']);
+	// $checklists = explode('#*#', $template['items']);
 	$intakes = explode('#*#', $template['intakes']);
     $form_list = $dbc->query("SELECT `intakeformid`, `form_name` FROM `intake_forms` WHERE `deleted`=0")->fetch_all(MYSQLI_ASSOC);
 	foreach(explode('#*#',$template['milestone']) as $i => $milestone) { ?>
@@ -212,35 +211,22 @@ function add_workorder(btn) {
 			<div class="form-group">
 				<label class="col-sm-4">Timeline:</label>
 				<div class="col-sm-8">
-					<input type="text" class="form-control" name="timeline" value="<?= $timeline[$i] ?>">
+					<input type="text" class="form-control" name="timeline" value="<?= $timelines[$i] ?>">
 				</div>
 			</div>
 			<div class="block-group sortable_group_block">
-				<?php foreach(explode('*#*',$checklists[$i]) as $checklist) {
-					if($checklist != '') { ?>
-						<div class="form-group sortable_group">
-                            <label class="col-sm-4">Task:</label>
-                            <div class="col-sm-7"><input type="text" class="form-control" name="checklist" value="<?= $checklist ?>" /></div>
-                            <div class="col-sm-1">
-                                <img src="../img/remove.png" class="inline-img pull-right" onclick="remove_group(this);" />
-                                <img src="../img/icons/drag_handle.png" class="inline-img pull-right group-handle no-toggle" title="Drag" />
-                            </div>
-						</div>
-					<?php } ?>
-				<?php } ?>
 				<?php foreach(explode('*#*',$tickets[$i]) as $ticket) {
-					if($ticket != '') {
-						$ticket = explode('FFMSPLIT',$ticket); ?>
-						<div class="form-group sortable_group">
-							<label class="col-sm-4"><?= TICKET_NOUN ?> Heading &amp; Service:</label>
-							<div class="col-sm-4"><input type="text" class="form-control" name="ticket_heading" value="<?= $ticket[0] ?>"></div>
-							<div class="col-sm-3"><select class="chosen-select-deselect" name="ticket_service" data-service="<?= $ticket[1] ?>"><option></option></select></div>
-							<div class="col-sm-1">
-								<img src="../img/remove.png" class="inline-img pull-right" onclick="remove_group(this);" />
-                                <img src="../img/icons/drag_handle.png" class="inline-img pull-right group-handle no-toggle" title="Drag" />
-							</div>
-						</div>
-					<?php } ?>
+                    $ticket = explode('FFMSPLIT',$ticket); ?>
+                    <div class="form-group sortable_group">
+                        <label class="col-sm-4"><?= TICKET_NOUN ?> Heading &amp; Service:</label>
+                        <div class="col-sm-3"><input type="text" class="form-control" name="ticket_heading" value="<?= $ticket[0] ?>"></div>
+                        <div class="col-sm-3"><select class="chosen-select-deselect" name="ticket_service" data-service="<?= $ticket[1] ?>"><option></option></select></div>
+                        <div class="col-sm-2">
+                            <img src="../img/icons/drag_handle.png" class="inline-img pull-right group-handle no-toggle" title="Drag" />
+                            <img src="../img/remove.png" class="inline-img pull-right" onclick="remove_group(this);" />
+                            <img src="../img/icons/ROOK-add-icon.png" class="inline-img pull-right" onclick="add_group(this);" />
+                        </div>
+                    </div>
 				<?php } ?>
 				<?php foreach(explode('*#*',$tasks[$i]) as $task) { ?>
                     <div class="task form-group sortable_group">
@@ -253,7 +239,7 @@ function add_workorder(btn) {
                         </div>
                     </div>
 				<?php } ?>
-				<?php foreach(explode('*#*',$checklists[$i]) as $checklist) { ?>
+				<?php /*foreach(explode('*#*',$checklists[$i]) as $checklist) { ?>
                     <div class="checklist form-group sortable_group">
                         <label class="col-sm-4">Checklist:</label>
                         <div class="col-sm-6"><input type="text" class="form-control" name="items" value="<?= $checklist ?>" /></div>
@@ -263,7 +249,7 @@ function add_workorder(btn) {
                             <img src="../img/icons/ROOK-add-icon.png" class="inline-img pull-right" onclick="add_group(this);" />
                         </div>
                     </div>
-				<?php } ?>
+				<?php }*/ ?>
 				<?php foreach(explode('*#*',$intakes[$i]) as $intake) { ?>
                     <div class="intake form-group sortable_group">
                         <label class="col-sm-4">Intake Form:</label>
@@ -324,7 +310,7 @@ function add_workorder(btn) {
 		$timeline = explode('#*#', $row['timeline']);
 		$ticket = explode('#*#', $row['ticket']);
 		$tasks = explode('#*#', $row['checklist']);
-		$items = explode('#*#', $row['items']);
+		// $items = explode('#*#', $row['items']);
 		$intakes = explode('#*#', $row['intakes']);
 		foreach($milestone as $j => $value)  {
 			if($value != '') {
