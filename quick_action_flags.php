@@ -3,7 +3,7 @@
  * This should be called from everywhere there is a quick action to add notes/comments/replies
  * Accept the Tile name in a $_GET['tile']
  */
- 
+
 include_once('include.php');
 checkAuthorised();
 $html = '';
@@ -24,7 +24,7 @@ if(isset($_POST['submit'])) {
         $flag_end = filter_var($_POST['flag_end'],FILTER_SANITIZE_STRING);
     }
 	$error = '';
-    
+
     switch ($tile) {
         case 'sales':
             $before_change = capture_before_change($dbc, 'sales', 'flag_colour', 'salesid', $id);
@@ -53,6 +53,14 @@ if(isset($_POST['submit'])) {
             }
             echo '<script type="text/javascript"> window.parent.setManualFlag(\''.$ticketid.'\', \''.$flag_colour.'\', \''.$flag_label.'\'); </script>';
             break;
+
+        case 'tasks':
+            $tasklistid = $id;
+            mysqli_query($dbc, "UPDATE `tasklist` SET `flag_colour`='$flag_colour',`flag_label`='$flag_label', `flag_start`='$flag_start', `flag_end`='$flag_end' WHERE `tasklistid`='$tasklistid'");
+
+            echo '<script type="text/javascript"> window.parent.setManualFlag(\''.$tasklistid.'\', \''.$flag_colour.'\', \''.$flag_label.'\'); </script>';
+            break;
+
         default:
             break;
     }
@@ -65,6 +73,11 @@ if(isset($_POST['submit'])) {
     case 'tickets':
         $row = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `tickets`.*, `ticket_comment`.`comment` `flag_label` FROM `tickets` LEFT JOIN `ticket_comment` ON `tickets`.`ticketid` = `ticket_comment`.`ticketid` AND `ticket_comment`.`type` = 'flag_comment' WHERE `tickets`.`ticketid` = '".$_GET['id']."' ORDER BY `ticket_comment`.`ticketcommid` DESC"));
         break;
+
+    case 'tasks':
+        $row = $dbc->query("SELECT `flag_colour`,`flag_label`,`flag_start`,`flag_end` FROM `tasklist` WHERE `tasklistid`='$id'")->fetch_assoc();
+        break;
+
     default:
         break;
 } ?>
@@ -76,7 +89,7 @@ if(isset($_POST['submit'])) {
             <div class="pull-right gap-top"><a href=""><img src="../img/icons/ROOK-status-rejected.jpg" alt="Close" title="Close" class="inline-img" /></a></div>
             <div class="clearfix"></div>
             <hr />
-            
+
             <input type="hidden" name="tile" value="<?= $_GET['tile'] ?>" />
         	<div class="form-group">
         		<label class="col-sm-4 control-label">Flag Label:</label>
