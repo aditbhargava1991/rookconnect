@@ -579,7 +579,6 @@ $(document).ready(function() {
 					$blocks[] = [$block_length, $block];
 					$total_length += $block_length;
 				}
-				
 				if(in_array('SUMM Status', $summ_config)) {
 					$status_list = explode('#*#',get_config($dbc, 'project_status'));
 					if(get_config($dbc, 'project_status_pending') != 'disable') {
@@ -592,8 +591,7 @@ $(document).ready(function() {
 						foreach($status_list as $status_name) {
 							$status_count = $dbc->query("SELECT `status`, COUNT(*) `count` FROM `project` WHERE `deleted`=0 AND `status`='$status_name'")->fetch_assoc()['count'];
                             if($status_count > 0) {
-                                //?tile_name=project&tab=administration_1_pending__
-                                $block .= '<a href="?tile_name'.$tile.'&tab=administration_1_'.strtolower($status_name).'__"><label class="control-label">'.$status_name.':</label> '.$status_count.'</a><br />';
+							    $block .= '<a href="?tile_name'.$tile.'&tab=administration_1_'.strtolower($status_name).'__"><label class="control-label">'.$status_name.':</label> '.$status_count.'</a><br />';
 							    $block_length += 23;
                             }
 						}
@@ -629,7 +627,7 @@ $(document).ready(function() {
 					$blocks[] = [$block_length, $block];
 					$total_length += $block_length;
 				}
-				if(in_array('SUMM Leads', $summ_config) && !empty($leads)) {
+				if(in_array('SUMM Leads', $summ_config) && !empty($leads)) { 
 					$block_length = 68;
 					$block = '<div class="overview-block">
 						<h4>'.PROJECT_TILE.' by Lead</h4>';
@@ -660,7 +658,7 @@ $(document).ready(function() {
 				}
 
 				$total_estimated_time = $dbc->query("SELECT SEC_TO_TIME(SUM(TIME_TO_SEC(`time_length`))) `time`, `project`.* FROM `ticket_time_list` LEFT JOIN `tickets` ON `ticket_time_list`.`ticketid`=`tickets`.`ticketid` LEFT JOIN `project` ON `tickets`.`projectid`=`project`.`projectid` WHERE `project`.`deleted`=0 AND `ticket_time_list`.`deleted`=0 AND `time_type` IN ('Completion Estimate','QA Estimate') AND `tickets`.`deleted`=0 GROUP BY `project`.`projectid`");
-				if(in_array('SUMM Estimated', $summ_config) && !empty($total_estimated_time->fetch_assoc())) {					
+				if(in_array('SUMM Estimated', $summ_config) && !empty($total_estimated_time->fetch_assoc())) {
 					$block_length = 68;
 					$block = '<div class="overview-block">
 						<h4>'.PROJECT_NOUN.' Estimated Time</h4>';
@@ -672,9 +670,8 @@ $(document).ready(function() {
 					$blocks[] = [$block_length, $block];
 					$total_length += $block_length;
 				}
-				
 				$total_tracked_time = $dbc->query("SELECT SEC_TO_TIME(SUM(TIME_TO_SEC(`time`))) `time`, `project`.* FROM (SELECT `time_length` `time`, `ticketid` FROM `ticket_time_list` WHERE `deleted`=0 AND `time_type`='Manual Time' UNION SELECT `timer` `time`, `ticketid` FROM `ticket_timer` WHERE `deleted` = 0) `time_list` LEFT JOIN `tickets` ON `time_list`.`ticketid`=`tickets`.`ticketid` LEFT JOIN `project` ON `tickets`.`projectid`=`project`.`projectid` WHERE `tickets`.`deleted`=0 AND `project`.`deleted`=0 GROUP BY `project`.`projectid`");
-				if(in_array('SUMM Tracked', $summ_config) && !empty($total_tracked_time->fetch_assoc())) {					
+				if(in_array('SUMM Tracked', $summ_config) && !empty($total_tracked_time->fetch_assoc())) {
 					$block_length = 68;
 					$block = '<div class="overview-block">
 						<h4>'.PROJECT_NOUN.' Actual Time</h4>';

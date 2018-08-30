@@ -1717,7 +1717,7 @@ if($_GET['action'] == 'update_fields') {
 		}
 		echo $ticket_label;
 	}
-} else if($_GET['action'] == 'new_ticket_from_calendar') {
+} else if($_GET['action'] == 'new_ticket_from_calendar') { 
 	$to_do_date = $_POST['to_do_date'];
 	$to_do_end_date= $_POST['to_do_end_date'];
 	$to_do_start_time = $_POST['to_do_start_time'];
