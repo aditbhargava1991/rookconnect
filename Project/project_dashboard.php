@@ -511,11 +511,11 @@ $(document).ready(function() {
 			<div class='standard-body-content pad-top pad-left pad-right pad-bottom'>
 				<?php $blocks = [];
 				$total_length = 0;
+				$favourites = $dbc->query("SELECT * FROM `project` WHERE `deleted`=0 AND `status`!='Archive' AND ('$tile' = 'project' OR `projecttype`='$tile') AND `favourite` LIKE '%,".$_SESSION['contactid'].",%'");
 				if(in_array('SUMM Favourite', $summ_config)) {
 					$block_length = 68;
 					$block = '<div class="overview-block">
 						<h4>Favourite '.PROJECT_TILE.'</h4>';
-						$favourites = $dbc->query("SELECT * FROM `project` WHERE `deleted`=0 AND `status`!='Archive' AND ('$tile' = 'project' OR `projecttype`='$tile') AND `favourite` LIKE '%,".$_SESSION['contactid'].",%'");
 						while($fave = $favourites->fetch_assoc()) {
 							$block .= '<a href="?edit='.$fave['projectid'].'&tile_name='.$_GET['tile_name'].'">'.get_project_label($dbc, $fave).'</a><br />';
 							$block_length += 23;
@@ -599,12 +599,14 @@ $(document).ready(function() {
 					$blocks[] = [$block_length, $block];
 					$total_length += $block_length;
 				}
+				echo '<style>.hidethisblock{display:none;;}</style>';
 				if(in_array('SUMM Business', $summ_config) && !empty($businesses)) {
 					$block_length = 68;
-					$block = '<div class="overview-block">
+					$block = '<div class="overview-block hidethisblock">
 						<h4>'.PROJECT_TILE.' by '.BUSINESS_CAT.'</h4>';
 						foreach($businesses as $contact) {
 							if(isset($business_list[$contact['contactid']])) {
+							    echo '<style>.hidethisblock{display:block !important;}</style>';
 								$block .= '<a href="?tile_name='.$tile.'&type=business_'.$contact['contactid'].'" onclick="selectType(\'business_'.$contact['contactid'].'\'); return false;"><label class="cursor-hand control-label">'.$contact['name'].':</label> '.count(array_unique($business_list[$contact['contactid']])).'</a><br />';
 								$block_length += 23;
 							}
