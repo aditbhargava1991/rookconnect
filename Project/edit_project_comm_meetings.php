@@ -110,6 +110,3 @@ if($num_rows > 0) {
 } else {
     echo "<h4>No Meetings Found.</h4>";
 } ?>
-
-<div class="clearfix"></div>
-<hr />
