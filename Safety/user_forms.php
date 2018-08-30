@@ -8,7 +8,7 @@ if(!empty($_POST['field_level_hazard'])) {
 
     $today_date = $_POST['safety_today_date'];
     $contactid = $_SESSION['contactid'];
-    
+
     $form_id = $_POST['form_id'];
     $assign_id = $_POST['assign_id'];
     $user_id = (empty($_SESSION['contactid']) ? 0 : $_SESSION['contactid']);
@@ -55,6 +55,10 @@ if(!empty($_POST['field_level_hazard'])) {
             $query_insert_upload = "INSERT INTO `safety_attendance` (`safetyid`, `fieldlevelriskid`, `assign_staff`, `done`) VALUES ('$safetyid', '$fieldlevelriskid', '$assign_staff', 0)";
             $result_insert_upload = mysqli_query($dbc, $query_insert_upload);
         }
+
+        $before_change = '';
+        $history = "Safety upload entry has been added. <br />";
+        add_update_history($dbc, 'safety_history', $history, '', $before_change);
     } else {
         $pdf_id = $_POST['fieldlevelriskid'];
 
@@ -80,6 +84,10 @@ if(!empty($_POST['field_level_hazard'])) {
                 }
             }
         }
+
+        $before_change = '';
+        $history = "safety_attendance entry has been updated for safetyattid $assign_staff_id <br />";
+        add_update_history($dbc, 'safety_history', $history, '', $before_change);
 
         $get_total_notdone = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT COUNT(safetyattid) AS total_notdone FROM safety_attendance WHERE  fieldlevelriskid='$pdf_id' AND safetyid='$safetyid' AND done=0"));
         if($get_total_notdone['total_notdone'] == 0) {
@@ -136,7 +144,7 @@ if(!empty($_POST['field_level_hazard'])) {
     $pdf->writeHTML(utf8_encode('<form action="" method="POST">'.$pdf_text.'</form>'), true, false, true, false, '');
 
     include('../Form Builder/generate_form_pdf_page.php');
-    
+
     if($url_redirect == '' && strpos($_SERVER['SCRIPT_NAME'],'index.php') !== FALSE) {
         $url_redirect = 'index.php?safetyid='.$safetyid.'&action=view&formid='.$pdf_id.'';
     } else if($url_redirect == '') {
@@ -148,7 +156,7 @@ if(!empty($_POST['field_level_hazard'])) {
             mkdir('download', 0777, true);
         }
         $pdf->Output('download/'.$pdf_name, 'F');
-        
+
         $sa = mysqli_query($dbc, "SELECT safetyattid FROM safety_attendance WHERE fieldlevelriskid = '$pdf_id' AND safetyid='$safetyid'");
         while($row_sa = mysqli_fetch_array( $sa )) {
             $assign_staff_id = $row_sa['safetyattid'];

@@ -34,6 +34,10 @@ switch($_GET['settings']) {
 		$include_file = 'field_config_classification.php';
 		$title = 'Classifications';
 		break;
+	case 'quick_action':
+		$include_file = 'field_config_quick_action.php';
+		$title = 'Quick Action Icons';
+		break;
 	default:
 		$_GET['settings'] = 'tab';
 		$include_file = 'field_config_tab.php';
@@ -196,6 +200,21 @@ function loadPanel() {
 			</div>
 		</div>
 	</div>
+	<div class="panel panel-default">
+		<div class="panel-heading mobile_load">
+			<h4 class="panel-title">
+				<a data-toggle="collapse" data-parent="#mobile_tabs" href="#collapse_quick_action">
+					Quick Action Icons<span class="glyphicon glyphicon-plus"></span>
+				</a>
+			</h4>
+		</div>
+
+		<div id="collapse_quick_action" class="panel-collapse collapse">
+			<div class="panel-body" data-file-name="field_config_quick_action.php">
+				Loading...
+			</div>
+		</div>
+	</div>
 </div>
 
 <div class="tile-sidebar sidebar hide-titles-mob standard-collapsible">
@@ -209,6 +228,7 @@ function loadPanel() {
 		<a href="?settings=service_record"><li class="<?= $_GET['settings'] == 'service_record' ? 'active blue' : '' ?>">Service Record</li></a>
 		<a href="?settings=equip_assign"><li class="<?= $_GET['settings'] == 'equip_assign' ? 'active blue' : '' ?>">Equipment Assignment</li></a>
 		<a href="?settings=classification"><li class="<?= $_GET['settings'] == 'classification' ? 'active blue' : '' ?>">Classifications</li></a>
+		<a href="?settings=quick_action"><li class="<?= $_GET['settings'] == 'quick_action' ? 'active blue' : '' ?>">Quick Action Icons</li></a>
 	</ul>
 </div>
 

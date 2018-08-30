@@ -546,5 +546,44 @@
     }
     //2018-08-23 - Ticket #8585 - Stat Pay
 
+    //2018-08-29 - Ticket #8717 - Sick Hours
+    if(!mysqli_query($dbc, "ALTER TABLE `field_config_contacts_shifts` ADD `dayoff_types_timesheet` text NOT NULL AFTER `dayoff_types`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "CREATE TABLE `field_config_time_cards_dayoff` (
+        `fieldconfigid` int(11) NOT NULL,
+        `hours_type` varchar(500) NOT NULL,
+        `enabled` int(1) NOT NULL,
+        `dayoff_type` varchar(500) NOT NULL)")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `field_config_time_cards_dayoff`
+        ADD PRIMARY KEY (`fieldconfigid`)")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `field_config_time_cards_dayoff`
+        MODIFY `fieldconfigid` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-08-29 - Ticket #8717 - Sick Hours
+
+    //2018-08-28 - Ticket #7761 - POS
+    if(!mysqli_query($dbc, "ALTER TABLE `invoice_lines` ADD `ticketid` int(11) NOT NULL AFTER `invoiceid`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `invoice` ADD `service_ticketid` text NOT NULL AFTER `serviceid`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `invoice` ADD `misc_ticketid` text NOT NULL AFTER `misc_item`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `invoice` CHANGE `serviceid` `serviceid` text")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `invoice` CHANGE `fee` `fee` text")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-08-28 - Ticket #7761 - POS
+
     echo "Baldwin's DB Changes Done<br />\n";
 ?>

@@ -62,6 +62,6 @@ var reload_contacts = function() {
     <hr />
 <?php }
 
-foreach(explode(',', $contactid) as $row_contact) {
+foreach(explode(',', trim($contactid,',')) as $row_contact) {
     contact_fields($row_contact);
 } ?>

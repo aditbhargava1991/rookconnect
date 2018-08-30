@@ -13,7 +13,12 @@
     DEFINE('PDF_LOGO', $get_pdf_logo['pdf_logo']);
 	DEFINE('PDF_HEADER', html_entity_decode($get_field_config['pdf_header']));
     DEFINE('PDF_FOOTER', html_entity_decode($get_field_config['pdf_footer']));
+
+		$before_change = capture_before_change($dbc, 'safety_confined_space_entry_permit', 'status', 'fieldlevelriskid', $fieldlevelriskid);
 	$result_update_employee = mysqli_query($dbc, "UPDATE `safety_confined_space_entry_permit` SET `status` = 'Done' WHERE fieldlevelriskid='$fieldlevelriskid'");
+	$history = capture_after_change('status', 'Done');
+	add_update_history($dbc, 'safety_history', $history, '', $before_change);
+
 
 	$today_date = $get_field_level['today_date'];
     $contactid = $get_field_level['contactid'];
@@ -392,7 +397,3 @@
     echo '';
 }
 ?>
-
-
-
-

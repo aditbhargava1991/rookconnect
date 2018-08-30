@@ -212,8 +212,9 @@ var projectFilter = function() {
 		<?php if ( strpos($value_config, ',Detail Date,') !== false && $field_sort_field == 'Detail Date') { ?>
 			<div class="form-group clearfix">
 				<label for="first_name" class="col-sm-4 control-label text-right">Scheduled Date:</label>
-				<div class="col-sm-8">
-					<input name="to_do_date" type="text" autocomplete="off" data-placeholder="Select a Business..." data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" class="datepicker form-control" value="<?= $get_ticket['to_do_date'] ?>">
+				<div class="col-sm-8 date_div">
+					<input name="to_do_date" type="text" autocomplete="off" data-placeholder="Select a Date..." data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" class="datepicker form-control" value="<?= $get_ticket['to_do_date'] ?>" onchange="$(this).closest('.date_div').find('[name=to_do_end_date]').val(this.value).change();">
+					<input type="hidden" name="to_do_end_date" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" class="form-control datepicker" value="<?= date('Y-m-d',strtotime($get_ticket['to_do_end_date'])) ?>">
 				</div>
 			</div>
 		<?php } ?>

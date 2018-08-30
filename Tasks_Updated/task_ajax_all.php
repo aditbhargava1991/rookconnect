@@ -28,12 +28,11 @@ if($_GET['fill'] == 'task_path') {
 
 if($_GET['fill'] == 'task_projectid') {
     $task_projectid = $_GET['task_projectid'];
-	echo '<option value=""></option>';
+	echo '<option />';
 
-    $query = mysqli_query($dbc,"SELECT project_path_milestone, project_path FROM project_path_milestone WHERE project_path_milestone IN (SELECT project_path FROM project WHERE projectid='$task_projectid')");
-    while($row = mysqli_fetch_array($query)) { ?>
-        <option value='<?php echo  $row['project_path_milestone']; ?>' ><?php echo $row['project_path']; ?></option><?php
-    }
+    foreach(get_project_paths($task_projectid) as $path) { ?>
+        <option value='<?= $path['path_id'] ?>'><?= $path['path_name'] ?></option>
+    <?php }
 }
 
 if($_GET['fill'] == 'project_path_milestone') {
@@ -42,12 +41,15 @@ if($_GET['fill'] == 'project_path_milestone') {
     $task_board_type = $_GET['task_board_type'];
     $projectid = $_GET['projectid'];
 
-	echo '<option value=""></option>';
+	echo '<option />';
 
     if($task_board_type == 'Project') {
-        $query = mysqli_query($dbc,"SELECT milestone FROM project_path_custom_milestones WHERE projectid='$projectid'");
-        while($row = mysqli_fetch_array($query)) { ?>
-            <option value='<?php echo  $row['milestone']; ?>' ><?php echo $row['milestone']; ?></option><?php
+        foreach(get_project_paths($projectid) as $path) {
+            if($path['path_id'] == $project_path) {
+                foreach($path['milestones'] as $milestone) { ?>
+                    <option value="<?= $milestone['milestone'] ?>"><?= $milestone['label'] ?></option>
+                <?php }
+            }
         }
     } else {
         $query = mysqli_query($dbc,"SELECT milestone FROM taskboard_path_custom_milestones WHERE taskboard='$task_board'");

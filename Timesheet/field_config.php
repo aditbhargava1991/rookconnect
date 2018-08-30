@@ -63,6 +63,14 @@ if (isset($_POST['submit']) && $_POST['submit'] == 'fields') {
 
 	$timesheet_security_roles = implode(',', $_POST['timesheet_security_roles']);
 	set_config($dbc, 'timesheet_security_roles', $timesheet_security_roles);
+
+	foreach($_POST['dayoff_hours_type'] as $i => $dayoff_hours_type) {
+		$dayoff_enabled = $_POST['dayoff_enabled'][$i];
+		$dayoff_dayoff_type = $_POST['dayoff_dayoff_type'][$i];
+
+		mysqli_query($dbc, "INSERT INTO `field_config_time_cards_dayoff` (`hours_type`) SELECT '$dayoff_hours_type' FROM (SELECT COUNT(*) rows FROM `field_config_time_cards_dayoff` WHERE `hours_type` = '$dayoff_hours_type') num WHERE num.rows=0");
+		mysqli_query($dbc, "UPDATE `field_config_time_cards_dayoff` SET `enabled` = '$dayoff_enabled', `dayoff_type` = '$dayoff_dayoff_type' WHERE `hours_type` = '$dayoff_hours_type'");
+	}
 } else if(isset($_POST['submit']) && $_POST['submit'] == 'approvals') {
 	$config_ids = implode(',',array_filter($_POST['configid']));
 	$deleted_sql = "DELETE FROM `field_config_supervisor` WHERE `fieldconfigid` NOT IN ($config_ids)";
@@ -324,6 +332,53 @@ if($_GET['tab'] == 'approvals') {
 									echo '<option value="'.$security_level.'" '.(in_array($security_level, $timesheet_security_roles) ? 'selected' : '').'>'.$security_name.'</option>';
 								} ?>
 							</select>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<h4 class="panel-title">
+					<a data-toggle="collapse" data-parent="#accordion2" href="#collapse_field_dayoff" >
+						Day Off Shift Settings<span class="glyphicon glyphicon-plus"></span>
+					</a>
+				</h4>
+			</div>
+			<div id="collapse_field_dayoff" class="panel-collapse collapse">
+				<div class="panel-body">
+					<div class="form-group">
+						<label for="additional_note" class="col-sm-4 control-label"><span class='popover-examples list-inline'><a data-toggle='tooltip' data-placement='top' title='If hours are configured here, it will automatically add a Day Off Shift to the Staff for the Day Off Type selected.'><img src='<?= WEBSITE_URL ?>/img/info.png' width='20'></a></span> Day Off Shift Settings:</label>
+						<div class="col-sm-8">
+							<?php $dayoff_types = array_filter(explode(',',mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `field_config_contacts_shifts`"))['dayoff_types'])); ?>
+							<div id="no-more-tables">
+								<table class="table table-bordered">
+									<tr class="hidden-xs">
+										<th>Hours Type</th>
+										<th>Enabled</th>
+										<th>Day Off Type</th>
+									</tr>
+									<?php $dayoff_hours = ["Sick Hrs.Taken"];
+									foreach($dayoff_hours as $dayoff_hour) {
+										$dayoff_setting = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `field_config_time_cards_dayoff` WHERE `hours_type` = '".$dayoff_hour."'")); ?>
+										<tr>
+											<input type="hidden" name="dayoff_hours_type[]" value="Sick Hrs.Taken">
+											<td data-title="Hours Type">Sick Hours Taken</td>
+											<td data-title="Enabled">
+												<label class="form-checkbox"><input type="checkbox" name="dayoff_enabled[]" value="1" <?= $dayoff_setting['enabled'] == 1 ? 'checked' : '' ?>> Enable</label>
+											</td>
+											<td data-title="Day Off Type">
+												<select name="dayoff_dayoff_type[]" class="chosen-select-deselect">
+													<option></option>
+													<?php foreach($dayoff_types as $dayoff_type) {
+														echo '<option value="'.$dayoff_type.'" '.($dayoff_type == $dayoff_setting['dayoff_type'] ? 'selected' : '').'>'.$dayoff_type.'</option>';
+													} ?>
+												</select>
+											</td>
+										</tr>
+									<?php } ?>
+								</table>
+							</div>
 						</div>
 					</div>
 				</div>

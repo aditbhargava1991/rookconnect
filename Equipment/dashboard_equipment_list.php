@@ -74,6 +74,16 @@ if($num_rows > 0) {
 
 	    echo '<div class="dashboard-item">';
 	    echo '<h3 style="margin-top: 0.5em;">'.(vuaed_visible_function($dbc, 'equipment') == 1 ? '<a href="?edit='.$row['equipmentid'].'">' : '').get_equipment_label($dbc, $row).(vuaed_visible_function($dbc, 'equipment') == 1 ? '</a>' : '').'</h3>';
+
+		$quick_actions = explode(',',get_config($dbc, 'quick_action_icons'));
+        echo '<span class="pull-right action-icons double-gap-bottom gap-top" style="width: 100%;">';
+        if (in_array('edit', $quick_actions)) { ?>
+            <span  onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Equipment/edit_equipment.php?edit=<?=$row['equipmentid']?>&iframe_slider=1'); return false;"><img src="<?=WEBSITE_URL?>/img/icons/ROOK-edit-icon.png" title="Edit Equipment" class="inline-img no-toggle" onclick="return false;"></span><?php
+        }
+        echo in_array('reminder', $quick_actions) ? '<span title="Schedule Reminder" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/quick_action_reminders.php?tile=equipment&id='.$row['equipmentid'].'\'); return false;"><img title="Schedule Reminder" src="../img/icons/ROOK-reminder-icon.png" class="inline-img no-toggle" onclick="return false;"></span>' : '';
+	    echo in_array('archive', $quick_actions) && vuaed_visible_function($dbc, 'equipment') == 1 ? '<span title="Archive Equipment"><a href="'.WEBSITE_URL.'/delete_restore.php?action=delete&equipmentid='.$row['equipmentid'].'" onclick="return confirm(\'Are you sure?\');"><img src="../img/icons/trash-icon-red.png" title="Archive Equipment" class="inline-img no-toggle"></a></span>' : '';
+	    echo '</span>';
+
 	    if (!empty($row['equipment_image']) && file_exists('download/'.$row['equipment_image'])) {
 	    	echo '<div class="col-sm-6"><img src="download/'.$row['equipment_image'].'" class="pull-left thumbnail-small" style="margin: 0.5em; max-width: 150px; height: auto;"></div>';
 	    }

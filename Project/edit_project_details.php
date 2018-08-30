@@ -20,15 +20,16 @@ $custom_details = array_filter(explode('#*#',mysqli_fetch_array(mysqli_query($db
 $(document).on('change', 'select.add_details', function() { addDetail(this); });
 function addDetail(select) {
 	$(select).closest('.form-group').before('<div class="form-group new_group">' +
-			'<label class="col-sm-4">'+$(select).find('option:selected').text()+':<img class="inline-img" src="../img/remove.png" onclick="$(this).closest(\'.form-group\').find(\'textarea\').val(\'\').change(); $(this).closest(\'.form-group\').remove();"></label>' +
+			'<label class="col-sm-4">'+(select.value == 'MANUAL' ? '<input type="text" name="type" data-table="project_comment" data-id-field="projectcommid" value="" class="form-control" placeholder="Detail Type">' : $(select).find('option:selected').text()+': <img class="inline-img" src="../img/remove.png" onclick="$(this).closest(\'.form-group\').find(\'textarea\').val(\'\').change(); $(this).closest(\'.form-group\').remove();">')+'</label>' +
 			'<div class="col-sm-8">' +
-				'<textarea name="'+select.value+'" data-table="project_detail" data-id-field="detailid" data-id="<?= $details['detailid'] ?>" data-project="<?= $projectid ?>"></textarea>' +
+				'<textarea name="'+select.value+'" data-table="project_detail" data-id-field="detailid" data-id="'+(select.value == 'MANUAL' ? '' : '<?= $details['detailid'] ?>')+'" data-project="<?= $projectid ?>"></textarea>' +
 			'</div>' +
 		'</div>');
 	$(select).val('').trigger('change.select2');
 	var area = $('textarea:not([id])');
 	initInputs('.new_group');
-	area.change(saveField).keyup(syncUnsaved);
+	area.change(saveField);
+    area.closest('.form-group').find('[name=type]').change(saveField);
 	$('.new_group').removeClass('new_group');
 	setTimeout(function() { tinymce.editors[area.attr('id')].focus(); }, 10);
 }
@@ -40,6 +41,20 @@ function addDetail(select) {
         <div class="col-sm-11"><span class="notice-name">NOTE: </span>Here you can add any details relative to this project, including GAP, strategy and any other project details needed.</div>
         <div class="clearfix"></div>
     </div>
+	<?php if($security['edit'] > 0) { ?>
+		<div class="form-group">
+			<label class="col-sm-4">Add New Detail:</label>
+			<div class="col-sm-8">
+				<select class="chosen-select-deselect add_details">
+					<option></option>
+					<option value="MANUAL">Add New</option>
+					<?php foreach($detail_types as $field) { ?>
+						<option value="<?= $field[1] ?>"><?= $field[0] ?></option>
+					<?php } ?>
+				</select>
+			</div>
+		</div>
+	<?php } ?>
 	<?php foreach($detail_types as $config_str => $field) {
 		if((in_array($config_str, $config) || $details[$field[1]] != '') && $details[$field[1]] != '***FFFMDELETED***') { ?>
 			<div class="form-group">
@@ -62,19 +77,18 @@ function addDetail(select) {
 			</div>
 		<?php }
 	} ?>
-	<?php if($security['edit'] > 0) { ?>
-		<div class="form-group">
-			<label class="col-sm-4">Add New Detail:</label>
-			<div class="col-sm-8">
-				<select class="chosen-select-deselect add_details">
-					<option></option>
-					<?php foreach($detail_types as $field) { ?>
-						<option value="<?= $field[1] ?>"><?= $field[0] ?></option>
-					<?php } ?>
-				</select>
+    <?php $detail_list = mysqli_query($dbc, "SELECT `projectcommid`, `type`, `comment` FROM `project_comment` WHERE `projectid`='$projectid' AND `type` LIKE 'detail_custom_%'");
+    while($detail_value = $detail_list->fetch_assoc()) {
+        $detail_name = substr($detail_value['type'],14);
+		if($detail_value['comment'] != '***FFFMDELETED***') { ?>
+			<div class="form-group">
+				<label class="col-sm-4"><?= $detail_name ?>:<?php if($security['edit'] > 0) { ?><img class="inline-img" src="../img/remove.png" onclick="$(this).closest('.form-group').find('textarea').val('***FFFMDELETED***').change(); $(this).closest('.form-group').remove();"><?php } ?></label>
+				<div class="col-sm-8 <?= !($security['edit'] > 0) ? 'readonly-block' : '' ?>">
+					<textarea name="comment" data-table="project_comment" data-id-field="projectcommid" data-id="<?= $detail_value['projectcommid'] ?>" data-type="detail_<?= $detail_name ?>" data-project="<?= $projectid ?>"><?= $detail_value['comment'] ?></textarea>
+				</div>
 			</div>
-		</div>
-	<?php } ?>
+		<?php }
+    } ?>
 	<div class="clearfix"></div>
 </div>
 <?php if(basename($_SERVER['SCRIPT_FILENAME']) == 'edit_project_details.php') { ?>

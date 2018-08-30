@@ -28,13 +28,14 @@ if(isset($_POST['complete_form'])) {
 			mysqli_query($dbc, "INSERT INTO `project` (`projecttype`, `project_name`,`created_date`,`created_by`) VALUES ('$projecttype', '$project_name','".date('Y-m-d')."','".$_SESSION['contactid']."')");
 			$projectid = mysqli_insert_id($dbc);
 		}
+        $milestone = filter_var($_POST['milestone'],FILTER_SANITIZE_STRING);
 
 		$before_change = capture_before_change($dbc, 'intake', 'projectid', 'intakeid', $intakeid);
 		$before_change .= capture_before_change($dbc, 'intake', 'assigned_date', 'intakeid', $intakeid);
-		mysqli_query($dbc, "UPDATE `intake` SET `projectid` = '$projectid', `assigned_date` = '$assigned_date' WHERE `intakeid` = '$intakeid'");
+		mysqli_query($dbc, "UPDATE `intake` SET `projectid` = '$projectid', `project_milestone`='$milestone', `assigned_date` = '$assigned_date' WHERE `intakeid` = '$intakeid'");
 		$history = capture_after_change('projectid', $projectid);
 		$history .= capture_after_change('assigned_date', $assigned_date);
-	  add_update_history($dbc, 'intake_history', $history, '', $before_change);
+        add_update_history($dbc, 'intake_history', $history, '', $before_change);
 		$echo_script = '<script type="text/javascript"> parent.window.location.href = "'.WEBSITE_URL.'/Project/projects.php?edit='.$projectid.'"; </script>';
 	}
 
@@ -236,6 +237,9 @@ if(isset($_POST['complete_form'])) {
 			if(projectid == 'NEW_PROJECT') {
 				$('#project_name').show();
 			} else {
+                if(projectid > 0) {
+                    $('#project_path').show().load('project_path.php?projectid='+projectid+'&intakeid=<?= $_GET['intakeid'] ?>');
+                }
 				$('#project_name').hide();
 				$('select[name="projecttype"]').val(projecttype);
 				$('select[name="projecttype"]').trigger('change.select2');
@@ -377,6 +381,10 @@ if(isset($_POST['complete_form'])) {
 							?>
 						</select>
 
+						<div id="project_path" style="<?= $_GET['from_projectid'] > 0 ? '' : 'display: none;' ?>">
+                            <?php $projectid = $_GET['from_projectid'];
+                            include('project_path.php'); ?>
+                        </div>
 						<div id="project_name" style="display: none;">
 							<br>
 							<p>Select a Name for this new <?= PROJECT_NOUN ?>:</p>

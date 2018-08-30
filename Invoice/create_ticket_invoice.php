@@ -1,10 +1,12 @@
 <?php $ticket_list = explode(',',$_POST['ticketid']);
 $total_price = 0;
 $inv_services = [];
+$inv_service_ticketid = [];
 $inv_service_qty = [];
 $inv_service_fee = [];
 $services_price = 0;
 $misc_item = [];
+$misc_ticketid = [];
 $misc_price = [];
 $misc_qty = [];
 $misc_total = [];
@@ -30,6 +32,7 @@ foreach($ticket_list as $ticketid) {
 				$price = $service_rate['cust_price'];
 			}
 			$inv_services[] = $service;
+			$inv_service_ticketid[] = $ticketid;
 			$inv_service_qty[] = $qty;
 			$price_total = ($price * $qty + $fuel);
 			$price_total -= ($dis_type == '%' ? $discount / 100 * $price_total : $discount);
@@ -43,6 +46,7 @@ foreach($ticket_list as $ticketid) {
 			$price = $dbc->query("SELECT * FROM `company_rate_card` WHERE `deleted`=0 AND (`cust_price` > 0 OR `hourly` > 0) AND ((`tile_name`='Staff' AND (`item_id`='".$line['item_id']."' OR `description`='all_staff')) OR (`tile_name`='Position' AND (`description`='".$line['position']."' OR `item_id`='".get_field_value('position_id','positions','name',$line['position'])."')))")->fetch_assoc();
 			$price = $price['cust_price'] > 0 ? $price['cust_price'] : $price['hourly'];
 			$misc_item[] = $description;
+			$misc_ticketid[] = $ticketid;
 			$misc_qty[] = $qty;
 			$misc_price[] = $price;
 			$misc_total[] = $price * $qty;
@@ -54,6 +58,7 @@ foreach($ticket_list as $ticketid) {
 			$qty = $line['qty'];
 			$price = $line['rate'];
 			$misc_item[] = $description;
+			$misc_ticketid[] = $ticketid;
 			$misc_price[] = $price;
 			$misc_qty[] = $qty;
 			$misc_total[] = $price * $qty;
@@ -65,14 +70,14 @@ foreach($ticket_list as $ticketid) {
 		$price_final += $total_price - $billing_discount_total;
 	}
 }
-mysqli_query($dbc, "INSERT INTO `invoice` (`tile_name`,`projectid`,`ticketid`,`businessid`,`patientid`,`invoice_date`,`total_price`,`discount`,`final_price`,`serviceid`,`fee`,`misc_item`,`misc_price`,`misc_qty`,`misc_total`) SELECT 'invoice',MAX(`projectid`),GROUP_CONCAT(`ticketid` SEPARATOR ','),MAX(`businessid`),GROUP_CONCAT(`clientid` SEPARATOR ','),DATE(NOW()),'$total_price','$billing_discount_total','$price_final','".implode(',',$inv_services)."','".implode(',',$inv_service_fee)."','".implode(',',$misc_item)."','".implode(',',$misc_price)."','".implode(',',$misc_qty)."','".implode(',',$misc_total)."' FROM `tickets` WHERE `ticketid` IN (".implode($ticket_list).")");
+mysqli_query($dbc, "INSERT INTO `invoice` (`tile_name`,`projectid`,`ticketid`,`businessid`,`patientid`,`invoice_date`,`total_price`,`discount`,`final_price`,`serviceid`,`fee`,`misc_item`,`misc_price`,`misc_qty`,`misc_total`,`service_ticketid`,`misc_ticketid`) SELECT 'invoice',MAX(`projectid`),GROUP_CONCAT(`ticketid` SEPARATOR ','),MAX(`businessid`),GROUP_CONCAT(`clientid` SEPARATOR ','),DATE(NOW()),'$total_price','$billing_discount_total','$price_final','".implode(',',$inv_services)."','".implode(',',$inv_service_fee)."','".implode(',',$misc_item)."','".implode(',',$misc_price)."','".implode(',',$misc_qty)."','".implode(',',$misc_total)."','".implode(',',$inv_service_ticketid)."','".implode(',',$misc_ticketid)."' FROM `tickets` WHERE `ticketid` IN (".implode($ticket_list).")");
 $invoiceid = $dbc->insert_id;
 foreach($inv_services as $i => $service) {
 	$service = $dbc->query("SELECT * FROM `services` WHERE `serviceid`='$service'")->fetch_assoc();
-	mysqli_query($dbc, "INSERT INTO `invoice_lines` (`invoiceid`, `item_id`, `category`, `heading`, `description`, `quantity`, `unit_price`, `uom`, `sub_total`) VALUES ('$invoiceid', '$service', 'services', '".TICKET_TILE."', '{$service['heading']}', '{$inv_service_qty[$i]}', '".($inv_service_fee[$i] / $inv_service_qty[$i])."', 'each', '".$inv_service_fee[$i]."')");
+	mysqli_query($dbc, "INSERT INTO `invoice_lines` (`invoiceid`, `item_id`, `category`, `heading`, `description`, `quantity`, `unit_price`, `uom`, `sub_total`, `ticketid`) VALUES ('$invoiceid', '$service', 'services', '".TICKET_TILE."', '{$service['heading']}', '{$inv_service_qty[$i]}', '".($inv_service_fee[$i] / $inv_service_qty[$i])."', 'each', '".$inv_service_fee[$i]."', '".$inv_service_ticketid[$i]."')");
 }
 foreach($misc_item as $i => $misc) {
-	mysqli_query($dbc, "INSERT INTO `invoice_lines` (`invoiceid`, `category`, `heading`, `description`, `quantity`, `unit_price`, `uom`, `sub_total`) VALUES ('$invoiceid', 'misc_product', '".TICKET_TILE."', '$misc', '{$misc_qty[$i]}', '".($misc_price[$i])."', 'each', '".$misc_total[$i]."')");
+	mysqli_query($dbc, "INSERT INTO `invoice_lines` (`invoiceid`, `category`, `heading`, `description`, `quantity`, `unit_price`, `uom`, `sub_total`, `ticketid`) VALUES ('$invoiceid', 'misc_product', '".TICKET_TILE."', '$misc', '{$misc_qty[$i]}', '".($misc_price[$i])."', 'each', '".$misc_total[$i]."', '".$misc_ticketid[$i]."')");
 }
 $tile_target = 'Invoice';
 if(!tile_visible($dbc, 'check_out')) {

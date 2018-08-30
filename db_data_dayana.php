@@ -256,5 +256,9 @@ mysqli_query($dbc, "ALTER TABLE `checklist` ADD `checklist_tile` INT(1) NOT NULL
 
 mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`, `value`) VALUES ('contacts_summary', 'Per Category,Per Business')");
 
+mysqli_query($dbc, "ALTER TABLE `admin_tile_config` ADD `tasks_updated` VARCHAR(500) NULL AFTER `client_documentation_history`, ADD `tasks_updated_history` TEXT NULL AFTER `tasks_updated`");
+
+mysqli_query($dbc, "ALTER TABLE `tile_config` ADD `tasks_updated` VARCHAR(500) NULL AFTER `client_documentation_history`, ADD `tasks_updated_history` TEXT NULL AFTER `tasks_updated`");
+
     echo "Dayana's DB Changes Done<br />\n";
 ?>

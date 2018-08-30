@@ -109,7 +109,7 @@ switch($_GET['tile']) {
         break;
     case 'sales_intake':
         $salesid = $_GET['salesid'];
-        $intakeid = $_GET['intakeid'];            
+        $intakeid = $_GET['intakeid'];
         $result = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `intake` WHERE `intakeid`='$intakeid'"));
         $milestone = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `sales_path_custom_milestones` WHERE `salesid` = '$salesid' AND `milestone` = '".$result['sales_milestone']."'"))['label'];
         $subject = "A reminder about Intake #".$intakeid." in ".SALES_NOUN." #".$salesid."  $milestone";
@@ -118,7 +118,7 @@ switch($_GET['tile']) {
         break;
     case 'sales_checklist':
         $salesid = $_GET['salesid'];
-        $checklistid = $_GET['checklistid'];            
+        $checklistid = $_GET['checklistid'];
         $result = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `checklist` WHERE `checklistid`='$checklistid'"));
         $milestone = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `sales_path_custom_milestones` WHERE `salesid` = '$salesid' AND `milestone` = '".$result['sales_milestone']."'"))['label'];
         $subject = "A reminder about Checklist #".$checklistid.": ".$result['checklist_name']." in ".SALES_NOUN." #".$salesid."  $milestone";
@@ -144,7 +144,7 @@ switch($_GET['tile']) {
             $subject = "A reminder about the $title task board";
             $body = "Hi [STAFF_NAME]<br />\n<br />
                 This is a reminder about the $title.<br />\n<br />
-                <a href='".WEBSITE_URL."/Tasks/index.php?category=$id&tab=$tab'>Click here</a> to see the task board.";
+                <a href='".WEBSITE_URL."/Tasks_Updated/index.php?category=$id&tab=$tab'>Click here</a> to see the task board.";
         }
         break;
     case 'sales':
@@ -171,11 +171,11 @@ switch($_GET['tile']) {
         }
         $body = "Hi [STAFF_NAME]<br />\n<br />
             This is a reminder about the $title.<br />\n<br />
-            <a href='".WEBSITE_URL."/Tasks/index.php?category=$id&tab=$tab'>Click here</a> to see the task board.";
+            <a href='".WEBSITE_URL."/Tasks_Updated/index.php?category=$id&tab=$tab'>Click here</a> to see the task board.";
         break;
     case 'task_checklist':
         $taskboardid = $_GET['task_board'];
-        $checklistid = $_GET['checklistid'];            
+        $checklistid = $_GET['checklistid'];
         $result = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `checklist` WHERE `checklistid`='$checklistid'"));
         $task_board = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `task_board` WHERE `taskboardid` = '$taskboardid'"));
         $board_name = $task_board['board_name'];
@@ -183,7 +183,7 @@ switch($_GET['tile']) {
         $milestone = $result['task_milestone_timeline'];
         $subject = "A reminder about Checklist #".$checklistid.": ".$result['checklist_name']." in $board_name task board  $milestone";
         $body = "This is a reminder about Checklist #".$checklistid.": ".$result['checklist_name']." in $board_name task board  $milestone<br />\n<br />
-            <a href='".WEBSITE_URL."/Tasks/index.php?category=$taskboardid&tab=$tab'>Click here</a> to see the task board.<br />\n";
+            <a href='".WEBSITE_URL."/Tasks_Updated/index.php?category=$taskboardid&tab=$tab'>Click here</a> to see the task board.<br />\n";
         break;
     case 'tickets':
         $id = $_GET['id'];

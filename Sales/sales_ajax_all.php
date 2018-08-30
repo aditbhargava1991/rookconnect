@@ -257,6 +257,10 @@ if ( $_GET['fill']=='changeCustCat' ) {
     foreach ( array_filter(explode(',',$contactid)) as $cid ) {
         //mysqli_query($dbc, "UPDATE contacts SET category='$lead_convert_to' WHERE contactid='$cid'");
     }
+    if($_GET['projectid'] > 0) {
+        $projectid = $_GET['projectid'];
+        $dbc->query("UPDATE `email_communication` SET `projectid`='$projectid' WHERE `projectid`=0 AND `salesid`='$salesid'");
+    }
 }
 
 if ( $_GET['fill']=='changeLeadNextAction' ) {

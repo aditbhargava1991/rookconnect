@@ -446,13 +446,14 @@ checkAuthorised();
             </tr>
             <?php } ?>
 
+<!--
 			<?php if (strpos($tasks_updated, 'turn_on') !== FALSE) { ?>
             <tr>
                 <td data-title="Comment">Tasks (Updated)</td>
                 <?php echo tile_config_function($dbc,'tasks_updated'); ?>
             </tr>
             <?php } ?>
-
+-->
             <tr><th colspan='5'><div style='text-align:left;width:100%;font-size:20px;'><?= ESTIMATE_TILE ?>/Quotes:</div></th></tr>
 			<?php if (strpos($estimate, 'turn_on') !== FALSE) { ?>
             <tr>

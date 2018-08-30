@@ -60,7 +60,7 @@
         $heading = $get_contact['heading'];
         $cost = $get_contact['cost'];
 		if(!($cost > 0)) {
-			$cost = $dbc->query("SELECT `cost` FROM `company_rate_card` WHERE `deleted`=0 AND `cost` > 0 AND `start_date` < DATE(NOW()) AND IFNULL(NULLIF(`end_date`,'0000-00-00'),'9999-12-31') > DATE(NOW()) ORDER BY `start_date`")->fetch_assoc()['cost'];
+			$cost = $dbc->query("SELECT `cost` FROM `company_rate_card` WHERE `deleted`=0 AND `cost` > 0 AND `start_date` < DATE(NOW()) AND IFNULL(NULLIF(`end_date`,'0000-00-00'),'9999-12-31') > DATE(NOW()) AND `item_id`='$serviceid' AND `tile_name`='Services' ORDER BY `start_date`")->fetch_assoc()['cost'];
 		}
         $description = $get_contact['description'];
         $quote_description = $get_contact['quote_description'];
