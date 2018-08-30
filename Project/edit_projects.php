@@ -229,6 +229,21 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 					</div>
 				</div>
 			</div>
+			<div class="panel panel-default" style='<?= in_array('Notes',$tab_config) ? '' : 'display:none;' ?>'>
+				<div class="panel-heading mobile_load">
+					<h4 class="panel-title">
+						<a data-toggle="collapse" data-parent="#project_accordions" href="#collapse_notes">
+							<?= PROJECT_NOUN ?> Notes<span class="glyphicon glyphicon-plus"></span><span class="pull-right"><?= $project_counts['notes'] ?></span>
+						</a>
+					</h4>
+				</div>
+
+				<div id="collapse_notes" class="panel-collapse collapse">
+					<div class="panel-body" data-file-name="edit_project_notes.php?projectid=<?= $projectid ?>&projecttype=<?= $projecttype ?>">
+						Loading...
+					</div>
+				</div>
+			</div>
 			<div class="panel panel-default" style='<?= in_array('Documents',$tab_config) ? '' : 'display:none;' ?>'>
 				<div class="panel-heading mobile_load">
 					<h4 class="panel-title">

@@ -398,3 +398,68 @@ function getCustomerEquipment($dbc, $start_date, $end_date) {
 	}
 	return $equipmentids;
 }
+function checkTicketBookingConflicts($dbc, $contact_id, $startdate, $enddate, $repeat_type, $repeat_days, $interval, $hide_days) {
+	$ticket_conflicts = [];
+	$booking_conflicts = [];
+	$check_startdate = (empty($startdate) || strtotime(date('Y-m-d')) > strtotime($startdate)) ? date('Y-m-d') : $startdate;
+	$check_enddate =  empty($enddate) ? date(strtotime(date('Y-m-d').' + 1 month')) : $enddate;
+
+	for($current_date = $check_startdate; strtotime($current_date) <= strtotime($check_enddate); $current_date = date('Y-m-d', strtotime($current_date.' + 1 day'))) {
+		$is_shift = false;
+		if(!in_array($current_date, $hide_days)) {
+			switch($repeat_type) {
+				case 'weekly':
+					$repeat_type = 'W';
+					$start_date = date('Y-m-d', strtotime('next Sunday -1 week', strtotime($startdate)));
+					$start_date = new DateTime($start_date);
+					$start_date->modify($day_of_week);
+					$end_date = new DateTime(date('Y-m-d', strtotime($calendar_date.' + 1 week')));
+					break;
+				case 'daily':
+					$repeat_type = 'D';
+					$start_date = date('Y-m-d', strtotime($startdate));
+					$start_date = new DateTime($start_date);
+					$end_date = new DateTime(date('Y-m-d', strtotime($calendar_date.' + 1 day')));
+					break;
+				case 'monthly':
+					$repeat_type = 'M';
+					$start_date = date('Y-m-d', strtotime($startdate));
+					$start_date = new DateTime($start_date);
+					$end_date = new DateTime(date('Y-m-d', strtotime($calendar_date.' + 1 month')));
+					break;
+			}
+			if($interval > 1) {
+				$interval = new DateInterval("P{$interval}{$repeat_type}");
+				$period = new DatePeriod($start_date, $interval, $end_date);
+				foreach($period as $period_date) {
+					if (date('Y-m-d', strtotime($calendar_date)) == $period_date->format('Y-m-d')) {
+						$is_shift = true;
+					}
+				}
+			} else {
+				$is_shift = true;
+			}
+			if($is_shift) {
+				//Ticket Conflicts
+				$equipment = [];
+				$equipment_ids = $dbc->query("SELECT `equipmentid` FROM `equipment_assignment_staff` LEFT JOIN `equipment_assignment` ON `equipment_assignment_staff`.`equipment_assignmentid`=`equipment_assignment`.`equipment_assignmentid` WHERE `equipment_assignment_staff`.`deleted`=0 AND `equipment_assignment`.`deleted`=0 AND `equipment_assignment_staff`.`contactid`='".$contact_id."' AND DATE(`equipment_assignment`.`start_date`) <= '".$current_date."' AND DATE(`equipment_assignment`.`end_date`) >= '".$current_date."' AND CONCAT(',',`hide_staff`,',') NOT LIKE '%,".$contact_id.",%' AND CONCAT(',',`hide_days`,',') NOT LIKE '%,".$current_date.",%'");
+				while($equipment[] = $equipment_ids->fetch_assoc()['equipmentid']) { }
+				$equipment = implode(',',array_filter($equipment));
+				if($equipment == '') {
+					$equipment = 0;
+				}
+				$tickets = mysqli_query($dbc, "SELECT `tickets`.* FROM `tickets` LEFT JOIN `ticket_schedule` ON `tickets`.`ticketid` = `ticket_schedule`.`ticketid` AND `ticket_schedule`.`deleted` = 0 WHERE ((internal_qa_date = '".$current_date."' AND CONCAT(',',IFNULL(`internal_qa_contactid`,''),',') LIKE '%,".$contact_id.",%') OR (`deliverable_date` = '".$current_date."' AND CONCAT(',',IFNULL(`deliverable_contactid`,''),',') LIKE '%,".$contact_id.",%') OR ((`tickets`.`to_do_date` = '".$current_date."' OR '".$current_date."' BETWEEN `tickets`.`to_do_date` AND `tickets`.`to_do_end_date` OR `ticket_schedule`.`to_do_date`='".$current_date."' OR '".$current_date."' BETWEEN `ticket_schedule`.`to_do_date` AND IFNULL(`ticket_schedule`.`to_do_end_date`,`ticket_schedule`.`to_do_date`)) AND ((CONCAT(',',IFNULL(IFNULL(`ticket_schedule`.`contactid`,`tickets`.`contactid`),''),',') LIKE '%,".$contact_id.",%') OR (IFNULL(`ticket_schedule`.`equipmentid`,`tickets`.`equipmentid`) IN (".$equipment.") AND IFNULL(`ticket_schedule`.`equipmentid`,`tickets`.`equipmentid`) > 0))))");
+				while($ticket = mysqli_fetch_assoc($tickets)) {
+					$ticket_conflicts[$ticket['ticketid']] = get_ticket_label($dbc, $ticket);
+				}
+
+				//Booking Conflicts
+				$bookings = mysqli_query($dbc, "SELECT * FROM `booking` WHERE ('".$contact_id."' IN (`therapistsid`,`patientid`) OR CONCAT('*#*',`therapistsid`,'*#*') LIKE '%*#*".$contact_id."*#*%') AND `follow_up_call_status` NOT LIKE '%cancel%' AND ((`appoint_date` LIKE '%".$current_date."%') OR '".date('Y-m-d H:i:s', strtotime($current_date.' 00:00:00'))."' BETWEEN `appoint_date` AND `end_appoint_date` OR '".date('Y-m-d H:i:s', strtotime($calendar_date.' 23:59:59'))."' BETWEEN `appoint_date` AND `end_appoint_date`) AND `deleted` = 0");
+				while($booking = mysqli_fetch_assoc($bookings)) {
+					$booking_conflicts[$booking['bookingid']] = 'Appointment #'.$booking['bookingid'].': '.get_contact($dbc, $booking['patientid']).' - '.($booking['serviceid'] > 0 ? get_services($dbc, $booking['serviceid'], "CONCAT(`category`,' ',`heading`)") : get_type_from_booking($dbc, $booking['type']));
+				}
+			}
+		}
+	}
+	return ['ticket' => $ticket_conflicts, 'booking' => $booking_conflicts];
+}

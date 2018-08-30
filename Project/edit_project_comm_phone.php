@@ -50,3 +50,6 @@ $project_security = get_security($dbc, 'project'); ?>
 	$_GET['type'] = (empty($_GET['category']) ? 'Internal' : $_GET['category']);
 	include('../Phone Communication/phone_list.php');
 } ?>
+
+<div class="clearfix"></div>
+<hr />

@@ -17,6 +17,7 @@ if (isset($_POST['submit'])) {
 		$client_projectid = substr($projectid,1);
 		$projectid = '';
 	}
+    $salesid = filter_var($_POST['salesid'],FILTER_SANITIZE_STRING);
     
     $email_body = htmlentities($_POST['email_body']);
     $subject = htmlentities($_POST['subject']);
@@ -49,6 +50,11 @@ if (isset($_POST['submit'])) {
             $file_support = 'download/'.$document;
             $meeting_attachment .= $file_support.'*#FFM#*';
         }
+    }
+    foreach(array_filter($_POST['email_file']) as $email_file) {
+        $query_insert_client_doc = "INSERT INTO `email_communicationid_upload` (`email_communicationid`, `document`, `created_by`, `created_date`) VALUES ('0', '../$email_file', '$created_by', '$today_date')";
+        $result_insert_client_doc = mysqli_query($dbc, $query_insert_client_doc);
+        $meeting_attachment .= $email_file.'*#FFM#*';
     }
 
     $meeting_email_send = '';
@@ -109,6 +115,9 @@ if (isset($_POST['submit'])) {
         }
 		try {
             send_email([$from_email => $from_name], $meeting_arr_email, $meeting_cc_arr_email , '', $_POST['subject'], $send_body, $meeting_attachment);
+            if($salesid > 0) {
+                add_update_history($dbc, 'sales', "Sent Email to Lead: ".$_POST['subject'], '', '', $salesid);
+            }
 		} catch(Exception $e) {
 			echo "<script> alert('Unable to send the email: ".$e->getMessage()."'); </script>";
 		}
@@ -116,7 +125,7 @@ if (isset($_POST['submit'])) {
     // Meeting Note Email
 
     if(empty($_POST['email_communicationid']) || count($meeting_arr_email) > 0 || count($meeting_cc_arr_email) > 0) {
-        $query_insert_ca = 'INSERT INTO `email_communication` (`communication_type`, `businessid`, `contactid`, `projectid`, `ticketid`, `client_projectid`, `subject`, `email_body`, `to_contact`, `cc_contact`, `to_staff`, `cc_staff`, `new_emailid`, `today_date`, `created_by`, `follow_up_by`, `follow_up_date`, `from_email`, `from_name`) VALUES ("'.$communication_type.'", "'.$businessid.'", "'.$contactid.'",  "'.$projectid.'", "'. $ticketid.'", "'. $client_projectid.'",  "'.$subject.'",  "'.$email_body.'", "'.$to_contact.'", "'.$cc_contact.'", "'.$to_staff.'", "'.$cc_staff.'", "'.$new_emailid.'", "'.$today_date.'", "'.$created_by.'", "'.$follow_up_by.'", "'.$follow_up_date.'", "'.$from_email.'", "'.$from_name.'")';
+        $query_insert_ca = 'INSERT INTO `email_communication` (`communication_type`, `businessid`, `contactid`, `salesid`, `projectid`, `ticketid`, `client_projectid`, `subject`, `email_body`, `to_contact`, `cc_contact`, `to_staff`, `cc_staff`, `new_emailid`, `today_date`, `created_by`, `follow_up_by`, `follow_up_date`, `from_email`, `from_name`) VALUES ("'.$communication_type.'", "'.$businessid.'", "'.$contactid.'",  "'.$salesid.'", "'. $projectid.'", "'. $ticketid.'", "'. $client_projectid.'",  "'.$subject.'",  "'.$email_body.'", "'.$to_contact.'", "'.$cc_contact.'", "'.$to_staff.'", "'.$cc_staff.'", "'.$new_emailid.'", "'.$today_date.'", "'.$created_by.'", "'.$follow_up_by.'", "'.$follow_up_date.'", "'.$from_email.'", "'.$from_name.'")';
 
         $result_insert_ca = mysqli_query($dbc, $query_insert_ca);
         $email_communicationid = mysqli_insert_id($dbc);
@@ -131,7 +140,7 @@ if (isset($_POST['submit'])) {
 		}
     } else {
         $email_communicationid = $_POST['email_communicationid'];
-        $query_update_ticket = 'UPDATE `email_communication` SET `communication_type` = "'.$communication_type.'", `businessid` = "'.$businessid.'", `contactid` = "'.$contactid.'", `projectid` = "'.$projectid.'", `ticketid` = "'.$ticketid.'", `client_projectid` = "'.$client_projectid.'", `subject` = "'.$subject.'", `email_body` = "'.$email_body.'", `to_contact` = "'.$to_contact.'", `cc_contact` = "'.$cc_contact.'", `to_staff` = "'.$to_staff.'", `cc_staff` = "'.$cc_staff.'", `new_emailid` = "'.$new_emailid.'", `follow_up_by` = "'.$follow_up_by.'", `follow_up_date` = "'.$follow_up_date.'", `from_email` = "'.$from_email.'", `from_name` = "'.$from_name.'" WHERE `email_communicationid` = "'.$email_communicationid.'"';
+        $query_update_ticket = 'UPDATE `email_communication` SET `communication_type` = "'.$communication_type.'", `businessid` = "'.$businessid.'", `contactid` = "'.$contactid.'", `salesid` = "'.$salesid.'", `projectid` = "'.$projectid.'", `ticketid` = "'.$ticketid.'", `client_projectid` = "'.$client_projectid.'", `subject` = "'.$subject.'", `email_body` = "'.$email_body.'", `to_contact` = "'.$to_contact.'", `cc_contact` = "'.$cc_contact.'", `to_staff` = "'.$to_staff.'", `cc_staff` = "'.$cc_staff.'", `new_emailid` = "'.$new_emailid.'", `follow_up_by` = "'.$follow_up_by.'", `follow_up_date` = "'.$follow_up_date.'", `from_email` = "'.$from_email.'", `from_name` = "'.$from_name.'" WHERE `email_communicationid` = "'.$email_communicationid.'"';
         $result_update_ticket = mysqli_query($dbc, $query_update_ticket);
 
 		$overview = 'Updated Email Communication #'.$email_communicationid;
@@ -248,11 +257,25 @@ if (isset($_POST['submit'])) {
             if(!empty($_GET['bid'])) {
                 $businessid = $_GET['bid'];
             }
+
+            if(!empty($_GET['cid'])) {
+                $clientid = $_GET['cid'];
+            }
+
+            if(!empty($_GET['salesid'])) { ?>
+                <input type="hidden" name="salesid" value="<?= $_GET['salesid'] ?>">
+            <?php }
             
             if(!empty($_GET['projectid'])) {
                 $projectid = $_GET['projectid'];
                 $businessid = get_project($dbc, $projectid, 'businessid');
                 $clientid = get_project($dbc, $projectid, 'clientid');
+            }
+            if(!empty($_GET['subject'])) {
+                $subject = urldecode($_GET['subject']);
+            }
+            if(!empty($_GET['body'])) {
+                $email_body = urldecode($_GET['body']);
             }
 
             $followup_by = '';

@@ -3227,4 +3227,90 @@ if($_GET['fill'] == 'book_client_ticket') {
 	}
 	echo $ticketid;
 }
+if($_GET['fill'] == 'check_ticket_booking_conflicts') {
+	$shiftid = $_POST['shiftid'];
+	$contact_id = $_POST['contactid'];
+	$startdate = $_POST['startdate'];
+	$enddate = $_POST['enddate'];
+	$repeat_type = $_POST['repeat_type'];
+	$repeat_days = $_POST['repeat_days'];
+	$interval = $_POST['repeat_interval'];
+	if(!empty($shiftid)) {
+		$hide_days = array_filter(explode(',', mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `contacts_shifts` WHERE `shiftid` = '$shiftid'"))['hide_days']));
+	}
+
+	$conflicts = checkTicketBookingConflicts($dbc, $contact_id, $startdate, $enddate, $repeat_type, $repeat_days, $interval, $hide_days);
+	$ticket_conflicts = $conflicts['ticket'];
+	$booking_conflicts = $conflicts['booking'];
+
+	$conflict_message = [];
+	if(!empty($ticket_conflicts)) {
+		$conflict_message[] = "The following ".TICKET_TILE." land on the same days as your Days Off:\n".implode("\n", $ticket_conflicts)."\n";
+	}
+	if(!empty($booking_conflicts)) {
+		$conflict_message[] = "The following Appointments land on the same days as your Days Off:\n".implode("\n", $booking_conflicts)."\n";
+	}
+	$conflict_message = implode("\n", $conflict_message);
+	echo $conflict_message;
+}
+if($_GET['fill'] == 'unassign_ticket_booking_conflicts') {
+	$contact_id = $_POST['contactid'];
+	$startdate = $_POST['startdate'];
+	$enddate = $_POST['enddate'];
+
+	$conflicts = checkTicketBookingConflicts($dbc, $contact_id, $startdate, $enddate, '', '', '', '');
+
+	foreach($conflicts['ticket'] as $ticketid => $ticket_label) {
+		$ticket = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticketid` = '$ticketid'"));
+		$internal_qa_contactid = explode(',', $ticket['internal_qa_contactid']);
+		foreach($internal_qa_contactid as $key => $contactid) {
+			if($contact_id == $contactid) {
+				unset($internal_qa_contactid[$key]);
+				$new_internal_qa_contactid = implode(',', $internal_qa_contactid);
+				mysqli_query($dbc, "UPDATE `tickets` SET `internal_qa_contactid` = '$new_internal_qa_contactid' WHERE `ticketid` = '$ticketid'");
+			}
+		}
+		$deliverable_contactid = explode(',', $ticket['deliverable_contactid']);
+		foreach($deliverable_contactid as $key => $contactid) {
+			if($contact_id == $contactid) {
+				unset($deliverable_contactid[$key]);
+				$new_deliverable_contactid = implode(',', $deliverable_contactid);
+				mysqli_query($dbc, "UPDATE `tickets` SET `deliverable_contactid` = '$new_deliverable_contactid' WHERE `ticketid` = '$ticketid'");
+			}
+		}
+		$ticket_contactid = explode(',', $ticket['contactid']);
+		foreach($ticket_contactid as $key => $contactid) {
+			if($contact_id == $contactid) {
+				unset($ticket_contactid[$key]);
+				$new_ticket_contactid = implode(',', $ticket_contactid);
+				mysqli_query($dbc, "UPDATE `tickets` SET `contactid` = '$new_ticket_contactid' WHERE `ticketid` = '$ticketid'");
+			}
+		}
+		mysqli_query($dbc, "UPDATE `ticket_attached` SET `deleted` = 1 WHERE `ticketid` = '$ticketid' AND `src_table` LIKE 'Staff%' AND `item_id` = '$contact_id'");
+	}
+
+	foreach($conflicts['booking'] as $bookingid => $booking_label) {
+		$booking = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `booking` WHERE `bookingid` = '$bookingid'"));
+		$therapistsid = explode('*#*', $booking['therapistsid']);
+		$appoint_date = explode('*#*', $booking['appoint_date']);
+		$end_appoint_date = explode('*#*', $booking['end_appoint_date']);
+		$type = explode('*#*', $booking['type']);
+		$serviceid = explode('*#*', $booking['serviceid']);
+		foreach($therapistsid as $key => $staffid) {
+			if($contact_id == $staffid) {
+				unset($therapistsid[$key]);
+				unset($appoint_date[$key]);
+				unset($end_appoint_date[$key]);
+				unset($type[$key]);
+				unset($serviceid[$key]);
+				$new_therapistsid = implode('*#*', $therapistsid);
+				$new_appoint_date = implode('*#*', $appoint_date);
+				$new_end_appoint_date = implode('*#*', $end_appoint_date);
+				$new_type = implode('*#*', $type);
+				$new_serviceid = implode('*#*', $serviceid);
+				mysqli_query($dbc, "UPDATE `booking` SET `therapistsid` = '$new_ticket_contactid', `appoint_date` = '$new_appoint_date', `end_appoint_date` = '$new_end_appoint_date', `type` = '$new_type', `serviceid` = '$new_serviceid' WHERE `bookingid` = '$bookingid'");
+			}
+		}
+	}
+}
 ?>
