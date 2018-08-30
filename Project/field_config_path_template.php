@@ -80,7 +80,7 @@ function save_path() {
 			template_name: $('[name=template_name]').val(),
 			milestone: milestone,
 			timeline: timeline,
-			checklist: checklist,
+			tasks: tasks,
 			ticket: ticket,
 			workorder: workorder,
 			check_list: check_list,

@@ -504,7 +504,7 @@ if($_GET['action'] == 'mark_favourite') {
 		echo $id;
 	}
 
-	mysqli_query($dbc, "UPDATE `project_path_milestone` SET `project_path`='$project_path',`milestone`='$milestone',`timeline`='$timeline',`checklist`='$tasks',`ticket`='$ticket',`workorder`='$workorder', `intake_form`='$intake_forms', `check_list`='$check_lists' WHERE `project_path_milestone`='$id'");
+  mysqli_query($dbc, "UPDATE `project_path_milestone` SET `project_path`='$project_path',`milestone`='$milestone',`timeline`='$timeline',`checklist`='$tasks',`ticket`='$ticket',`workorder`='$workorder', `intake_form`='$intake_forms', `check_list`='$check_lists' WHERE `project_path_milestone`='$id'");
 
 
 } else if($_GET['action'] == 'path_template_individual_order') {
