@@ -212,7 +212,7 @@ var projectFilter = function() {
 			<div class="form-group">
 				<label for="first_name" class="col-sm-4 control-label text-right">Piece Work:</label>
 				<div class="col-sm-8">
-					<input name="piece_work" value="<?php echo $piece_work; ?>" id="project_name" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" type="text" class="form-control"></p>
+					<input name="piece_work" value="<?php echo $piece_work; ?>" id="<?= $ticketid ?>" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" type="text" class="form-control" onchange='set_piece_project(this);'></p>
 				</div>
 			</div>
 		<?php } ?>
