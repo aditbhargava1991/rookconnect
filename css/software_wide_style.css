@@ -3331,5 +3331,13 @@ position: relative;
 .table-responsive { overflow-y:hidden; width:100%; }
 .table-responsive .table { overflow-y:auto; }
 
-
+.status_loader{
+	position: absolute;
+	left: -2px;
+	z-index: -1;
+	background: none !important;
+	width: 152% !important;
+	height: 167% !important;
+	top: -10px;
+}
 
