@@ -307,11 +307,11 @@ function add_intake(btn) {
 						</div>
 					<?php } ?>
 				<?php } ?>
-				<?php if(in_array('Intake',$tab_config)) { ?><button class="btn brand-btn pull-right" onclick="add_intake(this); return false;">Intake Forms</button><?php } ?>
-				<?php if(in_array('Checklists In Path',$tab_config)) { ?><button class="btn brand-btn pull-right" onclick="add_check(this); return false;">Checklist</button><?php } ?>
-				<?php if(in_array('Work Orders',$tab_config)) { ?><button class="btn brand-btn pull-right" onclick="add_workorder(this); return false;">New Work Order</button><?php } ?>
-				<?php if(in_array('Tickets',$tab_config)) { ?><button class="btn brand-btn pull-right" onclick="add_ticket(this); return false;">New <?= TICKET_NOUN ?></button><?php } ?>
-				<?php if(in_array('Checklists',$tab_config) || in_array('Tasks',$tab_config)) { ?><button class="btn brand-btn pull-right" onclick="add_checklist(this); return false;">New Task</button><?php } ?>
+				<button class="btn brand-btn pull-right" onclick="add_intake(this); return false;">Intake Forms</button>
+				<button class="btn brand-btn pull-right" onclick="add_check(this); return false;">Checklist</button><
+				<button class="btn brand-btn pull-right" onclick="add_workorder(this); return false;">New Work Order</button>
+				<button class="btn brand-btn pull-right" onclick="add_ticket(this); return false;">New <?= TICKET_NOUN ?></button>
+				<button class="btn brand-btn pull-right" onclick="add_checklist(this); return false;">New Task</button>
 				<div class="clearfix"></div>
 			</div>
 		</div>
