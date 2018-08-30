@@ -319,6 +319,6 @@ else if($_GET['fill'] == 'archive_equipment_assignment') {
 	}
 }
 else if($_GET['fill'] == 'quick_action_settings') {
-	set_config($dbc, 'quick_action_icons', filter_var($_POST['quick_action_icons'],FILTER_SANITIZE_STRING));
+	set_config($dbc, 'equipment_quick_action_icons', filter_var($_POST['quick_action_icons'],FILTER_SANITIZE_STRING));
 }
 ?>
