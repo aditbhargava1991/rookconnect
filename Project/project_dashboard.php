@@ -512,7 +512,7 @@ $(document).ready(function() {
 				<?php $blocks = [];
 				$total_length = 0;
 				$favourites = $dbc->query("SELECT * FROM `project` WHERE `deleted`=0 AND `status`!='Archive' AND ('$tile' = 'project' OR `projecttype`='$tile') AND `favourite` LIKE '%,".$_SESSION['contactid'].",%'");
-				if(in_array('SUMM Favourite', $summ_config)) {
+				if(in_array('SUMM Favourite', $summ_config) && !empty($favourites->fetch_assoc())) {
 					$block_length = 68;
 					$block = '<div class="overview-block">
 						<h4>Favourite '.PROJECT_TILE.'</h4>';
