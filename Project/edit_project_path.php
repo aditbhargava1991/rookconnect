@@ -23,8 +23,8 @@ function resizeProjectPath() {
 	$('.double-scroller div').width($('.dashboard-container').get(0).scrollWidth);
 	$('.double-scroller').off('scroll',doubleScroll).scroll(doubleScroll);
 	$('.dashboard-container').off('scroll',setDoubleScroll).scroll(setDoubleScroll);
-	if($(window).width() > 767 && $('ul.dashboard-list').length > 0 && ($('.default_screen').outerHeight() + $('.default_screen').offset().top) - ($($('ul.dashboard-list').first()).offset().top + ($('.dashboard-container').outerHeight() - $('.dashboard-container').prop('clientHeight'))) - 2 > 250) {
-		$('ul.dashboard-list').outerHeight(($('.default_screen').outerHeight() + $('.default_screen').offset().top) - ($($('ul.dashboard-list').first()).offset().top + ($('.dashboard-container').outerHeight() - $('.dashboard-container').prop('clientHeight'))) - 2);
+	if($(window).width() > 767 && $('ul.dashboard-list').length > 0 && ($('.default_screen,.standard-dashboard-body').outerHeight() + $('.default_screen,.standard-dashboard-body').offset().top) - ($($('ul.dashboard-list').first()).offset().top + ($('.dashboard-container').outerHeight() - $('.dashboard-container').prop('clientHeight'))) - 2 > 250) {
+		$('ul.dashboard-list').outerHeight(($('.default_screen,.standard-dashboard-body').outerHeight() + $('.default_screen,.standard-dashboard-body').offset().top) - ($($('ul.dashboard-list').first()).offset().top + ($('.dashboard-container').outerHeight() - $('.dashboard-container').prop('clientHeight'))) - 2);
 	} else {
 		var height = 0;
 		$('ul.dashboard-list').each(function() {
