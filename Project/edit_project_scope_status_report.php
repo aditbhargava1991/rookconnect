@@ -52,7 +52,7 @@ if($result->num_rows > 0) {
                 $status = $item['status'];
             } else if($report_row['src'] == 'task') {
                 $item = $dbc->query("SELECT * FROM `tasklist` WHERE `tasklistid`='".$report_row['srcid']."'")->fetch_assoc();
-                $label = '<a href="../Tasks/add_task.php?tasklistid='.$report_row['srcid'].'" onclick="overlayIFrameSlider(this.href,\'auto\',true,true); return false;">Task #'.$item['tasklistid'].'</a>';
+                $label = '<a href="../Tasks_Updated/add_task.php?tasklistid='.$report_row['srcid'].'" onclick="overlayIFrameSlider(this.href,\'auto\',true,true); return false;">Task #'.$item['tasklistid'].'</a>';
                 $status = $item['status'];
             } else if($report_row['src'] == 'checklist') {
                 $item = $dbc->query("SELECT * FROM `checklist` WHERE `tasklistid`='".$report_row['srcid']."'")->fetch_assoc();

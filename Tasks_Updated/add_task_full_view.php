@@ -821,7 +821,7 @@ function deletestartTicketStaff(button) {
 
         <form id="form1" name="form1" method="post"	action="" enctype="multipart/form-data" class="form-horizontal" role="form">
         <div class="scale-to-fill">
-            <h1 class="gap-left"><a href="?">Task</a></h1>
+            <h1 class="gap-left"><a href="index.php?category=All&tab=Summary">Task</a></h1>
         </div>
 
 
@@ -1492,3 +1492,5 @@ function deletestartTicketStaff(button) {
     </div>
 </div>
 </div>
+
+<?php include('../footer.php'); ?>
