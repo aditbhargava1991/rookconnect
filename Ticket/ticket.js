@@ -746,7 +746,6 @@ function saveFieldMethod(field) {
 						$.ajax({
 							url: '../Ticket/ticket_ajax_all.php?fill=add_edit_project&ticketid='+current_ticketid,
 							success: function(response) {
-								alert(response);
 							}
 						});
 					} else if(field_name == 'projectid') {
