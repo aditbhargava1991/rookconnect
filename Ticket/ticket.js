@@ -547,6 +547,7 @@ function saveFieldMethod(field) {
 					sync_recurring_data: $('#sync_recurrences').val()
 				},
 				success: function(response) {
+						alert('stg');
 					updateTicketLabel();
 					if(field_name == 'status' && response == 'created_unscheduled_stop') {
 						reload_delivery();
@@ -886,7 +887,6 @@ function saveFieldMethod(field) {
 					}
 
 					if(field_name == 'piece_work' && $('[name="piece_work"]').val() != '') {
-						alert('etg');
 						add_edit_project(current_ticketid);
 					}
 
