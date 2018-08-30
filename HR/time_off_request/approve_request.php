@@ -3,6 +3,7 @@ $id = filter_var($_GET['hrid'],FILTER_SANITIZE_STRING);
 $request = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `hr_time_off_request` WHERE `fieldlevelriskid`='$id'"));
 $fields = explode('**FFM**',$request['fields']);
 $status = $_GET['status'];
+$ticket_booking_conflicts = '';
 if($status == 'Denied') {
 	$message = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `rejected_subject`, `rejected_message` FROM `hr` WHERE `hrid`='".$request['hrid']."'"));
 	mysqli_query($dbc, "UPDATE `hr_time_off_request` SET `status`='Denied' WHERE `fieldlevelriskid`='$id'");
@@ -25,4 +26,38 @@ if($refer == '') {
 } else if(strpos($refer,'Staff/staff_edit.php?') !== FALSE) {
 	$refer .= '&subtab=time_off_requests';
 }
-echo "<script> window.location.replace('$refer'); </script>";
+if($status == 'Approved') { ?>
+	<script type="text/javascript">
+	$(document).ready(function() {
+		var contactid = '<?= $request['contactid'] ?>';
+		var startdate = '<?= $fields[2] ?>';
+		var enddate = '<?= $fields[3] ?>';
+		$.ajax({
+			url: '<?= WEBSITE_URL ?>/Calendar/calendar_ajax_all.php?fill=check_ticket_booking_conflicts',
+			method: 'POST',
+			data: { contactid: contactid, startdate: startdate, enddate: enddate },
+			success: function(response) {
+				if(response != '') {
+					response += "\nWould you like to unassign <?= get_contact($dbc, $request['contactid']) ?> from these conflicting items?";
+					if(confirm(response)) {
+						$.ajax({
+							url: '<?= WEBSITE_URL ?>/Calendar/calendar_ajax_all.php?fill=unassign_ticket_booking_conflicts',
+							method: 'POST',
+							data: { contactid: contactid, startdate: startdate, enddate: enddate },
+							success: function(response) {
+								window.location.replace('<?= $refer ?>');
+							}
+						});
+					} else {
+						window.location.replace('<?= $refer ?>');	
+					}
+				} else {
+					window.location.replace('<?= $refer ?>');
+				}
+			}
+		});
+	});
+	</script>
+<?php } else {
+	echo "<script> window.location.replace('$refer'); </script>";
+}
