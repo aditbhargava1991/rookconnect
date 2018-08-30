@@ -548,7 +548,7 @@ function saveFieldMethod(field) {
 				},
 				success: function(response) {
 						alert('stg');
-					updateTicketLabel();
+					//updateTicketLabel();
 					if(field_name == 'status' && response == 'created_unscheduled_stop') {
 						reload_delivery();
 					} else if(table_name == 'ticket_attached' && field_name == 'piece_type') {
