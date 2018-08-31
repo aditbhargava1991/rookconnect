@@ -58,6 +58,10 @@ if(isset($_POST['submit'])) {
             <a href=\"".WEBSITE_URL."/Ticket/index.php?edit=$id\">Click here</a> to see the ".TICKET_NOUN.".<br />\n<br />");
             $dbc->query("INSERT INTO `reminders` (`contactid`,`reminder_date`,`reminder_type`,`subject`,`body`,`src_table`,`src_tableid`, `sender`) VALUES ('$staff','$date','Ticket Reminder','$subject','$body','tickets','$id', '$sender')");
             break;
+
+        case 'planner':
+            $dbc->query("INSERT INTO `reminders` (`contactid`,`reminder_date`,`reminder_type`,`subject`,`body`,`src_table`,`src_tableid`, `sender`) VALUES ('$staff','$date','Planner Reminder','$subject','$body','planner','$id', '$sender')");
+            break;
             
         default:
             break;
