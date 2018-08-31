@@ -2335,10 +2335,14 @@ if($_GET['fill'] == 'delete_shift') {
 } else if($_GET['fill'] == 'get_sortable_tickets') {
 	$date = filter_var($_POST['date'],FILTER_SANITIZE_STRING);
 	$equipment = filter_var($_POST['equipment'],FILTER_SANITIZE_STRING);
-	$tickets = mysqli_query($dbc, "SELECT `ticketid`,`pickup_address`,`pickup_city`,`pickup_postal_code`,`dropoff_address`,`dropoff_city`,`dropoff_postal_code` FROM `tickets` WHERE `to_do_date`='$date' AND `equipmentid` = '$equipment' AND `deleted`=0");
+	$address = [];
+	$tickets = mysqli_query($dbc, "SELECT `t`.`ticketid`, `sched`.`id`, IFNULL(`sched`.`to_do_date`,`t`.`to_do_date`) `date`, IFNULL(`sched`.`to_do_start_time`,`t`.`to_do_start_time`) `time`, IFNULL(`sched`.`address`,`t`.`pickup_address`) `address`, IFNULL(`sched`.`city`,`t`.`pickup_city`) `city`, IFNULL(`sched`.`province`,'') `province`, IFNULL(`sched`.`postal_code`,`t`.`pickup_postal_code`) `postal_code` FROM `tickets` `t` LEFT JOIN `ticket_schedule` `sched` ON `t`.`ticketid`=`sched`.`ticketid` AND `sched`.`deleted`=0 WHERE IFNULL(NULLIF(`sched`.`equipmentid`,0),`t`.`equipmentid`)='$equipment' AND IFNULL(NULLIF(`sched`.`to_do_date`,'0000-00-00'),`t`.`to_do_date`)='$date' AND (IFNULL(NULLIF(CONCAT(IFNULL(`sched`.`address`,''),IFNULL(`sched`.`city`,'')),''),CONCAT(IFNULL(`t`.`address`,''),IFNULL(`t`.`city`,''))) NOT IN (SELECT CONCAT(IFNULL(`address`,''),IFNULL(`city`,'')) FROM `contacts` WHERE `category`='Warehouses') AND `sched`.`type`!='warehouse') ORDER BY IFNULL(`sched`.`to_do_start_time`,`t`.`to_do_start_time`) DESC");
 	while($ticket = mysqli_fetch_assoc($tickets)) {
-		echo $ticket['ticketid'].'#*#'.$ticket['pickup_address'].' '.$ticket['pickup_city'].' '.$ticket['pickup_postal_code']."#*#".$ticket['dropoff_address'].' '.$ticket['dropoff_city'].' '.$ticket['dropoff_postal_code']."\n";
+		if($ticket['address'].$ticket['city'].$ticket['province'].$ticket['pickup_postal_code'] != '') {
+			$addresses[] = $ticket['ticketid'].'#*#'.$ticket['id'].'#*#'.trim($ticket['address'].' '.$ticket['city'].' '.$ticket['province'].' '.$ticket['pickup_postal_code']);
+		}
 	}
+	echo implode("\n",$addresses);
 } else if($_GET['fill'] == 'get_ticket_addresses') {
 	$date = filter_var($_POST['date'],FILTER_SANITIZE_STRING);
 	$equipment = filter_var($_POST['equipment'],FILTER_SANITIZE_STRING);
@@ -2351,20 +2355,41 @@ if($_GET['fill'] == 'delete_shift') {
 	}
 	echo implode("\n",$addresses);
 } else if($_GET['fill'] == 'sort_tickets') {
+	$date = filter_var($_POST['date'],FILTER_SANITIZE_STRING);
+	$equipment = filter_var($_POST['equipment'],FILTER_SANITIZE_STRING);
 	$start_address = filter_var($_POST['start_address'],FILTER_SANITIZE_STRING);
 	$end_address = filter_var($_POST['end_address'],FILTER_SANITIZE_STRING);
-	$start_time = get_config($dbc, 'scheduling_day_start');
+    $warehouses = $dbc->query("SELECT `tickets`.`ticketid`, `ticket_schedule`.`id` FROM `tickets` LEFT JOIN `ticket_schedule` ON `tickets`.`ticketid`=`ticket_schedule`.`ticketid` AND `ticket_schedule`.`deleted`=0 WHERE `tickets`.`deleted`=0 AND ((`tickets`.`to_do_date` = '".$date."' OR '".$date."' BETWEEN `tickets`.`to_do_date` AND `tickets`.`to_do_end_date` OR `ticket_schedule`.`to_do_date`='".$date."' OR '".$date."' BETWEEN `ticket_schedule`.`to_do_date` AND IFNULL(`ticket_schedule`.`to_do_end_date`,`ticket_schedule`.`to_do_date`)) AND (IFNULL(`ticket_schedule`.`equipmentid`,`tickets`.`equipmentid`) IN ('$equipment') AND IFNULL(`ticket_schedule`.`equipmentid`,`tickets`.`equipmentid`) > 0)) AND (IFNULL(NULLIF(CONCAT(IFNULL(`ticket_schedule`.`address`,''),IFNULL(`ticket_schedule`.`city`,'')),''),CONCAT(IFNULL(`tickets`.`address`,''),IFNULL(`tickets`.`city`,''))) IN (SELECT CONCAT(IFNULL(`address`,''),IFNULL(`city`,'')) FROM `contacts` WHERE `category`='Warehouses') OR `ticket_schedule`.`type`='warehouse') ORDER BY `ticket_schedule`.`to_do_date`,`ticket_schedule`.`to_do_start_time`");
+    if($warehouses->num_rows > 0) {
+        $start_time = get_config($dbc, 'ticket_warehouse_start_time');
+		$end_time = date('H:i:s',strtotime($start_time.' + 30 minutes'));
+        while($warehouse = $warehouses->fetch_assoc()) {
+            if($warehouse['id'] > 0) {
+                $dbc->query("UPDATE `ticket_schedule` SET `to_do_start_time`='$start_time', `to_do_end_time`='$end_time' WHERE `id`='".$warehouse['id']."'");
+            } else {
+                $dbc->query("UPDATE `tickets` SET `to_do_start_time`='$start_time', `to_do_end_time`='$end_time' WHERE `ticketid`='".$warehouse['ticketid']."'");
+            }
+        }
+		$start_time = date('H:i:s',strtotime($start_time.' + 30 minutes'));
+    } else {
+        $start_time = get_config($dbc, 'scheduling_day_start');
+    }
 	foreach($_POST['ticket_sort'] as $i => $ticketid) {
 		$ticketid = filter_var($ticketid,FILTER_SANITIZE_STRING);
+		$stopid = filter_var($_POST['stop_sort'][$i],FILTER_SANITIZE_STRING);
 		$end_time = date('H:i:s',strtotime($start_time.' + 30 minutes'));
 		if($online) {
-			mysqli_query($dbc, "UPDATE `tickets` SET `to_do_start_time`='$start_time', `to_do_end_time`='$end_time', `pickup_date`=CONCAT(`to_do_date`,' $start_time'), `delivery_start_address`='$start_address', `delivery_end_address`='$end_address' WHERE `ticketid`='$ticketid'");
-			mysqli_query($dbc, "UPDATE `tickets` SET `is_recurrence` = 0 WHERE `ticketid` = '$ticketid'");
-			mysqli_query($dbc, "UPDATE `ticket_attached` SET `is_recurrence` = 0 WHERE `ticketid` = '$ticketid'");
-			mysqli_query($dbc, "UPDATE `ticket_schedule` SET `is_recurrence` = 0 WHERE `ticketid` = '$ticketid'");
-			mysqli_query($dbc, "UPDATE `ticket_comment` SET `is_recurrence` = 0 WHERE `ticketid` = '$ticketid'");
+            if($stopid > 0) {
+                mysqli_query($dbc, "UPDATE `ticket_schedule` SET `to_do_start_time`='$start_time', `to_do_end_time`='$end_time' WHERE `ticketid`='$ticketid' AND `id`='$stopid'");
+            } else {
+                mysqli_query($dbc, "UPDATE `tickets` SET `to_do_start_time`='$start_time', `to_do_end_time`='$end_time', `pickup_date`=CONCAT(`to_do_date`,' $start_time'), `delivery_start_address`='$start_address', `delivery_end_address`='$end_address' WHERE `ticketid`='$ticketid'");
+                mysqli_query($dbc, "UPDATE `tickets` SET `is_recurrence` = 0 WHERE `ticketid` = '$ticketid'");
+                mysqli_query($dbc, "UPDATE `ticket_attached` SET `is_recurrence` = 0 WHERE `ticketid` = '$ticketid'");
+                mysqli_query($dbc, "UPDATE `ticket_schedule` SET `is_recurrence` = 0 WHERE `ticketid` = '$ticketid'");
+                mysqli_query($dbc, "UPDATE `ticket_comment` SET `is_recurrence` = 0 WHERE `ticketid` = '$ticketid'");
+            }
 		}
-		$start_time = date('H:i:s',strtotime($start_time.' + 1 hour'));
+		$start_time = date('H:i:s',strtotime($start_time.' + 30 minutes'));
 	}
 }
 if($_GET['fill'] == 'delete_appt') {
