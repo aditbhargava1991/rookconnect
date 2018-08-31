@@ -1,46 +1,18 @@
 <script>
-
+$(document).ready(function() {
     /* Timer */
-    $('.start-timer-btn').on('click', function() {
-        $(this).closest('div').find('.timer').timer({
-            editable: true
-        });
-        $(this).addClass('hidden');
-        $(this).next('.stop-timer-btn').removeClass('hidden');
+    $('.icons_div .start-timer-btn').on('click', function() {
     });
 
-    $('.stop-timer-btn').on('click', function() {
-		$(this).closest('div').find('.timer').timer('stop');
-		$(this).addClass('hidden');
-		$('#timer_value').addClass('hidden');
-
-
-		//$(this).prev('.start-timer-btn').removeClass('hidden');
-
-        var projectid = $(this).data('id');
-
-        var timer_value = $(this).closest('div').find('#timer_value').val();
-
-		$(this).closest('div').find('.timer').timer('remove');
-
-		if ( projectid!='' && typeof projectid!='undefined' && timer_value!='' ) {
-            $.ajax({
-                type: "GET",
-                url: "projects_ajax.php?action=timer&projectid="+projectid+"&timer_value="+timer_value,
-                dataType: "html",
-                success: function(response) {
-                    alert('Time added');
-                }
-            });
-        }
+    $('.icons_div .stop-timer-btn').on('click', function() {
     });
 
 
     /* Timer */
 
 
-	$('.archive-icon').off('click').click(function() {
-		var item = $(this).closest('.dashboard-item');
+	$('.icons_div .archive-icon').off('click').click(function() {
+		var item = $(this).closest('.icons_div');
 		var title = $(this).closest('.standard-body-title');
 		$.ajax({
 			url: 'projects_ajax.php?action=archive',
@@ -54,7 +26,7 @@
         title.find('h3').addClass('text-red');
 	});
 
-	$('.email-icon').off('click').click(function() {
+	$('.icons_div .email-icon').off('click').click(function() {
 		// var item = $(this).closest('.dashboard-item,.standard-body-title');
 		// var select = item.find('.select_users');
 		// select.find('.cancel_button').off('click').click(function() {
@@ -92,8 +64,8 @@
 		// select.show();
 	});
 
-	$('.attach-icon').off('click').click(function() {
-		var item = $(this).closest('.dashboard-item,.standard-body-title');
+	$('.icons_div .attach-icon').off('click').click(function() {
+        var item = $(this).closest('.icons_div');
 		item.find('[type=file]').off('change').change(function() {
 			var fileData = new FormData();
 			fileData.append('file',$(this)[0].files[0]);
@@ -109,53 +81,46 @@
 				url: "projects_ajax.php?action=quick_actions",
 				data: fileData
 			});
-                $(this).hide().val('');
+            $(this).hide().val('');
 		}).click();
 	});
 
-$('.reminder-icon').off('click').click(function() {
-    var item = $(this).closest('.dashboard-item,.standard-body-title');
-    item.find('[name=reminder]').change(function() {
-        var reminder = $(this).val();
-        var select = item.find('.select_users');
-        select.find('.cancel_button').off('click').click(function() {
-            select.find('select option:selected').removeAttr('selected');
-            select.find('select').trigger('change.select2');
-            select.hide();
-            return false;
-        });
-        select.find('.submit_button').off('click').click(function() {
-            if(select.find('select').val() != '' && confirm('Are you sure you want to schedule reminders for the selected user(s)?')) {
-                var users = [];
-                select.find('select option:selected').each(function() {
-                    users.push(this.value);
-                    $(this).removeAttr('selected');
-                });
-                $.ajax({
-                    method: 'POST',
-                    url: 'projects_ajax.php?action=quick_actions',
-                    data: {
-                        id: item.data('id'),
-                        id_field: item.data('id-field'),
-                        table: item.data('table'),
-                        field: 'reminder',
-                        value: reminder,
-                        users: users,
-                        ref_id: item.data('id'),
-                        ref_id_field: item.data('id-field')
-                    },
-                    success: function(result) {
-                        select.hide();
-                        select.find('select').trigger('change.select2');
-                        item.find('h4').append(result);
-                        alert("Reminder set");
-                    }
-                });
+    $('.icons_div .timer-icon').off('click').click(function() {
+        var item = $(this).closest('.icons_div');
+        overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_timer.php?tile=projects&id='+item.data('id'), 'auto', false, true);
+    });
+
+    $('.icons_div .reminder-icon').off('click').click(function() {
+        var item = $(this).closest('.icons_div');
+        overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_reminders.php?tile=projects&id='+item.data('id'), 'auto', false, true);
+    });
+
+    $('.icons_div .flag-icon').off('click').click(function() {
+        var item = $(this).closest('.dashboard-item,.standard-body-title');
+        $.ajax({
+            url: 'projects_ajax.php?action=flag_colour',
+            method: 'POST',
+            data: {
+                field: 'flag_colour',
+                value: item.data('colour'),
+                table: item.data('table'),
+                id: item.data('id'),
+                id_field: item.data('id-field')
+            },
+            success: function(response) {
+                item.data('colour',response.substr(0,6));
+                item.css('background-color','#'+response.substr(0,6));
+                item.find('.flag-label').html(response.substr(6));
             }
-            return false;
         });
-        select.show();
-    }).focus();
+    });
+
+    $('.icons_div .manual-flag-icon').off('click').click(function() {
+        var item = $(this).closest('.icons_div');
+        $('.flag_target').removeClass('flag_target');
+        $(item).closest('.dashboard-item,.standard-body-title').addClass('flag_target');
+        overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_flags.php?tile=projects&id='+item.data('id'), 'auto', false, true);
+    });
 });
 
 function saveNote(sel) {
@@ -172,27 +137,53 @@ function saveNote(sel) {
 }
 
 </script>
+<?php $quick_actions = explode(',',get_config($dbc, 'quick_action_icons')); ?>
 <!-- All icons -->
 <div class="action-icons">
-    <!-- Email -->
-    <a href="Add Email" onclick="overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_email.php?tile=projects&id='+id,'auto',false,true); return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-email-icon.png" class="inline-img email-icon" title="Send Email"></a>
-    <!-- Email -->
+    <!-- Status Report Icon -->
+    <?php if($status_report) { ?>
+        <a href="Status Report" onclick="overlayIFrameSlider('edit_project_scope_status_report.php?projectid='+id,'auto',true,true); return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/pie-chart.png" class="inline-img no-toggle" title="Status Report"></a>
+    <?php } ?>
+    <!-- Status Report Icon -->
+    <?php if(!in_array('flag_manual',$quick_actions) && in_array('flag',$quick_actions)) { ?>
+        <a href="Flag This!" onclick="return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-flag-icon.png" class="inline-img no-toggle flag-icon" title="Flag This!" /></a>
+    <?php } ?>
 
-    <!--<a href="Add Note" onclick="$(this).closest('.dashboard-item').find('[name=notes]').show().focus(); return false;">--><a href="#" onclick="overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_notes.php?tile=projects&id=<?= $projectid ?>','auto', false, true); return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-reply-icon.png" class="inline-img reply-icon" title="Add Note" /></a>
-    <!-- Note -->
+    <?php if(in_array('flag_manual',$quick_actions)) { ?>
+        <a href="Flag This!" onclick="return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-flag-icon.png" class="inline-img no-toggle manual-flag-icon" title="Flag This!" /></a>
+    <?php } ?>
 
-     <a href="Add Reminder" onclick="$(this).closest('.dashboard-item,.standard-body-title').find('[name=reminder]').show().focus(); return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-reminder-icon.png" class="inline-img reminder-icon" title="Schedule Reminder"></a>
-    <!-- reminder -->
+    <?php if(in_array('reply',$quick_actions)) { ?>
+        <a href="#" onclick="overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_notes.php?tile=projects&id=<?= $projectid ?>','auto', false, true); return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-reply-icon.png" class="inline-img no-toggle reply-icon" title="Add Note" /></a>
+        <!-- Note -->
+    <?php } ?>
 
-    <a href="Add Reminder" onclick="$(this).closest('.dashboard-item,.standard-body-title').find('[name=document]').show().focus(); return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-attachment-icon.png" class="inline-img attach-icon" title="Attach File"></a>
-    <!-- document -->
+    <?php if(in_array('email',$quick_actions)) { ?>
+        <!-- Email -->
+        <a href="Add Email" onclick="overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_email.php?tile=projects&id='+id,'auto',false,true); return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-email-icon.png" class="inline-img no-toggle email-icon" title="Send Email"></a>
+        <!-- Email -->
+    <?php } ?>
 
-    <a href="Add Timer" onclick="$(this).closest('.dashboard-item,.standard-body-title').find('.timer').show().focus(); return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-timer2-icon.png" class="inline-img timer-icon" title="Start Timer" /></a>
-    <!-- Timer -->
+    <?php if(in_array('reminder',$quick_actions)) { ?>
+        <a href="Add Reminder" onclick="return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-reminder-icon.png" class="inline-img no-toggle reminder-icon" title="Schedule Reminder"></a>
+        <!-- reminder -->
+    <?php } ?>
 
-    <!-- archive -->
-    <img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-trash-icon.png" class="inline-img archive-icon" title="Archive">
-    <!-- archive -->
+    <?php if(in_array('attach',$quick_actions)) { ?>
+        <a href="Add File" onclick="return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-attachment-icon.png" class="inline-img no-toggle attach-icon" title="Attach File"></a>
+        <!-- document -->
+    <?php } ?>
+
+    <?php if(in_array('timer',$quick_actions)) { ?>
+        <a href="Add Timer" onclick="return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-timer2-icon.png" class="inline-img no-toggle timer-icon" title="Start Timer" /></a>
+        <!-- Timer -->
+    <?php } ?>
+
+    <?php if(in_array('archive',$quick_actions)) { ?>
+        <!-- archive -->
+        <img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-trash-icon.png" class="inline-img no-toggle archive-icon" title="Archive">
+        <!-- archive -->
+    <?php } ?>
  </div>
  <!-- All icons -->
  

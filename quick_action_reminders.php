@@ -17,13 +17,18 @@ if(isset($_POST['submit'])) {
 	$date = filter_var($_POST['reminder_date'],FILTER_SANITIZE_STRING);
 
     switch ($tile) {
-        case 'project':
+        case 'projects':
             $projectid = $id;
-            $dbc->query("INSERT INTO `reminders` (`contactid`,`reminder_date`,`reminder_type`,`subject`,`body`,`src_table`,`src_tableid`) VALUES ('$staff','$date','Project Reminder','".PROJECT_NOUN." Reminder','".htmlentities("This is a reminder about a ".PROJECT_NOUN.". Please log into the software to review the ".PROJECT_NOUN." <a href=\"".WEBSITE_URL."/Project/projects.php?edit=$id\">here</a>.")."','project','$id')");
+            $dbc->query("INSERT INTO `reminders` (`contactid`,`reminder_date`,`reminder_type`,`subject`,`body`,`src_table`,`src_tableid`) VALUES ('$staff','$date','Project Reminder','$subject','".htmlentities("This is a reminder about a ".PROJECT_NOUN.". Please log into the software to review the ".PROJECT_NOUN." <a href=\"".WEBSITE_URL."/Project/projects.php?edit=$id\">here</a>.")."','project','$id')");
             break;
         case 'sales':
             $salesid = $id;
             $dbc->query("INSERT INTO `reminders` (`contactid`,`reminder_date`,`reminder_type`,`subject`,`body`,`src_table`,`src_tableid`) VALUES ('$staff','$date','Sales Lead Reminder','$subject','".htmlentities("This is a reminder about a sales lead. Please log into the software to review the lead <a href=\"".WEBSITE_URL."/Sales/sale.php?p=details&id=$id\">here</a>.")."','sales','$id')");
+            break;
+            
+        case 'intake':
+            $salesid = $id;
+            $dbc->query("INSERT INTO `reminders` (`contactid`,`reminder_date`,`reminder_type`,`subject`,`body`,`src_table`,`src_tableid`) VALUES ('$staff','$date','Intake Form Reminder','$subject','".htmlentities("This is a reminder about an Intake Form. Please log into the software to review the form <a href=\"".WEBSITE_URL."/Intake/add_form.php?intakeid=$id\">here</a>.")."','intake','$id')");
             break;
 
         case 'tasks':
@@ -62,6 +67,16 @@ if(isset($_POST['submit'])) {
         case 'planner':
             $dbc->query("INSERT INTO `reminders` (`contactid`,`reminder_date`,`reminder_type`,`subject`,`body`,`src_table`,`src_tableid`, `sender`) VALUES ('$staff','$date','Planner Reminder','$subject','$body','planner','$id', '$sender')");
             break;
+        
+        case 'intake':
+            $intakeid = $id;
+            $intake = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `intake` WHERE `intakeid`='$intakeid'"));
+            $intake_form = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `intake_forms` WHERE `intakeformid` = '".$intake['intakeformid']."'"));
+
+            $sender = get_email($dbc, $_SESSION['contactid']);
+            $body = htmlentities("This is a reminder about Intake #".$intake['intakeid'].": ".html_entity_decode($intake_form['form_name']).".<br />\n<br />");
+            $dbc->query("INSERT INTO `reminders` (`contactid`,`reminder_date`,`reminder_type`,`subject`,`body`,`src_table`,`src_tableid`, `sender`) VALUES ('$staff','$date','Intake Reminder','$subject','$body','intake','$id', '$sender')");
+            break;
             
         default:
             break;
@@ -69,8 +84,15 @@ if(isset($_POST['submit'])) {
 }
 $tile = $_GET['tile'];
 switch($tile) {
+    case 'projects':
+        $project = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `project` WHERE `projectid` = '".$_GET['id']."'"));
+        $subject = "A reminder about a ".PROJECT_NOUN." - ".get_project_label($dbc, $project);
+        break;
     case 'sales':
         $subject = "Sales Lead Reminder";
+        break;
+    case 'intake':
+        $subject = "Intake Form Reminder";
         break;
     case 'tasks':
         $subject = "A reminder about the $title task";
@@ -82,6 +104,11 @@ switch($tile) {
     case 'tickets':
         $ticket = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticketid` = '".$_GET['id']."'"));
         $subject = "A reminder about a ".TICKET_NOUN." - ".get_ticket_label($dbc, $ticket);
+        break;
+    case 'intake':
+        $intake = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `intake` WHERE `intakeid`='".$_GET['id']."'"));
+        $intake_form = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `intake_forms` WHERE `intakeformid` = '".$intake['intakeformid']."'"));
+        $subject = "A reminder about Intake #".$intake['intakeid'].": ".html_entity_decode($intake_form['form_name']);
         break;
 }
 if(empty($_GET['contactid'])) {

@@ -1089,3 +1089,4 @@ function copy_data($dbc, $contactid, $other_contactid) {
 		mysqli_query($dbc, "UPDATE `$contacts_table` SET $query_update WHERE `contactid` = '$other_contactid'");
 	}
 }
+ 
