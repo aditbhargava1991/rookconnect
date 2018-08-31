@@ -22,6 +22,7 @@ $status_list = explode('#*#',get_config($dbc, 'project_status'));
 $staff_list = sort_contacts_query(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name` FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `deleted`=0 AND `status` > 0 AND `show_hide_user`=1"));
 $project_slider = get_config($dbc, 'project_slider');
 $project_slider_label = get_config($dbc, 'project_slider_label');
+$quick_actions = explode(',',get_config($dbc, 'quick_action_icons'));
 foreach($_POST['projectids'] as $projectid) {
 	if($projectid > 0) {
 		$project_count++;
@@ -32,8 +33,28 @@ foreach($_POST['projectids'] as $projectid) {
 		$invoices = mysqli_fetch_array(mysqli_query($dbc, "SELECT `paid` FROM `invoice` WHERE `projectid`='$projectid'"));
 		if($invoices['paid'] == '')
 			$invoices['paid'] = 'No';
+
+		$flag_label = '';
+		if($project['flag_colour'] != '' && $project['flag_colour'] != 'FFFFFF') {
+			if(in_array('flag_manual',$quick_actions)) {
+				if(time() < strtotime($project['flag_start']) || time() > strtotime($project['flag_end'].' + 1 day')) {
+					$project['flag_colour'] = '';
+				} else {
+					$flag_label = $project['flag_label'];
+				}
+			} else {
+				$ticket_flag_names = [''=>''];
+				$flag_names = explode('#*#', get_config($dbc, 'ticket_colour_flag_names'));
+				foreach(explode(',',get_config($dbc, 'ticket_colour_flags')) as $i => $colour) {
+					$ticket_flag_names[$colour] = $flag_names[$i];
+				}
+				$flag_label = $ticket_flag_names[$ticket['flag_colour']];
+			}
+		}
+
 		?>
-		<div class="dashboard-item override-dashboard-item" data-id="<?= $project['projectid'] ?>">
+		<div class="dashboard-item override-dashboard-item" data-id="<?= $project['projectid'] ?>" data-colour="<?= $project['flag_colour'] ?>" data-table="project" data-id-field="projectid" style="<?= $project['flag_colour'] != '' ? 'background-color: #'.$project['flag_colour'].';' : '' ?>">
+			<span class="flag-label"><?= $flag_label ?></span>
 			<h4>
 				<?php $subtab_config = get_config($dbc, 'project_subtab');
 					$config_value = $subtab_config;

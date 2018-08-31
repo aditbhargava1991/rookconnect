@@ -585,5 +585,30 @@
     }
     //2018-08-28 - Ticket #7761 - POS
 
+    //2018-08-30 - Ticket #9034 - Quick Action Projects
+    if(!mysqli_query($dbc, "ALTER TABLE `project` ADD `flag_colour` VARCHAR(7)")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `project` ADD `flag_start` DATE NOT NULL DEFAULT '0000-00-00' AFTER `flag_colour`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `project` ADD `flag_end` DATE NOT NULL DEFAULT '9999-12-31' AFTER `flag_start`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `project` ADD `flag_label` TEXT AFTER `flag_colour`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+
+    if(!mysqli_query($dbc, "ALTER TABLE `checklist` ADD `flag_start` DATE NOT NULL DEFAULT '0000-00-00' AFTER `flag_colour`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `checklist` ADD `flag_end` DATE NOT NULL DEFAULT '9999-12-31' AFTER `flag_start`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `checklist` ADD `flag_label` TEXT AFTER `flag_colour`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-08-30 - Ticket #9034 - Quick Action Projects
+
     echo "Baldwin's DB Changes Done<br />\n";
 ?>

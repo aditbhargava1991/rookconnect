@@ -68,6 +68,9 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 		<h1><?= $label ?></h1>
 	<?php } ?>
 	<div id='project_accordions' class='sidebar <?= $_GET['iframe_slider'] == 1 ? '' : 'show-on-mob' ?> panel-group block-panels col-xs-12 form-horizontal'>
+		<?php echo '<span class="pull-right">';
+		include('quick_actions.php');
+		echo '</span><span class="clearfix"></span>'; ?>
 		<div class="panel panel-default" style='<?= in_array('Summary',$tab_config) && $projectid > 0 ? '' : 'display:none;' ?>'>
 			<div class="panel-heading mobile_load">
 				<h4 class="panel-title">
@@ -1841,17 +1844,38 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 				$body_title = '**NO_TITLE**';
 				$include_files[] = 'edit_project_path.php'; break;
 		} ?>
-		<?php if($body_title != '**NO_TITLE**') { ?>
-			<div class='standard-body-title'>
+		<?php if($body_title != '**NO_TITLE**') {
+			$quick_actions = explode(',',get_config($dbc, 'quick_action_icons'));
+			$flag_label = '';
+			if($project['flag_colour'] != '' && $project['flag_colour'] != 'FFFFFF') {
+				if(in_array('flag_manual',$quick_actions)) {
+					if(time() < strtotime($project['flag_start']) || time() > strtotime($project['flag_end'].' + 1 day')) {
+						$project['flag_colour'] = '';
+					} else {
+						$flag_label = $project['flag_label'];
+					}
+				} else {
+					$ticket_flag_names = [''=>''];
+					$flag_names = explode('#*#', get_config($dbc, 'ticket_colour_flag_names'));
+					foreach(explode(',',get_config($dbc, 'ticket_colour_flags')) as $i => $colour) {
+						$ticket_flag_names[$colour] = $flag_names[$i];
+					}
+					$flag_label = $ticket_flag_names[$ticket['flag_colour']];
+				}
+			} ?>
+			<div class='standard-body-title' data-colour="<?= $project['flag_colour'] ?>" data-table="project" data-id-field="projectid" style="<?= $project['flag_colour'] != '' ? 'background-color: #'.$project['flag_colour'].';' : '' ?>">
 				<h3><?= $body_title ?>
-                    <div class="pull-right text-sm">
+                    <div class="pull-right" style="position: relative; bottom: 0.5em;">
                         <?php foreach(explode(',',$project['project_lead'].','.$project['project_colead'].','.$project['project_team']) as $project_staff) {
                             if($project_staff > 0) {
                                 echo '<div class="pull-left">'.profile_id($dbc,$project_staff,false).'</div>';
                             }
                         }
-                        include('quick_actions.php'); ?>
+                        echo '<div class="pull-right">';
+                        include('quick_actions.php');
+                        echo '</div>'; ?>
                     </div>
+                    <span class="flag-label"><?= $flag_label ?></span>
                 </h3>
 			</div>
 		<?php } ?>

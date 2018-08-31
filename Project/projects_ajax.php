@@ -1124,4 +1124,23 @@ if($_GET['action'] == 'mark_favourite') {
     set_config($dbc, 'project_lead_cats', $_POST['lead']);
     set_config($dbc, 'project_co_lead_cats', $_POST['co']);
     set_config($dbc, 'project_team_cats', $_POST['team']);
+} else if($_GET['action'] == 'flag_colour') {
+	$id = filter_var($_POST['id'],FILTER_SANITIZE_STRING);
+	$field = filter_var($_POST['field'],FILTER_SANITIZE_STRING);
+	$value = filter_var($_POST['value'],FILTER_SANITIZE_STRING);
+
+	$colours = explode(',', get_config($dbc, "ticket_colour_flags"));
+	$labels = explode('#*#', get_config($dbc, "ticket_colour_flag_names"));
+	$colour_key = array_search($value, $colours);
+	$new_colour = ($colour_key === FALSE ? $colours[0] : ($colour_key + 1 < count($colours) ? $colours[$colour_key + 1] : 'FFFFFF'));
+	$label = ($colour_key === FALSE ? $labels[0] : ($colour_key + 1 < count($colours) ? $labels[$colour_key + 1] : ''));
+	echo $new_colour.html_entity_decode($label);
+	$before_change = capture_before_change($dbc, 'project', 'flag_colour', 'projectid', $id);
+	$before_change .= capture_before_change($dbc, 'project', 'flag_start', 'projectid', $id);
+	$before_change .= capture_before_change($dbc, 'project', 'flag_end', 'projectid', $id);
+	mysqli_query($dbc, "UPDATE `project` SET `flag_colour`='$new_colour', `flag_start`='0000-00-00', `flag_end`='9999-12-31' WHERE `projectid`='$id'");
+	$history = capture_after_change('flag_colour', $new_colour);
+	$history .= capture_after_change('flag_start', '0000-00-00');
+	$history .= capture_after_change('flag_end', '9999-12-31');
+	add_update_history($dbc, 'project_history', $history, '', $before_change, $projectid);
 }
