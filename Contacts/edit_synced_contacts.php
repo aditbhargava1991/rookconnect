@@ -133,4 +133,4 @@ do {
         </div>
         <div class="clearfix"></div>
     </div>
-<?php } while($synced_contact = mysqli_fetch_assoc($synced_contacts));
+<?php } while($synced_contact = mysqli_fetch_assoc($synced_contacts)); 

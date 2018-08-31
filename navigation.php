@@ -378,3 +378,4 @@ $_SERVER['page_load_info'] .= 'Nav Bar Loaded: '.number_format($_SERVER['page_lo
 	include_once('password_reset.php');
 	exit();
 } ?>
+ 

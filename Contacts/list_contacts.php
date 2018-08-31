@@ -383,4 +383,4 @@ if(!empty($_GET['search_contacts']) || !empty($_POST['search_'.$category])) { ?>
             $counter++;
         } ?>
 	</div>
-<?php } ?>
+<?php } ?> 

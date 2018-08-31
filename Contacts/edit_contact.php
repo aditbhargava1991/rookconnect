@@ -1191,4 +1191,4 @@ function contact_call($dbc, $select_id, $select_name, $contact_value,$multiple, 
             <input type="text" name="<?= str_replace('[]','',$select_name) ?>_new_contact<?= preg_replace('/[^\[\]]/','',$select_name) ?>" data-field="<?php echo $data_field; ?>" data-table="individual_support_plan" data-row-field="individualsupportplanid" data-row-id="<?php echo $data_row_id; ?>" data-contactid-field="support_contact" class="form-control" style="display:none;">
         </div>
     </div>
-<?php } ?>
+<?php } ?> 

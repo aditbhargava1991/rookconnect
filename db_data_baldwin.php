@@ -614,4 +614,4 @@
     //2018-08-31 - Ticket #8720 - Contacts Sync
 
     echo "Baldwin's DB Changes Done<br />\n";
-?>
+?> 
