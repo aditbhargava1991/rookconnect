@@ -486,7 +486,12 @@ if(count($equipment_categories) > 0) {
 							$clientids = $equip_assign['client_list'];
 
 							$classification_label = '';
-							if($equip_display_classification == 1 && !empty($equip_classifications)) {
+							if($equip_display_classification_ticket == 1) {
+								$equip_classifications = getEquipmentTicketClassification($dbc, $equipment['equipmentid'], $date_month_start, $date_month_end);
+								if(!empty($equip_classifications)) {
+									$classification_label = ' - '.implode(', ', $equip_classifications);
+								}
+							} else if($equip_display_classification == 1 && !empty($equip_classifications)) {
 								$classification_label = ' - '.str_replace('*#*', ', ', $equip_classifications);
 							}
 							// $equip_regions = implode('*#*',array_filter(array_unique([$equipment['region'], $equip_assign['region']])));

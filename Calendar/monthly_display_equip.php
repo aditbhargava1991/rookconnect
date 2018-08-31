@@ -212,7 +212,12 @@ if($_GET['mode'] == 'staff' || $_GET['mode'] == 'contractors') {
 			$equip_classifications = implode('*#*',array_filter(array_unique([$row['classification'], $equip_assign['classification']])));
 			$equip_classifications = implode('*#*', array_filter(array_unique(explode('*#*', $equip_classifications))));
 			$classification_label = '';
-			if($equip_display_classification == 1 && !empty($equip_classifications)) {
+			if($equip_display_classification_ticket == 1) {
+				$equip_classifications = getEquipmentTicketClassification($dbc, $row['equipmentid'], $calendar_date, $calendar_date);
+				if(!empty($equip_classifications)) {
+					$classification_label = ' - '.implode(', ', $equip_classifications);
+				}
+			} else if($equip_display_classification == 1 && !empty($equip_classifications)) {
 				$classification_label = ' - '.str_replace('*#*', ', ', $equip_classifications);
 			}
 
@@ -227,7 +232,12 @@ if($_GET['mode'] == 'staff' || $_GET['mode'] == 'contractors') {
 
 			$equip_classifications = implode('*#*', array_filter(array_unique(explode('*#*', $row['classification']))));
 			$classification_label = '';
-			if($equip_display_classification == 1 && !empty($equip_classifications)) {
+			if($equip_display_classification_ticket == 1) {
+				$equip_classifications = getEquipmentTicketClassification($dbc, $row['equipmentid'], $calendar_date, $calendar_date);
+				if(!empty($equip_classifications)) {
+					$classification_label = ' - '.implode(', ', $equip_classifications);
+				}
+			} else if($equip_display_classification == 1 && !empty($equip_classifications)) {
 				$classification_label = ' - '.str_replace('*#*', ', ', $equip_classifications);
 			}
 

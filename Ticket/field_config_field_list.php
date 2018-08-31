@@ -2636,6 +2636,9 @@ if(!$action_mode && !$overview_mode && !$unlock_mode) {
 							<?php if($field_sort_field == 'Delivery Pickup Customer Est Time') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Delivery Stops", array_merge($all_config,$value_config)) ? 'disabled' : (in_array("Delivery Pickup Customer Est Time", $all_config) ? 'checked disabled' : (in_array("Delivery Pickup Customer Est Time", $value_config) ? "checked" : '')) ?> value="Delivery Pickup Customer Est Time" name="tickets[]"> Multi-Stop Customer Estimated Time</label>
 							<?php } ?>
+							<?php if($field_sort_field == 'Delivery Pickup Estimate') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Delivery Stops", array_merge($all_config,$value_config)) ? 'disabled' : (in_array("Delivery Pickup Estimate", $all_config) ? 'checked disabled' : (in_array("Delivery Pickup Estimate", $value_config) ? "checked" : '')) ?> value="Delivery Pickup Estimate" name="tickets[]"> Multi-Stop Time Estimate</label>
+							<?php } ?>
 							<?php if($field_sort_field == 'Delivery Pickup Date') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Delivery Stops", array_merge($all_config,$value_config)) ? 'disabled' : (in_array("Delivery Pickup Date", $all_config) ? 'checked disabled' : (in_array("Delivery Pickup Date", $value_config) ? "checked" : '')) ?> value="Delivery Pickup Date" name="tickets[]"> Multi-Stop Date</label>
 							<?php } ?>

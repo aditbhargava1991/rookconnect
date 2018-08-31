@@ -2505,7 +2505,7 @@ function file_safe_str($str, $folder = 'download/') {
 }
 
 // Contacts Search and Sort Functions
-function search_contacts_table($dbc, $search_key, $search_constraints, $search_pos = 'ANY') {
+function search_contacts_table($dbc, $search_key, $search_constraints, $search_pos = 'ANY', $search_synced = '') {
 	$id_list = [];
 
 	$search_encrypted = encryptIt($search_key);
@@ -2516,6 +2516,16 @@ function search_contacts_table($dbc, $search_key, $search_constraints, $search_p
 	if(mysqli_num_rows($full_result) > 0) {
 		while($row = mysqli_fetch_array($full_result)) {
 			$id_list[] = $row['contactid'];
+            if($search_synced == 1) {
+                $synced_contacts = mysqli_query($dbc, "SELECT * FROM `contacts_sync` WHERE `deleted` = 0 AND (`contactid` = '".$row['contactid']."' OR `synced_contactid` = '".$row['contactid']."')");
+                while($synced_contact = mysqli_fetch_assoc($synced_contacts)) {
+                    if($synced_contact['contactid'] == $row['contactid']) {
+                        $id_list[] = $synced_contact['synced_contactid'];
+                    } else {
+                        $id_list[] = $synced_contact['contactid'];
+                    }
+                }
+            }
 		}
 
 		return implode(',',$id_list);
@@ -2524,14 +2534,30 @@ function search_contacts_table($dbc, $search_key, $search_constraints, $search_p
 		$encrypted_result = mysqli_query($dbc, $query);
 
 		if(mysqli_num_rows($encrypted_result) > 0) {
+            $search_keys = explode(' ',$search_key);
 			while($row = mysqli_fetch_assoc($encrypted_result)) {
-				if(($search_pos == 'ANY' && stripos(decryptIt($row['first_name']), $search_key) !== FALSE) || ($search_pos == 'START' && stripos(decryptIt($row['first_name']), $search_key) === 0) || ($search_pos == 'FIRST' && stripos(decryptIt($row['first_name']), $search_key) !== FALSE) ||
-					($search_pos == 'ANY' && stripos(decryptIt($row['last_name']), $search_key) !== FALSE) || ($search_pos == 'START' && stripos(decryptIt($row['last_name']), $search_key) === 0) || ($search_pos == 'LAST' && stripos(decryptIt($row['last_name']), $search_key) !== FALSE) ||
-					($search_pos == 'ANY' && stripos(decryptIt($row['name']), $search_key) !== FALSE) || ($search_pos == 'START' && stripos(decryptIt($row['name']), $search_key) === 0) || ($search_pos == 'NAME' && stripos(decryptIt($row['name']), $search_key) !== FALSE) ||
-					($search_pos == 'ANY' && stripos(decryptIt($row['email_address']), $search_key) !== FALSE) || ($search_pos == 'START' && stripos(decryptIt($row['email_address']), $search_key) === 0) ||( $search_pos == 'EMAIL' && stripos(decryptIt($row['email_address']), $search_key) !== FALSE) ||
-					($search_pos == 'ANY' && stripos(decryptIt($row['office_phone']), $search_key) !== FALSE) || ($search_pos == 'START' && stripos(decryptIt($row['office_phone']), $search_key) === 0) || ($search_pos == 'PHONE' && stripos(decryptIt($row['office_phone']), $search_key) !== FALSE) ||
-					($search_pos == 'ANY' && stripos(decryptIt($row['role']), $search_key) !== FALSE) || ($search_pos == 'START' && stripos(decryptIt($row['role']), $search_key) === 0) || ($search_pos == 'ROLE' && stripos(decryptIt($row['role']), $search_key) !== FALSE)) {
-					$id_list[] = $row['contactid'];
+                $contact_match = false;
+                foreach($search_keys as $search_key) {
+    				if(($search_pos == 'ANY' && stripos(decryptIt($row['first_name']), $search_key) !== FALSE) || ($search_pos == 'START' && stripos(decryptIt($row['first_name']), $search_key) === 0) || ($search_pos == 'FIRST' && stripos(decryptIt($row['first_name']), $search_key) !== FALSE) ||
+    					($search_pos == 'ANY' && stripos(decryptIt($row['last_name']), $search_key) !== FALSE) || ($search_pos == 'START' && stripos(decryptIt($row['last_name']), $search_key) === 0) || ($search_pos == 'LAST' && stripos(decryptIt($row['last_name']), $search_key) !== FALSE) ||
+    					($search_pos == 'ANY' && stripos(decryptIt($row['name']), $search_key) !== FALSE) || ($search_pos == 'START' && stripos(decryptIt($row['name']), $search_key) === 0) || ($search_pos == 'NAME' && stripos(decryptIt($row['name']), $search_key) !== FALSE) ||
+    					($search_pos == 'ANY' && stripos(decryptIt($row['email_address']), $search_key) !== FALSE) || ($search_pos == 'START' && stripos(decryptIt($row['email_address']), $search_key) === 0) ||( $search_pos == 'EMAIL' && stripos(decryptIt($row['email_address']), $search_key) !== FALSE) ||
+    					($search_pos == 'ANY' && stripos(decryptIt($row['office_phone']), $search_key) !== FALSE) || ($search_pos == 'START' && stripos(decryptIt($row['office_phone']), $search_key) === 0) || ($search_pos == 'PHONE' && stripos(decryptIt($row['office_phone']), $search_key) !== FALSE) ||
+    					($search_pos == 'ANY' && stripos(decryptIt($row['role']), $search_key) !== FALSE) || ($search_pos == 'START' && stripos(decryptIt($row['role']), $search_key) === 0) || ($search_pos == 'ROLE' && stripos(decryptIt($row['role']), $search_key) !== FALSE)) {
+    					$id_list[] = $row['contactid'];
+                        $contact_match = true;
+    				} else if (in_array($row['contactid'], $id_list)) {
+                        if (($key = array_search($row['contactid'], $id_list)) !== FALSE) {
+                            unset($messages[$key]);
+                        }
+                        $contact_match = false;
+                        break;
+                    } else {
+                        $contact_match = false;
+                        break;
+                    }
+                }
+                if($contact_match) {
                     if(!empty($row['businessid'])) {
                         $id_list[] = $row['businessid'];
                     }
@@ -2539,10 +2565,20 @@ function search_contacts_table($dbc, $search_key, $search_constraints, $search_p
                     while($row2 = mysqli_fetch_assoc($result2)) {
                         $id_list[] = $row2['contactid'];
                     }
-				}
+                    if($search_synced == 1) {
+                        $synced_contacts = mysqli_query($dbc, "SELECT * FROM `contacts_sync` WHERE `deleted` = 0 AND (`contactid` = '".$row['contactid']."' OR `synced_contactid` = '".$row['contactid']."')");
+                        while($synced_contact = mysqli_fetch_assoc($synced_contacts)) {
+                            if($synced_contact['contactid'] == $row['contactid']) {
+                                $id_list[] = $synced_contact['synced_contactid'];
+                            } else {
+                                $id_list[] = $synced_contact['contactid'];
+                            }
+                        }
+                    }
+                }
 			}
 
-            array_unique($id_list);
+            array_filter(array_unique($id_list));
 			if(count($id_list) > 0) {
 				return implode(',',$id_list);
 			}
@@ -2690,7 +2726,7 @@ function sortByLastName($a) {
 
 /* Convert Decimal Hours to Hours:Minutes */
 function time_decimal2time($decimal_time, $pad = false) {
-	$minutes = ceil($decimal_time * 60);
+	$minutes = round($decimal_time * 60);
 	$hours = ($pad ? sprintf('%02d',floor($minutes / 60)) : floor($minutes / 60));
 	$minutes -= ($hours * 60);
 	return $hours.':'.sprintf('%02d',$minutes);
@@ -2901,6 +2937,18 @@ function get_reminder_url($dbc, $reminder, $slider = 0) {
                 case 'rate_card':
                     $reminder_url = WEBSITE_URL.'/Rate Card/ratecards.php?type=customer&status=add&ratecardid='.$reminder['src_tableid'];
                     break;
+                case 'intake':
+                    $intake = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `intake` WHERE `intakeid`='".$reminder['src_tableid']."'"));
+                    if($intake['projectid'] > 0) {
+                        $reminder_url = WEBSITE_URL.'/Project/projects.php?iframe_slider=1&edit='.$intake['projectid'];
+                    } else if($intake['ticketid'] > 0) {
+                        $reminder_url = WEBSITE_URL.'/Ticket/index.php?calendar_view=true&edit='.$intake['ticketid'];
+                    } else if($intake['salesid'] > 0) {
+                        $reminder_url = WEBSITE_URL.'/Sales/sale.php?iframe_slider=1&p=details&id='.$intake['salesid'];
+                    } else if($intake['contactid'] > 0) {
+                        $reminder_url = WEBSITE_URL.'/'.ucwords(get_contact($dbc, $intake['contactid'], 'tile_name')).'/contacts_inbox.php?edit='.$reminder['src_tableid'];
+                    }
+                    break;
             }
         } else {
             switch($reminder['src_table']) {
@@ -2979,6 +3027,18 @@ function get_reminder_url($dbc, $reminder, $slider = 0) {
                     break;
                 case 'holidays_update':
                     $reminder_url = WEBSITE_URL.'/Timesheet/holidays.php';
+                    break;
+                case 'intake':
+                    $intake = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `intake` WHERE `intakeid`='".$reminder['src_tableid']."'"));
+                    if($intake['projectid'] > 0) {
+                        $reminder_url = WEBSITE_URL.'/Project/projects.php?edit='.$intake['projectid'];
+                    } else if($intake['ticketid'] > 0) {
+                        $reminder_url = WEBSITE_URL.'/Ticket/index.php?edit='.$intake['ticketid'];
+                    } else if($intake['salesid'] > 0) {
+                        $reminder_url = WEBSITE_URL.'/Sales/sale.php?p=preview&id='.$intake['salesid'];
+                    } else if($intake['contactid'] > 0) {
+                        $reminder_url = WEBSITE_URL.'/'.ucwords(get_contact($dbc, $intake['contactid'], 'tile_name')).'/contacts_inbox.php?edit='.$reminder['src_tableid'];
+                    }
                     break;
             }
         }
@@ -3442,3 +3502,4 @@ function capture_before_change($dbc, $table, $find, $where, $wherevalue, $where2
 function capture_after_change($find, $value) {
 	return "$find is set to " . $value . ".<br />";
 }
+ 

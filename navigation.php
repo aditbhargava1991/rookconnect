@@ -98,16 +98,18 @@ $(document).ready(function() {
 
     if ( $(window).width() < 768 ) {
         var runningTicket = $('.active-ticket');
-        var container = $('.container').offset().top + 20;
+        if($('.container').offset() != undefined) {
+	        var container = $('.container').offset().top + 20;
 
-        $(window).scroll(function(){
-            if ( $(window).scrollTop()>container && runningTicket.is(':visible') ){
-                runningTicket.stop().hide();
-            }
-            else if ( $(window).scrollTop()<container && runningTicket.is(':hidden') ){
-                runningTicket.stop().show();
-            }
-        });
+	        $(window).scroll(function(){
+	            if ( $(window).scrollTop()>container && runningTicket.is(':visible') ){
+	                runningTicket.stop().hide();
+	            }
+	            else if ( $(window).scrollTop()<container && runningTicket.is(':hidden') ){
+	                runningTicket.stop().show();
+	            }
+	        });
+	    }
     }
 });
 
@@ -272,7 +274,7 @@ if(!isset($_SESSION['fullscreen'])) {
                     <ul class="nav navbar-nav scale-to-fill">
                         <?php if (strpos($site_url,'forgot_pwd.php') == false) { ?>
                             <li class="pull-left home-button">
-                                <a href="<?php echo WEBSITE_URL;?>/home.php" title="Home"><?php
+                                <a style="padding-left: 17px;" href="<?php echo WEBSITE_URL;?>/home.php" title="Home"><?php
                                     $logo_upload = get_config($dbc, 'logo_upload');
                                     $logo_upload_icon = get_config($dbc, 'logo_upload_icon');
                                     if($logo_upload_icon == '') {
@@ -285,6 +287,7 @@ if(!isset($_SESSION['fullscreen'])) {
                                         echo '<img src="'.WEBSITE_URL.'/Settings/download/'.$logo_upload_icon.'" height="30" alt="Home" class="no-toggle" title="Home" data-placement="bottom" />';
                                     } ?>
                                 </a>
+                                <img title="" src="" class="status_loader statusIcon no-margin">
                             </li>
                             <?php if ( isset($_SESSION[ 'newsboard_menu_choice' ]) && $_SESSION[ 'newsboard_menu_choice' ] != NULL ) { ?>
                                 <li class="pull-left"><?php include('Notification/newsboard.php'); ?></li>
@@ -295,7 +298,6 @@ if(!isset($_SESSION['fullscreen'])) {
                             <?php if($_SESSION['contactid'] > 0) { ?>
                                 <li class="pull-left"><?php include('Notification/alert_software.php'); ?></li>
                                 <li class="pull-left"><p class="no-pad-right no-pad-horiz-mobile offset-right-5"><a id="info_toggle" title="Info i Toggle"><img src="<?php echo WEBSITE_URL; ?>/img/icons/switch-off.png" style='display:none; position: relative; top: 5px;' width="50px" class="switch_info_off"><img src="<?php echo WEBSITE_URL; ?>/img/icons/switch-on.png" class="switch_info_on"  style='display:none; position: relative; top: 5px;'  width="50px"></a></p></li>
-                                <li class="pull-left"><img style="margin-top: 18px !important" class="no-toggle statusIcon pull-right no-margin inline-img" title="" src="" /></li>
                                 <li class="scale-to-fill">
                                     <script>
                                     <?php // Get Search Categories
@@ -376,3 +378,4 @@ $_SERVER['page_load_info'] .= 'Nav Bar Loaded: '.number_format($_SERVER['page_lo
 	include_once('password_reset.php');
 	exit();
 } ?>
+ 

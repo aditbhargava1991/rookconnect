@@ -659,6 +659,14 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 										</div>
 									</div>
 								<?php } ?>
+								<?php if (strpos($value_config, ','."Delivery Pickup Estimate".',') !== FALSE && $field_sort_field == 'Delivery Pickup Estimate') { ?>
+									<div class="form-group">
+										<label class="col-sm-4 control-label">Estimated Time:</label>
+										<div class="col-sm-8">
+											<input type="text" name="est_time" class="form-control timepicker" data-table="ticket_schedule" data-id="<?= $stop['id'] ?>" data-id-field="id" value="<?= time_decimal2time($stop['est_time'],true) ?>">
+										</div>
+									</div>
+								<?php } ?>
 								<?php if (strpos($value_config, ','."Delivery Pickup Date".',') !== FALSE && $field_sort_field == 'Delivery Pickup Date') { ?>
 									<div class="form-group">
 										<label class="col-sm-4 control-label"><span class="popover-examples list-inline">
@@ -1038,6 +1046,14 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 									<label class="col-sm-4 control-label"><?= get_contact($dbc, $get_ticket['businessid'], 'name_company') ?> Estimated Time:</label>
 									<div class="col-sm-8">
 										<?= $stop['cust_est'] ?>
+									</div>
+								</div>
+							<?php } ?>
+							<?php if (strpos($value_config, ','."Delivery Pickup Estimate".',') !== FALSE && $field_sort_field == 'Delivery Pickup Estimate') { ?>
+								<div class="form-group">
+									<label class="col-sm-4 control-label">Estimated Time:</label>
+									<div class="col-sm-8">
+										<?= time_decimal2time($stop['est_time'],true) ?>
 									</div>
 								</div>
 							<?php } ?>
