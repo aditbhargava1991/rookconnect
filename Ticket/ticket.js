@@ -2899,7 +2899,7 @@ function cancelClick() {
 	return false;
 }
 function openFullView() {
-	window.top.location.href = "../Ticket/index.php?ticketid="+ticketid+"&edit="+ticketid+"&action_mode="+$('#action_mode').val();
+	window.top.location.href = location.href.replace(/([&]*mode=iframe|[&]*calendar_view=(true|false))/g,'');
 }
 function submitApproval(status, email) {
 	
