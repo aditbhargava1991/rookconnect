@@ -149,13 +149,13 @@ if($point_of_sell['invoice_date'] !== '') {
 $html .= '<table style="width:100%;"><tr>
 	<td style="width:50%;"><table style="width:100%;"><tr><td>BILL TO</td></tr><tr><td>'.decryptIt($customer['name']).' '.decryptIt($customer['first_name']).' '.decryptIt($customer['last_name']).'<br>'.$customer['mailing_address'].'<br>'.$customer['city'].', '.$customer['state'].' '.$customer['zip_code'].'<br>'.decryptIt($customer['cell_phone']).'<br>'.decryptIt($customer['email_address']).'</td></tr></table></td>
 	<td style="width:5%;"></td>
-	<td style="width:25%;"><h1 style="text-align:center;">Invoice</h1><p style="text-align:center;">[[FINAL_PRICE]]</p><table style="width:100%;"><tr><td style="text-align:center;">CONTRACT/MSA #</td></tr><tr><td></td></tr></table></td>
+	<td style="width:25%;"><h1 style="text-align:center;">Invoice</h1><p style="text-align:center;">[[FINAL_PRICE]]</p><table style="width:100%;"><tr><td style="text-align:center;">CONTRACT/MSA #</td></tr><tr><td>'.$point_of_sell['contract'].'</td></tr></table></td>
 	<td style="width:5%;"></td>
 	<td style="width:15%;"><table style="width:100%;"><tr><td style="text-align:center;">INVOICE #</td></tr><tr><td style="text-align:center;">'.$invoiceid.'</td></tr><tr><td style="text-align:center;">INVOICE DATE</td></tr><tr><td style="text-align:center;">'.$point_of_sell['invoice_date'].'</td></tr><tr><td style="text-align:center;">DUE DATE</td></tr><tr><td style="text-align:center;">'.$point_of_sell['due_date'].'</td></tr></table></td></tr></table>';
 
 $html .= '<br /><table border="1px" style="width:100%; padding:3px; border:1px solid grey;">
 		<tr nobr="true"><td style="text-align:center;">ORDERED BY</td><td style="text-align:center;">P.O. NO.</td><td style="text-align:center;">Area</tr>
-<tr><td style="text-align:center;">'.SALESPERSON.'</td><td style="text-align:center;"></td><td style="text-align:center;"></td></tr>
+<tr><td style="text-align:center;">'.SALESPERSON.'</td><td style="text-align:center;">'.$point_of_sell['po_num'].'</td><td style="text-align:center;">'.$point_of_sell['area'].'</td></tr>
 </table><br />';
 
 $html .= '<table border="0x" style="width:100%;padding:3px;">

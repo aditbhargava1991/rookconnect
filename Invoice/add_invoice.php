@@ -517,6 +517,21 @@ if(in_array('touch',$ux_options) && (!in_array('standard',$ux_options) || $_GET[
             <div class="col-sm-7"><input type="text" name="reference" class="form-control" /></div>
         </div>
 
+        <div class="form-group patient  <?= (in_array('contract',$field_config) ? 'reference' : '" style="display:none;') ?>">
+            <label for="site_name" class="col-sm-2 control-label">Contract:</label>
+            <div class="col-sm-7"><input type="text" name="contract" class="form-control" /></div>
+        </div>
+
+        <div class="form-group patient  <?= (in_array('po_num',$field_config) ? 'reference' : '" style="display:none;') ?>">
+            <label for="site_name" class="col-sm-2 control-label">PO #:</label>
+            <div class="col-sm-7"><input type="text" name="po_num" class="form-control" /></div>
+        </div>
+
+        <div class="form-group patient  <?= (in_array('area',$field_config) ? 'reference' : '" style="display:none;') ?>">
+            <label for="site_name" class="col-sm-2 control-label">Area:</label>
+            <div class="col-sm-7"><input type="text" name="area" class="form-control" /></div>
+        </div>
+
               <div class="form-group patient  <?= (in_array('injury',$field_config) ? 'patient_type_fields' : '" style="display:none;') ?>">
                 <label for="site_name" class="col-sm-2 control-label">
                 <span class="popover-examples list-inline">
