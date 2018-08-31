@@ -2505,7 +2505,7 @@ function file_safe_str($str, $folder = 'download/') {
 }
 
 // Contacts Search and Sort Functions
-function search_contacts_table($dbc, $search_key, $search_constraints, $search_pos = 'ANY') {
+function search_contacts_table($dbc, $search_key, $search_constraints, $search_pos = 'ANY', $search_synced = '') {
 	$id_list = [];
 
 	$search_encrypted = encryptIt($search_key);
@@ -2516,6 +2516,16 @@ function search_contacts_table($dbc, $search_key, $search_constraints, $search_p
 	if(mysqli_num_rows($full_result) > 0) {
 		while($row = mysqli_fetch_array($full_result)) {
 			$id_list[] = $row['contactid'];
+            if($search_synced == 1) {
+                $synced_contacts = mysqli_query($dbc, "SELECT * FROM `contacts_sync` WHERE `deleted` = 0 AND (`contactid` = '".$row['contactid']."' OR `synced_contactid` = '".$row['contactid']."')");
+                while($synced_contact = mysqli_fetch_assoc($synced_contacts)) {
+                    if($synced_contact['contactid'] == $row['contactid']) {
+                        $id_list[] = $synced_contact['synced_contactid'];
+                    } else {
+                        $id_list[] = $synced_contact['contactid'];
+                    }
+                }
+            }
 		}
 
 		return implode(',',$id_list);
@@ -2524,14 +2534,30 @@ function search_contacts_table($dbc, $search_key, $search_constraints, $search_p
 		$encrypted_result = mysqli_query($dbc, $query);
 
 		if(mysqli_num_rows($encrypted_result) > 0) {
+            $search_keys = explode(' ',$search_key);
 			while($row = mysqli_fetch_assoc($encrypted_result)) {
-				if(($search_pos == 'ANY' && stripos(decryptIt($row['first_name']), $search_key) !== FALSE) || ($search_pos == 'START' && stripos(decryptIt($row['first_name']), $search_key) === 0) || ($search_pos == 'FIRST' && stripos(decryptIt($row['first_name']), $search_key) !== FALSE) ||
-					($search_pos == 'ANY' && stripos(decryptIt($row['last_name']), $search_key) !== FALSE) || ($search_pos == 'START' && stripos(decryptIt($row['last_name']), $search_key) === 0) || ($search_pos == 'LAST' && stripos(decryptIt($row['last_name']), $search_key) !== FALSE) ||
-					($search_pos == 'ANY' && stripos(decryptIt($row['name']), $search_key) !== FALSE) || ($search_pos == 'START' && stripos(decryptIt($row['name']), $search_key) === 0) || ($search_pos == 'NAME' && stripos(decryptIt($row['name']), $search_key) !== FALSE) ||
-					($search_pos == 'ANY' && stripos(decryptIt($row['email_address']), $search_key) !== FALSE) || ($search_pos == 'START' && stripos(decryptIt($row['email_address']), $search_key) === 0) ||( $search_pos == 'EMAIL' && stripos(decryptIt($row['email_address']), $search_key) !== FALSE) ||
-					($search_pos == 'ANY' && stripos(decryptIt($row['office_phone']), $search_key) !== FALSE) || ($search_pos == 'START' && stripos(decryptIt($row['office_phone']), $search_key) === 0) || ($search_pos == 'PHONE' && stripos(decryptIt($row['office_phone']), $search_key) !== FALSE) ||
-					($search_pos == 'ANY' && stripos(decryptIt($row['role']), $search_key) !== FALSE) || ($search_pos == 'START' && stripos(decryptIt($row['role']), $search_key) === 0) || ($search_pos == 'ROLE' && stripos(decryptIt($row['role']), $search_key) !== FALSE)) {
-					$id_list[] = $row['contactid'];
+                $contact_match = false;
+                foreach($search_keys as $search_key) {
+    				if(($search_pos == 'ANY' && stripos(decryptIt($row['first_name']), $search_key) !== FALSE) || ($search_pos == 'START' && stripos(decryptIt($row['first_name']), $search_key) === 0) || ($search_pos == 'FIRST' && stripos(decryptIt($row['first_name']), $search_key) !== FALSE) ||
+    					($search_pos == 'ANY' && stripos(decryptIt($row['last_name']), $search_key) !== FALSE) || ($search_pos == 'START' && stripos(decryptIt($row['last_name']), $search_key) === 0) || ($search_pos == 'LAST' && stripos(decryptIt($row['last_name']), $search_key) !== FALSE) ||
+    					($search_pos == 'ANY' && stripos(decryptIt($row['name']), $search_key) !== FALSE) || ($search_pos == 'START' && stripos(decryptIt($row['name']), $search_key) === 0) || ($search_pos == 'NAME' && stripos(decryptIt($row['name']), $search_key) !== FALSE) ||
+    					($search_pos == 'ANY' && stripos(decryptIt($row['email_address']), $search_key) !== FALSE) || ($search_pos == 'START' && stripos(decryptIt($row['email_address']), $search_key) === 0) ||( $search_pos == 'EMAIL' && stripos(decryptIt($row['email_address']), $search_key) !== FALSE) ||
+    					($search_pos == 'ANY' && stripos(decryptIt($row['office_phone']), $search_key) !== FALSE) || ($search_pos == 'START' && stripos(decryptIt($row['office_phone']), $search_key) === 0) || ($search_pos == 'PHONE' && stripos(decryptIt($row['office_phone']), $search_key) !== FALSE) ||
+    					($search_pos == 'ANY' && stripos(decryptIt($row['role']), $search_key) !== FALSE) || ($search_pos == 'START' && stripos(decryptIt($row['role']), $search_key) === 0) || ($search_pos == 'ROLE' && stripos(decryptIt($row['role']), $search_key) !== FALSE)) {
+    					$id_list[] = $row['contactid'];
+                        $contact_match = true;
+    				} else if (in_array($row['contactid'], $id_list)) {
+                        if (($key = array_search($row['contactid'], $id_list)) !== FALSE) {
+                            unset($messages[$key]);
+                        }
+                        $contact_match = false;
+                        break;
+                    } else {
+                        $contact_match = false;
+                        break;
+                    }
+                }
+                if($contact_match) {
                     if(!empty($row['businessid'])) {
                         $id_list[] = $row['businessid'];
                     }
@@ -2539,10 +2565,20 @@ function search_contacts_table($dbc, $search_key, $search_constraints, $search_p
                     while($row2 = mysqli_fetch_assoc($result2)) {
                         $id_list[] = $row2['contactid'];
                     }
-				}
+                    if($search_synced == 1) {
+                        $synced_contacts = mysqli_query($dbc, "SELECT * FROM `contacts_sync` WHERE `deleted` = 0 AND (`contactid` = '".$row['contactid']."' OR `synced_contactid` = '".$row['contactid']."')");
+                        while($synced_contact = mysqli_fetch_assoc($synced_contacts)) {
+                            if($synced_contact['contactid'] == $row['contactid']) {
+                                $id_list[] = $synced_contact['synced_contactid'];
+                            } else {
+                                $id_list[] = $synced_contact['contactid'];
+                            }
+                        }
+                    }
+                }
 			}
 
-            array_unique($id_list);
+            array_filter(array_unique($id_list));
 			if(count($id_list) > 0) {
 				return implode(',',$id_list);
 			}
@@ -3466,3 +3502,4 @@ function capture_before_change($dbc, $table, $find, $where, $wherevalue, $where2
 function capture_after_change($find, $value) {
 	return "$find is set to " . $value . ".<br />";
 }
+ 

@@ -98,16 +98,18 @@ $(document).ready(function() {
 
     if ( $(window).width() < 768 ) {
         var runningTicket = $('.active-ticket');
-        var container = $('.container').offset().top + 20;
+        if($('.container').offset() != undefined) {
+	        var container = $('.container').offset().top + 20;
 
-        $(window).scroll(function(){
-            if ( $(window).scrollTop()>container && runningTicket.is(':visible') ){
-                runningTicket.stop().hide();
-            }
-            else if ( $(window).scrollTop()<container && runningTicket.is(':hidden') ){
-                runningTicket.stop().show();
-            }
-        });
+	        $(window).scroll(function(){
+	            if ( $(window).scrollTop()>container && runningTicket.is(':visible') ){
+	                runningTicket.stop().hide();
+	            }
+	            else if ( $(window).scrollTop()<container && runningTicket.is(':hidden') ){
+	                runningTicket.stop().show();
+	            }
+	        });
+	    }
     }
 });
 
@@ -376,3 +378,4 @@ $_SERVER['page_load_info'] .= 'Nav Bar Loaded: '.number_format($_SERVER['page_lo
 	include_once('password_reset.php');
 	exit();
 } ?>
+ 
