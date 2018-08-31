@@ -22,6 +22,7 @@ $status_list = explode('#*#',get_config($dbc, 'project_status'));
 $staff_list = sort_contacts_query(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name` FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `deleted`=0 AND `status` > 0 AND `show_hide_user`=1"));
 $project_slider = get_config($dbc, 'project_slider');
 $project_slider_label = get_config($dbc, 'project_slider_label');
+$status_report = in_array('Report Action Items',array_merge(explode(',',mysqli_fetch_assoc(mysqli_query($dbc,"SELECT `config_tabs` FROM field_config_project WHERE type='$projecttype'"))['config_tabs']),explode(',',mysqli_fetch_assoc(mysqli_query($dbc,"SELECT `config_tabs` FROM field_config_project WHERE type='ALL'"))['config_tabs'])));
 foreach($_POST['projectids'] as $projectid) {
 	if($projectid > 0) {
 		$project_count++;

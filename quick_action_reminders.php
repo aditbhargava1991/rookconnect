@@ -25,6 +25,11 @@ if(isset($_POST['submit'])) {
             $salesid = $id;
             $dbc->query("INSERT INTO `reminders` (`contactid`,`reminder_date`,`reminder_type`,`subject`,`body`,`src_table`,`src_tableid`) VALUES ('$staff','$date','Sales Lead Reminder','$subject','".htmlentities("This is a reminder about a sales lead. Please log into the software to review the lead <a href=\"".WEBSITE_URL."/Sales/sale.php?p=details&id=$id\">here</a>.")."','sales','$id')");
             break;
+            
+        case 'intake':
+            $salesid = $id;
+            $dbc->query("INSERT INTO `reminders` (`contactid`,`reminder_date`,`reminder_type`,`subject`,`body`,`src_table`,`src_tableid`) VALUES ('$staff','$date','Intake Form Reminder','$subject','".htmlentities("This is a reminder about an Intake Form. Please log into the software to review the form <a href=\"".WEBSITE_URL."/Intake/add_form.php?intakeid=$id\">here</a>.")."','intake','$id')");
+            break;
 
         case 'tasks':
             $taskid = $id;
@@ -67,6 +72,9 @@ $tile = $_GET['tile'];
 switch($tile) {
     case 'sales':
         $subject = "Sales Lead Reminder";
+        break;
+    case 'intake':
+        $subject = "Intake Form Reminder";
         break;
     case 'tasks':
         $subject = "A reminder about the $title task";

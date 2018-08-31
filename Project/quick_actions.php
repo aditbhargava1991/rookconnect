@@ -174,6 +174,11 @@ function saveNote(sel) {
 </script>
 <!-- All icons -->
 <div class="action-icons">
+    <!-- Status Report Icon -->
+    <?php if($status_report) { ?>
+        <a href="Status Report" onclick="overlayIFrameSlider('edit_project_scope_status_report.php?projectid='+id,'auto',true,true); return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/pie-chart.png" class="inline-img no-toggle" title="Status Report"></a>
+    <?php } ?>
+    <!-- Status Report Icon -->
     <!-- Email -->
     <a href="Add Email" onclick="overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_email.php?tile=projects&id='+id,'auto',false,true); return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-email-icon.png" class="inline-img email-icon" title="Send Email"></a>
     <!-- Email -->
