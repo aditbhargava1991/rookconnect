@@ -311,7 +311,8 @@ function saveFieldMethod(field) {
 	} else if($(field).data('table') == 'tickets' && field.name != 'ticket_type' && !(ticketid > 0) && $('[name=ticket_type]').length > 0) {
 		current_fields.unshift(field);
 		field = $('[name=ticket_type]').first().get(0);
-	} else if($('#customer_rate_services').val() == '1') {
+	}
+    if($('#customer_rate_services').val() == '1') {
 		$('#customer_rate_services').val('0');
 		$('[name=billing_discount_type],[name=billing_discount]').filter(function() { return this.value != ''; }).each(function() {
 			current_fields.push(this);
@@ -406,6 +407,10 @@ function saveFieldMethod(field) {
 			if(table_name == 'tickets' && $(field).data('id-field') == 'ticketid' && $.inArray(field_name,['pickup_name','pickup_address','pickup_city','pickup_postal_code','pickup_link','pickup_volume','to_do_date','to_do_start_time','pickup_order']) < 0) {
 				id_num = current_ticketid;
 			}
+            if(['est_time'].indexOf(field_name) >= 0 && $(field).is('[class*=timepicker]:not([class*=datetimepicker])')) {
+                save_value = save_value.split(':');
+                save_value = (save_value[0] * 1) + (save_value[1] / 60);
+            }
 			if(field.name.substr(-2) == '[]' && $(field).find('option').length > 0) {
 				var value = [];
 				$(field).find('option:selected').each(function() {
@@ -2905,7 +2910,7 @@ function cancelClick() {
 	return false;
 }
 function openFullView() {
-	window.top.location.href = "../Ticket/index.php?ticketid="+ticketid+"&edit="+ticketid+"&action_mode="+$('#action_mode').val();
+	window.top.location.href = location.href.replace(/([&]*mode=iframe|[&]*calendar_view=(true|false))/g,'');
 }
 function submitApproval(status, email) {
 	
