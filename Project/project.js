@@ -299,14 +299,24 @@ function loadPanel() {
 function waitForSave(btn,btname) {
 	if(btname == 'next'){
 		var i = 0;
+		var err = 0;
 		$(".required").each(function(e){
 			$(this).parent('div').find('.error_block').remove();
 			if($(this).val() == ''){
 				$(this).parent('div').append('<span class="error_block" style="color: #f00;font-size: 12px;">This field is requried</span>');
+				err = 1;
 				if(i==0){$(this).focus();}
 				i++;
 			}
-		})
+		});
+		if(err == 0){
+			$(btn).text('Saving...');
+			if(current_fields.length > 0) {
+				console.log('Waiting for Save to finish');
+				setTimeout(function() { $(btn).click(); }, 500);
+				return false;
+			}
+		}
 		return false;
 	}else{
 		$(btn).text('Saving...');
