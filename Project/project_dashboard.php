@@ -95,6 +95,19 @@ var project_tile = '<?= PROJECT_TILE ?>';
 // 	project_list['<?= $type_name ?>'] = [<?= implode(',',array_unique($project_list[$type_name])); ?>];
 <?php
 // }
+
+function convert_format($time){
+    $time_str = '';
+    $t = explode(':',$time);
+    if($t[0]>0){
+        $time_str .= intval($t[0]).' h ';
+    }
+    if($t[1]>0){
+        $time_str .= intval($t[1]).' m ';
+    }
+    return $time_str;
+}
+
 $contacts = sort_contacts_query(mysqli_query($dbc, "SELECT `first_name`, `last_name`, `contactid` FROM `project` LEFT JOIN `contacts` ON CONCAT(',',`project`.`clientid`,',') LIKE CONCAT('%,',`contacts`.`contactid`,',%') AND `contacts`.`deleted`=0 AND `contacts`.`status`=1 AND `project`.`projectid` IS NOT NULL"));
 $businesses = sort_contacts_query(mysqli_query($dbc, "SELECT `name`, `contactid` FROM `contacts` WHERE `contactid` IN (SELECT `businessid` FROM `project` WHERE `deleted`=0) AND `deleted`=0"));
 $leads = sort_contacts_query(mysqli_query($dbc, "SELECT `first_name`, `last_name`, `contactid` FROM `project` LEFT JOIN `contacts` ON `project`.`project_lead`=`contacts`.`contactid` AND `contacts`.`deleted`=0 AND `contacts`.`status` > 0 AND `project`.`projectid` IS NOT NULL"));
@@ -666,7 +679,7 @@ $(document).ready(function() {
 					$block = '<div class="overview-block">
 						<h4>'.PROJECT_NOUN.' Estimated Time</h4>';
 						while($time = $total_estimated_time->fetch_assoc()) {
-							$block .= '<label class="control-label"><a href="?tile_name='.$_GET['tile_name'].'&edit='.$time['projectid'].'">'.get_project_label($dbc, $time).':</a></label> '.$time['time'].'<br />';
+						    $block .= '<label class="control-label"><a href="?tile_name='.$_GET['tile_name'].'&edit='.$time['projectid'].'">'.get_project_label($dbc, $time).':</a></label> '.convert_format($time['time']).'<br />';
 							$block_length += 23;
 						}
 					$block .= '</div>';
@@ -680,7 +693,7 @@ $(document).ready(function() {
 						<h4>'.PROJECT_NOUN.' Actual Time</h4>';
 						while($time = $total_tracked_time->fetch_assoc()) {
                             if($time['time'] > 0) {
-							    $block .= '<label class="control-label"><a href="?tile_name='.$_GET['tile_name'].'&edit='.$time['projectid'].'">'.get_project_label($dbc, $time).':</a></label> '.$time['time'].'<br />';
+                                $block .= '<label class="control-label"><a href="?tile_name='.$_GET['tile_name'].'&edit='.$time['projectid'].'">'.get_project_label($dbc, $time).':</a></label> '.convert_format($time['time']).'<br />';
 							    $block_length += 23;
                             }
 						}
