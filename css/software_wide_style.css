@@ -1095,6 +1095,7 @@ right: 0;
 .pad-10 { padding:10px; }
 .pad-5 { padding:5px; }
 .pad-top-5 { padding-top:5px; }
+.pad-top-15 { padding-top:15px; }
 
 .pad-left-10-desktop { padding-left:10px; }
 .pad-left-15-desktop { padding-left:15px; }
@@ -1106,6 +1107,7 @@ right: 0;
 .offset-top-30 { margin-top:30px; }
 
 .offset-bottom-5 { margin-bottom:5px; }
+.offset-bottom-15 { margin-bottom:15px; }
 .offset-bottom-20 { margin-bottom:20px; }
 .offset-bottom-30 { margin-bottom:30px; }
 
@@ -1122,8 +1124,10 @@ right: 0;
 .block-top-5 { display:block; margin-top:5px; }
 
 .no-gap-pad { margin:0 !important; padding:0 !important; }
+.no-gap-bottom { margin-bottom:0 !important; }
 .no-gap-top { margin-top:0 !important; }
 .no-gap-right { margin-right:0 !important; }
+.no-gap-left { margin-left:0 !important; }
 
 .no-pad-right { padding-right:0 !important; }
 

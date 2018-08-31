@@ -5,6 +5,7 @@
  
 error_reporting(0);
 include_once('../include.php');
+include_once ('database_connection_htg.php');
 ?>
 <script>
     $(document).ready(function() {
@@ -27,6 +28,41 @@ include_once('../include.php');
             if (e.which==13) {
                 var search = this.value;
                 window.location.replace('index.php?s='+search);
+            }
+        });
+        
+        $('.archive_newsitem').on('click', function() {
+            var ans = confirm('Are you sure you want to delete this news item?');
+            if ( ans == true ) {
+                var newsboardid = $(this).data('id');
+                var newsboard_type = $(this).data('type');
+                $.ajax({
+                    type: 'GET',
+                    url: 'news_ajax_all.php?fill=delete_newsitem&newsboardid='+newsboardid,
+                    success: function(response) {
+                        alert('News item deleted successfully.');
+                        window.location.replace('index.php');
+                    }
+                });
+            }
+        });
+        
+        $('.archive_board').on('click', function() {
+            var boardid = '<?= preg_replace('/[^0-9]/', '', $_GET['board']); ?>';
+            if ( boardid == '' || typeof boardid == 'undefined' ) {
+                alert('Please go to a news board to use this option.');
+            } else {
+                var ans = confirm('Are you sure you want to archive the News Board? This will remove the board and all the news items in the board.');
+                if ( ans == true ) {
+                    $.ajax({
+                        type: 'GET',
+                        url: 'news_ajax_all.php?fill=archive_board&boardid='+boardid,
+                        success: function(response) {
+                            alert('News board and all the news items in the board archived succesfully.');
+                            window.location.replace('index.php');
+                        }
+                    });
+                }
             }
         });
     });
@@ -66,11 +102,13 @@ include_once('../include.php');
             <!-- Tile Header -->
             <div class="tile-header standard-header">
                 <div class="row">
-                    <div class="col-xs-10"><h1><a href="index.php" class="default-color">News Board</a></h1></div>
-                    <div class="col-xs-2 gap-top"><?php
+                    <div class="pull-left"><h1><a href="index.php" class="default-color">News Board</a></h1></div>
+                    <div class="pull-right gap-top"><?php
                         if ( config_visible_function ( $dbc, 'software_guide' ) == 1 ) {
-                            echo '<a href="field_config.php" class="mobile-block pull-right gap-right"><img style="width:30px;" title="Tile Settings" src="../img/icons/settings-4.png" class="settings-classic wiggle-me"></a>';
+                            echo '<a href="field_config.php" class="mobile-block pull-right gap-right offset-left-5"><img style="width:30px;" title="Tile Settings" src="../img/icons/settings-4.png" class="settings-classic wiggle-me"></a>';
                         } ?>
+                        <button class="pull-right btn brand-btn offset-left-5" onclick="overlayIFrameSlider('add_board.php', 'auto', true, true);">Add News Board</button>
+                        <button class="pull-right btn brand-btn" onclick="overlayIFrameSlider('add_news.php', 'auto', true, true);">Add News</button>
                     </div>
                 </div>
                 <div class="clearfix"></div>
@@ -143,7 +181,8 @@ include_once('../include.php');
             <?php //Desktop view. Desktop content. ?>
             <div class="scale-to-fill has-main-screen hide-titles-mob" style="margin-bottom:-20px;">
                 <div class="main-screen standard-body form-horizontal">
-                    <?php $search_term = filter_var($_GET['s'], FILTER_SANITIZE_STRING);
+                    <?php
+                    $search_term = filter_var($_GET['s'], FILTER_SANITIZE_STRING);
                     if ( !empty($search_term) ) {
                         echo '<div class="standard-body-title">';
                         echo '<h3>Search: '. $search_term .' </h3>';
@@ -162,42 +201,10 @@ include_once('../include.php');
                         }
                         echo '</div>';
                     
+                    } elseif ( isset($_GET['news']) ) {
+                        include('news_item.php');
                     } else {
-                        $url_boardid = preg_replace('/[^0-9]/', '', $_GET['board']);                        
-                        $board = mysqli_query($dbc, "SELECT `board_name`, `shared_staff` FROM `newsboard_boards` WHERE `boardid`='$url_boardid' AND `deleted`=0");
-                        if ( $board->num_rows > 0 ) {
-                            while ( $row = mysqli_fetch_assoc($board) ) {
-                                echo '<div class="standard-body-title">';
-                                    echo '<h3>';
-                                        echo $row['board_name'];
-                                        foreach(array_filter(array_unique(explode(',', $row['shared_staff']))) as $shared_staff) {
-                                            if ( $shared_staff == 'ALL' || empty($shared_staff) ) {
-                                                echo '<div class="pull-left id-circle" style="background-color:#6DCFF6">All</div>';
-                                            } else {
-                                                profile_id($dbc, $shared_staff);
-                                            }
-                                        }
-                                    echo '</h3>';
-                                echo '</div>';
-                            }
-                        }
-                        
-                        $url_tag = filter_var($_GET['tag'], FILTER_SANITIZE_STRING);
-                        if ( !empty($url_tag) ) {
-                            $newsboards = mysqli_query($dbc, "SELECT `n`.`newsboardid`, `n`.`title`, `n`.`description`, `img`.`document_link` FROM `newsboard` `n` LEFT JOIN `newsboard_uploads` `img` ON (`n`.`newsboardid` = `img`.`newsboardid`) WHERE FIND_IN_SET ('$url_tag', `n`.`tags`) AND `n`.`boardid`='$url_boardid' AND `n`.`deleted`=0");
-                            if ( $newsboards->num_rows > 0 ) {
-                                echo '<div class="standard-body-content padded">';
-                                    while ( $row = mysqli_fetch_assoc($newsboards) ) {
-                                        echo '<div class="col-sm-3 nb-block">';
-                                            echo '<h4><a href="index.php?news='.$row['newsboardid'].'">'. $row['title'] .'</a></h4>';
-                                            if ( !empty($row['document_link']) ) {
-                                                echo '<a href="index.php?news='.$row['newsboardid'].'"><img src="download/'.$row['document_link'].'" /></a>';
-                                            }
-                                        echo '</div>';
-                                    }
-                                echo '</div>';
-                            }
-                        }
+                        include('news_list.php');
                     } ?>
                 </div>
             </div><!-- .has-main-screen -->
