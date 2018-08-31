@@ -929,13 +929,28 @@ function removeContactForm(a, pdf_id) {
 						</div>
 
 						<div id="collapse_contactform_<?= $contact_form['form_id'] ?>" class="panel-collapse collapse">
-							<div class="panel-body" data-tab-name="contactform_<?= $contact_form['form_id'] ?>" data-tab-label="<?= $contact_form['name'] ?>" data-url="edit_addition_contact_forms.php?edit=<? $contactid ?>&user_form_id=<?= $contact_form['form_id'] ?>">
+							<div class="panel-body" data-tab-name="contactform_<?= $contact_form['form_id'] ?>" data-tab-label="<?= $contact_form['name'] ?>" data-url="edit_addition_contact_forms.php?edit=<?= $contactid ?>&user_form_id=<?= $contact_form['form_id'] ?>">
 								Loading...
 							</div>
 						</div>
 					</div>
 				<?php }
 			} ?>
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					<h4 class="panel-title">
+						<a data-toggle="collapse" data-parent="#profile_accordions" href="#collapse_synced">
+							Synced Contacts<span class="glyphicon glyphicon-plus"></span>
+						</a>
+					</h4>
+				</div>
+
+				<div id="collapse_synced" class="panel-collapse collapse">
+					<div class="panel-body" data-tab-name="collapse_synced" data-tab-label="Sycned Contacts" data-url="edit_synced_contacts.php?edit=<?= $contactid ?>">
+						Loading...
+					</div>
+				</div>
+			</div>
 		</div>
 		<?php if(IFRAME_PAGE) { ?>
 				</div>
@@ -978,6 +993,7 @@ function removeContactForm(a, pdf_id) {
 								<a id="nav_contactform_<?= $contact_form['form_id'] ?>" href="#contactform_<?= $contact_form['form_id'] ?>" onclick="jumpTab('contactform_<?= $contact_form['form_id'] ?>'); return false;"><li class=""><?= $contact_form['name'] ?></li></a>
 							<?php }
 						} ?>
+						<a id="nav_synced_contacts" href="#synced_contacts" onclick="jumpTab('synced_contacts'); return false;"><li class="">Synced Contacts</li></a>
 					</ul>
 				</div>
 			</div><!-- .tile-sidebar -->
@@ -1107,6 +1123,10 @@ function removeContactForm(a, pdf_id) {
 								</div>
 							<?php }
 						} ?>
+						<div data-tab-name="synced_contacts" data-locked="" id="synced_contacts" class="scroll-section">
+							<hr>
+							<?php include('../Contacts/edit_synced_contacts.php'); ?>
+						</div>
                         <div class="clearfix"></div>
 						<?php if(IFRAME_PAGE && $_GET['edit'] > 0) {
 							echo '<a href="'.($_GET['change'] != 'true' ? 'contacts_inbox.php?list='.$_GET['category'] : '/index.php').'" class="btn brand-btn pull-right">Update</a>';

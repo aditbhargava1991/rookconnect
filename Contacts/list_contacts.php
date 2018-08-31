@@ -96,6 +96,10 @@ $status = (empty($_GET['status']) ? 'active' : $_GET['status']); ?>
 <?php else: ?>
 	<?php $category = ''; ?>
 <?php endif; ?>
+<?php if(isset($_GET['search_'.$category.'_submit']) && !empty($_GET['search_'.$category])) {
+	$_POST['search_'.$category.'_submit'] = $_GET['search_'.$category.'_submit'];
+	$_POST['search_'.$category] = $_GET['search_'.$category];
+} ?>
 
 <div class="tile-container hide-on-mobile">
     <div class="tile-sidebar standard-collapsible hide-titles-mob double-gap-top" style="overflow-y:auto;">
