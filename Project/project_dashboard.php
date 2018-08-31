@@ -642,7 +642,7 @@ $(document).ready(function() {
 					$blocks[] = [$block_length, $block];
 					$total_length += $block_length;
 				}
-				if(in_array('SUMM Leads', $summ_config) && !empty($leads)) { 
+				if(in_array('SUMM Leads', $summ_config) && !empty($leads)) {
 					$block_length = 68;
 					$block = '<div class="overview-block">
 						<h4>'.PROJECT_TILE.' by Lead</h4>';
