@@ -41,12 +41,8 @@ function save_path() {
 	var timeline = '';
 	var tasks = '';
 	var ticket = '';
-
-	var workorder = '';
 	var check_list = '';
 	var intake_form = '';
-
-    // var items = '';
     var intakes = '';
 
 	$('[name=milestone]').each(function() {
@@ -63,11 +59,8 @@ function save_path() {
 			ticket_list.push(this.value+'FFMSPLIT'+$(this).closest('.form-group').find('[name=ticket_service]').val());
 		});
 		ticket += (delimiter ? '#*#' : '')+ticket_list.join('*#*');
-
-		workorder += (delimiter ? '#*#' : '')+block.find('[name=workorder]').map(function() { return this.value; }).get().join('*#*');
 		check_list += (delimiter ? '#*#' : '')+block.find('[name=check_list]').map(function() { return this.value; }).get().join('*#*');
 		intake_form += (delimiter ? '#*#' : '')+block.find('[name=intake_form]').map(function() { return this.value; }).get().join('*#*');
-
 		// items += (delimiter ? '#*#' : '')+block.find('[name=items]').filter(function() { return this.value != ''; }).map(function() { return this.value; }).get().join('*#*');
 		intakes += (delimiter ? '#*#' : '')+block.find('[name=intake]').filter(function() { return this.value > 0; }).map(function() { return this.value; }).get().join('*#*');
 
@@ -82,8 +75,8 @@ function save_path() {
 			timeline: timeline,
 			tasks: tasks,
 			ticket: ticket,
-			workorder: workorder,
 			check_list: check_list,
+            intakes: intakes,
 			intake_form: intake_form
 		},
 		success: function(response) {
