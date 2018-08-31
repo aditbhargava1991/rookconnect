@@ -64,6 +64,10 @@ if(isset($_POST['submit'])) {
             $dbc->query("INSERT INTO `reminders` (`contactid`,`reminder_date`,`reminder_type`,`subject`,`body`,`src_table`,`src_tableid`, `sender`) VALUES ('$staff','$date','Ticket Reminder','$subject','$body','tickets','$id', '$sender')");
             break;
 
+        case 'planner':
+            $dbc->query("INSERT INTO `reminders` (`contactid`,`reminder_date`,`reminder_type`,`subject`,`body`,`src_table`,`src_tableid`, `sender`) VALUES ('$staff','$date','Planner Reminder','$subject','$body','planner','$id', '$sender')");
+            break;
+        
         case 'intake':
             $intakeid = $id;
             $intake = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `intake` WHERE `intakeid`='$intakeid'"));
