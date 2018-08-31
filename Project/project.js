@@ -317,7 +317,6 @@ function waitForSave(btn,btname) {
 				return false;
 			}
 		}
-		return false;
 	}else{
 		$(btn).text('Saving...');
 		if(current_fields.length > 0) {
@@ -326,7 +325,6 @@ function waitForSave(btn,btname) {
 			return false;
 		}
 	}
-	return false;
 }
 function setSelectOnChange() {
 	$('select[name="status[]"]').on('change', function() { selectStatus(this); });
