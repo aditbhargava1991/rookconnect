@@ -316,6 +316,8 @@ function waitForSave(btn,btname) {
 				setTimeout(function() { $(btn).click(); }, 500);
 				return false;
 			}
+		}else{
+			return false;
 		}
 	}else{
 		$(btn).text('Saving...');
