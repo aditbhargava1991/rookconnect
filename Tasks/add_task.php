@@ -27,7 +27,7 @@ if(IFRAME_PAGE) {
 
 //echo $_SERVER[REQUEST_URI];
 
-/*
+
 if (isset($_POST['tasklist'])) {
 	$project_history = '';
     $supportid = $_POST['supportid'];
@@ -233,7 +233,7 @@ if (isset($_POST['tasklist'])) {
 
     echo '<script type="text/javascript"> window.location.replace("'.$url.'"); </script>';
 }
-*/
+
 ?>
 
 <script type="text/javascript">
@@ -254,7 +254,7 @@ $(document).ready(function () {
         } else {
             url_fill = 'update_fields';
         }
-        
+
         $.ajax({
             url: 'task_ajax_all.php?fill='+url_fill,
             method: 'POST',

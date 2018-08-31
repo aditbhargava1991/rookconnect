@@ -25,7 +25,7 @@ $value = $config['settings']['Choose Fields for Holidays Dashboard'];
     <div class="row">
         <div class="col-md-12">
 
-        <h1 class="">Holidays Dashboard
+        <h1 class="">Stat Holidays Dashboard
         <?php
         if(config_visible_function_custom($dbc)) {
             echo '<a href="field_config.php?from_url=holidays.php" class="mobile-block pull-right "><img style="width: 50px;" title="Tile Settings" src="../img/icons/settings-4.png" class="settings-classic wiggle-me"></a><br><br>';
@@ -50,7 +50,7 @@ $value = $config['settings']['Choose Fields for Holidays Dashboard'];
             <?php }
         } ?>
 
-        <?php echo get_tabs('Holidays'); ?>
+        <?php echo get_tabs('Holidays', 'Holidays', array('db' => $dbc, 'field' => $value['config_field'])); ?>
         <br><br>
 
 
@@ -79,8 +79,8 @@ $value = $config['settings']['Choose Fields for Holidays Dashboard'];
                 $get_field_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT ".$tb_field." FROM field_config"));
                 $value_config = ','.$get_field_config[$tb_field].',';
 
-                echo "<table class='table table-bordered'>";
-                echo "<tr class='hidden-xs hidden-sm'>";
+                echo "<table class='table table-bordered table-striped'>";
+                echo "<thead><tr class='hidden-xs hidden-sm'>";
 
                 foreach($value['data'] as $tab_name => $tabs) {
                     foreach($tabs as $field) {
@@ -90,7 +90,7 @@ $value = $config['settings']['Choose Fields for Holidays Dashboard'];
                     }
                 }
                     echo '<th>Function</th>';
-                echo "</tr>";
+                echo "</tr></thead>";
             } else {
                 echo "<h2>No Record Found.</h2>";
             }

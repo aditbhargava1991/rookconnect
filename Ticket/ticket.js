@@ -576,6 +576,7 @@ function saveFieldMethod(field) {
 						}
 					}
 					if(response > 0) {
+						$('[name=contactid]').first().change();
 						$('[name="status"]').change();
 						if(table_name == 'contacts' && field_name == 'site_name') {
 							$('[name=siteid],[name="siteid[]"]').find('option[value="MANUAL"]').prop('selected', false);
@@ -741,6 +742,12 @@ function saveFieldMethod(field) {
 						$(field).closest('.form-group').find('.setMultiDims').change();
 					} else if(field_name == 'serviceid') {
 						$('[name=service_qty]').first().change();
+					} else if(field_name == 'piece_work') {
+						$.ajax({
+							url: '../Ticket/ticket_ajax_all.php?fill=add_edit_project&ticketid='+current_ticketid,
+							success: function(response) {
+							}
+						});
 					} else if(field_name == 'projectid') {
 						$.ajax({
 							url: '../Ticket/ticket_ajax_all.php?fill=project_paths&projectid='+save_value,
@@ -1453,7 +1460,7 @@ function updateTicketLabel() {
 				url: 'ticket_ajax_all.php?action=get_ticket_label&ticketid='+ticket,
 				success: function(response) {
 					if(response != '') {
-						$('.ticketid_span').text(response);
+						$('.ticketid_span').html(response);
 					}
 				}
 			});

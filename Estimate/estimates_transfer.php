@@ -1,7 +1,7 @@
 <?php if($estimateid > 0) {
 	$sort = mysqli_fetch_array(mysqli_query($dbc, "SELECT MAX(`sort_order`) FROM `estimate_scope` WHERE `estimateid`='$estimateid'"))[0] + 1;
 	$estimate = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `estimate` WHERE `estimateid`='$estimateid'"));
-	
+
 	// Packages
 	foreach(explode('**',$estimate['package']) as $package) {
 		$package = explode('#',$package);
@@ -17,7 +17,11 @@
 			$sort++;
 		}
 	}
-	
+
+	$before_change = '';
+	$history = "Estimates scope entry has been added. <br />";
+	add_update_history($dbc, 'estimates_history', $history, '', $before_change);
+
 	// Promotions
 	foreach(explode('**',$estimate['promotion']) as $promotion) {
 		$promotion = explode('#',$promotion);
@@ -33,7 +37,11 @@
 			$sort++;
 		}
 	}
-	
+
+	$before_change = '';
+	$history = "Estimates scope entry has been added. <br />";
+	add_update_history($dbc, 'estimates_history', $history, '', $before_change);
+
 	// Materials
 	foreach(explode('**',$estimate['material']) as $material) {
 		$material = explode('#',$material);
@@ -49,7 +57,10 @@
 			$sort++;
 		}
 	}
-	
+
+	$before_change = '';
+	$history = "Estimates scope entry has been added. <br />";
+	add_update_history($dbc, 'estimates_history', $history, '', $before_change);
 	// Services
 	foreach(explode('**',$estimate['services']) as $services) {
 		$services = explode('#',$services);
@@ -68,7 +79,10 @@
 			$sort++;
 		}
 	}
-	
+
+	$before_change = '';
+	$history = "Estimates scope entry has been added. <br />";
+	add_update_history($dbc, 'estimates_history', $history, '', $before_change);
 	// Products
 	foreach(explode('**',$estimate['products']) as $products) {
 		$products = explode('#',$products);
@@ -86,7 +100,9 @@
 			$sort++;
 		}
 	}
-	
+	$before_change = '';
+	$history = "Estimates scope entry has been added. <br />";
+	add_update_history($dbc, 'estimates_history', $history, '', $before_change);
 	// SRED
 	foreach(explode('**',$estimate['sred']) as $sred) {
 		$sred = explode('#',$sred);
@@ -104,7 +120,9 @@
 			$sort++;
 		}
 	}
-	
+	$before_change = '';
+	$history = "Estimates scope entry has been added. <br />";
+	add_update_history($dbc, 'estimates_history', $history, '', $before_change);
 	// Labour
 	foreach(explode('**',$estimate['labour']) as $labour) {
 		$labour = explode('#',$labour);
@@ -122,7 +140,9 @@
 			$sort++;
 		}
 	}
-	
+	$before_change = '';
+	$history = "Estimates scope entry has been added. <br />";
+	add_update_history($dbc, 'estimates_history', $history, '', $before_change);
 	// Client
 	foreach(explode('**',$estimate['client']) as $client) {
 		$client = explode('#',$client);
@@ -137,7 +157,9 @@
 			$sort++;
 		}
 	}
-	
+	$before_change = '';
+	$history = "Estimates scope entry has been added. <br />";
+	add_update_history($dbc, 'estimates_history', $history, '', $before_change);
 	// Customer
 	foreach(explode('**',$estimate['customer']) as $customer) {
 		$customer = explode('#',$customer);
@@ -152,7 +174,9 @@
 			$sort++;
 		}
 	}
-	
+	$before_change = '';
+	$history = "Estimates scope entry has been added. <br />";
+	add_update_history($dbc, 'estimates_history', $history, '', $before_change);
 	// Inventory
 	foreach(explode('**',$estimate['inventory']) as $inventory) {
 		$inventory = explode('#',$inventory);
@@ -170,7 +194,9 @@
 			$sort++;
 		}
 	}
-	
+	$before_change = '';
+	$history = "Estimates scope entry has been added. <br />";
+	add_update_history($dbc, 'estimates_history', $history, '', $before_change);
 	// Equipment
 	foreach(explode('**',$estimate['equipment']) as $equipment) {
 		$equipment = explode('#',$equipment);
@@ -188,7 +214,9 @@
 			$sort++;
 		}
 	}
-	
+	$before_change = '';
+	$history = "Estimates scope entry has been added. <br />";
+	add_update_history($dbc, 'estimates_history', $history, '', $before_change);
 	// Staff
 	foreach(explode('**',$estimate['staff']) as $staff) {
 		$staff = explode('#',$staff);
@@ -205,7 +233,9 @@
 			$sort++;
 		}
 	}
-	
+	$before_change = '';
+	$history = "Estimates scope entry has been added. <br />";
+	add_update_history($dbc, 'estimates_history', $history, '', $before_change);
 	// Contractor
 	foreach(explode('**',$estimate['contractor']) as $contractor) {
 		$contractor = explode('#',$contractor);
@@ -222,7 +252,9 @@
 			$sort++;
 		}
 	}
-	
+	$before_change = '';
+	$history = "Estimates scope entry has been added. <br />";
+	add_update_history($dbc, 'estimates_history', $history, '', $before_change);
 	// Expense
 	foreach(explode('**',$estimate['services']) as $services) {
 		$services = explode('#',$services);
@@ -237,7 +269,9 @@
 			$sort++;
 		}
 	}
-	
+	$before_change = '';
+	$history = "Estimates scope entry has been added. <br />";
+	add_update_history($dbc, 'estimates_history', $history, '', $before_change);
 	// Vendor
 	foreach(explode('**',$estimate['vendor']) as $vendor) {
 		$vendor = explode('#',$vendor);
@@ -255,7 +289,9 @@
 			$sort++;
 		}
 	}
-	
+	$before_change = '';
+	$history = "Estimates scope entry has been added. <br />";
+	add_update_history($dbc, 'estimates_history', $history, '', $before_change);
 	// Custom
 	foreach(explode('**',$estimate['custom']) as $custom) {
 		$custom = explode('#',$custom);
@@ -271,7 +307,9 @@
 			$sort++;
 		}
 	}
-	
+	$before_change = '';
+	$history = "Estimates scope entry has been added. <br />";
+	add_update_history($dbc, 'estimates_history', $history, '', $before_change);
 	// Other
 	foreach(explode('**',$estimate['other']) as $other) {
 		$other = explode('#',$other);
@@ -286,7 +324,9 @@
 			$sort++;
 		}
 	}
-
+	$before_change = '';
+	$history = "Estimates scope entry has been added. <br />";
+	add_update_history($dbc, 'estimates_history', $history, '', $before_change);
 	// Rate Card Items
 	$estimate_ratecard = mysqli_query($dbc, "SELECT * FROM `estimate_company_rate_card` WHERE `estimateid`='$estimateid' AND `deleted`=0");
 	while($ratecard = mysqli_fetch_array($estimate_ratecard)) {
@@ -294,7 +334,7 @@
 			VALUES ('$estimateid','{$ratecard['tile_name']}','{$ratecard['description']}','{$ratecard['uom']}','{$ratecard['qty']}','{$ratecard['cost']}','{$ratecard['profit']}','{$ratecard['margin']}','{$ratecard['cust_price']}','{$ratecard['rc_total']}','{$ratecard['total_multiple']}','$sort')");
 		$sort++;
 	}
-	
+
 	// Miscellaneous Items
 	$estimate_misc = mysqli_query($dbc, "SELECT * FROM `estimate_misc` WHERE `estimateid`='$estimateid' AND `deleted`=0");
 	while($misc = mysqli_fetch_array($estimate_misc)) {
@@ -302,5 +342,8 @@
 			VALUES ('$estimateid','{$misc['accordion']}','{$misc['heading']} - {$misc['description']}','{$misc['uom']}','{$misc['qty']}','{$misc['cost']}','".($misc['price'] - $misc['cost'])."','".(($misc['price'] - $misc['cost']) / $misc['cost'])."','{$misc['estimate_price']}','{$misc['total']}','{$misc['total_multiple']}','$sort')");
 		$sort++;
 	}
+	$before_change = capture_before_change($dbc, 'estimate_misc', 'deleted', 'estimateid', $estimateid);
 	mysqli_query($dbc, "UPDATE `estimate_misc` SET `deleted`=0 WHERE `estimateid`='$estimateid'");
+	$history = capture_after_change('deleted', 0);
+	add_update_history($dbc, 'estimates_history', $history, '', $before_change);
 } ?>

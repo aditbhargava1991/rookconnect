@@ -192,16 +192,30 @@ if($_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest') {
             }
         }
     }
+
+
     if(($_GET['category'] ?: 'tasks') == 'tasks') {
         echo "Loading Tasks (at ".(microtime(true) - $time).")\n";
         if(($_SERVER['HTTP_X_REQUESTED_WITH'] != 'XMLHttpRequest' || count($search_results) < ($offset + $rows)) && tile_visible($dbc, 'tasks')) {
             $tasks = mysqli_query($dbc, "SELECT * FROM `tasklist` WHERE (`tasklistid`='$key' OR `heading` LIKE '$key%' OR `task` LIKE '$key%') AND `deleted`=0");
             while(($_SERVER['HTTP_X_REQUESTED_WITH'] != 'XMLHttpRequest' || count($search_results) < ($offset + $rows)) && $task = mysqli_fetch_assoc($tasks)) {
-                $search_results[] = ['label'=>'Task: #'.$task['tasklistid'].' '.$task['heading'],'link'=>WEBSITE_URL.'/Tasks/add_task.php?tasklistid='.$task['tasklistid']];
+                $search_results[] = ['label'=>'Task: #'.$task['tasklistid'].' '.$task['heading'],'link'=>WEBSITE_URL.'/Tasks_Updated/add_task_full_view.php?tasklistid='.$task['tasklistid']];
             }
         }
     }
 
+    /*
+    if(($_GET['category'] ?: 'tasks_updated') == 'tasks_updated') {
+        echo "Loading Tasks (Updated) (at ".(microtime(true) - $time).")\n";
+        if(($_SERVER['HTTP_X_REQUESTED_WITH'] != 'XMLHttpRequest' || count($search_results) < ($offset + $rows)) && tile_visible($dbc, 'tasks_updated')) {
+            $tasks_updated = mysqli_query($dbc, "SELECT * FROM `tasklist` WHERE (`tasklistid`='$key' OR `heading` LIKE '$key%' OR `task` LIKE '$key%') AND `deleted`=0");
+            while(($_SERVER['HTTP_X_REQUESTED_WITH'] != 'XMLHttpRequest' || count($search_results) < ($offset + $rows)) && $task = mysqli_fetch_assoc($tasks_updated)) {
+                $search_results[] = ['label'=>'Task: #'.$task['tasklistid'].' '.$task['heading'],'link'=>WEBSITE_URL.'/Tasks_Updated/add_task.php?tasklistid='.$task['tasklistid']];
+            }
+        }
+    }
+
+    */
 } else {
     // Counter
 	$all_count = [];
@@ -496,7 +510,7 @@ if($_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest') {
                 if(($_SERVER['HTTP_X_REQUESTED_WITH'] != 'XMLHttpRequest' || count($search_results) < ($offset + $rows)) && tile_visible($dbc, 'tasks')) {
                     $tasks = mysqli_query($dbc, "SELECT * FROM `tasklist` WHERE (`tasklistid`='$key' OR `heading` LIKE '$key%' OR `task` LIKE '$key%') AND `deleted`=0");
                     while(($_SERVER['HTTP_X_REQUESTED_WITH'] != 'XMLHttpRequest' || count($search_results) < ($offset + $rows)) && $task = mysqli_fetch_assoc($tasks)) {
-                        $search_results[] = ['label'=>'Task 1: #'.$task['tasklistid'].' '.$task['heading'],'link'=>WEBSITE_URL.'/Tasks/add_task.php?tasklistid='.$task['tasklistid']];
+                        $search_results[] = ['label'=>'Task 1: #'.$task['tasklistid'].' '.$task['heading'],'link'=>WEBSITE_URL.'/Tasks_Updated/add_task_full_view.php?tasklistid='.$task['tasklistid']];
                     }
                 }
             }

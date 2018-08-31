@@ -1,3 +1,21 @@
+<?php include_once('../include.php');
+if(empty($salesid)) {
+	$salesid = filter_var($_GET['id'],FILTER_SANITIZE_STRING);
+    if($salesid > 0) {
+        $contactid = $dbc->query("SELECT `contactid` FROM `sales` WHERE `salesid`='$salesid'")->fetch_assoc()['contactid'];
+    }
+} ?>
+<!-- Sales Lead Contacts -->
+<script type="text/javascript">
+$(document).ready(function() {
+    init_page();
+});
+var reload_contacts = function() {
+	$.get('details_contacts.php?id=<?= $salesid ?>', function(response) {
+		$('[id^=contact_]').first().parents('div').first().html(response);
+	});
+}
+</script>
 <?php function contact_fields($contactid) {
     $dbc = $_SERVER['DBC'];
     include('../Contacts/edit_fields.php');
@@ -7,22 +25,43 @@
     $_POST['type'] = get_contact($dbc, $contactid, 'category');
     $_GET['edit'] = $contactid;
     $tab_data = $tab_list['Contact Description']; ?>
-    <div class="accordion-block-details padded" id="contact_<?= $contactid ?>">
-        <div class="accordion-block-details-heading"><h4><?= get_contact($dbc, $contactid, 'name_company') ?></h4></div>
+    <div class="accordion-block-details padded row" id="contact_<?= $contactid ?>">
+        <div class="col-xs-12 col-sm-4 gap-md-left-15">Sales Lead Contact:</div>
+        <div class="col-xs-12 col-sm-5">
+            <select data-placeholder="Select Sales Lead(s)..." id="sales_contact" data-table="sales" data-concat="," name="contactid" class="chosen-select-deselect form-control1">
+                <option value=""></option>
+                <option value="New Contact">New Contact</option><?php
+                $query = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name` FROM `contacts` WHERE (`businessid`='$businessid' OR `contactid`='$contactid' OR (''='$businessid' AND ''='$contactid' AND `category` IN ('Customers','Contacts','Customer','Contact','Sales Leads','Sales Lead'))) AND `deleted`=0 AND `status`>0"), MYSQLI_ASSOC));
+                foreach($query as $id) {
+                    if ( get_contact($dbc, $id) != '-' ) {
+                        echo '<option '. ($contactid==$id ? "selected" : '') .' value="'. $id .'">'. get_contact($dbc, $id) .'</option>';
+                    }
+                } ?>
+            </select>
+        </div>
+		<div class="col-xs-12 col-sm-1">
+            <img class="inline-img cursor-hand pull-right no-toggle" title="Remove this staff from sharing this Sales Lead" src="../img/remove.png" onclick="rem_row(this);">
+            <img class="inline-img cursor-hand pull-right no-toggle" title="Add another staff to this Sales Lead" src="../img/icons/ROOK-add-icon.png" onclick="add_row(this);">
+			<a href="../Contacts/contacts_inbox.php?fields=all_fields&edit=<?= $contactid ?>" class="no-toggle" title="<?= get_contact($dbc, $contactid) ?>" onclick="overlayIFrameSlider(this.href.replace(/edit=.*/,'edit='+$('#contacts_list').find('option:selected').first().val()),'auto',true,true); return false;"><img src="../img/icons/eyeball.png" class="inline-img"></a>
+		</div>
+        <div class="clearfix"></div>
+    
+        <div class="accordion-block-details-heading sub_details"><h4><?= get_contact($dbc, $contactid, 'name_company') ?></h4></div>
         
-        <div class="row">
+        <div class="row sub_details">
             <div class="col-xs-12 col-sm-11 gap-md-left-15">
                 <input type="hidden" name="contactid" value="<?= $contactid ?>">
                 <div data-tab-name='<?= $tab_data[0] ?>' data-locked='' id="<?= $tab_data[0] ?>" class="scroll-section">
-                    <hr>
-                    <?php include('../Contacts/edit_section.php'); ?>
+                    <?php $hide_section_heading = true;
+                    include('../Contacts/edit_section.php'); ?>
                 </div>
             </div>
         </div>
     </div>
+    <div class="clearfix"></div>
     <hr />
 <?php }
 
-foreach(explode(',', $contactid) as $row_contact) {
+foreach(explode(',', trim($contactid,',')) as $row_contact) {
     contact_fields($row_contact);
 } ?>

@@ -18,17 +18,18 @@ if (isset($_POST['submit'])) {
 	if($id == '') {
 		$sql = "INSERT INTO `company_rate_card` (`rate_card_name`,`item_id`,`tile_name`,`start_date`,`end_date`,`daily`,`hourly`,`uom`,`cost`,`cust_price`,`history`,`created_by`,`alert_date`,`alert_staff`) VALUES
 			('$rate_card','$serviceid','Services','$start_date','$end_date','$daily','$hourly','$uom','$cost','$unit_price','$history','".$_SESSION['contactid']."','$alert_date','$alert_staff')";
-		$id = mysqli_insert_id($dbc);
 	}
 	else {
-		$sql = "UPDATE `company_rate_card` SET `rate_card_name`='$rate_card',`item_id`=$serviceid,`start_date`='$start_date',`end_date`='$end_date',`cost`='$cost',`cust_price`='$unit_price',`uom`='$uom',`daily`='$daily',`hourly`='$hourly',`history`=IFNULL(CONCAT(`history`,'<br />\n','$history'),'$history'),`alert_date`='$alert_date',`alert_staff`='$alert_staff' WHERE `rate_id`='$id'";
+		$sql = "UPDATE `company_rate_card` SET `rate_card_name`='$rate_card',`item_id`=$serviceid,`start_date`='$start_date',`end_date`='$end_date',`cost`='$cost',`cust_price`='$unit_price',`uom`='$uom',`daily`='$daily',`hourly`='$hourly',`history`=IFNULL(CONCAT(`history`,'<br />\n','$history'),'$history'),`alert_date`='$alert_date',`alert_staff`='$alert_staff' WHERE `companyrcid`='$id'";
 	}
 	if($serviceid > 0 && $cost > 0) {
 		$dbc->query("UPDATE `services` SET `cost`='$cost' WHERE `serviceid`='$serviceid'");
 	}
 	$result = mysqli_query($dbc, $sql);
-	
-	$result = mysqli_query($dbc, $sql);
+    if($id == '') {
+        $id = $dbc->insert_id;
+    }
+	// echo $sql;
 	echo '<script type="text/javascript"> window.location.replace("?card=services&type=services&t='.$_GET['t'].'"); </script>';
 } ?>
 <div class='main_frame' id='no-more-tables'><form id="services_rate" name="services_rate" method="post"	action="" enctype="multipart/form-data" class="form-horizontal" role="form">
@@ -69,7 +70,7 @@ if (isset($_POST['submit'])) {
 	});
 	</script>
 	<?php $id = $_GET['id'];
-	$row = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT * FROM `service_rate_card` WHERE `serviceratecardid`='$id'")); ?>
+	$result = mysqli_query($dbc,"SELECT * FROM `company_rate_card` WHERE `companyrcid`='$id'"); ?>
 	<h3>Rate Card Information</h3>
 	<?php $rates_sql = "SELECT `rate_card_name` FROM `company_rate_card` WHERE `deleted`=0 GROUP BY `rate_card_name` ORDER BY `rate_card_name`";
 	$rate_results = mysqli_query($dbc, $rates_sql);
@@ -102,7 +103,7 @@ if (isset($_POST['submit'])) {
 				if($cat['heading'] != '') {
 					$service_text .= $cat['heading'];
 				}
-				echo "<option".($cat['serviceid'] == $row['serviceid'] || (!isset($_GET['id']) && $cat['serviceid'] == $_GET['service'])  ? ' selected' : '')." value='".$cat['serviceid']."'>".$service_text."</option>";
+				echo "<option".($cat['serviceid'] == $row['item_id'] || (!isset($_GET['id']) && $cat['serviceid'] == $_GET['service'])  ? ' selected' : '')." value='".$cat['serviceid']."'>".$service_text."</option>";
 			} ?>
 			</select>
 		</div>
@@ -153,7 +154,7 @@ if (isset($_POST['submit'])) {
 				<select name="uom" data-placeholder="Select Unit of Measure..." class="chosen-select-deselect form-control">
 					<option></option>
 					<option value="NEW_UOM">Add New UoM</option>
-					<?php $uom_list = mysqli_query($dbc, "SELECT `uom` FROM (SELECT `uom` FROM `service_rate_card` WHERE `deleted` = 0 AND IFNULL(`uom`,'') != '' UNION SELECT 'Hourly' `uom` UNION SELECT 'Daily' `uom`) `uoms` GROUP BY `uom` ORDER BY `uom`");
+					<?php $uom_list = mysqli_query($dbc, "SELECT `uom` FROM (SELECT `uom` FROM `company_rate_card` WHERE `deleted` = 0 AND IFNULL(`uom`,'') != '' UNION SELECT 'Hourly' `uom` UNION SELECT 'Daily' `uom`) `uoms` GROUP BY `uom` ORDER BY `uom`");
 					while($uom = mysqli_fetch_array($uom_list)) { ?>
 						<option value="<?= $uom['uom'] ?>" <?= $uom['uom'] == $row['uom'] ? 'selected' : '' ?>><?= $uom['uom'] ?></option>
 					<?php } ?>
@@ -164,7 +165,7 @@ if (isset($_POST['submit'])) {
 	<?php } ?>
 
 	<div class='form-group clearfix'><label class='col-sm-4 control-label text-right'>Rate:</label>
-	<div class='col-sm-8'><input class='form-control' type='text' name='service_rate' value='<?php echo $row['service_rate']; ?>'></div></div>
+	<div class='col-sm-8'><input class='form-control' type='text' name='unit_price' value='<?php echo $row['cust_price']; ?>'></div></div>
 
 	<div class='form-group clearfix'><label class='col-sm-4 control-label text-right'>Admin Fee:</label>
 	<div class='col-sm-8'><input class='form-control' type='text' name='admin_fee' value='<?php echo $row['admin_fee']; ?>'></div></div>

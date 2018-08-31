@@ -142,21 +142,23 @@ function add_custom_row() {
 	<center><input type='text' name='x' class='form-control live-search-box' placeholder='Search for a tile...' style='max-width:300px;margin-bottom:20px;'></center>
 
 	<br><br>
-	<table class='table table-bordered'>
-		<tr class='hidden-sm hidden-xs dont-hide'>
-			<th>Activate Security Levels & Groups</th>
-			<th>
-			<span class="popover-examples list-inline">&nbsp;
-			<a href="#job_file" data-toggle="tooltip" data-placement="top" title="Click here to Activate a security level of security group. Activation of a security level of group does not assign security privileges, security privileges need to be assigned in the Set Security Privileges of the software."><img src="<?= WEBSITE_URL; ?>/img/info-w.png" width="20"></a>
-			</span>
-			Activate</th>
-			<th>
-			<span class="popover-examples list-inline">&nbsp;
-			<a href="#job_file" data-toggle="tooltip" data-placement="top" title="Click here to Deactivate a security level or group. Deactivating a security level that has accounts assigned to it will prevent them from accessing the software and automatically suspend their account."><img src="<?= WEBSITE_URL; ?>/img/info-w.png" width="20"></a>
-			</span>
-			Deactivate</th>
-			<th>History</th>
-		</tr>
+	<table class='table table-bordered table-striped'>
+        <thead>
+            <tr class='hidden-sm hidden-xs dont-hide'>
+                <th>Activate Security Levels & Groups</th>
+                <th>
+                <span class="popover-examples list-inline">&nbsp;
+                <a href="#job_file" data-toggle="tooltip" data-placement="top" title="Click here to Activate a security level of security group. Activation of a security level of group does not assign security privileges, security privileges need to be assigned in the Set Security Privileges of the software."><img src="<?= WEBSITE_URL; ?>/img/info-w.png" width="20"></a>
+                </span>
+                Activate</th>
+                <th>
+                <span class="popover-examples list-inline">&nbsp;
+                <a href="#job_file" data-toggle="tooltip" data-placement="top" title="Click here to Deactivate a security level or group. Deactivating a security level that has accounts assigned to it will prevent them from accessing the software and automatically suspend their account."><img src="<?= WEBSITE_URL; ?>/img/info-w.png" width="20"></a>
+                </span>
+                Deactivate</th>
+                <th>History</th>
+            </tr>
+        </thead>
 
 		<tr>
 			<td data-title="Comment">Admin</td>

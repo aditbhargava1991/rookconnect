@@ -123,7 +123,7 @@ function removeItem(a) {
 
 				        if ( $result->num_rows > 0 ) { ?>
 				        	<div class="heading_block" data-heading="<?= $heading_name ?>">
-				        		<img src="<?= WEBSITE_URL ?>/img/icons/drag_handle.png" class="inline-img heading_handle pull-right" title="Drag me to reorder heading.">
+				        		<img src="<?= WEBSITE_URL ?>/img/icons/drag_handle.png" class="inline-img heading_handle pull-right no-toggle" title="Drag">
 					        	<div class="heading_row">
 						            <div class="row heading_row_text"><div class="col-sm-12 default-color"><b><?= $heading_name.($mandatory_quantity > 0 ? ' (Mandatory Quantity: '.$mandatory_quantity.')' : '') ?></b> <a href="" onclick="editHeading(this); return false;"><span style="font-size: x-small; color: #888;">EDIT HEADING</span></a></div></div>
 						            <div class="heading_row_edit" style="display: none;">
@@ -141,7 +141,7 @@ function removeItem(a) {
 							            </div>
 							        </div>
 							    </div>
-			                	<table id="no-more-tables" class="table table-bordered product_table">
+			                	<table id="no-more-tables" class="table table-bordered table-striped product_table">
 			                		<thead>
 				                		<tr class="hidden-xs">
 				                			<th width="20%">Category</th>
@@ -192,7 +192,7 @@ function removeItem(a) {
 				                				<?php } ?>
 							                	<td data-title="Price"><input type="number" name="product_price[]" value="<?= $rate ?>" class="form-control" step="0.01"></td>
 							                	<!-- <td align="center" data-title="Include"><input type="checkbox" name="product_id[]" value="<?= $row['id'] ?>" checked="checked" style="width: 20px; height: 20px;"></td> -->
-							                	<td align="center"><img src="<?= WEBSITE_URL; ?>/img/remove.png" height="20" onclick="removeItem(this);" /><img src="<?= WEBSITE_URL ?>/img/icons/drag_handle.png" class="inline-img sortable_handle pull-right" title="Drag me to reorder item."></td>
+							                	<td align="center"><img src="<?= WEBSITE_URL; ?>/img/remove.png" height="20" onclick="removeItem(this);" /><img src="<?= WEBSITE_URL ?>/img/icons/drag_handle.png" class="inline-img sortable_handle pull-right no-toggle" title="Drag"></td>
 							                </tr><?php
 							            } ?>
 							        </tbody>

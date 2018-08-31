@@ -143,7 +143,7 @@ $view_id = check_subtab_persmission($dbc, 'staff', ROLE, 'id_card');
 		$contact_list = [];
 		$contact_sort = [];
 		$contact_list = array_merge($contact_list, mysqli_fetch_all($result, MYSQLI_ASSOC));
-		$contact_sort = array_splice(sort_contacts_array($contact_list), $offset, ($rowsPerPage * $pageNum));
+		$contact_sort = array_splice(sort_contacts_array($contact_list), $offset, $rowsPerPage);
 
 		echo '<div class="pagination_links">';
 		echo display_pagination($dbc, $sql_count, $pageNum, $rowsPerPage);
@@ -284,9 +284,9 @@ $view_id = check_subtab_persmission($dbc, 'staff', ROLE, 'id_card');
 				<div class="clearfix"></div>
                 <div class="set-favourite">
 					<?php if(strpos($row['is_favourite'],",".$_SESSION['contactid'].",") === FALSE && $tab != 'suspended'): ?>
-						<a href="staff_edit.php?favourite=<?php echo $row['contactid']; ?>"><img src="../img/blank_favourite.png" alt="Favourite" title="Click to make the staff favourite" class="inline-img pull-right"></a>
+						<a href="staff_edit.php?favourite=<?php echo $row['contactid']; ?>"><img src="../img/blank_favourite.png" alt="Favourite" title="Click to make the staff favourite" class="inline-img pull-right no-toggle"></a>
 					<?php elseif($tab != 'suspended'): ?>
-						<a href="staff_edit.php?unfavourite=<?php echo $row['contactid']; ?>"><img src="../img/full_favourite.png" alt="Favourite" title="Click to make the staff unfavourite" class="inline-img pull-right"></a>
+						<a href="staff_edit.php?unfavourite=<?php echo $row['contactid']; ?>"><img src="../img/full_favourite.png" alt="Favourite" title="Click to make the staff unfavourite" class="inline-img pull-right no-toggle"></a>
 					<?php endif; ?>
                 </div>
 			</div>

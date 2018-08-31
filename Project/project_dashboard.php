@@ -245,7 +245,7 @@ $(document).ready(function() {
 			<div class="panel panel-default">
 				<div class="panel-heading">
 					<h4 class="panel-title">
-						<a data-toggle="collapse" data-parent="#project_accordions" href="#collapse_<?= $class_string ?>">
+						<a data-toggle="collapse" data-parent="#project_accordions" href="#collapse_<?= $class_string ?>"">
 							<?= $class_name == '' ? 'No Classification' : $class_name ?><span class="glyphicon glyphicon-plus"></span><span class="pull-right"><?= count(array_unique($class_projects)) ?></span>
 						</a>
 					</h4>

@@ -206,7 +206,7 @@ $col_spanned = $columns; ?>
 		<hr>
 		<div class="sort_table">
 			<div class="pull-right">
-				<img src="../img/icons/drag_handle.png" class="inline-img pull-right scope-handle">
+				<img src="../img/icons/drag_handle.png" class="inline-img pull-right scope-handle no-toggle" title="Drag">
 				<img src="../img/icons/ROOK-add-icon.png" class="inline-img pull-right cursor-hand" onclick="add_scope();">
 				<img src="../img/remove.png" class="inline-img pull-right cursor-hand" onclick="rem_scope(this);">
 			</div>
@@ -221,11 +221,11 @@ $col_spanned = $columns; ?>
 						<h3 class="no-margin"><input type="text" placeholder="Heading" name="heading" value="<?= empty($heading['heading']) ? 'Heading 1' : $heading['heading'] ?>" onchange="set_headings(this);" data-init="<?= $heading['heading'] ?>" class="form-control"></h3>
 					</td>
 					<td>
-						<img src="../img/icons/drag_handle.png" class="inline-img pull-right heading-handle">
+						<img src="../img/icons/drag_handle.png" class="inline-img pull-right heading-handle no-toggle" title="Drag">
 						<img src="../img/icons/ROOK-add-icon.png" class="inline-img pull-right cursor-hand" onclick="add_heading('<?= $scope ?>');">
 						<img src="../img/remove.png" class="inline-img pull-right cursor-hand" onclick="rem_heading(this);">
 						<?php if($_GET['tab'] != 'scope') { ?>
-							<a href="estimate_scope_add.php?estimateid=<?= $estimateid ?>&scope=<?= $scope_id ?>&heading=<?= config_safe_str($heading['heading']) ?>" onclick="window.history.replaceState('','Software', '?edit=<?= $estimateid ?>&status=templates');overlayIFrameSlider(this.href, '75%', true, false, 'auto', true); return false;"><img class="inline-img pull-right" src="../img/icons/ROOK-edit-icon.png"></a>
+							<a href="estimate_scope_add.php?estimateid=<?= $estimateid ?>&scope=<?= $scope_id ?>&heading=<?= config_safe_str($heading['heading']) ?>" onclick="window.history.replaceState('','Software', '?edit=<?= $estimateid ?>&status=templates');overlayIFrameSlider(this.href, '75%', true, false, 'auto', true); return false;"><img class="inline-img pull-right no-toggle" src="../img/icons/ROOK-edit-icon.png" title="Edit"></a>
 						<?php } ?>
 					</td>
 				</tr>
@@ -349,7 +349,7 @@ $col_spanned = $columns; ?>
 								<a href="" class="breakdown active" <?= $line['src_table'] == 'miscellaneous' ? '' : 'style="display: none;"' ?> onclick="return false;"><small>+ BREAKDOWN</small></a>
 								<img src="../img/remove.png" class="inline-img cursor-hand" onclick="remove_line(this);" data-table="estimate_scope" data-id="<?= $line['id'] ?>" data-id-field="id" name="deleted" width="20">
 								<a href="estimate_scope_add.php?estimateid=<?= $estimateid ?>&scope=<?= $scope_id ?>&heading=<?= config_safe_str($heading['heading']) ?>" onclick="overlayIFrameSlider(this.href, '75%', true, false, 'auto', true); return false;"><img src="../img/icons/ROOK-add-icon.png" class="inline-img cursor-hand" width="20"></a>
-								<img src="../img/icons/drag_handle.png" class="inline-img cursor-hand line-handle" data-table="estimate_scope" data-id="<?= $line['id'] ?>" data-id-field="id" width="20">
+								<img src="../img/icons/drag_handle.png" class="inline-img cursor-hand line-handle no-toggle" data-table="estimate_scope" data-id="<?= $line['id'] ?>" data-id-field="id" width="20" title="Drag">
 							</td>
 						</tr>
 					<?php } ?>

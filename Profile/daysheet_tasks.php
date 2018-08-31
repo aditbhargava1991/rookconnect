@@ -6,7 +6,7 @@ $taskboards = [];
 if (check_subtab_persmission($dbc, 'tasks', ROLE, 'my') === true) {
     $result = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `task_board` WHERE `board_security` = 'Private' AND CONCAT(',',`company_staff_sharing`,',') LIKE '%,$contactid,%' AND `deleted` = 0"),MYSQLI_ASSOC);
     foreach($result as $row) {
-        $taskboards['Private Tasks'][] = ['url'=>'../Tasks/index.php?category='.$row['taskboardid'].'&tab=Private', 'label'=>$row['board_name']];
+        $taskboards['Private Tasks'][] = ['url'=>'../Tasks_Updated/index.php?category='.$row['taskboardid'].'&tab=Private', 'label'=>$row['board_name']];
     }
 }
 
@@ -46,12 +46,12 @@ foreach($tasks_name as $task_name) {
         if($security == 'sales') {
             $result = sort_contacts_query(mysqli_query($dbc, "SELECT `sales`.`salesid`, `contacts`.`first_name`, `contacts`.`last_name`, `bus`.`name` FROM `sales` LEFT JOIN `contacts` ON `sales`.`contactid`=`contacts`.`contactid` LEFT JOIN `contacts` `bus` ON `sales`.`businessid`=`bus`.`contactid` WHERE `sales`.`deleted` = 0 AND (`primary_staff` = '$contactid' OR CONCAT(',',`share_lead`,',') LIKE '$contactid')"));
             foreach($result as $row) {
-                $taskboards[SALES_NOUN.' Tasks'][] = ['url'=>'../Tasks/index.php?category='.$row['salesid'].'&tab='.$tab, 'label'=>$row['name'].($row['name'] != '' && $row['first_name'].$row['last_name'] != '' ? ': ' : '').$row['first_name'].' '.$row['last_name']];
+                $taskboards[SALES_NOUN.' Tasks'][] = ['url'=>'../Tasks_Updated/index.php?category='.$row['salesid'].'&tab='.$tab, 'label'=>$row['name'].($row['name'] != '' && $row['first_name'].$row['last_name'] != '' ? ': ' : '').$row['first_name'].' '.$row['last_name']];
             }
         } else if($security == 'Company') {
             $result = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `task_board` WHERE `deleted` = 0 AND `board_security` = '$security' AND CONCAT(',',`company_staff_sharing`,',') LIKE '%,$contactid,%'"),MYSQLI_ASSOC);
             foreach($result as $row) {
-                $taskboards[($task_name == 'Company Tasks' ? 'Shared Tasks' : $task_name)][] = ['url'=>'../Tasks/index.php?category='.$row['taskboardid'].'&tab='.$tab.'&subtab=board', 'label'=>$row['board_name']];
+                $taskboards[($task_name == 'Company Tasks' ? 'Shared Tasks' : $task_name)][] = ['url'=>'../Tasks_Updated/index.php?category='.$row['taskboardid'].'&tab='.$tab.'&subtab=board', 'label'=>$row['board_name']];
 
                 $company_staff_sharing = '';
                 foreach ( array_filter(explode(',', $row['company_staff_sharing'])) as $staffid ) {
@@ -59,7 +59,7 @@ foreach($tasks_name as $task_name) {
                 }
                 $company_staff_sharing = rtrim($company_staff_sharing, ', ');
 
-                $taskboards[($task_name == 'Company Tasks' ? 'Shared Tasks' : $task_name)][] = ['url'=>'../Tasks/index.php?category='.$row['taskboardid'].'&tab='.$tab.'&subtab=staff', 'label'=>$company_staff_sharing];
+                $taskboards[($task_name == 'Company Tasks' ? 'Shared Tasks' : $task_name)][] = ['url'=>'../Tasks_Updated/index.php?category='.$row['taskboardid'].'&tab='.$tab.'&subtab=staff', 'label'=>$company_staff_sharing];
             }
         } else if($security == 'path') {
             $result = mysqli_fetch_all(mysqli_query($dbc, "SELECT DISTINCT(t.projectid), p.project_name, p.project_path FROM project p, tasklist t WHERE p.project_name != '' AND p.project_path > 0 AND p.projectid = t.projectid AND t.deleted = 0 AND p.deleted = 0 AND t.projectid>0 AND p.status != 'Archive' AND t.heading != '' AND p.project_lead = '$contactid'"),MYSQLI_ASSOC);
@@ -68,7 +68,7 @@ foreach($tasks_name as $task_name) {
                 $project = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `project` WHERE `projectid` = '$projectid'"));
                 foreach(explode(',', $row['project_path']) as $projectpathid) {
                     $main_path = get_field_value('project_path','project_path_milestone','project_path_milestone',$projectpathid);
-                    $taskboards[PROJECT_NOUN.' Tasks'][] = ['url'=>'../Tasks/index.php?category='.$projectid.'&tab=path&pathid=I|'.$projectpathid.'&edit='.$projectid, 'label'=>get_project_label($dbc, $project).': '.$main_path];
+                    $taskboards[PROJECT_NOUN.' Tasks'][] = ['url'=>'../Tasks_Updated/index.php?category='.$projectid.'&tab=path&pathid=I|'.$projectpathid.'&edit='.$projectid, 'label'=>get_project_label($dbc, $project).': '.$main_path];
                 }
             }
         } else if($security != '') {
@@ -80,7 +80,7 @@ foreach($tasks_name as $task_name) {
                 if ( $task_name=='Client Tasks' ) {
                     $task_name = (substr(CONTACTS_TILE, -1)=='s' && substr(CONTACTS_TILE, -2) !='ss') ? rtrim(CONTACTS_TILE, 's').' Tasks' : CONTACTS_TILE.' Tasks';
                 }
-                $taskboards[$task_name][] = ['url'=>'../Tasks/index.php?category='.$row['taskboardid'].'&tab='.$tab, 'label'=>$row['board_name']];
+                $taskboards[$task_name][] = ['url'=>'../Tasks_Updated/index.php?category='.$row['taskboardid'].'&tab='.$tab, 'label'=>$row['board_name']];
             }
         }
     }

@@ -228,7 +228,7 @@ foreach($calendar_table[0][0] as $calendar_row => $calendar_cell) {
 					$row_html .= "<b>".$current_start_time." - ".$current_end_time."</b><br />";
 					$row_html .= get_contact($dbc, ($_GET['mode'] == 'client' ? $appt['therapistsid'] : $appt['patientid']))." - ".($appt['serviceid'] > 0 ? get_services($dbc, $appt['serviceid'], "CONCAT(`category`,' ',`heading`)") : get_type_from_booking($dbc, $appt['type'])).'<br />';
 					$row_html .= $appt['follow_up_call_status'];
-					$row_html .= "</span><div class='drag-handle full-height' title='Drag Me!'><img class='drag-handle' src='".WEBSITE_URL."/img/icons/drag_handle.png' style='filter: brightness(200%); float: right; width: 2em;'></div></div>".($edit_access == 1 ? "</a>" : "");
+					$row_html .= "</span><div class='drag-handle full-height' title='Drag Me!'><img class='drag-handle no-toggle' src='".WEBSITE_URL."/img/icons/drag_handle.png' style='filter: brightness(200%); float: right; width: 2em;' title='Drag'></div></div>".($edit_access == 1 ? "</a>" : "");
 					unset($page_query['action']);
 					unset($page_query['bookingid']);
 				}
@@ -351,7 +351,7 @@ foreach($calendar_table[0][0] as $calendar_row => $calendar_cell) {
 					if($ticket_status_color_code == 1 && !empty($ticket_status_color[$status])) {
 						$row_html .= '<div class="ticket-status-color" style="background-color: '.$ticket_status_color[$status].';"></div>';
 					}
-					$row_html .= $recurring_icon."<b>".($ticket['scheduled_lock'] > 0 ? '<img class="inline-img" title="Time has been Locked" src="../img/icons/lock.png">' : '').TICKET_NOUN." #".$ticket['ticketid']." : ".get_contact($dbc,$ticket['businessid'],'name')." : ".$heading." (".$estimated_time.")".'<br />'.$current_start_time." - ".$current_end_time.'<br />'."Status: ".$status."</b></span><div class='drag-handle full-height' title='Drag Me!'><img class='drag-handle' src='".WEBSITE_URL."/img/icons/drag_handle.png' style='filter: brightness(200%); float: right; width: 2em;'></div></div>".($ticket_view_access == 1 ? "</a>" : "");
+					$row_html .= $recurring_icon."<b>".($ticket['scheduled_lock'] > 0 ? '<img class="inline-img" title="Time has been Locked" src="../img/icons/lock.png">' : '').TICKET_NOUN." #".$ticket['ticketid']." : ".get_contact($dbc,$ticket['businessid'],'name')." : ".$heading." (".$estimated_time.")".'<br />'.$current_start_time." - ".$current_end_time.'<br />'."Status: ".$status."</b></span><div class='drag-handle full-height' title='Drag Me!'><img class='drag-handle no-toggle' src='".WEBSITE_URL."/img/icons/drag_handle.png' style='filter: brightness(200%); float: right; width: 2em;' title='Drag'></div></div>".($ticket_view_access == 1 ? "</a>" : "");
 				}
 			} else if($calendar_col[$calendar_row][0] == 'shift') {
 				$rows = 1;
@@ -412,7 +412,7 @@ foreach($calendar_table[0][0] as $calendar_row => $calendar_cell) {
 			$row_html .= ($edit_access == 1 ? "<a href='' onclick='overlayIFrameSlider(\"".WEBSITE_URL."/Work Order/edit_workorder.php?action=view&workorderid=".$workorder['workorderid']."\"); return false;'>" : "")."<div class='used-block' data-contact='$contact_id' data-blocks='$rows' data-row='$calendar_row' data-duration='$duration' data-workorder='".$workorder['workorderid']."' data-region='".$region."' data-businessid='".$businessid."' data-assignstaff='".$assign_staff."' data-teamid='".$teamid."' ";
 			$row_html .= "style='height: calc(".$rows." * (1em + 15px) - 1px); overflow-y: hidden; top: 0; left: 0; margin: 0; padding: 0.2em; position: absolute; width: 100%;'>";
 			$row_html .= "<span class='$status_class' style='display: block; float: left; width: calc(100% - 2em);'>";
-			$row_html .= "<b>Work Order #".$workorder['heading'].'<br />'.get_client($dbc,$workorder['businessid']).'<br />'.$start_time." - ".$end_time."</b></span><div class='drag-handle full-height' title='Drag Me!'><img class='drag-handle' src='".WEBSITE_URL."/img/icons/drag_handle.png' style='filter: brightness(200%); float: right; width: 2em;'></div></div>".($edit_access == 1 ? "</a>" : "");
+			$row_html .= "<b>Work Order #".$workorder['heading'].'<br />'.get_client($dbc,$workorder['businessid']).'<br />'.$start_time." - ".$end_time."</b></span><div class='drag-handle full-height' title='Drag Me!'><img class='drag-handle no-toggle' src='".WEBSITE_URL."/img/icons/drag_handle.png' style='filter: brightness(200%); float: right; width: 2em;' title='Drag'></div></div>".($edit_access == 1 ? "</a>" : "");
 		} else if ($calendar_col[$calendar_row][0] == 'ticket_equip' || $calendar_col[$calendar_row][0] == 'ticket_equip_combine') {
 			if($calendar_col[$calendar_row][1] == 'warehouse' || $calendar_col[$calendar_row][1] == 'pickup') {
 				$warehouse_label = $calendar_col[$calendar_row][1] == 'pickup' ? 'Pick Up' : 'Warehouse';
@@ -549,37 +549,7 @@ foreach($calendar_table[0][0] as $calendar_row => $calendar_cell) {
 					if($ticket_status_color_code == 1 && !empty($ticket_status_color[$status])) {
 						$cur_html .= '<div class="ticket-status-color" style="background-color: '.$ticket_status_color[$status].';"></div>';
 					}
-					$cur_html .= '<b>'.get_ticket_label($dbc, $ticket, null, null, $calendar_ticket_label).(empty($calendar_ticket_label) ? $ticket['location_description'] : '').($ticket['sub_label'] != '' ? '-'.$ticket['sub_label'] : '').'</b>'.
-						(in_array('project',$calendar_ticket_card_fields) ? '<br />'.PROJECT_NOUN.' #'.$ticket['projectid'].' '.$ticket['project_name'].'<br />' : '').
-						(in_array('customer',$calendar_ticket_card_fields) ? '<br />'.'Customer: '.get_contact($dbc, $ticket['businessid'], 'name') : '').
-						(in_array('time',$calendar_ticket_card_fields) ? '<br />'.(!empty($max_time) && $max_time != '00:00:00' ? "(".$max_time.") " : '').$start_time." - ".$end_time : '');
-					if(in_array('available',$calendar_ticket_card_fields)) {
-						if($ticket['pickup_start_available'].$ticket['pickup_end_available'] != '') {
-							$cur_html .= '<br />'."Available ";
-							if($ticket['pickup_end_available'] == '') {
-								$cur_html .= "After ".$ticket['pickup_start_available'];
-							} else if($ticket['pickup_start_available'] == '') {
-								$cur_html .= "Before ".$ticket['pickup_end_available'];
-							} else {
-								$cur_html .= "Between ".$ticket['pickup_start_available']." and ".$ticket['pickup_end_available'];
-							}
-						}
-					}
-					$cur_html .= (in_array('address',$calendar_ticket_card_fields) ? '<br />'.$ticket['pickup_name'].($ticket['pickup_name'] != '' ? '<br />' : ' ').$ticket['client_name'].($ticket['client_name'] != '' ? '<br />' : ' ').$ticket['pickup_address'].($ticket['pickup_address'] != '' ? '<br />' : ' ').$ticket['pickup_city'] : '');
-					$cur_html .= '<br />'."Status: ".$status;
-					if(in_array('ticket_notes',$calendar_ticket_card_fields)) {
-						$ticket_notes = mysqli_query($dbc, "SELECT * FROM `ticket_comment` WHERE `ticketid` = '".$ticket['ticketid']."' AND `deleted` = 0");
-						if(mysqli_num_rows($ticket_notes) > 0) {
-							$cur_html .= "<br />Notes: ";
-							while($ticket_note = mysqli_fetch_assoc($ticket_notes)) {
-								$cur_html .= "<br />".trim(trim(html_entity_decode($ticket_note['comment']),"<p>"),"</p>")."<br />";
-								$cur_html .= "<em>Added by ".get_contact($dbc, $ticket_note['created_by'])." at ".$ticket_note['created_date']."</em>";
-							}
-						}
-					}
-					if(in_array('delivery_notes',$calendar_ticket_card_fields) && !empty($ticket['delivery_notes'])) {
-						$cur_html .= '<br />Delivery Notes: '.html_entity_decode($ticket['delivery_notes']);
-					}
+					$cur_html .= calendarTicketLabel($dbc, $ticket, $max_time, $start_time, $end_time);
 					$cur_html .= "</b></div>";
 					$cur_html .= "<div class='clearfix'></div></div>".($ticket_view_access == 1 ? "</a>" : "");
 					$row_htmls[] = $cur_html;
@@ -590,7 +560,7 @@ foreach($calendar_table[0][0] as $calendar_row => $calendar_cell) {
 				$row_html .= "height: calc(".$greatest_rows." * (1em + 15px) - 1px); overflow-y: hidden; top: 0; left: 0; margin: 0; padding: 0; position: absolute; width: 100%;'><span style='display: block; float: left; width: calc(100% - 2em);'>";
 				$row_html .= implode('<div class="clearfix"></div>',$row_htmls);
 				$row_html .= "</span>";
-				$row_html .= "<div class='drag-handle full-height' title='Drag Me!'><img class='black-color pull-right inline-img drag-handle' src='".WEBSITE_URL."/img/icons/drag_handle.png'>";
+				$row_html .= "<div class='drag-handle full-height' title='Drag Me!'><img class='black-color pull-right inline-img drag-handle no-toggle' src='".WEBSITE_URL."/img/icons/drag_handle.png' title='Drag'>";
 				if($drag_multiple == 1) {
 					$row_html .= "<br /><span style='position: relative; left: 4px;'><input type='checkbox' name='multi_book' data-contact='".$contact_id."' data-date='".$calendar_date."' style='width: 1.5em; height: 1.5em;' title='Check me took book multiple ".TICKET_TILE."' class='no-slider'></span>";
 				}
@@ -686,42 +656,12 @@ foreach($calendar_table[0][0] as $calendar_row => $calendar_cell) {
 				if($ticket_status_color_code == 1 && !empty($ticket_status_color[$status])) {
 					$row_html .= '<div class="ticket-status-color" style="background-color: '.$ticket_status_color[$status].';"></div>';
 				}
-				$row_html .= '<b>'.get_ticket_label($dbc, $ticket, null, null, $calendar_ticket_label).(empty($calendar_ticket_label) ? $ticket['location_description'] : '').($ticket['sub_label'] != '' ? '-'.$ticket['sub_label'] : '').'</b>'.
-					(in_array('project',$calendar_ticket_card_fields) ? '<br />'.PROJECT_NOUN.' #'.$ticket['projectid'].' '.$ticket['project_name'].'<br />' : '').
-					(in_array('customer',$calendar_ticket_card_fields) ? '<br />'.'Customer: '.get_contact($dbc, $ticket['businessid'], 'name') : '').
-					(in_array('time',$calendar_ticket_card_fields) ? '<br />'.(!empty($max_time) && $max_time != '00:00:00' ? "(".$max_time.") " : '').$start_time." - ".$end_time : '');
-				if(in_array('available',$calendar_ticket_card_fields)) {
-					if($ticket['pickup_start_available'].$ticket['pickup_end_available'] != '') {
-						$row_html .= '<br />'."Available ";
-						if($ticket['pickup_end_available'] == '') {
-							$row_html .= "After ".$ticket['pickup_start_available'];
-						} else if($ticket['pickup_start_available'] == '') {
-							$row_html .= "Before ".$ticket['pickup_end_available'];
-						} else {
-							$row_html .= "Between ".$ticket['pickup_start_available']." and ".$ticket['pickup_end_available'];
-						}
-					}
-				}
-				$row_html .= (in_array('address',$calendar_ticket_card_fields) ? '<br />'.$ticket['pickup_name'].($ticket['pickup_name'] != '' ? '<br />' : ' ').$ticket['client_name'].($ticket['client_name'] != '' ? '<br />' : ' ').$ticket['pickup_address'].($ticket['pickup_address'] != '' ? '<br />' : ' ').$ticket['pickup_city'] : '');
-				$row_html .= '<br />'."Status: ".$status;
-				if(in_array('ticket_notes',$calendar_ticket_card_fields)) {
-					$ticket_notes = mysqli_query($dbc, "SELECT * FROM `ticket_comment` WHERE `ticketid` = '".$ticket['ticketid']."' AND `deleted` = 0");
-					if(mysqli_num_rows($ticket_notes) > 0) {
-						$row_html .= "<br />Notes: ";
-						while($ticket_note = mysqli_fetch_assoc($ticket_notes)) {
-							$row_html .= "<br />".trim(trim(html_entity_decode($ticket_note['comment']),"<p>"),"</p>")."<br />";
-							$row_html .= "<em>Added by ".get_contact($dbc, $ticket_note['created_by'])." at ".$ticket_note['created_date']."</em>";
-						}
-					}
-				}
-				if(in_array('delivery_notes',$calendar_ticket_card_fields) && !empty($ticket['delivery_notes'])) {
-					$row_html .= '<br />Delivery Notes: '.html_entity_decode($ticket['delivery_notes']);
-				}
+				$row_html .= calendarTicketLabel($dbc, $ticket, $max_time, $start_time, $end_time);
 				$row_html .= "</b></span>";
 				if($ticket['scheduled_lock'] > 0) {
 					$row_html .= "<div class='drag-handle full-height' title='Time is locked for this ".TICKET_NOUN."' onclick='changeScheduledTime(this);'><img class='black-color pull-right inline-img no-slider' src='../img/icons/lock.png'></div>";
 				} else {
-					$row_html .= "<div class='drag-handle full-height' title='Drag Me!'><img class='black-color pull-right inline-img drag-handle' src='".WEBSITE_URL."/img/icons/drag_handle.png'>";
+					$row_html .= "<div class='drag-handle full-height' title='Drag Me!'><img class='black-color pull-right inline-img drag-handle no-toggle' src='".WEBSITE_URL."/img/icons/drag_handle.png' title='Drag'>";
 					if($drag_multiple == 1) {
 						$row_html .= "<br /><span style='position: relative; left: 4px;'><input type='checkbox' name='multi_book' data-contact='".$contact_id."' data-date='".$calendar_date."' style='width: 1.5em; height: 1.5em;' title='Check me took book multiple ".TICKET_TILE."' class='no-slider'></span>";
 					}
@@ -814,7 +754,7 @@ foreach($calendar_table[0][0] as $calendar_row => $calendar_cell) {
 					} else if(!empty($shift['clientid'])) {
 						$row_html .= '<b>'.get_contact($dbc, $shift['clientid']).'</b>';
 					}
-					$row_html .= "</span><div class='drag-handle full-height' title='Drag Me!'><img class='drag-handle' src='".WEBSITE_URL."/img/icons/drag_handle.png' style='filter: brightness(200%); float: right; width: 2em;'></div></div>".($edit_access == 1 ? "</a>" : "");
+					$row_html .= "</span><div class='drag-handle full-height' title='Drag Me!'><img class='drag-handle no-toggle' src='".WEBSITE_URL."/img/icons/drag_handle.png' style='filter: brightness(200%); float: right; width: 2em;' title='Drag'></div></div>".($edit_access == 1 ? "</a>" : "");
 					unset($page_query['shiftid']);
 				}
 				
@@ -833,7 +773,7 @@ foreach($calendar_table[0][0] as $calendar_row => $calendar_cell) {
 					$row_html .= "<span class='dayoff' style='display: block; float: left; width: calc(100% - 2em);'>";
 					$row_html .= "<b>".date('g:i a', strtotime($dayoff['starttime']))." - ".date('g:i a', strtotime($dayoff['endtime']))."</b>".'<br />';
 					$row_html .= $dayoff['dayoff_type'];
-					$row_html .= "</span><div class='drag-handle full-height' title='Drag Me!'><img class='drag-handle' src='".WEBSITE_URL."/img/icons/drag_handle.png' style='filter: brightness(200%); float: right; width: 2em;'></div></div>".($edit_access == 1 ? "</a>" : "");
+					$row_html .= "</span><div class='drag-handle full-height' title='Drag Me!'><img class='drag-handle no-toggle' src='".WEBSITE_URL."/img/icons/drag_handle.png' style='filter: brightness(200%); float: right; width: 2em;' title='Drag'></div></div>".($edit_access == 1 ? "</a>" : "");
 					unset($page_query['shiftid']);
 				}
 			}
@@ -986,24 +926,9 @@ foreach($calendar_table[0][0] as $calendar_row => $calendar_cell) {
 				if($ticket_status_color_code == 1 && !empty($ticket_status_color[$status])) {
 					$row_html .= '<div class="ticket-status-color" style="background-color: '.$ticket_status_color[$status].';"></div>';
 				}
-				$row_html .= $recurring_icon.'<b>'.get_ticket_label($dbc, $ticket, null, null, $calendar_ticket_label).($ticket['sub_label'] != '' ? '-'.$ticket['sub_label'] : '').'</b>'.
-					(in_array('project',$calendar_ticket_card_fields) ? '<br />'.PROJECT_NOUN.' #'.$ticket['projectid'].' '.$ticket['project_name'].'<br />' : '').
-					(in_array('customer',$calendar_ticket_card_fields) ? '<br />'.'Customer: '.get_contact($dbc, $ticket['businessid'], 'name') : '').
-					(in_array('client',$calendar_ticket_card_fields) ? '<br />'.'Client: '.$clients : '').
-					(in_array('time',$calendar_ticket_card_fields) ? '<br />'."(".$estimated_time.") ".$current_start_time." - ".$current_end_time : '');
-				if(in_array('available',$calendar_ticket_card_fields)) {
-					if($ticket['pickup_start_available'].$ticket['pickup_end_available'] != '') {
-						$row_html .= '<br />'."Available ";
-						if($ticket['pickup_end_available'] == '') {
-							$row_html .= "After ".$ticket['pickup_start_available'];
-						} else if($ticket['pickup_start_available'] == '') {
-							$row_html .= "Before ".$ticket['pickup_end_available'];
-						} else {
-							$row_html .= "Between ".$ticket['pickup_start_available']." and ".$ticket['pickup_end_available'];
-						}
-					}
-				}
-				$row_html .= '<br />'."Status: ".$status."</b></span><div class='drag-handle full-height' title='Drag Me!'><img class='black-color pull-right inline-img drag-handle' src='".WEBSITE_URL."/img/icons/drag_handle.png'></div></div>".($ticket_view_access == 1 ? "</a>" : "");
+				$row_html .= $recurring_icon;
+        $row_html .= calendarTicketLabel($dbc, $ticket, $max_time, $current_start_time, $current_end_time);
+				$row_html .= "</b></span><div class='drag-handle full-height' title='Drag Me!'><img class='black-color pull-right inline-img drag-handle no-toggle' src='".WEBSITE_URL."/img/icons/drag_handle.png' title='Drag'></div></div>".($ticket_view_access == 1 ? "</a>" : "");
 			}
 		} else if ($calendar_col[$calendar_row][0] == 'workorder') {
 			$workorder = $calendar_col[$calendar_row][1];
@@ -1031,7 +956,7 @@ foreach($calendar_table[0][0] as $calendar_row => $calendar_cell) {
 			$row_html .= ($edit_access == 1 ? "<a href='' onclick='overlayIFrameSlider(\"".WEBSITE_URL."/Work Order/edit_workorder.php?action=view&workorderid=".$workorder['workorderid']."\"); return false;'>" : "")."<div class='used-block' data-contact='$contact_id' data-blocks='$rows' data-row='$calendar_row' data-duration='$duration' data-workorder='".$workorder['workorderid']."' data-region='".$region."' data-businessid='".$businessid."' data-assignstaff='".$assign_staff."' data-teamid='".$teamid."' ";
 			$row_html .= "style='height: calc(".$rows." * (1em + 15px) - 1px); overflow-y: hidden; top: 0; left: 0; margin: 0; padding: 0.2em; position: absolute; width: 100%;'>";
 			$row_html .= "<span class='$status_class' style='display: block; float: left; width: calc(100% - 2em);'>";
-			$row_html .= "<b>Work Order #".$workorder['heading'].'<br />'.get_client($dbc,$workorder['businessid']).'<br />'.$start_time." - ".$end_time."</b></span><div class='drag-handle full-height' title='Drag Me!'><img class='drag-handle' src='".WEBSITE_URL."/img/icons/drag_handle.png' style='filter: brightness(200%); float: right; width: 2em;'></div></div>".($edit_access == 1 ? "</a>" : "");
+			$row_html .= "<b>Work Order #".$workorder['heading'].'<br />'.get_client($dbc,$workorder['businessid']).'<br />'.$start_time." - ".$end_time."</b></span><div class='drag-handle full-height' title='Drag Me!'><img class='drag-handle no-toggle' src='".WEBSITE_URL."/img/icons/drag_handle.png' style='filter: brightness(200%); float: right; width: 2em;' title='Drag'></div></div>".($edit_access == 1 ? "</a>" : "");
 		} else if ($calendar_col[$calendar_row][0] == 'ticket_event') {
 			$ticket = $calendar_col[$calendar_row][1];
 			$project_name = $calendar_col[$calendar_row][2];
@@ -1079,7 +1004,7 @@ foreach($calendar_table[0][0] as $calendar_row => $calendar_cell) {
 			if($ticket_status_color_code == 1 && !empty($ticket_status_color[$status])) {
 				$row_html .= '<div class="ticket-status-color" style="background-color: '.$ticket_status_color[$status].';"></div>';
 			}
-			$row_html .= "<b>$project_name".'<br />'.$start_time." - ".$end_time."</b></span><div class='drag-handle full-height' title='Drag Me!'><img class='drag-handle' src='".WEBSITE_URL."/img/icons/drag_handle.png' style='filter: brightness(200%); float: right; width: 2em;'></div></div></a>";
+			$row_html .= "<b>$project_name".'<br />'.$start_time." - ".$end_time."</b></span><div class='drag-handle full-height' title='Drag Me!'><img class='drag-handle no-toggle' src='".WEBSITE_URL."/img/icons/drag_handle.png' style='filter: brightness(200%); float: right; width: 2em;' title='Drag'></div></div></a>";
 		} else {
 			if ($calendar_col[$calendar_row][1] == 'SHIFT') {
 				$rows = 1;
@@ -1178,7 +1103,7 @@ foreach($calendar_table[0][0] as $calendar_row => $calendar_cell) {
 				$row_html .= "<b>".$current_start_time." - ".$current_end_time."</b>".'<br />';
 				$row_html .= get_contact($dbc, ($_GET['mode'] == 'client' ? $appt['therapistsid'] : $appt['patientid']))." - ".($appt['serviceid'] > 0 ? get_services($dbc, $appt['serviceid'], "CONCAT(`category`,' ',`heading`)") : get_type_from_booking($dbc, $appt['type'])).'<br />';
 				$row_html .= $appt['follow_up_call_status'];
-				$row_html .= "</span><div class='drag-handle full-height' title='Drag Me!'><img class='drag-handle' src='".WEBSITE_URL."/img/icons/drag_handle.png' style='filter: brightness(200%); float: right; width: 2em;'></div></div>".($edit_access == 1 ? "</a>" : "");
+				$row_html .= "</span><div class='drag-handle full-height' title='Drag Me!'><img class='drag-handle no-toggle' src='".WEBSITE_URL."/img/icons/drag_handle.png' style='filter: brightness(200%); float: right; width: 2em;' title='Drag'></div></div>".($edit_access == 1 ? "</a>" : "");
 				unset($page_query['action']);
 				unset($page_query['bookingid']);
 			}

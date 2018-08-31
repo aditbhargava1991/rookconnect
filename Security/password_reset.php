@@ -58,14 +58,16 @@ if ( !empty($note) ) { ?>
 <div class="alert alert-success text-centre-25" style="display:none;"></div>
 <h2>User Password Reset</h2>
 <div id="no-more-tables">
-	<table class="table table-bordered">
-		<tr class="hidden-sm hidden-xs">
-			<th>Name</th>
-			<th>User Name</th>
-			<th>Email Address</th>
-			<th>Password Status</th>
-			<th>Function</th>
-		</tr>
+	<table class="table table-bordered table-striped">
+		<thead>
+            <tr class="hidden-sm hidden-xs">
+                <th>Name</th>
+                <th>User Name</th>
+                <th>Email Address</th>
+                <th>Password Status</th>
+                <th>Function</th>
+            </tr>
+        </thead>
 		<tr>
 			<td colspan="5"><em>Loading Users...</em></td>
 		</tr>

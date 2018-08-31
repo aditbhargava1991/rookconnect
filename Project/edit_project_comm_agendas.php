@@ -24,9 +24,11 @@ $project_security = get_security($dbc, 'project'); ?>
     <div class="col-sm-11"><span class="notice-name">NOTE: </span>View, add and edit any past, present or future agendas created for this project.</div>
     <div class="clearfix"></div>
 </div><?php
-if(vuaed_visible_function($dbc, 'agenda_meeting') == 1) {
-        echo '<div class="pull-right"><span class="popover-examples no-gap-pad"><a data-toggle="tooltip" data-placement="top" title="Click here to add an Agenda."><img src="../img/info.png" width="20"></a></span>';
-		echo '<a id="'.$projectid.'" href="'.WEBSITE_URL.'/Agenda Meetings/add_agenda.php?projectid='.$projectid.'&from='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']).'" class="btn brand-btn mobile-block">Add Agenda</a></div>';
+if(vuaed_visible_function($dbc, 'agenda_meeting') == 1) { ?>
+    <div class="pull-right gap-bottom">
+        <a class="cursor-hand" onclick="overlayIFrameSlider('../Agenda Meetings/add_agenda.php?projectid=<?= $projectid ?>', 'auto', false, false);"><img src="../img/icons/ROOK-add-icon.png" class="no-toggle" title="Add Agenda" /></a>
+    </div>
+    <div class="clearfix"></div><?php
 }
 
 $pending_active_tab = '';
@@ -50,6 +52,7 @@ else {
 	$tab_all = 'active_tab';
 }
 
+/*
 echo '<div class="pull-left"><span class="popover-examples no-gap-pad"><a data-toggle="tooltip" data-placement="top" title="View, add and edit past, present and future agendas and meetings for this project."><img src="../img/info.png" width="20"></a></span>';
 echo "<a href='?edit=".$projectid."&tab=agendas'><button type='button' class='btn brand-btn mobile-block ".$tab_all."'>All Statuses</button></a>&nbsp;&nbsp;</div>";
 
@@ -63,6 +66,7 @@ echo "<a href='?edit=".$projectid."&tab=agendas&category=Approved'><button type=
 echo '<div class="pull-left"><span class="popover-examples no-gap-pad"><a data-toggle="tooltip" data-placement="top" title="View and edit all completed agendas or meetings for this project."><img src="../img/info.png" width="20"></a></span>';
 echo "<a href='?edit=".$projectid."&tab=agendas&category=Done'><button type='button' class='btn brand-btn mobile-block ".$done_active_tab."'>Done</button></a>&nbsp;&nbsp;</div>";
 echo "<br /><br />";
+*/
 
 $query_agenda = "SELECT * FROM `agenda_meeting` WHERE (`status`='$status' OR '$status' = '') AND `type`='Agenda' AND CONCAT(',',projectid,',') LIKE '%,$projectid,%' ORDER BY `date_of_meeting` DESC";
 
@@ -75,7 +79,7 @@ if($num_rows > 0) {
         <th>Agenda Topic</th>
         <th>Agenda Objective</th>
         <th>Agenda Status</th>
-        <th>Agenda Function</th>
+        <th>Details</th>
         </tr>';
 		
 	while($row = mysqli_fetch_array( $result )) {
@@ -86,13 +90,14 @@ if($num_rows > 0) {
 		$objective = $row['meeting_objective'];
 		$status = $row['status'];
 
-		echo '<td data-title="Agenda Date">' .$date. '</td>';
-		echo '<td data-title="Agenda Topic">' .$topic. '</td>';
-		echo '<td data-title="Agenda Objective">' .$objective. '</td>';
-		echo '<td data-title="Agenda Status">' .$status. '</td>';
-		echo '<td data-title="Function">';
+		echo '<td data-title="Date">' .$date. '</td>';
+		echo '<td data-title="Topic">' .$topic. '</td>';
+		echo '<td data-title="Objective">' .$objective. '</td>';
+		echo '<td data-title="Status">' .$status. '</td>';
+		echo '<td data-title="Details">';
 		if(vuaed_visible_function($dbc, 'agenda_meeting') == 1) {
-			 echo '<a href="'.WEBSITE_URL.'/Agenda Meetings/add_agenda.php?agendameetingid='.$agenda.'&from='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']).'">Edit</a>';
+			//echo '<a href="'.WEBSITE_URL.'/Agenda Meetings/add_agenda.php?agendameetingid='.$agenda.'&from='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']).'"><img src="../img/icons/ROOK-edit-icon.png" class="no-toggle inline-img" title="View or Edit Details" /></a>';
+			echo '<a class="cursor-hand" onclick="overlayIFrameSlider(\'../Agenda Meetings/add_agenda.php?agendameetingid='.$agenda.'&projectid='.$projectid.'\', \'auto\', false, false);"><img src="../img/icons/ROOK-edit-icon.png" class="no-toggle inline-img" title="View or Edit Details" /></a>';
 		}
 		echo '</td>';
 
@@ -101,5 +106,5 @@ if($num_rows > 0) {
 
 	echo '</table></div>';
 } else {
-    echo "<h2>No Agendas Found.</h2>";
+    echo "<h4>No Agendas Found.</h4>";
 } ?>

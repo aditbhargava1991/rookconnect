@@ -11,7 +11,8 @@ if ( $edit_access == 1 ) { ?>
 $site_number_enabled = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_contacts` WHERE `tab` = 'Sites' AND `accordion` = 'Site Information'"))['contacts'];
 if(count($site_list) > 0): ?>
 <div id="no-more-tables">
-	<table class="table table-bordered">
+	<table class="table table-bordered table-striped">
+        <thead>
 		<tr class="hidden-sm hidden-xs">
 			<?php if (strpos(','.$site_number_enabled.',', ',Site Number,')) { ?>
 				<th>Work Site #</th>
@@ -23,6 +24,7 @@ if(count($site_list) > 0): ?>
 			<th>Phone Number</th>
 			<th>Function</th>
 		</tr>
+        </thead>
 		<?php foreach($site_list as $site_id)
 		{
 			$site = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `contacts` WHERE `contactid`='$site_id'")); ?>

@@ -348,8 +348,8 @@ $get_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT COUNT(configid) AS co
 			}
 			echo display_pagination($dbc, "SELECT $num_of_rows numrows", $pageNum, $rowsPerPage);
 			// Pagination Finish //
-			echo "<div id='no-more-tables'><table class='table table-bordered'>";
-			echo "<tr class='hidden-xs hidden-sm'>";
+			echo "<div id='no-more-tables'><table class='table table-bordered table-striped'>";
+			echo "<thead><tr class='hidden-xs hidden-sm'>";
 					echo '<th><span class="popover-examples list-inline" style="margin:-5px 5px 0 0"><a data-toggle="tooltip" data-placement="top" title="Purchase Order Number shown on approval."><img src="'. WEBSITE_URL .'/img/info-w.png" width="20"></a></span>P.O. #</th>';
 					echo '<th><span class="popover-examples list-inline" style="margin:-5px 5px 0 0"><a data-toggle="tooltip" data-placement="top" title="Purchase Order Date as selected on the Order Form."><img src="'. WEBSITE_URL .'/img/info-w.png" width="20"></a></span>Date of Order</th>';
 					echo '<th><span class="popover-examples list-inline" style="margin:-5px 5px 0 0"><a data-toggle="tooltip" data-placement="top" title="Vendor name as selected on the Order Form."><img src="'. WEBSITE_URL .'/img/info-w.png" width="20"></a></span>Ordered By</th>';
@@ -362,7 +362,7 @@ $get_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT COUNT(configid) AS co
 					echo '<th><span class="popover-examples list-inline" style="margin:-5px 5px 0 0"><a data-toggle="tooltip" data-placement="top" title="See the current status of a P.O."><img src="'. WEBSITE_URL .'/img/info-w.png" width="20"></a></span>Current Status</th>';
 					echo '<th><span class="popover-examples list-inline" style="margin:-5px 5px 0 0"><a data-toggle="tooltip" data-placement="top" title="Allows you to approve or disapprove a P.O."><img src="'. WEBSITE_URL .'/img/info-w.png" width="20"></a></span>Approve/Disapprove</th>';
 
-			echo "</tr>";
+			echo "</tr></thead>";
 
 			for($i = $offset; $i < $num_of_rows && $i < $rowsPerPage * $pageNum; $i++) {
 				$roww = $result_set[$i];

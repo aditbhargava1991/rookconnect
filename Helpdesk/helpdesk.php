@@ -49,7 +49,7 @@ function selectStatus(sel) {
 						window.location.replace("../Ticket/index.php?edit=0&supportid="+arr[1]);
 					}
 					if(status == 'Task') {
-						window.open("../Tasks/add_task.php?supportid="+arr[1], "myWindowName", "width=800, height=600");
+						window.open("../Tasks_Updated/add_task.php?supportid="+arr[1], "myWindowName", "width=800, height=600");
 					}
 					if(status == 'Not Priority') {
 						alert('Moved to Not Priority Tab.');

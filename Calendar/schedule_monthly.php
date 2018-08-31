@@ -25,7 +25,7 @@ $(document).ready(function() {
 	reload_all_data_month();
 
 	//Display active blocks when collapsed
-	displayActiveBlocks();
+	displayActiveBlocksAuto();
 	$('.collapsible .sidebar .panel').on('hidden.bs.collapse', function() {
 		$(this).next('.active_blocks').show();
 	});
@@ -50,13 +50,13 @@ function toggle_columns(type = global_type) {
 		global_type = 'staff';
 	} else if(type == 'team') {
 		$('#collapse_equipment').find('.block-item').removeClass('active');
-		$('#collapse_staff').find('.block-item').removeClass('active');
-		$('#collapse_contractors').find('.block-item').removeClass('active');
+		$('[id^=collapse_staff]').find('.block-item').removeClass('active');
+		$('[id^=collapse_contractors]').find('.block-item').removeClass('active');
 		global_type = 'team';
 	} else {
-		$('#collapse_staff').find('.block-item').removeClass('active');
+		$('[id^=collapse_staff]').find('.block-item').removeClass('active');
 		$('#collapse_teams').find('.block-item').removeClass('active');
-		$('#collapse_contractors').find('.block-item').removeClass('active');
+		$('[id^=collapse_contractors]').find('.block-item').removeClass('active');
 		global_type = '';
 	}
 	$('.active_blocks .block-item,.active_blocks').hide();
@@ -285,15 +285,15 @@ function toggle_columns(type = global_type) {
 			var contactids = $(this).data('contactids').split(',');
 			contactids.forEach(function (contact_id) {
 				if(contact_id > 0) {
-					if($('#collapse_staff').find('.block-item[data-staff='+contact_id+']').length > 0) {
-						var block = $('#collapse_staff').find('.block-item[data-staff='+contact_id+']');
+					if($('[id^=collapse_staff]').find('.block-item[data-staff='+contact_id+']').length > 0) {
+						var block = $('[id^=collapse_staff]').find('.block-item[data-staff='+contact_id+']');
 						if($(block).css('display') != 'none') {
 							block.addClass('active');
 							retrieve_items_month($(block).closest('a'));
 						}
 					}
-					if($('#collapse_contractors').find('.block-item[data-staff='+contact_id+']').length > 0) {
-						var block = $('#collapse_contractors').find('.block-item[data-staff='+contact_id+']');
+					if($('[id^=collapse_contractors]').find('.block-item[data-staff='+contact_id+']').length > 0) {
+						var block = $('[id^=collapse_contractors]').find('.block-item[data-staff='+contact_id+']');
 						if($(block).css('display') != 'none') {
 							block.addClass('active');
 							retrieve_items_month($(block).closest('a'));
@@ -334,7 +334,7 @@ function toggle_columns(type = global_type) {
 		$('.active_blocks_teams .block-item').filter(function() { return $(this).data('teamid') == teamid; }).show();
 	});
 	// Hide staff that are not attached to selected regions/classifications/location
-	$('#collapse_staff,#collapse_contractors').find('.block-item').each(function() {
+	$('[id^=collapse_staff],[id^=collapse_contractors]').find('.block-item').each(function() {
 		var region_pass = true;
 		var location_pass = true;
 		var classification_pass = true;
@@ -383,7 +383,7 @@ function toggle_columns(type = global_type) {
 	});
     
 	// Filter selected staff
-	$('#collapse_staff,#collapse_contractors').find('.block-item.active').each(function() {
+	$('[id^=collapse_staff],[id^=collapse_contractors]').find('.block-item.active').each(function() {
 		var staffid = $(this).data('staff');
 		staff.push(parseInt(staffid));
 		<?php if ($_GET['mode'] == 'staff' || $_GET['mode'] == 'contractors') { ?>
@@ -457,24 +457,20 @@ function toggle_columns(type = global_type) {
 		});
 	// }
 	resize_calendar_view_monthly();
-	displayActiveBlocks();
-}
-function displayActiveBlocks() {
-	$('.active_blocks').each(function() {
-		var accordion = $(this).data('accordion');
-		if($('#'+accordion).hasClass('in')) {
-			$(this).hide();
-		} else {
-			$(this).show();
-		}
-	});
+	displayActiveBlocksAuto();
 }
 </script>
 <?php
 $client_type = get_config($dbc, 'scheduling_client_type');
+
 $equipment_category = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_equip_assign`"))['equipment_category'];
-if (empty($equipment_category)) {
-	$equipment_category = 'Equipment';
+$equipment_categories = array_filter(explode(',', $equipment_category));
+if(empty($equipment_categories) || count($equipment_categories) > 1) {
+    $equipment_category = 'Equipment';
+}
+$equip_cat_query = '';
+if(count($equipment_categories) > 0) {
+    $equip_cat_query = " AND `equipment`.`category` IN ('".implode("','", $equipment_categories)."')";
 }
 ?>
 <div class="hide_on_iframe ticket-calendar calendar-screen" style="padding-bottom: 0px;">

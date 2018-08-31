@@ -273,9 +273,15 @@ $back_url = (empty($_GET['from']) ? 'meeting.php' : urldecode($_GET['from']));
 <div class="container">
 	<div class="row hide_on_iframe">
 
-    <h1>Meetings</h1>
+    <h3 class="gap-left pull-left">Meetings</h3>
+    <?php if ( isset($_GET['projectid']) ) { ?>
+        <div class="pull-right offset-top-15"><a href=""><img src="../img/icons/ROOK-status-rejected.jpg" alt="Close" title="Close" class="inline-img" /></a></div>
+    <?php } ?>
+    <div class="clearfix"></div>
 
-	<div class="gap-top double-gap-bottom"><a href="<?php echo $back_url; ?>" class="btn config-btn">Back to Dashboard</a></div>
+	<?php if ( !isset($_GET['projectid']) ) { ?>
+        <div class="gap-top double-gap-bottom"><a href="<?php echo $back_url; ?>" class="btn config-btn">Back to Dashboard</a></div>
+    <?php } ?>
 
     <form id="form1" name="form1" method="post"	action="" enctype="multipart/form-data" class="form-horizontal" role="form">
 
@@ -355,7 +361,7 @@ $back_url = (empty($_GET['from']) ? 'meeting.php' : urldecode($_GET['from']));
     <input type="hidden" name="new_status" value="Pending" />
     <?php } ?>
 
-    <div class="panel-group" id="accordion2">
+    <div class="panel-group <?= !empty($projectid) ? 'block-panels main-screen' : '' ?>" id="accordion2" <?= !empty($projectid) ? 'style="background-color: #fff; padding: 0; margin-left: 0.5em; width: calc(100% - 1em);"' : '' ?>>
 
         <div class="panel panel-default">
             <div class="panel-heading">
@@ -529,33 +535,64 @@ $back_url = (empty($_GET['from']) ? 'meeting.php' : urldecode($_GET['from']));
 
     </div>
 
+        <!--
 		<div class="form-group">
 			<p><span class="brand-color"><em>Required Fields *</em></span></p>
 		</div>
+        -->
 
-		<div class="form-group">
-			<div class="col-sm-4">
-				<span class="popover-examples" style="margin:15px 0 0 0;"><a data-toggle="tooltip" data-placement="top" title="Clicking this will discard your changes."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
-				<a href="<?php echo $back_url; ?>" class="btn brand-btn btn-lg">Back</a>
-			</div>
-			<div class="col-sm-8">
-				<?php if($status == 'Pending') { ?>
-					<button	type="submit" name="submit"	value="Submit" class="btn brand-btn btn-lg pull-right">Approve and Email Meeting</button>
-					<span class="popover-examples pull-right" style="margin:15px 5px 0 15px;"><a data-toggle="tooltip" data-placement="top" title="Click here to submit changes and email any added contacts."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
-				<?php } else if($status == 'Approve') { ?>
-					<button	type="submit" name="submit"	value="Submit" class="btn brand-btn btn-lg pull-right">Complete and Email Meeting</button>
-					<span class="popover-examples pull-right" style="margin:15px 5px 0 15px;"><a data-toggle="tooltip" data-placement="top" title="Click here to submit changes and email any added contacts."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
-				<?php } else { ?>
-					<button	type="submit" name="submit"	value="Submit" class="btn brand-btn btn-lg pull-right">Update and Email Meeting</button>
-					<span class="popover-examples pull-right" style="margin:15px 5px 0 15px;"><a data-toggle="tooltip" data-placement="top" title="Click here to submit changes and email any added contacts."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
-				<?php } ?>
-				<button	type="submit" name="submit"	value="Save" class="btn brand-btn btn-lg pull-right">Save and Email Meeting</button>
-				<span class="popover-examples pull-right" style="margin:15px 5px 0 15px;"><a data-toggle="tooltip" data-placement="top" title="Click here to save, in order to make changes later on."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
+        <?php if ( isset($_GET['projectid']) ) { ?>
+            <div class="form-group">
+                <div class="pull-right">
+                    <?php if($status == 'Pending') { ?>
+                        <button	type="submit" name="submit"	value="Submit" class="btn brand-btn pull-right">Approve and Email Meeting</button>
+                        <span class="popover-examples pull-right" style="margin:5px 5px 0 5px;"><a data-toggle="tooltip" data-placement="top" title="Click here to submit changes and email any added contacts."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
+                    <?php } else if($status == 'Approve') { ?>
+                        <button	type="submit" name="submit"	value="Submit" class="btn brand-btn pull-right">Complete and Email Meeting</button>
+                        <span class="popover-examples pull-right" style="margin:5px 5px 0 5px;"><a data-toggle="tooltip" data-placement="top" title="Click here to submit changes and email any added contacts."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
+                    <?php } else { ?>
+                        <button	type="submit" name="submit"	value="Submit" class="btn brand-btn pull-right">Update and Email Meeting</button>
+                        <span class="popover-examples pull-right" style="margin:5px 5px 0 5px;"><a data-toggle="tooltip" data-placement="top" title="Click here to submit changes and email any added contacts."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
+                    <?php } ?>
+                </div>
+                <div class="pull-right">
+                    <button	type="submit" name="submit"	value="Save" class="btn brand-btn pull-right">Save and Email Meeting</button>
+                    <span class="popover-examples pull-right" style="margin:5px 5px 0 5px;"><a data-toggle="tooltip" data-placement="top" title="Click here to save, in order to make changes later on."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
+                </div>
+                <div class="pull-right">
+                    <button	type="submit" name="submit"	value="temp_save" class="btn brand-btn pull-right">Save</button>
+                    <span class="popover-examples pull-right" style="margin:5px 5px 0 5px;"><a data-toggle="tooltip" data-placement="top" title="Click here to save Meeting without sending an email."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
+                </div>
+                <div class="pull-right">
+                    <span class="popover-examples" style="margin:5px 5px 0 5px;"><a data-toggle="tooltip" data-placement="top" title="Clicking this will discard your changes."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
+                    <a href="<?php echo $back_url; ?>" class="btn brand-btn">Cancel</a>
+                </div>
+            </div>
+        <?php } else { ?>
+            <div class="form-group">
+                <div class="col-sm-4">
+                    <span class="popover-examples" style="margin:15px 0 0 0;"><a data-toggle="tooltip" data-placement="top" title="Clicking this will discard your changes."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
+                    <a href="<?php echo $back_url; ?>" class="btn brand-btn btn-lg">Back</a>
+                </div>
+                <div class="col-sm-8">
+                    <?php if($status == 'Pending') { ?>
+                        <button	type="submit" name="submit"	value="Submit" class="btn brand-btn btn-lg pull-right">Approve and Email Meeting</button>
+                        <span class="popover-examples pull-right" style="margin:15px 5px 0 15px;"><a data-toggle="tooltip" data-placement="top" title="Click here to submit changes and email any added contacts."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
+                    <?php } else if($status == 'Approve') { ?>
+                        <button	type="submit" name="submit"	value="Submit" class="btn brand-btn btn-lg pull-right">Complete and Email Meeting</button>
+                        <span class="popover-examples pull-right" style="margin:15px 5px 0 15px;"><a data-toggle="tooltip" data-placement="top" title="Click here to submit changes and email any added contacts."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
+                    <?php } else { ?>
+                        <button	type="submit" name="submit"	value="Submit" class="btn brand-btn btn-lg pull-right">Update and Email Meeting</button>
+                        <span class="popover-examples pull-right" style="margin:15px 5px 0 15px;"><a data-toggle="tooltip" data-placement="top" title="Click here to submit changes and email any added contacts."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
+                    <?php } ?>
+                    <button	type="submit" name="submit"	value="Save" class="btn brand-btn btn-lg pull-right">Save and Email Meeting</button>
+                    <span class="popover-examples pull-right" style="margin:15px 5px 0 15px;"><a data-toggle="tooltip" data-placement="top" title="Click here to save, in order to make changes later on."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
 
-				<button	type="submit" name="submit"	value="temp_save" class="btn brand-btn btn-lg pull-right">Save</button>
-				<span class="popover-examples pull-right" style="margin:15px 5px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Click here to save Meeting without sending an email."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
-			</div>
-		</div>
+                    <button	type="submit" name="submit"	value="temp_save" class="btn brand-btn btn-lg pull-right">Save</button>
+                    <span class="popover-examples pull-right" style="margin:15px 5px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Click here to save Meeting without sending an email."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
+                </div>
+            </div>
+        <?php } ?>
 
 		</form>
 

@@ -117,6 +117,9 @@ include ('../include.php'); ?>
 include_once ('../navigation.php');
 checkAuthorised('services');
 
+$get_field_config = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `services` FROM `field_config`"));
+$value_config = ','.$get_field_config['services'].',';
+
 if (isset($_POST['add_service'])) {
 
 	if($_POST['new_service'] != '') {
@@ -215,11 +218,11 @@ if (isset($_POST['add_service'])) {
     add_update_history($dbc, 'service_history', $history, '', $before_change);
 	}
 
+    if(strpos($value_config, ',Rate Card,') !== false && vuaed_visible_function($dbc, 'rate_card') > 0) {
+        include('save_rate_card.php');
+    }
     echo '<script type="text/javascript">window.location.replace("index.php?c='.bin2hex($category).'");</script>';
-}
-
-$get_field_config = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `services` FROM `field_config`"));
-$value_config = ','.$get_field_config['services'].','; ?>
+} ?>
 
 <div id="services_div" class="container">
     <div class="row">

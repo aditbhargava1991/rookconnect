@@ -238,7 +238,26 @@ if($_GET['action'] == 'save_template_field') {
 			$margin = ($specific['margin'] > 0 ? $specific['margin'] : $general['margin']);
 			$price = ($specific['cust_price'] > 0 ? $specific['cust_price'] : $general['cust_price']);
 			$retail = ($line['final_retail_price'] > 0 ? $line['final_retail_price'] : ($specific['retail_rate'] > 0 ? $specific['retail_rate'] : $general['retail_rate']));
+
+			$tempid = $entry['id'];
+			$before_change = capture_before_change($dbc, 'estimate_scope', 'uom', 'id', $tempid);
+			$before_change .= capture_before_change($dbc, 'estimate_scope', 'qty', 'id', $tempid);
+			$before_change .= capture_before_change($dbc, 'estimate_scope', 'cost', 'id', $tempid);
+			$before_change .= capture_before_change($dbc, 'estimate_scope', 'profit', 'id', $tempid);
+			$before_change .= capture_before_change($dbc, 'estimate_scope', 'margin', 'id', $tempid);
+			$before_change .= capture_before_change($dbc, 'estimate_scope', 'price', 'id', $tempid);
+			$before_change .= capture_before_change($dbc, 'estimate_scope', 'retail', 'id', $tempid);
+
 			mysqli_query($dbc, "UPDATE `estimate_scope` SET `uom`='$uom',`qty`='$qty',`cost`='$cost',`profit`='$profit',`margin`='$margin',`price`='$price',`retail`='$retail' WHERE `id`='{$entry['id']}'");
+
+			$history = capture_after_change('uom', $uom);
+			$history .= capture_after_change('qty', $qty);
+			$history .= capture_after_change('cost', $cost);
+			$history .= capture_after_change('profit', $profit);
+			$history .= capture_after_change('margin', $margin);
+			$history .= capture_after_change('price', $price);
+			$history .= capture_after_change('retail', $retail);
+			add_update_history($dbc, 'estimates_history', $history, '', $before_change);
 		}
 	}
 } else if($_GET['action'] == 'estimate_add_heading') {
@@ -246,14 +265,26 @@ if($_GET['action'] == 'save_template_field') {
 	$scope_name = filter_var($_POST['scope'],FILTER_SANITIZE_STRING);
 	if(mysqli_fetch_assoc(mysqli_query($dbc, "SELECT COUNT(*) `count` FROM `estimate_scope` WHERE `estimateid`='$estimateid' AND `scope_name`='$scope_name' AND `deleted`=0"))['count'] == 0) {
 		mysqli_query($dbc, "INSERT INTO `estimate_scope` (`estimateid`,`scope_name`,`heading`,`sort_order`) SELECT '$estimateid',CONCAT('Scope ',COUNT(DISTINCT IFNULL(`scope_name`,''))+1),'Heading 1',IFNULL(MAX(`sort_order`),0)+1 FROM `estimate_scope` WHERE `estimateid`='$estimateid' AND `scope_name`='$scope_name' AND `deleted`=0");
+		$before_change = '';
+		$history = "Estimates scope entry has been added. <br />";
+		add_update_history($dbc, 'estimates_history', $history, '', $before_change);
 	}
 	mysqli_query($dbc, "INSERT INTO `estimate_scope` (`estimateid`,`scope_name`,`heading`,`sort_order`) SELECT '$estimateid','$scope_name',CONCAT('Heading ',COUNT(DISTINCT `heading`)+1),IFNULL(MAX(`sort_order`),0)+1 FROM `estimate_scope` WHERE `estimateid`='$estimateid' AND `scope_name`='$scope_name' AND `deleted`=0");
+	$before_change = '';
+	$history = "Estimates scope entry has been added. <br />";
+	add_update_history($dbc, 'estimates_history', $history, '', $before_change);
 } else if($_GET['action'] == 'estimate_add_scope') {
 	$estimateid = filter_var($_POST['estimate'],FILTER_SANITIZE_STRING);
 	if(mysqli_fetch_assoc(mysqli_query($dbc, "SELECT COUNT(*) `count` FROM `estimate_scope` WHERE `estimateid`='$estimateid' AND `deleted`=0"))['count'] == 0) {
 		mysqli_query($dbc, "INSERT INTO `estimate_scope` (`estimateid`,`scope_name`,`heading`,`sort_order`) SELECT '$estimateid',CONCAT('Scope ',COUNT(DISTINCT IFNULL(`scope_name`,''))+1),'Heading 1',IFNULL(MAX(`sort_order`),0)+1 FROM `estimate_scope` WHERE `estimateid`='$estimateid' AND `deleted`=0");
+		$before_change = '';
+		$history = "Estimates scope entry has been added. <br />";
+		add_update_history($dbc, 'estimates_history', $history, '', $before_change);
 	}
 	mysqli_query($dbc, "INSERT INTO `estimate_scope` (`estimateid`,`scope_name`,`heading`,`sort_order`) SELECT '$estimateid',CONCAT('Scope ',COUNT(DISTINCT IFNULL(`scope_name`,''))+1),'Heading 1',IFNULL(MAX(`sort_order`),0)+1 FROM `estimate_scope` WHERE `estimateid`='$estimateid' AND `deleted`=0");
+	$before_change = '';
+	$history = "Estimates scope entry has been added. <br />";
+	add_update_history($dbc, 'estimates_history', $history, '', $before_change);
 } else if($_GET['action'] == 'estimate_fields') {
 	$id = filter_var($_POST['id'],FILTER_SANITIZE_STRING);
 	$id_field = filter_var($_POST['id_field'],FILTER_SANITIZE_STRING);
@@ -270,7 +301,12 @@ if($_GET['action'] == 'save_template_field') {
 		$id = mysqli_insert_id($dbc);
 		echo $id;
 		if($table == 'estimate') {
+			$before_change = capture_before_change($dbc, 'estimate', 'created_by', 'estimateid', $id);
+			$before_change .= capture_before_change($dbc, 'estimate', 'created_date', 'estimateid', $id);
 			mysqli_query($dbc, "UPDATE `estimate` SET `created_by`='".$_SESSION['contactid']."', `created_date`=DATE(NOW()) WHERE `estimateid`='$id'");
+			$history = capture_after_change('created_by', $_SESSION['contactid']);
+			$history .= capture_after_change('created_date', DATE(NOW()));
+			add_update_history($dbc, 'estimates_history', $history, '', $before_change);
 			insert_day_overview($dbc, $_SESSION['contactid'], ESTIMATE_TILE, date('Y-m-d'), '', 'Added Estimate #'.$id, $id);
 		}
 	}
@@ -278,10 +314,16 @@ if($_GET['action'] == 'save_template_field') {
 		if($field == 'completed') {
 			$value = htmlentities("Follow Up #$id Completed by ".get_contact($dbc, $_SESSION['contactid'])." on ".date('Y-m-d')."<br />".$value);
 			mysqli_query($dbc, "INSERT INTO `estimate_notes` (`estimateid`, `heading`, `notes`, `created_by`) VALUES ('$estimate', 'Follow Up Completed', '$value', '{$_SESSION['contactid']}')");
+			$before_change = '';
+			$history = "Estimates notes entry has been added. <br />";
+			add_update_history($dbc, 'estimates_history', $history, '', $before_change);
 			$value = 1;
 			$history = htmlentities(get_contact($dbc, $_SESSION['contactid'])." completed follow up action $id on ".date('Y-m-d h:i a'));
         } else if($field == 'delete') {
+						$before_change = capture_before_change($dbc, 'estimate_actions', 'deleted', 'id', $id);
             mysqli_query($dbc, "UPDATE `estimate_actions` SET `deleted`=1 WHERE `id`='$id'");
+						$history = capture_after_change('deleted', 1);
+						add_update_history($dbc, 'estimates_history', $history, '', $before_change);
             $history = htmlentities(get_contact($dbc, $_SESSION['contactid'])." deleted follow up action $id on ".date('Y-m-d h:i a'));
 		} else if($field == '') {
 			$history = htmlentities(get_contact($dbc, $_SESSION['contactid'])." added follow up action $id on ".date('Y-m-d h:i a'));
@@ -290,18 +332,33 @@ if($_GET['action'] == 'save_template_field') {
 		}
 	} else if($table == 'estimate_notes') {
 		mysqli_query($dbc, "UPDATE `estimate_notes` SET `heading`=IF(IFNULL(`heading`,'')='','Note',`heading`), `created_by`='".$_SESSION['contactid']."' WHERE `id`='$id'");
+		$before_change = '';
+		$history = "Estimates note entry has been updated for id $id. <br />";
+		add_update_history($dbc, 'estimates_history', $history, '', $before_change);
 		$history = htmlentities(get_contact($dbc, $_SESSION['contactid'])." added note '$value' on ".date('Y-m-d h:i a'));
 	} else {
 		$history = htmlentities(get_contact($dbc, $_SESSION['contactid'])." set $field to '$value' on ".date('Y-m-d h:i a'));
 	}
 	if($table == 'estimate' && $field == 'status' && $value == 'archived') {
     $date_of_archival = date('Y-m-d');
+		$before_change = capture_before_change($dbc, 'estimate', 'deleted', 'estimateid', $id);
+		$before_change .= capture_before_change($dbc, 'estimate', 'date_of_archival', 'estimateid', $id);
 		mysqli_query($dbc, "UPDATE `estimate` SET `deleted`=1, `date_of_archival` = '$date_of_archival' WHERE `estimateid`='$id'");
+		$history = capture_after_change('deleted', 1);
+		$history .= capture_after_change('date_of_archival', $date_of_archival);
+		add_update_history($dbc, 'estimates_history', $history, '', $before_change);
 	} else if($table == 'estimate' && $field == 'status') {
 		mysqli_query($dbc, "UPDATE `estimate` SET `status_date`=DATE(NOW())");
+		$before_change = '';
+		$history = "Set estimate date for all the entries. <br />";
+		add_update_history($dbc, 'estimates_history', $history, '', $before_change);
 	}
 	mysqli_query($dbc, "UPDATE `$table` SET `$field`='$value' WHERE `$id_field`='$id'");
+	$before_change = capture_before_change($dbc, 'estimate', 'history', 'estimateid', $estimate);
 	mysqli_query($dbc, "UPDATE `estimate` SET `history`=CONCAT(IFNULL(CONCAT(`history`,'<br />'),''),'$history') WHERE `estimateid`='$estimate'");
+	$history_reports = capture_after_change('history', $history);
+	add_update_history($dbc, 'estimates_history', $history_reports, '', $before_change);
+
 
 	//Insert into day overview if last edit was wiithin 15 minutes
 	$day_overview_last = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `timestamp` FROM `day_overview` WHERE `type` = 'Estimate' AND `tableid` = '$estimate' AND `contactid` = '".$_SESSION['contactid']."' ORDER BY `timestamp` DESC"));
@@ -364,6 +421,9 @@ if($_GET['action'] == 'save_template_field') {
 	$id = filter_var($_GET['styleid'],FILTER_SANITIZE_STRING);
     $date_of_archival = date('Y-m-d');
 	mysqli_query($dbc, "UPDATE `estimate_pdf_setting` SET `deleted`=1, `date_of_archival` = '$date_of_archival' WHERE `pdfsettingid`='$id'");
+	$before_change = '';
+	$history = "Estimate PDF setting has been updated. <br />";
+	add_update_history($dbc, 'estimates_history', $history, '', $before_change);
 } else if($_GET['action'] == 'clearEstimates') {
 	set_user_settings($dbc, 'estimate_closed', date('Y-m-d'));
 } else if($_GET['action'] == 'addContentPage') {
@@ -467,8 +527,23 @@ if($_GET['action'] == 'save_template_field') {
     $margin = filter_var($_GET['margin'],FILTER_SANITIZE_STRING);
     $price = filter_var($_GET['price'],FILTER_SANITIZE_STRING);
     $retail = filter_var($_GET['retail'],FILTER_SANITIZE_STRING);
+
+		$before_change = capture_before_change($dbc, 'estimate_scope', 'qty', 'id', $id);
+		$before_change .= capture_before_change($dbc, 'estimate_scope', 'profit', 'id', $id);
+		$before_change .= capture_before_change($dbc, 'estimate_scope', 'margin', 'id', $id);
+		$before_change .= capture_before_change($dbc, 'estimate_scope', 'price', 'id', $id);
+		$before_change .= capture_before_change($dbc, 'estimate_scope', 'retail', 'id', $id);
+
     mysqli_query($dbc, "UPDATE `estimate_scope` SET `qty`='$qty', `profit`='$profit', `margin`='$margin', `price`='$price', `retail`='$retail' WHERE `id`='$id'");
-    
+
+		$history = capture_after_change('qty', $qty);
+		$history .= capture_after_change('profit', $profit);
+		$history .= capture_after_change('margin', $margin);
+		$history .= capture_after_change('price', $price);
+		$history .= capture_after_change('retail', $retail);
+
+		add_update_history($dbc, 'estimates_history', $history, '', $before_change);
+
     $total_price = 0;
     $total_cost = 0;
     $query = mysqli_query($dbc, "SELECT `qty`, `cost`, `retail`, `pricing` FROM `estimate_scope` WHERE `estimateid`='$estimateid' AND `deleted`=0");
@@ -492,19 +567,28 @@ if($_GET['action'] == 'save_template_field') {
     } else if ( $status_type=='abandoned' ) {
         $name = 'estimate_status_abandoned';
     }
-    
+
     set_config($dbc, $name, $status);
     echo '$status_type: '.$status_type.' | $status: '.$status.' | $name:'.$name.'<br>'.mysqli_error($dbc);
 } else if($_GET['action'] == 'copy_as_template') {
 	$estimateid = filter_var($_POST['estimate'],FILTER_SANITIZE_STRING);
 	$template = 'Template - Copy of '.ESTIMATE_TILE.' '.$estimateid;
 	mysqli_query($dbc, "INSERT INTO `estimate_templates` (`template_name`) VALUES ('$template')");
+	$before_change = '';
+	$history = "Estimates template entry has been added. <br />";
+	add_update_history($dbc, 'estimates_history', $history, '', $before_change);
 	$templateid = mysqli_insert_id($dbc);
 	$headings = mysqli_query($dbc, "SELECT `heading` FROM `estimate_scope` WHERE `estimateid`='$estimateid' AND `deleted`=0 GROUP BY `heading`");
 	while($heading = mysqli_fetch_assoc($headings)['heading']) {
 		mysqli_query($dbc, "INSERT INTO `estimate_template_headings` (`template_id`, `heading_name`) VALUES ('$templateid','$heading')");
+		$before_change = '';
+		$history = "Estimates template heading entry has been added. <br />";
+		add_update_history($dbc, 'estimates_history', $history, '', $before_change);
 		$headingid = mysqli_insert_id($dbc);
 		mysqli_query($dbc, "INSERT INTO `estimate_template_lines` (`heading_id`, `src_table`, `description`, `src_id`, `qty`, `sort_order`) SELECT '$headingid', `src_table`, `description`, `src_id`, `qty`, `sort_order` FROM `estimate_scope` WHERE `estimateid`='$estimateid' AND `heading`='$heading' AND `deleted`=0");
+		$before_change = '';
+		$history = "Estimates template lines entry has been added. <br />";
+		add_update_history($dbc, 'estimates_history', $history, '', $before_change);
 	}
 	echo $templateid;
 }

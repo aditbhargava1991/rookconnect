@@ -597,7 +597,15 @@ while($row = mysqli_fetch_array($query)) {
 <div class="scale-to-fill has-main-screen" style="overflow: hidden;">
     <div class="main-screen standard-body form-horizontal">
         <div class="standard-body-title">
-            <h3><?= (!empty($_GET['edit']) ? 'Edit Equipment: Unit #'.$unit_number : 'Add New Equipment') ?></h3>
+            <h3><?= (!empty($_GET['edit']) ? 'Edit Equipment: Unit #'.$unit_number : 'Add New Equipment') ?>
+            <?php 
+            $quick_actions = explode(',',get_config($dbc, 'equipment_quick_action_icons'));
+            if($equipmentid > 0) {
+                echo '<span class="pull-right action-icons  ">';
+                echo in_array('reminder', $quick_actions) ? '<span title="Schedule Reminder" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/quick_action_reminders.php?tile=equipment&id='.$equipmentid.'\'); return false;"><img title="Schedule Reminder" src="../img/icons/ROOK-reminder-icon.png" class="inline-img no-toggle" style="height: 1.25em; width: auto;" onclick="return false;"></span>' : '';
+                echo in_array('archive', $quick_actions) && vuaed_visible_function($dbc, 'equipment') == 1 ? '<span title="Archive Equipment"><a href="'.WEBSITE_URL.'/delete_restore.php?action=delete&equipmentid='.$equipmentid.'" onclick="return confirm(\'Are you sure?\');"><img src="../img/icons/trash-icon-red.png" style="height: 1.25em; width: auto;" title="Archive Equipment" class="inline-img no-toggle"></a></span>' : '';
+                echo '</span>';
+            } ?></h3>
         </div>
 
         <div class="standard-body-content" style="padding: 0.5em;">

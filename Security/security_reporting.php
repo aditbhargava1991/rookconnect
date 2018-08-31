@@ -94,13 +94,15 @@ $(document).ready(function() {
 		<?php // Added Pagination //
 		echo display_pagination($dbc, $page_query, $pageNum, $rowsPerPage);
 		// Pagination Finish // ?>
-		<table class='table table-bordered'>
-			<tr class='hidden-xs hidden-sm'>
-				<th>Activated Security Levels & Groups</th>
-				<th># Accounts</th>
-				<th>Security Privileges</th>
-				<th>History</th>
-			</tr>
+		<table class='table table-bordered table-striped'>
+			<thead>
+                <tr class='hidden-xs hidden-sm'>
+                    <th>Activated Security Levels & Groups</th>
+                    <th># Accounts</th>
+                    <th>Security Privileges</th>
+                    <th>History</th>
+                </tr>
+            </thead>
 			<?php $i = 0;
 			foreach($level_list as $level_name => $security_level) {
 				if($i > ($pageNum - 1) * $rowsPerPage && $i < $rowsPerPage * $pageNum) {
@@ -169,14 +171,16 @@ $(document).ready(function() {
 		echo display_pagination($dbc, $page_query, $pageNum, $rowsPerPage);
 		// Pagination Finish // ?>
 		<div id="no-more-tables">
-			<table class='table table-bordered'>
-				<tr class='hidden-xs hidden-sm'>
-					<th>User Accounts</th>
-					<th>Status</th>
-					<th>Security Level</th>
-					<th>Last Login</th>
-					<th>Login History</th>
-				</tr>
+			<table class='table table-bordered table-striped'>
+				<thead>
+                    <tr class='hidden-xs hidden-sm'>
+                        <th>User Accounts</th>
+                        <th>Status</th>
+                        <th>Security Level</th>
+                        <th>Last Login</th>
+                        <th>Login History</th>
+                    </tr>
+                </thead>
 				<?php $user_sql = "SELECT `contacts`.`contactid`, `category`, `name`, `first_name`, `last_name`, `logins`.`last_login`, `role`, `status`, `deleted` FROM `contacts` LEFT JOIN (SELECT MAX(`login_at`) `last_login`, `contactid` FROM `login_history` GROUP BY `contactid`) `logins` ON `contacts`.`contactid`=`logins`.`contactid` WHERE `user_name` != '' $query_clause LIMIT $offset, $rowsPerPage";
 				$user_list = sort_contacts_query(mysqli_query($dbc, $user_sql));
 				foreach($user_list as $user) {

@@ -72,8 +72,8 @@ if($num_rows > 0) {
 	echo display_pagination($dbc, $query_num_rows, $pageNum, $rowsPerPage);
 	// Pagination Finish //
 	
-	echo "<table class='table table-bordered'>";
-	echo "<tr class='hidden-xs hidden-sm'>";
+	echo "<table class='table table-bordered table-striped'>";
+	echo "<thead><tr class='hidden-xs hidden-sm'>";
 	if (strpos($value_config, ','."Phone#".',') !== FALSE) {
 		echo '<th>Phone#</th>';
 	}
@@ -113,7 +113,7 @@ if($num_rows > 0) {
 	if (strpos($value_config, ','."Status".',') !== FALSE) {
 		echo '<th>Status</th>';
 	}
-	echo "</tr>";
+	echo "</tr></thead>";
 
 	while($row = mysqli_fetch_array($result))
 	{

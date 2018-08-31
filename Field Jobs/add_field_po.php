@@ -175,6 +175,16 @@ if (isset($_POST['purchase_order'])) {
     }
 
 	$pdf->writeHTML($html, true, false, true, false, '');
+
+    $filename = $basename = "field_po_".$fieldpoid.".pdf";
+    $j = 0;
+    while(file_exists('download/'.$filename)) {
+        $filename = preg_replace('/(\.[a-z0-9]*)/', ' ('.++$j.')$1', $basename);
+    }
+    if(file_exists('download/'.$basename)) {
+        rename('download/'.$basename, 'download/'.$filename);
+    }
+
 	$pdf->Output('download/field_po_'.$fieldpoid.'.pdf', 'F');
 
     echo '<script type="text/javascript"> alert("Field PO Submitted."); window.location.replace("field_po.php"); </script>';

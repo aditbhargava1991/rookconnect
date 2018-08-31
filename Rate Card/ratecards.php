@@ -138,7 +138,7 @@ if(empty($_GET['type'])) {
 							} else if($_GET['type'] == 'labour') {
 								if($_GET['id'] > 0 && $_GET['status'] == 'show') {
 									include('labour_show_rate_card.php');
-								} else if(!empty($_GET['id'])) {
+								} else if(!empty($_GET['id']) || !empty($_GET['labourid'])) {
 									include('labour_add_rate_card.php');
 								} else {
 									include('labour_current_rate_card.php');

@@ -168,7 +168,7 @@ function resizeBlocks() {
 									echo "<b>".$current_start_time." - ".$current_end_time."</b><br />";
 									echo get_contact($dbc, ($_GET['mode'] == 'client' ? $appt['therapistsid'] : $appt['patientid']))." - ".($appt['serviceid'] > 0 ? get_services($dbc, $appt['serviceid'], "CONCAT(`category`,' ',`heading`)") : get_type_from_booking($dbc, $appt['type'])).'<br />';
 									echo $appt['follow_up_call_status'];
-									echo "</span><div class='drag-handle full-height' title='Drag Me!'><img class='drag-handle' src='".WEBSITE_URL."/img/icons/drag_handle.png' style='filter: brightness(200%); float: right; width: 2em;'></div></div>".($edit_access == 1 ? "</a>" : "");
+									echo "</span><div class='drag-handle full-height' title='Drag Me!'><img class='drag-handle no-toggle' src='".WEBSITE_URL."/img/icons/drag_handle.png' style='filter: brightness(200%); float: right; width: 2em;' title='Drag'></div></div>".($edit_access == 1 ? "</a>" : "");
 									unset($page_query['action']);
 									unset($page_query['bookingid']);
 								}
@@ -268,7 +268,7 @@ function resizeBlocks() {
 									if($ticket_status_color_code == 1 && !empty($ticket_status_color[$status])) {
 										echo '<div class="ticket-status-color" style="background-color: '.$ticket_status_color[$status].';"></div>';
 									}
-									echo "<b>".($ticket['scheduled_lock'] > 0 ? '<img class="inline-img" title="Time has been Locked" src="../img/icons/lock.png">' : '').TICKET_NOUN." #".$ticket['ticketid']." : ".get_contact($dbc,$ticket['businessid'],'name')." : ".$heading." (".$estimated_time.")".'<br />'.$current_start_time." - ".$current_end_time.'<br />'."Status: ".$status."</b></span><div class='drag-handle full-height' title='Drag Me!'><img class='drag-handle' src='".WEBSITE_URL."/img/icons/drag_handle.png' style='filter: brightness(200%); float: right; width: 2em;'></div></div>".($edit_access == 1 ? "</a>" : "");
+									echo "<b>".($ticket['scheduled_lock'] > 0 ? '<img class="inline-img" title="Time has been Locked" src="../img/icons/lock.png">' : '').TICKET_NOUN." #".$ticket['ticketid']." : ".get_contact($dbc,$ticket['businessid'],'name')." : ".$heading." (".$estimated_time.")".'<br />'.$current_start_time." - ".$current_end_time.'<br />'."Status: ".$status."</b></span><div class='drag-handle full-height' title='Drag Me!'><img class='drag-handle no-toggle' src='".WEBSITE_URL."/img/icons/drag_handle.png' style='filter: brightness(200%); float: right; width: 2em;' title='Drag'></div></div>".($edit_access == 1 ? "</a>" : "");
 								}
 							} else if($calendar_col[$calendar_row][0] == 'shift') {
 								$rows = 1;
@@ -327,7 +327,7 @@ function resizeBlocks() {
 							echo ($edit_access == 1 ? "<a href='' onclick='overlayIFrameSlider(\"".WEBSITE_URL."/Work Order/edit_workorder.php?action=view&workorderid=".$workorder['workorderid']."\"); return false;'>" : "")."<div class='used-block' data-contact='$contact_id' data-blocks='$rows' data-row='$calendar_row' data-duration='$duration' data-workorder='".$workorder['workorderid']."' data-region='".$region."' data-businessid='".$businessid."' data-assignstaff='".$assign_staff."' data-teamid='".$teamid."' ";
 							echo "style='height: calc(".$rows." * (1em + 15px) - 1px); overflow-y: hidden; top: 0; left: 0; margin: 0; padding: 0.2em; position: absolute; width: 100%;'>";
 							echo "<span class='$status_class' style='display: block; float: left; width: calc(100% - 2em);'>";
-							echo "<b>Work Order #".$workorder['heading'].'<br />'.get_client($dbc,$workorder['businessid']).'<br />'.$start_time." - ".$end_time."</b></span><div class='drag-handle full-height' title='Drag Me!'><img class='drag-handle' src='".WEBSITE_URL."/img/icons/drag_handle.png' style='filter: brightness(200%); float: right; width: 2em;'></div></div>".($edit_access == 1 ? "</a>" : "");
+							echo "<b>Work Order #".$workorder['heading'].'<br />'.get_client($dbc,$workorder['businessid']).'<br />'.$start_time." - ".$end_time."</b></span><div class='drag-handle full-height' title='Drag Me!'><img class='drag-handle no-toggle' src='".WEBSITE_URL."/img/icons/drag_handle.png' style='filter: brightness(200%); float: right; width: 2em;' title='Drag'></div></div>".($edit_access == 1 ? "</a>" : "");
 						} else if ($calendar_col[$calendar_row][0] == 'ticket_equip') {
 							if($calendar_col[$calendar_row][1] == 'SHIFT') {
 								$rows = 1;
@@ -422,7 +422,7 @@ function resizeBlocks() {
 									}
 								}
 								echo (in_array('address',$calendar_ticket_card_fields) ? '<br />'.$ticket['pickup_name'].($ticket['pickup_name'] != '' ? '<br />' : ' ').$ticket['client_name'].($ticket['client_name'] != '' ? '<br />' : ' ').$ticket['pickup_address'].($ticket['pickup_address'] != '' ? '<br />' : ' ').$ticket['pickup_city'] : '');
-								echo '<br />'."Status: ".$status."</b></span><div class='drag-handle full-height' title='Drag Me!'><img class='black-color pull-right inline-img drag-handle' src='".WEBSITE_URL."/img/icons/drag_handle.png'></div></div>".($edit_access == 1 ? "</a>" : "");
+								echo '<br />'."Status: ".$status."</b></span><div class='drag-handle full-height' title='Drag Me!'><img class='black-color pull-right inline-img drag-handle no-toggle' src='".WEBSITE_URL."/img/icons/drag_handle.png' title='Drag'></div></div>".($edit_access == 1 ? "</a>" : "");
 							}
 						} else if ($calendar_col[$calendar_row][0] == 'shift' || $calendar_col[$calendar_row][0] == 'no_shift') {
 							if ($calendar_col[$calendar_row][0] == 'no_shift') {
@@ -507,7 +507,7 @@ function resizeBlocks() {
 									} else if(!empty($shift['clientid'])) {
 										echo '<b>'.get_contact($dbc, $shift['clientid']).'</b>';
 									}
-									echo "</span><div class='drag-handle full-height' title='Drag Me!'><img class='drag-handle' src='".WEBSITE_URL."/img/icons/drag_handle.png' style='filter: brightness(200%); float: right; width: 2em;'></div></div>".($edit_access == 1 ? "</a>" : "");
+									echo "</span><div class='drag-handle full-height' title='Drag Me!'><img class='drag-handle no-toggle' src='".WEBSITE_URL."/img/icons/drag_handle.png' style='filter: brightness(200%); float: right; width: 2em;' title='Drag'></div></div>".($edit_access == 1 ? "</a>" : "");
 									unset($page_query['shiftid']);
 								}
 								
@@ -530,7 +530,7 @@ function resizeBlocks() {
 									echo "<span class='dayoff' style='display: block; float: left; width: calc(100% - 2em);'>";
 									echo "<b>".date('g:i a', strtotime($dayoff['starttime']))." - ".date('g:i a', strtotime($dayoff['endtime']))."</b>".'<br />';
 									echo $dayoff['dayoff_type'];
-									echo "</span><div class='drag-handle full-height' title='Drag Me!'><img class='drag-handle' src='".WEBSITE_URL."/img/icons/drag_handle.png' style='filter: brightness(200%); float: right; width: 2em;'></div></div>".($edit_access == 1 ? "</a>" : "");
+									echo "</span><div class='drag-handle full-height' title='Drag Me!'><img class='drag-handle no-toggle' src='".WEBSITE_URL."/img/icons/drag_handle.png' style='filter: brightness(200%); float: right; width: 2em;' title='Drag'></div></div>".($edit_access == 1 ? "</a>" : "");
 									unset($page_query['shiftid']);
 								}
 							}
@@ -669,7 +669,7 @@ function resizeBlocks() {
 										}
 									}
 								}
-								echo '<br />'."Status: ".$status."</b></span><div class='drag-handle full-height' title='Drag Me!'><img class='black-color pull-right inline-img drag-handle' src='".WEBSITE_URL."/img/icons/drag_handle.png'></div></div>".($edit_access == 1 ? "</a>" : "");
+								echo '<br />'."Status: ".$status."</b></span><div class='drag-handle full-height' title='Drag Me!'><img class='black-color pull-right inline-img drag-handle no-toggle' src='".WEBSITE_URL."/img/icons/drag_handle.png' title='Drag'></div></div>".($edit_access == 1 ? "</a>" : "");
 							}
 						} else if ($calendar_col[$calendar_row][0] == 'workorder') {
 							$workorder = $calendar_col[$calendar_row][1];
@@ -697,7 +697,7 @@ function resizeBlocks() {
 							echo ($edit_access == 1 ? "<a href='' onclick='overlayIFrameSlider(\"".WEBSITE_URL."/Work Order/edit_workorder.php?action=view&workorderid=".$workorder['workorderid']."\"); return false;'>" : "")."<div class='used-block' data-contact='$contact_id' data-blocks='$rows' data-row='$calendar_row' data-duration='$duration' data-workorder='".$workorder['workorderid']."' data-region='".$region."' data-businessid='".$businessid."' data-assignstaff='".$assign_staff."' data-teamid='".$teamid."' ";
 							echo "style='height: calc(".$rows." * (1em + 15px) - 1px); overflow-y: hidden; top: 0; left: 0; margin: 0; padding: 0.2em; position: absolute; width: 100%;'>";
 							echo "<span class='$status_class' style='display: block; float: left; width: calc(100% - 2em);'>";
-							echo "<b>Work Order #".$workorder['heading'].'<br />'.get_client($dbc,$workorder['businessid']).'<br />'.$start_time." - ".$end_time."</b></span><div class='drag-handle full-height' title='Drag Me!'><img class='drag-handle' src='".WEBSITE_URL."/img/icons/drag_handle.png' style='filter: brightness(200%); float: right; width: 2em;'></div></div>".($edit_access == 1 ? "</a>" : "");
+							echo "<b>Work Order #".$workorder['heading'].'<br />'.get_client($dbc,$workorder['businessid']).'<br />'.$start_time." - ".$end_time."</b></span><div class='drag-handle full-height' title='Drag Me!'><img class='drag-handle no-toggle' src='".WEBSITE_URL."/img/icons/drag_handle.png' style='filter: brightness(200%); float: right; width: 2em;' title='Drag'></div></div>".($edit_access == 1 ? "</a>" : "");
 						} else if ($calendar_col[$calendar_row][0] == 'ticket_event') {
 							$ticket = $calendar_col[$calendar_row][1];
 							$project_name = $calendar_col[$calendar_row][2];
@@ -726,7 +726,7 @@ function resizeBlocks() {
 							if($ticket_status_color_code == 1 && !empty($ticket_status_color[$status])) {
 								echo '<div class="ticket-status-color" style="background-color: '.$ticket_status_color[$status].';"></div>';
 							}
-							echo "<b>$project_name".'<br />'.$start_time." - ".$end_time."</b></span><div class='drag-handle full-height' title='Drag Me!'><img class='drag-handle' src='".WEBSITE_URL."/img/icons/drag_handle.png' style='filter: brightness(200%); float: right; width: 2em;'></div></div></a>";
+							echo "<b>$project_name".'<br />'.$start_time." - ".$end_time."</b></span><div class='drag-handle full-height' title='Drag Me!'><img class='drag-handle no-toggle' src='".WEBSITE_URL."/img/icons/drag_handle.png' style='filter: brightness(200%); float: right; width: 2em;' title='Drag'></div></div></a>";
 						} else {
 							if ($calendar_col[$calendar_row][1] == 'SHIFT') {
 								$rows = 1;
@@ -825,7 +825,7 @@ function resizeBlocks() {
 								echo "<b>".$current_start_time." - ".$current_end_time."</b>".'<br />';
 								echo get_contact($dbc, ($_GET['mode'] == 'client' ? $appt['therapistsid'] : $appt['patientid']))." - ".($appt['serviceid'] > 0 ? get_services($dbc, $appt['serviceid'], "CONCAT(`category`,' ',`heading`)") : get_type_from_booking($dbc, $appt['type'])).'<br />';
 								echo $appt['follow_up_call_status'];
-								echo "</span><div class='drag-handle full-height' title='Drag Me!'><img class='drag-handle' src='".WEBSITE_URL."/img/icons/drag_handle.png' style='filter: brightness(200%); float: right; width: 2em;'></div></div>".($edit_access == 1 ? "</a>" : "");
+								echo "</span><div class='drag-handle full-height' title='Drag Me!'><img class='drag-handle no-toggle' src='".WEBSITE_URL."/img/icons/drag_handle.png' style='filter: brightness(200%); float: right; width: 2em;' title='Drag'></div></div>".($edit_access == 1 ? "</a>" : "");
 								unset($page_query['action']);
 								unset($page_query['bookingid']);
 							}

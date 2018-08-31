@@ -26,13 +26,6 @@ function changeCategory(sel) {
 }
 </script>
 
-<div class="notice double-gap-bottom popover-examples">
-	<div class="col-sm-1 notice-icon"><img src="<?= WEBSITE_URL; ?>/img/info.png" class="wiggle-me" width="25"></div>
-	<div class="col-sm-11"><span class="notice-name">NOTE:</span>
-	Whether your business maintains its own equipment and wishes to file service requests or work orders through this section or you're looking to track and record progress on all service requests being run through your company, this section has the ability to maintain and monitor all your equipment.</div>
-	<div class="clearfix"></div>
-</div>
-
 <?php $category = $_GET['category'];
 $each_tab = explode(',', get_config($dbc, 'equipment_tabs'));
 

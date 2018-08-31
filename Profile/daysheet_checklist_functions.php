@@ -38,7 +38,7 @@ function changeEndAme(sel) {
 	$(this).prop("disabled",false);
 	var stage = sel.value;
 	var typeId = sel.id;
-	
+
 	var checklist = typeId.split(' ');
 	var checklistid = checklist[1];
 
@@ -62,7 +62,7 @@ function handleClick(sel) {
 
 	$.ajax({    //create an ajax request to load_page.php
 		type: "GET",
-		url: "../Tasks/task_ajax_all.php?fill=trellotable&contactid="+contactide+"&value="+stagee,
+		url: "../Tasks_Updated/task_ajax_all.php?fill=trellotable&contactid="+contactide+"&value="+stagee,
 		dataType: "html",   //expect html to be returned
 		success: function(response){
 			location.reload();
