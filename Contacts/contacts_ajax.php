@@ -1072,6 +1072,70 @@ if($_GET['action'] == 'update_url_send_email') {
 	echo (empty($error) ? 'Successfully sent.' : $error);
 }
 
+if($_GET['action'] == 'save_synced_contact') {
+	$contactid = $_POST['contactid'];
+	$contactsyncid = $_POST['contactsyncid'];
+	$synced_contactid = $_POST['synced_contactid'];
+
+	$old_synced = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `contacts_sync` WHERE `contactsyncid` = '$contactsyncid' AND '$contactsyncid' > 0"));
+
+	$contact_category = get_contact($dbc, $contactid, 'category');
+	$synced_category = get_contact($dbc, $synced_contactid, 'category');
+	$old_synced_category = get_contact($dbc, $old_synced['synced_contactid'], 'category');
+
+	if(($contact_category == BUSINESS_CAT || $old_synced_category == 'Sites') && get_contact($dbc, $old_synced['synced_contactid'], 'businessid') == $contactid) {
+		mysqli_query($dbc, "UPDATE `contacts` SET `businessid` = '' WHERE `contactid` = '".$old_synced['synced_contactid']."'");
+	}
+	if(($contact_category == 'Sites' || $old_synced_category == BUSINESS_CAT) && get_contact($dbc, $contactid, 'businessid') == $old_synced['synced_contactid']) {
+		mysqli_query($dbc, "UPDATE `contacts` SET `businessid` = '' WHERE `contactid` = '".$contactid."'");
+	}
+	if(($synced_category == 'Sites' || $contact_category == BUSINESS_CAT) && !(get_contact($dbc, $synced_contactid, 'businessid') > 0)) {
+		mysqli_query($dbc, "UPDATE `contacts` SET `businessid` = '$contactid' WHERE `contactid` = '$synced_contactid'");
+	}
+	if(($synced_category == BUSINESS_CAT || $contact_category == 'Sites') && !(get_contact($dbc, $contactid, 'businessid') > 0)) {
+		mysqli_query($dbc, "UPDATE `contacts` SET `businessid` = '$synced_contactid' WHERE `contactid` = '$contactid'");
+	}
+
+	if($contactsyncid > 0) {
+		mysqli_query($dbc, "UPDATE `contacts_sync` SET `synced_contactid` = '$synced_contactid' WHERE `contactsyncid` = '$contactsyncid'");
+	} else {
+		mysqli_query($dbc, "INSERT INTO `contacts_sync` (`contactid`, `synced_contactid`) VALUES ('$contactid', '$synced_contactid')");
+		$contactsyncid = mysqli_insert_id($dbc);
+		echo $contactsyncid;
+	}
+}
+
+if($_GET['action'] == 'delete_synced_contact') {
+	$contactsyncid = $_POST['contactsyncid'];
+
+	$synced = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `contacts_sync` WHERE `contactsyncid` = '$contactsyncid' AND '$contactsyncid' > 0"));
+	$contactid = $synced['contactid'];
+	$synced_contactid = $synced['synced_contactid'];
+	$contact_category = get_contact($dbc, $contactid, 'category');
+	$synced_category = get_contact($dbc, $synced_contactid, 'category');
+
+	if(($contact_category == BUSINESS_CAT || $synced_category == 'Sites') && get_contact($dbc, $synced_contactid, 'businessid') == $contactid) {
+		mysqli_query($dbc, "UPDATE `contacts` SET `businessid` = '' WHERE `contactid` = '".$synced_contactid."'");
+	}
+	if(($contact_category == 'Sites' || $synced_category == BUSINESS_CAT) && get_contact($dbc, $contactid, 'businessid') == $synced_contactid) {
+		mysqli_query($dbc, "UPDATE `contacts` SET `businessid` = '' WHERE `contactid` = '".$contactid."'");
+	}
+
+	mysqli_query($dbc, "UPDATE `contacts_sync` SET `deleted` = 1 WHERE `contactsyncid` = '$contactsyncid'");
+}
+
+if($_GET['action'] == 'get_contact_list') {
+	$contactid = $_POST['contactid'];
+	$contact_category = get_contact($dbc, $contactid, 'category');
+
+	$options = '';
+	$contact_list = sort_contacts_query(mysqli_query($dbc, "SELECT * FROM `contacts` WHERE `deleted` = 0 AND `status` > 0 AND `tile_name` = '".FOLDER_NAME."' AND `category` != 'Staff'"));
+	echo '<option value="ADD_NEW">Add New Contact</option>';
+	foreach($contact_list as $contact) {
+        echo '<option data-category="'.$contact['category'].'" value="'.$contact['contactid'].'" '.($contactid == $contact['contactid'] ? 'selected' : '').' '.($contact['category'] != $contact_category && !empty($contact_category) ? 'style="display:none;"' : '').'>'.$contact['full_name'].'</option>';
+    }
+}
+
 function copy_data($dbc, $contactid, $other_contactid) {
 	$contacts_tables = ['contacts','contacts_cost','contacts_dates','contacts_description','contacts_medical','contacts_upload'];
 
