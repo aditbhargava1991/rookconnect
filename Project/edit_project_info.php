@@ -234,7 +234,7 @@ function apply_template() {
 	<div class="form-group">
 		<label class="col-sm-4"><?= BUSINESS_CAT ?><span class="brand-color">*</span>:</label>
 		<div class="col-sm-7 <?= !($security['edit'] > 0) ? 'readonly-block' : '' ?>">
-			<select name="businessid" id="businessid" data-placeholder="Select a <?= BUSINESS_CAT ?>..." data-table="project" data-id="<?= $project['projectid'] ?>" data-id-field="projectid" class="chosen-select-deselect form-control">
+			<select name="businessid" id="businessid" data-placeholder="Select a <?= BUSINESS_CAT ?>..." data-table="project" data-id="<?= $project['projectid'] ?>" data-id-field="projectid" class="chosen-select-deselect form-control required">
 				<option></option>
 				<?php foreach(sort_contacts_query(mysqli_query($dbc,"SELECT contactid, name, region, con_locations, classification FROM contacts WHERE (category='".BUSINESS_CAT."' AND deleted=0 AND `status`=1) OR `contactid`='".$project['businessid']."'")) as $business) {
 					echo "<option ".(($project['businessid'] == $business['contactid'] || ($business['contactid'] == $row_sales['businessid'] && $_GET['edit']==0)) ? 'selected' : '')." value='". $business['contactid']."' data-region='".$business['region']."' data-location='".$business['con_locations']."' data-classification='".$business['classification']."'>".$business['name'].'</option>';
@@ -308,7 +308,7 @@ function apply_template() {
 	<div class="form-group">
 		<label class="col-sm-4">Site<span class="brand-color">*</span>:</label>
 		<div class="col-sm-7 <?= !($security['edit'] > 0) ? 'readonly-block' : '' ?>">
-			<select name="siteid" id="siteid" data-placeholder="Select a Site..." data-table="project" data-id="<?= $project['projectid'] ?>" data-id-field="projectid" class="chosen-select-deselect form-control">
+			<select name="siteid" id="siteid" data-placeholder="Select a Site..." data-table="project" data-id="<?= $project['projectid'] ?>" data-id-field="projectid" class="chosen-select-deselect form-control required">
 				<option></option>
 				<?php foreach(sort_contacts_query(mysqli_query($dbc,"SELECT contactid, businessid, IF(IFNULL(`display_name`,'')='',`site_name`,`display_name`) display, region, con_locations, classification FROM contacts WHERE (category='Sites' AND deleted=0 AND `status` > 0 AND '".$project['businessid']."' IN (`businessid`,'')) OR `contactid`='".$project['siteid']."'")) as $site) {
 					echo "<option ".($project['siteid'] == $site['contactid'] ? 'selected' : '')." value='". $site['contactid']."' data-region='".$site['region']."' data-location='".$site['con_locations']."' data-classification='".$site['classification']."' data-business='".$site['businessid']."'>".$site['display'].'</option>';
@@ -343,7 +343,7 @@ function apply_template() {
 	<div class="form-group">
 		<label class="col-sm-4">Type<span class="brand-color">*</span>:</label>
 		<div class="col-sm-8 <?= !($security['edit'] > 0) ? 'readonly-block' : '' ?>">
-			<select name="projecttype" id="projecttype" data-placeholder="Select a Type..." data-table="project" data-id="<?= $project['projectid'] ?>" data-id-field="projectid" class="chosen-select-deselect form-control">
+			<select name="projecttype" id="projecttype" data-placeholder="Select a Type..." data-table="project" data-id="<?= $project['projectid'] ?>" data-id-field="projectid" class="chosen-select-deselect form-control required">
 				<option value=''></option>
 				<?php $project_tabs = get_config($dbc, 'project_tabs');
 				$project_tabs = explode(',',$project_tabs);
@@ -420,7 +420,7 @@ function apply_template() {
 		<div class="form-group">
 			<label class="col-sm-4">AFE #<span class="brand-color">*</span>:</label>
 			<div class="col-sm-8 <?= !($security['edit'] > 0) ? 'readonly-block' : '' ?>">
-				<input name="afe_number" value="<?= $project['afe_number'] ?>" data-table="project" data-id="<?= $project['projectid'] ?>" data-id-field="projectid" type="text" class="form-control"></p>
+				<input name="afe_number" value="<?= $project['afe_number'] ?>" data-table="project" data-id="<?= $project['projectid'] ?>" data-id-field="projectid" type="text" class="form-control required"></p>
 			</div>
 		</div>
 	<?php } ?>
@@ -429,7 +429,7 @@ function apply_template() {
 		<div class="form-group">
 			<label class="col-sm-4"><?= PROJECT_NOUN ?> Short Name<span class="brand-color">*</span>:</label>
 			<div class="col-sm-8 <?= !($security['edit'] > 0) ? 'readonly-block' : '' ?>">
-				<input name="project_name" value="<?= $project['project_name'] ?>" data-table="project" data-id="<?= $project['projectid'] ?>" data-id-field="projectid" type="text" class="form-control"></p>
+				<input name="project_name" value="<?= $project['project_name'] ?>" data-table="project" data-id="<?= $project['projectid'] ?>" data-id-field="projectid" type="text" class="form-control required"></p>
 			</div>
 		</div>
 	<?php } ?>
