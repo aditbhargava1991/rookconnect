@@ -33,22 +33,13 @@ if(isset($_GET['unfavourite'])) {
 
 if($_GET['search_contacts'] != '') {
 	$search_contacts = base64_decode($_GET['search_contacts']);
-	$id_list = search_contacts_table($dbc, $search_contacts, " AND `tile_name`='".$folder_name."'", "ANY", 1);
+	$id_list = search_contacts_table($dbc, $search_contacts, " AND `tile_name`='".$folder_name."'");
 	$query_check_credentials = "SELECT `contactid`, `businessid`, `category`, `name`, `first_name`, `last_name`, `site_name`, `display_name`, `description`, `office_phone`, `cell_phone`, `home_phone`, `email_address`, `website`, `address`, `mailing_address`, `business_address`, `ship_to_address`, `google_maps_address`, `ship_google_link`, `is_favourite`, `preferred_pronoun`, `birth_date`, `linkedin`, `facebook`, `twitter`, `google_plus`, `instagram`, `pinterest`, `youtube`, `blog`, `status` FROM contacts WHERE `contactid` IN ($id_list)";
 	$query = "SELECT count(`contactid`) as numrows FROM contacts WHERE `contactid` IN ($id_list)";
 }
 else if(isset($_POST['search_'. $category.'_submit']) && $_POST['search_'. $category] != '') {
-	$query_strings = explode('&', $_SERVER['QUERY_STRING']);
-	foreach($query_strings as $query_key => $query_string) {
-		if(explode('=',$query_string)[0] == 'search_'.$category.'_submit' || explode('=',$query_string)[0] == 'search_'.$category || explode('=',$query_string)[0] == 'page') {
-			unset($query_strings[$query_key]);
-		}
-	}
-	$query_strings[] = 'search_'.$category.'_submit='.$_POST['search_'.$category.'_submit'];
-	$query_strings[] = 'search_'.$category.'='.$_POST['search_'.$category];
-	$_SERVER['QUERY_STRING'] = implode('&', $query_strings);
 	$search_contacts = $_POST['search_'. $category];
-	$id_list = search_contacts_table($dbc, $search_contacts, " AND `tile_name`='".$folder_name."' AND (category LIKE '$category' OR ('$category'='Uncategorized' AND `category` NOT IN ('".implode("','",$lists)."','Staff')))", "ANY", 1);
+	$id_list = search_contacts_table($dbc, $search_contacts, " AND `tile_name`='".$folder_name."' AND (category LIKE '$category' OR ('$category'='Uncategorized' AND `category` NOT IN ('".implode("','",$lists)."','Staff')))");
 	$query_check_credentials = "SELECT `contactid`, `businessid`, `category`, `name`, `first_name`, `last_name`, `site_name`, `display_name`, `description`, `office_phone`, `cell_phone`, `home_phone`, `email_address`, `website`, `address`, `mailing_address`, `business_address`, `ship_to_address`, `google_maps_address`, `ship_google_link`, `is_favourite`, `preferred_pronoun`, `birth_date`, `linkedin`, `facebook`, `twitter`, `google_plus`, `instagram`, `pinterest`, `youtube`, `blog`, `status` FROM contacts WHERE `contactid` IN ($id_list)";
 	$query = "SELECT count(`contactid`) as numrows FROM contacts WHERE `contactid` IN ($id_list)";
 }
