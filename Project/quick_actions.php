@@ -139,8 +139,12 @@ function saveNote(sel) {
 </script>
 <?php $quick_actions = explode(',',get_config($dbc, 'quick_action_icons')); ?>
 <!-- All icons -->
-<div class="icons_div" data-id="<?= $project['projectid'] ?>">
-    <div class="action-icons">
+<div class="action-icons">
+        <!-- Status Report Icon -->
+        <?php if($status_report) { ?>
+            <a href="Status Report" onclick="overlayIFrameSlider('edit_project_scope_status_report.php?projectid='+id,'auto',true,true); return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/pie-chart.png" class="inline-img no-toggle" title="Status Report"></a>
+        <?php } ?>
+        <!-- Status Report Icon -->
         <?php if(!in_array('flag_manual',$quick_actions) && in_array('flag',$quick_actions)) { ?>
             <a href="Flag This!" onclick="return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-flag-icon.png" class="inline-img no-toggle flag-icon" title="Flag This!" /></a>
         <?php } ?>
