@@ -482,8 +482,18 @@ if(($_GET['type'] == 'uni' || $_GET['type'] == 'my') && empty($_GET['shiftid']) 
 		$calendar_table[$calendar_date][$equipment['equipmentid']]['title'] = '<div class="equip_assign_block" data-date="'.$calendar_date.'" data-equip="'.$equipment['equipmentid'].'">'.($edit_access == 1 ? '<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Calendar/equip_assign.php?equipment_assignmentid=NEW&equipmentid='.$equipment['equipmentid'].'&region='.$_GET['region'].'&start_date='.$calendar_date.'&end_date='.$calendar_date.'\'); return false;">' : '').$equipment['label'].$region_label.$classification_label.($edit_access == 1 ? '</a>' : '').'<br />'.$team_name.'</div>';
 	}
 	// Add Sorting and Mapping icons
+    $map_sort_warning = '';
 	if(get_config($dbc, 'scheduling_calendar_sort_auto') == 'map_sort' && $edit_access == 1) {
-		$calendar_table[$calendar_date][$equipment['equipmentid']]['title'] .= '<a href="" class="pull-right" onclick="get_addresses(\''.$calendar_date.'\', \''.$equipment['equipmentid'].'\'); return false;"><img class="inline-img" title="Sort '.TICKET_TILE.'" src="../img/sort-icon.png"></a>';
+        $map_sort_tickets = $dbc->query("SELECT `tickets`.* FROM `tickets` LEFT JOIN `ticket_schedule` ON `tickets`.`ticketid`=`ticket_schedule`.`ticketid` WHERE IFNULL(NULLIF(`ticket_schedule`.`equipmentid`,0),`tickets`.`equipmentid`) = '".$equipment['equipmentid']."' AND IFNULL(NULLIF(`ticket_schedule`.`to_do_date`,''),`tickets`.`to_do_date`) = '".$calendar_date."' AND (REPLACE(IFNULL(IFNULL(NULLIF(`ticket_schedule`.`serviceid`,''),`tickets`.`serviceid`),''),',','')='' OR NULLIF(IFNULL(NULLIF(IFNULL(NULLIF(`ticket_schedule`.`est_time`,0),`tickets`.`est_time`),0),`tickets`.`max_time`),'00:00:00') IS NULL) GROUP BY `tickets`.`ticketid`");
+        if($map_sort_tickets->num_rows > 0) {
+            // Add warning if sorting is disabled due to missing fields
+            $map_sort_warning = 'Unable to Auto Sort '.TICKET_TILE.' due to missing fields:';
+            while($map_sort_error = $map_sort_tickets->fetch_assoc()) {
+                $map_sort_warning .= ' <a href="../Ticket/index.php?edit='.$map_sort_error['ticketid'].'" class="pull-right" onclick="overlayIFrameSlider(this.href+\'&calendar_view=true\',\'auto\',true,false); return false;">'.get_ticket_label($dbc, $map_sort_error).'</a>';
+            }
+        } else {
+            $calendar_table[$calendar_date][$equipment['equipmentid']]['title'] .= '<a href="" class="pull-right" onclick="get_addresses(\''.$calendar_date.'\', \''.$equipment['equipmentid'].'\'); return false;"><img class="inline-img" title="Sort '.TICKET_TILE.'" src="../img/sort-icon.png"></a>';
+        }
 	}
 	$calendar_table[$calendar_date][$equipment['equipmentid']]['title'] .= '<a href="" class="pull-right" onclick="get_day_map(\''.$calendar_date.'\', \''.$equipment['equipmentid'].'\'); return false;"><img class="inline-img" title="View Schedule Map" src="../img/icons/navigation.png"></a>';
 
@@ -645,6 +655,9 @@ if(($_GET['type'] == 'uni' || $_GET['type'] == 'my') && empty($_GET['shiftid']) 
 	}
 	if($warning_num_tickets > 0 && $calendar_table[$calendar_date][$equipment['equipmentid']]['total_tickets'] >= $warning_num_tickets) {
 		$calendar_table[$calendar_date][$contact_id]['warnings'][] = 'There are '.$calendar_table[$calendar_date][$equipment['equipmentid']]['total_tickets'].' '.TICKET_TILE.' on this day which exceeds the set limit of '.$warning_num_tickets.'.';
+	}
+	if(!empty($map_sort_warning)) {
+		$calendar_table[$calendar_date][$contact_id]['warnings'][] = $map_sort_warning;
 	}
 
 	if(!empty($ticket_notes[$calendar_date][$equipment['equipmentid']])) {

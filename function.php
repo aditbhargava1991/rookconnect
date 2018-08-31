@@ -2690,7 +2690,7 @@ function sortByLastName($a) {
 
 /* Convert Decimal Hours to Hours:Minutes */
 function time_decimal2time($decimal_time, $pad = false) {
-	$minutes = ceil($decimal_time * 60);
+	$minutes = round($decimal_time * 60);
 	$hours = ($pad ? sprintf('%02d',floor($minutes / 60)) : floor($minutes / 60));
 	$minutes -= ($hours * 60);
 	return $hours.':'.sprintf('%02d',$minutes);
@@ -3466,3 +3466,4 @@ function capture_before_change($dbc, $table, $find, $where, $wherevalue, $where2
 function capture_after_change($find, $value) {
 	return "$find is set to " . $value . ".<br />";
 }
+ 
