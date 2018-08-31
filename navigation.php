@@ -98,18 +98,16 @@ $(document).ready(function() {
 
     if ( $(window).width() < 768 ) {
         var runningTicket = $('.active-ticket');
-        if($('.container').offset() != undefined) {
-	        var container = $('.container').offset().top + 20;
+        var container = $('.container').offset().top + 20;
 
-	        $(window).scroll(function(){
-	            if ( $(window).scrollTop()>container && runningTicket.is(':visible') ){
-	                runningTicket.stop().hide();
-	            }
-	            else if ( $(window).scrollTop()<container && runningTicket.is(':hidden') ){
-	                runningTicket.stop().show();
-	            }
-	        });
-	    }
+        $(window).scroll(function(){
+            if ( $(window).scrollTop()>container && runningTicket.is(':visible') ){
+                runningTicket.stop().hide();
+            }
+            else if ( $(window).scrollTop()<container && runningTicket.is(':hidden') ){
+                runningTicket.stop().show();
+            }
+        });
     }
 });
 
