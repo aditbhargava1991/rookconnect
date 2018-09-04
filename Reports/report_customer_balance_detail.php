@@ -288,7 +288,7 @@ function report_daily_validation($dbc, $starttime, $endtime, $as_at_date, $invoi
 
         $report_data .= '<tr nobr="true" style="'.$bg_class.'">';
             $report_data .= '<td>#'.$invoiceid;
-            $name_of_file = '../'.$folder_name.'/Download/invoice_'.$invoiceid.'.pdf';
+            $name_of_file = '../'.$folder_name.'/download/invoice_'.$invoiceid.'.pdf';
             $report_data .= '&nbsp;&nbsp;<a href="'.$name_of_file.'" target="_blank"> <img src="'.WEBSITE_URL.'/img/pdf.png" title="PDF"> </a></td>';
             $report_data .= '<td>'.$row_report['invoice_date'].'</td>';
             $report_data .= '<td><a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/'.CONTACTS_TILE.'/contacts_inbox.php?edit='.$row_report['patientid'].'\', \'auto\', false, true, $(\'#report_div\').outerHeight()+20); return false;">'.get_contact($dbc, $row_report['patientid']). '</a></td>';
