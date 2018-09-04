@@ -38,6 +38,12 @@ if($_GET['fill'] == 'setting_quick_icon') {
 	set_config($dbc, 'task_quick_action_icons', filter_var($tab_list,FILTER_SANITIZE_STRING));
 }
 
+if($_GET['fill'] == 'task_tile_noun') {
+    $task_tile = $_GET['task_tile'];
+    $task_noun = $_GET['task_noun'];
+    set_config($dbc, 'task_tile_name', filter_var($task_tile.'#*#'.$task_noun,FILTER_SANITIZE_STRING));
+}
+
 if($_GET['fill'] == 'setting_flag_colours') {
     $flag_colours = $_GET['flag_colours'];
 

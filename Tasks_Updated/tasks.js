@@ -66,6 +66,17 @@ function sliderLayout(sel) {
 	});
 }
 
+function taskTileNoun(sel) {
+	var task_tile = $('.task_tile').val();
+	var task_noun = $('.task_noun').val();
+
+	$.ajax({    //create an ajax request to ajax_all.php
+		type: "GET",
+		url: "task_ajax_all.php?fill=task_tile_noun&task_tile="+task_tile+"&task_noun="+task_noun,
+		dataType: "html",   //expect html to be returned
+	});
+}
+
 function saveAutoArchive(sel) {
 	var tile_value = sel.value;
 

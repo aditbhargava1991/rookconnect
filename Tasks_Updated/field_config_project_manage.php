@@ -10,7 +10,13 @@ error_reporting(0);
 
 $task_tile = TASK_TILE;
 $task_noun = TASK_NOUN;
+if(isset($_POST['task_tile'])) {
+    set_config($dbc, 'task_tile_name', filter_var($_POST['task_tile'].'#*#'.$_POST['task_noun'],FILTER_SANITIZE_STRING));
+	$task_tile = $_POST['task_tile'];
+    $task_noun = $_POST['task_noun'];
+}
 
+/*
 if(isset($_POST['task_include_checklists'])) {
     $task_include_checklists = filter_var($_POST['task_include_checklists'],FILTER_SANITIZE_STRING);
     set_config($dbc, 'task_include_checklists', $task_include_checklists);
@@ -19,11 +25,7 @@ if(isset($_POST['tasks_slider_layout'])) {
     $tasks_slider_layout = filter_var($_POST['tasks_slider_layout'],FILTER_SANITIZE_STRING);
     set_config($dbc, 'tasks_slider_layout', $tasks_slider_layout);
 }
-if(isset($_POST['task_tile'])) {
-    set_config($dbc, 'task_tile_name', filter_var($_POST['task_tile'].'#*#'.$_POST['task_noun'],FILTER_SANITIZE_STRING));
-	$task_tile = $_POST['task_tile'];
-    $task_noun = $_POST['task_noun'];
-}
+
 if(isset($_POST['task_noun'])) {
     set_config($dbc, 'task_tile_name', filter_var($_POST['task_tile'].'#*#'.$_POST['task_noun'],FILTER_SANITIZE_STRING));
 	$task_tile = $_POST['task_tile'];
@@ -137,19 +139,26 @@ if(!empty($_POST['submit'])) {
                         </h4>
                     </div>
 
+                    <?php
+                    $task_tile_name = get_config($dbc, 'task_tile_name');
+                    $task_tile_name = explode('#*#',get_config($dbc, 'task_tile_name') ?: 'Task#*#Task');
+                    $task_tile = $task_tile_name[0] ?: 'Task';
+                    $task_noun = !empty($task_tile_name[1]) ? $task_tile_name[1] : ($task_tile_name[0] == 'Task' ? 'Task' : $task_tile_name[0]) ?: 'Task';
+                    ?>
+
                     <div id="collapse_slider1" class="panel-collapse collapse in">
                         <div class="panel-body">
                             <div class="form-group">
                                 <label class="col-sm-4">Tile Name: <br><em>Enter the name you would like the Task tile to be labelled as.</em></label>
                                 <div class="col-sm-8">
-                                    <input name="task_tile" type="text" value="<?= $task_tile ?>" class="form-control"/>
+                                    <input name="task_tile" onchange="taskTileNoun(this)" type="text" value="<?= $task_tile ?>" class="form-control task_tile"/>
                                 </div>
                             </div>
 
                             <div class="form-group">
                                 <label class="col-sm-4">Tile Noun:<br /><em>Enter the name you would like individual Inventory to be labelled as.</em></label>
                                 <div class="col-sm-8">
-                                    <input name="task_noun" type="text" value="<?= $task_noun ?>" class="form-control"/>
+                                    <input name="task_noun" onchange="taskTileNoun(this)" type="text" value="<?= $task_noun ?>" class="form-control task_noun"/>
                                 </div>
                             </div>
 
