@@ -825,7 +825,7 @@ function deletestartTicketStaff(button) {
 
         <form id="form1" name="form1" method="post"	action="" enctype="multipart/form-data" class="form-horizontal" role="form">
         <div class="scale-to-fill">
-            <h1 class="gap-left"><a href="index.php?category=All&tab=Summary">Task</a></h1>
+            <h1 class="gap-left"><a href="index.php?category=All&tab=Summary"><?= TASK_NOUN ?></a></h1>
         </div>
 
 
@@ -833,9 +833,9 @@ function deletestartTicketStaff(button) {
         <ul>
             <a href="index.php?category=All&tab=Summary"><li>Back to Dashboard</li></a>
 
-            <a href="#taskboard"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_taskboard" id="nav_taskboard">Task Board</li></a>
+            <a href="#taskboard"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_taskboard" id="nav_taskboard"><?= TASK_NOUN ?> Board</li></a>
             <a href="#project" class="project-section project_section_display" style="<?= $project_section_display ?>"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_project" id="nav_project">Project</li></a>
-            <a href="#taskpath" class="taskpath_section_display"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_taskpath" id="nav_taskpath">Task Path</li></a>
+            <a href="#taskpath" class="taskpath_section_display"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_taskpath" id="nav_taskpath"><?= TASK_NOUN ?> Path</li></a>
 
             <a href="#contacts" class="contact-section contact_section_display" style="<?= $contact_section_display ?>"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_contacts" id="nav_contacts">Contacts</li></a>
             <a href="#sales" class="sales-section sales_section_display" style="<?= $sales_section_display ?>"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_sales" id="nav_sales">Sales</li></a>
@@ -979,21 +979,21 @@ function deletestartTicketStaff(button) {
 <div class="standard-body full-height">
 
         <div class="standard-body-title hide-on-mobile" style="padding-top:0 !important;">
-            <h3 class=""><?= !empty($_GET['tasklistid']) ? 'Edit' : 'Add' ?> Task<?= !empty($_GET['tasklistid']) ? ' #'.$_GET['tasklistid'].': '.$task_heading : '' ?></h3>
+            <h3 class=""><?= !empty($_GET['tasklistid']) ? 'Edit' : 'Add' ?> <?= TASK_NOUN ?><?= !empty($_GET['tasklistid']) ? ' #'.$_GET['tasklistid'].': '.$task_heading : '' ?></h3>
         </div>
 
-            <?php if(!empty($_GET['tasklistid'])) { ?><button name="" type='button' value="" class="delete_task pull-right image-btn" style="margin-top:3px;"><img class="no-margin small" src="../img/icons/trash-icon-red.png" alt="Delete Task" width="25"></button><?php } ?>
+            <?php if(!empty($_GET['tasklistid'])) { ?><button name="" type='button' value="" class="delete_task pull-right image-btn" style="margin-top:3px;"><img class="no-margin small" src="../img/icons/trash-icon-red.png" alt="Delete <?= TASK_NOUN ?>" width="25"></button><?php } ?>
 
             <div class="standard-body-content">
 
 
                 <div class="accordion-block-details padded" id="taskboard">
-                    <div class="accordion-block-details-heading"><h4>Task Board</h4></div>
+                    <div class="accordion-block-details-heading"><h4><?= TASK_NOUN ?> Board</h4></div>
 
                         <div class="form-group">
-                            <label for="site_name" class="col-sm-4 control-label">Task Board Type:</label>
+                            <label for="site_name" class="col-sm-4 control-label"><?= TASK_NOUN ?> Board Type:</label>
                             <div class="col-sm-8">
-                                <select data-placeholder="Select a Task Board Type..." name="task_board_type" id="task_board_type" class="chosen-select-deselect form-control" data-field="board_security" width="380">
+                                <select data-placeholder="Select a <?= TASK_NOUN ?> Board Type..." name="task_board_type" id="task_board_type" class="chosen-select-deselect form-control" data-field="board_security" width="380">
                                     <option></option>
                                     <option value="Private" <?= $board_security=='Private' ? 'selected' : '' ?>>Private</option><?php
                                     $all_board_types = mysqli_fetch_array(mysqli_query($dbc, "SELECT task_dashboard_tile FROM task_dashboard"));
@@ -1014,9 +1014,9 @@ function deletestartTicketStaff(button) {
                             </div>
                         </div>
                         <div class="form-group hide_task_board_name">
-                            <label for="site_name" class="col-sm-4 control-label">Task Board Name:</label>
+                            <label for="site_name" class="col-sm-4 control-label"><?= TASK_NOUN ?> Board Name:</label>
                             <div class="col-sm-8">
-                                <select data-placeholder="Select a Task Board..." name="task_board" class="chosen-select-deselect form-control" data-table="tasklist" data-field="task_board" width="380">
+                                <select data-placeholder="Select a <?= TASK_NOUN ?> Board..." name="task_board" class="chosen-select-deselect form-control" data-table="tasklist" data-field="task_board" width="380">
                                     <option></option>
                                     <!-- <option value="NEW">Add New Task Board</option> -->
                                     <?php
@@ -1028,7 +1028,7 @@ function deletestartTicketStaff(button) {
                             </div>
                         </div>
                         <div class="form-group clearfix new-board-name" style="display:none;">
-                            <label for="first_name" class="col-sm-4 control-label text-right">New Task Board Name:</label>
+                            <label for="first_name" class="col-sm-4 control-label text-right">New <?= TASK_NOUN ?> Board Name:</label>
                             <div class="col-sm-8">
                                 <input type="text" name="new_task_board" value="" data-table="tasklist" data-field="board_name" class="form-control" width="380" />
                             </div>
@@ -1070,12 +1070,12 @@ function deletestartTicketStaff(button) {
 
                 <div class="taskpath-section taskpath_section_display" style="<?= $taskpath_section_display ?>">
                     <div class="accordion-block-details padded" id="taskpath">
-                        <div class="accordion-block-details-heading"><h4>Task Path</h4></div>
+                        <div class="accordion-block-details-heading"><h4><?= TASK_NOUN ?> Path</h4></div>
 
                             <div class="form-group">
-                                <label for="site_name" class="col-sm-4 control-label">Task Path:</label>
+                                <label for="site_name" class="col-sm-4 control-label"><?= TASK_NOUN ?> Path:</label>
                                 <div class="col-sm-8">
-                                    <select data-placeholder="Select a Task Path..." id="task_path" name="task_path" data-table="tasklist" data-field="task_path" class="chosen-select-deselect form-control" width="380">
+                                    <select data-placeholder="Select a <?= TASK_NOUN ?> Path..." id="task_path" name="task_path" data-table="tasklist" data-field="task_path" class="chosen-select-deselect form-control" width="380">
                                         <option value=""></option><?php
                                         $project_path_milestones = [];
                                         if($task_projectid > 0) {
@@ -1264,7 +1264,7 @@ function deletestartTicketStaff(button) {
 
                         <div class="form-group clearfix">
                             <label for="first_name" class="col-sm-4 control-label text-right">
-                                <!-- <img src="../img/icons/ROOK-edit-icon.png" class="inline-img" /> --> Task Name:
+                                <!-- <img src="../img/icons/ROOK-edit-icon.png" class="inline-img" /> --> <?= TASK_NOUN ?> Name:
                             </label>
                             <div class="col-sm-8">
                                 <?php $groups = $dbc->query("SELECT `category` FROM `task_types` WHERE `deleted`=0 GROUP BY `category` ORDER BY MIN(`sort`), MIN(`id`)");
@@ -1485,8 +1485,10 @@ function deletestartTicketStaff(button) {
 
             <div class="form-group pull-right">
                 <a href="index.php?category=All&tab=Summary" class="btn brand-btn pull-left">Cancel</a>
-                <button name="tasklist" value="tasklist" class="btn brand-btn pull-right stop-timer-submit">Submit</button>
-                <?php if(!empty($_GET['tasklistid'])) { ?><button name="" type='button' value="" class="delete_task pull-right image-btn"><img class="no-margin small" src="../img/icons/trash-icon-red.png" alt="Delete Task" width="30"></button><?php } ?>
+
+                <button name="tasklist" value="tasklist" class="btn brand-btn pull-right">Submit</button>
+                <?php if(!empty($_GET['tasklistid'])) { ?><button name="" type='button' value="" class="delete_task pull-right image-btn"><img class="no-margin small" src="../img/icons/trash-icon-red.png" alt="Delete <?= TASK_NOUN ?>" width="30"></button><?php } ?>
+
                 <div class="clearfix"></div>
             </div>
         </form>

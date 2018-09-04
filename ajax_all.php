@@ -491,7 +491,6 @@ if($_GET['fill'] == 'client_project_etaquote') {
 }
 
 if($_GET['fill'] == 'invoice') {
-    echo '<option value=""></option>';
     if(!empty($_GET['serviceid'])) {
         $serviceid = $_GET['serviceid'];
         $invoiceid = $_GET['invoiceid'];
@@ -544,6 +543,7 @@ if($_GET['fill'] == 'invoice') {
             //with rate card
             $query = mysqli_query($dbc,"SELECT s.serviceid, s.heading, r.cust_price, r.editable FROM services s,  company_rate_card r WHERE s.deleted=0 AND r.deleted=0 AND s.category='$category' AND s.serviceid = r.item_id AND (s.appointment_type = '' OR s.appointment_type='$app_type') AND '$invoice_date' >= r.start_date AND (IFNULL(r.end_date,'0000-00-00') = '0000-00-00' OR r.end_date >= '$invoice_date')");
         }
+        echo '<option value=""></option>';
         while($row = mysqli_fetch_array($query)) {
            echo "<option data-editable='".$row['editable']."' ".($serviceid==$row['serviceid'] ? 'selected' : '')." value='". $row['serviceid']."'>".$row['heading'].'</option>';
         }

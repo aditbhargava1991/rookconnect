@@ -1029,7 +1029,7 @@ checkAuthorised();
                                     </tr>
 
                                     <tr>
-                                        <td data-title="Comment">Tasks</td>
+                                        <td data-title="Comment"><?= TASK_TILE ?></td>
                                         <?php echo tile_config_function($dbc, 'tasks', 'admin'); ?>
                                     </tr>
 
