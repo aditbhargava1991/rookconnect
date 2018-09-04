@@ -167,6 +167,13 @@ if (isset($_POST['add_tab'])) {
 	}
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'uni_use_shifts' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='uni_use_shifts') num WHERE num.rows=0");
 	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$uni_use_shifts."' WHERE `name`='uni_use_shifts'");
+	if (!empty($_POST['uni_teams'])) {
+		$uni_teams = $_POST['uni_teams'];
+	} else {
+		$uni_teams = '';
+	}
+	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'uni_teams' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='uni_teams') num WHERE num.rows=0");
+	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$uni_teams."' WHERE `name`='uni_teams'");
 	if (!empty($_POST['uni_default_view'])) {
 		$uni_default_view = $_POST['uni_default_view'];
 	} else {
@@ -202,6 +209,13 @@ if (isset($_POST['add_tab'])) {
 	}
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'uni_availability_indication' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='uni_availability_indication') num WHERE num.rows=0");
 	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$uni_availability_indication."' WHERE `name`='uni_availability_indication'");
+	if (!empty($_POST['uni_staff_split_security'])) {
+		$uni_staff_split_security = $_POST['uni_staff_split_security'];
+	} else {
+		$uni_staff_split_security = '';
+	}
+	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'uni_staff_split_security' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='uni_staff_split_security') num WHERE num.rows=0");
+	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$uni_staff_split_security."' WHERE `name`='uni_staff_split_security'");
 
 	// Appointment Calendar Settings
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'appt_day_start' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='appt_day_start') num WHERE num.rows=0");
@@ -1479,6 +1493,13 @@ function showDefaultView(chk) {
 									<label class="form-checkbox"><input type="checkbox" name="uni_use_shifts" <?= $uni_use_shifts != '' ? 'checked' : '' ?> value="1" onchange="showDefaultView(this);"></label>
 								</div>
 							</div>
+							<div class="form-group">
+								<label class="col-sm-4 control-label">Universal Calendar Use Teams:</label>
+								<div class="col-sm-8">
+									<?php $uni_teams = get_config($dbc, 'uni_teams'); ?>
+									<label class="form-checkbox"><input type="checkbox" name="uni_teams" <?= $uni_teams != '' ? 'checked' : '' ?> value="1"></label>
+								</div>
+							</div>
 							<div class="form-group shifts_default_view" <?= $uni_use_shifts != '' ? '' : 'style="display:none;"' ?>>
 								<label class="col-sm-4 control-label">Universal Calendar Default View:</label>
 								<div class="col-sm-8">
@@ -1514,6 +1535,13 @@ function showDefaultView(chk) {
 									<?php $uni_availability_indication = get_config($dbc, 'uni_availability_indication'); ?>
 									<label class="form-checkbox"><input type="radio" name="uni_availability_indication" <?= empty($uni_availability_indication) ? 'checked' : '' ?> value=""> All Day Availability</label>
 									<label class="form-checkbox"><input type="radio" name="uni_availability_indication" <?= $uni_availability_indication == 1 ? 'checked' : '' ?> value="1"> No Availability</label>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-4 control-label">Split Staff By Security Level:</label>
+								<div class="col-sm-8">
+									<?php $uni_staff_split_security = get_config($dbc, 'uni_staff_split_security'); ?>
+									<label class="form-checkbox"><input type="checkbox" name="uni_staff_split_security" <?= $uni_staff_split_security != '' ? 'checked' : '' ?> value="1"></label>
 								</div>
 							</div>
 						</div>
@@ -2215,7 +2243,7 @@ function showDefaultView(chk) {
 								<div class="col-sm-8">
 									<?php $scheduling_drag_multiple = get_config($dbc, 'scheduling_drag_multiple'); ?>
 									<label class="form-checkbox"><input type="checkbox" name="scheduling_drag_multiple" <?= $scheduling_drag_multiple == 1 ? 'checked' : '' ?> value="1"></label>
-                </div>
+				                </div>
 							</div>
 							<div class="form-group">
 								<label class="col-sm-4 control-label"><span class='popover-examples list-inline'><a data-toggle='tooltip' data-placement='top' title='This will display the Calendar to the selected Security Levels with a limited view to only things related to them.'><img src='<?= WEBSITE_URL ?>/img/info.png' width='20'></a></span> Customer View Security Levels:</label>

@@ -369,11 +369,6 @@ function toggle_columns(type = '', reload_teams = 0) {
 				<img src="../img/legend-icon.png">
 			</div>
 		<?php } ?>
-		<div class="block-button" style="margin-left: 1em;">
-			<img src="<?= WEBSITE_URL ?>/img/block/green.png" width="10" height="10" border="0" alt="">&nbsp;&nbsp;Today + Following Day&nbsp;&nbsp;&nbsp;&nbsp;
-			<img src="<?= WEBSITE_URL ?>/img/block/orange.png" width="10" height="10" border="0" alt="">&nbsp;&nbsp;Last 2 Days&nbsp;&nbsp;&nbsp;&nbsp;
-			<img src="<?= WEBSITE_URL ?>/img/block/red.png" width="10" height="10" border="0" alt="">&nbsp;&nbsp;Older Than 2 Previous Days
-		</div>
 		<a href="" onclick="$('.set_date').focus(); return false;"><div class="block-button pull-right"><img src="../img/icons/calendar-button.png" style="height: 1em; margin-right: 1em;">Go To Date</div></a>
 		<?php unset($page_query['date']); ?>
 		<a href="" onclick="changeDate('<?= date('Y-m-d') ?>'); return false;"><div class="block-button pull-right">Today</div></a>

@@ -227,6 +227,58 @@ while($row = mysqli_fetch_array( $result )) {
 
             $status_color = '';
             $status = $row_tickets['status'];
+			if ($status == 'Internal QA') {
+				if (!empty($row_tickets['internal_qa_start_time'])) {
+					$current_start_time = date('h:i a', strtotime($row_tickets['internal_qa_start_time']));
+					if (!empty($row_tickets['internal_qa_end_time'])) {
+						$duration = (strtotime($row_tickets['internal_qa_end_time']) - strtotime($current_start_time));
+						$current_end_time = date('h:i a', strtotime($row_tickets['internal_qa_end_time']));
+					} else {
+						$max_time = explode(':',$row_tickets['max_qa_time']);
+						$duration = ($max_time[0] * 3600) + ($max_time[1] * 60);
+						$current_end_time = date('h:i a', strtotime($current_start_time) + $duration);
+					}
+				} else {
+					$current_start_time = date('h:i a', strtotime($day_start) + ($calendar_row * $day_period * 60));
+					$max_time = explode(':',$row_tickets['max_qa_time']);
+					$duration = ($max_time[0] * 3600) + ($max_time[1] * 60);
+					$current_end_time = date('h:i a', strtotime($current_start_time) + $duration);
+				}
+			} else if ($status == 'Customer QA') {
+				if (!empty($row_tickets['deliverable_start_time'])) {
+					$current_start_time = date('h:i a', strtotime($row_tickets['deliverable_start_time']));
+					if (!empty($row_tickets['deliverable_end_time'])) {
+						$duration = (strtotime($row_tickets['deliverable_end_time']) - strtotime($current_start_time));
+						$current_end_time = date('h:i a', strtotime($row_tickets['deliverable_end_time']));
+					} else {
+						$max_time = explode(':',$row_tickets['max_qa_time']);
+						$duration = ($max_time[0] * 3600) + ($max_time[1] * 60);
+						$current_end_time = date('h:i a', strtotime($current_start_time) + $duration);
+					}
+				} else {
+					$current_start_time = date('h:i a', strtotime($day_start) + ($calendar_row * $day_period * 60));
+					$max_time = explode(':',$row_tickets['max_qa_time']);
+					$duration = ($max_time[0] * 3600) + ($max_time[1] * 60);
+					$current_end_time = date('h:i a', strtotime($current_start_time) + $duration);
+				}
+			} else {
+				if (!empty($row_tickets['to_do_start_time'])) {
+					$current_start_time = date('h:i a', strtotime($row_tickets['to_do_start_time']));
+					if (!empty($row_tickets['to_do_end_time'])) {
+						$duration = (strtotime($row_tickets['to_do_end_time']) - strtotime($current_start_time));
+						$current_end_time = date('h:i a', strtotime($row_tickets['to_do_end_time']));
+					} else {
+						$max_time = explode(':',$row_tickets['max_time']);
+						$duration = ($max_time[0] * 3600) + ($max_time[1] * 60);
+						$current_end_time = date('h:i a', strtotime($current_start_time) + $duration);
+					}
+				} else {
+					$current_start_time = date('h:i a', strtotime($day_start) + ($calendar_row * $day_period * 60));
+					$max_time = explode(':',$row_tickets['max_time']);
+					$duration = ($max_time[0] * 3600) + ($max_time[1] * 60);
+					$current_end_time = date('h:i a', strtotime($current_start_time) + $duration);
+				}
+			}
 			if($calendar_checkmark_tickets == 1 && in_array($status, $calendar_checkmark_status)) {
 				$checkmark_ticket = 'calendar-checkmark-ticket-month';
 			} else {
@@ -259,7 +311,7 @@ while($row = mysqli_fetch_array( $result )) {
 		        $icon_img = '';
 		    	$icon_background = '';
 		    }
-            $status_color = 'block/'.$status_array[$status];
+	        $status_color = 'block/'.$status_array[$status];
 		    $recurring_icon = '';
 		    if($row_tickets['is_recurrence'] == 1) {
 		    	$recurring_icon = "<img src='".WEBSITE_URL."/img/icons/recurring.png' style='width: 1.2em; margin: 0.1em;' class='pull-right' title='Recurring ".TICKET_NOUN."'>";
@@ -287,11 +339,14 @@ while($row = mysqli_fetch_array( $result )) {
 			$column .= '<input type="text" name="ticket_reminder_'.$row_tickets['ticketid'].'" style="display:none; margin-top: 2em;" class="form-control datepicker" />';
 			$column .= '<input type="file" name="ticket_attach_'.$row_tickets['ticketid'].'" style="display:none;" class="form-control" />';
 			$column .= '<br /><a class="sortable-blocks '.$checkmark_ticket.'" href="" onclick="'.($edit_access == 1 ? 'overlayIFrameSlider(\''.WEBSITE_URL.'/Ticket/index.php?calendar_view=true&edit='.$row_tickets['ticketid'].'\');' : '').'return false;" style="display:block; padding: 5px;color:black;  '.($row_tickets['flag_colour'] != '' ? 'color: #'.$row_tickets['flag_colour'].';' : '').'
-            border-radius: 10px;'.$ticket_styling.$icon_background.'" id="ticket_'.$row_tickets['ticketid'].'" data-ticket="'.$row_tickets['ticketid'].'" data-currentdate="'.$new_today_date.'" data-currentcontact="'.$staff.'" data-businessid="'.$row_tickets['businessid'].'" data-itemtype="ticket">'.$icon_img;
+            border-radius: 10px;'.$ticket_styling.$icon_background.'" id="ticket_'.$row_tickets['ticketid'].'" data-ticket="'.$row_tickets['ticketid'].'" data-currentdate="'.$new_today_date.'" data-currentcontact="'.$staff.'" data-businessid="'.$row_tickets['businessid'].'" data-itemtype="ticket">';
+			$column .= '<img src="'.WEBSITE_URL.'/img/'.$date_color.'" style="width:1em;" border="0" alt="">&nbsp;<img src="'.WEBSITE_URL.'/img/block/'.$status_array[$status].'" style="width:1em;" border="0" alt="">'.$icon_img;
 			if($ticket_status_color_code == 1 && !empty($ticket_status_color[$status])) {
 				$column .= '<div class="ticket-status-color" style="background-color: '.$ticket_status_color[$status].';"></div>';
 			}
-			$column .= $recurring_icon.TICKET_NOUN.' #'.$row_tickets['ticketid'].' : '.get_contact($dbc, $row_tickets['businessid'], 'name').' : '.$row_tickets['heading'].' ('.substr($row_tickets['max_time'], 0, 5).')'.'</a><br>';
+			$column .= $recurring_icon;
+			$column .= calendarTicketLabel($dbc, $row_tickets, $max_time, $current_start_time, $current_end_time);
+			$column .= '</a><br>';
 			//$column .= '<img src="'.WEBSITE_URL.'/img/'.$date_color.'" width="10" height="10" border="0" alt="">&nbsp;<img src="'.WEBSITE_URL.'/img/'.$status_color.'" width="10" height="10" border="0" alt="">&nbsp;<a class="" href="#" style="display:block; padding: 5px;color:black;border-radius: 10px; background-color: '.$row['calendar_color'].';" id="ticket_'.$row_tickets['ticketid'].'" onclick="wwindow.open(\''.WEBSITE_URL.'/Ticket/add_tickets.php?ticketid='.$row_tickets['ticketid'].'\', \'newwindow\', \'width=1000, height=900\'); return false;">#'.$row_tickets['ticketid'].' : '.get_contact($dbc, $row_tickets['businessid'], 'name').' : '.$row_tickets['heading'].' ('.substr($row_tickets['max_time'], 0, 5).')'.'</a><br>';
 			}
             $j++;

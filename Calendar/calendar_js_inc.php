@@ -309,7 +309,7 @@ function changeDate(date, type = '') {
 					clear_all_data_month();
 					var reload_calendar = reload_calendar_month(response_arr[0]);
 					reload_calendar.success(function() {
-						if(calendar_type == 'ticket' && $('#collapse_teams').length > 0) {
+						if((calendar_type == 'ticket' || calendar_type == 'uni') && $('#collapse_teams').length > 0) {
 							reload_teams();
 						}
 						reload_all_data_month();
@@ -323,7 +323,7 @@ function changeDate(date, type = '') {
 					if(typeof teamsDraggable == 'function') {
 						teamsDraggable();
 					}
-					if(calendar_type == 'ticket' && $('#collapse_teams').length > 0) {
+					if((calendar_type == 'ticket' || calendar_type == 'uni') && $('#collapse_teams').length > 0) {
 						reload_teams();
 					}
 					reload_all_data();
@@ -728,7 +728,7 @@ function calendarScrollLoad() {
 function reload_all_data() {
 	var retrieve_collapse = $('#retrieve_collapse').val();
 	var calendar_type = $('#calendar_type').val();
-	if(calendar_type == 'ticket' && $('#collapse_teams .block-item.active').length > 0) {
+	if((calendar_type == 'ticket' || calendar_type == 'uni') && $('#collapse_teams .block-item.active').length > 0) {
 		reload_teams();
 	} else {
 		$('[id^='+retrieve_collapse+']').find('.block-item.active').each(function() {

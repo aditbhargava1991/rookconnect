@@ -27,7 +27,7 @@ if(get_contact($dbc, $contact_id, 'category') == 'Staff' && ($_GET['type'] != 'e
 	$profile_icon = profile_id($dbc, $contact_id, false);
 }
 
-if(($_GET['type'] == 'uni' || $_GET['type'] == 'my') && empty($_GET['shiftid']) && $_GET['mode'] != 'shift') {
+if(($_GET['type'] == 'uni' || $_GET['type'] == 'my') && empty($_GET['shiftid']) && $_GET['mode'] != 'shift' && $_GET['block_type'] != 'team') {
 	// Contact Blocks - Universal
 
 	//Populate the text for the column header
@@ -900,7 +900,7 @@ if(($_GET['type'] == 'uni' || $_GET['type'] == 'my') && empty($_GET['shiftid']) 
 		$shift_urls = rtrim($shift_urls, ', ');
 		$calendar_table[$calendar_date][$contact_id]['warnings'] = "The following Shifts/Days Off are either out of the Calendar time-frame, has a time conflict, or there are too many Shifts/Days Off: ".$shift_urls;
 	}
-} else if($calendar_type == 'ticket' && $_GET['block_type'] == 'team') {
+} else if(($calendar_type == 'ticket' || $_GET['type'] == 'uni') && $_GET['block_type'] == 'team') {
 	// Contact Blocks - Tickets
 	// $contact_id = explode('team_',$contact_id)[1];
 
