@@ -899,7 +899,7 @@ function mark_done(sel) {
                 $url_tab = in_array($_GET['tab'], $allowed_heading) ? filter_var($_GET['tab'], FILTER_SANITIZE_STRING) : ''; ?>
                 <?= (!empty($_GET['tasklistid']) ? 'Edit' : 'Add a') ?> <?= $url_tab ?> Task <?= ( !empty($tasklistid) ) ? '#'.$tasklistid : ''; */ ?>
             </h3>-->
-            <h3 class="inline"><?= !empty($_GET['tasklistid']) ? 'Edit' : 'Add' ?> Task<?= !empty($_GET['tasklistid']) ? ' #'.$_GET['tasklistid'].': '.$task_heading : '' ?></h3>
+            <h3 class="inline"><?= !empty($_GET['tasklistid']) ? 'Edit' : 'Add' ?> <?= TASK_NOUN ?><?= !empty($_GET['tasklistid']) ? ' #'.$_GET['tasklistid'].': '.$task_heading : '' ?></h3>
             <div class="pull-right"><a href=""><img src="../img/icons/ROOK-status-rejected.jpg" alt="Close" title="Close" class="inline-img  no-toggle" data-placement="bottom" /></a></div>
 
             <div class="pull-right"><img src="../img/icons/full_screen.png" alt="View Full Screen" title="View Full Screen" class="inline-img no-toggle full-btn" data-placement="bottom" /></div>
@@ -916,7 +916,7 @@ function mark_done(sel) {
                     <div class="panel-heading">
                         <h4 class="panel-title">
                             <a data-toggle="collapse" data-parent="#accordion_tabs" href="#collapse_task_board">
-                                Task Board<span class="glyphicon glyphicon-plus"></span>
+                                <?= TASK_NOUN ?> Board<span class="glyphicon glyphicon-plus"></span>
                             </a>
                         </h4>
                     </div>
@@ -924,9 +924,9 @@ function mark_done(sel) {
                         <div class="panel-body">
 
             <div class="form-group">
-                <label for="site_name" class="col-sm-4 control-label">Task Board Type:</label>
+                <label for="site_name" class="col-sm-4 control-label"><?= TASK_NOUN ?> Board Type:</label>
                 <div class="col-sm-8">
-                    <select data-placeholder="Select a Task Board Type..." name="task_board_type" id="task_board_type" class="chosen-select-deselect form-control" data-field="board_security" width="380">
+                    <select data-placeholder="Select a <?= TASK_NOUN ?> Board Type..." name="task_board_type" id="task_board_type" class="chosen-select-deselect form-control" data-field="board_security" width="380">
                         <option></option>
                         <option value="Private" <?= $board_security=='Private' ? 'selected' : '' ?>>Private</option><?php
                         $all_board_types = mysqli_fetch_array(mysqli_query($dbc, "SELECT task_dashboard_tile FROM task_dashboard"));
@@ -947,9 +947,9 @@ function mark_done(sel) {
                 </div>
             </div>
             <div class="form-group hide_task_board_name">
-                <label for="site_name" class="col-sm-4 control-label">Task Board Name:</label>
+                <label for="site_name" class="col-sm-4 control-label"><?= TASK_NOUN ?> Board Name:</label>
                 <div class="col-sm-8">
-                    <select data-placeholder="Select a Task Board..." name="task_board" class="chosen-select-deselect form-control" data-table="tasklist" data-field="task_board" width="380">
+                    <select data-placeholder="Select a <?= TASK_NOUN ?> Board..." name="task_board" class="chosen-select-deselect form-control" data-table="tasklist" data-field="task_board" width="380">
                         <option></option>
                         <!-- <option value="NEW">Add New Task Board</option> -->
                         <?php
@@ -961,7 +961,7 @@ function mark_done(sel) {
                 </div>
             </div>
             <div class="form-group clearfix new-board-name" style="display:none;">
-                <label for="first_name" class="col-sm-4 control-label text-right">New Task Board Name:</label>
+                <label for="first_name" class="col-sm-4 control-label text-right">New <?= TASK_NOUN ?> Board Name:</label>
                 <div class="col-sm-8">
                     <input type="text" name="new_task_board" value="" data-table="tasklist" data-field="board_name" class="form-control" width="380" />
                 </div>
@@ -1011,7 +1011,7 @@ function mark_done(sel) {
                     <div class="panel-heading">
                         <h4 class="panel-title">
                             <a data-toggle="collapse" data-parent="#accordion_tabs" href="#collapse_task_path">
-                                Task Path<span class="glyphicon glyphicon-plus"></span>
+                                <?= TASK_NOUN ?> Path<span class="glyphicon glyphicon-plus"></span>
                             </a>
                         </h4>
                     </div>
@@ -1019,9 +1019,9 @@ function mark_done(sel) {
                         <div class="panel-body">
 
             <div class="form-group">
-                <label for="site_name" class="col-sm-4 control-label">Task Path:</label>
+                <label for="site_name" class="col-sm-4 control-label"><?= TASK_NOUN ?> Path:</label>
                 <div class="col-sm-8">
-                    <select data-placeholder="Select a Task Path..." id="task_path" name="task_path" data-table="tasklist" data-field="task_path" class="chosen-select-deselect form-control" width="380">
+                    <select data-placeholder="Select a <?= TASK_NOUN ?> Path..." id="task_path" name="task_path" data-table="tasklist" data-field="task_path" class="chosen-select-deselect form-control" width="380">
                         <option value=""></option><?php
                         $project_path_milestones = [];
                         if($task_projectid > 0) {
@@ -1196,7 +1196,7 @@ function mark_done(sel) {
                     <div class="panel-heading">
                         <h4 class="panel-title">
                             <a data-toggle="collapse" data-parent="#accordion_tabs" href="#collapse_task_details">
-                                Task<?= ( !empty($tasklistid) ) ? ' #'.$tasklistid : ':'; ?> Details<span class="glyphicon glyphicon-plus"></span>
+                                <?= TASK_NOUN ?><?= ( !empty($tasklistid) ) ? ' #'.$tasklistid : ':'; ?> Details<span class="glyphicon glyphicon-plus"></span>
                             </a>
                         </h4>
                     </div>

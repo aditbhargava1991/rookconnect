@@ -7,6 +7,9 @@ checkAuthorised('tasks');
 error_reporting(0);
 ?>
 <?php
+$task_tile = TASK_TILE;
+$task_noun = TASK_NOUN;
+
 if(isset($_POST['task_include_checklists'])) {
     $task_include_checklists = filter_var($_POST['task_include_checklists'],FILTER_SANITIZE_STRING);
     set_config($dbc, 'task_include_checklists', $task_include_checklists);
@@ -14,12 +17,24 @@ if(isset($_POST['task_include_checklists'])) {
 if(isset($_POST['tasks_slider_layout'])) {
     $tasks_slider_layout = filter_var($_POST['tasks_slider_layout'],FILTER_SANITIZE_STRING);
     set_config($dbc, 'tasks_slider_layout', $tasks_slider_layout);
-} else if($_POST['auto_archive_config'] == 1) {
+}
+if(isset($_POST['task_tile'])) {
+    set_config($dbc, 'task_tile_name', filter_var($_POST['task_tile'].'#*#'.$_POST['task_noun'],FILTER_SANITIZE_STRING));
+	$task_tile = $_POST['task_tile'];
+    $task_noun = $_POST['task_noun'];
+}
+if(isset($_POST['task_noun'])) {
+    set_config($dbc, 'task_tile_name', filter_var($_POST['task_tile'].'#*#'.$_POST['task_noun'],FILTER_SANITIZE_STRING));
+	$task_tile = $_POST['task_tile'];
+    $task_noun = $_POST['task_noun'];
+}
+ if($_POST['auto_archive_config'] == 1) {
     $tasklist_auto_archive = filter_var($_POST['tasklist_auto_archive'],FILTER_SANITIZE_STRING);
     $tasklist_auto_archive_days = filter_var($_POST['tasklist_auto_archive_days'],FILTER_SANITIZE_STRING);
     set_config($dbc, 'tasklist_auto_archive', $tasklist_auto_archive);
     set_config($dbc, 'tasklist_auto_archive_days', $tasklist_auto_archive_days);
-} else if($data = $_POST['project_manage_dashboard']) {
+ }
+ if($data = $_POST['project_manage_dashboard']) {
     $dashboard = implode(',', $data);
     $get_field_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT count(task_id) as task_count FROM task_dashboard"));
     if($get_field_config['task_count'] == 1) {
@@ -30,7 +45,9 @@ if(isset($_POST['tasks_slider_layout'])) {
     }
 
     mysqli_query($dbc, $query_insert_dashboard);
-} else if(!empty($_POST['submit'])) {
+}
+
+if(!empty($_POST['submit'])) {
     $task_include_checklists = filter_var($_POST['task_include_checklists'],FILTER_SANITIZE_STRING);
     set_config($dbc, 'task_include_checklists', $task_include_checklists);
 
@@ -109,13 +126,42 @@ if(isset($_POST['tasks_slider_layout'])) {
                 <div class="panel panel-default">
                     <div class="panel-heading">
                         <h4 class="panel-title">
+                            <a data-toggle="collapse" data-parent="#accordion2" href="#collapse_slider1">
+                               Tile Settings<span class="glyphicon glyphicon-plus"></span>
+                            </a>
+                        </h4>
+                    </div>
+
+                    <div id="collapse_slider1" class="panel-collapse collapse in">
+                        <div class="panel-body">
+                            <div class="form-group">
+                                <label class="col-sm-4">Tile Name: <br><em>Enter the name you would like the Task tile to be labelled as.</em></label>
+                                <div class="col-sm-8">
+                                    <input name="task_tile" type="text" value="<?= $task_tile ?>" class="form-control"/>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="col-sm-4">Tile Noun:<br /><em>Enter the name you would like individual Inventory to be labelled as.</em></label>
+                                <div class="col-sm-8">
+                                    <input name="task_noun" type="text" value="<?= $task_noun ?>" class="form-control"/>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h4 class="panel-title">
                             <a data-toggle="collapse" data-parent="#accordion2" href="#collapse_slider">
                                Slider Settings<span class="glyphicon glyphicon-plus"></span>
                             </a>
                         </h4>
                     </div>
 
-                    <div id="collapse_slider" class="panel-collapse collapse in">
+                    <div id="collapse_slider" class="panel-collapse collapse">
                         <div class="panel-body">
                             <div class="form-group">
                                 <label class="col-sm-4">Slider Default Layout:</label>
@@ -397,14 +443,14 @@ if(isset($_POST['tasks_slider_layout'])) {
                             <?php else: ?>
                                 <?php $reporting_check_box = ''; ?>
                             <?php endif; ?>
-                            <input type="checkbox" name="project_manage_dashboard[]" <?php echo $company_check_box; ?> style="height: 20px; width: 20px;" value="Company Tasks">&nbsp;&nbsp;Company Tasks
+                            <input type="checkbox" name="project_manage_dashboard[]" <?php echo $company_check_box; ?> style="height: 20px; width: 20px;" value="Company Tasks">&nbsp;&nbsp;Company <?= TASK_TILE ?>
                             <!--
                             <input type="checkbox" name="project_manage_dashboard[]" <?php echo $community_check_box; ?> style="height: 20px; width: 20px;" value="Community Tasks">&nbsp;&nbsp;Community Tasks
                             -->
-                            <input type="checkbox" name="project_manage_dashboard[]" <?php echo $project_check_box; ?> style="height: 20px; width: 20px;" value="Project Tasks">&nbsp;&nbsp;<?= PROJECT_NOUN ?> Tasks
-                            <input type="checkbox" name="project_manage_dashboard[]" <?php echo $business_check_box; ?> style="height: 20px; width: 20px;" value="Business Tasks">&nbsp;&nbsp;<?= BUSINESS_CAT ?> Tasks
-                            <input type="checkbox" name="project_manage_dashboard[]" <?php echo $client_check_box; ?> style="height: 20px; width: 20px;" value="Client Tasks">&nbsp;&nbsp;<?= CONTACTS_TILE ?> Tasks
-                            <input type="checkbox" name="project_manage_dashboard[]" <?= strpos($get_field_config_tile, ',Sales Tasks,') !== FALSE ? 'checked' : '' ?> style="height: 20px; width: 20px;" value="Sales Tasks">&nbsp;&nbsp;<?= SALES_NOUN ?> Tasks
+                            <input type="checkbox" name="project_manage_dashboard[]" <?php echo $project_check_box; ?> style="height: 20px; width: 20px;" value="Project Tasks">&nbsp;&nbsp;<?= PROJECT_NOUN ?> <?= TASK_TILE ?>
+                            <input type="checkbox" name="project_manage_dashboard[]" <?php echo $business_check_box; ?> style="height: 20px; width: 20px;" value="Business Tasks">&nbsp;&nbsp;<?= BUSINESS_CAT ?> <?= TASK_TILE ?>
+                            <input type="checkbox" name="project_manage_dashboard[]" <?php echo $client_check_box; ?> style="height: 20px; width: 20px;" value="Client Tasks">&nbsp;&nbsp;<?= CONTACTS_TILE ?> <?= TASK_TILE ?>
+                            <input type="checkbox" name="project_manage_dashboard[]" <?= strpos($get_field_config_tile, ',Sales Tasks,') !== FALSE ? 'checked' : '' ?> style="height: 20px; width: 20px;" value="Sales Tasks">&nbsp;&nbsp;<?= SALES_NOUN ?> <?= TASK_TILE ?>
                             <input type="checkbox" name="project_manage_dashboard[]" <?php echo $reporting_check_box; ?> style="height: 20px; width: 20px;" value="Reporting">&nbsp;&nbsp;Reporting
                         </div>
                     </div>
@@ -415,7 +461,7 @@ if(isset($_POST['tasks_slider_layout'])) {
                     <div class="panel-heading">
                             <h4 class="panel-title">
                             <a data-toggle="collapse" data-parent="#accordion_tabs" href="#collapse_00">
-                                Auto-Archive Completed Tasks<span class="glyphicon glyphicon-plus"></span>
+                                Auto-Archive Completed <?= TASK_TILE ?><span class="glyphicon glyphicon-plus"></span>
                             </a>
                         </h4>
                     </div>
@@ -425,13 +471,13 @@ if(isset($_POST['tasks_slider_layout'])) {
                             <?php $tasklist_auto_archive = get_config($dbc, 'tasklist_auto_archive');
                             $tasklist_auto_archive_days = get_config($dbc, 'tasklist_auto_archive_days'); ?>
                             <div class="form-group">
-                                <label class="control-label col-sm-4">Auto-Archive Completed Tasks:</label>
+                                <label class="control-label col-sm-4">Auto-Archive Completed <?= TASK_TILE ?>:</label>
                                 <div class="col-sm-8">
                                     <label class="form-checkbox"><input type="checkbox" name="tasklist_auto_archive" value="1" <?= $tasklist_auto_archive == 1 ? 'checked' : '' ?>> Enable</label>
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label class="control-label col-sm-4">Auto-Archive Completed Tasks After # of Days:</label>
+                                <label class="control-label col-sm-4">Auto-Archive Completed <?= TASK_TILE ?> After # of Days:</label>
                                 <div class="col-sm-8">
                                     <input type="number" name="tasklist_auto_archive_days" class="form-control" value="<?= !empty($tasklist_auto_archive_days) ? $tasklist_auto_archive_days : '30' ?>" min="1">
                                 </div>
