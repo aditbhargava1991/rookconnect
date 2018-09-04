@@ -31,9 +31,36 @@ function toggle_columns() {
     }
 	// Hide deselected columns
 	var visible_staff = [];
+	var regions = [];
+    var clients = [];
 	var teams = [];
 	var all_contacts = [];
 	$('.calendar_view table td, .calendar_view table th').filter(function() { return $(this).data('contact') > 0; }).hide();
+    // Hide clients that are not in selected regions
+    $('[id^=collapse_clients]').find('.block-item').each(function() {
+        var client_region = $(this).data('region');
+        if (regions.indexOf(client_region) == -1 && regions.length > 0) {
+            $(this).hide();
+            $(this).removeClass('active');
+        } else {
+            $(this).show();
+        }
+    });
+    // Filter selected clients
+    $('[id^=collapse_clients]').find('.block-item.active').each(function() {
+        var clientid = $(this).data('client');
+        clients.push(parseInt(clientid));
+    })
+    // Hide teams that are not in selected regions
+    $('#collapse_teams').find('.block-item').each(function() {
+        var team_region = $(this).data('region');
+        if (regions.indexOf(team_region) == -1 && regions.length > 0) {
+            $(this).hide();
+            $(this).removeClass('active');
+        } else {
+            $(this).show();
+        }
+    });
 	$('#collapse_teams').find('.block-item.active').each(function() {
 		var contactids = $(this).data('contactids').split(',');
 		var teamid = $(this).data('teamid');
@@ -58,6 +85,20 @@ function toggle_columns() {
 			}
 		});
 	});
+    // Hide staff that are not in selected regions
+    $('[id^=collapse_staff]').find('.block-item').each(function() {
+        var staff_id = $(this).data('staff');
+        var staff_region = $(this).data('region');
+        if (regions.indexOf(staff_region) == -1 && regions.length > 0) {
+            if (all_contacts.indexOf(parseInt(staff_id))) {
+                all_contacts.splice(all_contacts.indexOf(parseInt(staff_id)));
+            }
+            $(this).hide();
+            $(this).removeClass('active');
+        } else {
+            $(this).show();
+        }
+    });
 	$('[id^=collapse_staff]').find('.block-item.active').each(function() {
 		var staff_id = $(this).data('staff');
 		if(staff_id > 0) {
@@ -67,6 +108,16 @@ function toggle_columns() {
 			}
 		}
 	});
+    // Filter tickets in Calendar view based on the selected client
+    $('div.used-block').each(function() {
+        var ticket_businessid = $(this).data('businessid');
+        var ticket_clientid = $(this).data('clientid');
+        if (clients.indexOf(parseInt(ticket_clientid)) == -1 && clients.indexOf(parseInt(ticket_businessid)) && clients.length > 0) {
+            $(this).hide();
+        } else {
+            $(this).show();
+        }
+    });
 	all_contacts.forEach(function (contact_id) {
 		$('.calendar_view table td, .calendar_view table th').filter(function() { return $(this).data('contact') == contact_id; }).show();
 	});
@@ -80,7 +131,7 @@ function toggle_columns() {
 		$.ajax({
 			url: 'calendar_ajax_all.php?fill=selected_staff&offline='+offline_mode,
 			method: 'POST',
-			data: { staff: visible_staff },
+			data: { staff: visible_staff, teams: teams, clients: clients },
 			success: function(response) {
 			}
 		});
@@ -100,7 +151,40 @@ $calendar_type = get_config($dbc, 'uni_wait_list');
 <div class="calendar-screen set-height">
 	<div class="collapsible pull-left">
 		<input type="text" class="search-text form-control" placeholder="Search Staff">
-		<div class="sidebar panel-group block-panels" id="category_accordions" style="margin: 1.5em 0 0.5em; overflow: hidden; padding-bottom: 0;">
+		<div class="sidebar panel-group block-panels" id="category_accordions" style="margin: 1.5em 0 0.5em; overflow: auto; padding-bottom: 0;">
+            <?php if(get_config($dbc, 'uni_client_type') !== '') {
+                $collapse_in = $_GET['mode'] == 'client' ? 'in' : '';
+                foreach(array_filter(explode(',', get_config($dbc, 'uni_client_type'))) as $client_type) { ?>
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h4 class="panel-title">
+                                <a data-toggle="collapse" data-parent="#category_accordions" href="#collapse_clients_<?= config_safe_str($client_type) ?>">
+                                    <span style="display: inline-block; width: calc(100% - 6em);"><?= $client_type ?></span><span class="glyphicon glyphicon-plus"></span>
+                                </a>
+                            </h4>
+                        </div>
+
+                        <div id="collapse_clients_<?= config_safe_str($client_type) ?>" class="panel-collapse collapse <?php echo $collapse_in; $collapse_in = ''; ?> <?= $client_draggable == 1 ? 'client_assign_div' : '' ?>">
+                            <div class="panel-body" style="overflow-y: auto; padding: 0;">
+                                <?php $active_clients = array_filter(explode(',',get_user_settings()['appt_calendar_clients']));
+                                $client_list = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `contacts` WHERE `deleted` = 0 AND `status` = 1 AND `category` = '".$client_type."'".$region_query),MYSQLI_ASSOC));
+                                foreach($client_list as $clientid) {
+                                    if(get_client($dbc, $clientid) != '' || get_contact($dbc, $clientid) != '-') {
+                                        echo "<a href='' onclick='$(this).find(\".block-item\").toggleClass(\"active\"); toggle_columns(); ".($_GET['mode'] == 'client' ? 'retrieve_items(this);' : '')." return false;'><div class='block-item ".(in_array($clientid,$active_clients) ? 'active' : '')." ".($client_draggable == 1 ? 'client_assign_draggable' : '' )."' data-client='".$clientid."' data-region='".get_contact($dbc, $clientid, 'region')."' data-activevalue='".$clientid."'>".($client_draggable == 1 ? "<img class='drag-handle no-toggle' src='".WEBSITE_URL."/img/icons/drag_handle.png' style='float: right; width: 2em;' title='Drag'>" : '' ).(!empty(get_client($dbc, $clientid)) ? get_client($dbc, $clientid) : get_contact($dbc, $clientid))."</div></a>";
+                                    }
+                                } ?>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="active_blocks" data-accordion="collapse_clients_<?= config_safe_str($client_type) ?>" style="display: none;">
+                        <?php foreach($client_list as $clientid) {
+                            if(get_client($dbc, $clientid) != '' || get_contact($dbc, $clientid) != '-') { ?>
+                                <div class="block-item active" data-activevalue="<?= $clientid ?>"><?= (!empty(get_client($dbc, $clientid)) ? get_client($dbc, $clientid) : get_contact($dbc, $clientid)) ?></div> 
+                            <?php }
+                        } ?>
+                    </div>
+                <?php }
+            } ?>
             <?php if($staff_split_security != 1 && $_GET['type'] != 'my') { ?>
 				<div class="panel panel-default">
 					<div class="panel-heading">

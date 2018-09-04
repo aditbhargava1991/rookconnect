@@ -181,6 +181,8 @@ if (isset($_POST['add_tab'])) {
 	}
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'uni_default_view' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='uni_default_view') num WHERE num.rows=0");
 	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$uni_default_view."' WHERE `name`='uni_default_view'");
+	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'uni_client_type' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='uni_client_type') num WHERE num.rows=0");
+	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".implode(',',$_POST['uni_client_type'])."' WHERE `name`='uni_client_type'");
 	if (!empty($_POST['uni_calendar_notes'])) {
 		$uni_calendar_notes = $_POST['uni_calendar_notes'];
 	} else {
@@ -1506,6 +1508,21 @@ function showDefaultView(chk) {
 									<?php $uni_default_view = get_config($dbc, 'uni_default_view'); ?>
 									<label class="form-checkbox"><input type="radio" name="uni_default_view" value="" <?= empty($uni_default_view) ? 'checked' : '' ?>> Default</label>
 									<label class="form-checkbox"><input type="radio" name="uni_default_view" value="shifts" <?= $uni_default_view == 'shifts' ? 'checked' : '' ?>> Shifts</label>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-4 control-label">Universal Calendar Client Type:</label>
+								<div class="col-sm-8">
+			                        <select name="uni_client_type[]" multiple data-placeholder="Select Client Type" class="chosen-select-deselect form-control">
+			                            <option value="">NO CLIENT</option>
+			                            <?php $uni_client_type = get_config($dbc, 'uni_client_type');
+			                            $query = "SELECT DISTINCT `category` FROM `contacts` WHERE `deleted` = 0 AND `status` = 1 ORDER BY `category`";
+			                            $result = mysqli_query($dbc, $query);
+			                            while ($row = mysqli_fetch_array($result)) {
+			                                echo '<option value="'.$row['category'].'"'.(strpos(','.$uni_client_type.',', ','.$row['category'].',') !== FALSE ? ' selected' : '').'>'.$row['category'].'</option>';
+			                            }
+			                            ?>
+			                        </select>
 								</div>
 							</div>
 							<div class="form-group">

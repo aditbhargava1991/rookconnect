@@ -72,7 +72,7 @@ function toggle_columns() {
 		$.ajax({
 			url: 'calendar_ajax_all.php?fill=selected_staff&offline='+offline_mode,
 			method: 'POST',
-			data: { staff: visible_staff },
+			data: { staff: visible_staff, teams: teams },
 			success: function(response) {
 			}
 		});
@@ -121,7 +121,7 @@ if(isset($_GET['contactid'])) {
 <div class="calendar-screen set-height">
 	<div class="collapsible pull-left">
 		<input type="text" class="search-text form-control" placeholder="Search Staff">
-		<div class="sidebar panel-group block-panels" id="category_accordions" style="margin: 1.5em 0 0.5em; overflow: hidden; padding-bottom: 0;">
+		<div class="sidebar panel-group block-panels" id="category_accordions" style="margin: 1.5em 0 0.5em; padding-bottom: 0;">
             <?php if($staff_split_security != 1 && $_GET['type'] != 'my') { ?>
 				<div class="panel panel-default">
 					<div class="panel-heading">

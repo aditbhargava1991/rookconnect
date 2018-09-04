@@ -106,6 +106,7 @@ function setUrlWithCurrentDate() {
 		}
 	});
 	query_string_arr["date"] = $('#calendar_start').val();
+	query_string_arr["view"] = $('#calendar_view').val();
 	var new_url = "?"+$.param(query_string_arr);
 	window.history.replaceState(null, '', new_url);
 }

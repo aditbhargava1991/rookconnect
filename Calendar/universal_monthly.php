@@ -76,7 +76,7 @@ function toggle_columns(type = '', reload_teams = 0) {
 		$.ajax({
 			url: 'calendar_ajax_all.php?fill=selected_contacts&offline='+offline_mode,
 			method: 'POST',
-			data: { contacts: visibles },
+			data: { staff: visibles, teams: teams },
 			success: function(response) {
 			}
 		});
@@ -95,7 +95,7 @@ function toggle_columns(type = '', reload_teams = 0) {
 <div class="hide_on_iframe ticket-calendar calendar-screen" style="padding-bottom: 0px;">
 	<div class="pull-left collapsible">
 		<input type="text" class="search-text form-control" placeholder="Search Staff">
-		<div class="sidebar panel-group block-panels" id="category_accordions" style="margin: 1.5em 0 0.5em; overflow: hidden; padding-bottom: 0;">
+		<div class="sidebar panel-group block-panels" id="category_accordions" style="margin: 1.5em 0 0.5em; padding-bottom: 0;">
             <?php if($staff_split_security != 1 && $_GET['type'] != 'my') { ?>
 				<div class="panel panel-default">
 					<div class="panel-heading">
