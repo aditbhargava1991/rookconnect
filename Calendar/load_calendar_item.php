@@ -41,19 +41,19 @@ if(($_GET['type'] == 'uni' || $_GET['type'] == 'my') && empty($_GET['shiftid']) 
 		$tickets_notime = [];
 		$tickets_multiday = [];
 		while($row_tickets = mysqli_fetch_array($result_tickets_sql)) {
-	        if(($row_tickets['status'] == 'Internal QA') && ($calendar_date == $row_tickets['internal_qa_date']) && (strpos($row_tickets['internal_qa_contactid'], ','.$contact_id.',') !== FALSE)) {
+	        if(($row_tickets['status'] == 'Internal QA') && ($calendar_date == $row_tickets['internal_qa_date']) && (strpos(','.$row_tickets['internal_qa_contactid'].',', ','.$contact_id.',') !== FALSE)) {
 	        	if (!empty($row_tickets['internal_qa_start_time'])) {
 	        		$tickets_time[] = $row_tickets;
 	        	} else {
 	        		$tickets_notime[] = $row_tickets;
 	        	}
-	        } else if (($row_tickets['status'] == 'Customer QA' || $row_tickets['status'] == 'Waiting On Customer') && ($calendar_date == $row_tickets['deliverable_date']) && (strpos($row_tickets['deliverable_contactid'], ','.$contact_id.',') !== FALSE)) {
+	        } else if (($row_tickets['status'] == 'Customer QA' || $row_tickets['status'] == 'Waiting On Customer') && ($calendar_date == $row_tickets['deliverable_date']) && (','.strpos($row_tickets['deliverable_contactid'].',', ','.$contact_id.',') !== FALSE)) {
 	        	if (!empty($row_tickets['deliverable_start_time'])) {
 	        		$tickets_time[] = $row_tickets;
 	        	} else {
 	        		$tickets_notime[] = $row_tickets;
 	        	}
-	        } else if (($row_tickets['status'] != 'Customer QA' && $row_tickets['status'] != 'Internal QA') && ($calendar_date >= $row_tickets['to_do_date'] && $calendar_date <= $row_tickets['to_do_end_date']) && (strpos($row_tickets['contactid'], ','.$contact_id.',') !== FALSE)) {
+	        } else if (($row_tickets['status'] != 'Customer QA' && $row_tickets['status'] != 'Internal QA') && ($calendar_date >= $row_tickets['to_do_date'] && $calendar_date <= $row_tickets['to_do_end_date']) && (strpos(','.$row_tickets['contactid'].',', ','.$contact_id.',') !== FALSE)) {
 	        	if ($row_tickets['to_do_date'] != $row_tickets['to_do_end_date']) {
 	        		$tickets_multiday[] = $row_tickets;
 	        	} else {
@@ -1112,19 +1112,19 @@ if(($_GET['type'] == 'uni' || $_GET['type'] == 'my') && empty($_GET['shiftid']) 
 	$tickets_notime = [];
 	$tickets_multiday = [];
 	while($row_tickets = mysqli_fetch_array($result_tickets_sql)) {
-        if(($row_tickets['status'] == 'Internal QA') && ($calendar_date == $row_tickets['internal_qa_date']) && (strpos($row_tickets['internal_qa_contactid'], ','.$contact_id.',') !== FALSE)) {
+        if(($row_tickets['status'] == 'Internal QA') && ($calendar_date == $row_tickets['internal_qa_date']) && (strpos(','.$row_tickets['internal_qa_contactid'].',', ','.$contact_id.',') !== FALSE)) {
         	if (!empty($row_tickets['internal_qa_start_time'])) {
         		$tickets_time[] = $row_tickets;
         	} else {
         		$tickets_notime[] = $row_tickets;
         	}
-        } else if (($row_tickets['status'] == 'Customer QA' || $row_tickets['status'] == 'Waiting On Customer') && ($calendar_date == $row_tickets['deliverable_date']) && (strpos($row_tickets['deliverable_contactid'], ','.$contact_id.',') !== FALSE)) {
+        } else if (($row_tickets['status'] == 'Customer QA' || $row_tickets['status'] == 'Waiting On Customer') && ($calendar_date == $row_tickets['deliverable_date']) && (strpos(','.$row_tickets['deliverable_contactid'].',', ','.$contact_id.',') !== FALSE)) {
         	if (!empty($row_tickets['deliverable_start_time'])) {
         		$tickets_time[] = $row_tickets;
         	} else {
         		$tickets_notime[] = $row_tickets;
         	}
-        } else if (($row_tickets['status'] != 'Customer QA' && $row_tickets['status'] != 'Internal QA') && ($calendar_date >= $row_tickets['to_do_date'] && $calendar_date <= $row_tickets['to_do_end_date']) && (strpos($row_tickets['contactid'], ','.$contact_id.',') !== FALSE || $_GET['mode'] == 'client')) {
+        } else if (($row_tickets['status'] != 'Customer QA' && $row_tickets['status'] != 'Internal QA') && ($calendar_date >= $row_tickets['to_do_date'] && $calendar_date <= $row_tickets['to_do_end_date']) && (strpos(','.$row_tickets['contactid'].',', ','.$contact_id.',') !== FALSE || $_GET['mode'] == 'client')) {
         	if ($row_tickets['to_do_date'] != $row_tickets['to_do_end_date']) {
         		$tickets_multiday[] = $row_tickets;
         	} else {
