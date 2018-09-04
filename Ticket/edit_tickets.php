@@ -279,6 +279,26 @@ if($_GET['overview_mode'] == 1) {
 	$calendar_ticket_slider = 'full';
 }
 
+//Status Fields
+if(!empty($ticket_status)) {
+	$value_config_all = $value_config;
+	$value_config = ','.get_config($dbc, 'ticket_status_fields_'.$ticket_status).',';
+	if(!empty($ticket_type)) {
+		$value_config .= get_config($dbc, 'ticket_status_fields_'.$ticket_status.'_'.$ticket_type).',';
+	}
+	if(empty(trim($value_config,','))) {
+		$value_config = $value_config_all;
+	} else {
+		foreach($action_mode_ignore_fields as $action_mode_ignore_field) {
+			if(strpos(','.$value_config_all.',',','.$action_mode_ignore_field.',') !== FALSE) {
+				$value_config .= ','.$action_mode_ignore_field;
+			}
+		}
+		$value_config = ','.implode(',',array_intersect(explode(',',$value_config), explode(',',$value_config_all))).',';
+	}
+	$ticket_layout = $calendar_ticket_slider = 'full';
+}
+
 //Edit Staff From Dashboard
 if($_GET['edit_staff_dashboard'] == 1) {
 	$value_config = explode(',',$value_config);
@@ -771,6 +791,7 @@ function setManualFlag(ticketid = '', colour, label) {
 	}
 }
 var ticketid = 0;
+var stopid = '<?= $_GET['stop'] ?>';
 var ticketid_list = [];
 var ticket_wait = false;
 var user_email = '<?= decryptIt($_SESSION['email_address']) ?>';
