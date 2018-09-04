@@ -23,14 +23,6 @@ if(empty($tab)) {
 		$sort_order = explode(',',get_config($dbc, 'ticket_sortorder'));
 	}
 }
-if(empty(array_filter($value_config))) {
-	$value_config = $value_config_fields;
-}
-foreach ($accordion_list as $accordion_field => $accordion_field_fields) {
-	if(!in_array($accordion_field, $sort_order)) {
-		$sort_order[] = $accordion_field;
-	}
-}
 
 //Remove any sort_fields from sort_order array if they are not turned on
 $merged_config_fields = array_merge($all_config_fields,$value_config_fields);
@@ -55,6 +47,15 @@ if(!in_array('Summary',$merged_config_fields) && in_array('Staff Summary',$merge
 	$merged_config_fields[$key] = 'Summary';
 }
 $sort_order = array_intersect($sort_order, $merged_config_fields);
+
+if(empty(array_filter($value_config))) {
+	$value_config = $merged_config_fields;
+}
+foreach ($accordion_list as $accordion_field => $accordion_field_fields) {
+	if(!in_array($accordion_field, $sort_order)) {
+		$sort_order[] = $accordion_field;
+	}
+}
 
 //Reset merged_config_fields
 $merged_config_fields = array_merge($all_config_fields,$value_config_fields);
