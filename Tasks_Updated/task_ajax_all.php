@@ -5,6 +5,66 @@ include ('../function.php');
 include ('../global.php');
 include ('../phpmailer.php');
 
+if($_GET['fill'] == 'tasks_slider_layout') {
+    $layout = $_GET['layout'];
+    set_config($dbc, 'tasks_slider_layout', $layout);
+}
+
+if($_GET['fill'] == 'tasklist_auto_archive') {
+    $archive = $_GET['archive'];
+    set_config($dbc, 'tasklist_auto_archive', $archive);
+}
+
+if($_GET['fill'] == 'tasklist_auto_archive_days') {
+    $archivedays = $_GET['archivedays'];
+    set_config($dbc, 'tasklist_auto_archive_days', $archivedays);
+}
+
+if($_GET['fill'] == 'setting_tabs') {
+    $tab_list = $_GET['tab_list'];
+    $get_field_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT count(task_id) as task_count FROM task_dashboard"));
+    if($get_field_config['task_count'] == 1) {
+        $query_insert_dashboard = "UPDATE `task_dashboard` set task_dashboard_tile = '" . $tab_list . "' WHERE task_id = 1";
+    }
+    else {
+        $query_insert_dashboard = "INSERT INTO `task_dashboard` (`task_id`,`task_dashboard_tile`) VALUES (1, '$tab_list')";
+    }
+
+    mysqli_query($dbc, $query_insert_dashboard);
+}
+
+if($_GET['fill'] == 'setting_quick_icon') {
+    $tab_list = $_GET['tab_list'];
+	set_config($dbc, 'task_quick_action_icons', filter_var($tab_list,FILTER_SANITIZE_STRING));
+}
+
+if($_GET['fill'] == 'setting_flag_colours') {
+    $flag_colours = $_GET['flag_colours'];
+
+    $get_field_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT count(task_id) as task_count FROM task_dashboard"));
+    if($get_field_config['task_count'] > 0) {
+        $query_insert_dashboard = "UPDATE `task_dashboard` set `flag_colours` = '$flag_colours'";
+    }
+    else {
+        $query_insert_dashboard = "INSERT INTO `task_dashboard` (`flag_colours`) VALUES ('$flag_colours')";
+    }
+    mysqli_query($dbc, $query_insert_dashboard);
+}
+
+if($_GET['fill'] == 'setting_flag_name') {
+    $flag_name = $_GET['flag_name'];
+    $flag_name = str_replace(",","#*#",$flag_name);
+
+    $get_field_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT count(task_id) as task_count FROM task_dashboard"));
+    if($get_field_config['task_count'] > 0) {
+        $query_insert_dashboard = "UPDATE `task_dashboard` set `flag_names` = '$flag_name'";
+    }
+    else {
+        $query_insert_dashboard = "INSERT INTO `task_dashboard` (`flag_names`) VALUES ('$flag_name')";
+    }
+    mysqli_query($dbc, $query_insert_dashboard);
+}
+
 if($_GET['fill'] == 'task_board_type') {
     $task_board_type = $_GET['task_board_type'];
 	echo '<option value=""></option>';
