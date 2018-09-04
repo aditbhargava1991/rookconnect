@@ -210,7 +210,7 @@ if(basename($_SERVER['SCRIPT_FILENAME']) == 'edit_ticket_tab.php' && ($_GET['tic
 	if(!empty($_GET['projectid'])) {
 		$projectid = $_GET['projectid'];
 		$businessid = get_project($dbc, $projectid, 'businessid');
-		$clientid = get_project($dbc, $projectid, 'clientid');
+		$clientid = explode(',',trim(get_project($dbc, $projectid, 'clientid'),','))[0];
 		$project_path = get_project($dbc, $projectid, 'project_path');
 		$project_lead = get_project($dbc, $projectid, 'project_lead');
 	}
@@ -711,7 +711,7 @@ if(!empty($_GET['clientid'])) {
 if(!empty($_GET['projectid'])) {
 	$projectid = $_GET['projectid'];
 	$businessid = get_project($dbc, $projectid, 'businessid');
-	$clientid = get_project($dbc, $projectid, 'clientid');
+	$clientid = explode(',',trim(get_project($dbc, $projectid, 'clientid'),','))[0];
 	$project_path = get_project($dbc, $projectid, 'project_path');
 	$project_lead = get_project($dbc, $projectid, 'project_lead');
 }
