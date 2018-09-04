@@ -180,7 +180,7 @@ function resize_calendar_view_monthly () {
 	    $('.scalable .block-group').not('.no-resize').outerHeight($('.calendar_view').outerHeight() - $('.scalable .block-group').prev('div').outerHeight());
     }
     
-    if($('#calendar_type').val() != 'schedule' && $('#calendar_type').val() != 'ticket') {
+    if($('#calendar_type').val() != 'schedule' && $('#calendar_type').val() != 'ticket' && $('#calendar_type').val() != 'uni') {
 		var sidebar_headings = 0;
 		$('.sidebar.panel-group .panel:visible').each(function() {
 			sidebar_headings += $(this).outerHeight() - $(this).find('.panel-body')[0].clientHeight;

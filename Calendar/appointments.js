@@ -1024,7 +1024,7 @@ function resize_calendar_view() {
 		    $('.scalable .block-group').not('.no-resize').outerHeight($('.calendar_view').outerHeight() - $('.scalable .block-group').prev('div').outerHeight());
 	    }
 	    
-	    if($('#calendar_type').val() != 'schedule' && $('#calendar_type').val() != 'ticket') {
+	    if($('#calendar_type').val() != 'schedule' && $('#calendar_type').val() != 'ticket' && $('#calendar_type').val() != 'uni') {
 			var sidebar_headings = 0;
 			$('.sidebar.panel-group .panel:visible').each(function() {
 				sidebar_headings += $(this).outerHeight() - $(this).find('.panel-body')[0].clientHeight;
@@ -1081,6 +1081,7 @@ function expandDiv(link) {
     }
 	resize_calendar_view();
 }
+force_resize_blocks = '';
 function expandBlock() {
 	$('.used-block span').unbind('mouseenter mouseleave').hover(function() {
 		if($(this).closest('.used-block').height() < $(this).height()) {
@@ -1094,11 +1095,15 @@ function expandBlock() {
 	}, function() {
 		$(this).closest('.used-block').clearQueue().stop().animate({
 			'min-height': '0'
-		}, 'normal', function() {	
+		}, 'normal', function() {
 			$(this).closest('td').css({
 				zIndex: 1
 			});
 		});
+		clearTimeout(force_resize_blocks);
+		force_resize_blocks = setTimeout(function() {
+			reload_resize_all();
+		}, 1000);
 	});
 }
 function resizeBlocks() {
