@@ -96,6 +96,25 @@ if(isset($_POST['export_pdf'])) {
 
 	DEFINE(FORM_HEADER_TEXT, 'Time Table ('.date('M j, Y', strtotime($start_date)).' - '.date('M j, Y', strtotime($end_date)).')');
 	DEFINE(FORM_HEADER_LOGO, $scheduling_time_table_logo);
+	$logo_height = 0;
+	$logo_width = 0;
+	if(file_exists('download/'.FORM_HEADER_LOGO)) {
+		list($image_width, $image_height) = getimagesize('download/'.FORM_HEADER_LOGO);
+		$logo_height = $image_height;
+		$logo_width = $image_width;
+		if($image_height > 180) {
+			$logo_width = (180 / $logo_height) * 100;
+			$logo_height = 180;
+		}
+		if($logo_width > 360) {
+			$logo_height = (360 / $logo_width) * 100;
+			$logo_width = 360;
+		}
+		$logo_height = $logo_height / 7.2;
+		$logo_width = $logo_width / 7.2;
+	}
+	DEFINE(FORM_HEADER_LOGO_HEIGHT, $logo_height);
+	DEFINE(FORM_HEADER_LOGO_WIDTH, $logo_width);
 
     class MYPDF extends TCPDF {
 
@@ -103,7 +122,7 @@ if(isset($_POST['export_pdf'])) {
         public function Header() {
             if(FORM_HEADER_LOGO != '') {
                 $image_file = '../Calendar/download/'.FORM_HEADER_LOGO;
-                $this->Image($image_file, 10, 5, 0, 25, '', '', 'T', false, 300, FORM_HEADER_LOGO_ALIGN, false, false, 0, false, false, false);
+                $this->Image($image_file, 10, 5, FORM_HEADER_LOGO_WIDTH, FORM_HEADER_LOGO_HEIGHT, '', '', 'T', false, 300, FORM_HEADER_LOGO_ALIGN, false, false, 0, false, false, false);
             }
 
             if(FORM_HEADER_TEXT != '') {
