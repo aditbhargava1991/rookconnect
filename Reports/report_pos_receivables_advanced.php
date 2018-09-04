@@ -145,6 +145,7 @@ if (isset($_POST['printpdf'])) {
     $endtime = $endtimepdf;
 } ?>
 
+<div id="invoice_div">
 <form id="form1" name="form1" method="post" action="" enctype="multipart/form-data" class="form-horizontal triple-gap-top" role="form">
     <input type="hidden" name="report_type" value="<?php echo $_GET['type']; ?>">
     <input type="hidden" name="category" value="<?php echo $_GET['category']; ?>">
@@ -204,7 +205,7 @@ if (isset($_POST['printpdf'])) {
     <?php echo report_receivables($dbc, $starttime, $endtime, $contactid, '', '', ''); ?>
 
 </form>
-
+</div>
 <?php
 function report_receivables($dbc, $starttime, $endtime, $contactid, $table_style, $table_row_style, $grand_total_style) {
 
@@ -243,7 +244,7 @@ function report_receivables($dbc, $starttime, $endtime, $contactid, $table_style
             $report_data .= '<tr nobr="true" style="'.$bg_class.'">';
                 $report_data .= '<td data-title="Invoice #">' .($invoice['invoice_type'] == 'New' ? '#' : $invoice['invoice_type'].' #'). $invoice['invoiceid'] . ' <a href="../POSAdvanced/download/invoice_'.$invoice['invoiceid'].'.pdf" target="_blank"><img src="../img/pdf.png" alt="Invoice PDF" /></a></td>';
                 $report_data .= '<td data-title="Invoice Date" style="white-space: nowrap; ">'.$invoice['invoice_date'].'</td>';
-                $report_data .= '<td data-title="Customer">' . get_contact($dbc, $invoice['patientid']) . '</td>';
+                $report_data .= '<td data-title="Customer"><a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/'.CONTACTS_TILE.'/contacts_inbox.php?edit='.$invoice['patientid'].'\', \'auto\', false, true, $(\'#invoice_div\').outerHeight()+20); return false;">' . get_contact($dbc, $invoice['patientid']) . '</a></td>';
                 $report_data .= '<td data-title="Total Price" align="right">$' . number_format($invoice['final_price'],2) . '</td>';
                 $report_data .= '<td data-title="Payment Type">' . explode('#*#',$invoice['payment_type'])[0] . '</td>';
                 $report_data .= '<td data-title="Delivery">' . $invoice['delivery_type'] . '</td>';
