@@ -9,7 +9,7 @@ while($row = mysqli_fetch_array( $result )) {
     	$row['calendar_color'] = '#6DCFF6';
     }
 
-    $all_booking_sql = "SELECT * FROM `booking` WHERE '$contactid' IN (`therapistsid`, `patientid`) AND `follow_up_call_status` NOT LIKE '%cancel%' AND ((`appoint_date` BETWEEN '".$new_today_date." 00:00:00' AND '".$new_today_date." 11:59:59') OR (`end_appoint_date` BETWEEN '".$new_today_date." 00:00:00' AND '".$new_today_date." 11:59:59')) AND `deleted` = 0";
+    $all_booking_sql = "SELECT * FROM `booking` WHERE CONCAT('*#*',`therapistsid`,'*#*',`patientid`,'*#*') LIKE '%*#*$contactid*#*%' AND `follow_up_call_status` NOT LIKE '%cancel%' AND ((`appoint_date` BETWEEN '".$new_today_date." 00:00:00' AND '".$new_today_date." 11:59:59') OR (`end_appoint_date` BETWEEN '".$new_today_date." 00:00:00' AND '".$new_today_date." 11:59:59')) AND `deleted` = 0";
     $appointments = mysqli_fetch_all(mysqli_query($dbc, $all_booking_sql),MYSQLI_ASSOC);
 
     $num_rows = mysqli_num_rows($appointments);

@@ -120,7 +120,7 @@ function toggle_columns(type = '', reload_teams = 0) {
     $('div.used-block').each(function() {
         var ticket_businessid = $(this).data('businessid');
         var ticket_clientid = $(this).data('clientid');
-        if (clients.indexOf(parseInt(ticket_clientid)) == -1 && clients.indexOf(parseInt(ticket_businessid)) && clients.length > 0) {
+        if (clients.indexOf(parseInt(ticket_clientid)) == -1 && clients.indexOf(parseInt(ticket_businessid)) == -1 && clients.length > 0) {
             $(this).hide();
         } else {
             $(this).show();

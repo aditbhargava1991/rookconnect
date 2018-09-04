@@ -20,7 +20,7 @@ if($_GET['view'] == 'monthly') {
         $calendar_dates[] = $curr;
     }
 } else if($_GET['view'] == 'weekly') {
-    $weekly_start = get_config($dbc, 'ticket_weekly_start');
+    $weekly_start = get_config($dbc, $_GET['type'].'_weekly_start');
     if($weekly_start == 'Sunday') {
         $weekly_start = 1;
     } else {
