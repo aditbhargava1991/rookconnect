@@ -159,7 +159,7 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
         <div class="main-screen">
             <div class="tile-header standard-header">
                 <div class="row">
-                    <h1 class="pull-left"><?= (empty($current_tile_name) ? 'Check Out' : $current_tile_name) ?></h1>
+                    <h1 class="pull-left"><a href="invoice_main.php"><?= (empty($current_tile_name) ? 'Check Out' : $current_tile_name) ?></a></h1>
                     <?php if(config_visible_function($dbc, (FOLDER_NAME == 'posadvanced' ? 'posadvanced' : 'check_out')) == 1) {
                         echo '<a href="field_config_invoice.php" class="pull-right gap-right gap-top"><img width="30" title="Tile Settings" src="../img/icons/settings-4.png" class="settings-classic wiggle-me no-toggle"></a>';
                     } ?>
@@ -178,8 +178,9 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
                     <div class="standard-body-content">
                         <form name="invoice" method="GET" action="" class="form-horizontal" role="form">
                             <?php $value_config = ','.get_config($dbc, 'invoice_dashboard').','; ?>
-                            <?php $search_contact = 0;
-                            $search_delivery = '';
+                            <?php
+                            $search_contact = 0;
+                            $search_invoiceid = '';
                             $search_from = date('Y-m-01');
                             $search_to = date('Y-m-t');
                             if (isset($_GET['search_invoice_submit'])) {
@@ -195,6 +196,7 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
                                 if($_GET['search_to'] != '') {
                                    $search_to = $_GET['search_to'];
                                 }
+                                $search_invoiceid = isset($_POST['search_invoiceid']) ? preg_replace('/[^0-9]/', '', $_POST['search_invoiceid']) : '';
                             } ?>
                             <div class="search-group double-gap-top">
                                 <div class="form-group col-lg-9 col-md-8 col-sm-12 col-xs-12">
@@ -217,17 +219,10 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
                                     <?php if(strpos($value_config,',delivery,') !== FALSE) { ?>
                                         <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
                                             <div class="col-sm-4">
-                                                <label for="site_name" class="control-label">Search By Delivery/Shipping Type:</label>
+                                                <label for="site_name" class="control-label">Search By Invoice #:</label>
                                             </div>
                                             <div class="col-sm-8">
-                                                <select name="type" data-placeholder="Select Delivery/Shipping Type..." class="chosen-select-deselect form-control width-me">
-                                                    <option value=''></option>
-                                                    <option <?= ($search_delivery == 'Pick-Up' ? 'selected' : '') ?> value="Pick-Up">Pick-Up</option>
-                                                    <option <?= ($search_delivery == 'Company Delivery' ? 'selected' : '') ?> value="Company Delivery">Company Delivery</option>
-                                                    <option <?= ($search_delivery == 'Drop Ship' ? 'selected' : '') ?> value="Drop Ship">Drop Ship</option>
-                                                    <option <?= ($search_delivery == 'Shipping' ? 'selected' : '') ?> value="Shipping">Shipping</option>
-                                                    <option <?= ($search_delivery == 'Shipping on Customer Account' ? 'selected' : '') ?> value="Shipping on Customer Account">Shipping on <?= $purchaser_label ?> Account</option>
-                                                </select>
+                                                <input name="search_invoiceid" placeholder="Invoice #" class="form-control" value="<?= $search_invoiceid ?>" />
                                             </div>
                                         </div>
                                     <?php } ?>
@@ -288,8 +283,9 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
                             if($search_contact > 0) {
                                 $search_clause .= " AND `patientid`='$search_contact'";
                             }
-                            if($search_delivery != '') {
-                                $search_clause .= " AND `delivery_type`='$search_delivery'";
+                            $search_invoice_clause = '';
+                            if ( !empty($search_invoiceid) ) {
+                                $search_invoice_clause = " AND `invoiceid`='$search_invoiceid'";
                             }
                             if($search_from != '') {
                                 $search_clause .= " AND `invoice_date` >= '$search_from'";
@@ -304,8 +300,8 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
                                 $limit = ' LIMIT '.$offset.', '.$rowsPerPage;
                             }
 
-                            $query_check_credentials = "SELECT * FROM invoice WHERE deleted = 0 AND `status` != 'Void' $search_clause ORDER BY invoiceid DESC $limit";
-                            $query = "SELECT count(*) as numrows FROM invoice WHERE deleted = 0 AND `status` != 'Void' $search_clause";
+                            $query_check_credentials = "SELECT * FROM invoice WHERE deleted = 0 AND `status` != 'Void' $search_clause $search_invoice_clause ORDER BY invoiceid DESC $limit";
+                            $query = "SELECT count(*) as numrows FROM invoice WHERE deleted = 0 AND `status` != 'Void' $search_clause $search_invoice_clause";
 
                             $result = mysqli_query($dbc, $query_check_credentials);
 

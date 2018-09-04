@@ -64,6 +64,9 @@ function pay_receivables(invoiceid) {
     }
     overlayIFrameSlider('pay_receivables.php?customer='+$('[name=patient]').val()+'&invoices='+invoiceid);
 }
+function view_tabs() {
+    $('.view_tabs').toggle();
+}
 </script>
 </head>
 <body>
@@ -83,7 +86,7 @@ define('PURCHASER', count($purchaser_config) > 1 ? 'Customer' : $purchaser_confi
         <div class="main-screen">
             <div class="tile-header standard-header">
                 <div class="row">
-                    <h1 class="pull-left"><?= (empty($current_tile_name) ? 'Check Out' : $current_tile_name) ?></h1>
+                    <h1 class="pull-left"><a href="invoice_main.php"><?= (empty($current_tile_name) ? 'Check Out' : $current_tile_name) ?></a></h1>
                     <?php if(config_visible_function($dbc, (FOLDER_NAME == 'posadvanced' ? 'posadvanced' : 'check_out')) == 1) {
                         echo '<a href="field_config_invoice.php" class="pull-right gap-right gap-top"><img width="30" title="Tile Settings" src="../img/icons/settings-4.png" class="settings-classic wiggle-me no-toggle"></a>';
                     } ?>
@@ -148,43 +151,69 @@ define('PURCHASER', count($purchaser_config) > 1 ? 'Customer' : $purchaser_confi
                             }
                             ?>
 
-                            <br /><br />
-
-                            <div class="form-group">
-
-                                <label for="site_name" class="col-sm-1 control-label">
-                                    <span class="popover-examples list-inline" style="margin:0 5px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Search for invoice(s) by patient name."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
-                                    <?= PURCHASER ?>:
-                                </label>
-                                <div class="col-sm-8" style="width:auto">
-                                    <select data-placeholder="Choose <?= PURCHASER ?>..." name="patient" class="chosen-select-deselect form-control" width="380">
-                                        <option value="">Display All</option>
-                                        <?php
-                                        $query = mysqli_query($dbc,"SELECT distinct(patientid) FROM invoice_patient WHERE (IFNULL(`paid`,'') IN ('On Account','No','') OR `paid` LIKE 'Net %') ORDER BY patientid");
-                                        while($row = mysqli_fetch_array($query)) {
-                                            if ($patient == $row['patientid']) {
-                                                $selected = 'selected="selected"';
-                                            } else {
-                                                $selected = '';
-                                            }
-                                            echo "<option ".$selected." value='". $row['patientid']."'>".get_contact($dbc, $row['patientid']).'</option>';
-                                        }
-                                        ?>
-                                    </select>
+                            <div class="search-group double-gap-top">
+                                <div class="form-group col-lg-9 col-md-8 col-sm-12 col-xs-12">
+                                    <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+                                        <div class="col-sm-4">
+                                            <label for="site_name" class="col-sm-1 control-label">
+                                                <!--<span class="popover-examples list-inline" style="margin:0 5px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Search for invoice(s) by patient name."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>-->
+                                                <?= PURCHASER ?>:
+                                            </label>
+                                        </div>
+                                        <div class="col-sm-8">
+                                            <select data-placeholder="Select <?= PURCHASER ?>..." name="patient" class="chosen-select-deselect form-control">
+                                                <option value="">Display All</option>
+                                                <?php
+                                                $query = mysqli_query($dbc,"SELECT distinct(patientid) FROM invoice_patient WHERE (IFNULL(`paid`,'') IN ('On Account','No','') OR `paid` LIKE 'Net %') ORDER BY patientid");
+                                                while($row = mysqli_fetch_array($query)) {
+                                                    if ($patient == $row['patientid']) {
+                                                        $selected = 'selected="selected"';
+                                                    } else {
+                                                        $selected = '';
+                                                    }
+                                                    echo "<option ".$selected." value='". $row['patientid']."'>".get_contact($dbc, $row['patientid']).'</option>';
+                                                }
+                                                ?>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+                                        <!--<span class="popover-examples list-inline" style="margin:0 5px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Search by invoice # directly. You must enter a complete value."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>-->
+                                        <div class="col-sm-4">
+                                            <label>Search By Invoice #:</label>
+                                        </div>
+                                        <div class="col-sm-8">
+                                            <input name="invoice_no" type="text" placeholder="Invoice #" class="form-control1 form-control" value="<?php echo $invoice_no; ?>">
+                                        </div>
+                                    </div>
                                 </div>
-
-                                From:
-                                    <input name="starttime" type="text" class="datepicker" value="<?php echo $starttime; ?>">
-                                Until:
-                                    <input name="endtime" type="text" class="datepicker" value="<?php echo $endtime; ?>">
-
-                                    <span class="popover-examples list-inline" style="margin:0 5px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Search by invoice # directly. You must enter a complete value."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
-                                    Invoice #:
-                                    <input name="invoice_no" type="text" class="form-control1" value="<?php echo $invoice_no; ?>">
-
-                            <button type="submit" name="search_email_submit" value="Search" class="btn brand-btn mobile-block">Submit</button>
-                            <span class="popover-examples list-inline" style="margin:0 0 0 10px;"><a data-toggle="tooltip" data-placement="top" title="Select this to remove all of the search filters you've applied. It will revert back to today's invoices."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
-                            <button type="submit" name="search_email_all" value="Search" class="btn brand-btn mobile-block">Display Default</button>
+                                <div class="form-group col-lg-9 col-md-8 col-sm-12 col-xs-12">
+                                    <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+                                        <div class="col-sm-4">
+                                            <label for="site_name" class="control-label">Search From Date:</label>
+                                        </div>
+                                        <div class="col-sm-8">
+                                            <input name="starttime" type="text" class="datepicker form-control" value="<?php echo $starttime; ?>">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+                                        <div class="col-sm-4">
+                                            <label for="site_name" class="control-label">Search To Date:</label>
+                                        </div>
+                                        <div class="col-sm-8">
+                                            <input name="endtime" type="text" class="datepicker form-control" value="<?php echo $endtime; ?>">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group col-lg-3 col-md-4 col-sm-12 col-xs-12">
+                                    <div style="display:inline-block; padding: 0 0.5em;">
+                                        <button type="submit" name="search_email_submit" value="Search" class="btn brand-btn mobile-block">Search</button>
+                                    </div>
+                                    <div style="display:inline-block; padding: 0 0.5em;">
+                                        <span class="popover-examples list-inline"><a data-toggle="tooltip" data-placement="top" title="Select this to remove all of the search filters you've applied. It will revert back to today's invoices."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
+                                        <button type="submit" name="search_email_all" value="Search" class="btn brand-btn mobile-block">Display All</button>
+                                    </div>
+                                </div>
                             </div>
 
                             <input type="hidden" name="starttimepdf" value="<?php echo $starttime; ?>">
@@ -228,8 +257,8 @@ function report_receivables($dbc, $starttime, $endtime, $table_style, $table_row
         $report_service = mysqli_query($dbc,"SELECT ii.*, i.service_date FROM invoice_patient ii, invoice i WHERE (DATE(ii.invoice_date) >= '".$starttime."' AND DATE(ii.invoice_date) <= '".$endtime."') AND ii.invoiceid = i.invoiceid AND (IFNULL(ii.`paid`,'') IN ('On Account','','No') OR ii.`paid` LIKE 'Net %') AND `i`.`status` NOT IN ('Void') ORDER BY ii.invoiceid DESC");
     }
 
-    $report_data .= '<a href="" onclick="pay_receivables(\'all\'); return false;" class="btn brand-btn pull-right">Pay All</a>
-        <span class="popover-examples list-inline pull-right" style="margin:0 0 0 0;"><a data-toggle="tooltip" data-placement="top" title="Click here to enter the payment details for all listed invoices."><img src="'. WEBSITE_URL .'/img/info.png" width="20"></a></span>';
+    $report_data .= '<a href="" onclick="pay_receivables(\'all\'); return false;" class="btn brand-btn pull-right gap-top gap-bottom">Pay All</a>
+        <span class="popover-examples list-inline pull-right" style="margin:15px 3px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Click here to enter the payment details for all listed invoices."><img src="'. WEBSITE_URL .'/img/info.png" width="20"></a></span><div class="clearfix"></div>';
     $report_data .= '<div id="no-more-tables"><table border="1px" class="table table-bordered table-striped" style="'.$table_style.'">';
     $report_data .= '<thead><tr style="'.$table_row_style.'">
     <th>Invoice#</th>
@@ -261,9 +290,9 @@ function report_receivables($dbc, $starttime, $endtime, $table_style, $table_row
     $report_data .= '<tr nobr="true">';
     $report_data .= '<td colspan="4"><b>Total</b></td><td align="right"><b>'.number_format($amt_to_bill, 2).'</b></td><td></td>';
     $report_data .= "</tr>";
-    $report_data .= '</table></div><br>';
-    $report_data .= '<a href="" onclick="pay_receivables(); return false;" class="btn brand-btn pull-right">Pay Selected</a>
-        <span class="popover-examples list-inline pull-right" style="margin:0 0 0 0;"><a data-toggle="tooltip" data-placement="top" title="Click here to enter the payment details for the selected invoices."><img src="'. WEBSITE_URL .'/img/info.png" width="20"></a></span>';
+    $report_data .= '</table></div>';
+    $report_data .= '<a href="" onclick="pay_receivables(); return false;" class="btn brand-btn pull-right double-gap-bottom">Pay Selected</a>
+        <span class="popover-examples list-inline pull-right" style="margin:5px 3px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Click here to enter the payment details for the selected invoices."><img src="'. WEBSITE_URL .'/img/info.png" width="20"></a></span><div class="clearfix"></div>';
 
     if(!empty($_GET['from'])) {
         if($_GET['report'] == 'ar_aging') {

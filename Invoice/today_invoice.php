@@ -160,7 +160,7 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
         <div class="main-screen">
             <div class="tile-header standard-header">
                 <div class="row">
-                    <h1 class="pull-left"><?= (empty($current_tile_name) ? 'Check Out' : $current_tile_name) ?></h1>
+                    <h1 class="pull-left"><a href="invoice_main.php"><?= (empty($current_tile_name) ? 'Check Out' : $current_tile_name) ?></a></h1>
                     <?php if(config_visible_function($dbc, (FOLDER_NAME == 'posadvanced' ? 'posadvanced' : 'check_out')) == 1) {
                         echo '<a href="field_config_invoice.php" class="pull-right gap-right gap-top"><img width="30" title="Tile Settings" src="../img/icons/settings-4.png" class="settings-classic wiggle-me no-toggle"></a>';
                     } ?>
@@ -195,8 +195,6 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
                                 <div class="row">
                                     <div class="col-sm-9">
                                         <div class="row">
-                                            <div class="col-sm-2 text-right"><label class="control-label">Search By Invoice #:</label></div>
-                                            <div class="col-sm-4"><input name="search_invoiceid" placeholder="Invoice #" class="form-control" value="<?= $search_invoiceid ?>" /></div>
                                             <div class="col-sm-2 text-right"><label class="control-label">Search By <?= $purchaser_label ?>:</label></div>
                                             <div class="col-sm-4">
                                                 <select name="contactid" data-placeholder="Select <?= $purchaser_label ?>..." class="chosen-select-deselect form-control width-me">
@@ -209,6 +207,8 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
                                                     } ?>
                                                 </select>
                                             </div>
+                                            <div class="col-sm-2 text-right"><label class="control-label">Search By Invoice #:</label></div>
+                                            <div class="col-sm-4"><input name="search_invoiceid" placeholder="Invoice #" class="form-control" value="<?= $search_invoiceid ?>" /></div>
                                         </div>
                                     </div>
                                     <div class="col-sm-3">

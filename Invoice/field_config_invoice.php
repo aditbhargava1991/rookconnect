@@ -379,7 +379,7 @@ if(!empty($invoice_types)) { ?>
     					<label class="form-checkbox"><input <?= (in_array('sell',$tab_list) ? 'checked' : '') ?> type="checkbox" name="invoice_tabs[]" value="sell"> Create Invoice</label>
     					<label class="form-checkbox"><input <?= (in_array('today',$tab_list) ? 'checked' : '') ?> type="checkbox" name="invoice_tabs[]" value="today"> Today's Invoices</label>
     					<label class="form-checkbox"><input <?= (in_array('all',$tab_list) ? 'checked' : '') ?> type="checkbox" name="invoice_tabs[]" value="all"> All Invoices</label>
-    					<label class="form-checkbox"><input <?= (in_array('invoices',$tab_list) ? 'checked' : '') ?> type="checkbox" name="invoice_tabs[]" value="invoices"> Invoices</label>
+    					<!--<label class="form-checkbox"><input <?= (in_array('invoices',$tab_list) ? 'checked' : '') ?> type="checkbox" name="invoice_tabs[]" value="invoices"> Invoices</label>-->
     					<label class="form-checkbox"><input <?= (in_array('unpaid',$tab_list) ? 'checked' : '') ?> type="checkbox" name="invoice_tabs[]" value="unpaid"> Accounts Receivable</label>
     					<label class="form-checkbox"><input <?= (in_array('contact_ar',$tab_list) ? 'checked' : '') ?> type="checkbox" name="invoice_tabs[]" value="contact_ar"> Contact A/R</label>
     					<label class="form-checkbox"><input <?= (in_array('third_party_ar',$tab_list) ? 'checked' : '') ?> type="checkbox" name="invoice_tabs[]" value="third_party_ar"> Third Party A/R</label>
@@ -387,7 +387,7 @@ if(!empty($invoice_types)) { ?>
     					<!--<label class="form-checkbox"><input <?= (in_array('paid_contact_ar',$tab_list) ? 'checked' : '') ?> type="checkbox" name="invoice_tabs[]" value="paid_contact_ar"> Contact Paid A/R Report</label>-->
     					<label class="form-checkbox"><input <?= (in_array('paid_third_party_ar',$tab_list) ? 'checked' : '') ?> type="checkbox" name="invoice_tabs[]" value="paid_third_party_ar"> Third Party Paid A/R Report</label>
     					<label class="form-checkbox"><input <?= (in_array('clinic_master',$tab_list) ? 'checked' : '') ?> type="checkbox" name="invoice_tabs[]" value="clinic_master"> Clinic Master Report</label>
-    					<label class="form-checkbox"><input <?= (in_array('voided',$tab_list) ? 'checked' : '') ?> type="checkbox" name="invoice_tabs[]" value="voided"> Voided Invoices</label>
+    					<label class="form-checkbox"><input <?= (in_array('voided',$tab_list) ? 'checked' : '') ?> type="checkbox" name="invoice_tabs[]" value="voided"> Voided / Credit Memo</label>
     					<label class="form-checkbox"><input <?= (in_array('refunds',$tab_list) ? 'checked' : '') ?> type="checkbox" name="invoice_tabs[]" value="refunds"> Refund / Adjustments</label>
     					<label class="form-checkbox"><input <?= (in_array('ui_report',$tab_list) ? 'checked' : '') ?> type="checkbox" name="invoice_tabs[]" value="ui_report"> Unpaid Insurer Invoice Report</label>
     					<label class="form-checkbox"><input <?= (in_array('cashout',$tab_list) ? 'checked' : '') ?> type="checkbox" name="invoice_tabs[]" value="cashout"> Cash Out</label>

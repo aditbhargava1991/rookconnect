@@ -60,7 +60,7 @@ $payer_label = count($payer_config) > 1 ? 'Third Party' : $payer_config[0]; ?>
 				<a href='insurer_account_receivables_cm.php'><span class="btn brand-btn mobile-block mobile-100 <?= strpos($_SERVER['PHP_SELF'],'/insurer_account_receivables_cm.php') !== FALSE ? 'active_tab' : '' ?>">Clinic Master A/R Report</span></a>
 				<?php break;
 			case 'voided': ?>
-				<a href='void_invoices.php'><span class="btn brand-btn mobile-block mobile-100 <?= strpos($_SERVER['PHP_SELF'],'/void_invoices.php') !== FALSE ? 'active_tab' : '' ?>">Voided Invoices</span></a>
+				<a href='void_invoices.php'><span class="btn brand-btn mobile-block mobile-100 <?= strpos($_SERVER['PHP_SELF'],'/void_invoices.php') !== FALSE ? 'active_tab' : '' ?>">Voided / Credit Memo</span></a>
 				<?php break;
 			case 'refunds': ?>
 				<span class="popover-examples list-inline">
