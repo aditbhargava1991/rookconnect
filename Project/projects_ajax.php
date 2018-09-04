@@ -492,10 +492,8 @@ if($_GET['action'] == 'mark_favourite') {
 	$timeline = filter_var($_POST['timeline'],FILTER_SANITIZE_STRING);
 	$tasks = filter_var($_POST['tasks'],FILTER_SANITIZE_STRING);
 	$ticket = filter_var($_POST['ticket'],FILTER_SANITIZE_STRING);
-	$workorder = filter_var($_POST['workorder'],FILTER_SANITIZE_STRING);
 	$check_lists = filter_var($_POST['check_list'],FILTER_SANITIZE_STRING);
 	$intake_forms = filter_var($_POST['intake_form'],FILTER_SANITIZE_STRING);
-	$items = filter_var($_POST['items'],FILTER_SANITIZE_STRING);
 	$intakes = filter_var($_POST['intakes'],FILTER_SANITIZE_STRING);
 
 	if($id == 'new') {
@@ -504,7 +502,8 @@ if($_GET['action'] == 'mark_favourite') {
 		echo $id;
 	}
 
-	mysqli_query($dbc, "UPDATE `project_path_milestone` SET `project_path`='$project_path',`milestone`='$milestone',`timeline`='$timeline',`checklist`='$tasks',`ticket`='$ticket',`workorder`='$workorder', `intake_form`='$intake_forms', `check_list`='$check_lists' WHERE `project_path_milestone`='$id'");
+  // mysqli_query($dbc, "UPDATE `project_path_milestone` SET `project_path`='$project_path',`milestone`='$milestone',`timeline`='$timeline',`checklist`='$tasks',`ticket`='$ticket',`intake_form`='$intake_forms',`intakes`='$intakes', `check_list`='$check_lists' WHERE `project_path_milestone`='$id'");
+  mysqli_query($dbc, "UPDATE `project_path_milestone` SET `project_path`='$project_path',`milestone`='$milestone',`timeline`='$timeline',`checklist`='$tasks',`ticket`='$ticket',`intakes`='$intakes' WHERE `project_path_milestone`='$id'");
 
 
 } else if($_GET['action'] == 'path_template_individual_order') {
@@ -1124,4 +1123,23 @@ if($_GET['action'] == 'mark_favourite') {
     set_config($dbc, 'project_lead_cats', $_POST['lead']);
     set_config($dbc, 'project_co_lead_cats', $_POST['co']);
     set_config($dbc, 'project_team_cats', $_POST['team']);
+} else if($_GET['action'] == 'flag_colour') {
+	$id = filter_var($_POST['id'],FILTER_SANITIZE_STRING);
+	$field = filter_var($_POST['field'],FILTER_SANITIZE_STRING);
+	$value = filter_var($_POST['value'],FILTER_SANITIZE_STRING);
+
+	$colours = explode(',', get_config($dbc, "ticket_colour_flags"));
+	$labels = explode('#*#', get_config($dbc, "ticket_colour_flag_names"));
+	$colour_key = array_search($value, $colours);
+	$new_colour = ($colour_key === FALSE ? $colours[0] : ($colour_key + 1 < count($colours) ? $colours[$colour_key + 1] : 'FFFFFF'));
+	$label = ($colour_key === FALSE ? $labels[0] : ($colour_key + 1 < count($colours) ? $labels[$colour_key + 1] : ''));
+	echo $new_colour.html_entity_decode($label);
+	$before_change = capture_before_change($dbc, 'project', 'flag_colour', 'projectid', $id);
+	$before_change .= capture_before_change($dbc, 'project', 'flag_start', 'projectid', $id);
+	$before_change .= capture_before_change($dbc, 'project', 'flag_end', 'projectid', $id);
+	mysqli_query($dbc, "UPDATE `project` SET `flag_colour`='$new_colour', `flag_start`='0000-00-00', `flag_end`='9999-12-31' WHERE `projectid`='$id'");
+	$history = capture_after_change('flag_colour', $new_colour);
+	$history .= capture_after_change('flag_start', '0000-00-00');
+	$history .= capture_after_change('flag_end', '9999-12-31');
+	add_update_history($dbc, 'project_history', $history, '', $before_change, $projectid);
 }

@@ -283,6 +283,17 @@
 		if(!mysqli_query($dbc, "ALTER TABLE `email_communication` ADD `salesid` INT(11) UNSIGNED NOT NULL DEFAULT 0 AFTER `contactid`")) {
 			echo "Error: ".mysqli_error($dbc)."<br />\n";
 		}
+    
+        //August 31, 2018
+		if(!mysqli_query($dbc, "ALTER TABLE `invoice` ADD `area` TEXT AFTER `injuryid`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+		if(!mysqli_query($dbc, "ALTER TABLE `invoice` ADD `po_num` TEXT AFTER `injuryid`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+		if(!mysqli_query($dbc, "ALTER TABLE `invoice` ADD `contract` TEXT AFTER `injuryid`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
 		
 		set_config($dbc, 'db_version_jonathan', 8);
 	}

@@ -610,7 +610,9 @@ function popUpClosed() {
                                 echo '<div class="col-sm-6"><h3>'. ($title=='Search' ? $title .': '. $term : $title .': '. $board_name['board_name']) .'</h3></div>';
                                 echo '<div class="col-sm-6 text-right">';
                                     if ( $url_tab!='Search' && $url_tab!='Summary' && $url_tab!='Reporting' ) {
-                                        echo '<div class="gap-top gap-right" style="font-size:1.5em;">';
+                                        echo '<div class="gap-top gap-right" style="font-size:1.5em;">'; ?>
+                                          <img class="no-toggle" title="Overall Task Board History" style="margin-top:3px; cursor:pointer; height:1.8em;" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Tasks_Updated/task_history.php?board=company&taskboardid=<?=$taskboardid?>','auto',true,true);" src="../img/icons/eyeball.png">
+                                          <?php
                                             if ( $board_name['company_staff_sharing'] ) {
                                                 $c_ex = explode(',', $board_name['company_staff_sharing']);
                                                 $c_unique = array_unique($c_ex);

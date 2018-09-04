@@ -79,6 +79,7 @@ function loadPanel() {
 </div>
 <div class="tile-sidebar sidebar hide-titles-mob standard-collapsible">
 	<ul>
+		<a href="projects.php"><li>Back to Dashboard</li></a>
 		<a href="?settings=fields"><li class="<?= empty($_GET['settings']) || $_GET['settings'] == 'fields' ? 'active blue' : '' ?>">Activate Fields</li></a>
 		<a href="?settings=tabs"><li class="<?= $_GET['settings'] == 'tabs' ? 'active blue' : '' ?>">Activate Tabs</li></a>
 		<a href="?settings=types"><li class="<?= $_GET['settings'] == 'types' ? 'active blue' : '' ?>"><?= PROJECT_NOUN ?> Types</li></a>
