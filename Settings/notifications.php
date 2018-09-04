@@ -20,7 +20,10 @@ $(document).ready(function() {
 	});
 });
 function saveConfig() {
-	var enabled = $('[name="enabled"]').val();
+	var enabled = '';
+	if($('[name="enabled"]').is(':checked')) {
+		enabled = $('[name="enabled"]').val();
+	}
 	var frequency = $('[name="frequency"]').val();
 	var alert_hour = $('[name="alert_hour"]').val();
 	var alert_days = [];
