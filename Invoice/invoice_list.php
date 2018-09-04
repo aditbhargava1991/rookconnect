@@ -200,8 +200,7 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
                                 <div class="form-group col-lg-9 col-md-8 col-sm-12 col-xs-12">
                                     <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
                                         <div class="col-sm-4">
-                                            <label for="site_name" class="control-label">
-                                                Search By <?= $purchaser_label ?>:</label>
+                                            <label for="site_name" class="control-label">Search By <?= $purchaser_label ?>:</label>
                                         </div>
                                         <div class="col-sm-8">
                                             <select name="contactid" data-placeholder="Select <?= $purchaser_label ?>..." class="chosen-select-deselect form-control width-me">
@@ -218,8 +217,7 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
                                     <?php if(strpos($value_config,',delivery,') !== FALSE) { ?>
                                         <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
                                             <div class="col-sm-4">
-                                                <label for="site_name" class="control-label">
-                                                    Search By Delivery/Shipping Type:</label>
+                                                <label for="site_name" class="control-label">Search By Delivery/Shipping Type:</label>
                                             </div>
                                             <div class="col-sm-8">
                                                 <select name="type" data-placeholder="Select Delivery/Shipping Type..." class="chosen-select-deselect form-control width-me">
@@ -237,8 +235,7 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
                                 <div class="form-group col-lg-9 col-md-8 col-sm-12 col-xs-12">
                                     <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
                                         <div class="col-sm-4">
-                                            <label for="site_name" class="control-label">
-                                                Search From Date:</label>
+                                            <label for="site_name" class="control-label">Search From Date:</label>
                                         </div>
                                         <div class="col-sm-8">
                                             <input name="search_from" type="text" class="datepicker form-control" value="<?= $search_from ?>">
@@ -246,8 +243,7 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
                                     </div>
                                     <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
                                         <div class="col-sm-4">
-                                            <label for="site_name" class="control-label">
-                                                Search To Date:</label>
+                                            <label for="site_name" class="control-label">Search To Date:</label>
                                         </div>
                                         <div class="col-sm-8">
                                             <input name="search_to" type="text" class="datepicker form-control" value="<?= $search_to ?>">
@@ -260,6 +256,7 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
                                     </div>
                                     <div style="display:inline-block; padding: 0 0.5em;">
                                         <a href="" type="submit" name="display_all_inventory" value="Display All" class="btn brand-btn mobile-block">Display All</a>
+                                    </div>
                                 </div>
                             </div>
                         </form>
@@ -451,7 +448,7 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
                                     echo display_pagination($dbc, $query, $pageNum, $rowsPerPage);
                                 // Pagination Finish //
                             } else {
-                                echo "<h2>No Record Found.</h2>";
+                                echo "<h4 class='double-gap-top double-gap-left'>No Record Found.</h4>";
                             } ?>
 
                             <div name="send_email_div" class="form-horizontal" style="display:none;">

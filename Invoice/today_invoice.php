@@ -381,7 +381,7 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
                                     echo display_pagination($dbc, $query, $pageNum, $rowsPerPage);
                                 // Pagination Finish //
                             } else {
-                                echo "<h2>No Record Found.</h2>";
+                                echo "<h4 class='double-gap-top double-gap-left'>No Record Found.</h4>";
                             } ?>
 
                             <div name="send_email_div" class="form-horizontal" style="display:none;">
