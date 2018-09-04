@@ -261,7 +261,7 @@ function changeLevel(sel) {
                                 $board_name = $board_type;
                             }
                             if ( $board_type!='Community' && $board_type!='Business' && $board_type!='Reporting' ) { ?>
-                                <option <?= trim($get_board['board_security'])==trim($board_type) ? 'selected' : '' ?> value="<?= $board_type ?>"><?= $board_name ?></option><?php
+                                <option <?= trim($board_security)==trim($board_type) ? 'selected' : '' ?> value="<?= $board_type ?>"><?= $board_name ?></option><?php
                             }
                         } ?>
                     </select>

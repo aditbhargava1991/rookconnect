@@ -70,7 +70,7 @@ $rate_security = get_security($dbc, 'rate_cards'); ?>
 	function add_task_group() {
 		var group = $('.task-group').last();
 		var clone = group.clone();
-		clone.find('.form-group').not(':last').not(':first').remove();
+		clone.find('tr').not(':last').not(':first').remove();
 		clone.find('input').val('').data('id','');
 		group.after(clone);
 		set_task_data();
@@ -85,7 +85,9 @@ $rate_security = get_security($dbc, 'rate_cards'); ?>
 						var id = $(this).find('[name=task]').data('id');
 						var heading = $(this).find('[name=task]').val();
 						var details = $(this).find('[name=details]').val();
-						data.push({'id':id,'category':cat,'task':heading,'details':details});
+                        if(heading != '' && details != '') {
+                            data.push({'id':id,'category':cat,'task':heading,'details':details});
+                        }
 					}
 				});
 			}

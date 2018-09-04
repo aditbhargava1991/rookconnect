@@ -769,6 +769,9 @@ if(!empty($invoice_types)) { ?>
 					<?php $invoice_fields = (!empty($_GET['type']) ? explode(',',get_config($dbc, 'invoice_fields_'.config_safe_str($_GET['type']))) : explode(',',get_config($dbc, 'invoice_fields'))); ?>
 					<label class="form-checkbox"><input <?= (in_array('invoice_type',$invoice_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_fields[]" value="invoice_type"> Invoice Type</label>
 					<label class="form-checkbox"><input <?= (in_array('customer',$invoice_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_fields[]" value="customer"> Customer</label>
+					<label class="form-checkbox"><input <?= (in_array('contract',$invoice_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_fields[]" value="contract"> Contract #</label>
+					<label class="form-checkbox"><input <?= (in_array('po_num',$invoice_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_fields[]" value="po_num"> PO #</label>
+					<label class="form-checkbox"><input <?= (in_array('area',$invoice_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_fields[]" value="area"> Area</label>
 					<label class="form-checkbox"><input <?= (in_array('injury',$invoice_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_fields[]" value="injury"> Injury</label>
 					<label class="form-checkbox"><input <?= (in_array('staff',$invoice_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_fields[]" value="staff"> Staff (Providing Service)</label>
 					<label class="form-checkbox"><input <?= (in_array('appt_type',$invoice_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_fields[]" value="appt_type"> Appointment Type</label>
