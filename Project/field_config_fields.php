@@ -105,6 +105,7 @@ function remDetail(img) {
 	<div class="block-group col-sm-8">
 		<label class="form-checkbox"><input type="checkbox" checked onclick="return false;" name="project_fields[]" value="DB Project"><?= PROJECT_NOUN ?> Name</label>
 		<label class="form-checkbox"><input type="checkbox" <?= in_array('DB Review', $all_config) ? 'checked disabled' : (in_array('DB Review',$field_config) ? 'checked' : '') ?> name="project_fields[]" value="DB Review"><?= PROJECT_NOUN ?> Review</label>
+		<label class="form-checkbox"><input type="checkbox" <?= in_array('DB Action Items', $all_config) ? 'checked disabled' : (in_array('DB Action Items',$field_config) ? 'checked' : '') ?> name="project_fields[]" value="DB Action Items"><?= PROJECT_NOUN ?> Action Items</label>
 		<label class="form-checkbox"><input type="checkbox" <?= in_array('DB Business', $all_config) ? 'checked disabled' : (in_array('DB Business',$field_config) ? 'checked' : '') ?> name="project_fields[]" value="DB Business">Business Name</label>
 		<label class="form-checkbox"><input type="checkbox" <?= in_array('DB Contact', $all_config) ? 'checked disabled' : (in_array('DB Contact',$field_config) ? 'checked' : '') ?> name="project_fields[]" value="DB Contact">Contact Name</label>
 		<label class="form-checkbox"><input type="checkbox" <?= in_array('DB Status', $all_config) ? 'checked disabled' : (in_array('DB Status',$field_config) ? 'checked' : '') ?> name="project_fields[]" value="DB Status"><?= PROJECT_NOUN ?> Status</label>

@@ -51,6 +51,3 @@ $project_security = get_security($dbc, 'project'); ?>
 	//include('../Email Communication/email_list.php');
 	include('../Email Communication/dashboard_email.php');
 } ?>
-
-<div class="clearfix"></div>
-<hr />

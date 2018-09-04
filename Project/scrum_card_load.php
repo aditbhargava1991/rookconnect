@@ -360,7 +360,8 @@ if($type == 'Ticket') {
 	$flag_colours = explode(',',get_config($dbc,'ticket_colour_flags'));
 	$actions = '<a target="_parent" href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Checklist/edit_checklist.php?edit='.$item['checklistid'].'\'); return false;"><img src="../img/icons/ROOK-edit-icon.png" class="inline-img no-toggle" title="Edit"></a>'.
 		'<input type="file" name="attach_checklist_board_'.$item['checklistid'].'" style="display:none;" />'.
-		(in_array('flag_manual',$quick_actions) || in_array('flag',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-flag-icon.png" class="inline-img flag-icon no-toggle" title="Flag This!': '').
+		(in_array('flag_manual',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-flag-icon.png" class="inline-img manual-flag-icon no-toggle" title="Flag This!">': '').
+		(!in_array('flag_manual',$quick_actions) && in_array('flag',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-flag-icon.png" class="inline-img manual-flag-icon no-toggle" title="Flag This!">': '').
 		(in_array('alert',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-alert-icon.png" class="inline-img alert-icon no-toggle" title="Activate Alerts &amp; Get Notified">' : '').
 		(in_array('email',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-email-icon.png" class="inline-img email-icon no-toggle" title="Send Email">' : '').
 		(in_array('reminder',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-reminder-icon.png" class="inline-img reminder-icon no-toggle" title="Schedule Reminder">' : '').

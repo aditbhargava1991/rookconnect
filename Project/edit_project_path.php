@@ -128,40 +128,9 @@ function setActions() {
 	});
 	$('.manual-flag-icon').off('click').click(function() {
 		var item = $(this).closest('.dashboard-item');
-		item.find('.flag_field_labels,[name=label],[name=colour],[name=flag_it],[name=flag_cancel],[name=flag_off],[name=flag_start],[name=flag_end]').show();
-		item.find('[name=flag_cancel]').off('click').click(function() {
-			item.find('.flag_field_labels,[name=label],[name=colour],[name=flag_it],[name=flag_cancel],[name=flag_off],[name=flag_start],[name=flag_end]').hide();
-			return false;
-		});
-		item.find('[name=flag_off]').off('click').click(function() {
-			item.find('[name=colour]').val('FFFFFF');
-			item.find('[name=label]').val('');
-			item.find('[name=flag_start]').val('');
-			item.find('[name=flag_end]').val('');
-			item.find('[name=flag_it]').click();
-			return false;
-		});
-		item.find('[name=flag_it]').off('click').click(function() {
-			$.ajax({
-				url: '../Project/projects_ajax.php?action=project_actions',
-				method: 'POST',
-				data: {
-					field: 'flag_manual',
-					colour: item.find('[name=colour]').val(),
-					label: item.find('[name=label]').val(),
-					start: item.find('[name=flag_start]').val(),
-					end: item.find('[name=flag_end]').val(),
-					table: item.data('table'),
-					id: item.data('id'),
-					id_field: item.data('id-field')
-				}
-			});
-			item.find('.flag_field_labels,[name=label],[name=colour],[name=flag_it],[name=flag_cancel],[name=flag_off],[name=flag_start],[name=flag_end]').hide();
-			item.data('colour',item.find('[name=colour]').val());
-			item.css('background-color','#'+item.find('[name=colour]').val());
-			item.find('.flag-label').text(item.find('[name=label]').val());
-			return false;
-		});
+		$('.flag_target').removeClass('flag_target');
+		$(item).addClass('flag_target');
+		overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_flags.php?tile='+item.data('table')+'&id='+item.data('id'), 'auto', false, true);
 	});
 	$('.assign-icon').off('click').click(function() {
 		var item = $(this).closest('.dashboard-item');
@@ -239,47 +208,7 @@ function setActions() {
 	});
 	$('.reminder-icon').off('click').click(function() {
 		var item = $(this).closest('.dashboard-item');
-		item.find('[name=reminder]').change(function() {
-			var reminder = $(this).val();
-			var select = item.find('.select_users');
-			select.find('.cancel_button').off('click').click(function() {
-				select.find('select option:selected').removeAttr('selected');
-				select.find('select').trigger('change.select2');
-				select.hide();
-				return false;
-			});
-			select.find('.submit_button').off('click').click(function() {
-				if(select.find('select').val() != '' && confirm('Are you sure you want to schedule reminders for the selected user(s)?')) {
-					var users = [];
-					select.find('select option:selected').each(function() {
-						users.push(this.value);
-						$(this).removeAttr('selected');
-					});
-					$.ajax({
-						method: 'POST',
-						url: '../Project/projects_ajax.php?action=project_actions',
-						data: {
-							id: item.data('id'),
-							id_field: item.data('id-field'),
-							table: item.data('table'),
-							field: 'reminder',
-							value: reminder,
-							users: users,
-							ref_id: item.data('id'),
-							ref_id_field: item.data('id-field')
-						},
-						success: function(result) {
-							select.hide();
-							select.find('select').trigger('change.select2');
-							//item.find('h4').append(result);
-                            item.find('.action_notifications').prepend('<hr style="border-color:#ddd; margin:10px 0;" />'+response);
-						}
-					});
-				}
-				return false;
-			});
-			select.show();
-		}).focus();
+		overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_reminders.php?tile='+item.data('table')+'&id='+item.data('id'), 'auto', false, true);
 	});
 	$('.alert-icon').off('click').click(function() {
 		var item = $(this).closest('.dashboard-item');

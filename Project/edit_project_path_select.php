@@ -106,7 +106,8 @@ if($security['edit'] > 0) {
                     <div id="c_'.$path['project_path_milestone'].'" class="panel-collapse collapse">
                         <div class="panel-body">';
                             echo "<button data-path='".$path['project_path_milestone']."' class='btn brand-btn pull-right main_path ".($active ? 'active_tab' : 'add_tab')."'>".($active ? 'Remove Path' : 'Add to '.PROJECT_NOUN)."</button>";
-                            echo "<button data-path='".$path['project_path_milestone']."' class='btn brand-btn pull-right external ".($external ? 'active_tab' : 'add_tab')."'>".($external ? 'Remove External Path' : 'Add External Path to '.PROJECT_NOUN)."</button></h3>";
+                            echo "<button data-path='".$path['project_path_milestone']."' class='btn brand-btn pull-right external ".($external ? 'active_tab' : 'add_tab')."'>".($external ? 'Remove External Path' : 'Add External Path to '.PROJECT_NOUN)."</button>";
+                            echo '<br />&nbsp;<div class="clearfix"></div>';
                             $milestone = explode('#*#', $path['milestone']);
                             $timeline = explode('#*#', $path['timeline']);
                             $ticket = explode('#*#', $path['ticket']);
@@ -126,7 +127,7 @@ if($security['edit'] > 0) {
                                                 foreach($staff_list as $staff) {
                                                     echo '<option '.($project['project_lead'] == $staff['contactid'] ? 'selected' : '').' value="'.$staff['contactid'].'">'.$staff['full_name'].'</option>';
                                                 }
-                                                echo "</select></div></li>";
+                                                echo "</select></div><div class='clearfix'></div></li>";
                                             }
                                         }
                                         foreach(explode('*#*', $tasks[$j]) as $i => $item) {
@@ -135,7 +136,7 @@ if($security['edit'] > 0) {
                                                 foreach($staff_list as $staff) {
                                                     echo '<option '.($project['project_lead'] == $staff['contactid'] ? 'selected' : '').' value="'.$staff['contactid'].'">'.$staff['full_name'].'</option>';
                                                 }
-                                                echo "</select></div></li>";
+                                                echo "</select></div><div class='clearfix'></div></li>";
                                             }
                                         }
                                         // foreach(explode('*#*', $items[$j]) as $i => $item) {
@@ -145,7 +146,7 @@ if($security['edit'] > 0) {
                                         // }
                                         foreach(explode('*#*', $intakes[$j]) as $i => $item) {
                                             if($item != '') {
-                                                echo "<li><input type='hidden' name='intake' value='$j|$i'>Intake Form: ".get_field_value('form_name','intake_forms','intakeformid',$item)." <img src='../img/remove.png' class='cursor-hand inline-img' onclick='$(this).closest(\"li\").remove();'></li>";
+                                                echo "<li><input type='hidden' name='intake' value='$j|$i'>Intake Form: ".get_field_value('form_name','intake_forms','intakeformid',$item)." <img src='../img/remove.png' class='cursor-hand inline-img' onclick='$(this).closest(\"li\").remove();'><div class='clearfix'></div></li>";
                                             }
                                         }
                                         echo "</ul>";

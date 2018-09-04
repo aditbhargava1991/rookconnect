@@ -183,6 +183,7 @@ if(count($tab_config) == 0 && count($all_config) == 0) {
 	<label class="form-checkbox"><input type="checkbox" <?= in_array('Phone', $all_config) ? 'checked disabled' : (in_array('Phone',$tab_config) ? 'checked' : '') ?> name="project_tabs[]" value="Phone">Phone</label>
 	<label class="form-checkbox"><input type="checkbox" <?= in_array('Agendas', $all_config) ? 'checked disabled' : (in_array('Agendas',$tab_config) ? 'checked' : '') ?> name="project_tabs[]" value="Agendas">Agendas</label>
 	<label class="form-checkbox"><input type="checkbox" <?= in_array('Meetings', $all_config) ? 'checked disabled' : (in_array('Meetings',$tab_config) ? 'checked' : '') ?> name="project_tabs[]" value="Meetings">Meetings</label>
+	<label class="form-checkbox"><input type="checkbox" <?= in_array('Comm Log', $all_config) ? 'checked disabled' : (in_array('Comm Log',$tab_config) ? 'checked' : '') ?> name="project_tabs[]" value="Comm Log">Communication History</label>
 	<?php $project_heading = 'communications';
 	include('../Project/field_config_tabs_user_forms.php'); ?>
 </div>

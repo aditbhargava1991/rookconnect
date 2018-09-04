@@ -279,6 +279,26 @@ if($_GET['overview_mode'] == 1) {
 	$calendar_ticket_slider = 'full';
 }
 
+//Status Fields
+if(!empty($ticket_status)) {
+	$value_config_all = $value_config;
+	$value_config = ','.get_config($dbc, 'ticket_status_fields_'.$ticket_status).',';
+	if(!empty($ticket_type)) {
+		$value_config .= get_config($dbc, 'ticket_status_fields_'.$ticket_status.'_'.$ticket_type).',';
+	}
+	if(empty(trim($value_config,','))) {
+		$value_config = $value_config_all;
+	} else {
+		foreach($action_mode_ignore_fields as $action_mode_ignore_field) {
+			if(strpos(','.$value_config_all.',',','.$action_mode_ignore_field.',') !== FALSE) {
+				$value_config .= ','.$action_mode_ignore_field;
+			}
+		}
+		$value_config = ','.implode(',',array_intersect(explode(',',$value_config), explode(',',$value_config_all))).',';
+	}
+	$ticket_layout = $calendar_ticket_slider = 'full';
+}
+
 //Edit Staff From Dashboard
 if($_GET['edit_staff_dashboard'] == 1) {
 	$value_config = explode(',',$value_config);
@@ -771,6 +791,7 @@ function setManualFlag(ticketid = '', colour, label) {
 	}
 }
 var ticketid = 0;
+var stopid = '<?= $_GET['stop'] ?>';
 var ticketid_list = [];
 var ticket_wait = false;
 var user_email = '<?= decryptIt($_SESSION['email_address']) ?>';
@@ -3091,7 +3112,7 @@ var setHeading = function() {
 			<?php } ?>
 			<div class="gap-top add_gap_here" <?= $calendar_ticket_slider == 'accordion' ? 'style="display:none;"' : '' ?>>
 				<?php if(strpos($value_config,',Finish Button Hide,') === FALSE) { ?>
-					<a href="index.php" class="pull-right btn brand-btn finish_btn" onclick="<?= (strpos($value_config, ','."Timer".',') !== FALSE) ? 'stopTimers();' : '' ?><?= (strpos($value_config, ','."Check Out".',') !== FALSE || strpos($value_config, ','."Complete Combine Checkout Summary".',') !== FALSE) ? 'return checkoutAll(this);' : '' ?>" <?= strpos($value_config, ','."Finish Check Out Require Signature".',') !== FALSE ? 'data-require-signature="1"' : '' ?> <?= strpos($value_config, ','."Finish Create Recurring Ticket".',') !== FALSE ? 'data-recurring-ticket="1"' : '' ?>>Finish</a>
+					<a href="<?= empty($ticket_next_step_timesheet) ? 'index.php' : 'next_ticket_step.php?action_mode='.$_GET['action_mode'] ?>" <?= empty($ticket_next_step_timesheet) ? '' : 'target="_top"' ?> class="pull-right btn brand-btn finish_btn" onclick="<?= (strpos($value_config, ','."Timer".',') !== FALSE) ? 'stopTimers();' : '' ?><?= (strpos($value_config, ','."Check Out".',') !== FALSE || strpos($value_config, ','."Complete Combine Checkout Summary".',') !== FALSE) ? 'return checkoutAll(this);' : '' ?>" <?= strpos($value_config, ','."Finish Check Out Require Signature".',') !== FALSE ? 'data-require-signature="1"' : '' ?> <?= strpos($value_config, ','."Finish Create Recurring Ticket".',') !== FALSE ? 'data-recurring-ticket="1"' : '' ?>>Finish</a>
 				<?php } ?>
 				<?php if($access_any) { ?>
 					<a href="<?= $back_url ?>" class="pull-right gap-right"><img class="no-toggle" src="<?= WEBSITE_URL ?>/img/icons/save.png" alt="Save" width="36" title="Save" /></a>

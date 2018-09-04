@@ -26,7 +26,27 @@ if(isset($_POST['submit'])) {
 	$error = '';
 
     switch ($tile) {
+        case 'projects':
+            $projectid = $id;
+            $before_change = capture_before_change($dbc, 'project', 'flag_colour', 'projectid', $id);
+            $before_change .= capture_before_change($dbc, 'project', 'flag_start', 'projectid', $id);
+            $before_change .= capture_before_change($dbc, 'project', 'flag_end', 'projectid', $id);
+            $before_change .= capture_before_change($dbc, 'project', 'flag_label', 'projectid', $id);
+            mysqli_query($dbc, "UPDATE `project` SET `flag_colour`='$flag_colour', `flag_start`='$flag_start', `flag_end`='$flag_end', `flag_label`='$flag_label' WHERE `projectid`='$id'");
+            $history = capture_after_change('flag_colour', $flag_colour);
+            $history .= capture_after_change('flag_start', $flag_start);
+            $history .= capture_after_change('flag_end', $flag_end);
+            $history .= capture_after_change('flag_label', $flag_label);
+            add_update_history($dbc, 'project_history', $history, '', $before_change, $projectid); ?>
+            <script>
+            $(window.top.document).find('.flag_target').data('colour','<?= $flag_colour ?>');
+            $(window.top.document).find('.flag_target').css('background-color','<?= empty($flag_colour) ? '' : '#'.$flag_colour ?>');
+            $(window.top.document).find('.flag_target').find('.flag-label').text('<?= $flag_label ?>');
+            $(window.top.document).find('.flag_target').removeClass('flag_target');
+            </script>
+            <?php break;
         case 'sales':
+            $salesid = $id;
             $before_change = capture_before_change($dbc, 'sales', 'flag_colour', 'salesid', $id);
             $before_change .= capture_before_change($dbc, 'sales', 'flag_start', 'salesid', $id);
             $before_change .= capture_before_change($dbc, 'sales', 'flag_end', 'salesid', $id);
@@ -61,12 +81,46 @@ if(isset($_POST['submit'])) {
             echo '<script type="text/javascript"> window.parent.setManualFlag(\''.$tasklistid.'\', \''.$flag_colour.'\', \''.$flag_label.'\'); </script>';
             break;
 
+        case 'tasklist':
+            $tasklistid = $id;
+            mysqli_query($dbc, "UPDATE `tasklist` SET `flag_colour`='$flag_colour', `flag_start`='$flag_start', `flag_end`='$flag_end', `flag_label`='$flag_label' WHERE `tasklistid`='$id'"); ?>
+            <script>
+            $(window.top.document).find('.flag_target').data('colour','<?= $flag_colour ?>');
+            $(window.top.document).find('.flag_target').css('background-color','<?= empty($flag_colour) ? '' : '#'.$flag_colour ?>');
+            $(window.top.document).find('.flag_target').find('.flag-label').text('<?= $flag_label ?>');
+            $(window.top.document).find('.flag_target').removeClass('flag_target');
+            </script>
+            <?php break;
+        case 'intake':
+            $intakeid = $id;
+            mysqli_query($dbc, "UPDATE `intake` SET `flag_colour`='$flag_colour', `flag_start`='$flag_start', `flag_end`='$flag_end', `flag_label`='$flag_label' WHERE `intakeid`='$id'"); ?>
+            <script>
+            $(window.top.document).find('.flag_target').data('colour','<?= $flag_colour ?>');
+            $(window.top.document).find('.flag_target').css('background-color','<?= empty($flag_colour) ? '' : '#'.$flag_colour ?>');
+            $(window.top.document).find('.flag_target').find('.flag-label').text('<?= $flag_label ?>');
+            $(window.top.document).find('.flag_target').removeClass('flag_target');
+            </script>
+            <?php break;
+        case 'checklist':
+            $checklistid = $id;
+            mysqli_query($dbc, "UPDATE `checklist` SET `flag_colour`='$flag_colour', `flag_start`='$flag_start', `flag_end`='$flag_end', `flag_label`='$flag_label' WHERE `checklistid`='$id'"); ?>
+            <script>
+            $(window.top.document).find('.flag_target').data('colour','<?= $flag_colour ?>');
+            $(window.top.document).find('.flag_target').css('background-color','<?= empty($flag_colour) ? '' : '#'.$flag_colour ?>');
+            $(window.top.document).find('.flag_target').find('.flag-label').text('<?= $flag_label ?>');
+            $(window.top.document).find('.flag_target').removeClass('flag_target');
+            </script>
+            <?php break;
+
         default:
             break;
     }
 } ?>
 
 <?php switch ($_GET['tile']) {
+    case 'projects':
+        $row = $dbc->query("SELECT `flag_colour`,`flag_label`,`flag_start`,`flag_end` FROM `project` WHERE `projectid`='$id'")->fetch_assoc();
+        break;
     case 'sales':
         $row = $dbc->query("SELECT `flag_colour`,`flag_label`,`flag_start`,`flag_end` FROM `sales` WHERE `salesid`='$id'")->fetch_assoc();
         break;
@@ -78,6 +132,15 @@ if(isset($_POST['submit'])) {
         $row = $dbc->query("SELECT `flag_colour`,`flag_label`,`flag_start`,`flag_end` FROM `tasklist` WHERE `tasklistid`='$id'")->fetch_assoc();
         break;
 
+    case 'tasklist':
+        $row = $dbc->query("SELECT `flag_colour`,`flag_label`,`flag_start`,`flag_end` FROM `tasklist` WHERE `tasklistid`='$id'")->fetch_assoc();
+        break;
+    case 'intake':
+        $row = $dbc->query("SELECT `flag_colour`,`flag_label`,`flag_start`,`flag_end` FROM `intake` WHERE `intakeid`='$id'")->fetch_assoc();
+        break;
+    case 'checklist':
+        $row = $dbc->query("SELECT `flag_colour`,`flag_label`,`flag_start`,`flag_end` FROM `checklist` WHERE `checklistid`='$id'")->fetch_assoc();
+        break;
     default:
         break;
 } ?>

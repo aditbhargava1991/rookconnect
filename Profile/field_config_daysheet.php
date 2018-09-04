@@ -30,10 +30,15 @@ $(document).ready(function() {
 				daysheet_rightside_views += this.value + ',';
 			});
             var daysheet_ticket_default_mode = $('[name="daysheet_ticket_default_mode"]:checked').val();
+            var quick_action_icons = [];
+            $('[name="quick_action_icons[]"]:checked').each(function() {
+                quick_action_icons.push(this.value);
+            })
+            quick_action_icons = quick_action_icons.join(',');
 			$.ajax({
 				url: '../Profile/profile_ajax.php?fill=daysheet_config',
 				method: 'POST',
-				data: { field_name: field_name, daysheet_styling: daysheet_styling, ticket_slider: ticket_slider, field_list: field_list, daysheet_ticket_fields: daysheet_ticket_fields, day_list: day_list, button_list: button_list, daysheet_rightside_views: daysheet_rightside_views, daysheet_ticket_default_mode: daysheet_ticket_default_mode, settings_contactid: settings_contactid },
+				data: { field_name: field_name, daysheet_styling: daysheet_styling, ticket_slider: ticket_slider, field_list: field_list, daysheet_ticket_fields: daysheet_ticket_fields, day_list: day_list, button_list: button_list, daysheet_rightside_views: daysheet_rightside_views, daysheet_ticket_default_mode: daysheet_ticket_default_mode, quick_action_icons: quick_action_icons, settings_contactid: settings_contactid },
 				response: 'html',
 				success: function(response) {
 					// console.log(response);
@@ -114,6 +119,15 @@ $(document).ready(function() {
         <div class="clearfix"></div>
         <?php if($settings_type == 'software') { ?>
             <h4>Choose <?= TICKET_NOUN ?> Slider View Layout</h4>
+            <label class="col-sm-4 control-label">Quick Action Icons:</label>
+            <div class="col-sm-8 block-group">
+                <?php $quick_action_icons = explode(',',get_config($dbc, 'daysheet_quick_action_icons')); ?>
+                <label class="form-checkbox"><input type="checkbox" name="quick_action_icons[]" <?= in_array('reply',$quick_action_icons) ? 'checked' : '' ?> value="reply"> <img class="inline-img" src="../img/icons/ROOK-reply-icon.png"> Notes</label>
+                <label class="form-checkbox"><input type="checkbox" name="quick_action_icons[]" <?= in_array('email',$quick_action_icons) ? 'checked' : '' ?> value="email"> <img class="inline-img" src="../img/icons/ROOK-email-icon.png"> Email</label>
+                <label class="form-checkbox"><input type="checkbox" name="quick_action_icons[]" <?= in_array('reminder',$quick_action_icons) ? 'checked' : '' ?> value="reminder"> <img class="inline-img" src="../img/icons/ROOK-reminder-icon.png"> Reminders</label>
+                <label class="form-checkbox"><input type="checkbox" name="quick_action_icons[]" <?= in_array('hide_all',$quick_action_icons) ? 'checked' : '' ?> value="hide_all" onclick="$('[name^=quick_action_icons]').not('[value=hide_all]').removeAttr('checked');"> Disable All</label>
+            </div>
+            <div class="clearfix"></div>
             <label class="col-sm-4 control-label"><?= TICKET_NOUN ?> Default Slider Window View:</label>
             <div class="col-sm-8 block-group">
                 <label class="form-checkbox"><input type="radio" name="daysheet_ticket_slider" value="full" <?= $daysheet_ticket_slider != 'accordion' ? 'checked="checked"' : '' ?>> Full View</label>
