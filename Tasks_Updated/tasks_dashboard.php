@@ -9,7 +9,7 @@ include_once('../include.php');
 checkAuthorised('tasks');
 $contactide = $_SESSION['contactid'];
 $taskboardid = preg_replace('/[^0-9]/', '', $_GET['category']);
-$quick_actions = explode(',',get_config($dbc, 'quick_action_icons'));
+$quick_actions = explode(',',get_config($dbc, 'task_quick_action_icons'));
 $task_colours = explode(',',mysqli_fetch_assoc(mysqli_query($dbc,"SELECT `flag_colours` FROM task_dashboard"))['flag_colours']);
 $task_statuses = explode(',',get_config($dbc, 'task_status'));
 $status_complete = $task_statuses[count($task_statuses) - 1];
