@@ -261,7 +261,7 @@ function changeLevel(sel) {
                                 $board_name = $board_type;
                             }
                             if ( $board_type!='Community' && $board_type!='Business' && $board_type!='Reporting' ) { ?>
-                                <option <?= trim($get_board['board_security'])==trim($board_type) ? 'selected' : '' ?> value="<?= $board_type ?>"><?= $board_name ?></option><?php
+                                <option <?= trim($board_security)==trim($board_type) ? 'selected' : '' ?> value="<?= $board_type ?>"><?= $board_name ?></option><?php
                             }
                         } ?>
                     </select>
@@ -296,7 +296,7 @@ function changeLevel(sel) {
                 <div class="col-sm-8">
                     <select data-placeholder="Choose a Business..." name="businessid" id="businessid" class="chosen-select-deselect form-control1" width="380">
                         <option></option><?php
-                        $query = mysqli_query($dbc,"SELECT name, contactid FROM contacts WHERE name != '' AND deleted=0 ORDER BY name");
+                        $query = mysqli_query($dbc,"SELECT name, contactid FROM contacts WHERE name != '' AND deleted=0 AND category='Business' ORDER BY name");
                         while($row = mysqli_fetch_array($query)) {
                             if ($get_board['businessid'] == $row['contactid']) {
                                 $selected = 'selected="selected"';
@@ -312,7 +312,7 @@ function changeLevel(sel) {
             <div class="form-group" id="contactid_show" style="display: none;">
                 <label for="first_name" class="col-sm-4 control-label text-right">Contact:</label>
                 <div class="col-sm-8">
-                    <select data-placeholder="Choose a Client..." multiple id="contactid" name="contactid[]" class="chosen-select-deselect form-control1" width="380">
+                    <select data-placeholder="Choose a Contact..." multiple id="contactid" name="contactid[]" class="chosen-select-deselect form-control1" width="380">
                         <option></option><?php
                         $query = mysqli_query($dbc,"SELECT contactid, first_name, last_name FROM contacts WHERE businessid = '$businessid' order by first_name");
                         while($row = mysqli_fetch_array($query)) {

@@ -546,5 +546,121 @@
     }
     //2018-08-23 - Ticket #8585 - Stat Pay
 
+    //2018-08-29 - Ticket #8717 - Sick Hours
+    if(!mysqli_query($dbc, "ALTER TABLE `field_config_contacts_shifts` ADD `dayoff_types_timesheet` text NOT NULL AFTER `dayoff_types`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "CREATE TABLE `field_config_time_cards_dayoff` (
+        `fieldconfigid` int(11) NOT NULL,
+        `hours_type` varchar(500) NOT NULL,
+        `enabled` int(1) NOT NULL,
+        `dayoff_type` varchar(500) NOT NULL)")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `field_config_time_cards_dayoff`
+        ADD PRIMARY KEY (`fieldconfigid`)")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `field_config_time_cards_dayoff`
+        MODIFY `fieldconfigid` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-08-29 - Ticket #8717 - Sick Hours
+
+    //2018-08-28 - Ticket #7761 - POS
+    if(!mysqli_query($dbc, "ALTER TABLE `invoice_lines` ADD `ticketid` int(11) NOT NULL AFTER `invoiceid`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `invoice` ADD `service_ticketid` text NOT NULL AFTER `serviceid`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `invoice` ADD `misc_ticketid` text NOT NULL AFTER `misc_item`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `invoice` CHANGE `serviceid` `serviceid` text")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `invoice` CHANGE `fee` `fee` text")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-08-28 - Ticket #7761 - POS
+
+    //2018-08-30 - Ticket #9034 - Quick Action Projects
+    if(!mysqli_query($dbc, "ALTER TABLE `project` ADD `flag_colour` VARCHAR(7)")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `project` ADD `flag_start` DATE NOT NULL DEFAULT '0000-00-00' AFTER `flag_colour`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `project` ADD `flag_end` DATE NOT NULL DEFAULT '9999-12-31' AFTER `flag_start`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `project` ADD `flag_label` TEXT AFTER `flag_colour`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+
+    if(!mysqli_query($dbc, "ALTER TABLE `checklist` ADD `flag_start` DATE NOT NULL DEFAULT '0000-00-00' AFTER `flag_colour`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `checklist` ADD `flag_end` DATE NOT NULL DEFAULT '9999-12-31' AFTER `flag_start`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `checklist` ADD `flag_label` TEXT AFTER `flag_colour`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-08-30 - Ticket #9034 - Quick Action Projects
+    //2018-08-31 - Ticket #8720 - Contacts Sync
+    if(!mysqli_query($dbc, "CREATE TABLE `contacts_sync` (
+        `contactsyncid` int(11) NOT NULL,
+        `contactid` int(11) NOT NULL,
+        `synced_contactid` int(11) NOT NULL,
+        `deleted` int(1) NOT NULL DEFAULT 0)")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `contacts_sync`
+        ADD PRIMARY KEY (`contactsyncid`)")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `contacts_sync`
+        MODIFY `contactsyncid` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    $updated_already = get_config($dbc, 'updated_ticket8720_contactsync');
+    if(empty($updated_already)) {
+        $contact_list = sort_contacts_query(mysqli_query($dbc, "SELECT * FROM `contacts` WHERE `deleted` = 0 AND `status` > 0 AND `category` != 'Staff'"));
+        foreach($contact_list as $contact) {
+            if($contact['businessid'] > 0) {
+                mysqli_query($dbc, "INSERT INTO `contacts_sync` (`contactid`, `synced_contactid`) SELECT '".$contact['contactid']."', '".$contact['businessid']."' FROM (SELECT COUNT(*) rows FROM `contacts_sync` WHERE `deleted` = 0 AND ((`contactid` = '".$contact['contactid']."' AND `synced_contactid` = '".$contact['businessid']."') OR (`contactid` = '".$contact['businessid']."' AND `synced_contactid` = '".$contact['contactid']."'))) num WHERE num.rows=0");
+            }
+        }
+        set_config($dbc, 'updated_ticket8720_contactsync', 1);
+    }
+    //2018-08-31 - Ticket #8720 - Contacts Sync
+
+    //2018-08-30 - Ticket #9034 - Quick Action Projects
+    if(!mysqli_query($dbc, "ALTER TABLE `project` ADD `flag_colour` VARCHAR(7)")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `project` ADD `flag_start` DATE NOT NULL DEFAULT '0000-00-00' AFTER `flag_colour`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `project` ADD `flag_end` DATE NOT NULL DEFAULT '9999-12-31' AFTER `flag_start`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `project` ADD `flag_label` TEXT AFTER `flag_colour`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+
+    if(!mysqli_query($dbc, "ALTER TABLE `checklist` ADD `flag_start` DATE NOT NULL DEFAULT '0000-00-00' AFTER `flag_colour`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `checklist` ADD `flag_end` DATE NOT NULL DEFAULT '9999-12-31' AFTER `flag_start`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `checklist` ADD `flag_label` TEXT AFTER `flag_colour`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-08-30 - Ticket #9034 - Quick Action Projects
+
     echo "Baldwin's DB Changes Done<br />\n";
-?>
+?> 

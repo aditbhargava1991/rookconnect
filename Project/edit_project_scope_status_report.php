@@ -32,7 +32,7 @@ $result = mysqli_query($dbc, "SELECT `src`,`srcid`,`time_staff`,`time_date`,SEC_
 	SELECT CONCAT('Task #',`tasklist`.`tasklistid`) time_type, 'task' `src`, `tasklist`.`tasklistid` `srcid`, 'tasklist' `table`, `tasklist`.`tasklistid` `tableid`, `tasklist`.`heading` time_heading, `tasklist`.`contactid` time_staff, `tasklist`.`task_tododate` time_date, '' time_start, '' time_end, `tasklist`.`work_time` time_length, '' `time_cards_id` FROM `tasklist` WHERE `projectid`='$projectid' UNION
 	SELECT CONCAT(`tasklist`.`project_milestone`,' Task #',`tasklist`.`tasklistid`) time_type, 'task' `src`, `tasklist`.`tasklistid` `srcid`, 'tasklist_time' `table`, `tasklist_time`.`time_id` `tableid`, `tasklist`.`heading` time_heading, `tasklist_time`.`contactid` time_staff, `tasklist_time`.`timer_date` time_date, '' time_start, '' time_end, `tasklist_time`.`work_time` time_length, '' `time_cards_id` FROM `tasklist` RIGHT JOIN `tasklist_time` ON `tasklist`.`tasklistid`=`tasklist_time`.`tasklistid` WHERE `tasklist`.`projectid`='$projectid') timers WHERE `time_date` BETWEEN '$start' AND '$end' AND '$actions' IN (`src`,'all') AND '$staff' IN (`time_staff`,'all') GROUP BY `src`,`srcid`,`time_date`,`time_staff` ORDER BY `time_date`, `time_start`");
 if($result->num_rows > 0) {
-    $table = '<table class="table table-bordered" style="width:100%;" border="1" cellpadding="3" cellspacing="0">
+    $table = '<table class="table table-bordered gap-top" style="width:100%;" border="1" cellpadding="3" cellspacing="0">
         <tr class="hidden-xs hidden-sm">
             <th>Date</th>
             <th>'.PROJECT_NOUN.'</th>
@@ -52,10 +52,10 @@ if($result->num_rows > 0) {
                 $status = $item['status'];
             } else if($report_row['src'] == 'task') {
                 $item = $dbc->query("SELECT * FROM `tasklist` WHERE `tasklistid`='".$report_row['srcid']."'")->fetch_assoc();
-                $label = '<a href="../Tasks/add_task.php?tasklistid='.$report_row['srcid'].'" onclick="overlayIFrameSlider(this.href,\'auto\',true,true); return false;">Task #'.$item['tasklistid'].'</a>';
+                $label = '<a href="../Tasks_Updated/add_task.php?tasklistid='.$report_row['srcid'].'" onclick="overlayIFrameSlider(this.href,\'auto\',true,true); return false;">Task #'.$item['tasklistid'].'</a>';
                 $status = $item['status'];
             } else if($report_row['src'] == 'checklist') {
-                $item = $dbc->query("SELECT * FROM `checklist` WHERE `tasklistid`='".$report_row['srcid']."'")->fetch_assoc();
+                $item = $dbc->query("SELECT * FROM `checklist` WHERE `checklistid`='".$report_row['srcid']."'")->fetch_assoc();
                 $label = '<a href="../Checklist/checklist.php?view='.$report_row['srcid'].'" onclick="overlayIFrameSlider(this.href,\'auto\',true,true); return false;">Checklist '.$item['checklist_name'].'</a>';
             }
             $table .= '<tr>
@@ -135,41 +135,43 @@ if($_GET['output'] == 'PDF') {
 	$pdf->Output('status_report_'.$projectid.'_at_'.$today_date.'.pdf', 'I');
     exit();
 } else { ?>
-    <form class="" method="GET" action="">
-        <input type="hidden" name="edit" value="<?= $_GET['edit'] ?>">
-        <input type="hidden" name="tab" value="action_item_report">
-        <div class="col-sm-2 pull-right">
-            <a target="_blank" href="?edit=<?= $projectid ?>&tab=action_item_report&starttime=<?= $_GET['starttime'] ?>&endtime=<?= $_GET['endtime'] ?>&staff=<?= $_GET['staff'] ?>&actions=<?= $_GET['actions'] ?>&output=PDF" class="pull-right"><img src="../img/pdf.png" class="inline-img"></a>
-            <button class="btn brand-btn" name="submit" type="submit" value="search">Search</button>
-            <button class="btn brand-btn" name="reset" type="submit" value="reset">Display All</button>
-        </div>
-        <div class="col-sm-10">
-            <label class="col-sm-2">Start Date:</label>
-            <div class="col-sm-4"><input type="text" class="form-control datepicker" name="starttime" placeholder="Start Date" value="<?= $start == 0000-00-00 ? '' : $start ?>"></div>
-            <label class="col-sm-2">End Date:</label>
-            <div class="col-sm-4"><input type="text" class="form-control datepicker" name="endtime" placeholder="End Date" value="<?= $end == 0000-00-00 || $end == '9999-12-31' ? '' : $end ?>"></div>
-        </div>
-        <div class="col-sm-10">
-            <label class="col-sm-2">Staff:</label>
-            <div class="col-sm-4">
-                <select class="chosen-select-deselect" name="staff" data-placeholder="Select Action Item"><option />
-                    <option <?= $actions == 'all' ? 'selected' : '' ?> value="all">All Staff</option>
-                    <?php foreach(sort_contacts_query($dbc->query("SELECT contactid, first_name, last_name FROM contacts WHERE category IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND deleted=0 AND `status` > 0")) as $staff) { ?>
-                        <option <?= $actions == $staff['contactid'] ? 'selected' : '' ?> value="<?= $staff['contactid'] ?>"><?= $staff['full_name'] ?></option>
-                    <?php } ?>
-                </select></div>
-            <label class="col-sm-2">Action Item:</label>
-            <div class="col-sm-4">
-                <select class="chosen-select-deselect" name="action_items" data-placeholder="Select Action Item"><option />
-                    <option <?= $actions == 'all' ? 'selected' : '' ?> value="all">All Items</option>
-                    <?php if(in_array('Tickets',$tab_config)) { ?><option <?= $actions == 'ticket' ? 'selected' : '' ?> value="ticket"><?= TICKET_TILE ?></option><?php } ?>
-                    <?php if(in_array('Tasks',$tab_config)) { ?><option <?= $actions == 'task' ? 'selected' : '' ?> value="task">Tasks</option><?php } ?>
-                    <?php if(in_array('Checklists',$tab_config)) { ?><option <?= $actions == 'checklist' ? 'selected' : '' ?> value="checklist">Checklist</option><?php } ?>
-                </select></div>
-        </div>
+    <div class="col-sm-12 pad-10">
+        <form class="" method="GET" action="">
+            <input type="hidden" name="edit" value="<?= $_GET['edit'] ?>">
+            <input type="hidden" name="tab" value="action_item_report">
+            <div class="col-sm-2 pull-right">
+                <a target="_blank" href="?edit=<?= $projectid ?>&tab=action_item_report&starttime=<?= $_GET['starttime'] ?>&endtime=<?= $_GET['endtime'] ?>&staff=<?= $_GET['staff'] ?>&actions=<?= $_GET['actions'] ?>&output=PDF" class="pull-right"><img src="../img/pdf.png" class="inline-img"></a>
+                <button class="btn brand-btn" name="submit" type="submit" value="search">Search</button>
+                <button class="btn brand-btn" name="reset" type="submit" value="reset">Display All</button>
+            </div>
+            <div class="col-sm-10">
+                <label class="col-sm-2">Start Date:</label>
+                <div class="col-sm-4"><input type="text" class="form-control datepicker" name="starttime" placeholder="Start Date" value="<?= $start == 0000-00-00 ? '' : $start ?>"></div>
+                <label class="col-sm-2">End Date:</label>
+                <div class="col-sm-4"><input type="text" class="form-control datepicker" name="endtime" placeholder="End Date" value="<?= $end == 0000-00-00 || $end == '9999-12-31' ? '' : $end ?>"></div>
+            </div>
+            <div class="col-sm-10">
+                <label class="col-sm-2">Staff:</label>
+                <div class="col-sm-4">
+                    <select class="chosen-select-deselect" name="staff" data-placeholder="Select Action Item"><option />
+                        <option <?= $actions == 'all' ? 'selected' : '' ?> value="all">All Staff</option>
+                        <?php foreach(sort_contacts_query($dbc->query("SELECT contactid, first_name, last_name FROM contacts WHERE category IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND deleted=0 AND `status` > 0")) as $staff) { ?>
+                            <option <?= $actions == $staff['contactid'] ? 'selected' : '' ?> value="<?= $staff['contactid'] ?>"><?= $staff['full_name'] ?></option>
+                        <?php } ?>
+                    </select></div>
+                <label class="col-sm-2">Action Item:</label>
+                <div class="col-sm-4">
+                    <select class="chosen-select-deselect" name="action_items" data-placeholder="Select Action Item"><option />
+                        <option <?= $actions == 'all' ? 'selected' : '' ?> value="all">All Items</option>
+                        <?php if(in_array('Tickets',$tab_config)) { ?><option <?= $actions == 'ticket' ? 'selected' : '' ?> value="ticket"><?= TICKET_TILE ?></option><?php } ?>
+                        <?php if(in_array('Tasks',$tab_config)) { ?><option <?= $actions == 'task' ? 'selected' : '' ?> value="task">Tasks</option><?php } ?>
+                        <?php if(in_array('Checklists',$tab_config)) { ?><option <?= $actions == 'checklist' ? 'selected' : '' ?> value="checklist">Checklist</option><?php } ?>
+                    </select></div>
+            </div>
+            <div class="clearfix"></div>
+        </form>
+        <?php echo $table; ?>
         <div class="clearfix"></div>
-    </form>
-    <?php echo $table; ?>
-    <div class="clearfix"></div>
+    </div>
 <?php }
 include('next_buttons.php'); ?>

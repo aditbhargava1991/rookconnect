@@ -307,6 +307,8 @@ function saveFieldMethod(field) {
 					}
 				} else if($(field).data('ischeckbox') != undefined) {
 					field_info.append('value', ($(field).is(':checked') ? $(field).val() : ''));
+				} else if(field.type == 'radio') {
+					field_info.append('value', ($('[name="'+field.name+'"]:checked').val() == '0' ? '' : $('[name="'+field.name+'"]:checked').val()));
 				} else {
 					field_info.append('value', ($(field).data('value') == undefined ? $(field).val() : $(field).data('value')));
 				}
@@ -525,12 +527,12 @@ function lockTabs() {
 		if($(this).data('locked') != 'held' && '<?= $_GET['edit'] ?>' != 'new' && '<?= IFRAME_PAGE ?>' == '' && '<?= isset($_GET['fields']) ? 'FIELD_VIEW' : '' ?>' == '') {
 			$(this).find('[data-field],a').off('click').click(function() { this.blur(); return false; }).off('keyup').keyup(function() { this.blur(); return false; }).off('keypress').keypress(function() { this.blur(); return false; });
 		} else if('<?= $_GET['edit'] ?>' == 'new') {
-			$(this).find('[data-field],a').off('click').off('keypress').off('keyup').off('focus',unsaved).focus(unsaved);
+			$(this).find('[data-field]').off('click').off('keypress').off('keyup').off('focus',unsaved).focus(unsaved);
 			if(this.getBoundingClientRect().top < $('.standard-dashboard-body:visible').offset().top + $('.standard-dashboard-body:visible').height() && this.getBoundingClientRect().bottom > $('.standard-dashboard-body:visible').offset().top) {
 				$('a[href=#'+$(this).data('tab-name')+'] li').addClass('active blue');
 			}
 		} else {
-			$(this).find('[data-field],a').off('click').off('keypress').off('keyup').off('focus',unsaved).focus(unsaved);
+			$(this).find('[data-field]').off('click').off('keypress').off('keyup').off('focus',unsaved).focus(unsaved);
 			$('a[href=#'+$(this).data('tab-name')+'] li').addClass('active blue');
 		}
 	});
@@ -1127,7 +1129,7 @@ function removeContactForm(a, pdf_id) {
 <input type="hidden" name="contactid" value="<?= $_GET['edit'] ?>">
 <input type="hidden" name="category" value="<?= $_GET['category'] ?>">
 <?php function contact_category_call($dbc, $select_id, $select_name, $contact_category_value, $data_field, $data_row_id, $disabled) {
-	$contact_tabs = get_config($dbc, $folder_name.'_tabs');
+	$contact_tabs = get_config($dbc, FOLDER_NAME.'_tabs');
     if(get_software_name() == 'breakthebarrier') {
         str_replace('Business','Program/Site',$contact_tabs);
     } else if(get_software_name() == 'highland') {
@@ -1139,7 +1141,7 @@ function removeContactForm(a, pdf_id) {
     <div class="form-group">
         <label for="fax_number" class="col-sm-4 control-label">Contact Category:</label>
         <div class="col-sm-8">
-            <select <?php echo $disabled; ?> data-placeholder="Choose a Category..." id="<?php echo $select_id; ?>" name="<?php echo $select_name; ?>" data-field="<?php echo $data_field; ?>" data-table="individual_support_plan" data-row-field="individualsupportplanid" data-row-id="<?php echo $data_row_id; ?>" data-contactid-field="support_contact" data-contactid-category-field="support_contact_category" class="chosen-select-deselect form-control" width="380">
+            <select <?php echo $disabled; ?> data-placeholder="Choose a Category..." id="<?php echo $select_id; ?>" name="<?php echo $select_name; ?>" data-field="<?php echo $data_field; ?>" data-table="individual_support_plan" data-row-field="individualsupportplanid" data-row-id="<?php echo $data_row_id; ?>" data-contactid-field="support_contact" data-contactid-category-field="support_contact_category" data-exact-name="1" class="chosen-select-deselect form-control" width="380">
               <option value=""></option>
               <?php $each_tab = explode(',', $contact_tabs);
                 foreach ($each_tab as $cat_tab) {
@@ -1162,11 +1164,11 @@ function contact_call($dbc, $select_id, $select_name, $contact_value,$multiple, 
     <div class="form-group">
         <label for="fax_number" class="col-sm-4 control-label">Contact:</label>
         <div class="col-sm-8">
-            <select <?php echo $disabled; ?> <?php echo $multiple; ?> data-placeholder="Choose a Contact..." name="<?php echo $select_name; ?>" data-field="<?php echo $data_field; ?>" data-table="individual_support_plan" data-row-field="individualsupportplanid" data-row-id="<?php echo $data_row_id; ?>" id="<?php echo $select_id; ?>" data-value="<?= $contact_value ?>" data-category="<?= $from_contact ?>" data-contactid-field="support_contact" data-contactid-category-field="support_contact_category" class="chosen-select-deselect form-control" width="380">
+            <select <?php echo $disabled; ?> <?php echo $multiple; ?> data-placeholder="Choose a Contact..." name="<?php echo $select_name; ?>" data-field="<?php echo $data_field; ?>" data-table="individual_support_plan" data-row-field="individualsupportplanid" data-row-id="<?php echo $data_row_id; ?>" id="<?php echo $select_id; ?>" data-value="<?= $contact_value ?>" data-category="<?= $from_contact ?>" data-contactid-field="support_contact" data-contactid-category-field="support_contact_category" data-exact-name="1" class="chosen-select-deselect form-control" width="380">
               <option value=""></option>
               <option value="NEW_CONTACT">Add New Contact</option>
             </select>
             <input type="text" name="<?= str_replace('[]','',$select_name) ?>_new_contact<?= preg_replace('/[^\[\]]/','',$select_name) ?>" data-field="<?php echo $data_field; ?>" data-table="individual_support_plan" data-row-field="individualsupportplanid" data-row-id="<?php echo $data_row_id; ?>" data-contactid-field="support_contact" class="form-control" style="display:none;">
         </div>
     </div>
-<?php } ?>
+<?php } ?> 

@@ -363,6 +363,11 @@ function set_config($dbc, $name, $value) {
 	$_SESSION['CONSTANT_UPDATED'] = 0;
 }
 function get_config($dbc, $name, $multi = false, $separator = ',') {
+    // Defined Overrided Settings
+    if($name == 'show_category_dropdown_equipment') {
+        return 0;
+    }
+
 	// Get current values
     $name = filter_var($name, FILTER_SANITIZE_STRING);
     if($name == 'all_contact_tabs') {
@@ -577,6 +582,45 @@ function get_client_project_path_milestone($dbc, $project_path_milestone, $field
 function get_project_path_milestone($dbc, $project_path_milestone, $field_name) {
     $get_custom =	mysqli_fetch_assoc(mysqli_query($dbc,"SELECT $field_name FROM project_path_milestone WHERE	project_path_milestone='$project_path_milestone'"));
     return $get_custom[$field_name];
+}
+// Get the list of actual paths for the Project
+function get_project_paths($projectid) {
+    $default_template = $_SERVER['DBC']->query("SELECT * FROM `project_path_milestone` WHERE `milestone` LIKE 'to do#*#doing#*#done'");
+    if($default_template->num_rows == 0) {
+        $_SERVER['DBC']->query("INSERT INTO `project_path_milestone` (`project_path`,`milestone`) VALUES ('Basic Task List','To Do#*#Doing#*#Done')");
+    }
+    if($projectid > 0) {
+        $paths = get_field_value('project_path project_path_name', 'project', 'projectid', $projectid);
+        $project_paths = [];
+        foreach(explode(',',$paths['project_path']) as $i => $pathid) {
+            if($pathid > 0) {
+                $path['path_id'] = $pathid;
+                $path['path_name'] = explode('#*#',$paths['project_path_name'])[$i];
+
+              // Add default milestones, if they have not yet been added
+                $milestones = explode('#*#',get_field_value('milestone','project_path_milestone','project_path_milestone',$pathid));
+                $prior_sort = 0;
+                foreach($milestones as $i => $milestone) {
+                    $milestone_rows = $_SERVER['DBC']->query("SELECT `sort` FROM `project_path_custom_milestones` WHERE `projectid`='$projectid' AND `milestone`='$milestone' AND `pathid`='$pathid' AND `path_type`='I'");
+                    if($milestone_rows->num_rows > 0) {
+                        $prior_sort = $milestone_rows->fetch_assoc()['sort'];
+                    } else if($milestone != 'Unassigned') {
+                        $_SERVER['DBC']->query("INSERT INTO `project_path_custom_milestones` (`projectid`,`milestone`,`label`,`path_type`,`pathid`,`sort`) VALUES ('$projectid','$milestone','$milestone','I','$pathid','$prior_sort')");
+                    }
+                }
+
+                // Load the actual list of milestones into the array
+                $path['milestones'] = [];
+                $milestone_list = $_SERVER['DBC']->query("SELECT `milestones`.`id`, `milestones`.`milestone`, `milestones`.`label`  FROM `project_path_custom_milestones` `milestones` WHERE `milestones`.`projectid`='$projectid' AND `milestones`.`pathid`='$pathid' AND `milestones`.`path_type`='I' AND `milestones`.`deleted`=0 ORDER BY `milestones`.`sort`,`milestones`.`id`");
+                while($milestone_row = $milestone_list->fetch_assoc()) {
+                    $path['milestones'][] = $milestone_row;
+                }
+                $project_paths[] = $path;
+            }
+        }
+        return $project_paths;
+    }
+    return false;
 }
 function get_jobs_path_milestone($dbc, $project_path_milestone, $field_name) {
     $get_custom =	mysqli_fetch_assoc(mysqli_query($dbc,"SELECT $field_name FROM jobs_path_milestone WHERE	project_path_milestone='$project_path_milestone'"));
@@ -1618,12 +1662,16 @@ function get_tile_names($tile_list) {
 			case 'products':
 				$tiles[] = 'Products';
 				break;
+
 			case 'tasks':
 				$tiles[] = 'Tasks';
 				break;
-			case 'tasks_updated':
+
+			/*
+            case 'tasks_updated':
 				$tiles[] = 'Tasks (Updated)';
 				break;
+                */
 			case 'agenda_meeting':
 				$tiles[] = 'Agendas & Meetings';
 				break;
@@ -1659,6 +1707,9 @@ function get_tile_names($tile_list) {
 				break;
 			case 'newsboard':
 				$tiles[] = 'News Board';
+				break;
+			case 'customer_support':
+				$tiles[] = 'Customer Support';
 				break;
 			case 'ffmsupport':
 				$tiles[] = 'FFM Support';
@@ -1948,12 +1999,14 @@ function get_subtabs($tile_name) {
         case 'products':
             $subtabs = array('Dashboard', 'Add Multiple Products');
             break;
+
         case 'tasks':
             $subtabs = array('Summary', 'Private Tasks', 'Shared Tasks', 'Project Tasks', 'Contact Tasks', 'Sales Tasks', 'Reporting');
             break;
-        case 'tasks_updated':
+
+        /*case 'tasks_updated':
             $subtabs = array('Summary', 'Private Tasks', 'Shared Tasks', 'Project Tasks', 'Contact Tasks', 'Sales Tasks', 'Reporting');
-            break;
+            break;*/
         case 'agenda_meeting':
             $subtabs = array('Agendas', 'Meetings');
             break;
@@ -2637,7 +2690,7 @@ function sortByLastName($a) {
 
 /* Convert Decimal Hours to Hours:Minutes */
 function time_decimal2time($decimal_time, $pad = false) {
-	$minutes = ceil($decimal_time * 60);
+	$minutes = round($decimal_time * 60);
 	$hours = ($pad ? sprintf('%02d',floor($minutes / 60)) : floor($minutes / 60));
 	$minutes -= ($hours * 60);
 	return $hours.':'.sprintf('%02d',$minutes);
@@ -2848,6 +2901,18 @@ function get_reminder_url($dbc, $reminder, $slider = 0) {
                 case 'rate_card':
                     $reminder_url = WEBSITE_URL.'/Rate Card/ratecards.php?type=customer&status=add&ratecardid='.$reminder['src_tableid'];
                     break;
+                case 'intake':
+                    $intake = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `intake` WHERE `intakeid`='".$reminder['src_tableid']."'"));
+                    if($intake['projectid'] > 0) {
+                        $reminder_url = WEBSITE_URL.'/Project/projects.php?iframe_slider=1&edit='.$intake['projectid'];
+                    } else if($intake['ticketid'] > 0) {
+                        $reminder_url = WEBSITE_URL.'/Ticket/index.php?calendar_view=true&edit='.$intake['ticketid'];
+                    } else if($intake['salesid'] > 0) {
+                        $reminder_url = WEBSITE_URL.'/Sales/sale.php?iframe_slider=1&p=details&id='.$intake['salesid'];
+                    } else if($intake['contactid'] > 0) {
+                        $reminder_url = WEBSITE_URL.'/'.ucwords(get_contact($dbc, $intake['contactid'], 'tile_name')).'/contacts_inbox.php?edit='.$reminder['src_tableid'];
+                    }
+                    break;
             }
         } else {
             switch($reminder['src_table']) {
@@ -2878,7 +2943,7 @@ function get_reminder_url($dbc, $reminder, $slider = 0) {
                     $reminder_url = WEBSITE_URL.'/Sales/sale.php?p=preview&id='.$reminder['src_tableid'];
                     break;
                 case 'task_board':
-                    $reminder_url = WEBSITE_URL.'/Tasks/index.php?category='.$reminder['src_tableid'].'&tab='.get_task_board($dbc, $reminder['src_tableid'], 'board_security');
+                    $reminder_url = WEBSITE_URL.'/Tasks_Updated/index.php?category='.$reminder['src_tableid'].'&tab='.get_task_board($dbc, $reminder['src_tableid'], 'board_security');
                     break;
                 case 'calendar':
                     $reminder_url = WEBSITE_URL.'/Calendar/calendars.php';
@@ -2926,6 +2991,18 @@ function get_reminder_url($dbc, $reminder, $slider = 0) {
                     break;
                 case 'holidays_update':
                     $reminder_url = WEBSITE_URL.'/Timesheet/holidays.php';
+                    break;
+                case 'intake':
+                    $intake = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `intake` WHERE `intakeid`='".$reminder['src_tableid']."'"));
+                    if($intake['projectid'] > 0) {
+                        $reminder_url = WEBSITE_URL.'/Project/projects.php?edit='.$intake['projectid'];
+                    } else if($intake['ticketid'] > 0) {
+                        $reminder_url = WEBSITE_URL.'/Ticket/index.php?edit='.$intake['ticketid'];
+                    } else if($intake['salesid'] > 0) {
+                        $reminder_url = WEBSITE_URL.'/Sales/sale.php?p=preview&id='.$intake['salesid'];
+                    } else if($intake['contactid'] > 0) {
+                        $reminder_url = WEBSITE_URL.'/'.ucwords(get_contact($dbc, $intake['contactid'], 'tile_name')).'/contacts_inbox.php?edit='.$reminder['src_tableid'];
+                    }
                     break;
             }
         }
@@ -3389,3 +3466,4 @@ function capture_before_change($dbc, $table, $find, $where, $wherevalue, $where2
 function capture_after_change($find, $value) {
 	return "$find is set to " . $value . ".<br />";
 }
+ 

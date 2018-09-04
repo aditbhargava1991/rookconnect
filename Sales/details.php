@@ -68,6 +68,17 @@
         $('[data-table]').off('change',saveField).change(saveField);	
         initInputs();	
     }
+    function email_doc(img) {
+        var documents = [];
+        var line = $(img).closest('tr,.row');
+        line.find('a[href*=download]').each(function() { documents.push(this.href.replace('<?= WEBSITE_URL ?>','..')); });
+        var business = $('[name=businessid][data-table=sales]').val();
+        var contact = '<?= array_values(array_filter(explode(',',$contactid)))[0] ?>';
+        var sales = $('[name=salesid]').val();
+        var subject = encodeURIComponent(line.find('[name=marketingmaterialid] option:selected,a').first().text());
+        var body = encodeURIComponent('');
+        overlayIFrameSlider('../Email Communication/add_email.php?type=external&subject='+subject+'&body='+body+'&bid='+business+'&cid='+contact+'&salesid='+sales+'&attach_docs='+encodeURIComponent(documents.join('#*#')), 'auto', false, true);
+    }
     </script>
 
     <div class="main-screen-white standard-body" style="padding-left: 0; padding-right: 0; border: none;">

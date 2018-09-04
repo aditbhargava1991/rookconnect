@@ -63,7 +63,7 @@ $(document).ready(function() {
             });
         }
     });
-    
+
     $('.tile-sidebar .highest-level .top-a').click(function() {
         $(this).each(function() {
             if ( $(this).data('parent') == '#desktop_accordions' ) {
@@ -610,7 +610,9 @@ function popUpClosed() {
                                 echo '<div class="col-sm-6"><h3>'. ($title=='Search' ? $title .': '. $term : $title .': '. $board_name['board_name']) .'</h3></div>';
                                 echo '<div class="col-sm-6 text-right">';
                                     if ( $url_tab!='Search' && $url_tab!='Summary' && $url_tab!='Reporting' ) {
-                                        echo '<div class="gap-top gap-right" style="font-size:1.5em;">';
+                                        echo '<div class="gap-top gap-right" style="font-size:1.5em;">'; ?>
+                                          <img class="no-toggle" title="Overall Task Board History" style="margin-top:3px; cursor:pointer; height:1.8em;" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Tasks_Updated/task_history.php?board=company&taskboardid=<?=$taskboardid?>','auto',true,true);" src="../img/icons/eyeball.png">
+                                          <?php
                                             if ( $board_name['company_staff_sharing'] ) {
                                                 $c_ex = explode(',', $board_name['company_staff_sharing']);
                                                 $c_unique = array_unique($c_ex);
@@ -644,36 +646,38 @@ function popUpClosed() {
                         } ?>
                     </div><!-- .standard-dashboard-body-title -->
 
-                    <div class="standard-dashboard-body-content"><?php
-                        if ( $url_tab=='Search' ) {
-                            include('tasks_search.php');
-                        } else { ?>
-                            <div class="dashboard-item"><?php
-                                if(!empty($_GET['pathid'])) {
-                                    $projectid = $_GET['edit'];
-                                    $projecttype = $project['projecttype'];
-                                    $project = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `project` WHERE `projectid`='$projectid'"));
-                                    $fromTasks = 1;
-                                    $tab_config = array('Tasks');
-                                    $security['edit'] = 1;
-                                    include('../Project/edit_project_path.php');
-                                } else if ( $_GET['category'] != 'All' && empty($url_milestone) ) {
-                                    include('tasks_dashboard.php'); // Private Task,
-                                } elseif ( $url_tab=='Reporting' ) {
-                                    include('tab_reporting.php');
-                                } elseif ( $url_milestone!='' ) {
-                                    include('task_milestones.php');
-                                } elseif ( $url_tab=='Summary' ) { // Summary tab
-                                    include('tab_summary.php');
-                                } elseif ( $url_tab=='Client' ) {
-                                    include('tasks_dashboard.php'); // Contact Tab
-                                } else {
-                                    echo '<h4 class="gap-left">Select or create a Task Board.</h4>';
-                                } ?>
-                                <div class="clearfix"></div>
-                            </div><?php
-                        } ?>
-                    </div><!-- .standard-dashboard-body-content -->
+                    <?php if(!empty($_GET['pathid'])) {
+                        $projectid = $_GET['edit'];
+                        $projecttype = $project['projecttype'];
+                        $project = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `project` WHERE `projectid`='$projectid'"));
+                        $fromTasks = 1;
+                        $tab_config = array('Tasks');
+                        $security['edit'] = 1;
+                        include('../Project/edit_project_path.php');
+                    } else { ?>
+                        <div class="standard-dashboard-body-content"><?php
+                            if ( $url_tab=='Search' ) {
+                                include('tasks_search.php');
+                            } else { ?>
+                                <div class="dashboard-item"><?php
+                                    if ( $_GET['category'] != 'All' && empty($url_milestone) ) {
+                                        include('tasks_dashboard.php'); // Private Task,
+                                    } elseif ( $url_tab=='Reporting' ) {
+                                        include('tab_reporting.php');
+                                    } elseif ( $url_milestone!='' ) {
+                                        include('task_milestones.php');
+                                    } elseif ( $url_tab=='Summary' ) { // Summary tab
+                                        include('tab_summary.php');
+                                    } elseif ( $url_tab=='Client' ) {
+                                        include('tasks_dashboard.php'); // Contact Tab
+                                    } else {
+                                        echo '<h4 class="gap-left">Select or create a Task Board.</h4>';
+                                    } ?>
+                                    <div class="clearfix"></div>
+                                </div><?php
+                            } ?>
+                        </div><!-- .standard-dashboard-body-content -->
+                    <?php } ?>
 
                 </div><!-- .main-screen -->
             </div><!-- .has-main-screen -->

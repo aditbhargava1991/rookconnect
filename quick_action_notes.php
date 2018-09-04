@@ -55,7 +55,7 @@ if(isset($_POST['submit'])) {
             $query = "INSERT INTO `sales_notes` (`salesid`, `comment`, `created_date`, `created_by`) VALUES('$id', '$note', '$date', '$contactid')";
             $salesid = $id;
             break;
-            
+        
         case 'newsboard':
             $software_name = filter_var($_POST['software_name'], FILTER_SANITIZE_STRING);
             if ( !empty($software_name) ) {
@@ -64,7 +64,17 @@ if(isset($_POST['submit'])) {
             } else {
                 $query = "INSERT INTO `newsboard_comments` (`newsboardid`, `contactid`, `created_date`, `comment`) VALUES('$id', '$contactid', '$date', '$note')";
             }
-            
+            break;
+
+        case 'planner':
+            $note_exists = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `daysheet_notepad` WHERE `contactid` = '$id' AND `date` = '$date'"));
+            if(!empty($note_exists)) {
+                $query = "UPDATE `daysheet_notepad` SET `notes` = CONCAT(`notes`,'".htmlentities('<br />')."','$note') WHERE `contactid` = '$id' AND `date` = '$date'";
+            } else {
+                $query = "INSERT INTO `daysheet_notepad` (`contactid`, `notes`, `date`) VALUES ('$id', '$note', '$date')";
+            }
+            break;
+        
         default:
             break;
     }
@@ -260,10 +270,30 @@ switch(filter_var($_GET['tile'], FILTER_SANITIZE_STRING)) {
                         </div>
                         <hr class="margin-vertical" />';
                     }
+        }
+        break;
+
+    case 'planner':
+        $tile = 'planner';
+        $id = preg_replace('/[^0-9]/', '', $_GET['id']);
+        $query = mysqli_query($dbc, "SELECT `notes` FROM `daysheet_notepad` WHERE `contactid` = '$id' AND `date` = '".date('Y-m-d')."'");
+        if ( $query->num_rows > 0 ) {
+            $html .= '<div class="form-group clearfix full-width">
+                <h4>Notes - '.date('Y-m-d').'</h4>
+                <div class="col-sm-12">';
+                    while ( $row=mysqli_fetch_assoc($query) ) {
+                        $html .= '<div class="note_block row">
+                            <div class="col-xs-12">
+                                <div>'. html_entity_decode($row['notes']) .'</div>
+                            </div>
+                            <div class="clearfix"></div>
+                        </div>';
+                    }
                 $html .= '</div>
                 <div class="clearfix"></div>
             </div>';
         }
+        break;
     
     default:
         break;
@@ -284,7 +314,7 @@ switch(filter_var($_GET['tile'], FILTER_SANITIZE_STRING)) {
         		<div class="col-sm-12"><?= $html ?></div>
         	</div>
         	<div class="form-group">
-        		<label class="col-sm-12 control-label">Note:</label>
+        		<label class="col-sm-12">Note:</label>
         		<div class="col-sm-12"><textarea name="note" class="form-control noMceEditor"></textarea></div>
         	</div>
         	<div class="form-group pull-right">

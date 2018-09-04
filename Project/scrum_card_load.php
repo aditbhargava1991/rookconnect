@@ -19,10 +19,11 @@ if($fromTasks == 1) {
 else {
 	$type = $item[0];
 }
-
+$team = [];
 if($type == 'Ticket') {
 	$item = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticketid`='".$item[1]."'"));
 	$data = 'data-id="'.$item['ticketid'].'" data-table="tickets" data-name="milestone_timeline" data-id-field="ticketid"';
+    $team = explode(',',$item['contactid'].','.$item['internal_qa_contactid'].','.$item['deliverable_contactid']);
 	$colour = $item['flag_colour'];
 	$flag_label = $ticket_flag_names[$colour];
     if(!empty($item['flag_label'])) {
@@ -234,22 +235,9 @@ if($type == 'Ticket') {
 		</div>';
 	}
 	$contents .= '<div class="clearfix"></div>';
-	foreach(array_unique(explode(',',$item['contactid'].','.$item['internal_qa_contactid'].','.$item['deliverable_contactid'])) as $assignid) {
-		if($assignid > 0) {
-			if($border_colour == '') {
-				$user_colour = get_contact($dbc, $assignid, 'calendar_color');
-				if($user_colour != '') {
-					$border_colour = 'border-style:solid;border-color:'.$user_colour.';';
-				}
-			}
-			$contents .= '<span class="pull-left small col-sm-12">';
-			$contents .= profile_id($dbc, $assignid, false).' Assigned to '.get_contact($dbc, $assignid);
-			$contents .= '</span>';
-		}
-	}
-	// $contents .= '</div>';
 } else if($type == 'Task') {
 	$item = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `tasklist` WHERE `tasklistid`='".$item[1]."'"));
+    $team = explode(',',$item['contactid']);
 	$item_external = $item['external'];
 	if($item['status'] == $status_complete) {
 		$li_class = 'strikethrough';
@@ -282,8 +270,20 @@ if($type == 'Ticket') {
 		(in_array('archive',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/trash-icon-red.png" class="inline-img archive-icon" title="Archive">' : '').'</span>';
 
 	$label = '<input type="checkbox" name="status" data-table="tasklist" data-id="'.$item['tasklistid'].'" onchange="mark_done(this);" data-id-field="tasklistid" '.($item['status'] == $status_complete ? 'checked' : '').' data-incomplete="'.$status_incomplete.'" value="'.$item['tasklistid'].'" class="form-checkbox no-margin small pull-left" '.(!($security['edit'] > 0) ? 'readonly disabled' : '').'>
-		<div class="pull-left" style="max-width: calc(100% - 4em);margin:0 0.5em;"><a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Tasks_Updated/add_task.php?type='.$item['status'].'&tasklistid='.$item['tasklistid'].'\', \'50%\', false, false, $(\'.iframe_overlay\').closest(\'.container\').outerHeight() + 20); return false;">Task #'.$item['tasklistid'].'</a>: '.html_entity_decode($item['heading']).'</div>
+		<div class="pull-left" style="max-width: calc(100% - 4em);margin:0 0.5em;">';
+
+        $slider_layout = !empty(get_config($dbc, 'tasks_slider_layout')) ? get_config($dbc, 'tasks_slider_layout') : 'accordion';
+
+        if($slider_layout == 'accordion') {
+            $label .= '<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Tasks_Updated/add_task.php?type='.$item['status'].'&tasklistid='.$item['tasklistid'].'\', \'50%\', false, false, $(\'.iframe_overlay\').closest(\'.container\').outerHeight() + 20); return false;">Task #'.$item['tasklistid'].': </a>';
+        } else {
+            $label .= '<a href="../Tasks_Updated/add_task_full_view.php?type='.$item['status'].'&tasklistid='.$item['tasklistid'].'">Task #'.$item['tasklistid'].': </a>';
+        }
+
+
+       $label .= html_entity_decode($item['heading']).'</div>
 		<input type="hidden" name="comment" value="" data-name="comment" data-table="taskcomments" data-id-field="taskcommid" data-id="" data-type="'.$item['tasklistid'].'" data-type-field="tasklistid">';
+
 	$contents = '<div class="action_notifications">';
 	$item_comments = mysqli_query($dbc, "SELECT * FROM `task_comments` WHERE `tasklistid`='".$item['tasklistid']."' AND `comment` != '' ORDER BY `taskcommid` DESC");
 	$odd_even = 0;
@@ -299,19 +299,6 @@ if($type == 'Ticket') {
 			$contents .= '<em class="block-top-5">Added by '.get_contact($dbc, $item_comment['created_by']).' at '.$item_comment['created_date'].'</em></span></small><span class="clearfix"></span></div>';
 		}
         $odd_even++;
-	}
-	foreach(explode(',',$item['alerts_enabled']) as $alertid) {
-		if($alertid > 0) {
-			if($border_colour == '') {
-				$user_colour = get_contact($dbc, $alertid, 'calendar_color');
-				if($user_colour != '') {
-					$border_colour = 'border-style:solid;border-color:'.$user_colour.';';
-				}
-			}
-			$contents .= '<span class="pull-left small col-sm-12">';
-			$contents .= profile_id($dbc, $alertid, false).' Assigned to '.get_contact($dbc, $alertid);
-			$contents .= '</span>';
-		}
 	}
 	$contents .= '</div><!-- .action_notifications -->';
 } else if($type == 'Intake') {
@@ -363,6 +350,7 @@ if($type == 'Ticket') {
 	</div>';
 } else if($type == 'Checklist') {
 	$item = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `checklist` WHERE `checklistid` = '".$item[1]."'"));
+    $team = explode(',',$item['assign_staff']);
 	$data = 'data-id="'.$item['checklistid'].'" data-table="checklist" data-name="project_milestone" data-id-field="checklistid"';
 	$colour = $item['flag_colour'];
 	$flag_label = $ticket_flag_names[$colour];
@@ -372,7 +360,8 @@ if($type == 'Ticket') {
 	$flag_colours = explode(',',get_config($dbc,'ticket_colour_flags'));
 	$actions = '<a target="_parent" href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Checklist/edit_checklist.php?edit='.$item['checklistid'].'\'); return false;"><img src="../img/icons/ROOK-edit-icon.png" class="inline-img no-toggle" title="Edit"></a>'.
 		'<input type="file" name="attach_checklist_board_'.$item['checklistid'].'" style="display:none;" />'.
-		(in_array('flag_manual',$quick_actions) || in_array('flag',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-flag-icon.png" class="inline-img flag-icon no-toggle" title="Flag This!': '').
+		(in_array('flag_manual',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-flag-icon.png" class="inline-img manual-flag-icon no-toggle" title="Flag This!">': '').
+		(!in_array('flag_manual',$quick_actions) && in_array('flag',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-flag-icon.png" class="inline-img manual-flag-icon no-toggle" title="Flag This!">': '').
 		(in_array('alert',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-alert-icon.png" class="inline-img alert-icon no-toggle" title="Activate Alerts &amp; Get Notified">' : '').
 		(in_array('email',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-email-icon.png" class="inline-img email-icon no-toggle" title="Send Email">' : '').
 		(in_array('reminder',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-reminder-icon.png" class="inline-img reminder-icon no-toggle" title="Schedule Reminder">' : '').
@@ -382,7 +371,17 @@ if($type == 'Ticket') {
     $contents = 'INCLUDE_CHECKLIST#*#'.$item['checklistid'];
 } ?>
 <li class="dashboard-item <?= $li_class ?>" <?= $data ?> data-colour="<?= $colour ?>" style="<?= $colour != '' ? 'background-color: #'.$colour.';' : '' ?><?= $border_colour ?>"><span class="flag-label"><?= $flag_label ?></span>
-	<h4><?= $label ?><?= ((($_GET['tab'] == 'path' && $_GET['pathid'] != 'MS') || $_GET['tab'] == 'path_external_path' || $_GET['tab'] == 'scrum_board') ? '<img class="pull-right milestone-handle cursor-hand no-toggle" src="../img/icons/drag_handle.png" style="height:1em;" title="Drag">' : '') ?><div class="clearfix"></div></h4>
+	<h4>
+        <span class="pull-right">
+            <?php foreach(array_unique($team) as $team_id) {
+                if($team_id > 0) {
+                    echo '<div class="" style="margin-top: -0.5em; font-size: 0.8em; display:inline;">'.profile_id($dbc, $team_id, false).'</div>';
+                }
+            } ?>
+            <?= ((($_GET['tab'] == 'path' && $_GET['pathid'] != 'MS') || $_GET['tab'] == 'path_external_path' || $_GET['tab'] == 'scrum_board') ? '<img class="milestone-handle cursor-hand no-toggle" src="../img/icons/drag_handle.png" style="height:1em;" title="Drag">' : '') ?>
+        </span>
+        <div class="scale-to-fill no-overflow-y" style=""><?= $label ?></div>
+    <div class="clearfix"></div></h4>
 	<?php if($security['edit'] > 0) { ?>
 		<div class="action-icons pad-bottom"><?= $actions ?></div>
 	<?php } ?>

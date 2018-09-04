@@ -132,8 +132,10 @@ if(count($tab_config) == 0 && count($all_config) == 0) {
 <div class="block-group col-sm-8" style="display:none;">
 	<label class="form-checkbox"><input type="checkbox" <?= in_array('Information', $all_config) ? 'checked disabled' : (in_array('Information',$tab_config) ? 'checked' : '') ?> name="project_tabs[]" value="Information"><?= PROJECT_NOUN ?> Information</label>
 	<label class="form-checkbox"><input type="checkbox" <?= in_array('Estimate Info', $all_config) ? 'checked disabled' : (in_array('Estimate Info',$tab_config) ? 'checked' : '') ?> name="project_tabs[]" value="Estimate Info">Estimate Information</label>
-	<label class="form-checkbox"><input type="checkbox" <?= in_array('Details', $all_config) ? 'checked disabled' : (in_array('Details',$tab_config) ? 'checked' : '') ?> name="project_tabs[]" value="Details"><?= PROJECT_NOUN ?> Details</label>
+	<label class="form-checkbox"><input type="checkbox" <?= in_array('Staff', $all_config) ? 'checked disabled' : (in_array('Staff',$tab_config) ? 'checked' : '') ?> name="project_tabs[]" value="Staff">Staff</label>
+	<label class="form-checkbox"><input type="checkbox" <?= in_array('Details Path', $all_config) ? 'checked disabled' : (in_array('Details Path',$tab_config) ? 'checked' : '') ?> name="project_tabs[]" value="Details Path"><?= PROJECT_NOUN ?> Path Templates</label>
 	<label class="form-checkbox"><input type="checkbox" <?= in_array('Notes', $all_config) ? 'checked disabled' : (in_array('Notes',$tab_config) ? 'checked' : '') ?> name="project_tabs[]" value="Notes">Notes</label>
+	<label class="form-checkbox"><input type="checkbox" <?= in_array('Details', $all_config) ? 'checked disabled' : (in_array('Details',$tab_config) ? 'checked' : '') ?> name="project_tabs[]" value="Details"><?= PROJECT_NOUN ?> Details</label>
 	<label class="form-checkbox"><input type="checkbox" <?= in_array('Documents', $all_config) ? 'checked disabled' : (in_array('Documents',$tab_config) ? 'checked' : '') ?> name="project_tabs[]" value="Documents">Documents</label>
 	<label class="form-checkbox"><input type="checkbox" <?= in_array('Dates', $all_config) ? 'checked disabled' : (in_array('Dates',$tab_config) ? 'checked' : '') ?> name="project_tabs[]" value="Dates">Dates</label>
 	<?php $project_heading = 'project_details';
@@ -181,6 +183,7 @@ if(count($tab_config) == 0 && count($all_config) == 0) {
 	<label class="form-checkbox"><input type="checkbox" <?= in_array('Phone', $all_config) ? 'checked disabled' : (in_array('Phone',$tab_config) ? 'checked' : '') ?> name="project_tabs[]" value="Phone">Phone</label>
 	<label class="form-checkbox"><input type="checkbox" <?= in_array('Agendas', $all_config) ? 'checked disabled' : (in_array('Agendas',$tab_config) ? 'checked' : '') ?> name="project_tabs[]" value="Agendas">Agendas</label>
 	<label class="form-checkbox"><input type="checkbox" <?= in_array('Meetings', $all_config) ? 'checked disabled' : (in_array('Meetings',$tab_config) ? 'checked' : '') ?> name="project_tabs[]" value="Meetings">Meetings</label>
+	<label class="form-checkbox"><input type="checkbox" <?= in_array('Comm Log', $all_config) ? 'checked disabled' : (in_array('Comm Log',$tab_config) ? 'checked' : '') ?> name="project_tabs[]" value="Comm Log">Communication History</label>
 	<?php $project_heading = 'communications';
 	include('../Project/field_config_tabs_user_forms.php'); ?>
 </div>
