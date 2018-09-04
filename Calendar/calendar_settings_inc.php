@@ -280,6 +280,10 @@ switch($_GET['type']) {
         $sidebar_file = 'uni_sidebar.php';
         $all_tickets_button = '';
         $staff_split_security = get_config($dbc, 'uni_staff_split_security');
+        $client_staff_freq = get_config($dbc, 'uni_client_staff_freq');
+        $client_draggable = get_config($dbc, 'uni_client_draggable');
+        $staff_summary = get_config($dbc, 'uni_staff_summary');
+        $day_summary_tab = get_config($dbc, 'uni_day_summary_tab');
 
         $mobile_calendar_views = ['staff'=>'Staff'];
         if($use_shifts != '') {

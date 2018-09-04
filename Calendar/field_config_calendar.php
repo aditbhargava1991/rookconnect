@@ -218,6 +218,34 @@ if (isset($_POST['add_tab'])) {
 	}
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'uni_staff_split_security' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='uni_staff_split_security') num WHERE num.rows=0");
 	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$uni_staff_split_security."' WHERE `name`='uni_staff_split_security'");
+	if (!empty($_POST['uni_client_staff_freq'])) {
+		$uni_client_staff_freq = $_POST['uni_client_staff_freq'];
+	} else {
+		$uni_client_staff_freq = '';
+	}
+	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'uni_client_staff_freq' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='uni_client_staff_freq') num WHERE num.rows=0");
+	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$uni_client_staff_freq."' WHERE `name`='uni_client_staff_freq'");
+	if (!empty($_POST['uni_client_draggable'])) {
+		$uni_client_draggable = $_POST['uni_client_draggable'];
+	} else {
+		$uni_client_draggable = '';
+	}
+	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'uni_client_draggable' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='uni_client_draggable') num WHERE num.rows=0");
+	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$uni_client_draggable."' WHERE `name`='uni_client_draggable'");
+	if (!empty($_POST['uni_staff_summary'])) {
+		$uni_staff_summary = $_POST['uni_staff_summary'];
+	} else {
+		$uni_staff_summary = '';
+	}
+	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'uni_staff_summary' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='uni_staff_summary') num WHERE num.rows=0");
+	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$uni_staff_summary."' WHERE `name`='uni_staff_summary'");
+	if (!empty($_POST['uni_day_summary_tab'])) {
+		$uni_day_summary_tab = $_POST['uni_day_summary_tab'];
+	} else {
+		$uni_day_summary_tab = '';
+	}
+	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'uni_day_summary_tab' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='uni_day_summary_tab') num WHERE num.rows=0");
+	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$uni_day_summary_tab."' WHERE `name`='uni_day_summary_tab'");
 
 	// Appointment Calendar Settings
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'appt_day_start' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='appt_day_start') num WHERE num.rows=0");
@@ -1559,6 +1587,34 @@ function showDefaultView(chk) {
 								<div class="col-sm-8">
 									<?php $uni_staff_split_security = get_config($dbc, 'uni_staff_split_security'); ?>
 									<label class="form-checkbox"><input type="checkbox" name="uni_staff_split_security" <?= $uni_staff_split_security != '' ? 'checked' : '' ?> value="1"></label>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-4 control-label">Display Active Client Frequency Per Staff:</label>
+								<div class="col-sm-8">
+									<?php $uni_client_staff_freq = get_config($dbc, 'uni_client_staff_freq'); ?>
+									<label class="form-checkbox"><input type="checkbox" name="uni_client_staff_freq" <?= $uni_client_staff_freq != '' ? 'checked' : '' ?> value="1"></label>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-4 control-label">Clients Draggable To Book:</label>
+								<div class="col-sm-8">
+									<?php $uni_client_draggable = get_config($dbc, 'uni_client_draggable'); ?>
+									<label class="form-checkbox"><input type="checkbox" name="uni_client_draggable" <?= $uni_client_draggable != '' ? 'checked' : '' ?> value="1"></label>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-4 control-label">Enable Staff Summary Tab:</label>
+								<div class="col-sm-8">
+									<?php $uni_staff_summary = get_config($dbc, 'uni_staff_summary'); ?>
+									<label class="form-checkbox"><input type="checkbox" name="uni_staff_summary" <?= $uni_staff_summary != '' ? 'checked' : '' ?> value="1"></label>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-4 control-label">Enable Day Summary Tab:</label>
+								<div class="col-sm-8">
+									<?php $uni_day_summary_tab = get_config($dbc, 'uni_day_summary_tab'); ?>
+									<label class="form-checkbox"><input type="checkbox" name="uni_day_summary_tab" <?= $uni_day_summary_tab != '' ? 'checked' : '' ?> value="1"></label>
 								</div>
 							</div>
 						</div>

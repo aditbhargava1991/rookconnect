@@ -23,7 +23,7 @@ $(document).ready(function() {
 	<?php } ?>
 	$('.block-button.legend-block').on('mouseover', function() { toggleTicketLegend('show') });
 	$('.block-button.legend-block').on('mouseout', function() { toggleTicketLegend('hide') });
-	<?php if($_GET['view'] != 'monthly' && $_GET['mode'] != 'staff_summary' && $_GET['mode'] != 'ticket_summary') { ?>
+	<?php if($_GET['view'] != 'monthly' && $_GET['mode'] != 'staff_summary' && $_GET['mode'] != 'ticket_summary' && $_GET['mode'] != 'day_summary') { ?>
 		calendarScrollLoad();
 	<?php } ?>
 

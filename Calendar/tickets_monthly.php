@@ -62,6 +62,16 @@ function toggle_columns(type = '', reload_teams = 0) {
         var clientid = $(this).data('client');
         clients.push(parseInt(clientid));
     })
+    // Hide teams that are not in selected regions
+    $('#collapse_teams').find('.block-item').each(function() {
+        var team_region = $(this).data('region');
+        if (regions.indexOf(team_region) == -1 && regions.length > 0) {
+            $(this).hide();
+            $(this).removeClass('active');
+        } else {
+            $(this).show();
+        }
+    });
 	$('#collapse_teams').find('.block-item.active').each(function() {
 		var contactids = $(this).data('contactids').split(',');
 		var teamid = $(this).data('teamid');
@@ -83,6 +93,20 @@ function toggle_columns(type = '', reload_teams = 0) {
 			}
 		});
 	});
+    // Hide staff that are not in selected regions
+    $('[id^=collapse_staff]').find('.block-item').each(function() {
+        var staff_id = $(this).data('staff');
+        var staff_region = $(this).data('region');
+        if (regions.indexOf(staff_region) == -1 && regions.length > 0) {
+            if (all_contacts.indexOf(parseInt(staff_id))) {
+                all_contacts.splice(all_contacts.indexOf(parseInt(staff_id)));
+            }
+            $(this).hide();
+            $(this).removeClass('active');
+        } else {
+            $(this).show();
+        }
+    });
 	$('[id^=collapse_staff]').find('.block-item.active').each(function() {
 		var contact_id = $(this).data('staff');
 		if(contact_id > 0) {
@@ -110,7 +134,7 @@ function toggle_columns(type = '', reload_teams = 0) {
     $('.sortable-blocks').each(function() {
         var ticket_businessid = $(this).data('businessid');
         var ticket_clientid = $(this).data('clientid');
-        if (clients.indexOf(parseInt(ticket_clientid)) == -1 && clients.indexOf(parseInt(ticket_businessid)) && clients.length > 0) {
+        if (clients.indexOf(parseInt(ticket_clientid)) == -1 && clients.indexOf(parseInt(ticket_businessid)) == -1 && clients.length > 0) {
             $(this).prevAll('.quick_actions:first').hide();
             $(this).hide();
         } else {
@@ -123,7 +147,7 @@ function toggle_columns(type = '', reload_teams = 0) {
 	$.ajax({
 		url: 'calendar_ajax_all.php?fill=selected_contacts&offline='+offline_mode,
 		method: 'POST',
-		data: { contacts: visibles, teams: teams },
+		data: { contacts: visibles, teams: teams, clients: clients, region: regions },
 		success: function(response) {
 		}
 	});

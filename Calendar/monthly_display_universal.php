@@ -243,7 +243,7 @@ while($row = mysqli_fetch_array( $result )) {
 
     if(strpos(','.$wait_list.',', ',appt,') !== FALSE) {
 
-	    $all_booking_sql = "SELECT * FROM `booking` WHERE '$contactid' IN (`therapistsid`, `patientid`) AND `follow_up_call_status` NOT LIKE '%cancel%' AND ((`appoint_date` BETWEEN '".$new_today_date." 00:00:00' AND '".$new_today_date." 11:59:59') OR (`end_appoint_date` BETWEEN '".$new_today_date." 00:00:00' AND '".$new_today_date." 11:59:59')) AND `deleted` = 0";
+	    $all_booking_sql = "SELECT * FROM `booking` WHERE CONCAT('*#*',`therapistsid`,'*#*',`patientid`,'*#*') LIKE '%*#*$contactid*#*%' AND `follow_up_call_status` NOT LIKE '%cancel%' AND ((`appoint_date` BETWEEN '".$new_today_date." 00:00:00' AND '".$new_today_date." 11:59:59') OR (`end_appoint_date` BETWEEN '".$new_today_date." 00:00:00' AND '".$new_today_date." 11:59:59')) AND `deleted` = 0";
 	    $appointments = mysqli_fetch_all(mysqli_query($dbc, $all_booking_sql),MYSQLI_ASSOC);
 
 	    $num_rows2 = count($appointments);
@@ -390,7 +390,7 @@ while($row = mysqli_fetch_array( $result )) {
 		}
         $j++;
     }
-    if($ticket_summary != '') {
+    if($ticket_summary != '' && !empty($all_tickets)) {
         $column .= '<span>Completed '.$completed_tickets.' of '.count($tickets).' '.(count($tickets) == 1 ? TICKET_NOUN : TICKET_TILE).'</span>';
     }
 

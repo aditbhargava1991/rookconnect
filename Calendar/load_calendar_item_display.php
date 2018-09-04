@@ -195,7 +195,8 @@ foreach($calendar_table[0][0] as $calendar_row => $calendar_cell) {
 					}
 					if(date('Y-m-d', strtotime($appt['end_appoint_date'])) != date('Y-m-d', strtotime($appt['appoint_date']))) {
 						$current_start_time = date('h:i a', strtotime($day_start) + ($calendar_row * $day_period * 60));
-						$staff_shift = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `contacts_shifts` WHERE `contactid` = '".$contact_id."' AND `startdate` <= '".date('Y-m-d', strtotime($current_day))."' AND `enddate` >= '".date('Y-m-d', strtotime($current_day))."' AND CONCAT(',', `repeat_days`, ',') LIKE '%,".$day_of_week.",%' AND `deleted` = 0 AND (`dayoff_type` = '' OR `dayoff_type` IS NULL)"));
+						$day_of_week = date('l', $current_day);
+						$staff_shift = checkShiftIntervals($dbc, $contact_id, $day_of_week, $current_day)[0];
 						if (date('Y-m-d', strtotime($appt['end_appoint_date'])) == $current_day && !empty($appt['end_appoint_date'])) { 
 							$current_end_time = date('h:i a', strtotime($appt['end_appoint_date']));
 						} else if (!empty($staff_shift['endtime'])) {
@@ -222,7 +223,7 @@ foreach($calendar_table[0][0] as $calendar_row => $calendar_cell) {
 					unset($appt_page_query['unbooked']);
 					unset($appt_page_query['equipment_assignmentid']);
 					unset($appt_page_query['teamid']);
-					$row_html .= ($edit_access == 1 ? "<a href='' onclick='overlayIFrameSlider(\"".WEBSITE_URL."/Calendar/booking.php?".http_build_query($appt_page_query)."\"); return false;'>" : "")."<div class='used-block' data-contact='$contact_id' data-blocks='$rows' data-row='$calendar_row' data-appt='".$appt['bookingid']."' ";
+					$row_html .= ($edit_access == 1 ? "<a href='' onclick='overlayIFrameSlider(\"".WEBSITE_URL."/Calendar/booking.php?".http_build_query($appt_page_query)."\"); return false;'>" : "")."<div class='used-block' data-contact='$contact_id' data-blocks='$rows' data-row='$calendar_row' data-appt='".$appt['bookingid']."' data-clientid='".$appt['patientid']."' ";
 					$row_html .= "data-duration='$duration' style='height: calc(".$rows." * (1em + 15px) - 1px); overflow-y: hidden; top: 0; left: 0; margin: 0; padding: 0.2em; position: absolute; width: 100%; $ticket_styling'>";
 					$row_html .= "<span class='$status_class' style='display: block; float: left; width: calc(100% - 2em);'>";
 					$row_html .= "<b>".$current_start_time." - ".$current_end_time."</b><br />";
@@ -312,7 +313,8 @@ foreach($calendar_table[0][0] as $calendar_row => $calendar_cell) {
 					}
 					if ($calendar_col[$calendar_row][2] == 'all_day_ticket') {
 						$current_start_time = date('h:i a', strtotime($day_start) + ($calendar_row * $day_period * 60));
-						$staff_shift = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `contacts_shifts` WHERE `contactid` = '".$contact_id."' AND `startdate` <= '".date('Y-m-d', strtotime($current_day))."' AND `enddate` >= '".date('Y-m-d', strtotime($current_day))."' AND CONCAT(',', `repeat_days`, ',') LIKE '%,".$day_of_week.",%' AND `deleted` = 0 AND (`dayoff_type` = '' OR `dayoff_type` IS NULL)"));
+						$day_of_week = date('l', $current_day);
+						$staff_shift = checkShiftIntervals($dbc, $contact_id, $day_of_week, $current_day)[0];
 						if ($ticket['to_do_end_date'] == $current_day && !empty($ticket['to_do_end_time'])) { 
 							$current_end_time = date('h:i a', strtotime($ticket['to_do_end_time']));
 						} else if (!empty($staff_shift['endtime'])) {
@@ -888,7 +890,8 @@ foreach($calendar_table[0][0] as $calendar_row => $calendar_cell) {
 				}
 				if ($calendar_col[$calendar_row][2] == 'all_day_ticket') {
 					$current_start_time = date('h:i a', strtotime($day_start) + ($calendar_row * $day_period * 60));
-					$staff_shift = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `contacts_shifts` WHERE `contactid` = '".$contact_id."' AND `startdate` <= '".date('Y-m-d', strtotime($current_day))."' AND `enddate` >= '".date('Y-m-d', strtotime($current_day))."' AND CONCAT(',', `repeat_days`, ',') LIKE '%,".$day_of_week.",%' AND `deleted` = 0 AND (`dayoff_type` = '' OR `dayoff_type` IS NULL)"));
+					$day_of_week = date('l', $current_day);
+					$staff_shift = checkShiftIntervals($dbc, $contact_id, $day_of_week, $current_day)[0];
 					if ($ticket['to_do_end_date'] == $current_day && !empty($ticket['to_do_end_time'])) { 
 						$current_end_time = date('h:i a', strtotime($ticket['to_do_end_time']));
 					} else if (!empty($staff_shift['endtime'])) {
@@ -1083,7 +1086,8 @@ foreach($calendar_table[0][0] as $calendar_row => $calendar_cell) {
 				}
 				if(date('Y-m-d', strtotime($appt['end_appoint_date'])) != date('Y-m-d', strtotime($appt['appoint_date']))) {
 					$current_start_time = date('h:i a', strtotime($day_start) + ($calendar_row * $day_period * 60));
-					$staff_shift = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `contacts_shifts` WHERE `contactid` = '".$contact_id."' AND `startdate` <= '".date('Y-m-d', strtotime($current_day))."' AND `enddate` >= '".date('Y-m-d', strtotime($current_day))."' AND CONCAT(',', `repeat_days`, ',') LIKE '%,".$day_of_week.",%' AND `deleted` = 0 AND (`dayoff_type` = '' OR `dayoff_type` IS NULL)"));
+					$day_of_week = date('l', $current_day);
+					$staff_shift = checkShiftIntervals($dbc, $contact_id, $day_of_week, $current_day)[0];
 					if (date('Y-m-d', strtotime($appt['end_appoint_date'])) == $current_day && !empty($appt['end_appoint_date'])) { 
 						$current_end_time = date('h:i a', strtotime($appt['end_appoint_date']));
 					} else if (!empty($staff_shift['endtime'])) {
@@ -1110,7 +1114,7 @@ foreach($calendar_table[0][0] as $calendar_row => $calendar_cell) {
 				unset($appt_page_query['unbooked']);
 				unset($appt_page_query['equipment_assignmentid']);
 				unset($appt_page_query['teamid']);
-				$row_html .= ($edit_access == 1 ? "<a href='' onclick='overlayIFrameSlider(\"".WEBSITE_URL."/Calendar/booking.php?".http_build_query($appt_page_query)."\"); return false;'>" : "")."<div class='used-block' data-contact='$contact_id' data-blocks='$rows' data-row='$calendar_row' data-appt='".$appt['bookingid']."' ";
+				$row_html .= ($edit_access == 1 ? "<a href='' onclick='overlayIFrameSlider(\"".WEBSITE_URL."/Calendar/booking.php?".http_build_query($appt_page_query)."\"); return false;'>" : "")."<div class='used-block' data-contact='$contact_id' data-blocks='$rows' data-row='$calendar_row' data-appt='".$appt['bookingid']."' data-clientid='".$appt['patientid']."' ";
 				$row_html .= "data-duration='$duration' style='height: calc(".$rows." * (1em + 15px) - 1px); overflow-y: hidden; top: 0; left: 0; margin: 0; padding: 0.2em; position: absolute; width: 100%;'>";
 				$row_html .= "<span class='$status_class' style='display: block; float: left; width: calc(100% - 2em);'>";
 				$row_html .= "<b>".$current_start_time." - ".$current_end_time."</b>".'<br />';
