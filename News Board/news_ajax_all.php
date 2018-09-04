@@ -177,7 +177,50 @@ if ( $_GET['fill'] == 'get_shared_staff' ) {
 
 if ( $_GET['fill'] == 'archive_board' ) {
     $boardid = preg_replace('/[^0-9]/', '', $_GET['boardid']);
-    //mysqli_query($dbc, "UPDATE `newsboard_boards` SET `deleted`=1 WHERE `boardid`='$boardid'");
-    //mysqli_query($dbc, "UPDATE `newsboard` SET `deleted`=1 WHERE `boardid`='$boardid'");
+    mysqli_query($dbc, "UPDATE `newsboard_boards` SET `deleted`=1 WHERE `boardid`='$boardid'");
+    mysqli_query($dbc, "UPDATE `newsboard` SET `deleted`=1 WHERE `boardid`='$boardid'");
+}
+
+if ( $_GET['fill'] == 'load_panel' ) {
+    $board = preg_replace('/[^0-9]/', '', $_GET['board']);
+    $type = filter_var($_GET['type'], FILTER_SANITIZE_STRING);
+    $dbc_news = ($type == 'sw') ? $dbc_htg : $dbc;
+    $parent_id = ($type == 'sw') ? 'board_sw_' : 'board_';
+    $tag_id = ($type == 'sw') ? 'tag_sw_' : 'tag_';
+    $collapse_tag = ($type == 'sw') ? 'collapsetag_sw_' : 'collapsetag_';
+    $html = '';
+    
+    $result = mysqli_query($dbc_news, "SELECT `tags` FROM `newsboard` WHERE `boardid`='$board' AND `deleted`=0");
+    if ( $result->num_rows > 0 ) {
+        while ( $row=mysqli_fetch_assoc($result) ) {
+            foreach ( explode(',', $row['tags']) as $tag ) {
+                $html .= '<div class="panel panel-default">';
+                    $html .= '<div class="panel-heading mobile_tag_load">';
+                        $html .= '<h4 class="panel-title">
+                                    <a data-toggle="collapse" data-parent="#'.$parent_id.$board.'" href="#'.$tag_id.strtolower(str_replace(' ', '', $tag)).'" class="double-pad-left">'.$tag.'<span class="glyphicon glyphicon-plus"></span></a>
+                                </h4>';
+                        $html .= '</div>';
+                        $html .= '<div id="'.$tag_id.strtolower(str_replace(' ', '', $tag)).'" class="panel-collapse collapse">';
+                            $html .= '<div id="'.$collapse_tag.$board.'" class="panel-body" data-board="'.$board.'" data-tag="'.$tag.'" data-type="'.$type.'" style="margin:-1px; padding:0;">
+                                        Loading...
+                                    </div>';
+                        $html .= '</div>';
+                    $html .= '</div>';
+                $html .= '</div>';
+            }
+        }
+    }
+    
+    echo $html;
+}
+
+if ( $_GET['fill'] == 'load_panel_data' ) {
+    $html = include('news_list.php');
+    echo $html;
+}
+
+if ( $_GET['fill'] == 'load_panel_item' ) {
+    $html = include('news_item.php');
+    echo $html;
 }
 ?>
