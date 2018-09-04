@@ -88,7 +88,8 @@ if (isset($_POST['printpdf'])) {
     $endtime = $endtimepdf;
     $as_at_date = $as_at_datepdf;
     } ?>
-
+    
+<div id="invoice_div">
         <div class="notice double-gap-bottom popover-examples">
             <div class="col-sm-1 notice-icon"><img src="<?= WEBSITE_URL; ?>/img/info.png" class="wiggle-me" width="25"></div>
             <div class="col-sm-11"><span class="notice-name">NOTE:</span>
@@ -158,7 +159,7 @@ if (isset($_POST['printpdf'])) {
             ?>
 
         </form>
-
+</div>
 
 <?php
 function report_receivables($dbc, $starttime, $endtime, $as_at_date, $table_style, $table_row_style, $grand_total_style) {
@@ -181,7 +182,8 @@ function report_receivables($dbc, $starttime, $endtime, $as_at_date, $table_styl
         $total_due = $row_report['all_payment'];
 
         $report_data .= '<tr nobr="true" style="'.$bg_class.'">';
-            $report_data .= '<td><a href="../Contacts/add_contacts.php?category=Patient&contactid='.$patientid.'&from_url='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']).'">'.get_contact($dbc, $patientid). '</a></td>';
+            //$report_data .= '<td><a href="../Contacts/add_contacts.php?category=Patient&contactid='.$patientid.'&from_url='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']).'">'.get_contact($dbc, $patientid). '</a></td>';
+            $report_data .= '<td><a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/'.CONTACTS_TILE.'/contacts_inbox.php?edit='.$patientid.'\', \'auto\', false, true, $(\'#invoice_div\').outerHeight()+20); return false;">'.get_contact($dbc, $patientid). '</a></td>';
             $report_data .= '<td align="right">$'.$total_due.'</td>';
         $report_data .= '</tr>';
 

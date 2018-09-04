@@ -23,7 +23,7 @@ $(document).ready(function() {
 		$('.sidebar').outerHeight($(window).height() - $('.sidebar ul').offset().top - $('footer').outerHeight());
 	}).resize();
     
-    $('input["name=search"]').keypress(function(event) {
+    $('input[name=search]').keypress(function(event) {
         if (event.which == 13) {
             event.preventDefault();
             $("form").submit();
