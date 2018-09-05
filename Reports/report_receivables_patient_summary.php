@@ -88,6 +88,7 @@ if (isset($_POST['printpdf'])) {
     } ?>
 
 
+<div id="invoice_div">
         <!--
         <br>
         <a href='report_account_receivable.php'><button type="button" class="btn brand-btn mobile-block" >Customer Balance Summary</button></a>&nbsp;&nbsp;
@@ -166,7 +167,7 @@ if (isset($_POST['printpdf'])) {
             ?>
 
         </form>
-
+</div>
 <?php
 function report_receivables($dbc, $starttime, $endtime, $as_at_date, $table_style, $table_row_style, $grand_total_style) {
 	$report_data = "<h3>Customer Accounts Receivable Summary As At ".date('Y-m-d',strtotime($as_at_date))."</h3>";
@@ -196,6 +197,8 @@ function report_receivables($dbc, $starttime, $endtime, $as_at_date, $table_styl
     $total8 = 0;
     
     $odd_even = 0;
+    
+    $folder_name = tile_visible($dbc, 'posadvanced') ? 'POSAdvanced' : 'Invoice';
     
     while($row_report = mysqli_fetch_array($report_service)) {
         $bg_class = $odd_even % 2 == 0 ? '' : 'background-color:#e6e6e6;';
@@ -237,37 +240,38 @@ function report_receivables($dbc, $starttime, $endtime, $as_at_date, $table_styl
         $total_last120 = $total_120['all_payment'];
 
         $report_data .= '<tr nobr="true" style="'.$bg_class.'">';
-        $report_data .= '<td><a href="../Contacts/add_contacts.php?category=Patient&contactid='.$row_report['patientid'].'&from_url='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']).'">'.$patientid.' : '.get_contact($dbc, $patientid).'</a></td>';
+        //$report_data .= '<td><a href="../Contacts/add_contacts.php?category=Patient&contactid='.$row_report['patientid'].'&from_url='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']).'">'.$patientid.' : '.get_contact($dbc, $patientid).'</a></td>';
+        $report_data .= '<td><a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/'.CONTACTS_TILE.'/contacts_inbox.php?edit='.$row_report['patientid'].'\', \'auto\', false, true, $(\'#invoice_div\').outerHeight()+20); return false;">'.$patientid.' : '.get_contact($dbc, $patientid).'</a></td>';
         $report_data .= '<td align="right">'.(is_numeric($total_invoiced) ? '$'.number_format($total_invoiced,2) : '-').'</td>';
         $report_data .= '<td align="right">'.(is_numeric($total_paid) ? '$'.number_format($total_paid,2) : '-').'</td>';
         $report_data .= '<td align="right">'.(is_numeric($total_due) ? '$'.number_format($total_due,2) : '-').'</td>';
 
         if (floatval($total_last30) != 0) {
-            $report_data .= '<td align="right"><a href="../Account Receivables/patient_account_receivables.php?from='.$last29.'&until='.$today_date.'&patientid='.$patientid.'&report=ar_aging">$'.$total_last30.'</a></td>';
+            $report_data .= '<td align="right"><a href="../'.$folder_name.'/patient_account_receivables.php?from='.$last29.'&until='.$today_date.'&patientid='.$patientid.'&report=ar_aging">$'.$total_last30.'</a></td>';
         } else {
             $report_data .= '<td align="right">$0.00</td>';
         }
 
         if (floatval($total_last3059) != 0) {
-            $report_data .= '<td align="right"><a href="../Account Receivables/patient_account_receivables.php?from='.$last59.'&until='.$last30.'&patientid='.$patientid.'&report=ar_aging">$'.$total_last3059.'</a></td>';
+            $report_data .= '<td align="right"><a href="../'.$folder_name.'/patient_account_receivables.php?from='.$last59.'&until='.$last30.'&patientid='.$patientid.'&report=ar_aging">$'.$total_last3059.'</a></td>';
         } else {
             $report_data .= '<td align="right">$0.00</td>';
         }
 
         if (floatval($total_last6089) != 0) {
-            $report_data .= '<td align="right"><a href="../Account Receivables/patient_account_receivables.php?from='.$last89.'&until='.$last60.'&patientid='.$patientid.'&report=ar_aging">$'.$total_last6089.'</a></td>';
+            $report_data .= '<td align="right"><a href="../'.$folder_name.'/patient_account_receivables.php?from='.$last89.'&until='.$last60.'&patientid='.$patientid.'&report=ar_aging">$'.$total_last6089.'</a></td>';
         } else {
             $report_data .= '<td align="right">$0.00</td>';
         }
 
         if (floatval($total_last90119) != 0) {
-            $report_data .= '<td align="right"><a href="../Account Receivables/patient_account_receivables.php?from='.$last119.'&until='.$last90.'&patientid='.$patientid.'&report=ar_aging">$'.$total_last90119.'</a></td>';
+            $report_data .= '<td align="right"><a href="../'.$folder_name.'/patient_account_receivables.php?from='.$last119.'&until='.$last90.'&patientid='.$patientid.'&report=ar_aging">$'.$total_last90119.'</a></td>';
         } else {
             $report_data .= '<td align="right">$0.00</td>';
         }
 
         if (floatval($total_last120) != 0) {
-            $report_data .= '<td align="right"><a href="../Account Receivables/patient_account_receivables.php?from=2016-01-01&until='.$last120.'&patientid='.$patientid.'&report=ar_aging">$'.$total_last120.'</a></td>';
+            $report_data .= '<td align="right"><a href="../'.$folder_name.'/patient_account_receivables.php?from=2016-01-01&until='.$last120.'&patientid='.$patientid.'&report=ar_aging">$'.$total_last120.'</a></td>';
         } else {
             $report_data .= '<td align="right">$0.00</td>';
         }
