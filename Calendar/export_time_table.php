@@ -343,8 +343,8 @@ function filterStaff() {
 			</div>
 
 		    <div class="pull-right" style="padding-top: 1em;">
-		    	<button type="submit" name="export_pdf" value="Submit" class="btn brand-btn">Submit</button>
 		        <a href="?" class="btn brand-btn mobile-anchor">Cancel</a>
+		    	<button type="submit" name="export_pdf" value="Submit" class="btn brand-btn">Submit</button>
 		    </div>
 		</form>
 	</div>
