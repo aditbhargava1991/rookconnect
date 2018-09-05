@@ -10,6 +10,21 @@ if(!($_SESSION['contactid'] > 0)) {
 	echo "ERROR#*#Your session has timed out. Please log in and try again.";
 	exit();
 }
+if($_GET['fill'] == 'add_edit_project') {
+    $ticketid = $_GET['ticketid'];
+    $project = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT COUNT(projectid) `num`, projectid FROM `project` WHERE `project_name` = 'Piece Work Project' AND `deleted` = 0"));
+
+    if($project['num'] > 0) {
+        $projectid = $project['projectid'];
+    } else {
+        $sql = "INSERT INTO `project` (`project_name`,`status`) VALUES ('Piece Work Project','Active Project')";
+        $result_insert_ticket = mysqli_query($dbc, $sql);
+        $projectid = mysqli_insert_id($dbc);
+    }
+    mysqli_query($dbc, "UPDATE `tickets` SET projectid = '$projectid' WHERE ticketid = $ticketid");
+    echo $projectid;
+}
+
 if($_GET['fill'] == 'project_path_milestone') {
     $project_path = $_GET['project_path'];
 	echo '<option value=""></option>';
@@ -1723,7 +1738,11 @@ if($_GET['action'] == 'update_fields') {
 	$to_do_start_time = $_POST['to_do_start_time'];
 	$to_do_end_time= $_POST['to_do_end_time'];
 	$equipmentid = $_POST['equipmentid'];
-	$contactid = $_POST['contactid'];
+	if( empty($_POST['milestone_timeline']) || empty($_POST['status']) || empty($_POST['to_do_date']) || empty($_POST['to_do_end_date'] || empty($_POST['to_do_start_time']) || empty($_POST['to_do_end_time']))){
+	    $contactid = "";
+	}else{
+	   $contactid = $_POST['contactid'];
+	}
 	if(!is_array($contactid)) {
 		$contactid = [$contactid];
 	}

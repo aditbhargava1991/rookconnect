@@ -194,8 +194,8 @@ var projectFilter = function() {
 						if($row['businessid'] > 0) {
 							$project_business = mysqli_fetch_array(mysqli_query($dbc, "SELECT `region`, `con_locations`, `classification` FROM `contacts` WHERE `contactid` = '{$row['businessid']}'"));
 						}
-						echo "<option data-region='".$project_business['region']."' data-location='".$project_business['con_locations']."' data-classification='".$project_business['classification']."' data-business='".$row['businessid']."' data-client='".trim($row['clientid'],',')."' ";
-						echo ($projectid == $row['projectid'] ? 'selected' : (($businessid > 0 && $businessid == $row['businessid']) || ($clientid > 0 && strpos(','.$row['clientid'].',', ",$clientid,") !== FALSE) || (!($businessid > 0) && !($clientid > 0)) || (trim($row['clientid'],',') == '' && !($row['businessid'] > 0)) ? '' : 'style="display:none;"'));
+						echo "<option data-region='".$project_business['region']."' data-location='".$project_business['con_locations']."' data-classification='".$project_business['classification']."' data-business='".$row['businessid']."' data-client='".explode(',',trim($row['clientid'],','))[0]."' ";
+						echo ($projectid == $row['projectid'] ? 'selected' : (($businessid > 0 && $businessid == $row['businessid']) || ($clientid > 0 && strpos(','.$row['clientid'].',', ",$clientid,") !== FALSE) || (!($businessid > 0) && !($clientid > 0)) || (explode(',',trim($row['clientid'],','))[0] == '' && !($row['businessid'] > 0)) ? '' : 'style="display:none;"'));
 						echo " value='".$row['projectid']."'>".get_project_label($dbc,$row).'</option>';
 					}
 				  ?>

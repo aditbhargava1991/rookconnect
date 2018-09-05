@@ -599,7 +599,7 @@ while($row = mysqli_fetch_array($query)) {
         <div class="standard-body-title">
             <h3><?= (!empty($_GET['edit']) ? 'Edit Equipment: Unit #'.$unit_number : 'Add New Equipment') ?>
             <?php 
-            $quick_actions = explode(',',get_config($dbc, 'quick_action_icons'));
+            $quick_actions = explode(',',get_config($dbc, 'equipment_quick_action_icons'));
             if($equipmentid > 0) {
                 echo '<span class="pull-right action-icons  ">';
                 echo in_array('reminder', $quick_actions) ? '<span title="Schedule Reminder" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/quick_action_reminders.php?tile=equipment&id='.$equipmentid.'\'); return false;"><img title="Schedule Reminder" src="../img/icons/ROOK-reminder-icon.png" class="inline-img no-toggle" style="height: 1.25em; width: auto;" onclick="return false;"></span>' : '';

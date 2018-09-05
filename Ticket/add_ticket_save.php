@@ -47,6 +47,17 @@ if(substr($projectid,0,1) == 'C') {
 $project_path = get_project($dbc, $projectid, 'project_path');
 $piece_work = filter_var($_POST['piece_work'],FILTER_SANITIZE_STRING);
 
+if($piece_work != '') {
+		$project = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT COUNT(projectid) `num`, projectid FROM `project` WHERE `project_name` = 'Piece Work Project' AND `deleted` = 0"));
+		if($project['num'] > 0) {
+            $projectid = $project['projectid'];
+        } else {
+			$sql = "INSERT INTO `project` (`project_name`,`status`) VALUES ('Piece Work Project','Active Project')";
+		    $result_insert_ticket = mysqli_query($dbc, $sql);
+            $projectid = mysqli_insert_id($dbc);
+        }
+}
+
 $status = $_POST['status'];
 
 $milestone_timeline = filter_var($_POST['milestone_timeline'],FILTER_SANITIZE_STRING);

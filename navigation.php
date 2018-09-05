@@ -338,14 +338,17 @@ if(!isset($_SESSION['fullscreen'])) {
                                         $search_cats[] = 'Checklists';
                                         echo "search_categories.push('checklists');\n";
                                     }
+
                                     if(in_array('tasks',array_column($_SESSION['tile_list'],'tile'))) {
-                                        $search_cats[] = 'Tasks';
+                                        $search_cats[] = TASK_TILE;
                                         echo "search_categories.push('tasks');\n";
                                     }
-                                    if(in_array('tasks_updated',array_column($_SESSION['tile_list'],'tile'))) {
+
+                                    /*if(in_array('tasks_updated',array_column($_SESSION['tile_list'],'tile'))) {
                                         $search_cats[] = 'Tasks (Updated)';
                                         echo "search_categories.push('tasks_updated');\n";
-                                    }                                    ?>
+                                    } */
+                                    ?>
                                     </script>
                                     <img class="software_search cursor-hand white-color show-on-mob" src="<?= WEBSITE_URL ?>/img/Magnifying_glass_icon.png" height="20" alt="Search All <?= implode(', ',$search_cats) ?>" tabindex="1" onclick="software_search(); $('input.search-text').removeClass('hide-titles-mob'); $('input.search-text').focus(); $(this).removeClass('show-on-mob').addClass('hide-titles-mob');" />
                                     <input type="text" class="hide-titles-mob form-control software_search search-text pad-top-5" placeholder="Search All <?= implode(', ',$search_cats) ?>" onfocus="software_search();" onblur="software_search_end();">
@@ -373,3 +376,4 @@ $_SERVER['page_load_info'] .= 'Nav Bar Loaded: '.number_format($_SERVER['page_lo
 	include_once('password_reset.php');
 	exit();
 } ?>
+ 

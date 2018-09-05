@@ -29,7 +29,7 @@ var reload_estimates = function() {
     <div class="accordion-block-details-heading"><h4>Estimate</h4></div>
     
     <div class="row">
-        <div class="col-xs-12 col-sm-11 gap-md-left-15"><?php
+        <div class="col-xs-12"><?php
             if ( !empty($salesid) ) {
                 $result = mysqli_query($dbc, "SELECT * FROM `sales_document` WHERE `salesid`='{$salesid}' AND `document_type`='Estimate' AND `deleted`=0 AND `salesid` > 0 ORDER BY `salesdocid` DESC");
                 if ( $result->num_rows > 0 ) {
@@ -57,6 +57,7 @@ var reload_estimates = function() {
                             <input type="hidden" data-table="sales_document" data-id="'.$row['salesdocid'].'" name="deleted">
                             <img class="cursor-hand inline-img pull-right" src="../img/remove.png" onclick="rem_doc(this);">
                             <img class="cursor-hand inline-img pull-right" src="../img/icons/ROOK-add-icon.png" onclick="add_doc(this);">
+                            <img class="cursor-hand inline-img pull-right" src="../img/icons/ROOK-email-icon.png" onclick="email_doc(this);">
                         </td>';
                         echo '</tr>';
                     }

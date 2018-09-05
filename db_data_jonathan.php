@@ -266,16 +266,32 @@
 			echo "Error: ".mysqli_error($dbc)."<br />\n";
 		}
         
-        //August 23, 2018
+    //August 23, 2018
 		if(!mysqli_query($dbc, "ALTER TABLE `project` ADD `project_team` TEXT AFTER `project_colead`")) {
 			echo "Error: ".mysqli_error($dbc)."<br />\n";
 		}
         
-        //August 24, 2018
+    //August 24, 2018
 		if(!mysqli_query($dbc, "ALTER TABLE `project_path_milestone` ADD `items` TEXT AFTER `checklist`")) {
 			echo "Error: ".mysqli_error($dbc)."<br />\n";
 		}
 		if(!mysqli_query($dbc, "ALTER TABLE `project_path_milestone` ADD `intakes` TEXT AFTER `items`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+    
+    //August 29, 2018
+		if(!mysqli_query($dbc, "ALTER TABLE `email_communication` ADD `salesid` INT(11) UNSIGNED NOT NULL DEFAULT 0 AFTER `contactid`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+    
+        //August 31, 2018
+		if(!mysqli_query($dbc, "ALTER TABLE `invoice` ADD `area` TEXT AFTER `injuryid`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+		if(!mysqli_query($dbc, "ALTER TABLE `invoice` ADD `po_num` TEXT AFTER `injuryid`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+		if(!mysqli_query($dbc, "ALTER TABLE `invoice` ADD `contract` TEXT AFTER `injuryid`")) {
 			echo "Error: ".mysqli_error($dbc)."<br />\n";
 		}
 		

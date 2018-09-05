@@ -1027,14 +1027,17 @@ checkAuthorised();
                                         <td data-title="Comment">News Board</td>
                                         <?php echo tile_config_function($dbc, 'newsboard', 'admin'); ?>
                                     </tr>
+
                                     <tr>
-                                        <td data-title="Comment">Tasks</td>
+                                        <td data-title="Comment"><?= TASK_TILE ?></td>
                                         <?php echo tile_config_function($dbc, 'tasks', 'admin'); ?>
                                     </tr>
-                                    <tr>
+
+                                    <!--<tr>
                                         <td data-title="Comment">Tasks (Updated)</td>
                                         <?php echo tile_config_function($dbc, 'tasks_updated', 'admin'); ?>
                                     </tr>
+                                    -->
                                     <tr>
                                         <td data-title="Comment">Trip Optimizer</td>
                                         <?php echo tile_config_function($dbc, 'optimize', 'admin'); ?>
