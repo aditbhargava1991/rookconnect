@@ -996,6 +996,52 @@ if($_GET['action'] == 'update_fields') {
 		$user = decryptIt($_SESSION['first_name']).' '.decryptIt($_SESSION['last_name']);
 		mysqli_query($dbc, "INSERT INTO `project_history` (`updated_by`, `description`, `projectid`) VALUES ('$user', '".TICKET_NOUN." #$ticketid attached', '$projectid')");
 	}
+	
+	// Insert/Update Time Sheets if tracking Service Total/Direct/Indirect Time
+	$ticket = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticketid` = '$ticketid'"));
+	$staff_list = mysqli_query($dbc, "SELECT * FROM `ticket_attached` WHERE `ticketid` = '".$ticketid."' AND `deleted` = 0 AND `src_table` LIKE 'Staff%' AND `item_id` > 0");
+	if(strpos($value_config, ',Service Track Total Time,') !== FALSE) {
+		$total_time = 0;
+		foreach(array_filter(explode(',', $ticket['service_total_time'])) as $service_total_time) {
+			if($service_total_time > 0) {
+				$total_time += $service_total_time;
+			}
+		}
+		if($total_time > 0) {
+			foreach($staff_list as $staff) {
+				mysqli_query($dbc, "INSERT INTO `time_cards` (`ticketid`, `ticket_attached_id`, `staff`, `date`, `type_of_time`) SELECT '".$ticketid."', '".$staff['id']."', '".$staff['item_id']."', '".$ticket['to_do_date']."', 'Regular Hrs.' FROM (SELECT COUNT(*) rows FROM `time_cards` WHERE `deleted` = 0 AND `ticket_attached_id` = '".$staff['id']."' AND `type_of_time` = 'Regular Hrs.') num WHERE num.rows=0");
+				mysqli_query($dbc, "UPDATE `time_cards` SET `staff` = '".$staff['item_id']."', `total_hrs` = '".$total_time."', `date` = '".$ticket['to_do_date']."' WHERE `ticket_attached_id` = '".$staff['id']."' AND `type_of_time` = 'Regular Hrs.'");
+			}
+		}
+	}
+	if(strpos($value_config, ',Service Track Direct Time,') !== FALSE) {
+		$direct_time = 0;
+		foreach(array_filter(explode(',', $ticket['service_direct_time'])) as $service_direct_time) {
+			if($service_direct_time > 0) {
+				$direct_time += $service_direct_time;
+			}
+		}
+		if($direct_time > 0) {
+			foreach($staff_list as $staff) {
+				mysqli_query($dbc, "INSERT INTO `time_cards` (`ticketid`, `ticket_attached_id`, `staff`, `date`, `type_of_time`) SELECT '".$ticketid."', '".$staff['id']."', '".$staff['item_id']."', '".$ticket['to_do_date']."', 'Direct Hrs.' FROM (SELECT COUNT(*) rows FROM `time_cards` WHERE `deleted` = 0 AND `ticket_attached_id` = '".$staff['id']."' AND `type_of_time` = 'Direct Hrs.') num WHERE num.rows=0");
+				mysqli_query($dbc, "UPDATE `time_cards` SET `staff` = '".$staff['item_id']."', `total_hrs` = '".$direct_time."', `date` = '".$ticket['to_do_date']."' WHERE `ticket_attached_id` = '".$staff['id']."' AND `type_of_time` = 'Direct Hrs.'");
+			}
+		}
+	}
+	if(strpos($value_config, ',Service Track Indirect Time,') !== FALSE) {
+		$indirect_time = 0;
+		foreach(array_filter(explode(',', $ticket['service_indirect_time'])) as $service_indirect_time) {
+			if($service_indirect_time > 0) {
+				$indirect_time += $service_indirect_time;
+			}
+		}
+		if($indirect_time > 0) {
+			foreach($staff_list as $staff) {
+				mysqli_query($dbc, "INSERT INTO `time_cards` (`ticketid`, `ticket_attached_id`, `staff`, `date`, `type_of_time`) SELECT '".$ticketid."', '".$staff['id']."', '".$staff['item_id']."', '".$ticket['to_do_date']."', 'Indirect Hrs.' FROM (SELECT COUNT(*) rows FROM `time_cards` WHERE `deleted` = 0 AND `ticket_attached_id` = '".$staff['id']."' AND `type_of_time` = 'Indirect Hrs.') num WHERE num.rows=0");
+				mysqli_query($dbc, "UPDATE `time_cards` SET `staff` = '".$staff['item_id']."', `total_hrs` = '".$indirect_time."', `date` = '".$ticket['to_do_date']."' WHERE `ticket_attached_id` = '".$staff['id']."' AND `type_of_time` = 'Indirect Hrs.'");
+			}
+		}
+	}
 
 	//Insert into day overview if last edit was not within 15 minutes
 	$day_overview_last = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `timestamp` FROM `day_overview` WHERE `type` = 'Ticket' AND `tableid` = '$ticketid' AND `contactid` = '".$_SESSION['contactid']."' ORDER BY `timestamp` DESC"));
