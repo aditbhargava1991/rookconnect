@@ -126,7 +126,7 @@ function popUpClosed() {
 			<div class="tile-header">
                 <div class="pull-right settings-block">
                     <div class="pull-right gap-left"><a href="field_config_project_manage.php?category=how_to"><img src="<?= WEBSITE_URL ?>/img/icons/settings-4.png" class="settings-classic wiggle-me" width="30" /></a></div>
-                    <div class="pull-right gap-left"><a href="" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Tasks_Updated/add_taskboard.php?security=<?=$url_tab?>', '50%', false, false, $('.iframe_overlay').closest('.container').outerHeight() + 20); return false;"><button class="btn brand-btn hide-titles-mob">Add Task Board</button></a></div>
+                    <div class="pull-right gap-left"><a href="" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Tasks_Updated/add_taskboard.php?security=<?=$url_tab?>', '50%', false, false, $('.iframe_overlay').closest('.container').outerHeight() + 20); return false;"><button class="btn brand-btn hide-titles-mob">Add <?= TASK_NOUN ?> Board</button></a></div>
                     <!-- <div class="pull-right gap-left"><a href="" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Tasks_Updated/add_task.php?category=<?=$_GET['category']?>&tab=<?=$_GET['tab']?>', '50%', false, false, $('.iframe_overlay').closest('.container').outerHeight() + 20); return false;"><button class="btn brand-btn hide-titles-mob">Add Task</button></a></div> -->
 
                     <?php
@@ -480,7 +480,7 @@ function popUpClosed() {
 
                                         echo '<ul id="board_'.$tab.'" class="top-ul collapse '.(trim($_GET['tab']) == $tab ? 'in' : '').'">';
 
-                                            echo '<li class="sidebar-higher-level"><a class="'.(trim($_GET['tab'])==$tab && trim($_GET['subtab'])=='board' ? 'active blue' : 'collapsed').' cursor-hand" data-toggle="collapse" data-target="#shared_boards">Task Boards <span class="arrow"></span></a>';
+                                            echo '<li class="sidebar-higher-level"><a class="'.(trim($_GET['tab'])==$tab && trim($_GET['subtab'])=='board' ? 'active blue' : 'collapsed').' cursor-hand" data-toggle="collapse" data-target="#shared_boards">'.TASK_NOUN .' Boards <span class="arrow"></span></a>';
                                                 echo '<ul id="shared_boards" class="'.(trim($_GET['tab'])==$tab && trim($_GET['subtab'])=='board' && $_GET['category']!='' ? 'collapsed active' : 'collapse').'">';
                                                     echo $shared_task_boards;
                                                 echo '</ul>';
@@ -672,7 +672,7 @@ function popUpClosed() {
                                     } elseif ( $url_tab=='Client' ) {
                                         include('tasks_dashboard.php'); // Contact Tab
                                     } else {
-                                        echo '<h4 class="gap-left">Select or create a Task Board.</h4>';
+                                        echo '<h4 class="gap-left">Select or create a '.TASK_NOUN .' Board.</h4>';
                                     } ?>
                                     <div class="clearfix"></div>
                                 </div><?php

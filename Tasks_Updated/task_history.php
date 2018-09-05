@@ -6,7 +6,7 @@ echo '<div class="clearfix gap-top gap-left"><b>History For Tasklists for ' . $l
 if($board == 'company') {
   $taskboardlist_query = mysqli_query($dbc, "SELECT `taskboardid`,`board_name` FROM `task_board` WHERE board_security = 'Company' and deleted = 0");
   while($taskboard = mysqli_fetch_assoc($taskboardlist_query)) { ?>
-    <div class="form-group clearfix full-width gap-top"> <b> For Task Board - <?php echo $taskboard['board_name']; ?> </b>
+    <div class="form-group clearfix full-width gap-top"> <b> For <?= TASK_NOUN ?> Board - <?php echo $taskboard['board_name']; ?> </b>
     <?php
     $taskboardid = $taskboard['taskboardid'];
     $taskboard_query = mysqli_query($dbc, "SELECT `tasklistid` FROM `tasklist` WHERE `task_board`='$taskboardid'");
@@ -81,7 +81,7 @@ else {
   $taskboard_query = mysqli_query($dbc, "SELECT `tasklistid` FROM `tasklist` WHERE `task_board`='$taskboardid'");
   while($tasklists = mysqli_fetch_assoc($taskboard_query)) {
     $tasklistid = $tasklists['tasklistid'];
-    
+
     $documents = mysqli_query($dbc, "SELECT `created_by`, `created_date`, `document` FROM `task_document` WHERE `tasklistid`='$tasklistid' ORDER BY `taskdocid` DESC");
     if ( $documents->num_rows > 0 ) { ?>
         <div class="form-group clearfix full-width"> Tasklist - <?php echo $tasklistid; ?>
