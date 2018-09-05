@@ -278,16 +278,20 @@ $(document).ready(function () {
         }
     });
 
-    $('#add_row_doc').on( 'click', function () {
+    /* $('#add_row_doc, .add_row_doc').on( 'click', function () {
 		add_new_task_row();
 		return false;
-    });
+    }); */
 });
 
 $(document).on('change', 'select[name="subtab_shared[]"]', function() { changeSubTabShared(this); });
 $(document).on('change', 'select[name="checklist_type"]', function() { changeType(this.value); });
 $(document).on('change', 'select[name="assign_staff[]"]', function() { changeAssignedStaff(this); });
 $(document).on('change', 'select[name="subtab"]', function() { changeSubTab(this); });
+$(document).on('click', '#add_row_doc, .add_row_doc', function() {
+    add_new_task_row();
+    return false;
+});
 
 function add_new_task_row() {
 	var clone = $('.checklist .additional_doc').first().clone();
@@ -965,27 +969,30 @@ function removeNewRow(button) {
                         <input type="text" id="first_task" name="checklist[]" class="form-control" width="380" />
                     </div>
                     <div class="col-sm-1 col-xs-2 pad-5">
-                        <img src="<?= WEBSITE_URL ?>/img/icons/ROOK-trash-icon.png" style="height:1.5em;" onclick="removeNewRow(this);">
+                        <!-- <img src="<?= WEBSITE_URL ?>/img/icons/ROOK-trash-icon.png" style="height:1.5em;" onclick="removeNewRow(this);"> -->
+                        <img src="<?= WEBSITE_URL ?>/img/icons/ROOK-add-icon.png" class="cursor-hand add_row_doc" style="height:1.5em;" />
+                        <img src="<?= WEBSITE_URL ?>/img/remove.png" class="cursor-hand" style="height:1.5em;" onclick="removeNewRow(this);" />
                     </div>
                     <div class="clearfix"></div>
                 </div>
                 <div id="add_here_new_doc"></div>
-                <button id="add_row_doc" class="btn brand-btn pull-right">Add Task</button>
+                <button id="add_row_doc" class="btn brand-btn pull-right">Add Checklist</button>
                 <span class="popover-examples list-inline pull-right" style="margin:5px 3px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Click here to add a field."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
             </div>
         </div><!-- .block-group -->
 
         <div class="clearfix"></div>
 
-        <div class="form-group clearfix double-gap-top pull-right">
-            <div class="pull-right">
-                <button name="tasklist" value="tasklist" class="btn brand-btn pull-right">Save</button>
-                <span class="popover-examples list-inline pull-right" style="margin:7px 3px 0 5px;"><a data-toggle="tooltip" data-placement="top" title="Click here to save the Checklist."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
-            </div>
-            <div class="pull-right">
+        <div class="form-group clearfix double-gap-top">
+            <div class="pull-left">
                 <span class="popover-examples list-inline" style="margin:0;"><a data-toggle="tooltip" data-placement="top" title="If you click this, the current Checklist will not be saved."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
-                <a href="<?= $url ?>" class="btn brand-btn offset-right-5">Cancel</a>
+                <a href="<?= $url ?>" class=""><img src="../img/icons/ROOK-trash-icon.png" alt="Cancel" title="Cancel" class="no-toggle" width="30" /></a>
             </div>
+            <div class="pull-right">
+                <button name="tasklist" value="tasklist" class="image-btn pull-right no-toggle" title="Save"><img src="../img/icons/save.png" alt="Save" width="30" /></button>
+                <span class="popover-examples list-inline pull-right" style="margin:2px -2px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Click here to save the Checklist."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
+            </div>
+            <div class="clearfix"></div>
         </div>
     </div><!-- .main-screen-container -->
 
