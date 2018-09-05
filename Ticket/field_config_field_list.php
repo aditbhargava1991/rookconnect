@@ -1363,7 +1363,7 @@ if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) {
 			</div>
 		<?php }
 
-		if($sort_field == 'Ticket Details') { ?>
+		if($sort_field == 'Ticket Details' || ($sort_field == 'Services' && !in_array('Ticket Details', $sort_order))) { ?>
 			<div class="form-group sort_order_accordion" data-accordion="Ticket Details">
 				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : TICKET_NOUN.' Details / Services' ?></span>:<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
 					<span class="dataToggle cursor-hand no-toggle <?= in_array('ticket_info',$all_unlocked_tabs) ? 'disabled' : '' ?>" title="Locking a tab will hide the contents of that tab on all new <?= TICKET_TILE ?>. A user with access to edit the <?= TICKET_NOUN ?> can then unlock that tab for that <?= TICKET_NOUN ?>.<?= in_array('ticket_info',$all_unlocked_tabs) ? ' This tab has been locked for all '.TICKET_TILE.'.' : '' ?>">

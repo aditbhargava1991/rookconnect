@@ -288,11 +288,11 @@ do { ?>
 				$value_config = array_merge($value_config,explode(',',get_config($dbc, 'ticket_fields_'.$ticket_tab)));
 			}
 		}
-		$value_config_fields = $sort_order = array_unique($value_config);
+		$all_config_fields = $value_config_fields = $sort_order = array_unique($value_config);
 		$value_config = empty($group['unlocked_fields']) ? $value_config_fields : explode(',',$group['unlocked_fields']);
 
 		//Reset merged_config_fields
-		$merged_config_fields = array_merge($all_config_fields,$value_config_fields); ?>
+		$merged_config_fields = $value_config_fields; ?>
 		<div class="notice double-gap-bottom popover-examples">
 			<div class="col-sm-1 notice-icon"><img src="../img/info.png" class="wiggle-me" width="25"></div>
 			<div class="col-sm-11">
