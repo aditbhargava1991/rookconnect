@@ -2856,12 +2856,21 @@ if($_GET['action'] == 'update_fields') {
 	mysqli_query($dbc, "INSERT INTO `ticket_comment` (`ticketid`,`type`,`comment`,`created_date`,`created_by`) VALUES ('$ticketid','note','$note',DATE(NOW()),'{$_SESSION['contactid']}')");
 } else if($_GET['action'] == 'create_recurrence_tickets') {
 	//Initialize variables
+	$edit = $_GET['edit'];
 	$start_date = $_POST['start_date'];
 	$end_date = $_POST['end_date'];
 	$repeat_type = $_POST['repeat_type'];
 	$repeat_monthly = $_POST['repeat_monthly'];
 	$repeat_interval = $_POST['repeat_interval'];
 	$repeat_days = $_POST['repeat_days'];
+	$create_starting_at = '';
+	if($edit == 1) {
+		if(strtotime($start_date) < strtotime(date('Y-m-d'))) {
+			$create_starting_at = date('Y-m-d');
+		} else {
+			$create_starting_at = $start_date;
+		}
+	}
 	$result = [success => false, message => $start_date.$end_date.$repeat_type.$repeat_interval.implode(',',$repeat_days)];
 	if($_GET['validate'] == 1) {
 		//Validate form fields
@@ -2897,7 +2906,7 @@ if($_GET['action'] == 'update_fields') {
 				$end_date = date('Y-m-d', strtotime(date('Y-m-d').' + '.$sync_upto));
 				$ongoing_recurrence = true;
 			}
-			$recurring_dates = get_recurrence_days(10, $start_date, $end_date, $repeat_type, $repeat_interval, $repeat_days, $repeat_monthly);
+			$recurring_dates = get_recurrence_days(10, $start_date, $end_date, $repeat_type, $repeat_interval, $repeat_days, $repeat_monthly, $create_starting_at);
 			$validate_message = "You are creating Recurring ".TICKET_TILE." every ".$repeat_interval. " ".$repeat_type.($repeat_interval > 1 ? "s" : "")." from ".$start_date.($ongoing_recurrence ? " ongoing" : " until ".$end_date).". Here is an example of what the following Recurring dates will look like:\n\n".implode(", ", $recurring_dates).(count($recurring_dates) > 10 ? ", ..." : "")."\n\nIf this is correct, please confirm to create your Recurring ".TICKET_TILE.".";
 			$result = [success=>true, message=>$validate_message, first_date=>array_shift($recurring_dates)];
 		} else {
@@ -2907,6 +2916,15 @@ if($_GET['action'] == 'update_fields') {
 		echo json_encode($result);
 	} else {
 		$ticketid = $_POST['ticketid'];
+		if($edit == 1) {
+			$ticket = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticketid` = '$ticketid'"));
+			$main_ticketid = $ticket['main_ticketid'];
+			mysqli_query($dbc, "UPDATE `tickets` SET `is_recurrence` = 0 WHERE `main_ticketid` = '$main_ticketid' AND `to_do_date` < '$create_starting_at'");
+			mysqli_query($dbc, "UPDATE `tickets` SET `deleted` = 1 WHERE `main_ticketid` = '$main_ticketid' AND `to_do_date` >= '$create_starting_at' AND `ticketid` != '$ticketid'");
+			$recurring_dates = get_recurrence_days(1, $start_date, $end_date, $repeat_type, $repeat_interval, $repeat_days, $repeat_monthly, $create_starting_at);
+			mysqli_query($dbc, "UPDATE `tickets` SET `to_do_date` = '".$recurring_dates[0]."', `to_do_end_date` = '".$recurring_dates[0]."' WHERE `ticketid` = '$ticketid'");
+			mysqli_query($dbc, "UPDATE `ticket_recurrences` SET `deleted` = 1 WHERE `ticketid` = '$main_ticketid'");
+		}
 
 		if($ticketid > 0) {
 			//Insert into ticket_recurrences table to save settings for ongoing Recurrences cron job
@@ -2918,7 +2936,7 @@ if($_GET['action'] == 'update_fields') {
 		    mysqli_query($dbc, "UPDATE `ticket_schedule` SET `main_id` = `id`, `is_recurrence` = 1 WHERE `ticketid` = '$ticketid' AND `deleted` = 0");
 		    mysqli_query($dbc, "UPDATE `ticket_comment` SET `main_id` = `ticketcommid`, `is_recurrence` = 1 WHERE `ticketid` = '$ticketid' AND `deleted` = 0");
 
-			create_recurring_tickets($dbc, $ticketid, $start_date, $end_date, $repeat_type, $repeat_interval, $repeat_days, $repeat_monthly, $_POST['skip_first']);
+			create_recurring_tickets($dbc, $ticketid, $start_date, $end_date, $repeat_type, $repeat_interval, $repeat_days, $repeat_monthly, $_POST['skip_first'], $create_starting_at);
 			sync_recurring_tickets($dbc, $ticketid);
 			echo 'Successfully created Recurring '.TICKET_TILE;
 		}
@@ -2945,5 +2963,11 @@ if($_GET['action'] == 'update_fields') {
         $tile = config_safe_str($tile['name']);
         set_config($dbc, 'ticket_split_tiles_'.$tile, $details);
     }
+} else if($_GET['action'] == 'get_recurrence_settings') {
+	$ticketid = $_POST['ticketid'];
+	$main_ticketid = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticketid` = '$ticketid'"))['main_ticketid'];
+	$recurrence_settings = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `ticket_recurrences` WHERE `ticketid` = '$main_ticketid' AND `deleted` = 0"));
+	$result = [start_date=>$recurrence_settings['start_date'], end_date=>$recurrence_settings['end_date'], repeat_type=>$recurrence_settings['repeat_type'], repeat_monthly=>$recurrence_settings['repeat_monthly'], repeat_interval=>$recurrence_settings['repeat_interval'], repeat_days=>explode(',',$recurrence_settings['repeat_days'])];
+	echo json_encode($result);
 }
 ?>

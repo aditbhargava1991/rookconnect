@@ -911,7 +911,7 @@ var setHeading = function() {
 			</div>
 		</div>
 	</div>
-	<div id="dialog_create_recurrence" title="Recurrence Details" style="display: none;">
+	<div id="dialog_create_recurrence" title="Create New Recurrences" style="display: none;">
 		<script type="text/javascript">
 		$(document).on('change', 'select[name="recurrence_repeat_type"],select[name="recurrence_repeat_monthly_type"]', function() {
 			var repeat_type = $('[name="recurrence_repeat_type"]').val();
@@ -935,7 +935,7 @@ var setHeading = function() {
 		<div class="form-group">
 			<label class="col-sm-4 control-label">Start Date:</label>
 			<div class="col-sm-8">
-				<input type="text" name="recurrence_start_date" class="form-control datepicker" value="<?= date('Y-m-d') ?>">
+				<input type="text" name="recurrence_start_date" data-current-day="<?= date('Y-m-d') ?>" class="form-control datepicker" value="<?= date('Y-m-d') ?>">
 			</div>
 		</div>
 		<div class="form-group">
@@ -989,6 +989,9 @@ var setHeading = function() {
 	</div>
 	<div id="dialog_edit_recurrence" title="Edit Recurrences?" style="display: none;">
 		Would you like to edit all recurrences for this <?= TICKET_NOUN ?> or just this one occurence?
+	</div>
+	<div id="dialog_recurrence_settings" title="Edit or Create Recurrences?" style="display: none;">
+		Would you like to edit current Recurrence settings or create new Recurrences?
 	</div>
 <?php } ?>
 <?php if(!empty($_GET['calendar_view'])) { ?>
