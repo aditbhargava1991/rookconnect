@@ -326,6 +326,12 @@
 		if(!mysqli_query($dbc, "ALTER TABLE `project` CHANGE `projection_admin_price` `projection_admin_price` TEXT")) {
 			echo "Error: ".mysqli_error($dbc)."<br />\n";
 		}
+		if(!mysqli_query($dbc, "ALTER TABLE `field_config_incident_report` ADD `user_emails` TINYINT(1) NOT NULL DEFAULT 0 AFTER `keep_revisions`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+		if(!mysqli_query($dbc, "ALTER TABLE `field_config_incident_report` ADD `all_emails` TEXT AFTER `user_emails`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
 		
 		set_config($dbc, 'db_version_jonathan', 8);
 	}
