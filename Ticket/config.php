@@ -70,4 +70,13 @@ if($strict_view > 0) {
 }
 $db_config = explode(',',get_field_config($dbc, 'tickets_dashboard'));
 $ticketid = $_GET['edit'] > 0 ? $_GET['edit'] : 0;
+$ticket_stop = $_GET['stop'] > 0 ? $_GET['stop'] : 0;
+if($ticket_stop > 0) {
+    $ticket_status = config_safe_str(get_field_value('status','ticket_schedule','id',$ticket_stop));
+    if(empty($ticket_status)) {
+        $ticket_status = config_safe_str(get_field_value('status','tickets','ticketid',$ticketid));
+    }
+} else if($ticketid > 0) {
+    $ticket_status = config_safe_str(get_field_value('status','tickets','ticketid',$ticketid));
+}
 $ticket_next_step_timesheet = array_filter(explode(',',get_config($dbc, 'ticket_next_step_timesheet')));

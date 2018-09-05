@@ -8,6 +8,10 @@ if($_SESSION['CONSTANT_UPDATED'] + 600 < time()) {
 	$_SESSION['INVENTORY_TILE'] = $inventory_tile_name[0] ?: 'Inventory';
 	$_SESSION['INVENTORY_NOUN'] = !empty($inventory_tile_name[1]) ? $inventory_tile_name[1] : ($inventory_tile_name[0] == 'Inventory' ? 'Inventory' : $inventory_tile_name[0]) ?: 'Inventory';
 
+	$task_tile_name = explode('#*#',get_config($dbc, 'task_tile_name') ?: 'Task#*#Task');
+	$_SESSION['TASK_TILE'] = $task_tile_name[0] ?: 'Task';
+	$_SESSION['TASK_NOUN'] = !empty($task_tile_name[1]) ? $task_tile_name[1] : ($task_tile_name[0] == 'Task' ? 'Task' : $task_tile_name[0]) ?: 'Task';
+
 	$contacts_tile_name = explode('#*#',get_config($dbc, 'contacts_tile_name') ?: 'Contacts#*#Contact');
 	$_SESSION['CONTACTS_TILE'] = $contacts_tile_name[0] ?: 'Contacts';
 	$_SESSION['CONTACTS_NOUN'] = !empty($contacts_tile_name[1]) ? $contacts_tile_name[1] : ($contacts_tile_name[0] == 'Contacts' ? 'Contact' : $contacts_tile_name[0]) ?: 'Contact';
@@ -86,6 +90,8 @@ if($_SESSION['CONSTANT_UPDATED'] + 600 < time()) {
 }
 // Pull from SESSION instead of Database
 DEFINE('INVENTORY_TILE', $_SESSION['INVENTORY_TILE']);
+DEFINE('TASK_TILE', $_SESSION['TASK_TILE']);
+DEFINE('TASK_NOUN', $_SESSION['TASK_NOUN']);
 DEFINE('POS_ADVANCE_TILE', $_SESSION['POS_ADVANCE_TILE']);
 DEFINE('INVENTORY_NOUN', $_SESSION['INVENTORY_NOUN']);
 DEFINE('CONTACTS_TILE', $_SESSION['CONTACTS_TILE']);
@@ -1664,7 +1670,7 @@ function get_tile_names($tile_list) {
 				break;
 
 			case 'tasks':
-				$tiles[] = 'Tasks';
+				$tiles[] = TASK_TILE;
 				break;
 
 			/*
@@ -3224,7 +3230,10 @@ function convert_timestamp_mysql($dbc, $timestamp) {
 
     return $new_timestamp;
 }
-function get_recurrence_days($limit = 0, $start_date, $end_date, $repeat_type, $repeat_interval, $repeat_days, $repeat_monthly) {
+function get_recurrence_days($limit = 0, $start_date, $end_date, $repeat_type, $repeat_interval, $repeat_days, $repeat_monthly, $create_starting_at) {
+    if(empty($create_starting_at)) {
+        $create_starting_at = $start_date;
+    }
     $recurring_dates = [];
     $reached_limit = 0;
     if(date('l', strtotime($start_date)) != 'Sunday') {
@@ -3240,7 +3249,7 @@ function get_recurrence_days($limit = 0, $start_date, $end_date, $repeat_type, $
                 } else {
                     $recurring_date = date('Y-m-d', strtotime('next '.$repeat_day, strtotime($cur)));
                 }
-                if(strtotime($recurring_date) >= strtotime($start_date) && strtotime($recurring_date) <= strtotime($end_date)) {
+                if(strtotime($recurring_date) >= strtotime($start_date) && strtotime($recurring_date) <= strtotime($end_date) && strtotime($recurring_date) >= strtotime($create_starting_at)) {
                     $recurring_dates[] = $recurring_date;
                     $reached_limit++;
                 }
@@ -3249,20 +3258,22 @@ function get_recurrence_days($limit = 0, $start_date, $end_date, $repeat_type, $
             $year_month = date('Y-m', strtotime($cur));
             foreach($repeat_days as $repeat_day) {
                 $recurring_date = date('Y-m-d', strtotime($repeat_monthly.' '.$repeat_day.' of '.$year_month));
-                if(strtotime($recurring_date) >= strtotime($start_date) && strtotime($recurring_date) <= strtotime($end_date)) {
+                if(strtotime($recurring_date) >= strtotime($start_date) && strtotime($recurring_date) <= strtotime($end_date) && strtotime($recurring_date) >= strtotime($create_starting_at)) {
                     $recurring_dates[] = $recurring_date;
                     $reached_limit++;
                 }
             }
         } else {
-            $recurring_dates[] = $cur;
-            $reached_limit++;
+            if(strtotime($cur) >= strtotime($create_starting_at)) {
+                $recurring_dates[] = $cur;
+                $reached_limit++;   
+            }
         }
     }
     return $recurring_dates;
 }
 
-function create_recurring_tickets($dbc, $ticketid, $start_date, $end_date, $repeat_type, $repeat_interval, $repeat_days, $repeat_monthly, $skip_first = '') {
+function create_recurring_tickets($dbc, $ticketid, $start_date, $end_date, $repeat_type, $repeat_interval, $repeat_days, $repeat_monthly, $skip_first = '', $create_starting_at) {
     //Get all ticket rows from tickets, ticket_attached, ticket_schedule, and ticket_comment
     $ticket = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticketid` = '$ticketid' AND `deleted` = 0"));
     $ticket_attacheds = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `ticket_attached` WHERE `ticketid` = '$ticketid' AND `deleted` = 0"),MYSQLI_ASSOC);
@@ -3274,7 +3285,7 @@ function create_recurring_tickets($dbc, $ticketid, $start_date, $end_date, $repe
         $sync_upto = !empty(get_config($dbc, 'ticket_recurrence_sync_upto')) ? get_config($dbc, 'ticket_recurrence_sync_upto') : '2 years';
         $end_date = date('Y-m-d', strtotime(date('Y-m-d').' + '.$sync_upto));
     }
-    $recurring_dates = get_recurrence_days(0, $start_date, $end_date, $repeat_type, $repeat_interval, $repeat_days, $repeat_monthly);
+    $recurring_dates = get_recurrence_days(0, $start_date, $end_date, $repeat_type, $repeat_interval, $repeat_days, $repeat_monthly, $create_starting_at);
     if($skip_first == 1) {
         array_shift($recurring_dates);
     }

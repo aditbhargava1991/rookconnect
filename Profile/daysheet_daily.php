@@ -306,7 +306,7 @@ $(document).ready(function () {
 <?php } ?>
 
 <?php if (in_array('Tasks', $daysheet_fields_config)) { ?>
-    <h4 style="font-weight: normal;">Tasks</h4>
+    <h4 style="font-weight: normal;"><?= TASK_TILE ?></h4>
     <?php if (!empty($tasks_result)) {
         if($daysheet_styling != 'card') {
             echo '<ul id="tasks_daily">';

@@ -459,7 +459,7 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 			<div class="panel-heading mobile_load">
 				<h4 class="panel-title">
 					<a data-toggle="collapse" data-parent="#project_accordions" href="#collapse_tasks">
-						Tasks<span class="glyphicon glyphicon-plus"></span>
+						<?= TASK_TILE ?><span class="glyphicon glyphicon-plus"></span>
 					</a>
 				</h4>
 			</div>
@@ -1199,7 +1199,7 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 				<?php $_GET['tab'] = ($_GET['tab'] == '' ? 'services' : $_GET['tab']); $next_tab = (!$next_set ? 'services' : $next_tab); $next_set = ($prev_set ? true : false); $prev_set = ($_GET['tab'] == 'services' ? true : $prev_set); $previous_tab = ($prev_set ? $previous_tab : 'services'); ?><a href="?edit=<?= $_GET['edit'] ?>&tab=services"><li class="sidebar-lower-level <?= $_GET['tab'] == 'services' ? 'active blue' : '' ?>">Services</li></a>
 				<?php $_GET['tab'] = ($_GET['tab'] == '' ? 'products' : $_GET['tab']); $next_tab = (!$next_set ? 'products' : $next_tab); $next_set = ($prev_set ? true : false); $prev_set = ($_GET['tab'] == 'products' ? true : $prev_set); $previous_tab = ($prev_set ? $previous_tab : 'products'); ?><a href="?edit=<?= $_GET['edit'] ?>&tab=products"><li class="sidebar-lower-level <?= $_GET['tab'] == 'products' ? 'active blue' : '' ?>">Products</li></a>
 
-				<?php $_GET['tab'] = ($_GET['tab'] == '' ? 'ptasks' : $_GET['tab']); $next_tab = (!$next_set ? 'ptasks' : $next_tab); $next_set = ($prev_set ? true : false); $prev_set = ($_GET['tab'] == 'ptasks' ? true : $prev_set); $previous_tab = ($prev_set ? $previous_tab : 'ptasks'); ?><a href="?edit=<?= $_GET['edit'] ?>&tab=ptasks"><li class="sidebar-lower-level <?= $_GET['tab'] == 'ptasks' ? 'active blue' : '' ?>">Tasks</li></a>
+				<?php $_GET['tab'] = ($_GET['tab'] == '' ? 'ptasks' : $_GET['tab']); $next_tab = (!$next_set ? 'ptasks' : $next_tab); $next_set = ($prev_set ? true : false); $prev_set = ($_GET['tab'] == 'ptasks' ? true : $prev_set); $previous_tab = ($prev_set ? $previous_tab : 'ptasks'); ?><a href="?edit=<?= $_GET['edit'] ?>&tab=ptasks"><li class="sidebar-lower-level <?= $_GET['tab'] == 'ptasks' ? 'active blue' : '' ?>"><?= TASK_TILE ?></li></a>
 
 				<?php $_GET['tab'] = ($_GET['tab'] == '' ? 'inventory' : $_GET['tab']); $next_tab = (!$next_set ? 'inventory' : $next_tab); $next_set = ($prev_set ? true : false); $prev_set = ($_GET['tab'] == 'inventory' ? true : $prev_set); $previous_tab = ($prev_set ? $previous_tab : 'inventory'); ?><a href="?edit=<?= $_GET['edit'] ?>&tab=inventory"><li class="sidebar-lower-level <?= $_GET['tab'] == 'inventory' ? 'active blue' : '' ?>">Inventory</li></a>
 
@@ -1387,7 +1387,7 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 				<?php if(in_array('Checklists',$tab_config) || in_array('Tasks',$tab_config)) {
 					$_GET['tab'] = ($_GET['tab'] == '' ? 'tasks' : $_GET['tab']); $next_tab = (!$next_set ? 'tasks' : $next_tab); $next_set = ($prev_set ? true : false); $prev_set = ($_GET['tab'] == 'tasks' ? true : $prev_set); $previous_tab = ($prev_set ? $previous_tab : 'tasks');
 					$count = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT COUNT(*) `num_rows` FROM `tasklist` WHERE `projectid` = '$projectid' AND `deleted`=0"))['num_rows']; ?>
-					<a href="?edit=<?= $_GET['edit'] ?>&tab=tasks"><li class="sidebar-lower-level <?= $_GET['tab'] == 'tasks' && $_GET['status'] != 'project' ? 'active blue' : '' ?>">Tasks<span class="pull-right"><?= $count ?></span></li></a>
+					<a href="?edit=<?= $_GET['edit'] ?>&tab=tasks"><li class="sidebar-lower-level <?= $_GET['tab'] == 'tasks' && $_GET['status'] != 'project' ? 'active blue' : '' ?>"><?= TASK_TILE ?><span class="pull-right"><?= $count ?></span></li></a>
 				<?php } ?>
 				<?php if((in_array('Checklists',$tab_config) || in_array('Tasks',$tab_config)) && tile_visible($dbc, 'checklist')) { $_GET['tab'] = ($_GET['tab'] == '' ? 'tasks' : $_GET['tab']); $next_tab = (!$next_set ? 'tasks' : $next_tab); $next_set = ($prev_set ? true : false); $prev_set = ($_GET['tab'] == 'tasks' ? true : $prev_set); $previous_tab = ($prev_set ? $previous_tab : 'tasks'); ?><a href="?edit=<?= $_GET['edit'] ?>&tab=tasks&status=project"><li class="sidebar-lower-level <?= $_GET['tab'] == 'tasks' && $_GET['status'] == 'project' ? 'active blue' : '' ?>">Checklists</li></a><?php } ?>
 				<?php if(in_array('Path',$tab_config) && !in_array('Unassigned Hide',$tab_config) && mysqli_num_rows(mysqli_query($dbc, $unassigned_sql)) > 0) {
@@ -1676,7 +1676,7 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 				$body_title = 'Status Report';
 				$include_files[] = 'edit_project_scope_status_report.php'; break;
 			case 'tasks':
-				$body_title = 'Tasks';
+				$body_title = TASK_TILE;
 				$include_files[] = 'edit_project_scope_checklists.php'; break;
 			case 'unassigned':
 				$body_title = 'Unassigned';

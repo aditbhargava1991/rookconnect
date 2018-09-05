@@ -13,18 +13,18 @@ include ('../include.php');
 
 </head>
 <body>
-<?php 
+<?php
 			$contactide = $_SESSION['contactid'];
 			$get_table_orient = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT * FROM contacts WHERE contactid='$contactide'"));
 			$check_table_orient = $get_table_orient['horizontal_communication'];
 			?>
-			
+
 <script>
 function handleClick(sel) {
 
     var stagee = sel.value;
 	var contactide = $('.contacterid').val();
-	
+
 	$.ajax({    //create an ajax request to load_page.php
 		type: "GET",
 		url: "task_ajax_all.php?fill=trellotable&contactid="+contactide+"&value="+stagee,
@@ -36,7 +36,7 @@ function handleClick(sel) {
 
 }
 setTimeout(function() {
-  
+
 
 var maxWidth = Math.max.apply( null, $( '.ui-sortable' ).map( function () {
     return $( this ).outerWidth( true );
@@ -47,7 +47,7 @@ var maxWidth = Math.max.apply( null, $( '.ui-sortable' ).map( function () {
 
     $('.ui-sortable').each(function() {
       maxHeight = maxHeight > $(this).height() ? maxHeight : $(this).height();
-	  
+
     });
 
 $(function() {
@@ -56,7 +56,7 @@ $(function() {
 $( '.connectedSortable' ).each(function () {
     this.style.setProperty( 'height', maxHeight, 'important' );
 	this.style.setProperty( 'width', maxWidth, 'important' );
-	
+
 	<?php if($check_table_orient == 1) { ?>
 		$(this).attr('style', 'height:'+maxHeight+'px !important; width:'+maxWidth+'px !important');
 	<?php } else { ?>
@@ -84,13 +84,13 @@ checkAuthorised('communication');
     $value_config = ','.get_config($dbc, 'task_ticket').',';
 	echo '<br><br><div class="mobile-100-container">';
     if (strpos($value_config, ','."Task".',') !== FALSE) {
-    echo "<a href='tasks.php?category=All'><button type='button' class='mobile-100 btn brand-btn mobile-block' >My Tasks</button></a>&nbsp;&nbsp;";
+    echo "<a href='tasks.php?category=All'><button type='button' class='mobile-100 btn brand-btn mobile-block' >My ".TASK_TILE."</button></a>&nbsp;&nbsp;";
     }
     if (strpos($value_config, ','."Ticket".',') !== FALSE) {
     echo "<a href='tickets.php?category=All'><button type='button' class='mobile-100 btn brand-btn mobile-block active_tab' >".TICKET_TILE."</button></a>&nbsp;&nbsp;";
     }
     if (strpos($value_config, ','."Task".',') !== FALSE) {
-    echo "<a href='scrum_tasks.php?category=All'><button type='button' class='mobile-100 btn brand-btn mobile-block' >Scrum Tasks</button></a>&nbsp;&nbsp;";
+    echo "<a href='scrum_tasks.php?category=All'><button type='button' class='mobile-100 btn brand-btn mobile-block' >Scrum ".TASK_TILE."</button></a>&nbsp;&nbsp;";
     }
     if (strpos($value_config, ','."Ticket".',') !== FALSE) {
     echo "<a href='scrum_tickets.php?category=All'><button type='button' class='mobile-100 btn brand-btn mobile-block' >Scrum ".TICKET_TILE."</button></a>&nbsp;&nbsp;";
@@ -101,8 +101,8 @@ checkAuthorised('communication');
 	echo '</div>';
     ?>
     </h1>
-	
-	<input type='hidden' value='<?php echo $contactide; ?>' class='contacterid'> 
+
+	<input type='hidden' value='<?php echo $contactide; ?>' class='contacterid'>
 	<span style='padding:5px; font-weight:bold;'>Vertical View: </span><input onclick="handleClick(this);" type='radio' style='width:20px; height:20px;' <?php if($check_table_orient !== 1) { echo 'checked'; } ?> name='horizo_vert' class='horizo_vert' value=''>
 	<span style='padding:5px; font-weight:bold;'>Horizontal View (Mobile): </span><input onclick="handleClick(this);" <?php if($check_table_orient == 1) { echo 'checked'; } ?> type='radio' style='width:20px; height:20px;' name='horizo_vert' class='horizo_vert' value='1'>
 
@@ -152,18 +152,18 @@ checkAuthorised('communication');
 
 			$class_on = '';
 			 if($check_table_orient == '1') {
-					$class_on = 'horizontal-on'; 
+					$class_on = 'horizontal-on';
 					$class_on_2 = 'horizontal-on-title';
-					
+
 					?>
-					
+
 					<?php
-					
-				} else { 
-					$class_on = ''; 
+
+				} else {
+					$class_on = '';
 					$class_on_2 = '';
-				} 
-			
+				}
+
             echo '<ul id="sortable'.$i.'" class="connectedSortable '.$status.' '.$class_on.'"><li class="ui-state-default ui-state-disabled '.$class_on_2.'">'.$cat_tab.'</li>';
             while($row = mysqli_fetch_array( $result )) {
                 $business = get_client($dbc, $row['businessid']);

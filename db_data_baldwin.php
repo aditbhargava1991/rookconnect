@@ -723,6 +723,11 @@
     }
     //2018-09-05 - Ticket #8740 - Ticket Service Direct/Indirect Time
 
+    //2018-09-05 - Ticket #9007 - Vacation Pay
+    if(!mysqli_query($dbc, "ALTER TABLE `contacts` ADD `vaca_pay` varchar(500) NOT NULL")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-09-05 - Ticket #9007 - Vacation Pay
 
     echo "Baldwin's DB Changes Done<br />\n";
 ?> 
