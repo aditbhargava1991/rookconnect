@@ -1445,6 +1445,21 @@ if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) {
 							<?php if($field_sort_field == 'Service Total Time') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Service Total Time", $all_config) ? 'checked disabled' : (in_array("Service Total Time", $value_config) ? "checked" : '') ?> value="Service Total Time" name="tickets[]">Total Time</label>
 							<?php } ?>
+							<?php if($field_sort_field == 'Service Direct Time') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Service Direct Time", $all_config) ? 'checked disabled' : (in_array("Service Direct Time", $value_config) ? "checked" : '') ?> value="Service Direct Time" name="tickets[]">Direct Time</label>
+							<?php } ?>
+							<?php if($field_sort_field == 'Service Indirect Time') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Service Indirect Time", $all_config) ? 'checked disabled' : (in_array("Service Indirect Time", $value_config) ? "checked" : '') ?> value="Service Indirect Time" name="tickets[]">Indirect Time</label>
+							<?php } ?>
+							<?php if($field_sort_field == 'Service Track Total Time') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Service Track Total Time", $all_config) ? 'checked disabled' : (in_array("Service Track Total Time", $value_config) ? "checked" : '') ?> value="Service Track Total Time" name="tickets[]">Track Total Time in Time Sheets</label>
+							<?php } ?>
+							<?php if($field_sort_field == 'Service Track Direct Time') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Service Track Direct Time", $all_config) ? 'checked disabled' : (in_array("Service Track Direct Time", $value_config) ? "checked" : '') ?> value="Service Track Direct Time" name="tickets[]">Track Direct Time in Time Sheets</label>
+							<?php } ?>
+							<?php if($field_sort_field == 'Service Track Indirect Time') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Service Track Indirect Time", $all_config) ? 'checked disabled' : (in_array("Service Track Indirect Time", $value_config) ? "checked" : '') ?> value="Service Track Indirect Time" name="tickets[]">Track Indirect Time in Time Sheets</label>
+							<?php } ?>
 							<?php if($field_sort_field == 'Service Quantity') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Service Quantity", $all_config) ? 'checked disabled' : (in_array("Service Quantity", $value_config) ? "checked" : '') ?> value="Service Quantity" name="tickets[]"> Quantity</label>
 							<?php } ?>

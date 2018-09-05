@@ -3477,4 +3477,8 @@ function capture_before_change($dbc, $table, $find, $where, $wherevalue, $where2
 function capture_after_change($find, $value) {
 	return "$find is set to " . $value . ".<br />";
 }
- 
+function time_time2string($time) {
+    $hours = !empty(floor($time)) ? floor($time).' Hr' : '';
+    $minutes = !empty($time - floor($time)) ? (($time - floor($time)) * 60).' Min' : '';
+    return implode(' ', [$hours,$minutes]);
+}
