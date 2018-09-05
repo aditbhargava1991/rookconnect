@@ -87,6 +87,8 @@ if(!empty($_POST['submit'])) {
             $tile_settings = 'active_tab';
         } else if($_GET['category'] == 'quick_actions') {
             $quick_actions = 'active_tab';
+        } else if($_GET['category'] == 'add_field') {
+            $add_field = 'active_tab';
         } else if($_GET['category'] == 'auto_archive') {
             $auto_archive = 'active_tab';
         } else {
@@ -95,6 +97,7 @@ if(!empty($_POST['submit'])) {
         echo "<a href='field_config_project_manage.php?category=how_to'><button type='button' class='btn brand-btn mobile-block ".$how_to."'>Task Tabs</button></a>";
         echo "<a href='field_config_project_manage.php?category=tile_settings'><button type='button' class='btn brand-btn mobile-block ".$tile_settings."'>Tile Settings</button></a>";
         echo "<a href='field_config_project_manage.php?category=add_tab'><button type='button' class='btn brand-btn mobile-block ".$add_tab."'>Edit Task Tabs</button></a>";
+        echo "<a href='field_config_project_manage.php?category=add_field'><button type='button' class='btn brand-btn mobile-block ".$add_field."'>Edit Task Fields</button></a>";
         echo "<a href='field_config_project_manage.php?category=quick_actions'><button type='button' class='btn brand-btn mobile-block ".$quick_actions."'>Quick Actions</button></a>";
         echo "<a href='field_config_project_manage.php?category=auto_archive'><button type='button' class='btn brand-btn mobile-block ".$auto_archive."'>Auto Archive Settings</button></a>";
         ?>
@@ -473,6 +476,51 @@ if(!empty($_POST['submit'])) {
                             <input type="checkbox" onchange="saveTabs(this)" name="project_manage_dashboard[]" <?php echo $sales_check_box; ?> style="height: 20px; width: 20px;" value="Sales Tasks">&nbsp;&nbsp;<?= SALES_TILE ?> Tasks
 
                             <input type="checkbox" onchange="saveTabs(this)" name="project_manage_dashboard[]" <?php echo $reporting_check_box; ?> style="height: 20px; width: 20px;" value="Reporting">&nbsp;&nbsp;Reporting
+                        </div>
+                    </div>
+                </div>
+                <?php } else if($_GET['category'] == 'add_field') { ?>
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                            <h4 class="panel-title">
+                            <span class="popover-examples list-inline"><a data-toggle="tooltip" data-placement="top" title="Click here to add or remove your Tabs."><img src=" <?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
+                            <a data-toggle="collapse" data-parent="#accordion_tabs" href="#collapse_00">
+                                Task Fields<span class="glyphicon glyphicon-plus"></span>
+                            </a>
+                        </h4>
+                    </div>
+
+                    <div class="panel-collapse collapse in" id="collapse_00" style="height: auto;">
+                        <div class="panel-body">
+
+                            <?php $get_field_config_tiles = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT task_fields FROM task_dashboard")); ?>
+                            <?php $task_fields = ','.$get_field_config_tiles['task_fields'] . ','; ?>
+
+                            <input type="checkbox" onchange="saveFields(this)" name="task_fields[]" <?= (strpos($task_fields, ',Board Type,') !== FALSE ? 'checked' : '') ?> style="height: 20px; width: 20px;" value="Board Type">&nbsp;&nbsp;Board Type
+
+                            &nbsp;&nbsp;<input type="checkbox" onchange="saveFields(this)" name="task_fields[]" <?= (strpos($task_fields, ',Board Name,') !== FALSE ? 'checked' : '') ?> style="height: 20px; width: 20px;" value="Board Name">&nbsp;&nbsp;Board Name
+
+                            &nbsp;&nbsp;<input type="checkbox" onchange="saveFields(this)" name="task_fields[]" <?= (strpos($task_fields, ',Status,') !== FALSE ? 'checked' : '') ?> style="height: 20px; width: 20px;" value="Status">&nbsp;&nbsp;Status
+
+                            &nbsp;&nbsp;<input type="checkbox" onchange="saveFields(this)" name="task_fields[]" <?= (strpos($task_fields, ',Task Name,') !== FALSE ? 'checked' : '') ?> style="height: 20px; width: 20px;" value="Task Name">&nbsp;&nbsp;Task Name
+
+                            &nbsp;&nbsp;<input type="checkbox" onchange="saveFields(this)" name="task_fields[]" <?= (strpos($task_fields, ',To Do Date,') !== FALSE ? 'checked' : '') ?> style="height: 20px; width: 20px;" value="To Do Date">&nbsp;&nbsp;To Do Date
+
+                            &nbsp;&nbsp;<input type="checkbox" onchange="saveFields(this)" name="task_fields[]" <?= (strpos($task_fields, ',Assign Staff,') !== FALSE ? 'checked' : '') ?> style="height: 20px; width: 20px;" value="Assign Staff">&nbsp;&nbsp;Assign Staff
+
+                            &nbsp;&nbsp;<input type="checkbox" onchange="saveFields(this)" name="task_fields[]" <?= (strpos($task_fields, ',Flag This,') !== FALSE ? 'checked' : '') ?> style="height: 20px; width: 20px;" value="Flag This">&nbsp;&nbsp;Flag This
+
+                            <br><br>
+
+                            <input type="checkbox" onchange="saveFields(this)" name="task_fields[]" <?= (strpos($task_fields, ',Send Alert,') !== FALSE ? 'checked' : '') ?> style="height: 20px; width: 20px;" value="Send Alert">&nbsp;&nbsp;Send Alert
+
+                            &nbsp;&nbsp;<input type="checkbox" onchange="saveFields(this)" name="task_fields[]" <?= (strpos($task_fields, ',Send Email,') !== FALSE ? 'checked' : '') ?> style="height: 20px; width: 20px;" value="Send Email">&nbsp;&nbsp;Send Email
+                            &nbsp;&nbsp;<input type="checkbox" onchange="saveFields(this)" name="task_fields[]" <?= (strpos($task_fields, ',Schedule Reminder,') !== FALSE ? 'checked' : '') ?> style="height: 20px; width: 20px;" value="Schedule Reminder">&nbsp;&nbsp;Schedule Reminder
+                            &nbsp;&nbsp;<input type="checkbox" onchange="saveFields(this)" name="task_fields[]" <?= (strpos($task_fields, ',Attach File,') !== FALSE ? 'checked' : '') ?> style="height: 20px; width: 20px;" value="Attach File">&nbsp;&nbsp;Attach File
+                            &nbsp;&nbsp;<input type="checkbox" onchange="saveFields(this)" name="task_fields[]" <?= (strpos($task_fields, ',Comments,') !== FALSE ? 'checked' : '') ?> style="height: 20px; width: 20px;" value="Comments">&nbsp;&nbsp;Comments
+                            &nbsp;&nbsp;<input type="checkbox" onchange="saveFields(this)" name="task_fields[]" <?= (strpos($task_fields, ',Add Time,') !== FALSE ? 'checked' : '') ?> style="height: 20px; width: 20px;" value="Add Time">&nbsp;&nbsp;Add Time
+                            &nbsp;&nbsp;<input type="checkbox" onchange="saveFields(this)" name="task_fields[]" <?= (strpos($task_fields, ',Track Time,') !== FALSE ? 'checked' : '') ?> style="height: 20px; width: 20px;" value="Track Time">&nbsp;&nbsp;Track Time
+
                         </div>
                     </div>
                 </div>

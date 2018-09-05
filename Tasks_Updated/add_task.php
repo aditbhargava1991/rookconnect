@@ -910,6 +910,9 @@ function mark_done(sel) {
 
             <hr />
 
+            <?php $get_field_config_tiles = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT task_fields FROM task_dashboard")); ?>
+            <?php $task_fields = ','.$get_field_config_tiles['task_fields'] . ','; ?>
+
                 <div id="accordion_tabs" class="sidebar panel-group block-panels main-screen" style="background-color: #fff; padding: 0; margin-left: 0.5em; width: calc(100% - 1em);">
 
                 <div class="panel panel-default">
@@ -922,6 +925,8 @@ function mark_done(sel) {
                     </div>
                     <div id="collapse_task_board" class="panel-collapse collapse">
                         <div class="panel-body">
+
+                        <?php if(strpos($task_fields, ',Board Type,') !== FALSE) { ?>
 
             <div class="form-group">
                 <label for="site_name" class="col-sm-4 control-label"><?= TASK_NOUN ?> Board Type:</label>
@@ -946,6 +951,9 @@ function mark_done(sel) {
                     </select>
                 </div>
             </div>
+                        <?php } ?>
+
+                        <?php if(strpos($task_fields, ',Board Name,') !== FALSE) { ?>
             <div class="form-group hide_task_board_name">
                 <label for="site_name" class="col-sm-4 control-label"><?= TASK_NOUN ?> Board Name:</label>
                 <div class="col-sm-8">
@@ -966,6 +974,8 @@ function mark_done(sel) {
                     <input type="text" name="new_task_board" value="" data-table="tasklist" data-field="board_name" class="form-control" width="380" />
                 </div>
             </div>
+                        <?php } ?>
+
                         </div>
                     </div>
                 </div>
@@ -1203,6 +1213,7 @@ function mark_done(sel) {
                     <div id="collapse_task_details" class="panel-collapse collapse">
                         <div class="panel-body">
 
+                        <?php if(strpos($task_fields, ',Status,') !== FALSE) { ?>
             <div class="form-group clearfix">
                 <label for="first_name" class="col-sm-4 control-label text-right">Status:</label>
                 <div class="col-sm-8">
@@ -1223,6 +1234,7 @@ function mark_done(sel) {
                     </select>
                 </div>
             </div>
+                        <?php } ?>
 
             <!--
             <div class="form-group clearfix">
@@ -1234,6 +1246,7 @@ function mark_done(sel) {
             </div>
             -->
 
+                        <?php if(strpos($task_fields, ',Task Name,') !== FALSE) { ?>
             <div class="form-group clearfix">
                 <label for="first_name" class="col-sm-4 control-label text-right">
                     <!-- <img src="../img/icons/ROOK-edit-icon.png" class="inline-img" /> --> Task Name:
@@ -1255,14 +1268,18 @@ function mark_done(sel) {
                     <input type="text" name="task_heading" value="<?= $task_heading ?>" data-table="tasklist" data-field="heading" class="form-control" width="380" />
                 </div>
             </div>
+                        <?php } ?>
 
+                        <?php if(strpos($task_fields, ',To Do Date,') !== FALSE) { ?>
             <div class="form-group clearfix">
                 <label for="first_name" class="col-sm-4 control-label text-right">To Do Date:</label>
                 <div class="col-sm-8">
                     <input name="task_tododate" value="<?php echo $task_tododate; ?>" type="text" data-table="tasklist" data-field="task_tododate" class="datepicker form-control">
                 </div>
             </div>
+                        <?php } ?>
 
+                        <?php if(strpos($task_fields, ',Assign Staff,') !== FALSE) { ?>
                         <div class="form-group">
                             <label for="site_name" class="col-sm-4 control-label">Assign Staff:</label>
                             <div class="col-sm-8">
@@ -1291,6 +1308,9 @@ function mark_done(sel) {
 
                             </div>
                         </div>
+                        <?php } ?>
+
+                        <?php if(strpos($task_fields, ',Flag This,') !== FALSE) { ?>
 
             <div class="form-group clearfix">
                 <label for="first_name" class="col-sm-4 control-label">
@@ -1301,7 +1321,9 @@ function mark_done(sel) {
                     <input type="hidden" name="flag" value="" />
                 </div>
             </div>
+                        <?php } ?>
 
+                        <?php if(strpos($task_fields, ',Send Alert,') !== FALSE) { ?>
 			<div class="form-group">
 				<label for="site_name" class="col-sm-4 control-label">
                     <!-- <img src="../img/icons/ROOK-alert-icon.png" class="inline-img" />-->  Send Alert:
@@ -1316,6 +1338,9 @@ function mark_done(sel) {
 					</select>
 				</div>
 			</div>
+                        <?php } ?>
+
+                        <?php if(strpos($task_fields, ',Send Email,') !== FALSE) { ?>
 			<div class="form-group">
 				<label for="site_name" class="col-sm-4 control-label">
                     <!-- <img src="../img/icons/ROOK-email-icon.png" class="inline-img" /> --> Send Email:
@@ -1330,6 +1355,9 @@ function mark_done(sel) {
 					</select>
 				</div>
 			</div>
+                        <?php } ?>
+
+                        <?php if(strpos($task_fields, ',Schedule Reminder,') !== FALSE) { ?>
 			<div class="form-group">
 				<label for="site_name" class="col-sm-4 control-label">
                     <!-- <img src="../img/icons/ROOK-reminder-icon.png" class="inline-img" /> --> Schedule Reminder:
@@ -1338,6 +1366,9 @@ function mark_done(sel) {
 					<input type="text" class="form-control datepicker" name="schedule_reminder" />
 				</div>
 			</div>
+                        <?php } ?>
+
+                        <?php if(strpos($task_fields, ',Attach File,') !== FALSE) { ?>
             <div class="form-group">
                 <label for="additional_note" class="col-sm-4 control-label">
                    <!-- <img src="../img/icons/ROOK-attachment-icon.png" class="inline-img" />--> Attach File(s):
@@ -1387,7 +1418,9 @@ function mark_done(sel) {
                     } ?>
                 </div>
             </div>
+                        <?php } ?>
 
+                        <?php if(strpos($task_fields, ',Comments,') !== FALSE) { ?>
             <div class="form-group clearfix">
                 <label for="task_comment" class="col-sm-4 control-label text-right">
                     <!-- <img src="../img/icons/ROOK-reply-icon.png" class="inline-img" /> --> Comments:
@@ -1400,6 +1433,8 @@ function mark_done(sel) {
             <div id="load_comments" class="form-group clearfix">
                 <?php include('task_comment_list.php'); ?>
             </div>
+                        <?php } ?>
+
                         </div>
                     </div>
                 </div>
@@ -1447,11 +1482,15 @@ function mark_done(sel) {
 
 
             <div class="form-group clearfix">
+                        <?php if(strpos($task_fields, ',Add Time,') !== FALSE) { ?>
                 <label for="first_name" class="col-xs-3 control-label text-right"><!-- <img src="../img/icons/ROOK-timer-icon.png" class="inline-img" />--> Add Time:</label>
                 <div class="col-xs-3">
                     <!-- <input name="task_work_time" type="text" value="00:00" data-table="tasklist" data-field="work_time" class="timepicker form-control" /> -->
                     <input name="task_work_time" type="text" value="00:00" class="timepicker form-control" onchange="quick_add_time(this);" />
                 </div>
+                        <?php } ?>
+
+                        <?php if(strpos($task_fields, ',Track Time,') !== FALSE) { ?>
                 <label for="first_name" class="col-xs-3 control-label text-right"><!-- <img src="../img/icons/ROOK-timer2-icon.png" class="inline-img" /> --> Track Time:</label>
                 <div class="col-xs-3">
                     <input type="text" name="timer_<?= $tasklistid ?>" id="timer_value" class="form-control timer" placeholder="0 sec" />
@@ -1460,6 +1499,8 @@ function mark_done(sel) {
                     <input type="hidden" value="" name="track_time" />
                     <span class="added-time"></span>
                 </div>
+                        <?php } ?>
+
             </div>
 
                         </div>

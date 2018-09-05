@@ -2,6 +2,20 @@ $(document).ready(function() {
 	tasksInit();
 });
 
+function saveFields() {
+	var tab_list = [];
+	$('[name="task_fields[]"]:checked').not(':disabled').each(function() {
+		tab_list.push(this.value);
+	});
+
+	$.ajax({    //create an ajax request to ajax_all.php
+		type: "GET",
+		url: "task_ajax_all.php?fill=setting_fields&tab_list="+tab_list,
+		dataType: "html",   //expect html to be returned
+	});
+
+}
+
 function saveTabs() {
 	var tab_list = [];
 	$('[name="project_manage_dashboard[]"]:checked').not(':disabled').each(function() {
