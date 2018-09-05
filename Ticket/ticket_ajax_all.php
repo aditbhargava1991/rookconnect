@@ -22,6 +22,7 @@ if($_GET['fill'] == 'add_edit_project') {
         $projectid = mysqli_insert_id($dbc);
     }
     mysqli_query($dbc, "UPDATE `tickets` SET projectid = '$projectid' WHERE ticketid = $ticketid");
+    echo $projectid;
 }
 
 if($_GET['fill'] == 'project_path_milestone') {
@@ -1737,7 +1738,7 @@ if($_GET['action'] == 'update_fields') {
 	$to_do_start_time = $_POST['to_do_start_time'];
 	$to_do_end_time= $_POST['to_do_end_time'];
 	$equipmentid = $_POST['equipmentid'];
-	if( empty($_POST['milestone_timeline']) || empty($_POST['status']) || empty($_POST['to_do_date']) || empty($_POST['to_do_end_date'] || empty($_POST['to_do_start_time']) || empty($_POST['to_do_end_time']))){       
+	if( empty($_POST['milestone_timeline']) || empty($_POST['status']) || empty($_POST['to_do_date']) || empty($_POST['to_do_end_date'] || empty($_POST['to_do_start_time']) || empty($_POST['to_do_end_time']))){
 	    $contactid = "";
 	}else{
 	   $contactid = $_POST['contactid'];

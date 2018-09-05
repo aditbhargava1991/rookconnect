@@ -417,7 +417,7 @@
 		echo '<label class="col-sm-12 control-label">No Records Found.</label>';
 	}
 } else if ($field_option == "Tasks Addition") { ?>
-	<h4>Tasks</h4>
+	<h4><?= TASK_TILE ?></h4>
 	<div class="pad-5 gap-bottom">
         <b>Total Time Tracked:
         <?php

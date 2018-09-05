@@ -554,8 +554,11 @@ function saveFieldMethod(field) {
 				success: function(response) {
 					updateTicketLabel();
 					if(field_name == 'status' && response == 'created_unscheduled_stop') {
+                        reloadTab('ticket_customer_notes');
 						reload_delivery();
-					} else if(table_name == 'ticket_attached' && field_name == 'piece_type') {
+					} else if(field_name == 'status') {
+                        reloadTab('ticket_customer_notes');
+                    } else if(table_name == 'ticket_attached' && field_name == 'piece_type') {
 						var i = 1;
 						$('#tab_section_ticket_inventory_general .multi-block h4').each(function() {
 							var val = $(this).closest('.multi-block[data-type=general]').find('[name=piece_type]').val()
@@ -750,7 +753,17 @@ function saveFieldMethod(field) {
 					} else if(field_name == 'piece_work') {
 						$.ajax({
 							url: '../Ticket/ticket_ajax_all.php?fill=add_edit_project&ticketid='+current_ticketid,
-							success: function(response) {
+							success: function(response1) {
+								$('[name=projectid]').val(response1);
+
+								$.ajax({
+									url: '../Ticket/ticket_ajax_all.php?fill=project_paths&projectid='+response1,
+									success: function(response) {
+										var milestone = $('[name=milestone_timeline]').val();
+										$('[name=milestone_timeline]').html(response).val(milestone).trigger('change.select2');
+									}
+								});
+
 							}
 						});
 					} else if(field_name == 'projectid') {
@@ -1517,7 +1530,7 @@ function sign_off_complete_force() {
 function reloadTab(name) {
 	if(name != undefined && name != '') {
 		$('#tab_section_'+name).each(function() {
-			$(this).load('edit_ticket_tab.php?ticketid='+ticketid+'&tab='+name);
+			$(this).load('edit_ticket_tab.php?ticketid='+ticketid+'&tab='+name+'&stop='+stopid);
 		});
 	}
 }

@@ -89,7 +89,7 @@ $project_security = get_security($dbc, 'project');
     </div>
 <?php } ?>
 
-<h3 id="head_ptasks">Tasks</h3>
+<h3 id="head_ptasks"><?= TASK_TILE ?></h3>
 <?php foreach(explode('#*#',$project['projection_task_heading']) as $i => $task_heading) { ?>
     <div class="projection">
         <div class="form-group task">

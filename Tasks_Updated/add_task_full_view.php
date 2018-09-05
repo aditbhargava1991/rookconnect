@@ -825,7 +825,7 @@ function deletestartTicketStaff(button) {
 
         <form id="form1" name="form1" method="post"	action="" enctype="multipart/form-data" class="form-horizontal" role="form">
         <div class="scale-to-fill">
-            <h1 class="gap-left"><a href="index.php?category=All&tab=Summary">Task</a></h1>
+            <h1 class="gap-left"><a href="index.php?category=All&tab=Summary"><?= TASK_NOUN ?></a></h1>
         </div>
 
 
@@ -833,9 +833,9 @@ function deletestartTicketStaff(button) {
         <ul>
             <a href="index.php?category=All&tab=Summary"><li>Back to Dashboard</li></a>
 
-            <a href="#taskboard"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_taskboard" id="nav_taskboard">Task Board</li></a>
+            <a href="#taskboard"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_taskboard" id="nav_taskboard"><?= TASK_NOUN ?> Board</li></a>
             <a href="#project" class="project-section project_section_display" style="<?= $project_section_display ?>"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_project" id="nav_project">Project</li></a>
-            <a href="#taskpath" class="taskpath_section_display"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_taskpath" id="nav_taskpath">Task Path</li></a>
+            <a href="#taskpath" class="taskpath_section_display"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_taskpath" id="nav_taskpath"><?= TASK_NOUN ?> Path</li></a>
 
             <a href="#contacts" class="contact-section contact_section_display" style="<?= $contact_section_display ?>"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_contacts" id="nav_contacts">Contacts</li></a>
             <a href="#sales" class="sales-section sales_section_display" style="<?= $sales_section_display ?>"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_sales" id="nav_sales">Sales</li></a>
@@ -979,21 +979,26 @@ function deletestartTicketStaff(button) {
 <div class="standard-body full-height">
 
         <div class="standard-body-title hide-on-mobile" style="padding-top:0 !important;">
-            <h3 class=""><?= !empty($_GET['tasklistid']) ? 'Edit' : 'Add' ?> Task<?= !empty($_GET['tasklistid']) ? ' #'.$_GET['tasklistid'].': '.$task_heading : '' ?></h3>
+            <h3 class=""><?= !empty($_GET['tasklistid']) ? 'Edit' : 'Add' ?> <?= TASK_NOUN ?><?= !empty($_GET['tasklistid']) ? ' #'.$_GET['tasklistid'].': '.$task_heading : '' ?></h3>
         </div>
 
-            <?php if(!empty($_GET['tasklistid'])) { ?><button name="" type='button' value="" class="delete_task pull-right image-btn" style="margin-top:3px;"><img class="no-margin small" src="../img/icons/trash-icon-red.png" alt="Delete Task" width="25"></button><?php } ?>
+            <?php if(!empty($_GET['tasklistid'])) { ?><button name="" type='button' value="" class="delete_task pull-right image-btn" style="margin-top:3px;"><img class="no-margin small" src="../img/icons/trash-icon-red.png" alt="Delete <?= TASK_NOUN ?>" width="25"></button><?php } ?>
+
+            <?php $get_field_config_tiles = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT task_fields FROM task_dashboard")); ?>
+            <?php $task_fields = ','.$get_field_config_tiles['task_fields'] . ','; ?>
 
             <div class="standard-body-content">
 
 
                 <div class="accordion-block-details padded" id="taskboard">
-                    <div class="accordion-block-details-heading"><h4>Task Board</h4></div>
+                    <div class="accordion-block-details-heading"><h4><?= TASK_NOUN ?> Board</h4></div>
+
+                        <?php if(strpos($task_fields, ',Board Type,') !== FALSE) { ?>
 
                         <div class="form-group">
-                            <label for="site_name" class="col-sm-4 control-label">Task Board Type:</label>
+                            <label for="site_name" class="col-sm-4 control-label"><?= TASK_NOUN ?> Board Type:</label>
                             <div class="col-sm-8">
-                                <select data-placeholder="Select a Task Board Type..." name="task_board_type" id="task_board_type" class="chosen-select-deselect form-control" data-field="board_security" width="380">
+                                <select data-placeholder="Select a <?= TASK_NOUN ?> Board Type..." name="task_board_type" id="task_board_type" class="chosen-select-deselect form-control" data-field="board_security" width="380">
                                     <option></option>
                                     <option value="Private" <?= $board_security=='Private' ? 'selected' : '' ?>>Private</option><?php
                                     $all_board_types = mysqli_fetch_array(mysqli_query($dbc, "SELECT task_dashboard_tile FROM task_dashboard"));
@@ -1013,10 +1018,13 @@ function deletestartTicketStaff(button) {
                                 </select>
                             </div>
                         </div>
+                        <?php } ?>
+
+                        <?php if(strpos($task_fields, ',Board Name,') !== FALSE) { ?>
                         <div class="form-group hide_task_board_name">
-                            <label for="site_name" class="col-sm-4 control-label">Task Board Name:</label>
+                            <label for="site_name" class="col-sm-4 control-label"><?= TASK_NOUN ?> Board Name:</label>
                             <div class="col-sm-8">
-                                <select data-placeholder="Select a Task Board..." name="task_board" class="chosen-select-deselect form-control" data-table="tasklist" data-field="task_board" width="380">
+                                <select data-placeholder="Select a <?= TASK_NOUN ?> Board..." name="task_board" class="chosen-select-deselect form-control" data-table="tasklist" data-field="task_board" width="380">
                                     <option></option>
                                     <!-- <option value="NEW">Add New Task Board</option> -->
                                     <?php
@@ -1028,11 +1036,12 @@ function deletestartTicketStaff(button) {
                             </div>
                         </div>
                         <div class="form-group clearfix new-board-name" style="display:none;">
-                            <label for="first_name" class="col-sm-4 control-label text-right">New Task Board Name:</label>
+                            <label for="first_name" class="col-sm-4 control-label text-right">New <?= TASK_NOUN ?> Board Name:</label>
                             <div class="col-sm-8">
                                 <input type="text" name="new_task_board" value="" data-table="tasklist" data-field="board_name" class="form-control" width="380" />
                             </div>
                         </div>
+                        <?php } ?>
 
                 </div>
 
@@ -1070,12 +1079,12 @@ function deletestartTicketStaff(button) {
 
                 <div class="taskpath-section taskpath_section_display" style="<?= $taskpath_section_display ?>">
                     <div class="accordion-block-details padded" id="taskpath">
-                        <div class="accordion-block-details-heading"><h4>Task Path</h4></div>
+                        <div class="accordion-block-details-heading"><h4><?= TASK_NOUN ?> Path</h4></div>
 
                             <div class="form-group">
-                                <label for="site_name" class="col-sm-4 control-label">Task Path:</label>
+                                <label for="site_name" class="col-sm-4 control-label"><?= TASK_NOUN ?> Path:</label>
                                 <div class="col-sm-8">
-                                    <select data-placeholder="Select a Task Path..." id="task_path" name="task_path" data-table="tasklist" data-field="task_path" class="chosen-select-deselect form-control" width="380">
+                                    <select data-placeholder="Select a <?= TASK_NOUN ?> Path..." id="task_path" name="task_path" data-table="tasklist" data-field="task_path" class="chosen-select-deselect form-control" width="380">
                                         <option value=""></option><?php
                                         $project_path_milestones = [];
                                         if($task_projectid > 0) {
@@ -1231,6 +1240,7 @@ function deletestartTicketStaff(button) {
                 <div class="accordion-block-details padded" id="details">
                     <div class="accordion-block-details-heading"><h4>Details</h4></div>
 
+                        <?php if(strpos($task_fields, ',Status,') !== FALSE) { ?>
                         <div class="form-group clearfix">
                             <label for="first_name" class="col-sm-4 control-label text-right">Status:</label>
                             <div class="col-sm-8">
@@ -1251,6 +1261,7 @@ function deletestartTicketStaff(button) {
                                 </select>
                             </div>
                         </div>
+                        <?php } ?>
 
                         <!--
                         <div class="form-group clearfix">
@@ -1262,9 +1273,11 @@ function deletestartTicketStaff(button) {
                         </div>
                         -->
 
+                        <?php if(strpos($task_fields, ',Task Name,') !== FALSE) { ?>
+
                         <div class="form-group clearfix">
                             <label for="first_name" class="col-sm-4 control-label text-right">
-                                <!-- <img src="../img/icons/ROOK-edit-icon.png" class="inline-img" /> --> Task Name:
+                                <!-- <img src="../img/icons/ROOK-edit-icon.png" class="inline-img" /> --> <?= TASK_NOUN ?> Name:
                             </label>
                             <div class="col-sm-8">
                                 <?php $groups = $dbc->query("SELECT `category` FROM `task_types` WHERE `deleted`=0 GROUP BY `category` ORDER BY MIN(`sort`), MIN(`id`)");
@@ -1283,14 +1296,18 @@ function deletestartTicketStaff(button) {
                                 <input type="text" name="task_heading" value="<?= $task_heading ?>" data-table="tasklist" data-field="heading" class="form-control" width="380" />
                             </div>
                         </div>
+                        <?php } ?>
 
+                        <?php if(strpos($task_fields, ',To Do Date,') !== FALSE) { ?>
                         <div class="form-group clearfix">
                             <label for="first_name" class="col-sm-4 control-label text-right">To Do Date:</label>
                             <div class="col-sm-8">
                                 <input name="task_tododate" value="<?php echo $task_tododate; ?>" type="text" data-table="tasklist" data-field="task_tododate" class="datepicker form-control">
                             </div>
                         </div>
+                        <?php } ?>
 
+                        <?php if(strpos($task_fields, ',Assign Staff,') !== FALSE) { ?>
                         <div class="form-group">
                             <label for="site_name" class="col-sm-4 control-label">Assign Staff:</label>
                             <div class="col-sm-8">
@@ -1314,12 +1331,14 @@ function deletestartTicketStaff(button) {
                                     </div>
 
                                 </div>
+                        <?php } ?>
 
                                 <br><div class="clearfix"></div>
 
                             </div>
                         </div>
 
+                        <?php if(strpos($task_fields, ',Flag This,') !== FALSE) { ?>
                         <div class="form-group clearfix">
                             <label for="first_name" class="col-sm-4 control-label">
                                 <!-- <img src="../img/icons/ROOK-flag-icon.png" class="inline-img" /> --> Flag This:
@@ -1329,7 +1348,9 @@ function deletestartTicketStaff(button) {
                                 <input type="hidden" name="flag" value="" />
                             </div>
                         </div>
+                        <?php } ?>
 
+                        <?php if(strpos($task_fields, ',Send Alert,') !== FALSE) { ?>
                         <div class="form-group">
                             <label for="site_name" class="col-sm-4 control-label">
                                 <!-- <img src="../img/icons/ROOK-alert-icon.png" class="inline-img" />-->  Send Alert:
@@ -1344,6 +1365,9 @@ function deletestartTicketStaff(button) {
                                 </select>
                             </div>
                         </div>
+                        <?php } ?>
+
+                        <?php if(strpos($task_fields, ',Send Email,') !== FALSE) { ?>
                         <div class="form-group">
                             <label for="site_name" class="col-sm-4 control-label">
                                 <!-- <img src="../img/icons/ROOK-email-icon.png" class="inline-img" /> --> Send Email:
@@ -1358,6 +1382,9 @@ function deletestartTicketStaff(button) {
                                 </select>
                             </div>
                         </div>
+                        <?php } ?>
+
+                        <?php if(strpos($task_fields, ',Schedule Reminder,') !== FALSE) { ?>
                         <div class="form-group">
                             <label for="site_name" class="col-sm-4 control-label">
                                 <!-- <img src="../img/icons/ROOK-reminder-icon.png" class="inline-img" /> --> Schedule Reminder:
@@ -1366,6 +1393,9 @@ function deletestartTicketStaff(button) {
                                 <input type="text" class="form-control datepicker" name="schedule_reminder" />
                             </div>
                         </div>
+                        <?php } ?>
+
+                        <?php if(strpos($task_fields, ',Attach File,') !== FALSE) { ?>
                         <div class="form-group">
                             <label for="additional_note" class="col-sm-4 control-label">
                                <!-- <img src="../img/icons/ROOK-attachment-icon.png" class="inline-img" />--> Attach File(s):
@@ -1415,7 +1445,9 @@ function deletestartTicketStaff(button) {
                                 } ?>
                             </div>
                         </div>
+                        <?php } ?>
 
+                        <?php if(strpos($task_fields, ',Comments,') !== FALSE) { ?>
                         <div class="form-group clearfix">
                             <label for="task_comment" class="col-sm-4 control-label text-right">
                                 <!-- <img src="../img/icons/ROOK-reply-icon.png" class="inline-img" /> --> Comments:
@@ -1428,6 +1460,7 @@ function deletestartTicketStaff(button) {
                         <div id="load_comments" class="form-group clearfix">
                             <?php include('task_comment_list.php'); ?>
                         </div>
+                        <?php } ?>
 
                 </div>
 
@@ -1465,11 +1498,15 @@ function deletestartTicketStaff(button) {
                     } ?>
 
                         <div class="form-group clearfix">
+                        <?php if(strpos($task_fields, ',Add Time,') !== FALSE) { ?>
                             <label for="first_name" class="col-xs-3 control-label text-right"><!-- <img src="../img/icons/ROOK-timer-icon.png" class="inline-img" />--> Add Time:</label>
                             <div class="col-xs-3">
                                 <!-- <input name="task_work_time" type="text" value="00:00" data-table="tasklist" data-field="work_time" class="timepicker form-control" /> -->
                                 <input name="task_work_time" type="text" value="00:00" class="timepicker form-control" onchange="quick_add_time(this);" />
                             </div>
+                        <?php } ?>
+
+                        <?php if(strpos($task_fields, ',Track Time,') !== FALSE) { ?>
                             <label for="first_name" class="col-xs-3 control-label text-right"><!-- <img src="../img/icons/ROOK-timer2-icon.png" class="inline-img" /> --> Track Time:</label>
                             <div class="col-xs-3">
                                 <input type="text" name="timer_<?= $tasklistid ?>" id="timer_value" class="form-control timer" placeholder="0 sec" />
@@ -1478,6 +1515,8 @@ function deletestartTicketStaff(button) {
                                 <input type="hidden" value="" name="track_time" />
                                 <span class="added-time"></span>
                             </div>
+                        <?php } ?>
+
                         </div>
 
                 </div>
@@ -1485,8 +1524,10 @@ function deletestartTicketStaff(button) {
 
             <div class="form-group pull-right">
                 <a href="index.php?category=All&tab=Summary" class="btn brand-btn pull-left">Cancel</a>
-                <button name="tasklist" value="tasklist" class="btn brand-btn pull-right stop-timer-submit">Submit</button>
-                <?php if(!empty($_GET['tasklistid'])) { ?><button name="" type='button' value="" class="delete_task pull-right image-btn"><img class="no-margin small" src="../img/icons/trash-icon-red.png" alt="Delete Task" width="30"></button><?php } ?>
+
+                <button name="tasklist" value="tasklist" class="btn brand-btn pull-right">Submit</button>
+                <?php if(!empty($_GET['tasklistid'])) { ?><button name="" type='button' value="" class="delete_task pull-right image-btn"><img class="no-margin small" src="../img/icons/trash-icon-red.png" alt="Delete <?= TASK_NOUN ?>" width="30"></button><?php } ?>
+
                 <div class="clearfix"></div>
             </div>
         </form>

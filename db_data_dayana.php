@@ -262,5 +262,9 @@ mysqli_query($dbc, "ALTER TABLE `admin_tile_config` ADD `tasks_updated` VARCHAR(
 
 mysqli_query($dbc, "ALTER TABLE `tasklist` ADD `flag_label` VARCHAR(200) NOT NULL AFTER `flag_colour`, ADD `flag_start` DATE NULL AFTER `flag_label`, ADD `flag_end` DATE NULL AFTER `flag_start`");
 
+mysqli_query($dbc, "ALTER TABLE `task_dashboard` ADD `task_fields` TEXT NULL AFTER `task_dashboard_tile`");
+
+mysqli_query($dbc, "UPDATE task_dashboard SET task_fields='Board Type,Board Name,Status,Task Name,To Do Date,Assign Staff,Flag This,Send Alert,Send Email,Schedule Reminder,Attach File,Comments,Add Time,Track Time' WHERE task_id=1");
+
     echo "Dayana's DB Changes Done<br />\n";
 ?>
