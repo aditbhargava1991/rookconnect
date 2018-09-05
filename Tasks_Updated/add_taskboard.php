@@ -242,11 +242,11 @@ function changeLevel(sel) {
             <div class="pull-right"><a href=""><img src="../img/icons/ROOK-status-rejected.jpg" alt="Close" title="Close" class="inline-img" /></a></div>
             <div class="clearfix"></div>
 
-            <h3>Add Task Board</h3>
+            <h3>Add <?= TASK_NOUN ?> Board</h3>
             <div class="form-group">
-                <label for="fax_number"	class="col-sm-4	control-label">Task Board Type:</label>
+                <label for="fax_number"	class="col-sm-4	control-label"><?= TASK_NOUN ?> Board Type:</label>
                 <div class="col-sm-8">
-                    <select name="board_security" id="board_security" data-placeholder="Choose a Task Board Type..." class="chosen-select-deselect form-control" width="380">
+                    <select name="board_security" id="board_security" data-placeholder="Choose a <?= TASK_NOUN ?> Board Type..." class="chosen-select-deselect form-control" width="380">
                         <option></option><?php
                         $all_board_types = mysqli_fetch_array(mysqli_query($dbc, "SELECT task_dashboard_tile FROM task_dashboard"));
                         foreach(explode(',', 'Private,'.$all_board_types['task_dashboard_tile']) as $board_type) {
@@ -285,7 +285,7 @@ function changeLevel(sel) {
             </div>
 
             <div class="form-group task-board-name">
-                <label for="fax_number"	class="col-sm-4	control-label">Task Board Name:</label>
+                <label for="fax_number"	class="col-sm-4	control-label"><?= TASK_NOUN ?> Board Name:</label>
                 <div class="col-sm-8">
                   <input name="board_name" value="<?= $get_board['board_name'] ?>" type="text" class="form-control"/>
                 </div>
