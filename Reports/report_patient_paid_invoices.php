@@ -222,12 +222,13 @@ function report_daily_validation($dbc, $starttime, $invoice_no, $patient, $table
     <th width="20%">Amount Paid</th>
     </tr>';
 
-    $amt_to_bill = 0;
+    $amt_to_bill = 0;$odd_even = 0;
     while($row_report = mysqli_fetch_array($report_service)) {
+        $bg_class = $odd_even % 2 == 0 ? 'background-color:#ffffff;' : 'background-color:#e6e6e6;';
         $patient_price = $row_report['patient_price'];
         $invoiceid = $row_report['invoiceid'];
 
-        $report_data .= '<tr nobr="true">';
+        $report_data .= '<tr nobr="true" style="'.$bg_class.'">';
         $report_data .= '<td>#'.$invoiceid.'</td>';
         $report_data .= '<td>'.$row_report['invoice_date'].'</td>';
         $report_data .= '<td>'.$row_report['paid_date'].'</td>';
@@ -236,6 +237,7 @@ function report_daily_validation($dbc, $starttime, $invoice_no, $patient, $table
         $report_data .= '<td>$'.$patient_price.'</td>';
         $report_data .= '</tr>';
         $amt_to_bill += $patient_price;
+        $odd_even++;
     }
 
     $report_data .= '<tr nobr="true">';
