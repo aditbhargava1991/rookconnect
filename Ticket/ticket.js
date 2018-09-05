@@ -753,7 +753,17 @@ function saveFieldMethod(field) {
 					} else if(field_name == 'piece_work') {
 						$.ajax({
 							url: '../Ticket/ticket_ajax_all.php?fill=add_edit_project&ticketid='+current_ticketid,
-							success: function(response) {
+							success: function(response1) {
+								$('[name=projectid]').val(response1);
+
+								$.ajax({
+									url: '../Ticket/ticket_ajax_all.php?fill=project_paths&projectid='+response1,
+									success: function(response) {
+										var milestone = $('[name=milestone_timeline]').val();
+										$('[name=milestone_timeline]').html(response).val(milestone).trigger('change.select2');
+									}
+								});
+
 							}
 						});
 					} else if(field_name == 'projectid') {

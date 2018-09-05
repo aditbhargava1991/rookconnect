@@ -22,6 +22,7 @@ if($_GET['fill'] == 'add_edit_project') {
         $projectid = mysqli_insert_id($dbc);
     }
     mysqli_query($dbc, "UPDATE `tickets` SET projectid = '$projectid' WHERE ticketid = $ticketid");
+    echo $projectid;
 }
 
 if($_GET['fill'] == 'project_path_milestone') {
@@ -481,7 +482,7 @@ if($_GET['action'] == 'update_fields') {
 	$manual_value = filter_var($_POST['manually_set'],FILTER_SANITIZE_STRING);
 	$manual_field = filter_var($_POST['manual_field'],FILTER_SANITIZE_STRING);
 	$ticket_history_addition = '';
-	
+
     //Insert into Time Sheet tile
     // mysqli_query($dbc, "INSERT INTO `time_cards` (`ticketid`,`staff`,`date`,`type_of_time`,`total_hrs`,`timer_tracked`,`comment_box`) VALUES ('$ticketid','$attach','".date('Y-m-d')."','Regular Hrs.','".((strtotime($value) - strtotime('00:00:00')) / 3600)."','0','Time Added on Ticket #$ticketid')");
 
@@ -1731,13 +1732,13 @@ if($_GET['action'] == 'update_fields') {
 		}
 		echo $ticket_label;
 	}
-} else if($_GET['action'] == 'new_ticket_from_calendar') { 
+} else if($_GET['action'] == 'new_ticket_from_calendar') {
 	$to_do_date = $_POST['to_do_date'];
 	$to_do_end_date= $_POST['to_do_end_date'];
 	$to_do_start_time = $_POST['to_do_start_time'];
 	$to_do_end_time= $_POST['to_do_end_time'];
 	$equipmentid = $_POST['equipmentid'];
-	if( empty($_POST['milestone_timeline']) || empty($_POST['status']) || empty($_POST['to_do_date']) || empty($_POST['to_do_end_date'] || empty($_POST['to_do_start_time']) || empty($_POST['to_do_end_time']))){       
+	if( empty($_POST['milestone_timeline']) || empty($_POST['status']) || empty($_POST['to_do_date']) || empty($_POST['to_do_end_date'] || empty($_POST['to_do_start_time']) || empty($_POST['to_do_end_time']))){
 	    $contactid = "";
 	}else{
 	   $contactid = $_POST['contactid'];
