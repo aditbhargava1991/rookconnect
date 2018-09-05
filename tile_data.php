@@ -122,7 +122,7 @@ function tile_data($dbc, $tile_name, $is_mobile = FALSE) {
             $checklist_url = 'checklist.php';
             return ['link'=>'Checklist/'.$checklist_url,'name'=>'Checklist']; break;
 
-			case 'tasks': return ['link'=>"Tasks_Updated/index.php?category=All&tab=Summary",'name'=>'Tasks']; break;
+			case 'tasks': return ['link'=>"Tasks_Updated/index.php?category=All&tab=Summary",'name'=>TASK_TILE]; break;
 			//case 'tasks_updated': return ['link'=>"Tasks_Updated/index.php?category=All&tab=Summary",'name'=>'Tasks (Updated)']; break;
 			case 'scrum': return ['link'=>"Scrum/scrum.php?category=All",'name'=>'Scrum']; break;
 			case 'communication': return ['link'=>"Communication/tasks.php?category=All",'name'=>'Communication Tasks']; break;
@@ -135,7 +135,7 @@ function tile_data($dbc, $tile_name, $is_mobile = FALSE) {
 			case 'payroll': return ['link'=>"Payroll/payroll.php",'name'=>'Payroll']; break;
 			case 'purchase_order': return ['link'=>"Purchase Order/index.php",'name'=>get_tile_title_po($dbc).'']; break;
 			case 'sales_order': return ['link'=>"Sales Order/index.php",'name'=>SALES_ORDER_TILE]; break;
-			case 'newsboard': return ['link'=>"News Board/newsboard.php",'name'=>'News Board']; break;
+			case 'newsboard': return ['link'=>"News Board/index.php",'name'=>'News Board']; break;
 			case 'calendar_rook': return ['link'=>"Calendar/calendars.php",'name'=>'Calendar']; break;
 			case 'field_job': return ['link'=>"Field Jobs/field_sites.php",'name'=>'Field Jobs']; break;
 			case 'expense': return ['link'=>"Expense/expenses.php",'name'=>'Expenses']; break;

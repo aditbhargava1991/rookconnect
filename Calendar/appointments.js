@@ -1092,6 +1092,7 @@ function expandBlock() {
 				zIndex: 2
 			});
 		}
+		clearTimeout(force_resize_blocks);
 	}, function() {
 		$(this).closest('.used-block').clearQueue().stop().animate({
 			'min-height': '0'

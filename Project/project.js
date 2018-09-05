@@ -155,6 +155,7 @@ function loadProjects(target) {
 							initInputs('.panel-body:visible');
 							initInputs('.main-content-screen .main-screen');
 							initInputs('.search-results .main-screen');
+                            initTooltips();
 							$('[data-table]').off('change',saveDBField).change(saveDBField);
 							$('.empty_note').remove();
 							loadProjects(dest);
@@ -253,6 +254,12 @@ function saveFieldMethod(field) {
 				value += this.value;
 			}
 		});
+	} else if($(field).data('concat') != undefined && $(field).data('concat') != '') {
+        var value = [];
+		$('[name="'+field.name+'"]').each(function() {
+            value.push(this.value);
+		});
+        value = value.join($(field).data('concat'));
 	} else if(name == 'to_do_date') {
 		$('[name=to_do_end_date]').val(field.value).change();
 	} else if(name == 'MANUAL' && table == 'project_detail') {

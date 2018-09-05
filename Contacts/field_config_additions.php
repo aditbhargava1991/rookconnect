@@ -221,7 +221,7 @@ $(document).on('change', 'select[name="contact_type"]', function() { change_type
                         <div class="col-sm-4"><label class="form-checkbox"><input type="checkbox" value="ticket" <?= $tile_enabled['user_enabled'] == 1 ? 'checked' : '' ?> <?= $tile_enabled['admin_enabled'] == 0 || $admin_access == 0 ? 'disabled' : '' ?> onchange="setTileEnabled(this);"> <?= $tile_enabled['admin_enabled'] == 0 ? 'Contact Support to Enable This Tile' : 'Enable <span class="show-on-mob">d in Software</span>' ?></label></div>
                         <div class="clearfix"></div>
                         <?php $tile_enabled = tile_enabled($dbc, 'tasks'); ?>
-                        <div class="col-sm-4">Tasks</div>
+                        <div class="col-sm-4"><?= TASK_TILE ?></div>
                         <div class="col-sm-4"><label class="form-checkbox"><input type="checkbox" value="Tasks Addition" name="contact_field[]" <?= in_array('Tasks Addition', $field_config) ? 'checked' : '' ?> onchange="save_options();"> Enable <span class="show-on-mob"> in Profile</span></label></div>
                         <div class="col-sm-4"><label class="form-checkbox"><input type="checkbox" value="tasks" <?= $tile_enabled['user_enabled'] == 1 ? 'checked' : '' ?> <?= $tile_enabled['admin_enabled'] == 0 || $admin_access == 0 ? 'disabled' : '' ?> onchange="setTileEnabled(this);"> <?= $tile_enabled['admin_enabled'] == 0 ? 'Contact Support to Enable This Tile' : 'Enable <span class="show-on-mob">d in Software</span>' ?></label></div>
                         <div class="clearfix"></div>

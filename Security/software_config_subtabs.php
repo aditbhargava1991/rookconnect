@@ -1029,11 +1029,11 @@ checkAuthorised('security');
 
 					/* Tasks tile subtab settings */
 					if ( $tile == 'tasks' || $tile == 'tasks_updated') { ?>
-						<tr><td>My Tasks</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'my' ); ?></tr>
-						<tr><td>Company Tasks</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'company' ); ?></tr>
-						<tr><td>Community Tasks</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'community' ); ?></tr>
-						<tr><td>Business Tasks</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'business' ); ?></tr>
-						<tr><td>Client Tasks</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'client' ); ?></tr>
+						<tr><td>My <?= TASK_TILE ?></td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'my' ); ?></tr>
+						<tr><td>Company <?= TASK_TILE ?></td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'company' ); ?></tr>
+						<tr><td>Community <?= TASK_TILE ?></td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'community' ); ?></tr>
+						<tr><td>Business <?= TASK_TILE ?></td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'business' ); ?></tr>
+						<tr><td>Client <?= TASK_TILE ?></td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'client' ); ?></tr>
 						<tr><td>Reporting</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'reporting' ); ?></tr><?php
 					}
 

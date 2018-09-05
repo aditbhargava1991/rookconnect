@@ -371,9 +371,9 @@ function toggle_columns(type = '', reload_teams = 0) {
 		<a href="" onclick="changeDate('', 'prev'); return false;"><div class="block-button" style="margin: 0;"><img src="../img/icons/back-arrow.png" style="height: 1em;">&nbsp;</div></a>
 		<div class="block-button">Month</div>
 		<a href="" onclick="changeDate('', 'next'); return false;"><div class="block-button">&nbsp;<img src="../img/icons/next-arrow.png" style="height: 1em;"></div></a>
-		<a href="?type=<?= $_GET['type'] ?>&view=daily&mode=<?= $_GET['mode'] ?><?= $region_url ?>"><div class="block-button" style="margin-left: 1em;">Day</div></a>
-		<a href="?type=<?= $_GET['type'] ?>&view=weekly<?= $region_url ?>&mode=<?= $_GET['mode'] ?>"><div class="block-button">Week</div></a>
-		<a href="?type=<?= $_GET['type'] ?>&view=monthly<?= $region_url ?>&mode=<?= $_GET['mode'] ?>"><div class="block-button active blue">Month</div></a>
+		<a href="?type=<?= $_GET['type'] ?>&view=daily&mode=<?= $_GET['mode'] ?><?= $region_url ?>"><div class="block-button <?= $_GET['view'] == 'daily' ? 'active blue' : '' ?>" style="margin-left: 1em;">Day</div></a>
+		<a href="?type=<?= $_GET['type'] ?>&view=weekly<?= $region_url ?>&mode=<?= $_GET['mode'] ?>"><div class="block-button <?= $_GET['view'] == 'weekly' ? 'active blue' : '' ?>">Week</div></a>
+		<a href="?type=<?= $_GET['type'] ?>&view=monthly<?= $region_url ?>&mode=<?= $_GET['mode'] ?>"><div class="block-button <?= $_GET['view'] == 'monthly' ? 'active blue' : '' ?>">Month</div></a>
 		<?php if($ticket_status_color_code_legend == 1 && strpos(','.$wait_list.',', ',ticket,') !== FALSE) { ?>
 			<div class="block-button legend-block" style="position: relative;">
 				<div class="block-button ticket-status-legend" style="display: none; width: 20em; position: absolute; bottom: 1em;"><?= $ticket_status_legend ?></div>

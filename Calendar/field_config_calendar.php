@@ -663,6 +663,18 @@ if (isset($_POST['add_tab'])) {
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'scheduling_export_time_table' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='scheduling_export_time_table') num WHERE num.rows=0");
 	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$scheduling_export_time_table."' WHERE `name`='scheduling_export_time_table'");
 
+    if(!empty($_FILES['scheduling_time_table_logo']['name'])) {
+        $scheduling_time_table_logo = $basename = preg_replace('/[^a-z0-9.]*/','',strtolower($_FILES['scheduling_time_table_logo']['name']));
+        $j = 0;
+        while(file_exists('download/'.$scheduling_time_table_logo)) {
+            $scheduling_time_table_logo = preg_replace('/(\.[a-z0-9]*)/', ' ('.++$j.')$1', $basename);
+        }
+        move_uploaded_file($_FILES['scheduling_time_table_logo']['tmp_name'], 'download/'.$scheduling_time_table_logo);
+        set_config($dbc, 'scheduling_time_table_logo', $scheduling_time_table_logo);
+    }
+    $scheduling_time_table_logo_align = filter_var($_POST['scheduling_time_table_logo_align'], FILTER_SANITIZE_STRING);
+    set_config($dbc, 'scheduling_time_table_logo_align', $scheduling_time_table_logo_align);
+
 	// Sales Estimates Calendar Settings
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'estimates_day_start' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='estimates_day_start') num WHERE num.rows=0");
 	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".(explode(':',$_POST['estimates_start'])[0] == '00' ? '12:'.explode(':',$_POST['estimates_start'])[1] : $_POST['estimates_start'])."' WHERE `name`='estimates_day_start'");
@@ -999,6 +1011,18 @@ function showDefaultView(chk) {
 	} else {
 		$(chk).closest('.panel-body').find('.shifts_default_view').hide();
 	}
+}
+function deleteLogo(logo) {
+    if(confirm('Are you sure you want to delete this logo?')) {
+        $.ajax({
+            url: '../Calendar/calendar_ajax_all.php?fill=delete_logo',
+            type: 'POST',
+            data: { logo: logo },
+            success: function(response) {
+            	$(logo).closest('.form-group').find('.logo_url').html('');
+            }
+        });
+    }
 }
 </script>
 </head>
@@ -2352,6 +2376,30 @@ function showDefaultView(chk) {
 									<label class="form-checkbox"><input type="checkbox" name="scheduling_export_time_table" <?= $scheduling_export_time_table != '' ? 'checked' : '' ?> value="1"></label>
 								</div>
 							</div>
+							<div class="form-group">
+								<label class="col-sm-4 control-label">Time Table PDF Logo:</label>
+								<div class="col-sm-8">
+			                        <div class="logo_url">
+			                            <?php $scheduling_time_table_logo = get_config($dbc, 'scheduling_time_table_logo');
+			                            if(!empty($scheduling_time_table_logo) && file_exists('download/'.$scheduling_time_table_logo)) { ?>
+			                                <a href="download/<?= $scheduling_time_table_logo ?>" target="_blank">View</a> | <a href="" onclick="deleteLogo('scheduling_time_table_logo'); return false;">Delete</a>
+			                            <?php } ?>
+			                        </div>
+			                        <input name="scheduling_time_table_logo" type="file" data-filename-placement="inside" class="form-control" />
+								</div>
+							</div>
+			                <div class="form-group">
+			                    <label class="col-sm-4 control-label">Time Table PDF Logo Align:</label>
+			                    <div class="col-sm-8">
+			                    	<?php $scheduling_time_table_logo_align = get_config($dbc, 'scheduling_time_table_logo_align'); ?>
+			                        <select name="scheduling_time_table_logo_align" class="chosen-select-deselect form-control">
+			                            <option></option>
+			                            <option <?= $scheduling_time_table_logo_align == 'L' ? 'selected' : '' ?> value="L">Left</option>
+			                            <option <?= $scheduling_time_table_logo_align == 'C' ? 'selected' : '' ?> value="C">Center</option>
+			                            <option <?= $scheduling_time_table_logo_align == 'R' ? 'selected' : '' ?> value="R">Right</option>
+			                        </select>
+			                    </div>
+			                </div>
 						</div>
 					</div>
 				</div>
