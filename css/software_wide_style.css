@@ -557,6 +557,7 @@ ul.sidebar li {
 }
 ul.dashboard-list li {
 	overflow: visible;
+    border: 1px solid #ACA9A9;
 }
 ul.sidebar li.heading,
 ul.dashboard-list li.heading {

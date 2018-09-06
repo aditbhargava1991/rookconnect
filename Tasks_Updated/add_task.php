@@ -527,6 +527,7 @@ $(document).ready(function () {
 
     $('.full-btn').on('click', function() {
         var str = window.location.href;
+        str = str.replace("mode=iframe", "");
         var res = str.replace("add_task.php", "add_task_full_view.php");
         window.top.location.href = res;
     });
@@ -902,7 +903,7 @@ function mark_done(sel) {
             <h3 class="inline"><?= !empty($_GET['tasklistid']) ? 'Edit' : 'Add' ?> Task<?= !empty($_GET['tasklistid']) ? ' #'.$_GET['tasklistid'].': '.$task_heading : '' ?></h3>
             <div class="pull-right"><a href=""><img src="../img/icons/ROOK-status-rejected.jpg" alt="Close" title="Close" class="inline-img  no-toggle" data-placement="bottom" /></a></div>
 
-            <div class="pull-right"><img src="../img/icons/full_screen.png" alt="View Full Screen" title="View Full Screen" class="inline-img no-toggle full-btn" data-placement="bottom" /></div>
+            <div class="pull-right"><img src="../img/icons/full_screen.png" alt="View Full Screen" title="View Full Screen" class="inline-img no-toggle full-btn cursor-hand" data-placement="bottom" /></div>
 
             <?php /* if(!empty($_GET['tasklistid'])) { ?><button name="" type='button' value="" class="delete_task pull-right image-btn" style="margin-top:3px;"><img class="no-margin small" src="../img/icons/trash-icon-red.png" alt="Delete Task" width="25"></button><?php } */ ?>
 
@@ -1470,8 +1471,8 @@ function mark_done(sel) {
 
             <div class="form-group">
                 <div class="col-sm-6">
-                    <a href="index.php?category=All&tab=Summary" class="btn brand-btn pull-right">Cancel</a>
                     <button name="tasklist" value="tasklist" class="btn brand-btn pull-right">Submit</button>
+                    <a href="index.php?category=All&tab=Summary" class="btn brand-btn pull-right">Cancel</a>
                 </div>
                 <div class="col-sm-6">
                     <?php if(!empty($_GET['tasklistid'])) { ?><button name="" type='button' value="" class="delete_task image-btn no-toggle" title="Archive"><img class="no-margin small" src="../img/icons/trash-icon-red.png" alt="Archive Task" width="30"></button><?php } ?>
