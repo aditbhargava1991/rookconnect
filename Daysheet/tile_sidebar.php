@@ -27,7 +27,7 @@
             <a href="?tab=tickets&daily_date=<?= date('Y-m-d') ?>&side_content=my_tickets&date_display=daily"><li class="<?= $_GET['tab'] == 'tickets' ? 'active' : '' ?>">My <?= TICKET_TILE ?></li></a>
         <?php } ?>
         <?php if (in_array('My Tasks', $daysheet_button_config)) { ?>
-            <a href="?tab=tasks&daily_date=<?= date('Y-m-d') ?>&side_content=my_tasks&date_display=daily"><li class="<?= $_GET['tab'] == 'tasks' ? 'active' : '' ?>">My Tasks</li></a>
+            <a href="?tab=tasks&daily_date=<?= date('Y-m-d') ?>&side_content=my_tasks&date_display=daily"><li class="<?= $_GET['tab'] == 'tasks' ? 'active' : '' ?>">My <?= TASK_TILE ?></li></a>
         <?php } ?>
         <?php if (in_array('My Checklists', $daysheet_button_config)) { ?>
             <a href="?tab=checklists&daily_date=<?= date('Y-m-d') ?>&side_content=my_checklists&date_display=daily"><li class="<?= $_GET['tab'] == 'checklists' ? 'active' : '' ?>">My Checklists</li></a>

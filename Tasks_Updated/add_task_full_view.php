@@ -876,7 +876,7 @@ function deletestartTicketStaff(button) {
                         if(!empty($_GET['task_milestone_timeline'])) {
                             $task_milestone_timeline = $_GET['task_milestone_timeline'];
                         }
-
+                           
                         if(!empty($_GET['project_milestone'])) {
                             $project_milestone = $_GET['project_milestone'];
                         }
@@ -990,7 +990,7 @@ function deletestartTicketStaff(button) {
                             </div>
                             <div class="clearfix"></div>
                         </div>
-                        
+                      
                         <div class="standard-body-content">
                             <div class="accordion-block-details padded" id="taskboard">
                                 <div class="accordion-block-details-heading"><h4>Task Board</h4></div>
@@ -1302,7 +1302,7 @@ function deletestartTicketStaff(button) {
 
                                     </div>
                                 </div>
-
+                              
                                 <div class="form-group clearfix">
                                     <label for="first_name" class="col-sm-4 control-label">
                                         <!-- <img src="../img/icons/ROOK-flag-icon.png" class="inline-img" /> --> Flag This:
@@ -1440,7 +1440,7 @@ function deletestartTicketStaff(button) {
                                         echo '</table>';
                                     }
                                 } ?>
-
+                              
                                 <div class="form-group clearfix">
                                     <label for="first_name" class="col-xs-6 col-sm-3 control-label text-right"><!-- <img src="../img/icons/ROOK-timer-icon.png" class="inline-img" />--> Add Time:</label>
                                     <div class="col-xs-6 col-sm-3">
@@ -1470,7 +1470,7 @@ function deletestartTicketStaff(button) {
                         </div><!-- .standard-body-content -->
                     </div><!-- .standard-body -->
                 </div><!-- .tile-content -->
-                
+          
                 <div class="clearfix"></div>
             </form>
             
