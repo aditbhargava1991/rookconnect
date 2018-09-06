@@ -1327,3 +1327,6 @@ function rem_ticket_row(btn) {
 	$(btn).closest('.invoice_ticket').remove();
 	countTotalPrice();
 }
+function view_tabs() {
+    $('.view_tabs').toggle();
+}

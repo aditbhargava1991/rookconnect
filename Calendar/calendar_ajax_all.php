@@ -3338,4 +3338,7 @@ if($_GET['fill'] == 'unassign_ticket_booking_conflicts') {
 		}
 	}
 }
+if($_GET['fill'] == 'delete_logo') {
+	set_config($dbc, $_POST['logo'], '');
+}
 ?>

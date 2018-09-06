@@ -12,7 +12,7 @@ function addSubtab(button) {
 </script>
 
 <div class="standard-body-title">
-    <h3>Categories</h3>
+    <h3>Tabs</h3>
 </div>
 
 <?php
@@ -35,7 +35,7 @@ function addSubtab(button) {
 
 <form method="post" action="" class="padded">
     <div class="form-group">
-        <label class="col-sm-4 control-label">Add Categories:</label>
+        <label class="col-sm-4 control-label">Add Tabs:</label>
         <div class="col-sm-8 tabs"><?php
             $subtabs = mysqli_query($dbc, "SELECT subtabid, name FROM checklist_subtab WHERE deleted=0 AND (created_by = '{$_SESSION['contactid']}' OR shared LIKE '%,{$_SESSION['contactid']},%')");
             while ( $row = mysqli_fetch_assoc($subtabs) ) { ?>

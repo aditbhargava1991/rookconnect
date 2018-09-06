@@ -419,7 +419,7 @@ checkAuthorised();
 
             <?php if(strpos($on_security, ',tasks,') !== FALSE) { ?>
             <tr>
-                <td data-title="Comment">Tasks</td>
+                <td data-title="Comment"><?= TASK_TILE ?></td>
                 <?php echo security_tile_config_function('tasks', get_privileges($dbc, 'tasks',$level), 0, $level_url); ?>
             </tr>
             <?php } ?>

@@ -102,7 +102,7 @@ if(!IFRAME_PAGE) { ?>
 							<?php if($summary_tasks['tasks'] > 0) { ?>
 								<div class="col-xs-6 col-sm-3 col-md-2 col-lg-2 gap-top">
 									<div class="summary-block">
-										<a href="?edit=<?= $projectid ?>&tab=tasks"><span class="text-lg"><?= number_format($summary_tasks['tasks'],0) ?></span><br />Total Tasks</a>
+										<a href="?edit=<?= $projectid ?>&tab=tasks"><span class="text-lg"><?= number_format($summary_tasks['tasks'],0) ?></span><br />Total <?= TASK_TILE ?></a>
 									</div>
 								</div>
 							<?php } ?>

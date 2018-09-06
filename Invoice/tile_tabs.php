@@ -29,11 +29,12 @@ $payer_label = count($payer_config) > 1 ? 'Third Party' : $payer_config[0]; ?>
 				<span class="popover-examples list-inline">
 					<a href="#job_file" data-toggle="tooltip" data-placement="top" title="Complete history of all Invoices."><img src="<?php echo WEBSITE_URL;?>/img/info.png" width="20"></a>
 				</span>
-				<a href='all_invoice.php'><span class="btn brand-btn mobile-block mobile-100 <?= strpos($_SERVER['PHP_SELF'],'/all_invoice.php') !== FALSE ? 'active_tab' : '' ?>">All Invoices</span></a>
+				<a href='invoice_list.php'><span class="btn brand-btn mobile-block mobile-100 <?= strpos($_SERVER['PHP_SELF'],'/invoice_list.php') !== FALSE ? 'active_tab' : '' ?>">All Invoices</span></a>
+                <!-- <a href='all_invoice.php'><span class="btn brand-btn mobile-block mobile-100 <?= strpos($_SERVER['PHP_SELF'],'/all_invoice.php') !== FALSE ? 'active_tab' : '' ?>">All Invoices</span></a> -->
 				<?php break;
-			case 'invoices': ?>
-				<a href='invoice_list.php'><span class="btn brand-btn mobile-block mobile-100 <?= strpos($_SERVER['PHP_SELF'],'/invoice_list.php') !== FALSE ? 'active_tab' : '' ?>">Invoices</span></a>
-				<?php break;
+			//case 'invoices': ?>
+				<!-- <a href='invoice_list.php'><span class="btn brand-btn mobile-block mobile-100 <?= strpos($_SERVER['PHP_SELF'],'/invoice_list.php') !== FALSE ? 'active_tab' : '' ?>">Invoices</span></a> -->
+				<?php //break;
 			case 'unpaid': ?>
 				<a href='unpaid_invoice_list.php'><span class="btn brand-btn mobile-block mobile-100 <?= strpos($_SERVER['PHP_SELF'],'/unpaid_invoice_list.php') !== FALSE ? 'active_tab' : '' ?>">Accounts Receivable</span></a>
 				<?php break;
@@ -59,7 +60,7 @@ $payer_label = count($payer_config) > 1 ? 'Third Party' : $payer_config[0]; ?>
 				<a href='insurer_account_receivables_cm.php'><span class="btn brand-btn mobile-block mobile-100 <?= strpos($_SERVER['PHP_SELF'],'/insurer_account_receivables_cm.php') !== FALSE ? 'active_tab' : '' ?>">Clinic Master A/R Report</span></a>
 				<?php break;
 			case 'voided': ?>
-				<a href='void_invoices.php'><span class="btn brand-btn mobile-block mobile-100 <?= strpos($_SERVER['PHP_SELF'],'/void_invoices.php') !== FALSE ? 'active_tab' : '' ?>">Voided Invoices</span></a>
+				<a href='void_invoices.php'><span class="btn brand-btn mobile-block mobile-100 <?= strpos($_SERVER['PHP_SELF'],'/void_invoices.php') !== FALSE ? 'active_tab' : '' ?>">Voided / Credit Memo</span></a>
 				<?php break;
 			case 'refunds': ?>
 				<span class="popover-examples list-inline">
