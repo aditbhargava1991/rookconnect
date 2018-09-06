@@ -394,6 +394,28 @@ function track_time(task) {
    }
    overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_timer.php?tile=tasks&id='+task_id, 'auto', false, true);
 }
+
+//Add Intake
+function addIntakeForm(btn) {
+	$('.dialog_addintake').dialog({
+		resizable: true,
+		height: "auto",
+		width: ($(window).width() <= 600 ? $(window).width() : 600),
+		modal: true,
+		buttons: {
+			'Add': function() {
+				var formid = $('[name="add_intakeform"]').val();
+				var salesid = '<?= $_GET['id'] ?>';
+				var sales_milestone = $(btn).data('milestone');
+				window.location.href = '<?= WEBSITE_URL ?>/Intake/add_form.php?formid='+formid+'&salesid='+salesid+'&sales_milestone='+sales_milestone;
+				$(this).dialog('close');
+			},
+	        Cancel: function() {
+	        	$(this).dialog('close');
+	        }
+	    }
+	});
+}
 </script>
 <?php $quick_actions = explode(',',get_config($dbc, 'quick_action_icons'));
 $task_statuses = explode(',',get_config($dbc, 'task_status'));
@@ -833,7 +855,8 @@ if($_GET['tab'] != 'scrum_board' && !in_array($pathid,['AllSB','SB'])) {
                                     $add_milestone = str_replace("#","FFMHASH",$add_milestone);
 
                                     if(in_array('Tasks',$tab_config) || in_array('Checklists',$tab_config)) { ?>
-
+                                    
+									<a href="" onclick="addIntakeForm(this); return false;" data-milestone="<?= $milestone_row['milestone'] ?>" class="btn brand-btn pull-right">Intake +</a>
                                     <?php
                                     $slider_layout = !empty(get_config($dbc, 'tasks_slider_layout')) ? get_config($dbc, 'tasks_slider_layout') : 'accordion';
 
@@ -865,4 +888,19 @@ if($_GET['tab'] != 'scrum_board' && !in_array($pathid,['AllSB','SB'])) {
 		} ?>
 	</div>
 	<div class="clearfix"></div>
+	
+	<div class="dialog_addintake" title="Select an Intake Form" style="display: none;">
+		<div class="form-group">
+			<label class="col-sm-4 control-label">Intake Form:</label>
+			<div class="col-sm-8">
+				<select name="add_intakeform" class="chosen-select-deselect form-control">
+					<option></option>
+					<?php $form_types = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `intake_forms` WHERE `deleted` = 0"),MYSQLI_ASSOC);
+					foreach ($form_types as $form_type) {
+						echo '<option value="'.$form_type['intakeformid'].'">'.$form_type['form_name'].'</option>';
+					} ?>
+				</select>
+			</div>
+		</div>
+	</div>
 <?php } ?>

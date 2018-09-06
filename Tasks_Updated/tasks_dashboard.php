@@ -1082,7 +1082,8 @@ function addIntakeForm(btn) {
                             ?>
 
 							<li class="no-sort">
-
+					
+					<a href="" onclick="addIntakeForm(this); return false;" data-milestone="<?= $milestone_row['milestone'] ?>" class="btn brand-btn pull-right">Add Intake</a>
                     <?php
                     $slider_layout = !empty(get_config($dbc, 'tasks_slider_layout')) ? get_config($dbc, 'tasks_slider_layout') : 'accordion';
 
