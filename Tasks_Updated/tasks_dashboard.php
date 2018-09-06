@@ -1082,13 +1082,13 @@ function addIntakeForm(btn) {
                             ?>
 
 							<li class="no-sort">
-
+					
+					<a href="" onclick="addIntakeForm(this); return false;" data-milestone="<?= $milestone_row['milestone'] ?>" class="btn brand-btn pull-right">Add Intake</a>
                     <?php
                     $slider_layout = !empty(get_config($dbc, 'tasks_slider_layout')) ? get_config($dbc, 'tasks_slider_layout') : 'accordion';
 
                     if($slider_layout == 'accordion') {
-                    ?>
-					<a href="" onclick="addIntakeForm(this); return false;" data-milestone="<?= $milestone_row['milestone'] ?>" class="btn brand-btn pull-right">Add Intake</a>
+                    ?>					
                     <a href="" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Tasks_Updated/add_task.php?tab=<?=$_GET['tab']?>&task_milestone_timeline=<?=$status?>&task_path=<?=$task_path?>&task_board=<?=$task_board?>&salesid=<?=$_GET['category']?>', '50%', false, false, $('.iframe_overlay').closest('.container').outerHeight() + 20); return false;" class="btn brand-btn pull-right">Add Task</a>
                     <?php } else { ?>
                     <a href="../Tasks_Updated/add_task_full_view.php?tab=<?=$_GET['tab']?>&task_milestone_timeline=<?=$status?>&task_path=<?=$task_path?>&task_board=<?=$task_board?>&salesid=<?=$_GET['category']?>" class="btn brand-btn pull-right">Add Task</a>
