@@ -2,6 +2,7 @@
 $assigned_tiles = ','.(!empty($form['assigned_tile']) ? $form['assigned_tile'] : '').',';
 $attached_contact_categories = ','.$form['attached_contact_categories'].',';
 $attached_contacts = ','.$form['attached_contacts'].',';
+$attached_contact_default_field = $form['attached_contact_default_field'];
 $subtab = !empty($form['subtab']) ? $form['subtab'] : '';
 $subtab_list = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_user_forms`"))['subtabs'];
 $subtab_list = explode(',', $subtab_list);
@@ -31,11 +32,12 @@ function saveConfig(field) {
 		attached_contact_categories.push($(this).val());
 	});
 	attached_contact_categories = JSON.stringify(attached_contact_categories);
+	var attached_contact_default_field = $('[name="attached_contact_default_field"]').val();
 	var intake_field = $('[name="intake_field"]').val();
 	var subtab = $('[name="subtab"]').val();
 	var form_layout = $('[name="form_layout"]:checked').val();
 
-	var field_data = { formid: formid, assigned_tiles: assigned_tiles, attached_contacts: attached_contacts, attached_contact_categories: attached_contact_categories, intake_field: intake_field, subtab: subtab, form_layout: form_layout };
+	var field_data = { formid: formid, assigned_tiles: assigned_tiles, attached_contacts: attached_contacts, attached_contact_categories: attached_contact_categories, intake_field: intake_field, subtab: subtab, form_layout: form_layout, attached_contact_default_field: attached_contact_default_field };
 	$.ajax({
 		url: '../Form Builder/form_ajax.php?fill=update_config',
 		type: 'POST',
@@ -136,6 +138,18 @@ function filterAttachedContacts() {
 								echo '<option data-category="'.$attached_contact['category'].'" value="'.$attached_contact['contactid'].'" '.(strpos($attached_contacts, ','.$attached_contact['contactid'].',') !== FALSE ? 'selected' : '').'>'.$attached_contact['full_name'].'</option>';
 							}
 						} ?>
+					</select>
+				</div>
+			</div>
+			<div class="form-group attached_contacts" <?= strpos($assigned_tiles, ',attach_contact,') !== FALSE ? '' : 'style="display:none;"' ?>>
+				<label class="col-sm-4 control-label">Attached Contact Default Dropdown:</label>
+				<div class="col-sm-8">
+					<select name="attached_contact_default_field" data-placeholder="Select a Field" class="form-control chosen-select-deselect">
+						<option></option>
+						<?php $ref_sources = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `user_form_fields` WHERE `form_id` = '$formid' AND `deleted` = 0 AND `type` = 'SELECT'"),MYSQLI_ASSOC);
+						foreach($ref_sources as $ref_source) { ?>
+							<option <?= $attached_contact_default_field == $ref_source['field_id'] ? 'selected' : '' ?> value="<?= $ref_source['field_id'] ?>"><?= $ref_source['name'].(!empty($ref_source['label']) ? ' ('.$ref_source['label'].')' : '') ?></option>
+						<?php } ?>
 					</select>
 				</div>
 			</div>
