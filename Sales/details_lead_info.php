@@ -1,4 +1,5 @@
 <!-- Lead Information -->
+<?php include_once('../Sales/config.php'); ?>
 <script type="text/javascript">
 $(document).ready(function() {
     $("#task_businessid").change(function() {
@@ -139,7 +140,7 @@ $(document).ready(function() {
                     </select>
                 </div>
                 <div class="col-xs-12 col-sm-1">
-                    <img class="inline-img cursor-hand pull-left no-toggle" title="View this contact's profile" src="../img/person.PNG" onclick="view_profile(this,'Contacts/contacts_inbox.php?fields=all_fields&edit=');">
+                    <img class="inline-img cursor-hand pull-left no-toggle" title="View this contact's profile" src="../img/person.PNG" onclick="load_profile(this,'Contacts/contacts_inbox.php?fields=all_fields&edit=');">
                     <img src="<?= WEBSITE_URL; ?>/img/remove.png" class="inline-img cursor-hand pull-right" onclick="rem_row(this);" />
                     <img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-add-icon.png" class="inline-img cursor-hand pull-right" onclick="add_row(this);" />
                 </div>
@@ -164,7 +165,7 @@ $(document).ready(function() {
                     </select>
                 </div>
                 <div class="col-xs-12 col-sm-1">
-                    <img class="inline-img cursor-hand pull-left no-toggle" title="View this contact's profile" src="../img/person.PNG" onclick="view_profile(this,'Contacts/contacts_inbox.php?fields=all_fields&edit=');">
+                    <img class="inline-img cursor-hand pull-left no-toggle" title="View this contact's profile" src="../img/person.PNG" onclick="load_profile(this,'Contacts/contacts_inbox.php?fields=all_fields&edit=');">
                     <img src="<?= WEBSITE_URL; ?>/img/remove.png" class="inline-img cursor-hand pull-right" onclick="rem_row(this);" />
                     <img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-add-icon.png" class="inline-img cursor-hand pull-right" onclick="add_row(this);" />
                 </div>
