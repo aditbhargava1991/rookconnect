@@ -112,6 +112,7 @@ function remDetail(img) {
 		<label class="form-checkbox"><input type="checkbox" <?= in_array('DB Billing', $all_config) ? 'checked disabled' : (in_array('DB Billing',$field_config) ? 'checked' : '') ?> name="project_fields[]" value="DB Billing"><?= PROJECT_NOUN ?> Billing</label>
 		<label class="form-checkbox"><input type="checkbox" <?= in_array('DB Type', $all_config) ? 'checked disabled' : (in_array('DB Type',$field_config) ? 'checked' : '') ?> name="project_fields[]" value="DB Type"><?= PROJECT_NOUN ?> Type</label>
 		<label class="form-checkbox"><input type="checkbox" <?= in_array('DB Follow Up', $all_config) ? 'checked disabled' : (in_array('DB Follow Up',$field_config) ? 'checked' : '') ?> name="project_fields[]" value="DB Follow Up"><?= PROJECT_NOUN ?> Follow Up</label>
+		<label class="form-checkbox"><input type="checkbox" <?= in_array('DB Deadline', $all_config) ? 'checked disabled' : (in_array('DB Deadline',$field_config) ? 'checked' : '') ?> name="project_fields[]" value="DB Deadline"><?= PROJECT_NOUN ?> Deadline</label>
 
 		<label class="form-checkbox"><input type="checkbox" <?= in_array('DB Assign', $all_config) ? 'checked disabled' : (in_array('DB Assign',$field_config) ? 'checked' : '') ?> name="project_fields[]" value="DB Assign"><?= PROJECT_NOUN ?> Lead</label>
 
@@ -145,7 +146,6 @@ function remDetail(img) {
 		<label class="form-checkbox"><input type="checkbox" <?= in_array('Information Project Type', $all_config) ? 'checked disabled' : (in_array('Information Project Type',$field_config) ? 'checked' : '') ?> name="project_fields[]" value="Information Project Type">Type</label>
 		<label class="form-checkbox"><input type="checkbox" <?= in_array('Information AFE', $all_config) ? 'checked disabled' : (in_array('Information AFE',$field_config) ? 'checked' : '') ?> name="project_fields[]" value="Information AFE">AFE #</label>
 		<label class="form-checkbox"><input type="checkbox" <?= in_array('Color Code', $all_config) ? 'checked disabled' : (in_array('Color Code',$field_config) ? 'checked' : '') ?> name="project_fields[]" value="Color Code">Color Code</label>
-		<label class="form-checkbox"><input type="checkbox" <?= in_array('Information Followup', $all_config) ? 'checked disabled' : (in_array('Information Followup',$field_config) ? 'checked' : '') ?> name="project_fields[]" value="Information Followup"><?= PROJECT_NOUN ?> Follow Up Date</label>
 	</div>
 	<div class="clearfix"></div>
 	<label class="col-sm-4" onclick="$(this).next('div').toggle(); $(this).find('img').toggleClass('counterclockwise');"><?= PROJECT_NOUN ?> Staff<img class="pull-right black-color inline-img" src="../img/icons/dropdown-arrow.png"></label>
@@ -178,6 +178,8 @@ function remDetail(img) {
 	<div class="block-group col-sm-8">
 		<label class="form-checkbox"><input type="checkbox" <?= in_array('Dates Project Created Date', $all_config) ? 'checked disabled' : (in_array('Dates Project Created Date',$field_config) ? 'checked' : '') ?> name="project_fields[]" value="Dates Project Created Date">Created Date</label>
 		<label class="form-checkbox"><input type="checkbox" <?= in_array('Dates Project Start Date', $all_config) ? 'checked disabled' : (in_array('Dates Project Start Date',$field_config) ? 'checked' : '') ?> name="project_fields[]" value="Dates Project Start Date">Start Date</label>
+		<label class="form-checkbox"><input type="checkbox" <?= in_array('Information Followup', $all_config) ? 'checked disabled' : (in_array('Information Followup',$field_config) ? 'checked' : '') ?> name="project_fields[]" value="Information Followup"><?= PROJECT_NOUN ?> Follow Up Date</label>
+		<label class="form-checkbox"><input type="checkbox" <?= in_array('Dates Deadline', $all_config) ? 'checked disabled' : (in_array('Dates Deadline',$field_config) ? 'checked' : '') ?> name="project_fields[]" value="Dates Deadline">Deadline</label>
 		<label class="form-checkbox"><input type="checkbox" <?= in_array('Dates Estimate Completion Date', $all_config) ? 'checked disabled' : (in_array('Dates Estimate Completion Date',$field_config) ? 'checked' : '') ?> name="project_fields[]" value="Dates Estimate Completion Date">Estimated Completion Date</label>
 		<label class="form-checkbox"><input type="checkbox" <?= in_array('Dates Effective Date', $all_config) ? 'checked disabled' : (in_array('Dates Effective Date',$field_config) ? 'checked' : '') ?> name="project_fields[]" value="Dates Effective Date">Effective Date</label>
 		<label class="form-checkbox"><input type="checkbox" <?= in_array('Dates Time Clock Start Date', $all_config) ? 'checked disabled' : (in_array('Dates Time Clock Start Date',$field_config) ? 'checked' : '') ?> name="project_fields[]" value="Dates Time Clock Start Date">Time Clock Start Date</label>
