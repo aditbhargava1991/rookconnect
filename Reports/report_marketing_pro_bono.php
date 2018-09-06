@@ -255,3 +255,17 @@ function report_daily_validation($dbc, $starttime, $endtime, $table_style, $tabl
 		return "<h2>No Invoices Found</h2>";
 	}
 } ?>
+<script>
+$('document').ready(function() {
+    var tables = $('table');
+
+    tables.map(function(idx, table) {
+        var rows = $(table).find('tbody > tr');
+        rows.map(function(idx, row){
+            if(idx%2 == 0) {
+                $(row).css('background-color', '#e6e6e6');
+            }
+        })
+    })
+})
+</script>
