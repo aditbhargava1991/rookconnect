@@ -1511,12 +1511,12 @@ function mark_done(sel) {
                 </div>
 
             <div class="form-group">
-                <div class="col-sm-6">
-                    <button name="tasklist" value="tasklist" class="btn brand-btn pull-right">Submit</button>
-                    <a href="index.php?category=All&tab=Summary" class="btn brand-btn pull-right">Cancel</a>
-                </div>
-                <div class="col-sm-6">
+                <div class="col-xs-6">
                     <?php if(!empty($_GET['tasklistid'])) { ?><button name="" type='button' value="" class="delete_task image-btn no-toggle" title="Archive"><img class="no-margin small" src="../img/icons/trash-icon-red.png" alt="Archive Task" width="30"></button><?php } ?>
+                </div>
+                <div class="col-xs-6 text-right">
+                    <a href="index.php?category=All&tab=Summary" class="btn brand-btn">Cancel</a>
+                    <button name="tasklist" value="tasklist" class="btn brand-btn">Submit</button>
                 </div>
                 <div class="clearfix"></div>
             </div>
