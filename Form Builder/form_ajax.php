@@ -21,7 +21,12 @@ if(isset($_GET['fill']) && $_GET['fill'] == 'retrieve_ref') {
             $new_value = get_contact($dbc, $ref_source, 'business_address');
             break;
         default:
-            $new_value = get_contact($dbc, $ref_source, $ref_value);
+            $contact = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `contacts` LEFT JOIN `contacts_cost` ON `contacts`.`contactid`=`contacts_cost`.`contactid` LEFT JOIN `contacts_dates` ON `contacts`.`contactid`=`contacts_dates`.`contactid` LEFT JOIN `contacts_description` ON `contacts`.`contactid`=`contacts_description`.`contactid` LEFT JOIN `contacts_medical` ON `contacts`.`contactid`=`contacts_medical`.`contactid` LEFT JOIN `contacts_upload` ON `contacts`.`contactid`=`contacts_upload`.`contactid` WHERE `contacts`.`contactid`='$ref_source'"));
+            if(isEncrypted($ref_value)) {
+                $new_value = decryptIt($contact[$ref_value]);
+            } else {
+                $new_value = $contact[$ref_value];
+            }
             break;
     }
     echo $new_value;
