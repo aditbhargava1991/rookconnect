@@ -8,6 +8,7 @@ if(isset($_GET['action']) && $_GET['action'] == 'archive') {
 }
 
 if(isset($_GET['fill']) && $_GET['fill'] == 'retrieve_ref') {
+    $form_id = $_GET['form_id'];
     $ref_source = $_GET['ref_source'];
     $ref_value = $_GET['ref_value'];
     $ref_name = explode('field_', $_GET['ref_name'], 2)[1];
@@ -31,7 +32,7 @@ if(isset($_GET['fill']) && $_GET['fill'] == 'retrieve_ref') {
             }
             break;
     }
-    
+
     //Replace 0000-00-00 date with empty string
     if($new_value == '0000-00-00') {
         $new_value = '';
@@ -39,7 +40,7 @@ if(isset($_GET['fill']) && $_GET['fill'] == 'retrieve_ref') {
 
     //Verify if it is a date or not to see if we need to update format
     $is_date = DateTime::createFromFormat('Y-m-d',$new_value);
-    if($new_value == $is_date->format('Y-m-d')) {
+    if($is_date) {
         if($field['styling'] == '/') {
             $new_value = str_replace('-','/',$new_value);
         }
