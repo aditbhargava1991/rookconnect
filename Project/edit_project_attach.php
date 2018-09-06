@@ -46,7 +46,7 @@ if($security['edit'] > 0) {
 		<a href="" onclick="create_object('workorder'); return false" class="btn brand-btn center" >Work Order</a>
 	<?php }
 	if(in_array('Tasks',$tab_config)) { ?>
-		<a href="" onclick="create_object('task'); return false" class="btn brand-btn center" >Task</a>
+		<a href="" onclick="create_object('task'); return false" class="btn brand-btn center" ><?= TASK_TILE ?></a>
 	<?php }
 	if(in_array('Checklists',$tab_config)) { ?>
 		<a href="" onclick="create_object('checklist'); return false" class="btn brand-btn center" >Checklist</a>

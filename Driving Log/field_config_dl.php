@@ -53,7 +53,7 @@ if (isset($_POST['submit'])) {
         $result_insert_config = mysqli_query($dbc, $query_insert_config);
     }
     // Cycle Times
-	
+
 	// Mileage Fields
     $mileage_fields = filter_var(implode(',', $_POST['mileage_fields']),FILTER_SANITIZE_STRING);
     $get_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT COUNT(configid) AS configid FROM general_configuration WHERE name='mileage_fields'"));
@@ -75,7 +75,7 @@ if (isset($_POST['submit'])) {
         }
         move_uploaded_file($_FILES['pdf_logo']['tmp_name'], '../Driving Log/download/'.$pdf_logo);
     }
-    
+
     $header_text = filter_var(htmlentities($_POST['header_text']),FILTER_SANITIZE_STRING);
     $header_align = filter_var($_POST['header_align'],FILTER_SANITIZE_STRING);
     $header_font = filter_var($_POST['header_font'],FILTER_SANITIZE_STRING);
@@ -248,7 +248,7 @@ $(document).ready(function() {
 							<label class="form-checkbox"><input type="checkbox" name="mileage_fields[]" value="projects" <?= in_array('projects',$mileage_fields) ? 'checked' : '' ?>> <?= PROJECT_TILE ?></label>
 						<?php } ?>
 						<?php if(tile_enabled($dbc, 'tasks')['user_enabled'] == 1) { ?>
-							<label class="form-checkbox"><input type="checkbox" name="mileage_fields[]" value="tasks" <?= in_array('tasks',$mileage_fields) ? 'checked' : '' ?>> Tasks</label>
+							<label class="form-checkbox"><input type="checkbox" name="mileage_fields[]" value="tasks" <?= in_array('tasks',$mileage_fields) ? 'checked' : '' ?>> <?= TASK_TILE ?></label>
 						<?php } ?>
 						<?php if(tile_enabled($dbc, 'equipment')['user_enabled'] == 1) { ?>
 							<label class="form-checkbox"><input type="checkbox" name="mileage_fields[]" value="equipment" <?= in_array('equipment',$mileage_fields) ? 'checked' : '' ?>> Equipment</label>

@@ -1029,7 +1029,7 @@ checkAuthorised();
                                     </tr>
 
                                     <tr>
-                                        <td data-title="Comment">Tasks</td>
+                                        <td data-title="Comment"><?= TASK_TILE ?></td>
                                         <?php echo tile_config_function($dbc, 'tasks', 'admin'); ?>
                                     </tr>
 
@@ -1503,10 +1503,6 @@ checkAuthorised();
                                     <tr>
                                         <td data-title="Comment"><?= POS_ADVANCE_TILE ?></td>
                                         <?php echo tile_config_function($dbc, 'posadvanced', 'admin'); ?>
-                                    </tr>
-                                    <tr>
-                                        <td data-title="Comment">Point of Sale (Basic)</td>
-                                        <?php echo tile_config_function($dbc, 'pos', 'admin'); ?>
                                     </tr>
                                     <tr>
                                         <td data-title="Comment">Promotions & Coupons</td>

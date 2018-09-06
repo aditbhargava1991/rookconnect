@@ -45,40 +45,6 @@ function tile_data($dbc, $tile_name, $is_mobile = FALSE) {
 			case 'custom': return ['link'=>"Custom/custom.php",'name'=>'Custom']; break;
 			case 'intake': return ['link'=>"Intake/intake.php",'name'=>'Intake Forms']; break;
 			//case 'pos': return ['link'=>"Point of Sale/add_point_of_sell.php",'name'=>'Point of Sale<br /><small>Basic</small>']; break;
-            case 'pos':
-                $pos_layout	= get_config($dbc, 'pos_layout');
-                $pos_url = ['sell'=>'add_point_of_sell.php','sell_touch'=>'pos_touch.php','invoices'=>'point_of_sell.php','returns'=>'returns.php','accounts_receivables'=>'unpaid_invoice.php','voided_invoices'=>'voided.php','gift_cards'=>'giftcards.php'];
-                if ($is_mobile) {
-                    $mobile_landing_subtab_config = get_config($dbc, 'pos_mobile_landing_subtab');
-                    if ( !empty($mobile_landing_subtab_config) ) {
-                        foreach ($pos_url as $key=>$value) {
-                            if ($key==$mobile_landing_subtab_config) {
-                                $pos_url = $value;
-                            }
-                        }
-                    } else {
-                        $pos_url = ( $pos_layout=='touch' ) ? 'pos_touch.php' : 'add_point_of_sell.php';
-                    }
-                } else {
-                    $desktop_landing_subtab_config = get_config($dbc, 'pos_desktop_landing_subtab');
-                    if ( !empty($desktop_landing_subtab_config) ) {
-                        foreach ($pos_url as $key=>$value) {
-                            if ($key==$desktop_landing_subtab_config) {
-                                $pos_url = $value;
-                            }
-                        }
-                    } else {
-                        $pos_url = ( $pos_layout=='touch' ) ? 'pos_touch.php' : 'add_point_of_sell.php';
-                    }
-                }
-                /*
-                if ( check_subtab_persmission($dbc, 'pos', ROLE, 'sell') === true ) {
-                    $pos_layout	= get_config($dbc, 'pos_layout');
-                    $pos_url = ( $pos_layout=='touch' ) ? 'pos_touch.php' : 'add_point_of_sell.php';
-                } */
-
-                return ['link'=>'Point of Sale/'.$pos_url,'name'=>'Point of Sale<br /><small>Basic</small>'];
-                break;
 			case 'posadvanced': return ['link'=>"POSAdvanced/invoice_main.php",'name'=>POS_ADVANCE_TILE]; break;
 			case 'invoicing': return ['link'=>"Invoicing/add_point_of_sell.php",'name'=>'Invoicing']; break;
 			case 'service_queue': return ['link'=>"Service Queue/service_queue.php",'name'=>'Service Queue']; break;
@@ -122,7 +88,7 @@ function tile_data($dbc, $tile_name, $is_mobile = FALSE) {
             $checklist_url = 'checklist.php';
             return ['link'=>'Checklist/'.$checklist_url,'name'=>'Checklist']; break;
 
-			case 'tasks': return ['link'=>"Tasks_Updated/index.php?category=All&tab=Summary",'name'=>'Tasks']; break;
+			case 'tasks': return ['link'=>"Tasks_Updated/index.php?category=All&tab=Summary",'name'=>TASK_TILE]; break;
 			//case 'tasks_updated': return ['link'=>"Tasks_Updated/index.php?category=All&tab=Summary",'name'=>'Tasks (Updated)']; break;
 			case 'scrum': return ['link'=>"Scrum/scrum.php?category=All",'name'=>'Scrum']; break;
 			case 'communication': return ['link'=>"Communication/tasks.php?category=All",'name'=>'Communication Tasks']; break;
@@ -135,7 +101,7 @@ function tile_data($dbc, $tile_name, $is_mobile = FALSE) {
 			case 'payroll': return ['link'=>"Payroll/payroll.php",'name'=>'Payroll']; break;
 			case 'purchase_order': return ['link'=>"Purchase Order/index.php",'name'=>get_tile_title_po($dbc).'']; break;
 			case 'sales_order': return ['link'=>"Sales Order/index.php",'name'=>SALES_ORDER_TILE]; break;
-			case 'newsboard': return ['link'=>"News Board/newsboard.php",'name'=>'News Board']; break;
+			case 'newsboard': return ['link'=>"News Board/index.php",'name'=>'News Board']; break;
 			case 'calendar_rook': return ['link'=>"Calendar/calendars.php",'name'=>'Calendar']; break;
 			case 'field_job': return ['link'=>"Field Jobs/field_sites.php",'name'=>'Field Jobs']; break;
 			case 'expense': return ['link'=>"Expense/expenses.php",'name'=>'Expenses']; break;

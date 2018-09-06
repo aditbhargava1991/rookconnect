@@ -1,4 +1,5 @@
 <!-- History -->
+<?php include_once('../Sales/config.php'); ?>
 <div class="accordion-block-details padded" id="history">
     <div class="accordion-block-details-heading"><h4>History</h4></div>
     
