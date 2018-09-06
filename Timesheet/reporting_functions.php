@@ -607,7 +607,7 @@ function get_hours_report($dbc, $staff, $search_start_date, $search_end_date, $s
 		}
 	}
 	foreach($report_blocks as $i => &$report) {
-		$report = '<h3>'.$report_name[$i].'</h3>'.$report;
+		$report = '<h3>'.$report_name[$i].'<img src="../img/empty.png" class="statusIcon inline-img no-toggle no-margin"></h3>'.$report;
 	}
 	if($report_format == 'to_array') {
 		return $report_blocks;
@@ -1111,7 +1111,7 @@ function get_hours_report($dbc, $staff, $search_start_date, $search_end_date, $s
 		}
 	}
 	foreach($report_blocks as $i => &$report_block) {
-		$report_block = '<div class="clearfix"></div><br style="display:none;" /><h3 class="triple-gap-top">'.$report_name[$i].'</h3>'.$report_block;
+		$report_block = '<div class="clearfix"></div><br style="display:none;" /><h3 class="triple-gap-top">'.$report_name[$i].'<img src="../img/empty.png" class="statusIcon inline-img no-toggle no-margin"></h3>'.$report_block;
 	}
 	if($report_format == 'to_array') {
 		return implode('',$report_blocks);
