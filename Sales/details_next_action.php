@@ -1,4 +1,5 @@
 <!-- Next Actions -->
+<?php include_once('../Sales/config.php'); ?>
 <?php $get_config_won_status = get_config($dbc, 'lead_status_won');
 $get_config_lost_status = get_config($dbc, 'lead_status_lost');
 $get_config_retained = get_config($dbc, 'lead_status_retained');

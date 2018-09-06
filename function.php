@@ -551,6 +551,8 @@ function get_config($dbc, $name, $multi = false, $separator = ',') {
 			return '25';
 		} else if($name == 'company_rate_card_sections') {
 			return 'tasks,material,services,products,staff,position,contractor,clients,customer,vpl,inventory,equipment,labour,timesheet,driving_log';
+		} else if($name == 'lead_new_contact_cat') {
+			return 'Sales Leads';
 		}
 	}
 
