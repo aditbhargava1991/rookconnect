@@ -162,7 +162,6 @@ function send_csv(a) {
                 </div>
                   <div class="col-lg-4 col-md-3 col-sm-8 col-xs-8">
                       <select data-placeholder="Select Staff Members" multiple name="search_staff[]" class="chosen-select-deselect form-control" style="width: 20%;float: left;margin-right: 10px;" width="380">
-                      <option value=""></option>
                       <option value="ALL_STAFF">Select All Staff</option>
                       <?php
                         $query = mysqli_query($dbc,"SELECT `supervisor`, `position`, `staff_list`, `security_level_list` FROM `field_config_supervisor` WHERE `supervisor`='".$_SESSION['contactid']."' OR (SELECT CONCAT(',',`staff_list`,',') FROM `field_config_supervisor` WHERE `supervisor`='".$_SESSION['contactid']."' AND `position` = 'Manager') LIKE CONCAT('%,',`supervisor`,',%')");

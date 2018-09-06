@@ -87,7 +87,6 @@ function filterAttachedContacts() {
 				<label class="col-sm-4 control-label">Assigned Tiles:</label>
 				<div class="col-sm-8">
 					<select name="assigned_tile[]" multiple data-placeholder="Select Tiles..." class="form-control chosen-select-deselect">
-						<option></option>
 						<option <?= strpos($assigned_tiles, ',attach_contact,') !== FALSE ? 'selected' : '' ?> value='attach_contact'>Attach to Contact</option>
 						<option <?= strpos($assigned_tiles, ',contracts,') !== FALSE ? 'selected' : '' ?> value='contracts'>Contracts</option>
 						<option <?= strpos($assigned_tiles, ',hr,') !== FALSE ? 'selected' : '' ?> value='hr'>HR</option>
@@ -118,7 +117,6 @@ function filterAttachedContacts() {
 				<label class="col-sm-4 control-label">Attached Contact Categories:</label>
 				<div class="col-sm-8">
 					<select name="attached_contact_categories[]" multiple data-placeholder="Select a Category" class="form-control chosen-select-deselect">
-						<option></option>
 						<?php $contact_cats = mysqli_fetch_all(mysqli_query($dbc, "SELECT DISTINCT `category` FROM `contacts` WHERE `deleted` = 0 AND `status` = 1 AND IFNULL(`category`,'') != '' ORDER BY `category`"),MYSQLI_ASSOC);
 						foreach($contact_cats as $contact_cat) {
 							echo '<option value="'.$contact_cat['category'].'" '.(strpos($attached_contact_categories, ','.$contact_cat['category'].',') !== FALSE ? 'selected' : '').'>'.$contact_cat['category'].'</option>';
@@ -130,7 +128,6 @@ function filterAttachedContacts() {
 				<label class="col-sm-4 control-label">Attached Contacts:</label>
 				<div class="col-sm-8">
 					<select name="attached_contacts[]" multiple data-placeholder="Select a Contact" class="form-control chosen-select-deselect">
-						<option></option>
 						<option value="ALL_CONTACTS" <?= (strpos($attached_contacts, ',ALL_CONTACTS,') !== FALSE ? 'selected' : '') ?>>ALL CONTACTS</option>
 						<?php $contacts_list = sort_contacts_query(mysqli_query($dbc, "SELECT * FROM `contacts` WHERE `deleted` = 0 AND `status` > 0"));
 						foreach($contacts_list as $attached_contact) {

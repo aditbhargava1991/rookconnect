@@ -259,7 +259,6 @@ function exportMarSheet() {
 		<label class="col-sm-4 control-label">Medication:</label>
 		<div class="col-sm-8">
 			<select name="marsheet_medication[]" multiple class="chosen-select-deselect form-control">
-				<option></option>
 				<option value="NEW_MED">New Medication</option>
 				<?php $medications = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `medication` WHERE `clientid` = '".$_GET['edit']."' AND `deleted` = 0"),MYSQLI_ASSOC);
 					foreach ($medications as $medication) { ?>

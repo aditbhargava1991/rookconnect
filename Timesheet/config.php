@@ -383,6 +383,7 @@ function get_tabs($tab = '', $subtab = '', $custom = array())
 				if($title == $tab) {
 					$active = 'active_tab';
 				}
+
 				if($title == 'Holidays') {
 					$url = $contents['Holidays'];
 				} else {
@@ -394,7 +395,7 @@ function get_tabs($tab = '', $subtab = '', $custom = array())
                 } else {
                     $html .= "<button type='button' class='btn disabled-btn mobile-block'>".($title == 'Manager Approvals' ? $timesheet_manager_approvals : ($title == 'Holidays' ? 'Stat Holidays' : $title))."</button>&nbsp;";
                 }
-                
+
 				if($title == $tab) {
 					foreach($contents as $subtitle => $content) {
 						$subactive = '';
@@ -415,7 +416,7 @@ function get_tabs($tab = '', $subtab = '', $custom = array())
 				if($title == $tab) {
 					$active = 'active_tab';
 				}
-				
+
                 if ( check_subtab_persmission($dbc, 'timesheet', ROLE, $title_subtab) === true ) {
                     $html .= "<a href='".$contents."'><button type='button' class='btn brand-btn mobile-block ".$active."' >".($title == 'Manager Approvals' ? $timesheet_manager_approvals : ($title == 'Holidays' ? 'Stat Holidays' : $title))."</button></a>";
                 } else {
@@ -786,11 +787,11 @@ function get_time_sheet($start_date = '', $end_date = '', $limits = '', $group =
 	$start_date = filter_var($start_date,FILTER_SANITIZE_STRING) ?: date('Y-m-01');
 	$end_date = filter_var($end_date,FILTER_SANITIZE_STRING) ?: date('Y-m-t');
 	$limits = $limits ?: "AND `staff`='{$_SESSION['contactid']}' AND `approv`='N'";
-	
+
 	// Add Checklist Time and Email Time to Time Sheet
 	$_SERVER['DBC']->query("INSERT INTO `time_cards` (`checklistnameid`, `total_hrs`, `date`, `staff`, `type_of_time`, `comment_box`, `business`) SELECT `checklistnameid`, TIME_TO_SEC(`work_time`) / 3600, `timer_date`, `checklist_name_time`.`contactid`, 'Regular Hrs.', CONCAT('Checklist Item #',`checklistnameid`), `businessid` FROM `checklist_name_time` LEFT JOIN `checklist_name` ON `checklist_name_time`.`checklist_id`=`checklist_name`.`checklistnameid` LEFT JOIN `checklist` ON `checklist_name`.`checklistid`=`checklist`.`checklistid` WHERE `checklist_time_id` NOT IN (SELECT `checklist_time_id` FROM `checklist_name_time` LEFT JOIN `time_cards` ON `checklist_name_time`.`contactid`=`time_cards`.`staff` AND `checklist_name_time`.`checklist_id`=`time_cards`.`checklistnameid` AND `checklist_name_time`.`timer_date`=`time_cards`.`date` WHERE `time_cards`.`deleted`=0)");
 	$_SERVER['DBC']->query("INSERT INTO `time_cards` (`email_communicationid`, `total_hrs`, `date`, `staff`, `type_of_time`, `comment_box`, `business`) SELECT `communication_id`, TIME_TO_SEC(`timer`) / 3600, `email_communication_timer`.`created_date`, `email_communication_timer`.`created_by`, 'Regular Hrs.', CONCAT('Email Communication: ',`subject`), `businessid` FROM `email_communication_timer` LEFT JOIN `email_communication` ON `email_communication_timer`.`communication_id`=`email_communication`.`email_communicationid` WHERE `email_communicationid` NOT IN (SELECT `communication_id` FROM `email_communication_timer` LEFT JOIN `time_cards` ON `email_communication_timer`.`created_by`=`time_cards`.`staff` AND `email_communication_timer`.`communication_id`=`time_cards`.`email_communicationid` AND `email_communication_timer`.`created_date`=`time_cards`.`date` WHERE `time_cards`.`deleted`=0)");
-	
+
 	// Get a list of time that is not to be included
 	$timesheet_include_time = explode(',',get_config($_SERVER['DBC'], 'timesheet_include_time'));
 	if(!in_array('ticket',$timesheet_include_time)) {
@@ -811,7 +812,7 @@ function get_time_sheet($start_date = '', $end_date = '', $limits = '', $group =
 	if(!in_array('checklist',$timesheet_include_time)) {
 		$limits .= " AND IFNULL(`checklistnameid`,0)='0'";
 	}
-	
+
 	// Get the list of time to display
 	$timesheet_min_hours = get_config($_SERVER['DBC'], 'timesheet_min_hours');
 	$timesheet_rounding = get_config($_SERVER['DBC'], 'timesheet_rounding');

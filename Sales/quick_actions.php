@@ -268,7 +268,7 @@ $(document).on('change', '.dialog select[name=clientid]', function() { contactFi
 } ?>
 <input type='file' name='document' value='' style="display:none;">
 <div class="select_users" style="display:none;">
-    <select data-placeholder="Select Staff" multiple class="chosen-select-deselect"><option></option>
+    <select data-placeholder="Select Staff" multiple class="chosen-select-deselect">
     <?php foreach($staff_list as $staff) { ?>
         <option value="<?= $staff['contactid'] ?>"><?= $staff['full_name'] ?></option>
     <?php } ?>

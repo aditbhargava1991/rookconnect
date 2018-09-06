@@ -131,7 +131,7 @@ if($type == 'Ticket') {
 			<label class="col-sm-4">Staff:</label>
 			<div class="col-sm-8 '.(!($security['edit'] > 0) ? 'readonly-block' : '').'">
 			<select name="contactid[]" multiple data-concat="," data-table="tickets" data-id="'.$item['ticketid'].'" data-id-field="ticketid" class="chosen-select-deselect" data-placeholder="Select Staff">
-				<option></option>';
+				';
 				foreach($staff_list as $staff) {
 					$contents .= '<option '.(in_array($staff['contactid'],explode(',',$item['contactid'])) ? 'selected' : '').' value="'.$staff['contactid'].'">'.$staff['first_name'].' '.$staff['last_name'].'</option>';
 				}
@@ -421,7 +421,7 @@ if($type == 'Ticket') {
 			<option <?= $external_milestone == $item_external ? 'selected' : '' ?> value="<?= $external_milestone ?>"><?= $external_milestone ?></option>
 		<?php } ?></select></div>
 	<div class="select_users" style="display:none;">
-		<select data-placeholder="Select Staff" multiple class="chosen-select-deselect"><option></option>
+		<select data-placeholder="Select Staff" multiple class="chosen-select-deselect">
 		<?php foreach($staff_list as $staff) { ?>
 			<option value="<?= $staff['contactid'] ?>"><?= $staff['first_name'].' '.$staff['last_name'] ?></option>
 		<?php } ?>

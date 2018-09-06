@@ -222,7 +222,6 @@ var projectFilter = function() {
 			  <label for="site_name" class="col-sm-4 control-label">Site:</label>
 			  <div class="col-sm-7">
 				<select data-placeholder="Select Site..." multiple name="siteid[]" id="siteid" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" data-concat="," class="chosen-select-deselect form-control">
-					<option value=""></option>
 					<?php if(empty($site_list)) {
 						$site_list = sort_contacts_query(mysqli_query($dbc,"SELECT contactid, site_name, `display_name`, businessid FROM `contacts` WHERE `category`='".SITES_CAT."' AND deleted=0 ORDER BY IFNULL(NULLIF(`display_name`,''),`site_name`)"));
 					}
@@ -466,7 +465,6 @@ var projectFilter = function() {
 				  <label for="site_name" class="col-sm-4 control-label">Operators:</label>
 				  <div class="col-sm-8">
 					<select data-placeholder="Select Operator..." multiple id="contactid" name="contactid[]" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" class="chosen-select-deselect form-control" width="380">
-					  <option value=""></option>
 						  <?php $staff_query = sort_contacts_query(mysqli_query($dbc,"SELECT contactid, first_name, last_name FROM contacts WHERE deleted=0 AND status>0 AND category IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY.""));
 							foreach($staff_query as $row) { ?>
 								<option <?php if (strpos($get_ticket['contactid'], ','.$row['contactid'].',') !== FALSE) {

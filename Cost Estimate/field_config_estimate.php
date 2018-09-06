@@ -65,7 +65,7 @@ if (isset($_POST['submit_tab_config'])) {
 		$groups[] = implode(',',$group);
 	}
 	$staff_groups = implode('#*#',$groups);
-	
+
 	//Custom Accordions
 	$accordions = [];
 	foreach($_POST['accordion'] as $key => $value) {
@@ -293,7 +293,6 @@ $project_tabs = get_config($dbc, 'project_tabs');
 						<div class="col-sm-4"><input type="text" name="group_name[]" class="form-control" value="<?php echo $group[0]; ?>"></div>
 						<div class="col-sm-8">
 							<select multiple name="group_staff[]" data-placeholder="Choose an Option..." class="chosen-select-deselect form-control" width="380">
-								<option value=''></option>
 								<?php $query = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc,"SELECT contactid, first_name, last_name FROM contacts WHERE category='Staff' AND deleted=0 order by first_name"),MYSQLI_ASSOC));
 								foreach($query as $row_contact) { ?>
 									<option <?= (in_array($row_contact,$group) ? 'selected' : '') ?> value="<?= $row_contact; ?>"><?= get_contact($dbc, $row_contact) ?></option>

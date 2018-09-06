@@ -53,7 +53,6 @@ function sendEmails(btn) {
 		<label class="col-sm-4 control-label">Staff:</label>
 		<div class="col-sm-8">
 			<select name="contacts[]" multiple class="chosen-select-deselect">
-				<option></option>
 				<option value="ALL_CONTACTS">All Contacts</option>
 				<?php $contacts = sort_contacts_query(mysqli_query($dbc, "SELECT * FROM `contacts` WHERE (IFNULL(`email_address`,'') != '' OR IFNULL(`office_email`,'') != '') AND `deleted` = 0 AND `status` > 0 AND `show_hide_user` = 1 AND `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY));
 				foreach($contacts as $contact) {

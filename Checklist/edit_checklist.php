@@ -141,7 +141,7 @@ if (isset($_POST['tasklist'])) {
     if(!empty($_POST['project_milestone'])) {
         mysqli_query($dbc, "UPDATE `checklist` SET `project_milestone` = '".filter_var($_POST['project_milestone'],FILTER_SANITIZE_STRING)."' WHERE `checklistid` = '$checklistid'");
         if(!($projectid > 0)) {
-            mysqli_query($dbc, "UPDATE `checklist` SET `projectid` = '".filter_var($_POST['projectid_from_path'],FILTER_SANITIZE_STRING)."' WHERE `checklistid` = '$checklistid'");   
+            mysqli_query($dbc, "UPDATE `checklist` SET `projectid` = '".filter_var($_POST['projectid_from_path'],FILTER_SANITIZE_STRING)."' WHERE `checklistid` = '$checklistid'");
         }
     }
     if(!empty($_POST['sales_milestone'])) {
@@ -426,12 +426,12 @@ function removeNewRow(button) {
         <a href="?<?= $checklistid > 0 ? 'view='.$checklistid : '' ?>" class="show-on-mob pull-left gap-right"><img src="../img/icons/ROOK-back-icon.png" style="height:100%; width:47%;"></a>
         <h3><?= isset($_GET['edit']) && $_GET['edit']=='NEW' ? 'Add' : 'Edit' ?> <?= $checklist_name ?> Checklist</h3>
     </div>
-    
-    
+
+
     <div class="row">
         <div class="col-sm-12 padded"><input type="text" class="form-control create-input" value="<?= $checklist_name ?>" name="checklist_name" placeholder="Name your checklist..." /></div>
     </div>
-    
+
 	<div class="clearfix"></div>
 
     <div class="padded">
@@ -593,10 +593,22 @@ function removeNewRow(button) {
                                     Day of the Month:
                                 </label>
                                 <div class="col-sm-8">
+
+                                    <select name="subtab_shared[]" id="subtab_shared" multiple data-placeholder="Select Shared Contacts..." class="chosen-select-deselect form-control">
+                                        <option value='ALL'>Share with Everyone</option>
+                                        <?php
+                                        $cat = '';
+                                        $query1 = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc,"SELECT contactid, first_name, last_name, category, email_address FROM contacts WHERE category IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND deleted=0 AND status>0 ORDER BY category"), MYSQLI_ASSOC));
+                                        foreach($query1 as $row1) {
+                                            echo "<option ".((strpos($subtab_shared, ','.$row1.',') !== false) ? 'selected' : '')." value='". $row1."'>".get_contact($dbc, $row1).'</option>';
+                                        }
+                                        ?>
+                                                              </select>
                                     <select name="checklist_reset_month_day" class="form-control chosen-select-deselect" width="380" /><option></option>
                                         <?php for($i = 1; $i <= 28; $i++) {
                                             echo "<option ".($checklist_reset_day == $i ? 'selected' : '')." value='$i'>$i</option>";
                                         } ?>
+
                                     </select>
                                 </div><div class="clearfix"></div>
                                 <label for="first_name" class="col-sm-4 control-label text-right">
@@ -763,7 +775,6 @@ function removeNewRow(button) {
 								  <label for="site_name" class="col-sm-4 control-label"><?= TICKET_NOUN ?>:</label>
 								  <div class="col-sm-8">
 									<select data-placeholder="Select a <?= TICKET_NOUN ?>..." name="ticketid[]" multiple id="ticketid"  class="chosen-select-deselect form-control">
-									  <option value=""></option>
 									  <?php $query = mysqli_query($dbc,"SELECT * FROM `tickets` WHERE `deleted`=0 OR `ticketid`='$ticketid'");
 										while($row = mysqli_fetch_array($query)) {
 											echo "<option ".(in_array($row['ticketid'],explode(',',$ticketid)) ? 'selected' : '')." value='".$row['ticketid']."'>".TICKET_NOUN."# ".$row['ticketid'].' '.$row['heading'].'</option>';
@@ -788,11 +799,29 @@ function removeNewRow(button) {
 
                     <div id="collapse_ticket_list" class="panel-collapse collapse">
                         <div class="panel-body">
+
+                            <div class="form-group clearfix assign_staff">
+                                <label for="first_name" class="col-sm-4 control-label text-right">
+                                    <span class="popover-examples list-inline" style="margin:0 3px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Click here to assign specific staff members. They will be able to view and edit this Checklist."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
+                                    Assign to Staff:
+                                </label>
+                                <div class="col-sm-8">
+                                    <select name="assign_staff[]" multiple data-placeholder="Select Assigned Staff..." class="chosen-select-deselect form-control">
+                                        <option <?= strpos($assign_staff,'ALL') !== FALSE ? 'selected' : '' ?> value='ALL'>Assign All Staff</option>
+                                        <?php
+                                        $cat = '';
+                                        $query1 = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc,"SELECT contactid, first_name, last_name, category, email_address FROM contacts WHERE category IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND deleted=0 AND status>0 ORDER BY category"), MYSQLI_ASSOC));
+                                        foreach($query1 as $row1) {
+                                            echo "<option ".((strpos($assign_staff, ','.$row1.',') !== false) || (($row1 == $_SESSION['contactid']) && strpos($assign_staff,'ALL') === FALSE) ? 'selected' : '')." value='". $row1."'>".get_contact($dbc, $row1).'</option>';
+                                        }
+                                        ?>
+                                    </select>
+                                </div>
+
                             <div class="form-group assign_staff">
                               <label for="site_name" class="col-sm-4 control-label"><?= TICKET_NOUN ?>:</label>
                               <div class="col-sm-8">
                                 <select data-placeholder="Select a <?= TICKET_NOUN ?>..." name="ticketid[]" multiple id="ticketid"  class="chosen-select-deselect form-control">
-                                  <option value=""></option>
                                   <?php $query = mysqli_query($dbc,"SELECT * FROM `tickets` WHERE `deleted`=0 OR `ticketid`='$ticketid'");
                                     while($row = mysqli_fetch_array($query)) {
                                         echo "<option ".(in_array($row['ticketid'],explode(',',$ticketid)) ? 'selected' : '')." value='".$row['ticketid']."'>".TICKET_NOUN."# ".$row['ticketid'].' '.$row['heading'].'</option>';
@@ -800,6 +829,7 @@ function removeNewRow(button) {
                                   ?>
                                 </select>
                               </div>
+
                             </div>
                         </div>
                     </div>
