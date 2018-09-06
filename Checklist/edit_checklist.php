@@ -887,7 +887,7 @@ function removeNewRow(button) {
                                     echo '</td>';
                                     echo '<td data-title="Date">'.$row['created_date'].'</td>';
                                     echo '<td data-title="Added By">'.get_staff($dbc, $by).'</td>';
-                                    echo '<td data-title="Function"><a href="" data-docid="'.$row['checklistdocid'].'" onclick="archive_checklist_document(this); return false;"><img src="'.WEBSITE_URL.'/img/icons/ROOK-trash-icon.png" style="height:1.5em;"></a></td>';
+                                    echo '<td data-title="Function"><a href="" data-docid="'.$row['checklistdocid'].'" onclick="archive_checklist_document(this); return false;"><img src="'.WEBSITE_URL.'/img/icons/ROOK-trash-icon.png" class="no-toggle" title="Archive" style="height:1.5em;"></a></td>';
                                     //echo '<td data-title="Schedule"><a href=\'delete_restore.php?action=delete&ticketdocid='.$row['ticketdocid'].'&ticketid='.$row['ticketid'].'\' onclick="return confirm(\'Are you sure?\')">Delete</a></td>';
                                     echo '</tr>';
                                 }
@@ -955,7 +955,7 @@ function removeNewRow(button) {
                             echo '<div class="form-group">';
                             echo '<div class="col-sm-1 col-xs-1">'.($row['checked'] == 1 ? '<input disabled type="checkbox" checked value="" style="height: 1em;"> ' : '').'#'.$row['checklistnameid'].': </div><div class="col-sm-10 col-xs-9">';
                             echo '<input type="text" name="checklist_update[]" class="form-control" value= "'.explode('<p>',html_entity_decode($row['checklist']))[0].'"/></div>';
-                            echo '<div class="col-sm-1 col-xs-2"><a href=\'../delete_restore.php?action=delete&checklistnameid='.$row['checklistnameid'].'&checklistid='.$row['checklistid'].'\' onclick="return confirm(\'Are you sure?\')"><img style="height:1.5em;" src="'.WEBSITE_URL.'/img/icons/ROOK-trash-icon.png"></a></div>';
+                            echo '<div class="col-sm-1 col-xs-2"><a href=\'../delete_restore.php?action=delete&checklistnameid='.$row['checklistnameid'].'&checklistid='.$row['checklistid'].'\' onclick="return confirm(\'Are you sure?\')"><img class="no-toggle" title="Archive" style="height:1.5em;" src="'.WEBSITE_URL.'/img/icons/ROOK-trash-icon.png"></a></div>';
                             echo '<input type="hidden" name="checklistid_update[]" value="'.$row['checklistnameid'].'" /></div>';
 
                         }
