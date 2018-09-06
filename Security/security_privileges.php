@@ -721,17 +721,19 @@ function go_to_dashboard(target) {
 			<?php } ?>
 			<?php if(strpos($on_security, ',tasks,') !== FALSE) { ?>
 			<tr data-dashboard='<?= (in_array('tasks', $dashboard_list) ? 'current' : '') ?>'>
-				<td data-title="Comment">Tasks</td>
+				<td data-title="Comment"><?= TASK_TILE ?></td>
 				<?php echo security_tile_config_function('tasks', get_privileges($dbc, 'tasks',$level), 1, $level_url); ?>
 			</tr>
 			<?php } ?>
 
+            <!--
 			<?php if(strpos($on_security, ',tasks_updated,') !== FALSE) { ?>
 			<tr data-dashboard='<?= (in_array('tasks_updated', $dashboard_list) ? 'current' : '') ?>'>
 				<td data-title="Comment">Tasks (Updated)</td>
 				<?php echo security_tile_config_function('tasks_updated', get_privileges($dbc, 'tasks_updated',$level), 1, $level_url); ?>
 			</tr>
 			<?php } ?>
+            -->
 
 			<?php if(strpos($on_security, ',optimize,') !== FALSE) { ?>
 			<tr data-dashboard='<?= (in_array('optimize', $dashboard_list) ? 'current' : '') ?>'>
@@ -1111,8 +1113,18 @@ function go_to_dashboard(target) {
 				<?php echo security_tile_config_function('ticket', get_privileges($dbc, 'ticket',$level), 1, $level_url, 1, 1, 0, 1); ?>
 			</tr>
 			<?php } ?>
-			<?php $ticket_types = array_filter(explode(',', get_config($dbc, 'ticket_tabs')));
-			foreach($ticket_types as $ticket_type) {
+			<?php $ticket_type_tile_list = get_config($dbc, 'ticket_type_tiles');
+            if($ticket_type_tile_list == 'SHOW') {
+                $ticket_type_tiles = array_filter(explode(',', get_config($dbc, 'ticket_tabs')));
+            } else {
+                $ticket_type_tiles = [];
+                foreach(explode(',', get_config($dbc, 'ticket_tabs')) as $ticket_type) {
+                    if(in_array(config_safe_str($ticket_type),explode(',',$ticket_type_tile_list))) {
+                        $ticket_type_tiles[] = $ticket_type;
+                    }
+                }
+            }
+			foreach($ticket_type_tiles as $ticket_type) {
 				if(strpos($on_security, ',ticket,') !== FALSE) { ?>
 					<tr data-dashboard='<?= (in_array('ticket#*#'.$ticket_type, $dashboard_list) ? 'current' : '') ?>'>
 						<td data-title="Comment"><?= TICKET_TILE.': '.$ticket_type ?></td>
@@ -1120,14 +1132,14 @@ function go_to_dashboard(target) {
 					</tr>
 				<?php }
 			} ?>
-			<?php //if(strpos($on_security, ',work_order,') !== FALSE) { ?>
-			<!--
-            <tr data-dashboard='<?//= (in_array('work_order', $dashboard_list) ? 'current' : '') ?>'>
-				<td data-title="Comment">Work Orders</td>
-				<?php //echo security_tile_config_function('work_order', get_privileges($dbc, 'work_order',$level), 0, $level_url); ?>
-			</tr>
-            -->
-			<?php //} ?>
+            <?php $ticket_group_tiles = $dbc->query("SELECT `value` FROM `general_configuration` WHERE `name` LIKE 'ticket_split_tiles_%'");
+            while($ticket_group_tile = $ticket_group_tiles->fetch_assoc()['value']) {
+                $ticket_group_tile = explode('#*#',$ticket_group_tile); ?>
+                <tr data-dashboard='<?= (in_array('ticket#*#'.$ticket_type, $dashboard_list) ? 'current' : '') ?>'>
+                    <td data-title="Comment"><?= TICKET_NOUN.' Group: '.$ticket_group_tile[0] ?></td>
+                    <?php echo security_tile_config_function('ticket_tile_'.config_safe_str($ticket_group_tile[0]), get_privileges($dbc, 'ticket_tile_'.config_safe_str($ticket_group_tile[0]), $level), 0, $level_url, 1); ?>
+                </tr>
+            <?php } ?>
 		<?php endif; ?>
 		<?php if(strpos($section_display,',safety,') !== FALSE): ?>
 			<thead><tr><th colspan='14'><div style='text-align:left;width:100%;font-size:20px;'>Safety:</div></th></tr></thead>
@@ -1195,12 +1207,6 @@ function go_to_dashboard(target) {
 			<tr data-dashboard='<?= (in_array('package', $dashboard_list) ? 'current' : '') ?>'>
 				<td data-title="Comment">Packages</td>
 				<?php echo security_tile_config_function('package', get_privileges($dbc, 'package',$level), 0, $level_url); ?>
-			</tr>
-			<?php } ?>
-			<?php if(strpos($on_security, ',pos,') !== FALSE) { ?>
-			<tr data-dashboard='<?= (in_array('pos', $dashboard_list) ? 'current' : '') ?>'>
-				<td data-title="Comment">Point of Sale (Basic)</td>
-				<?php echo security_tile_config_function('pos', get_privileges($dbc, 'pos',$level), 1, $level_url); ?>
 			</tr>
 			<?php } ?>
 			<?php if(strpos($on_security, ',posadvanced,') !== FALSE) { ?>

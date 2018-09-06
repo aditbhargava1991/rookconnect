@@ -14,6 +14,9 @@ $approvals = approval_visible_function($dbc, 'incident_report');
         </form>
     </li>
     <a href="incident_report.php"><li <?= $current_file == 'incident_report.php' && empty($current_type) ? 'class="active"' : '' ?>>All <?= INC_REP_TILE ?></li></a>
+    <?php if(get_config($dbc, 'inc_rep_saved_tab') == 1) { ?>
+		<a href="incident_report.php?type=SAVED"><li <?= $current_file == 'incident_report.php' && $current_type == 'SAVED' ? 'class="active"' : '' ?>>Saved <?= INC_REP_TILE ?></li></a>
+    <?php } ?>
 	<?php if(count(array_filter($tile_summary, function($str) { return $str != 'Admin'; })) > 0) { ?>
         <a href="summary.php"><li <?= $current_file == 'summmary.php' ? 'class="active"' : '' ?>>Summary</li></a>
 	<?php } ?>

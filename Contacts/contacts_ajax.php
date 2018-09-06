@@ -27,6 +27,13 @@ else if($_GET['action'] == 'contacts_dashboards') {
 		$query_insert_config = "INSERT INTO `field_config_contacts` (`tab`, `contacts_dashboard`, `tile_name`) VALUES ('$tab_dashboard', '$contacts_dashboards', '$tile')";
 		$result_insert_config = mysqli_query($dbc, $query_insert_config);
 	}
+} else if($_GET['action'] == 'contacts_summary') {
+	$contacts_summary = $_POST['field_list'];
+	$tile = filter_var($_POST['tile'],FILTER_SANITIZE_STRING);
+    $heading = $tile.'_summary';
+
+    set_config($dbc, $heading, $contacts_summary);
+
 } else if($_GET['action'] == 'contact_configs') {
 	$name = filter_var($_POST['name'],FILTER_SANITIZE_STRING);
 	$value = filter_var($_POST['value'],FILTER_SANITIZE_STRING);
@@ -1082,3 +1089,4 @@ function copy_data($dbc, $contactid, $other_contactid) {
 		mysqli_query($dbc, "UPDATE `$contacts_table` SET $query_update WHERE `contactid` = '$other_contactid'");
 	}
 }
+ 

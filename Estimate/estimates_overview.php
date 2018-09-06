@@ -88,7 +88,7 @@ function remove_follow_up(elem) {
 </script>
 <div class="form-horizontal main-screen fit-to-screen-full full-grey-screen" style="padding:0;">
 	<div class="main-item blue-border">
-		<h3><?= rtrim(ESTIMATE_TILE, 's') ?> Name: <?= $estimate['estimate_name'] ?><?= $edit_access > 0 ? '<a href="?edit='.$estimateid.'" class="pad-left"><img src="../img/icons/ROOK-edit-icon.png" alt="Edit" width="25" /></a>' : '' ?></h3>
+		<h3><?= rtrim(ESTIMATE_TILE, 's') ?> Name: <?= $estimate['estimate_name'] ?><?= $edit_access > 0 ? '<a href="?edit='.$estimateid.'" class="pad-left"><img src="../img/icons/ROOK-edit-icon.png" alt="Edit" width="25" class="no-toggle" title="Edit" /></a>' : '' ?></h3>
 		<hr />
         <div class="row">
             <div class="col-sm-<?= empty($_GET['sideview']) ? '6' : '12' ?>">
@@ -384,7 +384,7 @@ function remove_follow_up(elem) {
 
 		<?php if(empty($_GET['sideview'])) { ?>
 			<div class="col-sm-12">
-				<h4>Cost Analysis: <a href="?financials=<?= $estimate['estimateid'] ?>"><img src="../img/icons/financials.png" class="inline-img" title="View Estimate Financial Summary." width="20"></a></h4>
+				<h4>Cost Analysis: <a href="?financials=<?= $estimate['estimateid'] ?>"><img src="../img/icons/financials.png" class="inline-img no-toggle" title="View Estimate Financial Summary." width="20"></a></h4>
 			</div>
 		<?php } ?>
 		<div class="clearfix"></div>

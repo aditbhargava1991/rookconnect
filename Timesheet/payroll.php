@@ -96,8 +96,7 @@ function viewTicket(a) {
         if(config_visible_function_custom($dbc)) {
             echo '<a href="field_config.php?from_url=payroll.php" class="mobile-block pull-right "><img style="width: 50px;" title="Tile Settings" src="../img/icons/settings-4.png" class="settings-classic wiggle-me"></a><br><br>';
         }
-        ?>
-        <img class="no-toggle statusIcon pull-right no-margin inline-img small" title="" src="" data-original-title=""></h1>
+        ?></h1>
 
         <form id="form1" name="form1" method="GET" action="" enctype="multipart/form-data" class="form-horizontal" role="form">
             <input type="hidden" name="tab" value="<?= $_GET['tab'] ?>">
@@ -300,7 +299,7 @@ function viewTicket(a) {
                     <button type="button" onclick="$('[name^=search_staff]').find('option').prop('selected',false); $('[name^=search_staff]').find('option[value=<?= $timesheet_payroll_styling == 'EGS' ? 'ALL' : 'ALL_STAFF' ?>]').prop('selected',true).change(); $('[name=search_user_submit]').click(); return false;" name="display_all_inventory" value="Display All" class="btn brand-btn mobile-block">Display All</button><?php
 
                     if($timesheet_payroll_styling == 'EGS') { ?>
-                        <a target="_blank" href="<?= WEBSITE_URL ?>/Timesheet/reporting.php?export=pdf_egs&search_staff=<?php echo (!empty($_GET['see_staff']) ? $_GET['see_staff'] : implode(',', $search_staff_list)); ?>&search_start_date=<?php echo $search_start_date; ?>&search_end_date=<?php echo $search_end_date; ?>&search_position=<?php echo $search_position; ?>&search_project=<?php echo $search_project; ?>&search_ticket=<?php echo $search_ticket; ?>&tab=<?= $_GET['tab'] ?>&see_staff=<?= $_GET['see_staff'] ?>&timesheet_tab=payroll" onclick="displayPDFOptions(this); return false;" title="PDF"><img src="<?php echo WEBSITE_URL; ?>/img/pdf.png" style="height:100%; margin:0;" /></a><?php
+                        <a target="_blank" href="<?= WEBSITE_URL ?>/Timesheet/reporting.php?export=pdf_egs&search_staff=<?php echo (!empty($_GET['see_staff']) ? $_GET['see_staff'] : implode(',', $search_staff_list)); ?>&search_start_date=<?php echo $search_start_date; ?>&search_end_date=<?php echo $search_end_date; ?>&search_position=<?php echo $search_position; ?>&search_project=<?php echo $search_project; ?>&search_ticket=<?php echo $search_ticket; ?>&tab=<?= $_GET['tab'] ?>&see_staff=<?= $_GET['see_staff'] ?>&timesheet_tab=payroll" onclick="displayPDFOptions(this); return false;"><img src="<?php echo WEBSITE_URL; ?>/img/pdf.png" style="height:100%; margin:0;" class="no-toggle" title="PDF" /></a><?php
                     } ?>
                 <?php if(count($search_staff_list) == 1 && $search_staff_list[0] != 'ALL_STAFF' && !empty($search_staff_list)) { ?>
                     <div class="clearfix"></div>
@@ -331,8 +330,9 @@ function viewTicket(a) {
 
         if(!empty($search_staff_list)) {
             foreach(array_filter(array_unique($search_staff_list), function($id) { return $id != 'ALL_STAFF'; }) as $search_staff) {
+                echo '<div class="status_group">';
                 if(count($search_staff_list) > 1) {
-                    echo "<h2>".get_contact($dbc, $search_staff)."</h2>";
+                    echo "<h2>".get_contact($dbc, $search_staff)."<img src='../img/empty.png' class='statusIcon inline-img no-toggle no-margin'></h2>";
                 }
                 $filter = ' AND (staff = "'.$search_staff.'")';
                 if($search_site != '') {
@@ -428,6 +428,7 @@ function viewTicket(a) {
                         echo '<button type="submit" value="rate_timesheet" name="submit" class="btn brand-btn mobile-block pull-right">Update Hours</button>';
                     endif;
                 endif;
+                echo '</div>';
             }
         } else {
             echo "<h3>Please select a staff member.</h3>";

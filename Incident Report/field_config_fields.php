@@ -21,9 +21,15 @@
 	} else {
 		$keep_revisions = 0;
 	}
+	if(isset($_POST['user_emails'])) {
+		$user_emails = 1;
+	} else {
+		$user_emails = 0;
+	}
+	$all_emails = filter_var($_POST['all_emails'],FILTER_SANITIZE_STRING);
 	$user_form_id = filter_var($_POST['user_form_id'],FILTER_SANITIZE_STRING);
 	mysqli_query($dbc, "INSERT INTO `field_config_incident_report` (`row_type`, `incident_types`, `user_form_id`) SELECT '$incident_type', '$type_list', '$user_form_id' FROM (SELECT COUNT(*) rows FROM `field_config_incident_report` WHERE `row_type`='$incident_type') num WHERE num.rows=0");
-	mysqli_query($dbc, "UPDATE `field_config_incident_report` SET `incident_report`='$incident_report', `hide_fields`='$hide_fields', `report_info`='$report_info', `keep_revisions` = '$keep_revisions', `user_form_id` = '$user_form_id' WHERE `row_type`='$incident_type'");
+	mysqli_query($dbc, "UPDATE `field_config_incident_report` SET `incident_report`='$incident_report', `hide_fields`='$hide_fields', `report_info`='$report_info', `keep_revisions` = '$keep_revisions', `user_emails` = '$user_emails', `all_emails` = '$all_emails', `user_form_id` = '$user_form_id' WHERE `row_type`='$incident_type'");
 
     echo '<script type="text/javascript"> window.location.replace(""); </script>';
 }
@@ -50,11 +56,13 @@ $(document).ready(function() {
 <input type="hidden" name="full_type_list" value="<?= $get_field_config['incident_types'] ?>">
 
 <div class="form-group gap-top">
-	<?php $incident_config = mysqli_fetch_array(mysqli_query($dbc, "SELECT `incident_report`, `hide_fields`, `report_info`, `keep_revisions`, `user_form_id` FROM `field_config_incident_report` WHERE `row_type`='$main_type' UNION SELECT GROUP_CONCAT(`incident_report`), '', '', '', '' FROM `field_config_incident_report` WHERE IFNULL(`incident_report`,'') != ''"));
+	<?php $incident_config = mysqli_fetch_array(mysqli_query($dbc, "SELECT `incident_report`, `hide_fields`, `report_info`, `keep_revisions`, `user_emails`, `all_emails`, `user_form_id` FROM `field_config_incident_report` WHERE `row_type`='$main_type' UNION SELECT GROUP_CONCAT(`incident_report`), '', '', '', 0, '', '' FROM `field_config_incident_report` WHERE IFNULL(`incident_report`,'') != ''"));
 	$value_config = ','.$incident_config['incident_report'].',';
 	$report_info = $incident_config['report_info'];
 	$hide_config = [];
 	$keep_revisions = $incident_config['keep_revisions'];
+	$user_emails = $incident_config['user_emails'];
+	$all_emails = $incident_config['all_emails'];
 	foreach(explode('#*#',$incident_config['hide_fields']) as $hide_list) {
 		$hide_list = explode(':|',$hide_list);
 		$hide_config[$hide_list[0]] = $hide_list[1];
@@ -86,7 +94,15 @@ $(document).ready(function() {
 	<div class="form-group">
 		<label class="col-sm-4 control-label">Keep Revisions:</label>
 		<div class="col-sm-8">
-			<input type="checkbox" name="keep_revisions" value="1" <?= $keep_revisions == 1 ? 'checked' : '' ?> style="height: 20px; width: 20px;">
+			<label class="form-checkbox"><input type="checkbox" name="keep_revisions" value="1" <?= $keep_revisions == 1 ? 'checked' : '' ?>> Enable</label>
+		</div>
+	</div>
+
+	<div class="form-group">
+		<label class="col-sm-4 control-label">Send Emails:</label>
+		<div class="col-sm-8">
+			<div class="col-sm-4"><label class="form-checkbox any-width"><input type="checkbox" name="user_emails" value="1" <?= $user_emails == 1 ? 'checked' : '' ?>> Send to Submitting User</label></div>
+			<label class="col-sm-3">All <?= INC_REP_TILE ?> Send To: </label><div class="col-sm-5"><input type="email" name="all_emails" value="<?= $all_emails ?>" class="form-control"></div>
 		</div>
 	</div>
 

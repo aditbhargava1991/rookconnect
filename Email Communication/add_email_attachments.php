@@ -11,8 +11,7 @@ $(document).ready(function() {
 });
 </script>
 <div class="col-md-12">
-    <?php
-    if(!empty($_GET['email_communicationid'])) {
+    <?php if(!empty($_GET['email_communicationid'])) {
         $query_check_credentials = "SELECT * FROM email_communicationid_upload WHERE email_communicationid='$email_communicationid' ORDER BY emailcommuploadid DESC";
         $result = mysqli_query($dbc, $query_check_credentials);
         $num_rows = mysqli_num_rows($result);
@@ -33,9 +32,16 @@ $(document).ready(function() {
             }
             echo '</table>';
         }
-    }
-    ?>
+    } ?>
 
+    <?php foreach(explode('#*#',$_GET['attach_docs']) as $doc_name) {
+        $doc_name = urldecode($doc_name);
+        if(file_exists($doc_name)) { ?>
+            <div class="form-group">File to Attach: <a href="<?= $doc_name ?>"><?= $doc_name ?></a></div>
+            <input type="hidden" name="email_file[]" value="<?= $doc_name ?>">
+        <?php }
+    } ?>
+    
     <div class="form-group">
         <label for="additional_note" class="col-sm-12">
             Upload Document(s):

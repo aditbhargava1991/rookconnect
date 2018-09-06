@@ -33,8 +33,7 @@ $(document).ready(function() {
 <div id="equip_div" class="container">
 	<div class="iframe_overlay" style="display:none; margin-top: -20px;margin-left:-15px;">
 		<div class="iframe">
-			<div class="iframe_loading">Loading...</div>
-			<iframe name="equipment_iframe" src=""></iframe>
+			<iframe name="equipment_iframe" src="../blank_loading_page.php"></iframe>
 		</div>
 	</div>
 	<div class='iframe_holder' style='display:none;'>
@@ -50,7 +49,9 @@ $(document).ready(function() {
 						echo '<div class="pull-right gap-left"><a href="?settings=tab"><img src="'.WEBSITE_URL.'/img/icons/settings-4.png" class="settings-classic wiggle-me" width="30"></a></div>';
 					}
 					if($security['edit'] > 0) {
-						echo '<div class="pull-right gap-left"><a href="?edit=&category='.($_GET['category'] != 'Top' ? $_GET['category'] : '').'" class="new-btn"><button class="btn brand-btn">New Equipment</button</a></div>';
+						echo '<div class="pull-right gap-left"><a href="?edit=&category='.($_GET['category'] != 'Top' ? $_GET['category'] : '').'" class="new-btn"><button class="btn brand-btn">New Equipment</button></a></div>';
+						echo '<div class="pull-right gap-left"><a href="import_export.php?category='.$_GET['category'].'&action=import" class="no-toggle" title="Import CSV into Equipment List" onclick="overlayIFrameSlider(this.href,\'auto\',true,false,\'auto\',true); return false;"><img class="inline-img" src="../img/csv.png"></a></div>';
+						echo '<div class="pull-right gap-left"><a href="import_export.php?category='.$_GET['category'].'&action=export" class="no-toggle" title="Export Equipment List as CSV" onclick="overlayIFrameSlider(this.href,\'auto\',true,true,\'auto\',true); return false;"><img class="inline-img" src="../img/icons/ROOK-download-icon.png"></a></div>';
 					} ?>
 				</div>
 				<div class="scale-to-fill">
@@ -62,6 +63,48 @@ $(document).ready(function() {
 					} ?>
 					<h1 class="gap-left"><a href="?">Equipment</a><?= $equipmentid > 0 ? ': Unit #'.$unit_number : '' ?></h1>
 				</div>
+                <?php $note = '';
+                if(!isset($_GET['edit']) && !isset($_GET['edit_inspection']) && !isset($_GET['edit_assigned_equipment']) && !isset($_GET['edit_work_order']) && !isset($_GET['edit_service_request']) && !isset($_GET['edit_service_record']) && !isset($_GET['edit_checklist']) && (!isset($_GET['settings']) || $security['config'] < 1)) {
+                    switch($_GET['tab']) {
+                        case 'inspections':
+                            $note = '';
+                            break;
+                        case 'assign_equipment':
+                            $note = 'Here you can add and edit all equipment assignments.';
+                            break;
+                        case 'work_orders':
+                            $note = '';
+                            break;
+                        case 'expenses':
+                            $note = '';
+                            break;
+                        case 'balance':
+                            $note = '';
+                            break;
+                        case 'service_schedules':
+                            $note = '';
+                            break;
+                        case 'service_request':
+                            $note = 'Whether your business maintains its own equipment and wishes to file service requests or work orders through this section or you\'re looking to track and record progress on all service requests being run through your company, this section has the ability to maintain and monitor all your equipment.';
+                            break;
+                        case 'service_record':
+                            $note = 'Through this section, full services records and tracking can be done on all equipment. These records are ideal for reporting, sales, year end and tracking the profit and losses on all equipment.';
+                            break;
+                        case 'equipment_checklist':
+                            $note = 'A checklist is defined for either an equipment category, a type of equipment, or a specific piece of equipment. Once you have selected a piece of equipment, any checklists that match the piece of equipment will be displayed.';
+                            break;
+                        default:
+                            $note = 'Tracking and maintaining equipment is an essential element for every business. Through this section you\'ll be able to Add/Edit/Archive equipment you wish to use throughout projects or capture essential data on.';
+                            break;
+                    }
+                }
+                if($note != '') { ?>
+                    <div class="notice double-gap-top double-gap-bottom popover-examples">
+                        <div class="col-sm-1 notice-icon"><img src="../img/info.png" class="wiggle-me" width="25"></div>
+                        <div class="col-sm-11"><span class="notice-name">NOTE: </span><?= $note ?></div>
+                        <div class="clearfix"></div>
+                    </div>
+                <?php } ?>
 				<div class="clearfix"></div>
 			</div>
 

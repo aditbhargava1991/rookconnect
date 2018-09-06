@@ -141,7 +141,7 @@ $site_work_order_staff_groups = get_config($dbc, 'site_work_order_staff_groups')
 		<div class="panel-heading">
 			<h4 class="panel-title">
 				<a data-toggle="collapse" data-parent="#accordion2" href="#collapse_tasks" >
-					Site Work Order Tasks<span class="glyphicon glyphicon-plus"></span>
+					Site Work Order <?= TASK_TILE ?><span class="glyphicon glyphicon-plus"></span>
 				</a>
 			</h4>
 		</div>

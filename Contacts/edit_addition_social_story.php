@@ -23,7 +23,7 @@
     } ?>
 	<script type="text/javascript">
 
-	function selectContactCategory(sel) {
+	function selectContactCategorySS(sel) {
 		var stage = sel.value;
 		var typeId = sel.id;
 		var arr = typeId.split('_');
@@ -85,7 +85,7 @@ if($field_option == 'Client Communication Social Story') {
     } ?>
 	<script type="text/javascript">
 
-	function selectContactCategory(sel) {
+	function selectContactCategorySS(sel) {
 		var stage = sel.value;
 		var typeId = sel.id;
 		var arr = typeId.split('_');
@@ -147,7 +147,7 @@ if($field_option == 'Client Protocols Social Story') {
     } ?>
 	<script type="text/javascript">
 
-	function selectContactCategory(sel) {
+	function selectContactCategorySS(sel) {
 		var stage = sel.value;
 		var typeId = sel.id;
 		var arr = typeId.split('_');
@@ -208,7 +208,7 @@ if($field_option == 'Client Routines Social Story') {
     } ?>
 	<script type="text/javascript">
 
-	function selectContactCategory(sel) {
+	function selectContactCategorySS(sel) {
 		var stage = sel.value;
 		var typeId = sel.id;
 		var arr = typeId.split('_');
@@ -269,7 +269,7 @@ if($field_option == 'Client Key Methodologies Social Story' || $field_option == 
     } ?>
 	<script type="text/javascript">
 
-	function selectContactCategory(sel) {
+	function selectContactCategorySS(sel) {
 		var stage = sel.value;
 		var typeId = sel.id;
 		var arr = typeId.split('_');

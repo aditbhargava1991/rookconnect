@@ -105,7 +105,8 @@ if (isset($_POST['add_ir']) || isset($_POST['save_ir'])) {
 	    
     $from = filter_var($_POST['from'],FILTER_SANITIZE_STRING);
 
-    $keep_revisions = mysqli_fetch_array(mysqli_query($dbc, "SELECT `incident_report`, `hide_fields`, `report_info`, `keep_revisions` FROM `field_config_incident_report` WHERE `row_type`='$type' AND '$type'!=''"))['keep_revisions'];
+    $report_options = mysqli_fetch_array(mysqli_query($dbc, "SELECT `incident_report`, `hide_fields`, `report_info`, `keep_revisions`, `user_emails`, `all_emails` FROM `field_config_incident_report` WHERE `row_type`='$type' AND '$type'!=''"));
+    $keep_revisions = $report_options['keep_revisions'];
     $revision_number = '';
     $revision_date = '';
 
@@ -139,6 +140,12 @@ if (isset($_POST['add_ir']) || isset($_POST['save_ir'])) {
 		$reported_by = $row['reported_by'];
 		$today_date = $row['today_date'];
         $url = 'Updated';
+    }
+
+    if(isset($_POST['save_ir'])) {
+    	mysqli_query($dbc, "UPDATE `incident_report` SET `saved` = 1 WHERE `incidentreportid` = '$incidentreportid'");
+    } else {
+    	mysqli_query($dbc, "UPDATE `incident_report` SET `saved` = 0 WHERE `incidentreportid` = '$incidentreportid'");
     }
 
     if(!($user_form_id > 0)) {
@@ -668,6 +675,23 @@ if (isset($_POST['add_ir']) || isset($_POST['save_ir'])) {
     if($inc_rep_save_journal == 1) {
 	    $journal_note = $url.' '.INC_REP_NOUN.': <a href="'.WEBSITE_URL.'/Incident Report/add_incident_report.php?incidentreportid='.$incidentreportid.'">'.$type.' #'.$incidentreportid.'</a> at '.date('h:i a').'.';
 	    mysqli_query($dbc, "INSERT INTO `daysheet_notepad` (`contactid`, `date`, `notes`) VALUES ('".$_SESSION['contactid']."', '".date('Y-m-d')."', '".htmlentities($journal_note)."')");
+    }
+    
+    // Notification Emails
+    $send_report_to = [];
+    if($report_options['user_emails'] > 0) {
+        $send_report_to[] = get_email($dbc, $_SESSION['contactid']);
+    }
+    if(!empty($report_options['all_emails'])) {
+        $send_report_to[] = $report_options['all_emails'];
+    }
+    if(!empty($send_report_to)) {
+        try {
+            send_email('', $send_report_to, '', '', INC_REP_NOUN.' Successfully Submitted', "Thank you for submitting this ".INC_REP_NOUN.". For your reference, a copy has been attached to this email.", (!empty($pdf_url) && file_exists($pdf_url) ? $pdf_url : ''));
+        } catch(Exception $e) {
+            $log = "Unable to send e-mail to ".implode('; ',$send_report_to).": ".$e->getMessage()."\n";
+            mysqli_query($dbc, "UPDATE `incident_report` SET `email_error_log` = CONCAT(`email_error_log`, '$log') WHERE `incidentreportid` = '$incidentreportid'");
+        }
     }
 
 	//Follow Up Emails

@@ -153,7 +153,7 @@ function report_receivables($dbc, $starttime, $endtime, $table_style, $table_row
     <th width="15%">Changed Date</th>
     </tr>';
 
-	$query = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM checklist_history where updated_at >= '$starttime' and updated_at < '$endtime'"));
+	$query = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM checklist_history where updated_at >= '$starttime' and updated_at < '$endtime' ORDER BY updated_at DESC"));
 	$odd_even = 0;
     foreach($query as $rowid) {
         $bg_class = $odd_even % 2 == 0 ? '' : 'background-color:#e6e6e6;';
@@ -168,7 +168,7 @@ function report_receivables($dbc, $starttime, $endtime, $table_style, $table_row
             $report_data .= '<td>'.$changed_by.'</td>';
             $report_data .= '<td>'.$changed_date.'</td>';
         $report_data .= "</tr>";
-        
+
         $odd_even++;
     }
 

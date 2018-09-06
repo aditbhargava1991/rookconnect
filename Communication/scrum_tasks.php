@@ -75,7 +75,7 @@ $( document ).ready(function() {
 <div class="container">
 	<div class="row hide_on_iframe">
 
-    <h1 class="single-pad-bottom">Scrum Tasks
+    <h1 class="single-pad-bottom">Scrum <?= TASK_TILE ?>
     <?php
     if(config_visible_function($dbc, 'communication') == 1) {
         echo '<a href="field_config_tasks.php?type=tab" class="mobile-block pull-right "><img style="width: 50px;" title="Tile Settings" src="../img/icons/settings-4.png" class="settings-classic wiggle-me"></a><br><br>';
@@ -84,13 +84,13 @@ $( document ).ready(function() {
     $value_config = ','.get_config($dbc, 'task_ticket').',';
 	echo '<br><br><div class="mobile-100-container">';
     if (strpos($value_config, ','."Task".',') !== FALSE) {
-    echo "<a href='tasks.php?category=All'><button type='button' class='btn brand-btn mobile-block mobile-100' >My Tasks</button></a>&nbsp;&nbsp;";
+    echo "<a href='tasks.php?category=All'><button type='button' class='btn brand-btn mobile-block mobile-100' >My ".TASK_TILE."</button></a>&nbsp;&nbsp;";
     }
     if (strpos($value_config, ','."Ticket".',') !== FALSE) {
     echo "<a href='tickets.php?category=All'><button type='button' class='btn brand-btn mobile-block mobile-100' >".TICKET_TILE."</button></a>&nbsp;&nbsp;";
     }
     if (strpos($value_config, ','."Task".',') !== FALSE) {
-    echo "<a href='scrum_tasks.php?category=All'><button type='button' class='btn brand-btn mobile-block mobile-100 active_tab' >Scrum Tasks</button></a>&nbsp;&nbsp;";
+    echo "<a href='scrum_tasks.php?category=All'><button type='button' class='btn brand-btn mobile-block mobile-100 active_tab' >Scrum ".TASK_TILE."</button></a>&nbsp;&nbsp;";
     }
     if (strpos($value_config, ','."Ticket".',') !== FALSE) {
     echo "<a href='scrum_tickets.php?category=All'><button type='button' class='btn brand-btn mobile-block mobile-100' >Scrum ".TICKET_TILE."</button></a>&nbsp;&nbsp;";

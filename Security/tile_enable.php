@@ -747,13 +747,15 @@ $(document).ready(function() {
                                         <?php echo tile_config_function($dbc, 'newsboard'); ?>
                                     </tr>
                                     <tr>
-                                        <td data-title="Comment">Tasks</td>
+                                        <td data-title="Comment"><?= TASK_TILE ?></td>
                                         <?php echo tile_config_function($dbc, 'tasks'); ?>
                                     </tr>
+                                    <!--
                                     <tr>
                                         <td data-title="Comment">Tasks (Updated)</td>
                                         <?php echo tile_config_function($dbc, 'tasks_updated'); ?>
                                     </tr>
+                                    -->
                                     <tr>
                                         <td data-title="Comment">Trip Optimizer</td>
                                         <?php echo tile_config_function($dbc, 'optimize'); ?>
@@ -1023,13 +1025,15 @@ $(document).ready(function() {
 									<?php echo tile_config_function($dbc, 'scrum'); ?>
 								</tr>
 								<tr>
-									<td data-title="Comment">Tasks</td>
+									<td data-title="Comment"><?= TASK_TILE ?></td>
 									<?php echo tile_config_function($dbc, 'tasks'); ?>
 								</tr>
+                                <!--
 								<tr>
 									<td data-title="Comment">Tasks (Updated)</td>
 									<?php echo tile_config_function($dbc, 'tasks_updated'); ?>
 								</tr>
+                                -->
 							</table>
 						</div>
 					</div>
@@ -1293,10 +1297,6 @@ $(document).ready(function() {
                                     <tr>
                                         <td data-title="Comment"><?= POS_ADVANCE_TILE ?></td>
                                         <?php echo tile_config_function($dbc, 'posadvanced'); ?>
-                                    </tr>
-                                    <tr>
-                                        <td data-title="Comment">Point of Sale (Basic)</td>
-                                        <?php echo tile_config_function($dbc, 'pos'); ?>
                                     </tr>
                                     <tr>
                                         <td data-title="Comment">Promotions & Coupons</td>

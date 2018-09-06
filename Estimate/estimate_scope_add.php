@@ -298,9 +298,9 @@ function add_item(btn) {
 	var block = $(btn).next();
 	var object = '<div class="col-sm-12">';
 	if(type == 'miscellaneous') {
-		object = object+'<h4>Miscellaneous<img class="pull-right cursor-hand line-handle inline-img" src="../img/icons/drag_handle.png"></h4><input type="hidden" name="item[]" value="|miscellaneous|"><input type="text" class="form-control" name="misc_item[]">';
+		object = object+'<h4>Miscellaneous<img class="pull-right cursor-hand line-handle inline-img no-toggle" src="../img/icons/drag_handle.png" title="Drag"></h4><input type="hidden" name="item[]" value="|miscellaneous|"><input type="text" class="form-control" name="misc_item[]">';
 	} else if(type == 'notes') {
-		object = object+'<h4>Notes<img class="pull-right cursor-hand line-handle inline-img" src="../img/icons/drag_handle.png"></h4><input type="hidden" name="item[]" value="|notes|"><textarea name="note_item[]"></textarea>';
+		object = object+'<h4>Notes<img class="pull-right cursor-hand line-handle inline-img no-toggle" src="../img/icons/drag_handle.png" title="Drag"></h4><input type="hidden" name="item[]" value="|notes|"><textarea name="note_item[]"></textarea>';
 	} else {
 		if(type != 'position') {
 			object = object+(type == 'services' ? '<div class="col-sm-4">' : '<div class="col-sm-5">')+'<select name="category" class="chosen-select-deselect form-control" name="category" data-type="'+type+'" onchange="fill_select(this);"><option></option></select></div>';
@@ -308,7 +308,7 @@ function add_item(btn) {
 		if(type == 'services') {
 			object = object+'<div class="col-sm-3"><select name="item_type" class="chosen-select-deselect form-control" data-type="'+type+'" name="type" onchange="fill_select(this);"><option></option></select></div>';
 		}
-		object = object+(type != 'position' ? (type == 'services' ? '<div class="col-sm-4">' : '<div class="col-sm-6">') : '<div class="col-sm-11">')+'<select name="item[]" class="chosen-select-deselect form-control" data-type="'+type+'"><option></option></select></div><img class="pull-right cursor-hand line-handle inline-img" src="../img/icons/drag_handle.png">';
+		object = object+(type != 'position' ? (type == 'services' ? '<div class="col-sm-4">' : '<div class="col-sm-6">') : '<div class="col-sm-11">')+'<select name="item[]" class="chosen-select-deselect form-control" data-type="'+type+'"><option></option></select></div><img class="pull-right cursor-hand line-handle inline-img no-toggle" src="../img/icons/drag_handle.png" title="Drag">';
 	}
 	object = object+'<input type="hidden" name="heading[]" value="'+$('.heading_value').first().text()+'"><div class="clearfix"></div><hr /></div>';
 	block.append(object);

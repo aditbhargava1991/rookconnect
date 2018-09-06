@@ -103,7 +103,7 @@ $contact = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `contacts` LEFT 
 				} else {
 					$contact_url = '../Profile/';
 				}
-				echo '<img class="id-circle" src="'.$contact_url.'download/'.$contact['contactimage'].'">';
+				echo '<img class="id-circle no-toggle" src="'.$contact_url.'download/'.$contact['contactimage'].'" title="'.decryptIt($contact['name']).decryptIt($contact['first_name']).' '.decryptIt($contact['last_name']).'">';
 			} else {
 				profile_id($dbc, $contactid);
 			}
@@ -120,9 +120,80 @@ $contact = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `contacts` LEFT 
 		}
 		?>
 		<?= get_client($dbc, $contactid).' '.get_contact($dbc, $contactid) ?></h3>
+    
+    <?php if(in_array_starts('POS ',$id_card_fields)) { ?>
+        <!-- POS Summary -->
+        <?php if(in_array('POS Invoices', $id_card_fields)) {
+            $inv_count = $dbc->query("SELECT COUNT(*) `count` FROM `invoice` WHERE `patientid`='$contactid' AND `deleted`=0")->fetch_assoc(); ?>
+            <div class="col-xs-6 col-sm-4 col-md-3 col-lg-2 gap-top">
+                <div class="summary-block">
+                    <span class="text-lg"><?= ($inv_count['count'] > 0) ? '<a target="_top" href="../POSAdvanced/invoice_list.php?contactid='.$contactid.'&type=&search_from=0000-00-00&search_to='.date('Y-m-t').'&search_invoice_submit=Search">'.$inv_count['count'].'</a>' : 0; ?></span><br />
+                    Total<br />Invoices
+                </div>
+            </div>
+        <?php } ?>
+        <?php if(in_array('POS Paid', $id_card_fields)) {
+            $inv_total = number_format($dbc->query("SELECT SUM(`patient_price`) `paid` FROM `invoice_patient` WHERE `patientid`='$contactid' AND (`paid` NOT IN ('On Account','No','') AND `paid` NOT LIKE 'Net %')")->fetch_assoc()['paid'],2); ?>
+            <div class="col-xs-6 col-sm-4 col-md-3 col-lg-2 gap-top">
+                <div class="summary-block">
+                    <span class="text-lg"><?= '$'.floor($inv_total).'.<sup>'.explode('.',$inv_total)[1].'</sup>' ?></span><br />
+                    Total Paid<br />To Date
+                </div>
+            </div>
+        <?php } ?>
+        <?php if(in_array('POS A/R', $id_card_fields)) {
+            $patient_ar = number_format(mysqli_fetch_assoc ( mysqli_query ( $dbc, "SELECT SUM(`p`.`patient_price`) AS `patient_ar` FROM `invoice_patient` AS `p` JOIN `invoice` AS `inv` ON (`inv`.`invoiceid`=`p`.`invoiceid`) WHERE (IFNULL(`p`.`paid`,'') IN ('On Account','No','') OR `p`.`paid` LIKE 'Net %') AND `inv`.`patientid`='$contactid'" ) )['patient_ar'],2); ?>
+            <div class="col-xs-6 col-sm-4 col-md-3 col-lg-2 gap-top">
+                <div class="summary-block">
+                    <span class="text-lg"><?= '$'.($patient_ar > 0 ? '<a target="_top" href="../POSAdvanced/patient_account_receivables.php?patientid='.$contactid.'&from=0000-00-00&until='.date('Y-m-d').'">' : '').floor($patient_ar).'.<sup>'.explode('.',$patient_ar)[1].'</sup>'.($patient_ar > 0 ? '</a>' : '') ?></span><br />
+                    A/R<br />&nbsp;
+                </div>
+            </div>
+        <?php } ?>
+        <?php if(in_array('POS Credit', $id_card_fields)) {
+            $patient = mysqli_fetch_assoc ( mysqli_query ( $dbc, "SELECT `amount_credit` FROM `contacts` WHERE `contactid`='$contactid'" ) );
+            $patient_ar = empty($patient['patient_ar']) ? '0.00' : $patient['patient_ar'];
+            $patient_ar = explode('.', $patient_ar); ?>
+            <div class="col-xs-6 col-sm-4 col-md-3 col-lg-2 gap-top">
+                <div class="summary-block">
+                    <span class="text-lg"><?= '$'.$patient_ar[0].'.<sup>'.$patient_ar[1].'</sup>' ?></span><br />
+                    Credit<br />On Account
+                </div>
+            </div>
+        <?php } ?>
+        <?php if(in_array('POS Balance', $id_card_fields)) {
+            $patient = mysqli_fetch_assoc ( mysqli_query ( $dbc, "SELECT `amount_owing` FROM `contacts` WHERE `contactid`='$contactid'" ) );
+            $patient_ar = empty($patient['patient_ar']) ? '0.00' : $patient['patient_ar'];
+            $patient_ar = explode('.', $patient_ar); ?>
+            <div class="col-xs-6 col-sm-4 col-md-3 col-lg-2 gap-top">
+                <div class="summary-block">
+                    <span class="text-lg"><?= '$'.$patient_ar[0].'.<sup>'.$patient_ar[1].'</sup>' ?></span><br />
+                    Account<br />Balance
+                </div>
+            </div>
+        <?php } ?>
+        <?php if(in_array('POS Last Date', $id_card_fields)) {
+            $inv_count = $dbc->query("SELECT MAX(`invoice_date`) `date` FROM `invoice` WHERE `patientid`='$contactid' AND `deleted`=0")->fetch_assoc(); ?>
+            <div class="col-xs-6 col-sm-4 col-md-3 col-lg-2 gap-top">
+                <div class="summary-block">
+                    <span class="text-lg"><?= !empty($inv_count['date'] > 0) ? '<a target="_top" href="../POSAdvanced/invoice_list.php?contactid='.$contactid.'&type=&search_from=0000-00-00&search_to='.date('Y-m-d').'&search_invoice_submit=Search">'.$inv_count['date'].'</a>' : 'N/A'; ?></span><br />
+                    Date Last<br />Invoiced
+                </div>
+            </div>
+        <?php } ?>
+        <div class="clearfix"></div>
+        <!-- POS Summary -->
+    <?php } ?>
+    
 	<div class="col-sm-6">
 		<ul class="chained-list col-sm-6 small">
 			<?php if($contact['contactimage'] != '' && file_exists($contact_url.'download/'.$contact['contactimage'])) { ?><li style="text-align: center;"><img src="<?= $contact_url ?>download/<?= $contact['contactimage'] ?>" style="max-width: 200px; max-height: 200px;"></li><?php } ?>
+			<?php if(in_array_any(['Sales Lead'], $id_card_fields) && in_array($contact['category'],explode(',',get_config($dbc, 'lead_all_contact_cat').',Sales Lead,Sales Leads,'))) {
+                $sales_lead_id = $dbc->query("SELECT `salesid` FROM `sales` WHERE `deleted`=0 AND CONCAT(',',`contactid`,',') LIKE '%,".$contactid.",%'")->fetch_assoc()['salesid'];
+                if($sales_lead_id > 0) { ?>
+                    <li><img src="../img/person.PNG" class="dashboard-profile-icon" title="Sales Lead"><a href="../Sales/sale.php?p=details&id=<?= $sales_lead_id ?>" onclick="overlayIFrameSlider(this.href,'80%',true,true); return false;">Sales Lead #<?= $sales_lead_id ?></a></li>
+                <?php } ?>
+            <?php } ?>
 			<?php if(in_array_any(['Employee Number','Employee ID','Employee #'], $id_card_fields)) { ?><li><img src="../img/id-card.png" class="dashboard-profile-icon" title="ID Number"><?= $contactid ?></li><?php } ?>
 			<?php if(in_array_any(['First Name','Last Name','Profile First Name','Profile Last Name'], $id_card_fields)) { ?><li><img src="../img/person.PNG" class="dashboard-profile-icon" title="Full Name"><?= decryptIt($contact['first_name']).' '.decryptIt($contact['last_name']) ?></li><?php } ?>
 			<?php if(in_array_any(['Position'], $id_card_fields)) {

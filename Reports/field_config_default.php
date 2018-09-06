@@ -64,7 +64,6 @@ if (isset($_POST['submit'])) {
                     <option value="Shop Work Orders" <?= $mobile_landing_subtab_config['value']=='Shop Work Orders' ? 'selected="selected"' : '' ?>>Shop Work Orders</option>
                     <option value="Purchase Orders" <?= $mobile_landing_subtab_config['value']=='Purchase Orders' ? 'selected="selected"' : '' ?>>Purchase Orders</option>
                     <option value="Inventory Log" <?= $mobile_landing_subtab_config['value']=='Inventory Log' ? 'selected="selected"' : '' ?>>Inventory Log</option>
-                    <option value="Point of Sale" <?= $mobile_landing_subtab_config['value']=='Point of Sale' ? 'selected="selected"' : '' ?>>Point of Sale (Basic)</option>
                     <option value="POS" <?= $mobile_landing_subtab_config['value']=='POS' ? 'selected="selected"' : '' ?>><?= POS_ADVANCE_TILE ?></option>
                     <option value="Credit Card on File" <?= $mobile_landing_subtab_config['value']=='Credit Card on File' ? 'selected="selected"' : '' ?>>Credit Card on File</option>
                     <option value="Checklist Time" <?= $mobile_landing_subtab_config['value']=='Checklist Time' ? 'selected="selected"' : '' ?>>Checklist Time Tracking</option>
@@ -228,7 +227,6 @@ if (isset($_POST['submit'])) {
                     <option value="Shop Work Orders" <?= $desktop_landing_subtab_config['value']=='Shop Work Orders' ? 'selected="selected"' : '' ?>>Shop Work Orders</option>
                     <option value="Purchase Orders" <?= $desktop_landing_subtab_config['value']=='Purchase Orders' ? 'selected="selected"' : '' ?>>Purchase Orders</option>
                     <option value="Inventory Log" <?= $desktop_landing_subtab_config['value']=='Inventory Log' ? 'selected="selected"' : '' ?>>Inventory Log</option>
-                    <option value="Point of Sale" <?= $desktop_landing_subtab_config['value']=='Point of Sale' ? 'selected="selected"' : '' ?>>Point of Sale (Basic)</option>
                     <option value="POS" <?= $desktop_landing_subtab_config['value']=='POS' ? 'selected="selected"' : '' ?>><?= POS_ADVANCE_TILE ?></option>
                     <option value="Credit Card on File" <?= $desktop_landing_subtab_config['value']=='Credit Card on File' ? 'selected="selected"' : '' ?>>Credit Card on File</option>
                     <option value="Checklist Time" <?= $desktop_landing_subtab_config['value']=='Checklist Time' ? 'selected="selected"' : '' ?>>Checklist Time Tracking</option>
@@ -379,6 +377,8 @@ if (isset($_POST['submit'])) {
                   <option value="History Services History" <?= $desktop_landing_subtab_config['value']=='History Services History' ? 'selected="selected"' : '' ?>>Services History</option>
                   <option value="History Expenses History" <?= $desktop_landing_subtab_config['value']=='History Expenses History' ? 'selected="selected"' : '' ?>>Expenses History</option>
                   <option value="History Estimates History" <?= $desktop_landing_subtab_config['value']=='History Estimates History' ? 'selected="selected"' : '' ?>>Estimates History</option>
+                  <option value="History Products History" <?= $desktop_landing_subtab_config['value']=='History Products History' ? 'selected="selected"' : '' ?>>Products History</option>
+                  <option value="History Safety History" <?= $desktop_landing_subtab_config['value']=='History Safety History' ? 'selected="selected"' : '' ?>>Safety History</option>
               </optgroup>
               <optgroup label="Estimates">
                   <option value="Estimate Report" <?= $desktop_landing_subtab_config['value']=='Estimate Report' ? 'selected="selected"' : '' ?>>Estimate Report</option>

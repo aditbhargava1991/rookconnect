@@ -437,7 +437,7 @@ $(document).ready(function(){
 				<h4>Select the Sections to display:</h4>
 				<?php $company_sections = ','.get_config($dbc,'company_rate_card_sections').',';
 				if(tile_enabled($dbc, 'tasks')['user_enabled'] || tile_enabled($dbc,'tickets')['user_enabled']) { ?>
-					<label class="form-checkbox"><input name="company_sections[]" <?php if (strpos($company_sections, ',tasks,') !== FALSE) { echo " checked"; } ?> type="checkbox" value="tasks"/>Tasks</label>
+					<label class="form-checkbox"><input name="company_sections[]" <?php if (strpos($company_sections, ',tasks,') !== FALSE) { echo " checked"; } ?> type="checkbox" value="tasks"/><?= TASK_TILE ?></label>
 				<?php } ?>
 				<?php if(tile_enabled($dbc, 'material')['user_enabled']) { ?>
 					<label class="form-checkbox"><input name="company_sections[]" <?php if (strpos($company_sections, ',material,') !== FALSE) { echo " checked"; } ?> type="checkbox" value="material"/>Material</label>

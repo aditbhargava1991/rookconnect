@@ -106,6 +106,7 @@ if(count($tab_config) == 0 && count($all_config) == 0) {
 	<div class="block-group">
 		<label class="form-checkbox"><input type="checkbox" <?= in_array('Summary Estimated', $all_config) ? 'checked disabled' : (in_array('Summary Estimated',$tab_config) ? 'checked' : '') ?> name="project_tabs[]" value="Summary Estimated">Estimated Time</label>
 		<label class="form-checkbox"><input type="checkbox" <?= in_array('Summary Tracked', $all_config) ? 'checked disabled' : (in_array('Summary Tracked',$tab_config) ? 'checked' : '') ?> name="project_tabs[]" value="Summary Tracked">Tracked Time</label>
+		<label class="form-checkbox"><input type="checkbox" <?= in_array('Summary Projections', $all_config) ? 'checked disabled' : (in_array('Summary Projections',$tab_config) ? 'checked' : '') ?> name="project_tabs[]" value="Summary Projections">Projections</label>
 		<label class="form-checkbox"><input type="checkbox" <?= in_array('Summary Contact', $all_config) ? 'checked disabled' : (in_array('Summary Contact',$tab_config) ? 'checked' : '') ?> name="project_tabs[]" value="Summary Contact">Point of Contact</label>
 		<label class="form-checkbox"><input type="checkbox" <?= in_array('Summary Details', $all_config) ? 'checked disabled' : (in_array('Summary Details',$tab_config) ? 'checked' : '') ?> name="project_tabs[]" value="Summary Details"><?= PROJECT_NOUN ?> Details</label>
 		<label class="form-checkbox"><input type="checkbox" <?= in_array('Summary Tickets', $all_config) ? 'checked disabled' : (in_array('Summary Tickets',$tab_config) ? 'checked' : '') ?> name="project_tabs[]" value="Summary Tickets"><?= TICKET_NOUN ?> Summary</label>
@@ -161,10 +162,11 @@ if(count($tab_config) == 0 && count($all_config) == 0) {
 	<label class="form-checkbox"><input type="checkbox" <?= in_array('Tickets', $all_config) ? 'checked disabled' : (in_array('Tickets',$tab_config) ? 'checked' : '') ?> name="project_tabs[]" value="Tickets"><?= TICKET_TILE ?></label>
 	<label class="form-checkbox"><input type="checkbox" <?= in_array('Custom PDF', $all_config) ? 'checked disabled' : (in_array('Custom PDF',$tab_config) ? 'checked' : '') ?> name="project_tabs[]" value="Custom PDF">Custom PDFs</label>
 	<label class="form-checkbox"><input type="checkbox" <?= in_array('Work Orders', $all_config) ? 'checked disabled' : (in_array('Work Orders',$tab_config) ? 'checked' : '') ?> name="project_tabs[]" value="Work Orders">Work Orders</label>
-	<label class="form-checkbox"><input type="checkbox" <?= in_array('Tasks', $all_config) || in_array('Checklists', $all_config) ? 'checked disabled' : (in_array('Tasks',$tab_config) || in_array('Checklists',$tab_config) ? 'checked' : '') ?> name="project_tabs[]" value="Tasks">Tasks</label>
+	<label class="form-checkbox"><input type="checkbox" <?= in_array('Tasks', $all_config) || in_array('Checklists', $all_config) ? 'checked disabled' : (in_array('Tasks',$tab_config) || in_array('Checklists',$tab_config) ? 'checked' : '') ?> name="project_tabs[]" value="Tasks"><?= TASK_TILE ?></label>
 	<label class="form-checkbox"><input type="checkbox" <?= in_array('Checklists In Path', $all_config) ? 'checked disabled' : (in_array('Checklists In Path',$tab_config) ? 'checked' : '') ?> name="project_tabs[]" value="Checklists In Path">Checklists In <?= PROJECT_NOUN ?> Path</label>
 	<label class="form-checkbox"><input type="checkbox" <?= in_array('Time Clock', $all_config) ? 'checked disabled' : (in_array('Time Clock',$tab_config) ? 'checked' : '') ?> name="project_tabs[]" value="Time Clock">Time Clock</label>
 	<label class="form-checkbox-any-width pad-horiz-2"><input type="checkbox" <?= in_array('Unassigned Hide', $all_config) ? 'checked disabled' : (in_array('Unassigned Hide',$tab_config) ? 'checked' : '') ?> name="project_tabs[]" value="Unassigned Hide">Combine Unassigned and Scheduled <?= TICKET_TILE ?></label>
+	<label class="form-checkbox"><input type="checkbox" <?= in_array('Report Action Items', $all_config) ? 'checked disabled' : (in_array('Report Action Items',$tab_config) ? 'checked' : '') ?> name="project_tabs[]" value="Report Action Items">Status Report</label>
 	<?php $project_heading = 'action_item';
 	include('../Project/field_config_tabs_user_forms.php'); ?>
 </div>
@@ -182,6 +184,7 @@ if(count($tab_config) == 0 && count($all_config) == 0) {
 	<label class="form-checkbox"><input type="checkbox" <?= in_array('Phone', $all_config) ? 'checked disabled' : (in_array('Phone',$tab_config) ? 'checked' : '') ?> name="project_tabs[]" value="Phone">Phone</label>
 	<label class="form-checkbox"><input type="checkbox" <?= in_array('Agendas', $all_config) ? 'checked disabled' : (in_array('Agendas',$tab_config) ? 'checked' : '') ?> name="project_tabs[]" value="Agendas">Agendas</label>
 	<label class="form-checkbox"><input type="checkbox" <?= in_array('Meetings', $all_config) ? 'checked disabled' : (in_array('Meetings',$tab_config) ? 'checked' : '') ?> name="project_tabs[]" value="Meetings">Meetings</label>
+	<label class="form-checkbox"><input type="checkbox" <?= in_array('Comm Log', $all_config) ? 'checked disabled' : (in_array('Comm Log',$tab_config) ? 'checked' : '') ?> name="project_tabs[]" value="Comm Log">Communication History</label>
 	<?php $project_heading = 'communications';
 	include('../Project/field_config_tabs_user_forms.php'); ?>
 </div>

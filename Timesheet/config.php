@@ -68,7 +68,7 @@ function vuaed_visible_function_custom($dbc)
 
 $config['tabs'] = [ 'Time Sheets' => array('Daily' => 'time_cards.php?tab=Daily', 'Weekly' => 'time_cards.php?tab=Weekly', 'Bi-Weekly' => 'time_cards.php?tab=Bi-Weekly', 'Monthly' => 'time_cards.php?tab=Monthly', 'Custom' => 'time_cards.php?tab=Custom'),
 	'Pay Period' => array('Custom' => 'pay_period.php', 'Last Month' => 'pay_period_last_month.php', 'Current Month' => 'pay_period_current_month.php'),
-	'Holidays' => 'holidays.php',
+	'Holidays' => array('Holidays'=>'holidays.php', 'Stat Pay Calculation'=>'stat_pay_calculation.php'),
 	'Coordinator Approvals' => array('Daily' => 'time_card_approvals_coordinator.php?tab=Daily', 'Weekly' => 'time_card_approvals_coordinator.php?tab=Weekly', 'Bi-Weekly' => 'time_card_approvals_coordinator.php?tab=Bi-Weekly', 'Monthly' => 'time_card_approvals_coordinator.php?tab=Monthly', 'Custom' => 'time_card_approvals_coordinator.php?tab=Custom'),
 	'Manager Approvals' => array('Daily' => 'time_card_approvals_manager.php?tab=Daily', 'Weekly' => 'time_card_approvals_manager.php?tab=Weekly', 'Bi-Weekly' => 'time_card_approvals_manager.php?tab=Bi-Weekly', 'Monthly' => 'time_card_approvals_manager.php?tab=Monthly', 'Custom' => 'time_card_approvals_manager.php?tab=Custom'),
 	'Reporting' => array('Daily' => 'reporting.php?tab=Daily', 'Weekly' => 'reporting.php?tab=Weekly', 'Bi-Weekly' => 'reporting.php?tab=Bi-Weekly', 'Monthly' => 'reporting.php?tab=Monthly', 'Custom' => 'reporting.php?tab=Custom'),
@@ -176,6 +176,7 @@ $config['settings']['Choose Fields for Time Sheets']['data'] = array(
 			array('Training Hours', 'hidden', 'training_hrs'),
 			array('Sick Time', 'hidden', 'sick_hrs'),
 			array('Sick Taken', 'hidden', 'sick_used'),
+			array('Sick Taken - Check Conflicts', 'hidden', 'sick_used_conflicts'),
 			array('Stat Hours', 'hidden', 'stat_hrs'),
 			array('Stat Taken', 'hidden', 'stat_used'),
 			array('Breaks', 'hidden', 'breaks'),
@@ -358,6 +359,8 @@ $config['settings']['Choose Fields for Holidays Dashboard']['data'] = array(
 			array('Name', 'text', 'name'),
 			array('Date', 'date', 'date'),
 			array('Paid', 'checkbox', 'paid'),
+			array('Holidays', 'hidden', 'Holidays'),
+			array('Stat Pay Calculation', 'hidden', 'Stat Pay Calculation')
 		)
 );
 
@@ -380,12 +383,17 @@ function get_tabs($tab = '', $subtab = '', $custom = array())
 				if($title == $tab) {
 					$active = 'active_tab';
 				}
-				$url = !empty($contents[$default_tab]) ? $contents[$default_tab] : $contents['Custom'];
 
+				if($title == 'Holidays') {
+					$url = $contents['Holidays'];
+				} else {
+					$url = !empty($contents[$default_tab]) ? $contents[$default_tab] : $contents['Custom'];
+				}
+				
                 if ( check_subtab_persmission($dbc, 'timesheet', ROLE, $title_subtab) === true ) {
-                    $html .= "<a href='".$url."'><button type='button' class='btn brand-btn mobile-block ".$active."' >".($title == 'Manager Approvals' ? $timesheet_manager_approvals : $title)."</button></a>";
+                    $html .= "<a href='".$url."'><button type='button' class='btn brand-btn mobile-block ".$active."' >".($title == 'Manager Approvals' ? $timesheet_manager_approvals : ($title == 'Holidays' ? 'Stat Holidays' : $title))."</button></a>";
                 } else {
-                    $html .= "<button type='button' class='btn disabled-btn mobile-block'>".($title == 'Manager Approvals' ? $timesheet_manager_approvals : $title)."</button>&nbsp;";
+                    $html .= "<button type='button' class='btn disabled-btn mobile-block'>".($title == 'Manager Approvals' ? $timesheet_manager_approvals : ($title == 'Holidays' ? 'Stat Holidays' : $title))."</button>&nbsp;";
                 }
 
 				if($title == $tab) {
@@ -410,9 +418,9 @@ function get_tabs($tab = '', $subtab = '', $custom = array())
 				}
 
                 if ( check_subtab_persmission($dbc, 'timesheet', ROLE, $title_subtab) === true ) {
-                    $html .= "<a href='".$contents."'><button type='button' class='btn brand-btn mobile-block ".$active."' >".($title == 'Manager Approvals' ? $timesheet_manager_approvals : $title)."</button></a>";
+                    $html .= "<a href='".$contents."'><button type='button' class='btn brand-btn mobile-block ".$active."' >".($title == 'Manager Approvals' ? $timesheet_manager_approvals : ($title == 'Holidays' ? 'Stat Holidays' : $title))."</button></a>";
                 } else {
-                    $html .= "<button type='button' class='btn disabled-btn mobile-block'>".$title."</button>&nbsp;";
+                    $html .= "<button type='button' class='btn disabled-btn mobile-block'>".($title == 'Manager Approvals' ? $timesheet_manager_approvals : ($title == 'Holidays' ? 'Stat Holidays' : $title))."</button>&nbsp;";
                 }
 			}
 		}
@@ -975,4 +983,54 @@ function get_pdf_options($dbc, $styling = '', $timesheet_tab = '') {
 	}
 
 	return $options_html;
+}
+
+function set_stat_hours($dbc, $staffid, $start_date, $end_date) {
+	if($start_date > date('Y-m-d')) {
+		$start_date = date('Y-m-d');
+	}
+	if($end_date > date('Y-m-d')) {
+		$end_date = date('Y-m-d');
+	}
+
+	$holidays = mysqli_query($dbc, "SELECT * FROM `holidays` WHERE `date` BETWEEN '$start_date' AND '$end_date' AND `deleted` = 0 AND `paid` = 1");
+	$contact = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `contacts` WHERE `contactid` = '$staffid'"));
+	while($holiday = mysqli_fetch_assoc($holidays)) {
+		if($staffid > 0) {
+			switch($contact['stat_pay']) {
+				case 'Alberta Standard':
+					$end_date = $holiday['date'];
+					$start_date = date('Y-m-d', strtotime($end_date.' - 28 days'));
+					$total_hrs = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT SUM(IF(`type_of_time` NOT IN ('Extra Hrs.','Relief Hrs.','Sleep Hrs.','Sick Time Adj.','Sick Hrs.Taken','Stat Hrs.','Stat Hrs.Taken','Vac Hrs.','Vac Hrs.Taken','Break'),`total_hrs`,0)) REG_HRS FROM `time_cards` WHERE `staff` = '$staffid' AND `date` BETWEEN '$start_date' AND '$end_date' AND `deleted` = 0 AND `approv` != 'N'"))['REG_HRS'];
+					if($total_hrs > 0) {
+						$stat_hrs = ($total_hrs * 1.014) * 0.05;
+
+						$time_card = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `time_cards` WHERE `type_of_time` = 'Stat Hrs.' AND `staff` = '$staffid' AND `date` = '$end_date' AND `holidayid` ='".$holiday['holidays_id']."'"));
+						if(!empty($time_card)) {
+							mysqli_query($dbc, "UPDATE `time_cards` SET `total_hrs` = '$stat_hrs' WHERE `time_cards_id` = '".$time_card['time_cards_id']."'");
+						} else {
+							mysqli_query($dbc, "INSERT INTO `time_cards` (`holidayid`,`date`,`staff`,`type_of_time`,`total_hrs`,`comment_box`) VALUES ('".$holiday['holidays_id']."','$end_date','$staffid','Stat Hrs.','$stat_hrs','Stat Hours added automatically based on calculation from ".$contact['stat_pay'].". Hours may change as previous hours get altered/approved.')");
+						}
+					}
+					break;
+			}
+			switch($contact['vaca_pay']) {
+				case 'Alberta Standard':
+					$end_date = $holiday['date'];
+					$start_date = date('Y-m-d', strtotime($end_date.' - 28 days'));
+					$total_hrs = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT SUM(IF(`type_of_time` NOT IN ('Extra Hrs.','Relief Hrs.','Sleep Hrs.','Sick Time Adj.','Sick Hrs.Taken','Stat Hrs.','Stat Hrs.Taken','Vac Hrs.','Vac Hrs.Taken','Break'),`total_hrs`,0)) REG_HRS FROM `time_cards` WHERE `staff` = '$staffid' AND `date` BETWEEN '$start_date' AND '$end_date' AND `deleted` = 0 AND `approv` != 'N'"))['REG_HRS'];
+					if($total_hrs > 0) {
+						$vaca_hrs = $total_hrs * 0.014;
+
+						$time_card = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `time_cards` WHERE `type_of_time` = 'Vac Hrs.' AND `staff` = '$staffid' AND `date` = '$end_date' AND `deleted` = 0 AND `holidayid` ='".$holiday['holidays_id']."'"));
+						if(!empty($time_card)) {
+							mysqli_query($dbc, "UPDATE `time_cards` SET `total_hrs` = '$vaca_hrs' WHERE `time_cards_id` = '".$time_card['time_cards_id']."'");
+						} else {
+							mysqli_query($dbc, "INSERT INTO `time_cards` (`holidayid`,`date`,`staff`,`type_of_time`,`total_hrs`,`comment_box`) VALUES ('".$holiday['holidays_id']."','$end_date','$staffid','Vac Hrs.','$vaca_hrs','Vacation Hours added automatically based on calculation from ".$contact['stat_pay'].". Hours may change as previous hours get altered/approved.')");
+						}
+					}
+					break;
+			}
+		}
+	}
 }

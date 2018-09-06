@@ -119,20 +119,22 @@ function removeRateCard(img) {
 			$row_i = 0;
 			do { ?>
 				<tr class="rate_card_row">
-					<input <?= $edit_access > 0 && $subtab_access ? '' : 'readonly' ?> type="hidden" name="ratecardid[]" value="<?= $row['companyrcid'] ?>">
+					<input <?= $edit_access > 0 && $subtab_access ? '' : 'readonly' ?> type="hidden" name="rate_ratecardid[]" value="<?= $row['companyrcid'] ?>">
 					<input type="hidden" name="ratecard_row_i[]" value="<?= $row_i ?>">
                     <td data-title="Start Date" <?= $edit_access > 0 && $subtab_access ? '' : 'class="field-disabled"' ?>>
-                        <input <?= $edit_access > 0 && $subtab_access ? '' : 'readonly' ?> type="text" name="start_date[]" class="form-control datepicker" value="<?= $row['start_date'] ?>">
+                        <input <?= $edit_access > 0 && $subtab_access ? '' : 'readonly' ?> type="text" name="rate_start_date[]" class="form-control datepicker" value="<?= $row['start_date'] ?>">
                     </td>
                     <td data-title="End Date" <?= $edit_access > 0 && $subtab_access ? '' : 'class="field-disabled"' ?>>
-                        <input <?= $edit_access > 0 && $subtab_access ? '' : 'readonly' ?> type="text" name="end_date[]" class="form-control datepicker" value="<?= $row['end_date'] ?>">
+                        <input <?= $edit_access > 0 && $subtab_access ? '' : 'readonly' ?> type="text" name="rate_end_date[]" class="form-control datepicker" value="<?= $row['end_date'] ?>">
                     </td>
 					<?php if(strpos($field_config, ',reminder_alerts,') !== false) { ?>
 						<td data-title="Alert Date" <?= $edit_access > 0 && $subtab_access ? '' : 'class="field-disabled"' ?>>
-							<input class="form-control datepicker" type="text" name="alert_date[]" value="<?= $row['alert_date'] ?>">
+							<input class="form-control datepicker" type="text" name="rate_alert_date[]" value="<?= $row['alert_date'] ?>">
 						</td>
 						<td data-title="Alert Staff" <?= $edit_access > 0 && $subtab_access ? '' : 'class="field-disabled"' ?>>
-							<select name="alert_staff_<?= $row_i ?>[]" multiple data-placeholder="Select Staff..." class="form-control chosen-select-deselect">
+
+							<select name="rate_alert_staff_<?= $row_i ?>[]" multiple data-placeholder="Select Staff..." class="form-control chosen-select-deselect">
+
 								<?php $staff_list = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name` FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `deleted`=0 AND `status`=1 AND `show_hide_user`=1"),MYSQLI_ASSOC));
 								foreach($staff_list as $staffid) {
 									echo '<option value="'.$staffid.'" '.(strpos(','.$row['alert_staff'].',',','.$staffid.',') !== FALSE ? 'selected' : '').'>'.get_contact($dbc, $staffid).'</option>';
@@ -142,22 +144,22 @@ function removeRateCard(img) {
 					<?php } ?>
 					<?php if(strpos($field_config, ',cost,') !== FALSE) { ?>
 						<td data-title="Cost" <?= $edit_access > 0 && $subtab_access ? '' : 'class="field-disabled"' ?>>
-							<input <?= $edit_access > 0 && $subtab_access ? '' : 'readonly' ?> type="number" name="cost[]" class="form-control price_controls" value="<?= $row['cost'] ?>" min="0.00" step="0.01">
+							<input <?= $edit_access > 0 && $subtab_access ? '' : 'readonly' ?> type="number" name="rate_cost[]" class="form-control price_controls" value="<?= $row['cost'] ?>" min="0.00" step="0.01">
 						</td>
 					<?php } ?>
 					<?php if(strpos($field_config, ',margin,') !== FALSE) { ?>
 						<td data-title="Profit %" <?= $edit_access > 0 && $subtab_access ? '' : 'class="field-disabled"' ?>>
-							<input <?= $edit_access > 0 && $subtab_access ? '' : 'readonly' ?> type="number" name="profit_percent[]" class="form-control price_controls" value="<?= $row['margin'] ?>" min="0.00" step="0.01">
+							<input <?= $edit_access > 0 && $subtab_access ? '' : 'readonly' ?> type="number" name="rate_profit_percent[]" class="form-control price_controls" value="<?= $row['margin'] ?>" min="0.00" step="0.01">
 						</td>
 					<?php } ?>
 					<?php if(strpos($field_config, ',profit,') !== FALSE) { ?>
 						<td data-title="Profit $" <?= $edit_access > 0 && $subtab_access ? '' : 'class="field-disabled"' ?>>
-							<input <?= $edit_access > 0 && $subtab_access ? '' : 'readonly' ?> type="number" name="profit_dollar[]" class="form-control price_controls" value="<?= $row['profit'] ?>" min="0.00" step="0.01">
+							<input <?= $edit_access > 0 && $subtab_access ? '' : 'readonly' ?> type="number" name="rate_profit_dollar[]" class="form-control price_controls" value="<?= $row['profit'] ?>" min="0.00" step="0.01">
 						</td>
 					<?php } ?>
 					<?php if(strpos($field_config, ',uom,') !== FALSE) { ?>
 						<td data-title="UOM" <?= $edit_access > 0 && $subtab_access ? '' : 'class="field-disabled"' ?>>
-							<select <?= $edit_access > 0 && $subtab_access ? '' : 'readonly' ?> name="uom[]" data-placeholder="Select a UOM..." class="chosen-select-deselect form-control">
+							<select <?= $edit_access > 0 && $subtab_access ? '' : 'readonly' ?> name="rate_uom[]" data-placeholder="Select a UOM..." class="chosen-select-deselect form-control">
 								<option></option>
 								<option value="NEW_UOM">Add New UOM</option>
 								<?php $uom_list = mysqli_query($dbc, "SELECT `uom` FROM (SELECT `uom` FROM `company_rate_card` WHERE `deleted` = 0 AND IFNULL(`uom`,'') != '' UNION SELECT 'Hourly' `uom` UNION SELECT 'Daily' `uom`) `uoms` GROUP BY `uom` ORDER BY `uom`");
@@ -165,11 +167,11 @@ function removeRateCard(img) {
 									<option value="<?= $uom['uom'] ?>" <?= $row['uom'] == $uom['uom'] ? 'selected' : '' ?>><?= $uom['uom'] ?></option>
 								<?php } ?>
 							</select>
-							<input <?= $edit_access > 0 && $subtab_access ? '' : 'readonly' ?> type="text" name="uom_new[]" class="form-control" style="display: none;">
+							<input <?= $edit_access > 0 && $subtab_access ? '' : 'readonly' ?> type="text" name="rate_uom_new[]" class="form-control" style="display: none;">
 						</td>
 					<?php } ?>
                     <td data-title="Price" <?= $edit_access > 0 && $subtab_access ? '' : 'class="field-disabled"' ?>>
-                        <input <?= $edit_access > 0 && $subtab_access ? '' : 'readonly' ?> type="number" name="price[]" class="form-control price_controls" value="<?= $row['cust_price'] ?>" min="0.00" step="0.01">
+                        <input <?= $edit_access > 0 && $subtab_access ? '' : 'readonly' ?> type="number" name="rate_price[]" class="form-control price_controls" value="<?= $row['cust_price'] ?>" min="0.00" step="0.01">
                     </td>
 					<?php if($edit_access > 0 && $subtab_access) { ?>
 						<td data-title="Function">

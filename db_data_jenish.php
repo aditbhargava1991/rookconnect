@@ -249,5 +249,39 @@ if(!mysqli_query($dbc, "ALTER TABLE `estimates_history` CHANGE `history_id` `his
   echo "Error: ".mysqli_error($dbc)."<br />\n";
 }
 
+mysqli_query($dbc, "CREATE TABLE IF NOT EXISTS `products_history` (
+  `history_id` int(11) NOT NULL,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_by` varchar(100) NOT NULL,
+  `description` text NOT NULL,
+  `before_change` text,
+  `contactid` int(11) NOT NULL)"
+);
+
+if(!mysqli_query($dbc, "ALTER TABLE `products_history` ADD PRIMARY KEY(`history_id`)")) {
+  echo "Error: ".mysqli_error($dbc)."<br />\n";
+}
+
+if(!mysqli_query($dbc, "ALTER TABLE `products_history` CHANGE `history_id` `history_id` INT(11) NOT NULL AUTO_INCREMENT")) {
+  echo "Error: ".mysqli_error($dbc)."<br />\n";
+}
+
+mysqli_query($dbc, "CREATE TABLE IF NOT EXISTS `safety_history` (
+  `history_id` int(11) NOT NULL,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_by` varchar(100) NOT NULL,
+  `description` text NOT NULL,
+  `before_change` text,
+  `contactid` int(11) NOT NULL)"
+);
+
+if(!mysqli_query($dbc, "ALTER TABLE `safety_history` ADD PRIMARY KEY(`history_id`)")) {
+  echo "Error: ".mysqli_error($dbc)."<br />\n";
+}
+
+if(!mysqli_query($dbc, "ALTER TABLE `safety_history` CHANGE `history_id` `history_id` INT(11) NOT NULL AUTO_INCREMENT")) {
+  echo "Error: ".mysqli_error($dbc)."<br />\n";
+}
+
 echo "<br> ======Jenish's db changes Done======<br>";
 ?>

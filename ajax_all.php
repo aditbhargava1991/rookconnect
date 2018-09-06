@@ -1331,6 +1331,237 @@ else if($_GET['action'] == 'sync_data') {
 			$db_all->query("INSERT INTO `".DATABASE_NAME."`.`user_settings` SELECT * FROM `".DATABASE_NAME2."`.`user_settings` WHERE `category` = 'Staff'");
 			$tables = ['positions'];
 			break;
+		case 'admin_tile_config':
+		    $tables = ['admin_tile_config'];
+		    break;
+		case 'dashboard_permission_config':
+		    $tables = ['dashboard_permission_config'];
+		    break;
+		case 'exercise_config':
+		    $tables = ['exercise_config'];
+		    break;
+		case 'field_config':
+		    $tables = ['field_config'];
+		    break;
+		case 'field_config_agendas_meetings':
+		    $tables = ['field_config_agendas_meetings'];
+		    break;
+		case 'field_config_asset':
+		    $tables = ['field_config_asset'];
+		    break;
+		case 'field_config_bid':
+		    $tables = ['field_config_bid'];
+		    break;
+		case 'field_config_budget':
+		    $tables = ['field_config_budget'];
+		    break;
+		case 'field_config_calendar_booking':
+		    $tables = ['field_config_calendar_booking'];
+		    break;
+		case 'field_config_calendar_security':
+		    $tables = ['field_config_calendar_security'];
+		    break;
+		case 'field_config_calllog':
+		    $tables = ['field_config_calllog'];
+		    break;
+		case 'field_config_charts_pdf_times':
+		    $tables = ['field_config_charts_pdf_times'];
+		    break;
+		case 'field_config_checklist':
+		    $tables = ['field_config_checklist'];
+		    break;
+		case 'field_config_client_project':
+		    $tables = ['field_config_client_project'];
+		    break;
+		case 'field_config_communication':
+		    $tables = ['field_config_communication'];
+		    break;
+		case 'field_config_contact':
+		    $tables = ['field_config_contact'];
+		    break;
+		case 'field_config_contacts':
+		    $tables = ['field_config_contacts'];
+		    break;
+		case 'field_config_contacts__20170517_160755':
+		    $tables = ['field_config_contacts__20170517_160755'];
+		    break;
+		case 'field_config_contacts_security':
+		    $tables = ['field_config_contacts_security'];
+		    break;
+		case 'field_config_contacts_shifts':
+		    $tables = ['field_config_contacts_shifts'];
+		    break;
+		case 'field_config_contacts_shifts_pdf':
+		    $tables = ['field_config_contacts_shifts_pdf'];
+		    break;
+		case 'field_config_contracts':
+		    $tables = ['field_config_contracts'];
+		    break;
+		case 'field_config_cost_estimate':
+		    $tables = ['field_config_cost_estimate'];
+		    break;
+		case 'field_config_custom_charts':
+		    $tables = ['field_config_custom_charts'];
+		    break;
+		case 'field_config_custom_charts_lines':
+		    $tables = ['field_config_custom_charts_lines'];
+		    break;
+		case 'field_config_custom_charts_settings':
+		    $tables = ['field_config_custom_charts_settings'];
+		    break;
+		case 'field_config_custom_documents':
+		    $tables = ['field_config_custom_documents'];
+		    break;
+		case 'field_config_email_alerts':
+		    $tables = ['field_config_email_alerts'];
+		    break;
+		case 'field_config_equip_assign':
+		    $tables = ['field_config_equip_assign'];
+		    break;
+		case 'field_config_equipment':
+		    $tables = ['field_config_equipment'];
+		    break;
+		case 'field_config_equipment_inspection':
+		    $tables = ['field_config_equipment_inspection'];
+		    break;
+		case 'field_config_estimate':
+		    $tables = ['field_config_estimate'];
+		    break;
+		case 'field_config_expense':
+		    $tables = ['field_config_expense'];
+		    break;
+		case 'field_config_field_jobs':
+		    $tables = ['field_config_field_jobs'];
+		    break;
+		case 'field_config_holidays':
+		    $tables = ['field_config_holidays'];
+		    break;
+		case 'field_config_hr':
+		    $tables = ['field_config_hr'];
+		    break;
+		case 'field_config_hr_manuals':
+		    $tables = ['field_config_hr_manuals'];
+		    break;
+		case 'field_config_incident_report':
+		    $tables = ['field_config_incident_report'];
+		    break;
+		case 'field_config_infogathering':
+		    $tables = ['field_config_infogathering'];
+		    break;
+		case 'field_config_inventory':
+		    $tables = ['field_config_inventory'];
+		    break;
+		case 'field_config_jobs':
+		    $tables = ['field_config_jobs'];
+		    break;
+		case 'field_config_manuals':
+		    $tables = ['field_config_manuals'];
+		    break;
+		case 'field_config_password':
+		    $tables = ['field_config_password'];
+		    break;
+		case 'field_config_patientform':
+		    $tables = ['field_config_patientform'];
+		    break;
+		case 'field_config_performance_reviews':
+		    $tables = ['field_config_performance_reviews'];
+		    break;
+		case 'field_config_project':
+		    $tables = ['field_config_project'];
+		    break;
+		case 'field_config_project_admin':
+		    $tables = ['field_config_project_admin'];
+		    break;
+		case 'field_config_project_custom_details':
+		    $tables = ['field_config_project_custom_details'];
+		    break;
+		case 'field_config_project_form':
+		    $tables = ['field_config_project_form'];
+		    break;
+		case 'field_config_project_manage':
+		    $tables = ['field_config_project_manage'];
+		    break;
+		case 'field_config_ratecard':
+		    $tables = ['field_config_ratecard'];
+		    break;
+		case 'field_config_safety':
+		    $tables = ['field_config_safety'];
+		    break;
+		case 'field_config_security_contact_categories':
+		    $tables = ['field_config_security_contact_categories'];
+		    break;
+		case 'field_config_security_level_theme':
+		    $tables = ['field_config_security_level_theme'];
+		    break;
+		case 'field_config_services':
+		    $tables = ['field_config_services'];
+		    break;
+		case 'field_config_so':
+		    $tables = ['field_config_so'];
+		    break;
+		case 'field_config_so_contacts':
+		    $tables = ['field_config_so_contacts'];
+		    break;
+		case 'field_config_so_pdf':
+		    $tables = ['field_config_so_pdf'];
+		    break;
+		case 'field_config_so_security':
+		    $tables = ['field_config_so_security'];
+		    break;
+		case 'field_config_staff_security':
+		    $tables = ['field_config_staff_security'];
+		    break;
+		case 'field_config_supervisor':
+		    $tables = ['field_config_supervisor'];
+		    break;
+		case 'field_config_teams':
+		    $tables = ['field_config_teams'];
+		    break;
+		case 'field_config_ticket_accordion_names':
+		    $tables = ['field_config_ticket_accordion_names'];
+		    break;
+		case 'field_config_ticket_delivery_color':
+		    $tables = ['field_config_ticket_delivery_color'];
+		    break;
+		case 'field_config_ticket_fields':
+		    $tables = ['field_config_ticket_fields'];
+		    break;
+		case 'field_config_ticket_fields_action':
+		    $tables = ['field_config_ticket_fields_action'];
+		    break;
+		case 'field_config_ticket_headings':
+		    $tables = ['field_config_ticket_headings'];
+		    break;
+		case 'field_config_ticket_log':
+		    $tables = ['field_config_ticket_log'];
+		    break;
+		case 'field_config_ticket_security':
+		    $tables = ['field_config_ticket_security'];
+		    break;
+		case 'field_config_ticket_status_color':
+		    $tables = ['field_config_ticket_status_color'];
+		    break;
+		case 'field_config_treatment_presets':
+		    $tables = ['field_config_treatment_presets'];
+		    break;
+		case 'field_config_user_forms':
+		    $tables = ['field_config_user_forms'];
+		    break;
+		case 'field_config_vendors':
+		    $tables = ['field_config_vendors'];
+		    break;
+		case 'field_config_vpl':
+		    $tables = ['field_config_vpl'];
+		    break;
+		case 'general_configuration':
+		    $tables = ['general_configuration'];
+		    break;
+		case 'subtab_config':
+		    $tables = ['subtab_config'];
+		    break;
+		case 'tile_config':
+		    $tables = ['tile_config'];
+		    break;
 		default:
 			$tables = [filter_var($_GET['table'],FILTER_SANITIZE_STRING)];
 			break;

@@ -18,17 +18,18 @@ if (isset($_POST['submit'])) {
 	if($id == '') {
 		$sql = "INSERT INTO `company_rate_card` (`rate_card_name`,`item_id`,`tile_name`,`start_date`,`end_date`,`daily`,`hourly`,`uom`,`cost`,`cust_price`,`history`,`created_by`,`alert_date`,`alert_staff`) VALUES
 			('$rate_card','$serviceid','Services','$start_date','$end_date','$daily','$hourly','$uom','$cost','$unit_price','$history','".$_SESSION['contactid']."','$alert_date','$alert_staff')";
-		$id = mysqli_insert_id($dbc);
 	}
 	else {
-		$sql = "UPDATE `company_rate_card` SET `rate_card_name`='$rate_card',`item_id`=$serviceid,`start_date`='$start_date',`end_date`='$end_date',`cost`='$cost',`cust_price`='$unit_price',`uom`='$uom',`daily`='$daily',`hourly`='$hourly',`history`=IFNULL(CONCAT(`history`,'<br />\n','$history'),'$history'),`alert_date`='$alert_date',`alert_staff`='$alert_staff' WHERE `rate_id`='$id'";
+		$sql = "UPDATE `company_rate_card` SET `rate_card_name`='$rate_card',`item_id`=$serviceid,`start_date`='$start_date',`end_date`='$end_date',`cost`='$cost',`cust_price`='$unit_price',`uom`='$uom',`daily`='$daily',`hourly`='$hourly',`history`=IFNULL(CONCAT(`history`,'<br />\n','$history'),'$history'),`alert_date`='$alert_date',`alert_staff`='$alert_staff' WHERE `companyrcid`='$id'";
 	}
 	if($serviceid > 0 && $cost > 0) {
 		$dbc->query("UPDATE `services` SET `cost`='$cost' WHERE `serviceid`='$serviceid'");
 	}
 	$result = mysqli_query($dbc, $sql);
 
-	$result = mysqli_query($dbc, $sql);
+    if($id == '') {
+        $id = $dbc->insert_id;
+    }
 	echo '<script type="text/javascript"> window.location.replace("?card=services&type=services&t='.$_GET['t'].'"); </script>';
 } ?>
 <div class='main_frame' id='no-more-tables'><form id="services_rate" name="services_rate" method="post"	action="" enctype="multipart/form-data" class="form-horizontal" role="form">
@@ -102,7 +103,7 @@ if (isset($_POST['submit'])) {
 				if($cat['heading'] != '') {
 					$service_text .= $cat['heading'];
 				}
-				echo "<option".($cat['serviceid'] == $row['serviceid'] || (!isset($_GET['id']) && $cat['serviceid'] == $_GET['service'])  ? ' selected' : '')." value='".$cat['serviceid']."'>".$service_text."</option>";
+				echo "<option".($cat['serviceid'] == $row['item_id'] || (!isset($_GET['id']) && $cat['serviceid'] == $_GET['service'])  ? ' selected' : '')." value='".$cat['serviceid']."'>".$service_text."</option>";
 			} ?>
 			</select>
 		</div>

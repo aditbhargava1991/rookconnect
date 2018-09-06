@@ -239,11 +239,11 @@ function viewTicket(a) {
                 if($timesheet_reporting_styling == 'EGS') {
                 $search_staff_query = implode('search_staff%5B%5D=', explode(',',$search_staff)); ?>
 
-                <a target="_blank" href="<?= WEBSITE_URL ?>/Timesheet/reporting.php?export=pdf_egs&search_staff=<?php echo $search_staff; ?>&search_start_date=<?php echo $search_start_date; ?>&search_end_date=<?php echo $search_end_date; ?>&search_position=<?php echo $search_position; ?>&search_project=<?php echo $search_project; ?>&search_ticket=<?php echo $search_ticket; ?>&see_staff=<?= $_GET['see_staff'] ?>&timesheet_tab=reporting" onclick="displayPDFOptions(this); return false;" title="PDF"><img src="<?php echo WEBSITE_URL; ?>/img/pdf.png" style="height:100%; margin:0;" /></a>
+                <a target="_blank" href="<?= WEBSITE_URL ?>/Timesheet/reporting.php?export=pdf_egs&search_staff=<?php echo $search_staff; ?>&search_start_date=<?php echo $search_start_date; ?>&search_end_date=<?php echo $search_end_date; ?>&search_position=<?php echo $search_position; ?>&search_project=<?php echo $search_project; ?>&search_ticket=<?php echo $search_ticket; ?>&see_staff=<?= $_GET['see_staff'] ?>&timesheet_tab=reporting" onclick="displayPDFOptions(this); return false;"><img src="<?php echo WEBSITE_URL; ?>/img/pdf.png" style="height:100%; margin:0;" class="no-toggle" title="PDF" /></a>
 
 
                 <?php } else { ?>
-                <a target="_blank" href="<?= WEBSITE_URL ?>/Timesheet/reporting.php?export=pdf&search_staff=<?php echo $search_staff; ?>&search_start_date=<?php echo $search_start_date; ?>&search_end_date=<?php echo $search_end_date; ?>&search_position=<?php echo $search_position; ?>&search_project=<?php echo $search_project; ?>&search_ticket=<?php echo $search_ticket; ?>" onclick="displayPDFOptions(this); return false;" title="PDF"><img src="<?php echo WEBSITE_URL; ?>/img/pdf.png" style="height:100%; margin:0;" /></a>
+                <a target="_blank" href="<?= WEBSITE_URL ?>/Timesheet/reporting.php?export=pdf&search_staff=<?php echo $search_staff; ?>&search_start_date=<?php echo $search_start_date; ?>&search_end_date=<?php echo $search_end_date; ?>&search_position=<?php echo $search_position; ?>&search_project=<?php echo $search_project; ?>&search_ticket=<?php echo $search_ticket; ?>" onclick="displayPDFOptions(this); return false;"><img src="<?php echo WEBSITE_URL; ?>/img/pdf.png" style="height:100%; margin:0;" class="no-toggle" title="PDF" /></a>
 
                 <?php } ?>
 

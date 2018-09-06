@@ -144,7 +144,7 @@ switch($_GET['tile']) {
             $subject = "A reminder about the $title task board";
             $body = "Hi [STAFF_NAME]<br />\n<br />
                 This is a reminder about the $title.<br />\n<br />
-                <a href='".WEBSITE_URL."/Tasks/index.php?category=$id&tab=$tab'>Click here</a> to see the task board.";
+                <a href='".WEBSITE_URL."/Tasks_Updated/index.php?category=$id&tab=$tab'>Click here</a> to see the task board.";
         }
         break;
     case 'sales':
@@ -171,7 +171,7 @@ switch($_GET['tile']) {
         }
         $body = "Hi [STAFF_NAME]<br />\n<br />
             This is a reminder about the $title.<br />\n<br />
-            <a href='".WEBSITE_URL."/Tasks/index.php?category=$id&tab=$tab'>Click here</a> to see the task board.";
+            <a href='".WEBSITE_URL."/Tasks_Updated/index.php?category=$id&tab=$tab'>Click here</a> to see the task board.";
         break;
     case 'task_checklist':
         $taskboardid = $_GET['task_board'];
@@ -183,7 +183,7 @@ switch($_GET['tile']) {
         $milestone = $result['task_milestone_timeline'];
         $subject = "A reminder about Checklist #".$checklistid.": ".$result['checklist_name']." in $board_name task board  $milestone";
         $body = "This is a reminder about Checklist #".$checklistid.": ".$result['checklist_name']." in $board_name task board  $milestone<br />\n<br />
-            <a href='".WEBSITE_URL."/Tasks/index.php?category=$taskboardid&tab=$tab'>Click here</a> to see the task board.<br />\n";
+            <a href='".WEBSITE_URL."/Tasks_Updated/index.php?category=$taskboardid&tab=$tab'>Click here</a> to see the task board.<br />\n";
         break;
     case 'tickets':
         $id = $_GET['id'];

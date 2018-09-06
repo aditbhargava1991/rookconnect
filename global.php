@@ -47,7 +47,16 @@ DEFINE('UPDATE_CONTACT', $update_contact);
 
 if(!isset($_SESSION['user_name']) && !isset($guest_access) && $guest_access != true && !$external_intake && !$update_contact) {
     ob_clean();
-    header("Location: ".(isset($_SERVER["HTTPS"]) ? 'https://' : 'http://').$_SERVER['SERVER_NAME']."/index.php?location=" . urlencode($_SERVER['REQUEST_URI']));
+    $url = (isset($_SERVER["HTTPS"]) ? 'https://' : 'http://').$_SERVER['SERVER_NAME'];
+    if($_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest') {
+        echo '<script> 
+            alert("Your session has timed out. Please log in and try again.");
+            window.top.location.replace("'.$url.'/index.php?location="+encodeURIComponent(window.top.location.href));
+        </script>';
+        exit();
+    } else {
+        header("Location: ".$url."/index.php?location=" . urlencode($_SERVER['REQUEST_URI']));
+    }
 }
 
 /*if (isset($_SESSION['LAST_ACTIVITY']) && (time() - $_SESSION['LAST_ACTIVITY'] > 1800)) {
@@ -65,7 +74,7 @@ $each_tab = explode('/', $folder_path);
 
 DEFINE('FOLDER_NAME', strtolower($each_tab[1]));
 DEFINE('FOLDER_URL', $each_tab[1]);
-DEFINE('WEBSITE_URL', (isset($_SERVER["HTTPS"]) ? 'https://' : 'http://').$_SERVER['SERVER_NAME']);
+DEFINE('WEBSITE_URL', (isset($_SERVER["HTTPS"]) ? 'https://' : 'http://').(!empty($_SERVER['SERVER_NAME']) ? $_SERVER['SERVER_NAME'] : basename(__DIR__)));
 DEFINE('ITEMS_PER_PAGE', 25);
 DEFINE('COMPANY_NAME', 'Washtech');
 DEFINE('ROLE', $_SESSION['role']);
@@ -93,7 +102,11 @@ function checkAuthorised($tile=false, $tab=false, $tile_sub=false) {
 	$dbc = $_SERVER['DBC'];
 	if(!isset($_SESSION['user_name']) && !isset($guest_access) && $guest_access != true && !EXTERNAL_INTAKE && !UPDATE_CONTACT) {
 		ob_clean();
-		header("Location: ".WEBSITE_URL."/index.php?location=" . urlencode($_SERVER['REQUEST_URI']));
+        if($_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest') {
+            echo '<script> window.top.location.replace("'.WEBSITE_URL.'/index.php?location='.urlencode($_SERVER['REQUEST_URI']).'"); </script>';
+        } else {
+            header("Location: ".WEBSITE_URL."/index.php?location=" . urlencode($_SERVER['REQUEST_URI']));
+        }
 	} else if($tile_sub != false && strpos($_SERVER['REQUEST_URI'],'/home.php') === FALSE && strpos(get_privileges($dbc, $tile_sub, ROLE), '*hide*') !== FALSE && !UPDATE_CONTACT) {
 		ob_clean();
 		header('Location: ' . WEBSITE_URL . '/home.php');

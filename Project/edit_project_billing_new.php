@@ -32,7 +32,7 @@ if($security['edit'] > 0) {
 		$headings['scope'] = 'Scope';
 	}
 	$headings['checklists'] = 'Checklists';
-	$headings['tasklist'] = 'Tasks';
+	$headings['tasklist'] = TASK_TILE;
 	$headings['tickets'] = TICKET_TILE;
 	$headings['workorders'] = 'Work Orders';
 	$headings['staff_task'] = 'Staff Tasks';
@@ -323,9 +323,9 @@ if($security['edit'] > 0) {
 												<a href="" class="breakdown active" <?= $billable['src_table'] == 'miscellaneous' ? '' : 'style="display: none;"' ?> onclick="return false;"><small>+ BREAKDOWN</small></a>
 												<img src="../img/remove.png" style="height: 1em;" onclick="remove_line(this);" data-table="project_billable" data-id="<?= $billable['id'] ?>" data-id-field="id" name="is_billable" data-project="<?= $projectid ?>">
 												<img src="../img/icons/ROOK-add-icon.png" style="height: 1em;" onclick="add_line(this);">
-												<img src="../img/icons/drag_handle.png" style="height: 1em;" class="pull-right line-handle" data-table="project_billable" data-id="<?= $billable['id'] ?>" data-id-field="id" data-project="<?= $projectid ?>">
+												<img src="../img/icons/drag_handle.png" style="height: 1em;" class="pull-right line-handle no-toggle" data-table="project_billable" data-id="<?= $billable['id'] ?>" data-id-field="id" data-project="<?= $projectid ?>" title="Drag">
 												<?php if($billable['billable_table'] == 'tickets' && !($billable['bill_id'] > 0) && !($billable['profit'] > 0) && !($billable['profit'] < 0)) { ?>
-													<img src="../img/icons/ROOK-edit-icon.png" class="inline-img" title="Edit as Individual Details" onclick="edit_details(this);">
+													<img src="../img/icons/ROOK-edit-icon.png" class="inline-img no-toggle" title="Edit as Individual Details" onclick="edit_details(this);">
 												<?php } ?>
 												<label class="control-checkbox small"><input type="checkbox" name="attach_to_new" data-id="<?= $billable['id'] ?>" <?= $billable['bill_id'] > 0 ? 'disabled' : '' ?>></label>
 												</td>

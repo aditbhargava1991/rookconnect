@@ -20,7 +20,7 @@ do {
 					<?= ($waitlist['cell_phone'] != '' ? '<a href="tel:">'.$waitlist['cell_phone'].'</a>' : '') ?>
 				</div>
 				<div class="col-sm-1">
-					<a href="" onclick="viewProfile(this); return false;"><img class="inline-img pull-right" src="../img/person.PNG"></a>
+					<a href="" onclick="viewProfile(this); return false;"><img class="inline-img pull-right no-toggle" src="../img/person.PNG" title="View Profile"></a>
 					<input type="hidden" name="deleted" data-table="ticket_attached" data-id="<?= $waitlist['id'] ?>" data-id-field="id" data-type="Wait List" data-type-field="src_table" value="0">
 					<img class="inline-img pull-right" onclick="addMulti(this);" src="../img/icons/ROOK-add-icon.png">
 					<img class="inline-img pull-right" onclick="remMulti(this);" src="../img/remove.png">
@@ -215,7 +215,7 @@ do {
 				</div>
 				<div class="col-sm-4">
 					<?= ($waitlist_option['cell_phone'] != '' ? ' - '.decryptIt($waitlist_option['cell_phone']) : '') ?>
-					<a href="" onclick="viewProfile(this); return false;"><img class="inline-img pull-right" src="../img/person.PNG"></a>
+					<a href="" onclick="viewProfile(this); return false;"><img class="inline-img pull-right no-toggle" src="../img/person.PNG" title="View Profile"></a>
 				</div>
 				<div class="clearfix"></div>
 			</div>

@@ -5,6 +5,85 @@ include ('../function.php');
 include ('../global.php');
 include ('../phpmailer.php');
 
+if($_GET['fill'] == 'tasks_slider_layout') {
+    $layout = $_GET['layout'];
+    set_config($dbc, 'tasks_slider_layout', $layout);
+}
+
+if($_GET['fill'] == 'tasklist_auto_archive') {
+    $archive = $_GET['archive'];
+    set_config($dbc, 'tasklist_auto_archive', $archive);
+}
+
+if($_GET['fill'] == 'tasklist_auto_archive_days') {
+    $archivedays = $_GET['archivedays'];
+    set_config($dbc, 'tasklist_auto_archive_days', $archivedays);
+}
+
+if($_GET['fill'] == 'setting_tabs') {
+    $tab_list = $_GET['tab_list'];
+    $get_field_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT count(task_id) as task_count FROM task_dashboard"));
+    if($get_field_config['task_count'] == 1) {
+        $query_insert_dashboard = "UPDATE `task_dashboard` SET `task_dashboard_tile` = '" . $tab_list . "' WHERE task_id = 1";
+    }
+    else {
+        $query_insert_dashboard = "INSERT INTO `task_dashboard` (`task_id`,`task_dashboard_tile`) VALUES (1, '$tab_list')";
+    }
+
+    mysqli_query($dbc, $query_insert_dashboard);
+}
+
+if($_GET['fill'] == 'setting_fields') {
+    $tab_list = $_GET['tab_list'];
+    $get_field_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT count(task_id) as task_count FROM task_dashboard"));
+    if($get_field_config['task_count'] == 1) {
+        $query_insert_dashboard = "UPDATE `task_dashboard` SET `task_fields` = '" . $tab_list . "' WHERE task_id = 1";
+    }
+    else {
+        $query_insert_dashboard = "INSERT INTO `task_dashboard` (`task_id`,`task_fields`) VALUES (1, '$tab_list')";
+    }
+
+    mysqli_query($dbc, $query_insert_dashboard);
+}
+
+if($_GET['fill'] == 'setting_quick_icon') {
+    $tab_list = $_GET['tab_list'];
+	set_config($dbc, 'task_quick_action_icons', filter_var($tab_list,FILTER_SANITIZE_STRING));
+}
+
+if($_GET['fill'] == 'task_tile_noun') {
+    $task_tile = $_GET['task_tile'];
+    $task_noun = $_GET['task_noun'];
+    set_config($dbc, 'task_tile_name', filter_var($task_tile.'#*#'.$task_noun,FILTER_SANITIZE_STRING));
+}
+
+if($_GET['fill'] == 'setting_flag_colours') {
+    $flag_colours = $_GET['flag_colours'];
+
+    $get_field_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT count(task_id) as task_count FROM task_dashboard"));
+    if($get_field_config['task_count'] > 0) {
+        $query_insert_dashboard = "UPDATE `task_dashboard` set `flag_colours` = '$flag_colours'";
+    }
+    else {
+        $query_insert_dashboard = "INSERT INTO `task_dashboard` (`flag_colours`) VALUES ('$flag_colours')";
+    }
+    mysqli_query($dbc, $query_insert_dashboard);
+}
+
+if($_GET['fill'] == 'setting_flag_name') {
+    $flag_name = $_GET['flag_name'];
+    $flag_name = str_replace(",","#*#",$flag_name);
+
+    $get_field_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT count(task_id) as task_count FROM task_dashboard"));
+    if($get_field_config['task_count'] > 0) {
+        $query_insert_dashboard = "UPDATE `task_dashboard` set `flag_names` = '$flag_name'";
+    }
+    else {
+        $query_insert_dashboard = "INSERT INTO `task_dashboard` (`flag_names`) VALUES ('$flag_name')";
+    }
+    mysqli_query($dbc, $query_insert_dashboard);
+}
+
 if($_GET['fill'] == 'task_board_type') {
     $task_board_type = $_GET['task_board_type'];
 	echo '<option value=""></option>';
@@ -28,12 +107,11 @@ if($_GET['fill'] == 'task_path') {
 
 if($_GET['fill'] == 'task_projectid') {
     $task_projectid = $_GET['task_projectid'];
-	echo '<option value=""></option>';
+	echo '<option />';
 
-    $query = mysqli_query($dbc,"SELECT project_path_milestone, project_path FROM project_path_milestone WHERE project_path_milestone IN (SELECT project_path FROM project WHERE projectid='$task_projectid')");
-    while($row = mysqli_fetch_array($query)) { ?>
-        <option value='<?php echo  $row['project_path_milestone']; ?>' ><?php echo $row['project_path']; ?></option><?php
-    }
+    foreach(get_project_paths($task_projectid) as $path) { ?>
+        <option value='<?= $path['path_id'] ?>'><?= $path['path_name'] ?></option>
+    <?php }
 }
 
 if($_GET['fill'] == 'project_path_milestone') {
@@ -42,12 +120,15 @@ if($_GET['fill'] == 'project_path_milestone') {
     $task_board_type = $_GET['task_board_type'];
     $projectid = $_GET['projectid'];
 
-	echo '<option value=""></option>';
+	echo '<option />';
 
     if($task_board_type == 'Project') {
-        $query = mysqli_query($dbc,"SELECT milestone FROM project_path_custom_milestones WHERE projectid='$projectid'");
-        while($row = mysqli_fetch_array($query)) { ?>
-            <option value='<?php echo  $row['milestone']; ?>' ><?php echo $row['milestone']; ?></option><?php
+        foreach(get_project_paths($projectid) as $path) {
+            if($path['path_id'] == $project_path) {
+                foreach($path['milestones'] as $milestone) { ?>
+                    <option value="<?= $milestone['milestone'] ?>"><?= $milestone['label'] ?></option>
+                <?php }
+            }
         }
     } else {
         $query = mysqli_query($dbc,"SELECT milestone FROM taskboard_path_custom_milestones WHERE taskboard='$task_board'");

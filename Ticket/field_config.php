@@ -6,6 +6,9 @@ switch($_GET['settings']) {
 	case 'action':
 		$page_title = 'Action Mode Fields';
 		break;
+	case 'status_fields':
+		$page_title = 'Status Fields';
+		break;
 	case 'overview':
 		$page_title = 'Overview Fields';
 		break;
@@ -17,6 +20,9 @@ switch($_GET['settings']) {
 		break;
 	case 'tile':
 		$page_title = 'Tile Settings';
+		break;
+	case 'tile_split':
+		$page_title = 'Tile Splitting';
 		break;
 	case 'types':
 		$page_title = TICKET_NOUN.' Types';
@@ -134,6 +140,21 @@ function loadPanel() {
 
 			<div id="collapse_overview" class="panel-collapse collapse">
 				<div class="panel-body" data-file="field_config_overview.php">
+					Loading...
+				</div>
+			</div>
+		</div>
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<h4 class="panel-title">
+					<a data-toggle="collapse" data-parent="#settings_accordions" href="#collapse_status_fields">
+						Status Fields<span class="glyphicon glyphicon-plus"></span>
+					</a>
+				</h4>
+			</div>
+
+			<div id="collapse_status_fields" class="panel-collapse collapse">
+				<div class="panel-body" data-file="field_config_status_fields.php">
 					Loading...
 				</div>
 			</div>
@@ -358,12 +379,14 @@ function loadPanel() {
 			<a href="?settings=fields"><li class="<?= empty($_GET['settings']) || $_GET['settings'] == 'fields' ? 'active blue' : '' ?>"><?= TICKET_NOUN ?> Fields</li></a>
 			<a href="?settings=action"><li class="<?= $_GET['settings'] == 'action' ? 'active blue' : '' ?>">Action Mode Fields</li></a>
 			<a href="?settings=overview"><li class="<?= $_GET['settings'] == 'overview' ? 'active blue' : '' ?>">Overview Fields</li></a>
+			<a href="?settings=status_fields"><li class="<?= $_GET['settings'] == 'status_fields' ? 'active blue' : '' ?>">Status Fields</li></a>
 			<a href="?settings=summary_security"><li class="<?= $_GET['settings'] == 'summary_security' ? 'active blue' : '' ?>">Summary Access</li></a>
 			<a href="?settings=manifests"><li class="<?= $_GET['settings'] == 'manifests' ? 'active blue' : '' ?>">Manifest Fields</li></a>
 			<a href="?settings=pdf"><li class="<?= $_GET['settings'] == 'pdf' ? 'active blue' : '' ?>">PDF Options</li></a>
 			<a href="?settings=types"><li class="<?= $_GET['settings'] == 'types' ? 'active blue' : '' ?>"><?= TICKET_NOUN ?> Types</li></a>
 			<a href="?settings=status"><li class="<?= $_GET['settings'] == 'status' ? 'active blue' : '' ?>">Statuses</li></a>
 			<a href="?settings=tile"><li class="<?= $_GET['settings'] == 'tile' ? 'active blue' : '' ?>">Tile Settings</li></a>
+			<a href="?settings=tile_split"><li class="<?= $_GET['settings'] == 'tile_split' ? 'active blue' : '' ?>">Tile Splitting</li></a>
 			<a href="?settings=administration"><li class="<?= $_GET['settings'] == 'administration' ? 'active blue' : '' ?>">Administration</li></a>
 			<a href="?settings=flags"><li class="<?= $_GET['settings'] == 'flags' ? 'active blue' : '' ?>">Quick Action Icons</li></a>
 			<a href="?settings=security"><li class="<?= $_GET['settings'] == 'security' ? 'active blue' : '' ?>">Roles &amp; Security</li></a>
@@ -399,11 +422,17 @@ function loadPanel() {
 			case 'action':
 				include('field_config_action.php');
 				break;
+			case 'status_fields':
+				include('field_config_status_fields.php');
+				break;
 			case 'pdf':
 				include('field_config_pdf.php');
 				break;
 			case 'tile':
 				include('field_config_tile.php');
+				break;
+			case 'tile_split':
+				include('field_config_tile_split.php');
 				break;
 			case 'types':
 				include('field_config_types.php');

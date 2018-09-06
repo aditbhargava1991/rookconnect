@@ -416,19 +416,21 @@ checkAuthorised();
                 <?php echo security_tile_config_function('newsboard', get_privileges($dbc, 'newsboard',$level), 0, $level_url); ?>
             </tr>
             <?php } ?>
+
             <?php if(strpos($on_security, ',tasks,') !== FALSE) { ?>
             <tr>
-                <td data-title="Comment">Tasks</td>
+                <td data-title="Comment"><?= TASK_TILE ?></td>
                 <?php echo security_tile_config_function('tasks', get_privileges($dbc, 'tasks',$level), 0, $level_url); ?>
             </tr>
             <?php } ?>
-
+            <!--
             <?php if(strpos($on_security, ',tasks_updated,') !== FALSE) { ?>
             <tr>
                 <td data-title="Comment">Tasks (Updated)</td>
                 <?php echo security_tile_config_function('tasks_updated', get_privileges($dbc, 'tasks_updated',$level), 0, $level_url); ?>
             </tr>
             <?php } ?>
+            -->
 
             <tr><th colspan='4'><div style='text-align:left;width:100%;font-size:20px;'><?= ESTIMATE_TILE ?>/Quotes:</div></th></tr>
 

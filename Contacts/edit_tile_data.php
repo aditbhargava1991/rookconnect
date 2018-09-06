@@ -417,7 +417,7 @@
 		echo '<label class="col-sm-12 control-label">No Records Found.</label>';
 	}
 } else if ($field_option == "Tasks Addition") { ?>
-	<h4>Tasks</h4>
+	<h4><?= TASK_TILE ?></h4>
 	<div class="pad-5 gap-bottom">
         <b>Total Time Tracked:
         <?php
@@ -526,10 +526,10 @@
 			<tr class="hidden-sm hidden-xs">
 				<th>Transaction Date</th>
 				<th>Staff</th>
-				<th>Injury</th>
+				<?= $category == 'Patient' ? '<th>Injury</th>' : '' ?>
 				<th>Services</th>
 				<th><?= $category ?></th>
-				<th>Payer</th>
+				<th>Payment Type</th>
 				<th>Payment</th>
 				<th>Balance</th>
 			</tr>
@@ -2326,7 +2326,7 @@
 			url: '../Contacts/edit_addition_customer_rate_services.php?edit=<?= $contactid ?>&field_option=<?= $field_option ?>',
 			success: function(response) {
 				$('.customer_rate_div').html(response);
-				$('.customer_rate_div').find('[data-field]').not('.tile-search').off('change', saveField).change(saveField).off('keyup').keyup(syncUnsaved);
+				$('.customer_rate_div').find('[data-field]').not('.tile-search').off('blur',unsaved).blur(unsaved).off('focus',unsaved).focus(unsaved).off('change',saveField).change(saveField);
 			}
 		});
 	}
@@ -2339,7 +2339,7 @@
 			url: '../Contacts/edit_addition_customer_rate_services.php?edit=<?= $contactid ?>&load_template='+templateid+'&field_option=<?= $field_option ?>',
 			success: function(response) {
 				$('.customer_rate_div').html(response);
-				$('.customer_rate_div').find('[data-field]').not('.tile-search').off('change', saveField).change(saveField).off('keyup').keyup(syncUnsaved);
+				$('.customer_rate_div').find('[data-field]').not('.tile-search').off('blur',unsaved).blur(unsaved).off('focus',unsaved).focus(unsaved).off('change',saveField).change(saveField);
 			}
 		});
 	}
@@ -2425,7 +2425,7 @@
 					clone.find('[name="heading"]').val(serviceid);
 					table.append(clone);
 					initInputs('#'+table.attr('id'));
-					table.find('[data-field]').not('.tile-search').off('change', saveField).change(saveField).off('keyup').keyup(syncUnsaved);
+					table.find('[data-field]').not('.tile-search').off('blur',unsaved).blur(unsaved).off('focus',unsaved).focus(unsaved).off('change',saveField).change(saveField);
 					table.find('tr').last().find('[name="heading"]').change();
 				}
 			});

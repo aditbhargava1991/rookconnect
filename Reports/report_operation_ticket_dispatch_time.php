@@ -165,3 +165,17 @@ function report_tracking($dbc, $startdate, $enddate, $table_style, $table_row_st
 	}
 	return $report_data;
 } ?>
+<script>
+$('document').ready(function() {
+    var tables = $('table');
+
+    tables.map(function(idx, table) {
+        var rows = $(table).find('tbody > tr');
+        rows.map(function(idx, row){
+            if(idx%2 == 0) {
+                $(row).css('background-color', '#e6e6e6');
+            }
+        })
+    })
+})
+</script>

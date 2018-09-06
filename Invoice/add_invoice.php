@@ -95,6 +95,9 @@ if (isset($_POST['submit_btn'])) {
 		case 'cnt3':
 			include ('pos_invoice_contractor_3.php');
 			break;
+        case 'custom_ticket':
+            include ('pos_invoice_custom_ticket.php');
+            break;
 	}
 
     if($_POST['survey'] != '') {
@@ -310,6 +313,7 @@ if(in_array('touch',$ux_options) && (!in_array('standard',$ux_options) || $_GET[
             echo '<input type="hidden" name="set_promotion" id="set_promotion" value="'.get_promotion($dbc, $promotionid, 'cost').'" />';
 
             $serviceid =$get_invoice['serviceid'];
+            $service_ticketid =$get_invoice['service_ticketid'];
             $fee =$get_invoice['fee'];
             $inventoryid =$get_invoice['inventoryid'];
             $sell_price =$get_invoice['sell_price'];
@@ -318,6 +322,7 @@ if(in_array('touch',$ux_options) && (!in_array('standard',$ux_options) || $_GET[
             $packageid =$get_invoice['packageid'];
             $package_cost =$get_invoice['package_cost'];
             $misc_items =$get_invoice['misc_item'];
+            $misc_ticketid =$get_invoice['misc_ticketid'];
             $misc_prices =$get_invoice['misc_price'];
             $misc_qtys =$get_invoice['misc_qty'];
 
@@ -334,7 +339,7 @@ if(in_array('touch',$ux_options) && (!in_array('standard',$ux_options) || $_GET[
             $payment_type = $get_invoice['payment_type'];
             $paid = $get_invoice['paid'];
             $gratuity = $get_invoice['gratuity'];
-            echo '<input type="hidden" name="ticketid[]" value="'.$get_invoice['ticketid'].'" />';
+            //echo '<input type="hidden" name="ticketid[]" value="'.$get_invoice['ticketid'].'" />';
         } else {
             echo '<input type="hidden" name="set_promotion" id="set_promotion" />';
         }
@@ -358,16 +363,16 @@ if(in_array('touch',$ux_options) && (!in_array('standard',$ux_options) || $_GET[
 			<h4 <?= (in_array('injury',$field_config) ? '' : 'style="display:none;"') ?>>Injury: <label class="detail_patient_injury pull-right"><?= (empty($_GET['invoiceid']) ? '' : $injury) ?></label></h4>
 			<h4 <?= (in_array('treatment',$field_config) ? '' : 'style="display:none;"') ?>>Treatment Plan: <label class="detail_patient_treatment pull-right"><?= (empty($_GET['invoiceid']) ? '' : $treatment_plan) ?></label></h4>
 			<h4 <?= (in_array('staff',$field_config) ? '' : 'style="display:none;"') ?>>Staff: <label class="detail_staff_name pull-right"><?= (empty($_GET['invoiceid']) ? '' : $staff) ?></label></h4>
-			<h4 <?= (in_array('services',$field_config) ? '' : 'style="display:none;"') ?>>Services</h4>
-			<div class="detail_service_list" <?= (in_array('services',$field_config) ? '' : 'style="display:none;"') ?>></div>
+			<h4 <?= (in_array('services',$field_config) || in_array('unbilled_tickets',$field_config) ? '' : 'style="display:none;"') ?>>Services</h4>
+			<div class="detail_service_list" <?= (in_array('services',$field_config) || in_array('unbilled_tickets',$field_config) ? '' : 'style="display:none;"') ?>></div>
 			<h4 <?= (in_array('inventory',$field_config) ? '' : 'style="display:none;"') ?>>Inventory</h4>
 			<div class="detail_inventory_list" <?= (in_array('inventory',$field_config) ? '' : 'style="display:none;"') ?>></div>
 			<h4 <?= (in_array('products',$field_config) ? '' : 'style="display:none;"') ?>>Products</h4>
 			<div class="detail_products_list" <?= (in_array('products',$field_config) ? '' : 'style="display:none;"') ?>></div>
 			<h4 <?= (in_array('packages',$field_config) ? '' : 'style="display:none;"') ?>>Packages</h4>
 			<div class="detail_package_list" <?= (in_array('packages',$field_config) ? '' : 'style="display:none;"') ?>></div>
-			<h4 <?= (in_array('misc_items',$field_config) ? '' : 'style="display:none;"') ?>>Miscellaneous Items</h4>
-			<div class="detail_misc_list" <?= (in_array('misc_items',$field_config) ? '' : 'style="display:none;"') ?>></div>
+			<h4 <?= (in_array('misc_items',$field_config) || in_array('unbilled_tickets',$field_config) ? '' : 'style="display:none;"') ?>>Miscellaneous Items</h4>
+			<div class="detail_misc_list" <?= (in_array('misc_items',$field_config) || in_array('unbilled_tickets',$field_config) ? '' : 'style="display:none;"') ?>></div>
 			<h4>Sub-Total: <label class="detail_sub_total_amt pull-right">$0.00</label></h4>
 			<h4 <?= (in_array('promo',$field_config) ? '' : 'style="display:none;"') ?>>Promotion: <label class="detail_promo_amt pull-right"><?= $promotionid > 0 ? '' : 'N/A' ?></label></h4>
             <h4 <?= (in_array('discount',$field_config) ? '' : 'style="display:none;"') ?>>Discount: <label class="detail_discount_amt pull-right">$0.00</label></h4>
@@ -510,6 +515,21 @@ if(in_array('touch',$ux_options) && (!in_array('standard',$ux_options) || $_GET[
         <div class="form-group patient  <?= (in_array('reference',$field_config) ? 'reference' : '" style="display:none;') ?>">
             <label for="site_name" class="col-sm-2 control-label">Reference:</label>
             <div class="col-sm-7"><input type="text" name="reference" class="form-control" /></div>
+        </div>
+
+        <div class="form-group patient  <?= (in_array('contract',$field_config) ? 'reference' : '" style="display:none;') ?>">
+            <label for="site_name" class="col-sm-2 control-label">Contract:</label>
+            <div class="col-sm-7"><input type="text" name="contract" class="form-control" /></div>
+        </div>
+
+        <div class="form-group patient  <?= (in_array('po_num',$field_config) ? 'reference' : '" style="display:none;') ?>">
+            <label for="site_name" class="col-sm-2 control-label">PO #:</label>
+            <div class="col-sm-7"><input type="text" name="po_num" class="form-control" /></div>
+        </div>
+
+        <div class="form-group patient  <?= (in_array('area',$field_config) ? 'reference' : '" style="display:none;') ?>">
+            <label for="site_name" class="col-sm-2 control-label">Area:</label>
+            <div class="col-sm-7"><input type="text" name="area" class="form-control" /></div>
         </div>
 
               <div class="form-group patient  <?= (in_array('injury',$field_config) ? 'patient_type_fields' : '" style="display:none;') ?>">
@@ -684,12 +704,13 @@ if(in_array('touch',$ux_options) && (!in_array('standard',$ux_options) || $_GET[
 
                     if($serviceid != '') {
                         $each_serviceid = explode(',',$serviceid);
+                        $each_serviceticketid = explode(',',$service_ticketid);
                         $each_fee = explode(',',$fee);
                         $total_count = mb_substr_count($serviceid,',');
                         $id_loop = 500;
 
                         for($client_loop=0; $client_loop<=$total_count; $client_loop++) {
-                            if($each_serviceid[$client_loop] != '') {
+                            if($each_serviceid[$client_loop] != '' && !($each_serviceticketid[$client_loop] > 0)) {
                                 $serviceid = $each_serviceid[$client_loop];
                                 $fee = $each_fee[$client_loop];
                                 ?>
@@ -717,6 +738,7 @@ if(in_array('touch',$ux_options) && (!in_array('standard',$ux_options) || $_GET[
 							    </div> <!-- Quantity -->
 
                                 <div class="col-sm-5"><label class="show-on-mob">Service Name:</label>
+                                    <input type="hidden" name="service_ticketid[]" value="">
                                     <select id="<?php echo 'serviceid_'.$id_loop; ?>" data-placeholder="Select a Service..." name="serviceid[]" class="chosen-select-deselect form-control serviceid" width="380">
                                         <option value=""></option>
                                         <?php
@@ -788,6 +810,7 @@ if(in_array('touch',$ux_options) && (!in_array('standard',$ux_options) || $_GET[
 							</select>
 						</div>
 						<div class="col-sm-5"><label class="show-on-mob">Service Name:</label>
+                            <input type="hidden" name="service_ticketid[]" value="">
 							<select id="serviceid_0" data-placeholder="Select a Service..." name="serviceid[]" class="chosen-select-deselect form-control serviceid" width="380">
 								<option value=""></option>
 								<?php
@@ -1061,16 +1084,16 @@ if(in_array('touch',$ux_options) && (!in_array('standard',$ux_options) || $_GET[
                             <div class="pricing-div" style="display:none;">
                                 <select data-placeholder="Select Pricing" id="linepricing_0" name="linepricing[]" class="chosen-select-deselect form-control linepricing" onchange="changeProduct($('#inventoryid_'+this.id.split('_')[1]).get(0));">
                                     <option></option>
-                                    <?php if(in_array('price_admin', $field_config)) { ?><option <?= ($pricing == 'admin_price' ? 'selected' : '') ?> value="admin_price">Admin Price</option><?php } ?>
-                                    <?php if(in_array('price_client', $field_config)) { ?><option <?= ($pricing == 'client_price' ? 'selected' : '') ?> value="client_price">Client Price</option><?php } ?>
-                                    <?php if(in_array('price_commercial', $field_config)) { ?><option <?= ($pricing == 'commercial_price' ? 'selected' : '') ?> value="commercial_price">Commercial Price</option><?php } ?>
-                                    <?php if(in_array('price_distributor', $field_config)) { ?><option <?= ($pricing == 'distributor_price' ? 'selected' : '') ?> value="distributor_price">Distributor Price</option><?php } ?>
-                                    <?php if(in_array('price_retail', $field_config)) { ?><option <?= ($pricing == 'final_retail_price' || $pricing == '' ? 'selected' : '') ?> value="final_retail_price">Final Retail Price</option><?php } ?>
-                                    <?php if(in_array('price_preferred', $field_config)) { ?><option <?= ($pricing == 'preferred_price' ? 'selected' : '') ?> value="preferred_price">Preferred Price</option><?php } ?>
-                                    <?php if(in_array('price_po', $field_config)) { ?><option <?= ($pricing == 'purchase_order_price' ? 'selected' : '') ?> value="purchase_order_price">Purchase Order Price</option><?php } ?>
-                                    <?php if(in_array('price_sales', $field_config)) { ?><option <?= ($pricing == 'sales_order_price' ? 'selected' : '') ?> value="sales_order_price"><?= SALES_ORDER_NOUN ?> Price</option><?php } ?>
-                                    <?php if(in_array('price_web', $field_config)) { ?><option <?= ($pricing == 'web_price' ? 'selected' : '') ?> value="web_price">Web Price</option><?php } ?>
-                                    <?php if(in_array('price_wholesale', $field_config)) { ?><option <?= ($pricing == 'wholesale_price' ? 'selected' : '') ?> value="wholesale_price">Wholesale Price</option><?php } ?>
+                                    <?php if(in_array('price_admin', $field_config)) { ?><option value="admin_price">Admin Price</option><?php } ?>
+                                    <?php if(in_array('price_client', $field_config)) { ?><option value="client_price">Client Price</option><?php } ?>
+                                    <?php if(in_array('price_commercial', $field_config)) { ?><option value="commercial_price">Commercial Price</option><?php } ?>
+                                    <?php if(in_array('price_distributor', $field_config)) { ?><option value="distributor_price">Distributor Price</option><?php } ?>
+                                    <?php if(in_array('price_retail', $field_config)) { ?><option value="final_retail_price">Final Retail Price</option><?php } ?>
+                                    <?php if(in_array('price_preferred', $field_config)) { ?><option value="preferred_price">Preferred Price</option><?php } ?>
+                                    <?php if(in_array('price_po', $field_config)) { ?><option value="purchase_order_price">Purchase Order Price</option><?php } ?>
+                                    <?php if(in_array('price_sales', $field_config)) { ?><option value="sales_order_price"><?= SALES_ORDER_NOUN ?> Price</option><?php } ?>
+                                    <?php if(in_array('price_web', $field_config)) { ?><option value="web_price">Web Price</option><?php } ?>
+                                    <?php if(in_array('price_wholesale', $field_config)) { ?><option value="wholesale_price">Wholesale Price</option><?php } ?>
                                 </select>
                             </div>
                         </div>
@@ -1166,110 +1189,70 @@ if(in_array('touch',$ux_options) && (!in_array('standard',$ux_options) || $_GET[
                     </div>
 
 				    <?php $each_misc = explode(',', $misc_items);
+                    $each_misc_ticketid = explode(',', $misc_ticketid);
 					$each_misc_price = explode(',', $misc_prices);
 					$each_misc_qty = explode(',', $misc_qtys);
 					foreach($each_misc as $loop => $misc_item) {
-						$misc_price = $each_misc_price[$loop];
-						$misc_qty = $each_misc_qty[$loop]; ?>
-						<div class="additional_misc form-group clearfix">
-							<div class="col-sm-5"><label class="show-on-mob">Product Name:</label>
-								<input type="text" name="misc_item[]" value="<?= $misc_item ?>" class="form-control misc_name">
-							</div>
-							<div class="col-sm-3"><label class="show-on-mob">Unit Price:</label>
-								<input type="number" step="any" min="0" name="misc_price[]" value="<?= $misc_price / $misc_qty ?>" onchange="setThirdPartyMisc(this); countTotalPrice()" class="form-control misc_price">
-							</div>
-							<div class="col-sm-1"><label class="show-on-mob">Quantity:</label>
-								<input type="number" step="any" min="0" name="misc_qty[]" value="<?= $misc_qty ?>" onchange="setThirdPartyMisc(this); countTotalPrice()" class="form-control misc_qty">
-							</div>
-							<div class="col-sm-2"><label class="show-on-mob">Total:</label>
-								<input type="number" readonly name="misc_total[]" value="<?= $misc_price ?>" class="form-control misc_total">
-								<input name="misc_row_id[]" type="hidden" value="<?= $insurer_row_id++ ?>" class="insurer_row_id" />
-							</div>
-							<div class="col-sm-1">
-								<img src="<?= WEBSITE_URL ?>/img/remove.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right cursor-hand" onclick="rem_misc_row(this);">
-								<img src="<?= WEBSITE_URL ?>/img/icons/ROOK-add-icon.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right cursor-hand" onclick="add_misc_row();">
-							</div>
-							<div class="col-sm-12 pay-div"></div>
-						</div>
-					<?php } ?>
+                        if(!($each_misc_ticketid > 0)) {
+    						$misc_price = $each_misc_price[$loop];
+    						$misc_qty = $each_misc_qty[$loop]; ?>
+    						<div class="additional_misc form-group clearfix">
+                                <input type="hidden" name="misc_ticketid[]" value="">
+    							<div class="col-sm-5"><label class="show-on-mob">Product Name:</label>
+    								<input type="text" name="misc_item[]" value="<?= $misc_item ?>" class="form-control misc_name">
+    							</div>
+    							<div class="col-sm-3"><label class="show-on-mob">Unit Price:</label>
+    								<input type="number" step="any" min="0" name="misc_price[]" value="<?= $misc_price / $misc_qty ?>" onchange="setThirdPartyMisc(this); countTotalPrice()" class="form-control misc_price">
+    							</div>
+    							<div class="col-sm-1"><label class="show-on-mob">Quantity:</label>
+    								<input type="number" step="any" min="0" name="misc_qty[]" value="<?= $misc_qty ?>" onchange="setThirdPartyMisc(this); countTotalPrice()" class="form-control misc_qty">
+    							</div>
+    							<div class="col-sm-2"><label class="show-on-mob">Total:</label>
+    								<input type="number" readonly name="misc_total[]" value="<?= $misc_price ?>" class="form-control misc_total">
+    								<input name="misc_row_id[]" type="hidden" value="<?= $insurer_row_id++ ?>" class="insurer_row_id" />
+    							</div>
+    							<div class="col-sm-1">
+    								<img src="<?= WEBSITE_URL ?>/img/remove.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right cursor-hand" onclick="rem_misc_row(this);">
+    								<img src="<?= WEBSITE_URL ?>/img/icons/ROOK-add-icon.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right cursor-hand" onclick="add_misc_row();">
+    							</div>
+    							<div class="col-sm-12 pay-div"></div>
+    						</div>
+    					<?php }
+                    } ?>
                     <div id="add_here_new_misc"></div>
                 </div>
             </div>
 
-            <div class="form-group misc_option" <?= (in_array('unbilled_tickets',$field_config) ? '' : 'style="display:none;"') ?>>
+            <div class="form-group ticket_option" <?= (in_array('unbilled_tickets',$field_config) ? '' : 'style="display:none;"') ?>>
                 <label for="additional_note" class="col-sm-2 control-label">
                 <span class="popover-examples list-inline">
                     <a href="#job_file" data-toggle="tooltip" data-placement="top" title="Add items from unbilled <?= TICKET_TILE ?> here."><img src="<?php echo WEBSITE_URL;?>/img/info.png" width="20"></a>
                 </span>
                 Unbilled <?= TICKET_TILE ?>:</label>
-                <div class="col-sm-7">
-					<?php $db_config = explode(',',get_field_config($dbc, 'tickets_dashboard'));
-					$tickets = $dbc->query("SELECT `tickets`.* FROM `tickets` LEFT JOIN `invoice` ON CONCAT(',',`invoice`.`ticketid`,',') LIKE CONCAT('%,',`tickets`.`ticketid`,',%') WHERE `invoice`.`invoiceid` IS NULL ".($_GET['contactid'] > 0 ? "AND (',".filter_var($_GET['contactid'],FILTER_SANITIZE_STRING).",' LIKE CONCAT(',',`tickets`.`businessid`,',',`tickets`.`clientid`,',') OR (IFNULL(`tickets`.`businessid`,0)=0 AND IFNULL(NULLIF(NULLIF(`tickets`.`clientid`,'0'),',,'),'')=''))" : "")." AND `tickets`.`deleted`=0 ".(in_array('Administration',$db_config) ?"AND `approvals` IS NOT NULL" : ''));
-					if($tickets->num_rows > 0) {
-						while($ticket = $tickets->fetch_assoc()) {
-							if($ticket['ticketid'] > 0) { ?>
-								<label class="form-checkbox form-group">
-									<?php $ticketid = $ticket['ticketid'];
-									foreach(explode(',',$ticket['serviceid']) as $i => $service) {
-										if($service > 0) {
-											$qty = explode(',',$ticket['service_qty'])[$i];
-											$fuel = explode(',',$ticket['service_fuel_charge'])[$i];
-											$discount = explode(',',$ticket['service_discount'])[$i];
-											$dis_type = explode(',',$ticket['service_discount_type'])[$i];
-											$price = 0;
-											$customer_rate = $dbc->query("SELECT `services` FROM `rate_card` WHERE `clientid`='' AND `deleted`=0 AND `on_off`=1")->fetch_assoc();
-											foreach(explode('**',$customer_rate['services']) as $service_rate) {
-												$service_rate = explode('#',$service_rate);
-												if($service == $service_rate[0] && $service_rate[1] > 0) {
-													$price = $service_rate[1];
-												}
-											}
-											if(!($price > 0)) {
-												$service_rate = $dbc->query("SELECT `cust_price`, `admin_fee` FROM `company_rate_card` WHERE `deleted`=0 AND `item_id`='$service' AND `tile_name` LIKE 'Services' AND `start_date` < DATE(NOW()) AND IFNULL(NULLIF(`end_date`,'0000-00-00'),'9999-12-31') > DATE(NOW()) AND `cust_price` > 0")->fetch_assoc();
-												$price = $service_rate['cust_price'];
-											}
-											$price_total = ($price * $qty + $fuel);
-											$price_total -= ($dis_type == '%' ? $discount / 100 * $price_total : $discount); ?>
-											<div class="dis_service">
-												<input type="hidden" disabled name="serviceid[]" value="<?= $service ?>" class="serviceid">
-												<input type="hidden" disabled name="fee[]" value="<?= $price_total ?>" class="fee" />
-												<input type="hidden" disabled name="gst_exempt[]" value="0" class="gstexempt" />
-											</div>
-										<?php }
-									}
-									$ticket_lines = $dbc->query("SELECT * FROM `ticket_attached` WHERE `ticketid`='$ticketid' AND `deleted`=0 AND `src_table` LIKE 'Staff%'");
-									while($line = $ticket_lines->fetch_assoc()) {
-										$description = get_contact($dbc, $line['item_id']).' - '.$line['position'];
-										$qty = !empty($line['hours_set']) ? $line['hours_set'] : $line['hours_tracked'];
-										$price = $dbc->query("SELECT * FROM `company_rate_card` WHERE `deleted`=0 AND (`cust_price` > 0 OR `hourly` > 0) AND ((`tile_name`='Staff' AND (`item_id`='".$line['item_id']."' OR `description`='all_staff')) OR (`tile_name`='Position' AND (`description`='".$line['position']."' OR `item_id`='".get_field_value('position_id','positions','name',$line['position'])."')))")->fetch_assoc();
-										$price = $price['cust_price'] > 0 ? $price['cust_price'] : $price['hourly']; ?>
-										<div class="dis_misc">
-											<input type="hidden" disabled name="misc_item[]" value="<?= $description ?>" class="misc_name">
-											<input type="hidden" disabled name="misc_price[]" value="<?= $price ?>" onchange="setThirdPartyMisc(this); countTotalPrice()" class="misc_price">
-											<input type="hidden" disabled name="misc_qty[]" value="<?= $qty ?>" onchange="setThirdPartyMisc(this); countTotalPrice()" class="misc_qty">
-											<input type="hidden" disabled name="misc_total[]" value="<?= $price * $qty ?>" class="misc_total">
-										</div>
-									<?php }
-									$ticket_lines = $dbc->query("SELECT * FROM `ticket_attached` WHERE `ticketid`='$ticketid' AND `deleted`=0 AND `src_table` LIKE 'misc_item'");
-									while($line = $ticket_lines->fetch_assoc()) {
-										$description = get_contact($dbc, $line['description']);
-										$qty = $line['qty'];
-										$price = $line['rate']; ?>
-										<div class="dis_misc">
-											<input type="hidden" disabled name="misc_item[]" value="<?= $description ?>" class="misc_name">
-											<input type="hidden" disabled name="misc_price[]" value="<?= $price ?>" onchange="setThirdPartyMisc(this); countTotalPrice()" class="misc_price">
-											<input type="hidden" disabled name="misc_qty[]" value="<?= $qty ?>" onchange="setThirdPartyMisc(this); countTotalPrice()" class="misc_qty">
-											<input type="hidden" disabled name="misc_total[]" value="<?= $price * $qty ?>" class="misc_total">
-										</div>
-									<?php } ?>
-									<input type="checkbox" name="ticketid[]" value="<?= $ticketid ?>" onclick="billTicket(this);">
-									<a href="../Ticket/index.php?edit=<?= $ticketid ?>" onclick="overlayIFrameSlider(this.href+'&calendar_view=true','auto',true,true); return false;"><?= get_ticket_label($dbc, $ticket) ?></a>
-								</label>
-							<?php }
-						}
-					} else { ?>
-						<h3>No Unbilled <?= TICKET_TILE ?> Found</h3>
-					<?php } ?>
+                <div class="col-sm-7"><?php
+                    $db_config = explode(',',get_field_config($dbc, 'tickets_dashboard'));
+					$tickets = $dbc->query("SELECT `tickets`.* FROM `tickets` LEFT JOIN `invoice` ON CONCAT(',',`invoice`.`ticketid`,',') LIKE CONCAT('%,',`tickets`.`ticketid`,',%') WHERE (`invoice`.`invoiceid` IS NULL OR `invoice`.`invoiceid` = '".$invoiceid."') ".($_GET['contactid'] > 0 ? "AND (CONCAT(',',IFNULL(`tickets`.`businessid`,''),',',IFNULL(`tickets`.`clientid`,''),',') LIKE '%,".filter_var($_GET['contactid'],FILTER_SANITIZE_STRING).",%' OR (IFNULL(`tickets`.`businessid`,0)=0 AND IFNULL(NULLIF(NULLIF(`tickets`.`clientid`,'0'),',,'),'')=''))" : "")." AND `tickets`.`deleted`=0 ".(in_array('Administration',$db_config) ?"AND IFNULL(`approvals`,'') != ''" : ''))->fetch_all(MYSQLI_ASSOC); ?>
+
+                    <?php foreach(explode(',', $get_invoice['ticketid']) as $invoice_ticketid) { ?>
+                        <div class="invoice_ticket">
+                            <select name="ticketid[]" data-placeholder="Select a <?= TICKET_NOUN ?>" class="chosen-select-deselect">
+                                <option></option>
+                                <?php foreach($tickets as $ticket) {
+                                    if($ticket['ticketid'] > 0) {
+                                        echo '<option value="'.$ticket['ticketid'].'" '.($invoice_ticketid == $ticket['ticketid'] ? 'selected' : '').'>'.get_ticket_label($dbc, $ticket).'</option>';
+                                    }
+                                } ?>
+                            </select>
+                            <div class="ticket_details">
+                                <!-- Loaded from JavaScript -->
+                            </div>
+                            <div class="clearfix"></div>
+                            <div class="form-group pull-right">
+                                <img src="<?= WEBSITE_URL ?>/img/remove.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right cursor-hand" onclick="rem_ticket_row(this);">
+                                <img src="<?= WEBSITE_URL ?>/img/icons/ROOK-add-icon.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right cursor-hand" onclick="add_ticket_row();">
+                            </div>
+                        </div>
+                    <?php } ?>
                 </div>
             </div>
 

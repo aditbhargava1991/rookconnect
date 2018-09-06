@@ -25,7 +25,7 @@ $value = $config['settings']['Choose Fields for Holidays Dashboard'];
     <div class="row">
         <div class="col-md-12">
 
-        <h1 class="">Holidays Dashboard
+        <h1 class="">Stat Holidays Dashboard
         <?php
         if(config_visible_function_custom($dbc)) {
             echo '<a href="field_config.php?from_url=holidays.php" class="mobile-block pull-right "><img style="width: 50px;" title="Tile Settings" src="../img/icons/settings-4.png" class="settings-classic wiggle-me"></a><br><br>';
@@ -50,7 +50,7 @@ $value = $config['settings']['Choose Fields for Holidays Dashboard'];
             <?php }
         } ?>
 
-        <?php echo get_tabs('Holidays'); ?>
+        <?php echo get_tabs('Holidays', 'Holidays', array('db' => $dbc, 'field' => $value['config_field'])); ?>
         <br><br>
 
 

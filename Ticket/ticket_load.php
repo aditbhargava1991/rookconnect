@@ -74,14 +74,14 @@ if($ticket['flag_colour'] != '' && $ticket['flag_colour'] != 'FFFFFF') {
 
 	<?php if($tile_security['edit'] > 0) { ?>
 		<div class="action-icons">
-			<?php echo (in_array('flag_manual',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-flag-icon.png" class="inline-img manual-flag-icon" title="Flag This!">' : '');
-			echo (!in_array('flag_manual',$quick_actions) && in_array('flag',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-flag-icon.png" class="inline-img flag-icon" title="Flag This!">' : '');
-			echo (in_array('alert',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-alert-icon.png" class="inline-img alert-icon" title="Activate Alerts &amp; Get Notified">' : '');
-			echo (in_array('email',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-email-icon.png" class="inline-img email-icon" title="Send Email">' : '');
-			echo (in_array('reminder',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-reminder-icon.png" class="inline-img reminder-icon" title="Schedule Reminder">' : '');
-			echo (in_array('attach',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-attachment-icon.png" class="inline-img attach-icon" title="Attach File">' : '');
-			echo (in_array('reply',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-reply-icon.png" class="inline-img reply-icon" title="Add Note">' : '');
-			echo (in_array('archive',$quick_actions) && $tile_security['edit'] > 0 ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-trash-icon.png" class="inline-img archive-icon" title="Archive">' : '');
+			<?php echo (in_array('flag_manual',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-flag-icon.png" class="inline-img manual-flag-icon no-toggle" title="Flag This!">' : '');
+			echo (!in_array('flag_manual',$quick_actions) && in_array('flag',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-flag-icon.png" class="inline-img flag-icon no-toggle" title="Flag This!">' : '');
+			echo (in_array('alert',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-alert-icon.png" class="inline-img alert-icon no-toggle" title="Activate Alerts &amp; Get Notified">' : '');
+			echo (in_array('email',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-email-icon.png" class="inline-img email-icon no-toggle" title="Send Email">' : '');
+			echo (in_array('reminder',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-reminder-icon.png" class="inline-img reminder-icon no-toggle" title="Schedule Reminder">' : '');
+			echo (in_array('attach',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-attachment-icon.png" class="inline-img attach-icon no-toggle" title="Attach File">' : '');
+			echo (in_array('reply',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-reply-icon.png" class="inline-img reply-icon no-toggle" title="Add Note">' : '');
+			echo (in_array('archive',$quick_actions) && $tile_security['edit'] > 0 ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-trash-icon.png" class="inline-img archive-icon no-toggle" title="Archive">' : '');
 
 			//echo (in_array('reply',$quick_actions) ? '<a href="../Ticket/ticket_pdf.php?action=notopen&ticketid='.$ticket['ticketid'].'"><img src="'.WEBSITE_URL.'/img/icons/ROOK-reply-icon.png" class="inline-img emailpdf-icon" title="Add Note"></a>' : '');
 
@@ -213,6 +213,17 @@ if($ticket['flag_colour'] != '' && $ticket['flag_colour'] != 'FFFFFF') {
 				echo '<a href="../Members/contact_inbox.php?edit='.$member.'">'.get_contact($dbc, $member).'</a><br />';
 			}
 			echo '</div>
+		</div>';
+	}
+	if(in_array('Service Template',$db_config)) {
+		echo '<div class="col-sm-6">
+			<label class="col-sm-4">Service Template:</label>
+			<div class="col-sm-8">';
+			$service_template = '';
+			if($ticket['service_templateid'] > 0) {
+				$service_template = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `name` FROM `services_service_templates` WHERE `templateid` = '".$ticket['service_templateid']."'"))['name'];
+			}
+			echo $service_template.'</div>
 		</div>';
 	}
 	if(in_array('Create Date',$db_config)) {

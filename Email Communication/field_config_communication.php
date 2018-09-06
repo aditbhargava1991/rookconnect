@@ -77,6 +77,9 @@ if (isset($_POST['service_record_btn'])) {
 					<td>
 						<input type="checkbox" <?php if (strpos($value_config, ','."From Email".',') !== FALSE) { echo " checked"; } ?> value="From Email" style="height: 20px; width: 20px;" name="internal_communication[]">&nbsp;&nbsp;Sending Email
 					</td>
+					<td>
+						<input type="checkbox" <?php if (strpos($value_config, ','."Type".',') !== FALSE) { echo " checked"; } ?> value="Type" style="height: 20px; width: 20px;" name="internal_communication[]">&nbsp;&nbsp;Type
+					</td>
 				</tr>
 
 			</table>
@@ -148,6 +151,9 @@ if (isset($_POST['service_record_btn'])) {
 					<td>
 						<input type="checkbox" <?php if (strpos($value_config, ','."Follow Up Date".',') !== FALSE) { echo " checked"; } ?> value="Follow Up Date" style="height: 20px; width: 20px;" name="internal_communication_dashboard[]">&nbsp;&nbsp;Follow Up Date
 					</td>
+					<td>
+						<input type="checkbox" <?php if (strpos($value_config, ','."Type".',') !== FALSE) { echo " checked"; } ?> value="Type" style="height: 20px; width: 20px;" name="internal_communication_dashboard[]">&nbsp;&nbsp;Type
+					</td>
 				</tr>
 
 			</table>
@@ -218,6 +224,9 @@ if (isset($_POST['service_record_btn'])) {
 					</td>
 					<td>
 						<input type="checkbox" <?php if (strpos($value_config, ','."From Email".',') !== FALSE) { echo " checked"; } ?> value="From Email" style="height: 20px; width: 20px;" name="external_communication[]">&nbsp;&nbsp;Sending Email
+					</td>
+					<td>
+						<input type="checkbox" <?php if (strpos($value_config, ','."Type".',') !== FALSE) { echo " checked"; } ?> value="Type" style="height: 20px; width: 20px;" name="external_communication[]">&nbsp;&nbsp;Type
 					</td>
 				</tr>
 
@@ -293,6 +302,9 @@ if (isset($_POST['service_record_btn'])) {
 					</td>
 					<td>
 						<input type="checkbox" <?php if (strpos($value_config, ','."Follow Up Date".',') !== FALSE) { echo " checked"; } ?> value="Follow Up Date" style="height: 20px; width: 20px;" name="external_communication_dashboard[]">&nbsp;&nbsp;Follow Up Date
+					</td>
+					<td>
+						<input type="checkbox" <?php if (strpos($value_config, ','."Type".',') !== FALSE) { echo " checked"; } ?> value="Type" style="height: 20px; width: 20px;" name="external_communication_dashboard[]">&nbsp;&nbsp;Type
 					</td>
 				</tr>
 

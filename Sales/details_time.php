@@ -1,4 +1,5 @@
 <?php include_once('../include.php');
+include_once('../Sales/config.php');
 if(empty($salesid)) {
 	$salesid = filter_var($_GET['id'],FILTER_SANITIZE_STRING);
 } ?>
@@ -10,7 +11,7 @@ var addTime = function() {
 		if(time != '' && time != '00:00') {
 			$.ajax({
 				method: 'POST',
-				url: 'sales_ajax_all.php?action=lead_time',
+				url: '../Sales/sales_ajax_all.php?action=lead_time',
 				data: { id: '<?= $salesid ?>', time: time+':00' },
 				success: function() {
 					reload_time();
@@ -30,7 +31,7 @@ var toggleTimeTracking = function() {
 		if ( timer_value != '' ) {
 			$.ajax({
 				method: 'POST',
-				url: 'sales_ajax_all.php?action=lead_time',
+				url: '../Sales/sales_ajax_all.php?action=lead_time',
 				data: { id: '<?= $salesid ?>', time: timer_value },
 				success: function() {
 					reload_time();
@@ -46,7 +47,7 @@ var toggleTimeTracking = function() {
 	}
 }
 var reload_time = function() {
-	$.get('details_time.php?id=<?= $salesid ?>', function(response) {
+	$.get('../Sales/details_time.php?id=<?= $salesid ?>', function(response) {
 		$('#time').parents('div').first().html(response);
 	});
 }
@@ -81,9 +82,9 @@ var reload_time = function() {
 	
     <div class="row set-row-height">
         <div class="col-xs-12">
-			<a href="" onclick="addTime(); return false;" class="btn brand-btn">Add Time <img class="inline-img" src="../img/icons/ROOK-timer-icon.png"></a>
+			<a href="" onclick="addTime(); return false;" class="btn brand-btn">Add Time <img class="inline-img no-toggle" src="../img/icons/ROOK-timer-icon.png" title="Add Time"></a>
 			<input type="text" class="timepicker" style="width:0;height:0;border:0;" name="time_add" value="">
-			<a href="" onclick="toggleTimeTracking(); return false;" class="btn brand-btn start_stop"><span>Start</span> Tracking Time <img class="inline-img" src="../img/icons/ROOK-timer2-icon.png"></a>
+			<a href="" onclick="toggleTimeTracking(); return false;" class="btn brand-btn start_stop"><span>Start</span> Tracking Time <img class="inline-img no-toggle" src="../img/icons/ROOK-timer2-icon.png" title="Track Time"></a>
 			<div class="col-sm-4" style="display:none;"><input type="text" class="form-control timer" name="time_track"></div>
         </div>
         <div class="clearfix double-gap-bottom"></div>

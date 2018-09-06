@@ -94,6 +94,10 @@ if (isset($_POST['submit'])) {
         }
         //Design
 
+        //Customizable Ticket Service Columns
+        set_config($dbc, 'invoice_custom_ticket', filter_var(implode(',', $_POST['invoice_custom_ticket']),FILTER_SANITIZE_STRING));
+        //Customizable Ticket Service Columns
+
     	//Interface
         $invoice_ux_opt = implode(',',$_POST[$invoice_ux]);
         $get_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT COUNT(configid) AS configid FROM general_configuration WHERE name='$invoice_ux'"));
@@ -262,6 +266,14 @@ $(document).ready(function() {
         handle: '.drag-handle',
         items: '.invoice_type'
     });
+
+    $('[name="invoice_design"]').change(function() {
+        if(this.value == 'custom_ticket') {
+            $('.custom_ticket').show();
+        } else {
+            $('.custom_ticket').hide();
+        }
+    });
 });
 function addType() {
     var block = $('.invoice_type').last();
@@ -277,6 +289,22 @@ function removeType(img) {
     }
 
     $(img).closest('.invoice_type').remove();
+}
+function add_service_column() {
+    destroyInputs('.service_column');
+    var block = $('.service_column').last();
+    var clone = $(block).clone();
+
+    $(clone).find('input,select').val('');
+
+    $(block).after(clone);
+    initInputs('.service_column');
+}
+function rem_service_column(btn) {
+    if($('.service_column').length == 1) {
+        add_service_column();
+    }
+    $(btn).closest('.service_column').remove();
 }
 </script>
 </head>
@@ -351,7 +379,7 @@ if(!empty($invoice_types)) { ?>
     					<label class="form-checkbox"><input <?= (in_array('sell',$tab_list) ? 'checked' : '') ?> type="checkbox" name="invoice_tabs[]" value="sell"> Create Invoice</label>
     					<label class="form-checkbox"><input <?= (in_array('today',$tab_list) ? 'checked' : '') ?> type="checkbox" name="invoice_tabs[]" value="today"> Today's Invoices</label>
     					<label class="form-checkbox"><input <?= (in_array('all',$tab_list) ? 'checked' : '') ?> type="checkbox" name="invoice_tabs[]" value="all"> All Invoices</label>
-    					<label class="form-checkbox"><input <?= (in_array('invoices',$tab_list) ? 'checked' : '') ?> type="checkbox" name="invoice_tabs[]" value="invoices"> Invoices</label>
+    					<!--<label class="form-checkbox"><input <?= (in_array('invoices',$tab_list) ? 'checked' : '') ?> type="checkbox" name="invoice_tabs[]" value="invoices"> Invoices</label>-->
     					<label class="form-checkbox"><input <?= (in_array('unpaid',$tab_list) ? 'checked' : '') ?> type="checkbox" name="invoice_tabs[]" value="unpaid"> Accounts Receivable</label>
     					<label class="form-checkbox"><input <?= (in_array('contact_ar',$tab_list) ? 'checked' : '') ?> type="checkbox" name="invoice_tabs[]" value="contact_ar"> Contact A/R</label>
     					<label class="form-checkbox"><input <?= (in_array('third_party_ar',$tab_list) ? 'checked' : '') ?> type="checkbox" name="invoice_tabs[]" value="third_party_ar"> Third Party A/R</label>
@@ -359,7 +387,7 @@ if(!empty($invoice_types)) { ?>
     					<!--<label class="form-checkbox"><input <?= (in_array('paid_contact_ar',$tab_list) ? 'checked' : '') ?> type="checkbox" name="invoice_tabs[]" value="paid_contact_ar"> Contact Paid A/R Report</label>-->
     					<label class="form-checkbox"><input <?= (in_array('paid_third_party_ar',$tab_list) ? 'checked' : '') ?> type="checkbox" name="invoice_tabs[]" value="paid_third_party_ar"> Third Party Paid A/R Report</label>
     					<label class="form-checkbox"><input <?= (in_array('clinic_master',$tab_list) ? 'checked' : '') ?> type="checkbox" name="invoice_tabs[]" value="clinic_master"> Clinic Master Report</label>
-    					<label class="form-checkbox"><input <?= (in_array('voided',$tab_list) ? 'checked' : '') ?> type="checkbox" name="invoice_tabs[]" value="voided"> Voided Invoices</label>
+    					<label class="form-checkbox"><input <?= (in_array('voided',$tab_list) ? 'checked' : '') ?> type="checkbox" name="invoice_tabs[]" value="voided"> Voided / Credit Memo</label>
     					<label class="form-checkbox"><input <?= (in_array('refunds',$tab_list) ? 'checked' : '') ?> type="checkbox" name="invoice_tabs[]" value="refunds"> Refund / Adjustments</label>
     					<label class="form-checkbox"><input <?= (in_array('ui_report',$tab_list) ? 'checked' : '') ?> type="checkbox" name="invoice_tabs[]" value="ui_report"> Unpaid Insurer Invoice Report</label>
     					<label class="form-checkbox"><input <?= (in_array('cashout',$tab_list) ? 'checked' : '') ?> type="checkbox" name="invoice_tabs[]" value="cashout"> Cash Out</label>
@@ -435,10 +463,40 @@ if(!empty($invoice_types)) { ?>
     								Contractor Design 1<br /><a target="_blank" href="../img/invoice_contractor1.png"><img src="../img/invoice_contractor1.png" width="100" height="100" border="0" alt=""></a></label>
     							<label class="form-checkbox"><input style="height: 30px; width: 30px;" class="tax_exemption" <?php if ($invoice_design == 'cnt2') { echo 'checked'; } ?> type="radio" name="invoice_design" value="cnt2">
     								Contractor Design 2<br /><a target="_blank" href="../img/invoice_contractor2.png"><img src="../img/invoice_contractor2.png" width="100" height="100" border="0" alt=""></a></label>
-    							<label class="form-checkbox"><input style="height: 30px; width: 30px;" class="tax_exemption" <?php if ($invoice_design == 'cnt3') { echo 'checked'; } ?> type="radio" name="invoice_design" value="cnt3">
-    								Contractor Design 3<br /><a target="_blank" href="../img/invoice_contractor3.png"><img src="../img/invoice_contractor3.png" width="100" height="100" border="0" alt=""></a></label>
+                                <label class="form-checkbox"><input style="height: 30px; width: 30px;" class="tax_exemption" <?php if ($invoice_design == 'cnt3') { echo 'checked'; } ?> type="radio" name="invoice_design" value="cnt3">
+                                    Contractor Design 3<br /><a target="_blank" href="../img/invoice_contractor3.png"><img src="../img/invoice_contractor3.png" width="100" height="100" border="0" alt=""></a></label>
+                                <label class="form-checkbox"><input style="height: 30px; width: 30px;" class="tax_exemption" <?php if ($invoice_design == 'custom_ticket') { echo 'checked'; } ?> type="radio" name="invoice_design" value="custom_ticket">
+                                    Customizable <?= TICKET_NOUN ?><br /><a target="_blank" href="../img/invoice_contractor3.png"><img src="../img/invoice_contractor3.png" width="100" height="100" border="0" alt=""></a></label>
     						</div>
     					</div>
+
+                        <?php $invoice_custom_ticket = get_config($dbc, 'invoice_custom_ticket'); ?>
+                        <div class="form-group custom_ticket" <?= $invoice_design != 'custom_ticket' ? 'style="display: none;"' : '' ?>>
+                        <label class="col-sm-4 control-label">Customizable <?= TICKET_NOUN ?> Service Columns:
+                        <span class="popover-examples list-inline">&nbsp;
+                        <a href="#job_file" data-toggle="tooltip" data-placement="top" title="This will display each of the selected Service as columns. Any services that are not selected will be under the All Other Services column."><img src="<?php echo WEBSITE_URL; ?>/img/info.png" width="20"></a>
+                        </span>
+                        :</label>
+                        <div class="col-sm-8">
+                            <?php foreach(explode(',', $invoice_custom_ticket) as $service_column) { ?>
+                                <div class="service_column">
+                                    <div class="col-sm-10">
+                                        <select name="invoice_custom_ticket[]" class="chosen-select-deselect">
+                                            <option></option>
+                                            <?php $services = mysqli_query($dbc, "SELECT * FROM `services` WHERE `heading`!='' AND `deleted`=0 ORDER BY CONCAT(`category`,`heading`)");
+                                            while($service = mysqli_fetch_assoc($services)) {
+                                                echo '<option value="'.$service['serviceid'].'" '.($service['serviceid'] == $service_column ? 'selected' : '').'>'.(!empty($service['category']) ? $service['category'].': ' : '').$service['heading'].'</option>';
+                                            } ?>
+                                        </select>
+                                    </div>
+                                    <div class="col-sm-2 pull-right">
+                                        <img src="<?= WEBSITE_URL ?>/img/remove.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right cursor-hand" onclick="rem_service_column(this);">
+                                        <img src="<?= WEBSITE_URL ?>/img/icons/ROOK-add-icon.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right cursor-hand black-color" onclick="add_service_column();">
+                                    </div>
+                                </div>
+                            <?php } ?>
+                        </div>
+                        </div>
 
                         <?php $logo = get_config($dbc, 'invoice_logo'); ?>
                         <div class="form-group">
@@ -711,6 +769,9 @@ if(!empty($invoice_types)) { ?>
 					<?php $invoice_fields = (!empty($_GET['type']) ? explode(',',get_config($dbc, 'invoice_fields_'.config_safe_str($_GET['type']))) : explode(',',get_config($dbc, 'invoice_fields'))); ?>
 					<label class="form-checkbox"><input <?= (in_array('invoice_type',$invoice_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_fields[]" value="invoice_type"> Invoice Type</label>
 					<label class="form-checkbox"><input <?= (in_array('customer',$invoice_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_fields[]" value="customer"> Customer</label>
+					<label class="form-checkbox"><input <?= (in_array('contract',$invoice_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_fields[]" value="contract"> Contract #</label>
+					<label class="form-checkbox"><input <?= (in_array('po_num',$invoice_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_fields[]" value="po_num"> PO #</label>
+					<label class="form-checkbox"><input <?= (in_array('area',$invoice_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_fields[]" value="area"> Area</label>
 					<label class="form-checkbox"><input <?= (in_array('injury',$invoice_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_fields[]" value="injury"> Injury</label>
 					<label class="form-checkbox"><input <?= (in_array('staff',$invoice_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_fields[]" value="staff"> Staff (Providing Service)</label>
 					<label class="form-checkbox"><input <?= (in_array('appt_type',$invoice_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_fields[]" value="appt_type"> Appointment Type</label>

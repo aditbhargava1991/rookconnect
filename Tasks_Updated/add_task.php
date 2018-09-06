@@ -21,11 +21,6 @@ $task_statuses = explode(',',get_config($dbc, 'task_status'));
 $status_complete = $task_statuses[count($task_statuses) - 1];
 $status_incomplete = $task_statuses[0];
 
-if(IFRAME_PAGE) {
-    $slider_layout = !empty(get_config($dbc, 'tasks_slider_layout')) ? get_config($dbc, 'tasks_slider_layout') : 'accordion';
-}
-
-
 if (isset($_POST['tasklist'])) {
 	$project_history = '';
     $supportid = $_POST['supportid'];
@@ -68,8 +63,10 @@ if (isset($_POST['tasklist'])) {
     }
     $task_board_name = filter_var($_POST['task_board'], FILTER_SANITIZE_STRING);
     $task_milestone_timeline = filter_var($_POST['task_milestone_timeline'],FILTER_SANITIZE_STRING);
+	$task_milestone_timeline = str_replace(["FFMHASH","FFMSPACE","FFMEND"],["#"," ","&"],$task_milestone_timeline);
     $task_external = filter_var($_POST['external'],FILTER_SANITIZE_STRING);
 	$project_milestone = filter_var($_POST['project_milestone'],FILTER_SANITIZE_STRING);
+	$project_milestone = str_replace(["FFMHASH","FFMSPACE","FFMEND"],["#"," ","&"],$project_milestone);
     if ( empty($task_milestone_timeline) && !empty($task_projectid) ) {
         $get_task_milestone = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT ppm.project_path_milestone, ppm.milestone FROM project_path_milestone ppm, project p WHERE p.projectid='$task_projectid' AND p.project_path=ppm.project_path_milestone"));
         $milestones_list = explode('#*#', $get_task_milestone['milestone']);
@@ -222,7 +219,7 @@ $(document).ready(function () {
             $('.contact_section_display').hide();
             $('.sales_section_display').hide();
             $('.taskpath_section_display').show();
-        } else if(task_board_type == 'Company') {
+        } else if(task_board_type == 'Shared') {
             $('.hide_task_board_name').show();
             $('.project_section_display').hide();
             $('.contact_section_display').hide();
@@ -527,6 +524,14 @@ $(document).ready(function () {
         $(this).addClass('hidden');
         $(this).next('.stop-timer-btn').removeClass('hidden');
     });
+
+    $('.full-btn').on('click', function() {
+        var str = window.location.href;
+        str = str.replace("mode=iframe", "");
+        var res = str.replace("add_task.php", "add_task_full_view.php");
+        window.top.location.href = res;
+    });
+
     $('.stop-timer-btn').on('click', function() {
 		$(this).closest('div').find('.timer').timer('stop');
 		$(this).addClass('hidden');
@@ -537,7 +542,7 @@ $(document).ready(function () {
 
         var projectid = '';
         if (typeof taskid == 'undefined') {
-            projectid = $(this).data('projectid'); alert(projectid);
+            projectid = $(this).data('projectid');
             if ( projectid.toString().substring(0,1)=='C' ) {
                 projectid = '';
             }
@@ -693,10 +698,28 @@ function manual_add_time(task) {
     });
 }
 
-//function closePopup(){
-//    window.opener.location.reload();
-//    window.close();
-//}
+function closePopup(){
+    window.opener.location.reload();
+    window.close();
+}
+
+function startTicketStaff() {
+    var block = $('div.start-ticket-staff').last();
+    destroyInputs('.start-ticket-staff');
+    clone = block.clone();
+
+    clone.find('.form-control').val('');
+
+    block.after(clone);
+    initInputs('.start-ticket-staff');
+}
+function deletestartTicketStaff(button) {
+    if($('div.start-ticket-staff').length <= 1) {
+        startTicketStaff();
+    }
+    $(button).closest('div.start-ticket-staff').remove();
+    $('div.start-ticket-staff').first().find('[name="contactid"]').change();
+}
 
 function flag_item(task) {
 	task_id = $(task).data('tasklistid');
@@ -877,36 +900,39 @@ function mark_done(sel) {
                 $url_tab = in_array($_GET['tab'], $allowed_heading) ? filter_var($_GET['tab'], FILTER_SANITIZE_STRING) : ''; ?>
                 <?= (!empty($_GET['tasklistid']) ? 'Edit' : 'Add a') ?> <?= $url_tab ?> Task <?= ( !empty($tasklistid) ) ? '#'.$tasklistid : ''; */ ?>
             </h3>-->
-            <h3 class="inline"><?= !empty($_GET['tasklistid']) ? 'Edit' : 'Add' ?> Task<?= !empty($_GET['tasklistid']) ? ' #'.$_GET['tasklistid'].': '.$task_heading : '' ?></h3>
-            <div class="pull-right"><a href=""><img src="../img/icons/ROOK-status-rejected.jpg" alt="Close" title="Close" class="inline-img" /></a></div>
-            <?php if(!empty($_GET['tasklistid'])) { ?><button name="" type='button' value="" class="delete_task pull-right image-btn" style="margin-top:3px;"><img class="no-margin small" src="../img/icons/trash-icon-red.png" alt="Delete Task" width="25"></button><?php } ?>
+            <h3 class="inline"><?= !empty($_GET['tasklistid']) ? 'Edit' : 'Add' ?> <?= TASK_NOUN ?><?= !empty($_GET['tasklistid']) ? ' #'.$_GET['tasklistid'].': '.$task_heading : '' ?></h3>
+            <div class="pull-right"><a href=""><img src="../img/icons/ROOK-status-rejected.jpg" alt="Close" title="Close" class="inline-img  no-toggle" data-placement="bottom" /></a></div>
+
+            <div class="pull-right"><img src="../img/icons/full_screen.png" alt="View Full Screen" title="View Full Screen" class="inline-img no-toggle full-btn cursor-hand" data-placement="bottom" /></div>
+
+            <?php /* if(!empty($_GET['tasklistid'])) { ?><button name="" type='button' value="" class="delete_task pull-right image-btn" style="margin-top:3px;"><img class="no-margin small" src="../img/icons/trash-icon-red.png" alt="Delete Task" width="25"></button><?php } */ ?>
 
             <div class="clearfix"></div>
 
             <hr />
 
-            <?php if($slider_layout == 'accordion') { ?>
-                <div id="accordion_tabs" class="sidebar panel-group block-panels main-screen" style="background-color: #fff; padding: 0; margin-left: 0.5em; width: calc(100% - 1em);">
-            <?php } ?>
+            <?php $get_field_config_tiles = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT task_fields FROM task_dashboard")); ?>
+            <?php $task_fields = ','.$get_field_config_tiles['task_fields'] . ','; ?>
 
-            <?php if($slider_layout == 'accordion') { ?>
+                <div id="accordion_tabs" class="sidebar panel-group block-panels main-screen" style="background-color: #fff; padding: 0; margin-left: 0.5em; width: calc(100% - 1em);">
+
                 <div class="panel panel-default">
                     <div class="panel-heading">
                         <h4 class="panel-title">
                             <a data-toggle="collapse" data-parent="#accordion_tabs" href="#collapse_task_board">
-                                Task Board<span class="glyphicon glyphicon-plus"></span>
+                                <?= TASK_NOUN ?> Board<span class="glyphicon glyphicon-plus"></span>
                             </a>
                         </h4>
                     </div>
                     <div id="collapse_task_board" class="panel-collapse collapse">
                         <div class="panel-body">
-            <?php } ?>
+
+                        <?php if(strpos($task_fields, ',Board Type,') !== FALSE) { ?>
 
             <div class="form-group">
-                <?= $slider_layout != 'accordion' ? '<h4>Task Board</h4>' : '' ?>
-                <label for="site_name" class="col-sm-4 control-label">Task Board Type:</label>
+                <label for="site_name" class="col-sm-4 control-label"><?= TASK_NOUN ?> Board Type:</label>
                 <div class="col-sm-8">
-                    <select data-placeholder="Select a Task Board Type..." name="task_board_type" id="task_board_type" class="chosen-select-deselect form-control" data-field="board_security" width="380">
+                    <select data-placeholder="Select a <?= TASK_NOUN ?> Board Type..." name="task_board_type" id="task_board_type" class="chosen-select-deselect form-control" data-field="board_security" width="380">
                         <option></option>
                         <option value="Private" <?= $board_security=='Private' ? 'selected' : '' ?>>Private</option><?php
                         $all_board_types = mysqli_fetch_array(mysqli_query($dbc, "SELECT task_dashboard_tile FROM task_dashboard"));
@@ -926,10 +952,13 @@ function mark_done(sel) {
                     </select>
                 </div>
             </div>
+                        <?php } ?>
+
+                        <?php if(strpos($task_fields, ',Board Name,') !== FALSE) { ?>
             <div class="form-group hide_task_board_name">
-                <label for="site_name" class="col-sm-4 control-label">Task Board Name:</label>
+                <label for="site_name" class="col-sm-4 control-label"><?= TASK_NOUN ?> Board Name:</label>
                 <div class="col-sm-8">
-                    <select data-placeholder="Select a Task Board..." name="task_board" class="chosen-select-deselect form-control" data-table="tasklist" data-field="task_board" width="380">
+                    <select data-placeholder="Select a <?= TASK_NOUN ?> Board..." name="task_board" class="chosen-select-deselect form-control" data-table="tasklist" data-field="task_board" width="380">
                         <option></option>
                         <!-- <option value="NEW">Add New Task Board</option> -->
                         <?php
@@ -941,22 +970,17 @@ function mark_done(sel) {
                 </div>
             </div>
             <div class="form-group clearfix new-board-name" style="display:none;">
-                <label for="first_name" class="col-sm-4 control-label text-right">New Task Board Name:</label>
+                <label for="first_name" class="col-sm-4 control-label text-right">New <?= TASK_NOUN ?> Board Name:</label>
                 <div class="col-sm-8">
                     <input type="text" name="new_task_board" value="" data-table="tasklist" data-field="board_name" class="form-control" width="380" />
                 </div>
             </div>
-            <?php if($slider_layout == 'accordion') { ?>
+                        <?php } ?>
+
                         </div>
                     </div>
                 </div>
-            <?php } else { ?>
-                <hr />
-            <?php } ?>
 
-
-
-            <?php if($slider_layout == 'accordion') { ?>
                 <div class="panel panel-default project_section_display" style="<?= $project_section_display ?>">
                     <div class="panel-heading">
                         <h4 class="panel-title">
@@ -967,7 +991,6 @@ function mark_done(sel) {
                     </div>
                     <div id="collapse_project" class="panel-collapse collapse">
                         <div class="panel-body">
-            <?php } ?>
             <div class="project-section project_section_display" style="<?= $project_section_display ?>">
                 <div class="form-group clearfix">
                     <?= $slider_layout != 'accordion' ? '<h4><?= PROJECT_TILE ?></h4>' : '' ?>
@@ -990,38 +1013,38 @@ function mark_done(sel) {
                 </div>
                 <input type="hidden" name="project_milestone" value="<?= $project_milestone ?>">
 
-                <?php if($slider_layout != 'accordion') { ?>
-                    <hr />
-                <?php } ?>
             </div>
-            <?php if($slider_layout == 'accordion') { ?>
                         </div>
                     </div>
                 </div>
-            <?php } ?>
 
-            <?php if($slider_layout == 'accordion') { ?>
                 <div class="panel panel-default taskpath_section_display" style="<?= $taskpath_section_display ?>">
                     <div class="panel-heading">
                         <h4 class="panel-title">
                             <a data-toggle="collapse" data-parent="#accordion_tabs" href="#collapse_task_path">
-                                Task Path<span class="glyphicon glyphicon-plus"></span>
+                                <?= TASK_NOUN ?> Path<span class="glyphicon glyphicon-plus"></span>
                             </a>
                         </h4>
                     </div>
                     <div id="collapse_task_path" class="panel-collapse collapse">
                         <div class="panel-body">
-            <?php } ?>
 
             <div class="form-group">
-                <?= $slider_layout != 'accordion' ? '<h4>Task Path</h4>' : '' ?>
-                <label for="site_name" class="col-sm-4 control-label">Task Path:</label>
+                <label for="site_name" class="col-sm-4 control-label"><?= TASK_NOUN ?> Path:</label>
                 <div class="col-sm-8">
-                    <select data-placeholder="Select a Task Path..." id="task_path" name="task_path" data-table="tasklist" data-field="task_path" class="chosen-select-deselect form-control" width="380">
+                    <select data-placeholder="Select a <?= TASK_NOUN ?> Path..." id="task_path" name="task_path" data-table="tasklist" data-field="task_path" class="chosen-select-deselect form-control" width="380">
                         <option value=""></option><?php
-                        $query = mysqli_query($dbc,"SELECT project_path_milestone, project_path FROM project_path_milestone");
-                        while($row = mysqli_fetch_array($query)) { ?>
-                            <option <?php if ($row['project_path_milestone'] == $task_path) { echo " selected"; } ?> value='<?php echo  $row['project_path_milestone']; ?>' ><?php echo $row['project_path']; ?></option><?php
+                        $project_path_milestones = [];
+                        if($task_projectid > 0) {
+                            $project_path_milestones = get_project_paths($task_projectid);
+                            foreach($project_path_milestones as $path) { ?>
+                                <option <?= $task_path == $path['path_id'] ? 'selected' : '' ?> value='<?= $path['path_id'] ?>'><?= $path['path_name'] ?></option>
+                            <?php }
+                        } else {
+                            $query = mysqli_query($dbc,"SELECT project_path_milestone, project_path FROM project_path_milestone");
+                            while($row = mysqli_fetch_array($query)) { ?>
+                                <option <?php if ($row['project_path_milestone'] == $task_path) { echo " selected"; } ?> value='<?php echo  $row['project_path_milestone']; ?>' ><?php echo $row['project_path']; ?></option><?php
+                            }
                         } ?>
                     </select>
                 </div>
@@ -1036,11 +1059,19 @@ function mark_done(sel) {
                 ?>
                     <select data-placeholder="Select a Milestone & Timeline..." name="task_milestone_timeline" id="task_milestone_timeline" data-table="tasklist" data-field="task_milestone_timeline"  class="chosen-select-deselect form-control" width="580">
                         <option value=""></option>
-                        <?php
-
-                        $query = mysqli_query($dbc,"SELECT milestone FROM taskboard_path_custom_milestones WHERE taskboard='$task_board'");
-                        while($row = mysqli_fetch_array($query)) { ?>
-                            <option <?php if ( $row['milestone'] == $task_milestone_timeline) { echo " selected"; } ?> value='<?php echo  $row['milestone']; ?>' ><?php echo $row['milestone']; ?></option><?php
+                        <?php if($task_projectid > 0) {
+                            foreach($project_path_milestones as $path) {
+                                if($path['path_id'] == $task_path) {
+                                    foreach($path['milestones'] as $milestone) { ?>
+                                        <option <?= $task_milestone_timeline == $milestone['milestone'] ? 'selected' : '' ?> value="<?= $milestone['milestone'] ?>"><?= $milestone['label'] ?></option>
+                                    <?php }
+                                }
+                            }
+                        } else {
+                            $query = mysqli_query($dbc,"SELECT milestone FROM taskboard_path_custom_milestones WHERE taskboard='$task_board'");
+                            while($row = mysqli_fetch_array($query)) { ?>
+                                <option <?php if ( $row['milestone'] == $task_milestone_timeline) { echo " selected"; } ?> value='<?php echo  $row['milestone']; ?>' ><?php echo $row['milestone']; ?></option><?php
+                            }
                         }
 
                         /*
@@ -1076,15 +1107,10 @@ function mark_done(sel) {
 				<?php }
 			} ?>
 
-            <?php if($slider_layout == 'accordion') { ?>
                         </div>
                     </div>
                 </div>
-            <?php } else { ?>
-                <hr />
-            <?php } ?>
 
-            <?php if($slider_layout == 'accordion') { ?>
                 <div class="panel panel-default contact_section_display"  style="<?= $contact_section_display ?>">
                     <div class="panel-heading">
                         <h4 class="panel-title">
@@ -1095,7 +1121,6 @@ function mark_done(sel) {
                     </div>
                     <div id="collapse_contacts" class="panel-collapse collapse">
                         <div class="panel-body">
-            <?php } ?>
 
                 <div class="contact-section">
                     <div class="form-group clearfix">
@@ -1143,18 +1168,12 @@ function mark_done(sel) {
                         </div><?php
                     } ?>
 
-                    <?php if($slider_layout != 'accordion') { ?>
-                        <hr />
-                    <?php } ?>
                 </div>
-                <?php if($slider_layout == 'accordion') { ?>
                         </div>
                     </div>
                 </div>
-            <?php } ?>
 
 			<?php if(tile_enabled($dbc, 'Sales')) { ?>
-                <?php if($slider_layout == 'accordion') { ?>
                     <div class="panel panel-default sales_section_display" style="<?= $sales_section_display ?>">
                         <div class="panel-heading">
                             <h4 class="panel-title">
@@ -1165,10 +1184,8 @@ function mark_done(sel) {
                         </div>
                         <div id="collapse_sales" class="panel-collapse collapse">
                             <div class="panel-body">
-                <?php } ?>
 				<div class="sales-section">
 					<div class="form-group clearfix">
-						<?= $slider_layout != 'accordion' ? '<h4>'.SALES_TILE.'</h4>' : '' ?>
 						<label for="first_name" class="col-sm-4 control-label text-right"><?= SALES_NOUN ?>:</label>
 						<div class="col-sm-8">
 							<select data-placeholder="Select <?= SALES_NOUN ?>..." name="task_salesid" data-table="tasklist" data-field="salesid" class="chosen-select-deselect form-control" id="task_salesid" width="380">
@@ -1180,30 +1197,24 @@ function mark_done(sel) {
 					</div>
 					<input type="hidden" name="sales_milestone" data-table="tasklist" data-field="sales_milestone" value="<?= $sales_milestone ?>">
 
-                    <?php if($slider_layout != 'accordion') { ?>
-                        <hr />
-                    <?php } ?>
 				</div>
-                <?php if($slider_layout == 'accordion') { ?>
                             </div>
                         </div>
                     </div>
-                <?php } ?>
 			<?php } ?>
 
-            <?php if($slider_layout == 'accordion') { ?>
                 <div class="panel panel-default">
                     <div class="panel-heading">
                         <h4 class="panel-title">
                             <a data-toggle="collapse" data-parent="#accordion_tabs" href="#collapse_task_details">
-                                Task<?= ( !empty($tasklistid) ) ? ' #'.$tasklistid : ':'; ?> Details<span class="glyphicon glyphicon-plus"></span>
+                                <?= TASK_NOUN ?><?= ( !empty($tasklistid) ) ? ' #'.$tasklistid : ':'; ?> Details<span class="glyphicon glyphicon-plus"></span>
                             </a>
                         </h4>
                     </div>
                     <div id="collapse_task_details" class="panel-collapse collapse">
                         <div class="panel-body">
-            <?php } ?>
 
+                        <?php if(strpos($task_fields, ',Status,') !== FALSE) { ?>
             <div class="form-group clearfix">
                 <label for="first_name" class="col-sm-4 control-label text-right">Status:</label>
                 <div class="col-sm-8">
@@ -1224,6 +1235,7 @@ function mark_done(sel) {
                     </select>
                 </div>
             </div>
+                        <?php } ?>
 
             <!--
             <div class="form-group clearfix">
@@ -1235,6 +1247,7 @@ function mark_done(sel) {
             </div>
             -->
 
+                        <?php if(strpos($task_fields, ',Task Name,') !== FALSE) { ?>
             <div class="form-group clearfix">
                 <label for="first_name" class="col-sm-4 control-label text-right">
                     <!-- <img src="../img/icons/ROOK-edit-icon.png" class="inline-img" /> --> Task Name:
@@ -1256,26 +1269,51 @@ function mark_done(sel) {
                     <input type="text" name="task_heading" value="<?= $task_heading ?>" data-table="tasklist" data-field="heading" class="form-control" width="380" />
                 </div>
             </div>
+                        <?php } ?>
 
+                        <?php if(strpos($task_fields, ',To Do Date,') !== FALSE) { ?>
             <div class="form-group clearfix">
                 <label for="first_name" class="col-sm-4 control-label text-right">To Do Date:</label>
                 <div class="col-sm-8">
                     <input name="task_tododate" value="<?php echo $task_tododate; ?>" type="text" data-table="tasklist" data-field="task_tododate" class="datepicker form-control">
                 </div>
             </div>
-
-            <div class="form-group">
-                <label for="site_name" class="col-sm-4 control-label">Assign Staff:</label>
-                <div class="col-sm-8">
-                    <select data-placeholder="Select Users" multiple name="task_userid[]" data-table="tasklist" data-field="contactid" class="chosen-select-deselect form-control" style="width: 20%;float: left;margin-right: 10px;" width="380">
-                        <?php $staff_list = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name` FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `deleted`=0 AND `status`>0"),MYSQLI_ASSOC));
-                        foreach($staff_list as $staff_id) { ?>
-                            <!-- <option <?//= ($staff_id == $_SESSION['contactid'] ? "selected" : '') ?> value='<?//=  $staff_id; ?>' ><?//= get_contact($dbc, $staff_id) ?></option> -->
-                            <option <?= (strpos(','.$task_contactid.',', ','.$staff_id.',') !== false) ? ' selected' : ''; ?> value="<?= $staff_id; ?>"><?= get_contact($dbc, $staff_id); ?></option>
                         <?php } ?>
-                    </select>
-                </div>
-            </div>
+
+
+                        <?php if(strpos($task_fields, ',Assign Staff,') !== FALSE) { ?>
+                        <div class="form-group">
+                            <label for="site_name" class="col-sm-4 control-label">Assign Staff:</label>
+                            <div class="col-sm-8">
+                                <div class="clearfix"></div>
+                                <div class="start-ticket-staff">
+                                    <div class="clearfix"></div>
+                                    <div class="col-sm-6">
+                                        <select data-placeholder="Select User" name="task_userid[]" data-table="tasklist" data-field="contactid" class="chosen-select-deselect form-control" style="width: 20%;float: left;margin-right: 10px;" width="380">
+                               
+                                            <?php $staff_list = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name` FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `deleted`=0 AND `status`>0"),MYSQLI_ASSOC));
+                                            foreach($staff_list as $staff_id) { ?>
+                                                <!-- <option <?//= ($staff_id == $_SESSION['contactid'] ? "selected" : '') ?> value='<?//=  $staff_id; ?>' ><?//= get_contact($dbc, $staff_id) ?></option> -->
+                                                <option <?= (strpos(','.$task_contactid.',', ','.$staff_id.',') !== false) ? ' selected' : ''; ?> value="<?= $staff_id; ?>"><?= get_contact($dbc, $staff_id); ?></option>
+                                            <?php } ?>
+                                        </select>
+                                    </div>
+
+                                    <div class="col-sm-2">
+                                        <img class="inline-img pull-right" onclick="startTicketStaff(this);" src="../img/icons/ROOK-add-icon.png">
+                                        <img class="inline-img pull-right" onclick="deletestartTicketStaff(this);" src="../img/remove.png">
+                                    </div>
+
+                                </div>
+
+                                <br><div class="clearfix"></div>
+
+                            </div>
+                        </div>
+
+                        <?php } ?>
+
+                        <?php if(strpos($task_fields, ',Flag This,') !== FALSE) { ?>
 
             <div class="form-group clearfix">
                 <label for="first_name" class="col-sm-4 control-label">
@@ -1286,7 +1324,9 @@ function mark_done(sel) {
                     <input type="hidden" name="flag" value="" />
                 </div>
             </div>
+                        <?php } ?>
 
+                        <?php if(strpos($task_fields, ',Send Alert,') !== FALSE) { ?>
 			<div class="form-group">
 				<label for="site_name" class="col-sm-4 control-label">
                     <!-- <img src="../img/icons/ROOK-alert-icon.png" class="inline-img" />-->  Send Alert:
@@ -1300,6 +1340,9 @@ function mark_done(sel) {
 					</select>
 				</div>
 			</div>
+                        <?php } ?>
+
+                        <?php if(strpos($task_fields, ',Send Email,') !== FALSE) { ?>
 			<div class="form-group">
 				<label for="site_name" class="col-sm-4 control-label">
                     <!-- <img src="../img/icons/ROOK-email-icon.png" class="inline-img" /> --> Send Email:
@@ -1313,6 +1356,9 @@ function mark_done(sel) {
 					</select>
 				</div>
 			</div>
+                        <?php } ?>
+
+                        <?php if(strpos($task_fields, ',Schedule Reminder,') !== FALSE) { ?>
 			<div class="form-group">
 				<label for="site_name" class="col-sm-4 control-label">
                     <!-- <img src="../img/icons/ROOK-reminder-icon.png" class="inline-img" /> --> Schedule Reminder:
@@ -1321,6 +1367,9 @@ function mark_done(sel) {
 					<input type="text" class="form-control datepicker" name="schedule_reminder" />
 				</div>
 			</div>
+                        <?php } ?>
+
+                        <?php if(strpos($task_fields, ',Attach File,') !== FALSE) { ?>
             <div class="form-group">
                 <label for="additional_note" class="col-sm-4 control-label">
                    <!-- <img src="../img/icons/ROOK-attachment-icon.png" class="inline-img" />--> Attach File(s):
@@ -1370,7 +1419,9 @@ function mark_done(sel) {
                     } ?>
                 </div>
             </div>
+                        <?php } ?>
 
+                        <?php if(strpos($task_fields, ',Comments,') !== FALSE) { ?>
             <div class="form-group clearfix">
                 <label for="task_comment" class="col-sm-4 control-label text-right">
                     <!-- <img src="../img/icons/ROOK-reply-icon.png" class="inline-img" /> --> Comments:
@@ -1383,15 +1434,12 @@ function mark_done(sel) {
             <div id="load_comments" class="form-group clearfix">
                 <?php include('task_comment_list.php'); ?>
             </div>
-            <?php if($slider_layout == 'accordion') { ?>
+                        <?php } ?>
+
                         </div>
                     </div>
                 </div>
-            <?php } else { ?>
-                <hr />
-            <?php } ?>
 
-            <?php if($slider_layout == 'accordion') { ?>
                 <div class="panel panel-default">
                     <div class="panel-heading">
                         <h4 class="panel-title">
@@ -1402,15 +1450,48 @@ function mark_done(sel) {
                     </div>
                     <div id="collapse_time_tracking" class="panel-collapse collapse">
                         <div class="panel-body">
-            <?php } ?>
+
+                <?php
+                    if(!empty($_GET['tasklistid'])) {
+                        $query_check_credentials = "SELECT * FROM tasklist_time WHERE tasklistid='$tasklistid' ORDER BY time_id DESC";
+                        $result = mysqli_query($dbc, $query_check_credentials);
+                        $num_rows = mysqli_num_rows($result);
+                        if($num_rows > 0) {
+                            echo "<table class='table table-bordered'>
+                            <tr>
+                            <th>Time</th>
+                            <th>Type</th>
+                            <th>Date</th>
+                            <th>Uploaded By</th>
+                            </tr>";
+                            while($row = mysqli_fetch_array($result)) {
+                                echo '<tr>';
+                                echo '<td data-title="Document">'.$row['work_time'].'</td>';
+                                if($row['src'] == 'A') {
+                                    echo '<td data-title="Document">Tracked Time</td>';
+                                } else {
+                                    echo '<td data-title="Document">Added Time</td>';
+                                }
+                                echo '<td data-title="Date">'.$row['timer_date'].'</td>';
+                                echo '<td data-title="Uploaded By">'.get_staff($dbc, $row['contactid']).'</td>';
+                                echo '</tr>';
+                            }
+                            echo '</table>';
+                        }
+                    } ?>
+
+
+
             <div class="form-group clearfix">
-                <?= $slider_layout != 'accordion' ? '<h4>Time Tracking</h4>' : '' ?>
-                <h5>Track Time To Task</h5>
+                        <?php if(strpos($task_fields, ',Add Time,') !== FALSE) { ?>
                 <label for="first_name" class="col-xs-3 control-label text-right"><!-- <img src="../img/icons/ROOK-timer-icon.png" class="inline-img" />--> Add Time:</label>
                 <div class="col-xs-3">
                     <!-- <input name="task_work_time" type="text" value="00:00" data-table="tasklist" data-field="work_time" class="timepicker form-control" /> -->
                     <input name="task_work_time" type="text" value="00:00" class="timepicker form-control" onchange="quick_add_time(this);" />
                 </div>
+                        <?php } ?>
+
+                        <?php if(strpos($task_fields, ',Track Time,') !== FALSE) { ?>
                 <label for="first_name" class="col-xs-3 control-label text-right"><!-- <img src="../img/icons/ROOK-timer2-icon.png" class="inline-img" /> --> Track Time:</label>
                 <div class="col-xs-3">
                     <input type="text" name="timer_<?= $tasklistid ?>" id="timer_value" class="form-control timer" placeholder="0 sec" />
@@ -1419,22 +1500,24 @@ function mark_done(sel) {
                     <input type="hidden" value="" name="track_time" />
                     <span class="added-time"></span>
                 </div>
+                        <?php } ?>
+
             </div>
 
-            <?php if($slider_layout == 'accordion') { ?>
                         </div>
                     </div>
                 </div>
-            <?php } ?>
 
-            <?php if($slider_layout == 'accordion') { ?>
                 </div>
-            <?php } ?>
 
-            <div class="form-group pull-right">
-                <a href="<?php echo $back_url; ?>" class="btn brand-btn pull-left">Cancel</a>
-                <button name="tasklist" value="tasklist" class="btn brand-btn pull-right">Submit</button>
-                <?php if(!empty($_GET['tasklistid'])) { ?><button name="" type='button' value="" class="delete_task pull-right image-btn"><img class="no-margin small" src="../img/icons/trash-icon-red.png" alt="Delete Task" width="30"></button><?php } ?>
+            <div class="form-group">
+                <div class="col-xs-6">
+                    <?php if(!empty($_GET['tasklistid'])) { ?><button name="" type='button' value="" class="delete_task image-btn no-toggle" title="Archive"><img class="no-margin small" src="../img/icons/trash-icon-red.png" alt="Archive Task" width="30"></button><?php } ?>
+                </div>
+                <div class="col-xs-6 text-right">
+                    <a href="index.php?category=All&tab=Summary" class="btn brand-btn">Cancel</a>
+                    <button name="tasklist" value="tasklist" class="btn brand-btn">Submit</button>
+                </div>
                 <div class="clearfix"></div>
             </div>
         </form>

@@ -268,7 +268,7 @@ switch($_GET['type']) {
         }
         $offline_mode = get_config($dbc, 'uni_offline');
         $add_reminder = get_config($dbc, 'uni_reminders');
-        $teams = '';
+        $teams = get_config($dbc, 'uni_teams');
         $equipment_assignment = '';
         $weekly_start = get_config($dbc, 'uni_weekly_start');
         $weekly_days = explode(',', get_config($dbc, 'uni_weekly_days'));
@@ -279,6 +279,11 @@ switch($_GET['type']) {
         $availability_indication = get_config($dbc, 'uni_availability_indication');
         $sidebar_file = 'uni_sidebar.php';
         $all_tickets_button = '';
+        $staff_split_security = get_config($dbc, 'uni_staff_split_security');
+        $client_staff_freq = get_config($dbc, 'uni_client_staff_freq');
+        $client_draggable = get_config($dbc, 'uni_client_draggable');
+        $staff_summary = get_config($dbc, 'uni_staff_summary');
+        $day_summary_tab = get_config($dbc, 'uni_day_summary_tab');
 
         $mobile_calendar_views = ['staff'=>'Staff'];
         if($use_shifts != '') {
@@ -364,8 +369,13 @@ switch($_GET['type']) {
         $monthly_start = get_config($dbc, 'scheduling_monthly_start');
         $monthly_days = explode(',', get_config($dbc, 'scheduling_monthly_days'));
         $equipment_category = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_equip_assign`"))['equipment_category'];
-        if (empty($equipment_category)) {
+        $equipment_categories = array_filter(explode(',', $equipment_category));
+        if(empty($equipment_categories) || count($equipment_categories) > 1) {
             $equipment_category = 'Equipment';
+        }
+        $equip_cat_query = '';
+        if(count($equipment_categories) > 0) {
+            $equip_cat_query = " AND `equipment`.`category` IN ('".implode("','", $equipment_categories)."')";
         }
         echo '<input type="hidden" name="equipment_category_label" value="'.$equipment_category.'">';
         $dispatch_filters = get_config($dbc, 'scheduling_filters');
@@ -404,6 +414,7 @@ switch($_GET['type']) {
         $scheduling_summary_view = get_config($dbc, 'scheduling_summary_view');
         $warning_num_tickets = get_config($dbc, 'scheduling_warning_num_tickets');
         $equip_display_classification = get_config($dbc, 'scheduling_equip_classification');
+        $equip_display_classification_ticket = get_config($dbc, 'scheduling_equip_classification_ticket');
         $service_followup = get_config($dbc, 'scheduling_service_followup');
         $service_date = get_config($dbc, 'scheduling_service_date');
         $passed_service = get_config($dbc, 'scheduling_passed_service');
@@ -418,6 +429,7 @@ switch($_GET['type']) {
                 $is_customer = true;
             }
         }
+        $export_time_table = get_config($dbc, 'scheduling_export_time_table');
         break;
     case 'estimates':
         $config_type = 'estimates';

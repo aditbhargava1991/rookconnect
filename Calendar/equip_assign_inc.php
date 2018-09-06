@@ -50,6 +50,14 @@ $enabled_fields = '';
 $get_field_config = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_equip_assign`"));
 if (!empty($get_field_config)) {
     $equipment_category = $get_field_config['equipment_category'];
+    $equipment_categories = array_filter(explode(',', $equipment_category));
+    if(empty($equipment_categories) || count($equipment_categories) > 1) {
+        $equipment_category = 'Equipment';
+    }
+    $equip_cat_query = '';
+    if(count($equipment_categories) > 0) {
+        $equip_cat_query = " AND `equipment`.`category` IN ('".implode("','", $equipment_categories)."')";
+    }
     $client_type = $get_field_config['client_type'];
     $contact_category = explode(',', $get_field_config['contact_category']);
     $contractor_category = !empty($get_field_config['contractor_category']) ? explode(',', $get_field_config['contractor_category']) : '';
@@ -118,25 +126,27 @@ if (!empty($equipment_assignmentid)) {
 <select data-placeholder="Select <?= $equipment_category ?>" name="equip_assign_equipmentid" class="chosen-select-deselect">
     <option></option>
     <?php
-        $query = "SELECT * FROM `equipment` WHERE `deleted` = 0 AND `category` = '$equipment_category' ORDER BY `unit_number`";
+        $query = "SELECT * FROM `equipment` WHERE `deleted` = 0 ".$equip_cat_query." ORDER BY `category`, `unit_number`";
         $result = mysqli_query($dbc, $query);
         while ($row = mysqli_fetch_array($result)) {
-            $equipment_name = $equipment_category . ' #' . $row['unit_number'];
+            $equipment_name = $row['category'] . ' #' . $row['unit_number'];
             echo '<option value="'.$row['equipmentid'].'"'.($row['equipmentid'] == $equipmentid ? ' selected' : '').'>'.$equipment_name.'</option>';
         }
     ?>
 </select></label>
 
-<label for="clientid" class="super-label"><?= $client_type ?>:
-<select data-placeholder="Select <?= $client_type ?>" name="equip_assign_clientid" class="chosen-select-deselect">
-    <option></option>
-    <?php
-        $query = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `contacts` WHERE `deleted` = 0 AND `status` = 1 AND `category` = '".$client_type."'".$region_query),MYSQLI_ASSOC));
-        foreach ($query as $id) {
-            echo '<option value="'.$id.'"'.($id == $clientid ? ' selected' : '').'>'.(!empty(get_client($dbc, $id)) ? get_client($dbc, $id) : get_contact($dbc, $id)).'</option>';
-        }
-    ?>
-</select></label>
+<?php if(!empty($client_type)) { ?>
+    <label for="clientid" class="super-label"><?= $client_type ?>:
+    <select data-placeholder="Select <?= $client_type ?>" name="equip_assign_clientid" class="chosen-select-deselect">
+        <option></option>
+        <?php
+            $query = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `contacts` WHERE `deleted` = 0 AND `status` = 1 AND `category` = '".$client_type."'".$region_query),MYSQLI_ASSOC));
+            foreach ($query as $id) {
+                echo '<option value="'.$id.'"'.($id == $clientid ? ' selected' : '').'>'.(!empty(get_client($dbc, $id)) ? get_client($dbc, $id) : get_contact($dbc, $id)).'</option>';
+            }
+        ?>
+    </select></label>
+<?php } ?>
 
 <hr>
 

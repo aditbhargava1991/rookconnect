@@ -1024,7 +1024,7 @@ function resize_calendar_view() {
 		    $('.scalable .block-group').not('.no-resize').outerHeight($('.calendar_view').outerHeight() - $('.scalable .block-group').prev('div').outerHeight());
 	    }
 	    
-	    if($('#calendar_type').val() != 'schedule' && $('#calendar_type').val() != 'ticket') {
+	    if($('#calendar_type').val() != 'schedule' && $('#calendar_type').val() != 'ticket' && $('#calendar_type').val() != 'uni') {
 			var sidebar_headings = 0;
 			$('.sidebar.panel-group .panel:visible').each(function() {
 				sidebar_headings += $(this).outerHeight() - $(this).find('.panel-body')[0].clientHeight;
@@ -1081,6 +1081,7 @@ function expandDiv(link) {
     }
 	resize_calendar_view();
 }
+force_resize_blocks = '';
 function expandBlock() {
 	$('.used-block span').unbind('mouseenter mouseleave').hover(function() {
 		if($(this).closest('.used-block').height() < $(this).height()) {
@@ -1091,14 +1092,19 @@ function expandBlock() {
 				zIndex: 2
 			});
 		}
+		clearTimeout(force_resize_blocks);
 	}, function() {
 		$(this).closest('.used-block').clearQueue().stop().animate({
 			'min-height': '0'
-		}, 'normal', function() {	
+		}, 'normal', function() {
 			$(this).closest('td').css({
 				zIndex: 1
 			});
 		});
+		clearTimeout(force_resize_blocks);
+		force_resize_blocks = setTimeout(function() {
+			reload_resize_all();
+		}, 1000);
 	});
 }
 function resizeBlocks() {
@@ -1285,8 +1291,14 @@ function loadUnbookedList(anchor) {
 		$(anchor).removeClass('active');
 	} else {
 		var href = $(anchor).data('href');
+		var calendar_dates = JSON.parse($('#calendar_dates').val());
+		var start_date = calendar_dates.shift();
+		var end_date = calendar_dates.pop();
+		if(end_date == undefined || end_date == '') {
+			end_date = start_date;
+		}
 		$.ajax({
-			url: '../Calendar/unbooked.php'+href,
+			url: '../Calendar/unbooked.php'+href+'&search_start_date='+start_date+'&search_end_date='+end_date,
 			success: function(response) {
 				var unbooked_html = '<div class="pull-right scalable unbooked_view" style="height: 30em; overflow: auto;">'+response+'</div>';
 				$('.calendar-screen .collapsible').after(unbooked_html);

@@ -1,11 +1,6 @@
 <?php include_once('../include.php');
 include_once('../Ticket/field_list.php');
-$strict_view = strictview_visible_function($dbc, 'ticket');
-$tile_security = get_security($dbc, ($_GET['tile_name'] == '' ? 'ticket' : 'ticket_type_'.$_GET['tile_name']));
-if($strict_view > 0) {
-	$tile_security['edit'] = 0;
-	$tile_security['config'] = 0;
-}
+include_once('../Ticket/config.php');
 $back_url = tile_visible($dbc, 'Tickets') > 0 ? WEBSITE_URL.'/Ticket/tickets.php' : WEBSITE_URL.'/home.php';
 if(!empty($_GET['calendar_view'])) {
 	$reload_cache_date = date('Y-m-d');
@@ -95,7 +90,7 @@ if(!empty($_GET['clientid'])) {
 if(!empty($_GET['projectid'])) {
 	$projectid = $_GET['projectid'];
 	$businessid = get_project($dbc, $projectid, 'businessid');
-	$clientid = get_project($dbc, $projectid, 'clientid');
+	$clientid = explode(',',trim(get_project($dbc, $projectid, 'clientid'),','))[0];
 	$project_path = get_project($dbc, $projectid, 'project_path');
 	$project_lead = get_project($dbc, $projectid, 'project_lead');
 }
@@ -130,7 +125,7 @@ if(!empty($_GET['edit'])) {
 		}
 	}
 
-	$ticket_type = $get_ticket['ticket_type'];
+	$ticket_type = empty($get_ticket['ticket_type']) ? $ticket_type : $get_ticket['ticket_type'];
 	$businessid = $get_ticket['businessid'] ?: $businessid;
 	$equipmentid = $get_ticket['equipmentid'];
 
@@ -207,18 +202,12 @@ if(!empty($_GET['edit'])) {
 	<input type="hidden" class="start_time" value="<?php echo $time_seconds ?>">
 	<input type="hidden" id="login_contactid" value="<?php echo $_SESSION['contactid'] ?>" />
 	<input type="hidden" id="timer_type" value="<?php echo $timer_type ?>" />
-<?php } else if(!empty($_GET['type'])) {
-	$ticket_type = filter_var($_GET['type'],FILTER_SANITIZE_STRING);
-}
+<?php }
 if(!empty(MATCH_CONTACTS) && !in_array($get_ticket['businessid'],explode(',',MATCH_CONTACTS)) && !in_array_any(array_filter(explode(',',$get_ticket['clientid'])),explode(',',MATCH_CONTACTS)) && $ticketid > 0) {
 	ob_clean();
 	header('Location: index.php');
 	exit();
-}
-if($ticket_type == '') {
-	$ticket_type = get_config($dbc, 'default_ticket_type');
-}
-?>
+} ?>
 <input type="hidden" id="ticketid" name="ticketid" value="<?php echo $ticketid ?>" />
 <input name="unlocked_tabs" type="hidden" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" value="<?= $get_ticket['unlocked_tabs'] ?>">
 <input type="hidden" name="action_mode" id="action_mode" value="<?= $_GET['action_mode'] ?>">
@@ -288,6 +277,26 @@ if($_GET['overview_mode'] == 1) {
 	$force_readonly = true;
 	$ticket_layout = 'full';
 	$calendar_ticket_slider = 'full';
+}
+
+//Status Fields
+if(!empty($ticket_status)) {
+	$value_config_all = $value_config;
+	$value_config = ','.get_config($dbc, 'ticket_status_fields_'.$ticket_status).',';
+	if(!empty($ticket_type)) {
+		$value_config .= get_config($dbc, 'ticket_status_fields_'.$ticket_status.'_'.$ticket_type).',';
+	}
+	if(empty(trim($value_config,','))) {
+		$value_config = $value_config_all;
+	} else {
+		foreach($action_mode_ignore_fields as $action_mode_ignore_field) {
+			if(strpos(','.$value_config_all.',',','.$action_mode_ignore_field.',') !== FALSE) {
+				$value_config .= ','.$action_mode_ignore_field;
+			}
+		}
+		$value_config = ','.implode(',',array_intersect(explode(',',$value_config), explode(',',$value_config_all))).',';
+	}
+	$ticket_layout = $calendar_ticket_slider = 'full';
 }
 
 //Edit Staff From Dashboard
@@ -544,7 +553,23 @@ $is_recurrence = false;
 if($get_ticket['main_ticketid'] > 0 && $get_ticket['is_recurrence'] == 1) {
 	$is_recurrence = true;
 }
-
+$quick_action_html = '';
+if(!($strict_view > 0)) {
+	$quick_actions = explode(',',get_config($dbc, 'quick_action_icons'));
+	$quick_action_html .= '<div class="action-icons pull-right">';
+	$quick_action_html .= (strpos($value_config,',Create Recurrence Button,') !== FALSE ? '<img src="'.WEBSITE_URL.'/img/month-overview-blue.png" class="inline-img no-toggle" title="Recurring '.TICKET_TILE .'" onclick="dialogCreateRecurrence(this);">' : '');
+	$quick_action_html .= (in_array('flag_manual',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-flag-icon.png" class="inline-img manual-flag-icon no-toggle" title="Flag This!">' : '');
+	$quick_action_html .= (!in_array('flag_manual',$quick_actions) && in_array('flag',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-flag-icon.png" class="inline-img flag-icon no-toggle" title="Flag This!">' : '');
+	$quick_action_html .= (in_array('email',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-email-icon.png" class="inline-img email-icon no-toggle" title="Send Email">' : '');
+	$quick_action_html .= (in_array('reminder',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-reminder-icon.png" class="inline-img reminder-icon no-toggle" title="Schedule Reminder">' : '');
+	$quick_action_html .= (in_array('attach',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-attachment-icon.png" class="inline-img attach-icon no-toggle" title="Attach File">' : '');
+	$quick_action_html .= (in_array('reply',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-reply-icon.png" class="inline-img reply-icon no-toggle" title="Add Note">' : '');
+	$quick_action_html .= (strpos($value_config,',Customer History,') !== FALSE ? '<img src="'.WEBSITE_URL.'/img/icons/eyeball.png" class="inline-img no-toggle" title="View Customer History" onclick="displayCustomerHistory();">' : '');
+	$quick_action_html .= (in_array('archive',$quick_actions) && $tile_security['edit'] > 0 ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-trash-icon.png" class="inline-img archive-icon no-toggle" title="Archive">' : '');
+	$quick_action_html .= '</div><br />
+		<input type="text" name="emailpdf" value="" class="form-control" style="display:none;">
+		<input type="file" name="document" value="" data-table="ticket_document" data-folder="ticket_document" style="display:none;">';
+}
 
 $global_value_config = $value_config; ?>
 
@@ -552,6 +577,7 @@ $global_value_config = $value_config; ?>
 <script>
 var no_verify = <?= IFRAME_PAGE ? 'true' : 'false' ?>;
 $(document).ready(function() {
+	setActions();
 	window.onbeforeunload = function() {
 		var ready = ticketid > 0 || ticketid == 'multi' || <?= IFRAME_PAGE ? 'true' : 'false' ?>;
 		$('[name=projectid],select[name=businessid]').not('[type=checkbox]').each(function() {
@@ -676,7 +702,96 @@ function loadPanel() {
 		});
 	}
 }
+function setActions() {
+	$('.archive-icon').off('click').click(function() {
+		var ticketid = $('#ticketid').val();
+		$.ajax({
+			url: 'ticket_ajax_all.php?action=archive',
+			method: 'POST',
+			data: { ticketid: ticketid },
+			success: function(response) {
+				window.location.href = '<?= $back_url ?>';
+			}
+		});
+	});
+	$('.manual-flag-icon').off('click').click(function() {
+		var ticketid = $('#ticketid').val();
+		overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_flags.php?tile=tickets&id='+ticketid, 'auto', false, true);
+	});
+	$('.flag-icon').off('click').click(function() {
+		var ticketid = $('#ticketid').val();
+		$.ajax({
+			url: 'ticket_ajax_all.php?action=quick_actions',
+			method: 'POST',
+			data: {
+				field: 'flag_colour',
+				value: item.data('colour'),
+				table: item.data('table'),
+				id: ticketid,
+				id_field: item.data('id-field')
+			},
+			success: function(response) {
+				item.data('colour',response.substr(0,6));
+				item.css('background-color','#'+response.substr(0,6));
+				item.find('.flag-label').html(response.substr(6));
+			}
+		});
+	});
+	$('.attach-icon').off('click').click(function() {
+		var ticketid = $('#ticketid').val();
+		var item = $(this).closest('.action_items');
+		item.find('[type=file]').off('change').change(function() {
+			var fileData = new FormData();
+			fileData.append('file',$(this)[0].files[0]);
+			fileData.append('field','document');
+			fileData.append('table','ticket_document');
+			fileData.append('folder','download');
+			fileData.append('id',ticketid);
+			fileData.append('id_field','ticketid');
+			$.ajax({
+				contentType: false,
+				processData: false,
+				method: "POST",
+				url: "ticket_ajax_all.php?action=quick_actions",
+				data: fileData
+			});
+		}).click();
+	});
+	$('.reply-icon').off('click').click(function() {
+		var ticketid = $('#ticketid').val();
+		overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_notes.php?tile=tickets&id='+ticketid, 'auto', false, true);
+	});
+	$('.reminder-icon').off('click').click(function() {
+		var ticketid = $('#ticketid').val();
+		overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_reminders.php?tile=tickets&id='+ticketid, 'auto', false, true);
+	});
+	$('.email-icon').off('click').click(function() {
+		var ticketid = $('#ticketid').val();
+		overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_email.php?tile=tickets&id='+ticketid, 'auto', false, true);
+	});
+}
+function setManualFlag(ticketid = '', colour, label) {
+	if(colour == 'FFFFFF') {
+		colour = '';
+	}
+	$('.flag-label').text(label);
+
+	if(colour != '') {
+		$('.standard-body-title').css('background-color', '#'+colour);
+		$('.flag-label-block').show();
+		$('.flag-label-block').css('background-color', '#'+colour);
+		if(label != '') {
+			$('.flag-label-block').text('Flagged: '+label);
+		} else {
+			$('.flag-label-block').text('Flagged');
+		}
+	} else {
+		$('.standard-body-title').css('background-color', '');
+		$('.flag-label-block').hide();
+	}
+}
 var ticketid = 0;
+var stopid = '<?= $_GET['stop'] ?>';
 var ticketid_list = [];
 var ticket_wait = false;
 var user_email = '<?= decryptIt($_SESSION['email_address']) ?>';
@@ -795,7 +910,7 @@ var setHeading = function() {
 			</div>
 		</div>
 	</div>
-	<div id="dialog_create_recurrence" title="Recurrence Details" style="display: none;">
+	<div id="dialog_create_recurrence" title="Create New Recurrences" style="display: none;">
 		<script type="text/javascript">
 		$(document).on('change', 'select[name="recurrence_repeat_type"],select[name="recurrence_repeat_monthly_type"]', function() {
 			var repeat_type = $('[name="recurrence_repeat_type"]').val();
@@ -819,7 +934,7 @@ var setHeading = function() {
 		<div class="form-group">
 			<label class="col-sm-4 control-label">Start Date:</label>
 			<div class="col-sm-8">
-				<input type="text" name="recurrence_start_date" class="form-control datepicker" value="<?= date('Y-m-d') ?>">
+				<input type="text" name="recurrence_start_date" data-current-day="<?= date('Y-m-d') ?>" class="form-control datepicker" value="<?= date('Y-m-d') ?>">
 			</div>
 		</div>
 		<div class="form-group">
@@ -874,6 +989,9 @@ var setHeading = function() {
 	<div id="dialog_edit_recurrence" title="Edit Recurrences?" style="display: none;">
 		Would you like to edit all recurrences for this <?= TICKET_NOUN ?> or just this one occurence?
 	</div>
+	<div id="dialog_recurrence_settings" title="Edit or Create Recurrences?" style="display: none;">
+		Would you like to edit current Recurrence settings or create new Recurrences?
+	</div>
 <?php } ?>
 <?php if(!empty($_GET['calendar_view'])) { ?>
 	<div class="double-gap-top standard-body form-horizontal calendar-iframe-screen <?= $calendar_ticket_slider=='full' ? 'calendar-iframe-full' : 'calendar-iframe-accordion'; ?>">
@@ -885,7 +1003,6 @@ var setHeading = function() {
 	var no_tools = true;
 	</script>
 <?php } ?>
-<?php $ticket_tabs = array_filter(explode(',',get_config($dbc, 'ticket_tabs'))); ?>
 <?php if(empty($_GET['calendar_view']) || $calendar_ticket_slider == 'accordion') { ?>
 	<?php if($_GET['calendar_view'] == 'true') { ?>
 		<div class="col-sm-12 double-gap-top">
@@ -906,39 +1023,13 @@ var setHeading = function() {
 					}
 					$flag_comment = $ticket_flag_names[$get_ticket['flag_colour']];
 				} ?>
-				<span class="block-label flag-label" style="background-color:#<?= $get_ticket['flag_colour'] ?>;">Flagged<?= empty($flag_comment) ? '' : ': '.$flag_comment ?></span>
-			<?php } ?></h3>
+			<?php } ?>
+			<span class="block-label flag-label-block" style="<?= $get_ticket['flag_colour'] != '' && $get_ticket['flag_colour'] != 'FFFFFF' ? '' : 'dispaly:none;' ?>background-color:#<?= $get_ticket['flag_colour'] ?>;">Flagged<?= empty($flag_comment) ? '' : ': '.$flag_comment ?></span></h3>
 			<hr>
 		</div>
 	<?php }
-	if(strpos($value_config,',Customer History,') !== FALSE && !($strict_view > 0)) { ?>
-        <div class="pull-right gap-left gap-top gap-bottom <?= $calendar_ticket_slider != 'accordion' ? 'show-on-mob' : '' ?>">
-			<span class="popover-examples list-inline">
-				<a data-toggle="tooltip" data-placement="top" title="Click here to view Customer History."><img src="../img/info.png" width="20"></a>
-			</span>
-			<a href="" onclick="displayCustomerHistory(); return false;
-			"><img style="width: 1.5em;" src="../img/icons/eyeball.png" border="0" alt="" /></a>
-		</div>
-	<?php }
-	if(strpos($value_config,',Create Recurrence Button,') !== FALSE && $_GET['action_mode'] != 1 && $_GET['overview_mode'] != 1 && $access_any) { ?>
-        <div class="pull-right gap-left gap-top gap-bottom <?= $calendar_ticket_slider != 'accordion' ? 'show-on-mob' : '' ?>">
-			<span class="popover-examples list-inline">
-				<a data-toggle="tooltip" data-placement="top" title="Click here to create Recurring <?= TICKET_TILE ?>."><img src="../img/info.png" width="20"></a>
-			</span>
-			<a href="<?= $back_url ?>" onclick="dialogCreateRecurrence(this); return false"><img style="width: 1.5em;" src="../img/month-overview-blue.png"></a>
-		</div>
-	<?php }
-	if(strpos($value_config,',Quick Reminder Button,') !== FALSE && !($strict_view > 0)) { ?>
-        <div class="pull-right gap-top <?= $calendar_ticket_slider != 'accordion' ? 'show-on-mob' : '' ?>">
-			<span class="popover-examples list-inline">
-				<a data-toggle="tooltip" data-placement="top" title="Click here to add a Quick Reminder."><img src="../img/info.png" width="20"></a>
-			</span>
-			<a href="" onclick="dialogQuickReminder(); return false;
-			"><img class="" src="../img/icons/ROOK-reminder-icon.png" style="width: 1.25em;" border="0" alt="" /></a>
-		</div>
-		<div class="clearfix"></div>
-	<?php }
-	if(count($ticket_tabs) > 0 && !($_GET['action_mode'] > 0 || $_GET['overview_mode'] > 0) && $tile_security['edit'] > 0 && !($strict_view > 0)) { ?>
+	echo '<div class="pull-right '.($calendar_ticket_slider != 'accordion' ? 'show-on-mob' : '').'">'.$quick_action_html.'</div>';
+	if(count($ticket_tabs) > 1 && !($_GET['action_mode'] > 0 || $_GET['overview_mode'] > 0) && $tile_security['edit'] > 0 && !($strict_view > 0)) { ?>
 		<div class="form-group clearfix <?= $calendar_ticket_slider != 'accordion' ? 'show-on-mob' : '' ?>">
 			<label for="ticket_type" class="col-sm-4 control-label text-right"><?= TICKET_NOUN ?> Type:</label>
 			<div class="col-sm-8">
@@ -2424,8 +2515,8 @@ var setHeading = function() {
 				<a href="index.php" class="pull-right btn brand-btn finish_btn" onclick="<?= (strpos($value_config, ','."Timer".',') !== FALSE) ? 'stopTimers();' : '' ?><?= (strpos($value_config, ','."Check Out".',') !== FALSE || strpos($value_config, ','."Complete Combine Checkout Summary".',') !== FALSE) ? 'return checkoutAll(this);' : '' ?>" <?= strpos($value_config, ','."Finish Check Out Require Signature".',') !== FALSE ? 'data-require-signature="1"' : '' ?> <?= strpos($value_config, ','."Finish Create Recurring Ticket".',') !== FALSE ? 'data-recurring-ticket="1"' : '' ?>>Finish</a>
 			<?php } ?>
 			<?php if($access_any) { ?>
-				<a href="<?= $back_url ?>" class="pull-right gap-right"><img src="<?= WEBSITE_URL ?>/img/icons/save.png" alt="Save" width="36" /></a>
-				<?php if($hide_trash_icon != 1) { ?><a href="<?php echo $back_url; ?>" class="pull-left gap-left" onclick="<?= strpos($value_config, ',Delete Button Add Note,') ? 'dialogDeleteNote(this); return false;' : 'return archive();' ?>"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-trash-icon.png" alt="Delete" width="36" /></a><?php } ?>
+				<a href="<?= $back_url ?>" class="pull-right gap-right"><img class="no-toggle" src="<?= WEBSITE_URL ?>/img/icons/save.png" alt="Save" width="36" title="Save" /></a>
+				<?php if($hide_trash_icon != 1) { ?><a href="<?php echo $back_url; ?>" class="pull-left gap-left" onclick="<?= strpos($value_config, ',Delete Button Add Note,') ? 'dialogDeleteNote(this); return false;' : 'return archive();' ?>"><img class="no-toggle" src="<?= WEBSITE_URL; ?>/img/icons/ROOK-trash-icon.png" alt="Archive" width="36" title="Archive" /></a><?php } ?>
 
 				<?php if(strpos($value_config,',Create Recurrence Button,') !== FALSE && $_GET['action_mode'] != 1 && $_GET['overview_mode'] != 1) { ?>
 					<a href="<?= $back_url ?>" class="pull-right btn brand-btn" onclick="dialogCreateRecurrence(this); return false">Create Recurrence</a>
@@ -2457,7 +2548,7 @@ var setHeading = function() {
 	</div>
 	<div class="scale-to-fill has-main-screen hide-titles-mob">
 		<div class="main-screen standard-body default_screen form-horizontal" id="main_screen_block">
-			<div class="standard-body-title" <?= $ticket_layout == 'Accordions' ? 'style="display:none;"' : '' ?>>
+			<div class="standard-body-title" style="<?= $ticket_layout == 'Accordions' ? 'display:none;' : '' ?><?= $get_ticket['flag_colour'] != '' && $get_ticket['flag_colour'] != 'FFFFFF' ? 'background-color:#'.$get_ticket['flag_colour'].';' : '' ?>">
 				<h3><?= !empty($_GET['edit']) ? ($_GET['overview_mode'] > 0 ? '' : 'Edit ') : 'Add ' ?><?= TICKET_NOUN ?><?= $_GET['overview_mode'] > 0 ? ' Overview' : '' ?>
 					<?php if($_GET['action_mode'] == 1) {
 						$get_query = $_GET;
@@ -2473,32 +2564,9 @@ var setHeading = function() {
 							<a href="?<?= http_build_query($get_query); ?>" class="btn brand-btn" onclick="viewFullTicket(this); return false;">View Full <?= TICKET_NOUN ?></a>
 						</div>
 					<?php } ?>
-					<?php if(strpos($value_config,',Customer History,') !== FALSE && !($strict_view > 0)) { ?>
-				        <div class="pull-right gap-left">
-							<span class="popover-examples list-inline">
-								<a data-toggle="tooltip" data-placement="top" title="Click here to view Customer History."><img src="../img/info.png" width="20"></a>
-							</span>
-							<a href="" onclick="displayCustomerHistory(); return false;
-							"><img style="width: 1.5em;" src="../img/icons/eyeball.png" border="0" alt="" /></a>
-						</div>
-					<?php } ?>
-					<?php if(strpos($value_config,',Create Recurrence Button,') !== FALSE && $_GET['action_mode'] != 1 && $_GET['overview_mode'] != 1 && $access_any) { ?>
-				        <div class="pull-right gap-left">
-							<span class="popover-examples list-inline">
-								<a data-toggle="tooltip" data-placement="top" title="Click here to create Recurring <?= TICKET_TILE ?>."><img src="../img/info.png" width="20"></a>
-							</span>
-							<a href="<?= $back_url ?>" onclick="dialogCreateRecurrence(this); return false"><img style="width: 1em;" src="../img/month-overview-blue.png"></a>
-						</div>
-					<?php } ?>
-					<?php if(strpos($value_config,',Quick Reminder Button,') !== FALSE && !($strict_view > 0)) { ?>
-				        <div class="pull-right">
-							<span class="popover-examples list-inline">
-								<a data-toggle="tooltip" data-placement="top" title="Click here to add a Quick Reminder."><img src="../img/info.png" width="20"></a>
-							</span>
-							<a href="" onclick="dialogQuickReminder(); return false;
-							"><img class="" src="../img/icons/ROOK-reminder-icon.png" style="width: 1.25em;" border="0" alt="" /></a>
-						</div>
-					<?php } ?>
+					<?= '<div class="pull-right" style="position: relative; bottom: 0.3em;">'.$quick_action_html.'</div>' ?>
+					<span class="flag-label" style="<?= $get_ticket['flag_colour'] != '' && $get_ticket['flag_colour'] != 'FFFFFF' ? '' : 'dispaly:none;' ?>background-color:#<?= $get_ticket['flag_colour'] ?>;"><?= $flag_comment ?></span>
+					<span class="sync_recurrences_note" style="display: none; color: red;"><div class="clearfix"></div><b>You are editing all Recurrences of this <?= TICKET_NOUN?>. Please refresh the page if you would like to edit only this occurrence.</b></span></h3>
 				</h3>
 			</div>
 <?php } ?>
@@ -2553,11 +2621,7 @@ var setHeading = function() {
 							</div>
 						<?php if(strpos($value_config,',Quick Reminder Button,') !== FALSE && !($strict_view > 0)) { ?>
 					        <div class="pull-right gap-top">
-								<span class="popover-examples list-inline">
-									<a data-toggle="tooltip" data-placement="top" title="Click here to add a Quick Reminder."><img src="../img/info.png" width="20"></a>
-								</span>
-								<a href="" onclick="dialogQuickReminder(); return false;
-								"><img class="" src="../img/icons/ROOK-reminder-icon.png" style="width: 1.25em;" border="0" alt="" /></a>
+								<a href="" onclick="dialogQuickReminder(); return false;"><img class="no-toggle" src="../img/icons/ROOK-reminder-icon.png" style="width: 1.25em;" border="0" alt="" title="Add a Quick Reminder." /></a>
 							</div>
 							<div class="clearfix"></div>
 						<?php } ?>
@@ -2573,8 +2637,7 @@ var setHeading = function() {
 			<?php if($wait_on_approval) {
 				echo '<h4>Awaiting Admin Approval</h4>';
 			} ?>
-			<span class="sync_recurrences_note gap-left" style="display: none; color: red;"><b>You are editing all Recurrences of this <?= TICKET_NOUN?>. Please refresh the page if you would like to edit only this occurrence.</b></span>
-			<?php if(count($ticket_tabs) > 0 && !($_GET['action_mode'] > 0 || $_GET['overview_mode'] > 0) && $tile_security['edit'] > 0 && !($strict_view > 0)) { ?>
+			<?php if(count($ticket_tabs) > 1 && !($_GET['action_mode'] > 0 || $_GET['overview_mode'] > 0) && $tile_security['edit'] > 0 && !($strict_view > 0)) { ?>
 				<div class="tab-section col-sm-12" id="tab_section_ticket_type">
 					<h3><?= TICKET_NOUN ?> Type</h3>
 					<label for="ticket_type" class="col-sm-4 control-label" style="text-align: left;"><?= TICKET_NOUN ?> Type:</label>
@@ -3051,11 +3114,11 @@ var setHeading = function() {
 			<?php } ?>
 			<div class="gap-top add_gap_here" <?= $calendar_ticket_slider == 'accordion' ? 'style="display:none;"' : '' ?>>
 				<?php if(strpos($value_config,',Finish Button Hide,') === FALSE) { ?>
-					<a href="index.php" class="pull-right btn brand-btn finish_btn" onclick="<?= (strpos($value_config, ','."Timer".',') !== FALSE) ? 'stopTimers();' : '' ?><?= (strpos($value_config, ','."Check Out".',') !== FALSE || strpos($value_config, ','."Complete Combine Checkout Summary".',') !== FALSE) ? 'return checkoutAll(this);' : '' ?>" <?= strpos($value_config, ','."Finish Check Out Require Signature".',') !== FALSE ? 'data-require-signature="1"' : '' ?> <?= strpos($value_config, ','."Finish Create Recurring Ticket".',') !== FALSE ? 'data-recurring-ticket="1"' : '' ?>>Finish</a>
+					<a href="<?= empty($ticket_next_step_timesheet) ? 'index.php' : 'next_ticket_step.php?action_mode='.$_GET['action_mode'] ?>" <?= empty($ticket_next_step_timesheet) ? '' : 'target="_top"' ?> class="pull-right btn brand-btn finish_btn" onclick="<?= (strpos($value_config, ','."Timer".',') !== FALSE) ? 'stopTimers();' : '' ?><?= (strpos($value_config, ','."Check Out".',') !== FALSE || strpos($value_config, ','."Complete Combine Checkout Summary".',') !== FALSE) ? 'return checkoutAll(this);' : '' ?>" <?= strpos($value_config, ','."Finish Check Out Require Signature".',') !== FALSE ? 'data-require-signature="1"' : '' ?> <?= strpos($value_config, ','."Finish Create Recurring Ticket".',') !== FALSE ? 'data-recurring-ticket="1"' : '' ?>>Finish</a>
 				<?php } ?>
 				<?php if($access_any) { ?>
-					<a href="<?= $back_url ?>" class="pull-right gap-right"><img src="<?= WEBSITE_URL ?>/img/icons/save.png" alt="Save" width="36" /></a>
-					<?php if($hide_trash_icon != 1) { ?><a href="<?php echo $back_url; ?>" class="pull-left gap-left" onclick="<?= strpos($value_config, ',Delete Button Add Note,') ? 'dialogDeleteNote(this); return false;' : 'return archive();' ?>"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-trash-icon.png" alt="Delete" width="36" /></a><?php } ?>
+					<a href="<?= $back_url ?>" class="pull-right gap-right"><img class="no-toggle" src="<?= WEBSITE_URL ?>/img/icons/save.png" alt="Save" width="36" title="Save" /></a>
+					<?php if($hide_trash_icon != 1) { ?><a href="<?php echo $back_url; ?>" class="pull-left gap-left" onclick="<?= strpos($value_config, ',Delete Button Add Note,') ? 'dialogDeleteNote(this); return false;' : 'return archive();' ?>"><img class="no-toggle" src="<?= WEBSITE_URL; ?>/img/icons/ROOK-trash-icon.png" alt="Archive" title="Archive" width="36" /></a><?php } ?>
 
 					<?php if(strpos($value_config,',Create Recurrence Button,') !== FALSE && $_GET['action_mode'] != 1 && $_GET['overview_mode'] != 1) { ?>
 						<a href="<?= $back_url ?>" class="pull-right btn brand-btn" onclick="dialogCreateRecurrence(this); return false">Create Recurrence</a>

@@ -1,4 +1,5 @@
 <!-- Marketing Material -->
+<?php include_once('../Sales/config.php'); ?>
 <script type="text/javascript">
 var add_new_m = 1;
 $(document).ready(function() {
@@ -121,11 +122,11 @@ function approvebutton(sel) {
             <div class="col-sm-12 col-md-1">
                 <img src="<?= WEBSITE_URL; ?>/img/remove.png" class="inline-img cursor-hand pull-right" onclick="rem_row(this);" />
                 <img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-add-icon.png" class="inline-img cursor-hand pull-right" onclick="add_row(this);" />
+                <img class="cursor-hand inline-img pull-right" src="../img/icons/ROOK-email-icon.png" onclick="email_doc(this);">
             </div>
             
-            <div class="clearfix"></div>
-        </div><?php
-    } ?>
-    <div class="clearfix"></div>
+        </div>
+        <div class="clearfix"></div>
+    <?php } ?>
     
 </div><!-- .accordion-block-details -->
