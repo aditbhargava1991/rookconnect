@@ -512,14 +512,5 @@ function apply_template() {
 			</div>
 		</div>
 	<?php } ?>
-
-	<?php if (in_array("Information Followup",$value_config)) { ?>
-		<div class="form-group">
-			<label class="col-sm-4">Follow Up Date:</label>
-			<div class="col-sm-8 <?= !($security['edit'] > 0) ? 'readonly-block' : '' ?>">
-				<input type="text" name="followup" data-table="project" data-id="<?= $project['projectid'] ?>" data-id-field="projectid" value="<?= $project['followup'] ?>" class="datepicker form-control">
-			</div>
-		</div>
-	<?php } ?>
 	<div class="clearfix"></div>
 </div>

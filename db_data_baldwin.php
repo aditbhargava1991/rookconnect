@@ -662,6 +662,11 @@
     }
     //2018-08-30 - Ticket #9034 - Quick Action Projects
 
+    //2018-09-06 - Ticket #8931 - Form Builder
+    if(!mysqli_query($dbc, "ALTER TABLE `user_forms` ADD `attached_contact_default_field` int(11) NOT NULL DEFAULT 0")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-09-06 - Ticket #8931 - Form Builder
     //2018-09-05 - Ticket #8740 - Ticket Service Direct/Indirect Time
     if(!mysqli_query($dbc, "ALTER TABLE `tickets` ADD `service_direct_time` TEXT AFTER `service_total_time`")) {
         echo "Error: ".mysqli_error($dbc)."<br />\n";
