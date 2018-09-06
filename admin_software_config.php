@@ -1505,10 +1505,6 @@ checkAuthorised();
                                         <?php echo tile_config_function($dbc, 'posadvanced', 'admin'); ?>
                                     </tr>
                                     <tr>
-                                        <td data-title="Comment">Point of Sale (Basic)</td>
-                                        <?php echo tile_config_function($dbc, 'pos', 'admin'); ?>
-                                    </tr>
-                                    <tr>
                                         <td data-title="Comment">Promotions & Coupons</td>
                                         <?php echo tile_config_function($dbc, 'promotion', 'admin'); ?>
                                     </tr>

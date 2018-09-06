@@ -1209,12 +1209,6 @@ function go_to_dashboard(target) {
 				<?php echo security_tile_config_function('package', get_privileges($dbc, 'package',$level), 0, $level_url); ?>
 			</tr>
 			<?php } ?>
-			<?php if(strpos($on_security, ',pos,') !== FALSE) { ?>
-			<tr data-dashboard='<?= (in_array('pos', $dashboard_list) ? 'current' : '') ?>'>
-				<td data-title="Comment">Point of Sale (Basic)</td>
-				<?php echo security_tile_config_function('pos', get_privileges($dbc, 'pos',$level), 1, $level_url); ?>
-			</tr>
-			<?php } ?>
 			<?php if(strpos($on_security, ',posadvanced,') !== FALSE) { ?>
 			<tr data-dashboard='<?= (in_array('posadvanced', $dashboard_list) ? 'current' : '') ?>'>
 				<td data-title="Comment"><?= POS_ADVANCE_TILE ?></td>

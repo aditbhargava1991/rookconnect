@@ -45,40 +45,6 @@ function tile_data($dbc, $tile_name, $is_mobile = FALSE) {
 			case 'custom': return ['link'=>"Custom/custom.php",'name'=>'Custom']; break;
 			case 'intake': return ['link'=>"Intake/intake.php",'name'=>'Intake Forms']; break;
 			//case 'pos': return ['link'=>"Point of Sale/add_point_of_sell.php",'name'=>'Point of Sale<br /><small>Basic</small>']; break;
-            case 'pos':
-                $pos_layout	= get_config($dbc, 'pos_layout');
-                $pos_url = ['sell'=>'add_point_of_sell.php','sell_touch'=>'pos_touch.php','invoices'=>'point_of_sell.php','returns'=>'returns.php','accounts_receivables'=>'unpaid_invoice.php','voided_invoices'=>'voided.php','gift_cards'=>'giftcards.php'];
-                if ($is_mobile) {
-                    $mobile_landing_subtab_config = get_config($dbc, 'pos_mobile_landing_subtab');
-                    if ( !empty($mobile_landing_subtab_config) ) {
-                        foreach ($pos_url as $key=>$value) {
-                            if ($key==$mobile_landing_subtab_config) {
-                                $pos_url = $value;
-                            }
-                        }
-                    } else {
-                        $pos_url = ( $pos_layout=='touch' ) ? 'pos_touch.php' : 'add_point_of_sell.php';
-                    }
-                } else {
-                    $desktop_landing_subtab_config = get_config($dbc, 'pos_desktop_landing_subtab');
-                    if ( !empty($desktop_landing_subtab_config) ) {
-                        foreach ($pos_url as $key=>$value) {
-                            if ($key==$desktop_landing_subtab_config) {
-                                $pos_url = $value;
-                            }
-                        }
-                    } else {
-                        $pos_url = ( $pos_layout=='touch' ) ? 'pos_touch.php' : 'add_point_of_sell.php';
-                    }
-                }
-                /*
-                if ( check_subtab_persmission($dbc, 'pos', ROLE, 'sell') === true ) {
-                    $pos_layout	= get_config($dbc, 'pos_layout');
-                    $pos_url = ( $pos_layout=='touch' ) ? 'pos_touch.php' : 'add_point_of_sell.php';
-                } */
-
-                return ['link'=>'Point of Sale/'.$pos_url,'name'=>'Point of Sale<br /><small>Basic</small>'];
-                break;
 			case 'posadvanced': return ['link'=>"POSAdvanced/invoice_main.php",'name'=>POS_ADVANCE_TILE]; break;
 			case 'invoicing': return ['link'=>"Invoicing/add_point_of_sell.php",'name'=>'Invoicing']; break;
 			case 'service_queue': return ['link'=>"Service Queue/service_queue.php",'name'=>'Service Queue']; break;
