@@ -1,4 +1,5 @@
 <!-- Products -->
+<?php include_once('../Sales/config.php'); ?>
 <script type="text/javascript">
 $(document).on('change', '.prod_prod_onchange', selectProductProduct);
 $(document).on('change', '.prod_cat_onchange', selectProductCat);

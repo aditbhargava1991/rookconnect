@@ -94,8 +94,7 @@ function send_csv(a) {
         if(config_visible_function_custom($dbc)) {
             echo '<a href="field_config.php?from_url=time_card_approvals_manager.php" class="mobile-block pull-right "><img style="width: 50px;" title="Tile Settings" src="../img/icons/settings-4.png" class="settings-classic wiggle-me"></a><br><br>';
         }
-        ?>
-        <img class="no-toggle statusIcon pull-right no-margin inline-img small" title="" src="" data-original-title=""></h1>
+        ?></h1>
 
         <form id="form1" name="form1" method="GET" action="" enctype="multipart/form-data" class="form-horizontal" role="form">
 			<input type="hidden" name="tab" value="<?= $_GET['tab'] ?>">
@@ -291,8 +290,9 @@ function send_csv(a) {
             $tb_field = $value['config_field'];
             if($search_staff_list != '') {
 				foreach(array_filter(array_unique($search_staff_list), function($id) { return $id != 'ALL_STAFF'; }) as $search_staff) {
+                    echo '<div class="status_group">';
 					if(count($search_staff_list) > 1) {
-						echo "<h2>".get_contact($dbc, $search_staff)."</h2>";
+						echo "<h2>".get_contact($dbc, $search_staff)."<img src='../img/empty.png' class='statusIcon inline-img no-toggle no-margin'></h2>";
 					}
 					$filter = ' AND (staff = "'.$search_staff.'")';
 					if($search_site != '') {
@@ -522,6 +522,7 @@ function send_csv(a) {
 							echo '<button type="submit" value="rate_timesheet" name="submit" class="btn brand-btn mobile-block pull-right">Update Hours</button>';
 						endif;
 					endif;
+                    echo '</div>';
 				}
             } else {
 				echo "<h3>Please select a staff member.</h3>";

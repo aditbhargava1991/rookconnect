@@ -1,4 +1,5 @@
 <?php include_once('../include.php');
+include_once('../Sales/config.php');
 if(empty($salesid)) {
 	$salesid = filter_var($_GET['id'],FILTER_SANITIZE_STRING);
 } ?>

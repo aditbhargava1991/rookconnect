@@ -324,5 +324,6 @@ $(document).on('change', '.dialog select[name=clientid]', function() { contactFi
     <?php if(in_array('archive',$quick_actions)) { ?>
         <a href="#" id="sales_<?= $row['salesid']; ?>" data-salesid="<?= $row['salesid']; ?>" onclick="archive_sales_lead(this); $(this).closest('.info-block-detail,.standard-body-title').hide(); return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-trash-icon.png" class="inline-img no-toggle" title="Archive" /></a>
     <?php } ?>
+    <?= IFRAME_PAGE || $_GET['iframe_slider'] == 1 ? '<a href="../blank_loading_page.php"><img src="../img/icons/cancel.png" class="inline-img"></a>' : '' ?>
 </div>
 <div class="clearfix"></div>
