@@ -662,5 +662,11 @@
     }
     //2018-08-30 - Ticket #9034 - Quick Action Projects
 
+    //2018-09-06 - Ticket #8931 - Form Builder
+    if(!mysqli_query($dbc, "ALTER TABLE `user_forms` ADD `attached_contact_default_field` int(11) NOT NULL DEFAULT 0")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-09-06 - Ticket #8931 - Form Builder
+
     echo "Baldwin's DB Changes Done<br />\n";
 ?> 

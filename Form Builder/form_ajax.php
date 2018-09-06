@@ -100,7 +100,7 @@ if(isset($_GET['fill']) && $_GET['fill'] == 'update_field') {
 
     if($field_type == 'SERVICES') {
         $source_conditions = filter_var($_POST['services_hide_external'],FILTER_SANITIZE_STRING);
-    } else if($field_type == 'REFERENCE' || $field_type == 'TEXTBOXREF') {
+    } else if($field_type == 'REFERENCE' || $field_type == 'TEXTBOXREF' || $field_type == 'TEXTBOX' || $field_type == 'DATE') {
         $references = filter_var($_POST['ref_source_table'],FILTER_SANITIZE_STRING);
         $source_conditions = filter_var($_POST['ref_source_conditions'],FILTER_SANITIZE_STRING);
     } else if($field_type == 'CONTACTINFO') {
@@ -362,10 +362,11 @@ if(isset($_GET['fill']) && $_GET['fill'] == 'update_config') {
     $assigned_tiles = filter_var(implode(',', json_decode($_POST['assigned_tiles'])),FILTER_SANITIZE_STRING);
     $attached_contacts = filter_var(implode(',', json_decode($_POST['attached_contacts'])),FILTER_SANITIZE_STRING);
     $attached_contact_categories = filter_var(implode(',', json_decode($_POST['attached_contact_categories'])),FILTER_SANITIZE_STRING);
+    $attached_contact_default_field = filter_var($_POST['attached_contact_default_field'],FILTER_SANITIZE_STRING);
     $subtab = filter_var($_POST['subtab'],FILTER_SANITIZE_STRING);
     $form_layout = filter_var($_POST['form_layout'],FILTER_SANITIZE_STRING);
 
-    mysqli_query($dbc, "UPDATE `user_forms` SET `assigned_tile` = '$assigned_tiles', `attached_contacts` = '$attached_contacts', `attached_contact_categories` = '$attached_contact_categories', `intake_field` = '$intake_field', `subtab` = '$subtab', `form_layout` = '$form_layout' WHERE `form_id` = '$formid'");
+    mysqli_query($dbc, "UPDATE `user_forms` SET `assigned_tile` = '$assigned_tiles', `attached_contacts` = '$attached_contacts', `attached_contact_categories` = '$attached_contact_categories', `intake_field` = '$intake_field', `subtab` = '$subtab', `form_layout` = '$form_layout', `attached_contact_default_field` = '$attached_contact_default_field' WHERE `form_id` = '$formid'");
 }
 
 if(isset($_GET['fill']) && $_GET['fill'] == 'delete_logo') {
