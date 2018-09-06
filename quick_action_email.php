@@ -109,7 +109,7 @@ switch($_GET['tile']) {
         break;
     case 'sales_intake':
         $salesid = $_GET['salesid'];
-        $intakeid = $_GET['intakeid'];            
+        $intakeid = $_GET['intakeid'];
         $result = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `intake` WHERE `intakeid`='$intakeid'"));
         $milestone = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `sales_path_custom_milestones` WHERE `salesid` = '$salesid' AND `milestone` = '".$result['sales_milestone']."'"))['label'];
         $subject = "A reminder about Intake #".$intakeid." in ".SALES_NOUN." #".$salesid."  $milestone";
@@ -118,7 +118,7 @@ switch($_GET['tile']) {
         break;
     case 'sales_checklist':
         $salesid = $_GET['salesid'];
-        $checklistid = $_GET['checklistid'];            
+        $checklistid = $_GET['checklistid'];
         $result = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `checklist` WHERE `checklistid`='$checklistid'"));
         $milestone = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `sales_path_custom_milestones` WHERE `salesid` = '$salesid' AND `milestone` = '".$result['sales_milestone']."'"))['label'];
         $subject = "A reminder about Checklist #".$checklistid.": ".$result['checklist_name']." in ".SALES_NOUN." #".$salesid."  $milestone";
@@ -175,7 +175,7 @@ switch($_GET['tile']) {
         break;
     case 'task_checklist':
         $taskboardid = $_GET['task_board'];
-        $checklistid = $_GET['checklistid'];            
+        $checklistid = $_GET['checklistid'];
         $result = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `checklist` WHERE `checklistid`='$checklistid'"));
         $task_board = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `task_board` WHERE `taskboardid` = '$taskboardid'"));
         $board_name = $task_board['board_name'];
@@ -213,7 +213,6 @@ switch($_GET['tile']) {
                 <label class="col-sm-4 control-label">Staff:</label>
                 <div class="col-sm-8">
                     <select name="to_staff[]" multiple class="chosen-select-deselect form-control">
-                        <option></option>
                         <?php $staff_list = sort_contacts_query(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name` FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `deleted`=0 AND `status`>0"));
                         foreach($staff_list as $staff) {
                             if(!empty($staff['full_name']) && $staff['full_name'] != '-') { ?>
@@ -228,7 +227,6 @@ switch($_GET['tile']) {
                 <label class="col-sm-4 control-label">Contact:</label>
                 <div class="col-sm-8">
                     <select name="to_contact[]" multiple class="chosen-select-deselect form-control">
-                        <option></option>
                         <?php $contact_list = sort_contacts_query(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name`, `name` FROM `contacts` WHERE `category` NOT IN (".STAFF_CATS.") AND `deleted`=0 AND `status`>0 AND IFNULL(`email_address`,'') != ''"));
                         foreach($contact_list as $contact) {
                             if(!empty($contact['full_name']) && $contact['full_name'] != '-') { ?>
@@ -253,7 +251,6 @@ switch($_GET['tile']) {
                 <label class="col-sm-4 control-label">Staff:</label>
                 <div class="col-sm-8">
                     <select name="cc_staff[]" multiple class="chosen-select-deselect form-control">
-                        <option></option>
                         <?php $staff_list = sort_contacts_query(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name` FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `deleted`=0 AND `status`>0"));
                         foreach($staff_list as $staff) {
                             if(!empty($staff['full_name']) && $staff['full_name'] != '-') { ?>
@@ -268,7 +265,6 @@ switch($_GET['tile']) {
                 <label class="col-sm-4 control-label">Contact:</label>
                 <div class="col-sm-8">
                     <select name="cc_contact[]" multiple class="chosen-select-deselect form-control">
-                        <option></option>
                         <?php $contact_list = sort_contacts_query(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name`, `name` FROM `contacts` WHERE `category` NOT IN (".STAFF_CATS.") AND `deleted`=0 AND `status`>0 AND IFNULL(`email_address`,'') != ''"));
                         foreach($contact_list as $contact) {
                             if(!empty($contact['full_name']) && $contact['full_name'] != '-') { ?>
@@ -293,7 +289,6 @@ switch($_GET['tile']) {
                 <label class="col-sm-4 control-label">Staff:</label>
                 <div class="col-sm-8">
                     <select name="bcc_staff[]" multiple class="chosen-select-deselect form-control">
-                        <option></option>
                         <?php $staff_list = sort_contacts_query(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name` FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `deleted`=0 AND `status`>0"));
                         foreach($staff_list as $staff) {
                             if(!empty($staff['full_name']) && $staff['full_name'] != '-') { ?>
@@ -308,7 +303,6 @@ switch($_GET['tile']) {
                 <label class="col-sm-4 control-label">Contact:</label>
                 <div class="col-sm-8">
                     <select name="bcc_contact[]" multiple class="chosen-select-deselect form-control">
-                        <option></option>
                         <?php $contact_list = sort_contacts_query(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name`, `name` FROM `contacts` WHERE `category` NOT IN (".STAFF_CATS.") AND `deleted`=0 AND `status`>0 AND IFNULL(`email_address`,'') != ''"));
                         foreach($contact_list as $contact) {
                             if(!empty($contact['full_name']) && $contact['full_name'] != '-') { ?>

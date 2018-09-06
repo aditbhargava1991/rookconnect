@@ -182,7 +182,7 @@
 <?php } else if($field_option == 'Region' || $field_option == 'Profile Region') { ?>
 	<label class="col-sm-4 control-label">Region:</label>
 	<div class="col-sm-8">
-		<select name="region[]" multiple data-field="region" data-table="contacts" data-delimiter="," data-exact-name="1" class="form-control chosen-select-deselect"><option></option>
+		<select name="region[]" multiple data-field="region" data-table="contacts" data-delimiter="," data-exact-name="1" class="form-control chosen-select-deselect">
 			<?php $each_tab = array_unique(explode(',',mysqli_fetch_array(mysqli_query($dbc, "SELECT GROUP_CONCAT(`value` SEPARATOR ',') FROM `general_configuration` WHERE `name` LIKE '%_region'"))[0]));
 			foreach ($each_tab as $cat_tab) {
 				echo "<option ".(in_array($cat_tab, explode(',',$contact['region'])) ? 'selected' : '')." value='". $cat_tab."'>".$cat_tab.'</option>';
@@ -202,7 +202,7 @@
 <?php } else if($field_option == 'Classification' || $field_option == 'Profile Classification') { ?>
 	<label class="col-sm-4 control-label">Classification:</label>
 	<div class="col-sm-8">
-		<select name="classification[]" multiple data-field="classification" data-table="contacts" class="form-control chosen-select-deselect"><option></option>
+		<select name="classification[]" multiple data-field="classification" data-table="contacts" class="form-control chosen-select-deselect">
 			<?php $each_tab = array_unique(explode(',',mysqli_fetch_array(mysqli_query($dbc, "SELECT GROUP_CONCAT(`value` SEPARATOR ',') FROM `general_configuration` WHERE `name` LIKE '%_classification'"))[0]));
 			foreach ($each_tab as $cat_tab) {
 				echo "<option ".(in_array($cat_tab, explode(',',$contact['classification'])) ? 'selected' : '')." value='". $cat_tab."'>".$cat_tab.'</option>';
@@ -487,7 +487,6 @@
 			echo "Super Admin";
 		} else { ?>
 			<select name="role[]" multiple data-placeholder="Select a Security Level" data-table="contacts" data-field="role" class="form-control chosen-select-deselect">
-				<option value=''></option>
 				<?php foreach(get_security_levels($dbc) as $select_value => $value)  { ?>
 					<option <?= (strpos(','.$contact['role'].',',','.$value.',') !== false ? 'selected' : '') ?> value="<?php echo $value; ?>"><?php echo $select_value; ?></option>
 				<?php } ?>
@@ -597,7 +596,6 @@
 	<label class="col-sm-4 control-label">Region Access:</label>
 	<div class="col-sm-8">
 		<select multiple name="region_access[]" class="chosen-select-deselect form-control" data-field="region_access" data-table="contacts_security" data-delimiter="#*#">
-			<option></option>
 			<?php foreach($contact_regions as $region_name) { ?>
 				<option value="<?= $region_name ?>" <?= in_array($region_name, $allowed_regions) ? 'selected' : '' ?>><?= $region_name ?></option>
 			<?php } ?>
@@ -611,7 +609,6 @@
 	<label class="col-sm-4 control-label">Location Access:</label>
 	<div class="col-sm-8">
 		<select multiple name="location_access[]" class="chosen-select-deselect form-control" data-field="location_access" data-table="contacts_security" data-delimiter="#*#">
-			<option></option>
 			<?php foreach($contact_locations as $location_name) {
 				$location_arr = explode('*#*', $location_name); ?>
 				<option value="<?= $location_name ?>" <?= in_array($location_name, $allowed_locations) ? 'selected' : '' ?>><?= $location_arr[0] ?></option>
@@ -626,7 +623,6 @@
 	<label class="col-sm-4 control-label">Classification Access:</label>
 	<div class="col-sm-8">
 		<select multiple name="classification_access[]" class="chosen-select-deselect form-control" data-field="classification_access" data-table="contacts_security" data-delimiter="#*#">
-			<option></option>
 			<?php foreach($contact_classifications as $class_i => $classification_name) { ?>
 				<option data-region="<?= $classification_regions[$class_i] ?>" value="<?= $classification_name ?>" <?= in_array($classification_name, $allowed_classifications) ? 'selected' : '' ?>><?= $classification_name ?></option>
 			<?php } ?>
@@ -643,7 +639,6 @@
 	<label class="col-sm-4 control-label"><?= $equipment_category ?> Access:</label>
 	<div class="col-sm-8">
 		<select multiple name="equipment_access[]" class="chosen-select-deselect form-control" data-field="equipment_access" data-table="contacts_security">
-			<option></option>
 			<?php foreach($equip_list as $equipment) { ?>
 				<option data-region="<?= $equipment['region'] ?>" value="<?= $equipment['equipmentid'] ?>" <?= (in_array($equipment['equipmentid'], $allowed_equipment) || count($allowed_equipment) == 0) ? 'selected' : '' ?>><?= $equipment['label'] ?></option>
 			<?php } ?>

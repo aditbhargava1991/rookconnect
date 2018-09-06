@@ -616,7 +616,6 @@ $(document).ready(function(){
 									<label class="col-sm-4 control-label">Contact Category:</label>
 									<div class="col-sm-8">
 										<select name="customer_contact_category[]" multiple class="chosen-select-deselect form-control">
-											<option></option>
 											<?php
 											foreach ($all_cats as $contact_cat) {
 												echo '<option value="'.$contact_cat.'" '.(strpos($cat_config, ','.$contact_cat.',') !== FALSE ? 'selected' : '').'>'.$contact_cat.'</option>';
@@ -1038,7 +1037,7 @@ $(document).ready(function(){
 
 								<input type="checkbox" <?php if (strpos($value_config, ','."Mileage".',') !== FALSE) { echo " checked"; } ?> value="Mileage" style="height: 20px; width: 20px;" name="config_fields[]">&nbsp;&nbsp;Mileage Rate
 								<br><br>
-								
+
 							</div>
 						</div>
 					</div>

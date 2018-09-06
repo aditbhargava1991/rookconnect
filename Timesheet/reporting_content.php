@@ -116,13 +116,12 @@ function viewTicket(a) {
             </div>
             <?php $search_clearfix++ ?>
         <?php } ?>
-		
+
         <div class="col-lg-2 col-md-3 col-sm-4 col-xs-12">
           <label for="site_name" class="control-label">Search By Staff:</label>
         </div>
           <div class="col-lg-4 col-md-3 col-sm-8 col-xs-12">
               <select multiple data-placeholder="Select Staff Members" name="search_staff[]" class="chosen-select-deselect form-control">
-                <option></option>
 				<option <?= 'ALL' == $search_staff ? 'selected' : '' ?> value="ALL">All Staff</option>
                 <?php $query = sort_contacts_query(mysqli_query($dbc,"SELECT distinct(`time_cards`.`staff`), `contacts`.`contactid`, `contacts`.`first_name`, `contacts`.`last_name`, `contacts`.`status` FROM `time_cards` LEFT JOIN `contacts` ON `contacts`.`contactid` = `time_cards`.`staff` WHERE `time_cards`.`staff` > 0 AND `contacts`.`deleted`=0".$security_query));
                 foreach($query as $staff_row) { ?>

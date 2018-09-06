@@ -223,7 +223,6 @@ $(document).ready(function() {
 						</label>
 						<div class="col-sm-8">
 							<select data-placeholder="Select a Staff..." name="filter_staff[]" multiple class="chosen-select-deselect form-control">
-								<option value=""></option>
 								<?php $query = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name` FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `deleted`=0 AND `status`>0 AND `show_hide_user`=1"),MYSQLI_ASSOC));
 								foreach($query as $query_contactid) {
 									echo "<option ".(in_array($query_contactid,explode(',',$filter_staff)) ? 'selected' : '')." value='".$query_contactid."'>".get_contact($dbc, $query_contactid)."</option>";
@@ -340,7 +339,6 @@ $(document).ready(function() {
 						</label>
 						<div class="col-sm-8">
 							<select data-placeholder="Select a Merchant..." name="filter_merchants[]" multiple class="chosen-select-deselect form-control">
-								<option value=""></option>
 								<?php $query = mysqli_query($dbc, "SELECT `merchant` FROM `expense` WHERE `deleted`=0 ORDER BY `merchant`");
 								while($row = mysqli_fetch_array($query)) {
 									echo "<option ".(in_array($row['merchant'],explode(',',$filter_merchants)) ? 'selected' : '')." value='".$row['merchant']."'>".$row['merchant']."</option>";
@@ -369,7 +367,6 @@ $(document).ready(function() {
 						</label>
 						<div class="col-sm-8">
 							<select data-placeholder="Select a Category..." name="filter_category[]" multiple class="chosen-select-deselect form-control">
-								<option value=""></option>
 								<?php $query = mysqli_query($dbc, "SELECT DISTINCT(CONCAT(EC,': ',`category`)) cat, `category` FROM `expense_categories` ORDER BY cat");
 								while($query_cat = mysqli_fetch_array($query)) {
 									echo "<option ".($filter_category == $query_cat['cat'] ? 'selected' : '')." value='".$query_cat['category']."'>".$query_cat['cat']."</option>";
@@ -446,7 +443,6 @@ $(document).ready(function() {
 						</label>
 						<div class="col-sm-8">
 							<select data-placeholder="Select Warnings..." name="filter_warnings[]" multiple class="chosen-select-deselect form-control">
-								<option value=""></option>
 							</select>
 						</div>
 					</div>

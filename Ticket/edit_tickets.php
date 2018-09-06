@@ -767,7 +767,6 @@ var setHeading = function() {
 			<label class="col-sm-4 control-label">Staff:</label>
 			<div class="col-sm-8">
 				<select name="quick_reminder_staff[]" multiple data-placeholder="Select a Staff" class="chosen-select-deselect">
-					<option></option>
 					<?php $quick_reminder_staffs = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `deleted` = 0 AND `status` = 1 AND `show_hide_user` = 1"),MYSQLI_ASSOC));
 					foreach ($quick_reminder_staffs as $quick_reminder_staff) {
 						echo '<option value="'.$quick_reminder_staff.'" '.($quick_reminder_staff == $_SESSION['contactid'] ? 'selected' : '').'>'.get_contact($dbc, $quick_reminder_staff).'</option>';

@@ -711,7 +711,7 @@ function checklist_attach_file(checklist) {
                     $form_count = mysqli_num_rows($form_result) ?: 0;
                     $checklist_result = mysqli_query($dbc, "SELECT * FROM `checklist` WHERE IFNULL(sales_milestone,'')='$cat_tab' AND deleted=0 AND `salesid`='$salesid' AND `salesid` > 0");
                     $checklist_count = mysqli_num_rows($checklist_result) ?: 0;
-                    
+
                     $status = str_replace("#","FFMHASH",str_replace(" ","FFMSPACE",str_replace("&","FFMEND",$cat_tab)));
 
                     echo '<ul id="sortable'.$i.'" class="sortable_milestone connectedSortable '.($milestoneid > 0 ? 'full-width' : '').' '.$status.' '.($i > 0 ? 'hidden-xs' : '').'" style="padding-top:0;">'; ?>
@@ -727,7 +727,7 @@ function checklist_attach_file(checklist) {
 								<div class="small">
 									<?php if($show_tasks) { ?> TASKS: <?= $task_count ?><?php } ?><?php if($show_forms && strpos($value_config, ',Sales Lead Path Intake,') !== FALSE) { ?> INTAKE: <?= $form_count ?><?php } ?><?php if($show_checklists && strpos($value_config, ',Sales Lead Path Checklists,') !== FALSE) { ?> CHECKLISTS: <?= $checklist_count ?><?php } ?>
 								</div>
-                                
+
 								<div class="clearfix"></div>
 							<div class="clearfix"></div>
 						</div><?php
@@ -750,7 +750,7 @@ function checklist_attach_file(checklist) {
 
                         $businessid = $url_tab=='Business' ? $row['businessid'] : '';
                         $clientid = $url_tab=='Client' ? $row['clientid'] : '';
-                        
+
                         $past = 0;
 
                         $date = new DateTime($row['task_tododate']);
@@ -760,7 +760,7 @@ function checklist_attach_file(checklist) {
                             $past = 1;
                         } ?>
                         <div class="row">
-                            
+
                             <h4 style="<?= $style_strikethrough ?>"><input type="checkbox" name="status" value="<?= $row['tasklistid'] ?>" class="form-checkbox no-margin" onchange="mark_done(this);" <?= ( $row['status'] == $status_complete ) ? 'checked' : '' ?> />
                                 <a href="" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Tasks/add_task.php?type=<?=$row['status']?>&tasklistid=<?=$row['tasklistid']?>', '50%', false, false, $('.iframe_overlay').closest('.container').outerHeight() + 20); return false;">Task #<?= $row['tasklistid'] ?></a>: <?= ($url_tab=='Business') ? get_contact($dbc, $businessid, 'name') . ': ' : '' ?><?= ($url_tab=='Client') ? get_contact($dbc, $clientid) . ': ' : '' ?><?=limit_text($row['heading'], 5 )?>
                         <?php
@@ -773,7 +773,7 @@ function checklist_attach_file(checklist) {
                             profile_id($dbc, $row['contactid']);
                         }
                         echo '</span></h4></span></div>';
-                        
+
                         echo '<div class="clearfix"></div>';
                         $documents = mysqli_query($dbc, "SELECT `created_by`, `created_date`, `document` FROM `task_document` WHERE `tasklistid`='{$row['tasklistid']}' ORDER BY `taskdocid` DESC");
                         if ( $documents->num_rows > 0 ) { ?>
@@ -870,7 +870,7 @@ function checklist_attach_file(checklist) {
                         <?php }
                         echo '</select></div><div class="clearfix"></div>'; ?>
                         <div class="row">
-                            
+
                             <h4 style="<?= $style_strikethrough ?>"><input type="checkbox" name="status" value="<?= $row['tasklistid'] ?>" class="form-checkbox no-margin" onchange="mark_done(this);" <?= ( $row['status'] == $status_complete ) ? 'checked' : '' ?> />
                                 <a href="" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Tasks/add_task.php?type=<?=$row['status']?>&tasklistid=<?=$row['tasklistid']?>', '50%', false, false, $('.iframe_overlay').closest('.container').outerHeight() + 20); return false;">Task #<?= $row['tasklistid'] ?></a>: <?= ($url_tab=='Business') ? get_contact($dbc, $businessid, 'name') . ': ' : '' ?><?= ($url_tab=='Client') ? get_contact($dbc, $clientid) . ': ' : '' ?><?=limit_text($row['heading'], 5 )?>
                         <?php
@@ -883,7 +883,7 @@ function checklist_attach_file(checklist) {
                             profile_id($dbc, $row['contactid']);
                         }
                         echo '</span></h4></span></div>';
-                        
+
                         echo '<div class="clearfix"></div>';
                         $documents = mysqli_query($dbc, "SELECT `created_by`, `created_date`, `document` FROM `task_document` WHERE `tasklistid`='{$row['tasklistid']}' ORDER BY `taskdocid` DESC");
                         if ( $documents->num_rows > 0 ) { ?>
@@ -940,7 +940,7 @@ function checklist_attach_file(checklist) {
 
                         $businessid = $url_tab=='Business' ? $row['businessid'] : '';
                         $clientid = $url_tab=='Client' ? $row['clientid'] : '';
-                        
+
                         $past = 0;
 
                         $date = new DateTime($row['to_do_date']);
@@ -1013,7 +1013,7 @@ function checklist_attach_file(checklist) {
 											<option <?= $external_milestone == $item_external ? 'selected' : '' ?> value="<?= $external_milestone ?>"><?= $external_milestone ?></option>
 										<?php } ?></select></div>
 									<div class="select_users" style="display:none;">
-										<select data-placeholder="Select Staff" multiple class="chosen-select-deselect"><option></option>
+										<select data-placeholder="Select Staff" multiple class="chosen-select-deselect">
 										<?php foreach($staff_list as $staff) { ?>
 											<option value="<?= $staff['contactid'] ?>"><?= $staff['first_name'].' '.$staff['last_name'] ?></option>
 										<?php } ?>
@@ -1087,7 +1087,7 @@ function checklist_attach_file(checklist) {
                                     <option <?= $external_milestone == $item_external ? 'selected' : '' ?> value="<?= $external_milestone ?>"><?= $external_milestone ?></option>
                                 <?php } ?></select></div>
                             <div class="select_users" style="display:none;">
-                                <select data-placeholder="Select Staff" multiple class="chosen-select-deselect"><option></option>
+                                <select data-placeholder="Select Staff" multiple class="chosen-select-deselect">
                                 <?php foreach($staff_list as $staff) { ?>
                                     <option value="<?= $staff['contactid'] ?>"><?= $staff['first_name'].' '.$staff['last_name'] ?></option>
                                 <?php } ?>
@@ -1111,7 +1111,7 @@ function checklist_attach_file(checklist) {
                         echo '</li>';
                         }
                     } ?>
-                    
+
                         <li class="no-sort">
                             <?php if($show_checklists && strpos($value_config, ',Sales Lead Path Checklists,') !== FALSE) { ?>
                                 <a href="" onclick="overlayIFrameSlider('<?= WEBSITE_URL ?>/Checklist/edit_checklist.php?edit=NEW&salesid=<?= $_GET['id'] ?>&sales_milestone=<?= $status ?>'); return false;" data-milestone="<?= $milestone_row['milestone'] ?>" class="btn brand-btn pull-right">Add Checklist</a>

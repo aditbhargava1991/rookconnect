@@ -2195,7 +2195,6 @@ function showDefaultView(chk) {
 								<label class="col-sm-4 control-label"><span class='popover-examples list-inline'><a data-toggle='tooltip' data-placement='top' title='This will display the Calendar to the selected Security Levels with a limited view to only things related to them.'><img src='<?= WEBSITE_URL ?>/img/info.png' width='20'></a></span> Customer View Security Levels:</label>
 								<div class="col-sm-8">
 									<select name="scheduling_customer_roles[]" multiple class="chosen-select-deselect">
-										<option></option>
 										<?php $scheduling_customer_roles = array_filter(explode(',',get_config($dbc, 'scheduling_customer_roles')));
 										$on_security = get_security_levels($dbc);
 										foreach($on_security as $security_label => $security_value) {

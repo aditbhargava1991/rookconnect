@@ -140,7 +140,7 @@ if (isset($_POST['tasklist'])) {
     if(!empty($_POST['project_milestone'])) {
         mysqli_query($dbc, "UPDATE `checklist` SET `project_milestone` = '".filter_var($_POST['project_milestone'],FILTER_SANITIZE_STRING)."' WHERE `checklistid` = '$checklistid'");
         if(!($projectid > 0)) {
-            mysqli_query($dbc, "UPDATE `checklist` SET `projectid` = '".filter_var($_POST['projectid_from_path'],FILTER_SANITIZE_STRING)."' WHERE `checklistid` = '$checklistid'");   
+            mysqli_query($dbc, "UPDATE `checklist` SET `projectid` = '".filter_var($_POST['projectid_from_path'],FILTER_SANITIZE_STRING)."' WHERE `checklistid` = '$checklistid'");
         }
     }
     if(!empty($_POST['sales_milestone'])) {
@@ -421,12 +421,12 @@ function removeNewRow(button) {
         <a href="?<?= $checklistid > 0 ? 'view='.$checklistid : '' ?>" class="show-on-mob pull-left gap-right"><img src="../img/icons/ROOK-back-icon.png" style="height:100%; width:47%;"></a>
         <h3><?= isset($_GET['edit']) && $_GET['edit']=='NEW' ? 'Add' : 'Edit' ?> <?= $checklist_name ?> Checklist</h3>
     </div>
-    
-    
+
+
     <div class="row">
         <div class="col-sm-12 padded"><input type="text" class="form-control create-input" value="<?= $checklist_name ?>" name="checklist_name" placeholder="Name your checklist..." /></div>
     </div>
-    
+
 	<div class="clearfix"></div>
 
     <div class="main-screen-container">
@@ -486,7 +486,6 @@ function removeNewRow(button) {
                                 </label>
                                 <div class="col-sm-8">
                                     <select name="subtab_shared[]" id="subtab_shared" multiple data-placeholder="Select Shared Contacts..." class="chosen-select-deselect form-control">
-                                        <option value=''></option>
                                         <option value='ALL'>Share with Everyone</option>
                                         <?php
                                         $cat = '';
@@ -701,7 +700,6 @@ function removeNewRow(button) {
 								  <label for="site_name" class="col-sm-4 control-label"><?= TICKET_NOUN ?>:</label>
 								  <div class="col-sm-8">
 									<select data-placeholder="Select a <?= TICKET_NOUN ?>..." name="ticketid[]" multiple id="ticketid"  class="chosen-select-deselect form-control">
-									  <option value=""></option>
 									  <?php $query = mysqli_query($dbc,"SELECT * FROM `tickets` WHERE `deleted`=0 OR `ticketid`='$ticketid'");
 										while($row = mysqli_fetch_array($query)) {
 											echo "<option ".(in_array($row['ticketid'],explode(',',$ticketid)) ? 'selected' : '')." value='".$row['ticketid']."'>".TICKET_NOUN."# ".$row['ticketid'].' '.$row['heading'].'</option>';
@@ -732,7 +730,6 @@ function removeNewRow(button) {
                                 </label>
                                 <div class="col-sm-8">
                                     <select name="assign_staff[]" multiple data-placeholder="Select Assigned Staff..." class="chosen-select-deselect form-control">
-                                        <option value=''></option>
                                         <option <?= strpos($assign_staff,'ALL') !== FALSE ? 'selected' : '' ?> value='ALL'>Assign All Staff</option>
                                         <?php
                                         $cat = '';

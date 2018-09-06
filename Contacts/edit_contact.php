@@ -1060,7 +1060,6 @@ function removeContactForm(a, pdf_id) {
 	                            		<label class="col-sm-4 control-label">Other Category:</label>
 	                            		<div class="col-sm-7">
 	                            			<select name="multiple_categories[]" data-placeholder="Select a Category..." onchange="multipleCategories(this);" class="chosen-select-deselect form-control">
-	                            				<option></option>
 	                            				<?php foreach($each_tab as $cat_tab) {
 													echo "<option ".($other_cat['category'] == $cat_tab ? 'selected' : '')." value='". $cat_tab."'>".$cat_tab.'</option>';
 	                            				} ?>
@@ -1163,7 +1162,6 @@ function contact_call($dbc, $select_id, $select_name, $contact_value,$multiple, 
         <label for="fax_number" class="col-sm-4 control-label">Contact:</label>
         <div class="col-sm-8">
             <select <?php echo $disabled; ?> <?php echo $multiple; ?> data-placeholder="Choose a Contact..." name="<?php echo $select_name; ?>" data-field="<?php echo $data_field; ?>" data-table="individual_support_plan" data-row-field="individualsupportplanid" data-row-id="<?php echo $data_row_id; ?>" id="<?php echo $select_id; ?>" data-value="<?= $contact_value ?>" data-category="<?= $from_contact ?>" data-contactid-field="support_contact" data-contactid-category-field="support_contact_category" class="chosen-select-deselect form-control" width="380">
-              <option value=""></option>
               <option value="NEW_CONTACT">Add New Contact</option>
             </select>
             <input type="text" name="<?= str_replace('[]','',$select_name) ?>_new_contact<?= preg_replace('/[^\[\]]/','',$select_name) ?>" data-field="<?php echo $data_field; ?>" data-table="individual_support_plan" data-row-field="individualsupportplanid" data-row-id="<?php echo $data_row_id; ?>" data-contactid-field="support_contact" class="form-control" style="display:none;">

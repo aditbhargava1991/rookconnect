@@ -2746,7 +2746,6 @@ if(!$action_mode && !$overview_mode && !$unlock_mode) {
 								<label class="col-sm-4 control-label">Auto Create Unscheduled Stop On Status Change:</label>
 								<div class="col-sm-8">
 									<select multiple class="chosen-select-deselect" data-placeholder="Select Statuses" name="auto_create_unscheduled[]">
-										<option></option>
 										<?php $ticket_statuses = explode(',',get_config($dbc, 'ticket_status'));
 										foreach ($ticket_statuses as $ticket_status) { ?>
 											<option <?= in_array($ticket_status, $auto_create_unscheduled) ? 'selected' : '' ?> value="<?= $ticket_status ?>"><?= $ticket_status ?></option>

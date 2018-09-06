@@ -318,7 +318,7 @@ if($_GET['tab'] == 'approvals') {
 					<div class="form-group">
 						<label for="additional_note" class="col-sm-4 control-label">Limit Security Levels:</label>
 						<div class="col-sm-8">
-							<select name="timesheet_security_roles[]" multiple class="chosen-select-deselect form-control"><option></option>
+							<select name="timesheet_security_roles[]" multiple class="chosen-select-deselect form-control">
 								<?php $timesheet_security_roles = array_filter(explode(',',get_config($dbc, 'timesheet_security_roles')));
 								foreach(get_security_levels($dbc) as $security_name => $security_level) {
 									echo '<option value="'.$security_level.'" '.(in_array($security_level, $timesheet_security_roles) ? 'selected' : '').'>'.$security_name.'</option>';

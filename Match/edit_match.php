@@ -196,7 +196,6 @@ function selectContactCategory(sel) {
                     <label for="fax_number" class="col-sm-4 control-label">Contact:</label>
                     <div class="col-sm-8">
                         <select multiple data-placeholder="Select Contact..." name="support_contact[]" id="contact_0" class="chosen-select-deselect form-control" width="380">
-                            <option value=""></option>
                             <?php if(!empty($support_contact)) {
                                 $query = sort_contacts_query(mysqli_query($dbc, "SELECT * FROM `contacts` WHERE `category` = '$support_contact_category' AND `deleted`=0 AND `status`=1"));
                                 foreach($query as $row) {

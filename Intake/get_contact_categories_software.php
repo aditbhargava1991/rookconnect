@@ -475,7 +475,6 @@ if(isset($_POST['complete_form'])) {
 					<div class="gap-left new_sales" style="display:none;">
 						<p>Share Lead:</p>
 						<select name="sales_share_lead[]" multiple="" data-placeholder="Select a Staff" class="chosen-select-deselect form-control">
-							<option></option>
 							<?php foreach($staff_list as $staff) {
 								echo '<option value="'.$staff['contactid'].'">'.$staff['full_name'].'</option>';
 							} ?>

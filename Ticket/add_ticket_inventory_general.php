@@ -77,7 +77,7 @@ function addPieces(button) {
 		completed_last();
 	}
 }
-function triggerSaveGeneralPiece() {	
+function triggerSaveGeneralPiece() {
 	if(!ticket_wait) {
 		var trigger = $('.tab-section[data-type=general]').filter(function() { return $(this).data('triggered') == 0; }).first();
 		trigger.data('triggered',1);
@@ -332,7 +332,7 @@ do {
 					<div class="form-group" <?= $general_inventory['description'] == '' || $general_inventory['siteid'] != '' ? '' : 'style="display:none;"' ?>>
 						<label class="control-label col-sm-4"><?= SITES_CAT ?>:</label>
 						<div class="col-sm-8"><div class="col-sm-12">
-							<select name="siteid[]" multiple data-concat="," data-placeholder="Select <?= SITES_CAT ?>" data-table="ticket_attached" data-id="<?= $general_inventory['id'] ?>" data-id-field="id" data-type="inventory_general" data-type-field="src_table" class="chosen-select-deselect"><option></option>
+							<select name="siteid[]" multiple data-concat="," data-placeholder="Select <?= SITES_CAT ?>" data-table="ticket_attached" data-id="<?= $general_inventory['id'] ?>" data-id-field="id" data-type="inventory_general" data-type-field="src_table" class="chosen-select-deselect">
 								<?php if(!isset($site_list)) {
 									$site_list = sort_contacts_query(mysqli_query($dbc,"SELECT contactid, site_name, `display_name`, businessid FROM `contacts` WHERE `category`='".SITES_CAT."' AND deleted=0 ORDER BY IFNULL(NULLIF(`display_name`,''),`site_name`)"));
 								}
@@ -746,7 +746,7 @@ if(strpos($value_config,',Inventory General Detail by Pallet,') !== FALSE && $pa
 					<input type="hidden" name="lock_tabs" value="<?= 'inventory_general_pallet_'.config_safe_str($pallet_line['pallet']) ?>" data-toggle="1">
 				</div>
 			<?php } else { ?>
-				<em class="cursor-hand tab_lock_toggle" onclick="window.location.reload();">Click this section to unlock.<img class="inline-img" src="../img/icons/lock.png"></em> 
+				<em class="cursor-hand tab_lock_toggle" onclick="window.location.reload();">Click this section to unlock.<img class="inline-img" src="../img/icons/lock.png"></em>
 				<input type="hidden" name="lock_tabs" value="<?= 'inventory_general_pallet_'.config_safe_str($pallet_line['pallet']) ?>" data-toggle="0">
 			<?php } ?>
 		</div>

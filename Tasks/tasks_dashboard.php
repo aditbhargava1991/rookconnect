@@ -1139,7 +1139,7 @@ function checklist_attach_file(checklist) {
 											<option <?= $external_milestone == $item_external ? 'selected' : '' ?> value="<?= $external_milestone ?>"><?= $external_milestone ?></option>
 										<?php } ?></select></div>
 									<div class="select_users" style="display:none;">
-										<select data-placeholder="Select Staff" multiple class="chosen-select-deselect"><option></option>
+										<select data-placeholder="Select Staff" multiple class="chosen-select-deselect">
 										<?php foreach($staff_list as $staff_id) { ?>
 											<option value="<?= $staff_id ?>"><?= get_contact($dbc, $staff_id) ?></option>
 										<?php } ?>

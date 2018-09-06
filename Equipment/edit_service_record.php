@@ -350,7 +350,6 @@ if (isset($_POST['submit'])) {
     			<label for="fax_number"	class="col-sm-4	control-label">Vendor:</label>
     			<div class="col-sm-8">
                     <select data-placeholder="Choose a Vendor..." id="vendorid" name="vendorid[]" class="chosen-select-deselect form-control" width="380" multiple>
-                      <option value=""></option>
                       <?php
                         $query = mysqli_query($dbc,"SELECT contactid, name FROM contacts WHERE deleted=0 AND category='Vendor' order by name");
                         while($row = mysqli_fetch_array($query)) { ?>
