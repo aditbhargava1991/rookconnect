@@ -223,7 +223,17 @@
 			<option value=''></option>
 			<?php $query1 = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc,"SELECT contactid, first_name, last_name FROM contacts WHERE category IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND deleted=0 AND `status`=1"),MYSQLI_ASSOC));
 			foreach($query1 as $id) {
-				echo "<option ".(strpos(','.$companycontactid.',', ','.$id.',') !== FALSE ? 'selected' : '').' value="'.$id.'">'.get_contact($dbc, $id).'</option>';
+                $get_timer = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `timer` FROM `agenda_meeting_timer` WHERE `agendameetingid` = '$agendameetingid' AND created_by = '$id'"));
+                $timer = '';
+                $e_time = explode(':',$get_timer['timer']);
+                echo $e_time[0];
+                if($e_time[0] > 0) {
+                    $timer .= $e_time[0].' hour ';
+                }
+                if($e_time[1] > 0) {
+                    $timer .= $e_time[1].' minutes';
+                }
+                echo "<option ".(strpos(','.$companycontactid.',', ','.$id.',') !== FALSE ? 'selected' : '').' value="'.$id.'">'.get_contact($dbc, $id).' - '.$timer.'</option>';
 			} ?>
 		</select>
 	</div>

@@ -23,6 +23,7 @@ $(document).ready(function () {
 });
 $(document).on('change', 'select[name="heading_number"],.form_div select', function() { populateReferenceValues(this); });
 function populateReferenceValues(link) {
+    var form_id = $('[name="form_id"]').val();
     $('.form_div input[data-refsource="'+$(link).attr('name')+'"]').each(function() {
         var ref_source = $(link).val();
         var ref_value = $(this).data('refvalue');
@@ -30,7 +31,7 @@ function populateReferenceValues(link) {
         if(ref_source != undefined && ref_source != '' && ref_value != undefined && ref_value != '') {
             $.ajax({
                 type: "GET",
-                url: "<?= WEBSITE_URL ?>/Form Builder/form_ajax.php?fill=retrieve_ref&ref_source="+ref_source+"&ref_value="+ref_value,
+                url: "<?= WEBSITE_URL ?>/Form Builder/form_ajax.php?fill=retrieve_ref&ref_source="+ref_source+"&ref_value="+ref_value+'&ref_name='+ref_name+'&form_id='+form_id,
                 dataType: "html",
                 success: function(response) {
                     $('[name="'+ref_name+'"]').val(response);

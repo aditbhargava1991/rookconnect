@@ -131,7 +131,7 @@ function filterAttachedContacts() {
 				<div class="col-sm-8">
 					<select name="attached_contacts[]" multiple data-placeholder="Select a Contact" class="form-control chosen-select-deselect">
 						<option></option>
-						<option value="ALL_CONTACTS">ALL CONTACTS</option>
+						<option value="ALL_CONTACTS" <?= (strpos($attached_contacts, ',ALL_CONTACTS,') !== FALSE ? 'selected' : '') ?>>ALL CONTACTS</option>
 						<?php $contacts_list = sort_contacts_query(mysqli_query($dbc, "SELECT * FROM `contacts` WHERE `deleted` = 0 AND `status` > 0"));
 						foreach($contacts_list as $attached_contact) {
 							if(!empty($attached_contact['full_name']) && $attached_contact['full_name'] != '-') {

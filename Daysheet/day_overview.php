@@ -525,7 +525,7 @@ if (isset($_POST['add_manual'])) {
 				<h4 class="panel-title">
 					<span class="popover-examples"><a data-toggle="tooltip" data-placement="top" title="Click here to view all Tasks for today."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
 					<a data-toggle="collapse" data-parent="#accordion2" href="#collapse_task" >
-						Tasks<span class="glyphicon glyphicon-plus"></span>
+						<?= TASK_TILE ?><span class="glyphicon glyphicon-plus"></span>
 					</a>
 				</h4>
 			</div>
