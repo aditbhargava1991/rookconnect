@@ -8,8 +8,11 @@ if(isset($_GET['action']) && $_GET['action'] == 'archive') {
 }
 
 if(isset($_GET['fill']) && $_GET['fill'] == 'retrieve_ref') {
+    $form_id = $_GET['form_id'];
     $ref_source = $_GET['ref_source'];
     $ref_value = $_GET['ref_value'];
+    $ref_name = explode('field_', $_GET['ref_name'], 2)[1];
+    $field = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `user_form_fields` WHERE `form_id` = '$form_id' AND `name` = '$ref_name' AND `type` NOT IN ('REFERENCE','OPTION') AND `deleted` = 0"));
     switch($ref_value) {
         case 'contact_name':
             $new_value = get_contact($dbc, $ref_source);
@@ -28,6 +31,19 @@ if(isset($_GET['fill']) && $_GET['fill'] == 'retrieve_ref') {
                 $new_value = $contact[$ref_value];
             }
             break;
+    }
+
+    //Replace 0000-00-00 date with empty string
+    if($new_value == '0000-00-00') {
+        $new_value = '';
+    }
+
+    //Verify if it is a date or not to see if we need to update format
+    $is_date = DateTime::createFromFormat('Y-m-d',$new_value);
+    if($is_date) {
+        if($field['styling'] == '/') {
+            $new_value = str_replace('-','/',$new_value);
+        }
     }
     echo $new_value;
 }
