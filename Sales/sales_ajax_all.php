@@ -675,4 +675,24 @@ if($_GET['action'] == 'new_lead') {
     $dbc->query("INSERT INTO `contacts` (`category`,`first_name`,`businessid`) VALUES ('Sales Leads','".encryptIt('New Sales Lead')."','$businessid')");
     echo $dbc->insert_id;
 }
+if($_GET['action'] == 'sales_path') {
+    $salesid = filter_var($_POST['salesid'],FILTER_SANITIZE_STRING);
+    foreach($_POST['milestones'] as $milestone) {
+        $label = filter_var($milestone['name'],FILTER_SANITIZE_STRING);
+        $dbc->query("INSERT INTO `sales_path_custom_milestones` (`salesid`,`label`) VALUES ('$salesid','$label')");
+        $milestone_id = $dbc->insert_id;
+        $name = config_safe_str($label).'.'.$milestone_id;
+        $dbc->query("UPDATE `sales_path_custom_milestones` SET `milestone`='$name',`sort`='$milestone_id' WHERE `id`='$milestone_id'");
+        foreach($milestone['tasks'] as $i => $task) {
+            $task = filter_var($task,FILTER_SANITIZE_STRING);
+            $staff = filter_var($milestone['task_staff'][$i],FILTER_SANITIZE_STRING);
+            $dbc->query("INSERT INTO `tasklist` (`heading`,`contactid`,`salesid`,`sales_milestone`) VALUES ('$task','$staff','$salesid','$name')");
+        }
+        foreach($milestone['intakes'] as $i => $form) {
+            if($form > 0) {
+                $dbc->query("INSERT INTO `intake` (`intakeformid`,`salesid`,`sales_milestone`) VALUES ('$form','$salesid','$name')");
+            }
+        }
+    }
+}
 ?>
