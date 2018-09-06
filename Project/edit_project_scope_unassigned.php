@@ -55,7 +55,7 @@ while($item = mysqli_fetch_array($unassigned)) {
 		<div class="col-sm-4 form-group">
 			<label class="col-sm-4">Staff:</label>
 			<div class="col-sm-8 <?= !($security['edit'] > 0) ? 'readonly-block' : '' ?>">
-				<select name="<?= $item[8] ?>[]" multiple data-concat=',' data-table="<?= $item[4] ?>" data-id-field="<?= $item[5] ?>" data-id="<?= $item[1] ?>" class="chosen-select-deselect"><option></option>
+				<select name="<?= $item[8] ?>[]" multiple data-concat=',' data-table="<?= $item[4] ?>" data-id-field="<?= $item[5] ?>" data-id="<?= $item[1] ?>" class="chosen-select-deselect">
 					<?php foreach($staff_list as $staff) { ?>
 						<option <?= in_array($staff['contactid'], explode(',',$item[9])) ? 'selected' : '' ?> value="<?= $staff['contactid'] ?>"><?= $staff['first_name'].' '.$staff['last_name'] ?></option>
 					<?php } ?>

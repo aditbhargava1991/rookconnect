@@ -8,8 +8,8 @@ if($comments->num_rows > 0) {
 		<?php while($row_comment = $comments->fetch_assoc()) { ?>
 			<?php $bg_class = $odd_even % 2 == 0 ? 'row-even-bg' : 'row-odd-bg'; ?>
             <div class="note_block row <?= $bg_class ?>">
-				<div class="col-xs-1"><?php profile_id($dbc, $row_comment['created_by']); ?></div>
-				<div class="col-xs-11">
+				<div class="col-xs-2 col-sm-1"><?php profile_id($dbc, $row_comment['created_by']); ?></div>
+				<div class="col-xs-10 col-sm-11">
 					<div><?= preg_replace_callback('/\[PROFILE ([0-9]+)\]/',profile_callback,html_entity_decode($row_comment['comment'])); ?></div>
 					<div class="gap-top"><em>Added by <?= get_contact($dbc, $row_comment['created_by']); ?> on <?= $row_comment['created_date']; ?></em></div>
 				</div>

@@ -676,7 +676,6 @@ if(!empty($_GET['infogatheringid'])) {
 							<label for="first_name" class="col-sm-4 control-label text-right">Staff:</label>
 							<div class="col-sm-8">
 								<select name="assign_staff[]" data-placeholder="Choose a Staff Member..." class="chosen-select-deselect form-control" multiple width="380">
-									<option value=''></option>
 									<?php $result = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT `contactid`, `last_name`, `first_name` FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `status`>0 AND `deleted`=0"),MYSQLI_ASSOC));
 									foreach($result as $staff_id) {
 										echo '<option '.(strpos(','.$assign_staff.',', ','.$staff_id.',') !== FALSE ? "selected" : "").' value="'.$staff_id.'">'.get_contact($dbc,$staff_id)."</option>\n";

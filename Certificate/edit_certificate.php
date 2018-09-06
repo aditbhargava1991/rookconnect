@@ -352,7 +352,7 @@ if(!empty($_GET['edit'])) {
       <div class="form-group">
         <label for="company_name" class="col-sm-4 control-label">Certificate Reminder Email:</label>
         <div class="col-sm-8">
-          <select name="certificate_reminder[]" multiple data-table="certificate" data-id="<?= $certificateid ?>" data-id-field="certificateid" class="form-control chosen-select-deselect"><option></option>
+          <select name="certificate_reminder[]" multiple data-table="certificate" data-id="<?= $certificateid ?>" data-id-field="certificateid" class="form-control chosen-select-deselect">
         <?php $staff_result = sort_contacts_query(mysqli_query($dbc, "select first_name, last_name, name, contactid from contacts where category IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY.""));
         foreach($staff_result as $row) {
           if($row['full_name'] != '-' && !empty($row['full_name'])) {

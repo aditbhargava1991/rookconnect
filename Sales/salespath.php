@@ -66,6 +66,8 @@ function changeEndAme(sel) {
 			scrollbar.scrollLeft= element.scrollLeft;
 		};
 		element.parentNode.insertBefore(scrollbar, element);
+        $('.double_scroll_div').innerHeight($('.double_scroll_div').outerHeight() - $('.double_scroll_div:visible').get(0).clientHeight);
+        $('.scrum_tickets').outerHeight($('.standard-body-content').innerHeight() - $('.double_scroll_div').innerHeight() - 2);
 	}
 	function sortableItems() {
 		$('.sortable_milestone').sortable({
@@ -677,15 +679,16 @@ function checklist_attach_file(checklist) {
 <?php if($_GET['p'] == 'salespath') { ?>
 <div id="sales_path_div" class="main-screen-white standard-body" style="padding-left: 0; padding-right: 0; border: none;">
     <div class="standard-body-title" data-id="<?= $salesid ?>" style="<?= empty($flag_colour) ? '' : 'background-color:#'.$flag_colour.';' ?>position:absolute;z-index:1;width:100%;">
-        <h3><?= SALES_NOUN.' #'.$salesid ?> Path: <?= get_contact($dbc, $sales_lead['contactid'], 'name_company') ?>
+        <h3><?= SALES_NOUN.' #'.$salesid ?> Task Path: <?= get_contact($dbc, $sales_lead['contactid'], 'name_company') ?>
             <div class="pull-right"><?php include('quick_actions.php'); ?></div>
+            <img class="inline-img pull-right cursor-hand no-toggle" title="Add Path Template" src="../img/project-path.png" onclick="overlayIFrameSlider('select_path.php?id=<?= $salesid ?>','auto',true,false);">
             <span class="flag-label" data-colour="<?= $flag_colour ?>"><?= $flag_label ?></span>
         </h3>
     </div>
     <div class="standard-body-content">
     <?php } ?>
         <div class="double_scroll_div" style="overflow-x: auto; overflow-y: hidden;"><div style="width: 2240px; padding-top: 1px;">&nbsp;</div></div>
-            <div id="scrum_tickets" class="scrum_tickets">
+            <div id="scrum_tickets" class="scrum_tickets" style="padding:0;">
                 <?php $path = get_field_value('sales_path', 'sales', 'salesid', $salesid);
 
                 $tabs = get_field_value('milestone timeline', 'sales_path', 'pathid', $path);
@@ -763,7 +766,7 @@ function checklist_attach_file(checklist) {
 
                             <h4 style="<?= $style_strikethrough ?>"><input type="checkbox" name="status" value="<?= $row['tasklistid'] ?>" class="form-checkbox no-margin" onchange="mark_done(this);" <?= ( $row['status'] == $status_complete ) ? 'checked' : '' ?> />
                                 <a href="" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Tasks_Updated/add_task.php?type=<?=$row['status']?>&tasklistid=<?=$row['tasklistid']?>', '50%', false, false, $('.iframe_overlay').closest('.container').outerHeight() + 20); return false;">Task #<?= $row['tasklistid'] ?></a>: <?= ($url_tab=='Business') ? get_contact($dbc, $businessid, 'name') . ': ' : '' ?><?= ($url_tab=='Client') ? get_contact($dbc, $clientid) . ': ' : '' ?><?=limit_text($row['heading'], 5 )?>
-                        <?php
+                        <?php echo '<img class="drag_handle pull-right inline-img no-toggle" src="../img/icons/drag_handle.png" title="Drag" />';
                         echo '<span class="pull-right small">';
                         if ( $row['company_staff_sharing'] ) {
                             foreach ( array_filter(explode(',', $row['company_staff_sharing'])) as $staffid ) {
@@ -774,6 +777,7 @@ function checklist_attach_file(checklist) {
                         }
                         echo '</span></h4></span></div>';
 
+
                         echo '<div class="clearfix"></div>';
                         $documents = mysqli_query($dbc, "SELECT `created_by`, `created_date`, `document` FROM `task_document` WHERE `tasklistid`='{$row['tasklistid']}' ORDER BY `taskdocid` DESC");
                         if ( $documents->num_rows > 0 ) { ?>
@@ -783,7 +787,7 @@ function checklist_attach_file(checklist) {
                                         <div class="note_block row">
                                             <div class="col-xs-1"><?= profile_id($dbc, $row_doc['created_by']); ?></div>
                                             <div class="col-xs-11" style="<?= $style_strikethrough ?>">
-                                                <div><a href="../Tasks_Updated/download/<?= $row_doc['document'] ?>"><?= $row_doc['document'] ?></a></div>
+                                                <div><a href="../Tasks/download/<?= $row_doc['document'] ?>"><?= $row_doc['document'] ?></a></div>
                                                 <div><em>Added by <?= get_contact($dbc, $row_doc['created_by']); ?> on <?= $row_doc['created_date']; ?></em></div>
                                             </div>
                                             <div class="clearfix"></div>
@@ -816,7 +820,6 @@ function checklist_attach_file(checklist) {
                             </div><?php
                         }
 
-
                         echo '<span class="pull-right action-icons" style="width: 100%;" data-task="'.$row['tasklistid'].'">';
                             $mobile_url_tab = trim($_GET['tab']);
                             if (in_array('edit', $quick_actions)) { ?>
@@ -833,7 +836,6 @@ function checklist_attach_file(checklist) {
                             echo in_array('time', $quick_actions) ? '<span onclick="task_quick_add_time(this); return false;"><img src="../img/icons/ROOK-timer-icon.png" class="inline-img no-toggle" onclick="return false;" title="Add Time"></span>' : '';
                             echo in_array('time', $quick_actions) ? '<span onclick="task_track_time(this); return false;"><img src="../img/icons/ROOK-timer-icon.png" class="inline-img no-toggle" onclick="return false;" title="Track Time"></span>' : '';
                             echo in_array('archive', $quick_actions) ? '<span onclick="task_archive(this); return false;"><img src="../img/icons/ROOK-trash-icon.png" class="inline-img no-toggle" onclick="return false;" title="Archive"></span>' : '';
-                            echo '<img class="drag_handle pull-right inline-img no-toggle" src="../img/icons/drag_handle.png" title="Drag" />';
                         echo '</span>';
                         if(in_array('flag_manual',$quick_actions)) { ?>
                             <span class="col-sm-3 text-center flag_field_labels" style="display:none;">Label</span><span class="col-sm-3 text-center flag_field_labels" style="display:none;">Colour</span><span class="col-sm-3 text-center flag_field_labels" style="display:none;">Start Date</span><span class="col-sm-3 text-center flag_field_labels" style="display:none;">End Date</span>
@@ -869,10 +871,11 @@ function checklist_attach_file(checklist) {
                                 <option <?= $external_milestone == $row['external'] ? 'selected' : '' ?> value="<?= $external_milestone ?>"><?= $external_milestone ?></option>
                         <?php }
                         echo '</select></div><div class="clearfix"></div>'; ?>
+
                         <div class="row">
 
                             <h4 style="<?= $style_strikethrough ?>"><input type="checkbox" name="status" value="<?= $row['tasklistid'] ?>" class="form-checkbox no-margin" onchange="mark_done(this);" <?= ( $row['status'] == $status_complete ) ? 'checked' : '' ?> />
-                                <a href="" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Tasks_Updated/add_task.php?type=<?=$row['status']?>&tasklistid=<?=$row['tasklistid']?>', '50%', false, false, $('.iframe_overlay').closest('.container').outerHeight() + 20); return false;">Task #<?= $row['tasklistid'] ?></a>: <?= ($url_tab=='Business') ? get_contact($dbc, $businessid, 'name') . ': ' : '' ?><?= ($url_tab=='Client') ? get_contact($dbc, $clientid) . ': ' : '' ?><?=limit_text($row['heading'], 5 )?>
+                                <a href="" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Tasks/add_task.php?type=<?=$row['status']?>&tasklistid=<?=$row['tasklistid']?>', '50%', false, false, $('.iframe_overlay').closest('.container').outerHeight() + 20); return false;">Task #<?= $row['tasklistid'] ?></a>: <?= ($url_tab=='Business') ? get_contact($dbc, $businessid, 'name') . ': ' : '' ?><?= ($url_tab=='Client') ? get_contact($dbc, $clientid) . ': ' : '' ?><?=limit_text($row['heading'], 5 )?>
                         <?php
                         echo '<span class="pull-right small">';
                         if ( $row['company_staff_sharing'] ) {
@@ -885,6 +888,7 @@ function checklist_attach_file(checklist) {
                         echo '</span></h4></span></div>';
 
                         echo '<div class="clearfix"></div>';
+
                         $documents = mysqli_query($dbc, "SELECT `created_by`, `created_date`, `document` FROM `task_document` WHERE `tasklistid`='{$row['tasklistid']}' ORDER BY `taskdocid` DESC");
                         if ( $documents->num_rows > 0 ) { ?>
                             <div class="form-group clearfix">
@@ -1013,7 +1017,7 @@ function checklist_attach_file(checklist) {
 											<option <?= $external_milestone == $item_external ? 'selected' : '' ?> value="<?= $external_milestone ?>"><?= $external_milestone ?></option>
 										<?php } ?></select></div>
 									<div class="select_users" style="display:none;">
-										<select data-placeholder="Select Staff" multiple class="chosen-select-deselect"><option></option>
+										<select data-placeholder="Select Staff" multiple class="chosen-select-deselect">
 										<?php foreach($staff_list as $staff) { ?>
 											<option value="<?= $staff['contactid'] ?>"><?= $staff['first_name'].' '.$staff['last_name'] ?></option>
 										<?php } ?>
@@ -1087,7 +1091,7 @@ function checklist_attach_file(checklist) {
                                     <option <?= $external_milestone == $item_external ? 'selected' : '' ?> value="<?= $external_milestone ?>"><?= $external_milestone ?></option>
                                 <?php } ?></select></div>
                             <div class="select_users" style="display:none;">
-                                <select data-placeholder="Select Staff" multiple class="chosen-select-deselect"><option></option>
+                                <select data-placeholder="Select Staff" multiple class="chosen-select-deselect">
                                 <?php foreach($staff_list as $staff) { ?>
                                     <option value="<?= $staff['contactid'] ?>"><?= $staff['first_name'].' '.$staff['last_name'] ?></option>
                                 <?php } ?>

@@ -721,17 +721,19 @@ function go_to_dashboard(target) {
 			<?php } ?>
 			<?php if(strpos($on_security, ',tasks,') !== FALSE) { ?>
 			<tr data-dashboard='<?= (in_array('tasks', $dashboard_list) ? 'current' : '') ?>'>
-				<td data-title="Comment">Tasks</td>
+				<td data-title="Comment"><?= TASK_TILE ?></td>
 				<?php echo security_tile_config_function('tasks', get_privileges($dbc, 'tasks',$level), 1, $level_url); ?>
 			</tr>
 			<?php } ?>
 
+            <!--
 			<?php if(strpos($on_security, ',tasks_updated,') !== FALSE) { ?>
 			<tr data-dashboard='<?= (in_array('tasks_updated', $dashboard_list) ? 'current' : '') ?>'>
 				<td data-title="Comment">Tasks (Updated)</td>
 				<?php echo security_tile_config_function('tasks_updated', get_privileges($dbc, 'tasks_updated',$level), 1, $level_url); ?>
 			</tr>
 			<?php } ?>
+            -->
 
 			<?php if(strpos($on_security, ',optimize,') !== FALSE) { ?>
 			<tr data-dashboard='<?= (in_array('optimize', $dashboard_list) ? 'current' : '') ?>'>
@@ -1205,12 +1207,6 @@ function go_to_dashboard(target) {
 			<tr data-dashboard='<?= (in_array('package', $dashboard_list) ? 'current' : '') ?>'>
 				<td data-title="Comment">Packages</td>
 				<?php echo security_tile_config_function('package', get_privileges($dbc, 'package',$level), 0, $level_url); ?>
-			</tr>
-			<?php } ?>
-			<?php if(strpos($on_security, ',pos,') !== FALSE) { ?>
-			<tr data-dashboard='<?= (in_array('pos', $dashboard_list) ? 'current' : '') ?>'>
-				<td data-title="Comment">Point of Sale (Basic)</td>
-				<?php echo security_tile_config_function('pos', get_privileges($dbc, 'pos',$level), 1, $level_url); ?>
 			</tr>
 			<?php } ?>
 			<?php if(strpos($on_security, ',posadvanced,') !== FALSE) { ?>

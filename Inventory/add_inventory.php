@@ -2146,7 +2146,6 @@ if(!empty($_GET['inventoryid'])) {
                                         <label for="company_name" class="col-sm-4 control-label">Bill of Material:</label>
                                         <div class="col-sm-8">
                                             <select data-placeholder="Choose items" multiple name="bill_of_material[]" class="chosen-select-deselect form-control inventoryid" width="380">
-                                                <option value=''></option>
                                                 <?php
                                                 $query = mysqli_query($dbc,"SELECT inventoryid, name FROM inventory ORDER BY name");
                                                 while($row = mysqli_fetch_array($query)) {
@@ -2194,7 +2193,7 @@ if(!empty($_GET['inventoryid'])) {
                                             <label for="supplimentary" class="col-sm-4 control-label">Supplementary Products:</label>
                                             <div class="col-sm-8">
                                                 <select data-placeholder="Choose items" multiple name="supplimentary[]" class="chosen-select-deselect form-control inventoryid" width="380">
-                                                    <option value=""></option><?php
+                                                    <?php
                                                     $query = mysqli_query($dbc,"SELECT `inventoryid`, `name`, `part_no` FROM `inventory` ORDER BY `name`");
 
                                                     while ( $row = mysqli_fetch_array($query) ) { ?>

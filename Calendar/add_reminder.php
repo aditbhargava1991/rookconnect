@@ -33,7 +33,6 @@ $(document).ready(function() {
     <form id="form1" name="form1" method="post" action="" enctype="multipart/form-data" class="form-horizontal" role="form">
 		<label class="super-label">Staff Receiving Reminder:
 			<select multiple name="reminder_staff[]" data-placeholder="Select a Staff" class="chosen-select-deselect">
-				<option></option>
 				<option value="select_all_staff">Remind All Staff</option>
 				<?php
 					$staff_list_side = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `deleted` = 0 AND `status` = 1"),MYSQLI_ASSOC));
