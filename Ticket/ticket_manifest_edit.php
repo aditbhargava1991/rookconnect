@@ -81,7 +81,7 @@ if(isset($_POST['update'])) {
 					$inv_weight_units[$id] = 'lbs';
 				}
 				$weight[] = $inv_weight.' '.$inv_weight_units[$id];
-				if(in_array('total weight lb',$manifest)) {
+				if(in_array('total weight lb',$manifest_fields)) {
 					if($inv_weight_units[$id] == 'kg') {
 						$total_weight += ($inv_weight*2.20462262185);
 					} else {
@@ -94,7 +94,7 @@ if(isset($_POST['update'])) {
 			$row = ['qty'=>'','siteid'=>$siteid];
 			$weight = '';
 		}
-		$lines[] = ['file'=>$row['ticket_label'], 'po'=>$row['po_num'], 'vendor'=>($row['vendor'] > 0 ? get_contact($dbc, $row['vendor'],'name_company') : ''), 'line'=>(empty($ticket['po_line']) ? 'N/A' : $ticket['po_line']), 'qty'=>($row['qty'] > 0 ? round($row['qty'],3) : '1'), 'manual_qty'=>$manual_qty[$i], 'site'=>($row['siteid'] == $siteid ? $manifest_label : ($row['siteid'] > 0 ? get_contact($dbc, $row['siteid']) : 'UNASSIGNED')), 'notes'=>$row['notes'], 'weight'=>$row['weight']];
+		$lines[] = ['file'=>$row['ticket_label'], 'po'=>$row['po_num'], 'vendor'=>($row['vendor'] > 0 ? get_contact($dbc, $row['vendor'],'name_company') : ''), 'line'=>(empty($ticket['po_line']) ? 'N/A' : $ticket['po_line']), 'qty'=>($row['qty'] > 0 ? round($row['qty'],3) : '1'), 'manual_qty'=>$manual_qty[$i], 'site'=>($row['siteid'] == $siteid ? $manifest_label : ($row['siteid'] > 0 ? get_contact($dbc, $row['siteid']) : 'UNASSIGNED')), 'notes'=>$row['notes'], 'weight'=>$weight];
 		if(in_array('pdf_collapse',$manifest_fields)) {
 			$columns['po'] += (!empty($row['po_num']) ? 1 : 0);
 			$columns['vendor'] += ($row['vendor'] > 0 ? 1 : 0);
