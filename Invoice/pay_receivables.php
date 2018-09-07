@@ -149,7 +149,7 @@ if (isset($_POST['submit_patient'])) {
 
     $result_insert_vendor = mysqli_query($dbc, "UPDATE `contacts_ln_".$table_name."` SET `amount_credit` = amount_credit + '$total_amt' WHERE `contactid` = '$patientid'");
 
-    echo '<script> window.open("../Invoice/'.$payment_receipt.'"); window.location.replace("../blank_loading_page.php"); </script>';
+    echo '<script> window.open("'.$payment_receipt.'"); window.location.replace("../blank_loading_page.php"); </script>';
 } ?>
 <form class="form-horizontal col-sm-12" method="POST" action="">
     <h2>Selected Invoices<a href="../blank_loading_page.php" class="pull-right small"><img src="../img/icons/cancel.png" class="inline-img"></a></h2>
