@@ -91,6 +91,11 @@ if (isset($_POST['printpdf'])) {
                 $starttime = $_POST['starttime'];
                 $endtime = $_POST['endtime'];
             }
+            
+            if (isset($_GET['pos_submit'])) {
+                $starttime = $_GET['from'];
+                $endtime = $_GET['to'];
+            }
 
             if($starttime == 0000-00-00) {
                 $starttime = date('Y-m-01');

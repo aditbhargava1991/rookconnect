@@ -180,8 +180,102 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
                         echo '<a href="field_config_invoice.php" class="pull-right gap-right gap-top"><img width="30" title="Tile Settings" src="../img/icons/settings-4.png" class="settings-classic wiggle-me no-toggle"></a>';
                     } ?>
                     <span class="pull-right gap-top offset-right-5"><img src="../img/icons/eyeball.png" alt="View Tabs" title="View Tabs" class="cursor-hand no-toggle inline-img" onclick="view_tabs();" /></span>
+                    <span class="pull-right gap-top offset-right-5"><img src="../img/icons/pie-chart.png" alt="View Summary" title="View Summary" class="cursor-hand no-toggle inline-img" onclick="view_summary();" /></span>
                     <div class="clearfix"></div>
                     <div class="view_tabs double-padded" style="display:none;"><?php include('tile_tabs.php'); ?></div>
+                    
+                    <!-- Summary Blocks --><?php
+                    $search_contact = 0;
+                    $search_invoiceid = '';
+                    $search_from = date('Y-m-01');
+                    $search_to = date('Y-m-t');
+                    if (isset($_POST['search_invoice_submit'])) {
+                        if($_POST['contactid'] != '') {
+                           $search_contact = $_POST['contactid'];
+                        }
+                        if($_POST['type'] != '') {
+                           $search_delivery = $_POST['type'];
+                        }
+                        if($_POST['search_from'] != '') {
+                           $search_from = $_POST['search_from'];
+                        }
+                        if($_POST['search_to'] != '') {
+                           $search_to = $_POST['search_to'];
+                        }
+                        $search_invoiceid = isset($_POST['search_invoiceid']) ? preg_replace('/[^0-9]/', '', $_POST['search_invoiceid']) : '';
+                    }
+                    
+                    if($search_from == 0000-00-00) {
+                        $search_from = (in_array($rookconnect,['sea','led']) ? '' : date('Y-m-d'));
+                    }
+
+                    if($search_to == 0000-00-00) {
+                        $search_to = date('Y-m-d');
+                    }
+                    
+                    $patient_clause = !empty($search_contact) ? "AND patientid = '$search_contact'" : '';
+                    
+                    $today_date = date('Y-m-d');
+                    $as_at_date = $search_to;
+                    $last29 = date('Y-m-d', strtotime($as_at_date.' - 29 days'));
+                    $last30 = date('Y-m-d', strtotime($as_at_date.' - 30 days'));
+                    $last59 = date('Y-m-d', strtotime($as_at_date.' - 59 days'));
+                    $last60 = date('Y-m-d', strtotime($as_at_date.' - 60 days'));
+                    $last89 = date('Y-m-d', strtotime($as_at_date.' - 89 days'));
+                    $last90 = date('Y-m-d', strtotime($as_at_date.' - 90 days'));
+                    $last119 = date('Y-m-d', strtotime($as_at_date.' - 119 days'));
+                    $last120 = date('Y-m-d', strtotime($as_at_date.' - 120 days'));
+                    $ar_types = "'On Account', 'Net 30', 'Net 30 Days', 'Net 60', 'Net 60 Days', 'Net 90', 'Net 90 Days', 'Net 120', 'Net 120 Days', ''";
+
+                    $total_30 = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT SUM(patient_price) AS `all_payment` FROM invoice_patient WHERE (DATE(invoice_date) >= '".$search_from."' AND DATE(invoice_date) <= '".$search_to."') AND DATE(invoice_date) >= '".$last29."' $patient_clause AND (paid_date > '$as_at_date' OR IFNULL(`paid`,'') IN ($ar_types))"));
+                    $total_last30 = $total_30['all_payment'];
+
+                    $total_3059 = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT SUM(patient_price) AS `all_payment` FROM invoice_patient WHERE (DATE(invoice_date) >= '".$search_from."' AND DATE(invoice_date) <= '".$search_to."') AND (DATE(invoice_date) >= '".$last59."' AND DATE(invoice_date) < '".$last29."') $patient_clause AND (paid_date > '$as_at_date' OR IFNULL(`paid`,'') IN ($ar_types))"));
+                    $total_last3059 = $total_3059['all_payment'];
+
+                    $total_6089 = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT SUM(patient_price) AS `all_payment` FROM invoice_patient WHERE (DATE(invoice_date) >= '".$search_from."' AND DATE(invoice_date) <= '".$search_to."') AND (DATE(invoice_date) >= '".$last89."' AND DATE(invoice_date) < '".$last59."') $patient_clause AND (paid_date > '$as_at_date' OR IFNULL(`paid`,'') IN ($ar_types))"));
+                    $total_last6089 = $total_6089['all_payment'];
+
+                    $total_90119 = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT SUM(patient_price) AS `all_payment` FROM invoice_patient WHERE (DATE(invoice_date) >= '".$search_from."' AND DATE(invoice_date) <= '".$search_to."') AND (DATE(invoice_date) >= '".$last119."' AND DATE(invoice_date) < '".$last89."') $patient_clause AND (paid_date > '$as_at_date' OR IFNULL(`paid`,'') IN ($ar_types))"));
+                    $total_last90119 = $total_90119['all_payment'];
+
+                    $total_120 = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT SUM(patient_price) AS `all_payment` FROM invoice_patient WHERE (DATE(invoice_date) >= '".$search_from."' AND DATE(invoice_date) <= '".$search_to."') AND (DATE(invoice_date) < '".$last119."') $patient_clause AND (paid_date > '$as_at_date' OR IFNULL(`paid`,'') IN ($ar_types))"));
+                    $total_last120 = $total_120['all_payment']; ?>
+                    
+                    <div class="view_summary double-gap-bottom" style="display:none;">
+                        <?php $total_invoices = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT SUM(`final_price`) `final_price` FROM `invoice` WHERE `deleted`=0 $search_clause $search_invoice_clause")); ?>
+                        <div class="col-xs-12 col-sm-3 gap-top">
+                            <div class="summary-block">
+                                <div class="text-lg"><?= ( $total_last30 > 0 ) ? '<a href="../Reports/report_tiles.php?type=ar&report=A/R Aging Summary&from='.$search_from.'&to='.$search_to.'">$'.number_format($total_last30, 2).'</a>' : 0; ?></div>
+                                <div>Current A/R</div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-3 gap-top">
+                            <div class="summary-block">
+                                <div class="text-lg"><?= ( $total_last3059 > 0 ) ? '<a href="../Reports/report_tiles.php?type=ar&report=A/R Aging Summary&from='.$search_from.'&to='.$search_to.'">$'.number_format($total_last3059, 2).'</a>' : 0; ?></div>
+                                <div>30 - 59 Days A/R</div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-3 gap-top">
+                            <div class="summary-block">
+                                <div class="text-lg"><?= ( $total_last6089 > 0 ) ? '<a href="../Reports/report_tiles.php?type=ar&report=A/R Aging Summary&from='.$search_from.'&to='.$search_to.'">$'.number_format($total_last6089, 2).'</a>' : 0; ?></div>
+                                <div>60 - 89 Dyas A/R</div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-3 gap-top">
+                            <div class="summary-block">
+                                <div class="text-lg"><?= ( $total_last90119 > 0 ) ? '<a href="../Reports/report_tiles.php?type=ar&report=A/R Aging Summary&from='.$search_from.'&to='.$search_to.'">$'.number_format($total_last90119, 2).'</a>' : 0; ?></div>
+                                <div>90 - 119 Days A/R</div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-3 gap-top">
+                            <div class="summary-block">
+                                <div class="text-lg"><?= ( $total_last120 > 0 ) ? '<a href="../Reports/report_tiles.php?type=ar&report=A/R Aging Summary&from='.$search_from.'&to='.$search_to.'">$'.number_format($total_last120, 2).'</a>' : 0; ?></div>
+                                <div>120+ Days A/R</div>
+                            </div>
+                        </div>
+                        <div class="clearfix"></div>
+                    </div><!-- .view_summary -->
                 </div>
             </div><!-- .tile-header -->
 
@@ -194,29 +288,10 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
                     <div class="standard-body-content">
                         <form name="invoice" method="post" action="" class="form-horizontal" role="form">
                             <?php $value_config = ','.get_config($dbc, 'invoice_dashboard').','; ?>
-                            <?php
-                            $search_contact = 0;
-                            $search_invoiceid = '';
-                            $search_from = date('Y-m-01');
-                            $search_to = date('Y-m-t');
-                            if (isset($_POST['search_invoice_submit'])) {
-                                if($_POST['contactid'] != '') {
-                                   $search_contact = $_POST['contactid'];
-                                }
-                                if($_POST['type'] != '') {
-                                   $search_delivery = $_POST['type'];
-                                }
-                                if($_POST['search_from'] != '') {
-                                   $search_from = $_POST['search_from'];
-                                }
-                                if($_POST['search_to'] != '') {
-                                   $search_to = $_POST['search_to'];
-                                }
-                                $search_invoiceid = isset($_POST['search_invoiceid']) ? preg_replace('/[^0-9]/', '', $_POST['search_invoiceid']) : '';
-                            } ?>
-                            <div class="search-group double-gap-top">
-                                <div class="form-group col-lg-9 col-md-8 col-sm-12 col-xs-12">
-                                    <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+                            
+                            <div class="form-group search-group double-gap-top">
+                                <div class="col-xs-12">
+                                    <div class="col-sm-6 col-xs-12">
                                         <div class="col-sm-4">
                                             <label for="site_name" class="control-label">
                                                 Search By <?= $purchaser_label ?>:</label>
@@ -253,7 +328,7 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
                                         </div>
                                     </div>
                                     <?php if(strpos($value_config,',delivery,') !== FALSE) { ?>
-                                        <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+                                        <div class="col-sm-6 col-xs-12">
                                             <div class="col-sm-4">
                                                 <label for="site_name" class="control-label">Search By Invoice #:</label>
                                             </div>
@@ -263,8 +338,8 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
                                         </div>
                                     <?php } ?>
                                 </div>
-                                <div class="form-group col-lg-9 col-md-8 col-sm-12 col-xs-12">
-                                    <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+                                <div class="col-xs-12">
+                                    <div class="col-sm-6 col-xs-12">
                                         <div class="col-sm-4">
                                             <label for="site_name" class="control-label">Search From Date:</label>
                                         </div>
@@ -272,23 +347,18 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
                                             <input name="search_from" type="text" class="datepicker form-control" value="<?= $search_from ?>">
                                         </div>
                                     </div>
-                                    <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+                                    <div class="col-sm-6 col-xs-12">
                                         <div class="col-sm-4">
-                                            <label for="site_name" class="control-label">
-                                                Search To Date:</label>
+                                            <label for="site_name" class="control-label">Search To Date:</label>
                                         </div>
                                         <div class="col-sm-8">
                                             <input name="search_to" type="text" class="datepicker form-control" value="<?= $search_to ?>">
                                         </div>
                                     </div>
                                 </div>
-                                <div class="form-group col-lg-3 col-md-4 col-sm-12 col-xs-12">
-                                    <div style="display:inline-block; padding: 0 0.5em;">
-                                        <button type="submit" name="search_invoice_submit" value="Search" class="btn brand-btn mobile-block">Search</button>
-                                    </div>
-                                    <div style="display:inline-block; padding: 0 0.5em;">
-                                        <a href="" type="submit" name="display_all_inventory" value="Display All" class="btn brand-btn mobile-block">Display All</a>
-                                    </div>
+                                <div class="col-xs-12 text-right gap-top">
+                                    <button type="submit" name="search_invoice_submit" value="Search" class="btn brand-btn mobile-block">Search</button>
+                                    <button type="submit" name="display_all_inventory" value="Display All" class="btn brand-btn mobile-block">Display All</button>
                                 </div>
                             </div>
                             <div class="clearfix"></div>
