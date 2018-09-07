@@ -149,12 +149,30 @@ if (isset($_POST['submit'])) {
         //Purchasing Contacts
         $invoice_purchase_contact = implode(',',$_POST['invoice_purchase_contact']);
         $get_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT COUNT(configid) AS configid FROM general_configuration WHERE name='invoice_purchase_contact'"));
+        $prior_config = get_config($dbc, 'invoice_purchase_contact');
         if($get_config['configid'] > 0) {
             $query_update_employee = "UPDATE `general_configuration` SET value = '$invoice_purchase_contact' WHERE name='invoice_purchase_contact'";
             $result_update_employee = mysqli_query($dbc, $query_update_employee);
         } else {
             $query_insert_config = "INSERT INTO `general_configuration` (`name`, `value`) VALUES ('invoice_purchase_contact', '$invoice_purchase_contact')";
             $result_insert_config = mysqli_query($dbc, $query_insert_config);
+        }
+        // Add / Remove Contact POS Summary Blocks
+        $prior_config = array_filter(explode(',',$prior_config));
+        $invoice_purchase_contact = array_filter(explode(',',$invoice_purchase_contact));
+        foreach($prior_config as $config_cat) {
+            if(!in_array($config_cat,$invoice_purchase_contact)) {
+                // Remove POS Summary Blocks
+                $new_config = str_replace(['POS Invoices','POS Paid','POS A/R','POS Credit','POS Balance','POS Last Date'], '', get_config($dbc, config_safe_str($config_cat).'_id_card_fields'));
+                set_config($dbc, config_safe_str($config_cat).'_id_card_fields', $new_config);
+            }
+        }
+        foreach($invoice_purchase_contact as $config_cat) {
+            if(!in_array($config_cat,$prior_config)) {
+                // Add POS Summary Blocks
+                $new_config = get_config($dbc, config_safe_str($config_cat).'_id_card_fields').',POS Invoices,POS Paid,POS A/R,POS Credit,POS Balance,POS Last Date';
+                set_config($dbc, config_safe_str($config_cat).'_id_card_fields', $new_config);
+            }
         }
         //Purchasing Contacts
 

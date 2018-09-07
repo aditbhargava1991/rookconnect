@@ -50,7 +50,7 @@ function pay_receivables(invoiceid) {
         invoiceid = invoiceid;
     } else if(invoiceid == undefined) {
         invoice_list = [];
-        $('[name=invoicepatientid]:checked').each(function() {
+        $('[name=invoiceid]:checked').each(function() {
             invoice_list.push(this.value);
         });
         if(invoice_list.length == 0) {
@@ -250,12 +250,13 @@ function report_receivables($dbc, $starttime, $endtime, $table_style, $table_row
         $starttime = '0000-00-00';
     }
     if($patient != '') {
-        $report_service = mysqli_query($dbc,"SELECT ii.*, i.service_date FROM invoice_patient ii, invoice i WHERE (DATE(ii.invoice_date) >= '".$starttime."' AND DATE(ii.invoice_date) <= '".$endtime."') AND (IFNULL(ii.`paid`,'') IN ('On Account','','No') OR ii.`paid` LIKE 'Net %') AND ii.invoiceid = i.invoiceid AND i.patientid = '$patient' AND `i`.`status` NOT IN ('Void') ORDER BY ii.invoiceid DESC");
+        $report_sql = "SELECT `i`.`service_date`, `i`.`invoiceid`, `i`.`patientid`, `i`.`payment_type`, SUM(`ii`.`patient_price`) `patient_price` FROM invoice_patient ii, invoice i WHERE (DATE(ii.invoice_date) >= '".$starttime."' AND DATE(ii.invoice_date) <= '".$endtime."') AND (IFNULL(ii.`paid`,'') IN ('On Account','','No') OR ii.`paid` LIKE 'Net %') AND ii.invoiceid = i.invoiceid AND i.patientid = '$patient' AND `i`.`status` NOT IN ('Void') GROUP BY `i`.`invoiceid` ORDER BY ii.invoiceid DESC";
     } else if($invoice_no != '') {
-        $report_service = mysqli_query($dbc,"SELECT ii.*, i.service_date FROM invoice_patient ii, invoice i WHERE (DATE(ii.invoice_date) >= '".$starttime."' AND DATE(ii.invoice_date) <= '".$endtime."') AND (IFNULL(ii.`paid`,'') IN ('On Account','','No') OR ii.`paid` LIKE 'Net %') AND ii.invoiceid = i.invoiceid AND i.invoiceid='$invoice_no' AND `i`.`status` NOT IN ('Void') ORDER BY ii.invoiceid DESC");
+        $report_sql = "SELECT `i`.`service_date`, `i`.`invoiceid`, `i`.`patientid`, `i`.`payment_type`, SUM(`ii`.`patient_price`) `patient_price` FROM invoice_patient ii, invoice i WHERE (DATE(ii.invoice_date) >= '".$starttime."' AND DATE(ii.invoice_date) <= '".$endtime."') AND (IFNULL(ii.`paid`,'') IN ('On Account','','No') OR ii.`paid` LIKE 'Net %') AND ii.invoiceid = i.invoiceid AND i.invoiceid='$invoice_no' AND `i`.`status` NOT IN ('Void') GROUP BY `i`.`invoiceid` ORDER BY ii.invoiceid DESC";
     } else {
-        $report_service = mysqli_query($dbc,"SELECT ii.*, i.service_date FROM invoice_patient ii, invoice i WHERE (DATE(ii.invoice_date) >= '".$starttime."' AND DATE(ii.invoice_date) <= '".$endtime."') AND ii.invoiceid = i.invoiceid AND (IFNULL(ii.`paid`,'') IN ('On Account','','No') OR ii.`paid` LIKE 'Net %') AND `i`.`status` NOT IN ('Void') ORDER BY ii.invoiceid DESC");
+        $report_sql = "SELECT `i`.`service_date`, `i`.`invoiceid`, `i`.`patientid`, `i`.`payment_type`, SUM(`ii`.`patient_price`) `patient_price` FROM invoice_patient ii, invoice i WHERE (DATE(ii.invoice_date) >= '".$starttime."' AND DATE(ii.invoice_date) <= '".$endtime."') AND ii.invoiceid = i.invoiceid AND (IFNULL(ii.`paid`,'') IN ('On Account','','No') OR ii.`paid` LIKE 'Net %') AND `i`.`status` NOT IN ('Void') GROUP BY `i`.`invoiceid` ORDER BY ii.invoiceid DESC";
     }
+    $report_service = $dbc->query($report_sql);
 
     $report_data .= '<a href="" onclick="pay_receivables(\'all\'); return false;" class="btn brand-btn pull-right gap-top gap-bottom">Pay All</a>
         <span class="popover-examples list-inline pull-right" style="margin:15px 3px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Click here to enter the payment details for all listed invoices."><img src="'. WEBSITE_URL .'/img/info.png" width="20"></a></span><div class="clearfix"></div>';
@@ -273,16 +274,16 @@ function report_receivables($dbc, $starttime, $endtime, $table_style, $table_row
     while($row_report = mysqli_fetch_array($report_service)) {
 
         $invoiceid = $row_report['invoiceid'];
-        $payment_type = ltrim($row_report['payment_type'],'#*#');
+        $payment_type = implode(', ',array_filter(array_unique(explode('#*#',$row_report['payment_type']))));
 
         $report_data .= '<tr nobr="true">';
-        $report_data .= '<td data-title="Invoice#">'.(file_exists('download/invoice_'.$invoiceid.'.pdf') ? '<a href="download/invoice_'.$invoiceid.'.pdf" target="_blank">#'.$invoiceid.'</a>' : '#'.$invoiceid).'</td>';
+        $report_data .= '<td data-title="Invoice #">'.(file_exists('download/invoice_'.$invoiceid.'.pdf') ? '<a href="download/invoice_'.$invoiceid.'.pdf" target="_blank">#'.$invoiceid.'</a>' : '#'.$invoiceid).'</td>';
         $report_data .= '<td data-title="Service Date">'.$row_report['invoice_date'].'</td>';
         $report_data .= '<td data-title="Invoice Date">'.$row_report['service_date'].'</td>';
         $report_data .= '<td data-title="'.PURCHASER.'"><a href="../Contacts/contacts_inbox.php?edit='.$row_report['patientid'].'" onclick="overlayIFrameSlider(this.href, \'auto\', false, true); return false;">'.get_contact($dbc, $row_report['patientid']).' <img class="inline-img" src="../img/person.PNG"></a></td>';
         $report_data .= '<td data-title="Amount" align="right">'.$row_report['patient_price'].'</td>';
-        $report_data .= '<td data-title="Pay"><label class="form-checkbox any-width"><input type="checkbox" class="invoice" name="invoicepatientid" value="'.$row_report['invoicepatientid'].'"> Select</label><a onclick="pay_receivables('.$row_report['invoicepatientid'].'); return false;" class="btn brand-btn" href="">Pay Now</a></td>';
-        $report_data .= '<input type="hidden" name="invoiceallid" value="'.$row_report['invoicepatientid'].'">';
+        $report_data .= '<td data-title="Pay"><label class="form-checkbox any-width"><input type="checkbox" class="invoice" name="invoiceid" value="'.$row_report['invoiceid'].'"> Select</label><a onclick="pay_receivables('.$row_report['invoiceid'].'); return false;" class="btn brand-btn" href="">Pay Now</a></td>';
+        $report_data .= '<input type="hidden" name="invoiceallid" value="'.$row_report['invoiceid'].'">';
 
         $report_data .= '</tr>';
         $amt_to_bill += $row_report['patient_price'];
