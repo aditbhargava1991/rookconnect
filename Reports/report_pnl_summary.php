@@ -22,7 +22,7 @@ if ( isset($_POST['printpdf']) ) {
 		public function Header() {
             if ( REPORT_LOGO != '' ) {
                 $image_file = 'download/'.REPORT_LOGO;
-                $this->Image($image_file, 10, 10, 80, '', '', '', 'T', false, 300, '', false, false, 0, false, false, false);
+                $this->Image($image_file, 10, 10, '', 20, '', '', 'T', false, 300, '', false, false, 0, false, false, false);
             }
             $this->setCellHeightRatio(0.7);
             $this->SetFont('helvetica', '', 9);
@@ -71,25 +71,20 @@ if ( isset($_POST['printpdf']) ) {
 
     $today_date = date('Y-m-d');
 	$pdf->writeHTML($html, true, false, true, false, '');
-	$pdf->Output('Download/report_pnl_summary_'.$today_date.'.pdf', 'F'); ?>
+	$pdf->Output('Download/report_pnl_summary_'.$today_date.'.pdf', 'F');
+
+    track_download($dbc, 'report_pnl_summary', 0, WEBSITE_URL.'/Reports/Download/report_pnl_summary_'.$today_date.'.pdf', 'Summary Report');
+
+    ?>
 
 	<script type="text/javascript" language="Javascript">
         window.open('Download/report_pnl_summary_<?= $today_date; ?>.pdf', 'fullscreen=yes');
 	</script><?php
-    
+
     $search_start  = $search_start_pdf;
     $search_end    = $search_end_pdf;
 } ?>
 
-</head>
-<body>
-<?php include_once ('../navigation.php'); ?>
-
-<div class="container triple-pad-bottom">
-    <div class="row">
-        <div class="col-md-12">
-            <?=  reports_tiles($dbc);  ?>
-            
             <div class="notice double-gap-bottom popover-examples">
                 <div class="col-sm-1 notice-icon"><img src="<?= WEBSITE_URL; ?>/img/info.png" class="wiggle-me" width="25"></div>
                 <div class="col-sm-11">
@@ -97,9 +92,9 @@ if ( isset($_POST['printpdf']) ) {
                     The report displays a summary of Profit &amp; Loss between two selected dates. It is an overview of every other report listed previously for the selected date range.</div>
                 <div class="clearfix"></div>
             </div>
-            
+
             <form id="form1" name="form1" method="post" action="" enctype="multipart/form-data" class="form-horizontal" role="form"><?php
-                
+
                 if ( isset($_POST['search_email_submit']) ) {
                     $search_start  = $_POST['search_start'];
                     $search_end    = $_POST['search_end'];
@@ -128,32 +123,26 @@ if ( isset($_POST['printpdf']) ) {
 
                 <button type="submit" name="printpdf" value="Print Report" class="btn brand-btn pull-right">Print Report</button>
                 <br /><br /><?php
-                
+
                 echo report_pnl_display($dbc, $search_start, $search_end, '', '', ''); ?>
             </form>
-
-        </div><!-- .col-md-12 -->
-    </div><!-- .row -->
-</div><!-- .container -->
-
-<?php include ('../footer.php'); ?>
 
 <?php
 function report_pnl_display($dbc, $search_start, $search_end, $table_style, $table_row_style, $grand_total_style) {
     $startyear = intval(explode('-', $search_start)[0]);
     $endyear   = intval(explode('-', $search_end)[0]);
-    
+
     //Calculate Revenues
     //Create Temporary Table for Calculations
     $table_name = 'summary_profit_loss';
     if(!mysqli_query($dbc, "CREATE TEMPORARY TABLE IF NOT EXISTS `$table_name` (`status` VARCHAR(40), `invoice_date` VARCHAR(12), `type` VARCHAR(12), `heading` VARCHAR(200), `category` VARCHAR(200), `total` DECIMAL(10,2))")) {
         echo mysqli_error($dbc);
     }
-    
+
     //Load in the Point of Sale data
     mysqli_query($dbc, "INSERT INTO `$table_name` (`status`, `invoice_date`, `type`, `heading`, `category`, `total`) SELECT pos.`status`, pos.`invoice_date`, posp.`type_category`,
         IFNULL(i.`name`, IFNULL(p.`heading`, IFNULL(s.`heading`, IFNULL(`misc_product`, 'Other')))) heading,
-        IFNULL(i.`category`, IFNULL(p.`category`, IFNULL(s.`category`, IFNULL(i.`name`, 'Other')))) category, 
+        IFNULL(i.`category`, IFNULL(p.`category`, IFNULL(s.`category`, IFNULL(i.`name`, 'Other')))) category,
         (posp.`quantity` * posp.`price`) total
         FROM `point_of_sell_product` posp LEFT JOIN `point_of_sell` pos ON posp.`posid`=pos.`posid`
             LEFT JOIN `products` p ON posp.`type_category`='product' AND posp.`inventoryid`=p.`productid`
@@ -170,13 +159,13 @@ function report_pnl_display($dbc, $search_start, $search_end, $table_style, $tab
         SELECT IF(`invoice_insurer`.`paid`='Yes','Completed','Unpaid'), `invoice`.`invoice_date`, '', IF(`invoice_insurer`.`service_category`='','Inventory',`invoice_insurer`.`service_category`), IF(`invoice_insurer`.`service_name`='',`invoice_insurer`.`product_name`,`invoice_insurer`.`service_name`), `sub_total`
         FROM `invoice_insurer` LEFT JOIN `invoice` ON `invoice`.`invoiceid`=`invoice_insurer`.`invoiceid`
         WHERE `invoice`.`invoice_date` >= '$search_start' AND `invoice`.`invoice_date` <= '$search_end'");
-        
+
     $total_revenue = mysqli_fetch_array(mysqli_query($dbc, "SELECT SUM(`total`) `total`
         FROM `$table_name` WHERE `invoice_date` >= '$search_start' AND `invoice_date` <= '$search_end' AND `status` IN ('Completed')"))['total'];
     $total_receivable = mysqli_fetch_array(mysqli_query($dbc, "SELECT SUM(`total`) `total`
         FROM `$table_name` WHERE `invoice_date` >= '$search_start' AND `invoice_date` <= '$search_end' AND `status` NOT IN ('Completed')"))['total'];
-    mysqli_query($dbc, "DROP TEMPORARY TABLE IF EXISTS `$table_name`"); 
-        
+    mysqli_query($dbc, "DROP TEMPORARY TABLE IF EXISTS `$table_name`");
+
     //Calculate Staff Compensation
     include_once('compensation_function.php');
     $total_compensation = 0;
@@ -194,30 +183,30 @@ function report_pnl_display($dbc, $search_start, $search_end, $table_style, $tab
         for ($year = $startyear; $year <= $endyear; $year++) {
             $startmonth = 0;
             $endmonth = 12;
-            
+
             if($startyear == $year) {
                 $startmonth = intval(explode('-', $search_start)[1]) - 1;
             }
             if($endyear == $year) {
                 $endmonth = intval(explode('-', $search_end)[1]);
             }
-            
+
             for($month = $startmonth; $month < $endmonth; $month++) {
                 $dateObj = DateTime::createFromFormat('!m', $month+1);
                 $date_part = $year."-".$dateObj->format('m');
                 $starttimemonth = $date_part.'-01';
-                
+
                 if($startyear == $year && $month == $startmonth) {
                     $starttimemonth = $search_start;
                 }
-                
+
                 $total_stat_holiday = $stat_days[$month];
                 $endtimemonth = date('Y-m-t',strtotime($starttimemonth));
-                
+
                 if($endyear == $year && $month == $endmonth) {
                     $endtimemonth = $search_end;
                 }
-                
+
                 $stat_start = $stat_starts[$month];
                 $stat_end = $stat_ends[$month];
                 $amt = 0;
@@ -227,12 +216,12 @@ function report_pnl_display($dbc, $search_start, $search_end, $table_style, $tab
                 $grand_stat_total = 0;
                 $avg_per_day_stat = 0;
                 $therapistid = $contactid;
-                
+
                 if(strtotime($starttimemonth) <= strtotime('today')) {
                     $starttime = $starttimemonth;
                     $endtime = $endtimemonth;
                     $invoicetype = "'New','Refund','Adjustment'";
-                    
+
                     //$table_style = $table_row_style = $grand_total_style = '';
                     $row = mysqli_fetch_array(mysqli_query($dbc, "SELECT `contacts`.contactid, `contacts`.scheduled_hours, `contacts`.`schedule_days`, `contacts`.category_contact, IFNULL(`base_pay`,'0*#*0') base_pay FROM contacts LEFT JOIN `compensation` ON `contacts`.`contactid`=`compensation`.`contactid` AND '$starttime' BETWEEN `compensation`.`start_date` AND `compensation`.`end_date` WHERE `contacts`.contactid='$contactid'"));
                     $therapistid = $row['contactid'];
@@ -276,14 +265,14 @@ function report_pnl_display($dbc, $search_start, $search_end, $table_style, $tab
     } else if (!empty($_GET['search_start'])) {
         $starttime_summary = $_GET['search_start'];
     }
-    
+
     $endtime_summary = $search_end;
     if(!empty($_POST['search_end'])) {
         $endtime_summary = $_POST['search_end'];
     } else if (!empty($_GET['search_end'])) {
         $endtime_summary = $_GET['search_end'];
     }
-    
+
     $report_data2 = '<table class="table table-bordered" style="'. $table_style .'">
         <thead>
             <tr class="hidden-xs hidden-sm">
@@ -297,16 +286,16 @@ function report_pnl_display($dbc, $search_start, $search_end, $table_style, $tab
                 <td data-title="Total Revenue" style="text-align:right; '. $table_row_style .'">$'. number_format($total_revenue, 2, '.', ',') .'</td>
             </tr>
             <tr>
-                <td data-title="" style="'. $table_row_style .'">Total Receivables:</td>
-                <td data-title="Total Receivables" style="text-align:right; '. $table_row_style .'">$'. number_format($total_receivable, 2, '.', ',') .'</td>
+                <td data-title="" style="background-color:#e6e6e6; '. $table_row_style .'">Total Receivables:</td>
+                <td data-title="Total Receivables" style="background-color:#e6e6e6; text-align:right; '. $table_row_style .'">$'. number_format($total_receivable, 2, '.', ',') .'</td>
             </tr>
             <tr>
                 <td data-title="" style="'. $table_row_style .'">Total Compensation:</td>
                 <td data-title="Total Compensation" style="text-align:right; '. $table_row_style .'">$'. number_format($total_compensation, 2, '.', ',') .'</td>
             </tr>
             <tr>
-                <td data-title="" style="'. $table_row_style .'">Total Expenses:</td>
-                <td data-title="Total Expenses" style="text-align:right; '. $table_row_style .'">$'. number_format($total_expense, 2, '.', ',') .'</td>
+                <td data-title="" style="background-color:#e6e6e6; '. $table_row_style .'">Total Expenses:</td>
+                <td data-title="Total Expenses" style="background-color:#e6e6e6; text-align:right; '. $table_row_style .'">$'. number_format($total_expense, 2, '.', ',') .'</td>
             </tr>
             <tr>
                 <td data-title="" style="'. $table_row_style .'">Total Costs:</td>
@@ -318,6 +307,6 @@ function report_pnl_display($dbc, $search_start, $search_end, $table_style, $tab
             </tr>
         </tbody>
     </table>';
-    
+
     return $report_data2;
 }

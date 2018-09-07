@@ -128,7 +128,7 @@ if(strpos($value_config, ',Checkin Delivery,') !== FALSE && !($_GET['stop'] > 0)
 <?php } else if(mysqli_num_rows($checkins) == 0) { ?>
 	</h3><h4>No records found attached to this <?= TICKET_NOUN ?>.</h4>
 <?php } else if(strpos($value_config, ','.$value_config_addition.'Checkout Hide All Button,') === FALSE && (($checkin['src_table'] == 'Staff' && $access_staff_checkin == TRUE) || ($checkin['src_table'] != 'Staff' && $access_all_checkin == TRUE))) { ?>
-	<button class="btn brand-btn pull-right" onclick="toggleAll(this); return false;">Check Out All</button></h3>
+	<button class="btn brand-btn pull-right" onclick="if($(this).closest('.panel-body,.tab-section,.has-main-screen .main-screen').find('.toggle[value=0]').length > 0 && confirm('Are you sure you want to check out all individuals?')) { toggleAll(this); } return false;">Check Out All</button></h3>
 	<div class="clearfix"></div>
 <?php } else { ?>
 	</h3>

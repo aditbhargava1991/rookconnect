@@ -1,6 +1,7 @@
 <?php include_once('../include.php');
 include_once('../function.php');
 include_once('../tcpdf/tcpdf.php');
+include_once('config.php');
 ob_clean();
 $ticketid = filter_var($_GET['ticketid'],FILTER_SANITIZE_STRING);
 $form = $dbc->query("SELECT * FROM `ticket_pdf` WHERE `id`='".filter_var($_GET['form'],FILTER_SANITIZE_STRING)."'")->fetch_assoc();
@@ -29,7 +30,7 @@ if($_GET['revision'] > 0 && $form['pdf_name'] != '' && $ticketid > 0 && file_exi
 
 	foreach(explode('#*#',$form['pages']) as $page => $img) {
 		$pdf->AddPage();
-		$fields = $dbc->query("SELECT `fields`.*, `values`.`field_value`, `values`.`revision` FROM `ticket_pdf_fields` `fields` LEFT JOIN `ticket_pdf_field_values` `values` ON `fields`.`field_name`=`values`.`field_name` LEFT JOIN `ticket_pdf_field_values` `older` ON `values`.`ticketid`=`older`.`ticketid` AND `values`.`pdf_type`=`older`.`pdf_type`AND `values`.`field_name`=`older`.`field_name` AND `values`.`id` < `older`.`id` WHERE (`older`.`id` IS NULL AND $revision=0 OR `values`.`revision`=$revision) AND `values`.`ticketid`='$ticketid' AND `fields`.`pdf_type`='{$form['id']}' AND `deleted`=0 AND `page`='".($page+1)."'");
+		$fields = $dbc->query("SELECT `fields`.*, `values`.`field_value`, `values`.`revision` FROM `ticket_pdf_fields` `fields` LEFT JOIN `ticket_pdf_field_values` `values` ON `fields`.`field_name`=`values`.`field_name` AND `values`.`deleted`=0 LEFT JOIN `ticket_pdf_field_values` `older` ON `values`.`ticketid`=`older`.`ticketid` AND `values`.`pdf_type`=`older`.`pdf_type`AND `values`.`field_name`=`older`.`field_name` AND `values`.`id` < `older`.`id` AND `older`.`deleted`=0 WHERE (`older`.`id` IS NULL AND $revision=0 OR `values`.`revision`=$revision) AND `values`.`ticketid`='$ticketid' AND `fields`.`pdf_type`='{$form['id']}' AND `fields`.`deleted`=0 AND `page`='".($page+1)."'");
 		while($field = $fields->fetch_assoc()) {
 			$revision = $field['revision'];
 			$pdf->SetXY($field['x'],$field['y']);

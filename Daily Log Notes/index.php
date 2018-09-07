@@ -20,6 +20,12 @@ $(document).ready(function() {
 checkAuthorised('daily_log_notes');
 $security = get_security($dbc, 'daily_log_notes'); ?>
 <div class="container">
+	<div class="iframe_overlay" style="display:none;">
+		<div class="iframe">
+			<div class="iframe_loading">Loading...</div>
+			<iframe name="log_iframe" src=""></iframe>
+		</div>
+	</div>
 	<div class="row">
 		<div class="main-screen">
 			<div class="tile-header">

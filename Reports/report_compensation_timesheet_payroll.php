@@ -80,6 +80,8 @@ if(isset($_POST['printpdf'])) {
     $today_date = date('Y-m-d');
 	$pdf->writeHTML($html, true, false, true, false, '');
 	$pdf->Output('Download/timesheet_payroll_'.$today_date.'.pdf', 'F');
+    track_download($dbc, 'report_compensation_timesheet_payroll', 0, WEBSITE_URL.'/Reports/Download/timesheet_payroll_'.$today_date.'.pdf', 'Timesheet Payroll Report');
+
     ?>
 
 	<script type="text/javascript" language="Javascript">
@@ -90,21 +92,6 @@ if(isset($_POST['printpdf'])) {
     $endtime = $endtimepdf;
     $search_staff = $search_staffpdf;
 } ?>
-<script>
-</script>
-</head>
-<body>
-<?php include_once ('../navigation.php');
-checkAuthorised(); ?>
-
-<div class="container triple-pad-bottom">
-    <div class="row">
-        <div class="col-md-12">
-
-        <?php echo reports_tiles($dbc);  ?>
-
-        <br><br>
-
         <form id="form1" name="form1" method="post" action="" enctype="multipart/form-data" class="form-horizontal" role="form">
             <input type="hidden" name="report_type" value="<?php echo $_GET['type']; ?>">
             <input type="hidden" name="category" value="<?php echo $_GET['category']; ?>">
@@ -139,7 +126,6 @@ checkAuthorised(); ?>
 					<label class="col-sm-4">Staff:</label>
 					<div class="col-sm-8">
                       <select multiple data-placeholder="Select Staff Members" name="search_staff[]" class="chosen-select-deselect form-control">
-                        <option></option>
                                   <!-- <option <?= 'ALL' == $search_staff ? 'selected' : '' ?> value="ALL">All Staff</option> -->
                         <?php
                           $query = mysqli_query($dbc,"SELECT distinct(staff) FROM time_cards where staff > 0 order by staff");
@@ -170,11 +156,6 @@ checkAuthorised(); ?>
             <?php echo report_statutory_breakdown($dbc, $search_staff, '', '', '', $starttime, $endtime); ?>
 
         </form>
-
-        </div>
-    </div>
-</div>
-<?php include ('../footer.php'); ?>
 
 <?php function report_statutory_breakdown($dbc, $staff, $table_style, $table_row_style, $grand_total_style, $search_start_date, $search_end_date) {
 

@@ -61,66 +61,14 @@ if($_POST['submit'] == 'start_day') {
 } else if($_POST['submit'] == 'end_day' || $_POST['submit'] == 'day_break' || $_POST['submit'] == 'day_resume' || $_POST['submit'] == 'end_break') {
 	$time = time();
 	$date = date('Y-m-d');
+	$day_of_week = date('l', strtotime($date));
 	$hour = date('H:i');
 	$comment = filter_var($_POST['comment_end'],FILTER_SANITIZE_STRING);
 	$time_minimum = get_config($dbc, 'ticket_min_hours');
 	$time_interval = get_config($dbc, 'timesheet_hour_intervals');
 	foreach($_POST['staff_end'] as $key => $staff) {
-		if($staff > 0) {
-			$all_contacts = [$staff];
-			$clientid = filter_var($_POST['client_end'][$key],FILTER_SANITIZE_STRING);
-			if($clientid > 0) {
-				$all_contacts[] = $clientid;
-			}
-			foreach ($all_contacts as $staff) {
-				mysqli_query($dbc, "UPDATE `time_cards` SET `total_hrs`=GREATEST(IF('$time_interval' > 0,CEILING(((($time - `timer_start`) + IFNULL(NULLIF(`timer_tracked`,'0'),IFNULL(`total_hrs`,0))) / 3600) / '$time_interval') * '$time_interval',((($time - `timer_start`) + IFNULL(NULLIF(`timer_tracked`,'0'),IFNULL(`total_hrs`,0))) / 3600)),'$time_minimum'), `timer_tracked` = (($time - `timer_start`) + IFNULL(`timer_tracked`,0)) / 3600, `timer_start`=0, `end_time`='$hour' WHERE `staff`='$staff'AND `type_of_time` != 'day_tracking' AND `timer_start` > 0");
-
-				//Check Out of Tickets/Work Orders
-				$all_attached = mysqli_query($dbc, "SELECT * FROM `ticket_attached` WHERE `src_table` = 'Staff_Tasks' AND `item_id` = '".$staff."' AND `arrived` = 1 AND `completed` = 0 AND `deleted` = 0");
-				while($attached = mysqli_fetch_array($all_attached)) {
-					$hours = mysqli_fetch_array(mysqli_query($dbc, "SELECT SUM(`total_hrs`) FROM `time_cards` WHERE `ticketid`='{$attached['ticketid']}' AND `staff`='{$attached['item_id']}' AND `comment_box` LIKE '% for {$attached['position']}'"))[0];
-					mysqli_query($dbc, "UPDATE `ticket_attached` SET `hours_tracked`='$hours' WHERE `id`='".$attached['id']."'");
-					mysqli_query($dbc, "UPDATE `ticket_attached` SET `checked_out`='".date('h:i a')."' WHERE `id`='".$attached['id']."'");
-					mysqli_query($dbc, "UPDATE `ticket_attached` SET `completed`=1 WHERE `id`='".$attached['id']."'");
-				}
-
-				//End Paused Day Tracking
-		    $date_of_archival = date('Y-m-d');
-			$dbc->query("UPDATE `time_cards` SET `day_tracking_type`='Unresumed Day Tracking', `deleted`=1, `date_of_archival` = '$date_of_archival', `timer_start`=0 WHERE `staff`='$staff' AND `deleted`=0 AND `timer_start` > 0 AND `type_of_time`='day_tracking' AND `day_tracking_type` LIKE 'Work:%'");
-
-				//End Day
-				$shifts = checkShiftIntervals($dbc, $staff, $day_of_week, $date);
-				$timesheet_track_shifts = get_config($dbc, 'timesheet_track_shifts');
-				$tracking_id = $dbc->query("SELECT MAX(`time_cards_id`) `id`, MAX(`timer_start`) `timer` FROM `time_cards` WHERE `timer_start` > 0 AND `type_of_time`='day_tracking' AND `staff`='$staff'")->fetch_assoc();
-				$timer_start = date('Y-m-d H:i', $tracking_id['timer']);
-				$tracking_id = $tracking_id['id'];
-				if(!empty($shifts) && $timesheet_track_shifts == '1' && $tracking_id['id'] > 0) {
-					$total = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT SUM(`total_hrs`) hours, MIN(`timer_start`) timer FROM `time_cards` WHERE CONCAT(`date`,' ',`start_time`) > '$date $hour' AND `staff`='$staff' AND `shift_tracked` = 0"));
-					$total_tracked = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT SUM(`timer_tracked`) hours, MIN(`timer_start`) timer FROM `time_cards` WHERE CONCAT(`date`,' ',`start_time`) > '$date $hour' AND `staff`='$staff' AND `shift_tracked` = 1"));
-					$hours = ($total['hours'] + $total_tracked['hours']) * 1;
-					$minimum = ($time_minimum > $hours ? $time_minimum - $hours : 0);
-					$seconds = ($time > $total['timer'] + ($hours * 3600) ? $time +($hours * 3600) : $total['timer']);
-					mysqli_query($dbc, "UPDATE `time_cards` SET `timer_tracked` = (($time - `timer_start`) + IFNULL(`timer_tracked`,0)) / 3600, `timer_start`=0, `type_of_time`=IF(`day_tracking_type` IS NULL OR `day_tracking_type` = '', 'Regular Hrs.', `day_tracking_type`), `end_time`='$hour', `comment_box`=CONCAT(IFNULL(CONCAT(`comment_box`,'&lt;br /&gt;'),''),'$comment') WHERE `timer_start` > 0 AND `type_of_time`='day_tracking' AND `staff`='$staff'");
-				} else if($tracking_id['id'] > 0) {
-					$total = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT SUM(`total_hrs`) hours, MIN(`timer_start`) timer FROM `time_cards` WHERE CONCAT(`date`,' ',`start_time`) > '$timer_start' AND `staff`='$staff' AND `type_of_time` != 'day_tracking'"));
-					$seconds = $time - ($total['hours'] * 3600);
-					$hours = $total['hours'] * 1;
-					$minimum = ($time_minimum > $hours ? $time_minimum - $hours : 0);
-					// $seconds = ($time > $total['timer'] + ($hours * 3600) ? $time +($hours * 3600) : $total['timer']);
-					mysqli_query($dbc, "UPDATE `time_cards` SET `total_hrs`=GREATEST(IF('$time_interval' > 0,CEILING(((($seconds - `timer_start`) + IFNULL(NULLIF(`timer_tracked`,'0'),IFNULL(`total_hrs`,0))) / 3600) / '$time_interval') * '$time_interval',((($seconds - `timer_start`) + IFNULL(NULLIF(`timer_tracked`,'0'),IFNULL(`total_hrs`,0))) / 3600)),'$minimum'), `timer_tracked` = (($time - `timer_start`) + IFNULL(`timer_tracked`,0)) / 3600, `timer_start`=0, `type_of_time`=IF(`day_tracking_type` IS NULL OR `day_tracking_type` = '', 'Regular Hrs.', `day_tracking_type`), `end_time`='$hour', `comment_box`=CONCAT(IFNULL(CONCAT(`comment_box`,'&lt;br /&gt;'),''),'$comment') WHERE `timer_start` > 0 AND `type_of_time`='day_tracking' AND `staff`='$staff'");
-				}
-			}
-
-			// Go on Break or Resume from Break
-			if($_POST['submit'] == 'day_break') {
-				$dbc->query("INSERT INTO `time_cards` (`staff`, `date`, `start_time`, `type_of_time`, `timer_start`, `day_tracking_type`) VALUES ('$staff','$date','$hour','day_tracking','$time','Break:$tracking_id')");
-			} else if($_POST['submit'] == 'day_resume') {
-				$dbc->query("INSERT INTO `time_cards` (`staff`, `date`, `start_time`, `type_of_time`, `timer_start`, `day_tracking_type`) SELECT `staff`, '$date', '$hour', 'day_tracking', '$time', `type_of_time` FROM `time_cards` WHERE CONCAT('Break:',`time_cards_id`) IN (SELECT `day_tracking_type` FROM `time_cards` WHERE `time_cards_id`='$tracking_id')");
-				$dbc->query("UPDATE `time_cards` SET `type_of_time`='Break', `comment_box`=CONCAT('Break for ',`total_hrs`,' hours') WHERE `type_of_time` LIKE 'Break%' AND `time_cards_id`='$tracking_id'");
-			} else if($_POST['submit'] == 'end_break') {
-				$dbc->query("UPDATE `time_cards` SET `type_of_time`='Break' WHERE `type_of_time` LIKE 'Break%' AND `time_cards_id`='$tracking_id'");
-			}
-		}
+		$clientid = filter_var($_POST['client_end'][$key],FILTER_SANITIZE_STRING);
+		include('../Timesheet/end_day.php');
 	}
 	if(session_status() == PHP_SESSION_NONE) {
 		session_start(['cookie_lifetime' => 518400]);
@@ -132,16 +80,17 @@ if($_POST['submit'] == 'start_day') {
 }
 include('../navigation.php');
 $group_list = explode('#*#',get_config($dbc, 'ticket_groups'));
+$teams = get_teams($dbc, " AND IF(`end_date` = '0000-00-00','9999-12-31',`end_date`) >= '".date('Y-m-d')."'");
 $timesheet_hide_others = get_config($dbc, 'timesheet_hide_others');
 $timesheet_add_day_comment = get_config($dbc, 'timesheet_add_day_comment');
 if($timesheet_hide_others == '1') {
 	$hide_others_query = " AND `contactid` = '".$_SESSION['contactid']."'";
 } else if($timesheet_hide_others == '2') {
 	$group_ids = [];
-	foreach($group_list as $group) {
-		$group = array_filter(explode(',',$group),'is_id');
-		if(in_array($_SESSION['contactid'],$group)) {
-			$group_ids = array_merge($group_ids, $group);
+	foreach($teams as $team) {
+		$team_staff = get_team_contactids($dbc, $team['teamid']);
+		if(in_array($_SESSION['contactid'],$team_staff)) {
+			$group_ids = array_merge($group_ids, $team_staff);
 		}
 	}
 	if(count($group_ids) > 0) {
@@ -198,21 +147,21 @@ function disableClient(chk) {
 						<h1><?= get_config($dbc, 'timesheet_start_tile') ?></h1>
 						<?php if($timesheet_hide_others == 0 && $timesheet_hide_groups != 1) { ?>
 							<div class="form-group">
-								<?php foreach(explode('#*#',get_config($dbc, 'ticket_groups')) as $group) {
-									$group = explode(',',$group);
-									if(count($group) > 1) { ?>
-										<button class="btn brand-btn" onclick="<?php foreach($group as $i => $staff) {
+								<?php foreach(get_teams($dbc, " AND IF(`end_date` = '0000-00-00','9999-12-31',`end_date`) >= '".date('Y-m-d')."'") as $team) {
+									$team_staff = get_team_contactids($dbc, $team['teamid']);
+									if(count($team_staff) > 1) { ?>
+										<button class="btn brand-btn" onclick="<?php foreach($team_staff as $i => $staff) {
 											if($staff > 0) {
 												echo "$('[name^=staff_start][value=".$staff."]').prop('checked',true).change();";
 											}
-										} ?>return false;"><?= $group[0] ?></button>
+										} ?>return false;"><?= get_team_name($dbc, $team['teamid']) ?></button>
 									<?php }
 								} ?>
 							</div>
 						<?php } ?>
 						<?php foreach($start_time_list as $staff) { ?>
 							<div class="staff_block col-xs-12 col-sm-6 col-md-4 col-lg-2">
-								<label class="form-checkbox"><input type="checkbox" name="staff_start[]" <?= $_SESSION['contactid'] == $staff['contactid'] ? 'checked' : '' ?> value="<?= $staff['contactid'] ?>"> <?= $staff['first_name'].' '.$staff['last_name'].(empty($staff['finished']) ? '' : ' <small>(Signed Out Since '.date('Y-m-d g:i A',strtotime($staff['finished'])).')</small>') ?></label>
+								<label class="form-checkbox"><input type="checkbox" name="staff_start[]" <?= $_SESSION['contactid'] == $staff['contactid'] ? 'checked' : '' ?> value="<?= $staff['contactid'] ?>"> <?= $staff['first_name'].' '.$staff['last_name'].(empty($staff['finished']) ? '' : ' <small>(Signed Out Since '.(!empty($staff['finished']) ? date('Y-m-d g:i A',strtotime($staff['finished'])) : ' N/A').')</small>') ?></label>
 								<?php if($timesheet_track_clients == 1) { ?>
 									<div class="client_block" style="display: none;">
 										<select name="client_start[]" class="chosen-select-deselect form-control" data-placeholder="Select a Client...">

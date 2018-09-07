@@ -11,18 +11,6 @@
 	if ( isset ( $_GET['type'] ) ) {
 		$type_get = $_GET['type'];
 	}
-?>
-</head>
-
-<body><?php
-	include_once ('../navigation.php');
-checkAuthorised('report'); ?>
-
-	<div class="container">
-		<div class="row add">
-			<div class="col-md-12"><?php
-				echo reports_tiles($dbc) . '';
-				echo '<h2>History of Inventory Quantity Changes</h2>';
 				//if ( $type_get == 'InventoryLog') {
 					$query_check_credentials	= "SELECT * FROM inventory_change_log WHERE deleted = 0 ORDER BY date_time DESC LIMIT 500";
 					$gettotalrows				= "SELECT * FROM inventory_change_log WHERE deleted = 0";
@@ -106,10 +94,18 @@ checkAuthorised('report'); ?>
 					}
 
 					echo '</table>';
-				//} ?>
-			</div><!-- .col-md-12 -->
-		</div><!-- .row .add -->
+?>
+<script>
+$('document').ready(function() {
+    var tables = $('table');
 
-	</div><!-- .container --><?php
-
-	include ('../footer.php'); ?>
+    tables.map(function(idx, table) {
+        var rows = $(table).find('tbody > tr');
+        rows.map(function(idx, row){
+            if(idx%2 == 0) {
+                $(row).css('background-color', '#e6e6e6');
+            }
+        })
+    })
+})
+</script>

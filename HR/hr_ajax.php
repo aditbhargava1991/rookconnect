@@ -5,31 +5,66 @@ if($_GET['action'] == 'settings_tabs') {
 	foreach($_POST['types'] as $i => $type) {
 		$old_type = $_POST['old_types'][$i];
 		if(!empty($old_type) && $old_type != $type) {
+
+			$before_change = capture_before_change($dbc, 'hr', 'category', 'category', $old_type);
+
 			mysqli_query($dbc, "UPDATE `hr` SET `category` = '$type' WHERE `category` = '$old_type'");
+
+			$history = capture_after_change('category', $type);
+	    add_update_history($dbc, 'hr_history', $history, '', $before_change);
+
+			$before_change = capture_before_change($dbc, 'manuals', 'category', 'category', $type);
+
 			mysqli_query($dbc, "UPDATE `manuals` SET `category` = '$type' WHERE `category` = '$old_type'");
+
+			$history = capture_after_change('category', $type);
+	    add_update_history($dbc, 'hr_history', $history, '', $before_change);
 		}
 	}
 	set_config($dbc, 'hr_tabs', filter_var(implode(',',$_POST['types']),FILTER_SANITIZE_STRING));
 	set_config($dbc, 'hr_tiles', filter_var(implode(',',$_POST['tiles']),FILTER_SANITIZE_STRING));
+	set_config($dbc, 'hr_include_profile', filter_var($_POST['hr_include_profile'],FILTER_SANITIZE_STRING));
 } else if($_GET['action'] == 'settings_fields') {
 	set_config($dbc, 'hr_fields', filter_var(implode(',',$_POST['fields']),FILTER_SANITIZE_STRING));
 } else if($_GET['action'] == 'mark_favourite') {
 	$id = filter_var($_GET['id'],FILTER_SANITIZE_STRING);
 	$user = filter_var($_GET['user'],FILTER_SANITIZE_STRING);
 	if($_GET['item'] == 'hr') {
+		$before_change = capture_before_change($dbc, 'hr', 'favourite', 'hrid', $id);
+
 		mysqli_query($dbc, "UPDATE `hr` SET `favourite`=TRIM(BOTH ',' FROM REPLACE(IF(CONCAT(',',`favourite`,',') LIKE '%,$user,%',REPLACE(CONCAT(',',`favourite`,','),',$user,',','),CONCAT(`favourite`,',$user')),',,',',')) WHERE `hrid`='$id'");
+
+		$history = "Favourite in HR Updated. <br />";
+		add_update_history($dbc, 'hr_history', $history, '', $before_change);
+
 	} else if($_GET['item'] == 'manual') {
+		$before_change = capture_before_change($dbc, 'manuals', 'favourite', 'manualtypeid', $id);
+
 		mysqli_query($dbc, "UPDATE `manuals` SET `favourite`=TRIM(BOTH ',' FROM REPLACE(IF(CONCAT(',',`favourite`,',') LIKE '%,$user,%',REPLACE(CONCAT(',',`favourite`,','),',$user,',','),CONCAT(`favourite`,',$user')),',,',',')) WHERE `manualtypeid`='$id'");
+
+		$history = "Favourite in Manual Updated. <br />";
+		add_update_history($dbc, 'hr_history', $history, '', $before_change);
 	}
 } else if($_GET['action'] == 'mark_pinned') {
 	$id = filter_var($_POST['id'],FILTER_SANITIZE_STRING);
 	$users = filter_var(implode(',',$_POST['users']),FILTER_SANITIZE_STRING);
 	if($_POST['item'] == 'hr') {
+		$before_change = capture_before_change($dbc, 'hr', 'pinned', 'hrid', $id);
+
 		mysqli_query($dbc, "UPDATE `hr` SET `pinned`=',$users,' WHERE `hrid`='$id'");
 		echo "UPDATE `hr` SET `pinned`=',$users,' WHERE `hrid`='$id'";
+
+		$history = capture_after_change('pinned', $users);
+		add_update_history($dbc, 'hr_history', $history, '', $before_change);
+
 	} else if($_POST['item'] == 'manual') {
+		$before_change = capture_before_change($dbc, 'manuals', 'favourite', 'manualtypeid', $id);
+
 		mysqli_query($dbc, "UPDATE `manuals` SET `favourite`=',$users,' WHERE `manualtypeid`='$id'");
 		echo "UPDATE `manuals` SET `favourite`=',$users,' WHERE `manualtypeid`='$id'";
+
+		$history = capture_after_change('favourite', $users);
+		add_update_history($dbc, 'hr_history', $history, '', $before_change);
 	}
 } else if($_GET['action'] == 'set_form_fields') {
 	$fields = '';
@@ -221,16 +256,30 @@ if($_GET['action'] == 'settings_tabs') {
 	$value = filter_var(htmlentities($_POST['value']),FILTER_SANITIZE_STRING);
 	if(!($hrid > 0)) {
 		mysqli_query($dbc, "INSERT INTO `hr` (`hrid`, `form`) SELECT '$hrid', '$form' FROM (SELECT COUNT(*) `rows` FROM `hr` WHERE `hrid`='$hrid') `num` WHERE `num`.`rows`=0");
+		$before_change = '';
+		$history = "HR entry added. <br />";
+		add_update_history($dbc, 'hr_history', $history, '', $before_change);
 		if(mysqli_insert_id($dbc) > 0) {
 			echo mysqli_insert_id($dbc);
 			$hrid = mysqli_insert_id($dbc);
 		}
 	}
 	if(!empty($_POST['user_form_id'])) {
+
+		$before_change = capture_before_change($dbc, 'hr', 'user_form_id', 'hrid', $hrid);
+
 		mysqli_query($dbc, "UPDATE `hr` SET `user_form_id` = '".$_POST['user_form_id']."' WHERE `hrid` = '$hrid'");
+
+		$history = capture_after_change('user_form_id', $_POST['user_form_id']);
+		add_update_history($dbc, 'hr_history', $history, '', $before_change);
 	}
 	if($field != '') {
+		$before_change = capture_before_change($dbc, 'hr', $field, 'hrid', $hrid);
+
 		mysqli_query($dbc, "UPDATE `hr` SET `$field`='$value' WHERE `hrid`='$hrid'");
+
+		$history = capture_after_change($field, $value);
+		add_update_history($dbc, 'hr_history', $history, '', $before_change);
 	}
 } else if($_GET['action'] == 'hr_upload') {
 	$hrid = filter_var($_POST['hrid'],FILTER_SANITIZE_STRING);
@@ -242,23 +291,48 @@ if($_GET['action'] == 'settings_tabs') {
 		$filename = preg_replace('/(\.[A-Za-z0-9]*)/', ' ('.++$i.')$1', $basename);
 	}
 	move_uploaded_file($_FILES['file']['tmp_name'],'download/'.$filename);
+
+	$before_change = capture_before_change($dbc, 'hr', $name, 'hrid', $hrid);
+
 	mysqli_query($dbc, "UPDATE `hr` SET `$name`='$filename' WHERE `hrid`='$hrid'");
+
+	$history = capture_after_change($name, $filename);
+	add_update_history($dbc, 'hr_history', $history, '', $before_change);
+
 	echo $filename;
 } else if($_GET['action'] == 'pr_settings') {
 	set_config($dbc, 'performance_review_fields', filter_var(implode(',', $_POST['pr_fields'])),FILTER_SANITIZE_STRING);
 	set_config($dbc, 'performance_review_positions', filter_var(implode(',', $_POST['pr_positions'])),FILTER_SANITIZE_STRING);
-	set_config($dbc, 'performance_review_forms', filter_var(implode(',', $_POST['pr_forms'])),FILTER_SANITIZE_STRING);
+	$pr_forms = json_decode($_POST['pr_forms']);
+	foreach($pr_forms as $pr_form) {
+		$pr_form = json_decode(json_encode($pr_form),true);
+		$user_form_id = filter_var($pr_form['user_form_id'],FILTER_SANITIZE_STRING);
+		$enabled = filter_var($pr_form['enabled'],FILTER_SANITIZE_STRING);
+		$limit_staff = filter_var($pr_form['limit_staff'],FILTER_SANITIZE_STRING);
+		mysqli_query($dbc, "INSERT INTO `field_config_performance_reviews` (`user_form_id`) SELECT '$user_form_id' FROM (SELECT COUNT(*) rows FROM `field_config_performance_reviews` WHERE `user_form_id` = '$user_form_id') num WHERE num.rows=0");
+		mysqli_query($dbc, "UPDATE `field_config_performance_reviews` SET `enabled` = '$enabled', `limit_staff` = '$limit_staff' WHERE `user_form_id` = '$user_form_id'");
+	}
 } else if($_GET['action'] == 'archive') {
 	$id = filter_var($_POST['id'], FILTER_SANITIZE_STRING);
     $date_of_archival = date('Y-m-d');
 	switch($_POST['type']) {
 		case 'hr':
+			$before_change = capture_before_change($dbc, 'hr', 'deleted', 'hrid', $id);
+			$before_change .= capture_before_change($dbc, 'hr', 'date_of_archival', 'hrid', $id);
 			mysqli_query($dbc, "UPDATE `hr` SET `deleted`=1, `date_of_archival` = '$date_of_archival' WHERE `hrid`='$id'");
 			echo "UPDATE `hr` SET `deleted`=1, `date_of_archival` = '$date_of_archival' WHERE `hrid`='$id'";
+			$history = capture_after_change('deleted', 1);
+			$history .= capture_after_change('date_of_archival', $date_of_archival);
+			add_update_history($dbc, 'hr_history', $history, '', $before_change);
 			break;
 		case 'manual':
+			$before_change = capture_before_change($dbc, 'manuals', 'deleted', 'manualtypeid', $id);
+			$before_change .= capture_before_change($dbc, 'manuals', 'date_of_archival', 'manualtypeid', $id);
 			mysqli_query($dbc, "UPDATE `manuals` SET `deleted`=1, `date_of_archival` = '$date_of_archival' WHERE `manualtypeid`='$id'");
 			echo "UPDATE `manuals` SET `deleted`=1, `date_of_archival` = '$date_of_archival' WHERE `manualtypeid`='$id'";
+			$history = capture_after_change('deleted', 1);
+			$history .= capture_after_change('date_of_archival', $date_of_archival);
+			add_update_history($dbc, 'hr_history', $history, '', $before_change);
 			break;
 	}
 }

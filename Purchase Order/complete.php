@@ -7,9 +7,12 @@ include_once('../tcpdf/tcpdf.php');
 error_reporting(0);
 if (isset($_POST['send_drive_log_noemail'])) {
 	$poside = $_POST['send_drive_log_noemail'];
+	$before_change = capture_before_change($dbc, 'purchase_orders', 'status', 'posid', $poside);
 	mysqli_query($dbc, "UPDATE `purchase_orders` SET status = 'Paying' WHERE posid= '".$poside."'" );
+	$history = capture_after_change('status', 'Paying');
+	add_update_history($dbc, 'po_history', $history, '', $before_change);
     echo '<script type="text/javascript"> alert("Purchase Order #'.$poside.' sent to Accounts Payable.");
-	window.location.replace("complete.php"); </script>';
+	window.location.replace("index.php?tab=complete&subtab='.$_GET['subtab'].'&projectid='.$_GET['projectid'].'&businessid='.$_GET['businessid'].'&siteid='.$_GET['siteid'].'&vendorid='.$_GET['vendorid'].'"); </script>';
 }
 if (isset($_POST['send_drive_logs'])) {
 	$email_list = $_POST['email_list'];
@@ -23,7 +26,7 @@ if (isset($_POST['send_drive_logs'])) {
 
 				} else {
 					 echo '<script type="text/javascript"> alert("One or more of the email addresses you have provided is not a proper email address.");
-							window.location.replace("complete.php"); </script>';
+							window.location.replace("index.php?tab=complete&subtab='.$_GET['subtab'].'&projectid='.$_GET['projectid'].'&businessid='.$_GET['businessid'].'&siteid='.$_GET['siteid'].'&vendorid='.$_GET['vendorid'].'"); </script>';
 							exit();
 				}
 			}
@@ -43,10 +46,10 @@ if (isset($_POST['send_drive_logs'])) {
 
 
     echo '<script type="text/javascript"> alert("PDF(s) sent to '.$email_list.'.");
-	window.location.replace("complete.php"); </script>';
+	window.location.replace("index.php?tab=complete&subtab='.$_GET['subtab'].'&projectid='.$_GET['projectid'].'&businessid='.$_GET['businessid'].'&siteid='.$_GET['siteid'].'&vendorid='.$_GET['vendorid'].'"); </script>';
 	} else {
 	echo '<script type="text/javascript"> alert("Please enter at least 1 email address, or make sure you have selected at least one PDF to send.");
-	window.location.replace("complete.php"); </script>';
+	window.location.replace("index.php?tab=complete&subtab='.$_GET['subtab'].'&projectid='.$_GET['projectid'].'&businessid='.$_GET['businessid'].'&siteid='.$_GET['siteid'].'&vendorid='.$_GET['vendorid'].'"); </script>';
 	}
 }
 
@@ -189,6 +192,9 @@ $current_cat = (empty($_GET['category']) ? $cat_list[0] : $_GET['category']); ?>
 			$search_any = $_POST['search_any'];
 			$search .= "AND (inv.posid = '$search_any' OR c.name = '$search_any' OR inv.delivery_type = '$search_any' OR inv.total_price LIKE '%" . $search_any . "%' OR inv.payment_type LIKE '%" . $search_any . "%' OR inv.invoice_date LIKE '%" . $search_any . "%' OR inv.status LIKE '%" . $search_any . "%' OR inv.comment LIKE '%" . $search_any . "%') ";
 		}
+        if(!empty($_GET['vendorid']) && !isset($_POST['search_vendor'])) {
+            $_POST['search_vendor'] = $_GET['vendorid'];
+        }
 		if(!empty($_POST['search_vendor'])) {
 			$search_vendor = $_POST['search_vendor'];
 			$search .= " AND c.contactid='$search_vendor'";
@@ -373,6 +379,9 @@ $current_cat = (empty($_GET['category']) ? $cat_list[0] : $_GET['category']); ?>
 			if (strpos($value_config, ','."Customer".',') !== FALSE) {
 				echo '<th width="12%"><div class="popover-examples list-inline" style="margin:2px 5px 5px 0"><a data-toggle="tooltip" data-placement="top" title="Vendor name as selected on the Order Form."><img src="'. WEBSITE_URL .'/img/info-w.png" width="20"></a></div>Vendor</th>';
 			}
+			if (strpos($value_config, ','."Equipment".',') !== FALSE) {
+				echo '<th width="12%"><div class="popover-examples list-inline" style="margin:2px 5px 5px 0"><a data-toggle="tooltip" data-placement="top" title="Equipment as selected on the Order Form."><img src="'. WEBSITE_URL .'/img/info-w.png" width="20"></a></div>Equipment</th>';
+			}
 			if (strpos($value_config, ','."Total Price".',') !== FALSE) {
 				echo '<th width="8%"><div class="popover-examples list-inline" style="margin:2px 5px 5px 0"><a data-toggle="tooltip" data-placement="top" title="Total Price as selected on the Order Form."><img src="'. WEBSITE_URL .'/img/info-w.png" width="20"></a></div>Total Price</th>';
 			}
@@ -444,6 +453,9 @@ $current_cat = (empty($_GET['category']) ? $cat_list[0] : $_GET['category']); ?>
 			if (strpos($value_config, ','."Customer".',') !== FALSE) {
 				echo '<td data-title="Vendor">' . get_client($dbc, $contactid) . '</td>';
 			}
+            if (strpos($value_config, ','."Equipment".',') !== FALSE) {
+                echo '<td data-title="Equipment">' . $dbc->query("SELECT CONCAT(`category`,': ',`make`,' ',`model`,' ',`unit_number`) `label` FROM `equipment` WHERE `equipmentid`='".$roww['equipmentid']."'")->fetch_assoc()['label'] . '</td>';
+            }
 			if (strpos($value_config, ','."Total Price".',') !== FALSE) {
 				echo '<td data-title="Total Price">' . $roww['total_price'] . '</td>';
 			}

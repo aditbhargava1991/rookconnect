@@ -203,9 +203,11 @@ if (isset($_POST['submit_checklist'])) {
     $safety_inspect_driverid = $_POST['safety_inspect_driverid'];
     $inspect_date = $_POST['inspect_date'];
     $begin_odo_kms = $_POST['begin_odo_kms'];
+    $begin_hours = $_POST['begin_hours'];
     $location_of_presafety = $_POST['location_of_presafety'];
     $location_of_postsafety = $_POST['location_of_postsafety'];
     $final_odo_kms = $_POST['final_odo_kms'];
+    $final_hours = $_POST['final_hours'];
     $safety1 = $_POST['safety1'];
     $safety2 = $_POST['safety2'];
     $safety3 = $_POST['safety3'];
@@ -245,12 +247,15 @@ if (isset($_POST['submit_checklist'])) {
     $safety37 = $_POST['safety37'];
     $safety38 = $_POST['safety38'];
     $repair_note = filter_var($_POST['repair_note'],FILTER_SANITIZE_STRING);
+    if($vehicleid > 0 && $final_hours > 0 && $final_odo_kms > 0) {
+        mysqli_query("UPDATE `equipment` SET `mileage`='$final_odo_kms', `hours_operated`='$final_hours' WHERE `equipmentid`='$vehicleid'");
+    }
 
     if (empty($safetyinspectid)) {
         $query_update_log = "UPDATE `driving_log` SET `vehicleid` = '$vehicleid', `trailerid` = '$trailerid' WHERE `drivinglogid` = '$drivinglogid'";
         $result_update_log = mysqli_query($dbc, $query_update_log);
 
-        $query_insert_sa = "INSERT INTO `driving_log_safety_inspect` (`drivinglogid`, `safety_inspect_driverid`, `safety_inspect_vehicleid`, `safety_inspect_trailerid`, `inspect_date`, `begin_odo_kms`, `final_odo_kms`, `safety1`, `safety2`, `safety3`, `safety4`, `safety5`, `safety6`, `safety7`, `safety8`, `safety9`, `safety10`, `safety11`, `safety12`, `safety13`, `safety14`, `safety15`, `safety16`, `safety17`, `safety18`, `safety19`, `safety20`, `safety21`, `safety22`, `safety23`, `safety24`, `safety25`, `safety26`, `safety27`, `safety28`, `safety29`, `safety30`, `safety31`, `safety32`, `safety33`, `safety34`, `safety35`, `safety36`, `safety37`, `safety38`, `repair_note`, `location_of_presafety`) VALUES ('$drivinglogid', '$safety_inspect_driverid', '$vehicleid', '$trailerid', '$inspect_date', '$begin_odo_kms', '$final_odo_kms', '$safety1', '$safety2', '$safety3', '$safety4', '$safety5', '$safety6', '$safety7', '$safety8', '$safety9', '$safety10', '$safety11', '$safety12', '$safety13', '$safety14', '$safety15', '$safety16', '$safety17', '$safety18', '$safety19', '$safety20', '$safety21', '$safety22', '$safety23', '$safety24', '$safety25', '$safety26', '$safety27', '$safety28', '$safety29', '$safety30', '$safety31', '$safety32', '$safety33', '$safety34', '$safety35', '$safety36', '$safety37', '$safety38', '$repair_note', '$location_of_presafety')";
+        $query_insert_sa = "INSERT INTO `driving_log_safety_inspect` (`drivinglogid`, `safety_inspect_driverid`, `safety_inspect_vehicleid`, `safety_inspect_trailerid`, `inspect_date`, `begin_odo_kms`, `final_odo_kms`, `begin_hours`, `final_hours`, `safety1`, `safety2`, `safety3`, `safety4`, `safety5`, `safety6`, `safety7`, `safety8`, `safety9`, `safety10`, `safety11`, `safety12`, `safety13`, `safety14`, `safety15`, `safety16`, `safety17`, `safety18`, `safety19`, `safety20`, `safety21`, `safety22`, `safety23`, `safety24`, `safety25`, `safety26`, `safety27`, `safety28`, `safety29`, `safety30`, `safety31`, `safety32`, `safety33`, `safety34`, `safety35`, `safety36`, `safety37`, `safety38`, `repair_note`, `location_of_presafety`) VALUES ('$drivinglogid', '$safety_inspect_driverid', '$vehicleid', '$trailerid', '$inspect_date', '$begin_odo_kms', '$final_odo_kms', '$begin_hours', '$final_hours', '$safety1', '$safety2', '$safety3', '$safety4', '$safety5', '$safety6', '$safety7', '$safety8', '$safety9', '$safety10', '$safety11', '$safety12', '$safety13', '$safety14', '$safety15', '$safety16', '$safety17', '$safety18', '$safety19', '$safety20', '$safety21', '$safety22', '$safety23', '$safety24', '$safety25', '$safety26', '$safety27', '$safety28', '$safety29', '$safety30', '$safety31', '$safety32', '$safety33', '$safety34', '$safety35', '$safety36', '$safety37', '$safety38', '$repair_note', '$location_of_presafety')";
         $result_insert_sa = mysqli_query($dbc, $query_insert_sa);
         $safetyinspectid = mysqli_insert_id($dbc);
 

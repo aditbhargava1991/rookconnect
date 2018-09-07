@@ -1,5 +1,5 @@
 <?php include('../include.php');
-$dbc_support = mysqli_connect('mysql.rookconnect.com', 'ffm_rook_user', 'mIghtyLion!542', 'ffm_rook_db');
+$dbc_support = mysqli_connect('localhost', 'ffm_rook_user', 'mIghtyLion!542', 'ffm_rook_db');
 if($user == 'ROOK Connect' && $url == 'https://ffm.rookconnect.com') {
 	$user = $_SESSION['contactid'];
 	$user_name = get_contact($dbc, $user);
@@ -166,15 +166,15 @@ else if($_GET['fill'] == 'checklistupload') {
 	$table = $_GET['table_name'];
 	$filename = $_FILES['file']['name'];
 	if($filename != '') {
-		if (!file_exists('../Tasks/download')) {
-			mkdir('../Tasks/download', 0777, true);
+		if (!file_exists('../Tasks_Updated/download')) {
+			mkdir('../Tasks_Updated/download', 0777, true);
 		}
 		$basefilename = $filename = preg_replace('/[^A-Za-z0-9\.]/','_',$filename);
 		$i = 0;
-		while(file_exists('../Tasks/download/'.$filename)) {
+		while(file_exists('../Tasks_Updated/download/'.$filename)) {
 			$filename = preg_replace('/(\.[A-Za-z0-9]*)/', '('.++$i.')$1', $basefilename);
 		}
-		if(!move_uploaded_file($_FILES['file']['tmp_name'], '../Tasks/download/'.$filename)) {
+		if(!move_uploaded_file($_FILES['file']['tmp_name'], '../Tasks_Updated/download/'.$filename)) {
 			echo "Error Saving Attachment: ".$filename."\n";
 		}
 		if(!mysqli_query($dbc_support, "INSERT INTO `tasklist_document` (`tasklistid`, `document`, `created_by`) VALUES ('$id', '$filename', '".get_contact($dbc, $_SESSION['contactid'])."')")) {
@@ -198,4 +198,14 @@ else if($_GET['fill'] == 'checklistreply') {
 	$reply = filter_var(htmlentities('<p>'.$_POST['reply'].'</p>'),FILTER_SANITIZE_STRING);
 	$query = "UPDATE `tasklist` SET `task`=CONCAT(`task`,'$reply') WHERE `tasklistid`='$id'";
 	$result = mysqli_query($dbc_support,$query);
+}
+else if($_GET['action'] == 'comm_settings') {
+	set_config($dbc, 'support_recipients_all', implode(';',$_POST['all_recips']));
+	set_config($dbc, 'support_recipients_default', implode(';',$_POST['default_recips']));
+
+	foreach($_POST['types'] as $i => $type_id) {
+		set_config($dbc, 'support_recipients_'.$type_id, implode(';',$_POST['recipients'][$i]));
+		set_config($dbc, 'support_alert_'.$type_id, $_POST['alerts'][$i]);
+		set_config($dbc, 'support_note_'.$type_id, $_POST['notes'][$i]);
+	}
 }

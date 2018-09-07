@@ -74,7 +74,7 @@ if($pathid[1] > 0 && $pathid[0] == 'I') {
 if($_GET['tab'] != 'scrum_board') {
 	$staff_list = sort_contacts_query(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name` FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `deleted`=0 AND `status` > 0"));
 	$project = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `project` WHERE `projectid`='$projectid'"));
-	$summary_tickets = mysqli_fetch_array(mysqli_query($dbc, "SELECT COUNT(*) tickets, SUM(IF(`tickets`.`status`='Archive',1,0)) complete, SUM(TIME_TO_SEC(`max_time`)) est_ticket_time, SUM(`ticket_timer`) spent_ticket_time FROM `tickets` LEFT JOIN (SELECT `ticketid`, SUM(TIMEDIFF(`end_time`,`start_time`)) `ticket_timer` FROM `ticket_timer` GROUP BY `ticketid`) timers ON `tickets`.`ticketid`=`timers`.`ticketid` WHERE `projectid`='$projectid' AND `deleted`=0"));
+	$summary_tickets = mysqli_fetch_array(mysqli_query($dbc, "SELECT COUNT(*) tickets, SUM(IF(`tickets`.`status`='Archive',1,0)) complete, SUM(TIME_TO_SEC(`max_time`)) est_ticket_time, SUM(`ticket_timer`) spent_ticket_time FROM `tickets` LEFT JOIN (SELECT `ticketid`, SUM(TIMEDIFF(`end_time`,`start_time`)) `ticket_timer` FROM `ticket_timer` WHERE `ticket_timer`.`deleted` = 0 GROUP BY `ticketid`) timers ON `tickets`.`ticketid`=`timers`.`ticketid` WHERE `projectid`='$projectid' AND `tickets`.`deleted`=0"));
 	$summary_workorders = mysqli_fetch_array(mysqli_query($dbc, "SELECT COUNT(*) workorders, SUM(IF(`workorder`.`status`='Archive',1,0)) complete, SUM(TIME_TO_SEC(`max_time`)) est_workorder_time, SUM(`workorder_timer`) spent_workorder_time FROM `workorder` LEFT JOIN (SELECT `workorderid`, SUM(TIMEDIFF(`end_time`,`start_time`)) `workorder_timer` FROM `workorder_timer` GROUP BY `workorderid`) timers ON `workorder`.`workorderid`=`timers`.`workorderid` WHERE `projectid`='$projectid'"));
 	$summary_tasks = mysqli_fetch_array(mysqli_query($dbc, "SELECT COUNT(*) tasks, SUM(IF(`tasklist`.`status`='".$status_complete."',1,0)) complete, SUM(TIME_TO_SEC(`work_time`)) task_time FROM `tasklist` WHERE `projectid`='$projectid' AND `deleted`=0")); ?>
 	<script>
@@ -413,40 +413,8 @@ if($_GET['tab'] != 'scrum_board') {
 		});
 		$('.email-icon').off('click').click(function() {
 			var item = $(this).closest('.dashboard-item');
-			var select = item.find('.select_users');
-			select.find('.cancel_button').off('click').click(function() {
-				select.find('select option:selected').removeAttr('selected');
-				select.hide();
-				return false;
-			});
-			select.find('.submit_button').off('click').click(function() {
-				if(select.find('select').val() != '' && confirm('Are you sure you want to send an e-mail to the selected user(s)?')) {
-					var users = [];
-					select.find('select option:selected').each(function() {
-						users.push(this.value);
-						$(this).removeAttr('selected');
-						select.find('select').trigger('change.select2');
-					});
-					$.ajax({
-						method: 'POST',
-						url: '../Project/projects_ajax.php?action=project_actions',
-						data: {
-							id: item.data('id'),
-							id_field: item.data('id-field'),
-							table: item.data('table'),
-							field: 'email',
-							value: users
-						},
-						success: function(result) {
-							select.hide();
-							select.find('select').trigger('change.select2');
-							item.find('h4').append(result);
-						}
-					});
-				}
-				return false;
-			});
-			select.show();
+			var id = $(item).data('id');
+			overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_email.php?tile=projects&id='+id,'auto',false,true);
 		});
 		$('.new_task').off('keyup').keyup(function(e) {
 			if(e.which == 13) {
@@ -831,7 +799,7 @@ if($_GET['tab'] != 'scrum_board') {
 										<option <?= $external_milestone == $item_external ? 'selected' : '' ?> value="<?= $external_milestone ?>"><?= $external_milestone ?></option>
 									<?php } ?></select></div>
 								<div class="select_users" style="display:none;">
-									<select data-placeholder="Select Staff" multiple class="chosen-select-deselect"><option></option>
+									<select data-placeholder="Select Staff" multiple class="chosen-select-deselect">
 									<?php foreach($staff_list as $staff) { ?>
 										<option value="<?= $staff['contactid'] ?>"><?= $staff['first_name'].' '.$staff['last_name'] ?></option>
 									<?php } ?>

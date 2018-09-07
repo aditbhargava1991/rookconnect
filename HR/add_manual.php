@@ -90,9 +90,20 @@ if (isset($_POST['view_manual'])) {
     $today_date = date('Y-m-d H:i:s');
 	// Insert a row if it isn't already there
 	$query_insert_row = "INSERT INTO `hr_staff` (`hrid`, `staffid`) SELECT '$hrid', '$staffid' FROM (SELECT COUNT(*) rows FROM `hr_staff` WHERE `hrid`='$hrid' AND `staffid`='$staffid') LOGTABLE WHERE rows=0";
+  $before_change = '';
+  $history = "HR Staff entry added. <br />";
+  add_update_history($dbc, 'hr_history', $history, '', $before_change);
 	mysqli_query($dbc, $query_insert_row);
+
+    $before_change = capture_before_change($dbc, 'hr_staff', 'done', 'hrid', $hrid, 'staffid', $staffid, 'done', 0);
+    $before_change .= capture_before_change($dbc, 'hr_staff', 'today_date', 'hrid', $hrid, 'staffid', $staffid, 'done', 0);
+
     $query_update_ticket = "UPDATE `hr_staff` SET `done` = '1', `today_date` = '$today_date' WHERE `hrid` = '$hrid' AND staffid='$staffid' AND done=0";
     $result_update_ticket = mysqli_query($dbc, $query_update_ticket);
+
+    $history = capture_after_change('done', 1);
+    $history .= capture_after_change('today_date', $today_date);
+    add_update_history($dbc, 'hr_history', $history, '', $before_change);
 
     echo '<script type="text/javascript"> window.location.replace("'.$type.'.php?category='.$get_manual['category'].'"); </script>';
 }
@@ -105,9 +116,19 @@ if (isset($_POST['field_level_hazard'])) {
     $today_date = date('Y-m-d H:i:s');
 	// Insert a row if it isn't already there
 	$query_insert_row = "INSERT INTO `hr_staff` (`hrid`, `staffid`) SELECT '$hrid', '$staffid' FROM (SELECT COUNT(*) rows FROM `hr_staff` WHERE `hrid`='$hrid' AND `staffid`='$staffid') LOGTABLE WHERE rows=0";
+  $before_change = '';
+  $history = "HR Staff entry added. <br />";
+  add_update_history($dbc, 'hr_history', $history, '', $before_change);
 	mysqli_query($dbc, $query_insert_row);
+    $before_change = capture_before_change($dbc, 'hr_staff', 'done', 'hrid', $hrid, 'staffid', $staffid, 'done', 0);
+    $before_change .= capture_before_change($dbc, 'hr_staff', 'today_date', 'hrid', $hrid, 'staffid', $staffid, 'done', 0);
+
     $query_update_ticket = "UPDATE `hr_staff` SET `done` = '1', `today_date` = '$today_date' WHERE `hrid` = '$hrid' AND staffid='$staffid' AND done=0";
     $result_update_ticket = mysqli_query($dbc, $query_update_ticket);
+
+    $history = capture_after_change('done', 1);
+    $history .= capture_after_change('today_date', $today_date);
+    add_update_history($dbc, 'hr_history', $history, '', $before_change);
 
     //Update reminders to done
     mysqli_query($dbc, "UPDATE `reminders` SET `done` = 1 WHERE `contactid` = '$staffid' AND `src_table` = 'hr' AND `src_tableid` = '$hrid'");
@@ -877,7 +898,7 @@ checkAuthorised('hr');
                                 <label for="first_name" class="col-sm-4 control-label text-right">Staff:</label>
                                 <div class="col-sm-8">
                                     <select name="assign_staff[]" data-placeholder="Choose a Staff Member..." class="chosen-select-deselect form-control" multiple width="380">
-                                        <option value=""></option><?php
+                                        <?php
                                         $query = mysqli_query($dbc, "SELECT contactid, first_name, last_name FROM contacts WHERE category IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND deleted=0 order by first_name");
                                         while($row = mysqli_fetch_array($query)) {
 											if ( !empty ( $assign_staff ) ) { ?>
@@ -993,7 +1014,6 @@ checkAuthorised('hr');
                                 <label for="permissions_position" class="col-sm-4 control-label text-right">Permissions by Position:</label>
                                 <div class="col-sm-8">
                                 <select data-placeholder="Choose Positions..." id="permissions_position" name="permissions_position[]" class="chosen-select-deselect form-control" width="380" multiple>
-                                    <option value=""></option>
                                     <?php
                                         $query = "SELECT DISTINCT `position` FROM `contacts` WHERE `deleted` = 0";
                                         $result = mysqli_query($dbc, $query);

@@ -236,6 +236,8 @@ checkAuthorised();
 		<div><?php
 		$active_tab_email = '';
 		$active_tab_config = '';
+		$active_tab_sync = '';
+        $active_tab_reset_demo = '';
 		$active_tab_initiate = '';
 		$active_tab_set = '';
 		$active_tab = '';
@@ -243,6 +245,7 @@ checkAuthorised();
 		$active_tab_sm = '';
 		$active_tab_fav = '';
 		$active_tab_login = '';
+		$active_tab_sync_inventory = '';
 		$title = '';
 		if(isset($_GET['email_configuration'])) {
 			$active_tab_email = 'active_tab';
@@ -250,6 +253,12 @@ checkAuthorised();
 		} else if(isset($_GET['config_differences'])) {
 			$active_tab_config = 'active_tab';
 			$title = 'Live vs Demo Configurations';
+		} else if(isset($_GET['data_sync'])) {
+			$active_tab_sync = 'active_tab';
+			$title = 'Live to Demo Data Sync';
+		} else if(isset($_GET['reset_demo'])) {
+			$active_tab_reset_demo = 'active_tab';
+			$title = 'Reset Demo To Live';
 		} else if(isset($_GET['initiate_software'])) {
 			$active_tab_initiate = 'active_tab';
 			$title = 'Initiate Software Pack';
@@ -268,6 +277,9 @@ checkAuthorised();
 		} else if(isset($_GET['login_page'])) {
 			$active_tab_login = 'active_tab';
 			$title = 'Default Login Page';
+		} else if(isset($_GET['sync_inventory'])) {
+			$active_tab_sync_inventory = 'active_tab';
+			$title = 'Sync Inventory Between Software';
 		} else {
 			$active_tab = 'active_tab';
 			$title = 'Software Functionality Settings';
@@ -352,6 +364,30 @@ checkAuthorised();
 						</span>
 						<a href="admin_software_config.php?config_differences"><button type="button" class="btn brand-btn mobile-block mobile-100 ' . $active_tab_config . '">Live vs Demo Configurations</button></a>
 					</div>';
+
+				echo '
+					<div class="pull-left tab">
+						<span class="popover-examples no-gap-pad">
+							<a data-toggle="tooltip" data-placement="top" title="View your software\'s Live Configurations vs Demo Configurations."><img src="img/info.png" width="20"></a>
+						</span>
+						<a href="admin_software_config.php?data_sync"><button type="button" class="btn brand-btn mobile-block mobile-100 ' . $active_tab_sync . '">Live to Demo Data Sync</button></a>
+					</div>';
+
+				echo '
+					<div class="pull-left tab">
+						<span class="popover-examples no-gap-pad">
+							<a data-toggle="tooltip" data-placement="top" title="Reset your Demo software\'s data and configuration to a copy of your Live software."><img src="img/info.png" width="20"></a>
+						</span>
+						<a href="admin_software_config.php?reset_demo"><button type="button" class="btn brand-btn mobile-block mobile-100 ' . $active_tab_reset_demo . '">Reset Demo To Live</button></a>
+					</div>';
+
+				echo '
+					<div class="pull-left tab">
+						<span class="popover-examples no-gap-pad">
+							<a data-toggle="tooltip" data-placement="top" title="Sync Inventory between different software so the Inventory on these software are in sync."><img src="img/info.png" width="20"></a>
+						</span>
+						<a href="admin_software_config.php?sync_inventory"><button type="button" class="btn brand-btn mobile-block mobile-100 ' . $active_tab_sync_inventory . '">Sync Inventory</button></a>
+					</div>';
 			} ?>
 
 			<div class="clearfix"></div>
@@ -435,6 +471,7 @@ checkAuthorised();
         $contracts = $get_config['contracts'];
         $products = $get_config['products'];
         $tasks = $get_config['tasks'];
+        $tasks_updated = $get_config['tasks_updated'];
         $agenda_meeting = $get_config['agenda_meeting'];
         $sales = $get_config['sales'];
         $gantt_chart = $get_config['gantt_chart'];
@@ -558,6 +595,10 @@ checkAuthorised();
 										<?php echo tile_config_function($dbc, 'archiveddata', 'admin'); ?>
 									</tr>
 									<tr>
+										<td data-title="Comment">Customer Support</td>
+										<?php echo tile_config_function($dbc, 'customer_support', 'admin'); ?>
+									</tr>
+									<tr>
 										<td data-title="Comment">FFM Support</td>
 										<?php echo tile_config_function($dbc, 'ffmsupport', 'admin'); ?>
 									</tr>
@@ -609,6 +650,10 @@ checkAuthorised();
                                         <th>Function Status</th>
                                     </tr>
                                     <tr>
+                                        <td data-title="Comment">All Software Guide</td>
+                                        <?php echo tile_config_function($dbc, 'how_to_guide', 'admin'); ?>
+                                    </tr>
+                                    <tr>
                                         <td data-title="Comment">Certificates</td>
                                         <?php echo tile_config_function($dbc, 'certificate', 'admin'); ?>
                                     </tr>
@@ -623,10 +668,6 @@ checkAuthorised();
                                     <tr>
                                         <td data-title="Comment">How To Checklist</td>
                                         <?php echo tile_config_function($dbc, 'how_to_checklist', 'admin'); ?>
-                                    </tr>
-                                    <tr>
-                                        <td data-title="Comment">How to Guide</td>
-                                        <?php echo tile_config_function($dbc, 'how_to_guide', 'admin'); ?>
                                     </tr>
                                     <tr>
                                         <td data-title="Comment">HR</td>
@@ -901,7 +942,7 @@ checkAuthorised();
                                         <?php echo tile_config_function($dbc, 'material', 'admin'); ?>
                                     </tr>
                                     <tr>
-                                        <td data-title="Comment">Vendors</td>
+                                        <td data-title="Comment"><?= VENDOR_TILE ?></td>
                                         <?php echo tile_config_function($dbc, 'vendors', 'admin'); ?>
                                     </tr>
                                 </table>
@@ -998,10 +1039,17 @@ checkAuthorised();
                                         <td data-title="Comment">News Board</td>
                                         <?php echo tile_config_function($dbc, 'newsboard', 'admin'); ?>
                                     </tr>
+
                                     <tr>
-                                        <td data-title="Comment">Tasks</td>
+                                        <td data-title="Comment"><?= TASK_TILE ?></td>
                                         <?php echo tile_config_function($dbc, 'tasks', 'admin'); ?>
                                     </tr>
+
+                                    <!--<tr>
+                                        <td data-title="Comment">Tasks (Updated)</td>
+                                        <?php echo tile_config_function($dbc, 'tasks_updated', 'admin'); ?>
+                                    </tr>
+                                    -->
                                     <tr>
                                         <td data-title="Comment">Trip Optimizer</td>
                                         <?php echo tile_config_function($dbc, 'optimize', 'admin'); ?>
@@ -1188,7 +1236,7 @@ checkAuthorised();
 										<?php echo tile_config_function($dbc, 'calllog', 'admin'); ?>
 									</tr>
                                     <tr>
-                                        <td data-title="Drop Off Analysis">Dropoff Analysis</td>
+                                        <td data-title="Drop Off Analysis">Drop Off Analysis</td>
                                         <?php echo tile_config_function($dbc, 'drop_off_analysis', 'admin'); ?>
                                     </tr>
 									<tr>
@@ -1465,15 +1513,11 @@ checkAuthorised();
                                         <?php echo tile_config_function($dbc, 'package', 'admin'); ?>
                                     </tr>
                                     <tr>
-                                        <td data-title="Comment">Point of Sale</td>
+                                        <td data-title="Comment"><?= POS_ADVANCE_TILE ?></td>
                                         <?php echo tile_config_function($dbc, 'posadvanced', 'admin'); ?>
                                     </tr>
                                     <tr>
-                                        <td data-title="Comment">Point of Sale (Basic)</td>
-                                        <?php echo tile_config_function($dbc, 'pos', 'admin'); ?>
-                                    </tr>
-                                    <tr>
-                                        <td data-title="Comment">Promotions</td>
+                                        <td data-title="Comment">Promotions & Coupons</td>
                                         <?php echo tile_config_function($dbc, 'promotion', 'admin'); ?>
                                     </tr>
                                     <tr>
@@ -1707,7 +1751,7 @@ checkAuthorised();
 							<option <?php if($get_style_file == 'bgw') { echo "selected"; } ?> value="bgw">Clinic Ace</option>
 							<option <?php if($get_style_file == 'ffm') { echo "selected"; } ?> value="ffm">Fresh Focus Media</option>
 							<option <?php if($get_style_file == 'flowers') { echo "selected"; } ?> value="flowers">Flowers</option>
-							<option  <?php if($get_style_file == 'silver') { echo "selected"; } ?> value="silver">Green & Grey</option>
+							<option <?php if($get_style_file == 'silver') { echo "selected"; } ?> value="silver">Green & Grey</option>
 							<option <?php if($get_style_file == 'garden') { echo "selected"; } ?>  value="garden">Garden</option>
 							<option <?php if($get_style_file == 'green') { echo "selected"; } ?>  value="green">Green</option>
 							<option <?php if($get_style_file == 'leo') { echo "selected"; } ?> value="polka">Leopard Print</option>
@@ -1716,6 +1760,7 @@ checkAuthorised();
 							<option <?php if($get_style_file == 'polka') { echo "selected"; } ?> value="">Polka Dots</option>
 							<option <?php if($get_style_file == 'swr') { echo "selected"; } ?> value="swr">Precision Workflow (White)</option>
 							<option <?php if($get_style_file == 'bwr') { echo "selected"; } ?> value="bwr">Precision Workflow (Black)</option>
+							<option <?php if($get_style_file == 'redsilver') { echo "selected"; } ?> value="redsilver">Red &amp; Silver</option>
 							<option <?php if($get_style_file == 'blw') { echo "selected"; } ?> value="blw">ROOK Connect</option>
 							<option <?php if($get_style_file == 'happy') { echo "selected"; } ?> value="happy">Smiley Faces</option>
 							<option <?php if($get_style_file == 'transport') { echo "selected"; } ?> value="transport">Transport</option>
@@ -1824,8 +1869,14 @@ checkAuthorised();
 
 		<?php } else if(isset($_GET['config_differences'])) {
 			include('live_demo_configurations.php');
+		} else if(isset($_GET['data_sync'])) {
+			include('live_demo_data.php');
+		} else if(isset($_GET['reset_demo'])) {
+			include('reset_demo_to_live.php');
 		} else if(isset($_GET['email_configuration'])) {
 			include('staff_email_configuration.php');
+		} else if(isset($_GET['sync_inventory'])) {
+			include('Admin Settings/sync_inventory.php');
 		} ?>
         </div>
     </div>

@@ -12,14 +12,14 @@ $(document).ready(function() {
 		});
 		var available = 0;
         try {
-            available = Math.floor($(window).innerHeight() - $('.main-screen .main-screen').offset().top - $('footer').outerHeight());
+            available = Math.floor($(window).innerHeight() - $('.main-screen .main-screen').offset().top - $('footer:visible').outerHeight());
         } catch(err) { }
 		if(available > 300) {
 			$('.tile-sidebar, .main-screen .main-screen, .preview-bar').each(function() {
 				$(this).outerHeight(available);
 			});
 			$('.main-screen .has-dashboard').each(function() {
-				$(this).outerHeight($(window).innerHeight() - $('.main-screen .has-dashboard').offset().top - $('footer').outerHeight());
+				$(this).outerHeight($(window).innerHeight() - $('.main-screen .has-dashboard').offset().top - $('footer:visible').outerHeight());
 				var height = this.clientHeight;
 				$(this).find('div.dashboard-list').each(function() {
 					var offset = $(this).find('.info-block-header').outerHeight();
@@ -108,11 +108,11 @@ if(array_filter($summary_view) && (!isset($_GET['view']) || $_GET['view'] == 'su
 						echo "<div class='pull-right gap-left'><a href='?template=list' style='font-size: 0.5em;'><button class='btn brand-btn'>Templates</button></a></div>";
 					}
                     if($edit_access > 0) {
-                        echo "<div class='pull-right gap-left'><a href='?edit=new' style='font-size: 0.5em;'><button class='btn brand-btn hide-titles-mob'>New ".ESTIMATE_TILE."</button>";
+                        echo "<div class='pull-right gap-left'><a href='?edit=new' style='font-size: 0.5em;'><button class='btn brand-btn hide-titles-mob'>New ".rtrim(ESTIMATE_TILE, 's')."</button>";
                         echo "<img src='".WEBSITE_URL."/img/icons/ROOK-add-icon.png' class='show-on-mob' height='30'></a></div>";
                     }
                     if(!isset($_GET['edit']) && !isset($_GET['view'])) { ?>
-						<img class="inline-img pull-right btn-horizontal-collapse hide-titles-mob small" src="../img/icons/pie-chart.png">
+						<img class="inline-img pull-right btn-horizontal-collapse hide-titles-mob small no-toggle" src="../img/icons/pie-chart.png" title="View Summary">
                         <div class="pull-right top-dashboard"><img src="../img/icons/ROOK-Speedometer.png" class="cursor-hand" height="30" onclick="$('.dashboard_select').toggle();" /></div>
                         <div class="col-sm-3 pull-right small dashboard_select" style="display: none;">
                             <select class="chosen-select-deselect dashboard_select_onchange">

@@ -23,7 +23,7 @@ for($i = 0; $total_usage > $limit + $i * $increment - $warning; $i++) {
 		'<p>You have reached the next usage tier.<br />You are currently using '.roundByteSize($total_usage).'.</p>');
 }
 
-$dbc_support = mysqli_connect('mysql.rookconnect.com', 'ffm_rook_user', 'mIghtyLion!542', 'ffm_rook_db');
+$dbc_support = mysqli_connect('localhost', 'ffm_rook_user', 'mIghtyLion!542', 'ffm_rook_db');
 //$dbc_support = mysqli_connect('localhost', 'root', '', 'local_rookconnect_db');
 mysqli_query($dbc_support, "INSERT INTO `software_usage` (`software_id`) SELECT '".WEBSITE_URL."' FROM (SELECT COUNT(*) rows FROM `software_usage` WHERE `software_id`='".WEBSITE_URL."') num WHERE num.rows=0");
 mysqli_query($dbc_support, "UPDATE `software_usage` SET `database_mb`='".round($database / (1024 * 1024),2)."', `filesystem_mb`='".round($filesystem / (1024 * 1024),2)."', `total_mb`='".round($total_usage / (1024 * 1024),2)."' WHERE `software_id`='".WEBSITE_URL."'");

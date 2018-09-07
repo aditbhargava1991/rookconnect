@@ -304,7 +304,7 @@
         <div class="panel-body">
 
             <div class="col-sm-3"><input type="checkbox" <?php if (strpos($dashboard_config, ',Upload Letter of Intent,') !== false) { echo " checked"; } ?> value="Upload Letter of Intent" name="dashboard[]">&nbsp;&nbsp;Upload Letter of Intent</div>
-            <div class="col-sm-3"><input type="checkbox" <?php if (strpos($dashboard_config, ',Upload Vendor Documents,') !== false) { echo " checked"; } ?> value="Upload Vendor Documents" name="dashboard[]">&nbsp;&nbsp;Upload Vendor Documents</div>
+            <div class="col-sm-3"><input type="checkbox" <?php if (strpos($dashboard_config, ',Upload Vendor Documents,') !== false) { echo " checked"; } ?> value="Upload Vendor Documents" name="dashboard[]">&nbsp;&nbsp;Upload <?= VENDOR_TILE ?> Documents</div>
             <div class="col-sm-3"><input type="checkbox" <?php if (strpos($dashboard_config, ',Upload Marketing Material,') !== false) { echo " checked"; } ?> value="Upload Marketing Material" name="dashboard[]">&nbsp;&nbsp;Upload Marketing Material</div>
             <div class="col-sm-3"><input type="checkbox" <?php if (strpos($dashboard_config, ',Upload Purchase Contract,') !== false) { echo " checked"; } ?> value="Upload Purchase Contract" name="dashboard[]">&nbsp;&nbsp;Upload Purchase Contract</div>
             <div class="col-sm-3"><input type="checkbox" <?php if (strpos($dashboard_config, ',Upload Support Contract,') !== false) { echo " checked"; } ?> value="Upload Support Contract" name="dashboard[]">&nbsp;&nbsp;Upload Support Contract</div>
@@ -658,7 +658,7 @@
 
     <div id="collapse_pur_info" class="panel-collapse collapse">
         <div class="panel-body">
-            <div class="col-sm-3"><input type="checkbox" <?php if (strpos($dashboard_config, ',Vendor,') !== false) { echo " checked"; } ?> value="Vendor" name="dashboard[]">&nbsp;&nbsp;Vendor</div>
+            <div class="col-sm-3"><input type="checkbox" <?php if (strpos($dashboard_config, ',Vendor,') !== false) { echo " checked"; } ?> value="Vendor" name="dashboard[]">&nbsp;&nbsp;<?= VENDOR_TILE ?></div>
             <div class="col-sm-3"><input type="checkbox" <?php if (strpos($dashboard_config, ',Purchase Cost,') !== false) { echo " checked"; } ?> value="Purchase Cost" name="dashboard[]">&nbsp;&nbsp;Purchase Cost</div>
             <div class="col-sm-3"><input type="checkbox" <?php if (strpos($dashboard_config, ',Date Of Purchase,') !== false) { echo " checked"; } ?> value="Date Of Purchase" name="dashboard[]">&nbsp;&nbsp;Date Of Purchase</div>
 
@@ -1109,7 +1109,7 @@
     <div id="collapse_inclusion" class="panel-collapse collapse">
         <div class="panel-body">
             <div class="col-sm-3"><input type="checkbox" <?php if (strpos($dashboard_config, ',Include in P.O.S.,') !== false) {
-                echo " checked"; } ?> value="Include in P.O.S." name="dashboard[]">&nbsp;&nbsp;Include in Point of Sale</div>
+                echo " checked"; } ?> value="Include in P.O.S." name="dashboard[]">&nbsp;&nbsp;Include in <?= POS_ADVANCE_TILE ?></div>
                 <div class="col-sm-3"><input type="checkbox" <?php if (strpos($dashboard_config, ',Include in Purchase Orders,') !== false) {
                 echo " checked"; } ?> value="Include in Purchase Orders" name="dashboard[]">&nbsp;&nbsp;Include in Purchase Orders</div>
                 <div class="col-sm-3"><input type="checkbox" <?php if (strpos($dashboard_config, ',Include in Sales Orders,') !== false) {

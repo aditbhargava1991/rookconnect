@@ -1,3 +1,6 @@
+<?php include_once('../include.php');
+checkAuthorised('certificate');
+$access = get_security($dbc, 'certificate'); ?>
 <script>
 function add_row_doc() {
 	var link = $('.additional_doc').last();
@@ -46,18 +49,30 @@ function saveFieldMethod(field) {
       var id_field = $(field).data('id-field');
       var attached = $(field).data('attach-id');
       var attach_field = $(field).data('attach-field');
-      var value = field.value;
+      if(field.name.substr(-2) == '[]' && field.type == 'select-multiple') {
+        var field_name = field.name.split('[]')[0];
+        var values = [];
+        $('[name="'+field.name+'"] option:selected').each(function() {
+          values.push(this.value);
+        });
+        var value = values.join(',');
+      } else {
+        var field_name = field.name;
+        var value = field.value;
+      }
+      var new_value = $(field).data('new');
       $.ajax({
         url: 'certificate_ajax.php?action=update_field',
         method: 'POST',
         data: {
           table: table,
-          field: field.name,
+          field: field_name,
           id: id,
           id_field: id_field,
           attached: attached,
           attach_field: attach_field,
-          value: value
+          value: value,
+          new_value: new_value
         },
         success: function(response) {
           if(response > 0 && table == 'certificate') {
@@ -252,17 +267,10 @@ if(!empty($_GET['edit'])) {
         <label for="company_name" class="col-sm-4 control-label">Certificate Type<span class="hp-red">*</span>:</label>
         <div class="col-sm-8">
             <select id="certificate_type" name="certificate_type" data-table="certificate" data-id="<?= $certificateid ?>" data-id-field="certificateid" class="chosen-select-deselect form-control">
-                <option value=''></option>
-                <?php
-                $query = mysqli_query($dbc,"SELECT distinct(certificate_type) FROM certificate");
-                while($row = mysqli_fetch_array($query)) {
-                    if ($certificate_type == $row['certificate_type']) {
-                        $selected = 'selected="selected"';
-                    } else {
-                        $selected = '';
-                    }
-                    echo "<option ".$selected." value='". $row['certificate_type']."'>".$row['certificate_type'].'</option>';
-
+                <option></option>
+                <?php $certificate_types = array_filter(explode('#*#',get_config($dbc, 'certificate_types')));
+                foreach($certificate_types as $row) {
+                  echo '<option value="'.$row.'" '.($row == $certificate_type ? 'selected' : '' ).'>'.$row.'</option>';
                 }
                 echo "<option value = 'MANUAL'>New Certificate Type</option>";
                 ?>
@@ -274,7 +282,7 @@ if(!empty($_GET['edit'])) {
         <label for="travel_task" class="col-sm-4 control-label">New Certificate Type:
         </label>
         <div class="col-sm-8">
-            <input name="certificate_type" type="text" data-table="certificate" data-id="<?= $certificateid ?>" data-id-field="certificateid" class="form-control" />
+            <input name="certificate_type" type="text" data-table="certificate" data-id="<?= $certificateid ?>" data-id-field="certificateid" data-new="1" class="form-control" />
         </div>
       </div>
       <?php } ?>
@@ -285,16 +293,9 @@ if(!empty($_GET['edit'])) {
         <div class="col-sm-8">
             <select id="category" name="category" data-table="certificate" data-id="<?= $certificateid ?>" data-id-field="certificateid" class="chosen-select-deselect form-control">
                 <option value=''></option>
-                <?php
-                $query = mysqli_query($dbc,"SELECT distinct(category) FROM certificate order by category");
-                while($row = mysqli_fetch_array($query)) {
-                    if ($category == $row['category']) {
-                        $selected = 'selected="selected"';
-                    } else {
-                        $selected = '';
-                    }
-                    echo "<option ".$selected." value='". $row['category']."'>".$row['category'].'</option>';
-
+                <?php $certificate_categories = array_filter(explode('#*#',get_config($dbc, 'certificate_categories')));
+                foreach($certificate_categories as $row) {
+                  echo '<option value="'.$row.'" '.($row == $category ? 'selected' : '' ).'>'.$row.'</option>';
                 }
                 echo "<option value = 'MANUAL'>New Category</option>";
                 ?>
@@ -306,7 +307,7 @@ if(!empty($_GET['edit'])) {
         <label for="travel_task" class="col-sm-4 control-label">New Category:
         </label>
         <div class="col-sm-8">
-            <input name="category" type="text" data-table="certificate" data-id="<?= $certificateid ?>" data-id-field="certificateid" class="form-control" />
+            <input name="category" type="text" data-table="certificate" data-id="<?= $certificateid ?>" data-id-field="certificateid" data-new="1" class="form-control" />
         </div>
       </div>
 
@@ -344,6 +345,22 @@ if(!empty($_GET['edit'])) {
         <label for="company_name" class="col-sm-4 control-label">Reminder Date:</label>
         <div class="col-sm-8">
           <input name="reminder_date" id="reminder_date" value="<?php echo $reminder_date; ?>" type="text" data-table="certificate" data-id="<?= $certificateid ?>" data-id-field="certificateid" class="datepicker form-control">
+        </div>
+      </div>
+      <?php } ?>
+      <?php if (strpos($value_config, ','."Certificate Reminder Email".',') !== FALSE) { ?>
+      <div class="form-group">
+        <label for="company_name" class="col-sm-4 control-label">Certificate Reminder Email:</label>
+        <div class="col-sm-8">
+          <select name="certificate_reminder[]" multiple data-table="certificate" data-id="<?= $certificateid ?>" data-id-field="certificateid" class="form-control chosen-select-deselect">
+        <?php $staff_result = sort_contacts_query(mysqli_query($dbc, "select first_name, last_name, name, contactid from contacts where category IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY.""));
+        foreach($staff_result as $row) {
+          if($row['full_name'] != '-' && !empty($row['full_name'])) {
+            echo "<option ".(strpos(','.$certificate_reminder.',', ','.$row['contactid'].',') !== FALSE ? "selected " : "")."value='{$row['contactid']}'>".$row['full_name']."</option>";
+          }
+        }
+        ?>
+        </select>
         </div>
       </div>
       <?php } ?>
@@ -646,20 +663,6 @@ if(!empty($_GET['edit'])) {
     </div>
   </div>
   <?php } ?>
-  <?php if (strpos($value_config, ','."Certificate Reminder Email".',') !== FALSE) { ?>
-  <div class="form-group">
-    <label for="company_name" class="col-sm-4 control-label">Certificate Reminder Email:</label>
-    <div class="col-sm-8">
-      <select name="certificate_reminder" data-table="certificate" data-id="<?= $certificateid ?>" data-id-field="certificateid" class="form-control chosen-select-deselect"><option></option>
-		<?php $staff_result = mysqli_query($dbc, "select concat(first_name, ' ', last_name) name, contactid from contacts where category IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY."");
-		while($row = mysqli_fetch_array($staff_result)) {
-			echo "<option ".($certificate_reminder == $row['contactid'] ? "selected " : "")."value='{$row['contactid']}'>".decryptIt($row['name'])."</option>";
-		}
-		?>
-	  </select>
-    </div>
-  </div>
-  <?php } ?>
   <?php if (strpos($value_config, ','."Reminder/Alert".',') !== FALSE) { ?>
   <div class="form-group">
     <label for="company_name" class="col-sm-4 control-label">Reminder/Alert:</label>
@@ -737,5 +740,7 @@ if(!empty($_GET['edit'])) {
     </div>
   </div>
   <?php } ?>
+  <div class="clearfix"></div>
 </div>
+<div class="clearfix"></div>
 <a href="?" class="btn brand-btn pull-right">Submit</a>

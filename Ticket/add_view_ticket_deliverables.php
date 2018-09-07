@@ -8,9 +8,9 @@
 		?>
 		<?php foreach ($field_sort_order as $field_sort_field) { ?>
 			<?php if(strpos($value_config,',Deliverable Status,') !== FALSE && $field_sort_field == 'Deliverable Status') { ?>
-				<div class="form-group">
-					<label for="site_name" class="col-sm-4 control-label">Status:</label>
-					<div class="col-sm-8">
+				<div class="form-group clearfix">
+					<label for="site_name" class="col-sm-4 control-label text-right">Status:</label>
+					<div class="col-sm-4">
 
 						<select data-placeholder="Select a Status..." name="status" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" id="status" class="chosen-select-deselect form-control input-sm">
 						  <option value=""></option>
@@ -44,16 +44,34 @@
 							<input name="to_do_start_time" id="to_do_start_time" value="<?php echo $to_do_start_time; ?>" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" type="text" class="datetimepicker<?= $calendar_window > 0 ? '-'.$calendar_window : '' ?>" placeholder="Start Time"><br />
 							<input name="to_do_end_date" id="to_do_end_date" value="<?php echo $to_do_end_date; ?>" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" type="text" class="datepicker">
 							<input name="to_do_end_time" id="to_do_end_time" value="<?php echo $to_do_end_time; ?>" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" type="text" class="datetimepicker<?= $calendar_window > 0 ? '-'.$calendar_window : '' ?>" placeholder="End Time">
-							<select data-placeholder="Select a Staff..." multiple id="contactid" name="contactid[]" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" class="chosen-select-deselect form-control email_recipient" width="380">
-							  <option value=""></option>
-							  <?php $staff_query = sort_contacts_query(mysqli_query($dbc,"SELECT contactid, first_name, last_name FROM contacts WHERE deleted=0 AND status>0 AND category IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY.""));
-								foreach($staff_query as $row) { ?>
-									<option <?php if (strpos($contactid, ','.$row['contactid'].',') !== FALSE) {
-									echo " selected"; } ?> value="<?php echo $row['contactid']; ?>"><?php echo $row['first_name'].' '.$row['last_name']; ?></option>
-								<?php }
-							  ?>
-							</select>
-							<label class="form-checkbox"><input type="checkbox" value="1" name="doing_email" onclick="doing_check_send_email(this);"> Send Email</label>
+
+					<br><div class="clearfix"></div>
+
+							<?php foreach(explode(',',trim($contactid,',')) as $line_contactid) { ?>
+								<div class="start-ticket-staff">
+                                <div class="clearfix"></div>
+									<div class="col-sm-6">
+										<select data-placeholder="Select a Staff..." id="contactid" name="contactid" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" data-concat="," class="chosen-select-deselect form-control email_recipient" width="380">
+										  <option value=""></option>
+										  <?php $staff_query = sort_contacts_query(mysqli_query($dbc,"SELECT contactid, first_name, last_name FROM contacts WHERE deleted=0 AND status>0 AND category IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY.""));
+											foreach($staff_query as $row) { ?>
+												<option <?php if ($line_contactid == $row['contactid']) {
+												echo " selected"; } ?> value="<?php echo $row['contactid']; ?>"><?php echo $row['first_name'].' '.$row['last_name']; ?></option>
+											<?php }
+										  ?>
+										</select>
+									</div>
+
+									<div class="col-sm-2">
+										<img class="inline-img pull-right" onclick="startTicketStaff(this);" src="../img/icons/ROOK-add-icon.png">
+										<img class="inline-img pull-right" onclick="deletestartTicketStaff(this);" src="../img/remove.png">
+									</div>
+								</div>
+							<?php } ?>
+
+					<br><div class="clearfix"></div>
+
+						<label class="form-checkbox"><input type="checkbox" value="1" name="doing_email" onclick="doing_check_send_email(this);"> Send Email</label>
 						</div>
 					</div>
 					<?php
@@ -188,14 +206,32 @@
 							<input name="internal_qa_date" value="<?php echo $internal_qa_date; ?>" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" type="text" class="datepicker email_date_info">
 							<input name="internal_qa_start_time" id="internal_qa_start_time" value="<?php echo $internal_qa_start_time; ?>" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" type="text" class="datetimepicker<?= $calendar_window > 0 ? '-'.$calendar_window : '' ?>" placeholder="Start Time">
 							<input name="internal_qa_end_time" id="internal_qa_end_time" value="<?php echo $internal_qa_end_time; ?>" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" type="text" class="datetimepicker<?= $calendar_window > 0 ? '-'.$calendar_window : '' ?>" placeholder="End Time">
-							<select data-placeholder="Select a Staff..." multiple id="contactid" name="internal_qa_contactid[]" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" class="chosen-select-deselect form-control email_recipient" width="380">
-							  <option value=""></option>
-							  <?php foreach($staff_query as $row) { ?>
-									<option <?php if (strpos($internal_qa_contactid, ','.$row['contactid'].',') !== FALSE) {
-									echo " selected"; } ?> value="<?php echo $row['contactid']; ?>"><?php echo $row['first_name'].' '.$row['last_name']; ?></option>
-								<?php }
-							  ?>
-							</select>
+
+							<?php foreach(explode(',',trim($internal_qa_contactid,',')) as $line_internalid) { ?>
+								<div class="internal-ticket-staff">
+                                <div class="clearfix"></div>
+									<div class="col-sm-6">
+
+									<select data-placeholder="Select a Staff..." id="contactid" name="internal_qa_contactid" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" data-concat="," class="chosen-select-deselect form-control email_recipient" width="380">
+									  <option value=""></option>
+									  <?php foreach($staff_query as $row) { ?>
+											<option <?php if ($line_internalid == $row['contactid']) {
+											echo " selected"; } ?> value="<?php echo $row['contactid']; ?>"><?php echo $row['first_name'].' '.$row['last_name']; ?></option>
+										<?php }
+									  ?>
+									</select>
+
+
+									</div>
+
+									<div class="col-sm-2">
+										<img class="inline-img pull-right" onclick="internalTicketStaff(this);" src="../img/icons/ROOK-add-icon.png">
+										<img class="inline-img pull-right" onclick="deleteinternalTicketStaff(this);" src="../img/remove.png">
+									</div>
+								</div>
+							<?php } ?>
+
+                            <div class="clearfix"></div>
 							<label class="form-checkbox"><input type="checkbox" value="1" name="internal_qa_email" onclick="internal_check_send_email(this);"> Send Email</label>
 						</div>
 					</div>
@@ -257,15 +293,28 @@
 							<input name="deliverable_date" value="<?php echo $deliverable_date; ?>" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" type="text" class="datepicker email_date_info">
 							<input name="deliverable_start_time" id="deliverable_start_time" value="<?php echo $deliverable_start_time; ?>" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" type="text" class="datetimepicker<?= $calendar_window > 0 ? '-'.$calendar_window : '' ?>" placeholder="Start Time">
 							<input name="deliverable_end_time" id="deliverable_end_time" value="<?php echo $deliverable_end_time; ?>" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" type="text" class="datetimepicker<?= $calendar_window > 0 ? '-'.$calendar_window : '' ?>" placeholder="End Time">
-							<select data-placeholder="Select a Staff..." multiple id="contactid" name="deliverable_contactid[]" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" class="chosen-select-deselect form-control email_recipient" width="380">
-							  <option value=""></option>
-							  <?php foreach($staff_query as $row) {
-									$selected = '';
-									$selected = strpos($deliverable_contactid, ','.$row['contactid'].',') !== FALSE ? 'selected = "selected"' : '';
-									echo "<option " . $selected . "value='". $row['contactid']."'>".$row['first_name'].' '.$row['last_name'].'</option>';
-								}
-							  ?>
-							</select>
+
+                            <?php foreach(explode(',',trim($deliverable_contactid,',')) as $line_deliverableid) { ?>
+								<div class="customer-ticket-staff">
+                                    <div class="clearfix"></div>
+									<div class="col-sm-6">
+
+									<select data-placeholder="Select a Staff..." id="contactid" name="deliverable_contactid" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" data-concat="," class="chosen-select-deselect form-control email_recipient" width="380">
+									  <option value=""></option>
+									  <?php foreach($staff_query as $row) {
+											echo "<option " .($line_deliverableid == $row['contactid'] ? 'selected = "selected"' : '') . "value='". $row['contactid']."'>".$row['first_name'].' '.$row['last_name'].'</option>';
+										}
+									  ?>
+									</select>
+									</div>
+
+									<div class="col-sm-2">
+										<img class="inline-img pull-right" onclick="customerTicketStaff(this);" src="../img/icons/ROOK-add-icon.png">
+										<img class="inline-img pull-right" onclick="deletecustomerTicketStaff(this);" src="../img/remove.png">
+									</div>
+								</div>
+							<?php } ?>
+                            <div class="clearfix"></div>
 							<label class="form-checkbox"><input type="checkbox" value="1" name="client_qa_email" onclick="client_check_send_email(this);">Send Email</label>
 						</div>
 					</div>

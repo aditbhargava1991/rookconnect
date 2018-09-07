@@ -38,14 +38,14 @@
 		<?php $projectid = $_GET['projectid'];
 		$project = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `project` WHERE `projectid`='$projectid'"));
 
-		echo '<table class="table table-bordered">';
-		echo '<tr class="hidden-xs hidden-sm">
+		echo '<table class="table table-bordered table-striped">';
+		echo '<thead><tr class="hidden-xs hidden-sm">
 			<th>Type</th>
 			<th>Heading</th>
 			<th>Description</th>
 			<th>'.ESTIMATE_TILE.' Price</th>
 			<th>Generate Invoice</th>
-			</tr>';
+			</tr></thead>';
 
 		$items = [];
 		$packages = array_filter(explode('**',$project['package']));
@@ -126,7 +126,7 @@
 			$hours = $hours[0] + ($hours[1] / 60) + ($hours[2] / 3600);
 			$items[] = ['Task', 'Task #'.$task['tasklistid'],$task['heading']." (".round($hours,2)." hours)",round($hours * $task['hourly'],2)];
 		}*/
-		$tickets = mysqli_query($dbc, "SELECT `tickets`.`ticketid`, `tickets`.`heading`, `ticket_timer`.`start_time`, `ticket_timer`.`end_time`, `hourly` FROM `ticket_timer` LEFT JOIN `tickets` ON `ticket_timer`.`ticketid`=`tickets`.`ticketid` LEFT JOIN `staff_rate_table` ON CONCAT(',',`staff_rate_table`.`staff_id`,',') LIKE CONCAT('%,',`ticket_timer`.`created_by`,',%') AND `staff_rate_table`.`deleted`=0 AND DATE(NOW()) BETWEEN `staff_rate_table`.`start_date` AND IFNULL(NULLIF(`staff_rate_table`.`end_date`,'0000-00-00'),'9999-12-31') WHERE `tickets`.`projectid`='$projectid' GROUP BY `ticket_timer`.`tickettimerid` ORDER BY `tickettimerid`");
+		$tickets = mysqli_query($dbc, "SELECT `tickets`.`ticketid`, `tickets`.`heading`, `ticket_timer`.`start_time`, `ticket_timer`.`end_time`, `hourly` FROM `ticket_timer` LEFT JOIN `tickets` ON `ticket_timer`.`ticketid`=`tickets`.`ticketid` AND `ticket_timer`.`deleted` = 0 LEFT JOIN `staff_rate_table` ON CONCAT(',',`staff_rate_table`.`staff_id`,',') LIKE CONCAT('%,',`ticket_timer`.`created_by`,',%') AND `staff_rate_table`.`deleted`=0 AND DATE(NOW()) BETWEEN `staff_rate_table`.`start_date` AND IFNULL(NULLIF(`staff_rate_table`.`end_date`,'0000-00-00'),'9999-12-31') WHERE `tickets`.`projectid`='$projectid' GROUP BY `ticket_timer`.`tickettimerid` ORDER BY `tickettimerid`");
 		while($ticket = mysqli_fetch_array($tickets)) {
 			$end = $ticket['end_time'];
 			if(empty($end)) {

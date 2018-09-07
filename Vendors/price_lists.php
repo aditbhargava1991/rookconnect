@@ -9,7 +9,7 @@
             echo "<a href='add_contacts.php?currentlist&category=Top".$order_list."'><button type='button' class='btn brand-btn mobile-block ".$active."' >Order List Items</button></a>&nbsp;&nbsp;";
         }
     }
-    
+
     echo "<div class='mobile-100-container double-gap-bottom'>";
 
         $category = $_GET['category'];
@@ -18,9 +18,9 @@
         if(empty($_GET['category']) || $_GET['category'] == 'Top' && $currentlist != 'on') {
             $active_all = 'active_tab';
         }
-        
+
         echo "<div class='pull-left'><a href='add_contacts.php?category=Top".$order_list."'><button type='button' class='btn brand-btn mobile-block mobile-100 ".$active_all."'>Last 25 Added</button></a></div>"; ?>
-        
+
         <div class="form-group mobile-100 cate_fitter pull-left gap-left" style="width:280px;">
             <select name="search_category" class="chosen-select-deselect form-control category_actual" onchange="location=this.value;">
                 <option value="">Select a Category</option><?php
@@ -36,9 +36,9 @@
               ?>
             </select>
         </div>
-        
+
         <div class="clearfix"></div><?php
-        
+
         if($_GET['category'] == 'bom') {
             $active_bom = ' active_tab';
         }
@@ -60,7 +60,7 @@
         <span class="popover-examples"><a data-toggle="tooltip" data-placement="top" title="This refreshes the page to view all Vendor Price List."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
         <button type="submit" name="display_all_inventory" value="Display All" class="btn brand-btn mobile-block">Display All</button>
     </center><?php
-    
+
     $impexp_or_not ='';
     $get_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT COUNT(`configid`) AS `configid` FROM `general_configuration` WHERE name='show_impexp_vpl'"));
     if($get_config['configid'] > 0) {
@@ -82,13 +82,13 @@
             <span class="popover-examples double-gap-top pull-right pad-5"><a data-toggle="tooltip" data-placement="top" title="Click here to Import or Export a product(s)."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span><?php
         }
     }
-    
+
     if (isset($_GET['order_list'])) {  ?>
         <div class="col-lg-1 col-md-3 col-sm-12 col-xs-12 pull-sm-right pull-xs-right" style="padding-right:12px;">
             <div class='selectall selectbutton sel2' title='This will select all PDFs on the current page.' style='cursor:pointer;text-decoration:underline;'>Select All</div>
         </div><?php
     } ?>
-    
+
     <div id="no-more-tables"><?php
         // Display Pager
         $inventory = '';
@@ -123,7 +123,7 @@
         if ($inventory != '') {
             $query_check_credentials = "SELECT * FROM `vendor_price_list` WHERE `vendorid`='$contactid' AND `deleted`=0 AND (`name` LIKE '%" . $inventory . "%' OR `code` LIKE '%" . $inventory . "%' OR `part_no` LIKE '%" . $inventory . "%' OR `category`='$inventory' OR `sub_category` LIKE '%" . $inventory . "%' OR `description` LIKE '%" . $inventory . "%' OR `purchase_cost` LIKE '%" . $inventory . "%' OR `min_bin` LIKE '%" . $inventory . "%' OR `date_of_purchase` LIKE '%" . $inventory . "%') LIMIT $offset, $rowsPerPage";
             $query = "SELECT COUNT(*) as `numrows` FROM `vendor_price_list` WHERE `vendorid`='$contactid' AND `deleted`=0 AND (`name` LIKE '%" . $inventory . "%' OR `code` LIKE '%" . $inventory . "%' OR `part_no` LIKE '%" . $inventory . "%' OR `category`='$inventory' OR `sub_category` LIKE '%" . $inventory . "%' OR `description` LIKE '%" . $inventory . "%' OR `purchase_cost` LIKE '%" . $inventory . "%' OR `min_bin` LIKE '%" . $inventory . "%' OR `date_of_purchase` LIKE '%" . $inventory . "%')";
-        } else {        
+        } else {
             /*
             if(isset($_GET['filter'])) { $url_search = $_GET['filter']; } else { $url_search = ''; }
             if($url_search == 'Top') {
@@ -160,7 +160,7 @@
                 $query = "SELECT COUNT(*) AS `numrows` FROM `vendor_price_list` WHERE `deleted`=0";
             }
         }
-        
+
         $result = mysqli_query($dbc, $query_check_credentials);
 
         $num_rows = mysqli_num_rows($result);
@@ -168,7 +168,7 @@
 
             $get_field_config = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `dashboard` FROM `field_config_vendors` WHERE `subtab`='Price Lists' AND `fields` IS NOT NULL"));
             $value_config = ','.$get_field_config['dashboard'].',';
-            
+
             /*
             if(empty($_GET['category']) || $_GET['category'] == 'Top') {
                 $get_field_config = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `fields` FROM `field_config_vendors` WHERE `subtab`='Price Lists' AND `fields` IS NOT NULL"));
@@ -235,7 +235,7 @@
                     echo '<th>USD Invoice</th>';
                 }
                 if (strpos($value_config, ',Vendor,') !== false) {
-                    echo '<th>Vendor</th>';
+                    echo '<th>'.VENDOR_TILE.'</th>';
                 }
                 if (strpos($value_config, ',Purchase Cost,') !== false) {
                     echo '<th>Purchase Cost</th>';
@@ -283,7 +283,7 @@
                     echo '<th>Include in '.SALES_ORDER_TILE.'</th>';
                 }
                 if (strpos($value_config, ',Include in P.O.S.,') !== false) {
-                    echo '<th>Include in Point of Sale</th>';
+                    echo '<th>Include in '.POS_ADVANCE_TILE.'</th>';
                 }
                 if (strpos($value_config, ',Include in Purchase Orders,') !== false) {
                     echo '<th>Include in Purchase Orders</th>';

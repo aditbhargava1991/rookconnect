@@ -15,17 +15,17 @@ $filter_class = $name[4];
 $filter_site = $name[5];
 $filter_business = $name[6];
 
-
 // Get the approval settings for the current tab
 $admin_groups = $dbc->query("SELECT * FROM `field_config_project_admin` WHERE `deleted`=0 AND CONCAT(',',`contactid`,',') LIKE '%,{$_SESSION['contactid']},%'");
 for($admin_group = $admin_groups->fetch_assoc(); $admin_group['id'] != $id && !empty($admin_group['name']); $admin_group = $admin_groups->fetch_assoc());
-?>
+$ticket_db = explode(',',get_field_config($dbc, 'tickets_dashboard'));
+$approv_count = $admin_group['precedence'] > 1 ? count(array_filter(explode(',',$admin_group['contactid']))) : 1; ?>
 <h3>Administration - <?= $admin_group['name'] ?>: <?= ucfirst($status).($admin_group['region'] != '' ? ' <em><small>'.$admin_group['region'].'</small></em>' : '').($admin_group['classification'] != '' ? ' <em><small>'.$admin_group['classification'].'</small></em>' : '').($admin_group['location'] != '' ? ' <em><small>'.$admin_group['location'].'</small></em>' : '').($admin_group['customer'] > 0 ? ' <em><small>'.get_contact($dbc,$admin_group['customer'],'full_name').'</small></em>' : '') ?></h3>
 <script>
 $(document).ready(function() {
 	$('[name=approvals]').change(function() {
 		<?php if($admin_group['signature'] > 0) { ?>
-			overlayIFrame('../Project/project_admin_sign.php?table='+$(this).data('table')+'&id='+this.value+'&date='+$(this).data('date'));
+			overlayIFrame('../Project/project_admin_sign.php?table='+$(this).data('table')+'&id='+this.value+'&date='+$(this).data('date')+'&invoice='+$(this).data('invoice'));
 		<?php } else { ?>
 			$.post('../Project/projects_ajax.php?action=approvals', {
 				field: 'approvals',
@@ -33,7 +33,8 @@ $(document).ready(function() {
 				contactid: '<?= $_SESSION['contactid'] ?>',
 				status: this.checked ? 1 : 0,
 				id: this.value,
-				date: $(this).data('date')
+				date: $(this).data('date'),
+				invoice: $(this).data('invoice')
 			}).success(function(response) {
 				console.log(response);
 			});
@@ -55,13 +56,13 @@ function setRevision(table, status, ticket, date = '') {
 	},function(response) {console.log(response);});
 }
 </script>
-<?php $tickets = get_administration_tickets($dbc, $_GET['tab'], $projectid);
+<?php $tickets = get_administration_tickets($dbc, $_GET['tab'], $projectid, isset($ticket_conf_list) ? $ticket_conf_list : []);
 if($tickets->num_rows > 0) { ?>
 	<div id="no-more-tables">
 		<table class="table table-bordered">
 			<tr class="hidden-sm hidden-xs">
 				<th>Date</th>
-				<th><?= TICKET_NOUN ?> (Click to View)</th>
+				<th><?= empty($ticket_noun) ? TICKET_NOUN : $ticket_noun ?> (Click to View)</th>
 				<?php if(strpos($value_config, ',Services,') !== FALSE) { ?>
 					<th>Services</th>
 				<?php } ?>
@@ -70,7 +71,7 @@ if($tickets->num_rows > 0) { ?>
 				<?php } ?>
 				<?php if(strpos($value_config, ',Staff Tasks,') !== FALSE) { ?>
 					<th>Staff</th>
-					<th>Task</th>
+					<th><?= TASK_TILE ?></th>
 					<th>Hours</th>
 				<?php } ?>
 				<?php if(strpos($value_config, ',Inventory,') !== FALSE) { ?>
@@ -110,9 +111,11 @@ if($tickets->num_rows > 0) { ?>
 				} ?>
 				<tr>
 					<td data-title="Date"><?= $ticket['ticket_date'] ?></td>
-					<td data-title="<?= TICKET_NOUN ?>"><a href="../Ticket/index.php?edit=<?= $ticket['ticketid'] ?>" onclick="overlayIFrameSlider(this.href+'&calendar_view=true'); return false;"><?= get_ticket_label($dbc, $ticket) ?></a></td>
+					<td data-title="<?= empty($ticket_noun) ? TICKET_NOUN : $ticket_noun ?>"><a href="../Ticket/index.php?edit=<?= $ticket['ticketid'] ?>" onclick="overlayIFrameSlider(this.href+'&calendar_view=true'); return false;"><?= get_ticket_label($dbc, $ticket) ?></a></td>
 					<?php if(strpos($value_config, ',Services,') !== FALSE) {
-						$total_cost += number_format($ticket['services_cost'],2); ?>
+						foreach($services_cost as $cost_amt) {
+							$total_cost += $cost_amt;
+						} ?>
 						<td data-title="Services"><?= implode('<br />',$services) ?></td>
 					<?php } ?>
 					<?php if(strpos($value_config, ',Sub Totals per Service,') !== FALSE) { ?>
@@ -210,7 +213,7 @@ if($tickets->num_rows > 0) { ?>
 					} else if((strpos(','.$ticket['revision_required'].',',','.$_SESSION['contactid'].',') !== FALSE && $project_admin_multiday_tickets != 1) || (strpos(','.$ticket['revision_required'].',',','.$_SESSION['contactid'].'#*#'.$ticket['ticket_date'].',') !== FALSE)) {
 						echo "In Revision";
 					} else { ?>
-						<label class="form-checkbox any-width no-pad"><input type="checkbox" name="approvals" data-table="tickets" <?= $project_admin_multiday_tickets == 1 ? 'data-date="'.$ticket['ticket_date'].'"' : '' ?> value="<?= $ticket['ticketid'] ?>"> Approve</label>
+						<label class="form-checkbox any-width no-pad"><input type="checkbox" name="approvals" data-invoice="<?= count($approved) >= $approv_count - 1 && !in_array('Invoicing',$ticket_db) ? 'true' : '' ?>" data-table="tickets" <?= $project_admin_multiday_tickets == 1 ? 'data-date="'.$ticket['ticket_date'].'"' : '' ?> value="<?= $ticket['ticketid'] ?>"> Approve</label>
 					<?php } ?></td>
 					<?php foreach($admin_group_managers as $admin_manager_id => $admin_manager_name) {
 						if($admin_manager_id != $_SESSION['contactid']) { ?>
@@ -233,5 +236,5 @@ if($tickets->num_rows > 0) { ?>
 		</table>
 	</div>
 <?php } else {
-	echo "<h3>No ".TICKET_TILE." Found.</h3>";
+	echo "<h3>No ".(empty($ticket_tile) ? TICKET_TILE : $ticket_tile)." Found.</h3>";
 } ?>

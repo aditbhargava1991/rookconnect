@@ -132,7 +132,7 @@
 
   <?php if (strpos($value_config, ','."Upload Vendor Documents".',') !== FALSE) { ?>
     <div class="form-group">
-    <label for="file" class="col-sm-4 control-label">Upload Vendor Documents:
+    <label for="file" class="col-sm-4 control-label">Upload <?= VENDOR_TILE ?> Documents:
     <span class="popover-examples list-inline">&nbsp;
     <a  data-toggle="tooltip" data-placement="top" title="File name cannot contain commas or apostrophes"><img src="<?php echo WEBSITE_URL; ?>/img/info.png" width="20"></a>
     </span>

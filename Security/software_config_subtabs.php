@@ -145,7 +145,7 @@ checkAuthorised('security');
 					echo '<h2 class="double-pad-bottom">Payment Tile Permissions</h2>';
 					break;
 				case 'posadvanced':
-					echo '<h2 class="double-pad-bottom">Point of Sale Tile Permissions</h2>';
+					echo '<h2 class="double-pad-bottom">'.POS_ADVANCE_TILE.' Tile Permissions</h2>';
 					break;
 				case 'form_builder':
 					echo '<h2 class="double-pad-bottom">Form Builder Permissions</h2>';
@@ -202,6 +202,8 @@ checkAuthorised('security');
 
 					/* Tabbed View Contacts tile subtab settings */
 					if ( $tile == 'contacts' ) {
+						echo '<tr><td>Summary</td>';
+						echo subtab_config_function( $dbc, $tile, $level_url, 'summary' ).'</tr>';
 						$tabs		= get_config ( $dbc, 'contacts_tabs' );
 						$each_tab	= explode ( ',', $tabs );
 						foreach ( $each_tab as $subtab ) {
@@ -218,6 +220,8 @@ checkAuthorised('security');
 
 					/* Contacts tile subtab settings */
 					if ( $tile == 'contacts_inbox' ) {
+						echo '<tr><td>Summary</td>';
+						echo subtab_config_function( $dbc, $tile, $level_url, 'summary' ).'</tr>';
 						$tabs		= get_config ( $dbc, 'contacts_tabs' );
 						$each_tab	= explode ( ',', $tabs );
 						foreach ( $each_tab as $subtab ) {
@@ -538,11 +542,11 @@ checkAuthorised('security');
 						<?php }
 						if(strpos($reports,',Point of Sale,') !== false) {
 							$pos_title = get_tile_title($dbc);
-							$pos_title = (empty($pos_title) ? 'Point of Sale' : $pos_title); ?>
+							$pos_title = (empty($pos_title) ? POS_ADVANCE_TILE : $pos_title); ?>
 							<tr><td><?= $pos_title ?></td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'point_of_sale' ); ?></tr>
 						<?php }
 						if(strpos($reports,',POS,') !== false) { ?>
-							<tr><td>Point of Sale (Advanced)</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'point_of_sale_advanced' ); ?></tr>
+							<tr><td><?= POS_ADVANCE_TILE ?></td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'point_of_sale_advanced' ); ?></tr>
 						<?php }
 						if(strpos($reports,',Credit Card on File,') !== false) { ?>
 							<tr><td>Credit Card on File</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'credit_card_on_file' ); ?></tr>
@@ -567,6 +571,9 @@ checkAuthorised('security');
 						<?php }
 						if(strpos($reports,',Ticket by Task,') !== false) { ?>
 							<tr><td><?= TICKET_NOUN ?> by Task</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'ticket_by_task' ); ?></tr>
+						<?php }
+						if(strpos($reports,',Ticket Activity Report,') !== false) { ?>
+							<tr><td><?= TICKET_NOUN ?> Activity Report per Customer</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'ticket_activity_report' ); ?></tr>
 						<?php }
 						if(strpos($reports,',Rate Card Report,') !== false) { ?>
 							<tr><td>Rate Cards Report</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'rate_card_report' ); ?></tr>
@@ -751,6 +758,9 @@ checkAuthorised('security');
 						<?php }
 						if(strpos($reports,',Pro Bono Report,') !== false) { ?>
 							<tr><td>Pro-Bono</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'pro_bono' ); ?></tr>
+						<?php }
+						if(strpos($reports,',Promotions and Coupons,') !== false) { ?>
+							<tr><td>Promotions & Coupons</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'promotions_coupons' ); ?></tr>
 						<?php }
 						if(strpos($reports,',Referral,') !== false) { ?>
 							<tr><td>Referrals</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'referral' ); ?></tr>
@@ -1018,12 +1028,12 @@ checkAuthorised('security');
 					}
 
 					/* Tasks tile subtab settings */
-					if ( $tile == 'tasks' ) { ?>
-						<tr><td>My Tasks</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'my' ); ?></tr>
-						<tr><td>Company Tasks</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'company' ); ?></tr>
-						<tr><td>Community Tasks</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'community' ); ?></tr>
-						<tr><td>Business Tasks</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'business' ); ?></tr>
-						<tr><td>Client Tasks</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'client' ); ?></tr>
+					if ( $tile == 'tasks' || $tile == 'tasks_updated') { ?>
+						<tr><td>My <?= TASK_TILE ?></td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'my' ); ?></tr>
+						<tr><td>Company <?= TASK_TILE ?></td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'company' ); ?></tr>
+						<tr><td>Community <?= TASK_TILE ?></td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'community' ); ?></tr>
+						<tr><td>Business <?= TASK_TILE ?></td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'business' ); ?></tr>
+						<tr><td>Client <?= TASK_TILE ?></td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'client' ); ?></tr>
 						<tr><td>Reporting</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'reporting' ); ?></tr><?php
 					}
 
@@ -1140,6 +1150,7 @@ checkAuthorised('security');
 						<tr><td>Font Settings</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'font' ); ?></tr>
 						<tr><td>Data Usage</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'data_use' ); ?></tr>
 						<tr><td>Notes</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'notes' ); ?></tr>
+						<tr><td>Notifications: Software Default</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'notifications_software' ); ?></tr>
 					<?php }
 					// include ('../Settings/settings_subtab_settings.php');
 					/* End of Settings tile subtab settings */

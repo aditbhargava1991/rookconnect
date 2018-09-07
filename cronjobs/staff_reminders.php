@@ -1,8 +1,8 @@
 <?php
 error_reporting(0);
-include	('../database_connection.php');
-include ('../function.php');
-include ('../phpmailer.php');
+include(substr(dirname(__FILE__), 0, -8).'database_connection.php');
+include(substr(dirname(__FILE__), 0, -8).'function.php');
+include(substr(dirname(__FILE__), 0, -8).'phpmailer.php');
 
 if(isset($_GET['reminderid'])) {
 	$query = "`reminderid`={$_GET['reminderid']}";
@@ -26,14 +26,14 @@ while($row = mysqli_fetch_array($results)) {
 			$from = [$email => $email];
 		}
 	}
-	
+
 	$contacts = explode(',',$row['contactid']);
 	foreach($contacts as $contactid) {
 		$email = get_email($dbc, $contactid);
 		if($email != '') {
 			$time = date('Y-m-d h:i:s');
 			$title = $row['subject'];
-			
+
 			try {
 				send_email($from, $email, '', '', $row['subject'], html_entity_decode($row['body']), '');
 				echo $row['subject']." sent to $email at $time. (Staff Reminder: #".$row['reminderid'].")\n";

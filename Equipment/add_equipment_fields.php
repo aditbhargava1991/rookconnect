@@ -380,7 +380,7 @@ function filterClassifications() {
   <div class="form-group">
     <label for="fax_number" class="col-sm-4 control-label">Staff:</label>
     <div class="col-sm-8">
-      <select name="staff[]" multiple data-placeholder="Select Staff" class="chosen-select-deselect form-control"><option></option>
+      <select name="staff[]" multiple data-placeholder="Select Staff" class="chosen-select-deselect form-control">
         <?php $staff_list = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT `contactid`,`last_name`,`first_name` FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `email_address` != '' AND `deleted`=0 AND `status`>0"),MYSQLI_ASSOC));
         foreach($staff_list as $staff_id) {
           echo '<option '.(strpos(','.$staff.',', ','.$staff_id.',') !== FALSE ? 'selected' : '').' value="'.$staff_id.'">'.get_contact($dbc, $staff_id).'</option>';
@@ -425,7 +425,7 @@ foreach ($location as $single_location) { ?>
     <?php $location_list = array_filter(array_unique(explode(',', mysqli_fetch_array(mysqli_query($dbc, "SELECT GROUP_CONCAT(DISTINCT `con_locations` SEPARATOR ',') FROM `field_config_contacts`"))[0])));
     foreach ($location_list as $con_location) {
       if(in_array($con_location, $allowed_locations)) {
-        echo "<option ".($con_location == $single_location ? 'selected' : '')." value='$con_location'>$con_location</option>"; 
+        echo "<option ".($con_location == $single_location ? 'selected' : '')." value='$con_location'>$con_location</option>";
       }
     } ?>
   </select>
@@ -466,7 +466,7 @@ foreach ($classification as $single_classification) { ?>
       if(!empty($region) && !empty($get_equipment['region']) && empty(array_intersect($classification_regions[$i], $region)) && !empty($classification_regions[$i])) {
         $hidden_classification = 'style="display:none;"';
       }
-      echo "<option ".($con_classification == $single_classification ? 'selected' : '')." data-regions='".json_encode($classification_regions[$i])."' value='$con_classification' $hidden_classification>$con_classification</option>"; 
+      echo "<option ".($con_classification == $single_classification ? 'selected' : '')." data-regions='".json_encode($classification_regions[$i])."' value='$con_classification' $hidden_classification>$con_classification</option>";
     } ?>
   </select>
 </div>
@@ -661,6 +661,74 @@ foreach ($classification as $single_classification) { ?>
 </div>
 <?php } ?>
 
+<?php if (strpos($value_config, ','."Billing Rate".',') !== FALSE) { ?>
+<div class="form-group">
+<label for="company_name" class="col-sm-4 control-label">Billing Rate:</label>
+<div class="col-sm-8">
+  <input readonly value="<?= number_format($total_hours / $total_billed,2) ?>" type="text" class="form-control">
+</div>
+</div>
+<?php } ?>
+
+<?php if (strpos($value_config, ','."Billed Hours".',') !== FALSE) { ?>
+<div class="form-group">
+<label for="company_name" class="col-sm-4 control-label">Total Billed Hours:</label>
+<div class="col-sm-8">
+  <input readonly value="<?= round($total_hours,3) ?>" type="text" class="form-control">
+</div>
+</div>
+<?php } ?>
+
+<?php if (strpos($value_config, ','."Billed Total".',') !== FALSE) { ?>
+<div class="form-group">
+<label for="company_name" class="col-sm-4 control-label">Total Billed Amount:</label>
+<div class="col-sm-8">
+  <input readonly value="<?= number_format($total_billed,2) ?>" type="text" class="form-control">
+</div>
+</div>
+<?php } ?>
+
+<?php if (strpos($value_config, ','."Expense Total".',') !== FALSE) { ?>
+<div class="form-group">
+<label for="company_name" class="col-sm-4 control-label">Total Expenses:</label>
+<div class="col-sm-8">
+  <input readonly value="<?= number_format($total_expenses,2) ?>" type="text" class="form-control">
+</div>
+</div>
+<?php } ?>
+
+<?php if (strpos($value_config, ','."Profit Total".',') !== FALSE) { ?>
+<div class="form-group">
+<label for="company_name" class="col-sm-4 control-label">Total Profit:</label>
+<div class="col-sm-8">
+  <input readonly value="<?= number_format($total_billed - $total_expenses,2) ?>" type="text" class="form-control">
+</div>
+</div>
+<?php } ?>
+
+<?php if (strpos($value_config, ','."Follow Up Date".',') !== FALSE) { ?>
+<div class="form-group clearfix completion_date">
+    <label for="first_name" class="col-sm-4 control-label text-right">Follow Up Date:</label>
+    <div class="col-sm-8">
+        <input name="follow_up_date" value="<?php echo $follow_up_date; ?>" type="text" class="form-control datepicker"></p>
+    </div>
+</div>
+<?php } ?>
+
+<?php if (strpos($value_config, ','."Follow Up Staff".',') !== FALSE) { ?>
+<div class="form-group clearfix completion_date">
+    <label for="first_name" class="col-sm-4 control-label text-right">Follow Up Staff:</label>
+    <div class="col-sm-8">
+        <select name="follow_up_staff[]" multiple class="chosen-select-deselect">
+          <?php $staff_list = sort_contacts_query(mysqli_query($dbc, "SELECT `contactid`,`last_name`,`first_name` FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `email_address` != '' AND `deleted`=0 AND `status`>0"));
+          foreach($staff_list as $staff) {
+            echo '<option value="'.$staff['contactid'].'" '.(strpos(','.$follow_up_staff.',', ','.$staff['contactid'].',') !== false ? 'selected' : '').'>'.$staff['full_name'].'</option>';
+          } ?>
+        </select>
+    </div>
+</div>
+<?php } ?>
+
 <?php if (strpos($value_config, ','."Next Service Date".',') !== FALSE) { ?>
 <div class="form-group clearfix completion_date">
     <label for="first_name" class="col-sm-4 control-label text-right">Next Service Date:</label>
@@ -716,6 +784,15 @@ foreach ($classification as $single_classification) { ?>
 </div>
 <?php } ?>
 
+<?php if (strpos($value_config, ','."Last Oil Filter Change (hrs)".',') !== FALSE) { ?>
+<div class="form-group">
+<label for="fax_number"	class="col-sm-4	control-label">Last Oil Filter Change (hrs):</label>
+<div class="col-sm-8">
+  <input name="last_oil_filter_change_hrs" type="text" value="<?php	echo $last_oil_filter_change_hrs; ?>" class="form-control last_oil_filter_change"/>
+</div>
+</div>
+<?php } ?>
+
 <?php if (strpos($value_config, ','."Next Oil Filter Change (date)".',') !== FALSE) { ?>
 <div class="form-group">
 <label for="fax_number"	class="col-sm-4	control-label">Next Oil Filter Change (date):</label>
@@ -730,6 +807,15 @@ foreach ($classification as $single_classification) { ?>
 <label for="fax_number"	class="col-sm-4	control-label">Next Oil Filter Change (km):</label>
 <div class="col-sm-8">
   <input name="next_oil_filter_change" type="text" value="<?php	echo $next_oil_filter_change; ?>" class="form-control next_oil_filter_change"/>
+</div>
+</div>
+<?php } ?>
+
+<?php if (strpos($value_config, ','."Next Oil Filter Change (hrs)".',') !== FALSE) { ?>
+<div class="form-group">
+<label for="fax_number"	class="col-sm-4	control-label">Next Oil Filter Change (hrs):</label>
+<div class="col-sm-8">
+  <input name="next_oil_filter_change_hrs" type="text" value="<?php	echo $next_oil_filter_change_hrs; ?>" class="form-control next_oil_filter_change"/>
 </div>
 </div>
 <?php } ?>
@@ -752,6 +838,15 @@ foreach ($classification as $single_classification) { ?>
 </div>
 <?php } ?>
 
+<?php if (strpos($value_config, ','."Last Inspection & Tune Up (hrs)".',') !== FALSE) { ?>
+<div class="form-group">
+<label for="fax_number"	class="col-sm-4	control-label">Last Inspection & Tune Up (hrs):</label>
+<div class="col-sm-8">
+  <input name="last_insp_tune_up_hrs" type="text" value="<?php	echo $last_insp_tune_up_hrs; ?>" class="form-control last_insp_tune_up"/>
+</div>
+</div>
+<?php } ?>
+
 <?php if (strpos($value_config, ','."Next Inspection & Tune Up (date)".',') !== FALSE) { ?>
 <div class="form-group">
 <label for="fax_number"	class="col-sm-4	control-label">Next Inspection & Tune Up (date):</label>
@@ -766,6 +861,15 @@ foreach ($classification as $single_classification) { ?>
 <label for="fax_number"	class="col-sm-4	control-label">Next Inspection & Tune Up (km):</label>
 <div class="col-sm-8">
   <input readonly name="next_insp_tune_up" type="text" value="<?php	echo $next_insp_tune_up; ?>" class="form-control next_insp_tune_up"/>
+</div>
+</div>
+<?php } ?>
+
+<?php if (strpos($value_config, ','."Next Inspection & Tune Up (hrs)".',') !== FALSE) { ?>
+<div class="form-group">
+<label for="fax_number"	class="col-sm-4	control-label">Next Inspection & Tune Up (hrs):</label>
+<div class="col-sm-8">
+  <input readonly name="next_insp_tune_up_hrs" type="text" value="<?php	echo $next_insp_tune_up_hrs; ?>" class="form-control next_insp_tune_up"/>
 </div>
 </div>
 <?php } ?>
@@ -797,6 +901,15 @@ foreach ($classification as $single_classification) { ?>
 </div>
 <?php } ?>
 
+<?php if (strpos($value_config, ','."Last Tire Rotation (hrs)".',') !== FALSE) { ?>
+<div class="form-group">
+<label for="fax_number"	class="col-sm-4	control-label">Last Tire Rotation (hrs):</label>
+<div class="col-sm-8">
+  <input name="last_tire_rotation_hrs" type="text" value="<?php	echo $last_tire_rotation_hrs; ?>" class="form-control last_tire_rotation"/>
+</div>
+</div>
+<?php } ?>
+
 <?php if (strpos($value_config, ','."Next Tire Rotation (date)".',') !== FALSE) { ?>
 <div class="form-group">
 <label for="fax_number"	class="col-sm-4	control-label">Next Tire Rotation (date):</label>
@@ -811,6 +924,15 @@ foreach ($classification as $single_classification) { ?>
 <label for="fax_number"	class="col-sm-4	control-label">Next Tire Rotation (km):</label>
 <div class="col-sm-8">
   <input name="next_tire_rotation" type="text" value="<?php	echo $next_tire_rotation; ?>" class="form-control"/>
+</div>
+</div>
+<?php } ?>
+
+<?php if (strpos($value_config, ','."Next Tire Rotation (hrs)".',') !== FALSE) { ?>
+<div class="form-group">
+<label for="fax_number"	class="col-sm-4	control-label">Next Tire Rotation (hrs):</label>
+<div class="col-sm-8">
+  <input name="next_tire_rotation_hrs" type="text" value="<?php	echo $next_tire_rotation_hrs; ?>" class="form-control"/>
 </div>
 </div>
 <?php } ?>
@@ -843,20 +965,20 @@ foreach ($classification as $single_classification) { ?>
 	$reminder   = mysqli_query ( $dbc, "SELECT * FROM `reminders` WHERE `verify` LIKE '".$verify."%' AND `sent`=0 ORDER BY `reminder_date` ASC" );
 	$staff      = [];
     $ins_reminder_date = '';
-    
+
     if ( mysqli_num_rows($reminder) > 0 ) {
 		$reminder = mysqli_fetch_array($reminder);
         $ins_reminder_date = $reminder['reminder_date'];
         $staff    = explode ( '<br>', get_multiple_contact($dbc, $reminder['contactid']) );
     } ?>
-    
+
     <!--
     <label for="first_name" class="col-sm-4 control-label text-right">Upcoming Scheduled Reminder:</label>
     <div class="col-sm-8">
         Date: <?php //$reminder['reminder_date'] ?><br />Staff: <?php //get_multiple_contact($dbc, $reminder['contactid']) ?>
     </div>
     -->
-    
+
     <label for="first_name" class="col-sm-4 control-label text-right">Registration Reminder Date:</label>
     <div class="col-sm-8">
         <input name="reg_reminder_date" value="<?= $ins_reminder_date; ?>" type="text" class="form-control datepicker">
@@ -892,20 +1014,20 @@ foreach ($classification as $single_classification) { ?>
 	$reminder   = mysqli_query($dbc, "SELECT * FROM `reminders` WHERE `verify` LIKE '".$verify."%' AND `sent`=0 ORDER BY `reminder_date` ASC");
 	$staff      = [];
     $ins_reminder_date = '';
-    
+
     if ( mysqli_num_rows($reminder) > 0 ) {
 		$reminder = mysqli_fetch_array($reminder);
         $ins_reminder_date = $reminder['reminder_date'];
         $staff    = explode ( '<br>', get_multiple_contact($dbc, $reminder['contactid']) );
     } ?>
-    
+
     <!--
     <label for="first_name" class="col-sm-4 control-label text-right">Upcoming Scheduled Reminder:</label>
     <div class="col-sm-8">
         Date: <?php //$reminder['reminder_date'] ?><br />Staff: <?php //get_multiple_contact($dbc, $reminder['contactid']) ?>
     </div>
     -->
-    
+
     <label for="first_name" class="col-sm-4 control-label text-right">Insurance Reminder Date:</label>
     <div class="col-sm-8">
         <input name="ins_reminder_date" value="<?= $ins_reminder_date; ?>" type="text" class="form-control datepicker">
@@ -931,6 +1053,15 @@ foreach ($classification as $single_classification) { ?>
 <label for="fax_number"	class="col-sm-4	control-label">Location:</label>
 <div class="col-sm-8">
   <input name="location" type="text" value="<?php	echo $location; ?>" class="form-control"/>
+</div>
+</div>
+<?php } ?>
+
+<?php if (strpos($value_config, ','."Location Cookie".',') !== FALSE) { ?>
+<div class="form-group">
+<label for="fax_number"	class="col-sm-4	control-label">Google Location Cookie:</label>
+<div class="col-sm-8">
+  <input name="location_cookie" type="text" value="<?php	echo $location_cookie; ?>" class="form-control"/>
 </div>
 </div>
 <?php } ?>
@@ -1216,4 +1347,20 @@ foreach ($classification as $single_classification) { ?>
     <input name="new_use" type="text" class="form-control"/>
 </div>
 </div>
+<?php } ?>
+
+<?php if (strpos($value_config, ','."Equipment Image".',') !== FALSE) { ?>
+<div class="form-group">
+<label for="travel_task" class="col-sm-4 control-label">Equipment Image:</label>
+<div class="col-sm-8">
+  <?php if($equipment_image != '' && file_exists('download/'.$equipment_image)) { ?>
+    <span class="image_functions">
+      <a href="download/<?= $equipment_image ?>" target="_blank">View</a> | <a href="" onclick="$(this).closest('.form-group').find('[name=equipment_image_delete]').val(1); $(this).closest('.image_functions').remove(); return false;">Delete</a>
+    </span>
+  <?php } ?>
+  <input type="hidden" name="equipment_image_delete" class="form-control" value="0"s>
+  <input type="file" name="equipment_image" class="form-control">
+</div>
+</div>
+<div class="clearfix"></div>
 <?php } ?>

@@ -1369,14 +1369,14 @@ checkAuthorised('invoicing');
 					  <select id="customerid" name="contactid" data-placeholder="Select Customer..." class="chosen-select-deselect form-control" width="380">
 					  <option value=''></option>
 							<?php
-							$result = mysqli_query($dbc, "SELECT contactid, name FROM contacts WHERE (category NOT IN (".STAFF_CATS.") AND category != 'Employee') AND deleted=0 ORDER BY IF(name RLIKE '^[a-z]', 1, 2), name");
-							while($row = mysqli_fetch_assoc($result)) {
+							$result = sort_contacts_query(mysqli_query($dbc, "SELECT `contactid`,`first_name`,`last_name`,`site_name`,`display_name`,`name`,`category` FROM contacts WHERE (category NOT IN (".STAFF_CATS.") AND category != 'Employee') AND deleted=0 AND `status` > 0 AND CONCAT(IFNULL(`name`,''),IFNULL(`first_name`,''),IFNULL(`last_name`,''),IFNULL(`site_name`,''),IFNULL(`display_name`,'')) != '' ORDER BY IF(name RLIKE '^[a-z]', 1, 2), name"));
+							foreach($result as $row) {
 								if ( $contactid == $row[ 'contactid' ] ) {
 									$selected = 'selected="selected"';
 								} else {
 									$selected = '';
 								}
-								echo "<option " . $selected . " value=" . $row['contactid'] . ">" . decryptIt($row['name']) . "</option>";
+								echo "<option " . $selected . " value=" . $row['contactid'] . ">" . $row['full_name'] . "</option>";
 							}
 						   ?>
 					  </select>

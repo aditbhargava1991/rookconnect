@@ -277,117 +277,39 @@ $(document).ready(function() {
 
         <div id="collapse_field" class="panel-collapse collapse">
             <div class="panel-body" id="no-more-tables">
-                <?php
-                $get_field_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT purchase_order FROM field_config"));
-                $value_config = ','.$get_field_config['purchase_order'].',';
-                ?>
+                <?php $value_config = get_field_config($dbc, 'purchase_order'); ?>
 
-                <table border='2' cellpadding='10' class='table'>
-                    <tr>
-                        <td>
-                            <input type="checkbox" <?php if (strpos($value_config, ','."Invoice Date".',') !== FALSE) { echo " checked"; } ?> value="Invoice Date" name="pos[]">&nbsp;&nbsp;Order Date
-                        </td>
-                        <td>
-                            <input type="checkbox" <?php if (strpos($value_config, ','."PO Name".',') !== FALSE) { echo " checked"; } ?> value="PO Name" name="pos[]">&nbsp;&nbsp;PO Name
-                        </td>
-                        <td>
-                            <input type="checkbox" <?php if (strpos($value_config, ','."Customer".',') !== FALSE) { echo " checked"; } ?> value="Customer" name="pos[]">&nbsp;&nbsp;Vendor
-                        </td>
-                        <td>
-                            <input type="checkbox" <?php if (strpos($value_config, ','."Product Pricing".',') !== FALSE) { echo " checked"; } ?> value="Product Pricing" name="pos[]">&nbsp;&nbsp;Pricing
-                        </td>
-						<td>
-                            <input type="checkbox" <?php if (strpos($value_config, ','."Send Outbound Invoice".',') !== FALSE) { echo " checked"; } ?> value="Send Outbound Invoice" name="pos[]">&nbsp;&nbsp;Send Outbound Purchase Order
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <input type="checkbox" <?php if (strpos($value_config, ','."Discount".',') !== FALSE) { echo " checked"; } ?> value="Discount" name="pos[]">&nbsp;&nbsp;Discount
-                        </td>
-                        <td>
-                            <input type="checkbox" <?php if (strpos($value_config, ','."Delivery".',') !== FALSE) { echo " checked"; } ?> value="Delivery" name="pos[]">&nbsp;&nbsp;Delivery/Pickup
-                        </td>
-                        <td>
-                            <input type="checkbox" <?php if (strpos($value_config, ','."Assembly".',') !== FALSE) { echo " checked"; } ?> value="Assembly" name="pos[]">&nbsp;&nbsp;Assembly
-                        </td>
-                        <td>
-                            <input type="checkbox" <?php if (strpos($value_config, ','."Tax".',') !== FALSE) { echo " checked"; } ?> value="Tax" name="pos[]">&nbsp;&nbsp;Tax
-                        </td>
-                        <td>
-                            <input type="checkbox" <?php if (strpos($value_config, ','."Total Price".',') !== FALSE) { echo " checked"; } ?> value="Total Price" name="pos[]">&nbsp;&nbsp;Total Price
-                        </td>
-
-                    </tr>
-                    <tr>
-                        <td>
-                            <input type="checkbox" <?php if (strpos($value_config, ','."Payment Type".',') !== FALSE) { echo " checked"; } ?> value="Payment Type" name="pos[]">&nbsp;&nbsp;Payment Type
-                        </td>
-                        <td>
-                            <input type="checkbox" <?php if (strpos($value_config, ','."Comment".',') !== FALSE) { echo " checked"; } ?> value="Comment" name="pos[]">&nbsp;&nbsp;Comment
-                        </td>
-                        <td>
-                            <input type="checkbox" <?php if (strpos($value_config, ','."Tax Exemption".',') !== FALSE) { echo " checked"; } ?> value="Tax Exemption" name="pos[]">&nbsp;&nbsp;Tax Exemption
-                        </td>
-                        <td>
-                            <input type="checkbox" <?php if (strpos($value_config, ','."Created/Sold By".',') !== FALSE) { echo " checked"; } ?> value="Created/Sold By" name="pos[]">&nbsp;&nbsp;Created/Sold By
-                        </td>
-                        <td>
-                            <input type="checkbox" <?php if (strpos($value_config, ','."Ship Date".',') !== FALSE) { echo " checked"; } ?> value="Ship Date" name="pos[]">&nbsp;&nbsp;Ship Date
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <input type="checkbox" <?php if (strpos($value_config, ','."Products".',') !== FALSE) { echo " checked"; } ?> value="Products" name="pos[]">&nbsp;&nbsp;Inventory
-                        </td>
-                        <td>
-                            <input type="checkbox" <?php if (strpos($value_config, ','."Misc Item".',') !== FALSE) { echo " checked"; } ?> value="Misc Item" name="pos[]">&nbsp;&nbsp;Misc Item
-                        </td>
-						<td>
-                            <input type="checkbox" <?php if (strpos($value_config, ','."servServices".',') !== FALSE) { echo " checked"; } ?> value="servServices" name="pos[]">&nbsp;&nbsp;Services
-                        </td>
-						<td>
-                            <input type="checkbox" <?php if (strpos($value_config, ','."prodProducts".',') !== FALSE) { echo " checked"; } ?> value="prodProducts" name="pos[]">&nbsp;&nbsp;Products
-                        </td>
-						<td>
-                            <input type="checkbox" <?php if (strpos($value_config, ','."vplProducts".',') !== FALSE) { echo " checked"; } ?> value="vplProducts" name="pos[]">&nbsp;&nbsp;Vendor Price List
-                        </td>
-                    </tr>
-					<tr>
-						<td>
-                            <input type="checkbox" <?php if (strpos($value_config, ','."Deposit Paid".',') !== FALSE) { echo " checked"; } ?> value="Deposit Paid" name="pos[]">&nbsp;&nbsp;Deposit Paid
-                        </td>
-
-                        <td>
-                            <input type="checkbox" <?php if (strpos($value_config, ','."Due Date".',') !== FALSE) { echo " checked"; } ?> value="Due Date" name="pos[]">&nbsp;&nbsp;Due Date
-                        </td>
-                        <td>
-                            <input type="checkbox" <?php if (strpos($value_config, ','."Pricing by Line Item".',') !== FALSE) { echo " checked"; } ?> value="Pricing by Line Item" name="pos[]">&nbsp;&nbsp;Pricing by Line Item
-                        </td>
-                        <td>
-                            <input type="checkbox" <?php if (strpos($value_config, ','."Project".',') !== FALSE) { echo " checked"; } ?> value="Project" name="pos[]">&nbsp;&nbsp;<?= PROJECT_NOUN ?>
-                        </td>
-                        <td>
-                            <input type="checkbox" <?php if (strpos($value_config, ','."Ticket".',') !== FALSE) { echo " checked"; } ?> value="Ticket" name="pos[]">&nbsp;&nbsp;<?= TICKET_NOUN ?>
-                        </td>
-                    </tr>
-					<tr>
-                        <td>
-                            <input type="checkbox" <?php if (strpos($value_config, ','."Tax 2".',') !== FALSE) { echo " checked"; } ?> value="Tax 2" name="pos[]">&nbsp;&nbsp;Tax at End of Order
-                        </td>
-                        <td>
-                            <input type="checkbox" <?php if (strpos($value_config, ','."Upload".',') !== FALSE) { echo " checked"; } ?> value="Upload" name="pos[]">&nbsp;&nbsp;Supporting Document (Invoice / Receipt)
-                        </td>
-                        <td>
-                            <input type="checkbox" <?php if (strpos($value_config, ','."Business".',') !== FALSE) { echo " checked"; } ?> value="Business" name="pos[]">&nbsp;&nbsp;<?= BUSINESS_CAT ?>
-                        </td>
-                        <td>
-                            <input type="checkbox" <?php if (strpos($value_config, ','."Site".',') !== FALSE) { echo " checked"; } ?> value="Site" name="pos[]">&nbsp;&nbsp;<?= SITES_CAT ?>
-                        </td>
-                        <td>
-                            <input type="checkbox" <?php if (strpos($value_config, ','."Order Forms".',') !== FALSE) { echo " checked"; } ?> value="Order Forms" name="pos[]">&nbsp;&nbsp;Order Forms
-                        </td>
-                    </tr>
-                </table>
+                <label class="form-checkbox"><input type="checkbox" <?php if (strpos($value_config, ','."Send Outbound Invoice".',') !== FALSE) { echo " checked"; } ?> value="Send Outbound Invoice" name="pos[]">&nbsp;&nbsp;Send Outbound Purchase Order</label>
+                <label class="form-checkbox"><input type="checkbox" <?php if (strpos($value_config, ','."Invoice Date".',') !== FALSE) { echo " checked"; } ?> value="Invoice Date" name="pos[]">&nbsp;&nbsp;Order Date</label>
+                <label class="form-checkbox"><input type="checkbox" <?php if (strpos($value_config, ','."PO Name".',') !== FALSE) { echo " checked"; } ?> value="PO Name" name="pos[]">&nbsp;&nbsp;PO Name</label>
+                <label class="form-checkbox"><input type="checkbox" <?php if (strpos($value_config, ','."Project".',') !== FALSE) { echo " checked"; } ?> value="Project" name="pos[]">&nbsp;&nbsp;<?= PROJECT_NOUN ?></label>
+                <label class="form-checkbox"><input type="checkbox" <?php if (strpos($value_config, ','."Ticket".',') !== FALSE) { echo " checked"; } ?> value="Ticket" name="pos[]">&nbsp;&nbsp;<?= TICKET_NOUN ?></label>
+                <label class="form-checkbox"><input type="checkbox" <?php if (strpos($value_config, ','."Business".',') !== FALSE) { echo " checked"; } ?> value="Business" name="pos[]">&nbsp;&nbsp;<?= BUSINESS_CAT ?></label>
+                <label class="form-checkbox"><input type="checkbox" <?php if (strpos($value_config, ','."Site".',') !== FALSE) { echo " checked"; } ?> value="Site" name="pos[]">&nbsp;&nbsp;<?= SITES_CAT ?></label>
+                <label class="form-checkbox"><input type="checkbox" <?php if (strpos($value_config, ','."Equipment".',') !== FALSE) { echo " checked"; } ?> value="Equipment" name="pos[]">&nbsp;&nbsp;Equipment</label>
+                <label class="form-checkbox"><input type="checkbox" <?php if (strpos($value_config, ','."Customer".',') !== FALSE) { echo " checked"; } ?> value="Customer" name="pos[]">&nbsp;&nbsp;Vendor</label>
+                <label class="form-checkbox"><input type="checkbox" <?php if (strpos($value_config, ','."Order Forms".',') !== FALSE) { echo " checked"; } ?> value="Order Forms" name="pos[]">&nbsp;&nbsp;Order Forms</label>
+                <label class="form-checkbox"><input type="checkbox" <?php if (strpos($value_config, ','."Product Pricing".',') !== FALSE) { echo " checked"; } ?> value="Product Pricing" name="pos[]">&nbsp;&nbsp;Pricing</label>
+                <label class="form-checkbox"><input type="checkbox" <?php if (strpos($value_config, ','."Tax".',') !== FALSE) { echo " checked"; } ?> value="Tax" name="pos[]">&nbsp;&nbsp;Tax</label>
+                <label class="form-checkbox"><input type="checkbox" <?php if (strpos($value_config, ','."Products".',') !== FALSE) { echo " checked"; } ?> value="Products" name="pos[]">&nbsp;&nbsp;Inventory</label>
+                <label class="form-checkbox"><input type="checkbox" <?php if (strpos($value_config, ','."vplProducts".',') !== FALSE) { echo " checked"; } ?> value="vplProducts" name="pos[]">&nbsp;&nbsp;Vendor Price List</label>
+                <label class="form-checkbox"><input type="checkbox" <?php if (strpos($value_config, ','."prodProducts".',') !== FALSE) { echo " checked"; } ?> value="prodProducts" name="pos[]">&nbsp;&nbsp;Products</label>
+                <label class="form-checkbox"><input type="checkbox" <?php if (strpos($value_config, ','."Pricing by Line Item".',') !== FALSE) { echo " checked"; } ?> value="Pricing by Line Item" name="pos[]">&nbsp;&nbsp;Pricing by Line Item</label>
+                <label class="form-checkbox"><input type="checkbox" <?php if (strpos($value_config, ','."servServices".',') !== FALSE) { echo " checked"; } ?> value="servServices" name="pos[]">&nbsp;&nbsp;Services</label>
+                <label class="form-checkbox"><input type="checkbox" <?php if (strpos($value_config, ','."Misc Item".',') !== FALSE) { echo " checked"; } ?> value="Misc Item" name="pos[]">&nbsp;&nbsp;Misc Item</label>
+                <label class="form-checkbox"><input type="checkbox" <?php if (strpos($value_config, ','."Total Price".',') !== FALSE) { echo " checked"; } ?> value="Total Price" name="pos[]">&nbsp;&nbsp;Total Price</label>
+                <label class="form-checkbox"><input type="checkbox" <?php if (strpos($value_config, ','."Discount".',') !== FALSE) { echo " checked"; } ?> value="Discount" name="pos[]">&nbsp;&nbsp;Discount</label>
+                <label class="form-checkbox"><input type="checkbox" <?php if (strpos($value_config, ','."Delivery".',') !== FALSE) { echo " checked"; } ?> value="Delivery" name="pos[]">&nbsp;&nbsp;Delivery/Pickup</label>
+                <label class="form-checkbox"><input type="checkbox" <?php if (strpos($value_config, ','."Assembly".',') !== FALSE) { echo " checked"; } ?> value="Assembly" name="pos[]">&nbsp;&nbsp;Assembly</label>
+                <label class="form-checkbox"><input type="checkbox" <?php if (strpos($value_config, ','."Tax 2".',') !== FALSE) { echo " checked"; } ?> value="Tax 2" name="pos[]">&nbsp;&nbsp;Tax at End of Order</label>
+                <label class="form-checkbox"><input type="checkbox" <?php if (strpos($value_config, ','."Payment Type".',') !== FALSE) { echo " checked"; } ?> value="Payment Type" name="pos[]">&nbsp;&nbsp;Payment Type</label>
+                <label class="form-checkbox"><input type="checkbox" <?php if (strpos($value_config, ','."Deposit Paid".',') !== FALSE) { echo " checked"; } ?> value="Deposit Paid" name="pos[]">&nbsp;&nbsp;Deposit Paid</label>
+                <label class="form-checkbox"><input type="checkbox" <?php if (strpos($value_config, ','."Comment".',') !== FALSE) { echo " checked"; } ?> value="Comment" name="pos[]">&nbsp;&nbsp;Comment</label>
+                <label class="form-checkbox"><input type="checkbox" <?php if (strpos($value_config, ','."Created/Sold By".',') !== FALSE) { echo " checked"; } ?> value="Created/Sold By" name="pos[]">&nbsp;&nbsp;Created/Sold By</label>
+                <label class="form-checkbox"><input type="checkbox" <?php if (strpos($value_config, ','."Ship Date".',') !== FALSE) { echo " checked"; } ?> value="Ship Date" name="pos[]">&nbsp;&nbsp;Ship Date</label>
+                <label class="form-checkbox"><input type="checkbox" <?php if (strpos($value_config, ','."Upload".',') !== FALSE) { echo " checked"; } ?> value="Upload" name="pos[]">&nbsp;&nbsp;Supporting Document (Invoice / Receipt)</label>
+                <label class="form-checkbox"><input type="checkbox" <?php if (strpos($value_config, ','."Due Date".',') !== FALSE) { echo " checked"; } ?> value="Due Date" name="pos[]">&nbsp;&nbsp;Due Date</label>
+                <label class="form-checkbox"><input type="checkbox" <?php if (strpos($value_config, ','."Tax Exemption".',') !== FALSE) { echo " checked"; } ?> value="Tax Exemption" name="pos[]">&nbsp;&nbsp;Tax Exemption</label>
             </div>
         </div>
     </div>
@@ -646,60 +568,22 @@ $(document).ready(function() {
                 $get_field_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT purchase_order_dashboard FROM field_config"));
                 $value_config = ','.$get_field_config['purchase_order_dashboard'].',';
                 ?>
+                <label class="form-checkbox"><input type="checkbox" <?php if (strpos($value_config, ','."Invoice #".',') !== FALSE) { echo " checked"; } ?> value="Invoice #" name="pos_dashboard[]">&nbsp;&nbsp;Purchase Order #</label>
+                <label class="form-checkbox"><input type="checkbox" <?php if (strpos($value_config, ','."Invoice Date".',') !== FALSE) { echo " checked"; } ?> value="Invoice Date" name="pos_dashboard[]">&nbsp;&nbsp;Order Date</label>
+                <label class="form-checkbox"><input type="checkbox" <?php if (strpos($value_config, ','."Customer".',') !== FALSE) { echo " checked"; } ?> value="Customer" name="pos_dashboard[]">&nbsp;&nbsp;Vendor</label>
+                <label class="form-checkbox"><input type="checkbox" <?php if (strpos($value_config, ','."Equipment".',') !== FALSE) { echo " checked"; } ?> value="Equipment" name="pos_dashboard[]">&nbsp;&nbsp;Equipment</label>
+                <label class="form-checkbox"><input type="checkbox" <?php if (strpos($value_config, ','."Total Price".',') !== FALSE) { echo " checked"; } ?> value="Total Price" name="pos_dashboard[]">&nbsp;&nbsp;Total Price</label>
+                <label class="form-checkbox"><input type="checkbox" <?php if (strpos($value_config, ','."Payment Type".',') !== FALSE) { echo " checked"; } ?> value="Payment Type" name="pos_dashboard[]">&nbsp;&nbsp;Payment Type</label>
+                <label class="form-checkbox"><input type="checkbox" <?php if (strpos($value_config, ','."Invoice PDF".',') !== FALSE) { echo " checked"; } ?> value="Invoice PDF" name="pos_dashboard[]">&nbsp;&nbsp;Purchase Order PDF</label>
+                <label class="form-checkbox"><input type="checkbox" <?php if (strpos($value_config, ','."Comment".',') !== FALSE) { echo " checked"; } ?> value="Comment" name="pos_dashboard[]">&nbsp;&nbsp;Comment</label>
+                <label class="form-checkbox"><input type="checkbox" <?php if (strpos($value_config, ','."Status".',') !== FALSE) { echo " checked"; } ?> value="Status" name="pos_dashboard[]">&nbsp;&nbsp;Status</label>
+                <label class="form-checkbox"><input type="checkbox" <?php if (strpos($value_config, ','."Send to Client".',') !== FALSE) { echo " checked"; } ?> value="Send to Client" name="pos_dashboard[]">&nbsp;&nbsp;Send to Client</label>
+                <label class="form-checkbox"><input type="checkbox" <?php if (strpos($value_config, ','."Delivery/Shipping Type".',') !== FALSE) { echo " checked"; } ?> value="Delivery/Shipping Type" name="pos_dashboard[]">&nbsp;&nbsp;Delivery/Shipping Type</label>
+                <label class="form-checkbox"><input type="checkbox" <?php if (strpos($value_config, ','."Send to Anyone".',') !== FALSE) { echo " checked"; } ?> value="Send to Anyone" name="pos_dashboard[]">&nbsp;&nbsp;Send to Anyone</label>
+                <label class="form-checkbox"><input type="checkbox" <?php if (strpos($value_config, ','."View Spreadsheet".',') !== FALSE) { echo " checked"; } ?> value="View Spreadsheet" name="pos_dashboard[]">&nbsp;&nbsp;View Spreadsheet</label>
+                <label class="form-checkbox"><input type="checkbox" <?php if (strpos($value_config, ','."Project".',') !== FALSE) { echo " checked"; } ?> value="Project" name="pos_dashboard[]">&nbsp;&nbsp;<?= PROJECT_NOUN ?></label>
+                <label class="form-checkbox"><input type="checkbox" <?php if (strpos($value_config, ','."Ticket".',') !== FALSE) { echo " checked"; } ?> value="Ticket" name="pos_dashboard[]">&nbsp;&nbsp;<?= TICKET_NOUN ?></label>
 
-                <table border='2' cellpadding='10' class='table'>
-                    <tr>
-                        <td>
-                            <input type="checkbox" <?php if (strpos($value_config, ','."Invoice #".',') !== FALSE) { echo " checked"; } ?> value="Invoice #" name="pos_dashboard[]">&nbsp;&nbsp;Purchase Order #
-                        </td>
-                        <td>
-                            <input type="checkbox" <?php if (strpos($value_config, ','."Invoice Date".',') !== FALSE) { echo " checked"; } ?> value="Invoice Date" name="pos_dashboard[]">&nbsp;&nbsp;Order Date
-                        </td>
-                        <td>
-                            <input type="checkbox" <?php if (strpos($value_config, ','."Customer".',') !== FALSE) { echo " checked"; } ?> value="Customer" name="pos_dashboard[]">&nbsp;&nbsp;Vendor
-                        </td>
-                        <td>
-                            <input type="checkbox" <?php if (strpos($value_config, ','."Total Price".',') !== FALSE) { echo " checked"; } ?> value="Total Price" name="pos_dashboard[]">&nbsp;&nbsp;Total Price
-                        </td>
-                        <td>
-                            <input type="checkbox" <?php if (strpos($value_config, ','."Payment Type".',') !== FALSE) { echo " checked"; } ?> value="Payment Type" name="pos_dashboard[]">&nbsp;&nbsp;Payment Type
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>
-                            <input type="checkbox" <?php if (strpos($value_config, ','."Invoice PDF".',') !== FALSE) { echo " checked"; } ?> value="Invoice PDF" name="pos_dashboard[]">&nbsp;&nbsp;Purchase Order PDF
-                        </td>
-                        <td>
-                            <input type="checkbox" <?php if (strpos($value_config, ','."Comment".',') !== FALSE) { echo " checked"; } ?> value="Comment" name="pos_dashboard[]">&nbsp;&nbsp;Comment
-                        </td>
-                        <td>
-                            <input type="checkbox" <?php if (strpos($value_config, ','."Status".',') !== FALSE) { echo " checked"; } ?> value="Status" name="pos_dashboard[]">&nbsp;&nbsp;Status
-                        </td>
-                        <td>
-                            <input type="checkbox" <?php if (strpos($value_config, ','."Send to Client".',') !== FALSE) { echo " checked"; } ?> value="Send to Client" name="pos_dashboard[]">&nbsp;&nbsp;Send to Client
-                        </td>
-                        <td>
-                            <input type="checkbox" <?php if (strpos($value_config, ','."Delivery/Shipping Type".',') !== FALSE) { echo " checked"; } ?> value="Delivery/Shipping Type" name="pos_dashboard[]">&nbsp;&nbsp;Delivery/Shipping Type
-                        </td>
-
-                    </tr>
-					<tr>
-						<td>
-                            <input type="checkbox" <?php if (strpos($value_config, ','."Send to Anyone".',') !== FALSE) { echo " checked"; } ?> value="Send to Anyone" name="pos_dashboard[]">&nbsp;&nbsp;Send to Anyone
-                        </td>
-						<td>
-                            <input type="checkbox" <?php if (strpos($value_config, ','."View Spreadsheet".',') !== FALSE) { echo " checked"; } ?> value="View Spreadsheet" name="pos_dashboard[]">&nbsp;&nbsp;View Spreadsheet
-                        </td>
-                        <td>
-                            <input type="checkbox" <?php if (strpos($value_config, ','."Project".',') !== FALSE) { echo " checked"; } ?> value="Project" name="pos_dashboard[]">&nbsp;&nbsp;<?= PROJECT_NOUN ?>
-                        </td>
-                        <td>
-                            <input type="checkbox" <?php if (strpos($value_config, ','."Ticket".',') !== FALSE) { echo " checked"; } ?> value="Ticket" name="pos_dashboard[]">&nbsp;&nbsp;<?= TICKET_NOUN ?>
-                        </td>
-                        <td>
-                        </td>
-					</tr>
-                </table>
             </div>
         </div>
     </div>

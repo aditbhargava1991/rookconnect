@@ -25,6 +25,9 @@ if($security_folder == 'clientinfo') {
 } else if($security_folder == 'contacts3') {
 	$folder_label = "Contacts";
 	$security_folder = 'contacts_inbox';
+} else if($security_folder == 'vendors') {
+	$folder_label = VENDOR_TILE;
+	$security_folder = 'vendors';
 }
 checkAuthorised($security_folder);
 $view_access = tile_visible($dbc, $security_folder);

@@ -47,7 +47,7 @@ switch(get_config($dbc, 'ticket_sorting')) {
 	case 'oldest': $ticket_sort = ' ORDER BY `ticketid` ASC'; break;
 	case 'project': $ticket_sort = ' ORDER BY `project_name` ASC'; break;
 }
-$tickets = mysqli_query($dbc, "SELECT `project`.*, `tickets`.*, `tickets`.`status` as ticket_status FROM `tickets` LEFT JOIN `project` ON `tickets`.`projectid`=`project`.`projectid` WHERE `tickets`.`projectid`='$projectid' AND `tickets`.`deleted`=0 AND `tickets`.`status` != 'Archive' AND '{$_GET['ticket_type']}' IN ('', `tickets`.`ticket_type`) AND `ticketid` IN (SELECT `ticketid` FROM `ticket_pdf_field_values` WHERE `pdf_type`='".filter_var($_GET['id'],FILTER_SANITIZE_STRING)."') ".$tab_filter.$ticket_sort);
+$tickets = mysqli_query($dbc, "SELECT `project`.*, `tickets`.*, `tickets`.`status` as ticket_status FROM `tickets` LEFT JOIN `project` ON `tickets`.`projectid`=`project`.`projectid` WHERE `tickets`.`projectid`='$projectid' AND `tickets`.`deleted`=0 AND `tickets`.`status` != 'Archive' AND '{$_GET['ticket_type']}' IN ('', `tickets`.`ticket_type`) AND `ticketid` IN (SELECT `ticketid` FROM `ticket_pdf_field_values` WHERE `pdf_type`='".filter_var($_GET['id'],FILTER_SANITIZE_STRING)."' AND `deleted`=0) ".$tab_filter.$ticket_sort);
 if($ticket_bypass && mysqli_num_rows($tickets) == 1 && $ticket_security['edit'] == 0 && get_config($dbc, 'project_ticket_bypass') == 'bypass' && !($strict_view > 0)) {
 	$ticket = mysqli_fetch_array($tickets);
 	echo "<script> window.location.replace('../Ticket/ticket_pdf_custom.php?form=trucking_bol&ticketid=".$ticket['ticketid']."'); </script>";

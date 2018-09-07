@@ -13,6 +13,8 @@ if (isset($_POST['submit'])) {
     $end_date = filter_var($_POST['equip_assign_end_date'],FILTER_SANITIZE_STRING);
     $notes = filter_var(htmlentities($_POST['equip_assign_notes']),FILTER_SANITIZE_STRING);
 
+    $updated_fields = ['equipmentid'=>$equipmentid, 'teamid'=>(empty($teamid) ? 0 : $teamid), 'region'=>$region, 'con_location'=>$location, 'classification'=>$classification];
+
     mysqli_query($dbc, "UPDATE `equipment` SET `region` = '$region', `location` = '$location', `classification` = '$classification' WHERE `equipmentid` = '$equipmentid'");
 
     if (empty($_POST['equipment_assignmentid']) ||$_POST['equipment_assignmentid'] == 'NEW') {
@@ -38,14 +40,21 @@ if (isset($_POST['submit'])) {
     }
 
     mysqli_query($dbc, "DELETE FROM `equipment_assignment_staff` WHERE `equipment_assignmentid` = '$equipment_assignmentid'");
+	$restrict_assign = get_config($dbc, 'equip_multi_assign_staff_disallow');
     for ($i = 0; $i < count($_POST['equip_assign_contactid']); $i++) {
         $contact_position = $_POST['equip_assign_contact_position'][$i];
         $contactid = $_POST['equip_assign_contactid'][$i];
+		if($restrict_assign > 0) {
+			mysqli_query($dbc, "UPDATE `equipment_assignment_staff` LEFT JOIN `equipment_assignment` ON `equipment_assignment`.`equipment_assignmentid`=`equipment_assignment_staff`.`equipment_assignmentid` SET `equipment_assignment_staff`.`deleted`=1, `equipment_assignment_staff`.`date_of_archival`=DATE(NOW()) WHERE `equipment_assignment`.`start_date`='$start_date' AND `equipment_assignment`.`end_date`='$end_date' AND `equipment_assignment_staff`.`contactid`='$contactid' AND `equipment_assignment_staff`.`deleted`=0");
+		}
         mysqli_query($dbc, "INSERT INTO `equipment_assignment_staff` (`equipment_assignmentid`, `contactid`, `contact_position`) VALUES ('$equipment_assignmentid', '$contactid', '$contact_position')");
     }
     for ($i = 0; $i < count($_POST['equip_assign_contractorid']); $i++) {
         $contractor_position = $_POST['equip_assign_contractor_position'][$i];
         $contractorid = $_POST['equip_assign_contractorid'][$i];
+		if($restrict_assign > 0) {
+			mysqli_query($dbc, "UPDATE `equipment_assignment_staff` LEFT JOIN `equipment_assignment` ON `equipment_assignment`.`equipment_assignmentid`=`equipment_assignment_staff`.`equipment_assignmentid` SET `equipment_assignment_staff`.`deleted`=1, `equipment_assignment_staff`.`date_of_archival`=DATE(NOW()) WHERE `equipment_assignment`.`start_date`='$start_date' AND `equipment_assignment`.`end_date`='$end_date' AND `equipment_assignment_staff`.`contactid`='$contractorid' AND `equipment_assignment_staff`.`deleted`=0");
+		}
         mysqli_query($dbc, "INSERT INTO `equipment_assignment_staff` (`equipment_assignmentid`, `contactid`, `contact_position`, `contractor`) VALUES ('$equipment_assignmentid', '$contractorid', '$contractor_position', '1')");
     }
 
@@ -64,11 +73,48 @@ if (isset($_POST['submit'])) {
         }
     }
     $contact = implode(',',$contact);
+
     foreach ($tickets as $ticket) {
         mysqli_query($dbc, "UPDATE `tickets` SET `equipment_assignmentid` = '$equipment_assignmentid', `equipmentid` = '$equipmentid', `teamid` = '$teamid', `contactid` = ',$contact,', `region` = '$region', `con_location` = '$location', `classification` = '$classification' WHERE `ticketid` = '".$ticket['ticketid']."'");
+
+        //Record history
+        $ticket_histories = [];
+        foreach($updated_fields as $key => $updated_field) {
+            if($ticket[$key] != $updated_field) {
+                $ticket_histories[$key] = "$key updated to $updated_field";
+            }
+        }
+        $ea_contacts = [];
+        foreach(explode(',', $contact) as $ea_contact) {
+            if($ea_contact > 0) {
+                $ea_contacts[] = get_contact($dbc, $ea_contact);
+            }
+        }
+        $ticket_histories['equipment_assignmentid'] = "equipment_assignmentid updated to $equipment_assignmentid (".implode(', ',$ea_contacts).")";
+        if(!empty($ticket_histories)) {
+            mysqli_query($dbc, "INSERT INTO `ticket_history` (`ticketid`, `userid`, `src`, `description`) VALUES ('{$ticket['ticketid']}','{$_SESSION['contactid']}','calendar','Row #{$ticket['ticketid']} of tickets updated: ".implode(', ',$ticket_histories)."')");
+        }
     }
     foreach ($ticket_schedule as $ticket) {
         mysqli_query($dbc, "UPDATE `ticket_schedule` SET `equipment_assignmentid` = '$equipment_assignmentid', `equipmentid` = '$equipmentid', `teamid` = '$teamid', `contactid` = ',$contact,', `region` = '$region', `con_location` = '$location', `classification` = '$classification' WHERE `id` = '".$ticket['id']."'");
+
+        //Record history
+        $ticket_histories = [];
+        foreach($updated_fields as $key => $updated_field) {
+            if($ticket[$key] != $updated_field) {
+                $ticket_histories[$key] = "$key updated to $updated_field";
+            }
+        }
+        $ea_contacts = [];
+        foreach(explode(',', $contact) as $ea_contact) {
+            if($ea_contact > 0) {
+                $ea_contacts[] = get_contact($dbc, $ea_contact);
+            }
+        }
+        $ticket_histories['equipment_assignmentid'] = "equipment_assignmentid updated to $equipment_assignmentid (".implode(', ',$ea_contacts).")";
+        if(!empty($ticket_histories)) {
+            mysqli_query($dbc, "INSERT INTO `ticket_history` (`ticketid`, `userid`, `src`, `description`) VALUES ('{$ticket['ticketid']}','{$_SESSION['contactid']}','calendar','Row #{$ticket['id']} of ticket_schedule updated: ".implode(', ',$ticket_histories)."')");
+        }
     }
 
     $query = $_GET;
@@ -79,6 +125,14 @@ if (isset($_POST['submit'])) {
 $get_field_config = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_equip_assign`"));
 if (!empty($get_field_config)) {
     $equipment_category = $get_field_config['equipment_category'];
+    $equipment_categories = array_filter(explode(',', $equipment_category));
+    if(empty($equipment_categories) || count($equipment_categories) > 1) {
+        $equipment_category = 'Equipment';
+    }
+    $equip_cat_query = '';
+    if(count($equipment_categories) > 0) {
+        $equip_cat_query = " AND `equipment`.`category` IN ('".implode("','", $equipment_categories)."')";
+    }
     $client_type = $get_field_config['client_type'];
     $contact_category = explode(',', $get_field_config['contact_category']);
     $position_enabled = $get_field_config['position_enabled'];

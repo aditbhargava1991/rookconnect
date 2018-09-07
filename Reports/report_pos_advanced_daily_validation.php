@@ -68,6 +68,9 @@ if (isset($_POST['printpdf'])) {
     $today_date = date('Y-m-d');
 	$pdf->writeHTML($html, true, false, true, false, '');
 	$pdf->Output('Download/validation_advanced_'.$today_date.'.pdf', 'F');
+
+    track_download($dbc, 'report_pos_advanced_daily_validation', 0, WEBSITE_URL.'/Reports/Download/validation_advanced_'.$today_date.'.pdf', 'POS Validation & Sales Report');
+
     ?>
 
 	<script type="text/javascript" language="Javascript">
@@ -78,21 +81,6 @@ if (isset($_POST['printpdf'])) {
     $endtime = $endtimepdf;
     } ?>
 
-<script type="text/javascript">
-
-</script>
-</head>
-<body>
-<?php include_once ('../navigation.php');
-?>
-
-<div class="container triple-pad-bottom">
-    <div class="row">
-        <div class="col-md-12">
-
-        <?php echo reports_tiles($dbc);  ?>
-
-        <br><br>
 
         <form id="form1" name="form1" method="post" action="" enctype="multipart/form-data" class="form-horizontal" role="form">
             <input type="hidden" name="report_type" value="<?php echo $_GET['type']; ?>">
@@ -135,16 +123,11 @@ if (isset($_POST['printpdf'])) {
 
         </form>
 
-        </div>
-    </div>
-</div>
-<?php include ('../footer.php'); ?>
-
 <?php
 function report_daily_validation($dbc, $starttime, $endtime, $table_style, $table_row_style, $grand_total_style) {
 
         $total = 0;
-        
+
         $report_validation = mysqli_query($dbc, "SELECT `invoiceid`, `invoice_date`, `patientid`, SUM(`final_price` - `gst_amt` - `pst_amt` - `delivery` - `assembly` + `discount`) `sub_total`, `discount`, `delivery`, `assembly`, SUM(`final_price` - `gst_amt` - `pst_amt`) `total_before_tax`, `gst_amt`, `pst_amt`, `final_price`, `status` FROM `invoice` WHERE (`invoice_date` BETWEEN '$starttime' AND '$endtime') GROUP BY `invoiceid` ORDER BY `invoiceid`");
         $num_rows = mysqli_num_rows($report_validation);
 
@@ -189,7 +172,7 @@ function report_daily_validation($dbc, $starttime, $endtime, $table_style, $tabl
                     $report_data .= '<td data-title="Total" align="right">' . number_format($row_report['final_price'], 2) . '</td>';
                     $report_data .= '<td data-title="Status">' . $row_report['status'] . '</td>';
                 $report_data .= "</tr>";
-                
+
                 $sub_total += $row_report['sub_total'];
                 $discount_value += $row_report['discount'];
                 $delivery += $row_report['delivery'];
@@ -202,19 +185,35 @@ function report_daily_validation($dbc, $starttime, $endtime, $table_style, $tabl
             }
 
             $report_data .= '<tr nobr="true">';
-                $report_data .= '<th colspan="3">Total Invoices : '.$total.'</th>';
-                $report_data .= '<th style="text-align:right">' . number_format($sub_total, 2) . '</th>';
-                $report_data .= '<th style="text-align:right">' . number_format($discount_value, 2) . '</th>';
-                $report_data .= '<th style="text-align:right">' . number_format($delivery, 2) . '</th>';
-                $report_data .= '<th style="text-align:right">' . number_format($assembly, 2) . '</th>';
-                $report_data .= '<th style="text-align:right">' . number_format($total_before_tax, 2) . '</th>';
-                $report_data .= '<th style="text-align:right">' . number_format($gst, 2) . '</th>';
-                $report_data .= '<th style="text-align:right">' . number_format($pst, 2) . '</th>';
-                $report_data .= '<th style="text-align:right">' . number_format($total_price, 2) . '</th>';
-                $report_data .= '<th>&nbsp;</th>';
+                $report_data .= '<td colspan="3"><b>Total Invoices : '.$total.'</b></td>';
+                $report_data .= '<td style="text-align:right" data-title="Sub Total"><b>' . number_format($sub_total, 2) . '</b></td>';
+                $report_data .= '<td style="text-align:right" data-title="Discount"><b>' . number_format($discount_value, 2) . '</b></td>';
+                $report_data .= '<td style="text-align:right" data-title="Delivery"><b>' . number_format($delivery, 2) . '</b></td>';
+                $report_data .= '<td style="text-align:right" data-title="Assembly"><b>' . number_format($assembly, 2) . '</b></td>';
+                $report_data .= '<td style="text-align:right" data-title="Total Before Tax"><b>' . number_format($total_before_tax, 2) . '</b></td>';
+                $report_data .= '<td style="text-align:right" data-title="GST"><b>' . number_format($gst, 2) . '</b></td>';
+                $report_data .= '<td style="text-align:right" data-title="PST"><b>' . number_format($pst, 2) . '</b></td>';
+                $report_data .= '<td style="text-align:right" data-title="Total"><b>' . number_format($total_price, 2) . '</b></td>';
+                $report_data .= '<td>&nbsp;</td>';
             $report_data .= "</tr>";
             $report_data .= '</table>';
         }
 
     return $report_data;
 }
+
+?>
+<script>
+$('document').ready(function() {
+    var tables = $('table');
+
+    tables.map(function(idx, table) {
+        var rows = $(table).find('tbody > tr');
+        rows.map(function(idx, row){
+            if(idx%2 == 0) {
+                $(row).css('background-color', '#e6e6e6');
+            }
+        })
+    })
+})
+</script>

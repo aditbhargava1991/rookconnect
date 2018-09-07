@@ -1,13 +1,16 @@
-<?php $request_tab = (!empty($_GET['type']) ? $_GET['type'] : 'feedback');
-$date = date('Y-m-d',strtotime('-2month'));
-$count_row = mysqli_fetch_array(mysqli_query($dbc_support, "SELECT SUM(IF(`support_type`='Feedback' AND `deleted`=0, 1, 0)) `feedback`, SUM(IF(`support_type`='Support Request' AND `deleted`=0, 1, 0)) `requests`, SUM(IF(`support_type`='Critical Incident' AND `deleted`=0, 1, 0)) `critical`, SUM(IF(`deleted`=1 AND `archived_date` > '$date', 1, 0)) `closed` FROM `support` WHERE `businessid`='$user' OR '$user_category'  IN (".STAFF_CATS.")")); ?>
-<a href="?tab=requests&type=new"><button type="button" class="btn brand-btn mobile-block mobile-100 <?php echo ($request_tab == 'new' ? 'active_tab' : ''); ?>">New</button></a>
-<a href="?tab=requests&type=requests"><button type="button" class="btn brand-btn mobile-block mobile-100 <?php echo ($request_tab == 'requests' ? 'active_tab' : ''); ?>">Support Requests (<?= $count_row['requests'] ?>)</button></a>
-<a href="?tab=requests&type=critical"><button type="button" class="btn brand-btn mobile-block mobile-100 <?php echo ($request_tab == 'critical' ? 'active_tab' : ''); ?>">Critical Incidents (<?= $count_row['critical'] ?>)</button></a>
-<a href="?tab=requests&type=feedback"><button type="button" class="btn brand-btn mobile-block mobile-100 <?php echo ($request_tab == 'feedback' ? 'active_tab' : ''); ?>">Feedback & Ideas (<?= $count_row['feedback'] ?>)</button></a>
-<a href="?tab=requests&type=closed"><button type="button" class="btn brand-btn mobile-block mobile-100 <?php echo ($request_tab == 'closed' ? 'active_tab' : ''); ?>">Closed (<?= $count_row['closed'] ?>)</button></a>
-
-<?php if($request_tab == 'new'): ?>
+<?php include_once('../include.php');
+if(!isset($request_tab)) {
+	$request_tab = (!empty($_GET['type']) ? $_GET['type'] : 'closed');
+	$dbc_support = mysqli_connect('localhost', 'ffm_rook_user', 'mIghtyLion!542', 'ffm_rook_db');
+	// $dbc_support = mysqli_connect('localhost', 'root', 'FreshFocus007', 'local_1_rook');
+	$user = get_config($dbc, 'company_name');
+	$url = WEBSITE_URL;
+	$user_name = $user;
+	$user_category = '';
+	$ticket_types = explode(',',get_config($dbc_support,'ticket_tabs'));
+	$security = get_security($dbc, 'customer_support');
+}
+if($request_tab == 'new'): ?>
 	<?php if(!empty($_POST['new_request'])) {
 		$errors = '';
 		$type = $_POST['type'];
@@ -18,9 +21,12 @@ $count_row = mysqli_fetch_array(mysqli_query($dbc_support, "SELECT SUM(IF(`suppo
 		$reported_date = date('Y-m-d h:i:s');
 		$business = filter_var($_POST['business'],FILTER_SANITIZE_STRING);
 		$businessid = filter_var($_POST['businessid'],FILTER_SANITIZE_STRING);
+		$software_user = filter_var($_POST['src_user'],FILTER_SANITIZE_STRING);
+		$software_userid = filter_var($_POST['src_contactid'],FILTER_SANITIZE_STRING);
+		$software_role = filter_var($_POST['src_security'],FILTER_SANITIZE_STRING);
 		$software_url = filter_var($_POST['software'],FILTER_SANITIZE_STRING);
 		$email = filter_var($_POST['email'],FILTER_SANITIZE_STRING);
-		$cc = filter_var($_POST['ccemail'],FILTER_SANITIZE_STRING);
+		$cc = filter_var(implode(';',$_POST['ccemail']),FILTER_SANITIZE_STRING);
 		$heading = filter_var($_POST['heading'],FILTER_SANITIZE_STRING);
 		$details = filter_var(htmlentities($_POST['details']),FILTER_SANITIZE_STRING);
 		$plan = filter_var(htmlentities($_POST['plan']),FILTER_SANITIZE_STRING);
@@ -28,8 +34,8 @@ $count_row = mysqli_fetch_array(mysqli_query($dbc_support, "SELECT SUM(IF(`suppo
 		$action = filter_var(htmlentities($_POST['action']),FILTER_SANITIZE_STRING);
 		$check = filter_var(htmlentities($_POST['check']),FILTER_SANITIZE_STRING);
 		$adjustments = filter_var(htmlentities($_POST['adjustments']),FILTER_SANITIZE_STRING);
-		$support_insert = "INSERT INTO `support` (`name`, `contactid`, `company_name`, `businessid`, `software_url`, `current_date`, `critical_incident`, `email`, `cc_email`, `heading`, `message`, `critical_plan`, `critical_discovery`, `critical_action`, `critical_check`, `critical_adjustments`, `support_type`)
-			VALUES ('$customer', '$contactid', '$business', '$businessid', '$software_url', '$date', '$incident_date', '$email', '$cc', '$heading', '$details', '$plan', '$discovery', '$action', '$check', '$adjustments', '$type')";
+		$support_insert = "INSERT INTO `support` (`name`, `contactid`, `company_name`, `businessid`, `software_url`, `software_userid`, `software_user_name`, `software_role`, `current_date`, `critical_incident`, `email`, `cc_email`, `heading`, `message`, `critical_plan`, `critical_discovery`, `critical_action`, `critical_check`, `critical_adjustments`, `support_type`)
+			VALUES ('$customer', '$contactid', '$business', '$businessid', '$software_url', '$software_userid', '$software_user', '$software_role', '$date', '$incident_date', '$email', '$cc', '$heading', '$details', '$plan', '$discovery', '$action', '$check', '$adjustments', '$type')";
 		if(!mysqli_query($dbc_support, $support_insert)) {
 			$errors .= "Error Saving Support Request: ".mysqli_error($dbc_support)."\n";
 		}
@@ -41,11 +47,7 @@ $count_row = mysqli_fetch_array(mysqli_query($dbc_support, "SELECT SUM(IF(`suppo
 				if (!file_exists('download')) {
 					mkdir('download', 0777, true);
 				}
-				$basefilename = $filename = preg_replace('/[^A-Za-z0-9\.]/','_',$filename);
-				$i = 0;
-				while(file_exists('download/'.$filename)) {
-					$filename = preg_replace('/(\.[A-Za-z0-9]*)/', '('.++$i.')$1', $basefilename);
-				}
+				$filename = file_safe_str($filename);
 				if(!move_uploaded_file($_FILES['documents']['tmp_name'][$row], 'download/'.$filename)) {
 					$errors .= "Error Saving Attachment: ".$filename."\n";
 				}
@@ -64,56 +66,14 @@ $count_row = mysqli_fetch_array(mysqli_query($dbc_support, "SELECT SUM(IF(`suppo
 		}
 
 	    if (mysqli_affected_rows($dbc_support) == 1) {
-			if($type == 'Support Request') {
-				$subject = "Support Request from $business";
-				$body = "A support request has been sent.<br />
-					<h3>Date of Request: $date</h3>
-					Name: $customer<br />
-					Company: $business<br />
-					Software URL: <a href='$software_url'>$software_url</a><br />
-					Email: $email<br />
-					CC: $cc<br />
-					Heading: $heading<br />
-					Details<hr>\n".html_entity_decode($details)."\n
-					Please review it as soon as possible. It can be found <a href='https://ffm.rookconnect.com/Support/customer_support.php?tab=requests&type=requests#$supportid'>here</a>.";
-				$cust_subject = 'Confirmation of Your Support Request';
-				$cust_body = "Hello $customer,
-					<p>Your support request has been received. The request is currently under review by our support team, and
-					you will be contacted shortly. For your records, you will find a copy of your original request below.</p>
-					<p>Thank you,<br />
-					Fresh Focus Media Support Team</p>
-					<p>----------------------BEGIN ORIGINAL MESSAGE-----------------------------</p>
-					<h3>Date of Request: $date</h3>
-					<p>Heading: $heading<br />
-					Details<hr>
-					".html_entity_decode($details);
-			}
-			else if($type == 'Critical Incident') {
-				$subject = "Critical Incident from $business";
-				$body = "A Critical Incident has been reported.<br />
-					Who initiated the report: $customer<br />
-					Company: $business<br />
-					Software URL: <a href='$software_url'>$software_url</a><br />
-					Date of Emergency: $incident_date<br />
-					Issue<hr>\n".html_entity_decode($details)."\n
-					Please review it as soon as possible. It can be found <a href='https://ffm.rookconnect.com/Support/customer_support.php?tab=requests&type=critical#$supportid'>here</a>.";
-				$cust_subject = 'Confirmation of Your Critical Incident';
-				$cust_body = "Hello $customer,
-					<p>Your critical incident has been received. The request is currently under review by our support team, and
-					you will be contacted shortly. For your records, you will find a copy of your original request below.</p>
-					<p>Thank you,<br />
-					Fresh Focus Media Support Team</p>
-					<p>----------------------BEGIN ORIGINAL MESSAGE-----------------------------</p>
-					<p>Date of Incident: $incident_date<br />
-					Issue<hr>
-					".html_entity_decode($details);
-			}
-			else if($type == 'Feedback') {
+			if($type == 'feedback') {
 				$subject = "Feedback from $business";
 				$body = "Feedback has been sent.<br />
 					Name: $customer<br />
 					Company: $business<br />
 					Software URL: <a href='$software_url'>$software_url</a><br />
+					User: $software_user_name<br />
+					Security Level: $software_role<br />
 					Email: $email<br />
 					CC: $cc<br />
 					Heading: $heading<br />
@@ -130,51 +90,107 @@ $count_row = mysqli_fetch_array(mysqli_query($dbc_support, "SELECT SUM(IF(`suppo
 					Details<hr>
 					".html_entity_decode($details);
 			}
+			else if($type == 'last_minute_priority') {
+				$subject = "Last Minute Priority from $business";
+				$body = "A Last Minute Priority has been reported.<br />
+					Who initiated the report: $customer<br />
+					Company: $business<br />
+					Software URL: <a href='$software_url'>$software_url</a><br />
+					User: $software_user_name<br />
+					Security Level: $software_role<br />
+					Date of Emergency: $incident_date<br />
+					Issue<hr>\n".html_entity_decode($details)."\n
+					Please review it as soon as possible. It can be found <a href='https://ffm.rookconnect.com/Support/customer_support.php?tab=requests&type=last_minute_priority#$supportid'>here</a>.";
+				$cust_subject = 'Confirmation of Your Last Minute Priority';
+				$cust_body = "Hello $customer,
+					<p>Your Last Minute Priority has been received. The request is currently under review by our support team, and
+					you will be contacted shortly. For your records, you will find a copy of your original request below.</p>
+					<p>Thank you,<br />
+					Fresh Focus Media Support Team</p>
+					<p>----------------------BEGIN ORIGINAL MESSAGE-----------------------------</p>
+					<p>Date of Incident: $incident_date<br />
+					Issue<hr>
+					".html_entity_decode($details);
+			}
+			else {
+				$subject = "Support Request from $business";
+				$body = "A support request has been sent.<br />
+					<h3>Date of Request: $date</h3>
+					Type: $type<br />
+					Name: $customer<br />
+					Company: $business<br />
+					Software URL: <a href='$software_url'>$software_url</a><br />
+					User: $software_user_name<br />
+					Security Level: $software_role<br />
+					Email: $email<br />
+					CC: $cc<br />
+					Heading: $heading<br />
+					Details<hr>\n".html_entity_decode($details)."\n
+					Please review it as soon as possible. It can be found <a href='https://ffm.rookconnect.com/Support/customer_support.php?tab=requests&type=$type#$supportid'>here</a>.";
+				$cust_subject = 'Confirmation of Your Support Request';
+				$cust_body = "Hello $customer,
+					<p>Your support request has been received. The request is currently under review by our support team, and
+					you will be contacted shortly. For your records, you will find a copy of your original request below.</p>
+					<p>Thank you,<br />
+					Fresh Focus Media Support Team</p>
+					<p>----------------------BEGIN ORIGINAL MESSAGE-----------------------------</p>
+					<h3>Date of Request: $date</h3>
+					<p>Heading: $heading<br />
+					Details<hr>
+					".html_entity_decode($details);
+			}
 			
 			// Email to FFM staff.
-			/*$to = array_filter(['dayanapatel@freshfocusmedia.com',
-				'kennethbond@freshfocusmedia.com',
-				'jenniferhardy@freshfocusmedia.com',
-				'jaylahiru@freshfocusmedia.com',
-				'jonathanhurdman@freshfocusmedia.com',
-				'kaylavaltins@freshfocusmedia.com']);*/
-			$to = ['jonathanhurdman@freshfocusmedia.com'];
-			foreach($to as $address) {
-				try {
-					send_email('info@rookconnect',$address,'','',$subject,$body,$email_attachments);
-				} catch(Exception $e) { $errors .= "Error sending notification to $address.\n"; }
+			$default = get_config($dbc_support, 'support_recipients_default');
+			$all = get_config($dbc_support, 'support_recipients_all');
+			$address = get_config($dbc_support, 'support_recipients_'.$type);
+			if(empty($address)) {
+				$address = $default;
 			}
+			$address .= ';'.$all;
+			try {
+				send_email('info@rookconnect',explode(';',$address),'','',$subject,$body,$email_attachments);
+			} catch(Exception $e) { $errors .= "Error sending notification to $address.\n"; }
 			
 			// Thank you Email to sender and CC email.
-			$to = array_filter([$email,explode(',',$cc)]);
-			foreach($to as $address) {
-				try {
-					send_email('info@rookconnect',$address,'','',$cust_subject,$cust_body,$email_attachments);
-				} catch(Exception $e) { $errors .= "Error sending notification to $address.\n"; }
-			}
+			$to = array_filter(array_unique(explode(';',$email)));
+			$cc_list = array_filter(array_unique(explode(';',$cc)));
+			try {
+				send_email('info@rookconnect',$to,$cc_list,'',$cust_subject,$cust_body,$email_attachments);
+			} catch(Exception $e) { $errors .= "Error sending notification to ".implode('; ',array_merge($to,$cc_list)).".\n"; }
 		}
 		
 		if($errors != '') {
 			echo "<script> alert('$errors'); </script>";
 		}
-		echo "<script> window.location.replace('?tab=requests&type=".($type=='Feedback' ? 'feedback' : ($type == 'Support Request' ? 'requests' : 'critical'))."'); </script>";
+		echo "<script> window.location.replace('customer_support.php?tab=requests&type=$type'); </script>";
 	}
 	$new_type = (!empty($_GET['new_type']) ? $_GET['new_type'] : '');
-	$source = (!empty($_GET['source']) ? $_GET['source'] : '');
-	?>
+	$source = (!empty($_GET['source']) ? $_GET['source'] : ''); ?>
 	<script>
-	$(document).on('change', 'select[name="type"]', function() { selectType(this.value); });
-	$(document).on('change', 'select[name="set_staff[]"]', function() { assign_staff(this); });
+	$(document).ready(function() {
+		$('select[name=type]').off('change',selectType).change(selectType);
+		$('select[name="set_staff[]"]').off('change',assign_staff).change(assign_staff);
+	});
 	function add_uploader(button) {
-		var clone = $('[name="documents[]"]').last().clone();
-		clone.val('');
-		$(button).before(clone);
+		var block = $('[name="documents[]"]:visible').last().closest('.form-group');
+		var clone = block.clone();
+		clone.find('input').val('');
+		$(block).after(clone);
 	}
 	function add_link(button) {
-		var clone = $('[name="links[]"]').last().clone();
-		clone.val('');
-		$(button).before(clone);
-		$('[name="links[]"]').last().focus();
+		var block = $('[name="links[]"]:visible').last().closest('.form-group');
+		var clone = block.clone();
+		clone.find('input').val('');
+		$(block).after(clone);
+		$('[name="links[]"]:visible').last().focus();
+	}
+	function add_cc(button) {
+		var block = $('[name="ccemail[]"]:visible').last().closest('.form-group');
+		var clone = block.clone();
+		clone.find('input').val('');
+		$(block).after(clone);
+		$('[name="ccemail[]"]:visible').last().focus();
 	}
 	function validate(form) {
 		tinymce.triggerSave();
@@ -190,22 +206,23 @@ $count_row = mysqli_fetch_array(mysqli_query($dbc_support, "SELECT SUM(IF(`suppo
 		}
 		$('.container form').hide().after('<h1>Submitting Request...</h1>');
 	}
-	function selectType(type) {
-		if(type == 'Critical Incident') {
-			if(!confirm("Critical Incidents should only be submitted for incidents that prevent your business from operating, moving forward with an important matter or for items that require drop everything attention. Submitting a critical incident creates a code red within our organization. Additional charges may be billed to a customer filling a Critical Report as these matters will take priority over all other matters. Critical Incidents will be reported on and tracked for quality assurance. Are you sure you want to create a Critical Incident? Click OK to create a Critical Incident, or cancel to select a Support Request instead.")) {
-				type = 'Support Request';
-			}
-		}
+	function selectType() {
+		type = this.value;
+		<?php foreach(get_config($dbc_support, 'support_alert_%', true, null) as $name => $alert_value) {
+			if($alert_value != '') {
+				$type = substr($name,14); ?>
+				if(type == '<?= $type ?>' && '<?= $type ?>' != 'feedback' && !confirm('<?= str_replace(['FFMNEWLINE'],['\n'],$alert_value) ?>')) {
+					type = 'feedback';
+				}
+			<?php }
+		} ?>
 		window.location.replace('?tab=requests&type=new&new_type='+type);
 	}
 	</script>
 	<div class="notice double-gap-bottom popover-examples">
 		<img src="<?= WEBSITE_URL; ?>/img/info.png" class="wiggle-me" style="width:3em;">
 		<div style="float:right; width:calc(100% - 4em);"><span class="notice-name">Note:</span>
-		<?= ($new_type == 'Feedback' ? 'We place the highest importance on developing and improving our solutions to help our customers run increasingly successful businesses with ongoing growth. Any feedback, criticism, want, need, etc. is appreciated and will be responded to. We look to our customers for feedback and ideas, and appreciate your business and support as we continue to improve.'
-			: ($new_type == 'Support Request' ? 'Submitting new requests assures that our support staff are immediately alerted to your needs. Please provide as much detail as possible to ensure we have all the information we need to do the best possible work to support your needs.'
-			: ($new_type == 'Critical Incident' ? 'Critical Incidents should only be submitted for incidents that prevent your business from operating, moving forward with an important matter or for items that require drop everything attention. Submitting a critical incident creates a code red within our organization. Additional charges may be billed to a customer filling a Critical Report as these matters will take priority over all other matters. Critical Incidents will be reported on and tracked for quality assurance.'
-			: 'Please select a type.'))) ?></div>
+		<?= empty($new_type) ? 'Please select a Request Type' : get_config($dbc_support, 'support_note_'.$new_type) ?></div>
 		<div class="clearfix"></div>
 	</div>
 	<form class="form" method="POST" action="" enctype="multipart/form-data" onsubmit="return validate(this);">
@@ -216,102 +233,32 @@ $count_row = mysqli_fetch_array(mysqli_query($dbc_support, "SELECT SUM(IF(`suppo
 			<div class="col-sm-8">
 				<?php if(empty($source)) { ?>
 					<select name="type" id="type" class="chosen-select-deselect form-control"><option></option>
-						<option <?= ($new_type == 'Feedback' ? 'selected' : '') ?> value="Feedback">Feedback & Ideas</option>
-						<option <?= ($new_type == 'Support Request' ? 'selected' : '') ?> value="Support Request">Support Request</option>
-						<option <?= ($new_type == 'Critical Incident' ? 'selected' : '') ?> value="Critical Incident">Critical Incident</option>
+						<option <?= ($new_type == 'feedback' ? 'selected' : '') ?> value="feedback">Feedback & Ideas</option>
+						<?php foreach($ticket_types as $type) { ?>
+							<option <?= ($new_type == config_safe_str($type) ? 'selected' : '') ?> value="<?= config_safe_str($type) ?>"><?= $type ?></option>
+						<?php } ?>
 					</select>
 				<?php } else {
-					echo $new_type;
+					foreach($ticket_types as $type) {
+						if($new_type == config_safe_str($type)) {
+							echo $type;
+						}
+					}
 				} ?>
 			</div>
 		</div>
+		<input type="hidden" name="src_user" value="<?= $_SESSION['user_name'] ?>">
+		<input type="hidden" name="src_contactid" value="<?= $_SESSION['contactid'] ?>">
+		<input type="hidden" name="software" value="<?= WEBSITE_URL ?>">
+		<input type="hidden" name="src_security" value="<?= ROLE ?>">
 		
-		<?php if($new_type == 'Support Request'): ?>
-			<div class="form-group clearfix">
-				<label class="col-sm-4 control-label" for="customer">Customer:</label>
-				<div class="col-sm-8">
-					<input type="text" name="customer" id="customer" value="<?= get_contact($dbc, $_SESSION['contactid']) ?>" class="form-control">
-					<input type="hidden" name="contactid" value="<?= $_SESSION['contactid'] ?>">
-				</div>
-			</div>
-			
-			<div class="form-group clearfix">
-				<label class="col-sm-4 control-label" for="date">Date:</label>
-				<div class="col-sm-8">
-					<input type="text" readonly name="date" id="date" value="<?= date('Y-m-d') ?>" class="form-control">
-				</div>
-			</div>
-			
-			<div class="form-group clearfix">
-				<label class="col-sm-4 control-label" for="business">Business:</label>
-				<div class="col-sm-8">
-					<input type="text" name="business" id="business" value="<?= $user_name ?>" class="form-control">
-					<input type="hidden" name="businessid" value="<?= $user ?>">
-					<input type="hidden" name="software" value="<?= WEBSITE_URL ?>">
-				</div>
-			</div>
-			
-			<div class="form-group clearfix">
-				<label class="col-sm-4 control-label" for="email">Email<span class="text-red">*</span>:</label>
-				<div class="col-sm-8">
-					<input type="text" name="email" id="email" value="<?= get_email($dbc, $_SESSION['contactid']) ?>" class="form-control">
-				</div>
-			</div>
-			
-			<div class="form-group clearfix">
-				<label class="col-sm-4 control-label" for="ccemail">CC Email:</label>
-				<div class="col-sm-8">
-					<input type="text" name="ccemail" id="ccemail" value="" class="form-control">
-				</div>
-			</div>
-			
-			<div class="form-group clearfix">
-				<label class="col-sm-4 control-label" for="heading">Support Request Heading:</label>
-				<div class="col-sm-8">
-					<select name="heading" id="heading" class="form-control chosen-select-deselect"><option></option>
-						<option value="Creative Design">Creative Design</option>
-						<option value="Digital Advertising - SEO and SEM">Digital Advertising (SEO &amp; SEM)</option>
-						<option value="Hosting, Domains and Emails">Hosting, Domains &amp; Emails</option>
-						<option value="Marketing Strategies">Marketing Strategies</option>
-						<option value="Meeting Request">Meeting Request</option>
-						<option value="New Idea">New Idea</option>
-						<option value="New Software Functionality">New Software Functionality</option>
-						<option value="Social Media and Blog Work">Social Media &amp; Blog Work</option>
-						<option value="Software Revision - Bug">Software Revision (Bug)</option>
-						<option value="Web Design">Web Design</option>
-					</select>
-				</div>
-			</div>
-			
-			<div class="form-group clearfix">
-				<label class="col-sm-4 control-label" for="details">Details<span class="text-red">*</span>:</label>
-				<div class="col-sm-8">
-					<textarea name="details" id="details" class="form-control"></textarea>
-				</div>
-			</div>
-				
-			<div class="form-group clearfix">
-				<label class="col-sm-4 control-label">Upload Documents:</label>
-				<div class="col-sm-8">
-					<input type="file" multiple name="documents[]" data-filename-placement="inside" class="form-control">
-					<button onclick="add_uploader(this); return false;" class="btn brand-btn pull-right">Add More Documents</button>
-				</div>
-			</div>
-			<div class="form-group clearfix">
-				<label class="col-sm-4 control-label">Attach Link:</label>
-				<div class="col-sm-8">
-					<input type="text" name="links[]" class="form-control">
-					<button onclick="add_link(this); return false;" class="btn brand-btn pull-right">Add More Links</button>
-				</div>
-			</div>
-		<?php elseif($new_type == 'Critical Incident'): ?>
+		<?php if($new_type == 'last_minute_priority'): ?>
 			<input type="hidden" name="heading" value="Critical Incident">
 			<div class="form-group clearfix">
 				<label class="col-sm-4 control-label" for="business">Business:</label>
 				<div class="col-sm-8">
 					<input type="text" name="business" id="business" value="<?= $user_name ?>" class="form-control">
 					<input type="hidden" name="businessid" value="<?= $user ?>">
-					<input type="hidden" name="software" value="<?= WEBSITE_URL ?>">
 				</div>
 			</div>
 			
@@ -332,8 +279,11 @@ $count_row = mysqli_fetch_array(mysqli_query($dbc_support, "SELECT SUM(IF(`suppo
 			
 			<div class="form-group clearfix">
 				<label class="col-sm-4 control-label" for="ccemail">CC Email:</label>
-				<div class="col-sm-8">
-					<input type="text" name="ccemail" id="ccemail" value="" class="form-control">
+				<div class="col-sm-7">
+					<input type="text" name="ccemail[]" id="ccemail" value="" class="form-control">
+				</div>
+				<div class="col-sm-1">
+					<img onclick="add_cc(this); return false;" class="inline-img cursor-hand pull-right" src="../img/icons/ROOK-add-icon.png">
 				</div>
 			</div>
 			
@@ -357,57 +307,26 @@ $count_row = mysqli_fetch_array(mysqli_query($dbc_support, "SELECT SUM(IF(`suppo
 					<textarea name="details" id="details" class="form-control"></textarea>
 				</div>
 			</div>
-			
-			<!--<div class="form-group clearfix">
-				<label class="col-sm-4 control-label" for="plan">Plan:</label>
-				<div class="col-sm-8">
-					<textarea name="plan" id="plan" class="form-control"></textarea>
-				</div>
-			</div>
-			
-			<div class="form-group clearfix">
-				<label class="col-sm-4 control-label" for="discovery">Investigation / Discovery:</label>
-				<div class="col-sm-8">
-					<textarea name="discovery" id="discovery" class="form-control"></textarea>
-				</div>
-			</div>
-			
-			<div class="form-group clearfix">
-				<label class="col-sm-4 control-label" for="action">Actions Taken (Deliverables &amp; Timelines):</label>
-				<div class="col-sm-8">
-					<textarea name="action" id="action" class="form-control"></textarea>
-				</div>
-			</div>
-			
-			<div class="form-group clearfix">
-				<label class="col-sm-4 control-label" for="check">Check:</label>
-				<div class="col-sm-8">
-					<textarea name="check" id="check" class="form-control"></textarea>
-				</div>
-			</div>
-			
-			<div class="form-group clearfix">
-				<label class="col-sm-4 control-label" for="adjustments">Further Adjustments:</label>
-				<div class="col-sm-8">
-					<textarea name="adjustments" id="adjustments" class="form-control"></textarea>
-				</div>
-			</div>-->
 				
 			<div class="form-group clearfix">
 				<label class="col-sm-4 control-label">Upload Documents:</label>
-				<div class="col-sm-8">
+				<div class="col-sm-7">
 					<input type="file" multiple name="documents[]" data-filename-placement="inside" class="form-control">
-					<button onclick="add_uploader(this); return false;" class="btn brand-btn pull-right">Add More Documents</button>
+				</div>
+				<div class="col-sm-1">
+					<img onclick="add_uploader(this); return false;" class="inline-img cursor-hand pull-right" src="../img/icons/ROOK-add-icon.png">
 				</div>
 			</div>
 			<div class="form-group clearfix">
 				<label class="col-sm-4 control-label">Attach Link:</label>
-				<div class="col-sm-8">
+				<div class="col-sm-7">
 					<input type="text" name="links[]" class="form-control">
-					<button onclick="add_link(this); return false;" class="btn brand-btn pull-right">Add More Links</button>
+				</div>
+				<div class="col-sm-1">
+					<img onclick="add_link(this); return false;" class="inline-img cursor-hand pull-right" src="../img/icons/ROOK-add-icon.png">
 				</div>
 			</div>
-		<?php elseif($new_type == 'Feedback'): ?>
+		<?php elseif($new_type == 'feedback'): ?>
 			<div class="form-group clearfix">
 				<label class="col-sm-4 control-label" for="customer">Customer:</label>
 				<div class="col-sm-8">
@@ -428,7 +347,6 @@ $count_row = mysqli_fetch_array(mysqli_query($dbc_support, "SELECT SUM(IF(`suppo
 				<div class="col-sm-8">
 					<input type="text" name="business" id="business" value="<?= $user_name ?>" class="form-control">
 					<input type="hidden" name="businessid" value="<?= $user ?>">
-					<input type="hidden" name="software" value="<?= WEBSITE_URL ?>">
 				</div>
 			</div>
 			
@@ -441,8 +359,11 @@ $count_row = mysqli_fetch_array(mysqli_query($dbc_support, "SELECT SUM(IF(`suppo
 			
 			<div class="form-group clearfix">
 				<label class="col-sm-4 control-label" for="ccemail">CC Email:</label>
-				<div class="col-sm-8">
-					<input type="text" name="ccemail" id="ccemail" value="" class="form-control">
+				<div class="col-sm-7">
+					<input type="text" name="ccemail[]" id="ccemail" value="" class="form-control">
+				</div>
+				<div class="col-sm-1">
+					<img onclick="add_cc(this); return false;" class="inline-img cursor-hand pull-right" src="../img/icons/ROOK-add-icon.png">
 				</div>
 			</div>
 			
@@ -473,16 +394,105 @@ $count_row = mysqli_fetch_array(mysqli_query($dbc_support, "SELECT SUM(IF(`suppo
 				
 			<div class="form-group clearfix">
 				<label class="col-sm-4 control-label">Upload Documents:</label>
-				<div class="col-sm-8">
+				<div class="col-sm-7">
 					<input type="file" multiple name="documents[]" data-filename-placement="inside" class="form-control">
-					<button onclick="add_uploader(this); return false;" class="btn brand-btn pull-right">Add More Documents</button>
+				</div>
+				<div class="col-sm-1">
+					<img onclick="add_uploader(this); return false;" class="inline-img cursor-hand pull-right" src="../img/icons/ROOK-add-icon.png">
 				</div>
 			</div>
 			<div class="form-group clearfix">
 				<label class="col-sm-4 control-label">Attach Link:</label>
-				<div class="col-sm-8">
+				<div class="col-sm-7">
 					<input type="text" name="links[]" class="form-control">
-					<button onclick="add_link(this); return false;" class="btn brand-btn pull-right">Add More Links</button>
+				</div>
+				<div class="col-sm-1">
+					<img onclick="add_link(this); return false;" class="inline-img cursor-hand pull-right" src="../img/icons/ROOK-add-icon.png">
+				</div>
+			</div>
+		<?php else: ?>
+			<div class="form-group clearfix">
+				<label class="col-sm-4 control-label" for="customer">Customer:</label>
+				<div class="col-sm-8">
+					<input type="text" name="customer" id="customer" value="<?= get_contact($dbc, $_SESSION['contactid']) ?>" class="form-control">
+					<input type="hidden" name="contactid" value="<?= $_SESSION['contactid'] ?>">
+				</div>
+			</div>
+			
+			<div class="form-group clearfix">
+				<label class="col-sm-4 control-label" for="date">Date:</label>
+				<div class="col-sm-8">
+					<input type="text" readonly name="date" id="date" value="<?= date('Y-m-d') ?>" class="form-control">
+				</div>
+			</div>
+			
+			<div class="form-group clearfix">
+				<label class="col-sm-4 control-label" for="business">Business:</label>
+				<div class="col-sm-8">
+					<input type="text" name="business" id="business" value="<?= $user_name ?>" class="form-control">
+					<input type="hidden" name="businessid" value="<?= $user ?>">
+				</div>
+			</div>
+			
+			<div class="form-group clearfix">
+				<label class="col-sm-4 control-label" for="email">Email<span class="text-red">*</span>:</label>
+				<div class="col-sm-8">
+					<input type="text" name="email" id="email" value="<?= get_email($dbc, $_SESSION['contactid']) ?>" class="form-control">
+				</div>
+			</div>
+			
+			<div class="form-group clearfix">
+				<label class="col-sm-4 control-label" for="ccemail">CC Email:</label>
+				<div class="col-sm-7">
+					<input type="text" name="ccemail[]" id="ccemail" value="" class="form-control">
+				</div>
+				<div class="col-sm-1">
+					<img onclick="add_cc(this); return false;" class="inline-img cursor-hand pull-right" src="../img/icons/ROOK-add-icon.png">
+				</div>
+			</div>
+			
+			<div class="form-group clearfix">
+				<label class="col-sm-4 control-label" for="heading">Support Request Heading:</label>
+				<div class="col-sm-8">
+					<select name="heading" id="heading" class="form-control chosen-select-deselect"><option></option>
+						<option value="Creative Design">Creative Design</option>
+						<option value="Digital Advertising - SEO and SEM">Digital Advertising (SEO &amp; SEM)</option>
+						<option value="Hosting, Domains and Emails">Hosting, Domains &amp; Emails</option>
+						<option value="Marketing Strategies">Marketing Strategies</option>
+						<option value="Meeting Request">Meeting Request</option>
+						<option value="New Idea">New Idea</option>
+						<option value="New Software Functionality">New Software Functionality</option>
+						<option value="Social Media and Blog Work">Social Media &amp; Blog Work</option>
+						<option value="Software Revision - Bug">Software Revision (Bug)</option>
+						<option value="Web Design">Web Design</option>
+					</select>
+				</div>
+			</div>
+			
+			<div class="form-group clearfix">
+				<label class="col-sm-4 control-label" for="details">Details<span class="text-red">*</span>:</label>
+				<div class="col-sm-8">
+					<textarea name="details" id="details" class="form-control"></textarea>
+				</div>
+			</div>
+				
+			<div class="form-group clearfix">
+				<label class="col-sm-4 control-label">Upload Documents:</label>
+				<div class="col-sm-7">
+					<input type="file" multiple name="documents[]" data-filename-placement="inside" class="form-control">
+				</div>
+				<div class="col-sm-1">
+					<img onclick="add_uploader(this); return false;" class="inline-img cursor-hand pull-right" src="../img/icons/ROOK-add-icon.png">
+				</div>
+				<div class="clearfix"></div>
+			</div>
+			<div class="form-group clearfix">
+				<label class="col-sm-4 control-label">Attach Link:</label>
+				<div class="col-sm-7">
+					<input type="text" name="links[]" class="form-control">
+				</div>
+				<div class="col-sm-1">
+					<img onclick="add_link(this); return false;" class="inline-img cursor-hand pull-right" src="../img/icons/ROOK-add-icon.png">
 				</div>
 			</div>
 		<?php endif; ?>
@@ -599,11 +609,11 @@ $count_row = mysqli_fetch_array(mysqli_query($dbc_support, "SELECT SUM(IF(`suppo
 				echo '<input type="text" name="checklist_time_'.$row['supportid'].'" style="display:none; margin-top: 2em;" class="form-control timepicker" />';
 				echo '<input type="text" name="reminder_'.$row['supportid'].'" style="display:none; margin-top: 2em;" class="form-control datepicker" />';
 				echo '<input type="file" name="attach_'.$row['supportid'].'" style="display:none;" class="form-control" />';
-				echo '<br /><span class="display-field"><b>Date of Request: '.$row['current_date']."</b><br />Support Request #".$row['supportid']."<br />".$row['heading']."<hr>".html_entity_decode($row['message']).'</span>';
+				echo '<br /><span class="display-field"><b>Date of Request: '.$row['current_date']."</b><br />Software Link: <a href='".$row['software_url']."'>".$row['software_url']."</a><br />User Name: ".$row['software_user_name']."<br />Security Level: ".$row['software_role']."<br />Support Request #".$row['supportid']."<br />".$row['heading']."<hr>".html_entity_decode($row['message']).'</span>';
 				$documents = mysqli_query($dbc, "SELECT * FROM support_uploads WHERE supportid='".$row['supportid']."'");
 				while($doc = mysqli_fetch_array($documents)) {
 					$link = $doc['document'];
-					echo '<a href="'.$link.'">'.$link.' (Attached by '.$doc['created_by'].' on '.$doc['created_date'].')</a><br />';
+					echo '<br /><a href="'.$link.'">'.$link.' (Attached by '.$doc['created_by'].' on '.$doc['created_date'].')</a>';
 				}
 				echo '</span></li>';
 			} ?>
@@ -620,7 +630,13 @@ $count_row = mysqli_fetch_array(mysqli_query($dbc_support, "SELECT SUM(IF(`suppo
 	</div>
 	
 	<form name='search_form' method='POST' action=''>
-	<?php $date = date('Y-m-d',strtotime('-2month'));
+	<?php $request_tab_name = 'Feedback &amp; Ideas';
+	foreach($ticket_types as $type) {
+		if(config_safe_str($type) == $request_tab) {
+			$request_tab_name = $type;
+		}
+	}
+	$date = date('Y-m-d',strtotime('-2month'));
 	$search_string = '';
 	$search_cust = '';
 	$search_start = '';
@@ -646,7 +662,7 @@ $count_row = mysqli_fetch_array(mysqli_query($dbc_support, "SELECT SUM(IF(`suppo
 					<div class="col-sm-8">
 						<select data-placeholder="Select a Customer" name="search_cust" class="chosen-select-deselect form-control">
 							<option></option>
-							<?php $query = mysqli_query($dbc_support,"SELECT DISTINCT `company_name` FROM `support` WHERE `support_type`='".($request_tab == 'feedback' ? 'Feedback' : ($request_tab == 'requests' ? 'Support Request' : 'Critical Incident'))."' AND `deleted`=0 ORDER BY `company_name`");
+							<?php $query = mysqli_query($dbc_support,"SELECT DISTINCT `company_name` FROM `support` WHERE `support_type`='$request_tab' AND `deleted`=0 ORDER BY `company_name`");
 							while($custid = mysqli_fetch_array($query)['company_name']) { ?>
 								<option <?php if ($custid == $search_cust) { echo " selected"; } ?> value='<?php echo  $custid; ?>' ><?= $custid ?></option><?php
 							} ?>
@@ -677,7 +693,7 @@ $count_row = mysqli_fetch_array(mysqli_query($dbc_support, "SELECT SUM(IF(`suppo
 				<div class="col-sm-8">
 						<select data-placeholder="Select a Heading" name="search_head" class="chosen-select-deselect form-control">
 							<option></option>
-							<?php $query = mysqli_query($dbc_support,"SELECT DISTINCT `heading` FROM `support` WHERE `support_type`='".($request_tab == 'feedback' ? 'Feedback' : ($request_tab == 'requests' ? 'Support Request' : 'Critical Incident'))."' AND `deleted`=0 ORDER BY `heading`");
+							<?php $query = mysqli_query($dbc_support,"SELECT DISTINCT `heading` FROM `support` WHERE `support_type`='$request_tab' AND `deleted`=0 ORDER BY `heading`");
 							while($heading = mysqli_fetch_array($query)['heading']) { ?>
 								<option <?php if ($heading == $search_head) { echo " selected"; } ?> value='<?php echo  $heading; ?>' ><?= $heading ?></option><?php
 							} ?>
@@ -704,13 +720,13 @@ $count_row = mysqli_fetch_array(mysqli_query($dbc_support, "SELECT SUM(IF(`suppo
 		<div class="clearfix"></div>
 	</div>
 	</form>
-	<a href="?tab=requests&type=new&new_type=<?=  ($request_tab == 'feedback' ? 'Feedback' : ($request_tab == 'requests' ? 'Support Request' : 'Critical Incident')) ?>&source=tab" class="btn brand-btn pull-right">
-		Submit <?= ($request_tab == 'feedback' ? 'Feedback &amp; Ideas' : ($request_tab == 'requests' ? 'Support Request' : 'Critical Incident')) ?></a>
-	<?php $support_list = mysqli_query($dbc_support, "SELECT * FROM `support` WHERE (`businessid`='$user' OR '$user_category' IN (".STAFF_CATS.")) AND `support_type`='".($request_tab == 'feedback' ? 'Feedback' : ($request_tab == 'requests' ? 'Support Request' : 'Critical Incident'))."' AND `deleted`=0".$search_string);
+	<a href="?tab=requests&type=new&new_type=<?=  $request_tab ?>&source=tab" class="btn brand-btn pull-right">
+		Submit <?= $request_tab_name ?></a>
+	<?php $support_list = mysqli_query($dbc_support, "SELECT * FROM `support` WHERE (`businessid`='$user' OR '$user_category' IN (".STAFF_CATS.")) AND `support_type`='$request_tab' AND `deleted`=0".$search_string);
 	$staff_list = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT `first_name`, `last_name`, `contactid` FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND `deleted`=0 AND `status`>0"),MYSQLI_ASSOC));
 	if(mysqli_num_rows($support_list) > 0) { ?>
 		<ul class="connectedChecklist">
-			<li class="ui-state-default ui-state-disabled no-sort">Support Requests</li>
+			<li class="ui-state-default ui-state-disabled no-sort"><?= $request_tab_name ?></li>
 			<?php while($row = mysqli_fetch_array($support_list)) {
 				echo '<a name="'.$row['supportid'].'"></a><li id="'.$row['supportid'].'" class="ui-state-default" style="'.($row['flag_colour'] == '' ? '' : 'background-color: #'.$row['flag_colour'].';').' border: solid #FF0000 2px; margin-bottom: 1em;">';
 				echo '<span>';
@@ -721,7 +737,7 @@ $count_row = mysqli_fetch_array(mysqli_query($dbc_support, "SELECT SUM(IF(`suppo
 				echo '<span style="display:inline-block; text-align:center; width:20%;" title="Send Email" onclick="send_email(this); return false;"><img src="'.WEBSITE_URL.'/img/icons/ROOK-email-icon.png" style="height:1.5em;" onclick="return false;"></span>';
 				echo '<span style="display:inline-block; text-align:center; width:20%;" title="Archive Item" onclick="archive(this); return false;"><img src="'.WEBSITE_URL.'/img/icons/ROOK-trash-icon.png" style="height:1.5em;" onclick="return false;"></span>';
 				if($user_category == 'Staff') {
-					echo '<label class="col-sm-4 control-label">Assign to Staff:</label><div class="col-sm-8"><select name="set_staff[]" multiple data-placeholder="Select Staff to Assign" class="chosen-select-deselect form-control"><option></option>';
+					echo '<label class="col-sm-4 control-label">Staff Responsible:</label><div class="col-sm-8"><select name="set_staff[]" multiple data-placeholder="Select Staff to Assign" class="chosen-select-deselect form-control"><option></option>';
 					foreach($staff_list as $id) {
 						echo '<option '.(strpos(','.$row['assigned'].',', ','.$id.',') !== false ? 'selected' : '').' value="'.$id.'">'.get_contact($dbc, $id).'</option>';
 					}
@@ -737,21 +753,22 @@ $count_row = mysqli_fetch_array(mysqli_query($dbc_support, "SELECT SUM(IF(`suppo
 				echo '<input type="text" name="checklist_time_'.$row['supportid'].'" style="display:none; margin-top: 2em;" class="form-control timepicker" />';
 				echo '<input type="text" name="reminder_'.$row['supportid'].'" style="display:none; margin-top: 2em;" class="form-control datepicker" />';
 				echo '<input type="file" name="attach_'.$row['supportid'].'" style="display:none;" class="form-control" />';
-				echo '<br /><span class="display-field"><b>Date of Request: '.$row['current_date']."</b><br />Support Request #".$row['supportid']."<br />".$row['heading']."<hr>".html_entity_decode($row['message']).'</span>';
+				echo '<br /><span class="display-field"><b>Date of Request: '.$row['current_date']."</b><br />Software Link: <a href='".$row['software_url']."'>".$row['software_url']."</a><br />User Name: ".$row['software_user_name']."<br />Security Level: ".$row['software_role']."<br />Support Request #".$row['supportid']."<br />".$row['heading']."<hr>".html_entity_decode($row['message']).'</span>';
 				$documents = mysqli_query($dbc, "SELECT * FROM support_uploads WHERE supportid='".$row['supportid']."'");
 				while($doc = mysqli_fetch_array($documents)) {
 					$link = $doc['document'];
-					echo '<a href="'.$link.'">'.$link.' (Attached by '.$doc['created_by'].' on '.$doc['created_date'].')</a><br />';
+					echo '<br /><a href="'.$link.'">'.$link.' (Attached by '.$doc['created_by'].' on '.$doc['created_date'].')</a>';
 				}
 				echo '</span></li>';
 			} ?>
 		</ul>
 	<?php } else {
-		echo "<h3>No ".($request_tab == 'feedback' ? 'Feedback & Ideas' : ($request_tab == 'requests' ? 'Support Requests' : 'Critical Incidents'))." Found</h3>";
+		echo "<h3>No $request_tab_name Found</h3>";
 	} ?>
 <?php endif; ?>
 <script>
-function assign_staff(support) {
+function assign_staff() {
+	support = this;
 	support_id = $(support).parents('span').data('support');
 	staff_id = $(support).val();
 	$.ajax({

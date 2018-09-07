@@ -3,6 +3,10 @@
 	$inc_rep_save_journal = filter_var($_POST['inc_rep_save_journal'],FILTER_SANITIZE_STRING);
 	set_config($dbc, 'inc_rep_save_journal', $inc_rep_save_journal);
 
+	//Saved Tab
+	$inc_rep_saved_tab = filter_var($_POST['inc_rep_saved_tab'],FILTER_SANITIZE_STRING);
+	set_config($dbc, 'inc_rep_saved_tab', $inc_rep_saved_tab);
+
 	//Logo
 	if (!file_exists('download')) {
 		mkdir('download', 0777, true);
@@ -118,6 +122,13 @@
 	<div class="col-sm-8">
 		<input type="text" name="incident_types" value="<?= $type_config ?>" class="form-control">
 	</div>
+  </div>
+  <div class="form-group">
+  	<?php $inc_rep_saved_tab = get_config($dbc, 'inc_rep_saved_tab'); ?>
+  	<label class="col-sm-4 control-label">Display Saved Tab:<br /><em>This will be a tab displaying all Saved <?= INC_REP_TILE ?>.</em></label>
+  	<div class="col-sm-8">
+  		<label class="form-checkbox"><input type="checkbox" name="inc_rep_saved_tab" value="1" <?= $inc_rep_saved_tab == 1 ? 'checked' : '' ?>> Enable</label>
+  	</div>
   </div>
   <div class="form-group">
   	<?php $inc_rep_save_journal = get_config($dbc, 'inc_rep_save_journal'); ?>

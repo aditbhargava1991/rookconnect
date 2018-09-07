@@ -73,6 +73,7 @@ if (isset($_POST['printpdf'])) {
     $today_date = date('Y-m-d');
 	$pdf->writeHTML($html, true, false, true, false, '');
 	$pdf->Output('Download/referral_'.$today_date.'.pdf', 'F');
+    track_download($dbc, 'report_general_inventory', 0, WEBSITE_URL.'/Reports/Download/referral_'.$today_date.'.pdf', 'Inventory Analysis Report');
     ?>
 
 	<script type="text/javascript" language="Javascript">
@@ -82,21 +83,6 @@ if (isset($_POST['printpdf'])) {
     $starttime = $starttimepdf;
     $endtime = $endtimepdf;
     } ?>
-
-<script type="text/javascript">
-
-</script>
-</head>
-<body>
-<?php include_once ('../navigation.php');
-?>
-
-<div class="container triple-pad-bottom">
-    <div class="row">
-        <div class="col-md-12">
-
-        <?php echo reports_tiles($dbc);  ?>
-
         <div class="notice double-gap-bottom popover-examples">
             <div class="col-sm-1 notice-icon"><img src="<?= WEBSITE_URL; ?>/img/info.png" class="wiggle-me" width="25"></div>
             <div class="col-sm-11"><span class="notice-name">NOTE:</span>
@@ -146,11 +132,6 @@ if (isset($_POST['printpdf'])) {
             ?>
 
         </form>
-
-        </div>
-    </div>
-</div>
-<?php include ('../footer.php'); ?>
 
 <?php
 function report_inventory($dbc, $starttime, $endtime, $table_style, $table_row_style, $grand_total_style) {
@@ -237,7 +218,9 @@ function report_inventory($dbc, $starttime, $endtime, $table_style, $table_row_s
     $total_contact = mysqli_query($dbc,"SELECT SUM(quantity) AS total_quantity, SUM(sell_price) AS total_sell, inventoryid FROM report_inventory WHERE (DATE(today_date) >= '".$starttime."' AND DATE(today_date) <= '".$endtime."') GROUP BY inventoryid");
 
 	$cost_field = get_config($dbc,'inventory_cost');
+    $odd_even=0;
     while($row_report = mysqli_fetch_array($total_contact)) {
+        $bg_class = $odd_even % 2 == 0 ? '' : 'background-color:#e6e6e6;';
         $inventoryid = $row_report['inventoryid'];
         $total_cost = (get_all_from_inventory($dbc, $inventoryid, $cost_field)*$row_report['total_quantity']);
         $total_sell = $row_report['total_sell'];
@@ -248,7 +231,7 @@ function report_inventory($dbc, $starttime, $endtime, $table_style, $table_row_s
         } else {
             $back = 'style="background-color: green;"';
         }
-        $report_data .= '<tr nobr="true">';
+        $report_data .= '<tr nobr="true" style="'.$bg_class.'">';
         $report_data .= '<td>'.get_all_from_inventory($dbc, $inventoryid, 'code').'</td>';
         $report_data .= '<td>'.get_all_from_inventory($dbc, $inventoryid, 'name').'</td>';
         $report_data .= '<td>'.$row_report['total_quantity'].'</td>';
@@ -257,6 +240,7 @@ function report_inventory($dbc, $starttime, $endtime, $table_style, $table_row_s
         $report_data .= '<td>'.$total_sell.'</td>';
         $report_data .= '<td '.$back.'>'.$profit_loss.'</td>';
         $report_data .= '</tr>';
+        $odd_even++;
     }
 
     $report_data .= '</table>';

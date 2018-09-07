@@ -4,6 +4,13 @@ include_once('../include.php'); ?>
 $(document).ready(function() {
 	$('input').change(saveField);
 	$('select').change(saveField);
+	$('[name="project_slider"]').change(function() {
+		if($('[name="project_slider"]:checked').val() == 'button') {
+			$('.project_slider_label').show();
+		} else {
+			$('.project_slider_label').hide();
+		}
+	});
 });
 function saveField() {
 	if(this.name == 'tile_name' || this.name == 'project_noun') {
@@ -122,6 +129,24 @@ function saveField() {
 				value: project_sort_fields.join(',')
 			}
 		});
+	} else if(this.name == 'project_slider') {
+		$.ajax({
+			url: 'projects_ajax.php?action=setting_tile',
+			method: 'POST',
+			data: {
+				field: 'project_slider',
+				value: $('[name="project_slider"]:checked').val()
+			}
+		});
+	} else if(this.name == 'project_slider_label') {
+		$.ajax({
+			url: 'projects_ajax.php?action=setting_tile',
+			method: 'POST',
+			data: {
+				field: 'project_slider_label',
+				value: $('[name="project_slider_label"]').val()
+			}
+		});
 	}
 }
 </script>
@@ -187,7 +212,7 @@ function saveField() {
 </div>
 <hr>
 <div class="form-group type-option">
-	<label class="col-sm-4"><?= TICKET_NOUN ?> Label:<br /><em>Enter how you want <?= TICKET_TILE ?> to appear. You can enter [PROJECT_NOUN], [PROJECTID], [PROJECT_NAME], [PROJECT_TYPE], [PROJECT_TYPE_CODE], [TICKET_NOUN], [TICKETID], [TICKET_HEADING], [TICKET_DATE], [YYYY], [YY], [YY-MM], [YYYY-MM], [BUSINESS], [CONTACT].</em></label>
+	<label class="col-sm-4"><?= TICKET_NOUN ?> Label:<br /><em>Enter how you want <?= TICKET_TILE ?> to appear. You can enter [PROJECT_NOUN], [PROJECTID], [PROJECT_NAME], [PROJECT_TYPE], [PROJECT_TYPE_CODE], [TICKET_NOUN], [TICKETID], [TICKET_HEADING], [TICKET_DATE], [BUSINESS], [CONTACT], [SITE_NAME], [TICKET_TYPE], [STOP_LOCATION], [STOP_CLIENT], [ORDER_NUM].</em></label>
 	<div class="col-sm-8">
 		<input type="text" name="ticket_label" value="<?= get_config($dbc, "ticket_label") ?>" class="form-control">
 	</div>
@@ -274,6 +299,25 @@ function saveField() {
 	<div class="col-sm-8">
 		<?php $project_services_add_to_rates = get_config($dbc, "project_services_add_to_rates"); ?>
 		<label class="form-checkbox-any"><input type="checkbox" <?= ($project_services_add_to_rates == 'true') ? 'checked' : '' ?> name="project_services_add_to_rates" value="true"> When adding services to the <?= PROJECT_NOUN ?> scope, push services into the rate card for the relevant Contact.</label>
+	</div>
+	<div class="clearfix"></div>
+</div>
+<hr>
+<div class="form-group type-option">
+	<label class="col-sm-4"><?= PROJECT_NOUN ?> Sign In Button:</label>
+	<div class="col-sm-8">
+		<?php $project_slider = get_config($dbc, "project_slider"); ?>
+		<label class="form-checkbox"><input type="radio" name="project_slider" <?= empty($project_slider) ? 'checked' : '' ?> value=""> No Sign In Button</label>
+		<label class="form-checkbox"><input type="radio" name="project_slider" <?= $project_slider == 'button' ? 'checked' : '' ?> value="button"> Enable</label>
+		<label class="form-checkbox"><input type="radio" name="project_slider" <?= $project_slider == 'icon' ? 'checked' : '' ?> value="icon"> Use Eyeball Icon</label>
+	</div>
+	<div class="clearfix"></div>
+</div>
+<div class="form-group type-option project_slider_label" <?= $project_slider != 'button' ? 'style="display:none;"' : '' ?>>
+	<label class="col-sm-4"><?= PROJECT_NOUN ?> Sign In Button Label:</label>
+	<div class="col-sm-8">
+		<?php $project_slider_label = get_config($dbc, "project_slider_label"); ?>
+		<input type="text" name="project_slider_label" class="form-control" value="<?= $project_slider_label ?>">
 	</div>
 	<div class="clearfix"></div>
 </div>

@@ -25,5 +25,14 @@ $po_tabs = explode(',',get_config($dbc,'po_tabs')); ?>
 			<label class="form-checkbox"><input type="checkbox" name="po_tabs[]" <?= in_array('cust_po',$po_tabs) ? 'checked' : '' ?> value="cust_po"> Customer Purchase Orders</label>
 		</div>
 	</div>
+	<div class="form-group">
+		<label class="col-sm-4">Summary Options:</label>
+		<div class="col-sm-8">
+			<label class="form-checkbox"><input type="checkbox" name="po_tabs[]" <?= in_array('summary amts',$po_tabs) ? 'checked' : '' ?> value="summary amts"> Outstanding Amounts</label>
+			<label class="form-checkbox"><input type="checkbox" name="po_tabs[]" <?= in_array('summary outstanding',$po_tabs) ? 'checked' : '' ?> value="summary outstanding"> Outstanding Purchase Orders</label>
+			<label class="form-checkbox"><input type="checkbox" name="po_tabs[]" <?= in_array('summary date',$po_tabs) ? 'checked' : '' ?> value="summary date"> Date Sent</label>
+			<label class="form-checkbox"><input type="checkbox" name="po_tabs[]" <?= in_array('summary details',$po_tabs) ? 'checked' : '' ?> value="summary details"> View PO Details (Eye)</label>
+		</div>
+	</div>
 	<button class="btn brand-btn pull-right" type="submit" name="submit" value="submit">Submit</button>
 </form>

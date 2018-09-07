@@ -69,6 +69,7 @@ if (isset($_POST['printpdf'])) {
     $today_date = date('Y-m-d');
 	$pdf->writeHTML($html, true, false, true, false, '');
 	$pdf->Output('Download/timetracking_'.$today_date.'.pdf', 'F');
+    track_download($dbc, 'report_task_time', 0, WEBSITE_URL.'/Reports/Download/timetracking_'.$today_date.'.pdf', 'Task Time Tracking Report');
     ?>
 
 	<script type="text/javascript" language="Javascript">
@@ -193,7 +194,7 @@ function report_receivables($dbc, $starttime, $endtime, $table_style, $table_row
     while($row = mysqli_fetch_array( $result ))
     {
 		$report_data .= '<tr>';
-		
+
 		$time_length = date('G:i',strtotime(date('Y-m-d ').$row['time_length']));
 		$minutes = explode(':',$time_length);
 		$total_time += ($minutes[0] * 60) + $minutes[1];

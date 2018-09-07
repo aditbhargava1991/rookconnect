@@ -284,7 +284,7 @@ function add_line() {
 </div>
 <div class='scale-to-fill has-main-screen hide-titles-mob'>
 	<div class='main-screen default_screen form-horizontal standard-body'>
-		<div class="standard-body-title"><h3><?= ESTIMATE_TILE ?> Scope <a href="estimate_scope_edit.php?estimateid=<?= $estimateid ?>&scope=<?= $_GET['status'] ?>" onclick="overlayIFrameSlider(this.href, '75%', true, false, 'auto', true); return false;"><img class="inline-img smaller" src="../img/icons/ROOK-edit-icon.png"></a></h3></div>
+		<div class="standard-body-title"><h3><?= rtrim(ESTIMATE_TILE, 's') ?> Scope <a href="estimate_scope_edit.php?estimateid=<?= $estimateid ?>&scope=<?= $_GET['status'] ?>" onclick="overlayIFrameSlider(this.href, '75%', true, false, 'auto', true); return false;"><img class="inline-img smaller no-toggle" src="../img/icons/ROOK-edit-icon.png" title="Edit"></a></h3></div>
 		<div class="standard-dashboard-body-content pad-top pad-left pad-right">
 			<div class="form-group">
 				<?php foreach($rates as $rate_id => $rate) {
@@ -314,7 +314,7 @@ function add_line() {
 			</div>
 			<?php include('edit_summary.php'); ?>
 			<a href="?edit=<?= $estimateid ?>&tab=preview" class="btn brand-btn pull-right">Go To PDF Preview</a>
-			<a href="?edit=<?= $estimateid ?>" class="btn brand-btn pull-right">Back to <?= ESTIMATE_TILE ?> Details</a>
+			<a href="?edit=<?= $estimateid ?>" class="btn brand-btn pull-right">Back to <?= rtrim(ESTIMATE_TILE, 's') ?> Details</a>
 		</div>
 	</div>
 </div>

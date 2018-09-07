@@ -201,7 +201,7 @@ $staff_schedule_client_type = ($staff_schedule_client_type != '' ? $staff_schedu
 						$active_teams = array_filter(explode(',',get_user_settings()['appt_calendar_teams']));
 						while($row = mysqli_fetch_array($team_list)) {
 							$team_contactids = [];
-                            $team_name = getTeamName($dbc, $row['teamid']);
+                            $team_name = get_team_name($dbc, $row['teamid'], '<br />');
                             $team_contacts = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `teams_staff` WHERE `teamid` ='".$row['teamid']."' AND `deleted` = 0"),MYSQLI_ASSOC);
                             foreach ($team_contacts as $team_contact) {
                             	if (get_contact($dbc, $team_contact['contactid'], 'category') == 'Staff') {

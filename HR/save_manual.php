@@ -63,7 +63,9 @@
         $query_insert_vendor = "INSERT INTO `hr` (`tab`, `form`, `category`, `heading_number`, `heading`, `sub_heading_number`, `sub_heading`, `third_heading`, `third_heading_number`, `form_name`, `description`, `assign_staff`, `deadline`, `email_subject`, `email_message`, `completed_recipient`, `completed_subject`, `completed_message`, `approval_subject`, `approval_message`, `rejected_subject`, `rejected_message`, `last_edited`, `user_form_id`, `permissions_position`) VALUES ('$tab_field', '$form', '$category', '$heading_number', '$heading', '$sub_heading_number', '$sub_heading', '$third_heading', '$third_heading_number', '$form_name', '$description', '$assign_staff', '$deadline', '$email_subject', '$email_message', '$completed_recipient', '$completed_subject', '$completed_message', '$approval_subject', '$approval_message', '$rejected_subject', '$rejected_message', '$last_edited', '$user_form_id', '$permissions_position')";
         $result_insert_vendor = mysqli_query($dbc, $query_insert_vendor);
         $hrid = mysqli_insert_id($dbc);
-
+        $before_change = '';
+    		$history = "HR entry added. <br />";
+    		add_update_history($dbc, 'hr_history', $history, '', $before_change);
         $url = 'Added';
     } else {
         $hrid = $_POST['hrid'];
@@ -77,8 +79,60 @@
             $last_edited = date('Y-m-d');
         }
 
+        $before_change = capture_before_change($dbc, 'hr', 'form', 'hrid', $hrid);
+    		$before_change .= capture_before_change($dbc, 'hr', 'category', 'hrid', $hrid);
+    		$before_change .= capture_before_change($dbc, 'hr', 'favourite', 'hrid', $hrid);
+    		$before_change .= capture_before_change($dbc, 'hr', 'heading_number', 'hrid', $hrid);
+    		$before_change .= capture_before_change($dbc, 'hr', 'heading', 'hrid', $hrid);
+    		$before_change .= capture_before_change($dbc, 'hr', 'sub_heading_number', 'hrid', $hrid);
+    		$before_change .= capture_before_change($dbc, 'hr', 'sub_heading', 'hrid', $hrid);
+    		$before_change .= capture_before_change($dbc, 'hr', 'third_heading_number', 'hrid', $hrid);
+    		$before_change .= capture_before_change($dbc, 'hr', 'third_heading', 'hrid', $hrid);
+    		$before_change .= capture_before_change($dbc, 'hr', 'hr_description', 'hrid', $hrid);
+    		$before_change .= capture_before_change($dbc, 'hr', 'assign_staff', 'hrid', $hrid);
+    		$before_change .= capture_before_change($dbc, 'hr', 'deadline', 'hrid', $hrid);
+    		$before_change .= capture_before_change($dbc, 'hr', 'fields', 'hrid', $hrid);
+    		$before_change .= capture_before_change($dbc, 'hr', 'email_subject', 'hrid', $hrid);
+    		$before_change .= capture_before_change($dbc, 'hr', 'email_message', 'hrid', $hrid);
+    		$before_change .= capture_before_change($dbc, 'hr', 'approval_message', 'hrid', $hrid);
+    		$before_change .= capture_before_change($dbc, 'hr', 'rejected_subject', 'hrid', $hrid);
+    		$before_change .= capture_before_change($dbc, 'hr', 'user_form_id', 'hrid', $hrid);
+    		$before_change .= capture_before_change($dbc, 'hr', 'recurring_due_date', 'hrid', $hrid);
+    		$before_change .= capture_before_change($dbc, 'hr', 'rejected_subject', 'hrid', $hrid);
+    		$before_change .= capture_before_change($dbc, 'hr', 'recurring_due_date_interval', 'hrid', $hrid);
+    		$before_change .= capture_before_change($dbc, 'hr', 'recurring_due_date_type', 'hrid', $hrid);
+    		$before_change .= capture_before_change($dbc, 'hr', 'recurring_due_date_reminder', 'hrid', $hrid);
+    		$before_change .= capture_before_change($dbc, 'hr', 'recurring_due_date_email', 'hrid', $hrid);
+
         $query_update_vendor = "UPDATE `hr` SET `tab` = '$tab_field', `form` = '$form', `category` = '$category', `heading_number` = '$heading_number', `heading` = '$heading', `sub_heading_number` = '$sub_heading_number', `sub_heading` = '$sub_heading', `third_heading_number` = '$third_heading_number', `third_heading` = '$third_heading', `form_name` = '$form_name', `description` = '$description', `assign_staff` = '$assign_staff', `deadline` = '$deadline', `email_subject` = '$email_subject', `email_message` = '$email_message', `completed_recipient`='$completed_recipient', `completed_subject` = '$completed_subject', `completed_message` = '$completed_message', `approval_subject` = '$approval_subject', `approval_message` = '$approval_message', `rejected_subject` = '$rejected_subject', `rejected_message` = '$rejected_message', `last_edited` = '$last_edited', `user_form_id` = '$user_form_id', `permissions_position` = '$permissions_position' WHERE `hrid` = '$hrid'";
         $result_update_vendor = mysqli_query($dbc, $query_update_vendor);
+
+        $history = capture_after_change('form', $form_name);
+    		$history .= capture_after_change('category', $category);
+    		$history .= capture_after_change('favourite', $favourite);
+    		$history .= capture_after_change('heading_number', $heading_number);
+    		$history .= capture_after_change('heading', $heading);
+    		$history .= capture_after_change('sub_heading_number', $sub_heading_number);
+    		$history .= capture_after_change('sub_heading', $sub_heading);
+    		$history .= capture_after_change('third_heading_number', $third_heading_number);
+    		$history .= capture_after_change('third_heading', $third_heading);
+    		$history .= capture_after_change('hr_description', $hr_description);
+    		$history .= capture_after_change('assign_staff', $assign_staff);
+    		$history .= capture_after_change('deadline', $deadline);
+    		$history .= capture_after_change('fields', $fields);
+    		$history .= capture_after_change('email_subject', $email_subject);
+    		$history .= capture_after_change('email_message', $email_message);
+    		$history .= capture_after_change('approval_message', $approval_message);
+    		$history .= capture_after_change('rejected_subject', $rejected_subject);
+    		$history .= capture_after_change('user_form_id', $user_form_id);
+    		$history .= capture_after_change('recurring_due_date', $recurring_due_date);
+    		$history .= capture_after_change('rejected_subject', $rejected_subject);
+    		$history .= capture_after_change('recurring_due_date_interval', $recurring_due_date_interval);
+    		$history .= capture_after_change('recurring_due_date_type', $recurring_due_date_type);
+    		$history .= capture_after_change('recurring_due_date_reminder', $recurring_due_date_reminder);
+    		$history .= capture_after_change('recurring_due_date_email', $recurring_due_date_email);
+
+        add_update_history($dbc, 'hr_history', $history, '', $before_change);
         $url = 'Updated';
     }
 
@@ -100,6 +154,9 @@
 
                 $query_insert_upload = "INSERT INTO `hr_staff` (`hrid`, `staffid`) VALUES ('$hrid', '$assign_staff[$i]')";
                 $result_insert_upload = mysqli_query($dbc, $query_insert_upload);
+                $before_change = '';
+            		$history = "HR Staff entry added. <br />";
+            		add_update_history($dbc, 'hr_history', $history, '', $before_change);
             }
         }
     }
@@ -111,9 +168,17 @@
             move_uploaded_file($_FILES["document"]["tmp_name"][$i], "download/" . $_FILES["document"]["name"][$i]) ;
             $query_insert_upload = "INSERT INTO `hr_upload` (`hrid`, `type`, `upload`) VALUES ('$hrid', 'document', '$document[$i]')";
             $result_insert_upload = mysqli_query($dbc, $query_insert_upload);
+            $before_change = '';
+        		$history = "HR Upload entry added. <br />";
+        		add_update_history($dbc, 'hr_history', $history, '', $before_change);
 
             if($url == 'Updated') {
+                $before_change = capture_before_change($dbc, 'hr', 'last_edited', 'hrid', $hrid);
+
                 $result_update_manual = mysqli_query($dbc, "UPDATE `hr` SET `last_edited` = '$last_edited' WHERE `hrid` = '$hrid'");
+
+                $history = capture_after_change('last_edited', $last_edited);
+                add_update_history($dbc, 'hr_history', $history, '', $before_change);
             }
         }
     }
@@ -123,9 +188,17 @@
         if($link[$i] != '') {
             $query_insert_upload = "INSERT INTO `hr_upload` (`hrid`, `type`, `upload`) VALUES ('$hrid', 'link', '$link[$i]')";
             $result_insert_upload = mysqli_query($dbc, $query_insert_upload);
+            $before_change = '';
+        		$history = "HR Upload entry added. <br />";
+        		add_update_history($dbc, 'hr_history', $history, '', $before_change);
 
             if($url == 'Updated') {
+                $before_change = capture_before_change($dbc, 'hr', 'last_edited', 'hrid', $hrid);
+
                 $result_update_manual = mysqli_query($dbc, "UPDATE `hr` SET `last_edited` = '$last_edited' WHERE `hrid` = '$hrid'");
+
+                $history = capture_after_change('last_edited', $last_edited);
+                add_update_history($dbc, 'hr_history', $history, '', $before_change);
             }
         }
     }
@@ -137,9 +210,16 @@
 
             $query_insert_upload = "INSERT INTO `hr_upload` (`hrid`, `type`, `upload`) VALUES ('$hrid', 'video', '$video[$i]')";
             $result_insert_upload = mysqli_query($dbc, $query_insert_upload);
-
+            $before_change = '';
+        		$history = "HR Upload entry added. <br />";
+        		add_update_history($dbc, 'hr_history', $history, '', $before_change);
             if($url == 'Updated') {
+                $before_change = capture_before_change($dbc, 'hr', 'last_edited', 'hrid', $hrid);
+
                 $result_update_manual = mysqli_query($dbc, "UPDATE `hr` SET `last_edited` = '$last_edited' WHERE `hrid` = '$hrid'");
+
+                $history = capture_after_change('last_edited', $last_edited);
+                add_update_history($dbc, 'hr_history', $history, '', $before_change);
             }
         }
     }

@@ -25,6 +25,9 @@ if (isset($_POST['submit'])) {
     ) VALUES ('$bill_of_material', '$category', '$new_name', '$sell_price', '$final_retail_price', '$unit_price', '$wholesale_price', '$commercial_price', '$client_price', '$preferred_price', '$admin_price', '$web_price', '$commission_price')";
     $result_insert_inventory = mysqli_query($dbc, $query_insert_inventory);
 	$new_inventoryid = mysqli_insert_id($dbc);
+  $before_change = '';
+  $history = "New inventory Added. <br />";
+  add_update_history($dbc, 'inventory_history', $history, '', $before_change);
 	$dater = date('Y/m/d h:i:s a', time());
 	$contactid = $_SESSION['contactid'];
 	$result = mysqli_query($dbc, "SELECT * FROM contacts WHERE contactid= '$contactid'");

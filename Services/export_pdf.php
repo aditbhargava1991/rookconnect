@@ -31,7 +31,7 @@ if(isset($_POST['submit_pdf'])) {
     foreach($field_list as $key => $field) {
         if(strpos(','.$fields_config.',', ','.$key.',') || empty($fields_config)) {
             $HeadingsArray[] = $key;
-            $query_fields .= '`'.$key.'`,'; 
+            $query_fields .= '`'.$key.'`,';
         }
     }
     $query_fields = rtrim($query_fields, ',');
@@ -124,6 +124,9 @@ if(isset($_POST['submit_pdf'])) {
         $updates = implode(',',$updates);
         $sql = "UPDATE `services` SET $updates WHERE `serviceid` = '$serviceid'";
         mysqli_query($dbc, $sql);
+        $before_change = "";
+				$history = "Service with service id $serviceid has been updated. <br />";
+	  		add_update_history($dbc, 'service_history', $history, '', $before_change);
     }
 
     echo '<script type="text/javascript"> alert("Successfully imported CSV file. Please check the Services dashboard to view your newly added items."); </script>';
@@ -131,7 +134,21 @@ if(isset($_POST['submit_pdf'])) {
 ?>
 <script type="text/javascript">
 $(document).ready(function() {
-
+    $(window).resize(function() {
+		$('.main-screen').css('padding-bottom',0);
+		if($('.main-screen .main-screen').is(':visible') && $('.sidebar').is(':visible')) {
+			var available_height = window.innerHeight - $('footer:visible').outerHeight() - $('.sidebar:visible').offset().top;
+			if(available_height > 300) {
+				$('.main-screen .main-screen').outerHeight(available_height).css('overflow-y','auto');
+				$('.sidebar').outerHeight(available_height).css('overflow-y','auto');
+				$('.search-results').outerHeight(available_height).css('overflow-y','auto');
+			}
+            var sidebar_height = $('.tile-sidebar').outerHeight(true);
+            $('.has-main-screen, .has-main-screen .main-screen').css('min-height', sidebar_height);
+		} else {
+			$('.main-screen .main-screen').css('height','auto');
+		}
+	}).resize();
 });
 function generate_import_csv() {
     $.ajax({
@@ -160,7 +177,7 @@ function generate_import_csv() {
     <div class="row">
 		<div class="main-screen"><?php
             include('tile_header.php'); ?>
-            
+
             <div class="tile-container">
                 <ul class='sidebar hide-titles-mob col-sm-3' style='padding-left: 15px;'>
                     <a href="?type=exportpdf"><li <?= ($type == 'exportpdf' ? 'class="active blue"' : '') ?>>Export PDF</li></a>
@@ -254,7 +271,7 @@ function generate_import_csv() {
                                     <a href="index.php" class="btn brand-btn pull-right">Back</a>
                                 <?php } else if($type == 'importcsv' && vuaed_visible_function($dbc, 'services' == 1)) { ?>
                                     <h3>Import CSV</h3>
-                                    
+
                                     <div class="notice">Steps to Import into the Services tile:<br><Br>
                                         <b>1.</b> Please export the Excel (CSV) file from this page: <a href='?type=exportcsv' target="_BLANK" style='color:white; text-decoration:underline;'>Export CSV</a> or download the following file to add new Services: <a href='' onclick="generate_import_csv(); return false;" target="_BLANK" style='color:white; text-decoration:underline;'>Add_multiple_services.csv</a>.<br><br>
                                         <b>2.</b> Make your desired changes inside of the Excel file.<br>

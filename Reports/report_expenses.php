@@ -68,6 +68,7 @@ if (isset($_POST['printpdf'])) {
     $today_date = date('Y-m-d');
 	$pdf->writeHTML($html, true, false, true, false, '');
 	$pdf->Output('Download/sales_summary_'.$today_date.'.pdf', 'F');
+    track_download($dbc, 'report_expenses', 0, WEBSITE_URL.'/Reports/Download/sales_summary_'.$today_date.'.pdf', 'Expense Report');
     ?>
 
 	<script type="text/javascript" language="Javascript">
@@ -78,18 +79,6 @@ if (isset($_POST['printpdf'])) {
     $endtime = $endtimepdf;
     } ?>
 
-<script type="text/javascript">
-
-</script>
-</head>
-<body>
-<?php include_once ('../navigation.php');
-?>
-
-<div class="container triple-pad-bottom">
-    <div class="row">
-        <div class="col-md-12">
-        <?php echo reports_tiles($dbc);  ?>
 		<form name="form_sites" method="post" action="" class="form-inline" role="form">
 		<?php
 		if (isset($_POST['search_submit'])) {
@@ -140,12 +129,6 @@ if (isset($_POST['printpdf'])) {
             ?>
         </form>
 
-        </div>
-    </div>
-</div>
-
-<?php include ('../footer.php'); ?>
-
 <?php
 function report_expense_summary($dbc, $search_month, $search_staff, $table_style, $table_row_style, $grand_total_style) {
 	$categories_sql = "SELECT * FROM (SELECT CONCAT('EC ',`ec`,': ',`category`) `ec_code`, `category`, CONCAT('GL ',`gl`,': ',`heading`) `gl_code`, `heading` FROM `expense_categories` ORDER BY `ec`, `gl`) `categories`
@@ -153,11 +136,13 @@ function report_expense_summary($dbc, $search_month, $search_staff, $table_style
 	$category_query = mysqli_query($dbc, $categories_sql);
 	$report_data .= "<table class='table table-bordered'><tr class='hidden-xs hidden-sm'><th>Category & Heading</th><th>Expense Amount</th><th>Tax</th><th>Total</th></tr>";
 	$final_amt = $final_tax = $final_total = 0;
+	$odd_even=0;
 	while($cat_row = mysqli_fetch_array($category_query)) {
+		$bg_class = $odd_even % 2 == 0 ? '' : 'background-color:#e6e6e6;';
 		$query_expenses = "SELECT * FROM expense WHERE LEFT(ex_date,7) = '$search_month' AND (`staff`='$search_staff' OR '$search_staff'='') AND `deleted`=0 AND `reimburse`=1";
 		$category_value = $cat_row['category'];
 		$heading_value = $cat_row['heading'];
-		$report_data .= "<tr><td data-title='Category & Heading'>".$cat_row['ec_code'].': '.$cat_row['gl_code']."</td>";
+		$report_data .= "<tr style='".$bg_class."'><td data-title='Category & Heading'>".$cat_row['ec_code'].': '.$cat_row['gl_code']."</td>";
 		$result = mysqli_query($dbc, $query_expenses." AND `category`='$category_value' AND `title`='$heading_value'");
 		$cat_amt = $cat_tax = $cat_total = 0;
 		while($row = mysqli_fetch_array($result)) {
@@ -169,6 +154,7 @@ function report_expense_summary($dbc, $search_month, $search_staff, $table_style
 		$final_tax += $cat_tax;
 		$final_total += $cat_total;
 		$report_data .= "<td data-title='Amount'>$".number_format($cat_amt, 2, '.', '')."</td><td data-title='Tax'>$".number_format($cat_tax, 2, '.', '')."</td><td data-title='Total'>$".number_format($cat_total, 2, '.', '')."</td></tr>";
+		$odd_even++;
 	}
 	$report_data .= "<tr><td data-title=''><b>Totals</b></td><td data-title='Amount'><b>$".number_format($final_amt, 2, '.', '')."</b></td><td data-title='Tax'><b>$".number_format($final_tax, 2, '.', '')."</b></td><td data-title='Total'><b>$".number_format($final_total, 2, '.', '')."</b></td></tr>";
 	$report_data .= "</table>";

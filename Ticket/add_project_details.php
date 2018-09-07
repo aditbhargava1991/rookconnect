@@ -110,7 +110,7 @@ var projectFilter = function() {
 					</select>
 				</div>
 				<div class="col-sm-1">
-					<a href="" onclick="viewProfile(this); return false;"><img class="inline-img pull-right" src="../img/person.PNG"></a>
+					<a href="" onclick="viewProfile(this); return false;"><img class="inline-img pull-right no-toggle" src="../img/person.PNG" title="View Profile"></a>
 					<a href="" onclick="$(this).closest('.form-group').find('select').val('ADD_NEW').change(); return false;"><img class="inline-img pull-right" src="../img/icons/ROOK-add-icon.png"></a>
 				</div>
 			</div>
@@ -130,7 +130,7 @@ var projectFilter = function() {
 					</select>
 				</div>
 				<div class="col-sm-1">
-					<a href="" onclick="viewProfile(this); return false;"><img class="inline-img pull-right" src="../img/person.PNG"></a>
+					<a href="" onclick="viewProfile(this); return false;"><img class="inline-img pull-right no-toggle" src="../img/person.PNG" title="View Profile"></a>
 					<a href="" onclick="$(this).closest('.form-group').find('select').val('ADD_NEW').change(); return false;"><img class="inline-img pull-right" src="../img/icons/ROOK-add-icon.png"></a>
 				</div>
 			</div>
@@ -190,7 +190,7 @@ var projectFilter = function() {
 						if($row['businessid'] > 0) {
 							$project_business = mysqli_fetch_array(mysqli_query($dbc, "SELECT `region`, `con_locations`, `classification` FROM `contacts` WHERE `contactid` = '{$row['businesssid']}'"));
 						}
-						echo "<option data-region='".$project_business['region']."' data-location='".$project_business['con_locations']."' data-classification='".$project_business['classification']."' data-business='".$row['businessid']."' data-client='".trim($row['clientid'],',')."' ";
+						echo "<option data-region='".$project_business['region']."' data-location='".$project_business['con_locations']."' data-classification='".$project_business['classification']."' data-business='".$row['businessid']."' data-client='".explode(',',trim($row['clientid'],','))[0]."' ";
 						echo ($projectid == $row['projectid'] ? 'selected' : (($businessid > 0 && $businessid == $row['businessid']) || ($clientid > 0 && strpos(','.$row['clientid'].',', ",$clientid,") !== FALSE) || (!($businessid > 0) && !($clientid > 0)) || (trim($row['clientid'],',') == '' && !($row['businessid'] > 0)) ? '' : 'style="display:none;"'));
 						echo " value='".$row['projectid']."'>".get_project_label($dbc, $row).'</option>';
 					}
@@ -212,8 +212,49 @@ var projectFilter = function() {
 		<?php if ( strpos($value_config, ',Detail Date,') !== false && $field_sort_field == 'Detail Date') { ?>
 			<div class="form-group clearfix">
 				<label for="first_name" class="col-sm-4 control-label text-right">Scheduled Date:</label>
+				<div class="col-sm-8 date_div">
+					<input name="to_do_date" type="text" autocomplete="off" data-placeholder="Select a Date..." data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" class="datepicker form-control" value="<?= $get_ticket['to_do_date'] ?>" onchange="$(this).closest('.date_div').find('[name=to_do_end_date]').val(this.value).change();">
+					<input type="hidden" name="to_do_end_date" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" class="form-control datepicker" value="<?= date('Y-m-d',strtotime($get_ticket['to_do_end_date'])) ?>">
+				</div>
+			</div>
+		<?php } ?>
+
+		<?php if ( strpos($value_config, ',Detail Start Date Time,') !== false && $field_sort_field == 'Detail Start Date Time') { ?>
+			<script type="text/javascript">
+			function updateStartDateTime(input) {
+				var date_time_string = input.value.toString();
+				var start_date = date_time_string.substr(0,date_time_string.indexOf(' '));
+				var start_time = date_time_string.substr(date_time_string.indexOf(' ')+1);
+				$('[name="to_do_date"]').val(start_date).change();
+				$('[name="start_time"]').val(start_time).change();
+			}
+			</script>
+			<div class="form-group clearfix">
+				<label for="first_name" class="col-sm-4 control-label text-right">Scheduled Start Date &amp; Time:</label>
 				<div class="col-sm-8">
-					<input name="to_do_date" type="text" autocomplete="off" data-placeholder="Select a Business..." data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" class="datepicker form-control" value="<?= $get_ticket['to_do_date'] ?>">
+					<input type="text" name="start_date_time" onchange="updateStartDateTime(this);" value="<?= $get_ticket['to_do_date'].' '.$get_ticket['start_time'] ?>" class="form-control dateandtimepicker"> 
+					<input name="to_do_date" type="hidden" autocomplete="off" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" class="datepicker form-control" value="<?= $get_ticket['to_do_date'] ?>">
+					<input name="start_time" type="hidden" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" class="datetimepicker-15 form-control" value="<?= $get_ticket['start_time'] ?>">
+				</div>
+			</div>
+		<?php } ?>
+
+		<?php if ( strpos($value_config, ',Detail End Date Time,') !== false && $field_sort_field == 'Detail End Date Time') { ?>
+			<script type="text/javascript">
+			function updateEndDateTime(input) {
+				var date_time_string = input.value.toString();
+				var end_date = date_time_string.substr(0,date_time_string.indexOf(' '));
+				var end_time = date_time_string.substr(date_time_string.indexOf(' ')+1);
+				$('[name="to_do_end_date"]').val(end_date).change();
+				$('[name="end_time"]').val(end_time).change();
+			}
+			</script>
+			<div class="form-group clearfix">
+				<label for="first_name" class="col-sm-4 control-label text-right">Scheduled End Date &amp; Time:</label>
+				<div class="col-sm-8">
+					<input type="text" name="end_date_time" onchange="updateEndDateTime(this);" value="<?= $get_ticket['to_do_end_date'].' '.$get_ticket['end_time'] ?>" class="form-control dateandtimepicker"> 
+					<input name="to_do_end_date" type="hidden" autocomplete="off" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" class="datepicker form-control" value="<?= $get_ticket['to_do_end_date'] ?>">
+					<input name="end_time" type="hidden" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" class="datetimepicker-15 form-control" value="<?= $get_ticket['end_time'] ?>">
 				</div>
 			</div>
 		<?php } ?>
@@ -411,19 +452,22 @@ var projectFilter = function() {
 						$show_names = true;
 					}
 					$contact_phone_list = $dbc->query("SELECT `contactid`,`first_name`,`last_name`,`name`,`office_phone`,`home_phone`,`cell_phone` FROM `contacts` WHERE `contactid` > 0 AND `contactid` IN ('{$get_ticket['businessid']}','{$get_ticket['clientid']}')");
+					$phone_numbers = '';
 					while($contact_phone = $contact_phone_list->fetch_assoc()) {
 						if($contact_phone['home_phone'] != '') {
-							echo ($show_names ? trim(decryptIt($contact['name']).($contact['name'] != '' && $contact['first_name'].$contact['last_name'] != '' ? ': ' : '').decryptIt($contact['first_name']).' '.decryptIt($contact['last_name']).': ') : '').'Home Phone: '.decryptIt($contact_phone['home_phone']).'<br />';
+							$phone_numbers .= ($show_names ? trim(decryptIt($contact['name']).($contact['name'] != '' && $contact['first_name'].$contact['last_name'] != '' ? ': ' : '').decryptIt($contact['first_name']).' '.decryptIt($contact['last_name']).': ') : '').'Home Phone: '.decryptIt($contact_phone['home_phone']).'<br />';
 						}
 						if($contact_phone['cell_phone'] != '') {
-							echo ($show_names ? trim(decryptIt($contact['name']).($contact['name'] != '' && $contact['first_name'].$contact['last_name'] != '' ? ': ' : '').decryptIt($contact['first_name']).' '.decryptIt($contact['last_name']).': ') : '').'Cell Phone: '.decryptIt($contact_phone['cell_phone']).'<br />';
+							$phone_numbers .= ($show_names ? trim(decryptIt($contact['name']).($contact['name'] != '' && $contact['first_name'].$contact['last_name'] != '' ? ': ' : '').decryptIt($contact['first_name']).' '.decryptIt($contact['last_name']).': ') : '').'Cell Phone: '.decryptIt($contact_phone['cell_phone']).'<br />';
 						}
 						if($contact_phone['office_phone'] != '') {
-							echo ($show_names ? trim(decryptIt($contact['name']).($contact['name'] != '' && $contact['first_name'].$contact['last_name'] != '' ? ': ' : '').decryptIt($contact['first_name']).' '.decryptIt($contact['last_name']).': ') : '').'Office Phone: '.decryptIt($contact_phone['office_phone']).'<br />';
+							$phone_numbers .= ($show_names ? trim(decryptIt($contact['name']).($contact['name'] != '' && $contact['first_name'].$contact['last_name'] != '' ? ': ' : '').decryptIt($contact['first_name']).' '.decryptIt($contact['last_name']).': ') : '').'Office Phone: '.decryptIt($contact_phone['office_phone']).'<br />';
 						}
-					} ?>
+					}
+					echo $phone_numbers; ?>
 				</div>
 			</div>
+			<?php $pdf_contents[] = ['Phone Numbers', $phone_numbers]; ?>
 		<?php } ?>
 
 		<?php if ( strpos($value_config, ',Detail Project,') !== false && $field_sort_field == 'Detail Project' && ($force_project == 'manual' || $force_project == '')  && $access_view_project_details > 0) { ?>
@@ -454,6 +498,26 @@ var projectFilter = function() {
 				</div>
 			</div>
 			<?php $pdf_contents[] = ['Date', $get_ticket['to_do_date']]; ?>
+		<?php } ?>
+
+		<?php if ( strpos($value_config, ',Detail Start Date Time,') !== false && $field_sort_field == 'Detail Start Date Time') { ?>
+			<div class="form-group clearfix">
+				<label for="first_name" class="col-sm-4 control-label text-right">Scheduled Start Date &amp; Time:</label>
+				<div class="col-sm-8">
+					<?= $get_ticket['to_do_date'].' '.$get_ticket['start_time'] ?>
+				</div>
+			</div>
+			<?php $pdf_contents[] = ['Scheduled Start Date & Time', $get_ticket['to_do_date'].' '.$get_ticket['start_time']]; ?>
+		<?php } ?>
+
+		<?php if ( strpos($value_config, ',Detail End Date Time,') !== false && $field_sort_field == 'Detail End Date Time') { ?>
+			<div class="form-group clearfix">
+				<label for="first_name" class="col-sm-4 control-label text-right">Scheduled End Date &amp; Time:</label>
+				<div class="col-sm-8">
+					<?= $get_ticket['to_do_end_date'].' '.$get_ticket['end_time'] ?>
+				</div>
+			</div>
+			<?php $pdf_contents[] = ['Scheduled End Date & Time', $get_ticket['to_do_end_date'].' '.$get_ticket['end_time']]; ?>
 		<?php } ?>
 
 		<?php if ( strpos($value_config, ',Detail Staff,') !== false && $field_sort_field == 'Detail Staff' && $access_view_project_details > 0) { ?>

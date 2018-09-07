@@ -49,6 +49,9 @@ if (isset($_POST['view_manual'])) {
     $today_date = date('Y-m-d');
 	// Insert a row if it isn't already there
 	$query_insert_row = "INSERT INTO `manuals_staff` (`manualtypeid`, `staffid`) SELECT '$manualtypeid', '$staffid' FROM (SELECT COUNT(*) rows FROM `manuals_staff` WHERE `manualtypeid`='$manualtypeid' AND `staffid`='$staffid') LOGTABLE WHERE rows=0";
+  $before_change = '';
+  $history = "Manual Staff entry added. <br />";
+  add_update_history($dbc, 'hr_history', $history, '', $before_change);
 	mysqli_query($dbc, $query_insert_row);
     $query_update_ticket = "UPDATE `manuals_staff` SET `done` = '1', `today_date` = '$today_date' WHERE `manualtypeid` = '$manualtypeid' AND staffid='$staffid'";
 	echo '<script>console.log("'.$query_update_ticket.'");</script>';
@@ -60,7 +63,7 @@ if (isset($_POST['view_manual'])) {
 	}
 	$manual_id = mysqli_fetch_array(mysqli_query($dbc, "SELECT MAX(`manualstaffid`) id FROM `manuals_staff` WHERE `manualtypeid` = '$manualtypeid' AND staffid='$staffid' AND `today_date`='$today_date'"))['id'];
 	imagepng(sigJsonToImage($_POST['output']), 'download/sign_'.$manual_id.'.png');
-	
+
 	$pdf_path = 'download/manual_'.$manualtypeid.'_signed_'.$manual_id.'_'.$today_date.'.pdf';
 	include('../Manuals/manual_pdf.php');
 
@@ -151,6 +154,9 @@ if (isset($_POST['field_level_hazard'])) {
     $get_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT COUNT(manualstaffid) AS manualstaffid FROM manuals_staff WHERE manualtypeid='$manualtypeid' AND staffid='$contactid' AND DATE(today_date) = CURDATE()"));
     if($get_config['manualstaffid'] == 0) {
         $query_insert_upload = "INSERT INTO `manuals_staff` (`manualtypeid`, `staffid`, `today_date`) VALUES ('$manualtypeid', '$contactid', '$today_date')";
+        $before_change = '';
+        $history = "Manual Staff entry added. <br />";
+        add_update_history($dbc, 'hr_history', $history, '', $before_change);
         $result_insert_upload = mysqli_query($dbc, $query_insert_upload);
     }
 
@@ -210,6 +216,9 @@ if (isset($_POST['add_manual'])) {
         $query_insert_vendor = "INSERT INTO `manuals` (`manual_type`, `category`, `heading_number`, `heading`, `sub_heading_number`, `sub_heading`, `third_heading`, `third_heading_number`, `form_name`, `description`, `assign_staff`, `deadline`, `email_subject`, `email_message`, `last_edited`) VALUES ('$manual_type', '$category', '$heading_number', '$heading', '$sub_heading_number', '$sub_heading', '$third_heading', '$third_heading_number', '$form_name', '$description', '$assign_staff', '$deadline', '$email_subject', '$email_message', '$last_edited')";
         $result_insert_vendor = mysqli_query($dbc, $query_insert_vendor);
         $manualtypeid = mysqli_insert_id($dbc);
+        $before_change = '';
+        $history = "Manual added. <br />";
+        add_update_history($dbc, 'hr_history', $history, '', $before_change);
 
         $url = 'Added';
     } else {
@@ -224,8 +233,14 @@ if (isset($_POST['add_manual'])) {
             $last_edited = date('Y-m-d');
         }
 
+        $before_change = '';
+
         $query_update_vendor = "UPDATE `manuals` SET `manual_type` = '$manual_type', `category` = '$category', `heading_number` = '$heading_number', `heading` = '$heading', `sub_heading_number` = '$sub_heading_number', `sub_heading` = '$sub_heading', `third_heading_number` = '$third_heading_number', `third_heading` = '$third_heading', `form_name` = '$form_name', `description` = '$description', `assign_staff` = '$assign_staff', `deadline` = '$deadline', `email_subject` = '$email_subject', `email_message` = '$email_message', `last_edited` = '$last_edited' WHERE `manualtypeid` = '$manualtypeid'";
         $result_update_vendor = mysqli_query($dbc, $query_update_vendor);
+
+        $history = 'Manual Updated. <br />';
+        add_update_history($dbc, 'hr_history', $history, '', $before_change);
+
         $url = 'Updated';
     }
 
@@ -252,7 +267,9 @@ if (isset($_POST['add_manual'])) {
                 //Mail
 
                 $query_insert_upload = "INSERT INTO `manuals_staff` (`manualtypeid`, `staffid`) VALUES ('$manualtypeid', '{$assign_staff[$i]}')";
-
+                $before_change = '';
+                $history = "Manual Staff entry added. <br />";
+                add_update_history($dbc, 'hr_history', $history, '', $before_change);
                 $result_insert_upload = mysqli_query($dbc, $query_insert_upload);
             }
         }
@@ -264,9 +281,15 @@ if (isset($_POST['add_manual'])) {
             move_uploaded_file($_FILES["document"]["tmp_name"][$i], "download/" . $_FILES["document"]["name"][$i]) ;
             $query_insert_upload = "INSERT INTO `manuals_upload` (`manualtypeid`, `type`, `upload`) VALUES ('$manualtypeid', 'document', '{$document[$i]}')";
             $result_insert_upload = mysqli_query($dbc, $query_insert_upload);
+            $before_change = '';
+            $history = "Manual upload entry added. <br />";
+            add_update_history($dbc, 'hr_history', $history, '', $before_change);
 
             if($url == 'Updated') {
+                $before_change = capture_before_change($dbc, 'manuals', 'last_edited', 'manualtypeid', $manualtypeid);
                 $result_update_manual = mysqli_query($dbc, "UPDATE `manuals` SET `last_edited` = '$last_edited' WHERE `manualtypeid` = '$manualtypeid'");
+                $history = capture_after_change('last_edited', $last_edited);
+                add_update_history($dbc, 'hr_history', $history, '', $before_change);
             }
         }
     }
@@ -276,9 +299,15 @@ if (isset($_POST['add_manual'])) {
         if($link[$i] != '') {
             $query_insert_upload = "INSERT INTO `manuals_upload` (`manualtypeid`, `type`, `upload`) VALUES ('$manualtypeid', 'link', '{$link[$i]}')";
             $result_insert_upload = mysqli_query($dbc, $query_insert_upload);
+            $before_change = '';
+            $history = "Manual upload entry added. <br />";
+            add_update_history($dbc, 'hr_history', $history, '', $before_change);
 
             if($url == 'Updated') {
+                $before_change = capture_before_change($dbc, 'manuals', 'last_edited', 'manualtypeid', $manualtypeid);
                 $result_update_manual = mysqli_query($dbc, "UPDATE `manuals` SET `last_edited` = '$last_edited' WHERE `manualtypeid` = '$manualtypeid'");
+                $history = capture_after_change('last_edited', $last_edited);
+                add_update_history($dbc, 'hr_history', $history, '', $before_change);
             }
         }
     }
@@ -290,9 +319,14 @@ if (isset($_POST['add_manual'])) {
 
             $query_insert_upload = "INSERT INTO `manuals_upload` (`manualtypeid`, `type`, `upload`) VALUES ('$manualtypeid', 'video', '{$video[$i]}')";
             $result_insert_upload = mysqli_query($dbc, $query_insert_upload);
-
+            $before_change = '';
+            $history = "Manual upload entry added. <br />";
+            add_update_history($dbc, 'hr_history', $history, '', $before_change);
             if($url == 'Updated') {
+                $before_change = capture_before_change($dbc, 'manuals', 'last_edited', 'manualtypeid', $manualtypeid);
                 $result_update_manual = mysqli_query($dbc, "UPDATE `manuals` SET `last_edited` = '$last_edited' WHERE `manualtypeid` = '$manualtypeid'");
+                $history = capture_after_change('last_edited', $last_edited);
+                add_update_history($dbc, 'hr_history', $history, '', $before_change);
             }
         }
     }
@@ -306,7 +340,7 @@ if (isset($_POST['add_manual'])) {
 		$manual_type = $_POST['type'];
 
     $return_url = 'hr.php?tab='.$manual_type.'&category='.$category.'&type=manuals';
-	
+
     echo '<script type="text/javascript"> window.location.replace("'.$return_url.'"); </script>';
 
 	$manual_type = $_POST['type'];
@@ -760,7 +794,7 @@ checkAuthorised('hr');
 							<label for="first_name" class="col-sm-4 control-label text-right">Staff:</label>
 							<div class="col-sm-8">
 								<select name="assign_staff[]" data-placeholder="Choose a Staff Member..." class="chosen-select-deselect form-control" multiple width="380">
-									<option value=""></option><?php
+									<?php
 									$query = mysqli_query($dbc,"SELECT contactid, first_name, last_name FROM contacts WHERE category IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND deleted=0 AND status = 1 order by first_name");
 									//$check_assigned = mysqli_query ( $dbc, "SELECT c.`contactid` FROM `contacts` c INNER JOIN `manuals` m ON (c.`contactid` = " );
 
@@ -870,7 +904,7 @@ checkAuthorised('hr');
 			</div>
         <?php } ?>
 
-        
+
 
     </form>
 

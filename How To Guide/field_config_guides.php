@@ -1,9 +1,10 @@
 <?php
 	/*
-	 * How To Guide Settings
+	 * Software Guide Settings
 	 */
 
 	include ('../include.php');
+    include ('check_security.php');
 	error_reporting(0);
 
 	if ( $_SERVER['REQUEST_METHOD'] == 'POST' ) {
@@ -38,7 +39,7 @@
 
 	<div class="container">
 		<div class="row">
-			<h1>How To Guide</h1>
+			<h1>Software Guide</h1>
 			<?php if(isset($_GET['maintype'])): ?>
 				<div class="pad-left gap-top double-gap-bottom"><a href="<?php echo WEBSITE_URL ?>/Manuals/manual.php?maintype=htg" class="btn config-btn">Back to Dashboard</a></div>
 			<?php else: ?>
@@ -47,13 +48,13 @@
 			<form id="form1" name="form1" method="post"	action="" enctype="multipart/form-data" class="form-horizontal" role="form">
 				<div class="panel-group" id="accordion2">
 
-					<!-- How To Guide -->
+					<!-- Software Guide -->
                     <div class="panel panel-default">
 						<div class="panel-heading">
 							<h4 class="panel-title">
-								<span class="popover-examples"><a data-toggle="tooltip" data-placement="top" title="Click here to add or remove fields that will appear on How To Guide dashboard."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
+								<span class="popover-examples"><a data-toggle="tooltip" data-placement="top" title="Click here to add or remove fields that will appear on Software Guide dashboard."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
 								<a data-toggle="collapse" data-parent="#accordion2" href="#collapse_field" >
-									Choose Fields for How To Guide Dashboard<span class="glyphicon glyphicon-plus"></span>
+									Choose Fields for Software Guide Dashboard<span class="glyphicon glyphicon-plus"></span>
 								</a>
 							</h4>
 						</div>

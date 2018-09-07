@@ -1,4 +1,4 @@
-<?php //CDS Macro
+<?php // CDS Best Buy Format Macro
 include_once ('include.php');
 error_reporting(0);
 
@@ -37,8 +37,8 @@ if(isset($_POST['upload_file']) && !empty($_FILES['csv_file']['tmp_name'])) {
 	if (!file_exists('cds_exports')) {
 		mkdir('cds_exports', 0777, true);
 	}
-	// $today_date = date('Y-m-d');
-	$FileName = "cds_exports/cds_macro_".$today_date.".csv";
+	$today_date = date('Y_m_d');
+	$FileName = "cds_exports/".file_safe_str("cds_macro_".$today_date.".csv",'cds_exports/');
 	$file = fopen($FileName, "w");
 	$new_csv = ['', '', 'Client', 'Date', 'Invoice Number', 'Best Buy', 'Warehouse', 'Address', 'City/Town', 'Customer Name', 'Phone Number', 'SKU Information', 'Comments'];
 	fputcsv($file, $new_csv);
@@ -47,6 +47,7 @@ if(isset($_POST['upload_file']) && !empty($_FILES['csv_file']['tmp_name'])) {
 		fputcsv($file, $new_csv);
 	}
 	fclose($file);
+	$dbc->query("INSERT INTO `ticket_history` (`ticketid`,`userid`,`src`,`description`) VALUES (0,".$_SESSION['contactid'].",'optimizer','Macro to reformat Spreadsheet for Best Buy created $FileName')");
 	header("Location: $FileName");
 	header('Content-Type: application/csv');
 	header('Content-Disposition: attachment; filename='.str_replace('cds_exports/','',$FileName));
@@ -54,7 +55,7 @@ if(isset($_POST['upload_file']) && !empty($_FILES['csv_file']['tmp_name'])) {
 }
 ?>
 
-<h1>CDS Macro</h1>
+<h1>Best Buy Macro</h1>
 
 <form class="form-horizontal" method="post" action="" enctype="multipart/form-data">
 	<ol>

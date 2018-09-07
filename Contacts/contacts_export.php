@@ -8,6 +8,9 @@ if(isset($_POST['export_contacts'])) {
 		$export_option = 'Contact Information';
 	}
 	$today_date = date('Y-m-d_h-i-s-a', time());
+	if(!file_exists('exports')) {
+		mkdir('exports',0777);
+	}
 	$FileName = "exports/contacts_export_".$today_date." - ".$export_option.".csv";
 	$file = fopen($FileName,"w");
 
@@ -287,7 +290,7 @@ if(isset($_POST['export_contacts'])) {
 			$select_empty = rtrim($select_empty, ',');
 			$select_list = implode(',', $select_list);
 
-			$sql = "SELECT $select_list FROM `contacts` LEFT JOIN `contacts_cost` ON `contacts`.`contactid`=`contacts_cost`.`contactid` LEFT JOIN `contacts_dates` ON `contacts`.`contactid`=`contacts_dates`.`contactid` LEFT JOIN `contacts_description` ON `contacts`.`contactid`=`contacts_description`.`contactid` LEFT JOIN `contacts_medical` ON `contacts`.`contactid`=`contacts_medical`.`contactid` WHERE `contacts`.`deleted` = 0 AND `contacts`.`tile_name` = '".FOLDER_NAME."'";
+			$sql = "SELECT $select_list FROM `contacts` LEFT JOIN `contacts_cost` ON `contacts`.`contactid`=`contacts_cost`.`contactid` LEFT JOIN `contacts_dates` ON `contacts`.`contactid`=`contacts_dates`.`contactid` LEFT JOIN `contacts_description` ON `contacts`.`contactid`=`contacts_description`.`contactid` LEFT JOIN `contacts_medical` ON `contacts`.`contactid`=`contacts_medical`.`contactid` WHERE `contacts`.`deleted` = 0 AND `contacts`.`tile_name` = '".FOLDER_NAME."' AND `contacts`.`contactid` IN (".implode(',',$contact_export_list).")";
 			if($category != '3456780123456971230') {
 				$sql .= " AND `contacts`.`category`='$category'";
 			}
@@ -326,6 +329,7 @@ if(isset($_POST['export_contacts'])) {
 	}
 
 	fclose($file);
+	// print_r($contact_export_list);
 	header("Location: $FileName");
 	header('Content-Type: application/csv');
 	header('Content-Disposition: attachment; filename='.str_replace('exports/','',$FileName));

@@ -107,14 +107,14 @@ if(isset($_POST['submit'])) {
 	$po_id = implode(',',$po_list);
 	$comments = filter_var(htmlentities($_POST['comments']),FILTER_SANITIZE_STRING);
 	$addendum_comments = filter_var(htmlentities($_POST['addendum_comments']),FILTER_SANITIZE_STRING);
-	
+
 	if($workorderid == 'NEW') {
 		$work_order_sql = "INSERT INTO `site_work_orders` (`status`, `service_code`, `businessid`, `siteid`, `contactid`, `staff_lead`, `staff_crew`, `staff_positions`, `staff_estimate_hours`, `staff_estimate_days`, `service_cat`, `service_heading`, `service_rates`, `equipment_id`, `equipment_rate`, `equipment_status`, `material_id`, `material_qty`, `site_location`, `site_description`, `google_map_link`, `work_start_date`, `work_end_date`, `work_start_time`, `work_start_details`, `po_id`)
 			VALUES ('$status', '$service_code', '$businessid', '$siteid', '$contactid', '$staff_lead', '$staff_crew', '$staff_positions', '$staff_estimate_hours', '$staff_estimate_days', '$service_cat', '$service_head', '$service_rates', '$equipment_id', '$equipment_rate', '$equipment_status', '$material_id', '$material_qty', '$site_location', '$site_description', '$google_map_link', '$work_start_date', '$work_end_date', '$work_start_time', '$work_start_details', '$po_id')";
 	} else {
 		$work_order_sql = "UPDATE `site_work_orders` SET `status`='$status', `service_code`='$service_code', `businessid`='$businessid', `siteid`='$siteid', `contactid`='$contactid', `id_label`='$id_label', `staff_lead`='$staff_lead', `staff_crew`='$staff_crew', `staff_positions`='$staff_positions', `staff_estimate_hours`='$staff_estimate_hours', `staff_estimate_days`='$staff_estimate_days', `service_cat`='$service_cat', `service_heading`='$service_head', `service_rates`='$service_rates', `equipment_id`='$equipment_id', `equipment_rate`='$equipment_rate', `equipment_status`='$equipment_status', `material_id`='$material_id', `material_qty`='$material_qty', `site_location`='$site_location', `site_description`='$site_description', `google_map_link`='$google_map_link', `work_start_date`='$work_start_date', `work_end_date`='$work_end_date', `work_start_time`='$work_start_time', `work_start_details`='$work_start_details', `po_id`='$po_id' WHERE `workorderid`='$workorderid'";
 	}
-	
+
 	$result = mysqli_query($dbc, $work_order_sql);
 
 	if($workorderid == 'NEW') {
@@ -123,10 +123,10 @@ if(isset($_POST['submit'])) {
 		mysqli_query($dbc, "UPDATE `site_work_orders` SET `id_label`='$label_id' WHERE `workorderid`='$workorderid'");
 	}
 	$status = mysqli_fetch_array(mysqli_query($dbc, "SELECT `status` FROM `site_work_orders` WHERE `workorderid`='$workorderid'"))['status'];
-	
+
 	$checklists = trim(filter_var($_POST['checklists'],FILTER_SANITIZE_STRING),',');
 	$result = mysqli_query($dbc, "UPDATE `site_work_checklist` SET `workorderid`='$workorderid' WHERE `checklistid` IN ($checklists)");
-	
+
 	//Comment
 	$note_heading = filter_var($_POST['note_heading'],FILTER_SANITIZE_STRING);
 	$type = 'note';
@@ -157,7 +157,7 @@ if(isset($_POST['submit'])) {
 			}
 		}
 	}
-	
+
 	//Addendum
 	$note_heading = filter_var($_POST['addendum_note_heading'],FILTER_SANITIZE_STRING);
 	$type = 'addendum';
@@ -188,7 +188,7 @@ if(isset($_POST['submit'])) {
 			}
 		}
 	}
-	
+
     //Document
     if (!file_exists('download')) {
         mkdir('download', 0777, true);
@@ -203,7 +203,7 @@ if(isset($_POST['submit'])) {
             $result_insert_client_doc = mysqli_query($dbc, $query_insert_client_doc);
         }
     }
-	
+
 	if($status == 'Pending') {
 		echo "<script> window.location.replace('site_work_orders.php?tab=pending');</script>";
 	} else {
@@ -274,7 +274,7 @@ if(!empty($_GET['workorderid'])) {
 	$work_start_details = $work_order['work_start_details'];
 	$po_id = $work_order['po_id'];
 	$comments = $work_order['comments'];
-} 
+}
 else if(!empty($_GET['src_id'])) {
 	$src_id = filter_var($_GET['src_id'],FILTER_SANITIZE_STRING);
 	$work_order = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `site_work_orders` WHERE `workorderid`='$src_id'"));
@@ -424,7 +424,7 @@ function select_service(heading) {
 	if(heading.value == 'custom') {
 		$(heading).closest('.form-group').find('input[name="service_head[]"]').removeAttr('disabled').closest('div').show();
 		$(heading).closest('div').attr('disabled','disabled').closest('div').hide();
-		
+
 		var rate = $(heading).closest('.form-group').find('select[name="service_rates[]"]');
 		$(rate).closest('.form-group').find('input[name="service_rates[]"]').removeAttr('disabled').closest('div').show();
 		$(rate).closest('div').attr('disabled','disabled').closest('div').hide();
@@ -546,7 +546,7 @@ function addTime(btn) {
 		</div>
 
 		<form id="form1" name="form1" method="post"	action="" enctype="multipart/form-data" class="form-horizontal" role="form">
-		
+
 		<div class="panel-group" id="accordion2">
 			<div class="panel panel-default">
 				<div class="panel-heading">
@@ -604,7 +604,7 @@ function addTime(btn) {
 					</div>
 				</div>
 			</div>
-			
+
 			<div class="panel panel-default">
 				<div class="panel-heading">
 					<h4 class="panel-title">
@@ -640,7 +640,7 @@ function addTime(btn) {
 						foreach($staff_crew as $j => $crew) { ?>
 							<div class="form-group crew">
 								<div class="col-sm-3"><label class="show-on-mob">Staff:</label>
-									<select multiple name="staff_crew_<?php echo $staff_crew_count; ?>[]" class="form-control chosen-select-deselect"><option></option>
+									<select multiple name="staff_crew_<?php echo $staff_crew_count; ?>[]" class="form-control chosen-select-deselect">
 										<?php foreach($staff_list as $id) {
 											echo "<option ".($id == $crew ? 'selected' : '')." value='$id'>".get_contact($dbc, $id)."</option>";
 										} ?></select></div>
@@ -656,7 +656,7 @@ function addTime(btn) {
 									<input type="number" class="form-control" name="staff_estimate_days_<?php echo $staff_crew_count; ?>" value="<?php echo $staff_estimate_days[$j]; ?>" min="0" step="any"></div>
 								<div class="col-sm-1"><button class="btn brand-btn" onclick="$(this).closest('.form-group').remove();">Delete</button></div>
 							</div>
-						<?php 
+						<?php
 						$staff_crew_count++;
 						} ?>
 						<button class="btn brand-btn pull-right" id="crew_btn" onclick="addCrew(); return false;">Add Crew</button>
@@ -664,7 +664,7 @@ function addTime(btn) {
 					</div>
 				</div>
 			</div>
-			
+
 			<div class="panel panel-default">
 				<div class="panel-heading">
 					<h4 class="panel-title">
@@ -739,7 +739,7 @@ function addTime(btn) {
 					</div>
 				</div>
 			</div>
-			
+
 			<div class="panel panel-default">
 				<div class="panel-heading">
 					<h4 class="panel-title">
@@ -870,7 +870,7 @@ function addTime(btn) {
 					</div>
 				</div>
 			</div>
-			
+
 			<div class="panel panel-default">
 				<div class="panel-heading">
 					<h4 class="panel-title">
@@ -931,7 +931,7 @@ function addTime(btn) {
 					</div>
 				</div>
 			</div>
-			
+
 			<div class="panel panel-default">
 				<div class="panel-heading">
 					<h4 class="panel-title">
@@ -952,7 +952,7 @@ function addTime(btn) {
 					</div>
 				</div>
 			</div>
-			
+
 			<div class="panel panel-default">
 				<div class="panel-heading">
 					<h4 class="panel-title">
@@ -985,7 +985,7 @@ function addTime(btn) {
 					</div>
 				</div>
 			</div>
-			
+
 			<div class="panel panel-default">
 				<div class="panel-heading">
 					<h4 class="panel-title">
@@ -1086,7 +1086,7 @@ function addTime(btn) {
 					</div>
 				</div>
 			</div>
-			
+
 			<div class="panel panel-default">
 				<div class="panel-heading">
 					<h4 class="panel-title">
@@ -1102,7 +1102,7 @@ function addTime(btn) {
 					</div>
 				</div>
 			</div>
-			
+
 			<div class="panel panel-default">
 				<div class="panel-heading">
 					<h4 class="panel-title">
@@ -1119,7 +1119,7 @@ function addTime(btn) {
 					</div>
 				</div>
 			</div>
-			
+
 			<div class="panel panel-default">
 				<div class="panel-heading">
 					<h4 class="panel-title">
@@ -1223,7 +1223,7 @@ function addTime(btn) {
 				</div>
 			</div>
 		</div>
-			
+
 		<div class="panel panel-default">
 			<div class="panel-heading">
 				<h4 class="panel-title">
@@ -1239,7 +1239,7 @@ function addTime(btn) {
 				</div>
 			</div>
 		</div>
-			
+
 		<div class="panel panel-default">
 			<div class="panel-heading">
 				<h4 class="panel-title">

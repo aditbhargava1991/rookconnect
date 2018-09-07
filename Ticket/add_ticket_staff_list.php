@@ -69,7 +69,7 @@
 			<label class="col-sm-1 text-center" style="<?= strpos($value_config,',Staff Overtime,') === FALSE ? 'display: none;' : '' ?>">Overtime</label>
 		<?php } ?>
 		<?php if($field_sort_field == 'Staff Travel') { ?>
-			<label class="col-sm-1 text-center" style="<?= strpos($value_config,',Staff Travel,') === FALSE ? 'display: none;' : '' ?>">Travel Time(KM)</label>
+			<label class="col-sm-1 text-center" style="<?= strpos($value_config,',Staff Travel,') === FALSE ? 'display: none;' : '' ?>">Travel Time</label>
 		<?php } ?>
 		<?php if($field_sort_field == 'Staff Subsistence') { ?>
 			<label class="col-sm-1 text-center" style="<?= strpos($value_config,',Staff Subsistence,') === FALSE ? 'display: none;' : '' ?>">Subsistence Pay</label>
@@ -104,18 +104,33 @@ if($projectid > 0) {
 		$rate_card_name = get_field_value('rate_card_name','company_rate_card','companyrcid',$rate[1]);
 	}
 }
+if($_GET['new_ticket_calendar'] == 'true' && empty($_GET['edit']) && !($_GET['ticketid'] > 0)) {
+	$contactid = [];
+	if(!empty($_GET['calendar_contactid'])) {
+		foreach(explode(',', $_GET['calendar_contactid']) as $calendar_contactid) {
+			$contactid[] = $calendar_contactid;
+		}
+	}
+	$contactid = array_filter(array_unique($contactid));
+	$contact_query = '';
+	foreach($contactid as $contact_id) {
+		$contact_query[] = "SELECT '$contact_id' `item_id`";
+	}
+	$query = mysqli_query($dbc, implode(" UNION ", $contact_query));
+	$staff = mysqli_fetch_assoc($query);
+}
 do {
 	$positions_allowed = [];
 	$position_rate = 0; ?>
-	<div class="multi-block">
+	<div class="multi-block staff_block">
 		<?php if(($access_staff === TRUE || strpos($value_config, ',Staff Anyone Can Add,') !== FALSE) && !($strict_view > 0)) {
-        if($staff['item_id'] == '') { $staff['item_id'] = $_SESSION['contactid']; }
+        if($staff['item_id'] == '' && !($ticketid > 0) && get_config($dbc, 'ticket_default_session_user') != 'no_user') { $staff['item_id'] = $_SESSION['contactid']; }
         ?>
 			<div class="col-sm-4">
 				<label class="show-on-mob control-label">Staff:</label>
 				<select name="item_id" data-table="ticket_attached" data-id="<?= $staff['id'] ?>" data-id-field="id" data-type="Staff" data-type-field="src_table" class="chosen-select-deselect"><option></option>
 					<?php foreach($staff_list as $staff_row) { ?>
-						<option <?= $staff_row['contactid'] == $staff['item_id'] ? 'selected' : '' ?> data-positions-allowed="<?= $staff_row['positions_allowed'] ?>" value="<?= $staff_row['contactid'] ?>"><?= $staff_row['first_name'].' '.$staff_row['last_name'] ?></option>
+						<option <?= $staff_row['contactid'] == $staff['item_id'] ? 'selected' : '' ?> data-positions-allowed="<?= $staff_row['positions_allowed'] ?>" data-position="<?= $staff_row['position'] ?>" value="<?= $staff_row['contactid'] ?>"><?= $staff_row['first_name'].' '.$staff_row['last_name'] ?></option>
 						<?php if($staff_row['contactid'] == $staff['item_id']) {
 							$positions_allowed = array_filter(explode(',',$staff_row['positions_allowed']));
 						}
@@ -199,7 +214,7 @@ do {
 				<?php if($field_sort_field == 'Staff Travel') { ?>
 					<div class="col-sm-1" style="<?= strpos($value_config,',Staff Travel,') === FALSE ? 'display: none;' : '' ?>">
 						<label class="show-on-mob control-label">Travel Time:</label>
-						<input type="number" min=0 step="<?= $hour_increment ?>" name="hours_travel" data-table="ticket_attached" data-id="<?= $staff['id'] ?>" data-id-field="id" data-type="Staff" data-type-field="src_table" class="form-control" value="<?= $staff['hours_travel'] ?>">
+						<input type="number" min=0 step="<?= $hour_increment ?>" name="hours_travel" data-table="ticket_attached" data-id="<?= $staff['id'] ?>" data-id-field="id" data-type="Staff" data-type-field="src_table" data-default="<?= get_config($dbc, 'ticket_staff_travel_default') ?>" class="form-control" value="<?= empty($staff['hours_travel']) ? get_config($dbc, 'ticket_staff_travel_default') : $staff['hours_travel'] ?>">
 					</div>
 				<?php } ?>
 				<?php if($field_sort_field == 'Staff Subsistence') { ?>
@@ -241,7 +256,7 @@ do {
 				<span class="show-on-mob pull-left" onclick="$(this).closest('div').find('img').first().click();">More details</span>
 				<img class="inline-img pull-left black-color counterclockwise small" onclick="showStaff(this);" src="../img/icons/dropdown-arrow.png">
 				<input type="hidden" name="deleted" data-table="ticket_attached" data-id="<?= $staff['id'] ?>" data-id-field="id" data-type="Staff" data-type-field="src_table" value="0">
-				<a href="" onclick="viewProfile(this); return false;"><img class="inline-img pull-right" src="../img/person.PNG"></a>
+				<a href="" onclick="viewProfile(this); return false;"><img class="inline-img pull-right no-toggle" src="../img/person.PNG" title="View Profile"></a>
 				<img class="inline-img pull-right" onclick="addMulti(this, '', 'after');" src="../img/icons/ROOK-add-icon.png">
 				<?php if($access_staff === TRUE) { ?>
 					<img class="inline-img pull-right" onclick="remMulti(this);" src="../img/remove.png">
@@ -305,7 +320,7 @@ do {
 						<?= $staff['hours_travel'] ?>
 					</div>
 					<?php if(strpos($value_config,',Staff Travel,') !== FALSE) {
-						$pdf_contents[] = ['Travel', $staff['hours_travel']];
+						$pdf_contents[] = ['Travel Time', $staff['hours_travel']];
 					} ?>
 				<?php } ?>
 				<?php if($field_sort_field == 'Staff Subsistence') { ?>
@@ -334,6 +349,98 @@ do {
 			<span>Loading...</span>
 			<iframe name="staff_iframe" style="height: 0; width: 100%;" src=""></iframe>
 		</div>
+		<?php if(strpos($value_config,',Staff Multiple Times,') !== FALSE) {
+			$staff_times = mysqli_query($dbc, "SELECT * FROM `ticket_attached` WHERE `src_table` = 'Multiple_Timesheet_Row' AND `item_id` = '".$staff['id']."' AND '".$staff['id']."' > 0 AND `deleted` = 0"); ?>
+			<div class="clearfix"></div>
+			<div id="no-more-tables" class="staff_multiple_times">
+				<table class="table table-bordered">
+					<tr class="hidden-xs">
+						<?php foreach($field_sort_order as $field_sort_field) { ?>
+							<?php if($field_sort_field == 'Staff Multiple Times Date') { ?>
+								<th>Date</th>
+							<?php } ?>
+							<?php if($field_sort_field == 'Staff Multiple Times Start Time') { ?>
+								<th>Start Time</th>
+							<?php } ?>
+							<?php if($field_sort_field == 'Staff Multiple Times End Time') { ?>
+								<th>End Time</th>
+							<?php } ?>
+							<?php if($field_sort_field == 'Staff Multiple Times Type') { ?>
+								<th>Type of Time</th>
+							<?php } ?>
+							<?php if($field_sort_field == 'Staff Multiple Times Set Hours') { ?>
+								<th>Payable Hours</th>
+							<?php } ?>
+						<?php } ?>
+						<?php if($access_staff === TRUE) { ?>
+							<th>Function</th>
+						<?php } ?>
+					</tr>
+					<?php $staff_time = mysqli_fetch_assoc($staff_times);
+					do { ?>
+						<tr class="staff-multi-time">
+							<input type="hidden" name="item_id" data-table="ticket_attached" data-id="<?= $staff_time['id'] ?>" data-id-field="id" data-type="Multiple_Timesheet_Row" data-type-field="src_table" value="<?= $staff['id'] ?>">
+							<input type="hidden" name="deleted" data-table="ticket_attached" data-id="<?= $staff_time['id'] ?>" data-id-field="id" data-type="Multiple_Timesheet_Row" data-type-field="src_table" value="0">
+							<?php if($access_staff === TRUE) {
+								foreach($field_sort_order as $field_sort_field) { ?>
+									<?php if($field_sort_field == 'Staff Multiple Times Date') { ?>
+										<td data-title="Date">
+											<input type="text" name="date_stamp" data-table="ticket_attached" data-id="<?= $staff_time['id'] ?>" data-id-field="id" data-type="Multiple_Timesheet_Row" data-type-field="src_table" class="datepicker form-control" value="<?= $staff_time['date_stamp'] ?>">
+										</td>
+									<?php } ?>
+									<?php if($field_sort_field == 'Staff Multiple Times Start Time') { ?>
+										<td data-title="Start Time">
+											<input type="text" name="start_time" data-table="ticket_attached" data-id="<?= $staff_time['id'] ?>" data-id-field="id" data-type="Multiple_Timesheet_Row" data-type-field="src_table" class="datetimepicker form-control" value="<?= $staff_time['start_time'] ?>">
+										</td>
+									<?php } ?>
+									<?php if($field_sort_field == 'Staff Multiple Times End Time') { ?>
+										<td data-title="End Time">
+											<input type="text" name="end_time" data-table="ticket_attached" data-id="<?= $staff_time['id'] ?>" data-id-field="id" data-type="Multiple_Timesheet_Row" data-type-field="src_table" class="datetimepicker form-control" value="<?= $staff_time['end_time'] ?>">
+										</td>
+									<?php } ?>
+									<?php if($field_sort_field == 'Staff Multiple Times Type') { ?>
+										<td data-title="Type of Time">
+											<select name="position" data-table="ticket_attached" data-id="<?= $staff_time['id'] ?>" data-id-field="id" data-type="Multiple_Timesheet_Row" data-type-field="src_table" class="chosen-select-deselect form-control" value="<?= $staff_time['position'] ?>">
+												<option></option>
+												<option <?= $staff_time['position'] == 'Regular Hrs.' ? 'selected' : '' ?> value="Regular Hrs.">Regular Hrs.</option>
+												<option <?= $staff_time['position'] == 'Sleep Hrs.' ? 'selected' : '' ?> value="Sleep Hrs.">Sleep Hrs.</option>
+											</select>
+										</td>
+									<?php } ?>
+									<?php if($field_sort_field == 'Staff Multiple Times Set Hours') { ?>
+										<td data-title="Payable Hours">
+											<input type="number" min=0 step="<?= $hour_increment ?>" name="hours_set" data-table="ticket_attached" data-id="<?= $staff_time['id'] ?>" data-id-field="id" data-type="Multiple_Timesheet_Row" data-type-field="src_table" class="form-control" value="<?= $staff_time['hours_set'] ?>">
+										</td>
+									<?php } ?>
+								<?php } ?>
+								<td data-title="Function">
+									<img class="inline-img pull-right" onclick="addStaffMultiTime(this, '', 'after');" src="../img/icons/ROOK-add-icon.png">
+									<img class="inline-img pull-right" onclick="remStaffMultiTIme(this);" src="../img/remove.png">
+								</td>
+							<?php } else {
+								foreach($field_sort_order as $field_sort_field) { ?>
+									<?php if($field_sort_field == 'Staff Multiple Times Date') { ?>
+										<td data-title="Date"><?= $staff_time['date_stamp'] ?></td>
+									<?php } ?>
+									<?php if($field_sort_field == 'Staff Multiple Times Start Time') { ?>
+										<td data-title="Start Time"><?= $staff_time['start_time'] ?></td>
+									<?php } ?>
+									<?php if($field_sort_field == 'Staff Multiple Times End Time') { ?>
+										<td data-title="End Time"><?= $staff_time['end_time'] ?></td>
+									<?php } ?>
+									<?php if($field_sort_field == 'Staff Multiple Times Type') { ?>
+										<td data-title="Type of Time"><?= $staff_time['position'] ?></td>
+									<?php } ?>
+									<?php if($field_sort_field == 'Staff Multiple Times Set Hours') { ?>
+										<td data-title="Payable Hours"><?= $staff_time['hours_set'] ?></td>
+									<?php } ?>
+								<?php }
+							} ?>
+						</tr>
+					<?php } while($staff_time = mysqli_fetch_assoc($staff_times)); ?>
+				</table>
+			</div>
+		<?php } ?>
 	</div>
 	<hr class="visible-xs">
 <?php } while($staff = mysqli_fetch_assoc($query)); ?>

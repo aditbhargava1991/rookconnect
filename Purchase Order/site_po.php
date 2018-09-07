@@ -7,7 +7,10 @@ include_once('../tcpdf/tcpdf.php');
 error_reporting(0);
 if (isset($_POST['send_drive_log_noemail'])) {
 	$poside = $_POST['send_drive_log_noemail'];
+	$before_change = capture_before_change($dbc, 'purchase_orders', 'status', 'posid', $poside);
 	mysqli_query($dbc, "UPDATE `purchase_orders` SET status = 'Paying' WHERE posid= '".$poside."'" );
+    $history = capture_after_change('status', 'Paying');
+	  add_update_history($dbc, 'po_history', $history, '', $before_change);
     echo '<script type="text/javascript"> alert("Purchase Order #'.$poside.' sent to Accounts Payable.");
 	window.location.replace("complete.php"); </script>';
 }
@@ -169,7 +172,7 @@ function changePOSStatus(sel) {
 		$search_from = '';
 		$search_until = '';
 		$search = '';
-		
+
 		if(!empty($_POST['search_any'])) {
 			$search_any = $_POST['search_any'];
 			$search .= "AND (inv.poid='$search_any' OR c.descript='$search_any' OR inv.grade LIKE '%". $search_any ."%' OR inv.tag LIKE '%" . $search_any . "%' OR inv.detail LIKE '%". $search_any ."%' OR inv.issue_date LIKE '%". $search_any ."%' OR inv.final_total LIKE '%". $search_any ."%') ";
@@ -186,7 +189,7 @@ function changePOSStatus(sel) {
 			$search_until = $_POST['search_until'];
 			$search .= " AND inv.issue_date <= '$search_until'";
 		} ?>
-		
+
 		<div class="col-sm-6">
 			<div class="col-sm-3"><label for="search_any" class="control-label">Search Within Tab:</label></div>
 			<div class="col-sm-9"><input placeholder="Search Within Tab..." name="search_any" value="<?php echo $search_any; ?>" class="form-control"></div>
@@ -205,9 +208,9 @@ function changePOSStatus(sel) {
 				</select>
 			</div>
 		</div>
-		
+
 		<div class="clearfix"></div>
-		
+
 		<div class="col-sm-6">
 			<div class="col-sm-3"><label for="search_from" class="control-label">Search From Date:</label></div>
 			<div class="col-sm-9"><input placeholder="Search From Date..." name="search_from" value="<?php echo $search_from; ?>" class="datepicker form-control"></div>
@@ -218,13 +221,13 @@ function changePOSStatus(sel) {
 		</div>
 
 		<div class="clearfix"></div>
-		
+
 		<div class="pull-right gap-right gap-top">
 			<span class="popover-examples list-inline" style="margin:-5px 5px 0 0"><a data-toggle="tooltip" data-placement="top" title="Remember to fill in one of the above boxes to search properly."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span><button type="submit" name="search_invoice_submit" value="Search" class="btn brand-btn">Search</button>
 			<span class="popover-examples list-inline hide-on-mobile" style="margin:0 5px 0 12px"><a data-toggle="tooltip" data-placement="top" title="Refreshes the page to display all order information under the specific tab."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span><a href="" class="btn brand-btn hide-on-mobile">Display All</a>
 		</div>
 	</div>
-	
+
 	<div class="clearfix"></div><?php
 
 		if (strpos($value_config, ','."Send to Anyone".',') !== FALSE) { ?>
@@ -290,12 +293,12 @@ function changePOSStatus(sel) {
 			$result_set = array_merge($result_set, mysqli_fetch_all($result, MYSQLI_ASSOC));
 		}
 	}
-	
+
 	$query_check_credentials = "SELECT inv.*, c.*, '".WEBSITE_URL."' URL FROM site_work_po inv, contacts c WHERE inv.vendorid=c.contactid AND inv.deleted=0 ". $search ." ORDER BY inv.poid DESC";
 	if($result = mysqli_query($dbc, $query_check_credentials)) {
 		$result_set = array_merge($result_set, mysqli_fetch_all($result, MYSQLI_ASSOC));
 	}
-	
+
 	$num_rows = count($result_set);
 	if($num_rows > 0) {
 		// Added Pagination //
@@ -306,25 +309,27 @@ function changePOSStatus(sel) {
 		echo display_pagination($dbc, "SELECT $num_rows numrows", $pageNum, $rowsPerPage);
 		// Pagination Finish //
 		?>
-						
+
 		<br clear='all' />
 		<div id='no-more-tables'>
-			<table class='table table-bordered'>
-				<tr class='hidden-xs hidden-sm'>
-					<th width="6%"><div class="popover-examples list-inline" style="margin:2px 5px 5px 0"><a data-toggle="tooltip" data-placement="top" title="Purchase Order Number as selected on the Order Form."><img src="<?= WEBSITE_URL; ?>/img/info-w.png" width="20"></a></div>P.O. #</th>
-					<th width="6%"><div class="popover-examples list-inline" style="margin:2px 5px 5px 0"><a data-toggle="tooltip" data-placement="top" title="Purchase Order Date as selected on the Order Form."><img src="<?= WEBSITE_URL; ?>/img/info-w.png" width="20"></a></div>P.O. Date</th>
-					<th width="12%"><div class="popover-examples list-inline" style="margin:2px 5px 5px 0"><a data-toggle="tooltip" data-placement="top" title="Vendor name as selected on the Order Form."><img src="<?= WEBSITE_URL; ?>/img/info-w.png" width="20"></a></div>Vendor</th>
-					<th width="8%"><div class="popover-examples list-inline" style="margin:2px 5px 5px 0"><a data-toggle="tooltip" data-placement="top" title="Total Price as selected on the Order Form."><img src="<?= WEBSITE_URL; ?>/img/info-w.png" width="20"></a></div>Total Price</th>
-					<th width="6%"><div class="popover-examples list-inline" style="margin:2px 5px 5px 0"><a data-toggle="tooltip" data-placement="top" title="Purchase Order created into a PDF document. This opens in a new tab on your computer."><img src="<?= WEBSITE_URL; ?>/img/info-w.png" width="20"></a></div>P.O. PDF</th>
-					<th width="8%"><div class="popover-examples list-inline" style="margin:2px 5px 5px 0"><a data-toggle="tooltip" data-placement="top" title="Check this box to send one or several Purchase Orders in a PDF document, then enter the desired email in the Emails box."><img src="<?= WEBSITE_URL; ?>/img/info-w.png" width="20"></a></div>Email PDF<br><div class='selectall selectbutton' title='This will select all PDFs on the current page.'>Select All</div></th>
-				</tr><?php
+			<table class='table table-bordered table-striped'>
+                <thead>
+                    <tr class='hidden-xs hidden-sm'>
+                        <th width="6%"><div class="popover-examples list-inline" style="margin:2px 5px 5px 0"><a data-toggle="tooltip" data-placement="top" title="Purchase Order Number as selected on the Order Form."><img src="<?= WEBSITE_URL; ?>/img/info-w.png" width="20"></a></div>P.O. #</th>
+                        <th width="6%"><div class="popover-examples list-inline" style="margin:2px 5px 5px 0"><a data-toggle="tooltip" data-placement="top" title="Purchase Order Date as selected on the Order Form."><img src="<?= WEBSITE_URL; ?>/img/info-w.png" width="20"></a></div>P.O. Date</th>
+                        <th width="12%"><div class="popover-examples list-inline" style="margin:2px 5px 5px 0"><a data-toggle="tooltip" data-placement="top" title="Vendor name as selected on the Order Form."><img src="<?= WEBSITE_URL; ?>/img/info-w.png" width="20"></a></div>Vendor</th>
+                        <th width="8%"><div class="popover-examples list-inline" style="margin:2px 5px 5px 0"><a data-toggle="tooltip" data-placement="top" title="Total Price as selected on the Order Form."><img src="<?= WEBSITE_URL; ?>/img/info-w.png" width="20"></a></div>Total Price</th>
+                        <th width="6%"><div class="popover-examples list-inline" style="margin:2px 5px 5px 0"><a data-toggle="tooltip" data-placement="top" title="Purchase Order created into a PDF document. This opens in a new tab on your computer."><img src="<?= WEBSITE_URL; ?>/img/info-w.png" width="20"></a></div>P.O. PDF</th>
+                        <th width="8%"><div class="popover-examples list-inline" style="margin:2px 5px 5px 0"><a data-toggle="tooltip" data-placement="top" title="Check this box to send one or several Purchase Orders in a PDF document, then enter the desired email in the Emails box."><img src="<?= WEBSITE_URL; ?>/img/info-w.png" width="20"></a></div>Email PDF<br><div class='selectall selectbutton' title='This will select all PDFs on the current page.'>Select All</div></th>
+                    </tr>
+                </thead><?php
 
 		for($i = $offset; $i < $num_rows && $i < $rowsPerPage * $pageNum; $i++)
 		{
 			$roww = $result_set[$i];
 			$contactid = $roww['vendorid'];
 			$software_url_get = $roww['URL']; ?>
-			
+
 			<tr>
 				<td data-title="P.O. #"><input type="text" value="<?= $roww['poid']; ?>" class="form-control" style="max-width:130px;"></td>
 				<td data-title="P.O. Date"><?= $roww['issue_date']; ?></td>

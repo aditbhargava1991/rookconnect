@@ -219,8 +219,8 @@ function showFormFields(link, type) {
 	}
 }
 </script>
-<div class="collapsible tile-sidebar" style="height: 100%;">
-	<ul class="sidebar styling_sidebar" style="padding-top: 1em;">
+<div class="standard-collapsible tile-sidebar" style="height: 100%;">
+	<ul class="sidebar styling_sidebar">
 		<a href="" data-id="header_styling" onclick="loadContent(this); return false;"><li class="active">Header Styling</li></a>
 		<a href="" data-id="footer_styling" onclick="loadContent(this); return false;"><li>Footer Styling</li></a>
 		<a href="" data-id="content_styling" onclick="loadContent(this); return false;"><li>Content Styling</li></a>

@@ -126,7 +126,7 @@ if (isset($_POST['submit'])) {
                 </td>
     			<td>
                     <input type="checkbox" <?php if (strpos($value_config, ','."Include in P.O.S.".',') !== FALSE) {
-                    echo " checked"; } ?> value="Include in P.O.S." style="height: 20px; width: 20px;" name="services_dashboard[]">&nbsp;&nbsp;Include in Point of Sale
+                    echo " checked"; } ?> value="Include in P.O.S." style="height: 20px; width: 20px;" name="services_dashboard[]">&nbsp;&nbsp;Include in <?= POS_ADVANCE_TILE ?>
                 </td>
     		</tr>
     		<tr>

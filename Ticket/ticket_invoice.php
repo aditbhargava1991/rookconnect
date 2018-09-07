@@ -18,7 +18,7 @@
 		$(link).closest('tr').hide();
 	}
 	</script>
-	<?php $invoice_list = $dbc->query("SELECT `tickets`.* FROM `tickets` LEFT JOIN `invoice` ON CONCAT(',',`invoice`.`ticketid`,',') LIKE CONCAT('%,',`tickets`.`ticketid`,',%') WHERE `invoice`.`invoiceid` IS NULL AND `tickets`.`deleted`=0 ".(in_array('Administration',$db_config) ?"AND `approvals` IS NOT NULL" : ''));
+	<?php $invoice_list = $dbc->query("SELECT `tickets`.* FROM `tickets` LEFT JOIN `invoice` ON CONCAT(',',`invoice`.`ticketid`,',') LIKE CONCAT('%,',`tickets`.`ticketid`,',%') WHERE `tickets`.`ticket_type` IN ('".implode("','",$ticket_conf_list)."') AND `invoice`.`invoiceid` IS NULL AND `tickets`.`deleted`=0 ".(in_array('Administration',$db_config) ?"AND IFNULL(`approvals`,'') != ''" : ''));
 	if($invoice_list->num_rows > 0) { ?>
 		<button class="btn brand-btn pull-right" onclick="multi_invoice(); return false;">Create Invoice for Selected</button>
 		<table class="table table-bordered">
@@ -42,7 +42,7 @@
 	<?php $invoice_list = $dbc->query("SELECT `tickets`.*, `invoice`.`invoiceid`, `invoice`.`invoice_date`, `invoice`.`status` `inv_status`, `invoice`.`final_price` FROM `invoice` LEFT JOIN `tickets` ON CONCAT(',',`invoice`.`ticketid`,',') LIKE CONCAT('%,',`tickets`.`ticketid`,',%') WHERE `invoice`.`deleted`=0 AND `tickets`.`deleted`=0 ORDER BY `invoiceid` DESC LIMIT 0,25");
 	if($invoice_list->num_rows > 0) { ?>
 		<h3>Top 25 <?= TICKET_NOUN ?> Invoices</h3>
-		<h4>To see more Invoices, go to the <?= tile_visible($dbc, 'posadvanced') ? '<a href="../POSAdvanced/invoice_main.php">Point of Sale</a>' : (tile_visible($dbc, 'check_out') ? '<a href="../Invoice/invoice_main.php">Check Out</a>' : 'Point of Sale') ?> tile.</h4>
+		<h4>To see more Invoices, go to the <?= tile_visible($dbc, 'posadvanced') ? '<a href="../POSAdvanced/invoice_main.php">'.POS_ADVANCE_TILE.'</a>' : (tile_visible($dbc, 'check_out') ? '<a href="../Invoice/invoice_main.php">Check Out</a>' : 'Point of Sale') ?> tile.</h4>
 		<table class="table table-bordered">
 			<tr>
 				<th><?= TICKET_NOUN ?></th>

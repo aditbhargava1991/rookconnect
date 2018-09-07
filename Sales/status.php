@@ -4,6 +4,11 @@ checkAuthorised('sales');
 $statuses = get_config($dbc, 'sales_lead_status');
 $next_actions = get_config($dbc, 'sales_next_action');
 $approvals = approval_visible_function($dbc, 'sales');
+$project_security = get_security($dbc, 'project');
+$estimates_active = tile_enabled($dbc, 'estimate')['user_enabled'];
+$flag_colours = explode(',', get_config($dbc, "ticket_colour_flags"));
+$flag_labels = explode('#*#', get_config($dbc, "ticket_colour_flag_names"));
+$staff_list = sort_contacts_query($dbc->query("SELECT contactid, first_name, last_name FROM contacts WHERE deleted=0 AND status>0 AND category IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY.""));
 $filter = "`deleted` = 0 ";
 if(isset($_GET['s'])) {
 	$filter .= " AND `status`='".filter_var($_GET['s'],FILTER_SANITIZE_STRING)."'";
@@ -25,21 +30,40 @@ if(isset($_GET['s'])) {
 $(document).on('change', 'select[name="status"]', function() { changeLeadStatus(this); });
 $(document).on('change', 'select[name="next_action"]', function() { changeLeadNextAction(this); });
 </script>
-<?php
-$leads  = mysqli_query($dbc, "SELECT * FROM `sales` WHERE ".$filter.$query_mod);
-echo '<div class="main-screen-white horizontal-scroll standard-dashboard-body" style="border: none; background: none;">';
-echo '<div class="standard-dashboard-body-title"><h3>'.$page_title.'</h3></div>';
+<?php $rowsPerPage = $_GET['pagerows'] > 0 ? $_GET['pagerows'] : 25;
+$_GET['page'] = $_GET['page'] ?: 1;
+$offset = ($_GET['page'] > 0 ? $_GET['page'] - 1 : 0) * $rowsPerPage;
+$leads  = mysqli_query($dbc, "SELECT * FROM `sales` WHERE ".$filter.$query_mod." LIMIT $offset, $rowsPerPage");
+$lead_count  = "SELECT COUNT(*) numrows FROM `sales` WHERE ".$filter.$query_mod;
+    echo '<div class="main-screen-white horizontal-scroll standard-dashboard-body" style="border: none; background: none;">';
+    echo '<div class="standard-dashboard-body-title"><h3>'.$page_title.'</h3></div>';
 if ( $leads->num_rows > 0 ) {
     $i = 1;
-    while ( $row=mysqli_fetch_assoc($leads) ) { ?>
-        <div class="main-screen-white silver-border gap-bottom" style="height:auto;" data-searchable="<?= get_client($dbc, $row['businessid']); ?> <?= get_contact($dbc, $row['contactid']); ?>">
+    display_pagination($dbc, $lead_count, $_GET['page'], ($_GET['pagerows'] > 0 ? $_GET['pagerows'] : $rowsPerPage), true, 25);
+    while ( $row=mysqli_fetch_assoc($leads) ) {
+		$flag_colour = $flag_label = '';
+		if(!empty($row['flag_label'])) {
+			$flag_colour = $row['flag_colour'];
+			$flag_label = $row['flag_label'];
+		} else if(!empty($row['flag_colour'])) {
+			$flag_colour = $row['flag_colour'];
+            $flag_label_row = array_search($row['flag_colour'], $flag_colours);
+            if($flag_label_row !== FALSE) {
+                $flag_label = $flag_labels[$flag_label_row];
+            }
+		}
+        $lead_colour = get_contact($dbc, $row['primary_staff'], 'calendar_color'); ?>
+        <div class="main-screen-white silver-border gap-bottom info-block-detail" data-id="<?= $row['salesid'] ?>" style="height:auto; <?= empty($flag_colour) ? '' : 'background-color: #'.$flag_colour.';' ?> <?= empty($lead_colour) ? '' : 'border: 3px solid '.$lead_colour.' !important;' ?>" data-searchable="<?= get_client($dbc, $row['businessid']); ?> <?= get_contact($dbc, $row['contactid']); ?>">
             <div class="col-xs-12 gap-top horizontal-block-container">
                 <div class="horizontal-block">
                     <div class="horizontal-block-header">
-                        <h4 class="col-md-6"><a href="sale.php?p=preview&id=<?= $row['salesid'] ?>">Sales Lead <?= $i; ?> <img class="inline-img" src="../img/icons/ROOK-edit-icon.png"></a></h4>
+						<span class="flag-label"><?= $flag_label ?></span>
+                        <h4 class="col-md-6"><a href="sale.php?p=preview&id=<?= $row['salesid'] ?>">Sales Lead <?= $row['salesid']; ?> <img class="inline-img no-toggle" src="../img/icons/ROOK-edit-icon.png" title="Edit"></a></h4>
                         <div class="col-md-6"></div>
                         <div class="clearfix"></div>
                     </div>
+                    <div class="clearfix"></div>
+                    <?php include('quick_actions.php'); ?>
                     <div class="horizontal-block-details">
                         <div class="col-xs-12 col-md-4">
                             <div class="col-xs-6 default-color">Business:</div>
@@ -85,6 +109,7 @@ if ( $leads->num_rows > 0 ) {
                             <div class="col-xs-6"><input onchange="changeLeadFollowUpDate(this)" type="text" id="date_<?= $row['salesid']; ?>" name="date" class="datepicker form-control" value="<?= ( $row['new_reminder']!='0000-00-00' || !empty($row['new_reminder']) ) ? $row['new_reminder'] : 'YYYY-MM-DD'; ?>" /></div>
                             <div class="clearfix"></div>
                         </div>
+
                     </div>
                     <div class="clearfix"></div>
                 </div>
@@ -100,7 +125,6 @@ if ( $leads->num_rows > 0 ) {
         <h4>No Records Found.</h4>
     </div><?php
 } ?>
-
 </div>
 <div class="clearfix"></div>
 

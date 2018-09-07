@@ -2,6 +2,14 @@
 include_once('../include.php');
 $rookconnect = get_software_name(); ?>
 <script>
+$(document).ready(function() {
+	$(window).resize(function() {
+		var available_height = window.innerHeight - $('footer:visible').outerHeight() - $('#form_div .formbuilder_view').offset().top - 1;
+		if(available_height > 200) {
+            $('#form_div .tile-sidebar .sidebar, #form_div .formbuilder_view .main-screen').height(available_height);
+		}
+	}).resize();
+});
 function switchTab(tab) {
 	var formid = $('#formid').val();
 	window.location.href = '<?= WEBSITE_URL ?>/Form Builder/edit_form.php?edit='+formid+'&tab='+tab;
@@ -30,7 +38,7 @@ $is_template = $_GET['type'] == 'template' ? '1' : '0';
 if(!empty($form)) {
 	$is_template = $form['is_template'];
 } ?>
-<div class="container">
+<div class="container" id="form_div">
 	<div class="iframe_overlay" style="display:none; margin-top: -20px; margin-left: -15px;">
 		<div class="iframe">
 			<div class="iframe_loading">Loading...</div>

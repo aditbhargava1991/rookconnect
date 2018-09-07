@@ -24,9 +24,9 @@ function editItemsIframe() {
 </script>
 <div class="accordion-block-details padded" id="nocat_order">
 	<input type="hidden" name="has_details" value="1">
-    <div class="accordion-block-details-heading"><h4 class="inline"><?= SALES_ORDER_NOUN ?> Details</h4><a href="" onclick="editItemsIframe(); return false;" class="pull-right"><img src="../img/icons/ROOK-edit-icon.png" class="inline-img"></a></div>
+    <div class="accordion-block-details-heading"><h4 class="inline"><?= SALES_ORDER_NOUN ?> Details</h4><a href="" onclick="editItemsIframe(); return false;" class="pull-right"><img src="../img/icons/ROOK-edit-icon.png" class="inline-img no-toggle" title="Edit"></a></div>
     <div class="row">
 		<?php include('order_details_content_details.php');?>
-		<div class="pull-right"><a href="" onclick="editItemsIframe(); return false;" class="pull-right"><img src="../img/icons/ROOK-add-icon.png" class="inline-img"></a></div>
+		<div class="gap-left"><a href="" onclick="editItemsIframe(); return false;"><img src="../img/icons/ROOK-add-icon.png" class="inline-img"></a></div>
 	</div>
 </div>

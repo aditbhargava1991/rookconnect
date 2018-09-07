@@ -6,6 +6,7 @@ if(!file_exists('export')) {
 	mkdir(export, 0777);
 }
 $file_name = 'export_'.date('Y_m_d_h_i').'.csv';
+$field_config = array_filter(explode(',',get_config($dbc, 'company_rate_fields')));
 
 if(!isset($_POST['import']) && !isset($_POST['export'])) {
 	?><form class="form-horizontal" method="POST" action="" enctype="multipart/form-data">
@@ -42,20 +43,63 @@ if(!isset($_POST['import']) && !isset($_POST['export'])) {
 	</form><?php
 }
 else if($_GET['card'] == 'universal' || $_GET['card'] == 'company' && isset($_POST['export'])) {
-	$rate_cards = $dbc->query("SELECT * FROM `company_rate_card` WHERE `deleted`=0 ORDER BY `rate_card_name`, `companyrcid`");
-	$export = fopen($file_name,'w');
-	$rate = $rate_cards->fetch_assoc();
-	$headings = [];
-	foreach($rate as $field => $value) {
-		if($_POST['export'] != 'blank' || !in_array($field,['companyrcid','deleted'])) {
-			$headings[] = $field;
+	$fields = ['ID' => 'companyrcid'];
+	foreach($field_config as $field_name) {
+		switch($field_name) {
+			case 'start_end_dates': $fields['Start Date'] = 'start_date'; $fields['End Date'] = 'end_date'; break;
+			case 'type': $fields['Type'] = 'rate_card_types'; break;
+			case 'heading': $fields['Heading'] = 'heading'; break;
+			case 'description': $fields['Description'] = 'description'; break;
+			case 'itemtype': $fields['Description'] = 'description'; $fields['Item ID'] = 'item_id'; break;
+			case 'daily': $fields['Daily'] = 'daily'; break;
+			case 'hourly': $fields['Hourly'] = 'hourly'; break;
+			case 'uom': $fields['Unit of Measure'] = 'uom'; break;
+			case 'cost': $fields['Cost'] = 'cost'; break;
+			case 'customer': $fields['Customer Price'] = 'cust_price'; break;
+			case 'sort_order': $fields['Display Order'] = 'sort_order'; break;
 		}
 	}
-	fputcsv($export,$headings);
+	$fields['Archived'] = 'deleted';
+	
+	$export = fopen($file_name,'w');
+	$headings = [];
+	foreach($fields as $label => $field) {
+		if($_POST['export'] != 'blank' || !in_array($field,['companyrcid','deleted'])) {
+			$headings[] = $label;
+		}
+	}
+	
 	if($_POST['export'] != 'blank') {
-		do {
+		$rate_name = false;
+		$rate_tile = false;
+		echo "SELECT `".implode('`,`',$fields)."`,`rate_card_name`,`tile_name` FROM `company_rate_card` WHERE `deleted`=0 ORDER BY `rate_card_name`, `tile_name`, `companyrcid`";
+		$rate_cards = $dbc->query("SELECT `".implode('`,`',$fields)."`,`rate_card_name`,`tile_name` FROM `company_rate_card` WHERE `deleted`=0 ORDER BY `rate_card_name`, `tile_name`, `companyrcid`");
+		while($rate = $rate_cards->fetch_assoc()) {
+			if($rate_name !== $rate['rate_card_name'] || $rate_tile !== $rate['tile_name']) {
+				if($rate_name !== false) {
+					fputcsv($export,[]);
+				}
+				$rate_name = $rate['rate_card_name'];
+				$rate_tile = $rate['tile_name'];
+				fputcsv($export,['Rate Card:',($rate_name ?: 'Universal'),'Items:',$rate_tile]);
+				fputcsv($export,$headings);
+			}
+			if($rate['tile_name'] == 'Position' && $rate['item_id'] > 0) {
+				$rate['item_id'] = get_field_value('name','positions','position_id',$rate['item_id']);
+			} else if($rate['tile_name'] == 'Services' && $rate['item_id'] > 0) {
+				$rate['item_id'] = implode(': ',get_field_value('category service_type heading','services','serviceid',$rate['item_id']));
+			} else if($rate['tile_name'] == 'Labour' && $rate['item_id'] > 0) {
+				$rate['item_id'] = implode(': ',get_field_value('labour_type category heading','labour','labourid',$rate['item_id']));
+			} else if($rate['tile_name'] == 'Staff' && $rate['item_id'] > 0) {
+				$rate['item_id'] = get_contact($dbc, $rate['item_id'], 'name_company');
+			}
+			unset($rate['rate_card_name']);
+			unset($rate['tile_name']);
 			fputcsv($export, $rate);
-		} while($rate = $rate_cards->fetch_assoc());
+		}
+	} else {
+		fputcsv($export,['Rate Card:','','Items:','']);
+		fputcsv($export,$headings);
 	}
 	ob_clean();
 	header('Content-Description: File Transfer');
@@ -70,29 +114,71 @@ else if($_GET['card'] == 'universal' || $_GET['card'] == 'company' && isset($_PO
 }
 else if($_GET['card'] == 'universal' || $_GET['card'] == 'company') {
 	if($file = fopen($_FILES['import_file']['tmp_name'],'r')) {
-		$titles = fgetcsv($file);
-		$fields = [];
-		foreach($titles as $i => $field) {
-			if(in_array($field,['companyrcid','rate_card_name','start_date','end_date','alert_date','alert_staff','tile_name','rate_card_types','rate_categories','heading','description','item_id','uom','cost','cust_price','profit','margin','daily','hourly','sort_order','deleted'])) {
-				$fields[$i] = $field;
-			}
-		}
+		$headings = [];
+		$rate_name = '';
+		$rate_tile = '';
+		$contact_names = sort_contacts_query($dbc->query("SELECT `contactid`, `name`, `first_name`, `last_name` FROM `contacts` WHERE `deleted`=0 AND `status` > 0"));
 		while($row = fgetcsv($file)) {
-			$updates = [];
-			$values = [];
-			$id = 0;
-			foreach($fields as $i => $field) {
-				if('companyrcid' == $field) {
-					$id = $row[$i];
-				} else {
-					$values[] = filter_var($row[$i],FILTER_SANITIZE_STRING);
-					$updates[] = "`$field`='".filter_var($row[$i],FILTER_SANITIZE_STRING)."'";
-				}
+			if(count(array_filter($row)) == 0) {
+				$headings = [];
+				continue;
 			}
-			if($id > 0) {
-				$dbc->query("UPDATE `company_rate_card` SET ".implode(',',$updates)." WHERE `companyrcid`='$id'");
+			if($row[0] == 'Rate Card:') {
+				$rate_name = filter_var($row[1],FILTER_SANITIZE_STRING);
+				if($rate_name == 'Universal') {
+					$rate_name = '';
+				}
+				$rate_tile = filter_var($row[3],FILTER_SANITIZE_STRING);
+			} else if(count($headings) == 0) {
+				foreach($row as $label) {
+					switch($label) {
+						case 'ID': $headings[] = 'companyrcid'; break;
+						case 'Start Date': $headings[] = 'start_date'; break;
+						case 'End Date': $headings[] = 'end_date'; break;
+						case 'Type': $headings[] = 'rate_card_types'; break;
+						case 'Heading': $headings[] = 'heading'; break;
+						case 'Description': $headings[] = 'description'; break;
+						case 'Item ID': $headings[] = 'item_id'; break;
+						case 'Daily': $headings[] = 'daily'; break;
+						case 'Hourly': $headings[] = 'hourly'; break;
+						case 'Unit of Measure': $headings[] = 'uom'; break;
+						case 'Cost': $headings[] = 'cost'; break;
+						case 'Customer Price': $headings[] = 'cust_price'; break;
+						case 'Display Order': $headings[] = 'sort_order'; break;
+						case 'Archived': $headings[] = 'deleted'; break;
+					}
+				}
 			} else {
-				$dbc->query("INSERT INTO `company_rate_card` (`".implode('`,`',array_filter($fields,function($v) { return $v != 'companyrcid'; }))."`) VALUES ('".implode("','",$values)."')");
+				$id = 0;
+				foreach($headings as $i => $field) {
+					if('companyrcid' == $field) {
+						$id = $row[$i];
+					} else {
+						if($field == 'item_id' && !($row[$i] > 0) && $rate_tile == 'Staff') {
+							foreach($contact_names as $contact) {
+								if($row[$i] == trim($contact['name'].': '.$contact['first_name'].' '.$contact['last_name'],': ')) {
+									$row[$i] = $contact['contactid'];
+								}
+							}
+						} else if($field == 'item_id' && !($row[$i] > 0) && $rate_tile == 'Position') {
+							$row[$i] = $dbc->query("SELECT `position_id` FROM `positions` WHERE `deleted`=0 AND `name`='".$row[$i]."'")->fetch_array()[0];
+						} else if($field == 'item_id' && !($row[$i] > 0) && $rate_tile == 'Services') {
+							$row[$i] = $dbc->query("SELECT `serviceid` FROM `services` WHERE `deleted`=0 AND CONCAT(IFNULL(`category`,''),': ',IFNULL(`service_type`,''),': ',IFNULL(`heading`,''))='".$row[$i]."'")->fetch_array()[0];
+						} else if($field == 'item_id' && !($row[$i] > 0) && $rate_tile == 'Labour') {
+							$row[$i] = $dbc->query("SELECT `labourid` FROM `labour` WHERE `deleted`=0 AND CONCAT(IFNULL(`labour_type`,''),': ',IFNULL(`category`,''),': ',IFNULL(`heading`,''))='".$row[$i]."'")->fetch_array()[0];
+						}
+						$values[] = filter_var($row[$i],FILTER_SANITIZE_STRING);
+						$updates[] = "`$field`='".filter_var($row[$i],FILTER_SANITIZE_STRING)."'";
+					}
+				}
+				$updates[] = "`rate_card_name`='".$rate_name."'";
+				$updates[] = "`tile_name`='".$rate_tile."'";
+				if($id > 0) {
+					echo "UPDATE `company_rate_card` SET ".implode(',',$updates)." WHERE `companyrcid`='$id'";
+					$dbc->query("UPDATE `company_rate_card` SET ".implode(',',$updates)." WHERE `companyrcid`='$id'");
+				} else {
+					$dbc->query("INSERT INTO `company_rate_card` (`".implode('`,`',array_filter($fields,function($v) { return $v != 'companyrcid'; }))."`) VALUES ('".implode("','",$values)."')");
+				}
 			}
 		}
 	}

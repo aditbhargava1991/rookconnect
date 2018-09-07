@@ -19,7 +19,7 @@ include ('function.php');
 		<div class="tabs">
 		    <ul id="myTab" class="tab-links nav nav-pills">
 		        <li class="active"><a href="#tab1">Staff</a></li>
-                <li><a href="#tab2">Vendors</a></li>
+                <li><a href="#tab2"><?= VENDOR_TILE ?></a></li>
 				<li><a href="#tab3">Patients</a></li>
 				<li><a href="#tab4">Inventory</a></li>
 				<li><a href="#tab5">Service Code</a></li>
@@ -81,7 +81,7 @@ include ('function.php');
                         if($num_rows > 0) {
                         echo "<table class='table table-bordered'>";
                         echo "<tr class='hidden-xs hidden-sm'>
-                                <th>Vendor</th>
+                                <th>".VENDOR_TILE."</th>
                                 <th>Contact Number</th>
                                 <th>Products</th>
                                 <th>Address</th>

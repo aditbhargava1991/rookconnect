@@ -1,3 +1,6 @@
+<?php /* Budgeting */
+include ('../include.php');
+checkAuthorised('budget'); ?>
 <br><br>
 <?php
 if($_GET['delete']) {
@@ -29,7 +32,7 @@ $num_rows = mysqli_num_rows($result);
 
 <div class="mobile-100-container">
 	<div class="col-sm-12 col-xs-12 col-lg-12 pad-top offset-xs-top-20">
-		<a href="<?php echo WEBSITE_URL; ?>/Budget/add_expense.php?from_url=<?php echo urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']); ?>" class="btn brand-btn mobile-block gap-bottom pull-right">Add Expense</a>
+		<a href="<?php echo WEBSITE_URL; ?>/Budget/add_expense.php?from_url=<?php echo urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']); ?>" onclick="overlayIFrameSlider(this.href); return false;" class="btn brand-btn mobile-block gap-bottom pull-right">Add Expense</a>
 	</div>
 	<?php
 		if($num_rows > 0) {
@@ -91,6 +94,6 @@ $num_rows = mysqli_num_rows($result);
 		echo "<h2>No Records Found.</h2>";
 	} ?>
 	<div class="col-sm-12 col-xs-12 col-lg-12 pad-top offset-xs-top-20">
-		<a href="add_expense.php" class="btn brand-btn mobile-block gap-bottom pull-right">Add Expense</a>
+		<a href="add_expense.php" onclick="overlayIFrameSlider(this.href); return false;" class="btn brand-btn mobile-block gap-bottom pull-right">Add Expense</a>
 	</div>
 </div>

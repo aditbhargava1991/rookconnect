@@ -86,13 +86,70 @@ if(isset($_POST['submit'])) {
 	} else {
 		$user_form_id = 0;
 	}
-	
+
 	if($hrid > 0) {
+		$before_change = capture_before_change($dbc, 'hr', 'form', 'hrid', $hrid);
+		$before_change .= capture_before_change($dbc, 'hr', 'category', 'hrid', $hrid);
+		$before_change .= capture_before_change($dbc, 'hr', 'favourite', 'hrid', $hrid);
+		$before_change .= capture_before_change($dbc, 'hr', 'heading_number', 'hrid', $hrid);
+		$before_change .= capture_before_change($dbc, 'hr', 'heading', 'hrid', $hrid);
+		$before_change .= capture_before_change($dbc, 'hr', 'sub_heading_number', 'hrid', $hrid);
+		$before_change .= capture_before_change($dbc, 'hr', 'sub_heading', 'hrid', $hrid);
+		$before_change .= capture_before_change($dbc, 'hr', 'third_heading_number', 'hrid', $hrid);
+		$before_change .= capture_before_change($dbc, 'hr', 'third_heading', 'hrid', $hrid);
+		$before_change .= capture_before_change($dbc, 'hr', 'hr_description', 'hrid', $hrid);
+		$before_change .= capture_before_change($dbc, 'hr', 'assign_staff', 'hrid', $hrid);
+		$before_change .= capture_before_change($dbc, 'hr', 'deadline', 'hrid', $hrid);
+		$before_change .= capture_before_change($dbc, 'hr', 'fields', 'hrid', $hrid);
+		$before_change .= capture_before_change($dbc, 'hr', 'email_subject', 'hrid', $hrid);
+		$before_change .= capture_before_change($dbc, 'hr', 'email_message', 'hrid', $hrid);
+		$before_change .= capture_before_change($dbc, 'hr', 'approval_message', 'hrid', $hrid);
+		$before_change .= capture_before_change($dbc, 'hr', 'rejected_subject', 'hrid', $hrid);
+		$before_change .= capture_before_change($dbc, 'hr', 'user_form_id', 'hrid', $hrid);
+		$before_change .= capture_before_change($dbc, 'hr', 'recurring_due_date', 'hrid', $hrid);
+		$before_change .= capture_before_change($dbc, 'hr', 'rejected_subject', 'hrid', $hrid);
+		$before_change .= capture_before_change($dbc, 'hr', 'recurring_due_date_interval', 'hrid', $hrid);
+		$before_change .= capture_before_change($dbc, 'hr', 'recurring_due_date_type', 'hrid', $hrid);
+		$before_change .= capture_before_change($dbc, 'hr', 'recurring_due_date_reminder', 'hrid', $hrid);
+		$before_change .= capture_before_change($dbc, 'hr', 'recurring_due_date_email', 'hrid', $hrid);
+
+
 		mysqli_query($dbc, "UPDATE `hr` SET `form`='$form_name', `category`='$category', `favourite`='$favourite', `heading_number`='$heading_number', `heading`='$heading', `sub_heading_number`='$sub_heading_number', `sub_heading`='$sub_heading', `third_heading_number`='$third_heading_number', `third_heading`='$third_heading', `hr_description`='$description', `assign_staff`='$assign_staff', `deadline`='$deadline', `fields`='$fields', `email_subject`='$email_subject', `email_message`='$email_message', `completed_recipient`='$completed_recipient', `approval_subject`='$approval_subject', `approval_message`='$approval_message', `rejected_subject`='$rejected_subject', `rejected_message`='$rejected_message', `user_form_id`='$user_form_id', `recurring_due_date` = '$recurring_due_date', `recurring_due_date_interval` = '$recurring_due_date_interval', `recurring_due_date_type` = '$recurring_due_date_type', `recurring_due_date_reminder` = '$recurring_due_date_reminder', `recurring_due_date_email` = '$recurring_due_date_email' WHERE `hrid`='$hrid'");
+
+		$history = capture_after_change('form', $form_name);
+		$history .= capture_after_change('category', $category);
+		$history .= capture_after_change('favourite', $favourite);
+		$history .= capture_after_change('heading_number', $heading_number);
+		$history .= capture_after_change('heading', $heading);
+		$history .= capture_after_change('sub_heading_number', $sub_heading_number);
+		$history .= capture_after_change('sub_heading', $sub_heading);
+		$history .= capture_after_change('third_heading_number', $third_heading_number);
+		$history .= capture_after_change('third_heading', $third_heading);
+		$history .= capture_after_change('hr_description', $hr_description);
+		$history .= capture_after_change('assign_staff', $assign_staff);
+		$history .= capture_after_change('deadline', $deadline);
+		$history .= capture_after_change('fields', $fields);
+		$history .= capture_after_change('email_subject', $email_subject);
+		$history .= capture_after_change('email_message', $email_message);
+		$history .= capture_after_change('approval_message', $approval_message);
+		$history .= capture_after_change('rejected_subject', $rejected_subject);
+		$history .= capture_after_change('user_form_id', $user_form_id);
+		$history .= capture_after_change('recurring_due_date', $recurring_due_date);
+		$history .= capture_after_change('rejected_subject', $rejected_subject);
+		$history .= capture_after_change('recurring_due_date_interval', $recurring_due_date_interval);
+		$history .= capture_after_change('recurring_due_date_type', $recurring_due_date_type);
+		$history .= capture_after_change('recurring_due_date_reminder', $recurring_due_date_reminder);
+		$history .= capture_after_change('recurring_due_date_email', $recurring_due_date_email);
+
+    add_update_history($dbc, 'hr_history', $history, '', $before_change);
+
 	} else {
 		mysqli_query($dbc, "INSERT INTO `hr` (`form`, `category`, `favourite`, `heading_number`, `heading`, `sub_heading_number`, `sub_heading`, `third_heading_number`, `third_heading`, `hr_description`, `assign_staff`, `deadline`, `fields`, `email_subject`, `email_message`, `completed_recipient`, `approval_subject`, `approval_message`, `rejected_subject`, `rejected_message`, `user_form_id`, `recurring_due_date`, `recurring_due_date_interval`, `recurring_due_date_type`, `recurring_due_date_reminder`, `recurring_due_date_email`)
 			VALUES ('$form_name', '$category', '$favourite', '$heading_number', '$heading', '$sub_heading_number', '$sub_heading', '$third_heading_number', '$third_heading', '$description', ',$assign_staff,', '$deadline', '$fields', '$email_subject', '$email_message', '$completed_recipient', '$approval_subject', '$approval_message', '$rejected_subject', '$rejected_message', '$user_form_id', '$recurring_due_date', '$recurring_due_date_interval', '$recurring_due_date_type', '$recurring_due_date_reminder', '$recurring_due_date_email')");
 		$hrid = mysqli_insert_id($dbc);
+		$before_change = '';
+	  $history = "HR entry added. <br />";
+	  add_update_history($dbc, 'hr_history', $history, '', $before_change);
 	}
 	foreach($_FILES['hr_document']['name'] as $i => $file) {
 		if($file != '') {
@@ -102,12 +159,18 @@ if(isset($_POST['submit'])) {
 			}
 			move_uploaded_file($_FILES['hr_document']['tmp_name'][$i],'download/'.$filename);
 			mysqli_query($dbc, "INSERT INTO `hr_upload` (`hrid`,`type`,`upload`) VALUES ('$hrid','document','$filename')");
+			$before_change = '';
+		  $history = "HR upload entry added. <br />";
+		  add_update_history($dbc, 'hr_history', $history, '', $before_change);
 		}
 	}
 	foreach($_POST['hr_link'] as $i => $link) {
 		if(!empty($link)) {
 			$link = filter_var($link,FILTER_SANITIZE_STRING);
-			mysqli_query($dbc, "INSERT INTO `hr_upload` (`hrid`,`type`,`upload`) VALUES ('$hrid','link','$link')");	
+			mysqli_query($dbc, "INSERT INTO `hr_upload` (`hrid`,`type`,`upload`) VALUES ('$hrid','link','$link')");
+			$before_change = '';
+		  $history = "HR upload entry added. <br />";
+		  add_update_history($dbc, 'hr_history', $history, '', $before_change);
 		}
 	}
 	foreach($_FILES['hr_video']['name'] as $i => $file) {
@@ -118,11 +181,17 @@ if(isset($_POST['submit'])) {
 			}
 			move_uploaded_file($_FILES['hr_video']['tmp_name'][$i],'download/'.$filename);
 			mysqli_query($dbc, "INSERT INTO `hr_upload` (`hrid`,`type`,`upload`) VALUES ('$hrid','video','$filename')");
+			$before_change = '';
+		  $history = "HR upload entry added. <br />";
+		  add_update_history($dbc, 'hr_history', $history, '', $before_change);
 		}
 	}
 	foreach($_POST['assign_staff'] as $staff) {
 		if($staff > 0) {
 			mysqli_query($dbc, "INSERT INTO `hr_attendance` (`hrid`, `assign_staffid`) SELECT '$hrid', '$staff' FROM (SELECT COUNT(*) `rows` FROM `hr_attendance` WHERE `hrid`='$hrid' AND `assign_staffid`='$staff' AND `done`=0) `num` WHERE `num`.`rows`=0");
+			$before_change = '';
+		  $history = "HR attendance entry added. <br />";
+		  add_update_history($dbc, 'hr_history', $history, '', $before_change);
 		}
 	}
 	if($_POST['submit'] == 'email') {

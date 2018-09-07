@@ -221,7 +221,7 @@ $project_tabs = get_config($dbc, 'project_tabs');
                  <input type="checkbox" <?php if (strpos($config_fields_dashboard, ','."Estimate#".',') !== FALSE) { echo " checked"; } ?> value="Estimate#" style="height: 20px; width: 20px;" name="config_fields_dashboard[]">&nbsp;&nbsp;<?= ESTIMATE_TILE ?>#&nbsp;&nbsp;
 
                 <input type="checkbox" <?php if (strpos($config_fields_dashboard, ','."Business".',') !== FALSE) { echo " checked"; } ?> value="Business" style="height: 20px; width: 20px;" name="config_fields_dashboard[]">&nbsp;&nbsp;Business&nbsp;&nbsp;
-                <input type="checkbox" <?php if (strpos($config_fields_dashboard, ','."Estimate Name".',') !== FALSE) { echo " checked"; } ?> value="Estimate Name" style="height: 20px; width: 20px;" name="config_fields_dashboard[]">&nbsp;&nbsp;<?= ESTIMATE_TILE ?> Name&nbsp;&nbsp;
+                <input type="checkbox" <?php if (strpos($config_fields_dashboard, ','."Estimate Name".',') !== FALSE) { echo " checked"; } ?> value="Estimate Name" style="height: 20px; width: 20px;" name="config_fields_dashboard[]">&nbsp;&nbsp;<?= rtrim(ESTIMATE_TILE, 's') ?> Name&nbsp;&nbsp;
                 <input type="checkbox" <?php if (strpos($config_fields_dashboard, ','."Total Cost".',') !== FALSE) { echo " checked"; } ?> value="Total Cost" style="height: 20px; width: 20px;" name="config_fields_dashboard[]">&nbsp;&nbsp;Total Cost&nbsp;&nbsp;
                 <input type="checkbox" <?php if (strpos($config_fields_dashboard, ','."Notes".',') !== FALSE) { echo " checked"; } ?> value="Notes" style="height: 20px; width: 20px;" name="config_fields_dashboard[]">&nbsp;&nbsp;Notes&nbsp;&nbsp;
                 <input type="checkbox" <?php if (strpos($config_fields_dashboard, ','."Financial Summary".',') !== FALSE) { echo " checked"; } ?> value="Financial Summary" style="height: 20px; width: 20px;" name="config_fields_dashboard[]">&nbsp;&nbsp;Financial Summary&nbsp;&nbsp;
@@ -286,7 +286,6 @@ $project_tabs = get_config($dbc, 'project_tabs');
 						<div class="col-sm-4"><input type="text" name="group_name[]" class="form-control" value="<?php echo $group[0]; ?>"></div>
 						<div class="col-sm-8">
 							<select multiple name="group_staff[]" data-placeholder="Choose an Option..." class="chosen-select-deselect form-control" width="380">
-								<option value=''></option>
 								<?php
 								$query = mysqli_query($dbc,"SELECT contactid, first_name, last_name FROM contacts WHERE category IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND deleted=0 order by first_name");
 								while($row = mysqli_fetch_array($query)) {

@@ -2,6 +2,7 @@
 /*
 Software Identity
 */
+include_once('../include.php');
 
 if(!defined('EMAIL_SERVER')) {
 	$temp_config_email_server = get_config($_SERVER['DBC'], 'main_email_server');

@@ -61,6 +61,8 @@ if (isset($_POST['printpdf'])) {
 	$today_date = date('Y-m-d');
 	$pdf->writeHTML(utf8_encode($html), true, false, true, false, '');
 	$pdf->Output('Download/daysheet_'.START_DATE.'.pdf', 'F');
+    track_download($dbc, 'report_daysheet', 0, WEBSITE_URL.'/Reports/Download/daysheet_'.$today_date.'.pdf', 'Daysheet Report');
+
 	?>
 
 	<script type="text/javascript" language="Javascript">
@@ -154,16 +156,6 @@ function set_followup(dropdown) {
 }
 $(document).on('change', 'select.set_followup_onchange', function() { set_followup(this); });
 </script>
-</head>
-<body>
-<?php include_once ('../navigation.php');
-?>
-
-<div class="container">
-	<div class="row">
-		<div class="col-md-12">
-
-		<?php echo reports_tiles($dbc);  ?>
 		<div class="notice double-gap-bottom popover-examples">
 			<div class="col-sm-1 notice-icon"><img src="<?= WEBSITE_URL; ?>/img/info.png" class="wiggle-me" width="25"></div>
 			<div class="col-sm-11"><span class="notice-name">NOTE:</span>
@@ -224,11 +216,6 @@ $(document).on('change', 'select.set_followup_onchange', function() { set_follow
 			?>
 
 		</form>
-
-		</div>
-	</div>
-</div>
-<?php include ('../footer.php'); ?>
 
 <?php
 function report_all_daysheet($dbc, $starttime, $table_style, $table_row_style, $grand_total_style, $therapist, $screen_mode = true) {
@@ -398,7 +385,7 @@ function report_all_daysheet($dbc, $starttime, $table_style, $table_row_style, $
     }
 
 	$report_validation = mysqli_query($dbc,"SELECT `contacts`.`first_name`, `contacts`.`last_name`, `contacts`.`contactid`, `patient_injury`.`injury_name`, `patient_injury`.`injury_type`, `booking`.`appoint_date`, `booking`.`assessment_followup_date`, `booking`.`bookingid` FROM `booking` LEFT JOIN `contacts` ON `booking`.`patientid`=`contacts`.`contactid` LEFT JOIN `patient_injury` ON `booking`.`injuryid`=`patient_injury`.`injuryid` WHERE `booking`.`therapistsid`='$therapist' AND `booking`.`type` IN ('A','C','F','H','N','U') AND `assessment_followup_date` IS NULL AND `booking`.`deleted`=0 AND `booking`.`appoint_date` < '$starttime' AND `contacts`.`deleted`=0 ORDER BY `appoint_date` ASC");
-	
+
 	$data = 0;
 	$html_table = '';
 
@@ -605,7 +592,7 @@ function report_daysheet($dbc, $starttime, $table_style, $table_row_style, $gran
     }
 
 	$report_validation = mysqli_query($dbc,"SELECT `contacts`.`first_name`, `contacts`.`last_name`, `contacts`.`contactid`, `patient_injury`.`injury_name`, `patient_injury`.`injury_type`, `booking`.`appoint_date`, `booking`.`assessment_followup_date`, `booking`.`bookingid` FROM `booking` LEFT JOIN `contacts` ON `booking`.`patientid`=`contacts`.`contactid` LEFT JOIN `patient_injury` ON `booking`.`injuryid`=`patient_injury`.`injuryid` WHERE `booking`.`therapistsid`='$therapist' AND `booking`.`type` IN ('A','C','F','H','N','U') AND `assessment_followup_date` IS NULL AND `booking`.`deleted`=0 AND `booking`.`appoint_date` < '$starttime' AND `contacts`.`deleted`=0 ORDER BY `appoint_date` ASC");
-	
+
 	$data = 0;
 	$html_table = '';
 
@@ -643,3 +630,17 @@ function report_daysheet($dbc, $starttime, $table_style, $table_row_style, $gran
 	return $report_data;
 }
 ?>
+<script>
+$('document').ready(function() {
+    var tables = $('table');
+
+    tables.map(function(idx, table) {
+        var rows = $(table).find('tbody > tr');
+        rows.map(function(idx, row){
+            if(idx%2 == 0) {
+                $(row).css('background-color', '#e6e6e6');
+            }
+        })
+    })
+})
+</script>

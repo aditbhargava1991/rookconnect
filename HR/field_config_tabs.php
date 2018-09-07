@@ -24,13 +24,15 @@ function saveTypes() {
 	$('[name=hr_tiles]:checked').each(function() {
 		tile_list.push($(this).closest('.type_option').find('[type=text]').val());
 	});
+	var hr_include_profile = $('[name="hr_include_profile"]:checked').val();
 	$.ajax({
 		url: 'hr_ajax.php?action=settings_tabs',
 		method: 'POST',
 		data: {
 			old_types: old_type_list,
 			types: type_list,
-			tiles: tile_list
+			tiles: tile_list,
+			hr_include_profile: hr_include_profile
 		}
 	});
 }
@@ -68,3 +70,11 @@ function removeType(a) {
 		<div class="clearfix"></div>
 	</div>
 <?php } ?>
+<hr>
+<div class="form-group">
+	<label class="col-sm-4 control-label">Include Profile With Completion % As Subtab:</label>
+	<div class="col-sm-8">
+		<?php $hr_include_profile = get_config($dbc, 'hr_include_profile'); ?>
+		<label class="form-checkbox"><input type="checkbox" name="hr_include_profile" <?= $hr_include_profile == 1 ? 'checked' : '' ?> value="1"></label>
+	</div>
+</div>

@@ -1,4 +1,6 @@
-<br />
+<?php /* Budgeting */
+include ('../include.php');
+checkAuthorised('budget'); ?><br />
 <?php 
 
 if(!empty($_GET['status']) && $_GET['status'] == 'approve') {
@@ -63,7 +65,7 @@ $num_rows = mysqli_num_rows($result);
 						<td>
 							Approved | <a href='<?php echo '?maintype=active_budget&status=3&budgetid=' . $row['budgetid']; ?>'>Archive</a>
 						</td>
-						<td><span class="iframe_open" id="<?php echo $row['budgetid']; ?>" style="cursor:pointer">View All</span></td>
+						<td><span onclick="overlayIFrameSlider('budget_history.php?budgetid=<?= $row['budgetid'] ?>','auto',true,true);" class="cursor-hand">View All</span></td>
 					</tr>
 				<?php } ?>
 			</tbody>

@@ -2,6 +2,7 @@
 checkAuthorised('calendar_rook');
 include_once('../Calendar/calendar_functions_inc.php');
 if (isset($_POST['submit'])) {
+    $team_team_name = filter_var($_POST['team_name'],FILTER_SANITIZE_STRING);
     $region = filter_var($_POST['team_region'],FILTER_SANITIZE_STRING);
     $location = filter_var($_POST['team_location'],FILTER_SANITIZE_STRING);
     $classification = filter_var($_POST['team_classification'],FILTER_SANITIZE_STRING);
@@ -10,12 +11,12 @@ if (isset($_POST['submit'])) {
     $notes = filter_var(htmlentities($_POST['team_notes']),FILTER_SANITIZE_STRING);
 
     if (empty($_POST['teamid']) || $_POST['teamid'] == 'NEW') {
-        $query = "INSERT INTO `teams` (`region`, `location`, `classification`, `start_date`, `end_date`, `notes`) VALUES ('$region', '$location', '$classification', '$start_date', '$end_date', '$notes')";
+        $query = "INSERT INTO `teams` (`team_name`, `region`, `location`, `classification`, `start_date`, `end_date`, `notes`) VALUES ('$team_team_name', $region', '$location', '$classification', '$start_date', '$end_date', '$notes')";
         $result = mysqli_query($dbc, $query);
         $teamid = mysqli_insert_id($dbc);
     } else {
         $teamid = $_POST['teamid'];
-        $query = "UPDATE `teams` SET `region` = '$region', `location` = '$location', `classification` = '$classification', `start_date` = '$start_date', `end_date` = '$end_date', `notes` = '$notes' WHERE `teamid` = '$teamid'";
+        $query = "UPDATE `teams` SET `team_name` = '$team_team_name', `region` = '$region', `location` = '$location', `classification` = '$classification', `start_date` = '$start_date', `end_date` = '$end_date', `notes` = '$notes' WHERE `teamid` = '$teamid'";
         $result = mysqli_query($dbc, $query);
     }
 

@@ -53,9 +53,9 @@ if (isset($_POST['tasklist'])) {
         if($task_category = 'Zen Earth Corp' || $task_category = 'Green Earth Energy' || $task_category = 'Green Life Can') {
             if (strpos(WEBSITE_URL, 'zenearthcorp.rookconnect.com') !== FALSE || strpos(WEBSITE_URL, 'greenearthenergysolutions.rookconnect.com') !== FALSE || strpos(WEBSITE_URL, 'greenlifecan.rookconnect.com') !== FALSE) {
 
-                $zenearth_rook_db = @mysqli_connect('mysql.rookconnect.com', 'zen_rook_user', 'R0bot587tw3ak', 'zenearth_rook_db');
-                $gees_rook_db = @mysqli_connect('mysql.rookconnect.com', 'zen_rook_user', 'R0bot587tw3ak', 'gees_rook_db');
-                $glcllc_rook_db = @mysqli_connect('mysql.rookconnect.com', 'zen_rook_user', 'R0bot587tw3ak', 'glcllc_rook_db');
+                $zenearth_rook_db = @mysqli_connect('localhost', 'zen_rook_user', 'R0bot587tw3ak', 'zenearth_rook_db');
+                $gees_rook_db = @mysqli_connect('localhost', 'zen_rook_user', 'R0bot587tw3ak', 'gees_rook_db');
+                $glcllc_rook_db = @mysqli_connect('localhost', 'zen_rook_user', 'R0bot587tw3ak', 'glcllc_rook_db');
 
                 $result_insert_ca = mysqli_query($zenearth_rook_db, $query_insert_ca);
                 $result_insert_ca = mysqli_query($gees_rook_db, $query_insert_ca);
@@ -74,9 +74,9 @@ if (isset($_POST['tasklist'])) {
         if($task_category = 'Zen Earth Corp' || $task_category = 'Green Earth Energy' || $task_category = 'Green Life Can') {
 
         if (strpos(WEBSITE_URL, 'zenearthcorp.rookconnect.com') !== FALSE || strpos(WEBSITE_URL, 'greenearthenergysolutions.rookconnect.com') !== FALSE || strpos(WEBSITE_URL, 'greenlifecan.rookconnect.com') !== FALSE) {
-                $zenearth_rook_db = @mysqli_connect('mysql.rookconnect.com', 'zen_rook_user', 'R0bot587tw3ak', 'zenearth_rook_db');
-                $gees_rook_db = @mysqli_connect('mysql.rookconnect.com', 'zen_rook_user', 'R0bot587tw3ak', 'gees_rook_db');
-                $glcllc_rook_db = @mysqli_connect('mysql.rookconnect.com', 'zen_rook_user', 'R0bot587tw3ak', 'glcllc_rook_db');
+                $zenearth_rook_db = @mysqli_connect('localhost', 'zen_rook_user', 'R0bot587tw3ak', 'zenearth_rook_db');
+                $gees_rook_db = @mysqli_connect('localhost', 'zen_rook_user', 'R0bot587tw3ak', 'gees_rook_db');
+                $glcllc_rook_db = @mysqli_connect('localhost', 'zen_rook_user', 'R0bot587tw3ak', 'glcllc_rook_db');
 
                 $result_update_vendor = mysqli_query($zenearth_rook_db, $query_update_vendor);
                 $result_update_vendor = mysqli_query($gees_rook_db, $query_update_vendor);
@@ -103,7 +103,7 @@ if (isset($_POST['tasklist'])) {
     }
 
     $url = $_POST['from'];
-	
+
 	// Save Project History
 	if($task_projectid != '') {
 		$user = decryptIt($_SESSION['first_name']).' '.decryptIt($_SESSION['last_name']);
@@ -346,7 +346,7 @@ checkAuthorised('tasks');
             </select>
           </div>
         </div>
-		
+
         <div class="form-group">
           <label for="site_name" class="col-sm-4 control-label">Task Board:</label>
           <div class="col-sm-8">

@@ -153,11 +153,22 @@ if($_GET['fill'] == 'quickarchive') {
 if($_GET['fill'] == 'quicktime') {
 	$ticketid = $_POST['id'];
 	$time = strtotime($_POST['time']);
-	$current_time = strtotime(mysqli_fetch_array(mysqli_query($dbc, "SELECT `spent_time` FROM `tickets` WHERE `ticketid`='$ticketid'"))['spent_time']);
-	$total_time = date('H:i:s', $time + $current_time - strtotime('00:00:00'));
-	$query_time = "UPDATE `tickets` SET `spent_time` = '$total_time' WHERE ticketid='$ticketid'";
-	$result = mysqli_query($dbc, $query_time);
-	insert_day_overview($dbc, $_SESSION['contactid'], 'Ticket', date('Y-m-d'), '', "Updated ".TICKET_NOUN." #$ticketid - Manually Added Time : ".$_POST['time']);
+    $tile = filter_var($_POST['tile'], FILTER_SANITIZE_STRING);
+    if ( $tile=='ticket' ) {
+        $current_time = strtotime(mysqli_fetch_array(mysqli_query($dbc, "SELECT `spent_time` FROM `tickets` WHERE `ticketid`='$ticketid'"))['spent_time']);
+        $total_time = date('H:i:s', $time + $current_time - strtotime('00:00:00'));
+        $query_time = "UPDATE `tickets` SET `spent_time` = '$total_time' WHERE ticketid='$ticketid'";
+        $result = mysqli_query($dbc, $query_time);
+        mysqli_query($dbc, "INSERT INTO `ticket_time_list` (`ticketid`, `time_type`, `time_length`, `created_by`) VALUES ('$ticketid', 'Manual Time', '".$_POST['time']."', '".$_SESSION['contactid']."')");
+        mysqli_query($dbc, "INSERT INTO `time_cards` (`ticketid`,`staff`,`date`,`type_of_time`,`total_hrs`,`timer_tracked`,`comment_box`) VALUES ('$ticketid','".$_SESSION['contactid']."','".date('Y-m-d')."','Regular Hrs.','".(($time - strtotime('00:00:00')) / 3600)."','0','Time Added on Ticket #$ticketid')");
+        insert_day_overview($dbc, $_SESSION['contactid'], 'Ticket', date('Y-m-d'), '', "Updated ".TICKET_NOUN." #$ticketid - Manually Added Time: ".$_POST['time']);
+    }
+    if ( $tile=='task' ) {
+        mysqli_query($dbc, "UPDATE `tasklist` SET `work_time`=ADDTIME(`work_time`,'$time') WHERE `tasklistid`='$ticketid'");
+        mysqli_query($dbc, "INSERT INTO `tasklist_time` (`tasklistid`, `work_time`, `src`, `contactid`, `timer_date`) VALUES ('$ticketid', '".$_POST['time']."', 'M', '".$_SESSION['contactid']."', '".date('Y-m-d')."')");
+        mysqli_query($dbc, "INSERT INTO `time_cards` (`staff`,`date`,`type_of_time`,`total_hrs`,`timer_tracked`,`comment_box`) VALUES ('".$_SESSION['contactid']."','".date('Y-m-d')."','Regular Hrs.','".(($time - strtotime('00:00:00')) / 3600)."','0','Time Added on Task #$ticketid')");
+        insert_day_overview($dbc, $_SESSION['contactid'], 'Task', date('Y-m-d'), '', "Updated Task #$ticketid - Added Time : ". $_POST['time']);
+    }
 }
 else if($_GET['action'] == 'scrum_notes_load') {
 	ob_clean();

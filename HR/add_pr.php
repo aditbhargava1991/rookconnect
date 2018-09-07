@@ -21,7 +21,7 @@ function changeForm(sel) {
 					<div class="col-sm-8">
 						<select name="pr_form" class="chosen-select-deselect form-control">
 							<option></option>
-							<?php $pr_forms = get_config($dbc, 'performance_review_forms');
+							<?php $pr_forms = implode(',',array_column(mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `field_config_performance_reviews` WHERE `enabled` = 1 AND (CONCAT(',',`limit_staff`,',') LIKE '%,".$_SESSION['contactid'].",%' OR IFNULL(`limit_staff`,'') = '')"),MYSQLI_ASSOC),'user_form_id'));
 							$pr_forms = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `user_forms` WHERE `form_id` IN ($pr_forms) AND `deleted` = 0 ORDER BY `name`"),MYSQLI_ASSOC);
 							foreach ($pr_forms as $pr_form) {
 								echo '<option value="'.$pr_form['form_id'].'" '.($form_id == $pr_form['form_id'] ? 'selected' : '').'>'.$pr_form['name'].'</option>'; 

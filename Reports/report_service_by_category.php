@@ -73,7 +73,8 @@ if (isset($_POST['printpdf'])) {
     $today_date = date('Y-m-d');
 	$pdf->writeHTML($html, true, false, true, false, '');
 	$pdf->Output('Download/patient_unpaid_'.$today_date.'.pdf', 'F');
-    ?>
+     track_download($dbc, 'report_service_by_category', 0, WEBSITE_URL.'/Reports/Download/patient_unpaid_'.$today_date.'.pdf', 'Services by Category Report');
+   ?>
 
 	<script type="text/javascript" language="Javascript">
 	window.open('Download/patient_unpaid_<?php echo $today_date;?>.pdf', 'fullscreen=yes');
@@ -143,7 +144,7 @@ if (isset($_POST['printpdf'])) {
                 echo report_daily_validation($dbc, $starttime, $endtime, '', '', '');
             ?>
 
-        
+
 
         </form>
 

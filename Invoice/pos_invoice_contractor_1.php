@@ -56,11 +56,17 @@ if($get_pos_tax != '') {
 }
 //Tax
 
-$pos_logo = get_config($dbc, 'invoice_logo');
 $invoice_footer = get_config($dbc, 'invoice_footer');
 $payment_type = explode('#*#', $point_of_sell['payment_type']);
 
-DEFINE('POS_LOGO', $pos_logo);
+$logo = 'download/'.get_config($dbc, 'invoice_logo');
+if(!file_exists($logo)) {
+    $logo = '../POSAdvanced/'.$logo;
+    if(!file_exists($logo)) {
+        $logo = '';
+    }
+}
+DEFINE('POS_LOGO', $logo);
 DEFINE('INVOICE_HEADER', get_config($dbc, 'invoice_header'));
 DEFINE('INVOICE_FOOTER', $invoice_footer);
 DEFINE('INVOICE_DATE', $point_of_sell['invoice_date']);
@@ -74,13 +80,7 @@ DEFINE('PAYMENT_TYPE', $payment_type[0]);
 class MYPDF extends TCPDF {
 	//Page header
 	public function Header() {
-		$image_file = 'download/'.POS_LOGO;
-		if(!file_exists($image_file)) {
-			$image_file = '../Invoice/download'.POS_LOGO;
-			if(!file_exists($image_file)) {
-				$image_file = '../POSAdvanced/download/'.POS_LOGO;
-			}
-		}
+		$image_file = POS_LOGO;
 		if(file_get_contents($image_file)) {
 			$image_file = $image_file;
 		} else {
@@ -131,7 +131,7 @@ $pdf = new MYPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8',
 $pdf->SetHeaderData(PDF_HEADER_LOGO, PDF_HEADER_LOGO_WIDTH, false, false);
 $pdf->setFooterData(array(0,64,0), array(0,64,128));
 
-$pdf->SetMargins(PDF_MARGIN_LEFT, PDF_MARGIN_TOP, PDF_MARGIN_RIGHT);
+$pdf->SetMargins(PDF_MARGIN_LEFT, 50, PDF_MARGIN_RIGHT);
 $pdf->SetHeaderMargin(PDF_MARGIN_HEADER);
 $pdf->SetFooterMargin(PDF_MARGIN_FOOTER);
 
@@ -148,15 +148,15 @@ if($point_of_sell['invoice_date'] !== '') {
 	$thduedate = '<td>Due Date</td>';
 } else { $tdduedate = ''; $thduedate = ''; }
 $html .= '<table style="width:100%;"><tr>
-	<td style="width:50%;"><table style="width:100%;"><tr><td>BILL TO</td></tr><tr><td>'.decryptIt($customer['name']).' '.decryptIt($customer['first_name']).' '.decryptIt($customer['last_name']).'<br>'.$customer['mailing_address'].'<br>'.$customer['city'].', '.$customer['state'].' '.$customer['zip_code'].'<br>'.decryptIt($customer['cell_phone']).'<br>'.decryptIt($customer['email_address']).'</td></td></tr></table></td>
+	<td style="width:50%;"><table style="width:100%;"><tr><td>BILL TO</td></tr><tr><td>'.decryptIt($customer['name']).' '.decryptIt($customer['first_name']).' '.decryptIt($customer['last_name']).'<br>'.$customer['mailing_address'].'<br>'.$customer['city'].', '.$customer['state'].' '.$customer['zip_code'].'<br>'.decryptIt($customer['cell_phone']).'<br>'.decryptIt($customer['email_address']).'</td></tr></table></td>
 	<td style="width:5%;"></td>
-	<td style="width:25%;"><h1 style="text-align:center;">Invoice</h1><p style="text-align:center;">[[FINAL_PRICE]]</p><table style="width:100%;"><tr><td style="text-align:center;">CONTRACT/MSA #</td></tr><tr><td></td></tr></table></td>
+	<td style="width:25%;"><h1 style="text-align:center;">Invoice</h1><p style="text-align:center;">[[FINAL_PRICE]]</p><table style="width:100%;"><tr><td style="text-align:center;">CONTRACT/MSA #</td></tr><tr><td>'.$point_of_sell['contract'].'</td></tr></table></td>
 	<td style="width:5%;"></td>
 	<td style="width:15%;"><table style="width:100%;"><tr><td style="text-align:center;">INVOICE #</td></tr><tr><td style="text-align:center;">'.$invoiceid.'</td></tr><tr><td style="text-align:center;">INVOICE DATE</td></tr><tr><td style="text-align:center;">'.$point_of_sell['invoice_date'].'</td></tr><tr><td style="text-align:center;">DUE DATE</td></tr><tr><td style="text-align:center;">'.$point_of_sell['due_date'].'</td></tr></table></td></tr></table>';
 
 $html .= '<br /><table border="1px" style="width:100%; padding:3px; border:1px solid grey;">
 		<tr nobr="true"><td style="text-align:center;">ORDERED BY</td><td style="text-align:center;">P.O. NO.</td><td style="text-align:center;">Area</tr>
-<tr><td style="text-align:center;">'.SALESPERSON.'</td><td style="text-align:center;"></td><td style="text-align:center;"></td></tr>
+<tr><td style="text-align:center;">'.SALESPERSON.'</td><td style="text-align:center;">'.$point_of_sell['po_num'].'</td><td style="text-align:center;">'.$point_of_sell['area'].'</td></tr>
 </table><br />';
 
 $html .= '<table border="0x" style="width:100%;padding:3px;">
@@ -370,7 +370,7 @@ $html .= '
 $html .= '<br />';
 
 $html .= $comment.'<br>';
-
+$html = str_replace('[[FINAL_PRICE]]','$'.number_format($point_of_sell['final_price'] - $total_returned_amt,2),$html);
 if (!file_exists('download')) {
 	mkdir('download', 0777, true);
 }

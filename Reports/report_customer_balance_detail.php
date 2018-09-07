@@ -73,7 +73,7 @@ if (isset($_POST['printpdf'])) {
 			//$image_file = WEBSITE_URL.'/img/Clinic-Ace-Logo-Final-250px.png';
             if(REPORT_LOGO != '') {
                 $image_file = 'download/'.REPORT_LOGO;
-                $this->Image($image_file, 10, 10, 80, '', '', '', 'T', false, 300, '', false, false, 0, false, false, false);
+                $this->Image($image_file, 10, 10, '', 20, '', '', 'T', false, 300, '', false, false, 0, false, false, false);
             }
             $this->setCellHeightRatio(0.7);
             $this->SetFont('helvetica', '', 9);
@@ -126,6 +126,8 @@ if (isset($_POST['printpdf'])) {
     $today_date = date('Y-m-d');
 	$pdf->writeHTML($html, true, false, true, false, '');
 	$pdf->Output('Download/customer_balance_detail_'.$today_date.'.pdf', 'F');
+    track_download($dbc, 'report_customer_balance_detail', 0, WEBSITE_URL.'/Reports/Download/customer_balance_detail_'.$today_date.'.pdf', 'Customer Balance by Invoice Report');
+
     ?>
 
 	<script type="text/javascript" language="Javascript">
@@ -147,18 +149,7 @@ if (isset($_POST['printpdf'])) {
 <?php include_once ('../navigation.php');
 ?>
 
-<div class="container triple-pad-bottom" id="report_div">
-    <div class="iframe_overlay" style="display:none;">
-		<div class="iframe">
-			<div class="iframe_loading">Loading...</div>
-			<iframe name="edit_board" src=""></iframe>
-		</div>
-	</div>
-    <div class="row">
-        <div class="col-md-12">
-
-        <?php echo reports_tiles($dbc);  ?>
-
+<div id="report_div">
         <div class="notice double-gap-bottom popover-examples">
             <div class="col-sm-1 notice-icon"><img src="<?= WEBSITE_URL; ?>/img/info.png" class="wiggle-me" width="25"></div>
             <div class="col-sm-11"><span class="notice-name">NOTE:</span>
@@ -245,11 +236,7 @@ if (isset($_POST['printpdf'])) {
             ?>
 
         </form>
-
-        </div>
-    </div>
 </div>
-<?php include ('../footer.php'); ?>
 
 <?php
 function report_daily_validation($dbc, $starttime, $endtime, $as_at_date, $invoice_no, $patient, $table_style, $table_row_style, $grand_total_style, $display_pagination = TRUE) {
@@ -290,24 +277,31 @@ function report_daily_validation($dbc, $starttime, $endtime, $as_at_date, $invoi
     <th width="30%">Amount owed to you (open balance)</th>
     </tr>';
 
+    $odd_even = 0;
+    $folder_name = tile_visible($dbc, 'posadvanced') ? 'POSAdvanced' : 'Invoice';
+    
     while($row_report = mysqli_fetch_array($report_service)) {
+        $bg_class = $odd_even % 2 == 0 ? '' : 'background-color:#e6e6e6;';
+        
         $patient_price = $row_report['patient_price'];
         $invoiceid = $row_report['invoiceid'];
 
-        $report_data .= '<tr nobr="true">';
-        $report_data .= '<td>#'.$invoiceid;
-        $name_of_file = '../Invoice/Download/invoice_'.$invoiceid.'.pdf';
-        $report_data .= '&nbsp;&nbsp;<a href="'.$name_of_file.'" target="_blank"> <img src="'.WEBSITE_URL.'/img/pdf.png" title="PDF"> </a></td>';
+        $report_data .= '<tr nobr="true" style="'.$bg_class.'">';
+            $report_data .= '<td>#'.$invoiceid;
 
-        $report_data .= '<td>'.$row_report['invoice_date'].'</td>';
-		$report_data .= '<td><a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/'.CONTACTS_TILE.'/contacts_inbox.php?edit='.$row_report['patientid'].'\', \'auto\', false, true, $(\'#report_div\').outerHeight()+20); return false;">'.get_contact($dbc, $row_report['patientid']). '</a></td>';
-        $report_data .= '<td>$'.$patient_price.'</td>';
+            $name_of_file = '../'.$folder_name.'/Download/invoice_'.$invoiceid.'.pdf';
 
+            $report_data .= '&nbsp;&nbsp;<a href="'.$name_of_file.'" target="_blank"> <img src="'.WEBSITE_URL.'/img/pdf.png" title="PDF"> </a></td>';
+            $report_data .= '<td>'.$row_report['invoice_date'].'</td>';
+            $report_data .= '<td><a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/'.CONTACTS_TILE.'/contacts_inbox.php?edit='.$row_report['patientid'].'\', \'auto\', false, true, $(\'#report_div\').outerHeight()+20); return false;">'.get_contact($dbc, $row_report['patientid']). '</a></td>';
+            $report_data .= '<td align="right">$'.$patient_price.'</td>';
         $report_data .= '</tr>';
+        
+        $odd_even++;
     }
 
     $report_data .= '<tr nobr="true">';
-    $report_data .= '<td><b>Total</b></td><td></td><td></td><td><b>$'.number_format($amt_to_bill, 2).'</b></td>';
+    $report_data .= '<td colspan="3"><b>Total</b></td><td align="right"><b>$'.number_format($amt_to_bill, 2).'</b></td>';
     $report_data .= "</tr>";
     $report_data .= '</table><br>';
 

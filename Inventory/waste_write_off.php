@@ -47,18 +47,18 @@ if ( $_SERVER['REQUEST_METHOD'] == 'POST' ) {
 	$pst_total		= 0;
     $total_price	= $_POST['total_price'];
 	$status			= 'Completed';
-	
+
 
     $pdf_product	= '';
     $created_by		= $_SESSION['contactid'];
     $comment		= filter_var(htmlentities($_POST['comment']),FILTER_SANITIZE_STRING);
     $ship_date		= $_POST['ship_date'];
 	$due_date		= $_POST['due_date'];
-	
+
 	$row			= mysqli_fetch_assoc ( mysqli_query ( $dbc, "SELECT `businessid` FROM `contacts` WHERE `contactid`='$created_by'" ) );
 	$contactid		= $row['businessid'];
 	$contactid		= ( empty($contactid) || $contactid==0 ) ? $created_by : $contactid;
-	
+
 	$query_insert_invoice = "INSERT INTO `point_of_sell` (`invoice_date`, `contactid`, `productpricing`, `sub_total`, `delivery`, `total_price`, `payment_type`, `created_by`, `comment`, `status`, `gst`, `pst`, `updatedtotal`, `edit_id`) VALUES ('$invoice_date', '$contactid', '$productpricing', '$sub_total', '$delivery', '$total_price', 'Waste / Write-Off', '$created_by', '$comment', '$status', '$gst_total', '$pst_total', '$updatedtotal', '0')";
 	$results_are_in = mysqli_query($dbc, $query_insert_invoice);
 
@@ -86,6 +86,9 @@ if ( $_SERVER['REQUEST_METHOD'] == 'POST' ) {
 			//Update Inventory table to reduce the quantity
 			$query_update_inventory = "UPDATE `inventory` SET `quantity`=(`quantity`-'$quantity') WHERE `inventoryid`='$inventoryid'";
 			$results_are_in = mysqli_query ( $dbc, $query_update_inventory );
+      $before_change = '';
+      $history = "Inventory with id $inventoryid is been Updated. <br />";
+	    add_update_history($dbc, 'inventory_history', $history, '', $before_change);
 		}
 	}
 
@@ -181,7 +184,7 @@ $(document).ready(function() {
     $('#deleteservices_0').hide();
 	var prodcount = 1;
     $('#proddeleteservices_0').hide();
-    
+
 	/* Inventory */
 	$('#add_position_button').on('click', function () {
         $('#deleteservices_0').show();
@@ -241,7 +244,7 @@ $(document).ready(function() {
         prodcount++;
         return false;
     });
-	
+
 	/* Miscellaneous Products */
     var misccount = 1;
     $('#deletemisc_0').hide();
@@ -302,7 +305,7 @@ function selectProductPricing(sel) {
 
     $('#sub_total').val('0');
     $('#total_price').val('0');
-	
+
     countPOSTotal(sel);
 }
 
@@ -366,7 +369,7 @@ function countPOSTotal(sel) {
             }
 
             $("#sub_total").val((c).toFixed(2));
-			
+
 			var delivery = $("#delivery").val();
 			if(delivery == '' || typeof delivery === "undefined") {
 				delivery = 0.00;
@@ -586,17 +589,17 @@ function numericFilter(txb) {
                     			$get_field_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT GROUP_CONCAT(inventory_dashboard SEPARATOR ',') AS all_inventory FROM field_config_inventory WHERE accordion IS NULL AND inventory IS NULL"));
                     			$value_config = ','.$get_field_config['all_inventory'].',';
                     		?>
-                    		
+
                             <form id="form1" name="form1" method="post" action="" enctype="multipart/form-data" class="form-horizontal myform22 double-gap-top" role="form"><?php
                     			$get_field_config	= mysqli_fetch_assoc ( mysqli_query ( $dbc, "SELECT `pos` FROM `field_config`" ) );
                     			$value_config		= ',' . $get_field_config['pos'] . ',';
-                    			
+
                     			if ( strpos ( $value_config, ',Send Outbound Invoice,' ) !== FALSE ) { ?>
                     				<input name="send_invoice" value='1' type="hidden" class="form-control" /><?php
                     			} else { ?>
                     				<input name="send_invoice" value='0' type="hidden" class="form-control" /><?php
                     			} ?>
-                    			
+
                     			<div class="form-group">
                     				<label for="first_name" class="col-sm-3 control-label text-right">Date:</label>
                     				<div class="col-sm-2">
@@ -604,7 +607,7 @@ function numericFilter(txb) {
                     				</div>
                     				<div class="clearfix"></div>
                     			</div>
-                    			
+
                     			<div class="form-group">
                     				<label for="site_name" class="col-sm-3 control-label"><span class="brand-color">*</span> Product Cost:</label>
                     				<div class="col-sm-9 <?= !($tile_security['edit'] > 0) ? 'readonly-block' : '' ?>">
@@ -620,7 +623,7 @@ function numericFilter(txb) {
                     					</select>
                     				</div>
                     			</div>
-                    			
+
                     			<!-- Inventory -->
                     			<div class="inventory-margin"><?php
                     				if ( strpos ( $value_config, ',Products,' ) !== FALSE ) { ?>
@@ -640,7 +643,7 @@ function numericFilter(txb) {
                     							<label class="col-sm-1 text-center">Quantity</label><?php
                     						} ?>
                     					</div>
-                    					
+
                     					<div class="additional_position">
                     						<div class="clearfix"></div><?php
 
@@ -685,8 +688,8 @@ function numericFilter(txb) {
                     											</select>
                     										</div><?php
                     									} ?>
-                    									
-                    									
+
+
                     									<label class="show-on-mob control-label">Cost:</label>
                     									<div class="col-sm-2 <?= !($tile_security['edit'] > 0) ? 'readonly-block' : '' ?> expand-mobile" id="price_<?= $i; ?>">
                     										<input data-placeholder="Select Cost..." name="price[]" id="price_dd_<?= $i; ?>" value="<?= ($price[$i]) ? $price[$i] : 0; ?>" onkeyup="countPOSTotal(this);" type="text" class="expand-mobile form-control price" />
@@ -745,7 +748,7 @@ function numericFilter(txb) {
                     										</select>
                     									</div><?php
                     								} ?>
-                    								
+
                     								<label for="company_name" class="show-on-mob control-label">Cost:</label>
                     								<div class="col-sm-2 <?= !($tile_security['edit'] > 0) ? 'readonly-block' : '' ?> expand-mobile" id="price_0">
                     									<input data-placeholder="Select a Product..." name="price[]" id="price_dd_0" value="0" onkeyup="countPOSTotal(this);" type="text" class="expand-mobile form-control price" />
@@ -794,7 +797,7 @@ function numericFilter(txb) {
                     							<label class="col-sm-1 text-center">Quantity</label><?php
                     						} ?>
                     					</div>
-                    					
+
                     					<div class="additional_positionprod">
                     						<div class="clearfix"></div>
                     						<div class="form-group clearfix" id="prodservices_0"><?php
@@ -810,7 +813,7 @@ function numericFilter(txb) {
                     									</select>
                     								</div><?php
                     							}
-                    							
+
                     							if ( strpos ( $value_config, ',prodProduct Type,' ) !== FALSE ) { ?>
                     								<label class="show-on-mob control-label">Product Type:</label>
                     								<div class="col-sm-3 <?= !($tile_security['edit'] > 0) ? 'readonly-block' : '' ?> expand-mobile" id="prodpart_0">
@@ -824,7 +827,7 @@ function numericFilter(txb) {
                     									</select>
                     								</div><?php
                     							}
-                    							
+
                     							if ( strpos ( $value_config, ',prodHeading,' ) !== FALSE ) { ?>
                     								<label class="show-on-mob control-label">Heading:</label>
                     								<div class="col-sm-2 <?= !($tile_security['edit'] > 0) ? 'readonly-block' : '' ?> expand-mobile" id="prodproduct_0">
@@ -837,14 +840,14 @@ function numericFilter(txb) {
                     									</select>
                     								</div><?php
                     							}
-                    							
+
                     							if ( strpos ( $value_config, ',prodPrice,' ) !== FALSE ) { ?>
                     								<label class="col-sm-4 show-on-mob control-label">Cost:</label>
                     								<div class="col-sm-2 <?= !($tile_security['edit'] > 0) ? 'readonly-block' : '' ?> expand-mobile" id="prodprice_0">
                     									<input data-placeholder="Select a Product..." name="prodprice[]" id="prodprice_dd_0" value="0" onkeyup="countPOSTotal(this);" type="text" class="form-control prodprice" />
                     								</div><?php
                     							}
-                    							
+
                     							if ( strpos ( $value_config, ',prodQuantity,' ) !== FALSE ) { ?>
                     								<label class="show-on-mob control-label">Quantity:</label>
                     								<div class="col-sm-1 <?= !($tile_security['edit'] > 0) ? 'readonly-block' : '' ?> expand-mobile prodqt" id="prodqty_0">
@@ -855,18 +858,18 @@ function numericFilter(txb) {
                     							<div class="col-sm-1 <?= !($tile_security['edit'] > 0) ? 'readonly-block' : '' ?> m-top-mbl" >
                     								<a href="#" onclick="seleteService(this,'prodservices_','prodproduct_dd_'); return false;" id="proddeleteservices_0" class="btn brand-btn">Delete</a>
                     							</div>
-                    							
+
                     						</div><!-- #prodservices_0 -->
                     					</div><!-- .additional_positionprod -->
-                    					
+
                     					<div id="add_here_new_positionprod"></div>
-                    					
+
                                         <?php if($tile_security['edit'] > 0) { ?>
                         					<div class="col-sm-12 triple-gap-bottom"><button id="add_position_buttonprod" class="btn brand-btn mobile-block">Add</button></div>
                                         <?php }
                     				} ?>
                     				<!-- .Products -->
-                    				
+
                     				<!-- Miscellaneous Items --><?php
                     				if ( strpos ( $value_config, ',Misc Item,' ) !== FALSE ) { ?>
                     					<div class="form-group clearfix"><label class="text-center"><h4>Miscellaneous Products</h4></label></div>
@@ -929,62 +932,62 @@ function numericFilter(txb) {
 
                     						</div><!-- .additional_misc --><?php
                     					} ?>
-                    					
+
                     					<div id="add_here_new_misc"></div>
-                    					
+
                                         <?php if($tile_security['edit'] > 0) { ?>
                         					<div class="col-sm-12 triple-gap-bottom"><button id="add_misc_button" class="btn brand-btn mobile-block">Add</button></div>
                                         <?php }
                     				} ?>
                     			</div><!-- .inventory-margin -->
                     			<!-- .Inventory -->
-                    			
+
                     			<div class="form-group">
                     				<label class="col-sm-3 control-label"><span class="brand-color">*</span> Sub-Total:</label>
                                     <div class="col-sm-9 <?= !($tile_security['edit'] > 0) ? 'readonly-block' : '' ?>">
                     					<input name="sub_total" id="sub_total" value="<?= ($sub_total) ? $sub_total : 0; ?>" type="text" class="form-control" />
                                     </div>
                     			</div>
-                    			
+
                     			<div class="form-group" id="delivery_div">
                                     <label class="col-sm-3 control-label">Shipping Cost:</label>
                     				<div class="col-sm-9 <?= !($tile_security['edit'] > 0) ? 'readonly-block' : '' ?>">
                     					<input name="delivery" onkeyup="countPOSTotal(this);" id="delivery" value="<?= ($delivery) ? $delivery : 0; ?>" type="text" class="form-control" />
                     				</div>
                     			</div>
-                    			
+
                     			<div class="form-group">
                     				<label class="col-sm-3 control-label"><span class="brand-color">*</span> Total Price:</label>
                     				<div class="col-sm-9 <?= !($tile_security['edit'] > 0) ? 'readonly-block' : '' ?>">
                     					<input name="total_price" id="total_price" type="text" class="form-control" />
                     				</div>
                     			</div>
-                    			
+
                     			<div class="form-group">
                                     <label class="col-sm-3 control-label">Comment:</label>
                     				<div class="col-sm-9 <?= !($tile_security['edit'] > 0) ? 'readonly-block' : '' ?>">
                     					<textarea name="comment" rows="4" cols="50" class="form-control"><?= ($comment) ? $comment : ''; ?></textarea>
                     				</div>
                     			</div>
-                    			
+
                     			<div class="form-group">
                     				<label class="col-sm-3 control-label">Created By:</label>
                     				<div class="col-sm-9 <?= !($tile_security['edit'] > 0) ? 'readonly-block' : '' ?>">
                     					<input name="created_by" readonly value="<?= ($created_by) ? $created_by : decryptIt($_SESSION['first_name']).' '.decryptIt($_SESSION['last_name']); ?>" type="text" value=0 class="form-control" />
                     				</div>
                     			</div>
-                    			
+
                     			<input type='hidden' name='company_software_name' value='<?PHP echo COMPANY_SOFTWARE_NAME; ?>'>
-                                
-                    			
+
+
                     			<div class="clearfix double-gap-top"></div>
-                    			
+
                                 <?php if($tile_security['edit'] > 0) { ?>
                         			<div class="form-group">
                         				<div class="col-sm-3"><span class="empire-red pull-right"><em>Required Fields *</em></span></div>
                                         <div class="col-sm-9"></div>
                                     </div>
-                        			
+
                         			<div class="form-group">
                         				<div class="col-sm-6"></div>
                         				<div class="col-sm-6"><button type="submit" name="submit_pos" value="Submit" class="btn brand-btn btn-lg pull-right">Submit</button></div>

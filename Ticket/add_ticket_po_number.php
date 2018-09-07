@@ -1,6 +1,6 @@
 <?= !$custom_accordion ? (!empty($renamed_accordion) ? '<h3>'.$renamed_accordion.'</h3>' : '<h3>Purchase Orders</h3>') : '' ?>
 <?php $ticket_po_list = array_filter(explode('#*#',$get_ticket['purchase_order']));
-$po_numbers = $dbc->query("SELECT `po_num` FROM `ticket_attached` WHERE `deleted`=0 AND `ticketid` > 0 AND `src_table`='inventory' AND `ticketid`='$ticketid' AND IFNULL(`po_num`,'') != '' GROUP BY `po_num`");
+$po_numbers = $dbc->query("SELECT `po_num` FROM `ticket_attached` WHERE `deleted`=0 AND `ticketid` > 0 AND `src_table` IN ('inventory_general','inventory') AND `ticketid`='$ticketid' AND IFNULL(`po_num`,'') != '' GROUP BY `po_num`");
 $po_line_list = [];
 while($po_num_line = $po_numbers->fetch_assoc()) {
 	$po_line_list[] = $po_num_line['po_num'];

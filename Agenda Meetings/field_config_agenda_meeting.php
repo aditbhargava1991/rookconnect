@@ -113,7 +113,7 @@ $value_config = ','.$get_field_config['field_config'].',';
                             <input type="checkbox" <?php if (strpos($value_config, ','."Items to Bring".',') !== FALSE) { echo " checked"; } ?> value="Items to Bring" style="height: 20px; width: 20px;" name="agenda_meeting[]">&nbsp;&nbsp;Items to Bring
                         </td>
                         <td>
-                            <input type="checkbox" <?php if (strpos($value_config, ','."Company Attendees".',') !== FALSE) { echo " checked"; } ?> value="Company Attendees" style="height: 20px; width: 20px;" name="agenda_meeting[]">&nbsp;&nbsp;Company Attendees
+                            <input type="checkbox" <?php if (strpos($value_config, ','."Company Attendees".',') !== FALSE) { echo " checked"; } ?> value="Company Attendees" style="height: 20px; width: 20px;" name="agenda_meeting[]">&nbsp;&nbsp;Staff Members
                         </td>
                         <td>
                             <input type="checkbox" <?php if (strpos($value_config, ','."Contact Attendees".',') !== FALSE) { echo " checked"; } ?> value="Contact Attendees" style="height: 20px; width: 20px;" name="agenda_meeting[]">&nbsp;&nbsp;Contact Attendees
@@ -142,7 +142,7 @@ $value_config = ','.$get_field_config['field_config'].',';
                             <input type="checkbox" <?php if (strpos($value_config, ','."Tickets Waiting for QA".',') !== FALSE) { echo " checked"; } ?> value="Tickets Waiting for QA" style="height: 20px; width: 20px;" name="agenda_meeting[]">&nbsp;&nbsp;<?= TICKET_TILE ?> Waiting for QA
                         </td>
                         <td>
-                            <input type="checkbox" <?php if (strpos($value_config, ','."Email to all Company Attendees".',') !== FALSE) { echo " checked"; } ?> value="Email to all Company Attendees" style="height: 20px; width: 20px;" name="agenda_meeting[]">&nbsp;&nbsp;Email to all Company Attendees
+                            <input type="checkbox" <?php if (strpos($value_config, ','."Email to all Company Attendees".',') !== FALSE) { echo " checked"; } ?> value="Email to all Company Attendees" style="height: 20px; width: 20px;" name="agenda_meeting[]">&nbsp;&nbsp;Email to all Staff Members
                         </td>
                         <td>
                             <input type="checkbox" <?php if (strpos($value_config, ','."Email to all Contact Attendees".',') !== FALSE) { echo " checked"; } ?> value="Email to all Contact Attendees" style="height: 20px; width: 20px;" name="agenda_meeting[]">&nbsp;&nbsp;Email to all Contact Attendees
@@ -171,6 +171,11 @@ $value_config = ','.$get_field_config['field_config'].',';
                         </td>
                         <td>
                             <input type="checkbox" <?php if (strpos($value_config, ','."Sub Committee".',') !== FALSE) { echo " checked"; } ?> value="Sub Committee" style="height: 20px; width: 20px;" name="agenda_meeting[]">&nbsp;&nbsp;Sub-Committee
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <input type="checkbox" <?php if (strpos($value_config, ','."Heading".',') !== FALSE) { echo " checked"; } ?> value="Heading" style="height: 20px; width: 20px;" name="agenda_meeting[]">&nbsp;&nbsp;Heading
                         </td>
                     </tr>
                     <tr>
@@ -288,7 +293,7 @@ $value_config = ','.$get_field_config['field_config'].',';
 
 						$email_body .= '<tr><td style="font-weight:bold; vertical-align:top; width:12em;">'.BUSINESS_CAT.' :</td><td>Business Name</td></tr>';
 						$email_body .= '<tr><td style="font-weight:bold; vertical-align:top; width:12em;">Contact(s) :</td><td>Contact Names</td></tr>';
-						$email_body .= '<tr><td style="font-weight:bold; vertical-align:top; width:12em;">Company Attendees :</td><td>Company Attendee Names</td></tr>';
+						$email_body .= '<tr><td style="font-weight:bold; vertical-align:top; width:12em;">Staff Members :</td><td>Company Attendee Names</td></tr>';
 						$email_body .= '<tr><td style="font-weight:bold; vertical-align:top; width:12em;">Date of Meeting :</td><td>Date</td></tr>';
 						$email_body .= '<tr><td style="font-weight:bold; vertical-align:top; width:12em;">Time of Meeting :</td><td>Start Time - End Time</td></tr>';
 						$email_body .= '<tr><td style="font-weight:bold; vertical-align:top; width:12em;">Location :</td><td>Location</td></tr>';

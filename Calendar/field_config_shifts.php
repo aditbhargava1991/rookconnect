@@ -1,11 +1,12 @@
 <?php
 if (isset($_POST['add_shifts'])) {
-    $dayoff_types = filter_var($_POST['dayoff_types'], FILTER_SANITIZE_STRING);
+    $dayoff_types = filter_var(implode(',',$_POST['dayoff_types']), FILTER_SANITIZE_STRING);
+    $dayoff_types_timesheet = filter_var(implode(',',$_POST['dayoff_types_timesheet']), FILTER_SANITIZE_STRING);
     $enabled_fields = implode(',', $_POST['enabled_fields']);
     $contact_category = filter_var($_POST['contact_category'],FILTER_SANITIZE_STRING);
 
-    mysqli_query($dbc, "INSERT INTO `field_config_contacts_shifts` (`dayoff_types`, `enabled_fields`, `contact_category`) SELECT 'Stat Day,Sick Day,Vacation Day,Other Leave','','' FROM (SELECT COUNT(*) rows FROM `field_config_contacts_shifts`) num WHERE num.rows=0");
-    mysqli_query($dbc, "UPDATE `field_config_contacts_shifts` SET `dayoff_types` = '$dayoff_types', `enabled_fields` = '$enabled_fields', `contact_category` = '$contact_category'");
+    mysqli_query($dbc, "INSERT INTO `field_config_contacts_shifts` (`dayoff_types`, `dayoff_types_timesheet`, `enabled_fields`, `contact_category`) SELECT 'Stat Day,Sick Day,Vacation Day,Other Leave','','','' FROM (SELECT COUNT(*) rows FROM `field_config_contacts_shifts`) num WHERE num.rows=0");
+    mysqli_query($dbc, "UPDATE `field_config_contacts_shifts` SET `dayoff_types` = '$dayoff_types', `dayoff_types_timesheet` = '$dayoff_types_timesheet', `enabled_fields` = '$enabled_fields', `contact_category` = '$contact_category'");
 
     $shift_conflicts_check_num = $_POST['conflicts_check_num'] > 0 ? $_POST['conflicts_check_num'] : 1;
     $shift_conflicts_check_type = in_array($_POST['conflicts_check_type'], ['months','weeks']) ? $_POST['conflicts_check_type'] : 'months';
@@ -46,6 +47,8 @@ if (isset($_POST['add_shifts'])) {
     }
 
     mysqli_query($dbc, "UPDATE `field_config_contacts_shifts_pdf` SET `header_logo_align` = '$header_logo_align', `header_text` = '$header_text', `header_align` = '$header_align', `footer_logo_align` = '$footer_logo_align', `footer_text` = '$footer_text', `footer_align` = '$footer_align'");
+
+    set_config($dbc, 'shift_calendar_quick_add', filter_var($_POST['shift_calendar_quick_add'],FILTER_SANITIZE_STRING));
 }
 ?>
 <script type="text/javascript">
@@ -97,21 +100,42 @@ function deleteLogo(logo) {
 <?php
 $contact_category = '';
 $dayoff_types = '';
+$dayoff_types_timesheet = '';
 $enabled_fields = '';
 
 $get_field_config = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_contacts_shifts`"));
 if (!empty($get_field_config)) {
     $dayoff_types = $get_field_config['dayoff_types'];
+    $dayoff_types_timesheet = $get_field_config['dayoff_types_timesheet'];
     $enabled_fields = ','.$get_field_config['enabled_fields'].',';
 } else {
     mysqli_query($dbc, "INSERT INTO `field_config_contacts_shifts` (`dayoff_types`, `enabled_fields`) SELECT 'Stat Day,Sick Day,Vacation Day,Other Leave','' FROM (SELECT COUNT(*) rows FROM `field_config_contacts_shifts`) num WHERE num.rows=0");
     $get_field_config = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_contacts_shifts`"));
     $dayoff_types = $get_field_config['dayoff_types'];
+    $dayoff_types_timesheet = $get_field_config['dayoff_types_timesheet'];
 }
 $contact_category = $get_field_config['contact_category'];
 ?>
 <h3>Staff Shifts</h3>
 <div class="panel-group" id="accordion2">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h4 class="panel-title">
+                <a data-toggle="collapse" data-parent="#accordion2" href="#collapse_calendar">Calendar Settings</a>
+            </h4>
+        </div>
+        <div id="collapse_calendar" class="panel-collapse collapse">
+            <div class="panel-body">
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Monthly View Quick Add Icon:</label>
+                    <div class="col-sm-8">
+                        <?php $shift_calendar_quick_add = get_config($dbc, 'shift_calendar_quick_add'); ?>
+                        <label class="form-checkbox"><input type="checkbox" name="shift_calendar_quick_add" value="1" <?= $shift_calendar_quick_add == 1 ? 'checked' : '' ?>></label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="panel panel-default">
         <div class="panel-heading">
             <h4 class="panel-title">
@@ -136,6 +160,12 @@ $contact_category = $get_field_config['contact_category'];
                     <label class="col-sm-4 control-label">Use <?= $contact_category ?> Calendar Color:</label>
                     <div class="col-sm-8">
                         <label class="form-checkbox"><input type="checkbox" name="enabled_fields[]" value="client_calendar_color" <?= (strpos($enabled_fields, ',client_calendar_color,') !== FALSE ? 'checked' : '') ?>></label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="time" class="col-sm-4 control-label">Security Level Defaults:</label>
+                    <div class="col-sm-8">
+                        <label class="form-checkbox"><input type="checkbox" name="enabled_fields[]" value="security_level" <?= (strpos($enabled_fields, ',security_level,') !== FALSE ? 'checked' : '') ?>></label>
                     </div>
                 </div>
                 <div class="form-group">
@@ -174,12 +204,6 @@ $contact_category = $get_field_config['contact_category'];
                         <label class="form-checkbox"><input type="checkbox" name="enabled_fields[]" value="dayoff_type" <?= (strpos($enabled_fields, ',dayoff_type,') !== FALSE ? 'checked' : '') ?> onclick="displayDayOffTypes(this)"></label>
                     </div>
                 </div>
-                <div class="form-group" id="dayoff_types" <?php echo (strpos($enabled_fields, ',dayoff_type,') !== FALSE ? '' : 'style="display: none;"') ?>>
-                    <label for="dayoff_type" class="col-sm-4 control-label">Day Off Types:<br />(Add the types of leaves separated by a comma to be displayed as a Day Off Type)</label>
-                    <div class="col-sm-8">
-                        <input type="text" name="dayoff_types" value="<?= $dayoff_types; ?>" class="form-control">
-                    </div>
-                </div>
                 <div class="form-group">
                     <label for="notes" class="col-sm-4 control-label">Shift Types:</label>
                     <div class="col-sm-8">
@@ -213,6 +237,48 @@ $contact_category = $get_field_config['contact_category'];
             </div>
         </div>
     </div>
+
+    <div id="dayoff_types" class="panel panel-default" <?php echo (strpos($enabled_fields, ',dayoff_type,') !== FALSE ? '' : 'style="display: none;"') ?>>
+        <div class="panel-heading">
+            <h4 class="panel-title">
+                <a data-toggle="collapse" data-parent="#accordion2" href="#collapse_dayoff">Day Off Types</a>
+            </h4>
+        </div>
+        <div id="collapse_dayoff" class="panel-collapse collapse">
+            <div class="panel-body">
+                <div class="form-group" id="dayoff_types">
+                    <label for="dayoff_type" class="col-sm-4 control-label"><span class='popover-examples list-inline'><a data-toggle='tooltip' data-placement='top' title='Configure the different Day Off Types. Select a Time Sheet Hour to pair with the Day Off Type to automatically add those Days Off to Time Sheets.'><img src='<?= WEBSITE_URL ?>/img/info.png' width='20'></a></span> Day Off Types:</label>
+                    <div class="col-sm-8">
+                        <div class="form-group">
+                            <label class="col-sm-6 text-center">Dayoff Type</label>
+                            <label class="col-sm-4 text-center">Time Sheet Hours</label>
+                            <label class="col-sm-2"></label>
+                        </div>
+                        <?php $dayoff_types_timesheet = explode(',', $dayoff_types_timesheet);
+                        foreach(explode(',', $dayoff_types) as $i => $dayoff_type) {
+                            $dayoff_type_timesheet = $dayoff_types_timesheet[$i]; ?>
+                            <div class="form-group dayoff_block">
+                                <div class="col-sm-6">
+                                    <input type="text" name="dayoff_types[]" value="<?= $dayoff_type ?>" class="form-control">
+                                </div>
+                                <div class="col-sm-4">
+                                    <select name="dayoff_types_timesheet[]" class="chosen-select-deselect">
+                                        <option></option>
+                                        <option value="Sick Hrs.Taken" <?= $dayoff_type_timesheet == 'Sick Hrs.Taken' ? 'selected' : '' ?>>Sick Hours</option>
+                                    </select>
+                                </div>
+                                <div class="col-sm-2">
+                                    <img src="../img/remove.png" style="height: 1.5em; margin: 0 0.25em;" class="pull-right" onclick="removeDayOffType(this);">
+                                    <img src="../img/icons/ROOK-add-icon.png" style="height: 1.5em; margin: 0 0.25em;" class="pull-right black-color" onclick="addDayOffType();">
+                                </div>
+                            </div>
+                        <?php } ?>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="panel panel-default">
         <div class="panel-heading">
             <h4 class="panel-title">

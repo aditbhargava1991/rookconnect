@@ -531,10 +531,10 @@ function updateCrewPosition() {
 	}
 	var select = $(this).closest('.form-group').find('[name="positionname[]"]');
 	if(pos != select.value && pos != $(select).find('option:selected').text()) {
-		if($(select).find('option[value='+pos+']').length == 0) {
-			pos = $(select).find('option[data-label='+pos+']').val();
+		if($(select).find('option[value="'+pos+'"]').length == 0) {
+			pos = $(select).find('option[data-label="'+pos+'"]').val();
 		}
-		if($(select).find('option[value='+pos+']').length > 0) {
+		if($(select).find('option[value="'+pos+'"]').length > 0) {
 			$(select).val(pos).change();
 		}
 	}

@@ -9,7 +9,7 @@ if(isset($_GET['action']) && $_GET['action'] == 'delete') {
 
     echo '<script type="text/javascript"> window.location.replace("time_cards.php"); </script>';
 } else if (isset($_POST['submit']) && $_POST['submit'] == 'Submit') {
-	$_POST['total_hrs'] = explode(':',$_POST['total_hrs']);
+	/*$_POST['total_hrs'] = explode(':',$_POST['total_hrs']);
 	$_POST['total_hrs'] = $_POST['total_hrs'][0] + ($_POST['total_hrs'][1] / 60);
     $inputs = get_post_inputs($value['data']);
     $files = get_post_uploads($value['data']);
@@ -33,7 +33,7 @@ if(isset($_GET['action']) && $_GET['action'] == 'delete') {
 
     if (!file_exists('download')) {
         mkdir('download', 0777, true);
-    }
+    }*/
 
     echo '<script type="text/javascript"> window.location.replace("time_cards.php"); </script>';
 
@@ -133,7 +133,7 @@ if(isset($_GET['action']) && $_GET['action'] == 'delete') {
 	}
 	echo "<script>window.location.replace('time_cards.php');</script>";
 } else if(isset($_POST['submit']) && ($_POST['submit'] == 'positions' || $_POST['submit'] == 'position_approval') || $_POST['submit'] == 'ticket_task') {
-	$page_staff = filter_var($_POST['staff_id'],FILTER_SANITIZE_STRING);
+	/*$page_staff = filter_var($_POST['staff_id'],FILTER_SANITIZE_STRING);
 	// foreach($_POST['time_cards_id'] as $i => $id) {
 		// $date = filter_var($_POST['date'][$i],FILTER_SANITIZE_STRING);
 		// $staff = filter_var($_POST['staff'][$i],FILTER_SANITIZE_STRING);
@@ -180,10 +180,10 @@ if(isset($_GET['action']) && $_GET['action'] == 'delete') {
 			$sql_update = "UPDATE `time_cards` SET `approv`='Y' WHERE `time_cards_id` IN ($ids) AND `deleted`=0";
 			mysqli_query($dbc, $sql_update);
 		}
-	}
+	}*/
 	echo "<script>window.location.replace('time_cards.php');</script>";
 } else if(isset($_POST['submit']) && ($_POST['submit'] == 'timesheet' || $_POST['submit'] == 'approval')) {
-	// if(strpos($_POST['total_hrs'],':') !== FALSE) {
+	/*// if(strpos($_POST['total_hrs'],':') !== FALSE) {
 		// $_POST['total_hrs'] = explode(':',$_POST['total_hrs']);
 		// $_POST['total_hrs'] = $_POST['total_hrs'][0] + ($_POST['total_hrs'][1] / 60);
 	// }
@@ -254,7 +254,7 @@ if(isset($_GET['action']) && $_GET['action'] == 'delete') {
 			$sql_update = "UPDATE `time_cards` SET `approv`='Y' WHERE `time_cards_id` IN ($ids) AND `deleted`=0";
 			mysqli_query($dbc, $sql_update);
 		}
-	}
+	}*/
 	echo "<script>window.location.replace('time_cards.php');</script>";
 }
 ?>

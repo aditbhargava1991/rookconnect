@@ -12,8 +12,6 @@ $actual_link = WEBSITE_URL.$_SERVER['PHP_SELF'];
 	margin-top:10px;
 }
 </style>
-</head>
-<body>
 
 <?php include_once ('../navigation.php');
 checkAuthorised();
@@ -21,48 +19,74 @@ checkAuthorised();
 <script type="text/javascript">
 $(document).on('change', 'select[name="choose_table"]', function() { location = this.value; });
 </script>
-<div class="container">
-	<div class="row">
-        <div class="col-md-12">
-            <?php echo reports_tiles($dbc); ?>
+<script>
+$('document').ready(function() {
+    var tables = $('table');
+
+    tables.map(function(idx, table) {
+        var rows = $(table).find('tbody > tr');
+        rows.map(function(idx, row){
+            if(idx%2 == 0) {
+                $(row).css('background-color', '#e6e6e6');
+            }
+        })
+    })
+})
+</script>
             <form name="form_sites" method="post" action="" class="form-inline" role="form">
-                <div style="background-color:rgba(142,142,142,0.50); border-radius:10px; border:1px solid white; padding:10px;" >
-                    <h2><?php
+                <div>
+                    <h3 class="gap-left"><?php
                         if($_GET['table'] == 'balancesheet') {
                             echo "Balance Sheet";
-                        }
-                        if($_GET['table'] == 'productmovement') {
-                            echo "Product Movement Summary";
-                        }
-                        if($_GET['table'] == 'sales') {
+                        } elseif($_GET['table'] == 'sales') {
                             echo "Sales";
+                        } else {
+                            echo "Product Movement Summary";
                         } ?>
-                    </h2>
+                    </h3><br /><?php
+                    
+                    if (isset($_POST['search_email_submit'])) {
+                        $starttime = $_POST['starttime'];
+                        $endtime = $_POST['endtime'];
+                    }
+                    if (isset($_POST['display_all'])) {
+                        $starttime = $_POST['starttime'];
+                        $endtime = $_POST['endtime'];
+                    }
 
-                    <div class="form-group col-sm-5">
+                    if($starttime == 0000-00-00 || empty($starttime)) {
+                        $starttime = date('Y-m-01');
+                    }
+                    if($endtime == 0000-00-00 || empty($endtime)) {
+                        $endtime = date('Y-m-t');
+                    } ?>
+
+                    <div class="form-group col-sm-6">
                         <label for="search_email" class="col-sm-4">Report Type:</label>
                         <div class="col-sm-8">
                             <select name="choose_table" id="dynamic_select" class="chosen-select-deselect form-control" data-placeholder="Choose a Report">
-                                <option <?php if($_GET['table'] == 'productmovement') { echo "selected='selected'"; } ?> value="<?php echo $actual_link; ?>?type=operations&table=productmovement">Product Movement Summary</option>
-                                <option <?php if($_GET['table'] == 'sales') { echo "selected='selected'"; } ?> value="<?php echo $actual_link; ?>?type=operations&table=sales">Sales</option>
+                                <option <?php if($_GET['table'] == 'productmovement') { echo "selected='selected'"; } ?> value="<?php echo $actual_link; ?>?type=operations&table=productmovement&report=<?= $_GET['report'] ?>">Product Movement Summary</option>
+                                <option <?php if($_GET['table'] == 'sales') { echo "selected='selected'"; } ?> value="<?php echo $actual_link; ?>?type=operations&table=sales&report=<?= $_GET['report'] ?>">Sales</option>
                                 <!--<option <?php //if($_GET['table'] == 'pos_excempt') { echo "selected='selected'"; } ?> value="<?php //echo $actual_link; ?>?table=pos_excempt">POS Excempt Invoices</option>-->
                             </select>
                         </div>
                     </div>
-                    <div class="form-group col-sm-5">
+                    <div class="form-group col-sm-6">
                         <label for="site_name" class="col-sm-4 control-label">From:</label>
                         <div class="col-sm-8">
                             <input name="starttime" type="text"  class="datepicker form-control" value="<?= $starttime; ?>"></p>
                         </div>
                     </div>
-                    <div class="form-group col-sm-5 until">
+                    <div class="form-group col-sm-6 until">
                         <label for="site_name" class="col-sm-4 control-label">Until:</label>
                         <div class="col-sm-8">
                             <input name="endtime" type="text" class="datepicker form-control" value="<?= $endtime; ?>"></p>
                         </div>
                     </div>
-                    <button type="submit" name="search_email_submit" value="Search" class="btn brand-btn mobile-block">Submit</button>
-                    <button type="submit" name="display_all" value="Display All" class="btn brand-btn mobile-block">Display All</button>
+                    <div class="form-group col-sm-6 text-right">
+                        <button type="submit" name="search_email_submit" value="Search" class="btn brand-btn mobile-block">Submit</button>
+                        <button type="submit" name="display_all" value="Display All" class="btn brand-btn mobile-block">Display All</button>
+                    </div>
                     <div class="clearfix"></div>
                 </div>
             </form>
@@ -309,9 +333,3 @@ $(document).on('change', 'select[name="choose_table"]', function() { location = 
                     echo '</table>';
                 } ?>
 			</div><!-- .no-more-tables -->
-
-        </div>
-    </div>
-</div>
-
-<?php include ('../footer.php'); ?>

@@ -111,7 +111,7 @@ checkAuthorised('pos');
 <div class="container triple-pad-bottom">
     <div class="row">
 		<div class="col-sm-10">
-			<h1>Voided Point of Sale Dashboard</h1>
+			<h1>Voided <?= POS_ADVANCE_TILE ?> Dashboard</h1>
 		</div>
 		<div class="col-sm-2 double-gap-top">
 			<?php
@@ -391,8 +391,14 @@ checkAuthorised('pos');
 
 							if ( new DateTime($date) >= new DateTime($cutoffdater) ) {
 								$posid = $roww['posid'];
+								$before_change = capture_before_change($dbc, 'point_of_sell', 'status', 'posid', $posid);
+
 								$query_update_employee	= "UPDATE `point_of_sell` SET status = 'Archived' WHERE `posid`='$posid'";
 								$result_update_employee	= mysqli_query ( $dbc, $query_update_employee );
+
+								$history = capture_after_change('status', 'Archived');
+								add_update_history($dbc, 'pos_history', $history, '', $before_change);
+
 								$style2 = 'display:none;';
 							}
 						}

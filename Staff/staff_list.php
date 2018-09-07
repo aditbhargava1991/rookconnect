@@ -1,6 +1,9 @@
 <?php include_once('../include.php');
 checkAuthorised('staff');
 // Setup tabs
+if($_GET['staff_cat'] == 'ALL') {
+	$_GET['staff_cat'] = '';
+}
 $tab_list = [ 'active' => false, 'probation' => false, 'suspended' => false, 'security' => false, 'positions' => false, 'reminders' => false ];
 $tab = isset($_GET['tab']) ? $_GET['tab'] : 'active';
 $tab_note = '';
@@ -85,15 +88,30 @@ if(isset($_POST['search_contacts'])) {
 }
 // $favourites_clause = ' ORDER BY is_favourite DESC, `contactid`';
 
+$match_query = '';
+if($_GET['match_contact'] > 0) {
+	$match_contacts = [];
+	$match_contact_list = mysqli_query($dbc, "SELECT * FROM `match_contact` WHERE `deleted` = 0 AND CONCAT(',',`support_contact`,',') LIKE '%,".$_GET['match_contact'].",%'");
+	while($match_contact = mysqli_fetch_assoc($match_contact_list)) {
+		foreach(explode(',', $match_contact['staff_contact']) as $staff_contact) {
+			if(!in_array($staff_contact, $match_contacts)) {
+				$match_contacts[] = $staff_contact;
+			}
+		}
+	}
+	$match_contacts = implode(',',array_filter($match_contacts));
+	$match_query .=  " AND `contactid` IN (".$match_contacts.")";
+}
+
 if(!empty(MATCH_CONTACTS)) {
-	$match_query = " AND `contactid` IN (".MATCH_CONTACTS.")";
+	$match_query .= " AND `contactid` IN (".MATCH_CONTACTS.")";
 }
 
 $sql = "SELECT * FROM contacts $filter_clause $query_clause $sea_constraint $staff_cat_query $match_query";
 $result = mysqli_query($dbc, $sql);
 $sql_count = "SELECT COUNT(*) `numrows` FROM `contacts` $filter_clause $query_clause $sea_constraint $staff_cat_query $match_query";
 $numrows = mysqli_fetch_array(mysqli_query($dbc, $sql_count));
-$view_id = check_subtab_persmission($dbc, 'staff', ROLE, 'id_card')
+$view_id = check_subtab_persmission($dbc, 'staff', ROLE, 'id_card');
 ?>
 <!-- <form name="form_sites" method="post" action="staff.php?tab=<?php echo ($tab_list['active'] ? 'active' : 'suspended'); ?>&filter=All" class="form-inline" role="form">
 	<div class="col-xs-12 col-sm-4 col-lg-2 pad-top" style="margin-top:7px;">
@@ -125,7 +143,7 @@ $view_id = check_subtab_persmission($dbc, 'staff', ROLE, 'id_card')
 		$contact_list = [];
 		$contact_sort = [];
 		$contact_list = array_merge($contact_list, mysqli_fetch_all($result, MYSQLI_ASSOC));
-		$contact_sort = array_splice(sort_contacts_array($contact_list), $offset, ($rowsPerPage * $pageNum));
+		$contact_sort = array_splice(sort_contacts_array($contact_list), $offset, $rowsPerPage);
 
 		echo '<div class="pagination_links">';
 		echo display_pagination($dbc, $sql_count, $pageNum, $rowsPerPage);
@@ -266,9 +284,9 @@ $view_id = check_subtab_persmission($dbc, 'staff', ROLE, 'id_card')
 				<div class="clearfix"></div>
                 <div class="set-favourite">
 					<?php if(strpos($row['is_favourite'],",".$_SESSION['contactid'].",") === FALSE && $tab != 'suspended'): ?>
-						<a href="staff_edit.php?favourite=<?php echo $row['contactid']; ?>"><img src="../img/blank_favourite.png" alt="Favourite" title="Click to make the staff favourite" class="inline-img pull-right"></a>
+						<a href="staff_edit.php?favourite=<?php echo $row['contactid']; ?>"><img src="../img/blank_favourite.png" alt="Favourite" title="Click to make the staff favourite" class="inline-img pull-right no-toggle"></a>
 					<?php elseif($tab != 'suspended'): ?>
-						<a href="staff_edit.php?unfavourite=<?php echo $row['contactid']; ?>"><img src="../img/full_favourite.png" alt="Favourite" title="Click to make the staff unfavourite" class="inline-img pull-right"></a>
+						<a href="staff_edit.php?unfavourite=<?php echo $row['contactid']; ?>"><img src="../img/full_favourite.png" alt="Favourite" title="Click to make the staff unfavourite" class="inline-img pull-right no-toggle"></a>
 					<?php endif; ?>
                 </div>
 			</div>

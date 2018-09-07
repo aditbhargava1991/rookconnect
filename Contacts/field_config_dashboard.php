@@ -75,7 +75,16 @@ $(document).on('change', 'select[name="contact_type"]', function() { change_type
                     </select>
                 </div>
             </div>
-            <div class="form-group" style="margin-left:33%">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Sort Fields:</label>
+                <div class="col-sm-8">
+                    <div class="block-group">
+                        <label class="form-checkbox"><input type="checkbox" <?= in_array('Sort Match Staff', $contacts_dashboard_config) ? 'checked' : '' ?> name="contacts_dashboard[]" value="Sort Match Staff" onchange="save_options();">Match Staff</label>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label class="col-sm-4 control-label">Fields:</label>
                 <div class="col-sm-8">
                     <div class="block-group">
                         <label class="form-checkbox"><input type="checkbox" <?= in_array('Home Phone', $contacts_dashboard_config) ? 'checked' : '' ?> name="contacts_dashboard[]" value="Home Phone" onchange="save_options();">Home Phone</label>

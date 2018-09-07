@@ -1,10 +1,6 @@
-<?php
-/*
-Dashboard
-*/
-include ('../include.php');
+<?php include_once('../include.php');
 checkAuthorised('equipment');
-error_reporting(0);
+$security = get_security($dbc, 'equipment');
 
 if (isset($_POST['add_tab'])) {
 	// Add and update Tab Settings
@@ -29,18 +25,21 @@ if (isset($_POST['add_tab'])) {
         $query_insert_config = "INSERT INTO `general_configuration` (`name`, `value`) VALUES ('show_category_dropdown_equipment', '$value')";
         $result_insert_config = mysqli_query($dbc, $query_insert_config);
     }
-	
+
 	// Set the Volume Unit field
 	set_config($dbc, 'volume_units', $_POST['volume_units']);
-	
+
 	// Use Mass Updates
 	$category = filter_var($_POST['mass_update_category'],FILTER_SANITIZE_STRING);
 	$field = filter_var($_POST['mass_update_field'],FILTER_SANITIZE_STRING);
 	$value = filter_var($_POST['mass_update_value'],FILTER_SANITIZE_STRING);
 	if($category != '' && $field != '' && $value != '') {
+		$before_change = capture_before_change($dbc, 'equipment', $field, 'deleted', 0, 'category', $category);
 		mysqli_query($dbc, "UPDATE `equipment` SET `$field`='$value' WHERE `deleted`=0 AND `category`='$category'");
+		$history = capture_after_change($field, $value);
+		add_update_history($dbc, 'equipment_history', $history, '', $before_change);
 	}
-	
+
 	// Add and update E-mail Reminder Settings
 	$remind_sender = filter_var($_POST['equipment_remind_sender'],FILTER_SANITIZE_STRING);
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'equipment_remind_sender' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='equipment_remind_sender') num WHERE num.rows=0");
@@ -51,7 +50,7 @@ if (isset($_POST['add_tab'])) {
 	$remind_body = filter_var(htmlentities($_POST['equipment_remind_body']),FILTER_SANITIZE_STRING);
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'equipment_remind_body' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='equipment_remind_body') num WHERE num.rows=0");
 	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='$remind_body' WHERE `name`='equipment_remind_body'");
-    
+
     // Update reminder recipient(s)
     if ( !empty($_POST['equipment_remind_admin']) ) {
 		$contactid  = implode( ',', $_POST['equipment_remind_admin'] );
@@ -88,7 +87,7 @@ if (isset($_POST['add_tab'])) {
         $result = mysqli_query($dbc, $query);
     }
 
-	
+
 	echo '<script type="text/javascript"> window.location.replace("field_config_equipment.php?type=tab"); </script>';
 }
 else if (isset($_POST['inspection'])) {
@@ -110,7 +109,7 @@ else if (isset($_POST['inspection'])) {
 			}
 		}
 	}
-	
+
 	$equipment_service_alert = filter_var(implode(',',$_POST['equipment_service_alert']),FILTER_SANITIZE_STRING);
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'equipment_service_alert' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='equipment_service_alert') num WHERE num.rows=0");
 	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='$equipment_service_alert' WHERE `name`='equipment_service_alert'");
@@ -132,7 +131,7 @@ else if (isset($_POST['inspection'])) {
 	$equipment_service_body = filter_var(htmlentities($_POST['equipment_service_body']),FILTER_SANITIZE_STRING);
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'equipment_service_body' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='equipment_service_body') num WHERE num.rows=0");
 	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='$equipment_service_body' WHERE `name`='equipment_service_body'");
-	
+
 	if(!empty($_FILES['equipment_service_logo']['name'])) {
 		$filename = $_FILES['equipment_service_logo']['name'];
 		$file = $_FILES['equipment_service_logo']['tmp_name'];
@@ -149,14 +148,14 @@ else if (isset($_POST['inspection'])) {
 		mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'equipment_service_logo' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='equipment_service_logo') num WHERE num.rows=0");
 		mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='$equipment_service_logo' WHERE `name`='equipment_service_logo'");
 	}
-	
+
 	echo '<script type="text/javascript"> window.location.replace("field_config_equipment.php?type=inspection"); </script>';
 }
 else if(isset($_POST['expenses'])) {
 	$equipment_expense_fields = implode(',', $_POST['equipment_expense_fields']);
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'equipment_expense_fields' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='equipment_expense_fields') num WHERE num.rows=0");
 	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='$equipment_expense_fields' WHERE `name`='equipment_expense_fields'");
-	
+
 	echo "<script> window.location.replace('?type=expenses') </script>";
 }
 else if($_POST['equip_class_details'] == 'submit') {
@@ -248,36 +247,23 @@ if (isset($_POST['equip_assign_btn'])) {
 <script type="text/javascript">
 $(document).ready(function() {
 	$("#tab_dashboard").change(function() {
-		window.location = 'field_config_equipment.php?type=dashboard&tab='+this.value;
+		window.location = '?settings=dashboard&tab='+this.value;
 	});
 	$("#tab_field").change(function() {
-		window.location = 'field_config_equipment.php?type=field&tab='+this.value;
+		window.location = '?settings=field&tab='+this.value;
 	});
 	$("#acc").change(function() {
 		var tabs = $("#tab_field").val();
-		window.location = 'field_config_equipment.php?type=field&tab='+tabs+'&accr='+this.value;
+		window.location = '?settings=field&tab='+tabs+'&accr='+this.value;
 	});
-	
+
 	$("#tab_inspect").change(function() {
-		window.location = 'field_config_equipment.php?type=inspection&tab='+$(this).val();
+		window.location = '?settings=inspection&tab='+$(this).val();
 	});
 });
 </script>
-</head>
-<body>
 
-<?php include ('../navigation.php'); ?>
-
-<div class="container">
-<div class="row">
-	<h1>Equipment</h1>
-	<div class="pad-left gap-top double-gap-bottom"><a href="equipment.php?category=Top" class="btn brand-btn">Back to Dashboard</a></div>
-	<!--<a href="#" class="btn brand-btn pull-right" onclick="history.go(-1);return false;">Back</a>-->
-
-<form id="form1" name="form1" method="post"	action="field_config_equipment.php" enctype="multipart/form-data" class="form-horizontal" role="form">
-
-<div class="panel-group" id="accordion2">
-
+<form id="form1" name="form1" method="post"	action="" enctype="multipart/form-data" class="form-horizontal" role="form">
 	<?php
 	$invtype = $_GET['tab'];
 	$accr = $_GET['accr'];
@@ -290,56 +276,6 @@ $(document).ready(function() {
 	$equipment_dashboard_config = ','.$get_field_config['equipment_dashboard'].',';
 
 	$get_field_order = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT GROUP_CONCAT(`order` SEPARATOR ',') AS all_order FROM field_config_equipment WHERE tab='$invtype'"));
-
-	$active_tab = '';
-	$active_field = '';
-	$active_dashboard = '';
-	$active_inspection = '';
-	$active_expenses = '';
-	$active_service_request = '';
-	$active_service_record = '';
-
-	if($_GET['type'] == 'tab') {
-		$active_tab = 'active_tab';
-	}
-	if($_GET['type'] == 'field') {
-		$active_field = 'active_tab';
-	}
-	if($_GET['type'] == 'dashboard') {
-		$active_dashboard = 'active_tab';
-	}
-	if($_GET['type'] == 'inspection') {
-		$active_inspection = 'active_tab';
-	}
-	if($_GET['type'] == 'expenses') {
-		$active_expenses = 'active_tab';
-	}
-	if($_GET['type'] == 'service_request') {
-		$active_service_request = 'active_tab';
-	}
-	if($_GET['type'] == 'service_record') {
-		$active_service_record = 'active_tab';
-	}
-	if($_GET['type'] == 'equip_assign') {
-		$active_equip_assign = 'active_tab';
-	}
-	if($_GET['type'] == 'classification') {
-		$active_classification = 'active_tab';
-	}
-
-	echo "<a href='field_config_equipment.php?type=tab'><button type='button' class='btn brand-btn mobile-block ".$active_tab."' >General</button></a>&nbsp;&nbsp;";
-	echo "<a href='field_config_equipment.php?type=field'><button type='button' class='btn brand-btn mobile-block ".$active_field."' >Fields</button></a>&nbsp;&nbsp;";
-	echo "<a href='field_config_equipment.php?type=dashboard'><button type='button' class='btn brand-btn mobile-block ".$active_dashboard."' >Dashboard</button></a>&nbsp;&nbsp;";
-	echo "<a href='field_config_equipment.php?type=inspection'><button type='button' class='btn brand-btn mobile-block ".$active_inspection."' >Inspections</button></a>&nbsp;&nbsp;";
-	echo "<a href='field_config_equipment.php?type=expenses'><button type='button' class='btn brand-btn mobile-block ".$active_expenses."' >Expenses</button></a>&nbsp;&nbsp;";
-
-	echo "<a href='field_config_equipment.php?type=service_request'><button type='button' class='btn brand-btn mobile-block ".$active_service_request."' >Service Request</button></a>&nbsp;&nbsp;";
-	echo "<a href='field_config_equipment.php?type=service_record'><button type='button' class='btn brand-btn mobile-block ".$active_service_record."'> Service Record</button></a>&nbsp;&nbsp;";
-	echo "<a href='field_config_equipment.php?type=equip_assign'><button type='button' class='btn brand-btn mobile-block ".$active_equip_assign."'> Equipment Assignment</button></a>&nbsp;&nbsp;";
-	echo "<a href='field_config_equipment.php?type=classification'><button type='button' class='btn brand-btn mobile-block ".$active_classification."'> Classifications</button></a>&nbsp;&nbsp;";
-
-	//echo "<a href='field_config_equipment.php?type=general'><button type='button' class='btn brand-btn mobile-block ".$active_general."' >General</button></a>&nbsp;&nbsp;";
-	echo '<br><br><Br>';
 
 	if($_GET['type'] == 'tab') {
 		$equipment_main_tabs = explode(',',get_config($dbc,'equipment_main_tabs')); ?>
@@ -409,7 +345,7 @@ $(document).ready(function() {
 						</a>
 					</h4>
 				</div>
-                
+
 				<div id="collapse_reminder" class="panel-collapse collapse">
 					<div class="panel-body">
 						<div class="form-group">
@@ -422,7 +358,7 @@ $(document).ready(function() {
 							<label for="equipment_remind_admin"	class="col-sm-4	control-label">Recipient Email Address(es):<br /><em>Reminder emails will also be sent to these user(s), if selected.</em></label>
 							<div class="col-sm-8">
 								<select name="equipment_remind_admin[]" data-placeholder="Select Staff" multiple class="chosen-select-deselect">
-                                    <option></option><?php
+                                    <?php
                                     $recipient   = mysqli_fetch_assoc ( mysqli_query ( $dbc, "SELECT `recipient` FROM `reminders` WHERE `reminder_type`='Equipment Registration' OR `reminder_type`='Equipment Insurance'" ) );
                                     $staff      = explode ( '<br>', get_multiple_contact($dbc, $recipient['recipient']) );
                                     $staff_list = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT `contactid`,`last_name`,`first_name` FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `email_address`!='' AND `deleted`=0 AND `status`>0"),MYSQLI_ASSOC));
@@ -478,7 +414,7 @@ $(document).ready(function() {
 					</div>
 				</div>
 			</div>
-			
+
 			<div class="panel panel-default">
 				<div class="panel-heading">
 					<h4 class="panel-title">
@@ -535,7 +471,7 @@ $(document).ready(function() {
 			</div>
 		</div>
 	<?php }
-	
+
 	if($_GET['type'] == 'expenses') { ?>
 		<script>
 		$(document).ready(function() {
@@ -640,7 +576,6 @@ $(document).ready(function() {
 			<label for="fax_number"	class="col-sm-4	control-label">Current Equipment Categories:<br /><em>These are the categories for which this Inspection List is currently applying. To change this list, remove categories from the Inspection List accordion.</em></label>
 			<div class="col-sm-8">
 				<select data-placeholder="Select a Tab..." id="tab_inspect" name="tab_inspect_current[]" multiple class="chosen-select-deselect form-control" width="380">
-					<option value=""></option>
 					<?php $each_tab = explode(',', get_config($dbc, 'equipment_tabs'));
 					foreach ($each_tab as $cat_tab) {
 						echo "<option ".(in_array($cat_tab, $inv_type) ? 'selected' : '')." value='". $cat_tab."'>".$cat_tab.'</option>';
@@ -648,7 +583,7 @@ $(document).ready(function() {
 				</select>
 			</div>
 		</div>
-		
+
 		<div class="panel-group" id="accordion2">
 			<div class="panel panel-default">
 				<div class="panel-heading">
@@ -664,7 +599,7 @@ $(document).ready(function() {
 						<div class="form-group">
 							<label for="fax_number"	class="col-sm-4	control-label">Service Alert Staff:<br /><em>Select all staff that should receive an alert when service is requested from the checklist.</em></label>
 							<div class="col-sm-8">
-								<select name="equipment_service_alert[]" data-placeholder="Select Staff..." multiple class="chosen-select-deselect form-control"><option></option>
+								<select name="equipment_service_alert[]" data-placeholder="Select Staff..." multiple class="chosen-select-deselect form-control">
 									<?php $staff_list = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT `contactid`, `last_name`, `first_name` FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `deleted`=0 AND `status`>0"),MYSQLI_ASSOC));
 									$selected = explode(',',get_config($dbc, 'equipment_service_alert'));
 									foreach($staff_list as $id) {
@@ -737,7 +672,6 @@ $(document).ready(function() {
 							<label for="fax_number"	class="col-sm-4	control-label">Equipment Categories to which this checklist applies:</label>
 							<div class="col-sm-8">
 								<select data-placeholder="Select a Tab..." name="tab_inspect[]" multiple class="chosen-select-deselect form-control" width="380">
-									<option value=""></option>
 									<?php $each_tab = explode(',', get_config($dbc, 'equipment_tabs'));
 									foreach ($each_tab as $cat_tab) {
 										echo "<option ".(in_array($cat_tab, $inv_type) ? 'selected' : '')." value='". $cat_tab."'>".$cat_tab.'</option>';
@@ -766,10 +700,10 @@ $(document).ready(function() {
 											<div class="col-sm-7"><input type="text" class="form-control" name="inspection_checklist[<?= $counter ?>]" value="<?= $custom_options['inspection_checklist'] ?>"></div>
 											<label class="col-sm-1" style="text-align: center;"><input type="checkbox" <?= ($custom_options['inspection_details'] == 1 ? 'checked' : '') ?> name="inspection_details[<?= $counter ?>]" value="1"></label>
 										</div>
-										<?php 
+										<?php
 											$counter++;
 										} ?>
-									
+
 									<h3>Additional Inspection Items</h3>
 									<?php $inspection_custom = array_filter($inspection_list, function($value) { return $value != '' && !in_array($value, ["Oil","Coolant - Rad","Coolant Overflow","Hydraulic Oil","Hydraulic Oil - Leaks","Transmission Oil","Air Filters","Belts","Track SAG","Brake Emergency","Planetaries","Brake Pedal","Hydraulic Brake Fluid","Parking Brake","Defroster & Heaters","Emergency Equipment","Engine","Exhaust System","Fire Extinguisher","Fuel System","Generator/Alternator","Horn","Lights & Reflectors","Head - Stop Lights","Tail - Dash Lights","Blade","Bucket","Body Damage","Doors","Mirrors (Adjustment & Condition)","Oil Pressure","Radiator","Driver&#39;s Seat Belt & Seat Security","Cutting Edges","Ripper Teeth","Towing & Coupling Devices","Windshield & Windows","Windshield Washer & Wipers"]); });
 									foreach($inspection_custom as $item) {
@@ -806,7 +740,7 @@ $(document).ready(function() {
 			</div>
 		</div>
 	<?php }
-	
+
 	if($_GET['type'] == 'field') {
 		?>
 		<div class="form-group">
@@ -1870,9 +1804,4 @@ $(document).ready(function() {
 			</div>
 		</div>
 	<?php } ?>
-</div>
 </form>
-</div>
-</div>
-
-<?php include ('../footer.php'); ?>

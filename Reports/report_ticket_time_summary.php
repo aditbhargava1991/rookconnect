@@ -75,6 +75,9 @@ if (isset($_POST['printpdf'])) {
     $today_date = date('Y-m-d');
 	$pdf->writeHTML($html, true, false, true, false, '');
 	$pdf->Output('Download/receivables_'.$today_date.'.pdf', 'F');
+
+    track_download($dbc, 'report_ticket_time_summary', 0, WEBSITE_URL.'/Reports/Download/receivables_'.$today_date.'.pdf', 'Ticket Type Summary Report');
+
     ?>
 
 	<script type="text/javascript" language="Javascript">
@@ -85,20 +88,6 @@ if (isset($_POST['printpdf'])) {
     $endtime = $endtimepdf;
     $as_at_date = $as_at_datepdf;
     } ?>
-
-<script type="text/javascript">
-
-</script>
-</head>
-<body>
-<?php include_once ('../navigation.php');
-?>
-
-<div class="container triple-pad-bottom">
-    <div class="row">
-        <div class="col-md-12">
-
-        <?php echo reports_tiles($dbc);  ?>
 
         <!--
         <br>
@@ -175,11 +164,6 @@ if (isset($_POST['printpdf'])) {
 
         </form>
 
-        </div>
-    </div>
-</div>
-<?php include ('../footer.php'); ?>
-
 <?php
 function report_receivables($dbc, $starttime, $endtime, $as_at_date, $table_style, $table_row_style, $grand_total_style) {
     $report_data .= '<h3>Time By Employee</h3><table border="1px" class="table table-bordered" style="'.$table_style.'">';
@@ -207,7 +191,7 @@ function report_receivables($dbc, $starttime, $endtime, $as_at_date, $table_styl
 			$ticket_result[$row1['created_by']]['ticketid'][] = $row1['ticketid'];
 
 			$tempTicketNumber = $row1['ticketid'];
-			$query_check_credentials2 = "SELECT start_time,end_time,timer_type FROM ticket_timer where ticketid = $tempTicketNumber";
+			$query_check_credentials2 = "SELECT start_time,end_time,timer_type FROM ticket_timer where ticketid = $tempTicketNumber AND `deleted` = 0";
 			$result2 = mysqli_query($dbc, $query_check_credentials2);
 			while($row2 = mysqli_fetch_array($result2)) {
 				if($row2['end_time'] != '' && $row2['timer_type'] == 'Work') {
@@ -263,3 +247,17 @@ function report_receivables($dbc, $starttime, $endtime, $as_at_date, $table_styl
 }
 
 ?>
+<script>
+$('document').ready(function() {
+    var tables = $('table');
+
+    tables.map(function(idx, table) {
+        var rows = $(table).find('tbody > tr');
+        rows.map(function(idx, row){
+            if(idx%2 == 0) {
+                $(row).css('background-color', '#e6e6e6');
+            }
+        })
+    })
+})
+</script>

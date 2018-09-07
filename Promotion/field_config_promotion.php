@@ -1,7 +1,7 @@
 <?php
 /*
-Dashboard
-*/
+ * Settings
+ */
 include ('../include.php');
 error_reporting(0);
 
@@ -26,13 +26,13 @@ if (isset($_POST['submit'])) {
     }
 
     echo '<script type="text/javascript"> window.location.replace("field_config_promotion.php"); </script>';
-
 }
 ?>
+<style>input[type="checkbox"] { height:20px; width:20px; }</style>
 <script>
 $(document).ready(function(){
     $("#selectall").change(function(){
-      $(".all_check").prop('checked', $(this).prop("checked"));
+        $(".all_check").prop('checked', $(this).prop("checked"));
     });
 });
 </script>
@@ -70,71 +70,68 @@ $(document).ready(function(){
                 <table border='2' cellpadding='10' class='table'>
                     <tr>
                         <td>
-                            <input type="checkbox" <?php if (strpos($value_config, ','."Service Type".',') !== FALSE) { echo " checked"; } ?> value="Service Type" style="height: 20px; width: 20px;" name="promotion[]">&nbsp;&nbsp;Service Type
+                            <input type="checkbox" <?php if (strpos($value_config, ','."Service Type".',') !== FALSE) { echo " checked"; } ?> value="Service Type" name="promotion[]">&nbsp;&nbsp;Service Type
                         </td>
                         <td>
-                            <input type="checkbox" <?php if (strpos($value_config, ','."Category".',') !== FALSE) { echo " checked"; } ?> value="Category" style="height: 20px; width: 20px;" name="promotion[]">&nbsp;&nbsp;Category
+                            <input type="checkbox" <?php if (strpos($value_config, ','."Category".',') !== FALSE) { echo " checked"; } ?> value="Category" name="promotion[]">&nbsp;&nbsp;Category
                         </td>
                         <td>
-                            <input type="checkbox" <?php if (strpos($value_config, ','."Heading".',') !== FALSE) { echo " checked"; } ?> value="Heading" style="height: 20px; width: 20px;" name="promotion[]">&nbsp;&nbsp;Heading
+                            <input type="checkbox" <?php if (strpos($value_config, ','."Heading".',') !== FALSE) { echo " checked"; } ?> value="Heading" name="promotion[]">&nbsp;&nbsp;Heading
                         </td>
                         <td>
-                            <input type="checkbox" <?php if (strpos($value_config, ','."Cost".',') !== FALSE) { echo " checked"; } ?> value="Cost" style="height: 20px; width: 20px;" name="promotion[]">&nbsp;&nbsp;Cost
-                        </td>
-
-                        <td>
-                            <input type="checkbox" <?php if (strpos($value_config, ','."Description".',') !== FALSE) { echo " checked"; } ?> value="Description" style="height: 20px; width: 20px;" name="promotion[]">&nbsp;&nbsp;Description
+                            <input type="checkbox" <?php if (strpos($value_config, ','."Cost".',') !== FALSE) { echo " checked"; } ?> value="Cost" name="promotion[]">&nbsp;&nbsp;Cost
                         </td>
                         <td>
-                            <input type="checkbox" <?php if (strpos($value_config, ','."Quote Description".',') !== FALSE) { echo " checked"; } ?> value="Quote Description" style="height: 20px; width: 20px;" name="promotion[]">&nbsp;&nbsp;Quote Description
-                        </td>
-
-                    </tr>
-
-                    <tr>
-                        <td>
-                            <input type="checkbox" <?php if (strpos($value_config, ','."Final Retail Price".',') !== FALSE) { echo " checked"; } ?> value="Final Retail Price" style="height: 20px; width: 20px;" name="promotion[]">&nbsp;&nbsp;Final Retail Price
+                            <input type="checkbox" <?php if (strpos($value_config, ','."Description".',') !== FALSE) { echo " checked"; } ?> value="Description" name="promotion[]">&nbsp;&nbsp;Description
                         </td>
                         <td>
-                            <input type="checkbox" <?php if (strpos($value_config, ','."Admin Price".',') !== FALSE) { echo " checked"; } ?> value="Admin Price" style="height: 20px; width: 20px;" name="promotion[]">&nbsp;&nbsp;Admin Price
-                        </td>
-                        <td>
-                           <input type="checkbox" <?php if (strpos($value_config, ','."Wholesale Price".',') !== FALSE) { echo " checked"; } ?> value="Wholesale Price" style="height: 20px; width: 20px;" name="promotion[]">&nbsp;&nbsp;Wholesale Price
-                        </td>
-                        <td>
-                            <input type="checkbox" <?php if (strpos($value_config, ','."Commercial Price".',') !== FALSE) { echo " checked"; } ?> value="Commercial Price" style="height: 20px; width: 20px;" name="promotion[]">&nbsp;&nbsp;Commercial Price
-                        </td>
-                        <td>
-                            <input type="checkbox" <?php if (strpos($value_config, ','."Client Price".',') !== FALSE) { echo " checked"; } ?> value="Client Price" style="height: 20px; width: 20px;" name="promotion[]">&nbsp;&nbsp;Client Price
-                        </td>
-                        <td>
-                            <input type="checkbox" <?php if (strpos($value_config, ','."Minimum Billable".',') !== FALSE) { echo " checked"; } ?> value="Minimum Billable" style="height: 20px; width: 20px;" name="promotion[]">&nbsp;&nbsp;Minimum Billable
+                            <input type="checkbox" <?php if (strpos($value_config, ','."Quote Description".',') !== FALSE) { echo " checked"; } ?> value="Quote Description" name="promotion[]">&nbsp;&nbsp;Quote Description
                         </td>
                     </tr>
 
                     <tr>
                         <td>
-                            <input type="checkbox" <?php if (strpos($value_config, ','."Estimated Hours".',') !== FALSE) { echo " checked"; } ?> value="Estimated Hours" style="height: 20px; width: 20px;" name="promotion[]">&nbsp;&nbsp;Estimated Hours
+                            <input type="checkbox" <?php if (strpos($value_config, ','."Final Retail Price".',') !== FALSE) { echo " checked"; } ?> value="Final Retail Price" name="promotion[]">&nbsp;&nbsp;Final Retail Price
                         </td>
-
                         <td>
-                            <input type="checkbox" <?php if (strpos($value_config, ','."Actual Hours".',') !== FALSE) { echo " checked"; } ?> value="Actual Hours" style="height: 20px; width: 20px;" name="promotion[]">&nbsp;&nbsp;Actual Hours
+                            <input type="checkbox" <?php if (strpos($value_config, ','."Admin Price".',') !== FALSE) { echo " checked"; } ?> value="Admin Price" name="promotion[]">&nbsp;&nbsp;Admin Price
+                        </td>
+                        <td>
+                           <input type="checkbox" <?php if (strpos($value_config, ','."Wholesale Price".',') !== FALSE) { echo " checked"; } ?> value="Wholesale Price" name="promotion[]">&nbsp;&nbsp;Wholesale Price
+                        </td>
+                        <td>
+                            <input type="checkbox" <?php if (strpos($value_config, ','."Commercial Price".',') !== FALSE) { echo " checked"; } ?> value="Commercial Price" name="promotion[]">&nbsp;&nbsp;Commercial Price
+                        </td>
+                        <td>
+                            <input type="checkbox" <?php if (strpos($value_config, ','."Client Price".',') !== FALSE) { echo " checked"; } ?> value="Client Price" name="promotion[]">&nbsp;&nbsp;Client Price
+                        </td>
+                        <td>
+                            <input type="checkbox" <?php if (strpos($value_config, ','."Minimum Billable".',') !== FALSE) { echo " checked"; } ?> value="Minimum Billable" name="promotion[]">&nbsp;&nbsp;Minimum Billable
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>
+                            <input type="checkbox" <?php if (strpos($value_config, ','."Estimated Hours".',') !== FALSE) { echo " checked"; } ?> value="Estimated Hours" name="promotion[]">&nbsp;&nbsp;Estimated Hours
+                        </td>
+                        <td>
+                            <input type="checkbox" <?php if (strpos($value_config, ','."Actual Hours".',') !== FALSE) { echo " checked"; } ?> value="Actual Hours" name="promotion[]">&nbsp;&nbsp;Actual Hours
                         </td>
                         <td>
                             <input type="checkbox" <?php if (strpos($value_config, ','."MSRP".',') !== FALSE) {
-                            echo " checked"; } ?> value="MSRP" style="height: 20px; width: 20px;" name="promotion[]">&nbsp;&nbsp;MSRP
+                            echo " checked"; } ?> value="MSRP" name="promotion[]">&nbsp;&nbsp;MSRP
                         </td>
                         <td>
                             <input type="checkbox" <?php if (strpos($value_config, ','."Invoice Description".',') !== FALSE) {
-                            echo " checked"; } ?> value="Invoice Description" style="height: 20px; width: 20px;" name="promotion[]">&nbsp;&nbsp;Invoice Description
+                            echo " checked"; } ?> value="Invoice Description" name="promotion[]">&nbsp;&nbsp;Invoice Description
                         </td>
                         <td>
                             <input type="checkbox" <?php if (strpos($value_config, ','."Ticket Description".',') !== FALSE) {
-                            echo " checked"; } ?> value="Ticket Description" style="height: 20px; width: 20px;" name="promotion[]">&nbsp;&nbsp;<?= TICKET_NOUN ?> Description
+                            echo " checked"; } ?> value="Ticket Description" name="promotion[]">&nbsp;&nbsp;<?= TICKET_NOUN ?> Description
                         </td>
                         <td>
                             <input type="checkbox" <?php if (strpos($value_config, ','."Expiry Date".',') !== FALSE) {
-                            echo " checked"; } ?> value="Expiry Date" style="height: 20px; width: 20px;" name="promotion[]">&nbsp;&nbsp;Expiry Date
+                            echo " checked"; } ?> value="Expiry Date" name="promotion[]">&nbsp;&nbsp;Expiry Date
                         </td>
                     </tr>
                 </table>
@@ -142,7 +139,7 @@ $(document).ready(function(){
 				<table border='2' cellpadding='10' class='table'>
                     <tr>
                         <td>
-                            <input type="checkbox" <?php if (strpos($value_config, ','."Inventory Part Number".',') !== FALSE) { echo " checked"; } ?> value="Inventory Part Number" style="height: 20px; width: 20px;" name="promotion[]">&nbsp;&nbsp;Part Number
+                            <input type="checkbox" <?php if (strpos($value_config, ','."Inventory Part Number".',') !== FALSE) { echo " checked"; } ?> value="Inventory Part Number" name="promotion[]">&nbsp;&nbsp;Part Number
                         </td>
                     </tr>
                 </table>
@@ -165,34 +162,34 @@ $(document).ready(function(){
                 <table border='2' cellpadding='10' class='table'>
                     <tr>
                         <td>
-                            <input type="checkbox" <?php if (strpos($value_config, ','."Assign Services".',') !== FALSE) { echo " checked"; } ?> class="all_check" value="Assign Services" style="height: 20px; width: 20px;" name="promotion[]">&nbsp;&nbsp;Services
+                            <input type="checkbox" <?php if (strpos($value_config, ','."Assign Services".',') !== FALSE) { echo " checked"; } ?> class="all_check" value="Assign Services" name="promotion[]">&nbsp;&nbsp;Services
                         </td>
                         <td>
-                            <input type="checkbox" <?php if (strpos($value_config, ','."Assign Clients".',') !== FALSE) { echo " checked"; } ?> class="all_check" value="Assign Clients" style="height: 20px; width: 20px;" name="promotion[]">&nbsp;&nbsp;Clients
+                            <input type="checkbox" <?php if (strpos($value_config, ','."Assign Clients".',') !== FALSE) { echo " checked"; } ?> class="all_check" value="Assign Clients" name="promotion[]">&nbsp;&nbsp;Clients
                         </td>
                         <td>
-                            <input type="checkbox" <?php if (strpos($value_config, ','."Assign Customer".',') !== FALSE) { echo " checked"; } ?> class="all_check" value="Assign Customer" style="height: 20px; width: 20px;" name="promotion[]">&nbsp;&nbsp;Customer
+                            <input type="checkbox" <?php if (strpos($value_config, ','."Assign Customer".',') !== FALSE) { echo " checked"; } ?> class="all_check" value="Assign Customer" name="promotion[]">&nbsp;&nbsp;Customer
                         </td>
                         <td>
-                            <input type="checkbox" <?php if (strpos($value_config, ','."Assign Vendor".',') !== FALSE) { echo " checked"; } ?> class="all_check" value="Assign Vendor" style="height: 20px; width: 20px;" name="promotion[]">&nbsp;&nbsp;Vendor
+                            <input type="checkbox" <?php if (strpos($value_config, ','."Assign Vendor".',') !== FALSE) { echo " checked"; } ?> class="all_check" value="Assign Vendor" name="promotion[]">&nbsp;&nbsp;Vendor
                         </td>
                         <td>
-                            <input type="checkbox" <?php if (strpos($value_config, ','."Assign Inventory".',') !== FALSE) { echo " checked"; } ?> class="all_check" value="Assign Inventory" style="height: 20px; width: 20px;" name="promotion[]">&nbsp;&nbsp;Inventory
+                            <input type="checkbox" <?php if (strpos($value_config, ','."Assign Inventory".',') !== FALSE) { echo " checked"; } ?> class="all_check" value="Assign Inventory" name="promotion[]">&nbsp;&nbsp;Inventory
                         </td>
                         <td>
-                            <input type="checkbox" <?php if (strpos($value_config, ','."Assign Equipment".',') !== FALSE) { echo " checked"; } ?> class="all_check" value="Assign Equipment" style="height: 20px; width: 20px;" name="promotion[]">&nbsp;&nbsp;Equipment
+                            <input type="checkbox" <?php if (strpos($value_config, ','."Assign Equipment".',') !== FALSE) { echo " checked"; } ?> class="all_check" value="Assign Equipment" name="promotion[]">&nbsp;&nbsp;Equipment
                         </td>
                         <td>
-                            <input type="checkbox" <?php if (strpos($value_config, ','."Assign Equipment by Category".',') !== FALSE) { echo " checked"; } ?> value="Assign Equipment by Category" style="height: 20px; width: 20px;" name="promotion[]">&nbsp;&nbsp;Equipment by Category
+                            <input type="checkbox" <?php if (strpos($value_config, ','."Assign Equipment by Category".',') !== FALSE) { echo " checked"; } ?> value="Assign Equipment by Category" name="promotion[]">&nbsp;&nbsp;Equipment by Category
                         </td>
                         <td>
-                            <input type="checkbox" <?php if (strpos($value_config, ','."Assign Staff".',') !== FALSE) { echo " checked"; } ?> class="all_check" value="Assign Staff" style="height: 20px; width: 20px;" name="promotion[]">&nbsp;&nbsp;Staff
+                            <input type="checkbox" <?php if (strpos($value_config, ','."Assign Staff".',') !== FALSE) { echo " checked"; } ?> class="all_check" value="Assign Staff" name="promotion[]">&nbsp;&nbsp;Staff
                         </td>
                         <td>
-                            <input type="checkbox" <?php if (strpos($value_config, ','."Assign Staff Position".',') !== FALSE) { echo " checked"; } ?> value="Assign Staff Position" style="height: 20px; width: 20px;" name="promotion[]">&nbsp;&nbsp;Staff Position
+                            <input type="checkbox" <?php if (strpos($value_config, ','."Assign Staff Position".',') !== FALSE) { echo " checked"; } ?> value="Assign Staff Position" name="promotion[]">&nbsp;&nbsp;Staff Position
                         </td>
                         <td>
-                            <input type="checkbox" <?php if (strpos($value_config, ','."Assign Contractor".',') !== FALSE) { echo " checked"; } ?> class="all_check" value="Assign Contractor" style="height: 20px; width: 20px;" name="promotion[]">&nbsp;&nbsp;Contractor
+                            <input type="checkbox" <?php if (strpos($value_config, ','."Assign Contractor".',') !== FALSE) { echo " checked"; } ?> class="all_check" value="Assign Contractor" name="promotion[]">&nbsp;&nbsp;Contractor
                         </td>
                     </tr>
                 </table>
@@ -219,78 +216,86 @@ $(document).ready(function(){
                 <table border='2' cellpadding='10' class='table'>
                     <tr>
                         <td>
-                            <input type="checkbox" <?php if (strpos($value_config, ','."Service Type".',') !== FALSE) { echo " checked"; } ?> value="Service Type" style="height: 20px; width: 20px;" name="promotion_dashboard[]">&nbsp;&nbsp;Service Type
+                            <input type="checkbox" <?php if (strpos($value_config, ','."Service Type".',') !== FALSE) { echo " checked"; } ?> value="Service Type" name="promotion_dashboard[]">&nbsp;&nbsp;Service Type
                         </td>
                         <td>
-                            <input type="checkbox" <?php if (strpos($value_config, ','."Category".',') !== FALSE) { echo " checked"; } ?> value="Category" style="height: 20px; width: 20px;" name="promotion_dashboard[]">&nbsp;&nbsp;Category
+                            <input type="checkbox" <?php if (strpos($value_config, ','."Category".',') !== FALSE) { echo " checked"; } ?> value="Category" name="promotion_dashboard[]">&nbsp;&nbsp;Category
                         </td>
                         <td>
-                            <input type="checkbox" <?php if (strpos($value_config, ','."Heading".',') !== FALSE) { echo " checked"; } ?> value="Heading" style="height: 20px; width: 20px;" name="promotion_dashboard[]">&nbsp;&nbsp;Heading
+                            <input type="checkbox" <?php if (strpos($value_config, ','."Heading".',') !== FALSE) { echo " checked"; } ?> value="Heading" name="promotion_dashboard[]">&nbsp;&nbsp;Heading
                         </td>
                         <td>
-                            <input type="checkbox" <?php if (strpos($value_config, ','."Cost".',') !== FALSE) { echo " checked"; } ?> value="Cost" style="height: 20px; width: 20px;" name="promotion_dashboard[]">&nbsp;&nbsp;Cost
-                        </td>
-
-                        <td>
-                            <input type="checkbox" <?php if (strpos($value_config, ','."Description".',') !== FALSE) { echo " checked"; } ?> value="Description" style="height: 20px; width: 20px;" name="promotion_dashboard[]">&nbsp;&nbsp;Description
+                            <input type="checkbox" <?php if (strpos($value_config, ','."Cost".',') !== FALSE) { echo " checked"; } ?> value="Cost" name="promotion_dashboard[]">&nbsp;&nbsp;Cost
                         </td>
                         <td>
-                            <input type="checkbox" <?php if (strpos($value_config, ','."Quote Description".',') !== FALSE) { echo " checked"; } ?> value="Quote Description" style="height: 20px; width: 20px;" name="promotion_dashboard[]">&nbsp;&nbsp;Quote Description
-                        </td>
-
-                    </tr>
-
-                    <tr>
-                        <td>
-                            <input type="checkbox" <?php if (strpos($value_config, ','."Final Retail Price".',') !== FALSE) { echo " checked"; } ?> value="Final Retail Price" style="height: 20px; width: 20px;" name="promotion_dashboard[]">&nbsp;&nbsp;Final Retail Price
+                            <input type="checkbox" <?php if (strpos($value_config, ','."Description".',') !== FALSE) { echo " checked"; } ?> value="Description" name="promotion_dashboard[]">&nbsp;&nbsp;Description
                         </td>
                         <td>
-                            <input type="checkbox" <?php if (strpos($value_config, ','."Admin Price".',') !== FALSE) { echo " checked"; } ?> value="Admin Price" style="height: 20px; width: 20px;" name="promotion_dashboard[]">&nbsp;&nbsp;Admin Price
-                        </td>
-                        <td>
-                           <input type="checkbox" <?php if (strpos($value_config, ','."Wholesale Price".',') !== FALSE) { echo " checked"; } ?> value="Wholesale Price" style="height: 20px; width: 20px;" name="promotion_dashboard[]">&nbsp;&nbsp;Wholesale Price
-                        </td>
-                        <td>
-                            <input type="checkbox" <?php if (strpos($value_config, ','."Commercial Price".',') !== FALSE) { echo " checked"; } ?> value="Commercial Price" style="height: 20px; width: 20px;" name="promotion_dashboard[]">&nbsp;&nbsp;Commercial Price
-                        </td>
-                        <td>
-                            <input type="checkbox" <?php if (strpos($value_config, ','."Client Price".',') !== FALSE) { echo " checked"; } ?> value="Client Price" style="height: 20px; width: 20px;" name="promotion_dashboard[]">&nbsp;&nbsp;Client Price
-                        </td>
-                        <td>
-                            <input type="checkbox" <?php if (strpos($value_config, ','."Minimum Billable".',') !== FALSE) { echo " checked"; } ?> value="Minimum Billable" style="height: 20px; width: 20px;" name="promotion_dashboard[]">&nbsp;&nbsp;Minimum Billable
+                            <input type="checkbox" <?php if (strpos($value_config, ','."Quote Description".',') !== FALSE) { echo " checked"; } ?> value="Quote Description" name="promotion_dashboard[]">&nbsp;&nbsp;Quote Description
                         </td>
                     </tr>
 
                     <tr>
                         <td>
-                            <input type="checkbox" <?php if (strpos($value_config, ','."Estimated Hours".',') !== FALSE) { echo " checked"; } ?> value="Estimated Hours" style="height: 20px; width: 20px;" name="promotion_dashboard[]">&nbsp;&nbsp;Estimated Hours
+                            <input type="checkbox" <?php if (strpos($value_config, ','."Final Retail Price".',') !== FALSE) { echo " checked"; } ?> value="Final Retail Price" name="promotion_dashboard[]">&nbsp;&nbsp;Final Retail Price
                         </td>
-
                         <td>
-                            <input type="checkbox" <?php if (strpos($value_config, ','."Actual Hours".',') !== FALSE) { echo " checked"; } ?> value="Actual Hours" style="height: 20px; width: 20px;" name="promotion_dashboard[]">&nbsp;&nbsp;Actual Hours
+                            <input type="checkbox" <?php if (strpos($value_config, ','."Admin Price".',') !== FALSE) { echo " checked"; } ?> value="Admin Price" name="promotion_dashboard[]">&nbsp;&nbsp;Admin Price
+                        </td>
+                        <td>
+                           <input type="checkbox" <?php if (strpos($value_config, ','."Wholesale Price".',') !== FALSE) { echo " checked"; } ?> value="Wholesale Price" name="promotion_dashboard[]">&nbsp;&nbsp;Wholesale Price
+                        </td>
+                        <td>
+                            <input type="checkbox" <?php if (strpos($value_config, ','."Commercial Price".',') !== FALSE) { echo " checked"; } ?> value="Commercial Price" name="promotion_dashboard[]">&nbsp;&nbsp;Commercial Price
+                        </td>
+                        <td>
+                            <input type="checkbox" <?php if (strpos($value_config, ','."Client Price".',') !== FALSE) { echo " checked"; } ?> value="Client Price" name="promotion_dashboard[]">&nbsp;&nbsp;Client Price
+                        </td>
+                        <td>
+                            <input type="checkbox" <?php if (strpos($value_config, ','."Minimum Billable".',') !== FALSE) { echo " checked"; } ?> value="Minimum Billable" name="promotion_dashboard[]">&nbsp;&nbsp;Minimum Billable
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>
+                            <input type="checkbox" <?php if (strpos($value_config, ','."Estimated Hours".',') !== FALSE) { echo " checked"; } ?> value="Estimated Hours" name="promotion_dashboard[]">&nbsp;&nbsp;Estimated Hours
+                        </td>
+                        <td>
+                            <input type="checkbox" <?php if (strpos($value_config, ','."Actual Hours".',') !== FALSE) { echo " checked"; } ?> value="Actual Hours" name="promotion_dashboard[]">&nbsp;&nbsp;Actual Hours
                         </td>
                         <td>
                             <input type="checkbox" <?php if (strpos($value_config, ','."MSRP".',') !== FALSE) {
-                            echo " checked"; } ?> value="MSRP" style="height: 20px; width: 20px;" name="promotion_dashboard[]">&nbsp;&nbsp;MSRP
+                            echo " checked"; } ?> value="MSRP" name="promotion_dashboard[]">&nbsp;&nbsp;MSRP
                         </td>
                         <td>
                             <input type="checkbox" <?php if (strpos($value_config, ','."Invoice Description".',') !== FALSE) {
-                            echo " checked"; } ?> value="Invoice Description" style="height: 20px; width: 20px;" name="promotion_dashboard[]">&nbsp;&nbsp;Invoice Description
+                            echo " checked"; } ?> value="Invoice Description" name="promotion_dashboard[]">&nbsp;&nbsp;Invoice Description
                         </td>
                         <td>
                             <input type="checkbox" <?php if (strpos($value_config, ','."Ticket Description".',') !== FALSE) {
-                            echo " checked"; } ?> value="Ticket Description" style="height: 20px; width: 20px;" name="promotion_dashboard[]">&nbsp;&nbsp;<?= TICKET_NOUN ?> Description
+                            echo " checked"; } ?> value="Ticket Description" name="promotion_dashboard[]">&nbsp;&nbsp;<?= TICKET_NOUN ?> Description
                         </td>
                         <td>
                             <input type="checkbox" <?php if (strpos($value_config, ','."Expiry Date".',') !== FALSE) {
-                            echo " checked"; } ?> value="Expiry Date" style="height: 20px; width: 20px;" name="promotion_dashboard[]">&nbsp;&nbsp;Expiry Date
+                            echo " checked"; } ?> value="Expiry Date" name="promotion_dashboard[]">&nbsp;&nbsp;Expiry Date
                         </td>
+                    </tr>
+                    
+                    <tr>
+                        <td>
+                            <input type="checkbox" <?php if (strpos($value_config, ','."Times Used".',') !== FALSE) {
+                            echo " checked"; } ?> value="Times Used" name="promotion_dashboard[]">&nbsp;&nbsp;# of Times Used
+                        </td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
                     </tr>
                 </table>
             </div>
         </div>
     </div>
-
 
 </div>
 

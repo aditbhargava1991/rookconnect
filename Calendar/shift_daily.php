@@ -60,6 +60,17 @@ function toggle_columns() {
 		success: function(response) {
 		}
 	});
+
+	// Display staff/client logos
+	if(visibles.length > 0) {
+		$('.selected_<?= $_GET['mode'] == 'client' ? 'client' : 'staff' ?>_logos .id-circle').hide();
+		visibles.forEach(function(contact_id) {
+			$('.selected_<?= $_GET['mode'] == 'client' ? 'client' : 'staff' ?>_logos').find('.id-circle[data-contact="'+contact_id+'"]').show();
+		});
+		$('.selected_<?= $_GET['mode'] == 'client' ? 'client' : 'staff' ?>_logos').css('display', 'table');
+	} else {
+		$('.selected_<?= $_GET['mode'] == 'client' ? 'client' : 'staff' ?>_logos').hide();
+	}
 }
 function selectAllStaff() {
 	if($('[name="select_all_staff"]').is(':checked')) {
@@ -148,7 +159,7 @@ $calendar_type = 'shifts';
 							}
 							foreach($book_contact_list as $contact_id) { ?>
 								<div class="block-item" style="border: 1px solid rgba(0,0,0,0.5); margin: 0;" data-type="shift" data-id="<?= $contact_id ?>">
-									<img class='drag-handle' src='<?= WEBSITE_URL ?>/img/icons/drag_handle.png' style='float: right; width: 2em;'>
+									<img class='drag-handle no-toggle' src='<?= WEBSITE_URL ?>/img/icons/drag_handle.png' style='float: right; width: 2em;' title='Drag'>
 									<?= get_contact($dbc, $contact_id) ?></div>
 							<?php } ?>
 						</div>
@@ -185,6 +196,28 @@ $calendar_type = 'shifts';
 		<a href="" onclick="changeView('daily', this); return false;"><div class="block-button view_button active blue" style="margin-left: 1em;">Day</div></a>
 		<a href="" onclick="changeView('weekly', this); return false;"><div class="block-button view_button">Week</div></a>
 		<a href="?type=shift&view=monthly<?= $region_url ?>"><div class="block-button">Month</div></a>
+		<?php if($selected_staff_icons == 1) { ?>
+			<div class="block-button selected_staff_logos" style="margin-left: 1em; padding: 0 0.5em 0 0.5em; display: table; display: none;">
+				<div style="display: table-cell; vertical-align: middle;">
+					Selected Staff: 
+				</div>
+				<?php $contact_list = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name` FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `deleted`=0 AND `status`=1 AND `show_hide_user`=1 AND IFNULL(`calendar_enabled`,1)=1".$region_query),MYSQLI_ASSOC));
+				foreach($contact_list as $contact_id) {
+					echo getContactLogo($dbc, $contact_id);
+				} ?>
+			</div>
+		<?php } ?>
+		<?php if($selected_client_icons == 1 && !empty($shift_client_type)) { ?>
+			<div class="block-button selected_client_logos" style="margin-left: 1em; padding: 0 0.5em 0 0.5em; display: table; display: none;">
+				<div style="display: table-cell; vertical-align: middle;">
+					Selected <?= $shift_client_type ?>: 
+				</div>
+				<?php $contact_list = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name` FROM `contacts` WHERE `category`='".$shift_client_type."' AND `deleted`=0 AND `status`=1 AND `show_hide_user`=1".$region_query),MYSQLI_ASSOC));
+				foreach($contact_list as $contact_id) {
+					echo getContactLogo($dbc, $contact_id);
+				} ?>
+			</div>
+		<?php } ?>
 		<a href="" onclick="$('.set_date').focus(); return false;"><div class="block-button pull-right"><img src="../img/icons/calendar-button.png" style="height: 1em; margin-right: 1em;">Go To Date</div></a>
 		<?php unset($page_query['date']); ?>
 		<a href="" onclick="changeDate('<?= date('Y-m-d') ?>'); return false;"><div class="block-button pull-right">Today</div></a>

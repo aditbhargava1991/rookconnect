@@ -103,6 +103,10 @@ if(isset($_POST["submitty"]))
 			$i++;
 			$query_insert_inventory = "INSERT INTO `vendor_price_list` (`code`, `category`, `sub_category`, `part_no`, `description`, `comment`, `question`, `request`, `display_website`, `vendorid`, `size`, `weight`, `type`, `name`, `date_of_purchase`, `purchase_cost`, `sell_price`, `markup`, `freight_charge`, `min_bin`, `current_stock`, `final_retail_price`, `admin_price`, `wholesale_price`, `commercial_price`, `client_price`, `purchase_order_price`, `sales_order_price`, `minimum_billable`, `estimated_hours`, `actual_hours`, `msrp`, `quote_description`, `usd_invoice`, `shipping_rate`, `shipping_cash`, `exchange_rate`, `exchange_cash`, `cdn_cpu`, `cogs_total`, `location`, `inv_variance`, `average_cost`, `asset`, `revenue`, `buying_units`, `selling_units`, `stocking_units`, `preferred_price`, `web_price`, `id_number`, `operator`, `lsd`, `quantity`, `product_name`, `cost`, `usd_cpu`, `commission_price`, `markup_perc`, `current_inventory`, `write_offs`, `min_max`, `status`, `note`, `unit_price`, `unit_cost`, `rent_price`, `rental_days`, `rental_weeks`, `rental_months`, `rental_years`, `reminder_alert`, `daily`, `weekly`, `monthly`, `annually`,  `total_days`, `total_hours`, `total_km`, `total_miles`, `include_in_pos`, `include_in_so`, `include_in_po`) VALUES ('$col0', '$col1', '$col2', '$col3', '$col4', '$col5', '$col6', '$col7', '$col8', '$col9', '$col10', '$col11', '$col12', '$col13', '$col14', '$col15', '$col16', '$col17', '$col18', '$col19', '$col20', '$col21', '$col22', '$col23', '$col24', '$col25', '$col26', '$col27', '$col28', '$col29', '$col30', '$col31', '$col32', '$col33', '$col34', '$col35', '$col36', '$col37', '$col38', '$col39', '$col40', '$col41', '$col42', '$col43', '$col44', '$col45', '$col46', '$col47', '$col48', '$col49', '$col50', '$col51', '$col52', '$col53', '$col54', '$col55', '$col56', '$col57', '$col58', '$col59', '$col60', '$col61', '$col62', '$col63', '$col64', '$col65', '$col66', '$col67', '$col68', '$col69', '$col70', '$col71', '$col72', '$col73', '$col74', '$col75', '$col76', '$col77', '$col78', '$col79', '$col80', '$col81', '$col82')";
 
+			$before_change = '';
+			$history = "New Vendor Price list added. <br />";
+			add_update_history($dbc, 'vendorpl_history', $history, '', $before_change);
+
 			$result_insert_inventory = mysqli_query($dbc, $query_insert_inventory) or die(mysqli_error($dbc));
 			$inventoryid = mysqli_insert_id($dbc);
 
@@ -590,6 +594,6 @@ checkAuthorised('vpl');
 		</div>
 <?php } ?>
 
-		
+
   </div>
 <?php include ('../footer.php'); ?>

@@ -2,7 +2,8 @@
 include_once('../include.php');
 $ticket_status = explode(',',get_config($dbc, 'ticket_status'));
 $ticket_status_icons = explode(',',get_config($dbc, 'ticket_status_icons'));
-$task_status = explode(',',get_config($dbc, 'task_status')); ?>
+$task_status = explode(',',get_config($dbc, 'task_status'));
+$ticket_status_color = explode(',',get_config($dbc, 'ticket_status_color')); ?>
 <script>
 $(document).ready(function() {
 	$('input').change(saveTypes);
@@ -27,13 +28,18 @@ function saveTypes() {
 	$('[name="task_status[]"]').each(function() {
 		task_status.push(this.value);
 	});
+	var ticket_status_color = [];
+	$('[name="ticket_status_color[]"]').each(function() {
+		ticket_status_color.push(this.value);
+	});
 	$.ajax({
 		url: 'ticket_ajax_all.php?action=ticket_status_list',
 		method: 'POST',
 		data: {
 			tickets: ticket_status,
 			ticket_status_icons: ticket_status_icons,
-			tasks: task_status
+			tasks: task_status,
+			ticket_status_color: ticket_status_color
 		}
 	});
 }
@@ -42,7 +48,7 @@ function addOpt(type) {
 	clone.find('input').val('').removeAttr('checked');
 	clone.find('.icon_link').html('<button class="btn brand-btn">Choose Icon</button>');
 	$('.'+type).last().after(clone);
-	
+
 	$('input').off('change',saveTypes).change(saveTypes);
 	$('.'+type+' input').last().focus();
 }
@@ -119,7 +125,7 @@ function getInitials(string) {
 <?php foreach($ticket_status as $i => $status) { ?>
 	<div class="form-group ticket_status">
 		<label class="col-sm-3"><span class="popover-examples"><a data-toggle="tooltip" data-original-title="These statuses allow you to organize your <?= TICKET_TILE ?> by moving them from status to status."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span><?= TICKET_NOUN ?> Status:</label>
-		<div class="col-sm-6">
+		<div class="col-sm-4">
 			<input type="text" name="ticket_status[]" class="form-control" value="<?= $status ?>">
 		</div>
 		<div class="col-sm-2" style="text-align: center;">
@@ -134,6 +140,9 @@ function getInitials(string) {
 					echo '<img src="'.get_ticket_status_icon($dbc, $status).'" class="inline-img">';
 				} ?>
 			</a>
+		</div>
+		<div class="col-sm-1">
+                <input type="color" name="ticket_status_color[]" class="form-control" value="<?= $ticket_status_color[$i] ?>">
 		</div>
 		<div class="col-sm-1">
 			<img src="../img/icons/drag_handle.png" style="height: 1.5em; margin: 0 0.25em;" class="pull-right drag-handle">

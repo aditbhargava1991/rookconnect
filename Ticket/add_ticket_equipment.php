@@ -1,7 +1,8 @@
 <?= (!empty($renamed_accordion) ? '<h3>'.$renamed_accordion.'</h3>' : '<h3>Equipment</h3>') ?>
 <?php $equipment_list = mysqli_query($dbc, "SELECT `ticket_attached`.`id`, `ticket_attached`.`item_id`, `ticket_attached`.`rate`, `ticket_attached`.`status`, `ticket_attached`.`qty`, `ticket_attached`.`hours_estimated`, `equipment`.* FROM `ticket_attached` LEFT JOIN `equipment` ON `ticket_attached`.`src_table`='equipment' AND `ticket_attached`.`item_id`=`equipment`.`equipmentid` WHERE `ticket_attached`.`item_id` > 0 AND `ticket_attached`.`src_table`='equipment' AND `ticket_attached`.`ticketid`='$ticketid' AND `ticket_attached`.`ticketid` > 0 AND `ticket_attached`.`deleted`=0".$query_daily);
 $equipment = mysqli_fetch_assoc($equipment_list);
-do { ?>
+do {
+	$daily_rate = $hourly_rate = 0; ?>
 	<div class="multi-block">
 		<?php foreach($field_sort_order as $field_sort_field) {
 			if($access_all > 0) { ?>
@@ -49,10 +50,14 @@ do { ?>
 						<label class="control-label col-sm-4">Unit #:</label>
 						<div class="col-sm-8">
 							<select name="item_id" data-table="ticket_attached" data-id="<?= $equipment['id'] ?>" data-id-field="id" data-type="equipment" data-type-field="src_table" class="chosen-select-deselect"><option></option>
-								<?php $groups = mysqli_query($dbc, "SELECT `category`, `make`, `model`, `unit_number`, `equipmentid` FROM `equipment` WHERE `deleted`=0 ORDER BY `category`, `make`, `model`, `unit_number`");
+								<?php $groups = mysqli_query($dbc, "SELECT `equipment`.`category`, `equipment`.`make`, `equipment`.`model`, `equipment`.`unit_number`, `equipment`.`equipmentid`,`hourly_rate`.`hourly`,`daily_rate`.`daily` FROM `equipment` LEFT JOIN (SELECT `description`,`item_id`,MAX(IFNULL(NULLIF(`cust_price`,0),`hourly`)) `hourly` FROM `company_rate_card` WHERE `tile_name`='Equipment' AND (`rate_card_types`='Hourly' OR `rate_card_types`!='Daily') AND `deleted`=0 AND '$rate_card' IN (`rate_card_name`,'') GROUP BY `description`,`item_id`) `hourly_rate` ON `equipment`.`equipmentid`=`hourly_rate`.`item_id` OR (`equipment`.`type`=`hourly_rate`.`description` AND `hourly_rate`.`item_id`=0) LEFT JOIN (SELECT `description`,`item_id`,MAX(IFNULL(NULLIF(`cust_price`,0),`daily`)) `daily` FROM `company_rate_card` WHERE `tile_name`='Equipment' AND (`rate_card_types`='Daily' OR `rate_card_types`!='Daily') AND `deleted`=0 AND '$rate_card' IN (`rate_card_name`,'') GROUP BY `description`,`item_id`) `daily_rate` ON `equipment`.`equipmentid`=`daily_rate`.`item_id` OR (`equipment`.`type`=`daily_rate`.`description` AND `daily_rate`.`item_id`=0) WHERE `deleted`=0 ORDER BY `category`, `make`, `model`, `unit_number`");
 								while($units = mysqli_fetch_assoc($groups)) { ?>
-									<option data-category="<?= $units['category'] ?>" data-make="<?= $units['make'] ?>" data-model="<?= $units['model'] ?>" <?= $equipment['item_id'] == $units['equipmentid'] ? 'selected' : '' ?> value="<?= $units['equipmentid'] ?>"><?= $units['unit_number'] ?></option>
-								<?php } ?>
+									<option data-category="<?= $units['category'] ?>" data-make="<?= $units['make'] ?>" data-model="<?= $units['model'] ?>" data-hourly="<?= $units['hourly'] ?>" data-daily="<?= $units['daily'] ?>" <?= $equipment['item_id'] == $units['equipmentid'] ? 'selected' : '' ?> value="<?= $units['equipmentid'] ?>"><?= $units['unit_number'] ?></option>
+									<?php if($equipment['item_id'] == $units['equipmentid']) {
+										$daily_rate = $units['daily'];
+										$hourly_rate = $units['hourly'];
+									}
+								} ?>
 							</select>
 						</div>
 					</div>
@@ -86,6 +91,17 @@ do { ?>
 						<label class="control-label col-sm-4">Rate:</label>
 						<div class="col-sm-8">
 							<input type="number" min=0 step="0.01" name="rate" data-table="ticket_attached" data-id="<?= $equipment['id'] ?>" data-id-field="id" data-type="equipment" data-type-field="src_table" class="form-control" value="<?= $equipment['rate'] ?>">
+						</div>
+					</div>
+				<?php } ?>
+				<?php if ( strpos($value_config, ',Equipment Rate Options,') !== false && $field_sort_field == 'Equipment Rate Options' ) { ?>
+					<div class="form-group">
+						<label class="control-label col-sm-4">Rate:</label>
+						<div class="col-sm-8">
+							<select name="rate" data-table="ticket_attached" data-id="<?= $equipment['id'] ?>" data-id-field="id" data-type="equipment" data-type-field="src_table" class="chosen-select-deselect"><option />
+								<option <?= $equipment['rate'] == $daily_rate ? 'selected' : '' ?> data-type="daily" value="<?= $daily_rate ?>">Daily</option>
+								<option <?= $equipment['rate'] == $hourly_rate ? 'selected' : '' ?> data-type="hourly" value="<?= $hourly_rate ?>">Hourly</option>
+							</select>
 						</div>
 					</div>
 				<?php } ?>

@@ -1,6 +1,6 @@
 <?php
-include ('../database_connection.php');
-include ('../function.php');
+include_once('../include.php');
+ob_clean();
 
 if(isset($_GET['category'])) {
     $category = $_GET['category'];

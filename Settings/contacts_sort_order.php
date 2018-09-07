@@ -2,6 +2,7 @@
 /*
 Contacts Sort Order Setting
 */
+include_once('../include.php');
 ?>
 <script type="text/javascript">
 $(document).ready(function() {

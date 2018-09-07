@@ -1,4 +1,5 @@
-<?php if($user_category == 'Staff') {
+<?php include_once('../include.php');
+if($user_category == 'Staff') {
 	echo "<a href='add_services.php' class='btn brand-btn pull-right'>Add Service Information</a>";
 } ?><h2>Services</h2>
 <?php $query = mysqli_query($dbc_support, "SELECT * FROM `support_services` WHERE `type`='service' AND `deleted`=0 ORDER BY `priority`");

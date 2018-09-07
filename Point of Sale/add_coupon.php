@@ -17,11 +17,21 @@ if ( $_SERVER['REQUEST_METHOD'] == 'POST' ) {
         $query_insert = "INSERT INTO `pos_touch_coupons` (`title`, `description`, `discount_type`, `discount`, `start_date`, `expiry_date`) VALUES ('$title', '$description', '$discount_type', '$discount', '$start_date', '$expiry_date')";
         $result_insert = mysqli_query($dbc, $query_insert);
         $couponid = mysqli_insert_id($dbc);
-    
+
+        $before_change = '';
+        $history = "Point of Sale Coupon Added. <br />";
+        add_update_history($dbc, 'pos_history', $history, '', $before_change);
+
 	} else {
         $couponid = $_POST['couponid'];
+
+        $before_change = '';
+
         $query_update = "UPDATE `pos_touch_coupons` SET `title`='$title', `description`='$description', `discount_type`='$discount_type', `discount`='$discount', `start_date`='$start_date', `expiry_date`='$expiry_date'";
         $result_update = mysqli_query($dbc, $query_update);
+
+        $history = "Point of Sale Coupon entries updated. <br />";
+        add_update_history($dbc, 'pos_history', $history, '', $before_change);
     }
 
     echo '<script type="text/javascript">window.location.replace("coupons.php");</script>';
@@ -36,7 +46,7 @@ if ( $_SERVER['REQUEST_METHOD'] == 'POST' ) {
 			var discount		= $("#discount").val();
 			var start_date		= $("#start_date").val();
 			var expiry_date		= $("#expiry_date").val();
-			
+
 			if ( title=='' || discount_type=='' || discount=='' || start_date=='' || expiry_date=='' ) {
 				alert("Please make sure you have filled in all of the required fields.");
 				return false;
@@ -53,8 +63,8 @@ if ( $_SERVER['REQUEST_METHOD'] == 'POST' ) {
 ?>
 <div class="container">
 	<div class="row">
-		
-		<div class="col-sm-10"><h1>Point of Sale Coupon</h1></div>
+
+		<div class="col-sm-10"><h1><?= POS_ADVANCE_TILE ?> Coupon</h1></div>
 		<div class="col-sm-2 double-gap-top"><?php
 			if ( config_visible_function($dbc, 'pos') == 1 ) {
 				echo '<a href="field_config_pos.php" class="mobile-block pull-right"><img style="width: 50px;" title="Tile Settings" src="../img/icons/settings-4.png" class="settings-classic wiggle-me"></a>';
@@ -85,7 +95,7 @@ if ( $_SERVER['REQUEST_METHOD'] == 'POST' ) {
 				$expiry_date	= $row['expiry_date']; ?>
 				<input type="hidden" id="couponid" name="couponid" value="<?php echo $couponid ?>" /><?php
 			} ?>
-      
+
 			<div class="form-group">
 				<label for="company_name" class="col-sm-4 control-label"><span class="hp-red">*</span> Title:</label>
 				<div class="col-sm-8"><input name="title" id="title" value="<?php echo ( !empty($title) ) ? $title : ''; ?>" type="text" class="form-control"></div>
@@ -125,7 +135,7 @@ if ( $_SERVER['REQUEST_METHOD'] == 'POST' ) {
 				<label for="company_name" class="col-sm-4 control-label"><span class="hp-red">*</span> Expiry Date:</label>
 				<div class="col-sm-8"><input name="expiry_date" id="expiry_date" value="<?php echo ( !empty($expiry_date) ) ? $expiry_date : ''; ?>" type="text" class="form-control datepicker"></div>
 			</div>
-			
+
 			<div class="clearfix"></div>
 
 			<div class="form-group">

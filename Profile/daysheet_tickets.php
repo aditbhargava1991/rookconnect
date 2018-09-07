@@ -1,173 +1,370 @@
 <!-- Daysheet My Tickets-->
-<?php
-
-    if(!empty($_GET['date_display'])) {
-        $ptd = $_GET['date_display'];
-        if($_GET['date_display'] == 'weekly') {
-            $where = 'yearweek(DATE(t.to_do_date), 1) = yearweek(curdate(), 1)';
-        } else if($_GET['date_display'] == 'monthly') {
-            $where = 'MONTH(t.to_do_date) = MONTH(CURRENT_DATE()) AND YEAR(t.to_do_date) = YEAR(CURRENT_DATE())';
-        } else {
-            $where = 'DATE(t.to_do_date) = DATE(NOW())';
+<script>
+var ajax_loads = [];
+$(document).ready(function() {
+    setActions();
+    highlightHigherLevels();
+    $('.search_list').keyup(function() {
+        if(current_ticket_search_key != this.value.toLowerCase()) {
+            loadTickets();
         }
+    });
+    $('[data-type] a').not('.cursor-hand').click(function() {
+        var tab = $(this).closest('[data-type]').data('type');
+        loadNote(tab);
+        $('[data-type]').not('[data-type="'+tab+'"]').find('.active.blue').removeClass('active').removeClass('blue');
+        highlightHigherLevels();
+    });
+});
+var ticket_list = [];
+var current_ticket_search_key = '';
+var search_option_id = 0;
+function highlightHigherLevels() {
+    $('.cursor-hand').removeClass('active blue');
+    $('.sidebar-higher-level.highest-level').each(function() {
+        var active_li = false;
+        $(this).find('.sidebar-higher-level').each(function() {
+            if($(this).find('li.active').length > 0) {
+                $(this).find('.cursor-hand').addClass('active blue');
+                active_li = true;
+            }
+        });
+        if(active_li) {
+            $(this).find('.cursor-hand').first().addClass('active blue');
+        }
+    });
+}
+function remForm(form, ticket, rev, div) {
+    if(confirm('Are you sure you want to remove this form?')) {
+        $(div).remove();
+        $.post('ticket_ajax_all.php?action=removePdfForm',{formid:form,ticket:ticket,revision:rev});
     }
-
-    $ticket_tabs = [];
-    foreach(array_filter(explode(',',get_config($dbc, 'ticket_tabs'))) as $ticket_tab) {
-        $ticket_tabs[config_safe_str($ticket_tab)] = $ticket_tab;
-    }
-    $_GET['tile_name'] = @filter_var($_GET['tile_name'],FILTER_SANITIZE_STRING);
-    $tile_security = get_security($dbc, ($_GET['tile_name'] == '' ? 'ticket' : 'ticket_type_'.$_GET['tile_name']));
-    $ticket_type = isset($_GET['type']) ? filter_var($_GET['type'],FILTER_SANITIZE_STRING) : $_GET['tile_name'];
-    $db_config = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `tickets_dashboard` FROM `field_config`"))['tickets_dashboard'];
-    if($db_config == '') {
-        $db_config = 'Business,Contact,Heading,Services,Status,Deliverable Date';
-    }
-    $db_config = explode(',',$db_config);
-	$equipment = [];
-	$equipment_ids = $dbc->query("SELECT `equipmentid` FROM `equipment_assignment_staff` LEFT JOIN `equipment_assignment` ON `equipment_assignment_staff`.`equipment_assignmentid`=`equipment_assignment`.`equipment_assignmentid` WHERE `equipment_assignment_staff`.`deleted`=0 AND `equipment_assignment`.`deleted`=0 AND `equipment_assignment_staff`.`contactid`='$contactid'");
-	while($equipment[] = $equipment_ids->fetch_assoc()['equipmentid']) { }
-	$equipment = implode(',',array_filter($equipment));
-	if($equipment == '') {
-		$equipment = 0;
-	}
-    $tickets_list = "SELECT t.*, c.name, s.location_name, s.client_name, s.id FROM tickets t LEFT JOIN contacts c ON t.businessid=c.contactid LEFT JOIN ticket_schedule s ON t.ticketid=s.ticketid and s.deleted=0 WHERE t.status != 'Archive' AND t.deleted = 0 $search_type AND (t.contactid LIKE '%," . $contactid . ",%' OR internal_qa_contactid LIKE '%," . $contactid . ",%' OR deliverable_contactid LIKE '%," . $contactid . ",%') AND ".$where." ORDER BY ticketid DESC";
-
-    //$tickets_list = "SELECT t.*, c.name, s.location_name, s.client_name, s.id FROM tickets t LEFT JOIN contacts c ON t.businessid=c.contactid LEFT JOIN ticket_schedule s ON t.ticketid=s.ticketid and s.deleted=0 WHERE t.status != 'Archive' AND t.deleted = 0 $search_type AND (t.contactid LIKE '%," . $contactid . ",%' OR internal_qa_contactid LIKE '%," . $contactid . ",%' OR deliverable_contactid LIKE '%," . $contactid . ",%' OR '".$contactid."' = '' OR t.equipmentid IN ($equipment) OR s.equipmentid IN ($equipment)) ORDER BY ticketid DESC";
-
-    $result = mysqli_query($dbc, $tickets_list) or die(mysqli_error($dbc));
-
-    if(!$result) {
-        echo "Search query is currently unavailable, please contact your server admin...";
-    }
-    $num_rows = mysqli_num_rows($result);
-?>
-    <div class="col-xs-12">
-        <div class="weekly-div" style="overflow-y: hidden;">
-            <?php if($num_rows > 0) {
-                echo 'Displaying a total of '.$num_rows.' '.TICKET_TILE.'.';
-                echo '<div id="no-more-tables"><table class="table table-bordered">';
-                echo '<tr class="hidden-xs hidden-sm">
-						<th>'.TICKET_NOUN.' #</th>
-						'.(in_array('Project',$db_config) ? '<th>'.PROJECT_NOUN.' Information</th>' : '').'
-						'.(in_array('Business',$db_config) || in_array('Business',$db_config) ?
-							('<th>'.(in_array('Business',$db_config) ? 'Business<br>' : '').
-							(in_array('Contact',$db_config) ? 'Contact' : '').'</th>') : '').'
-						'.(in_array('Services',$db_config) ? '<th>Service</th>' : '').'
-						'.(in_array('Heading',$db_config) ? '<th>'.TICKET_NOUN.' Heading</th>' : '').'
-						'.(in_array('Staff',$db_config) ? '<th>Staff</th>' : '').'
-						'.(in_array('Create Date',$db_config) ? '<th>Created Date</th>' : '').'
-						'.(in_array('Ticket Date',$db_config) ? '<th>Date</th>' : '').'
-						'.(in_array('Deliverable Date',$db_config) ? '<th>TO DO</th>
-							<th>Internal QA</th>
-							<th>Deliverable</th>' : '').'
-						'.(in_array('Documents',$db_config) ? '<th>Documents</th>' : '').'
-						'.(in_array('Status',$db_config) ? '<th>Current Status</th>' : '').'
-                    </tr>';
-                while($row = mysqli_fetch_array( $result )) {
-                    echo '<tr>
-                            <td data-title="'.TICKET_NOUN.' #">'.($tile_security['edit'] == 1 ? '<a href=\'../Ticket/index.php?edit='.$row['ticketid'].'&from='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']).'&stop='.$row['stop_id'].'\'>'.$row['ticketid'].'</a>' : $row['ticketid']).'</td>';
-					if(in_array('Project',$db_config)) {
-						echo '<td data-title="'.PROJECT_NOUN.' Information">'.($tile_security['edit'] == 1 ? '<a href=\'../Ticket/index.php?edit='.$row['ticketid'].'&from='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']).'\'>' : '');
-							if($row['projectid'] > 0) {
-								$project = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `project` WHERE `projectid`='".$row['projectid']."'"));
-								echo PROJECT_NOUN.' #'.$project['projectid'].' '.$project['project_name'].'<br />'.$project_types[$project['projecttype']];
-							} else {
-								echo 'No '.PROJECT_NOUN;
-							}
-						echo ($tile_security['edit'] == 1 ? '</a>' : '').'</td>';
-					}
-                    if(in_array('Business',$db_config) || in_array('Business',$db_config)) {
-                        echo '<td data-title="'.(in_array('Business',$db_config) ? 'Business ' : '').(in_array('Contact',$db_config) ? 'Contact' : '').'">';
-                        echo (in_array('Business',$db_config) ? get_contact($dbc,$row['businessid'],'name').'<br />' : '');
-                        if(in_array('Contact',$db_config)) {
-                            foreach(array_filter(explode(',',$row['clientid'])) as $clientid) {
-                                echo get_contact($dbc, $clientid).'<br />';
-                            }
-                        }
-                        echo '</td>';
-                    }
-                    if(in_array('Services',$db_config)) {
-                        echo '<td data-title="Service">';
-                        foreach(array_filter(explode(',',$row['serviceid'])) as $service) {
-                            $service = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `category`, `heading` FROM `services` WHERE `serviceid`='$service'"));
-                            echo ($service['category'] == '' ? '' : $service['category'].': ').$service['heading'].'<br />';
-                        }
-                        echo '</td>';
-                    }
-                    echo (in_array('Heading',$db_config) ? '<td data-title="'.TICKET_NOUN.' Heading">'.$row['heading'].($row['location_name'] != '' ? ' - '.$row['location_name'] : ($row['client_name'] != '' ? ' - '.$row['client_name'] : '')).'</td>' : '');
-                    if(in_array('Staff',$db_config)) {
-                        echo '<td data-title="Staff">';
-                        foreach(array_filter(explode(',',$row['contactid'])) as $staff) {
-                            echo get_contact($dbc, $staff).'<br />';
-                        }
-                        foreach(array_filter(explode(',',$row['internal_qa_contactid'])) as $staff) {
-                            echo get_contact($dbc, $staff).' (Internal QA)<br />';
-                        }
-                        foreach(array_filter(explode(',',$row['deliverable_contactid'])) as $staff) {
-                            echo get_contact($dbc, $staff).' (Deliverable)<br />';
-                        }
-                        echo '</td>';
-                    }
-					if(in_array('Create Date',$db_config)) {
-						echo '<td data-title="Date Created">'.$row['created_date'].'</td>';
-					}
-					if(in_array('Ticket Date',$db_config)) {
-						echo '<td data-title="Date">';
-							$dates = mysqli_query($dbc, "SELECT * FROM `ticket_schedule` WHERE IFNULL(`to_do_date`,'0000-00-00')!='0000-00-00' AND `ticketid`='".$row['ticketid']."'");
-							if($dates->num_rows > 0) {
-								while($date_row = $dates->fetch_assoc()) {
-									switch($date_row['type']) {
-										case 'origin': echo 'Shipment Date: '; break;
-										case 'destination': echo 'Delivery Date: '; break;
-										case '': break;
-										default: echo $date_row['type'].': '; break;
-									}
-									echo $date_row['to_do_date']."<br />\n";
-								}
-							} else {
-								echo $row['to_do_date'];
-							}
-						echo '</td>';
-					}
-                    if(in_array('Deliverable Date',$db_config)) {
-                        echo '<td data-title="TO DO">'.($row['to_do_date'] == '' ? '' : $row['to_do_date'].'<br />');
-                        foreach(array_filter(explode(',', $row['contactid'])) as $staff) {
-                            echo get_contact($dbc, $staff).'<br />';
-                        }
-                        echo $row['max_time'].'</td>';
-                        echo '<td data-title="Internal QA">'.($row['internal_qa_date'] == '' ? '' : $row['internal_qa_date'].'<br />');
-                        foreach(array_filter(explode(',', $row['internal_qa_contactid'])) as $staff) {
-                            echo get_contact($dbc, $staff).'<br />';
-                        }
-                        echo '</td>';
-                        echo '<td data-title="Deliverable">'.($row['deliverable_date'] == '' ? '' : $row['deliverable_date'].'<br />');
-                        foreach(array_filter(explode(',', $row['deliverable_contactid'])) as $staff) {
-                            echo get_contact($dbc, $staff).'<br />';
-                        }
-                        echo '</td>';
-                    }
-                    if(in_array('Documents',$db_config)) {
-                        echo '<td data-title="Documents">';
-							$documents = mysqli_query($dbc, "SELECT IFNULL(NULLIF(`label`,''),`document`) `label`, CONCAT('download/',`document`) `link` FROM `ticket_document` WHERE `ticketid`='".$row['ticketid']."' AND `deleted`=0 AND IFNULL(`document`,'') != '' UNION
-								SELECT CONCAT('Project: ',IFNULL(NULLIF(`label`,''),`upload`)) `label`, CONCAT('../Project/download',`upload`) `link` FROM `project_document` WHERE `projectid`='".$row['projectid']."' AND `deleted`=0 AND IFNULL(`upload`,'') != ''");
-							while($document = $documents->fetch_assoc()) {
-								echo '<a href="'.$document['link'].'">'.$document['label']."</a><br />\n";
-							}
-                        echo '</td>';
-                    }
-                    if(in_array('Status',$db_config)) {
-                        echo '<td data-title="Current Status">';
-                            echo $row['status'];
-                        echo '</td>';
-                    }
-
-                    echo '</tr>';
+}
+function setActions() {
+    $('.archive-icon').off('click').click(function() {
+        var item = $(this).closest('.dashboard-item');
+        $.ajax({
+            url: 'ticket_ajax_all.php?action=archive',
+            method: 'POST',
+            data: { ticketid: item.data('id') }
+        });
+        item.hide();
+    });
+    $('.manual-flag-icon').off('click').click(function() {
+        var item = $(this).closest('.dashboard-item');
+        item.find('.flag_field_labels,[name=label],[name=colour],[name=flag_it],[name=flag_cancel],[name=flag_off],[name=flag_start],[name=flag_end]').show();
+        item.find('[name=flag_cancel]').off('click').click(function() {
+            item.find('.flag_field_labels,[name=label],[name=colour],[name=flag_it],[name=flag_cancel],[name=flag_off],[name=flag_start],[name=flag_end]').hide();
+            return false;
+        });
+        item.find('[name=flag_off]').off('click').click(function() {
+            item.find('[name=colour]').val('FFFFFF');
+            item.find('[name=label]').val('');
+            item.find('[name=flag_start]').val('');
+            item.find('[name=flag_end]').val('');
+            item.find('[name=flag_it]').click();
+            return false;
+        });
+        item.find('[name=flag_it]').off('click').click(function() {
+            $.ajax({
+                url: 'ticket_ajax_all.php?action=quick_actions',
+                method: 'POST',
+                data: {
+                    field: 'manual_flag_colour',
+                    value: item.find('[name=colour]').val(),
+                    table: item.data('table'),
+                    label: item.find('[name=label]').val(),
+                    start: item.find('[name=flag_start]').val(),
+                    end: item.find('[name=flag_end]').val(),
+                    id: item.data('id'),
+                    id_field: item.data('id-field')
                 }
+            });
+            item.find('.flag_field_labels,[name=label],[name=colour],[name=flag_it],[name=flag_cancel],[name=flag_off],[name=flag_start],[name=flag_end]').hide();
+            item.data('colour',item.find('[name=colour]').val());
+            item.css('background-color','#'+item.find('[name=colour]').val());
+            item.find('.flag-label').text(item.find('[name=label]').val());
+            return false;
+        });
+    });
+    $('.flag-icon').off('click').click(function() {
+        var item = $(this).closest('.dashboard-item');
+        $.ajax({
+            url: '../Ticket/ticket_ajax_all.php?action=quick_actions',
+            method: 'POST',
+            data: {
+                field: 'flag_colour',
+                value: item.data('colour'),
+                table: item.data('table'),
+                id: item.data('id'),
+                id_field: item.data('id-field')
+            },
+            success: function(response) {
+                item.data('colour',response.substr(0,6));
+                item.css('background-color','#'+response.substr(0,6));
+                item.find('.flag-label').html(response.substr(6));
+            }
+        });
+    });
+    $('.attach-icon').off('click').click(function() {
+        var item = $(this).closest('.dashboard-item');
+        item.find('[type=file]').off('change').change(function() {
+            var fileData = new FormData();
+            fileData.append('file',$(this)[0].files[0]);
+            fileData.append('field','document');
+            fileData.append('table','ticket_document');
+            fileData.append('folder','download');
+            fileData.append('id',item.data('id'));
+            fileData.append('id_field','ticketid');
+            $.ajax({
+                contentType: false,
+                processData: false,
+                method: "POST",
+                url: "ticket_ajax_all.php?action=quick_actions",
+                data: fileData
+            });
+        }).click();
+    });
+    $('.reply-icon').off('click').click(function() {
+        var item = $(this).closest('.dashboard-item');
+        overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_notes.php?tile=tickets&id='+item.data('id'), 'auto', false, true);
+    });
 
-                echo '</table></div>';
+    $('.emailpdf-icon').off('click').click(function() {
+        var item = $(this).closest('.dashboard-item');
+        item.find('[name=emailpdf]').off('change').off('blur').show().focus().blur(function() {
+            $(this).off('blur');
+            $.ajax({
+                url: '../Ticket/ticket_ajax_all.php?action=quick_actions',
+                method: 'POST',
+                data: {
+                        id: item.data('id'),
+                        id_field: item.data('id-field'),
+                        table: item.data('table'),
+                        field: 'emailpdf',
+                        value: this.value,
+                    },
+                success: function(response) {
+                            alert('PDF Sent');
+                }
+                });
+            $(this).hide().val('');
+        }).keyup(function(e) {
+            if(e.which == 13) {
+                $(this).blur();
+            } else if(e.which == 27) {
+                $(this).off('blur').hide();
+            }
+        });
+    });
+
+    $('.reminder-icon').off('click').click(function() {
+        var item = $(this).closest('.dashboard-item');
+        item.find('[name=reminder]').change(function() {
+            var reminder = $(this).val();
+            var select = item.find('.select_users');
+            select.find('.cancel_button').off('click').click(function() {
+                select.find('select option:selected').removeAttr('selected');
+                select.find('select').trigger('change.select2');
+                select.hide();
+                return false;
+            });
+            select.find('.submit_button').off('click').click(function() {
+                if(select.find('select').val() != '' && confirm('Are you sure you want to schedule reminders for the selected user(s)?')) {
+                    var users = [];
+                    select.find('select option:selected').each(function() {
+                        users.push(this.value);
+                        $(this).removeAttr('selected');
+                    });
+                    $.ajax({
+                        method: 'POST',
+                        url: '../Ticket/ticket_ajax_all.php?action=quick_actions',
+                        data: {
+                            id: item.data('id'),
+                            id_field: item.data('id-field'),
+                            table: item.data('table'),
+                            field: 'reminder',
+                            value: reminder,
+                            users: users,
+                            ref_id: item.data('id'),
+                            ref_id_field: item.data('id-field')
+                        },
+                        success: function(result) {
+                            select.hide();
+                            select.find('select').trigger('change.select2');
+                            item.find('h4').append(result);
+                        }
+                    });
+                }
+                return false;
+            });
+            select.show();
+        }).focus();
+    });
+    $('.alert-icon').off('click').click(function() {
+        var item = $(this).closest('.dashboard-item');
+        var select = item.find('.select_users');
+        $(this).data('users').split(',').forEach(function(user) {
+            if(user > 0) {
+                select.find('option[value='+user+']').attr('selected',true);
+            }
+        });
+        select.find('.cancel_button').off('click').click(function() {
+            select.find('option:selected').removeAttr('selected');
+            select.find('select').trigger('change.select2');
+            select.hide();
+            return false;
+        });
+        select.find('.submit_button').off('click').click(function() {
+            if(select.find('select').val() != '' && confirm('Are you sure you want to activate alerts for the selected user(s)?')) {
+                var users = [];
+                select.find('select option:selected').each(function() {
+                    users.push(this.value);
+                    $(this).removeAttr('selected');
+                });
+                $.ajax({
+                    method: 'POST',
+                    url: '../Ticket/ticket_ajax_all.php?action=quick_actions',
+                    data: {
+                        id: item.data('id'),
+                        id_field: item.data('id-field'),
+                        table: item.data('table'),
+                        field: 'alert',
+                        value: users
+                    },
+                    success: function(result) {
+                        select.hide();
+                        item.find('h4').append(result);
+                    }
+                });
+            }
+            return false;
+        });
+        select.find('select').trigger('change.select2');
+        select.show();
+    });
+    $('.email-icon').off('click').click(function() {
+        var item = $(this).closest('.dashboard-item');
+        overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_email.php?tile=tickets&id='+item.data('id'), 'auto', false, true);
+    });
+}
+function setStatus(select) {
+    $.ajax({    //create an ajax request to load_page.php
+        type: "GET",
+        url: "../Ticket/ticket_ajax_all.php?fill=update_ticket_status&ticketid="+$(select).data('id')+'&status='+select.value,
+        dataType: "html",   //expect html to be returned
+        success: function(response){
+            if(status == 'Archive') {
+                $(sel).closest('tr').hide();
+            }
+        }
+    });
+}
+
+function setMilestoneTimeline(select) {
+    $.ajax({    //create an ajax request to load_page.php
+        type: "GET",
+        url: "../Ticket/ticket_ajax_all.php?fill=update_ticket_mt&ticketid="+$(select).data('id')+'&mt='+select.value,
+        dataType: "html",   //expect html to be returned
+        success: function(response){
+
+        }
+    });
+}
+
+
+function setTotalBudgetTime(input) {
+    $.ajax({
+        type: "POST",
+        url: "../Ticket/ticket_ajax_all.php?action=update_ticket_total_budget_time",
+        data: { ticketid: $(input).data('id'), time: $(input).val() },
+        dataType: "html",
+        success: function(response){
+            if(response != '') {
+                $(input).closest('.dashboard-item').find('.total_budget_time_icon').attr('title', response).show();
             } else {
-                echo "<h2>No Record Found.</h2>";
-            } ?>
-        </div>
+                $(input).closest('.dashboard-item').find('.total_budget_time_icon').attr('title', response).hide();
+            }
+        }
+    });
+}
+</script>
+<?php
+/* Start Pagination Counting */
+$rowsPerPage = 10;
+$pageNum = 1;
+
+if(isset($_GET['page'])) {
+    $pageNum = $_GET['page'];
+}
+
+$offset = ($pageNum - 1) * $rowsPerPage;
+
+$contactid = $_SESSION['contactid'];
+$search_start_date = date('Y-m-01');
+$search_end_date = date('Y-m-t');
+
+$_SERVER['QUERY_STRING'] = explode('&', $_SERVER['QUERY_STRING']);
+foreach($_SERVER['QUERY_STRING'] as $key => $query_string) {
+    if(strpos($query_string,'search_start_date') !== FALSE || strpos($query_string,'search_end_date') !== FALSE || strpos($query_string,'page') !== FALSE) {
+        unset($_SERVER['QUERY_STRING'][$key]);
+    }
+}
+if(!empty($_POST['search_start_date'])) {
+    $_GET['search_start_date'] = $_POST['search_start_date'];
+}
+if(!empty($_POST['search_end_date'])) {
+    $_GET['search_end_date'] = $_POST['search_end_date'];
+}
+if(!empty($_GET['search_start_date'])) {
+    $search_start_date = $_GET['search_start_date'];
+    $_SERVER['QUERY_STRING'][] = 'search_start_date='.$_GET['search_start_date'];
+}
+if(!empty($_GET['search_end_date'])) {
+    $search_end_date = $_GET['search_end_date'];
+    $_SERVER['QUERY_STRING'][] = 'search_end_date='.$_GET['search_end_date'];
+}
+$_SERVER['QUERY_STRING'] = implode('&', $_SERVER['QUERY_STRING']);
+
+$equipment = [];
+for($cur_day = $search_start_date; strtotime($cur_day) <= strtotime($search_end_date); $cur_day = date('Y-m-d', strtotime($cur_day.' + 1 day'))) {
+    $equipment_ids = mysqli_query($dbc, "SELECT `equipmentid` FROM `equipment_assignment_staff` LEFT JOIN `equipment_assignment` ON `equipment_assignment_staff`.`equipment_assignmentid`=`equipment_assignment`.`equipment_assignmentid` WHERE `equipment_assignment_staff`.`deleted`=0 AND `equipment_assignment`.`deleted`=0 AND `equipment_assignment_staff`.`contactid`='$contactid' AND DATE(`equipment_assignment`.`start_date`) <= '$cur_day' AND DATE(`equipment_assignment`.`end_date`) >= '$cur_day' AND CONCAT(',',`hide_staff`,',') NOT LIKE '%,$contactid,%' AND CONCAT(',',`hide_days`,',') NOT LIKE '%,$cur_day,%'");
+    while($equipment[] = mysqli_fetch_assoc($equipment_ids)['equipmentid']) { }
+}
+$equipment = implode(',',array_filter(array_unique($equipment)));
+$equipment_query = '';
+if($equipment != '') {
+    $equipment_query = " OR `equipment` IN ($equipment)";
+}
+
+$tickets_list = "SELECT * FROM `tickets` WHERE `deleted` = 0 AND `status` NOT IN ('Archive','Done') AND ((`internal_qa_date` BETWEEN '$search_start_date' AND '$search_end_date' AND CONCAT(',',`internal_qa_contactid`,',') LIKE '%,$contactid,%') OR (`deliverable_date` BETWEEN '$search_start_date' AND '$search_end_date' AND CONCAT(',',`deliverable_contactid`,',' LIKE '%,$contactid,%') OR ((`to_do_date` BETWEEN '$search_start_date' AND '$search_end_date' OR IFNULL(NULLIF(`to_do_end_date`,'0000-00-00'),`to_do_date`) BETWEEN '$search_start_date' AND '$search_end_date') AND CONCAT(',',`contactid`,',') LIKE '%,$contactid,%') $equipment_query OR `ticketid` IN (SELECT `ticketid` FROM `ticket_schedule` WHERE `deleted` = 0 AND ((`to_do_date` BETWEEN '$search_start_date' AND '$search_end_date' OR IFNULL(NULLIF(`to_do_end_date`,'0000-00-00'),`to_do_date`) BETWEEN '$search_start_date' AND '$search_end_date') AND CONCAT(',',`contactid`,',') LIKE '%,$contactid,%') $equipment_query))) LIMIT $offset, $rowsPerPage";
+$query = "SELECT COUNT(`ticketid`) as `numrows` FROM `tickets` WHERE `deleted` = 0 AND `status` NOT IN ('Archive','Done') AND ((`internal_qa_date` BETWEEN '$search_start_date' AND '$search_end_date' AND CONCAT(',',`internal_qa_contactid`,',') LIKE '%,$contactid,%') OR (`deliverable_date` BETWEEN '$search_start_date' AND '$search_end_date' AND CONCAT(',',`deliverable_contactid`,',' LIKE '%,$contactid,%') OR ((`to_do_date` BETWEEN '$search_start_date' AND '$search_end_date' OR IFNULL(NULLIF(`to_do_end_date`,'0000-00-00'),`to_do_date`) BETWEEN '$search_start_date' AND '$search_end_date') AND CONCAT(',',`contactid`,',') LIKE '%,$contactid,%') $equipment_query OR `ticketid` IN (SELECT `ticketid` FROM `ticket_schedule` WHERE `deleted` = 0 AND ((`to_do_date` BETWEEN '$search_start_date' AND '$search_end_date' OR IFNULL(NULLIF(`to_do_end_date`,'0000-00-00'),`to_do_date`) BETWEEN '$search_start_date' AND '$search_end_date') AND CONCAT(',',`contactid`,',') LIKE '%,$contactid,%') $equipment_query)))";
+
+$result = mysqli_query($dbc, $tickets_list);
+
+$num_rows = mysqli_num_rows($result);
+?>
+<div class="col-xs-12">
+    <div class="weekly-div" style="overflow-y: hidden;">
+        <form action="" method="POST">
+            <div class="form-group">
+                <label class="col-sm-2">Start Date:</label>
+                <div class="col-sm-3"><input type="text" name="search_start_date" class="form-control datepicker" style="background-color: white;" value="<?= $search_start_date ?>"></div>
+                <label class="col-sm-2">End Date:</label>
+                <div class="col-sm-3"><input type="text" name="search_end_date" class="form-control datepicker" style="background-color: white;" value="<?= $search_end_date ?>"></div>
+                <button type="submit" name="search_tickets" class="btn brand-btn">Submit</button>
+            </div>
+        </form>
+        <?php if($num_rows > 0) {
+            echo display_pagination($dbc, $query, $pageNum, $rowsPerPage);
+            while($row = mysqli_fetch_array( $result )) {
+                $_GET['ticketid'] = $row['ticketid'];
+                $no_ob_clean = true;
+                include('../Ticket/ticket_load.php');
+            }
+            echo display_pagination($dbc, $query, $pageNum, $rowsPerPage);
+        } else {
+            echo "<h2>No Record Found.</h2>";
+        } ?>
     </div>
+</div>

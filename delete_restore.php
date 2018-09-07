@@ -82,9 +82,12 @@ $date_of_archival = date('Y-m-d');
 		else if($deleted == 2) {
 			$new_status = 'Hidden';
 		}
-		$sql = "UPDATE `project_manage` SET `status`='$new_status', `date_of_archival` = '$date_of_archival' WHERE `projectmanageid`='$id'";
+		$sql = "UPDATE `project_manage` SET `status`='$new_status' WHERE `projectmanageid`='$id'";
 		$result = mysqli_query($dbc, $sql);
-		if($current['tile'] == 'Shop Work Orders' && ($current['status'] == 'Approved' || $current['status'] == 'Deleted')) {
+		if ( isset($_GET['category']) && ($_GET['category']=='shop_work_order') ) {
+            header('Location: Archived/archived_data.php?archive_type=shop_work_order');
+            die();
+        } elseif($current['tile'] == 'Shop Work Orders' && ($current['status'] == 'Approved' || $current['status'] == 'Deleted')) {
 			header('Location: Project Workflow/project_workflow_dashboard.php?tile=Shop Work Orders&tab=Shop Work Order');
 		}
 		else if($current['tile'] == 'Shop Work Orders' && ($current['status'] == '' || $current['status'] == 'Rejected')) {
@@ -401,19 +404,26 @@ $date_of_archival = date('Y-m-d');
 	if(!empty($_GET['field_job'])) {
 		$id = $_GET['field_job'];
 		$category = $_GET['category'];
+        $archived_tile = false;
 		switch($_GET['job_tab']) {
 			case 'Sites': $table = 'field_sites'; $id_field = 'siteid'; break;
 			case 'Jobs': $table = 'field_jobs'; $id_field = 'jobid'; break;
 			case 'Foreman Sheet': $table = 'field_foreman_sheet'; $id_field = 'fsid'; break;
 			case 'PO': $table = 'field_po'; $id_field = 'fieldpoid'; break;
 			case 'Work Ticket': $table = 'field_work_ticket'; $id_field = 'workticketid'; break;
+            case 'Attached to Work Ticket': $table = 'field_po'; $id_field = 'fieldpoid'; $archived_tile = true; break;
 			case 'Invoice': $table = 'field_invoice'; $id_field = 'invoiceid'; break;
 			default: exit("<script>alert('Something went wrong.');window.location.replace('/Field Jobs/field_sites.php');"); break;
 		}
 
 		$sql_update = "UPDATE `$table` SET `deleted`='$deleted', `date_of_archival` = '$date_of_archival' WHERE `$id_field`='$id'";
 		$result = mysqli_query($dbc, $sql_update);
-		header('Location: Archived/archived_data.php?archive_type=field_jobs&category='.$category);
+		if ( $archived_tile ) {
+            header('Location: Archived/archived_data.php?archive_type='.$category);
+            die();
+        } else {
+            header('Location: Archived/archived_data.php?archive_type=field_jobs&category='.$category);
+        }
 	}
 
     if(!empty($_GET['contactid'])) {
@@ -432,6 +442,9 @@ $date_of_archival = date('Y-m-d');
         $result_update = mysqli_query($dbc, $query_update);
         if($_GET['action'] == 'delete') {
             header('Location: '.$url_return);
+        }
+        if($_GET['action'] == 'restore' && !empty($_GET['from'])) {
+            header('Location: '.$_GET['from']);
         }
     }
 
@@ -669,7 +682,7 @@ $date_of_archival = date('Y-m-d');
         $query_update = "UPDATE `equipment` SET deleted='$deleted', `date_of_archival` = '$date_of_archival' WHERE equipmentid='$equipmentid'";
         $result_update = mysqli_query($dbc, $query_update);
         if($_GET['action'] == 'delete') {
-            header('Location: Equipment/equipment.php?type=active&category='.$category.'&filter=Top');
+            header('Location: Equipment/index.php?status=Active&category='.$category);
         }
     }
 
@@ -1014,6 +1027,25 @@ $date_of_archival = date('Y-m-d');
         }
     }
 
+    if(!empty($_GET['checkoutid'])) {
+		$checkoutid = $_GET['checkoutid'];
+        $archive_type = $_GET['archive_type'];
+        $query_update = "UPDATE `invoice` SET deleted='$deleted' WHERE invoiceid='$checkoutid'";
+        $result_update = mysqli_query($dbc, $query_update);
+        if($_GET['action'] == 'delete') {
+            header('Location: Archived/archived_data.php?archive_type='.$archive_type);
+        }
+    }
+
+	if(!empty($_GET['archive_checklistid'])) {
+        $checklistid = $_GET['archive_checklistid'];
+        $archive_type = $_GET['category']; echo $archive_type;
+        $query_update = "UPDATE `checklist` SET deleted='$deleted', `date_of_archival`='$date_of_archival' WHERE `checklistid`='$checklistid'";
+        $result_update = mysqli_query($dbc, $query_update);
+        header('Location: Archived/archived_data.php?archive_type=checklist');
+        die();
+    }
+
 	if(!empty($_GET['assigntotimerid'])) {
 		$assigntotimerid = $_GET['assigntotimerid'];
         $category = $_GET['category'];
@@ -1065,7 +1097,7 @@ $date_of_archival = date('Y-m-d');
 	if($_GET['action'] == 'delete_2') {
 		header('Location: Archived/archived_data.php?archive_type='.$category.'');
 	}
-	if($_GET['action'] == 'restore') {
+	if($_GET['action'] == 'restore' && empty($_GET['from'])) {
 		header('Location: Archived/archived_data.php?archive_type='.$category.'');
 	}
 

@@ -6,8 +6,14 @@ error_reporting(0);
 include ('../include.php');
 ?>
 <script type="text/javascript">
-$(document).ready(function() {
-
+$(document).ready(function(){
+    $(window).resize(function() {
+		var available_height = window.innerHeight - $('footer:visible').outerHeight() - $('.tile-sidebar:visible').offset().top;
+        if(available_height > 300) {
+            $('#services_div .tile-sidebar, #services_div .scale-to-fill').height(available_height);
+            $('.main-screen-white').height(available_height - 10);
+        }
+	}).resize();
 });
 </script>
 </head>

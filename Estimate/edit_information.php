@@ -70,7 +70,7 @@ function filterContacts(select) {
 }
 </script>
 <div class="form-horizontal col-sm-12" data-tab-name="information">
-	<h3><?= ESTIMATE_TILE ?> Information</h3>
+	<h3><?= rtrim(ESTIMATE_TILE, 's') ?> Information</h3>
 	<?php if(in_array('Business',$config)) { ?>
 		<div class="form-group">
 			<label class="col-sm-4">Business:</label>
@@ -120,7 +120,7 @@ function filterContacts(select) {
 	<?php } ?>
 	<?php foreach(explode(',',$estimate['estimatetype']) as $current_type) { ?>
 		<div class="form-group">
-			<label class="col-sm-4"><?= ESTIMATE_TILE ?> Type:</label>
+			<label class="col-sm-4"><?= rtrim(ESTIMATE_TILE, 's') ?> Type:</label>
 			<div class="col-sm-7">
 				<select class="chosen-select-deselect" name="estimatetype[]" data-table="estimate" data-id-field="estimateid" data-id="<?= $estimateid ?>">
 					<option></option>
@@ -136,7 +136,7 @@ function filterContacts(select) {
 		</div>
 	<?php } ?>
 		<div class="form-group">
-			<label class="col-sm-4"><?= ESTIMATE_TILE ?> Name:</label>
+			<label class="col-sm-4"><?= rtrim(ESTIMATE_TILE, 's') ?> Name:</label>
 			<div class="col-sm-8">
 				<input type="text" class="form-control" name="estimate_name" data-table="estimate" data-id-field="estimateid" data-id="<?= $estimateid ?>" value="<?= $estimate['estimate_name'] ?>">
 			</div>
@@ -184,7 +184,7 @@ function filterContacts(select) {
 	<?php $actions = mysqli_query($dbc, "SELECT * FROM `estimate_actions` WHERE `estimateid`='$estimateid' AND `deleted`=0 ORDER BY `due_date` ASC");
 	while($action = mysqli_fetch_array($actions)) { ?>
 		<hr />
-        
+
         <div class="action-group">
 			<div class="form-group">
 				<label class="col-sm-4">Next Action:</label>
@@ -227,7 +227,7 @@ function filterContacts(select) {
             </div>
 		</div>
 	<?php } ?>
-	
+
     <div class="clearfix"></div>
     <hr />
 </div>

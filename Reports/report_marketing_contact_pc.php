@@ -80,6 +80,7 @@ if (isset($_POST['printpdf'])) {
 
 	$pdf->writeHTML($html, true, false, true, false, '');
 	$pdf->Output('Download/'.$pdf_url, 'F');
+    track_download($dbc, 'report_marketing_contact_pc', 0, WEBSITE_URL.'/Reports/Download/postalcode_'.$time.'.pdf', 'Postal Code Analysis Report');
     ?>
 
 	<script type="text/javascript" language="Javascript">
@@ -87,19 +88,6 @@ if (isset($_POST['printpdf'])) {
 	</script>
     <?php
 } ?>
-
-<script type="text/javascript">
-
-</script>
-</head>
-<body>
-<?php include_once ('../navigation.php');
-?>
-
-<div class="container triple-pad-bottom">
-    <div class="row">
-        <div class="col-md-12">
-        <?php echo reports_tiles($dbc);  ?>
         <br>
         <?php
         $select_query = "select distinct(category) from contacts";
@@ -113,7 +101,7 @@ if (isset($_POST['printpdf'])) {
             <?php else: ?>
                 <?php $active = ''; ?>
             <?php endif; ?>
-            <div class="tab pull-left"><a href='?type=<?= $_GET['type'] ?>&subtype=<?= $row["category"] ?>'><button type="button" class="btn brand-btn mobile-block mobile-100 <?php echo $active; ?>" ><?php echo $row['category']; ?></button></a></div>
+            <div class="tab pull-left"><a href='?type=<?= $_GET['type'] ?>&report=<?= $_GET['report'] ?>&subtype=<?= $row["category"] ?>'><button type="button" class="btn brand-btn mobile-block mobile-100 <?php echo $active; ?>" ><?php echo $row['category']; ?></button></a></div>
           <?php endif; ?>
         <?php } ?>
         <br><br><br>
@@ -182,10 +170,6 @@ if (isset($_POST['printpdf'])) {
 
         </form>
 
-        </div>
-    </div>
-</div>
-<?php include ('../footer.php'); ?>
 
 <?php
 function report_postalcode($dbc, $contact_category, $starttime, $endtime, $postal_code = false, $table_style, $table_row_style, $grand_total_style, $pdf_print=false) {
@@ -216,7 +200,8 @@ function report_postalcode($dbc, $contact_category, $starttime, $endtime, $posta
         while($all_post_code = mysqli_fetch_array($all_post_codes)) {
             $report_data .= '<tr nobr="true">';
             $report_data .= '<td>'.($all_post_code['postal_code'] == '' ? 'No Postal Code' : substr($all_post_code['postal_code'], 0, 3)).'</td>';
-            $report_data .= '<td><a href="?type='.$_GET['type'].'&subtype='.$_GET['subtype'].'&postal_code='.substr($all_post_code['postal_code'], 0, 3).'">'. substr($all_post_code['contact_count'], 0, 3).'</a></td>';
+            //$report_data .= '<td><a href="?type='.$_GET['type'].'&subtype='.$_GET['subtype'].'&postal_code='.substr($all_post_code['postal_code'], 0, 3).'">'. substr($all_post_code['contact_count'], 0, 3).'</a></td>';
+            $report_data .= '<td>'. substr($all_post_code['contact_count'], 0, 3).'</td>';
             $report_data .= "</tr>";
         }
     }
@@ -226,3 +211,17 @@ function report_postalcode($dbc, $contact_category, $starttime, $endtime, $posta
     return $report_data;
 }
 ?>
+<script>
+$('document').ready(function() {
+    var tables = $('table');
+
+    tables.map(function(idx, table) {
+        var rows = $(table).find('tbody > tr');
+        rows.map(function(idx, row){
+            if(idx%2 == 0) {
+                $(row).css('background-color', '#e6e6e6');
+            }
+        })
+    })
+})
+</script>

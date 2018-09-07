@@ -120,7 +120,7 @@ if(strpos($value_config, ',Checkin Delivery,') !== FALSE && !($_GET['stop'] > 0)
 <?php } else if(mysqli_num_rows($checkins) == 0) { ?>
 	</h3><h4>No records found attached to this <?= TICKET_NOUN ?>.</h4>
 <?php } else if(strpos($value_config, ',Checkin Hide All Button,') === FALSE) { ?>
-	<button class="btn brand-btn pull-right" onclick="checkinAll(this); return false;">Check In All</button></h3>
+	<button class="btn brand-btn pull-right" onclick="if($('#collapse_checkin,#tab_section_ticket_checkin').find('.toggle[value=0]').length > 0 && confirm('Are you sure you want to check in all individuals?')) { checkinAll(this); } return false;">Check In All</button></h3>
 	<div class="clearfix"></div>
 <?php } else { ?>
 	</h3>
@@ -166,7 +166,26 @@ foreach ($field_sort_order as $field_sort_order) {
 											<label class="col-sm-4">Dosage</label>
 											<label class="col-sm-3">Time</label>
 										</div>
-										<?php mysqli_query($dbc, "INSERT INTO `ticket_attached` (`ticketid`, `item_id`, `src_table`, `position`, `description`, `shift_start`) SELECT `ticket_attached`.`ticketid`, `ticket_attached`.`item_id`, 'medication', `medication`.`title`, `medication`.`dosage`, `medication`.`administration_times` FROM `ticket_attached` LEFT JOIN `medication` ON `ticket_attached`.`item_id`=`medication`.`clientid` LEFT JOIN `ticket_attached` med_attached ON `med_attached`.`item_id`=`ticket_attached`.`item_id` AND `med_attached`.`position`=`medication`.`title` AND `med_attached`.`ticketid`=`ticket_attached`.`ticketid` WHERE `ticket_attached`.`src_table`='Members' AND `ticket_attached`.`ticketid`='$ticketid' AND `medication`.`deleted`=0 AND (TIME_TO_SEC(`medication`.`administration_times`) IS NULL OR TIME_TO_SEC(`medication`.`administration_times`) BETWEEN TIME_TO_SEC('".$get_ticket['start_time']."') AND TIME_TO_SEC('".$get_ticket['end_time']."')) AND `med_attached`.`item_id` IS NULL AND IFNULL(`medication`.`title`,'') != ''");
+										<?php 
+										if (strpos($value_config, ',Medication Multiple Days,') !== false) {
+											if(!empty($get_ticket['to_do_date'])) {
+												$ticket_start_date = $get_ticket['to_do_date'];
+												$ticket_end_date = empty(str_replace('0000-00-00','',$get_ticket['to_do_end_date'])) ? $get_ticket['to_do_date'] : $get_ticket['to_do_end_date'];
+												for($cur_date = $ticket_start_date; strtotime($cur_date) <= strtotime($ticket_end_date); $cur_date = date('Y-m-d', strtotime($cur_date.' + 1 day'))) {
+													$cur_start_time = $get_ticket['start_time'];
+													$cur_end_time = $get_ticket['end_time'];
+													if($cur_date != $ticket_start_date) {
+														$cur_start_time = '00:00 am';
+													}
+													if($cur_date != $ticket_end_date) {
+														$cur_end_time = '12:00 am';
+													}
+													mysqli_query($dbc, "INSERT INTO `ticket_attached` (`ticketid`, `item_id`, `src_table`, `position`, `description`, `shift_start`, `date_stamp`) SELECT `ticket_attached`.`ticketid`, `ticket_attached`.`item_id`, 'medication', `medication`.`title`, `medication`.`dosage`, `medication`.`administration_times`, '$cur_date' FROM `ticket_attached` LEFT JOIN `medication` ON `ticket_attached`.`item_id`=`medication`.`clientid` LEFT JOIN `ticket_attached` med_attached ON `med_attached`.`item_id`=`ticket_attached`.`item_id` AND `med_attached`.`position`=`medication`.`title` AND `med_attached`.`ticketid`=`ticket_attached`.`ticketid` AND `med_attached`.`date_stamp` = '$cur_date' WHERE `ticket_attached`.`src_table`='Members' AND `ticket_attached`.`ticketid`='$ticketid' AND `medication`.`deleted`=0 AND (TIME_TO_SEC(`medication`.`administration_times`) IS NULL OR TIME_TO_SEC(`medication`.`administration_times`) BETWEEN TIME_TO_SEC('".$cur_start_time."') AND TIME_TO_SEC('".$cur_end_time."')) AND `med_attached`.`item_id` IS NULL AND IFNULL(`medication`.`title`,'') != ''");
+												}
+											}
+										} else {
+											mysqli_query($dbc, "INSERT INTO `ticket_attached` (`ticketid`, `item_id`, `src_table`, `position`, `description`, `shift_start`) SELECT `ticket_attached`.`ticketid`, `ticket_attached`.`item_id`, 'medication', `medication`.`title`, `medication`.`dosage`, `medication`.`administration_times` FROM `ticket_attached` LEFT JOIN `medication` ON `ticket_attached`.`item_id`=`medication`.`clientid` LEFT JOIN `ticket_attached` med_attached ON `med_attached`.`item_id`=`ticket_attached`.`item_id` AND `med_attached`.`position`=`medication`.`title` AND `med_attached`.`ticketid`=`ticket_attached`.`ticketid` WHERE `ticket_attached`.`src_table`='Members' AND `ticket_attached`.`ticketid`='$ticketid' AND `medication`.`deleted`=0 AND (TIME_TO_SEC(`medication`.`administration_times`) IS NULL OR TIME_TO_SEC(`medication`.`administration_times`) BETWEEN TIME_TO_SEC('".$get_ticket['start_time']."') AND TIME_TO_SEC('".$get_ticket['end_time']."')) AND `med_attached`.`item_id` IS NULL AND IFNULL(`medication`.`title`,'') != ''");
+										}
 										$medications = mysqli_query($dbc, "SELECT * FROM `ticket_attached` WHERE `src_table`='medication' AND `ticketid`='$ticketid' AND `ticketid` > 0 AND `item_id`='{$checkin['item_id']}' AND `deleted`=0 ".$query_daily);
 										$medication = mysqli_fetch_assoc($medications);
 										do { ?>

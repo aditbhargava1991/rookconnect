@@ -19,10 +19,12 @@ $field_types = [
 	'TABLE' => 'Table',
 	'TABLEADV' => 'Table (Advanced)',
 	'CONTACTINFO' => 'Contact Information',
+	'FILE' => 'File Upload',
 	'SLIDER' => 'Slider',
 	'SLIDER_TOTAL' => 'Slider Total',
 	'SERVICES' => 'Services',
-	'ACCORDION' => 'New Form Section (Accordion)'
+	'ACCORDION' => 'New Form Section (Accordion)',
+	'HR' => 'Horizontal Row'
 ];
 $field_note = [
 	'TEXT' => "This field displays a line of text in the Form (no input from the user).",
@@ -44,9 +46,11 @@ $field_note = [
 	'TABLE' => "This field generates a table for the user with all the column headings that you add to the table. Ticking the Total checkbox off makes that column numbers only, and will create a sum of the numbers when the PDF is generated.",
 	'TABLEADV' => "This field is an advanced table that allows the user to specify the number of rows, columns, where the user puts inputs, table styling, cell styling, row-span, column-span, checkboxes, etc. Should only be used by advanced users.",
 	'CONTACTINFO' => "This field will create input fields based on the Contact Type chosen. The available fields to be turned on will be based on the settings for that Contact Type.",
+	'FILE' => "This field will create an Uploader where the user can upload files to the Form.",
 	'SLIDER' => "This field will create a slider with min and max values.",
 	'SLIDER_TOTAL' => "This field will create a text value of the total of all selected Sliders.",
 	'SERVICES' => "This field will create a list of checkboxes for Services to choose from.",
-	'ACCORDION' => "This field creates a new Accordion for the Form as a way to organize the Form better (no input from the user)."
+	'ACCORDION' => "This field creates a new Accordion for the Form as a way to organize the Form better (no input from the user).",
+	'HR' => "This field will create a horizontal line across the form as a way to organize the Form better (hr tag in html)."
 ];
 ?>

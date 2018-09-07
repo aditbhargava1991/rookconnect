@@ -1,14 +1,22 @@
 <?php include('../include.php');
 checkAuthorised('driving_log');
 include('../navigation.php');
+if(isset($_POST['reset'])) {
+	unset($_POST['search_category']);
+	unset($_POST['search_contact']);
+	unset($_POST['search_project']);
+}
 $security = get_security($dbc, 'driving_log');
 $config = explode(',',get_config($dbc, 'mileage_fields'));
 $search_staff = $_POST['search_staff'] > 0 ? $_POST['search_staff'] : $_SESSION['contactid'];
 $search_start = isset($_POST['search_start']) ? $_POST['search_start'] : date('Y-m-01');
 $search_end = isset($_POST['search_end']) ? $_POST['search_end'] : date('Y-m-d');
-$search_category = isset($_POST['search_category']) ? $_POST['search_category'] : '';
+$search_cat = isset($_POST['search_category']) ? $_POST['search_category'] : '';
 $search_contact = isset($_POST['search_contact']) ? $_POST['search_contact'] : 0;
-$search_project = isset($_POST['search_project']) ? $_POST['search_project'] : 0; ?>
+$search_project = isset($_POST['search_project']) ? $_POST['search_project'] : 0;
+$search_start = date('Y-m-d 00:00:00', strtotime($search_start));
+$search_end = date('Y-m-d 23:59:59', strtotime($search_end));
+?>
 
 <?php if(isset($_POST['export_mileage'])) {
 	include('../Driving Log/mileage_pdf.php');
@@ -54,6 +62,29 @@ function saveField() {
 		});
 	}
 }
+function addMileage() {
+	destroyInputs('.mileage_row');
+	var block = $('.mileage_row').last();
+	var clone = $(block).clone();
+
+	$(clone).find('[data-id]').data('id','');
+	$(clone).find('input').val('');
+	$(clone).find('select').val('').trigger('change.select2');
+
+	$(block).after(clone);
+	initInputs('.mileage_row');
+
+	$('table input,table select').off('change',saveField).change(saveField);
+}
+function removeMilage(img) {
+	if($('.mileage_row').length <= 1) {
+		addMileage();
+	}
+
+	var block = $(img).closest('.mileage_row');
+	$(block).find('[name="deleted"]').val(1).change();
+	$(block).remove();
+}
 </script>
 <div class="container">
 	<div class="row">
@@ -75,7 +106,7 @@ function saveField() {
 				<div class="col-sm-5">
 					<label class="col-sm-4 control-label">Search By Client:</label>
 					<div class="col-sm-8">
-						<select data-placeholder="Select Client..." class="chosen-select-deselect" name="search_contact">
+						<select data-placeholder="Select Client..." class="chosen-select-deselect" name="search_contact"><option></option>
 							<?php foreach(sort_contacts_query(mysqli_query($dbc, "SELECT `first_name`, `last_name`, `contactid` FROM `contacts` WHERE `category`!='Staff' AND `status`>0 AND `deleted`=0 AND `contactid` IN (SELECT `contactid` FROM `mileage` WHERE `deleted`=0)")) as $contact) { ?>
 								<option <?= $contact['contactid'] == $search_contact ? 'selected' : '' ?> value="<?= $contact['contactid'] ?>"><?= $contact['first_name'].' '.$contact['last_name'] ?></option>
 							<?php } ?>
@@ -87,7 +118,7 @@ function saveField() {
 				<div class="col-sm-5">
 					<label class="col-sm-4 control-label">Search By <?= PROJECT_NOUN ?>:</label>
 					<div class="col-sm-8">
-						<select data-placeholder="Select <?= PROJECT_NOUN ?>..." class="chosen-select-deselect" name="search_project">
+						<select data-placeholder="Select <?= PROJECT_NOUN ?>..." class="chosen-select-deselect" name="search_project"><option></option>
 							<?php $projects = mysqli_query($dbc, "SELECT `projectid`, `project_name`, `projecttype`, `status`, `businessid`, `clientid` FROM `project` WHERE `deleted`=0 AND `projectid` IN (SELECT `projectid` FROM `mileage` WHERE `deleted`=0)");
 							while($project = mysqli_fetch_assoc($projects)) { ?>
 								<option <?= $project['projectid'] == $search_project ? 'selected' : '' ?> value="<?= $project['projectid'] ?>"><?= get_project_label($dbc, $project) ?></option>
@@ -100,7 +131,7 @@ function saveField() {
 				<div class="col-sm-5">
 					<label class="col-sm-4 control-label">Search By Category:</label>
 					<div class="col-sm-8">
-						<select data-placeholder="Select Category..." class="chosen-select-deselect" name="search_category">
+						<select data-placeholder="Select Category..." class="chosen-select-deselect" name="search_category"><option></option>
 							<?php $cats = mysqli_query($dbc, "SELECT `category` FROM `mileage` WHERE `deleted`=0 GROUP BY `category`");
 							while($cat = mysqli_fetch_assoc($cats)) { ?>
 								<option <?= $cat['category'] == $search_cat ? 'selected' : '' ?> value="<?= $cat['category'] ?>"><?= $cat['category'] ?></option>
@@ -125,7 +156,7 @@ function saveField() {
 			<?php } ?>
 			<div class="col-sm-2 pull-right">
 				<button class="btn brand-btn pull-right" name="submit" value="submit" type="submit">Search</button>
-				<button class="btn brand-btn pull-right" name="reset" value="reset" type="reset">Display All</button>
+				<button class="btn brand-btn pull-right" name="reset" value="reset" type="submit">Display All</button>
 			</div>
 			<div class="clearfix"></div>
 			<a href="driving_log_tiles.php" class="btn brand-btn pull-left">Back to Dashboard</a>
@@ -158,13 +189,14 @@ function saveField() {
 						<?php if(in_array('double_mileage',$config)) { ?><th>KMx2</th><?php } ?>
 						<?php if(in_array('tickets',$config)) { ?><th><?= TICKET_TILE ?></th><?php } ?>
 						<?php if(in_array('projects',$config)) { ?><th><?= PROJECT_TILE ?></th><?php } ?>
-						<?php if(in_array('tasks',$config)) { ?><th>Tasks</th><?php } ?>
+						<?php if(in_array('tasks',$config)) { ?><th><?= TASK_TILE ?></th><?php } ?>
 						<?php if(in_array('equipment',$config)) { ?><th>Equipment</th><?php } ?>
 						<?php if(in_array('checklist',$config)) { ?><th>Checklists</th><?php } ?>
 						<?php if(in_array('expense',$config)) { ?><th>Expense</th><?php } ?>
 						<?php if(in_array('meetings',$config)) { ?><th>Meeting</th><?php } ?>
+						<th>Function</th>
 					</tr>
-					<?php $mile_log = mysqli_query($dbc, "SELECT * FROM `mileage` WHERE `deleted`=0 AND `staffid`='$search_staff' AND '$search_contact' IN (`contactid`,'') AND '$search_project' IN (`projectid`,'') AND `category` LIKE '%$search_cat%' AND (`start` BETWEEN '$search_start' AND '$search_end' OR `end` BETWEEN '$search_start' AND '$search_end' OR IFNULL(`start`,'0000-00-00 00:00:00')='0000-00-00 00:00:00' AND IFNULL(`end`,'0000-00-00 00:00:00')='0000-00-00 00:00:00')");
+					<?php $mile_log = mysqli_query($dbc, "SELECT * FROM `mileage` WHERE `deleted`=0 AND `staffid`='$search_staff' AND '$search_contact' IN (`contactid`,'','0') AND '$search_project' IN (`projectid`,'','0') AND `category` LIKE '%$search_cat%' AND (`start` BETWEEN '$search_start' AND '$search_end' OR `end` BETWEEN '$search_start' AND '$search_end' OR IFNULL(`start`,'0000-00-00 00:00:00')='0000-00-00 00:00:00' AND IFNULL(`end`,'0000-00-00 00:00:00')='0000-00-00 00:00:00') ORDER BY IFNULL(`start`,'9999-99-99 23:59:59'), IFNULL(`end`,'9999-99-99 23:59:59')");
 					$mileage = mysqli_fetch_assoc($mile_log);
 					do {
 						$rate['cust_price'] = 0;
@@ -183,7 +215,7 @@ function saveField() {
 						} else {
 							$rate = $dbc->query("SELECT `cust_price` FROM `company_rate_card` WHERE `deleted`=0 AND `tile_name`='Mileage' AND DATE(NOW()) BETWEEN `start_date` AND IFNULL(NULLIF(`end_date`,'0000-00-00'),'9999-12-31')")->fetch_assoc();
 						} ?>
-						<tr>
+						<tr class="mileage_row">
 							<?php if(in_array('staff',$config)) { ?><td data-title="Driver">
 								<select class="chosen-select-deselect" data-placeholder="Select a Driver..." name="staffid" data-id="<?= $mileage['id'] ?>" data-locked=""><option></option>
 									<?php foreach(sort_contacts_query(mysqli_query($dbc, "SELECT `first_name`, `last_name`, `contactid` FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `status`>0 AND `deleted`=0")) as $contact) { ?>
@@ -272,6 +304,11 @@ function saveField() {
 									<?php } ?>
 								</select>
 								</td><?php } ?>
+							<td data-title="Function">
+								<input type="hidden" name="deleted" data-id="<?= $mileage['id'] ?>" data-locked="" value="0">
+		                        <img src="../img/icons/ROOK-add-icon.png" class="inline-img pull-right" onclick="addMileage();">
+		                        <img src="../img/remove.png" class="inline-img pull-right" onclick="removeMilage(this);">
+							</td>
 						</tr>
 					<?php } while($mileage = mysqli_fetch_assoc($mile_log)); ?>
 				</table>

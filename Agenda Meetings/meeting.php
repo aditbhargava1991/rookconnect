@@ -6,18 +6,18 @@ include ('../include.php');
 error_reporting(0);
 ?>
 <script>
-    $(document).on('change.select2', 'select[name="search_client"]', function() { submitForm(this); });
+    // $(document).on('change.select2', 'select[name="search_client"]', function() { submitForm(this); });
 
-    function submitForm(thisForm) {
-        if (!$('input[name="search_user_submit"]').length) {
-            var input = $("<input>")
-                        .attr("type", "hidden")
-                        .attr("name", "search_user_submit").val("1");
-            $('[name=form_sites]').append($(input));
-        }
+    // function submitForm(thisForm) {
+    //     if (!$('input[name="search_user_submit"]').length) {
+    //         var input = $("<input>")
+    //                     .attr("type", "hidden")
+    //                     .attr("name", "search_user_submit").val("1");
+    //         $('[name=form_sites]').append($(input));
+    //     }
 
-        thisForm.form.submit();
-    }
+    //     thisForm.form.submit();
+    // }
 </script>
 </head>
 <body>
@@ -86,13 +86,16 @@ $value_config = ','.mysqli_fetch_assoc(mysqli_query($dbc,"SELECT * FROM field_co
 
         <form name="form_sites" method="post" action="" class="form-horizontal" role="form">
 		<?php
+            $search_staff = '';
             $search_client = '';
             $search_date = '';
             if(isset($_POST['search_user_submit'])) {
+                $search_staff = $_POST['search_staff'];
                 $search_client = $_POST['search_client'];
                 $search_date = $_POST['search_date'];
             }
 			if (isset($_POST['display_all_inventory'])) {
+                $search_staff = '';
 				$search_client = '';
                 $search_date = '';
 			}
@@ -106,10 +109,20 @@ $value_config = ','.mysqli_fetch_assoc(mysqli_query($dbc,"SELECT * FROM field_co
 
 			$offset = ($pageNum - 1) * $rowsPerPage;
         ?>
-        <br><br>
 
+        <div class="form-group">
+                <label for="site_name" class="col-sm-1 control-label">Staff:</label>
+                <div class="col-sm-8" style="width:auto">
+                <select data-placeholder="Select a Staff" name="search_staff" class="chosen-select-deselect form-control" width="380">
+                    <option value=""></option>
+                    <?php $staff_list = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name` FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `deleted`=0 AND `status`=1 AND `show_hide_user`=1"),MYSQLI_ASSOC));
+                    foreach($staff_list as $staffid) {
+                        $row_name = get_contact($dbc, $staffid);
+                        echo '<option'.($search_staff == $staffid ? ' selected' : '').' value="'.$staffid.'">'.$row_name."</option>\n";
+                    } ?>
+                </select>
+            </div>
 		<?php if(strpos($value_config, ','."Business".',') !== FALSE) { ?>
-			<div class="form-group">
 					<label for="site_name" class="col-sm-1 control-label"><?= BUSINESS_CAT ?>:</label>
 					<div class="col-sm-8" style="width:auto">
 					<select data-placeholder="Select a <?= BUSINESS_CAT ?>" name="search_client" class="chosen-select-deselect form-control" width="380">
@@ -136,26 +149,30 @@ $value_config = ','.mysqli_fetch_assoc(mysqli_query($dbc,"SELECT * FROM field_co
 				</div>
 		<?php } ?>
             &nbsp;&nbsp;&nbsp;
-            Meeting Date: <input type="text" name="search_date" value="<?php echo $search_date; ?>" class="datepicker" / onchange="submitForm(this);">
+            Meeting Date: <input type="text" name="search_date" value="<?php echo $search_date; ?>" class="datepicker" />
         <!--<button type="submit" name="search_user_submit" value="Search" class="btn brand-btn mobile-block">Search</button>-->
+        <button type="submit" name="search_user_submit" value="Search" class="btn brand-btn mobile-block gap-left">Search</button>
         <span class="popover-examples" style="margin:7px 5px 0 15px;"><a data-toggle="tooltip" data-placement="top" title="Click here to refresh the page with all Meetings."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
         <button type="submit" name="display_all_inventory" value="Display All" class="btn brand-btn mobile-block">Display All</button>
         </div>
 
         <?php
-         $login_contact = $_SESSION['contactid'];
+        $staff_query = '';
+        if($search_staff > 0) {
+            $staff_query = "AND FIND_IN_SET($search_staff, companycontactid)";
+        }
         if($search_client != '' && $search_date != '') {
-            $query_check_credentials = "SELECT * FROM agenda_meeting WHERE type='Meeting' AND deleted = 0 AND '$search_client' IN (businessid, businesscontactid) AND FIND_IN_SET($login_contact, companycontactid) AND date_of_meeting = '$search_date' ORDER BY date_of_meeting DESC LIMIT $offset, $rowsPerPage";
-			$query_check_credentials = "SELECT count(*) as numrows FROM agenda_meeting WHERE type='Meeting' AND FIND_IN_SET($login_contact, companycontactid) AND deleted = 0 AND '$search_client' IN (businessid, businesscontactid) AND date_of_meeting = '$search_date' ORDER BY date_of_meeting DESC";
+            $query_check_credentials = "SELECT * FROM agenda_meeting WHERE type='Meeting' AND deleted = 0 AND '$search_client' IN (businessid, businesscontactid) $staff_query AND date_of_meeting = '$search_date' ORDER BY date_of_meeting DESC LIMIT $offset, $rowsPerPage";
+			$query_check_credentials = "SELECT count(*) as numrows FROM agenda_meeting WHERE type='Meeting' $staff_query AND deleted = 0 AND '$search_client' IN (businessid, businesscontactid) AND date_of_meeting = '$search_date' ORDER BY date_of_meeting DESC";
         } elseif($search_client != '') {
-            $query_check_credentials = "SELECT * FROM agenda_meeting WHERE type='Meeting' AND FIND_IN_SET($login_contact, companycontactid) AND deleted = 0 AND '$search_client' IN (businessid, businesscontactid) ORDER BY date_of_meeting DESC LIMIT $offset, $rowsPerPage";
-			$query = "SELECT count(*) as numrows FROM agenda_meeting WHERE type='Meeting AND FIND_IN_SET($login_contact, companycontactid) AND deleted = 0' AND '$search_client' IN (businessid, businesscontactid) ORDER BY date_of_meeting DESC";
+            $query_check_credentials = "SELECT * FROM agenda_meeting WHERE type='Meeting' $staff_query AND deleted = 0 AND '$search_client' IN (businessid, businesscontactid) ORDER BY date_of_meeting DESC LIMIT $offset, $rowsPerPage";
+			$query = "SELECT count(*) as numrows FROM agenda_meeting WHERE type='Meeting $staff_query AND deleted = 0' AND '$search_client' IN (businessid, businesscontactid) ORDER BY date_of_meeting DESC";
         } elseif($search_date != '') {
-            $query_check_credentials = "SELECT * FROM agenda_meeting WHERE type='Meeting' AND FIND_IN_SET($login_contact, companycontactid) AND deleted = 0 AND date_of_meeting='$search_date' ORDER BY date_of_meeting DESC LIMIT $offset, $rowsPerPage";
-			$query = "SELECT count(*) as numrows FROM agenda_meeting WHERE type='Meeting' AND FIND_IN_SET($login_contact, companycontactid) AND deleted = 0 AND date_of_meeting='$search_date' ORDER BY date_of_meeting DESC";
+            $query_check_credentials = "SELECT * FROM agenda_meeting WHERE type='Meeting' $staff_query AND deleted = 0 AND date_of_meeting='$search_date' ORDER BY date_of_meeting DESC LIMIT $offset, $rowsPerPage";
+			$query = "SELECT count(*) as numrows FROM agenda_meeting WHERE type='Meeting' $staff_query AND deleted = 0 AND date_of_meeting='$search_date' ORDER BY date_of_meeting DESC";
         } else {
-            $query_check_credentials = "SELECT * FROM agenda_meeting WHERE type='Meeting' AND FIND_IN_SET($login_contact, companycontactid) AND deleted = 0 ORDER BY date_of_meeting DESC LIMIT $offset, $rowsPerPage";
-			$query = "SELECT count(*) as numrows from agenda_meeting WHERE type='Meeting' AND FIND_IN_SET($login_contact, companycontactid) AND deleted = 0 ORDER BY date_of_meeting DESC";
+            $query_check_credentials = "SELECT * FROM agenda_meeting WHERE type='Meeting' $staff_query AND deleted = 0 ORDER BY date_of_meeting DESC LIMIT $offset, $rowsPerPage";
+			$query = "SELECT count(*) as numrows from agenda_meeting WHERE type='Meeting' $staff_query AND deleted = 0 ORDER BY date_of_meeting DESC";
         }
 
         $result = mysqli_query($dbc, $query_check_credentials);
@@ -163,15 +180,17 @@ $value_config = ','.mysqli_fetch_assoc(mysqli_query($dbc,"SELECT * FROM field_co
         $num_rows = mysqli_num_rows($result);
         if($num_rows > 0) {
 			echo display_pagination($dbc, $query, $pageNum, $rowsPerPage);
-            echo "<div id='no-more-tables'><table class='table table-bordered'>";
+            echo "<div id='no-more-tables'><table class='table table-bordered table-striped'>";
+            echo "<thead>";
             echo "<tr class='hidden-xs hidden-sm'>";
             echo '<th>'.(strpos($value_config, ','."Business".',') !== FALSE ? BUSINESS_CAT : 'Contact').'</th>';
             echo '<th>Date of Meeting</th>';
             echo '<th>Time of Meeting</th>';
             echo '<th>Location</th>';
-            echo '<th>Company Attendees</th>';
+            echo '<th>Staff Members</th>';
             echo '<th>Function</th>';
             echo "</tr>";
+            echo "</thead>";
         } else {
             echo "<h2>No Record Found.</h2>";
         }

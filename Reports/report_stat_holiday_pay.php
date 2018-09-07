@@ -72,6 +72,7 @@ if(isset($_POST['printpdf'])) {
     $today_date = date('Y-m-d');
 	$pdf->writeHTML($html, true, false, true, false, '');
 	$pdf->Output('Download/stat_holiday_breakdown_'.$today_date.'.pdf', 'F');
+    track_download($dbc, 'report_stat_holiday_pay', 0, WEBSITE_URL.'/Reports/Download/stat_holiday_breakdown_'.$today_date.'.pdf', 'Statutory Holiday Compensation Breakdown Report');
     ?>
 
 	<script type="text/javascript" language="Javascript">
@@ -82,20 +83,6 @@ if(isset($_POST['printpdf'])) {
     $endtime = $endtimepdf;
     $contactid = $contactidpdf;
 } ?>
-<script>
-</script>
-</head>
-<body>
-<?php include_once ('../navigation.php');
-checkAuthorised(); ?>
-
-<div class="container triple-pad-bottom">
-    <div class="row">
-        <div class="col-md-12">
-
-        <?php echo reports_tiles($dbc);  ?>
-
-        <br><br>
 
         <form id="form1" name="form1" method="post" action="" enctype="multipart/form-data" class="form-horizontal" role="form">
             <input type="hidden" name="report_type" value="<?php echo $_GET['type']; ?>">
@@ -158,11 +145,6 @@ checkAuthorised(); ?>
             <?php echo report_statutory_breakdown($dbc, $contactid, '', '', '', $starttime, $endtime); ?>
 
         </form>
-
-        </div>
-    </div>
-</div>
-<?php include ('../footer.php'); ?>
 
 <?php function report_statutory_breakdown($dbc, $contactid, $table_style, $table_row_style, $grand_total_style, $starttime, $endtime) {
 	$report_data = '';

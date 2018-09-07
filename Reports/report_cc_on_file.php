@@ -5,17 +5,9 @@
 
 	include ('../include.php');
 	error_reporting(0);
-?>
-</head>
-
-<body><?php
-	include_once ('../navigation.php');
 checkAuthorised('report'); ?>
 
-	<div class="container">
-		<div class="row add">
-			<div class="col-md-12"><?php
-				echo reports_tiles($dbc) . '';
+<?php
 				echo '<h2>Contacts with Credit Card on File</h2>';
 
 				$result = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT `contactid`, `category`, `businessid`, `first_name`, `last_name`, `office_phone`, `email_address` FROM `contacts` WHERE `cc_on_file`=1 AND `deleted`=0 AND status=1"),MYSQLI_ASSOC));
@@ -60,9 +52,17 @@ checkAuthorised('report'); ?>
 						}
 					echo '</table>';
 				} ?>
-			</div><!-- .col-md-12 -->
-		</div><!-- .row .add -->
-		
-	</div><!-- .container --><?php
-	
-include ('../footer.php'); ?>
+<script>
+$('document').ready(function() {
+    var tables = $('table');
+
+    tables.map(function(idx, table) {
+        var rows = $(table).find('tbody > tr');
+        rows.map(function(idx, row){
+            if(idx%2 == 0) {
+                $(row).css('background-color', '#e6e6e6');
+            }
+        })
+    })
+})
+</script>

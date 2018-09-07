@@ -7,7 +7,7 @@ do { ?>
 	<div class="multi-block">
 		<?php if($access_contacts === TRUE) { ?>
 			<div class="form-group">
-				<label class="col-sm-<?= strpos($value_config,',Contact Set Hours,') === FALSE ? '4' : '2' ?> control-label"><a href="" onclick="viewProfile(this); return false;"><img class="inline-img pull-right" src="../img/person.PNG"></a>Member:</label>
+				<label class="col-sm-<?= strpos($value_config,',Contact Set Hours,') === FALSE ? '4' : '2' ?> control-label"><a href="" onclick="viewProfile(this); return false;"><img class="inline-img pull-right no-toggle" src="../img/person.PNG" title="View Profile"></a>Member:</label>
 				<div class="col-sm-<?= strpos($value_config,',Contact Set Hours,') === FALSE ? '7' : '5' ?>">
 					<select name="item_id" data-table="ticket_attached" data-id="<?= $member['id'] ?>" data-id-field="id" data-type="Members" data-type-field="src_table" class="chosen-select-deselect"><option></option>
 						<?php foreach($member_list as $member_id) { ?>
@@ -34,7 +34,7 @@ do { ?>
 			</div>
 		<?php } else if($member['item_id'] > 0) { ?>
 			<div class="form-group">
-				<label class="col-sm-<?= strpos($value_config,',Contact Set Hours,') === FALSE ? '4' : '2' ?> control-label"><?= ($member['item_id'] > 0) ? '<a target="_blank" href="../Members/contacts_inbox.php?edit='.$member['item_id'].'"><img class="inline-img" src="../img/person.PNG"></a>' : '' ?>Member:</label>
+				<label class="col-sm-<?= strpos($value_config,',Contact Set Hours,') === FALSE ? '4' : '2' ?> control-label"><?= ($member['item_id'] > 0) ? '<a target="_blank" href="../Members/contacts_inbox.php?edit='.$member['item_id'].'"><img class="inline-img no-toggle" src="../img/person.PNG" title="View Profile"></a>' : '' ?>Member:</label>
 				<div class="col-sm-<?= strpos($value_config,',Contact Set Hours,') === FALSE ? '7' : '5' ?>">
 					<?= get_contact($dbc, $member['item_id']) ?><input type="hidden" name="item_id" value="<?= $member['item_id'] ?>">
 				</div>

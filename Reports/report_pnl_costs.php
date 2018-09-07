@@ -71,25 +71,19 @@ if ( isset($_POST['printpdf']) ) {
 
     $today_date = date('Y-m-d');
 	$pdf->writeHTML($html, true, false, true, false, '');
-	$pdf->Output('Download/report_pnl_expenses_'.$today_date.'.pdf', 'F'); ?>
+	$pdf->Output('Download/report_pnl_expenses_'.$today_date.'.pdf', 'F');
+    track_download($dbc, 'report_pnl_costs', 0, WEBSITE_URL.'/Reports/Download/report_pnl_expenses_'.$today_date.'.pdf', 'Inventory Costs Report');
+
+    ?>
 
 	<script type="text/javascript" language="Javascript">
         window.open('Download/report_pnl_expenses_<?= $today_date; ?>.pdf', 'fullscreen=yes');
 	</script><?php
-    
+
     $search_start  = $search_start_pdf;
     $search_end    = $search_end_pdf;
 } ?>
 
-</head>
-<body>
-<?php include_once ('../navigation.php'); ?>
-
-<div class="container triple-pad-bottom">
-    <div class="row">
-        <div class="col-md-12">
-            <?=  reports_tiles($dbc);  ?>
-            
             <div class="notice double-gap-bottom popover-examples">
                 <div class="col-sm-1 notice-icon"><img src="<?= WEBSITE_URL; ?>/img/info.png" class="wiggle-me" width="25"></div>
                 <div class="col-sm-11">
@@ -97,9 +91,9 @@ if ( isset($_POST['printpdf']) ) {
                     The report displays inventory costs between two selected dates, broken out by inventory Items.</div>
                 <div class="clearfix"></div>
             </div>
-            
+
             <form id="form1" name="form1" method="post" action="" enctype="multipart/form-data" class="form-horizontal" role="form"><?php
-                
+
                 if ( isset($_POST['search_email_submit']) ) {
                     $search_start  = $_POST['search_start'];
                     $search_end    = $_POST['search_end'];
@@ -112,7 +106,7 @@ if ( isset($_POST['printpdf']) ) {
                 if ( $search_end == 0000-00-00 ) {
                     $search_end = date('Y-m-d');
                 } ?>
-                
+
                 <center><div class="form-group">
 					<div class="form-group col-sm-5">
 						<label class="col-sm-4">From:</label>
@@ -129,21 +123,15 @@ if ( isset($_POST['printpdf']) ) {
 
                 <button type="submit" name="printpdf" value="Print Report" class="btn brand-btn pull-right">Print Report</button>
                 <br /><br /><?php
-                
+
                 echo report_pnl_display($dbc, $search_start, $search_end, '', '', ''); ?>
             </form>
-
-        </div><!-- .col-md-12 -->
-    </div><!-- .row -->
-</div><!-- .container -->
-
-<?php include ('../footer.php'); ?>
 
 <?php
 function report_pnl_display($dbc, $search_start, $search_end, $table_style, $table_row_style, $grand_total_style) {
     $startyear = intval(explode('-', $search_start)[0]);
     $endyear   = intval(explode('-', $search_end)[0]);
-    
+
 	$inv_cost_field = get_config($dbc,'inventory_cost');
     for ($year = $startyear; $year <= $endyear; $year++) {
         $total_sql = "SELECT SUM(IF(`date_added` LIKE '".$year."-01%', `cost`*`quantity`, 0)) `JAN`,
@@ -183,7 +171,7 @@ function report_pnl_display($dbc, $search_start, $search_end, $table_style, $tab
             GROUP BY `name`
             ORDER BY `name`, `date_added` LIMIT $offset, $rowsPerPage";
         $inventory = mysqli_query($dbc, $inventory_sql);
-        
+
         $report_data = '<table class="table table-bordered" style="'. $table_style .'">
             <thead>
                 <tr class="hidden-xs hidden-sm">
@@ -196,17 +184,20 @@ function report_pnl_display($dbc, $search_start, $search_end, $table_style, $tab
             </thead>
             <tbody>';
                 $category = '';
-                
+
+                $odd_even = 0;
                 while($row = mysqli_fetch_array($inventory)) {
-                    $report_data .= '<tr><td data-title="Inventory" style="'. $table_row_style .'">'. $row['name'] .'</td>';
+                    $bg_class = $odd_even % 2 == 0 ? '' : 'background-color:#e6e6e6;';
+                    $report_data .= '<tr style="'.$bg_class.'"><td data-title="Inventory" style="'. $table_row_style .'">'. $row['name'] .'</td>';
                     for($month = 0; $month < 12; $month++) {
                         $dateObj = DateTime::createFromFormat('!m', $month+1);
                         $amt = $row[strtoupper($dateObj->format('M'))];
                         $report_data .= '<td data-title="'. $dateObj->format('F') .'" style="text-align:right;'. $table_row_style .'">$'. number_format($amt, 2, '.', ',') .'</td>';
                     }
                     $report_data .= '</tr>';
+                    $odd_even++;
                 }
-                
+
                 $report_data .= '<tr style="font-weight:bold;">
                     <td style="'. $table_row_style .'">Monthly Total</td>';
                     for($month = 0; $month < 12; $month++) {
@@ -225,6 +216,6 @@ function report_pnl_display($dbc, $search_start, $search_end, $table_style, $tab
             </tbody>
         </table>';
     }
-    
+
     return $report_data;
 }

@@ -3,35 +3,49 @@
 Client Listing
 */
 include ('../include.php');
+$report_fields = explode(',', get_config($dbc, 'report_operation_fields'));
 checkAuthorised('report');
 include_once('../Timesheet/reporting_functions.php');
-include_once('../Timesheet/config.php'); ?>
+include_once('../Timesheet/config.php');
+$value = $config['settings']['Choose Fields for Time Sheets Dashboard']; ?>
 
-<script type="text/javascript">
 
-</script>
-</head>
-<body>
-<?php include_once ('../navigation.php');
-?>
+<div id="timesheet_div">
+    <?php
+	$time_tabs = $config['tabs']['Reporting'];
+	$html = '';
+	if(is_array($time_tabs)) {
+		foreach($time_tabs as $subtitle => $content) {
+			$subactive = '';
+			if($subtitle == $_GET['tab']) {
+				$subactive = 'active_tab';
+			}
 
-<div class="container" id="timesheet_div">
-	<div class="iframe_overlay" style="display:none; margin-top: -20px;margin-left:-15px;">
-		<div class="iframe">
-			<div class="iframe_loading">Loading...</div>
-			<iframe name="timesheet_iframe" src=""></iframe>
-		</div>
-	</div>
-    <div class="row">
-        <div class="col-md-12">
+			$get_field_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT ".$value['config_field']." FROM field_config"));
+			$value_config = ','.$get_field_config[$value['config_field']].',';
 
-        <?php echo reports_tiles($dbc);  ?>
-
-        <br><br>
-
-        <?php include('../Timesheet/reporting_content.php'); ?>
-
-        </div>
-    </div>
+			if (strpos($value_config, ','.$content.',') !== FALSE || strpos($value_config, ','.$subtitle.',') !== FALSE) {
+				$content = "?type=".$_GET['type']."&report=".$_GET['report']."&".explode('?', $content)[1];
+				$html .= "<a href='".$content."'><button type='button' class='btn brand-btn mobile-block ".$subactive."' >".$subtitle."</button></a>";
+			}
+		}
+		if(!empty($html)) {
+			echo '<br><div>'.$html.'</div><br>';
+		}
+	}
+    include('../Timesheet/reporting_content.php'); ?>
 </div>
-<?php include ('../footer.php'); ?>
+<script>
+$('document').ready(function() {
+    var tables = $('table');
+
+    tables.map(function(idx, table) {
+        var rows = $(table).find('tbody > tr');
+        rows.map(function(idx, row){
+            if(idx%2 == 0) {
+                $(row).css('background-color', '#e6e6e6');
+            }
+        })
+    })
+})
+</script>

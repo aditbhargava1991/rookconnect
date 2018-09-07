@@ -72,6 +72,7 @@ if (isset($_POST['printpdf'])) {
     $today_date = date('Y-m-d');
 	$pdf->writeHTML($html, true, false, true, false, '');
 	$pdf->Output('Download/patient_'.$patientpdf.'.pdf', 'F');
+    track_download($dbc, 'report_patient_block_booking', 0, WEBSITE_URL.'/Reports/Download/patient_'.$today_date.'.pdf', 'Future Appointment for Patient Report');
 
     $from = $_POST['from'];
     if($from == 'calendar') {
@@ -83,20 +84,6 @@ if (isset($_POST['printpdf'])) {
     }
     $patient = $patientpdf;
 } ?>
-
-<script type="text/javascript">
-
-</script>
-</head>
-<body>
-<?php include_once ('../navigation.php');
-?>
-
-<div class="container">
-    <div class="row">
-        <div class="col-md-12">
-
-        <?php echo reports_tiles($dbc);  ?>
 
         <div class="notice double-gap-bottom popover-examples">
             <div class="col-sm-1 notice-icon"><img src="<?= WEBSITE_URL; ?>/img/info.png" class="wiggle-me" width="25"></div>
@@ -145,14 +132,9 @@ if (isset($_POST['printpdf'])) {
             }
             ?>
 
-        
+
 
         </form>
-
-        </div>
-    </div>
-</div>
-<?php include ('../footer.php'); ?>
 
 <?php
 function report_bb($dbc, $patient, $table_style, $table_row_style, $grand_total_style) {
@@ -187,3 +169,17 @@ function report_bb($dbc, $patient, $table_style, $table_row_style, $grand_total_
 }
 
 ?>
+<script>
+$('document').ready(function() {
+    var tables = $('table');
+
+    tables.map(function(idx, table) {
+        var rows = $(table).find('tbody > tr');
+        rows.map(function(idx, row){
+            if(idx%2 == 0) {
+                $(row).css('background-color', '#e6e6e6');
+            }
+        })
+    })
+})
+</script>

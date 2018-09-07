@@ -17,7 +17,7 @@ while($row = mysqli_fetch_array( $result )) {
         $num_rows = mysqli_num_rows($tickets);
 
         if(!empty($tickets)) {
-        	$column .= '<div class="calendar_block calendarSortable" data-contact="'.$row['projectid'].'" data-date="'.$new_today_date.'">';
+        	$column .= '<div class="calendar_block calendarSortable" data-blocktype="'.$_GET['block_type'].'" data-contact="'.$row['projectid'].'" data-date="'.$new_today_date.'">';
             $column .= '<h4>'.$project_name.'</h4>';
             foreach ($tickets as $row_ticket) {
                 $status = $row_ticket['status'];

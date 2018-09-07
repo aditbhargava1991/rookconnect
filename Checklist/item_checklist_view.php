@@ -149,7 +149,7 @@ function send_email(checklist) {
 		var type = 'checklist board';
 		checklist_id = checklist_id.substring(5);
 	}
-	choose_user('email', type, checklist_id);
+	overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_email.php?tile=checklists&id='+checklist_id+'&type='+type, 'auto', false, true);
 }
 function send_reminder(checklist) {
 	checklist_id = $(checklist).parents('span').data('checklist');

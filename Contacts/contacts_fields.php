@@ -453,6 +453,7 @@ else {
     $profile_link = $get_contact['profile_link'];
     $school = $get_contact['school'];
     $hear_about = $get_contact['hear_about'];
+    $nick_name = $get_contact['nick_name'];
     
 	$bank_name = $get_contact['bank_name'];
 	$bank_transit = $get_contact['bank_transit'];

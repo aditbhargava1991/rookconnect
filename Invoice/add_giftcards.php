@@ -56,7 +56,7 @@ if(FOLDER_NAME == 'posadvanced') {
 <div class="container">
 	<div class="row">
 
-		<div class="col-sm-10"><h1>Point of Sale Gift Card</h1></div>
+		<div class="col-sm-10"><h1><?= POS_ADVANCE_TILE ?> Gift Card</h1></div>
 		<div class="col-sm-2 double-gap-top"><?php
 			if ( config_visible_function($dbc, 'pos') == 1 ) {
 				echo '<a href="field_config_invoice.php" class="mobile-block pull-right"><img style="width: 50px;" title="Tile Settings" src="../img/icons/settings-4.png" class="settings-classic wiggle-me"></a>';

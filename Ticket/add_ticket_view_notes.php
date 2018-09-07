@@ -51,7 +51,8 @@ if($ticketid > 0 && $notes_count > 0) {
 	$note_delete = check_subtab_persmission($dbc, 'ticket', ROLE, 'delete_notes');
 	$note_i = 0;
 	while($row = mysqli_fetch_array($notes)) {
-		echo '<div class="note_block" '.(strpos($value_config, ','."Notes Limit".',') !== FALSE && $note_i >= $ticket_notes_limit ? 'style="display:none;"' : '').'>';
+		$bg_class = $note_i % 2 == 0 ? 'row-even-bg' : 'row-odd-bg';
+        echo '<div class="note_block '.$bg_class.'" '.(strpos($value_config, ','."Notes Limit".',') !== FALSE && $note_i >= $ticket_notes_limit ? 'style="display:none;"' : '').'>';
 			if($comment_type == 'member_note') {
 				echo '<input type="hidden" name="deleted" data-table="client_daily_log_notes" data-id="'.$row['note_id'].'" data-id-field="note_id" value="0">';
 			} else {
@@ -73,7 +74,7 @@ if($ticketid > 0 && $notes_count > 0) {
 			}
 			echo "</em>";
 			echo ($note_delete ? ' <a href="" onclick="$(this).closest(\'.note_block\').hide().find(\'input[name=deleted]\').val(1).change(); return false;" class="pull-right">Delete</a>' : '');
-		echo '</div><div class="clearfix"></div><hr></div>';
+		echo '</div><div class="clearfix"></div></div>';
 		$note_i++;
 	}
 	if(strpos($value_config, ','."Notes Limit".',') !== FALSE && $notes_count > $ticket_notes_limit) {

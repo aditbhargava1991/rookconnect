@@ -27,13 +27,25 @@
             <a href="?tab=tickets&daily_date=<?= date('Y-m-d') ?>&side_content=my_tickets&date_display=daily"><li class="<?= $_GET['tab'] == 'tickets' ? 'active' : '' ?>">My <?= TICKET_TILE ?></li></a>
         <?php } ?>
         <?php if (in_array('My Tasks', $daysheet_button_config)) { ?>
-            <a href="?tab=tasks&daily_date=<?= date('Y-m-d') ?>&side_content=my_tasks&date_display=daily"><li class="<?= $_GET['tab'] == 'tasks' ? 'active' : '' ?>">My Tasks</li></a>
+            <a href="?tab=tasks&daily_date=<?= date('Y-m-d') ?>&side_content=my_tasks&date_display=daily"><li class="<?= $_GET['tab'] == 'tasks' ? 'active' : '' ?>">My <?= TASK_TILE ?></li></a>
         <?php } ?>
         <?php if (in_array('My Checklists', $daysheet_button_config)) { ?>
             <a href="?tab=checklists&daily_date=<?= date('Y-m-d') ?>&side_content=my_checklists&date_display=daily"><li class="<?= $_GET['tab'] == 'checklists' ? 'active' : '' ?>">My Checklists</li></a>
         <?php } ?>
+        <?php if (in_array('My Communications', $daysheet_button_config)) { ?>
+            <a href="?tab=communications&daily_date=<?= date('Y-m-d') ?>&side_content=my_communications&date_display=daily"><li class="<?= $_GET['tab'] == 'communications' ? 'active' : '' ?>">My Communications</li></a>
+        <?php } ?>
+        <?php if (in_array('My Sales', $daysheet_button_config)) { ?>
+            <a href="?tab=sales&daily_date=<?= date('Y-m-d') ?>&side_content=my_sales&date_display=daily"><li class="<?= $_GET['tab'] == 'sales' ? 'active' : '' ?>">My <?= SALES_TILE ?></li></a>
+        <?php } ?>
+        <?php if (in_array('My Support', $daysheet_button_config)) { ?>
+            <a href="?tab=support&daily_date=<?= date('Y-m-d') ?>&side_content=my_support&date_display=daily"><li class="<?= $_GET['tab'] == 'checklists' ? 'active' : '' ?>">My Support Requests</li></a>
+        <?php } ?>
         <?php if (in_array('My Shifts', $daysheet_button_config)) { ?>
             <a href="?tab=shifts&daily_date=<?= date('Y-m-d') ?>&side_content=my_shifts&date_display=daily"><li class="<?= $_GET['tab'] == 'shifts' ? 'active' : '' ?>">My Shifts</li></a>
+        <?php } ?>
+        <?php if (in_array('My Time Sheets', $daysheet_button_config)) { ?>
+            <a href="?tab=timesheets&daily_date=<?= date('Y-m-d') ?>&side_content=my_timesheets&date_display=daily"><li class="<?= $_GET['tab'] == 'timesheets' ? 'active' : '' ?>">My Time Sheets</li></a>
         <?php } ?>
         <?php if (in_array('Attached Contact Forms', $daysheet_button_config)) {
             $match_contacts = [];
@@ -42,7 +54,8 @@
                 $match_contacts = array_filter(array_merge($match_contacts, explode(',',$match_result['support_contact'])));
             }
             foreach($match_contacts as $match_contact) {
-                $contact_forms = mysqli_query($dbc, "SELECT * FROM `user_forms` WHERE CONCAT(',',`assigned_tile`,',') LIKE '%,attach_contact,%' AND `deleted` = 0 AND CONCAT(',',`attached_contacts`,',') LIKE '%,$match_contact,%' AND `is_template` = 0 ORDER BY `name`");
+                $contact_cat = get_contact($dbc, $match_contact, 'category');
+                $contact_forms = mysqli_query($dbc, "SELECT * FROM `user_forms` WHERE CONCAT(',',`assigned_tile`,',') LIKE '%,attach_contact,%' AND `deleted` = 0 AND (CONCAT(',',`attached_contacts`,',') LIKE '%,$match_contact,%' OR (CONCAT(',',`attached_contacts`,',') LIKE '%,ALL_CONTACTS%,' AND (CONCAT(',',`attached_contact_categories`,',') LIKE '%,$contact_cat,%' OR IFNULL(`attached_contact_categories`,'') = ''))) AND `is_template` = 0 ORDER BY `name`");
                 while($contact_form = mysqli_fetch_assoc($contact_forms)) { ?>
                     <a href="?tab=contact_form&side_content=contact_form&attached_contactid=<?= $match_contact ?>&form_id=<?= $contact_form['form_id'] ?>"><li class="<?= $_GET['tab'] == 'contact_form' && $_GET['form_id'] == $contact_form['form_id'] && $_GET['attached_contactid'] == $match_contact ? 'active' : '' ?>"><?= $contact_form['name'] ?> - <?= !empty(get_client($dbc, $match_contact)) ? get_client($dbc, $match_contact) : get_contact($dbc, $match_contact) ?></li></a>
                 <?php }

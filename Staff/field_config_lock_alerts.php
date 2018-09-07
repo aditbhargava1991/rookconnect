@@ -13,6 +13,7 @@ $(document).ready(function() {
 
 		var reminder_send = $('[name=staff_schedule_reminder_emails]').prop('checked') ? '1' : '';
 		var reminder_dates = $('[name="staff_schedule_reminder_dates[]"]').val();
+		var reminder_secondary_dates = $('[name="staff_schedule_secondary_reminder_dates[]"]').val();
 		var reminder_email = $('[name=staff_schedule_reminder_from]').val();
 		var reminder_subject = $('[name=staff_schedule_reminder_subject]').val();
 		var reminder_body = $('[name=staff_schedule_reminder_body]').val();
@@ -21,6 +22,17 @@ $(document).ready(function() {
 		var email = $('[name=staff_schedule_lock_alert_from]').val();
 		var subject = $('[name=staff_schedule_lock_alert_subject]').val();
 		var body = $('[name=staff_schedule_lock_alert_body]').val();
+
+		var limit_staff = $('[name=staff_schedule_limit_staff]').prop('checked') ? '1' : '';
+		var limit_by_staff = [];
+		$('[name="staff_schedule_limit_by_staff[]"] option:selected').each(function() {
+			limit_by_staff.push(this.value);
+		});
+		var limit_by_security = [];
+		$('[name="staff_schedule_limit_by_security[]"] option:selected').each(function() {
+			limit_by_security.push(this.value);
+		});
+
 		$.ajax({
 			url: 'staff_ajax.php?action=staff_schedule_lock_fields',
 			method: 'POST',
@@ -31,13 +43,17 @@ $(document).ready(function() {
 				staff_schedule_autolock_numdays: autolock_numdays,
 				staff_schedule_reminder_emails: reminder_send,
 				staff_schedule_reminder_dates: reminder_dates,
+				staff_schedule_secondary_reminder_dates: reminder_secondary_dates,
 				staff_schedule_reminder_from: reminder_email,
 				staff_schedule_reminder_subject: reminder_subject,
 				staff_schedule_reminder_body: reminder_body,
 				staff_schedule_lock_alert_send: send,
 				staff_schedule_lock_alert_from: email,
 				staff_schedule_lock_alert_subject: subject,
-				staff_schedule_lock_alert_body: body
+				staff_schedule_lock_alert_body: body,
+				staff_schedule_limit_staff: limit_staff,
+				staff_schedule_limit_by_staff: limit_by_staff.join(','),
+				staff_schedule_limit_by_security: limit_by_security.join(',')
 			}
 		});
 	});
@@ -135,6 +151,23 @@ function displayLockAlerts() {
 				<?php $staff_schedule_reminder_dates = ','.get_config($dbc, 'staff_schedule_reminder_dates').',';
 				for($i = 1; $i <= 31; $i++) {
 					echo '<option value="'.$i.'" '.(strpos($staff_schedule_reminder_dates, ','.$i.',') !== FALSE ? 'selected' : '').'>'.$i.'</i>';
+				}
+				for($i = 1; $i <= 31; $i++) {
+					echo '<option value="-'.$i.'" '.(strpos($staff_schedule_reminder_dates, ',-'.$i.',') !== FALSE ? 'selected' : '').'>'.$i.' Day'.($i > 1 ? 's' : '').' before End of Month</option>';
+				} ?>
+			</select>
+		</div>
+	</div>
+	<div class="form-group">
+		<label class="col-sm-4 control-label">Staff Schedule Secondary Reminder Dates:<br><em>This will send a reminder email on this day of the month only if they haven't already set up any Shifts past the auto-lock date.</em></label>
+		<div class="col-sm-8">
+			<select name="staff_schedule_secondary_reminder_dates[]" multiple class="chosen-select-deselect form-control">
+				<?php $staff_schedule_secondary_reminder_dates = ','.get_config($dbc, 'staff_schedule_secondary_reminder_dates').',';
+				for($i = 1; $i <= 31; $i++) {
+					echo '<option value="'.$i.'" '.(strpos($staff_schedule_secondary_reminder_dates, ','.$i.',') !== FALSE ? 'selected' : '').'>'.$i.'</i>';
+				}
+				for($i = 1; $i <= 31; $i++) {
+					echo '<option value="-'.$i.'" '.(strpos($staff_schedule_secondary_reminder_dates, ',-'.$i.',') !== FALSE ? 'selected' : '').'>'.$i.' Day'.($i > 1 ? 's' : '').' before End of Month</option>';
 				} ?>
 			</select>
 		</div>
@@ -158,6 +191,36 @@ function displayLockAlerts() {
 		<div class="col-sm-8">
 			<?php $staff_schedule_reminder_body = html_entity_decode(get_config($dbc, 'staff_schedule_reminder_body')); ?>
 			<textarea name="staff_schedule_reminder_body"><?= $staff_schedule_reminder_body ?></textarea>
+		</div>
+	</div>
+	<div class="form-group">
+		<label class="col-sm-4 control-label">Staff Schedule Reminder Limit Staff:<br><em>This will limit the Staff that receive the Reminder Emails based on the selected Staff or Security Levels.</em></label>
+		<div class="col-sm-8">
+			<?php $staff_schedule_limit_staff = get_config($dbc, 'staff_schedule_limit_staff'); ?>
+			<label class="form-checkbox"><input type="checkbox" name="staff_schedule_limit_staff" value="1" <?= $staff_schedule_limit_staff == 1 ? 'checked' : '' ?> onchange="if($(this).is(':checked')) { $('.limit_staff').show(); } else { $('.limit_staff').hide(); }"></label>
+		</div>
+	</div>
+	<div class="form-group limit_staff" <?= $staff_schedule_limit_staff != 1 ? 'style="display:none;"' : '' ?>>
+		<label class="col-sm-4 contorl-label">Limit by Staff:</label>
+		<div class="col-sm-8">
+			<?php $staff_schedule_limit_by_staff = ','.get_config($dbc, 'staff_schedule_limit_by_staff').','; ?>
+			<select name="staff_schedule_limit_by_staff[]" multiple class="chosen-select-deselect form-control">
+				<?php $staff_list = sort_contacts_query(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name` FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `deleted`=0 AND `status`=1 AND `show_hide_user`=1"));
+				foreach($staff_list as $staff) {
+					echo '<option value="'.$staff['contactid'].'" '.(strpos($staff_schedule_limit_by_staff,','.$staff['contactid'].',') !== FALSE ? 'selected' : '').'>'.$staff['full_name'].'</option>';
+				} ?>
+			</select>
+		</div>
+	</div>
+	<div class="form-group limit_staff" <?= $staff_schedule_limit_staff != 1 ? 'style="display:none;"' : '' ?>>
+		<label class="col-sm-4 contorl-label">Limit by Security Level:</label>
+		<div class="col-sm-8">
+			<?php $staff_schedule_limit_by_security = ','.get_config($dbc, 'staff_schedule_limit_by_security').','; ?>
+			<select name="staff_schedule_limit_by_security[]" multiple class="chosen-select-deselect form-control">
+				<?php foreach(get_security_levels($dbc) as $security_name => $security_level) {
+					echo '<option value="'.$security_level.'" '.(strpos($staff_schedule_limit_by_security, ','.$security_level.',') !== FALSE ? 'selected' : '').'>'.$security_name.'</option>';
+				} ?>
+			</select>
 		</div>
 	</div>
 </div>

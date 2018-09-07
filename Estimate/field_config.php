@@ -39,7 +39,7 @@ function deleteStyle(img) {
 		<div class="panel-heading">
 			<h4 class="panel-title">
 				<a data-toggle="collapse" data-parent="#settings_accordions" href="#collapse_types">
-					<?= ESTIMATE_TILE ?> Types<span class="glyphicon glyphicon-plus"></span>
+					<?= rtrim(ESTIMATE_TILE, 's') ?> Types<span class="glyphicon glyphicon-plus"></span>
 				</a>
 			</h4>
 		</div>
@@ -113,12 +113,12 @@ function deleteStyle(img) {
 </div>
 <div class='tile-sidebar hide-titles-mob standard-collapsible default-height'>
 	<ul>
-		<a href="?settings=status"><li class="<?= empty($_GET['settings']) || $_GET['settings'] == 'status' ? 'active blue' : '' ?>"><?= ESTIMATE_TILE ?> Status</li></a>
+		<a href="?settings=status"><li class="<?= empty($_GET['settings']) || $_GET['settings'] == 'status' ? 'active blue' : '' ?>"><?= rtrim(ESTIMATE_TILE, 's') ?> Status</li></a>
 		<a href="?settings=tile"><li class="<?= $_GET['settings'] == 'tile' ? 'active blue' : '' ?>">Tile Settings</li></a>
-		<a href="?settings=types"><li class="<?= $_GET['settings'] == 'types' ? 'active blue' : '' ?>"><?= ESTIMATE_TILE ?> Types</li></a>
+		<a href="?settings=types"><li class="<?= $_GET['settings'] == 'types' ? 'active blue' : '' ?>"><?= rtrim(ESTIMATE_TILE, 's') ?> Types</li></a>
 		<a href="?settings=groups"><li class="<?= $_GET['settings'] == 'groups' ? 'active blue' : '' ?>">Staff Collaboration Groups</li></a>
 		<a href="?settings=dashboard"><li class="<?= $_GET['settings'] == 'dashboard' ? 'active blue' : '' ?>">Dashboard Settings</li></a>
-		<a href="?settings=fields"><li class="<?= $_GET['settings'] == 'fields' ? 'active blue' : '' ?>"><?= ESTIMATE_TILE ?> Fields</li></a>
+		<a href="?settings=fields"><li class="<?= $_GET['settings'] == 'fields' ? 'active blue' : '' ?>"><?= rtrim(ESTIMATE_TILE, 's') ?> Fields</li></a>
 		<a href="?settings=reporting"><li class="<?= $_GET['settings'] == 'reporting' ? 'active blue' : '' ?>">Reporting</li></a>
 		<a href="?settings=pdf_options"><li class="<?= $_GET['settings'] == 'pdf_options' ? 'active blue' : '' ?>">PDF Options</li></a>
 		<li><a class="<?= $_GET['settings'] == 'pdf' ? '' : 'collapsed' ?> cursor-hand" data-toggle="collapse" data-target="#collapse_estimate_designs"><?= ESTIMATE_TILE ?> Designs<span class="arrow"></span></a>

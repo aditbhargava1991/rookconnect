@@ -4,6 +4,8 @@ Dashboard
 */
 include ('../include.php');
 checkAuthorised('newsboard');
+include ('../database_connection_htg.php');
+$rookconnect = get_software_name();
 error_reporting(0);
 
 if (isset($_POST['submit'])) {
@@ -25,7 +27,17 @@ if (isset($_POST['submit'])) {
         $query_insert_config = "INSERT INTO `field_config` (`newsboard`, `newsboard_dashboard`) VALUES ('$newsboard', '$newsboard_dashboard')";
         $result_insert_config = mysqli_query($dbc, $query_insert_config);
     }
-
+    
+    if ( isset($_POST['comment_reply_recepient_email']) ) {
+        $comment_reply_recepient_email = !empty($_POST['comment_reply_recepient_email']) ? filter_var($_POST['comment_reply_recepient_email'], FILTER_SANITIZE_EMAIL) : 'info@rookconnect.com';
+        $get_newsboard_config = mysqli_fetch_assoc(mysqli_query($dbc_htg, "SELECT COUNT(newsboardconfigid) newsboardconfigid FROM newsboard_config"));
+        if($get_newsboard_config['newsboardconfigid'] > 0) {
+            mysqli_query($dbc_htg, "UPDATE `newsboard_config` SET `comment_reply_recepient_email`='$comment_reply_recepient_email' WHERE `newsboardconfigid`=1");
+        } else {
+            mysqli_query($dbc_htg, "INSERT INTO `newsboard_config` (`comment_reply_recepient_email`) VALUES('$comment_reply_recepient_email')");
+        }
+    }
+    
     echo '<script type="text/javascript"> window.location.replace("field_config_newsboard.php"); </script>';
 
 }
@@ -103,9 +115,6 @@ if (isset($_POST['submit'])) {
 
                 <table border='2' cellpadding='10' class='table'>
                     <tr>
-                        <td>
-                            <input type="checkbox" disabled <?php if (strpos($value_config, ',News Board Type,') !== false) { echo " checked"; } ?> value="News Board Type" name="newsboard_dashboard[]">&nbsp;&nbsp;News Board Type
-                        </td>
 						<td>
                             <input type="checkbox" disabled <?php if (strpos($value_config, ',Title,') !== false) { echo " checked"; } ?> value="Title" name="newsboard_dashboard[]">&nbsp;&nbsp;Title
                         </td>
@@ -123,6 +132,30 @@ if (isset($_POST['submit'])) {
             </div>
         </div>
     </div>
+
+    <?php if ($rookconnect=='rook' || $rookconnect=='localhost') { ?>
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title">
+                    <span class="popover-examples list-inline" style="margin:0 5px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Click here to set the default comment reply recipient email for Softwarewide News Board posts."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
+                    <a data-toggle="collapse" data-parent="#accordion2" href="#collapse_reply_email">
+                        Choose Default Comment Reply Recipient Email<span class="glyphicon glyphicon-plus"></span>
+                    </a>
+                </h4>
+            </div>
+
+            <div id="collapse_reply_email" class="panel-collapse collapse">
+                <div class="panel-body" id="no-more-tables">
+                    <?php $get_field_config = mysqli_fetch_assoc(mysqli_query($dbc_htg, "SELECT comment_reply_recepient_email FROM newsboard_config")); ?>
+
+                    <div class="row">
+                        <div class="col-sm-4"><label>Comment Reply Recipient Email</label></div>
+                        <div class="col-sm-8"><input type="email" class="form-control" name="comment_reply_recepient_email" value="<?= !empty($get_field_config['comment_reply_recepient_email']) ? $get_field_config['comment_reply_recepient_email'] : 'info@rookconnect.com' ?>" /></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    <?php } ?>
 
 </div>
 <div class="pull-left">

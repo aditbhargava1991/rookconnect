@@ -70,6 +70,7 @@ if (isset($_POST['printpdf'])) {
     $today_date = date('Y-m-d');
 	$pdf->writeHTML($html, true, false, true, false, '');
 	$pdf->Output($pdf_name, 'F');
+    track_download($dbc, 'report_shop_work_orders', 0, WEBSITE_URL.'/Reports/Download/shop_work_orders_'.$today_date.'.pdf', 'Shop Work Orders Report');
     ?>
 
 	<script>
@@ -77,21 +78,6 @@ if (isset($_POST['printpdf'])) {
 	</script>
 <?php } ?>
 
-<script type="text/javascript">
-
-</script>
-</head>
-<body>
-<?php include_once ('../navigation.php');
-?>
-
-<div class="container">
-    <div class="row">
-        <div class="col-md-12">
-
-        <?php echo reports_tiles($dbc);  ?>
-
-        <br><br>
 
         <form id="form1" name="form1" method="post" action="" enctype="multipart/form-data" class="form-inline" role="form">
 
@@ -206,10 +192,6 @@ if (isset($_POST['printpdf'])) {
 
         </form>
 
-        </div>
-    </div>
-</div>
-<?php include ('../footer.php'); ?>
 
 <?php
 function shop_work_orders($dbc, $search_from, $search_until, $search_wo, $no_page = false, $table_style = '', $table_row_style = '', $grand_total_style = '') {
@@ -287,3 +269,17 @@ function shop_work_orders($dbc, $search_from, $search_until, $search_wo, $no_pag
     return $report_data;
 }
 ?>
+<script>
+$('document').ready(function() {
+    var tables = $('table');
+
+    tables.map(function(idx, table) {
+        var rows = $(table).find('tbody > tr');
+        rows.map(function(idx, row){
+            if(idx%2 == 0) {
+                $(row).css('background-color', '#e6e6e6');
+            }
+        })
+    })
+})
+</script>

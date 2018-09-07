@@ -2,14 +2,25 @@
 include_once('../include.php');
 checkAuthorised('certificate'); ?>
 <script>
-$(document).on('change.select2', 'select[name="certificate_reminder_contact"]', function() { save_options(this); });
+$(document).on('change.select2', 'select[name="certificate_reminder_contact[]"]', function() { save_options(this); });
 function save_options(field) {
 	statusUnsaved(field);
 	statusSaving();
+	if(field.name.substr(-2) == '[]' && field.type == 'select-multiple') {
+		var field_name = field.name.split('[]')[0];
+		var values = [];
+		$('[name="'+field.name+'"] option:selected').each(function() {
+			values.push(this.value);
+		});
+		var value = values.join(',');
+	} else {
+		var field_name = field.name;
+		var value = field.value;
+	}
 	$.ajax({
 		url: 'certificate_ajax.php?action=update_config',
 		method: 'POST',
-		data: { name: field.name, value: field.value },
+		data: { name: field_name, value: value },
 		response: 'html',
 		success: function(response) {
 			statusDone(field);
@@ -21,18 +32,18 @@ function save_options(field) {
 <h3>Settings - Dashboard</h3>
 <div class="content-block main-screen-white">
 	<div class="form-group">
-		<label class="col-sm-4">Manager Email for Reminders</label>
+		<label class="col-sm-4">Manager Email for Reminders:</label>
 		<div class="col-sm-8">
 			<?php $value = get_config($dbc, 'certificate_reminder_contact'); ?>
-			<select name="certificate_reminder_contact" class="chosen-select-deselect"><option></option>
+			<select name="certificate_reminder_contact[]" multiple class="chosen-select-deselect"><option></option>
 				<?php foreach(sort_contacts_query(mysqli_query($dbc, "SELECT `first_name`, `last_name`, `contactid` FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `deleted`=0 AND `status`=1")) as $contact) { ?>
-					<option <?= $contact['contactid'] == $value ? 'selected' : '' ?> value="<?= $contact['contactid'] ?>"><?= $contact['first_name'].' '.$contact['last_name'] ?></option>
+					<option <?= strpos(','.$value.',', ','.$contact['contactid'].',') !== FALSE ? 'selected' : '' ?> value="<?= $contact['contactid'] ?>"><?= $contact['first_name'].' '.$contact['last_name'] ?></option>
 				<?php } ?>
 			</select>
 		</div>
 	</div>
 	<div class="form-group">
-		<label class="col-sm-4">Email Subject</label>
+		<label class="col-sm-4">Email Subject:</label>
 		<div class="col-sm-8">
 			<?php $value = get_config($dbc, 'certificate_reminder_subject');
 			if($value == '') {
@@ -42,7 +53,7 @@ function save_options(field) {
 		</div>
 	</div>
 	<div class="form-group">
-		<label class="col-sm-4">Email Body<br />
+		<label class="col-sm-4">Email Body:<br />
 			<em>Use the following tags<br />
 			Issue Date: [ISSUE]<br />
 			Expiry Date: [EXPIRY]<br />

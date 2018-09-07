@@ -73,6 +73,9 @@ if (isset($_POST['printpdf'])) {
     $today_date = date('Y-m-d');
 	$pdf->writeHTML($html, true, false, true, false, '');
 	$pdf->Output('Download/customer_contact_list_'.$today_date.'.pdf', 'F');
+
+    track_download($dbc, 'reports_customer_contact_list', 0, WEBSITE_URL.'/Reports/Download/customer_contact_list_'.$today_date.'.pdf', 'Customer Contact List Report');
+
     ?>
 
 	<script type="text/javascript" language="Javascript">
@@ -82,20 +85,6 @@ if (isset($_POST['printpdf'])) {
     $starttime = $starttimepdf;
     $endtime = $endtimepdf;
 } ?>
-
-<script type="text/javascript">
-
-</script>
-</head>
-<body>
-<?php include_once ('../navigation.php');
-?>
-
-<div class="container triple-pad-bottom">
-    <div class="row">
-        <div class="col-md-12">
-
-        <?php echo reports_tiles($dbc);  ?>
 
         <!--
         <br>
@@ -163,11 +152,6 @@ if (isset($_POST['printpdf'])) {
 
         </form>
 
-        </div>
-    </div>
-</div>
-<?php include ('../footer.php'); ?>
-
 <?php
 function report_daily_validation($dbc, $starttime, $endtime, $table_style, $table_row_style, $grand_total_style) {
 
@@ -217,3 +201,17 @@ function report_daily_validation($dbc, $starttime, $endtime, $table_style, $tabl
 }
 
 ?>
+<script>
+$('document').ready(function() {
+    var tables = $('table');
+
+    tables.map(function(idx, table) {
+        var rows = $(table).find('tbody > tr');
+        rows.map(function(idx, row){
+            if(idx%2 == 0) {
+                $(row).css('background-color', '#e6e6e6');
+            }
+        })
+    })
+})
+</script>

@@ -67,6 +67,9 @@ if(!empty($settings)) {
 	$heading_color = empty($settings['heading_color']) ? '#000000' : $settings['heading_color'];
 	$page_numbers = empty($settings['page_numbers']) ? 'bottom_main' : $settings['page_numbers'];
 }
+$us_exchange = json_decode(file_get_contents('https://www.bankofcanada.ca/valet/observations/group/FX_RATES_DAILY/json'), TRUE);
+$us_rate = $us_exchange['observations'][count($us_exchange['observations']) - 1]['FXUSDCAD']['v'];
+$us_rate_no_auto = get_config($dbc, 'disable_us_auto_convert');
 $pdf_sub_color = '#';
 $pdf_sub_text_color = '#FFFFFF';
 $val = 0;
@@ -279,14 +282,14 @@ while($heading = mysqli_fetch_assoc($headings)) {
 					$html .= '<td style="border-bottom: 1px solid black;border-right: 1px solid black;padding:'.$top_margin.'px '.$right_margin.'px '.$bottom_margin.'px '.$left_margin.'px;color:'.$pdf_body_color.';font-size:'.$font_body_size.'px;'.($font_body_type == 'bold' || $font_body_type == 'bold_italic' ? 'font-weight:900;' : '').($font_body_type == 'italic' || $font_body_type == 'bold_italic' ? 'font-style:italic;' : '').'font-family:'.$font_body.';vertical-align:top;">'.($line['src_table'] != 'notes' ? round($line['qty'],2) : '').'</td>';
 					break;
 				case 'Estimate Price':
-					$html .= '<td style="border-bottom: 1px solid black;border-right: 1px solid black;padding:'.$top_margin.'px '.$right_margin.'px '.$bottom_margin.'px '.$left_margin.'px;color:'.$pdf_body_color.';font-size:'.$font_body_size.'px;'.($font_body_type == 'bold' || $font_body_type == 'bold_italic' ? 'font-weight:900;' : '').($font_body_type == 'italic' || $font_body_type == 'bold_italic' ? 'font-style:italic;' : '').'font-family:'.$font_body.';vertical-align:top;text-align:right;">'.($line['src_table'] != 'notes' ? '$'.number_format($line['price'],2) : '').'</td>';
+					$html .= '<td style="border-bottom: 1px solid black;border-right: 1px solid black;padding:'.$top_margin.'px '.$right_margin.'px '.$bottom_margin.'px '.$left_margin.'px;color:'.$pdf_body_color.';font-size:'.$font_body_size.'px;'.($font_body_type == 'bold' || $font_body_type == 'bold_italic' ? 'font-weight:900;' : '').($font_body_type == 'italic' || $font_body_type == 'bold_italic' ? 'font-style:italic;' : '').'font-family:'.$font_body.';vertical-align:top;text-align:right;">'.($line['src_table'] != 'notes' ? '$'.number_format($line['price'],2).($us_rate_no_auto == 'true' && $line['pricing'] == 'usd_cpu' ? ' USD' : '') : '').'</td>';
 					break;
 				case 'Total':
-					$html .= '<td style="border-bottom: 1px solid black;border-right: 1px solid black;padding:'.$top_margin.'px '.$right_margin.'px '.$bottom_margin.'px '.$left_margin.'px;color:'.$pdf_body_color.';font-size:'.$font_body_size.'px;'.($font_body_type == 'bold' || $font_body_type == 'bold_italic' ? 'font-weight:900;' : '').($font_body_type == 'italic' || $font_body_type == 'bold_italic' ? 'font-style:italic;' : '').'font-family:'.$font_body.';vertical-align:top;text-align:right;">'.($line['src_table'] != 'notes' ? '$'.number_format($line['retail'],2) : '').'</td>';
+					$html .= '<td style="border-bottom: 1px solid black;border-right: 1px solid black;padding:'.$top_margin.'px '.$right_margin.'px '.$bottom_margin.'px '.$left_margin.'px;color:'.$pdf_body_color.';font-size:'.$font_body_size.'px;'.($font_body_type == 'bold' || $font_body_type == 'bold_italic' ? 'font-weight:900;' : '').($font_body_type == 'italic' || $font_body_type == 'bold_italic' ? 'font-style:italic;' : '').'font-family:'.$font_body.';vertical-align:top;text-align:right;">'.($line['src_table'] != 'notes' ? '$'.number_format($line['retail'],2).($us_rate_no_auto == 'true' && $line['pricing'] == 'usd_cpu' ? ' USD' : '') : '').'</td>';
 					break;
 				case 'Total Multiple':
 					if($estimate['quote_multiple'] > 1) {
-						$html .= '<td style="padding:'.$top_margin.'px '.$right_margin.'px '.$bottom_margin.'px '.$left_margin.'px;">'.($line['src_table'] != 'notes' ? '$'.number_format($line['multiple'],2) : '').'</td>';
+						$html .= '<td style="padding:'.$top_margin.'px '.$right_margin.'px '.$bottom_margin.'px '.$left_margin.'px;">'.($line['src_table'] != 'notes' ? '$'.number_format($line['multiple'],2).($us_rate_no_auto == 'true' && $line['pricing'] == 'usd_cpu' ? ' USD' : '') : '').'</td>';
 					}
 					break;
 			}

@@ -2,7 +2,7 @@
 $serviceid = preg_replace('/[^0-9]/', '', $_GET['id']);
 $result    = mysqli_query($dbc, "SELECT * FROM `services` WHERE `serviceid`='{$serviceid}'"); ?>
 
-<div class="standard-body full-height">
+<div class="standard-body full-height preview">
     <div class="standard-body-title hide-on-mobile" style="padding-top:0 !important;">
         <h3 class="double-pad-top pull-left">Service</h3>
         <a href="../Services/service.php?p=details&id=<?= $serviceid ?>" class="btn brand-btn pull-right gap-right" style="margin-top:35px;">Edit</a>

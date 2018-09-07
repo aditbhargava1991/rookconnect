@@ -25,7 +25,7 @@ if (isset($_POST['printpdf'])) {
 			//$image_file = WEBSITE_URL.'/img/Clinic-Ace-Logo-Final-250px.png';
             if(REPORT_LOGO != '') {
                 $image_file = 'download/'.REPORT_LOGO;
-                $this->Image($image_file, 10, 10, 80, '', '', '', 'T', false, 300, '', false, false, 0, false, false, false);
+                $this->Image($image_file, 10, 10, '', 20, '', '', 'T', false, 300, '', false, false, 0, false, false, false);
             }
             $this->setCellHeightRatio(0.7);
             $this->SetFont('helvetica', '', 9);
@@ -75,6 +75,7 @@ if (isset($_POST['printpdf'])) {
     $today_date = date('Y-m-d');
 	$pdf->writeHTML($html, true, false, true, false, '');
 	$pdf->Output('Download/receivables_'.$today_date.'.pdf', 'F');
+    track_download($dbc, 'report_receivables', 0, WEBSITE_URL.'/Reports/Download/receivables_'.$today_date.'.pdf', 'View Receivables by Invoice# Report');
     ?>
 
 	<script type="text/javascript" language="Javascript">
@@ -85,20 +86,6 @@ if (isset($_POST['printpdf'])) {
     $endtime = $endtimepdf;
     $as_at_date = $as_at_datepdf;
     } ?>
-
-<script type="text/javascript">
-
-</script>
-</head>
-<body>
-<?php include_once ('../navigation.php');
-?>
-
-<div class="container triple-pad-bottom">
-    <div class="row">
-        <div class="col-md-12">
-
-        <?php echo reports_tiles($dbc);  ?>
 
         <!--
         <br>
@@ -112,7 +99,7 @@ if (isset($_POST['printpdf'])) {
         <div class="notice double-gap-bottom popover-examples">
             <div class="col-sm-1 notice-icon"><img src="<?= WEBSITE_URL; ?>/img/info.png" class="wiggle-me" width="25"></div>
             <div class="col-sm-11"><span class="notice-name">NOTE:</span>
-            This report is split up by Insurer and by Patient. You can see receivables each Insurer and Patient has outstanding for the selected time frame by Invoice.</div>
+            This report is split up by 3rd Party and by Customer. You can see receivables each 3rd Party and Customer has outstanding for the selected time frame by Invoice.</div>
             <div class="clearfix"></div>
         </div>
 
@@ -179,18 +166,13 @@ if (isset($_POST['printpdf'])) {
 
         </form>
 
-        </div>
-    </div>
-</div>
-<?php include ('../footer.php'); ?>
-
 <?php
 function report_receivables($dbc, $starttime, $endtime, $as_at_date, $table_style, $table_row_style, $grand_total_style) {
-    $report_data .= '<h3>Invoices By Insurer</h3><table border="1px" class="table table-bordered" style="'.$table_style.'">';
+    $report_data .= '<h3>Invoices By 3rd Party</h3><table border="1px" class="table table-bordered" style="'.$table_style.'">';
     $report_data .= '<tr style="'.$table_row_style.'">
     <th width="15%">Invoice#</th>
     <th width="15%">Invoice Date</th>
-    <th width="53%">Insurer</th>
+    <th width="53%">3rd Party</th>
     <th width="15%">Amount Receivable</th>
     </tr>';
 
@@ -199,62 +181,68 @@ function report_receivables($dbc, $starttime, $endtime, $as_at_date, $table_styl
     $report_service = mysqli_query($dbc,"SELECT * FROM invoice_insurer WHERE (DATE(invoice_date) >= '".$starttime."' AND DATE(invoice_date) <= '".$endtime."') AND (paid_date > '$as_at_date' OR `paid`!='Yes') GROUP BY `invoiceid` ORDER BY invoiceid");
 
     $amt_to_bill = 0;
+    $odd_even = 0;
+    $folder_name = tile_visible($dbc, 'posadvanced') ? 'POSAdvanced' : 'Invoice';
+    
     while($row_report = mysqli_fetch_array($report_service)) {
+        $bg_class = $odd_even % 2 == 0 ? '' : 'background-color:#e6e6e6;';
+        
         $insurer_price = $row_report['insurer_price'];
         $invoiceid = $row_report['invoiceid'];
         $patientid = get_all_from_invoice($dbc, $invoiceid, 'patientid');
         $insurerid = $row_report['insurerid'];
 
-        $report_data .= '<tr nobr="true">';
-        $report_data .= '<td>#'.$invoiceid;
-        $name_of_file = '../Invoice/Download/invoice_'.$invoiceid.'.pdf';
-        $report_data .= '&nbsp;&nbsp;<a href="'.$name_of_file.'" target="_blank"> <img src="'.WEBSITE_URL.'/img/pdf.png" title="PDF"> </a></td>';
-
-        $report_data .= '<td>'.$row_report['invoice_date'].'</td>';
-        //$report_data .= '<td>'.$row_report['service_date'].'</td>';
-
-        $report_data .= '<td><a href="../Contacts/add_contacts.php?category=Insurer&contactid='.$insurerid.'&from_url='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']).'">'.get_all_form_contact($dbc, $insurerid, 'name'). '</a></td>';
-
-        $report_data .= '<td>$'.$insurer_price.'</td>';
-
+        $report_data .= '<tr nobr="true" style="'.$bg_class.'">';
+            $report_data .= '<td>#'.$invoiceid;
+            $name_of_file = '../'.$folder_name.'/Download/invoice_'.$invoiceid.'.pdf';
+            $report_data .= '&nbsp;&nbsp;<a href="'.$name_of_file.'" target="_blank"> <img src="'.WEBSITE_URL.'/img/pdf.png" title="PDF"> </a></td>';
+            $report_data .= '<td>'.$row_report['invoice_date'].'</td>';
+            //$report_data .= '<td>'.$row_report['service_date'].'</td>';
+            $report_data .= '<td><a href="../Contacts/add_contacts.php?category=Insurer&contactid='.$insurerid.'&from_url='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']).'">'.get_all_form_contact($dbc, $insurerid, 'name'). '</a></td>';
+            $report_data .= '<td align="right">$'.$insurer_price.'</td>';
         $report_data .= '</tr>';
         $amt_to_bill += $insurer_price;
+        
+        $odd_even++;
     }
 
     $report_data .= '<tr nobr="true">';
-    $report_data .= '<td><b>Total</b></td><td></td><td></td><td><b>$'.number_format($amt_to_bill, 2).'</b></td>';
+    $report_data .= '<td colspan="3"><b>Total</b></td><td align="right"><b>$'.number_format($amt_to_bill, 2).'</b></td>';
     $report_data .= "</tr>";
     $report_data .= '</table><br>';
 
-    $report_data .= '<h3>Invoices By Patient</h3><table border="1px" class="table table-bordered" style="'.$table_style.'">';
+    $report_data .= '<h3>Invoices By Customer</h3><table border="1px" class="table table-bordered" style="'.$table_style.'">';
     $report_data .= '<tr style="'.$table_row_style.'">
     <th width="15%">Invoice#</th>
     <th width="15%">Invoice Date</th>
-    <th width="53%">Patient</th>
+    <th width="53%">Customer</th>
     <th width="15%">Amount Receivable</th>
     </tr>';
 
     $report_service = mysqli_query($dbc,"SELECT * FROM invoice_patient WHERE (DATE(invoice_date) >= '".$starttime."' AND DATE(invoice_date) <= '".$endtime."') AND (paid_date > '$as_at_date' OR IFNULL(`paid`,'') IN ('On Account','')) GROUP BY `invoiceid` ORDER BY invoiceid");
 
     $amt_to_bill = 0;
+    $odd_even = 0;
     while($row_report = mysqli_fetch_array($report_service)) {
+        $bg_class = $odd_even % 2 == 0 ? '' : 'background-color:#e6e6e6;';
         $patient_price = $row_report['patient_price'];
         $invoiceid = $row_report['invoiceid'];
 
-        $report_data .= '<tr nobr="true">';
-        $report_data .= '<td>#'.$invoiceid;
-        $name_of_file = '../Invoice/Download/invoice_'.$invoiceid.'.pdf';
-        $report_data .= '&nbsp;&nbsp;<a href="'.$name_of_file.'" target="_blank"> <img src="'.WEBSITE_URL.'/img/pdf.png" title="PDF"> </a></td>';
-
-        $report_data .= '<td>'.$row_report['invoice_date'].'</td>';
-		$report_data .= '<td><a href="../Contacts/add_contacts.php?category=Patient&contactid='.$row_report['patientid'].'&from_url='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']).'">'.get_contact($dbc, $row_report['patientid']). '</a></td>';
-        $report_data .= '<td>$'.$patient_price.'</td>';
+        $report_data .= '<tr nobr="true" style="'.$bg_class.'">';
+            $report_data .= '<td>#'.$invoiceid;
+            $name_of_file = '../'.$folder_name.'/Download/invoice_'.$invoiceid.'.pdf';
+            $report_data .= '&nbsp;&nbsp;<a href="'.$name_of_file.'" target="_blank"> <img src="'.WEBSITE_URL.'/img/pdf.png" title="PDF"> </a></td>';
+            $report_data .= '<td>'.$row_report['invoice_date'].'</td>';
+            $report_data .= '<td><a href="../Contacts/add_contacts.php?category=Patient&contactid='.$row_report['patientid'].'&from_url='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']).'">'.get_contact($dbc, $row_report['patientid']). '</a></td>';
+            $report_data .= '<td align="right">$'.$patient_price.'</td>';
         $report_data .= '</tr>';
         $amt_to_bill += $patient_price;
+        
+        $odd_even++;
     }
 
     $report_data .= '<tr nobr="true">';
-    $report_data .= '<td><b>Total</b></td><td></td><td></td><td><b>$'.number_format($amt_to_bill, 2).'</b></td>';
+        $report_data .= '<td colspan="3"><b>Total</b></td><td align="right"><b>$'.number_format($amt_to_bill, 2).'</b></td>';
     $report_data .= "</tr>";
     $report_data .= '</table><br>';
 

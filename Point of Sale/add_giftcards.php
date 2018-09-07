@@ -19,6 +19,9 @@ if ( $_SERVER['REQUEST_METHOD'] == 'POST' ) {
         $result_insert = mysqli_query($dbc, $query_insert);
         $couponid = mysqli_insert_id($dbc);
 
+        $before_change = '';
+        $history = "Point of Sale Gift Card Added. <br />";
+        add_update_history($dbc, 'pos_history', $history, '', $before_change);
 	} else {
         $couponid = $_POST['giftcardid'];
         echo $query_update = "UPDATE `pos_giftcards` SET `created_by`='$created_by', `description`='$description', `value`='$value', `issue_date`='$issue_date', `giftcard_number`='$giftcard_number', `expiry_date`='$expiry_date'";
@@ -54,7 +57,7 @@ if ( $_SERVER['REQUEST_METHOD'] == 'POST' ) {
 <div class="container">
 	<div class="row">
 
-		<div class="col-sm-10"><h1>Point of Sale Coupon</h1></div>
+		<div class="col-sm-10"><h1><?= POS_ADVANCE_TILE ?> Coupon</h1></div>
 		<div class="col-sm-2 double-gap-top"><?php
 			if ( config_visible_function($dbc, 'pos') == 1 ) {
 				echo '<a href="field_config_pos.php" class="mobile-block pull-right"><img style="width: 50px;" title="Tile Settings" src="../img/icons/settings-4.png" class="settings-classic wiggle-me"></a>';

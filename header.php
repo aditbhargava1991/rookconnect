@@ -137,6 +137,8 @@ if($software_config == 'swr') {
     echo '<link rel="stylesheet" href="'.WEBSITE_URL.'/css/style_intuatrack.css" type="text/css">';
 } else if ($software_config == 'transport'){
     echo '<link rel="stylesheet" href="'.WEBSITE_URL.'/css/style_transport.css" type="text/css">';
+} else if ($software_config == 'redsilver'){
+    echo '<link rel="stylesheet" href="'.WEBSITE_URL.'/css/style_redsilver.css" type="text/css">';
 } else if ($software_config == '' && @$default_style != ''){
     echo '<link rel="stylesheet" href="'.WEBSITE_URL.'/css/'.$default_style.'.css" type="text/css">';
 } else if ($software_config == ''){

@@ -5,6 +5,7 @@
 	error_reporting(0);
 	if(!isset($_GET['from_manual']) && $_GET['from_manual'] != 1)
 	include ('../include.php');
+    include ('check_security.php');
     include ('../database_connection_htg.php');
     $rookconnect = get_software_name();
     
@@ -35,7 +36,7 @@
 <div class="container how-to-guide">
 	<div class="row">
 
-        <h1>How To Guide</h1>
+        <h1>Software Guide</h1>
         <div class="gap-left gap-top double-gap-bottom"><a href="guides_dashboard.php?page=<?= $page; ?>" class="btn config-btn">Back to Dashboard</a></div>
         
         <div class="gap-left">

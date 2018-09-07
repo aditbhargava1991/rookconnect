@@ -8,7 +8,7 @@
 					while($row = mysqli_fetch_array($result)) {
 						$document = $row['upload'];
 						if($document != '') {
-							echo '<li>Document: <a href="download/'.$document.'" target="_blank">'.$document.'</a> - <a href="safety.php?type=delete&uploadid='.$row['uploadid'].'"" >Delete</a></li>';
+							echo '<li>Document: <a href="download/'.$document.'" target="_blank">'.$document.'</a></li>';
 						}
 					}
 				} ?>

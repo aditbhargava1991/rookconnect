@@ -336,7 +336,7 @@ checkAuthorised('tasks');
 	<br><br>
 	<div class="clearfix"></div>
         <?php
-        $ffm_rook_db = @mysqli_connect('mysql.rookconnect.com', 'ffm_rook_user', 'R0bot587tw3ak', 'ffm_rook_db');
+        $ffm_rook_db = @mysqli_connect('localhost', 'ffm_rook_user', 'mIghtyLion!542', 'ffm_rook_db');
 
         $category = $_GET['category'];
         $contactid = $_SESSION['contactid'];

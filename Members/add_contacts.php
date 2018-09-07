@@ -193,7 +193,7 @@ if (isset($_POST['submit']) || isset($_POST['submit_nosave'])) {
             specialists_inc++;
             return false;
         });
-        
+
         //From contacts tile check and add contacts_tabs query string to urls
         var query_strings = window.location.search.substring(1);
         if(query_strings.indexOf('contacts_tabs=1') != -1) {
@@ -271,7 +271,7 @@ function disableInputs() {
 	} else if($url_category == 'Customers') {
 		$cat_label = 'Customer';
 	} else if($url_category == 'Vendors') {
-		$cat_label = 'Vendor';
+		$cat_label = VENDOR_TILE;
 	} else if($url_category == 'Contractors') {
 		$cat_label = 'Contractor';
 	} else if($url_category == 'Sales Leads') {

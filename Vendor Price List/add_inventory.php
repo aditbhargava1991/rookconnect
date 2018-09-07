@@ -134,12 +134,20 @@ if (isset($_POST['submit'])) {
         $result_insert_inventory = mysqli_query($dbc, $query_insert_inventory);
         $url = 'Added';
 
+        $before_change = '';
+  			$history = "New Vendor Price list added. <br />";
+  			add_update_history($dbc, 'vendorpl_history', $history, '', $before_change);
+
     } else {
         $inventoryid = $_POST['inventoryid'];
 
         $query_update_inventory = "UPDATE `vendor_price_list` SET `code` = '$code', `category` = '$category', `sub_category` = '$sub_category', `part_no` = '$part_no', `description`	= '$description', `comment`	= '$comment', `question`	= '$question', `request`	= '$request', `display_website` = '$display_website', `vendorid` = '$vendorid', `size` = '$size', `weight` = '$weight', `type`	= '$type', `name` = '$name', `date_of_purchase` = '$date_of_purchase', `purchase_cost` = '$purchase_cost', `sell_price` = '$sell_price', `markup` = '$markup', `freight_charge` = '$freight_charge', `min_bin` = '$min_bin', `current_stock` = '$current_stock', `final_retail_price` = '$final_retail_price', `admin_price` = '$admin_price', `wholesale_price` = '$wholesale_price', `commercial_price` = '$commercial_price', `client_price` = '$client_price', `purchase_order_price` = '$purchase_order_price', `sales_order_price` = '$sales_order_price', `minimum_billable` = '$minimum_billable', `estimated_hours` = '$estimated_hours', `actual_hours` = '$actual_hours', `msrp` = '$msrp', `quote_description` = '$quote_description', `usd_invoice` = '$usd_invoice', `shipping_rate` = '$shipping_rate', `shipping_cash` = '$shipping_cash', `exchange_rate` = '$exchange_rate', `exchange_cash` = '$exchange_cash', `cdn_cpu` = '$cdn_cpu', `cogs_total` = '$cogs_total', `location` = '$location', `inv_variance` = '$inv_variance', `average_cost` = '$average_cost', `asset` = '$asset', `revenue` = '$revenue', `buying_units` = '$buying_units', `selling_units` = '$selling_units', `stocking_units` = '$stocking_units', `preferred_price` = '$preferred_price', `web_price` = '$web_price', `id_number` = '$id_number', `operator` = '$operator', `lsd` = '$lsd', `quantity` = '$quantity', `product_name` = '$product_name', `cost` = '$cost', `usd_cpu` = '$usd_cpu', `commission_price` = '$commission_price', `markup_perc` = '$markup_perc', `current_inventory` = '$current_inventory', `write_offs` = '$write_offs', `min_max` = '$min_max', `status` = '$status', `note` = '$note', `unit_price` = '$unit_price', `unit_cost` = '$unit_cost', `rent_price` = '$rent_price', `rental_days` = '$rental_days', `rental_weeks` = '$rental_weeks', `rental_months` = '$rental_months', `rental_years` = '$rental_years', `reminder_alert` = '$reminder_alert', `daily` = '$daily', `weekly` = '$weekly', `monthly` = '$monthly', `annually` = '$annually', `total_days` = '$total_days', `total_hours` = '$total_hours', `total_km` = '$total_km', `total_miles` = '$total_miles', `include_in_so` = '$include_in_so', `include_in_po` = '$include_in_po', `include_in_pos` = '$include_in_pos', `item_sku` = '$item_sku', `color` = '$color', `suggested_retail_price` = '$suggested_retail_price', `rush_price` = '$rush_price', `min_amount` = '$min_amount', `max_amount` = '$max_amount' WHERE `inventoryid` = '$inventoryid'";
 
         $result_update_inventory	= mysqli_query($dbc, $query_update_inventory);
+
+        $before_change = '';
+  			$history = "Vendor price list updated. <br />";
+  			add_update_history($dbc, 'vendorpl_history', $history, '', $before_change);
 
       /*  $query_update_inventory1 = "UPDATE `vendor_price_list` SET `code` = '$code', `category` = '$category', `sub_category` = '$sub_category', `part_no` = '$part_no', `description`	= '$description', `comment`	= '$comment', `question`	= '$question', `request`	= '$request', `display_website` = '$display_website', `vendorid` = '$vendorid', `size` = '$size', `weight` = '$weight', `type`	= '$type', `name` = '$name', `date_of_purchase` = '$date_of_purchase', `purchase_cost` = '$purchase_cost', `sell_price` = '$sell_price', `markup` = '$markup', `freight_charge` = '$freight_charge', `min_bin` = '$min_bin', `current_stock` = '$current_stock', `final_retail_price` = '$final_retail_price', `admin_price` = '$admin_price', `wholesale_price` = '$wholesale_price', `commercial_price` = '$commercial_price', `client_price` = '$client_price', `minimum_billable` = '$minimum_billable', `estimated_hours` = '$estimated_hours', `actual_hours` = '$actual_hours', `msrp` = '$msrp', `quote_description` = '$quote_description', `usd_invoice` = '$usd_invoice', `shipping_rate` = '$shipping_rate', `shipping_cash` = '$shipping_cash', `exchange_rate` = '$exchange_rate', `exchange_cash` = '$exchange_cash', `cdn_cpu` = '$cdn_cpu', `cogs_total` = '$cogs_total', `location` = '$location', `inv_variance` = '$inv_variance', `average_cost` = '$average_cost', `asset` = '$asset', `revenue` = '$revenue', `buying_units` = '$buying_units', `selling_units` = '$selling_units', `stocking_units` = '$stocking_units', `preferred_price` = '$preferred_price', `web_price` = '$web_price', `id_number` = '$id_number', `operator` = '$operator', `lsd` = '$lsd', `quantity` = '$quantity', `product_name` = '$product_name', `cost` = '$cost', `usd_cpu` = '$usd_cpu', `commission_price` = '$commission_price', `markup_perc` = '$markup_perc', `current_inventory` = '$current_inventory', `write_offs` = '$write_offs', `min_max` = '$min_max', `status` = '$status', `note` = '$note', `unit_price` = '$unit_price', `unit_cost` = '$unit_cost', `rent_price` = '$rent_price', `rental_days` = '$rental_days', `rental_weeks` = '$rental_weeks', `rental_months` = '$rental_months', `rental_years` = '$rental_years', `reminder_alert` = '$reminder_alert', `daily` = '$daily', `weekly` = '$weekly', `monthly` = '$monthly', `annually` = '$annually', `total_days` = '$total_days', `total_hours` = '$total_hours', `total_km` = '$total_km', `total_miles` = '$total_miles' WHERE `inventoryid` = '$inventoryid'";
         $result_update_inventory1	= mysqli_query($dbc, $query_update_inventory1); */
@@ -842,7 +850,7 @@ $category = $_GET['category'];
 
 					  <?php if (strpos($value_config, ','."Include in P.O.S.".',') !== FALSE) { ?>
 					  <div class="form-group">
-						<label for="company_name" class="col-sm-4 control-label">Include in Point of Sale:</label>
+						<label for="company_name" class="col-sm-4 control-label">Include in <?= POS_ADVANCE_TILE ?>:</label>
 						<div class="col-sm-8">
 						  <input type='checkbox' style='width:20px; height:20px;' <?php if($include_in_pos !== '' && $include_in_pos !== NULL) { echo "checked"; } ?> name='include_in_pos' class='' value='1'>
 						</div>
@@ -1396,7 +1404,7 @@ $category = $_GET['category'];
 			</div>
 		  </div>
 
-        
+
 
 		</form>
 

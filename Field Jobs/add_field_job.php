@@ -83,7 +83,7 @@ $(document).ready(function() {
 			type: "GET",
 			url: "field_job_ajax_all.php?from=site_job&name="+this.value,
 			dataType: "html",   //expect html to be returned
-			success: function(response){console.log('site ');console.log(response);
+			success: function(response){
 				$('#siteselect').html(response);
 				$("#siteselect").trigger("change.select2");
 			}
@@ -212,14 +212,14 @@ function selectContact(sel) {
 				<select data-placeholder="Choose a Customer..." id="clientid" name="clientid" class="chosen-select-deselect form-control" width="380">
 				  <option value=""></option>
 				  <?php
-					$query = mysqli_query($dbc,"SELECT distinct(name), contactid FROM contacts WHERE category='Client' OR category='Customer' OR category='Business' ORDER BY name");
-					while($row = mysqli_fetch_array($query)) {
+					$query = sort_contacts_query(mysqli_query($dbc,"SELECT distinct(name), contactid FROM contacts WHERE category='Client' OR category='Customer' OR category='Business' ORDER BY name"));
+					foreach($query as $row) {
 						if ($clientid == $row['contactid']) {
 							$selected = 'selected="selected"';
 						} else {
 							$selected = '';
 						}
-						echo "<option ".$selected." value='". $row['contactid']."'>".decryptIt($row['name']).'</option>';
+						echo "<option ".$selected." value='". $row['contactid']."'>".$row['name'].'</option>';
 					}
 				  ?>
 				</select>
@@ -231,15 +231,15 @@ function selectContact(sel) {
                 <div class="col-sm-8">
                     <select id="contactid" data-placeholder="Choose a Contact..." name="contactid" class="chosen-select-deselect form-control" width="380">
                     <?php
-                        $query = mysqli_query($dbc,"SELECT contactid, first_name, last_name, name FROM contacts WHERE businessid = '$clientid'");
+                        $query = sort_contacts_query(mysqli_query($dbc,"SELECT contactid, first_name, last_name, name FROM contacts WHERE '$clientid' IN (`businessid`,'')"));
                         echo '<option value=""></option>';
-                        while($row = mysqli_fetch_array($query)) {
+						foreach($query as $row) {
                             if ($contactid == $row['contactid']) {
                                 $selected = 'selected="selected"';
                             } else {
                                 $selected = '';
                             }
-                            echo "<option ".$selected." value='".$row['contactid']."'>".decryptIt($row['name']).' '.decryptIt($row['first_name']).' '.decryptIt($row['last_name']).'</option>';
+                            echo "<option ".$selected." value='".$row['contactid']."'>".$row['name'].' '.$row['first_name'].' '.$row['last_name'].'</option>';
                         }
                     ?>
                     </select>
@@ -279,7 +279,6 @@ function selectContact(sel) {
 			  <label for="site_name" class="col-sm-4 control-label">Foreman<span class="text-red">*</span>:</label>
 			  <div class="col-sm-8">
 				<select data-placeholder="Choose a Foreman..." name="foremanid[]" multiple class="chosen-select-deselect form-control" width="380">
-				  <option value=""></option>
 				    <?php
 						$query = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc,"SELECT contactid, first_name, last_name FROM contacts WHERE category IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND deleted=0 AND `status`=1"),MYSQLI_ASSOC));
 						foreach($query as $id) {

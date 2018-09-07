@@ -2,6 +2,7 @@
 /*
 Contacts Sort Order Setting
 */
+include_once('../include.php');
 $font_sizes = ['xx-small' => 'Extra Extra Small', 'x-small' => 'Extra Small', 'small' => 'Small', '' => 'Normal', 'medium' => 'Large', 'large' => 'Extra Large', 'x-large' => 'Extra Extra Large'];
 $font_families = ['' => 'Default', 'Arial, Helvetica, sans-serif' => 'Sans Serif', '"Times New Roman", serif' => 'Serif', 'Monospace, monospace' => 'Fixed Width', '"Arial Black", sans-serif' => 'Wide', '"Arial Narrow", sans-serif' => 'Narrow', '"Comic Sans MS", cursive, sans-serif' => 'Comic Sans MS', 'Garamond, serif' => 'Garamond', 'Georgia, serif' => 'Georgia', 'Tahoma, sans-serif' => 'Tahoma', '"Trebuchet MS", sans-serif' => 'Trebuchet MS', 'Verdana, sans-serif' => 'Verdana'];
 ?>

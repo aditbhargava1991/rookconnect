@@ -59,8 +59,14 @@ $num_rows = mysqli_num_rows($get_invoice);
 if($num_rows > 0) {
     while($row = mysqli_fetch_array( $get_invoice )) {
         $posid = $row['posid'];
+
+		$before_change = capture_before_change($dbc, 'point_of_sell', 'status', 'posid', $posid);
+
 		$query_update_project = "UPDATE `point_of_sell` SET status = 'Posted Past Due' WHERE `posid` = '$posid'";
 		$result_update_project = mysqli_query($dbc, $query_update_project);
+
+		$history = capture_after_change('status', 'Posted Past Due');
+		add_update_history($dbc, 'pos_history', $history, '', $before_change);
     }
 }
 ?>
@@ -129,7 +135,7 @@ if ( isset ( $_POST['search_invoice_submit'] ) ) {
 <div class="container triple-pad-bottom">
     <div class="row">
 		<div class="col-sm-10">
-			<h1>Unpaid Point of Sale Dashboard</h1>
+			<h1>Unpaid <?= POS_ADVANCE_TILE ?> Dashboard</h1>
 		</div>
 		<div class="col-sm-2 double-gap-top">
 			<?php
@@ -421,8 +427,13 @@ if ( isset ( $_POST['search_invoice_submit'] ) ) {
 					$date = date('Y/m/d', time());
 					if (new DateTime($date) >= new DateTime($cutoffdater)) {
 						$posid = $roww['posid'];
+						$before_change = capture_before_change($dbc, 'point_of_sell', 'status', 'posid', $posid);
+
 						$query_update_employee = "UPDATE `point_of_sell` SET status = 'Archived' WHERE posid='$posid'";
 						$result_update_employee = mysqli_query($dbc, $query_update_employee);
+
+						$history = capture_after_change('status', 'Archived');
+						add_update_history($dbc, 'pos_history', $history, '', $before_change);
 						$style2 = 'display:none;';
 					}
 				}

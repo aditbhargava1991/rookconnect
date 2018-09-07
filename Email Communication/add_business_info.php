@@ -53,6 +53,7 @@ $(document).ready(function() {
 			foreach($project_tabs as $item) {
 				$project_vars[] = preg_replace('/[^a-z_]/','',str_replace(' ','_',strtolower($item)));
 			}
+			$project_vars[] = '';
             $query = mysqli_query($dbc,"SELECT * FROM (SELECT projectid, projecttype, project_name FROM project WHERE businessid='$businessid' UNION SELECT CONCAT('C',`projectid`), 'Client Project', `project_name` FROM `client_project` WHERE `clientid`='$businessid' AND `deleted`=0) PROJECTS order by project_name");
             while($row = mysqli_fetch_array($query)) {
 				if(substr($row['projectid'],0,1)=='C') {

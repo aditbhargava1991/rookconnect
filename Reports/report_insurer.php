@@ -68,6 +68,7 @@ if (isset($_POST['printpdf'])) {
     $today_date = date('Y-m-d');
 	$pdf->writeHTML($html, true, false, true, false, '');
 	$pdf->Output('Download/insurer_'.$today_date.'.pdf', 'F');
+    track_download($dbc, 'report_insurer', 0, WEBSITE_URL.'/Reports/Download/insurer_'.$today_date.'.pdf', 'Insurer Report');
     ?>
 
 	<script type="text/javascript" language="Javascript">

@@ -10,15 +10,18 @@ if(!IFRAME_PAGE) :
 <footer id='footer'>
 	<div class="container">
 		<div class="row">
-            <div class="col-sm-6" style='vertical-align:top;'><p class="padded copyright">Copyright &copy; <?php echo date('Y');?> ROOK Connect Software</p></div>
-            <div class="col-sm-6" style='vertical-align:top;'>
+            <div class="col-sm-9 col-xs-12">
+                <p class="padded copyright pull-left">Copyright &copy; <?= date('Y');?> ROOK Connect Software</p>
+                <div class="footer-sm"><?php include('Navigation/social_media_links.php'); ?></div>
+            </div>
+            <div class="col-sm-3">
                 <?php
                     $rookconnect      = get_software_name();
-                    $footer_link      = ( $rookconnect=='prime' ) ? 'http://cuecreative.ca/' : 'http://www.freshfocusmedia.com/';
+                    $footer_link      = ( $rookconnect=='prime' ) ? 'http://cuecreative.ca/' : 'https://www.freshfocusmedia.com/';
                     $footer_name      = ( $rookconnect=='prime' ) ? 'CUE Creative' : 'Fresh Focus Media Inc.';
                     $footer_logo_file = ( $rookconnect=='prime' ) ? 'cue-logo-mini.png' : 'ffm-logo-mini.png';
                 ?>
-                <a href="<?= $footer_link; ?>" title="<?= $footer_name; ?>" class="pull-right" target="_blank"><img src="<?= WEBSITE_URL; ?>/img/<?= $footer_logo_file; ?>"></a><p class="padded posh-tag text-right hidden-xs">Represented by </p>
+                <a href="<?= $footer_link; ?>" title="<?= $footer_name; ?>" class="pull-right" target="_blank"><img src="<?= WEBSITE_URL; ?>/img/<?= $footer_logo_file; ?>" height="25" style="margin-top:12px;"></a><p class="padded posh-tag text-right hidden-xs">Represented by </p>
             </div>
 		</div>
 	</div>
@@ -166,7 +169,7 @@ if(isMobile.any()) {
 						jQuery(this).parent().prependTo(".complete-mobile");
 				}
 				else {
-					if(parentitemname == 'form1' || parentclassname.indexOf('tab-container') >= 0)
+					if(parentitemname == 'form1' || newitemclass.indexOf('tab-container') >= 0)
 						jQuery(this).appendTo(".complete-mobile");
 					else if((newitemclass.indexOf(" tab") >= 0 || newitemclass == "nav-subtab" || newitemclass=="popover-examples list-inline") && newitemclass.indexOf(" tab-container") < 0)
 						jQuery(this).parent().parent().appendTo(".complete-mobile");

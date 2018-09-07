@@ -5315,3 +5315,4 @@ ul.sidebar .active.blue,
 }
 .calendar .main-screen .panel .panel-title > a:hover { color:#b1d349 !important; }
 .theme-color-border-bottom { border-bottom:2px solid #b1d349 !important; }
+.calendar_view table td a:hover { color:#000 !important; }

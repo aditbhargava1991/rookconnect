@@ -5165,6 +5165,7 @@ display: table-cell;
 .default-color, h1, h1 a, h4, .dashboard-item label, .main-item label, .text-blue { color:#e83324 !important; }
 .tile-sidebar ul li.active { background-color:#e83324 !important; }
 ul.sidebar .active.blue, .tile-sidebar .sidebar-higher-level ul li.active { background-color:transparent !important; color:#e83324 !important; }
+.blue { background-color:#e83324 !important; color:#fff !important; }
 .blue-border { border-color:#e83324 !important; }
 .summary-block, .main-screen-white { border:1px solid #e83324 !important; }
 .info-block-header {background-color:#ddd !important; border-bottom:4px solid #e83324 !important; }
@@ -5213,3 +5214,4 @@ table td a { color:#e83324 !important; }
     table td a:hover { text-decoration:underline; }
 .overview-block, .dashboard-container { border:1px solid #e83324 !important; }
 .theme-color-border-bottom { border-bottom:2px solid #e83324 !important; }
+.pagination a { color:#e83324 !important; }

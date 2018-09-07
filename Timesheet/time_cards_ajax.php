@@ -29,6 +29,7 @@ else if($_GET['action'] == 'type_time') {
 	switch($name[0]) {
 		case 'regular': $type = 'Regular Hrs.'; break;
 		case 'training': $type = 'Regular Hrs.'; break;
+		case 'drive': $type = 'Regular Hrs.'; break;
 		case 'direct': $type = 'Direct Hrs.'; break;
 		case 'indirect': $type = 'Indirect Hrs.'; break;
 		case 'extra': $type = 'Extra Hrs.'; break;
@@ -111,18 +112,19 @@ else if($_GET['action'] == 'task_time') {
 	$ids = '';
 	$comment_history = '';
 	if($id > 0) {
+		$ids .= $id;
 		$time_card = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `time_cards` WHERE `time_cards_id` = '$id'"));
 		mysqli_query($dbc,"UPDATE `time_cards` SET `total_hrs`='$total_hrs', `type_of_time`='$type_of_time', `comment_box`='$comment_box', `start_time` = '$start_time', `end_time` = '$end_time' WHERE `time_cards_id`='$id'");
-		if($total_hrs != $time_card['total_hrs']) {
+		if(number_format($total_hrs,1) != number_format($time_card['total_hrs'],1)) {
 			$comment_history[$id] .= $session_user.' updated Hours from '.$time_card['total_hrs'].' to '.$total_hrs.'.<br>';
 		}
 		if($type_of_time != $time_card['type_of_time']) {
 			$comment_history[$id] .= $session_user.' updated Type of Time from '.$time_card['type_of_time'].' to '.$type_of_time.'.<br>';
 		}
-		if($start_time != $time_card['start_time']) {
+		if(strtotime($start_time) != strtotime($time_card['start_time'])) {
 			$comment_history[$id] .= $session_user.' updated Start Time from '.$time_card['start_time'].' to '.$start_time.'.<br>';
 		}
-		if($end_time != $time_card['end_time']) {
+		if(strtotime($end_time) != strtotime($time_card['end_time'])) {
 			$comment_history[$id] .= $session_user.' updated End Time from '.$time_card['end_time'].' to '.$end_time.'.<br>';
 		}
 		if(!empty($date_editable) && $date != $date_editable) {
@@ -135,9 +137,10 @@ else if($_GET['action'] == 'task_time') {
 	}
 	$ids .= ',';
 	if($id_vac > 0) {
+		$ids .= $id_vac;
 		$time_card = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `time_cards` WHERE `time_cards_id` = '$id_vac'"));
 		mysqli_query($dbc,"UPDATE `time_cards` SET `total_hrs`='$total_hrs_vac', `type_of_time`='Vac Hrs.', `comment_box`='$comment_box' WHERE `time_cards_id`='$id_vac'");
-		if($total_hrs_vac != $time_card['total_hrs']) {
+		if(number_format($total_hrs_vac,1) != number_format($time_card['total_hrs'],1)) {
 			$comment_history[$id_vac] .= $session_user.' updated Vacation Hours from '.$time_card['total_hrs'].' to '.$total_hrs_vac.'.<br>';
 		}
 		if(!empty($date_editable) && $date != $date_editable) {
@@ -178,6 +181,7 @@ else if($_GET['action'] == 'task_time') {
 				$comment_hist = '<br>'.$comment_hist;
 			}
 			mysqli_query($dbc, "UPDATE `time_cards` SET `comment_box` = '".$time_card['comment_box'].htmlentities($comment_hist)."' WHERE `time_cards_id` = '$id'");
+			echo "UPDATE `time_cards` SET `comment_box` = '".$time_card['comment_box'].htmlentities($comment_hist)."' WHERE `time_cards_id` = '$id'";
 		}
 	}
 }
@@ -263,4 +267,94 @@ else if($_GET['action'] == 'unapprove_time') {
 	} else if($type == 'id') {
 		mysqli_query($dbc, "UPDATE `time_cards` SET `approv` = 'N', `manager_name` = NULL, `date_manager` = NULL, `coordinator_name` = NULL, `date_coordinator` = NULL, `manager_approvals` = '', `coord_approvals` = '' WHERE `time_cards_id` = '$id'");
 	}
+}
+else if($_GET['action'] == 'stop_holiday_update_noti') {
+	set_config($dbc, 'holiday_update_stopdate', date('Y-m-d'));
+} else if($_GET['action'] == 'update_time') {
+	$timesheet_record_history = get_config($dbc, 'timesheet_record_history');
+	$layout = get_config($dbc, 'timesheet_layout');
+    $type_of_time = filter_var($_POST['type_of_time'],FILTER_SANITIZE_STRING);
+    $field = filter_var($_POST['field'],FILTER_SANITIZE_STRING);
+    $value = filter_var($_POST['value'],FILTER_SANITIZE_STRING);
+    if($field == 'total_hrs') {
+        $value = explode(':',$value);
+        $value = $value[0] + ($value[1] / 60);
+    }
+    $id = filter_var($_POST['id'],FILTER_SANITIZE_STRING);
+    $date = filter_var($_POST['date'],FILTER_SANITIZE_STRING);
+    $staff = filter_var($_POST['staff'],FILTER_SANITIZE_STRING);
+    $siteid = filter_var($_POST['siteid'],FILTER_SANITIZE_STRING);
+    $projectid = filter_var($_POST['projectid'],FILTER_SANITIZE_STRING);
+    $clientid = filter_var($_POST['clientid'],FILTER_SANITIZE_STRING);
+    $ticketid = filter_var($_POST['ticketid'],FILTER_SANITIZE_STRING);
+    $attach_id = filter_var($_POST['ticketattachedid'],FILTER_SANITIZE_STRING);
+    $type = filter_var($_POST['type_of_time'],FILTER_SANITIZE_STRING);
+    $page = filter_var($_POST['page'],FILTER_SANITIZE_STRING);
+	$comment_history = '';
+	$session_user = get_contact($dbc, $_SESSION['contactid']);
+    if($_POST['save_type'] == 'multi' && $field == 'approv') {
+        $prior = filter_var($_POST['prior_approv'],FILTER_SANITIZE_STRING);
+        $comment_history .= $session_user.' updated '.$field.' from '.$prior.' to '.$value.'.<br>';
+        $dbc->query("UPDATE `time_cards` SET `approv`='$value', `comment_box` = '".$time_card['comment_box'].htmlentities($comment_history)."' WHERE `staff`='$staff' AND `date`='$date' AND IFNULL(`business`,'') LIKE '%$siteid%' AND `approv`='$prior' AND `deleted`=0");
+        return;
+    }
+    if(!($id > 0) && $layout == '') {
+        $id = $dbc->query("SELECT MAX(`time_cards_id`) `time_cards_id` FROM `time_cards` WHERE `staff`='$staff' AND `date`='$date' AND '$siteid' IN (`business`,'') AND '$projectid' IN (`projectid`,'') AND '$ticketid' IN (`ticketid`,'') AND '$clientid' IN (`clientid`,'') AND '$attach_id' IN (`ticket_attached_id`,'') AND '$type_of_time' IN (`type_of_time`,'')")->fetch_assoc()['time_cards_id'];
+        $total_hours = $dbc->query("SELECT SUM(`total_hrs`) `total`, IF(`time_cards_id`='$id',`total_hrs`,0) `row_hours` FROM `time_cards` WHERE `staff`='$staff' AND `date`='$date' AND '$siteid' IN (`business`,'') AND '$projectid' IN (`projectid`,'') AND '$ticketid' IN (`ticketid`,'') AND '$clientid' IN (`clientid`,'') AND '$attach_id' IN (`ticket_attached_id`,'') AND '$type_of_time' IN (`type_of_time`,'')")->fetch_assoc();
+        if($total_hours['total'] != $total_hours['row_hours'] && $field == 'total_hours') {
+            $value -= $total_hours['total'] - $total_hours['row_hours'];
+        }
+    }
+    if($id > 0 && $field == 'approv') {
+		$time_card = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `time_cards` WHERE `time_cards_id` = '$id'"));
+		if($field == 'total_hrs' && number_format($value,1) != number_format($time_card['total_hrs'],1)) {
+			$comment_history .= $session_user.' updated '.$field.' from '.$time_card['total_hrs'].' to '.$total_hrs.'.<br>';
+		}
+		if($type_of_time != $time_card['type_of_time']) {
+			$comment_history .= $session_user.' updated Type of Time from '.$time_card['type_of_time'].' to '.$type_of_time.'.<br>';
+		}
+        $dbc->query("UPDATE `time_cards` SET `$field`='$value' WHERE `time_cards_id`='$id'");
+    } else if($id > 0) {
+		$time_card = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `time_cards` WHERE `time_cards_id` = '$id'"));
+		if($field == 'total_hrs' && number_format($value,1) != number_format($time_card['total_hrs'],1)) {
+			$comment_history .= $session_user.' updated '.$field.' from '.$time_card['total_hrs'].' to '.$total_hrs.'.<br>';
+		}
+		if($type_of_time != $time_card['type_of_time']) {
+			$comment_history .= $session_user.' updated Type of Time from '.$time_card['type_of_time'].' to '.$type_of_time.'.<br>';
+		}
+        $dbc->query("UPDATE `time_cards` SET `$field`='$value', `".($page == 'time_cards.php' ? '' : 'manager_')."highlight`=1 WHERE `time_cards_id`='$id'");
+    } else {
+        $comment_history = $session_user.' added Time record.<br>';
+        $dbc->query("INSERT INTO `time_cards` (`business`,`projectid`,`ticketid`,`date`,`clientid`,`ticket_attached_id`,`staff`,`type_of_time`,`$field`) VALUES ('$siteid','$projectid','$ticketid','$date','$clientid','$attach_id','$staff','$type','$value')");
+        echo $id = $dbc->insert_id;
+    }
+    if($attach_id > 0 && $field == 'total_hrs') {
+        $dbc->query("UPDATE `ticket_attached` SET `time_set`='$value' WHERE `id`='$attach_id'");
+    }
+	if($timesheet_record_history == 1 && $comment_history != '') {
+        $time_card = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `time_cards` WHERE `time_cards_id` = '$id'"));
+        $comment_history = rtrim($comment_history,'<br>');
+        if(!empty($time_card['comment_box'])) {
+            $comment_history = '<br>'.$comment_history;
+        }
+        mysqli_query($dbc, "UPDATE `time_cards` SET `comment_box` = '".$time_card['comment_box'].htmlentities($comment_history)."' WHERE `time_cards_id` = '$id'");
+	}
+
+	$insert_dayoff = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `field_config_time_cards_dayoff` WHERE `hours_type` = '".$type_of_time."'"));
+    $time_card = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `time_cards` WHERE `time_cards_id` = '$id'"));
+    if(!($time_card['shiftid'] > 0) && $insert_dayoff['enabled'] == 1) {
+    	$dayoff_type = $insert_dayoff['dayoff_type'];
+    	if(empty($dayoff_type)) {
+    		$dayoff_type = 'Day Off';
+    	}
+    	mysqli_query($dbc, "INSERT INTO `contacts_shifts` (`contactid`,`startdate`,`enddate`,`dayoff_type`) VALUES ('$staff','$date','$date','$dayoff_type')");
+    	$shiftid = mysqli_insert_id($dbc);
+    	mysqli_query($dbc, "UPDATE `time_cards` SET `shiftid` = '$shiftid' WHERE `time_cards_id` = '$id'");
+    }
+}
+else if($_GET['action'] == 'set_stat_pay') {
+	$staffid = filter_var($_POST['staffid'],FILTER_SANITIZE_STRING);
+	$stat_pay = filter_var($_POST['stat_pay'],FILTER_SANITIZE_STRING);
+	$vaca_pay = filter_var($_POST['vaca_pay'],FILTER_SANITIZE_STRING);
+	mysqli_query($dbc, "UPDATE `contacts` SET `stat_pay` = '$stat_pay', `vaca_pay` = '$vaca_pay' WHERE `contactid` = '$staffid'");
 }

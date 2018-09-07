@@ -22,7 +22,7 @@ while($row = mysqli_fetch_array( $result )) {
             $shift_conflicts = array_merge(explode('*#*',$conflict), $shift_conflicts);
         }
 
-    	$column .= '<div class="calendar_block calendarSortable" data-contact="'.$contactid.'" data-date="'.$new_today_date.'">';
+    	$column .= '<div class="calendar_block calendarSortable" data-blocktype="'.$_GET['block_type'].'" data-contact="'.$contactid.'" data-date="'.$new_today_date.'">';
         $column .= '<h4>'.$staff.'</h4>';
         foreach ($shifts as $row_shifts) {
             if(in_array($row_shifts['shiftid'], $shift_conflicts)) {
@@ -49,7 +49,7 @@ while($row = mysqli_fetch_array( $result )) {
 			$page_query = $_GET;
 			unset($page_query['shiftid']);
 			unset($page_query['current_day']);
-			$column .= ($row_shifts['startdate'] < $lock_date ? '<span class="sortable-blocks" ' : '<a class="sortable-blocks" ').($edit_access == 1 ? 'href="?'.http_build_query($page_query).'&shiftid='.$row_shifts['shiftid'].'&current_day='.$new_today_date.'"' : 'href="" onclick="return false;"').'style="display:block; margin: 0.5em; padding:5px; color:black; border-radius: 10px; background-color:'.$shift_bg_color.';" data-shift="'.$row_shifts['shiftid'].'" data-currentdate="'.$new_today_date.'" data-currentcontact="'.$staff.'" data-clientid="'.$row_shifts['clientid'].'" data-itemtype="shift">'.$warning_icon;
+			$column .= ($row_shifts['startdate'] < $lock_date ? '<span class="sortable-blocks" ' : '<a class="sortable-blocks" ').($edit_access == 1 ? 'href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Calendar/shifts.php?'.http_build_query($page_query).'&shiftid='.$row_shifts['shiftid'].'&current_day='.$new_today_date.'\'); return false;"' : 'href="" onclick="return false;"').'style="display:block; margin: 0.5em; padding:5px; color:black; border-radius: 10px; background-color:'.$shift_bg_color.';" data-shift="'.$row_shifts['shiftid'].'" data-currentdate="'.$new_today_date.'" data-currentcontact="'.$staff.'" data-clientid="'.$row_shifts['clientid'].'" data-itemtype="shift">'.$warning_icon;
 			$column .= (!empty($row_shifts['dayoff_type']) ? 'Day Off: ' : 'Shift: ').date('g:i a', strtotime($row_shifts['starttime']))." - ".date('g:i a', strtotime($row_shifts['endtime'])).'<br />';
 			if(!empty($row_shifts['clientid'])) {
 				$column .= $client_type.': '.get_contact($dbc, $row_shifts['clientid']).'<br />';

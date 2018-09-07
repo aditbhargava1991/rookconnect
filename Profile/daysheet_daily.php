@@ -3,97 +3,15 @@
 $reminderids = [];
 // Retrieve Data and Populate Daysheet Tables
 //Reminders
-$reminders_query = "SELECT * FROM `reminders` WHERE `reminder_date` = '$daily_date' AND `contactid` = '$contactid' AND `deleted` = 0";
-$reminders_result = mysqli_fetch_all(mysqli_query($dbc, $reminders_query),MYSQLI_ASSOC);
-foreach ($reminders_result as $reminder) {
-    mysqli_query($dbc, "INSERT INTO `daysheet_reminders` (`reminderid`, `contactid`, `type`, `date`, `done`) SELECT '".$reminder['reminderid']."', '".$contactid."', 'reminder', '".$daily_date."', '0' FROM (SELECT COUNT(*) rows FROM `daysheet_reminders` WHERE `reminderid` = '".$reminder['reminderid']."' AND `type` = 'reminder' AND `date` = '".$daily_date."' AND `contactid` = '".$contactid."' AND `deleted` = 0) num WHERE num.rows = 0");
-    $reminderid = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `daysheetreminderid` FROM `daysheet_reminders` WHERE `reminderid` = '".$reminder['reminderid']."' AND `type` = 'reminder' AND `date` = '".$daily_date."' AND `contactid` = '".$contactid."' AND `deleted` = 0"))['daysheetreminderid'];
-    $reminderids[] = $reminderid;
-    if($reminder['done'] == 1) {
-        mysqli_query($dbc, "UPDATE `daysheet_reminders` SET `done` = 1 WHERE `daysheetreminderid` = '$reminderid'");
-    }
-}
-$sales_reminders_query = "SELECT * FROM `sales` WHERE `new_reminder` = '$daily_date' AND (`primary_staff` = '$contactid' OR CONCAT(',',`share_lead`,',') LIKE '%,$contactid,%')";
-$sales_reminders_result = mysqli_fetch_all(mysqli_query($dbc, $sales_reminders_query),MYSQLI_ASSOC);
-foreach ($sales_reminders_result as $reminder) {
-    mysqli_query($dbc, "INSERT INTO `daysheet_reminders` (`reminderid`, `contactid`, `type`, `date`, `done`) SELECT '".$reminder['salesid']."', '".$contactid."', 'sales', '".$daily_date."', '0' FROM (SELECT COUNT(*) rows FROM `daysheet_reminders` WHERE `reminderid` = '".$reminder['salesid']."' AND `type` = 'sales' AND `date` = '".$daily_date."' AND `contactid` ='".$contactid."' AND `deleted` = 0) num WHERE num.rows = 0");
-    $reminderid = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `daysheetreminderid` FROM `daysheet_reminders` WHERE `reminderid` = '".$reminder['salesid']."' AND `type` = 'sales' AND `date` = '".$daily_date."' AND `contactid` = '".$contactid."' AND `deleted` = 0"))['daysheetreminderid'];
-    $reminderids[] = $reminderid;
-}
-$so_reminders_query = "SELECT * FROM `sales_order` WHERE `next_action_date` = '$daily_date' AND (`primary_staff` = '$contactid' OR CONCAT(',',`assign_staff`,',') LIKE '%,$contactid,%')";
-$so_reminders_result = mysqli_fetch_all(mysqli_query($dbc, $so_reminders_query),MYSQLI_ASSOC);
-foreach ($so_reminders_result as $reminder) {
-    mysqli_query($dbc, "INSERT INTO `daysheet_reminders` (`reminderid`, `contactid`, `type`, `date`, `done`) SELECT '".$reminder['posid']."', '".$contactid."', 'sales_order', '".$daily_date."', '0' FROM (SELECT COUNT(*) rows FROM `daysheet_reminders` WHERE `reminderid` = '".$reminder['posid']."' AND `type` = 'sales_order' AND `date` = '".$daily_date."' AND `contactid` = '".$contactid."' AND `deleted` = 0) num WHERE num.rows = 0");
-    $reminderid = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `daysheetreminderid` FROM `daysheet_reminders` WHERE `reminderid` = '".$reminder['posid']."' AND `type` = 'sales_order' AND `date` = '".$daily_date."' AND `contactid` = '".$contactid."' AND `deleted` = 0"))['daysheetreminderid'];
-    $reminderids[] = $reminderid;
-}
-$sot_reminders_query = "SELECT * FROM `sales_order_temp` WHERE `next_action_date` = '$daily_date' AND (`primary_staff` = '$contactid' OR CONCAT(',',`assign_staff`,',') LIKE '%,$contactid,%') AND `deleted` = 0";
-$sot_reminders_result = mysqli_fetch_all(mysqli_query($dbc, $sot_reminders_query),MYSQLI_ASSOC);
-foreach ($sot_reminders_result as $reminder) {
-    mysqli_query($dbc, "INSERT INTO `daysheet_reminders` (`reminderid`, `contactid`, `type`, `date`, `done`) SELECT '".$reminder['sotid']."', '".$contactid."', 'sales_order_temp', '".$daily_date."', '0' FROM (SELECT COUNT(*) rows FROM `daysheet_reminders` WHERE `reminderid` = '".$reminder['sotid']."' AND `type` = 'sales_order_temp' AND `date` = '".$daily_date."' AND `contactid` = '".$contactid."' AND `deleted` = 0) num WHERE num.rows = 0");
-    $reminderid = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `daysheetreminderid` FROM `daysheet_reminders` WHERE `reminderid` = '".$reminder['sotid']."' AND `type` = 'sales_order_temp' AND `date` = '".$daily_date."' AND `contactid` = '".$contactid."' AND `deleted` = 0"))['daysheetreminderid'];
-    $reminderids[] = $reminderid;
-}
-$estimates_reminders_query = "SELECT `ea`.*, `e`.`estimate_name` FROM `estimate_actions` AS `ea` JOIN `estimate` AS `e` ON (`ea`.`estimateid`=`e`.`estimateid`) WHERE FIND_IN_SET ('$contactid', `e`.`assign_staffid`) AND `e`.`deleted`=0 AND FIND_IN_SET('$contactid', `ea`.`contactid`) AND `ea`.`deleted`=0 AND `ea`.`due_date`='". date('Y-m-d', strtotime($daily_date)) ."'";
-$estimates_reminders_result = mysqli_fetch_all(mysqli_query($dbc, $estimates_reminders_query),MYSQLI_ASSOC);
-foreach ($estimates_reminders_result as $reminder) {
-    mysqli_query($dbc, "INSERT INTO `daysheet_reminders` (`reminderid`, `contactid`, `type`, `date`, `done`) SELECT '".$reminder['id']."', '".$contactid."', 'estimate', '".$daily_date."', '0' FROM (SELECT COUNT(*) rows FROM `daysheet_reminders` WHERE `reminderid` = '".$reminder['id']."' AND `type` = 'estimate' AND `date` = '".$daily_date."' AND `contactid` ='".$contactid."' AND `deleted` = 0) num WHERE num.rows = 0");
-    $reminderid = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `daysheetreminderid` FROM `daysheet_reminders` WHERE `reminderid` = '".$reminder['id']."' AND `type` = 'estimate' AND `date` = '".$daily_date."' AND `contactid` = '".$contactid."' AND `deleted` = 0"))['daysheetreminderid'];
-    $reminderids[] = $reminderid;
-}
-$projects_reminders_query = "SELECT `pa`.*, `p`.`project_name` FROM `project_actions` AS `pa` JOIN `project` AS `p` ON (`pa`.`projectid`=`p`.`projectid`) WHERE FIND_IN_SET ('$contactid', `pa`.`contactid`) AND `p`.`deleted` = 0 AND `pa`.`deleted` = 0 AND `pa`.`due_date` = '".date('Y-m-d', strtotime($daily_date))."'";
-$projects_reminders_result = mysqli_fetch_all(mysqli_query($dbc, $projects_reminders_query),MYSQLI_ASSOC);
-foreach ($projects_reminders_result as $reminder) {
-    mysqli_query($dbc, "INSERT INTO `daysheet_reminders` (`reminderid`, `contactid`, `type`, `date`, `done`) SELECT '".$reminder['id']."', '".$contactid."', 'project', '".$daily_date."', '0' FROM (SELECT COUNT(*) rows FROM `daysheet_reminders` WHERE `reminderid` = '".$reminder['id']."' AND `type` = 'project' AND `date` = '".$daily_date."' AND `contactid` ='".$contactid."' AND `deleted` = 0) num WHERE num.rows = 0");
-    $reminderid = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `daysheetreminderid` FROM `daysheet_reminders` WHERE `reminderid` = '".$reminder['id']."' AND `type` = 'project' AND `date` = '".$daily_date."' AND `contactid` = '".$contactid."' AND `deleted` = 0"))['daysheetreminderid'];
-    $reminderids[] = $reminderid;
-}
-$pfu_reminders_query = "SELECT * FROM `project` WHERE `followup` = '".$daily_date."' AND `project_lead` = '".$contactid."'";
-$pfu_reminders_result = mysqli_fetch_all(mysqli_query($dbc, $pfu_reminders_query),MYSQLI_ASSOC);
-foreach ($pfu_reminders_result as $key => $reminder) {
-    $project_exists = false;
-    foreach ($projects_reminders_result as $project_action) {
-        if ($project_action['projectid'] == $reminder['projectid']) {
-            $project_exists = true;
-            unset($pfu_reminders_result[$key]);
-        }
-    }
-    if (!$project_exists) {
-        mysqli_query($dbc, "INSERT INTO `daysheet_reminders` (`reminderid`, `contactid`, `type`, `date`, `done`) SELECT '".$reminder['projectid']."', '".$contactid."', 'project_followup', '".$daily_date."', '0' FROM (SELECT COUNT(*) rows FROM `daysheet_reminders` WHERE `reminderid` = '".$reminder['projectid']."' AND `type` = 'project_followup' AND `date` = '".$daily_date."' AND `contactid` ='".$contactid."' AND `deleted` = 0) num WHERE num.rows = 0");
-        $reminderid = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `daysheetreminderid` FROM `daysheet_reminders` WHERE `reminderid` = '".$reminder['projectid']."' AND `type` = 'project_followup' AND `date` = '".$daily_date."' AND `contactid` = '".$contactid."' AND `deleted` = 0"))['daysheetreminderid'];
-        $reminderids[] = $reminderid;
-    }
-}
-$cert_reminders_query = "SELECT * FROM `certificate` WHERE `reminder_date` = '$daily_date' AND `contactid` = '$contactid'";
-$cert_reminders_result = mysqli_fetch_all(mysqli_query($dbc, $cert_reminders_query),MYSQLI_ASSOC);
-foreach ($cert_reminders_result as $reminder) {
-    mysqli_query($dbc, "INSERT INTO `daysheet_reminders` (`reminderid`, `contactid`, `type`, `date`, `done`) SELECT '".$reminder['certificateid']."', '".$contactid."', 'certificate', '".$daily_date."', '0' FROM (SELECT COUNT(*) rows FROM `daysheet_reminders` WHERE `reminderid` = '".$reminder['certificateid']."' AND `type` = 'certificate' AND `date` = '".$daily_date."' AND `contactid` = '".$contactid."' AND `deleted` = 0) num WHERE num.rows = 0");
-    $reminderid = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `daysheetreminderid` FROM `daysheet_reminders` WHERE `reminderid` = '".$reminder['certificateid']."' AND `type` = 'certificate' AND `date` = '".$daily_date."' AND `contactid` = '".$contactid."' AND `deleted` = 0"))['daysheetreminderid'];
-    $reminderids[] = $reminderid;
-}
-$alerts_reminders_query = "SELECT * FROM `alerts` WHERE `alert_date` = '$daily_date' AND `alert_user` = '$contactid'";
-$alerts_reminders_result = mysqli_fetch_all(mysqli_query($dbc, $alerts_reminders_query),MYSQLI_ASSOC);
-foreach ($alerts_reminders_result as $reminder) {
-    mysqli_query($dbc, "INSERT INTO `daysheet_reminders` (`reminderid`, `contactid`, `type`, `date`, `done`) SELECT '".$reminder['alertid']."', '".$contactid."', 'alert', '".$daily_date."', '0' FROM (SELECT COUNT(*) rows FROM `daysheet_reminders` WHERE `reminderid` = '".$reminder['alertid']."' AND `type` = 'alert' AND `date` = '".$daily_date."' AND `contactid` = '".$contactid."' AND `deleted` = 0) num WHERE num.rows = 0");
-    $reminderid = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `daysheetreminderid` FROM `daysheet_reminders` WHERE `reminderid` = '".$reminder['alertid']."' AND `type` = 'alert' AND `date` = '".$daily_date."' AND `contactid` = '".$contactid."' AND `deleted` = 0"))['daysheetreminderid'];
-    $reminderids[] = $reminderid;
-}
-$inc_rep_reminders_query = "SELECT * FROM `incident_report` WHERE `ir14` = '$daily_date' AND `assign_followup` = '$contactid' AND `followup_done` = 0 AND `deleted` = 0";
-$inc_rep_reminders_result = mysqli_fetch_all(mysqli_query($dbc, $inc_rep_reminders_query),MYSQLI_ASSOC);
-foreach ($inc_rep_reminders_result as $reminder) {
-    mysqli_query($dbc, "INSERT INTO `daysheet_reminders` (`reminderid`, `contactid`, `type`, `date`, `done`) SELECT '".$reminder['incidentreportid']."', '".$contactid."', 'incident_report', '".$daily_date."', '0' FROM (SELECT COUNT(*) rows FROM `daysheet_reminders` WHERE `reminderid` = '".$reminder['incidentreportid']."' AND `type` = 'incident_report' AND `date` = '".$daily_date."' AND `contactid` = '".$contactid."' AND `deleted` = 0) num WHERE num.rows = 0");
-    $reminderid = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `daysheetreminderid` FROM `daysheet_reminders` WHERE `reminderid` = '".$reminder['incidentreportid']."' AND `type` = 'incident_report' AND `date` = '".$daily_date."' AND `contactid` = '".$contactid."' AND `deleted` = 0"))['daysheetreminderid'];
-    $reminderids[] = $reminderid;
-}
-
-//If reminders not found, mark it as deleted
-$reminderids = "'".implode("','",$reminderids)."'";
-        $date_of_archival = date('Y-m-d');
-mysqli_query($dbc, "UPDATE `daysheet_reminders` SET `deleted` = 1, `date_of_archival` = '$date_of_archival' WHERE `daysheetreminderid` NOT IN (".$reminderids.") AND `date` = '".$daily_date."' AND `date` >= '".date('Y-m-d')."' AND `contactid` = '".$contactid."' AND `done` = 0 AND `deleted` = 0");
+$get_from = 'daysheet';
+$search_user = $contactid;
+$today_date = $daily_date;
+$fetch_until = $daily_date;
+include('../Notification/get_notifications.php');
 
 //Tickets
 $equipment = [];
-$equipment_ids = $dbc->query("SELECT `equipmentid` FROM `equipment_assignment_staff` LEFT JOIN `equipment_assignment` ON `equipment_assignment_staff`.`equipment_assignmentid`=`equipment_assignment`.`equipment_assignmentid` WHERE `equipment_assignment_staff`.`deleted`=0 AND `equipment_assignment`.`deleted`=0 AND `equipment_assignment_staff`.`contactid`='$contactid' AND DATE(`equipment_assignment`.`start_date`) <= '$daily_date' AND DATE(`equipment_assignment`.`end_date`) >= '$daily_date'");
+$equipment_ids = $dbc->query("SELECT `equipmentid` FROM `equipment_assignment_staff` LEFT JOIN `equipment_assignment` ON `equipment_assignment_staff`.`equipment_assignmentid`=`equipment_assignment`.`equipment_assignmentid` WHERE `equipment_assignment_staff`.`deleted`=0 AND `equipment_assignment`.`deleted`=0 AND `equipment_assignment_staff`.`contactid`='$contactid' AND DATE(`equipment_assignment`.`start_date`) <= '$daily_date' AND DATE(`equipment_assignment`.`end_date`) >= '$daily_date' AND CONCAT(',',`hide_staff`,',') NOT LIKE '%,$contactid,%' AND CONCAT(',',`hide_days`,',') NOT LIKE '%,$daily_date,%'");
 while($equipment[] = $equipment_ids->fetch_assoc()['equipmentid']) { }
 $equipment = implode(',',array_filter($equipment));
 if($equipment == '') {
@@ -103,7 +21,15 @@ if(strtotime($daily_date.' 23:59:59') < time() && get_config($dbc, 'timesheet_hi
 	$filtered_tickets = " AND 1=0 ";
 }
 $combine_category = get_config($dbc, 'daysheet_ticket_combine_contact_type');
-$tickets_query = "SELECT `tickets`.*, IF(`ticket_schedule`.`id` IS NULL,'ticket','ticket_schedule') `ticket_table`, IFNULL(`ticket_schedule`.`to_do_date`,`tickets`.`to_do_date`) `to_do_date`, CONCAT('<br>',IFNULL(NULLIF(`ticket_schedule`.`location_name`,''),`ticket_schedule`.`client_name`)) `location_description`, `ticket_schedule`.`id` `stop_id`, `ticket_schedule`.`eta`, `ticket_schedule`.`client_name`, IFNULL(`ticket_schedule`.`address`, `tickets`.`address`) `address`, `ticket_schedule`.`type` `delivery_type`, IFNULL(`ticket_schedule`.`to_do_start_time`, IFNULL(NULLIF(`tickets`.`start_time`,'00:00'),`tickets`.`to_do_start_time`)) `to_do_start_time`, CONCAT(`start_available`,' - ',`end_available`) `availability`, IFNULL(`ticket_schedule`.`status`, `tickets`.`status`) `status`, IFNULL(`ticket_schedule`.`map_link`,`tickets`.`google_maps`) `map_link`, `ticket_schedule`.`notes` `delivery_notes`, `tickets`.`siteid` FROM `tickets` LEFT JOIN `ticket_schedule` ON `tickets`.`ticketid`=`ticket_schedule`.`ticketid` AND `ticket_schedule`.`deleted`=0 WHERE ((internal_qa_date = '".$daily_date."' AND CONCAT(',',IFNULL(`internal_qa_contactid`,''),',') LIKE '%,".$contactid.",%') OR (`deliverable_date` = '".$daily_date."' AND CONCAT(',',IFNULL(`deliverable_contactid`,''),',') LIKE '%,".$contactid.",%') OR ((`tickets`.`to_do_date` = '".$daily_date."' OR '".$daily_date."' BETWEEN `tickets`.`to_do_date` AND `tickets`.`to_do_end_date` OR `ticket_schedule`.`to_do_date`='".$daily_date."' OR '".$daily_date."' BETWEEN `ticket_schedule`.`to_do_date` AND IFNULL(`ticket_schedule`.`to_do_end_date`,`ticket_schedule`.`to_do_date`)) AND ((CONCAT(',',IFNULL(`tickets`.`contactid`,''),',',IFNULL(`ticket_schedule`.`contactid`,''),',') LIKE '%,".$contactid.",%') OR (`tickets`.`equipmentid` IN ($equipment) AND `tickets`.`equipmentid` > 0) OR (`ticket_schedule`.`equipmentid` IN ($equipment) AND `ticket_schedule`.`equipmentid` > 0)))) ".(in_array('Combine Warehouse Stops',$daysheet_ticket_fields) ? "AND IFNULL(NULLIF(CONCAT(IFNULL(`ticket_schedule`.`address`,''),IFNULL(`ticket_schedule`.`city`,'')),''),CONCAT(IFNULL(`tickets`.`address`,''),IFNULL(`tickets`.`city`,''))) NOT IN (SELECT CONCAT(IFNULL(`ship_to_address`,''),IFNULL(`ship_city`,'')) FROM `contacts` WHERE `category`='".$combine_category."')" : '')." $filtered_tickets AND `tickets`.`deleted` = 0 ORDER BY ".(in_array('Sort Completed to End',$daysheet_ticket_fields) ? "IFNULL(`ticket_schedule`.`status`,`tickets`.`status`)='$completed_ticket_status', " : '')."IFNULL(NULLIF(`ticket_schedule`.`to_do_start_time`,''),IFNULL(NULLIF(`tickets`.`start_time`,'00:00'),`tickets`.`to_do_start_time`)) ASC";
+$warehouse_query = '';
+if(in_array('Combine Warehouse Stops',$daysheet_ticket_fields)) {
+    $warehouse_query = " AND IFNULL(NULLIF(CONCAT(IFNULL(`ticket_schedule`.`address`,''),IFNULL(`ticket_schedule`.`city`,'')),''),CONCAT(IFNULL(`tickets`.`address`,''),IFNULL(`tickets`.`city`,''))) NOT IN (SELECT CONCAT(IFNULL(`address`,''),IFNULL(`city`,'')) FROM `contacts` WHERE `category`='Warehouses')";
+}
+$pickup_query = '';
+if(in_array('Combine Pick Up Stops',$daysheet_ticket_fields)) {
+    $pickup_query = " AND IFNULL(`ticket_schedule`.`type`,'') != 'Pick Up'";
+}
+$tickets_query = "SELECT `tickets`.*, IF(`ticket_schedule`.`id` IS NULL,'ticket','ticket_schedule') `ticket_table`, IFNULL(`ticket_schedule`.`to_do_date`,`tickets`.`to_do_date`) `to_do_date`, CONCAT('<br>',IFNULL(NULLIF(`ticket_schedule`.`location_name`,''),`ticket_schedule`.`client_name`)) `location_description`, `ticket_schedule`.`id` `stop_id`, `ticket_schedule`.`eta`, `ticket_schedule`.`client_name`, IFNULL(`ticket_schedule`.`address`, `tickets`.`address`) `address`, `ticket_schedule`.`type` `delivery_type`, IFNULL(`ticket_schedule`.`to_do_start_time`, IFNULL(NULLIF(`tickets`.`start_time`,'00:00'),`tickets`.`to_do_start_time`)) `to_do_start_time`, CONCAT(`start_available`,' - ',`end_available`) `availability`, IFNULL(`ticket_schedule`.`status`, `tickets`.`status`) `status`, IFNULL(`ticket_schedule`.`map_link`,`tickets`.`google_maps`) `map_link`, `ticket_schedule`.`notes` `delivery_notes`, `tickets`.`siteid` FROM `tickets` LEFT JOIN `ticket_schedule` ON `tickets`.`ticketid`=`ticket_schedule`.`ticketid` AND `ticket_schedule`.`deleted`=0 WHERE ((internal_qa_date = '".$daily_date."' AND CONCAT(',',IFNULL(`internal_qa_contactid`,''),',') LIKE '%,".$contactid.",%') OR (`deliverable_date` = '".$daily_date."' AND CONCAT(',',IFNULL(`deliverable_contactid`,''),',') LIKE '%,".$contactid.",%') OR ((`tickets`.`to_do_date` = '".$daily_date."' OR '".$daily_date."' BETWEEN `tickets`.`to_do_date` AND `tickets`.`to_do_end_date` OR `ticket_schedule`.`to_do_date`='".$daily_date."' OR '".$daily_date."' BETWEEN `ticket_schedule`.`to_do_date` AND IFNULL(`ticket_schedule`.`to_do_end_date`,`ticket_schedule`.`to_do_date`)) AND ((CONCAT(',',IFNULL(IFNULL(`ticket_schedule`.`contactid`,`tickets`.`contactid`),''),',') LIKE '%,".$contactid.",%') OR (IFNULL(`ticket_schedule`.`equipmentid`,`tickets`.`equipmentid`) IN ($equipment) AND IFNULL(`ticket_schedule`.`equipmentid`,`tickets`.`equipmentid`) > 0)))) ".$warehouse_query.$pickup_query." $filtered_tickets AND `tickets`.`deleted` = 0 ORDER BY ".(in_array('Sort Completed to End',$daysheet_ticket_fields) ? "IFNULL(`ticket_schedule`.`status`,`tickets`.`status`)='$completed_ticket_status', " : '')."IFNULL(NULLIF(`ticket_schedule`.`to_do_start_time`,''),IFNULL(NULLIF(`tickets`.`start_time`,'00:00'),`tickets`.`to_do_start_time`)) ASC";
 $tickets_result = mysqli_fetch_all(mysqli_query($dbc, $tickets_query),MYSQLI_ASSOC);
 
 //Tasks
@@ -119,6 +45,18 @@ $tasks_result = mysqli_fetch_all(mysqli_query($dbc, $tasks_query),MYSQLI_ASSOC);
 // $checklists_result = mysqli_fetch_all(mysqli_query($dbc, $checklists_query),MYSQLI_ASSOC);
 $checklists_query = "SELECT * FROM `checklist_actions` WHERE `contactid` = '".$contactid."' AND `action_date` = '".$daily_date."' AND `deleted` = 0";
 $checklists_result = mysqli_fetch_all(mysqli_query($dbc, $checklists_query),MYSQLI_ASSOC);
+
+//Communication
+$comm_query = "SELECT * FROM `email_communication` WHERE `deleted`=0 AND `created_by`='".$_SESSION['contactid']."' AND `today_date`='$daily_date'";
+$comm_result = mysqli_fetch_all(mysqli_query($dbc, $comm_query),MYSQLI_ASSOC);
+
+//Support Requests
+$support_query = "SELECT * FROM `support` WHERE (`assigned`='' OR CONCAT(',',`assigned`,',') LIKE ',".$contactid.",') AND `deleted` = 0";
+$support_result = mysqli_fetch_all(mysqli_query($dbc, $support_query),MYSQLI_ASSOC);
+
+//Communications
+$comm_query = "SELECT * FROM `email_communication` WHERE `deleted`=0 AND `created_by`='".$_SESSION['contactid']."' AND `today_date`='$daily_date'";
+$comm_result = mysqli_fetch_all(mysqli_query($dbc, $comm_query),MYSQLI_ASSOC);
 ?>
 <script type="text/javascript">
 $(document).ready(function () {
@@ -160,15 +98,24 @@ $(document).ready(function () {
             $reminder_label = '';
             if ($daysheet_reminder['type'] == 'reminder') {
                 $reminder = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `reminders` WHERE `reminderid` = '".$daysheet_reminder['reminderid']."'"));
-                $reminder_url = get_reminder_url($dbc, $reminder);
+                $reminder_url = get_reminder_url($dbc, $reminder, 1);
+                $slider = 1;
+                if(empty($reminder_url)) {
+                    $slider = 0;
+                    $reminder_url = get_reminder_url($dbc, $reminder);
+                }
                 if(!empty($reminder_url)) {
-                    $reminder_label = '<a href="'.$reminder_url.'">'.$reminder['subject'].'</a>';
+                    if($slider == 1) {
+                        $reminder_label = '<a href="" onclick="overlayIFrameSlider(\''.$reminder_url.'\'); return false;">'.$reminder['subject'].'</a>';
+                    } else {
+                        $reminder_label = '<a href="'.$reminder_url.'">'.$reminder['subject'].'</a>';
+                    }
                 } else {
                     $reminder_label = '<div class="daysheet-span">'.$reminder['subject'].'</div>';
                 }
             } else if ($daysheet_reminder['type'] == 'sales') {
                 $reminder = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `sales` WHERE `salesid` = '".$daysheet_reminder['reminderid']."'"));
-                $reminder_label = '<a href="../Sales/sale.php?p=preview&id='.$reminder['salesid'].'" style="color: black;">Follow Up Sales: Sales #'.$reminder['salesid'].'</a>';
+                $reminder_label = '<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Sales/sale.php?iframe_slider=1&p=details&id='.$reminder['salesid'].'\'); return false;" style="color: black;">Follow Up Sales: Sales #'.$reminder['salesid'].'</a>';
             } else if ($daysheet_reminder['type'] == 'sales_order') {
                 $reminder = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `sales_order` WHERE `posid` = '".$daysheet_reminder['reminderid']."'"));
                 $reminder_label = '<a href="../Sales Order/index.php?p=preview&id='.$reminder['posid'].'" style="color: black;">Follow Up '.SALES_ORDER_NOUN.': '.($reminder['name'] != '' ? $reminder['name'] : SALES_ORDER_NOUN.' #'.$reminder['posid']).'</a>';
@@ -180,19 +127,25 @@ $(document).ready(function () {
                 $reminder_label = '<a href="../Estimate/estimates.php?view='.$reminder['estimateid'].'" style="color: black;">Follow Up Estimate: '.$reminder['estimate_name'].'</a>';
             } else if ($daysheet_reminder['type'] == 'project') {
                 $reminder = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `pa`.*, `p`.`project_name` FROM `project_actions` AS `pa` JOIN `project` AS `p` ON (`pa`.`projectid`=`p`.`projectid`) WHERE `pa`.`id` = '".$daysheet_reminder['reminderid']."'"));
-                $reminder_label = '<a href="../Project/projects.php?edit='.$reminder['projectid'].'" style="color: black;">Follow Up Project: '.$reminder['project_name'].'</a>';
+                $reminder_label = '<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Project/projects.php?iframe_slider=1&edit='.$reminder['projectid'].'\'); return false;" style="color: black;">Follow Up Project: '.$reminder['project_name'].'</a>';
             } else if ($daysheet_reminder['type'] == 'project_followup') {
                 $reminder = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `project` WHERE `projectid` = '".$daysheet_reminder['reminderid']."'"));
-                $reminder_label = '<a href="../Project/projects.php?edit='.$reminder['projectid'].'" style="color: black;">Follow Up Project: '.$reminder['project_name'].'</a>';
+                $reminder_label = '<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Project/projects.php?iframe_slider=1&edit='.$reminder['projectid'].'\'); return false;" style="color: black;">Follow Up Project: '.$reminder['project_name'].'</a>';
             } else if ($daysheet_reminder['type'] == 'certificate') {
                 $reminder = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `certificate` WHERE `certificateid` = '".$daysheet_reminder['reminderid']."'"));
-                $reminder_label = '<a href="../Certificate/index.php?edit='.$reminder['certificateid'].'" style="color: black;">Certificate Reminder: '.$reminder['title'].'</a>';
+                $reminder_label = '<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Certificate/edit_certificate.php?edit='.$reminder['certificateid'].'\'); return false;" style="color: black;">Certificate Reminder: '.$reminder['title'].'</a>';
             } else if ($daysheet_reminder['type'] == 'alert') {
                 $reminder = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `alerts` WHERE `alertid` = '".$daysheet_reminder['reminderid']."'"));
                 $reminder_label = '<a href="'.$reminder['alert_link'].'&from='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']).'&from_url='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']).'" style="color: black;">Alert: '.$reminder['alert_text'].' - '.$reminder['alert_link'].'</a>';
             } else if ($daysheet_reminder['type'] == 'incident_report') {
                 $reminder = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `incident_report` WHERE `incidentreportid` = '".$daysheet_reminder['reminderid']."'"));
-                $reminder_label = '<a href="../Incident Report/add_incident_report.php?incidentreportid='.$reminder['incidentreportid'].'" style="color: black;">Follow Up '.INC_REP_NOUN.': '.$reminder['type'].' #'.$reminder['incidentreportid'].'</a>';
+                $reminder_label = '<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Incident Report/add_incident_report.php?incidentreportid='.$reminder['incidentreportid'].'\'); return false;" style="color: black;">Follow Up '.INC_REP_NOUN.': '.$reminder['type'].' #'.$reminder['incidentreportid'].'</a>';
+            } else if ($daysheet_reminder['type'] == 'equipment_followup') {
+                $reminder = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `equipment` WHERE `equipmentid` = '".$daysheet_reminder['reminderid']."'"));
+                $reminder_label = '<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Equipment/edit_equipment.php?edit='.$reminder['equipmentid'].'&iframe_slider=1\'); return false;" style="color: black;">Follow Up Equipment ('.$reminder['category'].' #'.$reminder['unit_number'].'): Next Service Date coming up on '.$reminder['next_service_date'].'</a>';
+            } else if ($daysheet_reminder['type'] == 'equipment_service') {
+                $reminder = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `equipment` WHERE `equipmentid` = '".$daysheet_reminder['reminderid']."'"));
+                $reminder_label = '<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Equipment/edit_equipment.php?edit='.$reminder['equipmentid'].'&iframe_slider=1\'); return false;" style="color: black;">Equipment Service Reminder ('.$reminder['category'].' #'.$reminder['unit_number'].'): Service Date scheduled for '.$reminder['next_service_date'].'</a>';
             }
             if(!empty($reminder_label)) {
                 if($daysheet_styling == 'card') {
@@ -218,57 +171,88 @@ $(document).ready(function () {
     <h4 style="font-weight: normal;"><?= TICKET_TILE ?></h4>
     <?php $no_tickets = true;
     $combined_tickets_shown = [];
-	if(in_array('Combine Warehouse Stops', $daysheet_ticket_fields)) {
-		$combined_query = "SELECT `tickets`.*, IF(`ticket_schedule`.`id` IS NULL,'ticket','ticket_schedule') `ticket_table`, IFNULL(`ticket_schedule`.`to_do_date`,`tickets`.`to_do_date`) `to_do_date`, CONCAT('<br>',IFNULL(NULLIF(`ticket_schedule`.`location_name`,''),`ticket_schedule`.`client_name`)) `location_description`, `ticket_schedule`.`id` `stop_id`, `ticket_schedule`.`eta`, `ticket_schedule`.`client_name`, IFNULL(`ticket_schedule`.`address`, `tickets`.`address`) `address`, `ticket_schedule`.`type` `delivery_type`, IFNULL(`ticket_schedule`.`to_do_start_time`, IFNULL(NULLIF(`tickets`.`start_time`,'00:00'),`tickets`.`to_do_start_time`)) `to_do_start_time`, CONCAT(`start_available`,' - ',`end_available`) `availability`, `ticket_schedule`.`status` `schedule_status` FROM `tickets` LEFT JOIN `ticket_schedule` ON `tickets`.`ticketid`=`ticket_schedule`.`ticketid` AND `ticket_schedule`.`deleted`=0 WHERE ((internal_qa_date = '".$daily_date."' AND CONCAT(',',IFNULL(`internal_qa_contactid`,''),',') LIKE '%,".$contactid.",%') OR (`deliverable_date` = '".$daily_date."' AND CONCAT(',',IFNULL(`deliverable_contactid`,''),',') LIKE '%,".$contactid.",%') OR ((`tickets`.`to_do_date` = '".$daily_date."' OR '".$daily_date."' BETWEEN `tickets`.`to_do_date` AND `tickets`.`to_do_end_date` OR `ticket_schedule`.`to_do_date`='".$daily_date."' OR '".$daily_date."' BETWEEN `ticket_schedule`.`to_do_date` AND IFNULL(`ticket_schedule`.`to_do_end_date`,`ticket_schedule`.`to_do_date`)) AND ((CONCAT(',',IFNULL(`tickets`.`contactid`,''),',',IFNULL(`ticket_schedule`.`contactid`,''),',') LIKE '%,".$contactid.",%') OR (`tickets`.`equipmentid` IN ($equipment) AND `tickets`.`equipmentid` > 0) OR (`ticket_schedule`.`equipmentid` IN ($equipment) AND `ticket_schedule`.`equipmentid` > 0)))) AND IFNULL(NULLIF(CONCAT(IFNULL(`ticket_schedule`.`address`,''),IFNULL(`ticket_schedule`.`city`,'')),''),CONCAT(IFNULL(`tickets`.`address`,''),IFNULL(`tickets`.`city`,''))) IN (SELECT CONCAT(IFNULL(`address`,''),IFNULL(`city`,'')) FROM `contacts` WHERE `category`='".$combine_category."') $filtered_tickets AND `tickets`.`deleted` = 0 ORDER BY IFNULL(`ticket_schedule`.`address`,`tickets`.`address`), ".(in_array('Sort Completed to End',$daysheet_ticket_fields) ? "IFNULL(`ticket_schedule`.`status`,`tickets`.`status`)='$completed_ticket_status', " : '')."IFNULL(NULLIF(`ticket_schedule`.`to_do_start_time`,''),IFNULL(NULLIF(`tickets`.`start_time`,'00:00'),`tickets`.`to_do_start_time`)) ASC";
-		$combined_result = mysqli_fetch_all(mysqli_query($dbc, $combined_query),MYSQLI_ASSOC);
-		if(!empty($combined_result)) {
-			if($daysheet_styling != 'card') {
-				echo '<ul id="tickets_daily">';
-			} else {
-                echo '<div class="block-group-daysheet">';
+    if(in_array('Combine Warehouse Stops', $daysheet_ticket_fields)) {
+        $combined_query = "SELECT `tickets`.*, IF(`ticket_schedule`.`id` IS NULL,'ticket','ticket_schedule') `ticket_table`, IFNULL(`ticket_schedule`.`to_do_date`,`tickets`.`to_do_date`) `to_do_date`, CONCAT('<br>',IFNULL(NULLIF(`ticket_schedule`.`location_name`,''),`ticket_schedule`.`client_name`)) `location_description`, `ticket_schedule`.`id` `stop_id`, `ticket_schedule`.`eta`, `ticket_schedule`.`client_name`, IFNULL(`ticket_schedule`.`address`, `tickets`.`address`) `address`, `ticket_schedule`.`type` `delivery_type`, IFNULL(`ticket_schedule`.`to_do_start_time`, IFNULL(NULLIF(`tickets`.`start_time`,'00:00'),`tickets`.`to_do_start_time`)) `to_do_start_time`, CONCAT(`start_available`,' - ',`end_available`) `availability`, `ticket_schedule`.`status` `schedule_status` FROM `tickets` LEFT JOIN `ticket_schedule` ON `tickets`.`ticketid`=`ticket_schedule`.`ticketid` AND `ticket_schedule`.`deleted`=0 WHERE ((internal_qa_date = '".$daily_date."' AND CONCAT(',',IFNULL(`internal_qa_contactid`,''),',') LIKE '%,".$contactid.",%') OR (`deliverable_date` = '".$daily_date."' AND CONCAT(',',IFNULL(`deliverable_contactid`,''),',') LIKE '%,".$contactid.",%') OR ((`tickets`.`to_do_date` = '".$daily_date."' OR '".$daily_date."' BETWEEN `tickets`.`to_do_date` AND `tickets`.`to_do_end_date` OR `ticket_schedule`.`to_do_date`='".$daily_date."' OR '".$daily_date."' BETWEEN `ticket_schedule`.`to_do_date` AND IFNULL(`ticket_schedule`.`to_do_end_date`,`ticket_schedule`.`to_do_date`)) AND ((CONCAT(',',IFNULL(IFNULL(`ticket_schedule`.`contactid`,`tickets`.`contactid`),''),',') LIKE '%,".$contactid.",%') OR (IFNULL(`ticket_schedule`.`equipmentid`,`tickets`.`equipmentid`) IN ($equipment) AND IFNULL(`ticket_schedule`.`equipmentid`,`tickets`.`equipmentid`) > 0)))) AND IFNULL(NULLIF(CONCAT(IFNULL(`ticket_schedule`.`address`,''),IFNULL(`ticket_schedule`.`city`,'')),''),CONCAT(IFNULL(`tickets`.`address`,''),IFNULL(`tickets`.`city`,''))) IN (SELECT CONCAT(IFNULL(`address`,''),IFNULL(`city`,'')) FROM `contacts` WHERE `category`='".$combine_category."') $filtered_tickets AND `tickets`.`deleted` = 0 ORDER BY IFNULL(`ticket_schedule`.`address`,`tickets`.`address`), ".(in_array('Sort Completed to End',$daysheet_ticket_fields) ? "IFNULL(`ticket_schedule`.`status`,`tickets`.`status`)='$completed_ticket_status', " : '')."IFNULL(NULLIF(`ticket_schedule`.`to_do_start_time`,''),IFNULL(NULLIF(`tickets`.`start_time`,'00:00'),`tickets`.`to_do_start_time`)) ASC";
+        $combined_result = mysqli_fetch_all(mysqli_query($dbc, $combined_query),MYSQLI_ASSOC);
+        if(!empty($combined_result)) {
+            $delivery_color = get_delivery_color($dbc, 'warehouse');
+            if(!empty($delivery_color)) {
+                $delivery_style = 'style="background-color: '.$delivery_color.';"';
+            } else {
+                $delivery_style = '';
             }
-			$address = '';
-			foreach ($combined_result as $ticket) {
-				$new_delivery_color = get_delivery_color($dbc, $ticket['delivery_type']);
-				if($new_delivery_color != $delivery_color) {
-					$delivery_color = $new_delivery_color;
-					if(!empty($delivery_color)) {
-						$delivery_style = 'style="background-color: '.$delivery_color.';"';
-					} else {
-						$delivery_style = '';
-					}
-					if($daysheet_styling == 'card') {
-						echo '<div class="block-group-daysheet" '.$delivery_style.'>';
-					} else {
-						echo '<li>';
-					}
-				}
+            if($daysheet_styling == 'card') {
+                echo '<div class="block-group-daysheet" '.$delivery_style.'>';
+            } else {
+                echo '<ul id="tickets_daily">';
+                echo '<li>';
+            }
+            $address = '';
+            foreach ($combined_result as $ticket) {
+                if($address != $ticket['address']) {
+                    $address = $ticket['address'];
+                    echo '<h4 class="pad-5">'.$combine_category.": ".$address.'</h4>';
+                }
+                $label = $ticket['client_name'].' - '.$ticket['ticket_label'];
+                echo '<a href="'.WEBSITE_URL.'/Ticket/index.php?edit='.$ticket['ticketid'].'&from='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']).'&stop='.$ticket['stop_id'].'&action_mode='.$ticket_action_mode.'" class="inline" onclick="overlayIFrameSlider(this.href+\'&calendar_view=true\'); return false;" '.$opacity_styling.'>'.$icon_img.$label.'</a>';
 
-				if($address != $ticket['address']) {
-					$address = $ticket['address'];
-					echo '<h4 class="pad-5">'.$address.'</h4>';
-				}
-				$label = $ticket['client_name'].' - '.$ticket['ticket_label'];
-				echo '<a href="'.WEBSITE_URL.'/Ticket/index.php?edit='.$ticket['ticketid'].'&from='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']).'&stop='.$ticket['stop_id'].'&action_mode='.$ticket_action_mode.'" class="inline" onclick="overlayIFrameSlider(this.href+\'&calendar_view=true\'); return false;" '.$opacity_styling.'>'.$icon_img.$label.'</a>';
-
-				if(in_array('Combined Details with Confirm',$daysheet_ticket_fields)) {
-					echo '<label class="form-checkbox any-width pull-right"><input type="checkbox" '.($ticket['schedule_status'] == $completed_ticket_status || $ticket['status'] == $completed_ticket_status ? 'disabled checked' : '').' onclick="if(confirm(\'By checking off this box, you are agreeing it has been loaded onto your truck\')) { setStatus(\''.$ticket['ticketid'].'\',\''.$ticket['stop_id'].'\',\''.$completed_ticket_status.'\') } else { return false; }">'.$completed_ticket_status.'</label>';
-				}
-				echo '<div class="clearfix"></div>';
+                if(in_array('Combined Details with Confirm',$daysheet_ticket_fields)) {
+                    echo '<label class="form-checkbox any-width pull-right"><input type="checkbox" '.($ticket['schedule_status'] == $completed_ticket_status || $ticket['status'] == $completed_ticket_status ? 'disabled checked' : '').' onclick="if(confirm(\'By checking off this box, you are agreeing it has been loaded onto your truck\')) { setStatus(\''.$ticket['ticketid'].'\',\''.$ticket['stop_id'].'\',\''.$completed_ticket_status.'\') } else { return false; }">'.$completed_ticket_status.'</label>';
+                }
+                echo '<div class="clearfix"></div>';
                 $combined_tickets_shown[] = $ticket['stop_id'];
-			}
+            }
 
-			if($daysheet_styling == 'card') {
-				echo '</div>';
-			} else {
-				echo '</li>';
-			}
-			if($daysheet_styling != 'card') {
-				echo '</ul>';
-			}
-			$no_tickets = false;
-		}
-	}
+            if($daysheet_styling != 'card') {
+                echo '</li>';
+                echo '</ul>';
+            } else {
+                echo '</div>';
+            }
+            $no_tickets = false;
+        }
+    }
+    if(in_array('Combine Pick Up Stops', $daysheet_ticket_fields)) {
+        $combined_query = "SELECT `tickets`.*, IF(`ticket_schedule`.`id` IS NULL,'ticket','ticket_schedule') `ticket_table`, IFNULL(`ticket_schedule`.`to_do_date`,`tickets`.`to_do_date`) `to_do_date`, CONCAT('<br>',IFNULL(NULLIF(`ticket_schedule`.`location_name`,''),`ticket_schedule`.`client_name`)) `location_description`, `ticket_schedule`.`id` `stop_id`, `ticket_schedule`.`eta`, `ticket_schedule`.`client_name`, IFNULL(`ticket_schedule`.`address`, `tickets`.`address`) `address`, `ticket_schedule`.`type` `delivery_type`, IFNULL(`ticket_schedule`.`to_do_start_time`, IFNULL(NULLIF(`tickets`.`start_time`,'00:00'),`tickets`.`to_do_start_time`)) `to_do_start_time`, CONCAT(`start_available`,' - ',`end_available`) `availability`, `ticket_schedule`.`status` `schedule_status` FROM `tickets` LEFT JOIN `ticket_schedule` ON `tickets`.`ticketid`=`ticket_schedule`.`ticketid` AND `ticket_schedule`.`deleted`=0 WHERE ((internal_qa_date = '".$daily_date."' AND CONCAT(',',IFNULL(`internal_qa_contactid`,''),',') LIKE '%,".$contactid.",%') OR (`deliverable_date` = '".$daily_date."' AND CONCAT(',',IFNULL(`deliverable_contactid`,''),',') LIKE '%,".$contactid.",%') OR ((`tickets`.`to_do_date` = '".$daily_date."' OR '".$daily_date."' BETWEEN `tickets`.`to_do_date` AND `tickets`.`to_do_end_date` OR `ticket_schedule`.`to_do_date`='".$daily_date."' OR '".$daily_date."' BETWEEN `ticket_schedule`.`to_do_date` AND IFNULL(`ticket_schedule`.`to_do_end_date`,`ticket_schedule`.`to_do_date`)) AND ((CONCAT(',',IFNULL(IFNULL(`ticket_schedule`.`contactid`,`tickets`.`contactid`),''),',') LIKE '%,".$contactid.",%') OR (IFNULL(`ticket_schedule`.`equipmentid`,`tickets`.`equipmentid`) IN ($equipment) AND IFNULL(`ticket_schedule`.`equipmentid`,`tickets`.`equipmentid`) > 0)))) AND `ticket_schedule`.`type` = 'Pick Up' ".$warehouse_query." $filtered_tickets AND `tickets`.`deleted` = 0 ORDER BY IFNULL(`ticket_schedule`.`address`,`tickets`.`address`), ".(in_array('Sort Completed to End',$daysheet_ticket_fields) ? "IFNULL(`ticket_schedule`.`status`,`tickets`.`status`)='$completed_ticket_status', " : '')."IFNULL(NULLIF(`ticket_schedule`.`to_do_start_time`,''),IFNULL(NULLIF(`tickets`.`start_time`,'00:00'),`tickets`.`to_do_start_time`)) ASC";
+        $combined_result = mysqli_fetch_all(mysqli_query($dbc, $combined_query),MYSQLI_ASSOC);
+        if(!empty($combined_result)) {
+            $delivery_color = get_delivery_color($dbc, 'Pick Up');
+            if(!empty($delivery_color)) {
+                $delivery_style = 'style="background-color: '.$delivery_color.';"';
+            } else {
+                $delivery_style = '';
+            }
+            if($daysheet_styling != 'card') {
+                echo '<ul id="tickets_daily">';
+                echo '<li>';
+            } else {
+                echo '<div class="block-group-daysheet" '.$delivery_style.'>';
+            }
+            $address = '';
+            foreach ($combined_result as $ticket) {
+                if($address != $ticket['address']) {
+                    $address = $ticket['address'];
+                    echo '<h4 class="pad-5">Pick Up: '.$address.'</h4>';
+                }
+                $label = $ticket['client_name'].' - '.$ticket['ticket_label'];
+                echo '<a href="'.WEBSITE_URL.'/Ticket/index.php?edit='.$ticket['ticketid'].'&from='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']).'&stop='.$ticket['stop_id'].'&action_mode='.$ticket_action_mode.'" class="inline" onclick="overlayIFrameSlider(this.href+\'&calendar_view=true\'); return false;" '.$opacity_styling.'>'.$icon_img.$label.'</a>';
+
+                if(in_array('Combined Details with Confirm',$daysheet_ticket_fields)) {
+                    echo '<label class="form-checkbox any-width pull-right"><input type="checkbox" '.($ticket['schedule_status'] == $completed_ticket_status || $ticket['status'] == $completed_ticket_status ? 'disabled checked' : '').' onclick="if(confirm(\'By checking off this box, you are agreeing it has been loaded onto your truck\')) { setStatus(\''.$ticket['ticketid'].'\',\''.$ticket['stop_id'].'\',\''.$completed_ticket_status.'\') } else { return false; }">'.$completed_ticket_status.'</label>';
+                }
+                echo '<div class="clearfix"></div>';
+                $combined_tickets_shown[] = $ticket['stop_id'];
+            }
+
+            if($daysheet_styling != 'card') {
+                echo '</li>';
+                echo '</ul>';
+            } else {
+                echo '</div>';
+            }
+            $no_tickets = false;
+        }
+    }
 	if (!empty($tickets_result)) {
         if($daysheet_styling != 'card') {
             echo '<ul id="tickets_daily">';
@@ -287,7 +271,7 @@ $(document).ready(function () {
                     echo '<li>';
                 }
 
-                $label = daysheet_ticket_label($dbc, $daysheet_ticket_fields, $ticket, $completed_ticket_status);
+                $label = daysheet_ticket_label($dbc, $daysheet_ticket_fields, $ticket, $completed_ticket_status, $daily_date);
                 $status_icon = get_ticket_status_icon($dbc, $ticket['status']);
                 if(!empty($status_icon)) {
                     if($status_icon == 'initials') {
@@ -322,7 +306,7 @@ $(document).ready(function () {
 <?php } ?>
 
 <?php if (in_array('Tasks', $daysheet_fields_config)) { ?>
-    <h4 style="font-weight: normal;">Tasks</h4>
+    <h4 style="font-weight: normal;"><?= TASK_TILE ?></h4>
     <?php if (!empty($tasks_result)) {
         if($daysheet_styling != 'card') {
             echo '<ul id="tasks_daily">';
@@ -332,7 +316,7 @@ $(document).ready(function () {
                 echo '<div class="block-group-daysheet">';
             }
 			$label = ($task['businessid'] > 0 ? get_contact($dbc, $task['businessid'], 'name').', ' : '').($task['projectid'] > 0 ? PROJECT_NOUN.' #'.$task['projectid'].' '.get_project($dbc,$task['projectid'],'project_name') : '');
-            echo '<a href="../Tasks/add_task.php?tasklistid='.$task['tasklistid'].'&from_url='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']).'" ><span style="color: black;">'.($label != '' ? $label.'<br />' : '').$task['task_milestone_timeline'].' - '.get_contact($dbc, $task['businessid'], 'name').' - '.$task['heading'].'</span></a>';
+            echo '<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Tasks_Updated/add_task.php?tasklistid='.$task['tasklistid'].'&from_url='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']).'\'); return false;" ><span style="color: black;">'.($label != '' ? $label.'<br />' : '').$task['task_milestone_timeline'].' - '.get_contact($dbc, $task['businessid'], 'name').' - '.$task['heading'].'</span></a>';
             if($daysheet_styling == 'card') {
                 echo '</div>';
             }
@@ -377,6 +361,76 @@ $(document).ready(function () {
         }
     } else {
         echo '<ul id="checklists_daily">';
+        echo 'No records found.';
+        echo '</ul>';
+    } ?>
+    <hr>
+<?php } ?>
+
+<?php if (in_array('Communication', $daysheet_fields_config)) { ?>
+    <h4 style="font-weight: normal;">Communications</h4>
+    <?php if (!empty($comm_result)) {
+        if($daysheet_styling != 'card') {
+            echo '<ul id="comm_daily">';
+        }
+        foreach ($comm_result as $row) {
+			echo '<div class="note_block">';
+			if($row['businessid'] > 0) {
+				echo BUSINESS_CAT.': <a href="../Contacts/contacts_inbox.php?edit='.$row['businessid'].'" onclick="overlayIFrameSlider(this.href+\'&fields=all_fields\',\'auto\',true,true); return false;">'.get_contact($dbc, $row['businessid'], 'name_company').'</a><br />';
+			}
+			$individuals = [];
+			foreach(array_filter(explode(',',$row['contactid'])) as $row_contactid) {
+				$individuals[] = '<a href="../Contacts/contacts_inbox.php?edit='.$row_contactid.'" onclick="overlayIFrameSlider(this.href+\'&fields=all_fields\',\'auto\',true,true); return false;">'.get_contact($dbc, $row_contactid, 'name_company').'</a>';
+			}
+			if(count($individuals) > 0) {
+				echo 'Individuals: '.implode(', ',$individuals).'<br />';
+			}
+			echo profile_id($dbc, $row['created_by'],false);
+			echo '<div class="pull-right" style="width: calc(100% - 3.5em);">';
+			echo '<p><b>From: '.$row['from_name'].' &lt;'.$row['from_email'].'&gt;</b><br />';
+			echo '<b>To: '.implode('; ',array_filter(explode(',',$row['to_staff'].','.$row['to_contact'].','.$row['new_emailid']))).'</b><br />';
+			echo '<b>CC: '.implode('; ',array_filter(explode(',',$row['cc_staff'].','.$row['cc_contact']))).'</b>';
+			echo '<b>Subject: '.$row['subject'].'</b></p>';
+			echo html_entity_decode($row['email_body']);
+			echo '</div><div class="clearfix"></div><hr></div>';
+        }
+        if($daysheet_styling != 'card') {
+            echo '</ul>';
+        }
+    } else {
+        echo '<ul id="comm_daily">';
+        echo 'No records found.';
+        echo '</ul>';
+    } ?>
+    <hr>
+<?php } ?>
+
+<?php if (in_array('Support', $daysheet_fields_config)) { ?>
+    <h4 style="font-weight: normal;">Support</h4>
+    <?php
+    if (!empty($support_result)) {
+        if($daysheet_styling != 'card') {
+            echo '<ul id="support_daily">';
+        }
+        foreach ($support_result as $row) {
+            if($daysheet_styling == 'card') {
+                echo '<div class="block-group-daysheet">';
+            } else {
+                echo '<li>';
+            }
+			echo '<span class="display-field"><b><a href="'.WEBSITE_URL.'/Support/customer_support.php?tab=requests&type='.$row['support_type'].'#'.$row['supportid'].'">Date of Request: '.$row['current_date']."</a></b><br />Software Link: <a href='".$row['software_url']."'>".$row['software_url']."</a><br />User Name: ".$row['software_user_name']."<br />Security Level: ".$row['software_role']."<br />Support Request #".$row['supportid']."<br />".$row['heading']."<hr>".html_entity_decode($row['message']).'</span>';
+
+            if($daysheet_styling == 'card') {
+                echo '</div>';
+            } else {
+                echo '</li>';
+            }
+        }
+        if($daysheet_styling != 'card') {
+            echo '</ul>';
+        }
+    } else {
+        echo '<ul id="support_daily">';
         echo 'No records found.';
         echo '</ul>';
     } ?>

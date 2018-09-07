@@ -17,7 +17,7 @@ if(isset($_POST['printcsv'])) {
   $fp = fopen('php://output','w');
   header('Content-Type: text/csv; charset=utf-8');
   header('Content-Disposition: attachment; filename='.$file_name);
-  
+
   $total = 0;
   $data[] = 'Invoice#,Invoice Date,Customer,Sub Total,Discount,Delivery,Assembly,Total Before Tax,GST,PST,Total,Status';
 
@@ -75,6 +75,7 @@ if(isset($_POST['printcsv'])) {
 if (isset($_POST['printpdf'])) {
     $starttimepdf = $_POST['starttimepdf'];
     $endtimepdf = $_POST['endtimepdf'];
+    $contactidpdf = $_POST['contactid'];
 
     DEFINE('START_DATE', $starttimepdf);
     DEFINE('END_DATE', $endtimepdf);
@@ -87,7 +88,7 @@ if (isset($_POST['printpdf'])) {
 			//$image_file = WEBSITE_URL.'/img/Clinic-Ace-Logo-Final-250px.png';
             if(REPORT_LOGO != '') {
                 $image_file = 'download/'.REPORT_LOGO;
-                $this->Image($image_file, 10, 10, '', '', '', '', 'T', false, 300, '', false, false, 0, false, false, false);
+                $this->Image($image_file, 10, 10, '', 20, '', '', 'T', false, 300, '', false, false, 0, false, false, false);
             }
             $this->setCellHeightRatio(0.7);
             $this->SetFont('helvetica', '', 9);
@@ -95,7 +96,7 @@ if (isset($_POST['printpdf'])) {
             $this->writeHTMLCell(0, 0, 0 , 5, $footer_text, 0, 0, false, "R", true);
 
             $this->SetFont('helvetica', '', 13);
-            $footer_text = 'View POS Receivables From <b>'.START_DATE.'</b> To <b>'.END_DATE.'</b>';
+            $footer_text = 'View POS Receivables (Basic) From <b>'.START_DATE.'</b> To <b>'.END_DATE.'</b>';
             $this->writeHTMLCell(0, 0, 0 , 35, $footer_text, 0, 0, false, "R", true);
 		}
 
@@ -127,11 +128,12 @@ if (isset($_POST['printpdf'])) {
 	$pdf->AddPage('L', 'LETTER');
     $pdf->SetFont('helvetica', '', 9);
 
-    $html .= report_receivables($dbc, $starttimepdf, $endtimepdf, 'padding:3px; border:1px solid black;', 'background-color:grey; color:black;', 'background-color:lightgrey; color:black;');
+    $html = report_receivables($dbc, $starttimepdf, $endtimepdf, $contactidpdf, 'padding:3px; border:1px solid black;', 'background-color:grey; color:black;', 'background-color:lightgrey; color:black;');
 
     $today_date = date('Y-m-d');
 	$pdf->writeHTML($html, true, false, true, false, '');
 	$pdf->Output('Download/receivables_'.$today_date.'.pdf', 'F');
+    track_download($dbc, 'report_pos_receivables', 0, WEBSITE_URL.'/Reports/Download/receivables_'.$today_date.'.pdf', 'POS Receivables (Basic) Report');
     ?>
 
 	<script type="text/javascript" language="Javascript">
@@ -140,86 +142,65 @@ if (isset($_POST['printpdf'])) {
     <?php
     $starttime = $starttimepdf;
     $endtime = $endtimepdf;
-    } ?>
-
-<script type="text/javascript">
-
-</script>
-</head>
-<body>
-<?php include_once ('../navigation.php');
-?>
-
-<div class="container triple-pad-bottom">
-    <div class="row">
-        <div class="col-md-12">
-
-        <?php echo reports_tiles($dbc);  ?>
-
-        <br><br>
-
-        <form id="form1" name="form1" method="post" action="" enctype="multipart/form-data" class="form-horizontal" role="form">
-            <input type="hidden" name="report_type" value="<?php echo $_GET['type']; ?>">
-            <input type="hidden" name="category" value="<?php echo $_GET['category']; ?>">
-
-            <?php
-            $contactid = '';
-            if (isset($_POST['search_email_submit'])) {
-                $starttime = $_POST['starttime'];
-                $endtime = $_POST['endtime'];
-                $contactid = $_POST['contactid'];
-            }
-
-            if($starttime == 0000-00-00) {
-                $starttime = date('Y-m-01');
-            }
-
-            if($endtime == 0000-00-00) {
-                $endtime = date('Y-m-d');
-            }
-            ?>
-            <center><div class="form-group">
-				<div class="form-group col-sm-5">
-					<label class="col-sm-4">From:</label>
-					<div class="col-sm-8"><input name="starttime" type="text" class="datepicker form-control" value="<?php echo $starttime; ?>"></div>
-                </div>
-				<div class="form-group col-sm-5">
-					<label class="col-sm-4">Until:</label>
-					<div class="col-sm-8"><input name="endtime" type="text" class="datepicker form-control" value="<?php echo $endtime; ?>"></div>
-				</div>
-				<div class="form-group col-sm-5">
-					<label class="col-sm-4">Customer:</label>
-					<div class="col-sm-8">
-						<select name="contactid" data-placeholder="Select a Customer..." class="chosen-select-deselect form-control1" width="380">
-							<option value=''>Customer</option>
-							<?php $query = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT contactid, name FROM contacts WHERE category='Customer' or category='Client' AND deleted=0 AND status=1"),MYSQLI_ASSOC));
-							foreach($query as $rowid) {
-								echo "<option ".($patient == $rowid ? 'selected' : '')." value='$rowid'>".get_client($dbc, $rowid)."</option>";
-							} ?>
-						</select></div>
-				</div>
-            <button type="submit" name="search_email_submit" value="Search" class="btn brand-btn mobile-block">Submit</button></div></center>
+} ?>
 
 
+<form id="form1" name="form1" method="post" action="" enctype="multipart/form-data" class="form-horizontal triple-gap-top" role="form">
+    <input type="hidden" name="report_type" value="<?php echo $_GET['type']; ?>">
+    <input type="hidden" name="category" value="<?php echo $_GET['category']; ?>">
 
-            <input type="hidden" name="starttimepdf" value="<?php echo $starttime; ?>">
-            <input type="hidden" name="endtimepdf" value="<?php echo $endtime; ?>">
-            <input type="hidden" name="contactidpdf" value="<?php echo $contactid; ?>">
+    <?php
+    $contactid = '';
+    if (isset($_POST['search_email_submit'])) {
+        $starttime = $_POST['starttime'];
+        $endtime = $_POST['endtime'];
+        $contactid = $_POST['contactid'];
+    }
 
-            <button type="submit" name="printcsv" value="Print CSV Report" title="Print CSV Report" class="pull-right"><img title="Print CSV Report" width="15px" src="../img/csv.png"></button>
-            <button type="submit" name="printpdf" style="margin-right:15px" value="Print PDF Report" title="Print PDF Report" title="Print PDF Report" class="pull-right"><img src="../img/pdf.png"></button>
-            <br><br>
+    if($starttime == 0000-00-00) {
+        $starttime = date('Y-m-01');
+    }
 
-            <?php
-                echo report_receivables($dbc, $starttime, $endtime, $contactid, '', '', '');
-            ?>
-
-        </form>
-
+    if($endtime == 0000-00-00) {
+        $endtime = date('Y-m-d');
+    }
+    ?>
+    <center>
+        <div class="form-group">
+            <div class="form-group col-sm-5">
+                <label class="col-sm-4">From:</label>
+                <div class="col-sm-8"><input name="starttime" type="text" class="datepicker form-control" value="<?php echo $starttime; ?>"></div>
+            </div>
+            <div class="form-group col-sm-5">
+                <label class="col-sm-4">Until:</label>
+                <div class="col-sm-8"><input name="endtime" type="text" class="datepicker form-control" value="<?php echo $endtime; ?>"></div>
+            </div>
+            <div class="form-group col-sm-5">
+                <label class="col-sm-4">Customer:</label>
+                <div class="col-sm-8">
+                    <select name="contactid" data-placeholder="Select a Customer..." class="chosen-select-deselect form-control1" width="380">
+                        <option value=''>Customer</option>
+                        <?php $query = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT contactid, name FROM contacts WHERE (category='Customer' OR category='Customers') AND deleted=0 AND status=1"),MYSQLI_ASSOC));
+                        foreach($query as $rowid) {
+                            echo "<option ".($contactid == $rowid ? 'selected' : '')." value='$rowid'>".get_contact($dbc, $rowid, 'name_company')."</option>";
+                        } ?>
+                    </select></div>
+            </div>
+            <button type="submit" name="search_email_submit" value="Search" class="btn brand-btn mobile-block">Submit</button>
         </div>
-    </div>
-</div>
-<?php include ('../footer.php'); ?>
+    </center>
+
+    <input type="hidden" name="starttimepdf" value="<?php echo $starttime; ?>">
+    <input type="hidden" name="endtimepdf" value="<?php echo $endtime; ?>">
+    <input type="hidden" name="contactidpdf" value="<?php echo $contactid; ?>">
+
+    <button type="submit" name="printcsv" value="Print CSV Report" title="Print CSV Report" class="pull-right"><img title="Print CSV Report" width="15px" src="../img/csv.png"></button>
+    <button type="submit" name="printpdf" style="margin-right:15px" value="Print PDF Report" title="Print PDF Report" title="Print PDF Report" class="pull-right"><img src="../img/pdf.png"></button>
+    <br><br>
+
+    <?php echo report_receivables($dbc, $starttime, $endtime, $contactid, '', '', ''); ?>
+
+</form>
 
 <?php
 function report_receivables($dbc, $starttime, $endtime, $contactid, $table_style, $table_row_style, $grand_total_style) {
@@ -250,31 +231,34 @@ function report_receivables($dbc, $starttime, $endtime, $contactid, $table_style
         <th>Status</th>
         </tr>';
 
+        $odd_even = 0;
+        
         while($row_report = mysqli_fetch_array($report_validation)) {
+            $bg_class = $odd_even % 2 == 0 ? '' : 'background-color:#e6e6e6;';
 
             $style = '';
             if($row_report['status'] == 'Posted Past Due') {
-                $style = 'style = color:red;';
+                $style = 'color:red;';
             }
             if($row_report['status'] == 'Posted') {
-                $style = 'style = color:Green;';
+                $style = 'color:Green;';
             }
 
-            $report_data .= '<tr nobr="true" '.$style.'>';
-
-            $report_data .= '<td>' . $row_report['posid'] . '</td>';
-            $report_data .= '<td>' . $row_report['invoice_date'] . '</td>';
-            $report_data .= '<td>' . get_client($dbc, $row_report['contactid']) . '</td>';
-            $report_data .= '<td>' . $row_report['sub_total'] . '</td>';
-            $report_data .= '<td>' . $row_report['discount_value'] . '</td>';
-            $report_data .= '<td>' . $row_report['delivery'] . '</td>';
-            $report_data .= '<td>' . $row_report['assembly'] . '</td>';
-            $report_data .= '<td>' . $row_report['total_before_tax'] . '</td>';
-            $report_data .= '<td>' . $row_report['gst'] . '</td>';
-            $report_data .= '<td>' . $row_report['pst'] . '</td>';
-            $report_data .= '<td>' . $row_report['total_price'] . '</td>';
-            $report_data .= '<td>' . $row_report['status'] . '</td>';
+            $report_data .= '<tr nobr="true" style="'.$style.' '.$bg_class.'">';
+                $report_data .= '<td>' . $row_report['posid'] . '</td>';
+                $report_data .= '<td>' . $row_report['invoice_date'] . '</td>';
+                $report_data .= '<td>' . get_client($dbc, $row_report['contactid']) . '</td>';
+                $report_data .= '<td align="right">' . $row_report['sub_total'] . '</td>';
+                $report_data .= '<td align="right">' . $row_report['discount_value'] . '</td>';
+                $report_data .= '<td align="right">' . $row_report['delivery'] . '</td>';
+                $report_data .= '<td align="right">' . $row_report['assembly'] . '</td>';
+                $report_data .= '<td align="right">' . $row_report['total_before_tax'] . '</td>';
+                $report_data .= '<td align="right">' . $row_report['gst'] . '</td>';
+                $report_data .= '<td align="right">' . $row_report['pst'] . '</td>';
+                $report_data .= '<td align="right">' . $row_report['total_price'] . '</td>';
+                $report_data .= '<td>' . $row_report['status'] . '</td>';
             $report_data .= "</tr>";
+            
             $sub_total += $row_report['sub_total'];
             $discount_value += $row_report['discount_value'];
             $delivery += $row_report['delivery'];
@@ -284,21 +268,21 @@ function report_receivables($dbc, $starttime, $endtime, $contactid, $table_style
             $pst += $row_report['pst'];
             $total_price += $row_report['total_price'];
             $total++;
+            
+            $odd_even++;
         }
 
         $report_data .= '<tr nobr="true">';
-        $report_data .= '<th colspan="3">Total Invoice : '.$total.'</th>';
-        $report_data .= '<th>' . number_format($sub_total, 2) . '</th>';
-        $report_data .= '<th>' . number_format($discount_value, 2) . '</th>';
-        $report_data .= '<th>' . number_format($delivery, 2) . '</th>';
-
-        $report_data .= '<th>' . number_format($assembly, 2) . '</th>';
-        $report_data .= '<th>' . number_format($total_before_tax, 2) . '</th>';
-        $report_data .= '<th>' . number_format($gst, 2) . '</th>';
-        $report_data .= '<th>' . number_format($pst, 2) . '</th>';
-        $report_data .= '<th>' . number_format($total_price, 2) . '</th>';
-        $report_data .= '<th></th>';
-
+            $report_data .= '<td colspan="3"><b>Total Invoice : '.$total.'</b></td>';
+            $report_data .= '<td align="right"><b>' . number_format($sub_total, 2) . '</b></td>';
+            $report_data .= '<td align="right"><b>' . number_format($discount_value, 2) . '</b></td>';
+            $report_data .= '<td align="right"><b>' . number_format($delivery, 2) . '</b></td>';
+            $report_data .= '<td align="right"><b>' . number_format($assembly, 2) . '</b></td>';
+            $report_data .= '<td align="right"><b>' . number_format($total_before_tax, 2) . '</b></td>';
+            $report_data .= '<td align="right"><b>' . number_format($gst, 2) . '</b></td>';
+            $report_data .= '<td align="right"><b>' . number_format($pst, 2) . '</b></td>';
+            $report_data .= '<td align="right"><b>' . number_format($total_price, 2) . '</b></td>';
+            $report_data .= '<td></td>';
         $report_data .= "</tr>";
         $report_data .= '</table>';
     }

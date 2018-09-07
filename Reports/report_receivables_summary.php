@@ -25,7 +25,7 @@ if (isset($_POST['printpdf'])) {
 			//$image_file = WEBSITE_URL.'/img/Clinic-Ace-Logo-Final-250px.png';
             if(REPORT_LOGO != '') {
                 $image_file = 'download/'.REPORT_LOGO;
-                $this->Image($image_file, 10, 10, 80, '', '', '', 'T', false, 300, '', false, false, 0, false, false, false);
+                $this->Image($image_file, 10, 10, '', 20, '', '', 'T', false, 300, '', false, false, 0, false, false, false);
             }
             $this->setCellHeightRatio(0.7);
             $this->SetFont('helvetica', '', 9);
@@ -75,6 +75,7 @@ if (isset($_POST['printpdf'])) {
     $today_date = date('Y-m-d');
 	$pdf->writeHTML($html, true, false, true, false, '');
 	$pdf->Output('Download/ar_aging_summary_'.$today_date.'.pdf', 'F');
+    track_download($dbc, 'report_receivables_summary', 0, WEBSITE_URL.'/Reports/Download/ar_aging_summary_'.$today_date.'.pdf', 'View Receivables by Insurer Report');
     ?>
 
 	<script type="text/javascript" language="Javascript">
@@ -85,20 +86,6 @@ if (isset($_POST['printpdf'])) {
     $endtime = $endtimepdf;
     $as_at_date = $as_at_datepdf;
     } ?>
-
-<script type="text/javascript">
-
-</script>
-</head>
-<body>
-<?php include_once ('../navigation.php');
-?>
-
-<div class="container triple-pad-bottom">
-    <div class="row">
-        <div class="col-md-12">
-
-        <?php echo reports_tiles($dbc);  ?>
 
         <!--
         <br>
@@ -178,15 +165,10 @@ if (isset($_POST['printpdf'])) {
             ?>
 
         </form>
-
-        </div>
-    </div>
-</div>
-<?php include ('../footer.php'); ?>
-
+        
 <?php
 function report_receivables($dbc, $starttime, $endtime, $as_at_date, $table_style, $table_row_style, $grand_total_style) {
-	$report_data = "<h2>Insurer Accounts Receivable Summary As At ".date('Y-m-d',strtotime($as_at_date))."</h2>";
+	$report_data = "<h3>Insurer Accounts Receivable Summary As At ".date('Y-m-d',strtotime($as_at_date))."</h3>";
 
     $report_data .= '<table border="1px" class="table table-bordered" style="'.$table_style.'">';
     $report_data .= '<tr style="'.$table_row_style.'">
@@ -215,7 +197,12 @@ function report_receivables($dbc, $starttime, $endtime, $as_at_date, $table_styl
     $total6 = 0;
     $total7 = 0;
     $total8 = 0;
+    
+    $odd_even = 0;
+    
 	foreach($report_service as $insurerid) {
+        $bg_class = $odd_even % 2 == 0 ? '' : 'background-color:#e6e6e6;';
+        
 	    $total_invoiced = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT SUM(insurer_price) AS total_invoiced FROM invoice_insurer WHERE (DATE(invoice_date) >= '".$starttime."' AND DATE(invoice_date) <= '".$endtime."') AND insurerid = '$insurerid'"));
 	    $total_paid = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT SUM(insurer_price) AS total_paid FROM invoice_insurer WHERE (DATE(invoice_date) >= '".$starttime."' AND DATE(invoice_date) <= '".$endtime."') AND insurerid = '$insurerid' AND paid_date <= '$as_at_date' AND IFNULL(`paid`,'')='Yes'"));
 	    $total_due = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT SUM(insurer_price) AS total_due FROM invoice_insurer WHERE (DATE(invoice_date) >= '".$starttime."' AND DATE(invoice_date) <= '".$endtime."') AND insurerid = '$insurerid' AND (paid_date > '$as_at_date' OR IFNULL(`paid`,'')!='Yes')"));
@@ -240,41 +227,41 @@ function report_receivables($dbc, $starttime, $endtime, $as_at_date, $table_styl
 
         $total_last120 = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT SUM(insurer_price) AS total_last120 FROM invoice_insurer WHERE (DATE(invoice_date) >= '".$starttime."' AND DATE(invoice_date) <= '".$endtime."') AND (DATE(invoice_date) <= '".$last120."') AND (paid_date > '$as_at_date' OR IFNULL(`paid`,'')!='Yes') AND insurerid = '$insurerid'"));
 
-        $report_data .= '<tr nobr="true">';
+        $report_data .= '<tr nobr="true" style="'.$bg_class.'">';
         $report_data .= '<td><a href="../Contacts/add_contacts.php?category=Insurer&contactid='.$insurerid.'&from_url='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']).'">'.get_all_form_contact($dbc, $insurerid, 'name').'</a></td>';
-        $report_data .= '<td>'.(is_numeric($total_invoiced['total_invoiced']) ? '$'.number_format($total_invoiced['total_invoiced'],2) : '-').'</td>';
-        $report_data .= '<td>'.(is_numeric($total_paid['total_paid']) ? '$'.number_format($total_paid['total_paid'],2) : '-').'</td>';
-        $report_data .= '<td>'.(is_numeric($total_due['total_due']) ? '$'.number_format($total_due['total_due'],2) : '-').'</td>';
+        $report_data .= '<td align="right">'.(is_numeric($total_invoiced['total_invoiced']) ? '$'.number_format($total_invoiced['total_invoiced'],2) : '-').'</td>';
+        $report_data .= '<td align="right">'.(is_numeric($total_paid['total_paid']) ? '$'.number_format($total_paid['total_paid'],2) : '-').'</td>';
+        $report_data .= '<td align="right">'.(is_numeric($total_due['total_due']) ? '$'.number_format($total_due['total_due'],2) : '-').'</td>';
 
 
         if (floatval($total_last30['total_last30']) != 0) {
-            $report_data .= '<td><a href="../Account Receivables/insurer_account_receivables.php?from='.$last29.'&until='.$today_date.'&insurerid='.$insurerid.'&report=ar_aging">$'.$total_last30['total_last30'].'</a></td>';
+            $report_data .= '<td align="right"><a href="../Account Receivables/insurer_account_receivables.php?from='.$last29.'&until='.$today_date.'&insurerid='.$insurerid.'&report=ar_aging">$'.$total_last30['total_last30'].'</a></td>';
         } else {
-            $report_data .= '<td>$0.00</td>';
+            $report_data .= '<td align="right">$0.00</td>';
         }
 
         if (floatval($total_last3059['total_last3059']) != 0) {
-        $report_data .= '<td><a href="../Account Receivables/insurer_account_receivables.php?from='.$last59.'&until='.$last30.'&insurerid='.$insurerid.'&report=ar_aging">$'.$total_last3059['total_last3059'].'</a></td>';
+        $report_data .= '<td align="right"><a href="../Account Receivables/insurer_account_receivables.php?from='.$last59.'&until='.$last30.'&insurerid='.$insurerid.'&report=ar_aging">$'.$total_last3059['total_last3059'].'</a></td>';
         } else {
-            $report_data .= '<td>$0.00</td>';
+            $report_data .= '<td align="right">$0.00</td>';
         }
 
         if (floatval($total_last6089['total_last6089']) != 0) {
-        $report_data .= '<td><a href="../Account Receivables/insurer_account_receivables.php?from='.$last89.'&until='.$last60.'&insurerid='.$insurerid.'&report=ar_aging">$'.$total_last6089['total_last6089'].'</a></td>';
+        $report_data .= '<td align="right"><a href="../Account Receivables/insurer_account_receivables.php?from='.$last89.'&until='.$last60.'&insurerid='.$insurerid.'&report=ar_aging">$'.$total_last6089['total_last6089'].'</a></td>';
         } else {
-            $report_data .= '<td>$0.00</td>';
+            $report_data .= '<td align="right">$0.00</td>';
         }
 
         if (floatval($total_last90119['total_last90119']) != 0) {
-        $report_data .= '<td><a href="../Account Receivables/insurer_account_receivables.php?from='.$last119.'&until='.$last90.'&insurerid='.$insurerid.'&report=ar_aging">$'.$total_last90119['total_last90119'].'</a></td>';
+        $report_data .= '<td align="right"><a href="../Account Receivables/insurer_account_receivables.php?from='.$last119.'&until='.$last90.'&insurerid='.$insurerid.'&report=ar_aging">$'.$total_last90119['total_last90119'].'</a></td>';
         } else {
-            $report_data .= '<td>$0.00</td>';
+            $report_data .= '<td align="right">$0.00</td>';
         }
 
         if (floatval($total_last120['total_last120']) != 0) {
-        $report_data .= '<td><a href="../Account Receivables/insurer_account_receivables.php?from=2016-01-01&until='.$last120.'&insurerid='.$insurerid.'&report=ar_aging">$'.$total_last120['total_last120'].'</a></td>';
+        $report_data .= '<td align="right"><a href="../Account Receivables/insurer_account_receivables.php?from=2016-01-01&until='.$last120.'&insurerid='.$insurerid.'&report=ar_aging">$'.$total_last120['total_last120'].'</a></td>';
         } else {
-            $report_data .= '<td>$0.00</td>';
+            $report_data .= '<td align="right">$0.00</td>';
         }
 
         //$report_data .= '<td>$'.$total_last3059['total_last3059'].'</td>';
@@ -291,10 +278,12 @@ function report_receivables($dbc, $starttime, $endtime, $as_at_date, $table_styl
         $total6 += $total_last6089['total_last6089'];
         $total7 += $total_last90119['total_last90119'];
         $total8 += $total_last120['total_last120'];
+        
+        $odd_even++;
     }
 
     $report_data .= '<tr nobr="true">';
-    $report_data .= '<td><b>Total</b></td><td><b>$'.number_format($total1, 2).'</b></td><td><b>$'.number_format($total2, 2).'</b></td><td><b>$'.number_format($total3, 2).'</b></td><td><b>$'.number_format($total4, 2).'</b></td><td><b>$'.number_format($total5, 2).'</b></td><td><b>$'.number_format($total6, 2).'</b></td><td><b>$'.number_format($total7, 2).'</b></td><td><b>$'.number_format($total8, 2).'</b></td>';
+    $report_data .= '<td><b>Total</b></td><td align="right"><b>$'.number_format($total1, 2).'</b></td><td align="right"><b>$'.number_format($total2, 2).'</b></td><td align="right"><b>$'.number_format($total3, 2).'</b></td><td align="right"><b>$'.number_format($total4, 2).'</b></td><td align="right"><b>$'.number_format($total5, 2).'</b></td><td align="right"><b>$'.number_format($total6, 2).'</b></td><td align="right"><b>$'.number_format($total7, 2).'</b></td><td align="right"><b>$'.number_format($total8, 2).'</b></td>';
     $report_data .= "</tr>";
     $report_data .= '</table><br>';
 

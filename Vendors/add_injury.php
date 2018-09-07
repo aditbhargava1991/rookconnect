@@ -36,11 +36,17 @@ if (isset($_POST['submit'])) {
     if(empty($_POST['injuryid'])) {
         $query_insert_injury = "INSERT INTO `patient_injury` (`contactid`, `injury_therapistsid`, `injury_name`, `injury_type`, `insurer`, `adjusterid`, `injury_date`, `injury_reg_form`, `injury_other_form`, `today_date`, `treatment_plan`) VALUES ('$contactid', '$injury_therapistsid', '$injury_name', '$injury_type', '$insurer', '$adjusterid', '$injury_date', '$injury_reg_form', '$injury_other_form', '$today_date', '$treatment_plan')";
         $result_insert_injury = mysqli_query($dbc, $query_insert_injury);
+        $before_change = '';
+  			$history = "New Patient injury added. <br />";
+  			add_update_history($dbc, 'vendorpl_history', $history, '', $before_change);
 
     } else {
         $injuryid = $_POST['injuryid'];
         $query_update_staff = "UPDATE `patient_injury` SET `treatment_plan` = '$treatment_plan', `injury_therapistsid` = '$injury_therapistsid', `injury_name` = '$injury_name', `injury_type` = '$injury_type', `insurer` = '$insurer', `adjusterid` = '$adjusterid', `injury_date` = '$injury_date', `injury_reg_form` = CONCAT(injury_reg_form,'$injury_reg_form'), `injury_other_form` = CONCAT(injury_other_form,'$injury_other_form') WHERE `injuryid` = '$injuryid'";
         $result_update_staff = mysqli_query($dbc, $query_update_staff);
+        $before_change = '';
+  			$history = "Patient injury is been updated. <br />";
+  			add_update_history($dbc, 'vendorpl_history', $history, '', $before_change);
     }
 
     //Injury
@@ -376,7 +382,7 @@ checkAuthorised('vendors');
             </div>
         </div>
 
-        
+
 
         </form>
 

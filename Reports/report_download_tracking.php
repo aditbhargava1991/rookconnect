@@ -33,12 +33,12 @@ if (isset($_POST['printpdf'])) {
             $this->writeHTMLCell(0, 0, 0 , 5, $footer_text, 0, 0, false, "R", true);
 
             $this->SetFont('helvetica', '', 13);
-            $footer_text = 'Forms and Manuals Downloaded <b>'.START_DATE.'</b> To <b>'.END_DATE.'</b>';
+            $footer_text = 'Download Tracker <b>'.START_DATE.'</b> To <b>'.END_DATE.'</b>';
             $this->writeHTMLCell(0, 0, 0 , 35, $footer_text, 0, 0, false, "R", true);
 
             $this->setCellHeightRatio(1.30);
             $this->SetFont('helvetica', '', 10);
-            $footer_text = "NOTE: Displays statistics of HR Forms and Manuals downloaded from ".START_DATE." to ".END_DATE.".";
+            $footer_text = "NOTE: Displays statistics of reports downloaded from ".START_DATE." to ".END_DATE.".";
             $this->writeHTMLCell(0, 0, 10 , 45, $footer_text, 0, 0, false, "R", true);
 		}
 
@@ -87,17 +87,6 @@ if (isset($_POST['printpdf'])) {
     $staffid = $staffpdf;
 } ?>
 
-<script type="text/javascript">
-
-</script>
-</head>
-<body>
-<?php include_once ('../navigation.php');
-?>
-
-<div class="container triple-pad-bottom">
-    <div class="row">
-
 		<?php if (isset($_POST['search_submit'])) {
 			$startdate = $_POST['starttime'];
 			$enddate = $_POST['endtime'];
@@ -110,8 +99,6 @@ if (isset($_POST['printpdf'])) {
 			$enddate = date('Y-m-d');
 		} ?>
 
-		<div class="col-md-12">
-		<?php echo reports_tiles($dbc);  ?>
         <div class="notice double-gap-bottom popover-examples">
             <div class="col-sm-1 notice-icon"><img src="<?= WEBSITE_URL; ?>/img/info.png" class="wiggle-me" width="25"></div>
             <div class="col-sm-11"><span class="notice-name">NOTE:</span>
@@ -138,8 +125,9 @@ if (isset($_POST['printpdf'])) {
 				<div class="col-sm-5">
 					<label class="col-sm-4">Staff:</label>
 					<div class="col-sm-8"><select data-placeholder="Select Staff..." name="staff" class="chosen-select-deselect form-control1" width="380">
-						<?php foreach(sort_contacts_query(mysqli_query($dbc, "SELECT contactid, first_name, last_name FROM contacts WHERE category IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND (category_contact = 'Physical Therapist' OR category_contact = 'Massage Therapist' OR category_contact = 'Osteopathic Therapist') AND deleted=0 AND status=1")) as $row) {
-							echo "<option ".($row['contactid'] == $staff ? 'selected' : '')." value='".$row['contactid']."'>".$row['first_name'].' '.$row['last_name']."</option>";
+                       <option value=''></option>
+						<?php foreach(sort_contacts_query(mysqli_query($dbc, "SELECT contactid, first_name, last_name FROM contacts WHERE category IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND deleted=0 AND status=1")) as $row) {
+							echo "<option ".($row['contactid'] == $staffid ? 'selected' : '')." value='".$row['contactid']."'>".$row['first_name'].' '.$row['last_name']."</option>";
 						} ?>
 					</select></div>
 				</div>
@@ -151,13 +139,10 @@ if (isset($_POST['printpdf'])) {
 
             <button type="submit" name="printpdf" value="Print Report" class="btn brand-btn pull-right">Print Report</button>
 			<div class="clearfix"></div>
-			
-			<?php echo report_tracking($dbc, $startdate, $enddate, $staffid, '', '', ''); ?>
-		</div>
-    </div>
-</div>
-<?php include ('../footer.php');
 
+			<?php echo report_tracking($dbc, $startdate, $enddate, $staffid, '', '', ''); ?>
+
+<?php
 function report_tracking($dbc, $startdate, $enddate, $staffid, $table_style, $table_row_style, $grand_total_style) {
 	$clause = '';
 	if($startdate != '') {
@@ -171,7 +156,7 @@ function report_tracking($dbc, $startdate, $enddate, $staffid, $table_style, $ta
 		$clause .= " AND `staffid` = '$staffid'";
 	}
 	$downloads = mysqli_query($dbc, "SELECT * FROM `download_tracking` WHERE `deleted`=0".$clause);
-	
+
 	if(mysqli_num_rows($downloads) > 0) {
 		$report_data = '<table border="1px" class="table table-bordered" style="'.$table_style.'">
 			<tr style="'.$table_row_style.'" nobr="true">
@@ -194,7 +179,7 @@ function report_tracking($dbc, $startdate, $enddate, $staffid, $table_style, $ta
 					<td data-title="Staff">'.get_contact($dbc, $row['staffid']).'</td>
 					<td data-title="Date">'.date('Y-m-d', strtotime($row['today_date'])).'</td>
 					<td data-title="Time">'.date('g:i a', strtotime($row['today_date'])).'</td>
-					<td data-title="Name"><a href="'.$row['download_link'].'">'.$label.'</a></td>
+					<td data-title="Name"><a target= "_blank" href="'.$row['download_link'].'">View Report</a></td>
 					<td data-title="Description">'.html_entity_decode($row['description']).'</td>
 				</tr>';
 			}
@@ -204,3 +189,17 @@ function report_tracking($dbc, $startdate, $enddate, $staffid, $table_style, $ta
 	}
 	return $report_data;
 } ?>
+<script>
+$('document').ready(function() {
+    var tables = $('table');
+
+    tables.map(function(idx, table) {
+        var rows = $(table).find('tbody > tr');
+        rows.map(function(idx, row){
+            if(idx%2 == 0) {
+                $(row).css('background-color', '#e6e6e6');
+            }
+        })
+    })
+})
+</script>

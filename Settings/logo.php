@@ -2,11 +2,13 @@
 /*
 Customer Listing
 */
+include_once('../include.php');
 
 if (isset($_POST['add_favicon'])) {
 	if (!file_exists('download')) {
 		mkdir('download', 0777, true);
 	}
+    //Logo
 	$pos_logo = $_FILES["fileToUpload"]["name"];
 
 	$get_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT COUNT(configid) AS configid FROM general_configuration WHERE name='logo_upload'"));
@@ -26,6 +28,26 @@ if (isset($_POST['add_favicon'])) {
 		$result_insert_config = mysqli_query($dbc, $query_insert_config);
 	}
 
+    //Logo Icon
+	$pos_logo_icon = $_FILES["icon_fileToUpload"]["name"];
+
+	$get_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT COUNT(configid) AS configid FROM general_configuration WHERE name='logo_upload_icon'"));
+	if($get_config['configid'] > 0) {
+		if($pos_logo_icon == '') {
+			$icon_logo_update = $_POST['icon_logo_file'];
+		} else {
+			$icon_logo_update = $pos_logo_icon;
+		}
+		move_uploaded_file($_FILES["icon_fileToUpload"]["tmp_name"],"download/" . $icon_logo_update);
+		$target_file = "download/" . $icon_logo_update;
+		$query_update_employee = "UPDATE `general_configuration` SET value = '$icon_logo_update' WHERE name='logo_upload_icon'";
+		$result_update_employee = mysqli_query($dbc, $query_update_employee);
+	} else {
+		move_uploaded_file($_FILES["icon_fileToUpload"]["tmp_name"], "download/" . $_FILES["icon_fileToUpload"]["name"]) ;
+		$query_insert_config = "INSERT INTO `general_configuration` (`name`, `value`) VALUES ('logo_upload_icon', '$pos_logo_icon')";
+		$result_insert_config = mysqli_query($dbc, $query_insert_config);
+	}
+    
     //CA Logo
 	$ca_pos_logo = $_FILES["ca_fileToUpload"]["name"];
 
@@ -83,7 +105,21 @@ if ( !empty($note) ) { ?>
 		  <input type="file" accept="image/*" name="fileToUpload" id="fileToUpload">
 		</div>
 	</div>
-	<br><br>
+	<br>
+    <div class="form-group">
+		<label for="fax_number"	class="col-sm-4	control-label">Upload Logo Icon Image:</label>
+		<div class="col-sm-8">
+		 <?php
+			$logo_upload_icon = get_config($dbc, 'logo_upload_icon');
+			if($logo_upload_icon != '') {
+				echo '<a href="download/'.$logo_upload_icon.'" target="_blank">View Logo Icon Image</a> &nbsp;&nbsp;';
+			}
+		  ?>
+		  <input type="hidden" name="icon_logo_file" value="<?php echo $logo_upload_icon; ?>" />
+		  <input type="file" accept="image/*" name="icon_fileToUpload" id="icon_fileToUpload" />
+		</div>
+	</div>
+    <br>
 	<div class="form-group">
 		<label for="fax_number"	class="col-sm-4	control-label">Upload Clinic Ace Appointment Calendar Logo Image:</label>
 		<div class="col-sm-8">

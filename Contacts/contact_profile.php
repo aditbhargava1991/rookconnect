@@ -1,4 +1,8 @@
 <?php include_once('../include.php'); ?>
+<style>
+.dashboard-profile-icon { height:auto; margin-right:8px; width:20px; }
+.dashboard-social-icon { height:auto; margin-right:3px; width:25px; }
+</style>
 <script>
 function edit_profile() {
 	if($('.panel-heading:contains("View Profile")').is(':visible')) {
@@ -99,7 +103,7 @@ $contact = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `contacts` LEFT 
 				} else {
 					$contact_url = '../Profile/';
 				}
-				echo '<img class="id-circle" src="'.$contact_url.'download/'.$contact['contactimage'].'">';
+				echo '<img class="id-circle no-toggle" src="'.$contact_url.'download/'.$contact['contactimage'].'" title="'.decryptIt($contact['name']).decryptIt($contact['first_name']).' '.decryptIt($contact['last_name']).'">';
 			} else {
 				profile_id($dbc, $contactid);
 			}
@@ -108,23 +112,99 @@ $contact = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `contacts` LEFT 
 		if($id_card_fields == '') {
 			$id_card_fields = $field_config;
 		} else {
-			$id_card_fields = explode(',',$id_card_fields);
-		} ?>
+			if(strtolower($contact['category']) != 'staff') {
+				$id_card_fields = array_merge($field_config, explode(',',$id_card_fields));
+			} else {
+				$id_card_fields = explode(',',$id_card_fields);
+			}
+		}
+		?>
 		<?= get_client($dbc, $contactid).' '.get_contact($dbc, $contactid) ?></h3>
+    
+    <?php if(in_array_starts('POS ',$id_card_fields)) { ?>
+        <!-- POS Summary -->
+        <?php if(in_array('POS Invoices', $id_card_fields)) {
+            $inv_count = $dbc->query("SELECT COUNT(*) `count` FROM `invoice` WHERE `patientid`='$contactid' AND `status` NOT IN ('Void') AND `deleted`=0")->fetch_assoc(); ?>
+            <div class="col-xs-6 col-sm-4 col-md-3 col-lg-2 gap-top">
+                <div class="summary-block">
+                    <span class="text-lg"><?= ($inv_count['count'] > 0) ? '<a target="_top" href="../POSAdvanced/invoice_list.php?contactid='.$contactid.'&type=&search_from=0000-00-00&search_to='.date('Y-m-t').'&search_invoice_submit=Search">'.$inv_count['count'].'</a>' : 0; ?></span><br />
+                    Total<br />Invoices
+                </div>
+            </div>
+        <?php } ?>
+        <?php if(in_array('POS Paid', $id_card_fields)) {
+            $inv_total = $dbc->query("SELECT SUM(`p`.`patient_price`) `paid` FROM `invoice_patient` `p` LEFT JOIN `invoice` `inv` ON (`inv`.`invoiceid`=`p`.`invoiceid`) WHERE (IFNULL(`p`.`paid`,'') NOT IN ('On Account','No','') AND `p`.`paid` NOT LIKE 'Net %') AND `inv`.`status` NOT IN ('Void') AND `inv`.`patientid`='$contactid'")->fetch_assoc()['paid']; ?>
+            <div class="col-xs-6 col-sm-4 col-md-3 col-lg-2 gap-top">
+                <div class="summary-block">
+                    <span class="text-lg"><?= '$'.floor($inv_total).'.<sup>'.sprintf("%02d",($inv_total * 100 % 100)).'</sup>' ?></span><br />
+                    Total Paid<br />To Date
+                </div>
+            </div>
+        <?php } ?>
+        <?php if(in_array('POS A/R', $id_card_fields)) {
+            $patient_ar = mysqli_fetch_assoc ( mysqli_query ( $dbc, "SELECT SUM(`p`.`patient_price`) `patient_ar` FROM `invoice_patient` `p` LEFT JOIN `invoice` `inv` ON (`inv`.`invoiceid`=`p`.`invoiceid`) WHERE (IFNULL(`p`.`paid`,'') IN ('On Account','No','') OR `p`.`paid` LIKE 'Net %') AND `inv`.`status` NOT IN ('Void') AND `inv`.`patientid`='$contactid'" ) )['patient_ar']; ?>
+            <div class="col-xs-6 col-sm-4 col-md-3 col-lg-2 gap-top">
+                <div class="summary-block">
+                    <span class="text-lg"><?= '$'.($patient_ar > 0 ? '<a target="_top" href="../POSAdvanced/patient_account_receivables.php?patientid='.$contactid.'&from=0000-00-00&until='.date('Y-m-d').'">' : '').floor($patient_ar).'.<sup>'.sprintf("%02d",($patient_ar * 100 % 100)).'</sup>'.($patient_ar > 0 ? '</a>' : '') ?></span><br />
+                    A/R<br />&nbsp;
+                </div>
+            </div>
+        <?php } ?>
+        <?php if(in_array('POS Credit', $id_card_fields)) {
+            $patient = mysqli_fetch_assoc ( mysqli_query ( $dbc, "SELECT `amount_credit` FROM `contacts` WHERE `contactid`='$contactid'" ) );
+            $patient_ar = empty($patient['patient_ar']) ? '0.00' : $patient['patient_ar'];
+            $patient_ar = explode('.', $patient_ar); ?>
+            <div class="col-xs-6 col-sm-4 col-md-3 col-lg-2 gap-top">
+                <div class="summary-block">
+                    <span class="text-lg"><?= '$'.$patient_ar[0].'.<sup>'.$patient_ar[1].'</sup>' ?></span><br />
+                    Credit<br />On Account
+                </div>
+            </div>
+        <?php } ?>
+        <?php if(in_array('POS Balance', $id_card_fields)) {
+            $patient = mysqli_fetch_assoc ( mysqli_query ( $dbc, "SELECT `amount_owing` FROM `contacts` WHERE `contactid`='$contactid'" ) );
+            $patient_ar = empty($patient['patient_ar']) ? '0.00' : $patient['patient_ar'];
+            $patient_ar = explode('.', $patient_ar); ?>
+            <div class="col-xs-6 col-sm-4 col-md-3 col-lg-2 gap-top">
+                <div class="summary-block">
+                    <span class="text-lg"><?= '$'.$patient_ar[0].'.<sup>'.$patient_ar[1].'</sup>' ?></span><br />
+                    Account<br />Balance
+                </div>
+            </div>
+        <?php } ?>
+        <?php if(in_array('POS Last Date', $id_card_fields)) {
+            $inv_count = $dbc->query("SELECT MAX(`invoice_date`) `date` FROM `invoice` WHERE `patientid`='$contactid' AND `status` NOT IN ('Void') AND `deleted`=0")->fetch_assoc(); ?>
+            <div class="col-xs-6 col-sm-4 col-md-3 col-lg-2 gap-top">
+                <div class="summary-block">
+                    <span class="text-lg"><?= !empty($inv_count['date'] > 0) ? '<a target="_top" href="../POSAdvanced/invoice_list.php?contactid='.$contactid.'&type=&search_from=0000-00-00&search_to='.date('Y-m-d').'&search_invoice_submit=Search">'.$inv_count['date'].'</a>' : 'N/A'; ?></span><br />
+                    Date Last<br />Invoiced
+                </div>
+            </div>
+        <?php } ?>
+        <div class="clearfix"></div>
+        <!-- POS Summary -->
+    <?php } ?>
+    
 	<div class="col-sm-6">
 		<ul class="chained-list col-sm-6 small">
 			<?php if($contact['contactimage'] != '' && file_exists($contact_url.'download/'.$contact['contactimage'])) { ?><li style="text-align: center;"><img src="<?= $contact_url ?>download/<?= $contact['contactimage'] ?>" style="max-width: 200px; max-height: 200px;"></li><?php } ?>
-			<?php if(in_array_any(['Employee Number','Employee ID','Employee #'], $id_card_fields)) { ?><li><img src="../img/id-card.png" style="height:1.5em;" title="ID Number"><?= $contactid ?></li><?php } ?>
-			<?php if(in_array_any(['First Name','Last Name','Profile First Name','Profile Last Name'], $id_card_fields) && $contact['first_name'].$contact['last_name'] != '') { ?><li><img src="../img/person.PNG" style="height:1.5em;" title="Full Name"><?= decryptIt($contact['first_name']).' '.decryptIt($contact['last_name']) ?></li><?php } ?>
-			<?php if(in_array_any(['Position'], $id_card_fields) && $contact['position'] != '') {
-				$position_name = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `name` FROM `positions` WHERE `position_id` = '{$contact['position']}'"))['name']; ?><li><img src="../img/job.png" style="height:1.5em;" title="Position"><?= !empty($position_name) ? $position_name : $contact['position'] ?></li><?php } ?>
-			<?php if(in_array_any(['Home Phone','Profile Home Phone'], $id_card_fields) && $contact['home_phone'] != '') { ?><li><a href="tel:<?= decryptIt($contact['home_phone']) ?>"><img src="../img/home_phone.PNG" style="height:1.5em;" title="Home Phone"><?= decryptIt($contact['home_phone']) ?></a></li><?php } ?>
-			<?php if(in_array_any(['Office Phone','Profile Office Phone'], $id_card_fields) && $contact['office_phone'] != '') { ?><li><a href="tel:<?= decryptIt($contact['office_phone']) ?>"><img src="../img/office_phone.PNG" style="height:1.5em;" title="Office Phone"><?= decryptIt($contact['office_phone']) ?></a></li><?php } ?>
-			<?php if(in_array_any(['Cell Phone','Profile Cell Phone'], $id_card_fields) && $contact['cell_phone'] != '') { ?><li><a href="tel:<?= decryptIt($contact['cell_phone']) ?>"><img src="../img/cell_phone.PNG" style="height:1.5em;" title="Cell Phone"><?= decryptIt($contact['cell_phone']) ?></a></li><?php } ?>
-			<?php if(in_array_any(['Email Address','Profile Email Address'], $id_card_fields) && $contact['email_address'] != '') { ?><li><a href="mailto:<?= decryptIt($contact['email_address']) ?>"><img src="../img/email.PNG" style="height:1.5em;" title="Email Address"><?= decryptIt($contact['email_address']) ?></a></li><?php } ?>
-			<?php if(in_array_any(['Second Email Address'], $id_card_fields) && $contact['second_email_address'] != '') { ?><li><a href="mailto:<?= decryptIt($contact['second_email_address']) ?>"><img src="../img/email.PNG" style="height:1.5em;" title="Second Email Address"><?= decryptIt($contact['second_email_address']) ?></a></li><?php } ?>
-			<?php if(in_array_any(['Company Email Address','Profile Company Email Address'], $id_card_fields) && $contact['office_email'] != '') { ?><li><a href="mailto:<?= decryptIt($contact['office_email']) ?>"><img src="../img/email.PNG" style="height:1.5em;" title="Company Email Address"><?= decryptIt($contact['office_email']) ?></a></li><?php } ?>
-			<?php if(in_array_any(['Start Date'], $id_card_fields) && $contact['start_date'] != '' && $contact['start_date'] != '0000-00-00') { ?><li><img src="../img/calendar.png" style="height:1.5em;" title="Start Date"><?= $contact['start_date'] ?>
+			<?php if(in_array_any(['Sales Lead'], $id_card_fields) && in_array($contact['category'],explode(',',get_config($dbc, 'lead_all_contact_cat').',Sales Lead,Sales Leads,'))) {
+                $sales_lead_id = $dbc->query("SELECT `salesid` FROM `sales` WHERE `deleted`=0 AND CONCAT(',',`contactid`,',') LIKE '%,".$contactid.",%'")->fetch_assoc()['salesid'];
+                if($sales_lead_id > 0) { ?>
+                    <li><img src="../img/person.PNG" class="dashboard-profile-icon" title="Sales Lead"><a href="../Sales/sale.php?p=details&id=<?= $sales_lead_id ?>" onclick="overlayIFrameSlider(this.href,'80%',true,true); return false;">Sales Lead #<?= $sales_lead_id ?></a></li>
+                <?php } ?>
+            <?php } ?>
+			<?php if(in_array_any(['Employee Number','Employee ID','Employee #'], $id_card_fields)) { ?><li><img src="../img/id-card.png" class="dashboard-profile-icon" title="ID Number"><?= $contactid ?></li><?php } ?>
+			<?php if(in_array_any(['First Name','Last Name','Profile First Name','Profile Last Name'], $id_card_fields)) { ?><li><img src="../img/person.PNG" class="dashboard-profile-icon" title="Full Name"><?= decryptIt($contact['first_name']).' '.decryptIt($contact['last_name']) ?></li><?php } ?>
+			<?php if(in_array_any(['Position'], $id_card_fields)) {
+				$position_name = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `name` FROM `positions` WHERE `position_id` = '{$contact['position']}'"))['name']; ?><li><img src="../img/job.png" class="dashboard-profile-icon" title="Position"><?= !empty($position_name) ? $position_name : $contact['position'] ?></li><?php } ?>
+			<?php if(in_array_any(['Home Phone','Profile Home Phone'], $id_card_fields)) { ?><li><a href="tel:<?= decryptIt($contact['home_phone']) ?>"><img src="../img/home_phone.PNG" class="dashboard-profile-icon" title="Home Phone"><?= decryptIt($contact['home_phone']) ?></a></li><?php } ?>
+			<?php if(in_array_any(['Office Phone','Profile Office Phone'], $id_card_fields)) { ?><li><a href="tel:<?= decryptIt($contact['office_phone']) ?>"><img src="../img/office_phone.PNG" class="dashboard-profile-icon" title="Office Phone"><?= decryptIt($contact['office_phone']) ?></a></li><?php } ?>
+			<?php if(in_array_any(['Cell Phone','Profile Cell Phone'], $id_card_fields)) { ?><li><a href="tel:<?= decryptIt($contact['cell_phone']) ?>"><img src="../img/cell_phone.PNG" class="dashboard-profile-icon" title="Cell Phone"><?= decryptIt($contact['cell_phone']) ?></a></li><?php } ?>
+			<?php if(in_array_any(['Email Address','Profile Email Address'], $id_card_fields)) { ?><li><a href="mailto:<?= decryptIt($contact['email_address']) ?>"><img src="../img/email.PNG" class="dashboard-profile-icon" title="Email Address"><?= decryptIt($contact['email_address']) ?></a></li><?php } ?>
+			<?php if(in_array_any(['Second Email Address'], $id_card_fields)) { ?><li><a href="mailto:<?= decryptIt($contact['second_email_address']) ?>"><img src="../img/email.PNG" class="dashboard-profile-icon" title="Second Email Address"><?= decryptIt($contact['second_email_address']) ?></a></li><?php } ?>
+			<?php if(in_array_any(['Company Email Address','Profile Company Email Address'], $id_card_fields)) { ?><li><a href="mailto:<?= decryptIt($contact['office_email']) ?>"><img src="../img/email.PNG" class="dashboard-profile-icon" title="Company Email Address"><?= decryptIt($contact['office_email']) ?></a></li><?php } ?>
+			<?php if(in_array_any(['Start Date'], $id_card_fields)) { ?><li><img src="../img/calendar.png" class="dashboard-profile-icon" title="Start Date"><?= $contact['start_date'] ?>
                 <?php if (FOLDER_NAME=='profile' && ($contact['start_date'] != '0000-00-00' || empty($contact['start_date']))) {
                     //Check if today is the work anniversary. If so, display it.
                     if ( date('m-d')==substr($contact['start_date'],5,5) ) {
@@ -135,9 +215,9 @@ $contact = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `contacts` LEFT 
                     }
                 } ?></li>
             <?php } ?>
-			<?php if(in_array_any(['Contract End Date'], $id_card_fields) && $contact['contract_end_date'] != '' && $contact['contract_end_date'] != '0000-00-00') { ?><li><img src="../img/calendar.png" style="height:1.5em;" title="Contract End Date"><?= $contact['contract_end_date'] ?></li>
+			<?php if(in_array_any(['Contract End Date'], $id_card_fields)) { ?><li><img src="../img/calendar.png" class="dashboard-profile-icon" title="Contract End Date"><?= $contact['contract_end_date'] ?></li>
             <?php } ?>
-			<li><img src="../img/setting.PNG" style="height:1.5em;" title="Status">
+			<li><img src="../img/setting.PNG" class="dashboard-profile-icon" title="Status">
 			<?php if(vuaed_visible_function($dbc, $contact['category'] == 'staff' ? 'staff' : $security_folder) > 0) { ?><?= $contact['status'] > 0 ?
 				'Active | <a href="" onclick="statusChange(this); return false;" data-status="1" data-contactid="'.$contact['contactid'].'">Deactivate</a>' :
 				'Inactive | <a href="" onclick="statusChange(this); return false;" data-status="0" data-contactid="'.$contact['contactid'].'">Activate</a>' ?><?php
@@ -148,30 +228,51 @@ $contact = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `contacts` LEFT 
 	</div>
 	<div class="col-sm-6">
 		<ul class="chained-list col-sm-6 small">
-			<?php if(in_array_any(['Business','Program Business'], $id_card_fields) && $contact['businessid'] > 0) { ?><li><img src="../img/business.PNG" style="height:1.5em;" title="Business"><?= get_client($dbc, $contact['businessid']) ?></li><?php } ?>
-			<?php if(in_array_any(['Name'], $id_card_fields) && $contact['name'] != '') { ?><li><img src="../img/business.PNG" style="height:1.5em;" title="Business Name"><?= decryptIt($contact['name']) ?></li><?php } ?>
-			<?php if(in_array_any(['Location','Profile Location'], $id_card_fields) && $contact['con_location'] != '') { ?><li><img src="../img/address.PNG" style="height:1.5em;" title="Location"><?= ($contact['con_location']) ?></li><?php } ?>
-			<?php if(in_array_any(['Business Address'], $id_card_fields) && $contact['business_street'] != '') { ?><li><a class="show-on-mob" href="maps:<?= decryptIt($contact['business_street']) ?>"><img src="../img/address.PNG" title="Business Address" class="inline-img"><?= decryptIt($contact['business_street']) ?></a><a class="hide-on-mobile" href="https://maps.google.com/maps/place/<?= decryptIt($contact['business_street']) ?>"><img src="../img/address.PNG" title="Business Address" class="inline-img"><?= decryptIt($contact['business_street']) ?></a></li><?php } ?>
-			<?php if(in_array_any(['Mailing Address'], $id_card_fields) && $contact['mailing_address'] != '') { ?><li><a class="show-on-mob" href="maps:<?= ($contact['mailing_address']) ?>"><img src="../img/address.PNG" title="Mailing Address" class="inline-img"><?= ($contact['mailing_address']) ?></a><a class="hide-on-mobile" href="https://maps.google.com/maps/place/<?= ($contact['mailing_address']) ?>"><img src="../img/address.PNG" title="Mailing Address" class="inline-img"><?= ($contact['mailing_address']) ?></a></li><?php } ?>
-			<?php if(in_array_any(['Address'], $id_card_fields) && $contact['address'] != '') { ?><li><a class="show-on-mob" href="maps:<?= ($contact['address']) ?>"><img src="../img/address.PNG" title="Address" class="inline-img"><?= ($contact['address']) ?></a><a class="hide-on-mobile" href="https://maps.google.com/maps/place/<?= ($contact['address']) ?>"><img src="../img/address.PNG" title="Address" class="inline-img"><?= ($contact['address']) ?></a></li><?php } ?>
-			<?php if(in_array_any(['Birth Date','Date of Birth','Profile Date of Birth'], $id_card_fields) && $contact['birth_date'] != '' && $contact['birth_date'] != '0000-00-00') { ?><li><img src="../img/birthday.png" title="Birth Date" class="inline-img"><?= $contact['birth_date'] ?><?= ( $contact['birth_date']=='0000-00-00' || empty($contact['birth_date']) ) ? '' : ' Age: '.date_diff(date_create($contact['birth_date']), date_create('now'))->y ?></li><?php } ?>
-			<?php if(in_array_any(['Guardians First Name'], $id_card_fields) && $contact['guardians_first_name'] != '') { ?>
+			<?php if(in_array_any(['Business','Program Business'], $id_card_fields)) { ?><li><img src="../img/business.PNG" class="dashboard-profile-icon" title="Business"><?= get_client($dbc, $contact['businessid']) ?></li><?php } ?>
+			<?php if(in_array_any(['Name'], $id_card_fields)) { ?><li><img src="../img/business.PNG" class="dashboard-profile-icon" title="<?= $contact['category'] ?> Name"><?= decryptIt($contact['name']) ?></li><?php } ?>
+			<?php if(in_array_any(['Location','Profile Location'], $id_card_fields)) { ?><li><img src="../img/address.PNG" class="dashboard-profile-icon" title="Location"><?= ($contact['con_location']) ?></li><?php } ?>
+			<?php if(in_array_any(['Business Address'], $id_card_fields)) { ?><li><a class="show-on-mob" href="maps:<?= decryptIt($contact['business_street']) ?>"><img src="../img/address.PNG" title="Business Address" class="inline-img dashboard-profile-icon"><?= decryptIt($contact['business_street']) ?></a><a class="hide-on-mobile" href="https://maps.google.com/maps/place/<?= decryptIt($contact['business_street']) ?>"><img src="../img/address.PNG" title="Business Address" class="inline-img dashboard-profile-icon"><?= decryptIt($contact['business_street']) ?></a></li><?php } ?>
+			<?php if(in_array_any(['Mailing Address'], $id_card_fields)) { ?><li><a class="show-on-mob" href="maps:<?= ($contact['mailing_address']) ?>"><img src="../img/address.PNG" title="Mailing Address" class="inline-img dashboard-profile-icon"><?= ($contact['mailing_address']) ?></a><a class="hide-on-mobile" href="https://maps.google.com/maps/place/<?= ($contact['mailing_address']) ?>"><img src="../img/address.PNG" title="Mailing Address" class="inline-img dashboard-profile-icon"><?= ($contact['mailing_address']) ?></a></li><?php } ?>
+			<?php if(in_array_any(['Address'], $id_card_fields)) { ?><li><a class="show-on-mob" href="maps:<?= ($contact['address']) ?>"><img src="../img/address.PNG" title="Address" class="inline-img dashboard-profile-icon"><?= ($contact['address']) ?></a><a class="hide-on-mobile" href="https://maps.google.com/maps/place/<?= ($contact['address']) ?>"><img src="../img/address.PNG" title="Address" class="inline-img dashboard-profile-icon"><?= ($contact['address']) ?></a></li><?php } ?>
+			<?php if(in_array_any(['Birth Date','Date of Birth','Profile Date of Birth'], $id_card_fields)) { ?><li><img src="../img/birthday.png" title="Birth Date" class="inline-img dashboard-profile-icon"><?= $contact['birth_date'] ?><?= ( $contact['birth_date']=='0000-00-00' || empty($contact['birth_date']) ) ? '' : ' Age: '.date_diff(date_create($contact['birth_date']), date_create('now'))->y ?></li><?php } ?>
+			<?php if(in_array_any(['Guardians First Name'], $id_card_fields)) { ?>
 				<?php $guardian_count = count(explode('*#*', $contact['guardians_first_name']));
 				for ($counter = 0; $counter < $guardian_count && !empty($contact['guardians_first_name']); $counter++) { ?>
-					<li><img src="../img/person.PNG" title="Guardian <?= ($counter+1) ?>" class="inline-img"><?= explode('*#*', $contact['guardians_first_name'])[$counter].' '.explode('*#*', $contact['guardians_last_name'])[$counter] ?></li>
+					<li><img src="../img/person.PNG" title="Guardian <?= ($counter+1) ?>" class="inline-img dashboard-profile-icon"><?= explode('*#*', $contact['guardians_first_name'])[$counter].' '.explode('*#*', $contact['guardians_last_name'])[$counter] ?></li>
 					<?php if(in_array_any(['Guardians Work Phone','Guardians Home Phone','Guardians Cell Phone'], $id_card_fields)) { ?>
-						<li><img src="../img/home_phone.PNG" title="Guardian <?= ($counter+1) ?> Phone Number" style="height:1.5em;"><?= !empty(explode('*#*', $contact['guardians_home_phone'])[$counter]) ? explode('*#*', 'H: '.$contact['guardians_home_phone'])[$counter].'&nbsp;&nbsp;' : '' ?><?= !empty(explode('*#*', $contact['guardians_work_phone'])[$counter]) ? explode('*#*', 'O: '.$contact['guardians_work_phone'])[$counter].'&nbsp;&nbsp;' : '' ?><?= !empty(explode('*#*', $contact['guardians_cell_phone'])[$counter]) ? explode('*#*', 'C: '.$contact['guardians_cell_phone'])[$counter].'&nbsp;&nbsp;' : '' ?></li>
+						<li><img src="../img/home_phone.PNG" title="Guardian <?= ($counter+1) ?> Phone Number" class="dashboard-profile-icon"><?= !empty(explode('*#*', $contact['guardians_home_phone'])[$counter]) ? explode('*#*', 'H: '.$contact['guardians_home_phone'])[$counter].'&nbsp;&nbsp;' : '' ?><?= !empty(explode('*#*', $contact['guardians_work_phone'])[$counter]) ? explode('*#*', 'O: '.$contact['guardians_work_phone'])[$counter].'&nbsp;&nbsp;' : '' ?><?= !empty(explode('*#*', $contact['guardians_cell_phone'])[$counter]) ? explode('*#*', 'C: '.$contact['guardians_cell_phone'])[$counter].'&nbsp;&nbsp;' : '' ?></li>
 					<?php } ?>
 				<?php } ?>
 			<?php } ?>
-			<?php if(in_array_any(['LinkedIn','Profile LinkedIn'], $id_card_fields) && $contact['linkedin'] != '') { ?><li><a href="<?= $contact['linkedin'] ?>"><img src="../img/icons/social/linkedin.png" style="height:1.5em;" title="LinkedIn" /> LinkedIn</a></li><?php } ?>
-			<?php if(in_array_any(['Facebook','Profile Facebook'], $id_card_fields) && $contact['facebook'] != '') { ?><li><a href="<?= $contact['facebook'] ?>"><img src="../img/icons/social/facebook.png" style="height:1.5em;" title="Facebook" /> Facebook</a></li><?php } ?>
-			<?php if(in_array_any(['Twitter','Profile Twitter'], $id_card_fields) && $contact['twitter'] != '') { ?><li><a href="<?= $contact['twitter'] ?>"><img src="../img/icons/social/twitter.png" style="height:1.5em;" title="Twitter" /> Twitter</a></li><?php } ?>
-			<?php if(in_array_any(['Google+','Profile Google+'], $id_card_fields) && $contact['google_plus'] != '') { ?><li><a href="<?= $contact['google_plus'] ?>"><img src="../img/icons/social/google+.png" style="height:1.5em;" title="Google+" /> Google+</a></li><?php } ?>
-			<?php if(in_array_any(['Instagram','Profile Instagram'], $id_card_fields) && $contact['instagram'] != '') { ?><li><a href="<?= $contact['instagram'] ?>"><img src="../img/icons/social/instagram.png" style="height:1.5em;" title="Instagram" /> Instagram</a></li><?php } ?>
-			<?php if(in_array_any(['Pinterest','Profile Pinterest'], $id_card_fields) && $contact['pinterest'] != '') { ?><li><a href="<?= $contact['pinterest'] ?>"><img src="../img/icons/social/pinterest.png" style="height:1.5em;" title="Pinterest" /> Pinterest</a></li><?php } ?>
-			<?php if(in_array_any(['YouTube','Profile YouTube'], $id_card_fields) && $contact['youtube'] != '') { ?><li><a href="<?= $contact['youtube'] ?>"><img src="../img/icons/social/youtube.png" style="height:1.5em;" title="Youtube" /> YouTube</a></li><?php } ?>
-			<?php if(in_array_any(['Blog','Profile Blog'], $id_card_fields) && $contact['blog'] != '') { ?><li><a href="<?= $contact['blog'] ?>"><img src="../img/icons/social/rss.png" style="height:1.5em;" title="Blog" /> Blog</a></li><?php } ?>
+			<?php if(in_array_any(['LinkedIn','Profile LinkedIn'], $id_card_fields)) { ?><li><a href="<?= $contact['linkedin'] ?>"><img src="../img/icons/social/linkedin.png" class="dashboard-social-icon" title="LinkedIn" /> LinkedIn</a></li><?php } ?>
+			<?php if(in_array_any(['Facebook','Profile Facebook'], $id_card_fields)) { ?><li><a href="<?= $contact['facebook'] ?>"><img src="../img/icons/social/facebook.png" class="dashboard-social-icon" title="Facebook" /> Facebook</a></li><?php } ?>
+			<?php if(in_array_any(['Twitter','Profile Twitter'], $id_card_fields)) { ?><li><a href="<?= $contact['twitter'] ?>"><img src="../img/icons/social/twitter.png" class="dashboard-social-icon" title="Twitter" /> Twitter</a></li><?php } ?>
+			<?php if(in_array_any(['Google+','Profile Google+'], $id_card_fields)) { ?><li><a href="<?= $contact['google_plus'] ?>"><img src="../img/icons/social/google+.png" class="dashboard-social-icon" title="Google+" /> Google+</a></li><?php } ?>
+			<?php if(in_array_any(['Instagram','Profile Instagram'], $id_card_fields)) { ?><li><a href="<?= $contact['instagram'] ?>"><img src="../img/icons/social/instagram.png" class="dashboard-social-icon" title="Instagram" /> Instagram</a></li><?php } ?>
+			<?php if(in_array_any(['Pinterest','Profile Pinterest'], $id_card_fields)) { ?><li><a href="<?= $contact['pinterest'] ?>"><img src="../img/icons/social/pinterest.png" class="dashboard-social-icon" title="Pinterest" /> Pinterest</a></li><?php } ?>
+			<?php if(in_array_any(['YouTube','Profile YouTube'], $id_card_fields)) { ?><li><a href="<?= $contact['youtube'] ?>"><img src="../img/icons/social/youtube.png" class="dashboard-social-icon" title="Youtube" /> YouTube</a></li><?php } ?>
+			<?php if(in_array_any(['Blog','Profile Blog'], $id_card_fields)) { ?><li><a href="<?= $contact['blog'] ?>"><img src="../img/icons/social/rss.png" class="dashboard-social-icon" title="Blog" /> Blog</a></li><?php } ?>
+			<?php if(in_array_any(['Ticket Service Total Hours'], $id_card_fields)) {
+				$ticket_type_times = [];
+				$ticket_tabs = array_filter(explode(',',get_config($dbc, 'ticket_tabs')));
+				foreach($ticket_tabs as $ticket_tab) {
+					$total_service_time = 0;
+					$tickets = mysqli_query($dbc, "SELECT * FROM `tickets` WHERE CONCAT(',',`clientid`,',') LIKE '%,".$contact['contactid'].",%' AND `deleted` = 0 AND `ticket_type` = '".config_safe_str($ticket_tab)."'");
+					while($ticket = mysqli_fetch_assoc($tickets)) {
+						foreach(array_filter(explode(',',$ticket['service_total_time'])) as $service_time) {
+							$time_arr = explode(' ',$service_time);
+							for($time_i = 0; $time_i < count($time_arr); $time_i = $time_i+2) {
+								if($time_arr[$time_i+1] == 'Hr') {
+									$total_service_time += (intval($time_arr[$time_i])*60);
+								} else if($time_arr[$time_i+1] == 'Min') {
+									$total_service_time += intval($time_arr[$time_i]);
+								}
+							}
+						}
+					}
+					$ticket_type_times[] = $ticket_tab.' Hours: '.time_decimal2time($total_service_time/60);
+				} ?><li><div class="col-xs-2" style="max-width:35px;"><img src="../img/icons/clock-button.png" title="<?= TICKET_NOUN ?> Service Total Hours" class="inline-img"></div><div class="col-xs-10"><?= implode('<br />',$ticket_type_times) ?></div><div class="clearfix"></div></li>
+			<?php } ?>
 			<?php if($contact['category'] == 'Staff') {
 				$business_card_template = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `business_card_template` WHERE `contact_category` = '".$contact['category']."'")); ?>
 				<li>&nbsp;<img src="../img/pdf.png" style="height:1.2em;" title="PDF" />

@@ -7,9 +7,9 @@ function tile_data($dbc, $tile_name, $is_mobile = FALSE) {
 	$sub_tile = '';
     if(is_array($tile_name)) {
 		$tile = $tile_name[0];
-		$sub_tile =  config_safe_str($tile_name[1]);
-	}//echo $tile.'|'.$sub_tile.check_subtab_persmission($dbc, $tile, ROLE, $sub_tile).'|ticket_type_'.$sub_tile.tile_visible($dbc, 'ticket_type_'.$sub_tile,ROLE,'ticket').'<br />';
-	if((tile_visible($dbc, $tile) && ($sub_tile == '' || ($tile != 'project' && check_subtab_persmission($dbc, $tile, ROLE, $sub_tile)))) || ($tile == 'project' && $sub_tile != '' && tile_visible($dbc, 'project_type_'.$sub_tile, ROLE, 'project') && check_subtab_persmission($dbc, $tile, ROLE, $sub_tile)) || ($tile == 'ticket' && $sub_tile != '' && tile_visible($dbc, 'ticket_type_'.$sub_tile, ROLE, 'ticket') && check_subtab_persmission($dbc, $tile, ROLE, $sub_tile))) {
+		$sub_tile = config_safe_str($tile_name[1]);
+	}
+	if((tile_visible($dbc, $tile) && ($sub_tile == '' || ($tile != 'project' && check_subtab_persmission($dbc, $tile, ROLE, $sub_tile)))) || ($tile == 'project' && $sub_tile != '' && tile_visible($dbc, 'project_type_'.$sub_tile, ROLE, 'project') && check_subtab_persmission($dbc, $tile, ROLE, $sub_tile)) || ($tile == 'ticket' && $sub_tile != '' && tile_visible($dbc, 'ticket_type_'.$sub_tile, ROLE, 'ticket') && check_subtab_persmission($dbc, $tile, ROLE, $sub_tile)) || ($tile == 'ticket_group' && $sub_tile != '' && tile_visible($dbc, 'ticket_tile_'.$sub_tile, ROLE, 'ticket'))) {
 		switch($tile) {
 			case 'admin_settings': return ['link'=>'admin_software_config.php','name'=>'Admin Settings']; break;
 			case 'software_config': return ['link'=>'Settings/settings.php','name'=>'Settings']; break;
@@ -32,7 +32,7 @@ function tile_data($dbc, $tile_name, $is_mobile = FALSE) {
 			case 'contracts': return ['link'=>"Contract/index.php",'name'=>'Contracts']; break;
 			case 'driving_log': return ['link'=>"Driving Log/driving_log_tiles.php",'name'=>'Driving Log']; break;
 			case 'package': return ['link'=>"Package/package.php",'name'=>'Packages']; break;
-			case 'promotion': return ['link'=>"Promotion/promotion.php",'name'=>'Promotions']; break;
+			case 'promotion': return ['link'=>"Promotion/promotion.php",'name'=>'Promotions & Coupons']; break;
 			//case 'services': return ['link'=>"Services/services.php?category=3D Printing",'name'=>'Services']; break;
             case 'services': return ['link'=>"Services/index.php",'name'=>'Services']; break;
 			case 'products': return ['link'=>"Products/products.php",'name'=>'Products']; break;
@@ -41,45 +41,11 @@ function tile_data($dbc, $tile_name, $is_mobile = FALSE) {
 			case 'inventory': return ['link'=>"Inventory/inventory.php?category=Top",'name'=>INVENTORY_TILE]; break;
 			// case 'vpl': return ['link'=>"Vendor Price List/inventory.php?category=Top",'name'=>get_tile_title_vpl($dbc).'']; break;
 			case 'assets': return ['link'=>"Asset/asset.php?category=Top",'name'=>'Assets']; break;
-			case 'equipment': return ['link'=>"Equipment/equipment.php?category=Top",'name'=>'Equipment']; break;
+			case 'equipment': return ['link'=>"Equipment/index.php?category=Top",'name'=>'Equipment']; break;
 			case 'custom': return ['link'=>"Custom/custom.php",'name'=>'Custom']; break;
 			case 'intake': return ['link'=>"Intake/intake.php",'name'=>'Intake Forms']; break;
 			//case 'pos': return ['link'=>"Point of Sale/add_point_of_sell.php",'name'=>'Point of Sale<br /><small>Basic</small>']; break;
-            case 'pos':
-                $pos_layout	= get_config($dbc, 'pos_layout');
-                $pos_url = ['sell'=>'add_point_of_sell.php','sell_touch'=>'pos_touch.php','invoices'=>'point_of_sell.php','returns'=>'returns.php','accounts_receivables'=>'unpaid_invoice.php','voided_invoices'=>'voided.php','gift_cards'=>'giftcards.php'];
-                if ($is_mobile) {
-                    $mobile_landing_subtab_config = get_config($dbc, 'pos_mobile_landing_subtab');
-                    if ( !empty($mobile_landing_subtab_config) ) {
-                        foreach ($pos_url as $key=>$value) {
-                            if ($key==$mobile_landing_subtab_config) {
-                                $pos_url = $value;
-                            }
-                        }
-                    } else {
-                        $pos_url = ( $pos_layout=='touch' ) ? 'pos_touch.php' : 'add_point_of_sell.php';
-                    }
-                } else {
-                    $desktop_landing_subtab_config = get_config($dbc, 'pos_desktop_landing_subtab');
-                    if ( !empty($desktop_landing_subtab_config) ) {
-                        foreach ($pos_url as $key=>$value) {
-                            if ($key==$desktop_landing_subtab_config) {
-                                $pos_url = $value;
-                            }
-                        }
-                    } else {
-                        $pos_url = ( $pos_layout=='touch' ) ? 'pos_touch.php' : 'add_point_of_sell.php';
-                    }
-                }
-                /*
-                if ( check_subtab_persmission($dbc, 'pos', ROLE, 'sell') === true ) {
-                    $pos_layout	= get_config($dbc, 'pos_layout');
-                    $pos_url = ( $pos_layout=='touch' ) ? 'pos_touch.php' : 'add_point_of_sell.php';
-                } */
-
-                return ['link'=>'Point of Sale/'.$pos_url,'name'=>'Point of Sale<br /><small>Basic</small>'];
-                break;
-			case 'posadvanced': return ['link'=>"POSAdvanced/invoice_main.php",'name'=>'Point of Sale']; break;
+			case 'posadvanced': return ['link'=>"POSAdvanced/invoice_main.php",'name'=>POS_ADVANCE_TILE]; break;
 			case 'invoicing': return ['link'=>"Invoicing/add_point_of_sell.php",'name'=>'Invoicing']; break;
 			case 'service_queue': return ['link'=>"Service Queue/service_queue.php",'name'=>'Service Queue']; break;
 			case 'incident_report': return ['link'=>"Incident Report/incident_report.php",'name'=>INC_REP_TILE]; break;
@@ -111,56 +77,62 @@ function tile_data($dbc, $tile_name, $is_mobile = FALSE) {
 			case 'budget': return ['link'=>"Budget/budget.php",'name'=>'Budget']; break;
 			case 'profit_loss': return ['link'=>"ProfitLoss/profit_loss.php",'name'=>'Profit & Loss']; break;
 			case 'gao': return ['link'=>"Gao/gao.php",'name'=>'Goals & Objectives']; break;
-			case 'checklist': return ['link'=>"Checklist/checklist.php",'name'=>'Checklist']; break;
-			case 'tasks': return ['link'=>"Tasks/index.php?category=All&tab=Summary",'name'=>'Tasks']; break;
+
+			case 'checklist':
+            /* $get_checklist = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT COUNT(checklistid) AS checklistid FROM checklist WHERE (`assign_staff` LIKE '%,{$_SESSION['contactid']},%' OR `assign_staff`=',ALL,') AND `deleted`=0 AND checklist_tile=1"));
+            if($get_checklist['checklistid'] > 0) {
+               $checklist_url = 'checklist_tile.php';
+            } else {
+               $checklist_url = 'checklist.php';
+            } */
+            $checklist_url = 'checklist.php';
+            return ['link'=>'Checklist/'.$checklist_url,'name'=>'Checklist']; break;
+
+			case 'tasks': return ['link'=>"Tasks_Updated/index.php?category=All&tab=Summary",'name'=>TASK_TILE]; break;
+			//case 'tasks_updated': return ['link'=>"Tasks_Updated/index.php?category=All&tab=Summary",'name'=>'Tasks (Updated)']; break;
 			case 'scrum': return ['link'=>"Scrum/scrum.php?category=All",'name'=>'Scrum']; break;
 			case 'communication': return ['link'=>"Communication/tasks.php?category=All",'name'=>'Communication Tasks']; break;
 			case 'communication_schedule': return ['link'=>"Communication Schedule/communication.php",'name'=>'Communication']; break;
-			case 'email_communication': return ['link'=>"Email Communication/email_communication.php?type=Internal",'name'=>'Email Communication']; break;
+			//case 'email_communication': return ['link'=>"Email Communication/email_communication.php?type=Internal",'name'=>'Email Communication']; break;
+			case 'email_communication': return ['link'=>"Email Communication/index.php",'name'=>'Email Communication']; break;
 			case 'phone_communication': return ['link'=>"Phone Communication/phone_communication.php?type=Internal",'name'=>'Phone Communication']; break;
 			case 'punch_card': return ['link'=>"Punch Card/punch_card.php?title=time_clock",'name'=>'Time Clock']; break;
 			case 'sign_in_time': return ['link'=>"Punch Card/punch_card.php?title=sign_in",'name'=>'Sign In']; break;
 			case 'payroll': return ['link'=>"Payroll/payroll.php",'name'=>'Payroll']; break;
 			case 'purchase_order': return ['link'=>"Purchase Order/index.php",'name'=>get_tile_title_po($dbc).'']; break;
 			case 'sales_order': return ['link'=>"Sales Order/index.php",'name'=>SALES_ORDER_TILE]; break;
-			case 'newsboard': return ['link'=>"News Board/newsboard.php",'name'=>'News Board']; break;
+			case 'newsboard': return ['link'=>"News Board/index.php",'name'=>'News Board']; break;
 			case 'calendar_rook': return ['link'=>"Calendar/calendars.php",'name'=>'Calendar']; break;
 			case 'field_job': return ['link'=>"Field Jobs/field_sites.php",'name'=>'Field Jobs']; break;
 			case 'expense': return ['link'=>"Expense/expenses.php",'name'=>'Expenses']; break;
 			case 'payables': return ['link'=>"Payables/payables.php",'name'=>"Payables"]; break;
 			case 'billing': return ['link'=>"Project Billing/project_billing.php",'name'=>"Project Billing & Invoices"]; break;
 			case 'report':
-                $operations_reports = ['Daysheet'=>'report_daysheet.php?type=operations', 'Therapist Stats'=>'report_stat.php?type=operations', 'Block Booking vs Not Block Booking'=>'report_bb_vs_not_bb.php?type=operations', 'Injury Type'=>'report_injury.php?type=operations', 'Treatment Report'=>'report_treatment.php?type=operations', 'Equipment List'=>'report_equipment_list.php?type=operations', 'Equipment Transfer'=>'report_equip_transfer.php?type=operations', 'Work Order'=>'report_work_order.php?type=operations', 'Staff Tickets'=>'reports_staff_tickets.php?type=operations', 'Day Sheet Report'=>'reports_daysheet_reports.php?type=operations', 'Appointment Summary'=>'report_daily_appoint_summary.php?type=operations', 'Patient Block Booking'=>'report_patient_block_booking.php?type=operations', 'Assessment Tally Board'=>'report_tally_board.php?type=operations', 'Assessment Follow Up'=>'report_assessment_followup.php?type=operations', 'Field Jobs'=>'report_field_jobs.php?type=operations', 'Shop Work Orders'=>'report_shop_work_orders.php?type=operations', 'Shop Work Order Task Time'=>'report_operations_shop_task_time.php?type=operations', 'Shop Work Order Time'=>'report_operations_shop_time.php?type=operations', 'Site Work Orders'=>'report_site_work_orders.php?type=operations', 'Scrum Business Productivity Summary'=>'reports_scrum_business_productivity_summary.php?type=operations', 'Scrum Staff Productivity Summary'=>'reports_scrum_staff_productivity_summary.php?type=operations', 'Scrum Status Report'=>'reports_scrum_status_report.php?type=operations', 'Drop Off Analysis'=>'report_drop_off_analysis.php?type=operations', 'Discharge Report'=>'report_discharge.php?type=operations', 'Ticket Report'=>'report_ticket.php?type=operations', 'Site Work Time'=>'report_site_work_time.php?type=operations', 'Site Work Driving'=>'report_site_work_driving.php?type=operations', 'Purchase Orders'=>'reports_purchase_orders.php?type=operations', 'Inventory Log'=>'report_inventory_log.php?type=operations', 'Point of Sale'=>'reports_pos.php?type=operations', 'Credit Card on File'=>'report_cc_on_file.php?type=operations', 'Checklist Time'=>'report_checklist_time.php?type=operations'];
-                $sales_reports = ['Validation by Therapist'=>'report_daily_validation.php?type=sales', 'POS Validation'=>'report_pos_daily_validation.php?type=sales', 'Daily Deposit Report'=>'report_daily_deposit.php?type=sales', 'Monthly Sales by Injury Type'=>'report_review_sales.php?type=sales', 'Invoice Sales Summary'=>'report_invoice_sales_summary.php?type=sales', 'Sales by Customer Summary'=>'report_sales_by_customer_summary.php?type=sales', 'Sales History by Customer'=>'report_sales_by_customer_detail.php?type=sales', 'Sales by Service Summary'=>'report_sales_by_product_service_summary.php?type=sales', 'Sales by Service Category'=>'report_sales_by_product_service_category.php?type=sales', 'Sales by Inventory Summary'=>'report_sales_by_inventory_summary.php?type=sales', 'Sales Summary by Injury Type'=>'report_daily_sales_summary.php?type=sales', 'Inventory Analysis'=>'report_general_inventory.php?type=sales', 'Unassigned/Error Invoices'=>'report_unassigned_invoices.php?type=sales', 'Staff Revenue Report'=>'report_revenue.php?type=sales', 'Expense Summary Report'=>'report_expenses.php?type=sales', 'Phone Communication'=>'report_phone_communication.php?type=sales', 'Sales by Inventory/Service Detail'=>'report_sales_by_product_service_detail.php?type=sales', 'Payment Method List'=>'report_payment_method_list.php?type=sales', 'Patient History'=>'report_patient_appoint_history.php?type=sales', 'Receipts Summary Report'=>'report_receipt_summary.php?type=sales', 'Gross Revenue by Staff'=>'report_gross_revenue_by_staff.php?type=sales',  'Patient Invoices'=>'report_patient_unpaid_invoices.php?type=sales', 'POS Sales Summary'=>'report_pos_daily_sales_summary.php?type=sales', 'Profit-Loss'=>'report_profit_loss.php?type=sales',  'Transaction List by Customer'=>'report_transaction_list_by_customer.php?type=sales', 'Unbilled Invoices'=>'report_unbilled_charges.php?type=sales', 'Deposit Detail'=>'report_deposit_detail.php?type=sales'];
-                $ar_reports = ['A/R Aging Summary'=>'report_ar_aging_summary.php?type=ar', 'Patient Aging Receivable Summary'=>'report_receivables_patient_summary.php?type=ar', 'Insurer Aging Receivable Summary'=>'report_receivables_summary.php?type=ar', 'By Invoice#'=>'report_receivables.php?type=ar', 'Customer Balance Summary'=>'report_account_receivable.php?type=ar', 'Customer Balance by Invoice'=>'report_customer_balance_detail.php?type=ar', 'Collections Report by Customer'=>'report_collections_report.php?type=ar', 'Invoice List'=>'report_invoice_list.php?type=ar', 'POS Receivables'=>'report_pos_receivables.php?type=ar', 'UI Invoice Report'=>'ui_invoice_reports.php?type=ar'];
-                $pnl_reports = ['Revenue Receivables'=>'report_pnl_revenue_receivables.php?type=pnl', 'Staff Compensation'=>'report_pnl_staff_compensation.php?type=pnl', 'Expenses'=>'report_pnl_expenses.php?type=pnl', 'Costs'=>'report_pnl_costs.php?type=pnl', 'Summary'=>'report_pnl_summary.php?type=pnl'];
-                $marketing_reports = ['Customer Contact List'=>'report_customer_contact_list.php?type=marketing', 'Customer Stats'=>'report_customer_stats.php?type=marketing', 'Demographics'=>'report_demographics.php?type=marketing', 'CRM Recommendations - By Date'=>'report_crm_recommend_date.php?type=marketing', 'CRM Recommendations - By Customer'=>'report_crm_recommend_customer.php?type=marketing', 'POS Coupons'=>'report_pos_coupons.php?type=marketing', 'Postal Code'=>'report_postalcode.php?type=marketing', 'Referral'=>'report_referral.php?type=marketing', 'Web Referrals Report'=>'report_web_referral.php?type=marketing', 'Pro Bono Report'=>'report_marketing_pro_bono.php?type=marketing', 'Net Promoter Score'=>'report_marketing_net_promoter_score.php?type=marketing'];
-                $compensation_reports = ['Adjustment Compensation'=>'report_compensation_adjustments.php?type=compensation', 'Hourly Compensation'=>'report_hourly_compensation.php?type=compensation', 'Therapist Compensation'=>'report_compensation.php?type=compensation', 'Statutory Holiday Pay Breakdown'=>'report_stat_holiday_pay.php?type=compensation'];
+				include('Reports/field_list.php');
 
-                $reports_url = array_merge($operations_reports, $sales_reports, $ar_reports, $pnl_reports, $marketing_reports, $compensation_reports);
+                $reports_url = 'report_tiles.php';
 
                 if ($is_mobile) {
-                    $mobile_reports_landing_subtab_config = get_config($dbc, 'reports_mobile_landing_subtab');
-                    if ( !empty($mobile_reports_landing_subtab_config) ) {
-                        foreach ($reports_url as $key=>$value) {
-                            if ($key==$mobile_reports_landing_subtab_config) {
-                                $reports_url = $value;
-                            }
-                        }
-                    } else {
-                        $reports_url = 'report_tiles.php';
-                    }
+                    $reports_landing_subtab_config = get_config($dbc, 'reports_mobile_landing_subtab');
                 } else {
-                    $desktop_reports_landing_subtab_config = get_config($dbc, 'reports_desktop_landing_subtab');
-                    if ( !empty($desktop_reports_landing_subtab_config) ) {
-                        foreach ($reports_url as $key=>$value) {
-                            if ($key==$desktop_reports_landing_subtab_config) {
-                                $reports_url = $value;
-                            }
-                        }
-                    } else {
-                        $reports_url = 'report_tiles.php';
-                    }
+                    $reports_landing_subtab_config = get_config($dbc, 'reports_desktop_landing_subtab');
+                }
+                if(array_key_exists($reports_landing_subtab_config,$operations_reports) !== FALSE) {
+                	$reports_url .= '?type=operations&report='.$reports_landing_subtab_config.'&landing=true';
+                } else if(array_key_exists($reports_landing_subtab_config,$sales_reports) !== FALSE) {
+                	$reports_url .= '?type=sales&report='.$reports_landing_subtab_config.'&landing=true';
+                } else if(array_key_exists($reports_landing_subtab_config,$ar_reports) !== FALSE) {
+                	$reports_url .= '?type=ar&report='.$reports_landing_subtab_config.'&landing=true';
+                } else if(array_key_exists($reports_landing_subtab_config,$pnl_reports) !== FALSE) {
+                	$reports_url .= '?type=pnl&report='.$reports_landing_subtab_config.'&landing=true';
+                } else if(array_key_exists($reports_landing_subtab_config,$marketing_reports) !== FALSE) {
+                	$reports_url .= '?type=marketing&report='.$reports_landing_subtab_config.'&landing=true';
+                } else if(array_key_exists($reports_landing_subtab_config,$compensation_reports) !== FALSE) {
+                	$reports_url .= '?type=compensation&report='.$reports_landing_subtab_config.'&landing=true';
+                } else if(array_key_exists($reports_landing_subtab_config,$customer_reports) !== FALSE) {
+                	$reports_url .= '?type=customer&report='.$reports_landing_subtab_config.'&landing=true';
+                } else if(array_key_exists($reports_landing_subtab_config,$staff_reports) !== FALSE) {
+                	$reports_url .= '?type=staff&report='.$reports_landing_subtab_config.'&landing=true';
                 }
 
                 return ['link'=>'Reports/'.$reports_url,'name'=>'Reports'];
@@ -276,7 +248,7 @@ function tile_data($dbc, $tile_name, $is_mobile = FALSE) {
 			case 'day_program': return ['link'=>"Day Program/day_program.php",'name'=>'Day Program']; break;
 			case 'match': return ['link'=>"Match/index.php",'name'=>'Match']; break;
 			case 'fund_development': return ['link'=>"Fund Development/funders.php",'name'=>'Fund Development']; break;
-			case 'how_to_guide': return ['link'=>"How To Guide/guides_dashboard.php",'name'=>'How To Guide']; break;
+			case 'how_to_guide': return ['link'=>"How To Guide/guides_dashboard.php",'name'=>'All Software Guide']; break;
 			case 'software_guide': return ['link'=>"Software Guide/index.php",'name'=>'Software Guide']; break;
 			case 'charts': return ['link'=>"Medical Charts/index.php",'name'=>'Charts']; break;
 			case 'daily_log_notes': return ['link'=>"Daily Log Notes/index.php",'name'=>'Daily Log Notes']; break;
@@ -299,6 +271,7 @@ function tile_data($dbc, $tile_name, $is_mobile = FALSE) {
 			case 'confirm': return ['link'=>"Confirmation/confirmation.php",'name'=>'Confirmation']; break;
 			case 'archiveddata': return ['link'=>"Archived/archived_data.php",'name'=>'Archived Data']; break;
 			case 'ffmsupport': return ['link'=>"Support/support.php",'name'=>'FFM Support']; break;
+			case 'customer_support': return ['link'=>"Support/customer_support.php",'name'=>'Customer Support']; break;
     		case 'interactive_calendar': return ['link'=>"Interactive Calendar/interactive_calendar.php",'name'=>'Interactive Calendar']; break;
     		case 'properties': return ['link'=>"Properties/properties.php",'name'=>'Properties']; break;
     		case 'training_quiz': return ['link'=>"TrainingQuizzes/orientation_training.php",'name'=>'Training & Quizzes']; break;
@@ -346,15 +319,21 @@ function tile_data($dbc, $tile_name, $is_mobile = FALSE) {
 			case 'ticket':
 				if(!is_array($tile_name)) {
 					return ['link'=>"Ticket/index.php",'name'=>TICKET_TILE];
-				} else if(get_config($dbc, 'ticket_type_tiles') == 'SHOW') {
-					$ticket_types = explode(',',get_config($dbc,'ticket_tabs'));
-					foreach($ticket_types as $type) {
-						$type_string = preg_replace('/[^a-z_]/','',str_replace(' ','_',strtolower($type)));
-						if($type == $tile_name[1]) {
-							return ['link'=>"Ticket/index.php?tile_name=".$type_string,'name'=>$type];
-						}
-					}
-				} break;
+				} else {
+                    $ticket_type_tiles = get_config($dbc, 'ticket_type_tiles');
+                    if($ticket_type_tiles == 'SHOW' || in_array($sub_tile,explode(',',$ticket_type_tiles))) {
+                        foreach(explode(',',get_config($dbc,'ticket_tabs')) as $type) {
+                            if(config_safe_str($type) == $sub_tile) {
+                                return ['link'=>"Ticket/index.php?tile_name=".config_safe_str($type),'name'=>$type];
+                            }
+                        }
+                    }
+                }
+                break;
+			case 'ticket_group':
+                $ticket_type_tile = explode('#*#',get_config($dbc, 'ticket_split_tiles_'.$sub_tile));
+                return ['link'=>"Ticket/index.php?tile_group=".$sub_tile,'name'=>$ticket_type_tile[0]];
+                break;
 			case 'documents_all':
 				if(!is_array($tile_name)) {
 					return ['link'=>"Documents/index.php",'name'=>'Documents'];
@@ -369,7 +348,7 @@ function tile_data($dbc, $tile_name, $is_mobile = FALSE) {
 				} break;
             case 'website': return ['link'=>"Website/website.php",'name'=>'Website']; break;
             case 'non_verbal_communication': return ['link'=>"Non Verbal Communication/index.php",'name'=>'Emoji Comm']; break;
-            case 'vendors': return ['link'=>"Vendors/contacts_inbox.php",'name'=>'Vendors']; break;
+            case 'vendors': return ['link'=>"Vendors/contacts_inbox.php",'name'=>VENDOR_TILE]; break;
 			case 'quote': return ['link'=>"Quote/quotes.php",'name'=>'Quotes']; break;
 			case 'cost_estimate': return ['link'=>"Cost Estimate/estimate.php",'name'=>'Cost Estimates']; break;
 			case 'optimize': return ['link'=>"Optimize/index.php",'name'=>'Trip Optimizer']; break;

@@ -12,7 +12,9 @@ if(!empty($_POST['complete_form'])) {
     $user_id = (empty($_SESSION['contactid']) ? 0 : $_SESSION['contactid']);
     $result = mysqli_query($dbc, "SELECT * FROM `user_form_assign` WHERE `form_id`='$form_id' AND '$assign_id' IN (`assign_id`,'') AND `completed_date` IS NULL");
 
-    $intakeid = $_POST['intakeid'];
+    // Create a separate revision for each change to the form
+    // $intakeid = $_POST['intakeid'];
+    $intakeid = 0;
     if(!empty($intakeid)) {
         $pdf_id = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `intake` WHERE `intakeid` = '$intakeid'"))['pdf_id'];
     } else {
@@ -65,22 +67,46 @@ if(!empty($_POST['complete_form'])) {
         $query_insert_upload = "INSERT INTO `intake` (`intakeformid`, `pdf_id`, `name`, `email`, `phone`, `intake_file`, `received_date`) VALUES ('$intakeformid', '$pdf_id', '$name', '$email', '$phone', 'download/$pdf_name', '$today_date')";
         $result_insert_upload = mysqli_query($dbc, $query_insert_upload);
         $intakeid = mysqli_insert_id($dbc);
+        $before_change = "";
+        $history = "Intake entry has been added. <br />";
+  	    add_update_history($dbc, 'intake_history', $history, '', $before_change);
     } else {
         $new_intake = false;
+        $before_change = capture_before_change($dbc, 'intake', 'pdf_id', 'intakeid', $intakeid);
+        $before_change .= capture_before_change($dbc, 'intake', 'name', 'intakeid', $intakeid);
+        $before_change .= capture_before_change($dbc, 'intake', 'email', 'intakeid', $intakeid);
+        $before_change .= capture_before_change($dbc, 'intake', 'phone', 'intakeid', $intakeid);
+        $before_change .= capture_before_change($dbc, 'intake', 'intake_file', 'intakeid', $intakeid);
+        $before_change .= capture_before_change($dbc, 'intake', 'received_date', 'intakeid', $intakeid);
+
         $query_update_upload = "UPDATE `intake` SET `pdf_id` = '$pdf_id', `name` = '$name', `email` = '$email', `phone` = '$phone', `intake_file` = 'download/$pdf_name', `received_date` = '$today_date' WHERE `intakeid` = '$intakeid'";
         $result_update_upload = mysqli_query($dbc, $query_update_upload);
+
+        $history = capture_after_change('pdf_id', $pdf_id);
+        $history .= capture_after_change('name', $name);
+        $history .= capture_after_change('email', $email);
+        $history .= capture_after_change('phone', $phone);
+        $history .= capture_after_change('intake_file', $pdf_name);
+        $history .= capture_after_change('received_date', $today_date);
+
+    	  add_update_history($dbc, 'intake_history', $history, '', $before_change);
     }
 
     $pdf->writeHTML(utf8_encode('<form action="" method="POST">'.$pdf_text.'</form>'), true, false, true, false, '');
 
     include('../Form Builder/generate_form_pdf_page.php');
+    $before_change = capture_before_change($dbc, 'intake', 'ticket_description', 'intakeid', $intakeid);
+
     mysqli_query($dbc, "UPDATE `intake` SET `ticket_description` = '".htmlentities($ticket_description)."' WHERE `intakeid` = '$intakeid'");
+
+    $history = capture_after_change('ticket_description', htmlentities($ticket_description));
+	  add_update_history($dbc, 'intake_history', $history, '', $before_change);
 
     if(!file_exists('download')) {
         mkdir('download', 0777, true);
     }
     $pdf->Output('download/'.$pdf_name, 'F');
-    
+
     if(empty($_SESSION['contactid'])) {
         $url = $_SERVER['REQUEST_URI'].'&complete=true';
     } else if(!empty($_POST['projectid'])) {
@@ -98,13 +124,27 @@ if(!empty($_POST['complete_form'])) {
 
         if(!empty($_POST['projectid'])) {
             $projectid = $_POST['projectid'];
-            $project_milestone = $_POST['project_milestone'];
-            mysqli_query($dbc, "UPDATE `intake` SET `projectid` = '$projectid', `project_milestone` = '$project_milestone' $assigned_date_query WHERE `intakeid` = '$intakeid'");  
+            $project_milestone = $_POST['milestone'];
+            $before_change = capture_before_change($dbc, 'intake', 'projectid', 'intakeid', $intakeid);
+            $before_change .= capture_before_change($dbc, 'intake', 'project_milestone', 'intakeid', $intakeid);
+
+            mysqli_query($dbc, "UPDATE `intake` SET `projectid` = '$projectid', `project_milestone` = '$project_milestone' $assigned_date_query WHERE `intakeid` = '$intakeid'");
+
+            $history = capture_after_change('projectid', $projectid);
+            $history .= capture_after_change('project_milestone', $project_milestone);
+        	  add_update_history($dbc, 'intake_history', $history, '', $before_change);
         } else if(!empty($_POST['salesid'])) {
             $salesid = $_POST['salesid'];
             $sales_milestone = $_POST['sales_milestone'];
+            $before_change = capture_before_change($dbc, 'intake', 'salesid', 'intakeid', $intakeid);
+            $before_change .= capture_before_change($dbc, 'intake', 'sales_milestone', 'intakeid', $intakeid);
+
             mysqli_query($dbc, "UPDATE `intake` SET `salesid` = '$salesid', `sales_milestone` = '$sales_milestone' $assigned_date_query WHERE `intakeid` = '$intakeid'");
-            
+
+            $history = capture_after_change('salesid', $salesid);
+            $history .= capture_after_change('sales_milestone', $sales_milestone);
+        	  add_update_history($dbc, 'intake_history', $history, '', $before_change);
+
             include('../Intake/attach_services_sales.php');
         }
 
@@ -178,11 +218,11 @@ if(!empty($_POST['complete_form'])) {
         <h1 style="margin-top: 0; padding-top: 0;"><a href="intake.php?tab=softwareforms">Intake</a></h1>
     <?php } else { ?>
         <h1><?= $intake_form['form_name'] ?></h1>
-        <?php if(!empty($_SESSION['contactid'])) { ?>
+        <?php if(!empty($_SESSION['contactid']) && !IFRAME_PAGE) { ?>
             <div class="gap-top double-gap-bottom"><a href="intake.php?tab=softwareforms" class="btn config-btn">Back to Dashboard</a></div>
         <?php } ?>
     <?php } ?>
-    
+
     <form name="assign_form" method="post" action="" class="form-horizontal" role="form" <?= $user_form_layout == 'Sidebar' ? 'style="padding: 0; margin: 0; border-top: 1px solid #E1E1E1;"' : '' ?>>
         <input type="hidden" name="intakeformid" value="<?= $intakeformid ?>">
         <input type="hidden" name="salesid" value="<?= $_GET['salesid'] ?>">
@@ -195,8 +235,32 @@ if(!empty($_POST['complete_form'])) {
             $intakeid = $_GET['intakeid'];
             $get_intake = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `intake` WHERE `intakeid` = '$intakeid'"));
             $pdf_id = $get_intake['pdf_id'];
+            $projectid = $get_intake['projectid'];
             echo '<input type="hidden" name="intakeid" value="'.$intakeid.'">';
+        } else {
+            $projectid = filter_var($_GET['projectid'],FILTER_SANITIZE_STRING);
         }
+        if ( strpos($value_config, ',Hide Project,') === false ) { ?>
+            <script>
+            $(document).ready(function() {
+                $('select[name=projectid]').change(function() {
+                    projectid = $(this).val();
+                    $('#project_path').show().load('project_path.php?projectid='+projectid+'&intakeid=<?= $_GET['intakeid'] ?>');
+                });
+            });
+            </script>
+            <div class="form-group">
+                <label class="col-sm-4 control-label"><?= PROJECT_NOUN ?>:</label>
+                <div class="col-sm-8">
+                    <select name="projectid" id="projectid" data-placeholder="Select a <?= PROJECT_NOUN ?>" class="chosen-select-deselect form-control"><option />
+                        <?php foreach (mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `project` WHERE `deleted` = 0"),MYSQLI_ASSOC) as $project) { ?>
+                            <option <?= $projectid == $project['projectid'] ? 'selected' : '' ?> value="<?= $project['projectid'] ?>"><?= get_project_label($dbc, $project) ?></option>
+                        <?php } ?>
+                    </select>
+                </div>
+            </div>
+            <div id="project_path"><?php include('project_path.php'); ?></div>
+        <?php }
         if($user_form_layout == 'Sidebar') {
             include('user_forms_sidebar.php');
         }

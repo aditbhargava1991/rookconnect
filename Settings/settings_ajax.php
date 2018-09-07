@@ -127,3 +127,36 @@ else if($fill == 'ticket_slider') {
 	$contactid = $_POST['contactid'];
 	set_user_settings($dbc, $field_name, $value);
 }
+else if($fill == 'notifications') {
+	$enabled = filter_var($_POST['enabled'],FILTER_SANITIZE_STRING);
+	$frequency = filter_var($_POST['frequency'],FILTER_SANITIZE_STRING);
+	$alert_hour = filter_var($_POST['alert_hour'],FILTER_SANITIZE_STRING);
+	$alert_days = filter_var($_POST['alert_days'],FILTER_SANITIZE_STRING);
+	$alerts = filter_var($_POST['alerts'],FILTER_SANITIZE_STRING);
+	$software_default = filter_var($_POST['software_default'],FILTER_SANITIZE_STRING);
+	$contactid = filter_var($_POST['contactid'],FILTER_SANITIZE_STRING);
+
+	if($software_default == 1) {
+		mysqli_query($dbc, "INSERT INTO `field_config_email_alerts` (`software_default`) SELECT 1 FROM (SELECT COUNT(*) rows FROM `field_config_email_alerts` WHERE `software_default` = 1) num WHERE num.rows=0");
+		$query_filter = " `software_default` = 1";
+		
+		mysqli_query($dbc, "UPDATE `journal_notifications` SET `email_sent` = 1 WHERE `contactid` NOT IN (SELECT `contactid` FROM `field_config_email_alerts` WHERE `contactid` > 0)");
+	} else if($contactid > 0) {
+		mysqli_query($dbc, "INSERT INTO `field_config_email_alerts` (`contactid`) SELECT '$contactid' FROM (SELECT COUNT(*) rows FROM `field_config_email_alerts` WHERE `contactid` = '$contactid') num WHERE num.rows=0");
+		$query_filter = " `contactid` = '$contactid'";
+
+		mysqli_query($dbc, "UPDATE `journal_notifications` SET `email_sent` = 1 WHERE `contactid` = '$contactid'");
+	}
+
+	if(!empty($query_filter)) {
+		echo $query_update = "UPDATE `field_config_email_alerts` SET `enabled` = '$enabled', `frequency` = '$frequency', `alert_hour` = '$alert_hour', `alert_days` = '$alert_days', `alerts` = '$alerts' WHERE ".$query_filter;
+		mysqli_query($dbc, $query_update);
+	}
+}else if($fill == 'desktop_notifications') {
+    $enabled = filter_var($_POST['enabled'],FILTER_SANITIZE_STRING);
+    mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='$enabled' WHERE `name`='desktop_notification_enabled'");
+}else if($fill == 'desktop_notifications_user') {
+    $enabled = filter_var($_POST['enabled'],FILTER_SANITIZE_STRING);
+    $contactid = filter_var($_POST['contactid'],FILTER_SANITIZE_STRING);
+    mysqli_query($dbc, "UPDATE `contacts` SET `desktop_notification`='$enabled' WHERE `contactid`='$contactid'");
+}

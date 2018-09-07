@@ -43,31 +43,33 @@ checkAuthorised('intake'); ?>
 		$get_field_config	= mysqli_fetch_assoc ( mysqli_query ( $dbc, "SELECT `intake_dashboard` FROM `field_config` WHERE `fieldconfigid`=1" ) );
 		$value_config		= ',' . $get_field_config['intake_dashboard'] . ',';
 
-		echo '<table class="table table-bordered">';
-			echo '<tr class="hidden-xs hidden-sm">';
-				if ( strpos($value_config, ',Form ID,') !== false ) {
-					echo '<th>Form ID</th>';
-				}
-				if ( strpos($value_config, ',Category,') !== false ) {
-					echo '<th>Category</th>';
-				}
-				if ( strpos($value_config, ',Name,') !== false ) {
-					echo '<th>Name</th>';
-				}
-				if ( strpos($value_config, ',Email,') !== false ) {
-					echo '<th>Email</th>';
-				}
-				if ( strpos($value_config, ',Phone,') !== false ) {
-					echo '<th>Phone</th>';
-				}
-				if ( strpos($value_config, ',Received Date,') !== false ) {
-					echo '<th>Received Date</th>';
-				}
-				if ( strpos($value_config, ',PDF Form,') !== false ) {
-					echo '<th>PDF Form</th>';
-				}
-				echo '<th>Function</th>';
-			echo '</tr>';
+		echo '<table class="table table-bordered table-striped">';
+            echo '<thead>';
+                echo '<tr class="hidden-xs hidden-sm">';
+                    if ( strpos($value_config, ',Form ID,') !== false ) {
+                        echo '<th>Form ID</th>';
+                    }
+                    if ( strpos($value_config, ',Category,') !== false ) {
+                        echo '<th>Category</th>';
+                    }
+                    if ( strpos($value_config, ',Name,') !== false ) {
+                        echo '<th>Name</th>';
+                    }
+                    if ( strpos($value_config, ',Email,') !== false ) {
+                        echo '<th>Email</th>';
+                    }
+                    if ( strpos($value_config, ',Phone,') !== false ) {
+                        echo '<th>Phone</th>';
+                    }
+                    if ( strpos($value_config, ',Received Date,') !== false ) {
+                        echo '<th>Received Date</th>';
+                    }
+                    if ( strpos($value_config, ',PDF Form,') !== false ) {
+                        echo '<th>PDF Form</th>';
+                    }
+                    echo '<th>Function</th>';
+                echo '</tr>';
+            echo '</thead>';
 
 			while ( $row = mysqli_fetch_array($result) ) {
 				echo '<tr>';

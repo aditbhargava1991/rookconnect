@@ -1,4 +1,4 @@
-<?php if($_POST['export'] != '' || $_POST['import'] == 'template') {
+<?php if($_POST['export'] != '' || (!empty($_POST['import']) && $_POST['import'] != 'file')) {
 	set_time_limit(1800);
 	include_once('ticket_field_list.php');
 	if($_POST['import'] == 'template') {
@@ -9,6 +9,11 @@
 		while($type_fields = mysqli_fetch_assoc($type_configs)) {
 			$value_config .= $type_fields['value'].',';
 		}
+	} else if(!empty($_POST['import'])) {
+		$type = filter_var($_POST['import'],FILTER_SANITIZE_STRING);
+		$file_name = 'export/import_'.$type.'_template.csv';
+		$tickets = mysqli_query($dbc, "SELECT * FROM `tickets` LIMIT 1");
+		$value_config = get_field_config($dbc,'tickets').get_config($dbc, 'ticket_fields_'.$type).',';
 	} else {
 		$type = filter_var($_POST['export'],FILTER_SANITIZE_STRING);
 		$file_name = 'export/export_'.$type.'_'.date('Y_m_d').'.csv';
@@ -33,7 +38,9 @@
 	foreach(explode(',', 'REQUIRED'.$value_config) as $config) {
 		foreach(ticket_field_name($config, 0) as $field_data) {
 			$count = 1;
-			if(!empty($field_data[3]) && empty($counts[$field_data[3]])) {
+			if(!empty($_POST['import'])) {
+                $counts[$field_data[3]] = 1;
+            } else if(!empty($field_data[3]) && empty($counts[$field_data[3]])) {
 				$counts[$field_data[3]] = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT MAX(`rows`) `max` FROM (SELECT COUNT(*) `rows` FROM `".$field_data[3]."` WHERE `deleted`=0 AND `ticketid` IN (SELECT `ticketid` FROM `tickets` WHERE `deleted`=0) GROUP BY `ticketid`) `num`"))['max'];
 				$counts[$field_data[3]] = $counts[$field_data[3]] > 0 ? $counts[$field_data[3]] : 1;
 			}
@@ -48,7 +55,7 @@
     }
 	$export = fopen($file_name,'w');
 	fputcsv($export,$headings);
-	if($_POST['import'] != 'template') {
+	if(empty($_POST['import'])) {
 		do {
 			$ticket_fields = [];
 			foreach(explode(',','REQUIRED'.$value_config) as $config) {
@@ -553,8 +560,7 @@ $db_config = explode(',',$db_config);
 $ticket_type = ''; ?>
 
 <form class="form-horizontal margin-vertical margin-horizontal" action="" method="POST" enctype="multipart/form-data">
-	<h2>Import / Export <?= TICKET_TILE ?></h2><?php
-    $notes = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT note FROM notes_setting WHERE subtab='tickets_import_export'"));
+    <?php $notes = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT note FROM notes_setting WHERE subtab='tickets_import_export'"));
     $note = $notes['note'];
     if ( !empty($note) ) { ?>
         <div class="notice popover-examples">
@@ -568,11 +574,11 @@ $ticket_type = ''; ?>
 		<label class="col-sm-4">Export <?= TICKET_TILE ?></label>
 		<div class="col-sm-8">
 			<?php foreach($ticket_types as $type => $type_name) {
-				if($_GET['tile_name'] == '' || $_GET['tile_name'] == $type) { ?>
+				if(empty($_GET['tile_name']) || $_GET['tile_name'] == $type) { ?>
 					<button name="export" value="<?= $type ?>" type="submit" class="btn brand-btn">Export <?= $type_name ?></button>
+					<button name="import" value="<?= $type == 'ALL' ? 'template' : $type ?>" type="submit" class="btn brand-btn"><?= $type_name ?> Template</button>
 				<?php }
 			} ?>
-			<button name="import" value="template" type="submit" class="btn brand-btn">Download Import Template</button>
 		</div>
 	</div>
 	<?php if(in_array('Export Business', $db_config)) { ?>

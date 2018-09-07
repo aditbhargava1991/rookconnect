@@ -1,5 +1,5 @@
 <?php
-if(!$action_mode && !$overview_mode) {
+if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) {
 	if(in_array('TEMPLATE Work Ticket', $all_config) || in_array('TEMPLATE Work Ticket', $value_config)) {
 		$value_config = ['TEMPLATE Work Ticket'];
 		$all_config = ['Information','PI Business','PI Name','PI Project','PI AFE','PI Sites','Staff','Staff Position','Staff Hours','Staff Overtime','Staff Travel','Staff Subsistence','Services','Service Category','Equipment','Materials','Material Quantity','Material Rates','Purchase Orders','Notes'];
@@ -39,6 +39,24 @@ if(!$action_mode && !$overview_mode) {
 			<span class="popover-examples"><a data-toggle="tooltip" data-original-title="If this is enabled, the Finish button will create a Recurring ticket if it has a status of the Recurring status set below."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Finish Button Creates Recurring <?= TICKET_NOUN ?></label>
 		<label class="form-checkbox"><input type="checkbox" <?= in_array("Finish Button Hide", $all_config) ? 'checked disabled' : (in_array("Finish Button Hide", $value_config) ? "checked" : '') ?> value="Finish Button Hide" name="tickets[]">
 			<span class="popover-examples"><a data-toggle="tooltip" data-original-title="If this is enabled, the Finish button will be hidden, and you will only have the Save Button."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Hide Finish Button</label>
+		<label class="form-checkbox"><input type="checkbox" <?= in_array("Delete Button Add Note", $all_config) ? 'checked disabled' : (in_array("Delete Button Add Note", $value_config) ? "checked" : '') ?> value="Delete Button Add Note" name="tickets[]">
+			<span class="popover-examples"><a data-toggle="tooltip" data-original-title="If this is enabled, the Delete button will prompt the user to add a Note."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Delete Button Add Note</label>
+		<label class="form-checkbox"><input type="checkbox" <?= in_array("Create Recurrence Button", $all_config) ? 'checked disabled' : (in_array("Create Recurrence Button", $value_config) ? "checked" : '') ?> value="Create Recurrence Button" name="tickets[]">
+			<span class="popover-examples"><a data-toggle="tooltip" data-original-title="If this is enabled, the Create Recurrence button will allow creating Recurrences of the <?= TICKET_NOUN ?>."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Create Recurrence Button</label>
+		<div class="form-group">
+			<label class="col-sm-4 control-label"><span class="popover-examples"><a data-toggle="tooltip" data-original-title="This setting will dictate how far ahead the software will create Recurring <?= TICKET_TILE ?> (eg. visible in the software) that are ongoing, and will continue creating <?= TICKET_TILE ?> on an ongoing basis up to the selected amount here. This is required as the software cannot create an infinite number of <?= TICKET_TILE ?>."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Ongoing Recurring <?= TICKET_TILE ?> Sync Up To:</label>
+			<div class="col-sm-8">
+				<?php $ticket_recurrence_sync_upto = !empty(get_config($dbc, 'ticket_recurrence_sync_upto')) ? get_config($dbc, 'ticket_recurrence_sync_upto') : '2 years'; ?>
+				<select name="ticket_recurrence_sync_upto" class="chosen-select-deselect form-control">
+					<?php for($i = 1; $i <= 11; $i++) {
+						echo '<option value="'.$i.' months" '.($ticket_recurrence_sync_upto == $i.' months' ? 'selected' : '').'>'.$i.' Month'.($i > 1 ? 's' : '').'</option>';
+					}
+					for($i = 1; $i <= 5; $i++) {
+						echo '<option value="'.$i.' years" '.($ticket_recurrence_sync_upto == $i.' years' ? 'selected' : '').'>'.$i.' Year'.($i > 1 ? 's' : '').'</option>';
+					} ?>
+				</select>
+			</div>
+		</div>
 		<div class="form-group">
 			<label class="col-sm-4 control-label">Labels for Multiple <?= TICKET_TILE ?>:<br /><em>Separate labels with a comma. Each successive <?= TICKET_NOUN ?> will use the next label.</em></label>
 			<div class="col-sm-8">
@@ -113,7 +131,7 @@ if(!$action_mode && !$overview_mode) {
 	</div>
 <?php } ?>
 
-<h4 class="double-gap-top"><?= TICKET_NOUN ?><?= $action_mode ? ' Action Mode' : ($overview_mode ? ' Overview' : '') ?> Fields</h4>
+<h4 class="double-gap-top"><?= TICKET_NOUN ?><?= $action_mode ? ' Action Mode' : ($overview_mode ? ' Overview' : ($unlock_mode ? ' Unlocked' : ($status_fields ? 'Status' : ''))) ?> Fields</h4>
 
 <div class="accordions_sortable">
 	<?php $current_heading = '';
@@ -131,7 +149,7 @@ if(!$action_mode && !$overview_mode) {
 			if(!empty($this_heading)) { ?>
 				<div class="sort_order_heading sort_order_accordion">
 					<div class="sort_order_heading_name">
-						<?php if(!$action_mode && !$overview_mode) { ?><img src="../img/remove.png" class="inline-img" onclick="removeHigherLevelHeading(this);"><?php } ?><label class="control-label">Heading: </label><input type="text" name="sort_order_heading[]" value="<?= $this_heading ?>" class="inline form-control gap-left" onchange="updateHigherLevelHeading(this);" onfocusin="$(this).data('oldvalue', $(this).val());" <?php if($action_mode || $overview_mode) { echo 'disabled'; } ?>>
+						<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) { ?><img src="../img/remove.png" class="inline-img" onclick="removeHigherLevelHeading(this);"><?php } ?><label class="control-label">Heading: </label><input type="text" name="sort_order_heading[]" value="<?= $this_heading ?>" class="inline form-control gap-left" onchange="updateHigherLevelHeading(this);" onfocusin="$(this).data('oldvalue', $(this).val());" <?php if($action_mode || $status_fields || $overview_mode || $unlock_mode) { echo 'disabled'; } ?>>
 					</div>
 					<div class="block-group sort_order_heading_block">
 				<?php $current_heading_closed = false;
@@ -153,8 +171,10 @@ if(!$action_mode && !$overview_mode) {
 			}
 		}
 
-		if($action_mode || $overview_mode) {
+		if($action_mode || $status_fields || $overview_mode) {
 			$field_sort_order = array_intersect($field_sort_order, array_merge($all_config_fields,$value_config_fields));
+		} else if($unlock_mode) {
+			$field_sort_order = $sort_order;
 		}
 
 		//Renamed accordions
@@ -162,7 +182,7 @@ if(!$action_mode && !$overview_mode) {
 
 		if($sort_field == 'Customer History') { ?>
 			<div class="form-group sort_order_accordion" data-accordion="Customer History">
-				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Customer History Button' ?></span>:<?php if(!$action_mode && !$overview_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
+				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Customer History Button' ?></span>:<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
 					<span class="dataToggle cursor-hand no-toggle <?= in_array('project_info',$all_unlocked_tabs) ? 'disabled' : '' ?>" title="Locking a tab will hide the contents of that tab on all new <?= TICKET_TILE ?>. A user with access to edit the <?= TICKET_NOUN ?> can then unlock that tab for that <?= TICKET_NOUN ?>.<?= in_array('project_info',$all_unlocked_tabs) ? ' This tab has been locked for all '.TICKET_TILE.'.' : '' ?>">
 						<input type="hidden" name="ticket_tab_locks<?= empty($tab) ? '' : '_'.$tab ?>" value="project_info" data-toggle="<?= in_array('project_info',$unlocked_tabs) ? 1 : 0 ?>">
 						<img class="inline-img" style="<?= in_array('project_info',array_merge($unlocked_tabs,$all_unlocked_tabs)) ? '' : 'display:none;' ?>" src="../img/icons/lock.png">
@@ -208,7 +228,7 @@ if(!$action_mode && !$overview_mode) {
 
 		if($sort_field == 'Information') { ?>
 			<div class="form-group sort_order_accordion" data-accordion="Information">
-				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : PROJECT_NOUN.' Information' ?></span>:<?php if(!$action_mode && !$overview_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
+				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : PROJECT_NOUN.' Information' ?></span>:<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
 					<span class="dataToggle cursor-hand no-toggle <?= in_array('project_info',$all_unlocked_tabs) ? 'disabled' : '' ?>" title="Locking a tab will hide the contents of that tab on all new <?= TICKET_TILE ?>. A user with access to edit the <?= TICKET_NOUN ?> can then unlock that tab for that <?= TICKET_NOUN ?>.<?= in_array('project_info',$all_unlocked_tabs) ? ' This tab has been locked for all '.TICKET_TILE.'.' : '' ?>">
 						<input type="hidden" name="ticket_tab_locks<?= empty($tab) ? '' : '_'.$tab ?>" value="project_info" data-toggle="<?= in_array('project_info',$unlocked_tabs) ? 1 : 0 ?>">
 						<img class="inline-img" style="<?= in_array('project_info',array_merge($unlocked_tabs,$all_unlocked_tabs)) ? '' : 'display:none;' ?>" src="../img/icons/lock.png">
@@ -228,6 +248,10 @@ if(!$action_mode && !$overview_mode) {
 							<?php if($field_sort_field == 'PI Name') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("PI Name", $all_config) ? 'checked disabled' : (in_array("PI Name", $value_config) ? "checked" : '') ?> value="PI Name" name="tickets[]">
 									<span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will create a list of <?= CONTACTS_TILE ?>, excluding <?= BUSINESS_CAT ?> or <?= CONTACTS_TILE ?> attached to the selected <?= BUSINESS_CAT ?>."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Contact</label>
+							<?php } ?>
+							<?php if($field_sort_field == 'PI Guardian') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("PI Guardian", $all_config) ? 'checked disabled' : (in_array("PI Guardian", $value_config) ? "checked" : '') ?> value="PI Guardian" name="tickets[]">
+									<span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will create a list of <?= CONTACTS_TILE ?> based on the selected category below, which is the Parent/Guardian of the Main Contact."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Parent/Guardian</label>
 							<?php } ?>
 							<?php if($field_sort_field == 'PI AFE') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("PI AFE", $all_config) ? 'checked disabled' : (in_array("PI AFE", $value_config) ? "checked" : '') ?> value="PI AFE" name="tickets[]"> AFE #</label>
@@ -280,6 +304,9 @@ if(!$action_mode && !$overview_mode) {
 							<?php if($field_sort_field == 'PI Work Order') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("PI Work Order", $all_config) ? 'checked disabled' : (in_array("PI Work Order", $value_config) ? "checked" : '') ?> value="PI Work Order" name="tickets[]"> Work Order #</label>
 							<?php } ?>
+							<?php if($field_sort_field == 'PI Scheduled Date') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("PI Scheduled Date", $all_config) ? 'checked disabled' : (in_array("PI Scheduled Date", $value_config) ? "checked" : '') ?> value="PI Scheduled Date" name="tickets[]"> Scheduled Date</label>
+							<?php } ?>
 							<?php if($field_sort_field == 'PI Date of Entry') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("PI Date of Entry", $all_config) ? 'checked disabled' : (in_array("PI Date of Entry", $value_config) ? "checked" : '') ?> value="PI Date of Entry" name="tickets[]"> Date of Entry</label>
 							<?php } ?>
@@ -321,7 +348,7 @@ if(!$action_mode && !$overview_mode) {
 							<?php } ?>
 						<?php } ?>
 						</div>
-						<?php if(!$action_mode && !$overview_mode) { ?>
+						<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) { ?>
 							<div class="form-group">
 								<?php $ticket_business_contact = get_config($dbc, 'ticket_business_contact'); ?>
 								<label class="col-sm-4 control-label"><span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will specify a category for the <?= CONTACTS_TILE ?> in the Contact list."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Category for Main Contact<?= $ticket_business_contact != '' && $tab != '' ? ' (Default: '.$ticket_business_contact.')' : '' ?>:</label>
@@ -330,6 +357,28 @@ if(!$action_mode && !$overview_mode) {
 										<?php $tab_ticket_business_contact = get_config($dbc, 'ticket_business_contact'.($tab == '' ? '' : '_'.$tab));
 										foreach(explode(',',get_config($dbc, 'all_contact_tabs')) as $category) { ?>
 											<option <?= $category == $tab_ticket_business_contact ? 'selected' : '' ?> value="<?= $category ?>"><?= $category ?></option>
+										<?php } ?>
+									</select>
+								</div>
+							</div>
+							<div class="form-group">
+								<?php $ticket_business_contact_add_pos = get_config($dbc, 'ticket_business_contact_add_pos'); ?>
+								<label class="col-sm-4 control-label"><span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will specify the position of the Add New Contact option in the dropdown for the Main Contact."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Add New Main Contact Position In Dropdown:</label>
+								<div class="col-sm-8">
+									<select name="ticket_business_contact_add_pos" data-placeholder="Select Category" class="chosen-select-deselect">
+										<option <?= $ticket_business_contact_add_pos != 'top' ? 'selected' : ''?>>Bottom</option>
+										<option value="top" <?= $ticket_business_contact_add_pos == 'top' ? 'selected' : '' ?>>Top</option>
+									</select>
+								</div>
+							</div>
+							<div class="form-group">
+								<?php $ticket_guardian_contact = get_config($dbc, 'ticket_guardian_contact'); ?>
+								<label class="col-sm-4 control-label"><span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will specify a category for the Parent/Guardian in the Contact list."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Category for Parent/Guardian<?= $ticket_guardian_contact != '' && $tab != '' ? ' (Default: '.$ticket_guardian_contact.')' : '' ?>:</label>
+								<div class="col-sm-8">
+									<select name="ticket_guardian_contact<?= $tab == '' ? '' : '_'.$tab ?>" data-placeholder="Select Category" class="chosen-select-deselect"><option></option>
+										<?php $tab_ticket_guardian_contact = get_config($dbc, 'ticket_guardian_contact'.($tab == '' ? '' : '_'.$tab));
+										foreach(explode(',',get_config($dbc, 'all_contact_tabs')) as $category) { ?>
+											<option <?= $category == $tab_ticket_guardian_contact ? 'selected' : '' ?> value="<?= $category ?>"><?= $category ?></option>
 										<?php } ?>
 									</select>
 								</div>
@@ -388,7 +437,7 @@ if(!$action_mode && !$overview_mode) {
 
 		if($sort_field == 'Purchase Order List') { ?>
 			<div class="form-group sort_order_accordion" data-accordion="Purchase Order List">
-				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Purchase Orders' ?></span>:<?php if(!$action_mode && !$overview_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
+				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Purchase Orders' ?></span>:<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
 					<span class="dataToggle cursor-hand no-toggle <?= in_array('ticket_po_number',$all_unlocked_tabs) ? 'disabled' : '' ?>" title="Locking a tab will hide the contents of that tab on all new <?= TICKET_TILE ?>. A user with access to edit the <?= TICKET_NOUN ?> can then unlock that tab for that <?= TICKET_NOUN ?>.<?= in_array('ticket_po_number',$all_unlocked_tabs) ? ' This tab has been locked for all '.TICKET_TILE.'.' : '' ?>">
 						<input type="hidden" name="ticket_tab_locks<?= empty($tab) ? '' : '_'.$tab ?>" value="ticket_po_number" data-toggle="<?= in_array('ticket_po_number',$unlocked_tabs) ? 1 : 0 ?>">
 						<img class="inline-img" style="<?= in_array('ticket_po_number',array_merge($unlocked_tabs,$all_unlocked_tabs)) ? '' : 'display:none;' ?>" src="../img/icons/lock.png">
@@ -416,7 +465,7 @@ if(!$action_mode && !$overview_mode) {
 
 		if($sort_field == 'Customer Orders') { ?>
 			<div class="form-group sort_order_accordion" data-accordion="Customer Orders">
-				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Customer Orders' ?></span>:<?php if(!$action_mode && !$overview_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
+				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Customer Orders' ?></span>:<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
 					<span class="dataToggle cursor-hand no-toggle <?= in_array('po_',$all_unlocked_tabs) ? 'disabled' : '' ?>" title="Locking a tab will hide the contents of that tab on all new <?= TICKET_TILE ?>. A user with access to edit the <?= TICKET_NOUN ?> can then unlock that tab for that <?= TICKET_NOUN ?>.<?= in_array('ticket_customer_order',$all_unlocked_tabs) ? ' This tab has been locked for all '.TICKET_TILE.'.' : '' ?>">
 						<input type="hidden" name="ticket_tab_locks<?= empty($tab) ? '' : '_'.$tab ?>" value="ticket_customer_order" data-toggle="<?= in_array('ticket_customer_order',$unlocked_tabs) ? 1 : 0 ?>">
 						<img class="inline-img" style="<?= in_array('ticket_customer_order',array_merge($unlocked_tabs,$all_unlocked_tabs)) ? '' : 'display:none;' ?>" src="../img/icons/lock.png">
@@ -444,7 +493,7 @@ if(!$action_mode && !$overview_mode) {
 
 		if($sort_field == 'Details') { ?>
 			<div class="form-group sort_order_accordion" data-accordion="Details">
-				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : PROJECT_NOUN.' Details' ?></span>:<?php if(!$action_mode && !$overview_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
+				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : PROJECT_NOUN.' Details' ?></span>:<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
 					<span class="dataToggle cursor-hand no-toggle <?= in_array('project_details',$all_unlocked_tabs) ? 'disabled' : '' ?>" title="Locking a tab will hide the contents of that tab on all new <?= TICKET_TILE ?>. A user with access to edit the <?= TICKET_NOUN ?> can then unlock that tab for that <?= TICKET_NOUN ?>.<?= in_array('project_details',$all_unlocked_tabs) ? ' This tab has been locked for all '.TICKET_TILE.'.' : '' ?>">
 						<input type="hidden" name="ticket_tab_locks<?= empty($tab) ? '' : '_'.$tab ?>" value="project_details" data-toggle="<?= in_array('project_details',$unlocked_tabs) ? 1 : 0 ?>">
 						<img class="inline-img" style="<?= in_array('project_details',array_merge($unlocked_tabs,$all_unlocked_tabs)) ? '' : 'display:none;' ?>" src="../img/icons/lock.png">
@@ -481,6 +530,14 @@ if(!$action_mode && !$overview_mode) {
 							<?php if($field_sort_field == 'Detail Date') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Detail Date", $all_config) ? 'checked disabled' : (in_array("Detail Date", $value_config) ? "checked" : '') ?> value="Detail Date" name="tickets[]">
 									<span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will allow you to specify the date of the current <?= TICKET_NOUN ?>."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Date</label>
+							<?php } ?>
+							<?php if($field_sort_field == 'Detail Start Date Time') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Detail Start Date Time", $all_config) ? 'checked disabled' : (in_array("Detail Start Date Time", $value_config) ? "checked" : '') ?> value="Detail Start Date Time" name="tickets[]">
+									<span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will allow you to specify the start date and time of the current <?= TICKET_NOUN ?>."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Scheduled Start Date &amp; Time</label>
+							<?php } ?>
+							<?php if($field_sort_field == 'Detail End Date Time') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Detail End Date Time", $all_config) ? 'checked disabled' : (in_array("Detail End Date Time", $value_config) ? "checked" : '') ?> value="Detail End Date Time" name="tickets[]">
+									<span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will allow you to specify the end date and time of the current <?= TICKET_NOUN ?>."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Scheduled End Date &amp; Time</label>
 							<?php } ?>
 							<?php if($field_sort_field == 'Detail Staff') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Detail Staff", $all_config) ? 'checked disabled' : (in_array("Detail Staff", $value_config) ? "checked" : '') ?> value="Detail Staff" name="tickets[]">
@@ -532,7 +589,7 @@ if(!$action_mode && !$overview_mode) {
 
 		if($sort_field == 'Contact Notes') { ?>
 			<div class="form-group sort_order_accordion" data-accordion="Contact Notes">
-				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : CONTACTS_NOUN.' Notes' ?></span>:<?php if(!$action_mode && !$overview_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
+				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : CONTACTS_NOUN.' Notes' ?></span>:<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
 					<span class="dataToggle cursor-hand no-toggle <?= in_array('contact_notes',$all_unlocked_tabs) ? 'disabled' : '' ?>" title="Locking a tab will hide the contents of that tab on all new <?= TICKET_TILE ?>. A user with access to edit the <?= TICKET_NOUN ?> can then unlock that tab for that <?= TICKET_NOUN ?>.<?= in_array('project_details',$all_unlocked_tabs) ? ' This tab has been locked for all '.TICKET_TILE.'.' : '' ?>">
 						<input type="hidden" name="ticket_tab_locks<?= empty($tab) ? '' : '_'.$tab ?>" value="contact_notes" data-toggle="<?= in_array('contact_notes',$unlocked_tabs) ? 1 : 0 ?>">
 						<img class="inline-img" style="<?= in_array('contact_notes',array_merge($unlocked_tabs,$all_unlocked_tabs)) ? '' : 'display:none;' ?>" src="../img/icons/lock.png">
@@ -570,7 +627,7 @@ if(!$action_mode && !$overview_mode) {
 
 		if($sort_field == 'Individuals') { ?>
 			<div class="form-group sort_order_accordion" data-accordion="Individuals">
-				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Individuals Present' ?></span>:<?php if(!$action_mode && !$overview_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
+				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Individuals Present' ?></span>:<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
 					<span class="dataToggle cursor-hand no-toggle <?= in_array('ticket_individuals',$all_unlocked_tabs) ? 'disabled' : '' ?>" title="Locking a tab will hide the contents of that tab on all new <?= TICKET_TILE ?>. A user with access to edit the <?= TICKET_NOUN ?> can then unlock that tab for that <?= TICKET_NOUN ?>.<?= in_array('ticket_individuals',$all_unlocked_tabs) ? ' This tab has been locked for all '.TICKET_TILE.'.' : '' ?>">
 						<input type="hidden" name="ticket_tab_locks<?= empty($tab) ? '' : '_'.$tab ?>" value="ticket_individuals" data-toggle="<?= in_array('ticket_individuals',$unlocked_tabs) ? 1 : 0 ?>">
 						<img class="inline-img" style="<?= in_array('ticket_individuals',array_merge($unlocked_tabs,$all_unlocked_tabs)) ? '' : 'display:none;' ?>" src="../img/icons/lock.png">
@@ -581,7 +638,7 @@ if(!$action_mode && !$overview_mode) {
 				<div class="col-sm-8">
 					<label class="form-checkbox"><input type="checkbox" <?= in_array("Individuals", $all_config) ? 'checked disabled' : (in_array("Individuals", $value_config) ? "checked" : '') ?> value="Individuals" name="tickets[]">
 						<span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will allow you to specify any <?= CONTACTS_TILE ?> for the <?= TICKET_NOUN ?>, or write in additional names."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Enable</label>
-					<?php if(!$action_mode && !$overview_mode) { ?>
+					<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) { ?>
 						<div class="block-group">
 							<div class="hide-titles-mob">
 								<label class="col-sm-5">Tile</label>
@@ -614,7 +671,7 @@ if(!$action_mode && !$overview_mode) {
 												<option <?= $type[0] == 'staff' ? 'selected' : '' ?> value="staff">Staff</option>
 											<?php } ?>
 											<?php if(tile_enabled($dbc, 'vendors')) { ?>
-												<option <?= $type[0] == 'vendors' ? 'selected' : '' ?> value="vendors">Vendors</option>
+												<option <?= $type[0] == 'vendors' ? 'selected' : '' ?> value="vendors"><?= VENDOR_TILE ?></option>
 											<?php } ?>
 											<option <?= $type[0] == 'custom' ? 'selected' : '' ?> value="custom">Custom Categories</option>
 										</select>
@@ -665,7 +722,7 @@ if(!$action_mode && !$overview_mode) {
 
 		if($sort_field == 'Path & Milestone') { ?>
 			<div class="form-group sort_order_accordion" data-accordion="Path & Milestone">
-				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Path & Milestone' ?></span>:<?php if(!$action_mode && !$overview_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
+				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Path & Milestone' ?></span>:<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
 					<span class="dataToggle cursor-hand no-toggle <?= in_array('ticket_path_milestone',$all_unlocked_tabs) ? 'disabled' : '' ?>" title="Locking a tab will hide the contents of that tab on all new <?= TICKET_TILE ?>. A user with access to edit the <?= TICKET_NOUN ?> can then unlock that tab for that <?= TICKET_NOUN ?>.<?= in_array('ticket_path_milestone',$all_unlocked_tabs) ? ' This tab has been locked for all '.TICKET_TILE.'.' : '' ?>">
 						<input type="hidden" name="ticket_tab_locks<?= empty($tab) ? '' : '_'.$tab ?>" value="ticket_path_milestone" data-toggle="<?= in_array('ticket_path_milestone',$unlocked_tabs) ? 1 : 0 ?>">
 						<img class="inline-img" style="<?= in_array('ticket_path_milestone',array_merge($unlocked_tabs,$all_unlocked_tabs)) ? '' : 'display:none;' ?>" src="../img/icons/lock.png">
@@ -682,7 +739,7 @@ if(!$action_mode && !$overview_mode) {
 
 		if($sort_field == 'Fees') { ?>
 			<div class="form-group sort_order_accordion" data-accordion="Fees">
-				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Fees' ?></span>:<?php if(!$action_mode && !$overview_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
+				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Fees' ?></span>:<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
 					<span class="dataToggle cursor-hand no-toggle <?= in_array('ticket_fees',$all_unlocked_tabs) ? 'disabled' : '' ?>" title="Locking a tab will hide the contents of that tab on all new <?= TICKET_TILE ?>. A user with access to edit the <?= TICKET_NOUN ?> can then unlock that tab for that <?= TICKET_NOUN ?>.<?= in_array('ticket_fees',$all_unlocked_tabs) ? ' This tab has been locked for all '.TICKET_TILE.'.' : '' ?>">
 						<input type="hidden" name="ticket_tab_locks<?= empty($tab) ? '' : '_'.$tab ?>" value="ticket_fees" data-toggle="<?= in_array('ticket_fees',$unlocked_tabs) ? 1 : 0 ?>">
 						<img class="inline-img" style="<?= in_array('ticket_fees',array_merge($unlocked_tabs,$all_unlocked_tabs)) ? '' : 'display:none;' ?>" src="../img/icons/lock.png">
@@ -699,7 +756,7 @@ if(!$action_mode && !$overview_mode) {
 
 		if($sort_field == 'Location') { ?>
 			<div class="form-group sort_order_accordion" data-accordion="Location">
-				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Sites' ?></span>:<?php if(!$action_mode && !$overview_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
+				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Sites' ?></span>:<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
 					<span class="dataToggle cursor-hand no-toggle <?= in_array('ticket_location',$all_unlocked_tabs) ? 'disabled' : '' ?>" title="Locking a tab will hide the contents of that tab on all new <?= TICKET_TILE ?>. A user with access to edit the <?= TICKET_NOUN ?> can then unlock that tab for that <?= TICKET_NOUN ?>.<?= in_array('ticket_location',$all_unlocked_tabs) ? ' This tab has been locked for all '.TICKET_TILE.'.' : '' ?>">
 						<input type="hidden" name="ticket_tab_locks<?= empty($tab) ? '' : '_'.$tab ?>" value="ticket_location" data-toggle="<?= in_array('ticket_location',$unlocked_tabs) ? 1 : 0 ?>">
 						<img class="inline-img" style="<?= in_array('ticket_location',array_merge($unlocked_tabs,$all_unlocked_tabs)) ? '' : 'display:none;' ?>" src="../img/icons/lock.png">
@@ -745,7 +802,7 @@ if(!$action_mode && !$overview_mode) {
 
 		if($sort_field == 'Members ID') { ?>
 			<div class="form-group sort_order_accordion" data-accordion="Members ID">
-				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Members ID Card' ?></span>:<?php if(!$action_mode && !$overview_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
+				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Members ID Card' ?></span>:<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
 					<span class="dataToggle cursor-hand no-toggle <?= in_array('ticket_members_id_card',$all_unlocked_tabs) ? 'disabled' : '' ?>" title="Locking a tab will hide the contents of that tab on all new <?= TICKET_TILE ?>. A user with access to edit the <?= TICKET_NOUN ?> can then unlock that tab for that <?= TICKET_NOUN ?>.<?= in_array('ticket_members_id_card',$all_unlocked_tabs) ? ' This tab has been locked for all '.TICKET_TILE.'.' : '' ?>">
 						<input type="hidden" name="ticket_tab_locks<?= empty($tab) ? '' : '_'.$tab ?>" value="ticket_members_id_card" data-toggle="<?= in_array('ticket_members_id_card',$unlocked_tabs) ? 1 : 0 ?>">
 						<img class="inline-img" style="<?= in_array('ticket_members_id_card',array_merge($unlocked_tabs,$all_unlocked_tabs)) ? '' : 'display:none;' ?>" src="../img/icons/lock.png">
@@ -780,7 +837,7 @@ if(!$action_mode && !$overview_mode) {
 
 		if($sort_field == 'Mileage') { ?>
 			<div class="form-group sort_order_accordion" data-accordion="Mileage">
-				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Mileage' ?></span>:<?php if(!$action_mode && !$overview_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
+				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Mileage' ?></span>:<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
 					<span class="dataToggle cursor-hand no-toggle <?= in_array('ticket_mileage',$all_unlocked_tabs) ? 'disabled' : '' ?>" title="Locking a tab will hide the contents of that tab on all new <?= TICKET_TILE ?>. A user with access to edit the <?= TICKET_NOUN ?> can then unlock that tab for that <?= TICKET_NOUN ?>.<?= in_array('ticket_mileage',$all_unlocked_tabs) ? ' This tab has been locked for all '.TICKET_TILE.'.' : '' ?>">
 						<input type="hidden" name="ticket_tab_locks<?= empty($tab) ? '' : '_'.$tab ?>" value="ticket_mileage" data-toggle="<?= in_array('ticket_mileage',$unlocked_tabs) ? 1 : 0 ?>">
 						<img class="inline-img" style="<?= in_array('ticket_mileage',array_merge($unlocked_tabs,$all_unlocked_tabs)) ? '' : 'display:none;' ?>" src="../img/icons/lock.png">
@@ -789,11 +846,11 @@ if(!$action_mode && !$overview_mode) {
 					<input type="text" name="renamed_accordion[]" value="<?= !empty($renamed_accordion) ? $renamed_accordion : 'Mileage' ?>" onfocusout="updateAccordion(this);" class="form-control">
 				</div>
 				<div class="col-sm-8">
-					<?php if((!$action_mode && !$overview_mode) || in_array('Mileage', $merged_config_fields)) { ?>
+					<?php if((!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) || in_array('Mileage', $merged_config_fields)) { ?>
 						<label class="form-checkbox"><input type="checkbox" <?= in_array("Mileage", $all_config) ? 'checked disabled' : (in_array("Mileage", $value_config) ? "checked" : '') ?> value="Mileage" name="tickets[]">
 							<span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will allow you to track mileage for the <?= TICKET_NOUN ?>."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Enable Mileage</label>
 					<?php } ?>
-					<?php if((!$action_mode && !$overview_mode) || in_array('Drive Time', $merged_config_fields)) { ?>
+					<?php if((!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) || in_array('Drive Time', $merged_config_fields)) { ?>
 					<label class="form-checkbox"><input type="checkbox" <?= in_array("Drive Time", $all_config) ? 'checked disabled' : (in_array("Drive Time", $value_config) ? "checked" : '') ?> value="Drive Time" name="tickets[]">
 						<span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will allow you to track driving time for the <?= TICKET_NOUN ?>."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Enable Drive Time</label>
 					<?php } ?>
@@ -803,7 +860,7 @@ if(!$action_mode && !$overview_mode) {
 
 		if($sort_field == 'Staff') { ?>
 			<div class="form-group sort_order_accordion" data-accordion="Staff">
-				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Staff' ?></span>:<?php if(!$action_mode && !$overview_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
+				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Staff' ?></span>:<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
 					<span class="dataToggle cursor-hand no-toggle <?= in_array('ticket_staff_list',$all_unlocked_tabs) ? 'disabled' : '' ?>" title="Locking a tab will hide the contents of that tab on all new <?= TICKET_TILE ?>. A user with access to edit the <?= TICKET_NOUN ?> can then unlock that tab for that <?= TICKET_NOUN ?>.<?= in_array('ticket_staff_list',$all_unlocked_tabs) ? ' This tab has been locked for all '.TICKET_TILE.'.' : '' ?>">
 						<input type="hidden" name="ticket_tab_locks<?= empty($tab) ? '' : '_'.$tab ?>" value="ticket_staff_list" data-toggle="<?= in_array('ticket_staff_list',$unlocked_tabs) ? 1 : 0 ?>">
 						<img class="inline-img" style="<?= in_array('ticket_staff_list',array_merge($unlocked_tabs,$all_unlocked_tabs)) ? '' : 'display:none;' ?>" src="../img/icons/lock.png">
@@ -827,7 +884,7 @@ if(!$action_mode && !$overview_mode) {
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Staff Rate", $all_config) ? 'checked disabled' : (in_array("Staff Rate", $value_config) ? "checked" : '') ?> value="Staff Rate" name="tickets[]"> Rate (displayed for individuals with Settings Permissions)</label>
 							<?php } ?>
 							<?php if($field_sort_field == 'Staff Start') { ?>
-								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Staff Start", $all_config) ? 'checked disabled' : (in_array("Staff Start", $value_config) ? "checked" : '') ?> value="Staff Start" name="tickets[]"> Start Time</label>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Staff Start", $all_config) ? 'checked disabled' : (in_array("Staff Start", $value_config) ? "checked" : '') ?> value="Staff Start" name="tickets[]"> Shift Start Time</label>
 							<?php } ?>
 							<?php if($field_sort_field == 'Staff Set Hours') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Staff Set Hours", $all_config) ? 'checked disabled' : (in_array("Staff Set Hours", $value_config) ? "checked" : '') ?> value="Staff Set Hours" name="tickets[]"> Payable Hours</label>
@@ -862,7 +919,32 @@ if(!$action_mode && !$overview_mode) {
 							<?php if($field_sort_field == 'Staff Anyone Can Add') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Staff Anyone Can Add", $all_config) ? 'checked disabled' : (in_array("Staff Anyone Can Add", $value_config) ? "checked" : '') ?> value="Staff Anyone Can Add" name="tickets[]"> Anyone Can Add Staff</label>
 							<?php } ?>
+							<?php if($field_sort_field == 'Staff Multiple Times') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Staff Multiple Times", $all_config) ? 'checked disabled' : (in_array("Staff Multiple Times", $value_config) ? "checked" : '') ?> value="Staff Multiple Times" name="tickets[]"><span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will allow adding multiple Dates/Times to the Staff's Time Sheet. The Time Sheet will take these values over the Check In/Check Out times."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span> Multiple Dates/Times</label>
+							<?php } ?>
+							<?php if($field_sort_field == 'Staff Multiple Times Date') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Staff Multiple Times Date", $all_config) ? 'checked disabled' : (in_array("Staff Multiple Times Date", $value_config) ? "checked" : '') ?> value="Staff Multiple Times Date" name="tickets[]"> Multiple Dates/Times - Date</label>
+							<?php } ?>
+							<?php if($field_sort_field == 'Staff Multiple Times Start Time') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Staff Multiple Times Start Time", $all_config) ? 'checked disabled' : (in_array("Staff Multiple Times Start Time", $value_config) ? "checked" : '') ?> value="Staff Multiple Times Start Time" name="tickets[]"> Multiple Dates/Times - Start Time</label>
+							<?php } ?>
+							<?php if($field_sort_field == 'Staff Multiple Times End Time') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Staff Multiple Times End Time", $all_config) ? 'checked disabled' : (in_array("Staff Multiple Times End Time", $value_config) ? "checked" : '') ?> value="Staff Multiple Times End Time" name="tickets[]"> Multiple Dates/Times - End Time</label>
+							<?php } ?>
+							<?php if($field_sort_field == 'Staff Multiple Times Type') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Staff Multiple Times Type", $all_config) ? 'checked disabled' : (in_array("Staff Multiple Times Type", $value_config) ? "checked" : '') ?> value="Staff Multiple Times Type" name="tickets[]"> Multiple Dates/Times - Type of Time</label>
+							<?php } ?>
+							<?php if($field_sort_field == 'Staff Multiple Times Set Hours') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Staff Multiple Times Set Hours", $all_config) ? 'checked disabled' : (in_array("Staff Multiple Times Set Hours", $value_config) ? "checked" : '') ?> value="Staff Multiple Times Set Hours" name="tickets[]"> Multiple Dates/Times - Payable Hours</label>
+							<?php } ?>
 						<?php } ?>
+						</div>
+						<div class="form-group">
+							<label class="col-sm-4">Default Travel Time:</label>
+							<div class="col-sm-8">
+								<?php $ticket_staff_travel_default = get_config($dbc, 'ticket_staff_travel_default'); ?>
+								<input type="number" name="ticket_staff_travel_default" class="form-control" value="<?= $ticket_staff_travel_default ?>">
+							</div>
 						</div>
 					</div>
 				</div>
@@ -871,7 +953,7 @@ if(!$action_mode && !$overview_mode) {
 
 		if($sort_field == 'Staff Tasks') { ?>
 			<div class="form-group sort_order_accordion" data-accordion="Staff Tasks">
-				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Staff by Task' ?></span>:<?php if(!$action_mode && !$overview_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
+				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Staff by Task' ?></span>:<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
 					<span class="dataToggle cursor-hand no-toggle <?= in_array('ticket_staff_assign_tasks',$all_unlocked_tabs) ? 'disabled' : '' ?>" title="Locking a tab will hide the contents of that tab on all new <?= TICKET_TILE ?>. A user with access to edit the <?= TICKET_NOUN ?> can then unlock that tab for that <?= TICKET_NOUN ?>.<?= in_array('ticket_staff_assign_tasks',$all_unlocked_tabs) ? ' This tab has been locked for all '.TICKET_TILE.'.' : '' ?>">
 						<input type="hidden" name="ticket_tab_locks<?= empty($tab) ? '' : '_'.$tab ?>" value="ticket_staff_assign_tasks" data-toggle="<?= in_array('ticket_staff_assign_tasks',$unlocked_tabs) ? 1 : 0 ?>">
 						<img class="inline-img" style="<?= in_array('ticket_staff_assign_tasks',array_merge($unlocked_tabs,$all_unlocked_tabs)) ? '' : 'display:none;' ?>" src="../img/icons/lock.png">
@@ -882,10 +964,11 @@ if(!$action_mode && !$overview_mode) {
 				<div class="col-sm-8">
 					<label class="form-checkbox"><input type="checkbox" <?= in_array("Staff Tasks", $all_config) ? 'checked disabled' : (in_array("Staff Tasks", $value_config) ? "checked" : '') ?> value="Staff Tasks" name="tickets[]">
 						<span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will allow you to add Staff to the <?= TICKET_NOUN ?>, and assign them custom Tasks."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Enable</label>
-					<?php if(!$action_mode && !$overview_mode) { ?>
+					<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) { ?>
 						<div class="block-group">
 							<label class="form-checkbox"><input type="checkbox" <?= in_array("Ticket Tasks Add Button", $all_config) ? 'checked disabled' : (in_array("Ticket Tasks Add Button", $value_config) ? "checked" : '') ?> value="Ticket Tasks Add Button" name="tickets[]"> Add Manually Button</label>
 							<label class="form-checkbox"><input type="checkbox" <?= in_array("Ticket Tasks Auto Check In", $all_config) ? 'checked disabled' : (in_array("Ticket Tasks Auto Check In", $value_config) ? "checked" : '') ?> value="Ticket Tasks Auto Check In" name="tickets[]"> Add and Check In Button</label>
+							<label class="form-checkbox"><input type="checkbox" <?= in_array("Ticket Tasks Auto Load New", $all_config) ? 'checked disabled' : (in_array("Ticket Tasks Auto Load New", $value_config) ? "checked" : '') ?> value="Ticket Tasks Auto Load New" name="tickets[]"> Load to New <?= TICKET_NOUN ?> for Extra Billing</label>
 							<label class="form-checkbox"><input type="checkbox" <?= in_array("Ticket Tasks Projects", $all_config) ? 'checked disabled' : (in_array("Ticket Tasks Projects", $value_config) ? "checked" : '') ?> onchange="set_task_groups(this.checked);" value="Ticket Tasks Projects" name="tickets[]"> <?= PROJECT_NOUN ?> Types as Task Groups</label>
 							<label class="form-checkbox"><input type="checkbox" <?= in_array("Ticket Tasks Ticket Type", $all_config) ? 'checked disabled' : (in_array("Ticket Tasks Ticket Type", $value_config) ? "checked" : '') ?> onchange="set_task_groups_tickettype(this.checked);" value="Ticket Tasks Ticket Type" name="tickets[]"> <?= TICKET_NOUN ?> Types as Task Groups</label>
 							<label class="form-checkbox"><input type="checkbox" <?= in_array("Ticket Tasks Groups", $all_config) ? 'checked disabled' : (in_array("Ticket Tasks Groups", $value_config) ? "checked" : '') ?> value="Ticket Tasks Groups" name="tickets[]"> New <?= PROJECT_NOUN ?> for Extra Billing</label>
@@ -1044,7 +1127,7 @@ if(!$action_mode && !$overview_mode) {
 
 		if($sort_field == 'Members') { ?>
 			<div class="form-group sort_order_accordion" data-accordion="Members">
-				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Members' ?></span>:<?php if(!$action_mode && !$overview_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
+				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Members' ?></span>:<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
 					<span class="dataToggle cursor-hand no-toggle <?= in_array('ticket_members',$all_unlocked_tabs) ? 'disabled' : '' ?>" title="Locking a tab will hide the contents of that tab on all new <?= TICKET_TILE ?>. A user with access to edit the <?= TICKET_NOUN ?> can then unlock that tab for that <?= TICKET_NOUN ?>.<?= in_array('ticket_members',$all_unlocked_tabs) ? ' This tab has been locked for all '.TICKET_TILE.'.' : '' ?>">
 						<input type="hidden" name="ticket_tab_locks<?= empty($tab) ? '' : '_'.$tab ?>" value="ticket_members" data-toggle="<?= in_array('ticket_members',$unlocked_tabs) ? 1 : 0 ?>">
 						<img class="inline-img" style="<?= in_array('ticket_members',array_merge($unlocked_tabs,$all_unlocked_tabs)) ? '' : 'display:none;' ?>" src="../img/icons/lock.png">
@@ -1088,7 +1171,7 @@ if(!$action_mode && !$overview_mode) {
 
 		if($sort_field == 'Clients') { ?>
 			<div class="form-group sort_order_accordion" data-accordion="Clients">
-				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Clients' ?></span>:<?php if(!$action_mode && !$overview_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
+				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Clients' ?></span>:<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
 					<span class="dataToggle cursor-hand no-toggle <?= in_array('ticket_clients',$all_unlocked_tabs) ? 'disabled' : '' ?>" title="Locking a tab will hide the contents of that tab on all new <?= TICKET_TILE ?>. A user with access to edit the <?= TICKET_NOUN ?> can then unlock that tab for that <?= TICKET_NOUN ?>.<?= in_array('ticket_clients',$all_unlocked_tabs) ? ' This tab has been locked for all '.TICKET_TILE.'.' : '' ?>">
 						<input type="hidden" name="ticket_tab_locks<?= empty($tab) ? '' : '_'.$tab ?>" value="ticket_clients" data-toggle="<?= in_array('ticket_clients',$unlocked_tabs) ? 1 : 0 ?>">
 						<img class="inline-img" style="<?= in_array('ticket_clients',array_merge($unlocked_tabs,$all_unlocked_tabs)) ? '' : 'display:none;' ?>" src="../img/icons/lock.png">
@@ -1107,7 +1190,7 @@ if(!$action_mode && !$overview_mode) {
 							<?php } ?>
 						<?php } ?>
 						</div>
-						<?php if(!$action_mode && !$overview_mode) { ?>
+						<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) { ?>
 							<div class="form-group">
 								<?php $client_accordion_category = get_config($dbc, 'client_accordion_category'); ?>
 								<label class="col-sm-4 control-label">Contact Category for <?= !empty($renamed_accordion) ? $renamed_accordion : 'Clients' ?> Accordion<?= $client_accordion_category != '' && $tab != '' ? ' (Default: '.$client_accordion_category.')' : '' ?>:</label>
@@ -1128,7 +1211,7 @@ if(!$action_mode && !$overview_mode) {
 
 		if($sort_field == 'Wait List') { ?>
 			<div class="form-group sort_order_accordion" data-accordion="Wait List">
-				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Wait List' ?></span>:<?php if(!$action_mode && !$overview_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
+				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Wait List' ?></span>:<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
 					<span class="dataToggle cursor-hand no-toggle <?= in_array('ticket_wait_list',$all_unlocked_tabs) ? 'disabled' : '' ?>" title="Locking a tab will hide the contents of that tab on all new <?= TICKET_TILE ?>. A user with access to edit the <?= TICKET_NOUN ?> can then unlock that tab for that <?= TICKET_NOUN ?>.<?= in_array('ticket_wait_list',$all_unlocked_tabs) ? ' This tab has been locked for all '.TICKET_TILE.'.' : '' ?>">
 						<input type="hidden" name="ticket_tab_locks<?= empty($tab) ? '' : '_'.$tab ?>" value="ticket_wait_list" data-toggle="<?= in_array('ticket_wait_list',$unlocked_tabs) ? 1 : 0 ?>">
 						<img class="inline-img" style="<?= in_array('ticket_wait_list',array_merge($unlocked_tabs,$all_unlocked_tabs)) ? '' : 'display:none;' ?>" src="../img/icons/lock.png">
@@ -1166,7 +1249,7 @@ if(!$action_mode && !$overview_mode) {
 
 		if($sort_field == 'Check In') { ?>
 			<div class="form-group sort_order_accordion" data-accordion="Check In">
-				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Check In' ?></span>:<?php if(!$action_mode && !$overview_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
+				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Check In' ?></span>:<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
 					<span class="dataToggle cursor-hand no-toggle <?= in_array('ticket_checkin',$all_unlocked_tabs) ? 'disabled' : '' ?>" title="Locking a tab will hide the contents of that tab on all new <?= TICKET_TILE ?>. A user with access to edit the <?= TICKET_NOUN ?> can then unlock that tab for that <?= TICKET_NOUN ?>.<?= in_array('ticket_checkin',$all_unlocked_tabs) ? ' This tab has been locked for all '.TICKET_TILE.'.' : '' ?>">
 						<input type="hidden" name="ticket_tab_locks<?= empty($tab) ? '' : '_'.$tab ?>" value="ticket_checkin" data-toggle="<?= in_array('ticket_checkin',$unlocked_tabs) ? 1 : 0 ?>">
 						<img class="inline-img" style="<?= in_array('ticket_checkin',array_merge($unlocked_tabs,$all_unlocked_tabs)) ? '' : 'display:none;' ?>" src="../img/icons/lock.png">
@@ -1175,11 +1258,11 @@ if(!$action_mode && !$overview_mode) {
 					<input type="text" name="renamed_accordion[]" value="<?= !empty($renamed_accordion) ? $renamed_accordion : 'Check In' ?>" onfocusout="updateAccordion(this);" class="form-control">
 				</div>
 				<div class="col-sm-8">
-					<?php if((!$action_mode && !$overview_mode) || in_array('Check In', $merged_config_fields)) { ?>
+					<?php if((!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) || in_array('Check In', $merged_config_fields)) { ?>
 						<label class="form-checkbox"><input type="checkbox" <?= in_array("Check In", $all_config) ? 'checked disabled' : (in_array("Check In", $value_config) ? "checked" : '') ?> value="Check In" name="tickets[]">
 							<span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will allow you to mark individuals, equipment, or other supplies as ready in the <?= TICKET_NOUN ?>."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Enable Check In</label>
 					<?php } ?>
-					<?php if((!$action_mode && !$overview_mode) || in_array('Check In Member Drop Off', $merged_config_fields)) { ?>
+					<?php if((!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) || in_array('Check In Member Drop Off', $merged_config_fields)) { ?>
 						<label class="form-checkbox"><input type="checkbox" <?= in_array("Check In Member Drop Off", $all_config) ? 'checked disabled' : (in_array("Check In Member Drop Off", $value_config) ? "checked" : '') ?> value="Check In Member Drop Off" name="tickets[]"> Enable Member Drop Off</label>
 					<?php } ?>
 					<div class="block-group">
@@ -1221,7 +1304,7 @@ if(!$action_mode && !$overview_mode) {
 
 		if($sort_field == 'Medication') { ?>
 			<div class="form-group sort_order_accordion" data-accordion="Medication">
-				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Medication Administration' ?></span>:<?php if(!$action_mode && !$overview_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
+				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Medication Administration' ?></span>:<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
 					<span class="dataToggle cursor-hand no-toggle <?= in_array('ticket_medications',$all_unlocked_tabs) ? 'disabled' : '' ?>" title="Locking a tab will hide the contents of that tab on all new <?= TICKET_TILE ?>. A user with access to edit the <?= TICKET_NOUN ?> can then unlock that tab for that <?= TICKET_NOUN ?>.<?= in_array('ticket_medications',$all_unlocked_tabs) ? ' This tab has been locked for all '.TICKET_TILE.'.' : '' ?>">
 						<input type="hidden" name="ticket_tab_locks<?= empty($tab) ? '' : '_'.$tab ?>" value="ticket_medications" data-toggle="<?= in_array('ticket_medications',$unlocked_tabs) ? 1 : 0 ?>">
 						<img class="inline-img" style="<?= in_array('ticket_medications',array_merge($unlocked_tabs,$all_unlocked_tabs)) ? '' : 'display:none;' ?>" src="../img/icons/lock.png">
@@ -1232,13 +1315,19 @@ if(!$action_mode && !$overview_mode) {
 				<div class="col-sm-8">
 					<label class="form-checkbox"><input type="checkbox" <?= in_array("Medication", $all_config) ? 'checked disabled' : (in_array("Medication", $value_config) ? "checked" : '') ?> value="Medication" name="tickets[]">
 						<span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will allow you to manage Medication for Members attached to the <?= TICKET_NOUN ?>."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Enable</label>
+					<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) { ?>
+						<div class="block-group">
+							<label class="form-checkbox"><input type="checkbox" <?= in_array("Medication Multiple Days", $all_config) ? 'checked disabled' : (in_array("Medication Multiple Days", $value_config) ? "checked" : '') ?> value="Medication Multiple Days" name="tickets[]"> Multiple Days</label>
+							<label class="form-checkbox"><input type="checkbox" <?= in_array("Medication Group Days", $all_config) ? 'checked disabled' : (in_array("Medication Group Days", $value_config) ? "checked" : '') ?> value="Medication Group Days" name="tickets[]"> Group Days In Accordion</label>
+						</div>
+					<?php } ?>
 				</div>
 			</div>
 		<?php }
 
 		if($sort_field == 'Deliverables') { ?>
 			<div class="form-group sort_order_accordion" data-accordion="Deliverables">
-				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Deliverables' ?></span>:<?php if(!$action_mode && !$overview_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
+				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Deliverables' ?></span>:<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
 					<span class="dataToggle cursor-hand no-toggle <?= in_array('view_ticket_deliverables',$all_unlocked_tabs) ? 'disabled' : '' ?>" title="Locking a tab will hide the contents of that tab on all new <?= TICKET_TILE ?>. A user with access to edit the <?= TICKET_NOUN ?> can then unlock that tab for that <?= TICKET_NOUN ?>.<?= in_array('view_ticket_deliverables',$all_unlocked_tabs) ? ' This tab has been locked for all '.TICKET_TILE.'.' : '' ?>">
 						<input type="hidden" name="ticket_tab_locks<?= empty($tab) ? '' : '_'.$tab ?>" value="view_ticket_deliverables" data-toggle="<?= in_array('view_ticket_deliverables',$unlocked_tabs) ? 1 : 0 ?>">
 						<img class="inline-img" style="<?= in_array('view_ticket_deliverables',array_merge($unlocked_tabs,$all_unlocked_tabs)) ? '' : 'display:none;' ?>" src="../img/icons/lock.png">
@@ -1274,9 +1363,9 @@ if(!$action_mode && !$overview_mode) {
 			</div>
 		<?php }
 
-		if($sort_field == 'Ticket Details') { ?>
+		if($sort_field == 'Ticket Details' || ($sort_field == 'Services' && !in_array('Ticket Details', $sort_order))) { ?>
 			<div class="form-group sort_order_accordion" data-accordion="Ticket Details">
-				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : TICKET_NOUN.' Details / Services' ?></span>:<?php if(!$action_mode && !$overview_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
+				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : TICKET_NOUN.' Details / Services' ?></span>:<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
 					<span class="dataToggle cursor-hand no-toggle <?= in_array('ticket_info',$all_unlocked_tabs) ? 'disabled' : '' ?>" title="Locking a tab will hide the contents of that tab on all new <?= TICKET_TILE ?>. A user with access to edit the <?= TICKET_NOUN ?> can then unlock that tab for that <?= TICKET_NOUN ?>.<?= in_array('ticket_info',$all_unlocked_tabs) ? ' This tab has been locked for all '.TICKET_TILE.'.' : '' ?>">
 						<input type="hidden" name="ticket_tab_locks<?= empty($tab) ? '' : '_'.$tab ?>" value="ticket_info" data-toggle="<?= in_array('ticket_info',$unlocked_tabs) ? 1 : 0 ?>">
 						<img class="inline-img" style="<?= in_array('ticket_info',array_merge($unlocked_tabs,$all_unlocked_tabs)) ? '' : 'display:none;' ?>" src="../img/icons/lock.png">
@@ -1285,14 +1374,14 @@ if(!$action_mode && !$overview_mode) {
 					<input type="text" name="renamed_accordion[]" value="<?= !empty($renamed_accordion) ? $renamed_accordion : TICKET_NOUN.' Details / Services' ?>" onfocusout="updateAccordion(this);" class="form-control">
 				</div>
 				<div class="col-sm-8">
-					<?php if((!$action_mode && !$overview_mode) || in_array('Ticket Details', $merged_config_fields)) { ?>
+					<?php if((!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) || in_array('Ticket Details', $merged_config_fields)) { ?>
 						<label class="form-checkbox"><input type="checkbox" <?= in_array("Ticket Details", $all_config) ? 'checked disabled' : (in_array("Ticket Details", $value_config) ? "checked" : '') ?> value="Ticket Details" name="tickets[]"> Enable <?= TICKET_NOUN ?> Details</label>
 					<?php } ?>
-					<?php if((!$action_mode && !$overview_mode) || in_array('Services', $merged_config_fields)) { ?>
+					<?php if((!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) || in_array('Services', $merged_config_fields)) { ?>
 						<label class="form-checkbox"><input type="checkbox" <?= in_array("Services", $all_config) ? 'checked disabled' : (in_array("Services", $value_config) ? "checked" : '') ?> value="Services" name="tickets[]"> Enable Services</label>
 					<?php } ?>
 					<div class="block-group">
-						<?php if(!$action_mode && !$overview_mode) { ?>
+						<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) { ?>
 							<div class="block-group">
 								<h3><span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will allow you to specify a default heading / name for the <?= TICKET_NOUN ?> based on various fields."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Auto-Generated Heading</h3>
 								<label class="form-checkbox"><input type="radio" <?= in_array("Heading Blank", $all_config) ? 'checked' : (in_array("Heading Blank", $value_config) ? "checked" : '') ?><?= in_array("Heading Blank", $all_config) ? 'disabled' : '' ?> value="Heading Blank" name="tickets[]"> No Generated Heading</label>
@@ -1309,7 +1398,7 @@ if(!$action_mode && !$overview_mode) {
 							</div>
 						<?php } ?>
 						<div class="fields_sortable">
-						<?php if(!$action_mode && !$overview_mode) { ?>
+						<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) { ?>
 							<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Service Group Cat Type All Services", $all_config) ? 'checked disabled' : (in_array("Service Group Cat Type All Services", $value_config) ? "checked" : '') ?> value="Service Group Cat Type All Services" name="tickets[]">
 							<span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will group your Services by Category and Service Type. All Services will display as a list with an Include checkbox to add it to your <?= TICKET_NOUN ?>."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Group Services by Category/Service Type - List Services</label>
 							<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Service Group Cat Type All Services Combine Checklist", $all_config) ? 'checked disabled' : (in_array("Service Group Cat Type All Services Combine Checklist", $value_config) ? "checked" : '') ?> value="Service Group Cat Type All Services Combine Checklist" name="tickets[]">
@@ -1321,19 +1410,19 @@ if(!$action_mode && !$overview_mode) {
 							<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Service Limit Service Category", $all_config) ? 'checked disabled' : (in_array("Service Limit Service Category", $value_config) ? "checked" : '') ?> value="Service Limit Service Category" name="tickets[]">
 								<span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will limit the Service Categories displayed based on the Contact's Property Size (Service Category) set in their profile."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Limit Service Category by Contact</label>
 						<?php } ?>
-						<?php if((!$action_mode && !$overview_mode) || in_array('Service Customer Template',$merged_config_fields)) { ?>
+						<?php if((!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) || in_array('Service Customer Template',$merged_config_fields)) { ?>
 							<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Service Customer Template", $all_config) ? 'checked disabled' : (in_array("Service Customer Template", $value_config) ? "checked" : '') ?> value="Service Customer Template" name="tickets[]">
 								<span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will allow you to add all services from a Customer's Service Template to the <?= TICKET_NOUN ?>."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Load Customer Template</label>
 						<?php } ?>
-						<?php if((!$action_mode && !$overview_mode) || in_array('Service Load Template',$merged_config_fields)) { ?>
+						<?php if((!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) || in_array('Service Load Template',$merged_config_fields)) { ?>
 							<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Service Load Template", $all_config) ? 'checked disabled' : (in_array("Service Load Template", $value_config) ? "checked" : '') ?> value="Service Load Template" name="tickets[]">
 								<span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will allow you to add all services from a Load's Service Template to the <?= TICKET_NOUN ?>."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Load Service Template</label>
 						<?php } ?>
-						<?php if((!$action_mode && !$overview_mode) || in_array('Service Customer Template In Checklist',$merged_config_fields)) { ?>
+						<?php if((!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) || in_array('Service Customer Template In Checklist',$merged_config_fields)) { ?>
 							<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Service Customer Template In Checklist", $all_config) ? 'checked disabled' : (in_array("Service Customer Template In Checklist", $value_config) ? "checked" : '') ?> value="Service Customer Template In Checklist" name="tickets[]">
 								<span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will allow you to add all services from a Customer's Service Template to the <?= TICKET_NOUN ?>."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Load Customer Template In Service Checklist</label>
 						<?php } ?>
-						<?php if((!$action_mode && !$overview_mode) || in_array('Service Load Template In Checklist',$merged_config_fields)) { ?>
+						<?php if((!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) || in_array('Service Load Template In Checklist',$merged_config_fields)) { ?>
 							<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Service Load Template In Checklist", $all_config) ? 'checked disabled' : (in_array("Service Load Template In Checklist", $value_config) ? "checked" : '') ?> value="Service Load Template In Checklist" name="tickets[]">
 								<span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will allow you to add all services from a Load's Service Template to the <?= TICKET_NOUN ?>."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Load Service Template In Service Checklist</label>
 						<?php } ?>
@@ -1355,6 +1444,21 @@ if(!$action_mode && !$overview_mode) {
 							<?php } ?>
 							<?php if($field_sort_field == 'Service Total Time') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Service Total Time", $all_config) ? 'checked disabled' : (in_array("Service Total Time", $value_config) ? "checked" : '') ?> value="Service Total Time" name="tickets[]">Total Time</label>
+							<?php } ?>
+							<?php if($field_sort_field == 'Service Direct Time') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Service Direct Time", $all_config) ? 'checked disabled' : (in_array("Service Direct Time", $value_config) ? "checked" : '') ?> value="Service Direct Time" name="tickets[]">Direct Time</label>
+							<?php } ?>
+							<?php if($field_sort_field == 'Service Indirect Time') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Service Indirect Time", $all_config) ? 'checked disabled' : (in_array("Service Indirect Time", $value_config) ? "checked" : '') ?> value="Service Indirect Time" name="tickets[]">Indirect Time</label>
+							<?php } ?>
+							<?php if($field_sort_field == 'Service Track Total Time') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Service Track Total Time", $all_config) ? 'checked disabled' : (in_array("Service Track Total Time", $value_config) ? "checked" : '') ?> value="Service Track Total Time" name="tickets[]">Track Total Time in Time Sheets</label>
+							<?php } ?>
+							<?php if($field_sort_field == 'Service Track Direct Time') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Service Track Direct Time", $all_config) ? 'checked disabled' : (in_array("Service Track Direct Time", $value_config) ? "checked" : '') ?> value="Service Track Direct Time" name="tickets[]">Track Direct Time in Time Sheets</label>
+							<?php } ?>
+							<?php if($field_sort_field == 'Service Track Indirect Time') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Service Track Indirect Time", $all_config) ? 'checked disabled' : (in_array("Service Track Indirect Time", $value_config) ? "checked" : '') ?> value="Service Track Indirect Time" name="tickets[]">Track Indirect Time in Time Sheets</label>
 							<?php } ?>
 							<?php if($field_sort_field == 'Service Quantity') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Service Quantity", $all_config) ? 'checked disabled' : (in_array("Service Quantity", $value_config) ? "checked" : '') ?> value="Service Quantity" name="tickets[]"> Quantity</label>
@@ -1389,6 +1493,12 @@ if(!$action_mode && !$overview_mode) {
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Service Description", $all_config) ? 'checked disabled' : (in_array("Service Description", $value_config) ? "checked" : '') ?> value="Service Description" name="tickets[]">
 									<span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will allow you to specify general details for the <?= TICKET_NOUN ?>."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Description</label>
 							<?php } ?>
+							<?php if($field_sort_field == 'Details Tile') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Details Tile", $all_config) ? 'checked disabled' : (in_array("Details Tile", $value_config) ? "checked" : '') ?> value="Details Tile" name="tickets[]"> Tile Name</label>
+							<?php } ?>
+							<?php if($field_sort_field == 'Details Tab') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Details Tab", $all_config) ? 'checked disabled' : (in_array("Details Tab", $value_config) ? "checked" : '') ?> value="Details Tab" name="tickets[]"> Tab / Sub Tab</label>
+							<?php } ?>
 							<?php if($field_sort_field == 'Details Where') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Details Where", $all_config) ? 'checked disabled' : (in_array("Details Where", $value_config) ? "checked" : '') ?> value="Details Where" name="tickets[]"> Where</label>
 							<?php } ?>
@@ -1417,7 +1527,7 @@ if(!$action_mode && !$overview_mode) {
 
 		if($sort_field == 'Service Staff Checklist') { ?>
 			<div class="form-group sort_order_accordion" data-accordion="Service Staff Checklist">
-				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Service Checklist' ?></span>:<?php if(!$action_mode && !$overview_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
+				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Service Checklist' ?></span>:<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
 					<span class="dataToggle cursor-hand no-toggle <?= in_array('ticket_service_checklist',$all_unlocked_tabs) ? 'disabled' : '' ?>" title="Locking a tab will hide the contents of that tab on all new <?= TICKET_TILE ?>. A user with access to edit the <?= TICKET_NOUN ?> can then unlock that tab for that <?= TICKET_NOUN ?>.<?= in_array('ticket_service_checklist',$all_unlocked_tabs) ? ' This tab has been locked for all '.TICKET_TILE.'.' : '' ?>">
 						<input type="hidden" name="ticket_tab_locks<?= empty($tab) ? '' : '_'.$tab ?>" value="ticket_service_checklist" data-toggle="<?= in_array('ticket_service_checklist',$unlocked_tabs) ? 1 : 0 ?>">
 						<img class="inline-img" style="<?= in_array('ticket_service_checklist',array_merge($unlocked_tabs,$all_unlocked_tabs)) ? '' : 'display:none;' ?>" src="../img/icons/lock.png">
@@ -1427,7 +1537,7 @@ if(!$action_mode && !$overview_mode) {
 				</div>
 				<div class="col-sm-8">
 					<label class="form-checkbox"><input type="checkbox" <?= in_array("Service Staff Checklist", $all_config) ? 'checked disabled' : (in_array("Service Staff Checklist", $value_config) ? "checked" : '') ?> value="Service Staff Checklist" name="tickets[]"><span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will allow you to display a Checklist of the Services in the <?= TICKET_NOUN ?>."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Enable</label>
-					<?php if(!$action_mode && !$overview_mode) { ?>
+					<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) { ?>
 						<div class="block-group">
 							<div class="fields_sortable">
 							<?php foreach ($field_sort_order as $field_sort_field) { ?>
@@ -1468,7 +1578,7 @@ if(!$action_mode && !$overview_mode) {
 
 		if($sort_field == 'Service Extra Billing') { ?>
 			<div class="form-group sort_order_accordion" data-accordion="Service Extra Billing">
-				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Service Extra Billing' ?></span>:<?php if(!$action_mode && !$overview_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
+				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Service Extra Billing' ?></span>:<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
 					<span class="dataToggle cursor-hand no-toggle <?= in_array('ticket_service_checklist',$all_unlocked_tabs) ? 'disabled' : '' ?>" title="Locking a tab will hide the contents of that tab on all new <?= TICKET_TILE ?>. A user with access to edit the <?= TICKET_NOUN ?> can then unlock that tab for that <?= TICKET_NOUN ?>.<?= in_array('ticket_service_checklist',$all_unlocked_tabs) ? ' This tab has been locked for all '.TICKET_TILE.'.' : '' ?>">
 						<input type="hidden" name="ticket_tab_locks<?= empty($tab) ? '' : '_'.$tab ?>" value="ticket_service_checklist" data-toggle="<?= in_array('ticket_service_checklist',$unlocked_tabs) ? 1 : 0 ?>">
 						<img class="inline-img" style="<?= in_array('ticket_service_checklist',array_merge($unlocked_tabs,$all_unlocked_tabs)) ? '' : 'display:none;' ?>" src="../img/icons/lock.png">
@@ -1478,7 +1588,7 @@ if(!$action_mode && !$overview_mode) {
 				</div>
 				<div class="col-sm-8">
 					<label class="form-checkbox"><input type="checkbox" <?= in_array("Service Extra Billing", $all_config) ? 'checked disabled' : (in_array("Service Extra Billing", $value_config) ? "checked" : '') ?> value="Service Extra Billing" name="tickets[]"><span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will allow you to view all of your Service's Extra Billing added."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Enable</label>
-					<?php if(!$action_mode && !$overview_mode) { ?>
+					<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) { ?>
 						<div class="block-group">
 							<div class="fields_sortable">
 							<?php foreach ($field_sort_order as $field_sort_field) { ?>
@@ -1498,7 +1608,7 @@ if(!$action_mode && !$overview_mode) {
 
 		if($sort_field == 'Equipment') { ?>
 			<div class="form-group sort_order_accordion" data-accordion="Equipment">
-				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Equipment' ?></span>:<?php if(!$action_mode && !$overview_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
+				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Equipment' ?></span>:<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
 					<span class="dataToggle cursor-hand no-toggle <?= in_array('ticket_equipment',$all_unlocked_tabs) ? 'disabled' : '' ?>" title="Locking a tab will hide the contents of that tab on all new <?= TICKET_TILE ?>. A user with access to edit the <?= TICKET_NOUN ?> can then unlock that tab for that <?= TICKET_NOUN ?>.<?= in_array('ticket_equipment',$all_unlocked_tabs) ? ' This tab has been locked for all '.TICKET_TILE.'.' : '' ?>">
 						<input type="hidden" name="ticket_tab_locks<?= empty($tab) ? '' : '_'.$tab ?>" value="ticket_equipment" data-toggle="<?= in_array('ticket_equipment',$unlocked_tabs) ? 1 : 0 ?>">
 						<img class="inline-img" style="<?= in_array('ticket_equipment',array_merge($unlocked_tabs,$all_unlocked_tabs)) ? '' : 'display:none;' ?>" src="../img/icons/lock.png">
@@ -1512,6 +1622,9 @@ if(!$action_mode && !$overview_mode) {
 					<div class="block-group">
 						<div class="fields_sortable">
 						<?php foreach ($field_sort_order as $field_sort_field) { ?>
+							<?php if($field_sort_field == 'Equipment Inline') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Equipment Inline", $all_config) ? 'checked disabled' : (in_array("Equipment Inline", $value_config) ? "checked" : '') ?> value="Equipment Inline" name="tickets[]"> Inline Display</label>
+							<?php } ?>
 							<?php if($field_sort_field == 'Equipment Category') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Equipment Category", $all_config) ? 'checked disabled' : (in_array("Equipment Category", $value_config) ? "checked" : '') ?> value="Equipment Category" name="tickets[]"> Category</label>
 							<?php } ?>
@@ -1536,6 +1649,9 @@ if(!$action_mode && !$overview_mode) {
 							<?php if($field_sort_field == 'Equipment Rate') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Equipment Rate", $all_config) ? 'checked disabled' : (in_array("Equipment Rate", $value_config) ? "checked" : '') ?> value="Equipment Rate" name="tickets[]"> Rate</label>
 							<?php } ?>
+							<?php if($field_sort_field == 'Equipment Rate Options') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Equipment Rate Options", $all_config) ? 'checked disabled' : (in_array("Equipment Rate Options", $value_config) ? "checked" : '') ?> value="Equipment Rate Options" name="tickets[]"> Select Rate</label>
+							<?php } ?>
 							<?php if($field_sort_field == 'Equipment Cost') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Equipment Cost", $all_config) ? 'checked disabled' : (in_array("Equipment Cost", $value_config) ? "checked" : '') ?> value="Equipment Cost" name="tickets[]"> Cost</label>
 							<?php } ?>
@@ -1551,7 +1667,7 @@ if(!$action_mode && !$overview_mode) {
 
 		if($sort_field == 'Checklist') { ?>
 			<div class="form-group sort_order_accordion" data-accordion="Checklist">
-				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Checklist' ?></span>:<?php if(!$action_mode && !$overview_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
+				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Checklist' ?></span>:<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
 					<span class="dataToggle cursor-hand no-toggle <?= in_array('ticket_checklist',$all_unlocked_tabs) ? 'disabled' : '' ?>" title="Locking a tab will hide the contents of that tab on all new <?= TICKET_TILE ?>. A user with access to edit the <?= TICKET_NOUN ?> can then unlock that tab for that <?= TICKET_NOUN ?>.<?= in_array('ticket_checklist',$all_unlocked_tabs) ? ' This tab has been locked for all '.TICKET_TILE.'.' : '' ?>">
 						<input type="hidden" name="ticket_tab_locks<?= empty($tab) ? '' : '_'.$tab ?>" value="ticket_checklist" data-toggle="<?= in_array('ticket_checklist',$unlocked_tabs) ? 1 : 0 ?>">
 						<img class="inline-img" style="<?= in_array('ticket_checklist',array_merge($unlocked_tabs,$all_unlocked_tabs)) ? '' : 'display:none;' ?>" src="../img/icons/lock.png">
@@ -1568,7 +1684,7 @@ if(!$action_mode && !$overview_mode) {
 
 		if($sort_field == 'Checklist Items') { ?>
 			<div class="form-group sort_order_accordion" data-accordion="Checklist Items">
-				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Attached Checklists' ?></span>:<?php if(!$action_mode && !$overview_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
+				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Attached Checklists' ?></span>:<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
 					<span class="dataToggle cursor-hand no-toggle <?= in_array('ticket_view_checklist',$all_unlocked_tabs) ? 'disabled' : '' ?>" title="Locking a tab will hide the contents of that tab on all new <?= TICKET_TILE ?>. A user with access to edit the <?= TICKET_NOUN ?> can then unlock that tab for that <?= TICKET_NOUN ?>.<?= in_array('ticket_view_checklist',$all_unlocked_tabs) ? ' This tab has been locked for all '.TICKET_TILE.'.' : '' ?>">
 						<input type="hidden" name="ticket_tab_locks<?= empty($tab) ? '' : '_'.$tab ?>" value="ticket_view_checklist" data-toggle="<?= in_array('ticket_view_checklist',$unlocked_tabs) ? 1 : 0 ?>">
 						<img class="inline-img" style="<?= in_array('ticket_view_checklist',array_merge($unlocked_tabs,$all_unlocked_tabs)) ? '' : 'display:none;' ?>" src="../img/icons/lock.png">
@@ -1585,7 +1701,7 @@ if(!$action_mode && !$overview_mode) {
 
 		if($sort_field == 'Charts') { ?>
 			<div class="form-group sort_order_accordion" data-accordion="Charts">
-				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Charts' ?></span>:<?php if(!$action_mode && !$overview_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
+				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Charts' ?></span>:<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
 					<span class="dataToggle cursor-hand no-toggle <?= in_array('ticket_view_charts',$all_unlocked_tabs) ? 'disabled' : '' ?>" title="Locking a tab will hide the contents of that tab on all new <?= TICKET_TILE ?>. A user with access to edit the <?= TICKET_NOUN ?> can then unlock that tab for that <?= TICKET_NOUN ?>.<?= in_array('ticket_view_charts',$all_unlocked_tabs) ? ' This tab has been locked for all '.TICKET_TILE.'.' : '' ?>">
 						<input type="hidden" name="ticket_tab_locks<?= empty($tab) ? '' : '_'.$tab ?>" value="ticket_view_charts" data-toggle="<?= in_array('ticket_view_charts',$unlocked_tabs) ? 1 : 0 ?>">
 						<img class="inline-img" style="<?= in_array('ticket_view_charts',array_merge($unlocked_tabs,$all_unlocked_tabs)) ? '' : 'display:none;' ?>" src="../img/icons/lock.png">
@@ -1596,7 +1712,7 @@ if(!$action_mode && !$overview_mode) {
 				<div class="col-sm-8">
 					<label class="form-checkbox"><input type="checkbox" <?= in_array("Charts", $all_config) ? 'checked disabled' : (in_array("Charts", $value_config) ? "checked" : '') ?> value="Charts" name="tickets[]">
 						<span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will allow you to attach forms from the Treatment Charts tile to the <?= TICKET_NOUN ?>."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Enable</label>
-					<?php if(!$action_mode && !$overview_mode) { ?>
+					<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) { ?>
 						<div class="block-group">
 							<h3>Attached Charts</h3>
 							<label class="col-sm-2">Main Tab</label>
@@ -1656,7 +1772,7 @@ if(!$action_mode && !$overview_mode) {
 
 		if($sort_field == 'Safety') { ?>
 			<div class="form-group sort_order_accordion" data-accordion="Safety">
-				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Safety' ?></span>:<?php if(!$action_mode && !$overview_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
+				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Safety' ?></span>:<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
 					<span class="dataToggle cursor-hand no-toggle <?= in_array('ticket_safety',$all_unlocked_tabs) ? 'disabled' : '' ?>" title="Locking a tab will hide the contents of that tab on all new <?= TICKET_TILE ?>. A user with access to edit the <?= TICKET_NOUN ?> can then unlock that tab for that <?= TICKET_NOUN ?>.<?= in_array('ticket_safety',$all_unlocked_tabs) ? ' This tab has been locked for all '.TICKET_TILE.'.' : '' ?>">
 						<input type="hidden" name="ticket_tab_locks<?= empty($tab) ? '' : '_'.$tab ?>" value="ticket_safety" data-toggle="<?= in_array('ticket_safety',$unlocked_tabs) ? 1 : 0 ?>">
 						<img class="inline-img" style="<?= in_array('ticket_safety',array_merge($unlocked_tabs,$all_unlocked_tabs)) ? '' : 'display:none;' ?>" src="../img/icons/lock.png">
@@ -1673,7 +1789,7 @@ if(!$action_mode && !$overview_mode) {
 
 		if($sort_field == 'Timer') { ?>
 			<div class="form-group sort_order_accordion" data-accordion="Timer">
-				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Timer' ?></span>:<?php if(!$action_mode && !$overview_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
+				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Timer' ?></span>:<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
 					<span class="dataToggle cursor-hand no-toggle <?= in_array('view_ticket_timer',$all_unlocked_tabs) ? 'disabled' : '' ?>" title="Locking a tab will hide the contents of that tab on all new <?= TICKET_TILE ?>. A user with access to edit the <?= TICKET_NOUN ?> can then unlock that tab for that <?= TICKET_NOUN ?>.<?= in_array('view_ticket_timer',$all_unlocked_tabs) ? ' This tab has been locked for all '.TICKET_TILE.'.' : '' ?>">
 						<input type="hidden" name="ticket_tab_locks<?= empty($tab) ? '' : '_'.$tab ?>" value="view_ticket_timer" data-toggle="<?= in_array('view_ticket_timer',$unlocked_tabs) ? 1 : 0 ?>">
 						<img class="inline-img" style="<?= in_array('view_ticket_timer',array_merge($unlocked_tabs,$all_unlocked_tabs)) ? '' : 'display:none;' ?>" src="../img/icons/lock.png">
@@ -1714,7 +1830,7 @@ if(!$action_mode && !$overview_mode) {
 
 		if($sort_field == 'Materials') { ?>
 			<div class="form-group sort_order_accordion" data-accordion="Materials">
-				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Materials' ?></span>:<?php if(!$action_mode && !$overview_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
+				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Materials' ?></span>:<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
 					<span class="dataToggle cursor-hand no-toggle <?= in_array('ticket_materials',$all_unlocked_tabs) ? 'disabled' : '' ?>" title="Locking a tab will hide the contents of that tab on all new <?= TICKET_TILE ?>. A user with access to edit the <?= TICKET_NOUN ?> can then unlock that tab for that <?= TICKET_NOUN ?>.<?= in_array('ticket_materials',$all_unlocked_tabs) ? ' This tab has been locked for all '.TICKET_TILE.'.' : '' ?>">
 						<input type="hidden" name="ticket_tab_locks<?= empty($tab) ? '' : '_'.$tab ?>" value="ticket_materials" data-toggle="<?= in_array('ticket_materials',$unlocked_tabs) ? 1 : 0 ?>">
 						<img class="inline-img" style="<?= in_array('ticket_materials',array_merge($unlocked_tabs,$all_unlocked_tabs)) ? '' : 'display:none;' ?>" src="../img/icons/lock.png">
@@ -1728,6 +1844,9 @@ if(!$action_mode && !$overview_mode) {
 					<div class="block-group">
 						<div class="fields_sortable">
 						<?php foreach ($field_sort_order as $field_sort_field) { ?>
+							<?php if($field_sort_field == 'Material Inline') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Material Inline", $all_config) ? 'checked disabled' : (in_array("Material Inline", $value_config) ? "checked" : '') ?> value="Material Inline" name="tickets[]"> Inline Materials</label>
+							<?php } ?>
 							<?php if($field_sort_field == 'Material Category') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Material Category", $all_config) ? 'checked disabled' : (in_array("Material Category", $value_config) ? "checked" : '') ?> value="Material Category" name="tickets[]"> Material Category</label>
 							<?php } ?>
@@ -1756,7 +1875,7 @@ if(!$action_mode && !$overview_mode) {
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Auto Check Out Materials", $all_config) ? 'checked disabled' : (in_array("Auto Check Out Materials", $value_config) ? "checked" : '') ?> value="Auto Check Out Materials" name="tickets[]"> Auto Check Out Materials</label>
 							<?php } ?>
 						<?php } ?>
-						<?php if(!$action_mode && !$overview_mode) { ?>
+						<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) { ?>
 							<div class="form-group">
 								<label class="col-sm-4 control-label">Quantity Increment:</label>
 								<div class="col-sm-8">
@@ -1772,7 +1891,7 @@ if(!$action_mode && !$overview_mode) {
 
 		if($sort_field == 'Location Details') { ?>
 			<div class="form-group sort_order_accordion" data-accordion="Location Details">
-				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Location Details' ?></span>:<?php if(!$action_mode && !$overview_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
+				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Location Details' ?></span>:<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
 					<span class="dataToggle cursor-hand no-toggle <?= in_array('ticket_residue',$all_unlocked_tabs) ? 'disabled' : '' ?>" title="Locking a tab will hide the contents of that tab on all new <?= TICKET_TILE ?>. A user with access to edit the <?= TICKET_NOUN ?> can then unlock that tab for that <?= TICKET_NOUN ?>.<?= in_array('ticket_materials',$all_unlocked_tabs) ? ' This tab has been locked for all '.TICKET_TILE.'.' : '' ?>">
 						<input type="hidden" name="ticket_tab_locks<?= empty($tab) ? '' : '_'.$tab ?>" value="ticket_residue" data-toggle="<?= in_array('ticket_residue',$unlocked_tabs) ? 1 : 0 ?>">
 						<img class="inline-img" style="<?= in_array('ticket_residue',array_merge($unlocked_tabs,$all_unlocked_tabs)) ? '' : 'display:none;' ?>" src="../img/icons/lock.png">
@@ -1809,7 +1928,7 @@ if(!$action_mode && !$overview_mode) {
 
 		if($sort_field == 'Residue') { ?>
 			<div class="form-group sort_order_accordion" data-accordion="Residue">
-				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Residue' ?></span>:<?php if(!$action_mode && !$overview_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
+				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Residue' ?></span>:<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
 					<span class="dataToggle cursor-hand no-toggle <?= in_array('ticket_residue',$all_unlocked_tabs) ? 'disabled' : '' ?>" title="Locking a tab will hide the contents of that tab on all new <?= TICKET_TILE ?>. A user with access to edit the <?= TICKET_NOUN ?> can then unlock that tab for that <?= TICKET_NOUN ?>.<?= in_array('ticket_materials',$all_unlocked_tabs) ? ' This tab has been locked for all '.TICKET_TILE.'.' : '' ?>">
 						<input type="hidden" name="ticket_tab_locks<?= empty($tab) ? '' : '_'.$tab ?>" value="ticket_residue" data-toggle="<?= in_array('ticket_residue',$unlocked_tabs) ? 1 : 0 ?>">
 						<img class="inline-img" style="<?= in_array('ticket_residue',array_merge($unlocked_tabs,$all_unlocked_tabs)) ? '' : 'display:none;' ?>" src="../img/icons/lock.png">
@@ -1843,7 +1962,7 @@ if(!$action_mode && !$overview_mode) {
 
 		if($sort_field == 'Other List') { ?>
 			<div class="form-group sort_order_accordion" data-accordion="Other List">
-				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Other Products' ?></span>:<?php if(!$action_mode && !$overview_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
+				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Other Products' ?></span>:<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
 					<span class="dataToggle cursor-hand no-toggle <?= in_array('ticket_residue',$all_unlocked_tabs) ? 'disabled' : '' ?>" title="Locking a tab will hide the contents of that tab on all new <?= TICKET_TILE ?>. A user with access to edit the <?= TICKET_NOUN ?> can then unlock that tab for that <?= TICKET_NOUN ?>.<?= in_array('ticket_materials',$all_unlocked_tabs) ? ' This tab has been locked for all '.TICKET_TILE.'.' : '' ?>">
 						<input type="hidden" name="ticket_tab_locks<?= empty($tab) ? '' : '_'.$tab ?>" value="ticket_residue" data-toggle="<?= in_array('ticket_residue',$unlocked_tabs) ? 1 : 0 ?>">
 						<img class="inline-img" style="<?= in_array('ticket_residue',array_merge($unlocked_tabs,$all_unlocked_tabs)) ? '' : 'display:none;' ?>" src="../img/icons/lock.png">
@@ -1877,7 +1996,7 @@ if(!$action_mode && !$overview_mode) {
 
 		if($sort_field == 'Shipping List') { ?>
 			<div class="form-group sort_order_accordion" data-accordion="Shipping List">
-				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Shipping List' ?></span>:<?php if(!$action_mode && !$overview_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
+				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Shipping List' ?></span>:<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
 					<span class="dataToggle cursor-hand no-toggle <?= in_array('ticket_residue',$all_unlocked_tabs) ? 'disabled' : '' ?>" title="Locking a tab will hide the contents of that tab on all new <?= TICKET_TILE ?>. A user with access to edit the <?= TICKET_NOUN ?> can then unlock that tab for that <?= TICKET_NOUN ?>.<?= in_array('ticket_materials',$all_unlocked_tabs) ? ' This tab has been locked for all '.TICKET_TILE.'.' : '' ?>">
 						<input type="hidden" name="ticket_tab_locks<?= empty($tab) ? '' : '_'.$tab ?>" value="ticket_residue" data-toggle="<?= in_array('ticket_residue',$unlocked_tabs) ? 1 : 0 ?>">
 						<img class="inline-img" style="<?= in_array('ticket_residue',array_merge($unlocked_tabs,$all_unlocked_tabs)) ? '' : 'display:none;' ?>" src="../img/icons/lock.png">
@@ -1923,7 +2042,7 @@ if(!$action_mode && !$overview_mode) {
 
 		if($sort_field == 'Reading') { ?>
 			<div class="form-group sort_order_accordion" data-accordion="Reading">
-				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Monitor Readings' ?></span>:<?php if(!$action_mode && !$overview_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
+				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Monitor Readings' ?></span>:<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
 					<span class="dataToggle cursor-hand no-toggle <?= in_array('ticket_residue',$all_unlocked_tabs) ? 'disabled' : '' ?>" title="Locking a tab will hide the contents of that tab on all new <?= TICKET_TILE ?>. A user with access to edit the <?= TICKET_NOUN ?> can then unlock that tab for that <?= TICKET_NOUN ?>.<?= in_array('ticket_materials',$all_unlocked_tabs) ? ' This tab has been locked for all '.TICKET_TILE.'.' : '' ?>">
 						<input type="hidden" name="ticket_tab_locks<?= empty($tab) ? '' : '_'.$tab ?>" value="ticket_residue" data-toggle="<?= in_array('ticket_residue',$unlocked_tabs) ? 1 : 0 ?>">
 						<img class="inline-img" style="<?= in_array('ticket_residue',array_merge($unlocked_tabs,$all_unlocked_tabs)) ? '' : 'display:none;' ?>" src="../img/icons/lock.png">
@@ -1966,7 +2085,7 @@ if(!$action_mode && !$overview_mode) {
 
 		if($sort_field == 'Tank Reading') { ?>
 			<div class="form-group sort_order_accordion" data-accordion="Tank Reading">
-				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Tank Readings' ?></span>:<?php if(!$action_mode && !$overview_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
+				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Tank Readings' ?></span>:<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
 					<span class="dataToggle cursor-hand no-toggle <?= in_array('ticket_residue',$all_unlocked_tabs) ? 'disabled' : '' ?>" title="Locking a tab will hide the contents of that tab on all new <?= TICKET_TILE ?>. A user with access to edit the <?= TICKET_NOUN ?> can then unlock that tab for that <?= TICKET_NOUN ?>.<?= in_array('ticket_materials',$all_unlocked_tabs) ? ' This tab has been locked for all '.TICKET_TILE.'.' : '' ?>">
 						<input type="hidden" name="ticket_tab_locks<?= empty($tab) ? '' : '_'.$tab ?>" value="ticket_residue" data-toggle="<?= in_array('ticket_residue',$unlocked_tabs) ? 1 : 0 ?>">
 						<img class="inline-img" style="<?= in_array('ticket_residue',array_merge($unlocked_tabs,$all_unlocked_tabs)) ? '' : 'display:none;' ?>" src="../img/icons/lock.png">
@@ -2003,7 +2122,7 @@ if(!$action_mode && !$overview_mode) {
 
 		if($sort_field == 'Miscellaneous') { ?>
 			<div class="form-group sort_order_accordion" data-accordion="Miscellaneous">
-				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Miscellaneous' ?></span>:<?php if(!$action_mode && !$overview_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
+				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Miscellaneous' ?></span>:<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
 					<span class="dataToggle cursor-hand no-toggle smaller <?= in_array('ticket_miscellaneous',$all_unlocked_tabs) ? 'disabled' : '' ?>" title="Locking a tab will hide the contents of that tab on all new <?= TICKET_TILE ?>. A user with access to edit the <?= TICKET_NOUN ?> can then unlock that tab for that <?= TICKET_NOUN ?>.<?= in_array('ticket_miscellaneous',$all_unlocked_tabs) ? ' This tab has been locked for all '.TICKET_TILE.'.' : '' ?>">
 						<input type="hidden" name="ticket_tab_locks<?= empty($tab) ? '' : '_'.$tab ?>" value="ticket_miscellaneous" data-toggle="<?= in_array('ticket_miscellaneous',$unlocked_tabs) ? 1 : 0 ?>">
 						<img class="inline-img" style="<?= in_array('ticket_miscellaneous',array_merge($unlocked_tabs,$all_unlocked_tabs)) ? '' : 'display:none;' ?>" src="../img/icons/lock.png">
@@ -2044,7 +2163,7 @@ if(!$action_mode && !$overview_mode) {
 
 		if($sort_field == 'Inventory') { ?>
 			<div class="form-group sort_order_accordion" data-accordion="Inventory">
-				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Inventory' ?></span>:<?php if(!$action_mode && !$overview_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
+				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Inventory' ?></span>:<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
 					<span class="dataToggle cursor-hand no-toggle smaller <?= in_array('ticket_inventory',$all_unlocked_tabs) ? 'disabled' : '' ?>" title="Locking a tab will hide the contents of that tab on all new <?= TICKET_TILE ?>. A user with access to edit the <?= TICKET_NOUN ?> can then unlock that tab for that <?= TICKET_NOUN ?>.<?= in_array('ticket_inventory',$all_unlocked_tabs) ? ' This tab has been locked for all '.TICKET_TILE.'.' : '' ?>">
 						<input type="hidden" name="ticket_tab_locks<?= empty($tab) ? '' : '_'.$tab ?>" value="ticket_inventory" data-toggle="<?= in_array('ticket_inventory',$unlocked_tabs) ? 1 : 0 ?>">
 						<img class="inline-img" style="<?= in_array('ticket_inventory',array_merge($unlocked_tabs,$all_unlocked_tabs)) ? '' : 'display:none;' ?>" src="../img/icons/lock.png">
@@ -2056,7 +2175,7 @@ if(!$action_mode && !$overview_mode) {
 					<label class="form-checkbox"><input type="checkbox" <?= in_array("Inventory", $all_config) ? 'checked disabled' : (in_array("Inventory", $value_config) ? "checked" : '') ?> value="Inventory" name="tickets[]">
 						<span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will allow you to pull from the <?= INVENTORY_TILE ?> tile for the <?= TICKET_NOUN ?>."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Enable</label>
 					<div class="block-group">
-						<?php if(!$action_mode && !$overview_mode) { ?>
+						<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) { ?>
 							<div class="form-group">
 								<label class="col-sm-4 control-label">Piece Types</label>
 								<div class="col-sm-8">
@@ -2135,7 +2254,7 @@ if(!$action_mode && !$overview_mode) {
 
 		if($sort_field == 'Inventory General') { ?>
 			<div class="form-group sort_order_accordion" data-accordion="Inventory General">
-				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'General Cargo / Inventory Information' ?></span>:<?php if(!$action_mode && !$overview_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
+				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'General Cargo / Inventory Information' ?></span>:<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
 					<span class="dataToggle cursor-hand no-toggle smaller <?= in_array('ticket_inventory_general',$all_unlocked_tabs) ? 'disabled' : '' ?>" title="Locking a tab will hide the contents of that tab on all new <?= TICKET_TILE ?>. A user with access to edit the <?= TICKET_NOUN ?> can then unlock that tab for that <?= TICKET_NOUN ?>.<?= in_array('ticket_inventory_general',$all_unlocked_tabs) ? ' This tab has been locked for all '.TICKET_TILE.'.' : '' ?>">
 						<input type="hidden" name="ticket_tab_locks<?= empty($tab) ? '' : '_'.$tab ?>" value="ticket_inventory_general" data-toggle="<?= in_array('ticket_inventory_general',$unlocked_tabs) ? 1 : 0 ?>">
 						<img class="inline-img" style="<?= in_array('ticket_inventory_general',array_merge($unlocked_tabs,$all_unlocked_tabs)) ? '' : 'display:none;' ?>" src="../img/icons/lock.png">
@@ -2231,9 +2350,13 @@ if(!$action_mode && !$overview_mode) {
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Inventory General Manual Add Pieces", $all_config) ? 'checked disabled' : (in_array("Inventory General Manual Add Pieces", $value_config) ? "checked" : '') ?> value="Inventory General Manual Add Pieces" name="tickets[]">
 									<span class="popover-examples"><a data-toggle="tooltip" data-original-title="If this is active, you will need to click a button before any pieces will be automatically added to the <?= TICKET_NOUN ?>."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Manually Add Pieces</label>
 							<?php } ?>
+							<?php if($field_sort_field == 'Inventory General Manual Remove Pieces') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Inventory General Manual Remove Pieces", $all_config) ? 'checked disabled' : (in_array("Inventory General Manual Remove Pieces", $value_config) ? "checked" : '') ?> value="Inventory General Manual Remove Pieces" name="tickets[]">
+									<span class="popover-examples"><a data-toggle="tooltip" data-original-title="If this is active, you will see a button that will remove a piece and update the piece count on the <?= TICKET_NOUN ?>."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Manually Remove Pieces</label>
+							<?php } ?>
 						<?php } ?>
 						</div>
-						<?php if(!$action_mode && !$overview_mode) { ?>
+						<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) { ?>
 							<div class="form-group">
 								<label class="col-sm-4 control-label">Incomplete Inventory Reminder Email:</label>
 								<div class="col-sm-8">
@@ -2248,7 +2371,7 @@ if(!$action_mode && !$overview_mode) {
 
 		if($sort_field == 'Inventory Detail') { ?>
 			<div class="form-group sort_order_accordion" data-accordion="Inventory Detail">
-				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Detailed Cargo / Inventory Information' ?></span>:<?php if(!$action_mode && !$overview_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
+				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Detailed Cargo / Inventory Information' ?></span>:<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
 					<span class="dataToggle cursor-hand no-toggle smaller <?= in_array('ticket_inventory_detailed',$all_unlocked_tabs) ? 'disabled' : '' ?>" title="Locking a tab will hide the contents of that tab on all new <?= TICKET_TILE ?>. A user with access to edit the <?= TICKET_NOUN ?> can then unlock that tab for that <?= TICKET_NOUN ?>.<?= in_array('ticket_inventory_detailed',$all_unlocked_tabs) ? ' This tab has been locked for all '.TICKET_TILE.'.' : '' ?>">
 						<input type="hidden" name="ticket_tab_locks<?= empty($tab) ? '' : '_'.$tab ?>" value="ticket_inventory_detailed" data-toggle="<?= in_array('ticket_inventory_detailed',$unlocked_tabs) ? 1 : 0 ?>">
 						<img class="inline-img" style="<?= in_array('ticket_inventory_detailed',array_merge($unlocked_tabs,$all_unlocked_tabs)) ? '' : 'display:none;' ?>" src="../img/icons/lock.png">
@@ -2352,7 +2475,7 @@ if(!$action_mode && !$overview_mode) {
 
 		if($sort_field == 'Inventory Return') { ?>
 			<div class="form-group sort_order_accordion" data-accordion="Inventory Return">
-				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Return Information' ?></span>:<?php if(!$action_mode && !$overview_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
+				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Return Information' ?></span>:<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
 					<span class="dataToggle cursor-hand no-toggle smaller <?= in_array('ticket_inventory_return',$all_unlocked_tabs) ? 'disabled' : '' ?>" title="Locking a tab will hide the contents of that tab on all new <?= TICKET_TILE ?>. A user with access to edit the <?= TICKET_NOUN ?> can then unlock that tab for that <?= TICKET_NOUN ?>.<?= in_array('ticket_inventory_return',$all_unlocked_tabs) ? ' This tab has been locked for all '.TICKET_TILE.'.' : '' ?>">
 						<input type="hidden" name="ticket_tab_locks<?= empty($tab) ? '' : '_'.$tab ?>" value="ticket_inventory_return" data-toggle="<?= in_array('ticket_inventory_return',$unlocked_tabs) ? 1 : 0 ?>">
 						<img class="inline-img" style="<?= in_array('ticket_inventory_return',array_merge($unlocked_tabs,$all_unlocked_tabs)) ? '' : 'display:none;' ?>" src="../img/icons/lock.png">
@@ -2387,7 +2510,7 @@ if(!$action_mode && !$overview_mode) {
 
 		if($sort_field == 'Purchase Orders') { ?>
 			<div class="form-group sort_order_accordion" data-accordion="Purchase Orders">
-				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Purchase Orders' ?></span>:<?php if(!$action_mode && !$overview_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
+				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Purchase Orders' ?></span>:<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
 					<span class="dataToggle cursor-hand no-toggle <?= in_array('ticket_purchase_orders',$all_unlocked_tabs) ? 'disabled' : '' ?>" title="Locking a tab will hide the contents of that tab on all new <?= TICKET_TILE ?>. A user with access to edit the <?= TICKET_NOUN ?> can then unlock that tab for that <?= TICKET_NOUN ?>.<?= in_array('ticket_purchase_orders',$all_unlocked_tabs) ? ' This tab has been locked for all '.TICKET_TILE.'.' : '' ?>">
 						<input type="hidden" name="ticket_tab_locks<?= empty($tab) ? '' : '_'.$tab ?>" value="ticket_purchase_orders" data-toggle="<?= in_array('ticket_purchase_orders',$unlocked_tabs) ? 1 : 0 ?>">
 						<img class="inline-img" style="<?= in_array('ticket_purchase_orders',array_merge($unlocked_tabs,$all_unlocked_tabs)) ? '' : 'display:none;' ?>" src="../img/icons/lock.png">
@@ -2404,7 +2527,7 @@ if(!$action_mode && !$overview_mode) {
 
 		if($sort_field == 'Attached Purchase Orders') { ?>
 			<div class="form-group sort_order_accordion" data-accordion="Attached Purchase Orders">
-				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Purchase Orders' ?></span>:<?php if(!$action_mode && !$overview_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
+				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Purchase Orders' ?></span>:<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
 					<span class="dataToggle cursor-hand no-toggle <?= in_array('ticket_purchase_orders',$all_unlocked_tabs) ? 'disabled' : '' ?>" title="Locking a tab will hide the contents of that tab on all new <?= TICKET_TILE ?>. A user with access to edit the <?= TICKET_NOUN ?> can then unlock that tab for that <?= TICKET_NOUN ?>.<?= in_array('ticket_purchase_orders',$all_unlocked_tabs) ? ' This tab has been locked for all '.TICKET_TILE.'.' : '' ?>">
 						<input type="hidden" name="ticket_tab_locks<?= empty($tab) ? '' : '_'.$tab ?>" value="ticket_purchase_orders" data-toggle="<?= in_array('ticket_purchase_orders',$unlocked_tabs) ? 1 : 0 ?>">
 						<img class="inline-img" style="<?= in_array('ticket_purchase_orders',array_merge($unlocked_tabs,$all_unlocked_tabs)) ? '' : 'display:none;' ?>" src="../img/icons/lock.png">
@@ -2445,7 +2568,7 @@ if(!$action_mode && !$overview_mode) {
 
 		if($sort_field == 'Delivery') { ?>
 			<div class="form-group sort_order_accordion" data-accordion="Delivery">
-				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Delivery Details' ?></span>:<?php if(!$action_mode && !$overview_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
+				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Delivery Details' ?></span>:<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
 					<span class="dataToggle cursor-hand no-toggle <?= in_array('ticket_delivery',$all_unlocked_tabs) ? 'disabled' : '' ?>" title="Locking a tab will hide the contents of that tab on all new <?= TICKET_TILE ?>. A user with access to edit the <?= TICKET_NOUN ?> can then unlock that tab for that <?= TICKET_NOUN ?>.<?= in_array('ticket_delivery',$all_unlocked_tabs) ? ' This tab has been locked for all '.TICKET_TILE.'.' : '' ?>">
 						<input type="hidden" name="ticket_tab_locks<?= empty($tab) ? '' : '_'.$tab ?>" value="ticket_delivery" data-toggle="<?= in_array('ticket_delivery',$unlocked_tabs) ? 1 : 0 ?>">
 						<img class="inline-img" style="<?= in_array('ticket_delivery',array_merge($unlocked_tabs,$all_unlocked_tabs)) ? '' : 'display:none;' ?>" src="../img/icons/lock.png">
@@ -2458,7 +2581,7 @@ if(!$action_mode && !$overview_mode) {
 						<span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will allow you to add additional locations and times to the <?= TICKET_NOUN ?>."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Enable</label>
 					<div class="block-group">
 						<div class="fields_sortable">
-						<?php if(!$action_mode && !$overview_mode) { ?>
+						<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) { ?>
 							<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Assigned Equipment Inline", $all_config) ? 'checked disabled' : (in_array("Assigned Equipment Inline", $value_config) ? "checked" : '') ?> value="Assigned Equipment Inline" name="tickets[]"> Inline Equipment</label>
 						<?php } ?>
 						<?php foreach ($field_sort_order as $field_sort_field) { ?>
@@ -2528,6 +2651,9 @@ if(!$action_mode && !$overview_mode) {
 							<?php if($field_sort_field == 'Delivery Pickup Customer Est Time') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Delivery Stops", array_merge($all_config,$value_config)) ? 'disabled' : (in_array("Delivery Pickup Customer Est Time", $all_config) ? 'checked disabled' : (in_array("Delivery Pickup Customer Est Time", $value_config) ? "checked" : '')) ?> value="Delivery Pickup Customer Est Time" name="tickets[]"> Multi-Stop Customer Estimated Time</label>
 							<?php } ?>
+							<?php if($field_sort_field == 'Delivery Pickup Estimate') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Delivery Stops", array_merge($all_config,$value_config)) ? 'disabled' : (in_array("Delivery Pickup Estimate", $all_config) ? 'checked disabled' : (in_array("Delivery Pickup Estimate", $value_config) ? "checked" : '')) ?> value="Delivery Pickup Estimate" name="tickets[]"> Multi-Stop Time Estimate</label>
+							<?php } ?>
 							<?php if($field_sort_field == 'Delivery Pickup Date') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Delivery Stops", array_merge($all_config,$value_config)) ? 'disabled' : (in_array("Delivery Pickup Date", $all_config) ? 'checked disabled' : (in_array("Delivery Pickup Date", $value_config) ? "checked" : '')) ?> value="Delivery Pickup Date" name="tickets[]"> Multi-Stop Date</label>
 							<?php } ?>
@@ -2546,6 +2672,9 @@ if(!$action_mode && !$overview_mode) {
 							<?php if($field_sort_field == 'Delivery Pickup Description') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Delivery Stops", array_merge($all_config,$value_config)) ? 'disabled' : (in_array("Delivery Pickup Description", $all_config) ? 'checked disabled' : (in_array("Delivery Pickup Description", $value_config) ? "checked" : '')) ?> value="Delivery Pickup Description" name="tickets[]"> Multi-Stop Details</label>
 							<?php } ?>
+							<?php if($field_sort_field == 'Delivery Pickup Upload') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Delivery Stops", array_merge($all_config,$value_config)) ? 'disabled' : (in_array("Delivery Pickup Upload", $all_config) ? 'checked disabled' : (in_array("Delivery Pickup Upload", $value_config) ? "checked" : '')) ?> value="Delivery Pickup Upload" name="tickets[]"> Multi-Stop Upload</label>
+							<?php } ?>
 							<?php if($field_sort_field == 'Delivery Pickup Default Services') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Delivery Stops", array_merge($all_config,$value_config)) ? 'disabled' : (in_array("Delivery Pickup Default Services", $all_config) ? 'checked disabled' : (in_array("Delivery Pickup Default Services", $value_config) ? "checked" : '')) ?> value="Delivery Pickup Default Services" name="tickets[]"> Multi-Stop Default Services</label>
 							<?php } ?>
@@ -2554,6 +2683,9 @@ if(!$action_mode && !$overview_mode) {
 							<?php } ?>
 							<?php if($field_sort_field == 'Delivery Pickup Warehouse Only') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Delivery Stops", array_merge($all_config,$value_config)) ? 'disabled' : (in_array("Delivery Pickup Warehouse Only", $all_config) ? 'checked disabled' : (in_array("Delivery Pickup Warehouse Only", $value_config) ? "checked" : '')) ?> value="Delivery Pickup Warehouse Only" name="tickets[]"> Multi-Stop Warehouse Only</label>
+							<?php } ?>
+							<?php if($field_sort_field == 'Delivery Pickup Populate Warehouse Address') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Delivery Stops", array_merge($all_config,$value_config)) ? 'disabled' : (in_array("Delivery Pickup Populate Warehouse Address", $all_config) ? 'checked disabled' : (in_array("Delivery Pickup Populate Warehouse Address", $value_config) ? "checked" : '')) ?> value="Delivery Pickup Populate Warehouse Address" name="tickets[]"> Multi-Stop Populate Warehouse Address</label>
 							<?php } ?>
 							<?php if($field_sort_field == 'Delivery Pickup Status') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Delivery Stops", array_merge($all_config,$value_config)) ? 'disabled' : (in_array("Delivery Pickup Status", $all_config) ? 'checked disabled' : (in_array("Delivery Pickup Status", $value_config) ? "checked" : '')) ?> value="Delivery Pickup Status" name="tickets[]"> Multi-Stop Status</label>
@@ -2572,7 +2704,7 @@ if(!$action_mode && !$overview_mode) {
 							<?php } ?>
 						<?php } ?>
 						</div>
-						<?php if(!$action_mode && !$overview_mode) { ?>
+						<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) { ?>
 							<div class="form-group">
 								<label class="col-sm-4 control-label"><span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will set the default scheduled time for the Warehouse stops."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Warehouse Scheduled Time</label>
 								<div class="col-sm-8">
@@ -2632,7 +2764,6 @@ if(!$action_mode && !$overview_mode) {
 								<label class="col-sm-4 control-label">Auto Create Unscheduled Stop On Status Change:</label>
 								<div class="col-sm-8">
 									<select multiple class="chosen-select-deselect" data-placeholder="Select Statuses" name="auto_create_unscheduled[]">
-										<option></option>
 										<?php $ticket_statuses = explode(',',get_config($dbc, 'ticket_status'));
 										foreach ($ticket_statuses as $ticket_status) { ?>
 											<option <?= in_array($ticket_status, $auto_create_unscheduled) ? 'selected' : '' ?> value="<?= $ticket_status ?>"><?= $ticket_status ?></option>
@@ -2651,7 +2782,7 @@ if(!$action_mode && !$overview_mode) {
 
 		if($sort_field == 'Transport') { ?>
 			<div class="form-group sort_order_accordion" data-accordion="Transport">
-				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Transport Log' ?></span>:<?php if(!$action_mode && !$overview_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a><?php } ?></label>
+				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Transport Log' ?></span>:<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a><?php } ?></label>
 				<div class="col-sm-4 accordion_rename" style="display: none;">
 					<input type="text" name="renamed_accordion[]" value="<?= !empty($renamed_accordion) ? $renamed_accordion : 'Transport Log' ?>" onfocusout="updateAccordion(this);" class="form-control">
 				</div>
@@ -2661,7 +2792,7 @@ if(!$action_mode && !$overview_mode) {
 					<div class="block-group">
 						<div class="transport_group">
 							<?php $renamed_accordion = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_ticket_accordion_names` WHERE `ticket_type` = '".(empty($tab) ? 'tickets' : 'tickets_'.$tab)."' AND `accordion` = 'Transport Origin'"))['accordion_name']; ?>
-							<h4 class="accordion_label"><span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will allow you to specify the origin of the <?= TICKET_NOUN ?>."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span><?= !empty($renamed_accordion) ? $renamed_accordion : 'Origin' ?><?php if(!$action_mode && !$overview_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
+							<h4 class="accordion_label"><span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will allow you to specify the origin of the <?= TICKET_NOUN ?>."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span><?= !empty($renamed_accordion) ? $renamed_accordion : 'Origin' ?><?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
 								<span class="dataToggle cursor-hand no-toggle smaller <?= in_array('ticket_transport_origin',$all_unlocked_tabs) ? 'disabled' : '' ?>" title="Locking a tab will hide the contents of that tab on all new <?= TICKET_TILE ?>. A user with access to edit the <?= TICKET_NOUN ?> can then unlock that tab for that <?= TICKET_NOUN ?>.<?= in_array('ticket_transport_origin',$all_unlocked_tabs) ? ' This tab has been locked for all '.TICKET_TILE.'.' : '' ?>">
 									<input type="hidden" name="ticket_tab_locks<?= empty($tab) ? '' : '_'.$tab ?>" value="ticket_transport_origin" data-toggle="<?= in_array('ticket_transport_origin',$unlocked_tabs) ? 1 : 0 ?>">
 									<img class="inline-img" style="<?= in_array('ticket_transport_origin',array_merge($unlocked_tabs,$all_unlocked_tabs)) ? '' : 'display:none;' ?>" src="../img/icons/lock.png">
@@ -2701,7 +2832,7 @@ if(!$action_mode && !$overview_mode) {
 								<?php } ?>
 							<?php } ?>
 							</div>
-							<?php if(!$action_mode && !$overview_mode) { ?>
+							<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) { ?>
 								<div class="form-group">
 									<?php $transport_log_contact = get_config($dbc, 'transport_log_contact'); ?>
 									<label class="col-sm-4 control-label">Origin Contact Category<?= $transport_log_contact != '' && $tab != '' ? ' (Default: '.$transport_log_contact.')' : '' ?>:</label>
@@ -2718,7 +2849,7 @@ if(!$action_mode && !$overview_mode) {
 						</div>
 						<div class="transport_group">
 							<?php $renamed_accordion = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_ticket_accordion_names` WHERE `ticket_type` = '".(empty($tab) ? 'tickets' : 'tickets_'.$tab)."' AND `accordion` = 'Transport Destination'"))['accordion_name']; ?>
-							<h4 class="accordion_label"><span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will allow you to specify the destination of the <?= TICKET_NOUN ?>."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span><?= !empty($renamed_accordion) ? $renamed_accordion : 'Destination' ?><?php if(!$action_mode && !$overview_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
+							<h4 class="accordion_label"><span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will allow you to specify the destination of the <?= TICKET_NOUN ?>."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span><?= !empty($renamed_accordion) ? $renamed_accordion : 'Destination' ?><?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
 								<span class="dataToggle cursor-hand no-toggle smaller <?= in_array('ticket_transport_destination',$all_unlocked_tabs) ? 'disabled' : '' ?>" title="Locking a tab will hide the contents of that tab on all new <?= TICKET_TILE ?>. A user with access to edit the <?= TICKET_NOUN ?> can then unlock that tab for that <?= TICKET_NOUN ?>.<?= in_array('ticket_transport_destination',$all_unlocked_tabs) ? ' This tab has been locked for all '.TICKET_TILE.'.' : '' ?>">
 									<input type="hidden" name="ticket_tab_locks<?= empty($tab) ? '' : '_'.$tab ?>" value="ticket_transport_destination" data-toggle="<?= in_array('ticket_transport_destination',$unlocked_tabs) ? 1 : 0 ?>">
 									<img class="inline-img" style="<?= in_array('ticket_transport_destination',array_merge($unlocked_tabs,$all_unlocked_tabs)) ? '' : 'display:none;' ?>" src="../img/icons/lock.png">
@@ -2758,7 +2889,7 @@ if(!$action_mode && !$overview_mode) {
 								<?php } ?>
 							<?php } ?>
 							</div>
-							<?php if(!$action_mode && !$overview_mode) { ?>
+							<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) { ?>
 								<div class="form-group">
 									<?php $transport_destination_contact = get_config($dbc, 'transport_destination_contact'); ?>
 									<label class="col-sm-4 control-label">Destination Contact Category<?= $transport_destination_contact != '' && $tab != '' ? ' (Default: '.$transport_destination_contact.')' : '' ?>:</label>
@@ -2775,7 +2906,7 @@ if(!$action_mode && !$overview_mode) {
 						</div>
 						<div class="transport_group">
 							<?php $renamed_accordion = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_ticket_accordion_names` WHERE `ticket_type` = '".(empty($tab) ? 'tickets' : 'tickets_'.$tab)."' AND `accordion` = 'Transport Carrier'"))['accordion_name']; ?>
-							<h4 class="accordion_label"><span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will allow you to specify the details about the transportation for the <?= TICKET_NOUN ?>."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span><?= !empty($renamed_accordion) ? $renamed_accordion : 'Carrier Details' ?><?php if(!$action_mode && !$overview_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
+							<h4 class="accordion_label"><span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will allow you to specify the details about the transportation for the <?= TICKET_NOUN ?>."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span><?= !empty($renamed_accordion) ? $renamed_accordion : 'Carrier Details' ?><?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
 								<span class="dataToggle cursor-hand no-toggle smaller <?= in_array('ticket_transport_details',$all_unlocked_tabs) ? 'disabled' : '' ?>" title="Locking a tab will hide the contents of that tab on all new <?= TICKET_TILE ?>. A user with access to edit the <?= TICKET_NOUN ?> can then unlock that tab for that <?= TICKET_NOUN ?>.<?= in_array('ticket_transport_details',$all_unlocked_tabs) ? ' This tab has been locked for all '.TICKET_TILE.'.' : '' ?>">
 									<input type="hidden" name="ticket_tab_locks<?= empty($tab) ? '' : '_'.$tab ?>" value="ticket_transport_details" data-toggle="<?= in_array('ticket_transport_details',$unlocked_tabs) ? 1 : 0 ?>">
 									<img class="inline-img" style="<?= in_array('ticket_transport_details',array_merge($unlocked_tabs,$all_unlocked_tabs)) ? '' : 'display:none;' ?>" src="../img/icons/lock.png">
@@ -2814,7 +2945,7 @@ if(!$action_mode && !$overview_mode) {
 								<?php } ?>
 							<?php } ?>
 							</div>
-							<?php if(!$action_mode && !$overview_mode) { ?>
+							<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) { ?>
 								<div class="form-group">
 									<?php $transport_carrier_category = get_config($dbc, 'transport_carrier_category'); ?>
 									<label class="col-sm-4 control-label">Carrier Contact Category<?= $transport_carrier_category != '' && $tab != '' ? ' (Default: '.$transport_carrier_category.')' : '' ?>:</label>
@@ -2842,7 +2973,7 @@ if(!$action_mode && !$overview_mode) {
 
 		if($sort_field == 'Documents') { ?>
 			<div class="form-group sort_order_accordion" data-accordion="Documents">
-				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Documents' ?></span>:<?php if(!$action_mode && !$overview_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
+				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Documents' ?></span>:<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
 					<span class="dataToggle cursor-hand no-toggle <?= in_array('view_ticket_documents',$all_unlocked_tabs) ? 'disabled' : '' ?>" title="Locking a tab will hide the contents of that tab on all new <?= TICKET_TILE ?>. A user with access to edit the <?= TICKET_NOUN ?> can then unlock that tab for that <?= TICKET_NOUN ?>.<?= in_array('view_ticket_documents',$all_unlocked_tabs) ? ' This tab has been locked for all '.TICKET_TILE.'.' : '' ?>">
 						<input type="hidden" name="ticket_tab_locks<?= empty($tab) ? '' : '_'.$tab ?>" value="view_ticket_documents" data-toggle="<?= in_array('view_ticket_documents',$unlocked_tabs) ? 1 : 0 ?>">
 						<img class="inline-img" style="<?= in_array('view_ticket_documents',array_merge($unlocked_tabs,$all_unlocked_tabs)) ? '' : 'display:none;' ?>" src="../img/icons/lock.png">
@@ -2880,7 +3011,7 @@ if(!$action_mode && !$overview_mode) {
 
 		if($sort_field == 'Check Out') { ?>
 			<div class="form-group sort_order_accordion" data-accordion="Check Out">
-				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Check Out' ?></span>:<?php if(!$action_mode && !$overview_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
+				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Check Out' ?></span>:<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
 					<span class="dataToggle cursor-hand no-toggle <?= in_array('ticket_checkout',$all_unlocked_tabs) ? 'disabled' : '' ?>" title="Locking a tab will hide the contents of that tab on all new <?= TICKET_TILE ?>. A user with access to edit the <?= TICKET_NOUN ?> can then unlock that tab for that <?= TICKET_NOUN ?>.<?= in_array('ticket_checkout',$all_unlocked_tabs) ? ' This tab has been locked for all '.TICKET_TILE.'.' : '' ?>">
 						<input type="hidden" name="ticket_tab_locks<?= empty($tab) ? '' : '_'.$tab ?>" value="ticket_checkout" data-toggle="<?= in_array('ticket_checkout',$unlocked_tabs) ? 1 : 0 ?>">
 						<img class="inline-img" style="<?= in_array('ticket_checkout',array_merge($unlocked_tabs,$all_unlocked_tabs)) ? '' : 'display:none;' ?>" src="../img/icons/lock.png">
@@ -2889,11 +3020,11 @@ if(!$action_mode && !$overview_mode) {
 					<input type="text" name="renamed_accordion[]" value="<?= !empty($renamed_accordion) ? $renamed_accordion : 'Check Out' ?>" onfocusout="updateAccordion(this);" class="form-control">
 				</div>
 				<div class="col-sm-8">
-					<?php if((!$action_mode && !$overview_mode) || in_array('Check Out', $merged_config_fields)) { ?>
+					<?php if((!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) || in_array('Check Out', $merged_config_fields)) { ?>
 						<label class="form-checkbox"><input type="checkbox" <?= in_array("Check Out", $all_config) ? 'checked disabled' : (in_array("Check Out", $value_config) ? "checked" : '') ?> value="Check Out" name="tickets[]">
 							<span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will allow you to mark individuals, equipment, or other supplies as done for the <?= TICKET_NOUN ?>."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Enable Check Out</label>
 					<?php } ?>
-					<?php if((!$action_mode && !$overview_mode) || in_array('Check Out Member Pick Up', $merged_config_fields)) { ?>
+					<?php if((!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) || in_array('Check Out Member Pick Up', $merged_config_fields)) { ?>
 						<label class="form-checkbox"><input type="checkbox" <?= in_array("Check Out Member Pick Up", $all_config) ? 'checked disabled' : (in_array("Check Out Member Pick Up", $value_config) ? "checked" : '') ?> value="Check Out Member Pick Up" name="tickets[]"> Enable Member Pick Up</label>
 					<?php } ?>
 					<div class="block-group">
@@ -2932,7 +3063,7 @@ if(!$action_mode && !$overview_mode) {
 							<?php } ?>
 						<?php } ?>
 						</div>
-						<?php if(!$action_mode && !$overview_mode) { ?>
+						<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) { ?>
 							<h3>Check Out Reasons</h3>
 							<?php foreach(explode('#*#',get_config($dbc, 'ticket_checkout_info')) as $reason) { ?>
 								<div class="form-group checkout_info">
@@ -2956,7 +3087,7 @@ if(!$action_mode && !$overview_mode) {
 
 		if($sort_field == 'Staff Check Out') { ?>
 			<div class="form-group sort_order_accordion" data-accordion="Staff Check Out">
-				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Staff Check Out' ?></span>:<?php if(!$action_mode && !$overview_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
+				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Staff Check Out' ?></span>:<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
 					<span class="dataToggle cursor-hand no-toggle <?= in_array('ticket_checkout_staff',$all_unlocked_tabs) ? 'disabled' : '' ?>" title="Locking a tab will hide the contents of that tab on all new <?= TICKET_TILE ?>. A user with access to edit the <?= TICKET_NOUN ?> can then unlock that tab for that <?= TICKET_NOUN ?>.<?= in_array('ticket_checkout_staff',$all_unlocked_tabs) ? ' This tab has been locked for all '.TICKET_TILE.'.' : '' ?>">
 						<input type="hidden" name="ticket_tab_locks<?= empty($tab) ? '' : '_'.$tab ?>" value="ticket_checkout_staff" data-toggle="<?= in_array('ticket_checkout_staff',$unlocked_tabs) ? 1 : 0 ?>">
 						<img class="inline-img" style="<?= in_array('ticket_checkout_staff',array_merge($unlocked_tabs,$all_unlocked_tabs)) ? '' : 'display:none;' ?>" src="../img/icons/lock.png">
@@ -2980,7 +3111,7 @@ if(!$action_mode && !$overview_mode) {
 							<?php } ?>
 						<?php } ?>
 						</div>
-						<?php if(!$action_mode && !$overview_mode) { ?>
+						<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) { ?>
 							<h3>Check Out Reasons</h3>
 							<?php foreach(explode('#*#',get_config($dbc, 'ticket_checkout_info_staff')) as $reason) { ?>
 								<div class="form-group checkout_info_staff">
@@ -3004,7 +3135,7 @@ if(!$action_mode && !$overview_mode) {
 
 		if($sort_field == 'Billing') { ?>
 			<div class="form-group sort_order_accordion" data-accordion="Billing">
-				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Billing' ?></span>:<?php if(!$action_mode && !$overview_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
+				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Billing' ?></span>:<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
 					<span class="dataToggle cursor-hand no-toggle <?= in_array('ticket_billing',$all_unlocked_tabs) ? 'disabled' : '' ?>" title="Locking a tab will hide the contents of that tab on all new <?= TICKET_TILE ?>. A user with access to edit the <?= TICKET_NOUN ?> can then unlock that tab for that <?= TICKET_NOUN ?>.<?= in_array('ticket_billing',$all_unlocked_tabs) ? ' This tab has been locked for all '.TICKET_TILE.'.' : '' ?>">
 						<input type="hidden" name="ticket_tab_locks<?= empty($tab) ? '' : '_'.$tab ?>" value="ticket_billing" data-toggle="<?= in_array('ticket_billing',$unlocked_tabs) ? 1 : 0 ?>">
 						<img class="inline-img" style="<?= in_array('ticket_billing',array_merge($unlocked_tabs,$all_unlocked_tabs)) ? '' : 'display:none;' ?>" src="../img/icons/lock.png">
@@ -3048,7 +3179,7 @@ if(!$action_mode && !$overview_mode) {
 
 		if($sort_field == 'Customer Notes') { ?>
 			<div class="form-group sort_order_accordion" data-accordion="Customer Notes">
-				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Customer Notes' ?></span>:<?php if(!$action_mode && !$overview_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
+				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Customer Notes' ?></span>:<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
 					<span class="dataToggle cursor-hand no-toggle <?= in_array('ticket_customer_notes',$all_unlocked_tabs) ? 'disabled' : '' ?>" title="Locking a tab will hide the contents of that tab on all new <?= TICKET_TILE ?>. A user with access to edit the <?= TICKET_NOUN ?> can then unlock that tab for that <?= TICKET_NOUN ?>.<?= in_array('ticket_customer_notes',$all_unlocked_tabs) ? ' This tab has been locked for all '.TICKET_TILE.'.' : '' ?>">
 						<input type="hidden" name="ticket_tab_locks<?= empty($tab) ? '' : '_'.$tab ?>" value="ticket_customer_notes" data-toggle="<?= in_array('ticket_customer_notes',$unlocked_tabs) ? 1 : 0 ?>">
 						<img class="inline-img" style="<?= in_array('ticket_customer_notes',array_merge($unlocked_tabs,$all_unlocked_tabs)) ? '' : 'display:none;' ?>" src="../img/icons/lock.png">
@@ -3065,11 +3196,26 @@ if(!$action_mode && !$overview_mode) {
 							<?php if($field_sort_field == 'Customer Stop Status') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Customer Stop Status", $all_config) ? 'checked disabled' : (in_array("Customer Stop Status", $value_config) ? "checked" : '') ?> value="Customer Stop Status" name="tickets[]"> Stop Status</label>
 							<?php } ?>
+							<?php if($field_sort_field == 'Customer Contacted') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Customer Contacted", $all_config) ? 'checked disabled' : (in_array("Customer Contacted", $value_config) ? "checked" : '') ?> value="Customer Contacted" name="tickets[]"> Customer Contacted</label>
+							<?php } ?>
+							<?php if($field_sort_field == 'Customer Reset Details') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Customer Reset Details", $all_config) ? 'checked disabled' : (in_array("Customer Reset Details", $value_config) ? "checked" : '') ?> value="Customer Reset Details" name="tickets[]"> Reset Details</label>
+							<?php } ?>
+							<?php if($field_sort_field == 'Customer Driver Notes') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Customer Driver Notes", $all_config) ? 'checked disabled' : (in_array("Customer Driver Notes", $value_config) ? "checked" : '') ?> value="Customer Driver Notes" name="tickets[]"> Driver Notes</label>
+							<?php } ?>
+							<?php if($field_sort_field == 'Customer Property Photo') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Customer Property Photo", $all_config) ? 'checked disabled' : (in_array("Customer Property Photo", $value_config) ? "checked" : '') ?> value="Customer Property Photo" name="tickets[]"> Property Photo</label>
+							<?php } ?>
 							<?php if($field_sort_field == 'Customer Property Damage') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Customer Property Damage", $all_config) ? 'checked disabled' : (in_array("Customer Property Damage", $value_config) ? "checked" : '') ?> value="Customer Property Damage" name="tickets[]"> Property Damage Notes</label>
 							<?php } ?>
 							<?php if($field_sort_field == 'Customer Product Damage') { ?>
-								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Customer Product Damage", $all_config) ? 'checked disabled' : (in_array("Customer Product Damage", $value_config) ? "checked" : '') ?> value="Customer Product Damage" name="tickets[]"> Product Damage Notes</label>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Customer Product Damage", $all_config) ? 'checked disabled' : (in_array("Customer Product Damage", $value_config) ? "checked" : '') ?> value="Customer Product Damage" onclick="$('[value^=Customer][value*=Product][value*=Damage][value$=Package]').removeAttr('checked').change();" name="tickets[]"> Product Damage Notes</label>
+							<?php } ?>
+							<?php if($field_sort_field == 'Customer Product Damage Package') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Customer Product Damage Package", $all_config) ? 'checked disabled' : (in_array("Customer Product Damage Package", $value_config) ? "checked" : '') ?> value="Customer Product Damage Package" onclick="$('[value^=Customer][value*=Product][value$=Damage]').removeAttr('checked').change();" name="tickets[]"> Product or Package Damage Notes</label>
 							<?php } ?>
 							<?php if($field_sort_field == 'Customer Rate') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Customer Rate", $all_config) ? 'checked disabled' : (in_array("Customer Rate", $value_config) ? "checked" : '') ?> value="Customer Rate" name="tickets[]"> Rating by Customer</label>
@@ -3082,6 +3228,9 @@ if(!$action_mode && !$overview_mode) {
 							<?php } ?>
 							<?php if($field_sort_field == 'Customer Recommend Likely') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Customer Recommend Likely", $all_config) ? 'checked disabled' : (in_array("Customer Recommend Likely", $value_config) ? "checked" : '') ?> value="Customer Recommend Likely" name="tickets[]"> Likelihood of Recommending</label>
+							<?php } ?>
+							<?php if($field_sort_field == 'Customer Add Details') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Customer Add Details", $all_config) ? 'checked disabled' : (in_array("Customer Add Details", $value_config) ? "checked" : '') ?> value="Customer Add Details" name="tickets[]"> Additional Details</label>
 							<?php } ?>
 							<?php if($field_sort_field == 'Customer Sign') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Customer Sign", $all_config) ? 'checked disabled' : (in_array("Customer Sign", $value_config) ? "checked" : '') ?> value="Customer Sign" name="tickets[]"> Signature</label>
@@ -3107,7 +3256,7 @@ if(!$action_mode && !$overview_mode) {
 
 		if($sort_field == 'Addendum') { ?>
 			<div class="form-group sort_order_accordion" data-accordion="Addendum">
-				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Addendum' ?></span>:<?php if(!$action_mode && !$overview_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
+				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Addendum' ?></span>:<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
 					<span class="dataToggle cursor-hand no-toggle <?= in_array('addendum_view_ticket_comment',$all_unlocked_tabs) ? 'disabled' : '' ?>" title="Locking a tab will hide the contents of that tab on all new <?= TICKET_TILE ?>. A user with access to edit the <?= TICKET_NOUN ?> can then unlock that tab for that <?= TICKET_NOUN ?>.<?= in_array('addendum_view_ticket_comment',$all_unlocked_tabs) ? ' This tab has been locked for all '.TICKET_TILE.'.' : '' ?>">
 						<input type="hidden" name="ticket_tab_locks<?= empty($tab) ? '' : '_'.$tab ?>" value="addendum_view_ticket_comment" data-toggle="<?= in_array('addendum_view_ticket_comment',$unlocked_tabs) ? 1 : 0 ?>">
 						<img class="inline-img" style="<?= in_array('addendum_view_ticket_comment',array_merge($unlocked_tabs,$all_unlocked_tabs)) ? '' : 'display:none;' ?>" src="../img/icons/lock.png">
@@ -3124,7 +3273,7 @@ if(!$action_mode && !$overview_mode) {
 
 		if($sort_field == 'Client Log') { ?>
 			<div class="form-group sort_order_accordion" data-accordion="Client Log">
-				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Staff Log Notes' ?></span>:<?php if(!$action_mode && !$overview_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
+				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Staff Log Notes' ?></span>:<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
 					<span class="dataToggle cursor-hand no-toggle <?= in_array('ticket_log_notes',$all_unlocked_tabs) ? 'disabled' : '' ?>" title="Locking a tab will hide the contents of that tab on all new <?= TICKET_TILE ?>. A user with access to edit the <?= TICKET_NOUN ?> can then unlock that tab for that <?= TICKET_NOUN ?>.<?= in_array('ticket_log_notes',$all_unlocked_tabs) ? ' This tab has been locked for all '.TICKET_TILE.'.' : '' ?>">
 						<input type="hidden" name="ticket_tab_locks<?= empty($tab) ? '' : '_'.$tab ?>" value="ticket_log_notes" data-toggle="<?= in_array('ticket_log_notes',$unlocked_tabs) ? 1 : 0 ?>">
 						<img class="inline-img" style="<?= in_array('ticket_log_notes',array_merge($unlocked_tabs,$all_unlocked_tabs)) ? '' : 'display:none;' ?>" src="../img/icons/lock.png">
@@ -3141,7 +3290,7 @@ if(!$action_mode && !$overview_mode) {
 
 		if($sort_field == 'Debrief') { ?>
 			<div class="form-group sort_order_accordion" data-accordion="Debrief">
-				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Debrief' ?></span>:<?php if(!$action_mode && !$overview_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
+				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Debrief' ?></span>:<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
 					<span class="dataToggle cursor-hand no-toggle <?= in_array('debrief_view_ticket_comment',$all_unlocked_tabs) ? 'disabled' : '' ?>" title="Locking a tab will hide the contents of that tab on all new <?= TICKET_TILE ?>. A user with access to edit the <?= TICKET_NOUN ?> can then unlock that tab for that <?= TICKET_NOUN ?>.<?= in_array('debrief_view_ticket_comment',$all_unlocked_tabs) ? ' This tab has been locked for all '.TICKET_TILE.'.' : '' ?>">
 						<input type="hidden" name="ticket_tab_locks<?= empty($tab) ? '' : '_'.$tab ?>" value="debrief_view_ticket_comment" data-toggle="<?= in_array('debrief_view_ticket_comment',$unlocked_tabs) ? 1 : 0 ?>">
 						<img class="inline-img" style="<?= in_array('debrief_view_ticket_comment',array_merge($unlocked_tabs,$all_unlocked_tabs)) ? '' : 'display:none;' ?>" src="../img/icons/lock.png">
@@ -3153,10 +3302,10 @@ if(!$action_mode && !$overview_mode) {
 					<label class="form-checkbox"><input type="checkbox" <?= in_array("Debrief", $all_config) ? 'checked disabled' : (in_array("Debrief", $value_config) ? "checked" : '') ?> value="Debrief" name="tickets[]">
 						<span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will allow you to add Debrief notes to the <?= TICKET_NOUN ?>."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Enable</label>
 					<div class="block-group">
-						<?php if((!$action_mode && !$overview_mode) || in_array('Debrief Incident Report Reminders',$merged_config_fields)) { ?>
+						<?php if((!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) || in_array('Debrief Incident Report Reminders',$merged_config_fields)) { ?>
 							<label class="form-checkbox"><input type="checkbox" <?= in_array("Debrief Incident Report Reminders", $all_config) ? 'checked disabled' : (in_array("Debrief Incident Report Reminders", $value_config) ? "checked" : '') ?> value="Debrief Incident Report Reminders" name="tickets[]"> <?= INC_REP_TILE ?> Reminders</label>
 						<?php } ?>
-						<?php if(!$action_mode && !$overview_mode) { ?>
+						<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) { ?>
 							<div class="form-group">
 								<h3><?= INC_REP_TILE ?> Second Reminder Email</h3>
 								<label class="col-sm-4 control-label">Second Reminder Email:<br><em>This is the email that will be sent with the second reminder if the first reminder is ignored. Enter emails separated by a comma to have multiple emails.</em></label>
@@ -3173,7 +3322,7 @@ if(!$action_mode && !$overview_mode) {
 
 		if($sort_field == 'Member Log Notes') { ?>
 			<div class="form-group sort_order_accordion" data-accordion="Member Log Notes">
-				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Member Log Notes' ?></span>:<?php if(!$action_mode && !$overview_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
+				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Member Log Notes' ?></span>:<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
 					<span class="dataToggle cursor-hand no-toggle <?= in_array('member_view_ticket_comment',$all_unlocked_tabs) ? 'disabled' : '' ?>" title="Locking a tab will hide the contents of that tab on all new <?= TICKET_TILE ?>. A user with access to edit the <?= TICKET_NOUN ?> can then unlock that tab for that <?= TICKET_NOUN ?>.<?= in_array('member_view_ticket_comment',$all_unlocked_tabs) ? ' This tab has been locked for all '.TICKET_TILE.'.' : '' ?>">
 						<input type="hidden" name="ticket_tab_locks<?= empty($tab) ? '' : '_'.$tab ?>" value="member_view_ticket_comment" data-toggle="<?= in_array('member_view_ticket_comment',$unlocked_tabs) ? 1 : 0 ?>">
 						<img class="inline-img" style="<?= in_array('member_view_ticket_comment',array_merge($unlocked_tabs,$all_unlocked_tabs)) ? '' : 'display:none;' ?>" src="../img/icons/lock.png">
@@ -3190,7 +3339,7 @@ if(!$action_mode && !$overview_mode) {
 
 		if($sort_field == 'Cancellation') { ?>
 			<div class="form-group sort_order_accordion" data-accordion="Cancellation">
-				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Cancellation' ?></span>:<?php if(!$action_mode && !$overview_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
+				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Cancellation' ?></span>:<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
 					<span class="dataToggle cursor-hand no-toggle <?= in_array('ticket_cancellation',$all_unlocked_tabs) ? 'disabled' : '' ?>" title="Locking a tab will hide the contents of that tab on all new <?= TICKET_TILE ?>. A user with access to edit the <?= TICKET_NOUN ?> can then unlock that tab for that <?= TICKET_NOUN ?>.<?= in_array('ticket_cancellation',$all_unlocked_tabs) ? ' This tab has been locked for all '.TICKET_TILE.'.' : '' ?>">
 						<input type="hidden" name="ticket_tab_locks<?= empty($tab) ? '' : '_'.$tab ?>" value="ticket_cancellation" data-toggle="<?= in_array('ticket_cancellation',$unlocked_tabs) ? 1 : 0 ?>">
 						<img class="inline-img" style="<?= in_array('ticket_cancellation',array_merge($unlocked_tabs,$all_unlocked_tabs)) ? '' : 'display:none;' ?>" src="../img/icons/lock.png">
@@ -3202,7 +3351,7 @@ if(!$action_mode && !$overview_mode) {
 					<label class="form-checkbox"><input type="checkbox" <?= in_array("Cancellation", $all_config) ? 'checked disabled' : (in_array("Cancellation", $value_config) ? "checked" : '') ?> value="Cancellation" name="tickets[]">
 						<span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will allow you to add cancellation details to the <?= TICKET_NOUN ?>."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Enable</label>
 					<div class="block-group">
-						<?php if(!$action_mode && !$overview_mode) { ?>
+						<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) { ?>
 							<h3>Cancellation Reasons</h3>
 							<?php foreach(explode('#*#',get_config($dbc, 'ticket_cancellation_reasons')) as $reason) { ?>
 								<div class="form-group cancel_reason">
@@ -3240,7 +3389,7 @@ if(!$action_mode && !$overview_mode) {
 				<div class="col-sm-8">
 					<label class="form-checkbox"><input type="checkbox" <?= in_array("Custom Notes", $all_config) ? 'checked disabled' : (in_array("Custom Notes", $value_config) ? "checked" : '') ?> value="Custom Notes" name="tickets[]">
 						<span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will allow you to add additional notes with any headings to the <?= TICKET_NOUN ?>."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Enable</label>
-					<?php if(!$action_mode && !$overview_mode) { ?>
+					<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) { ?>
 						<div class="block-group">
 							<div class="form-group">
 								<label class="col-sm-4 control-label">Section Heading:</label>
@@ -3268,9 +3417,51 @@ if(!$action_mode && !$overview_mode) {
 			</div>
 		<?php }
 
+		if($sort_field == 'Internal Communication') { ?>
+			<div class="form-group sort_order_accordion" data-accordion="Internal Communication">
+				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Internal Communication' ?></span>:<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
+					<span class="dataToggle cursor-hand no-toggle <?= in_array('internal_communication',$all_unlocked_tabs) ? 'disabled' : '' ?>" title="Locking a tab will hide the contents of that tab on all new <?= TICKET_TILE ?>. A user with access to edit the <?= TICKET_NOUN ?> can then unlock that tab for that <?= TICKET_NOUN ?>.<?= in_array('internal_communication',$all_unlocked_tabs) ? ' This tab has been locked for all '.TICKET_TILE.'.' : '' ?>">
+						<input type="hidden" name="ticket_tab_locks<?= empty($tab) ? '' : '_'.$tab ?>" value="internal_communication" data-toggle="<?= in_array('internal_communication',$unlocked_tabs) ? 1 : 0 ?>">
+						<img class="inline-img" style="<?= in_array('internal_communication',array_merge($unlocked_tabs,$all_unlocked_tabs)) ? '' : 'display:none;' ?>" src="../img/icons/lock.png">
+						<img class="inline-img" style="<?= in_array('internal_communication_view_ticket_comment',array_merge($unlocked_tabs,$all_unlocked_tabs)) ? 'display:none;' : '' ?>" src="../img/icons/lock-open.png"></span><?php } ?></label>
+				<div class="col-sm-4 accordion_rename" style="display: none;">
+					<input type="text" name="renamed_accordion[]" value="<?= !empty($renamed_accordion) ? $renamed_accordion : 'Internal Communication' ?>" onfocusout="updateAccordion(this);" class="form-control">
+				</div>
+				<div class="col-sm-8">
+					<label class="form-checkbox"><input type="checkbox" <?= in_array("Internal Communication", $all_config) ? 'checked disabled' : (in_array("Internal Communication", $value_config) ? "checked" : '') ?> value="Internal Communication" name="tickets[]">
+						<span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will allow you to add Internal Communication to the <?= TICKET_NOUN ?>."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Enable</label>
+				</div>
+			</div>
+		<?php }
+
+		if($sort_field == 'External Communication') { ?>
+			<div class="form-group sort_order_accordion" data-accordion="External Communication">
+				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'External Communication' ?></span>:<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
+					<span class="dataToggle cursor-hand no-toggle <?= in_array('external_communication',$all_unlocked_tabs) ? 'disabled' : '' ?>" title="Locking a tab will hide the contents of that tab on all new <?= TICKET_TILE ?>. A user with access to edit the <?= TICKET_NOUN ?> can then unlock that tab for that <?= TICKET_NOUN ?>.<?= in_array('external_communication',$all_unlocked_tabs) ? ' This tab has been locked for all '.TICKET_TILE.'.' : '' ?>">
+						<input type="hidden" name="ticket_tab_locks<?= empty($tab) ? '' : '_'.$tab ?>" value="external_communication" data-toggle="<?= in_array('external_communication',$unlocked_tabs) ? 1 : 0 ?>">
+						<img class="inline-img" style="<?= in_array('external_communication',array_merge($unlocked_tabs,$all_unlocked_tabs)) ? '' : 'display:none;' ?>" src="../img/icons/lock.png">
+						<img class="inline-img" style="<?= in_array('external_communication',array_merge($unlocked_tabs,$all_unlocked_tabs)) ? 'display:none;' : '' ?>" src="../img/icons/lock-open.png"></span><?php } ?></label>
+				<div class="col-sm-4 accordion_rename" style="display: none;">
+					<input type="text" name="renamed_accordion[]" value="<?= !empty($renamed_accordion) ? $renamed_accordion : 'External Communication' ?>" onfocusout="updateAccordion(this);" class="form-control">
+				</div>
+				<div class="col-sm-8">
+					<label class="form-checkbox"><input type="checkbox" <?= in_array("External Communication", $all_config) ? 'checked disabled' : (in_array("External Communication", $value_config) ? "checked" : '') ?> value="External Communication" name="tickets[]">
+						<span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will allow you to add External Communication to the <?= TICKET_NOUN ?>."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Enable</label>
+					<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) { ?>
+						<div class="block-group">
+							<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("External Response", $all_config) ? 'checked disabled' : (in_array("External Response", $value_config) ? "checked" : '') ?> value="External Response" name="tickets[]"> Request Response</label>
+							<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("External Response Thread", $all_config) ? 'checked disabled' : (in_array("External Response Thread", $value_config) ? "checked" : '') ?> value="External Response Thread" name="tickets[]"> Display Communication Thread</label>
+							<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("External Response Status", $all_config) ? 'checked disabled' : (in_array("External Response Status", $value_config) ? "checked" : '') ?> value="External Response Status" name="tickets[]"> Responder Status</label>
+							<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("External Response Documents", $all_config) ? 'checked disabled' : (in_array("External Response Documents", $value_config) ? "checked" : '') ?> value="External Response Documents" name="tickets[]"> Include Documents</label>
+						</div>
+					<?php } ?>
+				</div>
+			</div>
+		<?php }
+
 		if($sort_field == 'Notes') { ?>
 			<div class="form-group sort_order_accordion" data-accordion="Notes">
-				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : TICKET_NOUN.' Notes' ?></span>:<?php if(!$action_mode && !$overview_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
+				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : TICKET_NOUN.' Notes' ?></span>:<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
 					<span class="dataToggle cursor-hand no-toggle <?= in_array('notes_view_ticket_comment',$all_unlocked_tabs) ? 'disabled' : '' ?>" title="Locking a tab will hide the contents of that tab on all new <?= TICKET_TILE ?>. A user with access to edit the <?= TICKET_NOUN ?> can then unlock that tab for that <?= TICKET_NOUN ?>.<?= in_array('notes_view_ticket_comment',$all_unlocked_tabs) ? ' This tab has been locked for all '.TICKET_TILE.'.' : '' ?>">
 						<input type="hidden" name="ticket_tab_locks<?= empty($tab) ? '' : '_'.$tab ?>" value="notes_view_ticket_comment" data-toggle="<?= in_array('notes_view_ticket_comment',$unlocked_tabs) ? 1 : 0 ?>">
 						<img class="inline-img" style="<?= in_array('notes_view_ticket_comment',array_merge($unlocked_tabs,$all_unlocked_tabs)) ? '' : 'display:none;' ?>" src="../img/icons/lock.png">
@@ -3281,7 +3472,7 @@ if(!$action_mode && !$overview_mode) {
 				<div class="col-sm-8">
 					<label class="form-checkbox"><input type="checkbox" <?= in_array("Notes", $all_config) ? 'checked disabled' : (in_array("Notes", $value_config) ? "checked" : '') ?> value="Notes" name="tickets[]">
 						<span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will allow you to add general notes to the <?= TICKET_NOUN ?>."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Enable</label>
-					<?php if(!$action_mode && !$overview_mode) { ?>
+					<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) { ?>
 						<div class="block-group">
 							<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Notes Anyone Can Add", $all_config) ? 'checked disabled' : (in_array("Notes Anyone Can Add", $value_config) ? "checked" : '') ?> value="Notes Anyone Can Add" name="tickets[]"> Anyone Can Add Notes</label>
 							<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Notes Limit", $all_config) ? 'checked disabled' : (in_array("Notes Limit", $value_config) ? "checked" : '') ?> value="Notes Limit" name="tickets[]"> Limit Number of Visible Notes</label>
@@ -3321,11 +3512,11 @@ if(!$action_mode && !$overview_mode) {
 			<div class="form-group sort_order_accordion" data-accordion="Summary">
 				<label class="col-sm-4 control-label">Summary:</label>
 				<div class="col-sm-8">
-					<?php if((!$action_mode && !$overview_mode) || in_array('Staff Summary', $merged_config_fields)) { ?>
+					<?php if((!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) || in_array('Staff Summary', $merged_config_fields)) { ?>
 						<label class="form-checkbox"><input type="checkbox" <?= in_array("Staff Summary", $all_config) ? 'checked disabled' : (in_array("Staff Summary", $value_config) ? "checked" : '') ?> value="Staff Summary" name="tickets[]">
 							<span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will allow you to display a summary of Staff and other contacts for the <?= TICKET_NOUN ?>."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Enable Staff Summary</label>
 					<?php } ?>
-					<?php if((!$action_mode && !$overview_mode) || in_array('Summary', $merged_config_fields)) { ?>
+					<?php if((!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) || in_array('Summary', $merged_config_fields)) { ?>
 						<label class="form-checkbox"><input type="checkbox" <?= in_array("Summary", $all_config) ? 'checked disabled' : (in_array("Summary", $value_config) ? "checked" : '') ?> value="Summary" name="tickets[]"> Enable Summary</label>
 					<?php } ?>
 					<div class="block-group">
@@ -3386,7 +3577,7 @@ if(!$action_mode && !$overview_mode) {
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Total Time Tracked Clients", $all_config) ? 'checked disabled' : (in_array("Total Time Tracked Clients", $value_config) ? "checked" : '') ?> value="Total Time Tracked Clients" name="tickets[]"> Total Time Tracked - Clients</label>
 							<?php } ?>
 						<?php } ?>
-						<?php if(!$action_mode && !$overview_mode) {
+						<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) {
 							$position_list = [];
 							$positions = $dbc->query("SELECT `position_id`,`name` FROM `positions` WHERE `deleted`=0");
 							while($position = $positions->fetch_assoc()) {
@@ -3433,7 +3624,7 @@ if(!$action_mode && !$overview_mode) {
 
 		if($sort_field == 'Multi-Disciplinary Summary Report') { ?>
 			<div class="form-group sort_order_accordion" data-accordion="Multi-Disciplinary Summary Report">
-				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Multi-Disciplinary Summary Report' ?></span>:<?php if(!$action_mode && !$overview_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
+				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Multi-Disciplinary Summary Report' ?></span>:<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
 					<span class="dataToggle cursor-hand no-toggle <?= in_array('view_multi_disciplinary_summary_report',$all_unlocked_tabs) ? 'disabled' : '' ?>" title="Locking a tab will hide the contents of that tab on all new <?= TICKET_TILE ?>. A user with access to edit the <?= TICKET_NOUN ?> can then unlock that tab for that <?= TICKET_NOUN ?>.<?= in_array('view_multi_disciplinary_summary_report',$all_unlocked_tabs) ? ' This tab has been locked for all '.TICKET_TILE.'.' : '' ?>">
 						<input type="hidden" name="ticket_tab_locks<?= empty($tab) ? '' : '_'.$tab ?>" value="view_multi_disciplinary_summary_report" data-toggle="<?= in_array('view_multi_disciplinary_summary_report',$unlocked_tabs) ? 1 : 0 ?>">
 						<img class="inline-img" style="<?= in_array('view_multi_disciplinary_summary_report',array_merge($unlocked_tabs,$all_unlocked_tabs)) ? '' : 'display:none;' ?>" src="../img/icons/lock.png">
@@ -3480,7 +3671,7 @@ if(!$action_mode && !$overview_mode) {
 
 		if($sort_field == 'Complete') { ?>
 			<div class="form-group sort_order_accordion" data-accordion="Complete">
-				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Complete (Sign Off)' ?></span>:<?php if(!$action_mode && !$overview_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
+				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Complete (Sign Off)' ?></span>:<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
 					<span class="dataToggle cursor-hand no-toggle <?= in_array('ticket_complete',$all_unlocked_tabs) ? 'disabled' : '' ?>" title="Locking a tab will hide the contents of that tab on all new <?= TICKET_TILE ?>. A user with access to edit the <?= TICKET_NOUN ?> can then unlock that tab for that <?= TICKET_NOUN ?>.<?= in_array('ticket_complete',$all_unlocked_tabs) ? ' This tab has been locked for all '.TICKET_TILE.'.' : '' ?>">
 						<input type="hidden" name="ticket_tab_locks<?= empty($tab) ? '' : '_'.$tab ?>" value="ticket_complete" data-toggle="<?= in_array('ticket_complete',$unlocked_tabs) ? 1 : 0 ?>">
 						<img class="inline-img" style="<?= in_array('ticket_complete',array_merge($unlocked_tabs,$all_unlocked_tabs)) ? '' : 'display:none;' ?>" src="../img/icons/lock.png">
@@ -3491,14 +3682,35 @@ if(!$action_mode && !$overview_mode) {
 				<div class="col-sm-8">
 					<label class="form-checkbox"><input type="checkbox" <?= in_array("Complete", $all_config) ? 'checked disabled' : (in_array("Complete", $value_config) ? "checked" : '') ?> value="Complete" name="tickets[]">
 						<span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will allow the user to sign off that the <?= TICKET_NOUN ?> is complete."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Enable</label>
-					<?php if(!$action_mode && !$overview_mode) { ?>
+					<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) { ?>
 						<div class="block-group">
+							<label class="form-checkbox"><input type="checkbox" <?= in_array("Complete Hide Signature", $all_config) ? 'checked disabled' : (in_array("Complete Hide Signature", $value_config) ? "checked" : '') ?> value="Complete Hide Signature" name="tickets[]"> Hide Signature</label>
 							<label class="form-checkbox"><input type="checkbox" <?= in_array("Complete Hide Sign & Complete", $all_config) ? 'checked disabled' : (in_array("Complete Hide Sign & Complete", $value_config) ? "checked" : '') ?> value="Complete Hide Sign & Complete" name="tickets[]"> Hide Sign & Complete Button</label>
 							<label class="form-checkbox"><input type="checkbox" <?= in_array("Complete Sign & Force Complete", $all_config) ? 'checked disabled' : (in_array("Complete Sign & Force Complete", $value_config) ? "checked" : '') ?> value="Complete Sign & Force Complete" name="tickets[]"> Sign & Force Complete</label>
 							<label class="form-checkbox"><input type="checkbox" <?= in_array("Complete Do Not Require Notes", $all_config) ? 'checked disabled' : (in_array("Complete Do Not Require Notes", $value_config) ? "checked" : '') ?> value="Complete Do Not Require Notes" name="tickets[]"> Do Not Require Notes To Complete</label>
 							<label class="form-checkbox"><input type="checkbox" <?= in_array("Complete Default Session User", $all_config) ? 'checked disabled' : (in_array("Complete Default Session User", $value_config) ? "checked" : '') ?> value="Complete Default Session User" name="tickets[]"> Default Select Logged In User</label>
 							<label class="form-checkbox"><input type="checkbox" <?= in_array("Complete Email Users On Complete", $all_config) ? 'checked disabled' : (in_array("Complete Email Users On Complete", $value_config) ? "checked" : '') ?> value="Complete Email Users On Complete" name="tickets[]"> Email Users On Complete</label>
 							<label class="form-checkbox"><input type="checkbox" <?= in_array("Complete Combine Checkout Summary", $all_config) ? 'checked disabled' : (in_array("Complete Combine Checkout Summary", $value_config) ? "checked" : '') ?> value="Complete Combine Checkout Summary" name="tickets[]"> Combine Checkout, Staff Summary, and Complete</label>
+							<label class="form-checkbox"><input type="checkbox" <?= in_array("Complete Submit Approval", $all_config) ? 'checked disabled' : (in_array("Complete Submit Approval", $value_config) ? "checked" : '') ?> value="Complete Submit Approval" name="tickets[]"> Submit for Approval</label>
+							<label class="form-checkbox"><input type="checkbox" <?= in_array("Complete Main Approval", $all_config) ? 'checked disabled' : (in_array("Complete Main Approval", $value_config) ? "checked" : '') ?> value="Complete Main Approval" name="tickets[]"> Approval by Supervisor</label>
+							<label class="form-checkbox"><input type="checkbox" <?= in_array("Complete Office Approval", $all_config) ? 'checked disabled' : (in_array("Complete Office Approval", $value_config) ? "checked" : '') ?> value="Complete Office Approval" name="tickets[]"> Approval by Office</label>
+							<div class="form-group">
+								<label class="col-sm-4 control-label">Approval Email Address:<br /><em>This e-mail address will receive email notification that the <?= TICKET_NOUN ?> has been submitted for approval</em></label>
+								<div class="col-sm-8">
+									<input type="text" name="ticket_email_approval" class="form-control" value="<?= get_config($dbc, 'ticket_email_approval') ?>">
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-4 control-label"><?= TICKET_NOUN ?> Approval Status:<br /><em>The <?= TICKET_NOUN ?> status will be set to this when submitted for Approval</em></label>
+								<div class="col-sm-8">
+									<?php $approval_status = get_config($dbc, 'ticket_approval_status'); ?>
+									<select name="ticket_approval_status" class="chosen-select-deselect" data-placeholder="Select a status"><option />
+										<?php foreach(explode(',',get_config($dbc, 'ticket_status')) as $status_name) { ?>
+											<option <?= $status_name == $approval_status ? 'selected' : '' ?> value="<?= $status_name ?>"><?= $status_name ?></option>
+										<?php } ?>
+									</select>
+								</div>
+							</div>
 						</div>
 					<?php } ?>
 				</div>
@@ -3507,7 +3719,7 @@ if(!$action_mode && !$overview_mode) {
 
 		if($sort_field == 'Notifications') { ?>
 			<div class="form-group sort_order_accordion" data-accordion="Notifications">
-				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Notifications' ?></span>:<?php if(!$action_mode && !$overview_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
+				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Notifications' ?></span>:<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
 					<span class="dataToggle cursor-hand no-toggle <?= in_array('view_ticket_notifications',$all_unlocked_tabs) ? 'disabled' : '' ?>" title="Locking a tab will hide the contents of that tab on all new <?= TICKET_TILE ?>. A user with access to edit the <?= TICKET_NOUN ?> can then unlock that tab for that <?= TICKET_NOUN ?>.<?= in_array('view_ticket_notifications',$all_unlocked_tabs) ? ' This tab has been locked for all '.TICKET_TILE.'.' : '' ?>">
 						<input type="hidden" name="ticket_tab_locks<?= empty($tab) ? '' : '_'.$tab ?>" value="view_ticket_notifications" data-toggle="<?= in_array('view_ticket_notifications',$unlocked_tabs) ? 1 : 0 ?>">
 						<img class="inline-img" style="<?= in_array('view_ticket_notifications',array_merge($unlocked_tabs,$all_unlocked_tabs)) ? '' : 'display:none;' ?>" src="../img/icons/lock.png">
@@ -3535,9 +3747,13 @@ if(!$action_mode && !$overview_mode) {
 							<?php if($field_sort_field == 'Notify PDF') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Notify PDF", $all_config) ? 'checked disabled' : (in_array("Notify PDF", $value_config) ? "checked" : '') ?> value="Notify PDF" name="tickets[]"> Create PDF</label>
 							<?php } ?>
+							<?php if($field_sort_field == 'Notify Anyone Can Add') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Notify Anyone Can Add", $all_config) ? 'checked disabled' : (in_array("Notify Anyone Can Add", $value_config) ? "checked" : '') ?> value="Notify Anyone Can Add" name="tickets[]">
+									Anyone Can Add Notifications</label>
+							<?php } ?>
 						<?php } ?>
 						</div>
-						<?php if(!$action_mode && !$overview_mode) { ?>
+						<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) { ?>
 							<div class="form-group">
 								<label class="col-sm-4 control-label">Notification List Title:</label>
 								<div class="col-sm-8">
@@ -3579,7 +3795,7 @@ if(!$action_mode && !$overview_mode) {
 
 		if($sort_field == 'Region Location Classification') { ?>
 			<div class="form-group sort_order_accordion" data-accordion="Region Location Classification">
-				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Region/Location/Classification' ?></span>:<?php if(!$action_mode && !$overview_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
+				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Region/Location/Classification' ?></span>:<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
 					<span class="dataToggle cursor-hand no-toggle <?= in_array('ticket_reg_loc_class',$all_unlocked_tabs) ? 'disabled' : '' ?>" title="Locking a tab will hide the contents of that tab on all new <?= TICKET_TILE ?>. A user with access to edit the <?= TICKET_NOUN ?> can then unlock that tab for that <?= TICKET_NOUN ?>.<?= in_array('ticket_reg_loc_class',$all_unlocked_tabs) ? ' This tab has been locked for all '.TICKET_TILE.'.' : '' ?>">
 						<input type="hidden" name="ticket_tab_locks<?= empty($tab) ? '' : '_'.$tab ?>" value="ticket_reg_loc_class" data-toggle="<?= in_array('ticket_reg_loc_class',$unlocked_tabs) ? 1 : 0 ?>">
 						<img class="inline-img" style="<?= in_array('ticket_reg_loc_class',array_merge($unlocked_tabs,$all_unlocked_tabs)) ? '' : 'display:none;' ?>" src="../img/icons/lock.png">
@@ -3604,7 +3820,7 @@ if(!$action_mode && !$overview_mode) {
 							<?php } ?>
 						<?php } ?>
 						</div>
-						<?php if(!$action_mode && !$overview_mode) { ?>
+						<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) { ?>
 							<div class="block-group">
 								<h3>Filter Options</h3>
 								<label class="form-checkbox"><input type="checkbox" <?= in_array("RegLocClass Filters Project", $all_config) ? 'checked disabled' : (in_array("RegLocClass Filters Project", $value_config) ? "checked" : '') ?> value="RegLocClass Filters Project" name="tickets[]"> Filter <?= PROJECT_NOUN ?></label>
@@ -3618,7 +3834,7 @@ if(!$action_mode && !$overview_mode) {
 
 		if($sort_field == 'Incident Reports') { ?>
 			<div class="form-group sort_order_accordion" data-accordion="Incident Reports">
-				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : INC_REP_TILE ?></span>:<?php if(!$action_mode && !$overview_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
+				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : INC_REP_TILE ?></span>:<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
 					<span class="dataToggle cursor-hand no-toggle <?= in_array('view_ticket_incident_reports',$all_unlocked_tabs) ? 'disabled' : '' ?>" title="Locking a tab will hide the contents of that tab on all new <?= TICKET_TILE ?>. A user with access to edit the <?= TICKET_NOUN ?> can then unlock that tab for that <?= TICKET_NOUN ?>.<?= in_array('view_ticket_incident_reports',$all_unlocked_tabs) ? ' This tab has been locked for all '.TICKET_TILE.'.' : '' ?>">
 						<input type="hidden" name="ticket_tab_locks<?= empty($tab) ? '' : '_'.$tab ?>" value="view_ticket_incident_reports" data-toggle="<?= in_array('view_ticket_incident_reports',$unlocked_tabs) ? 1 : 0 ?>">
 						<img class="inline-img" style="<?= in_array('view_ticket_incident_reports',array_merge($unlocked_tabs,$all_unlocked_tabs)) ? '' : 'display:none;' ?>" src="../img/icons/lock.png">
@@ -3635,7 +3851,7 @@ if(!$action_mode && !$overview_mode) {
 
 		if($sort_field == 'Pressure') { ?>
 			<div class="form-group sort_order_accordion" data-accordion="Pressure">
-				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Pressure' ?></span>:<?php if(!$action_mode && !$overview_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
+				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Pressure' ?></span>:<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
 					<span class="dataToggle cursor-hand no-toggle <?= in_array('view_ticket_pressure',$all_unlocked_tabs) ? 'disabled' : '' ?>" title="Locking a tab will hide the contents of that tab on all new <?= TICKET_TILE ?>. A user with access to edit the <?= TICKET_NOUN ?> can then unlock that tab for that <?= TICKET_NOUN ?>.<?= in_array('view_ticket_pressure',$all_unlocked_tabs) ? ' This tab has been locked for all '.TICKET_TILE.'.' : '' ?>">
 						<input type="hidden" name="ticket_tab_locks<?= empty($tab) ? '' : '_'.$tab ?>" value="view_ticket_pressure" data-toggle="<?= in_array('view_ticket_pressure',$unlocked_tabs) ? 1 : 0 ?>">
 						<img class="inline-img" style="<?= in_array('view_ticket_pressure',array_merge($unlocked_tabs,$all_unlocked_tabs)) ? '' : 'display:none;' ?>" src="../img/icons/lock.png">
@@ -3666,7 +3882,7 @@ if(!$action_mode && !$overview_mode) {
 
 		if($sort_field == 'Chemicals') { ?>
 			<div class="form-group sort_order_accordion" data-accordion="Chemicals">
-				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Chemicals' ?></span>:<?php if(!$action_mode && !$overview_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
+				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Chemicals' ?></span>:<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
 					<span class="dataToggle cursor-hand no-toggle <?= in_array('ticket_chemicals',$all_unlocked_tabs) ? 'disabled' : '' ?>" title="Locking a tab will hide the contents of that tab on all new <?= TICKET_TILE ?>. A user with access to edit the <?= TICKET_NOUN ?> can then unlock that tab for that <?= TICKET_NOUN ?>.<?= in_array('ticket_chemicals',$all_unlocked_tabs) ? ' This tab has been locked for all '.TICKET_TILE.'.' : '' ?>">
 						<input type="hidden" name="ticket_tab_locks<?= empty($tab) ? '' : '_'.$tab ?>" value="ticket_chemicals" data-toggle="<?= in_array('ticket_chemicals',$unlocked_tabs) ? 1 : 0 ?>">
 						<img class="inline-img" style="<?= in_array('ticket_chemicals',array_merge($unlocked_tabs,$all_unlocked_tabs)) ? '' : 'display:none;' ?>" src="../img/icons/lock.png">
@@ -3713,7 +3929,7 @@ if(!$action_mode && !$overview_mode) {
 
 		if($sort_field == 'Intake') { ?>
 			<div class="form-group sort_order_accordion" data-accordion="Intake">
-				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Intake' ?></span>:<?php if(!$action_mode && !$overview_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
+				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Intake' ?></span>:<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
 					<span class="dataToggle cursor-hand no-toggle <?= in_array('view_ticket_intake',$all_unlocked_tabs) ? 'disabled' : '' ?>" title="Locking a tab will hide the contents of that tab on all new <?= TICKET_TILE ?>. A user with access to edit the <?= TICKET_NOUN ?> can then unlock that tab for that <?= TICKET_NOUN ?>.<?= in_array('view_ticket_intake',$all_unlocked_tabs) ? ' This tab has been locked for all '.TICKET_TILE.'.' : '' ?>">
 						<input type="hidden" name="ticket_tab_locks<?= empty($tab) ? '' : '_'.$tab ?>" value="view_ticket_intake" data-toggle="<?= in_array('view_ticket_intake',$unlocked_tabs) ? 1 : 0 ?>">
 						<img class="inline-img" style="<?= in_array('view_ticket_intake',array_merge($unlocked_tabs,$all_unlocked_tabs)) ? '' : 'display:none;' ?>" src="../img/icons/lock.png">
@@ -3729,7 +3945,7 @@ if(!$action_mode && !$overview_mode) {
 
 		if($sort_field == 'History') { ?>
 			<div class="form-group sort_order_accordion" data-accordion="History">
-				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'History' ?></span>:<?php if(!$action_mode && !$overview_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
+				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'History' ?></span>:<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
 					<span class="dataToggle cursor-hand no-toggle <?= in_array('view_ticket_intake',$all_unlocked_tabs) ? 'disabled' : '' ?>" title="Locking a tab will hide the contents of that tab on all new <?= TICKET_TILE ?>. A user with access to edit the <?= TICKET_NOUN ?> can then unlock that tab for that <?= TICKET_NOUN ?>.<?= in_array('view_ticket_intake',$all_unlocked_tabs) ? ' This tab has been locked for all '.TICKET_TILE.'.' : '' ?>">
 						<input type="hidden" name="ticket_tab_locks<?= empty($tab) ? '' : '_'.$tab ?>" value="view_ticket_intake" data-toggle="<?= in_array('view_ticket_intake',$unlocked_tabs) ? 1 : 0 ?>">
 						<img class="inline-img" style="<?= in_array('view_ticket_intake',array_merge($unlocked_tabs,$all_unlocked_tabs)) ? '' : 'display:none;' ?>" src="../img/icons/lock.png">
@@ -3745,7 +3961,7 @@ if(!$action_mode && !$overview_mode) {
 
 		if($sort_field == 'Work History') { ?>
 			<div class="form-group sort_order_accordion" data-accordion="Work History">
-				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Work History' ?></span>:<?php if(!$action_mode && !$overview_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
+				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Work History' ?></span>:<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
 					<span class="dataToggle cursor-hand no-toggle <?= in_array('ticket_work_history',$all_unlocked_tabs) ? 'disabled' : '' ?>" title="Locking a tab will hide the contents of that tab on all new <?= TICKET_TILE ?>. A user with access to edit the <?= TICKET_NOUN ?> can then unlock that tab for that <?= TICKET_NOUN ?>.<?= in_array('ticket_work_history',$all_unlocked_tabs) ? ' This tab has been locked for all '.TICKET_TILE.'.' : '' ?>">
 						<input type="hidden" name="ticket_tab_locks<?= empty($tab) ? '' : '_'.$tab ?>" value="ticket_work_history" data-toggle="<?= in_array('ticket_work_history',$unlocked_tabs) ? 1 : 0 ?>">
 						<img class="inline-img" style="<?= in_array('ticket_work_history',array_merge($unlocked_tabs,$all_unlocked_tabs)) ? '' : 'display:none;' ?>" src="../img/icons/lock.png">
@@ -3785,7 +4001,7 @@ if(!$action_mode && !$overview_mode) {
 	<?php } ?>
 </div>
 
-<?php if(!$action_mode && !$overview_mode) { ?>
+<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) { ?>
 	<a href="" onclick="addCustomAccordion(); return false;" class="btn brand-btn pull-right gap-bottom">Add Custom Accordion</a>
 	<span class="popover-examples pull-right"><a data-toggle="tooltip" data-original-title="This will allow you to create custom accordions that have certain details in them for the <?= TICKET_NOUN ?>."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>
 	<div class="clearfix"></div>

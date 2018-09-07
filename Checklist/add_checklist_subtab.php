@@ -8,12 +8,21 @@ if (isset($_POST['submit'])) {
         $subtab_shared = ','.implode(',',$_POST['subtab_shared']).',';
         $subtabid = $_POST['subtabid'];
 
+        $before_change = capture_before_change($dbc, 'checklist_subtab', 'name', 'subtabid', $subtabid);
+        $before_change .= capture_before_change($dbc, 'checklist_subtab', 'shared', 'subtabid', $subtabid);
         $query_update_subtab = "UPDATE `checklist_subtab` SET `name` = '$subtab_name', `shared` = '$subtab_shared' WHERE `subtabid` = '$subtabid'";
         $result_update_subtab = mysqli_query($dbc, $query_update_subtab);
 
         $report = decryptIt($_SESSION['first_name']).' '.decryptIt($_SESSION['last_name']).' Updated Checklist Sub Tab <b>'.$subtab_name.'</b> on '.date('Y-m-d');
         $query_insert_ca = "INSERT INTO `checklist_report` (`report`, `user`, `date`, `checklist_name`, `subtab_name`, `checklist_type`, `checklistid`, `subtabid`) VALUES ('$report', '".decryptIt($_SESSION['first_name'])." ".decryptIt($_SESSION['last_name'])."', '".date('Y-m-d')."', '', '$subtab_name', '', '', '$subtabid')";
         $result_insert_ca = mysqli_query($dbc, $query_insert_ca);
+
+        $start_word = strpos($report, "Updated");
+        $end_word = strpos($report, " on");
+        $history = substr($report, $start_word, $end_word - $start_word) . "<br />";
+        add_update_history($dbc, 'checklist_history', $history, '', $before_change);
+
+
     } else {
         $subtab_name = $_POST['new_subtab'];
         $subtab_shared = ','.implode(',',$_POST['subtab_shared']).',';
@@ -27,6 +36,12 @@ if (isset($_POST['submit'])) {
         $report = decryptIt($_SESSION['first_name']).' '.decryptIt($_SESSION['last_name']).' Added Checklist Sub Tab <b>'.$subtab_name.'</b> on '.date('Y-m-d');
         $query_insert_ca = "INSERT INTO `checklist_report` (`report`, `user`, `date`, `checklist_name`, `subtab_name`, `checklist_type`, `checklistid`, `subtabid`) VALUES ('$report', '".decryptIt($_SESSION['first_name'])." ".decryptIt($_SESSION['last_name'])."', '".date('Y-m-d')."', '', '$subtab_name', '', '', '$subtabid')";
         $result_insert_ca = mysqli_query($dbc, $query_insert_ca);
+
+        $before_change = '';
+        $start_word = strpos($report, "Updated");
+        $end_word = strpos($report, " on");
+        $history = substr($report, $start_word, $end_word - $start_word) . "<br />";
+        add_update_history($dbc, 'checklist_history', $history, '', $before_change);
 
         $update_tab_config = ",".$subtabid."_ongoing,".$subtabid."_daily,".$subtabid."_weekly,".$subtabid."_monthly";
         foreach ($_POST['subtab_shared'] as $tabs_config_row) {
@@ -107,7 +122,6 @@ $tab_list = get_config($dbc, 'checklist_tabs_' . $_SESSION['contactid']); ?>
         </label>
         <div class="col-sm-8">
             <select name="subtab_shared[]" multiple data-placeholder="Select Shared Contacts..." class="chosen-select-deselect form-control">
-                <option value=''></option>
                 <option value='ALL'>Share with Everyone</option>
                 <?php
                 $cat = '';

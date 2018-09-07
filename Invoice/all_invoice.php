@@ -119,7 +119,7 @@ if((!empty($_GET['action'])) && ($_GET['action'] == 'email')) {
     // Send Email to Client
 }
 ?>
-<script type="text/javascript" src="invoice.js"></script>
+<script type="text/javascript" src="../Invoice/invoice.js"></script>
 <script type="text/javascript">
 $(document).ready(function() {
 
@@ -174,76 +174,17 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
     -->
 	<div class="row hide_on_iframe">
         <h2><?= (empty($current_tile_name) ? 'Check Out' : $current_tile_name) ?>
-        <?php
-            echo '<a href="field_config_invoice.php" class="btn mobile-block pull-right"><img style="width: 50px;" title="Tile Settings" src="../img/icons/settings-4.png" class="settings-classic wiggle-me"></a><br><br>';
-        ?>
+        <?php if(config_visible_function($dbc, (FOLDER_NAME == 'posadvanced' ? 'posadvanced' : 'check_out')) == 1) {
+            echo '<a href="field_config_invoice.php" class="mobile-block pull-right "><img style="width: 50px;" title="Tile Settings" src="../img/icons/settings-4.png" class="settings-classic wiggle-me"></a>';
+        } ?>
         </h2>
+		<?php include('tile_tabs.php'); ?>
 
-		<?php $tab_list = explode(',', get_config($dbc, 'invoice_tabs'));
-		?><div class='mobile-100-container'><?php
-		foreach($tab_list as $tab_name) {
-			if(check_subtab_persmission($dbc, FOLDER_NAME == 'invoice' ? 'check_out' : 'posadvanced', ROLE, $tab_name) === TRUE) {
-				switch($tab_name) {
-					case 'sell':
-						if(in_array('touch',$ux_options)) { ?>
-							<a href='add_invoice.php' class="btn brand-btn mobile-block mobile-100">Create Invoice (Keyboard)</a>
-							<a href='touch_main.php' class="btn brand-btn mobile-block mobile-100">Create Invoice (Touchscreen)</a>
-						<?php } else { ?>
-							<a href='add_invoice.php' class="btn brand-btn mobile-block mobile-100">Create Invoice</a>
-						<?php }
-						break;
-					case 'today': ?>
-						<span class="popover-examples list-inline">
-							<a href="#job_file" data-toggle="tooltip" data-placement="top" title="Invoices created today."><img src="<?php echo WEBSITE_URL;?>/img/info.png" width="20"></a>
-						</span>
-						<a href='today_invoice.php' class="btn brand-btn mobile-block mobile-100">Today's Invoices</a>
-						<?php break;
-					case 'all': ?>
-						<span class="popover-examples list-inline">
-							<a href="#job_file" data-toggle="tooltip" data-placement="top" title="Complete history of all Invoices."><img src="<?php echo WEBSITE_URL;?>/img/info.png" width="20"></a>
-						</span>
-						<a href='all_invoice.php' class="btn brand-btn mobile-block mobile-100 active_tab">All Invoices</a>
-						<?php break;
-					case 'invoices': ?>
-						<a href='invoice_list.php' class="btn brand-btn mobile-block mobile-100">Invoices</a>
-						<?php break;
-					case 'unpaid': ?>
-						<a href='unpaid_invoice_list.php' class="btn brand-btn mobile-block mobile-100">Accounts Receivable</a>
-						<?php break;
-					case 'voided': ?>
-						<a href='void_invoices.php' class="btn brand-btn mobile-block mobile-100">Voided Invoices</a>
-						<?php break;
-					case 'refunds': ?>
-						<span class="popover-examples list-inline">
-							<a href="#job_file" data-toggle="tooltip" data-placement="top" title="Find invoices in order to issue Refunds or Create Adjustment Invoices."><img src="<?php echo WEBSITE_URL;?>/img/info.png" width="20"></a>
-						</span>
-						<a href='refund_invoices.php' class="btn brand-btn mobile-block mobile-100">Refund / Adjustments</a>
-						<?php break;
-					case 'ui_report': ?>
-						<span class="popover-examples list-inline">
-							<a href="#job_file" data-toggle="tooltip" data-placement="top" title="In this section you can create Invoices for insurers."><img src="<?php echo WEBSITE_URL;?>/img/info.png" width="20"></a>
-						</span>
-						<a href='unpaid_insurer_invoice.php' class="btn brand-btn mobile-block mobile-100">Unpaid Insurer Invoice Report</a>
-						<?php break;
-					case 'cashout': ?>
-						<span class="popover-examples list-inline">
-							<a href="#job_file" data-toggle="tooltip" data-placement="top" title="Daily front desk Cashout."><img src="<?php echo WEBSITE_URL;?>/img/info.png" width="20"></a>
-						</span>
-						<a href='cashout.php' class="btn brand-btn mobile-block mobile-100">Cash Out</a>
-						<?php break;
-                            case 'gf': ?>
-                                <a href='giftcards.php' class="btn brand-btn mobile-block mobile-100">Gift Card</a>
-                                <?php break;
-				}
-			}
-		}
-		?></div>
-		
         <form name="invoice" method="post" action="" class="form-horizontal" role="form">
 		<div class="notice double-gap-bottom popover-examples">
 			<div class="col-sm-1 notice-icon"><img src="<?= WEBSITE_URL; ?>/img/info.png" class="wiggle-me" width="25"></div>
 			<div class="col-sm-11"><span class="notice-name">NOTE:</span>
-			All invoices can be accessed, viewed in a PDF, emailed to the customer, refunded or archived from here. Invoices can be searched by customer name, invoice # or invoice date.</div>
+			All invoices can be accessed, viewed in a PDF, emailed to the <?= $purchaser_label ?>, refunded or archived from here. Invoices can be searched by <?= $purchaser_label ?> name, invoice # or invoice date.</div>
 			<div class="clearfix"></div>
 		</div>
         <?php
@@ -277,9 +218,9 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
             <div class="row">
                 <div class="col-sm-5">
                     <div class="row">
-                        <label class="col-sm-4">Search by Customer:</label>
+                        <label class="col-sm-4">Search by <?= $purchaser_label ?>:</label>
                         <div class="col-sm-8">
-                            <select data-placeholder="Select a Customer" name="search_user" id="search_user" class="chosen-select-deselect form-control" width="380">
+                            <select data-placeholder="Select <?= $purchaser_label ?>" name="search_user" id="search_user" class="chosen-select-deselect form-control" width="380">
                                 <option value=""></option><?php
                                 /* $query = mysqli_query($dbc,"SELECT distinct(patientid) FROM invoice WHERE deleted = 0 AND patientid != 0");
                                 while($row = mysqli_fetch_array($query)) { ?>
@@ -369,44 +310,51 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
                 //if($search_user == '' && $search_invoiceid == '' && $search_date == '') {
                 //    echo display_pagination($dbc, $query, $pageNum, $rowsPerPage);
                 //}
-                echo "<table border='2' cellpadding='10' class='table'>";
+                echo "<table border='2' cellpadding='10' class='table table-striped'>";
+                echo "<thead>";
                 echo "<tr class='hidden-xs'>";
                 echo "<th>Invoice #</th>
                 <th>Invoice Date</th>
-                <th>Customer</th>
+                <th>".$purchaser_label."</th>
                 <th>Total</th>
                 <th>Paid</th>
                 <th>Invoice PDF</th>
                 <th>Function</th>
-                </tr>";
+                </tr></thead>";
             } else {
                 //echo "<h2>No Record Found.</h2>";
             }
 
             $final_total = 0;
-            while($row = mysqli_fetch_array( $result ))
+            $src_row = false;
+            $src_ids = [];
+            while($src_row || $row = mysqli_fetch_array( $result ))
             {
+                if(!$src_row && in_array($row['invoiceid'],$src_ids)) {
+                    continue;
+                }
+                $src_row = false;
                 $patientid = $row['patientid'];
                 $invoiceid = $row['invoiceid'];
 
                 echo '<tr>';
 
-                echo '<td data-title="Invoice #">' . ($row['invoice_type'] == 'New' ? '#'.$row['invoiceid'] : $row['invoice_type'].' #'.$row['invoiceid'].'<br />For Invoice #'.$row['invoiceid_src']) . '</td>';
+                echo '<td data-title="Invoice #">' . ($row['invoice_type'] == 'New' ? '#'.$row['invoiceid'] : $row['invoice_type'].' #'.$row['invoiceid']).($row['invoiceid_src'] > 0 ? '<br />For Invoice #'.$row['invoiceid_src'] : '') . '</td>';
                 echo '<td data-title="Date">' . $row['invoice_date'] . '</td>';
 
                 if($row['patientid'] != 0) {
 					//echo '<td><a class="iframe_open" id="'.$row['patientid'].'">'.get_contact($dbc, $row['patientid']). '</a></td>';
-					echo '<td data-title="Customer"><a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/'.CONTACTS_TILE.'/contacts_inbox.php?edit='.$row['patientid'].'\', \'auto\', false, true, $(\'#invoice_div\').outerHeight()+20); return false;">'.get_contact($dbc, $row['patientid']). '</a></td>';
+					echo '<td data-title="'.$purchaser_label.'"><a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/'.CONTACTS_TILE.'/contacts_inbox.php?edit='.$row['patientid'].'\', \'auto\', false, true, $(\'#invoice_div\').outerHeight()+20); return false;">'.get_contact($dbc, $row['patientid']). '</a></td>';
                     //echo '<td>'.get_contact($dbc, $row['patientid']). '</td>';
                 } else {
-                    echo '<td data-title="Customer">Non Customer</td>';
+                    echo '<td data-title="'.$purchaser_label.'">Non '.$purchaser_label.'</td>';
                 }
 
                 //echo '<td>' . $row['service_date'] . '</td>';
 
                 //$serviceid = $row['serviceid'];
                 //echo '<td>'. get_all_from_service($dbc, $serviceid, 'service_code').' : '.get_all_from_service($dbc, $serviceid, 'service_type') . '</td>';
-                
+
                 echo '<td data-title="Total">$<b>' . ($row['final_price']).'</b><br>';
 
                     $insurer = '';
@@ -445,21 +393,17 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
 
                 echo '<td data-title="Paid">' . $paid . '</td>';
 
+                echo '<td>';
                 if($row['final_price'] != '' && $row['invoice_type'] != 'Saved') {
                     $name_of_file = 'Download/invoice_'.$row['invoiceid'].'.pdf';
                     if(file_exists($name_of_file)) {
-                        //$md5 = md5_file($name_of_file);
-                        //if($md5 == $row['invoice_md5']) {
-                            echo '<td><a href="'.$name_of_file.'" target="_blank">Invoice #'.$row['invoiceid'].' <img src="'.WEBSITE_URL.'/img/pdf.png" title="PDF"> </a> | <a href=\'unpaid_invoice.php?action=email&invoiceid='.$row['invoiceid'].'&patientid='.$patientid.'\' >Email</a></td>';
-                        //} else {
-                        //    echo '<td>(Error : File has been Changed)</td>';
-                        //}
-                    } else {
-                        echo '<td>-</td>';
+                        echo '<a href="'.$name_of_file.'" target="_blank">Invoice #'.$row['invoiceid'].' <img src="'.WEBSITE_URL.'/img/pdf.png" title="PDF"> </a> | <a href=\'unpaid_invoice.php?action=email&invoiceid='.$row['invoiceid'].'&patientid='.$patientid.'\' >Email</a><br />';
                     }
-                } else {
-                    echo '<td>-</td>';
+                    if($row['invoiceid_src'] > 0 && file_exists('Download/invoice_'.$row['invoiceid_src'].'.pdf')) {
+                        echo '<a href="'.'Download/invoice_'.$row['invoiceid_src'].'.pdf'.'" target="_blank">Invoice #'.$row['invoiceid_src'].' <img src="'.WEBSITE_URL.'/img/pdf.png" title="PDF"> </a> | <a href=\'unpaid_invoice.php?action=email&invoiceid='.$row['invoiceid_src'].'&patientid='.$patientid.'\' >Email</a><br />';
+                    }
                 }
+                echo '</td>';
 
 				/* echo '<td>';
                 if($row['patient_payment_receipt'] == 1) {
@@ -550,6 +494,11 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
 
                 $final_total += $row['final_price'];
                 echo "</tr>";
+                if($row['invoiceid_src'] > 0) {
+                    $row = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `invoice` WHERE `invoiceid`='".$row['invoiceid_src']."'"));
+                    $src_row = true;
+                    $src_ids[] = $row['invoiceid'];
+                }
             }
 
             echo "<tr>";
@@ -566,7 +515,7 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
             //echo '<a href="add_invoice.php" class="btn brand-btn pull-right">Sell</a>';
             ?>
 
-        
+
 
         </form>
 

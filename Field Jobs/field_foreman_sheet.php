@@ -241,22 +241,22 @@ function actionDate(sel) {
 
         $num_rows = mysqli_num_rows($result);
         if($num_rows > 0) {
-        echo "<table class='table table-bordered'>";
-        echo "<tr class='hidden-xs hidden-sm'>
+        echo "<table class='table table-bordered table-striped'>";
+        echo "<thead><tr class='hidden-xs hidden-sm'>
                 ".(strpos($dashboard_config,',job,') !== false ? "<th>Job#</th>" : "")."
                 ".(strpos($dashboard_config,',date,') !== false ? "<th>Date</th>" : "")."
                 ".(strpos($dashboard_config,',contact,') !== false ? "<th>Contact</th>" : "")."
                 ".(strpos($dashboard_config,',crew') !== false ? "<th>Crew Info<br><em>(".
-					(strpos($edit_config,',crew_name,') !== false ? "Name - " : "").
-					(strpos($edit_config,',crew_pos,') !== false ? "Position - " : "").
-					(strpos($edit_config,',crew_reg,') !== false ? "Reg Hour - " : "").
-					(strpos($edit_config,',crew_ot,') !== false ? "OT Hour" : "").
-					(strpos($edit_config,',crew_travel,') !== false ? "Travel" : "").")</em></th>" : "")."
+					(strpos($edit_config,',crew_name,') !== false ? "Name" : "").
+					(strpos($edit_config,',crew_pos,') !== false ? " - Position" : "").
+					(strpos($edit_config,',crew_reg,') !== false ? " - Reg Hour" : "").
+					(strpos($edit_config,',crew_ot,') !== false ? " - OT Hour" : "").
+					(strpos($edit_config,',crew_travel,') !== false ? " - Travel" : "").")</em></th>" : "")."
 				<th>Function</th>
 				<th>Supervisor Process</th>
 				<th>Office Process</th>
 				<th>Work Ticket</th>";
-                echo "</tr>";
+                echo "</tr></thead>";
         } else {
             echo "<h2>No Record Found.</h2>";
         }

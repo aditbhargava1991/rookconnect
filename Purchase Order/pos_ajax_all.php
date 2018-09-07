@@ -87,23 +87,39 @@ if($_GET['fill'] == 'cross_software_approval') {
 	$dbc_cross = ${'dbc_cross_'.$dbc_conn};
 	if(isset($_GET['disapprove'])) {
 		$message = $_GET['name'];
+    $before_change = capture_before_change($dbc, 'purchase_orders', 'cross_software_approval', 'posid', $id);
+    $before_change .= capture_before_change($dbc, 'purchase_orders', 'cross_software_disapproval', 'posid', $id);
 		mysqli_query($dbc_cross,"UPDATE `purchase_orders` SET cross_software_approval = 'disapproved', cross_software_disapproval = '$message' WHERE posid='$id'") or die(mysqli_error($dbc_cross));
+    $history = capture_after_change('cross_software_approval', 'disapproved');
+    $history .= capture_after_change('cross_software_disapproval', $message);
+	  add_update_history($dbc, 'po_history', $history, '', $before_change);
 	} else {
+    $before_change = capture_before_change($dbc, 'purchase_orders', 'cross_software_approval', 'posid', $id);
 		mysqli_query($dbc_cross,"UPDATE `purchase_orders` SET cross_software_approval = '1' WHERE posid='$id'") or die(mysqli_error($dbc_cross));
-		
+    $history = capture_after_change('cross_software_approval', '1');
+	  add_update_history($dbc, 'po_history', $history, '', $before_change);
+
 		//Insert into Point of Sale as Accounts Receivable
 		$po = mysqli_fetch_array(mysqli_query($dbc_cross, "SELECT * FROM `purchase_orders` WHERE `posid`='$id'"));
 		$products = mysqli_query($dbc_cross, "SELECT * FROM `purchase_orders_product` WHERE `posid`='$id'");
-		
+
 		$invoice_date = $po[''];
 		$result = mysqli_query($dbc, "INSERT INTO `point_of_sell` (`invoice_date`, `productpricing`, `sub_total`, `discount_type`, `discount_value`, `total_after_discount`, `delivery`, `assembly`, `total_before_tax`, `client_tax_exemption`, `tax_exemption_number`, `total_price`, `payment_type`, `comment`, `ship_date`, `due_date`, `status`, `status_history`, `gst`, `pst`, `delivery_type`, `delivery_address`, `deposit_paid`, `updatedtotal`, `cross_software`, `software_author`, `software_seller`)
 			VALUES ('".$po['invoice_date']."', '".$po['productpricing']."', '".$po['sub_total']."', '".$po['discount_type']."', '".$po['discount_value']."', '".$po['total_after_discount']."', '".$po['delivery']."', '".$po['assembly']."', '".$po['total_before_tax']."', '".$po['client_tax_exemption']."', '".$po['tax_exemption_number']."', '".$po['total_price']."', '".$po['payment_type']."', '".$po['comment']."', '".$po['ship_date']."', '".$po['due_date']."', '".$po['status']."', '".$po['status_history']."', '".$po['gst_total']."', '".$po['pst_total']."', '".$po['delivery_type']."', '".$po['delivery_address']."', '".$po['dep_paid']."', '".$po['updatedtotal']."', '".$po['cross_software']."', '".$po['software_author']."', '".$po['software_seller']."')");
 		$local_id = mysqli_insert_id($dbc);
+    $before_change = '';
+    $history = "Point of sell entry has been added. <br />";
+    add_update_history($dbc, 'po_history', $history, '', $before_change);
+
 		while($product = mysqli_fetch_array($products)) {
 			$result = mysqli_query($dbc, "INSERT INTO `point_of_sell_product` (`posid`, `inventoryid`, `misc_product`, `quantity`, `price`, `gst`, `pst`, `type_category`)
 				VALUES ('$local_id', '".$product['inventoryid']."', '".$product['misc_product']."', '".$product['quantity']."', '".$product['price']."', '".$product['gst']."', '".$product['pst']."', '".$product['type_category']."')");
 		}
-		
+
+    $before_change = '';
+    $history = "Point of sell products have been added. <br />";
+    add_update_history($dbc, 'po_history', $history, '', $before_change);
+
 		include ('../Point of Sale/create_pos_pdf.php');
 		$pos_design = get_config($dbc, 'pos_design');
 
@@ -413,11 +429,19 @@ if($_GET['fill'] == 'POSstatus') {
     $status_history = decryptIt($_SESSION['first_name']).' '.decryptIt($_SESSION['last_name']).' Changed to '.$status.' on '.date('Y-m-d');
 	if($status == 'Archived') {
 		$status_history = decryptIt($_SESSION['first_name']).' '.decryptIt($_SESSION['last_name']).' Changed to Archived on '.date('Y-m-d');
+    $before_change = capture_before_change($dbc, 'purchase_orders', 'deleted', 'posid', $name);
+    $before_change .= capture_before_change($dbc, 'purchase_orders', 'status_history', 'posid', $name);
 		$query_update = "UPDATE `purchase_orders` SET deleted = '1', status_history = '$status_history' WHERE posid='$name'";
 	} else {
+    $before_change = capture_before_change($dbc, 'purchase_orders', 'status', 'posid', $name);
+    $before_change .= capture_before_change($dbc, 'purchase_orders', 'status_history', 'posid', $name);
 		$query_update = "UPDATE `purchase_orders` SET status = '$status', status_history = '$status_history' WHERE posid='$name'";
 	}
     $result_update = mysqli_query($dbc, $query_update);
+    $history = capture_after_change('deleted', '1');
+    $history .= capture_after_change('status', $status);
+    $history .= capture_after_change('status_history', $status_history);
+	  add_update_history($dbc, 'po_history', $history, '', $before_change);
 }
 
 if($_GET['fill'] == 'customer') {
@@ -429,8 +453,11 @@ if($_GET['fill'] == 'customer') {
 if($_GET['fill'] == 'pay_po') {
     $val = $_GET['val'];
 	$id = $_GET['id'];
+  $before_change = capture_before_change($dbc, 'purchase_orders_product', 'total_paid', 'posproductid', $id);
 	$query_update = "UPDATE `purchase_orders_product` SET total_paid = '$val' WHERE posproductid='$id'";
     $result = mysqli_fetch_assoc(mysqli_query($dbc, $query_update));
+    $history = capture_after_change('total_paid', $val);
+    add_update_history($dbc, 'po_history', $history, '', $before_change);
 }
 
 if($_GET['fill'] == 'rec_po') {
@@ -510,11 +537,17 @@ if($_GET['fill'] == 'rec_po') {
 	//$query_add_log = "INSERT INTO `inventory_change_log` (`inventoryid`, `contactid`, `old_inventory`, `changed_quantity`, `new_inventory`, `date_time`, `deleted`) VALUES ('$inv', '$contactid', '$old_inventory', '$chng_qty', '$new_inv', '$datetime', '0' )";
 	//mysqli_query($dbc, $query_add_log);
 	if(isset($_GET['additional_qty'])) {
+    $before_change = capture_before_change($dbc, 'purchase_orders_product', 'additional_qty_received', 'posproductid', $id);
 		$query_update = "UPDATE `purchase_orders_product` SET additional_qty_received = '$val' WHERE posproductid='$id'";
 		$result = mysqli_fetch_assoc(mysqli_query($dbc, $query_update));
+    $history = capture_after_change('additional_qty_received', $val);
+	  add_update_history($dbc, 'po_history', $history, '', $before_change);
 	} else {
+    $before_change = capture_before_change($dbc, 'purchase_orders_product', 'qty_received', 'posproductid', $id);
 		$query_update = "UPDATE `purchase_orders_product` SET qty_received = '$val' WHERE posproductid='$id'";
 		$result = mysqli_fetch_assoc(mysqli_query($dbc, $query_update));
+    $history = capture_after_change('qty_received', $val);
+	  add_update_history($dbc, 'po_history', $history, '', $before_change);
 	}
 
 	if(isset($_GET['inv_update'])) {
@@ -542,34 +575,49 @@ if($_GET['fill'] == 'rec_po') {
 if($_GET['fill'] == 'pay_gst') {
     $val = $_GET['val'];
 	$id = $_GET['id'];
+  $before_change = capture_before_change($dbc, 'purchase_orders', 'gst_paid', 'posid', $id);
 	$query_update = "UPDATE `purchase_orders` SET gst_paid = '$val' WHERE posid='$id'";
     $result = mysqli_fetch_assoc(mysqli_query($dbc, $query_update));
+    $history = capture_after_change('gst_paid', $val);
+    add_update_history($dbc, 'po_history', $history, '', $before_change);
 }
 
 if($_GET['fill'] == 'pay_pst') {
     $val = $_GET['val'];
 	$id = $_GET['id'];
+  $before_change = capture_before_change($dbc, 'purchase_orders', 'gst_paid', 'posid', $id);
 	$query_update = "UPDATE `purchase_orders` SET gst_paid = '$val' WHERE posid='$id'";
     $result = mysqli_fetch_assoc(mysqli_query($dbc, $query_update));
+    $history = capture_after_change('gst_paid', $val);
+    add_update_history($dbc, 'po_history', $history, '', $before_change);
 }
 
 if($_GET['fill'] == 'pay_del') {
     $val = $_GET['val'];
 	$id = $_GET['id'];
+  $before_change = capture_before_change($dbc, 'purchase_orders', 'delivery_paid', 'posid', $id);
 	$query_update = "UPDATE `purchase_orders` SET delivery_paid = '$val' WHERE posid='$id'";
     $result = mysqli_fetch_assoc(mysqli_query($dbc, $query_update));
+    $history = capture_after_change('delivery_paid', $val);
+    add_update_history($dbc, 'po_history', $history, '', $before_change);
 }
 if($_GET['fill'] == 'pay_asse') {
     $val = $_GET['val'];
 	$id = $_GET['id'];
+  $before_change = capture_before_change($dbc, 'purchase_orders', 'assembly_paid', 'posid', $id);
 	$query_update = "UPDATE `purchase_orders` SET assembly_paid = '$val' WHERE posid='$id'";
     $result = mysqli_fetch_assoc(mysqli_query($dbc, $query_update));
+    $history = capture_after_change('assembly_paid', $val);
+    add_update_history($dbc, 'po_history', $history, '', $before_change);
 }
 if($_GET['fill'] == 'change_id') {
     $val = $_GET['val'];
 	$id = $_GET['id'];
+  $before_change = capture_before_change($dbc, 'purchase_orders', 'new_id_number', 'posid', $id);
 	$query_update = "UPDATE `purchase_orders` SET new_id_number = '$val' WHERE posid='$id'";
     $result = mysqli_fetch_assoc(mysqli_query($dbc, $query_update));
+    $history = capture_after_change('new_id_number', $val);
+    add_update_history($dbc, 'po_history', $history, '', $before_change);
 
 }
 
@@ -588,27 +636,41 @@ if($_GET['fill'] == 'changeProject') {
 		$clientid = substr($id,1);
 		$id = '';
 	}
+  $before_change = capture_before_change($dbc, 'purchase_orders', 'projectid', 'posid', $po);
+  $before_change .= capture_before_change($dbc, 'purchase_orders', 'client_projectid', 'posid', $po);
 	$query_update = "UPDATE `purchase_orders` SET `projectid`='$id', `client_projectid`='$clientid' WHERE `posid`='$po'";
     $result_update = mysqli_query($dbc, $query_update);
+    $history = capture_after_change('projectid', $id);
+    $history .= capture_after_change('client_projectid', $clientid);
+    add_update_history($dbc, 'po_history', $history, '', $before_change);
 }
 
 if($_GET['fill'] == 'changeTicket') {
     $po = $_GET['po'];
 	$id = $_GET['id'];
+  $before_change = capture_before_change($dbc, 'purchase_orders', 'ticketid', 'posid', $po);
 	$query_update = "UPDATE `purchase_orders` SET `ticketid`='$id' WHERE `posid`='$po'";
     $result_update = mysqli_query($dbc, $query_update);
+    $history = capture_after_change('ticketid', $id);
+    add_update_history($dbc, 'po_history', $history, '', $before_change);
 }
 
 if($_GET['fill'] == 'changeWorkOrder') {
     $po = $_GET['po'];
 	$id = $_GET['id'];
+  $before_change = capture_before_change($dbc, 'purchase_orders', 'workorderid', 'posid', $po);
 	$query_update = "UPDATE `purchase_orders` SET `workorderid`='$id' WHERE `posid`='$po'";
     $result_update = mysqli_query($dbc, $query_update);
+    $history = capture_after_change('workorderid', $id);
+    add_update_history($dbc, 'po_history', $history, '', $before_change);
 }
 if($_GET['action'] == 'contact_po_numbers') {
 	$target = filter_var($_POST['new_po'],FILTER_SANITIZE_STRING);
 	$src = filter_var($_POST['old_po'],FILTER_SANITIZE_STRING);
+  $before_change = capture_before_change($dbc, 'contact_order_numbers', 'detail', 'category', 'po_number', 'detail', $src, 'deleted', '0');
 	$dbc->query("UPDATE `contact_order_numbers` SET `detail`='$target' WHERE `deleted`=0 AND `detail`='$src' AND `category`='po_number'");
+  $history = capture_after_change('detail', $target);
+  add_update_history($dbc, 'po_history', $history, '', $before_change);
 }
 if($_GET['action'] == 'contact_po_number_contacts') {
 	error_reporting(0);

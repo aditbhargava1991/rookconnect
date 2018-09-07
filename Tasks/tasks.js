@@ -21,12 +21,14 @@ function tasksInit() {
 		items: "li:not(.no-sort)",
 		update: function( event, ui ) {
 			var taskid = ui.item.attr("id"); //Done
+			var table = ui.item.data('table');
+			var id_field = ui.item.data('id-field');
 			var table_class = ui.item.parent().attr("class");
 			var status = table_class.split(' ')[2];
 			
 			$.ajax({    //create an ajax request to load_page.php
 				type: "GET",
-				url: "task_ajax_all.php?fill=tasklist&tasklistid="+taskid+"&task_milestone_timeline="+status,
+				url: "task_ajax_all.php?fill=tasklist&tasklistid="+taskid+"&table="+table+"&id_field="+id_field+"&task_milestone_timeline="+status,
 				dataType: "html",   //expect html to be returned
 				success: function(response){
 				}

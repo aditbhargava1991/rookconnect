@@ -26,6 +26,7 @@ if ($third_heading != '') {
 	$pdf_html .= "<h3>$heading_number - $heading</h3>";
 	$pdf_name = config_safe_str($heading_number.'-'.$heading);
 }
+$pdf_name .= '_'.$_SESSION['contactid'];
 
 $pdf_html .= html_entity_decode($description);
 

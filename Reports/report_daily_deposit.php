@@ -73,6 +73,8 @@ if (isset($_POST['printpdf'])) {
     $today_date = date('Y-m-d');
 	$pdf->writeHTML($html, true, false, true, false, '');
 	$pdf->Output('Download/daily_deposit_sales_summary_'.$today_date.'.pdf', 'F');
+    track_download($dbc, 'report_daily_deposit', 0, WEBSITE_URL.'/Reports/Download/daily_deposit_sales_summary_'.$today_date.'.pdf', 'Daily Deposit Summary Report');
+
     ?>
 
 	<script type="text/javascript" language="Javascript">
@@ -83,19 +85,6 @@ if (isset($_POST['printpdf'])) {
     $endtime = $endtimepdf;
     } ?>
 
-<script type="text/javascript">
-
-</script>
-</head>
-<body>
-<?php include_once ('../navigation.php');
-?>
-
-<div class="container triple-pad-bottom">
-    <div class="row">
-        <div class="col-md-12">
-
-        <?php echo  reports_tiles($dbc);  ?>
         <div class="notice double-gap-bottom popover-examples">
             <div class="col-sm-1 notice-icon"><img src="<?= WEBSITE_URL; ?>/img/info.png" class="wiggle-me" width="25"></div>
             <div class="col-sm-11"><span class="notice-name">NOTE:</span>
@@ -145,11 +134,6 @@ if (isset($_POST['printpdf'])) {
             ?>
         </form>
 
-        </div>
-    </div>
-</div>
-<?php include ('../footer.php'); ?>
-
 <?php
 function report_sales_summary($dbc, $starttime, $endtime, $table_style, $table_row_style, $grand_total_style) {
     $report_data = '';
@@ -188,7 +172,9 @@ function report_sales_summary($dbc, $starttime, $endtime, $table_style, $table_r
     $total9 =  0;
     $final_total = 0;
 
+    $odd_even=0;
     foreach($daterange as $date) {
+        $bg_class = $odd_even % 2 == 0 ? '' : 'background-color:#e6e6e6;';
         $sub_total = 0;
         $check_date = $date->format("Y-m-d") . "<br>";
 
@@ -219,7 +205,7 @@ function report_sales_summary($dbc, $starttime, $endtime, $table_style, $table_r
         $all_probono = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT SUM(patient_price) as `all_probono` FROM invoice_patient WHERE paid='Pro-Bono' AND paid_date = '".$check_date."'"));
         $probono = $all_probono['all_probono'];
 
-        $report_data .= '<tr nobr="true">';
+        $report_data .= '<tr nobr="true" style="'.$bg_class.'">';
         $report_data .=  '<td>'.$check_date.'</td>';
 
         $report_data .= '<td>';
@@ -400,6 +386,7 @@ function report_sales_summary($dbc, $starttime, $endtime, $table_style, $table_r
         $report_data .=  '<td>$'.number_format($dd, 2).'</td><td><b>$'.$sub_total.'</b></td>';
         $report_data .=  '</tr>';
         $final_total += $sub_total;
+        $odd_even++;
     }
 
     $report_data .=  '<tr><td><b>Grand Total</b></td><td><b>$'.number_format($total1, 2).'</b></td><td><b>$'.number_format($total2, 2).'</b></td><td><b>$'.number_format($total6, 2).'</b></td><td><b>$'.number_format($total3, 2).'</b></td><td><b>$'.number_format($total4, 2).'</b></td><td><b>$'.number_format($total5, 2).'</b></td><td><b>$'.number_format($total7, 2).'</b></td><td><b>$'.number_format($total8, 2).'</b></td><td><b>$'.number_format($total9, 2).'</b></td><td><b>$'.number_format(($final_total), 2).'</b></td></tr>';

@@ -43,11 +43,17 @@ if (isset($_POST['purchase_order'])) {
 	    $result_insert_po = mysqli_query($dbc, $query_insert_po);
         $fieldpoid = mysqli_insert_id($dbc);
         $url = 'Added';
+				$before_change = '';
+		    $history = "Purchase Order entry has been added. <br />";
+		    add_update_history($dbc, 'po_history', $history, '', $before_change);
 	} else {
 		$fieldpoid = $_POST['fieldpoid'];
 		$query_update_site = "UPDATE `purchase_order` SET `businessid` = '$businessid', `projectid` = '$projectid', `client_projectid` = '$clientprojectid', `ticketid` = '$ticketid', `workorderid` = '$workorderid', `vendorid` = '$vendorid', `issue_date` = '$issue_date', `description`= '$description', `qty` = '$qty', `desc` = '$desc', `grade` = '$grade', `tag` = '$tag', `detail` = '$detail', `price_per_unit` = '$price_per_unit', `each_cost` = '$each_cost', `cost` = '$cost', `mark_up` = '$mark_up', `total_cost` = '$total_cost', `revision` = '$revision', `edited_by` = '$created_by' WHERE `fieldpoid` = '$fieldpoid'";
 		$result_update_site	= mysqli_query($dbc, $query_update_site);
         $url = 'Updated';
+				$before_change = "";
+				$history = "Purchase order entry has been updated. <br />";
+				add_update_history($dbc, 'po_history', $history, '', $before_change);
 	}
 
     include ('purchase_order_pdf.php');

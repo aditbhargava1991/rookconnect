@@ -63,6 +63,14 @@ if (isset($_POST['submit']) && $_POST['submit'] == 'fields') {
 
 	$timesheet_security_roles = implode(',', $_POST['timesheet_security_roles']);
 	set_config($dbc, 'timesheet_security_roles', $timesheet_security_roles);
+
+	foreach($_POST['dayoff_hours_type'] as $i => $dayoff_hours_type) {
+		$dayoff_enabled = $_POST['dayoff_enabled'][$i];
+		$dayoff_dayoff_type = $_POST['dayoff_dayoff_type'][$i];
+
+		mysqli_query($dbc, "INSERT INTO `field_config_time_cards_dayoff` (`hours_type`) SELECT '$dayoff_hours_type' FROM (SELECT COUNT(*) rows FROM `field_config_time_cards_dayoff` WHERE `hours_type` = '$dayoff_hours_type') num WHERE num.rows=0");
+		mysqli_query($dbc, "UPDATE `field_config_time_cards_dayoff` SET `enabled` = '$dayoff_enabled', `dayoff_type` = '$dayoff_dayoff_type' WHERE `hours_type` = '$dayoff_hours_type'");
+	}
 } else if(isset($_POST['submit']) && $_POST['submit'] == 'approvals') {
 	$config_ids = implode(',',array_filter($_POST['configid']));
 	$deleted_sql = "DELETE FROM `field_config_supervisor` WHERE `fieldconfigid` NOT IN ($config_ids)";
@@ -123,6 +131,7 @@ if (isset($_POST['submit']) && $_POST['submit'] == 'fields') {
 	set_config($dbc, 'timesheet_comment_placeholder', $_POST['timesheet_comment_placeholder']);
 	set_config($dbc, 'timesheet_time_format', $_POST['timesheet_time_format']);
 	set_config($dbc, 'timesheet_record_history', $_POST['timesheet_record_history']);
+	set_config($dbc, 'timesheet_default_tab', $_POST['timesheet_default_tab']);
 } else if(isset($_POST['submit']) && $_POST['submit'] == 'day_tracking') {
 	$timesheet_start_tile = filter_var($_POST['timesheet_start_tile'],FILTER_SANITIZE_STRING);
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'timesheet_start_tile' FROM (SELECT COUNT(*) `rows` FROM general_configuration WHERE `name`='timesheet_start_tile') CONFIG WHERE `rows`=0");
@@ -162,6 +171,11 @@ if (isset($_POST['submit']) && $_POST['submit'] == 'fields') {
 	set_config($dbc, 'timesheet_break_option', $_POST['timesheet_break_option']);
 	set_config($dbc, 'ticket_force_starts_day', $_POST['ticket_force_starts_day']);
 	set_config($dbc, 'active_ticket_button', $_POST['active_ticket_button']);
+	set_config($dbc, 'timesheet_force_end_midnight', $_POST['timesheet_force_end_midnight']);
+} else if(isset($_POST['submit']) && $_POST['submit'] == 'holiday') {
+	set_config($dbc, 'holiday_update_noti', filter_var($_POST['holiday_update_noti']));
+	set_config($dbc, 'holiday_update_staff', filter_var($_POST['holiday_update_staff']));
+	set_config($dbc, 'holiday_update_date', filter_var($_POST['holiday_update_date']));
 }
 ?>
 <style>
@@ -185,6 +199,8 @@ if($_GET['tab'] == 'approvals') {
 	$_GET['tab'] = 'reporting';
 } else if($_GET['tab'] == 'payroll') {
 	$_GET['tab'] = 'payroll';
+} else if($_GET['tab'] == 'holiday') {
+	$_GET['tab'] = 'holiday';
 } else {
 	$_GET['tab'] = 'fields';
 } ?>
@@ -201,6 +217,7 @@ if($_GET['tab'] == 'approvals') {
 	<a href="?tab=day_tracking&from_url=<?= $_GET['from_url'] ?>" class="btn brand-btn <?php echo ($_GET['tab'] == 'day_tracking' ? 'active_tab' : ''); ?>"><?= get_config($dbc, 'timesheet_start_tile') ?: 'Start Day' ?></a>
 	<a href="?tab=reporting&from_url=<?= $_GET['from_url'] ?>" class="btn brand-btn <?php echo ($_GET['tab'] == 'reporting' ? 'active_tab' : ''); ?>">Reporting</a>
 	<a href="?tab=payroll&from_url=<?= $_GET['from_url'] ?>" class="btn brand-btn <?php echo ($_GET['tab'] == 'payroll' ? 'active_tab' : ''); ?>">Payroll</a>
+	<a href="?tab=holiday&from_url=<?= $_GET['from_url'] ?>" class="btn brand-btn <?php echo ($_GET['tab'] == 'holiday' ? 'active_tab' : ''); ?>">Holidays</a>
 </div><br />
 
 <form id="form1" name="form1" method="post" enctype="multipart/form-data" class="form-horizontal" role="form">
@@ -208,12 +225,21 @@ if($_GET['tab'] == 'approvals') {
 	<div class="panel-group" id="accordion2">
 	<?php
 	$k=0;
+	$layout = get_config($dbc, 'timesheet_layout');
 	foreach($config['settings'] as $settings => $value) {
 		if(isset($value['config_field'])) {
-			$get_field_config = @mysqli_fetch_assoc(mysqli_query($dbc,"SELECT ".$value['config_field']." FROM field_config"));
-			$value_config = ','.$get_field_config[$value['config_field']].',';
-			if(strpos($value_config,',reg_hrs,') === FALSE && strpos($value_config,',direct_hrs,') === FALSE && strpos($value_config,',payable_hrs,') === FALSE) {
-				$value_config .= 'reg_hrs,extra_hrs,relief_hrs,sleep_hrs,sick_hrs,sick_used,stat_hrs,stat_used,vaca_hrs,vaca_used,';
+			if($value['config_field'] == 'time_cards_total_hrs_layout') {
+				$get_field_config = @mysqli_fetch_assoc(mysqli_query($dbc,"SELECT ".$value['config_field']." FROM field_config"));
+				$value_config = ','.$get_field_config[$value['config_field']].',';
+				if(empty(trim($value_config,','))) {
+					$value_config = ',reg_hrs,overtime_hrs,doubletime_hrs,';
+				}
+			} else {
+				$get_field_config = @mysqli_fetch_assoc(mysqli_query($dbc,"SELECT ".$value['config_field']." FROM field_config"));
+				$value_config = ','.$get_field_config[$value['config_field']].',';
+				if(strpos($value_config,',reg_hrs,') === FALSE && strpos($value_config,',direct_hrs,') === FALSE && strpos($value_config,',payable_hrs,') === FALSE && !in_array($layout, ['ticket_task','position_dropdown'])) {
+					$value_config .= 'reg_hrs,extra_hrs,relief_hrs,sleep_hrs,sick_hrs,sick_used,stat_hrs,stat_used,vaca_hrs,vaca_used,';
+				}
 			}
 			?>
 			<div class="panel panel-default">
@@ -300,12 +326,59 @@ if($_GET['tab'] == 'approvals') {
 					<div class="form-group">
 						<label for="additional_note" class="col-sm-4 control-label">Limit Security Levels:</label>
 						<div class="col-sm-8">
-							<select name="timesheet_security_roles[]" multiple class="chosen-select-deselect form-control"><option></option>
+							<select name="timesheet_security_roles[]" multiple class="chosen-select-deselect form-control">
 								<?php $timesheet_security_roles = array_filter(explode(',',get_config($dbc, 'timesheet_security_roles')));
 								foreach(get_security_levels($dbc) as $security_name => $security_level) {
 									echo '<option value="'.$security_level.'" '.(in_array($security_level, $timesheet_security_roles) ? 'selected' : '').'>'.$security_name.'</option>';
 								} ?>
 							</select>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<h4 class="panel-title">
+					<a data-toggle="collapse" data-parent="#accordion2" href="#collapse_field_dayoff" >
+						Day Off Shift Settings<span class="glyphicon glyphicon-plus"></span>
+					</a>
+				</h4>
+			</div>
+			<div id="collapse_field_dayoff" class="panel-collapse collapse">
+				<div class="panel-body">
+					<div class="form-group">
+						<label for="additional_note" class="col-sm-4 control-label"><span class='popover-examples list-inline'><a data-toggle='tooltip' data-placement='top' title='If hours are configured here, it will automatically add a Day Off Shift to the Staff for the Day Off Type selected.'><img src='<?= WEBSITE_URL ?>/img/info.png' width='20'></a></span> Day Off Shift Settings:</label>
+						<div class="col-sm-8">
+							<?php $dayoff_types = array_filter(explode(',',mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `field_config_contacts_shifts`"))['dayoff_types'])); ?>
+							<div id="no-more-tables">
+								<table class="table table-bordered">
+									<tr class="hidden-xs">
+										<th>Hours Type</th>
+										<th>Enabled</th>
+										<th>Day Off Type</th>
+									</tr>
+									<?php $dayoff_hours = ["Sick Hrs.Taken"];
+									foreach($dayoff_hours as $dayoff_hour) {
+										$dayoff_setting = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `field_config_time_cards_dayoff` WHERE `hours_type` = '".$dayoff_hour."'")); ?>
+										<tr>
+											<input type="hidden" name="dayoff_hours_type[]" value="Sick Hrs.Taken">
+											<td data-title="Hours Type">Sick Hours Taken</td>
+											<td data-title="Enabled">
+												<label class="form-checkbox"><input type="checkbox" name="dayoff_enabled[]" value="1" <?= $dayoff_setting['enabled'] == 1 ? 'checked' : '' ?>> Enable</label>
+											</td>
+											<td data-title="Day Off Type">
+												<select name="dayoff_dayoff_type[]" class="chosen-select-deselect">
+													<option></option>
+													<?php foreach($dayoff_types as $dayoff_type) {
+														echo '<option value="'.$dayoff_type.'" '.($dayoff_type == $dayoff_setting['dayoff_type'] ? 'selected' : '').'>'.$dayoff_type.'</option>';
+													} ?>
+												</select>
+											</td>
+										</tr>
+									<?php } ?>
+								</table>
+							</div>
 						</div>
 					</div>
 				</div>
@@ -544,6 +617,23 @@ if($_GET['tab'] == 'approvals') {
 		<div class="panel panel-default">
 			<div class="panel-heading">
 				<h4 class="panel-title">
+					<a data-toggle="collapse" data-parent="#accordion2" href="#collapse_time_tab" >
+						Default Time Period Tab<span class="glyphicon glyphicon-plus"></span>
+					</a>
+				</h4>
+			</div>
+			<div id="collapse_time_tab" class="panel-collapse collapse">
+				<div class="panel-body">
+					<?php $default_tab = !empty(get_config($dbc, 'timesheet_default_tab')) ? get_config($dbc, 'timesheet_default_tab') : 'Custom';
+					foreach($config['time_tabs'] as $time_tab) {
+						echo "<input ".($time_tab == $default_tab ? 'checked' : '')." type='radio' name='timesheet_default_tab' value='".$time_tab."'>&nbsp;&nbsp;".$time_tab."</label>&nbsp;&nbsp;";
+					} ?>
+				</div>
+			</div>
+		</div>
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<h4 class="panel-title">
 					<a data-toggle="collapse" data-parent="#accordion2" href="#collapse_layout" >
 						Time Sheet Options<span class="glyphicon glyphicon-plus"></span>
 					</a>
@@ -725,7 +815,11 @@ if($_GET['tab'] == 'approvals') {
 					</div>";
 					$timesheet_end_tile = get_config($dbc, 'timesheet_end_tile');
 					echo "<div class='clearfix'></div><label class='col-sm-4 control-label'>End Time Tracking Tile:<br /><em>Only appears after Start Time Tracking Tile has started the time tracking.</em></label>";
-					echo "<div class='col-sm-8'><input type='text' name='timesheet_end_tile' value='$timesheet_end_tile' class='form-control'></div>"; ?>
+					echo "<div class='col-sm-8'><input type='text' name='timesheet_end_tile' value='$timesheet_end_tile' class='form-control'></div>";
+					$timesheet_force_end_midnight = get_config($dbc, 'timesheet_force_end_midnight');
+					echo "<div class='clearfix'></div><label class='col-sm-4 control-label'>Force End Day at Midnight:</label>";
+					echo "<div class='col-sm-8'><label class='form-checkbox'><input ".($timesheet_force_end_midnight > 0 ? 'checked' : '')." type='checkbox' name='timesheet_force_end_midnight' value='1'> Enable</label></div>";
+					?>
 				</div>
 			</div>
 		</div>
@@ -784,7 +878,7 @@ if($_GET['tab'] == 'approvals') {
     ?>
     <script type="text/javascript">
     function displayEGSOptions() {
-    	if($('[name="timesheet_payroll_styling"]:checked').val() == 'EGS') {
+    	if($('[name="timesheet_payroll_styling"]:checked').val() == 'EGS' || $('[name="timesheet_payroll_styling"]:checked').val() == 'Both') {
     		$('.egs_div').show();
     	} else {
     		$('.egs_div').hide();
@@ -808,10 +902,11 @@ if($_GET['tab'] == 'approvals') {
                       <div class="col-sm-8">
                         <label class="form-checkbox"><input type="radio" name="timesheet_payroll_styling" <?= $timesheet_payroll_styling == 'Default' ? 'checked' : '' ?> data-table="tickets" data-id="<?= $timesheet_payroll_styling ?>" data-id-field="timesheet_payroll_styling" class="form-control" value="Default" onchange="displayEGSOptions();"> Default</label>
                         <label class="form-checkbox"><input type="radio" name="timesheet_payroll_styling" <?= $timesheet_payroll_styling == 'EGS' ? 'checked' : '' ?> data-table="tickets" data-id="<?= $timesheet_payroll_styling ?>" data-id-field="timesheet_payroll_styling" class="form-control" value="EGS" onchange="displayEGSOptions();"> Total Time Tracked</label>
+                        <label class="form-checkbox"><input type="radio" name="timesheet_payroll_styling" <?= $timesheet_payroll_styling == 'Both' ? 'checked' : '' ?> data-table="tickets" data-id="<?= $timesheet_payroll_styling ?>" data-id-field="timesheet_payroll_styling" class="form-control" value="Both" onchange="displayEGSOptions();"> Both as Tabs</label>
                       </div>
                     </div>
 
-                    <div class="egs_div" <?= $timesheet_payroll_styling != 'EGS' ? 'style="display:none;"' : '' ?>>
+                    <div class="egs_div" <?= $timesheet_payroll_styling != 'EGS' && $timesheet_payroll_styling != 'Both' ? 'style="display:none;"' : '' ?>>
 	                    <div class="form-group">
 	                    	<?php $timesheet_payroll_layout = get_config($dbc, 'timesheet_payroll_layout'); ?>
 	                    	<label class="col-sm-4 control-label">Layout:</label>
@@ -855,6 +950,9 @@ if($_GET['tab'] == 'approvals') {
 						<div class="col-sm-8">
 							<?php $timesheet_payroll_fields = ','.get_config($dbc, 'timesheet_payroll_fields').','; ?>
 							<label class="form-checkbox"><input type="checkbox" name="timesheet_payroll_fields[]" value="Expenses Owed" <?= strpos($timesheet_payroll_fields, ',Expenses Owed,') !== FALSE ? 'checked' : '' ?>> Expenses Owed</label>
+							<label class="form-checkbox"><input type="checkbox" name="timesheet_payroll_fields[]" value="Mileage" <?= strpos($timesheet_payroll_fields, ',Mileage,') !== FALSE ? 'checked' : '' ?>> Mileage</label>
+							<label class="form-checkbox"><input type="checkbox" name="timesheet_payroll_fields[]" value="Mileage Rate" <?= strpos($timesheet_payroll_fields, ',Mileage Rate,') !== FALSE ? 'checked' : '' ?>> Mileage Rate</label>
+							<label class="form-checkbox"><input type="checkbox" name="timesheet_payroll_fields[]" value="Mileage Total" <?= strpos($timesheet_payroll_fields, ',Mileage Total,') !== FALSE ? 'checked' : '' ?>> Mileage Total</label>
 						</div>
                     </div>
 
@@ -873,6 +971,65 @@ if($_GET['tab'] == 'approvals') {
 		<div class="clearfix"></div>
 	</div>
 
+<?php elseif($_GET['tab'] == 'holiday'): ?>
+	<div class="panel-group" id="accordion2">
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<h4 class="panel-title">
+					<a data-toggle="collapse" data-parent="#accordion2" href="#collapse_holiday_noti" >
+						Statutory Holidays Update Notification<span class="glyphicon glyphicon-plus"></span>
+					</a>
+				</h4>
+			</div>
+			<div id="collapse_holiday_noti" class="panel-collapse collapse">
+				<div class="panel-body">
+
+					<div class="form-group">
+						<label class="col-sm-4 control-label">Enable Notifications:</label>
+						<div class="col-sm-8">
+							<?php $holiday_update_noti = get_config($dbc, 'holiday_update_noti'); ?>
+							<label class="form-checkbox"><input type="checkbox" name="holiday_update_noti" value="1" onchange="if($(this).is(':checked')) { $('#holiday_update_div').show(); } else { $('#holiday_update_noti_div').hide(); }" <?= $holiday_update_noti == 1 ? 'checked' : '' ?>></label>
+						</div>
+					</div>
+
+					<div id="holiday_update_div" <?= $holiday_update_noti == 1 ? '' : 'style="display:none;"' ?>>
+						<div class="form-group">
+							<label class="col-sm-4 control-label">Staff:</label>
+							<div class="col-sm-8">
+								<select name="holiday_update_staff" class="chosen-select-deselect form-control">
+									<option></option>
+									<?php $holiday_update_staff = get_config($dbc, 'holiday_update_staff');
+									$staff_list = sort_contacts_query(mysqli_query($dbc, "SELECT * FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `deleted` = 0 AND `status` > 0 AND `show_hide_user` > 0"));
+									foreach($staff_list as $staff) {
+										echo '<option value="'.$staff['contactid'].'" '.($staff['contactid'] == $holiday_update_staff ? 'selected' : '').'>'.$staff['full_name'].'</option>';
+									} ?>
+								</select>
+							</div>
+						</div>
+
+						<div class="form-group">
+							<label class="col-sm-4 control-label">Date (MM-DD):<br><em>Notifications will be sent weekly from this date each year until they are turned off.</em></label>
+							<div class="col-sm-8">
+								<?php $holiday_update_date = get_config($dbc, 'holiday_update_date'); ?>
+								<input type="text" name="holiday_update_date" class="form-control datepickernoyear" value="<?= $holiday_update_date ?>">
+							</div>
+						</div>
+					</div>
+
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="form-group">
+		<div class="col-sm-6">
+			<a href="<?= $_GET['from_url'] ?>" class="btn config-btn btn-lg">Back</a>
+		</div>
+		<div class="col-sm-6">
+			<button type="submit" name="submit" value="holiday" class="btn config-btn btn-lg pull-right">Submit</button>
+		</div>
+		<div class="clearfix"></div>
+	</div>
 <?php endif; ?>
 
 </form>

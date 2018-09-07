@@ -75,6 +75,7 @@ if (isset($_POST['printpdf'])) {
     $today_date = date('Y-m-d');
 	$pdf->writeHTML($html, true, false, true, false, '');
 	$pdf->Output('Download/patient_unpaid_'.$today_date.'.pdf', 'F');
+    track_download($dbc, 'report_patient_unpaid_invoices', 0, WEBSITE_URL.'/Reports/Download/patient_unpaid_'.$today_date.'.pdf', 'Unpaid Invoices Report');
     ?>
 
 	<script type="text/javascript" language="Javascript">
@@ -85,20 +86,6 @@ if (isset($_POST['printpdf'])) {
     $invoice_no = $invoice_nopdf;
     $patient = $patientpdf;
     } ?>
-
-<script type="text/javascript">
-
-</script>
-</head>
-<body>
-<?php include_once ('../navigation.php');
-?>
-
-<div class="container triple-pad-bottom">
-    <div class="row">
-        <div class="col-md-12">
-
-        <?php echo reports_tiles($dbc);  ?>
 
         <div class="notice double-gap-bottom popover-examples">
             <div class="col-sm-1 notice-icon"><img src="<?= WEBSITE_URL; ?>/img/info.png" class="wiggle-me" width="25"></div>
@@ -158,14 +145,9 @@ if (isset($_POST['printpdf'])) {
                 echo report_daily_validation($dbc, $starttime, $invoice_no, $patient, '', '', '');
             ?>
 
-        
+
 
         </form>
-
-        </div>
-    </div>
-</div>
-<?php include ('../footer.php'); ?>
 
 <?php
 function report_daily_validation($dbc, $starttime, $invoice_no, $patient, $table_style, $table_row_style, $grand_total_style) {
@@ -212,17 +194,20 @@ function report_daily_validation($dbc, $starttime, $invoice_no, $patient, $table
     </tr>';
 
     $amt_to_bill = 0;
+    $odd_even=0;
     while($row_report = mysqli_fetch_array($report_service)) {
+        $bg_class = $odd_even % 2 == 0 ? '' : 'background-color:#e6e6e6;';
         $patient_price = $row_report['patient_price'];
         $invoiceid = $row_report['invoiceid'];
 
-        $report_data .= '<tr nobr="true">';
+        $report_data .= '<tr nobr="true" style="'.$bg_class.'">';
         $report_data .= '<td>#'.$invoiceid.'</td>';
         $report_data .= '<td>'.$row_report['invoice_date'].'</td>';
         $report_data .= '<td>'.get_contact($dbc, $row_report['patientid']).'</td>';
         $report_data .= '<td>$'.$patient_price.'</td>';
         $report_data .= '</tr>';
         $amt_to_bill += $patient_price;
+        $odd_even++;
     }
 
     $report_data .= '<tr nobr="true">';

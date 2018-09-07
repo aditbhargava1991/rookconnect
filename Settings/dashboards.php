@@ -1,4 +1,5 @@
-<?php /* Tile Sort Order */ ?>
+<?php /* Tile Sort Order */
+include_once('../include.php'); ?>
 <div style="display:none;">
 <?php include_once('../tiles.php'); ?>
 </div>

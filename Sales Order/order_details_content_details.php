@@ -7,13 +7,15 @@
                 $heading_name = $heading['heading_name'];
                 $mandatory_quantity = $heading['mandatory_quantity']; ?>
                 <div class="accordion-block-details-heading"><h4><?= $heading_name.($mandatory_quantity > 0 ? ' (Choose '.$mandatory_quantity.')' : '') ?></h4></div>
-                <table class="table table-bordered" data-quantity="<?= $mandatory_quantity ?>" data-heading="<?= $heading_name ?>">
-                    <tr class="hidden-xs">
-                        <th>Category</th>
-                        <th>Product</th>
-                        <th width="10%">Price</th>
-                        <th width="10%">Quantity</th>
-                    </tr>
+                <table class="table table-bordered table-striped" data-quantity="<?= $mandatory_quantity ?>" data-heading="<?= $heading_name ?>">
+                    <thead>
+                        <tr class="hidden-xs">
+                            <th>Category</th>
+                            <th>Product</th>
+                            <th width="10%">Price</th>
+                            <th width="10%">Quantity</th>
+                        </tr>
+                    </thead>
                     <?php $item_list = mysqli_fetch_all(mysqli_query($dbc, "SELECT *, IF(`sortorder` = 0, NULL, `sortorder`) `sortorder` FROM `sales_order_product_temp` WHERE `parentsotid` = '$sotid' AND `contact_category` = '$contact_category' AND `heading_name` = '$heading_name' ORDER BY `sortorder` IS NOT NULL, `sortorder` ASC"),MYSQLI_ASSOC);
                     foreach ($item_list as $item) {
                         $item_details = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `sales_order_product_details_temp` WHERE `parentsotid` = '".$item['sotid']."' AND `contactid` = '".$id."'")); ?>
@@ -39,17 +41,21 @@
             $mandatory_quantity = $heading['mandatory_quantity']; ?>
             <div id="nocat_order_<?= config_safe_str($heading['heading_name']) ?>" class="accordion-block-details-sub">
                 <div class="accordion-block-details-heading"><h4><?= $heading_name.($mandatory_quantity > 0 ? ' (Choose '.$mandatory_quantity.')' : '') ?></h4></div>
-                <table class="table table-bordered" data-quantity="<?= $mandatory_quantity ?>" data-heading="<?= $heading_name ?>">
-                    <tr class="hidden-xs">
-                        <th>Category</th>
-                        <th>Product</th>
-                        <th width="10%">Price</th>
-                        <th width="10%">Quantity</th>
-                    </tr>
+                <table class="table table-bordered table-striped" data-quantity="<?= $mandatory_quantity ?>" data-heading="<?= $heading_name ?>">
+                    <thead>
+                        <tr class="hidden-xs">
+                            <th>Category</th>
+                            <th>Product</th>
+                            <th width="10%">Price</th>
+                            <th width="10%">Quantity</th>
+                        </tr>
+                    </thead>
                     <?php $item_list = mysqli_fetch_all(mysqli_query($dbc, "SELECT *, IF(`sortorder` = 0, NULL, `sortorder`) `sortorder` FROM `sales_order_product_temp` WHERE `parentsotid` = '$sotid' AND `contact_category` = '**no_cat**' AND `heading_name` = '$heading_name' ORDER BY `sortorder` IS NOT NULL, `sortorder` ASC"),MYSQLI_ASSOC);
+                    $odd_even = 0;
                     foreach ($item_list as $item) {
+                        $bg_class = $odd_even % 2 == 0 ? 'row-even-bg' : 'row-odd-bg';
                         $item_details = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `sales_order_product_details_temp` WHERE `parentsotid` = '".$item['sotid']."' AND `contactid` = '".$customerid."'")); ?>
-                        <tr>
+                        <tr class="<?= $bg_class ?>">
                             <input type="hidden" name="item_contactid[]" value="<?= $customerid ?>">
                             <input type="hidden" name="item_soptid[]" value="<?= $item['sotid'] ?>">
                             <td data-title="Category"><?= $item['item_category'] ?></td>
@@ -57,6 +63,7 @@
                             <td data-title="Price"><?= $item['item_price'] ?></td>
                             <td data-title="Quantity"><input type="number" name="item_quantity[]" class="form-control" value="<?= !empty($item_details['quantity']) ? $item_details['quantity'] : '0' ?>"></td>
                         </tr>
+                        <?php $odd_even++; ?>
                     <?php } ?>
                 </table>
             </div><?php

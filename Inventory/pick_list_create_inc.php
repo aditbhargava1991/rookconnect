@@ -32,7 +32,12 @@ if($_POST['save'] == 'save' || !empty($_POST['get_all'])) {
 					$qty_diff = $available['available'];
 				}
 				$dbc->query("UPDATE `pick_list_items` SET `inventoryid`='$inventory', `quantity`='$quantity', `deleted`='$deleted' WHERE `id`='$id'");
+
+				$before_change = capture_before_change($dbc, 'inventory', 'assigned_qty', 'inventoryid', $inventory);
 				$dbc->query("UPDATE `inventory` SET `assigned_qty`=(`assigned_qty` + $qty_diff) WHERE `inventoryid`='$inventory'");
+				$history = capture_after_change('assigned_qty', $qty_diff);
+				add_update_history($dbc, 'inventory_history', $history, '', $before_change);
+
 				$dbc->query("INSERT INTO `inventory_change_log` (`inventoryid`,`contactid`,`location_of_change`,`date_time`,`change_comment`) SELECT `inventoryid`,'{$_SESSION['contactid']}','Pick List: $name',NOW(),'Assigned Quantity updated by $qty_diff' FROM `inventory` WHERE `inventoryid`='$inventory'");
 			} else {
 				if($quantity > $available['available']) {
@@ -40,7 +45,11 @@ if($_POST['save'] == 'save' || !empty($_POST['get_all'])) {
 					$quantity = $available['available'];
 				}
 				$dbc->query("INSERT INTO `pick_list_items` (`pick_list`,`inventoryid`,`quantity`,`deleted`) VALUES ('$picklistid','$inventory','$quantity','$deleted')");
+				$before_change = capture_before_change($dbc, 'inventory', 'assigned_qty', 'inventoryid', $inventory);
 				$dbc->query("UPDATE `inventory` SET `assigned_qty`=(`assigned_qty` + $quantity) WHERE `inventoryid`='$inventory'");
+				$history = capture_after_change('assigned_qty', $quantity);
+				add_update_history($dbc, 'inventory_history', $history, '', $before_change);
+				
 				$dbc->query("INSERT INTO `inventory_change_log` (`inventoryid`,`contactid`,`location_of_change`,`date_time`,`change_comment`) SELECT `inventoryid`,'{$_SESSION['contactid']}','Pick List: $name',NOW(),'$quantity Assigned to Pick List' FROM `inventory` WHERE `inventoryid`='$inventory'");
 			}
 		}
@@ -107,7 +116,7 @@ if($_POST['save'] == 'save' || !empty($_POST['get_all'])) {
 			</tr>';
 		}
 	$html .= '</table>';
-	
+
 	$select_pdf_settings = mysqli_fetch_assoc(mysqli_query($dbc, "select * from inventory_pdf_setting where style = '$pdf_style'"));
 	if(!empty($select_pdf_settings)) {
 	    $file_name = $select_pdf_settings['file_name'];
@@ -255,7 +264,7 @@ if($_POST['save'] == 'save' || !empty($_POST['get_all'])) {
 			if(HEADER_TEXT != '') {
 				$this->setCellHeightRatio(0.7);
 				$font_style = "font-family: ".HEADER_FONT."; font-style: ".HEADER_FONT_TYPE."; font-size: ".HEADER_FONT_SIZE."; color: ".HEADER_COLOR.";";
-				
+
 				$header_align = (HEADER_LOGO_ALIGN == "L" ? "R" : "L");
 				if ($header_align == "L") {
 					$align_style = 'text-align: left;';
@@ -331,7 +340,7 @@ $(document).ready(function() {
 		}).trigger('change.select2');
 	});
 	$('[name^=filter_]').change(populate_inventory);
-	
+
 	// Populate the Inventory Lists
 	$('[name^=inventoryid]').each(function() {
 		var sel = this;
@@ -362,7 +371,7 @@ function remRow(item) {
 	if($('.inv_list .form-group:visible').length == 1) {
 		addRow();
 	}
-	
+
 	$(item).closest('.form-group').hide().find('[name="deleted[]"]').val(1);
 }
 function getAll(button) {

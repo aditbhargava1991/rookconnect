@@ -46,9 +46,9 @@ if($_GET['region'] == 'Display All' && $allowed_regions != $contact_regions) {
     $region_query = " AND IFNULL(`region`,'') IN ('".$_GET['region']."','')";
 }
 
-$contact_category = '';
+$contact_category = ['Staff'];
 $position_enabled = '';
-$team_fields = '';
+$team_fields = ',team_name,start_date,end_date,';
 $get_field_config = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_teams`"));
 if (!empty($get_field_config)) {
     $contact_category = explode(',', $get_field_config['contact_category']);
@@ -58,6 +58,7 @@ if (!empty($get_field_config)) {
 
 // $contact_position = '';
 // $contactid = '';
+$team_team_name = '';
 $region = '';
 $location = '';
 $classification = '';
@@ -69,6 +70,7 @@ if (!empty($teamid)) {
 
     // $contact_position = explode(',',$get_team['contact_position']);
     // $contactid = explode(',',$get_team['contactid']);
+    $team_team_name = $get_team['team_team_name'];
     $region = $get_team['region'];
     $location = $get_team['location'];
     $classification = $get_team['classification'];
@@ -94,16 +96,20 @@ if($_GET['subtab'] == 'schedule') {
     <option></option>
     <option <?= ($teamid == '' ? 'selected' : '') ?> value="NEW">New Team</option>
     <?php
-        $query = "SELECT * FROM `teams` WHERE `deleted` = 0".$region_query;
-        $result = mysqli_query($dbc, $query);
-        while ($row = mysqli_fetch_array($result)) {
-            $team_name = getTeamName($dbc, $row['teamid']);
+        $result = get_teams($dbc, $region_query);
+        foreach($result as $row) {
+            $team_name = get_team_name($dbc, $row['teamid']);
             echo '<option value="'.$row['teamid'].'"'.($row['teamid'] == $teamid ? ' selected' : '').'>'.$team_name.'</option>';
         }
     ?>
 </select></label>
 
 <hr>
+
+<?php if (strpos($team_fields, ',team_name,') !== FALSE) { ?>
+<label for="team_name" class="super-label">Team Name:
+<input type="text" name="team_name" class="form-control" value="<?= $team_team_name ?>"></label>
+<?php } ?>
 
 <?php
 $assign_contacts = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `teams_staff` WHERE `teamid` = '$teamid' AND `deleted` = 0"),MYSQLI_ASSOC);

@@ -10,13 +10,13 @@ if(!empty($_POST['submit'])) {
 			if(${'software_url_'.$i} == $destination) {
 				$history = "$qty unit(s) of ".$inventory['category'].' '.$inventory['part_no'].': '.$inventory['product_name']." transferred to $destination.";
 				$new_qty = (float)$inventory['quantity'] - $qty;
-				
+
 				//Remove Inventory from Local Software and Record the Change
 				mysqli_query($dbc, "UPDATE `inventory` SET `quantity` = '$new_qty' WHERE `inventoryid`='$inventoryid'");
 				insert_day_overview($dbc, $_SESSION['contactid'], 'Inventory', date('Y-m-d'), '', $history);
 				mysqli_query($dbc, "INSERT INTO `inventory_change_log` (`inventoryid`, `contactid`, `old_inventory`, `old_cost`, `changed_quantity`, `current_cost`, `new_inventory`, `new_cost`, `date_time`, `location_of_change`, `change_comment`)
 					VALUES ('$inventoryid', '".$_SESSION['contactid']."', '".$inventory['quantity']."','".$inventory['average_cost']."','".$qty."','".$inventory['average_cost']."','".$new_qty."','".$inventory['average_cost']."',CURRENT_TIMESTAMP, 'Cross Software Transfer', '$history')");
-				
+
 				//Add Inventory to Remote Software and Record the Change
 				$dbc_cross = ${'dbc_cross_'.$i};
 				$result = mysqli_query($dbc_cross, "SELECT * FROM `inventory` WHERE `category`='".$inventory['category']."' AND `part_no`='".$inventory['part_no']."' AND `product_name`='".$inventory['product_name']."' AND `name`='".$inventory['name']."'");
@@ -27,6 +27,9 @@ if(!empty($_POST['submit'])) {
 				} else {
 					$rem_inventory = mysqli_fetch_array($result);
 				}
+				$before_change = '';
+        $history = "New inventory Added. <br />";
+		    add_update_history($dbc, 'inventory_history', $history, '', $before_change);
 				$inventoryid = $rem_inventory['inventoryid'];
 				$new_qty = (float)$rem_inventory['quantity'] + $qty;
 				$new_cost = (($rem_inventory['average_cost'] * $rem_inventory['quantity']) + ($inventory['average_cost'] * $qty)) / $new_qty;

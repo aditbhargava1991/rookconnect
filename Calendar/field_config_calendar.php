@@ -167,6 +167,13 @@ if (isset($_POST['add_tab'])) {
 	}
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'uni_use_shifts' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='uni_use_shifts') num WHERE num.rows=0");
 	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$uni_use_shifts."' WHERE `name`='uni_use_shifts'");
+	if (!empty($_POST['uni_teams'])) {
+		$uni_teams = $_POST['uni_teams'];
+	} else {
+		$uni_teams = '';
+	}
+	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'uni_teams' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='uni_teams') num WHERE num.rows=0");
+	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$uni_teams."' WHERE `name`='uni_teams'");
 	if (!empty($_POST['uni_default_view'])) {
 		$uni_default_view = $_POST['uni_default_view'];
 	} else {
@@ -174,6 +181,8 @@ if (isset($_POST['add_tab'])) {
 	}
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'uni_default_view' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='uni_default_view') num WHERE num.rows=0");
 	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$uni_default_view."' WHERE `name`='uni_default_view'");
+	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'uni_client_type' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='uni_client_type') num WHERE num.rows=0");
+	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".implode(',',$_POST['uni_client_type'])."' WHERE `name`='uni_client_type'");
 	if (!empty($_POST['uni_calendar_notes'])) {
 		$uni_calendar_notes = $_POST['uni_calendar_notes'];
 	} else {
@@ -202,6 +211,41 @@ if (isset($_POST['add_tab'])) {
 	}
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'uni_availability_indication' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='uni_availability_indication') num WHERE num.rows=0");
 	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$uni_availability_indication."' WHERE `name`='uni_availability_indication'");
+	if (!empty($_POST['uni_staff_split_security'])) {
+		$uni_staff_split_security = $_POST['uni_staff_split_security'];
+	} else {
+		$uni_staff_split_security = '';
+	}
+	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'uni_staff_split_security' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='uni_staff_split_security') num WHERE num.rows=0");
+	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$uni_staff_split_security."' WHERE `name`='uni_staff_split_security'");
+	if (!empty($_POST['uni_client_staff_freq'])) {
+		$uni_client_staff_freq = $_POST['uni_client_staff_freq'];
+	} else {
+		$uni_client_staff_freq = '';
+	}
+	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'uni_client_staff_freq' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='uni_client_staff_freq') num WHERE num.rows=0");
+	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$uni_client_staff_freq."' WHERE `name`='uni_client_staff_freq'");
+	if (!empty($_POST['uni_client_draggable'])) {
+		$uni_client_draggable = $_POST['uni_client_draggable'];
+	} else {
+		$uni_client_draggable = '';
+	}
+	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'uni_client_draggable' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='uni_client_draggable') num WHERE num.rows=0");
+	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$uni_client_draggable."' WHERE `name`='uni_client_draggable'");
+	if (!empty($_POST['uni_staff_summary'])) {
+		$uni_staff_summary = $_POST['uni_staff_summary'];
+	} else {
+		$uni_staff_summary = '';
+	}
+	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'uni_staff_summary' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='uni_staff_summary') num WHERE num.rows=0");
+	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$uni_staff_summary."' WHERE `name`='uni_staff_summary'");
+	if (!empty($_POST['uni_day_summary_tab'])) {
+		$uni_day_summary_tab = $_POST['uni_day_summary_tab'];
+	} else {
+		$uni_day_summary_tab = '';
+	}
+	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'uni_day_summary_tab' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='uni_day_summary_tab') num WHERE num.rows=0");
+	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$uni_day_summary_tab."' WHERE `name`='uni_day_summary_tab'");
 
 	// Appointment Calendar Settings
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'appt_day_start' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='appt_day_start') num WHERE num.rows=0");
@@ -427,6 +471,7 @@ if (isset($_POST['add_tab'])) {
 	} else {
 		$scheduling_use_shift_tickets = '';
 	}
+	set_config($dbc, 'equip_multi_assign_staff_disallow', $_POST['equip_multi_assign_staff_disallow']);
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'scheduling_use_shift_tickets' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='scheduling_use_shift_tickets') num WHERE num.rows=0");
 	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$scheduling_use_shift_tickets."' WHERE `name`='scheduling_use_shift_tickets'");
 	if (!empty($_POST['scheduling_new_ticket_button'])) {
@@ -510,6 +555,125 @@ if (isset($_POST['add_tab'])) {
 	}
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'scheduling_combine_warehouse' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='scheduling_combine_warehouse') num WHERE num.rows=0");
 	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$scheduling_combine_warehouse."' WHERE `name`='scheduling_combine_warehouse'");
+	if (!empty($_POST['scheduling_combine_pickup'])) {
+		$scheduling_combine_pickup = $_POST['scheduling_combine_pickup'];
+	} else {
+		$scheduling_combine_pickup = '';
+	}
+	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'scheduling_combine_pickup' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='scheduling_combine_pickup') num WHERE num.rows=0");
+	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$scheduling_combine_pickup."' WHERE `name`='scheduling_combine_pickup'");
+	if (!empty($_POST['scheduling_combine_time'])) {
+		$scheduling_combine_time = $_POST['scheduling_combine_time'];
+	} else {
+		$scheduling_combine_time = '';
+	}
+	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'scheduling_combine_time' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='scheduling_combine_time') num WHERE num.rows=0");
+	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$scheduling_combine_time."' WHERE `name`='scheduling_combine_time'");
+	if (!empty($_POST['scheduling_summary_view'])) {
+		$scheduling_summary_view = $_POST['scheduling_summary_view'];
+	} else {
+		$scheduling_summary_view = '';
+	}
+	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'scheduling_summary_view' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='scheduling_summary_view') num WHERE num.rows=0");
+	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$scheduling_summary_view."' WHERE `name`='scheduling_summary_view'");
+	$scheduling_warning_num_tickets = filter_var($_POST['scheduling_warning_num_tickets'],FILTER_SANITIZE_STRING);
+	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'scheduling_warning_num_tickets' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='scheduling_warning_num_tickets') num WHERE num.rows=0");
+	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$scheduling_warning_num_tickets."' WHERE `name`='scheduling_warning_num_tickets'");
+	if (!empty($_POST['scheduling_equip_classification'])) {
+		$scheduling_equip_classification = $_POST['scheduling_equip_classification'];
+	} else {
+		$scheduling_equip_classification = '';
+	}
+	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'scheduling_equip_classification' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='scheduling_equip_classification') num WHERE num.rows=0");
+	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$scheduling_equip_classification."' WHERE `name`='scheduling_equip_classification'");
+	if (!empty($_POST['scheduling_equip_classification_ticket'])) {
+		$scheduling_equip_classification_ticket = $_POST['scheduling_equip_classification_ticket'];
+	} else {
+		$scheduling_equip_classification_ticket = '';
+	}
+	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'scheduling_equip_classification_ticket' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='scheduling_equip_classification_ticket') num WHERE num.rows=0");
+	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$scheduling_equip_classification_ticket."' WHERE `name`='scheduling_equip_classification_ticket'");
+	if (!empty($_POST['scheduling_reset_active'])) {
+		$scheduling_reset_active = $_POST['scheduling_reset_active'];
+	} else {
+		$scheduling_reset_active = '';
+	}
+	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'scheduling_reset_active' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='scheduling_reset_active') num WHERE num.rows=0");
+	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$scheduling_reset_active."' WHERE `name`='scheduling_reset_active'");
+	if (!empty($_POST['scheduling_service_followup'])) {
+		$scheduling_service_followup = $_POST['scheduling_service_followup'];
+	} else {
+		$scheduling_service_followup = '';
+	}
+	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'scheduling_service_followup' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='scheduling_service_followup') num WHERE num.rows=0");
+	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$scheduling_service_followup."' WHERE `name`='scheduling_service_followup'");
+	if (!empty($_POST['scheduling_service_date'])) {
+		$scheduling_service_date = $_POST['scheduling_service_date'];
+	} else {
+		$scheduling_service_date = '';
+	}
+	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'scheduling_service_date' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='scheduling_service_date') num WHERE num.rows=0");
+	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$scheduling_service_date."' WHERE `name`='scheduling_service_date'");
+	if (!empty($_POST['scheduling_passed_service'])) {
+		$scheduling_passed_service = $_POST['scheduling_passed_service'];
+	} else {
+		$scheduling_passed_service = '';
+	}
+	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'scheduling_passed_service' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='scheduling_passed_service') num WHERE num.rows=0");
+	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$scheduling_passed_service."' WHERE `name`='scheduling_passed_service'");
+	if (!empty($_POST['scheduling_columns_group_regions'])) {
+		$scheduling_columns_group_regions = $_POST['scheduling_columns_group_regions'];
+	} else {
+		$scheduling_columns_group_regions = '';
+	}
+	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'scheduling_columns_group_regions' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='scheduling_columns_group_regions') num WHERE num.rows=0");
+	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$scheduling_columns_group_regions."' WHERE `name`='scheduling_columns_group_regions'");
+	if (!empty($_POST['scheduling_staff_split_security'])) {
+		$scheduling_staff_split_security = $_POST['scheduling_staff_split_security'];
+	} else {
+		$scheduling_staff_split_security = '';
+	}
+	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'scheduling_staff_split_security' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='scheduling_staff_split_security') num WHERE num.rows=0");
+	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$scheduling_staff_split_security."' WHERE `name`='scheduling_staff_split_security'");
+	if (!empty($_POST['scheduling_contractor_split_security'])) {
+		$scheduling_contractor_split_security = $_POST['scheduling_contractor_split_security'];
+	} else {
+		$scheduling_contractor_split_security = '';
+	}
+	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'scheduling_contractor_split_security' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='scheduling_contractor_split_security') num WHERE num.rows=0");
+	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$scheduling_contractor_split_security."' WHERE `name`='scheduling_contractor_split_security'");
+	$scheduling_customer_roles = filter_var(implode(',', $_POST['scheduling_customer_roles']),FILTER_SANITIZE_STRING);
+	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'scheduling_customer_roles' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='scheduling_customer_roles') num WHERE num.rows=0");
+	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$scheduling_customer_roles."' WHERE `name`='scheduling_customer_roles'");
+	if (!empty($_POST['scheduling_drag_multiple'])) {
+		$scheduling_drag_multiple = $_POST['scheduling_drag_multiple'];
+	} else {
+		$scheduling_drag_multiple = '';
+	}
+	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'scheduling_drag_multiple' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='scheduling_drag_multiple') num WHERE num.rows=0");
+	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$scheduling_drag_multiple."' WHERE `name`='scheduling_drag_multiple'");
+	$scheduling_customer_roles = filter_var(implode(',', $_POST['scheduling_customer_roles']),FILTER_SANITIZE_STRING);
+	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'scheduling_customer_roles' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='scheduling_customer_roles') num WHERE num.rows=0");
+	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$scheduling_customer_roles."' WHERE `name`='scheduling_customer_roles'");
+	if (!empty($_POST['scheduling_export_time_table'])) {
+		$scheduling_export_time_table = $_POST['scheduling_export_time_table'];
+	} else {
+		$scheduling_export_time_table = '';
+	}
+	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'scheduling_export_time_table' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='scheduling_export_time_table') num WHERE num.rows=0");
+	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$scheduling_export_time_table."' WHERE `name`='scheduling_export_time_table'");
+
+    if(!empty($_FILES['scheduling_time_table_logo']['name'])) {
+        $scheduling_time_table_logo = $basename = preg_replace('/[^a-z0-9.]*/','',strtolower($_FILES['scheduling_time_table_logo']['name']));
+        $j = 0;
+        while(file_exists('download/'.$scheduling_time_table_logo)) {
+            $scheduling_time_table_logo = preg_replace('/(\.[a-z0-9]*)/', ' ('.++$j.')$1', $basename);
+        }
+        move_uploaded_file($_FILES['scheduling_time_table_logo']['tmp_name'], 'download/'.$scheduling_time_table_logo);
+        set_config($dbc, 'scheduling_time_table_logo', $scheduling_time_table_logo);
+    }
+    $scheduling_time_table_logo_align = filter_var($_POST['scheduling_time_table_logo_align'], FILTER_SANITIZE_STRING);
+    set_config($dbc, 'scheduling_time_table_logo_align', $scheduling_time_table_logo_align);
 
 	// Sales Estimates Calendar Settings
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'estimates_day_start' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='estimates_day_start') num WHERE num.rows=0");
@@ -611,7 +775,7 @@ if (isset($_POST['add_tab'])) {
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'ticket_equip_assign' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='ticket_equip_assign') num WHERE num.rows=0");
 	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$ticket_equip_assign."' WHERE `name`='ticket_equip_assign'");
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'ticket_client_type' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='ticket_client_type') num WHERE num.rows=0");
-	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$_POST['ticket_client_type']."' WHERE `name`='ticket_client_type'");
+	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".implode(',',$_POST['ticket_client_type'])."' WHERE `name`='ticket_client_type'");
 	if (!empty($_POST['ticket_calendar_notes'])) {
 		$ticket_calendar_notes = $_POST['ticket_calendar_notes'];
 	} else {
@@ -647,6 +811,48 @@ if (isset($_POST['add_tab'])) {
 	}
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'ticket_use_all_tickets' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='ticket_use_all_tickets') num WHERE num.rows=0");
 	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$ticket_use_all_tickets."' WHERE `name`='ticket_use_all_tickets'");
+	if (!empty($_POST['ticket_staff_split_security'])) {
+		$ticket_staff_split_security = $_POST['ticket_staff_split_security'];
+	} else {
+		$ticket_staff_split_security = '';
+	}
+	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'ticket_staff_split_security' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='ticket_staff_split_security') num WHERE num.rows=0");
+	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$ticket_staff_split_security."' WHERE `name`='ticket_staff_split_security'");
+	if (!empty($_POST['ticket_client_staff_freq'])) {
+		$ticket_client_staff_freq = $_POST['ticket_client_staff_freq'];
+	} else {
+		$ticket_client_staff_freq = '';
+	}
+	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'ticket_client_staff_freq' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='ticket_client_staff_freq') num WHERE num.rows=0");
+	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$ticket_client_staff_freq."' WHERE `name`='ticket_client_staff_freq'");
+	if (!empty($_POST['ticket_client_draggable'])) {
+		$ticket_client_draggable = $_POST['ticket_client_draggable'];
+	} else {
+		$ticket_client_draggable = '';
+	}
+	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'ticket_client_draggable' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='ticket_client_draggable') num WHERE num.rows=0");
+	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$ticket_client_draggable."' WHERE `name`='ticket_client_draggable'");
+	if (!empty($_POST['ticket_staff_summary'])) {
+		$ticket_staff_summary = $_POST['ticket_staff_summary'];
+	} else {
+		$ticket_staff_summary = '';
+	}
+	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'ticket_staff_summary' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='ticket_staff_summary') num WHERE num.rows=0");
+	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$ticket_staff_summary."' WHERE `name`='ticket_staff_summary'");
+	if (!empty($_POST['ticket_ticket_summary_tab'])) {
+		$ticket_ticket_summary_tab = $_POST['ticket_ticket_summary_tab'];
+	} else {
+		$ticket_ticket_summary_tab = '';
+	}
+	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'ticket_ticket_summary_tab' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='ticket_ticket_summary_tab') num WHERE num.rows=0");
+	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$ticket_ticket_summary_tab."' WHERE `name`='ticket_ticket_summary_tab'");
+	if (!empty($_POST['ticket_client_tab'])) {
+		$ticket_client_tab = $_POST['ticket_client_tab'];
+	} else {
+		$ticket_client_tab = '';
+	}
+	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'ticket_client_tab' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='ticket_client_tab') num WHERE num.rows=0");
+	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$ticket_client_tab."' WHERE `name`='ticket_client_tab'");
 
 	// Shift Calendar Settings
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'shift_day_start' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='shift_day_start') num WHERE num.rows=0");
@@ -696,6 +902,20 @@ if (isset($_POST['add_tab'])) {
 	}
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'shift_select_all_staff' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='shift_select_all_staff') num WHERE num.rows=0");
 	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$shift_select_all_staff."' WHERE `name`='shift_select_all_staff'");
+	if (!empty($_POST['shift_selected_staff_icons'])) {
+		$shift_selected_staff_icons = $_POST['shift_selected_staff_icons'];
+	} else {
+		$shift_selected_staff_icons = '';
+	}
+	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'shift_selected_staff_icons' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='shift_selected_staff_icons') num WHERE num.rows=0");
+	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$shift_selected_staff_icons."' WHERE `name`='shift_selected_staff_icons'");
+	if (!empty($_POST['shift_selected_client_icons'])) {
+		$shift_selected_client_icons = $_POST['shift_selected_client_icons'];
+	} else {
+		$shift_selected_client_icons = '';
+	}
+	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'shift_selected_client_icons' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='shift_selected_client_icons') num WHERE num.rows=0");
+	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$shift_selected_client_icons."' WHERE `name`='shift_selected_client_icons'");
 
 	// Events Calendar Settings
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'event_day_start' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='event_day_start') num WHERE num.rows=0");
@@ -792,6 +1012,18 @@ function showDefaultView(chk) {
 		$(chk).closest('.panel-body').find('.shifts_default_view').hide();
 	}
 }
+function deleteLogo(logo) {
+    if(confirm('Are you sure you want to delete this logo?')) {
+        $.ajax({
+            url: '../Calendar/calendar_ajax_all.php?fill=delete_logo',
+            type: 'POST',
+            data: { logo: logo },
+            success: function(response) {
+            	$(logo).closest('.form-group').find('.logo_url').html('');
+            }
+        });
+    }
+}
 </script>
 </head>
 <body>
@@ -814,6 +1046,7 @@ function showDefaultView(chk) {
 			$active_equip_assign = '';
 			$active_workorder = '';
 			$active_unbooked = '';
+			$active_security = '';
 
 			if($_GET['type'] == 'general' || empty($_GET['type'])) {
 				$active_general = 'active_tab';
@@ -839,6 +1072,9 @@ function showDefaultView(chk) {
 			if($_GET['type'] == 'unbooked') {
 				$active_unbooked = 'active_tab';
 			}
+			if($_GET['type'] == 'security') {
+				$active_security = 'active_tab';
+			}
 		?>
 
 			<div class="tab-container"><?php
@@ -857,7 +1093,7 @@ function showDefaultView(chk) {
 
 				$equip_assign_enabled = get_config($dbc, 'appt_equip_assign').get_config($dbc, 'scheduling_equip_assign').get_config($dbc, 'staff_schedule_equip_assign').get_config($dbc, 'ticket_equip_assign');
 				if ($equip_assign_enabled != '') {
-					echo "<div class='pull-left tab'><span class='popover-examples list-inline'><a data-toggle='tooltip' data-placement='top' title='These are your Calendar settings for Equipment Assignment.'><img src='". WEBSITE_URL ."/img/info.png' width='20'></a></span><a href='field_config_calendar.php?type=equip_assign'><button type='button' class='btn brand-btn mobile-block ".$active_equip_assign."' >Equipment Assignment</button></a></div>";
+					echo "<div class='pull-left tab'><span class='popover-examples list-inline'><a data-toggle='tooltip' data-placement='top' title='These are your Calendar settings for Equipment.'><img src='". WEBSITE_URL ."/img/info.png' width='20'></a></span><a href='field_config_calendar.php?type=equip_assign'><button type='button' class='btn brand-btn mobile-block ".$active_equip_assign."' >Equipment</button></a></div>";
 				}
 
 				$appt_wait_list = get_config($dbc, 'appt_wait_list').get_config($dbc, 'scheduling_wait_list').get_config($dbc, 'staff_schedule_wait_list').get_config($dbc, 'ticket_wait_list');
@@ -866,6 +1102,8 @@ function showDefaultView(chk) {
 				}
 
 				echo "<div class='pull-left tab'><span class='popover-examples list-inline'><a data-toggle='tooltip' data-placement='top' title='These are your Calendar settings for Unbooked Lists.'><img src='". WEBSITE_URL ."/img/info.png' width='20'></a></span><a href='field_config_calendar.php?type=unbooked'><button type='button' class='btn brand-btn mobile-block ".$active_unbooked."' >Unbooked List</button></a></div>";
+
+				echo "<div class='pull-left tab'><span class='popover-examples list-inline'><a data-toggle='tooltip' data-placement='top' title='These are your security settings for your Calendars.'><img src='". WEBSITE_URL ."/img/info.png' width='20'></a></span><a href='field_config_calendar.php?type=security'><button type='button' class='btn brand-btn mobile-block ".$active_security."' >Security</button></a></div>";
 				?>
 			</div>
 
@@ -984,8 +1222,13 @@ function showDefaultView(chk) {
                             	<div class="col-sm-8"><?php
                             		$calendar_reset_active_mode = get_config($dbc, 'calendar_reset_active_mode'); ?>
                             		<label class="form-checkbox"><input type="radio" name="calendar_reset_active_mode" <?= $calendar_reset_active_mode=='session_user' ? 'checked' : '' ?> value="session_user">Logged In User Only</label>
-                            		<?php $equipment_category = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_equip_assign`"))['equipment_category']; ?>
-                            		<label class="form-checkbox"><input type="radio" name="calendar_reset_active_mode" <?= $calendar_reset_active_mode=='session_user active_equip' ? 'checked' : '' ?> value="session_user active_equip">Logged In User/Assigned <?= !empty($equipment_category) ? $equipment_category : 'Truck' ?></label>
+                            		<?php 
+							        $equipment_category = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_equip_assign`"))['equipment_category'];
+							        $equipment_categories = array_filter(explode(',', $equipment_category));
+							        if(empty($equipment_categories) || count($equipment_categories) > 1) {
+							            $equipment_category = 'Equipment';
+							        } ?>
+                            		<label class="form-checkbox"><input type="radio" name="calendar_reset_active_mode" <?= $calendar_reset_active_mode=='session_user active_equip' ? 'checked' : '' ?> value="session_user active_equip">Logged In User/Assigned <?= $equipment_category ?></label>
                             	</div>
                             </div>
                             <div class="form-group">
@@ -1304,12 +1547,34 @@ function showDefaultView(chk) {
 									<label class="form-checkbox"><input type="checkbox" name="uni_use_shifts" <?= $uni_use_shifts != '' ? 'checked' : '' ?> value="1" onchange="showDefaultView(this);"></label>
 								</div>
 							</div>
+							<div class="form-group">
+								<label class="col-sm-4 control-label">Universal Calendar Use Teams:</label>
+								<div class="col-sm-8">
+									<?php $uni_teams = get_config($dbc, 'uni_teams'); ?>
+									<label class="form-checkbox"><input type="checkbox" name="uni_teams" <?= $uni_teams != '' ? 'checked' : '' ?> value="1"></label>
+								</div>
+							</div>
 							<div class="form-group shifts_default_view" <?= $uni_use_shifts != '' ? '' : 'style="display:none;"' ?>>
 								<label class="col-sm-4 control-label">Universal Calendar Default View:</label>
 								<div class="col-sm-8">
 									<?php $uni_default_view = get_config($dbc, 'uni_default_view'); ?>
 									<label class="form-checkbox"><input type="radio" name="uni_default_view" value="" <?= empty($uni_default_view) ? 'checked' : '' ?>> Default</label>
 									<label class="form-checkbox"><input type="radio" name="uni_default_view" value="shifts" <?= $uni_default_view == 'shifts' ? 'checked' : '' ?>> Shifts</label>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-4 control-label">Universal Calendar Client Type:</label>
+								<div class="col-sm-8">
+			                        <select name="uni_client_type[]" multiple data-placeholder="Select Client Type" class="chosen-select-deselect form-control">
+			                            <option value="">NO CLIENT</option>
+			                            <?php $uni_client_type = get_config($dbc, 'uni_client_type');
+			                            $query = "SELECT DISTINCT `category` FROM `contacts` WHERE `deleted` = 0 AND `status` = 1 ORDER BY `category`";
+			                            $result = mysqli_query($dbc, $query);
+			                            while ($row = mysqli_fetch_array($result)) {
+			                                echo '<option value="'.$row['category'].'"'.(strpos(','.$uni_client_type.',', ','.$row['category'].',') !== FALSE ? ' selected' : '').'>'.$row['category'].'</option>';
+			                            }
+			                            ?>
+			                        </select>
 								</div>
 							</div>
 							<div class="form-group">
@@ -1339,6 +1604,41 @@ function showDefaultView(chk) {
 									<?php $uni_availability_indication = get_config($dbc, 'uni_availability_indication'); ?>
 									<label class="form-checkbox"><input type="radio" name="uni_availability_indication" <?= empty($uni_availability_indication) ? 'checked' : '' ?> value=""> All Day Availability</label>
 									<label class="form-checkbox"><input type="radio" name="uni_availability_indication" <?= $uni_availability_indication == 1 ? 'checked' : '' ?> value="1"> No Availability</label>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-4 control-label">Split Staff By Security Level:</label>
+								<div class="col-sm-8">
+									<?php $uni_staff_split_security = get_config($dbc, 'uni_staff_split_security'); ?>
+									<label class="form-checkbox"><input type="checkbox" name="uni_staff_split_security" <?= $uni_staff_split_security != '' ? 'checked' : '' ?> value="1"></label>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-4 control-label">Display Active Client Frequency Per Staff:</label>
+								<div class="col-sm-8">
+									<?php $uni_client_staff_freq = get_config($dbc, 'uni_client_staff_freq'); ?>
+									<label class="form-checkbox"><input type="checkbox" name="uni_client_staff_freq" <?= $uni_client_staff_freq != '' ? 'checked' : '' ?> value="1"></label>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-4 control-label">Clients Draggable To Book:</label>
+								<div class="col-sm-8">
+									<?php $uni_client_draggable = get_config($dbc, 'uni_client_draggable'); ?>
+									<label class="form-checkbox"><input type="checkbox" name="uni_client_draggable" <?= $uni_client_draggable != '' ? 'checked' : '' ?> value="1"></label>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-4 control-label">Enable Staff Summary Tab:</label>
+								<div class="col-sm-8">
+									<?php $uni_staff_summary = get_config($dbc, 'uni_staff_summary'); ?>
+									<label class="form-checkbox"><input type="checkbox" name="uni_staff_summary" <?= $uni_staff_summary != '' ? 'checked' : '' ?> value="1"></label>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-4 control-label">Enable Day Summary Tab:</label>
+								<div class="col-sm-8">
+									<?php $uni_day_summary_tab = get_config($dbc, 'uni_day_summary_tab'); ?>
+									<label class="form-checkbox"><input type="checkbox" name="uni_day_summary_tab" <?= $uni_day_summary_tab != '' ? 'checked' : '' ?> value="1"></label>
 								</div>
 							</div>
 						</div>
@@ -1876,6 +2176,14 @@ function showDefaultView(chk) {
 								</div>
 							</div>
 							<div class="form-group">
+								<label class="col-sm-4 control-label">Multiple Equipment per Staff:</label>
+								<div class="col-sm-8">
+									<?php $equip_multi_assign_staff_disallow = get_config($dbc, 'equip_multi_assign_staff_disallow'); ?>
+									<label class="form-checkbox any-width"><input type="radio" name="equip_multi_assign_staff_disallow" <?= $equip_multi_assign_staff_disallow == '1' ? 'checked' : '' ?> value="1">Do Not Allow Staff to be Assigned to Multiple</label>
+									<label class="form-checkbox any-width"><input type="radio" name="equip_multi_assign_staff_disallow" <?= $equip_multi_assign_staff_disallow == '1' ? '' : 'checked' ?> value="0">Allow Staff to be Assigned to Multiple</label>
+								</div>
+							</div>
+							<div class="form-group">
 								<label class="col-sm-4 control-label">Dispatch Calendar Use Filters:</label>
 								<div class="col-sm-8">
 									<?php $scheduling_filters = get_config($dbc, 'scheduling_filters'); ?>
@@ -1944,12 +2252,153 @@ function showDefaultView(chk) {
 								</div>
 							</div>
 							<div class="form-group">
+								<label class="col-sm-4 control-label">Combine Time Conflicts:</label>
+								<div class="col-sm-8">
+									<?php $scheduling_combine_time = get_config($dbc, 'scheduling_combine_time'); ?>
+									<label class="form-checkbox"><input type="checkbox" name="scheduling_combine_time" <?= $scheduling_combine_time == 1 ? 'checked' : '' ?> value="1"></label>
+								</div>
+							</div>
+							<div class="form-group">
 								<label class="col-sm-4 control-label">Combine Warehouse Stops:</label>
 								<div class="col-sm-8">
 									<?php $scheduling_combine_warehouse = get_config($dbc, 'scheduling_combine_warehouse'); ?>
 									<label class="form-checkbox"><input type="checkbox" name="scheduling_combine_warehouse" <?= $scheduling_combine_warehouse == 1 ? 'checked' : '' ?> value="1"></label>
 								</div>
 							</div>
+							<div class="form-group">
+								<label class="col-sm-4 control-label">Combine Pick Up Stops:</label>
+								<div class="col-sm-8">
+									<?php $scheduling_combine_pickup = get_config($dbc, 'scheduling_combine_pickup'); ?>
+									<label class="form-checkbox"><input type="checkbox" name="scheduling_combine_pickup" <?= $scheduling_combine_pickup == 1 ? 'checked' : '' ?> value="1"></label>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-4 control-label"><span class='popover-examples list-inline'><a data-toggle='tooltip' data-placement='top' title='This will enable the Summary tab, which is a monthly view of all assigned Equipment in a Summary view with no functionality.'><img src='<?= WEBSITE_URL ?>/img/info.png' width='20'></a></span> Enable Summary Tab:</label>
+								<div class="col-sm-8">
+									<?php $scheduling_summary_view = get_config($dbc, 'scheduling_summary_view'); ?>
+									<label class="form-checkbox"><input type="checkbox" name="scheduling_summary_view" <?= $scheduling_summary_view == 1 ? 'checked' : '' ?> value="1"></label>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-4 control-label"><span class='popover-examples list-inline'><a data-toggle='tooltip' data-placement='top' title='This will disable a Warning message if there are more than this # of <?= TICKET_TILE?>. Leave blank for no Warnings.'><img src='<?= WEBSITE_URL ?>/img/info.png' width='20'></a></span> Display Warning After # of <?= TICKET_TILE ?>:</label>
+								<div class="col-sm-8">
+									<?php $scheduling_warning_num_tickets = get_config($dbc, 'scheduling_warning_num_tickets'); ?>
+									<input type="number" name="scheduling_warning_num_tickets" value="<?= $scheduling_warning_num_tickets ?>" class="form-control"></label>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-4 control-label">Equipment Display Classification:</label>
+								<div class="col-sm-8">
+									<?php $scheduling_equip_classification = get_config($dbc, 'scheduling_equip_classification'); ?>
+									<label class="form-checkbox"><input type="checkbox" name="scheduling_equip_classification" <?= $scheduling_equip_classification == 1 ? 'checked' : '' ?> value="1"></label>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-4 control-label">Equipment Display Classification - Based on <?= TICKET_TILE ?>:</label>
+								<div class="col-sm-8">
+									<?php $scheduling_equip_classification_ticket = get_config($dbc, 'scheduling_equip_classification_ticket'); ?>
+									<label class="form-checkbox"><input type="checkbox" name="scheduling_equip_classification_ticket" <?= $scheduling_equip_classification_ticket == 1 ? 'checked' : '' ?> value="1"></label>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-4 control-label">Toggle All Assigned Equipment When Changing Dates:</label>
+								<div class="col-sm-8">
+									<?php $scheduling_reset_active = get_config($dbc, 'scheduling_reset_active'); ?>
+									<label class="form-checkbox"><input type="checkbox" name="scheduling_reset_active" <?= $scheduling_reset_active == 1 ? 'checked' : '' ?> value="1"></label>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-4 control-label">Display Service Follow Up Date On Warning:</label>
+								<div class="col-sm-8">
+									<?php $scheduling_service_followup = get_config($dbc, 'scheduling_service_followup'); ?>
+									<label class="form-checkbox"><input type="checkbox" name="scheduling_service_followup" <?= $scheduling_service_followup == 1 ? 'checked' : '' ?> value="1"></label>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-4 control-label">Display Next Service Date On Warning:</label>
+								<div class="col-sm-8">
+									<?php $scheduling_service_date = get_config($dbc, 'scheduling_service_date'); ?>
+									<label class="form-checkbox"><input type="checkbox" name="scheduling_service_date" <?= $scheduling_service_date == 1 ? 'checked' : '' ?> value="1"></label>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-4 control-label">Display Passed Service Date On Warning:</label>
+								<div class="col-sm-8">
+									<?php $scheduling_passed_service = get_config($dbc, 'scheduling_passed_service'); ?>
+									<label class="form-checkbox"><input type="checkbox" name="scheduling_passed_service" <?= $scheduling_passed_service == 1 ? 'checked' : '' ?> value="1"></label>
+				                </div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-4 control-label">Group Columns by Region:</label>
+								<div class="col-sm-8">
+									<?php $scheduling_columns_group_regions = get_config($dbc, 'scheduling_columns_group_regions'); ?>
+									<label class="form-checkbox"><input type="checkbox" name="scheduling_columns_group_regions" <?= $scheduling_columns_group_regions == 1 ? 'checked' : '' ?> value="1"></label>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-4 control-label">Allow Dragging Multiple:</label>
+								<div class="col-sm-8">
+									<?php $scheduling_drag_multiple = get_config($dbc, 'scheduling_drag_multiple'); ?>
+									<label class="form-checkbox"><input type="checkbox" name="scheduling_drag_multiple" <?= $scheduling_drag_multiple == 1 ? 'checked' : '' ?> value="1"></label>
+				                </div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-4 control-label"><span class='popover-examples list-inline'><a data-toggle='tooltip' data-placement='top' title='This will display the Calendar to the selected Security Levels with a limited view to only things related to them.'><img src='<?= WEBSITE_URL ?>/img/info.png' width='20'></a></span> Customer View Security Levels:</label>
+								<div class="col-sm-8">
+									<select name="scheduling_customer_roles[]" multiple class="chosen-select-deselect">
+										<?php $scheduling_customer_roles = array_filter(explode(',',get_config($dbc, 'scheduling_customer_roles')));
+										$on_security = get_security_levels($dbc);
+										foreach($on_security as $security_label => $security_value) {
+											echo '<option value="'.$security_value.'" '.(in_array($security_value,$scheduling_customer_roles) ? 'selected' : '').'>'.$security_label.'</option>';
+										} ?>
+									</select>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-4 control-label">Split Staff By Security Level:</label>
+								<div class="col-sm-8">
+									<?php $scheduling_staff_split_security = get_config($dbc, 'scheduling_staff_split_security'); ?>
+									<label class="form-checkbox"><input type="checkbox" name="scheduling_staff_split_security" <?= $scheduling_staff_split_security != '' ? 'checked' : '' ?> value="1"></label>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-4 control-label">Split Contractors By Security Level:</label>
+								<div class="col-sm-8">
+									<?php $scheduling_contractor_split_security = get_config($dbc, 'scheduling_contractor_split_security'); ?>
+									<label class="form-checkbox"><input type="checkbox" name="scheduling_contractor_split_security" <?= $scheduling_contractor_split_security != '' ? 'checked' : '' ?> value="1"></label>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-4 control-label">Export Time Table Button:</label>
+								<div class="col-sm-8">
+									<?php $scheduling_export_time_table = get_config($dbc, 'scheduling_export_time_table'); ?>
+									<label class="form-checkbox"><input type="checkbox" name="scheduling_export_time_table" <?= $scheduling_export_time_table != '' ? 'checked' : '' ?> value="1"></label>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-4 control-label">Time Table PDF Logo:</label>
+								<div class="col-sm-8">
+			                        <div class="logo_url">
+			                            <?php $scheduling_time_table_logo = get_config($dbc, 'scheduling_time_table_logo');
+			                            if(!empty($scheduling_time_table_logo) && file_exists('download/'.$scheduling_time_table_logo)) { ?>
+			                                <a href="download/<?= $scheduling_time_table_logo ?>" target="_blank">View</a> | <a href="" onclick="deleteLogo('scheduling_time_table_logo'); return false;">Delete</a>
+			                            <?php } ?>
+			                        </div>
+			                        <input name="scheduling_time_table_logo" type="file" data-filename-placement="inside" class="form-control" />
+								</div>
+							</div>
+			                <div class="form-group">
+			                    <label class="col-sm-4 control-label">Time Table PDF Logo Align:</label>
+			                    <div class="col-sm-8">
+			                    	<?php $scheduling_time_table_logo_align = get_config($dbc, 'scheduling_time_table_logo_align'); ?>
+			                        <select name="scheduling_time_table_logo_align" class="chosen-select-deselect form-control">
+			                            <option></option>
+			                            <option <?= $scheduling_time_table_logo_align == 'L' ? 'selected' : '' ?> value="L">Left</option>
+			                            <option <?= $scheduling_time_table_logo_align == 'C' ? 'selected' : '' ?> value="C">Center</option>
+			                            <option <?= $scheduling_time_table_logo_align == 'R' ? 'selected' : '' ?> value="R">Right</option>
+			                        </select>
+			                    </div>
+			                </div>
 						</div>
 					</div>
 				</div>
@@ -2225,13 +2674,13 @@ function showDefaultView(chk) {
 							<div class="form-group">
 								<label class="col-sm-4 control-label"><?= TICKET_NOUN ?> Calendar Client Type:</label>
 								<div class="col-sm-8">
-			                        <select name="ticket_client_type" data-placeholder="Select Client Type" class="chosen-select-deselect form-control">
+			                        <select name="ticket_client_type[]" multiple data-placeholder="Select Client Type" class="chosen-select-deselect form-control">
 			                            <option value="">NO CLIENT</option>
 			                            <?php $ticket_client_type = get_config($dbc, 'ticket_client_type');
 			                            $query = "SELECT DISTINCT `category` FROM `contacts` WHERE `deleted` = 0 AND `status` = 1 ORDER BY `category`";
 			                            $result = mysqli_query($dbc, $query);
 			                            while ($row = mysqli_fetch_array($result)) {
-			                                echo '<option value="'.$row['category'].'"'.($row['category'] == $ticket_client_type ? ' selected' : '').'>'.$row['category'].'</option>';
+			                                echo '<option value="'.$row['category'].'"'.(strpos(','.$ticket_client_type.',', ','.$row['category'].',') !== FALSE ? ' selected' : '').'>'.$row['category'].'</option>';
 			                            }
 			                            ?>
 			                        </select>
@@ -2264,6 +2713,48 @@ function showDefaultView(chk) {
 									<?php $ticket_availability_indication = get_config($dbc, 'ticket_availability_indication'); ?>
 									<label class="form-checkbox"><input type="radio" name="ticket_availability_indication" <?= empty($ticket_availability_indication) ? 'checked' : '' ?> value=""> All Day Availability</label>
 									<label class="form-checkbox"><input type="radio" name="ticket_availability_indication" <?= $ticket_availability_indication == 1 ? 'checked' : '' ?> value="1"> No Availability</label>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-4 control-label">Split Staff By Security Level:</label>
+								<div class="col-sm-8">
+									<?php $ticket_staff_split_security = get_config($dbc, 'ticket_staff_split_security'); ?>
+									<label class="form-checkbox"><input type="checkbox" name="ticket_staff_split_security" <?= $ticket_staff_split_security != '' ? 'checked' : '' ?> value="1"></label>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-4 control-label">Display Active Client Frequency Per Staff:</label>
+								<div class="col-sm-8">
+									<?php $ticket_client_staff_freq = get_config($dbc, 'ticket_client_staff_freq'); ?>
+									<label class="form-checkbox"><input type="checkbox" name="ticket_client_staff_freq" <?= $ticket_client_staff_freq != '' ? 'checked' : '' ?> value="1"></label>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-4 control-label">Clients Draggable To Book:</label>
+								<div class="col-sm-8">
+									<?php $ticket_client_draggable = get_config($dbc, 'ticket_client_draggable'); ?>
+									<label class="form-checkbox"><input type="checkbox" name="ticket_client_draggable" <?= $ticket_client_draggable != '' ? 'checked' : '' ?> value="1"></label>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-4 control-label">Enable Staff Summary Tab:</label>
+								<div class="col-sm-8">
+									<?php $ticket_staff_summary = get_config($dbc, 'ticket_staff_summary'); ?>
+									<label class="form-checkbox"><input type="checkbox" name="ticket_staff_summary" <?= $ticket_staff_summary != '' ? 'checked' : '' ?> value="1"></label>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-4 control-label">Enable <?= TICKET_NOUN ?> Summary Tab:</label>
+								<div class="col-sm-8">
+									<?php $ticket_ticket_summary_tab = get_config($dbc, 'ticket_ticket_summary_tab'); ?>
+									<label class="form-checkbox"><input type="checkbox" name="ticket_ticket_summary_tab" <?= $ticket_ticket_summary_tab != '' ? 'checked' : '' ?> value="1"></label>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-4 control-label">Enable Client Tab:</label>
+								<div class="col-sm-8">
+									<?php $ticket_client_tab = get_config($dbc, 'ticket_client_tab'); ?>
+									<label class="form-checkbox"><input type="checkbox" name="ticket_client_tab" <?= $ticket_client_tab != '' ? 'checked' : '' ?> value="1"></label>
 								</div>
 							</div>
 						</div>
@@ -2392,6 +2883,20 @@ function showDefaultView(chk) {
 								<div class="col-sm-8">
 									<?php $shift_select_all_staff = get_config($dbc, 'shift_select_all_staff'); ?>
 									<label class="form-checkbox"><input type="checkbox" name="shift_select_all_staff" <?= $shift_select_all_staff == 1 ? 'checked' : '' ?> value="1"></label>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-4 control-label">Display Selected Staff Icons:</label>
+								<div class="col-sm-8">
+									<?php $shift_selected_staff_icons = get_config($dbc, 'shift_selected_staff_icons'); ?>
+									<label class="form-checkbox"><input type="checkbox" name="shift_selected_staff_icons" <?= $shift_selected_staff_icons == 1 ? 'checked' : '' ?> value="1"></label>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-4 control-label">Display Selected Client Icons:</label>
+								<div class="col-sm-8">
+									<?php $shift_selected_client_icons = get_config($dbc, 'shift_selected_client_icons'); ?>
+									<label class="form-checkbox"><input type="checkbox" name="shift_selected_client_icons" <?= $shift_selected_client_icons == 1 ? 'checked' : '' ?> value="1"></label>
 								</div>
 							</div>
 						</div>
@@ -2796,6 +3301,10 @@ function showDefaultView(chk) {
 
 			<?php if($_GET['type'] == 'unbooked') {
 				include('field_config_unbooked.php');
+			} ?>
+
+			<?php if($_GET['type'] == 'security') {
+				include('field_config_security.php');
 			} ?>
 
 		</form>

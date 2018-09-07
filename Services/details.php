@@ -60,7 +60,7 @@
         $heading = $get_contact['heading'];
         $cost = $get_contact['cost'];
 		if(!($cost > 0)) {
-			$cost = $dbc->query("SELECT `cost` FROM `company_add_rate_card` WHERE `deleted`=0 AND `cost` > 0 AND `start_date` < DATE(NOW()) AND IFNULL(NULLIF(`end_date`,'0000-00-00'),'9999-12-31') > DATE(NOW()) ORDER BY `start_date`")->fetch_assoc()['cost'];
+			$cost = $dbc->query("SELECT `cost` FROM `company_rate_card` WHERE `deleted`=0 AND `cost` > 0 AND `start_date` < DATE(NOW()) AND IFNULL(NULLIF(`end_date`,'0000-00-00'),'9999-12-31') > DATE(NOW()) AND `item_id`='$serviceid' AND `tile_name`='Services' ORDER BY `start_date`")->fetch_assoc()['cost'];
 		}
         $description = $get_contact['description'];
         $quote_description = $get_contact['quote_description'];
@@ -107,17 +107,17 @@
         $checklist = explode('#*#', $get_contact['checklist']); ?>
         <input type="hidden" id="serviceid" name="serviceid" value="<?= $serviceid ?>" /><?php
     } ?>
-    
+
     <div class="standard-body full-height">
         <div class="standard-body-title hide-on-mobile" style="padding-top:0 !important;">
             <h3 class="double-pad-top"><?= ( !empty($serviceid) ) ? 'Edit' : 'Add'; ?> Service</h3>
         </div>
-        
+
         <div class="standard-body-content">
             <!-- Service Information -->
             <div class="accordion-block-details padded" id="serviceinfo">
                 <div class="accordion-block-details-heading"><h4>Service Information</h4></div><?php
-                
+
                 //Category
                 if (strpos($value_config, ',Category,') !== false) { ?>
                     <div class="row set-row-height">
@@ -141,7 +141,7 @@
                         <div class="clearfix"></div>
                     </div><?php
                 }
-                
+
                 //Service Type
                 if (strpos($value_config, ',Service Type,') !== false) { ?>
                     <div class="row set-row-height">
@@ -167,7 +167,7 @@
                         <div class="clearfix"></div>
                     </div><?php
                 }
-                
+
                 //Heading
                 if (strpos($value_config, ',Heading,') !== false) { ?>
                     <div class="row set-row-height">
@@ -176,7 +176,7 @@
                         <div class="clearfix"></div>
                     </div><?php
                 }
-                
+
                 //Name
                 if (strpos($value_config, ',Name,') !== false) { ?>
                     <div class="row set-row-height">
@@ -185,7 +185,7 @@
                         <div class="clearfix"></div>
                     </div><?php
                 }
-                
+
                 //Service Code
                 if (strpos($value_config, ',Service Code,') !== false) { ?>
                     <div class="row set-row-height">
@@ -194,11 +194,11 @@
                         <div class="clearfix"></div>
                     </div><?php
                 } ?>
-                
+
             </div><!-- #serviceinfo -->
-            
+
             <hr />
-            
+
             <!-- Quantity -->
             <?php if (strpos($value_config, ',Quantity,') !== false) { ?>
                 <div class="accordion-block-details padded" id="quantity">
@@ -209,14 +209,14 @@
                         <div class="clearfix"></div>
                     </div>
                 </div>
-            
+
                 <hr />
             <?php } ?><!-- #quantity -->
-            
+
             <!-- Descriptions -->
             <div class="accordion-block-details padded" id="descriptions">
                 <div class="accordion-block-details-heading"><h4>Descriptions</h4></div><?php
-                
+
                 //Descriptions
                 if (strpos($value_config, ',Description,') !== false) { ?>
                     <div class="row">
@@ -225,7 +225,7 @@
                         <div class="clearfix"></div>
                     </div><?php
                 }
-                
+
                 //Quote Description
                 if (strpos($value_config, ',Quote Description,') !== false) { ?>
                     <div class="row set-row-height">
@@ -239,7 +239,7 @@
                         <div class="clearfix"></div>
                     </div><?php
                 }
-                
+
                 //Invoice Description
                 if (strpos($value_config, ',Invoice Description,') !== false) { ?>
                     <div class="row">
@@ -248,7 +248,7 @@
                         <div class="clearfix"></div>
                     </div><?php
                 }
-                
+
                 //Ticket Description
                 if (strpos($value_config, ',Ticket Description,') !== false) { ?>
                     <div class="row">
@@ -257,7 +257,7 @@
                         <div class="clearfix"></div>
                     </div><?php
                 }
-                    
+
                 //Service Image
                 if (strpos($value_config, ',Service Image,') !== false) { ?>
                     <div class="row double-gap-top">
@@ -274,11 +274,11 @@
                         <div class="clearfix"></div>
                     </div><?php
                 } ?>
-                
+
             </div><!-- #descriptions -->
-            
+
             <hr />
-            
+
             <!-- Checklist -->
             <?php if (strpos($value_config, ',Checklist,') !== false) { ?>
                 <div class="accordion-block-details padded" id="checklist">
@@ -297,10 +297,10 @@
                         <div class="clearfix"></div>
                     </div>
                 </div>
-                
+
                 <hr />
             <?php } ?><!-- #checklist -->
-            
+
             <!-- Fee -->
             <?php if (strpos($value_config, ',Fee,') !== false) { ?>
                 <div class="accordion-block-details padded" id="fee">
@@ -311,10 +311,10 @@
                         <div class="clearfix"></div>
                     </div>
                 </div>
-                
+
                 <hr />
             <?php } ?><!-- #fee -->
-            
+
             <!-- Costs -->
             <?php if (strpos($value_config, ',Cost,') !== false || strpos($value_config, ',Unit Cost,') !== false) { ?>
                 <div class="accordion-block-details padded" id="costs"><?php
@@ -327,7 +327,7 @@
                             <div class="clearfix"></div>
                         </div><?php
                     }
-                    
+
                     //Unit Cost
                     if (strpos($value_config, ',Unit Cost,') !== false) { ?>
                         <div class="accordion-block-details-heading"><h4>Unit Cost</h4></div>
@@ -337,20 +337,20 @@
                             <div class="clearfix"></div>
                         </div><?php
                     }
-                    
+
                     if (strpos($value_config, ',Cost,') === false && strpos($value_config, ',Unit Cost,') === false) { ?>
                         <div class="row"><div class="col-xs-12 gap-md-left-15">Please configure costs from Settings first.</div></div><?php
                     } ?>
                 </div>
-                
+
                 <hr />
             <?php } ?><!-- #costs -->
-            
+
             <!-- Price Points -->
             <?php if (strpos($value_config, ',Final Retail Price,') !== false || strpos($value_config, ',Admin Price,') !== false || strpos($value_config, ',Wholesale Price,') !== false || strpos($value_config, ',Commercial Price,') !== false || strpos($value_config, ',Client Price,') !== false || strpos($value_config, ',Purchase Order Price,') !== false || strpos($value_config, ',Sales Order Price,') !== false || strpos($value_config, ',MSRP,') !== false || strpos($value_config, ',Unit Price,') !== false) { ?>
                 <div class="accordion-block-details padded" id="pricepoints">
                     <div class="accordion-block-details-heading"><h4>Price Points</h4></div><?php
-                    
+
                     //Final Retail Price
                     if (strpos($value_config, ',Final Retail Price,') !== false) { ?>
                         <div class="row set-row-height">
@@ -359,7 +359,7 @@
                             <div class="clearfix"></div>
                         </div><?php
                     }
-                    
+
                     //Admin Price
                     if (strpos($value_config, ',Admin Price,') !== false) { ?>
                         <div class="row set-row-height">
@@ -368,7 +368,7 @@
                             <div class="clearfix"></div>
                         </div><?php
                     }
-                    
+
                     //Wholesale Price
                     if (strpos($value_config, ',Wholesale Price,') !== false) { ?>
                         <div class="row set-row-height">
@@ -377,7 +377,7 @@
                             <div class="clearfix"></div>
                         </div><?php
                     }
-                    
+
                     //Commercial Price
                     if (strpos($value_config, ',Commercial Price,') !== false) { ?>
                         <div class="row set-row-height">
@@ -386,7 +386,7 @@
                             <div class="clearfix"></div>
                         </div><?php
                     }
-                    
+
                     //Client Price
                     if (strpos($value_config, ',Client Price,') !== false) { ?>
                         <div class="row set-row-height">
@@ -395,7 +395,7 @@
                             <div class="clearfix"></div>
                         </div><?php
                     }
-                    
+
                     //Purchase Order Price
                     if (strpos($value_config, ',Purchase Order Price,') !== false) { ?>
                         <div class="row set-row-height">
@@ -404,7 +404,7 @@
                             <div class="clearfix"></div>
                         </div><?php
                     }
-                    
+
                     //Sales Order Price
                     if (strpos($value_config, ',Sales Order Price,') !== false) { ?>
                         <div class="row set-row-height">
@@ -413,7 +413,7 @@
                             <div class="clearfix"></div>
                         </div><?php
                     }
-                    
+
                     //MSRP
                     if (strpos($value_config, ',MSRP,') !== false) { ?>
                         <div class="row set-row-height">
@@ -422,7 +422,7 @@
                             <div class="clearfix"></div>
                         </div><?php
                     }
-                    
+
                     //Unit Price
                     if (strpos($value_config, ',Unit Price,') !== false) { ?>
                         <div class="row set-row-height">
@@ -431,7 +431,7 @@
                             <div class="clearfix"></div>
                         </div><?php
                     }
-                    
+
                     //Rate Cards
                     if (strpos($value_config, ',Rate Card,') !== false && vuaed_visible_function($dbc, 'rate_card') > 0) { ?>
                         <div class="row">
@@ -439,20 +439,20 @@
                             <div class="clearfix"></div>
                         </div><?php
                     }
-                    
+
                     if (strpos($value_config, ',Final Retail Price,') === false && strpos($value_config, ',Admin Price,') === false && strpos($value_config, ',Wholesale Price,') === false && strpos($value_config, ',Commercial Price,') === false && strpos($value_config, ',Client Price,') === false && strpos($value_config, ',Purchase Order Price,') === false && strpos($value_config, ',Sales Order Price,') === false && strpos($value_config, ',MSRP,') === false && strpos($value_config, ',Unit Price,') === false && strpos($value_config, ',Rate Card,') === false) { ?>
                         <div class="row"><div class="col-xs-12 gap-md-left-15">Please configure price points from Settings first.</div></div><?php
                     } ?>
                 </div>
-                
+
                 <hr />
             <?php } ?><!-- #pricepoints -->
-            
+
             <!-- Inclusions -->
             <?php if (strpos($value_config, ',Include in Sales Orders,') !== false || strpos($value_config, ',Include in Purchase Orders,') !== false || strpos($value_config, ',Include in P.O.S.,') !== false) { ?>
                 <div class="accordion-block-details padded" id="inclusions">
                     <div class="accordion-block-details-heading"><h4>Inclusions</h4></div><?php
-                    
+
                     //Include in Sales Orders
                     if (strpos($value_config, ',Include in Sales Orders,') !== false) { ?>
                         <div class="row set-row-height">
@@ -477,21 +477,21 @@
                     if (strpos($value_config, ',Include in P.O.S.,') !== false) { ?>
                         <div class="row set-row-height">
                             <div class="col-xs-12 col-sm-11 gap-md-left-15">
-                                <input type="checkbox" <?php if ( $include_in_pos!=='' && $include_in_pos!==NULL ) { echo "checked"; } ?> name="include_in_pos" value="1" /> Include in Point of Sale
+                                <input type="checkbox" <?php if ( $include_in_pos!=='' && $include_in_pos!==NULL ) { echo "checked"; } ?> name="include_in_pos" value="1" /> Include in <?= POS_ADVANCE_TILE ?>
                             </div>
                             <div class="clearfix"></div>
                         </div><?php
                     } ?>
                 </div>
-                
+
                 <hr />
             <?php } ?><!-- #inclusions -->
-            
+
             <!-- Rental Information -->
             <?php if (strpos($value_config, ',Rent Price,') !== false || strpos($value_config, ',Rental Days,') !== false || strpos($value_config, ',Rental Weeks,') !== false || strpos($value_config, ',Rental Months,') !== false || strpos($value_config, ',Rental Years,') !== false) { ?>
                 <div class="accordion-block-details padded" id="rentalinfo">
                     <div class="accordion-block-details-heading"><h4>Rental Information</h4></div><?php
-                    
+
                     //Rent Price
                     if (strpos($value_config, ',Rent Price,') !== false) { ?>
                         <div class="row set-row-height">
@@ -500,7 +500,7 @@
                             <div class="clearfix"></div>
                         </div><?php
                     }
-                    
+
                     //Rental Days
                     if (strpos($value_config, ',Rental Days,') !== false) { ?>
                         <div class="row set-row-height">
@@ -509,7 +509,7 @@
                             <div class="clearfix"></div>
                         </div><?php
                     }
-                    
+
                     //Rental Weeks
                     if (strpos($value_config, ',Rental Weeks,') !== false) { ?>
                         <div class="row set-row-height">
@@ -518,7 +518,7 @@
                             <div class="clearfix"></div>
                         </div><?php
                     }
-                    
+
                     //Rental Months
                     if (strpos($value_config, ',Rental Months,') !== false) { ?>
                         <div class="row set-row-height">
@@ -527,7 +527,7 @@
                             <div class="clearfix"></div>
                         </div><?php
                     }
-                    
+
                     //Rental Years
                     if (strpos($value_config, ',Rental Years,') !== false) { ?>
                         <div class="row set-row-height">
@@ -537,15 +537,15 @@
                         </div><?php
                     } ?>
                 </div>
-                
+
                 <hr />
             <?php } ?><!-- #rentalinfo -->
-            
+
             <!-- Reminder/Alert -->
             <?php if (strpos($value_config, ',Reminder/Alert,') !== false || strpos($value_config, ',Daily,') !== false || strpos($value_config, ',Weekly,') !== false || strpos($value_config, ',Monthly,') !== false || strpos($value_config, ',Annually,') !== false) { ?>
                 <div class="accordion-block-details padded" id="reminderalert">
                     <div class="accordion-block-details-heading"><h4>Reminder/Alert</h4></div><?php
-                    
+
                     //Reminder/Alert
                     if (strpos($value_config, ',Reminder/Alert,') !== false) { ?>
                         <div class="row set-row-height">
@@ -554,7 +554,7 @@
                             <div class="clearfix"></div>
                         </div><?php
                     }
-                    
+
                     //Daily
                     if (strpos($value_config, ',Daily,') !== false) { ?>
                         <div class="row set-row-height">
@@ -563,7 +563,7 @@
                             <div class="clearfix"></div>
                         </div><?php
                     }
-                    
+
                     //Weekly
                     if (strpos($value_config, ',Weekly,') !== false) { ?>
                         <div class="row set-row-height">
@@ -572,7 +572,7 @@
                             <div class="clearfix"></div>
                         </div><?php
                     }
-                    
+
                     //Monthly
                     if (strpos($value_config, ',Monthly,') !== false) { ?>
                         <div class="row set-row-height">
@@ -581,7 +581,7 @@
                             <div class="clearfix"></div>
                         </div><?php
                     }
-                    
+
                     //Annually
                     if (strpos($value_config, ',Annually,') !== false) { ?>
                         <div class="row set-row-height">
@@ -590,15 +590,15 @@
                             <div class="clearfix"></div>
                         </div><?php
                     }
-                    
+
                     if (strpos($value_config, ',Reminder/Alert,') === false && strpos($value_config, ',Daily,') === false && strpos($value_config, ',Weekly,') === false && strpos($value_config, ',Monthly,') === false && strpos($value_config, ',Annually,') === false) { ?>
                         <div class="row"><div class="col-xs-12 gap-md-left-15">Please configure reminder/alert from Settings first.</div></div><?php
                     } ?>
                 </div>
-                
+
                 <hr />
             <?php } ?><!-- #reminderalert -->
-            
+
             <!-- Unit Information -->
             <?php if (strpos($value_config, ',#Of Days,') !== false || strpos($value_config, ',#Of Hours,') !== false || strpos($value_config, ',#Of Kilometers,') !== false || strpos($value_config, ',#Of Miles,') !== false || strpos($value_config, ',Estimated Hours,') !== false) { ?>
                 <div class="accordion-block-details padded" id="unitinfo">
@@ -612,7 +612,7 @@
                             <div class="clearfix"></div>
                         </div><?php
                     }
-                    
+
                     //#Of Days
                     if (strpos($value_config, ',#Of Days,') !== false) { ?>
                         <div class="row set-row-height">
@@ -621,7 +621,7 @@
                             <div class="clearfix"></div>
                         </div><?php
                     }
-                    
+
                     //#Of Hours
                     if (strpos($value_config, ',#Of Hours,') !== false) { ?>
                         <div class="row set-row-height">
@@ -630,7 +630,7 @@
                             <div class="clearfix"></div>
                         </div><?php
                     }
-                    
+
                     //#Of Kilometers
                     if (strpos($value_config, ',#Of Kilometers,') !== false) { ?>
                         <div class="row set-row-height">
@@ -639,7 +639,7 @@
                             <div class="clearfix"></div>
                         </div><?php
                     }
-                    
+
                     //#Of Miles
                     if (strpos($value_config, ',#Of Miles,') !== false) { ?>
                         <div class="row set-row-height">
@@ -648,15 +648,15 @@
                             <div class="clearfix"></div>
                         </div><?php
                     }
-                    
+
                     if (strpos($value_config, ',#Of Days,') === false && strpos($value_config, ',#Of Hours,') === false && strpos($value_config, ',#Of Kilometers,') === false && strpos($value_config, ',#Of Miles,') === false && strpos($value_config, ',Estimated Hours,') === false) { ?>
                         <div class="row"><div class="col-xs-12 gap-md-left-15">Please configure units from Settings first.</div></div><?php
                     } ?>
                 </div>
-                
+
                 <hr />
             <?php } ?><!-- #unitinfo -->
-            
+
             <!-- GST Exempt -->
             <?php if (strpos($value_config, ',GST exempt,') !== false) { ?>
                 <div class="accordion-block-details padded" id="gstexempt">
@@ -667,10 +667,10 @@
                         <div class="clearfix"></div>
                     </div>
                 </div>
-                
+
                 <hr />
             <?php } ?><!-- #gstexempt -->
-            
+
             <!-- Appointment Type -->
             <?php if (strpos($value_config, ',Appointment Type,') !== false) { ?>
                 <div class="accordion-block-details padded" id="appttype">
@@ -690,15 +690,15 @@
                     </div>
                 </div>
             <?php } ?><!-- #fee -->
-        
+
         </div><!-- .standard-body-content -->
     </div><!-- .preview-block-container -->
-    
+
     <div class="pull-right gap-top gap-right">
         <a href="index.php" class="btn brand-btn">Cancel</a>
         <button type="submit" name="add_service" value="Submit" class="btn brand-btn">Save</button>
     </div>
-    
+
     <div class="clearfix"></div><br />
-    
+
 </form>

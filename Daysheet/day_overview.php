@@ -150,7 +150,7 @@ if (isset($_POST['add_manual'])) {
         $html_weekly .= '</table>';
     }
 
-    $query_check_credentials = "SELECT * FROM ticket_timer WHERE created_by='$contactid' AND DATE(created_date) = CURDATE()";
+    $query_check_credentials = "SELECT * FROM ticket_timer WHERE created_by='$contactid' AND DATE(created_date) = CURDATE() AND `deleted` = 0";
     $result = mysqli_query($dbc, $query_check_credentials);
     $num_rows = mysqli_num_rows($result);
 
@@ -525,7 +525,7 @@ if (isset($_POST['add_manual'])) {
 				<h4 class="panel-title">
 					<span class="popover-examples"><a data-toggle="tooltip" data-placement="top" title="Click here to view all Tasks for today."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
 					<a data-toggle="collapse" data-parent="#accordion2" href="#collapse_task" >
-						Tasks<span class="glyphicon glyphicon-plus"></span>
+						<?= TASK_TILE ?><span class="glyphicon glyphicon-plus"></span>
 					</a>
 				</h4>
 			</div>
@@ -618,7 +618,7 @@ if (isset($_POST['add_manual'])) {
 		<?php } ?>
 
 		<?php
-			$query_check_credentials = "SELECT * FROM ticket_timer WHERE created_by='$contactid' AND DATE(created_date) = CURDATE()";
+			$query_check_credentials = "SELECT * FROM ticket_timer WHERE created_by='$contactid' AND DATE(created_date) = CURDATE() AND `deleted` = 0";
 			$result = mysqli_query($dbc, $query_check_credentials);
 			$num_rows = mysqli_num_rows($result);
 		?>
@@ -976,7 +976,7 @@ if (isset($_POST['add_manual'])) {
 					$spent_time = '';
 
 					if($ticketNumber != '') {
-						$query_check_credentials1 = "SELECT * FROM ticket_timer WHERE ticketid='$ticketNumber' ORDER BY tickettimerid DESC";
+						$query_check_credentials1 = "SELECT * FROM ticket_timer WHERE ticketid='$ticketNumber' AND `deleted` = 0 ORDER BY tickettimerid DESC";
 						$result1 = mysqli_query($dbc, $query_check_credentials1);
 						$num_rows1 = mysqli_num_rows($result1);
 						if($num_rows1 > 0) {

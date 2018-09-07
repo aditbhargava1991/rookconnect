@@ -1,4 +1,5 @@
 <?php
+error_reporting(0);
 include ('../database_connection.php');
 include ('../function.php');
 include ('../global.php');
@@ -270,11 +271,23 @@ if($_GET['fill'] == 'POSstatus') {
     $status = $_GET['status'];
     $status_history = decryptIt($_SESSION['first_name']).' '.decryptIt($_SESSION['last_name']).' Changed to '.$status.' on '.date('Y-m-d');
 	if($status == 'Archived') {
-		$query_update = "UPDATE `point_of_sell` SET deleted = '1', status = '$status', status_history = '$status_history' WHERE posid='$name'";
+    $before_change = capture_before_change($dbc, 'point_of_sell', 'deleted', 'posid', $name);
+    $before_change .= capture_before_change($dbc, 'point_of_sell', 'status', 'posid', $name);
+    $before_change .= capture_before_change($dbc, 'point_of_sell', 'status_history', 'posid', $name);
+
+    $query_update = "UPDATE `point_of_sell` SET deleted = '1', status = '$status', status_history = '$status_history' WHERE posid='$name'";
 	} else {
+    $before_change = capture_before_change($dbc, 'point_of_sell', 'status', 'posid', $name);
+    $before_change .= capture_before_change($dbc, 'point_of_sell', 'status_history', 'posid', $name);
+
 		$query_update = "UPDATE `point_of_sell` SET status = '$status', status_history = '$status_history' WHERE posid='$name'";
 	}
     $result_update = mysqli_query($dbc, $query_update);
+
+    $history = capture_after_change('deleted', '1');
+    $history .= capture_after_change('status', $status);
+    $history .= capture_after_change('status_history', $status_history);
+		add_update_history($dbc, 'pos_history', $history, '', $before_change);
 }
 
 if($_GET['fill'] == 'customer') {

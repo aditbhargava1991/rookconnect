@@ -162,7 +162,7 @@ $(document).ready(function() {
 });
 </script>
 
-<form id="form1" name="form1" method="post" action="add_marketing_material.php" enctype="multipart/form-data" class="form-horizontal" role="form">
+<form id="form1" name="form1" method="post" action="" enctype="multipart/form-data" class="form-horizontal" role="form">
 
 <?php
     $get_field_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT marketing_material FROM field_config"));

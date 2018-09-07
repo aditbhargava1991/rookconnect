@@ -14,7 +14,7 @@ while($row = mysqli_fetch_array( $result )) {
     $num_rows = mysqli_num_rows($next_actions);
 
     if(!empty($next_actions)) {
-    	$column .= '<div class="calendar_block calendarSortable" data-contact="'.$contactid.'" data-date="'.$new_today_date.'">';
+    	$column .= '<div class="calendar_block calendarSortable" data-blocktype="'.$_GET['block_type'].'" data-contact="'.$contactid.'" data-date="'.$new_today_date.'">';
         $column .= '<h4>'.$staff.'</h4>';
         foreach ($next_actions as $row_action) {
             $estimate_name = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `estimate_name` FROM `estimate` WHERE `estimateid`='".$row_action['estimateid']."'"));

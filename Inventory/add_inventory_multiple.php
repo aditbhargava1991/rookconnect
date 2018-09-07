@@ -32,7 +32,9 @@ if(isset($_POST["submitty"]))
 		$updates = implode(',',$updates);
 		$sql = "UPDATE `inventory` SET $updates WHERE `inventoryid` = '$inventoryid'";//echo '<!--'.$sql.'-->';
 		mysqli_query($dbc, $sql);
-
+		$before_change = '';
+		$history = "Inventory with id $inventoryid is been Updated. <br />";
+		add_update_history($dbc, 'inventory_history', $history, '', $before_change);
 		$update_log = 'Inventory Added (ID: '.$inventoryid.')';
 		$today_date = date('Y-m-d H:i:s', time());
 		$contactid = $_SESSION['contactid'];
@@ -93,6 +95,9 @@ if(isset($_POST["submitty2"]))
 			$updates = implode(',',$updates);
 			$sql = "UPDATE `inventory` SET $updates WHERE `inventoryid` = '$inventoryid'";
 			mysqli_query($dbc, $sql);
+			$before_change = '';
+			$history = "Inventory with id $inventoryid is been Updated. <br />";
+			add_update_history($dbc, 'inventory_history', $history, '', $before_change);
 		}
 	}
 	echo '<script type="text/javascript"> alert("Successfully imported CSV file. Please check the Inventory dashboard to view your freshly edited items."); </script>';
@@ -123,7 +128,7 @@ if(isset($_POST["exporter"]))
 			$key = trim($key,"#");
 			if(strpos(','.$fields_config.',', ','.$key.',') || empty($fields_config)) {
 				$HeadingsArray[] = $key;
-				$query_fields .= '`'.$key.'`,'; 
+				$query_fields .= '`'.$key.'`,';
 			}
 		}
 	}
@@ -281,7 +286,7 @@ checkAuthorised('inventory');
 
 			<div class="tile-container" style="height: 100%;">
 
-				<div class="show-on-mob panel-group block-panels col-xs-12 form-horizontal" id="mobile_tabs">			
+				<div class="show-on-mob panel-group block-panels col-xs-12 form-horizontal" id="mobile_tabs">
 					<div class="panel panel-default" style="background: white;">
 						<div class="panel-heading">
 							<h4 class="panel-title">

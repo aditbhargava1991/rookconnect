@@ -74,6 +74,7 @@ if (isset($_POST['printpdf'])) {
     $today_date = date('Y-m-d');
 	$pdf->writeHTML($html, true, false, true, false, '');
 	$pdf->Output('Download/cart_abandonment_stats_'.$today_date.'.pdf', 'F');
+    track_download($dbc, 'report_marketing_cart_abandonment', 0, WEBSITE_URL.'/Reports/Download/cart_abandonment_stats_'.$today_date.'.pdf', 'Cart Abandonment Report');
     ?>
 
 	<script type="text/javascript" language="Javascript">
@@ -84,21 +85,6 @@ if (isset($_POST['printpdf'])) {
     $endtime = $endtimepdf;
 } ?>
 
-<script type="text/javascript">
-
-</script>
-</head>
-<body>
-<?php include_once ('../navigation.php');
-?>
-
-<div class="container triple-pad-bottom">
-    <div class="row">
-        <div class="col-md-12">
-
-        <?php echo reports_tiles($dbc);  ?>
-        <br>
-        
         <div class="notice double-gap-bottom popover-examples">
             <div class="col-sm-1 notice-icon"><img src="<?= WEBSITE_URL; ?>/img/info.png" class="wiggle-me" width="25"></div>
             <div class="col-sm-11"><span class="notice-name">NOTE:</span>
@@ -134,21 +120,16 @@ if (isset($_POST['printpdf'])) {
                     <button type="submit" name="search_email_submit" value="Search" class="btn brand-btn mobile-block">Submit</button>
                 </div>
             </center>
-            
+
             <input type="hidden" name="starttimepdf" value="<?php echo $starttime; ?>">
             <input type="hidden" name="endtimepdf" value="<?php echo $endtime; ?>">
 
             <button type="submit" name="printpdf" value="Print Report" class="btn brand-btn pull-right">Print Report</button>
             <br><br>
-            
+
             <?php echo report_cart_abandoned($dbc, $starttime, $endtime, '', '', ''); ?>
 
         </form>
-
-        </div>
-    </div>
-</div>
-<?php include ('../footer.php'); ?>
 
 <?php
 function report_cart_abandoned($dbc, $starttime, $endtime, $table_style, $table_row_style, $grand_total_style) {
@@ -162,11 +143,11 @@ function report_cart_abandoned($dbc, $starttime, $endtime, $table_style, $table_
     $actual_orders = 0;
     $placed_orders = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT count(posid) actual_orders FROM point_of_sell WHERE invoice_date BETWEEN '$starttime' AND '$endtime'"));
     $actual_orders = $placed_orders['actual_orders'];
-    
+
     $result = mysqli_query($dbc, "SELECT orderid, GROUP_CONCAT(contactid) contactids, order_total, date FROM pos_web_order_temp WHERE date BETWEEN '".$starttime." 00:00:00' AND '".$endtime." 23:59:59' GROUP BY session_id ORDER BY date");
     $abandoned_orders = $result->num_rows;
     $total = 0;
-    
+
 	while ( $row=mysqli_fetch_assoc($result) ) {
         $total += $row['order_total'];
         $name = 'Visitor';
@@ -184,6 +165,21 @@ function report_cart_abandoned($dbc, $starttime, $endtime, $table_style, $table_
     $report_data .= '<tr><td colspan="2" align="right"><b>Abandonment Total:</b></td><td align="right">$'.number_format($total, 2).'</td></tr>';
     $report_data .= '<tr><td colspan="2" align="right"><b>Abandonment %:<br /><small>(Completed Orders / Total Carts Created * 100)</small></b></td><td align="right">'. number_format($actual_orders / ($actual_orders+$abandoned_orders)*100, 2) .'%</td></tr>';
     $report_data .= '</table>';
-    
+
     return $report_data;
 }
+?>
+<script>
+$('document').ready(function() {
+    var tables = $('table');
+
+    tables.map(function(idx, table) {
+        var rows = $(table).find('tbody > tr');
+        rows.map(function(idx, row){
+            if(idx%2 == 0) {
+                $(row).css('background-color', '#e6e6e6');
+            }
+        })
+    })
+})
+</script>

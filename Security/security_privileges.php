@@ -237,65 +237,67 @@ function go_to_dashboard(target) {
 	//$privileges = get_privileges($dbc, $tile);
 	?>
 
-	<table class='table table-bordered'>
-		<tr class='hidden-sm hidden-xs dont-hide'>
-			<th>
-			<span class="popover-examples list-inline">&nbsp;
-			<a href="#job_file" data-toggle="tooltip" data-placement="top" title="The only visible tiles accessible in this section are tiles activated in the Enable/Disable Tiles section."><img src="../img/info.png" width="20"></a>
-			</span>
-			Software Functionality</th>
-			<th>
-			<span class="popover-examples list-inline">&nbsp;
-			<a href="#job_file" data-toggle="tooltip" data-placement="top" title="Security levels marked here will have access to see the tile dashboard."><img src="../img/info-w.png" width="20"></a>
-			</span>
-			Dashboard Access</th>
-			<th>
-			<span class="popover-examples list-inline">&nbsp;
-			<a href="#job_file" data-toggle="tooltip" data-placement="top" title="Security levels marked here will have access to see the tile outlined."><img src="../img/info-w.png" width="20"></a>
-			</span>
-			View Access</th>
-			<th>
-			<span class="popover-examples list-inline">&nbsp;
-			<a href="#job_file" data-toggle="tooltip" data-placement="top" title="This security setting allows those assigned the ability to add all functionality relevant to the particular tile."><img src="../img/info-w.png" width="20"></a>
-			</span>
-			Add Access</th>
-			<th>
-			<span class="popover-examples list-inline">&nbsp;
-			<a href="#job_file" data-toggle="tooltip" data-placement="top" title="This security setting allows those assigned the ability to edit all functionality relevant to the particular tile."><img src="../img/info-w.png" width="20"></a>
-			</span>
-			Edit Access</th>
-			<th>
-			<span class="popover-examples list-inline">&nbsp;
-			<a href="#job_file" data-toggle="tooltip" data-placement="top" title="This security setting allows those assigned the ability to delete all functionality relevant to the particular tile."><img src="../img/info-w.png" width="20"></a>
-			</span>
-			Archive Access</th>
-			<th>
-			<span class="popover-examples list-inline">&nbsp;
-			<a href="#job_file" data-toggle="tooltip" data-placement="top" title="This security setting allows those assigned the ability to configure the view, settings, and structure relevant to the particular tile."><img src="../img/info-w.png" width="20"></a>
-			</span>
-			Settings Permission</th>
-			<th>
-			<span class="popover-examples list-inline">&nbsp;
-			<a href="#job_file" data-toggle="tooltip" data-placement="top" title="This security setting allows those assigned the ability to search through all results, not just those assigned to them for the particular tile."><img src="../img/info-w.png" width="20"></a>
-			</span>
-			Full Search Permission</th>
-			<th>
-			<span class="popover-examples list-inline">&nbsp;
-			<a href="#job_file" data-toggle="tooltip" data-placement="top" title="This security setting allows those assigned the ability to use approval functions within the particular tile."><img src="../img/info-w.png" width="20"></a>
-			</span>
-			Approvals Permission</th>
-			<th>
-			<span class="popover-examples list-inline">&nbsp;
-			<a href="#job_file" data-toggle="tooltip" data-placement="top" title="This security setting forces those assigned to strictly have view only with no functionality at all (eg. for Customer logins)."><img src="../img/info-w.png" width="20"></a>
-			</span>
-			Strict View Only</th>
-			<th>Sub Tab Permissions</th>
-			<th>Dashboard Permissions</th>
-			<th>Field Permissions</th>
-			<th>History</th>
-		</tr>
+	<table class='table table-bordered table-striped'>
+        <thead>
+            <tr class='hidden-sm hidden-xs dont-hide'>
+                <th>
+                <span class="popover-examples list-inline">&nbsp;
+                <a href="#job_file" data-toggle="tooltip" data-placement="top" title="The only visible tiles accessible in this section are tiles activated in the Enable/Disable Tiles section."><img src="../img/info.png" width="20"></a>
+                </span>
+                Software Functionality</th>
+                <th>
+                <span class="popover-examples list-inline">&nbsp;
+                <a href="#job_file" data-toggle="tooltip" data-placement="top" title="Security levels marked here will have access to see the tile dashboard."><img src="../img/info-w.png" width="20"></a>
+                </span>
+                Dashboard Access</th>
+                <th>
+                <span class="popover-examples list-inline">&nbsp;
+                <a href="#job_file" data-toggle="tooltip" data-placement="top" title="Security levels marked here will have access to see the tile outlined."><img src="../img/info-w.png" width="20"></a>
+                </span>
+                View Access</th>
+                <th>
+                <span class="popover-examples list-inline">&nbsp;
+                <a href="#job_file" data-toggle="tooltip" data-placement="top" title="This security setting allows those assigned the ability to add all functionality relevant to the particular tile."><img src="../img/info-w.png" width="20"></a>
+                </span>
+                Add Access</th>
+                <th>
+                <span class="popover-examples list-inline">&nbsp;
+                <a href="#job_file" data-toggle="tooltip" data-placement="top" title="This security setting allows those assigned the ability to edit all functionality relevant to the particular tile."><img src="../img/info-w.png" width="20"></a>
+                </span>
+                Edit Access</th>
+                <th>
+                <span class="popover-examples list-inline">&nbsp;
+                <a href="#job_file" data-toggle="tooltip" data-placement="top" title="This security setting allows those assigned the ability to delete all functionality relevant to the particular tile."><img src="../img/info-w.png" width="20"></a>
+                </span>
+                Archive Access</th>
+                <th>
+                <span class="popover-examples list-inline">&nbsp;
+                <a href="#job_file" data-toggle="tooltip" data-placement="top" title="This security setting allows those assigned the ability to configure the view, settings, and structure relevant to the particular tile."><img src="../img/info-w.png" width="20"></a>
+                </span>
+                Settings Permission</th>
+                <th>
+                <span class="popover-examples list-inline">&nbsp;
+                <a href="#job_file" data-toggle="tooltip" data-placement="top" title="This security setting allows those assigned the ability to search through all results, not just those assigned to them for the particular tile."><img src="../img/info-w.png" width="20"></a>
+                </span>
+                Full Search Permission</th>
+                <th>
+                <span class="popover-examples list-inline">&nbsp;
+                <a href="#job_file" data-toggle="tooltip" data-placement="top" title="This security setting allows those assigned the ability to use approval functions within the particular tile."><img src="../img/info-w.png" width="20"></a>
+                </span>
+                Approvals Permission</th>
+                <th>
+                <span class="popover-examples list-inline">&nbsp;
+                <a href="#job_file" data-toggle="tooltip" data-placement="top" title="This security setting forces those assigned to strictly have view only with no functionality at all (eg. for Customer logins)."><img src="../img/info-w.png" width="20"></a>
+                </span>
+                Strict View Only</th>
+                <th>Sub Tab Permissions</th>
+                <th>Dashboard Permissions</th>
+                <th>Field Permissions</th>
+                <th>History</th>
+            </tr>
+        </thead>
 		<?php if(strpos($section_display,',software_settings,') !== FALSE): ?>
-			<tr><th colspan='14'><div style='text-align:left;width:100%;font-size:20px;'>Software Settings:</div></th></tr>
+			<thead><tr><th colspan='14'><div style='text-align:left;width:100%;font-size:20px;'>Software Settings:</div></th></tr></thead>
 			<?php
 			//$sql=mysqli_query($dbc,"SELECT * FROM  tile_config");
             // $on_security = ','.mysqli_fetch_array(mysqli_query($dbc, "SELECT GROUP_CONCAT(`tile_name`) enabled FROM `tile_security` WHERE `user_enabled`=1"))['enabled'].',';
@@ -313,10 +315,22 @@ function go_to_dashboard(target) {
 			//	}
 			//}
 			?>
+			<?php if(START_DAY != '') { ?>
+			<tr data-dashboard='<?= (in_array('start_day_button', $dashboard_list) ? 'current' : '') ?>'>
+				<td data-title="Comment"><?= START_DAY ?></td>
+				<?php echo security_tile_config_function('start_day_button', get_privileges($dbc, 'start_day_button',$level), 0, $level_url); ?>
+			</tr>
+			<?php } ?>
 			<?php if(strpos($on_security, ',archiveddata,') !== FALSE) { ?>
 			<tr data-dashboard='<?= (in_array('archiveddata', $dashboard_list) ? 'current' : '') ?>'>
 				<td data-title="Comment">Archived Data</td>
 				<?php echo security_tile_config_function('archiveddata', get_privileges($dbc, 'archiveddata',$level), 0, $level_url); ?>
+			</tr>
+			<?php } ?>
+			<?php if(strpos($on_security, ',customer_support,') !== FALSE) { ?>
+			<tr data-dashboard='<?= (in_array('customer_support', $dashboard_list) ? 'current' : '') ?>'>
+				<td data-title="Comment">Customer Support</td>
+				<?php echo security_tile_config_function('customer_support', get_privileges($dbc, 'customer_support',$level), 0, $level_url); ?>
 			</tr>
 			<?php } ?>
 			<?php if(strpos($on_security, ',ffmsupport,') !== FALSE) { ?>
@@ -351,7 +365,7 @@ function go_to_dashboard(target) {
 			<?php } ?>
 		<?php endif; ?>
 		<?php if(strpos($section_display,',human_resources,') !== FALSE): ?>
-			<tr><th colspan='14'><div style='text-align:left;width:100%;font-size:20px;'>Human Resources:</div></th></tr>
+			<thead><tr><th colspan='14'><div style='text-align:left;width:100%;font-size:20px;'>Human Resources:</div></th></tr></thead>
 
 			<?php if (strpos($on_security, ',certificate,') !== FALSE) { ?>
 			<tr data-dashboard='<?= (in_array('certificate', $dashboard_list) ? 'current' : '') ?>'>
@@ -385,7 +399,7 @@ function go_to_dashboard(target) {
 			<?php } ?>
 			<?php if(strpos($on_security, ',how_to_guide,') !== FALSE) { ?>
 			<tr data-dashboard='<?= (in_array('how_to_guide', $dashboard_list) ? 'current' : '') ?>'>
-				<td data-title="Comment">How to Guide</td>
+				<td data-title="Comment">All Software Guide</td>
 				<?php echo security_tile_config_function('how_to_guide', get_privileges($dbc, 'how_to_guide',$level), 0, $level_url); ?>
 			</tr>
 			<?php } ?>
@@ -464,7 +478,7 @@ function go_to_dashboard(target) {
 		<?php endif; ?>
 
 		<?php if(strpos($section_display,',profiles,') !== FALSE): ?>
-			<tr><th colspan='14'><div style='text-align:left;width:100%;font-size:20px;'>Profiles:</div></th></tr>
+			<thead><tr><th colspan='14'><div style='text-align:left;width:100%;font-size:20px;'>Profiles:</div></th></tr></thead>
 
 			<?php if(strpos($on_security, ',client_info,') !== FALSE) { ?>
 			<tr data-dashboard='<?= (in_array('client_info', $dashboard_list) ? 'current' : '') ?>'>
@@ -519,7 +533,7 @@ function go_to_dashboard(target) {
 		<?php endif; ?>
 
 		<?php if(strpos($section_display,',accounting,') !== FALSE): ?>
-			<tr><th colspan='14'><div style='text-align:left;width:100%;font-size:20px;'>Accounting:</div></th></tr>
+			<thead><tr><th colspan='14'><div style='text-align:left;width:100%;font-size:20px;'>Accounting:</div></th></tr></thead>
 
 			<?php if(strpos($on_security, ',accounts_receivables,') !== FALSE) { ?>
 			<tr data-dashboard='<?= (in_array('accounts_receivables', $dashboard_list) ? 'current' : '') ?>'>
@@ -589,7 +603,7 @@ function go_to_dashboard(target) {
 			<?php } ?>
 		<?php endif; ?>
 		<?php if(strpos($section_display,',time_tracking,') !== FALSE): ?>
-			<tr><th colspan='14'><div style='text-align:left;width:100%;font-size:20px;'>Time Tracking:</div></th></tr>
+			<thead><tr><th colspan='14'><div style='text-align:left;width:100%;font-size:20px;'>Time Tracking:</div></th></tr></thead>
 			<?php if(strpos($on_security, ',daysheet,') !== FALSE) { ?>
 			<tr data-dashboard='<?= (in_array('daysheet', $dashboard_list) ? 'current' : '') ?>'>
 				<td data-title="Comment">Planner</td>
@@ -623,7 +637,7 @@ function go_to_dashboard(target) {
 		<?php endif; ?>
 
 		<?php if(strpos($section_display,',inventory_management,') !== FALSE): ?>
-			<tr><th colspan='14'><div style='text-align:left;width:100%;font-size:20px;'>Inventory Management:</div></th></tr>
+			<thead><tr><th colspan='14'><div style='text-align:left;width:100%;font-size:20px;'>Inventory Management:</div></th></tr></thead>
 
 			<?php if(strpos($on_security, ',assets,') !== FALSE) { ?>
 			<tr data-dashboard='<?= (in_array('assets', $dashboard_list) ? 'current' : '') ?>'>
@@ -645,14 +659,14 @@ function go_to_dashboard(target) {
 			<?php } ?>
 			<?php if(strpos($on_security, ',vendors,') !== FALSE) { ?>
 			<tr data-dashboard='<?= (in_array('vendors', $dashboard_list) ? 'current' : '') ?>'>
-				<td data-title="Comment">Vendors</td>
+				<td data-title="Comment"><?= VENDOR_TILE ?></td>
 				<?php echo security_tile_config_function('vendors', get_privileges($dbc, 'vendors',$level), 0, $level_url); ?>
 			</tr>
 			<?php } ?>
 		<?php endif; ?>
 
 		<?php if(strpos($section_display,',equipment,') !== FALSE): ?>
-			<tr><th colspan='14'><div style='text-align:left;width:100%;font-size:20px;'>Equipment:</div></th></tr>
+			<thead><tr><th colspan='14'><div style='text-align:left;width:100%;font-size:20px;'>Equipment:</div></th></tr></thead>
 			<?php if(strpos($on_security, ',equipment,') !== FALSE) { ?>
 			<tr data-dashboard='<?= (in_array('equipment', $dashboard_list) ? 'current' : '') ?>'>
 				<td data-title="Comment">Equipment</td>
@@ -661,7 +675,7 @@ function go_to_dashboard(target) {
 			<?php } ?>
 		<?php endif; ?>
 		<?php if(strpos($section_display,',collaborative_workflow,') !== FALSE): ?>
-			<tr><th colspan='14'><div style='text-align:left;width:100%;font-size:20px;'>Collaborative Workflow:</div></th></tr>
+			<thead><tr><th colspan='14'><div style='text-align:left;width:100%;font-size:20px;'>Collaborative Workflow:</div></th></tr></thead>
 
 			<?php if (strpos($on_security, ',agenda_meeting,') !== FALSE) { ?>
 			<tr data-dashboard='<?= (in_array('agenda_meeting', $dashboard_list) ? 'current' : '') ?>'>
@@ -707,10 +721,20 @@ function go_to_dashboard(target) {
 			<?php } ?>
 			<?php if(strpos($on_security, ',tasks,') !== FALSE) { ?>
 			<tr data-dashboard='<?= (in_array('tasks', $dashboard_list) ? 'current' : '') ?>'>
-				<td data-title="Comment">Tasks</td>
+				<td data-title="Comment"><?= TASK_TILE ?></td>
 				<?php echo security_tile_config_function('tasks', get_privileges($dbc, 'tasks',$level), 1, $level_url); ?>
 			</tr>
 			<?php } ?>
+
+            <!--
+			<?php if(strpos($on_security, ',tasks_updated,') !== FALSE) { ?>
+			<tr data-dashboard='<?= (in_array('tasks_updated', $dashboard_list) ? 'current' : '') ?>'>
+				<td data-title="Comment">Tasks (Updated)</td>
+				<?php echo security_tile_config_function('tasks_updated', get_privileges($dbc, 'tasks_updated',$level), 1, $level_url); ?>
+			</tr>
+			<?php } ?>
+            -->
+
 			<?php if(strpos($on_security, ',optimize,') !== FALSE) { ?>
 			<tr data-dashboard='<?= (in_array('optimize', $dashboard_list) ? 'current' : '') ?>'>
 				<td data-title="Comment">Trip Optimizer</td>
@@ -719,7 +743,7 @@ function go_to_dashboard(target) {
 			<?php } ?>
 		<?php endif; ?>
 		<?php if(strpos($section_display,',digital_forms,') !== FALSE): ?>
-			<tr><th colspan='14'><div style='text-align:left;width:100%;font-size:20px;'>Digital Forms:</div></th></tr>
+			<thead><tr><th colspan='14'><div style='text-align:left;width:100%;font-size:20px;'>Digital Forms:</div></th></tr></thead>
 			<?php if(strpos($on_security, ',client_documentation,') !== FALSE) { ?>
 			<tr data-dashboard='<?= (in_array('client_documentation', $dashboard_list) ? 'current' : '') ?>'>
 				<td data-title="Comment">Client Documentation</td>
@@ -833,7 +857,7 @@ function go_to_dashboard(target) {
 			<?php } ?>
 		<?php endif; ?>
 		<?php if(strpos($section_display,',estimates,') !== FALSE): ?>
-			<tr><th colspan='14'><div style='text-align:left;width:100%;font-size:20px;'><?= ESTIMATE_TILE ?> / Quoting:</div></th></tr>
+			<thead><tr><th colspan='14'><div style='text-align:left;width:100%;font-size:20px;'><?= ESTIMATE_TILE ?> / Quoting:</div></th></tr></thead>
 
 			<?php if(strpos($on_security, ',cost_estimate,') !== FALSE) { ?>
 			<tr data-dashboard='<?= (in_array('cost_estimate', $dashboard_list) ? 'current' : '') ?>'>
@@ -861,7 +885,7 @@ function go_to_dashboard(target) {
 			<?php } ?>
 		<?php endif; ?>
 		<?php if(strpos($section_display,',sales,') !== FALSE): ?>
-			<tr><th colspan='14'><div style='text-align:left;width:100%;font-size:20px;'>Sales:</div></th></tr>
+			<thead><tr><th colspan='14'><div style='text-align:left;width:100%;font-size:20px;'>Sales:</div></th></tr></thead>
 
 			<?php if(strpos($on_security, ',calllog,') !== FALSE) { ?>
 			<tr data-dashboard='<?= (in_array('calllog', $dashboard_list) ? 'current' : '') ?>'>
@@ -871,7 +895,7 @@ function go_to_dashboard(target) {
 			<?php } ?>
 			<?php if(strpos($on_security, ',drop_off_analysis,') !== FALSE) { ?>
 			<tr data-dashboard='<?= (in_array('drop_off_analysis', $dashboard_list) ? 'current' : '') ?>'>
-				<td data-title="Comment">Dropoff Analysis</td>
+				<td data-title="Comment">Drop Off Analysis</td>
 				<?php echo security_tile_config_function('drop_off_analysis', get_privileges($dbc, 'drop_off_analysis',$level), 0, $level_url); ?>
 			</tr>
 			<?php } ?>
@@ -908,7 +932,7 @@ function go_to_dashboard(target) {
 		<?php endif; ?>
 
 		<?php if(strpos($section_display,',project_management,') !== FALSE): ?>
-			<tr><th colspan='14'><div style='text-align:left;width:100%;font-size:20px;'><?= PROJECT_TILE ?> Management:</div></th></tr>
+			<thead><tr><th colspan='14'><div style='text-align:left;width:100%;font-size:20px;'><?= PROJECT_TILE ?> Management:</div></th></tr></thead>
 
 			<?php if(strpos($on_security, ',addendum,') !== FALSE) { ?>
 			<tr data-dashboard='<?= (in_array('addendum', $dashboard_list) ? 'current' : '') ?>'>
@@ -1086,11 +1110,21 @@ function go_to_dashboard(target) {
 			<?php if(strpos($on_security, ',ticket,') !== FALSE) { ?>
 			<tr data-dashboard='<?= (in_array('ticket', $dashboard_list) ? 'current' : '') ?>'>
 				<td data-title="Comment"><?= TICKET_TILE ?></td>
-				<?php echo security_tile_config_function('ticket', get_privileges($dbc, 'ticket',$level), 1, $level_url, 1, 0, 0, 1); ?>
+				<?php echo security_tile_config_function('ticket', get_privileges($dbc, 'ticket',$level), 1, $level_url, 1, 1, 0, 1); ?>
 			</tr>
 			<?php } ?>
-			<?php $ticket_types = array_filter(explode(',', get_config($dbc, 'ticket_tabs')));
-			foreach($ticket_types as $ticket_type) {
+			<?php $ticket_type_tile_list = get_config($dbc, 'ticket_type_tiles');
+            if($ticket_type_tile_list == 'SHOW') {
+                $ticket_type_tiles = array_filter(explode(',', get_config($dbc, 'ticket_tabs')));
+            } else {
+                $ticket_type_tiles = [];
+                foreach(explode(',', get_config($dbc, 'ticket_tabs')) as $ticket_type) {
+                    if(in_array(config_safe_str($ticket_type),explode(',',$ticket_type_tile_list))) {
+                        $ticket_type_tiles[] = $ticket_type;
+                    }
+                }
+            }
+			foreach($ticket_type_tiles as $ticket_type) {
 				if(strpos($on_security, ',ticket,') !== FALSE) { ?>
 					<tr data-dashboard='<?= (in_array('ticket#*#'.$ticket_type, $dashboard_list) ? 'current' : '') ?>'>
 						<td data-title="Comment"><?= TICKET_TILE.': '.$ticket_type ?></td>
@@ -1098,17 +1132,17 @@ function go_to_dashboard(target) {
 					</tr>
 				<?php }
 			} ?>
-			<?php //if(strpos($on_security, ',work_order,') !== FALSE) { ?>
-			<!--
-            <tr data-dashboard='<?//= (in_array('work_order', $dashboard_list) ? 'current' : '') ?>'>
-				<td data-title="Comment">Work Orders</td>
-				<?php //echo security_tile_config_function('work_order', get_privileges($dbc, 'work_order',$level), 0, $level_url); ?>
-			</tr>
-            -->
-			<?php //} ?>
+            <?php $ticket_group_tiles = $dbc->query("SELECT `value` FROM `general_configuration` WHERE `name` LIKE 'ticket_split_tiles_%'");
+            while($ticket_group_tile = $ticket_group_tiles->fetch_assoc()['value']) {
+                $ticket_group_tile = explode('#*#',$ticket_group_tile); ?>
+                <tr data-dashboard='<?= (in_array('ticket#*#'.$ticket_type, $dashboard_list) ? 'current' : '') ?>'>
+                    <td data-title="Comment"><?= TICKET_NOUN.' Group: '.$ticket_group_tile[0] ?></td>
+                    <?php echo security_tile_config_function('ticket_tile_'.config_safe_str($ticket_group_tile[0]), get_privileges($dbc, 'ticket_tile_'.config_safe_str($ticket_group_tile[0]), $level), 0, $level_url, 1); ?>
+                </tr>
+            <?php } ?>
 		<?php endif; ?>
 		<?php if(strpos($section_display,',safety,') !== FALSE): ?>
-			<tr><th colspan='14'><div style='text-align:left;width:100%;font-size:20px;'>Safety:</div></th></tr>
+			<thead><tr><th colspan='14'><div style='text-align:left;width:100%;font-size:20px;'>Safety:</div></th></tr></thead>
 
 			<?php if(strpos($on_security, ',driving_log,') !== FALSE) { ?>
 			<tr data-dashboard='<?= (in_array('driving_log', $dashboard_list) ? 'current' : '') ?>'>
@@ -1137,7 +1171,7 @@ function go_to_dashboard(target) {
 		<?php endif; ?>
 
 		<?php if(strpos($section_display,',point_of_sale,') !== FALSE): ?>
-			<tr><th colspan='14'><div style='text-align:left;width:100%;font-size:20px;'>Point of Sale:</div></th></tr>
+			<thead><tr><th colspan='14'><div style='text-align:left;width:100%;font-size:20px;'><?= POS_ADVANCE_TILE ?>:</div></th></tr></thead>
 
 			<?php if(strpos($on_security, ',check_in,') !== FALSE) { ?>
 			<tr data-dashboard='<?= (in_array('check_in', $dashboard_list) ? 'current' : '') ?>'>
@@ -1175,21 +1209,15 @@ function go_to_dashboard(target) {
 				<?php echo security_tile_config_function('package', get_privileges($dbc, 'package',$level), 0, $level_url); ?>
 			</tr>
 			<?php } ?>
-			<?php if(strpos($on_security, ',pos,') !== FALSE) { ?>
-			<tr data-dashboard='<?= (in_array('pos', $dashboard_list) ? 'current' : '') ?>'>
-				<td data-title="Comment">Point of Sale (Basic)</td>
-				<?php echo security_tile_config_function('pos', get_privileges($dbc, 'pos',$level), 1, $level_url); ?>
-			</tr>
-			<?php } ?>
 			<?php if(strpos($on_security, ',posadvanced,') !== FALSE) { ?>
 			<tr data-dashboard='<?= (in_array('posadvanced', $dashboard_list) ? 'current' : '') ?>'>
-				<td data-title="Comment">Point of Sale</td>
+				<td data-title="Comment"><?= POS_ADVANCE_TILE ?></td>
 				<?php echo security_tile_config_function('posadvanced', get_privileges($dbc, 'posadvanced',$level), 1, $level_url); ?>
 			</tr>
 			<?php } ?>
 			<?php if(strpos($on_security, ',promotion,') !== FALSE) { ?>
 			<tr data-dashboard='<?= (in_array('promotion', $dashboard_list) ? 'current' : '') ?>'>
-				<td data-title="Comment">Promotions</td>
+				<td data-title="Comment">Promotions & Coupons</td>
 				<?php echo security_tile_config_function('promotion', get_privileges($dbc, 'promotion',$level), 0, $level_url); ?>
 			</tr>
 			<?php } ?>
@@ -1208,7 +1236,7 @@ function go_to_dashboard(target) {
 		<?php endif; ?>
 
 		<?php if(strpos($section_display,',crm,') !== FALSE): ?>
-			<tr><th colspan='14'><div style='text-align:left;width:100%;font-size:20px;'>Customer Relationship Management:</div></th></tr>
+			<thead><tr><th colspan='14'><div style='text-align:left;width:100%;font-size:20px;'>Customer Relationship Management:</div></th></tr></thead>
 
 			<?php if(strpos($on_security, ',confirmation,') !== FALSE) { ?>
 			<tr data-dashboard='<?= (in_array('confirmation', $dashboard_list) ? 'current' : '') ?>'>
@@ -1256,7 +1284,7 @@ function go_to_dashboard(target) {
 
         <!-- Analytics -->
 		<?php if(strpos($section_display,',analytics,') !== FALSE): ?>
-			<tr><th colspan='14'><div style='text-align:left;width:100%;font-size:20px;'>Analytics:</div></th></tr>
+			<thead><tr><th colspan='14'><div style='text-align:left;width:100%;font-size:20px;'>Analytics:</div></th></tr></thead>
 
 			<?php if(strpos($on_security, ',report,') !== FALSE) { ?>
 			<tr data-dashboard='<?= (in_array('report', $dashboard_list) ? 'current' : '') ?>'>
@@ -1268,7 +1296,7 @@ function go_to_dashboard(target) {
 
         <!-- Communication -->
 		<?php if(strpos($section_display,',communication,') !== FALSE): ?>
-			<tr><th colspan='14'><div style='text-align:left;width:100%;font-size:20px;'>Communication:</div></th></tr>
+			<thead><tr><th colspan='14'><div style='text-align:left;width:100%;font-size:20px;'>Communication:</div></th></tr></thead>
 
 			<?php if(strpos($on_security, ',non_verbal_communication,') !== FALSE) { ?>
 			<tr data-dashboard='<?= (in_array('non_verbal_communication', $dashboard_list) ? 'current' : '') ?>'>

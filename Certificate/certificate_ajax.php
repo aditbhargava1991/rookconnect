@@ -15,6 +15,22 @@ if($_GET['action'] == 'update_field') {
 		mysqli_query($dbc, "INSERT INTO `$table` (`$field`".($attach > 0 ? ",`$attach_field`" : '').($table == 'certificate_uploads' ? ",`type`" : '').") VALUES ('$value'".($attach > 0 ? ",'$attach'" : '').($table == 'certificate_uploads' ? ",'Link'" : '').")");
 		echo mysqli_insert_id($dbc);
 	}
+	$new_value = filter_var($_POST['new_value'],FILTER_SANITIZE_STRING);
+	if($new_value == 1) {
+		if($field == 'certificate_type') {
+			$certificate_types = array_filter(explode('#*#',get_config($dbc, 'certificate_types')));
+			if(!in_array($value,$certificate_types)) {
+				$certificate_types[] = $value;
+				set_config($dbc, 'certificate_types', implode('#*#',$certificate_types));
+			}
+		} else if($field == 'category') {
+			$certificate_categories = array_filter(explode('#*#',get_config($dbc, 'certificate_categories')));
+			if(!in_array($value,$certificate_categories)) {
+				$certificate_categories[] = $value;
+				set_config($dbc, 'certificate_categories', implode('#*#',$certificate_categories));
+			}
+		}
+	}
 } else if($_GET['action'] == 'add_file') {
 	$table = filter_var($_POST['table'],FILTER_SANITIZE_STRING);
 	$attach = filter_var($_POST['attached'],FILTER_SANITIZE_STRING);

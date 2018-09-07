@@ -4,12 +4,21 @@
         $subtab_shared = ','.implode(',',$_POST['subtab_shared']).',';
         $subtabid = $_POST['subtabid'];
 
+        $before_change = capture_before_change($dbc, 'checklist_subtab', 'name', 'subtabid', $subtabid);
+        $before_change .= capture_before_change($dbc, 'checklist_subtab', 'shared', 'subtabid', $subtabid);
+
         $query_update_subtab = "UPDATE `checklist_subtab` SET `name` = '$subtab_name', `shared` = '$subtab_shared' WHERE `subtabid` = '$subtabid'";
         $result_update_subtab = mysqli_query($dbc, $query_update_subtab);
 
         $report = decryptIt($_SESSION['first_name']).' '.decryptIt($_SESSION['last_name']).' Updated Checklist Sub Tab <b>'.$subtab_name.'</b> on '.date('Y-m-d');
         $query_insert_ca = "INSERT INTO `checklist_report` (`report`, `user`, `date`, `checklist_name`, `subtab_name`, `checklist_type`, `checklistid`, `subtabid`) VALUES ('$report', '".decryptIt($_SESSION['first_name'])." ".decryptIt($_SESSION['last_name'])."', '".date('Y-m-d')."', '', '$subtab_name', '', '', '$subtabid')";
         $result_insert_ca = mysqli_query($dbc, $query_insert_ca);
+
+        $start_word = strpos($report, "Updated");
+        $end_word = strpos($report, " on");
+        $history = substr($report, $start_word, $end_word - $start_word) . "<br />";
+        add_update_history($dbc, 'checklist_history', $history, '', $before_change);
+
     } else {
         $subtab_name = $_POST['new_subtab'];
         $subtab_shared = ','.implode(',',$_POST['subtab_shared']).',';
@@ -36,12 +45,21 @@
         $result = mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'checklist_tabs_" . $_SESSION['contactid'] . "' FROM (SELECT COUNT(*) numrows FROM `general_configuration` WHERE `name`='checklist_tabs_" . $_SESSION['contactid'] . "') current_config WHERE numrows=0");
         $query_tab_config = "UPDATE `general_configuration` SET `value` = CONCAT(`value`, '$update_tab_config') WHERE `name` = 'checklist_tabs_" . $_SESSION['contactid'] . "'";
         $result_tab_config = mysqli_query($dbc, $query_tab_config);
+
+        $before_change = '';
+        $start_word = strpos($report, "Updated");
+        $end_word = strpos($report, " on");
+        $history = substr($report, $start_word, $end_word - $start_word) . "<br />";
+        add_update_history($dbc, 'checklist_history', $history, '', $before_change);
     }
 
     echo '<script type="text/javascript"> window.location.replace("?"); </script>';
 } ?>
-<h2><a href="?" class="show-on-mob"><img src="../img/icons/ROOK-back-icon.png" style="height:2em;"></a>
-<?= ($_GET['edittab'] > 0 ? 'Edit Category' : 'Add New Category') ?></h2>
+<div class="standard-body-title">
+    <h3><a href="?" class="show-on-mob"><img src="../img/icons/ROOK-back-icon.png" style="height:2em;"></a>
+    <?= ($_GET['edittab'] > 0 ? 'Edit Category' : 'Add New Category') ?></h3>
+</div>
+<div class="standard-body-content padded">
 <form id="form1" name="form1" method="post" action="" enctype="multipart/form-data" class="form-horizontal" role="form">
 
 <?php if($_GET['edittab'] != 'NEW') {
@@ -105,14 +123,13 @@ function changeSubTabShared(select) {
 </div>
 
 <div class="form-group clearfix">
-	<div class="col-sm-3 pull-left">
+	<div class="pull-right">
+		<button name="submit" value="submit" class="btn brand-btn pull-right">Submit</button>
+		<span class="popover-examples list-inline pull-right" style="margin:5px 5px 0 5px;"><a data-toggle="tooltip" data-placement="top" title="Click here to save the Checklist Sub Tab."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
 		<span class="popover-examples list-inline" style="margin:0 3px 0 0;"><a data-toggle="tooltip" data-placement="top" title="If you click this, the current Sub Tab will not be saved."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
-		<a href="checklist.php" class="btn brand-btn btn-lg">Back</a>
-	</div>
-	<div class="col-sm-3 pull-right">
-		<button name="submit" value="submit" class="btn brand-btn btn-lg pull-right">Submit</button>
-		<span class="popover-examples list-inline pull-right" style="margin:15px 5px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Click here to save the Checklist Sub Tab."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
+		<a href="checklist.php" class="btn brand-btn">Cancel</a>
 	</div>
 </div>
 
 </form>
+</div>

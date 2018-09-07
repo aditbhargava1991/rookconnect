@@ -35,20 +35,24 @@ if (isset($_POST['submit'])) {
 		$businesscontactid = str_replace('New Contact','',$businesscontactid).','.$newcontid;
 	}
 
-
     $companycontactid = ','.implode(',',$_POST['companycontactid']).',';
     $new_contact = filter_var($_POST['new_contact'],FILTER_SANITIZE_STRING);
     $date_of_meeting = filter_var($_POST['date_of_meeting'],FILTER_SANITIZE_STRING);
     $time_of_meeting = filter_var($_POST['time_of_meeting'],FILTER_SANITIZE_STRING);
     $end_time_of_meeting = filter_var($_POST['end_time_of_meeting'],FILTER_SANITIZE_STRING);
     $location = filter_var($_POST['location'],FILTER_SANITIZE_STRING);
+    $heading = filter_var($_POST['heading'],FILTER_SANITIZE_STRING);
     $meeting_requested_by = filter_var($_POST['meeting_requested_by'],FILTER_SANITIZE_STRING);
-    $meeting_objective = filter_var($_POST['meeting_objective'],FILTER_SANITIZE_STRING);
+    $meeting_objective = filter_var(htmlentities($_POST['meeting_objective']),FILTER_SANITIZE_STRING);
     $items_to_bring = filter_var($_POST['items_to_bring'],FILTER_SANITIZE_STRING);
     $projectid = implode(',',$_POST['projectid']);
     $servicecategory = implode('*#*',$_POST['servicecategory']);
-    $agenda_topic = filter_var($_POST['agenda_topic'],FILTER_SANITIZE_STRING);
-    $agenda_note = filter_var(htmlentities($_POST['agenda_note']),FILTER_SANITIZE_STRING);
+    $agenda_topic = implode('##FFM##',$_POST['agenda_topic']);
+    $ag_note = implode('##FFM##',$_POST['agenda_note']);
+    $agenda_note = filter_var(htmlentities($ag_note),FILTER_SANITIZE_STRING);
+
+   // $agenda_topic = filter_var($_POST['agenda_topic'],FILTER_SANITIZE_STRING);
+   // $agenda_note = filter_var(htmlentities($_POST['agenda_note']),FILTER_SANITIZE_STRING);
     $qa_ticket = implode(',',$_POST['qa_ticket']);
     $agenda_email_business = implode(',',$_POST['agenda_email_business']);
     $agenda_email_company = implode(',',$_POST['agenda_email_company']);
@@ -66,7 +70,9 @@ if (isset($_POST['submit'])) {
     if($_POST['other_location'] != '') {
         $location = filter_var($_POST['other_location'],FILTER_SANITIZE_STRING);
     }
-
+    if($_POST['other_heading'] != '') {
+        $heading = filter_var($_POST['other_heading'],FILTER_SANITIZE_STRING);
+    }
     $new_status = $_POST['new_status'];
 
     if($new_status == 'Pending') {
@@ -84,15 +90,15 @@ if (isset($_POST['submit'])) {
     $subcommittee = filter_var($_POST['subcommittee'],FILTER_SANITIZE_STRING);
 
     if(empty($_POST['agendameetingid'])) {
-        $query_insert_asset = "INSERT INTO `agenda_meeting` (`type`, `businessid`, `businesscontactid`, `companycontactid`, `new_contact`,	`date_of_meeting`, `time_of_meeting`, `end_time_of_meeting`, `location`, `meeting_requested_by`, `meeting_objective`, `items_to_bring`, `projectid`, `servicecategory`, `agenda_topic`, `agenda_note`, `qa_ticket`, `agenda_email_business`, `agenda_email_company`, `agenda_additional_email`, `status`, `meeting_topic`, `meeting_note`, `businesscontactemailid`, `companycontactemailid`, `new_emailid`, `client_deliverables`, `company_deliverables`, `subcommittee`
-        ) VALUES ('Agenda', '$businessid', '$businesscontactid', '$companycontactid', '$new_contact', '$date_of_meeting', '$time_of_meeting', '$end_time_of_meeting', '$location', '$meeting_requested_by', '$meeting_objective', '$items_to_bring', '$projectid', '$servicecategory', '$agenda_topic', '$agenda_note', '$qa_ticket', '$agenda_email_business', '$agenda_email_company', '$agenda_additional_email', '$status', '$meeting_topic', '$meeting_note', '$businesscontactemailid', '$companycontactemailid', '$new_emailid', '$client_deliverables', '$company_deliverables', '$subcommittee')";
+        $query_insert_asset = "INSERT INTO `agenda_meeting` (`type`, `businessid`, `businesscontactid`, `companycontactid`, `new_contact`,	`date_of_meeting`, `time_of_meeting`, `end_time_of_meeting`, `location`, `heading`, `meeting_requested_by`, `meeting_objective`, `items_to_bring`, `projectid`, `servicecategory`, `agenda_topic`, `agenda_note`, `qa_ticket`, `agenda_email_business`, `agenda_email_company`, `agenda_additional_email`, `status`, `meeting_topic`, `meeting_note`, `businesscontactemailid`, `companycontactemailid`, `new_emailid`, `client_deliverables`, `company_deliverables`, `subcommittee`
+        ) VALUES ('Agenda', '$businessid', '$businesscontactid', '$companycontactid', '$new_contact', '$date_of_meeting', '$time_of_meeting', '$end_time_of_meeting', '$location', '$heading', '$meeting_requested_by', '$meeting_objective', '$items_to_bring', '$projectid', '$servicecategory', '$agenda_topic', '$agenda_note', '$qa_ticket', '$agenda_email_business', '$agenda_email_company', '$agenda_additional_email', '$status', '$meeting_topic', '$meeting_note', '$businesscontactemailid', '$companycontactemailid', '$new_emailid', '$client_deliverables', '$company_deliverables', '$subcommittee')";
         $result_insert_asset = mysqli_query($dbc, $query_insert_asset);
         $agendameetingid = mysqli_insert_id($dbc);
         $url = 'Added';
 		$project_history .= ($project_history == '' ? '' : '<br />').get_contact($dbc, $_SESSION['contactid']).' created Meeting (#'.$agendameetingid.') for '.$meeting_objective.' regarding '.$agenda_topic.' at '.date('Y-m-d H:i');
     } else {
         $agendameetingid = $_POST['agendameetingid'];
-        $query_update_asset = "UPDATE `agenda_meeting` SET `businessid` = '$businessid', `businesscontactid` = '$businesscontactid', `companycontactid` = '$companycontactid', `new_contact` = '$new_contact', `date_of_meeting`	= '$date_of_meeting', `time_of_meeting`	= '$time_of_meeting', `end_time_of_meeting`	= '$end_time_of_meeting', `location`	= '$location', `meeting_requested_by` = '$meeting_requested_by', `meeting_objective` = '$meeting_objective', `items_to_bring` = '$items_to_bring', `projectid` = '$projectid', `servicecategory`	= '$servicecategory', `agenda_topic` = '$agenda_topic', `agenda_note` = '$agenda_note', `qa_ticket` = '$qa_ticket', `agenda_email_business` = '$agenda_email_business', `agenda_email_company` = '$agenda_email_company', `agenda_additional_email` = '$agenda_additional_email', `status` = '$status', `meeting_topic` = '$meeting_topic', `meeting_note` = '$meeting_note', `businesscontactemailid` = '$businesscontactemailid', `companycontactemailid` = '$companycontactemailid', `new_emailid` = '$new_emailid', `client_deliverables` = '$client_deliverables', `company_deliverables` = '$company_deliverables', `subcommittee` = '$subcommittee' WHERE `agendameetingid` = '$agendameetingid'";
+        $query_update_asset = "UPDATE `agenda_meeting` SET `businessid` = '$businessid', `businesscontactid` = '$businesscontactid', `companycontactid` = '$companycontactid', `new_contact` = '$new_contact', `date_of_meeting`	= '$date_of_meeting', `time_of_meeting`	= '$time_of_meeting', `end_time_of_meeting`	= '$end_time_of_meeting', `location`	= '$location', `heading` = '$heading', `meeting_requested_by` = '$meeting_requested_by', `meeting_objective` = '$meeting_objective', `items_to_bring` = '$items_to_bring', `projectid` = '$projectid', `servicecategory`	= '$servicecategory', `agenda_topic` = '$agenda_topic', `agenda_note` = '$agenda_note', `qa_ticket` = '$qa_ticket', `agenda_email_business` = '$agenda_email_business', `agenda_email_company` = '$agenda_email_company', `agenda_additional_email` = '$agenda_additional_email', `status` = '$status', `meeting_topic` = '$meeting_topic', `meeting_note` = '$meeting_note', `businesscontactemailid` = '$businesscontactemailid', `companycontactemailid` = '$companycontactemailid', `new_emailid` = '$new_emailid', `client_deliverables` = '$client_deliverables', `company_deliverables` = '$company_deliverables', `subcommittee` = '$subcommittee' WHERE `agendameetingid` = '$agendameetingid'";
 		$result_update_asset = mysqli_query($dbc, $query_update_asset);
 		$project_history .= ($project_history == '' ? '' : '<br />').get_contact($dbc, $_SESSION['contactid']).' updated Meeting (#'.$agendameetingid.') for '.$meeting_objective.' regarding '.$agenda_topic.' at '.date('Y-m-d H:i');
         $url = 'Updated';
@@ -137,7 +143,12 @@ if (isset($_POST['submit'])) {
 
 		if($email_send != '') {
 			$business = get_client($dbc, $businessid);
-			$subject = $_POST['email_subject'];
+
+            if($heading != '') {
+                $subject = $heading;
+            } else {
+			    $subject = $_POST['email_subject'];
+            }
 
 			$custom_body = html_entity_decode(str_replace(['[Business]','[Date]','[Start]','[End]','[Location]'],
 				[$business, $date_of_meeting, $time_of_meeting, $end_time_of_meeting, $location],
@@ -153,10 +164,13 @@ if (isset($_POST['submit'])) {
 				$email_body .= '<tr><td style="font-weight:bold; vertical-align:top; width:12em;">Contact(s) :</td><td>'.get_multiple_contact($dbc, $businesscontactid.',').'</td></tr>';
 			}
 			if($companycontactid != '') {
-				$email_body .= '<tr><td style="font-weight:bold; vertical-align:top; width:12em;">Company Attendees :</td><td>'.get_multiple_contact($dbc, $companycontactid.',').'</td></tr>';
+				$email_body .= '<tr><td style="font-weight:bold; vertical-align:top; width:12em;">Staff Members :</td><td>'.get_multiple_contact($dbc, $companycontactid.',').'</td></tr>';
 			}
 			if($new_contact != '') {
 				$email_body .= '<tr><td style="font-weight:bold; vertical-align:top; width:12em;">New Contact :</td><td>'.$new_contact.'</td></tr>';
+			}
+			if($heading != '') {
+				$email_body .= '<tr><td style="font-weight:bold; vertical-align:top; width:12em;">Heading :</td><td>'.$heading.'</td></tr>';
 			}
 			if($subcommittee != '') {
 				$email_body .= '<tr><td style="font-weight:bold; vertical-align:top; width:12em;">Sub-Committee :</td><td>'.$subcommittee.'</td></tr>';
@@ -193,10 +207,10 @@ if (isset($_POST['submit'])) {
 				$email_body .= '<tr><td style="font-weight:bold; vertical-align:top; width:12em;">Service(s) :</td><td>'.$servicecategory.'</td></tr>';
 			}
 			if($agenda_topic != '') {
-				$email_body .= '<tr><td style="font-weight:bold; vertical-align:top; width:12em;">Agenda Topic(s) :</td><td>'.$agenda_topic.'</td></tr>';
+				$email_body .= '<tr><td style="font-weight:bold; vertical-align:top; width:12em;">Agenda Topic(s) :</td><td>'.		str_replace('##FFM##', '<br>', $agenda_topic).'</td></tr>';
 			}
 			if($agenda_note != '') {
-				$email_body .= '<tr><td style="font-weight:bold; vertical-align:top; width:12em;">Agenda Note :</td><td>'.html_entity_decode($agenda_note).'</td></tr>';
+				$email_body .= '<tr><td style="font-weight:bold; vertical-align:top; width:12em;">Agenda Note :</td><td>'.html_entity_decode(str_replace('##FFM##', '<br><br>', $agenda_note)).'</td></tr>';
 			}
 			if($qa_ticket != '') {
 				$email_body .= '<tr><td style="font-weight:bold; vertical-align:top; width:12em;">'.TICKET_TILE.' Waiting for QA :</td><td>'.get_multiple_ticket($dbc, $qa_ticket.',').'</td></tr>';
@@ -257,10 +271,13 @@ if (isset($_POST['submit'])) {
 				$email_body .= '<tr><td style="font-weight:bold; vertical-align:top; width:12em;">Contact(s) :</td><td>'.get_multiple_contact($dbc, $businesscontactid.',').'</td></tr>';
 			}
 			if($companycontactid != '') {
-				$email_body .= '<tr><td style="font-weight:bold; vertical-align:top; width:12em;">Company Attendees :</td><td>'.get_multiple_contact($dbc, $companycontactid.',').'</td></tr>';
+				$email_body .= '<tr><td style="font-weight:bold; vertical-align:top; width:12em;">Staff Members :</td><td>'.get_multiple_contact($dbc, $companycontactid.',').'</td></tr>';
 			}
 			if($new_contact != '') {
 				$email_body .= '<tr><td style="font-weight:bold; vertical-align:top; width:12em;">New Contact :</td><td>'.$new_contact.'</td></tr>';
+			}
+			if($heading != '') {
+				$email_body .= '<tr><td style="font-weight:bold; vertical-align:top; width:12em;">Heading :</td><td>'.$heading.'</td></tr>';
 			}
 			if($subcommittee != '') {
 				$email_body .= '<tr><td style="font-weight:bold; vertical-align:top; width:12em;">Sub-Committee :</td><td>'.$subcommittee.'</td></tr>';
@@ -347,12 +364,23 @@ if (isset($_POST['submit'])) {
 <script type="text/javascript">
 $(document).ready(function () {
     $(".other_location").hide();
+    $(".other_heading").hide();
     $(".location").change(function(){
     $(this).find("option:selected").each(function(){
                 if($(this).attr("value")=="Other"){
                     $(".other_location").show();
                 } else {
                     $(".other_location").hide();
+                }
+    });
+    }).change();
+
+    $(".heading").change(function(){
+    $(this).find("option:selected").each(function(){
+                if($(this).attr("value")=="Other"){
+                    $(".other_heading").show();
+                } else {
+                    $(".other_heading").hide();
                 }
     });
     }).change();
@@ -396,9 +424,15 @@ $back_url = (empty($_GET['from']) ? 'agenda.php' : urldecode($_GET['from']));
 <div class="container">
   <div class="row">
 
-    <h1>Agendas</h1>
+    <h3 class="gap-left pull-left">Agendas</h3>
+    <?php if ( isset($_GET['projectid']) ) { ?>
+        <div class="pull-right offset-top-15"><a href=""><img src="../img/icons/ROOK-status-rejected.jpg" alt="Close" title="Close" class="inline-img" /></a></div>
+    <?php } ?>
+    <div class="clearfix"></div>
 
-	<div class="gap-top double-gap-bottom"><a href="<?php echo $back_url; ?>" class="btn config-btn">Back to Dashboard</a></div>
+	<?php if ( !isset($_GET['projectid']) ) { ?>
+        <div class="gap-top double-gap-bottom"><a href="<?php echo $back_url; ?>" class="btn config-btn">Back to Dashboard</a></div>
+    <?php } ?>
 
     <form id="form1" name="form1" method="post"	action="" enctype="multipart/form-data" class="form-horizontal" role="form">
 
@@ -411,7 +445,8 @@ $back_url = (empty($_GET['from']) ? 'agenda.php' : urldecode($_GET['from']));
     $time_of_meeting = '';
     $end_time_of_meeting = '';
     $location = '';
-    $meeting_requested_by = '';
+     $heading = '';
+   $meeting_requested_by = '';
     $meeting_objective = '';
     $items_to_bring = '';
     $projectid = (!empty($_GET['projectid']) ? $_GET['projectid'] : '');
@@ -446,13 +481,14 @@ $back_url = (empty($_GET['from']) ? 'agenda.php' : urldecode($_GET['from']));
         $time_of_meeting = $get_asset['time_of_meeting'];
         $end_time_of_meeting = $get_asset['end_time_of_meeting'];
         $location = $get_asset['location'];
+        $heading = $get_asset['heading'];
         $meeting_requested_by = $get_asset['meeting_requested_by'];
         $meeting_objective = $get_asset['meeting_objective'];
         $items_to_bring = $get_asset['items_to_bring'];
         $projectid = $get_asset['projectid'];
         $servicecategory = $get_asset['servicecategory'];
-        $agenda_topic = $get_asset['agenda_topic'];
-        $agenda_note = $get_asset['agenda_note'];
+        $agenda_topic = $get_asset['agenda_topic'].'##FFM##';
+        $agenda_note = $get_asset['agenda_note'].'##FFM##';
         $qa_ticket = $get_asset['qa_ticket'];
         $agenda_email_business = $get_asset['agenda_email_business'];
         $agenda_email_company = $get_asset['agenda_email_company'];
@@ -477,7 +513,7 @@ $back_url = (empty($_GET['from']) ? 'agenda.php' : urldecode($_GET['from']));
 	} ?>
     <input type="hidden" name="new_status" value="<?php echo $status; ?>" />
 
-<div class="panel-group" id="accordion2">
+<div class="panel-group <?= !empty($projectid) ? 'block-panels main-screen' : '' ?>" id="accordion2" <?= !empty($projectid) ? 'style="background-color: #fff; padding: 0; margin-left: 0.5em; width: calc(100% - 1em);"' : '' ?>>
 
         <div class="panel panel-default">
             <div class="panel-heading">
@@ -722,34 +758,65 @@ $back_url = (empty($_GET['from']) ? 'agenda.php' : urldecode($_GET['from']));
 
     </div>
 
-		<div class="form-group">
+		<!--
+        <div class="form-group">
 			<p><span class="brand-color"><em>Required Fields *</em></span></p>
 		</div>
+        -->
 
-		<div class="form-group">
-			<div class="col-sm-4">
-				<span class="popover-examples" style="margin:15px 0 0 0;"><a data-toggle="tooltip" data-placement="top" title="Clicking this will discard your changes."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
-				<a href="<?php echo $back_url; ?>" class="btn brand-btn btn-lg">Back</a>
-			</div>
-			<div class="col-sm-8">
-				<?php if($status == 'Pending') { ?>
-					<button	type="submit" name="submit"	value="Submit" class="btn brand-btn btn-lg pull-right">Approve and Email Agendas</button>
-					<span class="popover-examples pull-right" style="margin:15px 5px 0 15px;"><a data-toggle="tooltip" data-placement="top" title="Click here to submit changes and email any added contacts."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
-				<?php } else if($status == 'Approve') { ?>
-					<button	type="submit" name="submit"	value="Submit" class="btn brand-btn btn-lg pull-right">Create Meeting and Email</button>
-					<span class="popover-examples pull-right" style="margin:15px 5px 0 15px;"><a data-toggle="tooltip" data-placement="top" title="Click here to submit changes and email any added contacts."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
-				<?php } else { ?>
-					<button	type="submit" name="submit"	value="Submit" class="btn brand-btn btn-lg pull-right">Update Agendas</button>
-					<span class="popover-examples pull-right" style="margin:15px 5px 0 15px;"><a data-toggle="tooltip" data-placement="top" title="Click here to submit changes and email any added contacts."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
-				<?php } ?>
+		<?php if ( isset($_GET['projectid']) ) { ?>
+            <div class="form-group">
+                <div class="pull-right">
+                    <?php if($status == 'Pending') { ?>
+                        <button	type="submit" name="submit"	value="Submit" class="btn brand-btn pull-right">Approve and Email Agendas</button>
+                        <span class="popover-examples pull-right" style="margin:5px 5px 0 5px;"><a data-toggle="tooltip" data-placement="top" title="Click here to submit changes and email any added contacts."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
+                    <?php } else if($status == 'Approve') { ?>
+                        <button	type="submit" name="submit"	value="Submit" class="btn brand-btn pull-right">Create Meeting and Email</button>
+                        <span class="popover-examples pull-right" style="margin:5px 5px 0 5px;"><a data-toggle="tooltip" data-placement="top" title="Click here to submit changes and email any added contacts."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
+                    <?php } else { ?>
+                        <button	type="submit" name="submit"	value="Submit" class="btn brand-btn pull-right">Update Agendas</button>
+                        <span class="popover-examples pull-right" style="margin:5px 5px 0 5px;"><a data-toggle="tooltip" data-placement="top" title="Click here to submit changes and email any added contacts."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
+                    <?php } ?>
+                </div>
+                <div class="pull-right">
+                    <button	type="submit" name="submit"	value="Save" class="btn brand-btn pull-right">Save<?= ($status == 'Pending' || $status == 'Approve' ? ' and Email' : '') ?> Agendas</button>
+                    <span class="popover-examples pull-right" style="margin:5px 5px 0 5px;"><a data-toggle="tooltip" data-placement="top" title="Click here to save, in order to make changes later on."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
+                </div>
+                <div class="pull-right">
+                    <button	type="submit" name="submit"	value="temp_save" class="btn brand-btn pull-right">Save</button>
+                    <span class="popover-examples pull-right" style="margin:5px 5px 0 5px;"><a data-toggle="tooltip" data-placement="top" title="Click here to save Agenda without sending an email."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
+                </div>
+                <div class="pull-right">
+                    <span class="popover-examples" style="margin:5px 5px 0 5px;"><a data-toggle="tooltip" data-placement="top" title="Clicking this will discard your changes."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
+                    <a href="" class="btn brand-btn">Cancel</a>
+                </div>
+            </div>
+        <?php } else { ?>
+            <div class="form-group">
+                <div class="col-sm-4">
+                    <span class="popover-examples" style="margin:15px 0 0 0;"><a data-toggle="tooltip" data-placement="top" title="Clicking this will discard your changes."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
+                    <a href="<?php echo $back_url; ?>" class="btn brand-btn btn-lg">Back</a>
+                </div>
+                <div class="col-sm-8">
+                    <?php if($status == 'Pending') { ?>
+                        <button	type="submit" name="submit"	value="Submit" class="btn brand-btn btn-lg pull-right">Approve and Email Agendas</button>
+                        <span class="popover-examples pull-right" style="margin:15px 5px 0 15px;"><a data-toggle="tooltip" data-placement="top" title="Click here to submit changes and email any added contacts."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
+                    <?php } else if($status == 'Approve') { ?>
+                        <button	type="submit" name="submit"	value="Submit" class="btn brand-btn btn-lg pull-right">Create Meeting and Email</button>
+                        <span class="popover-examples pull-right" style="margin:15px 5px 0 15px;"><a data-toggle="tooltip" data-placement="top" title="Click here to submit changes and email any added contacts."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
+                    <?php } else { ?>
+                        <button	type="submit" name="submit"	value="Submit" class="btn brand-btn btn-lg pull-right">Update Agendas</button>
+                        <span class="popover-examples pull-right" style="margin:15px 5px 0 15px;"><a data-toggle="tooltip" data-placement="top" title="Click here to submit changes and email any added contacts."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
+                    <?php } ?>
 
-				<button	type="submit" name="submit"	value="Save" class="btn brand-btn btn-lg pull-right">Save<?= ($status == 'Pending' || $status == 'Approve' ? ' and Email' : '') ?> Agendas</button>
-				<span class="popover-examples pull-right" style="margin:15px 5px 0 15px;"><a data-toggle="tooltip" data-placement="top" title="Click here to save, in order to make changes later on."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
+                    <button	type="submit" name="submit"	value="Save" class="btn brand-btn btn-lg pull-right">Save<?= ($status == 'Pending' || $status == 'Approve' ? ' and Email' : '') ?> Agendas</button>
+                    <span class="popover-examples pull-right" style="margin:15px 5px 0 15px;"><a data-toggle="tooltip" data-placement="top" title="Click here to save, in order to make changes later on."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
 
-				<button	type="submit" name="submit"	value="temp_save" class="btn brand-btn btn-lg pull-right">Save</button>
-				<span class="popover-examples pull-right" style="margin:15px 5px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Click here to save Agenda without sending an email."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
-			</div>
-		</div>
+                    <button	type="submit" name="submit"	value="temp_save" class="btn brand-btn btn-lg pull-right">Save</button>
+                    <span class="popover-examples pull-right" style="margin:15px 5px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Click here to save Agenda without sending an email."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
+                </div>
+            </div>
+        <?php } ?>
 
 		</form>
 

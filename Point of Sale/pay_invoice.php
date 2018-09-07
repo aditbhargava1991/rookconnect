@@ -11,8 +11,15 @@ if (isset($_POST['submit_pay'])) {
 
     $var=explode(',',$all_invoiceid);
     foreach($var as $invoiceid) {
+        $before_change = capture_before_change($dbc, 'point_of_sell', 'payment_type', 'posid', $invoiceid);
+        $before_change .= capture_before_change($dbc, 'point_of_sell', 'status', 'posid', $invoiceid);
+
         $query_invoice = "UPDATE `point_of_sell` SET `payment_type` = '$payment_type', `status` = 'Completed' WHERE `posid` = '$invoiceid'";
         $result_invoice = mysqli_query($dbc, $query_invoice);
+
+        $history = capture_after_change('payment_type', $payment_type);
+        $history .= capture_after_change('status', 'Completed');
+        add_update_history($dbc, 'pos_history', $history, '', $before_change);
     }
     echo '<script type="text/javascript"> window.location.replace("unpaid_invoice.php"); </script>';
 }

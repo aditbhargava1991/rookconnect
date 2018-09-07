@@ -56,6 +56,10 @@ if (isset($_POST['submit'])) {
 		$query_log_inventory = "INSERT INTO `inventory_change_log` (`inventoryid`, `contactid`, `location_of_change`, `old_inventory`, `old_cost`, `changed_quantity`, `current_cost`, `new_inventory`, `new_cost`, `date_time`, `deleted`) VALUES ('{$inventoryid[$i]}', '$who_added', 'Inventory Shipment', '{$get_inv['quantity']}', '{$get_inv['average_cost']}', '$current_inventory[$i]', '$unit_cost[$i]', '$final_ur', '$average_cost', '$datetime', '0')";
         $result_update_inventory	= mysqli_query($dbc, $query_update_inventory) or die(mysqli_error($dbc));
 		$result_log = mysqli_query($dbc, $query_log_inventory);
+        $before_change = '';
+        $history = "Inventory with id $inventoryid is been Updated. <br />";
+		    add_update_history($dbc, 'inventory_history', $history, '', $before_change);
+
     }
 
     echo '<script type="text/javascript"> window.location.replace("receive_shipment.php"); </script>';
@@ -291,7 +295,7 @@ $(document).ready(function() {
 			</div>
 		  </div>
 
-        
+
 
 		</form>
 

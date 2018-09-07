@@ -29,7 +29,7 @@ if (isset($_POST['loginformsubmitted'])) {
 
         if($_POST['location'] != '') {
             $redirect = $_POST['location'];
-            header("Location:".WEBSITE_URL.$redirect);
+            header("Location:".WEBSITE_URL.str_replace(WEBSITE_URL,'',$redirect));
         } else {
 			$get_config_size = get_user_settings();
 			$newsb_red = $_SESSION['newsboard_menu_choice'] != NULL ? $get_config_size['newsboard_redirect'] : '';
@@ -85,7 +85,7 @@ if (isset($_POST['loginformsubmitted'])) {
 <body>
     <div class="login">
         <div class="middle">
-            
+
             <form role="form" action="index.php" method="post" class="registration_form triple-padded">
                 <?php
                     echo '<input type="hidden" name="location" value="';
@@ -111,13 +111,13 @@ if (isset($_POST['loginformsubmitted'])) {
                          <?php include('Navigation/social_media_links.php'); ?>
                     </ul>
                 </div>
-				
+
 				<?php if ( $msg ) { ?>
                     <div class="form-group double-gap-top">
                         <?= $msg ?>
                     </div>
 				<?php } ?>
-                
+
                 <div class="form-group">
                     <label for="name" class="h3 hp-red">Username:</label>
                     <?php

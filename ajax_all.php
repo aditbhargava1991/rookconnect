@@ -37,6 +37,10 @@ if($_GET['fill'] == 'tile_config' || $_GET['fill'] == 'admin_tile_config')
 			$sql = "INSERT INTO `security_privileges` (`tile`, `level`, `privileges`) SELECT '$name', '$level_name', '$value' FROM (SELECT COUNT(*) num FROM `security_privileges` WHERE `tile`='$name' AND `level`='$level_name') rows WHERE rows.num=0";
 			$result = mysqli_query($dbc, $sql);
 		}
+
+    $before_change = '';
+    $history = "Security Privileges have been added. <br />";
+    add_update_history($dbc, 'security_history', $history, '', $before_change);
 	}
 }
 if($_GET['fill'] == 'admin_tile_config') {
@@ -84,8 +88,14 @@ if($_GET['fill'] == 'tile_config') {
     mysqli_query($dbc,"INSERT INTO `tile_security` (`tile_name`) SELECT '$name' FROM (SELECT COUNT(*) rows FROM `tile_security` WHERE `tile_name`='$name') num WHERE num.rows=0");
 	if(!empty($turnOn) || $value == 'turn_on') {
 		$tile_SQL = "UPDATE `tile_security` SET `user_enabled`='1', `tile_history`=CONCAT(IFNULL(CONCAT(`tile_history`,'<br />'),''),'$history') WHERE `tile_name`='$name'";
+    $before_change = '';
+    $history = "User has been enable for tile $name. <br />";
+    add_update_history($dbc, 'security_history', $history, '', $before_change);
 	} else {
 		$tile_SQL = "UPDATE `tile_security` SET `user_enabled`='0', `tile_history`=CONCAT(IFNULL(CONCAT(`tile_history`,'<br />'),''),'$history') WHERE `tile_name`='$name'";
+    $before_change = '';
+    $history = "User has been disabled for tile $name. <br />";
+    add_update_history($dbc, 'security_history', $history, '', $before_change);
 	}
 
 	// Run the SQL statements
@@ -99,6 +109,10 @@ if($_GET['fill'] == 'tile_config') {
 				$result = mysqli_query($dbc, $sql);
 			}
 		}
+
+    $before_change = '';
+    $history = "Security Privileges have been added. <br />";
+    add_update_history($dbc, 'security_history', $history, '', $before_change);
 	}
 	$new_status = mysqli_fetch_array(mysqli_query($dbc, "SELECT `admin_enabled`, `user_enabled` FROM `tile_security` WHERE `tile_name`='$name'"));
 	echo $tile_SQL.'#*#';
@@ -216,11 +230,20 @@ if($_GET['fill'] == 'security_level') {
     $get_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT COUNT(*) AS total_id FROM security_level_names WHERE `identifier`='$name'"));
 
     if($get_config['total_id'] == 0) {
-		$query_insert_customer = "INSERT INTO `security_level_names` (`label`, `identifier`, `active`, `history`) VALUES ('$label', '$name', '".(strpos($value,'turn_on') !== FALSE ? 1 : 0)."', '$history')";
+		    $query_insert_customer = "INSERT INTO `security_level_names` (`label`, `identifier`, `active`, `history`) VALUES ('$label', '$name', '".(strpos($value,'turn_on') !== FALSE ? 1 : 0)."', '$history')";
         $result_insert_customer = mysqli_query($dbc, $query_insert_customer);
+        $before_change = '';
+        $history = "Security Leven names have been added. <br />";
+        add_update_history($dbc, 'security_history', $history, '', $before_change);
     } else {
+        $before_change = capture_before_change($dbc, 'security_level_names', 'active', 'identifier', $name);
+        $before_change .= capture_before_change($dbc, 'security_level_names', 'label', 'identifier', $name);
         $query_rate_card = "UPDATE `security_level_names` SET `active` = '".(strpos($value,'turn_on') !== FALSE ? 1 : 0)."', `label`='$label', history = concat(IFNULL(`history`,''),'$history') WHERE `identifier` = '$name'";
         $result_rate_card	= mysqli_query($dbc, $query_rate_card);
+        $active = strpos($value,'turn_on') !== FALSE ? 1 : 0;
+        $history = capture_after_change('active', $active);
+        $history .= capture_after_change('label', $label);
+        add_update_history($dbc, 'security_history', $history, '', $before_change);
     }
 }
 if($_GET['fill'] == 'privileges_config') {
@@ -233,9 +256,15 @@ if($_GET['fill'] == 'privileges_config') {
     if($get_config['total_id'] == 0) {
         $query_insert_customer = "INSERT INTO `security_privileges` (`tile`, `level`, `privileges`) VALUES ('$tile', '$level', '$value')";
         $result_insert_customer = mysqli_query($dbc, $query_insert_customer);
+        $before_change = '';
+        $history = "Security Privileges have been added. <br />";
+        add_update_history($dbc, 'security_history', $history, '', $before_change);
     } else {
+        $before_change = capture_before_change($dbc, 'security_privileges', 'privileges', 'tile', $tile, 'level', $level);
         $query_rate_card = "UPDATE `security_privileges` SET `privileges` = '$value' WHERE tile='$tile' AND level='$level'";
         $result_rate_card	= mysqli_query($dbc, $query_rate_card);
+        $history = capture_after_change('privileges', $value);
+        add_update_history($dbc, 'security_history', $history, '', $before_change);
     }
 
     /*
@@ -266,6 +295,9 @@ if($_GET['fill'] == 'privileges_config_log') {
 	$date = date('m/d/Y h:i:s a', time());
         $query_insert_customer = "INSERT INTO `security_privileges_log` (`tile`, `level`, `privileges`,`contact`, `date_time`) VALUES ('$tile', '$level', '$value','$name', '$date')";
         $result_insert_customer = mysqli_query($dbc, $query_insert_customer);
+        $before_change = '';
+        $history = "Security Privileges have been added. <br />";
+        add_update_history($dbc, 'security_history', $history, '', $before_change);
 }
 
 if($_GET['fill'] == 'cost_quote_followup') {
@@ -1117,6 +1149,426 @@ else if($_GET['action'] == 'user_profile_id') {
 	}
 }
 // Save a Config Option
-else if($_GET['action'] == 'general_config') {print_r($_POST);
+else if($_GET['action'] == 'general_config') {
 	set_config($dbc, $_POST['name'], $_POST['value']);
+}
+// Sync Data from Live to Demo
+else if($_GET['action'] == 'sync_data') {
+	$db_all = @mysqli_connect(DATABASE_HOST, DATABASE_USER, DATABASE_PASSWORD);
+	$tables = [];
+	switch($_GET['table']) {
+		case 'project':
+			$tables = ['project','project_actions','project_billable','project_comment','project_custom_details','project_deliverables_output','project_detail','project_document','project_form','project_history','project_invoice','project_path_custom_milestones','project_payments','project_scope','project_path_milestone','project_milestone_checklist','project_milestone_checklist_time','project_milestone_document'];
+			break;
+		case 'tickets':
+			$tables = ['tickets','ticket_attached','ticket_checklist','ticket_checklist_uploads','ticket_comment','ticket_deliverables','ticket_document','ticket_history','ticket_manifests','ticket_notifications','ticket_pdf','ticket_pdf_field_values','ticket_pdf_fields','ticket_purchase_orders','ticket_schedule','ticket_service_checklist','ticket_service_checklist_history','ticket_time_list','ticket_timer'];
+			break;
+		case 'agenda_meeting':
+			$tables = ['agenda_meeting','agenda_meeting_timer','agenda_meeting_upload'];
+			break;
+		case 'budget':
+			$tables = ['budget','budget_category','budget_comment','budget_expense'];
+			break;
+		case 'booking':
+			$tables = ['booking','calendar_notes','waitlist','contacts_shifts','teams','teams_staff'];
+			break;
+		case 'certificate':
+			$tables = ['certificate','certificate_uploads'];
+			break;
+		case 'checklist':
+			$tables = ['checklist','checklist_actions','checklist_document','checklist_name','checklist_name_document','checklist_name_time','checklist_report','checklist_subtab'];
+			break;
+		case 'rate_card':
+			$tables = ['rate_card','company_rate_card','rate_card_breakdown','rate_card_estimate_scope_lines','rate_card_estimate_scopes','rate_card_holiday_pay'];
+			break;
+		case 'contracts':
+			$tables = ['contracts contracts_completed contracts_staff contracts_upload'];
+			break;
+		case 'communication':
+			$tables = ['email_communication','email_communication_timer','email_communicationid_upload','email_status','phone_communication'];
+			break;
+		case 'equipment':
+			$tables = ['equipment','equipment_assignment','equipment_assignment_staff','equipment_expenses','equipment_history','equipment_inspections','equipment_inventory','equipment_purchase_order_items','equipment_rate_table','equipment_service_record','equipment_service_request','equipment_wo_checklist','equipment_wo_checklist_uploads','equipment_work_orders'];
+			break;
+		case 'estimate':
+			$tables = ['estimate','estimate_actions','estimate_company_rate_card','estimate_content_page','estimate_detail','estimate_document','estimate_misc','estimate_notes','estimate_pdf_setting','estimate_scope','estimate_tab','estimate_template_headings','estimate_template_lines','estimate_templates','estimated_gantt_chart'];
+			break;
+		case 'expense':
+			$tables = ['expense','expense_categories','expense_filters','expense_policy'];
+			break;
+		case 'field_jobs':
+			$tables = ['field_jobs','field_foreman_sheet','field_invoice','field_payroll','field_po','field_sites','field_work_ticket','follow_up_calls','followup_deactivated_contacts','followup_notifications'];
+			break;
+		case 'fund_development_funder':
+			$tables = ['fund_development_funder fund_development_funding'];
+			break;
+		case 'hr':
+			$tables = ['hr','hr_2016_alberta_personal','hr_2016_alberta_personal1','hr_absence_report','hr_attendance','hr_background_check_authorization','hr_confidential_information','hr_contract_welder_inspection_checklist','hr_contractor_orientation','hr_contractor_pay_agreement','hr_copy_of_drivers_licence_safety_tickets','hr_direct_deposit_information','hr_disclosure_of_outside_clients','hr_driver_abstract_statement_of_intent','hr_driver_consent_form','hr_eligibility_for_general_holidays_general_holida...','hr_employee_accident_report_form','hr_employee_coaching_form','hr_employee_driver_information_form','hr_employee_expense_reimbursement','hr_employee_holiday_request_form','hr_employee_information_form','hr_employee_nondisclosure_agreement','hr_employee_personal_and_emergency_information','hr_employee_right_to_refuse_unsafe_work','hr_employee_self_evaluation','hr_employee_shop_yard_office_orientation','hr_employee_substance_abuse_policy','hr_employment_agreement','hr_employment_verification_letter','hr_exit_interview','hr_hr_complaint','hr_independent_contractor_agreement','hr_letter_of_offer','hr_maternity_leave_parental_leave','hr_personal_protective_equipment_policy','hr_police_information_check','hr_policy_and_procedure_notice_of_understanding_an...','hr_ppe_requirements','hr_staff','hr_time_off_request','hr_trucking_information','hr_upload','hr_verbal_training_in_emergency_response_plan','hr_work_hours_policy'];
+			break;
+		case 'manuals':
+			$tables = ['manuals','manuals_staff','manuals_upload'];
+			break;
+		case 'social_story':
+			$tables = ['social_story_activities','social_story_communication','social_story_protocols','social_story_routines'];
+			break;
+		case 'infogathering':
+			$tables = ['infogathering','info_blog','info_branding_questionnaire','info_business_case_format','info_client_business_introduction','info_client_reviews','info_gap_analysis','info_lesson_plan','info_marketing_information','info_marketing_plan_information_gathering','info_marketing_strategies_review','info_product_service_outline','info_social_media_info_gathering','info_social_media_start_up_questionnaire','info_swot','info_website_information_gathering_form','infogathering_avs_near_miss','infogathering_pdf','infogathering_pdf_setting','infogathering_upload'];
+			break;
+		case 'time_cards':
+			$tables = ['time_cards','time_cards_signature','time_tracking','time_tracking_labour'];
+			break;
+		case 'tasklist':
+			$tables = ['task_board','task_additional_milestones','task_board_document','task_comments','task_dashboard','task_document','task_types','taskboard_path_custom_milestones','taskboard_seen','tasklist','tasklist_time'];
+			break;
+		case 'sales_order':
+			$tables = ['sales_order','sales_order_history','sales_order_notes','sales_order_pdf','sales_order_product','sales_order_product_details','sales_order_product_details_temp','sales_order_product_temp','sales_order_temp','sales_order_template','sales_order_template_product','sales_order_upload','sales_order_upload_temp','sales_path','sales_path_custom_milestones'];
+			break;
+		case 'sales':
+			$tables = ['sales','sales_document','sales_notes'];
+			break;
+		case 'inventory':
+			$tables = ['inventory','inventory_change_log','inventory_images','inventory_pdf_setting','inventory_setting','inventory_templates','inventory_templates_headings','bill_of_material_log'];
+			break;
+		case 'invoice':
+			$tables = ['invoice','invoice_compensation','invoice_insurer','invoice_lines','invoice_nonpatient','invoice_patient','invoice_payment','invoice_refund','invoice_unpaid_report','pos_giftcards'];
+			break;
+		case 'marketing_material':
+			$tables = ['marketing_material','marketing_material_uploads'];
+			break;
+		case 'marsheet':
+			$tables = ['marsheet','marsheet_medication','marsheet_row'];
+			break;
+		case 'medication':
+			$tables = ['medication','medication_history','medication_uploads'];
+			break;
+		case 'orientation':
+			$tables = ['orientation','orientation_copy_of_driver_lic_safety_tickets','orientation_direct_deposit_info','orientation_emp_driver_info_form','orientation_emp_info_medical_form','orientation_pay_agreement','orientation_staff'];
+			break;
+		case 'pick_lists':
+			$tables = ['pick_lists','pick_list_items'];
+			break;
+		case 'purchase_orders':
+			$tables = ['purchase_orders','purchase_orders_product'];
+			break;
+		case 'safety':
+			$tables = ['safety','safety_attendance','safety_avs_hazard_identification','safety_avs_near_miss','safety_confined_space_entry_log','safety_confined_space_entry_permit','safety_confined_space_entry_pre_entry_checklist','safety_daily_equipment_inspection_checklist','safety_dangerous_goods_shipping_document','safety_emergency_response_transportation_plan','safety_employee_equipment_training_record','safety_employee_misconduct_form','safety_equipment_inspection_checklist','safety_fall_protection_plan','safety_field_level_risk_assessment','safety_follow_up_incident_report','safety_full_body_harness_inspection_checklist_log','safety_general_office_safety_inspection','safety_general_site_safety_inspection','safety_hazard_id_report','safety_incident_investigation_report','safety_journey_management_trip_tracking','safety_lanyards_inspection_checklist_log','safety_monthly_health_and_safety_summary','safety_monthly_office_safety_inspection','safety_monthly_site_office_safety_inspection','safety_monthly_site_safety_inspection','safety_on_the_job_training_record','safety_pre_job_hazard_assessment','safety_safe_work_permit','safety_safety_meeting_minutes','safety_site_inspection_hazard_assessment','safety_site_specificpre_job','safety_spill_incident_report','safety_staff','safety_tailgate_safety_meeting','safety_toolbox_safety_meeting','safety_trailer_inspection_checklist','safety_upload','safety_vehicle_damage_report','safety_vehicle_inspection_checklist','safety_weekly_planned_inspection_checklist','safety_weekly_safety_meeting'];
+			break;
+		case 'contacts':
+			$db_all->query("DELETE FROM `".DATABASE_NAME."`.`contact_document` WHERE `contactid` IN (SELECT `contactid` FROM `".DATABASE_NAME."`.`contacts` WHERE `category` != 'Staff')");
+			$db_all->query("DELETE FROM `".DATABASE_NAME."`.`contact_order_numbers` WHERE `contactid` IN (SELECT `contactid` FROM `".DATABASE_NAME."`.`contacts` WHERE `category` != 'Staff')");
+			$db_all->query("DELETE FROM `".DATABASE_NAME."`.`contact_package_sold` WHERE `contactid` IN (SELECT `contactid` FROM `".DATABASE_NAME."`.`contacts` WHERE `category` != 'Staff')");
+			$db_all->query("DELETE FROM `".DATABASE_NAME."`.`contacts_cost` WHERE `contactid` IN (SELECT `contactid` FROM `".DATABASE_NAME."`.`contacts` WHERE `category` != 'Staff')");
+			$db_all->query("DELETE FROM `".DATABASE_NAME."`.`contacts_dates` WHERE `contactid` IN (SELECT `contactid` FROM `".DATABASE_NAME."`.`contacts` WHERE `category` != 'Staff')");
+			$db_all->query("DELETE FROM `".DATABASE_NAME."`.`contacts_description` WHERE `contactid` IN (SELECT `contactid` FROM `".DATABASE_NAME."`.`contacts` WHERE `category` != 'Staff')");
+			$db_all->query("DELETE FROM `".DATABASE_NAME."`.`contacts_history` WHERE `contactid` IN (SELECT `contactid` FROM `".DATABASE_NAME."`.`contacts` WHERE `category` != 'Staff')");
+			$db_all->query("DELETE FROM `".DATABASE_NAME."`.`contacts_last_active` WHERE `contactid` IN (SELECT `contactid` FROM `".DATABASE_NAME."`.`contacts` WHERE `category` != 'Staff')");
+			$db_all->query("DELETE FROM `".DATABASE_NAME."`.`contacts_medical` WHERE `contactid` IN (SELECT `contactid` FROM `".DATABASE_NAME."`.`contacts` WHERE `category` != 'Staff')");
+			$db_all->query("DELETE FROM `".DATABASE_NAME."`.`contacts_patient_be` WHERE `contactid` IN (SELECT `contactid` FROM `".DATABASE_NAME."`.`contacts` WHERE `category` != 'Staff')");
+			$db_all->query("DELETE FROM `".DATABASE_NAME."`.`contacts_patient_be` WHERE `contactid` IN (SELECT `contactid` FROM `".DATABASE_NAME."`.`contacts` WHERE `category` != 'Staff')");
+			$db_all->query("DELETE FROM `".DATABASE_NAME."`.`contacts_patient_th` WHERE `contactid` IN (SELECT `contactid` FROM `".DATABASE_NAME."`.`contacts` WHERE `category` != 'Staff')");
+			$db_all->query("DELETE FROM `".DATABASE_NAME."`.`contacts_security` WHERE `contactid` IN (SELECT `contactid` FROM `".DATABASE_NAME."`.`contacts` WHERE `category` != 'Staff')");
+			$db_all->query("DELETE FROM `".DATABASE_NAME."`.`contacts_services` WHERE `contactid` IN (SELECT `contactid` FROM `".DATABASE_NAME."`.`contacts` WHERE `category` != 'Staff')");
+			$db_all->query("DELETE FROM `".DATABASE_NAME."`.`contacts_subtab` WHERE `contactid` IN (SELECT `contactid` FROM `".DATABASE_NAME."`.`contacts` WHERE `category` != 'Staff')");
+			$db_all->query("DELETE FROM `".DATABASE_NAME."`.`contacts_tile_sort` WHERE `contactid` IN (SELECT `contactid` FROM `".DATABASE_NAME."`.`contacts` WHERE `category` != 'Staff')");
+			$db_all->query("DELETE FROM `".DATABASE_NAME."`.`contacts_upload` WHERE `contactid` IN (SELECT `contactid` FROM `".DATABASE_NAME."`.`contacts` WHERE `category` != 'Staff')");
+			$db_all->query("DELETE FROM `".DATABASE_NAME."`.`user_settings` WHERE `contactid` IN (SELECT `contactid` FROM `".DATABASE_NAME."`.`contacts` WHERE `category` != 'Staff')");
+			$db_all->query("DELETE FROM `".DATABASE_NAME."`.`contacts` WHERE `category` != 'Staff'");
+			$db_all->query("INSERT INTO `".DATABASE_NAME."`.`contacts` SELECT * FROM `".DATABASE_NAME2."`.`contacts` WHERE `category` != 'Staff'");
+			$db_all->query("INSERT INTO `".DATABASE_NAME."`.`contact_document` SELECT * FROM `".DATABASE_NAME2."`.`contact_document` WHERE `category` != 'Staff'");
+			$db_all->query("INSERT INTO `".DATABASE_NAME."`.`contact_order_numbers` SELECT * FROM `".DATABASE_NAME2."`.`contact_order_numbers` WHERE `category` != 'Staff'");
+			$db_all->query("INSERT INTO `".DATABASE_NAME."`.`contact_package_sold` SELECT * FROM `".DATABASE_NAME2."`.`contact_package_sold` WHERE `category` != 'Staff'");
+			$db_all->query("INSERT INTO `".DATABASE_NAME."`.`contacts_cost` SELECT * FROM `".DATABASE_NAME2."`.`contacts_cost` WHERE `category` != 'Staff'");
+			$db_all->query("INSERT INTO `".DATABASE_NAME."`.`contacts_dates` SELECT * FROM `".DATABASE_NAME2."`.`contacts_dates` WHERE `category` != 'Staff'");
+			$db_all->query("INSERT INTO `".DATABASE_NAME."`.`contacts_description` SELECT * FROM `".DATABASE_NAME2."`.`contacts_description` WHERE `category` != 'Staff'");
+			$db_all->query("INSERT INTO `".DATABASE_NAME."`.`contacts_history` SELECT * FROM `".DATABASE_NAME2."`.`contacts_history` WHERE `category` != 'Staff'");
+			$db_all->query("INSERT INTO `".DATABASE_NAME."`.`contacts_last_active` SELECT * FROM `".DATABASE_NAME2."`.`contacts_last_active` WHERE `category` != 'Staff'");
+			$db_all->query("INSERT INTO `".DATABASE_NAME."`.`contacts_medical` SELECT * FROM `".DATABASE_NAME2."`.`contacts_medical` WHERE `category` != 'Staff'");
+			$db_all->query("INSERT INTO `".DATABASE_NAME."`.`contacts_patient_be` SELECT * FROM `".DATABASE_NAME2."`.`contacts_patient_be` WHERE `category` != 'Staff'");
+			$db_all->query("INSERT INTO `".DATABASE_NAME."`.`contacts_patient_th` SELECT * FROM `".DATABASE_NAME2."`.`contacts_patient_th` WHERE `category` != 'Staff'");
+			$db_all->query("INSERT INTO `".DATABASE_NAME."`.`contacts_security` SELECT * FROM `".DATABASE_NAME2."`.`contacts_security` WHERE `category` != 'Staff'");
+			$db_all->query("INSERT INTO `".DATABASE_NAME."`.`contacts_services` SELECT * FROM `".DATABASE_NAME2."`.`contacts_services` WHERE `category` != 'Staff'");
+			$db_all->query("INSERT INTO `".DATABASE_NAME."`.`contacts_subtab` SELECT * FROM `".DATABASE_NAME2."`.`contacts_subtab` WHERE `category` != 'Staff'");
+			$db_all->query("INSERT INTO `".DATABASE_NAME."`.`contacts_tile_sort` SELECT * FROM `".DATABASE_NAME2."`.`contacts_tile_sort` WHERE `category` != 'Staff'");
+			$db_all->query("INSERT INTO `".DATABASE_NAME."`.`contacts_upload` SELECT * FROM `".DATABASE_NAME2."`.`contacts_upload` WHERE `category` != 'Staff'");
+			$db_all->query("INSERT INTO `".DATABASE_NAME."`.`user_settings` SELECT * FROM `".DATABASE_NAME2."`.`user_settings` WHERE `category` != 'Staff'");
+			break;
+		case 'staff':
+			$db_all->query("DELETE FROM `".DATABASE_NAME."`.`contact_document` WHERE `contactid` IN (SELECT `contactid` FROM `".DATABASE_NAME."`.`contacts` WHERE `category` = 'Staff')");
+			$db_all->query("DELETE FROM `".DATABASE_NAME."`.`contact_order_numbers` WHERE `contactid` IN (SELECT `contactid` FROM `".DATABASE_NAME."`.`contacts` WHERE `category` = 'Staff')");
+			$db_all->query("DELETE FROM `".DATABASE_NAME."`.`contact_package_sold` WHERE `contactid` IN (SELECT `contactid` FROM `".DATABASE_NAME."`.`contacts` WHERE `category` = 'Staff')");
+			$db_all->query("DELETE FROM `".DATABASE_NAME."`.`contacts_cost` WHERE `contactid` IN (SELECT `contactid` FROM `".DATABASE_NAME."`.`contacts` WHERE `category` = 'Staff')");
+			$db_all->query("DELETE FROM `".DATABASE_NAME."`.`contacts_dates` WHERE `contactid` IN (SELECT `contactid` FROM `".DATABASE_NAME."`.`contacts` WHERE `category` = 'Staff')");
+			$db_all->query("DELETE FROM `".DATABASE_NAME."`.`contacts_description` WHERE `contactid` IN (SELECT `contactid` FROM `".DATABASE_NAME."`.`contacts` WHERE `category` = 'Staff')");
+			$db_all->query("DELETE FROM `".DATABASE_NAME."`.`contacts_history` WHERE `contactid` IN (SELECT `contactid` FROM `".DATABASE_NAME."`.`contacts` WHERE `category` = 'Staff')");
+			$db_all->query("DELETE FROM `".DATABASE_NAME."`.`contacts_last_active` WHERE `contactid` IN (SELECT `contactid` FROM `".DATABASE_NAME."`.`contacts` WHERE `category` = 'Staff')");
+			$db_all->query("DELETE FROM `".DATABASE_NAME."`.`contacts_medical` WHERE `contactid` IN (SELECT `contactid` FROM `".DATABASE_NAME."`.`contacts` WHERE `category` = 'Staff')");
+			$db_all->query("DELETE FROM `".DATABASE_NAME."`.`contacts_patient_be` WHERE `contactid` IN (SELECT `contactid` FROM `".DATABASE_NAME."`.`contacts` WHERE `category` = 'Staff')");
+			$db_all->query("DELETE FROM `".DATABASE_NAME."`.`contacts_patient_th` WHERE `contactid` IN (SELECT `contactid` FROM `".DATABASE_NAME."`.`contacts` WHERE `category` = 'Staff')");
+			$db_all->query("DELETE FROM `".DATABASE_NAME."`.`contacts_security` WHERE `contactid` IN (SELECT `contactid` FROM `".DATABASE_NAME."`.`contacts` WHERE `category` = 'Staff')");
+			$db_all->query("DELETE FROM `".DATABASE_NAME."`.`contacts_services` WHERE `contactid` IN (SELECT `contactid` FROM `".DATABASE_NAME."`.`contacts` WHERE `category` = 'Staff')");
+			$db_all->query("DELETE FROM `".DATABASE_NAME."`.`contacts_subtab` WHERE `contactid` IN (SELECT `contactid` FROM `".DATABASE_NAME."`.`contacts` WHERE `category` = 'Staff')");
+			$db_all->query("DELETE FROM `".DATABASE_NAME."`.`contacts_tile_sort` WHERE `contactid` IN (SELECT `contactid` FROM `".DATABASE_NAME."`.`contacts` WHERE `category` = 'Staff')");
+			$db_all->query("DELETE FROM `".DATABASE_NAME."`.`contacts_upload` WHERE `contactid` IN (SELECT `contactid` FROM `".DATABASE_NAME."`.`contacts` WHERE `category` = 'Staff')");
+			$db_all->query("DELETE FROM `".DATABASE_NAME."`.`user_settings` WHERE `contactid` IN (SELECT `contactid` FROM `".DATABASE_NAME."`.`contacts` WHERE `category` = 'Staff')");
+			$db_all->query("DELETE FROM `".DATABASE_NAME."`.`contacts` WHERE `category` = 'Staff'");
+			$db_all->query("INSERT INTO `".DATABASE_NAME."`.`contacts` SELECT * FROM `".DATABASE_NAME2."`.`contacts` WHERE `category` = 'Staff'");
+			$db_all->query("INSERT INTO `".DATABASE_NAME."`.`contact_document` SELECT * FROM `".DATABASE_NAME2."`.`contact_document` WHERE `category` = 'Staff'");
+			$db_all->query("INSERT INTO `".DATABASE_NAME."`.`contact_order_numbers` SELECT * FROM `".DATABASE_NAME2."`.`contact_order_numbers` WHERE `category` = 'Staff'");
+			$db_all->query("INSERT INTO `".DATABASE_NAME."`.`contact_package_sold` SELECT * FROM `".DATABASE_NAME2."`.`contact_package_sold` WHERE `category` = 'Staff'");
+			$db_all->query("INSERT INTO `".DATABASE_NAME."`.`contacts_cost` SELECT * FROM `".DATABASE_NAME2."`.`contacts_cost` WHERE `category` = 'Staff'");
+			$db_all->query("INSERT INTO `".DATABASE_NAME."`.`contacts_dates` SELECT * FROM `".DATABASE_NAME2."`.`contacts_dates` WHERE `category` = 'Staff'");
+			$db_all->query("INSERT INTO `".DATABASE_NAME."`.`contacts_description` SELECT * FROM `".DATABASE_NAME2."`.`contacts_description` WHERE `category` = 'Staff'");
+			$db_all->query("INSERT INTO `".DATABASE_NAME."`.`contacts_history` SELECT * FROM `".DATABASE_NAME2."`.`contacts_history` WHERE `category` = 'Staff'");
+			$db_all->query("INSERT INTO `".DATABASE_NAME."`.`contacts_last_active` SELECT * FROM `".DATABASE_NAME2."`.`contacts_last_active` WHERE `category` = 'Staff'");
+			$db_all->query("INSERT INTO `".DATABASE_NAME."`.`contacts_medical` SELECT * FROM `".DATABASE_NAME2."`.`contacts_medical` WHERE `category` = 'Staff'");
+			$db_all->query("INSERT INTO `".DATABASE_NAME."`.`contacts_patient_be` SELECT * FROM `".DATABASE_NAME2."`.`contacts_patient_be` WHERE `category` = 'Staff'");
+			$db_all->query("INSERT INTO `".DATABASE_NAME."`.`contacts_patient_th` SELECT * FROM `".DATABASE_NAME2."`.`contacts_patient_th` WHERE `category` = 'Staff'");
+			$db_all->query("INSERT INTO `".DATABASE_NAME."`.`contacts_security` SELECT * FROM `".DATABASE_NAME2."`.`contacts_security` WHERE `category` = 'Staff'");
+			$db_all->query("INSERT INTO `".DATABASE_NAME."`.`contacts_services` SELECT * FROM `".DATABASE_NAME2."`.`contacts_services` WHERE `category` = 'Staff'");
+			$db_all->query("INSERT INTO `".DATABASE_NAME."`.`contacts_subtab` SELECT * FROM `".DATABASE_NAME2."`.`contacts_subtab` WHERE `category` = 'Staff'");
+			$db_all->query("INSERT INTO `".DATABASE_NAME."`.`contacts_tile_sort` SELECT * FROM `".DATABASE_NAME2."`.`contacts_tile_sort` WHERE `category` = 'Staff'");
+			$db_all->query("INSERT INTO `".DATABASE_NAME."`.`contacts_upload` SELECT * FROM `".DATABASE_NAME2."`.`contacts_upload` WHERE `category` = 'Staff'");
+			$db_all->query("INSERT INTO `".DATABASE_NAME."`.`user_settings` SELECT * FROM `".DATABASE_NAME2."`.`user_settings` WHERE `category` = 'Staff'");
+			$tables = ['positions'];
+			break;
+		case 'admin_tile_config':
+		    $tables = ['admin_tile_config'];
+		    break;
+		case 'dashboard_permission_config':
+		    $tables = ['dashboard_permission_config'];
+		    break;
+		case 'exercise_config':
+		    $tables = ['exercise_config'];
+		    break;
+		case 'field_config':
+		    $tables = ['field_config'];
+		    break;
+		case 'field_config_agendas_meetings':
+		    $tables = ['field_config_agendas_meetings'];
+		    break;
+		case 'field_config_asset':
+		    $tables = ['field_config_asset'];
+		    break;
+		case 'field_config_bid':
+		    $tables = ['field_config_bid'];
+		    break;
+		case 'field_config_budget':
+		    $tables = ['field_config_budget'];
+		    break;
+		case 'field_config_calendar_booking':
+		    $tables = ['field_config_calendar_booking'];
+		    break;
+		case 'field_config_calendar_security':
+		    $tables = ['field_config_calendar_security'];
+		    break;
+		case 'field_config_calllog':
+		    $tables = ['field_config_calllog'];
+		    break;
+		case 'field_config_charts_pdf_times':
+		    $tables = ['field_config_charts_pdf_times'];
+		    break;
+		case 'field_config_checklist':
+		    $tables = ['field_config_checklist'];
+		    break;
+		case 'field_config_client_project':
+		    $tables = ['field_config_client_project'];
+		    break;
+		case 'field_config_communication':
+		    $tables = ['field_config_communication'];
+		    break;
+		case 'field_config_contact':
+		    $tables = ['field_config_contact'];
+		    break;
+		case 'field_config_contacts':
+		    $tables = ['field_config_contacts'];
+		    break;
+		case 'field_config_contacts__20170517_160755':
+		    $tables = ['field_config_contacts__20170517_160755'];
+		    break;
+		case 'field_config_contacts_security':
+		    $tables = ['field_config_contacts_security'];
+		    break;
+		case 'field_config_contacts_shifts':
+		    $tables = ['field_config_contacts_shifts'];
+		    break;
+		case 'field_config_contacts_shifts_pdf':
+		    $tables = ['field_config_contacts_shifts_pdf'];
+		    break;
+		case 'field_config_contracts':
+		    $tables = ['field_config_contracts'];
+		    break;
+		case 'field_config_cost_estimate':
+		    $tables = ['field_config_cost_estimate'];
+		    break;
+		case 'field_config_custom_charts':
+		    $tables = ['field_config_custom_charts'];
+		    break;
+		case 'field_config_custom_charts_lines':
+		    $tables = ['field_config_custom_charts_lines'];
+		    break;
+		case 'field_config_custom_charts_settings':
+		    $tables = ['field_config_custom_charts_settings'];
+		    break;
+		case 'field_config_custom_documents':
+		    $tables = ['field_config_custom_documents'];
+		    break;
+		case 'field_config_email_alerts':
+		    $tables = ['field_config_email_alerts'];
+		    break;
+		case 'field_config_equip_assign':
+		    $tables = ['field_config_equip_assign'];
+		    break;
+		case 'field_config_equipment':
+		    $tables = ['field_config_equipment'];
+		    break;
+		case 'field_config_equipment_inspection':
+		    $tables = ['field_config_equipment_inspection'];
+		    break;
+		case 'field_config_estimate':
+		    $tables = ['field_config_estimate'];
+		    break;
+		case 'field_config_expense':
+		    $tables = ['field_config_expense'];
+		    break;
+		case 'field_config_field_jobs':
+		    $tables = ['field_config_field_jobs'];
+		    break;
+		case 'field_config_holidays':
+		    $tables = ['field_config_holidays'];
+		    break;
+		case 'field_config_hr':
+		    $tables = ['field_config_hr'];
+		    break;
+		case 'field_config_hr_manuals':
+		    $tables = ['field_config_hr_manuals'];
+		    break;
+		case 'field_config_incident_report':
+		    $tables = ['field_config_incident_report'];
+		    break;
+		case 'field_config_infogathering':
+		    $tables = ['field_config_infogathering'];
+		    break;
+		case 'field_config_inventory':
+		    $tables = ['field_config_inventory'];
+		    break;
+		case 'field_config_jobs':
+		    $tables = ['field_config_jobs'];
+		    break;
+		case 'field_config_manuals':
+		    $tables = ['field_config_manuals'];
+		    break;
+		case 'field_config_password':
+		    $tables = ['field_config_password'];
+		    break;
+		case 'field_config_patientform':
+		    $tables = ['field_config_patientform'];
+		    break;
+		case 'field_config_performance_reviews':
+		    $tables = ['field_config_performance_reviews'];
+		    break;
+		case 'field_config_project':
+		    $tables = ['field_config_project'];
+		    break;
+		case 'field_config_project_admin':
+		    $tables = ['field_config_project_admin'];
+		    break;
+		case 'field_config_project_custom_details':
+		    $tables = ['field_config_project_custom_details'];
+		    break;
+		case 'field_config_project_form':
+		    $tables = ['field_config_project_form'];
+		    break;
+		case 'field_config_project_manage':
+		    $tables = ['field_config_project_manage'];
+		    break;
+		case 'field_config_ratecard':
+		    $tables = ['field_config_ratecard'];
+		    break;
+		case 'field_config_safety':
+		    $tables = ['field_config_safety'];
+		    break;
+		case 'field_config_security_contact_categories':
+		    $tables = ['field_config_security_contact_categories'];
+		    break;
+		case 'field_config_security_level_theme':
+		    $tables = ['field_config_security_level_theme'];
+		    break;
+		case 'field_config_services':
+		    $tables = ['field_config_services'];
+		    break;
+		case 'field_config_so':
+		    $tables = ['field_config_so'];
+		    break;
+		case 'field_config_so_contacts':
+		    $tables = ['field_config_so_contacts'];
+		    break;
+		case 'field_config_so_pdf':
+		    $tables = ['field_config_so_pdf'];
+		    break;
+		case 'field_config_so_security':
+		    $tables = ['field_config_so_security'];
+		    break;
+		case 'field_config_staff_security':
+		    $tables = ['field_config_staff_security'];
+		    break;
+		case 'field_config_supervisor':
+		    $tables = ['field_config_supervisor'];
+		    break;
+		case 'field_config_teams':
+		    $tables = ['field_config_teams'];
+		    break;
+		case 'field_config_ticket_accordion_names':
+		    $tables = ['field_config_ticket_accordion_names'];
+		    break;
+		case 'field_config_ticket_delivery_color':
+		    $tables = ['field_config_ticket_delivery_color'];
+		    break;
+		case 'field_config_ticket_fields':
+		    $tables = ['field_config_ticket_fields'];
+		    break;
+		case 'field_config_ticket_fields_action':
+		    $tables = ['field_config_ticket_fields_action'];
+		    break;
+		case 'field_config_ticket_headings':
+		    $tables = ['field_config_ticket_headings'];
+		    break;
+		case 'field_config_ticket_log':
+		    $tables = ['field_config_ticket_log'];
+		    break;
+		case 'field_config_ticket_security':
+		    $tables = ['field_config_ticket_security'];
+		    break;
+		case 'field_config_ticket_status_color':
+		    $tables = ['field_config_ticket_status_color'];
+		    break;
+		case 'field_config_treatment_presets':
+		    $tables = ['field_config_treatment_presets'];
+		    break;
+		case 'field_config_user_forms':
+		    $tables = ['field_config_user_forms'];
+		    break;
+		case 'field_config_vendors':
+		    $tables = ['field_config_vendors'];
+		    break;
+		case 'field_config_vpl':
+		    $tables = ['field_config_vpl'];
+		    break;
+		case 'general_configuration':
+		    $tables = ['general_configuration'];
+		    break;
+		case 'subtab_config':
+		    $tables = ['subtab_config'];
+		    break;
+		case 'tile_config':
+		    $tables = ['tile_config'];
+		    break;
+		default:
+			$tables = [filter_var($_GET['table'],FILTER_SANITIZE_STRING)];
+			break;
+	}
+	foreach(array_filter($tables) as $table_name) {
+		$db_all->query("TRUNCATE `".DATABASE_NAME."`.`$table_name`");
+		$db_all->query("INSERT INTO `".DATABASE_NAME."`.`$table_name` SELECT * FROM `".DATABASE_NAME2."`.`$table_name`");
+	}
+	echo 'Sync Complete!';
 }

@@ -20,14 +20,14 @@ do {
 				<div class="form-group">
 					<label class="col-sm-4 control-label">Start:</label>
 					<div class="col-sm-8">
-						<input type="text" class="form-control dateandtimepicker" name="start" data-table="mileage" data-id="<?= $mileage['id'] ?>" data-id-field="id" data-attach="<?= $ticketid ?>" data-attach-field="ticketid" value="<?= empty($mileage['start']) ? date('Y-m-d h:i a') : $mileage['start'] ?>">
+						<input type="text" class="form-control dateandtimepicker" name="start" data-table="mileage" data-id="<?= $mileage['id'] ?>" data-id-field="id" data-attach="<?= $ticketid ?>" data-attach-field="ticketid" value="<?= empty($mileage['start']) ? date('Y-m-d h:i a') : date('Y-m-d h:i a', strtotime($mileage['start'])) ?>">
 					</div>
 				</div><?php } ?>
 			<?php if(in_array('enddate',$mile_config)) { ?>
 				<div class="form-group">
 					<label class="col-sm-4 control-label">End:</label>
 					<div class="col-sm-8">
-						<input type="text" class="form-control dateandtimepicker" name="end" data-table="mileage" data-id="<?= $mileage['id'] ?>" data-id-field="id" data-attach="<?= $ticketid ?>" data-attach-field="ticketid" value="<?= empty($mileage['start']) && empty($mileage['end']) ? date('Y-m-d h:i a') : $mileage['end'] ?>">
+						<input type="text" class="form-control dateandtimepicker" name="end" data-table="mileage" data-id="<?= $mileage['id'] ?>" data-id-field="id" data-attach="<?= $ticketid ?>" data-attach-field="ticketid" value="<?= empty($mileage['start']) && empty($mileage['end']) ? date('Y-m-d h:i a') : date('Y-m-d h:i a', strtotime($mileage['end'])) ?>">
 					</div>
 				</div><?php } ?>
 			<div class="form-group">
@@ -114,16 +114,16 @@ do {
 			<div class="form-group">
 				<label class="col-sm-4 control-label">Start:</label>
 				<div class="col-sm-8">
-					<?= empty($mileage['start']) ?>
+					<?= !empty($mileage['start']) ? date('Y-m-d h:i a', strotime($mileage['start'])) : '' ?>
 				</div>
 			</div>
-			<?php $pdf_contents[] = ['Start', empty($mileage['start'])]; ?>
+			<?php $pdf_contents[] = ['Start', !empty($mileage['start']) ? date('Y-m-d h:i a', strotime($mileage['start'])) : '']; ?>
 		<?php } ?>
 		<?php if(in_array('enddate',$mile_config)) { ?>
 			<div class="form-group">
 				<label class="col-sm-4 control-label">End:</label>
 				<div class="col-sm-8">
-					<?= $mileage['end'] ?>
+					<?= !empty($mileage['end']) ? date('Y-m-d h:i a', strotime($mileage['end'])) : '' ?>
 				</div>
 			</div>
 			<?php $pdf_contents[] = ['End', $mileage['end']]; ?>
@@ -131,7 +131,7 @@ do {
 		<div class="form-group">
 			<label class="col-sm-4 control-label">Mileage:</label>
 			<div class="col-sm-8">
-				<?= $mileage['mileage'] ?>
+				<?= !empty($mileage['end']) ? date('Y-m-d h:i a', strotime($mileage['end'])) : '' ?>
 			</div>
 		</div>
 		<?php $pdf_contents[] = ['Mileage', $mileage['mileage']]; ?>

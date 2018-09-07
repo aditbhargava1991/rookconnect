@@ -223,6 +223,9 @@ if(isset($_GET['fill'])) {
 		$value = filter_var($_POST['value'],FILTER_SANITIZE_STRING);
 		$id = filter_var($_POST['id'],FILTER_SANITIZE_STRING);
 		$dbc->query("UPDATE `inventory` SET `$name`='$value' WHERE `inventoryid`='$id'");
+		$before_change = '';
+    $history = "Inventory with id $id is been Updated. <br />";
+    add_update_history($dbc, 'inventory_history', $history, '', $before_change);
 		echo $dbc->query("SELECT `quantity` - `expected_inventory` `diff` FROM `inventory` WHERE `inventoryid`='$id'")->fetch_assoc()['diff'];
 		if($name == 'quantity' && $_POST['ticket'] > 0) {
 			$ticketid = $_POST['ticket'];

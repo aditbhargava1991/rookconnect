@@ -14,7 +14,7 @@ function addContactForm(form_id) {
             <a href="" onclick="addContactForm('<?= $form_id ?>'); return false;" class="btn brand-btn">Add Form</a>
         </div>
         <div class="clearfix"></div>
-        <?php $form_pdfs = mysqli_query($dbc, "SELECT * FROM `user_form_pdf` WHERE `form_id` = '$form_id' AND `attached_contactid` = '$contactid' AND `user_id` = '".$_SESSION['contactid']."' ORDER BY `date_created`");
+        <?php $form_pdfs = mysqli_query($dbc, "SELECT * FROM `user_form_pdf` WHERE `form_id` = '$form_id' AND `attached_contactid` = '$contactid' AND `user_id` = '".$_SESSION['contactid']."' AND `deleted` = 0 ORDER BY `date_created`");
         if(mysqli_num_rows($form_pdfs) > 0) { ?>
             <div id="no-more-tables">
                 <table class="table table-bordered">

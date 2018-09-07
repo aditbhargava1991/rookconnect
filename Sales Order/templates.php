@@ -7,12 +7,20 @@ include ('../include.php');
 ?>
 <script type="text/javascript">
 $(document).ready(function() {
-    if($(window).width() > 767) {
+    /* if($(window).width() > 767) {
         resizeScreen();
         $(window).resize(function() {
             resizeScreen();
         });
-    }
+    } */
+    $(window).resize(function() {
+        var available_height = window.innerHeight - $('footer:visible').outerHeight() - $('#sales_order_div .tile-container').offset().top - 1;
+        if(available_height > 200) {
+            $('#sales_order_div .tile-sidebar, #sales_order_div .tile-content').height(available_height);
+            $('.main-screen-white').css('height','auto');
+        }
+    }).resize();
+    
     //iFrame
     $('.iframe_open').click(function(){
         var templateid = $('#templateid').val();
@@ -42,7 +50,9 @@ $(document).ready(function() {
 
 function resizeScreen() {
     var view_height = $(window).height() > 800 ? $(window).height() : 800;
-    $('#sales_order_div .scale-to-fill,#sales_order_div .scale-to-fill .main-screen,#sales_order_div .tile-sidebar').height($('#sales_order_div .tile-container').height());
+    //$('#sales_order_div .scale-to-fill,#sales_order_div .scale-to-fill .main-screen,#sales_order_div .tile-sidebar').height($('#sales_order_div .tile-container').height());
+    $('#sales_order_div .tile-content, #sales_order_div .tile-sidebar').height($('#sales_order_div').height() - $('.tile-header').height() + 15);
+    $('#sales_order_div .main-screen-white').height($('.tile-content').height() - 15);
 }
 </script>
 </head>

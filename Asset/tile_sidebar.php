@@ -1,5 +1,12 @@
 <?php $current_tab = basename($_SERVER['PHP_SELF'], '.php'); ?>
 <ul class="sidebar">
+    <li class="standard-sidebar-searchbox">
+        <form action="" method="POST">
+        	<input name="search_asset" type="text" value="<?= $_POST['search_asset'] ?>" class="form-control search_asset" placeholder="Search Asset">
+        	<input type="submit" value="search_asset_submit" name="search_asset_submit" style="display: none;">
+        </form>
+    </li>
+
 	<a href='asset.php?category=Top'><li <?= $current_tab == 'asset' ? 'class="active"' : '' ?>>Assets</li></a>
 	<ul style="margin: 0px;">
 		<?php

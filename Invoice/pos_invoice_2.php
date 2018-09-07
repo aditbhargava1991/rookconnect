@@ -11,7 +11,7 @@ $coupon_value	= $get_invoice['coupon_value'];
 	// $edited = '_' . $edit_id;
 // }
 
-$customer = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT name, first_name, last_name, home_phone, cell_phone, email_address, business_address, city, state, country, zip_code FROM contacts WHERE contactid='$contactid'"));
+$customer = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT name, first_name, last_name, home_phone, cell_phone, email_address, business_address, city, state, country, zip_code, referred_by FROM contacts WHERE contactid='$contactid'"));
 
 //Tax
 $invoice_lines = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT SUM(gst) AS total_gst, SUM(pst) AS total_pst FROM invoice_lines WHERE invoiceid='$invoiceid'"));
@@ -48,10 +48,16 @@ if($get_pos_tax != '') {
 }
 //Tax
 
-$pos_logo = get_config($dbc, 'pos_logo');
 $invoice_footer = get_config($dbc, 'invoice_footer');
 
-DEFINE('POS_LOGO', $pos_logo);
+$logo = 'download/'.get_config($dbc, 'invoice_logo');
+if(!file_exists($logo)) {
+    $logo = '../POSAdvanced/'.$logo;
+    if(!file_exists($logo)) {
+        $logo = '';
+    }
+}
+DEFINE('POS_LOGO', $logo);
 DEFINE('INVOICE_FOOTER', $invoice_footer);
 DEFINE('INVOICE_DATE', $get_invoice['invoice_date']);
 DEFINE('INVOICEID', $invoiceid);
@@ -71,13 +77,7 @@ if ( $rookconnect !== 'washtech' ) {
 class MYPDF extends TCPDF {
 	//Page header
 	public function Header() {
-		$image_file = 'download/'.POS_LOGO;
-		if(!file_exists($image_file)) {
-			$image_file = '../Invoice/download'.POS_LOGO;
-			if(!file_exists($image_file)) {
-				$image_file = '../POSAdvanced/download/'.POS_LOGO;
-			}
-		}
+		$image_file = POS_LOGO;
 		if(file_get_contents($image_file)) {
 			$image_file = $image_file;
 		} else {
@@ -149,6 +149,10 @@ $html = '';
 //$html .= '<p style="text-align:left;">Box 2052, Sundre, AB, T0M 1X0<br>Phone: 403-638-4030<br>Fax: 403-638-4001<br>Email: info@highlandprojects.com<br>Work Ticket# : </p>';
 
 $html .= '<br><br><br><br><br><p style="text-align:left;">'.decryptIt($customer['name']).' '.decryptIt($customer['first_name']).' '.decryptIt($customer['last_name']).'<br>'.$customer['business_address'].'<br>'.$customer['city'].', '.$customer['state'].' '.$customer['zip_code'].'<br>'.decryptIt($customer['cell_phone']).'<br>'.decryptIt($customer['email_address']).'<br>';
+
+if ( !empty($customer['referred_by']) ) {
+    $html .= 'Reference: '.$customer['referred_by'].'<br><br>';
+}
 
 if($client_tax_number != '') {
 	$html .= '<br>Tax Exemption Number : '.$get_invoice['tax_exemption_number'];
@@ -460,7 +464,7 @@ $html .= '
 
 $html .= '<br />';
 
-$html .= $comment.'<br>';
+$html .= html_entity_decode($comment).'<br>';
 
 //$html .= 'Payment Method : '.$get_invoice['payment_type'].'<br>';
 

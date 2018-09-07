@@ -47,7 +47,34 @@ $(document).ready(function() {
 	});
     
     $('#accordions .panel-heading').on('touchstart',loadPanel).click(loadPanel);
+    
+    /* if($(window).width() > 767) {
+		resizeScreen();
+		$(window).resize(function() {
+			resizeScreen();
+		});
+	} */
+    
+    $(window).resize(function() {
+		$('.main-screen').css('padding-bottom',0);
+		if($('.main-screen .main-screen').is(':visible') && $('.sidebar').is(':visible')) {
+			var available_height = window.innerHeight - $('footer:visible').outerHeight() - $('.sidebar:visible').offset().top;
+			if(available_height > 300) {
+				$('.main-screen .main-screen').outerHeight(available_height).css('overflow-y','auto');
+				$('.sidebar').outerHeight(available_height).css('overflow-y','auto');
+				$('.search-results').outerHeight(available_height).css('overflow-y','auto');
+			}
+            var sidebar_height = $('.tile-sidebar').outerHeight(true);
+            $('.has-main-screen, .has-main-screen .main-screen').css('min-height', sidebar_height);
+		} else {
+			$('.main-screen .main-screen').css('height','auto');
+		}
+	}).resize();
 });
+
+function resizeScreen() {
+    $('#services_div .tile-sidebar, #services_div .tile-content, #services_div .tile-content .main-screen').height($('#services_div').height() - $('#services_div .tile-header').height() + 15);
+}
 
 /* function loadPanel() {
     if(!$(this).find('.panel-collapse').hasClass('in')) {
@@ -98,7 +125,7 @@ function searchServices(string) {
     checkAuthorised('services');
 ?>
 
-<div class="container">
+<div id="services_div" class="container">
 	<div class="iframe_overlay" style="display:none;">
 		<div class="iframe">
 			<div class="iframe_loading">Loading...</div>

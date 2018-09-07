@@ -78,11 +78,17 @@ if (isset($_POST['add_service'])) {
         $query_insert_vendor = "INSERT INTO `services` (`service_type`, `category`, `service_code`, `heading`, `cost`, `description`, `quote_description`, `invoice_description`, `ticket_description`, `final_retail_price`, `admin_price`, `wholesale_price`, `commercial_price`, `client_price`, `purchase_order_price`, `sales_order_price`, `minimum_billable`, `hourly_rate`, `estimated_hours`, `actual_hours`, `msrp`, `name`, `fee`, `unit_price`, `unit_cost`, `rent_price`, `rental_days`, `rental_weeks`, `rental_months`, `rental_years`, `reminder_alert`, `daily`,`weekly`, `monthly`, `annually`,  `total_days`, `total_hours`, `total_km`, `total_miles` , `include_in_so`,`include_in_po`,`include_in_pos`, `gst_exempt`, `appointment_type`, `quantity`, `checklist`) VALUES ('$service_type', '$category', '$service_code', '$heading', '$cost', '$description', '$quote_description', '$invoice_description', '$ticket_description', '$final_retail_price', '$admin_price', '$wholesale_price', '$commercial_price', '$client_price', '$purchase_order_price', '$sales_order_price', '$minimum_billable', '$hourly_rate', '$estimated_hours', '$actual_hours', '$msrp', '$name', '$fee', '$unit_price', '$unit_cost', '$rent_price', '$rental_days', '$rental_weeks', '$rental_months', '$rental_years', '$reminder_alert', '$daily', '$weekly', '$monthly', '$annually', '$total_days', '$total_hours', '$total_km', '$total_miles', '$include_in_so', '$include_in_po', '$include_in_pos', '$gst_exempt', '$appointment_type', '$quantity', '$checklist')";
         $result_insert_vendor = mysqli_query($dbc, $query_insert_vendor);
         $url = 'Added';
+				$before_change = "";
+				$history = "Service entry has been added. <br />";
+	  		add_update_history($dbc, 'service_history', $history, '', $before_change);
     } else {
         $serviceid = $_POST['serviceid'];
         $query_update_vendor = "UPDATE `services` SET `service_type` = '$service_type', `category` = '$category',`service_code` = '$service_code', `heading` = '$heading', `cost` = '$cost', `description` = '$description', `quote_description` = '$quote_description', `invoice_description` = '$invoice_description', `ticket_description` = '$ticket_description', `final_retail_price` = '$final_retail_price', `admin_price` = '$admin_price', `wholesale_price` = '$wholesale_price', `commercial_price` = '$commercial_price', `client_price` = '$client_price', `purchase_order_price` = '$purchase_order_price', `sales_order_price` = '$sales_order_price', `minimum_billable` = '$minimum_billable', `hourly_rate` = '$hourly_rate', `estimated_hours` = '$estimated_hours', `actual_hours` = '$actual_hours', `msrp` = '$msrp', `name` = '$name', `fee` = '$fee', `unit_price` = '$unit_price', `unit_cost` = '$unit_cost', `rent_price` = '$rent_price', `rental_days` = '$rental_days', `rental_weeks` = '$rental_weeks', `rental_months` = '$rental_months', `rental_years` = '$rental_years', `reminder_alert` = '$reminder_alert', `daily` = '$daily', `weekly` = '$weekly', `monthly` = '$monthly', `annually` = '$annually', `total_days` = '$total_days', `total_hours` = '$total_hours', `total_km` = '$total_km', `total_miles` = '$total_miles', `include_in_so` = '$include_in_so', `include_in_po` = '$include_in_po', `include_in_pos` = '$include_in_pos', `gst_exempt` = '$gst_exempt', `appointment_type` = '$appointment_type', `quantity` = '$quantity', `checklist`='$checklist' WHERE `serviceid` = '$serviceid'";
         $result_update_vendor = mysqli_query($dbc, $query_update_vendor);
         $url = 'Updated';
+				$before_change = "";
+				$history = "Service with service id $serviceid has been updated. <br />";
+	  		add_update_history($dbc, 'service_history', $history, '', $before_change);
     }
 
 
@@ -525,7 +531,7 @@ checkAuthorised('services');
 
 	  <?php if (strpos($value_config, ','."Include in P.O.S.".',') !== FALSE) { ?>
       <div class="form-group">
-        <label for="company_name" class="col-sm-4 control-label">Include in Point of Sale:</label>
+        <label for="company_name" class="col-sm-4 control-label">Include in <?= POS_ADVANCE_TILE ?>:</label>
         <div class="col-sm-8">
           <input type='checkbox' style='width:20px; height:20px;' <?php if($include_in_pos !== '' && $include_in_pos !== NULL) { echo "checked"; } ?> name='include_in_pos' class='' value='1'>
         </div>

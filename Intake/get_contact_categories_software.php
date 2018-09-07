@@ -28,8 +28,14 @@ if(isset($_POST['complete_form'])) {
 			mysqli_query($dbc, "INSERT INTO `project` (`projecttype`, `project_name`,`created_date`,`created_by`) VALUES ('$projecttype', '$project_name','".date('Y-m-d')."','".$_SESSION['contactid']."')");
 			$projectid = mysqli_insert_id($dbc);
 		}
+        $milestone = filter_var($_POST['milestone'],FILTER_SANITIZE_STRING);
 
-		mysqli_query($dbc, "UPDATE `intake` SET `projectid` = '$projectid', `assigned_date` = '$assigned_date' WHERE `intakeid` = '$intakeid'");
+		$before_change = capture_before_change($dbc, 'intake', 'projectid', 'intakeid', $intakeid);
+		$before_change .= capture_before_change($dbc, 'intake', 'assigned_date', 'intakeid', $intakeid);
+		mysqli_query($dbc, "UPDATE `intake` SET `projectid` = '$projectid', `project_milestone`='$milestone', `assigned_date` = '$assigned_date' WHERE `intakeid` = '$intakeid'");
+		$history = capture_after_change('projectid', $projectid);
+		$history .= capture_after_change('assigned_date', $assigned_date);
+        add_update_history($dbc, 'intake_history', $history, '', $before_change);
 		$echo_script = '<script type="text/javascript"> parent.window.location.href = "'.WEBSITE_URL.'/Project/projects.php?edit='.$projectid.'"; </script>';
 	}
 
@@ -46,14 +52,23 @@ if(isset($_POST['complete_form'])) {
 		$intake = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `intake` WHERE `intakeid` = '$intakeid'"));
 		mysqli_query($dbc, "UPDATE `tickets` SET `assign_work` = CONCAT(IFNULL(`assign_work`,''),'".$intake['ticket_description']."') WHERE `ticketid` = '$ticketid'");
 
+		$before_change = capture_before_change($dbc, 'intake', 'ticketid', 'intakeid', $intakeid);
+		$before_change .= capture_before_change($dbc, 'intake', 'assigned_date', 'intakeid', $intakeid);
+
 		mysqli_query($dbc, "UPDATE `intake` SET `ticketid` = '$ticketid', `assigned_date` = '$assigned_date' WHERE `intakeid` = '$intakeid'");
+
+		$history = capture_after_change('ticketid', $ticketid);
+		$history .= capture_after_change('assigned_date', $assigned_date);
+	  add_update_history($dbc, 'intake_history', $history, '', $before_change);
 		$echo_script = '<script type="text/javascript"> parent.window.location.href = "'.WEBSITE_URL.'/Ticket/index.php?edit='.$ticketid.'"; </script>';
 	}
 
 	if($action == 'sales') {
 		$salesid = $_POST['salesid'];
 		if($salesid == 'NEW_SALES') {
-			mysqli_query($dbc, "INSERT INTO `sales` (`created_date`,`lead_created_by`) VALUES ('".date('Y-m-d')."','".get_contact($dbc, $_SESSION['contactid'])."')");
+			$primary_staff = filter_var($_POST['sales_primary_staff'],FILTER_SANITIZE_STRING);
+			$share_lead = filter_var(implode(',', $_POST['sales_share_lead']),FILTER_SANITIZE_STRING);
+			mysqli_query($dbc, "INSERT INTO `sales` (`primary_staff`, `share_lead`, `created_date`,`lead_created_by`) VALUES ('$primary_staff', '$share_lead', '".date('Y-m-d')."','".get_contact($dbc, $_SESSION['contactid'])."')");
 			$salesid = mysqli_insert_id($dbc);
 		}
 		mysqli_query($dbc, "UPDATE `intake` SET `salesid` = '$salesid', `assigned_date` = '$assigned_date' WHERE `intakeid` = '$intakeid'");
@@ -114,7 +129,15 @@ if(isset($_POST['complete_form'])) {
 			}
 		}
 	}
+
+	$before_change = capture_before_change($dbc, 'intake', 'contactid', 'intakeid', $intakeid);
+	$before_change .= capture_before_change($dbc, 'intake', 'assigned_date', 'intakeid', $intakeid);
+
 	mysqli_query($dbc, "UPDATE `intake` SET `contactid` = '$contactid', `assigned_date` = '$assigned_date' WHERE `intakeid` = '$intakeid'");
+
+	$history = capture_after_change('contactid', $contactid);
+	$history .= capture_after_change('assigned_date', $assigned_date);
+	add_update_history($dbc, 'intake_history', $history, '', $before_change);
 
 	if(!empty($_GET['from_salesid'])) {
 		$salesid = $_GET['from_salesid'];
@@ -185,7 +208,7 @@ if(isset($_POST['complete_form'])) {
 			var category	= $('#contact_category').val().split('*#*')[1];
 			var action		= $('#action').val();
 			var intakeid	= $('#intakeid').val();
-			
+
 			if (action=='assign' || action=='project' || action == 'sales' || action == 'ticket') {
 				$.ajax({
 					type:		"GET",
@@ -214,6 +237,9 @@ if(isset($_POST['complete_form'])) {
 			if(projectid == 'NEW_PROJECT') {
 				$('#project_name').show();
 			} else {
+                if(projectid > 0) {
+                    $('#project_path').show().load('project_path.php?projectid='+projectid+'&intakeid=<?= $_GET['intakeid'] ?>');
+                }
 				$('#project_name').hide();
 				$('select[name="projecttype"]').val(projecttype);
 				$('select[name="projecttype"]').trigger('change.select2');
@@ -237,12 +263,20 @@ if(isset($_POST['complete_form'])) {
 				$('select[name="tickettype"]').trigger('change.select2');
 			}
 		}
+		function selectSales(sel) {
+			if(sel.value == 'NEW_SALES') {
+				$('.new_sales').show();
+			} else {
+				$('.new_sales').hide();
+			}
+		}
 		function initSelectOnChange() {
 			$('select[name="contact_category"]').on('change', function() { selectCategory(this); });
 			$('select[name="projecttype"]').on('change', function() { selectProjectType(this); });
 			$('select[name="projectid"]').on('change', function() { selectProject(this); });
 			$('select[name="ticket_type"]').on('change', function() { selectTicketType(this); });
 			$('select[name="ticketid"]').on('change', function() { selectTicket(this); });
+			$('select[name="salesid"]').on('change', function() { selectSales(this); });
 		}
 	</script>
 </head>
@@ -262,7 +296,7 @@ if(isset($_POST['complete_form'])) {
             if(empty($src_table)) {
             	$src_table = 'contacts';
             } ?>
-				
+
 			<form id="form1" name="form1" method="post"	action="" enctype="multipart/form-data" class="form-horizontal" role="form">
 				<input type="hidden" name="action" id="action" value="<?= $action; ?>" />
 				<input type="hidden" name="intakeid" id="intakeid" value="<?= $intakeid; ?>" />
@@ -282,7 +316,7 @@ if(isset($_POST['complete_form'])) {
 				if($action == 'project' || $action == 'sales' || $action == 'ticket') {
 					echo '<p class="gap-left"></p>';
 				}
-				
+
                 $cat_text = 'Please select a Contact category:';
                 echo '<p class="gap-left">'. $cat_text .'</p>';
 
@@ -293,7 +327,7 @@ if(isset($_POST['complete_form'])) {
 				$all_tiles['members'] = array_unique(array_filter(explode(',', get_config($dbc, 'members_tabs'))));
 				$all_tiles['vendors'] = array_unique(array_filter(explode(',', get_config($dbc, 'vendors_tabs'))));
 				?>
-				
+
 				<div class="gap-left">
                     <select name="contact_category" id="contact_category" data-placeholder="Select a Contact category" width="380" class="chosen-select-deselect form-control">
                         <option value=""></option><?php
@@ -307,7 +341,7 @@ if(isset($_POST['complete_form'])) {
 							}
 						} ?>
                     </select>
-					
+
 					<?php /* Select the Contact */
 					if ( $action == 'assign' || $action == 'project' || $action == 'sales' || $action == 'ticket' ) { ?>
 						<br /><br />
@@ -317,7 +351,7 @@ if(isset($_POST['complete_form'])) {
 						<br /><br />
 						<p><label class="form-checkbox" style="max-width: none;"><input type="checkbox" name="contact_update_info" value="1"> Update Contact Information With Form Details</label></p><?php
 					} ?>
-					
+
 				</div><?php
 				if ( $action=='project') { ?>
 					<br>
@@ -347,6 +381,10 @@ if(isset($_POST['complete_form'])) {
 							?>
 						</select>
 
+						<div id="project_path" style="<?= $_GET['from_projectid'] > 0 ? '' : 'display: none;' ?>">
+                            <?php $projectid = $_GET['from_projectid'];
+                            include('project_path.php'); ?>
+                        </div>
 						<div id="project_name" style="display: none;">
 							<br>
 							<p>Select a Name for this new <?= PROJECT_NOUN ?>:</p>
@@ -421,6 +459,35 @@ if(isset($_POST['complete_form'])) {
 							?>
 						</select>
 					</div>
+					<?php $limit_staff_cat = array_filter(explode(',',get_config($dbc, 'sales_limit_staff_cat')));
+					$cat_query = '';
+					if(!empty($limit_staff_cat)) {
+					    $cat_query = [];
+					    foreach($limit_staff_cat as $staff_cat) {
+					        $cat_query[] = "CONCAT(',',`staff_category`,',') LIKE ('%,".$staff_cat.",%')";
+					    }
+					    $cat_query = " AND (".implode(' OR ', $cat_query).")";
+					}
+					$staff_list = sort_contacts_query(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name` FROM `contacts` WHERE `deleted` = 0 AND `category` iN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `status` > 0".$cat_query)); ?>
+					<br>
+					<div class="gap-left new_sales" style="display:none;">
+						<p>Primary Staff:</p>
+						<select name="sales_primary_staff" data-placeholder="Select a Staff" class="chosen-select-deselect form-control">
+							<option></option>
+							<?php foreach($staff_list as $staff) {
+								echo '<option value="'.$staff['contactid'].'">'.$staff['full_name'].'</option>';
+							} ?>
+						</select>
+					</div>
+					<br>
+					<div class="gap-left new_sales" style="display:none;">
+						<p>Share Lead:</p>
+						<select name="sales_share_lead[]" multiple="" data-placeholder="Select a Staff" class="chosen-select-deselect form-control">
+							<?php foreach($staff_list as $staff) {
+								echo '<option value="'.$staff['contactid'].'">'.$staff['full_name'].'</option>';
+							} ?>
+						</select>
+					</div>
 				<?php } ?>
 				<div class="gap-top">
 			        <button class="btn brand-btn pull-right" name="complete_form" value="complete_form">Submit</button>
@@ -428,6 +495,6 @@ if(isset($_POST['complete_form'])) {
 			</form>
 		</div><!-- .row -->
 	</div><!-- .container -->
-	
+
 	<?php include ('../footer.php');
 } ?>

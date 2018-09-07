@@ -73,6 +73,7 @@ if (isset($_POST['printpdf'])) {
     $today_date = date('Y-m-d');
 	$pdf->writeHTML(utf8_encode($html), true, false, true, false, '');
 	$pdf->Output('Download/pro_bono_summary_'.$today_date.'.pdf', 'F');
+    track_download($dbc, 'report_marketing_pro_bono', 0, WEBSITE_URL.'/Reports/Download/pro_bono_summary_'.$today_date.'.pdf', 'Pro-Bono Summary Report');
     ?>
 
 	<script type="text/javascript" language="Javascript">
@@ -82,19 +83,6 @@ if (isset($_POST['printpdf'])) {
     $starttime = $starttimepdf;
     $endtime = $endtimepdf;
     } ?>
-<script type="text/javascript">
-
-</script>
-</head>
-<body>
-<?php include_once ('../navigation.php');
-?>
-
-<div class="container triple-pad-bottom">
-    <div class="row">
-        <div class="col-md-12">
-
-        <?php echo reports_tiles($dbc);  ?>
 
         <div class="notice double-gap-bottom popover-examples">
             <div class="col-sm-1 notice-icon"><img src="<?= WEBSITE_URL; ?>/img/info.png" class="wiggle-me" width="25"></div>
@@ -141,12 +129,6 @@ if (isset($_POST['printpdf'])) {
             <div id="no-more-tables"><?php echo report_daily_validation($dbc, $starttime, $endtime, '', '', ''); ?></div>
 
         </form>
-
-        </div>
-    </div>
-</div>
-<?php include ('../footer.php'); ?>
-
 <?php
 function report_daily_validation($dbc, $starttime, $endtime, $table_style, $table_row_style, $grand_total_style, $pdf = '0') {
 	$report_pro_bono = mysqli_query($dbc,"SELECT invoiceid, invoice_date, therapistsid, patientid, serviceid, service_pro_bono, inventoryid, inventory_pro_bono, packageid, package_pro_bono, productid, product_pro_bono, misc_item, misc_pro_bono FROM invoice WHERE (invoice_date >= '".$starttime."' AND invoice_date <= '".$endtime."')");
@@ -160,10 +142,10 @@ function report_daily_validation($dbc, $starttime, $endtime, $table_style, $tabl
 			<th>Therapist</th>
 			<th>Patient</th>
 			<th>Value (including GST)</th></tr>';
-		
+
 		while($row = mysqli_fetch_array($report_pro_bono)) {
 			$get_staff = true;
-			
+
 			$services = explode(',',$row['serviceid']);
 			$spb = explode(',',$row['service_pro_bono']);
 			$inventory = explode(',',$row['inventoryid']);
@@ -264,7 +246,7 @@ function report_daily_validation($dbc, $starttime, $endtime, $table_style, $tabl
 				}
 			}
 		}
-		
+
 		$report_data .= '<tr nobr="true"><td colspan="5"><b>Total</b></td>';
 		$report_data .= '<td><b>$'.number_format($total_pro_bono, 2).'</b></td></tr></table>';
 
@@ -273,3 +255,17 @@ function report_daily_validation($dbc, $starttime, $endtime, $table_style, $tabl
 		return "<h2>No Invoices Found</h2>";
 	}
 } ?>
+<script>
+$('document').ready(function() {
+    var tables = $('table');
+
+    tables.map(function(idx, table) {
+        var rows = $(table).find('tbody > tr');
+        rows.map(function(idx, row){
+            if(idx%2 == 0) {
+                $(row).css('background-color', '#e6e6e6');
+            }
+        })
+    })
+})
+</script>

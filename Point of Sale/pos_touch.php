@@ -727,7 +727,7 @@ checkAuthorised('pos');
 
 		<!-- Products / Main -->
 		<div id="main" class="col-sm-8 double-pad-left">
-			<h1 class="pull-left">Point of Sale</h1>
+			<h1 class="pull-left"><?= POS_ADVANCE_TILE ?></h1>
 			<div class="pull-right double-gap-top">
 				<?php
 					if(config_visible_function($dbc, 'pos') == 1) {

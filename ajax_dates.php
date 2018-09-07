@@ -1,7 +1,6 @@
 <?php session_start();
-include ('database_connection.php');
-include ('function.php');
-error_reporting(0);
+include ('include.php');
+ob_clean();
 
 if($_GET['action'] == "next_occurrence") {
 	$name = $_POST['name'];

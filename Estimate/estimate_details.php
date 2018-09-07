@@ -186,7 +186,7 @@ function loadPanel() {
 		<div class="panel-heading">
 			<h4 class="panel-title">
 				<a data-toggle="collapse" data-parent="#estimate_accordions" href="#collapse_info">
-					<?= ESTIMATE_TILE ?> Information<span class="glyphicon glyphicon-plus"></span>
+					<?= rtrim(ESTIMATE_TILE, 's') ?> Information<span class="glyphicon glyphicon-plus"></span>
 				</a>
 			</h4>
 		</div>
@@ -276,7 +276,7 @@ function loadPanel() {
 <div class="standard-collapsible hide-titles-mob sidebar tile-sidebar sidebar-override inherit-height double-gap-top">
 	<ul>
 		<a href="?view=<?= $_GET['edit'] ?>"><li><img src="../img/icons/dropdown-arrow.png" class="smaller inline-img black-color clockwise">Back to Overview</li></a>
-		<a href="?edit=<?= $_GET['edit'] ?>&status=information" onclick="return moveToTab('information')"><li class="<?= $_GET['status'] == '' ? 'active blue' : '' ?>"><?= ESTIMATE_TILE ?> Information</li></a>
+		<a href="?edit=<?= $_GET['edit'] ?>&status=information" onclick="return moveToTab('information')"><li class="<?= $_GET['status'] == '' ? 'active blue' : '' ?>"><?= rtrim(ESTIMATE_TILE, 's') ?> Information</li></a>
 		<a href="?edit=<?= $_GET['edit'] ?>&status=dates" onclick="return moveToTab('dates')"><li class="<?= $_GET['status'] == 'dates' ? 'active blue' : '' ?>">Deliverables</li></a>
 		<a href="?edit=<?= $_GET['edit'] ?>&status=staff" onclick="return moveToTab('staff')"><li class="<?= $_GET['status'] == 'staff' ? 'active blue' : '' ?>">Staff Collaboration</li></a>
 		<a href="?edit=<?= $_GET['edit'] ?>&status=templates" onclick="return moveToTab('templates')"><li class="<?= $_GET['status'] == 'templates' ? 'active blue' : '' ?>">Scope Templates</li></a>
@@ -290,7 +290,7 @@ function loadPanel() {
 <div class='scalable preview-bar hide-titles-mob ui-resizable' style="padding:0;"></div>
 <div class='scale-to-fill has-main-screen hide-titles-mob'>
 	<div class='main-screen default_screen form-horizontal standard-body'>
-		<div class="standard-body-title"><h3><?= ESTIMATE_TILE ?> Details</h3></div>
+		<div class="standard-body-title"><h3><?= rtrim(ESTIMATE_TILE, 's') ?> Details</h3></div>
 		<div class="standard-dashboard-body-content pad-top pad-left pad-right">
 			<input type="hidden" name="estimateid" value="<?= $_GET['edit'] ?>">
 			<?php $config = explode(',',mysqli_fetch_array(mysqli_query($dbc,"SELECT `config_fields` FROM `field_config_estimate`"))[0]);

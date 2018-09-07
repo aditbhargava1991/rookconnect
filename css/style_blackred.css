@@ -132,10 +132,11 @@ ul.sidebar .active.blue, .tile-sidebar ul li.active, div.calendar-screen .block-
 .info-block-header {background-color:#ddd !important; border-bottom:4px solid #777 !important; }
 .tile-sidebar ul a { color:#000 !important; }
 .tile-sidebar ul li.active a, .filter_div a:hover { color:#fff !important; }
+.tile-sidebar ul li.sidebar-higher-level ul li.active a { color:#a40000 !important; }
 .tile-sidebar ul a li.sidebar-lower-level.active { background-color:#fff !important; color:#a40000 !important; }
 .iframe_overlay { background-color:rgba(0,0,0,0.3) !important; }
 table th a, table th a:hover { color:#fff !important; }
-table td a, table td a:active { color:#666 !important; }
+table td a, table td a:active { color:#a40000 !important; }
 table td a:hover { color:#000 !important; }
 div.calendar-screen { background-color:#ccc !important; }
 .standard-sidebar-searchbox {
@@ -144,6 +145,10 @@ div.calendar-screen { background-color:#ccc !important; }
 .sidebar-higher-level a.cursor-hand.active {
   background-color: #a40000 !important;
   color:#fff !important;
+}
+.sidebar-higher-level.highest-level .sidebar-higher-level a.cursor-hand.active {
+  background-color:transparent !important;
+  color:#a40000 !important;
 }
 .sidebar-higher-level ul li.active.blue,.sidebar-higher-level ul li.active.blue a,.sidebar-higher-level ul li.active.blue span, .standard-collapsible .sidebar-higher-level ul li.active {
   color:#a40000 !important;

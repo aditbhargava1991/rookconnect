@@ -26,7 +26,7 @@ if (isset($_POST['submit'])) {
 			$query_insert_config = "INSERT INTO `general_configuration` (`name`, `value`) VALUES ('rate_card_types', '$rate_card_types')";
 			$result_insert_config = mysqli_query($dbc, $query_insert_config);
 		}
-		
+
 		//Field Labels and Order
 		$labels = [];
 		foreach($_POST['estimate_field_name'] as $key => $name) {
@@ -600,7 +600,7 @@ $rcdb_config = ','.$get_field_config['dashboard_fields'].',';
 
 		<div id="collapse_Customer_Categories" class="panel-collapse collapse">
 			<div class="panel-body">
-				<?php 
+				<?php
 	            $cat_config = ','.get_config($dbc, 'customer_rate_card_contact_categories').',';
 	            if($cat_config == ',,') {
 	            	$cat_config = ',Business,';
@@ -614,8 +614,7 @@ $rcdb_config = ','.$get_field_config['dashboard_fields'].',';
 					<label class="col-sm-4 control-label">Contact Category:</label>
 					<div class="col-sm-8">
 						<select name="customer_contact_category[]" multiple class="chosen-select-deselect form-control">
-							<option></option>
-				            <?php 
+				            <?php
 			                foreach ($all_cats as $contact_cat) {
 			                    echo '<option value="'.$contact_cat.'" '.(strpos($cat_config, ','.$contact_cat.',') !== FALSE ? 'selected' : '').'>'.$contact_cat.'</option>';
 			                } ?>
@@ -1067,23 +1066,23 @@ $rcdb_config = ','.$get_field_config['dashboard_fields'].',';
 				<label style="margin: 0; padding: 0 1em 1em; text-transform: capitalize; vertical-align: top; width: 15em;">
 				<input type="checkbox" <?php echo strpos($db_config,',created_by,') !== false ? "checked" : ""; ?> value="created_by" style="height: 20px; margin: 0 1em; vertical-align: top; width: 20px;" name="db_config[]">
 				Created By</label>
-				
+
 				<label style="margin: 0; padding: 0 1em 1em; text-transform: capitalize; vertical-align: top; width: 15em;">
 				<input type="checkbox" <?php echo strpos($db_config,',uom,') !== false ? "checked" : ""; ?> value="uom" style="height: 20px; margin: 0 1em; vertical-align: top; width: 20px;" name="db_config[]">
 				UOM</label>
-				
+
 				<label style="margin: 0; padding: 0 1em 1em; text-transform: capitalize; vertical-align: top; width: 15em;">
 				<input type="checkbox" <?php echo strpos($db_config,',cost,') !== false ? "checked" : ""; ?> value="cost" style="height: 20px; margin: 0 1em; vertical-align: top; width: 20px;" name="db_config[]">
 				Cost</label>
-				
+
 				<label style="margin: 0; padding: 0 1em 1em; text-transform: capitalize; vertical-align: top; width: 15em;">
 				<input type="checkbox" <?php echo strpos($db_config,',profit_percent,') !== false ? "checked" : ""; ?> value="profit_percent" style="height: 20px; margin: 0 1em; vertical-align: top; width: 20px;" name="db_config[]">
 				Profit %</label>
-				
+
 				<label style="margin: 0; padding: 0 1em 1em; text-transform: capitalize; vertical-align: top; width: 15em;">
 				<input type="checkbox" <?php echo strpos($db_config,',profit_dollar,') !== false ? "checked" : ""; ?> value="profit_dollar" style="height: 20px; margin: 0 1em; vertical-align: top; width: 20px;" name="db_config[]">
 				Profit $</label>
-				
+
 				<label style="margin: 0; padding: 0 1em 1em; text-transform: capitalize; vertical-align: top; width: 15em;">
 				<input type="checkbox" disabled checked value="price" style="height: 20px; margin: 0 1em; vertical-align: top; width: 20px;" name="db_config[]">
 				Price</label>
@@ -1130,23 +1129,23 @@ $rcdb_config = ','.$get_field_config['dashboard_fields'].',';
 				<label style="margin: 0; padding: 0 1em 1em; text-transform: capitalize; vertical-align: top; width: 15em;">
 				<input type="checkbox" <?php echo strpos($field_config,',email_alerts,') !== false ? "checked" : ""; ?> value="email_alerts" style="height: 20px; margin: 0 1em; vertical-align: top; width: 20px;" name="field_config[]">
 				Email Reminder Alerts</label>
-				
+
 				<label style="margin: 0; padding: 0 1em 1em; text-transform: capitalize; vertical-align: top; width: 15em;">
 				<input type="checkbox" <?php echo strpos($field_config,',uom,') !== false ? "checked" : ""; ?> value="uom" style="height: 20px; margin: 0 1em; vertical-align: top; width: 20px;" name="field_config[]">
 				UOM</label>
-				
+
 				<label style="margin: 0; padding: 0 1em 1em; text-transform: capitalize; vertical-align: top; width: 15em;">
 				<input type="checkbox" <?php echo strpos($field_config,',cost,') !== false ? "checked" : ""; ?> value="cost" style="height: 20px; margin: 0 1em; vertical-align: top; width: 20px;" name="field_config[]">
 				Cost</label>
-				
+
 				<label style="margin: 0; padding: 0 1em 1em; text-transform: capitalize; vertical-align: top; width: 15em;">
 				<input type="checkbox" <?php echo strpos($field_config,',profit_percent,') !== false ? "checked" : ""; ?> value="profit_percent" style="height: 20px; margin: 0 1em; vertical-align: top; width: 20px;" name="field_config[]">
 				Profit %</label>
-				
+
 				<label style="margin: 0; padding: 0 1em 1em; text-transform: capitalize; vertical-align: top; width: 15em;">
 				<input type="checkbox" <?php echo strpos($field_config,',profit_dollar,') !== false ? "checked" : ""; ?> value="profit_dollar" style="height: 20px; margin: 0 1em; vertical-align: top; width: 20px;" name="field_config[]">
 				Profit $</label>
-				
+
 				<label style="margin: 0; padding: 0 1em 1em; text-transform: capitalize; vertical-align: top; width: 15em;">
 				<input type="checkbox" disabled checked value="price" style="height: 20px; margin: 0 1em; vertical-align: top; width: 20px;" name="field_config[]">
 				Price</label>

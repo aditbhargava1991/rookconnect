@@ -133,7 +133,7 @@ checkAuthorised('vpl');
 		</div>
 
 		<div class="clearfix double-gap-bottom"></div>
-        
+
         <div class="notice double-gap-bottom popover-examples">
 			<div class="col-sm-1 notice-icon"><img src="<?= WEBSITE_URL; ?>/img/info.png" class="wiggle-me" width="25px"></div>
 			<div class="col-sm-16"><span class="notice-name">NOTE:</span> This is where you can view, edit, import and export all Vendor Price Lists that you receive from vendors.</div>
@@ -447,7 +447,7 @@ checkAuthorised('vpl');
                         echo '<th>Include in '.SALES_ORDER_TILE.'</th>';
                     }
 					if (strpos($value_config, ','."Include in P.O.S.".',') !== FALSE) {
-                        echo '<th>Include in Point of Sale</th>';
+                        echo '<th>Include in '.POS_ADVANCE_TILE.'</th>';
                     }
 					if (strpos($value_config, ','."Include in Purchase Orders".',') !== FALSE) {
                         echo '<th>Include in Purchase Orders</th>';

@@ -2,6 +2,7 @@
 /*
 Software Format
 */
+include_once('../include.php');
 ?>
 <script type="text/javascript">
 	function tileclick(sel) {

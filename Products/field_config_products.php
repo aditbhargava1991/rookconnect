@@ -212,7 +212,7 @@ if (isset($_POST['submit'])) {
                             <input type="checkbox" <?php if (strpos($value_config, ','."Reminder/Alert".',') !== FALSE) { echo " checked"; } ?> value="Reminder/Alert" style="height: 20px; width: 20px;" name="products[]">&nbsp;&nbsp;Reminder/Alert
                         </td>
 						<td>
-                            <input type="checkbox" <?php if (strpos($value_config, ','."Include in P.O.S.".',') !== FALSE) { echo " checked"; } ?> value="Include in P.O.S." style="height: 20px; width: 20px;" name="products[]">&nbsp;&nbsp;Include in Point of Sale.
+                            <input type="checkbox" <?php if (strpos($value_config, ','."Include in P.O.S.".',') !== FALSE) { echo " checked"; } ?> value="Include in P.O.S." style="height: 20px; width: 20px;" name="products[]">&nbsp;&nbsp;Include in <?= POS_ADVANCE_TILE ?>.
                         </td>
 						<td>
                             <input type="checkbox" <?php if (strpos($value_config, ','."Include in Sales Orders".',') !== FALSE) { echo " checked"; } ?> value="Include in Sales Orders" style="height: 20px; width: 20px;" name="products[]">&nbsp;&nbsp;Include in <?= SALES_ORDER_TILE ?>
@@ -354,7 +354,7 @@ if (isset($_POST['submit'])) {
                         </td>
 						<td>
                             <input type="checkbox" <?php if (strpos($value_config, ','."Include in P.O.S.".',') !== FALSE) {
-                            echo " checked"; } ?> value="Include in P.O.S." style="height: 20px; width: 20px;" name="products_dashboard[]">&nbsp;&nbsp;Include in Point of Sale
+                            echo " checked"; } ?> value="Include in P.O.S." style="height: 20px; width: 20px;" name="products_dashboard[]">&nbsp;&nbsp;Include in <?= POS_ADVANCE_TILE ?>
                         </td>
                     </tr>
 					 <tr>

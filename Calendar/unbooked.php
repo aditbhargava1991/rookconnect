@@ -86,6 +86,7 @@ if($wait_list == 'ticket' || $wait_list == 'ticket_multi') { ?>
 		location_filter = $('[name=filter_unbooked_location]').val();
 		classification_filter = $('[name=filter_unbooked_classification]').val();
 		cust_filter = $('[name=filter_unbooked_cust]').val();
+		client_filter = $('[name=filter_unbooked_client]').val();
 		staff_filter = $('[name=filter_unbooked_staff]').val();
 		status_filter = $('[name=filter_unbooked_status]').val();
 		from_date_filter = $('[name=filter_from_date]').val();
@@ -98,6 +99,7 @@ if($wait_list == 'ticket' || $wait_list == 'ticket_multi') { ?>
 			ticket.region = ticket.region == null ? '' : ticket.region;
 			ticket.location = ticket.location == null ? '' : ticket.location;
 			ticket.classification = ticket.classification == null ? '' : ticket.classification;
+			ticket.client = ticket.client == null ? '' : ticket.client;
 			if(projecttype_filter != '' && projecttype_filter != undefined && ticket.projecttype != projecttype_filter) {
 				ticket_pass = false;
 			} else if(project_filter != '' && project_filter != undefined && ticket.project != project_filter) {
@@ -109,6 +111,8 @@ if($wait_list == 'ticket' || $wait_list == 'ticket_multi') { ?>
 			} else if(classification_filter != '' && classification_filter != undefined && ticket.classification.indexOf(classification_filter) == -1) {
 				ticket_pass = false;
 			} else if(cust_filter != '' && cust_filter != undefined && ticket.cust != cust_filter) {
+				ticket_pass = false;
+			} else if(client_filter != '' && client_filter != undefined && ticket.client.indexOf(client_filter) == -1) {
 				ticket_pass = false;
 			} else if(staff_filter != '' && staff_filter != undefined && (','+ticket.staff+',').indexOf(','+staff_filter+',') == -1) {
 				ticket_pass = false;
@@ -206,6 +210,17 @@ if($wait_list == 'ticket' || $wait_list == 'ticket_multi') { ?>
 			}
 		});
 		$('[name="filter_unbooked_cust"]').trigger('change.select2');
+		ticket_list['filter_count'].client_filters.forEach(function(filter) {
+			var clientid = filter.id;
+			var count = filter.count;
+			if(clientid > 0) {
+				var option = $('[name="filter_unbooked_client"] option').filter(function() { return $(this).val() == clientid });
+				option_text = option.text();
+				option_text = option_text.substr(0, option_text.lastIndexOf('('))+'('+count+')';
+				option.text(option_text);
+			}
+		});
+		$('[name="filter_unbooked_client"]').trigger('change.select2');
 		ticket_list['filter_count'].staff_filters.forEach(function(filter) {
 			var staffid = filter.id;
 			var count = filter.count;
@@ -346,6 +361,16 @@ if($wait_list == 'ticket' || $wait_list == 'ticket_multi') { ?>
 				<?php } ?>
 			</select></label>
 		<?php } ?>
+		<?php if(strpos($unbooked_filters, ',client,') !== FALSE) {
+		$search_placeholder[] = 'Client'; ?>
+		<label class="super-label">Client:
+			<select name="filter_unbooked_client" data-placeholder="Select a Client" class="chosen-select-deselect unbooked_ticket_client"><option></option>
+				<?php $clients = sort_contacts_query(mysqli_query($dbc, "SELECT `contactid`, `name`, `first_name`, `last_name` FROM `contacts` WHERE `contactid` IN (SELECT `clientid` FROM `tickets` WHERE (IFNULL(`to_do_date`,'0000-00-00') IN ('0000-00-00','') OR `tickets`.`status` = 'To Be Scheduled' OR REPLACE(IFNULL(`tickets`.`contactid`,''),',','') = '') AND `deleted`=0)"));
+				foreach($clients as $client) { ?>
+					<option value="<?= $client['contactid'] ?>"><?= $client['full_name'] ?> (<?= !empty($client_filters[$client['contactid']]) ? $client_filters[$client['contactid']] : '0' ?>)</option>
+				<?php } ?>
+			</select></label>
+		<?php } ?>
 		<?php if(strpos($unbooked_filters, ',staff,') !== FALSE) {
 		$search_placeholder[] = 'Staff'; ?>
 		<label class="super-label">Staff:
@@ -369,9 +394,9 @@ if($wait_list == 'ticket' || $wait_list == 'ticket_multi') { ?>
 		<?php if(strpos($unbooked_filters, ',date_range,') !== FALSE) {
 			$search_placeholder[] = 'Date'; ?>
 		<label class="super-label">From Date:
-			<input type="text" name="filter_from_date" class="form-control datepicker" value="<?= date('Y-m-d') ?>" onchange="filterTickets();"></label>
+			<input type="text" name="filter_from_date" class="form-control datepicker" value="<?= !empty($_GET['search_start_date']) ? $_GET['search_start_date'] : date('Y-m-d') ?>" onchange="filterTickets();"></label>
 		<label class="super-label">To Date:
-			<input type="text" name="filter_to_date" class="form-control datepicker" value="<?= date('Y-m-d') ?>" onchange="filterTickets();"></label>
+			<input type="text" name="filter_to_date" class="form-control datepicker" value="<?= !empty($_GET['search_end_date']) ? $_GET['search_end_date'] : date('Y-m-d') ?>" onchange="filterTickets();"></label>
 		<?php } ?>
 		<?php if(strpos($unbooked_filters, ',searchbox,') !== FALSE) { ?>
 		<label class="super-label">Search:
@@ -429,7 +454,7 @@ if($wait_list == 'ticket' || $wait_list == 'ticket_multi') { ?>
 		<?php $work_list = mysqli_query($dbc, "SELECT * FROM `workorder` WHERE IFNULL(`to_do_date`,'0000-00-00') IN ('0000-00-00','')");
 		while($workorder = mysqli_fetch_array($work_list)) { ?>
 			<a href="" onclick='overlayIFrameSlider("<?= WEBSITE_URL ?>/Work Order/edit_workorder.php?action=view&workorderid=<?= $workorder['workorderid'] ?>"); return false;' style="text-decoration: none;"><div class="block-item active" style="border: 1px solid rgba(0,0,0,0.5); margin: 0.25em 0 0;" data-type="workorder" data-id="<?= $workorder['workorderid'] ?>" data-text="<?= $workorder['heading'] ?> " data-project="<?= $workorder['projectid'] ?>" data-cust="<?= $workorder['businessid'] ?>" data-staff="<?= $workorder['contactid'] ?>">
-				<img class='drag-handle' src='<?= WEBSITE_URL ?>/img/icons/drag_handle.png' style='filter: brightness(200%); float: right; width: 2em;'>
+				<img class='drag-handle no-toggle' src='<?= WEBSITE_URL ?>/img/icons/drag_handle.png' style='filter: brightness(200%); float: right; width: 2em;' title='Drag'>
 				Work Order #<?= $workorder['ticketid'].' '.$workorder['heading'] ?><br />
 				Project #<?= $workorder['projectid'] ?><br />
 				Customer: <?= get_client($dbc, $workorder['businessid']) ?></div></a>
@@ -584,7 +609,7 @@ if($wait_list == 'ticket' || $wait_list == 'ticket_multi') { ?>
 
 				$unbooked_html .= '<a href="?'.http_build_query($page_query).'"><div class="block-item active" style="position: relative; border: 1px solid rgba(0,0,0,0.5); margin: 0.25em 0 0;" data-type="waitlist" data-id="'.$wait_line['waitlistid'].'" data-customer="'.$wait_line['patientid'].'" data-injury="'.$wait_line['injury_type'].' " data-type="'.$wait_line['appt_type'].'" data-text="'.$search_text.'" data-title="View Appointment">
                 	<div class="drag-handle full-height" title="Drag Me!">
-						<img class="drag-handle" src="'.WEBSITE_URL.'/img/icons/drag_handle.png" style="filter: brightness(200%); float: right; width: 2em;">
+						<img class="drag-handle no-toggle" src="'.WEBSITE_URL.'/img/icons/drag_handle.png" style="filter: brightness(200%); float: right; width: 2em;" title="Drag">
 					</div>
 					Patient: '.get_contact($dbc, $wait_line['patientid']).'<br />
 					Injury: '.$wait_line['injury_type'].' - '.$wait_line['injury_name'].'<br />

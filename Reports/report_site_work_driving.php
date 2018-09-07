@@ -5,27 +5,12 @@ Client Listing
 include ('../include.php');
 checkAuthorised('report');
 include_once('../tcpdf/tcpdf.php');
-error_reporting(0); ?>
-
-</head>
-<body>
-<?php include_once ('../navigation.php');
-?>
-
-<div class="container triple-pad-bottom">
-    <div class="row">
-        <div class="col-md-12">
-        <?php echo reports_tiles($dbc);  ?>
-		<h2>Site Work Order Driving Logs</h2>
+error_reporting(0);
+$report_fields = explode(',', get_config($dbc, 'report_operation_fields')); ?>
 
             <?php
                 echo driving_logs($dbc);
             ?>
-
-        </div>
-    </div>
-</div>
-<?php include ('../footer.php'); ?>
 
 <?php
 function driving_logs($dbc) {
@@ -74,3 +59,17 @@ function driving_logs($dbc) {
     return $report_data;
 }
 ?>
+<script>
+$('document').ready(function() {
+    var tables = $('table');
+
+    tables.map(function(idx, table) {
+        var rows = $(table).find('tbody > tr');
+        rows.map(function(idx, row){
+            if(idx%2 == 0) {
+                $(row).css('background-color', '#e6e6e6');
+            }
+        })
+    })
+})
+</script>

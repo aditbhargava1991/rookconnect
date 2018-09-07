@@ -47,16 +47,16 @@ if(isset($_GET['status'])){
         } ?>
 		<h1 class="single-pad-bottom">
 			<span class="popover-examples list-inline hide-on-mobile"><a style="margin:0 0 0 15px;" data-toggle="tooltip" data-placement="top" title="This is where you will store all of your contact information pertaining to your business."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="30"></a></span>
-			Vendors Dashboard<?php
+			<?= VENDOR_TILE ?> Dashboard<?php
 			if(config_visible_function($dbc, 'contacts') == 1) {
 				echo '<a href="field_config_contacts.php?category='. $_GET[ 'category' ] .'&type=tab" class="mobile-block pull-right"><img style="width: 50px;" title="Tile Settings" src="../img/icons/settings-4.png" class="settings-classic wiggle-me"></a><span class="popover-examples list-inline"><a class="pull-right gap-top" style="margin:0 5px 0 0;" data-toggle="tooltip" data-placement="top" title="Click here for the settings within this tile. Any changes made will appear on your dashboard."><img src="' . WEBSITE_URL . '/img/info.png" width="20"></a></span>';
 			} ?>
 		</h1>
-        
+
         <div class="tab-container gap-left">
-            <div class="pull-left tab"><button class="btn brand-btn mobile-100 mobile-block active_tab" type="button">Vendors</button></div>
+            <div class="pull-left tab"><button class="btn brand-btn mobile-100 mobile-block active_tab" type="button"><?= VENDOR_TILE ?></button></div>
         </div>
-        
+
         <div class="clearfix gap-top"></div>
 
 		<form name="form_search" method="post" action="" class="form-inline" role="form">
@@ -84,7 +84,7 @@ if(isset($_GET['status'])){
 				<span class="popover-examples list-inline hide-on-mobile"><a style="margin:5px 0 0 15px;" data-toggle="tooltip" data-placement="top" title="Refreshes the page to display all contact information under the specific tab."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
 				<button type="submit" name="display_all_contacts" value="Display All" class="btn brand-btn mobile-block hide-on-mobile">Display All</button>
 			</div><?php
-			
+
             $impexp_or_not ='';
 			$get_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT COUNT(configid) AS configid FROM general_configuration WHERE name='show_impexp_contact'"));
 			if($get_config['configid'] > 0) {
@@ -96,7 +96,7 @@ if(isset($_GET['status'])){
 
 			if ( vuaed_visible_function ( $dbc, 'contacts' ) == 1 ) { ?>
 				<div class="col-sm-12 col-xs-12 col-lg-4 pad-top offset-xs-top-20 pull-right">
-					<a href="add_contacts.php?category=Vendor" class="btn brand-btn mobile-block gap-bottom pull-right">Add Vendor</a>
+					<a href="add_contacts.php?category=Vendor" class="btn brand-btn mobile-block gap-bottom pull-right">Add <?= VENDOR_TILE ?></a>
 					<span class="popover-examples list-inline"><a class="pull-right" style="margin:7px 5px 0 15px;" data-toggle="tooltip" data-placement="top" title="Click to add a new Vendor."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span><?php
                         if ( $impexp_or_not == 'true' ) { ?>
                             <a href="add_contacts_multiple.php?category=<?= $category; ?>" class="btn brand-btn mobile-block gap-bottom pull-right">Import/Export</a>
@@ -127,9 +127,9 @@ if(isset($_GET['status'])){
                 }
 
                 include_once('contacts_search_function.php');
-                
+
                 $url_search = ( isset($_GET['filter']) ) ? $_GET['filter'] : '';
-                
+
                 if ( $contacts != '' ) {
                     $id_list = search_contacts_table($dbc, $contacts, $sea_constraint." AND `category` LIKE '$category'");
                     $query_check_credentials = "SELECT * FROM `contacts` WHERE `contactid` IN ($id_list)";
@@ -139,7 +139,7 @@ if(isset($_GET['status'])){
                     $rowsPerPage = mysqli_fetch_array(mysqli_query($dbc,$query))['numrows'];
                     $pageNum = 1;
                     $offset = 0;
-                
+
                 } else {
                     /* Pagination Counting */
                     $rowsPerPage = 25;
@@ -152,10 +152,10 @@ if(isset($_GET['status'])){
                     $offset = ($pageNum - 1) * $rowsPerPage;
 
                     $search = '';
-                    
+
                     if ( $url_search == 'Top' || $url_search == 'All' ) {
                         if ( $is_mobile === true ) { $mobile_view = true; }
-                        
+
                         $query_check_credentials = "SELECT * FROM `contacts` WHERE `deleted`=0 AND `category` LIKE '$category' $search $sea_constraint";
                         $query = "SELECT COUNT(*) AS `numrows` FROM `contacts` WHERE `deleted`=0 AND `category` LIKE '$category' $search $sea_constraint";
                     } else {
@@ -164,7 +164,7 @@ if(isset($_GET['status'])){
                         $query = "SELECT COUNT(*) AS `numrows` FROM `contacts` WHERE `contactid` IN ($id_list)";
                     }
                 }
-                
+
                 $results = [];
 
                 if ( !isset($_GET['sortby']) ) {
@@ -296,11 +296,11 @@ if(isset($_GET['status'])){
 
                     </div><?php
                 } ?>
-                
+
                 <div class="clearfix"></div>
             </div><!-- #no-more-tables -->
         </form>
-        
+
 	</div><!-- .row -->
 </div><!-- .container -->
 

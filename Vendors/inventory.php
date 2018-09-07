@@ -141,7 +141,7 @@ $contactid = $_GET['contactid'];
                     $active_all = 'active_tab';
                 }
                 echo "<a href='inventory.php?category=Top".$order_list."'><button type='button' class='btn brand-btn mobile-block mobile-100 ".$active_all."' >Last 25 Added</button></a>&nbsp;&nbsp;"; ?>
-                
+
 				<div class="form-group  mobile-100 cate_fitter" style='width:100%; '>
 					<select name="search_category" class="chosen-select-deselect form-control category_actual" onchange="location=this.value;">
                         <option value="">Select a Category</option><?php
@@ -157,7 +157,7 @@ $contactid = $_GET['contactid'];
                       ?>
                     </select>
 				</div><?php
-                
+
                 if($_GET['category'] == 'bom') {
                     $active_bom = ' active_tab';
                 }
@@ -288,7 +288,7 @@ $contactid = $_GET['contactid'];
                     $query = "SELECT COUNT(*) AS `numrows` FROM `vendor_price_list` WHERE `deleted`=0";
                 }
 			}
-            
+
 			$result = mysqli_query($dbc, $query_check_credentials);
 
 			$num_rows = mysqli_num_rows($result);
@@ -353,7 +353,7 @@ $contactid = $_GET['contactid'];
                         echo '<th>USD Invoice</th>';
                     }
                     if (strpos($value_config, ','."Vendor".',') !== FALSE) {
-                        echo '<th>Vendor</th>';
+                        echo '<th>'.VENDOR_TILE.'</th>';
                     }
                     if (strpos($value_config, ','."Purchase Cost".',') !== FALSE) {
                         echo '<th>Purchase Cost</th>';
@@ -404,7 +404,7 @@ $contactid = $_GET['contactid'];
                         echo '<th>Include in '.SALES_ORDER_TILE.'</th>';
                     }
 					if (strpos($value_config, ','."Include in P.O.S.".',') !== FALSE) {
-                        echo '<th>Include in Point of Sale</th>';
+                        echo '<th>Include in '.POS_ADVANCE_TILE.'</th>';
                     }
 					if (strpos($value_config, ','."Include in Purchase Orders".',') !== FALSE) {
                         echo '<th>Include in Purchase Orders</th>';

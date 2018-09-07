@@ -74,6 +74,9 @@ if (isset($_POST['printpdf'])) {
     $today_date = date('Y-m-d');
 	$pdf->writeHTML(utf8_encode($html), true, false, true, false, '');
 	$pdf->Output('Download/blockbooking_on_'.$today_date.'.pdf', 'F');
+
+    track_download($dbc, 'report_bb_vs_not_bb', 0, WEBSITE_URL.'/Reports/Download/blockbooking_on_'.$today_date.'.pdf', 'Block Booking Report');
+
     ?>
 
 	<script type="text/javascript" language="Javascript">
@@ -84,20 +87,6 @@ if (isset($_POST['printpdf'])) {
     $endtime = $endtimepdf;
     $therapist = $therapistpdf;
     } ?>
-
-<script type="text/javascript">
-
-</script>
-</head>
-<body>
-<?php include_once ('../navigation.php');
-?>
-
-<div class="container">
-    <div class="row">
-        <div class="col-md-12">
-
-        <?php echo reports_tiles($dbc);  ?>
 
         <form id="form1" name="form1" method="post" action="" enctype="multipart/form-data" class="form-horizontal" role="form">
 
@@ -167,12 +156,6 @@ if (isset($_POST['printpdf'])) {
             ?>
 
         </form>
-
-        </div>
-    </div>
-</div>
-<?php include ('../footer.php'); ?>
-
 <?php
 function report_goals($dbc, $starttime, $endtime, $table_style, $table_row_style, $grand_total_style, $therapist) {
 
@@ -378,3 +361,17 @@ function report_goals($dbc, $starttime, $endtime, $table_style, $table_row_style
 }
 
 ?>
+<script>
+$('document').ready(function() {
+    var tables = $('table');
+
+    tables.map(function(idx, table) {
+        var rows = $(table).find('tbody > tr');
+        rows.map(function(idx, row){
+            if(idx%2 == 0) {
+                $(row).css('background-color', '#e6e6e6');
+            }
+        })
+    })
+})
+</script>

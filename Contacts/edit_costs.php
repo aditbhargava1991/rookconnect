@@ -346,7 +346,7 @@
 	<label class="col-sm-4 control-label">Hours Tracked to Date (H:MM):</label>
 	<div class="col-sm-8">
 		<?php $tracked_time = 0;
-		$time_list = mysqli_query($dbc, "SELECT `ticket_timer`.`ticketid`,TIME_TO_SEC(`ticket_timer`.`timer`) `seconds` FROM `ticket_timer` LEFT JOIN `tickets` ON `ticket_timer`.`ticketid` = `tickets`.`ticketid` WHERE '{$_GET['edit']}' IN (`tickets`.`businessid`,`tickets`.`clientid`)");
+		$time_list = mysqli_query($dbc, "SELECT `ticket_timer`.`ticketid`,TIME_TO_SEC(`ticket_timer`.`timer`) `seconds` FROM `ticket_timer` LEFT JOIN `tickets` ON `ticket_timer`.`ticketid` = `tickets`.`ticketid` WHERE '{$_GET['edit']}' IN (`tickets`.`businessid`,`tickets`.`clientid`) AND `ticket_timer`.`deleted`=0");
 		while($time_info = mysqli_fetch_array($time_list)) {
 			$tracked_time += $time_info['seconds'];
 		}

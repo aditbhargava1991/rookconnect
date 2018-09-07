@@ -1,4 +1,5 @@
-<?php include('../include.php');
+<?php
+include(substr(dirname(__FILE__), 0, -8).'include.php');
 
 $today_date = date('Y-m-d');
 

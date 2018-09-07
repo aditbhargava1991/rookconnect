@@ -3,9 +3,9 @@
 if ( $complete===TRUE ) {
 	$invoice_date		= date('Y-m-d');
 	$discount_type		= '%';
-	
+
 	$get_values = mysqli_query ( $dbc, "SELECT `o`.*, `p`.* FROM `pos_touch_temp_order` AS `o` INNER JOIN `pos_touch_temp_order_products` AS `p` ON (`o`.`orderid` = `p`.`orderid`) WHERE `o`.`orderid`='$orderid'" );
-	
+
 	while ( $row=mysqli_fetch_assoc($get_values) ) {
 		$custid				= $row['custid'];
 		$productpricing		= $row['inventory_pricing'];
@@ -18,7 +18,7 @@ if ( $complete===TRUE ) {
 		$pst_total			= $row['pst_total'];
 		$order_total		= $row['order_total'];
 	}
-	
+
 	$payment_type = '';
 	if ( isset ( $_GET['payment_type'] ) ) {
 		if ( trim ( $_GET['payment_type'] ) == 'cash' ) {
@@ -39,7 +39,7 @@ if ( $complete===TRUE ) {
 	}
 
 	$status = 'Completed';
-	
+
 	//if ( strpos($value_config, ','."Send Outbound Invoice".',') !== FALSE ) {
 		$pdf_product	= '';
 		$created_by		= $_SESSION['contactid'];
@@ -49,7 +49,11 @@ if ( $complete===TRUE ) {
 		$results_are_in = mysqli_query($dbc, $query_insert_invoice);
 
 		$posid = mysqli_insert_id($dbc);
-		
+
+		$before_change = '';
+		$history = "Point of Sale entry Added. <br />";
+		add_update_history($dbc, 'pos_history', $history, '', $before_change);
+
 		// Add order to Service Queue
 		if ( strpos ( $value_config, ',Service Queue,') !== FALSE ) {
 			$query_service	= "INSERT INTO `service_queue` (`posid`, `inv_date`) VALUES ('$posid', '$invoice_date')";
@@ -69,7 +73,7 @@ if ( $complete===TRUE ) {
 		$orderid_q = $_SESSION['orderid'];
 		$result = mysqli_query ( $dbc, "SELECT `to`.`orderlistid`, `to`.`productid`, `to`.`quantity` AS `order_quantity`, `inv`.`inventoryid`, `inv`.`bill_of_material` FROM `pos_touch_temp_order_products` AS `to` JOIN `products` AS `p` ON (`to`.`productid`=`p`.`productid`) JOIN `inventory` AS `inv` ON (`p`.`inventoryid`=`inv`.`inventoryid`) WHERE `to`.`orderid`='$orderid_q'" );
 		$num_rows = mysqli_num_rows($result);
-		
+
 		if ( $num_rows>0 ) {
 			// Assembled product
 			while ( $row=mysqli_fetch_assoc($result) ) {
@@ -84,15 +88,15 @@ if ( $complete===TRUE ) {
 			}
 		}
 
-		
+
 		$results = mysqli_query( $dbc, "SELECT * FROM `pos_touch_temp_order_products` WHERE `orderid`='$orderid'" );
-		
+
 		if ( $results->num_rows > 0 ) {
 			while ( $row = mysqli_fetch_assoc($results) ) {
 				$inventoryid	= $row['inventoryid'];
 				$productid		= $row['productid'];
 				$serviceid		= $row['serviceid'];
-				
+
 				// Add Inventory items
 				if ( !empty( $inventoryid ) || $inventoryid != NULL ) {
 					$quantity		= $row['quantity'];
@@ -100,25 +104,37 @@ if ( $complete===TRUE ) {
 					$query_insert_invoice = "INSERT INTO `point_of_sell_product` (`posid`, `inventoryid`, `quantity`, `price`, `type_category`) VALUES ('$posid', '$inventoryid', '$quantity', '$price', 'inventory')";
 					$results_are_in = mysqli_query($dbc, $query_insert_invoice);
 
+					$before_change = '';
+	        $history = "Point of Sale products Added. <br />";
+	        add_update_history($dbc, 'pos_history', $history, '', $before_change);
+
 					//Update Inventory table to reduce the quantity
 					$query_update_inventory = "UPDATE `inventory` SET `quantity`=(`quantity`-'$quantity') WHERE `inventoryid`='$inventoryid'";
 					$results_are_in = mysqli_query ( $dbc, $query_update_inventory );
 				}
-				
+
 				// Add Products
 				if ( !empty( $productid ) || $productid != NULL ) {
 					$quantity		= $row['quantity'];
 					$price			= number_format ( $row['total'], 2 );
 					$query_insert_invoice = "INSERT INTO `point_of_sell_product` (`posid`, `inventoryid`, `quantity`, `price`, `type_category`) VALUES ('$posid', '$productid', '$quantity', '$price', 'product')";
 					$results_are_in = mysqli_query($dbc, $query_insert_invoice);
+
+					$before_change = '';
+	        $history = "Point of Sale products Added. <br />";
+	        add_update_history($dbc, 'pos_history', $history, '', $before_change);
 				}
-				
+
 				// Add Services
 				if ( !empty( $serviceid ) || $serviceid != NULL ) {
 					$quantity		= $row['quantity'];
 					$price			= number_format ( $row['total'], 2 );
 					$query_insert_invoice = "INSERT INTO `point_of_sell_product` (`posid`, `inventoryid`, `quantity`, `price`, `type_category`) VALUES ('$posid', '$serviceid', '$quantity', '$price', 'service')";
 					$results_are_in = mysqli_query($dbc, $query_insert_invoice);
+
+					$before_change = '';
+	        $history = "Point of Sale products Added. <br />";
+	        add_update_history($dbc, 'pos_history', $history, '', $before_change);
 				}
 			}
 		}
@@ -151,12 +167,12 @@ if ( $complete===TRUE ) {
 		}
 		*/
 	//}
-	
+
 	$comments		= '';
 	$edit_id		= 0;
 	$rookconnect	= get_software_name();
 	$company_software_name = '';
-	
+
 	switch($rookconnect) {
 		case 'sea':
 			$company_software_name = 'Smart Energy Alternates';
@@ -198,7 +214,7 @@ if ( $complete===TRUE ) {
 		$attachment = 'download/invoice_' . $posid . $edited . '.pdf';
 		send_email('', $to_email, '', '', 'Washtech Invoice', 'Please see Attachment for Invoice', $attachment);
 	}
-	
+
 	$attachment = 'download/invoice_' . $posid . $edited . '.pdf';
 
 	/*
@@ -219,7 +235,7 @@ if ( $complete===TRUE ) {
 		window.location.replace("pos_touch.php?email_reciept=yes&posid=' . $posid . '&customerid=' . $custid . '");
 		cancelOrder();
 	</script>';
-	
+
 	$complete = FALSE;
 }
 ?>

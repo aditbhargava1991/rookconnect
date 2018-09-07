@@ -68,6 +68,7 @@ if (isset($_POST['printcmpdf'])) {
     $today_date = date('Y-m-d');
 	$pdf->writeHTML($html, true, false, true, false, '');
 	$pdf->Output('Download/insurer_cm_summary_'.$today_date.'.pdf', 'F');
+    track_download($dbc, 'report_insurer_summary', 0, WEBSITE_URL.'/Reports/Download/insurer_cm_summary_'.$today_date.'.pdf', 'Insurer Clinic Master Summary Report');
     ?>
 
 	<script type="text/javascript" language="Javascript">

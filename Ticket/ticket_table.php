@@ -34,7 +34,7 @@ echo '<tr class="hidden-xs hidden-sm">
 $project_security = get_security($dbc, 'project');
 while($row = mysqli_fetch_array( $result )) {
 	echo '<tr>
-		'.(!in_array('Label',$db_config) ? '<td data-title="'.TICKET_NOUN.' #">'.($tile_security['edit'] == 1 ? '<a href=\'../Ticket/index.php?edit=='.$row['ticketid'].'&from='.WEBSITE_URL.$_SERVER['REQUEST_URI'].'\'>'.($row['main_ticketid'] > 0 ? $row['main_ticketid'].' '.$row['sub_ticket']
+		'.(!in_array('Label',$db_config) ? '<td data-title="'.TICKET_NOUN.' #">'.($tile_security['edit'] == 1 ? '<a href=\'../Ticket/index.php?edit='.$row['ticketid'].'&from='.WEBSITE_URL.$_SERVER['REQUEST_URI'].'\'>'.($row['main_ticketid'] > 0 ? $row['main_ticketid'].' '.$row['sub_ticket']
 			: $row['ticketid']).'</a>' : $row['ticketid']).'</td>' : '<td data-title="'.TICKET_NOUN.' #">'.($tile_security['edit'] == 1 ? '<a href=\'../Ticket/index.php?edit='.$row['ticketid'].'&from='.WEBSITE_URL.$_SERVER['REQUEST_URI'].'\'>'.get_ticket_label($dbc, $row).'</a>' : $row['ticketid']).'</td>');
 	if(in_array('Project',$db_config)) {
 		echo '<td data-title="'.PROJECT_NOUN.' Information">';
@@ -197,6 +197,6 @@ if($tile_security['edit'] == 1) {
 	echo "";
 	echo '<div class="pull-right gap-bottom">';
 		?><span class="popover-examples list-inline" style="margin:0 5px 0 10px;"><a data-toggle="tooltip" data-placement="top" title="Click here to add a <?= TICKET_NOUN ?>."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span><?php
-	echo '<a href="../Ticket/index.php?edit=0&from='.WEBSITE_URL.$_SERVER['REQUEST_URI'].'" class="btn brand-btn mobile-block">New '.TICKET_NOUN.'</a>';
+	echo '<a href="../Ticket/index.php?edit=0&from='.WEBSITE_URL.$_SERVER['REQUEST_URI'].'" class="btn brand-btn mobile-block">Add '.TICKET_NOUN.'</a>';
 	echo '</div>';
 } ?>

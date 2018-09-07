@@ -1,8 +1,8 @@
 <?php
 /* Auto archive old tasks */
 error_reporting(0);
-include	('../database_connection.php');
-include ('../function.php');
+include(substr(dirname(__FILE__), 0, -8).'database_connection.php');
+include(substr(dirname(__FILE__), 0, -8).'function.php');
 
 /* $date = date('Y-m-d');
 if(date('d', strtotime($date)) === '01') {

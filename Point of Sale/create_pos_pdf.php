@@ -792,7 +792,7 @@ function create_pos3_pdf($dbc,$posid,$d_value,$comment, $gst_total, $pst_total, 
                 $html .= '<tr><td style="text-align:right;" width="75%"><strong>Returned Total (Including Tax)</strong></td><td border="1" width="25%" style="text-align:right;background-color: rgb(232,238,238);">$'.$point_of_sell['returned_amt'].'</td></tr>';
             }
 
-            $html .= '<tr><td style="text-align:right;" width="75%"><strong>Total</strong></td><td border="1" width="25%" style="text-align:right;background-color: rgb(232,238,238);">$'.($point_of_sell['total_price'] - $point_of_sell['returned_amt']).'</td></tr>';
+            $html .= '<tr><td style="text-align:right;" width="75%"><strong>Total</strong></td><td border="1" width="25%" style="text-align:right;background-color: rgb(232,238,238);">$'.number_format(($point_of_sell['total_price'] - $point_of_sell['returned_amt']),2).'</td></tr>';
 			if($point_of_sell['deposit_paid'] > 0) {
 				$html .='<tr><td style="text-align:right;" width="75%"><strong>Deposit Paid</strong></td><td border="1" width="25%" style="text-align:right;background-color: rgb(232,238,238);">$'.$point_of_sell['deposit_paid'].'</td></tr>';
 				$html .='<tr><td style="text-align:right;" width="75%"><strong>Updated Total</strong></td><td border="1" width="25%" style="text-align:right;background-color: rgb(232,238,238);">$'.$point_of_sell['updatedtotal'].'</td></tr>';

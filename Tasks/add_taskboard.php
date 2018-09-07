@@ -36,7 +36,7 @@ if (isset($_POST['add_tab'])) {
     $new_taskboardid = '';
 
     if($board_security == 'Community') {
-        $ffm_rook_db = @mysqli_connect('mysql.rookconnect.com', 'ffm_rook_user', 'R0bot587tw3ak', 'ffm_rook_db');
+        $ffm_rook_db = @mysqli_connect('localhost', 'ffm_rook_user', 'mIghtyLion!542', 'ffm_rook_db');
 
         if(empty($_POST['taskboardid'])) {
             $query_insert_config = "INSERT INTO `task_board` (`board_name`, `board_security`, `company_staff_sharing`, `businessid`, `contactid`, `task_path`, `milestone_timeline`, `software_url`) VALUES ('$board_name', '$board_security', '$company_staff_sharing', '$businessid', '$contactid', '$task_path', '$milestone_timeline', '$software_url')";
@@ -280,7 +280,6 @@ function changeLevel(sel) {
                 <label for="fax_number"	class="col-sm-4	control-label">Share With Staff:</label>
                 <div class="col-sm-8">
                     <select multiple name="company_staff_sharing[]" data-placeholder="Choose Staff..." class="chosen-select-deselect form-control" width="380">
-                      <option value=""></option>
                       <?php
                         $query1 = mysqli_query($dbc,"SELECT contactid, first_name, last_name FROM contacts WHERE deleted=0 AND category IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." order by first_name");
                         while($row1 = mysqli_fetch_array($query1)) {
@@ -314,7 +313,7 @@ function changeLevel(sel) {
                 <label for="first_name" class="col-sm-4 control-label text-right">Contact:</label>
                 <div class="col-sm-8">
                     <select data-placeholder="Choose a Client..." multiple id="contactid" name="contactid[]" class="chosen-select-deselect form-control1" width="380">
-                        <option></option><?php
+                        <?php
                         $query = mysqli_query($dbc,"SELECT contactid, first_name, last_name FROM contacts WHERE businessid = '$businessid' order by first_name");
                         while($row = mysqli_fetch_array($query)) {
                             if ($get_board['contactid'] == $row['contactid']) {

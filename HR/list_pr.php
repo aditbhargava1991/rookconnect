@@ -5,12 +5,17 @@ if(isset($_POST['select_staff'])) {
 if(isset($_POST['select_date'])) {
 	$_GET['select_date'] = $_POST['select_date'];
 }
+if(isset($_POST['select_form'])) {
+	$_GET['select_form'] = $_POST['select_form'];
+}
 if(isset($_POST['search_all'])) {
 	$_GET['select_staff'] = '';
 	$_GET['select_date'] = '';
+	$_GET['select_form'] = '';
 }
 $select_staff = $_GET['select_staff'];
 $select_date = $_GET['select_date'];
+$select_form = $_GET['select_form'];
 $pr_tab = $_GET['pr_tab'];
 
 $pr_positions = explode(',', get_config($dbc, 'performance_review_positions'));
@@ -27,6 +32,9 @@ if(!empty($select_staff)) {
 }
 if(!empty($select_date)) {
 	$date_query = " AND `today_date` >= '$select_date'";
+}
+if(!empty($select_form)) {
+	$form_query = " AND `user_form_id` = '$select_form'";
 }
 if(!empty($pr_tab)) {
 	$tab_query = " AND `position` = '$pr_tab'";
@@ -45,8 +53,14 @@ if(isset($_GET['page'])) {
 
 $offset = ($pageNum - 1) * $rowsPerPage;
 
-$pr_query = "SELECT * FROM `performance_review` WHERE `deleted` = 0".$staff_query.$date_query.$tab_query." LIMIT $offset, $rowsPerPage";
-$query = "SELECT COUNT(*) as numrows FROM `performance_review` WHERE `deleted` = 0".$staff_query.$date_query.$tab_query;
+$hide_query = "";
+$limit_staff = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT GROUP_CONCAT(`user_form_id` SEPARATOR ',') as `hidden_forms` FROM `field_config_performance_reviews` WHERE IFNULL(`limit_staff`,'') != '' AND CONCAT(',',`limit_staff`,',') NOT LIKE '%,".$_SESSION['contactid'].",%'"))['hidden_forms'];
+if(!empty($limit_staff)) {
+	$hide_query = " AND `user_form_id` NOT IN ($limit_staff)";
+}
+
+$pr_query = "SELECT `performance_review`.*, `user_forms`.`name` `form_name` FROM `performance_review` LEFT JOIN `user_forms` ON `performance_review`.`user_form_id` = `user_forms`.`form_id` WHERE `performance_review`.`deleted` = 0".$staff_query.$date_query.$form_query.$tab_query.$hide_query." LIMIT $offset, $rowsPerPage";
+$query = "SELECT COUNT(*) as numrows FROM `performance_review` WHERE `deleted` = 0".$staff_query.$date_query.$form_query.$tab_query.$hide_query;
 $result = mysqli_query($dbc, $pr_query);
 $num_rows = mysqli_num_rows($result);
 ?>
@@ -63,6 +77,18 @@ $num_rows = mysqli_num_rows($result);
 			<div class="form-group" style="margin: 0 1.5em 0 1.5em;">
 				<form id="form1" name="form1" method="post"	action="" enctype="multipart/form-data" class="form-horizontal" role="form">
 					<div class="col-sm-3">
+						<label class="super-label">Form
+							<select name="select_form" class="chosen-select-deselect form-control">
+								<option></option>
+								<?php $pr_forms = implode(',',array_column(mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `field_config_performance_reviews` WHERE `enabled` = 1 AND (CONCAT(',',`limit_staff`,',') LIKE '%,".$_SESSION['contactid'].",%' OR IFNULL(`limit_staff`,'') = '')"),MYSQLI_ASSOC),'user_form_id'));
+								$pr_forms = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `user_forms` WHERE `form_id` IN ($pr_forms) AND `deleted` = 0 ORDER BY `name`"),MYSQLI_ASSOC);
+								foreach ($pr_forms as $pr_form) {
+									echo '<option value="'.$pr_form['form_id'].'" '.($select_form == $pr_form['form_id'] ? 'selected' : '').'>'.$pr_form['name'].'</option>'; 
+								} ?>
+							</select>
+						</label>
+					</div>
+					<div class="col-sm-3">
 						<label class="super-label">Staff
 							<select name="select_staff" class="chosen-select-deselect">
 								<option></option>
@@ -78,7 +104,7 @@ $num_rows = mysqli_num_rows($result);
 							<input type="text" name="select_date" class="form-control datepicker" value="<?= $select_date ?>">
 						</label>
 					</div>
-					<div class="col-sm-6">
+					<div class="col-sm-3">
 						<p style="font-size: 0.6em;"></p>
 						<button type="submit" name="search_pr" class="btn brand-btn">Submit</button>
 						<button type="submit" name="search_all" class="btn brand-btn">Display All</button>
@@ -89,7 +115,8 @@ $num_rows = mysqli_num_rows($result);
 					echo display_pagination($dbc, $query, $pageNum, $rowsPerPage); ?>
 					<table id="no-more-tables" class="table table-bordered">
 						<tr class="hide-titles-mob">
-							<th>Name</th>
+							<th>Form</th>
+							<th>Staff</th>
 							<th>Position</th>
 							<th>Date Created</th>
 							<th>PDF</th>
@@ -99,7 +126,8 @@ $num_rows = mysqli_num_rows($result);
 						</tr>
 						<?php while($row = mysqli_fetch_array($result)) { ?>
 							<tr>
-								<td data-title="Name"><?= get_contact($dbc, $row['userid']) ?></td>
+								<td data-title="Form"><?= $row['form_name'] ?></td>
+								<td data-title="Staff"><?= get_contact($dbc, $row['userid']) ?></td>
 								<td data-title="Position"><?= $row['position'] ?></td>
 								<td data-title="Date Created"><?= $row['today_date'] ?></td>
 								<td data-title="PDF">

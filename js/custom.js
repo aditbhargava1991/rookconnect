@@ -194,34 +194,34 @@ $(document).ready(function() {
 		allowClear: true
 	});
     
-  //   $('.hide-header-footer').click(function() {
-  //       $('#main-header, #nav, #footer').toggle();
-  //       var fullscreen = $('#fullscreen').val();
-  //       if ( fullscreen==1 ) {
-  //           $(this).removeClass('down');
-  //           $('.pullup').removeClass('rotate');
-  //           $('#fullscreen').val(0);
-  //           $('.main-screen').removeClass('double-pad-top');
-  //       } else {
-  //           $(this).addClass('down');
-  //           $('.pullup').addClass('rotate');
-  //           $('#fullscreen').val(1);
-  //           $('.main-screen').addClass('double-pad-top');
-  //       }
-  //       fullscreen = $('#fullscreen').val();
-		// $.ajax({
-		// 	type: "GET",
-		// 	url: "../ajax_all.php?fill=fullscreen&state="+fullscreen,
-		// 	dataType: "html",
-		// 	success: function(response){
-		// 		console.log(response);
-		// 	}
-		// });
-  //       $(window).resize();
-  //   });
+    $('.hide-header-footer, .hide-header-footer-down').click(function() {
+        $('#main-header, #nav, #footer').toggle();
+        var fullscreen = $('#fullscreen').val();
+        if ( fullscreen==1 ) {
+            $(this).removeClass('down');
+            $('.pullup').removeClass('rotate');
+            $('.hide-header-footer-down').hide();
+            $('#fullscreen').val(0);
+            $('.main-screen').removeClass('double-pad-top');
+        } else {
+            $(this).addClass('down');
+            $('.pullup').addClass('rotate');
+            $('.hide-header-footer-down').show();
+            $('#fullscreen').val(1);
+            $('.main-screen').addClass('double-pad-top');
+        }
+        fullscreen = $('#fullscreen').val();
+		$.ajax({
+			type: "GET",
+			url: "../ajax_all.php?fill=fullscreen&state="+fullscreen,
+			dataType: "html"
+		});
+        $(window).resize();
+    });
 });
 
 function initTooltips() {
+    $('.tooltip.fade').remove();
 	if($(".popover-examples a,.no-toggle[title]").is(':ui-tooltip')) {
 		$(".popover-examples a,.no-toggle[title]").tooltip('destroy');
 	}
@@ -263,6 +263,7 @@ function destroyInputs(container) {
 	tinymce.remove(container.selector+' textarea');
 	container.find('textarea').removeAttr('id');
 	container.find('.datepicker').datepicker('destroy').removeClass('hasDatepicker').removeAttr('id');
+	container.find('.datepickernoyear').datepicker('destroy').removeClass('hasDatepicker').removeAttr('id');
 	container.find('.datefuturepicker').datepicker('destroy').removeClass('hasDatepicker').removeAttr('id');
 	container.find('.dateandtimepicker').datetimepicker('destroy').removeClass('hasDatepicker').removeAttr('id');
 	container.find('.datetimepicker').timepicker('destroy').removeClass('hasDatepicker').removeAttr('id');
@@ -302,6 +303,8 @@ function initIconColors() {
             !src.match('/ROOK-status-approved.png') &&
             !src.match('/ROOK-status-paid.png') &&
             !src.match('/ROOK-status-rejected.jpg') &&
+            !src.match('/ROOK-back-icon.png') &&
+            !src.match('/ROOK-trash-icon.png') &&
             !src.match('/ROOK-status-error.png')) {
 	        if ( src.match('/ROOK-') ||
 	            src.match('/drag_handle.png') ||
@@ -323,7 +326,13 @@ function initIconColors() {
 	            src.match('/icons/eyeball.png') ||
 	            src.match('/icons/clock-button.png') ||
 	            src.match('/icons/save.png') ||
-                src.match('/clear-checklist.png') ) {
+                src.match('/clear-checklist.png') ||
+                src.match('/home_phone.PNG') ||
+                src.match('/cell_phone.PNG') ||
+                src.match('/project-path.png') ||
+                src.match('/id-card.png') ||
+                src.match('/job.png') ||
+                src.match('/icons/recurring.png') ) {
 	            if ( !self.hasClass('white-color') && !self.hasClass('black-color') ) {
 	                self.addClass('theme-color-icon');
 	            }
@@ -342,7 +351,9 @@ function initInputs(container) {
 		var initClass = 'tinyMCEInit'+(tinyInitI++);
 		$(selectors+':not(.noMceEditor):not([class*=tinyMCEInit])').addClass(initClass);
 		var initSelector = selectors+'.'+initClass;
-		tinyMCE.remove(initSelector);
+		try {
+			tinyMCE.remove(initSelector);
+		} catch (err) {}
 		if(isMobile.any()) {
 			//If mobile, don't include contextmenu in plugins so the user can copy and paste text
 			tinymce.init({
@@ -393,99 +404,105 @@ function initInputs(container) {
 				]
 			});
 		} else {
-			tinymce.init({
-				setup: function(editor) {
-					editor.on('blur', function(e) {
-						this.save();
-						$(this.getElement()).change();
-					}).on('keyup', function(e) {
-						this.save();
-						$(this.getElement()).keyup();
-					}).on('focus', function(e) {
-						$(this.getElement()).focus();
+			try {
+				if($(initSelector+':not(.no_tools)').length > 0) {
+					tinymce.init({
+						setup: function(editor) {
+							editor.on('blur', function(e) {
+								this.save();
+								$(this.getElement()).change();
+							}).on('keyup', function(e) {
+								this.save();
+								$(this.getElement()).keyup();
+							}).on('focus', function(e) {
+								$(this.getElement()).focus();
+							});
+						},
+						relative_urls: false,
+						remove_script_host : false,
+						convert_urls : true,
+						selector: initSelector+':not(.no_tools)',
+						theme: "modern",
+						external_plugins: {"nanospell": "../tinymce/plugins/nanospell/plugin.js"},
+						nanospell_server: "php",
+						plugins: [
+							"advlist autolink lists link image charmap print preview hr anchor pagebreak",
+							"searchreplace wordcount visualblocks visualchars code fullscreen",
+							"insertdatetime media nonbreaking save table "+(no_tools ? "" : "contextmenu")+" directionality",
+							"emoticons template paste textcolor colorpicker textpattern"
+						],
+						textpattern_patterns: [
+							{start: '*', end: '*', format: 'italic'},
+							{start: '**', end: '**', format: 'bold'},
+							{start: '=', format: 'h1'},
+							{start: '==', format: 'h2'},
+							{start: '===', format: 'h3'},
+							{start: '====', format: 'h4'},
+							{start: '=====', format: 'h5'},
+							{start: '======', format: 'h6'},
+							{start: '1. ', cmd: 'InsertOrderedList'},
+							{start: '* ', cmd: 'InsertUnorderedList'},
+							{start: '- ', cmd: 'InsertUnorderedList'}
+						],
+						menubar: no_tools ? false : true,
+						statusbar: no_tools ? false : true,
+						toolbar: no_tools ? false : true,
+						toolbar1: no_tools ? false : "undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image",
+						toolbar2: no_tools ? false : "print preview media | forecolor backcolor emoticons",
+						image_advtab: true,
+						templates: [
+							{title: 'Test template 1', content: 'Test 1'},
+							{title: 'Test template 2', content: 'Test 2'}
+						]
 					});
-				},
-				relative_urls: false,
-				remove_script_host : false,
-				convert_urls : true,
-				selector: initSelector+':not(.no_tools)',
-				theme: "modern",
-				external_plugins: {"nanospell": "../tinymce/plugins/nanospell/plugin.js"},
-				nanospell_server: "php",
-				plugins: [
-					"advlist autolink lists link image charmap print preview hr anchor pagebreak",
-					"searchreplace wordcount visualblocks visualchars code fullscreen",
-					"insertdatetime media nonbreaking save table "+(no_tools ? "" : "contextmenu")+" directionality",
-					"emoticons template paste textcolor colorpicker textpattern"
-				],
-				textpattern_patterns: [
-					{start: '*', end: '*', format: 'italic'},
-					{start: '**', end: '**', format: 'bold'},
-					{start: '=', format: 'h1'},
-					{start: '==', format: 'h2'},
-					{start: '===', format: 'h3'},
-					{start: '====', format: 'h4'},
-					{start: '=====', format: 'h5'},
-					{start: '======', format: 'h6'},
-					{start: '1. ', cmd: 'InsertOrderedList'},
-					{start: '* ', cmd: 'InsertUnorderedList'},
-					{start: '- ', cmd: 'InsertUnorderedList'}
-				],
-				menubar: no_tools ? false : true,
-				statusbar: no_tools ? false : true,
-				toolbar: no_tools ? false : true,
-				toolbar1: no_tools ? false : "undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image",
-				toolbar2: no_tools ? false : "print preview media | forecolor backcolor emoticons",
-				image_advtab: true,
-				templates: [
-					{title: 'Test template 1', content: 'Test 1'},
-					{title: 'Test template 2', content: 'Test 2'}
-				]
-			});
-			tinymce.init({
-				setup: function(editor) {
-					editor.on('blur', function(e) {
-						this.save();
-						$(this.getElement()).change();
-					}).on('keyup', function(e) {
-						this.save();
-						$(this.getElement()).keyup();
-					}).on('focus', function(e) {
-						$(this.getElement()).focus();
+				}
+				if($(initSelector+'.no_tools').length > 0) {
+					tinymce.init({
+						setup: function(editor) {
+							editor.on('blur', function(e) {
+								this.save();
+								$(this.getElement()).change();
+							}).on('keyup', function(e) {
+								this.save();
+								$(this.getElement()).keyup();
+							}).on('focus', function(e) {
+								$(this.getElement()).focus();
+							});
+						},
+						relative_urls: false,
+						remove_script_host : false,
+						convert_urls : true,
+						selector: initSelector+'.no_tools',
+						theme: "modern",
+						external_plugins: {"nanospell": "../tinymce/plugins/nanospell/plugin.js"},
+						nanospell_server: "php",
+						plugins: [
+							"advlist autolink lists link image charmap print preview hr anchor pagebreak",
+							"searchreplace wordcount visualblocks visualchars code fullscreen",
+							"insertdatetime media nonbreaking save table directionality",
+							"emoticons template paste textcolor colorpicker textpattern"
+						],
+						textpattern_patterns: [
+							{start: '*', end: '*', format: 'italic'},
+							{start: '**', end: '**', format: 'bold'},
+							{start: '=', format: 'h1'},
+							{start: '==', format: 'h2'},
+							{start: '===', format: 'h3'},
+							{start: '====', format: 'h4'},
+							{start: '=====', format: 'h5'},
+							{start: '======', format: 'h6'},
+							{start: '1. ', cmd: 'InsertOrderedList'},
+							{start: '* ', cmd: 'InsertUnorderedList'},
+							{start: '- ', cmd: 'InsertUnorderedList'}
+						],
+						menubar: false,
+						statusbar: false,
+						toolbar: false,
+						toolbar1: false,
+						toolbar2: false
 					});
-				},
-				relative_urls: false,
-				remove_script_host : false,
-				convert_urls : true,
-				selector: initSelector+'.no_tools',
-				theme: "modern",
-				external_plugins: {"nanospell": "../tinymce/plugins/nanospell/plugin.js"},
-				nanospell_server: "php",
-				plugins: [
-					"advlist autolink lists link image charmap print preview hr anchor pagebreak",
-					"searchreplace wordcount visualblocks visualchars code fullscreen",
-					"insertdatetime media nonbreaking save table directionality",
-					"emoticons template paste textcolor colorpicker textpattern"
-				],
-				textpattern_patterns: [
-					{start: '*', end: '*', format: 'italic'},
-					{start: '**', end: '**', format: 'bold'},
-					{start: '=', format: 'h1'},
-					{start: '==', format: 'h2'},
-					{start: '===', format: 'h3'},
-					{start: '====', format: 'h4'},
-					{start: '=====', format: 'h5'},
-					{start: '======', format: 'h6'},
-					{start: '1. ', cmd: 'InsertOrderedList'},
-					{start: '* ', cmd: 'InsertUnorderedList'},
-					{start: '- ', cmd: 'InsertUnorderedList'}
-				],
-				menubar: false,
-				statusbar: false,
-				toolbar: false,
-				toolbar1: false,
-				toolbar2: false
-			});
+				}
+			} catch (err) { }
 		}
 	}
 
@@ -505,6 +522,16 @@ function initInputs(container) {
 			changeYear: true,
 			yearRange: '1920:2025',
 			dateFormat: 'yy-mm-dd'
+		});
+	});
+
+	$( container + ' ' + ".datepickernoyear").each(function() {
+		$(this).datepicker({
+			changeMonth: true,
+			changeYear: false,
+			dateFormat: 'mm-dd'
+		}).focus(function () {
+			$('.ui-datepicker-year').hide();
 		});
 	});
 
@@ -923,6 +950,7 @@ function overlayIFrameSlider(url, width, no_confirm, no_reload, height, change_c
 		}
 		if(height == undefined || height == '' || height == 'auto' || $(document).width() < 768) {
 			height = 'auto';
+			iframe.height($('html body').height() - $('#nav:visible').height() - $('#footer:visible').height());
 		}
 		iframe.find('.iframe').css('position', 'relative');
 		iframe.find('.iframe').css('left', '100%');

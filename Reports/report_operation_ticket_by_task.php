@@ -6,12 +6,14 @@ include ('../include.php');
 checkAuthorised('report');
 include_once('../tcpdf/tcpdf.php');
 error_reporting(0);
+$report_fields = explode(',', get_config($dbc, 'report_operation_fields'));
 
 if (isset($_POST['printpdf'])) {
     $starttimepdf = $_POST['starttimepdf'];
     $endtimepdf = $_POST['endtimepdf'];
     $taskgrouppdf = $_POST['taskgrouppdf'];
     $taskpdf = $_POST['taskpdf'];
+    $search_extra_ticketpdf = $_POST['search_extra_ticketpdf'];
 
     DEFINE('START_DATE', $starttimepdf);
     DEFINE('END_DATE', $endtimepdf);
@@ -67,11 +69,12 @@ if (isset($_POST['printpdf'])) {
 	$pdf->AddPage('L', 'LETTER');
     $pdf->SetFont('helvetica', '', 9);
 
-    $html .= report_output($dbc, $starttimepdf, $endtimepdf, $taskgrouppdf, $taskpdf, 'padding:3px; border:1px solid black;', 'print');
+    $html .= report_output($dbc, $starttimepdf, $endtimepdf, $taskgrouppdf, $taskpdf, $search_extra_ticketpdf, 'padding:3px; border:1px solid black;', 'print');
 
     $today_date = date('Y_m_d');
 	$pdf->writeHTML($html, true, false, true, false, '');
 	$pdf->Output('Download/'.TICKET_NOUN.'_by_task_'.$today_date.'.pdf', 'F');
+    track_download($dbc, 'report_operation_ticket_by_task', 0, WEBSITE_URL.'/Reports/Download/'.TICKET_NOUN.'_by_task_'.$today_date.'.pdf', 'Tickets by task Report');
     ?>
 
 	<script type="text/javascript" language="Javascript">
@@ -81,6 +84,7 @@ if (isset($_POST['printpdf'])) {
     $endtime = $endtimepdf;
     $task_group_search = $taskgrouppdf;
     $task_search = $taskpdf;
+    $search_extra_ticket = $search_extra_ticketpdf;
 } ?>
 
 <script type="text/javascript">
@@ -99,22 +103,6 @@ function filterTasks() {
     $('[name="task"]').trigger('change.select2');
 }
 </script>
-</head>
-<body>
-<?php include_once ('../navigation.php');
-?>
-
-<div class="container triple-pad-bottom">
-    <div class="iframe_overlay" style="display:none; margin-top: -20px;margin-left:-15px;">
-        <div class="iframe">
-            <div class="iframe_loading">Loading...</div>
-            <iframe name="calendar_iframe" src=""></iframe>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-md-12">
-
-        <?php echo reports_tiles($dbc);  ?>
 
         <div class="notice double-gap-bottom popover-examples">
             <div class="col-sm-1 notice-icon"><img src="<?= WEBSITE_URL; ?>/img/info.png" class="wiggle-me" width="25"></div>
@@ -126,27 +114,10 @@ function filterTasks() {
 
         <input type="hidden" name="report_type" value="<?php echo $_GET['type']; ?>">
 
-            <?php
-            $task_groups = [];
-            $tasks = [];
-            foreach(explode('#*#', get_config($dbc, 'ticket_ALL_staff_tasks')) as $task_group) {
-                $task_group = array_filter(array_unique(explode('*#*',$task_group)));
-                $task_group_name = $task_group[0];
-                unset($task_group[0]);
-
-                $task_groups[] = $task_group_name;
-                foreach($task_group as $task) {
-                    $tasks[] = $task.'#*#'.$task_group_name;
-                }
-            }
-            $task_groups = array_unique(array_filter($task_groups));
-            $tasks = array_unique(array_filter($tasks));
-            asort($task_groups);
-            asort($tasks);
-
-            if (isset($_POST['search_email_submit'])) {
+            <?php if (isset($_POST['search_email_submit'])) {
                 $starttime = $_POST['starttime'];
                 $endtime = $_POST['endtime'];
+				$search_extra = $_POST['search_extra_ticket'];
                 $task_search = $_POST['task'];
                 $task_group_search = $_POST['task_group'];
             }
@@ -158,12 +129,63 @@ function filterTasks() {
             } ?>
 
             <center>
+				<div class="col-sm-5">
+					<label for="search_ticket" class="col-sm-4 control-label">Search By <?= TICKET_NOUN ?>:</label>
+					<div class="col-sm-8">
+						<select data-placeholder="Select a <?= TICKET_NOUN ?> #" name="search_ticket" class="chosen-select-deselect form-control">
+							<option value=""></option>
+							<?php
+							$query = mysqli_query($dbc,"SELECT * FROM `tickets` WHERE `deleted`=0 ORDER BY `ticketid`");
+							while($row = mysqli_fetch_array($query)) { ?>
+								<option <?php if ($row['ticketid'] == $search_ticket) { echo " selected"; } ?> value='<?= $row['ticketid'] ?>' ><?= get_ticket_label($dbc, $row) ?></option>
+							<?php } ?>
+						</select>
+					</div>
+				</div>
+				<?php if(in_array('filter_extra_billing',$report_fields)) { ?>
+					<div class="col-sm-5">
+						<label for="search_extra_ticket" class="col-sm-4 control-label">Search By Extra Billing <?= TICKET_NOUN ?>:</label>
+						<div class="col-sm-8">
+							<select data-placeholder="Select a <?= TICKET_NOUN ?> #" name="search_extra_ticket" class="chosen-select-deselect form-control">
+								<option value=""></option>
+								<?php
+								$query = mysqli_query($dbc,"SELECT * FROM `tickets` WHERE `deleted`=0 AND `ticketid` IN (SELECT `ticketid` FROM `ticket_comment` WHERE `type`='service_extra_billing' AND `deleted`=0) ORDER BY `ticketid`");
+								while($row = mysqli_fetch_array($query)) { ?>
+									<option <?php if ($row['ticketid'] == $search_extra_ticket) { echo " selected"; } ?> value='<?= $row['ticketid'] ?>' ><?= get_ticket_label($dbc, $row) ?></option>
+								<?php } ?>
+							</select>
+						</div>
+					</div>
+				<?php } ?>
+				<?php if(in_array('filter_staff_expenses',$report_fields)) { ?>
+					<div class="col-sm-5">
+						<label for="search_expenses" class="col-sm-4 control-label">Only <?= TICKET_TILE ?> with Expenses:</label>
+						<div class="col-sm-8">
+							<select data-placeholder="Select Option" name="search_material" class="chosen-select-deselect form-control">
+								<option <?= $search_expenses == 'No' ? 'selected' : '' ?> value="No">Display All</option>
+								<option <?= $search_expenses == 'Yes' ? 'selected' : '' ?> value="Yes">Only with Expenses</option>
+							</select>
+						</div>
+					</div>
+				<?php } ?>
+				<?php if(in_array('filter_ticket_notes',$report_fields)) { ?>
+					<div class="col-sm-5">
+						<label for="search_notes" class="col-sm-4 control-label">Only <?= TICKET_TILE ?> with Notes:</label>
+						<div class="col-sm-8">
+							<select data-placeholder="Select Option" name="search_material" class="chosen-select-deselect form-control">
+								<option <?= $search_notes == 'No' ? 'selected' : '' ?> value="No">Display All</option>
+								<option <?= $search_notes == 'Yes' ? 'selected' : '' ?> value="Yes">Only with Notes</option>
+							</select>
+						</div>
+					</div>
+				<?php } ?>
 				<div class="form-group col-sm-5">
 					<label class="col-sm-4">Task Group:</label>
 					<div class="col-sm-8">
 						<select name="task_group" class="chosen-select-deselect" data-placeholder="Select Task Group"><option />
-                            <?php foreach($task_groups as $task_group) {
-                                echo '<option value="'.$task_group.'" '.($task_group == $task_group_search ? 'selected' : '').'>'.$task_group.'</option>';
+                            <?php $task_groups = $dbc->query("SELECT `category` FROM `task_types` WHERE `deleted`=0 GROUP BY `category`");
+							while($task_group = $task_groups->fetch_assoc()) {
+                                echo '<option value="'.$task_group['category'].'" '.($task_group['category'] == $task_group_search ? 'selected' : '').'>'.$task_group['category'].'</option>';
                             } ?>
 						</select>
 					</div>
@@ -172,10 +194,10 @@ function filterTasks() {
 					<label class="col-sm-4">Task:</label>
 					<div class="col-sm-8">
 						<select name="task" class="chosen-select-deselect" data-placeholder="Select Task"><option />
-                            <?php foreach($tasks as $task) {
-                                $task = explode('#*#', $task);
-                                echo '<option data-task-group="'.$task[1].'" value="'.$task[0].'" '.($task[0] == $task_search && (empty($task_group_search) || $task_group_search == $task[1]) ? 'selected' : '').'>'.$task[0].'</option>';
-                            } ?>
+                            <?php $tasks = $dbc->query("SELECT `category`,`description` FROM `task_types` WHERE `deleted`=0 ORDER BY `category`,`description`");
+							while($task = $tasks->fetch_assoc()) {
+                                echo '<option data-task-group="'.$task['category'].'" value="'.$task['description'].'" '.($task['description'] == $task_search && (empty($task_group_search) || $task_group_search == $task['category']) ? 'selected' : '').'>'.$task['description'].'</option>';
+							} ?>
 						</select>
 					</div>
                 </div>
@@ -193,6 +215,7 @@ function filterTasks() {
 
             <input type="hidden" name="taskgrouppdf" value="<?php echo $task_group_search; ?>">
             <input type="hidden" name="taskpdf" value="<?php echo $task_search; ?>">
+            <input type="hidden" name="search_extra_ticketpdf" value="<?php echo $search_extra_ticket; ?>">
             <input type="hidden" name="starttimepdf" value="<?php echo $starttime; ?>">
             <input type="hidden" name="endtimepdf" value="<?php echo $endtime; ?>">
 
@@ -201,23 +224,19 @@ function filterTasks() {
 			<div class="clearfix"></div>
 
             <?php
-                echo report_output($dbc, $starttime, $endtime, $task_group_search, $task_search);
+                echo report_output($dbc, $starttime, $endtime, $task_group_search, $task_search, $search_extra_ticket);
             ?>
 
         </form>
-
-        </div>
-    </div>
-</div>
-<?php include ('../footer.php'); ?>
-
+        
 <?php
-function report_output($dbc, $starttime, $endtime, $task_group_search, $task_search, $pdf_style, $report_type) {
+function report_output($dbc, $starttime, $endtime, $task_group_search, $task_search, $search_extra_ticket, $pdf_style, $report_type) {
 	$report_data = '';
     $starttime = filter_var($starttime,FILTER_SANITIZE_STRING);
     $endtime = filter_var($endtime,FILTER_SANITIZE_STRING);
     $task_group_search = filter_var($task_group_search,FILTER_SANITIZE_STRING);
 	$task_search = filter_var($task_search,FILTER_SANITIZE_STRING);
+	$search_extra_ticket = filter_var($search_extra_ticket,FILTER_SANITIZE_STRING);
 
 	$query = "SELECT * FROM `tickets` WHERE `deleted` = 0 AND `created_date` BETWEEN '$starttime' AND '$endtime' AND IFNULL(`task_available`,'') != ''";
     if(!empty($task_group_search)) {
@@ -267,3 +286,17 @@ function report_output($dbc, $starttime, $endtime, $task_group_search, $task_sea
 	}
     return $report_data;
 } ?>
+<script>
+$('document').ready(function() {
+    var tables = $('table');
+
+    tables.map(function(idx, table) {
+        var rows = $(table).find('tbody > tr');
+        rows.map(function(idx, row){
+            if(idx%2 == 0) {
+                $(row).css('background-color', '#e6e6e6');
+            }
+        })
+    })
+})
+</script>

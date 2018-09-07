@@ -100,32 +100,33 @@ function closeEmailPopup() {
 }
 </script>
 <form name="form_sites" method="post" action="" class="form-inline" role="form">
-
-            <center>
-            <div class="form-group">
-                <label for="site_name" class="col-sm-5 control-label">Search By Any:</label>
-                <div class="col-sm-6">
-				<?php if(isset($_POST['search_equipment_submit'])) { ?>
-					<input style="max-width:260px;" type="text" name="search_equipment" value="<?php echo $_POST['search_equipment']?>" class="form-control">
-				<?php } else { ?>
-					<input style="max-width:260px;" type="text" name="search_equipment" class="form-control">
-				<?php } ?>
-                </div>
+    <!--
+    <center>
+        <div class="form-group">
+            <label for="site_name" class="col-sm-5 control-label">Search By Any:</label>
+            <div class="col-sm-6">
+            <?php if(isset($_POST['search_equipment_submit'])) { ?>
+                <input style="max-width:260px;" type="text" name="search_equipment" value="<?php echo $_POST['search_equipment']?>" class="form-control">
+            <?php } else { ?>
+                <input style="max-width:260px;" type="text" name="search_equipment" class="form-control">
+            <?php } ?>
             </div>
-            &nbsp;
-                <span class="popover-examples no-gap-pad"><a data-toggle="tooltip" data-placement="top" title="Click here after you have entered text into Search By Any."><img src="../img/info.png" width="20"></a></span>
-				<button type="submit" name="search_equipment_submit" value="Search"  class="btn brand-btn mobile-block">Search</button>
+        </div>
+        &nbsp;
+        <span class="popover-examples no-gap-pad"><a data-toggle="tooltip" data-placement="top" title="Click here after you have entered text into Search By Any."><img src="../img/info.png" width="20"></a></span>
+        <button type="submit" name="search_equipment_submit" value="Search"  class="btn brand-btn mobile-block">Search</button>
 
-                <span class="popover-examples no-gap-pad"><a data-toggle="tooltip" data-placement="top" title="Click to refresh the page and see all communication within this tab."><img src="../img/info.png" width="20"></a></span>
-				<button type="submit" name="display_all_equipment" value="Display All" class=" btn brand-btn mobile-block">Display All</button>
-            </center>
+        <span class="popover-examples no-gap-pad"><a data-toggle="tooltip" data-placement="top" title="Click to refresh the page and see all communication within this tab."><img src="../img/info.png" width="20"></a></span>
+        <button type="submit" name="display_all_equipment" value="Display All" class=" btn brand-btn mobile-block">Display All</button>
+    </center>
+    -->
 
-			<?php
-				if(vuaed_visible_function($dbc, 'email_communication') == 1) {
-                    echo '<div class="pull-right"><span class="popover-examples no-gap-pad"><a data-toggle="tooltip" data-placement="top" title="Click here to create and email internal or external email communication tied to this project."><img src="../img/info.png" width="20"></a></span>';
-					echo '<a href="../Email Communication/add_communication.php?projectid='.$_GET['edit'].'&type='.$_GET['type'].'&from_url='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']).'" class="btn brand-btn mobile-100-pull-right mobile-block">Add Communication</a></div>';
-				}
-			?>
+    <?php
+        if(vuaed_visible_function($dbc, 'email_communication') == 1) {
+            echo '<div class="pull-right"><span class="popover-examples no-gap-pad"><a data-toggle="tooltip" data-placement="top" title="Click here to create and email internal or external email communication tied to this project."><img src="../img/info.png" width="20"></a></span>';
+            echo '<a href="../Email Communication/add_communication.php?projectid='.$_GET['edit'].'&type='.$_GET['type'].'&from_url='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']).'" class="btn brand-btn mobile-100-pull-right mobile-block">Add Communication</a></div>';
+        }
+    ?>
 
     <div id="no-more-tables"> <?php
 
@@ -269,10 +270,10 @@ function closeEmailPopup() {
 			echo get_project($dbc, $row['projectid'], 'project_name').'</td>';
         }
         if (strpos($value_config, ','."Subject".',') !== FALSE) {
-            echo '<td data-title="Subject"><a onclick="displayEmailPopup(this); return false;" data-id="'.$row['email_communicationid'].'" href="#">' . $row['subject']. '</a></td>';
+            echo '<td data-title="Subject"><a onclick="displayEmailPopup(this); return false;" data-id="'.$row['email_communicationid'].'" href="#">' . html_entity_decode(htmlspecialchars_decode($row['subject'])). '</a></td>';
         }
         if (strpos($value_config, ','."Body".',') !== FALSE) {
-            echo '<td data-title="Body"><a onclick="displayEmailPopup(this); return false;" data-id="'.$row['email_communicationid'].'" href="#">' . html_entity_decode($row['email_body']). '</a></td>';
+            echo '<td data-title="Body"><a onclick="displayEmailPopup(this); return false;" data-id="'.$row['email_communicationid'].'" href="#">' . html_entity_decode(htmlspecialchars_decode($row['email_body'])). '</a></td>';
         }
         if (strpos($value_config, ','."Attachment".',') !== FALSE) {
             echo '<td data-title="Attachment">';

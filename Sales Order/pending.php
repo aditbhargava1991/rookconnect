@@ -627,13 +627,13 @@ checkAuthorised('sales_order');
                     </select>
 					<?php echo '<span class="open-approval" onclick="approvebutton(this)" id="'.$roww['posid'].'" style="display:none;">Approve</span>';
 						  ?>
-							<div class="approve-box-<?php echo $roww['posid']; ?> approve-box"><div style='text-align:left;'>Please enter the email(s) (separated by a comma) you would like to send this Order to. Also, if you would like to convert this Order to a Purchase Order or a Point of Sale, please select one of the checkboxes below.<br>(If you prefer not to send and/or convert the S.O., please hit skip.)</div><br><br>
+							<div class="approve-box-<?php echo $roww['posid']; ?> approve-box"><div style='text-align:left;'>Please enter the email(s) (separated by a comma) you would like to send this Order to. Also, if you would like to convert this Order to a Purchase Order or a <?= POS_ADVANCE_TILE ?>, please select one of the checkboxes below.<br>(If you prefer not to send and/or convert the S.O., please hit skip.)</div><br><br>
 							<input type='text' style='max-width:300px;' name='' placeholder='email1@example.com,email2@example.com' class='form-control getemailsapprove2'><br><br>
 							<div style='width:170px; text-align:left; margin:auto;'>
 							<span style='<?php if(($software_url == 'greenearthenergysolutions.rookconnect.com' || $software_url == 'greenlifecan.rookconnect.com' || $software_url == 'localhost') && $roww['cross_software'] == 'zen') { } else { echo 'display:none;'; } ?>'>
 							<input type='checkbox' style='width:20px; height:20px;' id='zenearthcheckings'  name='zenearthconv' class='uncheck_on_cancel zenearthcheckings' value='1'> Send to Zen Earth</span><br>
 							<input type='checkbox' style='width:20px; height:20px;' id='pocheckings'  name='purchaseorderconv' class='unchecker uncheck_on_cancel pocheckings' value='1'> Purchase Order<br>
-							<input type='checkbox' style='width:20px; height:20px;' id='poscheckings'  name='pointofsaleconv' class='unchecker uncheck_on_cancel poscheckings' value='1'> Point of Sale<br><br>
+							<input type='checkbox' style='width:20px; height:20px;' id='poscheckings'  name='pointofsaleconv' class='unchecker uncheck_on_cancel poscheckings' value='1'> <?= POS_ADVANCE_TILE ?><br><br>
 							</div>
 							<button type='submit' name='send_drive_logs_approve' class='btn brand-btn sendemailapprovesubmit' value='<?php echo $roww['posid']; ?>'>Approve and Send</button>
 							<button type='submit' name='send_drive_log_noemail' class='btn brand-btn ' value='<?php echo $roww['posid']; ?>'>Skip</button>

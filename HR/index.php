@@ -4,7 +4,7 @@ $(document).ready(function() {
 	$(window).resize(function() {
 		$('.main-screen').css('padding-bottom',0);
 		if($('.main-screen .main-screen').is(':visible') && $('.sidebar').is(':visible')) {
-			var available_height = window.innerHeight - $(footer).outerHeight() - $('.sidebar:visible').offset().top;
+			var available_height = window.innerHeight - $('footer:visible').outerHeight() - $('.sidebar:visible').offset().top;
 			if(available_height > 300) {
 				$('.main-screen .main-screen').outerHeight(available_height).css('overflow-y','auto');
 				$('.sidebar').outerHeight(available_height).css('overflow-y','auto');
@@ -20,18 +20,27 @@ $(document).ready(function() {
 </script>
 <?php include_once('../navigation.php');
 $tile = empty($_GET['tile_name']) ? 'hr' : filter_var($_GET['tile_name'],FILTER_SANITIZE_STRING);
+$security = get_security($dbc, $tile);
+$hr_summary = explode(',',get_config($dbc,'hr_summary'));
+if($security['config'] < 1) {
+	$hr_summary = array_filter($hr_summary,function($str) { return strpos($str,'admin_') === FALSE; });
+}
+if(empty($_GET['tab']) && count($hr_summary > 0)) {
+	$_GET['tab'] = 'summary';
+}
 $categories = [];
 $pin_levels = implode(",%' OR `pinned` LIKE '%,",array_filter(explode(',',ROLE)));
 $pincount = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT COUNT(*) `rows` FROM (SELECT `hrid` FROM `hr` WHERE `deleted`=0 AND (CONCAT(',',`pinned`,',') LIKE '%,ALL,%' OR CONCAT(',',`pinned`,',') LIKE '%,".$pin_levels.",%' OR CONCAT(',',`pinned`,',') LIKE '%,".$_SESSION['contactid'].",%') UNION SELECT `manualtypeid` FROM `manuals` WHERE `deleted`=0 AND (CONCAT(',',`pinned`,',') LIKE '%,ALL,%' OR CONCAT(',',`pinned`,',') LIKE '%,".$pin_levels.",%' OR CONCAT(',',`pinned`,',') LIKE '%,".$_SESSION['contactid'].",%')) `num`"))['rows'];
-if($pincount > 0) {
+if($pincount > 0 && !in_array('individual_pin',$hr_summary)) {
 	$categories['pinned'] = 'Pinned';
 }
-$categories['favourites'] = 'Favourites';
+if(!in_array('individual_fave',$hr_summary)) {
+	$categories['favourites'] = 'Favourites';
+}
 foreach(explode(',',get_config($dbc, 'hr_tabs')) as $cat) {
 	$categories[config_safe_str($cat)] = $cat;
 }
 $tab = $_GET['tab'] == '' ? ($tile == 'hr' ? (in_array('Pinned',$categories) ? 'pinned' : 'favourites') : $tile) : filter_var($_GET['tab'],FILTER_SANITIZE_STRING);
-$security = get_security($dbc, $tile);
 $label = $tile == 'hr' ? 'HR: '.$categories[$tab] : $categories[$tile];
 if($_GET['reports'] == 'view') {
 	$label = 'HR: Reports';
@@ -48,6 +57,9 @@ if($_GET['reports'] == 'view') {
 } else if(isset($_GET['performance_review'])) {
 	$label = 'HR: Performance Reviews';
 	$tab = 'performance_review';
+} else if($_GET['tab'] == 'summary') {
+	$label = 'HR: Summary';
+	$tab = 'summary';
 }
 checkAuthorised('hr');
 
@@ -64,8 +76,7 @@ if($_GET['performance_review'] == 'add' && !empty($_GET['form_id'])) {
         $user_form_layout = mysqli_fetch_array(mysqli_query($dbc,"SELECT * FROM `user_forms` WHERE `form_id` = '$user_form_id'"))['form_layout'];
         $user_form_layout = !empty($user_form_layout) ? $user_form_layout : 'Accordions';
     }
-}
-?>
+} ?>
 <div class="container" <?= $user_form_layout == 'Sidebar' ? 'style="padding: 0; margin: 0;"' : '' ?>>
 	<div class="iframe_overlay" style="display:none;">
 		<div class="iframe">
@@ -138,6 +149,9 @@ if($_GET['performance_review'] == 'add' && !empty($_GET['form_id'])) {
 					include('sidebar.php');
 			    }
 				include('add_pr.php');
+			} else if($_GET['tab'] == 'summary') {
+				include('sidebar.php');
+				include('summary.php');
 			} else {
 				checkAuthorised($tile, $tab_cat);
 				$tab_cat = $tab;

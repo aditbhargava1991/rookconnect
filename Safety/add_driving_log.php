@@ -3,7 +3,7 @@
  * Copy of Site Work Orders/add_driving_log.php
  * Paths changed to Site Work Orders
  */
- 
+
 include('../include.php');
 include_once('../phpsign/signature-to-image.php');
 error_reporting(0);
@@ -15,7 +15,7 @@ if(isset($_POST['submit'])) {
 	$end_drive_time = $_POST['end_drive_time'];
 	$equipment = implode(',',$_POST['equipment']);
 	$comments = filter_var(htmlentities($_POST['comments']),FILTER_SANITIZE_STRING);
-	
+
 	if($_POST['submit'] == 'NEW') {
 		$query = "INSERT INTO `site_work_driving_log` (`staff`, `drive_date`, `drive_time`, `equipment`, `comments`)
 			VALUES ('$staff', '$drive_date', '$drive_time', '$equipment', '$comments')";
@@ -29,11 +29,13 @@ if(isset($_POST['submit'])) {
 		$drive_date = $final['drive_date'];
 		$drive_time = $final['drive_time'];
 	}
-	
+
 	// Safety Checklist
 	$inspect_date = $_POST['inspect_date'];
 	$begin_odo_kms = $_POST['begin_odo_kms'];
 	$final_odo_kms = $_POST['final_odo_kms'];
+	$begin_hours = $_POST['begin_hours'];
+	$final_hours = $_POST['final_hours'];
 	$location_of_presafety = filter_var($_POST['location_of_presafety'],FILTER_SANITIZE_STRING);
 	$location_of_postsafety = filter_var($_POST['location_of_postsafety'],FILTER_SANITIZE_STRING);
 	$safety1 = $_POST['safety1'];
@@ -75,7 +77,7 @@ if(isset($_POST['submit'])) {
 	$safety37 = $_POST['safety37'];
 	$safety38 = $_POST['safety38'];
 	$repair_note = filter_var(htmlentities($_POST['repair_note']),FILTER_SANITIZE_STRING);
-	
+
 	if($_POST['safetyinspectid'] == 'PRE') {
 		$query = "INSERT INTO `site_work_driving_inspect` (`drivinglogid`, `inspect_date`, `begin_odo_kms`, `final_odo_kms`, `safety1`, `safety2`, `safety3`, `safety4`, `safety5`, `safety6`, `safety7`, `safety8`, `safety9`, `safety10`, `safety11`, `safety12`, `safety13`, `safety14`, `safety15`, `safety16`, `safety17`, `safety18`, `safety19`, `safety20`, `safety21`, `safety22`, `safety23`, `safety24`, `safety25`, `safety26`, `safety27`, `safety28`, `safety29`, `safety30`, `safety31`, `safety32`, `safety33`, `safety34`, `safety35`, `safety36`, `safety37`, `safety38`, `repair_note`, `location_of_postsafety`, `location_of_presafety`)
 			VALUES ('$log_id', '$inspect_date', '$begin_odo_kms', '$final_odo_kms', '$safety1', '$safety2', '$safety3', '$safety4', '$safety5', '$safety6', '$safety7', '$safety8', '$safety9', '$safety10', '$safety11', '$safety12', '$safety13', '$safety14', '$safety15', '$safety16', '$safety17', '$safety18', '$safety19', '$safety20', '$safety21', '$safety22', '$safety23', '$safety24', '$safety25', '$safety26', '$safety27', '$safety28', '$safety29', '$safety30', '$safety31', '$safety32', '$safety33', '$safety34', '$safety35', '$safety36', '$safety37', '$safety38', '$repair_note', '$location_of_postsafety', '$location_of_presafety')";
@@ -86,7 +88,7 @@ if(isset($_POST['submit'])) {
 		$query = "UPDATE `site_work_driving_inspect` SET `drivinglogid`='$log_id', `inspect_date`='$inspect_date', `begin_odo_kms`='$begin_odo_kms', `final_odo_kms`='$final_odo_kms', `safety1`='$safety1', `safety2`='$safety2', `safety3`='$safety3', `safety4`='$safety4', `safety5`='$safety5', `safety6`='$safety6', `safety7`='$safety7', `safety8`='$safety8', `safety9`='$safety9', `safety10`='$safety10', `safety11`='$safety11', `safety12`='$safety12', `safety13`='$safety13', `safety14`='$safety14', `safety15`='$safety15', `safety16`='$safety16', `safety17`='$safety17', `safety18`='$safety18', `safety19`='$safety19', `safety20`='$safety20', `safety21`='$safety21', `safety22`='$safety22', `safety23`='$safety23', `safety24`='$safety24', `safety25`='$safety25', `safety26`='$safety26', `safety27`='$safety27', `safety28`='$safety28', `safety29`='$safety29', `safety30`='$safety30', `safety31`='$safety31', `safety32`='$safety32', `safety33`='$safety33', `safety34`='$safety34', `safety35`='$safety35', `safety36`='$safety36', `safety37`='$safety37', `safety38`='$safety38', `repair_note`='$repair_note', `location_of_postsafety`='$location_of_postsafety', `location_of_presafety`='$location_of_presafety' WHERE `safetyinspectid`='$inspect_id'";
 		$result = mysqli_query($dbc, $query);
 	}
-	
+
 	$pre_sign = $_POST['pre_sign'];
 	if(!empty($pre_sign)) {
 		$img = sigJsonToImage($pre_sign);
@@ -99,7 +101,7 @@ if(isset($_POST['submit'])) {
 		imagepng($img, '../Site Work Orders/download/post_sign_'.$log_id.'.png');
 		mysqli_query($dbc, "UPDATE `site_work_driving_inspect` SET `post_sign`='$post_sign' WHERE `safetyinspectid`='$inspect_id'");
 	}
-	
+
 	$pdf_name = "driving_log_".$log_id.".pdf";
 	$html = "<h1>Driving Log</h1>";
 	$html .= '<table width="100%" cellspacing="2"><tr><td width="25%">Staff:</td>';
@@ -108,9 +110,14 @@ if(isset($_POST['submit'])) {
 	$html .= "<td>$drive_date</td></tr>";
 	$html .= "<tr><td>Equipment:</td>";
 	$html .= "<td>";
+    $equip_hr_km = false;
 	foreach($_POST['equipment'] as $id) {
 		$equipment = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `equipment` WHERE `equipmentid`='$id'"));
 		$html .= "Unit #".$equipment['unit_number'].': '.(empty($equipment['model']) ? '' : $equipment['model'].': ').$equipment['label']."<br />";
+        if($id > 0 $final_hours > 0 && $final_odo_kms > 0 && !$equip_hr_km) {
+            mysqli_query("UPDATE `equipment` SET `mileage`='$final_odo_kms', `hours_operated`='$final_hours' WHERE `equipmentid`='$id'");
+            $equip_hr_km = true;
+        }
 	}
 	$html .= "</td></tr>";
 	$equipment = implode(',',$_POST['equipment']);
@@ -157,6 +164,11 @@ if(isset($_POST['submit'])) {
 			<td>Odometer Kilometers:</td>
 			<td>'.$begin_odo_kms.'</td>
 			<td>'.('pre' == $checklist ? '---' : $final_odo_kms).'</td>
+		</tr>
+		<tr>
+			<td>Operating Hours:</td>
+			<td>'.$begin_hours.'</td>
+			<td>'.('pre' == $checklist ? '---' : $final_hours).'</td>
 		</tr>
 		<tr>
 			<td>General Checklist</td>
@@ -290,7 +302,7 @@ if(isset($_POST['submit'])) {
 			<td>'.($_POST['safetyinspectid'] == 'PRE' || $_POST['include_post_trip'] != '1' ? '' : '<img width="190" src="../Site Work Orders/download/post_sign_'.$log_id.'.png">').'</td>
 		</tr></table>';
 	include('../tcpdf/tcpdf.php');
-	
+
     class MYPDF extends TCPDF {
 
         //Page header
@@ -314,12 +326,12 @@ if(isset($_POST['submit'])) {
 	$pdf->SetFont('helvetica', '', 8);
 	$pdf->setCellHeightRatio(1);
 	$pdf->writeHTML($html, true, false, true, false, '');
-	
+
 	if(!file_exists('../Site Work Orders/download')) {
 		mkdir('../Site Work Orders/download', 0777, true);
 	}
 	$pdf->Output('../Site Work Orders/download/'.$pdf_name, 'F');
-		
+
 	echo "<script>window.location.replace('driving_log.php');</script>";
 }
 
@@ -398,16 +410,16 @@ if(!empty($_GET['log_id'])) {
 						foreach($site_log_equip_cat_list as $site_log_equip_cat) { ?>
 							<div class="form-group"><label class="col-sm-4 control-label"><?= (empty($site_log_equip_cat) ? 'Equipment' : $site_log_equip_cat) ?>:</label>
 								<div class="col-sm-8">
-									<select name="equipment[]" multiple data-placeholder="Select <?= (empty($site_log_equip_cat) ? 'Equipment' : $site_log_equip_cat) ?>" class="form-control chosen-select-deselect"><option></option>
-										<?php 
-										$equip_list = mysqli_query($dbc, "SELECT `category`, `type`, `unit_number`, `make`, `model`, `label`, `equipmentid` FROM `equipment` WHERE (`category`='$site_log_equip_cat' OR '$site_log_equip_cat'='') AND `deleted` = 0 ORDER BY `category`, `type`, `unit_number`, `make`, `model`, `equipmentid`");
+									<select name="equipment[]" multiple data-placeholder="Select <?= (empty($site_log_equip_cat) ? 'Equipment' : $site_log_equip_cat) ?>" class="form-control chosen-select-deselect">
+										<?php
+										$equip_list = mysqli_query($dbc, "SELECT `category`, `type`, `unit_number`, `make`, `model`, `label`, `equipmentid`, `mileage`, `operating_hours` FROM `equipment` WHERE (`category`='$site_log_equip_cat' OR '$site_log_equip_cat'='') AND `deleted` = 0 ORDER BY `category`, `type`, `unit_number`, `make`, `model`, `equipmentid`");
 										$category = '';
 										while($equip_row = mysqli_fetch_array($equip_list)) {
 											if($category != $equip_row['category']) {
 												echo ($category != '' ? '</optgroup>' : '')."<optgroup label='".$equip_row['category']."' />";
 												$category = $equip_row['category'];
 											}
-											echo "<option data-category='".$equip_row['category']."' ".(in_array($equip_row['equipmentid'],$equipment) ? 'selected' : '')." value='".$equip_row['equipmentid']."'>Unit #".$equip_row['unit_number'].': '.(empty($equip_row['model']) ? '' : $equip_row['model'].': ').$equip_row['label']."</option>";
+											echo "<option data-category='".$equip_row['category']."' data-mileage='".$equip_row['mileage']."' data-hours='".$equip_row['operating_hours']."' ".(in_array($equip_row['equipmentid'],$equipment) ? 'selected' : '')." value='".$equip_row['equipmentid']."'>Unit #".$equip_row['unit_number'].': '.(empty($equip_row['model']) ? '' : $equip_row['model'].': ').$equip_row['label']."</option>";
 										} ?>
 									</select>
 								</div>
@@ -421,7 +433,7 @@ if(!empty($_GET['log_id'])) {
 					</div>
 				</div>
 			</div>
-			
+
 			<div class="panel panel-default">
 				<div class="panel-heading">
 					<h4 class="panel-title">
@@ -434,10 +446,12 @@ if(!empty($_GET['log_id'])) {
 				<div id="collapse_safety" class="panel-collapse collapse">
 					<div class="panel-body">
 						<?php $checklist = mysqli_query($dbc, "SELECT * FROM `site_work_driving_inspect` WHERE `drivinglogid`='$log_id'");
-						
+
 						$inspect_date = date('Y-m-d');
 						$begin_odo_kms = 0;
 						$final_odo_kms = 0;
+						$begin_hours = 0;
+						$final_hours = 0;
 						$location_of_presafety = '';
 						$location_of_postsafety = '';
 						$safety1 = '';
@@ -479,12 +493,14 @@ if(!empty($_GET['log_id'])) {
 						$safety37 = '';
 						$safety38 = '';
 						$repair_note = '';
-						
+
 						if(mysqli_num_rows($checklist) > 0) {
 							$checklist_details = mysqli_fetch_array($checklist);
 							$inspect_date = $checklist_details['inspect_date'];
 							$begin_odo_kms = $checklist_details['begin_odo_kms'];
 							$final_odo_kms = $checklist_details['final_odo_kms'];
+							$begin_hours = $checklist_details['begin_hours'];
+							$final_hours = $checklist_details['final_hours'];
 							$location_of_presafety = $checklist_details['location_of_presafety'];
 							$location_of_postsafety = $checklist_details['location_of_postsafety'];
 							$safety1 = $checklist_details['safety1'];
@@ -590,6 +606,17 @@ if(!empty($_GET['log_id'])) {
 							<div class="col-sm-3 text-center posttrip"><?php if('pre' == $checklist) { echo '---'; } else { ?>
 								<label class="show-on-mob">Post-Trip Status</label>
 								<input type="number" name="final_odo_kms" value="<?= $final_odo_kms ?>" class="form-control" <?= ('post' == $checklist ? '' : 'readonly tabindex="-1"') ?>>
+							<?php } ?></div>
+						</div>
+						<div class="form-group">
+							<label class="col-sm-6 control-label">Operating Hours:</label>
+							<div class="col-sm-3 text-center pretrip">
+								<label class="pretrip show-on-mob">Pre-Trip Status</label>
+								<input type="number" name="begin_hours" value="<?= $begin_hours ?>" class="form-control" <?= ('pre' == $checklist ? '' : 'readonly tabindex="-1"') ?>>
+							</div>
+							<div class="col-sm-3 text-center posttrip"><?php if('pre' == $checklist) { echo '---'; } else { ?>
+								<label class="show-on-mob">Post-Trip Status</label>
+								<input type="number" name="final_hours" value="<?= $final_hours ?>" class="form-control" <?= ('post' == $checklist ? '' : 'readonly tabindex="-1"') ?>>
 							<?php } ?></div>
 						</div>
 						<div class="form-group">
@@ -727,7 +754,7 @@ if(!empty($_GET['log_id'])) {
 								<label><input type="radio" name="safety18" value="Repair" style="height:1.5em;margin:0.5em;width:1.5em;" <?= ('post' == $checklist ? '' : ($safety18 == 'Repair' ? ' checked tabindex="-1"' : 'disabled')) ?>> Repair Requested</label>
 							<?php } ?></div>
 						</div>
-						
+
 						<div class="clearfix hide-titles-mob">
 							<label class="col-sm-6 control-label">Engine On Criteria Checklist</label>
 							<label class="col-sm-3 text-center pretrip">Pre-Trip Status</label>
@@ -838,7 +865,7 @@ if(!empty($_GET['log_id'])) {
 								<label><input type="radio" name="safety32" value="Repair" style="height:1.5em;margin:0.5em;width:1.5em;" <?= ('post' == $checklist ? '' : ($safety32 == 'Repair' ? ' checked tabindex="-1"' : 'disabled')) ?>> Repair Requested</label>
 							<?php } ?></div>
 						</div>
-						
+
 						<div class="clearfix hide-titles-mob">
 							<label class="col-sm-6 control-label">General Checklist</label>
 							<label class="col-sm-3 text-center pretrip">Pre-Trip Status</label>
@@ -967,7 +994,7 @@ if(!empty($_GET['log_id'])) {
 				</div>
 			</div>
 		</div>
-		
+
 		<div class="form-group double-gap-top">
 			<p><span class="brand-color"><em>Required Fields *</em></span></p>
 		</div>

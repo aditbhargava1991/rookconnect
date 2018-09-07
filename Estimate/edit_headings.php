@@ -27,6 +27,7 @@ if(!isset($estimate)) {
 	$scope = $scope_list[$scope_id];
 	$us_exchange = json_decode(file_get_contents('https://www.bankofcanada.ca/valet/observations/group/FX_RATES_DAILY/json'), TRUE);
 }
+$us_rate_no_auto = get_config($dbc, 'disable_us_auto_convert');
 $us_rate = $us_exchange['observations'][count($us_exchange['observations']) - 1]['FXUSDCAD']['v'];
 $heading_order = explode('#*#', get_config($dbc, 'estimate_field_order'));
 if(in_array('Scope Detail',$config) && !in_array_starts('Detail',$heading_order)) {
@@ -69,6 +70,16 @@ $col_spanned = $columns; ?>
 			var value = src.value;
 			if(value == undefined) {
 				value = 1;
+			}
+			if(src.name.substr(-2) == '[]') {
+				field = src.name.split('[]')[0];
+				if(src.type == 'select-one' || src.type == 'select-multiple') {
+					value = [];
+					$('[name="'+src.name+'"] option:selected').each(function() {
+						value.push(this.value);
+					});
+					value = value.join(',');
+				}
 			}
 			$.ajax({
 				url: 'estimates_ajax.php?action=estimate_fields',
@@ -195,7 +206,7 @@ $col_spanned = $columns; ?>
 		<hr>
 		<div class="sort_table">
 			<div class="pull-right">
-				<img src="../img/icons/drag_handle.png" class="inline-img pull-right scope-handle">
+				<img src="../img/icons/drag_handle.png" class="inline-img pull-right scope-handle no-toggle" title="Drag">
 				<img src="../img/icons/ROOK-add-icon.png" class="inline-img pull-right cursor-hand" onclick="add_scope();">
 				<img src="../img/remove.png" class="inline-img pull-right cursor-hand" onclick="rem_scope(this);">
 			</div>
@@ -210,11 +221,11 @@ $col_spanned = $columns; ?>
 						<h3 class="no-margin"><input type="text" placeholder="Heading" name="heading" value="<?= empty($heading['heading']) ? 'Heading 1' : $heading['heading'] ?>" onchange="set_headings(this);" data-init="<?= $heading['heading'] ?>" class="form-control"></h3>
 					</td>
 					<td>
-						<img src="../img/icons/drag_handle.png" class="inline-img pull-right heading-handle">
+						<img src="../img/icons/drag_handle.png" class="inline-img pull-right heading-handle no-toggle" title="Drag">
 						<img src="../img/icons/ROOK-add-icon.png" class="inline-img pull-right cursor-hand" onclick="add_heading('<?= $scope ?>');">
 						<img src="../img/remove.png" class="inline-img pull-right cursor-hand" onclick="rem_heading(this);">
 						<?php if($_GET['tab'] != 'scope') { ?>
-							<a href="estimate_scope_add.php?estimateid=<?= $estimateid ?>&scope=<?= $scope_id ?>&heading=<?= config_safe_str($heading['heading']) ?>" onclick="window.history.replaceState('','Software', '?edit=<?= $estimateid ?>&status=templates');overlayIFrameSlider(this.href, '75%', true, false, 'auto', true); return false;"><img class="inline-img pull-right" src="../img/icons/ROOK-edit-icon.png"></a>
+							<a href="estimate_scope_add.php?estimateid=<?= $estimateid ?>&scope=<?= $scope_id ?>&heading=<?= config_safe_str($heading['heading']) ?>" onclick="window.history.replaceState('','Software', '?edit=<?= $estimateid ?>&status=templates');overlayIFrameSlider(this.href, '75%', true, false, 'auto', true); return false;"><img class="inline-img pull-right no-toggle" src="../img/icons/ROOK-edit-icon.png" title="Edit"></a>
 						<?php } ?>
 					</td>
 				</tr>
@@ -225,8 +236,10 @@ $col_spanned = $columns; ?>
 							continue;
 						}
 						echo "<th>".(empty($order_info[1]) ? $order_info[0] : $order_info[1])."</th>";
-            if($order_info[0] == 'Estimate Price' && $us_pricing > 0) {
+            if($order_info[0] == 'Estimate Price' && $us_pricing > 0 && $us_rate_no_auto != 'true') {
               echo "<th>USD Price</th>";
+            } else if($order_info[0] == 'Estimate Price' && $us_pricing > 0) {
+              echo "<th>CAD Price</th>";
             }
 					} ?>
 					<th data-columns='<?= $columns ?>' data-width='1'></th>
@@ -310,10 +323,12 @@ $col_spanned = $columns; ?>
 											<input type="text" name="profit" class="form-control" value="<?= $line['profit'] ?>" data-table="estimate_scope" data-id="<?= $line['id'] ?>" data-id-field="id">
 											<?php break;*/
 										case 'Estimate Price': ?>
-											<input type="text" name="price" class="form-control" value="<?= $line['pricing'] != 'usd_cpu' || $line['price'] > 0 ? $line['price'] : number_format($line['cost'] * $us_rate,2,'.','') ?>" data-table="estimate_scope" data-id="<?= $line['id'] ?>" data-id-field="id">
+											<input type="text" name="price" class="form-control" value="<?= $line['pricing'] != 'usd_cpu' || $line['price'] > 0 ? $line['price'] : number_format($line['cost'] * ($us_rate_no_auto == 'true' ? 1 : $us_rate),2,'.','') ?>" data-table="estimate_scope" data-id="<?= $line['id'] ?>" data-id-field="id">
 											<?php if($us_pricing > 0) { ?>
-												</td><td data-title="US Pricing">
-												<?php if($line['pricing'] == 'usd_cpu') { ?>
+												</td><td data-title="<?= $us_rate_no_auto == 'true' ? 'CAD' : 'USD' ?> Pricing">
+												<?php if($line['pricing'] == 'usd_cpu' && $us_rate_no_auto == 'true') { ?>
+													Approx $<?= number_format($line['cost'] * $us_rate,2,'.','') ?> CAD
+												<?php } else if($line['pricing'] == 'usd_cpu') { ?>
 													$<?= number_format($line['cost'],2) ?> @<?= round($us_rate,2) ?> ($<?= number_format($line['cost'] * $us_rate,2,'.','') ?> CAD)
 													<?php if(!($line['price'] > 0)) {
 														$line['price'] = $line['cost'] * $us_rate;
@@ -334,7 +349,7 @@ $col_spanned = $columns; ?>
 								<a href="" class="breakdown active" <?= $line['src_table'] == 'miscellaneous' ? '' : 'style="display: none;"' ?> onclick="return false;"><small>+ BREAKDOWN</small></a>
 								<img src="../img/remove.png" class="inline-img cursor-hand" onclick="remove_line(this);" data-table="estimate_scope" data-id="<?= $line['id'] ?>" data-id-field="id" name="deleted" width="20">
 								<a href="estimate_scope_add.php?estimateid=<?= $estimateid ?>&scope=<?= $scope_id ?>&heading=<?= config_safe_str($heading['heading']) ?>" onclick="overlayIFrameSlider(this.href, '75%', true, false, 'auto', true); return false;"><img src="../img/icons/ROOK-add-icon.png" class="inline-img cursor-hand" width="20"></a>
-								<img src="../img/icons/drag_handle.png" class="inline-img cursor-hand line-handle" data-table="estimate_scope" data-id="<?= $line['id'] ?>" data-id-field="id" width="20">
+								<img src="../img/icons/drag_handle.png" class="inline-img cursor-hand line-handle no-toggle" data-table="estimate_scope" data-id="<?= $line['id'] ?>" data-id-field="id" width="20" title="Drag">
 							</td>
 						</tr>
 					<?php } ?>

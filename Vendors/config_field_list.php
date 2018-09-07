@@ -87,7 +87,7 @@
 			<div class="col-sm-3"><input type="checkbox" <?php if (strpos($fields_config, ',Rating,') !== false) { echo " checked"; } ?> value="Rating" name="vendors[]">&nbsp;&nbsp;Rating</div>
 
 			<br clear="all"><br>
-            
+
 			<div class="col-sm-3">Rating Colors</div><br>
 			<div class="col-sm-3"><input type="checkbox" <?php if (strpos($fields_config, ',Bronze Rating,') !== false) { echo " checked"; } ?> value="Bronze Rating" name="vendors[]">&nbsp;&nbsp;Bronze</div>
 			<div class="col-sm-3"><input type="checkbox" <?php if (strpos($fields_config, ',Silver Rating,') !== false) { echo " checked"; } ?> value="Silver Rating" name="vendors[]">&nbsp;&nbsp;Silver</div>
@@ -242,7 +242,7 @@
 			<div class="col-sm-3"><input type="checkbox" <?php if (strpos($fields_config, ',Payment Zip Code,') !== false) { echo " checked"; } ?> value="Payment Zip Code" name="vendors[]">&nbsp;&nbsp;Payment Zip/Postal Code</div>
 			<div class="col-sm-3"><input type="checkbox" <?php if (strpos($fields_config, ',GST #,') !== false) { echo " checked"; } ?> value="GST #" name="vendors[]">&nbsp;&nbsp;GST #</div>
 			<div class="col-sm-3"><input type="checkbox" <?php if (strpos($fields_config, ',PST #,') !== false) { echo " checked"; } ?> value="PST #" name="vendors[]">&nbsp;&nbsp;PST #</div>
-			<div class="col-sm-3"><input type="checkbox" <?php if (strpos($fields_config, ',Vendor GST #,') !== false) { echo " checked"; } ?> value="Vendor GST #" name="vendors[]">&nbsp;&nbsp;Vendor GST #</div>
+			<div class="col-sm-3"><input type="checkbox" <?php if (strpos($fields_config, ',Vendor GST #,') !== false) { echo " checked"; } ?> value="Vendor GST #" name="vendors[]">&nbsp;&nbsp;<?= VENDOR_TILE ?> GST #</div>
 			<div class="col-sm-3"><input type="checkbox" <?php if (strpos($fields_config, ',Payment Information,') !== false) { echo " checked"; } ?> value="Payment Information" name="vendors[]">&nbsp;&nbsp;Payment Information</div>
 			<div class="col-sm-3"><input type="checkbox" <?php if (strpos($fields_config, ',Account Number,') !== false) { echo " checked"; } ?> value="Account Number" name="vendors[]">&nbsp;&nbsp;Account Number</div>
 			<div class="col-sm-3"><input type="checkbox" <?php if (strpos($fields_config, ',Total Monthly Rate,') !== false) { echo " checked"; } ?> value="Total Monthly Rate" name="vendors[]">&nbsp;&nbsp;Total Monthly Rate</div>
@@ -340,7 +340,7 @@
 	<div id="collapse_6" class="panel-collapse collapse">
 		<div class="panel-body">
 			<div class="col-sm-3"><input type="checkbox" <?php if (strpos($fields_config, ',Upload Letter of Intent,') !== false) { echo " checked"; } ?> value="Upload Letter of Intent" name="vendors[]">&nbsp;&nbsp;Upload Letter of Intent</div>
-			<div class="col-sm-3"><input type="checkbox" <?php if (strpos($fields_config, ',Upload Vendor Documents,') !== false) { echo " checked"; } ?> value="Upload Vendor Documents" name="vendors[]">&nbsp;&nbsp;Upload Vendor Documents</div>
+			<div class="col-sm-3"><input type="checkbox" <?php if (strpos($fields_config, ',Upload Vendor Documents,') !== false) { echo " checked"; } ?> value="Upload Vendor Documents" name="vendors[]">&nbsp;&nbsp;Upload <?= VENDOR_TILE ?> Documents</div>
 			<div class="col-sm-3"><input type="checkbox" <?php if (strpos($fields_config, ',Upload Marketing Material,') !== false) { echo " checked"; } ?> value="Upload Marketing Material" name="vendors[]">&nbsp;&nbsp;Upload Marketing Material</div>
 			<div class="col-sm-3"><input type="checkbox" <?php if (strpos($fields_config, ',Upload Purchase Contract,') !== false) { echo " checked"; } ?> value="Upload Purchase Contract" name="vendors[]">&nbsp;&nbsp;Upload Purchase Contract</div>
 			<div class="col-sm-3"><input type="checkbox" <?php if (strpos($fields_config, ',Upload Support Contract,') !== false) { echo " checked"; } ?> value="Upload Support Contract" name="vendors[]">&nbsp;&nbsp;Upload Support Contract</div>
@@ -994,7 +994,7 @@
 
     <div id="collapse_pur_info" class="panel-collapse collapse">
         <div class="panel-body">
-            <div class="col-sm-3"><input type="checkbox" <?php if (strpos($fields_config, ','."Vendor".',') !== false) { echo " checked"; } ?> value="Vendor" name="vendors[]">&nbsp;&nbsp;Vendor</div>
+            <div class="col-sm-3"><input type="checkbox" <?php if (strpos($fields_config, ','."Vendor".',') !== false) { echo " checked"; } ?> value="Vendor" name="vendors[]">&nbsp;&nbsp;<?= VENDOR_TILE ?></div>
             <div class="col-sm-3"><input type="checkbox" <?php if (strpos($fields_config, ','."Purchase Cost".',') !== false) { echo " checked"; } ?> value="Purchase Cost" name="vendors[]">&nbsp;&nbsp;Purchase Cost</div>
             <div class="col-sm-3"><input type="checkbox" <?php if (strpos($fields_config, ','."Date Of Purchase".',') !== false) { echo " checked"; } ?> value="Date Of Purchase" name="vendors[]">&nbsp;&nbsp;Date Of Purchase</div>
 
@@ -1445,7 +1445,7 @@
     <div id="collapse_inclusion" class="panel-collapse collapse">
         <div class="panel-body">
             <div class="col-sm-3"><input type="checkbox" <?php if (strpos($fields_config, ','."Include in P.O.S.".',') !== false) {
-                echo " checked"; } ?> value="Include in P.O.S." name="vendors[]">&nbsp;&nbsp;Include in Point of Sale</div>
+                echo " checked"; } ?> value="Include in P.O.S." name="vendors[]">&nbsp;&nbsp;Include in <?= POS_ADVANCE_TILE ?></div>
                 <div class="col-sm-3"><input type="checkbox" <?php if (strpos($fields_config, ','."Include in Purchase Orders".',') !== false) {
                 echo " checked"; } ?> value="Include in Purchase Orders" name="vendors[]">&nbsp;&nbsp;Include in Purchase Orders</div>
                 <div class="col-sm-3"><input type="checkbox" <?php if (strpos($fields_config, ','."Include in Sales Orders".',') !== false) {

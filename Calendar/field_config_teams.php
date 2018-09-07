@@ -87,6 +87,12 @@ if (!empty($get_field_config)) {
         <div id="collapse_field" class="panel-collapse collapse">
             <div class="panel-body">
                 <div class="form-group">
+                    <label for="region" class="col-sm-4 control-label">Team Name:</label>
+                    <div class="col-sm-8">
+                        <input type="checkbox" name="team_fields[]" value="team_name" <?= (strpos($team_fields, ',team_name,') !== FALSE ? 'checked' : '') ?>>
+                    </div>
+                </div>
+                <div class="form-group">
                     <label for="region" class="col-sm-4 control-label">Region:</label>
                     <div class="col-sm-8">
                         <input type="checkbox" name="team_fields[]" value="region" <?= (strpos($team_fields, ',region,') !== FALSE ? 'checked' : '') ?>>

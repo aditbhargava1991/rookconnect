@@ -56,9 +56,9 @@ checkAuthorised('fund_development');
             $num_rows = mysqli_num_rows($result);
             if($num_rows > 0) {
 
-                echo "<table class='table table-bordered'>";
+                echo "<table class='table table-bordered table-striped'>";
 
-                echo "<tr class='hidden-xs hidden-sm'>";
+                echo "<thead><tr class='hidden-xs hidden-sm'>";
                 echo '<th>First Name</th>';
                 echo '<th>Last Name</th>';
                 echo '<th>Cell Phone</th>';
@@ -110,7 +110,7 @@ checkAuthorised('fund_development');
                 }
                 */
                 echo '<th>Active/Inactive</th>';
-                echo "</tr>";
+                echo "</tr></thead>";
             } else{
                 echo "<div class='clearfix'><h2>No Record Found.</h2></div>";
             }

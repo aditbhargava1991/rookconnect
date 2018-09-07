@@ -15,7 +15,7 @@ do {
 	if(!($general_item['piece_num'] > 0)) {
 		$general_item['piece_num'] = 1;
 	}
-	for($i = 0; $i < $general_item['piece_num']; $i++) { ?>
+	for($gen_i = 0; $gen_i < $general_item['piece_num']; $gen_i++) { ?>
 		<?= $row_item++ > 0 ? '<hr />' : '' ?>
 		<div class="tab-section" id="tab_section_detail_inventory_<?= config_safe_str($general_item['piece_type'].'_'.$i) ?>">
 			<?php if(!$no_fetch) { ?>
@@ -245,7 +245,7 @@ do {
 								<div class="form-group" <?= $general_inventory['description'] == '' || $inventory['siteid'] != '' ? '' : 'style="display:none;"' ?>>
 									<label class="control-label col-sm-4"><?= SITES_CAT ?>:</label>
 									<div class="col-sm-8"><div class="col-sm-12">
-										<select name="siteid" data-placeholder="Select <?= SITES_CAT ?>" data-table="ticket_attached" data-id="<?= $inventory['id'] ?>" data-id-field="id" data-type="inventory_general" data-type-field="src_table" class="chosen-select-deselect"><option></option>
+										<select name="siteid[]" multiple data-concat="," data-placeholder="Select <?= SITES_CAT ?>" data-table="ticket_attached" data-id="<?= $inventory['id'] ?>" data-id-field="id" data-type="inventory_general" data-type-field="src_table" class="chosen-select-deselect">
 											<?php if(!isset($site_list)) {
 												$site_list = sort_contacts_query(mysqli_query($dbc,"SELECT contactid, site_name, `display_name`, businessid FROM `contacts` WHERE `category`='".SITES_CAT."' AND deleted=0 ORDER BY IFNULL(NULLIF(`display_name`,''),`site_name`)"));
 											}
@@ -299,7 +299,7 @@ do {
 									<div class="col-sm-8"><div class="col-sm-12">
 										<select name="po_line" data-table="ticket_attached" data-id="<?= $inventory['id'] ?>" data-id-field="id" data-type="inventory" data-type-field="src_table" data-attach="<?= $general_item['id'] ?>" data-attach-field="line_id" data-detail="<?= $i ?>" data-detail-field="piece_num" class="chosen-select-deselect"><option />
 											<?php $line_num = $dbc->query("SELECT MAX(`po_line`) FROM `ticket_attached` WHERE `deleted`=0 AND `src_table`='inventory'")->fetch_array(MYSQLI_NUM)[0]; ?>
-											<?php for($i = 10; $i <= $line_num + 20; $i += 10) { ?>
+											<?php for($i = 10; $i <= 550; $i += 10) { ?>
 												<option <?= $inventory['po_line'] == $i ? 'selected' : '' ?> value="<?= $i ?>"><?= $i ?></option>
 											<?php } ?>
 										</select>
@@ -652,7 +652,7 @@ do {
 							<div class="clearfix"></div>
 							<?php $pdf_contents[] = ['Quantity', $inventory['qty']]; ?>
 						<?php } ?>
-						<?php if(strpos($value_config,',Inventory Detail Site,') !== FALSE || strpos($value_config,',Inventory Detail Site,') !== FALSE) { ?>
+						<?php if(strpos($value_config,',Inventory Detail Site,') !== FALSE && $field_sort_field == 'Inventory Detail Site') { ?>
 							<div class="form-group" <?= $general_inventory['description'] == '' || $inventory['siteid'] != '' ? '' : 'style="display:none;"' ?>>
 								<label class="control-label col-sm-4"><?= SITES_CAT ?>:</label>
 								<div class="col-sm-8">

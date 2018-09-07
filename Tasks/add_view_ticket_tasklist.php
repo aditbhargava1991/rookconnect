@@ -17,7 +17,7 @@ if (isset($_POST['tasklist'])) {
     $task_tododate = $_POST['task_tododate'];
     $task_status = $_POST['task_status'];
     if($task_status == '') {
-        $task_status = 'To Do';
+        $task_status = 'Done';
     }
     $task_category = $_POST['task_category'];
 
@@ -31,9 +31,9 @@ if (isset($_POST['tasklist'])) {
         if($task_category = 'Zen Earth Corp' || $task_category = 'Green Earth Energy' || $task_category = 'Green Life Can') {
             if (strpos(WEBSITE_URL, 'zenearthcorp.rookconnect.com') !== FALSE || strpos(WEBSITE_URL, 'greenearthenergysolutions.rookconnect.com') !== FALSE || strpos(WEBSITE_URL, 'greenlifecan.rookconnect.com') !== FALSE) {
 
-                $zenearth_rook_db = @mysqli_connect('mysql.rookconnect.com', 'zen_rook_user', 'R0bot587tw3ak', 'zenearth_rook_db');
-                $gees_rook_db = @mysqli_connect('mysql.rookconnect.com', 'zen_rook_user', 'R0bot587tw3ak', 'gees_rook_db');
-                $glcllc_rook_db = @mysqli_connect('mysql.rookconnect.com', 'zen_rook_user', 'R0bot587tw3ak', 'glcllc_rook_db');
+                $zenearth_rook_db = @mysqli_connect('localhost', 'zen_rook_user', 'R0bot587tw3ak', 'zenearth_rook_db');
+                $gees_rook_db = @mysqli_connect('localhost', 'zen_rook_user', 'R0bot587tw3ak', 'gees_rook_db');
+                $glcllc_rook_db = @mysqli_connect('localhost', 'zen_rook_user', 'R0bot587tw3ak', 'glcllc_rook_db');
 
                 $result_insert_ca = mysqli_query($zenearth_rook_db, $query_insert_ca);
                 $result_insert_ca = mysqli_query($gees_rook_db, $query_insert_ca);
@@ -56,9 +56,9 @@ if (isset($_POST['tasklist'])) {
         if($task_category = 'Zen Earth Corp' || $task_category = 'Green Earth Energy' || $task_category = 'Green Life Can') {
 
         if (strpos(WEBSITE_URL, 'zenearthcorp.rookconnect.com') !== FALSE || strpos(WEBSITE_URL, 'greenearthenergysolutions.rookconnect.com') !== FALSE || strpos(WEBSITE_URL, 'greenlifecan.rookconnect.com') !== FALSE) {
-                $zenearth_rook_db = @mysqli_connect('mysql.rookconnect.com', 'zen_rook_user', 'R0bot587tw3ak', 'zenearth_rook_db');
-                $gees_rook_db = @mysqli_connect('mysql.rookconnect.com', 'zen_rook_user', 'R0bot587tw3ak', 'gees_rook_db');
-                $glcllc_rook_db = @mysqli_connect('mysql.rookconnect.com', 'zen_rook_user', 'R0bot587tw3ak', 'glcllc_rook_db');
+                $zenearth_rook_db = @mysqli_connect('localhost', 'zen_rook_user', 'R0bot587tw3ak', 'zenearth_rook_db');
+                $gees_rook_db = @mysqli_connect('localhost', 'zen_rook_user', 'R0bot587tw3ak', 'gees_rook_db');
+                $glcllc_rook_db = @mysqli_connect('localhost', 'zen_rook_user', 'R0bot587tw3ak', 'glcllc_rook_db');
 
                 $result_update_vendor = mysqli_query($zenearth_rook_db, $query_update_vendor);
                 $result_update_vendor = mysqli_query($gees_rook_db, $query_update_vendor);

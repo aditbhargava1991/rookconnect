@@ -293,7 +293,7 @@ b, strong {
   font-weight:600; }
 
 a {
-    color:#df5a87;
+    color:#ce6286;
     text-decoration:none;
     }
     a:hover, a:focus {
@@ -365,7 +365,7 @@ h1, h2, h3, h4, h5, h6,
   font-family:inherit;
   font-weight:600;
   line-height:1.1;
-  color:#df5a87; }
+  color:#ce6286; }
   h1 small,
   h1 .small, h2 small,
   h2 .small, h3 small,
@@ -1390,7 +1390,7 @@ form {
 th {
   text-align:left;
     color:#fff;
-    background:#df5a87;
+    background:#ce6286;
   }
 
 .table {
@@ -2972,7 +2972,7 @@ tbody.collapse.in {
         margin-right:0; } }
 
 .navbar-default {
-  background-color:#df5a87 !important;
+  background-color:#ce6286 !important;
   border-color:#e7e7e7; }
   .navbar-default .navbar-brand {
     color:#777; }
@@ -3808,7 +3808,7 @@ a.list-group-item-danger {
     background-color:#fafafa;
 }
 .panel-body .brand-btn {
-    /* background-color:#df5a87; */
+    /* background-color:#ce6286; */
 }
 .panel-group {
   margin-bottom:20px; }
@@ -4657,7 +4657,8 @@ html {
   height:100%; }
 
 body {
-  background:#fff url('../img/pinkdots_software_theme/bg.png');
+  /* background:#fff url('../img/pinkdots_software_theme/bg.png'); */
+  background:#fff;
   background-size:cover;
   background-position:bottom right;
   background-attachment:fixed;
@@ -4714,13 +4715,13 @@ input {
 
 .brand-btn {
   color:#fff;
-  background:#df5a87;
+  background:#ce6286;
   text-decoration:none;}
   .brand-btn:hover {
     background:#000; }
 
 .brand-color {
-  color:#df5a87; }
+  color:#ce6286; }
 
 .brand-nav {
 	background-color:#000;
@@ -4793,8 +4794,8 @@ text-decoration:underline;	  }
     .header-nav .logout-btn {
         float:right;
         background:#fafafa;
-        border:3px solid #df5a87;
-        color:#df5a87;
+        border:3px solid #ce6286;
+        color:#ce6286;
         font-weight:600;
         }
         .header-nav .logout-btn:hover {
@@ -4840,7 +4841,7 @@ text-decoration:underline;	  }
     .dashboard.link a:hover {
       color:#000;
       text-decoration:none;
-      border:2px solid #df5a87;}
+      border:2px solid #ce6286;}
 .dashboard.link a.support-btn {
     display:table-cell;
     vertical-align:middle;
@@ -4852,7 +4853,7 @@ text-decoration:underline;	  }
     font-size:1.2em;
     }
     .dashboard.link a.support-btn:hover {
-        background:#df5a87;
+        background:#ce6286;
         box-shadow:none;
         border:none;
         color:#fff !important;
@@ -5216,26 +5217,29 @@ text-decoration:underline;	  }
 }
 .config-btn {
   color:#fff;
-  background:#df5a87; }
+  background:#ce6286; }
   .config-btn:hover {
     background:#000; }
     
 /* New Overrides */
+.iframe_overlay { background-color:rgba(0,0,0,0.3) !important; }
+.innerframe .main-screen .panel .panel-title > a:hover { color:#ce6286 !important; }
 .default-color,
 ul.sidebar .active,
 .main-screen .active,
 .tile-sidebar li a:hover, a:hover,
 .dashboard-item label,
 .main-item label,
-.text-blue {
-    color:#df5a87 !important; }
-
+.text-blue,
+.filter_div a {
+    color:#ce6286 !important; }
+.filter_div a:hover { color:#000 !important; }
 .ui-state-disabled,
 .tile-sidebar ul li.active,
 ul.sidebar .active.blue,
 .block-item.active,
 .blue {
-    background-color:#df5a87 !important; }
+    background-color:#ce6286 !important; }
     
 .dashboard-container,
 .block-item,
@@ -5243,29 +5247,30 @@ ul.sidebar .active.blue,
 .block-button,
 .main-screen-white,
 .blue-border {
-    border:1px solid #df5a87 !important; }
+    border:1px solid #ce6286 !important; }
     
 .standard-sidebar-searchbox { background-color:#fbd7e3 !important; }
-.sidebar-higher-level a.cursor-hand.active {
-  background-color: #df5a87 !important;
-}
-.sidebar-higher-level ul li.active.blue,.sidebar-higher-level ul li.active.blue a,.sidebar-higher-level ul li.active.blue span {
-  color:#df5a87 !important;
+.sidebar-higher-level a.cursor-hand.active { background-color: #ce6286 !important; color:#fff !important; }
+li.sidebar-higher-level ul li.sidebar-higher-level a.cursor-hand.active { background-color:transparent !important; color:#ce6286 !important; }
+.sidebar-higher-level ul li.active.blue, .sidebar-higher-level ul li.active.blue a, .sidebar-higher-level ul li.active.blue span, .standard-collapsible .sidebar-higher-level ul li.active {
+  color:#ce6286 !important;
   background-color:#fff !important;
 }
-.standard-body-content h3, .standard-body-content h4 { color:#df5a87; }
+.standard-body-content h3, .standard-body-content h4 { color:#ce6286; }
 li.sidebar-lower-level.active,li.sidebar-lower-level.active span {
   background-color: #fff !important;
-  color: #df5a87 !important;
+  color: #ce6286 !important;
 }
-.block-panels .panel-heading.active {
-  background-color: #df5a87 !important;
+.block-panels .panel-heading.active, .default-background, .block-item.active {
+  background-color: #ce6286 !important;
 }
 .block-panels .panel-heading.active a {
   color: #fff !important;
 }
+.standard-collapsible ul ul li.sidebar-lower-level.active span, .standard-collapsible ul ul li.active a, .standard-collapsible ul ul a li.active { background-color:transparent !important; color:#ce6286 !important; }
+.standard-collapsible ul li.sidebar-higher-level ul li.active span { color:#ce6286 !important; }
 
-.info-block-header { background-color:#fbd7e3 !important; border-bottom:4px solid #df5a87 !important; }
+.info-block-header { background-color:#fbd7e3 !important; border-bottom:4px solid #ce6286 !important; }
 div.calendar-screen { background-color:#fbd7e3 !important; }
 
 .icon-pie-chart:hover,
@@ -5281,15 +5286,16 @@ ul.sidebar .active,
     
 .col-sm-3.preview_div h3, .col-sm-3.preview_div h4 { color:#000; }
 .calendar .block-button,.calendar .block-item,.calendar .block-label {
-  border: 1px solid #df5a87 !important;
+  border: 1px solid #ce6286 !important;
   color: #000 !important;
 }
 .calendar .block-button.active,.calendar .block-item.active,.calendar .block-label.active {
-  background-color: #df5a87 !important;
+  background-color: #ce6286 !important;
   color: #fff !important;
 }
 .theme-color-icon {
   filter: invert(47%) sepia(95%) saturate(1602%) hue-rotate(308deg) brightness(95%) contrast(84%) !important;
 }
-.calendar .main-screen .panel .panel-title > a:hover { color:#df5a87 !important; }
-.theme-color-border-bottom { border-bottom:2px solid #DF5A87 !important; }
+.overview-block, .dashboard-container, .block-item, .connectedSortable, .summary-block, .main-screen-white { border-color:#ce6286 !important; }
+.calendar .main-screen .panel .panel-title > a:hover { color:#ce6286 !important; }
+.theme-color-border-bottom { border-bottom:2px solid #ce6286 !important; }

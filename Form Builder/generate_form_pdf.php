@@ -293,7 +293,7 @@ if($advanced_styling != 1) {
     ";
     $pdf_text = $html_css.html_entity_decode($form['contents']);
 }
-if(isset($_GET['performance_review'])) {
+if(isset($_GET['performance_review']) && $advanced_styling != 1 && $page_by_page != 1) {
     $pr_html = '<h1 style="text-align: center;">'.get_contact($dbc, $_POST['pr_staff']).(!empty($_POST['pr_position']) ? ' - '.$_POST['pr_position'] : '').'</h1>';
     $pdf_text = $pr_html.$pdf_text;
 }
@@ -378,26 +378,33 @@ while($field = mysqli_fetch_array($fields)) {
                 $pdf_value = '';
                 $options = mysqli_query($dbc, "SELECT * FROM `user_form_fields` WHERE `name`='".$field['name']."' AND `form_id`='$form_id' AND `type`='OPTION' AND `deleted`=0 ORDER BY `sort_order`");
                 while ($option = mysqli_fetch_array($options)) {
-                        $pdf_value .= '<img style="height: 8px; width: 8px;" src="../img/checkbox_unchecked.png"> '.$option['label'].'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
+                    $pdf_value .= '<img style="height: 8px; width: 8px;" src="../img/checkbox_unchecked.png"> '.$option['label'].'&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;';
                 }
                 $pdf_text .= generateSimpleStyling($field['label'], $pdf_value, $field['pdf_align'], $field['pdf_label']);
             } else{
                 $value = $_POST['field_'.preg_replace('/[^a-z0-9_]/','',strtolower($field['name']))];
-                // $value = ltrim($value, '<p>');
-                // $value = rtrim($value, '</p>');
-                $value = str_replace('<p>','', $value);
-                $value = str_replace('</p>','<br>',$value);
+                $values = [];
+                if($field['content'] == 'multiple') {
+                    foreach($value as $single_value) {
+                        $values[] = $single_value;
+                    }
+                } else {
+                    $values = [$value];
+                }
+                $pdf_value = implode(', ', $values);
+                $value = implode('#*#',$values);
                 if($preview_form == 'true') {
                     $value = 'PREVIEW';
+                    $pdf_value = 'PREVIEW';
                 }
                 if($advanced_styling != 1 && $page_by_page == 1) {
-                    $page_details[$field['name']] = generateSimpleStyling($field['label'], $value, $field['pdf_align'], $field['pdf_label']);
+                    $page_details[$field['name']] = generateSimpleStyling($field['label'], $pdf_value, $field['pdf_align'], $field['pdf_label']);
                 } else if($advanced_styling != 1) {
-                    $pdf_text .= generateSimpleStyling($field['label'], $value, $field['pdf_align'], $field['pdf_label']);
+                    $pdf_text .= generateSimpleStyling($field['label'], $pdf_value, $field['pdf_align'], $field['pdf_label']);
                 } else {
-                    $pdf_text = str_replace('[['.$field['name'].']]', $value, $pdf_text);
+                    $pdf_text = str_replace('[['.$field['name'].']]', $pdf_value, $pdf_text);
                 }
-                $ticket_description .= generateSimpleStyling($field['label'], $value, $field['pdf_align'], $field['pdf_label'], 'ticket');
+                $ticket_description .= generateSimpleStyling($field['label'], $pdf_value, $field['pdf_align'], $field['pdf_label'], 'ticket');
             }
             break;
         case 'SELECT':
@@ -418,28 +425,41 @@ while($field = mysqli_fetch_array($fields)) {
                 $pdf_text .= generateSimpleStyling($field['label'], $pdf_value, $field['pdf_align'], $field['pdf_label']);
             } else {
                 $value = $_POST['field_'.preg_replace('/[^a-z0-9_]/','',strtolower($field['name']))];
+                $values = [];
+                if($field['content'] == 'multiple') {
+                    foreach($value as $single_value) {
+                        $values[] = $single_value;
+                    }
+                } else {
+                    $values = [$value];
+                }
+                $pdf_values = [];
+                foreach($values as $select_contactid) {
+                    if($select_contactid > 0) {
+                        $table = $field['source_table'];
+                        $value_src = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `$table` WHERE `contactid`='$select_contactid'"));
+                        $select_contactid = ($value_src['name'] != '' ? decryptIt($value_src['name']) : '');
+                        if($value_src['first_name'].$value_src['last_name'].$value_src['nick_name'] != '') {
+                            $select_contactid .= ($select_contactid != '' ? ': ' : '').decryptIt($value_src['first_name']).' '.decryptIt($value_src['last_name']);
+                        }
+                        $select_contactid .= ($value_src['nick_name'] != '' ? '"'.$value_src['nick_name'].'"' : '');
+                        $pdf_values[] = $select_contactid;
+                    }
+                }
+                $value = implode('#*#', $values);
+                $pdf_value = implode(', ', $pdf_values);
                 if($preview_form == 'true') {
                     $value = 'PREVIEW';
-                }
-                if($value > 0) {
-                    $table = $field['source_table'];
-                    $value_src = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `$table` WHERE `contactid`='$value'"));
-                    $value = ($value_src['name'] != '' ? decryptIt($value_src['name']) : '');
-                    if($value_src['first_name'].$value_src['last_name'].$value_src['nick_name'] != '') {
-                        $value .= ($value != '' ? ': ' : '').decryptIt($value_src['first_name']).' '.decryptIt($value_src['last_name']);
-                    }
-                    $value .= ($value_src['nick_name'] != '' ? '"'.$value_src['nick_name'].'"' : '');
+                    $pdf_value = 'PREVIEW';
                 }
                 if($advanced_styling != 1 && $page_by_page == 1) {
-                    $page_details[$field['name']] = generateSimpleStyling($field['label'], $value, $field['pdf_align'], $field['pdf_label']);
+                    $page_details[$field['name']] = generateSimpleStyling($field['label'], $pdf_value, $field['pdf_align'], $field['pdf_label']);
                 } else if($advanced_styling != 1) {
-                    $pdf_text .= generateSimpleStyling($field['label'], $value, $field['pdf_align'], $field['pdf_label']);
+                    $pdf_text .= generateSimpleStyling($field['label'], $pdf_value, $field['pdf_align'], $field['pdf_label']);
                 } else {
-                    $pdf_text = str_replace('[['.$field['name'].']]', $value, $pdf_text);
+                    $pdf_text = str_replace('[['.$field['name'].']]', $pdf_value, $pdf_text);
                 }
-                $ticket_description .= generateSimpleStyling($field['label'], $value, $field['pdf_align'], $field['pdf_label'], 'ticket');
-                $_POST['field_'.preg_replace('/[^a-z0-9_]/','',strtolower($field['name']))];
-                $value = $_POST['field_'.preg_replace('/[^a-z0-9_]/','',strtolower($field['name']))];
+                $ticket_description .= generateSimpleStyling($field['label'], $pdf_value, $field['pdf_align'], $field['pdf_label'], 'ticket');
             }
             break;
         case 'REFERENCE':
@@ -1046,6 +1066,33 @@ while($field = mysqli_fetch_array($fields)) {
                     $pdf_text .= $pdf_text_value;
                 }
             }
+            break;
+        case 'FILE':
+            $value = $_POST['field_'.preg_replace('/[^a-z0-9_]/','',strtolower($field['name'])).'_existing'];
+            if($_POST['field_'.preg_replace('/[^a-z0-9_]/','',strtolower($field['name'])).'_delete'] == 1) {
+                $value = '';
+            }
+            if(!empty($_FILES['field_'.preg_replace('/[^a-z0-9_]/','',strtolower($field['name']))]['name'])) {
+                $file_name = $basename = $_FILES['field_'.preg_replace('/[^a-z0-9_]/','',strtolower($field['name']))]['name'];
+                $j = 0;
+                while(file_exists('download/'.$file_name)) {
+                    $file_name = preg_replace('/(\.[a-z0-9]*)/', ' ('.++$j.')$1', $basename);
+                }
+                $value = WEBSITE_URL.'/'.FOLDER_NAME.'/download/'.$file_name;
+                move_uploaded_file($_FILES['field_'.preg_replace('/[^a-z0-9_]/','',strtolower($field['name']))]['tmp_name'], 'download/'.$file_name);
+            }
+            if($preview_form == 'true') {
+                $value = 'PREVIEW';
+            }
+            if($advanced_styling != 1 && $page_by_page == 1) {
+                $page_details[$field['name']] = generateSimpleStyling($field['label'], $value, $field['pdf_align'], $field['pdf_label']);
+            } else if($advanced_styling != 1) {
+                $pdf_text .= generateSimpleStyling($field['label'], $value, $field['pdf_align'], $field['pdf_label']);
+            } else {
+                $pdf_text = str_replace('[['.$field['name'].']]', $value, $pdf_text);
+            }
+            $ticket_description .= generateSimpleStyling($field['label'], $value, $field['pdf_align'], $field['pdf_label'], 'ticket');
+
             break;
         case 'SERVICES':
             if($advanced_styling != 1) {

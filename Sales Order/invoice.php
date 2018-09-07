@@ -443,7 +443,7 @@ checkAuthorised('sales_order');
 ?>
 <div class="container triple-pad-bottom">
     <div class="row">
-		<h1 class="double-pad-bottom">Point of Sale Dashboard
+		<h1 class="double-pad-bottom"><?= POS_ADVANCE_TILE ?> Dashboard
         <?php
         if(config_visible_function($dbc, 'purchase_order') == 1) {
             echo '<a href="field_config_pos.php" class="mobile-block pull-right "><img style="width: 50px;" title="Tile Settings" src="../img/icons/settings-4.png" class="settings-classic wiggle-me"></a><br><br>';

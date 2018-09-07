@@ -1,0 +1,6 @@
+$before_change = capture_before_change($dbc, 'checklist_name', 'checklist', 'checklistnameid', $id);
+
+$start_word = strpos($report, "Updated");
+$end_word = strpos($report, " on");
+$history = substr($report, $start_word, $end_word - $start_word) . "<br />";
+add_update_history($dbc, 'checklist_history', $history, '', $before_change);

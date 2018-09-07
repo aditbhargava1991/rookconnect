@@ -129,7 +129,7 @@ if (!empty($get_field_config)) {
                 <div class="form-group">
                     <label for="notes" class="col-sm-4 control-label">Point of Sale:</label>
                     <div class="col-sm-8">
-                        <input type="radio" name="enabled_fields[]" value="pos" <?= (strpos($enabled_fields, ',pos,') !== false ? 'checked' : ''); ?> /> Point of Sale
+                        <input type="radio" name="enabled_fields[]" value="pos" <?= (strpos($enabled_fields, ',pos,') !== false ? 'checked' : ''); ?> /> <?= POS_ADVANCE_TILE ?>
                         <input type="radio" name="enabled_fields[]" value="pos_touch" <?= (strpos($enabled_fields, ',pos_touch,') !== false ? 'checked' : ''); ?> /> Point of Sale - Touch Interface
                         <input type="radio" name="enabled_fields[]" value="pos_basic" <?= (strpos($enabled_fields, ',pos_basic,') !== false ? 'checked' : ''); ?> /> Point of Sale (Basic)
                         <input type="radio" name="enabled_fields[]" value="checkout" <?= (strpos($enabled_fields, ',checkout,') !== false ? 'checked' : ''); ?> /> Check Out

@@ -5,9 +5,18 @@ if(isset($_POST['submit'])) {
 	// Insert a row if it isn't already there
 	$query_insert_row = "INSERT INTO `manuals_staff` (`manualtypeid`, `staffid`) SELECT '$manual', '$staff' FROM (SELECT COUNT(*) rows FROM `manuals_staff` WHERE `manualtypeid`='$manual' AND `staffid`='$staff') LOGTABLE WHERE rows=0";
 	mysqli_query($dbc, $query_insert_row);
+	$before_change = '';
+	$history = "Manuals staff entry added. <br />";
+	add_update_history($dbc, 'hr_history', $history, '', $before_change);
 	$done = $_POST['validation'] != '' ? 1 : 0;
-    $query_update_ticket = "UPDATE `manuals_staff` SET `done` = '$done', `today_date` = '$today_date' WHERE `manualtypeid` = '$manual' AND staffid='$staff' AND done=0";
+
+		$before_change = '';
+
+		$query_update_ticket = "UPDATE `manuals_staff` SET `done` = '$done', `today_date` = '$today_date' WHERE `manualtypeid` = '$manual' AND staffid='$staff' AND done=0";
     $result_update_ticket = mysqli_query($dbc, $query_update_ticket);
+
+		$history = "Manual Staff Updated. <br />";
+		add_update_history($dbc, 'hr_history', $history, '', $before_change);
 
     //Update reminders to done
     mysqli_query($dbc, "UPDATE `reminders` SET `done` = $done WHERE `contactid` = '$staff' AND `src_table` = 'manuals' AND `src_tableid` = '$manual'");
@@ -47,7 +56,7 @@ $value_config = ','.get_config($dbc, 'hr_fields').','; ?>
 						<?= html_entity_decode($get_manual['description']) ?>
 					</div>
 				</div>
-				
+
 				<?php $uploads = mysqli_query($dbc, "SELECT `uploadid`, `upload`,`type` FROM `manuals_upload` WHERE `manualtypeid`='$manual'");
 				if(mysqli_num_rows($uploads) > 0) {
 					echo '<div class="form-group">

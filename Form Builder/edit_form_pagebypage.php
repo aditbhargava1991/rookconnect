@@ -89,7 +89,7 @@ $new_page = mysqli_fetch_array(mysqli_query($dbc, "SELECT (MAX(`page`) + 1) new_
 $page_details = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `user_form_page_detail` WHERE `page_id` = '$page_id' AND `deleted` = 0 ORDER BY `white_space` DESC"),MYSQLI_ASSOC);
 ?>
 <script type="text/javascript" src="formbuilder_page.js"></script>
-<div class="collapsible tile-sidebar" style="height: 100%;">
+<div class="standard-collapsible tile-sidebar" style="height: 100%;">
 	<ul class="sidebar page_field_sidebar" style="max-width: 15vw;">
 		<div class="block-item page_field_draggable" data-whitespace="1" style="display: none;">Add White Space</div>
 		<?php foreach($page_fields as $field_name => $field_label) { ?>

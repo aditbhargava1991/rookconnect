@@ -69,6 +69,9 @@ if (isset($_POST['printpdf'])) {
     $today_date = date('Y-m-d');
 	$pdf->writeHTML($html, true, false, true, false, '');
 	$pdf->Output('Download/timetracking_'.$today_date.'.pdf', 'F');
+
+    track_download($dbc, 'report_checklist_time', 0, WEBSITE_URL.'/Reports/Download/timetracking_'.$today_date.'.pdf', 'Checklist Time Tracking Report');
+
     ?>
 
 	<script type="text/javascript" language="Javascript">
@@ -79,23 +82,6 @@ if (isset($_POST['printpdf'])) {
     $endtime = $endtimepdf;
     $staffid = $staffidpdf;
     } ?>
-
-<script type="text/javascript">
-
-</script>
-</head>
-<body>
-<?php include_once ('../navigation.php');
-?>
-
-<div class="container triple-pad-bottom">
-    <div class="row">
-        <div class="col-md-12">
-
-        <?php echo reports_tiles($dbc);  ?>
-
-        <br><br>
-
         <form id="form1" name="form1" method="post" action="" enctype="multipart/form-data" class="form-inline" role="form">
             <input type="hidden" name="report_type" value="<?php echo $_GET['type']; ?>">
             <input type="hidden" name="category" value="<?php echo $_GET['category']; ?>">
@@ -163,11 +149,7 @@ if (isset($_POST['printpdf'])) {
             <div id="no-more-tables"><?= report_receivables($dbc, $starttime, $endtime, '', '', '', $staffid) ?></div>
 
         </form>
-
-        </div>
-    </div>
-</div>
-<?php include ('../footer.php'); ?>
+        
 
 <?php
 function report_receivables($dbc, $starttime, $endtime, $table_style, $table_row_style, $grand_total_style, $staffid) {
@@ -193,7 +175,7 @@ function report_receivables($dbc, $starttime, $endtime, $table_style, $table_row
     while($row = mysqli_fetch_array( $result ))
     {
 		$report_data .= '<tr>';
-		
+
 		$time_length = date('G:i',strtotime(date('Y-m-d ').$row['time_length']));
 		$minutes = explode(':',$time_length);
 		$total_time += ($minutes[0] * 60) + $minutes[1];
@@ -217,3 +199,17 @@ function report_receivables($dbc, $starttime, $endtime, $table_style, $table_row
 }
 
 ?>
+<script>
+$('document').ready(function() {
+    var tables = $('table');
+
+    tables.map(function(idx, table) {
+        var rows = $(table).find('tbody > tr');
+        rows.map(function(idx, row){
+            if(idx%2 == 0) {
+                $(row).css('background-color', '#e6e6e6');
+            }
+        })
+    })
+})
+</script>

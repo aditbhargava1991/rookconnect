@@ -1,5 +1,5 @@
 <?php
-include	('../include.php');
+include(substr(dirname(__FILE__), 0, -8).'include.php');
 error_reporting(0);
 
 $today_date = date('Y-m-d');
@@ -28,7 +28,7 @@ if($inc_rep_followup_reminder_send == 1) {
 		mysqli_query($dbc, "UPDATE `incident_report` SET `followup_reminder_sent` = 1 WHERE `incidentreportid` = '$incidentreportid'");
 		try {
 			send_email($inc_rep_followup_email, $email, '', '', $inc_rep_followup_subject, $inc_rep_followup_body, '');
-		} catch(Exception $e) { 
+		} catch(Exception $e) {
 			$log = "Unable to send e-mail to ".get_contact($dbc, $assign_followup).": ".$e->getMessage()."\n";
 			mysqli_query($dbc, "UPDATE `incident_report` SET `email_error_log` = CONCAT(`email_error_log`, '$log') WHERE `incidentreportid` = '$incidentreportid'"); }
 	}

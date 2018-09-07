@@ -297,7 +297,7 @@ $(document).ready(function() {
         <div id="collapse_layout" class="panel-collapse collapse">
             <div class="panel-body"><?php
                 $pos_layout = get_config($dbc, 'pos_layout'); ?>
-				
+
 				<div class="col-sm-3">
 					<label class="offset-right-5"><input class="" <?php if ($pos_layout == 'keyboard') { echo 'checked'; } ?> type="radio" name="pos_layout" value="keyboard"></label>
 					Keyboard Input Layout
@@ -455,11 +455,11 @@ $(document).ready(function() {
                 </table>
 				<div class="col-sm-12">
 					<div class="pad-5">Choose New Customer Category</div><?php
-					$pos_new_customer = get_config($dbc, 'pos_new_customer');					
+					$pos_new_customer = get_config($dbc, 'pos_new_customer');
 					$contact_categories	 = str_replace('Staff', '', get_config($dbc, 'contacts_tabs'));
 					$contact_categories	.= str_replace('Staff', '', get_config($dbc, 'contacts3_tabs'));
 					$each_category		= array_unique ( explode(',', $contact_categories) );
-					
+
 					for ( $i=0; $i<count($each_category); $i++ ) {
 						$checked = ( $pos_new_customer == $each_category[$i] ) ? ' checked="checked"' : '';
 						echo '<div class="col-sm-3"><label class="offset-right-5"><input type="radio"' . $checked . ' name="pos_new_customer" value="' . $each_category[$i] . '" /></label>' . $each_category[$i] . '</div>';
@@ -503,7 +503,7 @@ $(document).ready(function() {
             </div>
         </div>
     </div>
-	
+
 	<div class="panel panel-default">
         <div class="panel-heading">
             <h4 class="panel-title">
@@ -749,7 +749,7 @@ $(document).ready(function() {
                 <div class="form-group">
                     <label for="office_country" class="col-sm-4 control-label">Title of P.O.S. Tile on the Home Screen:</label>
                     <div class="col-sm-8">
-                      <input name="pos_tile_titler" value="<?php if(get_config($dbc, 'pos_tile_titler') == '' || get_config($dbc, 'pos_tile_titler') == NULL ) { echo "Point of Sale"; } else { echo get_config($dbc, 'pos_tile_titler'); } ?>" type="text" class="form-control"/>
+                      <input name="pos_tile_titler" value="<?php if(get_config($dbc, 'pos_tile_titler') == '' || get_config($dbc, 'pos_tile_titler') == NULL ) { echo POS_ADVANCE_TILE; } else { echo get_config($dbc, 'pos_tile_titler'); } ?>" type="text" class="form-control"/>
                     </div>
                 </div>
 

@@ -67,28 +67,20 @@ if ( isset ( $_POST['printpdf'] ) ) {
 
     $today_date = date('Y-m-d');
 	$pdf->writeHTML($html, true, false, true, false, '');
-	$pdf->Output('Download/web_referral_'.$today_date.'.pdf', 'F'); ?>
+	$pdf->Output('Download/web_referral_'.$today_date.'.pdf', 'F');
+    track_download($dbc, 'report_marketing_net_promoter_score', 0, WEBSITE_URL.'/Reports/Download/web_referral_'.$today_date.'.pdf', 'Ratings Report');
+
+
+    ?>
 
 	<script type="text/javascript">
         window.open('Download/web_referral_<?php echo $today_date;?>.pdf', 'fullscreen=yes');
 	</script><?php
-    
+
     $starttime  = $start_date_pdf;
     $endtime    = $end_date_pdf;
 } ?>
 
-</head>
-
-<body>
-<?php include_once ('../navigation.php'); ?>
-
-<div class="container triple-pad-bottom">
-    <div class="row">
-        <div class="col-md-12">
-
-            <?php echo reports_tiles($dbc);  ?>
-
-            <br /><br />
 
             <form id="form1" name="form1" method="post" action="" enctype="multipart/form-data" class="form-horizontal" role="form"><?php
                 if ( isset ( $_POST['search_submit'] ) ) {
@@ -104,7 +96,7 @@ if ( isset ( $_POST['printpdf'] ) ) {
                 if ( $end_date == '0000-00-00' || empty($end_date) ) {
                     $end_date = date('Y-m-d');
                 } ?>
-                
+
 				<center><div class="form-group">
 					<div class="form-group col-sm-5">
 						<label class="col-sm-4">From:</label>
@@ -134,26 +126,20 @@ if ( isset ( $_POST['printpdf'] ) ) {
 
                 <button type="submit" name="printpdf" value="Print Report" class="btn brand-btn pull-right">Print Report</button>
                 <br /><br /><?php
-                
+
                 echo report_net_promoter_score($dbc, $start_date, $end_date, $location, '', '', ''); ?>
             </form>
-
-        </div><!-- .col-md-12 -->
-    </div><!-- .row -->
-</div><!-- .container -->
-
-<?php include ('../footer.php'); ?>
 
 <?php
 function report_net_promoter_score($dbc, $start_date, $end_date, $location, $table_style, $table_row_style, $grand_total_style) {
 
     $total  = mysqli_fetch_assoc ( mysqli_query ( $dbc, "SELECT COUNT(`npsid`) AS `total` FROM `report_net_promoter_score` WHERE (`date_added` BETWEEN '$start_date' AND '$end_date') AND `location`='$location' ORDER BY `date_added` DESC" ) );
     $result = mysqli_query ( $dbc, "SELECT * FROM `report_net_promoter_score` WHERE (`date_added` BETWEEN '$start_date' AND '$end_date') AND `location`='$location' ORDER BY `date_added`, `location` DESC" );
-    
+
     $num_rows = mysqli_num_rows($result);
-    
+
     if ( $num_rows > 0 ) {
-    
+
         $report_data .= '<table border="1px" class="table table-bordered" style="'.$table_style.'">';
             $report_data .= '
                 <tr style="'.$table_row_style.'">
@@ -171,14 +157,14 @@ function report_net_promoter_score($dbc, $start_date, $end_date, $location, $tab
                     $report_data .= '<td>' . $row['comments']   . '</td>';
                 $report_data .= '</tr>';
             }
-            
+
             $report_data .= '
                 <tr>
                     <td colspan="2" align="right"><strong>Total Number of Ratings</strong></td>
                     <td><strong>' . $total['total'] . '</strong></td>
                 </tr>';
         $report_data .= '</table>';
-        
+
     } else {
         $report_data = '<h2>No records found for the selected date range and location.</h2>';
     }
@@ -186,3 +172,17 @@ function report_net_promoter_score($dbc, $start_date, $end_date, $location, $tab
     return $report_data;
 }
 ?>
+<script>
+$('document').ready(function() {
+    var tables = $('table');
+
+    tables.map(function(idx, table) {
+        var rows = $(table).find('tbody > tr');
+        rows.map(function(idx, row){
+            if(idx%2 == 0) {
+                $(row).css('background-color', '#e6e6e6');
+            }
+        })
+    })
+})
+</script>

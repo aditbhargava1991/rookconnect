@@ -738,7 +738,7 @@ $(document).ready(function() {
                 <div id="collapse_ordersandpos" class="panel-collapse collapse">
                     <div class="panel-body">
 						<input type="checkbox" <?php if (strpos($inventory_config, ','."Include in P.O.S.".',') !== FALSE) {
-                            echo " checked"; } ?> value="Include in P.O.S." style="height: 20px; width: 20px;" name="inventory[]">&nbsp;&nbsp;Include in Point of Sale
+                            echo " checked"; } ?> value="Include in P.O.S." style="height: 20px; width: 20px;" name="inventory[]">&nbsp;&nbsp;Include in <?= POS_ADVANCE_TILE ?>
                             <input type="checkbox" <?php if (strpos($inventory_config, ','."Include in Purchase Orders".',') !== FALSE) {
                             echo " checked"; } ?> value="Include in Purchase Orders" style="height: 20px; width: 20px;" name="inventory[]">&nbsp;&nbsp;Include in Purchase Orders
                             <input type="checkbox" <?php if (strpos($inventory_config, ','."Include in Sales Orders".',') !== FALSE) {
@@ -1240,7 +1240,7 @@ $(document).ready(function() {
                 <div id="collapse_ordersandpos" class="panel-collapse collapse">
                     <div class="panel-body">
                         <input type="checkbox" <?php if (strpos($inventory_dashboard_config, ','."Include in P.O.S.".',') !== FALSE) {
-                            echo " checked"; } ?> value="Include in P.O.S." style="height: 20px; width: 20px;" name="inventory_dashboard[]">&nbsp;&nbsp;Include in Point of Sale
+                            echo " checked"; } ?> value="Include in P.O.S." style="height: 20px; width: 20px;" name="inventory_dashboard[]">&nbsp;&nbsp;Include in <?= POS_ADVANCE_TILE ?>
                             <input type="checkbox" <?php if (strpos($inventory_dashboard_config, ','."Include in Purchase Orders".',') !== FALSE) {
                             echo " checked"; } ?> value="Include in Purchase Orders" style="height: 20px; width: 20px;" name="inventory_dashboard[]">&nbsp;&nbsp;Include in Purchase Orders
                             <input type="checkbox" <?php if (strpos($inventory_dashboard_config, ','."Include in Sales Orders".',') !== FALSE) {
@@ -1357,7 +1357,7 @@ $(document).ready(function() {
 </div>
 -->
 </div>
-        
+
 </form>
 </div>
 </div>

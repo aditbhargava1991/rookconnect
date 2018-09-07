@@ -49,13 +49,6 @@ checkAuthorised('internal_documents');
 	                            <span class="popover-examples list-inline pull-right" style="margin:5px 5px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Click here for the settings within this tile. Any changes made will appear on your dashboard."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
 	                        </div><?php
 	                    } ?>
-						<?php if(isset($_POST['search_user_submit'])) { ?>
-							<input placeholder="Search Internal Documents" type="text" name="search_vendor" class="form-control pull-left" value="<?php echo $_POST['search_vendor']; ?>" style="width: 40%;">
-						<?php } else { ?>
-							<input placeholder="Search Internal Documents" type="text" name="search_vendor" class="form-control pull-left" style="width: 40%;">
-						<?php } ?>
-						<button type="submit" name="search_user_submit" class="btn brand-btn pull-left" style="position: relative; left: 1em;">Filter</button>
-						<button type="submit" name="display_all_inventory" class="btn brand-btn pull-left" style="position: relative; left: 1em;">Display All</button>
 						<?php if(vuaed_visible_function($dbc, 'internal_documents') == 1) { ?>
 	                    	<a href="add_internal_documents.php" class="btn brand-btn pull-right">Add Internal Documents</a>
 	                    <?php } ?>
@@ -67,7 +60,7 @@ checkAuthorised('internal_documents');
 	            	<!-- Notice --><?php
                     $notes = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT note FROM notes_setting WHERE subtab='id_id'"));
                     $note = $notes['note'];
-                        
+
                     if ( !empty($note) ) { ?>
                         <div class="notice double-gap-bottom popover-examples">
                             <div class="col-sm-1 notice-icon"><img src="../img/info.png" class="wiggle-me" width="25"></div>

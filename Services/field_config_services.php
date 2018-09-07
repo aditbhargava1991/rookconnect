@@ -9,7 +9,7 @@ error_reporting(0);
 if (isset($_POST['submit'])) {
     $service_types = implode(',',array_filter($_POST['service_type']));
     set_config($dbc, 'service_types', $service_types);
-    
+
     // Default Image
     if (!file_exists('download')) {
 		mkdir('download', 0777, true);
@@ -282,7 +282,7 @@ function remove_service_type(img) {
                         </td>
 						<td>
                             <input type="checkbox" <?php if (strpos($value_config, ','."Include in P.O.S.".',') !== FALSE) {
-                            echo " checked"; } ?> value="Include in P.O.S." style="height: 20px; width: 20px;" name="services[]">&nbsp;&nbsp;Include in Point of Sale
+                            echo " checked"; } ?> value="Include in P.O.S." style="height: 20px; width: 20px;" name="services[]">&nbsp;&nbsp;Include in <?= POS_ADVANCE_TILE ?>
                         </td>
 						<td>
                             <input type="checkbox" <?php if (strpos($value_config, ','."Include in Purchase Orders".',') !== FALSE) {
@@ -434,7 +434,7 @@ function remove_service_type(img) {
                         </td>
 						<td>
                             <input type="checkbox" <?php if (strpos($value_config, ','."Include in P.O.S.".',') !== FALSE) {
-                            echo " checked"; } ?> value="Include in P.O.S." style="height: 20px; width: 20px;" name="services_dashboard[]">&nbsp;&nbsp;Include in Point of Sale
+                            echo " checked"; } ?> value="Include in P.O.S." style="height: 20px; width: 20px;" name="services_dashboard[]">&nbsp;&nbsp;Include in <?= POS_ADVANCE_TILE ?>
                         </td>
 					</tr>
 					<tr>

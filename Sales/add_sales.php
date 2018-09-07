@@ -136,16 +136,36 @@ if (isset($_POST['add_sales'])) {
         $query_insert_vendor = "INSERT INTO `sales` (`created_date`, `lead_created_by`, `primary_staff`, `share_lead`, `businessid`, `contactid`, `primary_number`, `email_address`, `lead_value`, `estimated_close_date`, `serviceid`, `productid`, `lead_source`, `marketingmaterialid`, `next_action`, `new_reminder`, `status`) VALUES ('$created_date', '$lead_created_by', '$primary_staff', '$share_lead', '$businessid', '$contactid', '$primary_number', '$email_address', '$lead_value', '$estimated_close_date', '$serviceid', '$productid', '$lead_source', '$marketingmaterialid', '$next_action', '$new_reminder', '$status')";
         $result_insert_vendor = mysqli_query($dbc, $query_insert_vendor);
         $salesid = mysqli_insert_id($dbc);
+				$before_change = '';
+				$history = "Sales Added.";
+				add_update_history($dbc, 'sales_history', $history, '', $before_change, $salesid);
         $url = 'Added';
 		$old_action = '';
     } else {
         $salesid = $_POST['salesid'];
+
+				$before_change = capture_before_change($dbc, 'sales', 'primary_staff', 'salesid', $salesid);
+				$before_change .= capture_before_change($dbc, 'sales', 'share_lead', 'salesid', $salesid);
+				$before_change .= capture_before_change($dbc, 'sales', 'businessid', 'salesid', $salesid);
+				$before_change .= capture_before_change($dbc, 'sales', 'contactid', 'salesid', $salesid);
+				$before_change .= capture_before_change($dbc, 'sales', 'primary_number', 'salesid', $salesid);
+				$before_change .= capture_before_change($dbc, 'sales', 'email_address', 'salesid', $salesid);
+				$before_change .= capture_before_change($dbc, 'sales', 'lead_value', 'salesid', $salesid);
         $query_update_vendor = "UPDATE `sales` SET `primary_staff` = '$primary_staff', `share_lead` = '$share_lead', `businessid` = '$businessid', `contactid` = '$contactid', `primary_number` = '$primary_number', `email_address` = '$email_address', `lead_value` = '$lead_value', `estimated_close_date` = '$estimated_close_date', `serviceid` = '$serviceid', `productid` = '$productid', `lead_source` = '$lead_source', `marketingmaterialid` = '$marketingmaterialid', `next_action` = '$next_action', `new_reminder` = '$new_reminder', `status` = '$status' WHERE `salesid` = '$salesid'";
+				$history = "Sales Updated.";
+				$history .= capture_after_change('primary_staff', $primary_staff);
+				$history .= capture_after_change('share_lead', $share_lead);
+				$history .= capture_after_change('businessid', $businessid);
+				$history .= capture_after_change('contactid', $contactid);
+				$history .= capture_after_change('primary_number', $primary_number);
+				$history .= capture_after_change('email_address', $email_address);
+				$history .= capture_after_change('lead_value', $lead_value);
+				add_update_history($dbc, 'sales_history', $history, '', $before_change, $salesid);
         $result_update_vendor = mysqli_query($dbc, $query_update_vendor);
         $url = 'Updated';
 		$old_action = mysqli_fetch_array(mysqli_query($dbc, "SELECT `next_action` FROM `sales` WHERE `salesid`='$salesid'"))['next_action'];
     }
-	
+
 	//Schedule Reminders
 	if($new_reminder != '' && $new_reminder != '0000-00-00' && $old_action != $next_action) {
 		$body = filter_var(htmlentities('This is a reminder about a sales lead that needs to be followed up with.<br />
@@ -613,7 +633,7 @@ checkAuthorised('sales');
 			<button type="submit" name="add_sales" value="Submit" class="btn brand-btn btn-lg">Submit</button>
         </div>
 
-        
+
 
     </form>
 

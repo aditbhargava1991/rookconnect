@@ -45,6 +45,9 @@ $(document).ready(function() {
 <label class="form-checkbox"><input type="checkbox" name="dashboard" <?= strpos($db_config[0], ',Rate Card,') !== false ? 'checked' : '' ?> value="Rate Card">Rate Card</label>
 <!--<label class="form-checkbox"><input type="checkbox" name="dashboard" <?= strpos($db_config[0], ',Rate Card Price,') !== false ? 'checked' : '' ?> value="Rate Card Price">Rate Card Price</label>-->
 
+<h3>Dashboard Sort Fields</h3>
+<label class="form-checkbox"><input type="checkbox" name="dashboard" <?= strpos($db_config[0], ',Sort Match Contacts,') !== false ? 'checked' : '' ?> value="Sort Match Contacts">Match Contacts</label>
+
 <h3>Dashboard Tabs</h3>
 <label class="form-checkbox"><input type="checkbox" name="db_tabs" <?= in_array('probation', $db_tabs) ? 'checked' : '' ?> value="probation">Staff on Probation</label>
 <label class="form-checkbox"><input type="checkbox" name="db_tabs" <?= in_array('suspended', $db_tabs) ? 'checked' : '' ?> value="suspended">Suspended Staff</label>

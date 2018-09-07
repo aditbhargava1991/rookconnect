@@ -99,6 +99,12 @@ if(isset($_POST['export_contacts'])) {
 </head>
 <script type="text/javascript">
 $(document).ready(function() {
+    $("#report").change(function(){
+        url = $(location).attr('hostname');
+        value = $(this).val();
+        window.location.href = 'staff.php?tab=reporting&report='+value;
+    });
+
 	$('#staff_accordions .panel-heading').click(loadPanel);
 	$('#search_staff_form').submit(function() {
 		window.location.href = $(this).prop('action');
@@ -157,6 +163,10 @@ $tab = isset($_GET['tab']) ? $_GET['tab'] : 'active';
 $tab_note = '';
 $security_access = get_security($dbc, 'staff');
 $staff_categories = array_filter(explode(',',str_replace(',,',',',str_replace('Staff','',mysqli_fetch_assoc(mysqli_query($dbc,"SELECT categories FROM field_config_contacts WHERE tab='Staff' AND `categories` IS NOT NULL"))['categories']))));
+$staff_categories = array_merge(['ALL'],$staff_categories);
+if(empty($staff_categories)) {
+	$staff_categories = ['ALL'];
+}
 switch($tab) {
 	case 'suspended':
 		$body_title = 'Suspended Staff';
@@ -194,7 +204,7 @@ switch($tab) {
 		$body_title = 'Reporting';
 		$search_action = 'reporting';
 		$tab_list['reporting'] = true;
-		$tab_note = "It's a log of everything done and all time tracked by day, week, month, by staff";
+		$tab_note = "This report provides a log of everything done and all time tracked per staff";
 		break;
 	default:
 		$body_title = 'Active Staff';
@@ -205,6 +215,9 @@ switch($tab) {
 		$tab_note = "A listing of all Active Users within your software.";
 		$staff_cat = $_GET['staff_cat'];
 		break;
+}
+if(empty($_GET['staff_cat'])) {
+	$_GET['staff_cat'] = 'ALL';
 }
 $db_tabs = explode(',','active,'.get_config($dbc, 'staff_tabs'));
 ?>
@@ -260,201 +273,41 @@ $db_tabs = explode(',','active,'.get_config($dbc, 'staff_tabs'));
 
             <?php if(!isset($_GET['settings'])) { ?>
 				<div id='staff_accordions' class='sidebar show-on-mob panel-group block-panels col-xs-12'>
-					<?php if(!empty($staff_categories)) { ?>
+					<?php foreach($staff_categories as $staff_category) { ?>
 						<div class="panel panel-default">
 							<div class="panel-heading higher_level_heading">
 								<h4 class="panel-title">
-									<a data-toggle="collapse" data-parent="#staff_accordions" href="#collapse_active">
-										Active Staff<span class="glyphicon glyphicon-plus"></span>
+									<a data-toggle="collapse" data-parent="#staff_accordions" href="#collapse_<?= config_safe_str($staff_category) ?>">
+										<?= ($staff_category == 'ALL' ? 'All Staff' : $staff_category) ?><span class="glyphicon glyphicon-plus"></span>
 									</a>
 								</h4>
 							</div>
 
-							<div id="collapse_active" class="panel-collapse collapse">
-                                <div class="panel-body" style="padding: 0; margin: -1px;" id="collapse_active_body">
-									<div class="panel panel-default">
-										<div class="panel-heading">
-											<h4 class="panel-title">
-												<a data-toggle="collapse" data-parent="#collapse_active_body" href="#collapse_active_all" class="double-pad-left">
-													All Staff<span class="glyphicon glyphicon-plus"></span>
-												</a>
-											</h4>
-										</div>
-
-										<div id="collapse_active_all" class="panel-collapse collapse">
-											<div class="panel-body" data-file="staff_list.php?tab=active">
-												Loading...
-											</div>
-										</div>
-									</div>
-                                	<?php foreach($staff_categories as $staff_category) { ?>
-										<div class="panel panel-default">
-											<div class="panel-heading">
-												<h4 class="panel-title">
-													<a data-toggle="collapse" data-parent="#collapse_active_body" href="#collapse_active_<?= config_safe_str($staff_category) ?>" class="double-pad-left">
-														<?= $staff_category ?><span class="glyphicon glyphicon-plus"></span>
-													</a>
-												</h4>
-											</div>
-
-											<div id="collapse_active_<?= config_safe_str($staff_category) ?>" class="panel-collapse collapse">
-												<div class="panel-body" data-file="staff_list.php?tab=active&staff_cat=<?= $staff_category ?>">
-													Loading...
-												</div>
-											</div>
-										</div>
-                                	<?php } ?>
-								</div>
-							</div>
-						</div>
-					<?php } else { ?>
-						<div class="panel panel-default">
-							<div class="panel-heading">
-								<h4 class="panel-title">
-									<a data-toggle="collapse" data-parent="#staff_accordions" href="#collapse_active">
-										Active Staff<span class="glyphicon glyphicon-plus"></span>
-									</a>
-								</h4>
-							</div>
-
-							<div id="collapse_active" class="panel-collapse collapse">
-								<div class="panel-body" data-file="staff_list.php?tab=active">
-									Loading...
-								</div>
-							</div>
-						</div>
-					<?php } ?>
-					<?php if(in_array('probation',$db_tabs) && check_subtab_persmission($dbc, 'staff', ROLE, 'probation') === TRUE) { ?>
-						<?php if(!empty($staff_categories)) { ?>
-							<div class="panel panel-default">
-								<div class="panel-heading higher_level_heading">
-									<h4 class="panel-title">
-										<a data-toggle="collapse" data-parent="#staff_accordions" href="#collapse_probation">
-											Users on Probation<span class="glyphicon glyphicon-plus"></span>
-										</a>
-									</h4>
-								</div>
-
-								<div id="collapse_probation" class="panel-collapse collapse">
-	                                <div class="panel-body" style="padding: 0; margin: -1px;" id="collapse_probation_body">
-										<div class="panel panel-default">
-											<div class="panel-heading">
-												<h4 class="panel-title">
-													<a data-toggle="collapse" data-parent="#collapse_probation_body" href="#collapse_probation_all" class="double-pad-left">
-														All Staff<span class="glyphicon glyphicon-plus"></span>
-													</a>
-												</h4>
-											</div>
-
-											<div id="collapse_probation_all" class="panel-collapse collapse">
-												<div class="panel-body" data-file="staff_list.php?tab=probation">
-													Loading...
-												</div>
-											</div>
-										</div>
-	                                	<?php foreach($staff_categories as $staff_category) { ?>
+							<div id="collapse_<?= config_safe_str($staff_category) ?>" class="panel-collapse collapse">
+                                <div class="panel-body" style="padding: 0; margin: -1px;" id="collapse_<?= config_safe_str($staff_category) ?>_body">
+                                	<?php $staff_tabs = ['active','probation','suspended'];
+									foreach($staff_tabs as $staff_tab) {
+										if(in_array($staff_tab,$db_tabs) && check_subtab_persmission($dbc, 'staff', ROLE, 'active') === TRUE) { ?>
 											<div class="panel panel-default">
 												<div class="panel-heading">
 													<h4 class="panel-title">
-														<a data-toggle="collapse" data-parent="#collapse_probation_body" href="#collapse_probation_<?= config_safe_str($staff_category) ?>" class="double-pad-left">
-															<?= $staff_category ?><span class="glyphicon glyphicon-plus"></span>
+														<a data-toggle="collapse" data-parent="#collapse_<?= config_safe_str($staff_category) ?>_body" href="#collapse_<?= $staff_tab ?>_<?= config_safe_str($staff_category) ?>" class="double-pad-left">
+															<?= ($staff_tab == 'active' ? 'Active Users' : ($staff_tab == 'probation' ? 'Users on Probation' : 'Suspended Users')) ?><span class="glyphicon glyphicon-plus"></span>
 														</a>
 													</h4>
 												</div>
 
-												<div id="collapse_probation_<?= config_safe_str($staff_category) ?>" class="panel-collapse collapse">
-													<div class="panel-body" data-file="staff_list.php?tab=probation&staff_cat=<?= $staff_category ?>">
+												<div id="collapse_<?= $staff_tab ?>_<?= config_safe_str($staff_category) ?>" class="panel-collapse collapse">
+													<div class="panel-body" data-file="staff_list.php?tab=<?= $staff_tab ?>&staff_cat=<?= $staff_category ?>">
 														Loading...
 													</div>
 												</div>
 											</div>
-	                                	<?php } ?>
-									</div>
+										<?php }
+									} ?>
 								</div>
 							</div>
-						<?php } else { ?>
-							<div class="panel panel-default">
-								<div class="panel-heading">
-									<h4 class="panel-title">
-										<a data-toggle="collapse" data-parent="#staff_accordions" href="#collapse_probation">
-											Users on Probation<span class="glyphicon glyphicon-plus"></span>
-										</a>
-									</h4>
-								</div>
-
-								<div id="collapse_probation" class="panel-collapse collapse">
-									<div class="panel-body" data-file="staff_list.php?tab=probation">
-										Loading...
-									</div>
-								</div>
-							</div>
-						<?php } ?>
-					<?php } ?>
-					<?php if(in_array('suspended',$db_tabs) && check_subtab_persmission($dbc, 'staff', ROLE, 'suspended') === TRUE) { ?>
-						<?php if(!empty($staff_categories)) { ?>
-							<div class="panel panel-default">
-								<div class="panel-heading higher_level_heading">
-									<h4 class="panel-title">
-										<a data-toggle="collapse" data-parent="#staff_accordions" href="#collapse_suspended">
-											Suspended Staff<span class="glyphicon glyphicon-plus"></span>
-										</a>
-									</h4>
-								</div>
-
-								<div id="collapse_suspended" class="panel-collapse collapse">
-	                                <div class="panel-body" style="padding: 0; margin: -1px;" id="collapse_suspended_body">
-										<div class="panel panel-default">
-											<div class="panel-heading">
-												<h4 class="panel-title">
-													<a data-toggle="collapse" data-parent="#collapse_suspended_body" href="#collapse_suspended_all" class="double-pad-left">
-														All Staff<span class="glyphicon glyphicon-plus"></span>
-													</a>
-												</h4>
-											</div>
-
-											<div id="collapse_suspended_all" class="panel-collapse collapse">
-												<div class="panel-body" data-file="staff_list.php?tab=suspended">
-													Loading...
-												</div>
-											</div>
-										</div>
-	                                	<?php foreach($staff_categories as $staff_category) { ?>
-											<div class="panel panel-default">
-												<div class="panel-heading">
-													<h4 class="panel-title">
-														<a data-toggle="collapse" data-parent="#collapse_suspended_body" href="#collapse_suspended_<?= config_safe_str($staff_category) ?>" class="double-pad-left">
-															<?= $staff_category ?><span class="glyphicon glyphicon-plus"></span>
-														</a>
-													</h4>
-												</div>
-
-												<div id="collapse_suspended_<?= config_safe_str($staff_category) ?>" class="panel-collapse collapse">
-													<div class="panel-body" data-file="staff_list.php?tab=suspended&staff_cat=<?= $staff_category ?>">
-														Loading...
-													</div>
-												</div>
-											</div>
-	                                	<?php } ?>
-									</div>
-								</div>
-							</div>
-						<?php } else { ?>
-							<div class="panel panel-default">
-								<div class="panel-heading">
-									<h4 class="panel-title">
-										<a data-toggle="collapse" data-parent="#staff_accordions" href="#collapse_suspended">
-											Suspended Staff<span class="glyphicon glyphicon-plus"></span>
-										</a>
-									</h4>
-								</div>
-
-								<div id="collapse_suspended" class="panel-collapse collapse">
-									<div class="panel-body" data-file="staff_list.php?tab=suspended">
-										Loading...
-									</div>
-								</div>
-							</div>
-						<?php } ?>
+						</div>
 					<?php } ?>
 					<?php if(in_array('security',$db_tabs) && check_subtab_persmission($dbc, 'staff', ROLE, 'security') === TRUE) { ?>
 						<div class="panel panel-default">
@@ -544,28 +397,70 @@ $db_tabs = explode(',','active,'.get_config($dbc, 'staff_tabs'));
 				'reminders' => 'Reminders',
                 'reporting' => 'Reporting', ]; ?>
 
-			<?php if(!isset($_GET['settings'])) { ?>
-				<form id="form1" name="form1" method="post"	action="staff.php?tab=<?= $search_action ?>&filter=All&staff_cat=<?= $_GET['staff_cat'] ?>" enctype="multipart/form-data" class="form-horizontal" role="form">
+			<?php if(!isset($_GET['settings'])) {
+            $report = '';
+            if(!empty($_GET['report'])) {
+                $report = '&report='.$_GET['report'];
+            }
+            ?>
+				<form id="form1" name="form1" method="post"	action="staff.php?tab=<?= $search_action.$report ?>&filter=All&staff_cat=<?= $_GET['staff_cat'] ?>" enctype="multipart/form-data" class="form-horizontal" role="form">
 					<!-- Sidebar -->
 					<div class="standard-collapsible tile-sidebar sidebar hide-titles-mob">
 						<ul>
 							<li class="standard-sidebar-searchbox"><input type="text" name="search_contacts" value="<?= $_POST['search_contacts'] ?>" class="form-control search_list" placeholder="Search <?= $_GET['tab'] == 'positions' ? 'Positions' : 'Staff' ?>"></li>
 							<input type="hidden" name="search_contacts_submit" value="1">
 							<?php $db_tabs = explode(',','active,'.get_config($dbc, 'staff_tabs'));
-							foreach ($tab_list as $staff_tab => $tab_status) {
-								if (in_array($staff_tab,$db_tabs) && check_subtab_persmission($dbc, 'staff', ROLE, $staff_tab) === TRUE) {
-									if(!empty($staff_categories) && ($staff_tab == 'active' || $staff_tab == 'probation' || $staff_tab == 'suspended')) {
-										echo '<li class="sidebar-higher-level"><a class="cursor-hand '.(!$tab_status ? 'collapsed' : 'active').'" data-toggle="collapse" data-target="#staff_'.$staff_tab.'">'.$tab_name[$staff_tab].'<span class="arrow"></span></a>';
-										echo '<ul class="collapse '.($tab_status ? 'in' : '').'" id="staff_'.$staff_tab.'">';
-										echo '<a href="staff.php?tab='.$staff_tab.'"><li class="'.($tab_status && empty($_GET['staff_cat']) ? 'active blue' : '').'">All Staff</li></a>';
-										foreach($staff_categories as $staff_category) {
-											echo '<a href="staff.php?tab='.$staff_tab.'&staff_cat='.$staff_category.'"><li class="'.($tab_status && $_GET['staff_cat'] == $staff_category ? 'active blue' : '').'">'.$staff_category.'</li></a>';
+							$db_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT contacts_dashboard FROM field_config_contacts WHERE `tab`='Staff' AND contacts_dashboard IS NOT NULL"));
+							$field_display = explode(",",$db_config['contacts_dashboard']);
+							foreach($staff_categories as $staff_category) {
+								echo '<li class="sidebar-higher-level"><a class="cursor-hand '.($_GET['staff_cat'] == $staff_category ? 'active' : 'collapsed').'" data-toggle="collapse" data-target="#staff_'.config_safe_str($staff_category).'">'.($staff_category == 'ALL' ? 'All Staff' : $staff_category).'<span class="arrow"></span></a>';
+								echo '<ul id="staff_'.config_safe_str($staff_category).'" class="collapse '.($_GET['staff_cat'] == $staff_category ? 'in' : '').'">';
+								if(in_array("Sort Match Contacts", $field_display)) {
+									echo '<li class="sidebar-higher-level"><a class="cursor-hand '.($_GET['staff_cat'] == $staff_category && $_GET['match_contact'] > 0 ? 'active' : 'collapsed').'" data-toggle="collapse" data-target="#staff_'.config_safe_str($staff_category).'_match">Matched Contacts<span class="arrow"></span></a>';
+									echo '<ul class="collapse '.($_GET['staff_cat'] == $staff_category && $_GET['match_contact'] > 0 ? 'in' : '').'" id="staff_'.config_safe_str($staff_category).'_match">';
+									$match_contacts = [];
+									$sorted_match_contacts = [];
+									$match_contacts_query = mysqli_query($dbc, "SELECT * FROM `match_contact` WHERE `deleted` = 0");
+									while($match_contacts_result = mysqli_fetch_assoc($match_contacts_query)) {
+										foreach(explode(',', $match_contacts_result['support_contact']) as $support_contact) {
+											foreach(explode(',', $match_contacts_result['staff_contact']) as $staff_contact) {
+												if($staff_category == 'ALL' || strpos(','.get_contact($dbc, $staff_contact, 'staff_category').',', ','.$staff_category.',') !== FALSE) {
+													if(!in_array($support_contact,
+														$sorted_match_contacts)) {
+														$sorted_match_contacts[] = $support_contact;
+													}
+													if(!in_array($staff_contact, $match_contacts[$support_contact])) {
+														$match_contacts[$support_contact][] = $staff_contact;
+													}
+												}
+											}
 										}
-										echo '</ul></li>';
-									} else {
-										echo '<a href="staff.php?tab='.$staff_tab.'"><li class="'.($tab_status && empty($_GET['staff_cat']) ? 'active blue' : '').'">'.$tab_name[$staff_tab].'</li></a>';
 									}
-								} else if(in_array($staff_tab,$db_tabs)) {
+									$sorted_match_contacts = sort_contacts_query(mysqli_query($dbc, "SELECT * FROM `contacts` WHERE `contactid` IN (".implode(',', $sorted_match_contacts).")"));
+									foreach($sorted_match_contacts as $match_contact) {
+										echo '<a href="staff.php?staff_cat='.$staff_category.'&match_contact='.$match_contact['contactid'].'"><li class="'.($_GET['staff_cat'] == $staff_category && $_GET['match_contact'] == $match_contact['contactid'] ? 'active blue' : '').'">'.$match_contact['full_name'].'<span class="pull-right">'.count(array_filter($match_contacts[$support_contact])).'</span></li></a>';
+									}
+									echo '</ul>';
+								}
+								$staff_tabs = ['active','probation','suspended'];
+								foreach($staff_tabs as $staff_tab) {
+									if(in_array($staff_tab,$db_tabs) && check_subtab_persmission($dbc, 'staff', ROLE, 'active') === TRUE) {
+										$filter_query = '';
+										if($staff_category != 'ALL') {
+											$filter_query = " AND CONCAT(',',`staff_category`,',') LIKE '%,$staff_category,%'";
+										}
+										$count = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT COUNT(`contactid`) `count` FROM `contacts` WHERE `category` = 'Staff' AND `deleted` = 0 AND `status` = '".($staff_tab == 'active' ? '1' : ($staff_tab == 'probation' ? '2' : '0'))."' AND IFNULL(`user_name`,'')!='FFMAdmin' AND `show_hide_user`='1'".$filter_query))['count'];
+										echo '<a href="staff.php?tab='.$staff_tab.'&staff_cat='.$staff_category.'"><li class="'.($_GET['tab'] == $staff_tab && $_GET['staff_cat'] == $staff_category && empty($_GET['match_contact']) ? 'active blue' : '').'">'.($staff_tab == 'active' ? 'Active Users' : ($staff_tab == 'probation' ? 'Users on Probation' : 'Suspended Users')).'<span class="pull-right">'.$count.'</span></li></a>';
+									}
+								}
+								echo '</ul></li>';
+							}
+
+
+							foreach ($tab_list as $staff_tab => $tab_status) {
+								if (in_array($staff_tab,$db_tabs) && check_subtab_persmission($dbc, 'staff', ROLE, $staff_tab) === TRUE && !in_array($staff_tab,['active','probation','suspended'])) {
+									echo '<a href="staff.php?tab='.$staff_tab.'"><li class="'.($tab_status && empty($_GET['staff_cat']) ? 'active blue' : '').'">'.$tab_name[$staff_tab].'</li></a>';
+								} else if(in_array($staff_tab,$db_tabs) && !in_array($staff_tab,['active','probation','suspended'])) {
 									echo '<li>'.$tab_name[$staff_tab].'</li>';
 								}
 							} ?>

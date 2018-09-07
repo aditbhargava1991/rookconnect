@@ -13,6 +13,14 @@ function submitButton(search_type, search_category) {
 <input type="hidden" name="search_type" value="<?= $_POST['search_type'] ?>">
 <input type="hidden" name="search_category" value="<?= $_POST['search_category'] ?>">
 <ul class="sidebar">
+
+    <li class="standard-sidebar-searchbox">
+        <form action="" method="POST">
+        	<input name="search_vendor" type="text" value="<?= $_POST['search_vendor'] ?>" class="form-control search_vendor" placeholder="Search Document">
+        	<input type="submit" name="search_user_submit" style="display: none;">
+        </form>
+    </li>
+
 <h4 style="padding-left: 0.5em;">Type</h4>
     <?php foreach($search_types as $row) { ?>
     <a href="" onclick="submitButton('<?= $row['client_documents_type'] ?>', '<?= $_POST['search_category'] ?>'); return false;"><li <?= ($search_type == $row['client_documents_type'] ? 'class="active"' : '') ?>><?= $row['client_documents_type'] ?></li></a>

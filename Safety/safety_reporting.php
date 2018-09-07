@@ -319,18 +319,18 @@ if((!empty($_GET['action'])) && ($_GET['action'] == 'send_followup_email')) {
             $s_start_date = $_POST['s_start_date'];
             $s_end_date = $_POST['s_end_date'];
 
-            $query_check_credentials = "SELECT m.*, ms.*  FROM safety_attendance ms, safety m WHERE m.deleted=0 AND m.safetyid = ms.safetyid AND (m.tab='$category' OR m.heading='$heading' OR '$formid'=`m`.`safetyid`)";
+            $query_check_credentials = "SELECT m.*, ms.`safetyid`, ms.`fieldlevelriskid`, ms.`assign_staff`, ms.`staffcheck`, ms.`done`, ms.`manager_approval`, '' `staffid`, '' `today_date`, 'form' `safety_type` FROM safety_attendance ms, safety m WHERE m.deleted=0 AND m.safetyid = ms.safetyid AND (m.tab='$category' OR m.heading='$heading' OR '$formid'=`m`.`safetyid`) UNION SELECT m.*, ms.`safetyid`, '' `fieldlevelriskid`, '' `assign_staff`, '' `staffcheck`, ms.`done`, '' `manager_approval`, ms.`staffid`, ms.`today_date`, 'manual' `safety_type` FROM safety_staff ms, safety m WHERE m.deleted=0 AND m.safetyid = ms.safetyid AND (m.tab='$category' OR m.heading='$heading' OR '$formid'=`m`.`safetyid`)";
             if($status == 'Deadline Past') {
-                $query_check_credentials = "SELECT m.*, ms.*  FROM safety_attendance ms, safety m WHERE m.deleted=0 AND m.safetyid = ms.safetyid AND ms.done=0 AND DATE(NOW()) > DATE(m.deadline) AND '$formid' IN (`m`.`safetyid`,'')";
+                $query_check_credentials = "SELECT m.*, ms.`safetyid`, ms.`fieldlevelriskid`, ms.`assign_staff`, ms.`staffcheck`, ms.`done`, ms.`manager_approval`, '' `staffid`, '' `today_date`, 'form' `safety_type` FROM safety_attendance ms, safety m WHERE m.deleted=0 AND m.safetyid = ms.safetyid AND ms.done=0 AND DATE(NOW()) > DATE(m.deadline) AND '$formid' IN (`m`.`safetyid`,'') UNION SELECT m.*, ms.`safetyid`, '' `fieldlevelriskid`, '' `assign_staff`, '' `staffcheck`, ms.`done`, '' `manager_approval`, ms.`staffid`, ms.`today_date`, 'manual' `safety_type` FROM safety_staff ms, safety m WHERE m.deleted=0 AND m.safetyid = ms.safetyid AND ms.done=0 AND DATE(NOW()) > DATE(m.deadline) AND '$formid' IN (`m`.`safetyid`,'')";
             }
             if($status == 'Deadline Today') {
-                $query_check_credentials = "SELECT m.*, ms.*  FROM safety_attendance ms, safety m WHERE m.deleted=0 AND m.safetyid = ms.safetyid AND ms.done=0 AND DATE(NOW()) = DATE(m.deadline) AND '$formid' IN (`m`.`safetyid`,'')";
+                $query_check_credentials = "SELECT m.*, ms.`safetyid`, ms.`fieldlevelriskid`, ms.`assign_staff`, ms.`staffcheck`, ms.`done`, ms.`manager_approval`, '' `staffid`, '' `today_date`, 'form' `safety_type` FROM safety_attendance ms, safety m WHERE m.deleted=0 AND m.safetyid = ms.safetyid AND ms.done=0 AND DATE(NOW()) = DATE(m.deadline) AND '$formid' IN (`m`.`safetyid`,'') UNION SELECT m.*, ms.`safetyid`, '' `fieldlevelriskid`, '' `assign_staff`, '' `staffcheck`, ms.`done`, '' `manager_approval`, ms.`staffid`, ms.`today_date`, 'manual' `safety_type` FROM safety_staff ms, safety m WHERE m.deleted=0 AND m.safetyid = ms.safetyid AND ms.done=0 AND DATE(NOW()) = DATE(m.deadline) AND '$formid' IN (`m`.`safetyid`,'')";
             }
             if($s_start_date != '' && $s_end_date != '') {
-                $query_check_credentials = "SELECT m.*, ms.*  FROM safety_attendance ms, safety m WHERE m.deleted=0 AND m.safetyid = ms.safetyid AND m.deadline >= '$s_start_date' AND m.deadline <= '$s_end_date' AND '$formid' IN (`m`.`safetyid`,'')";
+                $query_check_credentials = "SELECT m.*, ms.`safetyid`, ms.`fieldlevelriskid`, ms.`assign_staff`, ms.`staffcheck`, ms.`done`, ms.`manager_approval`, '' `staffid`, '' `today_date`, 'form' `safety_type` FROM safety_attendance ms, safety m WHERE m.deleted=0 AND m.safetyid = ms.safetyid AND m.deadline >= '$s_start_date' AND m.deadline <= '$s_end_date' AND '$formid' IN (`m`.`safetyid`,'') UNION SELECT m.*, ms.`safetyid`, '' `fieldlevelriskid`, '' `assign_staff`, '' `staffcheck`, ms.`done`, '' `manager_approval`, ms.`staffid`, ms.`today_date`, 'manual' `safety_type` FROM safety_staff ms, safety m WHERE m.deleted=0 AND m.safetyid = ms.safetyid AND m.deadline >= '$s_start_date' AND m.deadline <= '$s_end_date' AND '$formid' IN (`m`.`safetyid`,'')";
             }
         } else if(empty($_GET['action'])) {
-            $query_check_credentials = "SELECT m.*, ms.*  FROM safety_attendance ms, safety m WHERE m.deleted=0 AND m.safetyid = ms.safetyid";
+            $query_check_credentials = "SELECT m.*, ms.`safetyid`, ms.`fieldlevelriskid`, ms.`assign_staff`, ms.`staffcheck`, ms.`done`, ms.`manager_approval`, '' `staffid`, '' `today_date`, 'form' `safety_type` FROM safety_attendance ms, safety m WHERE m.deleted=0 AND m.safetyid = ms.safetyid UNION SELECT m.*, ms.`safetyid`, '' `fieldlevelriskid`, '' `assign_staff`, '' `staffcheck`, ms.`done`, '' `manager_approval`, ms.`staffid`, ms.`today_date`, 'manual' `safety_type` FROM safety_staff ms, safety m WHERE m.deleted=0 AND m.safetyid = ms.safetyid";
             
             $include_incident_reports = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_incident_report` WHERE `row_type` = ''"))['safety_report'];
             if ($include_incident_reports == 1) {
@@ -370,11 +370,15 @@ if((!empty($_GET['action'])) && ($_GET['action'] == 'send_followup_email')) {
             $done = $row['done'];
             $staffname = $row['assign_staff'];
 			$staffid = 0;
-			foreach($staff_list as $arr) {
-				if($staffid == 0 && $arr['full_name'] == $staffname) {
-					$staffid = $arr['contactid'];
-				}
-			}
+            if($row['safety_type'] == 'manual') {
+                $staffid = $row['staffid'];
+            } else {
+    			foreach($staff_list as $arr) {
+    				if($staffid == 0 && $arr['full_name'] == $staffname) {
+    					$staffid = $arr['contactid'];
+    				}
+    			}
+            }
             $today = date('Y-m-d');
             $color = '';
             $signed_off = $row['today_date'];
@@ -384,7 +388,7 @@ if((!empty($_GET['action'])) && ($_GET['action'] == 'send_followup_email')) {
             }
 
             echo "<tr>";
-            echo '<td data-title="Contact Person">' . $row['assign_staff'] . '</td>';
+            echo '<td data-title="Contact Person">' . ($row['safety_type'] == 'manual' ? get_contact($dbc, $row['staffid']) : $row['assign_staff']) . '</td>';
             echo '<td data-title="Code">' . $row['category'] . '</td>';
             echo '<td data-title="Code">' . $row['heading_number'].' '.$row['heading'] . '</td>';
             echo '<td data-title="Code">' . $row['sub_heading_number'].' '.$row['sub_heading'] . '</td>';
@@ -404,7 +408,28 @@ if((!empty($_GET['action'])) && ($_GET['action'] == 'send_followup_email')) {
 
             if($row['done'] == 1) {
 
-                $pdf_path = safety_pdf($dbc, $safetyid, $fieldlevelriskid);
+                if($row['safety_type'] == 'manual') {
+                    $heading_number = $row['heading_number'];
+                    $sub_heading_number = $row['sub_heading_number'];
+                    $heading = $row['heading'];
+                    $sub_heading = $row['sub_heading'];
+                    $third_heading_number = $row['third_heading_number'];
+                    $third_heading = $row['third_heading'];
+                    $pdf_name = '';
+                    if ($third_heading != '') {
+                        $pdf_html .= "<h3>$third_heading_number - $third_heading</h3>";
+                        $pdf_name = config_safe_str($third_heading_number.'-'.$third_heading);
+                    } else if ($sub_heading != '') {
+                        $pdf_html .= "<h3>$sub_heading_number - $sub_heading</h3>";
+                        $pdf_name = config_safe_str($sub_heading_number.'-'.$sub_heading);
+                    } else if ($heading != '') {
+                        $pdf_html .= "<h3>$heading_number - $heading</h3>";
+                        $pdf_name = config_safe_str($heading_number.'-'.$heading);
+                    }
+                    $pdf_path = WEBSITE_URL.'/Safety/download/'.$pdf_name.'_'.$row['staffid'].'_'.$row['today_date'].'.pdf';
+                } else {
+                    $pdf_path = safety_pdf($dbc, $safetyid, $fieldlevelriskid);
+                }
 
                 $pdf = '<a target="_blank" href="'.$pdf_path.'"><img src="'.WEBSITE_URL.'/img/pdf.png" width="'.$img_width.'" height="'.$img_height.'" border="0" alt=""></a>';
                 echo '<td data-title="Code">'.$row['today_date'] .'&nbsp;'.$pdf.'</td>';

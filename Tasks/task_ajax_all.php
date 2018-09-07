@@ -36,21 +36,23 @@ if($_GET['fill'] == 'delete_board') {
 
 if($_GET['fill'] == 'tasklist') {
     $tasklistid = $_GET['tasklistid'];
+    $table = $_GET['table'];
+    $id_field = $_GET['id_field'];
     $task_milestone_timeline = $_GET['task_milestone_timeline'];
 	$task_milestone_timeline = str_replace("FFMEND","&",$task_milestone_timeline);
     $task_milestone_timeline = str_replace("FFMSPACE"," ",$task_milestone_timeline);
     $task_milestone_timeline = str_replace("FFMHASH","#",$task_milestone_timeline);
 
-	$query_update_project = "UPDATE `tasklist` SET  task_milestone_timeline='$task_milestone_timeline' WHERE `tasklistid` = '$tasklistid'";
+	$query_update_project = "UPDATE `$table` SET  task_milestone_timeline='$task_milestone_timeline' WHERE `$id_field` = '$tasklistid'";
 	$result_update_project = mysqli_query($dbc, $query_update_project);
 
     if($task_category = 'Zen Earth Corp' || $task_category = 'Green Earth Energy' || $task_category = 'Green Life Can') {
 
         if (strpos(WEBSITE_URL, 'zenearthcorp.rookconnect.com') !== FALSE || strpos(WEBSITE_URL, 'greenearthenergysolutions.rookconnect.com') !== FALSE || strpos(WEBSITE_URL, 'greenlifecan.rookconnect.com') !== FALSE) {
 
-            $zenearth_rook_db = @mysqli_connect('mysql.rookconnect.com', 'zen_rook_user', 'R0bot587tw3ak', 'zenearth_rook_db');
-            $gees_rook_db = @mysqli_connect('mysql.rookconnect.com', 'zen_rook_user', 'R0bot587tw3ak', 'gees_rook_db');
-            $glcllc_rook_db = @mysqli_connect('mysql.rookconnect.com', 'zen_rook_user', 'R0bot587tw3ak', 'glcllc_rook_db');
+            $zenearth_rook_db = @mysqli_connect('localhost', 'zen_rook_user', 'R0bot587tw3ak', 'zenearth_rook_db');
+            $gees_rook_db = @mysqli_connect('localhost', 'zen_rook_user', 'R0bot587tw3ak', 'gees_rook_db');
+            $glcllc_rook_db = @mysqli_connect('localhost', 'zen_rook_user', 'R0bot587tw3ak', 'glcllc_rook_db');
 
             $result_update_project = mysqli_query($zenearth_rook_db, $query_update_project);
             $result_update_project = mysqli_query($gees_rook_db, $query_update_project);
@@ -79,9 +81,10 @@ if($_GET['fill'] == 'add_task') {
     $heading = str_replace("FFMHASH","#",$heading);
 
     $heading = filter_var($heading,FILTER_SANITIZE_STRING);
+    $created_date = date('Y-m-d');
 
     if($heading != '') {
-        $query_insert_log = "INSERT INTO `tasklist` (`task_milestone_timeline`, `sales_milestone`, `task_path`, `heading`, `contactid`, `task_board`, `salesid`) VALUES ('$task_milestone_timeline', '$sales_milestone', '$task_path', '$heading', '$contactid', '$taskboardid', '$salesid')";
+        $query_insert_log = "INSERT INTO `tasklist` (`task_milestone_timeline`, `sales_milestone`, `task_path`, `heading`, `contactid`, `task_board`, `salesid`, `created_date`) VALUES ('$task_milestone_timeline', '$sales_milestone', '$task_path', '$heading', '$contactid', '$taskboardid', '$salesid', '$created_date')";
         $result_insert_log = mysqli_query($dbc, $query_insert_log);
     }
 }
@@ -274,6 +277,14 @@ if($_GET['fill'] == 'taskreminder') {
 	$result = mysqli_query($dbc, "INSERT INTO `reminders` (`contactid`, `reminder_date`, `reminder_time`, `reminder_type`, `subject`, `body`, `sender`, `src_table`, `src_tableid`)
 		VALUES ('$to', '$date', '08:00:00', 'QUICK', '$subject', '$body', '$sender', 'task_board', '$id')");
 }
+if($_GET['fill'] == 'taskflagmanual') {
+	$id = filter_var($_POST['id'],FILTER_SANITIZE_STRING);
+	$value = filter_var($_POST['value'],FILTER_SANITIZE_STRING);
+	$label = filter_var($_POST['label'],FILTER_SANITIZE_STRING);
+	$start = filter_var($_POST['start'],FILTER_SANITIZE_STRING);
+	$end = filter_var($_POST['end'],FILTER_SANITIZE_STRING);
+	mysqli_query($dbc, "UPDATE `tasklist` SET `flag_colour`='$value',`flag_label`='$label',`flag_start`='$start',`flag_end`='$end' WHERE `tasklistid`='$id'");
+}
 if($_GET['fill'] == 'taskflag') {
 	$item_id = $_POST['id'];
 	$type = $_POST['type'];
@@ -322,6 +333,7 @@ if($_GET['fill'] == 'task_quick_time') {
 	$current_time = strtotime(mysqli_fetch_array(mysqli_query($dbc, "SELECT `work_time` FROM `tasklist` WHERE `tasklistid`='$taskid'"))['work_time']);
 	$total_time = date('H:i:s', $time + $current_time - strtotime('00:00:00'));
 	$query_time = "UPDATE `tasklist` SET `work_time` = '$total_time' WHERE tasklistid='$taskid'";
+    mysqli_query($dbc, "INSERT INTO `tasklist_time` (`tasklistid`, `work_time`, `src`, `contactid`, `timer_date`) VALUES ('$taskid', '".$_POST['time']."', 'M', '".$_SESSION['contactid']."', '".date('Y-m-d')."')");
 	mysqli_query($dbc, "INSERT INTO `time_cards` (`staff`,`date`,`type_of_time`,`total_hrs`,`timer_tracked`,`comment_box`) VALUES ('".$_SESSION['contactid']."','".date('Y-m-d')."','Regular Hrs.','".(($time - strtotime('00:00:00')) / 3600)."','0','Time Added on Task #$taskid')");
 	$result = mysqli_query($dbc, $query_time);
 	insert_day_overview($dbc, $_SESSION['contactid'], 'Task', date('Y-m-d'), '', "Updated Task #$taskid - Added Time : ".$_POST['time']);
@@ -409,6 +421,9 @@ if($_GET['fill'] == 'stop_timer') {
 
         $query_update_time = "UPDATE `tasklist` SET `work_time`=ADDTIME(`work_time`,'$timer_value') WHERE `tasklistid`='$taskid'";
         $result_update_time = mysqli_query($dbc, $query_update_time);
+        
+        $query_add_time = "INSERT INTO `time_cards` (`staff`, `date`, `type_of_time`, `total_hrs`, `comment_box`) VALUES ('$contactid', '$timer_date', 'Regular Hrs.', '".((strtotime($timer_value) - strtotime('00:00:00'))/3600)."', 'Time Added on Task #$taskid')";
+        $result_add_time = mysqli_query($dbc, $query_add_time);
     }
 } else if($_GET['action'] == 'milestone_edit') {
 	if($_POST['id'] > 0) {
@@ -510,5 +525,50 @@ if($_GET['action'] == 'set_path_name') {
 	$name = filter_var($_POST['name'],FILTER_SANITIZE_STRING);
 	$taskboard = filter_var($_POST['taskboard'],FILTER_SANITIZE_STRING);
 	$dbc->query("UPDATE `task_board` SET `task_path_name`='$name' WHERE `taskboardid`='$taskboard'");
+}
+
+//Checklist quick action
+if ( $_GET['fill']=='checklistFlagItem' ) {
+	$checklistid = $_POST['id'];
+
+	$colours = explode(',', get_config($dbc, "ticket_colour_flags"));
+	$labels = explode('#*#', get_config($dbc, "ticket_colour_flag_names"));
+
+	$value = mysqli_fetch_array(mysqli_query($dbc, "SELECT `flag_colour` FROM `checklist` WHERE `checklistid` = '$checklistid'"))['flag_colour'];
+
+	$colour_key = array_search($value, $colours);
+	$new_colour = ($colour_key === FALSE ? $colours[0] : ($colour_key + 1 < count($colours) ? $colours[$colour_key + 1] : ''));
+	$label = ($colour_key === FALSE ? $labels[0] : ($colour_key + 1 < count($colours) ? $labels[$colour_key + 1] : ''));
+	echo $new_colour;
+	mysqli_query($dbc, "UPDATE `checklist` SET `flag_colour`='$new_colour' WHERE `checklistid`='$checklistid'");
+}
+if ( $_GET['fill']=='checklistReminder') {
+    $taskboardid = $_POST['taskboardid'];
+	$checklistid = $_POST['id'];
+	$value = $_POST['value'];
+
+	$sender = get_email($dbc, $_SESSION['contactid']);
+	$result = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `checklist` WHERE `checklistid` = '$checklistid'"));
+	$id = $result['checklistid'];
+    $task_board = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `task_board` WHERE `taskboardid` = '$taskboardid'"));
+    $board_name = $task_board['board_name'];
+    $tab = $task_board['board_security'];
+	$milestone = $result['task_milestone_timeline'];
+    $subject = "A reminder about Checklist #".$checklistid.": ".$result['checklist_name']." in $board_name task board  $milestone";
+	foreach($_POST['users'] as $i => $user) {
+		$user = filter_var($user,FILTER_SANITIZE_STRING);
+		$contacts = mysqli_query($dbc, "SELECT * FROM `contacts` WHERE `contactid`='$user'");
+		$body = filter_var(htmlentities("This is a reminder about Checklist #".$checklistid.": ".$result['checklist_name']." in $board_name task board  $milestone<br />\n<br />
+			<a href='".WEBSITE_URL."/Sales/sales.php?p=preview&id=$salesid'>Click here</a> to see the Sales.<br />\n"), FILTER_SANITIZE_STRING);
+		mysqli_query($dbc, "UPDATE `reminders` SET `done` = 1 WHERE `contactid` = '$user' AND `src_table` = 'task_board' AND `src_tableid` = '$taskboardid' AND `src_table` != '' AND `src_table` IS NOT NULL");
+		$result = mysqli_query($dbc, "INSERT INTO `reminders` (`contactid`, `reminder_date`, `reminder_time`, `reminder_type`, `subject`, `body`, `sender`, `src_table`, `src_tableid`)
+			VALUES ('$user', '$value', '08:00:00', 'QUICK', '$subject', '$body', '$sender', 'task_board', '$taskboardid')");
+	}
+}
+if ( $_GET['fill']=='checklistArchive' ) {
+	$checklistid = $_POST['id'];
+        $date_of_archival = date('Y-m-d');
+	echo "UPDATE `checklist` SET `deleted` = 1, `date_of_archival` = '$date_of_archival' WHERE `checklistid` = '$checklistid'";
+	mysqli_query($dbc, "UPDATE `checklist` SET `deleted` = 1, `date_of_archival` = '$date_of_archival' WHERE `checklistid` = '$checklistid'");
 }
 ?>

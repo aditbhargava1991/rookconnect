@@ -12,19 +12,9 @@ $actual_link = WEBSITE_URL.$_SERVER['PHP_SELF'];
 	margin-top:10px;
 }
 </style>
-</head>
-<body>
-
-<?php include_once ('../navigation.php');
-checkAuthorised();
-?>
 <script type="text/javascript">
 $(document).on('change', 'select[name="choose_table"]', function() { location = this.value; });
 </script>
-<div class="container">
-	<div class="row">
-        <div class="col-md-12">
-        <?php echo reports_tiles($dbc); ?>
         <form name="form_sites" method="post" action="" class="form-inline" role="form">
         <div style="background-color:rgba(142,142,142,0.50); border-radius:10px; border:1px solid white; padding:10px;" >
             <h2><?php
@@ -44,8 +34,8 @@ $(document).on('change', 'select[name="choose_table"]', function() { location = 
 				<label for="search_email" class="col-sm-4">Report Type:</label>
 				<div class="col-sm-8">
 					<select name="choose_table" id="dynamic_select" class="chosen-select-deselect form-control" data-placeholder="Choose a Report">
-						<option <?php if($_GET['table'] == 'productmovement') { echo "selected='selected'"; } ?> value="<?php echo $actual_link; ?>?type=operations&table=productmovement">Product Movement Summary</option>
-						<option <?php if($_GET['table'] == 'sales') { echo "selected='selected'"; } ?> value="<?php echo $actual_link; ?>?type=operations&table=sales">Sales</option>
+						<option <?php if($_GET['table'] == 'productmovement') { echo "selected='selected'"; } ?> value="<?php echo $actual_link; ?>?type=operations&table=productmovement&report=<?= $_GET['report'] ?>">Product Movement Summary</option>
+						<option <?php if($_GET['table'] == 'sales') { echo "selected='selected'"; } ?> value="<?php echo $actual_link; ?>?type=operations&table=sales&report=<?= $_GET['report'] ?>">Sales</option>
 						<!--<option <?php //if($_GET['table'] == 'pos_excempt') { echo "selected='selected'"; } ?> value="<?php //echo $actual_link; ?>?table=pos_excempt">POS Excempt Invoices</option>-->
 					</select>
 				</div></div>
@@ -503,10 +493,4 @@ $(document).on('change', 'select[name="choose_table"]', function() { location = 
             echo '</table>';
         }
             ?>
-			</div>
-
-        </div>
-    </div>
-</div>
-
-<?php include ('../footer.php'); ?>
+	</div>

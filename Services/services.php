@@ -84,11 +84,11 @@ checkAuthorised('services');
                     $active_daily = '';
                     $row_cat = $row['category'];
                     $row_cat_subtab = str_replace ( ['&', '/', ',', ' ', '___', '__'], ['', '_', '', '_', '_', '_'], $row['category'] );
-                    
+
                     if((!empty($_GET['category'])) && ($_GET['category'] == $row_cat) && (!isset($_GET['currentlist']))) {
                         $active_daily = 'active_tab';
                     }
-                    
+
                     if ( check_subtab_persmission($dbc, 'services', ROLE, $row_cat_subtab) === true ) {
                         echo "<a href='services.php?category=".$row_cat."'><button type='button' class='btn brand-btn mobile-100 mobile-block ".$active_daily."' >".$row_cat."</button></a>&nbsp;&nbsp;";
                     } else {
@@ -237,7 +237,7 @@ checkAuthorised('services');
                         echo '<th>Include in '.SALES_ORDER_TILE.'</th>';
                     }
 					if (strpos($value_config, ','."Include in P.O.S.".',') !== FALSE) {
-                        echo '<th>Include in Point of Sale</th>';
+                        echo '<th>Include in '.POS_ADVANCE_TILE.'</th>';
                     }
 					if (strpos($value_config, ','."Include in Purchase Orders".',') !== FALSE) {
                         echo '<th>Include in Purchase Orders</th>';

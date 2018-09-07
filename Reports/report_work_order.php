@@ -71,6 +71,7 @@ if (isset($_POST['printpdf'])) {
     $today_date = date('Y-m-d');
 	$pdf->writeHTML($html, true, false, true, false, '');
 	$pdf->Output('Download/timetracking_'.$today_date.'.pdf', 'F');
+    track_download($dbc, 'report_work_order', 0, WEBSITE_URL.'/Reports/Download/timetracking_'.$today_date.'.pdf', 'Work Orders Report');
     ?>
 
 	<script type="text/javascript" language="Javascript">
@@ -82,21 +83,6 @@ if (isset($_POST['printpdf'])) {
     $projectid = $jobpdf;
     } ?>
 
-<script type="text/javascript">
-
-</script>
-</head>
-<body>
-<?php include_once ('../navigation.php');
-?>
-
-<div class="container">
-    <div class="row">
-        <div class="col-md-12">
-
-        <?php echo reports_tiles($dbc);  ?>
-
-        <br><br>
 
         <form id="form1" name="form1" method="post" action="" enctype="multipart/form-data" class="form-inline" role="form">
             <input type="hidden" name="report_type" value="<?php echo $_GET['type']; ?>">
@@ -194,10 +180,6 @@ if (isset($_POST['printpdf'])) {
 
         </form>
 
-        </div>
-    </div>
-</div>
-<?php include ('../footer.php'); ?>
 
 <?php
 function report_receivables($dbc, $starttime, $endtime, $projectid, $table_style, $table_row_style, $grand_total_style) {
@@ -289,3 +271,17 @@ function AddPlayTime($times) {
     return sprintf('%02d H %02d M', $hours, $minutes);
 }
 ?>
+<script>
+$('document').ready(function() {
+    var tables = $('table');
+
+    tables.map(function(idx, table) {
+        var rows = $(table).find('tbody > tr');
+        rows.map(function(idx, row){
+            if(idx%2 == 0) {
+                $(row).css('background-color', '#e6e6e6');
+            }
+        })
+    })
+})
+</script>

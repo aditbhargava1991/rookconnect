@@ -25,7 +25,7 @@ if (isset($_POST['printpdf'])) {
 			//$image_file = WEBSITE_URL.'/img/Clinic-Ace-Logo-Final-250px.png';
             if(REPORT_LOGO != '') {
                 $image_file = 'download/'.REPORT_LOGO;
-                $this->Image($image_file, 10, 10, 80, '', '', '', 'T', false, 300, '', false, false, 0, false, false, false);
+                $this->Image($image_file, 10, 10, '', 20, '', '', 'T', false, 300, '', false, false, 0, false, false, false);
             }
             $this->setCellHeightRatio(0.7);
             $this->SetFont('helvetica', '', 9);
@@ -75,6 +75,9 @@ if (isset($_POST['printpdf'])) {
     $today_date = date('Y-m-d');
 	$pdf->writeHTML($html, true, false, true, false, '');
 	$pdf->Output('Download/customer_balance_summary_'.$today_date.'.pdf', 'F');
+
+    track_download($dbc, 'report_account_receivable', 0, WEBSITE_URL.'/Reports/Download/customer_balance_summary_'.$today_date.'.pdf', 'Customer Balance Summary Report');
+
     ?>
 
 	<script type="text/javascript" language="Javascript">
@@ -85,21 +88,8 @@ if (isset($_POST['printpdf'])) {
     $endtime = $endtimepdf;
     $as_at_date = $as_at_datepdf;
     } ?>
-
-<script type="text/javascript">
-
-</script>
-</head>
-<body>
-<?php include_once ('../navigation.php');
-?>
-
-<div class="container triple-pad-bottom">
-    <div class="row">
-        <div class="col-md-12">
-
-        <?php echo reports_tiles($dbc);  ?>
-
+    
+<div id="invoice_div">
         <div class="notice double-gap-bottom popover-examples">
             <div class="col-sm-1 notice-icon"><img src="<?= WEBSITE_URL; ?>/img/info.png" class="wiggle-me" width="25"></div>
             <div class="col-sm-11"><span class="notice-name">NOTE:</span>
@@ -169,11 +159,7 @@ if (isset($_POST['printpdf'])) {
             ?>
 
         </form>
-
-        </div>
-    </div>
 </div>
-<?php include ('../footer.php'); ?>
 
 <?php
 function report_receivables($dbc, $starttime, $endtime, $as_at_date, $table_style, $table_row_style, $grand_total_style) {
@@ -187,22 +173,27 @@ function report_receivables($dbc, $starttime, $endtime, $as_at_date, $table_styl
     $report_service = mysqli_query($dbc,"SELECT patientid, SUM(patient_price) as `all_payment` FROM invoice_patient WHERE (paid_date > '$as_at_date' OR IFNULL(`paid`,'') IN ('On Account','')) AND (DATE(invoice_date) >= '".$starttime."' AND DATE(invoice_date) <= '".$endtime."') GROUP BY patientid ORDER BY patientid");
 
     $total3 = 0;
+    $odd_even = 0;
+    
     while($row_report = mysqli_fetch_array($report_service)) {
+        $bg_class = $odd_even % 2 == 0 ? '' : 'background-color:#e6e6e6;';
 
         $patientid = $row_report['patientid'];
-
         $total_due = $row_report['all_payment'];
 
-        $report_data .= '<tr nobr="true">';
-		$report_data .= '<td><a href="../Contacts/add_contacts.php?category=Patient&contactid='.$patientid.'&from_url='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']).'">'.get_contact($dbc, $patientid). '</a></td>';
-        $report_data .= '<td>$'.$total_due.'</td>';
+        $report_data .= '<tr nobr="true" style="'.$bg_class.'">';
+            //$report_data .= '<td><a href="../Contacts/add_contacts.php?category=Patient&contactid='.$patientid.'&from_url='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']).'">'.get_contact($dbc, $patientid). '</a></td>';
+            $report_data .= '<td><a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/'.CONTACTS_TILE.'/contacts_inbox.php?edit='.$patientid.'\', \'auto\', false, true, $(\'#invoice_div\').outerHeight()+20); return false;">'.get_contact($dbc, $patientid). '</a></td>';
+            $report_data .= '<td align="right">$'.$total_due.'</td>';
         $report_data .= '</tr>';
 
         $total3 += $total_due;
+        
+        $odd_even++;
     }
 
     $report_data .= '<tr nobr="true">';
-    $report_data .= '<td><b>Total</b></td><td><b>$'.number_format($total3, 2).'</b></td>';
+    $report_data .= '<td><b>Total</b></td><td align="right"><b>$'.number_format($total3, 2).'</b></td>';
     $report_data .= "</tr>";
     $report_data .= '</table><br>';
 

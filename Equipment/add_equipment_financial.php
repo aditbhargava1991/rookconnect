@@ -368,20 +368,11 @@ if (strpos($value_config, ','."View Purchase Amount".',') !== FALSE) { ?>
 </div>
 <?php }
 
-if (strpos($value_config, ','."Invoiced Hourly".',') !== FALSE) { ?>
+if (strpos($value_config, ','."Invoiced Amt".',') !== FALSE) { ?>
 <div class="form-group clearfix completion_date">
-    <label for="first_name" class="col-sm-4 control-label text-right">Total Dollars Invoiced Hourly:</label>
+    <label for="first_name" class="col-sm-4 control-label text-right">Total Dollars Invoiced:</label>
     <div class="col-sm-8">
-        $<?= number_format($invoiced_hourly,2) ?>
-    </div>
-</div>
-<?php }
-
-if (strpos($value_config, ','."Invoiced Daily".',') !== FALSE) { ?>
-<div class="form-group clearfix completion_date">
-    <label for="first_name" class="col-sm-4 control-label text-right">Total Dollars Invoiced Daily:</label>
-    <div class="col-sm-8">
-        $<?= number_format($invoiced_daily,2) ?>
+        $<?= number_format($invoiced_amt,2) ?>
     </div>
 </div>
 <?php }

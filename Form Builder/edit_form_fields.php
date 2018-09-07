@@ -18,7 +18,7 @@ function deleteField(img) {
 	}
 }
 </script>
-<div class="collapsible tile-sidebar" style="height: 100%;">
+<div class="standard-collapsible tile-sidebar" style="height: 100%;">
 	<ul class="sidebar field_sidebar">
 		<?php foreach($field_types as $field_type => $field_desc) { ?>
 			<div class="block-item field_draggable" data-fieldtype="<?= $field_type ?>" data-description="<?= $field_desc ?>">
@@ -37,7 +37,11 @@ function deleteField(img) {
 					foreach ($form_fields as $form_field) { ?>
 						<div class="block-item field_sortable" data-fieldid="<?= $form_field['field_id'] ?>">
 							<img src="../img/remove.png" class="inline-img" onclick="deleteField(this);" style="cursor: pointer;">
-							<a href="" onclick="overlayIFrameSlider('<?= WEBSITE_URL ?>/Form Builder/edit_form_field_details.php?field_id=<?= $form_field['field_id'] ?>', 'auto', true, true, $('.main-screen').height()); return false;"><?= ($form_field['type'] == 'SELECT_CUS' ? $field_types['SELECT'] : $field_types[$form_field['type']]) ?>: <?= $form_field['label'] ?></a>&nbsp;
+							<?php if($form_field['type'] == 'HR') {
+								echo $field_types[$form_field['type']];
+							} else { ?>
+								<a href="" onclick="overlayIFrameSlider('<?= WEBSITE_URL ?>/Form Builder/edit_form_field_details.php?field_id=<?= $form_field['field_id'] ?>', 'auto', true, true, $('.main-screen').height()); return false;"><?= ($form_field['type'] == 'SELECT_CUS' ? $field_types['SELECT'] : $field_types[$form_field['type']]) ?>: <?= $form_field['label'] ?></a>&nbsp;
+							<?php } ?>
 							<img class='drag-handle' src='<?= WEBSITE_URL ?>/img/icons/drag_handle.png' style='float: right; width: 2em;'>
 						</div>
 					<?php }

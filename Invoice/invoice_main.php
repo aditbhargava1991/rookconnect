@@ -10,6 +10,10 @@ $redirected = false;
 foreach($tab_list as $tab_name) {
 	if(!$redirected && check_subtab_persmission($dbc, FOLDER_NAME == 'invoice' ? 'check_out' : 'posadvanced', $_SESSION['role'], $tab_name)) {
 		switch($tab_name) {
+            case 'checkin': header('Location: checkin.php');
+				$redirected = true;
+				break;
+
 			case 'sell': header('Location: add_invoice.php');
 				$redirected = true;
 				break;

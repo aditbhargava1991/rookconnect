@@ -35,6 +35,7 @@ if (isset($_POST['submit_pos'])) {
         $invoice_date = date('Y-m-d');
     }
     $contactid = implode(',',$_POST['contactid']);
+    $equipmentid = $_POST['equipmentid'];
     $productpricing = $_POST['productpricing'];
 
     $sub_total = $_POST['sub_total'];
@@ -131,9 +132,14 @@ if (isset($_POST['submit_pos'])) {
 	$workorderid = $_POST['work_order'];
 	$businessid = filter_var($_POST['businessid'],FILTER_SANITIZE_STRING);
 	$siteid = filter_var($_POST['siteid'],FILTER_SANITIZE_STRING);
-    $query_insert_invoice = "INSERT INTO `purchase_orders` (`invoice_date`, `name`, `upload`, `po_category`, `contactid`, `productpricing`, `sub_total`, `discount_type`, `discount_value`, `total_after_discount`, `delivery`, `assembly`, `total_before_tax`, `client_tax_exemption`, `tax_exemption_number`, `total_price`, `payment_type`, `created_by`, `comment`, `ship_date`, `due_date`, `status`, `gst`, `pst`, `delivery_type`, `delivery_address`, `contractorid`, `deposit_paid`, `updatedtotal`, `cross_software`,`software_author`, `software_seller`, `projectid`, `client_projectid`, `ticketid`, `businessid`, `siteid`, `workorderid`) VALUES ('$invoice_date', '$name', '$upload', '$po_category', '$contactid', '$productpricing', '$sub_total', '$discount_type', '$discount_value', '$total_after_discount', '$delivery', '$assembly', '$total_before_tax', '$client_tax_exemption', '$tax_exemption_number', '$total_price', '$payment_type', '$created_by', '$comment', '$ship_date', '$due_date', '$status', '$gst_total', '$pst_total', '$delivery_type', '$delivery_address', '$contractorid', '$dep_paid', '$updatedtotal', '$cross_software', '$software_author', '$software_seller', '$projectid', '$client_projectid', '$ticketid', '$businessid', '$siteid', '$workorderid')";
+    $query_insert_invoice = "INSERT INTO `purchase_orders` (`invoice_date`, `name`, `upload`, `po_category`, `contactid`, `equipmentid`, `productpricing`, `sub_total`, `discount_type`, `discount_value`, `total_after_discount`, `delivery`, `assembly`, `total_before_tax`, `client_tax_exemption`, `tax_exemption_number`, `total_price`, `payment_type`, `created_by`, `comment`, `ship_date`, `due_date`, `status`, `gst`, `pst`, `delivery_type`, `delivery_address`, `contractorid`, `deposit_paid`, `updatedtotal`, `cross_software`,`software_author`, `software_seller`, `projectid`, `client_projectid`, `ticketid`, `businessid`, `siteid`, `workorderid`) VALUES ('$invoice_date', '$name', '$upload', '$po_category', '$contactid', '$equipmentid', '$productpricing', '$sub_total', '$discount_type', '$discount_value', '$total_after_discount', '$delivery', '$assembly', '$total_before_tax', '$client_tax_exemption', '$tax_exemption_number', '$total_price', '$payment_type', '$created_by', '$comment', '$ship_date', '$due_date', '$status', '$gst_total', '$pst_total', '$delivery_type', '$delivery_address', '$contractorid', '$dep_paid', '$updatedtotal', '$cross_software', '$software_author', '$software_seller', '$projectid', '$client_projectid', '$ticketid', '$businessid', '$siteid', '$workorderid')";
 
     $results_are_in = mysqli_query($dbc, $query_insert_invoice) or die(mysqli_error($dbc));
+
+		$before_change = '';
+    $history = "Purchase Order entry has been added. <br />";
+    add_update_history($dbc, 'po_history', $history, '', $before_change);
+
     $posid = mysqli_insert_id($dbc);
 			// ADD Column in Table for PDF //
 			$col = "SELECT `type_category` FROM purchase_orders_product";
@@ -154,6 +160,10 @@ if (isset($_POST['submit_pos'])) {
 			}
 		}
 
+		$before_change = '';
+    $history = "Purchase Order products have been added. <br />";
+    add_update_history($dbc, 'po_history', $history, '', $before_change);
+
 		for($i=0; $i<count($_POST['vplinventoryid']); $i++) {
 			$inventoryid = $_POST['vplinventoryid'][$i];
 			$price = $_POST['vplprice'][$i];
@@ -164,6 +174,10 @@ if (isset($_POST['submit_pos'])) {
 				$results_are_in = mysqli_query($dbc, $query_insert_invoice);
 			}
 		}
+
+		$before_change = '';
+    $history = "Purchase Order products have been added. <br />";
+    add_update_history($dbc, 'po_history', $history, '', $before_change);
 
 		for($i=0; $i<count($_POST['prodinventoryid']); $i++) {
 			$inventoryid = $_POST['prodinventoryid'][$i];
@@ -177,6 +191,10 @@ if (isset($_POST['submit_pos'])) {
 			}
 		}
 
+		$before_change = '';
+    $history = "Purchase Order products have been added. <br />";
+    add_update_history($dbc, 'po_history', $history, '', $before_change);
+
 		for($i=0; $i<count($_POST['servinventoryid']); $i++) {
 			$inventoryid = $_POST['servinventoryid'][$i];
 			$price = $_POST['servprice'][$i];
@@ -187,6 +205,10 @@ if (isset($_POST['submit_pos'])) {
 				$results_are_in = mysqli_query($dbc, $query_insert_invoice);
 			}
 		}
+
+		$before_change = '';
+    $history = "Purchase Order products have been added. <br />";
+    add_update_history($dbc, 'po_history', $history, '', $before_change);
 
 		for($i=0; $i<count($_POST['misc_product']); $i++) {
 			$misc_product = filter_var($_POST['misc_product'][$i],FILTER_SANITIZE_STRING);
@@ -201,13 +223,20 @@ if (isset($_POST['submit_pos'])) {
 				$results_are_in = mysqli_query($dbc, $query_insert_invoice);
 			}
 		}
+
+		$before_change = '';
+    $history = "Purchase Order products have been added. <br />";
+    add_update_history($dbc, 'po_history', $history, '', $before_change);
 	} else {
 		$order_id = $_POST['order_id'];
 		if($_POST['spreadsheet'] == 'Yes') {
 					include('edit_vpl_spreadsheet.php');
 					if(isset($file_name_save_db)) {
+						$before_change = capture_before_change($dbc, 'purchase_orders', 'spreadsheet_name', 'posid', $posid);
 						$query_update_vendor = "UPDATE `purchase_orders` SET `spreadsheet_name` = '$file_name_save_db' WHERE `posid` = '$posid'";
 						$result_update_vendor = mysqli_query($dbc, $query_update_vendor);
+				    $history = capture_after_change('spreadsheet_name', $file_name_save_db);
+				    add_update_history($dbc, 'po_history', $history, '', $before_change);
 			}
 		}
 		for($i=0; $i<count($_POST['inventoryid_list']); $i++) {
@@ -223,6 +252,10 @@ if (isset($_POST['submit_pos'])) {
 				}
 			}
 		}
+
+		$before_change = '';
+    $history = "Purchase Order products have been added. <br />";
+    add_update_history($dbc, 'po_history', $history, '', $before_change);
 	}
 
     include ('create_pos_pdf.php');
@@ -260,7 +293,7 @@ if (isset($_POST['submit_pos'])) {
 			window.top.new_po_added("'.$posid.'", "'.$total_price.'");
 		} catch (error) { }
 	}
-	window.location.reload("index.php");
+	window.location.replace("index.php");
 	</script>';
 if($cross_software !== 'zen') {
    echo '    window.open("download/purchase_order_'.$posid.'.pdf", "fullscreen=yes");';
@@ -992,10 +1025,10 @@ function countPOSTotal(sel) {
 
 	if (tax_type == "1") {
 		tax_rate = $("#tax_rate2").val();
-		console.log(tax_type+" + tax_rate: " + tax_rate);
+		// console.log(tax_type+" + tax_rate: " + tax_rate);
 	} else {
 		tax_rate = $("#tax_rate").val();
-		console.log(tax_type+" + else tax_rate: " + tax_rate);
+		// console.log(tax_type+" + else tax_rate: " + tax_rate);
 	}
 	//tax_rate = 15;
 
@@ -1179,13 +1212,32 @@ jQuery(document).ready(function($){
 				$('[name=siteid]').val(site).trigger('change.select2');
 			}
 		} else if(this.name == 'project') {
-			var ticket = $(this).find('option:selected');
-			var project = ticket.data('project');
-			$('[name=project]').val(project).trigger('change.select2');
-			var business = ticket.data('business');
-			$('[name=businessid]').val(business).trigger('change.select2');
-			var site = ticket.data('site');
-			$('[name=siteid]').val(site).trigger('change.select2');
+			var project = $(this).find('option:selected');
+			$('[name=work_order] option').each(function() {
+				if($(this).data('project') > 0 && $(this).data('project') != project.val() && project.val() > 0) {
+					$(this).hide();
+				} else {
+					$(this).show();
+				}
+			});
+			$('[name=work_order]').trigger('change.select2');
+			var business = project.data('business');
+            if(business > 0) {
+                $('[name=businessid]').val(business).trigger('change.select2');
+            }
+			var site = project.data('site');
+            if(site > 0) {
+                $('[name=siteid]').val(site).trigger('change.select2');
+            } else if(business > 0) {
+                $('[name=siteid] option').each(function() {
+                    if($(this).data('business') > 0 && $(this).data('business') != business && business > 0) {
+                        $(this).hide();
+                    } else {
+                        $(this).show();
+                    }
+                });
+                $('[name=siteid]').trigger('change.select2');
+            }
 		} else if(this.name == 'businessid') {
 			var business = this.value;
 			$('[name=project] option').each(function() {
@@ -1350,6 +1402,45 @@ if ( isset($_GET['contactid']) && $_GET['contactid'] ) {
 		</div>
 	<?php } ?>
 
+	<?php if (strpos($value_config, ','."Equipment".',') !== FALSE) {
+        $equip_cats = explode(',',get_config($dbc, 'equipment_tabs'));
+        if(count($equip_cats) > 1) { ?>
+            <script>
+            function filterEquipment(category) {
+                $('[name=equipmentid] option').each(function() {
+                    if(category == '' || $(this).data('category') == category) {
+                        $(this).show();
+                    } else {
+                        $(this).hide();
+                    }
+                });
+                $('[name=equipmentid]').trigger('change.select2');
+            }
+            </script>
+            <div class="form-group">
+                <label for="travel_task" class="col-sm-3 control-label"><span class="popover-examples list-inline" style="margin:-5px 5px 0 0"><a data-toggle="tooltip" data-placement="top" title="This drop down menu displays the equipment categories, and filters the Equipment drop down to find the equipment."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>Equipment Category:</label>
+                <div class="col-sm-9">
+                    <select onchange="filterEquipment(this.value);" data-placeholder="Select Equipment Category..." class="chosen-select-deselect form-control"><option />
+                        <?php foreach($equip_cats as $equip_cat) { ?>
+                            <option value='<?= $equip_cat ?>'><?= $equip_cat ?></option>
+                        <?php } ?>
+                    </select>
+                </div>
+            </div>
+        <?php } ?>
+		<div class="form-group">
+			<label for="travel_task" class="col-sm-3 control-label">Equipment:</label>
+			<div class="col-sm-9">
+				<select name="equipmentid" data-placeholder="Select Equipment..." class="chosen-select-deselect form-control"><option />
+                    <?php $result = mysqli_query($dbc, "SELECT `equipmentid`, `category`, `make`, `model`, `unit_number` FROM `equipment` WHERE `deleted`=0");
+					while($equip_row = $result->fetch_assoc()) { ?>
+                        <option data-category="<?= $equip_row['category'] ?>" value="<?= $equip_row['equipmentid'] ?>"><?= (count($equip_cats) > 1 && $equip_row['category'] != '' ? $equip_row['category'].': ' : '').implode(' ',array_filter([$equip_row['make'],$equip_row['model'],$equip_row['unit_number']])) ?></option>
+					<?php } ?>
+				</select>
+			</div>
+		</div>
+	<?php } ?>
+
 	<?php if (strpos($value_config, ','."Customer".',') !== FALSE) { ?>
 		<script>
 		function addVendor() {
@@ -1363,7 +1454,7 @@ if ( isset($_GET['contactid']) && $_GET['contactid'] ) {
 		}
 		</script>
 		<div class="form-group">
-			<label for="travel_task" class="col-sm-3 control-label"><span class="popover-examples list-inline" style="margin:-5px 5px 0 0"><a data-toggle="tooltip" data-placement="top" title="This drop down menu displays all vendors assigned in the vendor sub tab of the contact tile."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>Vendors<span class="brand-color">*</span>:<br><em><span id="tax_exemption_fillup"></em></span></label>
+			<label for="travel_task" class="col-sm-3 control-label"><span class="popover-examples list-inline" style="margin:-5px 5px 0 0"><a data-toggle="tooltip" data-placement="top" title="This drop down menu displays all vendors assigned in the vendor sub tab of the contact tile."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span><?= VENDOR_TILE ?><span class="brand-color">*</span>:<br><em><span id="tax_exemption_fillup"></em></span></label>
 			<div class="col-sm-8">
 				<select id="customerid" name="contactid[]" data-placeholder="Select a Vendor..." class="chosen-select-deselect form-control" width="380">
 					<option value=''></option><?php
@@ -2117,37 +2208,37 @@ if ( isset($_GET['contactid']) && $_GET['contactid'] ) {
 				<input name="misc_qty[]" id="misc_qty_dd_0" value="0" style="" onchange="$(this).closest('.form-group').find('[name^=misc_price]').val($(this).closest('.form-group').find('[name^=misc_unit_price]').val() * this.value).keyup();" type="text" class="form-control " />
 			</div>
 		<?php } ?>
-		
+
 		<div class="col-sm-1 expand-mobile" id="miscproduct_0" style="width:20%; position:relative; display:inline-block;">
 		<label for="company_name" class="col-sm-4 show-on-mob control-label">Description:</label>
 			<input data-placeholder="Choose a Product..." id="misc_product_0" name="misc_product[]" type="text" class="form-control misc_product" />
 		</div>
-			
+
 		<?php if(strpos($value_config,',miscGrade,') !== FALSE) { ?>
 			<div class="col-sm-1 expand-mobile" id="price_0" style="width:10%; position:relative; display:inline-block;">
 				<label for="company_name" class="col-sm-4 show-on-mob control-label">Grade:</label>
 				<input name="misc_grade[]" id="misc_grade_dd_0" value="" style="" type="text" class="form-control " />
 			</div>
 		<?php } ?>
-			
+
 		<?php if(strpos($value_config,',miscTag,') !== FALSE) { ?>
 			<div class="col-sm-1 expand-mobile" id="price_0" style="width:10%; position:relative; display:inline-block;">
 				<label for="company_name" class="col-sm-4 show-on-mob control-label">Tag:</label>
 				<input name="misc_tag[]" id="misc_tag_dd_0" value="" style="" type="text" class="form-control " />
 			</div>
 		<?php } ?>
-			
+
 		<?php if(strpos($value_config,',miscDetail,') !== FALSE) { ?>
 			<div class="col-sm-3 expand-mobile" id="price_0" style="width:20%; position:relative; display:inline-block;">
 				<label for="company_name" class="col-sm-4 show-on-mob control-label">Detail:</label>
 				<input name="misc_detail[]" id="misc_detail_dd_0" value="" style="" type="text" class="form-control " />
 			</div>
 		<?php } ?>
-			
+
 		<?php if(strpos($value_config,',miscUnitPrice,') !== FALSE) { ?>
 			<div class="col-sm-1 expand-mobile" id="price_0" style="width:10%; position:relative; display:inline-block;">
 				<label for="company_name" class="col-sm-4 show-on-mob control-label">Unit Price:</label>
-				<input name="misc_unit_price[]" id="misc_unit_price_dd_0" value="0" style="" onchange="$(this).closest('.form-group').find('[name^=misc_price]').val($(this).closest('.form-group').find('[name^=misc_unit_price]').val() * this.value).keyup();" type="text" class="form-control " />
+				<input name="misc_unit_price[]" id="misc_unit_price_dd_0" value="0" style="" onchange="$(this).closest('.form-group').find('[name^=misc_price]').val($(this).closest('.form-group').find('[name^=misc_qty]').val() * this.value).keyup();" type="text" class="form-control " />
 			</div>
 		<?php } ?>
 
@@ -2445,5 +2536,5 @@ if ( isset($_GET['contactid']) && $_GET['contactid'] ) {
 	  <div class="form-group">
 		<button type="submit" name="submit_pos" value="Submit" class="btn brand-btn btn-lg pull-right">Submit</button>
 	  </div>
-	  
+
 </form>

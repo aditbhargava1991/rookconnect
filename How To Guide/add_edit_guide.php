@@ -1,9 +1,10 @@
 <?php
 	/*
-	 * Add/Edit How To Guide
+	 * Add/Edit Software Guide
 	 */
 	 
 	include ('../include.php');
+    include ('check_security.php');
     include ('../database_connection_htg.php');
     include ('../tile_list.php');
 	error_reporting(0);
@@ -56,7 +57,7 @@
         
         } else {
             if ( empty($guideid) ) {
-                // New How To Guide
+                // New Software Guide
                 $query_insert	= "INSERT INTO `how_to_guide` (`tile`, `subtab`, `sort_order`, `description`, `image`) VALUES ('$tile', '$subtab', '$sort_order', '$description', '$image')";
                 $result_insert	= mysqli_query ( $dbc_htg, $query_insert ) or die( mysqli_error($dbc_htg) );
                 $guideid = mysqli_insert_id($dbc_htg);
@@ -71,10 +72,10 @@
 
 		if(isset($_GET['maintype'])) {
 			$submit_url = WEBSITE_URL . '/Manuals/manual.php?maintype=htg';
-			echo '<script type="text/javascript">alert("How To Guide '. $url .'"); window.location.replace('.$submit_url.');</script>';
+			echo '<script type="text/javascript">alert("Software Guide '. $url .'"); window.location.replace('.$submit_url.');</script>';
 		}
 		else {
-			echo '<script type="text/javascript">alert("How To Guide '. $url .'"); window.location.replace("guides_dashboard.php");</script>';
+			echo '<script type="text/javascript">alert("Software Guide '. $url .'"); window.location.replace("guides_dashboard.php");</script>';
 		}
 	} ?>
 	
@@ -161,7 +162,7 @@
 		<div class="row">
 			<h1><?php
                 if ( empty($type_url) ) {
-                    echo ( isset($_GET['guideid']) ) ? 'Edit' : 'Add' ?> How To Guide<?php
+                    echo ( isset($_GET['guideid']) ) ? 'Edit' : 'Add' ?> Software Guide<?php
                 } else {
                     echo ( isset($_GET['noteid']) ) ? 'Edit' : 'Add' ?> Note<?php
                 } ?>
@@ -203,7 +204,7 @@
 				
 				<div class="form-group">
 					<label for="tile" class="col-sm-4 control-label">
-						<span class="popover-examples"><a data-toggle="tooltip" data-placement="top" title="Select the tile you want to add the How To Guide to."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
+						<span class="popover-examples"><a data-toggle="tooltip" data-placement="top" title="Select the tile you want to add the Software Guide to."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
 						Tile: <span class="hp-red">*</span>
 					</label>
 					<div class="col-sm-8">
@@ -230,7 +231,7 @@
 				
 				<div class="form-group" id="heading">
 					<label for="company_name" class="col-sm-4 control-label">
-						<span class="popover-examples"><a data-toggle="tooltip" data-placement="top" title="Enter the accordion heading within the selected tile above which you want to add to the How To Guide."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
+						<span class="popover-examples"><a data-toggle="tooltip" data-placement="top" title="Enter the accordion heading within the selected tile above which you want to add to the Software Guide."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
 						Accordion Heading: <span class="hp-red">*</span>
 					</label>
 					<div class="col-sm-8"><?php
@@ -245,7 +246,7 @@
 				
 				<div class="form-group" id="subtab_new_heading">
 					<label for="company_name" class="col-sm-4 control-label">
-						<span class="popover-examples"><a data-toggle="tooltip" data-placement="top" title="Enter the accordion heading within the selected tile above which you want to add to the How To Guide."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
+						<span class="popover-examples"><a data-toggle="tooltip" data-placement="top" title="Enter the accordion heading within the selected tile above which you want to add to the Software Guide."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
 						New Accordion Heading: <span class="hp-red">*</span>
 					</label>
 					<div class="col-sm-8">
@@ -271,7 +272,7 @@
 				
 				<div class="form-group" id="htg_image">
 					<label for="company_name" class="col-sm-4 control-label">
-						<span class="popover-examples"><a data-toggle="tooltip" data-placement="top" title="Add an image/infographic you want to display on the How To Guide."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
+						<span class="popover-examples"><a data-toggle="tooltip" data-placement="top" title="Add an image/infographic you want to display on the Software Guide."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
 						Image:
 					</label>
 					<div class="col-sm-8">
@@ -281,7 +282,7 @@
 				
 				<div class="form-group">
 					<label for="description" class="col-sm-4 control-label">
-						<span class="popover-examples"><a data-toggle="tooltip" data-placement="top" title="Description of the How To Guide or Note."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
+						<span class="popover-examples"><a data-toggle="tooltip" data-placement="top" title="Description of the Software Guide or Note."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
 						Description:<?php if($type_url == 'note') { ?><br />
 							<em>You can use the following text in your note:<br />
 							[PROJECT TILE]: The name that the project tile is labelled as.<br />

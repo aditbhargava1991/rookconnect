@@ -364,7 +364,7 @@ echo '<th>PST #</th>';
 }
 
 if (strpos($value_config, ','."Vendor GST #".',') !== FALSE) {
-echo '<th>Vendor GST #</th>';
+echo '<th>'.VENDOR_TILE.' GST #</th>';
 }
 
 if (strpos($value_config, ','."Payment Information".',') !== FALSE) {

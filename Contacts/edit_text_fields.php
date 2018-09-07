@@ -117,7 +117,7 @@
 		<input type="text" name="middle" value="<?= decryptIt($contact['middle']) ?>" data-field="middle" data-table="contacts" class="form-control">
 	</div>
 <?php } else if($field_option == 'Name') { ?>
-	<label class="col-sm-4 control-label"><?= $current_type ?> / Company Name:</label>
+	<label class="col-sm-4 control-label"><?= $current_type ?> Name:</label>
 	<div class="col-sm-8">
 		<input type="text" name="Name" value="<?= decryptIt($contact['name']) ?>" data-field="name" data-table="contacts" class="form-control">
 	</div>
@@ -180,41 +180,16 @@
 		<input type="text" name="website" value="<?= $contact['website'] ?>" data-field="website" data-table="contacts" class="form-control">
 	</div>
 <?php } else if($field_option == 'Region' || $field_option == 'Profile Region') { ?>
-	<script>
-	function addRegion() {
-		var row = $('[name="region[]"]').last().closest('.region-row');
-		destroyInputs(row);
-		var clone = row.clone();
-		clone.find('select').val('').change(function() { saveField(this); });
-		row.after(clone);
-		initInputs('.region-row');
-	}
-	function remRegion(img) {
-		if($('.region-row').length == 1) {
-			addRegion();
-		}
-		$(img).closest('.region-row').remove();
-		$('[name="region[]"]').last().change();
-	}
-	</script>
-	<?php foreach(array_unique(explode(',',$contact['region'])) as $current_region) { ?>
-		<div class="region-row form-group">
-			<label class="col-sm-4 control-label">Region:</label>
-			<div class="col-sm-7">
-				<select name="region[]" data-field="region" data-table="contacts" data-delimiter="," data-exact-name="1" class="form-control chosen-select-deselect"><option></option>
-					<?php $each_tab = array_unique(explode(',',mysqli_fetch_array(mysqli_query($dbc, "SELECT GROUP_CONCAT(`value` SEPARATOR ',') FROM `general_configuration` WHERE `name` LIKE '%_region'"))[0]));
-					foreach ($each_tab as $cat_tab) {
-						echo "<option ".($current_region == $cat_tab ? 'selected' : '')." value='". $cat_tab."'>".$cat_tab.'</option>';
-					} ?>
-				</select>
-			</div>
-			<div class="col-sm-1">
-				<img class="inline-img pull-right" src="../img/remove.png" onclick="remRegion(this);">
-				<img class="inline-img pull-right" src="../img/icons/ROOK-add-icon.png" onclick="addRegion();">
-			</div>
-		</div>
-	<?php }
-} else if($field_option == 'Location' || $field_option == 'Profile Location') { ?>
+	<label class="col-sm-4 control-label">Region:</label>
+	<div class="col-sm-8">
+		<select name="region[]" multiple data-field="region" data-table="contacts" data-delimiter="," data-exact-name="1" class="form-control chosen-select-deselect">
+			<?php $each_tab = array_unique(explode(',',mysqli_fetch_array(mysqli_query($dbc, "SELECT GROUP_CONCAT(`value` SEPARATOR ',') FROM `general_configuration` WHERE `name` LIKE '%_region'"))[0]));
+			foreach ($each_tab as $cat_tab) {
+				echo "<option ".(in_array($cat_tab, explode(',',$contact['region'])) ? 'selected' : '')." value='". $cat_tab."'>".$cat_tab.'</option>';
+			} ?>
+		</select>
+	</div>
+<?php } else if($field_option == 'Location' || $field_option == 'Profile Location') { ?>
 	<label class="col-sm-4 control-label">Location:</label>
 	<div class="col-sm-8">
 		<select name="con_locations" data-field="con_locations" data-table="contacts" class="form-control chosen-select-deselect"><option></option>
@@ -227,7 +202,7 @@
 <?php } else if($field_option == 'Classification' || $field_option == 'Profile Classification') { ?>
 	<label class="col-sm-4 control-label">Classification:</label>
 	<div class="col-sm-8">
-		<select name="classification[]" multiple data-field="classification" data-table="contacts" class="form-control chosen-select-deselect"><option></option>
+		<select name="classification[]" multiple data-field="classification" data-table="contacts" class="form-control chosen-select-deselect">
 			<?php $each_tab = array_unique(explode(',',mysqli_fetch_array(mysqli_query($dbc, "SELECT GROUP_CONCAT(`value` SEPARATOR ',') FROM `general_configuration` WHERE `name` LIKE '%_classification'"))[0]));
 			foreach ($each_tab as $cat_tab) {
 				echo "<option ".(in_array($cat_tab, explode(',',$contact['classification'])) ? 'selected' : '')." value='". $cat_tab."'>".$cat_tab.'</option>';
@@ -437,8 +412,8 @@
 <?php } else if($field_option == 'Gender' || $field_option == 'Profile Gender') { ?>
 	<label class="col-sm-4 control-label">Gender:</label>
 	<div class="col-sm-8">
-		<label class="form-checkbox"><input type="checkbox" <?= $contact['gender'] == 'Female' ? 'checked' : '' ?> name="gender" value="Female" data-field="gender" data-table="contacts" class="form-control"> Female</label>
-		<label class="form-checkbox"><input type="checkbox" <?= $contact['gender'] == 'Female' ? 'checked' : '' ?> name="gender" value="Male" data-field="gender" data-table="contacts" class="form-control"> Male</label>
+		<label class="form-checkbox"><input type="radio" <?= $contact['gender'] == 'Female' ? 'checked' : '' ?> name="gender" value="Female" data-field="gender" data-table="contacts"> Female</label>
+		<label class="form-checkbox"><input type="radio" <?= $contact['gender'] == 'Male' ? 'checked' : '' ?> name="gender" value="Male" data-field="gender" data-table="contacts"> Male</label>
 	</div>
 <?php } else if($field_option == 'License') { ?>
 	<label class="col-sm-4 control-label">Licence #:</label>
@@ -512,7 +487,6 @@
 			echo "Super Admin";
 		} else { ?>
 			<select name="role[]" multiple data-placeholder="Select a Security Level" data-table="contacts" data-field="role" class="form-control chosen-select-deselect">
-				<option value=''></option>
 				<?php foreach(get_security_levels($dbc) as $select_value => $value)  { ?>
 					<option <?= (strpos(','.$contact['role'].',',','.$value.',') !== false ? 'selected' : '') ?> value="<?php echo $value; ?>"><?php echo $select_value; ?></option>
 				<?php } ?>
@@ -622,7 +596,6 @@
 	<label class="col-sm-4 control-label">Region Access:</label>
 	<div class="col-sm-8">
 		<select multiple name="region_access[]" class="chosen-select-deselect form-control" data-field="region_access" data-table="contacts_security" data-delimiter="#*#">
-			<option></option>
 			<?php foreach($contact_regions as $region_name) { ?>
 				<option value="<?= $region_name ?>" <?= in_array($region_name, $allowed_regions) ? 'selected' : '' ?>><?= $region_name ?></option>
 			<?php } ?>
@@ -636,7 +609,6 @@
 	<label class="col-sm-4 control-label">Location Access:</label>
 	<div class="col-sm-8">
 		<select multiple name="location_access[]" class="chosen-select-deselect form-control" data-field="location_access" data-table="contacts_security" data-delimiter="#*#">
-			<option></option>
 			<?php foreach($contact_locations as $location_name) {
 				$location_arr = explode('*#*', $location_name); ?>
 				<option value="<?= $location_name ?>" <?= in_array($location_name, $allowed_locations) ? 'selected' : '' ?>><?= $location_arr[0] ?></option>
@@ -651,7 +623,6 @@
 	<label class="col-sm-4 control-label">Classification Access:</label>
 	<div class="col-sm-8">
 		<select multiple name="classification_access[]" class="chosen-select-deselect form-control" data-field="classification_access" data-table="contacts_security" data-delimiter="#*#">
-			<option></option>
 			<?php foreach($contact_classifications as $class_i => $classification_name) { ?>
 				<option data-region="<?= $classification_regions[$class_i] ?>" value="<?= $classification_name ?>" <?= in_array($classification_name, $allowed_classifications) ? 'selected' : '' ?>><?= $classification_name ?></option>
 			<?php } ?>
@@ -668,7 +639,6 @@
 	<label class="col-sm-4 control-label"><?= $equipment_category ?> Access:</label>
 	<div class="col-sm-8">
 		<select multiple name="equipment_access[]" class="chosen-select-deselect form-control" data-field="equipment_access" data-table="contacts_security">
-			<option></option>
 			<?php foreach($equip_list as $equipment) { ?>
 				<option data-region="<?= $equipment['region'] ?>" value="<?= $equipment['equipmentid'] ?>" <?= (in_array($equipment['equipmentid'], $allowed_equipment) || count($allowed_equipment) == 0) ? 'selected' : '' ?>><?= $equipment['label'] ?></option>
 			<?php } ?>
@@ -847,6 +817,8 @@
 	<div class="col-sm-8">
 		<label class="control-checkbox any-width"><input type="checkbox" name="address_site_sync" data-ischeckbox="true" value="1" <?= $contact['address_site_sync'] > 0 ? 'checked' : '' ?> data-field="address_site_sync" data-table="contacts"> Make this address a <?= rtrim(SITES_CAT,'s') ?></label>
 	</div>
+<?php } else if($field_option == 'Address Default Sync On') { ?>
+	<input type="hidden" name="address_default_site_sync" value="1">
 <?php } else if($field_option == 'Second Address') { ?>
 	<label class="col-sm-4 control-label">Street Address:</label>
 	<div class="col-sm-8">

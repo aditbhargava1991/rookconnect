@@ -149,6 +149,7 @@ checkAuthorised();
         $client_documents = $get_config['client_documents'];
         $products = $get_config['products'];
         $tasks = $get_config['tasks'];
+        $tasks_updated = $get_config['tasks_updated'];
         $agenda_meeting = $get_config['agenda_meeting'];
         $sales = $get_config['sales'];
         $gantt_chart = $get_config['gantt_chart'];
@@ -440,11 +441,19 @@ checkAuthorised();
 
 			<?php if (strpos($tasks, 'turn_on') !== FALSE) { ?>
             <tr>
-                <td data-title="Comment">Tasks</td>
+                <td data-title="Comment"><?= TASK_TILE ?></td>
                 <?php echo tile_config_function($dbc,'tasks'); ?>
             </tr>
             <?php } ?>
 
+<!--
+			<?php if (strpos($tasks_updated, 'turn_on') !== FALSE) { ?>
+            <tr>
+                <td data-title="Comment">Tasks (Updated)</td>
+                <?php echo tile_config_function($dbc,'tasks_updated'); ?>
+            </tr>
+            <?php } ?>
+-->
             <tr><th colspan='5'><div style='text-align:left;width:100%;font-size:20px;'><?= ESTIMATE_TILE ?>/Quotes:</div></th></tr>
 			<?php if (strpos($estimate, 'turn_on') !== FALSE) { ?>
             <tr>
@@ -660,7 +669,7 @@ checkAuthorised();
             <?php } ?>
 			<?php if (strpos($pos, 'turn_on') !== FALSE) { ?>
             <tr>
-                <td data-title="Comment">Point of Sale</td>
+                <td data-title="Comment"><?= POS_ADVANCE_TILE ?></td>
                 <?php echo tile_config_function($dbc,'pos'); ?>
             </tr>
             <?php } ?>

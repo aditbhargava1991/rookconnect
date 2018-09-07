@@ -42,6 +42,7 @@ $(document).ready(function() {
 	group.find('.pdf_styling_options').hide();
 	group.find('.services_fields').hide();
 	group.find('.pdf_styling_checkbox').hide();
+	group.find('.select_fields').hide();
 	switch(field_type) {
 		case 'SERVICES':
 			group.find('.default_value').hide();
@@ -62,6 +63,8 @@ $(document).ready(function() {
 		case 'DATE':
 			group.find('.pdf_styling_options').show();
 			group.find('.date_format').show();
+			group.find('.reference_fields [name="field_references"]').trigger('change.select2');
+			group.find('.reference_fields').show();
 			break;
 		case 'TABLEADV':
 			group.find('.default_value').hide();
@@ -76,6 +79,7 @@ $(document).ready(function() {
 			group.find('.option_fields').show();
 			group.find('.text_content').hide();
 			group.find('.tableadv_fields').hide();
+			group.find('.select_fields').show();
 			break;
 		case 'RADIO':
 		case 'CHECKBOX':
@@ -93,6 +97,7 @@ $(document).ready(function() {
 			group.find('.dropdown_fields').show();
 			group.find('.text_content').hide();
 			group.find('.tableadv_fields').hide();
+			group.find('.select_fields').show();
 			break;
 		case 'TABLE':
 			group.find('.default_value').hide();
@@ -139,6 +144,14 @@ $(document).ready(function() {
 			group.find('.tableadv_fields').hide();
 			group.find('.textblock_format').show();
 			break;
+		case 'TEXTBOX':
+			group.find('.reference_fields [name="field_references"]').trigger('change.select2');
+			group.find('.reference_fields').show();
+			group.find('.pdf_styling_options').show();
+			group.find('.default_value').show();
+			group.find('.text_content').hide();
+			group.find('.tableadv_fields').hide();
+		break;
 		case 'TEXTAREA':
 		default:
 			group.find('.pdf_styling_options').show();
@@ -192,12 +205,18 @@ function saveFields(field) {
 
 	var ref_source_table = $('[name=field_references]').val();
 	var ref_source_conditions = $('[name=field_field]').val();
+	if(ref_source_conditions == 'CUSTOM_VALUE') {
+		ref_source_conditions = $('[name="custom_ref_value"]').val();
+	}
 	var ref_custom_val = $('[name=custom_ref_value]').val();
 	var table_styling = $('[name=field_styling]').val();
 	var content = $('[name=field_content]').val();
 	var mandatory = 0;
 	if($('[name=field_mandatory]').is(':checked')) {
 		var mandatory = $('[name=field_mandatory]').val();
+	}
+	if($('[name=field_multiple]').is(':checked')) {
+		content += $('[name=field_multiple]').val();
 	}
 
 	var option_row_fields = [];
@@ -559,9 +578,10 @@ function sortableServices() {
 		<label class="col-sm-12">Reference Source:<br /><em>This field will pull a chosen value based on the contact selected in the Reference Source field.</em></label>
 		<div class="col-sm-12">
 			<select class="chosen-select-deselect form-control" name="field_references" data-id="<?= $field_info['references'] ?>">
+				<option></option>
 				<?php if(!empty($ref_sources)) {
 					foreach($ref_sources as $ref_source) { ?>
-						<option <?= $field_info['references'] == $ref_source['field_id'] ? 'selected' : '' ?> value="<?= $ref_source['field_id'] ?>"><?= $ref_source['name'].(!empty($ref_source['label']) ? '('.$ref_source['label'].')' : '') ?></option>
+						<option <?= $field_info['references'] == $ref_source['field_id'] ? 'selected' : '' ?> value="<?= $ref_source['field_id'] ?>"><?= $ref_source['name'].(!empty($ref_source['label']) ? ' ('.$ref_source['label'].')' : '') ?></option>
 					<?php }
 				} else { ?>
 					<option value=0>N/A</option>
@@ -676,7 +696,7 @@ function sortableServices() {
 	<div class="form-group text_content" style="display:none;">
 		<label class="col-sm-12">Content:</label>
 		<div class="col-sm-12">
-			<textarea name="field_content" class="form-control"><?= html_entity_decode($field_info['content']) ?></textarea>
+			<textarea name="field_content" class="form-control"><?= $field_info['type'] != 'SELECT' && $field_info['type'] != 'SELECT_CUS' ? html_entity_decode($field_info['content']) : '' ?></textarea>
 		</div>
 		<button id="add_content_input" class="btn brand-btn pull-right" onclick="addContentInput(this); return false;">Add Input</button>
 	</div>
@@ -738,7 +758,7 @@ function sortableServices() {
 	<div class="form-group slider_fields" style="display:none;">
 		<label class="col-sm-12">Min Value:</label>
 		<div class="col-sm-12">
-			<input type="number" name="slider_min" class="form-control" value="<?= !empty(explode(',',$field_info['content'])[0]) ? explode(',',$field_info['content'])[0] : '0' ?>">
+			<input type="number" name="slider_min" class="form-control" value="<?= (explode(',',$field_info['content'])[0]) > 0 ? explode(',',$field_info['content'])[0] : '0' ?>">
 		</div>
 	</div>
 
@@ -813,6 +833,13 @@ function sortableServices() {
 		<label class="col-sm-12">
 			Hide Prices From External Users:&nbsp;
 			<input type="checkbox" name="hide_from_external" value="hide_from_external" <?= strpos(','.$field_info['source_conditions'].',', ',hide_from_external,') !== FALSE ? 'checked' : '' ?> style="position: relative; top: 0.5em;">
+	</div>
+
+	<div class="form-group select_fields" style="display: none;">
+		<label class="col-sm-12">
+			Allow Multiple Selections:&nbsp;
+			<input type="checkbox" name="field_multiple" value="multiple" <?= $field_info['content'] == 'multiple' ? 'checked' : '' ?> style="position: relative; top: 0.5em;">
+		</label>
 	</div>
 
 	<div class="mandatory_field">

@@ -27,6 +27,13 @@ else if($_GET['action'] == 'contacts_dashboards') {
 		$query_insert_config = "INSERT INTO `field_config_contacts` (`tab`, `contacts_dashboard`, `tile_name`) VALUES ('$tab_dashboard', '$contacts_dashboards', '$tile')";
 		$result_insert_config = mysqli_query($dbc, $query_insert_config);
 	}
+} else if($_GET['action'] == 'contacts_summary') {
+	$contacts_summary = $_POST['field_list'];
+	$tile = filter_var($_POST['tile'],FILTER_SANITIZE_STRING);
+    $heading = $tile.'_summary';
+
+    set_config($dbc, $heading, $contacts_summary);
+
 } else if($_GET['action'] == 'contact_configs') {
 	$name = filter_var($_POST['name'],FILTER_SANITIZE_STRING);
 	$value = filter_var($_POST['value'],FILTER_SANITIZE_STRING);
@@ -78,10 +85,12 @@ else if($_GET['action'] == 'contacts_dashboards') {
 	$contactid = $_GET['contactid'];
     $date_of_archival = date('Y-m-d');
 	mysqli_query($dbc, "UPDATE `contacts` SET `deleted`='1', `date_of_archival` = '$date_of_archival' WHERE `contactid`='$contactid'");
-	add_history($dbc, "This contact has been archived.", $contactid);
+	$before_change = "The contact was Active.";
+	add_history($dbc, "This contact has been archived.", $contactid, $before_change);
 } else if($_GET['action'] == 'status_change') {
 	$contactid = $_GET['contactid'];
 	$status = $_GET['new_status'];
+	//$before_change = "$name is ". get_contact($dbc, $contactid, 'status') ."\n";
 	mysqli_query($dbc, "UPDATE `contacts` SET `status`='$status' WHERE `contactid`='$contactid'");
 	add_history($dbc, "Contact status set to ".($status > 0 ? 'Active' : 'Inactive'), $contactid);
 } else if($_GET['action'] == 'contact_values') {
@@ -228,16 +237,16 @@ else if($_GET['action'] == 'contacts_dashboards') {
     }
 
 	if($field_value == 'upload') {
-		if (!file_exists('../'.$_POST['tile_name'].'/download')) {
-			mkdir('../'.$_POST['tile_name'].'/download', 0777, true);
+		if (!file_exists('../'.ucfirst($_POST['tile_name']).'/download')) {
+			mkdir('../'.ucfirst($_POST['tile_name']).'/download', 0777, true);
 		}
 		$history_value = filter_var($_FILES['file']['name'],FILTER_SANITIZE_STRING);
 		$basename = $filename = $_FILES['file']['name'];
 		$i = 0;
-		while(file_exists('../'.$_POST['tile_name'].'/download/'.$filename)) {
+		while(file_exists('../'.ucfirst($_POST['tile_name']).'/download/'.$filename)) {
 			$filename = preg_replace('/(\.[A-Za-z0-9]*)/', ' ('.++$i.')$1', $basename);
 		}
-		move_uploaded_file($_FILES['file']['tmp_name'],'../'.$_POST['tile_name'].'/download/'.$filename);
+		move_uploaded_file($_FILES['file']['tmp_name'],'../'.ucfirst($_POST['tile_name']).'/download/'.$filename);
 		$field_value = $filename;
 	} else if($field_name == 'billable_hours') {
 		$field_value = time_time2decimal($field_value);
@@ -281,7 +290,8 @@ else if($_GET['action'] == 'contacts_dashboards') {
 		$history_value = '********';
 	}
 	$history .= $_POST['label']." set to '$history_value' for contact record [$contactid] by $user_name. $row_history<br />\n";
-	add_history($dbc, $history, $contactid);
+	$before_change = $_POST['label'] . " is " . get_contact($dbc, $contactid, $field_name) ."<br \>\n";
+	add_history($dbc, $history, $contactid, $before_change);
 
 	// Create or Sync Site if selected
 	if(in_array($field_name, ['business_address','business_street','business_city','business_state','business_zip','business_country','business_site_sync'])) {
@@ -291,6 +301,7 @@ else if($_GET['action'] == 'contacts_dashboards') {
 		} else {
 			$site_name = get_contact($dbc, $contactid, 'name_company').' Site';
 			$dbc->query("INSERT INTO `contacts` (`businessid`, `site_name`, `category`, `business_address`, `business_street`, `business_city`, `business_state`, `business_zip`, `business_country`) SELECT `contactid`, '$site_name', '".SITES_CAT."' `business_address`, `business_street`, `business_city`, `business_state`, `business_zip`, `business_country` FROM `contacts` WHERE `contactid`='$contactid' AND `business_site_sync` > 0");
+			$site_id = mysqli_insert_id($dbc);
 		}
 		echo '#'.$site_id;
 	} else if(in_array($field_name, ['mailing_address','ship_to_address','ship_city','ship_state','ship_zip','ship_country','mailing_site_sync',])) {
@@ -300,6 +311,7 @@ else if($_GET['action'] == 'contacts_dashboards') {
 		} else {
 			$site_name = get_contact($dbc, $contactid, 'name_company').' Site';
 			$dbc->query("INSERT INTO `contacts` (`businessid`, `site_name`, `category`, `mailing_address`, `ship_to_address`, `ship_city`, `ship_state`, `ship_zip`, `ship_country`) SELECT `contactid`, '$site_name', '".SITES_CAT."', `mailing_address`, `ship_to_address`, `ship_city`, `ship_state`, `ship_zip`, `ship_country` FROM `contacts` WHERE `contactid`='$contactid' AND `mailing_site_sync` > 0");
+			$site_id = mysqli_insert_id($dbc);
 		}
 		echo '#'.$site_id;
 	} else if(in_array($field_name, ['address','city','postal_code','state','country','address_site_sync'])) {
@@ -309,6 +321,14 @@ else if($_GET['action'] == 'contacts_dashboards') {
 		} else {
 			$site_name = get_contact($dbc, $contactid, 'name_company').' Site';
 			$dbc->query("INSERT INTO `contacts` (`businessid`, `site_name`, `category`, `address`, `city`, `state`, `postal_code`, `country`, `key_number`, `door_code_number`, `alarm_code_number`) SELECT `contactid`, '$site_name', '".SITES_CAT."', `address`, `city`, `state`, `postal_code`, `country`, `key_number`, `door_code_number`, `alarm_code_number` FROM `contacts` WHERE `contactid`='$contactid' AND `address_site_sync` > 0");
+			$site_id = mysqli_insert_id($dbc);
+		}
+		echo '#'.$site_id;
+	} else if(in_array($field_name, ['first_name','last_name','name'])) {
+		$site_id = $dbc->query("SELECT `contactid` FROM `contacts` WHERE `category`='".SITES_CAT."' AND `businessid`='$contactid' AND `deleted`=0 AND `status` > 0")->fetch_assoc()['contactid'];
+		if($site_id > 0) {
+			$site_name = get_contact($dbc, $contactid, 'name_company').' Site';
+			$dbc->query("UPDATE `contacts` `s` LEFT JOIN `contacts` `c` ON `c`.`contactid`=`s`.`businessid` SET `s`.`site_name` = '$site_name' WHERE `s`.`contactid`='$site_id' AND `c`.`address_site_sync` > 0");
 		}
 		echo '#'.$site_id;
 	}
@@ -411,11 +431,11 @@ if($_GET['action'] == 'send_alert') {
     }
 }
 
-function add_history($dbc, $history, $contactid) {
+function add_history($dbc, $history, $contactid, $before_change='') {
 	$user_name = get_contact($dbc, $_SESSION['contactid']);
 	$history = filter_var(htmlentities($history),FILTER_SANITIZE_STRING);
 	mysqli_query($dbc, "INSERT INTO `contacts_history` (`updated_by`, `contactid`) SELECT '$user_name', '$contactid' FROM (SELECT COUNT(*) rows FROM `contacts_history` WHERE `updated_by`='$user_name' AND `contactid`='$contactid' AND TIMEDIFF(CURRENT_TIMESTAMP,`updated_at`) < '00:30:00') num WHERE num.rows = 0");
-	mysqli_query($dbc, "UPDATE `contacts_history` SET `description`=CONCAT(IFNULL(`description`,''),'$history') WHERE `updated_by`='$user_name' AND `contactid`='$contactid' AND TIMEDIFF(CURRENT_TIMESTAMP,`updated_at`) < '00:30:00'");
+	mysqli_query($dbc, "UPDATE `contacts_history` SET `before_change`=CONCAT(IFNULL(`before_change`,''),'$before_change'), `description`=CONCAT(IFNULL(`description`,''),'$history'), `updated_at` = now() WHERE `updated_by`='$user_name' AND `contactid`='$contactid' AND TIMEDIFF(CURRENT_TIMESTAMP,`updated_at`) < '00:30:00'");
 }
 
 if($_GET['action'] == 'save_guardian_tabs') {
@@ -980,6 +1000,78 @@ if($_GET['action'] == 'set_main_site') {
 	mysqli_query($dbc, "UPDATE `contacts` SET `main_siteid` = '$site_id' WHERE `contactid` = '$contactid'");
 }
 
+if($_GET['action'] == 'update_total_estimated_hours') {
+	$ratecardid = $_GET['ratecardid'];
+	$hours = $_GET['hours'];
+
+	$hours = time_time2decimal($hours);
+	mysqli_query($dbc, "UPDATE `rate_card` SET `total_estimated_hours` = '$hours' WHERE `ratecardid` = '$ratecardid'");
+	echo "UPDATE `rate_card` SET `total_estimated_hours` = '$hours' WHERE `ratecardid` = '$ratecardid'";
+}
+
+if($_GET['action'] == 'archive_contact_form') {
+	$pdf_id = $_GET['pdf_id'];
+	mysqli_query($dbc, "UPDATE `user_form_pdf` SET `deleted` = 1 WHERE `pdf_id` = '$pdf_id'");
+}
+
+if($_GET['action'] == 'update_url_get_preview') {
+	$body = $_POST['body'];
+	$expiry_date = $_POST['expiry_date'];
+
+	$body = str_replace(['[FULL_NAME]','[EXPIRY_DATE]'],[get_contact($dbc, $_SESSION['contactid']),$expiry_date],$body).'<br /><br />Click <a href="?">here</a> to access your profile.';
+	echo $body;
+}
+
+if($_GET['action'] == 'update_url_send_email') {
+	$folder_name = $_POST['folder_name'];
+	$categories = $_POST['categories'];
+	$contacts = $_POST['contacts'];
+	$security_level = $_POST['security_level'];
+	$expiry_date = $_POST['expiry_date'];
+	$subject = $_POST['subject'];
+	$body = $_POST['body'];
+
+	if(!empty($categories) || !empty($contacts)) {
+		$tabs = explode(',',get_config($dbc, $folder_name.'_tabs'));
+		$staff = array_search('Staff',$tabs);
+        if($staff !== FALSE) {
+            unset($tabs[$staff]);
+        }
+		$query = "SELECT * FROM `contacts` WHERE IFNULL(`email_address`,'') != '' AND `deleted` = 0 AND `status` > 0 AND `show_hide_user` = 1 AND `category` IN ('".implode("','", $tabs)."')";
+		if(!empty($categories)) {
+			$query .= " AND `category` IN ('".implode("','", $categories)."')";
+		}
+		if(!in_array('ALL_CONTACTS',$contacts)) {
+			$query .= " AND `contactid` IN (".implode(',', $contacts).")";
+		}
+
+		$result = sort_contacts_query(mysqli_query($dbc, $query));
+		$error = '';
+		foreach($result as $row) {
+		    $alphabet = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+
+		    $url_key = '';
+		    for ($i = 0; $i < 8; $i++) {
+		        $rng = rand(0, strlen($alphabet));
+		        $url_key .= substr($alphabet, $rng, 1);
+		    }
+			$url_key = preg_replace('/[^\p{L}\p{N}\s]/u', '', encryptIt($url_key));
+			mysqli_query($dbc, "UPDATE `contacts` SET `update_url_key` = '$url_key', `update_url_expiry` = '$expiry_date', `update_url_role` = '$security_level' WHERE `contactid` = '".$row['contactid']."'");
+
+			$new_body = str_replace(['[FULL_NAME]','[EXPIRY_DATE]'],[$row['full_name'],$expiry_date],$body).'<br /><br />Click <a href="'.WEBSITE_URL.'/'.ucfirst($folder_name).'/contacts_inbox.php?edit='.$row['contactid'].'&update_url=1&url_key='.$url_key.'">here</a> to access your profile.';
+
+			$email = get_email($dbc, $row['contactid']);
+			try {
+				send_email('', $email, '', '', $subject, $new_body, '');
+			} catch (Exception $e) {
+                $error .= "Unable to send email: ".$e->getMessage()."\n";
+			}
+		}
+	}
+
+	echo (empty($error) ? 'Successfully sent.' : $error);
+}
+
 function copy_data($dbc, $contactid, $other_contactid) {
 	$contacts_tables = ['contacts','contacts_cost','contacts_dates','contacts_description','contacts_medical','contacts_upload'];
 
@@ -997,3 +1089,4 @@ function copy_data($dbc, $contactid, $other_contactid) {
 		mysqli_query($dbc, "UPDATE `$contacts_table` SET $query_update WHERE `contactid` = '$other_contactid'");
 	}
 }
+ 

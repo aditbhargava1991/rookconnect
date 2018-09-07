@@ -58,7 +58,7 @@ $(document).ready(function() {
 
 <div class="container">
 <div class="row">
-<h1>Point of Sale (Promotion)</h1>
+<h1><?= POS_ADVANCE_TILE ?> (Promotion)</h1>
 <div class="gap-top gap-left double-gap-bottom"><a href="point_of_sell.php" class="btn config-btn">Back to Dashboard</a></div>
 <!--<a href="#" class="btn config-btn" onclick="history.go(-1);return false;">Back</a>-->
 
@@ -189,7 +189,7 @@ $(document).ready(function() {
 	<div class="col-sm-6">
         <button	type="submit" name="submit"	value="Submit" class="btn config-btn btn-lg	pull-right">Submit</button>
     </div>
-	
+
 	<div class="clearfix"></div>
 </div>
 

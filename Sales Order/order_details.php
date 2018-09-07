@@ -266,7 +266,7 @@ checkAuthorised('sales_order');
                                 <a href="<?= WEBSITE_URL ?>/Sales Order/order.php?p=details&sotid=<?= $sotid ?>" class="btn brand-btn">Edit <?= SALES_ORDER_NOUN ?></a>
                                 <button type="submit" name="add_sales_order" value="Submit" class="btn brand-btn">Save</button>
                                 <button type="submit" name="add_sales_order" value="Submit_Order" class="btn brand-btn">Submit Order</button>
-                                <a href="#" onclick="deleteSalesOrderForm(); return false;"><img src="<?= WEBSITE_URL ?>/img/icons/ROOK-trash-icon.png"></a>
+                                <a href="#" onclick="deleteSalesOrderForm(); return false;"><img src="<?= WEBSITE_URL ?>/img/icons/ROOK-trash-icon.png" class="no-toggle" title="Archive"></a>
                             </div>
                         </div><!-- .preview-bar -->
                     <?php } ?>
@@ -284,7 +284,7 @@ checkAuthorised('sales_order');
                                 <a href="<?= WEBSITE_URL ?>/Sales Order/order.php?p=details&sotid=<?= $sotid ?>" class="btn brand-btn">Edit <?= SALES_ORDER_NOUN ?></a>
                                 <button type="submit" name="add_sales_order" value="Submit" class="btn brand-btn">Save</button>
                                 <button type="submit" name="add_sales_order" value="Submit_Order" class="btn brand-btn">Submit Order</button>
-                                <a href="#" onclick="deleteSalesOrderForm(); return false;"><img src="<?= WEBSITE_URL ?>/img/icons/ROOK-trash-icon.png"></a>
+                                <a href="#" onclick="deleteSalesOrderForm(); return false;"><img src="<?= WEBSITE_URL ?>/img/icons/ROOK-trash-icon.png" class="no-toggle" title="Archive"></a>
                             </div>
                         </div><!-- .preview-bar -->
                     <?php } ?>

@@ -1,9 +1,9 @@
 <?php include_once('../include.php');
 
-if(!empty($_GET['reload_table'])) {
+if(!empty($_GET['reload_table']) || !empty($_GET['reload_hidden_services'])) {
 	ob_clean();
 	$ticketid = $_GET['ticketid'];
-	$get_ticket = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticket` = '$ticketid'"));
+	$get_ticket = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticketid` = '$ticketid'"));
 	$value_config = get_field_config($dbc, 'tickets');
 	if($get_ticket['ticket_type'] != '') {
 		$value_config .= get_config($dbc, 'ticket_fields_'.$get_ticket['ticket_type']).',';
@@ -178,8 +178,10 @@ if(!empty($_GET['reload_table'])) {
 	function updateServiceQuantity(input) {
 		var qty = $(input).val();
 		if(qty < 1) {
-			qty = 1;
-			$(input).val(1);
+			$(input).closest('.cattype_block').find('[name="serviceid"]:checked').prop('checked', false);
+			$(input).closest('.cattype_block').find('[name="serviceid"]').first().change();
+			// qty = 1;
+			// $(input).val(1);
 		}
 		var block = $(input).closest('.cattype_block');
 		$(block).find('[name="service_qty"]').val(qty);

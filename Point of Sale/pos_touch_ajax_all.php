@@ -18,6 +18,10 @@ if ( $_GET['fill'] == 'posTouchCustomerSelected' ) {
 	$results = mysqli_query ( $dbc, "INSERT INTO `pos_touch_temp_order` (`custid`) VALUES ('$custid')" );
 	$orderid = mysqli_insert_id($dbc);
 
+	$before_change = '';
+	$history = "Point of Sale Order Added. <br />";
+	add_update_history($dbc, 'pos_history', $history, '', $before_change);
+
 	// Set session to use on POS dashbaord
 	$_SESSION['orderid'] = $orderid;
 }
@@ -31,6 +35,10 @@ if ( $_GET['fill'] == 'posTouchAppointment' ) {
 
 	$results = mysqli_query ( $dbc, "INSERT INTO `pos_touch_temp_order` (`custid`) VALUES ('$custid')" );
 	$orderid = mysqli_insert_id($dbc);
+
+	$before_change = '';
+	$history = "Point of Sale Order Added. <br />";
+	add_update_history($dbc, 'pos_history', $history, '', $before_change);
 
 	// Set session to use on POS dashbaord
 	$_SESSION['orderid'] = $orderid;
@@ -76,8 +84,15 @@ if ( $_GET['fill'] == 'posTouchAppointment' ) {
 
         // Insert to `pos_touch_temp_order_products`
         $insert_temp_order_products = mysqli_query ( $dbc, "INSERT INTO `pos_touch_temp_order_products` (`orderid`, `staffid`, `serviceid`, `product_name`, `quantity`, `total`) VALUES ('$orderid', '{$staffid[$i]}', '{$serviceid[$i]}', '$service_name', '1', '$total')" );
+				$before_change = '';
+        $history = "Point of Sale Order Product Added. <br />";
+        add_update_history($dbc, 'pos_history', $history, '', $before_change);
 
         $update_temp_order = mysqli_query($dbc, "UPDATE `pos_touch_temp_order` SET `sub_total_before_discount`=`sub_total_before_discount`+'$sub_total', `sub_total`=`sub_total`+'$sub_total', `gst_total`=IF(`gst_total` IS NULL, '$gst_total', `gst_total`+'$gst_total'), `pst_total`=IF(`pst_total` IS NULL, '$pst_total', `pst_total`+'$pst_total'), `total_tax`=`total_tax`+'$total_tax', `order_total`=`order_total`+'$order_total' WHERE `orderid`='$orderid'");
+
+				$before_change = '';
+				$history = "Point of Sale Order Updated. <br />";
+				add_update_history($dbc, 'pos_history', $history, '', $before_change);
     }
 }
 
@@ -119,7 +134,25 @@ if ( $_GET['fill'] == 'posTouchAddInventoryPrice' ) {
 		$total_tax			= number_format ( $gst_total + $pst_total, 2 );
 		$order_total		= number_format ( $sub_total + $total_tax, 2 );
 
+		$before_change = capture_before_change($dbc, 'pos_touch_temp_order', 'discount_amount', 'orderid', $orderid);
+		$before_change .= capture_before_change($dbc, 'pos_touch_temp_order', 'sub_total_before_discount', 'orderid', $orderid);
+		$before_change .= capture_before_change($dbc, 'pos_touch_temp_order', 'sub_total', 'orderid', $orderid);
+		$before_change .= capture_before_change($dbc, 'pos_touch_temp_order', 'gst_total', 'orderid', $orderid);
+		$before_change .= capture_before_change($dbc, 'pos_touch_temp_order', 'pst_total', 'orderid', $orderid);
+		$before_change .= capture_before_change($dbc, 'pos_touch_temp_order', 'total_tax', 'orderid', $orderid);
+		$before_change .= capture_before_change($dbc, 'pos_touch_temp_order', 'order_total', 'orderid', $orderid);
+		$before_change .= capture_before_change($dbc, 'pos_touch_temp_order', 'orderid', 'orderid', $orderid);
+
 		$results = mysqli_query ( $dbc, "UPDATE `pos_touch_temp_order` SET `discount_amount`='$discount_amount', `sub_total_before_discount`='$sub_total_before_discount', `sub_total`='$sub_total', `gst_total`='$gst_total', `pst_total`='$pst_total', `total_tax`='$total_tax', `order_total`='$order_total' WHERE `orderid`='$orderid'" );
+
+		$history = capture_after_change('discount_amount', $discount_amount);
+		$history .= capture_after_change('sub_total_before_discount', $sub_total_before_discount);
+		$history .= capture_after_change('sub_total', $sub_total);
+		$history .= capture_after_change('gst_total', $gst_total);
+		$history .= capture_after_change('pst_total', $pst_total);
+		$history .= capture_after_change('total_tax', $total_tax);
+		$history .= capture_after_change('order_total', $order_total);
+		add_update_history($dbc, 'pos_history', $history, '', $before_change);
 
 	} else {
 		// First item. No discounts without adding an item first.
@@ -132,6 +165,9 @@ if ( $_GET['fill'] == 'posTouchAddInventoryPrice' ) {
 
 		$results = mysqli_query ( $dbc, "INSERT INTO `pos_touch_temp_order` (`sub_total_before_discount`, `sub_total`, `gst_total`, `pst_total`, `total_tax`, `order_total`) VALUES ('$sub_total_before_discount', '$sub_total', '$gst_total', '$pst_total', '$total_tax', '$order_total')" );
 		$orderid = mysqli_insert_id($dbc);
+		$before_change = '';
+		$history = "Point of Sale Order Added. <br />";
+		add_update_history($dbc, 'pos_history', $history, '', $before_change);
 
 		/*
 		 * Set session to use on POS dashbaord,
@@ -145,6 +181,9 @@ if ( $_GET['fill'] == 'posTouchAddInventoryPrice' ) {
 
 	// Insert to `pos_touch_temp_order_products`
 	$results = mysqli_query ( $dbc, "INSERT INTO `pos_touch_temp_order_products` (`orderid`, `inventoryid`, `product_name`, `inventory_pricing`, `quantity`, `total`) VALUES ('$orderid', '$invid', '$name', '$inv_pricing', '$quantity', '$total')" );
+	$before_change = '';
+	$history = "Point of Sale Order products Added. <br />";
+	add_update_history($dbc, 'pos_history', $history, '', $before_change);
 }
 
 
@@ -182,7 +221,25 @@ if ( $_GET['fill'] == 'posTouchAddPrice' ) {
 		$total_tax			= number_format ( $gst_total + $pst_total, 2 );
 		$order_total		= number_format ( $sub_total + $total_tax, 2 );
 
+		$before_change = capture_before_change($dbc, 'pos_touch_temp_order', 'discount_amount', 'orderid', $orderid);
+		$before_change .= capture_before_change($dbc, 'pos_touch_temp_order', 'sub_total_before_discount', 'orderid', $orderid);
+		$before_change .= capture_before_change($dbc, 'pos_touch_temp_order', 'sub_total', 'orderid', $orderid);
+		$before_change .= capture_before_change($dbc, 'pos_touch_temp_order', 'gst_total', 'orderid', $orderid);
+		$before_change .= capture_before_change($dbc, 'pos_touch_temp_order', 'pst_total', 'orderid', $orderid);
+		$before_change .= capture_before_change($dbc, 'pos_touch_temp_order', 'total_tax', 'orderid', $orderid);
+		$before_change .= capture_before_change($dbc, 'pos_touch_temp_order', 'order_total', 'orderid', $orderid);
+		$before_change .= capture_before_change($dbc, 'pos_touch_temp_order', 'orderid', 'orderid', $orderid);
+
 		$results = mysqli_query ( $dbc, "UPDATE `pos_touch_temp_order` SET `discount_amount`='$discount_amount', `sub_total_before_discount`='$sub_total_before_discount', `sub_total`='$sub_total', `gst_total`='$gst_total', `pst_total`='$pst_total', `total_tax`='$total_tax', `order_total`='$order_total' WHERE `orderid`='$orderid'" );
+
+		$history = capture_after_change('discount_amount', $discount_amount);
+		$history .= capture_after_change('sub_total_before_discount', $sub_total_before_discount);
+		$history .= capture_after_change('sub_total', $sub_total);
+		$history .= capture_after_change('gst_total', $gst_total);
+		$history .= capture_after_change('pst_total', $pst_total);
+		$history .= capture_after_change('total_tax', $total_tax);
+		$history .= capture_after_change('order_total', $order_total);
+		add_update_history($dbc, 'pos_history', $history, '', $before_change);
 
 	} else {
 		// First item. No discounts without adding an item first.
@@ -196,12 +253,19 @@ if ( $_GET['fill'] == 'posTouchAddPrice' ) {
 		$results = mysqli_query ( $dbc, "INSERT INTO `pos_touch_temp_order` (`sub_total_before_discount`, `sub_total`, `gst_total`, `pst_total`, `total_tax`, `order_total`) VALUES ('$sub_total_before_discount', '$sub_total', '$gst_total', '$pst_total', '$total_tax', '$order_total')" );
 		$orderid = mysqli_insert_id($dbc);
 
+		$before_change = '';
+		$history = "Point of Sale Order products Added. <br />";
+		add_update_history($dbc, 'pos_history', $history, '', $before_change);
+
 		// Set session to use on POS dashbaord
 		$_SESSION['orderid'] = $orderid;
 	}
 
 	// Insert to `pos_touch_temp_order_products`
 	$results = mysqli_query ( $dbc, "INSERT INTO `pos_touch_temp_order_products` (`orderid`, `productid`, `product_name`, `quantity`, `total`) VALUES ('$orderid', '$prodid', '$name', '$quantity', '$total')" );
+	$before_change = '';
+	$history = "Point of Sale Order products Added. <br />";
+	add_update_history($dbc, 'pos_history', $history, '', $before_change);
 }
 
 
@@ -242,7 +306,25 @@ if ( $_GET['fill'] == 'posTouchAddServicePrice' ) {
 		$total_tax			= number_format ( $gst_total + $pst_total, 2 );
 		$order_total		= number_format ( $sub_total + $total_tax, 2 );
 
+		$before_change = capture_before_change($dbc, 'pos_touch_temp_order', 'discount_amount', 'orderid', $orderid);
+		$before_change .= capture_before_change($dbc, 'pos_touch_temp_order', 'sub_total_before_discount', 'orderid', $orderid);
+		$before_change .= capture_before_change($dbc, 'pos_touch_temp_order', 'sub_total', 'orderid', $orderid);
+		$before_change .= capture_before_change($dbc, 'pos_touch_temp_order', 'gst_total', 'orderid', $orderid);
+		$before_change .= capture_before_change($dbc, 'pos_touch_temp_order', 'pst_total', 'orderid', $orderid);
+		$before_change .= capture_before_change($dbc, 'pos_touch_temp_order', 'total_tax', 'orderid', $orderid);
+		$before_change .= capture_before_change($dbc, 'pos_touch_temp_order', 'order_total', 'orderid', $orderid);
+		$before_change .= capture_before_change($dbc, 'pos_touch_temp_order', 'orderid', 'orderid', $orderid);
+
 		$results = mysqli_query ( $dbc, "UPDATE `pos_touch_temp_order` SET `discount_amount`='$discount_amount', `sub_total_before_discount`='$sub_total_before_discount', `sub_total`='$sub_total', `gst_total`='$gst_total', `pst_total`='$pst_total', `total_tax`='$total_tax', `order_total`='$order_total' WHERE `orderid`='$orderid'" );
+
+		$history = capture_after_change('discount_amount', $discount_amount);
+		$history .= capture_after_change('sub_total_before_discount', $sub_total_before_discount);
+		$history .= capture_after_change('sub_total', $sub_total);
+		$history .= capture_after_change('gst_total', $gst_total);
+		$history .= capture_after_change('pst_total', $pst_total);
+		$history .= capture_after_change('total_tax', $total_tax);
+		$history .= capture_after_change('order_total', $order_total);
+		add_update_history($dbc, 'pos_history', $history, '', $before_change);
 
 	} else {
 		// First item. No discounts without adding an item first.
@@ -256,12 +338,20 @@ if ( $_GET['fill'] == 'posTouchAddServicePrice' ) {
 		$results = mysqli_query ( $dbc, "INSERT INTO `pos_touch_temp_order` (`sub_total_before_discount`, `sub_total`, `gst_total`, `pst_total`, `total_tax`, `order_total`) VALUES ('$sub_total_before_discount', '$sub_total', '$gst_total', '$pst_total', '$total_tax', '$order_total')" );
 		$orderid = mysqli_insert_id($dbc);
 
+		$before_change = '';
+		$history = "Point of Sale Order Added. <br />";
+		add_update_history($dbc, 'pos_history', $history, '', $before_change);
+
 		// Set session to use on POS dashbaord
 		$_SESSION['orderid'] = $orderid;
 	}
 
 	// Insert to `pos_touch_temp_order_products`
 	$results = mysqli_query ( $dbc, "INSERT INTO `pos_touch_temp_order_products` (`orderid`, `staffid`, `serviceid`, `product_name`, `quantity`, `total`) VALUES ('$orderid', '$staffid', '$servid', '$name', '$quantity', '$total')" );
+
+	$before_change = '';
+	$history = "Point of Sale Order products Added. <br />";
+	add_update_history($dbc, 'pos_history', $history, '', $before_change);
 }
 
 
@@ -293,7 +383,25 @@ if ( $_GET['fill'] == 'posTouchRemoveProduct' ) {
 	$order_total		= number_format ( $sub_total + $total_tax, 2 );
 
 	// Update temporary order
+	$before_change = capture_before_change($dbc, 'pos_touch_temp_order', 'discount_amount', 'orderid', $orderid);
+	$before_change .= capture_before_change($dbc, 'pos_touch_temp_order', 'sub_total_before_discount', 'orderid', $orderid);
+	$before_change .= capture_before_change($dbc, 'pos_touch_temp_order', 'sub_total', 'orderid', $orderid);
+	$before_change .= capture_before_change($dbc, 'pos_touch_temp_order', 'gst_total', 'orderid', $orderid);
+	$before_change .= capture_before_change($dbc, 'pos_touch_temp_order', 'pst_total', 'orderid', $orderid);
+	$before_change .= capture_before_change($dbc, 'pos_touch_temp_order', 'total_tax', 'orderid', $orderid);
+	$before_change .= capture_before_change($dbc, 'pos_touch_temp_order', 'order_total', 'orderid', $orderid);
+	$before_change .= capture_before_change($dbc, 'pos_touch_temp_order', 'orderid', 'orderid', $orderid);
+
 	$results = mysqli_query ( $dbc, "UPDATE `pos_touch_temp_order` SET `discount_amount`='$discount_amount', `sub_total_before_discount`='$sub_total_before_discount', `sub_total`='$sub_total', `gst_total`='$gst_total', `pst_total`='$pst_total', `total_tax`='$total_tax', `order_total`='$order_total' WHERE `orderid`='$orderid'" );
+
+	$history = capture_after_change('discount_amount', $discount_amount);
+	$history .= capture_after_change('sub_total_before_discount', $sub_total_before_discount);
+	$history .= capture_after_change('sub_total', $sub_total);
+	$history .= capture_after_change('gst_total', $gst_total);
+	$history .= capture_after_change('pst_total', $pst_total);
+	$history .= capture_after_change('total_tax', $total_tax);
+	$history .= capture_after_change('order_total', $order_total);
+	add_update_history($dbc, 'pos_history', $history, '', $before_change);
 
 	if ( mysqli_affected_rows ($dbc) ) {
 		// Delete product from temporary order products list
@@ -303,7 +411,26 @@ if ( $_GET['fill'] == 'posTouchRemoveProduct' ) {
 		$results = mysqli_query ( $dbc, "SELECT * FROM `pos_touch_temp_order_products` WHERE `orderid`='$orderid'" );
 		$num_rows = mysqli_num_rows($results);
 		if ( $num_rows == 0 ) {
+			$before_change = capture_before_change($dbc, 'pos_touch_temp_order', 'discount_percent', 'orderid', $orderid);
+			$before_change .= capture_before_change($dbc, 'pos_touch_temp_order', 'discount_amount', 'orderid', $orderid);
+			$before_change .= capture_before_change($dbc, 'pos_touch_temp_order', 'sub_total_before_discount', 'orderid', $orderid);
+			$before_change .= capture_before_change($dbc, 'pos_touch_temp_order', 'sub_total', 'orderid', $orderid);
+			$before_change .= capture_before_change($dbc, 'pos_touch_temp_order', 'gst_total', 'orderid', $orderid);
+			$before_change .= capture_before_change($dbc, 'pos_touch_temp_order', 'pst_total', 'orderid', $orderid);
+			$before_change .= capture_before_change($dbc, 'pos_touch_temp_order', 'total_tax', 'orderid', $orderid);
+			$before_change .= capture_before_change($dbc, 'pos_touch_temp_order', 'order_total', 'orderid', $orderid);
+
 			$results = mysqli_query ( $dbc, "UPDATE `pos_touch_temp_order` SET `discount_percent`=NULL, `discount_amount`=NULL, `sub_total_before_discount`='0', `sub_total`='0', `gst_total`='0', `pst_total`='0', `total_tax`='0', `order_total`='0' WHERE `orderid`='$orderid'" );
+
+			$history = capture_after_change('discount_percent', NULL);
+			$history .= capture_after_change('discount_amount', NULL);
+			$history .= capture_after_change('sub_total_before_discount', 0);
+			$history .= capture_after_change('sub_total', 0);
+			$history .= capture_after_change('gst_total', 0);
+			$history .= capture_after_change('pst_total', 0);
+			$history .= capture_after_change('total_tax', 0);
+			$history .= capture_after_change('order_total', 0);
+			add_update_history($dbc, 'pos_history', $history, '', $before_change);
 		}
 
 	} else {
@@ -336,7 +463,25 @@ if ( $_GET['fill'] == 'posTouchAddDiscount' ) {
 	$order_total		= $sub_total + $total_tax;
 
 	// Update temporary order
+
+	$before_change = capture_before_change($dbc, 'pos_touch_temp_order', 'discount_amount', 'orderid', $orderid);
+	$before_change .= capture_before_change($dbc, 'pos_touch_temp_order', 'discount_amount', 'orderid', $orderid);
+	$before_change .= capture_before_change($dbc, 'pos_touch_temp_order', 'sub_total', 'orderid', $orderid);
+	$before_change .= capture_before_change($dbc, 'pos_touch_temp_order', 'gst_total', 'orderid', $orderid);
+	$before_change .= capture_before_change($dbc, 'pos_touch_temp_order', 'pst_total', 'orderid', $orderid);
+	$before_change .= capture_before_change($dbc, 'pos_touch_temp_order', 'total_tax', 'orderid', $orderid);
+	$before_change .= capture_before_change($dbc, 'pos_touch_temp_order', 'order_total', 'orderid', $orderid);
+
 	$results = mysqli_query ( $dbc, "UPDATE `pos_touch_temp_order` SET `discount_percent`='$discount', `discount_amount`='$discount_amount', `sub_total`='$sub_total', `gst_total`='$gst_total', `pst_total`='$pst_total', `total_tax`='$total_tax', `order_total`='$order_total' WHERE `orderid`='$orderid'" );
+
+	$history = capture_after_change('discount_percent', $discount_percent);
+	$history .= capture_after_change('discount_amount', $discount_amount);
+	$history .= capture_after_change('sub_total', $sub_total);
+	$history .= capture_after_change('gst_total', $gst_total);
+	$history .= capture_after_change('pst_total', $pst_total);
+	$history .= capture_after_change('total_tax', $total_tax);
+	$history .= capture_after_change('order_total', $order_total);
+	add_update_history($dbc, 'pos_history', $history, '', $before_change);
 }
 
 /* Apply Gift Card */
@@ -362,7 +507,23 @@ if ( $_GET['fill'] == 'posTouchAddGF' ) {
   	$order_total		= $sub_total + $total_tax;
 
   	// Update temporary order
+		$before_change = capture_before_change($dbc, 'pos_touch_temp_order', 'discount_amount', 'orderid', $orderid);
+		$before_change .= capture_before_change($dbc, 'pos_touch_temp_order', 'sub_total', 'orderid', $orderid);
+		$before_change .= capture_before_change($dbc, 'pos_touch_temp_order', 'gst_total', 'orderid', $orderid);
+		$before_change .= capture_before_change($dbc, 'pos_touch_temp_order', 'pst_total', 'orderid', $orderid);
+		$before_change .= capture_before_change($dbc, 'pos_touch_temp_order', 'total_tax', 'orderid', $orderid);
+		$before_change .= capture_before_change($dbc, 'pos_touch_temp_order', 'order_total', 'orderid', $orderid);
+
   	$results = mysqli_query ( $dbc, "UPDATE `pos_touch_temp_order` SET `discount_amount`='$discount_amount', `sub_total`='$sub_total', `gst_total`='$gst_total', `pst_total`='$pst_total', `total_tax`='$total_tax', `order_total`='$order_total' WHERE `orderid`='$orderid'" );
+
+		$history = capture_after_change('discount_amount', $discount_amount);
+		$history .= capture_after_change('sub_total', $sub_total);
+		$history .= capture_after_change('gst_total', $gst_total);
+		$history .= capture_after_change('pst_total', $pst_total);
+		$history .= capture_after_change('total_tax', $total_tax);
+		$history .= capture_after_change('order_total', $order_total);
+		add_update_history($dbc, 'pos_history', $history, '', $before_change);
+
     $gf_results = mysqli_query($dbc, "UPDATE `pos_giftcards` SET `status` = 1 where giftcard_number = '$gf_number'");
   }
 }
@@ -382,7 +543,24 @@ if ( $_GET['fill'] == 'posTouchRemoveDiscount' ) {
 	$order_total		= $sub_total + $total_tax;
 
 	// Update temporary order
+	$before_change = capture_before_change($dbc, 'pos_touch_temp_order', 'discount_percent', 'orderid', $orderid);
+	$before_change .= capture_before_change($dbc, 'pos_touch_temp_order', 'discount_amount', 'orderid', $orderid);
+	$before_change .= capture_before_change($dbc, 'pos_touch_temp_order', 'sub_total', 'orderid', $orderid);
+	$before_change .= capture_before_change($dbc, 'pos_touch_temp_order', 'gst_total', 'orderid', $orderid);
+	$before_change .= capture_before_change($dbc, 'pos_touch_temp_order', 'pst_total', 'orderid', $orderid);
+	$before_change .= capture_before_change($dbc, 'pos_touch_temp_order', 'total_tax', 'orderid', $orderid);
+	$before_change .= capture_before_change($dbc, 'pos_touch_temp_order', 'order_total', 'orderid', $orderid);
+
 	$results = mysqli_query ( $dbc, "UPDATE `pos_touch_temp_order` SET `discount_percent`=NULL, `discount_amount`=NULL, `sub_total`='$sub_total', `gst_total`='$gst_total', `pst_total`='$pst_total', `total_tax`='$total_tax', `order_total`='$order_total' WHERE `orderid`='$orderid'" );
+
+	$history = capture_after_change('discount_percent', $discount_percent);
+	$history .= capture_after_change('discount_amount', $discount_amount);
+	$history .= capture_after_change('sub_total', $sub_total);
+	$history .= capture_after_change('gst_total', $gst_total);
+	$history .= capture_after_change('pst_total', $pst_total);
+	$history .= capture_after_change('total_tax', $total_tax);
+	$history .= capture_after_change('order_total', $order_total);
+	add_update_history($dbc, 'pos_history', $history, '', $before_change);
 }
 
 
@@ -414,7 +592,24 @@ if ( $_GET['fill'] == 'posTouchAddCoupon' ) {
 	$order_total		= $sub_total + $total_tax;
 
 	// Update temporary order
+	$before_change = capture_before_change($dbc, 'pos_touch_temp_order', 'couponid', 'orderid', $orderid);
+	$before_change .= capture_before_change($dbc, 'pos_touch_temp_order', 'coupon_value', 'orderid', $orderid);
+	$before_change .= capture_before_change($dbc, 'pos_touch_temp_order', 'sub_total', 'orderid', $orderid);
+	$before_change .= capture_before_change($dbc, 'pos_touch_temp_order', 'gst_total', 'orderid', $orderid);
+	$before_change .= capture_before_change($dbc, 'pos_touch_temp_order', 'pst_total', 'orderid', $orderid);
+	$before_change .= capture_before_change($dbc, 'pos_touch_temp_order', 'total_tax', 'orderid', $orderid);
+	$before_change .= capture_before_change($dbc, 'pos_touch_temp_order', 'order_total', 'orderid', $orderid);
+
 	$results = mysqli_query ( $dbc, "UPDATE `pos_touch_temp_order` SET `couponid`='$couponid', `coupon_value`='$coupon_value', `sub_total`='$sub_total', `gst_total`='$gst_total', `pst_total`='$pst_total', `total_tax`='$total_tax', `order_total`='$order_total' WHERE `orderid`='$orderid'" );
+
+	$history = capture_after_change('couponid', $couponid);
+	$history .= capture_after_change('coupon_value', $coupon_value);
+	$history .= capture_after_change('sub_total', $sub_total);
+	$history .= capture_after_change('gst_total', $gst_total);
+	$history .= capture_after_change('pst_total', $pst_total);
+	$history .= capture_after_change('total_tax', $total_tax);
+	$history .= capture_after_change('order_total', $order_total);
+	add_update_history($dbc, 'pos_history', $history, '', $before_change);
 
 	// Update coupon used times
 	$results = mysqli_query ( $dbc, "UPDATE `pos_touch_coupons` SET `used_times`=`used_times`+1 WHERE `couponid`='$couponid'" );
@@ -437,7 +632,24 @@ if ( $_GET['fill'] == 'posTouchRemoveCoupon' ) {
 	$order_total		= $sub_total + $total_tax;
 
 	// Update temporary order
+	$before_change = capture_before_change($dbc, 'pos_touch_temp_order', 'couponid', 'orderid', $orderid);
+	$before_change .= capture_before_change($dbc, 'pos_touch_temp_order', 'coupon_value', 'orderid', $orderid);
+	$before_change .= capture_before_change($dbc, 'pos_touch_temp_order', 'sub_total', 'orderid', $orderid);
+	$before_change .= capture_before_change($dbc, 'pos_touch_temp_order', 'gst_total', 'orderid', $orderid);
+	$before_change .= capture_before_change($dbc, 'pos_touch_temp_order', 'pst_total', 'orderid', $orderid);
+	$before_change .= capture_before_change($dbc, 'pos_touch_temp_order', 'total_tax', 'orderid', $orderid);
+	$before_change .= capture_before_change($dbc, 'pos_touch_temp_order', 'order_total', 'orderid', $orderid);
+
 	$results = mysqli_query ( $dbc, "UPDATE `pos_touch_temp_order` SET `couponid`=0, `coupon_value`='0', `sub_total`='$sub_total', `gst_total`='$gst_total', `pst_total`='$pst_total', `total_tax`='$total_tax', `order_total`='$order_total' WHERE `orderid`='$orderid'" );
+
+	$history = capture_after_change('couponid', 0);
+	$history .= capture_after_change('coupon_value', 0);
+	$history .= capture_after_change('sub_total', $sub_total);
+	$history .= capture_after_change('gst_total', $gst_total);
+	$history .= capture_after_change('pst_total', $pst_total);
+	$history .= capture_after_change('total_tax', $total_tax);
+	$history .= capture_after_change('order_total', $order_total);
+	add_update_history($dbc, 'pos_history', $history, '', $before_change);
 
 	// Update coupon used times
 	$results = mysqli_query ( $dbc, "UPDATE `pos_touch_coupons` SET `used_times`=`used_times`-1 WHERE `couponid`='$couponid'" );
@@ -451,7 +663,17 @@ if ( $_GET['fill'] == 'posTouchHoldOrder' ) {
 	$order_date	= date('Y-m-d H:i:s');
 
 	if ( isset($_SESSION['orderid']) && !empty($orderid) ) {
+		$before_change = capture_before_change($dbc, 'pos_touch_temp_order', 'hold_order', 'orderid', $orderid);
+		$before_change .= capture_before_change($dbc, 'pos_touch_temp_order', 'date_time', 'orderid', $orderid);
+		$before_change .= capture_before_change($dbc, 'pos_touch_temp_order', 'comments', 'orderid', $orderid);
+
 		$results = mysqli_query ( $dbc, "UPDATE `pos_touch_temp_order` SET `hold_order`=1, `date_time`='$order_date', `comments`='$comments' WHERE `orderid`='$orderid'" );
+
+		$history = capture_after_change('hold_order', 1);
+		$history .= capture_after_change('date_time', $order_date);
+		$history .= capture_after_change('comments', $comments);
+
+		add_update_history($dbc, 'pos_history', $history, '', $before_change);
 
 		if ( mysqli_affected_rows ($dbc) ) {
 			unset ( $_SESSION['orderid'] );

@@ -11,6 +11,51 @@ if ( $_GET['fill'] == 'change_role' ) {
 		$change_log = mysqli_query($dbc, "INSERT INTO `contacts_history` (`updated_by`, `description`, `contactid`) VALUES ('".get_contact($dbc, $user)."', 'Security Level updated from $old_role to $role', '$id')");
 	}
 }
+else if($_GET['fill'] == 'change_regions' ) {
+	$user = $_SESSION['contactid'];
+	$regions = $_GET['regions'];
+	$id			= $_GET['id'];
+
+    $contact = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT COUNT(contactid) AS total_contact FROM `contacts_security` WHERE contactid='$id'"));
+    if($contact['total_contact'] > 0) {
+        $results	= mysqli_query ( $dbc, "UPDATE `contacts_security` SET `region_access`='$regions' WHERE `contactid`='$id'" );
+    } else {
+        $change_log = mysqli_query($dbc, "INSERT INTO `contacts_security` (`contactid`, `region_access`) VALUES ('$id', '$regions')");
+    }
+}
+
+else if($_GET['fill'] == 'change_locations' ) {
+	$user = $_SESSION['contactid'];
+	$locations = $_GET['locations'];
+	$id			= $_GET['id'];
+
+    $contact = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT COUNT(contactid) AS total_contact FROM `contacts_security` WHERE contactid='$id'"));
+    if($contact['total_contact'] > 0) {
+        $results	= mysqli_query ( $dbc, "UPDATE `contacts_security` SET `location_access`='$locations' WHERE `contactid`='$id'" );
+    } else {
+        $change_log = mysqli_query($dbc, "INSERT INTO `contacts_security` (`contactid`, `location_access`) VALUES ('$id', '$locations')");
+    }
+}
+
+else if($_GET['fill'] == 'change_classifications' ) {
+	$user = $_SESSION['contactid'];
+	$classifications = $_GET['classifications'];
+	$id			= $_GET['id'];
+
+    $contact = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT COUNT(contactid) AS total_contact FROM `contacts_security` WHERE contactid='$id'"));
+    if($contact['total_contact'] > 0) {
+        $results	= mysqli_query ( $dbc, "UPDATE `contacts_security` SET `classification_access`='$classifications' WHERE `contactid`='$id'" );
+    } else {
+        $change_log = mysqli_query($dbc, "INSERT INTO `contacts_security` (`contactid`, `classification_access`) VALUES ('$id', '$classifications')");
+    }
+}
+else if( $_GET['fill'] == 'change_positions' ) {
+	$user = $_SESSION['contactid'];
+	$positions_allowed = $_GET['positions'];
+	$id			= $_GET['id'];
+
+    $results	= mysqli_query ( $dbc, "UPDATE `contacts` SET `positions_allowed`='$positions_allowed' WHERE `contactid`='$id'" );
+}
 else if($_GET['fill'] == 'password_generate') {
 	$contactid = filter_var($_GET['userid'],FILTER_SANITIZE_STRING);
 	if($contactid > 0) {

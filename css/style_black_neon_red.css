@@ -268,8 +268,8 @@ body {
   font-size: 14px;
   font-weight: 400;
   line-height: 1.42857;
-  color: #fafafa;
-  background-color: #0a0a0a; }
+  color: #000;
+  background-color: #fff !important; }
 
 input,
 button,
@@ -353,11 +353,11 @@ hr {
 h1, h2, h3, h4, h5, h6,
 .h1, .h2, .h3, .h4, .h5, .h6 {
   font-family: inherit;
-  font-weight: 300;
+  font-weight: 700;
   line-height: 1.1;
   /**KELSEY EDIT
   Changed color from #43D6DD to red **/
-  color: red; }
+  color: #e83324; }
   /** END EDIT **/
   h1 small,
   h1 .small, h2 small,
@@ -5009,10 +5009,11 @@ input {
 
 th {
   color: #fafafa;
-  background: #43D6DD;
-  /*background: linear-gradient(to bottom, #20acb3, #198388);*/
-  /*background: linear-gradient(to bottom, #0a0a0a, #333333);*/
-  background: linear-gradient(to bottom, #FF0000, #660000); }
+  /*background: #43D6DD;
+  background: linear-gradient(to bottom, #20acb3, #198388);
+  background: linear-gradient(to bottom, #0a0a0a, #333333);
+  background: linear-gradient(to bottom, #FF0000, #660000);*/
+  background:#e83324; }
 .nav-pills > li {
   margin-right: 15px;
   margin-bottom: 10px; }
@@ -5062,9 +5063,10 @@ th {
     box-shadow: 0 0 3px 3px #fafafa; }
 	  */
 	  
-    background: -webkit-linear-gradient(left, #303030, #4d4d4d);
-    background: linear-gradient(to right, #303030, #4d4d4d);
-    border: 1px solid red;
+    /* background: -webkit-linear-gradient(left, #303030, #4d4d4d);
+    background: linear-gradient(to right, #303030, #4d4d4d); */
+    background:#e83324;
+    border: 1px solid #000;
 	color:white;
     box-shadow: 0 0 3px 3px grey; }
 /** END EDIT **/
@@ -5242,28 +5244,17 @@ content: "";
       vertical-align: middle;
       height: 100px;
       color: #fafafa;
-	  /** KELSEY EDIT **/
-	  /** Changed image "arrow-fresh-focus.png" to "arrow-bgd-highland.png" **/
-      background-image: url(../img/mckay_button.png);
-      /** END EDIT **/
+      /* background-image: url(../img/mckay_button.png);
 	  background-position: 100% 50%;
-      background-size: 100% 100%;
+      background-size: 100% 100%; */
+      background:#000;
       margin: 0;
-	  /** KELSEY EDIT **/
-	  /** Changed padding from "0 30% 0 4%" to "0 4% 0 4%" **/
       padding: 0 4% 0 4%;
-	  /** END EDIT **/
       font-size: 1.2em;
       text-align: center; }
       .dashboard.link a:hover {
-		  /** KELSEY EDIT **
-		  Changed color from #00adc5 to white.
-		  Added white text shadow.
-		  Added box shadow.
-		  
-		  */
-        color: white;
-		text-shadow: 0 0 0.1em white;
+        color: white !important;
+		/* text-shadow: 0 0 0.1em white; */
 	-webkit-box-shadow:    2px 2px 2px 2px red;
     box-shadow:  0px 0px 4px 3px red;
 	  
@@ -5810,53 +5801,87 @@ content: "";
       font-size: 1.2em; }
     .header-nav .pw-change {
       font-size: 14px; } }
+      
+.active_tab { background:#e83324; }
 
 /* Styles from new layout */
+.active.blue { background:#e83324 !important; }
 .chosen-container-single .chosen-single span { color:#000; }
 a:hover, a:active, a:focus, table td a { color:#f00 !important; }
 a.btn { color:#fff !important; }
-.default-color, h1 a, a h1, a h3, a h4, .dashboard-item label, .dashboard a:hover, .main-item label, .text-blue { color:#000 !important; }
-ul.sidebar a, ul.sidebar a li.active { color:#000 !important; }
-ul.sidebar .active.blue, .tile-sidebar ul li.active, div.calendar-screen .block-item.active {color:#fff !important; background-color:#f00 !important; }
+.default-color, h1 a, a h1, a h3, a h4, .dashboard-item label, .main-item label, .text-blue { color:#000 !important; }
+ul.sidebar a, .info-block-header:hover, .tile-sidebar ul a { color:#000 !important; }
+ul.sidebar .active.blue, .tile-sidebar ul li.active, div.calendar-screen .block-item.active {color:#fff !important; background-color:#e83324 !important; }
+.tile-sidebar ul li.sidebar-higher-level ul li.active, .tile-sidebar ul ul li.sidebar-lower-level.active { background-color:transparent !important; }
+.tile-sidebar ul li.sidebar-higher-level ul li.active,
+.tile-sidebar ul li.sidebar-higher-level ul li.active span,
+.tile-sidebar ul li.sidebar-higher-level ul li.active a,
+.tile-sidebar ul li.sidebar-higher-level ul li.active a span,
+.tile-sidebar ul li.sidebar-higher-level ul li.active.sub_heading,
+.tile-sidebar ul ul li.sidebar-lower-level.active,
+.tile-sidebar ul ul li.sidebar-lower-level.active span,
+.innerframe .main-screen .panel .panel-title > a:hover,
+.tile-content .main-screen .panel .panel-heading .panel-title a:hover {
+    color:#e83324 !important;
+    }
 .iframe_overlay { background-color:rgba(0,0,0,0.3) !important; }
 .blue span { background-color:transparent !important; }
-.summary-block, .main-screen-white { border-color:#f00 !important; }
-.info-block-header h4, .info-block-header .info-block-small { color:#fff !important; }
-.info-block-header { color:#fff; background-color:#f00 !important; border-bottom:4px solid #018880 !important; }
+.info-block-header { color:#fff; background-color:#333 !important; border-bottom:4px solid #e83324 !important; }
+.info-block-header h4, .info-block-header h4 a, a .info-block-header, .info-block-header .info-block-small { color:#fff !important; }
 table th a, table th a:hover { color:#fff !important; }
 .standard-sidebar-searchbox {
   background-color: rgba(255,0,0,0.7) !important;
 }
 .sidebar-higher-level a.cursor-hand.active {
-  background-color: #f00 !important;
+  background-color: #e83324 !important;
+  color:#fff !important;
 }
 .sidebar-higher-level ul li.active.blue,.sidebar-higher-level ul li.active.blue a,.sidebar-higher-level ul li.active.blue span {
-  color:#f00 !important;
+  color:#e83324 !important;
+  background-color:#fff !important;
+}
+.highest-level ul li.sidebar-higher-level a.active,
+.highest-level ul li.sidebar-higher-level a.active span,
+li.sidebar-lower-level.active,
+li.sidebar-lower-level.active span {
+    background:#fff !important;
+    color:#e83324 !important;
+    }
+.sidebar-higher-level a.cursor-hand.active {
+  background-color: #e83324 !important;
+}
+.sidebar-higher-level ul li.active.blue,.sidebar-higher-level ul li.active.blue a,.sidebar-higher-level ul li.active.blue span {
+  color:#e83324 !important;
   background-color:#fff !important;
 }
 li.sidebar-lower-level.active,li.sidebar-lower-level.active span {
   background-color: #fff !important;
-  color: #f00 !important;
+  color: #e83324 !important;
 }
-.block-panels .panel-heading.active {
-  background-color: #f00 !important;
+.block-panels .panel-heading.active,
+.icon-pie-chart:hover,
+.default-background {
+  background-color: #e83324 !important;
 }
-.block-panels .panel-heading.active a {
+.block-panels .panel-heading.active a,
+.tile-sidebar ul li.active a {
   color: #fff !important;
 }
 .calendar .block-button,.calendar .block-item,.calendar .block-label {
-  border: 1px solid #f00 !important;
+  border: 1px solid #e83324 !important;
   color: #000 !important;
 }
 .calendar .block-button.active,.calendar .block-item.active,.calendar .block-label.active {
-  background-color: #f00 !important;
+  background-color: #e83324 !important;
   color: #fff !important;
 }
 .calendar .calendar-screen {
   background-color: #ffb3b3;
 }
+.summary-block, .overview-block, .main-screen-white, .connectedSortable { border-color:#e83324 !important; }
+footer { color:#fff; }
 .theme-color-icon {
-  filter: invert(14%) sepia(99%) saturate(7194%) hue-rotate(11deg) brightness(115%) contrast(122%) !important;
+  filter: invert(24%) sepia(44%) saturate(3987%) hue-rotate(348deg) brightness(104%) contrast(93%) !important;
 }
-.calendar .main-screen .panel .panel-title > a:hover { color:#f00 !important; }
-.theme-color-border-bottom { border-bottom:2px solid #f00 !important; }
+.calendar .main-screen .panel .panel-title > a:hover { color:#e83324 !important; }
+.theme-color-border-bottom { border-bottom:2px solid #e83324 !important; }

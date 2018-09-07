@@ -64,12 +64,16 @@ for ($current_day = $period_start; $current_day <= $period_end; $current_day = d
     $alerts_reminders_result = mysqli_fetch_all(mysqli_query($dbc, $alerts_reminders_query),MYSQLI_ASSOC);
     $inc_rep_reminders_query = "SELECT * FROM `incident_report` WHERE `ir14` = '".$current_day."' AND `assign_followup` = '".$contactid."'";
     $inc_rep_reminders_result = mysqli_fetch_all(mysqli_query($dbc, $inc_rep_reminders_query),MYSQLI_ASSOC);
+    $equipment_followup_reminders_query = "SELECT * FROM `equipment` WHERE `follow_up_date` = '".$current_day."' AND CONCAT(',',`follow_up_staff`,',') LIKE '%,".$contactid.",%' AND `deleted` = 0";
+    $equipment_followup_reminders_result = mysqli_fetch_all(mysqli_query($dbc, $equipment_followup_reminders_query),MYSQLI_ASSOC);
+    $equipment_service_reminders_query = "SELECT * FROM `equipment` WHERE `next_service_date` = '".$current_day."' AND CONCAT(',',`follow_up_staff`,',') LIKE '%,".$contactid.",%' AND `deleted` = 0";
+    $equipment_service_reminders_result = mysqli_fetch_all(mysqli_query($dbc, $equipment_service_reminders_query),MYSQLI_ASSOC);
 
     //Tickets
 	if(strtotime($current_day.' 23:59:59') < time() && get_config($dbc, 'timesheet_hide_past_days') == '1' && $dbc->query("SELECT COUNT(*) `count` FROM `time_cards` WHERE `date`='$current_day' AND `staff`='{$_SESSION['contactid']}' AND `end_time` IS NULL AND `start_time` IS NOT NULL")->fetch_assoc()['count'] == 0) {
 		$filtered_tickets = " AND 1=0 ";
 	}
-	$tickets_query = "SELECT `tickets`.*, IF(`ticket_schedule`.`id` IS NULL,'ticket','ticket_schedule') `ticket_table`, IFNULL(`ticket_schedule`.`to_do_date`,`tickets`.`to_do_date`) `to_do_date`, CONCAT('<br>',IFNULL(NULLIF(`ticket_schedule`.`location_name`,''),`ticket_schedule`.`client_name`)) `location_description`, `ticket_schedule`.`id` `stop_id`, `ticket_schedule`.`eta`, `ticket_schedule`.`client_name`, IFNULL(`ticket_schedule`.`address`, `tickets`.`address`) `address`, `ticket_schedule`.`type` `delivery_type`, IFNULL(`ticket_schedule`.`to_do_start_time`, IFNULL(NULLIF(`tickets`.`start_time`,'00:00'),`tickets`.`to_do_start_time`)) `to_do_start_time`, CONCAT(`start_available`,' - ',`end_available`) `availability`, IFNULL(`ticket_schedule`.`status`, `tickets`.`status`) `status`, IFNULL(`ticket_schedule`.`map_link`,`tickets`.`google_maps`) `map_link`, `ticket_schedule`.`notes` `delivery_notes`, `tickets`.`siteid` FROM `tickets` LEFT JOIN `ticket_schedule` ON `tickets`.`ticketid`=`ticket_schedule`.`ticketid` AND `ticket_schedule`.`deleted`=0 WHERE ((internal_qa_date = '".$current_day."' AND CONCAT(',',IFNULL(`internal_qa_contactid`,''),',') LIKE '%,".$contactid.",%') OR (`deliverable_date` = '".$current_day."' AND CONCAT(',',IFNULL(`deliverable_contactid`,''),',') LIKE '%,".$contactid.",%') OR ((`tickets`.`to_do_date` = '".$current_day."' OR '".$current_day."' BETWEEN `tickets`.`to_do_date` AND `tickets`.`to_do_end_date` OR `ticket_schedule`.`to_do_date`='".$current_day."' OR '".$current_day."' BETWEEN `ticket_schedule`.`to_do_date` AND IFNULL(`ticket_schedule`.`to_do_end_date`,`ticket_schedule`.`to_do_date`)) AND CONCAT(',',IFNULL(`tickets`.`contactid`,''),',',IFNULL(`ticket_schedule`.`contactid`,''),',') LIKE '%,".$contactid.",%')) AND (CONCAT(',',IFNULL(`tickets`.`contactid`,''),',',IFNULL(`ticket_schedule`.`contactid`,''),',',IFNULL(`internal_qa_contactid`,''),',',IFNULL(`deliverable_contactid`,''),',') LIKE '%,".$contactid.",%' OR (`tickets`.`equipmentid` IN ($equipment) AND `tickets`.`equipmentid` > 0) OR (`ticket_schedule`.`equipmentid` IN ($equipment) AND `ticket_schedule`.`equipmentid` > 0)) $filtered_tickets AND `tickets`.`deleted` = 0 ORDER BY IFNULL(NULLIF(`ticket_schedule`.`to_do_start_time`,''),IFNULL(NULLIF(`tickets`.`start_time`,'00:00'),`tickets`.`to_do_start_time`)) ASC";
+	$tickets_query = "SELECT `tickets`.*, IF(`ticket_schedule`.`id` IS NULL,'ticket','ticket_schedule') `ticket_table`, IFNULL(`ticket_schedule`.`to_do_date`,`tickets`.`to_do_date`) `to_do_date`, CONCAT('<br>',IFNULL(NULLIF(`ticket_schedule`.`location_name`,''),`ticket_schedule`.`client_name`)) `location_description`, `ticket_schedule`.`id` `stop_id`, `ticket_schedule`.`eta`, `ticket_schedule`.`client_name`, IFNULL(`ticket_schedule`.`address`, `tickets`.`address`) `address`, `ticket_schedule`.`type` `delivery_type`, IFNULL(`ticket_schedule`.`to_do_start_time`, IFNULL(NULLIF(`tickets`.`start_time`,'00:00'),`tickets`.`to_do_start_time`)) `to_do_start_time`, CONCAT(`start_available`,' - ',`end_available`) `availability`, IFNULL(`ticket_schedule`.`status`, `tickets`.`status`) `status`, IFNULL(`ticket_schedule`.`map_link`,`tickets`.`google_maps`) `map_link`, `ticket_schedule`.`notes` `delivery_notes`, `tickets`.`siteid` FROM `tickets` LEFT JOIN `ticket_schedule` ON `tickets`.`ticketid`=`ticket_schedule`.`ticketid` AND `ticket_schedule`.`deleted`=0 WHERE ((internal_qa_date = '".$current_day."' AND CONCAT(',',IFNULL(`internal_qa_contactid`,''),',') LIKE '%,".$contactid.",%') OR (`deliverable_date` = '".$current_day."' AND CONCAT(',',IFNULL(`deliverable_contactid`,''),',') LIKE '%,".$contactid.",%') OR ((`tickets`.`to_do_date` = '".$current_day."' OR '".$current_day."' BETWEEN `tickets`.`to_do_date` AND `tickets`.`to_do_end_date` OR `ticket_schedule`.`to_do_date`='".$current_day."' OR '".$current_day."' BETWEEN `ticket_schedule`.`to_do_date` AND IFNULL(`ticket_schedule`.`to_do_end_date`,`ticket_schedule`.`to_do_date`)) AND ((CONCAT(',',IFNULL(IFNULL(`ticket_schedule`.`contactid`,`tickets`.`contactid`),''),',') LIKE '%,".$contactid.",%') OR (IFNULL(`ticket_schedule`.`equipmentid`,`tickets`.`equipmentid`) IN ($equipment) AND IFNULL(`ticket_schedule`.`equipmentid`,`tickets`.`equipmentid`) > 0)))) $filtered_tickets AND `tickets`.`deleted` = 0 ORDER BY IFNULL(NULLIF(`ticket_schedule`.`to_do_start_time`,''),IFNULL(NULLIF(`tickets`.`start_time`,'00:00'),`tickets`.`to_do_start_time`)) ASC";
     $tickets_result = mysqli_fetch_all(mysqli_query($dbc, $tickets_query),MYSQLI_ASSOC);
 
     //Tasks
@@ -97,9 +101,18 @@ for ($current_day = $period_start; $current_day <= $period_end; $current_day = d
                 $no_records = true;
                 if (in_array('Reminders', $daysheet_fields_config)) {
                     foreach ($reminders_result as $reminder) {
-                        $reminder_url = get_reminder_url($dbc, $reminder);
+                        $reminder_url = get_reminder_url($dbc, $reminder, 1);
+                        $slider = 1;
+                        if(empty($reminder_url)) {
+                            $slider = 0;
+                            $reminder_url = get_reminder_url($dbc, $reminder);
+                        }
                         if(!empty($reminder_url)) {
-                            $reminder_label = '<a href="'.$reminder_url.'">Reminder: '.$reminder['subject'].'</a>';
+                            if($slider == 1) {
+                                $reminder_label = '<a href="" onclick="overlayIFrameSlider(\''.$reminder_url.'\'); return false;">Reminder: '.$reminder['subject'].'</a>';
+                            } else {
+                                $reminder_label = '<a href="'.$reminder_url.'">Reminder: '.$reminder['subject'].'</a>';
+                            }
                         } else {
                             $reminder_label = '<div class="daysheet-span">Reminder: '.$reminder['subject'].'</div>';
                         }
@@ -107,7 +120,7 @@ for ($current_day = $period_start; $current_day <= $period_end; $current_day = d
                         $no_records = false;
                     }
                     foreach ($sales_reminders_result as $reminder) {
-                        echo $row_open.'<a href="../Sales/sale.php?p=preview&id='.$reminder['salesid'].'&from_url='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']).'" style="color: black;">Follow Up Sales: Sales #'.$reminder['salesid'].'</a>'.$row_close;
+                        echo $row_open.'<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Sales/sale.php?iframe_slider=1&p=details&id='.$reminder['salesid'].'\'); return false;" style="color: black;">Follow Up Sales: Sales #'.$reminder['salesid'].'</a>'.$row_close;
                         $no_records = false;
                     }
                     foreach ($so_reminders_result as $reminder) {
@@ -123,15 +136,15 @@ for ($current_day = $period_start; $current_day <= $period_end; $current_day = d
                         $no_records = false;
                     }
                     foreach ($projects_reminders_result as $reminder) {
-                        echo $row_open.'<a href="../Project/projects.php?edit='.$reminder['projectid'].'&from_url='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']).'" style="color: black;">Follow Up Project: '.$reminder['project_name'].'</a>'.$row_close;
+                        echo $row_open.'<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Project/projects.php?iframe_slider=1&edit='.$reminder['projectid'].'&from_url='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']).'\'); return false;" style="color: black;">Follow Up Project: '.$reminder['project_name'].'</a>'.$row_close;
                         $no_records = false;
                     }
                     foreach ($pfu_reminders_result as $reminder) {
-                        echo $row_open.'<a href="../Project/projects.php?edit='.$reminder['projectid'].'&from_url='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']).'" style="color: black;">Follow Up Project: '.$reminder['project_name'].'</a>'.$row_close;
+                        echo $row_open.'<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Project/projects.php?iframe_slider=1&edit='.$reminder['projectid'].'&from_url='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']).'\'); return false;" style="color: black;">Follow Up Project: '.$reminder['project_name'].'</a>'.$row_close;
                         $no_records = false;
                     }
                     foreach ($cert_reminders_result as $reminder) {
-                        echo $row_open.'<a href="../Certificate/index.php?edit='.$reminder['certificateid'].'&from_url='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']).'" style="color: black;">Certificate Reminder: '.$reminder['title'].'</a>'.$row_close;
+                        echo $row_open.'<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Certificate/edit_certificate.php?edit='.$reminder['certificateid'].'\'); return false;" style="color: black;">Certificate Reminder: '.$reminder['title'].'</a>'.$row_close;
                         $no_records = false;
                     }
                     foreach ($alerts_reminders_result as $reminder) {
@@ -139,7 +152,15 @@ for ($current_day = $period_start; $current_day <= $period_end; $current_day = d
                         $no_records = false;
                     }
                     foreach ($inc_rep_reminders_result as $reminder) {
-                        echo $row_open.'<a href="../Incident Report/add_incident_report.php?incidentreportid='.$reminder['incidentreportid'].'" style="color: black;">Follow Up '.INC_REP_NOUN.': '.$reminder['type'].' #'.$reminder['incidentreportid'].'</a>'.$row_close;
+                        echo $row_open.'<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Incident Report/add_incident_report.php?incidentreportid='.$reminder['incidentreportid'].'\'); return false;" style="color: black;">Follow Up '.INC_REP_NOUN.': '.$reminder['type'].' #'.$reminder['incidentreportid'].'</a>'.$row_close;
+                        $no_records = false;
+                    }
+                    foreach ($equipment_followup_reminders_result as $reminder) {
+                        echo $row_open.'<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'Equipment/edit_equipment.php?edit='.$reminder['equipmentid'].'&iframe_slider=1\'); return false;" style="color: black;">Follow Up Equipment ('.$reminder['category'].' #'.$reminder['unit_number'].'): Next Service Date coming up on '.$reminder['next_service_date'].'</a>'.$row_close;
+                        $no_records = false;
+                    }
+                    foreach ($equipment_service_reminders_result as $reminder) {
+                        echo $row_open.'<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'Equipment/edit_equipment.php?edit='.$reminder['equipmentid'].'&iframe_slider=1\'); return false;" style="color: black;">Equipment Service Reminder ('.$reminder['category'].' #'.$reminder['unit_number'].'): Service Date scheduled for '.$reminder['next_service_date'].'</a>'.$row_close;
                         $no_records = false;
                     }
                 }
@@ -155,7 +176,7 @@ for ($current_day = $period_start; $current_day <= $period_end; $current_day = d
                         if($daysheet_styling == 'card') {
                             $row_open_ticket = '<div class="block-group-daysheet" '.$delivery_style.'>';
                         }
-                        $label = daysheet_ticket_label($dbc, $daysheet_ticket_fields, $ticket);
+                        $label = daysheet_ticket_label($dbc, $daysheet_ticket_fields, $ticket, $current_day);
                         $status_icon = get_ticket_status_icon($dbc, $ticket['status']);
                         if(!empty($status_icon)) {
                             if($status_icon == 'initials') {
@@ -173,7 +194,7 @@ for ($current_day = $period_start; $current_day <= $period_end; $current_day = d
                 if (in_array('Tasks', $daysheet_fields_config)) {
                     foreach ($tasks_result as $task) {
 						$label = ($task['businessid'] > 0 ? get_contact($dbc, $task['businessid'], 'name').', ' : '').($task['projectid'] > 0 ? PROJECT_NOUN.' #'.$task['projectid'].' '.get_project($dbc,$task['projectid'],'project_name') : '');
-                        echo $row_open.'<a href="../Tasks/add_task.php?tasklistid='.$task['tasklistid'].'&from_url='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']).'" style="color: black;">'.($label != '' ? $label.'<br />' : '').'Task: '.$task['task_milestone_timeline'].' - '.$task['heading'].'</a>'.$row_close;
+                        echo $row_open.'<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Tasks_Updated/add_task.php?tasklistid='.$task['tasklistid'].'&from_url='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']).'\'); return false;" style="color: black;">'.($label != '' ? $label.'<br />' : '').'Task: '.$task['task_milestone_timeline'].' - '.$task['heading'].'</a>'.$row_close;
                         $no_records = false;
                     }
                 }

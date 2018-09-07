@@ -151,7 +151,7 @@ if (isset($_POST['submit'])) {
             $('#add_here_new_doc').append(clone);
             return false;
         });
-        
+
         //Open the accordion based on URL parameter
         //e.g. Contacts/add_contacts.php?category=Patient&contactid=1234#patient_accounts_receivable
         var url = document.location.toString();
@@ -200,7 +200,7 @@ function selectHour(obj){
 	} else if($url_category == 'Customers') {
 		$cat_label = 'Customer';
 	} else if($url_category == 'Vendors') {
-		$cat_label = 'Vendor';
+		$cat_label = VENDOR_TILE;
 	} else if($url_category == 'Contractors') {
 		$cat_label = 'Contractor';
 	} else if($url_category == 'Sales Leads') {
@@ -262,11 +262,11 @@ function selectHour(obj){
 			</script>
 			<input type="hidden" id="contactid"	name="contactid" value="<?php echo $contactid ?>" />
 		<?php }
-		
+
         if ( !empty($_GET['contactid']) && ($url_category=='Patient' || $url_category=='Patients') ) {
             echo '<a href="view_profile.php?category='.$url_category.'&contactid='.$contactid.'" class="btn brand-btn">Overview</a>';
         }
-        
+
         //$url_category_lower = strtolower($url_category);
         //$subtab_list = get_config($dbc, FOLDER_NAME.'_'.$url_category_lower.'_field_subtabs');
 		$subtab_list = get_config($dbc, FOLDER_NAME.'_field_subtabs');
@@ -329,7 +329,7 @@ function selectHour(obj){
 						</a>
 					</h4>
 				</div>
-                
+
                 <?php
                     $accordion_name = strtolower ( str_replace(' ', '_', $row_main['accordion']) );
                     $accordion_name = strtolower ( str_replace('/', '_', $accordion_name) );

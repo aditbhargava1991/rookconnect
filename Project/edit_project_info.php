@@ -168,6 +168,15 @@ function apply_template() {
 <input type="hidden" name="projectid" value="<?= $projectid ?>">
 <div id="head_info">
 	<h3><?= PROJECT_NOUN ?> Information</h3>
+	<?php if (in_array("Information Project Short Name",$value_config)) { ?>
+		<div class="form-group">
+			<label class="col-sm-4"><?= PROJECT_NOUN ?> Name<span class="brand-color">*</span>:</label>
+			<div class="col-sm-8 <?= !($security['edit'] > 0) ? 'readonly-block' : '' ?>">
+				<input name="project_name" value="<?= $project['project_name'] ?>" data-table="project" data-id="<?= $project['projectid'] ?>" data-id-field="projectid" type="text" class="form-control"></p>
+			</div>
+		</div>
+	<?php } ?>
+
 	<?php $contactid_intake = ( isset($_GET['clientid']) ) ? trim($_GET['clientid']) : '';
 	$intakeid = ( isset($_GET['intakeid']) ) ? trim($_GET['intakeid']) : '';
     if (!empty($salesid)) {
@@ -189,7 +198,6 @@ function apply_template() {
 		<label class="col-sm-4">Region:</label>
 		<div class="col-sm-8 <?= !($security['edit'] > 0) ? 'readonly-block' : '' ?>">
 			<select name="region" multiple id="contact_region" data-placeholder="Select a Region..." class="chosen-select-deselect form-control">
-				<option value=''></option>
 				<?php $contact_regions = array_filter(array_unique(explode(',', mysqli_fetch_array(mysqli_query($dbc, "SELECT GROUP_CONCAT(`value` SEPARATOR ',') FROM `general_configuration` WHERE `name` LIKE '%_region'"))[0])));
 				foreach ($contact_regions as $contact_region) {
 					echo "<option ".(in_array($contact_region, $region) ? 'selected' : '')." value='".$contact_region."'>".$contact_region.'</option>';
@@ -219,9 +227,7 @@ function apply_template() {
 		<label class="col-sm-4">Classification:</label>
 		<div class="col-sm-8 <?= !($security['edit'] > 0) ? 'readonly-block' : '' ?>">
 			<select name="classification" multiple id="contact_classification" data-placeholder="Select a Classification..." class="chosen-select-deselect form-control">
-				<option value=''></option>
 				<?php $contact_classifications = array_filter(array_unique(explode(',', mysqli_fetch_array(mysqli_query($dbc, "SELECT GROUP_CONCAT(`value` SEPARATOR ',') FROM `general_configuration` WHERE `name` LIKE '%_classification'"))[0])));
-				print_r($classification);
 				foreach ($contact_classifications as $contact_classification) {
 					echo "<option ".(in_array($contact_classification, $classification) ? 'selected' : '')." value='".$contact_classification."'>".$contact_classification.'</option>';
 				} ?>
@@ -230,11 +236,50 @@ function apply_template() {
 	</div>
 	<?php } ?>
 
+	<?php if (in_array("Information Project Type",$value_config)) { ?>
+	<div class="form-group">
+		<label class="col-sm-4"><?= PROJECT_NOUN ?> Type<span class="brand-color">*</span>:</label>
+		<div class="col-sm-8 <?= !($security['edit'] > 0) ? 'readonly-block' : '' ?>">
+			<select name="projecttype" id="projecttype" data-placeholder="Select a Type..." data-table="project" data-id="<?= $project['projectid'] ?>" data-id-field="projectid" class="chosen-select-deselect form-control">
+				<option value=''></option>
+				<?php $project_tabs = get_config($dbc, 'project_tabs');
+				$project_tabs = explode(',',$project_tabs);
+				foreach($project_tabs as $item) {
+					$var_name = config_safe_str($item);
+					if($var_name == 'client' || check_subtab_persmission($dbc, 'project', ROLE, $var_name) == 1) {
+						echo "<option ".($project['projecttype'] == $var_name || $project['projecttype'] == $item ? ' selected' : '')." value='$var_name'>$item</option>";
+					}
+				} ?>
+			</select>
+		</div>
+	</div>
+	<?php } ?>
+
+	<div class="form-group">
+		<label class="col-sm-4"><?= PROJECT_NOUN ?> Status:</label>
+		<div class="col-sm-8 <?= !($security['edit'] > 0) ? 'readonly-block' : '' ?>">
+			<?php if(approval_visible_function($dbc, 'project') > 0 || $project['status'] != 'Pending') { ?>
+				<select name="status" id="status" data-placeholder="Select a <?= PROJECT_NOUN ?> Status..." data-table="project" data-id="<?= $project['projectid'] ?>" data-id-field="projectid" class="chosen-select-deselect form-control">
+					<option></option>
+					<option <?= 'Pending' == $project['status'] ? 'selected' : '' ?> value="Pending">Pending</option>
+					<?php foreach($status_list as $status_name) { ?>
+						<option <?= $status_name == $project['status'] ? 'selected' : '' ?> value="<?= $status_name ?>"><?= $status_name ?></option>
+					<?php } ?>
+					<option <?= 'Archive' == $project['status'] ? 'selected' : '' ?> value="Archive">Archive</option>
+				</select>
+			<?php } else {
+				echo $project['status'];
+			} ?>
+		</div>
+	</div>
+
 	<?php if (in_array("Information Business",$value_config)) { ?>
 	<div class="form-group">
 		<label class="col-sm-4"><?= BUSINESS_CAT ?><span class="brand-color">*</span>:</label>
 		<div class="col-sm-7 <?= !($security['edit'] > 0) ? 'readonly-block' : '' ?>">
-			<select name="businessid" id="businessid" data-placeholder="Select a <?= BUSINESS_CAT ?>..." data-table="project" data-id="<?= $project['projectid'] ?>" data-id-field="projectid" class="chosen-select-deselect form-control">
+
+			<select name="businessid" id="businessid" data-placeholder="Select a <?= BUSINESS_CAT ?>..." data-table="project" data-id="<?= $project['projectid'] ?>" data-id-field="projectid" class="chosen-select-deselect form-control" onchange="if(this.value > 0) { $(this).closest('.form-group').find('.current').show(); $(this).closest('.form-group').find('.new').hide(); } else { $(this).closest('.form-group').find('.current').hide(); $(this).closest('.form-group').find('.new').show(); }">
+
 				<option></option>
 				<?php foreach(sort_contacts_query(mysqli_query($dbc,"SELECT contactid, name, region, con_locations, classification FROM contacts WHERE (category='".BUSINESS_CAT."' AND deleted=0 AND `status`=1) OR `contactid`='".$project['businessid']."'")) as $business) {
 					echo "<option ".(($project['businessid'] == $business['contactid'] || ($business['contactid'] == $row_sales['businessid'] && $_GET['edit']==0)) ? 'selected' : '')." value='". $business['contactid']."' data-region='".$business['region']."' data-location='".$business['con_locations']."' data-classification='".$business['classification']."'>".$business['name'].'</option>';
@@ -242,9 +287,9 @@ function apply_template() {
 			</select>
 		</div>
 		<div class="col-sm-1">
-			<img class="inline-img pull-right no-toggle" src="../img/person.PNG" title="View this contact's profile" onclick="viewProfile(this, '<?= BUSINESS_CAT ?>');">
+			<img class="inline-img pull-right no-toggle current" src="../img/person.PNG" title="View this contact's profile" onclick="viewProfile(this, '<?= BUSINESS_CAT ?>');" style="<?= $project['businessid'] > 0 ? 'display:none;' : '' ?>">
 			<?php if($security['edit'] > 0) { ?>
-				<img class="inline-img pull-right no-toggle" src="../img/icons/ROOK-add-icon.png" title="Create a new <?= BUSINESS_CAT ?> for this <?= PROJECT_NOUN ?>" onclick="newContact(this, '<?= BUSINESS_CAT ?>');">
+				<img class="inline-img pull-right no-toggle new" src="../img/icons/ROOK-add-icon.png" title="Create a new <?= BUSINESS_CAT ?> for this <?= PROJECT_NOUN ?>" onclick="newContact(this, '<?= BUSINESS_CAT ?>');" style="<?= $project['businessid'] > 0 ? '' : 'display:none;' ?>">
 			<?php } ?>
 		</div>
 	</div>
@@ -257,7 +302,7 @@ function apply_template() {
 			<div class="form-group">
 				<label class="col-sm-4">Contact:</label>
 				<div class="col-sm-7 <?= !($security['edit'] > 0) ? 'readonly-block' : '' ?>">
-					<select name="clientid[]" data-placeholder="Select a Contact..." data-table="project" data-id="<?= $project['projectid'] ?>" data-id-field="projectid" class="chosen-select-deselect form-control">
+					<select name="clientid[]" data-placeholder="Select a Contact..." data-table="project" data-id="<?= $project['projectid'] ?>" data-id-field="projectid" class="chosen-select-deselect form-control" onchange="if(this.value > 0) { $(this).closest('.form-group').find('.current').show(); $(this).closest('.form-group').find('.new').hide(); } else { $(this).closest('.form-group').find('.current').hide(); $(this).closest('.form-group').find('.new').show(); }">
 						<option></option>
 						<?php foreach(sort_contacts_query(mysqli_query($dbc, "SELECT contactid, first_name, last_name, category, region, con_locations, classification, businessid FROM contacts WHERE (category!='Business' AND deleted=0 AND `status` > 0) OR `contactid`='$clientid'")) as $contact) {
 							echo "<option ".(($clientid == $contact['contactid'] || (in_array($contact['contactid'],$sales_contactids) && $_GET['edit']==0)) ? 'selected' : '')." value='". $contact['contactid']."' data-region='".$contact['region']."' data-location='".$contact['con_locations']."' data-classification='".$contact['classification']."' data-business='".$contact['businessid']."'>".$contact['first_name'].' '.$contact['last_name'].'</option>';
@@ -275,12 +320,12 @@ function apply_template() {
 				</div>
 				<div class="col-sm-1">
 					<?php if($security['edit'] > 0) { ?>
-						<img class="inline-img pull-right no-toggle" src="../img/icons/ROOK-add-icon.png" title="Select an additional Contact for this <?= PROJECT_NOUN ?>" onclick="addClient();">
 						<img class="inline-img pull-right" src="../img/remove.png" onclick="removeClient(this);">
+						<img class="inline-img pull-right no-toggle current" src="../img/icons/ROOK-add-icon.png" title="Select an additional Contact for this <?= PROJECT_NOUN ?>" onclick="addClient();" style="<?= $clientid > 0 ? '' : 'display:none;' ?>">
 					<?php } ?>
-					<img class="inline-img pull-right no-toggle" src="../img/person.PNG" title="View this contact's profile" onclick="viewProfile(this, '%');">
+					<img class="inline-img pull-right no-toggle current" src="../img/person.PNG" title="View this contact's profile" onclick="viewProfile(this, '%');" style="<?= $clientid > 0 ? '' : 'display:none;' ?>">
 					<?php if($security['edit'] > 0) { ?>
-						<img class="inline-img pull-right no-toggle" src="../img/icons/ROOK-add-icon.png" title="Create a new Contact for this <?= PROJECT_NOUN ?>" onclick="newContact(this, '%');">
+						<img class="inline-img pull-right no-toggle new" src="../img/icons/ROOK-add-icon.png" title="Create a new Contact for this <?= PROJECT_NOUN ?>" onclick="newContact(this, '%');" style="<?= $clientid > 0 ? 'display:none;' : '' ?>">
 					<?php } ?>
 				</div>
 			</div>
@@ -308,7 +353,9 @@ function apply_template() {
 	<div class="form-group">
 		<label class="col-sm-4">Site<span class="brand-color">*</span>:</label>
 		<div class="col-sm-7 <?= !($security['edit'] > 0) ? 'readonly-block' : '' ?>">
-			<select name="siteid" id="siteid" data-placeholder="Select a Site..." data-table="project" data-id="<?= $project['projectid'] ?>" data-id-field="projectid" class="chosen-select-deselect form-control">
+
+			<select name="siteid" id="siteid" data-placeholder="Select a Site..." data-table="project" data-id="<?= $project['projectid'] ?>" data-id-field="projectid" class="chosen-select-deselect form-control" onchange="if(this.value > 0) { $(this).closest('.form-group').find('.current').show(); $(this).closest('.form-group').find('.new').hide(); } else { $(this).closest('.form-group').find('.current').hide(); $(this).closest('.form-group').find('.new').show(); }">
+
 				<option></option>
 				<?php foreach(sort_contacts_query(mysqli_query($dbc,"SELECT contactid, businessid, IF(IFNULL(`display_name`,'')='',`site_name`,`display_name`) display, region, con_locations, classification FROM contacts WHERE (category='Sites' AND deleted=0 AND `status` > 0 AND '".$project['businessid']."' IN (`businessid`,'')) OR `contactid`='".$project['siteid']."'")) as $site) {
 					echo "<option ".($project['siteid'] == $site['contactid'] ? 'selected' : '')." value='". $site['contactid']."' data-region='".$site['region']."' data-location='".$site['con_locations']."' data-classification='".$site['classification']."' data-business='".$site['businessid']."'>".$site['display'].'</option>';
@@ -316,9 +363,9 @@ function apply_template() {
 			</select>
 		</div>
 		<div class="col-sm-1">
-			<img class="inline-img pull-right no-toggle" src="../img/person.PNG" title="View this contact's profile" onclick="viewProfile(this, '<?= SITES_CAT ?>');">
+			<img class="inline-img pull-right no-toggle current" src="../img/person.PNG" title="View this Site's profile" onclick="viewProfile(this, '<?= SITES_CAT ?>');" style="<?= $project['siteid'] > 0 ? '' : 'display:none;' ?>">
 			<?php if($security['edit'] > 0) { ?>
-				<img class="inline-img pull-right no-toggle" src="../img/icons/ROOK-add-icon.png" title="Create a new <?= SITES_CAT ?> for this <?= PROJECT_NOUN ?>" onclick="newContact(this, '<?= SITES_CAT ?>');">
+				<img class="inline-img pull-right no-toggle new" src="../img/icons/ROOK-add-icon.png" title="Create a new <?= SITES_CAT ?> for this <?= PROJECT_NOUN ?>" onclick="newContact(this, '<?= SITES_CAT ?>');" style="<?= $project['siteid'] > 0 ? 'display:none;' : '' ?>">
 			<?php } ?>
 		</div>
 	</div>
@@ -343,7 +390,7 @@ function apply_template() {
 	<div class="form-group">
 		<label class="col-sm-4">Type<span class="brand-color">*</span>:</label>
 		<div class="col-sm-8 <?= !($security['edit'] > 0) ? 'readonly-block' : '' ?>">
-			<select name="projecttype" id="projecttype" data-placeholder="Select a Type..." data-table="project" data-id="<?= $project['projectid'] ?>" data-id-field="projectid" class="chosen-select-deselect form-control">
+			<select name="projecttype" id="projecttype" data-placeholder="Select a Type..." data-table="project" data-id="<?= $project['projectid'] ?>" data-id-field="projectid" class="chosen-select-deselect form-control required">
 				<option value=''></option>
 				<?php $project_tabs = get_config($dbc, 'project_tabs');
 				$project_tabs = explode(',',$project_tabs);
@@ -416,11 +463,12 @@ function apply_template() {
 		</div>
 	</div>
 
+
 	<?php if (in_array("Information AFE",$value_config)) { ?>
 		<div class="form-group">
 			<label class="col-sm-4">AFE #<span class="brand-color">*</span>:</label>
 			<div class="col-sm-8 <?= !($security['edit'] > 0) ? 'readonly-block' : '' ?>">
-				<input name="afe_number" value="<?= $project['afe_number'] ?>" data-table="project" data-id="<?= $project['projectid'] ?>" data-id-field="projectid" type="text" class="form-control"></p>
+				<input name="afe_number" value="<?= $project['afe_number'] ?>" data-table="project" data-id="<?= $project['projectid'] ?>" data-id-field="projectid" type="text" class="form-control required"></p>
 			</div>
 		</div>
 	<?php } ?>
@@ -429,7 +477,7 @@ function apply_template() {
 		<div class="form-group">
 			<label class="col-sm-4"><?= PROJECT_NOUN ?> Short Name<span class="brand-color">*</span>:</label>
 			<div class="col-sm-8 <?= !($security['edit'] > 0) ? 'readonly-block' : '' ?>">
-				<input name="project_name" value="<?= $project['project_name'] ?>" data-table="project" data-id="<?= $project['projectid'] ?>" data-id-field="projectid" type="text" class="form-control"></p>
+				<input name="project_name" value="<?= $project['project_name'] ?>" data-table="project" data-id="<?= $project['projectid'] ?>" data-id-field="projectid" type="text" class="form-control required"></p>
 			</div>
 		</div>
 	<?php } ?>
@@ -458,15 +506,6 @@ function apply_template() {
 						echo "<option ".($project['project_colead'] == $contact['contactid'] ? 'selected' : '')." value='". $contact['contactid']."' data-region='".$contact['region']."' data-location='".$contact['con_locations']."' data-classification='".$contact['classification']."'>".$contact['first_name'].' '.$contact['last_name'].'</option>';
 					} ?>
 				</select>
-			</div>
-		</div>
-	<?php } ?>
-
-	<?php if (in_array("Information Followup",$value_config)) { ?>
-		<div class="form-group">
-			<label class="col-sm-4">Follow Up Date:</label>
-			<div class="col-sm-8 <?= !($security['edit'] > 0) ? 'readonly-block' : '' ?>">
-				<input type="text" name="followup" data-table="project" data-id="<?= $project['projectid'] ?>" data-id-field="projectid" value="<?= $project['followup'] ?>" class="datepicker form-control">
 			</div>
 		</div>
 	<?php } ?>

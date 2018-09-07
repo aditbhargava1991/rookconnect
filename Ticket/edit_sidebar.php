@@ -1,18 +1,19 @@
 <?php include_once('../include.php');
 include_once('../Ticket/field_list.php');
-if(!isset($ticketid)) {
-	$strict_view = strictview_visible_function($dbc, 'ticket');
-	$tile_security = get_security($dbc, ($_GET['tile_name'] == '' ? 'ticket' : 'ticket_type_'.$_GET['tile_name']));
-	if($strict_view > 0) {
-		$tile_security['edit'] = 0;
-		$tile_security['config'] = 0;
-	}
+include_once('../Ticket/config.php');
+if(empty($ticketid)) {
+	$access_view_project_info = check_subtab_persmission($dbc, 'ticket', ROLE, 'view_project_info');
+	$access_view_project_details = check_subtab_persmission($dbc, 'ticket', ROLE, 'view_project_details');
+	$access_view_staff = check_subtab_persmission($dbc, 'ticket', ROLE, 'view_staff');
+	$access_view_summary = check_subtab_persmission($dbc, 'ticket', ROLE, 'view_summary');
+	$access_view_complete = check_subtab_persmission($dbc, 'ticket', ROLE, 'view_complete');
+	$access_view_notifications = check_subtab_persmission($dbc, 'ticket', ROLE, 'view_notifications');
 	$ticketid = filter_var($_GET['ticketid'],FILTER_SANITIZE_STRING);
 	$get_ticket = $dbc->query("SELECT * FROM `tickets` WHERE `ticketid`='$ticketid'")->fetch_assoc();
 	$value_config = get_field_config($dbc, 'tickets');
 	$sort_order = explode(',',get_config($dbc, 'ticket_sortorder'));
-	if(!empty($get_ticket['ticket_type'])) {
-		$ticket_type = $get_ticket['ticket_type'];
+	$ticket_type = empty($get_ticket['ticket_type']) ? $ticket_type : $get_ticket['ticket_type'];
+	if(!empty($ticket_type)) {
 		$value_config .= get_config($dbc, 'ticket_fields_'.$ticket_type).',';
 		$sort_order = explode(',',get_config($dbc, 'ticket_sortorder_'.$ticket_type));
 	}
@@ -35,7 +36,7 @@ if(!isset($ticketid)) {
 			}
 		}
 	}
-	
+
 	$created_by = $get_ticket['created_by'];
 	$created_date = $get_ticket['created_date'];
 }
@@ -64,11 +65,12 @@ if($_GET['action_mode'] == 1) {
 	$sort_order = array_intersect($sort_order, $merged_config_fields);
 }
 ?>
-<?php if(count($ticket_tabs) > 0 && !($_GET['action_mode'] > 0)) { ?>
+<?php if(count($ticket_tabs) > 1 && !($_GET['action_mode'] > 0 || $_GET['overview_mode'] > 0) && $tile_security['edit'] > 0 && !($strict_view > 0)) { ?>
 	<a href="" data-tab-target="ticket_type"><li class="<?= $_GET['tab'] == 'ticket_type' ? 'active blue' : '' ?>"><?= TICKET_NOUN ?> Type</li></a>
 <?php } ?>
 <?php $current_heading = '';
 $current_heading_closed = true;
+$value_config = ','.$value_config.',';
 $sort_order = array_filter($sort_order);
 foreach($sort_order as $sort_field) { ?>
 	<?php //Add higher level heading
@@ -239,7 +241,7 @@ foreach($sort_order as $sort_field) { ?>
 					do { ?>
 						<a href="" data-tab-target="general_pallet_<?= $i++ ?>"><li><?= ($pallet['pallet'] != '' ? $pallet['pallet'] : 'No Pallet Assigned').': '.$pallet['items'] ?>
 							<?php if(strpos($value_config,',Inventory General Pallet Default Locked,') !== FALSE && !in_array('inventory_general_pallet_'.config_safe_str($pallet['pallet']),$unlocked_tabs)) { ?>
-								<em class="cursor-hand tab_lock_toggle_link pull-right"><img class="inline-img" src="../img/icons/lock.png"></em> 
+								<em class="cursor-hand tab_lock_toggle_link pull-right"><img class="inline-img" src="../img/icons/lock.png"></em>
 							<?php } ?></li></a>
 					<?php } while($pallet = $pallets->fetch_assoc());
 				} ?>
@@ -349,6 +351,14 @@ foreach($sort_order as $sort_field) { ?>
 		<a href="" data-tab-target="custom_view_ticket_comment"><li class="<?= $_GET['tab'] == 'custom_view_ticket_comment' ? 'active blue' : '' ?>"><?= get_config($dbc, 'ticket_custom_notes_heading') ?></li></a>
 	<?php } ?>
 
+	<?php if (strpos($value_config, ','."Internal Communication".',') !== FALSE && $sort_field == 'Internal Communication') { ?>
+		<a href="" data-tab-target="internal_communication"><li class="<?= $_GET['tab'] == 'internal_communication' ? 'active blue' : '' ?>"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Internal Communication' ?></li></a>
+	<?php } ?>
+
+	<?php if (strpos($value_config, ','."External Communication".',') !== FALSE && $sort_field == 'External Communication') { ?>
+		<a href="" data-tab-target="external_communication"><li class="<?= $_GET['tab'] == 'external_communication' ? 'active blue' : '' ?>"><?= !empty($renamed_accordion) ? $renamed_accordion : 'External Communication' ?></li></a>
+	<?php } ?>
+
 	<?php if (strpos($value_config, ','."Notes".',') !== FALSE && $sort_field == 'Notes') { ?>
 		<a href="" data-tab-target="notes_view_ticket_comment"><li class="<?= $_GET['tab'] == 'notes_view_ticket_comment' ? 'active blue' : '' ?>"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Notes' ?></li></a>
 	<?php } ?>
@@ -435,3 +445,21 @@ if(!$current_heading_closed) { ?>
 	</li>
 <?php } ?>
 <li>Created<?= ($created_by > 0 ? ' by '.get_staff($dbc, $created_by).'<br />' : '').' on '.($created_date ?: date('Y-m-d')) ?></li>
+<?php if(time() < strtotime($get_ticket['flag_start']) || time() > strtotime($get_ticket['flag_end'].' + 1 day')) {
+	$get_ticket['flag_colour'] = '';
+}
+if($get_ticket['flag_colour'] != '' && $get_ticket['flag_colour'] != 'FFFFFF') {
+	$flag_comment = '';
+	$quick_action_icons = explode(',',get_config($dbc, 'quick_action_icons'));
+	if(in_array('flag_manual',$quick_action_icons)) {
+		$flag_comment = html_entity_decode($dbc->query("SELECT `comment` FROM `ticket_comment` WHERE `deleted`=0 AND `ticketid`='$ticketid' AND `type`='flag_comment' ORDER BY `ticketcommid` DESC")->fetch_assoc()['comment']);
+	} else {
+		$ticket_flag_names = [''=>''];
+		$flag_names = explode('#*#', get_config($dbc, 'ticket_colour_flag_names'));
+		foreach(explode(',',get_config($dbc, 'ticket_colour_flags')) as $i => $colour) {
+			$ticket_flag_names[$colour] = $flag_names[$i];
+		}
+		$flag_comment = $ticket_flag_names[$get_ticket['flag_colour']];
+	} ?>
+	<li style="background-color:#<?= $get_ticket['flag_colour'] ?>;">Flagged<?= empty($flag_comment) ? '' : ': '.$flag_comment ?></li>
+<?php } ?>

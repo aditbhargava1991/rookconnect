@@ -48,6 +48,7 @@ var opt_classification = '<?= $_GET['classification'] ?>';
 var opt_date = '<?= $_GET['date'] ?>';
 var lock_timer = null;
 var ticket_list = [];
+var zoom = 10;
 function filterRegions() {
 	opt_region = $('[name=region]').val();
 	$('[name=classification] option[data-region]').each(function() {
@@ -69,11 +70,19 @@ function filterClass() {
 function get_ticket_list() {
 	$('.draw_sort').empty();
 	var equip_scroll = $('.equip_list').scrollTop();
-	$('.equip_list').html('<h4>Loading Equipment...</h4>').load('assign_equipment_list.php?date='+$('[name=date]').val()+'&region='+opt_region+'&location='+opt_location+'&classification='+opt_classification, function() { setTicketSave(); $('.equip_list').scrollTop(equip_scroll); });
-	$('.map_view').html('<h4>Loading Map...</h4>').load('assign_map_view.php?x='+$('.map_view').width()+'&y='+$('.map_view').height()+'&date='+$('[name=date]').val()+'&region='+opt_region+'&location='+opt_location+'&classification='+opt_classification, setTicketSave);
-	$('.ticket_list').html('<h4>Loading <?= TICKET_TILE ?>...</h4>').load('assign_ticket_list.php?date='+$('[name=date]').val()+'&region='+opt_region+'&location='+opt_location+'&classification='+opt_classification, setTicketSave);
+	$('.equip_list').html('<h4>Loading Equipment...</h4>').load('assign_equipment_list.php?date='+encodeURI($('[name=date]').val())+'&region='+encodeURI(opt_region)+'&location='+encodeURI(opt_location)+'&classification='+encodeURI(opt_classification), function() { setTicketSave(); $('.equip_list').scrollTop(equip_scroll); });
+    get_map_view();
+	$('.ticket_list').html('<h4>Loading <?= TICKET_TILE ?>...</h4>').load('assign_ticket_list.php?date='+encodeURI($('[name=date]').val())+'&region='+encodeURI(opt_region)+'&location='+encodeURI(opt_location)+'&classification='+encodeURI(opt_classification), setTicketSave);
 	lockTickets();
 	initOptions();
+}
+function get_map_view() {
+    if(zoom > 16) {
+        zoom = 16;
+    } else if(zoom < 6) {
+        zoom = 6;
+    }
+	$('.map_view').html('<h4>Loading Map...</h4>').load('assign_map_view.php?zoom='+zoom+'&x='+$('.map_view').width()+'&y='+$('.map_view').height()+'&date='+encodeURI($('[name=date]').val())+'&region='+encodeURI(opt_region)+'&location='+encodeURI(opt_location)+'&classification='+encodeURI(opt_classification), setTicketSave);
 }
 function lockTickets() {
 	clearTimeout(lock_timer);
@@ -92,9 +101,18 @@ function setTicketSave() {
 		console.log(this.value);
 	});
 	initInputs();
+    initTooltips();
 }
 function initOptions() {
-	try {
+    $('.ticket[data-table][data-id]').off('mouseenter');
+    $('.ticket[data-table][data-id]').mouseenter(function() {
+        $('.ticket[data-table='+$(this).data('table')+'][data-id='+$(this).data('id')+']').addClass('active').addClass('theme-color-icon').css('z-index',1);
+    });
+    $('.ticket[data-table][data-id]').off('mouseleave');
+    $('.ticket[data-table][data-id]').mouseleave(function() {
+        $('.ticket[data-table='+$(this).data('table')+'][data-id='+$(this).data('id')+']').removeClass('active').removeClass('theme-color-icon').css('z-index',0);
+    });
+    try {
 		$('.assign_list_box').sortable('destroy');
 	} catch(e) { }
 	$( ".assign_list_box" ).sortable({
@@ -128,6 +146,7 @@ function initDraw() {
 	} catch(e) { }
 	$( ".draw_sort" ).sortable({
 		beforeStop: function(e) {
+            $('.draw_sort').sortable('destroy');
 			$('.draw_sort').empty();
 			var block = $('.block-item.equipment.active').first();
 			var delay_load = '';
@@ -170,7 +189,7 @@ function initDraw() {
 					<div class="col-sm-8">
 						<select class="chosen-select-deselect" name="region" data-placeholder="Select Region"><option />
 							<?php foreach($allowed_regions as $region_name) { ?>
-								<option value="<?= $region_name ?>"><?= $region_name ?></option>
+								<option <?= $_GET['region'] == $region_name ? 'selected' : '' ?> value="<?= $region_name ?>"><?= $region_name ?></option>
 							<?php } ?>
 						</select>
 					</div>
@@ -182,7 +201,7 @@ function initDraw() {
 					<div class="col-sm-8">
 						<select class="chosen-select-deselect" name="location" data-placeholder="Select Location"><option />
 							<?php foreach($allowed_locations as $location) { ?>
-								<option value="<?= $location ?>"><?= $location ?></option>
+								<option <?= $_GET['location'] == $location ? 'selected' : '' ?> value="<?= $location ?>"><?= $location ?></option>
 							<?php } ?>
 						</select>
 					</div>
@@ -194,7 +213,7 @@ function initDraw() {
 					<div class="col-sm-8">
 						<select class="chosen-select-deselect" name="classification" data-placeholder="Select Classification"><option />
 							<?php foreach($contact_classifications as $i => $class) { ?>
-								<option data-region='<?= json_encode($classification_regions[$i]) ?>' value="<?= $class ?>"><?= $class ?></option>
+								<option <?= $_GET['classification'] == $class ? 'selected' : '' ?> data-region='<?= json_encode($classification_regions[$i]) ?>' value="<?= $class ?>"><?= $class ?></option>
 							<?php } ?>
 						</select>
 					</div>

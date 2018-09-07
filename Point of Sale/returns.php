@@ -53,8 +53,14 @@ $num_rows = mysqli_num_rows($get_invoice);
 if($num_rows > 0) {
     while($row = mysqli_fetch_array( $get_invoice )) {
         $posid = $row['posid'];
+
+		$before_change = capture_before_change($dbc, 'point_of_sell', 'status', 'posid', $posid);
+
 		$query_update_project = "UPDATE `point_of_sell` SET status = 'Posted Past Due' WHERE `posid` = '$posid'";
 		$result_update_project = mysqli_query($dbc, $query_update_project);
+
+		$history = capture_after_change('status', 'Posted Past Due');
+		add_update_history($dbc, 'pos_history', $history, '', $before_change);
     }
 }
 
@@ -133,7 +139,7 @@ if ( isset ( $_POST['search_invoice_submit'] ) ) {
 				echo '<a href="#" class="btn config-btn btn-lg " onclick="history.go(-1);return false;">Back</a>';
 		} ?>
 		<div class="col-sm-10">
-			<h1>Point of Sale Dashboard: Returns</h1>
+			<h1><?= POS_ADVANCE_TILE ?> Dashboard: Returns</h1>
 		</div>
 		<div class="col-sm-2 double-gap-top">
 			<?php

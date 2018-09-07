@@ -1,5 +1,5 @@
 <?php //HR Recurring Dates Cron Job
-include('../include.php');
+include(substr(dirname(__FILE__), 0, -8).'include.php');
 $today_date = date('Y-m-d');
 
 $hrs = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `hr` WHERE `recurring_due_date` = 1 AND `deleted` = 0"),MYSQLI_ASSOC);
@@ -45,7 +45,7 @@ foreach($hrs as $hr) {
 					}
 				}
 			}
-		}	
+		}
 	}
 }
 
@@ -92,6 +92,6 @@ foreach($manuals as $manual) {
 					}
 				}
 			}
-		}	
+		}
 	}
 }

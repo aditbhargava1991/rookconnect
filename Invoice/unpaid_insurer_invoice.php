@@ -14,7 +14,7 @@ if (isset($_POST['printpdf'])) {
     include_once ('print_unpaid_invoice.php');
 }
 ?>
-<script type="text/javascript" src="invoice.js"></script>
+<script type="text/javascript" src="../Invoice/invoice.js"></script>
 </head>
 <body>
 <?php include_once ('../navigation.php');
@@ -23,70 +23,11 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
 <div class="container triple-pad-bottom">
     <div class="row">
         <h2><?= (empty($current_tile_name) ? 'Check Out' : $current_tile_name) ?>
-        <?php
-            echo '<a href="field_config_invoice.php" class="btn mobile-block pull-right"><img style="width: 50px;" title="Tile Settings" src="../img/icons/settings-4.png" class="settings-classic wiggle-me"></a><br><br>';
-        ?>
+        <?php if(config_visible_function($dbc, (FOLDER_NAME == 'posadvanced' ? 'posadvanced' : 'check_out')) == 1) {
+            echo '<a href="field_config_invoice.php" class="mobile-block pull-right "><img style="width: 50px;" title="Tile Settings" src="../img/icons/settings-4.png" class="settings-classic wiggle-me"></a>';
+        } ?>
         </h2>
-
-		<?php $tab_list = explode(',', get_config($dbc, 'invoice_tabs'));
-		?><div class='mobile-100-container'><?php
-		foreach($tab_list as $tab_name) {
-			if(check_subtab_persmission($dbc, FOLDER_NAME == 'invoice' ? 'check_out' : 'posadvanced', ROLE, $tab_name) === TRUE) {
-				switch($tab_name) {
-					case 'sell':
-						if(in_array('touch',$ux_options)) { ?>
-							<a href='add_invoice.php' class="btn brand-btn mobile-block mobile-100">Create Invoice (Keyboard)</a>
-							<a href='touch_main.php' class="btn brand-btn mobile-block mobile-100">Create Invoice (Touchscreen)</a>
-						<?php } else { ?>
-							<a href='add_invoice.php' class="btn brand-btn mobile-block mobile-100">Create Invoice</a>
-						<?php }
-						break;
-					case 'today': ?>
-						<span class="popover-examples list-inline">
-							<a href="#job_file" data-toggle="tooltip" data-placement="top" title="Invoices created today."><img src="<?php echo WEBSITE_URL;?>/img/info.png" width="20"></a>
-						</span>
-						<a href='today_invoice.php' class="btn brand-btn mobile-block mobile-100">Today's Invoices</a>
-						<?php break;
-					case 'all': ?>
-						<span class="popover-examples list-inline">
-							<a href="#job_file" data-toggle="tooltip" data-placement="top" title="Complete history of all Invoices."><img src="<?php echo WEBSITE_URL;?>/img/info.png" width="20"></a>
-						</span>
-						<a href='all_invoice.php' class="btn brand-btn mobile-block mobile-100">All Invoices</a>
-						<?php break;
-					case 'invoices': ?>
-						<a href='invoice_list.php' class="btn brand-btn mobile-block mobile-100">Invoices</a>
-						<?php break;
-					case 'unpaid': ?>
-						<a href='unpaid_invoice_list.php' class="btn brand-btn mobile-block mobile-100">Accounts Receivable</a>
-						<?php break;
-					case 'voided': ?>
-						<a href='void_invoices.php' class="btn brand-btn mobile-block mobile-100">Voided Invoices</a>
-						<?php break;
-					case 'refunds': ?>
-						<span class="popover-examples list-inline">
-							<a href="#job_file" data-toggle="tooltip" data-placement="top" title="Find invoices in order to issue Refunds or Create Adjustment Invoices."><img src="<?php echo WEBSITE_URL;?>/img/info.png" width="20"></a>
-						</span>
-						<a href='refund_invoices.php' class="btn brand-btn mobile-block mobile-100">Refund / Adjustments</a>
-						<?php break;
-					case 'ui_report': ?>
-						<span class="popover-examples list-inline">
-							<a href="#job_file" data-toggle="tooltip" data-placement="top" title="In this section you can create Invoices for insurers."><img src="<?php echo WEBSITE_URL;?>/img/info.png" width="20"></a>
-						</span>
-						<a href='unpaid_insurer_invoice.php' class="btn brand-btn mobile-block mobile-100 active_tab">Unpaid Insurer Invoice Report</a>
-						<?php break;
-					case 'cashout': ?>
-						<span class="popover-examples list-inline">
-							<a href="#job_file" data-toggle="tooltip" data-placement="top" title="Daily front desk Cashout."><img src="<?php echo WEBSITE_URL;?>/img/info.png" width="20"></a>
-						</span>
-						<a href='cashout.php' class="btn brand-btn mobile-block mobile-100">Cash Out</a>
-						<?php break;
-                            case 'gf': ?>
-                                <a href='giftcards.php' class="btn brand-btn mobile-block mobile-100">Gift Card</a>
-                                <?php break;
-				}
-			}
-		}
-		?></div>
+		<?php include('tile_tabs.php'); ?>
         <br><br>
 
         <form name="invoice" method="post" action="" class="form-inline" role="form" style="overflow-x:visible;overflow-y:visible;">
@@ -94,7 +35,7 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
 		<div class="notice double-gap-bottom popover-examples">
 			<div class="col-sm-1 notice-icon"><img src="<?= WEBSITE_URL; ?>/img/info.png" class="wiggle-me" width="25"></div>
 			<div class="col-sm-11"><span class="notice-name">NOTE:</span>
-			Generate Unpaid Insurer reports from here. Select the customer's name from the drop down menu, then select the insurer from the drop down menu to display all unpaid insurer invoices related to that customer and insurer.</div>
+			Generate Unpaid <?= $payer_label ?> reports from here. Select the <?= $purchaser_label ?> name from the drop down menu, then select the <?= $payer_label ?> from the drop down menu to display all unpaid <?= $payer_label ?> invoices related to that <?= $purchaser_label ?> and <?= $payer_label ?>.</div>
 			<div class="clearfix"></div>
 		</div>
 
@@ -109,9 +50,9 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
 			}
             ?>
             <div class="form-group">
-              <label for="site_name" class="col-sm-4 control-label">Search by Customer:</label>
+              <label for="site_name" class="col-sm-4 control-label">Search by <?= $purchaser_label ?>:</label>
               <div class="col-sm-8">
-                  <select data-placeholder="Select a Customer" name="search_user" id="search_user" class="chosen-select-deselect form-control" width="380">
+                  <select data-placeholder="Select a <?= $purchaser_label ?>" name="search_user" id="search_user" class="chosen-select-deselect form-control" width="380">
                   <option value=""></option>
                   <?php
                     $query = mysqli_query($dbc,"SELECT distinct(patientid) FROM invoice WHERE paid = 'Waiting on Insurer' AND final_price IS NOT NULL AND serviceid IS NOT NULL AND serviceid != ','");
@@ -129,15 +70,15 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
                 <button type="submit" name="search_user_submit" id="search_user_submit" value="Search" class="btn brand-btn mobile-block">Search</button>
                 <!--<button type="submit" name="display_all_inventory" value="Display All" class="btn brand-btn mobile-block">Display All</button>-->
 				<span class="popover-examples list-inline">
-					<a href="#job_file" data-toggle="tooltip" data-placement="top" title="Select an insurer from the dropdown, then click on the checkbox at the end of each row to select the item(s) you wish to print before you click the Print button."><img src="<?php echo WEBSITE_URL;?>/img/info.png" width="20"></a>
+					<a href="#job_file" data-toggle="tooltip" data-placement="top" title="Select an <?= $payer_label ?> from the dropdown, then click on the checkbox at the end of each row to select the item(s) you wish to print before you click the Print button."><img src="<?php echo WEBSITE_URL;?>/img/info.png" width="20"></a>
 				</span>
                 <button type="submit" name="printpdf" id="printpdf" value="Print Report" class="btn brand-btn pull-right">Print</button>
             </div>
 
             <div class="form-group">
-              <label for="site_name" class="col-sm-4 control-label">Select Insurer:</label>
+              <label for="site_name" class="col-sm-4 control-label">Select <?= $payer_label ?>:</label>
               <div class="col-sm-8">
-                <select data-placeholder="Select an Insurer" id="insurerid" name="insurerid" class="chosen-select-deselect form-control" width="380">
+                <select data-placeholder="Select an <?= $payer_label ?>" id="insurerid" name="insurerid" class="chosen-select-deselect form-control" width="380">
                   <option value=""></option>
                   <?php
                     $insurerid = get_all_form_contact($dbc, $search_user, 'insurerid');
@@ -354,7 +295,7 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
             }
             ?>
 
-        
+
         </form>
 
 	</div>

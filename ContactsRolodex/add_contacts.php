@@ -181,7 +181,7 @@ function selectHour(obj){
 	} else if($url_category == 'Customers') {
 		$cat_label = 'Customer';
 	} else if($url_category == 'Vendors') {
-		$cat_label = 'Vendor';
+		$cat_label = VENDOR_TILE;
 	} else if($url_category == 'Contractors') {
 		$cat_label = 'Contractor';
 	} else if($url_category == 'Sales Leads') {

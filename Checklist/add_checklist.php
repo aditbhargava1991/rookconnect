@@ -25,6 +25,12 @@ if (isset($_POST['tasklist'])) {
         $query_insert_ca = "INSERT INTO `checklist_report` (`report`, `user`, `date`, `checklist_name`, `subtab_name`, `checklist_type`, `checklistid`, `subtabid`) VALUES ('$report', '".decryptIt($_SESSION['first_name'])." ".decryptIt($_SESSION['last_name'])."', '".date('Y-m-d')."', '', '$subtab_name', '', '', '$subtabid')";
         $result_insert_ca = mysqli_query($dbc, $query_insert_ca);
 
+        $before_change = '';
+        $start_word = strpos($report, "Updated");
+        $end_word = strpos($report, " on");
+        $history = substr($report, $start_word, $end_word - $start_word) . "<br />";
+        add_update_history($dbc, 'checklist_history', $history, '', $before_change);
+
         $update_tab_config = ",".$subtabid."_ongoing,".$subtabid."_daily,".$subtabid."_weekly,".$subtabid."_monthly";
         foreach ($_POST['subtab_shared'] as $tabs_config_row) {
             $result = mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'checklist_tabs_" . $tabs_config_row . "' FROM (SELECT COUNT(*) numrows FROM `general_configuration` WHERE `name`='checklist_tabs_" . $tabs_config_row . "') current_config WHERE numrows=0");
@@ -48,12 +54,18 @@ if (isset($_POST['tasklist'])) {
             $report = decryptIt($_SESSION['first_name']).' '.decryptIt($_SESSION['last_name']).' Updated Checklist Sub Tab <b>'.$subtab_name.'</b> on '.date('Y-m-d');
             $query_insert_ca = "INSERT INTO `checklist_report` (`report`, `user`, `date`, `checklist_name`, `subtab_name`, `checklist_type`, `checklistid`, `subtabid`) VALUES ('$report', '".decryptIt($_SESSION['first_name'])." ".decryptIt($_SESSION['last_name'])."', '".date('Y-m-d')."', '', '$subtab_name', '', '', '$subtabid')";
             $result_insert_ca = mysqli_query($dbc, $query_insert_ca);
+
+            $before_change = '';
+            $start_word = strpos($report, "Updated");
+            $end_word = strpos($report, " on");
+            $history = substr($report, $start_word, $end_word - $start_word) . "<br />";
+            add_update_history($dbc, 'checklist_history', $history, '', $before_change);
         }
     }
 
     $checklist_type = filter_var($_POST['checklist_type'],FILTER_SANITIZE_STRING);
     $checklist_name = filter_var($_POST['checklist_name'],FILTER_SANITIZE_STRING);
-	
+
 	$reset_time = '12:00 am';
 	$reset_day = '1';
 	switch($checklist_type) {
@@ -91,6 +103,12 @@ if (isset($_POST['tasklist'])) {
         $query_insert_ca = "INSERT INTO `checklist_report` (`report`, `user`, `date`, `checklist_name`, `subtab_name`, `checklist_type`, `checklistid`, `subtabid`) VALUES ('$report', '".decryptIt($_SESSION['first_name'])." ".decryptIt($_SESSION['last_name'])."', '".date('Y-m-d')."', '$checklist_name', '$subtab_name', '$checklist_type', '$checklistid', '$subtabid')";
         $result_insert_ca = mysqli_query($dbc, $query_insert_ca);
 
+        $before_change = '';
+        $start_word = strpos($report, "Updated");
+        $end_word = strpos($report, " on");
+        $history = substr($report, $start_word, $end_word - $start_word) . "<br />";
+        add_update_history($dbc, 'checklist_history', $history, '', $before_change);
+
         insert_day_overview($dbc, $_SESSION['contactid'], 'Checklist', date('Y-m-d'), '', 'Updated Checklist '.$checklist_name, $checklistid);
     }
 
@@ -105,6 +123,12 @@ if (isset($_POST['tasklist'])) {
         $report = decryptIt($_SESSION['first_name']).' '.decryptIt($_SESSION['last_name']).' Updated Checklist Items in <b>'.$checklist_name.'</b> on '.date('Y-m-d');
         $query_insert_ca = "INSERT INTO `checklist_report` (`report`, `user`, `date`, `checklist_name`, `subtab_name`, `checklist_type`, `checklistid`, `subtabid`) VALUES ('$report', '".decryptIt($_SESSION['first_name'])." ".decryptIt($_SESSION['last_name'])."', '".date('Y-m-d')."', '$checklist_name', '', '', '$checklistid', '$subtabid')";
         $result_insert_ca = mysqli_query($dbc, $query_insert_ca);
+
+        $before_change = '';
+        $start_word = strpos($report, "Updated");
+        $end_word = strpos($report, " on");
+        $history = substr($report, $start_word, $end_word - $start_word) . "<br />";
+        add_update_history($dbc, 'checklist_history', $history, '', $before_change);
     }
 
     $item = 0;
@@ -126,6 +150,12 @@ if (isset($_POST['tasklist'])) {
         $report = decryptIt($_SESSION['first_name']).' '.decryptIt($_SESSION['last_name']).' Added Checklist Items in <b>'.$checklist_name.'</b> on '.date('Y-m-d');
         $query_insert_ca = "INSERT INTO `checklist_report` (`report`, `user`, `date`, `checklist_name`, `subtab_name`, `checklist_type`, `checklistid`, `subtabid`) VALUES ('$report', '".decryptIt($_SESSION['first_name'])." ".decryptIt($_SESSION['last_name'])."', '".date('Y-m-d')."', '$checklist_name', '', '', '$checklistid', '$subtabid')";
         $result_insert_ca = mysqli_query($dbc, $query_insert_ca);
+
+        $before_change = '';
+        $start_word = strpos($report, "Updated");
+        $end_word = strpos($report, " on");
+        $history = substr($report, $start_word, $end_word - $start_word) . "<br />";
+        add_update_history($dbc, 'checklist_history', $history, '', $before_change);
     }
 
 
@@ -348,7 +378,6 @@ $tab_list = get_config($dbc, 'checklist_tabs_' . $_SESSION['contactid']); ?>
         </label>
         <div class="col-sm-8">
             <select name="subtab_shared[]" id="subtab_shared" multiple data-placeholder="Select Shared Contacts..." class="chosen-select-deselect form-control">
-                <option value=''></option>
                 <option value='ALL'>Share with Everyone</option>
                 <?php
                 $cat = '';
@@ -419,7 +448,6 @@ $tab_list = get_config($dbc, 'checklist_tabs_' . $_SESSION['contactid']); ?>
 		</label>
         <div class="col-sm-8">
             <select name="assign_staff[]" multiple data-placeholder="Select Assigned Staff..." class="chosen-select-deselect form-control">
-                <option value=''></option>
                 <option value='ALL'>Assign All Staff</option>
                 <?php
                 $cat = '';
@@ -472,7 +500,7 @@ $tab_list = get_config($dbc, 'checklist_tabs_' . $_SESSION['contactid']); ?>
 		$('[name=checklist_type]').change();
 	});
 	</script>
-	
+
     <div class="form-group clearfix reset_time" style="display:none;">
         <label for="first_name" class="col-sm-4 control-label text-right">
 			<span class="popover-examples list-inline" style="margin:0 3px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Daily, Weekly, and Monthly checklists will roll over to unchecked at the specified reset time."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>

@@ -1,4 +1,4 @@
-<?php
+<?php include_once('../include.php');
 /*
 Software Styling
 */
@@ -119,11 +119,13 @@ if ( !empty($note) ) { ?>
 	}
         ?>
 		<!-- If you change anything here, it should also be changed in the login_page_style.php, header.php, admin_software_config.php as well. -->
-        <table class='table table-bordered' id="caltbl">
-            <tr class='hidden-sm '>
-                <th  data-title="Software Style">Available Software Styles</th>
-                <th  data-title="Activation">Activate Style</th>
-            </tr>
+        <table class='table table-bordered table-striped' id="caltbl">
+            <thead>
+                <tr class='hidden-sm '>
+                    <th  data-title="Software Style">Available Software Styles</th>
+                    <th  data-title="Activation">Activate Style</th>
+                </tr>
+            </thead>
 			<tr>
 				<td>Default</td>
 				<td><input type='radio' onclick="handleClick(this);" name='styler' style='width:20px; height:20px;' <?php if($software_config == '') { echo "checked"; } ?> value=''></td>
@@ -251,6 +253,10 @@ if ( !empty($note) ) { ?>
 			<tr>
 				<td>Realtor Navigator (Light)</td>
 				<td><input type='radio' onclick="handleClick(this);" name='styler' style='width:20px; height:20px;' <?php if($software_config == 'realtorlight') { echo "checked"; } ?> value='realtorlight'></td>
+			</tr>
+			<tr>
+				<td>Red &amp; Silver</td>
+				<td><input type='radio' onclick="handleClick(this);" name='styler' style='width:20px; height:20px;' <?php if($software_config == 'redsilver') { echo "checked"; } ?> value='redsilver'></td>
 			</tr>
 			<tr>
 				<td>ROOK Connect</td>

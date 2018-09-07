@@ -117,6 +117,10 @@ if(isset($_POST["submitty"]))
 			$result_insert_inventory = mysqli_query($dbc, $query_insert_inventory) or die(mysqli_error($dbc));
 			$inventoryid = mysqli_insert_id($dbc);
 
+			$before_change = '';
+			$history = "New Vendor Price list added. <br />";
+			add_update_history($dbc, 'vendorpl_history', $history, '', $before_change);
+
 				$update_log = 'VPL Item Added (ID: '.$inventoryid.')';
 				$today_date = date('Y-m-d H:i:s', time());
 				$contactid = $_SESSION['contactid'];

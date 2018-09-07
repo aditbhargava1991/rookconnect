@@ -15,11 +15,17 @@ if (isset($_POST['submit'])) {
         $query_insert_customer = "INSERT INTO `rate_card_holiday_pay` (`rate_type`, `positionid`, `staffid`, `no_of_hours_paid`, `who_added`, `when_added`) VALUES ('$rate_type', '$positionid', '$staffid', '$no_of_hours_paid', '$who_added', '$when_added')";
         $result_insert_customer = mysqli_query($dbc, $query_insert_customer);
         $url = 'Added';
+				$before_change = '';
+        $history = "Rate card holiday entry is been added. <br />";
+				add_update_history($dbc, 'ratecard_history', $history, '', $before_change);
     } else {
         $ratecardholidayid = $_POST['ratecardholidayid'];
         $query_update_vendor = "UPDATE `rate_card_holiday_pay` SET `rate_type` = '$rate_type', `positionid` = '$positionid', `staffid` = '$staffid', `no_of_hours_paid` = '$no_of_hours_paid' WHERE `ratecardholidayid` = '$ratecardholidayid'";
         $result_update_vendor = mysqli_query($dbc, $query_update_vendor);
         $url = 'Updated';
+				$before_change = '';
+        $history = "Rate card holiday pay entry is been updated. <br />";
+				add_update_history($dbc, 'ratecard_history', $history, '', $before_change);
     }
 
     echo '<script type="text/javascript"> window.location.replace("?card=holiday&type=holiday"); </script>';

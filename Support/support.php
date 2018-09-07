@@ -33,7 +33,7 @@ if (isset($_POST['support'])) {
         move_uploaded_file($_FILES["file"]["tmp_name"][$i], "download/" . $_FILES["file"]["name"][$i]) ;
     }
 
-    $dbc_software = @mysqli_connect('mysql.rookconnect.com', 'ffm_rook_user', 'mIghtyLion!542', 'ffm_rook_db');
+    $dbc_software = @mysqli_connect('localhost', 'ffm_rook_user', 'mIghtyLion!542', 'ffm_rook_db');
 
     $query_insert_support = "INSERT INTO `support` (`name`, `email`, `cc_email`, `contact_number`, `message`, `document`, `current_date`, `support_type`, `priority`, `company_name`, `heading`) VALUES ('$name', '$email', '$cc_email', '$contact_number', '$message_support', '$document', '$current_date', '$support_type', '$priority', '$company_name', '$heading')";
 

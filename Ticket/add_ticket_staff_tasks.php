@@ -16,13 +16,13 @@ foreach($main_tasks as $i => $task_name) {
 	<div class="staff_tasks_add">
 		<?= (!empty($renamed_accordion) ? '<h3>'.$renamed_accordion.'</h3>' : '<h3>Staff</h3>') ?>
 		<div class="form-group">
-			<?php foreach(explode('#*#',get_config($dbc, 'ticket_groups')) as $group) {
-				$group = explode(',',$group); ?>
-				<button class="btn brand-btn" onclick="<?php foreach($group as $i => $staff) {
+			<?php foreach(get_teams($dbc, " AND IF(`end_date` = '0000-00-00','9999-12-31',`end_date`) >= '".date('Y-m-d')."'") as $team) {
+				$team_staff = get_team_contactids($dbc, $team['teamid']); ?>
+				<button class="btn brand-btn" onclick="<?php foreach($team_staff as $i => $staff) {
 					if($staff > 0) {
 						echo "$('[name=staff_task_contact][value=".$staff."]').prop('checked',true).change();";
 					}
-				} ?>return false;"><?= $group[0] ?></button>
+				} ?>return false;"><?= get_team_name($dbc, $team['teamid']) ?></button>
 			<?php } ?>
 		</div>
 		<?php foreach(sort_contacts_query(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name` FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `status`>0 AND `deleted`=0")) as $staff) { ?>
@@ -48,7 +48,7 @@ foreach($main_tasks as $i => $task_name) {
 			<button class="btn brand-btn pull-left assign_staff_task" data-task-group="" onclick="add_staff_task(); return false;">Add Selected Staff With Task</button>
 		<?php } ?>
 		<?php if(strpos($value_config,',Ticket Tasks Auto Check In,') !== FALSE) { ?>
-			<button class="btn brand-btn pull-left assign_staff_task" onclick="add_staff_task('checkin');">Get to Work</button>
+			<button class="btn brand-btn pull-left assign_staff_task" onclick="add_staff_task('<?= strpos($value_config,',Ticket Tasks Auto Load New,') !== FALSE ? 'open_ticket' : 'checkin' ?>');">Get to Work</button>
 		<?php } ?>
 		<?php if($extra_tasks > 0) { ?>
 			<button class="btn brand-btn pull-right" onclick="$('[name=staff_assigned_task][data-task-type]').removeAttr('disabled'); $('.billing_group h4,.billing_group label').show(); $(this).hide(); return false;">Extra Billing</button>

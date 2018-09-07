@@ -112,10 +112,31 @@ foreach(explode(',',$loaded_templates) as $loaded_template) {
 		</div>
 	</div>
 	<?php if(in_array('Estimated Hours',$service_fields)) { ?>
+		<script type="text/javascript">
+		function edit_total_estimated_hours(a) {
+			$('[name="total_estimated_hours"]').prop('readonly',false).css('background-color','').removeClass('readonly-block').focus();
+			$('.edit_estimated_hours_btn').hide();
+			$('.submit_estimated_hours_btn').show();
+		}
+		function update_total_estimated_hours(a, ratecardid) {
+			var total_estimated_hours = $('[name="total_estimated_hours"]').val();
+			$.ajax({
+				url: '../Contacts/contacts_ajax.php?action=update_total_estimated_hours&ratecardid='+ratecardid+'&hours='+total_estimated_hours,
+				method: 'GET',
+				success: function(response) {
+					$('[name="total_estimated_hours"]').prop('readonly',true).css('background-color','#eeeeee').addClass('readonly-block');
+					$('.edit_estimated_hours_btn').show();
+					$('.submit_estimated_hours_btn').hide();
+				}
+			});
+		}
+		</script>
 		<div class="form-group">
 			<label class="control-label col-sm-4">Total Estimated Hours:</label>
 			<div class="col-sm-8">
-				<input type="text" readonly value="<?= time_decimal2time($total_hours) ?>" class="form-control">
+				<input type="text" name="total_estimated_hours" readonly value="<?= time_decimal2time(($rate_card['total_estimated_hours'] > 0 ? $rate_card['total_estimated_hours'] : $total_hours)) ?>" class="form-control timepicker-5 readonly-block" style="background-color: #eeeeee;">
+				<a href="?" onclick="edit_total_estimated_hours(this); return false;" class="btn brand-btn pull-right edit_estimated_hours_btn">Edit Estimated Hours</a>
+				<a href="?" onclick="update_total_estimated_hours(this, '<?= $rate_card['ratecardid'] ?>'); return false;" class="btn brand-btn pull-right submit_estimated_hours_btn" style="display:none;">Submit Estimated Hours</a>
 			</div>
 		</div>
 	<?php } ?>

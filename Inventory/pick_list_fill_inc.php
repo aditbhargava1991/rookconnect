@@ -24,6 +24,10 @@ if(!empty($_POST['save'])) {
 			$inv = $dbc->query("SELECT `inventory`.`inventoryid`, `inventory`.`quantity`, `inventory`.`assigned_qty`, `pick_list_items`.`filled` FROM `pick_list_items` LEFT JOIN `inventory` ON `pick_list_items`.`inventoryid`=`inventory`.`inventoryid` WHERE `pick_list_items`.`id`='$id'")->fetch_assoc();
 			$qty_diff = $filled - $inv['filled'];
 			$dbc->query("UPDATE `inventory` SET `assigned_qty`=`assigned_qty` - $qty_diff, `quantity`=`quantity` - $qty_diff WHERE `inventoryid`='{$inv['inventoryid']}'");
+			$before_change = '';
+			$temp_invid = $inv['inventoryid'];
+      $history = "Inventory with id $temp_invid is been Updated. <br />";
+	    add_update_history($dbc, 'inventory_history', $history, '', $before_change);
 			$dbc->query("INSERT INTO `inventory_change_log` (`inventoryid`,`contactid`,`location_of_change`,`date_time`,`old_inventory`,`changed_quantity`,`new_inventory`,`change_comment`) SELECT `inventoryid`,'{$_SESSION['contactid']}','Pick List',NOW(),'".$inv['quantity']."','$qty_diff','".($inv['quantity'] - $qty_diff)."','$qty_diff Filled in Pick List' FROM `inventory` WHERE `inventoryid`='{$inv['inventoryid']}'");
 			$dbc->query("UPDATE `pick_list_items` SET `filled`='$filled' WHERE `id`='$id'");
 		}
@@ -63,7 +67,7 @@ function remRow(item) {
 	if($('.inv_list .form-group:visible').length == 1) {
 		addRow();
 	}
-	
+
 	$(item).closest('.form-group').hide().find('[name="deleted[]"]').val(1);
 }
 function populate_inventory() {

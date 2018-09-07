@@ -50,6 +50,9 @@ if (isset($_POST['submit'])) {
 		$photo = htmlspecialchars($photo, ENT_QUOTES);
 		$query_insert_site = "INSERT INTO `field_sites` (`clientid`, `site_name`, `domain_name`, `display_name`, `phone_number`,	`fax_number`, `photo`, `description`, `same_address`, `mail_street`, `mail_country`, `mail_city`, `mail_state`, `mail_zip`, `office_street`, `office_country`,	`office_city`, `office_state`, `office_zip`) VALUES	('$clientid', '$site_name', '$domain_name', '$display_name', '$phone_number',	'$fax_number', '$photo', '$description', '$same_address', '$mail_street', '$mail_country', '$mail_city', '$mail_state',	'$mail_zip', '$office_street', '$office_country', '$office_city', '$office_state', '$office_zip')";
 		$result_insert_site	= mysqli_query($dbc, $query_insert_site);
+		$before_change = '';
+		$history = "New Field list added. <br />";
+		add_update_history($dbc, 'vendorpl_history', $history, '', $before_change);
         $url = 'Added';
 
 	} else {

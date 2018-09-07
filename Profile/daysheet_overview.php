@@ -5,7 +5,7 @@ if (isset($_POST['add_manual'])) {
     $contactid = $_SESSION['contactid'];
 
 // Stop all the timer
-    $running_tickets = mysqli_fetch_all(mysqli_query($dbc, "SELECT tt.* FROM `ticket_timer` tt LEFT JOIN `tickets` ti ON tt.`ticketid` = ti.`ticketid` WHERE tt.`created_by` = '$contactid' AND tt.`start_timer_time` > 0 AND ti.`deleted` = 0 AND ti.`status` != 'Archive'"),MYSQLI_ASSOC);
+    $running_tickets = mysqli_fetch_all(mysqli_query($dbc, "SELECT tt.* FROM `ticket_timer` tt LEFT JOIN `tickets` ti ON tt.`ticketid` = ti.`ticketid` WHERE tt.`created_by` = '$contactid' AND tt.`start_timer_time` > 0 AND ti.`deleted` = 0 AND ti.`status` != 'Archive' AND tt.`deleted` = 0"),MYSQLI_ASSOC);
     foreach ($running_tickets as $running_ticket) {
     	$tickettimerid = $running_ticket['tickettimerid'];
     	if(empty($running_ticket['timer']) && empty($running_ticket['end_time'])) {
@@ -196,7 +196,7 @@ if (isset($_POST['add_manual'])) {
         $html_weekly .= '</table><br /><br />';
     }
 
-    $query_check_credentials = "SELECT * FROM ticket_timer WHERE created_by='$contactid' AND DATE(created_date) = CURDATE()";
+    $query_check_credentials = "SELECT * FROM ticket_timer WHERE created_by='$contactid' AND DATE(created_date) = CURDATE() AND `deleted` = 0";
     $result = mysqli_query($dbc, $query_check_credentials);
     $num_rows = mysqli_num_rows($result);
 
@@ -551,7 +551,7 @@ $meetings = $get_total_meetings['total_meeting'];
     <?php } ?>
 
     <?php if($tasks > 0) { ?>
-        <h4>Tasks</h4>
+        <h4><?= TASK_TILE ?></h4>
     		<?php
     		$est = mysqli_query($dbc, "SELECT * FROM day_overview WHERE type='Task' AND contactid='$contactid' AND DATE(today_date) = CURDATE()");
     		echo '<ul>';
@@ -646,7 +646,7 @@ $meetings = $get_total_meetings['total_meeting'];
     <?php } ?>
 
     <?php
-    	$query_check_credentials = "SELECT * FROM ticket_timer WHERE created_by='$contactid' AND DATE(created_date) = CURDATE()";
+    	$query_check_credentials = "SELECT * FROM ticket_timer WHERE created_by='$contactid' AND DATE(created_date) = CURDATE() AND `deleted` = 0";
     	$result = mysqli_query($dbc, $query_check_credentials);
     	$num_rows = mysqli_num_rows($result);
     ?>
@@ -942,7 +942,7 @@ $meetings = $get_total_meetings['total_meeting'];
           $spent_time = '';
 
           if($ticketNumber != '') {
-            $query_check_credentials1 = "SELECT * FROM ticket_timer WHERE ticketid='$ticketNumber' ORDER BY tickettimerid DESC";
+            $query_check_credentials1 = "SELECT * FROM ticket_timer WHERE ticketid='$ticketNumber' AND `deleted` = 0 ORDER BY tickettimerid DESC";
             $result1 = mysqli_query($dbc, $query_check_credentials1);
             $num_rows1 = mysqli_num_rows($result1);
             if($num_rows1 > 0) {

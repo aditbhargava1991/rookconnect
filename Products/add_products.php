@@ -80,11 +80,17 @@ if (isset($_POST['add_product'])) {
         $result_insert_vendor = mysqli_query($dbc, $query_insert_vendor);
         $productid = mysqli_insert_id($dbc);
         $url = 'Added';
+				$before_change = '';
+				$history = "Products entry has been added. <br />";
+				add_update_history($dbc, 'products_history', $history, '', $before_change);
     } else {
         $productid = $_POST['productid'];
         $query_update_vendor = "UPDATE `products` SET `product_type` = '$product_type', `category` = '$category',`product_code` = '$product_code', `heading` = '$heading', `cost` = '$cost', `description` = '$description', `quote_description` = '$quote_description', `invoice_description` = '$invoice_description', `ticket_description` = '$ticket_description', `final_retail_price` = '$final_retail_price', `admin_price` = '$admin_price', `wholesale_price` = '$wholesale_price', `commercial_price` = '$commercial_price', `client_price` = '$client_price',`purchase_order_price` = '$purchase_order_price', `sales_order_price` = '$sales_order_price', `minimum_billable` = '$minimum_billable', `hourly_rate` = '$hourly_rate', `estimated_hours` = '$estimated_hours', `actual_hours` = '$actual_hours', `msrp` = '$msrp', `name` = '$name', `fee` = '$fee', `unit_price` = '$unit_price', `unit_cost` = '$unit_cost', `rent_price` = '$rent_price', `drum_unit_cost`= '$drum_unit_cost', `drum_unit_price` = '$drum_unit_price', `tote_unit_cost` = '$tote_unit_cost', `tote_unit_price` = '$tote_unit_price', `rental_days` = '$rental_days', `rental_weeks` = '$rental_weeks', `rental_months` = '$rental_months', `rental_years` = '$rental_years', `reminder_alert` = '$reminder_alert', `daily` = '$daily', `weekly` = '$weekly', `monthly` = '$monthly', `annually` = '$annually', `total_days` = '$total_days', `total_hours` = '$total_hours', `total_km` = '$total_km', `total_miles` = '$total_miles', `include_in_so` = '$include_in_so', `include_in_po` = '$include_in_po', `include_in_pos` = '$include_in_pos', `include_in_inventory` = '$include_in_inventory' WHERE `productid` = '$productid'";
         $result_update_vendor = mysqli_query($dbc, $query_update_vendor);
         $url = 'Updated';
+				$before_change = '';
+				$history = "Products entry has been updated for product id $productid. <br />";
+				add_update_history($dbc, 'products_history', $history, '', $before_change);
     }
 
     if($include_in_inventory == 1) {
@@ -514,7 +520,7 @@ checkAuthorised('products');
 
 	  <?php if (strpos($value_config, ','."Include in P.O.S.".',') !== FALSE) { ?>
       <div class="form-group">
-        <label for="company_name" class="col-sm-4 control-label">Include in Point of Sale:</label>
+        <label for="company_name" class="col-sm-4 control-label">Include in <?= POS_ADVANCE_TILE ?>:</label>
         <div class="col-sm-8">
           <input type='checkbox' style='width:20px; height:20px;' <?php if($include_in_pos !== '' && $include_in_pos !== NULL) { echo "checked"; } ?> name='include_in_pos' class='' value='1'>
         </div>

@@ -36,6 +36,9 @@ if (isset($_POST['submit'])) {
     }
     move_uploaded_file($_FILES["front_client_logo"]["tmp_name"],"download/" . $front_client_logo_update);
     $query_update_employee = "UPDATE `estimate` SET front_company_logo = '$front_company_logo_update', front_client_info = '$front_client_info', front_other_info = '$front_other_info', front_client_logo = '$front_client_logo_update', front_content_pages = '$front_content_pages', last_content_pages = '$last_content_pages' WHERE `estimateid` = '$estimateid'";
+		$before_change = '';
+		$history = "Estimates company logo has been updated. <br />";
+		add_update_history($dbc, 'estimates_history', $history, '', $before_change);
     $result_update_employee = mysqli_query($dbc, $query_update_employee);
 
 }

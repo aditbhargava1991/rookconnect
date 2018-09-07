@@ -17,6 +17,9 @@ $inv_security = get_security($dbc, 'inventory');
 $get_default = get_config($dbc, 'inventory_default');
 if($get_default != '') {
 	$dbc->query("UPDATE `inventory` SET `category`='$get_default' WHERE IFNULL(`category`,'')='' AND `deleted`=0");
+	$before_change = '';
+  $history = "Inventory is been Updated. <br />";
+  add_update_history($dbc, 'inventory_history', $history, '', $before_change);
 }
 $inventory_setting  = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT value FROM inventory_setting WHERE inventorysettingid = 1"));
 $set_check_value    = ','.$inventory_setting['value'].','; ?>
@@ -62,13 +65,13 @@ $set_check_value    = ','.$inventory_setting['value'].','; ?>
 			if($_GET['category'] == 'bom') {
 				$active_bom = ' active_tab';
 			}
-            
+
             $inventory_setting = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT `value` FROM `inventory_setting` WHERE `inventorysettingid` = 1"));
             $set_check_value = $inventory_setting['value'];
             $url_po = filter_var($_GET['purchase_order'],FILTER_SANITIZE_STRING);
             $url_cat = filter_var($_GET['category'],FILTER_SANITIZE_STRING);
             $url_cat = !empty($url_po) ? 'Top' : $url_cat;
-            
+
             if ( strpos(','.$set_check_value.',', ",purchaseorders") !== false ) {
                 $url_ponum = filter_var($_GET['ponum'], FILTER_SANITIZE_STRING);
                 $po_result = mysqli_query($dbc, "SELECT `id`, `item_id`, `po_num` FROM `ticket_attached` WHERE `src_table`='inventory' AND `deleted`=0 GROUP BY `po_num` ORDER BY `po_num`");
@@ -82,7 +85,7 @@ $set_check_value    = ','.$inventory_setting['value'].','; ?>
                     echo '</li></a>';
                 }
             }
-            
+
             if ( strpos(','.$set_check_value.',', ",customerorders") !== false ) {
                 $url_conum = filter_var($_GET['conum'], FILTER_SANITIZE_STRING);
                 $co_result = mysqli_query($dbc, "SELECT `id`, `item_id`, `position` FROM `ticket_attached` WHERE `src_table`='inventory' AND `deleted`=0 GROUP BY `position` ORDER BY `position`");
@@ -96,7 +99,7 @@ $set_check_value    = ','.$inventory_setting['value'].','; ?>
                     echo '</li></a>';
                 }
             }
-            
+
             if ( strpos(','.$set_check_value.',', ",pallet") !== false ) {
                 $url_pallet = filter_var($_GET['pallet'], FILTER_SANITIZE_STRING);
                 $pallet_result = mysqli_query($dbc, "SELECT `inventoryid`, `pallet` FROM `inventory` WHERE `pallet`<>'' AND `deleted`=0 GROUP BY `pallet` ORDER BY `pallet`");
@@ -145,7 +148,7 @@ $set_check_value    = ','.$inventory_setting['value'].','; ?>
 							$statuses = explode(',',get_config($dbc, 'ticket_status'));
 							$_GET['ticket_status'] = filter_var($_GET['ticket_status'],FILTER_SANITIZE_STRING);
 							if(!in_array('Time Estimate Needed',$statuses)) {
-								$ticket_list = mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `tickets`.`ticketid` IN (SELECT `ticketid` FROM `ticket_schedule` WHERE `warehouse_location`='$warehouse') AND `status`='Time Estimate Needed' AND `deleted`=0 AND `ticketid` IN (SELECT `ticketid` FROM `ticket_attached` WHERE `src_table` IN ('inventory_general')) $match_business");				
+								$ticket_list = mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `tickets`.`ticketid` IN (SELECT `ticketid` FROM `ticket_schedule` WHERE `warehouse_location`='$warehouse') AND `status`='Time Estimate Needed' AND `deleted`=0 AND `ticketid` IN (SELECT `ticketid` FROM `ticket_attached` WHERE `src_table` IN ('inventory_general')) $match_business");
 								$status_id = urlencode('Time Estimate Needed');
 								echo "<a href='warehouse.php?warehouse=".$_GET['warehouse'].($status_id == urlencode($_GET['ticket_status']) ? '' : "&ticket_status=".$status_id)."'><li ".($status_id == urlencode($_GET['ticket_status']) ? 'class="active"' : '').">Active ".TICKET_TILE."<span class='pull-right'>".$ticket_list->num_rows."</span></li></a>";
 							}

@@ -57,7 +57,7 @@ if (isset($_POST['submit'])) {
     //Default Sub Tab
     $mobile_landing_subtab = ( !empty($_POST['mobile_landing_subtab']) ) ? filter_var($_POST['mobile_landing_subtab'], FILTER_SANITIZE_STRING) : '';
     $desktop_landing_subtab = ( !empty($_POST['desktop_landing_subtab']) ) ? filter_var($_POST['desktop_landing_subtab'], FILTER_SANITIZE_STRING) : '';
-    
+
     $mobile_landing_subtab_config = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT COUNT(`configid`) AS `configid` FROM `general_configuration` WHERE `name`='pos_mobile_landing_subtab'"));
     if($mobile_landing_subtab_config['configid'] > 0) {
         $query_update_config = "UPDATE `general_configuration` SET `value`='$mobile_landing_subtab' WHERE `name`='pos_mobile_landing_subtab'";
@@ -66,7 +66,7 @@ if (isset($_POST['submit'])) {
         $query_insert_config = "INSERT INTO `general_configuration` (`name`, `value`) VALUES ('pos_mobile_landing_subtab', '$mobile_landing_subtab')";
         $result_insert_config = mysqli_query($dbc, $query_insert_config);
     }
-    
+
     $desktop_landing_subtab_config = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT COUNT(`configid`) AS `configid` FROM `general_configuration` WHERE `name`='pos_desktop_landing_subtab'"));
     if($desktop_landing_subtab_config['configid'] > 0) {
         $query_update_config = "UPDATE `general_configuration` SET `value`='$desktop_landing_subtab' WHERE `name`='pos_desktop_landing_subtab'";
@@ -227,7 +227,7 @@ $(document).ready(function() {
 
 <div class="container">
 <div class="row">
-<h1>Point of Sale</h1>
+<h1><?= POS_ADVANCE_TILE ?></h1>
 <div class="pad-left gap-top double-gap-bottom"><a href="point_of_sell.php" class="btn config-btn">Back to Dashboard</a></div>
 <!--<a href="#" class="btn config-btn" onclick="history.go(-1);return false;">Back</a>-->
 
@@ -885,7 +885,7 @@ $(document).ready(function() {
                 <div class="form-group">
                     <label for="office_country" class="col-sm-4 control-label">Title of P.O.S. Tile on the Home Screen:</label>
                     <div class="col-sm-8">
-                      <input name="pos_tile_titler" value="<?php if(get_config($dbc, 'pos_tile_titler') == '' || get_config($dbc, 'pos_tile_titler') == NULL ) { echo "Point of Sale"; } else { echo get_config($dbc, 'pos_tile_titler'); } ?>" type="text" class="form-control"/>
+                      <input name="pos_tile_titler" value="<?php if(get_config($dbc, 'pos_tile_titler') == '' || get_config($dbc, 'pos_tile_titler') == NULL ) { echo POS_ADVANCE_TILE; } else { echo get_config($dbc, 'pos_tile_titler'); } ?>" type="text" class="form-control"/>
                     </div>
                 </div>
 

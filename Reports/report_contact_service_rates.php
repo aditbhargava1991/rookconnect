@@ -72,6 +72,8 @@ if (isset($_POST['printpdf'])) {
     $today_date = date('Y-m-d');
 	$pdf->writeHTML($html, true, false, true, false, '');
 	$pdf->Output('Download/contact_service_rates_'.$today_date.'.pdf', 'F');
+    track_download($dbc, 'reports_contact_service_rates', 0, WEBSITE_URL.'/Reports/Download/contact_service_rates_'.$today_date.'.pdf', 'Customer Contact List From Report');
+
     ?>
 
 	<script type="text/javascript" language="Javascript">
@@ -81,20 +83,6 @@ if (isset($_POST['printpdf'])) {
     $starttime = $starttimepdf;
     $endtime = $endtimepdf;
 } ?>
-
-<script type="text/javascript">
-
-</script>
-</head>
-<body>
-<?php include_once ('../navigation.php');
-?>
-
-<div class="container triple-pad-bottom">
-    <div class="row">
-        <div class="col-md-12">
-
-        <?php echo reports_tiles($dbc);  ?>
 
         <div class="notice double-gap-bottom popover-examples">
             <div class="col-sm-1 notice-icon"><img src="<?= WEBSITE_URL; ?>/img/info.png" class="wiggle-me" width="25"></div>
@@ -143,12 +131,6 @@ if (isset($_POST['printpdf'])) {
             ?>
 
         </form>
-
-        </div>
-    </div>
-</div>
-<?php include ('../footer.php'); ?>
-
 <?php
 function report_generate($dbc, $table_style = '', $table_row_style = '', $grand_total_style = '') {
 	$total_hrs = 0;

@@ -15,8 +15,14 @@
 	<a href="?settings=promo"><li class="<?= $_GET['settings'] == 'promo' ? 'active blue' : '' ?>">Promotions</li></a>
 <?php } else {
 	$po_tabs = explode(',',get_config($dbc,'po_tabs'));
-	
-	if(in_array('create',$po_tabs) && check_subtab_persmission($dbc, 'purchase_order', ROLE, 'create') === TRUE ) { ?>
+
+	if(in_array_starts('summary ',$po_tabs) && check_subtab_persmission($dbc, 'purchase_order', ROLE, 'summary') === TRUE ) {
+		if(empty($_GET['tab'])) {
+			$_GET['tab'] = 'summary';
+		} ?>
+		<li class="<?= ($_GET['tab'] == 'summary' ? 'active blue' : '') ?>"><a href="?tab=summary">Summary</a></li>
+	<?php }
+    if(in_array('create',$po_tabs) && check_subtab_persmission($dbc, 'purchase_order', ROLE, 'create') === TRUE ) { ?>
 		<li class="<?= ($_GET['tab'] == 'create' ? 'active blue' : '') ?>"><a href="?tab=create">Create an Order</a></li>
 	<?php }
 	if (in_array('pending',$po_tabs) && check_subtab_persmission($dbc, 'purchase_order', ROLE, 'pending') === TRUE ) {
@@ -68,7 +74,7 @@
 						</li>
 					<?php } ?>
 					<?php if(in_array('vendor',$po_tabs)) { ?>
-						<li class="sidebar-higher-level highest-level"><a class="<?= ($_GET['tab'] == 'pending' && $_GET['subtab'] == 'vendor' ? 'active blue' : '') ?> cursor-hand <?= ($_GET['tab'] == 'pending' && $_GET['subtab'] == 'vendor' ? '' : 'collapsed') ?>" data-toggle="collapse" data-target="#pending_vendor">Vendors<span class="arrow" /></a>
+						<li class="sidebar-higher-level highest-level"><a class="<?= ($_GET['tab'] == 'pending' && $_GET['subtab'] == 'vendor' ? 'active blue' : '') ?> cursor-hand <?= ($_GET['tab'] == 'pending' && $_GET['subtab'] == 'vendor' ? '' : 'collapsed') ?>" data-toggle="collapse" data-target="#pending_vendor"><?= VENDOR_TILE ?><span class="arrow" /></a>
 							<ul class="collapse <?= $_GET['tab'] == 'pending' && $_GET['subtab'] == 'vendor' ? 'in' : '' ?>" id="pending_vendor">
 								<?php $vendor_list = sort_contacts_query($dbc->query("SELECT `c`.`contactid`, `c`.`first_name`, `c`.`last_name`, `c`.`name` FROM `purchase_orders` `po` LEFT JOIN `contacts` `c` ON `po`.`contactid`=`c`.`contactid` WHERE `po`.`deleted`=0 AND `c`.`deleted`=0 AND `c`.`status` > 0 AND `po`.`status`='Pending'"));
 								if(count($vendor_list) > 0) {
@@ -76,7 +82,7 @@
 										<li><a href="?tab=pending&subtab=vendor&vendorid=<?= $vendor['contactid'] ?>"><?= $vendor['full_name'] ?></a></li>
 									<?php }
 								} else { ?>
-									<li>No Vendors Found</li>
+									<li>No <?= VENDOR_TILE ?> Found</li>
 								<?php } ?>
 							</ul>
 						</li>
@@ -134,7 +140,7 @@
 						</li>
 					<?php } ?>
 					<?php if(in_array('vendor',$po_tabs)) { ?>
-						<li class="sidebar-higher-level highest-level"><a class="<?= ($_GET['tab'] == 'receiving' && $_GET['subtab'] == 'vendor' ? 'active blue' : '') ?> cursor-hand <?= ($_GET['tab'] == 'receiving' && $_GET['subtab'] == 'vendor' ? '' : 'collapsed') ?>" data-toggle="collapse" data-target="#receiving_vendor">Vendors<span class="arrow" /></a>
+						<li class="sidebar-higher-level highest-level"><a class="<?= ($_GET['tab'] == 'receiving' && $_GET['subtab'] == 'vendor' ? 'active blue' : '') ?> cursor-hand <?= ($_GET['tab'] == 'receiving' && $_GET['subtab'] == 'vendor' ? '' : 'collapsed') ?>" data-toggle="collapse" data-target="#receiving_vendor"><?= VENDOR_TILE ?><span class="arrow" /></a>
 							<ul class="collapse <?= $_GET['tab'] == 'receiving' && $_GET['subtab'] == 'vendor' ? 'in' : '' ?>" id="receiving_vendor">
 								<?php $vendor_list = sort_contacts_query($dbc->query("SELECT `c`.`contactid`, `c`.`first_name`, `c`.`last_name`, `c`.`name` FROM `purchase_orders` `po` LEFT JOIN `contacts` `c` ON `po`.`contactid`=`c`.`contactid` WHERE `po`.`deleted`=0 AND `c`.`deleted`=0 AND `c`.`status` > 0 AND `po`.`status`='Receiving'"));
 								if(count($vendor_list) > 0) {
@@ -142,7 +148,7 @@
 										<li><a href="?tab=receiving&subtab=vendor&vendorid=<?= $vendor['contactid'] ?>"><?= $vendor['full_name'] ?></a></li>
 									<?php }
 								} else { ?>
-									<li>No Vendors Found</li>
+									<li>No <?= VENDOR_TILE ?> Found</li>
 								<?php } ?>
 							</ul>
 						</li>
@@ -200,7 +206,7 @@
 						</li>
 					<?php } ?>
 					<?php if(in_array('vendor',$po_tabs)) { ?>
-						<li class="sidebar-higher-level highest-level"><a class="<?= ($_GET['tab'] == 'payable' && $_GET['subtab'] == 'vendor' ? 'active blue' : '') ?> cursor-hand <?= ($_GET['tab'] == 'payable' && $_GET['subtab'] == 'vendor' ? '' : 'collapsed') ?>" data-toggle="collapse" data-target="#payable_vendor">Vendors<span class="arrow" /></a>
+						<li class="sidebar-higher-level highest-level"><a class="<?= ($_GET['tab'] == 'payable' && $_GET['subtab'] == 'vendor' ? 'active blue' : '') ?> cursor-hand <?= ($_GET['tab'] == 'payable' && $_GET['subtab'] == 'vendor' ? '' : 'collapsed') ?>" data-toggle="collapse" data-target="#payable_vendor"><?= VENDOR_TILE ?><span class="arrow" /></a>
 							<ul class="collapse <?= $_GET['tab'] == 'payable' && $_GET['subtab'] == 'vendor' ? 'in' : '' ?>" id="payable_vendor">
 								<?php $vendor_list = sort_contacts_query($dbc->query("SELECT `c`.`contactid`, `c`.`first_name`, `c`.`last_name`, `c`.`name` FROM `purchase_orders` `po` LEFT JOIN `contacts` `c` ON `po`.`contactid`=`c`.`contactid` WHERE `po`.`deleted`=0 AND `c`.`deleted`=0 AND `c`.`status` > 0 AND `po`.`status`='Paying'"));
 								if(count($vendor_list) > 0) {
@@ -208,7 +214,7 @@
 										<li><a href="?tab=payable&subtab=vendor&vendorid=<?= $vendor['contactid'] ?>"><?= $vendor['full_name'] ?></a></li>
 									<?php }
 								} else { ?>
-									<li>No Vendors Found</li>
+									<li>No <?= VENDOR_TILE ?> Found</li>
 								<?php } ?>
 							</ul>
 						</li>
@@ -217,15 +223,15 @@
 			</li>
 		<?php }
 	}
-	
+
 	// Pending cross-software P.O.'
-	if(in_array('remote',$po_tabs) && vuaed_visible_function($dbc, 'purchase_order') == 1 && check_subtab_persmission($dbc, 'purchase_order', ROLE, 'remote') === TRUE) { 
+	if(in_array('remote',$po_tabs) && vuaed_visible_function($dbc, 'purchase_order') == 1 && check_subtab_persmission($dbc, 'purchase_order', ROLE, 'remote') === TRUE) {
 		$num_of_rows = 0;
 		$pending_rows = 0;
 		// **** NOTE: THE $number_of_connections variable is set only in the database_connection.php file. You must put this variable in manually for this to work. Please see one of SEA's database_connection.php files in order to see how these variables are set up. If you are trying to copy this cross-software functionality, it is advised that you use the exact same format/variable names that SEA's database_connection.php file contains.
 		if(isset($number_of_connections) && $number_of_connections > 0) {
 			foreach (range(1, $number_of_connections) as $i) {
-				$dbc_cross = ${'dbc_cross_'.$i}; 
+				$dbc_cross = ${'dbc_cross_'.$i};
 				$check_po_query = "SELECT * FROM purchase_orders WHERE cross_software != '' AND cross_software IS NOT NULL AND software_seller = 'main' AND deleted = 0";
 				$resulx = mysqli_query($dbc_cross, $check_po_query) or die(mysqli_error($dbc_cross));
 				$num_rowss = mysqli_num_rows($resulx);
@@ -249,7 +255,7 @@
 			<?php }
 		}
 	}
-	
+
 	if (in_array('completed',$po_tabs) && check_subtab_persmission($dbc, 'purchase_order', ROLE, 'completed') === TRUE ) {
 		if(empty($_GET['tab'])) {
 			$_GET['tab'] = 'completed';
@@ -302,7 +308,7 @@
 						</li>
 					<?php } ?>
 					<?php if(in_array('vendor',$po_tabs)) { ?>
-						<li class="sidebar-higher-level highest-level"><a class="<?= ($_GET['tab'] == 'completed' && $_GET['subtab'] == 'vendor' ? 'active blue' : '') ?> cursor-hand <?= ($_GET['tab'] == 'completed' && $_GET['subtab'] == 'vendor' ? '' : 'collapsed') ?>" data-toggle="collapse" data-target="#completed_vendor">Vendors<span class="arrow" /></a>
+						<li class="sidebar-higher-level highest-level"><a class="<?= ($_GET['tab'] == 'completed' && $_GET['subtab'] == 'vendor' ? 'active blue' : '') ?> cursor-hand <?= ($_GET['tab'] == 'completed' && $_GET['subtab'] == 'vendor' ? '' : 'collapsed') ?>" data-toggle="collapse" data-target="#completed_vendor"><?= VENDOR_TILE ?><span class="arrow" /></a>
 							<ul class="collapse <?= $_GET['tab'] == 'completed' && $_GET['subtab'] == 'vendor' ? 'in' : '' ?>" id="completed_vendor">
 								<?php $vendor_list = sort_contacts_query($dbc->query("SELECT `c`.`contactid`, `c`.`first_name`, `c`.`last_name`, `c`.`name` FROM `purchase_orders` `po` LEFT JOIN `contacts` `c` ON `po`.`contactid`=`c`.`contactid` WHERE `po`.`deleted`=0 AND `c`.`deleted`=0 AND `c`.`status` > 0 AND `po`.`status`='Completed'"));
 								if(count($vendor_list) > 0) {
@@ -310,7 +316,7 @@
 										<li><a href="?tab=completed&subtab=vendor&vendorid=<?= $vendor['contactid'] ?>"><?= $vendor['full_name'] ?></a></li>
 									<?php }
 								} else { ?>
-									<li>No Vendors Found</li>
+									<li>No <?= VENDOR_TILE ?> Found</li>
 								<?php } ?>
 							</ul>
 						</li>
@@ -339,6 +345,9 @@
 		<?php }
 	}
 	switch($_GET['tab']) {
+		case 'summary':
+			$page_title = 'Summary';
+			break;
 		case 'create':
 			$page_title = 'Create an Order';
 			break;

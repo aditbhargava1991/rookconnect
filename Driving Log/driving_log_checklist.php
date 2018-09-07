@@ -165,6 +165,8 @@ function startDrivingStatus() {
     $inspect_date = $get_sa['inspect_date'];
     $begin_odo_kms = $get_sa['begin_odo_kms'];
     $final_odo_kms = $get_sa['final_odo_kms'];
+    $begin_hours = $get_sa['begin_hours'];
+    $final_hours = $get_sa['final_hours'];
     $location_of_presafety = $get_sa['location_of_presafety'];
     $location_of_postsafety = $get_sa['location_of_postsafety'];
     $safety1 = $get_sa['safety1'];
@@ -290,7 +292,7 @@ function startDrivingStatus() {
                     } else {
                         $selected = '';
                     }
-                    echo "<option ".$selected." value = '".$row['equipmentid']."'>#".$row['unit_number']."</option>";
+                    echo "<option ".$selected." data-hours='".$row['hours_operated']."' data-kms='".$row['mileage']."' value = '".$row['equipmentid']."'>#".$row['unit_number']."</option>";
                 }
                 ?>
             </select>
@@ -345,12 +347,32 @@ function startDrivingStatus() {
     <div class="clearfix"></div><br />
     <?php } ?>
 
+    <script>
+    $(document).ready(function() {
+        $('[name=vehicleid]').change(function() {
+            $('.service_details').load('../Equipment/equipment_service_details.php?view='+this.value);
+            $('[name=begin_odo_kms]').val($(this).find('option:selected').data('kms'));
+            $('[name=begin_hours]').val($(this).find('option:selected').data('hours'));
+        });
+    });
+    </script>
+    <div class="form-group"><label class="col-sm-4 control-label"></label><div class="col-sm-8 service_details"><?php if($vehicleid > 0) {
+        $_GET['view'] = $equip_id;
+        include('../Equipment/equipment_service_details.php');
+    } ?></div></div>
     <?php if (empty($_GET['safetyinspectid'])) { ?>
         <?php if ($checklist_status == 'Done') { ?>
         <div class="form-group">
             <label for="title[]" class="col-sm-4 control-label">Beginning Odometer Kilometres<span class="brand-color">*</span>:</label>
             <div class="col-sm-8">
                 <input name="begin_odo_kms" type="text" value="<?php echo $begin_odo_kms; ?>" class="form-control title" />
+            </div>
+        </div>
+        <div class="clearfix"></div>
+        <div class="form-group">
+            <label for="title[]" class="col-sm-4 control-label">Beginning Operating Hours:</label>
+            <div class="col-sm-8">
+                <input name="begin_hours" type="text" value="<?php echo $begin_hours; ?>" class="form-control title" />
             </div>
         </div>
         <div class="clearfix"></div>
@@ -365,6 +387,13 @@ function startDrivingStatus() {
             <label for="title[]" class="col-sm-4 control-label">Final Odometer Kilometres<span class="brand-color">*</span>:</label>
             <div class="col-sm-8">
                 <input name="final_odo_kms" type="text" value="<?php echo $final_odo_kms; ?>" class="form-control title" />
+            </div>
+        </div>
+        <div class="clearfix"></div>
+        <div class="form-group">
+            <label for="title[]" class="col-sm-4 control-label">Final Operating Hours<span class="brand-color">*</span>:</label>
+            <div class="col-sm-8">
+                <input name="final_hours" type="text" value="<?php echo $final_hours; ?>" class="form-control title" />
             </div>
         </div>
         <div class="clearfix"></div>

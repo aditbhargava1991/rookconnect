@@ -19,8 +19,8 @@ function deleteStaff(sel) {
 function assignStaffGroup(sel) {
 	var staffids = $(sel).val().split(',');
 	if (staffids.indexOf($('[name="primary_staff"]').find('option:selected').val()) != -1) {
-			var index = staffids.indexOf($('[name="primary_staff"]').find('option:selected').val());
-			staffids.splice(index, 1);
+		var index = staffids.indexOf($('[name="primary_staff"]').find('option:selected').val());
+		staffids.splice(index, 1);
 	}
 	$('[name="assign_staff[]"]').each(function() {
 		if (staffids.indexOf($(this).find('option:selected').val()) != -1) {
@@ -29,7 +29,15 @@ function assignStaffGroup(sel) {
 		}
 	});
 	staffids.forEach(function(staffid) {
-		addStaff(staffid);
+		if($('[name="assign_staff[]"]').filter(function() { return $(this).val() == staffid; }).length == 0) {
+			var empty_select = $('[name="assign_staff[]"]').filter(function() { return $(this).val() == undefined || $(this).val() == ''; }).first();
+			if(empty_select.length > 0) {
+				$(empty_select).val(staffid);
+				$(empty_select).trigger('change.select2');
+			} else {
+				addStaff(staffid);
+			}
+		}
 	});
 }
 </script>
@@ -77,19 +85,10 @@ function assignStaffGroup(sel) {
 		}
 	}
     if (strpos($value_config, ',Staff Collaboration Groups,') !== FALSE) {
-		$staff_groups = get_config($dbc, 'sales_order_staff_groups');
-		if (!empty($staff_groups)) {
-			$staff_groups = explode('*#*', $staff_groups);
-			foreach ($staff_groups as $staff_group) {
-				$group_staff = explode(',',$staff_group);
-				$group_name = $group_staff[0];
-				unset($group_staff[0]);
-				$group_name_text = 'Assign '.$group_name.': ';
-				foreach ($group_staff as $id) {
-					$group_name_text .= get_contact($dbc, $id).', ';
-				}
-				$group_name_text = rtrim($group_name_text, ', '); ?>
-				<button onclick="assignStaffGroup(this); return false;" value="<?= implode(',', $group_staff) ?>" class="btn brand-btn pull-right"><?= $group_name_text ?></button>
+		foreach(get_teams($dbc, " AND IF(`end_date` = '0000-00-00','9999-12-31',`end_date`) >= '".date('Y-m-d')."'") as $team) {
+			$team_staff = get_team_contactids($dbc, $team['teamid']);
+			if(count($team_staff) > 0) { ?>
+				<button onclick="assignStaffGroup(this); return false;" value="<?= implode(',', $team_staff) ?>" class="btn brand-btn pull-right">Assign <?= get_team_name($dbc, $team['teamid']).(!empty($team['team_name']) ? ': '.get_team_name($dbc, $team['teamid'], ', ', 1) : '') ?></button>
 				<div class="clearfix"></div>
 			<?php }
 		}

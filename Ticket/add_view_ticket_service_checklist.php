@@ -17,6 +17,40 @@ if(isset($_GET['ticketid']) && empty($ticketid)) {
 		$value_config .= get_config($dbc, 'ticket_fields_'.$ticket_type).',';
 	}
 
+	//Get Security Permissions
+	$ticket_roles = explode('#*#',get_config($dbc, 'ticket_roles'));
+	$ticket_role = mysqli_query($dbc, "SELECT `position` FROM `ticket_attached` WHERE `src_table`='Staff' AND `position`!='' AND `item_id`='".$_SESSION['contactid']."' AND `ticketid`='$ticketid' AND `ticketid` > 0 AND `deleted` = 0 $query_daily");
+	if(!empty($get_ticket['status']) && strpos($uneditable_statuses, ','.$get_ticket['status'].',') !== FALSE) {
+		$strict_view = 1;
+	}
+	if(($get_ticket['to_do_date'] > date('Y-m-d') && strpos($value_config,',Ticket Edit Cutoff,') !== FALSE && $config_access < 1) || $strict_view > 0) {
+		$access_services = false;
+	} else if($get_ticket['status'] == 'Archive' || $force_readonly) {
+		$access_services = false;
+	} else if($config_access > 0) {
+		$access_services = check_subtab_persmission($dbc, 'ticket', ROLE, 'services');
+	} else if((count($ticket_roles) > 1 || explode('|',$ticket_roles[0])[0] != '') && mysqli_num_rows($ticket_role) > 0) {
+		$ticket_role = html_entity_decode(mysqli_fetch_assoc($ticket_role)['position']);
+		foreach($ticket_roles as $ticket_role_level) {
+			$ticket_role_level = explode('|',html_entity_decode($ticket_role_level));
+			if($ticket_role_level[0] > 0) {
+				$ticket_role_level[0] = get_positions($dbc, $ticket_role_level[0], 'name');
+			}
+			if($ticket_role_level[0] == $ticket_role) {
+				$access_services = in_array('services',$ticket_role_level);
+			}
+		}
+	} else if(count(array_filter($arr, function ($var) { return (strpos($var, 'default') !== false); })) > 0) {
+		foreach($ticket_roles as $ticket_role_level) {
+			$ticket_role_level = explode('|',$ticket_role_level);
+			if(in_array('default',$ticket_role_level)) {
+				$access_services = in_array('services',$ticket_role_level);
+			}
+		}
+	} else {
+		$access_services = check_subtab_persmission($dbc, 'ticket', ROLE, 'services');
+	}
+
 	//Action Mode Fields
 	if($_GET['action_mode'] == 1) {
 		$value_config_all = $value_config;
@@ -39,6 +73,12 @@ if(isset($_GET['ticketid']) && empty($ticketid)) {
 <script type="text/javascript">
 function checkAllFields(chk) {
 	var block = $(chk).closest('table');
+	var staffid = $(chk).data('staffid');
+
+	$(block).find('td[data-staffid='+staffid+'] [name=field_checkbox]:not(:checked)').prop('checked', true).change();
+}
+function checkAllFieldsMobile(chk) {
+	var block = $(chk).closest('.service-checklist').find('table');
 	var staffid = $(chk).data('staffid');
 
 	$(block).find('td[data-staffid='+staffid+'] [name=field_checkbox]:not(:checked)').prop('checked', true).change();
@@ -123,6 +163,17 @@ function addAnotherRoomServiceChecklist(btn) {
 		}
 	});
 }
+function removeRoomServiceChecklist(btn) {
+	var category = $(btn).data('category');
+	var service_type = $(btn).data('service-type');
+	$('.cattype_block').each(function() {
+		if($(this).find('[name="service_category_group"]').val() == category && $(this).find('[name="service_type_group"]').val() == service_type) {
+			var quantity = $(this).find('[name="service_qty_group"]').val();
+			$(this).find('[name="service_qty_group"]').val(parseInt(quantity) - 1).change();
+			return;
+		}
+	});
+}
 function scrollToChecklist(a) {
 	if(self !== top) {
 		setTimeout(function() {
@@ -187,6 +238,14 @@ function scrollToChecklist(a) {
 						<div id="collapse_service_checklist_<?= $service_checklist_i ?>" class="panel-collapse collapse">
 							<div class="panel-body white-background" style="overflow-x: auto;">
 								<div id="no-more-tables" class="service-checklist">
+									<div class="show-on-mob pull-right">								
+										<?php foreach($staffs_list as $staff_id) {
+											echo '<label'.($strict_view > 0 ? 'class="readonly-block"' : '').'><input type="checkbox" name="check_all_services" onclick="checkAllFieldsMobile(this)" data-staffid="'.$staff_id.'" '.($strict_view > 0 ? 'readonly disabled' : '' ).'><b> Check All for '.get_contact($dbc, $staff_id).'</b></label><div class="clearfix"></div>';
+										} ?>
+										<div class="clearfix"></div>
+									</div>
+									<div class="clearfix"></div>
+
 									<table class="table table-bordered service_checklist_table">
 										<?php $pdf_content .= 'Category: '.$category.'<br>';
 										$pdf_content .= 'Service Type: '.$service_type.($index > 1 ? ' #'.$index : '').'<br>';
@@ -230,9 +289,14 @@ function scrollToChecklist(a) {
 											<?php $pdf_content .= '</tr>';
 										} ?>
 									</table>
-									<?php if(strpos($value_config, ',Service Staff Checklist Another Room,') !== FALSE && !($strict_view > 0)) { ?>
+									<?php if((strpos($value_config, ',Service Staff Checklist Another Room,') !== FALSE || $access_services === TRUE) && !($strict_view > 0)) { ?>
 										<div class="pull-right form-group">
-											<a href="" onclick="addAnotherRoomServiceChecklist(this); return false;" data-copy-values="<?= strpos($value_config, ',Service Staff Checklist Another Room Copy Values,') !== FALSE ? 1 : 0 ?>" class="btn brand-btn">Add Another Room</a>
+											<?php if($access_services === TRUE) { ?>
+												<a href="" data-category="<?= $category ?>" data-service-type="<?= $service_type ?>" onclick="removeRoomServiceChecklist(this); return false;" class="btn brand-btn">Remove Room</a>
+											<?php } ?>
+											<?php if(strpos($value_config, ',Service Staff Checklist Another Room,') !== FALSE) { ?>
+												<a href="" onclick="addAnotherRoomServiceChecklist(this); return false;" data-copy-values="<?= strpos($value_config, ',Service Staff Checklist Another Room Copy Values,') !== FALSE ? 1 : 0 ?>" class="btn brand-btn">Add Another Room</a>
+											<?php } ?>
 										</div>
 									<?php } ?>
 								</div>

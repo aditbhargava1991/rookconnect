@@ -9,6 +9,7 @@ var sum_adjustment = 0;
 var submit_mode = true;
 
 $(document).ready(function() {
+	$('[name="ticketid[]"]').change();
 	countTotalPrice();
 	changeApptType($('[name="app_type"]').val());
 
@@ -41,10 +42,14 @@ $(document).ready(function() {
 	});
 
 	$("#patientid").change(function() {
+		var type = '';
+		if($('[name="type"]').val() != undefined) {
+			type = $('[name="type"]').val();
+		}
 		if ($(this).val()=='NEW') {
-            overlayIFrameSlider('add_contact.php', '50%', false, false, $('.iframe_overlay').closest('.container').outerHeight() + 20);
+            overlayIFrameSlider('add_contact.php?type='+type, '50%', false, false, $('.iframe_overlay').closest('.container').outerHeight() + 20);
         } else {
-            window.location = 'add_invoice.php?contactid='+this.value;
+            window.location = 'add_invoice.php?contactid='+this.value+'&type='+type;
         }
 	});
 
@@ -123,7 +128,7 @@ $(document).ready(function() {
 	$("#form1").submit(function( event ) {
 		if($('[name=invoice_type]:checked').val() == 'Patient') {
 			if ($('#patientid').val() == '') {
-				alert("Please select a Patient.");
+				alert("Please select a Customer.");
 				return false;
 			}
 			//if ($('#injuryid').closest('.form-group').is(':visible') && $('#injuryid').val() == '') {
@@ -437,16 +442,27 @@ $(document).ready(function() {
 	$(".refund_tb").hide();
 	$(".treatment_plan").hide();
 
-	$('.serviceid').each(function () {
+	/* $('.serviceid').each(function () {
 		var service_id = this.id;
 		var service = $("#"+service_id+" option:selected").text();
 
 		if (service.toLowerCase().indexOf("assessment") > 0) {
 			$(".treatment_plan").show();
 		}
-	});
-
+	}); */
 });
+$(document).on('change', 'select[name="type"]', function() { changeInvoiceType(); });
+$(document).on('change', 'select[name="ticketid[]"]', function() { load_ticket_details(this); });
+
+function changeInvoiceType() {
+	var invoiceid = $('[name="invoiceid"]').val() != undefined ? $('[name="invoiceid"]').val() : 0;
+	var type = '';
+	if($('[name="type"]').val() != undefined) {
+		type = $('[name="type"]').val();
+	}
+
+	window.location.href = "?invoiceid="+invoiceid+"&type="+type;
+}
 
 function changeInsurance(sel) {
 	var proValue = sel.value;
@@ -516,7 +532,7 @@ function changeCategory(sel) {
 		url: "../ajax_all.php?fill=invoice&category="+action+"&app_type="+app_type+"&invoiceid="+invoiceid+"&sid="+serviceid,
 		dataType: "html",   //expect html to be returned
 		success: function(response){
-			$("#serviceid_"+arr[1]).html(response);
+			$("#serviceid_"+arr[1]).html('<option value=""></option>'+response);
 			$("#serviceid_"+arr[1]).trigger("change.select2");
 		}
 	});
@@ -528,7 +544,7 @@ function changeService(sel) {
 	var arr = typeId.split('_');
 	var invoiceid = $("#invoiceid").val();
 
-	$('.serviceid').each(function () {
+	//$('.serviceid').each(function () {
 		var service_id = this.id;
 		var service = $("#"+service_id+" option:selected").text();
 		var editable = $(this).find('option:selected').data('editable');
@@ -541,7 +557,7 @@ function changeService(sel) {
 		if (service.toLowerCase().indexOf("assessment") > 0) {
 			$(".treatment_plan").show();
 		}
-	});
+	//});
 
 	$.ajax({    //create an ajax request to load_page.php
 		type: "GET",
@@ -616,7 +632,11 @@ function changeProduct(sel) {
 	var arr = proId.split('_');
 	var inventoryid = $("#inventoryid_"+arr[1]).val();
 	var invtype = $("#invtype_"+arr[1]).val();
-	var pricing = $('[name=pricing]').val();
+    var pricing = $('[name=pricing] option:selected').val();
+    var linepricing = $('#linepricing_'+arr[1]).val();
+    if (typeof linepricing !== 'undefined' && linepricing != '' && linepricing != null) {
+        pricing = linepricing;
+    }
 
 	if(invtype == 'WCB') {
 		invtype = 'wcb_price';
@@ -639,7 +659,11 @@ function changeProduct(sel) {
             success: function(response){
                 response = response.split('#*#');
                 var total_with_gst = +response[0] + (response[1] == 1 ? 0 : Math.round(+response[0] * +$('#tax_rate').val()) / 100);
-                $("#unitprice_"+arr[1]).val(parseFloat(response[0]).toFixed(2)).closest('.form-group').find('[name="insurer_payment_amt[]"]').first().val(total_with_gst);
+                if ( response[0] != '' ) {
+                    $("#unitprice_"+arr[1]).val(parseFloat(response[0]).toFixed(2)).closest('.form-group').find('[name="insurer_payment_amt[]"]').first().val(total_with_gst);
+                } else {
+                    $("#unitprice_"+arr[1]).val(0.00);
+                }
                 $("#sellprice_"+arr[1]).closest('div').find('[name="inventory_gst_exempt[]"]').val(response[1]);
                 $("#sellprice_"+arr[1]).val(parseFloat($("#quantity_"+arr[1]).val()*response[0]).toFixed(2));
                 countTotalPrice();
@@ -776,7 +800,7 @@ function setTotalPrice() {
 	var j=0;
 	var price_on_gst = 0;
 	$('.detail_service_list').empty();
-	$('.fee').each(function () {
+	$('.fee').not(':disabled').each(function () {
 		var fee_id = this.id;
 		var arr = fee_id.split('_');
 		var gstexempt = $('#gstexempt_'+arr[1]).val();
@@ -788,6 +812,10 @@ function setTotalPrice() {
 			var group = $(this).closest('.form-group');
 			var cat = group.find('[id^=category_] option:selected').text();
 			var label = group.find('[name="serviceid[]"] option:selected').text();
+			if(group.hasClass('dis_service')) {
+				cat = group.find('[name="service_cat[]"]').val();
+				label = group.find('[name="service_name[]"]').val();
+			}
 			var info = cat+': '+label;
 			if(label == '') {
 				info = group.find('[name=servicelabel]').val();
@@ -825,7 +853,7 @@ function setTotalPrice() {
 	var sum_price = 0;
 	var sum_inv_gst = 0;
 	$('.detail_inventory_list').empty();
-	$('[name="init_price[]"]').each(function () {
+	$('[name="init_price[]"]').not(':disabled').each(function () {
 		var fee_row = +$(this).val() || 0;
 
 		if(fee_row != 0) {
@@ -847,7 +875,7 @@ function setTotalPrice() {
 			});
 		}
 	});
-	$('.sellprice').each(function () {
+	$('.sellprice').not(':disabled').each(function () {
 		var fee_row = +$(this).val() || 0;
 		var row_exempt = $(this).closest('.form-group').find('[name="inventory_gst_exempt[]"]').val();
 		sum_price += fee_row;
@@ -880,7 +908,7 @@ function setTotalPrice() {
 
 	var package_cost = 0;
 	$('.detail_package_list').empty();
-	$('.package_cost').each(function () {
+	$('.package_cost').not(':disabled').each(function () {
 		var fee_row = +$(this).val() || 0;
 		package_cost += fee_row;
 		if(fee_row != 0) {
@@ -911,7 +939,7 @@ function setTotalPrice() {
 
 	var misc_price = 0;
 	$('.detail_misc_list').empty();
-	$('.misc_total').each(function () {
+	$('.misc_total').not(':disabled').each(function () {
 		var group = $(this).closest('.form-group');
 		var price = +group.find('.misc_price').val() || 0;
 		var init_qty = +group.find('.init_qty').val() || 0;
@@ -1141,10 +1169,12 @@ function add_product_row() {
 	clone.find('.quantity').attr('id', 'quantity_'+inc_pro).val(1);
 	clone.find('.adjust').attr('id', 'adjust_'+inc_pro);
 	clone.find('.sellprice').attr('id', 'sellprice_'+inc_pro);
+	clone.find('.linepricing').attr('id', 'linepricing_'+inc_pro);
 	resetChosen(clone.find("[id^=inventoryid]"));
 	resetChosen(clone.find("[id^=inventorycat]"));
 	resetChosen(clone.find("[id^=inventorypart]"));
 	resetChosen(clone.find("[id^=invtype]"));
+	resetChosen(clone.find("[id^=linepricing]"));
 	var max_row = get_max_insurer_row();
 	clone.find('.insurer_row_id').val(max_row);
 	clone.find('[name="insurer_row_applied[]"]').val(max_row);
@@ -1259,4 +1289,44 @@ function allow_edit_amount() {
 	} else {
 		$('.additional_payment').last().find('[name="payment_price[]"]').attr('readonly','readonly');
 	}
+}
+function load_ticket_details(sel) {
+	var block = $(sel).closest('.invoice_ticket');
+	var ticketid = $(sel).find('option:selected').val();
+	if(ticketid != undefined && ticketid > 0) {
+		$.ajax({
+			url: '../Invoice/invoice_ajax.php?action=load_ticket_details',
+			method: 'POST',
+			data: { ticketid: ticketid },
+			dataType: 'html',
+			success: function(response) {
+				$(block).find('.ticket_details').html(response);
+				setTotalPrice();
+			}
+		});
+	} else {
+		$(block).find('.ticket_details').html('');
+		setTotalPrice();
+	}
+}
+function add_ticket_row() {
+	destroyInputs('.invoice_ticket');
+	var block = $('.invoice_ticket').last();
+	var clone = $(block).clone();
+
+	$(clone).find('.ticket_details').html('');
+	$(clone).find('input,select').val('');
+
+	$(block).after(clone);
+	initInputs('.invoice_ticket');
+}
+function rem_ticket_row(btn) {
+	if($('.ticket_option .invoice_ticket').length == 1) {
+		add_ticket_row();
+	}
+	$(btn).closest('.invoice_ticket').remove();
+	countTotalPrice();
+}
+function view_tabs() {
+    $('.view_tabs').toggle();
 }

@@ -114,7 +114,7 @@ var projectFilter = function() {
 					</select>
 				</div>
 				<div class="col-sm-1">
-					<a href="" onclick="viewProfile(this); return false;"><img class="inline-img pull-right" src="../img/person.PNG"></a>
+					<a href="" onclick="viewProfile(this); return false;"><img class="inline-img pull-right no-toggle" src="../img/person.PNG" title="View Profile"></a>
 					<a href="" onclick="$(this).closest('.form-group').find('select').val('ADD_NEW').change(); return false;"><img class="inline-img pull-right" src="../img/icons/ROOK-add-icon.png"></a>
 				</div>
 			</div>
@@ -129,15 +129,45 @@ var projectFilter = function() {
 				<div class="col-sm-7">
 					<select name="clientid" id="clientid" data-placeholder="Select a Contact specific to above <?= BUSINESS_CAT ?>..." data-table="tickets" data-id="<?= $ticketid ?>" data-category="<?= get_config($dbc, 'ticket_business_contact_'.$ticket_type) ?: (get_config($dbc, 'ticket_business_contact') ?: '%') ?>" data-id-field="ticketid" class="chosen-select-deselect form-control" width="380">
 						<option value=''></option>
+						<?php if(get_config($dbc, 'ticket_business_contact_add_pos') == 'top') { ?>
+							<option value="ADD_NEW">Add New <?= CONTACTS_NOUN ?></option>
+						<?php } ?>
 						<?php foreach(sort_contacts_query(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name`, `businessid`, `region`, `con_locations`, `classification` FROM `contacts` WHERE (`first_name` != '' OR `last_name` != '') AND `category` NOT IN ('".BUSINESS_CAT."',".STAFF_CATS.") AND `deleted`=0")) as $row) {
 							$selected = ( $clientid==$row['contactid'] ) ? 'selected="selected"' : ($businessid > 0 && $businessid != $row['businessid'] ? 'style="display:none;"' : '');
 							echo '<option data-region="'.$row['region'].'" data-location="'.$row['con_locations'].'" data-classification="'.$row['classification'].'" data-business="'.$row['businessid'].'" '. $selected .' value="'. $row['contactid'] .'">'. ($row['first_name']) . ' ' . ($row['last_name']) .'</option>';
 						} ?>
-						<option value="ADD_NEW">Add New <?= CONTACTS_NOUN ?></option>
+						<?php if(get_config($dbc, 'ticket_business_contact_add_pos') != 'top') { ?>
+							<option value="ADD_NEW">Add New <?= CONTACTS_NOUN ?></option>
+						<?php } ?>
 					</select>
 				</div>
 				<div class="col-sm-1">
-					<a href="" onclick="viewProfile(this); return false;"><img class="inline-img pull-right" src="../img/person.PNG"></a>
+					<a href="" onclick="viewProfile(this); return false;"><img class="inline-img pull-right no-toggle" src="../img/person.PNG" title="View Profile"></a>
+					<a href="" onclick="$(this).closest('.form-group').find('select').val('ADD_NEW').change(); return false;"><img class="inline-img pull-right" src="../img/icons/ROOK-add-icon.png"></a>
+				</div>
+			</div>
+		<?php } ?>
+
+		<?php if ( strpos($value_config, ',PI Guardian,') !== false && $field_sort_field == 'PI Guardian' ) { ?>
+			<div class="form-group clearfix completion_date">
+				<label for="first_name" class="col-sm-4 control-label text-right"><!--<span class="text-red">*</span>--> Parent/Guardian:</label>
+				<div class="col-sm-7">
+					<select name="guardianid" id="guardianid" data-placeholder="Select a Parent/Guardian..." data-table="tickets" data-id="<?= $ticketid ?>" data-category="<?= get_config($dbc, 'ticket_guardian_contact_'.$ticket_type) ?: (get_config($dbc, 'ticket_guardian_contact') ?: '%') ?>" data-id-field="ticketid" class="chosen-select-deselect form-control" width="380">
+						<option value=''></option>
+						<?php if(get_config($dbc, 'ticket_business_contact_add_pos') == 'top') { ?>
+							<option value="ADD_NEW">Add New Parent/Guardian</option>
+						<?php } ?>
+						<?php foreach(sort_contacts_query(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name`, `businessid`, `region`, `con_locations`, `classification` FROM `contacts` WHERE (`first_name` != '' OR `last_name` != '') AND `category` NOT IN ('".BUSINESS_CAT."',".STAFF_CATS.") ".(get_config($dbc, 'ticket_guardian_contact_'.$ticket_type) ? " AND `category` = '".get_config($dbc, 'ticket_guardian_contact_'.$ticket_type)."'" : (get_config($dbc, 'ticket_guardian_contact') ? " AND `category` = '".get_config($dbc, 'ticket_guardian_contact')."'" : ''))." AND `deleted`=0")) as $row) {
+							$selected = ($get_ticket['guardianid']==$row['contactid'] ? 'selected="selected"' : '');
+							echo '<option data-region="'.$row['region'].'" data-location="'.$row['con_locations'].'" data-classification="'.$row['classification'].'" data-business="'.$row['businessid'].'" '. $selected .' value="'. $row['contactid'] .'">'. ($row['first_name']) . ' ' . ($row['last_name']) .'</option>';
+						} ?>
+						<?php if(get_config($dbc, 'ticket_business_contact_add_pos') != 'top') { ?>
+							<option value="ADD_NEW">Add New Parent/Guardian</option>
+						<?php } ?>
+					</select>
+				</div>
+				<div class="col-sm-1">
+					<a href="" onclick="viewProfile(this); return false;"><img class="inline-img pull-right no-toggle" src="../img/person.PNG" title="View Profile"></a>
 					<a href="" onclick="$(this).closest('.form-group').find('select').val('ADD_NEW').change(); return false;"><img class="inline-img pull-right" src="../img/icons/ROOK-add-icon.png"></a>
 				</div>
 			</div>
@@ -164,8 +194,8 @@ var projectFilter = function() {
 						if($row['businessid'] > 0) {
 							$project_business = mysqli_fetch_array(mysqli_query($dbc, "SELECT `region`, `con_locations`, `classification` FROM `contacts` WHERE `contactid` = '{$row['businessid']}'"));
 						}
-						echo "<option data-region='".$project_business['region']."' data-location='".$project_business['con_locations']."' data-classification='".$project_business['classification']."' data-business='".$row['businessid']."' data-client='".trim($row['clientid'],',')."' ";
-						echo ($projectid == $row['projectid'] ? 'selected' : (($businessid > 0 && $businessid == $row['businessid']) || ($clientid > 0 && strpos(','.$row['clientid'].',', ",$clientid,") !== FALSE) || (!($businessid > 0) && !($clientid > 0)) || (trim($row['clientid'],',') == '' && !($row['businessid'] > 0)) ? '' : 'style="display:none;"'));
+						echo "<option data-region='".$project_business['region']."' data-location='".$project_business['con_locations']."' data-classification='".$project_business['classification']."' data-business='".$row['businessid']."' data-client='".explode(',',trim($row['clientid'],','))[0]."' ";
+						echo ($projectid == $row['projectid'] ? 'selected' : (($businessid > 0 && $businessid == $row['businessid']) || ($clientid > 0 && strpos(','.$row['clientid'].',', ",$clientid,") !== FALSE) || (!($businessid > 0) && !($clientid > 0)) || (explode(',',trim($row['clientid'],','))[0] == '' && !($row['businessid'] > 0)) ? '' : 'style="display:none;"'));
 						echo " value='".$row['projectid']."'>".get_project_label($dbc,$row).'</option>';
 					}
 				  ?>
@@ -191,19 +221,18 @@ var projectFilter = function() {
 			<div class="form-group">
 			  <label for="site_name" class="col-sm-4 control-label">Site:</label>
 			  <div class="col-sm-7">
-				<select data-placeholder="Select Site..." name="siteid" id="siteid" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" class="chosen-select-deselect form-control">
-					<option value=""></option>
+				<select data-placeholder="Select Site..." multiple name="siteid[]" id="siteid" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" data-concat="," class="chosen-select-deselect form-control">
 					<?php if(empty($site_list)) {
 						$site_list = sort_contacts_query(mysqli_query($dbc,"SELECT contactid, site_name, `display_name`, businessid FROM `contacts` WHERE `category`='".SITES_CAT."' AND deleted=0 ORDER BY IFNULL(NULLIF(`display_name`,''),`site_name`)"));
 					}
 					foreach($site_list as $site_row) {
-						echo "<option data-business='".$site_row['businessid']."' ".($get_ticket['siteid'] == $site_row['contactid'] ? 'selected' : ($get_ticket['businessid'] > 0 && $get_ticket['businessid'] != $site_row['businessid'] && $site_row['businessid'] > 0 ? 'style="display:none;"' : ''))." value='".$site_row['contactid']."'>".$site_row['full_name'].'</option>';
+						echo "<option data-business='".$site_row['businessid']."' ".(strpos(','.$get_ticket['siteid'].',',','.$site_row['contactid'].',') !== FALSE ? 'selected' : ($get_ticket['businessid'] > 0 && $get_ticket['businessid'] != $site_row['businessid'] && $site_row['businessid'] > 0 ? 'style="display:none;"' : ''))." value='".$site_row['contactid']."'>".$site_row['full_name'].'</option>';
 					} ?>
 					<option value="MANUAL">Add New Site</option>
 				</select>
 			  </div>
 			  <div class="col-sm-1">
-				<a href="" onclick="viewProfile(this); return false;"><img class="inline-img pull-right" src="../img/person.PNG"></a>
+				<a href="" onclick="viewProfile(this); return false;"><img class="inline-img pull-right no-toggle" src="../img/person.PNG" title="View Profile"></a>
 				<a href="" onclick="$(this).closest('.form-group').find('select').val('MANUAL').change(); return false;"><img class="inline-img pull-right" src="../img/icons/ROOK-add-icon.png"></a>
 			  </div>
 			</div>
@@ -327,6 +356,16 @@ var projectFilter = function() {
 			</div>
 		<?php } ?>
 
+		<?php if ( strpos($value_config, ',PI Scheduled Date,') !== false && $field_sort_field == 'PI Scheduled Date' ) { ?>
+			<div class="form-group">
+			  <label for="site_name" class="col-sm-4 control-label">Scheduled Date:</label>
+			  <div class="col-sm-8 date_div">
+				<input type="text" name="to_do_date" class="form-control datepicker" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" value="<?= date('Y-m-d',strtotime($get_ticket['to_do_date'] != '' ? $get_ticket['to_do_date'] : 'today')) ?>" onchange="$(this).closest('.date_div').find('[name=to_do_end_date]').val(this.value).change();">
+				<input type="hidden" name="to_do_end_date" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" class="form-control datepicker" value="<?= date('Y-m-d',strtotime($get_ticket['to_do_end_date'])) ?>">
+			  </div>
+			</div>
+		<?php } ?>
+
 		<?php if ( strpos($value_config, ',PI Date of Entry,') !== false && $field_sort_field == 'PI Date of Entry' ) { ?>
 			<div class="form-group">
 			  <label for="site_name" class="col-sm-4 control-label">Date of Entry:</label>
@@ -362,7 +401,7 @@ var projectFilter = function() {
 					</select>
 				  </div>
 				  <div class="col-sm-1 select-div" style="<?= trim($get_ticket['agentid'],',') > 0 || $get_ticket['agentid'] == '' ? '' : 'display:none;' ?>">
-					<a href="" onclick="viewProfile(this); return false;"><img class="inline-img pull-right" src="../img/person.PNG"></a>
+					<a href="" onclick="viewProfile(this); return false;"><img class="inline-img pull-right no-toggle" src="../img/person.PNG" title="View Profile"></a>
 					<a href="" onclick="$(this).closest('.form-group').find('select').val('ADD_NEW').change(); return false;"><img class="inline-img pull-right" src="../img/icons/ROOK-add-icon.png"></a>
 				  </div>
 				<div class="col-sm-8 manual-div" style="<?= trim($get_ticket['agentid'],',') > 0 || $get_ticket['agentid'] == '' ? 'display:none;' : '' ?>">
@@ -387,7 +426,7 @@ var projectFilter = function() {
 					</select>
 				  </div>
 				  <div class="col-sm-1 select-div" style="<?= trim($get_ticket['banid'],',') > 0 || $get_ticket['banid'] == '' ? '' : 'display:none;' ?>">
-					<a href="" onclick="viewProfile(this); return false;"><img class="inline-img pull-right" src="../img/person.PNG"></a>
+					<a href="" onclick="viewProfile(this); return false;"><img class="inline-img pull-right no-toggle" src="../img/person.PNG" title="View Profile"></a>
 					<a href="" onclick="$(this).closest('.form-group').find('select').val('ADD_NEW').change(); return false;"><img class="inline-img pull-right" src="../img/icons/ROOK-add-icon.png"></a>
 				  </div>
 				<div class="col-sm-8 manual-div" style="<?= trim($get_ticket['banid'],',') > 0 || $get_ticket['banid'] == '' ? 'display:none;' : '' ?>">
@@ -412,7 +451,7 @@ var projectFilter = function() {
 					</select>
 				  </div>
 				  <div class="col-sm-1 select-div" style="<?= trim($get_ticket['vendorid'],',') > 0 || $get_ticket['vendorid'] == '' ? '' : 'display:none;' ?>">
-					<a href="" onclick="viewProfile(this); return false;"><img class="inline-img pull-right" src="../img/person.PNG"></a>
+					<a href="" onclick="viewProfile(this); return false;"><img class="inline-img pull-right no-toggle" src="../img/person.PNG" title="View Profile"></a>
 					<a href="" onclick="$(this).closest('.form-group').find('select').val('ADD_NEW').change(); return false;"><img class="inline-img pull-right" src="../img/icons/ROOK-add-icon.png"></a>
 				  </div>
 				<div class="col-sm-8 manual-div" style="<?= trim($get_ticket['vendorid'],',') > 0 || $get_ticket['vendorid'] == '' ? 'display:none;' : '' ?>">
@@ -426,7 +465,6 @@ var projectFilter = function() {
 				  <label for="site_name" class="col-sm-4 control-label">Operators:</label>
 				  <div class="col-sm-8">
 					<select data-placeholder="Select Operator..." multiple id="contactid" name="contactid[]" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" class="chosen-select-deselect form-control" width="380">
-					  <option value=""></option>
 						  <?php $staff_query = sort_contacts_query(mysqli_query($dbc,"SELECT contactid, first_name, last_name FROM contacts WHERE deleted=0 AND status>0 AND category IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY.""));
 							foreach($staff_query as $row) { ?>
 								<option <?php if (strpos($get_ticket['contactid'], ','.$row['contactid'].',') !== FALSE) {
@@ -534,6 +572,15 @@ var projectFilter = function() {
 				</div>
 			</div>
 			<?php $pdf_contents[] = ['Contact Name', get_contact($dbc, $clientid)]; ?>
+		<?php } ?>
+		<?php if ( strpos($value_config, ',PI Guardian,') !== false && $field_sort_field == 'PI Guardian') { ?>
+			<div class="form-group clearfix completion_date">
+				<label for="first_name" class="col-sm-4 control-label text-right">Parent/Guardian:</label>
+				<div class="col-sm-8">
+					<?= get_contact($dbc, $get_ticket['guardianid']) ?>
+				</div>
+			</div>
+			<?php $pdf_contents[] = ['Parent/Guardian', get_contact($dbc, $get_ticket['guardianid'])]; ?>
 		<?php } ?>
 		<?php if ( strpos($value_config, ',PI AFE,') !== false && $field_sort_field == 'PI AFE') { ?>
 			<div class="form-group clearfix completion_date">
@@ -656,6 +703,16 @@ var projectFilter = function() {
 			  </div>
 			</div>
 			<?php $pdf_contents[] = ['Work Order #', $get_ticket['heading']]; ?>
+		<?php } ?>
+
+		<?php if ( strpos($value_config, ',PI Scheduled Date,') !== false && $field_sort_field == 'PI Scheduled Date' ) { ?>
+			<div class="form-group">
+			  <label for="site_name" class="col-sm-4 control-label">Scheduled Date:</label>
+			  <div class="col-sm-8">
+				<?= date('Y-m-d',strtotime($get_ticket['to_do_date'])) ?>
+			  </div>
+			</div>
+			<?php $pdf_contents[] = ['Scheduled Date', date('Y-m-d',strtotime($get_ticket['to_do_date']))]; ?>
 		<?php } ?>
 
 		<?php if ( strpos($value_config, ',PI Date of Entry,') !== false && $field_sort_field == 'PI Date of Entry' ) { ?>

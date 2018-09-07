@@ -144,7 +144,7 @@ if(in_array('projects',$config)) {
 	$html .= '<th>'.PROJECT_TILE.'</th>';
 }
 if(in_array('tasks',$config)) {
-	$html .= '<th>Tasks</th>';
+	$html .= '<th>'.TASK_TILE.'</th>';
 }
 if(in_array('equipment',$config)) {
 	$html .= '<th>Equipment</th>';

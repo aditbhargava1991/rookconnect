@@ -85,7 +85,7 @@ if (isset($_POST['inv_field'])) {
 	if (strpos(','.$vendors.',', ','.'Category'.',') === false) {
 		$vendors = 'Category,'.$vendors;
 	}
-    
+
     $get_field_config = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT COUNT(`configvendorid`) AS `configvendorid` FROM `field_config_vendors` WHERE `tab`='$tab_field' AND `accordion`='$accordion'"));
     if($get_field_config['configvendorid'] > 0) {
         $query_update_config = "UPDATE `field_config_vendors` SET `fields`='$vendors' $add_order $add_subtab WHERE `tab`='$tab_field' AND `accordion`='$accordion'";
@@ -112,7 +112,7 @@ $(document).ready(function() {
 		}
 		window.location = 'field_config_contacts.php?type=field&tab='+tab+'&subtab='+subtab+'&accr='+this.value;
 	});
-    
+
     $('#contact_field_category').on('change', function() {
         var category = $(this).val();
         var folder_name = 'vendor';
@@ -125,7 +125,7 @@ $(document).ready(function() {
             }
 		});
     });
-    
+
     $('#dashboard_subtab_field').on('change', function() {
         var subtab = $("#dashboard_subtab_field").val();
 		if(subtab == undefined) {
@@ -179,7 +179,7 @@ $(document).ready(function() {
 
 <div class="container">
     <div class="row">
-        <h1>Vendors</h1>
+        <h1><?= VENDOR_TILE ?></h1>
         <a href="contacts.php?category=<?= $cat_page; ?>&filter=Top" class="gap-top btn config-btn">Back to Dashboard</a>
 
         <form id="form1" name="form1" method="post"	action="field_config_contacts.php" enctype="multipart/form-data" class="form-horizontal">
@@ -199,9 +199,9 @@ $(document).ready(function() {
                     $get_field_config = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `dashboard` FROM `field_config_vendors` WHERE `tab`='$contype' AND `accordion` IS NULL"));
                 }
                 $dashboard_config = ','.$get_field_config['dashboard'].',';
-                
+
                 $get_field_order = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT GROUP_CONCAT(`order` SEPARATOR ',') AS `all_order` FROM `field_config_vendors` WHERE `tab`='$contype'"));
-                
+
                 $active_general     = ($_GET['type'] == 'general') ? 'active_tab' : '';
                 $active_dashboard   = ($_GET['type'] == 'dashboard') ? 'active_tab' : '';
                 $active_field       = ($_GET['type'] == 'field') ? 'active_tab' : '';
@@ -220,7 +220,7 @@ $(document).ready(function() {
                 </div>
 
                 <div class="clearfix"></div><?php
-                
+
                 /* ----- Sub Tabs ----- */
                 if($_GET['type'] == 'general') { ?>
                     <h3>Tabs</h3>
@@ -377,15 +377,15 @@ $(document).ready(function() {
 
                     </div><!-- #accordion_tabs --><?php
                 }
-                
-                
+
+
                 /* ----- Dashboard ----- */
                 if($_GET['type'] == 'dashboard') { ?>
                     <div class="form-group triple-gap-top"><?php
                         $url_subtab = ( isset($_GET['subtab']) && !empty($_GET['subtab']) ) ? $_GET['subtab'] : '';
                         $category = strtolower ( preg_replace('/\PL/u', '', $_GET['tab']) );
                         $subtab_config = get_config($dbc, 'vendor_field_subtabs');
-                        
+
                         if($subtab_config != '') { ?>
                             <label for="fax_number"	class="col-sm-4	control-label">Field Sub Tab:</label>
                             <div class="col-sm-8">
@@ -409,7 +409,7 @@ $(document).ready(function() {
                             mysqli_query($dbc, $sql_clear_subtabs);
                         } ?>
                     </div>
-                    
+
                     <h3>Dashboard</h3>
                     <div class="panel-group" id="accordion2">
                         <!-- How To -->
@@ -451,7 +451,7 @@ $(document).ready(function() {
                     </div>
 
                 <?php }
-                
+
 
                 /* ----- Fields ----- */
                 if($_GET['type'] == 'field') { ?>
@@ -462,10 +462,10 @@ $(document).ready(function() {
                                 <?php include('config_accordion_list.php'); ?>
                             </select>
                         </div><?php
-                        
+
                         $category = strtolower ( preg_replace('/\PL/u', '', $_GET['tab']) );
                         $subtab_config = get_config($dbc, 'vendor_field_subtabs');
-                        
+
                         if($subtab_config != '') { ?>
                             <label for="fax_number"	class="col-sm-4	control-label">Field Sub Tab:</label>
                             <div class="col-sm-8">
@@ -488,7 +488,7 @@ $(document).ready(function() {
                             $sql_clear_subtabs = "UPDATE `field_config_vendors` SET `subtab`='' WHERE `tab` NOT IN ('Staff','Profile')";
                             mysqli_query($dbc, $sql_clear_subtabs);
                         } ?>
-                        
+
                         <label for="fax_number"	class="col-sm-4	control-label">Sort Order:</label>
                         <div class="col-sm-8">
                             <select data-placeholder="Choose an Order..." name="order" class="chosen-select-deselect form-control" width="380">

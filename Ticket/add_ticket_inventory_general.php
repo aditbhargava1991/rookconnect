@@ -7,7 +7,7 @@ function copyPiece(event) {
 	var field = event.target;
 	if($(field).data('type') == 'inventory_general') {
 		$('[data-table=ticket_attached][data-type=inventory_general][name=contact_info]:checked').each(function() {
-			$(this).closest('.tab-section').find('[data-type=inventory_general][name='+field.name+']').val(field.value).change();
+			$(this).closest('.tab-section').find('[data-type=inventory_general][name="'+field.name+'"]').val(field.value).change();
 		});
 	}
 }
@@ -34,7 +34,7 @@ function copyPieceOne(target) {
 	var first_piece = $('.tab-section[data-type=general]:first').find('[data-table=ticket_attached][data-type=inventory_general][name!=contact_info]');
 	var i = 0;
 	$(target).closest('.tab-section').find('[data-table=ticket_attached][data-type=inventory_general][name!=contact_info]').each(function() {
-		if($(this).val() != first_piece.get(i).value) {
+		if($(this).closest('.form-group').is(':visible') && $(this).val() != first_piece.get(i).value) {
 			$(this).val(first_piece.get(i).value).change();
 		}
 		i++;
@@ -48,14 +48,23 @@ function multiPieces(input) {
 		while($('#tab_section_ticket_inventory_general .multi-block[data-type=general]').length < input.value) {
 			addMulti($('#tab_section_ticket_inventory_general .multi-block h4').last().get(0));
 		}
-		var i = 1;
-		$('#tab_section_ticket_inventory_general .multi-block[data-type=general] h4').each(function() {
-			var val = $(this).closest('.multi-block').find('[name=piece_type]').val()
-			$(this).text('Shipment Piece '+(i++)+(val != '' ? ': '+val : ''));
-		});
+		setPieceNumbers();
 		$('.tab-section[data-type=general]').data('triggered',0);
 		triggerSaveGeneralPiece();
 	<?php } ?>
+}
+function updatePieceCount() {
+	$.post('ticket_ajax_all.php?action=update_piece_count', { ticket: ticketid }, function(response) {
+		$('[name=qty][data-type=inventory_shipment]').first().val(response).change();
+		$('[name=weight][data-type=inventory_shipment]').first().change();
+	});
+}
+function setPieceNumbers() {
+	var i = 1;
+	$('#tab_section_ticket_inventory_general .multi-block[data-type=general] h4').each(function() {
+		var val = $(this).closest('.multi-block').find('[name=piece_type]').val()
+		$(this).text('Shipment Piece '+(i++)+(val != '' ? ': '+val : ''));
+	});
 }
 function addPieces(button) {
 	$(button).prop('disabled',true).text('Adding Pieces...');
@@ -68,7 +77,7 @@ function addPieces(button) {
 		completed_last();
 	}
 }
-function triggerSaveGeneralPiece() {	
+function triggerSaveGeneralPiece() {
 	if(!ticket_wait) {
 		var trigger = $('.tab-section[data-type=general]').filter(function() { return $(this).data('triggered') == 0; }).first();
 		trigger.data('triggered',1);
@@ -323,12 +332,12 @@ do {
 					<div class="form-group" <?= $general_inventory['description'] == '' || $general_inventory['siteid'] != '' ? '' : 'style="display:none;"' ?>>
 						<label class="control-label col-sm-4"><?= SITES_CAT ?>:</label>
 						<div class="col-sm-8"><div class="col-sm-12">
-							<select name="siteid" data-placeholder="Select <?= SITES_CAT ?>" data-table="ticket_attached" data-id="<?= $general_inventory['id'] ?>" data-id-field="id" data-type="inventory_general" data-type-field="src_table" class="chosen-select-deselect"><option></option>
+							<select name="siteid[]" multiple data-concat="," data-placeholder="Select <?= SITES_CAT ?>" data-table="ticket_attached" data-id="<?= $general_inventory['id'] ?>" data-id-field="id" data-type="inventory_general" data-type-field="src_table" class="chosen-select-deselect">
 								<?php if(!isset($site_list)) {
 									$site_list = sort_contacts_query(mysqli_query($dbc,"SELECT contactid, site_name, `display_name`, businessid FROM `contacts` WHERE `category`='".SITES_CAT."' AND deleted=0 ORDER BY IFNULL(NULLIF(`display_name`,''),`site_name`)"));
 								}
 								foreach($site_list as $site_row) { ?>
-									<option <?= $general_inventory['siteid'] == $site_row['contactid'] ? 'selected' : '' ?> value="<?= $site_row['contactid'] ?>"><?= $site_row['full_name'] ?></option>
+									<option <?= strpos(','.$general_inventory['siteid'].',',','.$site_row['contactid'].',') !== FALSE ? 'selected' : '' ?> value="<?= $site_row['contactid'] ?>"><?= $site_row['full_name'] ?></option>
 								<?php } ?>
 							</select>
 						</div></div>
@@ -339,7 +348,7 @@ do {
 					<div class="form-group" <?= $general_inventory['description'] == '' || $inventory['po_num'] != '' ? '' : 'style="display:none;"' ?>>
 						<label class="control-label col-sm-4">Purchase Order #:</label>
 						<div class="col-sm-8"><div class="col-sm-12">
-							<input type="text" name="po_num" data-table="ticket_attached" data-id="<?= $general_inventory['id'] ?>" data-id-field="id" data-type="inventory_general" data-type-field="src_table" class="form-control" value="<?= $inventory['po_num'] ?>">
+							<input type="text" name="po_num" data-table="ticket_attached" data-id="<?= $general_inventory['id'] ?>" data-id-field="id" data-type="inventory_general" data-type-field="src_table" class="form-control" value="<?= $general_inventory['po_num'] ?>">
 						</div></div>
 					</div>
 					<div class="clearfix"></div>
@@ -374,7 +383,7 @@ do {
 						<div class="col-sm-8"><div class="col-sm-12">
 							<select name="po_line" data-table="ticket_attached" data-id="<?= $general_inventory['id'] ?>" data-id-field="id" data-type="inventory_general" data-type-field="src_table" class="chosen-select-deselect"><option />
 								<?php $line_num = $dbc->query("SELECT MAX(`po_line`) FROM `ticket_attached` WHERE `deleted`=0 AND `src_table`='inventory_general'")->fetch_array(MYSQLI_NUM)[0]; ?>
-								<?php for($i = 10; $i <= $line_num + 20; $i += 10) { ?>
+								<?php for($i = 10; $i <= 550; $i += 10) { ?>
 									<option <?= $general_inventory['po_line'] == $i ? 'selected' : '' ?> value="<?= $i ?>"><?= $i ?></option>
 								<?php } ?>
 							</select>
@@ -508,6 +517,9 @@ do {
 			<?php if(strpos($value_config,',Inventory General Manual Add Pieces,') === FALSE) { ?>
 				<img class="inline-img pull-right" onclick="addMulti(this);" src="../img/icons/ROOK-add-icon.png">
 				<img class="inline-img pull-right" onclick="remMulti(this);" src="../img/remove.png">
+			<?php } ?>
+			<?php if(strpos($value_config,',Inventory General Manual Remove Pieces,') !== FALSE) { ?>
+				<img class="inline-img pull-right" onclick="remMulti(this); setPieceNumbers(); updatePieceCount(); reload_sidebar();" src="../img/remove.png">
 			<?php } ?>
 			<?php if(strpos($value_config,',Inventory General Detail,') !== FALSE && $pallet_line['pallet'] == '' && $general_description != 'import') {
 				$general_item = ['id'=>$general_inventory['id'],'piece_type'=>$general_inventory['piece_type'],'piece_num'=>$general_inventory['piece_num']]; ?>
@@ -734,7 +746,7 @@ if(strpos($value_config,',Inventory General Detail by Pallet,') !== FALSE && $pa
 					<input type="hidden" name="lock_tabs" value="<?= 'inventory_general_pallet_'.config_safe_str($pallet_line['pallet']) ?>" data-toggle="1">
 				</div>
 			<?php } else { ?>
-				<em class="cursor-hand tab_lock_toggle" onclick="window.location.reload();">Click this section to unlock.<img class="inline-img" src="../img/icons/lock.png"></em> 
+				<em class="cursor-hand tab_lock_toggle" onclick="window.location.reload();">Click this section to unlock.<img class="inline-img" src="../img/icons/lock.png"></em>
 				<input type="hidden" name="lock_tabs" value="<?= 'inventory_general_pallet_'.config_safe_str($pallet_line['pallet']) ?>" data-toggle="0">
 			<?php } ?>
 		</div>

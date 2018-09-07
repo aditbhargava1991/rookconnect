@@ -1,4 +1,6 @@
-<br />
+<?php /* Budgeting */
+include ('../include.php');
+checkAuthorised('budget'); ?><br />
 <?php 
 error_reporting(0);
 ?>
@@ -29,7 +31,7 @@ $num_rows = mysqli_num_rows($result);
 ?>
 <div class="mobile-100-container">
 	<div class="col-sm-12 col-xs-12 col-lg-12 pad-top offset-xs-top-20">
-		<a href="add_budget.php" class="btn brand-btn mobile-block gap-bottom pull-right">Add Budget</a>
+		<a href="add_budget.php" onclick="overlayIFrameSlider(this.href); return false;" class="btn brand-btn mobile-block gap-bottom pull-right">Add Budget</a>
 	</div>
 	<?php
 	if($num_rows > 0) {
@@ -84,7 +86,7 @@ $num_rows = mysqli_num_rows($result);
 								<a href='<?php echo addOrUpdateUrlParam('status','3') . '&budgetid=' . $row['budgetid']; ?>'>Archive</a>
 							<?php endif; ?>
 						</td>
-						<td><span class="iframe_open" id="<?php echo $row['budgetid']; ?>" style="cursor:pointer">View All</span></td>
+						<td><span onclick="overlayIFrameSlider('budget_history.php?budgetid=<?= $row['budgetid'] ?>','auto',true,true);" class="cursor-hand">View All</span></td>
 					</tr>
 				<?php } ?>
 			</tbody>
@@ -95,6 +97,6 @@ $num_rows = mysqli_num_rows($result);
 	}
 	?>
 	<div class="col-sm-12 col-xs-12 col-lg-12 pad-top offset-xs-top-20">
-		<a href="add_budget.php" class="btn brand-btn mobile-block gap-bottom pull-right">Add Budget</a>
+		<a href="add_budget.php" onclick="overlayIFrameSlider(this.href); return false;" class="btn brand-btn mobile-block gap-bottom pull-right">Add Budget</a>
 	</div>
 </div>

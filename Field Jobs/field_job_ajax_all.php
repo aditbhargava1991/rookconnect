@@ -1,7 +1,7 @@
 <?php
 error_reporting(0);
-include ('../database_connection.php');
-include ('../function.php');
+include ('../include.php');
+ob_clean();
 
 $from = $_GET['from'];
 $name = $_GET['name'];
@@ -46,10 +46,10 @@ if($from == 'field_jobs_wt') {
     }
 }
 if($from == 'job') {
-	$query = mysqli_query($dbc,"SELECT contactid, first_name, last_name, name FROM contacts WHERE businessid = '$name'");
-	echo '<option value=""></option>';
-	while($row = mysqli_fetch_array($query)) {
-		echo "<option value='".$row['contactid']."'>".decryptIt($row['name']).' '.decryptIt($row['first_name']).' '.decryptIt($row['last_name']).'</option>';
+	$query = sort_contacts_query(mysqli_query($dbc,"SELECT contactid, first_name, last_name, name FROM contacts WHERE businessid = '$name'"));
+	echo "<option value=\"\"></option>\n";
+	foreach($query as $row) {
+		echo '<option value="'.$row['contactid'].'">'.$row['name'].' '.$row['first_name'].' '.$row['last_name']."</option>\n";
 	}
 }
 

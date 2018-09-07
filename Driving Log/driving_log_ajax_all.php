@@ -1,7 +1,6 @@
 <?php
-include ('../database_connection.php');
-include ('../function.php');
-error_reporting(0);
+include('../include.php');
+ob_clean();
 if(isset($_GET['fill'])) {
 if($_GET['fill'] == 'startdl') {
     $driverid = $_GET['driverid'];

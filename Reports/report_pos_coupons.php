@@ -10,7 +10,7 @@ error_reporting(0);
 if ( isset ( $_POST['printpdf'] ) ) {
     $starttimepdf	= $_POST['starttimepdf'];
     $endtimepdf		= $_POST['endtimepdf'];
-	
+
     DEFINE('REPORT_LOGO', get_config($dbc, 'report_logo'));
     DEFINE('REPORT_HEADER', html_entity_decode(get_config($dbc, 'report_header')));
     DEFINE('REPORT_FOOTER', html_entity_decode(get_config($dbc, 'report_footer')));
@@ -60,40 +60,28 @@ if ( isset ( $_POST['printpdf'] ) ) {
 
     $today_date = date('Y-m-d');
 	$pdf->writeHTML($html, true, false, true, false, '');
-	$pdf->Output('Download/pos_coupons_'.$today_date.'.pdf', 'F'); ?>
+	$pdf->Output('Download/pos_coupons_'.$today_date.'.pdf', 'F');
+
+    track_download($dbc, 'report_pos_coupons', 0, WEBSITE_URL.'/Reports/Download/pos_coupons_'.$today_date.'.pdf', 'POS Coupons Report');
+
+    ?>
 
 	<script type="text/javascript">
 		window.open('Download/pos_coupons_<?php echo $today_date; ?>.pdf', 'fullscreen=yes');
 	</script><?php
 } ?>
-</head>
-
-<body>
-<?php include_once ('../navigation.php'); ?>
-
-<div class="container triple-pad-bottom">
-    <div class="row">
-        <div class="col-md-12">
-			<?php echo reports_tiles($dbc); ?>
-			<br /><br />
 
             <form method="post" action="">
 				<button type="submit" name="printpdf" value="Print Report" class="btn brand-btn pull-right">Print Report</button>
 			</form>
             <br /><br /><?php
-			
+
 			echo report_pos_coupons($dbc, '', ''); ?>
-
-        </div>
-    </div>
-</div><?php
-
-include ('../footer.php');
-
+<?php
 function report_pos_coupons($dbc, $table_style, $table_row_style) {
 	$report_data = '';
 	$result = mysqli_query ( $dbc, "SELECT * FROM `pos_touch_coupons` WHERE `deleted`=0" );
-	
+
 	if ( mysqli_num_rows($result) > 0 ) {
 		$report_data .= '<table border="1px" class="table table-bordered" style="'.$table_style.'">';
 			$report_data .= '<tr style="'.$table_row_style.'">
@@ -105,14 +93,14 @@ function report_pos_coupons($dbc, $table_style, $table_row_style) {
 				<th width="10%">Expiry Date</th>
 				<th width="12%"># of Times Used</th>
 			</tr>';
-		
+
 			while ( $row=mysqli_fetch_assoc($result) ) {
 				if ( $row['discount_type'] == '%' ) {
 					$discount = $row['discount'] . '%';
 				} else {
 					$discount = '$' . number_format ( $row['discount'], 2 );
 				}
-				
+
 				$report_data .= '<tr>';
 					$report_data .= '<td>' . $row['couponid']		. '</td>';
 					$report_data .= '<td>' . $row['title']			. '</td>';
@@ -124,11 +112,24 @@ function report_pos_coupons($dbc, $table_style, $table_row_style) {
 				$report_data .= "</tr>";
 			}
 		$report_data .= '</table>';
-		
+
 		return $report_data;
-	
+
 	} else { ?>
 		<h2>No Record Found.</h2><?php
 	}
 } ?>
+<script>
+$('document').ready(function() {
+    var tables = $('table');
 
+    tables.map(function(idx, table) {
+        var rows = $(table).find('tbody > tr');
+        rows.map(function(idx, row){
+            if(idx%2 == 0) {
+                $(row).css('background-color', '#e6e6e6');
+            }
+        })
+    })
+})
+</script>

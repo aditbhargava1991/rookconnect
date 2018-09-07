@@ -10,7 +10,7 @@ jQuery(document).ready(function($){
 	$('.live-search-box2').on('keyup', function(){
 		var searchTerm = $(this).val().toLowerCase();
 
-		$('.live-search-list2 tr').each(function(){	
+		$('.live-search-list2 tr').each(function(){
 			if ($(this).filter('[data-search-term *= ' + searchTerm + ']').length > 0 || searchTerm.length < 1) {
 				$(this).show();
 			} else {
@@ -39,7 +39,7 @@ jQuery(document).ready(function($){
 		<div class="col-md-12">
 		<br><br>
 		<?php  echo '<div class="row live-search-list2">';
-		
+
 		?>
         <form id="form1" name="form1" method="post"	action="add_services.php" enctype="multipart/form-data" class="form-horizontal" role="form">
 
@@ -90,7 +90,7 @@ jQuery(document).ready(function($){
         </div>
 
        <?php
-	   
+
 	   echo "<center><input type='text' name='x' class=' form-control live-search-box2' placeholder='Search for a tile...' style='max-width:300px; margin-bottom:20px;'></center>";
         $level = $level_url;
         $get_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT * FROM security_privileges WHERE level='$level_url'"));
@@ -120,11 +120,11 @@ jQuery(document).ready(function($){
             //        $on_security .= $field_name.',';
             //    }
             //}
-			
+
             if(any_string_found(['archiveddata','ffmsupport','helpdesk','software_config','staff'],$on_security)) { ?>
 				<tr class="row_heading"><th colspan='4'><div style='text-align:left;width:100%;font-size:20px;'>Software Settings:</div></th></tr>
 			<?php }
-			
+
 			if(strpos($on_security, ',archiveddata,') !== FALSE) {
 				echo security_tile_config_function('Archived Data','archiveddata', get_privileges($dbc, 'archiveddata',$level), 0, $level_url);
             }
@@ -140,11 +140,11 @@ jQuery(document).ready(function($){
 			if(strpos($on_security, ',staff,') !== FALSE) {
 				echo security_tile_config_function('Staff','staff', get_privileges($dbc, 'staff',$level), 1, $level_url);
             }
-			
+
 			if(any_string_found(['agenda_meeting','client_documents','contacts','documents','internal_documents','passwords','profile'],$on_security)) { ?>
 				<tr class="row_heading"><th colspan='4'><div style='text-align:left;width:100%;font-size:20px;'>Common Practice:</div></th></tr>
 			<?php }
-			
+
 			if (strpos($on_security, ',agenda_meeting,') !== FALSE) {
 				echo security_tile_config_function('Agenda & Meetings','agenda_meeting', get_privileges($dbc, 'agenda_meeting',$level), 0, $level_url);
 			}
@@ -166,7 +166,7 @@ jQuery(document).ready(function($){
 			if(strpos($on_security, ',profile,') !== FALSE) {
 				echo security_tile_config_function('Profile','profile', get_privileges($dbc, 'profile',$level), 0, $level_url);
 			}
-			
+
 			if(any_string_found(['certificate','emp_handbook','how_to_guide','hr','incident_report','ops_manual','orientation','policy_procedure'],$on_security)) { ?>
 				<tr class="row_heading"><th colspan='4'><div style='text-align:left;width:100%;font-size:20px;'>Human Resources:</div></th></tr>
 			<?php }
@@ -195,11 +195,11 @@ jQuery(document).ready(function($){
 			if(strpos($on_security, ',policy_procedure,') !== FALSE) {
 				echo security_tile_config_function('Policy & Procedure','policy_procedure', get_privileges($dbc, 'policy_procedure',$level), 0, $level_url);
 			}
-			
+
 			if(any_string_found(['infogathering','marketing_material','sales','sales_order'],$on_security)) { ?>
 				<tr class="row_heading"><th colspan='4'><div style='text-align:left;width:100%;font-size:20px;'>Sales:</div></th></tr>
 			<?php }
-			
+
 			if(strpos($on_security, ',infogathering,') !== FALSE) {
 				echo security_tile_config_function('Information Gathering','infogathering', get_privileges($dbc, 'infogathering',$level), 0, $level_url);
 			}
@@ -212,7 +212,7 @@ jQuery(document).ready(function($){
 			if(strpos($on_security, ',sales_order,') !== FALSE) {
 				echo security_tile_config_function('Sales Order','sales_order', get_privileges($dbc, 'sales_order',$level), 0, $level_url);
 			}
-			
+
 			if(any_string_found(['assets','equipment','inventory','material'],$on_security)) { ?>
 				<tr class="row_heading"><th colspan='4'><div style='text-align:left;width:100%;font-size:20px;'>Inventory Management:</div></th></tr>
 			<?php }
@@ -229,11 +229,11 @@ jQuery(document).ready(function($){
 			if(strpos($on_security, ',material,') !== FALSE) {
 				echo security_tile_config_function('Material','material', get_privileges($dbc, 'material',$level), 0, $level_url);
 			}
-			
+
 			if(any_string_found(['communication','email_communication','newsboard','tasks'],$on_security)) { ?>
 				<tr class="row_heading"><th colspan='4'><div style='text-align:left;width:100%;font-size:20px;'>Collaborative:</div></th></tr>
 			<?php }
-			
+
 			if (strpos($on_security, ',communication,') !== FALSE) {
 				echo security_tile_config_function('Communication','communication', get_privileges($dbc, 'communication',$level), 0, $level_url);
 			}
@@ -246,7 +246,7 @@ jQuery(document).ready(function($){
 			if(strpos($on_security, ',tasks,') !== FALSE) {
 				echo security_tile_config_function('Tasks','tasks', get_privileges($dbc, 'tasks',$level), 0, $level_url);
 			}
-			
+
 			if(any_string_found(['estimate','quote'],$on_security)) { ?>
 				<tr class="row_heading"><th colspan='4'><div style='text-align:left;width:100%;font-size:20px;'>Estimates/Quotes:</div></th></tr>
 			<?php }
@@ -257,18 +257,18 @@ jQuery(document).ready(function($){
 			if(strpos($on_security, ',quote,') !== FALSE) {
 				echo security_tile_config_function('Quote','quote', get_privileges($dbc, 'quote',$level), 0, $level_url);
 			}
-			
+
 			if(any_string_found(['driving_log','safety'],$on_security)) { ?>
 				<tr class="row_heading"><th colspan='4'><div style='text-align:left;width:100%;font-size:20px;'>Safety:</div></th></tr>
 			<?php }
-			
+
 			if(strpos($on_security, ',driving_log,') !== FALSE) {
 				echo security_tile_config_function('Driving Log','driving_log', get_privileges($dbc, 'driving_log',$level), 0, $level_url);
 			}
 			if(strpos($on_security, ',safety,') !== FALSE) {
 				echo security_tile_config_function('Safety','safety', get_privileges($dbc, 'safety',$level), 0, $level_url);
 			}
-			
+
 			if(any_string_found(['addendum','addition'],$on_security)) { ?>
 				<tr class="row_heading"><th colspan='4'><div style='text-align:left;width:100%;font-size:20px;'>Project Add Ons:</div></th></tr>
 			<?php }
@@ -279,7 +279,7 @@ jQuery(document).ready(function($){
 			if(strpos($on_security, ',addition,') !== FALSE) {
 				echo security_tile_config_function('Addition','addition', get_privileges($dbc, 'addition',$level), 0, $level_url);
 			}
-			
+
 			if(any_string_found(['field_job','project'],$on_security)) { ?>
 				<tr class="row_heading"><th colspan='4'><div style='text-align:left;width:100%;font-size:20px;'>Operations:</div></th></tr>
 			<?php }
@@ -290,7 +290,7 @@ jQuery(document).ready(function($){
 			if(strpos($on_security, ',project,') !== FALSE) {
 				echo security_tile_config_function((PROJECT_TILE == 'Projects' ? 'Project' : PROJECT_TILE),'project', get_privileges($dbc, 'project',$level), 0, $level_url);
 			}
-			
+
 			if(any_string_found(['custom','labour','package','products','promotion','rate_card','services'],$on_security)) { ?>
 				<tr class="row_heading"><th colspan='4'><div style='text-align:left;width:100%;font-size:20px;'>Project/Job Details:</div></th></tr>
 			<?php }
@@ -316,7 +316,7 @@ jQuery(document).ready(function($){
 			if(strpos($on_security, ',services,') !== FALSE) {
 				echo security_tile_config_function('Services','services', get_privileges($dbc, 'services',$level), 0, $level_url);
 			}
-			
+
 			if(any_string_found(['assembly','business_development','internal','manufacturing','marketing','process_development','rd','sred'],$on_security)) { ?>
 				<tr class="row_heading"><th colspan='4'><div style='text-align:left;width:100%;font-size:20px;'>Project/Job Type:</div></th></tr>
 			<?php }
@@ -345,7 +345,7 @@ jQuery(document).ready(function($){
 			if(strpos($on_security, ',sred,') !== FALSE) {
 				echo security_tile_config_function('SR&ED','sred', get_privileges($dbc, 'sred',$level), 0, $level_url);
 			}
-			
+
 			if(any_string_found(['daysheet','punch_card','ticket','time_tracking','work_order','expense','pos','purchase_order','vpl','gantt_chart','report'],$on_security)) { ?>
 				<tr class="row_heading"><th colspan='4'><div style='text-align:left;width:100%;font-size:20px;'>Project/Job Tracking:</div></th></tr>
 			<?php }
@@ -369,7 +369,7 @@ jQuery(document).ready(function($){
 				echo security_tile_config_function('Expense','expense', get_privileges($dbc, 'expense',$level), 0, $level_url);
 			}
 			if(strpos($on_security, ',pos,') !== FALSE) {
-				echo security_tile_config_function('Point of Sale','pos', get_privileges($dbc, 'pos',$level), 0, $level_url);
+				echo security_tile_config_function(POS_ADVANCE_TILE,'pos', get_privileges($dbc, 'pos',$level), 0, $level_url);
 			}
 			if(strpos($on_security, ',purchase_order,') !== FALSE) {
 				echo security_tile_config_function('Purchase Order','purchase_order', get_privileges($dbc, 'purchase_order',$level), 0, $level_url);
@@ -414,7 +414,7 @@ jQuery(document).ready(function($){
 								'software_format' => 'Software Format' ];
 						}
 						else if($field == 'contacts') {
-							
+
 						}
 						while($row = mysqli_fetch_array($result)) {
 							if(strpos($row['status'],'turn_off') !== false) {

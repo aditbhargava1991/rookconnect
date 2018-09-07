@@ -29,6 +29,5 @@ if(!empty($_POST['subtab']) && $_POST['subtab'] != 'schedule') {
 	</form>
 	<script type="text/javascript"> document.getElementById('change_page').submit(); </script>
 <?php }
-
 include_once('../Staff/staff_schedule_include.php');
 ?>

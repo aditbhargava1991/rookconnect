@@ -14,6 +14,19 @@ mysqli_query($dbc, "CREATE TABLE IF NOT EXISTS `field_config_ticket_security` (
   PRIMARY KEY (`fieldconfigid`)
 )");
 
+mysqli_query($dbc, "ALTER TABLE `project`
+ADD `projection_service_heading` VARCHAR(500) NULL AFTER `project_color_code`,
+ADD `projection_service_price` VARCHAR(10) NULL AFTER `projection_service_heading`,
+ADD `projection_product_heading` VARCHAR(500) NULL AFTER `projection_service_price`,
+ADD `projection_product_price` VARCHAR(10) NULL AFTER `projection_product_heading`,
+ADD `projection_task_heading` VARCHAR(500) NULL AFTER `projection_product_price`,
+ADD `projection_task_price` VARCHAR(10) NULL AFTER `projection_task_heading`,
+ADD `projection_inventory_heading` VARCHAR(500) NULL AFTER `projection_task_price`,
+ADD `projection_inventory_price` VARCHAR(10) NULL AFTER `projection_inventory_heading`,
+ADD `projection_admin_heading` VARCHAR(500) NULL AFTER `projection_inventory_price`,
+ADD `projection_admin_price` VARCHAR(10) NULL AFTER `projection_admin_heading`
+");
+
 mysqli_query($dbc, "ALTER TABLE `contacts` ADD `date_of_archival` DATE NULL AFTER `deleted`");
 mysqli_query($dbc, "ALTER TABLE `sales_lead` ADD `date_of_archival` DATE NULL AFTER `deleted`");
 mysqli_query($dbc, "ALTER TABLE `inventory` ADD `date_of_archival` DATE NULL AFTER `deleted`");
@@ -214,7 +227,44 @@ mysqli_query($dbc, "ALTER TABLE `checklist_document` ADD `date_of_archival` DATE
 mysqli_query($dbc, "ALTER TABLE `sales` ADD `date_of_archival` DATE NULL AFTER `deleted`");
 mysqli_query($dbc, "ALTER TABLE `order_lists` ADD `date_of_archival` DATE NULL AFTER `deleted`");
 
+mysqli_query($dbc, "ALTER TABLE `download_tracking` CHANGE `table` `table_name` VARCHAR(500) NULL");
 
+mysqli_query($dbc, "ALTER TABLE `agenda_meeting` ADD `heading` VARCHAR(500) NULL AFTER `location`");
+
+$get_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT COUNT(configid) AS configid FROM general_configuration WHERE name='vendor_tile_name'"));
+if($get_config['configid'] > 0) {
+    $query_update_employee = "UPDATE `general_configuration` SET value = 'Vendors' WHERE name='vendor_tile_name'";
+    $result_update_employee = mysqli_query($dbc, $query_update_employee);
+} else {
+    $query_insert_config = "INSERT INTO `general_configuration` (`name`, `value`) VALUES ('vendor_tile_name', 'Vendors')";
+    $result_insert_config = mysqli_query($dbc, $query_insert_config);
+}
+
+
+mysqli_query($dbc, "ALTER TABLE `estimate_scope` ADD `today_date` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP AFTER `sort_order`");
+
+mysqli_query($dbc, "CREATE TABLE IF NOT EXISTS `project_timer` (
+  `projecttimerid` int(10) NOT NULL AUTO_INCREMENT,
+  `projectid` int(10) DEFAULT NULL,
+  `staff` int(10) DEFAULT NULL,
+  `today_date` date DEFAULT NULL,
+  `timer_value` time DEFAULT NULL,
+  PRIMARY KEY (`projecttimerid`)
+");
+
+mysqli_query($dbc, "ALTER TABLE `checklist` ADD `checklist_tile` INT(1) NOT NULL DEFAULT '0' AFTER `subtabid`");
+
+mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`, `value`) VALUES ('contacts_summary', 'Per Category,Per Business')");
+
+mysqli_query($dbc, "ALTER TABLE `admin_tile_config` ADD `tasks_updated` VARCHAR(500) NULL AFTER `client_documentation_history`, ADD `tasks_updated_history` TEXT NULL AFTER `tasks_updated`");
+
+//mysqli_query($dbc, "ALTER TABLE `tile_config` ADD `tasks_updated` VARCHAR(500) NULL AFTER `client_documentation_history`, ADD `tasks_updated_history` TEXT NULL AFTER `tasks_updated`");
+
+mysqli_query($dbc, "ALTER TABLE `tasklist` ADD `flag_label` VARCHAR(200) NOT NULL AFTER `flag_colour`, ADD `flag_start` DATE NULL AFTER `flag_label`, ADD `flag_end` DATE NULL AFTER `flag_start`");
+
+mysqli_query($dbc, "ALTER TABLE `task_dashboard` ADD `task_fields` TEXT NULL AFTER `task_dashboard_tile`");
+
+mysqli_query($dbc, "UPDATE task_dashboard SET task_fields='Board Type,Board Name,Status,Task Name,To Do Date,Assign Staff,Flag This,Send Alert,Send Email,Schedule Reminder,Attach File,Comments,Add Time,Track Time' WHERE task_id=1");
 
     echo "Dayana's DB Changes Done<br />\n";
 ?>

@@ -140,7 +140,7 @@ function send_alert(note) {
 }
 function send_email(note) {
 	note_id = $(note).parents('span').data('note');
-	choose_user('email', note_id);
+	overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_email.php?tile=daily_log_notes&id='+note_id, 'auto', false, true);
 }
 function send_reminder(note) {
 	note_id = $(note).parents('span').data('note');

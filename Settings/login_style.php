@@ -2,6 +2,8 @@
 /*
 Customer Listing
 */
+include_once('../include.php');
+
 
 if (isset($_POST['add_style'])) {
        //Task Status
@@ -77,6 +79,7 @@ if ( !empty($note) ) { ?>
 					<option <?php if($get_style_file == 'swr') { echo "selected"; } ?> value="swr">Precision Workflow (White)</option>
 					<option <?php if($get_style_file == 'realtordark') { echo "selected"; } ?> value="realtordark">Realtor Navigator (Dark)</option>
 					<option <?php if($get_style_file == 'realtorlight') { echo "selected"; } ?> value="realtorlight">Realtor Navigator (Light)</option>
+					<option <?php if($get_style_file == 'redsilver') { echo "selected"; } ?> value="redsilver">Red &amp; Silver</option>
 					<option <?php if($get_style_file == '' || $get_style_file == 'blw') { echo "selected"; } ?> value="blw">ROOK Connect</option>
 					<option <?php if($get_style_file == 'happy') { echo "selected"; } ?> value="happy">Smiley Faces</option>
 					<option <?php if($get_style_file == 'transport') { echo "selected"; } ?> value="transport">Transport</option>

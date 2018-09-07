@@ -71,25 +71,20 @@ if ( isset($_POST['printpdf']) ) {
 
     $today_date = date('Y-m-d');
 	$pdf->writeHTML($html, true, false, true, false, '');
-	$pdf->Output('Download/report_pnl_expenses_'.$today_date.'.pdf', 'F'); ?>
+	$pdf->Output('Download/report_pnl_expenses_'.$today_date.'.pdf', 'F');
+
+    track_download($dbc, 'report_pnl_expenses', 0, WEBSITE_URL.'/Reports/Download/report_pnl_expenses_'.$today_date.'.pdf', 'Staff Compensation Report');
+    ?>
 
 	<script type="text/javascript" language="Javascript">
         window.open('Download/report_pnl_expenses_<?= $today_date; ?>.pdf', 'fullscreen=yes');
 	</script><?php
-    
+
     $search_start  = $search_start_pdf;
     $search_end    = $search_end_pdf;
 } ?>
 
-</head>
-<body>
-<?php include_once ('../navigation.php'); ?>
 
-<div class="container triple-pad-bottom">
-    <div class="row">
-        <div class="col-md-12">
-            <?=  reports_tiles($dbc);  ?>
-            
             <div class="notice double-gap-bottom popover-examples">
                 <div class="col-sm-1 notice-icon"><img src="<?= WEBSITE_URL; ?>/img/info.png" class="wiggle-me" width="25"></div>
                 <div class="col-sm-11">
@@ -97,9 +92,9 @@ if ( isset($_POST['printpdf']) ) {
                     The report displays expenses between two selected dates, broken out by expense category.</div>
                 <div class="clearfix"></div>
             </div>
-            
+
             <form id="form1" name="form1" method="post" action="" enctype="multipart/form-data" class="form-horizontal" role="form"><?php
-                
+
                 if ( isset($_POST['search_email_submit']) ) {
                     $search_start  = $_POST['search_start'];
                     $search_end    = $_POST['search_end'];
@@ -112,7 +107,7 @@ if ( isset($_POST['printpdf']) ) {
                 if ( $search_end == 0000-00-00 ) {
                     $search_end = date('Y-m-d');
                 } ?>
-                
+
                 <center><div class="form-group">
 					<div class="form-group col-sm-5">
 						<label class="col-sm-4">From:</label>
@@ -129,22 +124,19 @@ if ( isset($_POST['printpdf']) ) {
 
                 <button type="submit" name="printpdf" value="Print Report" class="btn brand-btn pull-right">Print Report</button>
                 <br /><br /><?php
-                
+
                 echo report_pnl_display($dbc, $search_start, $search_end, '', '', ''); ?>
             </form>
 
-        </div><!-- .col-md-12 -->
-    </div><!-- .row -->
-</div><!-- .container -->
-
-<?php include ('../footer.php'); ?>
 
 <?php
 function report_pnl_display($dbc, $search_start, $search_end, $table_style, $table_row_style, $grand_total_style) {
     $startyear = intval(explode('-', $search_start)[0]);
     $endyear   = intval(explode('-', $search_end)[0]);
-    
+
+    $odd_even = 0;
     for ($year = $startyear; $year <= $endyear; $year++) {
+        $bg_class = $odd_even % 2 == 0 ? '' : 'background-color:#e6e6e6;';
         $total_sql = "SELECT SUM(IF(`expense_date` LIKE '".$year."-01%', `total`, 0)) `JAN`,
             SUM(IF(`expense_date` LIKE '".$year."-02%', `total`, 0)) `FEB`,
             SUM(IF(`expense_date` LIKE '".$year."-03%', `total`, 0)) `MAR`,
@@ -196,7 +188,7 @@ function report_pnl_display($dbc, $search_start, $search_end, $table_style, $tab
             GROUP BY `source`, `tab`, `category`, `heading`
             ORDER BY `source`, `tab`, `category`, `heading`, `expense_date` LIMIT $offset, $rowsPerPage";
         $expenses = mysqli_query($dbc, $expenses_sql);
-        
+
         $report_data = '<table class="table table-bordered" style="'. $table_style .'">
             <thead>
                 <tr class="hidden-xs hidden-sm">
@@ -210,32 +202,35 @@ function report_pnl_display($dbc, $search_start, $search_end, $table_style, $tab
             <tbody>';
                 $category = $source = '';
                 
+                $odd_even2 = 0;
                 while($row = mysqli_fetch_array($expenses)) {
+                    $bg_class2 = $odd_even2 % 2 == 0 ? '' : 'background-color:#e6e6e6;';
                     if($source != $row['source'].$row['tab']) {
                         $source = $row['source'].$row['tab'];
                         if($row['source'] != 'EXPENSE') {
                             $report_data .= '<tr><td colspan="13" style="font-size:1.1em; font-weight:bold; '. $table_row_style .'"><a href="'. WEBSITE_URL .'/Budget/budget_expense.php?budgetid='. $row['tab'] .'&from_url='. urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']).'">'. $row['source'] .'</a></td></tr>';
                         }
                     }
-                    
+
                     if($category != $row['category']) {
                         $category = $row['category'];
                         $report_data .= '<tr><td colspan="13" style="font-size:1.1em; font-weight:bold; '. $table_row_style .'">'. $category .'</td></tr>';
                     }
-                    
-                    $report_data .= '<tr><td data-title="Expense" style="'. $table_row_style .'">';
+
+                    $report_data .= '<tr style="'.$bg_class2.'"><td data-title="Expense" style="'. $table_row_style .'">';
                     $report_data .= ( $row['source'] == 'STAFF') ? get_contact($dbc,$row['heading']) : $row['heading'];
                     $report_data .= '</td>';
-                    
+
                     for($month = 0; $month < 12; $month++) {
                         $dateObj = DateTime::createFromFormat('!m', $month+1);
                         $amt = $row[strtoupper($dateObj->format('M'))];
                         $report_data .= '<td data-title="'. $dateObj->format('F') .'" style="text-align:right; '. $table_row_style .'">$'. number_format($amt, 2, '.', ',') .'</td>';
                     }
                     $report_data .= '</tr>';
+                    $odd_even2++;
                 }
-                
-                $report_data .= '<tr>
+
+                $report_data .= '<tr style="'.$bg_class.'">
                     <td style="'. $table_row_style .'">Sales Tax Total</td>';
                     for($month = 0; $month < 12; $month++) {
                         $dateObj = DateTime::createFromFormat('!m', $month+1);
@@ -259,7 +254,8 @@ function report_pnl_display($dbc, $search_start, $search_end, $table_style, $tab
                 </tr>
             </tbody>
         </table>';
+        $odd_even++;
     }
-    
+
     return $report_data;
 }

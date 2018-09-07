@@ -7,10 +7,20 @@ if(isset($_POST['submit'])) {
 		$staffid = $_SESSION['contactid'];
 		// Insert a row if it isn't already there
 		$query_insert_row = "INSERT INTO `hr_staff` (`hrid`, `staffid`) SELECT '$hr', '$staffid' FROM (SELECT COUNT(*) rows FROM `hr_staff` WHERE `hrid`='$hr' AND `staffid`='$staffid') LOGTABLE WHERE rows=0";
+		$before_change = '';
+		$history = "Manuals upload entry added. <br />";
+		add_update_history($dbc, 'hr_history', $history, '', $before_change);
 		mysqli_query($dbc, $query_insert_row);
 		$done = 1; // $_POST[''] != '' ? 1 : 0;
+			$before_change = capture_before_change($dbc, 'hr_staff', 'done', 'hrid', $hrid, 'staffid', $staffid, 'done', 0);
+			$before_change .= capture_before_change($dbc, 'hr_staff', 'today_date', 'hrid', $hrid, 'staffid', $staffid, 'done', 0);
+
 	    $query_update_ticket = "UPDATE `hr_staff` SET `done` = '$done', `today_date` = '$today_date' WHERE `hrid` = '$hr' AND staffid='$staffid' AND done=0";
 	    $result_update_ticket = mysqli_query($dbc, $query_update_ticket);
+
+			$history = capture_after_change('done', $done);
+			$history .= capture_after_change('today_date', $today_date);
+			add_update_history($dbc, 'hr_history', $history, '', $before_change);
 
 	    //Update reminders to done
 	    mysqli_query($dbc, "UPDATE `reminders` SET `done` = 1 WHERE `contactid` = '$staffid' AND `src_table` = 'hr' AND `src_tableid` = '$hr'");
@@ -159,7 +169,7 @@ $form_config = ','.$get_hr['fields'].','; ?>
 						</div>
 					</div>
 				<?php } ?>
-				
+
 				<?php $uploads = mysqli_query($dbc, "SELECT `uploadid`, `upload`,`type` FROM `hr_upload` WHERE `hrid`='$hr'");
 				if(mysqli_num_rows($uploads) > 0) {
 					echo '<div class="form-group">

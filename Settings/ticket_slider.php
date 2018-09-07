@@ -2,6 +2,7 @@
 /*
 Software Format
 */
+include_once('../include.php');
 ?>
 <script type="text/javascript">
 $(document).on('change', '[name="calendar_ticket_slider"],[name="daysheet_ticket_slider"]', function() { updateTicketSlider(this); });

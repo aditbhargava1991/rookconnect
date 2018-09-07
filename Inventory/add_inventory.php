@@ -16,7 +16,7 @@ $led = false;
  */
 if ( $_SERVER['SERVER_NAME']=='sea-alberta.rookconnect.com' ) {
     //Connect to LED Edmonton ROOK
-    $dbc_led = mysqli_connect('mysql.rookconnect.com', 'led_rook_usr', 'pUnaibiS!273', 'led_rook_db');
+    $dbc_led = mysqli_connect('localhost', 'led_rook_usr', 'pUnaibiS!273', 'led_rook_db');
     $sea_partno_edit = true;
     $led = true;
 }
@@ -44,7 +44,10 @@ if ( isset($_GET['action']) && $_GET['action']=='delete_image' && isset($_GET['i
 
 if ( isset($_GET['action']) && $_GET['action']=='delete_spec_sheet' && isset($_GET['inventoryid']) ) {
     $inventoryid = $_GET['inventoryid'];
+    $before_change = capture_before_change($dbc, 'inventory', 'spec_sheet', 'inventoryid', $inventoryid);
     $delete_spec_sheet = mysqli_query ( $dbc, "UPDATE `inventory` SET `spec_sheet`=NULL WHERE `inventoryid`='$inventoryid'" );
+    $history = capture_after_change('spec_sheet', NULL);
+    add_update_history($dbc, 'inventory_history', $history, '', $before_change);
     echo '
         <script>
             alert("Spec Sheet deleted.");
@@ -97,14 +100,14 @@ if (isset($_POST['submit'])) {
     } else {
         $size = filter_var($_POST['size'],FILTER_SANITIZE_STRING);
     }
-    
+
     /* OLD weight dropdown
     if($_POST['weight'] == 'Other') {
         $weight = filter_var($_POST['weight_name'],FILTER_SANITIZE_STRING);
     } else {
         $weight = filter_var($_POST['weight'],FILTER_SANITIZE_STRING);
     }*/
-    
+
     $weight   = filter_var($_POST['weight'],FILTER_SANITIZE_STRING);
     $gauge    =	filter_var($_POST['gauge'],FILTER_SANITIZE_STRING);
     $length   =	filter_var($_POST['length'],FILTER_SANITIZE_STRING);
@@ -294,22 +297,26 @@ if (isset($_POST['submit'])) {
 			$new_cost = ($chng_qty > 0 ? (($old_cost * $old_inventory) + ($current_cost * $chng_qty)) / $new_inv : $current_cost);
 			$average_cost = ($average_cost > 0 && $average_cost != $cur_inv['average_cost'] ? $average_cost : $new_cost);
 			$query_add_log = "INSERT INTO `inventory_change_log` (`inventoryid`, `contactid`, `location_of_change`, `old_inventory`, `old_cost`, `changed_quantity`, `current_cost`, `new_inventory`, `new_cost`, `date_time`, `deleted`) VALUES ('$inv', '$contactidd', 'Inventory Tile', '$old_inventory', '$old_cost', '$chng_qty', '$current_cost', '$new_inv', '$new_cost', '$datetime', '0' )";
-			
+
             mysqli_query($dbc, $query_add_log) or die(mysqli_error($dbc));
-            
+
             $part_no_old = $rww['part_no'];
 		}
 	}
 
     $supplimentary = filter_var(implode(',',$_POST['supplimentary']),FILTER_SANITIZE_STRING);
-    
+
     if(empty($_POST['inventoryid'])) {
         // New Inventory Item
         $query_insert_inventory = "INSERT INTO `inventory` (`code`, `gtin`, `brand`, `category`, `sub_category`, `part_no`, `gst_exempt`, `description`, `application`, `supplimentary`, `comment`, `question`, `request`, `display_website`, `vendorid`, `size`, `gauge`, `weight`, `length`, `pressure`, `type`, `name`, `name_on_website`, `date_of_purchase`, `purchase_cost`, `sell_price`, `markup`, `freight_charge`, `min_bin`, `current_stock`, `final_retail_price`, `admin_price`, `wholesale_price`, `commercial_price`, `client_price`, `purchase_order_price`, `sales_order_price`, `distributor_price`, `minimum_billable`, `estimated_hours`, `actual_hours`, `msrp`, `quote_description`, `usd_invoice`, `shipping_rate`, `shipping_cash`, `exchange_rate`, `exchange_cash`, `pallet`, `cdn_cpu`, `cogs_total`, `warehouse`, `location`, `inv_variance`, `average_cost`, `asset`, `revenue`, `buying_units`, `selling_units`, `stocking_units`, `preferred_price`, `web_price`, `clearance_price`, `id_number`, `operator`, `lsd`, `quantity`, `product_name`, `cost`, `usd_cpu`, `commission_price`, `markup_perc`, `current_inventory`, `write_offs`, `min_max`, `status`, `note`, `unit_price`, `unit_cost`, `rent_price`, `rental_days`, `rental_weeks`, `rental_months`, `rental_years`, `reminder_alert`, `daily`,`weekly`, `monthly`, `annually`,  `total_days`, `total_hours`, `total_km`, `total_miles`, `bill_of_material`, `include_in_so`,`include_in_po`,`include_in_pos`, `drum_unit_cost`, `drum_unit_price`, `tote_unit_cost`, `tote_unit_price`, `include_in_product`, `wcb_price`, `spec_sheet`, `featured`, `sale`, `clearance`, `new`, `main_image`,`item_sku`,`color`,`suggested_retail_price`, `rush_price`, `min_amount`, `max_amount`)
 			VALUES ('$code', '$gtin', '$brand', '$category', '$sub_category', '$part_no', '$gst_exempt', '$description', '$application', '$supplimentary', '$comment', '$question', '$request', '$display_website', '$vendorid', '$size', '$gauge', '$weight', '$length', '$pressure', '$type', '$name', '$name_on_website', '$date_of_purchase', '$purchase_cost', '$sell_price', '$markup', '$freight_charge', '$min_bin', '$current_stock', '$final_retail_price', '$admin_price', '$wholesale_price', '$commercial_price', '$client_price', '$purchase_order_price', '$sales_order_price', '$distributor_price', '$minimum_billable', '$estimated_hours', '$actual_hours', '$msrp', '$quote_description', '$usd_invoice', '$shipping_rate', '$shipping_cash', '$exchange_rate', '$exchange_cash', '$pallet', '$cdn_cpu', '$cogs_total', '$warehouse', '$location', '$inv_variance', '$average_cost', '$asset', '$revenue', '$buying_units', '$selling_units', '$stocking_units', '$preferred_price', '$web_price', '$clearance_price', '$id_number', '$operator', '$lsd', '$quantity', '$product_name', '$cost', '$usd_cpu', '$commission_price', '$markup_perc', '$current_inventory', '$write_offs', '$min_max', '$status', '$note', '$unit_price', '$unit_cost', '$rent_price', '$rental_days', '$rental_weeks', '$rental_months', '$rental_years', '$reminder_alert', '$daily', '$weekly', '$monthly', '$annually', '$total_days', '$total_hours', '$total_km', '$total_miles', '$bill_of_material', '$include_in_so', '$include_in_po', '$include_in_pos', '$drum_unit_cost', '$drum_unit_price', '$tote_unit_cost', '$tote_unit_price', '$include_in_product', '$wcb_price', '$spec_sheet', '$featured', '$on_sale', '$on_clearance', '$new_item', '$main_image', '$item_sku', '$color', '$suggested_retail_price', '$rush_price', '$min_amount', '$max_amount')";
         $result_insert_inventory = mysqli_query($dbc, $query_insert_inventory);
         $inventoryid = mysqli_insert_id($dbc);
-        
+
+        $before_change = '';
+        $history = "New inventory Added. <br />";
+		    add_update_history($dbc, 'inventory_history', $history, '', $before_change);
+
         // Insert the same record to led.rookconnect.com
         if ( $led ) {
             /* Change prices before inserting to LED
@@ -323,6 +330,14 @@ if (isset($_POST['submit'])) {
             $query_insert_inventory_led = "INSERT INTO `inventory` (`code`, `gtin`, `brand`, `category`, `sub_category`, `part_no`, `gst_exempt`, `description`, `application`, `supplimentary`, `comment`, `question`, `request`, `display_website`, `vendorid`, `size`, `gauge`, `weight`, `length`, `pressure`, `type`, `name`, `name_on_website`, `date_of_purchase`, `purchase_cost`, `sell_price`, `markup`, `freight_charge`, `min_bin`, `current_stock`, `final_retail_price`, `admin_price`, `wholesale_price`, `commercial_price`, `client_price`, `purchase_order_price`, `sales_order_price`, `distributor_price`, `minimum_billable`, `estimated_hours`, `actual_hours`, `msrp`, `quote_description`, `usd_invoice`, `shipping_rate`, `shipping_cash`, `exchange_rate`, `exchange_cash`, `pallet`, `cdn_cpu`, `cogs_total`, `warehouse`, `location`, `inv_variance`, `average_cost`, `asset`, `revenue`, `buying_units`, `selling_units`, `stocking_units`, `preferred_price`, `web_price`, `clearance_price`, `id_number`, `operator`, `lsd`, `quantity`, `product_name`, `cost`, `usd_cpu`, `commission_price`, `markup_perc`, `current_inventory`, `write_offs`, `min_max`, `status`, `note`, `unit_price`, `unit_cost`, `rent_price`, `rental_days`, `rental_weeks`, `rental_months`, `rental_years`, `reminder_alert`, `daily`,`weekly`, `monthly`, `annually`,  `total_days`, `total_hours`, `total_km`, `total_miles`, `bill_of_material`, `include_in_so`,`include_in_po`,`include_in_pos`, `drum_unit_cost`, `drum_unit_price`, `tote_unit_cost`, `tote_unit_price`, `include_in_product`, `wcb_price`, `spec_sheet`, `featured`, `sale`, `clearance`, `new`, `main_image`,`item_sku`,`color`,`suggested_retail_price`, `rush_price`, `min_amount`, `max_amount`)
                 VALUES ('$code', '$gtin', '$brand', '$category', '$sub_category', '$part_no', '$gst_exempt', '$description', '$application', '$supplimentary', '$comment', '$question', '$request', '$display_website', '$vendorid', '$size', '$gauge', '$weight', '$length', '$pressure', '$type', '$name', '$name_on_website', '$date_of_purchase', '$purchase_cost', '$sell_price', '$markup', '$freight_charge', '$min_bin', '$current_stock', '$final_retail_price_led', '$admin_price', '$wholesale_price', '$commercial_price', '$client_price', '$purchase_order_price', '$sales_order_price', '$distributor_price_led', '$minimum_billable', '$estimated_hours', '$actual_hours', '$msrp', '$quote_description', '$usd_invoice', '$shipping_rate', '$shipping_cash', '$exchange_rate', '$exchange_cash', '$pallet', '$cdn_cpu', '$cogs_total', '$warehouse', '$location', '$inv_variance', '$average_cost', '$asset', '$revenue', '$buying_units', '$selling_units', '$stocking_units', '$preferred_price_led', '$web_price', '$clearance_price', '$id_number', '$operator', '$lsd', '$quantity', '$product_name', '$cost', '$usd_cpu', '$commission_price', '$markup_perc', '$current_inventory', '$write_offs', '$min_max', '$status', '$note', '$unit_price', '$unit_cost', '$rent_price', '$rental_days', '$rental_weeks', '$rental_months', '$rental_years', '$reminder_alert', '$daily', '$weekly', '$monthly', '$annually', '$total_days', '$total_hours', '$total_km', '$total_miles', '$bill_of_material', '$include_in_so', '$include_in_po', '$include_in_pos', '$drum_unit_cost', '$drum_unit_price', '$tote_unit_cost', '$tote_unit_price', '$include_in_product', '$wcb_price', '$spec_sheet', '$featured', '$on_sale', '$on_clearance', '$new_item', '$main_image', '$item_sku', '$color', '$suggested_retail_price', '$rush_price', '$min_amount', '$max_amount')";
             $result_insert_inventory_led = mysqli_query($dbc_led, $query_insert_inventory_led);
+            $before_change = '';
+            $history = "New inventory Added. <br />";
+    		    add_update_history($dbc, 'inventory_history', $history, '', $before_change);
+        } else {
+            //Else we sync the Inventory with the configured db on database_connection.php More details in Admin Settings > Sync Inventory
+            if ( $dbc_inventory ) {
+                mysqli_query($dbc_inventory, $query_insert_inventory);
+            }
         }
 
         if ( !empty($additional_images) ) {
@@ -331,10 +346,14 @@ if (isset($_POST['submit'])) {
                 $query_insert_images = "INSERT INTO `inventory_images` (`inventoryid`, `image`) VALUES ('$inventoryid', '$additional_image')";
                 $result_insert_images = mysqli_query($dbc, $query_insert_images);
             }
+
+            $before_change = '';
+            $history = "New inventory images Added. <br />";
+    		    add_update_history($dbc, 'inventory_history', $history, '', $before_change);
         }
 
         $url = 'Added';
-    
+
     } else {
         // Update Inventory Item
         $inventoryid = $_POST['inventoryid'];
@@ -342,37 +361,53 @@ if (isset($_POST['submit'])) {
         $update_main_image = ( empty($main_image) ) ? "" : ", `main_image`='$main_image'";
         $query_update_inventory = "UPDATE `inventory` SET `code`='$code', `gtin`='$gtin', `brand`='$brand', `category`='$category', `sub_category`='$sub_category', `part_no`='$part_no', `gst_exempt`='$gst_exempt', `description`='$description', `application`='$application', `supplimentary`='$supplimentary', `comment`='$comment', `question`='$question', `request`='$request', `display_website`='$display_website', `vendorid`='$vendorid', `size`='$size', `gauge`='$gauge', `weight`='$weight', `length`='$length', `pressure`='$pressure', `type`='$type', `name`='$name', `name_on_website`='$name_on_website', `date_of_purchase`='$date_of_purchase', `purchase_cost`='$purchase_cost', `sell_price`='$sell_price', `markup`='$markup', `freight_charge`='$freight_charge', `min_bin`='$min_bin', `current_stock`='$current_stock', `final_retail_price`='$final_retail_price', `admin_price`='$admin_price', `wholesale_price`='$wholesale_price', `commercial_price`='$commercial_price', `client_price`='$client_price', `purchase_order_price`='$purchase_order_price', `sales_order_price`='$sales_order_price', `distributor_price`='$distributor_price', `minimum_billable`='$minimum_billable', `estimated_hours`='$estimated_hours', `actual_hours`='$actual_hours', `msrp`='$msrp', `quote_description`='$quote_description', `usd_invoice`='$usd_invoice', `shipping_rate`='$shipping_rate', `shipping_cash`='$shipping_cash', `exchange_rate`='$exchange_rate', `exchange_cash`='$exchange_cash', `pallet`='$pallet', `cdn_cpu`='$cdn_cpu', `cogs_total`='$cogs_total', `warehouse`='$warehouse', `location`='$location', `inv_variance`='$inv_variance', `average_cost`='$average_cost', `asset`='$asset', `revenue`='$revenue', `buying_units`='$buying_units', `selling_units`='$selling_units', `stocking_units`='$stocking_units', `preferred_price`='$preferred_price', `web_price`='$web_price', `clearance_price`='$clearance_price', `id_number`='$id_number', `operator`='$operator', `lsd`='$lsd', `quantity`='$quantity', `product_name`='$product_name', `cost`='$cost', `usd_cpu`='$usd_cpu', `commission_price`='$commission_price', `markup_perc`='$markup_perc', `current_inventory`='$current_inventory', `write_offs`='$write_offs', `min_max`='$min_max', `status`='$status', `note`='$note', `unit_price`='$unit_price', `unit_cost`='$unit_cost', `rent_price`='$rent_price', `rental_days`='$rental_days', `rental_weeks`='$rental_weeks', `rental_months`='$rental_months', `rental_years`='$rental_years', `reminder_alert`='$reminder_alert', `daily`='$daily', `weekly`='$weekly', `monthly`='$monthly', `annually`='$annually', `total_days`='$total_days', `total_hours`='$total_hours', `total_km`='$total_km', `total_miles`='$total_miles', `bill_of_material`='$bill_of_material', `include_in_so`='$include_in_so', `include_in_po`='$include_in_po', `include_in_pos`='$include_in_pos', `drum_unit_cost`= '$drum_unit_cost', `drum_unit_price`='$drum_unit_price', `tote_unit_cost`='$tote_unit_cost', `tote_unit_price`='$tote_unit_price', `include_in_product`='$include_in_product', `wcb_price`='$wcb_price',". $update_spec_sheet ." `featured`='$featured', `sale`='$on_sale', `clearance`='$on_clearance', `new`='$new_item'". $update_main_image .", `item_sku` = '$item_sku', `color` = '$color', `suggested_retail_price` = '$suggested_retail_price', `rush_price` = '$rush_price', `min_amount` = '$min_amount', `max_amount` = '$max_amount' WHERE `inventoryid`='$inventoryid'";
         $result_update_inventory	= mysqli_query($dbc, $query_update_inventory);
-        
-        // Update the same record on led.rookconnect.com
-        if ( $led && !empty($part_no_old) ) {
-            /* Change prices before inserting to LED
+        $before_change = '';
+        $history = "Inventory with id $inventoryid is been Updated. <br />";
+        add_update_history($dbc, 'inventory_history', $history, '', $before_change);
+            
+        if ( $led ) {
+            /* Update the same record on led.rookconnect.com
+             * Change prices before inserting to LED
              * Final Retail Price = SEA Alberta Web Price
              * Preferred Price = CDN Cost + 50%
              * Distributor Price = CDN Cost + 32%
              */
-            $final_retail_price_led = $web_price;
-            $preferred_price_led = $cdn_cpu + ($cdn_cpu * 0.5);
-            $distributor_price_led = $cdn_cpu + ($cdn_cpu * 0.32);
-            $query_update_inventory_led = "UPDATE `inventory` SET `code`='$code', `gtin`='$gtin', `brand`='$brand', `category`='$category', `sub_category`='$sub_category', `part_no`='$part_no', `gst_exempt`='$gst_exempt', `description`='$description', `application`='$application', `supplimentary`='$supplimentary', `comment`='$comment', `question`='$question', `request`='$request', `display_website`='$display_website', `vendorid`='$vendorid', `size`='$size', `gauge`='$gauge', `weight`='$weight', `length`='$length', `pressure`='$pressure', `type`='$type', `name`='$name', `name_on_website`='$name_on_website', `date_of_purchase`='$date_of_purchase', `purchase_cost`='$purchase_cost', `sell_price`='$sell_price', `markup`='$markup', `freight_charge`='$freight_charge', `min_bin`='$min_bin', `current_stock`='$current_stock', `final_retail_price`='$final_retail_price_led', `admin_price`='$admin_price', `wholesale_price`='$wholesale_price', `commercial_price`='$commercial_price', `client_price`='$client_price', `purchase_order_price`='$purchase_order_price', `sales_order_price`='$sales_order_price', `distributor_price`='$distributor_price_led', `minimum_billable`='$minimum_billable', `estimated_hours`='$estimated_hours', `actual_hours`='$actual_hours', `msrp`='$msrp', `quote_description`='$quote_description', `usd_invoice`='$usd_invoice', `shipping_rate`='$shipping_rate', `shipping_cash`='$shipping_cash', `exchange_rate`='$exchange_rate', `exchange_cash`='$exchange_cash', `pallet`='$pallet', `cdn_cpu`='$cdn_cpu', `cogs_total`='$cogs_total', `warehouse`='$warehouse', `location`='$location', `inv_variance`='$inv_variance', `average_cost`='$average_cost', `asset`='$asset', `revenue`='$revenue', `buying_units`='$buying_units', `selling_units`='$selling_units', `stocking_units`='$stocking_units', `preferred_price`='$preferred_price_led', `web_price`='$web_price', `clearance_price`='$clearance_price', `id_number`='$id_number', `operator`='$operator', `lsd`='$lsd', `quantity`='$quantity', `product_name`='$product_name', `cost`='$cost', `usd_cpu`='$usd_cpu', `commission_price`='$commission_price', `markup_perc`='$markup_perc', `current_inventory`='$current_inventory', `write_offs`='$write_offs', `min_max`='$min_max', `status`='$status', `note`='$note', `unit_price`='$unit_price', `unit_cost`='$unit_cost', `rent_price`='$rent_price', `rental_days`='$rental_days', `rental_weeks`='$rental_weeks', `rental_months`='$rental_months', `rental_years`='$rental_years', `reminder_alert`='$reminder_alert', `daily`='$daily', `weekly`='$weekly', `monthly`='$monthly', `annually`='$annually', `total_days`='$total_days', `total_hours`='$total_hours', `total_km`='$total_km', `total_miles`='$total_miles', `bill_of_material`='$bill_of_material', `include_in_so`='$include_in_so', `include_in_po`='$include_in_po', `include_in_pos`='$include_in_pos', `drum_unit_cost`= '$drum_unit_cost', `drum_unit_price`='$drum_unit_price', `tote_unit_cost`='$tote_unit_cost', `tote_unit_price`='$tote_unit_price', `include_in_product`='$include_in_product', `wcb_price`='$wcb_price',". $update_spec_sheet ." `featured`='$featured', `sale`='$on_sale', `clearance`='on_clearance', `new`='$new_item'". $update_main_image .", `item_sku` = '$item_sku', `color` = '$color', `suggested_retail_price` = '$suggested_retail_price', `rush_price` = '$rush_price', `min_amount` = '$min_amount', `max_amount` = '$max_amount' WHERE `part_no`='$part_no_old'";
-            $result_update_inventory_led = mysqli_query($dbc_led, $query_update_inventory_led);
+            if ( !empty($part_no_old) ) {
+                $final_retail_price_led = $web_price;
+                $preferred_price_led = $cdn_cpu + ($cdn_cpu * 0.5);
+                $distributor_price_led = $cdn_cpu + ($cdn_cpu * 0.32);
+                $query_update_inventory_led = "UPDATE `inventory` SET `code`='$code', `gtin`='$gtin', `brand`='$brand', `category`='$category', `sub_category`='$sub_category', `part_no`='$part_no', `gst_exempt`='$gst_exempt', `description`='$description', `application`='$application', `supplimentary`='$supplimentary', `comment`='$comment', `question`='$question', `request`='$request', `display_website`='$display_website', `vendorid`='$vendorid', `size`='$size', `gauge`='$gauge', `weight`='$weight', `length`='$length', `pressure`='$pressure', `type`='$type', `name`='$name', `name_on_website`='$name_on_website', `date_of_purchase`='$date_of_purchase', `purchase_cost`='$purchase_cost', `sell_price`='$sell_price', `markup`='$markup', `freight_charge`='$freight_charge', `min_bin`='$min_bin', `current_stock`='$current_stock', `final_retail_price`='$final_retail_price_led', `admin_price`='$admin_price', `wholesale_price`='$wholesale_price', `commercial_price`='$commercial_price', `client_price`='$client_price', `purchase_order_price`='$purchase_order_price', `sales_order_price`='$sales_order_price', `distributor_price`='$distributor_price_led', `minimum_billable`='$minimum_billable', `estimated_hours`='$estimated_hours', `actual_hours`='$actual_hours', `msrp`='$msrp', `quote_description`='$quote_description', `usd_invoice`='$usd_invoice', `shipping_rate`='$shipping_rate', `shipping_cash`='$shipping_cash', `exchange_rate`='$exchange_rate', `exchange_cash`='$exchange_cash', `pallet`='$pallet', `cdn_cpu`='$cdn_cpu', `cogs_total`='$cogs_total', `warehouse`='$warehouse', `location`='$location', `inv_variance`='$inv_variance', `average_cost`='$average_cost', `asset`='$asset', `revenue`='$revenue', `buying_units`='$buying_units', `selling_units`='$selling_units', `stocking_units`='$stocking_units', `preferred_price`='$preferred_price_led', `web_price`='$web_price', `clearance_price`='$clearance_price', `id_number`='$id_number', `operator`='$operator', `lsd`='$lsd', `quantity`='$quantity', `product_name`='$product_name', `cost`='$cost', `usd_cpu`='$usd_cpu', `commission_price`='$commission_price', `markup_perc`='$markup_perc', `current_inventory`='$current_inventory', `write_offs`='$write_offs', `min_max`='$min_max', `status`='$status', `note`='$note', `unit_price`='$unit_price', `unit_cost`='$unit_cost', `rent_price`='$rent_price', `rental_days`='$rental_days', `rental_weeks`='$rental_weeks', `rental_months`='$rental_months', `rental_years`='$rental_years', `reminder_alert`='$reminder_alert', `daily`='$daily', `weekly`='$weekly', `monthly`='$monthly', `annually`='$annually', `total_days`='$total_days', `total_hours`='$total_hours', `total_km`='$total_km', `total_miles`='$total_miles', `bill_of_material`='$bill_of_material', `include_in_so`='$include_in_so', `include_in_po`='$include_in_po', `include_in_pos`='$include_in_pos', `drum_unit_cost`= '$drum_unit_cost', `drum_unit_price`='$drum_unit_price', `tote_unit_cost`='$tote_unit_cost', `tote_unit_price`='$tote_unit_price', `include_in_product`='$include_in_product', `wcb_price`='$wcb_price',". $update_spec_sheet ." `featured`='$featured', `sale`='$on_sale', `clearance`='on_clearance', `new`='$new_item'". $update_main_image .", `item_sku` = '$item_sku', `color` = '$color', `suggested_retail_price` = '$suggested_retail_price', `rush_price` = '$rush_price', `min_amount` = '$min_amount', `max_amount` = '$max_amount' WHERE `part_no`='$part_no_old'";
+                $result_update_inventory_led = mysqli_query($dbc_led, $query_update_inventory_led);
+            }
+        } else {
+            //Else we sync the Inventory with the configured DB on database_connection.php More details in Admin Settings > Sync Inventory
+            if ( $dbc_inventory ) {
+                mysqli_query($dbc_inventory, $query_update_inventory);
+            }
         }
-        
+            
+            $before_change = '';
+            $history = "Inventory with id $inventoryid has been Updated. <br />";
+            add_update_history($dbc, 'inventory_history', $history, '', $before_change);
+
+        //}
+
         // Update all SEA Software `code` & `part_no` - both the same. We do this only if the `part_no` is updated on SEA Alberta.
         if ( $sea_partno_edit==true && !empty($part_no_old) ) {
             $query_update_inventory = "UPDATE `inventory` SET `code`='$part_no', `gtin`='$gtin', `part_no`='$part_no' WHERE `part_no`='$part_no_old'";
-            
+
             // Connect to each SEA Software as Cross Software doesn't work from SEA Alberta
-            $dbc_global     = mysqli_connect('mysql.sea.freshfocussoftware.com', 'sea_software_use', 'dRagonflY!306', 'sea_devsoftware_db');
-            $dbc_regina     = mysqli_connect('mysql.sea.freshfocussoftware.com', 'sea_software_use', 'dRagonflY!306', 'sea_regina_db');
-            $dbc_saskatoon  = mysqli_connect('mysql.sea.freshfocussoftware.com', 'sea_software_use', 'dRagonflY!306', 'sea_saskatoon_db');
-            $dbc_vancouver  = mysqli_connect('mysql.sea.freshfocussoftware.com', 'sea_software_use', 'dRagonflY!306', 'sea_vancouver_db');
-            
+            $dbc_global     = mysqli_connect('localhost', 'sea_software_use', 'dRagonflY!306', 'sea_devsoftware_db');
+            $dbc_regina     = mysqli_connect('localhost', 'sea_software_use', 'dRagonflY!306', 'sea_regina_db');
+            $dbc_saskatoon  = mysqli_connect('localhost', 'sea_software_use', 'dRagonflY!306', 'sea_saskatoon_db');
+            $dbc_vancouver  = mysqli_connect('localhost', 'sea_software_use', 'dRagonflY!306', 'sea_vancouver_db');
+
             $result_update_inventory = mysqli_query ( $dbc, $query_update_inventory );
             $result_update_inventory = mysqli_query ( $dbc_global, $query_update_inventory );
             $result_update_inventory = mysqli_query ( $dbc_regina, $query_update_inventory );
             $result_update_inventory = mysqli_query ( $dbc_saskatoon, $query_update_inventory );
             $result_update_inventory = mysqli_query ( $dbc_vancouver, $query_update_inventory );
-            
+
             mysqli_close($dbc_global);
             mysqli_close($dbc_regina);
             mysqli_close($dbc_saskatoon);
@@ -393,6 +428,9 @@ if (isset($_POST['submit'])) {
     if($include_in_product == 1) {
         $query_insert_invoice = "INSERT INTO `products` (`inventoryid`, `code`, `brand`, `category`, `sub_category`, `part_no`, `gst_exempt`, `description`, `application`, `supplimentary`, `comment`, `question`, `request`, `display_website`, `vendorid`, `size`, `gauge`, `weight`, `length`, `pressure`, `type`, `name`, `date_of_purchase`, `purchase_cost`, `sell_price`, `markup`, `freight_charge`, `min_bin`, `current_stock`, `final_retail_price`, `admin_price`, `wholesale_price`, `commercial_price`, `client_price`, `purchase_order_price`, `sales_order_price`, `distributor_price`, `minimum_billable`, `estimated_hours`, `actual_hours`, `msrp`, `quote_description`, `usd_invoice`, `shipping_rate`, `shipping_cash`, `exchange_rate`, `exchange_cash`, `cdn_cpu`, `cogs_total`, `location`, `inv_variance`, `average_cost`, `asset`, `revenue`, `buying_units`, `selling_units`, `stocking_units`, `preferred_price`, `web_price`, `clearance_price`, `id_number`, `operator`, `lsd`, `quantity`, `product_name`, `cost`, `usd_cpu`, `commission_price`, `markup_perc`, `current_inventory`, `write_offs`, `min_max`, `status`, `note`, `unit_price`, `unit_cost`, `rent_price`, `rental_days`, `rental_weeks`, `rental_months`, `rental_years`, `reminder_alert`, `daily`,`weekly`, `monthly`, `annually`,  `total_days`, `total_hours`, `total_km`, `total_miles`, `bill_of_material`, `include_in_so`,`include_in_po`,`include_in_pos`, `drum_unit_cost`, `drum_unit_price`, `tote_unit_cost`, `tote_unit_price`) SELECT inventoryid, code, brand, category, sub_category, part_no, gst_exempt, description, application, supplimentary, comment, question, request, display_website, vendorid, size, gauge, weight, length, pressure, type, name, date_of_purchase, purchase_cost, sell_price, markup, freight_charge, min_bin, current_stock, final_retail_price, admin_price, wholesale_price, commercial_price, client_price, purchase_order_price, sales_order_price, distributor_price, minimum_billable, estimated_hours, actual_hours, msrp, quote_description, usd_invoice, shipping_rate, shipping_cash, exchange_rate, exchange_cash, cdn_cpu, cogs_total, location, inv_variance, average_cost, asset, revenue, buying_units, selling_units, stocking_units, preferred_price, web_price, clearance_price, id_number, operator, lsd, quantity, product_name, cost, usd_cpu, commission_price, markup_perc, current_inventory, write_offs, min_max, status, note, unit_price, unit_cost, rent_price, rental_days, rental_weeks, rental_months, rental_years, reminder_alert, daily, weekly, monthly, annually, total_days, total_hours, total_km, total_miles, bill_of_material, include_in_so, include_in_po, include_in_pos, drum_unit_cost, drum_unit_price, tote_unit_cost, tote_unit_price from `inventory` WHERE `inventoryid`='$inventoryid'";
         $result_insert_invoice = mysqli_query($dbc, $query_insert_invoice);
+        $before_change = '';
+        $history = "New product Added. <br />";
+		    add_update_history($dbc, 'inventory_history', $history, '', $before_change);
     } else {
         $query = mysqli_query($dbc,"DELETE FROM products WHERE `inventoryid`='$inventoryid'");
     }
@@ -771,7 +809,7 @@ if(!empty($_GET['inventoryid'])) {
                             // Change General accordion name to Product Photos for prime.rookconnect.com
                             $accordion_title = '';
                             $rookconnect     = get_software_name();
-                            
+
                             if ( $rookconnect=='prime' && $row['accordion']=='General' ) {
                                 $accordion_title = 'Product Photos';
                             } else {
@@ -798,7 +836,7 @@ if(!empty($_GET['inventoryid'])) {
                                     <select name="category" id="category" class="chosen-select-deselect form-control">
                                         <option></option>
                                         <?php $categories = explode('#*#', get_config($dbc, 'inventory_tabs'));
-                                        
+
                                         foreach ($categories as $inv_tab) {
                                             if ( strtolower($category) == preg_replace('/[^a-z]/','',strtolower($inv_tab)) ) {
                                                 $selected = 'selected';
@@ -823,7 +861,7 @@ if(!empty($_GET['inventoryid'])) {
                                 // Change General accordion name to Product Photos for prime.rookconnect.com
                                 $accordion_title = '';
                                 $rookconnect     = get_software_name();
-                                
+
                                 if ( $rookconnect=='prime' && $row['accordion']=='General' ) {
                                     $accordion_title = 'Product Photos';
                                 } else {
@@ -1613,7 +1651,7 @@ if(!empty($_GET['inventoryid'])) {
                                         <div class="form-group">
                                             <label for="travel_task" class="col-sm-4 control-label">Weight:</label>
                                             <div class="col-sm-8"><input name="weight" type="text" value="<?= $weight; ?>" class="form-control" /></div>
-                                            
+
                                             <!--
                                             OLD Dropdown
                                             <div class="col-sm-8">
@@ -2122,7 +2160,6 @@ if(!empty($_GET['inventoryid'])) {
                                         <label for="company_name" class="col-sm-4 control-label">Bill of Material:</label>
                                         <div class="col-sm-8">
                                             <select data-placeholder="Choose items" multiple name="bill_of_material[]" class="chosen-select-deselect form-control inventoryid" width="380">
-                                                <option value=''></option>
                                                 <?php
                                                 $query = mysqli_query($dbc,"SELECT inventoryid, name FROM inventory ORDER BY name");
                                                 while($row = mysqli_fetch_array($query)) {
@@ -2170,7 +2207,7 @@ if(!empty($_GET['inventoryid'])) {
                                             <label for="supplimentary" class="col-sm-4 control-label">Supplementary Products:</label>
                                             <div class="col-sm-8">
                                                 <select data-placeholder="Choose items" multiple name="supplimentary[]" class="chosen-select-deselect form-control inventoryid" width="380">
-                                                    <option value=""></option><?php
+                                                    <?php
                                                     $query = mysqli_query($dbc,"SELECT `inventoryid`, `name`, `part_no` FROM `inventory` ORDER BY `name`");
 
                                                     while ( $row = mysqli_fetch_array($query) ) { ?>
@@ -2185,15 +2222,17 @@ if(!empty($_GET['inventoryid'])) {
                                       <?php if (strpos($value_config, ','."Change Log".',') !== FALSE) { ?>
                                       <div class="form-group" id="no-more-tables">
                     					<h4>Log of changes to Inventory cost and quantity</h4>
-                                        <table class="table table_bordered">
-                    						<tr class="hidden-xs hidden-sm">
-                    							<th>User</th>
-                    							<th>Units Added</th>
-                    							<th>Cost of Units</th>
-                    							<th>Averaged Cost</th>
-                    							<th>Date</th>
-                    							<th>Source of Change</th>
-                    						</tr>
+                                        <table class="table table_bordered table-striped">
+                                            <thead>
+                                                <tr class="hidden-xs hidden-sm">
+                                                    <th>User</th>
+                                                    <th>Units Added</th>
+                                                    <th>Cost of Units</th>
+                                                    <th>Averaged Cost</th>
+                                                    <th>Date</th>
+                                                    <th>Source of Change</th>
+                                                </tr>
+                                            </thead>
                     						<?php $change_results = mysqli_query($dbc, "SELECT * FROM `inventory_change_log` WHERE `inventoryid` = '$inventoryid'");
                     						if(mysqli_num_rows($change_results) > 0) {
                     							while($change_row = mysqli_fetch_array($change_results)) { ?>
@@ -2247,13 +2286,15 @@ if(!empty($_GET['inventoryid'])) {
                                       <?php if (strpos($value_config, ','."Change Qty".',') !== FALSE) { ?>
                                       <div class="form-group" id="no-more-tables">
                     					<h4>Log of changes to Inventory cost and quantity</h4>
-                                        <table class="table table_bordered">
-                    						<tr class="hidden-xs hidden-sm">
-                    							<th>User</th>
-                    							<th>Units Added</th>
-                    							<th>Date</th>
-                    							<th>Source of Change</th>
-                    						</tr>
+                                        <table class="table table_bordered table-striped">
+                    						<thead>
+                                                <tr class="hidden-xs hidden-sm">
+                                                    <th>User</th>
+                                                    <th>Units Added</th>
+                                                    <th>Date</th>
+                                                    <th>Source of Change</th>
+                                                </tr>
+                                            </thead>
                     						<?php $change_results = mysqli_query($dbc, "SELECT * FROM `inventory_change_log` WHERE `inventoryid` = '$inventoryid'");
                     						if(mysqli_num_rows($change_results) > 0) {
                     							while($change_row = mysqli_fetch_array($change_results)) { ?>
@@ -2313,7 +2354,7 @@ if(!empty($_GET['inventoryid'])) {
 
                     		<div class="clearfix"></div>
 
-                            
+
 
                     		</form>
                         </div>

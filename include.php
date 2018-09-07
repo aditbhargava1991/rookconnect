@@ -66,4 +66,26 @@ if(mysqli_num_rows($page_options) > 0) {
 	}
 }
 if(strpos_any !== FALSE)
-$_SERVER['page_load_info'] .= 'Start of Page: '.number_format(microtime(true) - $_SERVER['REQUEST_TIME_FLOAT'],5)."\n"; ?>
+$_SERVER['page_load_info'] .= 'Start of Page: '.number_format(microtime(true) - $_SERVER['REQUEST_TIME_FLOAT'],5)."\n";
+if(get_config($dbc, 'timesheet_force_end_midnight') > 0 && strtotime(get_config($dbc, 'timesheet_midnight_last_ended')) < strtotime(date('Y-m-d'))) {
+	include_once('../Calendar/calendar_functions_inc.php');
+	$midnight_end = true;
+	$end_time_list = mysqli_query($dbc, "SELECT `contacts`.`contactid`, `time_cards`.`date`, `time_cards`.`time_cards_id` FROM `contacts` LEFT JOIN `time_cards` ON `contacts`.`contactid` = `time_cards`.`staff` WHERE `contacts`.`category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `contacts`.`status`>0 AND `contacts`.`deleted`=0 AND `timer_start` > 0 AND `time_cards`.`deleted`=0 AND `time_cards`.`staff` > 0 AND `type_of_time`='day_tracking' AND `date` != '".date('Y-m-d')."'");
+	while($row = mysqli_fetch_assoc($end_time_list)) {
+		$date = $row['date'];
+		$day_of_week = date('l', strtotime($date));
+		$time = strtotime($date.' 23:59:59');
+		$hour = date('H:i', $time);
+		$comment = 'Auto checked out after Midnight.';
+		$time_minimum = get_config($dbc, 'ticket_min_hours');
+		$time_interval = get_config($dbc, 'timesheet_hour_intervals');
+		$highlight_query = ", `highlight`=1";
+		$midnight_query = " AND `date` = '".$date."'";
+		$id_query = " AND `time_cards_id` = '".$row['time_cards_id']."'";
+
+		$staff = $row['contactid'];
+		include('../Timesheet/end_day.php');
+	}
+	set_config($dbc, 'timesheet_midnight_last_ended', date('Y-m-d'));
+}
+?>

@@ -48,6 +48,9 @@ if (isset($_POST['add_match'])) {
         mkdir('download', 0777, true);
     }
 
+    if($_POST['from_tile'] == 'contacts') {
+        echo '<script type+"text/javascript"> window.parent.reload_match(); </script>';
+    }
     echo '<script type="text/javascript"> window.location.replace("?"); </script>';
 
  //   mysqli_close($dbc);//Close the DB Connection
@@ -90,6 +93,8 @@ $(document).ready(function() {
             return false;
         }
     });
+
+    $('select[name="support_contact_category"]').change();
 });
 $(document).on('change', 'select[name="support_contact_category"]', function() { selectContactCategory(this); });
 
@@ -97,9 +102,15 @@ function selectContactCategory(sel) {
 	var stage = sel.value;
 	var typeId = sel.id;
 	var arr = typeId.split('_');
+    var selected_contacts = [];
+    $("#contact_"+arr[2]+" option:selected").each(function() {
+        selected_contacts.push($(this).val());
+    });
+    selected_contacts = selected_contacts.join(',');
 	$.ajax({
-		type: "GET",
+		type: "POST",
 		url: "isp_ajax_all.php?fill=contact_category&category="+stage,
+        data: { selected_contacts: selected_contacts },
 		dataType: "html",   //expect html to be returned
 		success: function(response){
             $("#contact_"+arr[2]).html(response);
@@ -109,13 +120,14 @@ function selectContactCategory(sel) {
 }
 </script>
 
-<div class="tile-sidebar sidebar hide-titles-mob standard-collapsible">
-    <ul>
-        <a href="?"><li>Back to Dashboard</li></a>
-        <a href="?" onclick="return false;"><li class="active blue">Match Details</li></a>
-    </ul>
-</div>
-
+<?php if(!IFRAME_PAGE) { ?>
+    <div class="tile-sidebar sidebar hide-titles-mob standard-collapsible">
+        <ul>
+            <a href="?"><li>Back to Dashboard</li></a>
+            <a href="?" onclick="return false;"><li class="active blue">Match Details</li></a>
+        </ul>
+    </div>
+<?php } ?>
 
 <div class="scale-to-fill has-main-screen">
     <div class="main-screen standard-body form-horizontal">
@@ -126,10 +138,10 @@ function selectContactCategory(sel) {
         <div class="standard-body-content" style="padding: 1em;">
 
             <form id="form1" name="form1" method="post"	action="" enctype="multipart/form-data" class="form-horizontal" role="form">
-
+                <input type="hidden" name="from_tile" value="<?= $_GET['from_tile'] ?>">
                 <?php
-                $support_contact_category = '';
-                $support_contact = '';
+                $support_contact_category = get_contact($dbc, $_GET['support_contact'], 'category');
+                $support_contact = [$_GET['support_contact']];
                 $staff_contact_category = '';
                 $staff_contact = '';
                 $match_date = '';
@@ -184,8 +196,7 @@ function selectContactCategory(sel) {
                     <label for="fax_number" class="col-sm-4 control-label">Contact:</label>
                     <div class="col-sm-8">
                         <select multiple data-placeholder="Select Contact..." name="support_contact[]" id="contact_0" class="chosen-select-deselect form-control" width="380">
-                            <option value=""></option>
-                            <?php if(!empty($get_contact['support_contact'])) {
+                            <?php if(!empty($support_contact)) {
                                 $query = sort_contacts_query(mysqli_query($dbc, "SELECT * FROM `contacts` WHERE `category` = '$support_contact_category' AND `deleted`=0 AND `status`=1"));
                                 foreach($query as $row) {
                                     echo '<option value="'.$row['contactid'].'" '.(in_array($row['contactid'], $support_contact) ? 'selected' : '').'>'.$row['full_name'].'</option>';

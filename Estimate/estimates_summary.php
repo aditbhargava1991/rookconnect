@@ -60,7 +60,7 @@ if(in_array('Estimate Type $',$summary_view)) {
 	$total_height += $block_height;
 }
 if(in_array('Estimate Type Count',$summary_view)) {
-	$block_details = '<div class="overview-block"><h4>'.ESTIMATE_TILE.' by Type</h4>';
+	$block_details = '<div class="overview-block"><h4>'.rtrim(ESTIMATE_TILE, 's').' by Type</h4>';
 	$block_height = 38;
 	foreach($estimate_types as $type) {
 		$summary = mysqli_fetch_array(mysqli_query($dbc, "SELECT COUNT(*) `count` FROM `estimate` WHERE `estimatetype`='$type' AND `deleted`=0"));

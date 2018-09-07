@@ -5,7 +5,7 @@
 
 <div class="standard-body main-screen-white" style="padding-left: 0; padding-right: 0; border: none;">
     <div class="standard-body-title">
-        <h3><?= ( !empty($posid) ) ? 'Edit' : 'Add'; ?> <?= SALES_ORDER_NOUN ?></h3>
+        <h3><?= ( !empty($_GET['sotid']) ) ? 'Edit' : 'Add'; ?> <?= SALES_ORDER_NOUN ?></h3>
     </div>
 
     <div class="standard-body-content"><?php

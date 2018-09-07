@@ -6,9 +6,12 @@ include ('../include.php');
 checkAuthorised('report');
 include_once('../tcpdf/tcpdf.php');
 error_reporting(0);
+$report_fields = explode(',', get_config($dbc, 'report_operation_fields'));
 if (isset($_POST['printpdf'])) {
 	$task = $_POST['report_task'];
+	$material = $_POST['report_material'];
 	$ticketid = $_POST['report_ticket'];
+	$extra_ticketid = $_POST['report_extra_ticket'];
 	$projectid = $_POST['report_project'];
 	$from_date = $_POST['report_from'];
 	$until_date = $_POST['report_until'];
@@ -66,11 +69,12 @@ if (isset($_POST['printpdf'])) {
     $pdf->SetFont('helvetica', '', 9);
 
 	$html = '<h3>Report Date: '.$from_date.($until_date == $from_date ? '' : ' to '.$until_date).'</h3>';
-    $html .= shop_work_orders($dbc, $from_date, $until_date, $ticketid, $projectid, $task, true, 'padding:3px; border:1px solid black;', 'background-color:grey; color:black;', 'background-color:lightgrey; color:black;');
+    $html .= shop_work_orders($dbc, $from_date, $until_date, $ticketid, $extra_ticketid, $projectid, $task, $material, true, 'padding:3px; border:1px solid black;', 'background-color:grey; color:black;', 'background-color:lightgrey; color:black;');
 
     $today_date = date('Y-m-d');
 	$pdf->writeHTML($html, true, false, true, false, '');
 	$pdf->Output($pdf_name, 'F');
+    track_download($dbc, 'report_operations_ticket_attached', 0, WEBSITE_URL.'/Reports/Download/'.config_safe_str(TICKET_NOUN).'_attached_'.$today_date.'.pdf', 'Shop Work Orders - Time Spent Report');
     ?>
 
 	<script>
@@ -78,35 +82,28 @@ if (isset($_POST['printpdf'])) {
 	</script>
 <?php } ?>
 
-<script type="text/javascript">
-
-</script>
-</head>
-<body>
-<?php include_once ('../navigation.php');
-?>
-
-<div class="container">
-    <div class="row">
-        <div class="col-md-12">
-
-        <?php echo reports_tiles($dbc);  ?>
-
-        <br><br>
 
         <form id="form1" name="form1" method="post" action="" enctype="multipart/form-data" class="form-inline" role="form">
 
             <?php $search_ticket = '';
+			$search_extra_ticket = '';
 			$search_project = '';
+			$search_material = '';
 			$search_task = '';
 			$search_from = date('Y-m-01');
 			$search_until = date('Y-m-d');
-			
+
             if (isset($_POST['search_ticket'])) {
                 $search_ticket = $_POST['search_ticket'];
             }
+            if (isset($_POST['search_extra_ticket'])) {
+                $search_extra_ticket = $_POST['search_extra_ticket'];
+            }
             if (isset($_POST['search_project'])) {
                 $search_project = $_POST['search_project'];
+            }
+            if (isset($_POST['search_material'])) {
+                $search_material = $_POST['search_material'];
             }
             if (isset($_POST['search_task'])) {
                 $search_task = $_POST['search_task'];
@@ -124,13 +121,28 @@ if (isset($_POST['printpdf'])) {
 					<select data-placeholder="Select a <?= TICKET_NOUN ?> #" name="search_ticket" class="chosen-select-deselect form-control">
 						<option value=""></option>
 						<?php
-						$query = mysqli_query($dbc,"SELECT `ticketid`, `heading` FROM `tickets` WHERE `deleted`=0 ORDER BY `ticketid`");
+						$query = mysqli_query($dbc,"SELECT * FROM `tickets` WHERE `deleted`=0 ORDER BY `ticketid`");
 						while($row = mysqli_fetch_array($query)) { ?>
-							<option <?php if ($row['ticketid'] == $search_ticket) { echo " selected"; } ?> value='<?php echo  $row['ticketd']; ?>' ><?php echo TICKET_NOUN.' #'.$row['ticketid'].' '.$row['heading']; ?></option>
+							<option <?php if ($row['ticketid'] == $search_ticket) { echo " selected"; } ?> value='<?= $row['ticketid'] ?>' ><?= get_ticket_label($dbc, $row) ?></option>
 						<?php } ?>
 					</select>
 				</div>
 			</div>
+			<?php if(in_array('filter_extra_billing',$report_fields)) { ?>
+				<div class="col-sm-5">
+					<label for="search_extra_ticket" class="col-sm-4 control-label">Search By Extra Billing <?= TICKET_NOUN ?>:</label>
+					<div class="col-sm-8">
+						<select data-placeholder="Select a <?= TICKET_NOUN ?> #" name="search_extra_ticket" class="chosen-select-deselect form-control">
+							<option value=""></option>
+							<?php
+							$query = mysqli_query($dbc,"SELECT * FROM `tickets` WHERE `deleted`=0 AND `ticketid` IN (SELECT `ticketid` FROM `ticket_comment` WHERE `type`='service_extra_billing' AND `deleted`=0) ORDER BY `ticketid`");
+							while($row = mysqli_fetch_array($query)) { ?>
+								<option <?php if ($row['ticketid'] == $search_extra_ticket) { echo " selected"; } ?> value='<?= $row['ticketid'] ?>' ><?= get_ticket_label($dbc, $row) ?></option>
+							<?php } ?>
+						</select>
+					</div>
+				</div>
+			<?php } ?>
 			<div class="col-sm-5">
 				<label for="search_project" class="col-sm-4 control-label">Search By <?= PROJECT_NOUN ?>:</label>
 				<div class="col-sm-8">
@@ -149,6 +161,21 @@ if (isset($_POST['printpdf'])) {
 					<input type="text" name="search_task" class="form-control" value="<?= $search_task ?>">
 				</div>
 			</div>
+			<?php if(in_array('filter_materials',$report_fields)) { ?>
+				<div class="col-sm-5">
+					<label for="search_material" class="col-sm-4 control-label">Search By Materials:</label>
+					<div class="col-sm-8">
+						<select data-placeholder="Select Material" name="search_material" class="chosen-select-deselect form-control">
+							<option value=""></option>
+							<?php
+							$query = mysqli_query($dbc,"SELECT `description` FROM (SELECT `description` FROM `ticket_attached` WHERE `deleted`=0 AND `src_table`='material' UNION SELECT `name` `description` FROM `material` WHERE `deleted`=0) `materials` WHERE IFNULL(`description`,'')!='' GROUP BY `description` ORDER BY `description`");
+							while($row = mysqli_fetch_array($query)) { ?>
+								<option <?php if ($row['description'] == $search_material) { echo " selected"; } ?> value='<?= $row['description'] ?>' ><?= $row['description'] ?></option>
+							<?php } ?>
+						</select>
+					</div>
+				</div>
+			<?php } ?>
 
 			<div class="col-sm-5">
 				<label for="search_from" class="col-sm-4 control-label">Search From Date:</label>
@@ -170,23 +197,20 @@ if (isset($_POST['printpdf'])) {
 			</div>
 
             <input type="hidden" name="report_ticket" value="<?php echo $search_ticket; ?>">
+            <input type="hidden" name="report_extra_ticket" value="<?php echo $search_extra_ticket; ?>">
             <input type="hidden" name="report_project" value="<?php echo $search_project; ?>">
+            <input type="hidden" name="report_material" value="<?php echo $search_material; ?>">
             <input type="hidden" name="report_task" value="<?php echo $search_task; ?>">
             <input type="hidden" name="report_from" value="<?php echo $search_from; ?>">
             <input type="hidden" name="report_until" value="<?php echo $search_until; ?>">
             <div class="clearfix"></div>
 
-            <?= shop_work_orders($dbc, $search_from, $search_until, $search_ticket, $search_project, $search_task) ?>
+            <?= shop_work_orders($dbc, $search_from, $search_until, $search_ticket, $search_extra_ticket, $search_project, $search_task, $search_material) ?>
 
         </form>
 
-        </div>
-    </div>
-</div>
-<?php include ('../footer.php'); ?>
-
 <?php
-function shop_work_orders($dbc, $search_from, $search_until, $search_ticket, $search_project, $search_task, $no_page = false, $table_style = '', $table_row_style = '', $grand_total_style = '') {
+function shop_work_orders($dbc, $search_from, $search_until, $search_ticket, $search_extra_ticket, $search_project, $search_task, $search_material, $no_page = false, $table_style = '', $table_row_style = '', $grand_total_style = '') {
     $report_data = '';
 
 	$rowsPerPage = 25;
@@ -199,7 +223,7 @@ function shop_work_orders($dbc, $search_from, $search_until, $search_ticket, $se
 	if($no_page === false) {
 		$limit = " LIMIT $offset, $rowsPerPage";
 	}
-	
+
 	$edit_ticket = vuaed_visible_function($dbc, 'ticket');
 	$edit_project = vuaed_visible_function($dbc, 'project');
 	$from = '';
@@ -209,9 +233,9 @@ function shop_work_orders($dbc, $search_from, $search_until, $search_ticket, $se
 
 	$sql = "SELECT CONCAT(`tickets`.`ticketid`,' ',`tickets`.`heading`) ticket_label, `tickets`.`ticketid`, CONCAT(`project`.`projectid`,' ',`project`.`project_name`) project_label, `project`.`projectid`, IF(`ticket_attached`.`src_table`='Staff_Tasks',`ticket_attached`.`position`,IF(`ticket_attached`.`src_table`='equipment',CONCAT(IFNULL(`equipment`.`unit_number`,''),' ',IFNULL(`equipment`.`category`,''),' ',IFNULL(`equipment`.`make`,''),' ',IFNULL(`equipment`.`model`,''),' ',IFNULL(`equipment`.`label`,''),' ',IFNULL(`equipment`.`nickname`,'')),IF(`ticket_attached`.`src_table`='material',CONCAT(IFNULL(`material`.`category`,''),' ',IFNULL(`material`.`sub_category`,''),' ',IFNULL(`material`.`name`,'')),`ticket_attached`.`item_id`))) 'description', `ticket_attached`.`date_stamp` date, `ticket_attached`.`hours_tracked`
 		FROM `tickets` LEFT JOIN `project` ON `tickets`.`projectid`=`project`.`projectid` LEFT JOIN `ticket_attached` ON `tickets`.`ticketid`=`ticket_attached`.`ticketid` LEFT JOIN `equipment` ON `ticket_attached`.`item_id`=`equipment`.`equipmentid` LEFT JOIN `material` ON `ticket_attached`.`item_id`=`material`.`materialid`
-		WHERE `tickets`.`deleted`=0 AND IFNULL(`project`.`deleted`,0)=0 AND `ticket_attached`.`deleted`=0 AND '$search_ticket' IN ('',`tickets`.`ticketid`) AND '$search_project' IN ('',`project`.`projectid`) AND IF(`ticket_attached`.`src_table`='Staff_Tasks',`ticket_attached`.`position`,IF(`ticket_attached`.`src_table`='equipment',CONCAT(IFNULL(`equipment`.`unit_number`,''),' ',IFNULL(`equipment`.`category`,''),' ',IFNULL(`equipment`.`make`,''),' ',IFNULL(`equipment`.`model`,''),' ',IFNULL(`equipment`.`label`,''),' ',IFNULL(`equipment`.`nickname`,'')),IF(`ticket_attached`.`src_table`='material',CONCAT(IFNULL(`material`.`category`,''),' ',IFNULL(`material`.`sub_category`,''),' ',IFNULL(`material`.`name`,'')),''))) LIKE '%$search_task%' $limit";
+		WHERE `tickets`.`deleted`=0 AND IFNULL(`project`.`deleted`,0)=0 AND `ticket_attached`.`deleted`=0 AND ('$search_ticket' IN ('',`tickets`.`ticketid`) OR '$search_extra_ticket' IN ('',`tickets`.`ticketid`)) AND '$search_project' IN ('',`project`.`projectid`) AND IF(`ticket_attached`.`src_table`='Staff_Tasks',`ticket_attached`.`position`,IF(`ticket_attached`.`src_table`='equipment',CONCAT(IFNULL(`equipment`.`unit_number`,''),' ',IFNULL(`equipment`.`category`,''),' ',IFNULL(`equipment`.`make`,''),' ',IFNULL(`equipment`.`model`,''),' ',IFNULL(`equipment`.`label`,''),' ',IFNULL(`equipment`.`nickname`,'')),IF(`ticket_attached`.`src_table`='material',CONCAT(IFNULL(`material`.`category`,''),' ',IFNULL(`material`.`sub_category`,''),' ',IFNULL(`material`.`name`,'')),''))) LIKE '%$search_task%' AND IF(`ticket_attached`.`src_table`='Staff_Tasks',`ticket_attached`.`position`,IF(`ticket_attached`.`src_table`='equipment',CONCAT(IFNULL(`equipment`.`unit_number`,''),' ',IFNULL(`equipment`.`category`,''),' ',IFNULL(`equipment`.`make`,''),' ',IFNULL(`equipment`.`model`,''),' ',IFNULL(`equipment`.`label`,''),' ',IFNULL(`equipment`.`nickname`,'')),IF(`ticket_attached`.`src_table`='material',CONCAT(IFNULL(`material`.`category`,''),' ',IFNULL(`material`.`sub_category`,''),' ',IFNULL(`material`.`name`,'')),''))) LIKE '%$search_material%' $limit";
 	$query = "SELECT COUNT(*) numrows FROM `tickets` LEFT JOIN `project` ON `tickets`.`projectid`=`project`.`projectid` LEFT JOIN `ticket_attached` ON `tickets`.`ticketid`=`ticket_attached`.`ticketid` LEFT JOIN `equipment` ON `ticket_attached`.`item_id`=`equipment`.`equipmentid` LEFT JOIN `material` ON `ticket_attached`.`item_id`=`material`.`materialid`
-		WHERE `tickets`.`deleted`=0 AND IFNULL(`project`.`deleted`,0)=0 AND `ticket_attached`.`deleted`=0 AND '$search_ticket' IN ('',`tickets`.`ticketid`) AND '$search_project' IN ('',`project`.`projectid`) AND IF(`ticket_attached`.`src_table`='Staff_Tasks',`ticket_attached`.`position`,IF(`ticket_attached`.`src_table`='equipment',CONCAT(IFNULL(`equipment`.`unit_number`,''),' ',IFNULL(`equipment`.`category`,''),' ',IFNULL(`equipment`.`make`,''),' ',IFNULL(`equipment`.`model`,''),' ',IFNULL(`equipment`.`label`,''),' ',IFNULL(`equipment`.`nickname`,'')),IF(`ticket_attached`.`src_table`='material',CONCAT(IFNULL(`material`.`category`,''),' ',IFNULL(`material`.`sub_category`,''),' ',IFNULL(`material`.`name`,'')),''))) LIKE '%$search_task%'";
+		WHERE `tickets`.`deleted`=0 AND IFNULL(`project`.`deleted`,0)=0 AND `ticket_attached`.`deleted`=0 AND ('$search_ticket' IN ('',`tickets`.`ticketid`) OR '$search_extra_ticket' IN ('',`tickets`.`ticketid`)) AND '$search_project' IN ('',`project`.`projectid`) AND IF(`ticket_attached`.`src_table`='Staff_Tasks',`ticket_attached`.`position`,IF(`ticket_attached`.`src_table`='equipment',CONCAT(IFNULL(`equipment`.`unit_number`,''),' ',IFNULL(`equipment`.`category`,''),' ',IFNULL(`equipment`.`make`,''),' ',IFNULL(`equipment`.`model`,''),' ',IFNULL(`equipment`.`label`,''),' ',IFNULL(`equipment`.`nickname`,'')),IF(`ticket_attached`.`src_table`='material',CONCAT(IFNULL(`material`.`category`,''),' ',IFNULL(`material`.`sub_category`,''),' ',IFNULL(`material`.`name`,'')),''))) LIKE '%$search_task%' AND IF(`ticket_attached`.`src_table`='Staff_Tasks',`ticket_attached`.`position`,IF(`ticket_attached`.`src_table`='equipment',CONCAT(IFNULL(`equipment`.`unit_number`,''),' ',IFNULL(`equipment`.`category`,''),' ',IFNULL(`equipment`.`make`,''),' ',IFNULL(`equipment`.`model`,''),' ',IFNULL(`equipment`.`label`,''),' ',IFNULL(`equipment`.`nickname`,'')),IF(`ticket_attached`.`src_table`='material',CONCAT(IFNULL(`material`.`category`,''),' ',IFNULL(`material`.`sub_category`,''),' ',IFNULL(`material`.`name`,'')),''))) LIKE '%$search_material%'";
     $result = mysqli_query($dbc,$sql);
 	if($no_page === false) {
 		echo display_pagination($dbc, $query, $pageNum, $rowsPerPage);
@@ -241,3 +265,17 @@ function shop_work_orders($dbc, $search_from, $search_until, $search_ticket, $se
     return $report_data;
 }
 ?>
+<script>
+$('document').ready(function() {
+    var tables = $('table');
+
+    tables.map(function(idx, table) {
+        var rows = $(table).find('tbody > tr');
+        rows.map(function(idx, row){
+            if(idx%2 == 0) {
+                $(row).css('background-color', '#e6e6e6');
+            }
+        })
+    })
+})
+</script>

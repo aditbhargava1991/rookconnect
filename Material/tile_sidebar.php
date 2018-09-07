@@ -1,6 +1,13 @@
 <?php $current_tab = basename($_SERVER['PHP_SELF'], '.php');
 $current_cat = $_GET['category']; ?>
 <ul class="sidebar">
+    <li class="standard-sidebar-searchbox">
+        <form action="" method="POST">
+        	<input name="search_material" type="text" value="<?= $_POST['search_material'] ?>" class="form-control search_material" placeholder="Search Material">
+        	<input type="submit" value="search_material_submit" name="search_material_submit" style="display: none;">
+        </form>
+    </li>
+
 	<a href='material.php?filter=Top'><li <?= $current_tab == 'material' ? 'class="active"' : '' ?>>Materials</li></a>
 	<?php $cat_list = mysqli_query($dbc,"SELECT distinct(category) FROM material where deleted = 0");
 	if(mysqli_num_rows($cat_list) > 0) { ?>

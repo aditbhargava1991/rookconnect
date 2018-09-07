@@ -132,6 +132,7 @@ if (isset($_POST['printpdf'])) {
     $today_date = date('Y-m-d');
 	$pdf->writeHTML($html, true, false, true, false, '');
 	$pdf->Output('Download/ui_invoice_report_'.$today_date.'.pdf', 'F');
+    track_download($dbc, 'ui_invoice_reports', 0, WEBSITE_URL.'/Reports/Download/ui_invoice_report_'.$today_date.'.pdf', 'UI Invoice Report');
     ?>
 
 	<script type="text/javascript" language="Javascript">
@@ -147,15 +148,6 @@ if (isset($_POST['printpdf'])) {
 
 ?>
 
-</head>
-<body>
-<?php include_once ('../navigation.php');
-?>
-
-<div class="container triple-pad-bottom">
-    <div class="row">
-        <div class="col-md-12">
-        <?php echo reports_tiles($dbc);  ?>
 
         <form id="form1" name="form1" method="post" action="" enctype="multipart/form-data" class="form-horizontal" role="form">
 
@@ -246,18 +238,9 @@ if (isset($_POST['printpdf'])) {
             <button type="submit" name="printpdf" style="margin-right:15px" value="Print PDF Report" title="Print PDF Report" title="Print PDF Report" class="pull-right"><img src="../img/pdf.png"></button>
             <br><br>
 
-            <?php
-                echo report_receivables($dbc, '', '', '', $insurer, $invoice_no, $ui_no, $ui_total, $as_at_date);
-            ?>
-
-
+            <?php echo report_receivables($dbc, '', '', '', $insurer, $invoice_no, $ui_no, $ui_total, $as_at_date); ?>
 
         </form>
-
-        </div>
-    </div>
-</div>
-<?php include ('../footer.php'); ?>
 
 <?php
 function report_receivables($dbc, $table_style, $table_row_style, $grand_total_style, $insurer, $invoice_no, $ui_no, $ui_total, $as_at_date) {
@@ -282,40 +265,45 @@ function report_receivables($dbc, $table_style, $table_row_style, $grand_total_s
     } else if($ui_total > 0) {
         $report_service = mysqli_query($dbc,"SELECT ii.*, i.service_date FROM invoice_insurer ii, invoice i WHERE (ii.paid_date > '$as_at_date' OR IFNULL(ii.`paid`,'')!='Yes') AND ii.invoiceid = i.invoiceid AND ii.ui_invoiceid IN (SELECT `ui_invoiceid` FROM `invoice_insurer` GROUP BY `ui_invoiceid` HAVING SUM(`insurer_price`)=$ui_total) AND ii.ui_invoiceid IS NOT NULL ORDER BY ii.invoiceid");
     } else {
-        $report_service = mysqli_query($dbc,"SELECT ii.*, i.service_date FROM invoice_insurer ii, invoice i WHERE ii.invoiceid = i.invoiceid AND invoice_date = '$today_date' AND (ii.paid_date > '$as_at_date' OR IFNULL(ii.`paid`,'')!='Yes') AND ii.ui_invoiceid IS NOT NULL ORDER BY ii.invoiceid");
+        //$report_service = mysqli_query($dbc,"SELECT ii.*, i.service_date FROM invoice_insurer ii, invoice i WHERE ii.invoiceid = i.invoiceid AND i.invoice_date > '$today_date' AND (ii.paid_date > '$as_at_date' OR IFNULL(ii.`paid`,'')!='Yes') AND ii.ui_invoiceid IS NOT NULL ORDER BY ii.invoiceid");
+        $report_service = mysqli_query($dbc,"SELECT ii.*, i.service_date FROM invoice_insurer ii, invoice i WHERE ii.invoiceid = i.invoiceid AND ii.paid_date <> '' AND ii.`paid` != 'Yes' AND ii.ui_invoiceid IS NOT NULL ORDER BY ii.invoiceid");
     }
-
+    
+    //return $query;exit;
+    
     $amt_to_bill = 0;
+    $odd_even = 0;
+    
     while($row_report = mysqli_fetch_array($report_service)) {
+        $bg_class = $odd_even % 2 == 0 ? '' : 'background-color:#e6e6e6;';
+        
         $insurer_price = $row_report['insurer_price'];
         $invoiceid = $row_report['invoiceid'];
         $patientid = get_all_from_invoice($dbc, $invoiceid, 'patientid');
         $insurerid = rtrim($row_report['insurerid'],',');
-
         $each_insurance_payment = explode('#*#', $insurance_payment);
-        $report_data .= '<tr nobr="true">';
-
-        $report_data .= '<td>#'.$row_report['ui_invoiceid'];
-        $name_of_file = '../Invoice/Download/patientunpaid_'.$row_report['ui_invoiceid'].'.pdf';
-        $report_data .= '&nbsp;&nbsp;<a href="'.$name_of_file.'" target="_blank"> <img src="'.WEBSITE_URL.'/img/pdf.png" title="PDF"> </a></td>';
-
-        //$report_data .= '<td>#'.$row_report['ui_invoiceid'].'</td>';
-
-        $report_data .= '<td>#'.$invoiceid;
-        $name_of_file = '../Invoice/Download/invoice_'.$invoiceid.'.pdf';
-        $report_data .= '&nbsp;&nbsp;<a href="'.$name_of_file.'" target="_blank"> <img src="'.WEBSITE_URL.'/img/pdf.png" title="PDF"> </a>';
-
-        $report_data .= ' : '.get_contact($dbc, $patientid).'</td>';
-        $report_data .= '<td>'.$row_report['invoice_date'].'</td>';
-        $report_data .= '<td>'.$row_report['service_date'].'</td>';
-        $report_data .= '<td>'.get_all_form_contact($dbc, $insurerid, 'name').'</td>';
-        $report_data .= '<td>'.$insurer_price.'</td>';
-
+        
+        $report_data .= '<tr nobr="true" style="'.$bg_class.'">';
+            $report_data .= '<td>#'.$row_report['ui_invoiceid'];
+            $name_of_file = '../Invoice/Download/patientunpaid_'.$row_report['ui_invoiceid'].'.pdf';
+            $report_data .= '&nbsp;&nbsp;<a href="'.$name_of_file.'" target="_blank"> <img src="'.WEBSITE_URL.'/img/pdf.png" title="PDF"> </a></td>';
+            //$report_data .= '<td>#'.$row_report['ui_invoiceid'].'</td>';
+            $report_data .= '<td>#'.$invoiceid;
+            $name_of_file = '../Invoice/Download/invoice_'.$invoiceid.'.pdf';
+            $report_data .= '&nbsp;&nbsp;<a href="'.$name_of_file.'" target="_blank"> <img src="'.WEBSITE_URL.'/img/pdf.png" title="PDF"> </a>';
+            $report_data .= ' : '.get_contact($dbc, $patientid).'</td>';
+            $report_data .= '<td>'.$row_report['invoice_date'].'</td>';
+            $report_data .= '<td>'.$row_report['service_date'].'</td>';
+            $report_data .= '<td>'.get_all_form_contact($dbc, $insurerid, 'name').'</td>';
+            $report_data .= '<td align="right">'.$insurer_price.'</td>';
         $report_data .= '</tr>';
+        
         $amt_to_bill += $insurer_price;
+        
+        $odd_even++;
     }
     $report_data .= '<tr nobr="true">';
-    $report_data .= '<td>Total</td><td></td><td></td><td></td><td></td><td>'.number_format($amt_to_bill, 2).'</td>';
+    $report_data .= '<td colspan="5"><b>Total</b></td><td align="right"><b>'.number_format($amt_to_bill, 2).'</b></td>';
     $report_data .= "</tr>";
     $report_data .= '</table>';
 

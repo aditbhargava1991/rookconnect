@@ -3,6 +3,12 @@ $form = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `user_forms` WHERE 
 $form_layout = !empty($form['form_layout']) ? $form['form_layout'] : 'Accordions';
 
 $div_i = 0;
+
+$attached_contact_default_field = '';
+if($attached_contactid > 0 && !empty($form['attached_contact_default_field']) && empty($pdf_id)) {
+    $attached_contact_default_field = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `user_form_fields` WHERE `field_id` = '".$form['attached_contact_default_field']."'"));
+    $attached_contact_default_field = 'field_'.preg_replace('/[^a-z0-9_]/','',strtolower($attached_contact_default_field['name']));
+}
 ?>
 <script>
 $(document).ready(function () {
@@ -11,21 +17,27 @@ $(document).ready(function () {
             $(this).text($(this).text() + ':');
         }
     });
+    <?php if(!empty($attached_contact_default_field)) { ?>
+        $('[name="<?= $attached_contact_default_field ?>"]').val('<?= $attached_contactid ?>').trigger('change.select2').change();
+    <?php } ?>
 });
-$(document).on('change', 'select[name="heading_number"]', function() { populateReferenceValues(this); });
+$(document).on('change', 'select[name="heading_number"],.form_div select', function() { populateReferenceValues(this); });
 function populateReferenceValues(link) {
-    $('[name="form1"]').find('input[data-refsource="'+$(link).attr('name')+'"]').each(function() {
+    var form_id = $('[name="form_id"]').val();
+    $('.form_div input[data-refsource="'+$(link).attr('name')+'"]').each(function() {
         var ref_source = $(link).val();
         var ref_value = $(this).data('refvalue');
         var ref_name = $(this).attr('name');
-        $.ajax({
-            type: "GET",
-            url: "<?= WEBSITE_URL ?>/Form Builder/form_ajax.php?fill=retrieve_ref&ref_source="+ref_source+"&ref_value="+ref_value,
-            dataType: "html",
-            success: function(response) {
-                $('[name="'+ref_name+'"]').val(response);
-            }
-        });
+        if(ref_source != undefined && ref_source != '' && ref_value != undefined && ref_value != '') {
+            $.ajax({
+                type: "GET",
+                url: "<?= WEBSITE_URL ?>/Form Builder/form_ajax.php?fill=retrieve_ref&ref_source="+ref_source+"&ref_value="+ref_value+'&ref_name='+ref_name+'&form_id='+form_id,
+                dataType: "html",
+                success: function(response) {
+                    $('[name="'+ref_name+'"]').val(response);
+                }
+            });
+        }
     });
 }
 function addRow(link) {
@@ -94,7 +106,7 @@ function checkMandatoryFields() {
 }
 </script>
 
-<div class="scale-to-fill">
+<div class="scale-to-fill form_div">
     <input type="hidden" name="form_id" value="<?= $form_id ?>">
     <input type="hidden" name="assign_id" value="<?= $_GET['assign_id'] ?>">
 
@@ -154,7 +166,58 @@ function checkMandatoryFields() {
                     </div>
                 </div>
             <?php } ?>
-        <?php } ?>
+        <?php } else if($incident_report_form == 1) {
+            if(!empty($report_info)) {
+                if($form_layout == 'Sidebar') { ?>
+                    <div id="user_form_div_increp_info" class="tab-section">
+                        <h4>Information</h4>
+                        <div class="form-group">
+                            <?= html_entity_decode($report_info) ?>
+                        </div>
+                    </div>
+                    <hr>
+                <?php } else { ?>
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h4 class="panel-title">
+                                <a data-toggle="collapse" data-parent="#accordion2" href="#collapse_report_info" >
+                                    <?= INC_REP_NOUN ?> Information<span class="glyphicon glyphicon-plus"></span>
+                                </a>
+                            </h4>
+                        </div>
+
+                        <div id="collapse_report_info" class="panel-collapse collapse">
+                            <div class="panel-body">
+                                <?= html_entity_decode($report_info) ?>
+                            </div>
+                        </div>
+                    </div>
+                <?php }
+            }
+            if($form_layout == 'Sidebar') { ?>
+                <div id="user_form_div_increp_details" class="tab-section">
+                    <h4><?= (strpos($value_config, ','."Type_DetailsLabel".',') !== FALSE ? 'Details of Staff/Member(s) Involved' : 'Type & Individuals') ?></h4>
+                    <?php include('../Incident Report/add_incident_report_fields_details.php'); ?>
+                </div>
+                <hr>
+            <?php } else { ?>
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h4 class="panel-title">
+                            <a data-toggle="collapse" data-parent="#accordion2" href="#collapse_inc_rep_details" >
+                                <?= (strpos($value_config, ','."Type_DetailsLabel".',') !== FALSE ? 'Details of Staff/Member(s) Involved' : 'Type & Individuals') ?><span class="glyphicon glyphicon-plus"></span>
+                            </a>
+                        </h4>
+                    </div>
+
+                    <div id="collapse_inc_rep_details" class="panel-collapse collapse <?php echo $default_collapse; $default_collapse = ''; ?>">
+                        <div class="panel-body">
+                            <?php include('../Incident Report/add_incident_report_fields_details.php'); ?>
+                        </div>
+                    </div>
+                </div>
+            <?php }
+        } ?>
 
         <?php $field_list = mysqli_query($dbc, "SELECT * FROM `user_form_fields` WHERE `form_id`='".$form_id."' AND `type` NOT IN ('REFERENCE','OPTION') AND `deleted`=0 ORDER BY `sort_order`");
         while($field = mysqli_fetch_array($field_list)) {
@@ -231,18 +294,20 @@ function checkMandatoryFields() {
                             $('select[name="pr_staff"]').trigger('change.select2');
                         }
                         </script>
-                        <div class="form-group">
-                            <label class="col-sm-4 control-label">Staff Position:</label>
-                            <div class="col-sm-8" style="padding-top: 7px;">
-                                <select name="pr_position" class="chosen-select-deselect">
-                                    <option></option>
-                                    <?php $pr_positions = explode(',', get_config($dbc, 'performance_review_positions'));
-                                    foreach ($pr_positions as $pr_position) {
-                                        echo '<option value="'.$pr_position.'" '.($get_pr['position'] == $pr_position ? 'selected' : '').'>'.$pr_position.'</option>';
-                                    } ?>
-                                </select>
+                        <?php $pr_positions = array_filter(explode(',', get_config($dbc, 'performance_review_positions')));
+                        if(!empty($pr_positions)) { ?>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label">Staff Position:</label>
+                                <div class="col-sm-8" style="padding-top: 7px;">
+                                    <select name="pr_position" class="chosen-select-deselect">
+                                        <option></option>
+                                        <?php foreach ($pr_positions as $pr_position) {
+                                            echo '<option value="'.$pr_position.'" '.($get_pr['position'] == $pr_position ? 'selected' : '').'>'.$pr_position.'</option>';
+                                        } ?>
+                                    </select>
+                                </div>
                             </div>
-                        </div>
+                        <?php } ?>
                         <div class="form-group">
                             <label class="col-sm-4 control-label">Staff:</label>
                             <div class="col-sm-8" style="padding-top: 7px;">
@@ -287,7 +352,9 @@ function checkMandatoryFields() {
                                         echo '<span class="pull-left">'.$field['label'].'</span>';
                                         break;
                                     case 'DATE':
-                                        echo '<input type="text" name="'.$field_post.'" class="form-control datepicker" value="'.substr($default,0,10).'">';
+                                        $ref_source = 'field_'.mysqli_fetch_array(mysqli_query($dbc, "SELECT `name` FROM `user_form_fields` WHERE `field_id` = '".$field['references']."'"))['name'];
+                                        $ref_value = $field['source_conditions'];
+                                        echo '<input type="text" name="'.$field_post.'" class="form-control datepicker" value="'.substr($default,0,10).'" data-refsource="'.$ref_source.'" data-refvalue="'.$ref_value.'">';
                                         break;
                                     case 'DATETIME':
                                         echo '<input type="text" name="'.$field_post.'" class="form-control dateandtimepicker" value="'.substr($default,11).'">';
@@ -296,7 +363,7 @@ function checkMandatoryFields() {
                                         echo '<input type="text" name="'.$field_post.'" class="form-control timepicker" value="'.$default.'">';
                                         break;
                                     case 'SELECT':
-                                        echo '<select name="'.$field_post.'" class="form-control chosen-select-deselect select_ref"><option></option>';
+                                        echo '<select '.($field['content'] == 'multiple' ? 'name="'.$field_post.'[]" multiple' : 'name="'.$field_post.'"').' class="form-control chosen-select-deselect select_ref"><option></option>';
                                         $contact_list = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT `contactid`, `name`, `first_name`, `last_name` FROM `contacts` WHERE `category`='".$field['source_conditions']."' AND `deleted`=0 AND `status`>0 AND `show_hide_user`=1"),MYSQLI_ASSOC));
                                         foreach($contact_list as $contactid) {
                                             $contact = mysqli_fetch_array(mysqli_query($dbc, "SELECT `name`, `first_name`, `last_name`, `nick_name` FROM `contacts` WHERE `contactid`='$contactid'"));
@@ -305,14 +372,14 @@ function checkMandatoryFields() {
                                                 $name .= ($name != '' ? ': ' : '').decryptIt($contact['first_name']).' '.decryptIt($contact['last_name']);
                                             }
                                             $name .= ($contact['nick_name'] != '' ? '"'.$contact['nick_name'].'"' : '');
-                                            echo '<option '.($default == $contactid ? 'selected' : '').' value="'.$contactid.'">'.$name.'</option>';
+                                            echo '<option '.(strpos('#*#'.$default.'#*#', '#*#'.$contactid.'#*#') !== FALSE ? 'selected' : '').' value="'.$contactid.'">'.$name.'</option>';
                                         }
                                         echo '</select>';
                                         break;
                                     case 'SELECT_CUS':
-                                        echo '<select name="'.$field_post.'" class="form-control chosen-select-deselect"><option></option>';
+                                        echo '<select '.($field['content'] == 'multiple' ? 'name="'.$field_post.'[]" multiple' : 'name="'.$field_post.'"').' class="form-control chosen-select-deselect"><option></option>';
                                         while ($option = mysqli_fetch_array($options)) {
-                                            echo '<option '.($default == $option['label'] ? 'selected' : '').' value="'.$option['label'].'">'.$option['label'].'</option>';
+                                            echo '<option '.(strpos('#*#'.$default.'#*#', '#*#'.$option['label'].'#*#') !== FALSE ? 'selected' : '').' value="'.$option['label'].'">'.$option['label'].'</option>';
                                         }
                                         echo '</select>';
                                     case 'RADIO':
@@ -638,8 +705,27 @@ function checkMandatoryFields() {
                                             <?php } ?>
                                         </table>
                                         <?php break;
+                                    case 'FILE': ?>
+                                        <?php if(!empty($default)) { ?>
+                                            <div class="existing_file">
+                                                <a href="<?= $default ?>" target="_blank">View</a> | <a href="" onclick="$(this).closest('.existing_file').find('[name=<?= $field_post ?>_delete]').val(1); $(this).closest('.existing_file').hide(); return false;">Delete</a>
+                                                <input type="hidden" name="<?= $field_post ?>_delete" value="0">
+                                                <input type="hidden" name="<?= $field_post ?>_existing" value="<?= $default ?>">
+                                            </div>
+                                        <?php } ?>
+                                        <input type="file" name="<?= $field_post ?>" data-filename-placement="inside" class="form-control" onchange="$(this).closest('user_form_field').find('[name=<?= $field_post ?>_delete]').val(0);">
+                                        <?php break;
+                                    case 'HR': ?>
+                                        <hr />
+                                        <?php break;
                                     default:
-                                        echo '<input type="text" name="'.$field_post.'" class="form-control" value="'.$default.'">';
+                                        $ref_source = 'field_'.mysqli_fetch_array(mysqli_query($dbc, "SELECT `name` FROM `user_form_fields` WHERE `field_id` = '".$field['references']."'"))['name'];
+                                        $ref_value = $field['source_conditions'];
+                                        $ref_html = '';
+                                        if(!empty($ref_source)) {
+                                            $ref_html = 'data-refsource="'.$ref_source.'" data-refvalue="'.$ref_value.'"';
+                                        }
+                                        echo '<input type="text" name="'.$field_post.'" class="form-control" value="'.$default.'" '.$ref_html.'>';
                                         break;
                                 } ?>
                             </div>
@@ -701,6 +787,33 @@ function checkMandatoryFields() {
         <?php } ?>
         <?php $sa_inc++;
         }
+    } else if($incident_report_form == 1 && $get_field_config['pdf_notes'] != '') {
+        if($form_layout == 'Sidebar') { ?>
+            <hr>
+            <div id="user_form_div_increp_notes" class="tab-section">
+                <h4>Description</h4>
+                <div class="form-group">
+                    <?= html_entity_decode($get_field_config['pdf_notes']) ?>
+                </div>
+            </div>
+            <hr>
+        <?php } else { ?>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h4 class="panel-title">
+                        <a data-toggle="collapse" data-parent="#accordion2" href="#collapse_inc_rep_notes" >
+                            Description<span class="glyphicon glyphicon-plus"></span>
+                        </a>
+                    </h4>
+                </div>
+
+                <div id="collapse_inc_rep_notes" class="panel-collapse collapse <?php echo $default_collapse; $default_collapse = ''; ?>">
+                    <div class="panel-body">
+                        <?= html_entity_decode($get_field_config['pdf_notes']) ?>
+                    </div>
+                </div>
+            </div>
+        <?php }
     } ?>
     </div>
 </div>

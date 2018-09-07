@@ -207,11 +207,17 @@ if (isset($_POST['submit'])) {
         $query_insert_customer = "INSERT INTO `rate_card` (`clientid`, `rate_card_name`, `package`, `promotion`, `services`, `products`, `sred`, `client`, `customer`, `inventory`, `equipment`, `equipment_category`, `staff`, `staff_position`, `contractor`, `expense`, `vendor`, `custom`, `material`, `labour`, `other`, `total_price`, `who_added`, `when_added`) VALUES ('$clientid', '$rate_card_name', '$package' , '$promotion', '$services', '$products', '$sred', '$client', '$customer', '$inventory', '$equipment', '$equipment_category', '$staff', '$staff_position', '$contractor', '$expense', '$vendor', '$custom', '$material', '$labour', '$other', '$total_price', '$who_added', '$when_added')";
         $result_insert_customer = mysqli_query($dbc, $query_insert_customer);
         $url = 'Added';
+        $before_change = '';
+        $history = "Rate card entry is been added. <br />";
+				add_update_history($dbc, 'ratecard_history', $history, '', $before_change);
     } else {
         $ratecardid = $_POST['ratecardid'];
         $query_update_vendor = "UPDATE `rate_card` SET `rate_card_name` = '$rate_card_name', `package` = '$package', `promotion` = '$promotion', `services` = '$services', `products` = '$products', `sred` = '$sred', `client` = '$client', `customer` = '$customer', `inventory` = '$inventory', `equipment` = '$equipment', `equipment_category` = '$equipment_category', `staff` = '$staff', `staff_position` = '$staff_position', `contractor` = '$contractor', `expense` = '$expense', `vendor` = '$vendor', `custom` = '$custom', `material` = '$material', `labour` = '$labour', `other` = '$other', `total_price` = '$total_price', `who_added` = '$who_added' WHERE `ratecardid` = '$ratecardid'";
         $result_update_vendor = mysqli_query($dbc, $query_update_vendor);
         $url = 'Updated';
+        $before_change = '';
+        $history = "Rate card entry is been updated with Rate Card Name - $rate_card_name. <br />";
+				add_update_history($dbc, 'ratecard_history', $history, '', $before_change);
     }
 
     echo '<script type="text/javascript"> window.location.replace("view_rate_card.php"); </script>';

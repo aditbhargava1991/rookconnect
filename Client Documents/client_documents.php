@@ -49,20 +49,13 @@ checkAuthorised('client_documents');
 	                            <span class="popover-examples list-inline pull-right" style="margin:5px 5px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Click here for the settings within this tile. Any changes made will appear on your dashboard."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
 	                        </div><?php
 	                    } ?>
-						<?php if(isset($_POST['search_user_submit'])) { ?>
-							<input placeholder="Search Client Documents" type="text" name="search_vendor" class="form-control pull-left" value="<?php echo $_POST['search_vendor']; ?>" style="width: 40%;">
-						<?php } else { ?>
-							<input placeholder="Search Client Documents" type="text" name="search_vendor" class="form-control pull-left" style="width: 40%;">
-						<?php } ?>
-						<button type="submit" name="search_user_submit" class="btn brand-btn pull-left" style="position: relative; left: 1em;">Filter</button>
-						<button type="submit" name="display_all_inventory" class="btn brand-btn pull-left" style="position: relative; left: 1em;">Display All</button>
 						<?php if(vuaed_visible_function($dbc, 'client_documents') == 1) { ?>
 	                    	<a href="add_client_documents.php" class="btn brand-btn pull-right">Add Client Documents</a>
 	                    <?php } ?>
 	                </div>
 	                <div class="clearfix"></div>
 	            </div><!-- .tile-header -->
-            
+
 	            <div class="tile-container">
 	            	<!-- Notice -->
 	                <div class="notice gap-bottom gap-top popover-examples">
@@ -71,17 +64,17 @@ checkAuthorised('client_documents');
 						The distribution and access to the right client documents is essential. In this section you can sort all client documents by Type and by Category, helping your staff and business organize the necessities. Click the send button to instantly email any material to the right person.</div>
 	                    <div class="clearfix"></div>
 	                </div>
-	                
+
 	            	<div class="collapsible tile-sidebar set-section-height">
 	            		<?php include('tile_sidebar.php'); ?>
 	            	</div>
-					
+
 	            	<div class="fill-to-gap tile-content set-section-height" style="padding: 0;">
 	            		<div class="main-screen-details">
 	            			<div class="sidebar" style="padding: 1em; margin: 0 auto; overflow-y: auto;">
 
 							<?php
-							
+
 							/* Pagination Counting */
 							$rowsPerPage = 25;
 							$pageNum = 1;
@@ -91,7 +84,7 @@ checkAuthorised('client_documents');
 							}
 
 							$offset = ($pageNum - 1) * $rowsPerPage;
-							
+
 							$query_search = '';
 							if($search_type != '') {
 								$query_search .= " AND `client_documents_type` = '$search_type'";
@@ -108,16 +101,16 @@ checkAuthorised('client_documents');
 							$result = mysqli_query($dbc, $query_check_credentials);
 
 							$num_rows = mysqli_num_rows($result);
-							
-							
+
+
 							if($num_rows > 0) {
 								$get_field_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT client_documents_dashboard FROM field_config"));
 								$value_config = ','.$get_field_config['client_documents_dashboard'].',';
-								
+
 								// Add Pagintion //
 								echo display_pagination($dbc, $query, $pageNum, $rowsPerPage);
 								// Complete Pagination //
-								
+
 								echo "<table class='table table-bordered'>";
 								echo "<tr class='hidden-sm hidden-xs'>";
 									if (strpos($value_config, ','."Client".',') !== FALSE) {

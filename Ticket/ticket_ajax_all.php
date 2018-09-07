@@ -1,11 +1,30 @@
 <?php
 include_once('../include.php');
+include_once('../tcpdf/tcpdf.php');
+if(!file_exists('download')) {
+	mkdir('download', 0777, true);
+}
 ob_clean();
 date_default_timezone_set('America/Denver');
 if(!($_SESSION['contactid'] > 0)) {
 	echo "ERROR#*#Your session has timed out. Please log in and try again.";
 	exit();
 }
+if($_GET['fill'] == 'add_edit_project') {
+    $ticketid = $_GET['ticketid'];
+    $project = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT COUNT(projectid) `num`, projectid FROM `project` WHERE `project_name` = 'Piece Work Project' AND `deleted` = 0"));
+
+    if($project['num'] > 0) {
+        $projectid = $project['projectid'];
+    } else {
+        $sql = "INSERT INTO `project` (`project_name`,`status`) VALUES ('Piece Work Project','Active Project')";
+        $result_insert_ticket = mysqli_query($dbc, $sql);
+        $projectid = mysqli_insert_id($dbc);
+    }
+    mysqli_query($dbc, "UPDATE `tickets` SET projectid = '$projectid' WHERE ticketid = $ticketid");
+    echo $projectid;
+}
+
 if($_GET['fill'] == 'project_path_milestone') {
     $project_path = $_GET['project_path'];
 	echo '<option value=""></option>';
@@ -290,7 +309,7 @@ if($_GET['fill'] == 'starttickettimer') {
 	$created_date = date('Y-m-d H:i:s');
     $created_by = $_GET['login_contactid'];
 
-    $running_tickets = mysqli_fetch_all(mysqli_query($dbc, "SELECT tt.* FROM `ticket_timer` tt LEFT JOIN `tickets` ti ON tt.`ticketid` = ti.`ticketid` WHERE tt.`created_by` = '$created_by' AND tt.`start_timer_time` > 0 AND ti.`deleted` = 0 AND ti.`status` != 'Archive'"),MYSQLI_ASSOC);
+    $running_tickets = mysqli_fetch_all(mysqli_query($dbc, "SELECT tt.* FROM `ticket_timer` tt LEFT JOIN `tickets` ti ON tt.`ticketid` = ti.`ticketid` WHERE tt.`created_by` = '$created_by' AND tt.`start_timer_time` > 0 AND ti.`deleted` = 0 AND ti.`status` != 'Archive' AND tt.`deleted` = 0"),MYSQLI_ASSOC);
     foreach ($running_tickets as $running_ticket) {
     	$tickettimerid = $running_ticket['tickettimerid'];
     	if(empty($running_ticket['timer']) && empty($running_ticket['end_time'])) {
@@ -335,6 +354,7 @@ if($_GET['fill'] == 'stoptickettimer') {
         $result_update_ticket = mysqli_query($dbc, $query_update_ticket);
         $query_update_ticket = "UPDATE `ticket_timer` SET `start_timer_time`='0' WHERE `ticketid` = '$ticketid' AND created_by='$created_by' AND `start_timer_time` > 0";
         $result_update_ticket = mysqli_query($dbc, $query_update_ticket);
+        mysqli_query($dbc, "INSERT INTO `time_cards` (`ticketid`,`staff`,`date`,`type_of_time`,`total_hrs`,`timer_tracked`,`comment_box`) VALUES ('$ticketid','$created_by','$created_date','Regular Hrs.','".((strtotime($timer) - strtotime('00:00:00')) / 3600)."','0','Time Added on Ticket #$ticketid')");
 		echo insert_day_overview($dbc, $created_by, 'Ticket', date('Y-m-d'), '', "Updated ".TICKET_NOUN." #$ticketid - Added Time : $timer");
     }
 	$ticket = $dbc->query("SELECT `pickup_address`, `pickup_city`, `pickup_postal_code`, `to_do_date`, `to_do_start_time` FROM `tickets` WHERE `ticketid`='$ticketid'")->fetch_assoc();
@@ -461,6 +481,25 @@ if($_GET['action'] == 'update_fields') {
 	$detail_field = filter_var($_POST['detail_field'],FILTER_SANITIZE_STRING);
 	$manual_value = filter_var($_POST['manually_set'],FILTER_SANITIZE_STRING);
 	$manual_field = filter_var($_POST['manual_field'],FILTER_SANITIZE_STRING);
+	$ticket_history_addition = '';
+	
+    //Insert into Time Sheet tile
+    // mysqli_query($dbc, "INSERT INTO `time_cards` (`ticketid`,`staff`,`date`,`type_of_time`,`total_hrs`,`timer_tracked`,`comment_box`) VALUES ('$ticketid','$attach','".date('Y-m-d')."','Regular Hrs.','".((strtotime($value) - strtotime('00:00:00')) / 3600)."','0','Time Added on Ticket #$ticketid')");
+
+	$value_config = ','.get_field_config($dbc, 'tickets').',';
+	if($ticketid > 0) {
+		$get_ticket = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT * FROM tickets WHERE ticketid='$ticketid'"));
+		$ticket_type = $get_ticket['ticket_type'];
+	}
+	if($ticket_type == '') {
+		$ticket_type = get_config($dbc, 'default_ticket_type');
+	}
+	if(!empty($ticket_type)) {
+		$value_config .= get_config($dbc, 'ticket_fields_'.$ticket_type).',';
+	}
+	if(strpos($value_config,',Time Tracking Edit Past Date') !== FALSE && $get_ticket['to_do_date'] != '') {
+		$_POST['date'] = $get_ticket['to_do_date'];
+	}
 
 	if($field_name == 'status') {
 		$current_history_value = mysqli_fetch_assoc(mysqli_query($dbc, "select history from tickets where ticketid = $id"));
@@ -494,6 +533,9 @@ if($_GET['action'] == 'update_fields') {
 			mysqli_query($dbc, "INSERT INTO `ticket_schedule` (`ticketid`, `type`, `location_name`, `client_name`, `address`, `city`, `province`, `postal_code`, `country`, `map_link`, `details`, `email`, `carrier`, `vendor`, `lading_number`, `volume`, `order_number`, `sort`, `warehouse_location`, `container`, `manifest_num`) SELECT `ticketid`, `type`, `location_name`, `client_name`, `address`, `city`, `province`, `postal_code`, `country`, `map_link`, `details`, `email`, `carrier`, `vendor`, `lading_number`, `volume`, `order_number`, (`sort` + 1), `warehouse_location`, `container`, `manifest_num` FROM `ticket_schedule` WHERE `ticketid` = '".$ticketid."' AND `deleted` = 0 ORDER BY `sort` DESC LIMIT 1");
 			echo 'created_unscheduled_stop';
 		}
+	}
+	if($table_name == 'mileage' && ($field_name == 'start' || $field_name == 'end')) {
+		$value = date('Y-m-d H:i:s', strtotime($value));
 	}
 	if($table_name == 'ticket_comment' && $type == 'member_note') {
 		$table_name = 'client_daily_log_notes';
@@ -554,6 +596,7 @@ if($_GET['action'] == 'update_fields') {
 				mysqli_query($dbc, "INSERT INTO `tickets` (`ticket_type`, `category`, `businessid`, `clientid`, `siteid`, `projectid`, `salesorderid`, `piece_work`, `heading`, `project_path`, `milestone_timeline`, `task_available`, `to_do_date`, `to_do_end_date`, `created_date`, `created_by`, `status`, `region`, `classification`, `con_location`)
 					SELECT `ticket_type`, `category`, `businessid`, `clientid`, `siteid`, $projectid, `salesorderid`, `piece_work`, '-".$attach."-".date('Y-m-d')."', `project_path`, `milestone_timeline`, '$available', '".date('Y-m-d')."', '".date('Y-m-d')."', '".date('Y-m-d')."', '".$_SESSION['contactid']."', `status`, `region`, `classification`, `con_location` FROM `tickets` WHERE `ticketid`='$ticketid'");
 				$ticketid = mysqli_insert_id($dbc);
+				$dbc->query("INSERT INTO `ticket_comment` (`ticketid`,`type`,`comment`,`created_date`,`created_by`) VALUES ('$ticketid','service_extra_billing','".implode(', ',$available)." added.',DATE(NOW()),'".$_SESSION['contactid']."')");
 				if(strpos($config,',Ticket Tasks Ticket Type,') !== FALSE) {
 					$task_group = $_POST['task_group'];
 					mysqli_query($dbc, "UPDATE `tickets` SET `ticket_type` = '".config_safe_str($task_group)."' WHERE `ticketid` = '$ticketid'");
@@ -632,7 +675,7 @@ if($_GET['action'] == 'update_fields') {
 		$seconds = time();
 		if($field_name == 'arrived' && $value == 1) {
 			mysqli_query($dbc, "UPDATE `ticket_attached` SET `timer_start`='$seconds' WHERE `id`='$id'");
-			mysqli_query($dbc, "UPDATE `ticket_attached` SET `checked_in`='".date('h:i a')."' WHERE `id`='$id' AND `checked_in` IS NULL");
+			mysqli_query($dbc, "UPDATE `ticket_attached` SET `checked_in`='".date('h:i a')."' WHERE `id`='$id' AND IFNULL(`checked_in`,'') = ''");
 		} else {
 			$hours = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `timer_start`, `hours_tracked` FROM `ticket_attached` WHERE `id`='$id'"));
 			if($hours['timer_start'] > 0) {
@@ -675,20 +718,24 @@ if($_GET['action'] == 'update_fields') {
 			mysqli_query($dbc, "INSERT INTO `time_cards` (`timer_start`, `type_of_time`, `start_time`, `staff`, `date`, `day_tracking_type`, `created_by`) SELECT '$seconds', 'day_tracking', '$time', `staff`, '".date('Y-m-d')."', CONCAT('Work:',MAX(`time_cards_id`)), 0 FROM `time_cards` WHERE `timer_start` > 0 AND `type_of_time`='day_tracking' AND `day_tracking_type` NOT LIKE 'Work:%' AND `staff`='".$attached['item_id']."'");
 			mysqli_query($dbc, "UPDATE `time_cards` SET `total_hrs`=GREATEST(IF('$time_interval' > 0,CEILING(((($seconds - `timer_start`) + IFNULL(NULLIF(`timer_tracked`,'0'),IFNULL(`total_hrs`,0))) / 3600) / '$time_interval') * '$time_interval',((($seconds - `timer_start`) + IFNULL(NULLIF(`timer_tracked`,'0'),IFNULL(`total_hrs`,0))) / 3600)),'$time_minimum'), `timer_tracked` = (($seconds - `timer_start`) + IFNULL(`timer_tracked`,0)) / 3600, `timer_start`=0, `type_of_time`=IF(`day_tracking_type` IS NULL OR `day_tracking_type` = '', 'Regular Hrs.', `day_tracking_type`), `end_time`='$time' WHERE `timer_start` > 0 AND `type_of_time`='day_tracking' AND `day_tracking_type` NOT LIKE 'Work:%' AND `staff`='".$attached['item_id']."'");
 			// Sign into the Ticket
-			mysqli_query($dbc, "UPDATE `time_cards` SET `total_hrs` = GREATEST(IF('$time_interval' > 0,CEILING(((($seconds - `timer_start`) + IFNULL(NULLIF(`timer_tracked`,'0'),IFNULL(`total_hrs`,0))) / 3600) / '$time_interval') * '$time_interval',((($seconds - `timer_start`) + IFNULL(NULLIF(`timer_tracked`,'0'),IFNULL(`total_hrs`,0))) / 3600)),'$time_minimum'), `timer_tracked` = (($seconds - `timer_start`) + IFNULL(`timer_tracked`,0)) / 3600, `timer_start`=0, `end_time`='$time' WHERE `type_of_time` NOT IN ('day_tracking','day_break') AND `timer_start` > 0 AND `staff`='{$attached['item_id']}'");
-			mysqli_query($dbc, "INSERT INTO `time_cards` (`business`, `projectid`, `ticketid`, `staff`, `date`, `start_time`, `timer_start`, `type_of_time`, `comment_box`, `ticket_attached_id`) SELECT `businessid`, `projectid`, `ticketid`, '{$attached['item_id']}', '$today', '$time', '$seconds', '{$attached['position']}', 'Checked in on ".TICKET_NOUN." #{$attached['ticketid']} for {$attached['position']}', '{$attached['id']}' FROM `tickets` WHERE `ticketid`='{$attached['ticketid']}'");
-			mysqli_query($dbc, "UPDATE `time_cards` SET `total_hrs` = GREATEST(IF('$time_interval' > 0,CEILING(((($seconds - `timer_start`) + IFNULL(NULLIF(`timer_tracked`,'0'),IFNULL(`total_hrs`,0))) / 3600) / '$time_interval') * '$time_interval',((($seconds - `timer_start`) + IFNULL(NULLIF(`timer_tracked`,'0'),IFNULL(`total_hrs`,0))) / 3600)),'$time_minimum'), `timer_tracked` = (($seconds - `timer_start`) + IFNULL(`timer_tracked`,0)) / 3600, `timer_start`=0, `end_time`='$time', `comment_box`=CONCAT(IFNULL(`comment_box`,''),'Signed in on ".get_ticket_label($dbc, mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticketid`='{$attached['ticketid']}'")))."') WHERE `type_of_time` NOT IN ('day_tracking','day_break') AND `ticketid`!='{$attached['ticketid']}' AND `staff`='{$attached['item_id']}' AND `timer_start` > 0");
+			if(strpos($value_config, ',Staff Multiple Times,') === FALSE) {
+				mysqli_query($dbc, "UPDATE `time_cards` SET `total_hrs` = GREATEST(IF('$time_interval' > 0,CEILING(((($seconds - `timer_start`) + IFNULL(NULLIF(`timer_tracked`,'0'),IFNULL(`total_hrs`,0))) / 3600) / '$time_interval') * '$time_interval',((($seconds - `timer_start`) + IFNULL(NULLIF(`timer_tracked`,'0'),IFNULL(`total_hrs`,0))) / 3600)),'$time_minimum'), `timer_tracked` = (($seconds - `timer_start`) + IFNULL(`timer_tracked`,0)) / 3600, `timer_start`=0, `end_time`='$time' WHERE `type_of_time` NOT IN ('day_tracking','day_break') AND `timer_start` > 0 AND `staff`='{$attached['item_id']}'");
+				mysqli_query($dbc, "INSERT INTO `time_cards` (`business`, `projectid`, `ticketid`, `staff`, `date`, `start_time`, `timer_start`, `type_of_time`, `comment_box`, `ticket_attached_id`) SELECT `businessid`, `projectid`, `ticketid`, '{$attached['item_id']}', '$today', '$time', '$seconds', '{$attached['position']}', 'Checked in on ".TICKET_NOUN." #{$attached['ticketid']} for {$attached['position']}', '{$attached['id']}' FROM `tickets` WHERE `ticketid`='{$attached['ticketid']}'");
+				mysqli_query($dbc, "UPDATE `time_cards` SET `total_hrs` = GREATEST(IF('$time_interval' > 0,CEILING(((($seconds - `timer_start`) + IFNULL(NULLIF(`timer_tracked`,'0'),IFNULL(`total_hrs`,0))) / 3600) / '$time_interval') * '$time_interval',((($seconds - `timer_start`) + IFNULL(NULLIF(`timer_tracked`,'0'),IFNULL(`total_hrs`,0))) / 3600)),'$time_minimum'), `timer_tracked` = (($seconds - `timer_start`) + IFNULL(`timer_tracked`,0)) / 3600, `timer_start`=0, `end_time`='$time', `comment_box`=CONCAT(IFNULL(`comment_box`,''),'Signed in on ".get_ticket_label($dbc, mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticketid`='{$attached['ticketid']}'")))."') WHERE `type_of_time` NOT IN ('day_tracking','day_break') AND `ticketid`!='{$attached['ticketid']}' AND `staff`='{$attached['item_id']}' AND `timer_start` > 0");
+			}
 			mysqli_query($dbc, "UPDATE `ticket_attached` SET `checked_out`='".date('h:i a')."', `completed`=1 WHERE `id`!='$id' AND `src_table`='{$attached['src_table']}' AND `item_id`='{$attached['item_id']}' AND (`arrived`=1 AND `completed`=0)");
-			mysqli_query($dbc, "UPDATE `ticket_attached` SET `checked_in`='".date('h:i a')."' WHERE `id`='$id' AND `checked_in` IS NULL");
+			mysqli_query($dbc, "UPDATE `ticket_attached` SET `checked_in`='".date('h:i a')."' WHERE `id`='$id' AND IFNULL(`checked_in`,'') = ''");
 			if(get_config($dbc, 'ticket_force_starts_day') > 0 && $attached['item_id'] > 0) {
-				$comment = get_config($dbc, 'day_tracking_preset_note');
+				$comment = get_config($dbc, 'day_tracking_preset_note' && strpos($value_config, ',Staff Multiple Times,') === FALSE);
 				mysqli_query($dbc, "INSERT INTO `time_cards` (`staff`, `date`, `start_time`, `type_of_time`, `timer_start`, `comment_box`) VALUES ('{$attached['item_id']}', '$today', '$time', 'day_tracking', '$seconds', '$comment')");
 			}
 		} else if(($attached['src_table'] == 'Staff' || $attached['src_table'] == 'Staff_Tasks' || $attached['src_table'] == 'Delivery') && $value == 0) {
 			// Sign Back Into Day Tracking, if they were Signed In
 			mysqli_query($dbc, "UPDATE `time_cards` `time` LEFT JOIN `time_cards` `src` ON `time`.`day_tracking_type`=CONCAT('Work:',`src`.`time_cards_id`) SET `time`.`timer_start`='".time()."', `time`.`start_time`='".date('H:i')."', `time`.`date`='".date('Y-m-d')."', `time`.`comment_box`=`src`.`comment_box`, `time`.`day_tracking_type`=`src`.`day_tracking_type`, `time`.`created_by`='".$_SESSION['contactid']."' WHERE `time`.`timer_start` > 0 AND `time`.`day_tracking_type` LIKE 'Work%' AND `time`.`staff`='".$attached['item_id']."' AND `time`.`deleted`=0");
 			// Sign out of the Ticket
-			mysqli_query($dbc, "UPDATE `time_cards` SET `total_hrs` = GREATEST(IF('$time_interval' > 0,CEILING(((($seconds - `timer_start`) + IFNULL(NULLIF(`timer_tracked`,'0'),IFNULL(`total_hrs`,0))) / 3600) / '$time_interval') * '$time_interval',((($seconds - `timer_start`) + IFNULL(NULLIF(`timer_tracked`,'0'),IFNULL(`total_hrs`,0))) / 3600)),'$time_minimum'), `timer_tracked` = (($seconds - `timer_start`) + IFNULL(`timer_tracked`,0)) / 3600, `timer_start`=0, `end_time`='$time' WHERE `type_of_time` NOT IN ('day_tracking','day_break') AND `timer_start` > 0 AND `staff`='{$attached['item_id']}'");
+			if(strpos($value_config, ',Staff Multiple Times,') === FALSE) {
+				mysqli_query($dbc, "UPDATE `time_cards` SET `total_hrs` = GREATEST(IF('$time_interval' > 0,CEILING(((($seconds - `timer_start`) + IFNULL(NULLIF(`timer_tracked`,'0'),IFNULL(`total_hrs`,0))) / 3600) / '$time_interval') * '$time_interval',((($seconds - `timer_start`) + IFNULL(NULLIF(`timer_tracked`,'0'),IFNULL(`total_hrs`,0))) / 3600)),'$time_minimum'), `timer_tracked` = (($seconds - `timer_start`) + IFNULL(`timer_tracked`,0)) / 3600, `timer_start`=0, `end_time`='$time' WHERE `type_of_time` NOT IN ('day_tracking','day_break') AND `timer_start` > 0 AND `staff`='{$attached['item_id']}'");
+			}
 			$hours = mysqli_fetch_array(mysqli_query($dbc, "SELECT SUM(`total_hrs`) FROM `time_cards` WHERE `ticketid`='{$attached['ticketid']}' AND `staff`='{$attached['item_id']}' AND `comment_box` LIKE '% for {$attached['position']}'"))[0];
 			mysqli_query($dbc, "UPDATE `ticket_attached` SET `hours_tracked`='$hours' WHERE `id`='$id'");
 			mysqli_query($dbc, "UPDATE `ticket_attached` SET `checked_out`='".date('h:i a')."' WHERE `id`='$id'");
@@ -703,13 +750,41 @@ if($_GET['action'] == 'update_fields') {
 			// Sign Back Into Day Tracking, if they were Signed In
 			mysqli_query($dbc, "UPDATE `time_cards` `time` LEFT JOIN `time_cards` `src` ON `time`.`day_tracking_type`=CONCAT('Work:',`src`.`time_cards_id`) SET `time`.`timer_start`='".time()."', `time`.`start_time`='".date('H:i')."', `time`.`date`='".date('Y-m-d')."', `time`.`comment_box`=`src`.`comment_box`, `time`.`day_tracking_type`=`src`.`day_tracking_type`, `time`.`created_by`='".$_SESSION['contactid']."' WHERE `time`.`timer_start` > 0 AND `time`.`day_tracking_type` LIKE 'Work%' AND `time`.`staff`='".$attached['item_id']."' AND `time`.`deleted`=0");
 			// Sign out of the Ticket
-			mysqli_query($dbc, "UPDATE `time_cards` SET `total_hrs` = GREATEST(IF('$time_interval' > 0,CEILING(((($seconds - `timer_start`) + IFNULL(NULLIF(`timer_tracked`,'0'),IFNULL(`total_hrs`,0))) / 3600) / '$time_interval') * '$time_interval',((($seconds - `timer_start`) + IFNULL(NULLIF(`timer_tracked`,'0'),IFNULL(`total_hrs`,0))) / 3600)),'$time_minimum'), `timer_tracked` = (($seconds - `timer_start`) + IFNULL(`timer_tracked`,0)) / 3600, `timer_start`=0, `end_time`='$time' WHERE `type_of_time` NOT IN ('day_tracking','day_break') AND `timer_start` > 0 AND `staff`='{$attached['item_id']}'");
+
+			if(strpos($value_config, ',Staff Multiple Times,') !== FALSE) {
+				// If using the Staff Multiple Dates/Time setting, insert Time Cards based on those settings
+				$staff_times = mysqli_query($dbc, "SELECT * FROM `ticket_attached` WHERE `src_table` = 'Multiple_Timesheet_Row' AND `item_id` = '".$attached['id']."' AND '".$attached['id']."' > 0 AND `deleted` = 0");
+				while($staff_time = mysqli_fetch_assoc($staff_times)) {
+					mysqli_query($dbc, "INSERT INTO `time_cards` (`ticketid`, `ticket_attached_id`) SELECT '".$attached['ticketid']."', '".$staff_time['id']."' FROM (SELECT COUNT(*) rows FROM `time_cards` WHERE `ticket_attached_id` = '".$staff_time['id']."' AND `deleted` = 0) num WHERE num.rows=0");
+					mysqli_query($dbc, "UPDATE `time_cards` SET `staff` = '".$attached['item_id']."', `date` = '".$staff_time['date_stamp']."', `start_time` = '".$staff_time['start_time']."', `end_time` = '".$staff_time['end_time']."', `type_of_time` = '".($staff_time['position'] == 'Sleep Hrs.' ? 'Sleep Hrs.' : $attached['position'])."', `total_hrs` = '".$staff_time['hours_set']."' WHERE `ticket_attached_id` = '".$staff_time['id']."'");
+				}
+			} else {
+				// If payable hours are set and tracked in time cards, use that as total hours but keep time_tracked to the value set by checkin/checkout
+				if(strpos($value_config,',Staff Set Hours Time Sheet,') !== FALSE && $attached['hours_set'] > 0) {
+					$latest_time_card = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `time_cards` WHERE `ticket_attached_id` = '".$attached['id']."' AND `deleted` = 0 AND `timer_start` > 0 ORDER BY `time_cards_id` DESC"));
+					if(!empty($latest_time_card)) {
+						mysqli_query($dbc, "UPDATE `time_cards` SET `total_hrs` = '".$attached['hours_set']."', `timer_tracked` = (($seconds - `timer_start`) + IFNULL(`timer_tracked`,0)) / 3600, `timer_start`=0, `end_time`='$time' WHERE `time_cards_id` = '".$latest_time_card['time_cards_id']."'");
+						mysqli_query($dbc, "UPDATE `time_cards` SET `deleted` = 1 WHERE `ticket_attached_id` = '".$attached['id']."' AND `time_cards_id` != '".$latest_time_card['time_cards_id']."'");
+					}
+
+				} else {
+					// $existing_time_card = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `time_cards` WHERE `ticket_attached_id` = '{$attached['id']}' AND `timer_tracked` = 0 AND `total_hrs` > 0 AND `deleted` = 0"));
+					// $override_hours = '';
+					// if(strpos($value_config,',Staff Set Hours Time Sheet,') !== FALSE && !empty($existing_time_card)) {
+					// 	$override_hours = $existing_time_card['total_hrs'];
+					// 	mysqli_query($dbc, "UPDATE `time_cards` SET `deleted` = '1' WHERE `time_cards_id` = '{$existing_time_card['time_cards_id']}'");
+					// }
+					mysqli_query($dbc, "UPDATE `time_cards` SET `total_hrs` = GREATEST(IF('$time_interval' > 0,CEILING(((($seconds - `timer_start`) + IFNULL(NULLIF(`timer_tracked`,'0'),IFNULL(`total_hrs`,0))) / 3600) / '$time_interval') * '$time_interval',((($seconds - `timer_start`) + IFNULL(NULLIF(`timer_tracked`,'0'),IFNULL(`total_hrs`,0))) / 3600)),'$time_minimum'), `timer_tracked` = (($seconds - `timer_start`) + IFNULL(`timer_tracked`,0)) / 3600, `timer_start`=0, `end_time`='$time' WHERE `type_of_time` NOT IN ('day_tracking','day_break') AND `timer_start` > 0 AND `staff`='{$attached['item_id']}'");
+				}
+			}
 			$hours = mysqli_fetch_array(mysqli_query($dbc, "SELECT SUM(`total_hrs`) FROM `time_cards` WHERE `ticketid`='{$attached['ticketid']}' AND `staff`='{$attached['item_id']}' AND `comment_box` LIKE '% for {$attached['position']}'"))[0];
 			mysqli_query($dbc, "UPDATE `ticket_attached` SET `hours_tracked`='$hours' WHERE `id`='$id'");
 			mysqli_query($dbc, "UPDATE `ticket_attached` SET `checked_out`='".date('h:i a')."' WHERE `id`='$id'");
+            $ticket_heading = mysqli_fetch_array(mysqli_query($dbc, "SELECT `heading` FROM `tickets` WHERE `ticketid`='{$attached['ticketid']}'"))['heading'];
+            insert_day_overview($dbc, $attached['item_id'], 'Ticket', date('Y-m-d'), '', 'Updated '.TICKET_NOUN.' #'.$attached['ticketid'].(!empty($ticket_heading) ? ': '.$ticket_heading : ''), $attached['ticketid']);
 			echo $hours;
 		}
-	} else if($table_name == 'ticket_attached' && ($field_name == 'time_set' || ($field_name == 'hours_set' && $_POST['track_timesheet'] == 1))) {
+	} else if($table_name == 'ticket_attached' && ($field_name == 'time_set' || ($field_name == 'hours_set' && $_POST['track_timesheet'] == 1)) && strpos($value_config, ',Staff Multiple Times,') === FALSE) {
 		$hours = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `ticket_attached` WHERE `$id_field`='$id'"));
 		$total_hours = $value;
 		$other_hours = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT IFNULL(SUM(`hours_set`),0) sum_hours FROM `ticket_attached` WHERE `src_table` = '{$hours['src_table']}' AND `item_id` = '{$hours['item_id']}' AND `ticketid` = '{$hours['ticketid']}' AND `deleted` = 0 AND `$id_field` != '$id'"))['sum_hours'];
@@ -722,16 +797,16 @@ if($_GET['action'] == 'update_fields') {
 			mysqli_query($dbc, "INSERT INTO `time_cards` (`date`, `type_of_time`, `total_hrs`, `staff`, `ticketid`, `highlight`, `ticket_attached_id`) VALUES ('".(empty($_POST['date']) ? date('Y-m-d') : filter_var($_POST['date'],FILTER_SANITIZE_STRING))."', '{$hours['position']}', '$total_hours', '{$hours['item_id']}', '{$hours['ticketid']}', 1, '{$hours['id']}')");
 		}
 		$field_name = 'hours_set';
-	} else if($table_name == 'ticket_attached' && $field_name == 'time_comment') {
+	} else if($table_name == 'ticket_attached' && $field_name == 'time_comment' && strpos($value_config, ',Staff Multiple Times,') === FALSE) {
 		$hours = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `ticket_attached` WHERE `$id_field`='$id'"));
 		mysqli_query($dbc, "UPDATE `time_cards` SET `comment_box`=CONCAT(IFNULL(CONCAT(`comment_box`,'&lt;br /&gt;'),''),'$value') WHERE `time_cards_id` IN (SELECT MAX(`time_cards_id`) FROM `time_cards` WHERE `ticketid`='{$hours['ticketid']}' AND `staff`='{$hours['item_id']}' AND `date`='".date('Y-m-d')."')");
-	} else if($table_name == 'ticket_attached' && $field_name == 'position' && !($_GET['time_sheet'] == 'none')) {
+	} else if($table_name == 'ticket_attached' && $field_name == 'position' && !($_GET['time_sheet'] == 'none') && strpos($value_config, ',Staff Multiple Times,') === FALSE) {
 		$attached = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `ticket_attached` WHERE `id`='$id'"));
 		mysqli_query($dbc, "UPDATE `time_cards` SET `comment`='Checked in on ".TICKET_NOUN." #{$attached['ticketid']} for $value' WHERE `ticketid`='{$attached['ticketid']}' AND `staff`='{$attached['item_id']}' AND `comment_box` LIKE '% for {$attached['position']}'");
-	} else if($table_name == 'ticket_attached' && $field_name == 'date_stamp' && $_GET['time_sheet'] != 'none') {
+	} else if($table_name == 'ticket_attached' && $field_name == 'date_stamp' && $_GET['time_sheet'] != 'none' && strpos($value_config, ',Staff Multiple Times,') === FALSE) {
 		$attached = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `ticket_attached` WHERE `id`='$id'"));
 		mysqli_query($dbc, "UPDATE `time_cards` SET `date`='$value' WHERE `ticketid`='{$attached['ticketid']}' AND `staff`='{$attached['item_id']}' AND `comment_box` LIKE '% for {$attached['position']}'");
-	} else if($table_name == 'ticket_attached' && $field_name == 'hours_tracked' && $_GET['time_sheet'] != 'none') {
+	} else if($table_name == 'ticket_attached' && $field_name == 'hours_tracked' && $_GET['time_sheet'] != 'none' && strpos($value_config, ',Staff Multiple Times,') === FALSE) {
 		$attached = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `ticket_attached` WHERE `id`='$id'"));
 		mysqli_query($dbc, "UPDATE `ticket_attached` SET `checked_out`=FROM_UNIXTIME(UNIX_TIMESTAMP(STR_TO_DATE(`checked_in`,'%h:%i %p')) + `hours_tracked` / 3600,'%h:%i %p') WHERE `id`='$id'");
 		$hours = mysqli_fetch_array(mysqli_query($dbc, "SELECT SUM(`total_hrs`) FROM `time_cards` WHERE `ticketid`='{$attached['ticketid']}' AND `staff`='{$attached['item_id']}' AND `comment_box` LIKE '% for {$attached['position']}'"))[0];
@@ -740,16 +815,16 @@ if($_GET['action'] == 'update_fields') {
 			$end_time = time_decimal2time(time_time2decimal($time) + $hours);
 			mysqli_query($dbc, "INSERT INTO `time_cards` (`business`, `projectid`, `ticketid`, `staff`, `date`, `start_time`, `end_time`, `timer_start`, `type_of_time`, `comment_box`, `ticket_attached_id`) SELECT `businessid`, `projectid`, `ticketid`, '{$attached['item_id']}', '$today', '$time', '$end_time', '$seconds', '{$hours['position']}', 'Hours Modified on Ticket #{$attached['ticketid']} for  for {$attached['position']}', '{$attached['id']}' FROM `tickets` WHERE `ticketid`='{$attached['ticketid']}'");
 		}
-	} else if($table_name == 'ticket_attached' && $field_name == 'checked_in' && $value != '') {
+	} else if($table_name == 'ticket_attached' && $field_name == 'checked_in' && $value != '' && strpos($value_config, ',Staff Multiple Times,') === FALSE) {
 		$attached = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `ticket_attached` WHERE `id`='$id'"));
 		mysqli_query($dbc, "INSERT INTO `time_cards` (`ticketid`, `businessid`, `projectid`, `staff`, `date`, `ticket_attached_id`) SELECT `tickets`.`ticketid`, `tickets`.`businessid`, `tickets`.`projectid`, `ticket_attached`.`item_id`, `ticket_attached`.`date_stamp`, `ticket_attached`.`id` FROM `ticket_attached` LEFT JOIN `tickets` ON `ticket_attached`.`ticketid`=`tickets`.`ticketid` LEFT JOIN `time_cards` ON `ticket_attached`.`ticketid`=`time_cards`.`ticketid` AND `ticket_attached`.`item_id`=`time_cards`.`staff` WHERE `time_cards`.`time_cards_id` IS NULL AND `ticket_attached`.`id`='{$attached['id']}'");
 		mysqli_query($dbc, "UPDATE `time_cards` SET `start_time`='$value' WHERE `ticketid`='{$attached['ticketid']}' AND `staff`='{$attached['item_id']}' AND `comment_box` LIKE '% for {$attached['position']}'");
-	} else if($table_name == 'ticket_attached' && $field_name == 'checked_out' && $value != '') {
+	} else if($table_name == 'ticket_attached' && $field_name == 'checked_out' && $value != '' && strpos($value_config, ',Staff Multiple Times,') === FALSE) {
 		$attached = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `ticket_attached` WHERE `id`='$id'"));
 		mysqli_query($dbc, "UPDATE `ticket_attached` SET `hours_tracked`=(UNIX_TIMESTAMP(STR_TO_DATE(`checked_out`,'%h:%i %p')) - UNIX_TIMESTAMP(STR_TO_DATE(`checked_in`,'%h:%i %p'))) / 3600 WHERE `id`='$id' AND `checked_in` != ''");
 		mysqli_query($dbc, "INSERT INTO `time_cards` (`ticketid`, `businessid`, `projectid`, `staff`, `date`, `ticket_attached_id`) SELECT `tickets`.`ticketid`, `tickets`.`businessid`, `tickets`.`projectid`, `ticket_attached`.`item_id`, `ticket_attached`.`date_stamp`, `ticket_attached`.`ticket_attached_id` FROM `ticket_attached` LEFT JOIN `tickets` ON `ticket_attached`.`ticketid`=`tickets`.`ticketid` LEFT JOIN `time_cards` ON `ticket_attached`.`ticketid`=`time_cards`.`ticketid` AND `ticket_attached`.`item_id`=`time_cards`.`staff` WHERE `time_cards`.`time_cards_id` IS NULL AND `ticket_attached`.`id`='{$attached['id']}'");
 		mysqli_query($dbc, "UPDATE `time_cards` SET `end_time`='$value', `total_hrs`=(UNIX_TIMESTAMP(STR_TO_DATE(`end_time`,'%h:%i %p')) - UNIX_TIMESTAMP(STR_TO_DATE(`start_time`,'%h:%i %p'))) / 3600 WHERE `ticketid`='{$attached['ticketid']}' AND `staff`='{$attached['item_id']}' AND `comment_box` LIKE '% for {$attached['position']}'");
-	} else if($table_name == 'ticket_attached' && $field_name == 'notes' && !($_GET['time_sheet'] == 'none') && $value != '') {
+	} else if($table_name == 'ticket_attached' && $field_name == 'notes' && !($_GET['time_sheet'] == 'none') && $value != '' && strpos($value_config, ',Staff Multiple Times,') === FALSE) {
 		$attached = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `ticket_attached` WHERE `id`='$id'"));
 		if($attached['src_table'] == 'Staff') {
 			mysqli_query($dbc, "UPDATE `time_cards` SET `comment_box`=CONCAT(IFNULL(CONCAT(`comment_box`,'&lt;br /&gt;'),''),'Checked Out: $value') WHERE `time_cards_id` IN (SELECT * FROM (SELECT MAX(`time_cards_id`) FROM `time_cards` WHERE `staff`='".$attached['item_id']."' AND `ticketid`='".$attached['ticketid']."' AND `type_of_time` IN ('Regular Hrs.','".$attached['position']."')) `time_id`)");
@@ -783,6 +858,13 @@ if($_GET['action'] == 'update_fields') {
 			}
 			$contact = implode(',',$contact);
 			mysqli_query($dbc, "UPDATE `tickets` SET `equipment_assignmentid` = '$equipment_assignmentid', `contactid` = ',$contact,', `teamid` = '$teamid' WHERE `ticketid` = '$id'");
+			$ea_contacts = [];
+			foreach(explode(',', $contact) as $ea_contact) {
+				if($ea_contact > 0) {
+					$ea_contacts[] = get_contact($dbc, $ea_contact);
+				}
+			}
+			$ticket_history_addition .= " (".implode(', ',$ea_contacts).")";
 		}
 	} else if($table_name == 'contacts' && $field_name == 'business_address') {
 		$value = encryptIt($value);
@@ -826,6 +908,8 @@ if($_GET['action'] == 'update_fields') {
 				}
 			}
 		}
+	} else if($table_name == 'ticket_attached' && $field_name == 'deleted' && $value > 0) {
+		mysqli_query($dbc, "UPDATE `time_cards` SET `deleted` = 1 WHERE `ticket_attached_id` = '".$id."' AND '".$id."' > 0");
 	}
 
 	// Check if we are adding a new contact
@@ -846,7 +930,7 @@ if($_GET['action'] == 'update_fields') {
 	}
 
 	// Record History
-	mysqli_query($dbc, "INSERT INTO `ticket_history` (`ticketid`, `userid`, `description`) VALUES ('$ticketid','{$_SESSION['contactid']}','Row #$id of $table_name updated: $field_name updated to $value')");
+	mysqli_query($dbc, "INSERT INTO `ticket_history` (`ticketid`, `userid`, `description`) VALUES ('$ticketid','{$_SESSION['contactid']}','Row #$id of $table_name updated: $field_name updated to $value$ticket_history_addition')");
 	mysqli_query($dbc, "UPDATE `$table_name` SET `$field_name`='$value' WHERE `$id_field`='$id'");
 	mysqli_query($dbc, "UPDATE `$table_name` SET `$manual_field`='$manual_value' WHERE `$id_field`='$id'");
 	if($table_name == 'ticket_attached' && $type_field == 'src_table' && $type == 'medication' && ($field_name == 'position' || $field_name == 'item_id' || $field_name == 'description')) {
@@ -913,6 +997,52 @@ if($_GET['action'] == 'update_fields') {
 		$user = decryptIt($_SESSION['first_name']).' '.decryptIt($_SESSION['last_name']);
 		mysqli_query($dbc, "INSERT INTO `project_history` (`updated_by`, `description`, `projectid`) VALUES ('$user', '".TICKET_NOUN." #$ticketid attached', '$projectid')");
 	}
+	
+	// Insert/Update Time Sheets if tracking Service Total/Direct/Indirect Time
+	$ticket = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticketid` = '$ticketid'"));
+	$staff_list = mysqli_query($dbc, "SELECT * FROM `ticket_attached` WHERE `ticketid` = '".$ticketid."' AND `deleted` = 0 AND `src_table` LIKE 'Staff%' AND `item_id` > 0");
+	if(strpos($value_config, ',Service Track Total Time,') !== FALSE) {
+		$total_time = 0;
+		foreach(array_filter(explode(',', $ticket['service_total_time'])) as $service_total_time) {
+			if($service_total_time > 0) {
+				$total_time += $service_total_time;
+			}
+		}
+		if($total_time > 0) {
+			foreach($staff_list as $staff) {
+				mysqli_query($dbc, "INSERT INTO `time_cards` (`ticketid`, `ticket_attached_id`, `staff`, `date`, `type_of_time`) SELECT '".$ticketid."', '".$staff['id']."', '".$staff['item_id']."', '".$ticket['to_do_date']."', 'Regular Hrs.' FROM (SELECT COUNT(*) rows FROM `time_cards` WHERE `deleted` = 0 AND `ticket_attached_id` = '".$staff['id']."' AND `type_of_time` = 'Regular Hrs.') num WHERE num.rows=0");
+				mysqli_query($dbc, "UPDATE `time_cards` SET `staff` = '".$staff['item_id']."', `total_hrs` = '".$total_time."', `date` = '".$ticket['to_do_date']."' WHERE `ticket_attached_id` = '".$staff['id']."' AND `type_of_time` = 'Regular Hrs.'");
+			}
+		}
+	}
+	if(strpos($value_config, ',Service Track Direct Time,') !== FALSE) {
+		$direct_time = 0;
+		foreach(array_filter(explode(',', $ticket['service_direct_time'])) as $service_direct_time) {
+			if($service_direct_time > 0) {
+				$direct_time += $service_direct_time;
+			}
+		}
+		if($direct_time > 0) {
+			foreach($staff_list as $staff) {
+				mysqli_query($dbc, "INSERT INTO `time_cards` (`ticketid`, `ticket_attached_id`, `staff`, `date`, `type_of_time`) SELECT '".$ticketid."', '".$staff['id']."', '".$staff['item_id']."', '".$ticket['to_do_date']."', 'Direct Hrs.' FROM (SELECT COUNT(*) rows FROM `time_cards` WHERE `deleted` = 0 AND `ticket_attached_id` = '".$staff['id']."' AND `type_of_time` = 'Direct Hrs.') num WHERE num.rows=0");
+				mysqli_query($dbc, "UPDATE `time_cards` SET `staff` = '".$staff['item_id']."', `total_hrs` = '".$direct_time."', `date` = '".$ticket['to_do_date']."' WHERE `ticket_attached_id` = '".$staff['id']."' AND `type_of_time` = 'Direct Hrs.'");
+			}
+		}
+	}
+	if(strpos($value_config, ',Service Track Indirect Time,') !== FALSE) {
+		$indirect_time = 0;
+		foreach(array_filter(explode(',', $ticket['service_indirect_time'])) as $service_indirect_time) {
+			if($service_indirect_time > 0) {
+				$indirect_time += $service_indirect_time;
+			}
+		}
+		if($indirect_time > 0) {
+			foreach($staff_list as $staff) {
+				mysqli_query($dbc, "INSERT INTO `time_cards` (`ticketid`, `ticket_attached_id`, `staff`, `date`, `type_of_time`) SELECT '".$ticketid."', '".$staff['id']."', '".$staff['item_id']."', '".$ticket['to_do_date']."', 'Indirect Hrs.' FROM (SELECT COUNT(*) rows FROM `time_cards` WHERE `deleted` = 0 AND `ticket_attached_id` = '".$staff['id']."' AND `type_of_time` = 'Indirect Hrs.') num WHERE num.rows=0");
+				mysqli_query($dbc, "UPDATE `time_cards` SET `staff` = '".$staff['item_id']."', `total_hrs` = '".$indirect_time."', `date` = '".$ticket['to_do_date']."' WHERE `ticket_attached_id` = '".$staff['id']."' AND `type_of_time` = 'Indirect Hrs.'");
+			}
+		}
+	}
 
 	//Insert into day overview if last edit was not within 15 minutes
 	$day_overview_last = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `timestamp` FROM `day_overview` WHERE `type` = 'Ticket' AND `tableid` = '$ticketid' AND `contactid` = '".$_SESSION['contactid']."' ORDER BY `timestamp` DESC"));
@@ -922,6 +1052,31 @@ if($_GET['action'] == 'update_fields') {
 		$ticket_heading = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `heading` FROM `tickets` WHERE `ticketid` = '$ticketid'"))['heading'];
 		insert_day_overview($dbc, $_SESSION['contactid'], 'Ticket', date('Y-m-d'), '', 'Updated '.TICKET_NOUN.' #'.$ticketid.(!empty($ticket_heading) ? ': '.$ticket_heading : ''), $ticketid);
 	}
+
+	if($_POST['sync_recurring_data'] == 1) {
+		sync_recurring_tickets($dbc, $ticketid);
+	} else {
+		mysqli_query($dbc, "UPDATE `tickets` SET `is_recurrence` = 0 WHERE `ticketid` = '$ticketid'");
+		mysqli_query($dbc, "UPDATE `ticket_attached` SET `is_recurrence` = 0 WHERE `ticketid` = '$ticketid'");
+		mysqli_query($dbc, "UPDATE `ticket_schedule` SET `is_recurrence` = 0 WHERE `ticketid` = '$ticketid'");
+		mysqli_query($dbc, "UPDATE `ticket_comment` SET `is_recurrence` = 0 WHERE `ticketid` = '$ticketid'");
+	}
+
+} else if($_GET['action'] == 'validate_address') {
+	$data = json_decode(file_get_contents("https://maps.googleapis.com/maps/api/geocode/json?key=".GEOCODER_KEY."&address=".urlencode($_POST['address'].','.$_POST['city'].','.$_POST['postal']).""));
+	$number = $address = $city = $postal = '';
+	foreach($data->results[0]->address_components as $element) {
+		if(in_array('street_number',$element->types)) {
+			$number = $element->short_name;
+		} else if(in_array('route',$element->types)) {
+			$address = $element->short_name;
+		} else if(in_array('locality',$element->types)) {
+			$city = $element->short_name;
+		} else if(in_array('postal_code',$element->types) || in_array('zip_code',$element->types)) {
+			$postal = $element->short_name;
+		}
+	}
+	echo trim($number.' '.$address.'|'.$city.'|'.$postal);
 } else if($_GET['action'] == 'attached_image') {
 	$ticketid = filter_var($_POST['ticket'],FILTER_SANITIZE_STRING);
 	$basename = filter_var($_FILES['file']['name']);
@@ -940,23 +1095,18 @@ if($_GET['action'] == 'update_fields') {
 	$field_name = filter_var($_POST['field'],FILTER_SANITIZE_STRING);
 	$ticketid = filter_var($_POST['ticket'],FILTER_SANITIZE_STRING);
 	foreach($_FILES['files']['name'] as $file => $basename) {
-		$basename = filter_var($basename,FILTER_SANITIZE_STRING);
-		$filename = preg_replace('/(\.[A-Za-z0-9]*)/', '$1', preg_replace('/[^\.A-Za-z0-9]/','',$basename));
-		$i = 0;
 		if(!file_exists('download')) {
 	        mkdir('download', 0777, true);
 		}
-		while(file_exists('download/'.$filename)) {
-			$filename = preg_replace('/(\.[A-Za-z0-9]*)/', ' ('.++$i.')$1', preg_replace('/[^\.A-Za-z0-9]/','',$basename));
-		}
+		$filename = file_safe_str($basename);
 		move_uploaded_file($_FILES['files']['tmp_name'][$file],'download/'.$filename);
-		if($table_name == 'ticket_attached') {
+		if($table_name == 'ticket_attached' || $table_name == 'ticket_schedule') {
 			$id = filter_var($_POST['table_id'],FILTER_SANITIZE_STRING);
 			if(!($id > 0)) {
-				$dbc->query("INSERT INTO `ticket_attached` (`ticketid`) VALUES ('$ticketid')");
+				$dbc->query("INSERT INTO `$table_name` (`ticketid`) VALUES ('$ticketid')");
 				$id = $dbc->insert_id;
 			}
-			mysqli_query($dbc, "UPDATE `ticket_attached` SET `$field_name`='$filename' WHERE `id`='$id'");
+			mysqli_query($dbc, "UPDATE `$table_name` SET `$field_name`='$filename' WHERE `id`='$id'");
 		} else {
 			mysqli_query($dbc, "INSERT INTO `$table_name` (`ticketid`,`document`,`label`,`created_by`,`created_date`) VALUES ('$ticketid','$filename','$basename','".$_SESSION['contactid']."',DATE(NOW()))");
 		}
@@ -984,7 +1134,9 @@ if($_GET['action'] == 'update_fields') {
 		$recipient = [$_POST['recipient']];
 	}
 	foreach($recipient as $address) {
-		$address = get_email($dbc, filter_var($address,FILTER_SANITIZE_STRING));
+		if($address > 0) {
+			$address = get_email($dbc, filter_var($address,FILTER_SANITIZE_STRING));
+		}
 		try {
 			send_email([$sender=>$sender_name], $address, '', '', $subject, $body, '');
 		} catch(Exception $e) { echo "Unable to send e-mail: ".$e->getMessage(); }
@@ -1055,7 +1207,7 @@ if($_GET['action'] == 'update_fields') {
 } else if($_GET['action'] == 'complete') {
 	$ticketid = filter_var($_GET['ticketid'],FILTER_SANITIZE_STRING);
 	$result = [];
-	$ready = mysqli_query($dbc, "SELECT `created_by` `contact`, 'Running Timer' `status` FROM `ticket_timer` WHERE `ticketid`='$ticketid' AND `ticketid` > 0 AND `start_timer_time` > 0 AND `end_time` IS NULL UNION
+	$ready = mysqli_query($dbc, "SELECT `created_by` `contact`, 'Running Timer' `status` FROM `ticket_timer` WHERE `ticketid`='$ticketid' AND `ticketid` > 0 AND `start_timer_time` > 0 AND `end_time` IS NULL AND `deleted` = 0 UNION
 		SELECT `item_id` `contact`, CONCAT('Checked In ',`src_table`) `status` FROM `ticket_attached` WHERE `src_table` IN ('Staff','Staff_Tasks','Members','Clients') AND `item_id` > 0 AND `arrived` != `completed` AND `deleted`=0 AND `ticketid`='$ticketid' AND `ticketid` > 0 UNION
 		SELECT `item_id` `contact`, 'Notes Not Complete' `status` FROM `ticket_attached` WHERE `src_table` IN ('Staff') AND `item_id` > 0 AND `deleted`=0 AND `ticketid`='$ticketid' AND `ticketid` > 0 AND `discrepancy`=0 AND `item_id` NOT IN (SELECT `created_by` FROM `ticket_comment` WHERE `ticketid`='$ticketid' AND `ticketid` > 0 AND `deleted`=0 UNION SELECT `created_by` FROM `client_daily_log_notes` WHERE `ticketid`='$ticketid' AND `ticketid` > 0 AND `deleted`=0)");
 	if(mysqli_num_rows($ready) > 0 && !isset($_GET['force'])) {
@@ -1069,6 +1221,9 @@ if($_GET['action'] == 'update_fields') {
 		$ticket = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `contactid`, `internal_qa_contactid`, `deliverable_contactid`, `sign_off_id`, `sign_off_signature`, `projectid`, `ticket_type` FROM `tickets` WHERE `ticketid`='$ticketid'"));
 		include_once('../phpsign/signature-to-image.php');
 		$signature = sigJsonToImage(html_entity_decode($ticket['sign_off_signature']));
+		if(!file_exists('download')) {
+			mkdir('download', 0777, true);
+		}
 		imagepng($signature, 'download/sign_off_'.$ticketid.'_'.$ticket['sign_off_id'].'.png');
 		$auto_status = get_config($dbc, 'auto_archive_complete_tickets');
 		if($auto_status != '') {
@@ -1286,6 +1441,8 @@ if($_GET['action'] == 'update_fields') {
 	set_config($dbc, 'ticket_notify_pdf_content', filter_var(htmlentities($_POST['ticket_notify_pdf_content']),FILTER_SANITIZE_STRING));
 	set_config($dbc, 'ticket_notify_cc', filter_var($_POST['ticket_notify_cc'],FILTER_SANITIZE_STRING));
 	set_config($dbc, 'ticket_notify_list_items', filter_var(implode('#*#',$_POST['ticket_notify_list_items']),FILTER_SANITIZE_STRING));
+	set_config($dbc, 'ticket_email_approval', filter_var($_POST['ticket_email_approval'],FILTER_SANITIZE_STRING));
+	set_config($dbc, 'ticket_approval_status', filter_var($_POST['ticket_approval_status'],FILTER_SANITIZE_STRING));
 	if($ticket_type == 'tickets') {
 		set_config($dbc, 'ticket_attached_charts', filter_var(implode(',',array_filter($_POST['attached_charts'])),FILTER_SANITIZE_STRING));
 		set_config($dbc, 'ticket_auto_create_unscheduled', filter_var(implode(',',$_POST['auto_create_unscheduled'])),FILTER_SANITIZE_STRING);
@@ -1326,8 +1483,17 @@ if($_GET['action'] == 'update_fields') {
 	set_config($dbc, 'ticket_recurring_status', filter_var($_POST['ticket_recurring_status'],FILTER_SANITIZE_STRING));
 	set_config($dbc, 'ticket_material_increment', filter_var($_POST['ticket_material_increment'],FILTER_SANITIZE_STRING));
 	set_config($dbc, 'ticket_notes_alert_role', filter_var($_POST['ticket_notes_alert_role'],FILTER_SANITIZE_STRING));
+	set_config($dbc, 'ticket_business_contact_add_pos', filter_var($_POST['ticket_business_contact_add_pos'],FILTER_SANITIZE_STRING));
+	set_config($dbc, 'ticket_staff_travel_default', filter_var($_POST['ticket_staff_travel_default'],FILTER_SANITIZE_STRING));
+	set_config($dbc, 'ticket_guardian_contact', filter_var($_POST['ticket_guardian_contact_value'],FILTER_SANITIZE_STRING));
+	set_config($dbc, 'ticket_recurrence_sync_upto', filter_var($_POST['ticket_recurrence_sync_upto'],FILTER_SANITIZE_STRING));
 } else if($_GET['action'] == 'ticket_field_config') {
-	set_config($dbc, filter_var($_POST['field_name'],FILTER_SANITIZE_STRING), filter_var(implode(',',$_POST['fields']),FILTER_SANITIZE_STRING));
+	if(is_array($_POST['fields'])) {
+		$value = implode(',',$_POST['fields']);
+	} else {
+		$value = $_POST['fields'];
+	}
+	set_config($dbc, filter_var($_POST['field_name'],FILTER_SANITIZE_STRING), filter_var($value,FILTER_SANITIZE_STRING));
 } else if($_GET['action'] == 'ticket_action_fields') {
 	set_config($dbc, filter_var($_POST['field_name'],FILTER_SANITIZE_STRING), filter_var(implode(',',$_POST['fields']),FILTER_SANITIZE_STRING));
 } else if($_GET['action'] == 'ticket_overview_fields') {
@@ -1354,6 +1520,7 @@ if($_GET['action'] == 'update_fields') {
 	set_config($dbc, 'ticket_status', filter_var(implode(',',$_POST['tickets']),FILTER_SANITIZE_STRING));
 	set_config($dbc, 'ticket_status_icons', filter_var(implode(',',$_POST['ticket_status_icons'])));
 	set_config($dbc, 'task_status', filter_var(implode(',',$_POST['tasks']),FILTER_SANITIZE_STRING));
+	set_config($dbc, 'ticket_status_color', filter_var(implode(',',$_POST['ticket_status_color']),FILTER_SANITIZE_STRING));
 } else if($_GET['action'] == 'setting_tile') {
 	// Save the settings for ticket dashboard fields
 	set_config($dbc, filter_var($_POST['field'],FILTER_SANITIZE_STRING), filter_var($_POST['value'],FILTER_SANITIZE_STRING));
@@ -1368,25 +1535,31 @@ if($_GET['action'] == 'update_fields') {
 	mysqli_query($dbc, "UPDATE `tickets` LEFT JOIN (SELECT `ticketid`, SEC_TO_TIME(SUM(TIME_TO_SEC(`time_length`))) `time_length` FROM `ticket_time_list` WHERE `time_type`='Completion Estimate' AND `deleted`=0 GROUP BY `ticketid`) `time_list` ON `time_list`.`ticketid`=`tickets`.`ticketid` SET `tickets`.`max_time`=`time_list`.`time_length` WHERE `time_list`.`ticketid` = '$ticketid'");
 } else if($_GET['action'] == 'delete_ticket_time') {
 	$id = $_POST['id'];
+	$table = $_POST['table'];
 	$deleted_by = $_SESSION['contactid'];
 
-	$ticket_time = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `ticket_time_list` WHERE `id` = '$id'"));
-	$ticketid = $ticket_time['ticketid'];
-	$type = $ticket_time['time_type'];
-	$time_length = $ticket_time['time_length'];
+	if($table == 'ticket_timer') {
+	    $date_of_archival = date('Y-m-d');
+		mysqli_query($dbc, "UPDATE `ticket_timer` SET `deleted` = 1, `date_of_archival` = '$date_of_archival', `deleted_by` = '$deleted_by' WHERE `tickettimerid` = '$id'");
+	} else {
+		$ticket_time = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `ticket_time_list` WHERE `id` = '$id'"));
+		$ticketid = $ticket_time['ticketid'];
+		$type = $ticket_time['time_type'];
+		$time_length = $ticket_time['time_length'];
 
-	$ticket = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticketid` = '$ticketid'"));
-	if($type == 'Completion Estimate' && $ticket_time['deleted'] == 0) {
-		$max_time = $ticket['max_time'];
-		$time_diff = gmdate('H:i:s', strtotime($max_time) - strtotime($time_length));
-		mysqli_query($dbc, "UPDATE `tickets` LEFT JOIN (SELECT `ticketid`, SEC_TO_TIME(SUM(TIME_TO_SEC(`time_length`))) `time_length` FROM `ticket_time_list` WHERE `time_type`='Completion Estimate' AND `deleted`=0 GROUP BY `ticketid`) `time_list` ON `time_list`.`ticketid`=`tickets`.`ticketid` SET `tickets`.`max_time`=`time_list`.`time_length` WHERE `time_list`.`ticketid` = '$ticketid'");
-	} else if($type == 'QA Estimate' && $ticket_time['deleted'] == 0) {
-		$max_qa_time = $ticket['max_qa_time'];
-		$time_diff = gmdate('H:i:s', strtotime($max_qa_time) - strtotime($time_length));
-		mysqli_query($dbc, "UPDATE `tickets` LEFT JOIN (SELECT `ticketid`, SEC_TO_TIME(SUM(TIME_TO_SEC(`time_length`))) `time_length` FROM `ticket_time_list` WHERE `time_type`='QA Estimate' AND `deleted`=0 GROUP BY `ticketid`) `time_list` ON `time_list`.`ticketid`=`tickets`.`ticketid` SET `tickets`.`max_qa_time`=`time_list`.`time_length` WHERE `time_list`.`ticketid` = '$ticketid'");
+		$ticket = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticketid` = '$ticketid'"));
+		if($type == 'Completion Estimate' && $ticket_time['deleted'] == 0) {
+			$max_time = $ticket['max_time'];
+			$time_diff = gmdate('H:i:s', strtotime($max_time) - strtotime($time_length));
+			mysqli_query($dbc, "UPDATE `tickets` LEFT JOIN (SELECT `ticketid`, SEC_TO_TIME(SUM(TIME_TO_SEC(`time_length`))) `time_length` FROM `ticket_time_list` WHERE `time_type`='Completion Estimate' AND `deleted`=0 GROUP BY `ticketid`) `time_list` ON `time_list`.`ticketid`=`tickets`.`ticketid` SET `tickets`.`max_time`=`time_list`.`time_length` WHERE `time_list`.`ticketid` = '$ticketid'");
+		} else if($type == 'QA Estimate' && $ticket_time['deleted'] == 0) {
+			$max_qa_time = $ticket['max_qa_time'];
+			$time_diff = gmdate('H:i:s', strtotime($max_qa_time) - strtotime($time_length));
+			mysqli_query($dbc, "UPDATE `tickets` LEFT JOIN (SELECT `ticketid`, SEC_TO_TIME(SUM(TIME_TO_SEC(`time_length`))) `time_length` FROM `ticket_time_list` WHERE `time_type`='QA Estimate' AND `deleted`=0 GROUP BY `ticketid`) `time_list` ON `time_list`.`ticketid`=`tickets`.`ticketid` SET `tickets`.`max_qa_time`=`time_list`.`time_length` WHERE `time_list`.`ticketid` = '$ticketid'");
+		}
+	    $date_of_archival = date('Y-m-d');
+		mysqli_query($dbc, "UPDATE `ticket_time_list` SET `deleted` = 1, `date_of_archival` = '$date_of_archival', `deleted_by` = '$deleted_by' WHERE `id` = '$id'");
 	}
-        $date_of_archival = date('Y-m-d');
-	mysqli_query($dbc, "UPDATE `ticket_time_list` SET `deleted` = 1, `date_of_archival` = '$date_of_archival', `deleted_by` = '$deleted_by' WHERE `id` = '$id'");
 } else if($_GET['action'] == 'add_stop') {
 	$ticketid = filter_var($_POST['ticketid'],FILTER_SANITIZE_STRING);
 	if(!mysqli_query($dbc, "INSERT INTO `tickets` (`main_ticketid`, `sub_ticket`, `ticket_type`, `category`, `businessid`, `clientid`, `other_ind`, `siteid`, `location`, `location_address`, `location_google`, `address`, `google_maps`, `site_location`, `lsd`, `location_notes`, `postal_code`, `pickup_order`, `city`, `projectid`, `salesorderid`, `client_projectid`, `piece_work`, `preferred_staff`, `contactid`, `service_type`, `service`, `serviceid`, `total_time`,`service_qty`, `service_estimate`, `sub_heading`, `heading`, `heading_auto`, `project_path`, `milestone_timeline`, `assign_work`, `task_available`, `notes`, `internal_qa_date`, `internal_qa_contactid`, `deliverable_date`, `deliverable_contactid`, `max_time`, `max_qa_time`, `spent_time`, `total_days`, `start_time`, `end_time`, `fee_name`, `fee_details`, `fee_amt`, `created_date`, `created_by`, `status`, `po_id`, `flag_colour`, `alerts_enabled`, `status_date`, `deleted`, `history`, `internal_qa_start_time`, `internal_qa_end_time`, `deliverable_start_time`, `deliverable_end_time`, `police_contact`, `poison_contact`, `non_emergency_contact`, `emergency_contact`, `emergency_notes`, `member_start_time`, `member_end_time`, `summary_notes`, `sign_off_id`, `sign_off_signature`, `afe_number`, `attached_image`, `max_capacity`, `equipmentid`, `equipment_assignmentid`, `teamid`, `region`, `classification`, `con_location`, `cancellation`, `mdsr_child_name`, `mdsr_child_dob`, `mdsr_date_of_report`, `mdsr_background_info`, `mdsr_progress`, `mdsr_clinical_impacts`, `mdsr_proposed_goal_areas`, `mdsr_recommendations`)
@@ -1605,13 +1778,17 @@ if($_GET['action'] == 'update_fields') {
 		}
 		echo $ticket_label;
 	}
-} else if($_GET['action'] == 'new_ticket_from_calendar') {
+} else if($_GET['action'] == 'new_ticket_from_calendar') { 
 	$to_do_date = $_POST['to_do_date'];
 	$to_do_end_date= $_POST['to_do_end_date'];
 	$to_do_start_time = $_POST['to_do_start_time'];
 	$to_do_end_time= $_POST['to_do_end_time'];
 	$equipmentid = $_POST['equipmentid'];
-	$contactid = $_POST['contactid'];
+	if( empty($_POST['milestone_timeline']) || empty($_POST['status']) || empty($_POST['to_do_date']) || empty($_POST['to_do_end_date'] || empty($_POST['to_do_start_time']) || empty($_POST['to_do_end_time']))){
+	    $contactid = "";
+	}else{
+	   $contactid = $_POST['contactid'];
+	}
 	if(!is_array($contactid)) {
 		$contactid = [$contactid];
 	}
@@ -1735,9 +1912,17 @@ if($_GET['action'] == 'update_fields') {
 		echo '<option value="'.$contact['contactid'].'">'.$contact['full_name'].'</option>';
 	}
 } else if($_GET['action'] == 'archive') {
-	    $date_of_archival = date('Y-m-d');
+    $date_of_archival = date('Y-m-d');
 	$ticketid = filter_var($_POST['ticketid'], FILTER_SANITIZE_STRING);
 	$dbc->query("UPDATE `tickets` SET `status`='Archive', `deleted`=1, `date_of_archival` = '$date_of_archival' WHERE `ticketid`='$ticketid' AND `ticketid` > 0");
+	if($_POST['delete_recurrences'] == 1) {
+		$ticket = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticketid` = '$ticketid'"));
+		$main_ticketid = $ticket['main_ticketid'];
+		if($main_ticketid > 0) {
+			mysqli_query($dbc, "UPDATE `tickets` SET `status`='Archive', `deleted`=1, `date_of_archival` = '$date_of_archival' WHERE `main_ticketid` = '$main_ticketid' AND `is_recurrence` = 1");
+			mysqli_query($dbc, "UPDATE `ticket_recurrences` SET `deleted`=1 WHERE `ticketid` = '$main_ticketid'");
+		}
+	}
 } else if($_GET['action'] == 'contact_address') {
 	$contactid = filter_var($_POST['contactid'], FILTER_SANITIZE_STRING);
 	$address = filter_var($_POST['address'], FILTER_SANITIZE_STRING);
@@ -1832,7 +2017,16 @@ if($_GET['action'] == 'update_fields') {
 		$new_colour = ($colour_key === FALSE ? $colours[0] : ($colour_key + 1 < count($colours) ? $colours[$colour_key + 1] : 'FFFFFF'));
 		$label = ($colour_key === FALSE ? $labels[0] : ($colour_key + 1 < count($colours) ? $labels[$colour_key + 1] : ''));
 		echo $new_colour.html_entity_decode($label);
-		mysqli_query($dbc, "UPDATE `tickets` SET `flag_colour`='$new_colour' WHERE `ticketid`='$id'");
+		mysqli_query($dbc, "UPDATE `tickets` SET `flag_colour`='$new_colour', `flag_start`='0000-00-00', `flag_end`='9999-12-31' WHERE `ticketid`='$id'");
+	} else if($field == 'manual_flag_colour') {
+		$flag_label = filter_var($_POST['label'],FILTER_SANITIZE_STRING);
+		$flag_start = filter_var($_POST['start'],FILTER_SANITIZE_STRING);
+		$flag_end = filter_var($_POST['end'],FILTER_SANITIZE_STRING);
+		mysqli_query($dbc, "UPDATE `tickets` SET `flag_colour`='$value', `flag_start`='$flag_start', `flag_end`='$flag_end' WHERE `ticketid`='$id'");
+		mysqli_query($dbc, "UPDATE `ticket_comment` SET `deleted`=1, `date_of_archival`=DATE(NOW()) WHERE `ticketid`='$id' AND `type`='flag_comment'");
+		if(!empty($flag_label)) {
+			mysqli_query($dbc, "INSERT INTO `ticket_comment` (`ticketid`,`type`,`comment`,`created_date`,`created_by`) VALUES ('$id','flag_comment','$flag_label',DATE(NOW()),'".$_SESSION['contactid']."')");
+		}
 	} else if($field == 'document') {
 		$folder = 'download';
 		$basename = preg_replace('/[^\.A-Za-z0-9]/','',$_FILES['file']['name']);
@@ -1876,6 +2070,539 @@ if($_GET['action'] == 'update_fields') {
 				$item";
 			send_email($sender, $user, '', '', $subject, $body, '');
 		}
+	} else if($field == 'emailpdf') {
+        $ticketid = $id;
+        $filename = "download/output_".($ticketid > 0 ? $ticketid : 'new_'.config_safe_str(TICKET_NOUN))."_".date('Y_m_d').".pdf";
+        $get_ticket = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticketid`='$ticketid'"));
+
+        $notes = mysqli_query($dbc, "SELECT `ticket_comment`.*, `tickets`.`ticket_type` FROM ticket_comment LEFT JOIN `tickets` ON `ticket_comment`.`ticketid`=`tickets`.`ticketid` WHERE `ticket_comment`.ticketid='$ticketid' AND `ticket_comment`.type='note' AND `ticket_comment`.`deleted`=0 ORDER BY ticketcommid DESC");
+        $html = '';
+        $notes_count = mysqli_num_rows($notes);
+
+        $html .= '<h1>'.get_ticket_label($dbc, mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticketid` = '$id'"))).'</h1>';
+
+        if($ticketid > 0 && $notes_count > 0) {
+
+            $html .= '<table border="1" cellpadding="2">';
+            $html .= '<tr>';
+            $html .= '<td><center><h3>Notes</h3></center></td>';
+            $html .= '</tr>';
+            while($row = mysqli_fetch_array($notes)) {
+                $html .= '<tr><td>';
+                $html .= html_entity_decode($row['comment'].$row['note']);
+                $html .= "<em>Added by ".get_contact($dbc, $row['created_by'])." at ".$row['note_date'].$row['created_date'];
+                if($row['reference_contact'] > 0) {
+                    $html .= "<br />References ".get_contact($dbc, $row['reference_contact']);
+                }
+                if($row['client_id'] > 0) {
+                    $html .= "<br />References ".get_contact($dbc, $row['client_id']);
+                }
+                foreach(explode(',',$row['email_comment']) as $assignid) {
+                    if($assignid > 0) {
+                        $html .= "<br />Assigned to ".get_contact($dbc, $assignid);
+                    }
+                }
+                $html .= "</em>";
+                $html .= '</td></tr>';
+            }
+            $html .= '</table>';
+        } else if($ticketid > 0) {
+            $html .= "<h4>No Notes Found</h4>";
+        }
+
+        class MYPDF extends TCPDF {
+
+            public function Header() {
+            }
+
+            // Page footer
+            public function Footer() {
+                // Position at 15 mm from bottom
+                $this->SetY(-15);
+                $this->SetFont('helvetica', '', 9);
+                $footer_text = '<p style="text-align:right;">Page '.$this->getAliasNumPage().' of '.$this->getAliasNbPages().'</p>';
+                $this->writeHTMLCell(0, 0, '', '', $footer_text, 0, 0, false, "R", true);
+            }
+        }
+        $pdf = new MYPDF(TICKET_PDF_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
+
+        $pdf->SetHeaderData(PDF_HEADER_LOGO, PDF_HEADER_LOGO_WIDTH, false, false);
+        $pdf->setFooterData(array(0,64,0), array(0,64,128));
+
+        $pdf->SetMargins(PDF_MARGIN_LEFT, 35, PDF_MARGIN_RIGHT);
+        $pdf->SetHeaderMargin(PDF_MARGIN_HEADER);
+        $pdf->SetFooterMargin(PDF_MARGIN_FOOTER);
+        $pdf->SetAutoPageBreak(TRUE, PDF_MARGIN_BOTTOM);
+
+        $pdf->AddPage();
+        $pdf->SetFont('helvetica', '', 9);
+
+        //Add here commented code
+        $pdf->writeHTML($html);
+        $pdf->Output($filename, 'F');
+
+		$sender = get_email($dbc, $_SESSION['contactid']);
+		$result = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticketid`='$id'"));
+		$subject = TICKET_NOUN.' PDF attached';
+        $body = "Please see attachment";
+        $user = $_POST['value'];
+        $body = "Please see attachment";
+        $email_attachments = 'download/'.$filename.'#FFM#';
+
+        send_email($sender, $user, '', '', $subject, $body, $filename);
+
+        /*
+        $get_project = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `project` WHERE `projectid`='{$get_ticket['projectid']}'"));
+
+        $ticket_types = [];
+        $value_config = ','.get_field_config($dbc, 'tickets').',';
+        $sort_order = explode(',',get_config($dbc, 'ticket_sortorder'));
+        foreach(explode(',',get_config($dbc, 'ticket_tabs')) as $ticket_type) {
+            $ticket_types[config_safe_str($ticket_type)] = $ticket_type;
+        }
+        $ticket_type = $_GET['ticket_type'];
+        if(!empty($get_ticket['ticket_type'])) {
+            $ticket_type = $get_ticket['ticket_type'] ?: get_config($dbc, 'default_ticket_type');
+        }
+        if($ticket_type == '') {
+            // $value_config .= get_config($dbc, 'ticket_fields_%', true).',';
+            foreach($ticket_types as $type_i => $type_label) {
+                $value_config .= get_config($dbc, 'ticket_fields_'.$type_i).',';
+            }
+        } else {
+            $value_config .= get_config($dbc, 'ticket_fields_'.$ticket_type).',';
+            $sort_order = explode(',',get_config($dbc, 'ticket_sortorder_'.$ticket_type));
+        }
+
+        //Accordion Sort Order
+        foreach ($accordion_list as $accordion_field => $accordion_field_fields) {
+            if(!in_array($accordion_field, $sort_order)) {
+                $sort_order[] = $accordion_field;
+            }
+        }
+
+        DEFINE('HEADER_LEFT', html_entity_decode(str_replace(['[TICKET_TYPE]','[TICKETID]','[TO_DO_DATE]'],[$ticket_types[$get_ticket['ticket_type']],$ticketid,$get_ticket['to_do_date']],get_config($dbc, 'ticket_pdf_header_left'))));
+        DEFINE('HEADER_CENTER', html_entity_decode(str_replace(['[TICKET_TYPE]','[TICKETID]','[TO_DO_DATE]'],[$ticket_types[$get_ticket['ticket_type']],$ticketid,$get_ticket['to_do_date']],get_config($dbc, 'ticket_pdf_header_center'))));
+        DEFINE('HEADER_RIGHT', html_entity_decode(str_replace(['[TICKET_TYPE]','[TICKETID]','[TO_DO_DATE]'],[$ticket_types[$get_ticket['ticket_type']],$ticketid,$get_ticket['to_do_date']],get_config($dbc, 'ticket_pdf_header_right'))));
+        DEFINE('FOOTER_TEXT', html_entity_decode(str_replace(['[TICKET_TYPE]','[TICKETID]','[TO_DO_DATE]'],[$ticket_types[$get_ticket['ticket_type']],$ticketid,$get_ticket['to_do_date']],get_config($dbc, 'ticket_pdf_footer'))));
+        DEFINE('PDF_LOGO_ALIGN', !empty(get_config($dbc, 'ticket_pdf_logo_align')) ? get_config($dbc, 'ticket_pdf_logo_align') : 'C');
+        DEFINE ('TICKET_PDF_ORIENTATION', !empty(get_config($dbc, 'ticket_pdf_orientation')) ? get_config($dbc, 'ticket_pdf_orientation') : 'P');
+
+        class MYPDF extends TCPDF {
+
+            public function Header() {
+                $this->SetY(10);
+                $this->SetFont('helvetica', '', 9);
+                $this->setCellHeightRatio(0.6);
+                $this->writeHTMLCell(0, 0, 10, 20, HEADER_LEFT, 0, 0, false, "L", true);
+
+                $this->SetY(10);
+                $this->setCellHeightRatio(0.6);
+                $footer_text = '<p style="text-align:center;">'.HEADER_CENTER.'</p>';
+                $this->writeHTMLCell(0, 0, 0 , 10, $footer_text, 0, 0, false, "R", true);
+
+                $this->SetY(10);
+                $this->setCellHeightRatio(0.6);
+                $footer_text = '<p style="text-align:right;">'.HEADER_RIGHT.'</p>';
+                $this->writeHTMLCell(0, 0, 0 , 10, $footer_text, 0, 0, false, "R", true);
+
+            }
+
+            // Page footer
+            public function Footer() {
+                // Position at 15 mm from bottom
+                $this->SetY(-15);
+                $this->SetFont('helvetica', '', 9);
+                $footer_text = '<p style="text-align:right;">Page '.$this->getAliasNumPage().' of '.$this->getAliasNbPages().'</p>';
+                $this->writeHTMLCell(0, 0, '', '', $footer_text, 0, 0, false, "R", true);
+                $this->SetY(-15);
+                $this->SetFont('helvetica', '', 9);
+                $this->writeHTMLCell(0, 0, '', '', FOOTER_TEXT, 0, 0, false, "L", true);
+            }
+        }
+
+
+        $pdf = new MYPDF(TICKET_PDF_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
+
+        $pdf->SetHeaderData(PDF_HEADER_LOGO, PDF_HEADER_LOGO_WIDTH, false, false);
+        $pdf->setFooterData(array(0,64,0), array(0,64,128));
+
+        $pdf->SetMargins(PDF_MARGIN_LEFT, 35, PDF_MARGIN_RIGHT);
+        $pdf->SetHeaderMargin(PDF_MARGIN_HEADER);
+        $pdf->SetFooterMargin(PDF_MARGIN_FOOTER);
+        $pdf->SetAutoPageBreak(TRUE, PDF_MARGIN_BOTTOM);
+
+        $pdf->AddPage();
+        $pdf->SetFont('helvetica', '', 9);
+
+        ob_clean();
+
+        $_GET['edit'] = $ticketid;
+        //unset($ticketid);
+        $force_readonly = true;
+
+        $pdf_header_color = get_calendar_today_color($dbc);
+
+        $global_value_config = $value_config;
+
+        $generate_pdf = true;
+        $pdf_contents = [];
+        $ticketid = $id;
+        foreach($sort_order as $sort_field) {
+            $value_config = $global_value_config;
+
+            //Custom accordions
+            if(strpos($value_config, ','.$sort_field.',') !== FALSE && substr($sort_field, 0, strlen('FFMCUST_')) === 'FFMCUST_') {
+                $_GET['tab'] = str_replace(' ','_',$sort_field);
+                $acc_label = explode('FFMCUST_',$sort_field)[1];
+                include('edit_ticket_tab.php');
+            }
+            if (strpos($value_config, ','."Information".',') !== FALSE && $sort_field == 'Information') {
+                $_GET['tab'] = 'project_info';
+                $acc_label = PROJECT_NOUN.' Information';
+                include('edit_ticket_tab.php');
+            }
+            if (strpos($value_config, ','."Details".',') !== FALSE && $sort_field == 'Details') {
+                $_GET['tab'] = 'project_details';
+                $acc_label = PROJECT_NOUN.' Details';
+                include('edit_ticket_tab.php');
+            }
+            if (strpos($value_config, ','."Path & Milestone".',') !== FALSE && $sort_field == 'Path & Milestone') {
+                $_GET['tab'] = 'ticket_path_milestone';
+                $acc_label = PROJECT_NOUN.' Path & Milestone';
+                include('edit_ticket_tab.php');
+            }
+            if (strpos($value_config, ','."Individuals".',') !== FALSE && $sort_field == 'Individuals') {
+                $_GET['tab'] = 'ticket_individuals';
+                $acc_label = 'Individuals Present';
+                include('edit_ticket_tab.php');
+            }
+            if (strpos($value_config, ','."Fees".',') !== FALSE && $sort_field == 'Fees') {
+                $_GET['tab'] = 'ticket_fees';
+                $acc_label = 'Fees';
+                include('edit_ticket_tab.php');
+            }
+            if ((strpos($value_config, ','."Location".',') !== FALSE || strpos($value_config, ','."Emergency".',') !== FALSE) && $sort_field == 'Location') {
+                $_GET['tab'] = 'ticket_location';
+                $acc_label = 'Site';
+                include('edit_ticket_tab.php');
+            }
+            if (strpos($value_config, ','."Members ID".',') !== FALSE && $sort_field == 'Members ID') {
+                $_GET['tab'] = 'ticket_members_id_card';
+                $acc_label = 'Members ID Card';
+                include('edit_ticket_tab.php');
+            }
+            if ((strpos($value_config, ','."Mileage".',') !== FALSE || strpos($value_config, ','."Drive Time".',') !== FALSE) && $sort_field == 'Mileage') {
+                $_GET['tab'] = 'ticket_mileage';
+                $acc_label = strpos($value_config, ','."Mileage".',') !== FALSE ? 'Mileage' : 'Drive Time';
+                include('edit_ticket_tab.php');
+            }
+            if(strpos($value_config, ',Staff,') !== FALSE && $sort_field == 'Staff') {
+                $_GET['tab'] = 'ticket_staff_list';
+                $acc_label = 'Staff';
+                include('edit_ticket_tab.php');
+            }
+            if(strpos($value_config, ',Staff Tasks,') !== FALSE && $sort_field == 'Staff Tasks') {
+                if($ticketid > 0 && $_GET['new_ticket'] != 'true') {
+                    $_GET['tab'] = 'ticket_staff_tasks';
+                    $acc_label = 'Staff Tasks';
+                    include('edit_ticket_tab.php');
+                    $collapse_i++;
+                }
+            }
+            if(strpos($value_config, ',Members,') !== FALSE && $sort_field == 'Members') {
+                $_GET['tab'] = 'ticket_members';
+                $acc_label = 'Members';
+                include('edit_ticket_tab.php');
+            }
+            if(strpos($value_config, ',Clients,') !== FALSE && $sort_field == 'Clients') {
+                $_GET['tab'] = 'ticket_clients';
+                $acc_label = 'Clients';
+                include('edit_ticket_tab.php');
+            }
+            if(strpos($value_config, ',Wait List,') !== FALSE && $sort_field == 'Wait List') {
+                $_GET['tab'] = 'ticket_wait_list';
+                $acc_label = 'Wait List';
+                include('edit_ticket_tab.php');
+            }
+            if ((strpos($value_config, ','."Check In".',') !== FALSE || strpos($value_config, ','."Check In Member Drop Off".',') !== FALSE) && $sort_field == 'Check In') {
+                $_GET['tab'] = 'ticket_checkin';
+                $acc_label = strpos($value_config, ','."Check In Member Drop Off".',') !== FALSE ? 'Member Drop Off' : 'Check In';
+                include('edit_ticket_tab.php');
+            }
+            if (strpos($value_config, ','."Medication".',') !== FALSE && $access_medication === TRUE && $sort_field == 'Medication') {
+                $_GET['tab'] = 'ticket_medications';
+                $acc_label = 'Medication Administration';
+                include('edit_ticket_tab.php');
+            }
+            if (strpos($value_config, ','."Ticket Details".',') !== FALSE && $sort_field == 'Ticket Details') {
+                $_GET['tab'] = 'ticket_info';
+                $acc_label = TICKET_NOUN.' Details';
+                include('edit_ticket_tab.php');
+            }
+            if (strpos($value_config, ','."Services".',') !== FALSE && $sort_field == 'Ticket Details') {
+                $_GET['tab'] = 'ticket_info';
+                $acc_label = 'Services';
+                include('edit_ticket_tab.php');
+            }
+            if (strpos($value_config, ','."Equipment".',') !== FALSE && $sort_field == 'Equipment') {
+                $_GET['tab'] = 'ticket_equipment';
+                $acc_label = 'Equipment';
+                include('edit_ticket_tab.php');
+            }
+            if (strpos($value_config, ','."Checklist".',') !== FALSE && $access_all > 0 && $sort_field == 'Checklist') {
+                $_GET['tab'] = 'ticket_checklist';
+                $acc_label = 'Checklist';
+                include('edit_ticket_tab.php');
+            }
+            if (strpos($value_config, ','."Checklist Items".',') !== FALSE && $access_all > 0 && $sort_field == 'Checklist Items') {
+                $_GET['tab'] = 'ticket_view_checklist';
+                $acc_label = 'Checklist Items';
+                include('edit_ticket_tab.php');
+            }
+            if (strpos($value_config, ','."Charts".',') !== FALSE && $access_all > 0 && $sort_field == 'Charts') {
+                $_GET['tab'] = 'ticket_view_charts';
+                $acc_label = 'Charts';
+                include('edit_ticket_tab.php');
+            }
+            if (strpos($value_config, ','."Safety".',') !== FALSE && $access_all > 0 && $sort_field == 'Safety') {
+                $_GET['tab'] = 'ticket_safety';
+                $acc_label = 'Safety Checklist';
+                include('edit_ticket_tab.php');
+            }
+            if (strpos($value_config, ','."Materials".',') !== FALSE && $sort_field == 'Materials') {
+                $_GET['tab'] = 'ticket_materials';
+                $acc_label = 'Materials';
+                include('edit_ticket_tab.php');
+            }
+            if (strpos($value_config, ',Inventory Basic') !== FALSE && $sort_field == 'Inventory') {
+                $_GET['tab'] = 'ticket_inventory';
+                $acc_label = 'Inventory';
+                include('edit_ticket_tab.php');
+                $collapse_i++;
+            }
+            if (strpos($value_config, ',Inventory General,') !== FALSE && $sort_field == 'Inventory General') {
+                $_GET['tab'] = 'ticket_inventory_general';
+                $acc_label = 'General Cargo / Inventory Information';
+                include('edit_ticket_tab.php');
+                $collapse_i++;
+            }
+            if (strpos($value_config, ',Inventory Detail,') !== FALSE && $sort_field == 'Inventory Detail') {
+                $_GET['tab'] = 'ticket_inventory_detailed';
+                $acc_label = 'Detailed Cargo / Inventory Information';
+                include('edit_ticket_tab.php');
+                $collapse_i++;
+            }
+            if (strpos($value_config, ',Inventory Return,') !== FALSE && $sort_field == 'Inventory Return') {
+                $_GET['tab'] = 'ticket_inventory_return';
+                $acc_label = 'Return Information';
+                include('edit_ticket_tab.php');
+                $collapse_i++;
+            }
+            if (strpos($value_config, ','."Purchase Orders".',') !== FALSE && $access_all > 0 && $sort_field == 'Purchase Orders') {
+                $_GET['tab'] = 'ticket_purchase_orders';
+                $acc_label = 'Purchase Orders';
+                include('edit_ticket_tab.php');
+            }
+            if (strpos($value_config, ','."Delivery".',') !== FALSE && $sort_field == 'Delivery') {
+                $_GET['tab'] = 'ticket_delivery';
+                $acc_label = 'Delivery Details';
+                include('edit_ticket_tab.php');
+            }
+            if (strpos($value_config, ',Transport Origin') !== FALSE && $sort_field == 'Transport') {
+                $_GET['tab'] = 'ticket_transport_origin';
+                $acc_label = 'Transport Log - Origin';
+                include('edit_ticket_tab.php');
+                $collapse_i++;
+            }
+            if (strpos($value_config, ',Transport Destination') !== FALSE && $sort_field == 'Transport') {
+                $_GET['tab'] = 'ticket_transport_destination';
+                $acc_label = 'Transport Log - Destination';
+                include('edit_ticket_tab.php');
+                $collapse_i++;
+            }
+            if (strpos(str_replace(['Transport Origin','Transport Destination'],'',$value_config), ',Transport ') !== FALSE && $sort_field == 'Transport') {
+                $_GET['tab'] = 'ticket_transport_details';
+                $acc_label = 'Carrier Details';
+                include('edit_ticket_tab.php');
+                $collapse_i++;
+            }
+            if (strpos($value_config, ','."Documents".',') !== FALSE && $sort_field == 'Documents') {
+                $_GET['tab'] = 'view_ticket_documents';
+                $acc_label = 'Documents';
+                include('edit_ticket_tab.php');
+            }
+            if ((strpos($value_config, ','."Check Out".',') !== FALSE || strpos($value_config, ','."Check Out Member Pick Up".',') !== FALSE) && $sort_field == 'Check Out') {
+                $_GET['tab'] = 'ticket_checkout';
+                $acc_label = strpos($value_config, ','."Check In Member Pick Up".',') !== FALSE ? 'Member Pick Up' : 'Check Out';
+                include('edit_ticket_tab.php');
+            }
+            if (strpos($value_config, ','."Staff Check Out".',') !== FALSE && $sort_field == 'Staff Check Out') {
+                $_GET['tab'] = 'ticket_checkout_staff';
+                $acc_label = 'Staff Check Out';
+                include('edit_ticket_tab.php');
+            }
+            if ((strpos($value_config, ','."Deliverables".',') !== FALSE || strpos($value_config, ','."Deliverable To Do".',') !== FALSE || strpos($value_config, ','."Deliverable Internal".',') !== FALSE || strpos($value_config, ','."Deliverable Customer".',') !== FALSE) && $sort_field == 'Deliverables') {
+                $_GET['tab'] = 'view_ticket_deliverables';
+                $acc_label = 'Deliverables';
+                include('edit_ticket_tab.php');
+            }
+            if (strpos($value_config, ','."Timer".',') !== FALSE && $sort_field == 'Timer') {
+                $_GET['tab'] = 'view_ticket_timer';
+                $acc_label = 'Time Tracking';
+                include('edit_ticket_tab.php');
+                $collapse_i++;
+            }
+            if (strpos($value_config, ','."Timer".',') !== FALSE && $access_all > 0 && $sort_field == 'Timer') {
+                $_GET['tab'] = 'view_day_tracking';
+                $acc_label = 'Day Tracking';
+                include('edit_ticket_tab.php');
+                $collapse_i++;
+            }
+            if (strpos($value_config, ','."Addendum".',') !== FALSE && $sort_field == 'Addendum') {
+                $_GET['tab'] = 'addendum_view_ticket_comment';
+                $acc_label = 'Addendum Notes';
+                include('edit_ticket_tab.php');
+            }
+            if (strpos($value_config, ','."Client Log".',') !== FALSE && $sort_field == 'Client Log') {
+                $_GET['tab'] = 'ticket_log_notes';
+                $acc_label = 'Staff Log Notes';
+                include('edit_ticket_tab.php');
+            }
+            if (strpos($value_config, ','."Debrief".',') !== FALSE && $sort_field == 'Debrief') {
+                $_GET['tab'] = 'debrief_view_ticket_comment';
+                $acc_label = 'Debrief Notes';
+                include('edit_ticket_tab.php');
+            }
+            if (strpos($value_config, ','."Member Log Notes".',') !== FALSE && $sort_field == 'Member Log Notes') {
+                $category = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `category` FROM `contacts` WHERE `category` NOT IN (".STAFF_CATS.",'Business','Sites') AND `deleted`=0 AND `status`>0 GROUP BY `category` ORDER BY COUNT(*) DESC"))['category'];
+                $_GET['tab'] = 'member_view_ticket_comment';
+                $acc_label = $category.' Daily Log Notes';
+                include('edit_ticket_tab.php');
+            }
+            if (strpos($value_config, ','."Cancellation".',') !== FALSE && $sort_field == 'Cancellation') {
+                $_GET['tab'] = 'ticket_cancellation';
+                $acc_label = 'Cancellation';
+                include('edit_ticket_tab.php');
+            }
+            if (strpos($value_config, ','."Custom Notes".',') !== FALSE && $sort_field == 'Custom Notes') {
+                $_GET['tab'] = 'custom_view_ticket_comment';
+                $acc_label = 'Notes';
+                include('edit_ticket_tab.php');
+            }
+            if (strpos($value_config, ','."Notes".',') !== FALSE && $sort_field == 'Notes') {
+                $_GET['tab'] = 'notes_view_ticket_comment';
+                $acc_label = TICKET_NOUN.' Notes';
+                include('edit_ticket_tab.php');
+            }
+            if ((strpos($value_config, ','."Summary".',') !== FALSE || strpos($value_config, ','."Staff Summary".',') !== FALSE) && $sort_field == 'Summary') {
+                $_GET['tab'] = 'ticket_summary';
+                $acc_label = strpos($value_config, ','."Staff Summary".',') !== FALSE ? 'Staff Summary' : 'Summary';
+                include('edit_ticket_tab.php');
+            }
+            if (strpos($value_config, ','."Multi-Disciplinary Summary Report".',') !== FALSE && $sort_field == 'Multi-Disciplinary Summary Report') {
+                $_GET['tab'] = 'view_multi_disciplinary_summary_report';
+                $acc_label = 'Multi Disciplinary Summary Notes';
+                include('edit_ticket_tab.php');
+            }
+            if (strpos($value_config, ','."Complete".',') !== FALSE && $sort_field == 'Complete') {
+                $_GET['tab'] = 'ticket_complete';
+                $acc_label = 'Complete '.TICKET_NOUN;
+                include('edit_ticket_tab.php');
+            }
+            if (strpos($value_config, ','."Notifications".',') !== FALSE && $sort_field == 'Notifications') {
+                $_GET['tab'] = 'view_ticket_notifications';
+                $acc_label = 'Notifications';
+                include('edit_ticket_tab.php');
+            }
+            if (strpos($value_config, ','."Region Location Classification".',') !== FALSE && $sort_field == 'Region Location Classification') {
+                $_GET['tab'] = 'ticket_reg_loc_class';
+                $acc_label = 'Region/Location/Classification';
+                include('edit_ticket_tab.php');
+            }
+            if (strpos($value_config, ','."Incident Reports".',') !== FALSE && $sort_field == 'Incident Reports') {
+                $_GET['tab'] = 'view_ticket_incident_reports';
+                $acc_label = INC_REP_TILE;
+                include('edit_ticket_tab.php');
+            }
+            if (strpos($value_config, ','."Billing".',') !== FALSE && $sort_field == 'Billing') {
+                $_GET['tab'] = 'ticket_billing';
+                $acc_label = 'Billing';
+                include('edit_ticket_tab.php');
+            }
+            if (strpos($value_config, ','."Customer Notes".',') !== FALSE && $sort_field == 'Customer Notes') {
+                $_GET['tab'] = 'ticket_customer_notes';
+                $acc_label = 'Customer Notes';
+                include('edit_ticket_tab.php');
+            }
+            if (strpos($value_config, ','."Residue".',') !== FALSE && $sort_field == 'Residue') {
+                $_GET['tab'] = 'ticket_residues';
+                $acc_label = 'Residue';
+                include('edit_ticket_tab.php');
+            }
+            if (strpos($value_config, ','."Reading".',') !== FALSE && $sort_field == 'Reading') {
+                $_GET['tab'] = 'ticket_readings';
+                $acc_label = 'Reading';
+                include('edit_ticket_tab.php');
+            }
+            if (strpos($value_config, ','."Other List".',') !== FALSE && $sort_field == 'Other List') {
+                $_GET['tab'] = 'ticket_other_list';
+                $acc_label = 'Other List';
+                include('edit_ticket_tab.php');
+            }
+            if (strpos($value_config, ','."Service Staff Checklist".',') !== FALSE && $sort_field == 'Service Staff Checklist') {
+                $_GET['tab'] = 'ticket_service_checklist';
+                $acc_label = 'Service Checklist';
+                include('edit_ticket_tab.php');
+            }
+            if (strpos($value_config, ','."Service Extra Billing".',') !== FALSE && $sort_field == 'Service Extra Billing') {
+                $_GET['tab'] = 'ticket_service_extra_billing';
+                $acc_label = 'Service Extra Billing';
+                include('edit_ticket_tab.php');
+            }
+        }
+        ob_clean();
+        $ticketid = $id;
+        $html = '';
+        $html .= '<h1>'.get_ticket_label($dbc, mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticketid` = '$id'"))).'</h1>';
+        $html .= '<table border="1" cellpadding="2">';
+        foreach($pdf_contents as $line) {
+            $img = $line[2];
+            $header = $line[0];
+            $line = $line[1];
+            if($header == '**HEADING**') {
+                $html .= '<tr><td class="pdf_header" style="text-align: center; background-color: #'.$pdf_header_color.'; color: #fff; font-weight: bold; width: 100%; border: 1px solid black;">'.$line.'</td></tr>';
+            } else {
+                if($img != 'img') {
+                    $line = preg_replace('/<img((?!>).)*>/','',$line);
+                }
+                $line = preg_replace('/<button((?!\/button>).)*\/button>/','',$line);
+                if(strpos($line,'form-group')) {
+                    $line = str_replace('class="form-group','style="margin:0;padding:0;display:block;width:900px;" class="',$line);
+                } else {
+                    $line = str_replace('div','span',$line);
+                }
+                $line = str_replace('class="form-control"','style="width:100%;"',$line);
+                $line = str_replace('class="form-control datepicker"','style="width:100%;"',$line);
+                $line = str_replace('select ','select style="width:100%;"',$line);
+                $line = str_replace('textarea','div',$line);
+                $line = str_replace('class="col-sm-4','style="width:25%;" class="',$line);
+                $line = str_replace('class="control-label col-sm-4','style="width:25%;display:inline-block;" class="',$line);
+                $line = str_replace('class="col-sm-8','style="width:74%;" class="',$line);
+
+                $width = 100;
+                $html .= '<tr>';
+                if(!empty($header)) {
+                    $width = 70;
+                    $html .= '<td class="pdf_label" style="width: 30%; border: 1px solid black; display: inline;">'.$header.'</td>';
+                }
+                $html .= '<td class="pdf_content" style="width: '.$width.'%; border: 1px solid black; display: inline;">'.($ticketid>0 ? $line : '').'</td>';
+                $html .= '</tr>';
+            }
+        }
+        $html .= '</table>';
+
+        */
 	}
 } else if($_GET['action'] == 'get_locks') {
 	$ticketid = $_GET['ticketid'];
@@ -1949,7 +2676,7 @@ if($_GET['action'] == 'update_fields') {
 } else if($_GET['action'] == 'template_file') {
 	$filename = file_safe_str($_FILES['file']['name'],'pdf_contents/');
 	if(!file_exists('pdf_contents')) {
-		mkdir('pdf_content', 0777, true);
+		mkdir('pdf_contents', 0777, true);
 	}
 	move_uploaded_file($_FILES['file']['tmp_name'],'pdf_contents/'.$filename);
 	if($_POST['id'] > 0) {
@@ -2018,78 +2745,7 @@ if($_GET['action'] == 'update_fields') {
 		$dbc->query("UPDATE `tickets` SET `approvals`=NULL WHERE `ticketid`='$ticketid'");
 	}
 } else if($_GET['action'] == 'ticket_invoice') {
-	$ticket_list = explode(',',$_POST['ticketid']);
-	$total_price = 0;
-	$inv_services = [];
-	$inv_service_qty = [];
-	$inv_service_fee = [];
-	$services_price = 0;
-	$misc_item = [];
-	$misc_price = [];
-	$misc_qty = [];
-	$misc_total = [];
-	$price_final = 0;
-	foreach($ticket_list as $ticketid) {
-		if($ticketid > 0) {
-			$ticket = $dbc->query("SELECT * FROM `tickets` WHERE `ticketid`='$ticketid'")->fetch_assoc();
-			foreach(explode(',',$ticket['serviceid']) as $i => $service) {
-				$qty = explode(',',$ticket['service_qty'])[$i];
-				$fuel = explode(',',$ticket['service_fuel_charge'])[$i];
-				$discount = explode(',',$ticket['service_discount'])[$i];
-				$dis_type = explode(',',$ticket['service_discount_type'])[$i];
-				$price = 0;
-				$customer_rate = $dbc->query("SELECT `services` FROM `rate_card` WHERE `clientid`='' AND `deleted`=0 AND `on_off`=1")->fetch_assoc();
-				foreach(explode('**',$customer_rate['services']) as $service_rate) {
-					$service_rate = explode('#',$service_rate);
-					if($service == $service_rate[0] && $service_rate[1] > 0) {
-						$price = $service_rate[1];
-					}
-				}
-				if(!($price > 0)) {
-					$service_rate = $dbc->query("SELECT `cust_price`, `admin_fee` FROM `company_rate_card` WHERE `deleted`=0 AND `item_id`='$service' AND `tile_name` LIKE 'Services' AND `start_date` < DATE(NOW()) AND IFNULL(NULLIF(`end_date`,'0000-00-00'),'9999-12-31') > DATE(NOW()) AND `cust_price` > 0")->fetch_assoc();
-					$price = $service_rate['cust_price'];
-				}
-				$inv_services[] = $service;
-				$inv_service_qty[] = $qty;
-				$price_total = ($price * $qty + $fuel);
-				$price_total -= ($dis_type == '%' ? $discount / 100 * $price_total : $discount);
-				$inv_service_fee[] = $price_total;
-				$total_price += $price_total;
-			}
-			$ticket_lines = $dbc->query("SELECT * FROM `ticket_attached` WHERE `ticketid`='$ticketid' AND `deleted`=0 AND `src_table` LIKE 'Staff%'");
-			while($line = $ticket_lines->fetch_assoc()) {
-				$description = get_contact($dbc, $line['item_id']).' - '.$line['position'];
-				$qty = !empty($line['hours_set']) ? $line['hours_set'] : $line['hours_tracked'];
-				$misc_item[] = $description;
-				$misc_qty[] = $qty;
-			}
-			$ticket_lines = $dbc->query("SELECT * FROM `ticket_attached` WHERE `ticketid`='$ticketid' AND `deleted`=0 AND `src_table` LIKE 'misc_item'");
-			while($line = $ticket_lines->fetch_assoc()) {
-				$description = get_contact($dbc, $line['description']);
-				$qty = $line['qty'];
-				$price = $line['rate'];
-				$misc_item[] = $description;
-				$misc_price[] = $price;
-				$misc_qty[] = $qty;
-				$misc_total[] = $price * $qty;
-				$total_price += $price * $qty;
-			}
-			$billing_discount = $ticket['billing_discount'];
-			$billing_dis_type = $ticket['billing_discount_type'];
-			$billing_discount_total = ($billing_dis_type == '%' ? $total_price * $billing_discount / 100 : $billing_discount);
-			$price_final += $total_price - $billing_discount_total;
-		}
-	}
-	mysqli_query($dbc, "INSERT INTO `invoice` (`tile_name`,`projectid`,`ticketid`,`businessid`,`patientid`,`invoice_date`,`total_price`,`discount`,`final_price`,`serviceid`,`fee`,`misc_item`,`misc_price`,`misc_qty`,`misc_total`) SELECT 'invoice',MAX(`projectid`),GROUP_CONCAT(`ticketid` SEPARATOR ','),MAX(`businessid`),GROUP_CONCAT(`clientid` SEPARATOR ','),DATE(NOW()),'$total_price','$billing_discount_total','$price_final','".implode(',',$inv_services)."','".implode(',',$inv_service_fee)."','".implode(',',$misc_item)."','".implode(',',$misc_price)."','".implode(',',$misc_qty)."','".implode(',',$misc_total)."' FROM `tickets` WHERE `ticketid` IN (".implode($ticket_list).")");
-	$invoiceid = $dbc->insert_id;
-	foreach($inv_services as $i => $service) {
-		$service = $dbc->query("SELECT * FROM `services` WHERE `serviceid`='$service'")->fetch_assoc();
-		mysqli_query($dbc, "INSERT INTO `invoice_lines` (`invoiceid`, `item_id`, `category`, `heading`, `description`, `quantity`, `unit_price`, `uom`, `sub_total`) VALUES ('$invoiceid', '$service', 'services', '".TICKET_TILE."', '{$service['heading']}', '{$inv_service_qty[$i]}', '".($inv_service_fee[$i] / $inv_service_qty[$i])."', 'each', '".$inv_service_fee[$i]."')");
-	}
-	foreach($misc_item as $i => $misc) {
-		mysqli_query($dbc, "INSERT INTO `invoice_lines` (`invoiceid`, `category`, `heading`, `description`, `quantity`, `unit_price`, `uom`, `sub_total`) VALUES ('$invoiceid', 'misc_product', '".TICKET_TILE."', '$misc', '{$misc_qty[$i]}', '".($misc_price[$i])."', 'each', '".$misc_total[$i]."')");
-	}
-	echo WEBSITE_URL.'/Invoice/add_invoice.php?invoiceid='.$invoiceid;
+	include('../Invoice/create_ticket_invoice.php');
 } else if($_GET['action'] == 'task_types') {
 	foreach($_POST['tasks'] as $sort => $data) {
 		$cat = filter_var($data['category'],FILTER_SANITIZE_STRING);
@@ -2227,5 +2883,137 @@ if($_GET['action'] == 'update_fields') {
 	$time_est = $new_hours.':'.$new_minutes;
 
 	echo $time_est;
+} else if($_GET['action'] == 'set_stamp') {
+	$basename = filter_var($_FILES['file']['name']);
+	$filename = preg_replace('/(\.[A-Za-z0-9]*)/', '$1', preg_replace('/[^\.A-Za-z0-9]/','',$basename));
+	$i = 0;
+	if(!file_exists('download')) {
+		mkdir('download', 0777, true);
+	}
+	while(file_exists('download/'.$filename)) {
+		$filename = preg_replace('/(\.[A-Za-z0-9]*)/', ' ('.++$i.')$1', preg_replace('/[^\.A-Za-z0-9]/','',$basename));
+	}
+	move_uploaded_file($_FILES['file']['tmp_name'],'download/'.$filename);
+	set_config($dbc, 'stamp_upload', $filename);
+} else if($_GET['action'] == 'add_delete_note') {
+	$ticketid = filter_var($_POST['ticketid'],FILTER_SANITIZE_STRING);
+	$note = filter_var(htmlentities($_POST['note']),FILTER_SANITIZE_STRING);
+
+	mysqli_query($dbc, "INSERT INTO `ticket_comment` (`ticketid`,`type`,`comment`,`created_date`,`created_by`) VALUES ('$ticketid','note','$note',DATE(NOW()),'{$_SESSION['contactid']}')");
+} else if($_GET['action'] == 'create_recurrence_tickets') {
+	//Initialize variables
+	$edit = $_GET['edit'];
+	$start_date = $_POST['start_date'];
+	$end_date = $_POST['end_date'];
+	$repeat_type = $_POST['repeat_type'];
+	$repeat_monthly = $_POST['repeat_monthly'];
+	$repeat_interval = $_POST['repeat_interval'];
+	$repeat_days = $_POST['repeat_days'];
+	$create_starting_at = '';
+	if($edit == 1) {
+		if(strtotime($start_date) < strtotime(date('Y-m-d'))) {
+			$create_starting_at = date('Y-m-d');
+		} else {
+			$create_starting_at = $start_date;
+		}
+	}
+	$result = [success => false, message => $start_date.$end_date.$repeat_type.$repeat_interval.implode(',',$repeat_days)];
+	if($_GET['validate'] == 1) {
+		//Validate form fields
+		$validated = true;
+		$validate_errors = [];
+		$start_date_arr = explode('-',$start_date);
+		$end_date_arr = explode('-',$end_date);
+		if(!checkdate($start_date_arr[1], $start_date_arr[2], $start_date_arr[0])) {
+			$validated = false;
+			$validate_errors[] = "Invalid Start Date";
+		}
+		if(strtotime($start_date) > strtotime($end_date) && !empty(str_replace(['0000-00-00','1969-12-31'],'',$end_date))) {
+			$validated = false;
+			$validate_errors[] = "Start Date greater than End Date";
+		}
+		if(!in_array($repeat_type, ['day','week','month'])) {
+			$validated = false;
+			$validate_errors[] = "Invalid Repeat Type";
+		}
+		if(!($repeat_interval > 0)) {
+			$validated = false;
+			$validate_errors[] = "Invalid Repeat Interval";
+		}
+		if(($repeat_type == 'week' && empty($repeat_days)) || ($repeat_type == 'month' && $repeat_monthly != 'day' && empty($repeat_days))) {
+			$validated = false;
+			$validate_errors[] = "No repeat days selected";
+		}
+		if($validated) {
+			//If validated, get the first 10 recurring dates and send it as a response so the user can verify that the dates are correct
+			$ongoing_recurrence = false;
+			if(empty(str_replace(['0000-00-00','1969-12-31'],'',$end_date))) {
+				$sync_upto = !empty(get_config($dbc, 'ticket_recurrence_sync_upto')) ? get_config($dbc, 'ticket_recurrence_sync_upto') : '2 years';
+				$end_date = date('Y-m-d', strtotime(date('Y-m-d').' + '.$sync_upto));
+				$ongoing_recurrence = true;
+			}
+			$recurring_dates = get_recurrence_days(10, $start_date, $end_date, $repeat_type, $repeat_interval, $repeat_days, $repeat_monthly, $create_starting_at);
+			$validate_message = "You are creating Recurring ".TICKET_TILE." every ".$repeat_interval. " ".$repeat_type.($repeat_interval > 1 ? "s" : "")." from ".$start_date.($ongoing_recurrence ? " ongoing" : " until ".$end_date).". Here is an example of what the following Recurring dates will look like:\n\n".implode(", ", $recurring_dates).(count($recurring_dates) > 10 ? ", ..." : "")."\n\nIf this is correct, please confirm to create your Recurring ".TICKET_TILE.".";
+			$result = [success=>true, message=>$validate_message, first_date=>array_shift($recurring_dates)];
+		} else {
+			//If validate fails, return the message
+			$result = [success=>false, message=>'Error: '.implode(', ',$validate_errors).'.'];
+		}
+		echo json_encode($result);
+	} else {
+		$ticketid = $_POST['ticketid'];
+		if($edit == 1) {
+			$ticket = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticketid` = '$ticketid'"));
+			$main_ticketid = $ticket['main_ticketid'];
+			mysqli_query($dbc, "UPDATE `tickets` SET `is_recurrence` = 0 WHERE `main_ticketid` = '$main_ticketid' AND `to_do_date` < '$create_starting_at'");
+			mysqli_query($dbc, "UPDATE `tickets` SET `deleted` = 1 WHERE `main_ticketid` = '$main_ticketid' AND `to_do_date` >= '$create_starting_at' AND `ticketid` != '$ticketid'");
+			$recurring_dates = get_recurrence_days(1, $start_date, $end_date, $repeat_type, $repeat_interval, $repeat_days, $repeat_monthly, $create_starting_at);
+			mysqli_query($dbc, "UPDATE `tickets` SET `to_do_date` = '".$recurring_dates[0]."', `to_do_end_date` = '".$recurring_dates[0]."' WHERE `ticketid` = '$ticketid'");
+			mysqli_query($dbc, "UPDATE `ticket_recurrences` SET `deleted` = 1 WHERE `ticketid` = '$main_ticketid'");
+		}
+
+		if($ticketid > 0) {
+			//Insert into ticket_recurrences table to save settings for ongoing Recurrences cron job
+			mysqli_query($dbc, "INSERT INTO `ticket_recurrences` (`ticketid`, `start_date`, `end_date`, `repeat_type`, `repeat_monthly`, `repeat_interval`, `repeat_days`) VALUES ('$ticketid', '$start_date', '$end_date', '$repeat_type', '$repeat_monthly', '$repeat_interval', '".implode(',',$repeat_days)."')");
+
+		    //Set main_ticketid and main_ids for records so they can be synced together
+		    mysqli_query($dbc, "UPDATE `tickets` SET `main_ticketid` = '$ticketid', `is_recurrence` = 1 WHERE `ticketid` = '$ticketid'");
+		    mysqli_query($dbc, "UPDATE `ticket_attached` SET `main_id` = `id`, `is_recurrence` = 1 WHERE `ticketid` = '$ticketid' AND `deleted` = 0");
+		    mysqli_query($dbc, "UPDATE `ticket_schedule` SET `main_id` = `id`, `is_recurrence` = 1 WHERE `ticketid` = '$ticketid' AND `deleted` = 0");
+		    mysqli_query($dbc, "UPDATE `ticket_comment` SET `main_id` = `ticketcommid`, `is_recurrence` = 1 WHERE `ticketid` = '$ticketid' AND `deleted` = 0");
+
+			create_recurring_tickets($dbc, $ticketid, $start_date, $end_date, $repeat_type, $repeat_interval, $repeat_days, $repeat_monthly, $_POST['skip_first'], $create_starting_at);
+			sync_recurring_tickets($dbc, $ticketid);
+			echo 'Successfully created Recurring '.TICKET_TILE;
+		}
+	}
+} else if($_GET['action'] == 'removePdfForm') {
+	$form = filter_var($_POST['formid'],FILTER_SANITIZE_STRING);
+	$ticket = filter_var($_POST['ticket'],FILTER_SANITIZE_STRING);
+	$revision = filter_var($_POST['revision'],FILTER_SANITIZE_STRING);
+	$all_rev = $dbc->query("SELECT `revisions` FROM `ticket_pdf` WHERE `id`='$form'")->fetch_assoc();
+	$dbc->query("UPDATE `ticket_pdf_field_values` SET `deleted`=1 WHERE `ticketid`='$ticket' AND `pdf_type`='$form'".($all_rev['revisions'] > 0 ? " AND `revision`='$revision'" : ""));
+} else if($_GET['action'] == 'checklist_tile') {
+	$checklistid = filter_var($_GET['checklistid'],FILTER_SANITIZE_STRING);
+	$checked = filter_var($_GET['checked'],FILTER_SANITIZE_STRING);
+    if($checked = 'true') {
+        $checked = 1;
+    } else {
+        $checked = 0;
+    }
+    echo "my my";
+	$all_rev = $dbc->query("UPDATE checklist SET checklist_tile = $checked WHERE checklistid = '$checklistid'");
+} else if($_GET['action'] == 'tile_splitting') {
+    foreach($_POST['tiles'] as $tile) {
+        $details = $tile['name'].'#*#'.$tile['noun'].'#*#'.implode('|',$tile['types']);
+        $tile = config_safe_str($tile['name']);
+        set_config($dbc, 'ticket_split_tiles_'.$tile, $details);
+    }
+} else if($_GET['action'] == 'get_recurrence_settings') {
+	$ticketid = $_POST['ticketid'];
+	$main_ticketid = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticketid` = '$ticketid'"))['main_ticketid'];
+	$recurrence_settings = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `ticket_recurrences` WHERE `ticketid` = '$main_ticketid' AND `deleted` = 0"));
+	$result = [start_date=>$recurrence_settings['start_date'], end_date=>$recurrence_settings['end_date'], repeat_type=>$recurrence_settings['repeat_type'], repeat_monthly=>$recurrence_settings['repeat_monthly'], repeat_interval=>$recurrence_settings['repeat_interval'], repeat_days=>explode(',',$recurrence_settings['repeat_days'])];
+	echo json_encode($result);
 }
 ?>

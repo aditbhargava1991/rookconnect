@@ -47,6 +47,9 @@ if (isset($_POST['add_unbooked'])) {
                             <input type="checkbox" <?php if (strpos($enabled_fields, ',business,') !== FALSE) { echo " checked"; } ?> value="business" style="height: 20px; width: 20px;" name="ticket_filters[]">&nbsp;&nbsp;Business
                         </td>
                         <td>
+                            <input type="checkbox" <?php if (strpos($enabled_fields, ',client,') !== FALSE) { echo " checked"; } ?> value="client" style="height: 20px; width: 20px;" name="ticket_filters[]">&nbsp;&nbsp;Client
+                        </td>
+                        <td>
                             <input type="checkbox" <?php if (strpos($enabled_fields, ',corporation,') !== FALSE) { echo " checked"; } ?> value="corporation" style="height: 20px; width: 20px;" name="ticket_filters[]">&nbsp;&nbsp;Corporation
                         </td>
                         <td>
@@ -58,6 +61,8 @@ if (isset($_POST['add_unbooked'])) {
                         <td>
                             <input type="checkbox" <?php if (strpos($enabled_fields, ',date_range,') !== FALSE) { echo " checked"; } ?> value="date_range" style="height: 20px; width: 20px;" name="ticket_filters[]">&nbsp;&nbsp;Date Range
                         </td>
+                    </tr>
+                    <tr>
                         <td>
                             <input type="checkbox" <?php if (strpos($enabled_fields, ',searchbox,') !== FALSE) { echo " checked"; } ?> value="searchbox" style="height: 20px; width: 20px;" name="ticket_filters[]">&nbsp;&nbsp;Search Box
                         </td>

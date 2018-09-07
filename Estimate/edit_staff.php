@@ -20,13 +20,18 @@ function removeStaff(img) {
 	$(img).closest('.form-group').remove();
 	$('[name="assign_staffid[]"]').last().change();
 }
-function assignGroup(group_list) {
-	group_list = group_list.split(',');
-	$(group_list).each(function() {
-		staff_id = this;
-		if($('[name="assign_staffid[]"]').filter(function() { return $(this).val() == staff_id.valueOf(); }).length == 0) {
-			addStaff();
-			$('[name="assign_staffid[]"]').last().val(staff_id.valueOf()).trigger('change.select2');
+function assignGroup(group) {
+	group_list = $(group).data('group');
+	group_list.forEach(function(staff_id) {
+		if($('[name="assign_staffid[]"]').filter(function() { return $(this).val() == staff_id; }).length == 0) {
+			var empty_select = $('[name="assign_staffid[]"]').filter(function() { return $(this).val() == undefined || $(this).val() == ''; }).first();
+			if(empty_select.length > 0) {
+				$(empty_select).val(staff_id);
+				$(empty_select).trigger('change.select2');
+			} else {
+				addStaff();
+				$('[name="assign_staffid[]"]').last().val(staff_id).trigger('change.select2');
+			}
 		}
 	});
 	$('[name="assign_staffid[]"]').last().change();
@@ -55,22 +60,14 @@ function assignGroup(group_list) {
 			</div>
 		</div>
 	<?php } ?>
-	<?php $groups = explode('#*#',mysqli_fetch_array(mysqli_query($dbc, "SELECT `estimate_groups` FROM field_config_estimate"))[0]);
-	foreach($groups as $id => $group) { ?>
-		<div class="form-group">
-			<?php $group_list = [];
-			$group_name = '';
-			foreach(explode(',',$group) as $staff_id) {
-				if($staff_id > 0) {
-					$group_list[] = get_contact($dbc, $staff_id);
-				} else if($staff_id !== 0) {
-					$group_name = $staff_id;
-				}
-			} ?>
-			<button class="btn brand-btn pull-right" data-group="<?= $group ?>" onclick="assignGroup($(this).data('group'));">Assign <?= ($group_name == '' ? 'Group #'.($id + 1) : $group_name) ?>: 
-			<?= implode(', ',$group_list); ?></button>
-		</div>
-	<?php } ?>
+	<?php foreach(get_teams($dbc, " AND IF(`end_date` = '0000-00-00','9999-12-31',`end_date`) >= '".date('Y-m-d')."'") as $team) {
+		$team_staff = get_team_contactids($dbc, $team['teamid']);
+		if(count($team_staff) > 1) { ?>
+			<div class="form-group">
+				<button class="btn brand-btn pull-right" data-group='<?= json_encode($team_staff) ?>' onclick="assignGroup(this);">Assign <?= get_team_name($dbc, $team['teamid']).(!empty($team['team_name']) ? ': '.get_team_name($dbc, $team['teamid'], ', ', 1) : '') ?></button>
+			</div>
+		<?php }
+	} ?>
     <hr />
 </div>
 <?php if(basename($_SERVER['SCRIPT_FILENAME']) == 'edit_staff.php') { ?>

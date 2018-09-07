@@ -10,6 +10,7 @@ if (isset($_POST['submit'])) {
     $estimate_auto_archive_days = filter_var($_POST['estimate_auto_archive_days'],FILTER_VALIDATE_INT);
     set_config($dbc, 'estimate_auto_archive', $estimate_auto_archive);
     set_config($dbc, 'estimate_auto_archive_days', $estimate_auto_archive_days);
+	set_config($dbc, 'disable_us_auto_convert', $_POST['us_pricing_convert'] == 'false' ? 'false' : 'true');
 }
 ?>
 <script>
@@ -43,6 +44,12 @@ if (isset($_POST['submit'])) {
         <div class="col-sm-4">Auto Archive Closed &amp; Abandoned Estimates After # of Days:</div>
         <div class="col-sm-8">
             <input type="number" name="estimate_auto_archive_days" class="form-control" value="<?= !empty($estimate_auto_archive_days) ? $estimate_auto_archive_days : '30' ?>" min="1" step="1" />
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-sm-4">Auto Convert USD Pricing</div>
+        <div class="col-sm-8">
+            <label class="form-checkbox"><input type="checkbox" name="us_pricing_convert" <?= get_config($dbc, 'disable_us_auto_convert') == 'true' ? '' : 'checked' ?> value="false" />Enable</label>
         </div>
     </div>
 

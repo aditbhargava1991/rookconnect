@@ -5,7 +5,7 @@ if(!empty($_GET['frefid'])) {
 if(!empty($_POST['submit'])) {
     include_once('../tcpdf/tcpdf.php');
     require_once('../phpsign/signature-to-image.php');
-    
+
     $form_id = $_POST['form_id'];
     $assign_id = $_POST['assign_id'];
     $user_id = (empty($_SESSION['contactid']) ? 0 : $_SESSION['contactid']);
@@ -30,16 +30,19 @@ if(!empty($_POST['submit'])) {
 
     $query_insert_upload = "INSERT INTO `hr_attendance` (`hrid`, `fieldlevelriskid`, `assign_staff`, `done`, `assign_staffid`) VALUES ('$hrid', '$fieldlevelriskid', '$assign_staff', 1, '$user_id')";
     $result_insert_upload = mysqli_query($dbc, $query_insert_upload);
+    $before_change = '';
+		$history = "HR attendance entry added. <br />";
+		add_update_history($dbc, 'hr_history', $history, '', $before_change);
 
     $pdf->writeHTML(utf8_encode('<form action="" method="POST">'.$pdf_text.'</form>'), true, false, true, false, '');
 
     include('../Form Builder/generate_form_pdf_page.php');
-    
+
     if(!file_exists('download')) {
         mkdir('download', 0777, true);
     }
     $pdf->Output('download/'.$pdf_name, 'F');
-    
+
     echo "<script> window.location.replace('index.php'); window.open('download/$pdf_name', '_blank'); </script>";
 } else {
     $form_id = $user_form_id;

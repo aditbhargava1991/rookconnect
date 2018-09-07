@@ -20,14 +20,20 @@ if(isset($_POST['submit'])) {
 			if($id == '') {
 				$sql_expense = "INSERT INTO `equipment_expenses` (`equipmentid`, `category`, `staff`, `description`, `country`, `province`, `ex_date`, `amount`, `pst`, `gst`, `hst`, `total`)
 					VALUES ('$equipmentid', '$category', '$staff', '$description', '$country', '$province', '$date', '$amount', '$pst', '$gst', '$hst', '$total')";
+					$before_change = '';
+	        $history = "New equipment expense Added. <br />";
+	        add_update_history($dbc, 'equipment_history', $history, '', $before_change);
 			} else {
 				$sql_expense = "UPDATE `equipment_expenses` SET `equipmentid`='$equipmentid', `category`='$category', `description`='$description', `country`='$country', `province`='$province', `ex_date`='$date', `amount`='$amount', `pst`='$pst', `gst`='$gst', `hst`='$hst', `total`='$total' WHERE `expenseid`='$id'";
-			}echo $id.'-'.$sql_expense.'<br />';
+			}//echo $id.'-'.$sql_expense.'<br />';
 			mysqli_query($dbc, $sql_expense);
 			if($id == '') {
 				$id = mysqli_insert_id($dbc);
 			}
-			
+
+			$before_change = '';
+	    $history = "Equipment expenses Updated. <br />";
+	    add_update_history($dbc, 'equipment_history', $history, '', $before_change);
 			if($_FILES['ex_file']['name'][$key] != '') {
 				if (!file_exists('download')) {
 					mkdir('download', 0777, true);
@@ -38,11 +44,14 @@ if(isset($_POST['submit'])) {
 					$receipt = preg_replace('/(\.[A-Za-z0-9]*)/', ' ('.++$i.')$1', $basename);
 				}
 				move_uploaded_file($_FILES['ex_file']['tmp_name'][$key], 'download/'.$receipt);
+				$before_change = capture_before_change($dbc, 'equipment_expenses', 'ex_file', 'expenseid', $id);
 				mysqli_query($dbc, "UPDATE `equipment_expenses` SET `ex_file`='$receipt' WHERE `expenseid`='$id'");
+			  $history = capture_after_change('ex_file', $receipt);
+			  add_update_history($dbc, 'equipment_history', $history, '', $before_change);
 			}
 		}
 	}
-	
+
 	//ob_clean();
 	//header('Location: ?'.$_SERVER['QUERY_STRING']);
 } ?>
@@ -288,7 +297,7 @@ foreach($categories as $i => $category_value) {
 	$result = mysqli_query($dbc, $query_expenses." AND `category`='$category_value'");
 	$row_count = mysqli_num_rows($result);
 	$row_count += 1;
-	
+
 	echo "<tbody>";
 
 	for($i = 0; $i < $row_count; $i++) {
@@ -312,7 +321,7 @@ foreach($categories as $i => $category_value) {
 			$total = $row['total'];
 			$status = $row['status'];
 		}
-		
+
 		echo "<tr>";
 		if($status == '' || ($approval_access == 1 && $status == 'Approved')) {
 			echo "<input type='hidden' name='expenseid[]' value='".$id."'>";
@@ -325,7 +334,7 @@ foreach($categories as $i => $category_value) {
 				}
 				echo '</select></td>';
 			}
-			
+
 			foreach($equipment_expense_fields as $field) {
 				if($field == 'Description') {
 					echo '<td data-title="Description"><input type="text" name="description[]" value="' .$description. '" class="form-control"></td>';

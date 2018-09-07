@@ -4,30 +4,29 @@ Add Vendor
 */
 include ('../include.php');
 error_reporting(0);
-$back_url = 'email_communication.php?type=Internal';
+$communication_type = empty($_POST['comm_type']) ? (empty($_GET['type']) ? 'Internal' : $_GET['type']) : $_POST['comm_type'];
+$back_url = 'email_communication.php?type='.$communication_type;
 if(!empty($_GET['from_url'])) {
 	$back_url = urldecode($_GET['from_url']);
 }
-else if($communication_type == 'Internal') {
-	$back_url = 'email_communication.php?type=Internal';
-}
-else if($communication_type == 'External') {
-	$back_url = 'email_communication.php?type=External';
-}
 
 if (isset($_POST['submit'])) {
-    $communication_type = $_POST['comm_type'];
     $businessid = $_POST['businessid'];
 	$contactid = $_POST['contactid'];
  	$projectid = $_POST['projectid'];
+ 	$ticketid = $_POST['ticketid'];
 	$client_projectid = '';
 	if(substr($projectid,0,1) == 'C') {
 		$client_projectid = substr($projectid,1);
 		$projectid = '';
 	}
 
-    $subject = htmlentities($_POST['subject']);
+    //$subject = htmlentities($_POST['subject']);
+   //$email_body = htmlentities($_POST['email_body']);
+
+    //$subject = base64_encode($_POST['subject']);
     $email_body = htmlentities($_POST['email_body']);
+    $subject = htmlentities($_POST['subject']);
 
     $from_name = filter_var($_POST['from_name'],FILTER_SANITIZE_STRING);
     $from_email = filter_var($_POST['from_email'],FILTER_SANITIZE_STRING);
@@ -92,7 +91,7 @@ if (isset($_POST['submit'])) {
         if($projectid != '') {
 			$project_tabs = get_config($dbc, 'project_tabs');
 			if($project_tabs == '') {
-				$project_tabs = 'Client,SR&ED,Internal,R&D,Business Development,Process Development,Addendum,Addition,Marketing,Manufacturing,Assembly';
+				$project_tabs = 'Client,SR&ED,Internal,R&D,Business Development,Process Development,Addendum,Addition,Marketing,Manufacturing,Assembly,';
 			}
 			$project_tabs = explode(',',$project_tabs);
 			foreach($project_tabs as $item) {
@@ -104,16 +103,22 @@ if (isset($_POST['submit'])) {
         if($email_body != '') {
             $send_body .= $_POST['email_body'];
         }
-				
+		if($ticketid > 0 && $communication_type == 'External') {
+			$ticket_options = $dbc->query("SELECT GROUP_CONCAT(`fields` SEPARATOR ',') `field_config` FROM (SELECT `value` `fields` FROM `general_configuration` LEFT JOIN `tickets` ON `general_configuration`.`name` LIKE CONCAT('ticket_fields_',`tickets`.`ticket_type`) WHERE `ticketid`='$ticketid' UNION SELECT `tickets` `fields` FROM `field_config`) `options`")->fetch_assoc();
+			if(strpos(','.$ticket_options['field_config'].',',',External Response,') !== FALSE) {
+				$send_body .= '<p><a href="'.WEBSITE_URL.'/external_response.php?r='.encryptIt(json_encode(['ticketid'=>$ticketid])).'" target="_blank">You can reply to this message by clicking here.</a></p>';
+				$email_body .= htmlentities('<p><a href="'.WEBSITE_URL.'/external_response.php?r='.encryptIt(json_encode(['ticketid'=>$ticketid])).'" target="_blank">You can reply to this message by clicking here.</a></p>');
+			}
+		} else if($ticketid > 0 && $communication_type == 'Internal') {
+            $send_body .= '<p><a href="'.WEBSITE_URL.'/external_response.php?r='.encryptIt(json_encode(['ticketid'=>$ticketid])).'" target="_blank">Click here</a> to view the '.TICKET_NOUN.'</p>';
+            $email_body .= htmlentities('<p><a href="'.WEBSITE_URL.'/external_response.php?r='.encryptIt(json_encode(['ticketid'=>$ticketid])).'" target="_blank">Click here</a> to view the '.TICKET_NOUN.'</p>');
+		}
+
         if (empty($from_email)) {
             $from_email = '';
         }
 		try {
-			if($meeting_attachment == '') {
-				send_email([$from_email => $from_name], $meeting_arr_email, $meeting_cc_arr_email , '', $subject, $send_body, '');
-			} else {
-				send_email([$from_email => $from_name], $meeting_arr_email, $meeting_cc_arr_email , '', $subject, $send_body, $meeting_attachment);
-			}
+            send_email([$from_email => $from_name], $meeting_arr_email, $meeting_cc_arr_email , '', $_POST['subject'], $send_body, $meeting_attachment);
 		} catch(Exception $e) {
 			echo "<script> alert('Unable to send the email: ".$e->getMessage()."'); </script>";
 		}
@@ -121,7 +126,8 @@ if (isset($_POST['submit'])) {
     // Meeting Note Email
 
     if(empty($_POST['email_communicationid']) || count($meeting_arr_email) > 0 || count($meeting_cc_arr_email) > 0) {
-        $query_insert_ca = "INSERT INTO `email_communication` (`communication_type`, `businessid`, `contactid`, `projectid`, `client_projectid`, `subject`, `email_body`, `to_contact`, `cc_contact`, `to_staff`, `cc_staff`, `new_emailid`, `today_date`, `created_by`, `follow_up_by`, `follow_up_date`, `from_email`, `from_name`) VALUES ('$communication_type', '$businessid', '$contactid', '$projectid', '$client_projectid', '$subject', '".filter_var($email_body,FILTER_SANITIZE_STRING)."', '$to_contact', '$cc_contact', '$to_staff', '$cc_staff', '$new_emailid', '$today_date', '$created_by', '$follow_up_by', '$follow_up_date', '$from_email', '$from_name')";
+        $query_insert_ca = 'INSERT INTO `email_communication` (`communication_type`, `businessid`, `contactid`, `projectid`, `ticketid`, `client_projectid`, `subject`, `email_body`, `to_contact`, `cc_contact`, `to_staff`, `cc_staff`, `new_emailid`, `today_date`, `created_by`, `follow_up_by`, `follow_up_date`, `from_email`, `from_name`) VALUES ("'.$communication_type.'", "'.$businessid.'", "'.$contactid.'",  "'.$projectid.'", "'. $ticketid.'", "'. $client_projectid.'",  "'.$subject.'",  "'.$email_body.'", "'.$to_contact.'", "'.$cc_contact.'", "'.$to_staff.'", "'.$cc_staff.'", "'.$new_emailid.'", "'.$today_date.'", "'.$created_by.'", "'.$follow_up_by.'", "'.$follow_up_date.'", "'.$from_email.'", "'.$from_name.'")';
+
         $result_insert_ca = mysqli_query($dbc, $query_insert_ca);
         $email_communicationid = mysqli_insert_id($dbc);
 
@@ -135,7 +141,7 @@ if (isset($_POST['submit'])) {
 		}
     } else {
         $email_communicationid = $_POST['email_communicationid'];
-        $query_update_ticket = "UPDATE `email_communication` SET `communication_type` = '$communication_type', `businessid` = '$businessid', `contactid` = '$contactid', `projectid` = '$projectid', `client_projectid` = '$client_projectid', `subject` = '$subject', `email_body` = '".filter_var($email_body,FILTER_SANITIZE_STRING)."', `to_contact` = '$to_contact', `cc_contact` = '$cc_contact', `to_staff` = '$to_staff', `cc_staff` = '$cc_staff', `new_emailid` = '$new_emailid', `follow_up_by` = '$follow_up_by', `follow_up_date` = '$follow_up_date', `from_email` = '$from_email', `from_name` = '$from_name' WHERE `email_communicationid` = '$email_communicationid'";
+        $query_update_ticket = 'UPDATE `email_communication` SET `communication_type` = "'.$communication_type.'", `businessid` = "'.$businessid.'", `contactid` = "'.$contactid.'", `projectid` = "'.$projectid.'", `ticketid` = "'.$ticketid.'", `client_projectid` = "'.$client_projectid.'", `subject` = "'.$subject.'", `email_body` = "'.$email_body.'", `to_contact` = "'.$to_contact.'", `cc_contact` = "'.$cc_contact.'", `to_staff` = "'.$to_staff.'", `cc_staff` = "'.$cc_staff.'", `new_emailid` = "'.$new_emailid.'", `follow_up_by` = "'.$follow_up_by.'", `follow_up_date` = "'.$follow_up_date.'", `from_email` = "'.$from_email.'", `from_name` = "'.$from_name.'" WHERE `email_communicationid` = "'.$email_communicationid.'"';
         $result_update_ticket = mysqli_query($dbc, $query_update_ticket);
 
 		$overview = 'Updated Email Communication #'.$email_communicationid;
@@ -157,11 +163,18 @@ if (isset($_POST['submit'])) {
 
 		$query_update_ticket = "UPDATE `email_communication_timer` SET `start_timer_time` = '0', `communication_id`='$email_communicationid' WHERE (`communication_id` = '$email_communicationid' OR `communication_id` = 0 OR `communication_id` IS NULL) AND `created_by`='$created_by'";
 		$result_update_ticket = mysqli_query($dbc, $query_update_ticket);
-	}
+	} ?>
 
-    echo '<script type="text/javascript"> window.location.replace("'.$back_url.'"); </script>';
-}
-?>
+	<script>
+	try {
+		$(window.top.document).find('iframe[src*=Ticket]').get(0).contentWindow.reloadCommunications();
+	} catch(e) { }
+	try {
+		window.parent.reloadCommunications();
+	} catch(e) { }
+	window.location.replace("<?= $back_url ?>");
+	</script>
+<?php } ?>
 <script type="text/javascript">
 $(document).ready(function() {
 
@@ -200,8 +213,12 @@ checkAuthorised('email_communication');
 ?>
 <div class="container">
   <div class="row">
-    <h1>Email Communication</h1>
-	<div class="pad-left gap-top double-gap-bottom"><a href="<?php echo $back_url; ?>" class="btn config-btn">Back to Dashboard</a></div>
+    <h1>Email Communication
+	<?php if(IFRAME_PAGE) { ?>
+		<a href="../blank_loading_page.php"><img class="pull-right inline-img" src="../img/icons/cancel.png"></a></h1>
+	<?php } else { ?>
+		</h1><div class="pad-left gap-top double-gap-bottom"><a href="<?php echo $back_url; ?>" class="btn config-btn">Back to Dashboard</a></div>
+	<?php } ?>
 
 	<form id="form1" name="form1" method="post"	action="" enctype="multipart/form-data" class="form-horizontal" role="form">
     <?php
@@ -254,16 +271,26 @@ checkAuthorised('email_communication');
             if($businessid == '') {
                 $businessid = get_contact($dbc, $contactid, 'businessid');
             }
+			$ticketid = $get_ticket['ticketid'];
 
             $projectid = $get_ticket['projectid'];
 			$followup_by = $get_ticket['follow_up_by'];
 			$followup_date = $get_ticket['follow_up_date'];
 
             $subject = $get_ticket['subject'];
-            $email_body = $get_ticket['email_body'];
-        ?>
-        <input type="hidden" id="email_communicationid" name="email_communicationid" value="<?php echo $email_communicationid ?>" />
-        <?php   }      ?>
+            $email_body = $get_ticket['email_body']; ?>
+			<input type="hidden" id="email_communicationid" name="email_communicationid" value="<?php echo $email_communicationid ?>" />
+        <?php } else if(!empty($_GET['ticketid'])) {
+			$ticketid = filter_var($_GET['ticketid'],FILTER_SANITIZE_STRING);
+			$ticket_details = $dbc->query("SELECT `businessid`,`clientid`,`projectid` FROM `tickets` WHERE `ticketid`='$ticketid'")->fetch_assoc();
+			$businessid = $ticket_details['businessid'];
+			$contactid = explode(',',$ticket_details['clientid'])[0];
+			if($contactid > 0 && !($businessid > 0)) {
+				$businessid = get_contact($dbc, $contactid, 'businessid');
+			}
+			$projectid = $ticket_details['projectid'];
+		} ?>
+		<input type="hidden" name="ticketid" value="<?= $ticketid ?>">
 
         <div class="panel-group" id="accordion2">
 

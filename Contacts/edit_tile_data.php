@@ -372,11 +372,11 @@
 	}
 } else if ($field_option == "Ticket Addition") { ?>
 	<h4><?= TICKET_TILE ?></h4>
-	<?php $result = mysqli_query($dbc, "SELECT * FROM `tickets` WHERE (`ticketid` IN (SELECT `ticketid` FROM `ticket_attached` WHERE `src_table` IN ('Staff', 'Members','Clients') AND `item_id`='".$contactid."') OR CONCAT(',',`contactid`,',') LIKE '%,".$contactid.",%' OR CONCAT(',',`internal_qa_contactid`,',') LIKE '%,".$contactid.",%' OR CONCAT(',',`deliverable_contactid`,',') LIKE '%,".$contactid.",%') AND `deleted`=0");
+	<?php $result = mysqli_query($dbc, "SELECT * FROM `tickets` WHERE ((`ticketid` IN (SELECT `ticketid` FROM `ticket_attached` WHERE `src_table` IN ('Staff', 'Members','Clients') AND `item_id`='".$contactid."') OR CONCAT(',',`contactid`,',') LIKE '%,".$contactid.",%' OR CONCAT(',',`internal_qa_contactid`,',') LIKE '%,".$contactid.",%' OR CONCAT(',',`deliverable_contactid`,',') LIKE '%,".$contactid.",%') OR CONCAT(',',`clientid`,',') LIKE '%,$contactid,%' OR `businessid` = '$contactid') AND `deleted`=0");
 	if(mysqli_num_rows($result) > 0) {
 		$db_config = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `tickets_dashboard` FROM `field_config`"))['tickets_dashboard'];
 		if($db_config == '') {
-			$db_config = 'Business,Contact,Heading,Services,Status,Deliverable Date';
+			$db_config = 'Contact,Heading,Services,Status,Deliverable Date';
 		}
 		$db_config = explode(',',$db_config);
 		$ticket_status_list = explode(',',get_config($dbc, 'ticket_status'));
@@ -389,8 +389,35 @@
 	} else {
 		echo '<label class="col-sm-12 control-label">No Records Found.</label>';
 	}
+} else if($field_option == "Ticket Notes Addition") {
+	$result = mysqli_query($dbc, "SELECT * FROM `ticket_comment` WHERE `ticketid` IN (SELECT `ticketid` FROM `tickets` WHERE (CONCAT(',',`clientid`,',') LIKE '%,$contactid,%' OR `businessid` = '$contactid') AND `deleted`=0) AND `deleted` = 0 ORDER BY `ticketid`");
+	$current_ticketid = '';
+	if(mysqli_num_rows($result) > 0) {
+		while($row = mysqli_fetch_assoc($result)) {
+			if($current_ticketid != $row['ticketid']) {
+				$current_ticketid = $row['ticketid'];
+				echo '<h5><a href="'.WEBSITE_URL.'/Ticket/index.php?edit='.$row['ticketid'].'" onclick="overlayIFrameSlider(this.href+\'&calendar_view=true\'); return false;">'.get_ticket_label($dbc, mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticketid` = '".$row['ticketid']."'")))."</a></h5>";
+			}
+			echo '<div>';
+			echo profile_id($dbc, $row['created_by']);
+			echo '<div class="pull-right" style="width: calc(100% - 3.5em);">'.html_entity_decode($row['comment']);
+			echo "<em>Added by ".get_contact($dbc, $row['created_by'])." at ".$row['created_date'];
+			if($row['reference_contact'] > 0) {
+				echo "<br />References ".get_contact($dbc, $row['reference_contact']);
+			}
+			foreach(explode(',',$row['email_comment']) as $assignid) {
+				if($assignid > 0) {
+					echo "<br />Assigned to ".get_contact($dbc, $assignid);
+				}
+			}
+			echo '</em>';
+			echo '</div><div class="clearfix"></div><hr></div>';
+		}
+	} else {
+		echo '<label class="col-sm-12 control-label">No Records Found.</label>';
+	}
 } else if ($field_option == "Tasks Addition") { ?>
-	<h4>Tasks</h4>
+	<h4><?= TASK_TILE ?></h4>
 	<div class="pad-5 gap-bottom">
         <b>Total Time Tracked:
         <?php
@@ -402,7 +429,7 @@
     if ( mysqli_num_rows($result) > 0 ) {
 		echo '<ul>';
         while ( $row_tasks=mysqli_fetch_assoc($result) ) { ?>
-            <li><a href="" onclick="overlayIFrameSlider('../Tasks/add_task.php?tasklistid=<?=$row_tasks['tasklistid']?>', '50%', false, true, $('.iframe_overlay').closest('.container').outerHeight() + 20); return false;">Task #<?= $row_tasks['tasklistid'] ?>: <?= $row_tasks['heading'] ?></a></li><?php
+            <li><a href="" onclick="overlayIFrameSlider('../Tasks_Updated/add_task.php?tasklistid=<?=$row_tasks['tasklistid']?>', '50%', false, true, $('.iframe_overlay').closest('.container').outerHeight() + 20); return false;">Task #<?= $row_tasks['tasklistid'] ?>: <?= $row_tasks['heading'] ?></a></li><?php
         }
         echo '</ul>';
 	} else {
@@ -411,89 +438,98 @@
 } else if ($field_option == "Account Statement") {
 	$tmp = $contactid;
 	$contactid = $_GET['edit']; ?>
-	<script>
-	function update_statement_table() {
-		var injuryid = $('[name=statement_search_injury]').val();
-		var from_date = $('[name=statement_search_from]').val();
-		var to_date = $('[name=statement_search_to]').val();
-		var options = $('[name="statement_options[]"]:checked').map( function() { return this.value; }).get().join(",");
-		$.ajax({
-			url: '../Contacts/add_contact_ajax.php?fill=statement',
-			method: 'POST',
-			data: { contact: '<?= $contactid ?>', injury: injuryid, from: from_date, to: to_date, option_list: options },
-			success: function(response) {
-				$('#statement_table_body').html(response);
-			}
-		});
-	}
-	function reset_statement_table() {
-		$('[name=statement_search_injury] option:selected').removeAttr('selected');
-		$('[name=statement_search_injury]').trigger('change.select2');
-		$('[name=statement_search_from]').val('');
-		$('[name=statement_search_to]').val('');
-		$('[name="statement_options[]"]:checked').removeAttr('checked');
-		$('[name="statement_options[]"][value="outstanding"]').prop('checked','checked');
-		$('[name="statement_options[]"][value="paid"]').prop('checked','checked');
-		$('[name="statement_options[]"][value="payments"]').prop('checked','checked');
-		update_statement_table();
-	}
-	function print_statement_table() {
-		var injuryid = $('[name=statement_search_injury]').val();
-		var from_date = $('[name=statement_search_from]').val();
-		var to_date = $('[name=statement_search_to]').val();
-		var options = $('[name="statement_options[]"]:checked').map( function() { return this.value; }).get().join(",");
-		$.ajax({
-			url: '../Contacts/add_contact_ajax.php?fill=statement_pdf',
-			method: 'POST',
-			data: { contact: '<?= $contactid ?>', injury: injuryid, from: from_date, to: to_date, option_list: options },
-			success: function(response) {
-				window.open(response);
-			}
-		});
-	}
-	$(document).ready(function() {
-		update_statement_table();
-	});
-	</script>
+    <script>
+    function update_statement_table() {
+        var injuryid = $('[name=statement_search_injury]').val();
+        var from_date = $('[name=statement_search_from]').val();
+        var to_date = $('[name=statement_search_to]').val();
+        var options = $('[name="statement_options[]"]:checked').map( function() { return this.value; }).get().join(",");
+        $.ajax({
+            url: '../Contacts/add_contact_ajax.php?fill=statement',
+            method: 'POST',
+            data: { contact: '<?= $contactid ?>', injury: injuryid, from: from_date, to: to_date, option_list: options },
+            success: function(response) {
+                $('#statement_table_body').html(response);
+            }
+        });
+    }
+    <?php if($hide_filter_options) { } else { ?>
+        function reset_statement_table() {
+            $('[name=statement_search_injury] option:selected').removeAttr('selected');
+            $('[name=statement_search_injury]').trigger('change.select2');
+            $('[name=statement_search_from]').val('');
+            $('[name=statement_search_to]').val('');
+            $('[name="statement_options[]"]:checked').removeAttr('checked');
+            $('[name="statement_options[]"][value="outstanding"]').prop('checked','checked');
+            $('[name="statement_options[]"][value="paid"]').prop('checked','checked');
+            $('[name="statement_options[]"][value="payments"]').prop('checked','checked');
+            update_statement_table();
+        }
+        function print_statement_table() {
+            var injuryid = $('[name=statement_search_injury]').val();
+            var from_date = $('[name=statement_search_from]').val();
+            var to_date = $('[name=statement_search_to]').val();
+            var options = $('[name="statement_options[]"]:checked').map( function() { return this.value; }).get().join(",");
+            $.ajax({
+                url: '../Contacts/add_contact_ajax.php?fill=statement_pdf',
+                method: 'POST',
+                data: { contact: '<?= $contactid ?>', injury: injuryid, from: from_date, to: to_date, option_list: options },
+                success: function(response) {
+                    window.open(response);
+                }
+            });
+        }
+    <?php } ?>
+    $(document).ready(function() {
+        update_statement_table();
+    });
+    </script>
     <h3><?= get_contact($dbc, $contactid) ?> Account Statement</h3>
-	<div class="search-group">
-		<div class="form-group col-lg-9 col-md-8 col-sm-12 col-xs-12">
-			<div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
-				<div class="col-sm-4">
-					<label for="site_name" class="control-label">
-						<span class="popover-examples list-inline" style="margin:0 2px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Check the options to display for the statement."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
-						Include Invoices:</label>
-				</div>
-				<div class="col-sm-8">
-					<label class="form-checkbox"><input type="checkbox" name="statement_options[]" value="saved"> Include Saved (Unbilled) Invoices</label>
-					<label class="form-checkbox"><input type="checkbox" checked name="statement_options[]" value="outstanding"> Include Oustanding Invoices</label>
-					<label class="form-checkbox"><input type="checkbox" checked name="statement_options[]" value="paid"> Include Paid Invoices</label>
-					<label class="form-checkbox"><input type="checkbox" checked name="statement_options[]" value="payments"> Show Payment Transactions</label>
-					<label class="form-checkbox"><input type="checkbox" checked name="statement_options[]" value="insurer"> Show Insurer Transactions</label>
-				</div>
-			</div>
-		</div>
-		<div class="form-group col-lg-3 col-md-4 col-sm-12 col-xs-12">
-			<div style="display:inline-block; padding: 0 0.5em;">
-				<span class="popover-examples list-inline"><a data-toggle="tooltip" data-placement="top" title="Click here after you have selected your options."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
-				<button name="statement_update" value="Search" class="btn brand-btn mobile-block" onclick="update_statement_table(); return false;">Search</button>
-				<span class="popover-examples list-inline"><a data-toggle="tooltip" data-placement="top" title="Click to refresh the table and display the full invoice."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
-				<button name="statement_reset" value="Display All" class="btn brand-btn mobile-block" onclick="reset_statement_table(); return false;">Display All</button><br />
-				<span class="popover-examples list-inline"><a data-toggle="tooltip" data-placement="top" title="Click to download the PDF of the Account Statement."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
-				<button name="statement_pdf" value="PDF" class="btn brand-btn mobile-block" onclick="print_statement_table(); return false;">Print Statement</button>
-			</div>
-		</div>
-		<div class="clearfix"></div>
-	</div>
+    <?php if($hide_filter_options) { ?>
+        <input type="checkbox" checked name="statement_options[]" value="outstanding" style="display:none;">
+        <input type="checkbox" checked name="statement_options[]" value="paid" style="display:none;">
+        <input type="checkbox" checked name="statement_options[]" value="payments" style="display:none;">
+        <input type="checkbox" checked name="statement_options[]" value="insurer" style="display:none;">
+    <?php } else { ?>
+        <div class="search-group">
+            <div class="form-group col-lg-9 col-md-8 col-sm-12 col-xs-12">
+                <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+                    <div class="col-sm-4">
+                        <label for="site_name" class="control-label">
+                            <span class="popover-examples list-inline" style="margin:0 2px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Check the options to display for the statement."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
+                            Include Invoices:</label>
+                    </div>
+                    <div class="col-sm-8">
+                        <label class="form-checkbox"><input type="checkbox" name="statement_options[]" value="saved"> Include Saved (Unbilled) Invoices</label>
+                        <label class="form-checkbox"><input type="checkbox" checked name="statement_options[]" value="outstanding"> Include Oustanding Invoices</label>
+                        <label class="form-checkbox"><input type="checkbox" checked name="statement_options[]" value="paid"> Include Paid Invoices</label>
+                        <label class="form-checkbox"><input type="checkbox" checked name="statement_options[]" value="payments"> Show Payment Transactions</label>
+                        <label class="form-checkbox"><input type="checkbox" checked name="statement_options[]" value="insurer"> Show Insurer Transactions</label>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group col-lg-3 col-md-4 col-sm-12 col-xs-12">
+                <div style="display:inline-block; padding: 0 0.5em;">
+                    <span class="popover-examples list-inline"><a data-toggle="tooltip" data-placement="top" title="Click here after you have selected your options."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
+                    <button name="statement_update" value="Search" class="btn brand-btn mobile-block" onclick="update_statement_table(); return false;">Search</button>
+                    <span class="popover-examples list-inline"><a data-toggle="tooltip" data-placement="top" title="Click to refresh the table and display the full invoice."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
+                    <button name="statement_reset" value="Display All" class="btn brand-btn mobile-block" onclick="reset_statement_table(); return false;">Display All</button><br />
+                    <span class="popover-examples list-inline"><a data-toggle="tooltip" data-placement="top" title="Click to download the PDF of the Account Statement."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
+                    <button name="statement_pdf" value="PDF" class="btn brand-btn mobile-block" onclick="print_statement_table(); return false;">Print Statement</button>
+                </div>
+            </div>
+            <div class="clearfix"></div>
+        </div>
+    <?php } ?>
 	<div id="no-more-tables">
 		<table border="1px" class="table table-bordered">
 			<tr class="hidden-sm hidden-xs">
 				<th>Transaction Date</th>
 				<th>Staff</th>
-				<th>Injury</th>
+				<?= $category == 'Patient' ? '<th>Injury</th>' : '' ?>
 				<th>Services</th>
 				<th><?= $category ?></th>
-				<th>Payer</th>
+				<th>Payment Type</th>
 				<th>Payment</th>
 				<th>Balance</th>
 			</tr>
@@ -2192,55 +2228,47 @@
 	<?php } else {
 		echo 'No Treatment Charts Found.';
 	}
-} else if ($field_option == "Match Addition") {
-	$match_list = mysqli_query($dbc, "SELECT * FROM `match_contact` WHERE (CONCAT(',',`support_contact`,',') LIKE '%,$contactid,%' OR CONCAT(',',`staff_contact`,',') LIKE '%,$contactid,%') AND `deleted` = 0");
-	if(mysqli_num_rows($match_list) > 0) { ?>
-		<table class="table table-bordered">
-			<tr class="hidden-sm hidden-xs">
-				<th>Staff</th>
-				<th>Contacts</th>
-				<th>Timeline</th>
-				<th>Follow Up</th>
-				<th>End Date</th>
-				<th>Status</th>
-				<th>Function</th>
-			</tr>
-			<?php while($row = mysqli_fetch_array($match_list)) { ?>
-				<tr>
-					<td data-title="Staff">
-					<?php
-						$staff_list = explode(',',$row['staff_contact']);
-						$staff_list_arr = [];
-						foreach ($staff_list as $staffid) {
-							$staff_list_arr[] = get_contact($dbc, $staffid);
-						}
-						$staff_list = implode(', ', $staff_list_arr);
-						echo $staff_list;
-					?>
-					</td>
-					<td data-title="Contacts">
-					<?php
-						$staff_list = explode(',',$row['support_contact']);
-						$staff_list_arr = [];
-						foreach ($staff_list as $staffid) {
-							$staff_list_arr[] = get_contact($dbc, $staffid);
-						}
-						$staff_list = implode(', ', $staff_list_arr);
-						echo $staff_list;
-					?>
-					</td>
-					<td data-title="Timeline"><?= $row['match_date'] ?></td>
-					<td data-title="Follwo Up"><?= $row['follow_up_date'] ?></td>
-					<td data-title="End Date"><?= $row['end_date'] ?></td>
-					<td data-title="Status"><?= $row['status'] ?></td>
-					<td data-title="Function"><a href="<?= WEBSITE_URL ?>/Match/add_match.php?matchid=<?= $row['matchid'] ?>">Edit</a></td>
-				</tr>
-			<?php } ?>
-		</table>
-	<?php } else {
-		echo 'No Matches Found.';
+} else if ($field_option == "Match Addition") { ?>
+	<script type="text/javascript">
+	function reload_match() {
+		var contactid = $('[name="contactid"]').val();
+		$.ajax({
+			url: '../Contacts/edit_addition_match.php?edit='+contactid,
+			success: function(response) {
+				$('#match_div').html(response);
+				initInputs('#match_div');
+			}
+		});
 	}
-} else if ($field_option == "Customer Rate Card Addition" && vuaed_visible_function($dbc,'rate_card')) {
+	function update_match_status(a) {
+		var matchid = $(a).data('matchid');
+		var status = $(a).data('status');
+		$.ajax({
+			url :'../Match/isp_ajax_all.php?fill=update_match_status&matchid='+matchid+'&status='+status,
+			method: 'GET',
+			success: function(response) {
+				reload_match();
+			}
+		});
+	}
+	function delete_match(a) {
+		if(confirm("Are you sure you want to archive this Match?")) {
+			var matchid = $(a).data('matchid');
+			$.ajax({
+				url :'../Match/isp_ajax_all.php?fill=delete_match&matchid='+matchid,
+				method: 'GET',
+				success: function(response) {
+					$(a).closest('tr').remove();
+				}
+			});
+		}
+	}
+	</script>
+	<div class="form-group pull-right"><a href="" onclick="overlayIFrameSlider('<?= WEBSITE_URL ?>/Match/edit_match.php?from_tile=contacts&edit=&support_contact=<?= $contactid ?>', 'auto', false, true); return false;" class="btn brand-btn">Add Match</a></div>
+	<div id="match_div">
+		<?php include('../Contacts/edit_addition_match.php'); ?>
+	</div>
+<?php } else if ($field_option == "Customer Rate Card Addition" && vuaed_visible_function($dbc,'rate_card')) {
 	$rate_card_list = mysqli_query($dbc, "SELECT * FROM `rate_card` WHERE `clientid` ='$contactid' AND `deleted` = 0 AND DATE(NOW()) BETWEEN `start_date` AND IFNULL(NULLIF(`end_date`,'0000-00-00'),'9999-12-31')"); ?>
 	<a href="../Rate Card/ratecards.php?type=customer&card=customer&status=add&clientid=<?= $contactid ?>" class="btn brand-btn pull-right" onclick="overlayIFrameSlider(this.href, 'auto', false, true); return false;">Add New</a>
 	<?php if(mysqli_num_rows($rate_card_list) > 0) { ?>
@@ -2298,7 +2326,7 @@
 			url: '../Contacts/edit_addition_customer_rate_services.php?edit=<?= $contactid ?>&field_option=<?= $field_option ?>',
 			success: function(response) {
 				$('.customer_rate_div').html(response);
-				$('.customer_rate_div').find('[data-field]').not('.tile-search').off('change', saveField).change(saveField).off('keyup').keyup(syncUnsaved);
+				$('.customer_rate_div').find('[data-field]').not('.tile-search').off('blur',unsaved).blur(unsaved).off('focus',unsaved).focus(unsaved).off('change',saveField).change(saveField);
 			}
 		});
 	}
@@ -2311,7 +2339,7 @@
 			url: '../Contacts/edit_addition_customer_rate_services.php?edit=<?= $contactid ?>&load_template='+templateid+'&field_option=<?= $field_option ?>',
 			success: function(response) {
 				$('.customer_rate_div').html(response);
-				$('.customer_rate_div').find('[data-field]').not('.tile-search').off('change', saveField).change(saveField).off('keyup').keyup(syncUnsaved);
+				$('.customer_rate_div').find('[data-field]').not('.tile-search').off('blur',unsaved).blur(unsaved).off('focus',unsaved).focus(unsaved).off('change',saveField).change(saveField);
 			}
 		});
 	}
@@ -2397,7 +2425,7 @@
 					clone.find('[name="heading"]').val(serviceid);
 					table.append(clone);
 					initInputs('#'+table.attr('id'));
-					table.find('[data-field]').not('.tile-search').off('change', saveField).change(saveField).off('keyup').keyup(syncUnsaved);
+					table.find('[data-field]').not('.tile-search').off('blur',unsaved).blur(unsaved).off('focus',unsaved).focus(unsaved).off('change',saveField).change(saveField);
 					table.find('tr').last().find('[name="heading"]').change();
 				}
 			});

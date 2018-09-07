@@ -5,18 +5,19 @@ if(!empty($_GET['tile_name'])) {
 	checkAuthorised('documents_all');
 }
 include_once('document_settings.php'); ?>
-
-<div class="tile-sidebar sidebar hide-titles-mob standard-collapsible">
-	<ul>
-		<li><a href="?tile_name=<?= $tile_name ?>&tab=<?= $_GET['tab'] ?>">Back to Dashboard</a></li>
-		<li class="active blue"><?= $tab_type ?> Details</li>
-	</ul>
-</div>
+<?php if($_GET['mode'] != 'iframe') { ?>
+	<div class="tile-sidebar sidebar hide-titles-mob standard-collapsible">
+		<ul>
+			<li><a href="?tile_name=<?= $tile_name ?>&tab=<?= $_GET['tab'] ?>">Back to Dashboard</a></li>
+			<li class="active blue"><?= $tab_type ?> Details</li>
+		</ul>
+	</div>
+<?php } ?>
 
 <div class="scale-to-fill has-main-screen">
 	<div class="main-screen standard-body form-horizontal">
 		<div class="standard-body-title">
-			<h3><?= !empty($_GET['edit']) ? 'Edit' : 'Add' ?> <?= $tab_type ?></h3>
+			<h3><?= !empty($_GET['edit']) ? 'Edit' : 'Add' ?> <?= $tab_type ?><?= $_GET['mode'] == 'iframe' ? '<a href="../blank_loading_page.php" class="pull-right"><img class="inline-img" src="../img/icons/cancel.png"></a>' : '' ?></h3>
 		</div>
 
 		<div class="standard-body-content" style="padding: 1em;">

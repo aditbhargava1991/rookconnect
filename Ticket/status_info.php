@@ -1,14 +1,53 @@
 <?php $guest_access = true;
 include('../include.php');
 ob_clean();
-$ticketid = filter_var($_GET['ticketid'],FILTER_SANITIZE_STRING);
-$get_ticket = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `my_ticket`.*, SUM(IF(`all_tickets`.`ticketid` > 0,1,0)) `prior_count` FROM `tickets` my_ticket LEFT JOIN `tickets` all_tickets ON `my_ticket`.`to_do_date`=`all_tickets`.`to_do_date` AND `all_tickets`.`to_do_start_time` < `my_ticket`.`to_do_start_time` AND IFNULL(`all_tickets`.`contactid`,'')=IFNULL(`my_ticket`.`contactid`,'') AND IFNULL(`all_tickets`.`equipmentid`,'')=IFNULL(`my_ticket`.`equipmentid`,'') AND `all_tickets`.`status` NOT IN ('Archived','Archive','Done') WHERE `my_ticket`.`ticketid`='$ticketid'")); ?>
-<h3>Scheduled</h3>
-<div class=""><?= TICKET_NOUN ?> Scheduled for <?= date('l F j, Y, g:i a',strtotime($get_ticket['to_do_date'].' '.$get_ticket['to_do_start_time'])) ?>.</div>
-<h3>Preceding <?= TICKET_TILE ?></h3>
-<div class="">There are <?= $get_ticket['prior_count'].' '.TICKET_TILE ?> ahead of your <?= TICKET_NOUN ?>.
-<?php if($get_ticket['prior_count'] < 2) { ?>
-	<br />Your <?= TICKET_NOUN ?> will be started soon. Please be ready when our staff arrive for them to complete the work.
-<?php } ?></div>
-<div class="offset-top-30 text-center">This is estimated information only, provided as a guideline for your convenience and is not a guarantee.<br />
-	Status last updated <?= date('Y-m-d H:i:s') ?></div>
+// echo '6 Min#*#50.989#*#-114.06652';
+// exit();
+$driver_cookie = $_POST['driver'];
+if(empty($driver_cookie)) {
+	echo 'UNKNOWN#*#status_error.php?err='.urlencode('No Driver Location Found');
+	exit();
+}
+$ch = curl_init();
+
+curl_setopt($ch, CURLOPT_URL, "https://www.google.com/maps/timeline/kml?authuser=0&pb=!1m8!1m3!1i".date('Y')."!2i".(date('n') - 1)."!3i".date('j')."!2m3!1i".date('Y')."!2i".(date('n') - 1)."!3i".date('j')."");
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "GET");
+
+curl_setopt($ch, CURLOPT_ENCODING, 'gzip, deflate');
+
+$headers = array();
+$headers[] = "Host: www.google.com";
+$headers[] = "User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:40.0) Gecko/20100101 Firefox/40.0";
+$headers[] = "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8";
+$headers[] = "Accept-Language: en-GB,en;q=0.5";
+$headers[] = "DNT: 1";
+$headers[] = "Cookie: ".$driver_cookie;
+$headers[] = "Connection: keep-alive";
+curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+
+$result = curl_exec($ch);
+$lat = 0;
+$long = 0;
+if (curl_errno($ch)) {
+    echo 'UNKNOWN#*#status_error.php?err='.urlencode('Unable to access Driver Location');
+	exit();
+} else {
+	foreach(explode('<coordinates>',$result) as $location) {
+		$location = explode(',',$location);
+		$temp_lat = $location[1];
+		$temp_long = $location[0];
+		if(($temp_lat > 0 || $temp_lat < 0) && ($temp_long > 0 || $temp_long < 0)) {
+			$lat = $temp_lat;
+			$long = $temp_long;
+		}
+	}
+}
+if(empty($lat) && empty($long)) {
+    echo 'UNKNOWN#*#status_error.php?err='.urlencode('Unable to access Driver Location');
+	exit();
+}
+curl_close ($ch);
+$data = json_decode(file_get_contents("http://maps.googleapis.com/maps/api/distancematrix/json?origins=".$lat.','.$long."&destinations=".$_POST['destination']."&language=en-EN&sensor=false"));
+$time = $data->rows[0]->elements[0]->duration->text;
+echo $time.'#*#'.$lat.'#*#'.$long;

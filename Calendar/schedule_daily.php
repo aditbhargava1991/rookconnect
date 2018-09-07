@@ -19,7 +19,7 @@ $(document).ready(function() {
 
 	toggle_columns(global_type);
 	<?php if($_GET['mode'] == 'staff') { ?>
-		$('#collapse_staff').find('.block-item.active').each(function() {
+		$('[id^=collapse_staff]').find('.block-item.active').each(function() {
 			retrieve_items($(this).closest('a'));
 		});
 	<?php } else { ?>
@@ -29,7 +29,7 @@ $(document).ready(function() {
 	<?php } ?>
 
 	//Display active blocks when collapsed
-	displayActiveBlocks();
+	displayActiveBlocksAuto();
 	$('.collapsible .sidebar .panel').on('hidden.bs.collapse', function() {
 		$(this).next('.active_blocks').show();
 	});
@@ -57,13 +57,13 @@ function toggle_columns(type = global_type) {
 		global_type = 'staff';
 	} else if(type == 'team') {
 		$('#collapse_equipment').find('.block-item').removeClass('active');
-		$('#collapse_staff').find('.block-item').removeClass('active');
-		$('#collapse_contractors').find('.block-item').removeClass('active');
+		$('[id^=collapse_staff]').find('.block-item').removeClass('active');
+		$('[id^=collapse_contractors]').find('.block-item').removeClass('active');
 		global_type = 'team';
 	} else {
-		$('#collapse_staff').find('.block-item').removeClass('active');
+		$('[id^=collapse_staff]').find('.block-item').removeClass('active');
 		$('#collapse_teams').find('.block-item').removeClass('active');
-		$('#collapse_contractors').find('.block-item').removeClass('active');
+		$('[id^=collapse_contractors]').find('.block-item').removeClass('active');
 		global_type = '';
 	}
 	$('.active_blocks .block-item,.active_blocks').hide();
@@ -167,10 +167,22 @@ function toggle_columns(type = global_type) {
 		var region_pass = true;
 		var location_pass = true;
 		var classification_pass = true;
-		var equipment_clientid = $(this).data('client').toString().split(',');
-		var equipment_region = $(this).data('region').split('*#*');
-		var equipment_classification = $(this).data('classification').split('*#*');
-		var equipment_location = $(this).data('location').split('*#*');
+		var equipment_clientid = $(this).data('client');
+        if(equipment_clientid != undefined) {
+            equipment_clientid = equipment_clientid.toString().split(',');
+        }
+		var equipment_region = $(this).data('region');
+        if(equipment_region != undefined) {
+            equipment_region = equipment_region.split('*#*');
+        }
+		var equipment_classification = $(this).data('classification');
+        if(equipment_classification != undefined) {
+            equipment_classification = equipment_classification.split('*#*');
+        }
+		var equipment_location = $(this).data('location')
+        if(equipment_location != undefined) {
+            equipment_location = equipment_location.split('*#*');
+        }
 
 		<?php if(strpos(",$scheduling_item_filters,",",Region,") !== FALSE) { ?>
 			if(regions.length > 0) {
@@ -226,10 +238,46 @@ function toggle_columns(type = global_type) {
 	});
 	// Hide teams that are not attached to selected regions/classifications/location
 	$('#collapse_teams').find('.block-item').each(function() {
-		var this_region = $(this).data('region');
-		var this_classification = $(this).data('classification');
-		var this_location = $(this).data('location');
-		if (<?= $filter_condition ?>)  {
+		var region_pass = true;
+		var location_pass = true;
+		var classification_pass = true;
+		var this_regions = $(this).data('region').toString().split(',');
+		var this_classifications = $(this).data('classification').toString().split(',');
+		var this_locations = $(this).data('location').toString().split(',');
+
+		<?php if(strpos(",$scheduling_item_filters,",",Region,") !== FALSE) { ?>
+			if(regions.length > 0) {
+				region_pass = false;
+				this_regions.forEach(function(this_region) {
+					if(regions.indexOf(this_region) > -1) {
+						region_pass = true;
+					}
+				});
+			}
+		<?php } ?>
+
+		<?php if(strpos(",$scheduling_item_filters,",",Location,") !== FALSE) { ?>
+			if(locations.length > 0) {
+				location_pass = false;
+				this_locations.forEach(function(this_location) {
+					if(locations.indexOf(this_location) > -1) {
+						location_pass = true;
+					}
+				});
+			}
+		<?php } ?>
+
+		<?php if(strpos(",$scheduling_item_filters,",",Classification,") !== FALSE) { ?>
+			if(classifications.length > 0) {
+				classification_pass = false;
+				this_classifications.forEach(function(this_classification) {
+					if(classifications.indexOf(this_classification) > -1) {
+						classification_pass = true;
+					}
+				});
+			}
+		<?php } ?>
+		if (!region_pass || !location_pass || !classification_pass) {
 			$(this).hide();
 			$(this).removeClass('active');
 		} else {
@@ -244,15 +292,15 @@ function toggle_columns(type = global_type) {
 			var contactids = $(this).data('contactids').split(',');
 			contactids.forEach(function (contact_id) {
 				if(contact_id > 0) {
-					if($('#collapse_staff').find('.block-item[data-staff='+contact_id+']').length > 0) {
-						var block = $('#collapse_staff').find('.block-item[data-staff='+contact_id+']');
+					if($('[id^=collapse_staff]').find('.block-item[data-staff='+contact_id+']').length > 0) {
+						var block = $('[id^=collapse_staff]').find('.block-item[data-staff='+contact_id+']');
 						if($(block).css('display') != 'none') {
 							block.addClass('active');
 							retrieve_items($(block).closest('a'));
 						}
 					}
-					if($('#collapse_contractors').find('.block-item[data-staff='+contact_id+']').length > 0) {
-						var block = $('#collapse_contractors').find('.block-item[data-staff='+contact_id+']');
+					if($('[id^=collapse_contractors]').find('.block-item[data-staff='+contact_id+']').length > 0) {
+						var block = $('[id^=collapse_contractors]').find('.block-item[data-staff='+contact_id+']');
 						if($(block).css('display') != 'none') {
 							block.addClass('active');
 							retrieve_items($(block).closest('a'));
@@ -293,11 +341,47 @@ function toggle_columns(type = global_type) {
 		$('.active_blocks_teams .block-item').filter(function() { return $(this).data('teamid') == teamid; }).show();
 	});
 	// Hide staff that are not attached to selected regions/classifications/location
-	$('#collapse_staff,#collapse_contractors').find('.block-item').each(function() {
-		var this_region = $(this).data('region');
-		var this_classification = $(this).data('classification');
-		var this_location = $(this).data('location');
-		if (<?= $filter_condition ?>) {
+	$('[id^=collapse_staff],[id^=collapse_contractors]').find('.block-item').each(function() {
+		var region_pass = true;
+		var location_pass = true;
+		var classification_pass = true;
+		var this_regions = $(this).data('region').toString().split(',');
+		var this_classifications = $(this).data('classification').toString().split(',');
+		var this_locations = $(this).data('location').toString().split(',');
+
+		<?php if(strpos(",$scheduling_item_filters,",",Region,") !== FALSE) { ?>
+			if(regions.length > 0) {
+				region_pass = false;
+				this_regions.forEach(function(this_region) {
+					if(regions.indexOf(this_region) > -1) {
+						region_pass = true;
+					}
+				});
+			}
+		<?php } ?>
+
+		<?php if(strpos(",$scheduling_item_filters,",",Location,") !== FALSE) { ?>
+			if(locations.length > 0) {
+				location_pass = false;
+				this_locations.forEach(function(this_location) {
+					if(locations.indexOf(this_location) > -1) {
+						location_pass = true;
+					}
+				});
+			}
+		<?php } ?>
+
+		<?php if(strpos(",$scheduling_item_filters,",",Classification,") !== FALSE) { ?>
+			if(classifications.length > 0) {
+				classification_pass = false;
+				this_classifications.forEach(function(this_classification) {
+					if(classifications.indexOf(this_classification) > -1) {
+						classification_pass = true;
+					}
+				});
+			}
+		<?php } ?>
+		if (!region_pass || !location_pass || !classification_pass) {
 			$(this).hide();
 			$(this).removeClass('active');
 		} else {
@@ -306,7 +390,7 @@ function toggle_columns(type = global_type) {
 	});
     
 	// Filter selected staff
-	$('#collapse_staff,#collapse_contractors').find('.block-item.active').each(function() {
+	$('[id^=collapse_staff],[id^=collapse_contractors]').find('.block-item.active').each(function() {
 		var staffid = $(this).data('staff');
 		staff.push(parseInt(staffid));
 		<?php if ($_GET['mode'] != 'staff' && $_GET['mode'] != 'contractors') { ?>
@@ -404,17 +488,7 @@ function toggle_columns(type = global_type) {
 	$('.calendar_view table tbody tr').first().find('td').css('padding-top',$('.calendar_view table thead tr').outerHeight() + 8);
 	resize_calendar_view();
 
-	displayActiveBlocks();
-}
-function displayActiveBlocks() {
-	$('.active_blocks').each(function() {
-		var accordion = $(this).data('accordion');
-		if($('#'+accordion).hasClass('in')) {
-			$(this).hide();
-		} else {
-			$(this).show();
-		}
-	});
+	displayActiveBlocksAuto();
 }
 </script>
 <div class="calendar-screen set-height">

@@ -7,6 +7,8 @@ checkAuthorised('sales');
 
 $sales_tile = SALES_TILE;
 $sales_noun = SALES_NOUN;
+
+/*
 if (isset($_POST['submit'])) {
     $sales = implode(',',$_POST['sales']);
     $active_leads = implode(",", $_POST['leadstatus']);
@@ -16,7 +18,7 @@ if (isset($_POST['submit'])) {
     set_config($dbc, 'sales_tile_name', $_POST['sales_tile_name'].'#*#'.$_POST['sales_tile_noun']);
 	$sales_tile = $_POST['sales_tile_name'];
 	$sales_noun = $_POST['sales_tile_noun'];
-	
+
     $get_field_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT COUNT(fieldconfigid) AS fieldconfigid FROM field_config"));
     if($get_field_config['fieldconfigid'] > 0) {
         $query_update_employee = "UPDATE `field_config` SET `sales`='$sales', `sales_dashboard`='$sales_dashboard' WHERE `fieldconfigid`=1";
@@ -56,7 +58,7 @@ if (isset($_POST['submit'])) {
         $query_insert_config = "INSERT INTO `general_configuration` (`name`, `value`) VALUES ('sales_lead_status', '$sales_lead_status')";
         $result_insert_config = mysqli_query($dbc, $query_insert_config);
     }
-    
+
     $lead_status_won = filter_var($_POST['lead_status_won'], FILTER_SANITIZE_STRING);
     $get_config = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT COUNT(configid) AS configid FROM general_configuration WHERE name='lead_status_won'"));
     if($get_config['configid'] > 0) {
@@ -66,7 +68,7 @@ if (isset($_POST['submit'])) {
         $query_insert_config = "INSERT INTO `general_configuration` (`name`, `value`) VALUES ('lead_status_won', '$lead_status_won')";
         $result_insert_config = mysqli_query($dbc, $query_insert_config);
     }
-    
+
     $lead_status_lost = filter_var($_POST['lead_status_lost'], FILTER_SANITIZE_STRING);
     $get_config = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT COUNT(configid) AS configid FROM general_configuration WHERE name='lead_status_lost'"));
     if($get_config['configid'] > 0) {
@@ -76,7 +78,7 @@ if (isset($_POST['submit'])) {
         $query_insert_config = "INSERT INTO `general_configuration` (`name`, `value`) VALUES ('lead_status_lost', '$lead_status_lost')";
         $result_insert_config = mysqli_query($dbc, $query_insert_config);
     }
-    
+
     $lead_convert_to = filter_var($_POST['lead_convert_to'], FILTER_SANITIZE_STRING);
     $get_config = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT COUNT(configid) AS configid FROM general_configuration WHERE name='lead_convert_to'"));
     if($get_config['configid'] > 0) {
@@ -87,33 +89,6 @@ if (isset($_POST['submit'])) {
         $result_insert_config = mysqli_query($dbc, $query_insert_config);
     }
 
-    /* $actual_active_lead = '';
-    foreach($map_array as $map => $map_Value) {
-      $active_lead_status = $_POST['active_lead_'.$map];
-      if($active_lead_status != '') {
-        $actual_active_leads[] = $map_Value;
-      }
-
-      $get_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT COUNT(configid) AS configid FROM general_configuration WHERE name='active_lead_$map'"));
-      if($get_config['configid'] > 0) {
-          $query_update = "UPDATE `general_configuration` SET value = '$active_lead_status' WHERE name='active_lead_$map'";
-          $result_update = mysqli_query($dbc, $query_update);
-      } else {
-          $query_insert_config = "INSERT INTO `general_configuration` (`name`, `value`) VALUES ('active_lead_$map', '$active_lead_status')";
-          $result_insert_config = mysqli_query($dbc, $query_insert_config);
-      }
-    }
-
-    $actual_active_lead = implode("," , $actual_active_leads);
-    $get_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT COUNT(configid) AS configid FROM general_configuration WHERE name='active_lead'"));
-    if($get_config['configid'] > 0) {
-        $query_update = "UPDATE `general_configuration` SET value = '$actual_active_lead' WHERE name='active_lead'";
-        $result_update = mysqli_query($dbc, $query_update);
-    } else {
-        $query_insert_config = "INSERT INTO `general_configuration` (`name`, `value`) VALUES ('active_lead', '$actual_active_lead')";
-        $result_insert_config = mysqli_query($dbc, $query_insert_config);
-    } */
-    
     $sales_auto_archive = isset($_POST['sales_auto_archive']) ? 1 : 0;
     $sales_auto_archive_days = filter_var($_POST['sales_auto_archive_days'],FILTER_SANITIZE_STRING);
     set_config($dbc, 'sales_auto_archive', $sales_auto_archive);
@@ -123,6 +98,7 @@ if (isset($_POST['submit'])) {
 
     echo '<script type="text/javascript"> window.location.replace("field_config.php"); </script>';
 }
+*/
 ?>
 <script>
 $(document).ready(function(){
@@ -187,7 +163,7 @@ $(document).ready(function(){
     			?>
             </table>
         </div>
-        
+
         <hr>
 
         <h4>Choose Fields for Schedule Sub Tab</h4>
@@ -209,7 +185,7 @@ $(document).ready(function(){
                 </tr>
             </table>
         </div>
-        
+
         <hr>
 
         <h4>Pipeline &amp; Schedule Accordions</h4>
@@ -269,11 +245,19 @@ $(document).ready(function(){
                             <input type="checkbox" <?php if (strpos($value_config, ','."Tasks".',') !== FALSE) { echo " checked"; } ?> class="all_check" value="Tasks" style="height: 20px; width: 20px;" name="sales[]">&nbsp;&nbsp;Tasks
                         </td>
                     </tr>
+                    <tr>
+                        <td>
+                            <input type="checkbox" <?php if (strpos($value_config, ','."Time".',') !== FALSE) { echo " checked"; } ?> class="all_check" value="Time" style="height: 20px; width: 20px;" name="sales[]">&nbsp;&nbsp;Time Tracking
+                        </td>
+                        <td>
+                            <input type="checkbox" <?php if (strpos($value_config, ','."History".',') !== FALSE) { echo " checked"; } ?> class="all_check" value="History" style="height: 20px; width: 20px;" name="sales[]">&nbsp;&nbsp;History
+                        </td>
+                    </tr>
 
                 </table>
     	    </div>
         </div>
-        
+
         <hr>
 
         <h4>Staff Information Accordion</h4>
@@ -281,7 +265,6 @@ $(document).ready(function(){
             <label class="col-sm-4">Limit Staff Categories:</label>
             <div class="col-sm-8">
                 <select name="limit_staff_cat[]" multiple class="chosen-select-deselect form-control">
-                    <option></option>
                     <?php $sales_limit_staff_cat = ','.get_config($dbc, 'sales_limit_staff_cat').',';
                     $get_config_values = array_filter(explode(',',str_replace(',,',',',str_replace('Staff','',mysqli_fetch_assoc(mysqli_query($dbc,"SELECT categories FROM field_config_contacts WHERE tab='Staff' AND `categories` IS NOT NULL"))['categories']))));
                     foreach($get_config_values as $category) { ?>
@@ -293,18 +276,19 @@ $(document).ready(function(){
 
         <hr>
 
-        <h4>Sales Lead Path Accordion</h4>
+        <h4><?= SALES_TILE ?> Path Accordion</h4>
         <div class="form-group">
             <input type="checkbox" <?php if (strpos($value_config, ','."Sales Lead Path Intake".',') !== FALSE) { echo " checked"; } ?> value="Sales Lead Path Intake" style="height: 20px; width: 20px;" name="sales[]">&nbsp;&nbsp;Intake Forms&nbsp;&nbsp;
+            <input type="checkbox" <?php if (strpos($value_config, ','."Sales Lead Path Checklists".',') !== FALSE) { echo " checked"; } ?> value="Sales Lead Path Checklists" style="height: 20px; width: 20px;" name="sales[]">&nbsp;&nbsp;Checklists&nbsp;&nbsp;
         </div>
-        
+
         <hr>
 
         <h4>Lead Information Accordion</h4>
         <div class="form-group">
             <input type="checkbox" <?php if (strpos($value_config, ','."Lead Information Lead Value".',') !== FALSE) { echo " checked"; } ?> value="Lead Information Lead Value" style="height: 20px; width: 20px;" name="sales[]">&nbsp;&nbsp;Lead Value&nbsp;&nbsp;
         </div>
-        
+
         <hr>
 
         <h4>Services Accordion</h4>
@@ -313,7 +297,7 @@ $(document).ready(function(){
             <input type="checkbox" <?php if (strpos($value_config, ','."Services Category".',') !== FALSE) { echo " checked"; } ?> value="Services Category" style="height: 20px; width: 20px;" name="sales[]">&nbsp;&nbsp;Category&nbsp;&nbsp;
             <input type="checkbox" <?php if (strpos($value_config, ','."Services Heading".',') !== FALSE) { echo " checked"; } ?> value="Services Heading" style="height: 20px; width: 20px;" name="sales[]">&nbsp;&nbsp;Heading&nbsp;&nbsp;
         </div>
-        
+
         <hr>
 
         <h4>Products Accordion</h4>
@@ -322,7 +306,7 @@ $(document).ready(function(){
             <input type="checkbox" <?php if (strpos($value_config, ','."Products Category".',') !== FALSE) { echo " checked"; } ?> value="Products Category" style="height: 20px; width: 20px;" name="sales[]">&nbsp;&nbsp;Category&nbsp;&nbsp;
             <input type="checkbox" <?php if (strpos($value_config, ','."Products Heading".',') !== FALSE) { echo " checked"; } ?> value="Products Heading" style="height: 20px; width: 20px;" name="sales[]">&nbsp;&nbsp;Heading&nbsp;&nbsp;
         </div>
-        
+
         <hr>
 
         <h4>Marketing Material Accordion</h4>
@@ -331,7 +315,7 @@ $(document).ready(function(){
             <input type="checkbox" <?php if (strpos($value_config, ','."Marketing Material Category".',') !== FALSE) { echo " checked"; } ?> value="Marketing Material Category" style="height: 20px; width: 20px;" name="sales[]">&nbsp;&nbsp;Category&nbsp;&nbsp;
             <input type="checkbox" <?php if (strpos($value_config, ','."Marketing Material Heading".',') !== FALSE) { echo " checked"; } ?> value="Marketing Material Heading" style="height: 20px; width: 20px;" name="sales[]">&nbsp;&nbsp;Heading&nbsp;&nbsp;
         </div>
-        
+
         <hr>
 
         <h4>Pipeline &amp; Schedule Dashboard</h4>
@@ -367,7 +351,7 @@ $(document).ready(function(){
                 </tr>
             </table>
         </div>
-        
+
         <hr>
 
         <h4>Lead Source</h4>
@@ -389,7 +373,7 @@ $(document).ready(function(){
                 <input type="checkbox" <?php if (strpos($value_config, ','."Lead Source Other".',') !== FALSE) { echo " checked"; } ?> value="Lead Source Other" style="height: 20px; width: 20px;" name="sales[]">&nbsp;&nbsp;Lead Source Other&nbsp;&nbsp;
             </div>
         </div>
-        
+
         <hr>
 
         <h4>Next Action</h4>
@@ -402,7 +386,7 @@ $(document).ready(function(){
               <input name="sales_next_action" value="<?php echo get_config($dbc, 'sales_next_action'); ?>" type="text" class="form-control">
             </div>
         </div>
-        
+
         <hr>
 
         <h4>Lead Status</h4>
@@ -415,7 +399,7 @@ $(document).ready(function(){
             <div class="col-sm-8">
               <input name="sales_lead_status" value="<?= get_config($dbc, 'sales_lead_status'); ?>" type="text" class="form-control">
             </div>
-            
+
             <label for="company_name" class="col-sm-4 control-label"><span class="popover-examples list-inline"><a style="margin:0 5px 0 0;" data-toggle="tooltip" data-placement="top" title="Select the Lead Status that will be used for won/successfully closed sales leads."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span> Won/Successfully Closed Status:</label>
             <div class="col-sm-8"><?php
                 $get_config_won_status = get_config($dbc, 'lead_status_won'); ?>
@@ -427,7 +411,7 @@ $(document).ready(function(){
                     endforeach; ?>
                 </select>
             </div>
-            
+
             <label for="company_name" class="col-sm-4 control-label"><span class="popover-examples list-inline"><a style="margin:0 5px 0 0;" data-toggle="tooltip" data-placement="top" title="Select the Lead Status that will be used for lost/abandonded sales leads."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span> Lost/Abandoned Status:</label>
             <div class="col-sm-8"><?php
                 $get_config_lost_status = get_config($dbc, 'lead_status_lost'); ?>
@@ -439,7 +423,7 @@ $(document).ready(function(){
                     endforeach; ?>
                 </select>
             </div>
-            
+
             <label for="company_name" class="col-sm-4 control-label"><span class="popover-examples list-inline"><a style="margin:0 5px 0 0;" data-toggle="tooltip" data-placement="top" title="Select the Contact category a Sales Lead will convert to upon successful closure."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span> Successful Sales Lead:</label>
             <div class="col-sm-8"><?php
                 $contacts_tabs = explode(',',get_config($dbc, 'contacts_tabs'));
@@ -453,7 +437,7 @@ $(document).ready(function(){
                 </select>
             </div>
         </div>
-        
+
         <hr>
 
         <h4>Auto Archive</h4>

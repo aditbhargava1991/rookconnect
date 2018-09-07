@@ -4,7 +4,6 @@
 			<label for="first_name" class="col-sm-4 control-label text-right"><?= BUSINESS_CAT ?><span class="brand-color">*</span>:</label>
 			<div class="col-sm-8">
 				<select name="businessid[]" multiple <?php echo $disable_business; ?> id="businessid" data-placeholder="Select an Option..." class="chosen-select-deselect form-control" width="380">
-					<option value=''></option>
 					<option value='New Business'>New Business</option>
 					<?php
 					$query = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc,"SELECT contactid, name FROM contacts WHERE category='".BUSINESS_CAT."' AND deleted=0"),MYSQLI_ASSOC));
@@ -84,24 +83,28 @@
 		if(empty($categories)) {
 			$categories = get_config($dbc, 'clientinfo_tabs');
 		}
-		$contact_label = 'Contact';
-		$cat_array = array_filter(explode(',',str_replace('Business','',$categories)));
-		if(count($cat_array) == 1) {
-			foreach($cat_array as $cat_label) {
-				$contact_label = $cat_label;
-			}
-			switch($contact_label) {
-				case 'Contacts': $contact_label = 'Contact'; break;
-				case 'Customers': $contact_label = 'Customer'; break;
-				case 'Clients': $contact_label = 'Client'; break;
-			}
-		}
+
+        if(tile_enabled($dbc, 'members')) {
+                $contact_label = 'Members';
+        } else {
+            $contact_label = 'Contact';
+            $cat_array = array_filter(explode(',',str_replace('Business','',$categories)));
+            if(count($cat_array) == 1) {
+                foreach($cat_array as $cat_label) {
+                    $contact_label = $cat_label;
+                }
+                switch($contact_label) {
+                    case 'Contacts': $contact_label = 'Contact'; break;
+                    case 'Customers': $contact_label = 'Customer'; break;
+                    case 'Clients': $contact_label = 'Client'; break;
+                }
+            }
+        }
 		?>
 		<div class="form-group clearfix completion_date">
 			<label for="first_name" class="col-sm-4 control-label text-right"><?= $contact_label ?><span class="brand-color">*</span>:</label>
 			<div class="col-sm-8">
 				<select name="businesscontactid[]" multiple <?php echo $disable_client; ?> id="estimateclientid" data-placeholder="Select a <?= $contact_label ?>..." class="chosen-select-deselect form-control" width="380">
-					<option value=''></option>
 					<option value='New <?= $contact_label ?>'>New <?= $contact_label ?></option>
 					<?php
 					$cat = '';
@@ -122,7 +125,9 @@
 						echo '<optgroup label="'.$cat.'">';
 						foreach($id_list as $id) {
 							$names = mysqli_fetch_array(mysqli_query($dbc, "SELECT `name`, `first_name`, `last_name` FROM `contacts` WHERE `contactid`='$id'"));
-							echo "<option ".($businesscontactid == $id ? 'selected' : '')." value='".$id."'>".decryptIt($names['name']).($names['name'].$names['first_name'].$names['last_name'] != '' ? ': ' : '').decryptIt($names['first_name'])." ".decryptIt($names['last_name']).'</option>';
+                            if(($names['name'] != '') || ($names['first_name'] != '' || $names['last_name'] != '')) {
+							    echo "<option ".($businesscontactid == $id ? 'selected' : '')." value='".$id."'>".decryptIt($names['name']).($names['name'].$names['first_name'].$names['last_name'] != '' ? ' ' : '').decryptIt($names['first_name'])." ".decryptIt($names['last_name']).'</option>';
+                            }
 						}
 					} ?>
 				</select>
@@ -171,7 +176,7 @@
 					});
 					$('[name=new-contact-category]').append("<option value='CANCEL'>Cancel New Contact</option>");
 					$('[name=new-contact-category]').trigger('change.select2');
-					
+
 					$('[name=new-contact-category]').chosen().change(function() {
 						var category = $(this).val();
 						if(category == 'CANCEL') {
@@ -210,18 +215,56 @@
 
 <?php if (strpos($value_config, ','."Company Attendees".',') !== FALSE) { ?>
 <div class="form-group clearfix completion_date">
-	<label for="first_name" class="col-sm-4 control-label text-right">Company Attendees:</label>
+	<label for="first_name" class="col-sm-4 control-label text-right">Staff Members:</label>
 	<div class="col-sm-8">
 		<select name="companycontactid[]" multiple <?php echo $disable_client; ?> data-placeholder="Select an Option..." class="chosen-select-deselect form-control" width="380">
-			<option value=''></option>
 			<?php $query1 = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc,"SELECT contactid, first_name, last_name FROM contacts WHERE category IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND deleted=0 AND `status`=1"),MYSQLI_ASSOC));
 			foreach($query1 as $id) {
-				echo "<option ".(strpos(','.$companycontactid.',', ','.$id.',') !== FALSE ? 'selected' : '').' value="'.$id.'">'.get_contact($dbc, $id).'</option>';
+                $get_timer = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `timer` FROM `agenda_meeting_timer` WHERE `agendameetingid` = '$agendameetingid' AND created_by = '$id'"));
+                $timer = '';
+                $e_time = explode(':',$get_timer['timer']);
+                echo $e_time[0];
+                if($e_time[0] > 0) {
+                    $timer .= $e_time[0].' hour ';
+                }
+                if($e_time[1] > 0) {
+                    $timer .= $e_time[1].' minutes';
+                }
+                echo "<option ".(strpos(','.$companycontactid.',', ','.$id.',') !== FALSE ? 'selected' : '').' value="'.$id.'">'.get_contact($dbc, $id).' - '.$timer.'</option>';
 			} ?>
 		</select>
 	</div>
 </div>
 <?php } ?>
+
+<?php if (strpos($value_config, ','."Heading".',') !== FALSE) { ?>
+<div class="form-group clearfix">
+    <label for="first_name" class="col-sm-4 control-label text-right">Heading:</label>
+    <div class="col-sm-8">
+        <select name="heading" data-placeholder="Select a Heading..." class="heading chosen-select-deselect form-control" width="380">
+            <option value=''></option>
+
+                <?php
+                $query = mysqli_fetch_all(mysqli_query($dbc,"SELECT DISTINCT(heading) FROM agenda_meeting"),MYSQLI_ASSOC);
+                foreach($query as $id) {
+                    if($id['heading'] != '') {
+                        echo "<option ".(strpos(','.$heading.',', ','.$id['heading'].',') !== false ? 'selected' : '')." value='". $id['heading']."'>".$id['heading'].'</option>';
+                    }
+                }
+                ?>
+                <option value='Other'>Other <?php echo $heading; ?></option>
+        </select>
+    </div>
+</div>
+
+<div class="form-group clearfix other_heading">
+    <label for="first_name" class="col-sm-4 control-label text-right">Other Heading:</label>
+    <div class="col-sm-8">
+        <input type="text" name="other_heading" value="<?php echo $other_heading; ?>"  class="form-control">
+    </div>
+</div>
+<?php } ?>
+
 
 <?php if (strpos($value_config, ','."Sub Committee".',') !== FALSE) { ?>
 <div class="form-group clearfix completion_date">

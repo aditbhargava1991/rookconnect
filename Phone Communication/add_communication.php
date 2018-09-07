@@ -17,6 +17,9 @@ else if($communication_type == 'External') {
 
 $fax_method = get_config($dbc, 'fax_service');
 $communication_type = $_GET['type'];
+$from = isset($_GET['projectid']) ? 'project' : '';
+$projectid = isset($_GET['projectid']) ? filter_var($_GET['projectid'], FILTER_SANITIZE_STRING) : '';
+
 if (isset($_POST['submit'])) {
 	$communication_type = $_POST['comm_type'];
     $businessid = $_POST['businessid'];
@@ -181,6 +184,15 @@ $(document).ready(function() {
 checkAuthorised('phone_communication'); ?>
 <div class="container">
   <div class="row">
+    <h3 class="gap-left pull-left">Phone</h3>
+    <?php if ( $from == 'project' ) { ?>
+        <div class="pull-right offset-top-15"><a href=""><img src="../img/icons/ROOK-status-rejected.jpg" alt="Close" title="Close" class="inline-img" /></a></div>
+    <?php } ?>
+    <div class="clearfix"></div>
+	<?php if ( $from != 'project' ) { ?>
+        <div class="pad-left gap-top double-gap-bottom"><a href="<?php echo $back_url; ?>" class="btn config-btn">Back to Dashboard</a></div>
+    <?php } ?>
+
 	<form id="form1" name="form1" method="post"	action="" enctype="multipart/form-data" class="form-horizontal" role="form">
 		<?php if($communication_type == 'Fax') {
 			$value_config = ','.get_config($dbc,'fax_communication').',';
@@ -230,6 +242,95 @@ checkAuthorised('phone_communication'); ?>
 				$get_ticket = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT * FROM phone_communication WHERE phone_communicationid='$phone_communicationid'"));
 
 				$businessid = $get_ticket['businessid'];
+            $projectid = $get_ticket['projectid'];
+			$followup_by = $get_ticket['follow_up_by'];
+			$doc = $get_ticket['doc'];
+			$followup_date = $get_ticket['follow_up_date'];
+
+            $comments = $get_ticket['comment'];
+        ?>
+        <input type="hidden" id="phone_communicationid" name="phone_communicationid" value="<?php echo $phone_communicationid ?>" />
+        <?php   }      ?>
+
+        <div class="panel-group <?= ($from == 'project' ? 'block-panels main-screen' : '') ?>" id="accordion2" <?= $from == 'project' ? 'style="background-color: #fff; padding: 0; margin-left: 0.5em; width: calc(100% - 1em);"' : '' ?>>
+
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h4 class="panel-title">
+                        <a data-toggle="collapse" data-parent="#accordion2" href="#collapse_info" >
+                            Information<span class="glyphicon glyphicon-plus"></span>
+                        </a>
+                    </h4>
+                </div>
+
+                <div id="collapse_info" class="panel-collapse collapse in">
+                    <div class="panel-body">
+                        <?php
+                            include ('add_business_info.php');
+                        ?>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h4 class="panel-title">
+                        <a data-toggle="collapse" data-parent="#accordion2" href="#collapse_td" >
+                            Phone Communication Details<span class="glyphicon glyphicon-plus"></span>
+                        </a>
+                    </h4>
+                </div>
+
+                <div id="collapse_td" class="panel-collapse collapse">
+                    <div class="panel-body">
+                        <?php
+                            include ('add_phone_communication_info.php');
+                        ?>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h4 class="panel-title">
+                        <a data-toggle="collapse" data-parent="#accordion2" href="#collapse_followup" >
+                            Reminder<span class="glyphicon glyphicon-plus"></span>
+                        </a>
+                    </h4>
+                </div>
+
+                <div id="collapse_followup" class="panel-collapse collapse">
+                    <div class="panel-body">
+                        <?php
+                            include ('add_phone_communication_follow_up.php');
+                        ?>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <?php if ( $from == 'project' ) { ?>
+            <div class="form-group">
+                <button type="submit" name="submit" value="submit" class="btn brand-btn pull-right">Submit</button>
+                <a href="" class="btn brand-btn pull-right">Cancel</a>
+            </div>
+        <?php } else { ?>
+            <div class="form-group">
+                <div class="col-sm-6">
+                    <a href="<?php echo $back_url; ?>" class="btn brand-btn btn-lg">Back</a>
+                </div>
+                <div class="col-sm-6">
+                    <button type="submit" name="submit" value="submit" class="btn brand-btn btn-lg pull-right">Submit</button>
+                </div>
+            </div>
+        <?php } ?>
+
+        <style>
+            .chosen-container {
+                width:100%;
+            }
+        </style>
 
 				$contactid = $get_ticket['contactid'];
 				if($businessid == '') {

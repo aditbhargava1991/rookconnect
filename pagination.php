@@ -107,12 +107,12 @@ function display_pagination($dbc, $query, $pageNum, $rowsPerPage, $allow_row_set
 			$row_set = 'Rows: <select placeholder="Rows Per Page" onchange="window.location=\'?'.http_build_query($query).'&pagerows=\'+this.value">';
         }
 		for($i = $defaultRows; $i < $numrows + $defaultRows; $i += $defaultRows) {
-			$row_set .= "<option ".($rowsPerPage == $i ? 'selected' : '')." value=$i>$i</option>";
+			$row_set .= "<option ".($rowsPerPage == $i ? 'selected' : '')." value=$i>".($i > $numrows ? $numrows : $i)."</option>";
 		}
 		$row_set .= '</select>';
 	}
 
     // print the navigation link
-    echo "<br/>".$first . $prev . $nav . $next . $last.$row_set."<br/><br/>";
+    echo "<br /><div class='gap-top gap-bottom pagination'>".$first . $prev . $nav . $next . $last.$row_set."</div><br />";
 
 } ?>

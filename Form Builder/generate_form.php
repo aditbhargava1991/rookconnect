@@ -37,7 +37,6 @@ if(!empty($_POST['complete_form'])) {
 	} else {
 		$pdf_name = preg_replace('/([^a-z])/', '', strtolower($form['name'])).'_preview.pdf';
 	}
-
 	include('../Form Builder/generate_form_pdf.php');
 
 	$pdf->writeHTML(utf8_encode('<form action="" method="POST">'.$pdf_text.'</form>'), true, false, true, false, '');
@@ -56,7 +55,7 @@ if(!empty($_POST['complete_form'])) {
 		echo "<script> window.location.replace('download/$pdf_name'); </script>";
 	}
 } else { ?>
-	<form name="assign_form" method="post" action="" class="form-horizontal" role="form" <?= $user_form_layout == 'Sidebar' ? 'style="padding: 0; margin: 0; border-top: 1px solid #E1E1E1;"' : '' ?>>
+	<form name="assign_form" method="post" action="" enctype="multipart/form-data" class="form-horizontal" role="form" <?= $user_form_layout == 'Sidebar' ? 'style="padding: 0; margin: 0; border-top: 1px solid #E1E1E1;"' : '' ?>>
 		<?php $form_id = $_GET['id'];
 		$default_collapse = 'in';
         if($user_form_layout == 'Sidebar') {

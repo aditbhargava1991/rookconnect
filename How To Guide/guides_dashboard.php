@@ -1,10 +1,11 @@
 <?php
 	/*
-	 * How To Guide Dashboard
+	 * Software Guide Dashboard
 	 */
 	error_reporting(0);
 	if(!isset($_GET['from_manual']) && $_GET['from_manual'] != 1)
 	include ('../include.php');
+    include ('check_security.php');
     include ('../database_connection_htg.php');
     $rookconnect = get_software_name();
 ?>
@@ -21,7 +22,7 @@
 	<div class="row">
 
         <div class="col-sm-10">
-			<h1>How To Guide Dashboard</h1>
+			<h1>All Software Guides Dashboard</h1>
 		</div>
 		<div class="col-sm-2 double-gap-top">
 			<?php
@@ -40,7 +41,7 @@
 		<div class="clearfix triple-gap-bottom"></div>
         
         <div class="tab-container">
-            <div class="tab pull-left"><a href="guides_dashboard.php" class="btn active_tab text-uppercase">How To Guides</a></div><?php
+            <div class="tab pull-left"><a href="guides_dashboard.php" class="btn active_tab text-uppercase">Software Guides</a></div><?php
             if ( $rookconnect=='rook' || $rookconnect=='localhost' ) { ?>
                 <div class="tab pull-left"><a href="notes.php" class="btn brand-btn text-uppercase">Notes</a></div><?php
             } ?>
@@ -50,10 +51,10 @@
         if ( config_visible_function ( $dbc, 'how_to_guide' ) == 1 ) { ?>
             <div class="tab-container"><?php
                 if(isset($_GET['maintype'])) {
-                    echo '<div class="tab pull-right"><a href="'.WEBSITE_URL.'/How To Guide/add_edit_guide.php?maintype='.$_GET['maintype'].'" class="btn brand-btn mobile-block">Add How To Guide</a></div>';
+                    echo '<div class="tab pull-right"><a href="'.WEBSITE_URL.'/How To Guide/add_edit_guide.php?maintype='.$_GET['maintype'].'" class="btn brand-btn mobile-block">Add Software Guide</a></div>';
                 }
                 else {
-                    echo '<div class="tab pull-right"><a href="add_edit_guide.php" class="btn brand-btn">Add How To Guide</a></div>';
+                    echo '<div class="tab pull-right"><a href="add_edit_guide.php" class="btn brand-btn">Add Software Guide</a></div>';
                 } ?>
                 <div class="clearfix"></div>
             </div><?php
@@ -152,10 +153,10 @@
 					
 					if ( config_visible_function ( $dbc, 'how_to_guide' ) == 1 ) {
 						if(isset($_GET['maintype'])) {
-							echo '<a href="'.WEBSITE_URL.'/How To Guide/add_edit_guide.php?maintype='.$_GET['maintype'].'" class="btn brand-btn mobile-block pull-right">Add How To Guide</a>';
+							echo '<a href="'.WEBSITE_URL.'/How To Guide/add_edit_guide.php?maintype='.$_GET['maintype'].'" class="btn brand-btn mobile-block pull-right">Add Software Guide</a>';
 						}
 						else {
-							echo '<a href="add_edit_guide.php" class="btn brand-btn mobile-block pull-right">Add How To Guide</a>';
+							echo '<a href="add_edit_guide.php" class="btn brand-btn mobile-block pull-right">Add Software Guide</a>';
 						}
 					}
 					

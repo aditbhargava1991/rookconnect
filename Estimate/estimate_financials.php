@@ -3,13 +3,21 @@ checkAuthorised('estimate');
 error_reporting(0);
 $us_exchange = json_decode(file_get_contents('https://www.bankofcanada.ca/valet/observations/group/FX_RATES_DAILY/json'), TRUE);
 $us_rate = $us_exchange['observations'][count($us_exchange['observations']) - 1]['FXUSDCAD']['v'];
+$us_rate_no_auto = get_config($dbc, 'disable_us_auto_convert');
 $estimateid = filter_var($_GET['financials'],FILTER_SANITIZE_STRING);
 $estimate = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `estimate` WHERE `estimateid`='$estimateid'"));
 $scope = mysqli_query($dbc, "SELECT * FROM `estimate_scope` WHERE `estimateid`='$estimateid' AND `deleted`=0 ORDER BY `sort_order`");
 $view = filter_var($_GET['view'],FILTER_VALIDATE_INT);
-$total_cost = $total_price = 0; ?>
+$total_cost = $total_price = $total_us_cost = $total_us_price = 0; ?>
 <script>
 $(document).ready(function() {
+    $(window).resize(function() {
+        available = Math.floor($(window).innerHeight() - $('.main-screen').offset().top - $('footer:visible').outerHeight() - 80);
+		    if(available > 300) {
+            $('.financials').each(function() { $(this).attr('style',$(this).attr('style')+';height:'+available+'px !important;'); })
+		    }
+	  }).resize();
+      
     $('input[name=quantity]').on('change', function() {
         var arr = $(this).attr('id').split('_');
         var row = arr[1];
@@ -115,7 +123,7 @@ function calcTotals(changed, changed_val, qty, cost, price, row, db_id) {
 </script>
 <div id="no-more-tables" class="col-sm-12 fit-to-screen-full overflow-y">
 	<div class='by-item' style="display:<?= empty($view) || $view=='1' ? 'block' : 'none' ?>;">
-		<h4 class="pull-left">Profit & Loss by Item for <a href="?edit=<?= $estimate['estimateid'] ?>"><?= $estimate['estimate_name'] != '' ? $estimate['estimate_name'] : ESTIMATE_TILE.' #'.$estimateid ?><img class="inline-img" src="../img/icons/ROOK-edit-icon.png"></a></h4>
+		<h4 class="pull-left">Profit & Loss by Item for <a href="?edit=<?= $estimate['estimateid'] ?>"><?= $estimate['estimate_name'] != '' ? $estimate['estimate_name'] : ESTIMATE_TILE.' #'.$estimateid ?><img class="inline-img no-toggle" src="../img/icons/ROOK-edit-icon.png" title="Edit"></a></h4>
 		<div class="pull-right gap-top">
             <a href="?edit=<?=$estimateid?>&tab=analysis&financials=<?=$estimateid?>&view=1" class="btn brand-btn pull-left active_tab">View by Item</a>
             <a href="?edit=<?=$estimateid?>&tab=analysis&financials=<?=$estimateid?>&view=2" class="btn brand-btn pull-left gap-left">View by Heading</a><?php
@@ -166,13 +174,13 @@ function calcTotals(changed, changed_val, qty, cost, price, row, db_id) {
 				} else if($scope_line['src_table'] != 'miscellaneous' && $scope_line['src_id'] > 0) {
 					$scope_description = get_contact($dbc, $scope_line['src_id']);
 				}
-				if($scope_line['pricing'] == 'usd_cpu' && !($scope_line['price'] > 0)) {
+				if($us_rate_no_auto != 'true' && $scope_line['pricing'] == 'usd_cpu' && !($scope_line['price'] > 0)) {
 					$scope_line['price'] = $scope_line['cost'] * $us_rate;
 					$scope_line['retail'] = $scope_line['price'] * $scope_line['qty'];
 				} else if(!($scope_line['retail'] > 0)) {
 					$scope_line['retail'] = $scope_line['price'] * $scope_line['qty'];
 				}
-				if($scope_line['pricing'] == 'usd_cpu') {
+				if($us_rate_no_auto != 'true' && $scope_line['pricing'] == 'usd_cpu') {
 					$scope_line['cost'] = $scope_line['cost'] * $us_rate;
 				}
 				if(!($scope_line['profit'] > 0)) {
@@ -193,8 +201,13 @@ function calcTotals(changed, changed_val, qty, cost, price, row, db_id) {
 						<td data-title="Total" align="right"><input type="text" name="total" id="totalscope_<?= $i ?>" data-id="<?= $scope_line['id'] ?>" class="form-control text-right total" readonly value="<?= number_format($scope_line['retail'], 2, '.', '') ?>" /></td>
 					<?php } ?>
 				</tr>
-				<?php $total_cost += $scope_line['cost'] * $scope_line['qty'];
-				$total_price += $scope_line['retail'];
+				<?php if($us_rate_no_auto == 'true' && $scope_line['pricing'] == 'usd_cpue') {
+					$total_us_cost += $scope_line['cost'] * $scope_line['qty'];
+					$total_us_price += $scope_line['retail'];
+				} else {
+					$total_cost += $scope_line['cost'] * $scope_line['qty'];
+					$total_price += $scope_line['retail'];
+				}
                 
                 $i++;
 			} ?>
@@ -206,12 +219,22 @@ function calcTotals(changed, changed_val, qty, cost, price, row, db_id) {
 				<td data-title=""></td>
 				<td data-title="Total" align="right" class="total_total">$<?= number_format($total_price,2, '.', '') ?></td>
 			</tr>
+			<?php if($total_us_cost + $total_us_price > 0) { ?>
+				<tr style="font-weight:bold;">
+					<td data-title="" colspan="4">Total USD <?php if (PROJECT_TILE=='Projects') { echo "Project"; } else { echo PROJECT_TILE; } ?> Price</td>
+					<td data-title="Total USD Cost" align="right">$<?= number_format($total_us_cost,2, '.', '') ?> USD</td>
+					<td data-title="Average Margin" align="right" class="total_margin"><?= number_format(($total_us_cost > 0 ? ($total_us_price - $total_us_cost) / $total_us_cost * 100 : 0),2, '.', '') ?>%</td>
+					<td data-title="Total Profit" align="right" class="total_profit">$<?= number_format($total_us_price - $total_us_cost,2, '.', '') ?></td>
+					<td data-title=""></td>
+					<td data-title="Total USD" align="right" class="total_total">$<?= number_format($total_us_price,2, '.', '') ?> USD</td>
+				</tr>
+			<?php } ?>
 		</table>
 	</div>
 	
     
     <div class='by-heading' style="display:<?= !empty($view) && $view=='2' ? 'block' : 'none' ?>;">
-		<h4 class="pull-left">Profit & Loss by Heading for <a href="?edit=<?= $estimate['estimateid'] ?>"><?= $estimate['estimate_name'] != '' ? $estimate['estimate_name'] : ESTIMATE_TILE.' #'.$estimateid ?><img class="inline-img" src="../img/icons/ROOK-edit-icon.png"></a></h4>
+		<h4 class="pull-left">Profit & Loss by Heading for <a href="?edit=<?= $estimate['estimateid'] ?>"><?= $estimate['estimate_name'] != '' ? $estimate['estimate_name'] : ESTIMATE_TILE.' #'.$estimateid ?><img class="inline-img no-toggle" src="../img/icons/ROOK-edit-icon.png" title="Edit"></a></h4>
         <div class="pull-right gap-top">
             <a href="?edit=<?=$estimateid?>&tab=analysis&financials=<?=$estimateid?>&view=1" class="btn brand-btn pull-left">View by Item</a>
             <a href="?edit=<?=$estimateid?>&tab=analysis&financials=<?=$estimateid?>&view=2" class="btn brand-btn pull-left gap-left active_tab">View by Heading</a><?php
@@ -362,7 +385,7 @@ function calcTotals(changed, changed_val, qty, cost, price, row, db_id) {
     
     <?php $url_scope = filter_var($_GET['scope'], FILTER_SANITIZE_STRING); ?>
     <div class='by-scope' style="display:<?= !empty($url_scope) ? 'block' : 'none' ?>;">
-        <h4 class="pull-left">Profit & Loss by <?= $url_scope ?> for <a href="?edit=<?= $estimate['estimateid'] ?>"><?= $estimate['estimate_name'] != '' ? $estimate['estimate_name'] : ESTIMATE_TILE.' #'.$estimateid ?><img class="inline-img" src="../img/icons/ROOK-edit-icon.png"></a></h4>
+        <h4 class="pull-left">Profit & Loss by <?= $url_scope ?> for <a href="?edit=<?= $estimate['estimateid'] ?>"><?= $estimate['estimate_name'] != '' ? $estimate['estimate_name'] : ESTIMATE_TILE.' #'.$estimateid ?><img class="inline-img no-toggle" src="../img/icons/ROOK-edit-icon.png" title="Edit"></a></h4>
         <div class="pull-right gap-top">
             <a href="?edit=<?=$estimateid?>&tab=analysis&financials=<?=$estimateid?>&view=1" class="btn brand-btn pull-left">View by Item</a>
             <a href="?edit=<?=$estimateid?>&tab=analysis&financials=<?=$estimateid?>&view=2" class="btn brand-btn pull-left gap-left">View by Heading</a><?php
