@@ -288,10 +288,10 @@ function apply_template() {
 			</select>
 		</div>
 		<div class="col-sm-1">
-			<img class="inline-img pull-right no-toggle current" src="../img/person.PNG" title="View this contact's profile" onclick="viewProfile(this, '<?= BUSINESS_CAT ?>');" style="<?= $project['businessid'] > 0 ? 'display:none;' : '' ?>">
 			<?php if($security['edit'] > 0) { ?>
 				<img class="inline-img pull-right no-toggle new" src="../img/icons/ROOK-add-icon.png" title="Create a new <?= BUSINESS_CAT ?> for this <?= PROJECT_NOUN ?>" onclick="newContact(this, '<?= BUSINESS_CAT ?>');" style="<?= $project['businessid'] > 0 ? '' : 'display:none;' ?>">
 			<?php } ?>
+			<img class="inline-img pull-right no-toggle current" src="../img/person.PNG" title="View this contact's profile" onclick="viewProfile(this, '<?= BUSINESS_CAT ?>');" style="<?= $project['businessid'] > 0 ? '' : 'display:none;' ?>">
 		</div>
 	</div>
 	<?php } ?>
@@ -301,9 +301,9 @@ function apply_template() {
 		for($i = 0; $i < count($contact_list) || $i == 0; $i++) {
 			$clientid = $contact_list[$i]; ?>
 			<div class="form-group">
-				<label class="col-sm-4">Contact:</label>
+				<label class="col-sm-4"><?= CONTACTS_TILE ?>:</label>
 				<div class="col-sm-7 <?= !($security['edit'] > 0) ? 'readonly-block' : '' ?>">
-					<select name="clientid[]" data-placeholder="Select a Contact..." data-table="project" data-id="<?= $project['projectid'] ?>" data-id-field="projectid" class="chosen-select-deselect form-control" onchange="if(this.value > 0) { $(this).closest('.form-group').find('.current').show(); $(this).closest('.form-group').find('.new').hide(); } else { $(this).closest('.form-group').find('.current').hide(); $(this).closest('.form-group').find('.new').show(); }">
+					<select name="clientid[]" data-placeholder="Select a <?= CONTACTS_NOUN ?>..." data-table="project" data-id="<?= $project['projectid'] ?>" data-id-field="projectid" class="chosen-select-deselect form-control" onchange="if(this.value > 0) { $(this).closest('.form-group').find('.current').show(); $(this).closest('.form-group').find('.new').hide(); } else { $(this).closest('.form-group').find('.current').hide(); $(this).closest('.form-group').find('.new').show(); }">
 						<option></option>
 						<?php foreach(sort_contacts_query(mysqli_query($dbc, "SELECT contactid, first_name, last_name, category, region, con_locations, classification, businessid FROM contacts WHERE (category!='Business' AND deleted=0 AND `status` > 0) OR `contactid`='$clientid'")) as $contact) {
 							echo "<option ".(($clientid == $contact['contactid'] || (in_array($contact['contactid'],$sales_contactids) && $_GET['edit']==0)) ? 'selected' : '')." value='". $contact['contactid']."' data-region='".$contact['region']."' data-location='".$contact['con_locations']."' data-classification='".$contact['classification']."' data-business='".$contact['businessid']."'>".$contact['first_name'].' '.$contact['last_name'].'</option>';
@@ -362,10 +362,10 @@ function apply_template() {
 			</select>
 		</div>
 		<div class="col-sm-1">
-			<img class="inline-img pull-right no-toggle current" src="../img/person.PNG" title="View this Site's profile" onclick="viewProfile(this, '<?= SITES_CAT ?>');" style="<?= $project['siteid'] > 0 ? '' : 'display:none;' ?>">
 			<?php if($security['edit'] > 0) { ?>
 				<img class="inline-img pull-right no-toggle new" src="../img/icons/ROOK-add-icon.png" title="Create a new <?= SITES_CAT ?> for this <?= PROJECT_NOUN ?>" onclick="newContact(this, '<?= SITES_CAT ?>');" style="<?= $project['siteid'] > 0 ? 'display:none;' : '' ?>">
 			<?php } ?>
+			<img class="inline-img pull-right no-toggle current" src="../img/person.PNG" title="View this Site's profile" onclick="viewProfile(this, '<?= SITES_CAT ?>');" style="<?= $project['siteid'] > 0 ? '' : 'display:none;' ?>">
 		</div>
 	</div>
 	<?php } ?>
