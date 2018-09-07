@@ -247,16 +247,16 @@ $piece_types = array_filter(explode(',',get_config($dbc, 'piece_types')));
 $general_line_item = 0;
 do {
 	if(strpos($value_config,',Inventory General Weight Convert KG to LB,') !== FALSE) {
-		$general_shipment['weight_units'] = explode('#*#',$general_shipment['weight_units']);
-		$general_shipment['weight'] = explode('#*#',$general_shipment['weight']);
-		foreach($general_shipment['weight'] as $id => $general_weight) {
-			if($general_shipment['weight_units'] == 'kg' && $general_weight > 0) {
-				$general_shipment['weight'][$id] = number_format(($general_shipment['weight'][$id]*2.20462262185),2);
-				$general_shipment['weight_units'][$id] = 'lb';
+		$general_inventory['weight_units'] = explode('#*#',$general_inventory['weight_units']);
+		$general_inventory['weight'] = explode('#*#',$general_inventory['weight']);
+		foreach($general_inventory['weight'] as $id => $general_weight) {
+			if($general_inventory['weight_units'] == 'kg' && $general_weight > 0) {
+				$general_inventory['weight'][$id] = number_format(($general_inventory['weight'][$id]*2.20462262185),2);
+				$general_inventory['weight_units'][$id] = 'lb';
 			}
 		}
-		$general_shipment['weight_units'] = implode('#*#',$general_shipment['weight_units']);
-		$general_shipment['weight'] = implode('#*#',$general_shipment['weight']);
+		$general_inventory['weight_units'] = implode('#*#',$general_inventory['weight_units']);
+		$general_inventory['weight'] = implode('#*#',$general_inventory['weight']);
 	}
 	if($general_inventory['dimensions'] == '') {
 		$general_inventory['dimensions'] = ' x x ';
