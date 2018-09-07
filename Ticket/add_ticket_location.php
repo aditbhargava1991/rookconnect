@@ -9,8 +9,11 @@ function filterSitesByClient() {
 	$('[name="clientid"]').each(function() {
 		var clientid = $(this).val();
 		$('[name="siteid"] option[data-businessid="'+clientid+'"]').show();
+		if($('[name="siteid"]').val() == undefined || $('[name="siteid"]').val() == '') {
+			$('[name="siteid"] option[data-businessid="'+clientid+'"]').first().prop('selected', true);
+		}
 	});
-	$('[name="siteid"]').trigger('change.select2');
+	$('[name="siteid"]').trigger('change.select2').change();
 }
 </script>
 <?php } ?>
