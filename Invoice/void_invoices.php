@@ -214,12 +214,11 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
                                 }
                                 $search_invoiceid = isset($_POST['search_invoiceid']) ? preg_replace('/[^0-9]/', '', $_POST['search_invoiceid']) : '';
                             } ?>
-                            <div class="search-group double-gap-top">
-                                <div class="form-group col-lg-9 col-md-8 col-sm-12 col-xs-12">
-                                    <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+                            <div class="form-group search-group double-gap-top">
+                                <div class="col-xs-12">
+                                    <div class="col-sm-6 col-xs-12">
                                         <div class="col-sm-4">
-                                            <label for="site_name" class="control-label">
-                                                Search By <?= $purchaser_label ?>:</label>
+                                            <label for="site_name" class="control-label">Search By <?= $purchaser_label ?>:</label>
                                         </div>
                                         <div class="col-sm-8">
                                             <select name="contactid" data-placeholder="Select <?= $purchaser_label ?>..." class="chosen-select-deselect form-control width-me">
@@ -239,7 +238,7 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
                                         </div>
                                     </div>
                                     <?php if(strpos($value_config,',invoiceid,') !== FALSE) { ?>
-                                        <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+                                        <div class="col-sm-6 col-xs-12">
                                             <div class="col-sm-4">
                                                 <label for="site_name" class="control-label">Search By Invoice #:</label>
                                             </div>
@@ -249,8 +248,8 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
                                         </div>
                                     <?php } ?>
                                 </div>
-                                <div class="form-group col-lg-9 col-md-8 col-sm-12 col-xs-12">
-                                    <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+                                <div class="col-xs-12">
+                                    <div class="col-sm-6 col-xs-12">
                                         <div class="col-sm-4">
                                             <label for="site_name" class="control-label">Search From Date:</label>
                                         </div>
@@ -258,23 +257,18 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
                                             <input name="search_from" type="text" class="datepicker form-control" value="<?= $search_from ?>">
                                         </div>
                                     </div>
-                                    <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+                                    <div class="col-sm-6 col-xs-12">
                                         <div class="col-sm-4">
-                                            <label for="site_name" class="control-label">
-                                                Search To Date:</label>
+                                            <label for="site_name" class="control-label">Search To Date:</label>
                                         </div>
                                         <div class="col-sm-8">
                                             <input name="search_to" type="text" class="datepicker form-control" value="<?= $search_to ?>">
                                         </div>
                                     </div>
                                 </div>
-                                <div class="form-group col-lg-3 col-md-4 col-sm-12 col-xs-12">
-                                    <div style="display:inline-block; padding: 0 0.5em;">
-                                        <button type="submit" name="search_invoice_submit" value="Search" class="btn brand-btn mobile-block">Search</button>
-                                    </div>
-                                    <div style="display:inline-block; padding: 0 0.5em;">
-                                        <a href="" type="submit" name="display_all_inventory" value="Display All" class="btn brand-btn mobile-block">Display All</a>
-                                    </div>
+                                <div class="col-xs-12 text-right gap-top">
+                                    <button type="submit" name="search_invoice_submit" value="Search" class="btn brand-btn mobile-block">Search</button>
+                                    <button type="submit" name="display_all_inventory" value="Display All" class="btn brand-btn mobile-block">Display All</button>
                                 </div>
                             </div>
                         </form>
