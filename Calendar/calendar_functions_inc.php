@@ -2,6 +2,12 @@
 function checkShiftIntervals($dbc, $contact_id, $day_of_week, $calendar_date, $query_type, $clientid, $limits = '', $check_conflicts = '') {
 	$day_start = get_config($dbc, 'shift_day_start');
 	$day_end = get_config($dbc, 'shift_day_end');
+	if(empty($day_start)) {
+		$day_start = '12:00 am';
+	}
+	if(empty($day_end)) {
+		$day_end = '11:59 pm';
+	}
 	$contact_query = '';
 	$role_query = '';
 	if (!empty($contact_id)) {
