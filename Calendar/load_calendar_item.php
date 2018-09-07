@@ -36,6 +36,7 @@ if(($_GET['type'] == 'uni' || $_GET['type'] == 'my') && empty($_GET['shiftid']) 
 	if(strpos(','.$calendar_type.',', ',ticket,') !== FALSE) {
 		//Pull all tickets for the current contact from the ticket table
 		$all_tickets_sql = "SELECT *, IFNULL(NULLIF(`to_do_end_date`,'0000-00-00'),`to_do_date`) `to_do_end_date` FROM `tickets` WHERE (internal_qa_date = '".$calendar_date."' OR `deliverable_date` = '".$calendar_date."' OR '".$calendar_date."' BETWEEN `to_do_date` AND IFNULL(NULLIF(`to_do_end_date`,'0000-00-00'),`to_do_date`)) AND (CONCAT(',',`contactid`,',') LIKE '%,".$contact_id.",%' OR CONCAT(',',`internal_qa_contactid`,',') LIKE '%,".$contact_id.",%' OR CONCAT(',',`deliverable_contactid`,',') LIKE '%,".$contact_id.",%') AND `deleted` = 0 AND `status` NOT IN ('Archive', 'Done')";
+		$calendar_table[$calendar_date][$contact_id]['deleted_tickets'] = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT COUNT(*) `num_rows` FROM `tickets` WHERE (internal_qa_date = '".$calendar_date."' OR `deliverable_date` = '".$calendar_date."' OR '".$calendar_date."' BETWEEN `to_do_date` AND IFNULL(NULLIF(`to_do_end_date`,'0000-00-00'),`to_do_date`)) AND (CONCAT(',',`contactid`,',') LIKE '%,".$contact_id.",%' OR CONCAT(',',`internal_qa_contactid`,',') LIKE '%,".$contact_id.",%' OR CONCAT(',',`deliverable_contactid`,',') LIKE '%,".$contact_id.",%') AND (`deleted` = 1 OR `status` IN ('Archive', 'Done')"))['num_rows'];
 		$result_tickets_sql = mysqli_query($dbc, $all_tickets_sql);
 		$tickets_time = [];
 		$tickets_notime = [];
@@ -934,6 +935,7 @@ if(($_GET['type'] == 'uni' || $_GET['type'] == 'my') && empty($_GET['shiftid']) 
 
 	//Pull all tickets for the current contact from the ticket table
 	$all_tickets_sql = "SELECT *, IFNULL(NULLIF(`to_do_end_date`,'0000-00-00'),`to_do_date`) `to_do_end_date` FROM `tickets` WHERE '".$calendar_date."' BETWEEN `to_do_date` AND IFNULL(NULLIF(`to_do_end_date`,'0000-00-00'),`to_do_date`) AND `deleted` = 0 AND `status` NOT IN ('Archive', 'Done', 'Internal QA', 'Customer QA')".$contacts_query.$allowed_ticket_types_query;
+	$calendar_table[$calendar_date][$contact_id]['deleted_tickets'] = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT COUNT(*) `num_rows` FROM `tickets` WHERE '".$calendar_date."' BETWEEN `to_do_date` AND IFNULL(NULLIF(`to_do_end_date`,'0000-00-00'),`to_do_date`) AND (`deleted` = 1 OR `status` IN ('Archive', 'Done'))".$contacts_query.$allowed_ticket_types_query))['num_rows'];
 	$result_tickets_sql = mysqli_query($dbc, $all_tickets_sql);
 	$tickets_time = [];
 	$tickets_notime = [];
@@ -1104,8 +1106,10 @@ if(($_GET['type'] == 'uni' || $_GET['type'] == 'my') && empty($_GET['shiftid']) 
 	//Pull all tickets for the current contact from the ticket table
 	if($_GET['mode'] == 'client') {
 		$all_tickets_sql = "SELECT *, IFNULL(NULLIF(`to_do_end_date`,'0000-00-00'),`to_do_date`) `to_do_end_date` FROM `tickets` WHERE (internal_qa_date = '".$calendar_date."' OR `deliverable_date` = '".$calendar_date."' OR '".$calendar_date."' BETWEEN `to_do_date` AND IFNULL(NULLIF(`to_do_end_date`,'0000-00-00'),`to_do_date`)) AND (CONCAT(',',`businessid`,',') LIKE '%,".$contact_id.",%' OR CONCAT(',',`clientid`,',') LIKE '%,".$contact_id.",%') AND `deleted` = 0 AND `status` NOT IN ('Archive', 'Done')".$allowed_ticket_types_query;
+		$calendar_table[$calendar_date][$contact_id]['deleted_tickets'] = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT COUNT(*) `num_rows` FROM `tickets` WHERE (internal_qa_date = '".$calendar_date."' OR `deliverable_date` = '".$calendar_date."' OR '".$calendar_date."' BETWEEN `to_do_date` AND IFNULL(NULLIF(`to_do_end_date`,'0000-00-00'),`to_do_date`)) AND (CONCAT(',',`businessid`,',') LIKE '%,".$contact_id.",%' OR CONCAT(',',`clientid`,',') LIKE '%,".$contact_id.",%') AND (`deleted` = 1 OR `status` IN ('Archive', 'Done'))".$allowed_ticket_types_query))['num_rows'];
 	} else {
 		$all_tickets_sql = "SELECT *, IFNULL(NULLIF(`to_do_end_date`,'0000-00-00'),`to_do_date`) `to_do_end_date` FROM `tickets` WHERE (internal_qa_date = '".$calendar_date."' OR `deliverable_date` = '".$calendar_date."' OR '".$calendar_date."' BETWEEN `to_do_date` AND IFNULL(NULLIF(`to_do_end_date`,'0000-00-00'),`to_do_date`)) AND (CONCAT(',',`contactid`,',') LIKE '%,".$contact_id.",%' OR CONCAT(',',`internal_qa_contactid`,',') LIKE '%,".$contact_id.",%' OR CONCAT(',',`deliverable_contactid`,',') LIKE '%,".$contact_id.",%') AND `deleted` = 0 AND `status` NOT IN ('Archive', 'Done')".$allowed_ticket_types_query;
+		$calendar_table[$calendar_date][$contact_id]['deleted_tickets'] = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT COUNT(*) `num_rows` FROM `tickets` WHERE (internal_qa_date = '".$calendar_date."' OR `deliverable_date` = '".$calendar_date."' OR '".$calendar_date."' BETWEEN `to_do_date` AND IFNULL(NULLIF(`to_do_end_date`,'0000-00-00'),`to_do_date`)) AND (CONCAT(',',`contactid`,',') LIKE '%,".$contact_id.",%' OR CONCAT(',',`internal_qa_contactid`,',') LIKE '%,".$contact_id.",%' OR CONCAT(',',`deliverable_contactid`,',') LIKE '%,".$contact_id.",%') AND (`deleted` = 1 OR `status` IN ('Archive', 'Done'))".$allowed_ticket_types_query))['num_rows'];
 	}
 	$result_tickets_sql = mysqli_query($dbc, $all_tickets_sql);
 	$tickets_time = [];
@@ -1659,6 +1663,9 @@ if($ticket_summary == 1) {
 		$completed_tickets = $calendar_table[$calendar_date][$contact_id]['completed_tickets'] > 0 ? $calendar_table[$calendar_date][$contact_id]['completed_tickets'] : 0;
 		$total_tickets = $calendar_table[$calendar_date][$contact_id]['total_tickets'] > 0 ? $calendar_table[$calendar_date][$contact_id]['total_tickets'] : 0;
 		$calendar_table[$calendar_date][$contact_id]['ticket_summary'] = 'Completed '.$completed_tickets.' of '.$total_tickets.' '.($total_tickets == 1 ? TICKET_NOUN : TICKET_TILE);
+	}
+	if($ticket_summary_deleted == 1 && $calendar_table[$calendar_date][$contact_id]['deleted_tickets'] > 0) {
+		$calendar_table[$calendar_date][$contact_id]['ticket_summary'] .= '<br />'.$calendar_table[$calendar_date][$contact_id]['deleted_tickets'].' Deleted '.($calendar_table[$calendar_date][$contact_id]['deleted_tickets'] == 1 ? TICKET_NOUN : TICKET_TILE);
 	}
 }
 

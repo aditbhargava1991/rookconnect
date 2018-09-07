@@ -242,6 +242,7 @@ switch($_GET['type']) {
         $monthly_start = get_config($dbc, 'my_monthly_start');
         $monthly_days = explode(',', get_config($dbc, 'my_monthly_days'));
         $ticket_summary = get_config($dbc, 'my_ticket_summary');
+        $ticket_summary_deleted = get_config($dbc, 'my_ticket_summary_deleted');
         $availability_indication = get_config($dbc, 'my_availability_indication');
         $sidebar_file = 'my_sidebar.php';
         $all_tickets_button = '';
@@ -276,6 +277,7 @@ switch($_GET['type']) {
         $monthly_start = get_config($dbc, 'uni_monthly_start');
         $monthly_days = explode(',', get_config($dbc, 'uni_monthly_days'));
         $ticket_summary = get_config($dbc, 'uni_ticket_summary');
+        $ticket_summary_deleted = get_config($dbc, 'uni_ticket_summary_deleted');
         $availability_indication = get_config($dbc, 'uni_availability_indication');
         $sidebar_file = 'uni_sidebar.php';
         $all_tickets_button = '';
@@ -471,6 +473,7 @@ switch($_GET['type']) {
         $monthly_start = get_config($dbc, 'ticket_monthly_start');
         $monthly_days = explode(',', get_config($dbc, 'ticket_monthly_days'));
         $ticket_summary = get_config($dbc, 'ticket_ticket_summary');
+        $ticket_summary_deleted = get_config($dbc, 'ticket_ticket_summary_deleted');
         $availability_indication = get_config($dbc, 'ticket_availability_indication');
         $sidebar_file = 'tickets_sidebar.php';
         $all_tickets_button = get_config($dbc, 'ticket_use_all_tickets');
@@ -479,6 +482,7 @@ switch($_GET['type']) {
         $client_draggable = get_config($dbc, 'ticket_client_draggable');
         $staff_summary = get_config($dbc, 'ticket_staff_summary');
         $ticket_summary_tab = get_config($dbc, 'ticket_ticket_summary_tab');
+        $ticket_summary_tab_deleted = get_config($dbc, 'ticket_ticket_summary_tab_deleted');
         $client_tab = get_config($dbc, 'ticket_client_tab');
 
         $mobile_calendar_views = [''=>'Staff'];
