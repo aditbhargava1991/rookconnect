@@ -2312,6 +2312,9 @@ if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) {
 							<?php if($field_sort_field == 'Inventory General Units') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Inventory General Units", $all_config) ? 'checked disabled' : (in_array("Inventory General Units", $value_config) ? "checked" : '') ?> value="Inventory General Units" name="tickets[]"> Weight Units</label>
 							<?php } ?>
+							<?php if($field_sort_field == 'Inventory General Weight Convert KG to LB') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Inventory General Weight Convert KG to LB", $all_config) ? 'checked disabled' : (in_array("Inventory General Weight Convert KG to LB", $value_config) ? "checked" : '') ?> value="Inventory General Weight Convert KG to LB" name="tickets[]"> Weight - Convert KG to LB</label>
+							<?php } ?>
 							<?php if($field_sort_field == 'Inventory General Dimensions') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Inventory General Dimensions", $all_config) ? 'checked disabled' : (in_array("Inventory General Dimensions", $value_config) ? "checked" : '') ?> value="Inventory General Dimensions" name="tickets[]"> Dimensions</label>
 							<?php } ?>

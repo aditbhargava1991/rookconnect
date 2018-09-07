@@ -152,6 +152,12 @@ if(strpos($value_config,',Inventory General Detail by Pallet,') !== FALSE) {
 if(strpos($value_config,',Inventory General Shipment Count Weight,') !== FALSE) {
 	$general_shipment = $dbc->query("SELECT `id`, `qty`, `weight`, `weight_units` FROM `ticket_attached` WHERE `ticketid`='$ticketid' AND `src_table`='inventory_shipment' AND `deleted`=0".$query_daily.(strpos($value_config,',Inventory General PO Line Sort,') !== FALSE ? ' ORDER BY `ticket_attached`.`po_line`' : ''))->fetch_assoc();
 	$shipment_count = $general_shipment['qty'] * 1;
+	if(strpos($value_config,',Inventory General Weight Convert KG to LB,') !== FALSE && $general_shipment['weight_units'] == 'kg') {
+		$general_shipment['weight_units'] = 'lbs';
+		if($general_shipment['weight'] > 0) {
+			$general_shipment['weight'] = number_format(($general_shipment['weight']*2.20462262185),2);
+		}
+	}
 	if($access_all > 0) { ?>
 		<div class="form-group">
 			<label class="control-label col-sm-4">Shipment Count &amp; Weight:</label>
@@ -193,6 +199,12 @@ if(strpos($value_config,',Inventory General Shipment Count Weight,') !== FALSE) 
 } ?>
 <?php if(strpos($value_config,',Inventory General Total Count Weight,') !== FALSE) {
 	$general_shipment = $dbc->query("SELECT `qty`, `weight`, `weight_units` FROM `ticket_attached` WHERE `ticketid`='$ticketid' AND `src_table`='inventory_total_ship' AND `deleted`=0".$query_daily)->fetch_assoc();
+	if(strpos($value_config,',Inventory General Weight Convert KG to LB,') !== FALSE && $general_shipment['weight_units'] == 'kg') {
+		$general_shipment['weight_units'] = 'lbs';
+		if($general_shipment['weight'] > 0) {
+			$general_shipment['weight'] = number_format(($general_shipment['weight']*2.20462262185),2);
+		}
+	}
 	if($access_all > 0) { ?>
 		<div class="form-group">
 			<label class="control-label col-sm-4">Total Shipment Count &amp; Total Weight:</label>
@@ -234,6 +246,18 @@ $general_inventory = mysqli_fetch_assoc($general_inventory_list);
 $piece_types = array_filter(explode(',',get_config($dbc, 'piece_types')));
 $general_line_item = 0;
 do {
+	if(strpos($value_config,',Inventory General Weight Convert KG to LB,') !== FALSE) {
+		$general_shipment['weight_units'] = explode('#*#',$general_shipment['weight_units']);
+		$general_shipment['weight'] = explode('#*#',$general_shipment['weight']);
+		foreach($general_shipment['weight'] as $id => $general_weight) {
+			if($general_shipment['weight_units'] == 'kg' && $general_weight > 0) {
+				$general_shipment['weight'][$id] = number_format(($general_shipment['weight'][$id]*2.20462262185),2);
+				$general_shipment['weight_units'][$id] = 'lb';
+			}
+		}
+		$general_shipment['weight_units'] = implode('#*#',$general_shipment['weight_units']);
+		$general_shipment['weight'] = implode('#*#',$general_shipment['weight']);
+	}
 	if($general_inventory['dimensions'] == '') {
 		$general_inventory['dimensions'] = ' x x ';
 	}
