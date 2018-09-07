@@ -1193,7 +1193,7 @@ if(in_array('touch',$ux_options) && (!in_array('standard',$ux_options) || $_GET[
 					$each_misc_price = explode(',', $misc_prices);
 					$each_misc_qty = explode(',', $misc_qtys);
 					foreach($each_misc as $loop => $misc_item) {
-                        if(!($each_misc_ticketid > 0)) {
+                        if(!($each_misc_ticketid[$loop] > 0)) {
     						$misc_price = $each_misc_price[$loop];
     						$misc_qty = $each_misc_qty[$loop]; ?>
     						<div class="additional_misc form-group clearfix">
