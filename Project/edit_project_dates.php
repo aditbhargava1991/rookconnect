@@ -39,6 +39,24 @@ $value_config = array_filter(array_unique(array_merge(explode(',',mysqli_fetch_a
 	</div>
 	<?php } ?>
 
+	<?php if (in_array("Information Followup",$value_config)) { ?>
+		<div class="form-group">
+			<label class="col-sm-4">Follow Up Date:</label>
+			<div class="col-sm-8 <?= !($security['edit'] > 0) ? 'readonly-block' : '' ?>">
+				<input type="text" name="followup" data-table="project" data-id="<?= $project['projectid'] ?>" data-id-field="projectid" value="<?= $project['followup'] ?>" class="datepicker form-control">
+			</div>
+		</div>
+	<?php } ?>
+
+	<?php if (in_array("Dates Deadline",$value_config)) { ?>
+		<div class="form-group">
+			<label class="col-sm-4">Deadline:</label>
+			<div class="col-sm-8 <?= !($security['edit'] > 0) ? 'readonly-block' : '' ?>">
+				<input type="text" name="deadline" data-table="project" data-id="<?= $project['projectid'] ?>" data-id-field="projectid" value="<?= $project['deadline'] ?>" class="datepicker form-control">
+			</div>
+		</div>
+	<?php } ?>
+
 	<?php if (in_array("Dates Estimate Completion Date",$value_config) !== FALSE) { ?>
 	<div class="form-group">
 		<label class="col-sm-4">Estimated Completion Date:</label>

@@ -188,6 +188,12 @@ $contact = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `contacts` LEFT 
 	<div class="col-sm-6">
 		<ul class="chained-list col-sm-6 small">
 			<?php if($contact['contactimage'] != '' && file_exists($contact_url.'download/'.$contact['contactimage'])) { ?><li style="text-align: center;"><img src="<?= $contact_url ?>download/<?= $contact['contactimage'] ?>" style="max-width: 200px; max-height: 200px;"></li><?php } ?>
+			<?php if((in_array_any(['Sales Lead'], $id_card_fields) || in_array($contact['category'],['Sales Lead','Sales Leads'])) && in_array($contact['category'],explode(',',get_config($dbc, 'lead_all_contact_cat').',Sales Lead,Sales Leads,'))) {
+                $sales_lead_id = $dbc->query("SELECT `salesid` FROM `sales` WHERE `deleted`=0 AND CONCAT(',',`contactid`,',') LIKE '%,".$contactid.",%'")->fetch_assoc()['salesid'];
+                if($sales_lead_id > 0) { ?>
+                    <li><img src="../img/person.PNG" class="dashboard-profile-icon" title="Sales Lead"><a href="../Sales/sale.php?p=details&id=<?= $sales_lead_id ?>" onclick="overlayIFrameSlider(this.href,'80%',true,true); return false;">Sales Lead #<?= $sales_lead_id ?></a></li>
+                <?php } ?>
+            <?php } ?>
 			<?php if(in_array_any(['Employee Number','Employee ID','Employee #'], $id_card_fields)) { ?><li><img src="../img/id-card.png" class="dashboard-profile-icon" title="ID Number"><?= $contactid ?></li><?php } ?>
 			<?php if(in_array_any(['First Name','Last Name','Profile First Name','Profile Last Name'], $id_card_fields)) { ?><li><img src="../img/person.PNG" class="dashboard-profile-icon" title="Full Name"><?= decryptIt($contact['first_name']).' '.decryptIt($contact['last_name']) ?></li><?php } ?>
 			<?php if(in_array_any(['Position'], $id_card_fields)) {

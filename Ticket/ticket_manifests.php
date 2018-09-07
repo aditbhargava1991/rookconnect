@@ -82,6 +82,7 @@ if($siteid == 'recent') {
 		$row_colour_1 = get_config($dbc, 'report_row_colour_1');
 		$row_colour_2 = get_config($dbc, 'report_row_colour_2');
 		$sum_qty = 0;
+		$total_weight = 0;
 		$lines = [];
 		if(in_array('pdf_collapse',$manifest_fields)) {
 			$columns = ['po'=>0,'vendor'=>0,'line'=>0,'qty'=>0,'manual_qty'=>0,'site'=>0,'notes'=>0,'weight'=>0];
@@ -111,7 +112,18 @@ if($siteid == 'recent') {
 				$weight = [];
 				$inv_weight_units = explode('#*#',$row['weight_units']);
 				foreach(explode('#*#',$row['weight']) as $id => $inv_weight) {
+					if(in_array('weight convert kg to lb',$manifest_fields) && $inv_weight_units[$id] == 'kg') {
+						$inv_weight = number_format(($inv_weight*2.20462262185),2);
+						$inv_weight_units[$id] = 'lbs';
+					}
 					$weight[] = $inv_weight.' '.$inv_weight_units[$id];
+					if(in_array('total weight lb',$manifest_fields)) {
+						if($inv_weight_units[$id] == 'kg') {
+							$total_weight += ($inv_weight*2.20462262185);
+						} else {
+							$total_weight += $inv_weight;
+						}
+					}
 				}
 				$weight = implode('<br />', $weight);
 			} else {
@@ -132,6 +144,7 @@ if($siteid == 'recent') {
 				$columns['weight'] += (!empty($weight) ? 1 : 0);
 			}
 		}
+		$total_weight = number_format($total_weight,2);
 		$col_count = (in_array('file',$manifest_fields) ? 1 : 0) + (in_array('po',$manifest_fields) && $columns['po'] > 0 ? 1 : 0) + (in_array('vendor',$manifest_fields) && $columns['vendor'] > 0 ? 1 : 0) + (in_array('line',$manifest_fields) && $columns['line'] > 0 ? 1 : 0) + ((in_array('qty',$manifest_fields) || in_array('group pieces',$manifest_fields)) && $columns['qty'] > 0 ? 1 : 0) + (in_array('manual qty',$manifest_fields) && $columns['manual_qty'] > 0 ? 1 : 0) + (in_array('site',$manifest_fields) && $columns['site'] > 0 ? 1 : 0) + (in_array('notes',$manifest_fields) && $columns['notes'] > 0 ? 1 : 0) + (!in_array('group pieces',$manifest_fields) ? 1 : 0) + (in_array('weight',$manifest_fields) && $columns['weight'] > 0 ? 1 : 0);
 		$html = '<table style="width:100%;border:none;">
 			<tr>
@@ -176,11 +189,11 @@ if($siteid == 'recent') {
 				'.(in_array('po',$manifest_fields) && $columns['po'] > 0 ? '<td style="border-top: 1px solid black;"></td>' : '').'
 				'.(in_array('vendor',$manifest_fields) && $columns['vendor'] > 0 ? '<td style="border-top: 1px solid black;"></td>' : '').'
 				'.(in_array('line',$manifest_fields) && $columns['line'] > 0 ? '<td style="border-top: 1px solid black;"></td>' : '').'
-				'.((in_array('qty',$manifest_fields) || in_array('group pieces',$manifest_fields)) && $columns['qty'] > 0 ? '<td data-title="TOTAL LAND TRAN PIECE COUNT" style="text-align:center; border-top: 1px solid black;">'.$sum_qty.((in_array('site',$manifest_fields) && $columns['site'] > 0) || (in_array('notes',$manifest_fields) && $columns['notes'] > 0) || (in_array('weight',$manifest_fields) && $columns['weight'] > 0) ? '' : ' TOTAL PIECES').'</td>' : '').'
-				'.(in_array('manual qty',$manifest_fields) && $columns['manual_qty'] > 0 ? '<td data-title="TOTAL LAND TRAN PIECE COUNT" style="text-align:center; border-top: 1px solid black;">'.$sum_qty.((in_array('site',$manifest_fields) && $columns['site'] > 0) || (in_array('notes',$manifest_fields) && $columns['notes'] > 0) || (in_array('weight',$manifest_fields) && $columns['weight'] > 0) ? '' : ' TOTAL PIECES').'</td>' : '').'
-				'.(in_array('weight',$manifest_fields) && $columns['weight'] > 0 ? '<td style="border-top: 1px solid black;">TOTAL PIECES</td>' : '').'
-				'.(in_array('site',$manifest_fields) && $columns['site'] > 0 ? '<td style="border-top: 1px solid black;">'.(in_array('weight',$manifest_fields) && $columns['weight'] > 0 ? '' : 'TOTAL PIECES').'</td>' : '').'
-				'.(in_array('notes',$manifest_fields) && $columns['notes'] > 0 ? '<td style="border-top: 1px solid black;">'.((in_array('site',$manifest_fields) && $columns['site'] > 0) || (in_array('weight',$manifest_fields) && $column['weight'] > 0) ? '' : 'TOTAL PIECES').'</td>' : '').'
+				'.((in_array('qty',$manifest_fields) || in_array('group pieces',$manifest_fields)) && $columns['qty'] > 0 ? '<td data-title="TOTAL LAND TRAN PIECE COUNT" style="text-align:center; border-top: 1px solid black;">'.$sum_qty.' TOTAL PIECE</td>' : '').'
+				'.(in_array('manual qty',$manifest_fields) && $columns['manual_qty'] > 0 ? '<td data-title="TOTAL LAND TRAN PIECE COUNT" style="text-align:center; border-top: 1px solid black;">'.$sum_qty.' TOTAL PIECES</td>' : '').'
+				'.(in_array('weight',$manifest_fields) && $columns['weight'] > 0 ? '<td style="text-align:center; border-top: 1px solid black;">'.(in_array('total weight lb',$manifest_fields) ? $total_weight.' lbs' : '').'</td>' : '').'
+				'.(in_array('site',$manifest_fields) && $columns['site'] > 0 ? '<td style="border-top: 1px solid black;"></td>' : '').'
+				'.(in_array('notes',$manifest_fields) && $columns['notes'] > 0 ? '<td style="border-top: 1px solid black;"></td>' : '').'
 			</tr>';
 			$stamp_img = get_config($dbc, 'stamp_upload');
 			$html .= '<tr>
@@ -345,6 +358,10 @@ if($siteid == 'recent') {
 								$weight = [];
 								$inv_weight_units = explode('#*#',$piece_weights['weight_units']);
 								foreach(explode('#*#',$piece_weights['weight']) as $id => $inv_weight) {
+									if(in_array('weight convert kg to lb',$manifest_fields) && $inv_weight_units[$id] == 'kg') {
+										$inv_weight = number_format(($inv_weight*2.20462262185),2);
+										$inv_weight_units[$id] = 'lbs';
+									}
 									$weight[] = $inv_weight.' '.$inv_weight_units[$id];
 								}
 								$weight = implode(', ', $weight); ?>

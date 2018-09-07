@@ -198,7 +198,6 @@ function apply_template() {
 		<label class="col-sm-4">Region:</label>
 		<div class="col-sm-8 <?= !($security['edit'] > 0) ? 'readonly-block' : '' ?>">
 			<select name="region" multiple id="contact_region" data-placeholder="Select a Region..." class="chosen-select-deselect form-control">
-				<option value=''></option>
 				<?php $contact_regions = array_filter(array_unique(explode(',', mysqli_fetch_array(mysqli_query($dbc, "SELECT GROUP_CONCAT(`value` SEPARATOR ',') FROM `general_configuration` WHERE `name` LIKE '%_region'"))[0])));
 				foreach ($contact_regions as $contact_region) {
 					echo "<option ".(in_array($contact_region, $region) ? 'selected' : '')." value='".$contact_region."'>".$contact_region.'</option>';
@@ -228,9 +227,7 @@ function apply_template() {
 		<label class="col-sm-4">Classification:</label>
 		<div class="col-sm-8 <?= !($security['edit'] > 0) ? 'readonly-block' : '' ?>">
 			<select name="classification" multiple id="contact_classification" data-placeholder="Select a Classification..." class="chosen-select-deselect form-control">
-				<option value=''></option>
 				<?php $contact_classifications = array_filter(array_unique(explode(',', mysqli_fetch_array(mysqli_query($dbc, "SELECT GROUP_CONCAT(`value` SEPARATOR ',') FROM `general_configuration` WHERE `name` LIKE '%_classification'"))[0])));
-				print_r($classification);
 				foreach ($contact_classifications as $contact_classification) {
 					echo "<option ".(in_array($contact_classification, $classification) ? 'selected' : '')." value='".$contact_classification."'>".$contact_classification.'</option>';
 				} ?>
@@ -509,15 +506,6 @@ function apply_template() {
 						echo "<option ".($project['project_colead'] == $contact['contactid'] ? 'selected' : '')." value='". $contact['contactid']."' data-region='".$contact['region']."' data-location='".$contact['con_locations']."' data-classification='".$contact['classification']."'>".$contact['first_name'].' '.$contact['last_name'].'</option>';
 					} ?>
 				</select>
-			</div>
-		</div>
-	<?php } ?>
-
-	<?php if (in_array("Information Followup",$value_config)) { ?>
-		<div class="form-group">
-			<label class="col-sm-4">Follow Up Date:</label>
-			<div class="col-sm-8 <?= !($security['edit'] > 0) ? 'readonly-block' : '' ?>">
-				<input type="text" name="followup" data-table="project" data-id="<?= $project['projectid'] ?>" data-id-field="projectid" value="<?= $project['followup'] ?>" class="datepicker form-control">
 			</div>
 		</div>
 	<?php } ?>

@@ -358,7 +358,7 @@ $(document).ready(function() {
 							<label for="equipment_remind_admin"	class="col-sm-4	control-label">Recipient Email Address(es):<br /><em>Reminder emails will also be sent to these user(s), if selected.</em></label>
 							<div class="col-sm-8">
 								<select name="equipment_remind_admin[]" data-placeholder="Select Staff" multiple class="chosen-select-deselect">
-                                    <option></option><?php
+                                    <?php
                                     $recipient   = mysqli_fetch_assoc ( mysqli_query ( $dbc, "SELECT `recipient` FROM `reminders` WHERE `reminder_type`='Equipment Registration' OR `reminder_type`='Equipment Insurance'" ) );
                                     $staff      = explode ( '<br>', get_multiple_contact($dbc, $recipient['recipient']) );
                                     $staff_list = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT `contactid`,`last_name`,`first_name` FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `email_address`!='' AND `deleted`=0 AND `status`>0"),MYSQLI_ASSOC));
@@ -576,7 +576,6 @@ $(document).ready(function() {
 			<label for="fax_number"	class="col-sm-4	control-label">Current Equipment Categories:<br /><em>These are the categories for which this Inspection List is currently applying. To change this list, remove categories from the Inspection List accordion.</em></label>
 			<div class="col-sm-8">
 				<select data-placeholder="Select a Tab..." id="tab_inspect" name="tab_inspect_current[]" multiple class="chosen-select-deselect form-control" width="380">
-					<option value=""></option>
 					<?php $each_tab = explode(',', get_config($dbc, 'equipment_tabs'));
 					foreach ($each_tab as $cat_tab) {
 						echo "<option ".(in_array($cat_tab, $inv_type) ? 'selected' : '')." value='". $cat_tab."'>".$cat_tab.'</option>';
@@ -600,7 +599,7 @@ $(document).ready(function() {
 						<div class="form-group">
 							<label for="fax_number"	class="col-sm-4	control-label">Service Alert Staff:<br /><em>Select all staff that should receive an alert when service is requested from the checklist.</em></label>
 							<div class="col-sm-8">
-								<select name="equipment_service_alert[]" data-placeholder="Select Staff..." multiple class="chosen-select-deselect form-control"><option></option>
+								<select name="equipment_service_alert[]" data-placeholder="Select Staff..." multiple class="chosen-select-deselect form-control">
 									<?php $staff_list = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT `contactid`, `last_name`, `first_name` FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `deleted`=0 AND `status`>0"),MYSQLI_ASSOC));
 									$selected = explode(',',get_config($dbc, 'equipment_service_alert'));
 									foreach($staff_list as $id) {
@@ -673,7 +672,6 @@ $(document).ready(function() {
 							<label for="fax_number"	class="col-sm-4	control-label">Equipment Categories to which this checklist applies:</label>
 							<div class="col-sm-8">
 								<select data-placeholder="Select a Tab..." name="tab_inspect[]" multiple class="chosen-select-deselect form-control" width="380">
-									<option value=""></option>
 									<?php $each_tab = explode(',', get_config($dbc, 'equipment_tabs'));
 									foreach ($each_tab as $cat_tab) {
 										echo "<option ".(in_array($cat_tab, $inv_type) ? 'selected' : '')." value='". $cat_tab."'>".$cat_tab.'</option>';

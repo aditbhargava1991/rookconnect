@@ -272,7 +272,6 @@ function changeLevel(sel) {
                 <label for="fax_number"	class="col-sm-4	control-label">Share With Staff:</label>
                 <div class="col-sm-8">
                     <select multiple name="company_staff_sharing[]" data-placeholder="Choose Staff..." class="chosen-select-deselect form-control" width="380">
-                      <option value=""></option>
                       <?php
                         $query1 = mysqli_query($dbc,"SELECT contactid, first_name, last_name FROM contacts WHERE deleted=0 AND category IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." order by first_name");
                         while($row1 = mysqli_fetch_array($query1)) {
@@ -312,8 +311,10 @@ function changeLevel(sel) {
             <div class="form-group" id="contactid_show" style="display: none;">
                 <label for="first_name" class="col-sm-4 control-label text-right">Contact:</label>
                 <div class="col-sm-8">
+
                     <select data-placeholder="Choose a Contact..." multiple id="contactid" name="contactid[]" class="chosen-select-deselect form-control1" width="380">
-                        <option></option><?php
+                        <?php
+
                         $query = mysqli_query($dbc,"SELECT contactid, first_name, last_name FROM contacts WHERE businessid = '$businessid' order by first_name");
                         while($row = mysqli_fetch_array($query)) {
                             if ($get_board['contactid'] == $row['contactid']) {

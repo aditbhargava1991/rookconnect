@@ -109,7 +109,6 @@ $(document).on('change', 'select[name="payment_due"]', function() { if(this.valu
     <label for="first_name" class="col-sm-4 control-label text-right"><?= rtrim(ESTIMATE_TILE, 's') ?> Type<span class="brand-color">*</span>:</label>
     <div class="col-sm-8">
         <select name="estimatetype[]" multiple <?php echo $disable_type; ?> id="estimatetype" data-placeholder="Select a Type..." class="chosen-select-deselect form-control" width="380">
-            <option value=''></option>
 			<?php $rate_cats = [];
 			$query = mysqli_query($dbc,"SELECT companyrcid, IFNULL(`rate_categories`,'') rate_categories FROM company_rate_card WHERE `rate_card_name` != '' AND `deleted`=0 AND DATE(NOW()) BETWEEN `start_date` AND IFNULL(NULLIF(`end_date`,'0000-00-00'),'9999-12-31') GROUP BY rate_categories");
 			while($row = mysqli_fetch_array($query)) {

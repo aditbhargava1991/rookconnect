@@ -182,7 +182,7 @@
 <?php } else if($field_option == 'Region' || $field_option == 'Profile Region') { ?>
 	<label class="col-sm-4 control-label"><?php echo (in_array($field_option, $field_config_mandate) ? '<font color="red">*</font>' : ''); ?> Region:</label>
 	<div class="col-sm-8">
-		<select name="region[]" multiple data-field="region" data-table="contacts" data-delimiter="," data-exact-name="1" class="<?php echo (in_array($field_option, $field_config_mandate) ? 'required' : ''); ?> form-control chosen-select-deselect"><option></option>
+		<select name="region[]" multiple data-field="region" data-table="contacts" data-delimiter="," data-exact-name="1" class="form-control chosen-select-deselect">
 			<?php $each_tab = array_unique(explode(',',mysqli_fetch_array(mysqli_query($dbc, "SELECT GROUP_CONCAT(`value` SEPARATOR ',') FROM `general_configuration` WHERE `name` LIKE '%_region'"))[0]));
 			foreach ($each_tab as $cat_tab) {
 				echo "<option ".(in_array($cat_tab, explode(',',$contact['region'])) ? 'selected' : '')." value='". $cat_tab."'>".$cat_tab.'</option>';
@@ -625,8 +625,7 @@
 	} ?>
 	<label class="col-sm-4 control-label"><?php echo (in_array($field_option, $field_config_mandate) ? '<font color="red">*</font>' : ''); ?> Classification Access:</label>
 	<div class="col-sm-8">
-		<select multiple name="classification_access[]" class="chosen-select-deselect <?php echo (in_array($field_option, $field_config_mandate) ? 'required' : ''); ?> form-control" data-field="classification_access" data-table="contacts_security" data-delimiter="#*#">
-			<option></option>
+		<select multiple name="classification_access[]" class="chosen-select-deselect form-control" data-field="classification_access" data-table="contacts_security" data-delimiter="#*#">
 			<?php foreach($contact_classifications as $class_i => $classification_name) { ?>
 				<option data-region="<?= $classification_regions[$class_i] ?>" value="<?= $classification_name ?>" <?= in_array($classification_name, $allowed_classifications) ? 'selected' : '' ?>><?= $classification_name ?></option>
 			<?php } ?>

@@ -4,7 +4,6 @@ This Agenda will be emailed to the selected contacts when you Save or Approve th
     <label for="first_name" class="col-sm-4 control-label text-right"><?php echo (strpos($value_config, ','."Business".',') === FALSE ? 'Contacts' : BUSINESS_CAT.' Contacts'); ?>:</label>
     <div class="col-sm-8">
         <select name="agenda_email_business[]" multiple data-placeholder="Select Contacts" class="chosen-select-deselect form-control" width="380">
-            <option value=''></option>
             <?php
             $cat = '';
 			$cat_list = [];
@@ -43,7 +42,6 @@ This Agenda will be emailed to the selected contacts when you Save or Approve th
     <label for="first_name" class="col-sm-4 control-label text-right">Company Contact:</label>
     <div class="col-sm-8">
         <select name="agenda_email_company[]" multiple data-placeholder="Select Staff" class="chosen-select-deselect form-control" width="380">
-            <option value=''></option>
             <?php $query1 = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc,"SELECT contactid, first_name, last_name FROM contacts WHERE category IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND deleted=0 AND `status`=1"),MYSQLI_ASSOC));
 			foreach($query1 as $id) {
 				$email = explode(',',get_multiple_email($dbc, $id));

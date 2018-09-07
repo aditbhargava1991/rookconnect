@@ -141,7 +141,7 @@ if (isset($_POST['tasklist'])) {
     if(!empty($_POST['project_milestone'])) {
         mysqli_query($dbc, "UPDATE `checklist` SET `project_milestone` = '".filter_var($_POST['project_milestone'],FILTER_SANITIZE_STRING)."' WHERE `checklistid` = '$checklistid'");
         if(!($projectid > 0)) {
-            mysqli_query($dbc, "UPDATE `checklist` SET `projectid` = '".filter_var($_POST['projectid_from_path'],FILTER_SANITIZE_STRING)."' WHERE `checklistid` = '$checklistid'");   
+            mysqli_query($dbc, "UPDATE `checklist` SET `projectid` = '".filter_var($_POST['projectid_from_path'],FILTER_SANITIZE_STRING)."' WHERE `checklistid` = '$checklistid'");
         }
     }
     if(!empty($_POST['sales_milestone'])) {
@@ -278,16 +278,20 @@ $(document).ready(function () {
         }
     });
 
-    $('#add_row_doc').on( 'click', function () {
+    /* $('#add_row_doc, .add_row_doc').on( 'click', function () {
 		add_new_task_row();
 		return false;
-    });
+    }); */
 });
 
 $(document).on('change', 'select[name="subtab_shared[]"]', function() { changeSubTabShared(this); });
 $(document).on('change', 'select[name="checklist_type"]', function() { changeType(this.value); });
 $(document).on('change', 'select[name="assign_staff[]"]', function() { changeAssignedStaff(this); });
 $(document).on('change', 'select[name="subtab"]', function() { changeSubTab(this); });
+$(document).on('click', '#add_row_doc, .add_row_doc', function() {
+    add_new_task_row();
+    return false;
+});
 
 function add_new_task_row() {
 	var clone = $('.checklist .additional_doc').first().clone();
@@ -422,12 +426,12 @@ function removeNewRow(button) {
         <a href="?<?= $checklistid > 0 ? 'view='.$checklistid : '' ?>" class="show-on-mob pull-left gap-right"><img src="../img/icons/ROOK-back-icon.png" style="height:100%; width:47%;"></a>
         <h3><?= isset($_GET['edit']) && $_GET['edit']=='NEW' ? 'Add' : 'Edit' ?> <?= $checklist_name ?> Checklist</h3>
     </div>
-    
-    
+
+
     <div class="row">
         <div class="col-sm-12 padded"><input type="text" class="form-control create-input" value="<?= $checklist_name ?>" name="checklist_name" placeholder="Name your checklist..." /></div>
     </div>
-    
+
 	<div class="clearfix"></div>
 
     <div class="padded">
@@ -589,10 +593,22 @@ function removeNewRow(button) {
                                     Day of the Month:
                                 </label>
                                 <div class="col-sm-8">
+
+                                    <select name="subtab_shared[]" id="subtab_shared" multiple data-placeholder="Select Shared Contacts..." class="chosen-select-deselect form-control">
+                                        <option value='ALL'>Share with Everyone</option>
+                                        <?php
+                                        $cat = '';
+                                        $query1 = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc,"SELECT contactid, first_name, last_name, category, email_address FROM contacts WHERE category IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND deleted=0 AND status>0 ORDER BY category"), MYSQLI_ASSOC));
+                                        foreach($query1 as $row1) {
+                                            echo "<option ".((strpos($subtab_shared, ','.$row1.',') !== false) ? 'selected' : '')." value='". $row1."'>".get_contact($dbc, $row1).'</option>';
+                                        }
+                                        ?>
+                                                              </select>
                                     <select name="checklist_reset_month_day" class="form-control chosen-select-deselect" width="380" /><option></option>
                                         <?php for($i = 1; $i <= 28; $i++) {
                                             echo "<option ".($checklist_reset_day == $i ? 'selected' : '')." value='$i'>$i</option>";
                                         } ?>
+
                                     </select>
                                 </div><div class="clearfix"></div>
                                 <label for="first_name" class="col-sm-4 control-label text-right">
@@ -759,7 +775,6 @@ function removeNewRow(button) {
 								  <label for="site_name" class="col-sm-4 control-label"><?= TICKET_NOUN ?>:</label>
 								  <div class="col-sm-8">
 									<select data-placeholder="Select a <?= TICKET_NOUN ?>..." name="ticketid[]" multiple id="ticketid"  class="chosen-select-deselect form-control">
-									  <option value=""></option>
 									  <?php $query = mysqli_query($dbc,"SELECT * FROM `tickets` WHERE `deleted`=0 OR `ticketid`='$ticketid'");
 										while($row = mysqli_fetch_array($query)) {
 											echo "<option ".(in_array($row['ticketid'],explode(',',$ticketid)) ? 'selected' : '')." value='".$row['ticketid']."'>".TICKET_NOUN."# ".$row['ticketid'].' '.$row['heading'].'</option>';
@@ -784,11 +799,29 @@ function removeNewRow(button) {
 
                     <div id="collapse_ticket_list" class="panel-collapse collapse">
                         <div class="panel-body">
+
+                            <div class="form-group clearfix assign_staff">
+                                <label for="first_name" class="col-sm-4 control-label text-right">
+                                    <span class="popover-examples list-inline" style="margin:0 3px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Click here to assign specific staff members. They will be able to view and edit this Checklist."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
+                                    Assign to Staff:
+                                </label>
+                                <div class="col-sm-8">
+                                    <select name="assign_staff[]" multiple data-placeholder="Select Assigned Staff..." class="chosen-select-deselect form-control">
+                                        <option <?= strpos($assign_staff,'ALL') !== FALSE ? 'selected' : '' ?> value='ALL'>Assign All Staff</option>
+                                        <?php
+                                        $cat = '';
+                                        $query1 = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc,"SELECT contactid, first_name, last_name, category, email_address FROM contacts WHERE category IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND deleted=0 AND status>0 ORDER BY category"), MYSQLI_ASSOC));
+                                        foreach($query1 as $row1) {
+                                            echo "<option ".((strpos($assign_staff, ','.$row1.',') !== false) || (($row1 == $_SESSION['contactid']) && strpos($assign_staff,'ALL') === FALSE) ? 'selected' : '')." value='". $row1."'>".get_contact($dbc, $row1).'</option>';
+                                        }
+                                        ?>
+                                    </select>
+                                </div>
+
                             <div class="form-group assign_staff">
                               <label for="site_name" class="col-sm-4 control-label"><?= TICKET_NOUN ?>:</label>
                               <div class="col-sm-8">
                                 <select data-placeholder="Select a <?= TICKET_NOUN ?>..." name="ticketid[]" multiple id="ticketid"  class="chosen-select-deselect form-control">
-                                  <option value=""></option>
                                   <?php $query = mysqli_query($dbc,"SELECT * FROM `tickets` WHERE `deleted`=0 OR `ticketid`='$ticketid'");
                                     while($row = mysqli_fetch_array($query)) {
                                         echo "<option ".(in_array($row['ticketid'],explode(',',$ticketid)) ? 'selected' : '')." value='".$row['ticketid']."'>".TICKET_NOUN."# ".$row['ticketid'].' '.$row['heading'].'</option>';
@@ -796,6 +829,7 @@ function removeNewRow(button) {
                                   ?>
                                 </select>
                               </div>
+
                             </div>
                         </div>
                     </div>
@@ -883,7 +917,7 @@ function removeNewRow(button) {
                                     echo '</td>';
                                     echo '<td data-title="Date">'.$row['created_date'].'</td>';
                                     echo '<td data-title="Added By">'.get_staff($dbc, $by).'</td>';
-                                    echo '<td data-title="Function"><a href="" data-docid="'.$row['checklistdocid'].'" onclick="archive_checklist_document(this); return false;"><img src="'.WEBSITE_URL.'/img/icons/ROOK-trash-icon.png" style="height:1.5em;"></a></td>';
+                                    echo '<td data-title="Function"><a href="" data-docid="'.$row['checklistdocid'].'" onclick="archive_checklist_document(this); return false;"><img src="'.WEBSITE_URL.'/img/icons/ROOK-trash-icon.png" class="no-toggle" title="Archive" style="height:1.5em;"></a></td>';
                                     //echo '<td data-title="Schedule"><a href=\'delete_restore.php?action=delete&ticketdocid='.$row['ticketdocid'].'&ticketid='.$row['ticketid'].'\' onclick="return confirm(\'Are you sure?\')">Delete</a></td>';
                                     echo '</tr>';
                                 }
@@ -951,7 +985,7 @@ function removeNewRow(button) {
                             echo '<div class="form-group">';
                             echo '<div class="col-sm-1 col-xs-1">'.($row['checked'] == 1 ? '<input disabled type="checkbox" checked value="" style="height: 1em;"> ' : '').'#'.$row['checklistnameid'].': </div><div class="col-sm-10 col-xs-9">';
                             echo '<input type="text" name="checklist_update[]" class="form-control" value= "'.explode('<p>',html_entity_decode($row['checklist']))[0].'"/></div>';
-                            echo '<div class="col-sm-1 col-xs-2"><a href=\'../delete_restore.php?action=delete&checklistnameid='.$row['checklistnameid'].'&checklistid='.$row['checklistid'].'\' onclick="return confirm(\'Are you sure?\')"><img style="height:1.5em;" src="'.WEBSITE_URL.'/img/icons/ROOK-trash-icon.png"></a></div>';
+                            echo '<div class="col-sm-1 col-xs-2"><a href=\'../delete_restore.php?action=delete&checklistnameid='.$row['checklistnameid'].'&checklistid='.$row['checklistid'].'\' onclick="return confirm(\'Are you sure?\')"><img class="no-toggle" title="Archive" style="height:1.5em;" src="'.WEBSITE_URL.'/img/icons/ROOK-trash-icon.png"></a></div>';
                             echo '<input type="hidden" name="checklistid_update[]" value="'.$row['checklistnameid'].'" /></div>';
 
                         }
@@ -965,27 +999,30 @@ function removeNewRow(button) {
                         <input type="text" id="first_task" name="checklist[]" class="form-control" width="380" />
                     </div>
                     <div class="col-sm-1 col-xs-2 pad-5">
-                        <img src="<?= WEBSITE_URL ?>/img/icons/ROOK-trash-icon.png" style="height:1.5em;" onclick="removeNewRow(this);">
+                        <!-- <img src="<?= WEBSITE_URL ?>/img/icons/ROOK-trash-icon.png" style="height:1.5em;" onclick="removeNewRow(this);"> -->
+                        <img src="<?= WEBSITE_URL ?>/img/icons/ROOK-add-icon.png" class="cursor-hand add_row_doc" style="height:1.5em;" />
+                        <img src="<?= WEBSITE_URL ?>/img/remove.png" class="cursor-hand" style="height:1.5em;" onclick="removeNewRow(this);" />
                     </div>
                     <div class="clearfix"></div>
                 </div>
                 <div id="add_here_new_doc"></div>
-                <button id="add_row_doc" class="btn brand-btn pull-right">Add Task</button>
+                <button id="add_row_doc" class="btn brand-btn pull-right">Add Checklist</button>
                 <span class="popover-examples list-inline pull-right" style="margin:5px 3px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Click here to add a field."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
             </div>
         </div><!-- .block-group -->
 
         <div class="clearfix"></div>
 
-        <div class="form-group clearfix double-gap-top pull-right">
-            <div class="pull-right">
-                <button name="tasklist" value="tasklist" class="btn brand-btn pull-right">Save</button>
-                <span class="popover-examples list-inline pull-right" style="margin:7px 3px 0 5px;"><a data-toggle="tooltip" data-placement="top" title="Click here to save the Checklist."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
-            </div>
-            <div class="pull-right">
+        <div class="form-group clearfix double-gap-top">
+            <div class="pull-left">
                 <span class="popover-examples list-inline" style="margin:0;"><a data-toggle="tooltip" data-placement="top" title="If you click this, the current Checklist will not be saved."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
-                <a href="<?= $url ?>" class="btn brand-btn offset-right-5">Cancel</a>
+                <a href="<?= $url ?>" class=""><img src="../img/icons/ROOK-trash-icon.png" alt="Cancel" title="Cancel" class="no-toggle" width="30" /></a>
             </div>
+            <div class="pull-right">
+                <button name="tasklist" value="tasklist" class="image-btn pull-right no-toggle" title="Save"><img src="../img/icons/save.png" alt="Save" width="30" /></button>
+                <span class="popover-examples list-inline pull-right" style="margin:2px -2px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Click here to save the Checklist."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
+            </div>
+            <div class="clearfix"></div>
         </div>
     </div><!-- .main-screen-container -->
 

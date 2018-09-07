@@ -1363,7 +1363,7 @@ if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) {
 			</div>
 		<?php }
 
-		if($sort_field == 'Ticket Details') { ?>
+		if($sort_field == 'Ticket Details' || ($sort_field == 'Services' && !in_array('Ticket Details', $sort_order))) { ?>
 			<div class="form-group sort_order_accordion" data-accordion="Ticket Details">
 				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : TICKET_NOUN.' Details / Services' ?></span>:<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
 					<span class="dataToggle cursor-hand no-toggle <?= in_array('ticket_info',$all_unlocked_tabs) ? 'disabled' : '' ?>" title="Locking a tab will hide the contents of that tab on all new <?= TICKET_TILE ?>. A user with access to edit the <?= TICKET_NOUN ?> can then unlock that tab for that <?= TICKET_NOUN ?>.<?= in_array('ticket_info',$all_unlocked_tabs) ? ' This tab has been locked for all '.TICKET_TILE.'.' : '' ?>">
@@ -1444,6 +1444,21 @@ if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) {
 							<?php } ?>
 							<?php if($field_sort_field == 'Service Total Time') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Service Total Time", $all_config) ? 'checked disabled' : (in_array("Service Total Time", $value_config) ? "checked" : '') ?> value="Service Total Time" name="tickets[]">Total Time</label>
+							<?php } ?>
+							<?php if($field_sort_field == 'Service Direct Time') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Service Direct Time", $all_config) ? 'checked disabled' : (in_array("Service Direct Time", $value_config) ? "checked" : '') ?> value="Service Direct Time" name="tickets[]">Direct Time</label>
+							<?php } ?>
+							<?php if($field_sort_field == 'Service Indirect Time') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Service Indirect Time", $all_config) ? 'checked disabled' : (in_array("Service Indirect Time", $value_config) ? "checked" : '') ?> value="Service Indirect Time" name="tickets[]">Indirect Time</label>
+							<?php } ?>
+							<?php if($field_sort_field == 'Service Track Total Time') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Service Track Total Time", $all_config) ? 'checked disabled' : (in_array("Service Track Total Time", $value_config) ? "checked" : '') ?> value="Service Track Total Time" name="tickets[]">Track Total Time in Time Sheets</label>
+							<?php } ?>
+							<?php if($field_sort_field == 'Service Track Direct Time') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Service Track Direct Time", $all_config) ? 'checked disabled' : (in_array("Service Track Direct Time", $value_config) ? "checked" : '') ?> value="Service Track Direct Time" name="tickets[]">Track Direct Time in Time Sheets</label>
+							<?php } ?>
+							<?php if($field_sort_field == 'Service Track Indirect Time') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Service Track Indirect Time", $all_config) ? 'checked disabled' : (in_array("Service Track Indirect Time", $value_config) ? "checked" : '') ?> value="Service Track Indirect Time" name="tickets[]">Track Indirect Time in Time Sheets</label>
 							<?php } ?>
 							<?php if($field_sort_field == 'Service Quantity') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Service Quantity", $all_config) ? 'checked disabled' : (in_array("Service Quantity", $value_config) ? "checked" : '') ?> value="Service Quantity" name="tickets[]"> Quantity</label>
@@ -2297,6 +2312,9 @@ if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) {
 							<?php if($field_sort_field == 'Inventory General Units') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Inventory General Units", $all_config) ? 'checked disabled' : (in_array("Inventory General Units", $value_config) ? "checked" : '') ?> value="Inventory General Units" name="tickets[]"> Weight Units</label>
 							<?php } ?>
+							<?php if($field_sort_field == 'Inventory General Weight Convert KG to LB') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Inventory General Weight Convert KG to LB", $all_config) ? 'checked disabled' : (in_array("Inventory General Weight Convert KG to LB", $value_config) ? "checked" : '') ?> value="Inventory General Weight Convert KG to LB" name="tickets[]"> Weight - Convert KG to LB</label>
+							<?php } ?>
 							<?php if($field_sort_field == 'Inventory General Dimensions') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Inventory General Dimensions", $all_config) ? 'checked disabled' : (in_array("Inventory General Dimensions", $value_config) ? "checked" : '') ?> value="Inventory General Dimensions" name="tickets[]"> Dimensions</label>
 							<?php } ?>
@@ -2749,7 +2767,6 @@ if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) {
 								<label class="col-sm-4 control-label">Auto Create Unscheduled Stop On Status Change:</label>
 								<div class="col-sm-8">
 									<select multiple class="chosen-select-deselect" data-placeholder="Select Statuses" name="auto_create_unscheduled[]">
-										<option></option>
 										<?php $ticket_statuses = explode(',',get_config($dbc, 'ticket_status'));
 										foreach ($ticket_statuses as $ticket_status) { ?>
 											<option <?= in_array($ticket_status, $auto_create_unscheduled) ? 'selected' : '' ?> value="<?= $ticket_status ?>"><?= $ticket_status ?></option>

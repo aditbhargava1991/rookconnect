@@ -355,5 +355,6 @@ else if($_GET['action'] == 'stop_holiday_update_noti') {
 else if($_GET['action'] == 'set_stat_pay') {
 	$staffid = filter_var($_POST['staffid'],FILTER_SANITIZE_STRING);
 	$stat_pay = filter_var($_POST['stat_pay'],FILTER_SANITIZE_STRING);
-	mysqli_query($dbc, "UPDATE `contacts` SET `stat_pay` = '$stat_pay' WHERE `contactid` = '$staffid'");
+	$vaca_pay = filter_var($_POST['vaca_pay'],FILTER_SANITIZE_STRING);
+	mysqli_query($dbc, "UPDATE `contacts` SET `stat_pay` = '$stat_pay', `vaca_pay` = '$vaca_pay' WHERE `contactid` = '$staffid'");
 }

@@ -2,14 +2,16 @@
 include('../include.php');
 ?>
 <script type="text/javascript">
-$(document).on('change','select[name="stat_pay"]',function() { saveStatPay(this); });
+$(document).on('change','#pay_settings select',function() { saveStatPay(this); });
 function saveStatPay(sel) {
-    var staffid = $(sel).closest('.stat_row').find('[name="staffid"]').val();
-    var stat_pay = $(sel).val();
+    var row = $(sel).closest('.stat_row');
+    var staffid = $(row).find('[name="staffid"]').val();
+    var stat_pay = $(row).find('[name="stat_pay"]').val();
+    var vaca_pay = $(row).find('[name="vaca_pay"]').val();
     $.ajax({
         url: '../Timesheet/time_cards_ajax.php?action=set_stat_pay',
         method: 'POST',
-        data: { staffid: staffid, stat_pay: stat_pay },
+        data: { staffid: staffid, stat_pay: stat_pay, vaca_pay: vaca_pay },
         success: function(response) {
         }
     });
@@ -71,7 +73,7 @@ $value = $config['settings']['Choose Fields for Holidays Dashboard'];
                 }
                 $offset = ($pageNum - 1) * $rowsPerPage;
 
-                $sql = "SELECT `contactid`, `first_name`, `last_name`, `stat_pay` FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `deleted`=0 AND `status`=1 AND `show_hide_user`=1 AND CONCAT(IFNULL(`first_name`,''),IFNULL(`last_name`,'')) != ''";
+                $sql = "SELECT `contactid`, `first_name`, `last_name`, `stat_pay`, `vaca_pay` FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `deleted`=0 AND `status`=1 AND `show_hide_user`=1 AND CONCAT(IFNULL(`first_name`,''),IFNULL(`last_name`,'')) != ''";
                 $result = mysqli_query($dbc, $sql);
                 $sql_count = "SELECT COUNT(*) `numrows` FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `deleted`=0 AND `status`=1 AND `show_hide_user`=1 AND CONCAT(IFNULL(`first_name`,''),IFNULL(`last_name`,'')) != ''";
 
@@ -83,17 +85,24 @@ $value = $config['settings']['Choose Fields for Holidays Dashboard'];
                 // Display pagination
                 echo display_pagination($dbc, $sql_count, $pageNum, $rowsPerPage); ?>
 
-                <table class="table table-bordered">
+                <table id="pay_settings" class="table table-bordered">
                     <tr class="hidden-xs">
                         <th>Staff</th>
+                        <th>Vacation Pay Settings</th>
                         <th>Stat Pay Setting</th>
                     </tr>
                     <?php foreach($contact_sort as $id) {
                         $row = $contact_list[array_search($id, array_column($contact_list,'contactid'))]; ?>
                         <tr class="stat_row">
+                            <input type="hidden" name="staffid" value="<?= $row['contactid'] ?>">
                             <td data-title="Staff"><?= decryptIt($row['first_name']).' '.decryptIt($row['last_name']) ?></td>
+                            <td data-title="Vacation Pay Calculation">
+                                <select name="vaca_pay" class="chosen-select-deselect">
+                                    <option <?= empty($row['vaca_pay']) ? 'selected' : '' ?>>No Pay</option>
+                                    <option value="Alberta Standard" <?= $row['vaca_pay'] == 'Alberta Standard' ? 'selected' : '' ?>>Alberta Standard</option>
+                                </select>
+                            </td>
                             <td data-title="Stat Pay Calculation">
-                                <input type="hidden" name="staffid" value="<?= $row['contactid'] ?>">
                                 <select name="stat_pay" class="chosen-select-deselect">
                                     <option <?= empty($row['stat_pay']) ? 'selected' : '' ?>>No Pay</option>
                                     <option value="Alberta Standard" <?= $row['stat_pay'] == 'Alberta Standard' ? 'selected' : '' ?>>Alberta Standard</option>

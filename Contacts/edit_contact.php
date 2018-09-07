@@ -54,6 +54,17 @@ foreach(explode(',',get_config($dbc, $folder_name.'_classification', true, ','))
 	$classification_regions[] = $class_regions[$i];
 }
 $contact_security = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `contacts_security` WHERE `contactid`='$contactid'"));
+$sales_lead_id = 0;
+if(in_array($current_type,['Sales Lead','Sales Leads'])) {
+    $id_card_fields[] = 'Sales Lead';
+    $field_config[] = 'Sales Lead Details';
+}
+if(in_array($current_type, explode(',',get_config($dbc, 'lead_all_contact_cat').',Sales Lead,Sales Leads,'))) {
+    $sales_lead_id = $dbc->query("SELECT `salesid` FROM `sales` WHERE `deleted`=0 AND CONCAT(',',`contactid`,',') LIKE '%,".$contactid.",%'")->fetch_assoc()['salesid'];
+    if($sales_lead_id > 0) { ?>
+        <script src="../Sales/edit.js"></script>
+    <?php }
+}
 include_once('../Contacts/edit_fields.php');
 // if(in_array_starts('acc_',$field_config)) {
 	// foreach($tab_list as $tab_data) {
@@ -250,6 +261,10 @@ function setMainSite(site_id) {
 	});
 }
 function saveFieldMethod(field) {
+    if(['sales','sales_document','sales_notes'].indexOf($(field).data('table')) >= 0) {
+        saveSalesMethod(field);
+        exit();
+    }
 	if(($('[name=contactid]').val() == 'new' || $('[name=contactid]').val() == '' || $('[name=contactid]').val() == undefined) && field.name != 'category' && window.previous_field == undefined) {
 		current_fields.push(field);
 		if($('[name="address_default_site_sync"]') != undefined && $('[name="address_default_site_sync"]').val() == 1 && $('[name="address_site_sync"]') != undefined && !($('[name="address_site_sync"]').is(':checked'))) {
@@ -848,21 +863,21 @@ function removeContactForm(a, pdf_id) {
 				</div>
 			</div>
 			<?php if (in_array('Checklist', $field_config) && $edit_access > 0) { ?>
-			<div class="panel panel-default" style='<?= $_GET['edit'] > 0 && !IFRAME_PAGE ? '' : 'display:none;' ?>'>
-				<div class="panel-heading">
-					<h4 class="panel-title">
-						<a data-toggle="collapse" data-parent="#profile_accordions" href="#collapse_checklist">
-							Checklists<span class="glyphicon glyphicon-plus"></span>
-						</a>
-					</h4>
-				</div>
+                <div class="panel panel-default" style='<?= $_GET['edit'] > 0 && !IFRAME_PAGE ? '' : 'display:none;' ?>'>
+                    <div class="panel-heading">
+                        <h4 class="panel-title">
+                            <a data-toggle="collapse" data-parent="#profile_accordions" href="#collapse_checklist">
+                                Checklists<span class="glyphicon glyphicon-plus"></span>
+                            </a>
+                        </h4>
+                    </div>
 
-				<div id="collapse_checklist" class="panel-collapse collapse">
-					<div class="panel-body" data-tab-name="checklist" data-tab-label="Checklists">
-						Loading...
-					</div>
-				</div>
-			</div>
+                    <div id="collapse_checklist" class="panel-collapse collapse">
+                        <div class="panel-body" data-tab-name="checklist" data-tab-label="Checklists">
+                            Loading...
+                        </div>
+                    </div>
+                </div>
 			<?php } ?>
 			<?php $security_folder = $folder_name;
 			if($security_folder == 'clientinfo') {
@@ -936,6 +951,196 @@ function removeContactForm(a, pdf_id) {
 					</div>
 				<?php }
 			} ?>
+			<?php if ((in_array('Sales Lead Details',$field_config) || in_array($contact['category'],['Sales Lead','Sales Leads'])) && $sales_lead_id > 0 && vuaed_visible_function($dbc, 'sales')) {
+                $sales_config = get_field_config($dbc, 'sales');
+                if (strpos($sales_config, ',Staff Information,') !== false) { ?>
+                    <div class="panel panel-default" style='<?= $_GET['edit'] > 0 && !IFRAME_PAGE ? '' : 'display:none;' ?>'>
+                        <div class="panel-heading">
+                            <h4 class="panel-title">
+                                <a data-toggle="collapse" data-parent="#profile_accordions" href="#collapse_sales_staffinfo">
+                                    <?= SALES_NOUN ?>: Staff Information<span class="glyphicon glyphicon-plus"></span>
+                                </a>
+                            </h4>
+                        </div>
+
+                        <div id="collapse_sales_staffinfo" class="panel-collapse collapse">
+                            <div class="panel-body" data-tab-name="sales_staffinfo" data-tab-label="Staff Information" data-url="../Sales/details_staff_info.php?id=<?= $sales_lead_id ?>">
+                                Loading...
+                            </div>
+                        </div>
+                    </div>
+                <?php }
+                if (strpos($sales_config, ',Next Action,') !== false) { ?>
+                    <div class="panel panel-default" style='<?= $_GET['edit'] > 0 && !IFRAME_PAGE ? '' : 'display:none;' ?>'>
+                        <div class="panel-heading">
+                            <h4 class="panel-title">
+                                <a data-toggle="collapse" data-parent="#profile_accordions" href="#collapse_sales_nextaction">
+                                    <?= SALES_NOUN ?>: Next Action<span class="glyphicon glyphicon-plus"></span>
+                                </a>
+                            </h4>
+                        </div>
+
+                        <div id="collapse_sales_nextaction" class="panel-collapse collapse">
+                            <div class="panel-body" data-tab-name="sales_nextaction" data-tab-label="Next Action" data-url="../Sales/details_next_action.php?id=<?= $sales_lead_id ?>">
+                                Loading...
+                            </div>
+                        </div>
+                    </div>
+                <?php }
+                if (strpos($sales_config, ',Service,') !== false) { ?>
+                    <div class="panel panel-default" style='<?= $_GET['edit'] > 0 && !IFRAME_PAGE ? '' : 'display:none;' ?>'>
+                        <div class="panel-heading">
+                            <h4 class="panel-title">
+                                <a data-toggle="collapse" data-parent="#profile_accordions" href="#collapse_sales_services">
+                                    <?= SALES_NOUN ?>: Services<span class="glyphicon glyphicon-plus"></span>
+                                </a>
+                            </h4>
+                        </div>
+
+                        <div id="collapse_sales_services" class="panel-collapse collapse">
+                            <div class="panel-body" data-tab-name="sales_services" data-tab-label="Services" data-url="../Sales/details_services.php?id=<?= $sales_lead_id ?>">
+                                Loading...
+                            </div>
+                        </div>
+                    </div>
+                <?php }
+                if (strpos($sales_config, ',Products,') !== false) { ?>
+                    <div class="panel panel-default" style='<?= $_GET['edit'] > 0 && !IFRAME_PAGE ? '' : 'display:none;' ?>'>
+                        <div class="panel-heading">
+                            <h4 class="panel-title">
+                                <a data-toggle="collapse" data-parent="#profile_accordions" href="#collapse_sales_products">
+                                    <?= SALES_NOUN ?>: Products<span class="glyphicon glyphicon-plus"></span>
+                                </a>
+                            </h4>
+                        </div>
+
+                        <div id="collapse_sales_products" class="panel-collapse collapse">
+                            <div class="panel-body" data-tab-name="sales_products" data-tab-label="Products" data-url="../Sales/details_products.php?id=<?= $sales_lead_id ?>">
+                                Loading...
+                            </div>
+                        </div>
+                    </div>
+                <?php }
+                if (strpos($sales_config, ',Reference Documents,') !== false) { ?>
+                    <div class="panel panel-default" style='<?= $_GET['edit'] > 0 && !IFRAME_PAGE ? '' : 'display:none;' ?>'>
+                        <div class="panel-heading">
+                            <h4 class="panel-title">
+                                <a data-toggle="collapse" data-parent="#profile_accordions" href="#collapse_sales_refdocs">
+                                    <?= SALES_NOUN ?>: Reference Documents<span class="glyphicon glyphicon-plus"></span>
+                                </a>
+                            </h4>
+                        </div>
+
+                        <div id="collapse_sales_refdocs" class="panel-collapse collapse">
+                            <div class="panel-body" data-tab-name="sales_refdocs" data-tab-label="Reference Documents" data-url="../Sales/details_ref_docs.php?id=<?= $sales_lead_id ?>">
+                                Loading...
+                            </div>
+                        </div>
+                    </div>
+                <?php }
+                if (strpos($sales_config, ',Marketing Material,') !== false) { ?>
+                    <div class="panel panel-default" style='<?= $_GET['edit'] > 0 && !IFRAME_PAGE ? '' : 'display:none;' ?>'>
+                        <div class="panel-heading">
+                            <h4 class="panel-title">
+                                <a data-toggle="collapse" data-parent="#profile_accordions" href="#collapse_sales_marketing">
+                                    <?= SALES_NOUN ?>: Marketing Material<span class="glyphicon glyphicon-plus"></span>
+                                </a>
+                            </h4>
+                        </div>
+
+                        <div id="collapse_sales_marketing" class="panel-collapse collapse">
+                            <div class="panel-body" data-tab-name="sales_marketing" data-tab-label="Marketing Material" data-url="../Sales/details_marketing.php?id=<?= $sales_lead_id ?>">
+                                Loading...
+                            </div>
+                        </div>
+                    </div>
+                <?php }
+                if (strpos($sales_config, 'Information Gathering,') !== false) { ?>
+                    <div class="panel panel-default" style='<?= $_GET['edit'] > 0 && !IFRAME_PAGE ? '' : 'display:none;' ?>'>
+                        <div class="panel-heading">
+                            <h4 class="panel-title">
+                                <a data-toggle="collapse" data-parent="#profile_accordions" href="#collapse_sales_infogathering">
+                                    <?= SALES_NOUN ?>: Information Gathering<span class="glyphicon glyphicon-plus"></span>
+                                </a>
+                            </h4>
+                        </div>
+
+                        <div id="collapse_sales_infogathering" class="panel-collapse collapse">
+                            <div class="panel-body" data-tab-name="sales_infogathering" data-tab-label="Information Gathering" data-url="../Sales/details_info_gathering.php?id=<?= $sales_lead_id ?>">
+                                Loading...
+                            </div>
+                        </div>
+                    </div>
+                <?php }
+                if (strpos($sales_config, ',Estimate,') !== false) { ?>
+                    <div class="panel panel-default" style='<?= $_GET['edit'] > 0 && !IFRAME_PAGE ? '' : 'display:none;' ?>'>
+                        <div class="panel-heading">
+                            <h4 class="panel-title">
+                                <a data-toggle="collapse" data-parent="#profile_accordions" href="#collapse_sales_estimate">
+                                    <?= SALES_NOUN ?>: Estimate<span class="glyphicon glyphicon-plus"></span>
+                                </a>
+                            </h4>
+                        </div>
+
+                        <div id="collapse_sales_estimate" class="panel-collapse collapse">
+                            <div class="panel-body" data-tab-name="sales_estimate" data-tab-label="Estimate" data-url="../Sales/details_estimate.php?id=<?= $sales_lead_id ?>">
+                                Loading...
+                            </div>
+                        </div>
+                    </div>
+                <?php }
+                if (strpos($sales_config, ',Lead Notes,') !== false) { ?>
+                    <div class="panel panel-default" style='<?= $_GET['edit'] > 0 && !IFRAME_PAGE ? '' : 'display:none;' ?>'>
+                        <div class="panel-heading">
+                            <h4 class="panel-title">
+                                <a data-toggle="collapse" data-parent="#profile_accordions" href="#collapse_sales_leadnotes">
+                                    <?= SALES_NOUN ?>: Lead Notes<span class="glyphicon glyphicon-plus"></span>
+                                </a>
+                            </h4>
+                        </div>
+
+                        <div id="collapse_sales_leadnotes" class="panel-collapse collapse">
+                            <div class="panel-body" data-tab-name="sales_leadnotes" data-tab-label="Lead Notes" data-url="../Sales/details_lead_notes.php?id=<?= $sales_lead_id ?>">
+                                Loading...
+                            </div>
+                        </div>
+                    </div>
+                <?php }
+                if (strpos($sales_config, ',Tasks,') !== false) { ?>
+                    <div class="panel panel-default" style='<?= $_GET['edit'] > 0 && !IFRAME_PAGE ? '' : 'display:none;' ?>'>
+                        <div class="panel-heading">
+                            <h4 class="panel-title">
+                                <a data-toggle="collapse" data-parent="#profile_accordions" href="#collapse_sales_tasks">
+                                    <?= SALES_NOUN ?>: Tasks<span class="glyphicon glyphicon-plus"></span>
+                                </a>
+                            </h4>
+                        </div>
+
+                        <div id="collapse_sales_tasks" class="panel-collapse collapse">
+                            <div class="panel-body" data-tab-name="sales_tasks" data-tab-label="Tasks" data-url="../Sales/details_tasks.php?id=<?= $sales_lead_id ?>">
+                                Loading...
+                            </div>
+                        </div>
+                    </div>
+                <?php }
+                if (strpos($sales_config, ',Time,') !== false) { ?>
+                    <div class="panel panel-default" style='<?= $_GET['edit'] > 0 && !IFRAME_PAGE ? '' : 'display:none;' ?>'>
+                        <div class="panel-heading">
+                            <h4 class="panel-title">
+                                <a data-toggle="collapse" data-parent="#profile_accordions" href="#collapse_sales_time">
+                                    <?= SALES_NOUN ?>: Time Tracking<span class="glyphicon glyphicon-plus"></span>
+                                </a>
+                            </h4>
+                        </div>
+
+                        <div id="collapse_sales_time" class="panel-collapse collapse">
+                            <div class="panel-body" data-tab-name="sales_time" data-tab-label="Time Tracking" data-url="../Sales/details_time.php?id=<?= $sales_lead_id ?>">
+                                Loading...
+                            </div>
+                        </div>
+                    </div>
+                <?php } ?>
+			<?php } ?>
 		</div>
 		<?php if(IFRAME_PAGE) { ?>
 				</div>
@@ -977,7 +1182,43 @@ function removeContactForm(a, pdf_id) {
 							while($contact_form = mysqli_fetch_assoc($contact_forms)) { ?>
 								<a id="nav_contactform_<?= $contact_form['form_id'] ?>" href="#contactform_<?= $contact_form['form_id'] ?>" onclick="jumpTab('contactform_<?= $contact_form['form_id'] ?>'); return false;"><li class=""><?= $contact_form['name'] ?></li></a>
 							<?php }
-						} ?>
+						}
+                        if ((in_array('Sales Lead Details',$field_config) || in_array($contact['category'],['Sales Lead','Sales Leads'])) && $sales_lead_id > 0 && vuaed_visible_function($dbc, 'sales')) {
+                            $sales_config = get_field_config($dbc, 'sales');
+                            if (strpos($sales_config, ',Staff Information,') !== false) { ?>
+                                <a id="nav_sales_staff_info" href="#sales_staff_info" onclick="jumpTab('sales_staff_info'); return false;"><li class=""><?= SALES_NOUN ?>: Staff Information</li></a>
+                            <?php }
+                            if (strpos($sales_config, ',Next Action,') !== false) { ?>
+                                <a id="nav_sales_next_action" href="#sales_next_action" onclick="jumpTab('sales_next_action'); return false;"><li class=""><?= SALES_NOUN ?>: Next Action</li></a>
+                            <?php }
+                            if (strpos($sales_config, ',Service,') !== false) { ?>
+                                <a id="nav_sales_services" href="#sales_services" onclick="jumpTab('sales_services'); return false;"><li class=""><?= SALES_NOUN ?>: Services</li></a>
+                            <?php }
+                            if (strpos($sales_config, ',Products,') !== false) { ?>
+                                <a id="nav_sales_products" href="#sales_products" onclick="jumpTab('sales_products'); return false;"><li class=""><?= SALES_NOUN ?>: Products</li></a>
+                            <?php }
+                            if (strpos($sales_config, ',Reference Documents,') !== false) { ?>
+                                <a id="nav_sales_ref_docs" href="#sales_ref_docs" onclick="jumpTab('sales_ref_docs'); return false;"><li class=""><?= SALES_NOUN ?>: Reference Documents</li></a>
+                            <?php }
+                            if (strpos($sales_config, ',Marketing Material,') !== false) { ?>
+                                <a id="nav_sales_marketing" href="#sales_marketing" onclick="jumpTab('sales_marketing'); return false;"><li class=""><?= SALES_NOUN ?>: Marketing Material</li></a>
+                            <?php }
+                            if (strpos($sales_config, 'Information Gathering,') !== false) { ?>
+                                <a id="nav_sales_info_gathering" href="#sales_ingo_gathering" onclick="jumpTab('sales_ingo_gathering'); return false;"><li class=""><?= SALES_NOUN ?>: Information Gathering</li></a>
+                            <?php }
+                            if (strpos($sales_config, ',Estimate,') !== false) { ?>
+                                <a id="nav_sales_estimate" href="#sales_estimate" onclick="jumpTab('sales_estimate'); return false;"><li class=""><?= SALES_NOUN ?>: Estimate</li></a>
+                            <?php }
+                            if (strpos($sales_config, ',Lead Notes,') !== false) { ?>
+                                <a id="nav_sales_lead_notes" href="#sales_lead_notes" onclick="jumpTab('sales_lead_notes'); return false;"><li class=""><?= SALES_NOUN ?>: Lead Notes</li></a>
+                            <?php }
+                            if (strpos($sales_config, ',Tasks,') !== false) { ?>
+                                <a id="nav_sales_tasks" href="#sales_tasks" onclick="jumpTab('sales_tasks'); return false;"><li class=""><?= SALES_NOUN ?>: Tasks</li></a>
+                            <?php }
+                            if (strpos($sales_config, ',Time,') !== false) { ?>
+                                <a id="nav_sales_time" href="#sales_time" onclick="jumpTab('sales_time'); return false;"><li class=""><?= SALES_NOUN ?>: Time Tracking</li></a>
+                            <?php }
+                        } ?>
 					</ul>
 				</div>
 			</div><!-- .tile-sidebar -->
@@ -1062,7 +1303,6 @@ function removeContactForm(a, pdf_id) {
 	                            		<label class="col-sm-4 control-label">Other Category:</label>
 	                            		<div class="col-sm-7">
 	                            			<select name="multiple_categories[]" data-placeholder="Select a Category..." onchange="multipleCategories(this);" class="chosen-select-deselect form-control">
-	                            				<option></option>
 	                            				<?php foreach($each_tab as $cat_tab) {
 													echo "<option ".($other_cat['category'] == $cat_tab ? 'selected' : '')." value='". $cat_tab."'>".$cat_tab.'</option>';
 	                            				} ?>
@@ -1106,7 +1346,68 @@ function removeContactForm(a, pdf_id) {
 									include('../Contacts/edit_addition_contact_forms.php'); ?>
 								</div>
 							<?php }
-						} ?>
+						}
+                        if ((in_array('Sales Lead Details',$field_config) || in_array($contact['category'],['Sales Lead','Sales Leads'])) && $sales_lead_id > 0 && vuaed_visible_function($dbc, 'sales')) {
+                            $value_config = $sales_config = get_field_config($dbc, 'sales'); ?>
+                            <input type="hidden" name="salesid" value="<?= $sales_lead_id ?>">
+                            <h3><?= SALES_NOUN ?></h3>
+                            <?php $_GET['id'] = $sales_lead_id;
+                            if (strpos($sales_config, ',Staff Information,') !== false) { ?>
+								<div data-tab-name='sales_staff_info' data-locked='' id="sales_staff_info" class="scroll-section">
+									<?php include('../Sales/details_staff_info.php'); ?>
+								</div><hr />
+                            <?php }
+                            if (strpos($sales_config, ',Next Action,') !== false) { ?>
+								<div data-tab-name='sales_next_action' data-locked='' id="sales_next_action" class="scroll-section">
+									<?php include('../Sales/details_next_action.php'); ?>
+								</div><hr />
+                            <?php }
+                            if (strpos($sales_config, ',Service,') !== false) { ?>
+								<div data-tab-name='sales_services' data-locked='' id="sales_services" class="scroll-section">
+									<?php include('../Sales/details_services.php'); ?>
+								</div><hr />
+                            <?php }
+                            if (strpos($sales_config, ',Products,') !== false) { ?>
+								<div data-tab-name='sales_products' data-locked='' id="sales_products" class="scroll-section">
+									<?php include('../Sales/details_products.php'); ?>
+								</div><hr />
+                            <?php }
+                            if (strpos($sales_config, ',Reference Documents,') !== false) { ?>
+								<div data-tab-name='sales_ref_docs' data-locked='' id="sales_ref_docs" class="scroll-section">
+									<?php include('../Sales/details_ref_docs.php'); ?>
+								</div><hr />
+                            <?php }
+                            if (strpos($sales_config, ',Marketing Material,') !== false) { ?>
+								<div data-tab-name='sales_marketing' data-locked='' id="sales_marketing" class="scroll-section">
+									<?php include('../Sales/details_marketing.php'); ?>
+								</div><hr />
+                            <?php }
+                            if (strpos($sales_config, 'Information Gathering,') !== false) { ?>
+								<div data-tab-name='sales_ingo_gathering' data-locked='' id="sales_ingo_gathering" class="scroll-section">
+									<?php include('../Sales/details_info_gathering.php'); ?>
+								</div><hr />
+                            <?php }
+                            if (strpos($sales_config, ',Estimate,') !== false) { ?>
+								<div data-tab-name='sales_estimate' data-locked='' id="sales_estimate" class="scroll-section">
+									<?php include('../Sales/details_estimates.php'); ?>
+								</div><hr />
+                            <?php }
+                            if (strpos($sales_config, ',Lead Notes,') !== false) { ?>
+								<div data-tab-name='sales_lead_notes' data-locked='' id="sales_lead_notes" class="scroll-section">
+									<?php include('../Sales/details_lead_notes.php'); ?>
+								</div><hr />
+                            <?php }
+                            if (strpos($sales_config, ',Tasks,') !== false) { ?>
+								<div data-tab-name='sales_tasks' data-locked='' id="sales_tasks" class="scroll-section">
+									<?php include('../Sales/details_tasks.php'); ?>
+								</div><hr />
+                            <?php }
+                            if (strpos($sales_config, ',Time,') !== false) { ?>
+								<div data-tab-name='sales_time' data-locked='' id="sales_time" class="scroll-section">
+									<?php include('../Sales/details_time.php'); ?>
+								</div><hr />
+                            <?php }
+                        } ?>
                         <div class="clearfix"></div>
 						<?php if(IFRAME_PAGE && $_GET['edit'] > 0) {
 							echo '<a href="'.($_GET['change'] != 'true' ? 'contacts_inbox.php?list='.$_GET['category'] : '/index.php').'" class="btn brand-btn pull-right">Update</a>';
@@ -1164,8 +1465,8 @@ function contact_call($dbc, $select_id, $select_name, $contact_value,$multiple, 
     <div class="form-group">
         <label for="fax_number" class="col-sm-4 control-label">Contact:</label>
         <div class="col-sm-8">
+
             <select <?php echo $disabled; ?> <?php echo $multiple; ?> data-placeholder="Choose a Contact..." name="<?php echo $select_name; ?>" data-field="<?php echo $data_field; ?>" data-table="individual_support_plan" data-row-field="individualsupportplanid" data-row-id="<?php echo $data_row_id; ?>" id="<?php echo $select_id; ?>" data-value="<?= $contact_value ?>" data-category="<?= $from_contact ?>" data-contactid-field="support_contact" data-contactid-category-field="support_contact_category" data-exact-name="1" class="chosen-select-deselect form-control" width="380">
-              <option value=""></option>
               <option value="NEW_CONTACT">Add New Contact</option>
             </select>
             <input type="text" name="<?= str_replace('[]','',$select_name) ?>_new_contact<?= preg_replace('/[^\[\]]/','',$select_name) ?>" data-field="<?php echo $data_field; ?>" data-table="individual_support_plan" data-row-field="individualsupportplanid" data-row-id="<?php echo $data_row_id; ?>" data-contactid-field="support_contact" class="form-control" style="display:none;">

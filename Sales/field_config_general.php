@@ -265,7 +265,6 @@ $(document).ready(function(){
             <label class="col-sm-4">Limit Staff Categories:</label>
             <div class="col-sm-8">
                 <select name="limit_staff_cat[]" multiple class="chosen-select-deselect form-control">
-                    <option></option>
                     <?php $sales_limit_staff_cat = ','.get_config($dbc, 'sales_limit_staff_cat').',';
                     $get_config_values = array_filter(explode(',',str_replace(',,',',',str_replace('Staff','',mysqli_fetch_assoc(mysqli_query($dbc,"SELECT categories FROM field_config_contacts WHERE tab='Staff' AND `categories` IS NOT NULL"))['categories']))));
                     foreach($get_config_values as $category) { ?>

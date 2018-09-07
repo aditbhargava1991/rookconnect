@@ -29,7 +29,6 @@
                     <label for="site_name" class="col-sm-4 control-label">Staff:</label>
                     <div class="col-sm-8">
                         <select data-placeholder="Choose a Staff Member..." multiple name="attendance_staff[]" class="chosen-select-deselect form-control" width="380">
-                            <option value=""></option>
                             <?php
                             $query = mysqli_query($dbc,"SELECT contactid, first_name, last_name FROM contacts WHERE category IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND deleted=0 order by first_name");
                             while($row = mysqli_fetch_array($query)) { ?>

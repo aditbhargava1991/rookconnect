@@ -101,7 +101,7 @@ $site_work_order_staff_groups = get_config($dbc, 'site_work_order_staff_groups')
 			<div class="panel-body">
 				<label class="col-sm-4 control-label">Team Leads</label>
 				<div class="col-sm-8">
-					<select name="team_leads[]" multiple class="chosen-select-deselect form-control" data-placeholder="Select Team Leads"><option></option>
+					<select name="team_leads[]" multiple class="chosen-select-deselect form-control" data-placeholder="Select Team Leads">
 						<?php $staff_list = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT `first_name`, `last_name`, `contactid` FROM `contacts` WHERE `category`='Staff' AND `deleted`=0 AND `status`=1"), MYSQLI_ASSOC));
 						foreach($staff_list as $id) {
 							echo "<option ".(in_array($id, $staff_leads) ? 'selected' : '')." value='$id'>".get_contact($dbc, $id)."</option>";
@@ -125,7 +125,7 @@ $site_work_order_staff_groups = get_config($dbc, 'site_work_order_staff_groups')
 			<div class="panel-body">
 				<label class="col-sm-4 control-label">Driving Log Equipment Category</label>
 				<div class="col-sm-8">
-					<select name="site_log_equip_cat[]" multiple class="chosen-select-deselect form-control" data-placeholder="Select Equipment Category"><option></option>
+					<select name="site_log_equip_cat[]" multiple class="chosen-select-deselect form-control" data-placeholder="Select Equipment Category">
 						<?php $cat_list = explode(',', get_config($dbc, 'equipment_tabs'));
 						$site_log_equip_cat = explode(',',get_config($dbc, 'site_log_equip_cat'));
 						foreach($cat_list as $equip_cat) {
@@ -150,7 +150,6 @@ $site_work_order_staff_groups = get_config($dbc, 'site_work_order_staff_groups')
 			<div class="panel-body">
 				<div class="col-sm-12"><div class="form-group"><label class="col-sm-4 control-label">Who can view Site Work Orders: </label><div class="col-sm-8">
 					<select multiple data-placeholder="Select Staff Category" name="site_work_order_staff_groups[]" class="chosen-select-deselect form-control">
-						<option></option>
 						<?php $query = mysqli_query($dbc, "SELECT DISTINCT `position` FROM `contacts` WHERE `category` = 'Staff' ORDER BY `position`");
 						while ($row = mysqli_fetch_array($query)) {
 							echo "<option ".(strpos(','.$site_work_order_staff_groups.',', ','.$row['position'].',') !== FALSE ? 'selected' : '')." value='".$row['position']."'>".$row['position']."</option>";
@@ -216,7 +215,6 @@ $site_work_order_staff_groups = get_config($dbc, 'site_work_order_staff_groups')
 			?>
 				<div class="col-sm-12"><div class="form-group"><label class="col-sm-4 control-label"><?php echo $accordion_title; ?>: </label><div class="col-sm-8">
 					<select multiple data-placeholder="Select Staff Positions" name="swo_readonly_<?php echo $accordion; ?>[]" class="chosen-select-deselect form-control">
-						<option></option>
 						<?php
 							$query = mysqli_query($dbc, "SELECT DISTINCT `position` FROM `contacts` WHERE `category` = 'Staff' AND `deleted` = 0 AND `status` = 1");
 							while ($row = mysqli_fetch_array($query)) {

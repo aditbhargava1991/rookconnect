@@ -303,7 +303,7 @@ $fields = explode(',',$get_manual['fields']); ?>
 					<label class="col-sm-4 control-label text-right">Assign Staff:</label>
 					<div class="col-sm-8"><!--<?= "SELECT contactid, first_name, last_name FROM contacts WHERE category IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND deleted=0 AND status > 0" ?>-->
 						<select id = "assign_staff" name="assign_staff[]" data-placeholder="Choose a Staff Member..." class="chosen-select-deselect form-control" multiple width="380">
-							<option value=""></option><?php
+							<?php
 							foreach(sort_contacts_query(mysqli_query($dbc, "SELECT contactid, first_name, last_name FROM contacts WHERE category IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND deleted=0 AND status > 0")) as $row) {
 								if (!empty(trim($get_manual['assign_staff'],','))) { ?>
 									<option <?= (strpos(','.$get_manual['assign_staff'].',', ','.$row['contactid'].',') !== FALSE) ? 'selected' : '' ?> value="<?= $row['contactid']; ?>"><?= $row['first_name'].' '.$row['last_name']; ?></option><?php

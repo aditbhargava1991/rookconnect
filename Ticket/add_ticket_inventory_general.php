@@ -77,7 +77,7 @@ function addPieces(button) {
 		completed_last();
 	}
 }
-function triggerSaveGeneralPiece() {	
+function triggerSaveGeneralPiece() {
 	if(!ticket_wait) {
 		var trigger = $('.tab-section[data-type=general]').filter(function() { return $(this).data('triggered') == 0; }).first();
 		trigger.data('triggered',1);
@@ -152,6 +152,12 @@ if(strpos($value_config,',Inventory General Detail by Pallet,') !== FALSE) {
 if(strpos($value_config,',Inventory General Shipment Count Weight,') !== FALSE) {
 	$general_shipment = $dbc->query("SELECT `id`, `qty`, `weight`, `weight_units` FROM `ticket_attached` WHERE `ticketid`='$ticketid' AND `src_table`='inventory_shipment' AND `deleted`=0".$query_daily.(strpos($value_config,',Inventory General PO Line Sort,') !== FALSE ? ' ORDER BY `ticket_attached`.`po_line`' : ''))->fetch_assoc();
 	$shipment_count = $general_shipment['qty'] * 1;
+	if(strpos($value_config,',Inventory General Weight Convert KG to LB,') !== FALSE && $general_shipment['weight_units'] == 'kg') {
+		$general_shipment['weight_units'] = 'lbs';
+		if($general_shipment['weight'] > 0) {
+			$general_shipment['weight'] = number_format(($general_shipment['weight']*2.20462262185),2);
+		}
+	}
 	if($access_all > 0) { ?>
 		<div class="form-group">
 			<label class="control-label col-sm-4">Shipment Count &amp; Weight:</label>
@@ -193,6 +199,12 @@ if(strpos($value_config,',Inventory General Shipment Count Weight,') !== FALSE) 
 } ?>
 <?php if(strpos($value_config,',Inventory General Total Count Weight,') !== FALSE) {
 	$general_shipment = $dbc->query("SELECT `qty`, `weight`, `weight_units` FROM `ticket_attached` WHERE `ticketid`='$ticketid' AND `src_table`='inventory_total_ship' AND `deleted`=0".$query_daily)->fetch_assoc();
+	if(strpos($value_config,',Inventory General Weight Convert KG to LB,') !== FALSE && $general_shipment['weight_units'] == 'kg') {
+		$general_shipment['weight_units'] = 'lbs';
+		if($general_shipment['weight'] > 0) {
+			$general_shipment['weight'] = number_format(($general_shipment['weight']*2.20462262185),2);
+		}
+	}
 	if($access_all > 0) { ?>
 		<div class="form-group">
 			<label class="control-label col-sm-4">Total Shipment Count &amp; Total Weight:</label>
@@ -234,6 +246,18 @@ $general_inventory = mysqli_fetch_assoc($general_inventory_list);
 $piece_types = array_filter(explode(',',get_config($dbc, 'piece_types')));
 $general_line_item = 0;
 do {
+	if(strpos($value_config,',Inventory General Weight Convert KG to LB,') !== FALSE) {
+		$general_inventory['weight_units'] = explode('#*#',$general_inventory['weight_units']);
+		$general_inventory['weight'] = explode('#*#',$general_inventory['weight']);
+		foreach($general_inventory['weight'] as $id => $general_weight) {
+			if($general_inventory['weight_units'][$id] == 'kg' && $general_weight > 0) {
+				$general_inventory['weight'][$id] = number_format(($general_inventory['weight'][$id]*2.20462262185),2);
+				$general_inventory['weight_units'][$id] = 'lbs';
+			}
+		}
+		$general_inventory['weight_units'] = implode('#*#',$general_inventory['weight_units']);
+		$general_inventory['weight'] = implode('#*#',$general_inventory['weight']);
+	}
 	if($general_inventory['dimensions'] == '') {
 		$general_inventory['dimensions'] = ' x x ';
 	}
@@ -332,7 +356,7 @@ do {
 					<div class="form-group" <?= $general_inventory['description'] == '' || $general_inventory['siteid'] != '' ? '' : 'style="display:none;"' ?>>
 						<label class="control-label col-sm-4"><?= SITES_CAT ?>:</label>
 						<div class="col-sm-8"><div class="col-sm-12">
-							<select name="siteid[]" multiple data-concat="," data-placeholder="Select <?= SITES_CAT ?>" data-table="ticket_attached" data-id="<?= $general_inventory['id'] ?>" data-id-field="id" data-type="inventory_general" data-type-field="src_table" class="chosen-select-deselect"><option></option>
+							<select name="siteid[]" multiple data-concat="," data-placeholder="Select <?= SITES_CAT ?>" data-table="ticket_attached" data-id="<?= $general_inventory['id'] ?>" data-id-field="id" data-type="inventory_general" data-type-field="src_table" class="chosen-select-deselect">
 								<?php if(!isset($site_list)) {
 									$site_list = sort_contacts_query(mysqli_query($dbc,"SELECT contactid, site_name, `display_name`, businessid FROM `contacts` WHERE `category`='".SITES_CAT."' AND deleted=0 ORDER BY IFNULL(NULLIF(`display_name`,''),`site_name`)"));
 								}
@@ -694,7 +718,7 @@ do {
 				</div>
 				<div class="col-sm-4">
 					<input type="number" min="0" step="any" name="total_shipment_weight" placeholder="Total Shipment Weight" readonly class="form-control" value="<?= $total_shipment_weight ?>">
-					<?php if($general_shipment['weight'] != $total_shipment_weight) { ?>
+					<?php if(number_format($general_shipment['weight'],2) != number_format($total_shipment_weight,2)) { ?>
 						<span class="text-red">The shipment weight was <?= $general_shipment['weight'] ?></span>
 					<?php } ?>
 				</div>
@@ -746,7 +770,7 @@ if(strpos($value_config,',Inventory General Detail by Pallet,') !== FALSE && $pa
 					<input type="hidden" name="lock_tabs" value="<?= 'inventory_general_pallet_'.config_safe_str($pallet_line['pallet']) ?>" data-toggle="1">
 				</div>
 			<?php } else { ?>
-				<em class="cursor-hand tab_lock_toggle" onclick="window.location.reload();">Click this section to unlock.<img class="inline-img" src="../img/icons/lock.png"></em> 
+				<em class="cursor-hand tab_lock_toggle" onclick="window.location.reload();">Click this section to unlock.<img class="inline-img" src="../img/icons/lock.png"></em>
 				<input type="hidden" name="lock_tabs" value="<?= 'inventory_general_pallet_'.config_safe_str($pallet_line['pallet']) ?>" data-toggle="0">
 			<?php } ?>
 		</div>

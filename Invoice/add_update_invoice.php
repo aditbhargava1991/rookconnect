@@ -386,7 +386,13 @@ if($invoice_mode != 'Adjustment') {
             //Update Inventory quantity
             if ( $invoice_mode != 'Saved' ) {
                 $qty = filter_var($_POST['quantity'][$i], FILTER_SANITIZE_STRING);
-                mysqli_query($dbc, "UPDATE `inventory` SET `quantity`=`quantity`-'$qty' WHERE `inventoryid`='$inv'");
+                $query_inv = "UPDATE `inventory` SET `quantity`=`quantity`-'$qty' WHERE `inventoryid`='$inv'";
+                mysqli_query($dbc, $query_inv);
+                
+                //Connection set on database_connection.php Check Admin Settings > Sync Inventory for details.
+                if ( $dbc_inventory ) {
+                    mysqli_query($dbc_inventory, $query_inv);
+                }
             }
 
 			$promo_applied = 0;
@@ -1429,7 +1435,13 @@ if($invoice_mode != 'Adjustment') {
         //Update Inventory quantity
         if ( $invoice_mode!='Saved' && $inv > 0 ) {
             $qty = filter_var($_POST['quantity'][$i], FILTER_SANITIZE_STRING);
-            mysqli_query($dbc, "UPDATE `inventory` SET `quantity`=`quantity`-'$qty' WHERE `inventoryid`='$inv'");
+            $query_inv = "UPDATE `inventory` SET `quantity`=`quantity`-'$qty' WHERE `inventoryid`='$inv'";
+            mysqli_query($dbc, $query_inv);
+            
+            //Connection set on database_connection.php Check Admin Settings > Sync Inventory for details.
+            if ( $dbc_inventory ) {
+                mysqli_query($dbc_inventory, $query_inv);
+            }
         }
 	}
 

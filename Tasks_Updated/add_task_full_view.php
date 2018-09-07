@@ -10,9 +10,6 @@
  *  - Project/projects_ajax.php
  */
 ?>
-<style>
-    .ui-datepicker-current:empty { display:none; }
-</style>
 <?php
 include ('../include.php');
 error_reporting(0);
@@ -225,6 +222,9 @@ if (isset($_POST['tasklist'])) {
 }
 ?>
 
+<style>
+    .ui-datepicker-current:empty { display:none; }
+</style>
 <script type="text/javascript">
 
     $(document).ready(function () {
@@ -246,18 +246,15 @@ if (isset($_POST['tasklist'])) {
 
         $(window).resize(function() {
             $('.main-screen').css('padding-bottom',0);
-            if($('.main-screen .main-screen').is(':visible') && $('.sidebar').is(':visible')) {
-                var available_height = window.innerHeight - $('footer:visible').outerHeight() - $('.sidebar:visible').offset().top;
-                if(available_height > 300) {
-                    $('.main-screen .main-screen').outerHeight(available_height).css('overflow-y','auto');
-                    $('.sidebar').outerHeight(available_height).css('overflow-y','auto');
-                    $('.search-results').outerHeight(available_height).css('overflow-y','auto');
-                }
-                var sidebar_height = $('.tile-sidebar').outerHeight(true);
-                $('.has-main-screen, .has-main-screen .main-screen').css('min-height', sidebar_height);
-            } else {
-                $('.main-screen .main-screen').css('height','auto');
+            var available_height = window.innerHeight - $('footer:visible').outerHeight() - $('.sidebar:visible').offset().top;
+            if(available_height > 200) {
+                $('.main-screen .main-screen').outerHeight(available_height).css('overflow-y','auto');
+                $('.sidebar').outerHeight(available_height).css('overflow-y','auto');
+                $('.search-results').outerHeight(available_height).css('overflow-y','auto');
+                $('.tile-content, .standard-body').css('height','auto');
             }
+            //$('.sidebar').height($('.tile-content').outerHeight());
+            $('.tile-content, .standard-body').outerHeight(available_height);
         }).resize();
 
         if ($('[name=tasklistid]').val() != '' ) {
@@ -671,16 +668,26 @@ if (isset($_POST['tasklist'])) {
         });
 
         //$('#task_path').trigger('change');
+        
+        $('.tile-sidebar a').on('click', function(event) {
+            $(this).parent().find('a li').removeClass('active');
+            $(this).find('li').addClass('active');
+        });
+
+        $('.standard-body').on('scroll', function() {
+            var top = $('.standard-body').offset().top;
+            var bottom = top + $('.standard-body').innerHeight();
+            $('.tile-sidebar a li').removeClass('active');
+            $('.accordion-block-details').each(function() {
+                if($(this).offset().top < bottom && $(this).offset().top + $(this).innerHeight() > top + 10) {
+                    //console.log($('.standard-body').scrollTop()+' | '+$(this).offset().top);
+                    var id = $(this).attr('id');
+                    $('.tile-sidebar a[href=#'+ id +'] li').addClass('active');
+                }
+            });
+        });
 
     });
-
-    function resizeScreen() {
-        var view_height = $(window).height() > 800 ? $(window).height() : 800;
-        //$('.scale-to-fill .main-screen, .tile-sidebar').height($('.tile-container').height());
-        $('#services_div .tile-sidebar, #services_div .tile-content').height($('#services_div').height() - $('#services_div .tile-header').height() + 15);
-        $('.standard-body .standard-body-content').css('height', 'auto');
-        $('.standard-body.preview .standard-body-content').height($('#services_div .tile-content').height() - $('.standard-body .standard-body-title').height() + 20);
-    }
 
     function quick_add_time(task) {
         task_id = $('[name=tasklistid]').val();
@@ -821,682 +828,654 @@ function deletestartTicketStaff(button) {
 ?>
 <div class="container">
 	<div class="row">
-    <div class="main-screen">
-
-        <form id="form1" name="form1" method="post"	action="" enctype="multipart/form-data" class="form-horizontal" role="form">
-        <div class="scale-to-fill">
-            <h1 class="gap-left"><a href="index.php?category=All&tab=Summary"><?= TASK_NOUN ?></a></h1>
-        </div>
-
-
-    <div class="tile-sidebar sidebar sidebar-override hide-titles-mob standard-collapsible">
-        <ul>
-            <a href="index.php?category=All&tab=Summary"><li>Back to Dashboard</li></a>
-
-            <a href="#taskboard"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_taskboard" id="nav_taskboard"><?= TASK_NOUN ?> Board</li></a>
-            <a href="#project" class="project-section project_section_display" style="<?= $project_section_display ?>"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_project" id="nav_project">Project</li></a>
-            <a href="#taskpath" class="taskpath_section_display"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_taskpath" id="nav_taskpath"><?= TASK_NOUN ?> Path</li></a>
-
-            <a href="#contacts" class="contact-section contact_section_display" style="<?= $contact_section_display ?>"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_contacts" id="nav_contacts">Contacts</li></a>
-            <a href="#sales" class="sales-section sales_section_display" style="<?= $sales_section_display ?>"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_sales" id="nav_sales">Sales</li></a>
-            <a href="#details"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_details" id="nav_details">Details</li></a>
-            <a href="#timetracking"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_timetracking" id="nav_timetracking">Time Tracking</li></a>
-        </ul>
-    </div>
-
-                <div class="scale-to-fill tile-content has-main-screen" style="padding:0;">
-                    <div class="main-screen override-main-screen full-height no-overflow-x">
-
-        <?php
-            if(!empty($_GET['supportid'])) {
-                $supportid = $_GET['supportid'];
-                $company_name = get_support($dbc, $supportid, 'company_name');
-                $get_task =	mysqli_fetch_assoc(mysqli_query($dbc,"SELECT contactid FROM	contacts WHERE	name='$company_name'"));
-                $task_businessid = $get_task['contactid'];
-                $task_heading = get_support($dbc, $supportid, 'heading');
-                $task = html_entity_decode(get_support($dbc, $supportid, 'message'));
-                $task_status = 'To Do';
-                echo '<input type="hidden" name="supportid" value="'.$_GET['supportid'].'" />';
-            }
-
-            if(!empty($_GET['projectid'])) {
-                $task_projectid = $_GET['projectid'];
-            }
-
-            if(!empty($_GET['task_path'])) {
-                $task_path = $_GET['task_path'];
-            }
-
-            if(!empty($_GET['task_milestone_timeline'])) {
-                $task_milestone_timeline = $_GET['task_milestone_timeline'];
-            }
-
-            if(!empty($_GET['project_milestone'])) {
-                $project_milestone = $_GET['project_milestone'];
-            }
-
-            if(!empty($_GET['task_board'])) {
-                $task_board = $_GET['task_board'];
-            }
-
-            $task_contactid = $_SESSION['contactid'];
-
-            //$contact_section_display = 'display:none;';
-            //$project_section_display = 'display:none;';
-
-            if(!empty($_GET['tasklistid'])) {
-                $tasklistid = $_GET['tasklistid'];
-                $get_task = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT * FROM tasklist WHERE tasklistid='$tasklistid'"));
-                $task_clientid = $get_task['clientid'];
-                $task = $get_task['task'];
-                $task_businessid = $get_task['businessid'];
-                $task_contactid = $get_task['contactid'];
-                $task_salesid = $get_task['salesid'];
-                $task_projectid = (empty($get_task['projectid']) ? 'C'.$get_task['client_projectid'] : $get_task['projectid']);
-                $task_heading = $get_task['heading'];
-                $task_work_time = date('H:i',strtotime($get_task['work_time']));
-                $task_category = $get_task['category'];
-                $task_status = $get_task['status'];
-                $task_tododate = $get_task['task_tododate'];
-                $task_path = $get_task['task_path'];
-                $project_milestone = $get_task['project_milestone'];
-                $task_board = $get_task['task_board'];
-                $task_milestone_timeline = $get_task['task_milestone_timeline'];
-
-                $get_taskboard = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT board_security FROM task_board WHERE taskboardid='$task_board'"));
-                $board_security = $get_taskboard['board_security'];
-                if($task_salesid > 0) {
-                    $board_security = 'Sales';
-                }
-                if($task_projectid > 0) {
-                    $board_security = 'Project';
-                }
-
-                /*
-                if ( $board_security=='Client' ) {
-                    $contact_section_display = 'display:block;';
-                } else if ( $board_security=='Project' ) {
-                    $project_section_display = 'display:block;';
-                }
-                */
-
-            } else if(!empty($_GET['projectid'])) {
-                $task_projectid = $_GET['projectid'];
-                $project = mysqli_fetch_array(mysqli_query($dbc, "SELECT `businessid`, `clientid`, `project_path` FROM `project` WHERE `projectid`='$task_projectid'"));
-                $task_businessid = $project['businessid'];
-                $task_contactid = $project['clientid'];
-                $task_path = $project['project_path'];
-                //$project_section_display = 'display:block;';
-                $board_security = 'Project';
-
-            } else if ($_GET['tab'] == 'sales') {
-				$task_salesid = $_GET['salesid'];
-				$sales_milestone = $_GET['sales_milestone_timeline'];
-                $board_security = 'Sales';
-			} else if ( !empty($_GET['category']) ) {
-                $url_cat = filter_var($_GET['category'], FILTER_VALIDATE_INT);
-                $url_tab = filter_var($_GET['tab'], FILTER_SANITIZE_STRING);
-                $get_task_board = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT taskboardid, board_name, board_security, task_path, businessid, contactid FROM task_board WHERE taskboardid='$url_cat'"));
-                $board_name = $get_task_board['board_name'];
-                $board_security = $get_task_board['board_security'];
-                $task_board = $get_task_board['taskboardid'];
-                $taskboardid = $get_task_board['taskboardid'];
-                $task_path = $get_task_board['task_path'];
-                $task_businessid = $get_task_board['businessid'];
-                $task_clientid = $get_task_board['contactid'];
-
-                /*
-                if ( $board_security=='Client' ) {
-                    $contact_section_display = 'display:block;';
-                } else if ( $board_security=='Project' ) {
-                    $project_section_display = 'display:block;';
-                }
-                */
-
-            } else if ( empty($_GET['category']) && !empty($_GET['tab']) ) {
-                $url_tab = filter_var($_GET['tab'], FILTER_SANITIZE_STRING);
-                $board_security = $url_tab;
-
-                /*
-                if ( $board_security=='Client' ) {
-                    $contact_section_display = 'display:block;';
-                } else if ( $board_security=='Project' ) {
-                    $project_section_display = 'display:block;';
-                }
-                */
-            }
-
-            if(!empty($_GET['tasklistid'])) {
-                echo '<input type="hidden" name="tasklistid" value="'.$_GET['tasklistid'].'" />';
-            } else {
-                echo '<input type="hidden" name="tasklistid" value="" />';
-            }
-
-            $get_field_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT task FROM field_config"));
-            $value_config = ','.$get_field_config['task'].','; ?>
-
-
-<div class="standard-body full-height">
-
-        <div class="standard-body-title hide-on-mobile" style="padding-top:0 !important;">
-            <h3 class=""><?= !empty($_GET['tasklistid']) ? 'Edit' : 'Add' ?> <?= TASK_NOUN ?><?= !empty($_GET['tasklistid']) ? ' #'.$_GET['tasklistid'].': '.$task_heading : '' ?></h3>
-        </div>
-
-            <?php if(!empty($_GET['tasklistid'])) { ?><button name="" type='button' value="" class="delete_task pull-right image-btn" style="margin-top:3px;"><img class="no-margin small" src="../img/icons/trash-icon-red.png" alt="Delete <?= TASK_NOUN ?>" width="25"></button><?php } ?>
-
-            <div class="standard-body-content">
-
-
-                <div class="accordion-block-details padded" id="taskboard">
-                    <div class="accordion-block-details-heading"><h4><?= TASK_NOUN ?> Board</h4></div>
-
-                        <div class="form-group">
-                            <label for="site_name" class="col-sm-4 control-label"><?= TASK_NOUN ?> Board Type:</label>
-                            <div class="col-sm-8">
-                                <select data-placeholder="Select a <?= TASK_NOUN ?> Board Type..." name="task_board_type" id="task_board_type" class="chosen-select-deselect form-control" data-field="board_security" width="380">
-                                    <option></option>
-                                    <option value="Private" <?= $board_security=='Private' ? 'selected' : '' ?>>Private</option><?php
-                                    $all_board_types = mysqli_fetch_array(mysqli_query($dbc, "SELECT task_dashboard_tile FROM task_dashboard"));
-                                    foreach(explode(',', $all_board_types['task_dashboard_tile']) as $board_type) {
-                                        $board_type = str_replace(' Tasks', '', $board_type);
-                                        if ( $board_type=='Client' ) {
-                                            $board_name = (substr(CONTACTS_TILE, -1)=='s' && substr(CONTACTS_TILE, -2) !='ss') ? rtrim(CONTACTS_TILE, 's') : CONTACTS_TILE;
-                                        } elseif ( $board_type=='Company' ) {
-                                            $board_name = 'Shared';
-                                        } else {
-                                            $board_name = $board_type;
-                                        }
-                                        if ( $board_type!='Community' && $board_type!='Business' && $board_type!='Reporting' ) { ?>
-                                            <option value="<?= $board_type ?>" <?= $board_security==$board_type ? 'selected' : '' ?>><?= $board_name ?></option><?php
-                                        }
-                                    } ?>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="form-group hide_task_board_name">
-                            <label for="site_name" class="col-sm-4 control-label"><?= TASK_NOUN ?> Board Name:</label>
-                            <div class="col-sm-8">
-                                <select data-placeholder="Select a <?= TASK_NOUN ?> Board..." name="task_board" class="chosen-select-deselect form-control" data-table="tasklist" data-field="task_board" width="380">
-                                    <option></option>
-                                    <!-- <option value="NEW">Add New Task Board</option> -->
-                                    <?php
-                                    $query = mysqli_query($dbc, "SELECT * FROM task_board WHERE company_staff_sharing LIKE '%,". $_SESSION['contactid'] .",%'");
-                                    while($row = mysqli_fetch_array($query)) { ?>
-                                        <option <?= ($row['taskboardid']==$task_board || $row['taskboardid']==$taskboardid) ? 'selected' : '' ?> value="<?= $row['taskboardid'] ?>"><?= $row['board_name'] ?></option><?php
-                                    } ?>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="form-group clearfix new-board-name" style="display:none;">
-                            <label for="first_name" class="col-sm-4 control-label text-right">New <?= TASK_NOUN ?> Board Name:</label>
-                            <div class="col-sm-8">
-                                <input type="text" name="new_task_board" value="" data-table="tasklist" data-field="board_name" class="form-control" width="380" />
-                            </div>
-                        </div>
-
+        <div class="main-screen">
+            
+            <div class="tile-header standard-header">
+                <div class="row">
+                    <div class="col-xs-10"><h1 class="gap-left"><a href="index.php?category=All&tab=Summary">Tasks</a></h1></div>
+                    <div class="col-xs-2 gap-top"></div>
+                </div>
+                <div class="clearfix"></div>
+            </div>
+            
+            <form id="form1" name="form1" method="post"	action="" enctype="multipart/form-data" class="form-horizontal" role="form">
+                <div class="tile-sidebar sidebar sidebar-override hide-titles-mob standard-collapsible">
+                    <ul>
+                        <a href="index.php?category=All&tab=Summary"><li>Back to Dashboard</li></a>
+                        <a href="#taskboard"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_taskboard" id="nav_taskboard">Task Board</li></a>
+                        <a href="#project" class="project-section project_section_display" style="<?= $project_section_display ?>"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_project" id="nav_project">Project</li></a>
+                        <a href="#taskpath" class="taskpath_section_display"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_taskpath" id="nav_taskpath">Task Path</li></a>
+                        <a href="#contacts" class="contact-section contact_section_display" style="<?= $contact_section_display ?>"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_contacts" id="nav_contacts">Contacts</li></a>
+                        <a href="#sales" class="sales-section sales_section_display" style="<?= $sales_section_display ?>"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_sales" id="nav_sales">Sales</li></a>
+                        <a href="#details"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_details" id="nav_details">Details</li></a>
+                        <a href="#timetracking"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_timetracking" id="nav_timetracking">Time Tracking</li></a>
+                    </ul>
                 </div>
 
+                <div class="scale-to-fill tile-content has-main-screen" style="padding:0;">
+                    <div class="main-screen standard-body"><?php
+                        if(!empty($_GET['supportid'])) {
+                            $supportid = $_GET['supportid'];
+                            $company_name = get_support($dbc, $supportid, 'company_name');
+                            $get_task =	mysqli_fetch_assoc(mysqli_query($dbc,"SELECT contactid FROM	contacts WHERE	name='$company_name'"));
+                            $task_businessid = $get_task['contactid'];
+                            $task_heading = get_support($dbc, $supportid, 'heading');
+                            $task = html_entity_decode(get_support($dbc, $supportid, 'message'));
+                            $task_status = 'To Do';
+                            echo '<input type="hidden" name="supportid" value="'.$_GET['supportid'].'" />';
+                        }
 
+                        if(!empty($_GET['projectid'])) {
+                            $task_projectid = $_GET['projectid'];
+                        }
 
-            <div class="project-section project_section_display" style="<?= $project_section_display ?>">
+                        if(!empty($_GET['task_path'])) {
+                            $task_path = $_GET['task_path'];
+                        }
 
-                <div class="accordion-block-details padded" id="project">
-                    <div class="accordion-block-details-heading"><h4>Project</h4></div>
+                        if(!empty($_GET['task_milestone_timeline'])) {
+                            $task_milestone_timeline = $_GET['task_milestone_timeline'];
+                        }
+                           
+                        if(!empty($_GET['project_milestone'])) {
+                            $project_milestone = $_GET['project_milestone'];
+                        }
 
-                        <div class="form-group clearfix">
+                        if(!empty($_GET['task_board'])) {
+                            $task_board = $_GET['task_board'];
+                        }
 
-                            <label for="first_name" class="col-sm-4 control-label text-right"><?= PROJECT_TILE ?>:</label>
-                            <div class="col-sm-8">
-                                <select data-placeholder="Select <?= PROJECT_NOUN ?>..." name="task_projectid" data-table="tasklist" data-field="projectid" class="chosen-select-deselect form-control" id="task_projectid" width="380">
-                                    <option></option><?php
-                                    $query = "SELECT * FROM (SELECT `projectid`, `project_name` FROM `project` WHERE ('$task_businessid'='' OR `businessid`='$task_businessid') AND `deleted`=0 UNION SELECT CONCAT('C',`projectid`), `project_name` FROM `client_project` WHERE (`clientid`='$taskbusinessid' OR '$task_businessid'='') AND `deleted`=0) PROJECTS ORDER BY `project_name`";
-                                    $query = mysqli_query($dbc,$query);
-                                    while($row = mysqli_fetch_array($query)) {
-                                        if ($task_projectid == $row['projectid']) {
-                                            $selected = 'selected="selected"';
-                                        } else {
-                                            $selected = '';
-                                        }
-                                        echo "<option ".$selected." value='". $row['projectid']."'>".$row['project_name'].'</option>';
-                                    } ?>
-                                </select>
+                        $task_contactid = $_SESSION['contactid'];
+
+                        //$contact_section_display = 'display:none;';
+                        //$project_section_display = 'display:none;';
+
+                        if(!empty($_GET['tasklistid'])) {
+                            $tasklistid = $_GET['tasklistid'];
+                            $get_task = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT * FROM tasklist WHERE tasklistid='$tasklistid'"));
+                            $task_clientid = $get_task['clientid'];
+                            $task = $get_task['task'];
+                            $task_businessid = $get_task['businessid'];
+                            $task_contactid = $get_task['contactid'];
+                            $task_salesid = $get_task['salesid'];
+                            $task_projectid = (empty($get_task['projectid']) ? 'C'.$get_task['client_projectid'] : $get_task['projectid']);
+                            $task_heading = $get_task['heading'];
+                            $task_work_time = date('H:i',strtotime($get_task['work_time']));
+                            $task_category = $get_task['category'];
+                            $task_status = $get_task['status'];
+                            $task_tododate = $get_task['task_tododate'];
+                            $task_path = $get_task['task_path'];
+                            $project_milestone = $get_task['project_milestone'];
+                            $task_board = $get_task['task_board'];
+                            $task_milestone_timeline = $get_task['task_milestone_timeline'];
+
+                            $get_taskboard = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT board_security FROM task_board WHERE taskboardid='$task_board'"));
+                            $board_security = $get_taskboard['board_security'];
+                            if($task_salesid > 0) {
+                                $board_security = 'Sales';
+                            }
+                            if($task_projectid > 0) {
+                                $board_security = 'Project';
+                            }
+
+                            /*
+                            if ( $board_security=='Client' ) {
+                                $contact_section_display = 'display:block;';
+                            } else if ( $board_security=='Project' ) {
+                                $project_section_display = 'display:block;';
+                            }
+                            */
+
+                        } else if(!empty($_GET['projectid'])) {
+                            $task_projectid = $_GET['projectid'];
+                            $project = mysqli_fetch_array(mysqli_query($dbc, "SELECT `businessid`, `clientid`, `project_path` FROM `project` WHERE `projectid`='$task_projectid'"));
+                            $task_businessid = $project['businessid'];
+                            $task_contactid = $project['clientid'];
+                            $task_path = $project['project_path'];
+                            //$project_section_display = 'display:block;';
+                            $board_security = 'Project';
+
+                        } else if ($_GET['tab'] == 'sales') {
+                            $task_salesid = $_GET['salesid'];
+                            $sales_milestone = $_GET['sales_milestone_timeline'];
+                            $board_security = 'Sales';
+                        } else if ( !empty($_GET['category']) ) {
+                            $url_cat = filter_var($_GET['category'], FILTER_VALIDATE_INT);
+                            $url_tab = filter_var($_GET['tab'], FILTER_SANITIZE_STRING);
+                            $get_task_board = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT taskboardid, board_name, board_security, task_path, businessid, contactid FROM task_board WHERE taskboardid='$url_cat'"));
+                            $board_name = $get_task_board['board_name'];
+                            $board_security = $get_task_board['board_security'];
+                            $task_board = $get_task_board['taskboardid'];
+                            $taskboardid = $get_task_board['taskboardid'];
+                            $task_path = $get_task_board['task_path'];
+                            $task_businessid = $get_task_board['businessid'];
+                            $task_clientid = $get_task_board['contactid'];
+
+                            /*
+                            if ( $board_security=='Client' ) {
+                                $contact_section_display = 'display:block;';
+                            } else if ( $board_security=='Project' ) {
+                                $project_section_display = 'display:block;';
+                            }
+                            */
+
+                        } else if ( empty($_GET['category']) && !empty($_GET['tab']) ) {
+                            $url_tab = filter_var($_GET['tab'], FILTER_SANITIZE_STRING);
+                            $board_security = $url_tab;
+
+                            /*
+                            if ( $board_security=='Client' ) {
+                                $contact_section_display = 'display:block;';
+                            } else if ( $board_security=='Project' ) {
+                                $project_section_display = 'display:block;';
+                            }
+                            */
+                        }
+
+                        if(!empty($_GET['tasklistid'])) {
+                            echo '<input type="hidden" name="tasklistid" value="'.$_GET['tasklistid'].'" />';
+                        } else {
+                            echo '<input type="hidden" name="tasklistid" value="" />';
+                        }
+
+                        $get_field_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT task FROM field_config"));
+                        $value_config = ','.$get_field_config['task'].','; ?>
+
+                        <div class="standard-body-title hide-on-mobile">
+                            <h3 class="pull-left"><?= !empty($_GET['tasklistid']) ? 'Edit' : 'Add' ?> Task<?= !empty($_GET['tasklistid']) ? ' #'.$_GET['tasklistid'].': '.$task_heading : '' ?></h3>
+                            <div class="pull-right">
+                                <?php if(!empty($_GET['tasklistid'])) { ?>
+                                    <button name="" type="button" value="" class="delete_task pull-right image-btn no-toggle header-icon pad-right offset-top-5" title="Archive"><img class="no-margin small" src="../img/icons/ROOK-trash-icon.png" alt="Archive Task"></button>
+                                <?php } ?>
                             </div>
+                            <div class="clearfix"></div>
                         </div>
-                        <input type="hidden" name="project_milestone" value="<?= $project_milestone ?>">
-
-                    </div>
-            </div>
-
-
-                <div class="taskpath-section taskpath_section_display" style="<?= $taskpath_section_display ?>">
-                    <div class="accordion-block-details padded" id="taskpath">
-                        <div class="accordion-block-details-heading"><h4><?= TASK_NOUN ?> Path</h4></div>
-
-                            <div class="form-group">
-                                <label for="site_name" class="col-sm-4 control-label"><?= TASK_NOUN ?> Path:</label>
-                                <div class="col-sm-8">
-                                    <select data-placeholder="Select a <?= TASK_NOUN ?> Path..." id="task_path" name="task_path" data-table="tasklist" data-field="task_path" class="chosen-select-deselect form-control" width="380">
-                                        <option value=""></option><?php
-                                        $project_path_milestones = [];
-                                        if($task_projectid > 0) {
-                                            $project_path_milestones = get_project_paths($task_projectid);
-                                            foreach($project_path_milestones as $path) { ?>
-                                                <option <?= $task_path == $path['path_id'] ? 'selected' : '' ?> value='<?= $path['path_id'] ?>'><?= $path['path_name'] ?></option>
-                                            <?php }
-                                        } else {
-                                            $query = mysqli_query($dbc,"SELECT project_path_milestone, project_path FROM project_path_milestone");
-                                            while($row = mysqli_fetch_array($query)) { ?>
-                                                <option <?php if ($row['project_path_milestone'] == $task_path) { echo " selected"; } ?> value='<?php echo  $row['project_path_milestone']; ?>' ><?php echo $row['project_path']; ?></option><?php
-                                            }
-                                        } ?>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label for="site_name" class="col-sm-4 control-label">Milestone & Timeline:</label>
-                                <div class="col-sm-8">
-                                <?php
-                                        $task_milestone_timeline = str_replace("FFMEND","&",$task_milestone_timeline);
-                                        $task_milestone_timeline = str_replace("FFMSPACE"," ",$task_milestone_timeline);
-                                        $task_milestone_timeline = str_replace("FFMHASH","#",$task_milestone_timeline);
-                                ?>
-                                    <select data-placeholder="Select a Milestone & Timeline..." name="task_milestone_timeline" id="task_milestone_timeline" data-table="tasklist" data-field="task_milestone_timeline"  class="chosen-select-deselect form-control" width="580">
-                                        <option value=""></option>
-                                        <?php if($task_projectid > 0) {
-                                            foreach($project_path_milestones as $path) {
-                                                if($path['path_id'] == $task_path) {
-                                                    foreach($path['milestones'] as $milestone) { ?>
-                                                        <option <?= $task_milestone_timeline == $milestone['milestone'] ? 'selected' : '' ?> value="<?= $milestone['milestone'] ?>"><?= $milestone['label'] ?></option>
-                                                    <?php }
+                      
+                        <div class="standard-body-content">
+                            <div class="accordion-block-details padded" id="taskboard">
+                                <div class="accordion-block-details-heading"><h4>Task Board</h4></div>
+                                <div class="form-group">
+                                    <label for="site_name" class="col-sm-4 control-label">Task Board Type:</label>
+                                    <div class="col-sm-8">
+                                        <select data-placeholder="Select a Task Board Type..." name="task_board_type" id="task_board_type" class="chosen-select-deselect form-control" data-field="board_security" width="380">
+                                            <option></option>
+                                            <option value="Private" <?= $board_security=='Private' ? 'selected' : '' ?>>Private</option><?php
+                                            $all_board_types = mysqli_fetch_array(mysqli_query($dbc, "SELECT task_dashboard_tile FROM task_dashboard"));
+                                            foreach(explode(',', $all_board_types['task_dashboard_tile']) as $board_type) {
+                                                $board_type = str_replace(' Tasks', '', $board_type);
+                                                if ( $board_type=='Client' ) {
+                                                    $board_name = (substr(CONTACTS_TILE, -1)=='s' && substr(CONTACTS_TILE, -2) !='ss') ? rtrim(CONTACTS_TILE, 's') : CONTACTS_TILE;
+                                                } elseif ( $board_type=='Company' ) {
+                                                    $board_name = 'Shared';
+                                                } else {
+                                                    $board_name = $board_type;
                                                 }
-                                            }
-                                        } else {
-                                            $query = mysqli_query($dbc,"SELECT milestone FROM taskboard_path_custom_milestones WHERE taskboard='$task_board'");
-                                            while($row = mysqli_fetch_array($query)) { ?>
-                                                <option <?php if ( $row['milestone'] == $task_milestone_timeline) { echo " selected"; } ?> value='<?php echo  $row['milestone']; ?>' ><?php echo $row['milestone']; ?></option><?php
-                                            }
-                                        }
-
-                                        /*
-                                        $each_tab = explode('#*#', get_project_path_milestone($dbc, $task_path, 'milestone'));
-                                        $timeline = explode('#*#', get_project_path_milestone($dbc, $task_path, 'timeline'));
-
-                                        $j=0;
-                                        foreach ($each_tab as $cat_tab) { ?>
-                                            <option <?php if ($cat_tab == $task_milestone_timeline) { echo " selected"; } ?> value='<?php echo  $cat_tab; ?>' ><?php echo $cat_tab.' : '.$timeline[$j]; ?></option>
-                                           <?php
-                                           $j++;
-                                        }
-                                        */
-                                      ?>
-                                    </select>
+                                                if ( $board_type!='Community' && $board_type!='Business' && $board_type!='Reporting' ) { ?>
+                                                    <option value="<?= $board_type ?>" <?= $board_security==$board_type ? 'selected' : '' ?>><?= $board_name ?></option><?php
+                                                }
+                                            } ?>
+                                        </select>
+                                    </div>
                                 </div>
-                            </div>
-                            <?php if($get_task['projectid'] > 0) {
-                                $external_path = array_filter(array_unique(explode('#*#',mysqli_fetch_assoc(mysqli_query($dbc, "SELECT GROUP_CONCAT(`path`.`milestone` SEPARATOR '#*#') `milestones` FROM `project` LEFT JOIN `project_path_milestone` `path` ON CONCAT(',',`external_path`,',') LIKE CONCAT('%,',`path`.`project_path_milestone`,',%') WHERE `projectid`='".$get_task['projectid']."'"))['milestones'])));
-                                if(count($external_path) > 0) { ?>
-                                    <div class="form-group">
-                                        <label for="site_name" class="col-sm-4 control-label"><img class="inline-img" src="../img/icons/ROOK-sync-icon.png">External Path Milestone:</label>
+                                <div class="form-group hide_task_board_name">
+                                    <label for="site_name" class="col-sm-4 control-label">Task Board Name:</label>
+                                    <div class="col-sm-8">
+                                        <select data-placeholder="Select a Task Board..." name="task_board" class="chosen-select-deselect form-control" data-table="tasklist" data-field="task_board" width="380">
+                                            <option></option>
+                                            <!-- <option value="NEW">Add New Task Board</option> -->
+                                            <?php
+                                            $query = mysqli_query($dbc, "SELECT * FROM task_board WHERE company_staff_sharing LIKE '%,". $_SESSION['contactid'] .",%'");
+                                            while($row = mysqli_fetch_array($query)) { ?>
+                                                <option <?= ($row['taskboardid']==$task_board || $row['taskboardid']==$taskboardid) ? 'selected' : '' ?> value="<?= $row['taskboardid'] ?>"><?= $row['board_name'] ?></option><?php
+                                            } ?>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group clearfix new-board-name" style="display:none;">
+                                    <label for="first_name" class="col-sm-4 control-label text-right">New Task Board Name:</label>
+                                    <div class="col-sm-8">
+                                        <input type="text" name="new_task_board" value="" data-table="tasklist" data-field="board_name" class="form-control" width="380" />
+                                    </div>
+                                </div>
+                            </div><!-- .accordion-block-details -->
+                            
+                            <div class="project-section project_section_display" style="<?= $project_section_display ?>">
+                                <div class="accordion-block-details padded" id="project">
+                                    <div class="accordion-block-details-heading"><h4>Project</h4></div>
+                                    <div class="form-group clearfix">
+                                        <label for="first_name" class="col-sm-4 control-label text-right"><?= PROJECT_TILE ?>:</label>
                                         <div class="col-sm-8">
-                                            <select data-placeholder="Select a Milestone..." name="task_milestone_timeline" id="task_milestone_timeline" data-table="tasklist" data-field="task_milestone_timeline" class="chosen-select-deselect form-control" width="580">
+                                            <select data-placeholder="Select <?= PROJECT_NOUN ?>..." name="task_projectid" data-table="tasklist" data-field="projectid" class="chosen-select-deselect form-control" id="task_projectid" width="380">
+                                                <option></option><?php
+                                                $query = "SELECT * FROM (SELECT `projectid`, `project_name` FROM `project` WHERE ('$task_businessid'='' OR `businessid`='$task_businessid') AND `deleted`=0 UNION SELECT CONCAT('C',`projectid`), `project_name` FROM `client_project` WHERE (`clientid`='$taskbusinessid' OR '$task_businessid'='') AND `deleted`=0) PROJECTS ORDER BY `project_name`";
+                                                $query = mysqli_query($dbc,$query);
+                                                while($row = mysqli_fetch_array($query)) {
+                                                    if ($task_projectid == $row['projectid']) {
+                                                        $selected = 'selected="selected"';
+                                                    } else {
+                                                        $selected = '';
+                                                    }
+                                                    echo "<option ".$selected." value='". $row['projectid']."'>".$row['project_name'].'</option>';
+                                                } ?>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <input type="hidden" name="project_milestone" value="<?= $project_milestone ?>">
+                                </div>
+                            </div><!-- .project-section -->
+                            
+                            <div class="taskpath-section taskpath_section_display" style="<?= $taskpath_section_display ?>">
+                                <div class="accordion-block-details padded" id="taskpath">
+                                    <div class="accordion-block-details-heading"><h4>Task Path</h4></div>
+                                    <div class="form-group">
+                                        <label for="site_name" class="col-sm-4 control-label">Task Path:</label>
+                                        <div class="col-sm-8">
+                                            <select data-placeholder="Select a Task Path..." id="task_path" name="task_path" data-table="tasklist" data-field="task_path" class="chosen-select-deselect form-control" width="380">
+                                                <option value=""></option><?php
+                                                $project_path_milestones = [];
+                                                if($task_projectid > 0) {
+                                                    $project_path_milestones = get_project_paths($task_projectid);
+                                                    foreach($project_path_milestones as $path) { ?>
+                                                        <option <?= $task_path == $path['path_id'] ? 'selected' : '' ?> value='<?= $path['path_id'] ?>'><?= $path['path_name'] ?></option>
+                                                    <?php }
+                                                } else {
+                                                    $query = mysqli_query($dbc,"SELECT project_path_milestone, project_path FROM project_path_milestone");
+                                                    while($row = mysqli_fetch_array($query)) { ?>
+                                                        <option <?php if ($row['project_path_milestone'] == $task_path) { echo " selected"; } ?> value='<?php echo  $row['project_path_milestone']; ?>' ><?php echo $row['project_path']; ?></option><?php
+                                                    }
+                                                } ?>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="site_name" class="col-sm-4 control-label">Milestone & Timeline:</label>
+                                        <div class="col-sm-8">
+                                        <?php
+                                            $task_milestone_timeline = str_replace("FFMEND","&",$task_milestone_timeline);
+                                            $task_milestone_timeline = str_replace("FFMSPACE"," ",$task_milestone_timeline);
+                                            $task_milestone_timeline = str_replace("FFMHASH","#",$task_milestone_timeline);
+                                        ?>
+                                            <select data-placeholder="Select a Milestone & Timeline..." name="task_milestone_timeline" id="task_milestone_timeline" data-table="tasklist" data-field="task_milestone_timeline"  class="chosen-select-deselect form-control" width="580">
                                                 <option value=""></option>
-                                                <?php foreach ($external_path as $cat_tab) {
-                                                    echo "<option ".($cat_tab == $get_task['external'] ? 'selected' : '')." value='". $cat_tab."'>".$cat_tab.'</option>';
+                                                <?php if($task_projectid > 0) {
+                                                    foreach($project_path_milestones as $path) {
+                                                        if($path['path_id'] == $task_path) {
+                                                            foreach($path['milestones'] as $milestone) { ?>
+                                                                <option <?= $task_milestone_timeline == $milestone['milestone'] ? 'selected' : '' ?> value="<?= $milestone['milestone'] ?>"><?= $milestone['label'] ?></option>
+                                                            <?php }
+                                                        }
+                                                    }
+                                                } else {
+                                                    $query = mysqli_query($dbc,"SELECT milestone FROM taskboard_path_custom_milestones WHERE taskboard='$task_board'");
+                                                    while($row = mysqli_fetch_array($query)) { ?>
+                                                        <option <?php if ( $row['milestone'] == $task_milestone_timeline) { echo " selected"; } ?> value='<?php echo  $row['milestone']; ?>' ><?php echo $row['milestone']; ?></option><?php
+                                                    }
                                                 }
+
+                                                /*
+                                                $each_tab = explode('#*#', get_project_path_milestone($dbc, $task_path, 'milestone'));
+                                                $timeline = explode('#*#', get_project_path_milestone($dbc, $task_path, 'timeline'));
+
+                                                $j=0;
+                                                foreach ($each_tab as $cat_tab) { ?>
+                                                    <option <?php if ($cat_tab == $task_milestone_timeline) { echo " selected"; } ?> value='<?php echo  $cat_tab; ?>' ><?php echo $cat_tab.' : '.$timeline[$j]; ?></option>
+                                                   <?php
+                                                   $j++;
+                                                }
+                                                */
                                               ?>
                                             </select>
                                         </div>
                                     </div>
-                                <?php }
-                            } ?>
-
-                    </div>
-                 </div>
-
-                <div class="contact-section contact_section_display" style="<?= $contact_section_display ?>">
-
-                    <div class="accordion-block-details padded" id="contacts">
-                        <div class="accordion-block-details-heading"><h4><?php echo CONTACTS_TILE; ?></h4></div>
-
-                            <div class="form-group clearfix">
-                                <label for="first_name" class="col-sm-4 control-label text-right">Business:</label>
-                                <div class="col-sm-8">
-                                    <select data-placeholder="Select a Business..." name="task_businessid" data-table="tasklist" data-field="businessid" id="task_businessid" class="chosen-select-deselect form-control" width="380">
-                                        <option value=""></option><?php
-                                        $query = mysqli_query($dbc,"SELECT name, contactid FROM contacts WHERE category='Business' AND deleted=0 ORDER BY name");
-                                        while($row = mysqli_fetch_array($query)) {
-                                            if ($task_businessid == $row['contactid']) {
-                                                $selected = 'selected="selected"';
-                                            } else {
-                                                $selected = '';
-                                            }
-                                            echo "<option ".$selected." value='". $row['contactid']."'>".decryptIt($row['name']).'</option>';
-                                        } ?>
-                                    </select>
+                                    <?php if($get_task['projectid'] > 0) {
+                                        $external_path = array_filter(array_unique(explode('#*#',mysqli_fetch_assoc(mysqli_query($dbc, "SELECT GROUP_CONCAT(`path`.`milestone` SEPARATOR '#*#') `milestones` FROM `project` LEFT JOIN `project_path_milestone` `path` ON CONCAT(',',`external_path`,',') LIKE CONCAT('%,',`path`.`project_path_milestone`,',%') WHERE `projectid`='".$get_task['projectid']."'"))['milestones'])));
+                                        if(count($external_path) > 0) { ?>
+                                            <div class="form-group">
+                                                <label for="site_name" class="col-sm-4 control-label"><img class="inline-img" src="../img/icons/ROOK-sync-icon.png">External Path Milestone:</label>
+                                                <div class="col-sm-8">
+                                                    <select data-placeholder="Select a Milestone..." name="task_milestone_timeline" id="task_milestone_timeline" data-table="tasklist" data-field="task_milestone_timeline" class="chosen-select-deselect form-control" width="580">
+                                                        <option value=""></option>
+                                                        <?php foreach ($external_path as $cat_tab) {
+                                                            echo "<option ".($cat_tab == $get_task['external'] ? 'selected' : '')." value='". $cat_tab."'>".$cat_tab.'</option>';
+                                                        }
+                                                      ?>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        <?php }
+                                    } ?>
                                 </div>
-                            </div><?php
+                            </div><!-- .taskpath-section -->
 
-                            if($task_clientid != '') { ?>
-                                <div class="form-group clearfix">
-                                    <label for="first_name" class="col-sm-4 control-label text-right">Contact:</label>
-                                    <div class="col-sm-8">
-                                        <select data-placeholder="Select a Client..." id="checklist_clientid" name="task_clientid" data-table="tasklist" data-field="clientid" class="chosen-select-deselect form-control" width="380">
-                                            <option value=""></option><?php
-                                            $query = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc,"SELECT contactid, first_name, last_name FROM contacts WHERE businessid='$task_businessid'"),MYSQLI_ASSOC));
-                                            foreach($query as $id) {
-                                                $selected = '';
-                                                $selected = $task_clientid == $id ? 'selected = "selected"' : '';
-                                                echo "<option " . $selected . "value='". $id."'>".get_contact($dbc, $id).'</option>';
-                                            } ?>
-                                        </select>
-                                    </div>
-                                </div><?php
-                            } else { ?>
-                                <div class="form-group clearfix">
-                                    <label for="first_name" class="col-sm-4 control-label text-right">Contact:</label>
-                                    <div class="col-sm-8">
-                                        <select data-placeholder="Select a Client..." id="checklist_clientid" name="task_clientid" data-table="tasklist" data-field="clientid" class="chosen-select-deselect form-control" width="380">
-                                          <option value=""></option>
-                                        </select>
-                                    </div>
-                                </div><?php
-                            } ?>
-
-                    </div>
-                </div>
-
-
-
-				<div class="sales-section sales_section_display" style="<?= $sales_section_display ?>">
-
-                    <div class="accordion-block-details padded" id="sales">
-                        <div class="accordion-block-details-heading"><h4><?php echo SALES_TILE; ?></h4></div>
-
-                            <div class="form-group clearfix">
-                                <label for="first_name" class="col-sm-4 control-label text-right"><?= SALES_NOUN ?>:</label>
-                                <div class="col-sm-8">
-                                    <select data-placeholder="Select <?= SALES_NOUN ?>..." name="task_salesid" data-table="tasklist" data-field="salesid" class="chosen-select-deselect form-control" id="task_salesid" width="380">
-                                        <option></option><?php foreach(sort_contacts_query($dbc->query("SELECT `sales`.`salesid`, `contacts`.`first_name`, `contacts`.`last_name`, `bus`.`name` FROM `sales` LEFT JOIN `contacts` ON `sales`.`contactid`=`contacts`.`contactid` LEFT JOIN `contacts` `bus` ON `sales`.`businessid`=`bus`.`contactid` WHERE `sales`.`deleted`=0")) as $lead) {
-                                            echo "<option ".($lead['salesid'] == $task_salesid ? 'selected' : '')." value='".$lead['salesid']."'>".$lead['name'].($lead['name'] != '' && $lead['first_name'].$lead['last_name'] != '' ? ': ' : '').$lead['first_name'].' '.$lead['last_name']."</option>";
-                                        } ?>
-                                    </select>
+                            <div class="contact-section contact_section_display" style="<?= $contact_section_display ?>">
+                                <div class="accordion-block-details padded" id="contacts">
+                                    <div class="accordion-block-details-heading"><h4><?php echo CONTACTS_TILE; ?></h4></div>
+                                    <div class="form-group clearfix">
+                                        <label for="first_name" class="col-sm-4 control-label text-right">Business:</label>
+                                        <div class="col-sm-8">
+                                            <select data-placeholder="Select a Business..." name="task_businessid" data-table="tasklist" data-field="businessid" id="task_businessid" class="chosen-select-deselect form-control" width="380">
+                                                <option value=""></option><?php
+                                                $query = mysqli_query($dbc,"SELECT name, contactid FROM contacts WHERE category='Business' AND deleted=0 ORDER BY name");
+                                                while($row = mysqli_fetch_array($query)) {
+                                                    if ($task_businessid == $row['contactid']) {
+                                                        $selected = 'selected="selected"';
+                                                    } else {
+                                                        $selected = '';
+                                                    }
+                                                    echo "<option ".$selected." value='". $row['contactid']."'>".decryptIt($row['name']).'</option>';
+                                                } ?>
+                                            </select>
+                                        </div>
+                                    </div><?php
+                                    if($task_clientid != '') { ?>
+                                        <div class="form-group clearfix">
+                                            <label for="first_name" class="col-sm-4 control-label text-right">Contact:</label>
+                                            <div class="col-sm-8">
+                                                <select data-placeholder="Select a Client..." id="checklist_clientid" name="task_clientid" data-table="tasklist" data-field="clientid" class="chosen-select-deselect form-control" width="380">
+                                                    <option value=""></option><?php
+                                                    $query = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc,"SELECT contactid, first_name, last_name FROM contacts WHERE businessid='$task_businessid'"),MYSQLI_ASSOC));
+                                                    foreach($query as $id) {
+                                                        $selected = '';
+                                                        $selected = $task_clientid == $id ? 'selected = "selected"' : '';
+                                                        echo "<option " . $selected . "value='". $id."'>".get_contact($dbc, $id).'</option>';
+                                                    } ?>
+                                                </select>
+                                            </div>
+                                        </div><?php
+                                    } else { ?>
+                                        <div class="form-group clearfix">
+                                            <label for="first_name" class="col-sm-4 control-label text-right">Contact:</label>
+                                            <div class="col-sm-8">
+                                                <select data-placeholder="Select a Client..." id="checklist_clientid" name="task_clientid" data-table="tasklist" data-field="clientid" class="chosen-select-deselect form-control" width="380">
+                                                  <option value=""></option>
+                                                </select>
+                                            </div>
+                                        </div><?php
+                                    } ?>
                                 </div>
-                            </div>
-                            <input type="hidden" name="sales_milestone" data-table="tasklist" data-field="sales_milestone" value="<?= $sales_milestone ?>">
-
-                    </div>
-				</div>
-
-
-                <div class="accordion-block-details padded" id="details">
-                    <div class="accordion-block-details-heading"><h4>Details</h4></div>
-
-                        <div class="form-group clearfix">
-                            <label for="first_name" class="col-sm-4 control-label text-right">Status:</label>
-                            <div class="col-sm-8">
-                                <select data-placeholder="Select a Status..." name="status" data-table="tasklist" data-field="status" class="chosen-select-deselect form-control" width="380">
-                                    <option value=""></option>
-                                  <?php
-                                    $tabs = get_config($dbc, 'ticket_status');
-                                    $each_tab = explode(',', $tabs);
-                                    foreach ($each_tab as $cat_tab) {
-                                        if ($task_status == $cat_tab) {
-                                            $selected = 'selected="selected"';
-                                        } else {
-                                            $selected = '';
-                                        }
-                                        echo "<option ".$selected." value='". $cat_tab."'>".$cat_tab.'</option>';
-                                    }
-                                  ?>
-                                </select>
-                            </div>
-                        </div>
-
-                        <!--
-                        <div class="form-group clearfix">
-                            <?= $slider_layout != 'accordion' ? '<h4>Task'. ( !empty($tasklistid) ) ? ' #'.$tasklistid : ':'.' Details</h4>' : '' ?>
-                            <label for="first_name" class="col-sm-4 control-label text-right">Completed:</label>
-                            <div class="col-sm-8">
-                                <input type="checkbox" name="status" value="<?= $tasklistid ?>" class="form-checkbox no-margin" onchange="mark_done(this);" <?= ($task_status==$status_complete) ? 'checked' : '' ?> />
-                            </div>
-                        </div>
-                        -->
-
-                        <div class="form-group clearfix">
-                            <label for="first_name" class="col-sm-4 control-label text-right">
-                                <!-- <img src="../img/icons/ROOK-edit-icon.png" class="inline-img" /> --> <?= TASK_NOUN ?> Name:
-                            </label>
-                            <div class="col-sm-8">
-                                <?php $groups = $dbc->query("SELECT `category` FROM `task_types` WHERE `deleted`=0 GROUP BY `category` ORDER BY MIN(`sort`), MIN(`id`)");
-                                if($groups->num_rows > 0) { ?>
-                                    <select name="heading_src" onchange="if(this.value != '' && this.value != undefined) { $('[name=task_heading]').val(this.value).change(); }" class="chosen-select-deselect"><option />
-                                        <?php while($task_group = $groups->fetch_assoc()) { ?>
-                                            <optgroup label="<?= $task_group['category'] ?>">
-                                                <?php $task_names = $dbc->query("SELECT `id`, `description` FROM `task_types` WHERE `deleted`=0 AND `category`='{$task_group['category']}' ORDER BY `sort`, `id`");
-                                                while($task_name = $task_names->fetch_assoc()) { ?>
-                                                    <option value="<?= $task_name['description'] ?>"><?= $task_name['description'] ?></option>
-                                                <?php } ?>
-                                            </optgroup>
-                                        <?php } ?>
-                                    </select>
-                                <?php } ?>
-                                <input type="text" name="task_heading" value="<?= $task_heading ?>" data-table="tasklist" data-field="heading" class="form-control" width="380" />
-                            </div>
-                        </div>
-
-                        <div class="form-group clearfix">
-                            <label for="first_name" class="col-sm-4 control-label text-right">To Do Date:</label>
-                            <div class="col-sm-8">
-                                <input name="task_tododate" value="<?php echo $task_tododate; ?>" type="text" data-table="tasklist" data-field="task_tododate" class="datepicker form-control">
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="site_name" class="col-sm-4 control-label">Assign Staff:</label>
-                            <div class="col-sm-8">
-                                <div class="clearfix"></div>
-                                <div class="start-ticket-staff">
-                                    <div class="clearfix"></div>
-                                    <div class="col-sm-6">
-                                        <select data-placeholder="Select User" name="task_userid[]" data-table="tasklist" data-field="contactid" class="chosen-select-deselect form-control" style="width: 20%;float: left;margin-right: 10px;" width="380">
+                            </div><!-- .contact-section -->
+                            
+                            <div class="sales-section sales_section_display" style="<?= $sales_section_display ?>">
+                                <div class="accordion-block-details padded" id="sales">
+                                    <div class="accordion-block-details-heading"><h4><?php echo SALES_TILE; ?></h4></div>
+                                    <div class="form-group clearfix">
+                                        <label for="first_name" class="col-sm-4 control-label text-right"><?= SALES_NOUN ?>:</label>
+                                        <div class="col-sm-8">
+                                            <select data-placeholder="Select <?= SALES_NOUN ?>..." name="task_salesid" data-table="tasklist" data-field="salesid" class="chosen-select-deselect form-control" id="task_salesid" width="380">
+                                                <option></option><?php foreach(sort_contacts_query($dbc->query("SELECT `sales`.`salesid`, `contacts`.`first_name`, `contacts`.`last_name`, `bus`.`name` FROM `sales` LEFT JOIN `contacts` ON `sales`.`contactid`=`contacts`.`contactid` LEFT JOIN `contacts` `bus` ON `sales`.`businessid`=`bus`.`contactid` WHERE `sales`.`deleted`=0")) as $lead) {
+                                                    echo "<option ".($lead['salesid'] == $task_salesid ? 'selected' : '')." value='".$lead['salesid']."'>".$lead['name'].($lead['name'] != '' && $lead['first_name'].$lead['last_name'] != '' ? ': ' : '').$lead['first_name'].' '.$lead['last_name']."</option>";
+                                                } ?>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <input type="hidden" name="sales_milestone" data-table="tasklist" data-field="sales_milestone" value="<?= $sales_milestone ?>">
+                                </div>
+                            </div><!-- .sales-section -->
+                            
+                            <div class="accordion-block-details padded" id="details">
+                                <div class="accordion-block-details-heading"><h4>Details</h4></div>
+                                <div class="form-group clearfix">
+                                    <label for="first_name" class="col-sm-4 control-label text-right">Status:</label>
+                                    <div class="col-sm-8">
+                                        <select data-placeholder="Select a Status..." name="status" data-table="tasklist" data-field="status" class="chosen-select-deselect form-control" width="380">
                                             <option value=""></option>
+                                          <?php
+                                            $tabs = get_config($dbc, 'ticket_status');
+                                            $each_tab = explode(',', $tabs);
+                                            foreach ($each_tab as $cat_tab) {
+                                                if ($task_status == $cat_tab) {
+                                                    $selected = 'selected="selected"';
+                                                } else {
+                                                    $selected = '';
+                                                }
+                                                echo "<option ".$selected." value='". $cat_tab."'>".$cat_tab.'</option>';
+                                            }
+                                          ?>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <!--
+                                <div class="form-group clearfix">
+                                    <?= $slider_layout != 'accordion' ? '<h4>Task'. ( !empty($tasklistid) ) ? ' #'.$tasklistid : ':'.' Details</h4>' : '' ?>
+                                    <label for="first_name" class="col-sm-4 control-label text-right">Completed:</label>
+                                    <div class="col-sm-8">
+                                        <input type="checkbox" name="status" value="<?= $tasklistid ?>" class="form-checkbox no-margin" onchange="mark_done(this);" <?= ($task_status==$status_complete) ? 'checked' : '' ?> />
+                                    </div>
+                                </div>
+                                -->
+
+                                <div class="form-group clearfix">
+                                    <label for="first_name" class="col-sm-4 control-label text-right">
+                                        <!-- <img src="../img/icons/ROOK-edit-icon.png" class="inline-img" /> --> Task Name:
+                                    </label>
+                                    <div class="col-sm-8">
+                                        <?php $groups = $dbc->query("SELECT `category` FROM `task_types` WHERE `deleted`=0 GROUP BY `category` ORDER BY MIN(`sort`), MIN(`id`)");
+                                        if($groups->num_rows > 0) { ?>
+                                            <select name="heading_src" onchange="if(this.value != '' && this.value != undefined) { $('[name=task_heading]').val(this.value).change(); }" class="chosen-select-deselect"><option />
+                                                <?php while($task_group = $groups->fetch_assoc()) { ?>
+                                                    <optgroup label="<?= $task_group['category'] ?>">
+                                                        <?php $task_names = $dbc->query("SELECT `id`, `description` FROM `task_types` WHERE `deleted`=0 AND `category`='{$task_group['category']}' ORDER BY `sort`, `id`");
+                                                        while($task_name = $task_names->fetch_assoc()) { ?>
+                                                            <option value="<?= $task_name['description'] ?>"><?= $task_name['description'] ?></option>
+                                                        <?php } ?>
+                                                    </optgroup>
+                                                <?php } ?>
+                                            </select>
+                                        <?php } ?>
+                                        <input type="text" name="task_heading" value="<?= $task_heading ?>" data-table="tasklist" data-field="heading" class="form-control" width="380" />
+                                    </div>
+                                </div>
+
+                                <div class="form-group clearfix">
+                                    <label for="first_name" class="col-sm-4 control-label text-right">To Do Date:</label>
+                                    <div class="col-sm-8">
+                                        <input name="task_tododate" value="<?php echo $task_tododate; ?>" type="text" data-table="tasklist" data-field="task_tododate" class="datepicker form-control">
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="site_name" class="col-sm-4 control-label">Assign Staff:</label>
+                                    <div class="col-sm-8">
+                                        <div class="clearfix"></div>
+                                        <div class="start-ticket-staff">
+                                            <div class="clearfix"></div>
+                                            <div class="col-sm-6">
+                                                <select data-placeholder="Select User" name="task_userid[]" data-table="tasklist" data-field="contactid" class="chosen-select-deselect form-control" style="width: 20%;float: left;margin-right: 10px;" width="380">
+                                                    <option value=""></option>
+                                                    <?php $staff_list = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name` FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `deleted`=0 AND `status`>0"),MYSQLI_ASSOC));
+                                                    foreach($staff_list as $staff_id) { ?>
+                                                        <!-- <option <?//= ($staff_id == $_SESSION['contactid'] ? "selected" : '') ?> value='<?//=  $staff_id; ?>' ><?//= get_contact($dbc, $staff_id) ?></option> -->
+                                                        <option <?= (strpos(','.$task_contactid.',', ','.$staff_id.',') !== false) ? ' selected' : ''; ?> value="<?= $staff_id; ?>"><?= get_contact($dbc, $staff_id); ?></option>
+                                                    <?php } ?>
+                                                </select>
+                                            </div>
+
+                                            <div class="col-sm-2">
+                                                <img class="inline-img pull-right" onclick="startTicketStaff(this);" src="../img/icons/ROOK-add-icon.png">
+                                                <img class="inline-img pull-right" onclick="deletestartTicketStaff(this);" src="../img/remove.png">
+                                            </div>
+
+                                        </div>
+
+                                        <br><div class="clearfix"></div>
+
+                                    </div>
+                                </div>
+                              
+                                <div class="form-group clearfix">
+                                    <label for="first_name" class="col-sm-4 control-label">
+                                        <!-- <img src="../img/icons/ROOK-flag-icon.png" class="inline-img" /> --> Flag This:
+                                    </label>
+                                    <div class="col-sm-8">
+                                        <a class="btn brand-btn" data-tasklistid="<?= $tasklistid ?>" onclick="flag_item(this);">Flag</a>
+                                        <input type="hidden" name="flag" value="" />
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="site_name" class="col-sm-4 control-label">
+                                        <!-- <img src="../img/icons/ROOK-alert-icon.png" class="inline-img" />-->  Send Alert:
+                                    </label>
+                                    <div class="col-sm-8">
+                                        <select data-placeholder="Select Staff..." multiple name="alerts_enabled[]" data-table="tasklist" data-field="alerts_enabled" class="chosen-select-deselect form-control" width="380">
+                                            <option></option>
                                             <?php $staff_list = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name` FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `deleted`=0 AND `status`>0"),MYSQLI_ASSOC));
                                             foreach($staff_list as $staff_id) { ?>
-                                                <!-- <option <?//= ($staff_id == $_SESSION['contactid'] ? "selected" : '') ?> value='<?//=  $staff_id; ?>' ><?//= get_contact($dbc, $staff_id) ?></option> -->
-                                                <option <?= (strpos(','.$task_contactid.',', ','.$staff_id.',') !== false) ? ' selected' : ''; ?> value="<?= $staff_id; ?>"><?= get_contact($dbc, $staff_id); ?></option>
+                                                <option <?= (strpos(','.$get_task['alerts_enabled'].',', ','.$staff_id.',') !== false) ? ' selected' : ''; ?> value="<?= $staff_id; ?>"><?= get_contact($dbc, $staff_id); ?></option>
                                             <?php } ?>
                                         </select>
                                     </div>
-
-                                    <div class="col-sm-2">
-                                        <img class="inline-img pull-right" onclick="startTicketStaff(this);" src="../img/icons/ROOK-add-icon.png">
-                                        <img class="inline-img pull-right" onclick="deletestartTicketStaff(this);" src="../img/remove.png">
-                                    </div>
-
                                 </div>
-
-                                <br><div class="clearfix"></div>
-
-                            </div>
-                        </div>
-
-                        <div class="form-group clearfix">
-                            <label for="first_name" class="col-sm-4 control-label">
-                                <!-- <img src="../img/icons/ROOK-flag-icon.png" class="inline-img" /> --> Flag This:
-                            </label>
-                            <div class="col-sm-8">
-                                <a class="btn brand-btn" data-tasklistid="<?= $tasklistid ?>" onclick="flag_item(this);">Flag</a>
-                                <input type="hidden" name="flag" value="" />
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="site_name" class="col-sm-4 control-label">
-                                <!-- <img src="../img/icons/ROOK-alert-icon.png" class="inline-img" />-->  Send Alert:
-                            </label>
-                            <div class="col-sm-8">
-                                <select data-placeholder="Select Staff..." multiple name="alerts_enabled[]" data-table="tasklist" data-field="alerts_enabled" class="chosen-select-deselect form-control" width="380">
-                                    <option></option>
-                                    <?php $staff_list = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name` FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `deleted`=0 AND `status`>0"),MYSQLI_ASSOC));
-                                    foreach($staff_list as $staff_id) { ?>
-                                        <option <?= (strpos(','.$get_task['alerts_enabled'].',', ','.$staff_id.',') !== false) ? ' selected' : ''; ?> value="<?= $staff_id; ?>"><?= get_contact($dbc, $staff_id); ?></option>
-                                    <?php } ?>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="site_name" class="col-sm-4 control-label">
-                                <!-- <img src="../img/icons/ROOK-email-icon.png" class="inline-img" /> --> Send Email:
-                            </label>
-                            <div class="col-sm-8">
-                                <select data-placeholder="Select Staff..." multiple name="emails_enabled[]" class="chosen-select-deselect form-control" width="380">
-                                    <option></option>
-                                    <?php $staff_list = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name` FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `deleted`=0 AND `status`>0"),MYSQLI_ASSOC));
-                                    foreach($staff_list as $staff_id) { ?>
-                                        <option value="<?= $staff_id; ?>"><?= get_contact($dbc, $staff_id); ?></option>
-                                    <?php } ?>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="site_name" class="col-sm-4 control-label">
-                                <!-- <img src="../img/icons/ROOK-reminder-icon.png" class="inline-img" /> --> Schedule Reminder:
-                            </label>
-                            <div class="col-sm-8">
-                                <input type="text" class="form-control datepicker" name="schedule_reminder" />
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="additional_note" class="col-sm-4 control-label">
-                               <!-- <img src="../img/icons/ROOK-attachment-icon.png" class="inline-img" />--> Attach File(s):
-                                <span class="popover-examples list-inline">&nbsp;
-                                    <a href="#job_file" data-toggle="tooltip" data-placement="top" title="File name cannot contain apostrophes, quotations or commas"><img src="<?php echo WEBSITE_URL;?>/img/info.png" width="20"></a>
-                                </span>
-                            </label>
-                            <div class="col-sm-8">
-                                <div class="enter_cost additional_doc clearfix">
-                                    <div class="clearfix"></div>
-                                    <div class="form-group clearfix">
-                                        <div class="col-xs-11">
-                                            <input name="upload_document[]" multiple type="file" data-filename-placement="inside" class="form-control" />
-                                        </div>
-                                        <div class="col-xs-1">
-                                            <img src="../img/icons/ROOK-add-icon.png" id="add_row_doc" class="cursor-hand" style="height:20px; margin-top:6px;" />
-                                        </div>
+                                <div class="form-group">
+                                    <label for="site_name" class="col-sm-4 control-label">
+                                        <!-- <img src="../img/icons/ROOK-email-icon.png" class="inline-img" /> --> Send Email:
+                                    </label>
+                                    <div class="col-sm-8">
+                                        <select data-placeholder="Select Staff..." multiple name="emails_enabled[]" class="chosen-select-deselect form-control" width="380">
+                                            <option></option>
+                                            <?php $staff_list = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name` FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `deleted`=0 AND `status`>0"),MYSQLI_ASSOC));
+                                            foreach($staff_list as $staff_id) { ?>
+                                                <option value="<?= $staff_id; ?>"><?= get_contact($dbc, $staff_id); ?></option>
+                                            <?php } ?>
+                                        </select>
                                     </div>
                                 </div>
-
-                                <div id="add_here_new_doc"></div>
-                            </div>
-                            <div class="col-sm-4"></div>
-                            <div class="col-sm-8"><?php
+                                <div class="form-group">
+                                    <label for="site_name" class="col-sm-4 control-label">
+                                        <!-- <img src="../img/icons/ROOK-reminder-icon.png" class="inline-img" /> --> Schedule Reminder:
+                                    </label>
+                                    <div class="col-sm-8">
+                                        <input type="text" class="form-control datepicker" name="schedule_reminder" />
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="additional_note" class="col-sm-4 control-label">
+                                       <!-- <img src="../img/icons/ROOK-attachment-icon.png" class="inline-img" />--> Attach File(s):
+                                        <span class="popover-examples list-inline">&nbsp;
+                                            <a href="#job_file" data-toggle="tooltip" data-placement="top" title="File name cannot contain apostrophes, quotations or commas"><img src="<?php echo WEBSITE_URL;?>/img/info.png" width="20"></a>
+                                        </span>
+                                    </label>
+                                    <div class="col-sm-8">
+                                        <div class="enter_cost additional_doc clearfix">
+                                            <div class="clearfix"></div>
+                                            <div class="form-group clearfix">
+                                                <div class="col-xs-11">
+                                                    <input name="upload_document[]" multiple type="file" data-filename-placement="inside" class="form-control" />
+                                                </div>
+                                                <div class="col-xs-1">
+                                                    <img src="../img/icons/ROOK-add-icon.png" id="add_row_doc" class="cursor-hand" style="height:20px; margin-top:6px;" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div id="add_here_new_doc"></div>
+                                    </div>
+                                    <div class="col-sm-4"></div>
+                                    <div class="col-sm-8"><?php
+                                        if(!empty($_GET['tasklistid'])) {
+                                            $query_check_credentials = "SELECT * FROM task_document WHERE tasklistid='$tasklistid' ORDER BY taskdocid DESC";
+                                            $result = mysqli_query($dbc, $query_check_credentials);
+                                            $num_rows = mysqli_num_rows($result);
+                                            if($num_rows > 0) {
+                                                echo "<table class='table table-bordered'>
+                                                <tr class='hidden-xs hidden-sm'>
+                                                <th>Document</th>
+                                                <th>Date</th>
+                                                <th>Uploaded By</th>
+                                                </tr>";
+                                                while($row = mysqli_fetch_array($result)) {
+                                                    $by = $row['created_by'];
+                                                    echo '<tr>';
+                                                    echo '<td data-title="Document"><a href="download/'.$row['document'].'" target="_blank">'.$row['document'].'</a></td>';
+                                                    echo '<td data-title="Date">'.$row['created_date'].'</td>';
+                                                    echo '<td data-title="Uploaded By">'.get_staff($dbc, $by).'</td>';
+                                                    //echo '<td data-title="Schedule"><a href=\'delete_restore.php?action=delete&ticketdocid='.$row['ticketdocid'].'&ticketid='.$row['ticketid'].'\' onclick="return confirm(\'Are you sure?\')">Delete</a></td>';
+                                                    echo '</tr>';
+                                                }
+                                                echo '</table>';
+                                            }
+                                        } ?>
+                                    </div>
+                                </div>
+                                <div class="form-group clearfix">
+                                    <label for="task_comment" class="col-sm-4 control-label text-right">
+                                        <!-- <img src="../img/icons/ROOK-reply-icon.png" class="inline-img" /> --> Comments:
+                                    </label>
+                                    <div class="col-sm-8">
+                                        <!-- <input type="text" name="task_comment" id="task_comment" class="form-control" width="65536" /> -->
+                                        <textarea name="task_comment" id="task_comment" class="form-control"></textarea>
+                                    </div>
+                                </div>
+                                <div id="load_comments" class="form-group clearfix">
+                                    <?php include('task_comment_list.php'); ?>
+                                </div>
+                            </div><!-- .accordion-block-details -->
+                            
+                            <div class="accordion-block-details padded" id="timetracking">
+                                <div class="accordion-block-details-heading"><h4>Time Tracking</h4></div><?php
                                 if(!empty($_GET['tasklistid'])) {
-                                    $query_check_credentials = "SELECT * FROM task_document WHERE tasklistid='$tasklistid' ORDER BY taskdocid DESC";
+                                    $query_check_credentials = "SELECT * FROM tasklist_time WHERE tasklistid='$tasklistid' ORDER BY time_id DESC";
                                     $result = mysqli_query($dbc, $query_check_credentials);
                                     $num_rows = mysqli_num_rows($result);
                                     if($num_rows > 0) {
                                         echo "<table class='table table-bordered'>
-                                        <tr class='hidden-xs hidden-sm'>
-                                        <th>Document</th>
+                                        <tr>
+                                        <th>Time</th>
+                                        <th>Type</th>
                                         <th>Date</th>
                                         <th>Uploaded By</th>
                                         </tr>";
                                         while($row = mysqli_fetch_array($result)) {
-                                            $by = $row['created_by'];
                                             echo '<tr>';
-                                            echo '<td data-title="Document"><a href="download/'.$row['document'].'" target="_blank">'.$row['document'].'</a></td>';
-                                            echo '<td data-title="Date">'.$row['created_date'].'</td>';
-                                            echo '<td data-title="Uploaded By">'.get_staff($dbc, $by).'</td>';
-                                            //echo '<td data-title="Schedule"><a href=\'delete_restore.php?action=delete&ticketdocid='.$row['ticketdocid'].'&ticketid='.$row['ticketid'].'\' onclick="return confirm(\'Are you sure?\')">Delete</a></td>';
+                                            echo '<td data-title="Document">'.$row['work_time'].'</td>';
+                                            if($row['src'] == 'A') {
+                                                echo '<td data-title="Document">Tracked Time</td>';
+                                            } else {
+                                                echo '<td data-title="Document">Added Time</td>';
+                                            }
+                                            echo '<td data-title="Date">'.$row['timer_date'].'</td>';
+                                            echo '<td data-title="Uploaded By">'.get_staff($dbc, $row['contactid']).'</td>';
                                             echo '</tr>';
                                         }
                                         echo '</table>';
                                     }
                                 } ?>
+                              
+                                <div class="form-group clearfix">
+                                    <label for="first_name" class="col-xs-6 col-sm-3 control-label text-right"><!-- <img src="../img/icons/ROOK-timer-icon.png" class="inline-img" />--> Add Time:</label>
+                                    <div class="col-xs-6 col-sm-3">
+                                        <!-- <input name="task_work_time" type="text" value="00:00" data-table="tasklist" data-field="work_time" class="timepicker form-control" /> -->
+                                        <input name="task_work_time" type="text" value="00:00" class="timepicker form-control" onchange="quick_add_time(this);" />
+                                    </div>
+                                    <label for="first_name" class="col-xs-6 col-sm-3 control-label text-right"><!-- <img src="../img/icons/ROOK-timer2-icon.png" class="inline-img" /> --> Track Time:</label>
+                                    <div class="col-xs-6 col-sm-3">
+                                        <input type="text" name="timer_<?= $tasklistid ?>" id="timer_value" class="form-control timer" placeholder="0 sec" />
+                                        <a class="btn btn-success start-timer-btn brand-btn mobile-block">Start</a>
+                                        <a class="btn stop-timer-btn hidden brand-btn mobile-block" data-id="<?= $tasklistid ?>">Stop</a><br />
+                                        <input type="hidden" value="" name="track_time" />
+                                        <span class="added-time"></span>
+                                    </div>
+                                </div>
+                            </div><!-- .accordion-block-details -->
+                            
+                            <div class="form-group padded">
+                                <?php if(!empty($_GET['tasklistid'])) { ?>
+                                    <button name="" type="button" value="" class="delete_task pull-left image-btn no-toggle" title="Archive"><img class="no-margin small" src="../img/icons/ROOK-trash-icon.png" alt="Archive Task" width="30"></button>
+                                <?php } ?>
+                                <button name="tasklist" value="tasklist" class="btn brand-btn pull-right stop-timer-submit">Submit</button>
+                                <a href="index.php?category=All&tab=Summary" class="btn brand-btn pull-right">Cancel</a>
+                                <div class="clearfix"></div>
                             </div>
-                        </div>
-
-                        <div class="form-group clearfix">
-                            <label for="task_comment" class="col-sm-4 control-label text-right">
-                                <!-- <img src="../img/icons/ROOK-reply-icon.png" class="inline-img" /> --> Comments:
-                            </label>
-                            <div class="col-sm-8">
-                                <!-- <input type="text" name="task_comment" id="task_comment" class="form-control" width="65536" /> -->
-                                <textarea name="task_comment" id="task_comment" class="form-control"></textarea>
-                            </div>
-                        </div>
-                        <div id="load_comments" class="form-group clearfix">
-                            <?php include('task_comment_list.php'); ?>
-                        </div>
-
-                </div>
-
-
-                <div class="accordion-block-details padded" id="timetracking">
-                    <div class="accordion-block-details-heading"><h4>Time Tracking</h4></div>
-
-                <?php
-                    if(!empty($_GET['tasklistid'])) {
-                        $query_check_credentials = "SELECT * FROM tasklist_time WHERE tasklistid='$tasklistid' ORDER BY time_id DESC";
-                        $result = mysqli_query($dbc, $query_check_credentials);
-                        $num_rows = mysqli_num_rows($result);
-                        if($num_rows > 0) {
-                            echo "<table class='table table-bordered'>
-                            <tr>
-                            <th>Time</th>
-                            <th>Type</th>
-                            <th>Date</th>
-                            <th>Uploaded By</th>
-                            </tr>";
-                            while($row = mysqli_fetch_array($result)) {
-                                echo '<tr>';
-                                echo '<td data-title="Document">'.$row['work_time'].'</td>';
-                                if($row['src'] == 'A') {
-                                    echo '<td data-title="Document">Tracked Time</td>';
-                                } else {
-                                    echo '<td data-title="Document">Added Time</td>';
-                                }
-                                echo '<td data-title="Date">'.$row['timer_date'].'</td>';
-                                echo '<td data-title="Uploaded By">'.get_staff($dbc, $row['contactid']).'</td>';
-                                echo '</tr>';
-                            }
-                            echo '</table>';
-                        }
-                    } ?>
-
-                        <div class="form-group clearfix">
-                            <label for="first_name" class="col-xs-3 control-label text-right"><!-- <img src="../img/icons/ROOK-timer-icon.png" class="inline-img" />--> Add Time:</label>
-                            <div class="col-xs-3">
-                                <!-- <input name="task_work_time" type="text" value="00:00" data-table="tasklist" data-field="work_time" class="timepicker form-control" /> -->
-                                <input name="task_work_time" type="text" value="00:00" class="timepicker form-control" onchange="quick_add_time(this);" />
-                            </div>
-                            <label for="first_name" class="col-xs-3 control-label text-right"><!-- <img src="../img/icons/ROOK-timer2-icon.png" class="inline-img" /> --> Track Time:</label>
-                            <div class="col-xs-3">
-                                <input type="text" name="timer_<?= $tasklistid ?>" id="timer_value" class="form-control timer" placeholder="0 sec" />
-                                <a class="btn btn-success start-timer-btn brand-btn mobile-block">Start</a>
-                                <a class="btn stop-timer-btn hidden brand-btn mobile-block" data-id="<?= $tasklistid ?>">Stop</a><br />
-                                <input type="hidden" value="" name="track_time" />
-                                <span class="added-time"></span>
-                            </div>
-                        </div>
-
-                </div>
-
-
-            <div class="form-group pull-right">
-                <a href="index.php?category=All&tab=Summary" class="btn brand-btn pull-left">Cancel</a>
-
-                <button name="tasklist" value="tasklist" class="btn brand-btn pull-right">Submit</button>
-                <?php if(!empty($_GET['tasklistid'])) { ?><button name="" type='button' value="" class="delete_task pull-right image-btn"><img class="no-margin small" src="../img/icons/trash-icon-red.png" alt="Delete <?= TASK_NOUN ?>" width="30"></button><?php } ?>
-
+                            
+                        </div><!-- .standard-body-content -->
+                    </div><!-- .standard-body -->
+                </div><!-- .tile-content -->
+          
                 <div class="clearfix"></div>
-            </div>
-        </form>
-
-    </div>
-</div>
-    </div>
-</div>
-</div>
+            </form>
+            
+        </div><!-- .main-screen -->
+    </div><!-- .row -->
+</div><!-- .container -->
 
 <?php include('../footer.php'); ?>

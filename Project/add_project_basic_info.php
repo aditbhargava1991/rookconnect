@@ -166,7 +166,6 @@ function updateContactList() {
     <label for="first_name" class="col-sm-4 control-label text-right">Contact<span class="brand-color">*</span>:</label>
     <div class="col-sm-8">
         <select name="projectclientid[]" multiple <?php echo $disable_client; ?> id="projectclientid" data-placeholder="Select a Contact..." class="chosen-select-deselect form-control" width="380">
-            <option value=''></option>
             <?php
             $cat = '';
 			$cat_list = [];

@@ -48,7 +48,7 @@ $(document).ready(function() {
             });
         });
     }, 1000);
-    
+
     $("#form1").submit(function( event ) {
         var medication_type = $("#medication_type").val();
         var category = $("input[name=category]").val();
@@ -186,13 +186,13 @@ var default_contact_list = '';
 function contact_clone(btn) {
 	var contact = $(btn).closest('.contact_group').clone();
 	contact.find('select,input').val('');
-	
+
 	if(default_contact_list != '') {
 		contact.find('select:not([name*=category])').html(default_contact_list)
 	}
 	contact.find("select").removeClass("chzn-done").css("display", "block").next().remove();
 	contact.find("select").chosen({ allow_single_deselect:true });
-	
+
 	var group = $(btn).closest('.contact_group');
 	while(group.next('.contact_group').length > 0) {
 		group = group.next('.contact_group');
@@ -630,7 +630,6 @@ function contact_call($dbc, $select_id, $select_name, $contact_value,$multiple, 
         <label for="fax_number" class="col-sm-4 control-label">Contact:</label>
         <div class="col-sm-8">
             <select <?php echo $disabled; ?> <?php echo $multiple; ?> data-placeholder="Choose a Contact..." name="<?php echo $select_name; ?>" id="<?php echo $select_id; ?>" data-value="<?= $contact_value ?>" data-category="<?= $from_contact ?>" class="chosen-select-deselect form-control" width="380" onchange="checkContactChange(this);">
-              <option value=""></option>
               <option value="NEW_CONTACT">Add New Contact</option>
             </select>
             <input type="text" name="<?= str_replace('[]','',$select_name) ?>_new_contact<?= preg_replace('/[^\[\]]/','',$select_name) ?>" class="form-control" style="display:none;">

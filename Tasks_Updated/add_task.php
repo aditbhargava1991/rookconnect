@@ -527,6 +527,7 @@ $(document).ready(function () {
 
     $('.full-btn').on('click', function() {
         var str = window.location.href;
+        str = str.replace("mode=iframe", "");
         var res = str.replace("add_task.php", "add_task_full_view.php");
         window.top.location.href = res;
     });
@@ -902,13 +903,16 @@ function mark_done(sel) {
             <h3 class="inline"><?= !empty($_GET['tasklistid']) ? 'Edit' : 'Add' ?> <?= TASK_NOUN ?><?= !empty($_GET['tasklistid']) ? ' #'.$_GET['tasklistid'].': '.$task_heading : '' ?></h3>
             <div class="pull-right"><a href=""><img src="../img/icons/ROOK-status-rejected.jpg" alt="Close" title="Close" class="inline-img  no-toggle" data-placement="bottom" /></a></div>
 
-            <div class="pull-right"><img src="../img/icons/full_screen.png" alt="View Full Screen" title="View Full Screen" class="inline-img no-toggle full-btn" data-placement="bottom" /></div>
+            <div class="pull-right"><img src="../img/icons/full_screen.png" alt="View Full Screen" title="View Full Screen" class="inline-img no-toggle full-btn cursor-hand" data-placement="bottom" /></div>
 
             <?php /* if(!empty($_GET['tasklistid'])) { ?><button name="" type='button' value="" class="delete_task pull-right image-btn" style="margin-top:3px;"><img class="no-margin small" src="../img/icons/trash-icon-red.png" alt="Delete Task" width="25"></button><?php } */ ?>
 
             <div class="clearfix"></div>
 
             <hr />
+
+            <?php $get_field_config_tiles = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT task_fields FROM task_dashboard")); ?>
+            <?php $task_fields = ','.$get_field_config_tiles['task_fields'] . ','; ?>
 
                 <div id="accordion_tabs" class="sidebar panel-group block-panels main-screen" style="background-color: #fff; padding: 0; margin-left: 0.5em; width: calc(100% - 1em);">
 
@@ -922,6 +926,8 @@ function mark_done(sel) {
                     </div>
                     <div id="collapse_task_board" class="panel-collapse collapse">
                         <div class="panel-body">
+
+                        <?php if(strpos($task_fields, ',Board Type,') !== FALSE) { ?>
 
             <div class="form-group">
                 <label for="site_name" class="col-sm-4 control-label"><?= TASK_NOUN ?> Board Type:</label>
@@ -946,6 +952,9 @@ function mark_done(sel) {
                     </select>
                 </div>
             </div>
+                        <?php } ?>
+
+                        <?php if(strpos($task_fields, ',Board Name,') !== FALSE) { ?>
             <div class="form-group hide_task_board_name">
                 <label for="site_name" class="col-sm-4 control-label"><?= TASK_NOUN ?> Board Name:</label>
                 <div class="col-sm-8">
@@ -966,6 +975,8 @@ function mark_done(sel) {
                     <input type="text" name="new_task_board" value="" data-table="tasklist" data-field="board_name" class="form-control" width="380" />
                 </div>
             </div>
+                        <?php } ?>
+
                         </div>
                     </div>
                 </div>
@@ -1203,6 +1214,7 @@ function mark_done(sel) {
                     <div id="collapse_task_details" class="panel-collapse collapse">
                         <div class="panel-body">
 
+                        <?php if(strpos($task_fields, ',Status,') !== FALSE) { ?>
             <div class="form-group clearfix">
                 <label for="first_name" class="col-sm-4 control-label text-right">Status:</label>
                 <div class="col-sm-8">
@@ -1223,6 +1235,7 @@ function mark_done(sel) {
                     </select>
                 </div>
             </div>
+                        <?php } ?>
 
             <!--
             <div class="form-group clearfix">
@@ -1234,6 +1247,7 @@ function mark_done(sel) {
             </div>
             -->
 
+                        <?php if(strpos($task_fields, ',Task Name,') !== FALSE) { ?>
             <div class="form-group clearfix">
                 <label for="first_name" class="col-sm-4 control-label text-right">
                     <!-- <img src="../img/icons/ROOK-edit-icon.png" class="inline-img" /> --> Task Name:
@@ -1255,14 +1269,19 @@ function mark_done(sel) {
                     <input type="text" name="task_heading" value="<?= $task_heading ?>" data-table="tasklist" data-field="heading" class="form-control" width="380" />
                 </div>
             </div>
+                        <?php } ?>
 
+                        <?php if(strpos($task_fields, ',To Do Date,') !== FALSE) { ?>
             <div class="form-group clearfix">
                 <label for="first_name" class="col-sm-4 control-label text-right">To Do Date:</label>
                 <div class="col-sm-8">
                     <input name="task_tododate" value="<?php echo $task_tododate; ?>" type="text" data-table="tasklist" data-field="task_tododate" class="datepicker form-control">
                 </div>
             </div>
+                        <?php } ?>
 
+
+                        <?php if(strpos($task_fields, ',Assign Staff,') !== FALSE) { ?>
                         <div class="form-group">
                             <label for="site_name" class="col-sm-4 control-label">Assign Staff:</label>
                             <div class="col-sm-8">
@@ -1271,7 +1290,7 @@ function mark_done(sel) {
                                     <div class="clearfix"></div>
                                     <div class="col-sm-6">
                                         <select data-placeholder="Select User" name="task_userid[]" data-table="tasklist" data-field="contactid" class="chosen-select-deselect form-control" style="width: 20%;float: left;margin-right: 10px;" width="380">
-                                            <option value=""></option>
+                               
                                             <?php $staff_list = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name` FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `deleted`=0 AND `status`>0"),MYSQLI_ASSOC));
                                             foreach($staff_list as $staff_id) { ?>
                                                 <!-- <option <?//= ($staff_id == $_SESSION['contactid'] ? "selected" : '') ?> value='<?//=  $staff_id; ?>' ><?//= get_contact($dbc, $staff_id) ?></option> -->
@@ -1292,6 +1311,10 @@ function mark_done(sel) {
                             </div>
                         </div>
 
+                        <?php } ?>
+
+                        <?php if(strpos($task_fields, ',Flag This,') !== FALSE) { ?>
+
             <div class="form-group clearfix">
                 <label for="first_name" class="col-sm-4 control-label">
                     <!-- <img src="../img/icons/ROOK-flag-icon.png" class="inline-img" /> --> Flag This:
@@ -1301,14 +1324,15 @@ function mark_done(sel) {
                     <input type="hidden" name="flag" value="" />
                 </div>
             </div>
+                        <?php } ?>
 
+                        <?php if(strpos($task_fields, ',Send Alert,') !== FALSE) { ?>
 			<div class="form-group">
 				<label for="site_name" class="col-sm-4 control-label">
                     <!-- <img src="../img/icons/ROOK-alert-icon.png" class="inline-img" />-->  Send Alert:
                 </label>
 				<div class="col-sm-8">
 					<select data-placeholder="Select Staff..." multiple name="alerts_enabled[]" data-table="tasklist" data-field="alerts_enabled" class="chosen-select-deselect form-control" width="380">
-						<option></option>
 						<?php $staff_list = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name` FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `deleted`=0 AND `status`>0"),MYSQLI_ASSOC));
 						foreach($staff_list as $staff_id) { ?>
 							<option <?= (strpos(','.$get_task['alerts_enabled'].',', ','.$staff_id.',') !== false) ? ' selected' : ''; ?> value="<?= $staff_id; ?>"><?= get_contact($dbc, $staff_id); ?></option>
@@ -1316,13 +1340,15 @@ function mark_done(sel) {
 					</select>
 				</div>
 			</div>
+                        <?php } ?>
+
+                        <?php if(strpos($task_fields, ',Send Email,') !== FALSE) { ?>
 			<div class="form-group">
 				<label for="site_name" class="col-sm-4 control-label">
                     <!-- <img src="../img/icons/ROOK-email-icon.png" class="inline-img" /> --> Send Email:
                 </label>
 				<div class="col-sm-8">
 					<select data-placeholder="Select Staff..." multiple name="emails_enabled[]" class="chosen-select-deselect form-control" width="380">
-						<option></option>
 						<?php $staff_list = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name` FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `deleted`=0 AND `status`>0"),MYSQLI_ASSOC));
 						foreach($staff_list as $staff_id) { ?>
 							<option value="<?= $staff_id; ?>"><?= get_contact($dbc, $staff_id); ?></option>
@@ -1330,6 +1356,9 @@ function mark_done(sel) {
 					</select>
 				</div>
 			</div>
+                        <?php } ?>
+
+                        <?php if(strpos($task_fields, ',Schedule Reminder,') !== FALSE) { ?>
 			<div class="form-group">
 				<label for="site_name" class="col-sm-4 control-label">
                     <!-- <img src="../img/icons/ROOK-reminder-icon.png" class="inline-img" /> --> Schedule Reminder:
@@ -1338,6 +1367,9 @@ function mark_done(sel) {
 					<input type="text" class="form-control datepicker" name="schedule_reminder" />
 				</div>
 			</div>
+                        <?php } ?>
+
+                        <?php if(strpos($task_fields, ',Attach File,') !== FALSE) { ?>
             <div class="form-group">
                 <label for="additional_note" class="col-sm-4 control-label">
                    <!-- <img src="../img/icons/ROOK-attachment-icon.png" class="inline-img" />--> Attach File(s):
@@ -1387,7 +1419,9 @@ function mark_done(sel) {
                     } ?>
                 </div>
             </div>
+                        <?php } ?>
 
+                        <?php if(strpos($task_fields, ',Comments,') !== FALSE) { ?>
             <div class="form-group clearfix">
                 <label for="task_comment" class="col-sm-4 control-label text-right">
                     <!-- <img src="../img/icons/ROOK-reply-icon.png" class="inline-img" /> --> Comments:
@@ -1400,6 +1434,8 @@ function mark_done(sel) {
             <div id="load_comments" class="form-group clearfix">
                 <?php include('task_comment_list.php'); ?>
             </div>
+                        <?php } ?>
+
                         </div>
                     </div>
                 </div>
@@ -1447,11 +1483,15 @@ function mark_done(sel) {
 
 
             <div class="form-group clearfix">
+                        <?php if(strpos($task_fields, ',Add Time,') !== FALSE) { ?>
                 <label for="first_name" class="col-xs-3 control-label text-right"><!-- <img src="../img/icons/ROOK-timer-icon.png" class="inline-img" />--> Add Time:</label>
                 <div class="col-xs-3">
                     <!-- <input name="task_work_time" type="text" value="00:00" data-table="tasklist" data-field="work_time" class="timepicker form-control" /> -->
                     <input name="task_work_time" type="text" value="00:00" class="timepicker form-control" onchange="quick_add_time(this);" />
                 </div>
+                        <?php } ?>
+
+                        <?php if(strpos($task_fields, ',Track Time,') !== FALSE) { ?>
                 <label for="first_name" class="col-xs-3 control-label text-right"><!-- <img src="../img/icons/ROOK-timer2-icon.png" class="inline-img" /> --> Track Time:</label>
                 <div class="col-xs-3">
                     <input type="text" name="timer_<?= $tasklistid ?>" id="timer_value" class="form-control timer" placeholder="0 sec" />
@@ -1460,6 +1500,8 @@ function mark_done(sel) {
                     <input type="hidden" value="" name="track_time" />
                     <span class="added-time"></span>
                 </div>
+                        <?php } ?>
+
             </div>
 
                         </div>
@@ -1469,12 +1511,12 @@ function mark_done(sel) {
                 </div>
 
             <div class="form-group">
-                <div class="col-sm-6">
-                    <a href="index.php?category=All&tab=Summary" class="btn brand-btn pull-right">Cancel</a>
-                    <button name="tasklist" value="tasklist" class="btn brand-btn pull-right">Submit</button>
-                </div>
-                <div class="col-sm-6">
+                <div class="col-xs-6">
                     <?php if(!empty($_GET['tasklistid'])) { ?><button name="" type='button' value="" class="delete_task image-btn no-toggle" title="Archive"><img class="no-margin small" src="../img/icons/trash-icon-red.png" alt="Archive Task" width="30"></button><?php } ?>
+                </div>
+                <div class="col-xs-6 text-right">
+                    <a href="index.php?category=All&tab=Summary" class="btn brand-btn">Cancel</a>
+                    <button name="tasklist" value="tasklist" class="btn brand-btn">Submit</button>
                 </div>
                 <div class="clearfix"></div>
             </div>
