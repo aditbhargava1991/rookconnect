@@ -912,10 +912,10 @@ function get_ticket_total_tracked_time($dbc, $date, $staff, $layout = '', $time_
 	$query = mysqli_query($dbc, $sql);
 	while($row = mysqli_fetch_assoc($query)) {
 		$curr_tracked_time = 0;
-		if($row['hours_tracked'] > 0) {
-			$curr_tracked_time = number_format($row['hours_tracked'],2);
-		} else if(!empty($row['checked_out']) && !empty($row['checked_in'])) {
+		if(!empty($row['checked_out']) && !empty($row['checked_in'])) {
 			$curr_tracked_time = number_format((strtotime(date('Y-m-d').' '.$row['checked_out']) - strtotime(date('Y-m-d').' '.$row['checked_in']))/3600,2);
+		} else if($row['hours_tracked'] > 0) {
+			$curr_tracked_time = number_format($row['hours_tracked'],2);
 		}
 		$tracked_time[] = ($timesheet_time_format == 'decimal' ? $curr_tracked_time : time_decimal2time($curr_tracked_time));
 	}
