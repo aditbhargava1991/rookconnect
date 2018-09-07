@@ -111,6 +111,10 @@ if($siteid == 'recent') {
 				$weight = [];
 				$inv_weight_units = explode('#*#',$row['weight_units']);
 				foreach(explode('#*#',$row['weight']) as $id => $inv_weight) {
+					if(in_array('weight convert kg to lb',$manifest_fields) && $inv_weight_units[$id] == 'kg') {
+						$inv_weight = number_format(($inv_weight*2.20462262185),2);
+						$inv_weight_units[$id] = 'lbs';
+					}
 					$weight[] = $inv_weight.' '.$inv_weight_units[$id];
 				}
 				$weight = implode('<br />', $weight);
@@ -345,6 +349,10 @@ if($siteid == 'recent') {
 								$weight = [];
 								$inv_weight_units = explode('#*#',$piece_weights['weight_units']);
 								foreach(explode('#*#',$piece_weights['weight']) as $id => $inv_weight) {
+									if(in_array('weight convert kg to lb',$manifest_fields) && $inv_weight_units[$id] == 'kg') {
+										$inv_weight = number_format(($inv_weight*2.20462262185),2);
+										$inv_weight_units[$id] = 'lbs';
+									}
 									$weight[] = $inv_weight.' '.$inv_weight_units[$id];
 								}
 								$weight = implode(', ', $weight); ?>
