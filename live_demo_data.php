@@ -391,9 +391,9 @@ function syncTable(link) {
 					<?php $count_live = $db_all->query("SELECT SUM(IF(`deleted`=0,1,0)) `active`, SUM(IF(`deleted`=0,0,1)) `archived` FROM `".DATABASE_NAME2."`.`tasklist`")->fetch_assoc();
 					$count_demo = $db_all->query("SELECT SUM(IF(`deleted`=0,1,0)) `active`, SUM(IF(`deleted`=0,0,1)) `archived` FROM `".DATABASE_NAME."`.`tasklist`")->fetch_assoc();
 					$cols = $db_all->query("SELECT SUM(IF(`table_schema`='".DATABASE_NAME2."',1,0)) `live_cols`, SUM(IF(`table_schema`='".DATABASE_NAME."',1,0)) `demo_cols` FROM `information_schema`.`columns` WHERE `table_name`='tasklist'")->fetch_assoc(); ?>
-					<td data-title="Table Name">Tasks</td>
-					<td data-title="Rows in Live Software"><?= $count_live['active'] ?> Tasks, <?= $count_live['archived'] ?> Archived</td>
-					<td data-title="Rows in Demo Software"><?= $count_demo['active'] ?> Tasks, <?= $count_demo['archived'] ?> Archived</td>
+					<td data-title="Table Name"><?= TASK_TILE ?></td>
+					<td data-title="Rows in Live Software"><?= $count_live['active'] ?> <?= TASK_TILE ?>, <?= $count_live['archived'] ?> Archived</td>
+					<td data-title="Rows in Demo Software"><?= $count_demo['active'] ?> <?= TASK_TILE ?>, <?= $count_demo['archived'] ?> Archived</td>
 					<td data-title="Function"><?php if($cols['live_cols'] == $cols['demo_cols']) { ?><a class="cursor-hand" onclick="syncTable(this);">Sync Live data to Demo</a><?php } else { ?>The number of columns in your Live Sofware (<?= $cols['live_cols'] ?>) does not match your Demo Software (<?= $cols['demo_cols'] ?>)<?php } ?></td>
 				</tr>
 			<?php } ?>

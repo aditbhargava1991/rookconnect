@@ -71,7 +71,7 @@ if($tickets->num_rows > 0) { ?>
 				<?php } ?>
 				<?php if(strpos($value_config, ',Staff Tasks,') !== FALSE) { ?>
 					<th>Staff</th>
-					<th>Task</th>
+					<th><?= TASK_TILE ?></th>
 					<th>Hours</th>
 				<?php } ?>
 				<?php if(strpos($value_config, ',Inventory,') !== FALSE) { ?>

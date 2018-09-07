@@ -1,4 +1,5 @@
 <?php include_once('../include.php');
+include_once('../Sales/config.php');
 if(empty($salesid)) {
 	$salesid = filter_var($_GET['id'],FILTER_SANITIZE_STRING);
 } ?>
@@ -10,7 +11,7 @@ var addTime = function() {
 		if(time != '' && time != '00:00') {
 			$.ajax({
 				method: 'POST',
-				url: 'sales_ajax_all.php?action=lead_time',
+				url: '../Sales/sales_ajax_all.php?action=lead_time',
 				data: { id: '<?= $salesid ?>', time: time+':00' },
 				success: function() {
 					reload_time();
@@ -30,7 +31,7 @@ var toggleTimeTracking = function() {
 		if ( timer_value != '' ) {
 			$.ajax({
 				method: 'POST',
-				url: 'sales_ajax_all.php?action=lead_time',
+				url: '../Sales/sales_ajax_all.php?action=lead_time',
 				data: { id: '<?= $salesid ?>', time: timer_value },
 				success: function() {
 					reload_time();
@@ -46,7 +47,7 @@ var toggleTimeTracking = function() {
 	}
 }
 var reload_time = function() {
-	$.get('details_time.php?id=<?= $salesid ?>', function(response) {
+	$.get('../Sales/details_time.php?id=<?= $salesid ?>', function(response) {
 		$('#time').parents('div').first().html(response);
 	});
 }

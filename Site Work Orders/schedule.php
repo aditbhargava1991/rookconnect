@@ -193,7 +193,7 @@ function click_back_site_summary(workorderid) {
 		<div class="dashboard link col-lg-3 col-md-4 col-sm-6 col-xs-12 lead_btn">
 			<a href="add_driving_log.php">Driving Log</a>
 		</div>
-	<?php } else { 
+	<?php } else {
 		$log_id = mysqli_fetch_array($logs)['log_id']; ?>
 		<div class="dashboard link col-lg-3 col-md-4 col-sm-6 col-xs-12 lead_btn">
 			<a href="add_driving_log.php?log_id=<?= $log_id ?>">End Driving Log</a>
@@ -362,7 +362,7 @@ function click_back_site_summary(workorderid) {
 					<?php } ?>
 				</div>
 			<?php } ?>
-			
+
 			<div id="work_orders_all" style="display:none;">
 				<?php $workorders = mysqli_query($dbc, "SELECT `workorderid`, `id_label` FROM `site_work_orders` WHERE `status` NOT IN ('Pending', 'Archived')".$query_clause);
 				while($order = mysqli_fetch_array($workorders)) { ?>
@@ -390,7 +390,7 @@ function click_back_site_summary(workorderid) {
 					<?php } ?>
 				</div>
 			<?php } ?>
-			
+
 			<div id="work_orders_all" style="display:none;">
 				<?php $workorders = mysqli_query($dbc, "SELECT `workorderid`, `id_label` FROM `site_work_orders` WHERE `status` NOT IN ('Pending', 'Archived')".$query_clause);
 				while($order = mysqli_fetch_array($workorders)) { ?>
@@ -486,7 +486,7 @@ function click_back_site_summary(workorderid) {
 				<?php } ?>
 			</table>
 		</div>
-			
+
 		<div class="form-group">
 			<label class="col-sm-4">Sign off on Transfers:<br /><em>Sign here for any transfers that have been noted above.</em></label>
 			<div class="col-sm-8">
@@ -523,7 +523,7 @@ function click_back_site_summary(workorderid) {
 					<th>Work Order #</th>
 					<th>Staff & Crew</th>
 					<th>Total Hours</th>
-					<th>Tasks Done On Site</th>
+					<th><?= TASK_TILE ?> Done On Site</th>
 					<th>Function</th>
 				</tr>
 				<?php
@@ -604,7 +604,7 @@ function click_back_site_summary(workorderid) {
 							<td data-title="Heading:"><?= $service_heading[$i] ?></td>
 							<td data-title="Rate:"><span style="float:right;">$<?= number_format($service_rates[$i], 2, '.', '') ?></span></td>
 						</tr>
-					<?php 
+					<?php
 						$total_services += $service_rates[$i];
 						$total_amount += $service_rates[$i];
 					} ?>
