@@ -1,5 +1,7 @@
 <?php //Calendar Helper Functions
 function checkShiftIntervals($dbc, $contact_id, $day_of_week, $calendar_date, $query_type, $clientid, $limits = '', $check_conflicts = '') {
+	$day_start = get_config($dbc, 'shift_day_start');
+	$day_end = get_config($dbc, 'shift_day_end');
 	$contact_query = '';
 	$role_query = '';
 	if (!empty($contact_id)) {
@@ -42,8 +44,14 @@ function checkShiftIntervals($dbc, $contact_id, $day_of_week, $calendar_date, $q
 
 	foreach($shifts_arr as $key => $shift) {
 		if($shift['availability'] == 'Available Anytime') {
-			$shift['starttime'] = '12:00 AM';
-			$shift['endtime'] = '11:59 PM';
+			$shift['starttime'] = $day_start;
+			$shift['endtime'] = $day_end;
+		}
+		if(empty($shift['starttime'])) {
+			$shift['starttime'] = $day_start;
+		}
+		if(empty($shift['endtime'])) {
+			$shift['endtime'] = $day_end;
 		}
 		$repeat_type = $shift['repeat_type'];
 		switch($repeat_type) {
