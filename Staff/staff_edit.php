@@ -12,7 +12,29 @@
 checkAuthorised('staff');
 $rookconnect = get_software_name(); ?>
 <script type="text/javascript">
+	/*$(window).scroll(scrollScreen);
+    function scrollScreen() {
+    	var cutoff = $(window).scrollTop();
+        $('div h4').each(function(){
+        	$(".sidebar a li").removeClass('active blue');
+            if($(this).offset().top + $(this).height() > cutoff){
+            	var tab_title = $("div h4:visible").html();
+            	$(".sidebar a li").each(function(){
+    	        	if($(this).html() == tab_title){
+    	        		$(this).addClass('active blue');
+    	        		$(window).scrollTop($(this).offset().top);
+    	        	}
+            	});
+            }
+        });
+    }*/
+
     $(document).ready(function () {
+
+    	$("#form1").find('input').addClass('saveonajax');
+    	$("#form1").find('select').addClass('saveonajax');
+    	$("#form1").find('textarea').addClass('saveonajax');
+        	
     	$('input,select,textarea,.select2').each(function() {
     		if($(this).prop('readonly') == true) {
     			$(this).closest('div.form-group').addClass('viewonly_fields');
@@ -61,6 +83,31 @@ $rookconnect = get_software_name(); ?>
 			} else {
 				$(this).css('pointer-events', 'none');
 				$(this).css('opacity', '0.5');
+			}
+		});
+	}
+
+	$(document).on('change', '.saveonajax', function(){
+	    addStaffData();
+	});
+	
+	/*$(".saveonajax").blur(function(){
+		addStaffData();
+	});*/
+	function addStaffData() {
+		var formData = new FormData($("#form1")[0]);
+		$.ajax({
+			type: 'POST',
+			url: '../Staff/staff_ajax.php?action=add_update_staff',
+			//data: $('#form1').serialize(),
+			data:formData,
+			cache:false,
+			processData: false,
+	        contentType: false,
+			success: function(response) {
+				if(response!=''){
+					$('#contact_id_val').val(response);
+				}
 			}
 		});
 	}
@@ -237,6 +284,7 @@ foreach($security_levels as $security_level) {
 			<form id="form1" name="form1" method="post"	action="staff_edit.php?contactid=<?= $_GET['contactid'] ?>" enctype="multipart/form-data" class="form-horizontal" role="form">
 
 				<input type="hidden" name="from_url" value="<?= $from_url ?>">
+				<input type="hidden" name="contact_id_val" id="contact_id_val" value="<?php echo $_GET['contactid']?>">
                 <!-- Sidebar -->
                 <div class="standard-collapsible tile-sidebar set-section-height">
                 	<?php include('tile_sidebar.php'); ?>
@@ -250,11 +298,11 @@ foreach($security_levels as $security_level) {
 								<h3><?= $sidebar_fields[$subtab][1]; ?></h3>
 							</div>
 						<?php } ?>
-						<div class='standard-body-dashboard-content pad-top pad-left pad-right'>
-							<?php if($subtab == 'id_card') {
+						<div class='standard-body-dashboard-content pad-top pad-left pad-right' style="background-color:#fff">
+							<?php //if($subtab == 'id_card') {
 								include('../Contacts/contact_profile.php');
 								echo '<input type="hidden" name="overview_page" value="1">';
-							} else {
+							//} else {
 								$staff_cat_query = [];
 								if(!empty($staff_category)) {
 									foreach(array_filter(explode(',', $staff_category)) as $staff_cat) {
@@ -319,8 +367,9 @@ foreach($security_levels as $security_level) {
 									$value_config = ','.implode(',',$value_config).',';
 									if(str_replace(',','',$value_config) != '') {
 										?>
-
-										<div <?php echo ($row_main['subtab'] == $subtab ? '' : 'style="display:none;"'); ?> <?= (in_array($sidebar_fields[$subtab][0], $subtabs_viewonly) || (edit_visible_function($dbc, 'staff') == 0 && add_visible_function($dbc, 'staff') == 0)) ? 'class="viewonly_fields"' : '' ?>>
+<!--   echo ($row_main['subtab'] == $subtab ? '' : 'style="display:none;"');  (in_array($sidebar_fields[$subtab][0], $subtabs_viewonly) || (edit_visible_function($dbc, 'staff') == 0 && add_visible_function($dbc, 'staff') == 0)) ? 'class="viewonly_fields"' : ''  -->
+										<div>
+											<hr>
 											<h4><?= $row_main['accordion'] ?></h4>
 
 											<div>
@@ -338,7 +387,8 @@ foreach($security_levels as $security_level) {
 										$value_config = $value_config_hidden;
 										?>
 
-										<div style="display:none;">
+										<div>
+											<hr>
 											<h4><?= $row_main['accordion'] ?></h4>
 
 											<div>
@@ -354,16 +404,16 @@ foreach($security_levels as $security_level) {
 									<?php }
 									$j++;
 								}
-							}
-							if($subtab == 'software_access' && check_subtab_persmission($dbc, 'staff', ROLE, 'software_access') === TRUE) {
+							//}//$subtab == 'software_access' && 
+							if(check_subtab_persmission($dbc, 'staff', ROLE, 'software_access') === TRUE) {
 								include('../Staff/staff_edit_software_access.php');
-							} else if($subtab == 'project') {
+							} //else if($subtab == 'project') {
 								$value_config = ',Project,';
 								include ('../Contacts/add_contacts_data.php');
-							} else if($subtab == 'ticket') {
+							//} else if($subtab == 'ticket') {
 								$value_config = ',Ticket,';
 								include ('../Contacts/add_contacts_data.php');
-							} else if($subtab == 'time_off') {
+							//} else if($subtab == 'time_off') {
 								$tab = '%';
 								$form = 'Time Off Request'; ?>
 								<style>
@@ -377,7 +427,7 @@ foreach($security_levels as $security_level) {
 									<button class="btn brand-btn pull-right" type="submit" name="time_off_request" value="time_off">Submit Request</button>
 									<div class="clearfix"></div>
 								</div>
-							<?php } else if($subtab == 'time_off_requests') {
+							<?php //} else if($subtab == 'time_off_requests') {
 								if($_POST['time_off_request'] == 'time_off') {
 									$hrid = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `hrid` FROM `hr` WHERE `form`='Time Off Request'"))['hrid'];
 									$url_redirect = 'N/A';
@@ -412,12 +462,15 @@ foreach($security_levels as $security_level) {
 								<?php } else {
 									echo "<h3>No Requests Found.</h3>";
 								}
-							} else if($subtab == 'rate_card') {
+							//} else if($subtab == 'rate_card') {
                                 include('edit_staff_rate_card.php');
-                            } ?>
-						<?php if($subtab != 'id_card') { ?><button type='submit' name='<?= $subtab=='rate_card' ? 'submit_rate_card' : 'contactid' ?>' value='<?php echo $contactid; ?>' class="btn brand-btn pull-right">Submit</button><?php }
+                            //} ?>
+						<?php if($subtab != 'id_card') { ?>
+							<!-- <button type='submit' name='<?= $subtab=='rate_card' ? 'submit_rate_card' : 'contactid' ?>' value='<?php echo $contactid; ?>' class="btn brand-btn pull-right">Submit</button> -->
+							<button type='submit' name='contactid' value='<?php echo $contactid; ?>' class="btn brand-btn pull-right">Submit</button>
+						<?php }
 						else if(!isset($_GET['mobile_view']) && vuaed_visible_function($dbc, 'staff') > 0) { ?><a href='?contactid=<?php echo $contactid; ?>&subtab=staff_information' class="hide-on-mobile btn brand-btn pull-right">Edit Staff</a><?php } ?>
-						<a href='<?php echo $from_url; ?>' class="btn brand-btn pull-right">Back</a>
+						<!-- <a href='<?php echo $from_url; ?>' class="btn brand-btn pull-right">Back</a> -->
 							<div class="clearfix"></div>
 						</div>
 					</div>
