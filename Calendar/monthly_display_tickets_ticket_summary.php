@@ -25,17 +25,17 @@ while($team = mysqli_fetch_assoc($teams)) {
 }
 
 $all_tickets = [];
-$tickets = mysqli_query($dbc,"SELECT *, IFNULL(NULLIF(`to_do_end_date`,'0000-00-00'),`to_do_date`) `to_do_end_date` FROM `tickets` WHERE `deleted`=0 AND (`internal_qa_date` = '$new_today_date' OR `deliverable_date` = '$new_today_date' OR '$new_today_date' BETWEEN `to_do_date` AND IFNULL(NULLIF(`to_do_end_date`,'0000-00-00'),`to_do_date`)) AND `status` NOT IN ('Archive','Done')".$allowed_ticket_types_query." ORDER BY `to_do_start_time`, `to_do_end_time`");
+$tickets = mysqli_fetch_all(mysqli_query($dbc,"SELECT *, IFNULL(NULLIF(`to_do_end_date`,'0000-00-00'),`to_do_date`) `to_do_end_date` FROM `tickets` WHERE `deleted`=0 AND (`internal_qa_date` = '$new_today_date' OR `deliverable_date` = '$new_today_date' OR '$new_today_date' BETWEEN `to_do_date` AND IFNULL(NULLIF(`to_do_end_date`,'0000-00-00'),`to_do_date`)) AND `status` NOT IN ('Archive','Done')".$allowed_ticket_types_query." ORDER BY `to_do_start_time`, `to_do_end_time`"),MYSQLI_ASSOC);
 $deleted_tickets = [];
 if($ticket_summary_tab_deleted == 1) {
-	$deleted_tickets = mysqli_query($dbc,"SELECT *, IFNULL(NULLIF(`to_do_end_date`,'0000-00-00'),`to_do_date`) `to_do_end_date` FROM `tickets` WHERE (`internal_qa_date` = '$new_today_date' OR `deliverable_date` = '$new_today_date' OR '$new_today_date' BETWEEN `to_do_date` AND IFNULL(NULLIF(`to_do_end_date`,'0000-00-00'),`to_do_date`)) AND (`deleted` = 1 OR `status` IN ('Archive','Done'))".$allowed_ticket_types_query." ORDER BY `to_do_start_time`, `to_do_end_time`");
+	$deleted_tickets = mysqli_fetch_all(mysqli_query($dbc,"SELECT *, IFNULL(NULLIF(`to_do_end_date`,'0000-00-00'),`to_do_date`) `to_do_end_date` FROM `tickets` WHERE (`internal_qa_date` = '$new_today_date' OR `deliverable_date` = '$new_today_date' OR '$new_today_date' BETWEEN `to_do_date` AND IFNULL(NULLIF(`to_do_end_date`,'0000-00-00'),`to_do_date`)) AND (`deleted` = 1 OR `status` IN ('Archive','Done'))".$allowed_ticket_types_query." ORDER BY `to_do_start_time`, `to_do_end_time`"),MYSQLI_ASSOC);
 }
 $all_tickets = ['tickets'=>$tickets, 'deleted_tickets'=>$deleted_tickets];
 foreach($all_tickets as $key => $tickets) {
-	if(mysqli_num_rows($tickets) > 0 && $key == 'deleted_tickets') {
+	if(count($tickets) > 0 && $key == 'deleted_tickets') {
 		$column .= '<h4>Deleted '.TICKET_TILE.'</h4>';
 	}
-	while($row = mysqli_fetch_assoc($tickets)) {
+	foreach($tickets as $row) {
 		$businessid = $row['businessid'];
 		$clients = [];
 		foreach(array_filter(explode(',',$row['clientid'])) as $clientid) {

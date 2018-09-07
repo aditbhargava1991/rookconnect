@@ -536,10 +536,11 @@ if(basename($_SERVER['SCRIPT_FILENAME']) == 'edit_ticket_tab.php' && ($_GET['tic
 		}
 		$force_readonly = true;
 	}
-	
+
 	//Force read only if Ticket is deleted
 	if($get_ticket['deleted'] == 1) {
 		$force_readonly = true;
+		$strict_view = 1;
 	}
 
     //Status Fields
