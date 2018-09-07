@@ -586,6 +586,10 @@ checkAuthorised();
 										<td data-title="Comment">Customer Support</td>
 										<?php echo tile_config_function($dbc, 'customer_support', 'admin'); ?>
 									</tr>
+                                    <tr>
+										<td data-title="Comment">Demo</td>
+										<?php echo tile_config_function($dbc, 'demo', 'admin'); ?>
+									</tr>
 									<tr>
 										<td data-title="Comment">FFM Support</td>
 										<?php echo tile_config_function($dbc, 'ffmsupport', 'admin'); ?>
@@ -1029,7 +1033,7 @@ checkAuthorised();
                                     </tr>
 
                                     <tr>
-                                        <td data-title="Comment"><?= TASK_TILE ?></td>
+                                        <td data-title="Comment">Tasks</td>
                                         <?php echo tile_config_function($dbc, 'tasks', 'admin'); ?>
                                     </tr>
 

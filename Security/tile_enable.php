@@ -294,6 +294,10 @@ $(document).ready(function() {
 										<td data-title="Comment">Customer Support</td>
 										<?php echo tile_config_function($dbc, 'customer_support'); ?>
 									</tr>
+                                    <tr>
+										<td data-title="Comment">Demo</td>
+										<?php echo tile_config_function($dbc, 'demo'); ?>
+									</tr>
 									<tr>
 										<td data-title="Comment">FFM Support</td>
 										<?php echo tile_config_function($dbc, 'ffmsupport'); ?>
@@ -747,15 +751,13 @@ $(document).ready(function() {
                                         <?php echo tile_config_function($dbc, 'newsboard'); ?>
                                     </tr>
                                     <tr>
-                                        <td data-title="Comment"><?= TASK_TILE ?></td>
+                                        <td data-title="Comment">Tasks</td>
                                         <?php echo tile_config_function($dbc, 'tasks'); ?>
                                     </tr>
-                                    <!--
                                     <tr>
                                         <td data-title="Comment">Tasks (Updated)</td>
                                         <?php echo tile_config_function($dbc, 'tasks_updated'); ?>
                                     </tr>
-                                    -->
                                     <tr>
                                         <td data-title="Comment">Trip Optimizer</td>
                                         <?php echo tile_config_function($dbc, 'optimize'); ?>
@@ -1025,15 +1027,13 @@ $(document).ready(function() {
 									<?php echo tile_config_function($dbc, 'scrum'); ?>
 								</tr>
 								<tr>
-									<td data-title="Comment"><?= TASK_TILE ?></td>
+									<td data-title="Comment">Tasks</td>
 									<?php echo tile_config_function($dbc, 'tasks'); ?>
 								</tr>
-                                <!--
 								<tr>
 									<td data-title="Comment">Tasks (Updated)</td>
 									<?php echo tile_config_function($dbc, 'tasks_updated'); ?>
 								</tr>
-                                -->
 							</table>
 						</div>
 					</div>

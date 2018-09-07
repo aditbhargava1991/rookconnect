@@ -108,6 +108,7 @@ $all_tiles_list = array_merge([
 		'helpdesk',
 		'archiveddata',
 		'customer_support',
+		'demo',
 		'ffmsupport',
 		'appointment_calendar',
 		'booking',

@@ -340,8 +340,13 @@ if(!isset($_SESSION['fullscreen'])) {
                                     }
 
                                     if(in_array('tasks',array_column($_SESSION['tile_list'],'tile'))) {
-                                        $search_cats[] = TASK_TILE;
+                                        $search_cats[] = 'Tasks';
                                         echo "search_categories.push('tasks');\n";
+                                    }
+
+                                    if(in_array('demo',array_column($_SESSION['tile_list'],'tile'))) {
+                                        $search_cats[] = 'Demo';
+                                        echo "search_categories.push('demo');\n";
                                     }
 
                                     /*if(in_array('tasks_updated',array_column($_SESSION['tile_list'],'tile'))) {
