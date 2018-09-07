@@ -117,7 +117,7 @@ if($siteid == 'recent') {
 						$inv_weight_units[$id] = 'lbs';
 					}
 					$weight[] = $inv_weight.' '.$inv_weight_units[$id];
-					if(in_array('total weight lb',$manifest)) {
+					if(in_array('total weight lb',$manifest_fields)) {
 						if($inv_weight_units[$id] == 'kg') {
 							$total_weight += ($inv_weight*2.20462262185);
 						} else {
