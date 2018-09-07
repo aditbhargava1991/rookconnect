@@ -951,7 +951,7 @@ function removeContactForm(a, pdf_id) {
 					</div>
 				<?php }
 			} ?>
-			<?php if (in_array('Sales Lead Details',$field_config) && $sales_lead_id > 0 && vuaed_visible_function($dbc, 'sales')) {
+			<?php if ((in_array('Sales Lead Details',$field_config) || in_array($contact['category'],['Sales Lead','Sales Leads'])) && $sales_lead_id > 0 && vuaed_visible_function($dbc, 'sales')) {
                 $sales_config = get_field_config($dbc, 'sales');
                 if (strpos($sales_config, ',Staff Information,') !== false) { ?>
                     <div class="panel panel-default" style='<?= $_GET['edit'] > 0 && !IFRAME_PAGE ? '' : 'display:none;' ?>'>
@@ -1183,7 +1183,7 @@ function removeContactForm(a, pdf_id) {
 								<a id="nav_contactform_<?= $contact_form['form_id'] ?>" href="#contactform_<?= $contact_form['form_id'] ?>" onclick="jumpTab('contactform_<?= $contact_form['form_id'] ?>'); return false;"><li class=""><?= $contact_form['name'] ?></li></a>
 							<?php }
 						}
-                        if (in_array('Sales Lead Details',$field_config) && $sales_lead_id > 0 && vuaed_visible_function($dbc, 'sales')) {
+                        if ((in_array('Sales Lead Details',$field_config) || in_array($contact['category'],['Sales Lead','Sales Leads'])) && $sales_lead_id > 0 && vuaed_visible_function($dbc, 'sales')) {
                             $sales_config = get_field_config($dbc, 'sales');
                             if (strpos($sales_config, ',Staff Information,') !== false) { ?>
                                 <a id="nav_sales_staff_info" href="#sales_staff_info" onclick="jumpTab('sales_staff_info'); return false;"><li class=""><?= SALES_NOUN ?>: Staff Information</li></a>
@@ -1348,7 +1348,7 @@ function removeContactForm(a, pdf_id) {
 								</div>
 							<?php }
 						}
-                        if (in_array('Sales Lead Details',$field_config) && $sales_lead_id > 0 && vuaed_visible_function($dbc, 'sales')) {
+                        if ((in_array('Sales Lead Details',$field_config) || in_array($contact['category'],['Sales Lead','Sales Leads'])) && $sales_lead_id > 0 && vuaed_visible_function($dbc, 'sales')) {
                             $value_config = $sales_config = get_field_config($dbc, 'sales'); ?>
                             <input type="hidden" name="salesid" value="<?= $sales_lead_id ?>">
                             <h3><?= SALES_NOUN ?></h3>
