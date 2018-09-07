@@ -282,6 +282,7 @@ if($_GET['overview_mode'] == 1) {
 //Force read only if Ticket is deleted
 if($get_ticket['deleted'] == 1) {
 	$force_readonly = true;
+	$strict_view = 1;
 }
 
 //Status Fields
