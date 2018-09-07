@@ -250,9 +250,9 @@ do {
 		$general_inventory['weight_units'] = explode('#*#',$general_inventory['weight_units']);
 		$general_inventory['weight'] = explode('#*#',$general_inventory['weight']);
 		foreach($general_inventory['weight'] as $id => $general_weight) {
-			if($general_inventory['weight_units'] == 'kg' && $general_weight > 0) {
+			if($general_inventory['weight_units'][$id] == 'kg' && $general_weight > 0) {
 				$general_inventory['weight'][$id] = number_format(($general_inventory['weight'][$id]*2.20462262185),2);
-				$general_inventory['weight_units'][$id] = 'lb';
+				$general_inventory['weight_units'][$id] = 'lbs';
 			}
 		}
 		$general_inventory['weight_units'] = implode('#*#',$general_inventory['weight_units']);
