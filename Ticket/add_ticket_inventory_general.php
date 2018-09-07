@@ -718,7 +718,7 @@ do {
 				</div>
 				<div class="col-sm-4">
 					<input type="number" min="0" step="any" name="total_shipment_weight" placeholder="Total Shipment Weight" readonly class="form-control" value="<?= $total_shipment_weight ?>">
-					<?php if($general_shipment['weight'] != $total_shipment_weight) { ?>
+					<?php if(number_format($general_shipment['weight'],2) != number_format($total_shipment_weight,2)) { ?>
 						<span class="text-red">The shipment weight was <?= $general_shipment['weight'] ?></span>
 					<?php } ?>
 				</div>
