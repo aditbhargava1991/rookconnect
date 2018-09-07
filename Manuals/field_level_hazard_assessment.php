@@ -302,7 +302,7 @@ $form_config = ','.get_config($dbc, 'form_field_level_risk_assessment').',';
                 <li><input type="checkbox"  <?php if (strpos(','.$assessment_option.',', ',assessment_option110,') !== FALSE) { echo " checked"; } ?>  name="assessment_option[]" value="assessment_option110">&nbsp;&nbsp;Use of Scaffolds</li>
                 <?php } ?>
                 <?php if (strpos($form_config, ','."assessment_option25".',') !== FALSE) { ?>
-                <li><input type="checkbox"  <?php if (strpos(','.$assessment_option.',', ',assessment_option25,') !== FALSE) { echo " checked"; } ?>  name="assessment_option[]" value="assessment_option25">&nbsp;&nbsp;Tasks Require You to Work Above Your Task</li>
+                <li><input type="checkbox"  <?php if (strpos(','.$assessment_option.',', ',assessment_option25,') !== FALSE) { echo " checked"; } ?>  name="assessment_option[]" value="assessment_option25">&nbsp;&nbsp;<?= TASK_TILE ?> Require You to Work Above Your Task</li>
                 <?php } ?>
                 <?php if (strpos($form_config, ','."assessment_option26".',') !== FALSE) { ?>
                 <li><input type="checkbox"  <?php if (strpos(','.$assessment_option.',', ',assessment_option26,') !== FALSE) { echo " checked"; } ?>  name="assessment_option[]" value="assessment_option26">&nbsp;&nbsp;Objects / Debris Falling from Above</li>

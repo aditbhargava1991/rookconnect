@@ -17,6 +17,51 @@ $sec_i = 0;
     <div class="panel panel-default">
         <div class="panel-heading">
             <h4 class="panel-title">
+                <a data-toggle="collapse" data-parent="#accordion2" href="#collapse_uni">Universal Calendar - Allowed Security Levels/<?= TICKET_NOUN ?> Types<span class="glyphicon glyphicon-plus"></span></a>
+            </h4>
+        </div>
+        <div id="collapse_uni" class="panel-collapse collapse">
+            <div class="panel-body">
+                <div id="no-more-tables">
+                    <table class="table table-bordered">
+                        <tr class="hidden-xs">
+                            <th>Security Level</th>
+                            <th>Allowed Security Levels</th>
+                            <th>Allowed <?= TICKET_NOUN ?> Types</th>
+                        </tr>
+                        <?php foreach(get_security_levels($dbc) as $security_label => $security_level) {
+                            $field_config = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `field_config_calendar_security` WHERE `role` = '".$security_level."' AND `calendar_type` = 'uni'")); ?>
+                            <tr>
+                                <input type="hidden" name="security_level[<?= $sec_i ?>]" value="uni#*#<?= $security_level ?>">
+                                <td data-title="Security Level"><?= $security_label ?></td>
+                                <td data-title="Allowed Security Levels">
+                                    <select name="allowed_roles_<?= $sec_i ?>[]" multiple class="chosen-select-deselect">
+                                        <option></option>
+                                        <?php foreach(get_security_levels($dbc) as $allowed_security_label => $allowed_security_level) {
+                                            echo '<option value="'.$allowed_security_level.'" '.(strpos(','.$field_config['allowed_roles'].',', ','.$allowed_security_level.',') !== FALSE ? 'selected' : '').'>'.$allowed_security_label.'</option>';
+                                        } ?>
+                                    </select>
+                                </td>
+                                <td data-title="Allowed <?= TICKET_NOUN ?> Types">
+                                    <select name="allowed_ticket_types_<?= $sec_i ?>[]" multiple class="chosen-select-deselect">
+                                        <option></option>
+                                        <?php foreach(array_filter(explode(',',get_config($dbc, 'ticket_tabs'))) as $ticket_type) {
+                                            $ticket_type_value = config_safe_str($ticket_type);
+                                            echo '<option value="'.$ticket_type_value.'" '.(strpos(','.$field_config['allowed_ticket_types'].',', ','.$ticket_type_value.',') !== FALSE ? 'selected' : '').'>'.$ticket_type.'</option>';
+                                        } ?>
+                                    </select>
+                                </td>
+                            </tr>
+                            <?php $sec_i++;
+                        } ?>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h4 class="panel-title">
                 <a data-toggle="collapse" data-parent="#accordion2" href="#collapse_dispatch">Dispatch Calendar - Allowed Security Levels/<?= TICKET_NOUN ?> Types<span class="glyphicon glyphicon-plus"></span></a>
             </h4>
         </div>
@@ -36,7 +81,6 @@ $sec_i = 0;
                                 <td data-title="Security Level"><?= $security_label ?></td>
                                 <td data-title="Allowed Security Levels">
                                     <select name="allowed_roles_<?= $sec_i ?>[]" multiple class="chosen-select-deselect">
-                                        <option></option>
                                         <?php foreach(get_security_levels($dbc) as $allowed_security_label => $allowed_security_level) {
                                             echo '<option value="'.$allowed_security_level.'" '.(strpos(','.$field_config['allowed_roles'].',', ','.$allowed_security_level.',') !== FALSE ? 'selected' : '').'>'.$allowed_security_label.'</option>';
                                         } ?>
@@ -44,7 +88,6 @@ $sec_i = 0;
                                 </td>
                                 <td data-title="Allowed <?= TICKET_NOUN ?> Types">
                                     <select name="allowed_ticket_types_<?= $sec_i ?>[]" multiple class="chosen-select-deselect">
-                                        <option></option>
                                         <?php foreach(array_filter(explode(',',get_config($dbc, 'ticket_tabs'))) as $ticket_type) {
                                             $ticket_type_value = config_safe_str($ticket_type);
                                             echo '<option value="'.$ticket_type_value.'" '.(strpos(','.$field_config['allowed_ticket_types'].',', ','.$ticket_type_value.',') !== FALSE ? 'selected' : '').'>'.$ticket_type.'</option>';
@@ -81,7 +124,6 @@ $sec_i = 0;
                                 <td data-title="Security Level"><?= $security_label ?></td>
                                 <td data-title="Allowed Security Levels">
                                     <select name="allowed_roles_<?= $sec_i ?>[]" multiple class="chosen-select-deselect">
-                                        <option></option>
                                         <?php foreach(get_security_levels($dbc) as $allowed_security_label => $allowed_security_level) {
                                             echo '<option value="'.$allowed_security_level.'" '.(strpos(','.$field_config['allowed_roles'].',', ','.$allowed_security_level.',') !== FALSE ? 'selected' : '').'>'.$allowed_security_label.'</option>';
                                         } ?>
@@ -89,7 +131,6 @@ $sec_i = 0;
                                 </td>
                                 <td data-title="Allowed <?= TICKET_NOUN ?> Types">
                                     <select name="allowed_ticket_types_<?= $sec_i ?>[]" multiple class="chosen-select-deselect">
-                                        <option></option>
                                         <?php foreach(array_filter(explode(',',get_config($dbc, 'ticket_tabs'))) as $ticket_type) {
                                             $ticket_type_value = config_safe_str($ticket_type);
                                             echo '<option value="'.$ticket_type_value.'" '.(strpos(','.$field_config['allowed_ticket_types'].',', ','.$ticket_type_value.',') !== FALSE ? 'selected' : '').'>'.$ticket_type.'</option>';

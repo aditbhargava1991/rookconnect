@@ -117,13 +117,13 @@ $(document).ready(function() {
 
                 foreach($data as $key => $value) {
                     $value = (empty($value)) ? '' : htmlspecialchars($value);
-                    
+
                     if($key != 'submit') {
                         $subtab = $key;
                         $tile_part = explode("_", $subtab);
                         $tile = $tile_part[0];
                         $check_existence = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT COUNT(*) AS row_count, note, notesid FROM notes_setting WHERE tile='$tile' AND subtab='$subtab'"));
-                        
+
                         if($check_existence['row_count'] != 0) {
                             $note_exist = $check_existence['note'];
                             $notesid = $check_existence['notesid'];
@@ -648,7 +648,7 @@ $(document).ready(function() {
                         <div class="panel-heading">
                             <h4 class="panel-title">
                                 <a data-toggle="collapse" data-parent="#accordion2" href="#collapse_tasks" >
-                                    Tasks<span class="glyphicon glyphicon-plus"></span>
+                                    <?= TASK_TILE ?><span class="glyphicon glyphicon-plus"></span>
                                 </a>
                             </h4>
                         </div>
@@ -668,15 +668,15 @@ $(document).ready(function() {
                                             <td><input type="text" class="form-control" value="<?= $result_array['tasks_summary']; ?>" name="tasks_summary"></td>
                                         </tr>
                                         <tr>
-                                            <td data-title="Comment" style="width:25%">My Tasks</td>
+                                            <td data-title="Comment" style="width:25%">My <?= TASK_TILE ?></td>
                                             <td><input type="text" class="form-control" value="<?= $result_array['tasks_my']; ?>" name="tasks_my"></td>
                                         </tr>
                                         <tr>
-                                            <td data-title="Comment" style="width:25%">Private Tasks</td>
+                                            <td data-title="Comment" style="width:25%">Private <?= TASK_TILE ?></td>
                                             <td><input type="text" class="form-control" value="<?= $result_array['tasks_private']; ?>" name="tasks_private"></td>
                                         </tr>
                                         <tr>
-                                            <td data-title="Comment" style="width:25%">Shared Tasks</td>
+                                            <td data-title="Comment" style="width:25%">Shared <?= TASK_TILE ?></td>
                                             <td><input type="text" class="form-control" value="<?= $result_array['tasks_company']; ?>" name="tasks_company"></td>
                                         </tr>
                                         <!--
@@ -686,11 +686,11 @@ $(document).ready(function() {
                                         </tr>
                                         -->
                                         <tr>
-                                            <td data-title="Comment" style="width:25%">Project Tasks</td>
+                                            <td data-title="Comment" style="width:25%">Project <?= TASK_TILE ?></td>
                                             <td><input type="text" class="form-control" value="<?= $result_array['tasks_project']; ?>" name="tasks_project"></td>
                                         </tr>
                                         <tr>
-                                            <td data-title="Comment" style="width:25%"><?= (substr(CONTACTS_TILE, -1)=='s' && substr(CONTACTS_TILE, -2) !='ss') ? rtrim(CONTACTS_TILE, 's') : CONTACTS_TILE; ?> Tasks</td>
+                                            <td data-title="Comment" style="width:25%"><?= (substr(CONTACTS_TILE, -1)=='s' && substr(CONTACTS_TILE, -2) !='ss') ? rtrim(CONTACTS_TILE, 's') : CONTACTS_TILE; ?> <?= TASK_TILE ?></td>
                                             <td><input type="text" class="form-control" value="<?= $result_array['tasks_client']; ?>" name="tasks_client"></td>
                                         </tr>
                                         <tr>

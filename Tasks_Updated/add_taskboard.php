@@ -242,11 +242,11 @@ function changeLevel(sel) {
             <div class="pull-right"><a href=""><img src="../img/icons/ROOK-status-rejected.jpg" alt="Close" title="Close" class="inline-img" /></a></div>
             <div class="clearfix"></div>
 
-            <h3>Add Task Board</h3>
+            <h3>Add <?= TASK_NOUN ?> Board</h3>
             <div class="form-group">
-                <label for="fax_number"	class="col-sm-4	control-label">Task Board Type:</label>
+                <label for="fax_number"	class="col-sm-4	control-label"><?= TASK_NOUN ?> Board Type:</label>
                 <div class="col-sm-8">
-                    <select name="board_security" id="board_security" data-placeholder="Choose a Task Board Type..." class="chosen-select-deselect form-control" width="380">
+                    <select name="board_security" id="board_security" data-placeholder="Choose a <?= TASK_NOUN ?> Board Type..." class="chosen-select-deselect form-control" width="380">
                         <option></option><?php
                         $all_board_types = mysqli_fetch_array(mysqli_query($dbc, "SELECT task_dashboard_tile FROM task_dashboard"));
                         foreach(explode(',', 'Private,'.$all_board_types['task_dashboard_tile']) as $board_type) {
@@ -261,7 +261,7 @@ function changeLevel(sel) {
                                 $board_name = $board_type;
                             }
                             if ( $board_type!='Community' && $board_type!='Business' && $board_type!='Reporting' ) { ?>
-                                <option <?= trim($get_board['board_security'])==trim($board_type) ? 'selected' : '' ?> value="<?= $board_type ?>"><?= $board_name ?></option><?php
+                                <option <?= trim($board_security)==trim($board_type) ? 'selected' : '' ?> value="<?= $board_type ?>"><?= $board_name ?></option><?php
                             }
                         } ?>
                     </select>
@@ -272,7 +272,6 @@ function changeLevel(sel) {
                 <label for="fax_number"	class="col-sm-4	control-label">Share With Staff:</label>
                 <div class="col-sm-8">
                     <select multiple name="company_staff_sharing[]" data-placeholder="Choose Staff..." class="chosen-select-deselect form-control" width="380">
-                      <option value=""></option>
                       <?php
                         $query1 = mysqli_query($dbc,"SELECT contactid, first_name, last_name FROM contacts WHERE deleted=0 AND category IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." order by first_name");
                         while($row1 = mysqli_fetch_array($query1)) {
@@ -285,7 +284,7 @@ function changeLevel(sel) {
             </div>
 
             <div class="form-group task-board-name">
-                <label for="fax_number"	class="col-sm-4	control-label">Task Board Name:</label>
+                <label for="fax_number"	class="col-sm-4	control-label"><?= TASK_NOUN ?> Board Name:</label>
                 <div class="col-sm-8">
                   <input name="board_name" value="<?= $get_board['board_name'] ?>" type="text" class="form-control"/>
                 </div>
@@ -312,8 +311,10 @@ function changeLevel(sel) {
             <div class="form-group" id="contactid_show" style="display: none;">
                 <label for="first_name" class="col-sm-4 control-label text-right">Contact:</label>
                 <div class="col-sm-8">
+
                     <select data-placeholder="Choose a Contact..." multiple id="contactid" name="contactid[]" class="chosen-select-deselect form-control1" width="380">
-                        <option></option><?php
+                        <?php
+
                         $query = mysqli_query($dbc,"SELECT contactid, first_name, last_name FROM contacts WHERE businessid = '$businessid' order by first_name");
                         while($row = mysqli_fetch_array($query)) {
                             if ($get_board['contactid'] == $row['contactid']) {

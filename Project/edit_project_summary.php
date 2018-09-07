@@ -35,6 +35,52 @@ if(in_array('Summary Tracked',$tab_config)) {
 	</div>'];
 	$total_length += 68;
 }
+if(in_array('Summary Projections',$tab_config)) {
+	$block_length = 68;
+    $services = array_filter(explode('#*#',$project['projection_service_heading']));
+    $service_fees = array_filter(explode('#*#',$project['projection_service_price']));
+    $products = array_filter(explode('#*#',$project['projection_product_heading']));
+    $product_fees = array_filter(explode('#*#',$project['projection_product_price']));
+    $tasks = array_filter(explode('#*#',$project['projection_task_heading']));
+    $task_fees = array_filter(explode('#*#',$project['projection_task_price']));
+    $inventory = array_filter(explode('#*#',$project['projection_inventory_heading']));
+    $inventory_fees = array_filter(explode('#*#',$project['projection_inventory_price']));
+    $admin = array_filter(explode('#*#',$project['projection_admin_heading']));
+    $admin_fees = array_filter(explode('#*#',$project['projection_admin_price']));
+	$block = '<div class="overview-block">
+		<h4>Projections</h4>';
+    if(!empty($services)) {
+        $block .= 'Service Headings: '.count($services).'<br />';
+        $block .= 'Services Price: $'.number_format(array_sum($service_fees),2).'<br />';
+        $block_length += 46;
+    }
+    if(!empty($products)) {
+        $block .= 'Product Headings: '.count($products).'<br />';
+        $block .= 'Products Price: $'.number_format(array_sum($product_fees),2).'<br />';
+        $block_length += 46;
+    }
+    if(!empty($tasks)) {
+        $block .= 'Task Headings: '.count($tasks).'<br />';
+        $block .= 'Tasks Price: $'.number_format(array_sum($task_fees),2).'<br />';
+        $block_length += 46;
+    }
+    if(!empty($inventory)) {
+        $block .= INVENTORY_NOUN.' Headings: '.count($inventory).'<br />';
+        $block .= INVENTORY_TILE.' Price: $'.number_format(array_sum($inventory_fees),2).'<br />';
+        $block_length += 46;
+    }
+    if(!empty($admin)) {
+        $block .= 'Admin Headings: '.count($admin).'<br />';
+        $block .= 'Admin Price: $'.number_format(array_sum($admin_fees),2).'<br />';
+        $block_length += 46;
+    }
+    $block .= 'Total Projection Headings: '.(count($services)+count($products)+count($tasks)+count($inventory)+count($admin)).'<br />';
+    $block .= 'Total Projected Price: $'.number_format(array_sum($service_fees)+array_sum($product_fees)+array_sum($task_fees)+array_sum($inventory_fees)+array_sum($admin_fees),2).'<br />';
+    $block_length += 46;
+	$block .= '</div>';
+	$blocks[] = [$block_length, $block];
+	$total_length += $block_length;
+}
 if(in_array('Summary Contact',$tab_config)) {
 	$block_length = 68;
 	$project_lead = [];
@@ -208,13 +254,14 @@ $displayed_length = 0;
 if($_GET['edit'] > 0) {
 ?>
 <div class="col-sm-6">
-	<?php
-		foreach($blocks as $block) {
+	<?php $block_i = 0;
+    foreach($blocks as $block) {
 		if($block[0] == $displayed_length && $display_column == 0) {
+            $block_i = 0;
 			$displayed_length = 0;
 			$total_length -= $block[0] + $displayed_length;
 			echo '</div><div class="col-sm-6">'.$block[1].'</div><div class="col-sm-6">';
-		} else if($displayed_length > $total_length / 2) {
+		} else if($block_i++ > 0 && $displayed_length + $block[0] - 25 > $total_length / 2) {
 			$displayed_length = 0;
 			$display_column = 1;
 			echo '</div><div class="col-sm-6">'.$block[1];
@@ -222,8 +269,7 @@ if($_GET['edit'] > 0) {
 			$displayed_length += $block[0];
 			echo $block[1];
 		}
-	}
-	?>
+	} ?>
 </div>
 <?php } else {
 	echo '<h2>Please add Project Details in order to see a Summary of the Project.</h2>';

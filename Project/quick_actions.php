@@ -139,52 +139,54 @@ function saveNote(sel) {
 </script>
 <?php $quick_actions = explode(',',get_config($dbc, 'quick_action_icons')); ?>
 <!-- All icons -->
-<div class="action-icons">
-    <!-- Status Report Icon -->
-    <?php if($status_report) { ?>
-        <a href="Status Report" onclick="overlayIFrameSlider('edit_project_scope_status_report.php?projectid='+id,'auto',true,true); return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/pie-chart.png" class="inline-img no-toggle" title="Status Report"></a>
-    <?php } ?>
-    <!-- Status Report Icon -->
-    <?php if(!in_array('flag_manual',$quick_actions) && in_array('flag',$quick_actions)) { ?>
-        <a href="Flag This!" onclick="return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-flag-icon.png" class="inline-img no-toggle flag-icon" title="Flag This!" /></a>
-    <?php } ?>
+<div class="icons_div" data-id="<?= $project['projectid'] ?>">
+    <div class="action-icons">
+        <!-- Status Report Icon -->
+        <?php if($status_report) { ?>
+            <a href="Status Report" onclick="overlayIFrameSlider('edit_project_scope_status_report.php?projectid='+id,'auto',true,true); return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/pie-chart.png" class="inline-img no-toggle" title="Status Report"></a>
+        <?php } ?>
+        <!-- Status Report Icon -->
+        <?php if(!in_array('flag_manual',$quick_actions) && in_array('flag',$quick_actions)) { ?>
+            <a href="Flag This!" onclick="return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-flag-icon.png" class="inline-img no-toggle flag-icon" title="Flag This!" /></a>
+        <?php } ?>
 
-    <?php if(in_array('flag_manual',$quick_actions)) { ?>
-        <a href="Flag This!" onclick="return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-flag-icon.png" class="inline-img no-toggle manual-flag-icon" title="Flag This!" /></a>
-    <?php } ?>
+        <?php if(in_array('flag_manual',$quick_actions)) { ?>
+            <a href="Flag This!" onclick="return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-flag-icon.png" class="inline-img no-toggle manual-flag-icon" title="Flag This!" /></a>
+        <?php } ?>
 
-    <?php if(in_array('reply',$quick_actions)) { ?>
-        <a href="#" onclick="overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_notes.php?tile=projects&id=<?= $projectid ?>','auto', false, true); return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-reply-icon.png" class="inline-img no-toggle reply-icon" title="Add Note" /></a>
-        <!-- Note -->
-    <?php } ?>
+        <?php if(in_array('reply',$quick_actions)) { ?>
+            <a href="#" onclick="overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_notes.php?tile=projects&id=<?= $projectid ?>','auto', false, true); return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-reply-icon.png" class="inline-img no-toggle reply-icon" title="Add Note" /></a>
+            <!-- Note -->
+        <?php } ?>
 
-    <?php if(in_array('email',$quick_actions)) { ?>
-        <!-- Email -->
-        <a href="Add Email" onclick="overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_email.php?tile=projects&id='+id,'auto',false,true); return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-email-icon.png" class="inline-img no-toggle email-icon" title="Send Email"></a>
-        <!-- Email -->
-    <?php } ?>
+        <?php if(in_array('email',$quick_actions)) { ?>
+            <!-- Email -->
+            <a href="Add Email" onclick="overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_email.php?tile=projects&id='+id,'auto',false,true); return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-email-icon.png" class="inline-img no-toggle email-icon" title="Send Email"></a>
+            <!-- Email -->
+        <?php } ?>
 
-    <?php if(in_array('reminder',$quick_actions)) { ?>
-        <a href="Add Reminder" onclick="return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-reminder-icon.png" class="inline-img no-toggle reminder-icon" title="Schedule Reminder"></a>
-        <!-- reminder -->
-    <?php } ?>
+        <?php if(in_array('reminder',$quick_actions)) { ?>
+            <a href="Add Reminder" onclick="return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-reminder-icon.png" class="inline-img no-toggle reminder-icon" title="Schedule Reminder"></a>
+            <!-- reminder -->
+        <?php } ?>
 
-    <?php if(in_array('attach',$quick_actions)) { ?>
-        <a href="Add File" onclick="return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-attachment-icon.png" class="inline-img no-toggle attach-icon" title="Attach File"></a>
-        <!-- document -->
-    <?php } ?>
+        <?php if(in_array('attach',$quick_actions)) { ?>
+            <a href="Add File" onclick="return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-attachment-icon.png" class="inline-img no-toggle attach-icon" title="Attach File"></a>
+            <!-- document -->
+        <?php } ?>
 
-    <?php if(in_array('timer',$quick_actions)) { ?>
-        <a href="Add Timer" onclick="return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-timer2-icon.png" class="inline-img no-toggle timer-icon" title="Start Timer" /></a>
-        <!-- Timer -->
-    <?php } ?>
+        <?php if(in_array('timer',$quick_actions)) { ?>
+            <a href="Add Timer" onclick="return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-timer2-icon.png" class="inline-img no-toggle timer-icon" title="Start Timer" /></a>
+            <!-- Timer -->
+        <?php } ?>
 
-    <?php if(in_array('archive',$quick_actions)) { ?>
-        <!-- archive -->
-        <img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-trash-icon.png" class="inline-img no-toggle archive-icon" title="Archive">
-        <!-- archive -->
-    <?php } ?>
- </div>
+        <?php if(in_array('archive',$quick_actions)) { ?>
+            <!-- archive -->
+            <img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-trash-icon.png" class="inline-img no-toggle archive-icon" title="Archive">
+            <!-- archive -->
+        <?php } ?>
+     </div>
+</div>
  <!-- All icons -->
  
 <br /><div class="clearfix"></div>

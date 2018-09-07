@@ -204,7 +204,6 @@ function contact_call_log_notes($dbc, $select_id, $select_name, $contact_value,$
         <label for="fax_number"	class="col-sm-4	control-label">Contact:</label>
         <div class="col-sm-8">
             <select <?php echo $multiple; ?> data-placeholder="Select a Contact..." name="<?php echo $select_name; ?>" id="<?php echo $select_id; ?>" class="chosen-select-deselect form-control" width="380">
-              <option value=""></option>
               <?php
               	$query = mysqli_query($dbc,"SELECT contactid, name, first_name, last_name FROM contacts WHERE category IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." order by name");
                 echo '<option value=""></option>';

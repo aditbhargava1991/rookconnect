@@ -60,7 +60,7 @@
 	}
 
 	$pdf = new MYPDF('L', PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
-	
+
 	$margin_height = ($head_logo == '' && $pdf_header == '' ? 15 : 30);
 	$pdf->SetMargins(PDF_MARGIN_LEFT, $margin_height, PDF_MARGIN_RIGHT);
 	$pdf->AddPage();
@@ -68,7 +68,7 @@
 	$pdf->SetFont('helvetica', '', 14);
 	$pdf->Write(0, "Expense Report".($_GET['min_date'] != '' ? ' From '.$_GET['min_date'] : '').($_GET['max_date'] != '' ? ' To '.$_GET['max_date'] : ''), '', 0, 'C', true, 0, false, false, 0);
 	$pdf->Ln();
-	
+
 	$pdf->SetFont('helvetica', '', 8);
 	$pdf->setCellHeightRatio(1.75);
 	$pdf->writeHTML(report_display($dbc), true, false, true, false, '');
@@ -195,7 +195,6 @@ $field_config = explode(',',$config_row['expense_dashboard']); ?>
 							<label class="col-sm-4 control-label">Staff:</label>
 							<div class="col-sm-8">
 								<select data-placeholder="Select a Staff..." name="filter_staff[]" multiple class="chosen-select-deselect form-control">
-									<option value=""></option>
 									<?php $query = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name` FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `deleted`=0 AND `status`=1 AND `show_hide_user`=1"),MYSQLI_ASSOC));
 									foreach($query as $query_contactid) {
 										echo "<option ".(in_array($query_contactid,explode(',',$filter_staff)) ? 'selected' : '')." value='".$query_contactid."'>".get_contact($dbc, $query_contactid)."</option>";
@@ -251,7 +250,6 @@ $field_config = explode(',',$config_row['expense_dashboard']); ?>
 							<label class="col-sm-4 control-label">Vendor Name:</label>
 							<div class="col-sm-8">
 								<select data-placeholder="Select a Vendor..." name="filter_vendors[]" multiple class="chosen-select-deselect form-control">
-									<option value=""></option>
 									<?php $query = mysqli_query($dbc, "SELECT IFNULL(`vendor`,'') `vendor` FROM `expense` WHERE `deleted`=0 AND `vendor` != '' GROUP BY `vendor` ORDER BY `vendor`");
 									while($row = mysqli_fetch_array($query)) {
 										echo "<option ".(in_array($row['vendor'],explode(',',$filter_vendors)) ? 'selected' : '')." value='".$row['vendor']."'>".$row['vendor']."</option>";
@@ -277,7 +275,6 @@ $field_config = explode(',',$config_row['expense_dashboard']); ?>
 							<label class="col-sm-4 control-label"><?= PROJECT_NOUN ?>:</label>
 							<div class="col-sm-8">
 								<select data-placeholder="Select <?= PROJECT_NOUN ?>..." name="filter_projects[]" multiple class="chosen-select-deselect form-control">
-									<option value=""></option>
 									<?php $query = mysqli_query($dbc, "SELECT * FROM `project` WHERE `deleted`=0 AND `projectid` IN (SELECT `projectid` FROM `expense` WHERE `deleted`=0)");
 									while($row = mysqli_fetch_array($query)) {
 										echo "<option ".(in_array($row['projectid'],explode(',',$filter_projects)) ? 'selected' : '')." value='".$row['projectid']."'>".get_project_label($dbc, $row)."</option>";
@@ -306,7 +303,6 @@ $field_config = explode(',',$config_row['expense_dashboard']); ?>
 							</label>
 							<div class="col-sm-8">
 								<select data-placeholder="Select a Category..." name="filter_category[]" multiple class="chosen-select-deselect form-control">
-									<option value=""></option>
 									<?php $query = mysqli_query($dbc, "SELECT DISTINCT(CONCAT(EC,': ',`category`)) cat, `category` FROM `expense_categories` ORDER BY cat");
 									while($query_cat = mysqli_fetch_array($query)) {
 										echo "<option ".($filter_category == $query_cat['cat'] ? 'selected' : '')." value='".$query_cat['category']."'>".$query_cat['cat']."</option>";
@@ -360,7 +356,6 @@ $field_config = explode(',',$config_row['expense_dashboard']); ?>
 							</label>
 							<div class="col-sm-8">
 								<select data-placeholder="Select Warnings..." name="filter_warnings[]" multiple class="chosen-select-deselect form-control">
-									<option value=""></option>
 								</select>
 							</div>
 						</div>

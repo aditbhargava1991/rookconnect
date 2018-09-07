@@ -269,7 +269,7 @@ if(!isset($_SESSION['fullscreen'])) {
                         </li>
                         <li><a href="<?= WEBSITE_URL; ?>/logout.php"><img src="<?= WEBSITE_URL; ?>/img/logout-icon.png" class="offset-top-15 no-toggle" title="Logout" data-placement="bottom" /></a></li>
                     </ul>
-                    <ul class="nav navbar-nav scale-to-fill">
+                    <ul class="nav navbar-nav scale-to-fill" style="overflow: hidden;">
                         <?php if (strpos($site_url,'forgot_pwd.php') == false) { ?>
                             <li class="pull-left home-button">
                                 <a style="padding-left: 17px;" href="<?php echo WEBSITE_URL;?>/home.php" title="Home"><?php
@@ -340,7 +340,7 @@ if(!isset($_SESSION['fullscreen'])) {
                                     }
 
                                     if(in_array('tasks',array_column($_SESSION['tile_list'],'tile'))) {
-                                        $search_cats[] = 'Tasks';
+                                        $search_cats[] = TASK_TILE;
                                         echo "search_categories.push('tasks');\n";
                                     }
 

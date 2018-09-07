@@ -345,6 +345,12 @@ echo '<input type="hidden" name="ticket_view_access" value="'.$ticket_view_acces
 			<?php if(($_GET['type'] == 'uni' || $_GET['type'] == 'my') && $use_shifts != '') { ?>
 				<a href="?type=<?= $_GET['type'] ?>&mode=staff&view=<?= $_GET['view'] ?>&region=<?= $_GET['region'] ?>"><span class="block-item <?= $_GET['mode'] == 'staff' ? 'active' : '' ?>" style="float: left;">Schedule</span></a>
 				<a href="?type=<?= $_GET['type'] ?>&mode=shift&view=<?= $_GET['view'] ?>&region=<?= $_GET['region'] ?>"><span class="block-item <?= $_GET['mode'] == 'shift' ? 'active' : '' ?>" style="float: left;">Shifts</span></a>
+				<?php if($staff_summary == 1) { ?>
+					<a href="?type=uni&mode=staff_summary&view=<?= $_GET['view'] ?>&region=<?= $_GET['region'] ?>"><span class="block-item <?= $_GET['mode'] == 'staff_summary' ? 'active' : '' ?>" style="float: left;">Staff Summary</span></a>
+				<?php } ?>
+				<?php if($day_summary_tab == 1) { ?>
+					<a href="?type=uni&mode=day_summary&view=<?= $_GET['view'] ?>&region=<?= $_GET['region'] ?>"><span class="block-item <?= $_GET['mode'] == 'day_summary' ? 'active' : '' ?>" style="float: left;">Day Summary</span></a>
+				<?php } ?>
 			<?php } else if($_GET['type'] == 'staff' && $_GET['view'] != 'monthly' && in_array('Staff Schedule Calendar', $calendar_types) && check_subtab_persmission($dbc, 'calendar_rook', ROLE, 'Staff Schedule Calendar')) { ?>
 				<a href="?type=staff&mode=staff&view=<?= $_GET['view'] ?>&region=<?= $_GET['region'] ?>"><span class="block-item <?= $_GET['mode'] != 'client' && $_GET['mode'] != 'tickets' ? 'active' : '' ?>" style="float: left;">Staff</span></a>
 				<a href="?type=staff&mode=client&view=<?= $_GET['view'] ?>&region=<?= $_GET['region'] ?>"><span class="block-item <?= $_GET['mode'] == 'client' ? 'active' : '' ?>" style="float: left;"><?= (!empty(get_config($dbc, 'staff_schedule_client_type')) ? get_config($dbc, 'staff_schedule_client_type') : 'Clients') ?></span></a>
@@ -397,29 +403,43 @@ echo '<input type="hidden" name="ticket_view_access" value="'.$ticket_view_acces
 			} else {
 				switch($_GET['type']) {
 					case 'uni':
-						switch($_GET['view']) {
-							case 'weekly':
-								if(in_array('Universal Calendar', $calendar_types) && check_subtab_persmission($dbc, 'calendar_rook', ROLE, 'Universal Calendar')) {
-									include('universal_weekly.php');
-								} else {
-									echo 'This Calendar is either not enabled or you do not have access.';
-								}
-								break;
-							case 'daily':
-								if(in_array('Universal Calendar', $calendar_types) && check_subtab_persmission($dbc, 'calendar_rook', ROLE, 'Universal Calendar')) {
-									include('universal_daily.php');
-								} else {
-									echo 'This Calendar is either not enabled or you do not have access.';
-								}
-								break;
-							case 'monthly':
-								if(in_array('Universal Calendar', $calendar_types) && check_subtab_persmission($dbc, 'calendar_rook', ROLE, 'Universal Calendar')) {
-									include('universal_monthly.php');
-								} else {
-									echo 'This Calendar is either not enabled or you do not have access.';
-								}
-								break;
-							default:
+						if($_GET['mode'] == 'staff_summary') {
+							if(in_array('Universal Calendar', $calendar_types) && check_subtab_persmission($dbc, 'calendar_rook', ROLE, 'Universal Calendar')) {
+								include('universal_staff_summary.php');
+							} else {
+								echo 'This Calendar is either not enabled or you do not have access.';
+							}
+						} else if($_GET['mode'] == 'day_summary') {
+							if(in_array('Universal Calendar', $calendar_types) && check_subtab_persmission($dbc, 'calendar_rook', ROLE, 'Universal Calendar')) {
+								include('universal_day_summary.php');
+							} else {
+								echo 'This Calendar is either not enabled or you do not have access.';
+							}
+						} else {
+							switch($_GET['view']) {
+								case 'weekly':
+									if(in_array('Universal Calendar', $calendar_types) && check_subtab_persmission($dbc, 'calendar_rook', ROLE, 'Universal Calendar')) {
+										include('universal_weekly.php');
+									} else {
+										echo 'This Calendar is either not enabled or you do not have access.';
+									}
+									break;
+								case 'daily':
+									if(in_array('Universal Calendar', $calendar_types) && check_subtab_persmission($dbc, 'calendar_rook', ROLE, 'Universal Calendar')) {
+										include('universal_daily.php');
+									} else {
+										echo 'This Calendar is either not enabled or you do not have access.';
+									}
+									break;
+								case 'monthly':
+									if(in_array('Universal Calendar', $calendar_types) && check_subtab_persmission($dbc, 'calendar_rook', ROLE, 'Universal Calendar')) {
+										include('universal_monthly.php');
+									} else {
+										echo 'This Calendar is either not enabled or you do not have access.';
+									}
+									break;
+								default:
+							}
 						}
 						break;
 					case 'appt':

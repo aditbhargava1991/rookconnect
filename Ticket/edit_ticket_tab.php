@@ -210,7 +210,7 @@ if(basename($_SERVER['SCRIPT_FILENAME']) == 'edit_ticket_tab.php' && ($_GET['tic
 	if(!empty($_GET['projectid'])) {
 		$projectid = $_GET['projectid'];
 		$businessid = get_project($dbc, $projectid, 'businessid');
-		$clientid = get_project($dbc, $projectid, 'clientid');
+		$clientid = explode(',',trim(get_project($dbc, $projectid, 'clientid'),','))[0];
 		$project_path = get_project($dbc, $projectid, 'project_path');
 		$project_lead = get_project($dbc, $projectid, 'project_lead');
 	}
@@ -537,6 +537,26 @@ if(basename($_SERVER['SCRIPT_FILENAME']) == 'edit_ticket_tab.php' && ($_GET['tic
 		$force_readonly = true;
 	}
 
+    //Status Fields
+    if(!empty($ticket_status)) {
+        $value_config_all = $value_config;
+        $value_config = ','.get_config($dbc, 'ticket_status_fields_'.$ticket_status).',';
+        if(!empty($ticket_type)) {
+            $value_config .= get_config($dbc, 'ticket_status_fields_'.$ticket_status.'_'.$ticket_type).',';
+        }
+        if(empty(trim($value_config,','))) {
+            $value_config = $value_config_all;
+        } else {
+            foreach($action_mode_ignore_fields as $action_mode_ignore_field) {
+                if(strpos(','.$value_config_all.',',','.$action_mode_ignore_field.',') !== FALSE) {
+                    $value_config .= ','.$action_mode_ignore_field;
+                }
+            }
+            $value_config = ','.implode(',',array_intersect(explode(',',$value_config), explode(',',$value_config_all))).',';
+        }
+        $ticket_layout = $calendar_ticket_slider = 'full';
+    }
+
 	//Apply Templates
 	if(strpos($value_config,',TEMPLATE Work Ticket') !== FALSE) {
 		$value_config = ',Information,PI Business,PI Name,PI Project,PI AFE,PI Sites,Staff,Staff Position,Staff Hours,Staff Overtime,Staff Travel,Staff Subsistence,Services,Service Category,Equipment,Materials,Material Quantity,Material Rates,Purchase Orders,Notes,';
@@ -691,7 +711,7 @@ if(!empty($_GET['clientid'])) {
 if(!empty($_GET['projectid'])) {
 	$projectid = $_GET['projectid'];
 	$businessid = get_project($dbc, $projectid, 'businessid');
-	$clientid = get_project($dbc, $projectid, 'clientid');
+	$clientid = explode(',',trim(get_project($dbc, $projectid, 'clientid'),','))[0];
 	$project_path = get_project($dbc, $projectid, 'project_path');
 	$project_lead = get_project($dbc, $projectid, 'project_lead');
 }

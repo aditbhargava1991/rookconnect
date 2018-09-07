@@ -38,7 +38,7 @@ if(isset($_GET['ticketid']) && empty($ticketid)) {
 			$value_config = ','.implode(',',array_intersect(explode(',',$value_config), explode(',',$value_config_all))).',';
 		}
 	}
-	
+
 	if($get_ticket['to_do_date'] > date('Y-m-d') && strpos($value_config,',Ticket Edit Cutoff,') !== FALSE && $config_visible_function($dbc, 'ticket') < 1) {
 		$access_all = false;
 	} else if($get_ticket['status'] == 'Archive') {
@@ -533,7 +533,7 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 												<label class="form-checkbox"><input type="checkbox" name="check_send_email" onclick="ticket_delivery_email(this);"> Send an email to this address</label>
 											</div>
 										</div>
-										
+
 										<script>
 										function ticket_delivery_email(checked) {
 											var div = $(checked).closest('.scheduled_stop');
@@ -629,7 +629,7 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 									<div class="form-group">
 										<label class="col-sm-4 control-label">Services:</label>
 										<div class="col-sm-8">
-											<select name="serviceid[]" multiple data-placeholder="Select Services" class="form-control chosen-select-deselect" data-concat="," data-table="ticket_schedule" data-id="<?= $stop['id'] ?>" data-id-field="id"><option />
+											<select name="serviceid[]" multiple data-placeholder="Select Services" class="form-control chosen-select-deselect" data-concat="," data-table="ticket_schedule" data-id="<?= $stop['id'] ?>" data-id-field="id">
 												<?php if(empty($service_list)) {
 													$service_list = $dbc->query("SELECT * FROM `services` LEFT JOIN `rate_card` ON CONCAT('**',`rate_card`.`services`,'#') LIKE CONCAT('%**',`services`.`serviceid`,'#%') WHERE `rate_card`.`clientid`='$businessid' AND `rate_card`.`deleted`=0 AND `services`.`deleted`=0")->fetch_all(MYSQLI_ASSOC);
 												}
@@ -965,7 +965,7 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 										<label class="form-checkbox"><input type="checkbox" name="check_send_email" onclick="ticket_delivery_email(this);"> Send an email to this address</label>
 									</div>
 								</div>
-								
+
 								<script>
 								function ticket_delivery_email(checked) {
 									var div = $(checked).closest('.scheduled_stop');

@@ -176,7 +176,6 @@ if (isset($_POST['add_tab'])) {
                                 <label for="fax_number"	class="col-sm-4	control-label"><?php echo $cat_tab_cat; ?>:</label>
                                 <div class="col-sm-8">
                                     <select multiple name="board_assign_<?php echo $i; ?>[]" data-placeholder="Choose a User..." class="chosen-select-deselect form-control" width="380">
-                                      <option value=""></option>
                                       <?php
                                         $query1 = mysqli_query($dbc,"SELECT contactid, first_name, last_name FROM contacts WHERE deleted=0 AND category IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." order by first_name");
                                         while($row1 = mysqli_fetch_array($query1)) {
@@ -253,7 +252,6 @@ if (isset($_POST['add_tab'])) {
                             <label for="fax_number"	class="col-sm-4	control-label"><?php echo $cat_tab_cat; ?>:</label>
                             <div class="col-sm-8">
                                 <select multiple name="ticket_board_assign_<?php echo $i; ?>[]" data-placeholder="Choose a User..." class="chosen-select-deselect form-control" width="380">
-                                  <option value=""></option>
 								  <?php
 									$query = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc,"SELECT contactid, first_name, last_name FROM contacts WHERE category IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND deleted=0 AND `status`>0"),MYSQLI_ASSOC));
 									foreach($query as $id) {

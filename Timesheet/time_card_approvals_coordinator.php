@@ -103,8 +103,7 @@ function viewTicket(a) {
         if(config_visible_function_custom($dbc)) {
             echo '<a href="field_config.php?from_url=time_card_approvals_coordinator.php" class="mobile-block pull-right "><img style="width: 50px;" title="Tile Settings" src="../img/icons/settings-4.png" class="settings-classic wiggle-me"></a><br><br>';
         }
-        ?>
-        <img class="no-toggle statusIcon pull-right no-margin inline-img small" title="" src="" data-original-title=""></h1>
+        ?></h1>
 
         <form id="form1" name="form1" method="get" enctype="multipart/form-data" class="form-horizontal" role="form">
 			<input type="hidden" name="tab" value="<?= $_GET['tab'] ?>">
@@ -120,13 +119,13 @@ function viewTicket(a) {
 			$position = '';
 
             if(!empty($_GET['search_site'])) {
-                $search_site = $_GET['search_site'];    
-            } 
+                $search_site = $_GET['search_site'];
+            }
             if(!empty($_GET['search_staff'])) {
-                $search_staff_list = $_GET['search_staff'];    
+                $search_staff_list = $_GET['search_staff'];
             }
 			if(!empty($_GET['search_start_date'])) {
-				$search_start_date = $_GET['search_start_date'];    
+				$search_start_date = $_GET['search_start_date'];
 			}
 			if(!empty($_GET['search_end_date'])) {
 				$search_end_date = $_GET['search_end_date'];
@@ -150,7 +149,7 @@ function viewTicket(a) {
 		        }
 		        $security_query = " AND (".implode(" OR ", $security_query).")";
 		    }
-			?>  
+			?>
 			<?php if(strpos($field_config, ',search_by_groups,') !== FALSE) { ?>
 			  <div class="col-lg-2 col-md-3 col-sm-4 col-xs-12">
 				<label for="site_name" class="control-label">Search By Group:</label>
@@ -181,7 +180,6 @@ function viewTicket(a) {
                 </div>
                   <div class="col-lg-4 col-md-3 col-sm-8 col-xs-8">
                       <select data-placeholder="Select Staff Members" multiple name="search_staff[]" class="chosen-select-deselect form-control" style="width: 20%;float: left;margin-right: 10px;" width="380">
-                      <option value=""></option>
                       <option value="ALL_STAFF">Select All Staff</option>
                       <?php
                         $query = mysqli_query($dbc,"SELECT `supervisor`, `position`, `staff_list`, `security_level_list` FROM `field_config_supervisor` WHERE `supervisor`='".$_SESSION['contactid']."'");
@@ -309,8 +307,9 @@ function viewTicket(a) {
 
             if($search_staff_list != '') {
 				foreach(array_filter(array_unique($search_staff_list), function($id) { return $id != 'ALL_STAFF'; }) as $search_staff) {
+                    echo '<div class="status_group">';
 					if(count($search_staff_list) > 1) {
-						echo "<h2>".get_contact($dbc, $search_staff)."</h2>";
+						echo "<h2>".get_contact($dbc, $search_staff)."<img src='../img/empty.png' class='statusIcon inline-img no-toggle no-margin'></h2>";
 					}
 
 					$filter = ' AND (staff = "'.$search_staff.'")';
@@ -336,7 +335,7 @@ function viewTicket(a) {
 					foreach($schedule_days as $key => $day_of_week) {
 						$schedule_list[$day_of_week] = $schedule_hrs[$key];
 					}
-					
+
 					$start_of_year = date('Y-01-01', strtotime($search_start_date));
 					$sql = "SELECT IFNULL(SUM(IF(`type_of_time`='Sick Hrs.Taken',`total_hrs`,0)),0) SICK_HRS,
 						IFNULL(SUM(IF(`type_of_time`='Stat Hrs.',`total_hrs`,0)),0) STAT_AVAIL,
@@ -345,7 +344,7 @@ function viewTicket(a) {
 						IFNULL(SUM(IF(`type_of_time`='Vac Hrs.Taken',`total_hrs`,0)),0) VACA_HRS
 						FROM `time_cards` WHERE `staff`='$search_staff' AND `date` < '$search_start_date' AND `date` >= '$start_of_year' AND `approv`='N'";
 					$year_to_date = mysqli_fetch_array(mysqli_query($dbc, $sql));
-					
+
 					$stat_hours = $year_to_date['STAT_AVAIL'];
 					$stat_taken = $year_to_date['STAT_HRS'];
 					$vacation_hours = $year_to_date['VACA_AVAIL'];
@@ -423,6 +422,7 @@ function viewTicket(a) {
 							echo '<button type="submit" value="rate_timesheet" name="submit" class="btn brand-btn mobile-block pull-right">Save Time Sheet</button>';
 						endif;
 					endif;
+                    echo '</div>';
 				}
             } else {
 				echo "<h3>Please select a staff member.</h3>";

@@ -551,7 +551,7 @@ $meetings = $get_total_meetings['total_meeting'];
     <?php } ?>
 
     <?php if($tasks > 0) { ?>
-        <h4>Tasks</h4>
+        <h4><?= TASK_TILE ?></h4>
     		<?php
     		$est = mysqli_query($dbc, "SELECT * FROM day_overview WHERE type='Task' AND contactid='$contactid' AND DATE(today_date) = CURDATE()");
     		echo '<ul>';

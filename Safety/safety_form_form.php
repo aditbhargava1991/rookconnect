@@ -1090,7 +1090,7 @@
                         <label for="first_name" class="col-sm-4 control-label text-right">Staff:</label>
                         <div class="col-sm-8">
                             <select name="assign_staff[]" data-placeholder="Choose a Staff Member..." class="chosen-select-deselect form-control" multiple width="380">
-                                <option value=""></option><?php
+                                <?php
                                 $query = mysqli_query($dbc,"SELECT contactid, first_name, last_name FROM contacts WHERE category IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND deleted=0 ORDER BY first_name");
                                 while($row = mysqli_fetch_array($query)) {
               if ( !empty ( $assign_staff ) ) { ?>
@@ -1135,7 +1135,6 @@
       <label for="first_name" class="col-sm-4 control-label text-right">Sites:</label>
       <div class="col-sm-8">
         <select name="assign_sites[]" data-placeholder="Select Sites" class="chosen-select-deselect form-control" multiple width="380">
-          <option value=""></option>
           <option <?= ($assign_sites == ',ALL,' ? 'selected value="ALL"' : 'value="SELECT ALL"') ?>>All Sites</option><?php
           $query = mysqli_query($dbc,"SELECT `contactid`, `site_name` FROM `contacts` WHERE `category`='Sites' ORDER BY `site_name`");
           while($row = mysqli_fetch_array($query)) { ?>
@@ -1162,7 +1161,6 @@
       <label for="first_name" class="col-sm-4 control-label text-right">Site Work Orders:</label>
       <div class="col-sm-8">
         <select name="assign_work_orders[]" data-placeholder="Select Work Orders" class="chosen-select-deselect form-control" multiple width="380">
-          <option value=""></option>
           <option <?= ($assign_work_orders == ',ALL,' ? 'selected value="ALL"' : 'value="SELECT ALL"') ?>>All Work Orders</option><?php
           $query = mysqli_query($dbc,"SELECT * FROM `site_work_orders` WHERE `status`!='Archived'");
           while($row = mysqli_fetch_array($query)) { ?>

@@ -268,7 +268,7 @@ $(document).on('change', '.dialog select[name=clientid]', function() { contactFi
 } ?>
 <input type='file' name='document' value='' style="display:none;">
 <div class="select_users" style="display:none;">
-    <select data-placeholder="Select Staff" multiple class="chosen-select-deselect"><option></option>
+    <select data-placeholder="Select Staff" multiple class="chosen-select-deselect">
     <?php foreach($staff_list as $staff) { ?>
         <option value="<?= $staff['contactid'] ?>"><?= $staff['full_name'] ?></option>
     <?php } ?>
@@ -324,5 +324,6 @@ $(document).on('change', '.dialog select[name=clientid]', function() { contactFi
     <?php if(in_array('archive',$quick_actions)) { ?>
         <a href="#" id="sales_<?= $row['salesid']; ?>" data-salesid="<?= $row['salesid']; ?>" onclick="archive_sales_lead(this); $(this).closest('.info-block-detail,.standard-body-title').hide(); return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-trash-icon.png" class="inline-img no-toggle" title="Archive" /></a>
     <?php } ?>
+    <?= IFRAME_PAGE || $_GET['iframe_slider'] == 1 ? '<a href="../blank_loading_page.php"><img src="../img/icons/cancel.png" class="inline-img"></a>' : '' ?>
 </div>
 <div class="clearfix"></div>
