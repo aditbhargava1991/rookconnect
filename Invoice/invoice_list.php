@@ -164,8 +164,65 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
                         echo '<a href="field_config_invoice.php" class="pull-right gap-right gap-top"><img width="30" title="Tile Settings" src="../img/icons/settings-4.png" class="settings-classic wiggle-me no-toggle"></a>';
                     } ?>
                     <span class="pull-right gap-top offset-right-5"><img src="../img/icons/eyeball.png" alt="View Tabs" title="View Tabs" class="cursor-hand no-toggle inline-img" onclick="view_tabs();" /></span>
+                    <span class="pull-right gap-top offset-right-5"><img src="../img/icons/pie-chart.png" alt="View Summary" title="View Summary" class="cursor-hand no-toggle inline-img" onclick="view_summary();" /></span>
                     <div class="clearfix"></div>
                     <div class="view_tabs double-padded" style="display:none;"><?php include('tile_tabs.php'); ?></div>
+                    
+                    <!-- Summary Blocks --><?php
+                    $search_contact = 0;
+                    $search_invoiceid = '';
+                    $search_from = date('Y-m-01');
+                    $search_to = date('Y-m-t');
+                    if (isset($_GET['search_invoice_submit'])) {
+                        $search_contact = $_GET['contactid'] != '' ? $_GET['contactid'] : $search_contact;
+                        $search_from = $_GET['search_from'] != '' ? $_GET['search_from'] : $search_from;
+                        $search_to = $_GET['search_to'] != '' ? $_GET['search_to'] : $search_to;
+                        $search_invoiceid = isset($_POST['search_invoiceid']) ? preg_replace('/[^0-9]/', '', $_POST['search_invoiceid']) : '';
+                    }
+                    $search_clause = $search_contact > 0 ? " AND `patientid`='$search_contact'" : '';
+                    $search_clause .= $search_from != '' ? " AND `invoice_date` >= '$search_from'" : '';
+                    $search_clause .= $search_to != '' ? " AND `invoice_date` <= '$search_to'" : '';
+                    $search_invoice_clause = !empty($search_invoiceid) ? " AND `invoiceid`='$search_invoiceid'" : '';
+                    ?>
+                    <div class="view_summary double-gap-bottom" style="display:none;">
+                        <div class="col-xs-12 col-sm-4 gap-top">
+                            <div class="summary-block">
+                                <?php $total_invoices = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT SUM(`final_price`) `final_price` FROM `invoice` WHERE `deleted`=0 $search_clause $search_invoice_clause")); ?>
+                                <div class="text-lg"><?= ( $total_invoices['final_price'] > 0 ) ? '<a href="../Reports/report_tiles.php?type=sales&report=POS%20Advanced%20Sales%20Summary&landing=true&pos_submit=yes&from='.$search_from.'&to='.$search_to.'">$'.number_format($total_invoices['final_price'], 2).'</a>' : 0; ?></div>
+                                <div>Total Invoices</div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-4 gap-top">
+                            <div class="summary-block"><?php
+                                $ar_types = array('On Account', 'Net 30', 'Net 30 Days', 'Net 60', 'Net 60 Days', 'Net 90', 'Net 90 Days', 'Net 120', 'Net 120 Days');
+                                $ar_amounts = 0;
+                                $nonar_amounts = 0;
+                                $ar_invoices = mysqli_query($dbc, "SELECT `payment_type` FROM `invoice` WHERE `deleted`=0 $search_clause $search_invoice_clause");
+                                while ( $row = mysqli_fetch_assoc($ar_invoices) ) {
+                                    list($payment_types, $payment_amounts) = explode('#*#', $row['payment_type']);
+                                    $types = explode(',', $payment_types);
+                                    $amounts = explode(',', $payment_amounts);
+                                    $count = count($types);
+                                    for ( $i=0; $i <= $count; $i++ ) {
+                                        if ( in_array($types[$i], $ar_types) ) {
+                                            $ar_amounts += $amounts[$i];
+                                        } else {
+                                            $nonar_amounts += $amounts[$i];
+                                        }
+                                    }
+                                } ?>
+                                <div class="text-lg"><?= ( $ar_amounts > 0 ) ? '<a href="../Reports/report_tiles.php?type=sales&report=POS%20Advanced%20Sales%20Summary&landing=true&pos_submit=yes&from='.$search_from.'&to='.$search_to.'">$'.number_format($ar_amounts, 2).'</a>' : 0; ?></div>
+                                <div>Total A/R Invoices</div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-4 gap-top">
+                            <div class="summary-block">
+                                <div class="text-lg"><?= ( $nonar_amounts > 0 ) ? '<a href="../Reports/report_tiles.php?type=sales&report=POS%20Advanced%20Sales%20Summary&landing=true&pos_submit=yes&from='.$search_from.'&to='.$search_to.'">$'.number_format($nonar_amounts, 2).'</a>' : 0; ?></div>
+                                <div>Total Non A/R Invoices</div>
+                            </div>
+                        </div>
+                        <div class="clearfix"></div>
+                    </div><!-- .view_summary -->
                 </div>
             </div><!-- .tile-header -->
 
@@ -178,29 +235,10 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
                     <div class="standard-body-content">
                         <form name="invoice" method="GET" action="" class="form-horizontal" role="form">
                             <?php $value_config = ','.get_config($dbc, 'invoice_dashboard').','; ?>
-                            <?php
-                            $search_contact = 0;
-                            $search_invoiceid = '';
-                            $search_from = date('Y-m-01');
-                            $search_to = date('Y-m-t');
-                            if (isset($_GET['search_invoice_submit'])) {
-                                if($_GET['contactid'] != '') {
-                                   $search_contact = $_GET['contactid'];
-                                }
-                                if($_GET['type'] != '') {
-                                   $search_delivery = $_GET['type'];
-                                }
-                                if($_GET['search_from'] != '') {
-                                   $search_from = $_GET['search_from'];
-                                }
-                                if($_GET['search_to'] != '') {
-                                   $search_to = $_GET['search_to'];
-                                }
-                                $search_invoiceid = isset($_POST['search_invoiceid']) ? preg_replace('/[^0-9]/', '', $_POST['search_invoiceid']) : '';
-                            } ?>
-                            <div class="search-group double-gap-top">
-                                <div class="form-group col-lg-9 col-md-8 col-sm-12 col-xs-12">
-                                    <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+                            
+                            <div class="form-group search-group double-gap-top">
+                                <div class="col-xs-12">
+                                    <div class="col-sm-6 col-xs-12">
                                         <div class="col-sm-4">
                                             <label for="site_name" class="control-label">Search By <?= $purchaser_label ?>:</label>
                                         </div>
@@ -216,8 +254,8 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
                                             </select>
                                         </div>
                                     </div>
-                                    <?php if(strpos($value_config,',delivery,') !== FALSE) { ?>
-                                        <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+                                    <?php if(strpos($value_config,',invoiceid,') !== FALSE) { ?>
+                                        <div class="col-sm-6 col-xs-12">
                                             <div class="col-sm-4">
                                                 <label for="site_name" class="control-label">Search By Invoice #:</label>
                                             </div>
@@ -227,8 +265,8 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
                                         </div>
                                     <?php } ?>
                                 </div>
-                                <div class="form-group col-lg-9 col-md-8 col-sm-12 col-xs-12">
-                                    <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+                                <div class="col-xs-12">
+                                    <div class="col-sm-6 col-xs-12">
                                         <div class="col-sm-4">
                                             <label for="site_name" class="control-label">Search From Date:</label>
                                         </div>
@@ -236,7 +274,7 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
                                             <input name="search_from" type="text" class="datepicker form-control" value="<?= $search_from ?>">
                                         </div>
                                     </div>
-                                    <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+                                    <div class="col-sm-6 col-xs-12">
                                         <div class="col-sm-4">
                                             <label for="site_name" class="control-label">Search To Date:</label>
                                         </div>
@@ -245,13 +283,9 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
                                         </div>
                                     </div>
                                 </div>
-                                <div class="form-group col-lg-3 col-md-4 col-sm-12 col-xs-12">
-                                    <div style="display:inline-block; padding: 0 0.5em;">
-                                        <button type="submit" name="search_invoice_submit" value="Search" class="btn brand-btn mobile-block">Search</button>
-                                    </div>
-                                    <div style="display:inline-block; padding: 0 0.5em;">
-                                        <a href="" type="submit" name="display_all_inventory" value="Display All" class="btn brand-btn mobile-block">Display All</a>
-                                    </div>
+                                <div class="col-xs-12 text-right gap-top">
+                                    <button type="submit" name="search_invoice_submit" value="Search" class="btn brand-btn">Search</button>
+                                    <button type="submit" name="display_all_inventory" value="Display All" class="btn brand-btn gap-right">Display All</button>
                                 </div>
                             </div>
                         </form>
@@ -278,21 +312,6 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
                             }
 
                             $offset = ($pageNum - 1) * $rowsPerPage;
-
-                            $search_clause = '';
-                            if($search_contact > 0) {
-                                $search_clause .= " AND `patientid`='$search_contact'";
-                            }
-                            $search_invoice_clause = '';
-                            if ( !empty($search_invoiceid) ) {
-                                $search_invoice_clause = " AND `invoiceid`='$search_invoiceid'";
-                            }
-                            if($search_from != '') {
-                                $search_clause .= " AND `invoice_date` >= '$search_from'";
-                            }
-                            if($search_to != '') {
-                                $search_clause .= " AND `invoice_date` <= '$search_to'";
-                            }
 
                             if($search_contact > 0 || $search_delivery != '') {
                                 $limit = '';
