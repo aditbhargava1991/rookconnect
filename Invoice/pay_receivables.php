@@ -10,7 +10,7 @@ if (isset($_POST['submit_patient'])) {
         exit("<script> alert('No payment type selected, no payment applied.'); </script>");
     }
     $paid_date = date('Y-m-d');
-	$payment_receipt = "Download/ar_receipt_".preg_replace('/[^a-z]/','',strtolower($payment_type))."_".date('Y_m_d_H_i_s').".pdf";
+	$payment_receipt = "download/ar_receipt_".preg_replace('/[^a-z]/','',strtolower($payment_type))."_".date('Y_m_d_H_i_s').".pdf";
 	$patient_ids = [];
 	$invoice = [];
 
@@ -53,7 +53,7 @@ if (isset($_POST['submit_patient'])) {
 			//Page header
 			public function Header() {
 				if(INVOICE_LOGO != '') {
-					$image_file = '../Invoice/download/'.INVOICE_LOGO;
+					$image_file = 'download/'.INVOICE_LOGO;
 					$this->Image($image_file, 10, 10, '', 25, '', '', 'T', false, 300, '', false, false, 0, false, false, false);
 				}
 				$this->setCellHeightRatio(0.7);
@@ -134,7 +134,7 @@ if (isset($_POST['submit_patient'])) {
 	$html .= '<tr><td></td><td></td><td style="color: #37C6F4; font-weight: bold;">BALANCE:</td><td style="color: #37C6F4; font-weight: bold;">$0.00</td></tr></table>';
 
 	$pdf->writeHTML(utf8_encode($html), true, false, true, false, '');
-	$pdf->Output('../Invoice/'.$payment_receipt, 'F');
+	$pdf->Output($payment_receipt, 'F');
 
     $query_update_invoice = "UPDATE `contacts` SET `amount_credit` = amount_credit + '$total_amt' WHERE `contactid` = '$patientid'";
     $result_update_invoice = mysqli_query($dbc, $query_update_invoice);
