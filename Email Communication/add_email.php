@@ -148,6 +148,11 @@ if (isset($_POST['submit'])) {
 			$overview .= ' - Added Time : '.$_POST['timer'];
 		}
     }
+    
+    if ( !empty($follow_up_by) && !empty($follow_up_date) ) {
+        mysqli_query($dbc, "INSERT INTO `reminders` (`contactid`, `reminder_date`, `subject`, `src_table`, `src_tableid` ) VALUES ('$follow_up_by', '$follow_up_date', '$subject', 'email_communication', '$email_communicationid')");
+    }
+    
 	//Connect the attachments to the current communication
 	mysqli_query($dbc, "UPDATE `email_communicationid_upload` SET `email_communicationid`='$email_communicationid' WHERE `email_communicationid`=0 AND `created_by`='$created_by' AND `created_date`='$today_date'");
 	echo insert_day_overview($dbc, $created_by, 'Communication', date('Y-m-d'), '', $overview);
@@ -315,24 +320,6 @@ if (isset($_POST['submit'])) {
             <input type="hidden" name="ticketid" value="<?= $ticketid ?>">
             
             <div class="panel-group block-panels main-screen" id="accordion2" style="background-color: #fff; padding: 0; margin-left: 0.5em; width: calc(100% - 1em);">
-                <?php if (strpos($value_config, ','."Communication Timer".',') !== FALSE) { ?>
-                    <div class="panel panel-default">
-                        <div class="panel-heading">
-                            <h4 class="panel-title">
-                                <a data-toggle="collapse" data-parent="#accordion2" href="#collapse_timer" >
-                                    Time Tracking<span class="glyphicon glyphicon-plus"></span>
-                                </a>
-                            </h4>
-                        </div>
-
-                        <div id="collapse_timer" class="panel-collapse collapse in">
-                            <div class="panel-body">
-                                <?php include ('add_email_communication_timer.php'); ?>
-                            </div>
-                        </div>
-                    </div>
-                <?php } ?>
-                
                 <div class="panel panel-default">
                     <div class="panel-heading">
                         <h4 class="panel-title">
@@ -425,6 +412,24 @@ if (isset($_POST['submit'])) {
                         </div>
                     </div>
                 </div>
+                
+                <?php if (strpos($value_config, ','."Communication Timer".',') !== FALSE) { ?>
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <h4 class="panel-title">
+                                <a data-toggle="collapse" data-parent="#accordion2" href="#collapse_timer" >
+                                    Time Tracking<span class="glyphicon glyphicon-plus"></span>
+                                </a>
+                            </h4>
+                        </div>
+
+                        <div id="collapse_timer" class="panel-collapse collapse">
+                            <div class="panel-body">
+                                <?php include ('add_email_communication_timer.php'); ?>
+                            </div>
+                        </div>
+                    </div>
+                <?php } ?>
 
             </div><!-- .panel-group .block-panels .main-screen -->
 

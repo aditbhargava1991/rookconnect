@@ -2921,6 +2921,9 @@ function get_reminder_url($dbc, $reminder, $slider = 0) {
                         $reminder_url = WEBSITE_URL.'/'.ucwords(get_contact($dbc, $intake['contactid'], 'tile_name')).'/contacts_inbox.php?edit='.$reminder['src_tableid'];
                     }
                     break;
+                case 'email_communication':
+                    $reminder_url = WEBSITE_URL.'/Email Communication/view_email.php?email_communicationid='.$reminder['src_tableid'];
+                    break;
             }
         } else {
             switch($reminder['src_table']) {
@@ -3010,6 +3013,14 @@ function get_reminder_url($dbc, $reminder, $slider = 0) {
                         $reminder_url = WEBSITE_URL.'/Sales/sale.php?p=preview&id='.$intake['salesid'];
                     } else if($intake['contactid'] > 0) {
                         $reminder_url = WEBSITE_URL.'/'.ucwords(get_contact($dbc, $intake['contactid'], 'tile_name')).'/contacts_inbox.php?edit='.$reminder['src_tableid'];
+                    }
+                    break;
+                case 'email_communication':
+                    $email_comm = mysqli_fetch_array(mysqli_query($dbc, "SELECT `projectid` FROM `email_communication` WHERE `email_communicationid`='".$reminder['src_tableid']."'"));
+                    if($email_comm['projectid'] > 0) {
+                        $reminder_url = WEBSITE_URL.'/Project/projects.php?edit='.$email_comm['projectid'].'&tab=email';
+                    } else {
+                        $reminder_url = WEBSITE_URL.'/Email Communication/view_email.php?email_communicationid='.$reminder['src_tableid'];
                     }
                     break;
             }
