@@ -1,7 +1,7 @@
 <?php
 require_once('../phpsign/signature-to-image.php');
 $default_tab = !empty(get_config($dbc, 'timesheet_default_tab')) ? get_config($dbc, 'timesheet_default_tab') : 'Custom';
-$_GET['tab'] = !empty($_GET['tab']) ? $_GET['tab'] : $default_tab;
+$_GET['tab'] = !empty($_GET['tab']) && FOLDER_NAME != 'daysheet' ? $_GET['tab'] : $default_tab;
 switch($_GET['tab']) {
 	case 'Daily':
 		$pay_period_label = 'Day';
@@ -111,6 +111,8 @@ $config['pdf_options'] = [
 	'reg_hrs' => 'Regular Hours',
 	'payable_hrs' => 'Payable Hours',
 	'start_day_tile_separate' => $timesheet_start_tile,
+	'direct_hrs' => 'Direct Hours',
+	'indirect_hrs' => 'Indirect Hours',
 	'extra_hrs' => 'Extra Hours',
 	'relief_hrs' => 'Relief Hours',
 	'sleep_hrs' => 'Sleep Hours',
