@@ -831,7 +831,7 @@ if(!empty($_GET['inventoryid'])) {
                     		<!-- <input type="hidden" id="category"	name="category" value="<?php echo $category ?>" /> -->
 
                             <div class="form-group">
-                                <label class="col-sm-4 control-label">Category:</label>
+                                <label class="col-sm-4 control-label">Tab:</label>
                                 <div class="col-sm-8">
                                     <select name="category" id="category" class="chosen-select-deselect form-control">
                                         <option></option>
@@ -919,7 +919,7 @@ if(!empty($_GET['inventoryid'])) {
 
                                         <!-- <?php if (strpos($value_config, ','."Category".',') !== FALSE) { ?>
                                         <div class="form-group">
-                                        <label for="travel_task" class="col-sm-4 control-label">Category<span class="brand-color">*</span>:</label>
+                                        <label for="travel_task" class="col-sm-4 control-label">Tab<span class="brand-color">*</span>:</label>
                                         <div class="col-sm-8">
                                           <select id="category" name="category" class="chosen-select-deselect1 form-control" width="380">
                                           <option value=''></option>
@@ -943,7 +943,7 @@ if(!empty($_GET['inventoryid'])) {
 
                                         <?php if (strpos($value_config, ','."Subcategory".',') !== FALSE) { ?>
                                         <div class="form-group">
-                                        <label for="travel_task" class="col-sm-4 control-label">Subcategory<span class="brand-color">*</span>:</label>
+                                        <label for="travel_task" class="col-sm-4 control-label">Subtab<span class="brand-color">*</span>:</label>
                                         <div class="col-sm-8">
                                           <select id="sub_category" name="sub_category" class="chosen-select-deselect form-control" width="380">
                                           <option value=''></option>
@@ -2192,7 +2192,7 @@ if(!empty($_GET['inventoryid'])) {
                     									} else if($rw['product_name'] !== '' && $rw['product_name'] !== NULL) {
                     										$name = $rw['product_name'];
                     									}
-                    								  echo '<li><span title="Category: '.$rw['category'].'">'.$name.' (ID: <a href="add_inventory.php?inventoryid='.$rw['inventoryid'].'&bomhist=true">'.$rw['inventoryid'].'</a>)</span></li>';
+                    								  echo '<li><span title="Tab: '.$rw['category'].'">'.$name.' (ID: <a href="add_inventory.php?inventoryid='.$rw['inventoryid'].'&bomhist=true">'.$rw['inventoryid'].'</a>)</span></li>';
                     								}
                                                 }
                     							if($nmy == 0) {

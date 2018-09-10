@@ -64,7 +64,7 @@ function filterClassifications() {
 }
 </script>
 <div class="form-group">
-<label for="phone_number" class="col-sm-4 control-label">Category<span class="brand-color">*</span>:</label>
+<label for="phone_number" class="col-sm-4 control-label">Tab<span class="brand-color">*</span>:</label>
 <div class="col-sm-8">
   <select id="category" name="category" class="chosen-select-deselect form-control" width="380">
   <option value=''></option>

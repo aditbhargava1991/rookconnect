@@ -212,7 +212,7 @@ function create_pos3_pdf($dbc,$posid,$d_value,$comment, $gst_total, $pst_total, 
 		$html .= '<h2>Product(s)</h2>
 			<table border="1px" style="padding:3px; border:1px solid grey;">
             <tr nobr="true" style="background-color:rgb(140,173,174); color:black;  width:22%;">
-            <th>Category</th><th>Heading</th><th>Quantity</th><th>Price</th><th>Total</th></tr>';
+            <th>Tab</th><th>Heading</th><th>Quantity</th><th>Price</th><th>Total</th></tr>';
 		while($row = mysqli_fetch_array( $result )) {
 			$inventoryid = $row['inventoryid'];
 			$price = $row['price'];
@@ -241,7 +241,7 @@ function create_pos3_pdf($dbc,$posid,$d_value,$comment, $gst_total, $pst_total, 
 		$html .= '<h2>Service(s)</h2>
 			<table border="1px" style="padding:3px; border:1px solid grey;">
             <tr nobr="true" style="background-color:rgb(140,173,174); color:black;  width:22%;">
-            <th>Category</th><th>Heading</th><th>Quantity</th><th>Price</th><th>Total</th></tr>';
+            <th>Tab</th><th>Heading</th><th>Quantity</th><th>Price</th><th>Total</th></tr>';
 		while($row = mysqli_fetch_array( $result )) {
 			$inventoryid = $row['inventoryid'];
 			$price = $row['price'];
@@ -563,7 +563,7 @@ function create_pos2_pdf($dbc,$posid,$d_value,$comment, $gst_total, $pst_total, 
 		$html .= '<h2>Product(s)</h2>
 			<table border="1px" style="padding:3px; border:1px solid black;">
             <tr nobr="true" style="background-color:lightgrey; color:black;  width:22%;">
-            <th>Category</th><th>Heading</th><th>Quantity</th><th>Price</th><th>Total</th></tr>';
+            <th>Tab</th><th>Heading</th><th>Quantity</th><th>Price</th><th>Total</th></tr>';
 		while($row = mysqli_fetch_array( $result )) {
 			$inventoryid = $row['inventoryid'];
 			$price = $row['price'];
@@ -592,7 +592,7 @@ function create_pos2_pdf($dbc,$posid,$d_value,$comment, $gst_total, $pst_total, 
 		$html .= '<h2>Service(s)</h2>
 			<table border="1px" style="padding:3px; border:1px solid black;">
             <tr nobr="true" style="background-color:lightgrey; color:black;  width:22%;">
-            <th>Category</th><th>Heading</th><th>Quantity</th><th>Price</th><th>Total</th></tr>';
+            <th>Tab</th><th>Heading</th><th>Quantity</th><th>Price</th><th>Total</th></tr>';
 		while($row = mysqli_fetch_array( $result )) {
 			$inventoryid = $row['inventoryid'];
 			$price = $row['price'];
@@ -919,7 +919,7 @@ function create_pos1_pdf($dbc,$posid,$d_value,$comment, $gst_total, $pst_total, 
 		$html .= '<h2>Product(s)</h2>
 			<table border="1px" style="padding:3px; border:1px solid black;">
             <tr nobr="true" style="background-color:lightgrey; color:black;  width:22%;">
-            <th>Category</th><th>Heading</th><th>Quantity</th><th>Price</th><th>Total</th></tr>';
+            <th>Tab</th><th>Heading</th><th>Quantity</th><th>Price</th><th>Total</th></tr>';
 		while($row = mysqli_fetch_array( $result )) {
 			$inventoryid = $row['inventoryid'];
 			$price = $row['price'];
@@ -948,7 +948,7 @@ function create_pos1_pdf($dbc,$posid,$d_value,$comment, $gst_total, $pst_total, 
 		$html .= '<h2>Service(s)</h2>
 			<table border="1px" style="padding:3px; border:1px solid black;">
             <tr nobr="true" style="background-color:lightgrey; color:black;  width:22%;">
-            <th>Category</th><th>Heading</th><th>Quantity</th><th>Price</th><th>Total</th></tr>';
+            <th>Tab</th><th>Heading</th><th>Quantity</th><th>Price</th><th>Total</th></tr>';
 		while($row = mysqli_fetch_array( $result )) {
 			$inventoryid = $row['inventoryid'];
 			$price = $row['price'];

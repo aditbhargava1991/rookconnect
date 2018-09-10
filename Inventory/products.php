@@ -127,7 +127,7 @@ checkAuthorised('inventory');
                         echo '<th>Product Type</th>';
                     }
                     if (strpos($value_config, ','."Category".',') !== FALSE) {
-                        echo '<th>Category</th>';
+                        echo '<th>Tab</th>';
                     }
                     if (strpos($value_config, ','."Heading".',') !== FALSE) {
                         echo '<th>Heading</th>';
@@ -228,7 +228,7 @@ checkAuthorised('inventory');
        				echo '<td data-title="Product Type">' . $row['product_type'] . '</td>';
                 }
                 if (strpos($value_config, ','."Category".',') !== FALSE) {
-                    echo '<td data-title="Category">' . $row['category'] . '</td>';
+                    echo '<td data-title="Tab">' . $row['category'] . '</td>';
                 }
                 if (strpos($value_config, ','."Heading".',') !== FALSE) {
                     echo '<td data-title="Heading">' . $row['heading'] . '</td>';

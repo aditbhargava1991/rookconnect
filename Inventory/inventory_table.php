@@ -118,10 +118,10 @@ if($num_rows > 0) {
 			echo '<th>Description</th>';
 		}
 		if (strpos($value_config, ','."Category".',') !== FALSE) {
-			echo '<th>Category</th>';
+			echo '<th>Tab</th>';
 		}
 		if (strpos($value_config, ','."Subcategory".',') !== FALSE) {
-			echo '<th>Subcategory</th>';
+			echo '<th>Subtab</th>';
 		}
 		if (strpos($value_config, ','."Name".',') !== FALSE) {
 			echo '<th><span class="popover-examples" style="margin:0 2px 0 0;"><a data-toggle="tooltip" data-placement="top" title="The set name of the inventory item."><img src="' . WEBSITE_URL . '/img/info-w.png" width="18"></a></span> Name</th>';
@@ -501,10 +501,10 @@ if($num_rows > 0) {
 			echo '<td data-title="Desc.">' . $row['part_no'] . '</td>';
 		}
 		if (strpos($value_config, ','."Category".',') !== FALSE) {
-			echo '<td data-title="Category">' . $row['category'] . '</td>';
+			echo '<td data-title="Tab">' . $row['category'] . '</td>';
 		}
 		if (strpos($value_config, ','."Subcategory".',') !== FALSE) {
-			echo '<td data-title="Sub Category">' . $row['sub_category'] . '</td>';
+			echo '<td data-title="Sub Tab">' . $row['sub_category'] . '</td>';
 		}
 		if (strpos($value_config, ','."Name".',') !== FALSE) {
 			echo '<td data-title="Name">' . $row['name'] . '</td>';

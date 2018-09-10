@@ -409,7 +409,7 @@ if(!empty($_GET['add_service_iframe'])) { ?>
 					<h4>Services</h4>
 					<?php foreach ($field_sort_order as $field_sort_field) { ?>
 						<?php if(strpos($value_config,',Service Category,') !== FALSE && $field_sort_field == 'Service Category') { ?>
-							<label class="text-center col-sm-<?= floor(12 / $service_fields) ?>">Category</label>
+							<label class="text-center col-sm-<?= floor(12 / $service_fields) ?>">Tab</label>
 						<?php } ?>
 						<?php if(strpos($value_config,',Service Type,') !== FALSE && $field_sort_field == 'Service Type') { ?>
 							<label class="text-center col-sm-<?= floor(12 / $service_fields) ?>">Type</label>
@@ -455,8 +455,8 @@ if(!empty($_GET['add_service_iframe'])) { ?>
 							$col_num = 0; ?>
 							<?php foreach ($field_sort_order as $field_sort_field) { ?>
 								<?php if(strpos($value_config,',Service Category,') !== FALSE && $field_sort_field == 'Service Category') { ?>
-									<div class="col-sm-<?= floor(12 / $service_fields) - (++$col_num == $service_fields && floor(12 / $service_fields) == (12 / $service_fields) ? 1 : 0) ?>"><label class="show-on-mob">Category:</label>
-										<select data-placeholder="Select a Category..." name="service" class="chosen-select-deselect form-control service_category">
+									<div class="col-sm-<?= floor(12 / $service_fields) - (++$col_num == $service_fields && floor(12 / $service_fields) == (12 / $service_fields) ? 1 : 0) ?>"><label class="show-on-mob">Tab:</label>
+										<select data-placeholder="Select a Tab..." name="service" class="chosen-select-deselect form-control service_category">
 										  <option value=""></option>
 										  <?php $query = mysqli_query($dbc,"SELECT distinct(category) FROM services WHERE ". $query_mod ." order by category");
 											while($row = mysqli_fetch_array($query)) {
@@ -596,9 +596,9 @@ if(!empty($_GET['add_service_iframe'])) { ?>
 
 								<?php if(strpos($value_config,',Service Category,') !== FALSE && $field_sort_field == 'Service Category') { ?>
 									<div class="form-group">
-									  <label for="site_name" class="col-sm-4 control-label">Service Category:</label>
+									  <label for="site_name" class="col-sm-4 control-label">Service Tab:</label>
 									  <div class="col-sm-8">
-										<select data-placeholder="Select a Category..." name="service" class="chosen-select-deselect form-control service_category">
+										<select data-placeholder="Select a Tab..." name="service" class="chosen-select-deselect form-control service_category">
 										  <option value=""></option>
 										  <?php $query = mysqli_query($dbc,"SELECT distinct(category) FROM services WHERE ". $query_mod ." order by category");
 											while($row = mysqli_fetch_array($query)) {
@@ -715,7 +715,7 @@ if(!empty($_GET['add_service_iframe'])) { ?>
 						<?php foreach ($field_sort_order as $field_sort_field) { ?>
 							<?php if(strpos($value_config,',Service Category,') !== FALSE && $field_sort_field == 'Service Category') { ?>
 								<div class="form-group">
-								  <label for="site_name" class="col-sm-4 control-label">Service Category:</label>
+								  <label for="site_name" class="col-sm-4 control-label">Service Tab:</label>
 								  <div class="col-sm-8">
 									<?= $service['category'] ?>
 								  </div>

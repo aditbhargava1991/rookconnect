@@ -307,13 +307,13 @@ $(document).ready(function() {
 							</div>
 						</div>
 						<div class="form-group">
-							<label for="fax_number"	class="col-sm-4	control-label">Add Equipment Categories:<br /><em>Separate the categories by commas. These will display on the dashboard as tabs to separate the Categories of Equipment.</em></label>
+							<label for="fax_number"	class="col-sm-4	control-label">Add Equipment Tabs:<br /><em>Separate the tabs by commas. These will display on the dashboard as tabs to separate the Tabs of Equipment.</em></label>
 							<div class="col-sm-8">
 								<input name="equipment_tabs" type="text" value="<?php echo get_config($dbc, 'equipment_tabs'); ?>" class="form-control"/>
 							</div>
 						</div>
 						<div class="form-group">
-							<label for="fax_number" class="col-sm-4 control-label">Use Category Drop Down Menu:</label>
+							<label for="fax_number" class="col-sm-4 control-label">Use Tab Drop Down Menu:</label>
 							<div class="col-sm-8">
 							<?php
 							$checked = '';
@@ -427,9 +427,9 @@ $(document).ready(function() {
 				<div id="collapse_mass" class="panel-collapse collapse">
 					<div class="panel-body">
 						<div class="form-group">
-							<label for="mass_update_field" class="col-sm-4 control-label">Category to Update:</label>
+							<label for="mass_update_field" class="col-sm-4 control-label">Tab to Update:</label>
 							<div class="col-sm-8">
-								<select name="mass_update_category" class="chosen-select-deselect" data-placeholder="Select a Category"><option></option>
+								<select name="mass_update_category" class="chosen-select-deselect" data-placeholder="Select a Tab"><option></option>
 									<?php foreach(explode(',',get_config($dbc, 'equipment_tabs')) as $cat) { ?>
 										<option value="<?= $cat ?>"><?= $cat ?></option>
 									<?php } ?>
@@ -573,7 +573,7 @@ $(document).ready(function() {
 		}
 		</script>
 		<div class="form-group">
-			<label for="fax_number"	class="col-sm-4	control-label">Current Equipment Categories:<br /><em>These are the categories for which this Inspection List is currently applying. To change this list, remove categories from the Inspection List accordion.</em></label>
+			<label for="fax_number"	class="col-sm-4	control-label">Current Equipment Tabs:<br /><em>These are the tabs for which this Inspection List is currently applying. To change this list, remove tabs from the Inspection List accordion.</em></label>
 			<div class="col-sm-8">
 				<select data-placeholder="Select a Tab..." id="tab_inspect" name="tab_inspect_current[]" multiple class="chosen-select-deselect form-control" width="380">
 					<?php $each_tab = explode(',', get_config($dbc, 'equipment_tabs'));
@@ -669,7 +669,7 @@ $(document).ready(function() {
 				<div id="collapse_inspect" class="panel-collapse collapse">
 					<div class="panel-body">
 						<div class="form-group">
-							<label for="fax_number"	class="col-sm-4	control-label">Equipment Categories to which this checklist applies:</label>
+							<label for="fax_number"	class="col-sm-4	control-label">Equipment Tabs to which this checklist applies:</label>
 							<div class="col-sm-8">
 								<select data-placeholder="Select a Tab..." name="tab_inspect[]" multiple class="chosen-select-deselect form-control" width="380">
 									<?php $each_tab = explode(',', get_config($dbc, 'equipment_tabs'));
@@ -811,7 +811,7 @@ $(document).ready(function() {
 					<div class="panel-body">
 
 						<input type="checkbox" <?php if (strpos($equipment_config, ','."Description".',') !== FALSE) { echo " checked"; } ?> value="Description" style="height: 20px; width: 20px;" name="equipment[]">&nbsp;&nbsp;Description
-						<input type="checkbox" <?php if (strpos($equipment_config, ','."Category".',') !== FALSE) { echo " checked"; } ?> value="Category" style="height: 20px; width: 20px;" name="equipment[]">&nbsp;&nbsp;Category
+						<input type="checkbox" <?php if (strpos($equipment_config, ','."Category".',') !== FALSE) { echo " checked"; } ?> value="Category" style="height: 20px; width: 20px;" name="equipment[]">&nbsp;&nbsp;Tab
 						<input type="checkbox" <?php if (strpos($equipment_config, ','."Type".',') !== FALSE) { echo " checked"; } ?> value="Type" style="height: 20px; width: 20px;" name="equipment[]">&nbsp;&nbsp;Type
 						<input type="checkbox" <?php if (strpos($equipment_config, ','."Make".',') !== FALSE) { echo " checked"; } ?> value="Make" style="height: 20px; width: 20px;" name="equipment[]">&nbsp;&nbsp;Make
 						<input type="checkbox" <?php if (strpos($equipment_config, ','."Model".',') !== FALSE) { echo " checked"; } ?> value="Model" style="height: 20px; width: 20px;" name="equipment[]">&nbsp;&nbsp;Model
@@ -1138,7 +1138,7 @@ $(document).ready(function() {
 				<div id="collapse_1" class="panel-collapse collapse">
 					<div class="panel-body">
 						<input type="checkbox" <?php if (strpos($equipment_dashboard_config, ','."Description".',') !== FALSE) { echo " checked"; } ?> value="Description" style="height: 20px; width: 20px;" name="equipment_dashboard[]">&nbsp;&nbsp;Description
-						<input type="checkbox" <?php if (strpos($equipment_dashboard_config, ','."Category".',') !== FALSE) { echo " checked"; } ?> value="Category" style="height: 20px; width: 20px;" name="equipment_dashboard[]">&nbsp;&nbsp;Category
+						<input type="checkbox" <?php if (strpos($equipment_dashboard_config, ','."Category".',') !== FALSE) { echo " checked"; } ?> value="Category" style="height: 20px; width: 20px;" name="equipment_dashboard[]">&nbsp;&nbsp;Tab
 						<input type="checkbox" <?php if (strpos($equipment_dashboard_config, ','."Type".',') !== FALSE) { echo " checked"; } ?> value="Type" style="height: 20px; width: 20px;" name="equipment_dashboard[]">&nbsp;&nbsp;Type
 						<input type="checkbox" <?php if (strpos($equipment_dashboard_config, ','."Make".',') !== FALSE) { echo " checked"; } ?> value="Make" style="height: 20px; width: 20px;" name="equipment_dashboard[]">&nbsp;&nbsp;Make
 						<input type="checkbox" <?php if (strpos($equipment_dashboard_config, ','."Model".',') !== FALSE) { echo " checked"; } ?> value="Model" style="height: 20px; width: 20px;" name="equipment_dashboard[]">&nbsp;&nbsp;Model

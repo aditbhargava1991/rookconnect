@@ -98,7 +98,7 @@ if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) {
 			<label class="col-sm-4 control-label"><span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will specify the contact for which the rate card will pull."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Preferred Customer Rate Card Contact Field
 				<?= $rate_card_contact != '' && $tab != '' ? '(Default: '.($rate_card_contact == 'businessid' ? BUSINESS_CAT : ($rate_card_contact == 'agentid' ? 'Additional Contact' : ($rate_card_contact == 'origin:vendor' ? 'Origin - Contact' : ($rate_card_contact == 'destination:vendor' ? 'Destination - Contact' : ($rate_card_contact == 'origin:carrier' ? 'Transport Carrier' : ''))))).')' : '' ?>:</label>
 			<div class="col-sm-8">
-				<select name="rate_card_contact<?= $tab == '' ? '' : '_'.$tab ?>" data-placeholder="Select Category" class="chosen-select-deselect"><option />
+				<select name="rate_card_contact<?= $tab == '' ? '' : '_'.$tab ?>" data-placeholder="Select Tab" class="chosen-select-deselect"><option />
 					<?php $tab_rate_card_contact = $tab == '' ? $rate_card_contact : get_config($dbc, 'rate_card_contact_'.$tab); ?>
 					<option <?= 'businessid' == $tab_rate_card_contact ? 'selected' : '' ?> value="businessid"><?= BUSINESS_CAT ?></option>
 					<option <?= 'agentid' == $tab_rate_card_contact ? 'selected' : '' ?> value="agentid">Additional Contact</option>
@@ -251,7 +251,7 @@ if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) {
 							<?php } ?>
 							<?php if($field_sort_field == 'PI Guardian') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("PI Guardian", $all_config) ? 'checked disabled' : (in_array("PI Guardian", $value_config) ? "checked" : '') ?> value="PI Guardian" name="tickets[]">
-									<span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will create a list of <?= CONTACTS_TILE ?> based on the selected category below, which is the Parent/Guardian of the Main Contact."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Parent/Guardian</label>
+									<span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will create a list of <?= CONTACTS_TILE ?> based on the selected tab below, which is the Parent/Guardian of the Main Contact."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Parent/Guardian</label>
 							<?php } ?>
 							<?php if($field_sort_field == 'PI AFE') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("PI AFE", $all_config) ? 'checked disabled' : (in_array("PI AFE", $value_config) ? "checked" : '') ?> value="PI AFE" name="tickets[]"> AFE #</label>
@@ -351,9 +351,9 @@ if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) {
 						<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) { ?>
 							<div class="form-group">
 								<?php $ticket_business_contact = get_config($dbc, 'ticket_business_contact'); ?>
-								<label class="col-sm-4 control-label"><span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will specify a category for the <?= CONTACTS_TILE ?> in the Contact list."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Category for Main Contact<?= $ticket_business_contact != '' && $tab != '' ? ' (Default: '.$ticket_business_contact.')' : '' ?>:</label>
+								<label class="col-sm-4 control-label"><span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will specify a tab for the <?= CONTACTS_TILE ?> in the Contact list."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Tab for Main Contact<?= $ticket_business_contact != '' && $tab != '' ? ' (Default: '.$ticket_business_contact.')' : '' ?>:</label>
 								<div class="col-sm-8">
-									<select name="ticket_business_contact<?= $tab == '' ? '' : '_'.$tab ?>" data-placeholder="Select Category" class="chosen-select-deselect"><option></option>
+									<select name="ticket_business_contact<?= $tab == '' ? '' : '_'.$tab ?>" data-placeholder="Select Tab" class="chosen-select-deselect"><option></option>
 										<?php $tab_ticket_business_contact = get_config($dbc, 'ticket_business_contact'.($tab == '' ? '' : '_'.$tab));
 										foreach(explode(',',get_config($dbc, 'all_contact_tabs')) as $category) { ?>
 											<option <?= $category == $tab_ticket_business_contact ? 'selected' : '' ?> value="<?= $category ?>"><?= $category ?></option>
@@ -365,7 +365,7 @@ if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) {
 								<?php $ticket_business_contact_add_pos = get_config($dbc, 'ticket_business_contact_add_pos'); ?>
 								<label class="col-sm-4 control-label"><span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will specify the position of the Add New Contact option in the dropdown for the Main Contact."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Add New Main Contact Position In Dropdown:</label>
 								<div class="col-sm-8">
-									<select name="ticket_business_contact_add_pos" data-placeholder="Select Category" class="chosen-select-deselect">
+									<select name="ticket_business_contact_add_pos" data-placeholder="Select Tab" class="chosen-select-deselect">
 										<option <?= $ticket_business_contact_add_pos != 'top' ? 'selected' : ''?>>Bottom</option>
 										<option value="top" <?= $ticket_business_contact_add_pos == 'top' ? 'selected' : '' ?>>Top</option>
 									</select>
@@ -373,9 +373,9 @@ if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) {
 							</div>
 							<div class="form-group">
 								<?php $ticket_guardian_contact = get_config($dbc, 'ticket_guardian_contact'); ?>
-								<label class="col-sm-4 control-label"><span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will specify a category for the Parent/Guardian in the Contact list."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Category for Parent/Guardian<?= $ticket_guardian_contact != '' && $tab != '' ? ' (Default: '.$ticket_guardian_contact.')' : '' ?>:</label>
+								<label class="col-sm-4 control-label"><span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will specify a tab for the Parent/Guardian in the Contact list."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Tab for Parent/Guardian<?= $ticket_guardian_contact != '' && $tab != '' ? ' (Default: '.$ticket_guardian_contact.')' : '' ?>:</label>
 								<div class="col-sm-8">
-									<select name="ticket_guardian_contact<?= $tab == '' ? '' : '_'.$tab ?>" data-placeholder="Select Category" class="chosen-select-deselect"><option></option>
+									<select name="ticket_guardian_contact<?= $tab == '' ? '' : '_'.$tab ?>" data-placeholder="Select Tab" class="chosen-select-deselect"><option></option>
 										<?php $tab_ticket_guardian_contact = get_config($dbc, 'ticket_guardian_contact'.($tab == '' ? '' : '_'.$tab));
 										foreach(explode(',',get_config($dbc, 'all_contact_tabs')) as $category) { ?>
 											<option <?= $category == $tab_ticket_guardian_contact ? 'selected' : '' ?> value="<?= $category ?>"><?= $category ?></option>
@@ -385,9 +385,9 @@ if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) {
 							</div>
 							<div class="form-group">
 								<?php $ticket_project_contact = get_config($dbc, 'ticket_project_contact'); ?>
-								<label class="col-sm-4 control-label"><span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will specify the category for the <?= CONTACTS_TILE ?> in the Additional Contact list."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Additional Contact Category<?= $ticket_project_contact != '' && $tab != '' ? ' (Default: '.$ticket_project_contact.')' : '' ?>:</label>
+								<label class="col-sm-4 control-label"><span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will specify the tab for the <?= CONTACTS_TILE ?> in the Additional Contact list."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Additional Contact Tab<?= $ticket_project_contact != '' && $tab != '' ? ' (Default: '.$ticket_project_contact.')' : '' ?>:</label>
 								<div class="col-sm-8">
-									<select name="ticket_project_contact<?= $tab == '' ? '' : '_'.$tab ?>" data-placeholder="Select Category" class="chosen-select-deselect"><option></option>
+									<select name="ticket_project_contact<?= $tab == '' ? '' : '_'.$tab ?>" data-placeholder="Select Tab" class="chosen-select-deselect"><option></option>
 										<?php $tab_ticket_project_contact = get_config($dbc, 'ticket_project_contact'.($tab == '' ? '' : '_'.$tab));
 										foreach(explode(',',get_config($dbc, 'all_contact_tabs')) as $category) { ?>
 											<option <?= $category == $tab_ticket_project_contact ? 'selected' : '' ?> value="<?= $category ?>"><?= $category ?></option>
@@ -397,7 +397,7 @@ if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) {
 							</div>
 							<div class="form-group">
 								<?php $ticket_custom_field = get_config($dbc, 'ticket_custom_field'); ?>
-								<label class="col-sm-4 control-label"><span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will specify the category for the <?= CONTACTS_TILE ?> in the Additional Contact list."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Custom Field Label<?= $ticket_custom_field != '' && $tab != '' ? ' (Default: '.$ticket_custom_field.')' : '' ?>:</label>
+								<label class="col-sm-4 control-label"><span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will specify the tab for the <?= CONTACTS_TILE ?> in the Additional Contact list."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Custom Field Label<?= $ticket_custom_field != '' && $tab != '' ? ' (Default: '.$ticket_custom_field.')' : '' ?>:</label>
 								<div class="col-sm-8">
 									<input type="text" class="form-control" name="ticket_custom_field<?= $tab == '' ? '' : '_'.$tab ?>" placeholder="Enter Field Name" value="<?= get_config($dbc, 'ticket_custom_field'.($tab == '' ? '' : '_'.$tab)) ?>">
 								</div>
@@ -642,7 +642,7 @@ if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) {
 						<div class="block-group">
 							<div class="hide-titles-mob">
 								<label class="col-sm-5">Tile</label>
-								<label class="col-sm-5">Category</label>
+								<label class="col-sm-5">Tab</label>
 							</div>
 							<?php foreach(explode('#*#',get_config($dbc, 'ticket_individuals')) as $type) {
 								$type = explode('|',$type); ?>
@@ -673,15 +673,15 @@ if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) {
 											<?php if(tile_enabled($dbc, 'vendors')) { ?>
 												<option <?= $type[0] == 'vendors' ? 'selected' : '' ?> value="vendors"><?= VENDOR_TILE ?></option>
 											<?php } ?>
-											<option <?= $type[0] == 'custom' ? 'selected' : '' ?> value="custom">Custom Categories</option>
+											<option <?= $type[0] == 'custom' ? 'selected' : '' ?> value="custom">Custom Tabs</option>
 										</select>
 									</div>
 									<div class="col-sm-5 cust_div">
 										<input type="text" class="form-control" name="individual_categories" value="<?= $type[1] ?>">
 									</div>
 									<div class="col-sm-5 cat_div">
-										<label class="show-on-mob">Category:</label>
-										<select name="individual_categories" data-placeholder="Select Category" class="chosen-select-deselect"><option></option>
+										<label class="show-on-mob">Tab:</label>
+										<select name="individual_categories" data-placeholder="Select Tab" class="chosen-select-deselect"><option></option>
 											<?php foreach(explode(',',get_config($dbc, 'clientinfo_tabs')) as $category) { ?>
 												<option <?= $type[0] == 'clientinfo' && $type[1] == $category ? 'selected' : '' ?> data-tile="clientinfo" value="<?= $category ?>"><?= $category ?></option>
 											<?php } ?>
@@ -697,7 +697,7 @@ if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) {
 											<?php foreach(explode(',',get_config($dbc, 'members_tabs')) as $category) { ?>
 												<option <?= $type[0] == 'members' && $type[1] == $category ? 'selected' : '' ?> data-tile="members" value="<?= $category ?>"><?= $category ?></option>
 											<?php } ?>
-											<option <?= $type[0] == 'staff' && $type[1] == 'ALL' ? 'selected' : '' ?> data-tile="staff" value="ALL">All Categories</option>
+											<option <?= $type[0] == 'staff' && $type[1] == 'ALL' ? 'selected' : '' ?> data-tile="staff" value="ALL">All Tabs</option>
 											<?php foreach(explode(',',mysqli_fetch_assoc(mysqli_query($dbc, "SELECT GROUP_CONCAT(`categories` SEPARATOR ',') `cats` FROM `field_config_contacts` WHERE `tab`='Staff'"))['cats']) as $category) { ?>
 												<option <?= $type[0] == 'staff' && $type[1] == $category ? 'selected' : '' ?> data-tile="staff" value="<?= $category ?>"><?= $category ?></option>
 											<?php } ?>
@@ -1193,9 +1193,9 @@ if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) {
 						<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) { ?>
 							<div class="form-group">
 								<?php $client_accordion_category = get_config($dbc, 'client_accordion_category'); ?>
-								<label class="col-sm-4 control-label">Contact Category for <?= !empty($renamed_accordion) ? $renamed_accordion : 'Clients' ?> Accordion<?= $client_accordion_category != '' && $tab != '' ? ' (Default: '.$client_accordion_category.')' : '' ?>:</label>
+								<label class="col-sm-4 control-label">Contact Tab for <?= !empty($renamed_accordion) ? $renamed_accordion : 'Clients' ?> Accordion<?= $client_accordion_category != '' && $tab != '' ? ' (Default: '.$client_accordion_category.')' : '' ?>:</label>
 								<div class="col-sm-8">
-									<select name="client_accordion_category<?= $tab == '' ? '' : '_'.$tab ?>" data-placeholder="Select Category" class="chosen-select-deselect"><option></option>
+									<select name="client_accordion_category<?= $tab == '' ? '' : '_'.$tab ?>" data-placeholder="Select Tab" class="chosen-select-deselect"><option></option>
 										<?php $tab_client_accordion_category = get_config($dbc, 'client_accordion_category'.($tab == '' ? '' : '_'.$tab));
 										foreach(explode(',',get_config($dbc, 'all_contact_tabs')) as $category) { ?>
 											<option <?= $category == $tab_client_accordion_category ? 'selected' : '' ?> value="<?= $category ?>"><?= $category ?></option>
@@ -1400,15 +1400,15 @@ if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) {
 						<div class="fields_sortable">
 						<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) { ?>
 							<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Service Group Cat Type All Services", $all_config) ? 'checked disabled' : (in_array("Service Group Cat Type All Services", $value_config) ? "checked" : '') ?> value="Service Group Cat Type All Services" name="tickets[]">
-							<span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will group your Services by Category and Service Type. All Services will display as a list with an Include checkbox to add it to your <?= TICKET_NOUN ?>."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Group Services by Category/Service Type - List Services</label>
+							<span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will group your Services by Tab and Service Type. All Services will display as a list with an Include checkbox to add it to your <?= TICKET_NOUN ?>."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Group Services by Tab/Service Type - List Services</label>
 							<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Service Group Cat Type All Services Combine Checklist", $all_config) ? 'checked disabled' : (in_array("Service Group Cat Type All Services Combine Checklist", $value_config) ? "checked" : '') ?> value="Service Group Cat Type All Services Combine Checklist" name="tickets[]">
-							<span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will group your Services by Category and Service Type. All Services will display as a list with an Include checkbox to add it to your <?= TICKET_NOUN ?>. The view on the <?= TICKET_NOUN ?> will be the Service Checklist with an Edit button to edit services."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Group Services by Category/Service Type - List Services - Combine with Service Checklist</label>
+							<span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will group your Services by Tab and Service Type. All Services will display as a list with an Include checkbox to add it to your <?= TICKET_NOUN ?>. The view on the <?= TICKET_NOUN ?> will be the Service Checklist with an Edit button to edit services."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Group Services by Tab/Service Type - List Services - Combine with Service Checklist</label>
 							<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Service Inline", $all_config) ? 'checked disabled' : (in_array("Service Inline", $value_config) ? "checked" : '') ?> value="Service Inline" name="tickets[]">
-								<span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will combine the service and category fields for the tickets into a single line for the <?= TICKET_NOUN ?>."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Inline Service</label>
+								<span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will combine the service and tab fields for the tickets into a single line for the <?= TICKET_NOUN ?>."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Inline Service</label>
 							<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Service Multiple", $all_config) ? 'checked disabled' : (in_array("Service Multiple", $value_config) ? "checked" : '') ?> value="Service Multiple" name="tickets[]">
 								<span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will allow you to add multiple services to the <?= TICKET_NOUN ?>."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Multiple Services</label>
-							<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Service Limit Service Category", $all_config) ? 'checked disabled' : (in_array("Service Limit Service Category", $value_config) ? "checked" : '') ?> value="Service Limit Service Category" name="tickets[]">
-								<span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will limit the Service Categories displayed based on the Contact's Property Size (Service Category) set in their profile."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Limit Service Category by Contact</label>
+							<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Service Limit Service Tab", $all_config) ? 'checked disabled' : (in_array("Service Limit Service Category", $value_config) ? "checked" : '') ?> value="Service Limit Service Category" name="tickets[]">
+								<span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will limit the Service Tabs displayed based on the Contact's Property Size (Service Tab) set in their profile."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Limit Service Tab by Contact</label>
 						<?php } ?>
 						<?php if((!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) || in_array('Service Customer Template',$merged_config_fields)) { ?>
 							<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Service Customer Template", $all_config) ? 'checked disabled' : (in_array("Service Customer Template", $value_config) ? "checked" : '') ?> value="Service Customer Template" name="tickets[]">
@@ -1437,7 +1437,7 @@ if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) {
 							<?php } ?>
 							<?php if($field_sort_field == 'Service Category') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Service Category", $all_config) ? 'checked disabled' : (in_array("Service Category", $value_config) ? "checked" : '') ?> value="Service Category" name="tickets[]">
-									<span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will allow you to filter services by category."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Service Category</label>
+									<span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will allow you to filter services by tab."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Service Tab</label>
 							<?php } ?>
 							<?php if($field_sort_field == 'Service Heading') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Service Heading", $all_config) ? 'checked disabled' : (in_array("Service Heading", $value_config) ? "checked" : '') ?> value="Service Heading" name="tickets[]"> Service Heading</label>
@@ -1542,7 +1542,7 @@ if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) {
 							<div class="fields_sortable">
 							<?php foreach ($field_sort_order as $field_sort_field) { ?>
 								<?php if($field_sort_field == 'Service Staff Checklist Group Cat Type') { ?>
-									<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Service Staff Checklist Group Cat Type", $all_config) ? 'checked disabled' : (in_array("Service Staff Checklist Group Cat Type", $value_config) ? "checked" : '') ?> value="Service Staff Checklist Group Cat Type" name="tickets[]"> Service Checklist Group by Category/Service Type</label>
+									<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Service Staff Checklist Group Cat Type", $all_config) ? 'checked disabled' : (in_array("Service Staff Checklist Group Cat Type", $value_config) ? "checked" : '') ?> value="Service Staff Checklist Group Cat Type" name="tickets[]"> Service Checklist Group by Tab/Service Type</label>
 								<?php } ?>
 								<?php if($field_sort_field == 'Service Staff Checklist Another Room') { ?>
 									<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Service Staff Checklist Another Room", $all_config) ? 'checked disabled' : (in_array("Service Staff Checklist Another Room", $value_config) ? "checked" : '') ?> value="Service Staff Checklist Another Room" name="tickets[]"> Add Another Room Button</label>
@@ -1626,7 +1626,7 @@ if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) {
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Equipment Inline", $all_config) ? 'checked disabled' : (in_array("Equipment Inline", $value_config) ? "checked" : '') ?> value="Equipment Inline" name="tickets[]"> Inline Display</label>
 							<?php } ?>
 							<?php if($field_sort_field == 'Equipment Category') { ?>
-								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Equipment Category", $all_config) ? 'checked disabled' : (in_array("Equipment Category", $value_config) ? "checked" : '') ?> value="Equipment Category" name="tickets[]"> Category</label>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Equipment Category", $all_config) ? 'checked disabled' : (in_array("Equipment Category", $value_config) ? "checked" : '') ?> value="Equipment Category" name="tickets[]"> Tab</label>
 							<?php } ?>
 							<?php if($field_sort_field == 'Equipment Make') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Equipment Make", $all_config) ? 'checked disabled' : (in_array("Equipment Make", $value_config) ? "checked" : '') ?> value="Equipment Make" name="tickets[]"> Make</label>
@@ -1848,10 +1848,10 @@ if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) {
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Material Inline", $all_config) ? 'checked disabled' : (in_array("Material Inline", $value_config) ? "checked" : '') ?> value="Material Inline" name="tickets[]"> Inline Materials</label>
 							<?php } ?>
 							<?php if($field_sort_field == 'Material Category') { ?>
-								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Material Category", $all_config) ? 'checked disabled' : (in_array("Material Category", $value_config) ? "checked" : '') ?> value="Material Category" name="tickets[]"> Material Category</label>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Material Category", $all_config) ? 'checked disabled' : (in_array("Material Category", $value_config) ? "checked" : '') ?> value="Material Category" name="tickets[]"> Material Tab</label>
 							<?php } ?>
 							<?php if($field_sort_field == 'Material Subcategory') { ?>
-								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Material Subcategory", $all_config) ? 'checked disabled' : (in_array("Material Subcategory", $value_config) ? "checked" : '') ?> value="Material Subcategory" name="tickets[]"> Material Sub-Category</label>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Material Subcategory", $all_config) ? 'checked disabled' : (in_array("Material Subcategory", $value_config) ? "checked" : '') ?> value="Material Subcategory" name="tickets[]"> Material Sub-Tab</label>
 							<?php } ?>
 							<?php if($field_sort_field == 'Material Type') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Material Type", $all_config) ? 'checked disabled' : (in_array("Material Type", $value_config) ? "checked" : '') ?> value="Material Type" name="tickets[]"> Material Type</label>
@@ -2189,7 +2189,7 @@ if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) {
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Inventory Basic Inline", $all_config) ? 'checked disabled' : (in_array("Inventory Basic Inline", $value_config) ? "checked" : '') ?> value="Inventory Basic Inline" name="tickets[]"> Inline Inventory</label>
 							<?php } ?>
 							<?php if($field_sort_field == 'Inventory Basic Category') { ?>
-								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Inventory Basic Category", $all_config) ? 'checked disabled' : (in_array("Inventory Basic Category", $value_config) ? "checked" : '') ?> value="Inventory Basic Category" name="tickets[]"> Inventory Category</label>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Inventory Basic Category", $all_config) ? 'checked disabled' : (in_array("Inventory Basic Category", $value_config) ? "checked" : '') ?> value="Inventory Basic Category" name="tickets[]"> Inventory Tab</label>
 							<?php } ?>
 							<?php if($field_sort_field == 'Inventory Basic Part') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Inventory Basic Part", $all_config) ? 'checked disabled' : (in_array("Inventory Basic Part", $value_config) ? "checked" : '') ?> value="Inventory Basic Part" name="tickets[]"> Part #</label>
@@ -2386,7 +2386,7 @@ if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) {
 						<div class="fields_sortable">
 						<?php foreach ($field_sort_order as $field_sort_field) { ?>
 							<?php if($field_sort_field == 'Inventory Detail Category') { ?>
-								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Inventory Detail Category", $all_config) ? 'checked disabled' : (in_array("Inventory Detail Category", $value_config) ? "checked" : '') ?> value="Inventory Detail Category" name="tickets[]"> Inventory Category</label>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Inventory Detail Category", $all_config) ? 'checked disabled' : (in_array("Inventory Detail Category", $value_config) ? "checked" : '') ?> value="Inventory Detail Category" name="tickets[]"> Inventory Tab</label>
 							<?php } ?>
 							<?php if($field_sort_field == 'Inventory Detail Unique') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Inventory Detail Unique", $all_config) ? 'checked disabled' : (in_array("Inventory Detail Unique", $value_config) ? "checked" : '') ?> value="Inventory Detail Unique" name="tickets[]"> No Inventory Dropdown</label>
@@ -2586,7 +2586,7 @@ if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) {
 						<?php } ?>
 						<?php foreach ($field_sort_order as $field_sort_field) { ?>
 							<?php if($field_sort_field == 'Assigned Equipment Category') { ?>
-								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Assigned Equipment Category", $all_config) ? 'checked disabled' : (in_array("Assigned Equipment Category", $value_config) ? "checked" : '') ?> value="Assigned Equipment Category" name="tickets[]"> Assigned Equipment Category</label>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Assigned Equipment Category", $all_config) ? 'checked disabled' : (in_array("Assigned Equipment Category", $value_config) ? "checked" : '') ?> value="Assigned Equipment Category" name="tickets[]"> Assigned Equipment Tab</label>
 							<?php } ?>
 							<?php if($field_sort_field == 'Assigned Equipment Make') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Assigned Equipment Make", $all_config) ? 'checked disabled' : (in_array("Assigned Equipment Make", $value_config) ? "checked" : '') ?> value="Assigned Equipment Make" name="tickets[]"> Assigned Equipment</label>
@@ -2616,7 +2616,7 @@ if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) {
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Delivery Stops", array_merge($all_config,$value_config)) ? 'disabled' : (in_array("Delivery Pickup Coordinates", $all_config) ? 'checked disabled' : (in_array("Delivery Pickup Coordinates", $value_config) ? "checked" : '')) ?> value="Delivery Pickup Coordinates" name="tickets[]"> Multi-Stop Lat/Lng Coordinates</label>
 							<?php } ?>
 							<?php if($field_sort_field == 'Delivery Pickup Equipment Category') { ?>
-								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Delivery Stops", array_merge($all_config,$value_config)) ? 'disabled' : (in_array("Delivery Pickup Equipment Category", $all_config) ? 'checked disabled' : (in_array("Delivery Pickup Equipment Category", $value_config) ? "checked" : '')) ?> value="Delivery Pickup Equipment Category" name="tickets[]"> Multi-Stop Equipment Category</label>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Delivery Stops", array_merge($all_config,$value_config)) ? 'disabled' : (in_array("Delivery Pickup Equipment Category", $all_config) ? 'checked disabled' : (in_array("Delivery Pickup Equipment Category", $value_config) ? "checked" : '')) ?> value="Delivery Pickup Equipment Category" name="tickets[]"> Multi-Stop Equipment Tab</label>
 							<?php } ?>
 							<?php if($field_sort_field == 'Delivery Pickup Equipment') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Delivery Stops", array_merge($all_config,$value_config)) ? 'disabled' : (in_array("Delivery Pickup Equipment Make", $all_config) ? 'checked disabled' : (in_array("Delivery Pickup Equipment Make", $value_config) ? "checked" : '')) ?> value="Delivery Pickup Equipment Make" name="tickets[]"> Multi-Stop Equipment Make</label>
@@ -2739,7 +2739,7 @@ if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) {
 								<?php $delivery_type_contacts = get_config($dbc, 'delivery_type_contacts'); ?>
 								<label class="col-sm-4 control-label">Populate Delivery Types with <?= CONTACTS_TILE ?>, such as Sites, Warehouses<?= $delivery_type_contacts != '' && $tab != '' ? ' (Default: '.$delivery_type_contacts.')' : '' ?>:</label>
 								<div class="col-sm-8">
-									<select name="delivery_type_contacts<?= $tab == '' ? '' : '_'.$tab ?>" data-placeholder="Select Category" class="chosen-select-deselect"><option></option>
+									<select name="delivery_type_contacts<?= $tab == '' ? '' : '_'.$tab ?>" data-placeholder="Select Tab" class="chosen-select-deselect"><option></option>
 										<?php $tab_delivery_type_contacts = get_config($dbc, 'delivery_type_contacts'.($tab == '' ? '' : '_'.$tab));
 										foreach(explode(',',get_config($dbc, 'all_contact_tabs')) as $contact_cat) { ?>
 											<option <?= $contact_cat == $tab_delivery_type_contacts ? 'selected' : '' ?> value="<?= $contact_cat ?>"><?= $contact_cat ?></option>
@@ -2835,9 +2835,9 @@ if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) {
 							<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) { ?>
 								<div class="form-group">
 									<?php $transport_log_contact = get_config($dbc, 'transport_log_contact'); ?>
-									<label class="col-sm-4 control-label">Origin Contact Category<?= $transport_log_contact != '' && $tab != '' ? ' (Default: '.$transport_log_contact.')' : '' ?>:</label>
+									<label class="col-sm-4 control-label">Origin Contact Tab<?= $transport_log_contact != '' && $tab != '' ? ' (Default: '.$transport_log_contact.')' : '' ?>:</label>
 									<div class="col-sm-8">
-										<select name="transport_log_contact<?= $tab == '' ? '' : '_'.$tab ?>" data-placeholder="Select Category" class="chosen-select-deselect"><option></option>
+										<select name="transport_log_contact<?= $tab == '' ? '' : '_'.$tab ?>" data-placeholder="Select Tab" class="chosen-select-deselect"><option></option>
 											<?php $tab_transport_log_contact = get_config($dbc, 'transport_log_contact'.($tab == '' ? '' : '_'.$tab));
 											foreach(explode(',',get_config($dbc, 'all_contact_tabs')) as $category) { ?>
 												<option <?= $category == $tab_transport_log_contact ? 'selected' : '' ?> value="<?= $category ?>"><?= $category ?></option>
@@ -2892,9 +2892,9 @@ if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) {
 							<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) { ?>
 								<div class="form-group">
 									<?php $transport_destination_contact = get_config($dbc, 'transport_destination_contact'); ?>
-									<label class="col-sm-4 control-label">Destination Contact Category<?= $transport_destination_contact != '' && $tab != '' ? ' (Default: '.$transport_destination_contact.')' : '' ?>:</label>
+									<label class="col-sm-4 control-label">Destination Contact Tab<?= $transport_destination_contact != '' && $tab != '' ? ' (Default: '.$transport_destination_contact.')' : '' ?>:</label>
 									<div class="col-sm-8">
-										<select name="transport_destination_contact<?= $tab == '' ? '' : '_'.$tab ?>" data-placeholder="Select Category" class="chosen-select-deselect"><option></option>
+										<select name="transport_destination_contact<?= $tab == '' ? '' : '_'.$tab ?>" data-placeholder="Select Tab" class="chosen-select-deselect"><option></option>
 											<?php $tab_transport_destination_contact = get_config($dbc, 'transport_destination_contact'.($tab == '' ? '' : '_'.$tab));
 											foreach(explode(',',get_config($dbc, 'all_contact_tabs')) as $category) { ?>
 												<option <?= $category == $tab_transport_destination_contact ? 'selected' : '' ?> value="<?= $category ?>"><?= $category ?></option>
@@ -2948,9 +2948,9 @@ if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) {
 							<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) { ?>
 								<div class="form-group">
 									<?php $transport_carrier_category = get_config($dbc, 'transport_carrier_category'); ?>
-									<label class="col-sm-4 control-label">Carrier Contact Category<?= $transport_carrier_category != '' && $tab != '' ? ' (Default: '.$transport_carrier_category.')' : '' ?>:</label>
+									<label class="col-sm-4 control-label">Carrier Contact Tab<?= $transport_carrier_category != '' && $tab != '' ? ' (Default: '.$transport_carrier_category.')' : '' ?>:</label>
 									<div class="col-sm-8">
-										<select name="transport_carrier_category<?= $tab == '' ? '' : '_'.$tab ?>" data-placeholder="Select Category" class="chosen-select-deselect"><option></option>
+										<select name="transport_carrier_category<?= $tab == '' ? '' : '_'.$tab ?>" data-placeholder="Select Tab" class="chosen-select-deselect"><option></option>
 											<?php $tab_transport_destination_contact = get_config($dbc, 'transport_carrier_category'.($tab == '' ? '' : '_'.$tab));
 											foreach(explode(',',get_config($dbc, 'all_contact_tabs')) as $category) { ?>
 												<option <?= $category == $tab_transport_destination_contact ? 'selected' : '' ?> value="<?= $category ?>"><?= $category ?></option>

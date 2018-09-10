@@ -268,7 +268,7 @@ foreach(explode(',',(!empty($_GET['serviceid']) ? $_GET['serviceid'] : mysqli_fe
 						<?php include('../Ticket/add_ticket_info_service_group.php'); ?>
 					</div>
 					<div class="service_group_hide" <?= !$service_table_display ? '' : 'style="display:none;"' ?>>
-						Please select a Category and Service Type to display Services.
+						Please select a Tab and Service Type to display Services.
 					</div>
 				</div>
 			</div>

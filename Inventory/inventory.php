@@ -70,7 +70,7 @@ $set_check_value    = ','.mysqli_fetch_assoc(mysqli_query($dbc,"SELECT value FRO
 								<?php if(strpos($set_check_value, ',summary category,') !== FALSE) { ?>
 									<div class="col-sm-6">
 										<div class="overview-block">
-											<h4><?= INVENTORY_TILE ?> by Category</h4>
+											<h4><?= INVENTORY_TILE ?> by Tab</h4>
 											<?php $inventory_list = $dbc->query("SELECT COUNT(*) count, SUM(`quantity`) sum, `category` FROM `inventory` WHERE `deleted`=0 GROUP BY `category`");
 											while($inventory = $inventory_list->fetch_assoc()) { ?>
 												<b><a href="inventory.php?category=<?= preg_replace('/[^a-z]/','',strtolower($inventory['category'])) ?>"><?= $inventory['category'] ?></a></b>: <?= INVENTORY_NOUN ?> Types: <?= $inventory['count'] ?>, Total Quantity: <?= $inventory['sum'] ?><br />

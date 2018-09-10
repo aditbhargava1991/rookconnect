@@ -8,10 +8,10 @@ $cols = (strpos($value_config,',Material Category,') !== FALSE ? 2 : 0)
  + (strpos($value_config,',Material Rate,') !== FALSE ? 2 : 0); ?>
 <?php if(strpos($value_config,',Material Inline,') !== FALSE) { ?>
 	<?php if(strpos($value_config,',Material Category,') !== FALSE) { ?>
-		<div class="col-sm-2 hide-titles-mob text-center">Category</div>
+		<div class="col-sm-2 hide-titles-mob text-center">Tab</div>
 	<?php } ?>
 	<?php if(strpos($value_config,',Material Subcategory,') !== FALSE) { ?>
-		<div class="col-sm-2 hide-titles-mob text-center">Sub-Category</div>
+		<div class="col-sm-2 hide-titles-mob text-center">Sub-Tab</div>
 	<?php } ?>
 	<?php if(strpos($value_config,',Material Type,') !== FALSE) { ?>
 		<div class="col-sm-<?= 11 - $cols ?> hide-titles-mob text-center">Type</div>
@@ -39,7 +39,7 @@ $cols = (strpos($value_config,',Material Category,') !== FALSE ? 2 : 0)
 				<?php if(strpos($value_config,',Material Inline,') !== FALSE) { ?>
 					<?php if(strpos($value_config,',Material Category,') !== FALSE && $field_sort_field == 'Material Category') { ?>
 						<div class="select-div" style="<?= $material['description'] != '' ? 'display:none;' : '' ?>">
-							<label class="control-label show-on-mob col-sm-4">Category:</label>
+							<label class="control-label show-on-mob col-sm-4">Tab:</label>
 							<div class="col-sm-2">
 								<select name="mat_category" class="chosen-select-deselect"><option></option>
 									<?php $groups = mysqli_query($dbc, "SELECT `category` FROM `material` WHERE `deleted`=0 GROUP BY `category` ORDER BY `category`");
@@ -52,7 +52,7 @@ $cols = (strpos($value_config,',Material Category,') !== FALSE ? 2 : 0)
 					<?php } ?>
 					<?php if(strpos($value_config,',Material Subcategory,') !== FALSE && $field_sort_field == 'Material Subcategory') { ?>
 						<div class="select-div" style="<?= $material['description'] != '' ? 'display:none;' : '' ?>">
-							<label class="control-label show-on-mob col-sm-4">Sub-Category:</label>
+							<label class="control-label show-on-mob col-sm-4">Sub-Tab:</label>
 							<div class="col-sm-2">
 								<select name="mat_sub" class="chosen-select-deselect"><option></option>
 									<?php $groups = mysqli_query($dbc, "SELECT `sub_category` FROM `material` WHERE `deleted`=0 GROUP BY `sub_category` ORDER BY `sub_category`");
@@ -109,7 +109,7 @@ $cols = (strpos($value_config,',Material Category,') !== FALSE ? 2 : 0)
 				<?php } else { ?>
 					<?php if(strpos($value_config,',Material Category,') !== FALSE && $field_sort_field == 'Material Category') { ?>
 						<div class="form-group select-div" style="<?= $material['description'] != '' ? 'display:none;' : '' ?>">
-							<label class="control-label col-sm-4">Category:</label>
+							<label class="control-label col-sm-4">Tab:</label>
 							<div class="col-sm-8">
 								<select name="mat_category" class="chosen-select-deselect"><option></option>
 									<?php $groups = mysqli_query($dbc, "SELECT `category` FROM `material` WHERE `deleted`=0 GROUP BY `category` ORDER BY `category`");
@@ -122,7 +122,7 @@ $cols = (strpos($value_config,',Material Category,') !== FALSE ? 2 : 0)
 					<?php } ?>
 					<?php if(strpos($value_config,',Material Subcategory,') !== FALSE && $field_sort_field == 'Material Subcategory') { ?>
 						<div class="form-group select-div" style="<?= $material['description'] != '' ? 'display:none;' : '' ?>">
-							<label class="control-label col-sm-4">Sub-Category:</label>
+							<label class="control-label col-sm-4">Sub-Tab:</label>
 							<div class="col-sm-8">
 								<select name="mat_sub" class="chosen-select-deselect"><option></option>
 									<?php $groups = mysqli_query($dbc, "SELECT `sub_category` FROM `material` WHERE `deleted`=0 GROUP BY `sub_category` ORDER BY `sub_category`");
@@ -212,15 +212,15 @@ $cols = (strpos($value_config,',Material Category,') !== FALSE ? 2 : 0)
 				<?php foreach($field_sort_order as $field_sort_field) { ?>
 					<?php if(strpos($value_config,',Material Category,') !== FALSE && $field_sort_field == 'Material Category') { ?>
 						<div class="form-group select-div" style="<?= $material['description'] != '' ? 'display:none;' : '' ?>">
-							<label class="control-label col-sm-4">Category:</label>
+							<label class="control-label col-sm-4">Tab:</label>
 							<div class="col-sm-8"><?= $material['category'] ?></div>
 						</div>
 						<?php $pdf_contents[] = ['Category', $material['category']]; ?>
 						<div class="form-group select-div" style="<?= $material['description'] != '' ? 'display:none;' : '' ?>">
-							<label class="control-label col-sm-4">Sub-Category:</label>
+							<label class="control-label col-sm-4">Sub-Tab:</label>
 							<div class="col-sm-8"><?= $material['sub_category'] ?></div>
 						</div>
-						<?php $pdf_contents[] = ['Sub-Category', $material['sub_category']]; ?>
+						<?php $pdf_contents[] = ['Sub-Tab', $material['sub_category']]; ?>
 					<?php } ?>
 					<?php if(strpos($value_config,',Material Type,') !== FALSE && $field_sort_field == 'Material Type') { ?>
 						<div class="form-group">

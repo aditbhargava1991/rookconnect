@@ -114,7 +114,7 @@ $(document).ready(function() {
 				<div class="panel-body">
 
 					<input type="checkbox" <?php if (strpos($equipment_config, ','."Description".',') !== FALSE) { echo " checked"; } ?> value="Description" style="height: 20px; width: 20px;" name="equipment[]">&nbsp;&nbsp;Description
-					<input type="checkbox" <?php if (strpos($equipment_config, ','."Category".',') !== FALSE) { echo " checked"; } ?> value="Category" style="height: 20px; width: 20px;" name="equipment[]">&nbsp;&nbsp;Category
+					<input type="checkbox" <?php if (strpos($equipment_config, ','."Category".',') !== FALSE) { echo " checked"; } ?> value="Category" style="height: 20px; width: 20px;" name="equipment[]">&nbsp;&nbsp;Tab
 					<input type="checkbox" <?php if (strpos($equipment_config, ','."Type".',') !== FALSE) { echo " checked"; } ?> value="Type" style="height: 20px; width: 20px;" name="equipment[]">&nbsp;&nbsp;Type
 					<input type="checkbox" <?php if (strpos($equipment_config, ','."Make".',') !== FALSE) { echo " checked"; } ?> value="Make" style="height: 20px; width: 20px;" name="equipment[]">&nbsp;&nbsp;Make
 					<input type="checkbox" <?php if (strpos($equipment_config, ','."Model".',') !== FALSE) { echo " checked"; } ?> value="Model" style="height: 20px; width: 20px;" name="equipment[]">&nbsp;&nbsp;Model

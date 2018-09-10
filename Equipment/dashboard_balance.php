@@ -99,7 +99,7 @@ $result = mysqli_query($dbc, $query); ?>
 		echo '</div>'; ?>
 		<table class="table table-bordered">
 			<tr class="hidden-sm hidden-xs">
-				<th><span class="popover-examples" style="margin:0;"><a data-toggle="tooltip" data-placement="top" title="The category of the item of equipment."><img src="<?= WEBSITE_URL; ?>/img/info-w.png" width="18"></a></span> Category</th>
+				<th><span class="popover-examples" style="margin:0;"><a data-toggle="tooltip" data-placement="top" title="The tab of the item of equipment."><img src="<?= WEBSITE_URL; ?>/img/info-w.png" width="18"></a></span> Category</th>
 				<th><span class="popover-examples" style="margin:0;"><a data-toggle="tooltip" data-placement="top" title="The Make of this item of equipment as set in the equipment profile."><img src="<?= WEBSITE_URL; ?>/img/info-w.png" width="18"></a></span> Make</th>
 				<th><span class="popover-examples" style="margin:0;"><a data-toggle="tooltip" data-placement="top" title="The Model of this item of equipment as set in the equipment profile."><img src="<?= WEBSITE_URL; ?>/img/info-w.png" width="18"></a></span> Model</th>
 				<th><span class="popover-examples" style="margin:0;"><a data-toggle="tooltip" data-placement="top" title="The Unit # of this item of equipment as set in the equipment profile."><img src="<?= WEBSITE_URL; ?>/img/info-w.png" width="18"></a></span> Unit #</th>
@@ -112,7 +112,7 @@ $result = mysqli_query($dbc, $query); ?>
 			</tr>
 			<?php while($row = mysqli_fetch_array($result)) { ?>
 				<tr>
-					<td data-title="Category"><?= $row['category'] ?></td>
+					<td data-title="Tab"><?= $row['category'] ?></td>
 					<td data-title="Make"><?= $row['make'] ?></td>
 					<td data-title="Model"><?= $row['model'] ?></td>
 					<td data-title="Unit #"><?= $row['unit_number'] ?></td>

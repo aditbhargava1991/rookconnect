@@ -113,7 +113,7 @@ if($num_rows > 0) {
 	    }
 	    if (strpos($value_config, ','."Category".',') !== FALSE) {
 	    echo '<div class="col-sm-6">
-			<label class="col-sm-4">Category:</label>
+			<label class="col-sm-4">Tab:</label>
 			<div class="col-sm-8">' . $row['category'] . '</div>
 		</div>';
 	    }

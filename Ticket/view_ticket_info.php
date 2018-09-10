@@ -16,7 +16,7 @@
     -->
 
     <div class="form-group">
-        <label for="first_name" class="col-sm-4 control-label">Service Category:</label>
+        <label for="first_name" class="col-sm-4 control-label">Service Tab:</label>
         <div class="col-sm-8">
             <?php echo $service; ?>
         </div>

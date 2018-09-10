@@ -94,13 +94,13 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 			<?php if(strpos($value_config,',Assigned Equipment Inline,') !== FALSE) { ?>
 				<div class="multi-block-assign form-group">
 					<div class="hide-titles-mob">
-						<label class="text-center col-sm-3">Category</label>
+						<label class="text-center col-sm-3">Tab</label>
 						<label class="text-center col-sm-3">Make</label>
 						<label class="text-center col-sm-3">Model</label>
 						<label class="text-center col-sm-3">Unit #</label>
 					</div>
 					<div class="col-sm-3">
-						<label class="control-label show-on-mob">Category:</label>
+						<label class="control-label show-on-mob">Tab:</label>
 						<select name="assign_eq_category" class="chosen-select-deselect"><option></option>
 							<?php $groups = mysqli_query($dbc, "SELECT `category` FROM `equipment` WHERE `deleted`=0 GROUP BY `category` ORDER BY `category`");
 							while($category = mysqli_fetch_assoc($groups)) { ?>
@@ -140,7 +140,7 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 				<h4>Assigned Equipment</h4>
 				<div class="multi-block-assign">
 					<div class="form-group">
-						<label class="control-label col-sm-4">Category:</label>
+						<label class="control-label col-sm-4">Tab:</label>
 						<div class="col-sm-8">
 							<select name="assign_eq_category" class="chosen-select-deselect"><option></option>
 								<?php $groups = mysqli_query($dbc, "SELECT `category` FROM `equipment` WHERE `deleted`=0 GROUP BY `category` ORDER BY `category`");
@@ -315,7 +315,7 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 							<?php foreach ($field_sort_order as $field_sort_field) { ?>
 								<?php if (strpos($value_config, ','."Delivery Pickup Equipment Category".',') !== FALSE && strpos($value_config, ','."Assigned Equipment Inline".',') === FALSE && $field_sort_field == 'Delivery Pickup Equipment Category') { ?>
 									<div class="form-group">
-										<label class="control-label col-sm-4">Equipment Category:</label>
+										<label class="control-label col-sm-4">Equipment Tab:</label>
 										<div class="col-sm-8">
 											<select name="stop_eq_category" class="chosen-select-deselect"><option></option>
 												<?php $groups = mysqli_query($dbc, "SELECT `category` FROM `equipment` WHERE `deleted`=0 GROUP BY `category` ORDER BY `category`");
@@ -366,8 +366,8 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 									</div>
 								<?php } else if (strpos($value_config, ','."Delivery Pickup Equipment".',') !== FALSE && strpos($value_config, ','."Assigned Equipment Inline".',') !== FALSE && $field_sort_field == 'Delivery Pickup Equipment') { ?>
 									<div class="form-group">
-										<?php if (strpos($value_config, ','."Delivery Pickup Equipment Category".',') !== FALSE) { ?>
-											<label class="hide-titles-mob text-center col-sm-<?= floor(12 / $equip_col_count) ?>">Equipment Category</label>
+										<?php if (strpos($value_config, ','."Delivery Pickup Equipment Tab".',') !== FALSE) { ?>
+											<label class="hide-titles-mob text-center col-sm-<?= floor(12 / $equip_col_count) ?>">Equipment Tab</label>
 										<?php } ?>
 										<?php if (strpos($value_config, ','."Delivery Pickup Equipment Make".',') !== FALSE) { ?>
 											<label class="hide-titles-mob text-center col-sm-<?= floor(12 / $equip_col_count) ?>">Equipment Make</label>
@@ -380,7 +380,7 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 										<?php } ?>
 										<?php if (strpos($value_config, ','."Delivery Pickup Equipment Category".',') !== FALSE) { ?>
 											<div class="col-sm-<?= floor(12 / $equip_col_count) ?>">
-												<label class="control-label show-on-mob">Category:</label>
+												<label class="control-label show-on-mob">Tab:</label>
 												<select name="stop_eq_category" class="chosen-select-deselect"><option></option>
 													<?php $groups = mysqli_query($dbc, "SELECT `category` FROM `equipment` WHERE `deleted`=0 GROUP BY `category` ORDER BY `category`");
 													while($category = mysqli_fetch_assoc($groups)) { ?>
@@ -829,7 +829,7 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 			$equipment = mysqli_fetch_assoc($equipment_list); ?>
 			<div class="multi-block-assign">
 				<div class="form-group">
-					<label class="control-label col-sm-4">Category:</label>
+					<label class="control-label col-sm-4">Tab:</label>
 					<div class="col-sm-8">
 						<?= $equipment['category'] ?>
 					</div>

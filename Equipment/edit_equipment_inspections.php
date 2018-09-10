@@ -137,7 +137,7 @@ $unit_number = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `equipment` 
 								<th>Staff Name</th>
 								<th>Inspection Type</th>
 								<th>Date</th>
-								<th>Category</th>
+								<th>Tab</th>
 								<th>Make</th>
 								<th>Model</th>
 								<th>Unit Number</th>
@@ -150,7 +150,7 @@ $unit_number = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `equipment` 
 									<td data-title="Staff Name"><?= get_contact($dbc, $row['staffid']) ?></td>
 									<td data-title="Inspection Type"><?= $row['type'] ?></td>
 									<td data-title="Date &amp; Time"><?= date('Y-m-d g:i A', strtotime($row['date'])) ?></td>
-									<td data-title="Category"><?= $equipment['category'] ?></td>
+									<td data-title="Tab"><?= $equipment['category'] ?></td>
 									<td data-title="Make"><?= $equipment['make'] ?></td>
 									<td data-title="Model"><?= $equipment['model'] ?></td>
 									<td data-title="Unit Number"><?= $equipment['unit_number'] ?></td>

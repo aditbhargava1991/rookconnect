@@ -122,7 +122,7 @@ $result = mysqli_query($dbc, $query); ?>
 				<th><span class="popover-examples" style="margin:0;"><a data-toggle="tooltip" data-placement="top" title="The Staff performing the equipment inspection."><img src="<?= WEBSITE_URL; ?>/img/info-w.png" width="18"></a></span> Staff Name</th>
 				<th><span class="popover-examples" style="margin:0;"><a data-toggle="tooltip" data-placement="top" title="The Type of equipment inspection."><img src="<?= WEBSITE_URL; ?>/img/info-w.png" width="18"></a></span> Inspection Type</th>
 				<th>Date</th>
-				<th><span class="popover-examples" style="margin:0;"><a data-toggle="tooltip" data-placement="top" title="The Category of this item of equipment."><img src="<?= WEBSITE_URL; ?>/img/info-w.png" width="18"></a></span> Category</th>
+				<th><span class="popover-examples" style="margin:0;"><a data-toggle="tooltip" data-placement="top" title="The Tab of this item of equipment."><img src="<?= WEBSITE_URL; ?>/img/info-w.png" width="18"></a></span> Category</th>
 				<th><span class="popover-examples" style="margin:0;"><a data-toggle="tooltip" data-placement="top" title="The Make of this item of equipment as set in the equipment profile."><img src="<?= WEBSITE_URL; ?>/img/info-w.png" width="18"></a></span> Make</th>
 				<th><span class="popover-examples" style="margin:0;"><a data-toggle="tooltip" data-placement="top" title="The Model of this item of equipment as set in the equipment profile."><img src="<?= WEBSITE_URL; ?>/img/info-w.png" width="18"></a></span> Model</th>
 				<th><span class="popover-examples" style="margin:0;"><a data-toggle="tooltip" data-placement="top" title="The Unit # of this item of equipment as set in the equipment profile."><img src="<?= WEBSITE_URL; ?>/img/info-w.png" width="18"></a></span> Unit #</th>
@@ -135,7 +135,7 @@ $result = mysqli_query($dbc, $query); ?>
 					<td data-title="Staff Name"><?= get_contact($dbc, $row['staffid']) ?></td>
 					<td data-title="Inspection Type"><?= $row['type'] ?></td>
 					<td data-title="Date &amp; Time"><?= date('Y-m-d g:i A', strtotime($row['date'])) ?></td>
-					<td data-title="Category"><?= $equipment['category'] ?></td>
+					<td data-title="Tab"><?= $equipment['category'] ?></td>
 					<td data-title="Make"><?= $equipment['make'] ?></td>
 					<td data-title="Model"><?= $equipment['model'] ?></td>
 					<td data-title="Unit #"><?= $equipment['unit_number'] ?></td>
