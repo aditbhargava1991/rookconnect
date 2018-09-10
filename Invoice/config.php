@@ -1,0 +1,120 @@
+<?php include_once('../include.php');
+checkAuthorised(FOLDER_NAME == 'posadvanced' ? 'posadvanced' : 'check_out');
+$security = get_security($dbc, (FOLDER_NAME == 'posadvanced' ? 'posadvanced' : 'check_out'));
+
+$invoice_type = '';
+if(!empty($_GET['type'])) {
+    $invoice_type = $_GET['type'];
+}
+$insurer_row_id = 0;
+$paid = 'Yes';
+$app_type = '';
+$type = '';
+$invoiceid = 0;
+$service_date = date('Y-m-d');
+$purchaser_config = explode(',',get_config($dbc, 'invoice_purchase_contact'));
+$payer_config = explode(',',get_config($dbc, 'invoice_payer_contact'));
+
+if(!empty($_GET['contactid'])) {
+    $account_balance = get_all_form_contact($dbc, $_GET['contactid'], 'amount_credit');
+    $delivery_address = get_ship_address($dbc, $_GET['contactid']);
+}
+if(!empty($_GET['invoiceid'])) {
+    $invoiceid = $_GET['invoiceid'];
+    $get_invoice = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT * FROM invoice WHERE invoiceid='$invoiceid'"));
+    $invoice_type = $get_invoice['type'];
+
+    $_GET['contactid'] = $get_invoice['patientid'];
+    $patient_info = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `contacts` WHERE `contactid`='{$get_invoice['patientid']}'"));
+    $billable = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `billable_dollars` FROM contacts_cost WHERE contactid = '{$get_invoice['patientid']}'"))['billable_dollars'];
+    $billed = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT SUM(`final_price`) `total` FROM invoice WHERE deleted=0 AND patientid = '{$get_invoice['patientid']}' ORDER BY invoiceid"))['total'];
+    $patient = (($patient_info['category'] == 'Business' || $patient_info['category'] == 'Insurer') && $patient_info['name'] != '' ? decryptIt($patient_info['name']) : decryptIt($patient_info['first_name']).' '.decryptIt($patient_info['last_name'])).($billable > 0 ? "<br />Billable: $".$billed." of $".$billable : '');
+    $staff = get_contact($dbc, $get_invoice['therapistsid']);
+    $account_balance = get_all_form_contact($dbc, $get_invoice['patientid'], 'amount_credit');
+    $pricing = $get_invoice['pricing'];
+    $delivery_address = get_ship_address($dbc, $_GET['contactid']);
+
+    $bookingid = $get_invoice['bookingid'];
+    $injuryid = $get_invoice['injuryid'];
+    $promotionid = $get_invoice['promotionid'];
+    $invoice_date = $get_invoice['invoice_date'];
+    if($bookingid != 0) {
+        $service_date = explode(' ', get_patient_from_booking($dbc, $bookingid, 'appoint_date'))[0];
+    }
+
+    $type = get_patient_from_booking($dbc, $bookingid, 'type');
+    $app_type = get_type_from_booking($dbc, $type);
+
+    $total_injury = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT COUNT(bookingid) AS total_injury FROM booking WHERE injuryid='$injuryid' AND (follow_up_call_status = 'Arrived' OR follow_up_call_status='Completed' OR follow_up_call_status = 'Paid' OR follow_up_call_status = 'Invoiced')"));
+    $treatment_plan = get_all_from_injury($dbc, $injuryid, 'treatment_plan');
+    $final_treatment_done = ($treatment_plan != '' ? ' : '.($total_injury['total_injury']).'/'.$treatment_plan : '');
+    $injury = get_all_from_injury($dbc, $injuryid, 'injury_type').' : '.get_all_from_injury($dbc, $injuryid, 'injury_name').' : '.get_all_from_injury($dbc, $injuryid, 'injury_date').$final_treatment_done;
+    $injury_type = get_all_from_injury($dbc, $injuryid, 'injury_type');
+    $mva_claim_price = get_all_from_injury($dbc, $injuryid, 'mva_claim_price');
+
+    $serviceid =$get_invoice['serviceid'];
+    $service_ticketid =$get_invoice['service_ticketid'];
+    $fee =$get_invoice['fee'];
+    $inventoryid =$get_invoice['inventoryid'];
+    $sell_price =$get_invoice['sell_price'];
+    $invtype =$get_invoice['invtype'];
+    $quantity =$get_invoice['quantity'];
+    $packageid =$get_invoice['packageid'];
+    $package_cost =$get_invoice['package_cost'];
+    $misc_items =$get_invoice['misc_item'];
+    $misc_ticketid =$get_invoice['misc_ticketid'];
+    $misc_prices =$get_invoice['misc_price'];
+    $misc_qtys =$get_invoice['misc_qty'];
+
+    $delivery = $get_invoice['delivery'];
+    $delivery_address = $get_invoice['delivery_address'];
+    $delivery_type = $get_invoice['delivery_type'];
+    $contractorid = $get_invoice['contractorid'];
+    $ship_date = $get_invoice['ship_date'];
+
+    $total_price =$get_invoice['total_price'];
+    $final_price =$get_invoice['final_price'];
+    $insurerid = $get_invoice['insurerid'];
+    $insurance_payment = $get_invoice['insurance_payment'];
+    $payment_type = $get_invoice['payment_type'];
+    $paid = $get_invoice['paid'];
+    $gratuity = $get_invoice['gratuity'];
+}
+
+$field_config = explode(',',get_config($dbc, 'invoice_fields'));
+if(!empty($invoice_type)) {
+    $field_config = explode(',',get_config($dbc, 'invoice_fields_'.$invoice_type));
+}
+$ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
+
+if(!IFRAME_PAGE) { ?>
+    <script>
+    var gapSpace = 0;
+    $(document).ready(function() {
+        $(window).resize(function() {
+            $('.main-screen').css('padding-bottom',0);
+            if($('.tile-sidebar').is(':visible')) {
+                var available_height = window.innerHeight - $('footer:visible').outerHeight() - $('.tile-sidebar:visible').offset().top;
+                if(available_height > 200) {
+                    $('.main-screen .main-screen').outerHeight(available_height - gapSpace).css('overflow-y','auto');
+                    $('.tile-sidebar').outerHeight(available_height - gapSpace).css('overflow-y','auto');
+                    $('.scalable').outerHeight(available_height - gapSpace).css('overflow-y','auto');
+                }
+            }
+        }).resize();
+    });
+    var windowSize = null;
+    function setWindowSize() {
+        clearInterval(windowSize);
+        gapSpace = 15;
+        $(window).resize();
+        windowSize = setInterval(function() { $(window).resize(); }, 50);
+        setTimeout(function() {
+            gapSpace = 0;
+            $(window).resize();
+            clearInterval(windowSize);
+        }, 500);
+    }
+    </script>
+<?php } ?>
+<script src="../Invoice/invoice.js"></script>
