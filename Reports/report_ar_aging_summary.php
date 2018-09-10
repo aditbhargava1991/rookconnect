@@ -200,6 +200,7 @@ function report_receivables($dbc, $starttime, $endtime, $as_at_date, $table_styl
     $total6 = 0;
     $total7 = 0;
     $total8 = 0;
+    $ar_types = "'On Account', 'Net 30', 'Net 30 Days', 'Net 60', 'Net 60 Days', 'Net 90', 'Net 90 Days', 'Net 120', 'Net 120 Days', ''";
     
     $odd_even = 0;
     
