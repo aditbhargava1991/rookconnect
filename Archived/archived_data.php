@@ -374,8 +374,8 @@ switch($archive) {
                         if(!empty($_GET['type'])) {
                         	$tile_query = " AND `tile_name` = '".$_GET['type']."'";
                         }
-                        $result = mysqli_query($dbc, "SELECT * FROM contacts WHERE category != 'Staff' and deleted = 1".$tile_query." ORDER BY date_of_archival DESC LIMIT $offset, $rowsPerPage");
-                        $query = "SELECT count(*) as numrows FROM contacts WHERE category != 'Staff' and deleted = 1".$tile_query." ORDER BY date_of_archival DESC";
+                        $result = mysqli_query($dbc, "SELECT * FROM contacts WHERE category != 'Staff' and deleted = 1".$tile_query." ORDER BY date_of_archival DESC, contactid ASC LIMIT $offset, $rowsPerPage");
+                        $query = "SELECT count(*) as numrows FROM contacts WHERE category != 'Staff' and deleted = 1".$tile_query." ORDER BY date_of_archival DESC, contactid ASC";
 
                         $num_rows = mysqli_num_rows($result);
                         if($num_rows > 0) {
