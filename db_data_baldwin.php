@@ -734,5 +734,11 @@
     }
     //2018-09-05 - Ticket #9007 - Vacation Pay
 
+    //2018-09-10 - Ticket #9085 - Manifest
+    if(!mysqli_query($dbc, "ALTER TABLE `ticket_attached` CHANGE `po_line` `po_line` text")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-09-10 - Ticket #9085 - Manifest
+
     echo "Baldwin's DB Changes Done<br />\n";
 ?> 
