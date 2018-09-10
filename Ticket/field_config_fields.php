@@ -701,4 +701,8 @@ function removeHidePosition(sel) {
 		echo '<a href="?settings=fields&type_name='.$tab_id.'" class="btn brand-btn '.($tab_id == $tab ? 'active_tab' : '').'">'.$tab_label.'</a>';
 	}
 } ?>
-<?php include('field_config_field_list.php'); ?>
+<?php if($mandatory == 1): ?>
+	<?php include('field_config_mandatory_field_list.php'); ?>
+<?php else: ?>
+	<?php include('field_config_field_list.php'); ?>
+<?php endif; ?>

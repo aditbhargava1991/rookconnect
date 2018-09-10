@@ -60,6 +60,9 @@ switch($_GET['settings']) {
 	case 'manifests':
 		$page_title = 'Manifest Fields';
 		break;
+	case 'mandatory_fields':
+		$page_title = TICKET_NOUN . ' Mandatory Fields';
+		break;
 	default:
 		$page_title = TICKET_NOUN.' Fields - '.(empty($_GET['type_name']) ? 'All '.TICKET_NOUN : $ticket_tabs[$_GET['type_name']]).' Fields';;
 		break;
@@ -110,6 +113,21 @@ function loadPanel() {
 
 			<div id="collapse_fields" class="panel-collapse collapse">
 				<div class="panel-body" data-file="field_config_fields.php">
+					Loading...
+				</div>
+			</div>
+		</div>
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<h4 class="panel-title">
+					<a data-toggle="collapse" data-parent="#settings_accordions" href="#collapse_mandatory_fields">
+						<?= TICKET_NOUN ?> Mandatory Fields<span class="glyphicon glyphicon-plus"></span>
+					</a>
+				</h4>
+			</div>
+
+			<div id="collapse_fields" class="panel-collapse collapse">
+				<div class="panel-body" data-file="field_config_mandatory_fields.php">
 					Loading...
 				</div>
 			</div>
@@ -377,6 +395,7 @@ function loadPanel() {
 		<?php if(empty($_GET['tile_name'])) { ?>
 			<a href="?settings=dashboard"><li class="<?= $_GET['settings'] == 'dashboard' ? 'active blue' : '' ?>">Dashboard Fields</li></a>
 			<a href="?settings=fields"><li class="<?= empty($_GET['settings']) || $_GET['settings'] == 'fields' ? 'active blue' : '' ?>"><?= TICKET_NOUN ?> Fields</li></a>
+			<a href="?settings=mandatory_fields"><li class="<?= $_GET['settings'] == 'mandatory_fields' ? 'active blue' : '' ?>"><?= TICKET_NOUN ?> Mandatory Fields</li></a>
 			<a href="?settings=action"><li class="<?= $_GET['settings'] == 'action' ? 'active blue' : '' ?>">Action Mode Fields</li></a>
 			<a href="?settings=overview"><li class="<?= $_GET['settings'] == 'overview' ? 'active blue' : '' ?>">Overview Fields</li></a>
 			<a href="?settings=status_fields"><li class="<?= $_GET['settings'] == 'status_fields' ? 'active blue' : '' ?>">Status Fields</li></a>
@@ -475,6 +494,10 @@ function loadPanel() {
 				break;
 			case 'checklist':
 				include('field_config_checklist.php');
+				break;
+			case 'mandatory_fields':
+				$mandatory = 1;
+				include('field_config_fields.php');
 				break;
 			default:
 				include('field_config_fields.php');
