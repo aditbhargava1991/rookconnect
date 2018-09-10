@@ -797,14 +797,12 @@ function checkMandatoryFields() {
 	}
 	if(!ready) {
 		return false;
-	} else {
-		return true;
 	}
 }
 function fillCustomForm(a) {
 	var target = $(a).data('target');
 	var href = $(a).prop('href');
-	if(checkMandatoryFields()) {
+	if(checkMandatoryFields() != false) {
 		if(target == 'slider') {
 			overlayIFrameSlider(href, 'auto', true, true);
 		} else {
