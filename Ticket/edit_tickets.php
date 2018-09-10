@@ -279,6 +279,12 @@ if($_GET['overview_mode'] == 1) {
 	$calendar_ticket_slider = 'full';
 }
 
+//Force read only if Ticket is deleted
+if($get_ticket['deleted'] == 1) {
+	$force_readonly = true;
+	$strict_view = 1;
+}
+
 //Status Fields
 if(!empty($ticket_status)) {
 	$value_config_all = $value_config;
@@ -550,7 +556,7 @@ foreach($security_levels as $security_level) {
 	}
 }
 $is_recurrence = false;
-if($get_ticket['main_ticketid'] > 0 && $get_ticket['is_recurrence'] == 1) {
+if($get_ticket['main_ticketid'] > 0 && $get_ticket['is_recurrence'] == 1 && !$force_readonly) {
 	$is_recurrence = true;
 }
 $quick_action_html = '';

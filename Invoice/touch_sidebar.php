@@ -78,10 +78,7 @@
 						<div class="col-sm-6"><a href='today_invoice.php' class="btn brand-btn mobile-block touch-button">TODAY'S INVOICES</a></div>
 						<?php break;
 					case 'all': ?>
-						<div class="col-sm-6"><a href='all_invoice.php' class="btn brand-btn mobile-block touch-button">ALL INVOICES</a></div>
-						<?php break;
-					case 'invoices': ?>
-						<div class="col-sm-6"><a href='invoice_list.php' class="btn brand-btn mobile-block touch-button">INVOICES</a></div>
+						<div class="col-sm-6"><a href='invoice_list.php' class="btn brand-btn mobile-block touch-button">ALL INVOICES</a></div>
 						<?php break;
 				}
 			}
