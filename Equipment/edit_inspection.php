@@ -417,9 +417,9 @@ $(document).ready(function () {
 						</div>
 					</div>
 					<div class="form-group">
-						<label for="fax_number"	class="col-sm-4	control-label">Inspection Type:</label>
+						<label for="fax_number"	class="col-sm-4	control-label">Inspection Tab:</label>
 						<div class="col-sm-8">
-							<select name="type" data-placeholder="Select Type" class="chosen-select-deselect form-control"><option></option>
+							<select name="type" data-placeholder="Select Tab" class="chosen-select-deselect form-control"><option></option>
 								<option value="Pre Trip">Pre Trip</option>
 								<option value="Post Trip">Post Trip</option>
 								<option value="Maintenance">Maintenance</option>

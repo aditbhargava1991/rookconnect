@@ -230,7 +230,7 @@ do {
 				<?php } ?>
 				<?php if(strpos($value_config,',Inventory Basic Piece Type,') !== FALSE && $field_sort_field == 'Inventory Basic Piece Type') { ?>
 					<div class="form-group">
-						<label class="control-label col-sm-4">Piece Type:</label>
+						<label class="control-label col-sm-4">Piece Tab:</label>
 						<div class="col-sm-8">
 							<?php if(count($piece_types) > 0) { ?>
 								<select name="piece_type" data-placeholder="Select Type" data-table="ticket_attached" data-id="<?= $inventory['id'] ?>" data-id-field="id" data-type="inventory" data-type-field="src_table" class="chosen-select-deselect"><option></option>
@@ -543,7 +543,7 @@ do {
 			<?php } ?>
 			<?php if(strpos($value_config,',Inventory Basic Piece Type,') !== FALSE && $field_sort_field == 'Inventory Basic Piece Type') { ?>
 				<div class="form-group">
-					<label class="control-label col-sm-4">Piece Type:</label>
+					<label class="control-label col-sm-4">Piece Tab:</label>
 					<div class="col-sm-8">
 						<?= $inventory['piece_type'] ?>
 					</div>

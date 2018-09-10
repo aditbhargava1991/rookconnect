@@ -130,7 +130,7 @@ if($num_rows > 0) {
 			echo '<th>Product Name</th>';
 		}
 		if (strpos($value_config, ','."Type".',') !== FALSE) {
-			echo '<th>Type</th>';
+			echo '<th>Tab</th>';
 		}
 		if (strpos($value_config, ','."Color".',') !== FALSE) {
 			echo '<th>Color</th>';
@@ -513,7 +513,7 @@ if($num_rows > 0) {
 			echo '<td data-title="Prod. Name">' . $row['product_name'] . '</td>';
 		}
 		if (strpos($value_config, ','."Type".',') !== FALSE) {
-			echo '<td data-title="Type">' . $row['type'] . '</td>';
+			echo '<td data-title="Tab">' . $row['type'] . '</td>';
 		}
 		if (strpos($value_config, ','."Color".',') !== FALSE) {
 			echo '<td data-title="Color">' . $row['color'] . '</td>';

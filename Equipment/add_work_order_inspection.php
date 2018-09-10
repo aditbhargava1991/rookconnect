@@ -8,7 +8,7 @@
 		<table class="table table-bordered">
 			<tr class="hidden-xs hidden-sm">
 				<th>Staff Name</th>
-				<th>Inspection Type</th>
+				<th>Inspection Tab</th>
 				<th>Date</th>
 				<th>Tab</th>
 				<th>Make</th>
@@ -21,7 +21,7 @@
 				$equipment = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `equipment` WHERE `equipmentid`='".$row['equipmentid']."'")); ?>
 				<tr>
 					<td data-title="Staff Name"><?= get_contact($dbc, $row['staffid']) ?></td>
-					<td data-title="Inspection Type"><?= $row['type'] ?></td>
+					<td data-title="Inspection Tab"><?= $row['type'] ?></td>
 					<td data-title="Date &amp; Time"><?= date('Y-m-d g:i A', strtotime($row['date'])) ?></td>
 					<td data-title="Tab"><?= $equipment['category'] ?></td>
 					<td data-title="Make"><?= $equipment['make'] ?></td>

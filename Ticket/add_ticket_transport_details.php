@@ -44,7 +44,7 @@ $carriers = sort_contacts_query($dbc->query("SELECT `first_name`, `last_name`, `
 	<?php } ?>
 	<?php if (strpos($value_config, ','."Transport Type".',') !== FALSE && $field_sort_field == 'Transport Type') { ?>
 		<div class="form-group">
-			<label class="col-sm-4 control-label">Shipment Type:</label>
+			<label class="col-sm-4 control-label">Shipment Tab:</label>
 			<div class="col-sm-8">
 				<?php if($origin_save == 'readonly') {
 					echo $origin['details'];

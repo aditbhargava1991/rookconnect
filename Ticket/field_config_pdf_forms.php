@@ -142,7 +142,7 @@
 		</div>
 	</div>
 	<div class="form-group">
-		<label class="col-sm-4 control-label"><?= TICKET_NOUN ?> Type:</label>
+		<label class="col-sm-4 control-label"><?= TICKET_NOUN ?> Tab:</label>
 		<div class="col-sm-8">
 			<select class="chosen-select-deselect" data-table="ticket_pdf" name="ticket_types" data-placeholder="Select <?= TICKET_NOUN ?> Tab"><option />
 				<?php foreach($ticket_tabs as $type_name) { ?>

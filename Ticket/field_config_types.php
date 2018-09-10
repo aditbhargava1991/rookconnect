@@ -50,7 +50,7 @@ function removeType(a) {
 <?php $type_tiles = get_config($dbc, 'ticket_type_tiles');
 foreach($ticket_tabs as $type) { ?>
 	<div class="form-group type-option">
-		<label class="col-sm-3"><?= TICKET_NOUN ?> Type:</label>
+		<label class="col-sm-3"><?= TICKET_NOUN ?> Tab:</label>
 		<div class="col-sm-6">
 			<input type="text" name="ticket_tabs[]" class="form-control" value="<?= $type ?>">
 		</div>
@@ -64,14 +64,14 @@ foreach($ticket_tabs as $type) { ?>
 	</div>
 <?php } ?>
 <hr>
-<label class="col-sm-3"><span class="popover-examples"><a data-toggle="tooltip" data-original-title="Enabling this option will add additional tiles to the menus for all <?= TICKET_NOUN ?> tabs, which can have specific security and display only the <?= TICKET_TILE ?> of a given type."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Display Tiles for ALL <?= TICKET_NOUN ?> Types:</label>
+<label class="col-sm-3"><span class="popover-examples"><a data-toggle="tooltip" data-original-title="Enabling this option will add additional tiles to the menus for all <?= TICKET_NOUN ?> tabs, which can have specific security and display only the <?= TICKET_TILE ?> of a given type."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Display Tiles for ALL <?= TICKET_NOUN ?> Tabs:</label>
 <label class="form-checkbox"><input name="ticket_type_tiles" type="checkbox" <?= ($type_tiles == 'SHOW' ? 'checked' : '') ?>> Include ALL <?= TICKET_NOUN ?> Tabs</label>
 <div class="form-group">
-	<label class="col-sm-3"><span class="popover-examples"><a data-toggle="tooltip" data-original-title="Setting a default <?= TICKET_NOUN ?> will set the type for all newly created <?= TICKET_TILE ?>."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Default <?= TICKET_NOUN ?> Type:</label>
+	<label class="col-sm-3"><span class="popover-examples"><a data-toggle="tooltip" data-original-title="Setting a default <?= TICKET_NOUN ?> will set the type for all newly created <?= TICKET_TILE ?>."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Default <?= TICKET_NOUN ?> Tab:</label>
 	<div class="col-sm-9">
 		<?php $default_ticket_type = get_config($dbc, 'default_ticket_type'); ?>
 		<select name="default_ticket_type" class="chosen-select-deselect">
-			<option <?= in_array($default_ticket_type, ['','na']) ? 'selected' : '' ?> value="na">No Default Type</option>
+			<option <?= in_array($default_ticket_type, ['','na']) ? 'selected' : '' ?> value="na">No Default Tab</option>
 			<?php foreach($ticket_tabs as $type) { ?>
 				<option <?= config_safe_str($type) == $default_ticket_type ? 'selected' : '' ?> value="<?= config_safe_str($type) ?>"><?= $type ?></option>
 			<?php } ?>

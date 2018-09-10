@@ -127,7 +127,7 @@ $get_field_order = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT GROUP_CONCAT(`or
                     <input type="checkbox" <?php if (strpos($inventory_config, ','."Brand".',') !== false) { echo " checked"; } ?> value="Brand" name="inventory[]">&nbsp;&nbsp;Brand&nbsp;&nbsp;&nbsp;
                     <input type="checkbox" <?php if (strpos($inventory_config, ','."Category".',') !== false) { echo " checked"; } ?> value="Category" name="inventory[]">&nbsp;&nbsp;Tab&nbsp;&nbsp;&nbsp;
                     <input type="checkbox" <?php if (strpos($inventory_config, ','."Subcategory".',') !== false) { echo " checked"; } ?> value="Subcategory" name="inventory[]">&nbsp;&nbsp;Subtab&nbsp;&nbsp;&nbsp;
-                    <input type="checkbox" <?php if (strpos($inventory_config, ','."Type".',') !== false) { echo " checked"; } ?> value="Type" name="inventory[]">&nbsp;&nbsp;Type&nbsp;&nbsp;&nbsp;
+                    <input type="checkbox" <?php if (strpos($inventory_config, ','."Type".',') !== false) { echo " checked"; } ?> value="Type" name="inventory[]">&nbsp;&nbsp;Tab&nbsp;&nbsp;&nbsp;
                     <input type="checkbox" <?php if (strpos($inventory_config, ','."Color".',') !== false) { echo " checked"; } ?> value="Color" name="inventory[]">&nbsp;&nbsp;Color&nbsp;&nbsp;&nbsp;
                     <input type="checkbox" <?php if (strpos($inventory_config, ','."Description".',') !== false) { echo " checked"; } ?> value="Description" name="inventory[]">&nbsp;&nbsp;Description&nbsp;&nbsp;&nbsp;
                     <input type="checkbox" <?php if (strpos($inventory_config, ','."Application".',') !== false) { echo " checked"; } ?> value="Application" name="inventory[]">&nbsp;&nbsp;Application

@@ -124,8 +124,8 @@ $(document).ready(function() {
 					<input type="checkbox" <?php if (strpos($equipment_config, ','."Vehicle Size".',') !== FALSE) { echo " checked"; } ?> value="Vehicle Size" style="height: 20px; width: 20px;" name="equipment[]">&nbsp;&nbsp;Vehicle Size
 					<input type="checkbox" <?php if (strpos($equipment_config, ','."Color".',') !== FALSE) { echo " checked"; } ?> value="Color" style="height: 20px; width: 20px;" name="equipment[]">&nbsp;&nbsp;Color
 					<input type="checkbox" <?php if (strpos($equipment_config, ','."Trim".',') !== FALSE) { echo " checked"; } ?> value="Trim" style="height: 20px; width: 20px;" name="equipment[]">&nbsp;&nbsp;Trim
-					<input type="checkbox" <?php if (strpos($equipment_config, ','."Fuel Type".',') !== FALSE) { echo " checked"; } ?> value="Fuel Type" style="height: 20px; width: 20px;" name="equipment[]">&nbsp;&nbsp;Fuel Type
-					<input type="checkbox" <?php if (strpos($equipment_config, ','."Tire Type".',') !== FALSE) { echo " checked"; } ?> value="Tire Type" style="height: 20px; width: 20px;" name="equipment[]">&nbsp;&nbsp;Tire Type
+					<input type="checkbox" <?php if (strpos($equipment_config, ','."Fuel Type".',') !== FALSE) { echo " checked"; } ?> value="Fuel Type" style="height: 20px; width: 20px;" name="equipment[]">&nbsp;&nbsp;Fuel Tab
+					<input type="checkbox" <?php if (strpos($equipment_config, ','."Tire Type".',') !== FALSE) { echo " checked"; } ?> value="Tire Type" style="height: 20px; width: 20px;" name="equipment[]">&nbsp;&nbsp;Tire Tab
 					<input type="checkbox" <?php if (strpos($equipment_config, ','."Drive Train".',') !== FALSE) { echo " checked"; } ?> value="Drive Train" style="height: 20px; width: 20px;" name="equipment[]">&nbsp;&nbsp;Drive Train
 					<input type="checkbox" <?php if (strpos($equipment_config, ','."Total Kilometres".',') !== FALSE) { echo " checked"; } ?> value="Total Kilometres" style="height: 20px; width: 20px;" name="equipment[]">&nbsp;&nbsp;Total Kilometres
 					<input type="checkbox" <?php if (strpos($equipment_config, ','."Leased".',') !== FALSE) { echo " checked"; } ?> value="Leased" style="height: 20px; width: 20px;" name="equipment[]">&nbsp;&nbsp;Leased

@@ -139,7 +139,7 @@ if (get_config($dbc, 'show_category_dropdown_equipment') == '1') { ?>
             echo '<th>Equipment</th>';
         }
         if (strpos($value_config, ','."Service Type".',') !== FALSE) {
-            echo '<th>Service Type</th>';
+            echo '<th>Service Tab</th>';
         }
         if (strpos($value_config, ','."Inventory".',') !== FALSE) {
             echo '<th>Inventory</th>';
@@ -189,7 +189,7 @@ if (get_config($dbc, 'show_category_dropdown_equipment') == '1') { ?>
 				echo '<td data-title="Serial Number">' . $equipment . '</td>';
 			}
 			if (strpos($value_config, ','."Service Type".',') !== FALSE) {
-				echo '<td data-title="Service Type">' . $row['service_type'] . '</td>';
+				echo '<td data-title="Service Tab">' . $row['service_type'] . '</td>';
 			}
 
 			if (strpos($value_config, ','."Inventory".',') !== FALSE) {

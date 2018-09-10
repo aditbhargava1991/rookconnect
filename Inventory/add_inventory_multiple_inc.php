@@ -276,7 +276,7 @@ if(isset($_GET['type'])) {
 			echo "<table class='table table-bordered table-striped'>";
                 echo "<thead>";
                     echo "<tr class='hidden-xs hidden-sm'>";
-                        echo '<th>Type</th>';
+                        echo '<th>Tab</th>';
                         echo '<th>Description</th>';
                         echo '<th>Date/Time</th>';
                         echo '<th>Author</th>';
@@ -288,7 +288,7 @@ if(isset($_GET['type'])) {
 
 		while($row = mysqli_fetch_array( $result )) {
 			echo "<tr>";
-				echo '<td data-title="Type">' . $row['type'] . '</td>';
+				echo '<td data-title="Tab">' . $row['type'] . '</td>';
 				echo '<td data-title="Description">' . html_entity_decode($row['description']) . '</td>';
 				$time = substr($row['date_time'], strpos($row['date_time'], ' '));
 				$time = date("g:i a", strtotime($time));

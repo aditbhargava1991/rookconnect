@@ -989,9 +989,9 @@ if(!empty($_GET['inventoryid'])) {
 
                                         <?php if (strpos($value_config, ','."Type".',') !== FALSE) { ?>
                                         <div class="form-group">
-                                        <label for="phone_number" class="col-sm-4 control-label">Type:</label>
+                                        <label for="phone_number" class="col-sm-4 control-label">Tab:</label>
                                         <div class="col-sm-8">
-                                            <select data-placeholder="Choose a Type..." id="type" name="type" class="chosen-select-deselect form-control" width="380">
+                                            <select data-placeholder="Choose a Tab..." id="type" name="type" class="chosen-select-deselect form-control" width="380">
                                               <option value=""></option>
                                               <option <?php if ($type=='Project Inventory') echo 'selected="selected"';?> value="Project Inventory">Project Inventory</option>
                                               <option <?php if ($type=='Consumables') echo 'selected="selected"';?> value="Consumables">Consumables</option>

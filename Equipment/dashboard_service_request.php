@@ -157,7 +157,7 @@ if (get_config($dbc, 'show_category_dropdown_equipment') == '1') { ?>
 			}
 
 			if (strpos($value_config, ','."Comment".',') !== FALSE) {
-				echo '<td data-title="Type">' . html_entity_decode($row['comment']) . '</td>';
+				echo '<td data-title="Tab">' . html_entity_decode($row['comment']) . '</td>';
 			}
 
 			echo "</tr>";

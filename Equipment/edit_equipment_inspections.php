@@ -85,10 +85,10 @@ $unit_number = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `equipment` 
 							<div class="col-sm-4">
 								<label for="site_name" class="control-label">
 									<span class="popover-examples list-inline" style="margin:0 2px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Click here to see the inspection tabs."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
-									Search By Inspection Type:</label>
+									Search By Inspection Tab:</label>
 							</div>
 							<div class="col-sm-8">
-								<select data-placeholder="Select an Inspection Type" name="search_type" class="chosen-select-deselect form-control">
+								<select data-placeholder="Select an Inspection Tab" name="search_type" class="chosen-select-deselect form-control">
 									<option value=""></option>
 									<option <?= ('Pre Trip' == $search_type ? "selected" : '') ?> value="Pre Trip">Pre Trip</option>
 									<option <?= ('Post Trip' == $search_type ? "selected" : '') ?> value="Post Trip">Post Trip</option>
@@ -135,7 +135,7 @@ $unit_number = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `equipment` 
 						<table class="table table-bordered">
 							<tr class="hidden-xs hidden-sm">
 								<th>Staff Name</th>
-								<th>Inspection Type</th>
+								<th>Inspection Tab</th>
 								<th>Date</th>
 								<th>Tab</th>
 								<th>Make</th>
@@ -148,7 +148,7 @@ $unit_number = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `equipment` 
 								$equipment = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `equipment` WHERE `equipmentid`='".$row['equipmentid']."'")); ?>
 								<tr>
 									<td data-title="Staff Name"><?= get_contact($dbc, $row['staffid']) ?></td>
-									<td data-title="Inspection Type"><?= $row['type'] ?></td>
+									<td data-title="Inspection Tab"><?= $row['type'] ?></td>
 									<td data-title="Date &amp; Time"><?= date('Y-m-d g:i A', strtotime($row['date'])) ?></td>
 									<td data-title="Tab"><?= $equipment['category'] ?></td>
 									<td data-title="Make"><?= $equipment['make'] ?></td>

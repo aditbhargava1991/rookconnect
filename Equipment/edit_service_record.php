@@ -271,9 +271,9 @@ if (isset($_POST['submit'])) {
 
                 <?php if (strpos($value_config, ','."Service Type".',') !== FALSE) { ?>
                 <div class="form-group">
-                  <label for="site_name" class="col-sm-4 control-label">Service Type:</label>
+                  <label for="site_name" class="col-sm-4 control-label">Service Tab:</label>
                   <div class="col-sm-8">
-                    <select data-placeholder="Choose a Type..." name="service_type" class="chosen-select-deselect form-control" width="380">
+                    <select data-placeholder="Choose a Tab..." name="service_type" class="chosen-select-deselect form-control" width="380">
                       <option value=""></option>
                       <option value="Oil Change">Oil Change</option>
                       <option value="Tires">Tires</option>

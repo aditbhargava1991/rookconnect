@@ -105,7 +105,7 @@ $get_field_order = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT GROUP_CONCAT(`or
                     <input type="checkbox" <?php if (strpos($inventory_dashboard_config, ','."Subcategory".',') !== false) { echo " checked"; } ?> value="Subcategory" name="inventory_dashboard[]">&nbsp;&nbsp;Subtab
                     <input type="checkbox" <?php if (strpos($inventory_dashboard_config, ','."Name".',') !== false) { echo " checked"; } ?> value="Name" name="inventory_dashboard[]">&nbsp;&nbsp;Name
                     <input type="checkbox" <?php if (strpos($inventory_dashboard_config, ','."Product Name".',') !== false) { echo " checked"; } ?> value="Product Name" name="inventory_dashboard[]">&nbsp;&nbsp;Product Name
-                    <input type="checkbox" <?php if (strpos($inventory_dashboard_config, ','."Type".',') !== false) { echo " checked"; } ?> value="Type" name="inventory_dashboard[]">&nbsp;&nbsp;Type
+                    <input type="checkbox" <?php if (strpos($inventory_dashboard_config, ','."Type".',') !== false) { echo " checked"; } ?> value="Type" name="inventory_dashboard[]">&nbsp;&nbsp;Tab
                     <input type="checkbox" <?php if (strpos($inventory_dashboard_config, ','."Color".',') !== false) { echo " checked"; } ?> value="Color" name="inventory_dashboard[]">&nbsp;&nbsp;Color
 
                 </div>

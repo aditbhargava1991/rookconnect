@@ -196,22 +196,22 @@ if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) {
 						<div class="fields_sortable">
 						<?php foreach ($field_sort_order as $field_sort_field) { ?>
 							<?php if($field_sort_field == 'Customer History Business Ticket Type') { ?>
-								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Customer History Business Ticket Type", $all_config) ? 'checked disabled' : (in_array("Customer History Business Ticket Type", $value_config) ? "checked" : '') ?> value="Customer History Business Ticket Type" name="tickets[]"> Business - Last 5 by <?= TICKET_NOUN ?> Type</label>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Customer History Business Ticket Type", $all_config) ? 'checked disabled' : (in_array("Customer History Business Ticket Type", $value_config) ? "checked" : '') ?> value="Customer History Business Ticket Type" name="tickets[]"> Business - Last 5 by <?= TICKET_NOUN ?> Tab</label>
 							<?php } ?>
 							<?php if($field_sort_field == 'Customer History Business Project Type') { ?>
-								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Customer History Business Project Type", $all_config) ? 'checked disabled' : (in_array("Customer History Business Project Type", $value_config) ? "checked" : '') ?> value="Customer History Business Project Type" name="tickets[]"> Business - Last 5 by <?= PROJECT_NOUN ?> Type</label>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Customer History Business Project Type", $all_config) ? 'checked disabled' : (in_array("Customer History Business Project Type", $value_config) ? "checked" : '') ?> value="Customer History Business Project Type" name="tickets[]"> Business - Last 5 by <?= PROJECT_NOUN ?> Tab</label>
 							<?php } ?>
 							<?php if($field_sort_field == 'Customer History Business Ticket Project Type') { ?>
-								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Customer History Business Ticket Project Type", $all_config) ? 'checked disabled' : (in_array("Customer History Business Ticket Project Type", $value_config) ? "checked" : '') ?> value="Customer History Business Ticket Project Type" name="tickets[]"> Business - Last 5 by <?= PROJECT_NOUN ?> Type and <?= TICKET_NOUN ?> Type</label>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Customer History Business Ticket Project Type", $all_config) ? 'checked disabled' : (in_array("Customer History Business Ticket Project Type", $value_config) ? "checked" : '') ?> value="Customer History Business Ticket Project Type" name="tickets[]"> Business - Last 5 by <?= PROJECT_NOUN ?> Tab and <?= TICKET_NOUN ?> Type</label>
 							<?php } ?>
 							<?php if($field_sort_field == 'Customer History Customer Ticket Type') { ?>
-								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Customer History Customer Ticket Type", $all_config) ? 'checked disabled' : (in_array("Customer History Customer Ticket Type", $value_config) ? "checked" : '') ?> value="Customer History Customer Ticket Type" name="tickets[]"> Customer - Last 5 by <?= TICKET_NOUN ?> Type</label>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Customer History Customer Ticket Type", $all_config) ? 'checked disabled' : (in_array("Customer History Customer Ticket Type", $value_config) ? "checked" : '') ?> value="Customer History Customer Ticket Type" name="tickets[]"> Customer - Last 5 by <?= TICKET_NOUN ?> Tab</label>
 							<?php } ?>
 							<?php if($field_sort_field == 'Customer History Customer Project Type') { ?>
-								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Customer History Customer Project Type", $all_config) ? 'checked disabled' : (in_array("Customer History Customer Project Type", $value_config) ? "checked" : '') ?> value="Customer History Customer Project Type" name="tickets[]"> Customer - Last 5 by <?= PROJECT_NOUN ?> Type</label>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Customer History Customer Project Type", $all_config) ? 'checked disabled' : (in_array("Customer History Customer Project Type", $value_config) ? "checked" : '') ?> value="Customer History Customer Project Type" name="tickets[]"> Customer - Last 5 by <?= PROJECT_NOUN ?> Tab</label>
 							<?php } ?>
 							<?php if($field_sort_field == 'Customer History Customer Ticket Project Type') { ?>
-								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Customer History Customer Ticket Project Type", $all_config) ? 'checked disabled' : (in_array("Customer History Customer Ticket Project Type", $value_config) ? "checked" : '') ?> value="Customer History Customer Ticket Project Type" name="tickets[]"> Customer - Last 5 by <?= PROJECT_NOUN ?> Type and <?= TICKET_NOUN ?> Type</label>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Customer History Customer Ticket Project Type", $all_config) ? 'checked disabled' : (in_array("Customer History Customer Ticket Project Type", $value_config) ? "checked" : '') ?> value="Customer History Customer Ticket Project Type" name="tickets[]"> Customer - Last 5 by <?= PROJECT_NOUN ?> Tab and <?= TICKET_NOUN ?> Type</label>
 							<?php } ?>
 							<?php if($field_sort_field == 'Customer History Field Display Notes') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Customer History Field Display Notes", $all_config) ? 'checked disabled' : (in_array("Customer History Field Display Notes", $value_config) ? "checked" : '') ?> value="Customer History Field Display Notes" name="tickets[]"> Display Notes</label>
@@ -905,7 +905,7 @@ if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) {
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Staff Subsistence", $all_config) ? 'checked disabled' : (in_array("Staff Subsistence", $value_config) ? "checked" : '') ?> value="Staff Subsistence" name="tickets[]"> Subsistence Pay</label>
 							<?php } ?>
 							<?php if($field_sort_field == 'Staff Subsistence Options') { ?>
-								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Staff Subsistence Options", $all_config) ? 'checked disabled' : (in_array("Staff Subsistence Options", $value_config) ? "checked" : '') ?> value="Staff Subsistence Options" name="tickets[]"> Subsistence Pay by Type</label>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Staff Subsistence Options", $all_config) ? 'checked disabled' : (in_array("Staff Subsistence Options", $value_config) ? "checked" : '') ?> value="Staff Subsistence Options" name="tickets[]"> Subsistence Pay by Tab</label>
 							<?php } ?>
 							<?php if($field_sort_field == 'Staff Check In') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Staff Check In", $all_config) ? 'checked disabled' : (in_array("Staff Check In", $value_config) ? "checked" : '') ?> value="Staff Check In" name="tickets[]"> Check In</label>
@@ -969,8 +969,8 @@ if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) {
 							<label class="form-checkbox"><input type="checkbox" <?= in_array("Ticket Tasks Add Button", $all_config) ? 'checked disabled' : (in_array("Ticket Tasks Add Button", $value_config) ? "checked" : '') ?> value="Ticket Tasks Add Button" name="tickets[]"> Add Manually Button</label>
 							<label class="form-checkbox"><input type="checkbox" <?= in_array("Ticket Tasks Auto Check In", $all_config) ? 'checked disabled' : (in_array("Ticket Tasks Auto Check In", $value_config) ? "checked" : '') ?> value="Ticket Tasks Auto Check In" name="tickets[]"> Add and Check In Button</label>
 							<label class="form-checkbox"><input type="checkbox" <?= in_array("Ticket Tasks Auto Load New", $all_config) ? 'checked disabled' : (in_array("Ticket Tasks Auto Load New", $value_config) ? "checked" : '') ?> value="Ticket Tasks Auto Load New" name="tickets[]"> Load to New <?= TICKET_NOUN ?> for Extra Billing</label>
-							<label class="form-checkbox"><input type="checkbox" <?= in_array("Ticket Tasks Projects", $all_config) ? 'checked disabled' : (in_array("Ticket Tasks Projects", $value_config) ? "checked" : '') ?> onchange="set_task_groups(this.checked);" value="Ticket Tasks Projects" name="tickets[]"> <?= PROJECT_NOUN ?> Types as Task Groups</label>
-							<label class="form-checkbox"><input type="checkbox" <?= in_array("Ticket Tasks Ticket Type", $all_config) ? 'checked disabled' : (in_array("Ticket Tasks Ticket Type", $value_config) ? "checked" : '') ?> onchange="set_task_groups_tickettype(this.checked);" value="Ticket Tasks Ticket Type" name="tickets[]"> <?= TICKET_NOUN ?> Types as Task Groups</label>
+							<label class="form-checkbox"><input type="checkbox" <?= in_array("Ticket Tasks Projects", $all_config) ? 'checked disabled' : (in_array("Ticket Tasks Projects", $value_config) ? "checked" : '') ?> onchange="set_task_groups(this.checked);" value="Ticket Tasks Projects" name="tickets[]"> <?= PROJECT_NOUN ?> Tabs as Task Groups</label>
+							<label class="form-checkbox"><input type="checkbox" <?= in_array("Ticket Tasks Ticket Type", $all_config) ? 'checked disabled' : (in_array("Ticket Tasks Ticket Type", $value_config) ? "checked" : '') ?> onchange="set_task_groups_tickettype(this.checked);" value="Ticket Tasks Ticket Type" name="tickets[]"> <?= TICKET_NOUN ?> Tabs as Task Groups</label>
 							<label class="form-checkbox"><input type="checkbox" <?= in_array("Ticket Tasks Groups", $all_config) ? 'checked disabled' : (in_array("Ticket Tasks Groups", $value_config) ? "checked" : '') ?> value="Ticket Tasks Groups" name="tickets[]"> New <?= PROJECT_NOUN ?> for Extra Billing</label>
 							<label class="form-checkbox"><input type="checkbox" <?= in_array("Task Extra Billing", $all_config) ? 'checked disabled' : (in_array("Task Extra Billing", $value_config) ? "checked" : '') ?> value="Task Extra Billing" name="tickets[]"> Extra Billing Configuration</label>
 							<label class="form-checkbox"><input type="checkbox" <?= in_array("Extra Billing Create New", $all_config) ? 'checked disabled' : (in_array("Extra Billing Create New", $value_config) ? "checked" : '') ?> value="Extra Billing Create New" name="tickets[]"> New <?= TICKET_NOUN ?> for Extra Billing</label>
@@ -1400,7 +1400,7 @@ if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) {
 						<div class="fields_sortable">
 						<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) { ?>
 							<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Service Group Cat Type All Services", $all_config) ? 'checked disabled' : (in_array("Service Group Cat Type All Services", $value_config) ? "checked" : '') ?> value="Service Group Cat Type All Services" name="tickets[]">
-							<span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will group your Services by Tab and Service Type. All Services will display as a list with an Include checkbox to add it to your <?= TICKET_NOUN ?>."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Group Services by Tab/Service Type - List Services</label>
+							<span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will group your Services by Tab and Service Type. All Services will display as a list with an Include checkbox to add it to your <?= TICKET_NOUN ?>."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Group Services by Tab/Service Tab - List Services</label>
 							<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Service Group Cat Type All Services Combine Checklist", $all_config) ? 'checked disabled' : (in_array("Service Group Cat Type All Services Combine Checklist", $value_config) ? "checked" : '') ?> value="Service Group Cat Type All Services Combine Checklist" name="tickets[]">
 							<span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will group your Services by Tab and Service Type. All Services will display as a list with an Include checkbox to add it to your <?= TICKET_NOUN ?>. The view on the <?= TICKET_NOUN ?> will be the Service Checklist with an Edit button to edit services."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Group Services by Tab/Service Type - List Services - Combine with Service Checklist</label>
 							<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Service Inline", $all_config) ? 'checked disabled' : (in_array("Service Inline", $value_config) ? "checked" : '') ?> value="Service Inline" name="tickets[]">
@@ -1433,7 +1433,7 @@ if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) {
 							<?php } ?>
 							<?php if($field_sort_field == 'Service Type') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Service Type", $all_config) ? 'checked disabled' : (in_array("Service Type", $value_config) ? "checked" : '') ?> value="Service Type" name="tickets[]">
-									<span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will allow you to filter services by type."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Service Type</label>
+									<span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will allow you to filter services by type."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Service Tab</label>
 							<?php } ?>
 							<?php if($field_sort_field == 'Service Category') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Service Category", $all_config) ? 'checked disabled' : (in_array("Service Category", $value_config) ? "checked" : '') ?> value="Service Category" name="tickets[]">
@@ -1542,7 +1542,7 @@ if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) {
 							<div class="fields_sortable">
 							<?php foreach ($field_sort_order as $field_sort_field) { ?>
 								<?php if($field_sort_field == 'Service Staff Checklist Group Cat Type') { ?>
-									<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Service Staff Checklist Group Cat Type", $all_config) ? 'checked disabled' : (in_array("Service Staff Checklist Group Cat Type", $value_config) ? "checked" : '') ?> value="Service Staff Checklist Group Cat Type" name="tickets[]"> Service Checklist Group by Tab/Service Type</label>
+									<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Service Staff Checklist Group Cat Type", $all_config) ? 'checked disabled' : (in_array("Service Staff Checklist Group Cat Type", $value_config) ? "checked" : '') ?> value="Service Staff Checklist Group Cat Type" name="tickets[]"> Service Checklist Group by Tab/Service Tab</label>
 								<?php } ?>
 								<?php if($field_sort_field == 'Service Staff Checklist Another Room') { ?>
 									<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Service Staff Checklist Another Room", $all_config) ? 'checked disabled' : (in_array("Service Staff Checklist Another Room", $value_config) ? "checked" : '') ?> value="Service Staff Checklist Another Room" name="tickets[]"> Add Another Room Button</label>
@@ -1854,7 +1854,7 @@ if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) {
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Material Subcategory", $all_config) ? 'checked disabled' : (in_array("Material Subcategory", $value_config) ? "checked" : '') ?> value="Material Subcategory" name="tickets[]"> Material Sub-Tab</label>
 							<?php } ?>
 							<?php if($field_sort_field == 'Material Type') { ?>
-								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Material Type", $all_config) ? 'checked disabled' : (in_array("Material Type", $value_config) ? "checked" : '') ?> value="Material Type" name="tickets[]"> Material Type</label>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Material Type", $all_config) ? 'checked disabled' : (in_array("Material Type", $value_config) ? "checked" : '') ?> value="Material Type" name="tickets[]"> Material Tab</label>
 							<?php } ?>
 							<?php if($field_sort_field == 'Material Manual') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Material Manual", $all_config) ? 'checked disabled' : (in_array("Material Manual", $value_config) ? "checked" : '') ?> value="Material Manual" name="tickets[]"> Manual Material</label>
@@ -1942,7 +1942,7 @@ if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) {
 						<div class="fields_sortable">
 						<?php foreach ($field_sort_order as $field_sort_field) { ?>
 							<?php if($field_sort_field == 'Residue Type') { ?>
-								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Residue Type", $all_config) ? 'checked disabled' : (in_array("Residue Type", $value_config) ? "checked" : '') ?> value="Residue Type" name="tickets[]"> Type</label>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Residue Type", $all_config) ? 'checked disabled' : (in_array("Residue Type", $value_config) ? "checked" : '') ?> value="Residue Type" name="tickets[]"> Tab</label>
 							<?php } ?>
 							<?php if($field_sort_field == 'Residue Quantity') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Residue Quantity", $all_config) ? 'checked disabled' : (in_array("Residue Quantity", $value_config) ? "checked" : '') ?> value="Residue Quantity" name="tickets[]"> Quantity</label>
@@ -1976,7 +1976,7 @@ if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) {
 						<div class="fields_sortable">
 						<?php foreach ($field_sort_order as $field_sort_field) { ?>
 							<?php if($field_sort_field == 'Other Type') { ?>
-								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Other Type", $all_config) ? 'checked disabled' : (in_array("Other Type", $value_config) ? "checked" : '') ?> value="Other Type" name="tickets[]"> Type</label>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Other Type", $all_config) ? 'checked disabled' : (in_array("Other Type", $value_config) ? "checked" : '') ?> value="Other Type" name="tickets[]"> Tab</label>
 							<?php } ?>
 							<?php if($field_sort_field == 'Other Quantity') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Other Quantity", $all_config) ? 'checked disabled' : (in_array("Other Quantity", $value_config) ? "checked" : '') ?> value="Other Quantity" name="tickets[]"> Quantity</label>
@@ -2010,7 +2010,7 @@ if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) {
 						<div class="fields_sortable">
 						<?php foreach ($field_sort_order as $field_sort_field) { ?>
 							<?php if($field_sort_field == 'Shipping List Type') { ?>
-								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Shipping List Type", $all_config) ? 'checked disabled' : (in_array("Shipping List Type", $value_config) ? "checked" : '') ?> value="Shipping List Type" name="tickets[]"> Type</label>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Shipping List Type", $all_config) ? 'checked disabled' : (in_array("Shipping List Type", $value_config) ? "checked" : '') ?> value="Shipping List Type" name="tickets[]"> Tab</label>
 							<?php } ?>
 							<?php if($field_sort_field == 'Shipping List Class') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Shipping List Class", $all_config) ? 'checked disabled' : (in_array("Shipping List Class", $value_config) ? "checked" : '') ?> value="Shipping List Class" name="tickets[]"> Class</label>
@@ -2207,7 +2207,7 @@ if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) {
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Inventory Basic Total", $all_config) ? 'checked disabled' : (in_array("Inventory Basic Total", $value_config) ? "checked" : '') ?> value="Inventory Basic Total" name="tickets[]"> Total Price</label>
 							<?php } ?>
 							<?php if($field_sort_field == 'Inventory Basic Piece Type') { ?>
-								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Inventory Basic Piece Type", $all_config) ? 'checked disabled' : (in_array("Inventory Basic Piece Type", $value_config) ? "checked" : '') ?> value="Inventory Basic Piece Type" name="tickets[]"> Piece Type</label>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Inventory Basic Piece Type", $all_config) ? 'checked disabled' : (in_array("Inventory Basic Piece Type", $value_config) ? "checked" : '') ?> value="Inventory Basic Piece Type" name="tickets[]"> Piece Tab</label>
 							<?php } ?>
 							<?php if($field_sort_field == 'Inventory Basic PO Line') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Inventory Basic PO Line", $all_config) ? 'checked disabled' : (in_array("Inventory Basic PO Line", $value_config) ? "checked" : '') ?> value="Inventory Basic PO Line" name="tickets[]"> PO Line Item #</label>
@@ -2269,7 +2269,7 @@ if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) {
 						<div class="fields_sortable">
 						<?php foreach ($field_sort_order as $field_sort_field) { ?>
 							<?php if($field_sort_field == 'Inventory General Piece Count Type') { ?>
-								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Inventory General Piece Count Type", $all_config) ? 'checked disabled' : (in_array("Inventory General Piece Count Type", $value_config) ? "checked" : '') ?> value="Inventory General Piece Count Type" name="tickets[]"> Piece Count & Type</label>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Inventory General Piece Count Type", $all_config) ? 'checked disabled' : (in_array("Inventory General Piece Count Type", $value_config) ? "checked" : '') ?> value="Inventory General Piece Count Type" name="tickets[]"> Piece Count & Tab</label>
 							<?php } ?>
 							<?php if($field_sort_field == 'Inventory General Piece') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Inventory General Piece", $all_config) ? 'checked disabled' : (in_array("Inventory General Piece", $value_config) ? "checked" : '') ?> value="Inventory General Piece" name="tickets[]"> Shipment Count</label>
@@ -2283,7 +2283,7 @@ if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) {
 									<span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will allow you to specify within a <?= TICKET_NOUN ?> that any piece has the same details as the first piece. It will appear as a checkbox that is displayed on all pieces after the first piece."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Copy Details from First Piece</label>
 							<?php } ?>
 							<?php if($field_sort_field == 'Inventory General Piece Type') { ?>
-								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Inventory General Piece Type", $all_config) ? 'checked disabled' : (in_array("Inventory General Piece Type", $value_config) ? "checked" : '') ?> value="Inventory General Piece Type" name="tickets[]"> Piece Type</label>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Inventory General Piece Type", $all_config) ? 'checked disabled' : (in_array("Inventory General Piece Type", $value_config) ? "checked" : '') ?> value="Inventory General Piece Type" name="tickets[]"> Piece Tab</label>
 							<?php } ?>
 							<?php if($field_sort_field == 'Inventory General PO Number') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Inventory General PO Number", $all_config) ? 'checked disabled' : (in_array("Inventory General PO Number", $value_config) ? "checked" : '') ?> value="Inventory General PO Number" name="tickets[]"> Purchase Order Number</label>
@@ -2398,7 +2398,7 @@ if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) {
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Inventory Detail Site", $all_config) ? 'checked disabled' : (in_array("Inventory Detail Site", $value_config) ? "checked" : '') ?> value="Inventory Detail Site" name="tickets[]"> Site</label>
 							<?php } ?>
 							<?php if($field_sort_field == 'Inventory Detail Piece Type') { ?>
-								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Inventory Detail Piece Type", $all_config) ? 'checked disabled' : (in_array("Inventory Detail Piece Type", $value_config) ? "checked" : '') ?> value="Inventory Detail Piece Type" name="tickets[]"> Piece Type</label>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Inventory Detail Piece Type", $all_config) ? 'checked disabled' : (in_array("Inventory Detail Piece Type", $value_config) ? "checked" : '') ?> value="Inventory Detail Piece Type" name="tickets[]"> Piece Tab</label>
 							<?php } ?>
 							<?php if($field_sort_field == 'Inventory Detail Customer Order') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Inventory Detail Customer Order", $all_config) ? 'checked disabled' : (in_array("Inventory Detail Customer Order", $value_config) ? "checked" : '') ?> value="Inventory Detail Customer Order" name="tickets[]"> Customer Order #</label>
@@ -2637,7 +2637,7 @@ if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) {
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Delivery Stops", array_merge($all_config,$value_config)) ? 'disabled' : (in_array("Delivery Pickup Phone", $all_config) ? 'checked disabled' : (in_array("Delivery Pickup Phone", $value_config) ? "checked" : '')) ?> value="Delivery Pickup Phone" name="tickets[]"> Multi-Stop Contact Info</label>
 							<?php } ?>
 							<?php if($field_sort_field == 'Delivery Pickup Type') { ?>
-								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Delivery Stops", array_merge($all_config,$value_config)) ? 'disabled' : (in_array("Delivery Pickup Type", $all_config) ? 'checked disabled' : (in_array("Delivery Pickup Type", $value_config) ? "checked" : '')) ?> value="Delivery Pickup Type" name="tickets[]"> Multi-Stop Type</label>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Delivery Stops", array_merge($all_config,$value_config)) ? 'disabled' : (in_array("Delivery Pickup Type", $all_config) ? 'checked disabled' : (in_array("Delivery Pickup Type", $value_config) ? "checked" : '')) ?> value="Delivery Pickup Type" name="tickets[]"> Multi-Stop Tab</label>
 							<?php } ?>
 							<?php if($field_sort_field == 'Delivery Pickup Volume') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Delivery Stops", array_merge($all_config,$value_config)) ? 'disabled' : (in_array("Delivery Pickup Volume", $all_config) ? 'checked disabled' : (in_array("Delivery Pickup Volume", $value_config) ? "checked" : '')) ?> value="Delivery Pickup Volume" name="tickets[]"> Multi-Stop Volume</label>
@@ -2920,7 +2920,7 @@ if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) {
 									<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Transport Carrier", $all_config) ? 'checked disabled' : (in_array("Transport Carrier", $value_config) ? "checked" : '') ?> value="Transport Carrier" name="tickets[]"> Contact</label>
 								<?php } ?>
 								<?php if($field_sort_field == 'Transport Type') { ?>
-									<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Transport Type", $all_config) ? 'checked disabled' : (in_array("Transport Type", $value_config) ? "checked" : '') ?> value="Transport Type" name="tickets[]"> Shipment Type</label>
+									<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Transport Type", $all_config) ? 'checked disabled' : (in_array("Transport Type", $value_config) ? "checked" : '') ?> value="Transport Type" name="tickets[]"> Shipment Tab</label>
 								<?php } ?>
 								<?php if($field_sort_field == 'Transport Number') { ?>
 									<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Transport Number", $all_config) ? 'checked disabled' : (in_array("Transport Number", $value_config) ? "checked" : '') ?> value="Transport Number" name="tickets[]"> Bill of Lading #</label>

@@ -815,9 +815,9 @@ function numericFilter(txb) {
                     							}
 
                     							if ( strpos ( $value_config, ',prodProduct Type,' ) !== FALSE ) { ?>
-                    								<label class="show-on-mob control-label">Product Type:</label>
+                    								<label class="show-on-mob control-label">Product Tab:</label>
                     								<div class="col-sm-3 <?= !($tile_security['edit'] > 0) ? 'readonly-block' : '' ?> expand-mobile" id="prodpart_0">
-                    									<select data-placeholder="Select a Type..." id="prodpart_dd_0" name="prodpart_no[]" class="chosen-select-deselect form-control prodpart">
+                    									<select data-placeholder="Select a Tab..." id="prodpart_dd_0" name="prodpart_no[]" class="chosen-select-deselect form-control prodpart">
                     										<option value=""></option><?php
                     										$query = mysqli_query ( $dbc, "SELECT `productid`, `product_type` FROM `products` WHERE `deleted`=0 ORDER BY `product_type`" );
                     										while($row = mysqli_fetch_array($query)) {

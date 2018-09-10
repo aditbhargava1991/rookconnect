@@ -322,7 +322,7 @@ if($strict_view > 0) {
 					}
 					if ( strpos ( $value_config, ',Type,' ) !== FALSE ) { ?>
 						<div class="col-sm-4 <?= !($tile_security['edit'] > 0) ? 'readonly-block' : '' ?> double-gap-bottom">
-							<label class="text-center">Product Type</label>
+							<label class="text-center">Product Tab</label>
 							<select data-placeholder="Choose a Tab..." name="new_type" class="chosen-select-deselect form-control">
 								<option value=""></option><?php
 								$query = mysqli_query ( $dbc, "SELECT DISTINCT(`product_type`) FROM `products` WHERE `deleted`=0 ORDER BY `product_type`" );

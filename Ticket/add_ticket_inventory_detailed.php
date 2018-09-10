@@ -223,7 +223,7 @@ do {
 							<?php } ?>
 							<?php if(strpos($value_config,',Inventory Detail Piece Type,') !== FALSE && $field_sort_field == 'Inventory Detail Piece Type') { ?>
 								<div class="form-group" <?= $general_inventory['description'] == '' || $inventory['piece_type'] != '' ? '' : 'style="display:none;"' ?>>
-									<label class="control-label col-sm-4">Piece Type:</label>
+									<label class="control-label col-sm-4">Piece Tab:</label>
 									<div class="col-sm-8"><div class="col-sm-12">
 										<?php if(count($piece_types) > 0) { ?>
 											<select name="piece_type" data-placeholder="Package details (e.g. box/skid etc.)..." data-table="ticket_attached" data-id="<?= $inventory['id'] ?>" data-id-field="id" data-type="inventory" data-type-field="src_table" data-attach="<?= $general_item['id'] ?>" data-attach-field="line_id" data-detail="<?= $i ?>" data-detail-field="piece_num" class="chosen-select-deselect"><option></option>
@@ -664,7 +664,7 @@ do {
 						<?php } ?>
 						<?php if(strpos($value_config,',Inventory Detail Piece Type,') !== FALSE && $field_sort_field == 'Inventory Detail Piece Type') { ?>
 							<div class="form-group" <?= $general_inventory['description'] == '' || $inventory['piece_type'] != '' ? '' : 'style="display:none;"' ?>>
-								<label class="control-label col-sm-4">Piece Type:</label>
+								<label class="control-label col-sm-4">Piece Tab:</label>
 								<div class="col-sm-8">
 									<?= $inventory['piece_type'] ?>
 								</div>

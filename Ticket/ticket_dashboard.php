@@ -1101,7 +1101,7 @@ IF(!IFRAME_PAGE) { ?>
 										<div class="panel-heading mobile_load">
 											<h4 class="panel-title">
 												<a data-toggle="collapse" data-parent="#project_mobile_accordions" href="#project_<?= $cat_tab_value ?>" class="double-pad-left">
-													<?= PROJECT_NOUN ?> Type: <?= $cat_tab.' ('.$row['count'].')' ?><span class="glyphicon glyphicon-plus"></span>
+													<?= PROJECT_NOUN ?> Tab: <?= $cat_tab.' ('.$row['count'].')' ?><span class="glyphicon glyphicon-plus"></span>
 												</a>
 											</h4>
 										</div>
@@ -1325,7 +1325,7 @@ IF(!IFRAME_PAGE) { ?>
 		if(in_array('Project',$db_summary)) {
 			$block_length = 68;
 			$block = '<div class="overview-block">
-				<h4>'.TICKET_TILE.' per '.PROJECT_NOUN.' Type</h4>';
+				<h4>'.TICKET_TILE.' per '.PROJECT_NOUN.' Tab</h4>';
 				foreach($project_types as $cat_tab_value => $cat_tab) {
 					$ticket = $dbc->query("SELECT COUNT(*) count FROM `tickets` WHERE `deleted`=0 AND `status` != 'Archive' AND `projectid` > 0  AND `projectid` IN (SELECT `projectid` FROM `project` WHERE `deleted` = 0 AND `projecttype` = '$cat_tab_value')")->fetch_assoc();
 					$block .= '<p>'.(in_array('Project',$db_sort) ? '<a class="cursor-hand" onclick="$(\'[data-project=\\\''.$cat_tab_value.'\\\']\').first().click().parents(\'li\').each(function() { $(this).find(\'a\').first().filter(\'.collapsed\').click(); });">' : '').$cat_tab.(in_array('Project',$db_sort) ? '</a>' : '').': '.$ticket['count'].'</p>';
