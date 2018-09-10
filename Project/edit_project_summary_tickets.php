@@ -15,10 +15,10 @@
                 </tr>
                 <?php while($rows = mysqli_fetch_array($tickets)) { ?>
                     <tr>
-                        <td data-title="Ticket Type"><?= $row['ticket_type'] ?></td>
-                        <td data-title="Fee Amount"><?= number_format($row['fee_amt'],2) ?></td>
-                        <td data-title="Status"><?= $row['status'] ?></td>
-                        <td data-title="Status"><?= $row['status_date'] ?></td>
+                        <td data-title="Ticket Type"><?= $rows['ticket_type'] ?></td>
+                        <td data-title="Fee Amount"><?= number_format($rows['fee_amt'],2) ?></td>
+                        <td data-title="Status"><?= $rows['status'] ?></td>
+                        <td data-title="Status"><?= $rows['status_date'] ?></td>
                     </tr>
                 <?php } ?>
             </table>

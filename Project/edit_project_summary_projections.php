@@ -12,7 +12,7 @@
                     <th>Heading</th>
                     <th>Price</th>
                 </tr>
-                <?php $rows = mysqli_fetch_array($project); ?>
+                <?php $row = mysqli_fetch_array($project); ?>
                     <tr>
                         <td data-title="Projection Type">Service</td>
                         <td data-title="Projection Service Heading"><?= $row['projection_service_heading'] ?></td>

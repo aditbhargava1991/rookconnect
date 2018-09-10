@@ -15,10 +15,10 @@
                 </tr>
                 <?php while($rows = mysqli_fetch_array($project)) { ?>
                     <tr>
-                        <td data-title="Project Type"><?= $row['projecttype'] ?></td>
-                        <td data-title="Project Name"><?= $row['project_name'] ?></td>
-                        <td data-title="Total Price"><?= number_format($row['total_price'],2) ?></td>
-                        <td data-title="Status"><?= $row['status'] ?></td>
+                        <td data-title="Project Type"><?= $rows['projecttype'] ?></td>
+                        <td data-title="Project Name"><?= $rows['project_name'] ?></td>
+                        <td data-title="Total Price"><?= number_format($rows['total_price'],2) ?></td>
+                        <td data-title="Status"><?= $rows['status'] ?></td>
                     </tr>
                 <?php } ?>
             </table>

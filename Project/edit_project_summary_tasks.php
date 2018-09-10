@@ -15,10 +15,10 @@
                 </tr>
                 <?php while($rows = mysqli_fetch_array($tasks)) { ?>
                     <tr>
-                        <td data-title="Task"><?= $row['task'] ?></td>
-                        <td data-title="To do date"><?= $row['task_tododate'] ?></td>
-                        <td data-title="Status"><?= $row['status'] ?></td>
-                        <td data-title="Status"><?= $row['status_date'] ?></td>
+                        <td data-title="Task"><?= $rows['task'] ?></td>
+                        <td data-title="To do date"><?= $rows['task_tododate'] ?></td>
+                        <td data-title="Status"><?= $rows['status'] ?></td>
+                        <td data-title="Status"><?= $rows['status_date'] ?></td>
                     </tr>
                 <?php } ?>
             </table>

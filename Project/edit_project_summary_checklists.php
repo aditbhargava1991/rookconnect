@@ -13,8 +13,8 @@
                 </tr>
                 <?php while($rows = mysqli_fetch_array($checklists)) { ?>
                     <tr>
-                        <td data-title="Checklist Type"><?= $row['checklist_type'] ?></td>
-                        <td data-title="Checklist Name"><?= $row['checklist_name'] ?></td>
+                        <td data-title="Checklist Type"><?= $rows['checklist_type'] ?></td>
+                        <td data-title="Checklist Name"><?= $rows['checklist_name'] ?></td>
                     </tr>
                 <?php } ?>
             </table>
