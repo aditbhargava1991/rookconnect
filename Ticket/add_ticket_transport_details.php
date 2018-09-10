@@ -49,7 +49,7 @@ $carriers = sort_contacts_query($dbc->query("SELECT `first_name`, `last_name`, `
 				<?php if($origin_save == 'readonly') {
 					echo $origin['details'];
 				} else { ?><?php if(count($transport_types) > 0) { ?>
-					<select name="details" data-placeholder="Types of shipments (e.g. local cartage)..." class="chosen-select-deselect" <?= $origin_save ?>><option></option>
+					<select name="details" data-placeholder="Tabs of shipments (e.g. local cartage)..." class="chosen-select-deselect" <?= $origin_save ?>><option></option>
 						<?php foreach(explode(',',get_config($dbc, 'transport_types')) as $transport_type_name) { ?>
 							<option <?= $origin['details'] == $transport_type_name ? 'selected' : '' ?> value="<?= $transport_type_name ?>"><?= $transport_type_name ?></option>
 						<?php }
@@ -58,7 +58,7 @@ $carriers = sort_contacts_query($dbc->query("SELECT `first_name`, `last_name`, `
 						<?php } ?>
 					</select>
 				<?php } else { ?>
-						<input type="text" name="details" class="form-control" <?= $origin_save ?> value="<?= $origin['details'] ?>" placeholder="Types of shipments (e.g. local cartage)...">
+						<input type="text" name="details" class="form-control" <?= $origin_save ?> value="<?= $origin['details'] ?>" placeholder="Tabs of shipments (e.g. local cartage)...">
 					<?php } ?>
 				<?php } ?>
 			</div>

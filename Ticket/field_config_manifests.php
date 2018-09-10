@@ -94,7 +94,7 @@ function saveFields() {
 	</div>
 </div>
 <div class="form-group">
-	<label class="col-sm-4 control-label"><?= PROJECT_NOUN ?> Types to Display For Manifests:</label>
+	<label class="col-sm-4 control-label"><?= PROJECT_NOUN ?> Tabs to Display For Manifests:</label>
 	<div class="col-sm-8">
 		<?php foreach(explode(',',get_config($dbc, 'project_tabs')) as $project_type) {
 			$type_id = config_safe_str($project_type); ?>

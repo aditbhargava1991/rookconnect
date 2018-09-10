@@ -46,7 +46,7 @@ function removeType(a) {
 	saveTypes();
 }
 </script>
-<span class="popover-examples"><a data-toggle="tooltip" data-original-title="Each of the below types of <?= TICKET_TILE ?> can become a label, a tab, and have specific options."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>
+<span class="popover-examples"><a data-toggle="tooltip" data-original-title="Each of the below tabs of <?= TICKET_TILE ?> can become a label, a tab, and have specific options."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>
 <?php $type_tiles = get_config($dbc, 'ticket_type_tiles');
 foreach($ticket_tabs as $type) { ?>
 	<div class="form-group type-option">
@@ -64,8 +64,8 @@ foreach($ticket_tabs as $type) { ?>
 	</div>
 <?php } ?>
 <hr>
-<label class="col-sm-3"><span class="popover-examples"><a data-toggle="tooltip" data-original-title="Enabling this option will add additional tiles to the menus for all <?= TICKET_NOUN ?> types, which can have specific security and display only the <?= TICKET_TILE ?> of a given type."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Display Tiles for ALL <?= TICKET_NOUN ?> Types:</label>
-<label class="form-checkbox"><input name="ticket_type_tiles" type="checkbox" <?= ($type_tiles == 'SHOW' ? 'checked' : '') ?>> Include ALL <?= TICKET_NOUN ?> Types</label>
+<label class="col-sm-3"><span class="popover-examples"><a data-toggle="tooltip" data-original-title="Enabling this option will add additional tiles to the menus for all <?= TICKET_NOUN ?> tabs, which can have specific security and display only the <?= TICKET_TILE ?> of a given type."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Display Tiles for ALL <?= TICKET_NOUN ?> Types:</label>
+<label class="form-checkbox"><input name="ticket_type_tiles" type="checkbox" <?= ($type_tiles == 'SHOW' ? 'checked' : '') ?>> Include ALL <?= TICKET_NOUN ?> Tabs</label>
 <div class="form-group">
 	<label class="col-sm-3"><span class="popover-examples"><a data-toggle="tooltip" data-original-title="Setting a default <?= TICKET_NOUN ?> will set the type for all newly created <?= TICKET_TILE ?>."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Default <?= TICKET_NOUN ?> Type:</label>
 	<div class="col-sm-9">

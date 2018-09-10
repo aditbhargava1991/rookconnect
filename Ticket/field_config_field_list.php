@@ -2177,7 +2177,7 @@ if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) {
 					<div class="block-group">
 						<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) { ?>
 							<div class="form-group">
-								<label class="col-sm-4 control-label">Piece Types</label>
+								<label class="col-sm-4 control-label">Piece Tabs</label>
 								<div class="col-sm-8">
 									<input type="text" name="piece_types" class="form-control" value="<?= get_config($dbc, 'piece_types') ?>">
 								</div>
@@ -2730,14 +2730,14 @@ if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) {
 								</div>
 							</div>
 							<div class="form-group">
-								<label class="col-sm-4 control-label">Delivery Types</label>
+								<label class="col-sm-4 control-label">Delivery Tabs</label>
 								<div class="col-sm-8">
 									<input type="text" name="delivery_types" class="form-control" value="<?= get_config($dbc, 'delivery_types') ?>">
 								</div>
 							</div>
 							<div class="form-group">
 								<?php $delivery_type_contacts = get_config($dbc, 'delivery_type_contacts'); ?>
-								<label class="col-sm-4 control-label">Populate Delivery Types with <?= CONTACTS_TILE ?>, such as Sites, Warehouses<?= $delivery_type_contacts != '' && $tab != '' ? ' (Default: '.$delivery_type_contacts.')' : '' ?>:</label>
+								<label class="col-sm-4 control-label">Populate Delivery Tabs with <?= CONTACTS_TILE ?>, such as Sites, Warehouses<?= $delivery_type_contacts != '' && $tab != '' ? ' (Default: '.$delivery_type_contacts.')' : '' ?>:</label>
 								<div class="col-sm-8">
 									<select name="delivery_type_contacts<?= $tab == '' ? '' : '_'.$tab ?>" data-placeholder="Select Tab" class="chosen-select-deselect"><option></option>
 										<?php $tab_delivery_type_contacts = get_config($dbc, 'delivery_type_contacts'.($tab == '' ? '' : '_'.$tab));
@@ -2959,7 +2959,7 @@ if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) {
 									</div>
 								</div>
 								<div class="form-group">
-									<label class="col-sm-4 control-label">Transport Types:</label>
+									<label class="col-sm-4 control-label">Transport Tabs:</label>
 									<div class="col-sm-8">
 										<input type="text" name="transport_types" class="form-control" value="<?= get_config($dbc, 'transport_types') ?>">
 									</div>
