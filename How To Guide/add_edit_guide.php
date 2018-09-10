@@ -6,6 +6,7 @@
 	include ('../include.php');
     include ('check_security.php');
     include ('../database_connection_htg.php');
+    $force_load_list = true;
     include ('../tile_list.php');
 	error_reporting(0);
     $type_url = ( isset($_GET['type']) ) ? trim($_GET['type']) : '';
@@ -208,9 +209,9 @@
 						Tile: <span class="hp-red">*</span>
 					</label>
 					<div class="col-sm-8">
-						<select data-placeholder="Choose the Tile..." name="tile" id="tile" class="chosen-select-deselect form-control" width="380">
+                        <select data-placeholder="Choose the Tile..." name="tile" id="tile" class="chosen-select-deselect form-control" width="380">
 							<option value=""></option><?php
-							$tiles = get_tile_names($all_tiles_list);
+                            $tiles = get_tile_names($all_tiles_list);
 							foreach ( $tiles as $tile_name ) {
 								$selected = ( $tile_name == $tile ) ? 'selected="selected"' : '';
 								echo '<option value="'. $tile_name .'" '. $selected .'>'. $tile_name .'</option>';

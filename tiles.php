@@ -1,5 +1,5 @@
 <?php // Only update the tile list in session once every minute
-if($_SESSION['tile_list_updated'] + 30 < time() || $_SERVER['PHP_SELF'] == '/Settings/settings.php' || count($_SESSION['tile_list']) == 0) {
+if($_SESSION['tile_list_updated'] + 30 < time() || $_SERVER['PHP_SELF'] == '/Settings/settings.php' || count($_SESSION['tile_list']) == 0 || $force_load_list === true) {
 	// This file generates the tiles or links
 	include_once('tile_data.php');
 
