@@ -187,8 +187,10 @@ function report_receivables($dbc, $starttime, $endtime, $as_at_date, $table_styl
     <th width="7%">90-119</th>
     <th width="7%">120+</th>
     </tr>';
+    
+    $ar_types = "'On Account', 'Net 30', 'Net 30 Days', 'Net 60', 'Net 60 Days', 'Net 90', 'Net 90 Days', 'Net 120', 'Net 120 Days', ''";
 
-    $report_service = mysqli_query($dbc,"SELECT DISTINCT(patientid) FROM invoice_patient WHERE (paid_date > '$as_at_date' OR `paid`='On Account') AND (DATE(invoice_date) >= '".$starttime."' AND DATE(invoice_date) <= '".$endtime."') ORDER BY patientid");
+    $report_service = mysqli_query($dbc,"SELECT DISTINCT(patientid) FROM invoice_patient WHERE (paid_date > '$as_at_date' OR `paid` IN ($ar_types)) AND (DATE(invoice_date) >= '".$starttime."' AND DATE(invoice_date) <= '".$endtime."') ORDER BY patientid");
 
     $total1 = 0;
     $total2 = 0;
@@ -198,7 +200,6 @@ function report_receivables($dbc, $starttime, $endtime, $as_at_date, $table_styl
     $total6 = 0;
     $total7 = 0;
     $total8 = 0;
-    $ar_types = "'On Account', 'Net 30', 'Net 30 Days', 'Net 60', 'Net 60 Days', 'Net 90', 'Net 90 Days', 'Net 120', 'Net 120 Days', ''";
     
     $odd_even = 0;
     
