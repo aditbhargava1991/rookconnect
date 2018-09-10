@@ -163,8 +163,8 @@ $html .= '<p style="text-align:center"><h2>'.COMPANY_SOFTWARE_NAME.'</h2></p><br
     </tr>
 </table><br><br>';
 
-if ( !empty($customer['referred_by']) ) {
-    $html .= '<table><tr><td style="width:20%">Reference:</td><td style="width:80%">'.$customer['referred_by'].'</td></tr></table><br><br>';
+if ( !empty($point_of_sell['reference']) ) {
+    $html .= '<table><tr><td style="width:20%">Reference:</td><td style="width:80%">'.$point_of_sell['reference'].'</td></tr></table><br><br>';
 }
 $html .= '<table border="1px" style="padding:3px; border:1px solid grey;">
 		<tr nobr="true" style="background-color:rgb(140,173,174); color:black; "><td>Salesperson</td><td>Delivery Option</td><td>Ship Date</td><td>Payment Type</td>'.$thduedate.'</tr>
