@@ -180,8 +180,21 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
                         echo '<a href="field_config_invoice.php" class="pull-right gap-right gap-top"><img width="30" title="Tile Settings" src="../img/icons/settings-4.png" class="settings-classic wiggle-me no-toggle"></a>';
                     } ?>
                     <span class="pull-right gap-top offset-right-5"><img src="../img/icons/eyeball.png" alt="View Tabs" title="View Tabs" class="cursor-hand no-toggle inline-img" onclick="view_tabs();" /></span>
+                    <span class="pull-right gap-top offset-right-5"><img src="../img/icons/pie-chart.png" alt="View Summary" title="View Summary" class="cursor-hand no-toggle inline-img" onclick="view_summary();" /></span>
                     <div class="clearfix"></div>
                     <div class="view_tabs double-padded" style="display:none;"><?php include('tile_tabs.php'); ?></div>
+                    
+                    <!-- Summary Blocks -->
+                    <div class="view_summary double-gap-bottom" style="display:none;">
+                        <div class="col-xs-12 col-sm-4 gap-top">
+                            <div class="summary-block">
+                                <?php $total_invoices = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT SUM(`final_price`) `final_price` FROM `invoice` WHERE `deleted`=0 AND (`invoice_date` BETWEEN '".date('Y-m-01')."' AND '".date('Y-m-t')."') AND `status`='Void'")); ?>
+                                <div class="text-lg"><?= ( $total_invoices['final_price'] > 0 ) ? '$'.number_format($total_invoices['final_price'], 2) : 0; ?></div>
+                                <div>Total Invoices</div>
+                            </div>
+                        </div>
+                        <div class="clearfix"></div>
+                    </div><!-- .view_summary -->
                 </div>
             </div><!-- .tile-header -->
 
