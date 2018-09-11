@@ -27,6 +27,7 @@ if(isset($_POST['update'])) {
 	$revision = $manifest['revision'] + 1;
 	$line_items = filter_var(implode(',',$_POST['include']),FILTER_SANITIZE_STRING);
 	$sum_qty = 0;
+	$total_weight = 0;
 	$manual_qty = [];
 	foreach($_POST['include'] as $i => $line_id) {
 		$prior_qty = $_POST['prior_qty'][$i];
@@ -71,11 +72,29 @@ if(isset($_POST['update'])) {
 	}
 	foreach($_POST['include'] as $i => $line_id) {
 		if($line_id > 0) {
-			$row = $dbc->query("SELECT `tickets`.`ticket_label`,`ticket_attached`.`po_num`,`origin`.`vendor`,`ticket_attached`.`po_line`,`ticket_attached`.`notes`,`inventory`.`inventoryid`,IFNULL(`inventory`.`quantity`,`ticket_attached`.`qty`) `qty`,IFNULL(`ticket_attached`.`siteid`,`tickets`.`siteid`) `siteid` FROM `ticket_attached` LEFT JOIN `inventory` ON `ticket_attached`.`src_table`='inventory' AND `ticket_attached`.`item_id`=`inventory`.`inventoryid` LEFT JOIN `tickets` ON `ticket_attached`.`ticketid`=`tickets`.`ticketid` LEFT JOIN `ticket_schedule` `origin` ON `tickets`.`ticketid`=`origin`.`ticketid` AND `origin`.`type`='origin' WHERE `ticket_attached`.`id`='$line_id'")->fetch_assoc();
+			$row = $dbc->query("SELECT `tickets`.`ticket_label`,`ticket_attached`.`po_num`,`origin`.`vendor`,`ticket_attached`.`po_line`,`ticket_attached`.`notes`,`inventory`.`inventoryid`,IFNULL(`inventory`.`quantity`,`ticket_attached`.`qty`) `qty`,IFNULL(`ticket_attached`.`siteid`,`tickets`.`siteid`) `siteid`,IFNULL(`ticket_attached`.`siteid`,`tickets`.`siteid`) `siteid`,IFNULL(`ticket_attached`.`weight`,'') `weight`,IFNULL(`ticket_attached`.`weight_units`,'') `weight_units` FROM `ticket_attached` LEFT JOIN `inventory` ON `ticket_attached`.`src_table`='inventory' AND `ticket_attached`.`item_id`=`inventory`.`inventoryid` LEFT JOIN `tickets` ON `ticket_attached`.`ticketid`=`tickets`.`ticketid` LEFT JOIN `ticket_schedule` `origin` ON `tickets`.`ticketid`=`origin`.`ticketid` AND `origin`.`type`='origin' WHERE `ticket_attached`.`id`='$line_id'")->fetch_assoc();
+			$weight = [];
+			$inv_weight_units = explode('#*#',$row['weight_units']);
+			foreach(explode('#*#',$row['weight']) as $id => $inv_weight) {
+				if(in_array('weight convert kg to lb',$manifest_fields) && $inv_weight_units[$id] == 'kg') {
+					$inv_weight = number_format(($inv_weight*2.20462262185),2);
+					$inv_weight_units[$id] = 'lbs';
+				}
+				$weight[] = $inv_weight.' '.$inv_weight_units[$id];
+				if(in_array('total weight lb',$manifest_fields)) {
+					if($inv_weight_units[$id] == 'kg') {
+						$total_weight += ($inv_weight*2.20462262185);
+					} else {
+						$total_weight += $inv_weight;
+					}
+				}
+			}
+			$weight = implode('<br />', $weight);
 		} else {
 			$row = ['qty'=>'','siteid'=>$siteid];
+			$weight = '';
 		}
-		$lines[] = ['file'=>$row['ticket_label'], 'po'=>$row['po_num'], 'vendor'=>($row['vendor'] > 0 ? get_contact($dbc, $row['vendor'],'name_company') : ''), 'line'=>(empty($ticket['po_line']) ? 'N/A' : $ticket['po_line']), 'qty'=>($row['qty'] > 0 ? round($row['qty'],3) : '1'), 'manual_qty'=>$manual_qty[$i], 'site'=>($row['siteid'] == $siteid ? $manifest_label : ($row['siteid'] > 0 ? get_contact($dbc, $row['siteid']) : 'UNASSIGNED')), 'notes'=>$row['notes']];
+		$lines[] = ['file'=>$row['ticket_label'], 'po'=>$row['po_num'], 'vendor'=>($row['vendor'] > 0 ? get_contact($dbc, $row['vendor'],'name_company') : ''), 'line'=>(empty($row['po_line']) ? 'N/A' : $row['po_line']), 'qty'=>($row['qty'] > 0 ? round($row['qty'],3) : '1'), 'manual_qty'=>$manual_qty[$i], 'site'=>($row['siteid'] == $siteid ? $manifest_label : ($row['siteid'] > 0 ? get_contact($dbc, $row['siteid']) : 'UNASSIGNED')), 'notes'=>$row['notes'], 'weight'=>$weight];
 		if(in_array('pdf_collapse',$manifest_fields)) {
 			$columns['po'] += (!empty($row['po_num']) ? 1 : 0);
 			$columns['vendor'] += ($row['vendor'] > 0 ? 1 : 0);
@@ -84,9 +103,10 @@ if(isset($_POST['update'])) {
 			$columns['manual_qty'] += ($manual_qty[$i] > 0 ? 1 : 0);
 			$columns['site'] += ($row['siteid'] > 0 ? 1 : 0);
 			$columns['notes'] += (!empty($row['notes']) ? 1 : 0);
+			$columns['weight'] += (!empty($weight) ? 1 : 0);
 		}
 	}
-	$col_count = (in_array('file',$manifest_fields) ? 1 : 0) + (in_array('po',$manifest_fields) && $columns['po'] > 0 ? 1 : 0) + (in_array('vendor',$manifest_fields) && $columns['vendor'] > 0 ? 1 : 0) + (in_array('line',$manifest_fields) && $columns['line'] > 0 ? 1 : 0) + ((in_array('qty',$manifest_fields) || in_array('group pieces',$manifest_fields)) && $columns['qty'] > 0 ? 1 : 0) + (in_array('manual qty',$manifest_fields) && $columns['manual_qty'] > 0 ? 1 : 0) + (in_array('site',$manifest_fields) && $columns['site'] > 0 ? 1 : 0) + (in_array('notes',$manifest_fields) && $columns['notes'] > 0 ? 1 : 0) + (!in_array('group pieces',$manifest_fields) ? 1 : 0);
+	$col_count = (in_array('file',$manifest_fields) ? 1 : 0) + (in_array('po',$manifest_fields) && $columns['po'] > 0 ? 1 : 0) + (in_array('vendor',$manifest_fields) && $columns['vendor'] > 0 ? 1 : 0) + (in_array('line',$manifest_fields) && $columns['line'] > 0 ? 1 : 0) + ((in_array('qty',$manifest_fields) || in_array('group pieces',$manifest_fields)) && $columns['qty'] > 0 ? 1 : 0) + (in_array('manual qty',$manifest_fields) && $columns['manual_qty'] > 0 ? 1 : 0) + (in_array('site',$manifest_fields) && $columns['site'] > 0 ? 1 : 0) + (in_array('notes',$manifest_fields) && $columns['notes'] > 0 ? 1 : 0) + (!in_array('group pieces',$manifest_fields) ? 1 : 0) + (in_array('weight',$manifest_fields) && $columns['weight'] > 0 ? 1 : 0);
 	$html = '<table style="width:100%;border:none;">
 		<tr>
 			'.(file_exists('download/'.$logo) ? '<td style="width: 120px;"><img src="download/'.$logo.'" style="margin-right:20px;margin-bottom:20px;width:100px;"><br />&nbsp;</td>' : '').'
@@ -103,6 +123,7 @@ if(isset($_POST['update'])) {
 			'.(in_array('line',$manifest_fields) && $columns['line'] > 0 ? '<th style="border:1px solid black; text-align:center;">LINE ITEM #</th>' : '').'
 			'.((in_array('qty',$manifest_fields) || in_array('group pieces',$manifest_fields)) && $columns['qty'] > 0 ? '<th style="border:1px solid black; text-align:center;">LAND TRAN PIECE COUNT</th>' : '').'
 			'.(in_array('manual qty',$manifest_fields) && $columns['manual_qty'] > 0 ? '<th style="border:1px solid black; text-align:center;">LAND TRAN PIECE COUNT</th>' : '').'
+			'.(in_array('weight',$manifest_fields) && $columns['weight'] > 0 ? '<th style="border:1px solid black; text-align:center;">WEIGHT</th>' : '').'
 			'.(in_array('site',$manifest_fields) && $columns['site'] > 0 ? '<th style="border:1px solid black; text-align:center;">SITE</th>' : '').'
 			'.(in_array('notes',$manifest_fields) && $columns['notes'] > 0 ? '<th style="border:1px solid black; text-align:center;">NOTES</th>' : '').'
 		</tr>
@@ -119,6 +140,7 @@ if(isset($_POST['update'])) {
 				'.(in_array('line',$manifest_fields) && $columns['line'] > 0 ? '<td data-title="LINE ITEM #" style="text-align:center;">'.$row['line'].'</td>' : '').'
 				'.((in_array('qty',$manifest_fields) || in_array('group pieces',$manifest_fields)) && $columns['qty'] > 0 ? '<td data-title="LAND TRAN PIECE COUNT" style="text-align:center;">'.$row['qty'].'</td>' : '').'
 				'.(in_array('manual qty',$manifest_fields) && $columns['manual_qty'] > 0 ? '<td data-title="LAND TRAN PIECE COUNT" style="text-align:center;">'.$row['manual_qty'].'</td>' : '').'
+				'.(in_array('weight',$manifest_fields) && $columns['weight'] > 0 ? '<td data-title="WEIGHT" style="text-align:center;">'.$row['weight'].'</td>' : '').'
 				'.(in_array('site',$manifest_fields) && $columns['site'] > 0 ? '<td data-title="SITE" style="text-align:center;">'.$row['site'].'</td>' : '').'
 				'.(in_array('notes',$manifest_fields) && $columns['notes'] > 0 ? '<td data-title="NOTES" style="text-align:center;">'.html_entity_decode($row['notes']).'</td>' : '').'
 			</tr>
@@ -129,10 +151,11 @@ if(isset($_POST['update'])) {
 			'.(in_array('po',$manifest_fields) && $columns['po'] > 0 ? '<td style="border-top: 1px solid black;"></td>' : '').'
 			'.(in_array('vendor',$manifest_fields) && $columns['vendor'] > 0 ? '<td style="border-top: 1px solid black;"></td>' : '').'
 			'.(in_array('line',$manifest_fields) && $columns['line'] > 0 ? '<td style="border-top: 1px solid black;"></td>' : '').'
-			'.((in_array('qty',$manifest_fields) || in_array('group pieces',$manifest_fields)) && $columns['qty'] > 0 ? '<td data-title="TOTAL LAND TRAN PIECE COUNT" style="text-align:center; border-top: 1px solid black;">'.$sum_qty.((in_array('site',$manifest_fields) && $columns['site'] > 0) || (in_array('notes',$manifest_fields) && $columns['notes'] > 0) ? '' : 'TOTAL PIECES').'</td>' : '').'
-			'.(in_array('manual qty',$manifest_fields) && $columns['manual_qty'] > 0 ? '<td data-title="TOTAL LAND TRAN PIECE COUNT" style="text-align:center; border-top: 1px solid black;">'.$sum_qty.((in_array('site',$manifest_fields) && $columns['site'] > 0) || (in_array('notes',$manifest_fields) && $columns['notes'] > 0) ? '' : 'TOTAL PIECES').'</td>' : '').'
-			'.(in_array('site',$manifest_fields) && $columns['site'] > 0 ? '<td style="border-top: 1px solid black;">TOTAL PIECES</td>' : '').'
-			'.(in_array('notes',$manifest_fields) && $columns['notes'] > 0 ? '<td style="border-top: 1px solid black;">'.(in_array('site',$manifest_fields) && $columns['site'] > 0 ? '' : 'TOTAL PIECES').'</td>' : '').'
+			'.((in_array('qty',$manifest_fields) || in_array('group pieces',$manifest_fields)) && $columns['qty'] > 0 ? '<td data-title="TOTAL LAND TRAN PIECE COUNT" style="text-align:center; border-top: 1px solid black;">'.$sum_qty. ' TOTAL PIECES</td>' : '').'
+			'.(in_array('manual qty',$manifest_fields) && $columns['manual_qty'] > 0 ? '<td data-title="TOTAL LAND TRAN PIECE COUNT" style="text-align:center; border-top: 1px solid black;">'.$sum_qty.' TOTAL PIECES</td>' : '').'
+			'.(in_array('weight',$manifest_fields) && $columns['weight'] > 0 ? '<td style="text-align:center; border-top: 1px solid black;">'.(in_array('total weight lb',$manifest_fields) ? $total_weight.' lbs' : '').'</td>' : '').'
+			'.(in_array('site',$manifest_fields) && $columns['site'] > 0 ? '<td style="border-top: 1px solid black;"></td>' : '').'
+			'.(in_array('notes',$manifest_fields) && $columns['notes'] > 0 ? '<td style="border-top: 1px solid black;"></td>' : '').'
 		</tr>';
 		$stamp_img = get_config($dbc, 'stamp_upload');
 		$html .= '<tr>
@@ -244,6 +267,7 @@ $col_count = 2; ?>
 			<?php if(in_array('vendor',$manifest_fields)) { $col_count++; ?><th>Vendor / Shipper</th><?php } ?>
 			<?php if(in_array('manual qty',$manifest_fields)) { $col_count++; ?><th>Qty</th><?php } ?>
 			<?php if(in_array('group pieces',$manifest_fields)) { $col_count++; ?><th>Qty</th><?php } ?>
+			<?php if(in_array('weight',$manifest_fields)) { $col_count++; ?><th>Weight</th><?php } ?>
 			<?php if(in_array('notes',$manifest_fields)) { $col_count++; ?><th>Notes</th><?php } ?>
 			<?php if(!in_array('group pieces',$manifest_fields)) { ?><th>Include</th><?php } ?>
 		</tr>
@@ -264,6 +288,22 @@ $col_count = 2; ?>
 							<?php } ?>
 						</div>
 					</td><?php } ?>
+				<?php if(in_array('weight',$manifest_fields)) { ?><td data-title="Weight">
+					<?php foreach(explode(',',$ticket['piece_id']) as $i => $piece) {
+						$piece_weights = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `weight`, `weight_units` FROM `ticket_attached` WHERE `id` = '$piece'"));
+						$weight = [];
+						$inv_weight_units = explode('#*#',$piece_weights['weight_units']);
+						foreach(explode('#*#',$piece_weights['weight']) as $id => $inv_weight) {
+							if(in_array('weight convert kg to lb',$manifest_fields) && $inv_weight_units[$id] == 'kg') {
+								$inv_weight = number_format(($inv_weight*2.20462262185),2);
+								$inv_weight_units[$id] = 'lbs';
+							}
+							$weight[] = $inv_weight.' '.$inv_weight_units[$id];
+						}
+						$weight = implode(', ', $weight); ?>
+						Piece #<?= $dbc->query("SELECT COUNT(*) FROM `ticket_attached` LEFT JOIN `ticket_attached` `pieces` ON `ticket_attached`.`ticketid`=`pieces`.`ticketid` WHERE `ticket_attached`.`id`='$piece' AND `pieces`.`deleted`=0 AND (`pieces`.`po_num` < `ticket_attached`.`po_num` OR (`ticket_attached`.`po_num`=`pieces`.`po_num` AND (`pieces`.`po_line` < `ticket_attached`.`po_line` OR (`ticket_attached`.`po_line` = `pieces`.`po_line` AND `pieces`.`id` < `ticket_attached`.`id`))))")->fetch_assoc()['count']+1 ?>: <?= explode('#*#',$ticket['piece_types'])[$i].' - '.$weight ?><br />
+					<?php } ?>
+				</td><?php } ?>
 				<?php if(in_array('notes',$manifest_fields)) { ?><td data-title="Notes"><?= $site_notes ?><input type="text" name="notes" data-table="ticket_attached" data-id="<?= $ticket['id'] ?>" data-multi-id="<?= $ticket['piece_id'] ?>" data-id-field="id" class="form-control" value="<?= strip_tags(html_entity_decode($ticket['notes'])) ?>"></td><?php } ?>
 				<?php if(!in_array('group pieces',$manifest_fields)) { ?><td data-title="Include">
 					<label class="form-checkbox any-width"><input type="checkbox" checked name="include[]" value="<?= $ticket['id'] ?>">Include</label>
@@ -274,7 +314,7 @@ $col_count = 2; ?>
 		<?php }
 		$filter_inv = in_array('hide qty',$manifest_fields) ? 'AND IFNULL(`inventory`.`quantity`,`ticket_attached`.`qty`-`ticket_attached`.`used`) > 0' : '';
 		$filter_proj = in_array('sort_project',$manifest_fields) && !empty($type) ? "AND `tickets`.`projectid` IN (SELECT `projectid` FROM `project` WHERE `projecttype`='".filter_var($type,FILTER_SANITIZE_STRING)."')" : '';
-		$ticket_sql = "SELECT `tickets`.`ticketid`, `tickets`.`ticket_label`, IF(`ticket_attached`.`siteid` IN ('0','',',,') OR `ticket_attached`.`siteid` IS NULL,IF(`piece`.`siteid` IN ('0','',',,') OR `piece`.`siteid` IS NULL,`tickets`.`siteid`,`piece`.`siteid`),`ticket_attached`.`siteid`) `siteid`, `ticket_attached`.`id`, `ticket_attached`.`notes`, IFNULL(`inventory`.`quantity`,`ticket_attached`.`qty`) `qty`, GROUP_CONCAT(DISTINCT IFNULL(NULLIF(`ticket_attached`.`po_num`,''),`tickets`.`purchase_order`) SEPARATOR '#*#') `po_num`, `ticket_attached`.`po_line`, MAX(`ticket_schedule`.`vendor`) `vendor`, GROUP_CONCAT(`ticket_attached`.`id` SEPARATOR ',') `piece_id`, GROUP_CONCAT(`ticket_attached`.`piece_type` SEPARATOR '#*#') `piece_types` FROM `tickets` LEFT JOIN `ticket_attached` ON `tickets`.`ticketid`=`ticket_attached`.`ticketid` LEFT JOIN `inventory` ON `ticket_attached`.`item_id`=`inventory`.`inventoryid` AND `ticket_attached`.`src_table`='inventory' LEFT JOIN `ticket_attached` `piece` ON `ticket_attached`.`line_id`=`piece`.`id` LEFT JOIN `ticket_schedule` ON `tickets`.`ticketid`=`ticket_schedule`.`ticketid` AND `ticket_schedule`.`type`='origin' WHERE `tickets`.`deleted`=0 AND `ticket_attached`.`deleted`=0 AND `tickets`.`status` != 'Archive' AND `ticket_attached`.`src_table` IN ('inventory','inventory_general') AND CONCAT(',',IF(`ticket_attached`.`siteid` IN ('0','',',,') OR `ticket_attached`.`siteid` IS NULL,IF(`piece`.`siteid` IN ('0','',',,') OR `piece`.`siteid` IS NULL,IF(`tickets`.`siteid` IN ('0','',',,') OR `tickets`.`siteid` IS NULL, 'na',`tickets`.`siteid`),`piece`.`siteid`),`ticket_attached`.`siteid`),',top_25,') LIKE '%,$siteid,%' AND `ticket_attached`.`id` NOT IN ('".implode("','",$line_item)."') $filter_inv $ticket_filter $filter_proj $search GROUP BY ".(in_array('group pieces',$manifest_fields) ? "`tickets`.`ticketid`,`ticket_attached`.`item_id`" : "`ticket_attached`.`id`")." ORDER BY ".(in_array('ticket_sort',$manifest_fields) ? "`tickets`.`ticketid` DESC," : '')." LPAD(`ticket_attached`.`po_num`,100,0), LPAD(`ticket_attached`.`po_line`,100,0), `tickets`.`ticketid`, `ticket_attached`.`id`";
+		$ticket_sql = "SELECT `tickets`.`ticketid`, `tickets`.`ticket_label`, IF(`ticket_attached`.`siteid` IN ('0','',',,') OR `ticket_attached`.`siteid` IS NULL,IF(`piece`.`siteid` IN ('0','',',,') OR `piece`.`siteid` IS NULL,`tickets`.`siteid`,`piece`.`siteid`),`ticket_attached`.`siteid`) `siteid`, `ticket_attached`.`id`, `ticket_attached`.`notes`, IFNULL(`inventory`.`quantity`,`ticket_attached`.`qty`) `qty`, ".(in_array('group pieces po',$manifest_fields) ? "IFNULL(NULLIF(`ticket_attached`.`po_num`,''),`tickets`.`purchase_order`) `po_num`" : "GROUP_CONCAT(DISTINCT IFNULL(NULLIF(`ticket_attached`.`po_num`,''),`tickets`.`purchase_order`) SEPARATOR '#*#') `po_num`").", `ticket_attached`.`po_line`, MAX(`ticket_schedule`.`vendor`) `vendor`, GROUP_CONCAT(`ticket_attached`.`id` SEPARATOR ',') `piece_id`, GROUP_CONCAT(`ticket_attached`.`piece_type` SEPARATOR '#*#') `piece_types` FROM `tickets` LEFT JOIN `ticket_attached` ON `tickets`.`ticketid`=`ticket_attached`.`ticketid` LEFT JOIN `inventory` ON `ticket_attached`.`item_id`=`inventory`.`inventoryid` AND `ticket_attached`.`src_table`='inventory' LEFT JOIN `ticket_attached` `piece` ON `ticket_attached`.`line_id`=`piece`.`id` LEFT JOIN `ticket_schedule` ON `tickets`.`ticketid`=`ticket_schedule`.`ticketid` AND `ticket_schedule`.`type`='origin' WHERE `tickets`.`deleted`=0 AND `ticket_attached`.`deleted`=0 AND `tickets`.`status` != 'Archive' AND `ticket_attached`.`src_table` IN ('inventory','inventory_general') AND CONCAT(',',IF(`ticket_attached`.`siteid` IN ('0','',',,') OR `ticket_attached`.`siteid` IS NULL,IF(`piece`.`siteid` IN ('0','',',,') OR `piece`.`siteid` IS NULL,IF(`tickets`.`siteid` IN ('0','',',,') OR `tickets`.`siteid` IS NULL, 'na',`tickets`.`siteid`),`piece`.`siteid`),`ticket_attached`.`siteid`),',top_25,') LIKE '%,$siteid,%' AND `ticket_attached`.`id` NOT IN ('".implode("','",$line_item)."') $filter_inv $ticket_filter $filter_proj $search GROUP BY ".(in_array('group pieces',$manifest_fields) ? "`tickets`.`ticketid`,`ticket_attached`.`item_id`" : "`ticket_attached`.`id`").(in_array('group pieces po',$manifest_fields) ? ", IFNULL(NULLIF(`ticket_attached`.`po_num`,''),`tickets`.`purchase_order`)" : '')." ORDER BY ".(in_array('ticket_sort',$manifest_fields) ? "`tickets`.`ticketid` DESC," : '')." LPAD(`ticket_attached`.`po_num`,100,0), LPAD(`ticket_attached`.`po_line`,100,0), `tickets`.`ticketid`, `ticket_attached`.`id`";
 		$new_lines = $dbc->query($ticket_sql);
 		if($new_lines->num_rows > 0) { ?>
 			<tr>
@@ -296,6 +336,22 @@ $col_count = 2; ?>
 								<?php } ?>
 							</div>
 						</td><?php } ?>
+					<?php if(in_array('weight',$manifest_fields)) { ?><td data-title="Weight">
+						<?php foreach(explode(',',$ticket['piece_id']) as $i => $piece) {
+							$piece_weights = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `weight`, `weight_units` FROM `ticket_attached` WHERE `id` = '$piece'"));
+							$weight = [];
+							$inv_weight_units = explode('#*#',$piece_weights['weight_units']);
+							foreach(explode('#*#',$piece_weights['weight']) as $id => $inv_weight) {
+								if(in_array('weight convert kg to lb',$manifest_fields) && $inv_weight_units[$id] == 'kg') {
+									$inv_weight = number_format(($inv_weight*2.20462262185),2);
+									$inv_weight_units[$id] = 'lbs';
+								}
+								$weight[] = $inv_weight.' '.$inv_weight_units[$id];
+							}
+							$weight = implode(', ', $weight); ?>
+							Piece #<?= $dbc->query("SELECT COUNT(*) FROM `ticket_attached` LEFT JOIN `ticket_attached` `pieces` ON `ticket_attached`.`ticketid`=`pieces`.`ticketid` WHERE `ticket_attached`.`id`='$piece' AND `pieces`.`deleted`=0 AND (`pieces`.`po_num` < `ticket_attached`.`po_num` OR (`ticket_attached`.`po_num`=`pieces`.`po_num` AND (`pieces`.`po_line` < `ticket_attached`.`po_line` OR (`ticket_attached`.`po_line` = `pieces`.`po_line` AND `pieces`.`id` < `ticket_attached`.`id`))))")->fetch_assoc()['count']+1 ?>: <?= explode('#*#',$ticket['piece_types'])[$i].' - '.$weight ?><br />
+						<?php } ?>
+					</td><?php } ?>
 					<?php if(in_array('notes',$manifest_fields)) { ?><td data-title="Notes"><?= $site_notes ?><input type="text" name="notes" data-table="ticket_attached" data-id="<?= $ticket['id'] ?>" data-multi-id="<?= $ticket['piece_id'] ?>" data-id-field="id" class="form-control" value="<?= strip_tags(html_entity_decode($ticket['notes'])) ?>"></td><?php } ?>
 					<?php if(!in_array('group pieces',$manifest_fields)) { ?><td data-title="Include">
 						<label class="form-checkbox any-width"><input type="checkbox" name="include[]" checked value="<?= $ticket['id'] ?>">Include</label>

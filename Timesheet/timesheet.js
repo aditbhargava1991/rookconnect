@@ -79,7 +79,7 @@ function saveFieldMethod(field) {
     var block_length = blocks.length;
     $(blocks).each(function() {
         var block = $(this);
-        $.post('time_cards_ajax.php?action=update_time', {
+        $.post('../Timesheet/time_cards_ajax.php?action=update_time', {
             field: field.name,
             value: saveValue,
             type_of_time: block.find('[name=type_of_time]').val(),
@@ -111,7 +111,7 @@ function saveFieldMethod(field) {
         doneSaving();
     } else if(block_length == 0 && field.name == 'approv') {
         var block = $(this);
-        $.post('time_cards_ajax.php?action=update_time', {
+        $.post('../Timesheet/time_cards_ajax.php?action=update_time', {
             field: field.name,
             value: field.value,
             save_type: 'multi',

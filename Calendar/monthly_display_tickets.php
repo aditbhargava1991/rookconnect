@@ -221,8 +221,10 @@ while($row = mysqli_fetch_array( $result )) {
 
 	    if($_GET['mode'] == 'client') {
 		    $tickets = mysqli_query($dbc,"SELECT *, IFNULL(NULLIF(`to_do_end_date`,'0000-00-00'),`to_do_date`) `to_do_end_date` FROM tickets WHERE `deleted`=0 AND (internal_qa_date='$new_today_date' OR deliverable_date='$new_today_date' OR '$new_today_date' BETWEEN to_do_date AND IFNULL(NULLIF(`to_do_end_date`,'0000-00-00'),to_do_date)) AND (CONCAT(',',`businessid`,',') LIKE '%,".$contactid.",%' OR CONCAT(',',`clientid`,',') LIKE '%,".$contactid.",%') AND status NOT IN('Archive', 'Done')".$allowed_ticket_types_query);
+			$deleted_tickets = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT COUNT(*) `num_rows` FROM `tickets` WHERE (internal_qa_date='$new_today_date' OR deliverable_date='$new_today_date' OR '$new_today_date' BETWEEN to_do_date AND IFNULL(NULLIF(`to_do_end_date`,'0000-00-00'),to_do_date)) AND (CONCAT(',',`businessid`,',') LIKE '%,".$contactid.",%' OR CONCAT(',',`clientid`,',') LIKE '%,".$contactid.",%') AND (`deleted` = 1 OR `status` IN ('Archive', 'Done'))".$allowed_ticket_types_query))['num_rows'];
 	    } else {
 		    $tickets = mysqli_query($dbc,"SELECT *, IFNULL(NULLIF(`to_do_end_date`,'0000-00-00'),`to_do_date`) `to_do_end_date` FROM tickets WHERE `deleted`=0 AND (internal_qa_date='$new_today_date' OR deliverable_date='$new_today_date' OR '$new_today_date' BETWEEN to_do_date AND IFNULL(NULLIF(`to_do_end_date`,'0000-00-00'),to_do_date)) AND (CONCAT(',',contactid) LIKE '%," . $contactid . ",%' OR CONCAT(',',internal_qa_contactid) LIKE '%," . $contactid . ",%' OR CONCAT(',',deliverable_contactid) LIKE '%," . $contactid . ",%') AND status NOT IN('Archive', 'Done')".$allowed_ticket_types_query);
+			$deleted_tickets = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT COUNT(*) `num_rows` FROM `tickets` WHERE (internal_qa_date='$new_today_date' OR deliverable_date='$new_today_date' OR '$new_today_date' BETWEEN to_do_date AND IFNULL(NULLIF(`to_do_end_date`,'0000-00-00'),to_do_date)) AND (CONCAT(',',contactid) LIKE '%," . $contactid . ",%' OR CONCAT(',',internal_qa_contactid) LIKE '%," . $contactid . ",%' OR CONCAT(',',deliverable_contactid) LIKE '%," . $contactid . ",%') AND (`deleted` = 1 OR `status` IN ('Archive', 'Done'))".$allowed_ticket_types_query))['num_rows'];
 		}
 	    while($row_tickets = mysqli_fetch_array( $tickets )) {
 	        if(((($row_tickets['status'] == 'Internal QA') && ($new_today_date == $row_tickets['internal_qa_date']) && (strpos(','.$row_tickets['internal_qa_contactid'].',', ','.$contactid.',') !== FALSE)) || (($row_tickets['status'] == 'Customer QA' || $row_tickets['status'] == 'Waiting On Customer') && ($new_today_date == $row_tickets['deliverable_date']) && (strpos(','.$row_tickets['deliverable_contactid'].',', ','.$contactid.',') !== FALSE)) || (($row_tickets['status'] != 'Customer QA' && $row_tickets['status'] != 'Internal QA') && ($new_today_date >= $row_tickets['to_do_date'] && $new_today_date <= $row_tickets['to_do_end_date']) && (strpos(','.$row_tickets['contactid'].',', ','.$contactid.',') !== FALSE))) || $_GET['mode'] == 'client') {
@@ -369,7 +371,11 @@ while($row = mysqli_fetch_array( $result )) {
 		}
     }
     if($ticket_summary != '' && !empty($all_tickets)) {
-        $column .= '<span>Completed '.$completed_tickets.' of '.count($all_tickets).' '.(count($all_tickets) == 1 ? TICKET_NOUN : TICKET_TILE).'</span>';
+        $column .= '<span>Completed '.$completed_tickets.' of '.count($all_tickets).' '.(count($all_tickets) == 1 ? TICKET_NOUN : TICKET_TILE);
+		if($ticket_summary_deleted == 1 && $deleted_tickets > 0) {
+			$column .= '<br />'.$deleted_tickets.' Deleted '.($deleted_tickets == 1 ? TICKET_NOUN : TICKET_TILE);
+		}
+        $column .= '</span>';
     }
 
     if($_GET['block_type'] != 'team') {
