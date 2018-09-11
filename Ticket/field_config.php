@@ -25,7 +25,7 @@ switch($_GET['settings']) {
 		$page_title = 'Tile Splitting';
 		break;
 	case 'types':
-		$page_title = TICKET_NOUN.' Types';
+		$page_title = TICKET_NOUN.' Tabs';
 		break;
 	case 'status':
 		$page_title = 'Statuses';
@@ -208,7 +208,7 @@ function loadPanel() {
 			<div class="panel-heading">
 				<h4 class="panel-title">
 					<a data-toggle="collapse" data-parent="#settings_accordions" href="#collapse_ticket_types">
-						<?= TICKET_NOUN ?> Types<span class="glyphicon glyphicon-plus"></span>
+						<?= TICKET_NOUN ?> Tabs<span class="glyphicon glyphicon-plus"></span>
 					</a>
 				</h4>
 			</div>
@@ -383,7 +383,7 @@ function loadPanel() {
 			<a href="?settings=summary_security"><li class="<?= $_GET['settings'] == 'summary_security' ? 'active blue' : '' ?>">Summary Access</li></a>
 			<a href="?settings=manifests"><li class="<?= $_GET['settings'] == 'manifests' ? 'active blue' : '' ?>">Manifest Fields</li></a>
 			<a href="?settings=pdf"><li class="<?= $_GET['settings'] == 'pdf' ? 'active blue' : '' ?>">PDF Options</li></a>
-			<a href="?settings=types"><li class="<?= $_GET['settings'] == 'types' ? 'active blue' : '' ?>"><?= TICKET_NOUN ?> Types</li></a>
+			<a href="?settings=types"><li class="<?= $_GET['settings'] == 'types' ? 'active blue' : '' ?>"><?= TICKET_NOUN ?> Tabs</li></a>
 			<a href="?settings=status"><li class="<?= $_GET['settings'] == 'status' ? 'active blue' : '' ?>">Statuses</li></a>
 			<a href="?settings=tile"><li class="<?= $_GET['settings'] == 'tile' ? 'active blue' : '' ?>">Tile Settings</li></a>
 			<a href="?settings=tile_split"><li class="<?= $_GET['settings'] == 'tile_split' ? 'active blue' : '' ?>">Tile Splitting</li></a>

@@ -60,7 +60,7 @@ if(!empty($_GET['edit'])) {
 		if(strpos($value_config, ',Customer History Business Ticket Type,') !== FALSE && $field_sort_field == 'Customer History Business Ticket Type') {
 			if($businessid > 0) {
 				$block .= '<div class="overview-block">';
-				$block .= '<h4>'.get_client($dbc, $businessid).' - Last 5 by '.TICKET_NOUN.' Type'.(!empty($ticket_type_label) ? ' ('.$ticket_type_label.')' : '').'</h4>';
+				$block .= '<h4>'.get_client($dbc, $businessid).' - Last 5 by '.TICKET_NOUN.' Tab'.(!empty($ticket_type_label) ? ' ('.$ticket_type_label.')' : '').'</h4>';
 				$tickets = mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticket_type` = '$ticket_type' AND `businessid` = '$businessid' AND `deleted` = 0 AND `ticketid` != '$ticketid' ORDER BY `ticketid` DESC LIMIT 0, 5");
 				if(mysqli_num_rows($tickets) > 0) {
 					while($row = mysqli_fetch_assoc($tickets)) {
@@ -74,7 +74,7 @@ if(!empty($_GET['edit'])) {
 		} else if(strpos($value_config, ',Customer History Business Project Type,') !== FALSE && $field_sort_field == 'Customer History Business Project Type') {
 			if($businessid > 0 && $projectid > 0) {
 				$block .= '<div class="overview-block">';
-				$block .= '<h4>'.get_client($dbc, $businessid).' - Last 5 by '.PROJECT_NOUN.' Type'.(!empty($projecttype_label) ? ' ('.$projecttype_label.')' : '').'</h4>';
+				$block .= '<h4>'.get_client($dbc, $businessid).' - Last 5 by '.PROJECT_NOUN.' Tab'.(!empty($projecttype_label) ? ' ('.$projecttype_label.')' : '').'</h4>';
 				$tickets = mysqli_query($dbc, "SELECT `tickets`.* FROM `tickets` LEFT JOIN `project` ON `tickets`.`projectid` = `project`.`projectid` WHERE `tickets`.`businessid` = '$businessid' AND `project`.`projecttype` = '$projecttype' AND `tickets`.`deleted` = 0 AND `tickets`.`ticketid` != '$ticketid' ORDER BY `tickets`.`ticketid` DESC LIMIT 0, 5");
 				if(mysqli_num_rows($tickets) > 0) {
 					while($row = mysqli_fetch_assoc($tickets)) {
@@ -88,7 +88,7 @@ if(!empty($_GET['edit'])) {
 		} else if(strpos($value_config, ',Customer History Business Ticket Project Type,') !== FALSE && $field_sort_field == 'Customer History Business Ticket Project Type') {
 			if($businessid > 0 && $projectid > 0) {
 				$block .= '<div class="overview-block">';
-				$block .= '<h4>'.get_client($dbc, $businessid).' - Last 5 by '.TICKET_NOUN.' Type'.(!empty($ticket_type_label) ? ' ('.$ticket_type_label.')' : '').' & '.PROJECT_NOUN.' Type'.(!empty($projecttype_label) ? ' ('.$projecttype_label.')' : '').'</h4>';
+				$block .= '<h4>'.get_client($dbc, $businessid).' - Last 5 by '.TICKET_NOUN.' Tab'.(!empty($ticket_type_label) ? ' ('.$ticket_type_label.')' : '').' & '.PROJECT_NOUN.' Type'.(!empty($projecttype_label) ? ' ('.$projecttype_label.')' : '').'</h4>';
 				$tickets = mysqli_query($dbc, "SELECT `tickets`.* FROM `tickets` LEFT JOIN `project` ON `tickets`.`projectid` = `project`.`projectid` WHERE `tickets`.`businessid` = '$businessid' AND `project`.`projecttype` = '$projecttype' AND `tickets`.`ticket_type` = '$ticket_type' AND `tickets`.`deleted` = 0 AND `tickets`.`ticketid` != '$ticketid' ORDER BY `tickets`.`ticketid` DESC LIMIT 0, 5");
 				if(mysqli_num_rows($tickets) > 0) {
 					while($row = mysqli_fetch_assoc($tickets)) {
@@ -103,7 +103,7 @@ if(!empty($_GET['edit'])) {
 			foreach(explode(',', $clientid) as $client_id) {
 				if($client_id > 0) {
 					$block .= '<div class="overview-block">';
-					$block .= '<h4>'.(!empty(get_client($dbc, $client_id)) ? get_client($dbc, $client_id) : get_contact($dbc, $client_id)).' - Last 5 by '.TICKET_NOUN.' Type'.(!empty($ticket_type_label) ? ' ('.$ticket_type_label.')' : '').'</h4>';
+					$block .= '<h4>'.(!empty(get_client($dbc, $client_id)) ? get_client($dbc, $client_id) : get_contact($dbc, $client_id)).' - Last 5 by '.TICKET_NOUN.' Tab'.(!empty($ticket_type_label) ? ' ('.$ticket_type_label.')' : '').'</h4>';
 					$tickets = mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticket_type` = '$ticket_type' AND CONCAT(',',`clientid`,',') LIKE ('%,$client_id,%') AND `deleted` = 0 AND `ticketid` != '$ticketid' ORDER BY `ticketid` DESC LIMIT 0, 5");
 					if(mysqli_num_rows($tickets) > 0) {
 						while($row = mysqli_fetch_assoc($tickets)) {
@@ -119,7 +119,7 @@ if(!empty($_GET['edit'])) {
 			foreach(explode(',', $clientid) as $client_id) {
 				if($client_id > 0 && $projectid > 0) {
 					$block .= '<div class="overview-block">';
-					$block .= '<h4>'.(!empty(get_client($dbc, $client_id)) ? get_client($dbc, $client_id) : get_contact($dbc, $client_id)).' - Last 5 by '.PROJECT_NOUN.' Type'.(!empty($projecttype_label) ? ' ('.$projecttype_label.')' : '').'</h4>';
+					$block .= '<h4>'.(!empty(get_client($dbc, $client_id)) ? get_client($dbc, $client_id) : get_contact($dbc, $client_id)).' - Last 5 by '.PROJECT_NOUN.' Tab'.(!empty($projecttype_label) ? ' ('.$projecttype_label.')' : '').'</h4>';
 					$tickets = mysqli_query($dbc, "SELECT `tickets`.* FROM `tickets` LEFT JOIN `project` ON `tickets`.`projectid` = `project`.`projectid` WHERE CONCAT(',',`tickets`.`clientid`,',') LIKE ('%,$client_id,%') AND `project`.`projecttype` = '$projecttype' AND `tickets`.`deleted` = 0 AND `tickets`.`ticketid` != '$ticketid' ORDER BY `tickets`.`ticketid` DESC LIMIT 0, 5");
 					if(mysqli_num_rows($tickets) > 0) {
 						while($row = mysqli_fetch_assoc($tickets)) {
@@ -135,7 +135,7 @@ if(!empty($_GET['edit'])) {
 			foreach(explode(',', $clientid) as $client_id) {
 				if($client_id > 0 && $projectid > 0) {
 					$block .= '<div class="overview-block">';
-					$block .= '<h4>'.(!empty(get_client($dbc, $client_id)) ? get_client($dbc, $client_id) : get_contact($dbc, $client_id)).' - Last 5 by '.TICKET_NOUN.' Type'.(!empty($ticket_type_label) ? ' ('.$ticket_type_label.')' : '').' & '.PROJECT_NOUN.' Type'.(!empty($projecttype_label) ? ' ('.$projecttype_label.')' : '').'</h4>';
+					$block .= '<h4>'.(!empty(get_client($dbc, $client_id)) ? get_client($dbc, $client_id) : get_contact($dbc, $client_id)).' - Last 5 by '.TICKET_NOUN.' Tab'.(!empty($ticket_type_label) ? ' ('.$ticket_type_label.')' : '').' & '.PROJECT_NOUN.' Type'.(!empty($projecttype_label) ? ' ('.$projecttype_label.')' : '').'</h4>';
 					$tickets = mysqli_query($dbc, "SELECT `tickets`.* FROM `tickets` LEFT JOIN `project` ON `tickets`.`projectid` = `project`.`projectid` WHERE CONCAT(',',`tickets`.`clientid`,',') LIKE ('%,$client_id,%') AND `project`.`projecttype` = '$projecttype' AND `tickets`.`ticket_type` = '$ticket_type' AND `tickets`.`deleted` = 0 AND `tickets`.`ticketid` != '$ticketid' ORDER BY `tickets`.`ticketid` DESC LIMIT 0, 5");
 					if(mysqli_num_rows($tickets) > 0) {
 						while($row = mysqli_fetch_assoc($tickets)) {

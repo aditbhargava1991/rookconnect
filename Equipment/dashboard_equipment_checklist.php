@@ -53,10 +53,10 @@ include_once ('../Equipment/region_location_access.php');
 				<div class="col-sm-4">
 					<label for="site_name" class="control-label">
 						<span class="popover-examples list-inline" style="margin:0 2px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Click here to see all equipment for which you have records."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
-						Select Category:</label>
+						Select Tab:</label>
 				</div>
 				<div class="col-sm-8">
-					<select data-placeholder="Select Category" name="search_cat" class="chosen-select-deselect form-control">
+					<select data-placeholder="Select Tab" name="search_cat" class="chosen-select-deselect form-control">
 						<option></option>
 						<?php $search_cat = (!empty($_POST['search_cat']) ? $_POST['search_cat'] : '');
 						$query = mysqli_query($dbc,"SELECT `category`, COUNT(*) FROM `equipment` WHERE `deleted`=0 $access_query GROUP BY `category` ORDER BY `category`");

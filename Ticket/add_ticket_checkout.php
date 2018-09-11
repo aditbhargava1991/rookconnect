@@ -151,7 +151,7 @@ foreach ($field_sort_order as $field_sort_field) {
 					<label class="col-sm-4 control-label"><?= get_contact($dbc, $checkin['item_id']).($checkin['position'] != '' ? ' - '.$checkin['position'] : '') ?>:</label>
 					<div class="col-sm-2 <?= ($checkin['src_table'] == 'Staff' && $access_staff_checkin == TRUE) || ($checkin['src_table'] != 'Staff' && $access_all_checkin == TRUE) ? 'toggleSwitch mobile-lg' : '' ?>">
 						<input type="hidden" name="checkin_id[]" value="<?= $checkin['item_id'] ?>">
-						<input type="hidden" name="completed" data-table="ticket_attached" data-id="<?= $checkin['id'] ?>" data-id-field="id" value="<?= $checkin['completed'] ?>" class="toggle">
+						<input type="hidden" name="completed" data-table="ticket_attached" data-id="<?= $checkin['id'] ?>" data-id-field="id" value="<?= $checkin['completed'] ?>" class="toggle" <?= strpos($value_config,',Check Out Before Check In,') !== FALSE ? 'data-no-toggle-off="1"' : '' ?>>
 						<span style="<?= $checkin['completed'] > 0 ? 'display: none;' : '' ?>"><img src="<?= WEBSITE_URL ?>/img/icons/switch-6.png" class="text-lg inline-img"> Not Checked Out</span>
 						<span style="<?= $checkin['completed'] > 0 ? '' : 'display: none;' ?>"><img src="<?= WEBSITE_URL ?>/img/icons/switch-7.png" class="text-lg inline-img"> Checked Out</span>
 					</div>
@@ -193,7 +193,7 @@ foreach ($field_sort_order as $field_sort_field) {
 					<label class="col-sm-4 control-label"><?= $material['category'].': '.$material['sub_category'].' ',$material['name'] ?>:</label>
 					<div class="col-sm-8 <?= $access_all_checkin == TRUE ? 'toggleSwitch mobile-lg' : '' ?>">
 						<input type="hidden" name="checkin_id[]" value="<?= $checkin['item_id'] ?>">
-						<input type="hidden" name="completed" data-table="ticket_attached" data-id="<?= $checkin['id'] ?>" data-id-field="id" value="<?= $checkin['completed'] ?>" class="toggle">
+						<input type="hidden" name="completed" data-table="ticket_attached" data-id="<?= $checkin['id'] ?>" data-id-field="id" value="<?= $checkin['completed'] ?>" class="toggle" <?= strpos($value_config,',Check Out Before Check In,') !== FALSE ? 'data-no-toggle-off="1"' : '' ?>>
 						<span style="<?= $checkin['completed'] > 0 ? 'display: none;' : '' ?>"><img src="<?= WEBSITE_URL ?>/img/icons/switch-6.png" class="text-lg inline-img"> Not Checked Out</span>
 						<span style="<?= $checkin['completed'] > 0 ? '' : 'display: none;' ?>"><img src="<?= WEBSITE_URL ?>/img/icons/switch-7.png" class="text-lg inline-img"> Checked Out</span>
 					</div>
@@ -206,7 +206,7 @@ foreach ($field_sort_order as $field_sort_field) {
 					<label class="col-sm-4 control-label"><?= $equipment['category'].': '.$equipment['make'].' ',$equipment['model'].' '.$equipment['label'].' '.$equipment['unit_number'] ?>:</label>
 					<div class="col-sm-8 <?= $access_all_checkin == TRUE ? 'toggleSwitch mobile-lg' : '' ?>">
 						<input type="hidden" name="checkin_id[]" value="<?= $checkin['item_id'] ?>">
-						<input type="hidden" name="completed" data-table="ticket_attached" data-id="<?= $checkin['id'] ?>" data-id-field="id" value="<?= $checkin['completed'] ?>" class="toggle">
+						<input type="hidden" name="completed" data-table="ticket_attached" data-id="<?= $checkin['id'] ?>" data-id-field="id" value="<?= $checkin['completed'] ?>" class="toggle" <?= strpos($value_config,',Check Out Before Check In,') !== FALSE ? 'data-no-toggle-off="1"' : '' ?>>
 						<span style="<?= $checkin['completed'] > 0 ? 'display: none;' : '' ?>"><img src="<?= WEBSITE_URL ?>/img/icons/switch-6.png" class="text-lg inline-img"> Not Checked Out</span>
 						<span style="<?= $checkin['completed'] > 0 ? '' : 'display: none;' ?>"><img src="<?= WEBSITE_URL ?>/img/icons/switch-7.png" class="text-lg inline-img"> Checked Out</span>
 					</div>

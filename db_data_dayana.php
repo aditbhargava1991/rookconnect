@@ -266,5 +266,7 @@ mysqli_query($dbc, "ALTER TABLE `task_dashboard` ADD `task_fields` TEXT NULL AFT
 
 mysqli_query($dbc, "UPDATE task_dashboard SET task_fields='Board Type,Board Name,Status,Task Name,To Do Date,Assign Staff,Flag This,Send Alert,Send Email,Schedule Reminder,Attach File,Comments,Add Time,Track Time' WHERE task_id=1");
 
+mysqli_query($dbc, "ALTER TABLE `tasklist` CHANGE `flag_label` `flag_label` VARCHAR(200) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL");
+
     echo "Dayana's DB Changes Done<br />\n";
 ?>
