@@ -277,11 +277,20 @@ $(document).ready(function () {
             return false;
         }
     });
-
-    /* $('#add_row_doc, .add_row_doc').on( 'click', function () {
-		add_new_task_row();
-		return false;
-    }); */
+    
+    $('#sortable_items').sortable({
+        update: function( event, ui ) {
+			var checklistnameid = ui.item.attr("id");
+			var after_checklistnameid = ui.item.prev().attr('id');
+			$.ajax({
+				type: "GET",
+				url: "../Checklist/checklist_ajax.php?fill=checklist_priority&checklistnameid="+checklistnameid+"&after_checklistnameid="+after_checklistnameid,
+				dataType: "html",
+				success: function(response){
+				}
+			});
+		}
+    });
 });
 
 $(document).on('change', 'select[name="subtab_shared[]"]', function() { changeSubTabShared(this); });
@@ -290,6 +299,19 @@ $(document).on('change', 'select[name="assign_staff[]"]', function() { changeAss
 $(document).on('change', 'select[name="subtab"]', function() { changeSubTab(this); });
 $(document).on('click', '#add_row_doc, .add_row_doc', function() {
     add_new_task_row();
+    return false;
+});
+$(document).on('click', '.add_row_doc2', function() {
+    var clone = $(this).closest('.form-group').clone();
+	clone.find('.col-xs-1').first().remove();
+	clone.find('.col-sm-10').addClass('col-sm-11 col-xs-10').removeClass('col-sm-10 col-xs-9');
+	clone.find('input').attr('name', 'checklist[]');
+	clone.find('input').val('');
+    clone.find('#item_remove').contents().unwrap();
+    clone.find('.item_remove_img').addClass('cursor-hand').attr('onclick', 'removeNewRow2(this)');
+    clone.find('img.drag_handle').remove();
+	$(this).closest('.form-group').append(clone);
+	clone.find('input').focus();
     return false;
 });
 
@@ -348,6 +370,9 @@ function removeNewRow(button) {
 	} else {
 		$('.conditional_button').hide();
 	}
+}
+function removeNewRow2(button) {
+    $(button).closest('.form-group').remove();
 }
 </script>
 <form id="form1" name="form1" method="post"	action="" enctype="multipart/form-data" class="form-horizontal <?= basename($_SERVER['SCRIPT_FILENAME']) == 'edit_checklist.php' ? 'main-screen' : '' ?>" role="form">
@@ -422,11 +447,17 @@ function removeNewRow(button) {
     $value_config = ','.$get_field_config['task'].',';
     ?>
 
+    <!--
 	<div class="standard-body-title">
         <a href="?<?= $checklistid > 0 ? 'view='.$checklistid : '' ?>" class="show-on-mob pull-left gap-right"><img src="../img/icons/ROOK-back-icon.png" style="height:100%; width:47%;"></a>
-        <h3><?= isset($_GET['edit']) && $_GET['edit']=='NEW' ? 'Add' : 'Edit' ?> <?= $checklist_name ?> Checklist</h3>
+        <h3>Settings: <?php /* echo isset($_GET['edit']) && $_GET['edit']=='NEW' ? 'Add' : 'Edit' ?> <?= $checklist_name */ ?></h3>
     </div>
+    -->
 
+    <div class="row">
+        <h3 class="col-xs-11 pad-left">Settings: <?= isset($_GET['edit']) && $_GET['edit']=='NEW' ? 'Add' : 'Edit' ?> <?= $checklist_name ?></h3>
+        <div class="col-xs-1 gap-top"><img src="<?= WEBSITE_URL ?>/img/icons/ROOK-status-rejected.jpg" class="no-toggle cursor-hand inline-img" alt="Close" title="Close" data-placement="bottom" /></div>
+    </div>
 
     <div class="row">
         <div class="col-sm-12 padded"><input type="text" class="form-control create-input" value="<?= $checklist_name ?>" name="checklist_name" placeholder="Name your checklist..." /></div>
@@ -974,7 +1005,7 @@ function removeNewRow(button) {
         </div><!-- #edit_accordions -->
 
         <div class="form-group col-xs-12 block-group" style="margin-top:7px;">
-            <div class="form-group clearfix">
+            <div id="sortable_items" class="form-group clearfix">
                 <?php
                 if($_GET['edit'] > 0) {
                     $query_check_credentials = "SELECT * FROM checklist_name WHERE checklistid='$checklistid' AND `deleted`=0 ORDER BY priority";
@@ -982,10 +1013,14 @@ function removeNewRow(button) {
                     $num_rows = mysqli_num_rows($result);
                     if($num_rows > 0) {
                         while($row = mysqli_fetch_array($result)) {
-                            echo '<div class="form-group">';
+                            echo '<div class="form-group" id="'. $row['checklistnameid'] .'">';
                             echo '<div class="col-sm-1 col-xs-1">'.($row['checked'] == 1 ? '<input disabled type="checkbox" checked value="" style="height: 1em;"> ' : '').'#'.$row['checklistnameid'].': </div><div class="col-sm-10 col-xs-9">';
                             echo '<input type="text" name="checklist_update[]" class="form-control" value= "'.explode('<p>',html_entity_decode($row['checklist']))[0].'"/></div>';
-                            echo '<div class="col-sm-1 col-xs-2"><a href=\'../delete_restore.php?action=delete&checklistnameid='.$row['checklistnameid'].'&checklistid='.$row['checklistid'].'\' onclick="return confirm(\'Are you sure?\')"><img class="no-toggle" title="Archive" style="height:1.5em;" src="'.WEBSITE_URL.'/img/icons/ROOK-trash-icon.png"></a></div>';
+                            echo '<div class="col-sm-1 col-xs-2">
+                                <img src="'.WEBSITE_URL.'/img/icons/ROOK-add-icon.png" class="cursor-hand add_row_doc2" style="height:1.5em;" />
+                                <a href=\'../delete_restore.php?action=delete&checklistnameid='.$row['checklistnameid'].'&checklistid='.$row['checklistid'].'\' onclick="return confirm(\'Are you sure you want to archive this item?\')" id="item_remove"><img class="item_remove_img" style="height:1.5em;" src="'.WEBSITE_URL.'/img/remove.png"></a>
+                                <img class="drag_handle no-toggle" src="'.WEBSITE_URL.'/img/icons/drag_handle.png" style="margin:0.25em; height:1.25em; width:1.25em;" title="Drag" />
+                            </div>';
                             echo '<input type="hidden" name="checklistid_update[]" value="'.$row['checklistnameid'].'" /></div>';
 
                         }
@@ -1006,8 +1041,9 @@ function removeNewRow(button) {
                     <div class="clearfix"></div>
                 </div>
                 <div id="add_here_new_doc"></div>
-                <button id="add_row_doc" class="btn brand-btn pull-right">Add Checklist</button>
-                <span class="popover-examples list-inline pull-right" style="margin:5px 3px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Click here to add a field."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
+                <div id="add_row_doc"></div>
+                <!--<button id="add_row_doc" class="btn brand-btn pull-right">Add Checklist</button>
+                <span class="popover-examples list-inline pull-right" style="margin:5px 3px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Click here to add a field."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>-->
             </div>
         </div><!-- .block-group -->
 
@@ -1016,7 +1052,7 @@ function removeNewRow(button) {
         <div class="form-group clearfix double-gap-top">
             <div class="pull-left">
                 <span class="popover-examples list-inline" style="margin:0;"><a data-toggle="tooltip" data-placement="top" title="If you click this, the current Checklist will not be saved."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
-                <a href="<?= $url ?>" class=""><img src="../img/icons/ROOK-trash-icon.png" alt="Cancel" title="Cancel" class="no-toggle" width="30" /></a>
+                <a href="<?= $url ?>" class=""><img src="../img/icons/ROOK-status-rejected.jpg" alt="Close" title="Close" class="no-toggle" width="30" /></a>
             </div>
             <div class="pull-right">
                 <button name="tasklist" value="tasklist" class="image-btn pull-right no-toggle" title="Save"><img src="../img/icons/save.png" alt="Save" width="30" /></button>
