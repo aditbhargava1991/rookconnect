@@ -8,7 +8,7 @@ do {
 			if($access_all > 0) { ?>
 				<?php if ( strpos($value_config, ',Equipment Category,') !== false && $field_sort_field == 'Equipment Category' ) { ?>
 					<div class="form-group">
-						<label class="control-label col-sm-4">Category:</label>
+						<label class="control-label col-sm-4">Tab:</label>
 						<div class="col-sm-8">
 							<select name="eq_category" class="chosen-select-deselect"><option></option>
 								<?php $groups = mysqli_query($dbc, "SELECT `category` FROM `equipment` WHERE `deleted`=0 GROUP BY `category` ORDER BY `category`");
@@ -130,7 +130,7 @@ do {
 				<?php } ?>
 			<?php } else if ($equipment['equipmentid'] > 0) { ?>
 					<div class="form-group">
-						<label class="control-label col-sm-4">Category:</label>
+						<label class="control-label col-sm-4">Tab:</label>
 						<div class="col-sm-8"><?= $equipment['category'] ?></div>
 					</div>
 					<?php $pdf_contents[] = ['Category', $equipment['category'] ]; ?>

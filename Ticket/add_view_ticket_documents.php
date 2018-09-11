@@ -43,7 +43,7 @@
 						</div>
 					</div>
 					<div class="form-group">
-						<label for="additional_note" class="col-sm-4 control-label">Type:</label>
+						<label for="additional_note" class="col-sm-4 control-label">Tab:</label>
 						<div class="col-sm-7">
 							<select name="type" data-table="ticket_document" data-id="" data-id-field="ticketdocid" class="chosen-select">
 								<option value="Support">Support</option>

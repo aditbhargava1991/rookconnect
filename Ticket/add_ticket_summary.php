@@ -573,7 +573,7 @@ if(!empty($summary_hide_positions)) {
 		<div class="form-group">
 			<table id="no-more-tables" class='table table-bordered'>
 				<tr class='hide-titles-mob'>
-					<th>Type</th>
+					<th>Tab</th>
 					<th>Total Hours Tracked</th>
 				</tr>
 				<?php if(strpos($value_config,',Total Time Tracked Staff,')) { ?>

@@ -250,7 +250,7 @@ function setPallet(item) {
 				} else { ?>
 					<div class="form-group  mobile-100-container cate_fitter" style='width:80%; margin:auto;'>
 						<select name="search_category" class="chosen-select-deselect form-control mobile-100-pull-right category_actual">
-						  <option value="" selected>Select a Category</option>
+						  <option value="" selected>Select a Tab</option>
 						  <?php
 							if ($category == "dispall_31V2irt2u3e5S3s1f2ADe3_31") {
 								$xx = 'selected="selected"';
@@ -290,11 +290,11 @@ function setPallet(item) {
 
 			<?php if($dropdownornot == 'true' && $inventory_navigation_position != 'top') { ?>
 				<div class="col-sm-2 col-xs-6">
-					<label for="search_inventory" style="width:100%; text-align:right; padding-top:5px;">Category:</label>
+					<label for="search_inventory" style="width:100%; text-align:right; padding-top:5px;">Tab:</label>
 				</div>
 				<div class="col-sm-4 col-xs-6" style="margin-bottom:10px !important;">
-					<select data-placeholder="Select a Category..." name="search_category" class="chosen-select-deselect form-control mobile-100-pull-right category_actual">
-					  <option value="" selected>Select a Category</option>
+					<select data-placeholder="Select a Tab..." name="search_category" class="chosen-select-deselect form-control mobile-100-pull-right category_actual">
+					  <option value="" selected>Select a Tab</option>
 					  <?php
 						if ($category == "dispall_31V2irt2u3e5S3s1f2ADe3_31") {
 							$xx = 'selected="selected"';
