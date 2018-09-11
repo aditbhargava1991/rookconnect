@@ -734,5 +734,25 @@
     }
     //2018-09-05 - Ticket #9007 - Vacation Pay
 
+    //2018-09-11 - Ticket #8811 - Tagging
+    if(!mysqli_query($dbc, "CREATE TABLE `contacts_tagging` (
+        `id` int(11) NOT NULL,
+        `contactid` int(11) NOT NULL,
+        `src_table` varchar(500) NOT NULL,
+        `item_id` int(11) NOT NULL,
+        `last_updated_date` date NOT NULL,
+        `deleted` int(1) NOT NULL DEFAULT 0)")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `contacts_tagging`
+        ADD PRIMARY KEY (`id`)")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `contacts_tagging`
+        MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-09-11 - Ticket #8811 - Tagging
+
     echo "Baldwin's DB Changes Done<br />\n";
 ?> 
