@@ -24,66 +24,80 @@
                 for($client_loop=0; $client_loop<=$total_count; $client_loop++) {
                     if($each_serviceid[$client_loop] != '' && !($each_serviceticketid[$client_loop] > 0)) {
                         $serviceid = $each_serviceid[$client_loop];
-                        $fee = $each_fee[$client_loop];
-                        ?>
+                        $fee = $each_fee[$client_loop]; ?>
 
                     <div class="form-group clearfix">
                         <div class="col-sm-4"><label class="show-on-mob">Service Category:</label>
-                            <select data-placeholder="Select a Category..." id="<?php echo 'category_'.$id_loop; ?>" class="chosen-select-deselect form-control service_category_onchange" width="380">
-                                <option value=""></option>
-                                <?php
-                                if($app_type == '') {
-                                    $query = mysqli_query($dbc,"SELECT category, GROUP_CONCAT(DISTINCT(appointment_type)) appointment_type FROM services WHERE deleted=0 GROUP BY `category`");
-                                } else {
-                                    $query = mysqli_query($dbc,"SELECT category, GROUP_CONCAT(DISTINCT(appointment_type)) appointment_type FROM services WHERE deleted=0 AND (appointment_type = '' OR appointment_type='$type') GROUP BY `category`");
-                                }
-                                while($row = mysqli_fetch_array($query)) {
-                                    if (get_all_from_service($dbc, $serviceid, 'category') == $row['category']) {
-                                        $selected = 'selected="selected"';
+                            <?php if($_GET['inv_mode'] == 'adjust') { ?>
+                                <?= get_all_from_service($dbc, $serviceid, 'category') ?>
+                            <?php } else { ?>
+                                <select data-placeholder="Select a Category..." id="<?php echo 'category_'.$id_loop; ?>" class="chosen-select-deselect form-control service_category_onchange" width="380">
+                                    <option value=""></option>
+                                    <?php
+                                    if($app_type == '') {
+                                        $query = mysqli_query($dbc,"SELECT category, GROUP_CONCAT(DISTINCT(appointment_type)) appointment_type FROM services WHERE deleted=0 GROUP BY `category`");
                                     } else {
-                                        $selected = '';
+                                        $query = mysqli_query($dbc,"SELECT category, GROUP_CONCAT(DISTINCT(appointment_type)) appointment_type FROM services WHERE deleted=0 AND (appointment_type = '' OR appointment_type='$type') GROUP BY `category`");
                                     }
-                                    echo "<option data-appt-type=',".$row['appointment_type'].",' ".$selected." value='". $row['category']."'>".$row['category'].'</option>';
-                                }
-                                ?>
-                            </select>
+                                    while($row = mysqli_fetch_array($query)) {
+                                        if (get_all_from_service($dbc, $serviceid, 'category') == $row['category']) {
+                                            $selected = 'selected="selected"';
+                                        } else {
+                                            $selected = '';
+                                        }
+                                        echo "<option data-appt-type=',".$row['appointment_type'].",' ".$selected." value='". $row['category']."'>".$row['category'].'</option>';
+                                    }
+                                    ?>
+                                </select>
+                            <?php } ?>
                         </div> <!-- Quantity -->
 
                         <div class="col-sm-5"><label class="show-on-mob">Service Name:</label>
                             <input type="hidden" name="service_ticketid[]" value="">
-                            <select id="<?php echo 'serviceid_'.$id_loop; ?>" data-placeholder="Select a Service..." name="serviceid[]" class="chosen-select-deselect form-control serviceid" width="380">
-                                <option value=""></option>
-                                <?php $db_category = get_all_from_service($dbc, $serviceid, 'category');
-                                if($app_type == '') {
-                                    $query = mysqli_query($dbc,"SELECT s.serviceid, s.heading, r.cust_price service_rate, s.appointment_type, r.editable FROM services s,  company_rate_card r WHERE s.category='$db_category' AND s.serviceid = r.item_id AND r.tile_name LIKE 'Services' AND '$invoice_date' >= r.start_date AND ('$invoice_date' <= r.end_date OR IFNULL(r.end_date,'0000-00-00') = '0000-00-00')");
-                                } else {
-                                    $query = mysqli_query($dbc,"SELECT s.serviceid, s.heading, r.cust_price `service_rate`, s.appointment_type, r.editable FROM services s,  company_rate_card r WHERE (s.appointment_type = '' OR s.appointment_type='$type') AND s.serviceid = r.item_id AND `tile_name` LIKE 'Services' AND '$invoice_date' >= r.start_date AND ('$invoice_date' <= r.end_date OR IFNULL(r.end_date,'0000-00-00') = '0000-00-00')");
-                                }
-                                $fee_editable = false;
-                                while($row = mysqli_fetch_array($query)) {
-                                    if ($serviceid == $row['serviceid']) {
-                                        $selected = 'selected="selected"';
-                                        if($row['editable'] > 0) {
-                                            $fee_editable = true;
-                                        }
+                            <?php if($_GET['inv_mode'] == 'adjust') { ?>
+                                <input type="hidden" id="<?php echo 'serviceid_'.$id_loop; ?>" name="serviceid[]" class="serviceid"><?= get_all_from_service($dbc, $serviceid, 'heading') ?>
+                                <input type="hidden" name="servicelabel" value="<?= get_all_from_service($dbc, $serviceid, 'category') ?>: <?= get_all_from_service($dbc, $serviceid, 'heading') ?>">
+                            <?php } else { ?>
+                                <select id="<?php echo 'serviceid_'.$id_loop; ?>" data-placeholder="Select a Service..." name="serviceid[]" class="chosen-select-deselect form-control serviceid" width="380">
+                                    <option value=""></option>
+                                    <?php $db_category = get_all_from_service($dbc, $serviceid, 'category');
+                                    if($app_type == '') {
+                                        $query = mysqli_query($dbc,"SELECT s.serviceid, s.heading, r.cust_price service_rate, s.appointment_type, r.editable FROM services s,  company_rate_card r WHERE s.category='$db_category' AND s.serviceid = r.item_id AND r.tile_name LIKE 'Services' AND '$invoice_date' >= r.start_date AND ('$invoice_date' <= r.end_date OR IFNULL(r.end_date,'0000-00-00') = '0000-00-00')");
                                     } else {
-                                        $selected = '';
+                                        $query = mysqli_query($dbc,"SELECT s.serviceid, s.heading, r.cust_price `service_rate`, s.appointment_type, r.editable FROM services s,  company_rate_card r WHERE (s.appointment_type = '' OR s.appointment_type='$type') AND s.serviceid = r.item_id AND `tile_name` LIKE 'Services' AND '$invoice_date' >= r.start_date AND ('$invoice_date' <= r.end_date OR IFNULL(r.end_date,'0000-00-00') = '0000-00-00')");
                                     }
-                                    echo "<option data-editable='".$row['editable']."' data-appt-type=',".$row['appointment_type'].",' ".$selected." value='". $row['serviceid']."'>".$row['heading'].'</option>';
-                                }
-                                ?>
-                            </select>
+                                    $fee_editable = false;
+                                    while($row = mysqli_fetch_array($query)) {
+                                        if ($serviceid == $row['serviceid']) {
+                                            $selected = 'selected="selected"';
+                                            if($row['editable'] > 0) {
+                                                $fee_editable = true;
+                                            }
+                                        } else {
+                                            $selected = '';
+                                        }
+                                        echo "<option data-editable='".$row['editable']."' data-appt-type=',".$row['appointment_type'].",' ".$selected." value='". $row['serviceid']."'>".$row['heading'].'</option>';
+                                    }
+                                    ?>
+                                </select>
+                            <?php } ?>
                         </div>
 
                         <div class="col-sm-2"><label class="show-on-mob">Total Fee:</label>
-                            <input name="fee[]" <?= $fee_editable ? '' : 'readonly' ?> id="<?php echo 'fee_'.$id_loop; ?>"  type="number" step="any" value="<?php echo $fee; ?>" class="form-control fee" />
+                            <?php if($_GET['inv_mode'] == 'adjust') { ?>
+                                <input name="fee[]" id="<?php echo 'fee_'.$id_loop; ?>"  type="hidden" value="<?php echo $fee; ?>" class="fee" />
+                                <?= $fee ?>
+                            <?php } else { ?>
+                                <input name="fee[]" <?= $fee_editable ? '' : 'readonly' ?> id="<?php echo 'fee_'.$id_loop; ?>"  type="number" step="any" value="<?php echo $fee; ?>" class="form-control fee" />
+                            <?php } ?>
                             <input name="gst_exempt[]" id="<?php echo 'gstexempt_'.$id_loop; ?>"  type="hidden" value="<?php echo get_all_from_service($dbc, $serviceid, 'gst_exempt'); ?>" class="form-control gstexempt" />
                             <input name="service_row_id[]" type="hidden" value="<?= $insurer_row_id++ ?>" class="insurer_row_id" />
                         </div>
 
-                        <div class="col-sm-1 adjust_block">
-                            <img src="<?= WEBSITE_URL ?>/img/remove.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right cursor-hand" onclick="rem_service_row(this);">
-                            <img src="<?= WEBSITE_URL ?>/img/icons/ROOK-add-icon.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right cursor-hand" onclick="add_service_row();">
+                        <div class="col-sm-1">
+                            <img src="<?= WEBSITE_URL ?>/img/remove.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right cursor-hand adjust_block" onclick="rem_service_row(this);">
+                            <img src="<?= WEBSITE_URL ?>/img/icons/ROOK-add-icon.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right cursor-hand adjust_block" onclick="add_service_row();">
+                            <label class="return_block"><input type="checkbox" name="servicerow_refund[]" value="<?= $insurer_row_id ?>" onchange="countTotalPrice()"> Refund</label>
                         </div>
 
                         <div class="col-sm-12 pay-div"></div>
@@ -97,7 +111,7 @@
 
             <?php } ?>
 
-            <div class="additional_service form-group clearfix adjust_block">
+            <div class="additional_service form-group clearfix <?= $_GET['inv_mode'] == 'adjust' ? 'adjust_block' : '' ?>">
 
                 <div class="col-sm-4"><label class="show-on-mob">Service Category:</label>
                     <select data-placeholder="Select a Category..." id="category_0" class="chosen-select-deselect form-control service_category_onchange" width="380">

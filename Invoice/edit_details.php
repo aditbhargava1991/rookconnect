@@ -47,6 +47,10 @@ function view_profile(img) {
             </div>
         </div>
     <?php } ?>
+
+    <?php if($_GET['inv_mode'] == 'adjust') { ?>
+        <input type="hidden" name="invoice_mode" value="Adjustment">
+    <?php } ?>
       
     <div class="form-group" <?= (in_array('invoice_date',$field_config) ? '' : 'style="display:none;"') ?>>
         <label for="site_name" class="col-sm-3 control-label">Invoice Date:</label>
@@ -132,117 +136,159 @@ function view_profile(img) {
 
     <div class="form-group patient  <?= (in_array('contract',$field_config) ? 'reference' : '" style="display:none;') ?>">
         <label for="site_name" class="col-sm-3 control-label">Contract:</label>
-        <div class="col-sm-9"><input type="text" name="contract" class="form-control" /></div>
+        <div class="col-sm-9"><input type="text" name="contract" class="form-control" value="<?= $get_invoice['contract'] ?>" /></div>
     </div>
 
     <div class="form-group patient  <?= (in_array('po_num',$field_config) ? 'reference' : '" style="display:none;') ?>">
         <label for="site_name" class="col-sm-3 control-label">PO #:</label>
-        <div class="col-sm-9"><input type="text" name="po_num" class="form-control" /></div>
+        <div class="col-sm-9"><input type="text" name="po_num" class="form-control" value="<?= $get_invoice['po_num'] ?>" /></div>
     </div>
 
     <div class="form-group patient  <?= (in_array('area',$field_config) ? 'reference' : '" style="display:none;') ?>">
         <label for="site_name" class="col-sm-3 control-label">Area:</label>
-        <div class="col-sm-9"><input type="text" name="area" class="form-control" /></div>
+        <div class="col-sm-9"><input type="text" name="area" class="form-control" value="<?= $get_invoice['area'] ?>" /></div>
     </div>
 
     <div class="form-group patient  <?= (in_array('injury',$field_config) ? 'patient_type_fields' : '" style="display:none;') ?>">
-        <label for="site_name" class="col-sm-3 control-label">
-        <span class="popover-examples list-inline">
-            <a href="#job_file" data-toggle="tooltip" data-placement="top" title="Select the injury."><img src="<?php echo WEBSITE_URL;?>/img/info.png" width="20"></a>
-        </span>
-        Injury<span class="hp-red">*</span>:</label>
-        <div class="col-sm-9">
-            <select id="injuryid" data-placeholder="Select an Injury..." name="injuryid" class="chosen-select-deselect form-control" width="380">
-                <option value=""></option>
-                <?php $pid = $_GET['contactid'];
-                $query = mysqli_query($dbc,"SELECT contactid, injuryid, injury_name, injury_date, injury_type, treatment_plan FROM patient_injury WHERE contactid='$pid' AND discharge_date IS NULL AND deleted=0");
-                while($row = mysqli_fetch_array($query)) {
-                    $injuryid = $row['injuryid'];
-                    $total_injury = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT COUNT(bookingid) AS total_injury FROM booking WHERE injuryid='$injuryid'"));
+        <?php if($_GET['inv_mode'] == 'adjust') { ?>
+            <div class="form-group">
+                <label for="site_name" class="col-sm-3 control-label">Invoiced Injury:</label>
+                <div class="col-sm-9 control-label" style="text-align:left;"><?= $injury ?></div>
+            </div>
+        <?php } ?>
+        <div class="adjust_block">
+            <label for="site_name" class="col-sm-3 control-label">
+            <span class="popover-examples list-inline">
+                <a href="#job_file" data-toggle="tooltip" data-placement="top" title="Select the injury."><img src="<?php echo WEBSITE_URL;?>/img/info.png" width="20"></a>
+            </span>
+            Injury<span class="hp-red">*</span>:</label>
+            <div class="col-sm-9">
+                <select id="injuryid" data-placeholder="Select an Injury..." name="injuryid" class="chosen-select-deselect form-control" width="380">
+                    <option value=""></option>
+                    <?php $pid = $_GET['contactid'];
+                    $query = mysqli_query($dbc,"SELECT contactid, injuryid, injury_name, injury_date, injury_type, treatment_plan FROM patient_injury WHERE contactid='$pid' AND discharge_date IS NULL AND deleted=0");
+                    while($row = mysqli_fetch_array($query)) {
+                        $injuryid = $row['injuryid'];
+                        $total_injury = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT COUNT(bookingid) AS total_injury FROM booking WHERE injuryid='$injuryid'"));
 
-                    $treatment_plan = get_all_from_injury($dbc, $injuryid, 'treatment_plan');
-                    $final_treatment_done = '';
-                    if($treatment_plan != '') {
-                        $final_treatment_done = ' : '.($total_injury['total_injury']+1).'/'.$treatment_plan;
+                        $treatment_plan = get_all_from_injury($dbc, $injuryid, 'treatment_plan');
+                        $final_treatment_done = '';
+                        if($treatment_plan != '') {
+                            $final_treatment_done = ' : '.($total_injury['total_injury']+1).'/'.$treatment_plan;
+                        }
+
+                        echo "<option ".($get_invoice['injuryid'] == $injuryid ? 'selected' : '')." value='". $row['injuryid']."'>".$row['injury_type'].' : '.$row['injury_name']. ' : '.$row['injury_date'].$final_treatment_done.'</option>';
                     }
-
-                    echo "<option ".($get_invoice['injuryid'] == $injuryid ? 'selected' : '')." value='". $row['injuryid']."'>".$row['injury_type'].' : '.$row['injury_name']. ' : '.$row['injury_date'].$final_treatment_done.'</option>';
-                }
-                ?>
-            </select>
+                    ?>
+                </select>
+            </div>
         </div>
     </div>
 
     <div class="form-group treatment_plan" <?= (in_array('treatment',$field_config) ? '' : 'style="display:none;"') ?>>
-        <label for="site_name" class="col-sm-3 control-label">Treatment Plan:</label>
-        <div class="col-sm-9">
-          <select name="treatment_plan" data-placeholder="Select a Plan..." class="chosen-select-deselect form-control" width="380">
-                <option value=''></option>
-                <option <?php if ($treatment_plan == "3") { echo " selected"; } ?> value = '3'>3</option>
-                <option <?php if ($treatment_plan == "4") { echo " selected"; } ?> value = '4'>4</option>
-                <option <?php if ($treatment_plan == "5") { echo " selected"; } ?> value = '5'>5</option>
-                <option <?php if ($treatment_plan == "6") { echo " selected"; } ?> value = '6'>6</option>
-                <option <?php if ($treatment_plan == "7") { echo " selected"; } ?> value = '7'>7</option>
-                <option <?php if ($treatment_plan == "12") { echo " selected"; } ?>  value = '12'>12</option>
-                <option <?php if ($treatment_plan == "21") { echo " selected"; } ?> value = '21'>21</option>
-          </select>
+        <?php if($_GET['inv_mode'] == 'adjust') { ?>
+            <div class="form-group">
+                <label for="site_name" class="col-sm-3 control-label">Invoiced Treatment Plan:</label>
+                <div class="col-sm-9 control-label" style="text-align:left;"><?= $treatment_plan ?></div>
+            </div>
+        <?php } ?>
+        <div class="adjust_block">
+            <label for="site_name" class="col-sm-3 control-label">Treatment Plan:</label>
+            <div class="col-sm-9">
+              <select name="treatment_plan" data-placeholder="Select a Plan..." class="chosen-select-deselect form-control" width="380">
+                    <option value=''></option>
+                    <option <?php if ($treatment_plan == "3") { echo " selected"; } ?> value = '3'>3</option>
+                    <option <?php if ($treatment_plan == "4") { echo " selected"; } ?> value = '4'>4</option>
+                    <option <?php if ($treatment_plan == "5") { echo " selected"; } ?> value = '5'>5</option>
+                    <option <?php if ($treatment_plan == "6") { echo " selected"; } ?> value = '6'>6</option>
+                    <option <?php if ($treatment_plan == "7") { echo " selected"; } ?> value = '7'>7</option>
+                    <option <?php if ($treatment_plan == "12") { echo " selected"; } ?>  value = '12'>12</option>
+                    <option <?php if ($treatment_plan == "21") { echo " selected"; } ?> value = '21'>21</option>
+              </select>
+            </div>
         </div>
     </div>
 
     <div class="form-group" <?= (in_array('staff',$field_config) ? '' : 'style="display:none;"') ?>>
-        <label for="site_name" class="col-sm-3 control-label">
-        <span class="popover-examples list-inline">
-            <a href="#job_file" data-toggle="tooltip" data-placement="top" title="Select the staff providing treatment."><img src="<?php echo WEBSITE_URL;?>/img/info.png" width="20"></a>
-        </span>
-        Staff:</label>
-        <div class="col-sm-8">
-            <select id="therapistsid" data-placeholder="Select Staff..." name="therapistsid" class="chosen-select-deselect form-control" width="380">
-                <option value=""></option>
-                <?php $query = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc,"SELECT contactid, first_name, last_name FROM contacts WHERE category IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND deleted=0"),MYSQLI_ASSOC));
-                foreach($query as $row) {
-                    echo "<option ".($get_invoice['therapistsid'] == $row ? 'selected' : '')." value='". $row."'>".get_contact($dbc, $row).'</option>';
-                } ?>
-            </select>
-        </div>
-        <div class="col-sm-1">
-            <img src="../img/person.PNG" class="inline-img cursor-hand pull-right" onclick="view_profile(this);">
+        <?php if($_GET['inv_mode'] == 'adjust') { ?>
+            <div class="form-group">
+                <label for="site_name" class="col-sm-3 control-label">Invoiced Staff:</label>
+                <div class="col-sm-9 control-label" style="text-align:left;"><?= $staff ?></div>
+            </div>
+        <?php } ?>
+        <div class="adjust_block">
+            <label for="site_name" class="col-sm-3 control-label">
+            <span class="popover-examples list-inline">
+                <a href="#job_file" data-toggle="tooltip" data-placement="top" title="Select the staff providing treatment."><img src="<?php echo WEBSITE_URL;?>/img/info.png" width="20"></a>
+            </span>
+            Staff:</label>
+            <div class="col-sm-8">
+                <select id="therapistsid" data-placeholder="Select Staff..." name="therapistsid" class="chosen-select-deselect form-control" width="380">
+                    <option value=""></option>
+                    <?php $query = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc,"SELECT contactid, first_name, last_name FROM contacts WHERE category IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND deleted=0"),MYSQLI_ASSOC));
+                    foreach($query as $row) {
+                        echo "<option ".($get_invoice['therapistsid'] == $row ? 'selected' : '')." value='". $row."'>".get_contact($dbc, $row).'</option>';
+                    } ?>
+                </select>
+            </div>
+            <div class="col-sm-1">
+                <img src="../img/person.PNG" class="inline-img cursor-hand pull-right" onclick="view_profile(this);">
+            </div>
         </div>
     </div>
 
     <div class="form-group" <?= (in_array('appt_type',$field_config) ? '' : 'style="display:none;"') ?>>
-        <label for="site_name" class="col-sm-3 control-label">Appointment Type:</label>
-        <div class="col-sm-9">
-            <select name="app_type" class="chosen-select-deselect"><option></option>
-                <?php $appointment_types = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `appointment_type` WHERE `deleted` = 0"),MYSQLI_ASSOC);
-                foreach ($appointment_types as $appointment_type) {
-                    echo '<option '.($type == $appointment_type['id'] ? 'selected' : '').' value="'.$appointment_type['id'].'">'.$appointment_type['name'].'</option>';
-                } ?>
-            </select>
+        <?php if($_GET['inv_mode'] == 'adjust') { ?>
+            <div class="form-group">
+                <label for="site_name" class="col-sm-3 control-label">Invoiced Appointment Type:</label>
+                <div class="col-sm-9 control-label" style="text-align:left;"><?php echo $app_type; ?></div>
+            </div>
+        <?php } ?>
+        <div class="adjust_block">
+            <label for="site_name" class="col-sm-3 control-label">Appointment Type:</label>
+            <div class="col-sm-9">
+                <select name="app_type" class="chosen-select-deselect"><option></option>
+                    <?php $appointment_types = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `appointment_type` WHERE `deleted` = 0"),MYSQLI_ASSOC);
+                    foreach ($appointment_types as $appointment_type) {
+                        echo '<option '.($type == $appointment_type['id'] ? 'selected' : '').' value="'.$appointment_type['id'].'">'.$appointment_type['name'].'</option>';
+                    } ?>
+                </select>
+            </div>
         </div>
     </div>
 
     <div class="form-group" <?= (in_array('service_date',$field_config) ? '' : 'style="display:none;"') ?>>
         <label for="site_name" class="col-sm-3 control-label">Service Date:</label>
         <div class="col-sm-9">
-            <input type="text" name="service_date" class="form-control datepicker" value="<?= $service_date ?>">
+            <input type="text" name="service_date" <?= ($_GET['inv_mode'] == 'adjust') ? 'readonly' : '' ?> class="form-control <?= ($_GET['inv_mode'] == 'adjust') ? '' : 'datepicker' ?>" value="<?= $service_date ?>">
         </div>
     </div>
 
     <div class="form-group" <?= (in_array('pricing',$field_config) ? '' : 'style="display:none;"') ?>>
-        <label for="site_name" class="col-sm-3 control-label">Product Pricing:</label>
-        <div class="col-sm-9">
-            <select name="pricing" data-placeholder="Select Pricing" class="chosen-select-deselect"><option></option>
-                <?php if(in_array('price_admin', $field_config)) { ?><option <?= ($pricing == 'admin_price' ? 'selected' : '') ?> value="admin_price">Admin Price</option><?php } ?>
-                <?php if(in_array('price_client', $field_config)) { ?><option <?= ($pricing == 'client_price' ? 'selected' : '') ?> value="client_price">Client Price</option><?php } ?>
-                <?php if(in_array('price_commercial', $field_config)) { ?><option <?= ($pricing == 'commercial_price' ? 'selected' : '') ?> value="commercial_price">Commercial Price</option><?php } ?>
-                <?php if(in_array('price_distributor', $field_config)) { ?><option <?= ($pricing == 'distributor_price' ? 'selected' : '') ?> value="distributor_price">Distributor Price</option><?php } ?>
-                <?php if(in_array('price_retail', $field_config)) { ?><option <?= ($pricing == 'final_retail_price' || $pricing == '' ? 'selected' : '') ?> value="final_retail_price">Final Retail Price</option><?php } ?>
-                <?php if(in_array('price_preferred', $field_config)) { ?><option <?= ($pricing == 'preferred_price' ? 'selected' : '') ?> value="preferred_price">Preferred Price</option><?php } ?>
-                <?php if(in_array('price_po', $field_config)) { ?><option <?= ($pricing == 'purchase_order_price' ? 'selected' : '') ?> value="purchase_order_price">Purchase Order Price</option><?php } ?>
-                <?php if(in_array('price_sales', $field_config)) { ?><option <?= ($pricing == 'sales_order_price' ? 'selected' : '') ?> value="sales_order_price"><?= SALES_ORDER_NOUN ?> Price</option><?php } ?>
-                <?php if(in_array('price_web', $field_config)) { ?><option <?= ($pricing == 'web_price' ? 'selected' : '') ?> value="web_price">Web Price</option><?php } ?>
-                <?php if(in_array('price_wholesale', $field_config)) { ?><option <?= ($pricing == 'wholesale_price' ? 'selected' : '') ?> value="wholesale_price">Wholesale Price</option><?php } ?>
-            </select>
+        <?php if($_GET['inv_mode'] == 'adjust') { ?>
+            <div class="form-group">
+                <label for="site_name" class="col-sm-3 control-label">Invoiced Product Pricing:</label>
+                <div class="col-sm-9">
+                    <?= ucwords(str_replace('_',' ',$pricing)) ?>
+                </div>
+            </div>
+        <?php } ?>
+        <div class="adjust_block">
+            <label for="site_name" class="col-sm-3 control-label">Product Pricing:</label>
+            <div class="col-sm-9">
+                <select name="pricing" data-placeholder="Select Pricing" class="chosen-select-deselect"><option></option>
+                    <?php if(in_array('price_admin', $field_config)) { ?><option <?= ($pricing == 'admin_price' ? 'selected' : '') ?> value="admin_price">Admin Price</option><?php } ?>
+                    <?php if(in_array('price_client', $field_config)) { ?><option <?= ($pricing == 'client_price' ? 'selected' : '') ?> value="client_price">Client Price</option><?php } ?>
+                    <?php if(in_array('price_commercial', $field_config)) { ?><option <?= ($pricing == 'commercial_price' ? 'selected' : '') ?> value="commercial_price">Commercial Price</option><?php } ?>
+                    <?php if(in_array('price_distributor', $field_config)) { ?><option <?= ($pricing == 'distributor_price' ? 'selected' : '') ?> value="distributor_price">Distributor Price</option><?php } ?>
+                    <?php if(in_array('price_retail', $field_config)) { ?><option <?= ($pricing == 'final_retail_price' || $pricing == '' ? 'selected' : '') ?> value="final_retail_price">Final Retail Price</option><?php } ?>
+                    <?php if(in_array('price_preferred', $field_config)) { ?><option <?= ($pricing == 'preferred_price' ? 'selected' : '') ?> value="preferred_price">Preferred Price</option><?php } ?>
+                    <?php if(in_array('price_po', $field_config)) { ?><option <?= ($pricing == 'purchase_order_price' ? 'selected' : '') ?> value="purchase_order_price">Purchase Order Price</option><?php } ?>
+                    <?php if(in_array('price_sales', $field_config)) { ?><option <?= ($pricing == 'sales_order_price' ? 'selected' : '') ?> value="sales_order_price"><?= SALES_ORDER_NOUN ?> Price</option><?php } ?>
+                    <?php if(in_array('price_web', $field_config)) { ?><option <?= ($pricing == 'web_price' ? 'selected' : '') ?> value="web_price">Web Price</option><?php } ?>
+                    <?php if(in_array('price_wholesale', $field_config)) { ?><option <?= ($pricing == 'wholesale_price' ? 'selected' : '') ?> value="wholesale_price">Wholesale Price</option><?php } ?>
+                </select>
+            </div>
         </div>
     </div>
 

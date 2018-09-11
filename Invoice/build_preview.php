@@ -1,8 +1,10 @@
 <?php include_once('config.php'); ?>
-<div class="col-sm-12" style="text-align:right;"><h3>
-    <label style="color: blue;">Adjustment <input type="checkbox" onchange="if(this.checked) { $('.adjust_block').show(); $('[name=paid]').first().change(); } else { $('.adjust_block').hide(); }"></label>
-    <label style="color: red;">Refund <input type="checkbox" onchange="if(this.checked) { $('.return_block').show(); } else { $('.return_block').hide(); }"></label>
-</h3></div>
+<?php if($_GET['inv_mode'] === 'adjust') { ?>
+    <div class="col-sm-12" style="text-align:right;"><h3>
+        <label style="color: blue;">Adjustment <input type="checkbox" onchange="if(this.checked) { $('.adjust_block').show(); $('[name=paid]').first().change(); } else { $('.adjust_block').hide(); }"></label>
+        <label style="color: red;">Refund <input type="checkbox" onchange="if(this.checked) { $('.return_block').show(); } else { $('.return_block').hide(); }"></label>
+    </h3></div>
+<?php } ?>
 <script>
 <?php if($_GET['inv_mode'] === 'adjust') { ?>
     $(document).ready(function() {
@@ -40,6 +42,8 @@
     <h4 <?= (in_array('gf',$field_config) ? '' : 'style="display:none;"') ?>>Gift Card Value: <label class="detail_gf_amt pull-right"><span id="detail_gift_amount">N/A</span></label></h4>
     <h4 style="display:none;">Credit to Account: <label class="detail_credit_balance pull-right">$0.00</label></h4>
     <h4>Total: <label class="detail_total_amt pull-right">$0.00</label></h4>
+    <h4 style="display:none;">Refund Amount: <label class="detail_refund_amt pull-right">$0.00</label></h4>
+    <h4 style="display:none;">Adjustment Amount: <label class="detail_adjust_amt pull-right">$0.00</label></h4>
     <h4 style="display:none;"><?= count($payer_config) > 1 ? 'Third Party' : $payer_config[0] ?> Portion: <label class="detail_insurer_amt pull-right">$0.00</label></h4>
     <h4 style="display:none;"><?= count($purchaser_config) > 1 ? 'Customer' : $purchaser_config[0] ?> Portion: <label class="detail_patient_amt pull-right">$0.00</label></h4>
 </div>

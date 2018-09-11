@@ -1763,7 +1763,7 @@ if($invoice_mode != 'Adjustment') {
 
 	$get_invoice = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `invoice` WHERE `invoiceid`='$invoiceid'"));
 	// PDF
-	$invoice_design = get_config($dbc, 'invoice_design');
+	/*$invoice_design = get_config($dbc, 'invoice_design');
 	switch($invoice_design) {
 		case 1:
 			include('pos_invoice_1.php');
@@ -1804,7 +1804,7 @@ if($invoice_mode != 'Adjustment') {
         default:
 			include('pos_invoice_1.php');
 			break;
-	}
+	}*/
 
 	//Adjustment Information
 	$receipt_payments = [];
@@ -2483,7 +2483,7 @@ if($invoice_mode != 'Adjustment') {
 
 	$get_invoice = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `invoice` WHERE `invoiceid`='$invoiceid'"));
 	// PDF
-	$invoice_design = get_config($dbc, 'invoice_design');
+	/*$invoice_design = get_config($dbc, 'invoice_design');
 	switch($invoice_design) {
 		case 1:
 			include('pos_invoice_1.php');
@@ -2524,7 +2524,7 @@ if($invoice_mode != 'Adjustment') {
 		default:
 			include('pos_invoice_1.php');
 			break;
-	}
+	}*/
 
 	$final_amount = $adjust_amount + $refund_amount;
 	$gst_amt = $adjust_gst + $refund_gst;

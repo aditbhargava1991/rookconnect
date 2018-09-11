@@ -817,7 +817,7 @@ function setTotalPrice() {
 				label = group.find('[name="service_name[]"]').val();
 			}
 			var info = cat+': '+label;
-			if(label == '') {
+			if(label == '' || label == undefined) {
 				info = group.find('[name=servicelabel]').val();
 			}
 			if(group.hasClass('adjust_block')) {
@@ -861,7 +861,7 @@ function setTotalPrice() {
 			var label = group.find('[name="inventoryid[]"] option:selected').text();
 			var type = group.find('[name="invtype[]"] option:selected').text();
 			var info = label+(group.find('[name="invtype[]"]').is(':visible') && type != '' ? ': '+type : '');
-			if(label == '') {
+			if(label == '' || label == undefined) {
 				info = group.find('[name=inventorylabel]').val();
 			}
 			info = info+' X '+group.find('[name="init_quantity[]"]').val();
@@ -916,7 +916,7 @@ function setTotalPrice() {
 			var cat = group.find('[name="packagecat[]"] option:selected').text();
 			var label = group.find('[name="packageid[]"] option:selected').text();
 			var info = cat+': '+label;
-			if(label == '') {
+			if(label == '' || label == undefined) {
 				info = group.find('[name=package_label]').val();
 			}
 			if(group.hasClass('adjust_block')) {

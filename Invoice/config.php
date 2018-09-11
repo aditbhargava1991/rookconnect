@@ -36,6 +36,7 @@ if(!empty($_GET['invoiceid'])) {
     $injuryid = $get_invoice['injuryid'];
     $promotionid = $get_invoice['promotionid'];
     $invoice_date = $get_invoice['invoice_date'];
+    $service_date = $get_invoice['service_date'];
     if($bookingid != 0) {
         $service_date = explode(' ', get_patient_from_booking($dbc, $bookingid, 'appoint_date'))[0];
     }
@@ -53,16 +54,21 @@ if(!empty($_GET['invoiceid'])) {
     $serviceid =$get_invoice['serviceid'];
     $service_ticketid =$get_invoice['service_ticketid'];
     $fee =$get_invoice['fee'];
+    $admin_fee =$get_invoice['admin_fee'];
+    $service_ins = $get_invoice['service_insurer'];
     $inventoryid =$get_invoice['inventoryid'];
     $sell_price =$get_invoice['sell_price'];
     $invtype =$get_invoice['invtype'];
     $quantity =$get_invoice['quantity'];
+    $inv_ins = $get_invoice['inventory_insurer'];
     $packageid =$get_invoice['packageid'];
     $package_cost =$get_invoice['package_cost'];
+    $package_ins = $get_invoice['package_insurer'];
     $misc_items =$get_invoice['misc_item'];
     $misc_ticketid =$get_invoice['misc_ticketid'];
     $misc_prices =$get_invoice['misc_price'];
     $misc_qtys =$get_invoice['misc_qty'];
+    $mis_ins = $get_invoice['misc_insurer'];
 
     $delivery = $get_invoice['delivery'];
     $delivery_address = $get_invoice['delivery_address'];
@@ -76,7 +82,39 @@ if(!empty($_GET['invoiceid'])) {
     $insurance_payment = $get_invoice['insurance_payment'];
     $payment_type = $get_invoice['payment_type'];
     $paid = $get_invoice['paid'];
+    $patient_paid_info = explode('#*#', $get_invoice['payment_type']);
+    $patient_paid_type = explode(',', $patient_paid_info[0]);
+    $patient_paid_amt = explode(',', $patient_paid_info[1]);
+    $insurer_paid_who = $get_invoice['insurerid'];
+    $insurer_paid_amt = $get_invoice['insurance_payment'];
     $gratuity = $get_invoice['gratuity'];
+    $adj_result = mysqli_query($dbc, "SELECT * FROM `invoice` WHERE `invoiceid_src`='$invoiceid'");
+    while($invoice_adj = mysqli_fetch_array($adj_result)) {
+        $serviceid .= $invoice_adj['serviceid'];
+        $fee .= $invoice_adj['fee'];
+        $admin_fee .= $invoice_adj['admin_fee'];
+        $service_ins .= $invoice_adj['service_insurer'];
+        $inventoryid .= $invoice_adj['inventoryid'];
+        $sell_price .= $invoice_adj['sell_price'];
+        $invtype .= $invoice_adj['invtype'];
+        $quantity .= $invoice_adj['quantity'];
+        $inv_ins .= $invoice_adj['inventory_insurer'];
+        $packageid .= $invoice_adj['packageid'];
+        $package_cost .= $invoice_adj['package_cost'];
+        $package_ins .= $invoice_adj['package_insurer'];
+        $misc_items .= $invoice_adj['misc_item'];
+        $misc_prices .= $invoice_adj['misc_price'];
+        $misc_qtys .= $invoice_adj['misc_qty'];
+        $misc_ins .= $invoice_adj['misc_insurer'];
+
+        $patient_paid_info = explode('#*#', $invoice_adj['payment_type']);
+        $patient_paid_type = array_merge($patient_paid_type,explode(',', $patient_paid_info[0]));
+        $patient_paid_amt = array_merge($patient_paid_amt,explode(',', $patient_paid_info[1]));
+        $insurer_paid_who .= ','.$invoice_adj['insurerid'];
+        $insurer_paid_amt .= ','.$invoice_adj['insurance_payment'];
+    }
+    $insurer_paid_who = explode(',',$insurer_paid_who);
+    $insurer_paid_amt = explode(',',$insurer_paid_amt);
 }
 
 $field_config = explode(',',get_config($dbc, 'invoice_fields'));

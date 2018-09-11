@@ -18,8 +18,8 @@
         $col3 = 2;
         $col4 = 1;
         $col5 = 1;
-        $col6 = 2;
-        $col7 = 2;
+        $col6 = $_GET['inv_mode'] == 'adjust' ? 1 : 2;
+        $col7 = $_GET['inv_mode'] == 'adjust' ? 1 : 2;
         if(in_array('inventory_cat',$field_config) && in_array('inventory_part',$field_config) && in_array('inventory_type',$field_config) && in_array('inventory_price',$field_config)) {
             $col1 = $col2 = $col3 = $col4 = 2;
         } else if(in_array('inventory_cat',$field_config) && in_array('inventory_part',$field_config) && in_array('inventory_type',$field_config)) {
@@ -90,6 +90,9 @@
                 <?php if(in_array('inventory_price',$field_config)) { ?><label class="col-sm-<?= $col5 ?> text-center">Price</label><?php } ?>
                 <label class="col-sm-<?= $col6 ?> text-center">Qty</label>
                 <label class="col-sm-<?= $col7 ?> text-center">Total</label>
+                <?php if($_GET['inv_mode'] == 'adjust') { ?>
+                    <label class="col-sm-2 text-center return_block">Return</label>
+                <?php } ?>
             </div>
 
             <?php
@@ -109,58 +112,94 @@
                             $sell_price = $each_sell_price[$client_loop];
                             $invtype = $each_invtype[$client_loop];
                             $quantity = $each_quantity[$client_loop];
-                            $inv_info = mysqli_fetch_array(mysqli_query($dbc, "SELECT `category`, `part_no`, `final_retail_price`, `wcb_price`, `client_price`, `web_price`, `purchase_order_price`, `sales_order_price`, `admin_price`, `wholesale_price`, `commercial_price`, `preferred_price`, `gst_exempt` FROM `inventory` WHERE `inventoryid`='$inventoryid'"));
+                            $inv_info = mysqli_fetch_array(mysqli_query($dbc, "SELECT `category`, `part_no`, `name`, `final_retail_price`, `wcb_price`, `client_price`, `web_price`, `purchase_order_price`, `sales_order_price`, `admin_price`, `wholesale_price`, `commercial_price`, `preferred_price`, `gst_exempt` FROM `inventory` WHERE `inventoryid`='$inventoryid'"));
                             $gst_exempt = $inv_info['gst_exempt'];
                             ?>
 
-                            <div class="additional_product form-group clearfix">
+                            <div class="additional_product form-group clearfix <?= $_GET['inv_mode'] == 'adjust' ? 'refundable' : '' ?>">
                                 <div class="col-sm-<?= $col1 ?>" <?= (in_array('inventory_cat',$field_config) ? '' : 'style="display:none;"') ?>><label class="show-on-mob">Inventory Category:</label>
-                                    <select data-placeholder="Select Category..." id="<?php echo 'inventorycat_'.$id_loop; ?>" name="inventorycat[]" class="chosen-select-deselect form-control inventorycat" width="380">
-                                        <option></option>
-                                        <?php $query = mysqli_query($dbc,"SELECT `category` FROM inventory WHERE deleted=0 GROUP BY `category` ORDER BY `category`");
-                                        while($row = mysqli_fetch_array($query)) {
-                                            echo "<option ".($row['category'] == $inv_info['category'] ? 'selected' : '')." value='". $row['category']."'>".$row['category'].'</option>';
-                                        } ?>
-                                    </select>
+                                    <?php if($_GET['inv_mode'] == 'adjust') { ?>
+                                        <?= $inv_info['category'] ?>
+                                    <?php } else { ?>
+                                        <select data-placeholder="Select Category..." id="<?php echo 'inventorycat_'.$id_loop; ?>" name="inventorycat[]" class="chosen-select-deselect form-control inventorycat" width="380">
+                                            <option></option>
+                                            <?php $query = mysqli_query($dbc,"SELECT `category` FROM inventory WHERE deleted=0 GROUP BY `category` ORDER BY `category`");
+                                            while($row = mysqli_fetch_array($query)) {
+                                                echo "<option ".($row['category'] == $inv_info['category'] ? 'selected' : '')." value='". $row['category']."'>".$row['category'].'</option>';
+                                            } ?>
+                                        </select>
+                                    <?php } ?>
                                 </div>
                                 <div class="col-sm-<?= $col2 ?>" <?= (in_array('inventory_part',$field_config) ? '' : 'style="display:none;"') ?>><label class="show-on-mob">Inventory Part #:</label>
-                                    <select data-placeholder="Select Part #..." id="<?php echo 'inventorypart_'.$id_loop; ?>" name="inventorypart[]" class="chosen-select-deselect form-control inventorypart" width="380">
-                                        <option value=""></option>
-                                        <?php foreach($inventory_list as $row) {
-                                            if(in_array($inv_info['category'],['',$row['category']])) {
-                                                echo "<option data-category='".$row['category']."' ".($row['part_no'] == $inv_info['part_no'] ? 'selected' : '')." value='". $row['part_no']."'>".$row['part_no'].'</option>';
-                                            }
-                                        } ?>
-                                    </select>
+                                    <?php if($_GET['inv_mode'] == 'adjust') {
+                                        echo $inv_info['part_no'];
+                                    } else { ?>
+                                        <select data-placeholder="Select Part #..." id="<?php echo 'inventorypart_'.$id_loop; ?>" name="inventorypart[]" class="chosen-select-deselect form-control inventorypart" width="380">
+                                            <option value=""></option>
+                                            <?php foreach($inventory_list as $row) {
+                                                if(in_array($inv_info['category'],['',$row['category']])) {
+                                                    echo "<option data-category='".$row['category']."' ".($row['part_no'] == $inv_info['part_no'] ? 'selected' : '')." value='". $row['part_no']."'>".$row['part_no'].'</option>';
+                                                }
+                                            } ?>
+                                        </select>
+                                    <?php } ?>
                                 </div>
                                 <div class="col-sm-<?= $col3 ?>"><label class="show-on-mob">Inventory Name:</label>
-                                    <select data-placeholder="Select Inventory..." id="<?php echo 'inventoryid_'.$id_loop; ?>" name="inventoryid[]" class="chosen-select-deselect form-control inventoryid" width="380">
-                                        <option value=""></option>
-                                        <?php foreach($inventory_list as $row) {
-                                            if(in_array($inv_info['category'],['',$row['category']])) {
-                                                echo "<option data-category='".$row['category']."' data-part='".$row['part_no']."' ".($row['inventoryid'] == $inventoryid ? 'selected' : '')." value='". $row['inventoryid']."'>".$row['name'].'</option>';
-                                            }
-                                        } ?>
-                                    </select>
+                                    <?php if($_GET['inv_mode'] == 'adjust') { ?>
+                                        <?= $inv_info['name'] ?><input type="hidden" name="inventoryid[]" value="<?= $inventoryid ?>"><input type="hidden" name="inventorylabel" value="<?= $inv_info['name'].(in_array('inventory_type',$field_config) ? ': '.$invtype : '') ?>">
+                                    <?php } else { ?>
+                                        <select data-placeholder="Select Inventory..." id="<?php echo 'inventoryid_'.$id_loop; ?>" name="inventoryid[]" class="chosen-select-deselect form-control inventoryid" width="380">
+                                            <option value=""></option>
+                                            <?php foreach($inventory_list as $row) {
+                                                if(in_array($inv_info['category'],['',$row['category']])) {
+                                                    echo "<option data-category='".$row['category']."' data-part='".$row['part_no']."' ".($row['inventoryid'] == $inventoryid ? 'selected' : '')." value='". $row['inventoryid']."'>".$row['name'].'</option>';
+                                                }
+                                            } ?>
+                                        </select>
+                                    <?php } ?>
                                 </div> <!-- Quantity -->
                                 <div class="col-sm-<?= $col4 ?>" <?= (in_array('inventory_type',$field_config) ? '' : 'style="display:none;"') ?>><label class="show-on-mob">Type:</label>
-                                    <select data-placeholder="Select a Type..." id="<?php echo 'invtype_'.$id_loop; ?>" name="invtype[]" class="chosen-select-deselect form-control invtype" width="480">
-                                    <option <?= ($invtype == 'General' ? "selected" : '') ?> value="General">General</option>
-                                    <option <?= ($invtype == 'WCB' ? "selected" : (strpos($injury_type,'WCB') === false && $injury_type != '' ? "disabled" : '')) ?> value="WCB">WCB</option>
-                                    <option <?= ($invtype == 'MVA' ? "selected" : (strpos($injury_type,'MVA') === false && $injury_type != '' ? "disabled" : '')) ?> value="MVA">MVA</option>
-                                    </select>
+                                    <?php if($_GET['inv_mode'] == 'adjust') { ?>
+                                        <?= $invtype ?>
+                                    <?php } else { ?>
+                                        <select data-placeholder="Select a Type..." id="<?php echo 'invtype_'.$id_loop; ?>" name="invtype[]" class="chosen-select-deselect form-control invtype" width="480">
+                                        <option <?= ($invtype == 'General' ? "selected" : '') ?> value="General">General</option>
+                                        <option <?= ($invtype == 'WCB' ? "selected" : (strpos($injury_type,'WCB') === false && $injury_type != '' ? "disabled" : '')) ?> value="WCB">WCB</option>
+                                        <option <?= ($invtype == 'MVA' ? "selected" : (strpos($injury_type,'MVA') === false && $injury_type != '' ? "disabled" : '')) ?> value="MVA">MVA</option>
+                                        </select>
+                                    <?php } ?>
                                 </div>
                                 <div class="col-sm-<?= $col5 ?>" <?= (in_array('inventory_price',$field_config) ? '' : 'style="display:none;"') ?>><label class="show-on-mob">Unit Price:</label>
-                                    <input name="unit_price[]" id="<?php echo 'unitprice_'.$id_loop; ?>" value="<?php echo $sell_price / $quantity; ?>" type="number" step="any" readonly class="form-control invunitprice" />
+                                    <?php if($_GET['inv_mode'] == 'adjust') { ?>
+                                        <input name="unit_price[]" id="<?php echo 'unitprice_'.$id_loop; ?>" value="<?php echo $sell_price / $quantity; ?>" type="hidden" readonly class="form-control invunitprice" />
+                                        <?php echo $sell_price / $quantity; ?>
+                                    <?php } else { ?>
+                                        <input name="unit_price[]" id="<?php echo 'unitprice_'.$id_loop; ?>" value="<?php echo $sell_price / $quantity; ?>" type="number" step="any" readonly class="form-control invunitprice" />
+                                    <?php } ?>
                                 </div> <!-- Quantity -->
                                 <div class="col-sm-<?= $col6 ?>"><label class="show-on-mob">Quantity:</label>
-                                    <input name="quantity[]" id="<?php echo 'quantity_'.$id_loop; ?>" onchange="changeProduct($('#inventoryid_'+this.id.split('_')[1]).get(0));" value="<?php echo $quantity; ?>" type="number" min="0" step="any" class="form-control quantity" />
+                                    <?php if($_GET['inv_mode'] == 'adjust') { ?>
+                                        <?= $quantity ?>
+                                        <input name="init_quantity[]" id="<?php echo 'quantity_'.$id_loop; ?>" onchange="changeProduct($('#inventoryid_'+this.id.split('_')[1]).get(0));" value="<?php echo $quantity; ?>" type="hidden" class="form-control quantity" />
+                                    <?php } else { ?>
+                                        <input name="quantity[]" id="<?php echo 'quantity_'.$id_loop; ?>" onchange="changeProduct($('#inventoryid_'+this.id.split('_')[1]).get(0));" value="<?php echo $quantity; ?>" type="number" min="0" step="any" class="form-control quantity" />
+                                    <?php } ?>
                                 </div> <!-- Quantity -->
                                 <div class="col-sm-<?= $col7 ?>"><label class="show-on-mob">Total:</label>
-                                    <input name="sell_price[]" id="<?php echo 'sellprice_'.$id_loop; ?>" onchange="countTotalPrice()" value="<?php echo $sell_price; ?>" type="number" step="any" readonly class="form-control sellprice" />
                                     <input name="inventory_row_id[]" type="hidden" value="<?= $insurer_row_id++ ?>" class="insurer_row_id" />
                                     <input name="inventory_gst_exempt[]" type="hidden" value="<?= $gst_exempt ?>" />
+                                    <?php if($_GET['inv_mode'] == 'adjust') { ?>
+                                        <input name="init_price[]" id="<?php echo 'unitprice_'.$id_loop; ?>" value="<?php echo $sell_price; ?>" type="hidden" readonly class="form-control invunitprice" />
+                                        <input name="sell_price[]" id="<?php echo 'sellprice_'.$id_loop; ?>" onchange="countTotalPrice()" value="0" type="number" step="any" readonly class="form-control sellprice" />
+                                    <?php } else { ?>
+                                        <input name="sell_price[]" id="<?php echo 'sellprice_'.$id_loop; ?>" onchange="countTotalPrice()" value="<?php echo $sell_price; ?>" type="number" step="any" readonly class="form-control sellprice" />
+                                    <?php } ?>
                                 </div>
+                                <?php if($_GET['inv_mode'] == 'adjust') { ?>
+                                    <div class="return_block col-sm-2">
+                                        <input name="quantity[]" id="<?php echo 'quantity_'.$id_loop; ?>" onchange="changeProduct(this);" value="0" max="0" min="<?php echo -$quantity; ?>" type="number" step="any" class="form-control quantity" />
+                                    </div>
+                                <?php } ?>
                                 <div class="col-sm-1 adjust_block">
                                     <img src="<?= WEBSITE_URL ?>/img/remove.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right cursor-hand" onclick="rem_product_row(this);">
                                     <img src="<?= WEBSITE_URL ?>/img/icons/ROOK-add-icon.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right cursor-hand" onclick="add_product_row();">
@@ -176,7 +215,7 @@
             ?>
 
             <div class="clearfix"></div>
-            <div class="additional_product form-group clearfix adjust_block">
+            <div class="additional_product form-group clearfix <?= $_GET['inv_mode'] == 'adjust' ? 'adjust_block' : '' ?>">
                 <div class="col-sm-<?= $col1 ?>" <?= (in_array('inventory_cat',$field_config) ? '' : 'style="display:none;"') ?>>
                     <label class="show-on-mob">Inventory Category:</label>
                     <select data-placeholder="Select Category..." id="inventorycat_0" name="inventorycat[]" class="chosen-select-deselect form-control inventorycat" width="380">
@@ -228,6 +267,10 @@
                     <input name="inventory_row_id[]" type="hidden" value="<?= $insurer_row_id++ ?>" class="insurer_row_id" />
                     <input name="inventory_gst_exempt[]" type="hidden" value="0" />
                 </div>
+                <?php if($_GET['inv_mode'] == 'adjust') { ?>
+                    <div class="return_block col-sm-2">
+                    </div>
+                <?php } ?>
                 <div class="col-sm-1 col-pricing" <?= (in_array('pricing',$field_config) ? '' : 'style="display:none;"') ?>>
                     <img src="../img/icons/ROOK-edit-icon.png" alt="Edit Pricing" title="Edit Pricing" width="30" class="cursor-hand no-toggle" onclick="$(this).hide(); $(this).closest('.col-pricing').find('.pricing-div').show();" />
                     <div class="pricing-div" style="display:none;">
