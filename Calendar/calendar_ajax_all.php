@@ -3243,8 +3243,10 @@ if($_GET['fill'] == 'book_client_ticket') {
 		$contact = implode(',',array_filter(array_unique($contact)));
 	}
 	$contact = ','.$contact.',';
+	$main_siteid = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `main_siteid` FROM `contacts` WHERE `contactid` = '$clientid'"))['main_siteid'];
+	$siteid = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `contactid` FROM `contacts` WHERE `category`='".SITES_CAT."' AND `businessid`='$clientid' AND `deleted` = 0 AND `contactid` = '$main_siteid' UNION SELECT `contactid` FROM `contacts` WHERE `category`='".SITES_CAT."' AND `businessid`='$clientid' AND `deleted` = 0 AND `contactid` != '$main_siteid'"))['contactid'];
 
-	mysqli_query($dbc, "INSERT INTO `tickets` (`ticket_type`, `clientid`, `contactid`, `to_do_date`, `to_do_start_time`, `status`) VALUES ('$ticket_type', '$clientid', '$contact', '$start_date', '$start_time', '$status')");
+	mysqli_query($dbc, "INSERT INTO `tickets` (`ticket_type`, `clientid`, `contactid`, `to_do_date`, `to_do_start_time`, `status`, `siteid`) VALUES ('$ticket_type', '$clientid', '$contact', '$start_date', '$start_time', '$status', '$siteid')");
 	$ticketid = mysqli_insert_id($dbc);
 
 	foreach(array_filter(array_unique(explode(',', $contact))) as $contact_id) {
