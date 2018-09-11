@@ -1,6 +1,15 @@
 <?php // Define all Tile Name Constants
 // @$_SERVER['page_load_info'] .= 'Session Started: '.number_format(microtime(true) - $_SERVER['REQUEST_TIME_FLOAT'],5)."\n";
 session_start();
+
+if(!defined('FOLDER_NAME')) {
+    $folder_path = $_SERVER['REQUEST_URI'];
+    $each_tab = explode('/', $folder_path);
+
+    DEFINE('FOLDER_NAME', strtolower($each_tab[1]));
+    DEFINE('FOLDER_URL', $each_tab[1]);
+}
+
 if($_SESSION['CONSTANT_UPDATED'] + 600 < time()) {
 	@session_start(['cookie_lifetime' => 518400]);
 	// Update SESSION Constants no more than once every 600 seconds
@@ -62,27 +71,6 @@ if($_SESSION['CONSTANT_UPDATED'] + 600 < time()) {
 
 	$_SESSION['CONSTANT_UPDATED'] = time();
 	$_SERVER['page_load_info'] .= 'Constants Reloaded: '.number_format(microtime(true) - $_SERVER['REQUEST_TIME_FLOAT'],5)."\n";
-
-    // Match Contacts
-    $today_date = date('Y-m-d');
-    $match_contacts_query = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `match_contact` WHERE CONCAT(',',`staff_contact`,',') LIKE '%,".$_SESSION['contactid'].",%' AND `deleted` = 0 AND `match_date` <= '$today_date'"),MYSQLI_ASSOC);
-    $match_contacts = [];
-    $match_exclude_security = array_filter(explode('#*#', get_config($dbc, 'match_exclude_security')));
-    $match_exclude = false;
-    foreach($match_exclude_security as $exclude_security) {
-        if(strpos(','.$_SESSION['role'].',',','.$exclude_security.',') !== FALSE) {
-            $match_exclude = true;
-        }
-    }
-    if(!empty($match_contacts_query) && !$match_exclude) {
-        $match_contacts[] = $_SESSION['contactid'];
-        foreach($match_contacts_query as $match_contact) {
-            if(strtotime($match_contact['end_date']) >= strtotime($today_date) && $match_contact['status'] == 'Active') {
-                $match_contacts = array_merge($match_contacts, explode(',',$match_contact['support_contact']));
-            }
-        }
-    }
-    $_SESSION['MATCH_CONTACTS'] = implode(',',array_unique(array_filter($match_contacts)));
     $staff_email_field = get_config($dbc, 'staff_email_field');
     $staff_email_field = empty($staff_email_field) ? 'email_address' : $staff_email_field;
     $_SESSION['STAFF_EMAIL_FIELD'] = $staff_email_field;
@@ -122,8 +110,35 @@ DEFINE('COMPANY_SOFTWARE_NAME', $_SESSION['COMPANY_SOFTWARE_NAME']);
 DEFINE('ACTIVE_DAY_BANNER', $_SESSION['ACTIVE_DAY_BANNER']);
 DEFINE('ACTIVE_TICKET_BUTTON', $_SESSION['ACTIVE_TICKET_BUTTON']);
 DEFINE('SHOW_SIGN_IN', $_SESSION['SHOW_SIGN_IN']);
-DEFINE('MATCH_CONTACTS', $_SESSION['MATCH_CONTACTS']);
 DEFINE('STAFF_EMAIL_FIELD', $_SESSION['STAFF_EMAIL_FIELD']);
+
+// Match Contacts
+$today_date = date('Y-m-d');
+$match_tile_lists = '';
+if(in_array(FOLDER_NAME,['posadvanced','invoice','account receivables','project','ticket'])) {
+    $match_tile_lists = str_replace(['posadvanced','invoice','account receivables','project','ticket'],
+        ['posadvanced','check_out','accounts_receivables','project','ticket'],
+        "OR `tile_list` LIKE '".FOLDER_NAME."'");
+}
+$match_contacts_query = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `match_contact` WHERE CONCAT(',',`staff_contact`,',') LIKE '%,".$_SESSION['contactid'].",%' AND `deleted` = 0 AND `match_date` <= '$today_date' AND (IFNULL(`tile_list`,'')='' $match_tile_lists)"),MYSQLI_ASSOC);
+$match_contacts = [];
+$match_exclude_security = array_filter(explode('#*#', get_config($dbc, 'match_exclude_security')));
+$match_exclude = false;
+foreach($match_exclude_security as $exclude_security) {
+    if(strpos(','.$_SESSION['role'].',',','.$exclude_security.',') !== FALSE) {
+        $match_exclude = true;
+    }
+}
+if(!empty($match_contacts_query) && !$match_exclude) {
+    $match_contacts[] = $_SESSION['contactid'];
+    foreach($match_contacts_query as $match_contact) {
+        if(strtotime($match_contact['end_date']) >= strtotime($today_date) && $match_contact['status'] == 'Active') {
+            $match_contacts = array_merge($match_contacts, explode(',',$match_contact['support_contact']));
+        }
+    }
+}
+DEFINE('MATCH_CONTACTS',implode(',',array_unique(array_filter($match_contacts))));
+// echo '<script>console.log("'.MATCH_CONTACTS.' '."SELECT * FROM `match_contact` WHERE CONCAT(',',`staff_contact`,',') LIKE '%,".$_SESSION['contactid'].",%' AND `deleted` = 0 AND `match_date` <= '$today_date' AND (IFNULL(`tile_list`,'')='' $match_tile_lists) ".FOLDER_NAME.'");</script>';
 $_SERVER['page_load_info'] .= 'Constants Defined: '.number_format(microtime(true) - $_SERVER['REQUEST_TIME_FLOAT'],5)."\n";
 
 // List all function here

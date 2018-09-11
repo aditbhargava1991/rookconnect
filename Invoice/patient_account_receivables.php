@@ -164,15 +164,13 @@ define('PURCHASER', count($purchaser_config) > 1 ? 'Customer' : $purchaser_confi
                                         <div class="col-sm-8">
                                             <select data-placeholder="Select <?= PURCHASER ?>..." name="patient" class="chosen-select-deselect form-control">
                                                 <option value="">Display All</option>
-                                                <?php
-                                                $query = mysqli_query($dbc,"SELECT distinct(patientid) FROM invoice_patient WHERE (IFNULL(`paid`,'') IN ('On Account','No','') OR `paid` LIKE 'Net %') ORDER BY patientid");
-                                                while($row = mysqli_fetch_array($query)) {
+                                                <?php foreach(sort_contacts_query($dbc->query("SELECT inv.patientid, c.contactid, c.first_name, c.last_name, c.name, c.category FROM invoice_patient `inv` LEFT JOIN `contacts` `c` ON `inv`.`patientid`=`c`.`contactid` WHERE (IFNULL(`inv`.`paid`,'') IN ('On Account','No','') OR `inv`.`paid` LIKE 'Net %') GROUP BY `c`.`contactid` ORDER BY `inv`.patientid")) as $row) {
                                                     if ($patient == $row['patientid']) {
                                                         $selected = 'selected="selected"';
                                                     } else {
                                                         $selected = '';
                                                     }
-                                                    echo "<option ".$selected." value='". $row['patientid']."'>".get_contact($dbc, $row['patientid']).'</option>';
+                                                    echo "<option ".$selected." value='". $row['patientid']."'>".$row['full_name'].'</option>';
                                                 }
                                                 ?>
                                             </select>
@@ -251,11 +249,11 @@ function report_receivables($dbc, $starttime, $endtime, $table_style, $table_row
         $starttime = '0000-00-00';
     }
     if($patient != '') {
-        $report_sql = "SELECT `i`.`service_date`, `i`.`invoiceid`, `i`.`patientid`, `i`.`payment_type`, SUM(`ii`.`patient_price`) `patient_price` FROM invoice_patient ii, invoice i WHERE (DATE(ii.invoice_date) >= '".$starttime."' AND DATE(ii.invoice_date) <= '".$endtime."') AND (IFNULL(ii.`paid`,'') IN ('On Account','','No') OR ii.`paid` LIKE 'Net %') AND ii.invoiceid = i.invoiceid AND i.patientid = '$patient' AND `i`.`status` NOT IN ('Void') GROUP BY `i`.`invoiceid` ORDER BY ii.invoiceid DESC";
+        $report_sql = "SELECT `i`.`service_date`, `i`.`invoiceid`, `i`.`patientid`, `i`.`payment_type`, SUM(`ii`.`patient_price`) `patient_price` FROM invoice_patient ii, invoice i WHERE (DATE(ii.invoice_date) >= '".$starttime."' AND DATE(ii.invoice_date) <= '".$endtime."') AND (IFNULL(ii.`paid`,'') IN ('On Account','','No') OR ii.`paid` LIKE 'Net %') AND ii.invoiceid = i.invoiceid AND i.patientid = '$patient' AND `i`.`status` NOT IN ('Void') ".(!empty(MATCH_CONTACTS) ? "AND `i`.`patientid` IN (".MATCH_CONTACTS.")" : '')." GROUP BY `i`.`invoiceid` ORDER BY ii.invoiceid DESC";
     } else if($invoice_no != '') {
-        $report_sql = "SELECT `i`.`service_date`, `i`.`invoiceid`, `i`.`patientid`, `i`.`payment_type`, SUM(`ii`.`patient_price`) `patient_price` FROM invoice_patient ii, invoice i WHERE (DATE(ii.invoice_date) >= '".$starttime."' AND DATE(ii.invoice_date) <= '".$endtime."') AND (IFNULL(ii.`paid`,'') IN ('On Account','','No') OR ii.`paid` LIKE 'Net %') AND ii.invoiceid = i.invoiceid AND i.invoiceid='$invoice_no' AND `i`.`status` NOT IN ('Void') GROUP BY `i`.`invoiceid` ORDER BY ii.invoiceid DESC";
+        $report_sql = "SELECT `i`.`service_date`, `i`.`invoiceid`, `i`.`patientid`, `i`.`payment_type`, SUM(`ii`.`patient_price`) `patient_price` FROM invoice_patient ii, invoice i WHERE (DATE(ii.invoice_date) >= '".$starttime."' AND DATE(ii.invoice_date) <= '".$endtime."') AND (IFNULL(ii.`paid`,'') IN ('On Account','','No') OR ii.`paid` LIKE 'Net %') AND ii.invoiceid = i.invoiceid AND i.invoiceid='$invoice_no' AND `i`.`status` NOT IN ('Void') ".(!empty(MATCH_CONTACTS) ? "AND `i`.`patientid` IN (".MATCH_CONTACTS.")" : '')." GROUP BY `i`.`invoiceid` ORDER BY ii.invoiceid DESC";
     } else {
-        $report_sql = "SELECT `i`.`service_date`, `i`.`invoiceid`, `i`.`patientid`, `i`.`payment_type`, SUM(`ii`.`patient_price`) `patient_price` FROM invoice_patient ii, invoice i WHERE (DATE(ii.invoice_date) >= '".$starttime."' AND DATE(ii.invoice_date) <= '".$endtime."') AND ii.invoiceid = i.invoiceid AND (IFNULL(ii.`paid`,'') IN ('On Account','','No') OR ii.`paid` LIKE 'Net %') AND `i`.`status` NOT IN ('Void') GROUP BY `i`.`invoiceid` ORDER BY ii.invoiceid DESC";
+        $report_sql = "SELECT `i`.`service_date`, `i`.`invoiceid`, `i`.`patientid`, `i`.`payment_type`, SUM(`ii`.`patient_price`) `patient_price` FROM invoice_patient ii, invoice i WHERE (DATE(ii.invoice_date) >= '".$starttime."' AND DATE(ii.invoice_date) <= '".$endtime."') AND ii.invoiceid = i.invoiceid AND (IFNULL(ii.`paid`,'') IN ('On Account','','No') OR ii.`paid` LIKE 'Net %') AND `i`.`status` NOT IN ('Void') ".(!empty(MATCH_CONTACTS) ? "AND `i`.`patientid` IN (".MATCH_CONTACTS.")" : '')." GROUP BY `i`.`invoiceid` ORDER BY ii.invoiceid DESC";
     }
     $report_service = $dbc->query($report_sql);
 

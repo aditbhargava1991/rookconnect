@@ -225,14 +225,13 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
                                             <select name="contactid" data-placeholder="Select <?= $purchaser_label ?>..." class="chosen-select-deselect form-control width-me">
                                                 <option value=''></option>
                                                 <?php
-                                                $result = mysqli_query($dbc, "SELECT contactid, first_name, last_name FROM contacts WHERE `contactid` IN (SELECT `patientid` FROM `invoice`) AND `deleted`=0 AND `status`>0");
-                                                while($row = mysqli_fetch_assoc($result)) {
+                                                foreach(sort_contacts_query(mysqli_query($dbc, "SELECT contactid, first_name, last_name, name FROM contacts WHERE `contactid` IN (SELECT `patientid` FROM `invoice`) AND `deleted`=0 AND `status`>0")) as $row) {
                                                     if ($search_contact == $row['contactid']) {
                                                         $selected = 'selected="selected"';
                                                     } else {
                                                         $selected = '';
                                                     }
-                                                    echo "<option ".$selected." value = '".$row['contactid']."'>".decryptIt($row['first_name']).' '.decryptIt($row['last_name'])."</option>";
+                                                    echo "<option ".$selected." value = '".$row['contactid']."'>".$row['full_name']."</option>";
                                                 }
                                                ?>
                                             </select>
@@ -323,8 +322,8 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
                                 $limit = ' LIMIT '.$offset.', '.$rowsPerPage;
                             }
 
-                            $query_check_credentials = "SELECT * FROM invoice WHERE deleted = 0 AND `status` = 'Void' $search_clause $search_invoice_clause ORDER BY invoiceid DESC $limit";
-                            $query = "SELECT count(*) as numrows FROM invoice WHERE deleted = 0 AND `status` = 'Void' $search_clause $search_invoice_clause";
+                            $query_check_credentials = "SELECT * FROM invoice WHERE deleted = 0 AND `status` = 'Void' $search_clause $search_invoice_clause ".(!empty(MATCH_CONTACTS) ? "AND `patientid` IN (".MATCH_CONTACTS.")" : '')." ORDER BY invoiceid DESC $limit";
+                            $query = "SELECT count(*) as numrows FROM invoice WHERE deleted = 0 AND `status` = 'Void' $search_clause $search_invoice_clause ".(!empty(MATCH_CONTACTS) ? "AND `patientid` IN (".MATCH_CONTACTS.")" : '');
 
                             $result = mysqli_query($dbc, $query_check_credentials);
 

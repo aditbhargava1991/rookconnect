@@ -258,8 +258,8 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
                                 $limit = ' LIMIT '.$offset.', '.$rowsPerPage;
                             }
 
-                            $query_check_credentials = "SELECT * FROM invoice WHERE deleted = 0 AND `status` != 'Void' $search_clause $search_invoice_clause AND `invoice_date`='".date('Y-m-d')."' ORDER BY invoiceid DESC $limit";
-                            $query = "SELECT count(*) as numrows FROM invoice WHERE deleted = 0 AND `status` != 'Void' $search_clause $search_invoice_clause AND `invoice_date`='".date('Y-m-d')."'";
+                            $query_check_credentials = "SELECT * FROM invoice WHERE deleted = 0 AND `status` != 'Void' $search_clause $search_invoice_clause AND `invoice_date`='".date('Y-m-d')."' ".(!empty(MATCH_CONTACTS) ? "AND `patientid` IN (".MATCH_CONTACTS.")" : '')." ORDER BY invoiceid DESC $limit";
+                            $query = "SELECT count(*) as numrows FROM invoice WHERE deleted = 0 AND `status` != 'Void' $search_clause $search_invoice_clause AND `invoice_date`='".date('Y-m-d')."' ".(!empty(MATCH_CONTACTS) ? "AND `patientid` IN (".MATCH_CONTACTS.")" : '');
 
                             $result = mysqli_query($dbc, $query_check_credentials);
 

@@ -302,20 +302,20 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
                                 $patientid = $_GET['patientid'];
                                 $from = $_GET['from'];
                                 $to = $_GET['to'];
-                                $query_check_credentials = "SELECT * FROM invoice WHERE deleted = 0 AND invoice_type!='Saved' AND patientid='$patientid' AND (invoice_date >= '".$from."' AND invoice_date <= '".$to."') ORDER BY invoiceid DESC, paid ASC,payment_type ASC,final_price DESC";
+                                $query_check_credentials = "SELECT * FROM invoice WHERE deleted = 0 AND invoice_type!='Saved' AND patientid='$patientid' AND (invoice_date >= '".$from."' AND invoice_date <= '".$to."') ".(!empty(MATCH_CONTACTS) ? "AND `patientid` IN (".MATCH_CONTACTS.")" : '')." ORDER BY invoiceid DESC, paid ASC,payment_type ASC,final_price DESC";
                             } else if(!empty($_GET['from'])) {
                                 $from = $_GET['from'];
                                 $to = $_GET['to'];
-                                $query_check_credentials = "SELECT * FROM invoice WHERE deleted = 0 AND invoice_type!='Saved' AND (invoice_date >= '".$from."' AND invoice_date <= '".$to."') ORDER BY invoiceid DESC, paid ASC,payment_type ASC,final_price DESC";
+                                $query_check_credentials = "SELECT * FROM invoice WHERE deleted = 0 AND invoice_type!='Saved' AND (invoice_date >= '".$from."' AND invoice_date <= '".$to."') ".(!empty(MATCH_CONTACTS) ? "AND `patientid` IN (".MATCH_CONTACTS.")" : '')." ORDER BY invoiceid DESC, paid ASC,payment_type ASC,final_price DESC";
                             } else {
                                 if($search_user != '') {
-                                    $query_check_credentials = "SELECT * FROM invoice WHERE deleted = 0 AND invoice_type!='Saved' AND patientid='$search_user' ORDER BY invoiceid DESC, paid ASC,payment_type ASC,final_price DESC";
+                                    $query_check_credentials = "SELECT * FROM invoice WHERE deleted = 0 AND invoice_type!='Saved' AND patientid='$search_user' ".(!empty(MATCH_CONTACTS) ? "AND `patientid` IN (".MATCH_CONTACTS.")" : '')." ORDER BY invoiceid DESC, paid ASC,payment_type ASC,final_price DESC";
                                     //$query = "SELECT count(*) as numrows FROM invoice WHERE deleted = 0 AND patientid='$search_user' ORDER BY invoiceid DESC, paid ASC,payment_type ASC,final_price DESC";
                                 } else if($search_invoiceid != '') {
-                                    $query_check_credentials = "SELECT * FROM invoice WHERE deleted = 0 AND invoice_type!='Saved' AND invoiceid='$search_invoiceid' ORDER BY invoiceid DESC, paid ASC,payment_type ASC,final_price DESC";
+                                    $query_check_credentials = "SELECT * FROM invoice WHERE deleted = 0 AND invoice_type!='Saved' AND invoiceid='$search_invoiceid' ".(!empty(MATCH_CONTACTS) ? "AND `patientid` IN (".MATCH_CONTACTS.")" : '')." ORDER BY invoiceid DESC, paid ASC,payment_type ASC,final_price DESC";
                                     //$query = "SELECT count(*) as numrows FROM invoice WHERE deleted = 0 AND invoiceid='$search_invoiceid' ORDER BY invoiceid DESC, paid ASC,payment_type ASC,final_price DESC";
                                 }  else if($search_date != '') {
-                                    $query_check_credentials = "SELECT * FROM invoice WHERE deleted = 0 AND invoice_type!='Saved' AND invoice_date='$search_date' ORDER BY invoiceid DESC, paid ASC,payment_type ASC,final_price DESC";
+                                    $query_check_credentials = "SELECT * FROM invoice WHERE deleted = 0 AND invoice_type!='Saved' AND invoice_date='$search_date' ".(!empty(MATCH_CONTACTS) ? "AND `patientid` IN (".MATCH_CONTACTS.")" : '')." ORDER BY invoiceid DESC, paid ASC,payment_type ASC,final_price DESC";
                                     //$query = "SELECT count(*) as numrows FROM invoice WHERE deleted = 0 AND invoiceid='$search_invoiceid' ORDER BY invoiceid DESC, paid ASC,payment_type ASC,final_price DESC";
                                 } else {
                                     //$query_check_credentials = "SELECT * FROM invoice WHERE deleted = 0 ORDER BY invoiceid DESC, paid ASC,payment_type ASC,final_price DESC LIMIT $offset, $rowsPerPage";
