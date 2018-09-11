@@ -10,7 +10,16 @@ while($row = mysqli_fetch_array( $result )) {
     	$row['calendar_color'] = '#3ac4f2';
     }
 
-	$shifts = checkShiftIntervals($dbc, $contactid, $day_of_week, $new_today_date, 'all');
+    if(get_config($dbc, 'shift_hide_if_day_off') == 1) {
+        $daysoff = checkShiftIntervals($dbc, $contactid, $day_of_week, $new_today_date, 'daysoff');
+        if(!empty($daysoff)) {
+            $shifts = $daysoff;
+        } else {
+            $shifts = checkShiftIntervals($dbc, $contactid, $day_of_week, $new_today_date, 'shifts');
+        }
+    } else {
+    	$shifts = checkShiftIntervals($dbc, $contactid, $day_of_week, $new_today_date, 'all');
+    }
 
     $num_rows = mysqli_num_rows($shifts);
 

@@ -811,6 +811,9 @@ if(($_GET['type'] == 'uni' || $_GET['type'] == 'my') && empty($_GET['shiftid']) 
 		$daysoff = checkShiftIntervals($dbc, $contact_id, $day_of_week, $calendar_date, 'daysoff');
 		$all_conflicts = getShiftConflicts($dbc, $contact_id, $calendar_date);
 	}
+	if(get_config($dbc, 'shift_hide_if_day_off') == 1 && !empty($daysoff)) {
+		$shifts = [];
+	}
 
 	$shift_conflicts = [];
 	foreach($all_conflicts as $conflict) {
@@ -1683,12 +1686,12 @@ if(!isset($equipment)) {
 			if(!empty($daysoff)) {
 				$shifts_arr = ['<b>'.get_contact($dbc, $contact['contactid']).'</b>'];
 				foreach($daysoff as $dayoff) {
-					$shifts_arr[] = "Time Off: ".date('h:i a', strtotime($dayoff['starttime'])).' - '.date('h:i a', strtotime($dayoff['endtime']));
+					$shifts_arr[] = "Time Off: ".date('h:i a', strtotime((empty($dayoff['starttime']) ? '12:00 am' : $dayoff['starttime']))).' - '.date('h:i a', strtotime((empty($dayoff['endtime']) ? '11:59 pm' : $dayoff['endtime'])));
 				}
 			} else if(!empty($shifts)) {
 				$shifts_arr = ['<b>'.get_contact($dbc, $contact['contactid']).'</b>'];
 				foreach($shifts as $shift) {
-					$shifts_arr[] = "Shift: ".date('h:i a', strtotime($shift['starttime'])).' - '.date('h:i a', strtotime($shift['endtime']));
+					$shifts_arr[] = "Shift: ".date('h:i a', strtotime((empty($shift['starttime']) ? '12:00 am' : $shift['starttime']))).' - '.date('h:i a', strtotime((empty($shift['endtime']) ? '11:59 pm' : $shift['endtime'])));
 				}
 			}
 			$contacts_arr[] = implode('<br />', $shifts_arr);
@@ -1700,11 +1703,11 @@ if(!isset($equipment)) {
 		$shifts_arr = [];
 		if(!empty($daysoff)) {
 			foreach($daysoff as $dayoff) {
-				$shifts_arr[] = "Time Off: ".date('h:i a', strtotime($dayoff['starttime'])).' - '.date('h:i a', strtotime($dayoff['endtime']));
+				$shifts_arr[] = "Time Off: ".date('h:i a', strtotime((empty($dayoff['starttime']) ? '12:00 am' : $dayoff['starttime']))).' - '.date('h:i a', strtotime((empty($dayoff['endtime']) ? '11:59 pm' : $dayoff['endtime'])));
 			}
 		} else if(!empty($shifts)) {
 			foreach($shifts as $shift) {
-				$shifts_arr[] = "Shift: ".date('h:i a', strtotime($shift['starttime'])).' - '.date('h:i a', strtotime($shift['endtime']));
+				$shifts_arr[] = "Shift: ".date('h:i a', strtotime((empty($shift['starttime']) ? '12:00 am' : $shift['starttime']))).' - '.date('h:i a', strtotime((empty($shift['endtime']) ? '11:59 pm' : $shift['endtime'])));
 			}
 		}
 		$calendar_table[$calendar_date][$contact_id]['shifts'] = implode('<br />', $shifts_arr);
