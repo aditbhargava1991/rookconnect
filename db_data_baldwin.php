@@ -734,6 +734,20 @@
     }
     //2018-09-05 - Ticket #9007 - Vacation Pay
 
+    //2018-09-10 - Ticket #9085 - Manifest
+    if(!mysqli_query($dbc, "ALTER TABLE `ticket_attached` CHANGE `po_line` `po_line` text")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-09-10 - Ticket #9085 - Manifest
+
+    //2018-09-07 - Ticket #9008 - Stat Pay
+    $updated_already = get_config($dbc, 'updated_ticket9008_statpay');
+    if(empty($updated_already)) {
+        mysqli_query($dbc, "UPDATE `contacts` SET `stat_pay` = 'Alberta Standard 4%' WHERE `stat_pay` = 'Alberta Standard'");
+        set_config($dbc, 'updated_ticket9008_statpay', 1);
+    }
+    //2018-09-07 - Ticket #9008 - Stat Pay
+
     //2018-09-11 - Ticket #8802 - Check In/Out
     if(!mysqli_query($dbc, "CREATE TABLE `ticket_attached_checkin` (
         `id` int(11) NOT NULL,

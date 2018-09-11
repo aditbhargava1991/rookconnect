@@ -36,6 +36,7 @@ if(($_GET['type'] == 'uni' || $_GET['type'] == 'my') && empty($_GET['shiftid']) 
 	if(strpos(','.$calendar_type.',', ',ticket,') !== FALSE) {
 		//Pull all tickets for the current contact from the ticket table
 		$all_tickets_sql = "SELECT *, IFNULL(NULLIF(`to_do_end_date`,'0000-00-00'),`to_do_date`) `to_do_end_date` FROM `tickets` WHERE (internal_qa_date = '".$calendar_date."' OR `deliverable_date` = '".$calendar_date."' OR '".$calendar_date."' BETWEEN `to_do_date` AND IFNULL(NULLIF(`to_do_end_date`,'0000-00-00'),`to_do_date`)) AND (CONCAT(',',`contactid`,',') LIKE '%,".$contact_id.",%' OR CONCAT(',',`internal_qa_contactid`,',') LIKE '%,".$contact_id.",%' OR CONCAT(',',`deliverable_contactid`,',') LIKE '%,".$contact_id.",%') AND `deleted` = 0 AND `status` NOT IN ('Archive', 'Done')";
+		$calendar_table[$calendar_date][$contact_id]['deleted_tickets'] = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT COUNT(*) `num_rows` FROM `tickets` WHERE (internal_qa_date = '".$calendar_date."' OR `deliverable_date` = '".$calendar_date."' OR '".$calendar_date."' BETWEEN `to_do_date` AND IFNULL(NULLIF(`to_do_end_date`,'0000-00-00'),`to_do_date`)) AND (CONCAT(',',`contactid`,',') LIKE '%,".$contact_id.",%' OR CONCAT(',',`internal_qa_contactid`,',') LIKE '%,".$contact_id.",%' OR CONCAT(',',`deliverable_contactid`,',') LIKE '%,".$contact_id.",%') AND (`deleted` = 1 OR `status` IN ('Archive', 'Done')"))['num_rows'];
 		$result_tickets_sql = mysqli_query($dbc, $all_tickets_sql);
 		$tickets_time = [];
 		$tickets_notime = [];
@@ -810,6 +811,9 @@ if(($_GET['type'] == 'uni' || $_GET['type'] == 'my') && empty($_GET['shiftid']) 
 		$daysoff = checkShiftIntervals($dbc, $contact_id, $day_of_week, $calendar_date, 'daysoff');
 		$all_conflicts = getShiftConflicts($dbc, $contact_id, $calendar_date);
 	}
+	if(get_config($dbc, 'shift_hide_if_day_off') == 1 && !empty($daysoff)) {
+		$shifts = [];
+	}
 
 	$shift_conflicts = [];
 	foreach($all_conflicts as $conflict) {
@@ -934,6 +938,7 @@ if(($_GET['type'] == 'uni' || $_GET['type'] == 'my') && empty($_GET['shiftid']) 
 
 	//Pull all tickets for the current contact from the ticket table
 	$all_tickets_sql = "SELECT *, IFNULL(NULLIF(`to_do_end_date`,'0000-00-00'),`to_do_date`) `to_do_end_date` FROM `tickets` WHERE '".$calendar_date."' BETWEEN `to_do_date` AND IFNULL(NULLIF(`to_do_end_date`,'0000-00-00'),`to_do_date`) AND `deleted` = 0 AND `status` NOT IN ('Archive', 'Done', 'Internal QA', 'Customer QA')".$contacts_query.$allowed_ticket_types_query;
+	$calendar_table[$calendar_date][$contact_id]['deleted_tickets'] = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT COUNT(*) `num_rows` FROM `tickets` WHERE '".$calendar_date."' BETWEEN `to_do_date` AND IFNULL(NULLIF(`to_do_end_date`,'0000-00-00'),`to_do_date`) AND (`deleted` = 1 OR `status` IN ('Archive', 'Done'))".$contacts_query.$allowed_ticket_types_query))['num_rows'];
 	$result_tickets_sql = mysqli_query($dbc, $all_tickets_sql);
 	$tickets_time = [];
 	$tickets_notime = [];
@@ -1104,8 +1109,10 @@ if(($_GET['type'] == 'uni' || $_GET['type'] == 'my') && empty($_GET['shiftid']) 
 	//Pull all tickets for the current contact from the ticket table
 	if($_GET['mode'] == 'client') {
 		$all_tickets_sql = "SELECT *, IFNULL(NULLIF(`to_do_end_date`,'0000-00-00'),`to_do_date`) `to_do_end_date` FROM `tickets` WHERE (internal_qa_date = '".$calendar_date."' OR `deliverable_date` = '".$calendar_date."' OR '".$calendar_date."' BETWEEN `to_do_date` AND IFNULL(NULLIF(`to_do_end_date`,'0000-00-00'),`to_do_date`)) AND (CONCAT(',',`businessid`,',') LIKE '%,".$contact_id.",%' OR CONCAT(',',`clientid`,',') LIKE '%,".$contact_id.",%') AND `deleted` = 0 AND `status` NOT IN ('Archive', 'Done')".$allowed_ticket_types_query;
+		$calendar_table[$calendar_date][$contact_id]['deleted_tickets'] = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT COUNT(*) `num_rows` FROM `tickets` WHERE (internal_qa_date = '".$calendar_date."' OR `deliverable_date` = '".$calendar_date."' OR '".$calendar_date."' BETWEEN `to_do_date` AND IFNULL(NULLIF(`to_do_end_date`,'0000-00-00'),`to_do_date`)) AND (CONCAT(',',`businessid`,',') LIKE '%,".$contact_id.",%' OR CONCAT(',',`clientid`,',') LIKE '%,".$contact_id.",%') AND (`deleted` = 1 OR `status` IN ('Archive', 'Done'))".$allowed_ticket_types_query))['num_rows'];
 	} else {
 		$all_tickets_sql = "SELECT *, IFNULL(NULLIF(`to_do_end_date`,'0000-00-00'),`to_do_date`) `to_do_end_date` FROM `tickets` WHERE (internal_qa_date = '".$calendar_date."' OR `deliverable_date` = '".$calendar_date."' OR '".$calendar_date."' BETWEEN `to_do_date` AND IFNULL(NULLIF(`to_do_end_date`,'0000-00-00'),`to_do_date`)) AND (CONCAT(',',`contactid`,',') LIKE '%,".$contact_id.",%' OR CONCAT(',',`internal_qa_contactid`,',') LIKE '%,".$contact_id.",%' OR CONCAT(',',`deliverable_contactid`,',') LIKE '%,".$contact_id.",%') AND `deleted` = 0 AND `status` NOT IN ('Archive', 'Done')".$allowed_ticket_types_query;
+		$calendar_table[$calendar_date][$contact_id]['deleted_tickets'] = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT COUNT(*) `num_rows` FROM `tickets` WHERE (internal_qa_date = '".$calendar_date."' OR `deliverable_date` = '".$calendar_date."' OR '".$calendar_date."' BETWEEN `to_do_date` AND IFNULL(NULLIF(`to_do_end_date`,'0000-00-00'),`to_do_date`)) AND (CONCAT(',',`contactid`,',') LIKE '%,".$contact_id.",%' OR CONCAT(',',`internal_qa_contactid`,',') LIKE '%,".$contact_id.",%' OR CONCAT(',',`deliverable_contactid`,',') LIKE '%,".$contact_id.",%') AND (`deleted` = 1 OR `status` IN ('Archive', 'Done'))".$allowed_ticket_types_query))['num_rows'];
 	}
 	$result_tickets_sql = mysqli_query($dbc, $all_tickets_sql);
 	$tickets_time = [];
@@ -1660,6 +1667,9 @@ if($ticket_summary == 1) {
 		$total_tickets = $calendar_table[$calendar_date][$contact_id]['total_tickets'] > 0 ? $calendar_table[$calendar_date][$contact_id]['total_tickets'] : 0;
 		$calendar_table[$calendar_date][$contact_id]['ticket_summary'] = 'Completed '.$completed_tickets.' of '.$total_tickets.' '.($total_tickets == 1 ? TICKET_NOUN : TICKET_TILE);
 	}
+	if($ticket_summary_deleted == 1 && $calendar_table[$calendar_date][$contact_id]['deleted_tickets'] > 0) {
+		$calendar_table[$calendar_date][$contact_id]['ticket_summary'] .= '<br />'.$calendar_table[$calendar_date][$contact_id]['deleted_tickets'].' Deleted '.($calendar_table[$calendar_date][$contact_id]['deleted_tickets'] == 1 ? TICKET_NOUN : TICKET_TILE);
+	}
 }
 
 if(!isset($equipment)) {
@@ -1676,12 +1686,12 @@ if(!isset($equipment)) {
 			if(!empty($daysoff)) {
 				$shifts_arr = ['<b>'.get_contact($dbc, $contact['contactid']).'</b>'];
 				foreach($daysoff as $dayoff) {
-					$shifts_arr[] = "Time Off: ".date('h:i a', strtotime($dayoff['starttime'])).' - '.date('h:i a', strtotime($dayoff['endtime']));
+					$shifts_arr[] = "Time Off: ".date('h:i a', strtotime((empty($dayoff['starttime']) ? '12:00 am' : $dayoff['starttime']))).' - '.date('h:i a', strtotime((empty($dayoff['endtime']) ? '11:59 pm' : $dayoff['endtime'])));
 				}
 			} else if(!empty($shifts)) {
 				$shifts_arr = ['<b>'.get_contact($dbc, $contact['contactid']).'</b>'];
 				foreach($shifts as $shift) {
-					$shifts_arr[] = "Shift: ".date('h:i a', strtotime($shift['starttime'])).' - '.date('h:i a', strtotime($shift['endtime']));
+					$shifts_arr[] = "Shift: ".date('h:i a', strtotime((empty($shift['starttime']) ? '12:00 am' : $shift['starttime']))).' - '.date('h:i a', strtotime((empty($shift['endtime']) ? '11:59 pm' : $shift['endtime'])));
 				}
 			}
 			$contacts_arr[] = implode('<br />', $shifts_arr);
@@ -1693,11 +1703,11 @@ if(!isset($equipment)) {
 		$shifts_arr = [];
 		if(!empty($daysoff)) {
 			foreach($daysoff as $dayoff) {
-				$shifts_arr[] = "Time Off: ".date('h:i a', strtotime($dayoff['starttime'])).' - '.date('h:i a', strtotime($dayoff['endtime']));
+				$shifts_arr[] = "Time Off: ".date('h:i a', strtotime((empty($dayoff['starttime']) ? '12:00 am' : $dayoff['starttime']))).' - '.date('h:i a', strtotime((empty($dayoff['endtime']) ? '11:59 pm' : $dayoff['endtime'])));
 			}
 		} else if(!empty($shifts)) {
 			foreach($shifts as $shift) {
-				$shifts_arr[] = "Shift: ".date('h:i a', strtotime($shift['starttime'])).' - '.date('h:i a', strtotime($shift['endtime']));
+				$shifts_arr[] = "Shift: ".date('h:i a', strtotime((empty($shift['starttime']) ? '12:00 am' : $shift['starttime']))).' - '.date('h:i a', strtotime((empty($shift['endtime']) ? '11:59 pm' : $shift['endtime'])));
 			}
 		}
 		$calendar_table[$calendar_date][$contact_id]['shifts'] = implode('<br />', $shifts_arr);

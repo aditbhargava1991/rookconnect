@@ -135,7 +135,7 @@ $html = '<br><br><br /><br /><center><div style="margin-top:10px; text-align:cen
 	<td>'.( !empty($customer['name']) ? decryptIt($customer['name']).': ' : '') . decryptIt($customer['first_name']) .' '. decryptIt($customer['last_name']) .'</td>
 	<td>'.$customer_phone.'</td>
 	<td>'.decryptIt($customer['email_address']).'</td>
-	<td>'.$customer['referred_by'].'</td>
+	<td>'.( !empty($point_of_sell['reference']) ? $point_of_sell['reference'] : '-' ).'</td>
 </tr>';
 
 if($client_tax_number != '') {
