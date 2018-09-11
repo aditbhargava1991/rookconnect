@@ -36,15 +36,15 @@ var reload_contacts = function() {
                 $dropdown_categories = array_filter(array_merge($dropdown_categories,['Sales Leads','Sales Lead']));
                 $query = sort_contacts_query(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name`, `name` FROM `contacts` WHERE (`businessid`='$businessid' OR `contactid`='$contactid' OR (''='$businessid' AND ''='$contactid' AND `category` IN ('".implode("','",$dropdown_categories)."'))) AND `deleted`=0 AND `status`>0"));
                 foreach($query as $contact) {
-                    if ( !empty(trim($contact['full_name'],'- ')) ) {
+                    if (!empty(trim($contact['full_name'],'- '))) {
                         echo '<option '. ($contactid==$contact['contactid'] ? "selected" : '') .' value="'. $contact['contactid'] .'">'. $contact['full_name'] .'</option>';
                     }
                 } ?>
             </select>
         </div>
 		<div class="col-xs-12 col-sm-1">
-            <img class="inline-img cursor-hand pull-right no-toggle" title="Remove this staff from sharing this Sales Lead" src="../img/remove.png" onclick="rem_row(this);">
-            <img class="inline-img cursor-hand pull-right no-toggle" title="Add another staff to this Sales Lead" src="../img/icons/ROOK-add-icon.png" onclick="add_row(this);">
+            <img class="inline-img cursor-hand pull-right no-toggle" title="Remove this <?= CONTACTS_NOUN ?> from sharing this Sales Lead" src="../img/remove.png" onclick="rem_row(this);">
+            <img class="inline-img cursor-hand pull-right no-toggle" title="Add another <?= CONTACTS_NOUN ?> to this Sales Lead" src="../img/icons/ROOK-add-icon.png" onclick="add_row(this);">
 			<a href="../Contacts/contacts_inbox.php?fields=all_fields&edit=<?= $contactid ?>" class="no-toggle" title="<?= get_contact($dbc, $contactid) ?>" onclick="overlayIFrameSlider(this.href.replace(/edit=.*/,'edit='+$('#contacts_list').find('option:selected').first().val()),'auto',true,true); return false;"><img src="../img/icons/eyeball.png" class="inline-img"></a>
 		</div>
         <div class="clearfix"></div>
