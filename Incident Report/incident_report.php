@@ -83,7 +83,7 @@ foreach($project_tabs as $item) {
 								<div class="clearfix"></div>
                             <?php
                             /* Pagination Counting */
-                            $rowsPerPage = 25;
+                            $rowsPerPage = get_config($dbc, 'inc_rep_rows_per_page') > 0 ? get_config($dbc, 'inc_rep_rows_per_page') : 25;;
                             $pageNum = 1;
 
                             if(isset($_GET['page'])) {
