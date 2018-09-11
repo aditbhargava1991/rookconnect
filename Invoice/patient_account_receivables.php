@@ -5,7 +5,8 @@ Client Listing
 include ('../include.php');
 include_once('../tcpdf/tcpdf.php');
 error_reporting(0);
-if(FOLDER_NAME == 'posadvanced') {
+if(!empty($folder)) {
+} else if(FOLDER_NAME == 'posadvanced') {
     checkAuthorised('posadvanced');
 } else {
     checkAuthorised('check_out');
@@ -90,13 +91,13 @@ define('PURCHASER', count($purchaser_config) > 1 ? 'Customer' : $purchaser_confi
             <div class="tile-header standard-header">
                 <div class="row">
                     <h1 class="pull-left"><a href="invoice_main.php"><?= (empty($current_tile_name) ? 'Check Out' : $current_tile_name) ?></a></h1>
-                    <?php if(config_visible_function($dbc, (FOLDER_NAME == 'posadvanced' ? 'posadvanced' : 'check_out')) == 1) {
+                    <?php if(!isset($download_folder) && config_visible_function($dbc, (FOLDER_NAME == 'posadvanced' ? 'posadvanced' : 'check_out')) == 1) {
                         echo '<a href="field_config_invoice.php" class="pull-right gap-right gap-top"><img width="30" title="Tile Settings" src="../img/icons/settings-4.png" class="settings-classic wiggle-me no-toggle"></a>';
                     } ?>
                     <span class="pull-right gap-top offset-right-5"><img src="../img/icons/eyeball.png" alt="View Tabs" title="View Tabs" class="cursor-hand no-toggle inline-img" onclick="view_tabs();" /></span>
                     <span class="pull-right gap-top offset-right-5"><img src="../img/icons/pie-chart.png" alt="Reporting" title="Reporting" class="cursor-hand no-toggle inline-img" onclick="view_summary();" /></span>
                     <div class="clearfix"></div>
-                    <div class="view_tabs double-padded" style="display:none;"><?php include('tile_tabs.php'); ?></div>
+                    <div class="view_tabs double-padded" style="<?= !isset($download_folder) ? 'display:none;' : '' ?>"><?php include($folder.'tile_tabs.php'); ?></div>
                     
                     <!-- Summary Blocks --><?php
                     if(!empty($_GET['p1'])) {
