@@ -734,5 +734,23 @@
     }
     //2018-09-05 - Ticket #9007 - Vacation Pay
 
+    //2018-09-11 - Ticket #8802 - Check In/Out
+    if(!mysqli_query($dbc, "CREATE TABLE `ticket_attached_checkin` (
+        `id` int(11) NOT NULL,
+        `ticket_attached_id` int(11) NOT NULL,
+        `checked_in` varchar(10),
+        `checked_out` varchar(10))")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `ticket_attached_checkin`
+        ADD PRIMARY KEY (`id`)")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `ticket_attached_checkin`
+        MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-09-11 - Ticket #8802 - Check In/Out
+
     echo "Baldwin's DB Changes Done<br />\n";
-?> 
+?>

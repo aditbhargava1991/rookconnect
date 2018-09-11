@@ -607,7 +607,7 @@ $(document).ready(function() {
 				}
 			}
 		});
-		if(ready && ($('[name=arrived][value=1]').length != $('[name=completed][value=1]').not('.no_time').length && $('[name=completed][value=0]').not('.no_time').length > 0) || $.inArray($('[name=timer]').val(),['',undefined]) < 0) {
+		if(ready && ($('[name=arrived][value=1]').length > $('[name=completed][value=1]').not('.no_time').length && $('[name=completed][value=0]').not('.no_time').length > 0) || $.inArray($('[name=timer]').val(),['',undefined]) < 0) {
 			setTimeout(function() {
 				alert("This <?= TICKET_NOUN ?> is currently actively tracking time.");
 			}, 0);
@@ -998,6 +998,7 @@ var setHeading = function() {
 		<input type="hidden" id="calendar_view" value="true">
 <?php } ?>
 <input type="hidden" name="sync_recurrences" id="sync_recurrences" value="0">
+<input type="hidden" name="checkout_before_checkin" id="checkin_before_checkout" value="<?= strpos($value_config,',Check Out Before Check In,') !== FALSE ? 1 : 0 ?>">
 <?php if(get_config($dbc, 'ticket_textarea_style') == 'no_editor') { ?>
 	<script>
 	var no_tools = true;

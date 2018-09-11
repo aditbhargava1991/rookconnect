@@ -892,7 +892,14 @@ function get_ticket_tracked_hrs($dbc, $date, $staff, $layout = '', $time_cards_i
 	$sql .= " GROUP BY tc.`ticket_attached_id`";
 	$query = mysqli_query($dbc, $sql);
 	while($row = mysqli_fetch_assoc($query)) {
-		$tracked_hrs[] = $row['checked_in'].' - '.$row['checked_out'];
+		$attached_checkins = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `ticket_attached_checkin` WHERE `ticket_attached_id` = '".$row['id']."'"),MYSQLI_ASSOC);
+		if(!empty($attached_checkins)) {
+			foreach($attached_checkins as $attached_checkin) {
+				$tracked_hrs[] = $attached_checkin['checked_in'].' - '.$attached_checkin['checked_out'];
+			}
+		} else {
+			$tracked_hrs[] = $row['checked_in'].' - '.$row['checked_out'];
+		}
 	}
 	$tracked_hrs = implode('<br />', $tracked_hrs);
 	if(empty($tracked_hrs)) {
@@ -912,10 +919,15 @@ function get_ticket_total_tracked_time($dbc, $date, $staff, $layout = '', $time_
 	$query = mysqli_query($dbc, $sql);
 	while($row = mysqli_fetch_assoc($query)) {
 		$curr_tracked_time = 0;
-		if(!empty($row['checked_out']) && !empty($row['checked_in'])) {
-			$curr_tracked_time = number_format((strtotime(date('Y-m-d').' '.$row['checked_out']) - strtotime(date('Y-m-d').' '.$row['checked_in']))/3600,2);
+		$attached_checkins = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `ticket_attached_checkin` WHERE `ticket_attached_id` = '".$row['id']."'"),MYSQLI_ASSOC);
+		if(!empty($attached_checkins)) {
+			foreach($attached_checkins as $attached_checkin) {
+				$curr_tracked_time += number_format((strtotime(date('Y-m-d').' '.$attached_checkin['checked_out']) - strtotime(date('Y-m-d').' '.$attached_checkin['checked_in']))/3600,2);
+			}
+		} else if(!empty($row['checked_out']) && !empty($row['checked_in'])) {
+			$curr_tracked_time += number_format((strtotime(date('Y-m-d').' '.$row['checked_out']) - strtotime(date('Y-m-d').' '.$row['checked_in']))/3600,2);
 		} else if($row['hours_tracked'] > 0) {
-			$curr_tracked_time = number_format($row['hours_tracked'],2);
+			$curr_tracked_time += number_format($row['hours_tracked'],2);
 		}
 		$tracked_time[] = ($timesheet_time_format == 'decimal' ? $curr_tracked_time : time_decimal2time($curr_tracked_time));
 	}
