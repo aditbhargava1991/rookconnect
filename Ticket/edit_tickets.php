@@ -1018,6 +1018,7 @@ var setHeading = function() {
 		<input type="hidden" id="calendar_view" value="true">
 <?php } ?>
 <input type="hidden" name="sync_recurrences" id="sync_recurrences" value="0">
+<input type="hidden" name="checkout_before_checkin" id="checkin_before_checkout" value="<?= strpos($value_config,',Check Out Before Check In,') !== FALSE ? 1 : 0 ?>">
 <?php if(get_config($dbc, 'ticket_textarea_style') == 'no_editor') { ?>
 	<script>
 	var no_tools = true;
