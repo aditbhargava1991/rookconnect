@@ -1,12 +1,10 @@
 <div id="inv_services">
-    <h3>Services</h3>
+    <h3>Services
+    <span class="popover-examples list-inline">
+        <a href="#job_file" data-toggle="tooltip" data-placement="top" title="Select the service."><img src="<?php echo WEBSITE_URL;?>/img/info.png" width="20"></a>
+    </span></h3>
     <div class="form-group service_option" <?= (in_array('services',$field_config) ? '' : 'style="display:none;"') ?>>
-        <label for="additional_note" class="col-sm-2 control-label">
-        <span class="popover-examples list-inline">
-            <a href="#job_file" data-toggle="tooltip" data-placement="top" title="Select the service."><img src="<?php echo WEBSITE_URL;?>/img/info.png" width="20"></a>
-        </span>
-        Services:</label>
-        <div class="col-sm-7">
+        <div class="col-sm-12">
             <div class="form-group clearfix hide-titles-mob">
                 <label class="col-sm-4 text-center">Category</label>
                 <label class="col-sm-5 text-center">Service Name</label>
@@ -55,20 +53,13 @@
                             <input type="hidden" name="service_ticketid[]" value="">
                             <select id="<?php echo 'serviceid_'.$id_loop; ?>" data-placeholder="Select a Service..." name="serviceid[]" class="chosen-select-deselect form-control serviceid" width="380">
                                 <option value=""></option>
-                                <?php
-                                //$query = mysqli_query($dbc,"SELECT serviceid, category, service_type, fee FROM services WHERE deleted=0 AND (appointment_type = '' OR appointment_type='$type')");
-                                $db_category = get_all_from_service($dbc, $serviceid, 'category');
+                                <?php $db_category = get_all_from_service($dbc, $serviceid, 'category');
                                 if($app_type == '') {
-                                    //$query = mysqli_query($dbc,"SELECT serviceid, category, heading, fee FROM services WHERE deleted=0 AND category='$db_category'");
-
                                     $query = mysqli_query($dbc,"SELECT s.serviceid, s.heading, r.cust_price service_rate, s.appointment_type, r.editable FROM services s,  company_rate_card r WHERE s.category='$db_category' AND s.serviceid = r.item_id AND r.tile_name LIKE 'Services' AND '$invoice_date' >= r.start_date AND ('$invoice_date' <= r.end_date OR IFNULL(r.end_date,'0000-00-00') = '0000-00-00')");
                                 } else {
-                                    //$query = mysqli_query($dbc,"SELECT serviceid, category, heading, fee FROM services WHERE deleted=0 AND (appointment_type = '' OR appointment_type='$type')");
-
                                     $query = mysqli_query($dbc,"SELECT s.serviceid, s.heading, r.cust_price `service_rate`, s.appointment_type, r.editable FROM services s,  company_rate_card r WHERE (s.appointment_type = '' OR s.appointment_type='$type') AND s.serviceid = r.item_id AND `tile_name` LIKE 'Services' AND '$invoice_date' >= r.start_date AND ('$invoice_date' <= r.end_date OR IFNULL(r.end_date,'0000-00-00') = '0000-00-00')");
                                 }
                                 $fee_editable = false;
-                                //$query = mysqli_query($dbc,"SELECT distinct(category) FROM services WHERE deleted=0");
                                 while($row = mysqli_fetch_array($query)) {
                                     if ($serviceid == $row['serviceid']) {
                                         $selected = 'selected="selected"';
@@ -90,7 +81,7 @@
                             <input name="service_row_id[]" type="hidden" value="<?= $insurer_row_id++ ?>" class="insurer_row_id" />
                         </div>
 
-                        <div class="col-sm-1">
+                        <div class="col-sm-1 adjust_block">
                             <img src="<?= WEBSITE_URL ?>/img/remove.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right cursor-hand" onclick="rem_service_row(this);">
                             <img src="<?= WEBSITE_URL ?>/img/icons/ROOK-add-icon.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right cursor-hand" onclick="add_service_row();">
                         </div>
@@ -106,7 +97,7 @@
 
             <?php } ?>
 
-            <div class="additional_service form-group clearfix">
+            <div class="additional_service form-group clearfix adjust_block">
 
                 <div class="col-sm-4"><label class="show-on-mob">Service Category:</label>
                     <select data-placeholder="Select a Category..." id="category_0" class="chosen-select-deselect form-control service_category_onchange" width="380">
@@ -127,14 +118,6 @@
                     <input type="hidden" name="service_ticketid[]" value="">
                     <select id="serviceid_0" data-placeholder="Select a Service..." name="serviceid[]" class="chosen-select-deselect form-control serviceid" width="380">
                         <option value=""></option>
-                        <?php
-                        /*
-                        $query = mysqli_query($dbc,"SELECT serviceid, category, heading, fee FROM services WHERE deleted=0");
-                        while($row = mysqli_fetch_array($query)) {
-                            echo "<option value='". $row['serviceid']."'>".$row['category'].' : '.$row['heading']. ' : '.$row['fee'].'</option>';
-                        }
-                        */
-                        ?>
                     </select>
                 </div>
                 <div class="col-sm-2"><label class="show-on-mob">Total Fee:</label>
@@ -152,12 +135,6 @@
             </div>
 
             <div id="add_here_new_service"></div>
-
-            <!--<div class="form-group triple-gapped clearfix">
-                <div class="col-sm-offset-4 col-sm-8">
-                    <button id="add_row_service" class="btn brand-btn pull-left">Add Service</button>
-                </div>
-            </div>-->
 
         </div>
     </div>

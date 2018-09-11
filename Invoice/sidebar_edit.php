@@ -3,10 +3,10 @@
 $(document).ready(function() {
     $('.has-main-screen .main-screen').scroll(function() {
         $('.tile-sidebar li').removeClass('active');
-        var top = $('.has-main-screen .main-screen').offset().top + 50;
-        var bottom = top + $('.has-main-screen .main-screen').outerHeight() - 65;
+        var top = $('.has-main-screen .main-screen').offset().top + 25;
+        var bottom = top + $('.has-main-screen .main-screen').outerHeight() - 35;
         $('.has-main-screen .main-screen div[id]').each(function() {
-            if(($(this).offset().top > top && $(this).offset().top < bottom) || ($(this).offset().top + $(this).outerHeight() < bottom && $(this).offset().top + $(this).outerHeight() > top)) {
+            if(($(this).offset().top < bottom) && ($(this).offset().top + $(this).outerHeight() > top)) {
                 $('.tile-sidebar a[href=#'+this.id+'] li').addClass('active');
             }
         });

@@ -2,10 +2,8 @@
 checkAuthorised(FOLDER_NAME == 'posadvanced' ? 'posadvanced' : 'check_out');
 $security = get_security($dbc, (FOLDER_NAME == 'posadvanced' ? 'posadvanced' : 'check_out'));
 
-$invoice_type = '';
-if(!empty($_GET['type'])) {
-    $invoice_type = $_GET['type'];
-}
+$invoice_type = empty($_GET['type']) ? '' : filter_var($_GET['type'],FILTER_SANITIZE_STRING);
+$invoice_mode = empty($_GET['inv_mode']) ? '' : filter_var($_GET['inv_mode'],FILTER_SANITIZE_STRING);
 $insurer_row_id = 0;
 $paid = 'Yes';
 $app_type = '';

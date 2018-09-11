@@ -1,3 +1,49 @@
 <div id="inv_misc">
-    <h3>Miscellaneous</h3>
+    <h3>Miscellaneous<span class="popover-examples list-inline">
+        <a href="#job_file" data-toggle="tooltip" data-placement="top" title="Add any Miscellaneous Items here."><img src="<?php echo WEBSITE_URL;?>/img/info.png" width="20"></a>
+    </span></h3>
+    <div class="form-group misc_option" <?= (in_array('misc_items',$field_config) ? '' : 'style="display:none;"') ?>>
+        <div class="col-sm-12">
+            <div class="form-group clearfix hide-titles-mob">
+                <label class="col-sm-5 text-center">Product Name</label>
+                <label class="col-sm-3 text-center">Price</label>
+                <label class="col-sm-1 text-center">Qty</label>
+                <label class="col-sm-2 text-center">Total</label>
+            </div>
+
+            <?php $each_misc = array_filter(explode(',', $misc_items));
+            $each_misc[] = '';
+            $each_misc_ticketid = explode(',', $misc_ticketid);
+            $each_misc_price = explode(',', $misc_prices);
+            $each_misc_qty = explode(',', $misc_qtys);
+            foreach($each_misc as $loop => $misc_item) {
+                if(!($each_misc_ticketid[$loop] > 0)) {
+                    $misc_price = $each_misc_price[$loop];
+                    $misc_qty = $each_misc_qty[$loop]; ?>
+                    <div class="additional_misc form-group clearfix <?= empty($misc_item) && empty($each_misc_qty[$loop]) ? 'adjust_block' : '' ?>">
+                        <input type="hidden" name="misc_ticketid[]" value="">
+                        <div class="col-sm-5"><label class="show-on-mob">Product Name:</label>
+                            <input type="text" name="misc_item[]" value="<?= $misc_item ?>" class="form-control misc_name">
+                        </div>
+                        <div class="col-sm-3"><label class="show-on-mob">Unit Price:</label>
+                            <input type="number" step="any" min="0" name="misc_price[]" value="<?= $misc_price / $misc_qty ?>" onchange="setThirdPartyMisc(this); countTotalPrice()" class="form-control misc_price">
+                        </div>
+                        <div class="col-sm-1"><label class="show-on-mob">Quantity:</label>
+                            <input type="number" step="any" min="0" name="misc_qty[]" value="<?= $misc_qty ?>" onchange="setThirdPartyMisc(this); countTotalPrice()" class="form-control misc_qty">
+                        </div>
+                        <div class="col-sm-2"><label class="show-on-mob">Total:</label>
+                            <input type="number" readonly name="misc_total[]" value="<?= $misc_price ?>" class="form-control misc_total">
+                            <input name="misc_row_id[]" type="hidden" value="<?= $insurer_row_id++ ?>" class="insurer_row_id" />
+                        </div>
+                        <div class="col-sm-1 adjust_block">
+                            <img src="<?= WEBSITE_URL ?>/img/remove.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right cursor-hand" onclick="rem_misc_row(this);">
+                            <img src="<?= WEBSITE_URL ?>/img/icons/ROOK-add-icon.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right cursor-hand" onclick="add_misc_row();">
+                        </div>
+                        <div class="col-sm-12 pay-div"></div>
+                    </div>
+                <?php }
+            } ?>
+            <div id="add_here_new_misc"></div>
+        </div>
+    </div>
 </div>

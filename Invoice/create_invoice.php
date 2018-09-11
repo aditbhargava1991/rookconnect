@@ -1,4 +1,5 @@
 <?php include_once('config.php');
+include_once('edit_save.php');
 include_once ('../navigation.php'); ?>
 <div class="container">
 	<div class="iframe_overlay" style="display:none; margin-top:-20px; padding-bottom:20px;">
@@ -12,7 +13,7 @@ include_once ('../navigation.php'); ?>
 				<div class="pull-right text-lg">
                     <a data-toggle="collapse" data-parent="#header_divs" href="#header_summary" onclick="setWindowSize();"><img src="<?= WEBSITE_URL ?>/img/icons/pie-chart.png" height="32" width="32" title="Show <?= CONTACTS_NOUN ?> Summary" class="override-theme-color-icon no-toggle pad-5"></a>
                     <a data-toggle="collapse" data-parent="#header_divs" href="#header_tabs" onclick="setWindowSize();"><img src="<?= WEBSITE_URL ?>/img/icons/eyeball.png" height="32" width="32" title="Show <?= (empty($current_tile_name) ? 'Check Out' : $current_tile_name) ?> Tabs" class="override-theme-color-icon no-toggle pad-5"></a>
-					<?php if($security['edit'] > 0) { ?>
+					<?php if($security['edit'] > 0 && $_GET['inv_mode'] != 'adjust') { ?>
                         <a href="" onclick="$('#save').click(); return false;"><img src="<?= WEBSITE_URL ?>/img/icons/save.png" height="32" width="32" title="Save Invoice" class="override-theme-color-icon no-toggle pad-5"></a>
 					<?php } ?>
 					<?php if($security['config'] > 0) { ?>
@@ -27,9 +28,11 @@ include_once ('../navigation.php'); ?>
                 </div>
                 <div id="header_summary" class="double-gap-bottom pad-horizontal panel-collapse collapse">
                     <?php $summary_only = true;
+                    $invoice_patient = $patient;
                     $invoice_config = $field_config;
                     include('../Contacts/contact_profile.php');
-                    $field_config = $invoice_config; ?>
+                    $field_config = $invoice_config;
+                    $patient = $invoice_patient; ?>
                     <div class="clearfix"></div>
                 </div>
                 <div class="clearfix"></div>
@@ -43,7 +46,7 @@ include_once ('../navigation.php'); ?>
             <div class="scale-to-fill has-main-screen">
                 <div class="main-screen standard-body default_screen form-horizontal">
                     <div class="standard-body-title">
-                        <h3>Create <?= 'Invoice' ?></h3>
+                        <h3><?= $_GET['inv_mode'] === 'adjust' ? 'Adjust Invoice #'.$invoiceid : 'Create Invoice' ?></h3>
                     </div>
                     <div class="standard-body-content col-sm-12">
                         <form action="" method="POST" enctype="multipart/form-data" class="form-horizontal" role="form">

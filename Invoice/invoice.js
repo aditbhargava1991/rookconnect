@@ -689,7 +689,7 @@ function changePackage(sel) {
 		}
 	} else if(packageid.val() != '') {
 		cat.val(packageid.find('option:selected').data('cat')).trigger('change.select2');
-		cost.val(packageid.find('option:selected').data('cost').toFixed(2));
+		cost.val(round2Fixed(packageid.find('option:selected').data('cost')));
 		var total_with_gst = +cost.val() + (Math.round(+cost.val() * +$('#tax_rate').val()) / 100);
 		row.find('[name="insurer_payment_amt[]"]').first().val(total_with_gst);
 	}
@@ -799,7 +799,7 @@ function setTotalPrice() {
 	var sum_fee = 0;
 	var j=0;
 	var price_on_gst = 0;
-	$('.detail_service_list').empty();
+	$('.detail_service_list').empty().prev('h4').hide();
 	$('.fee').not(':disabled').each(function () {
 		var fee_id = this.id;
 		var arr = fee_id.split('_');
@@ -822,9 +822,9 @@ function setTotalPrice() {
 			}
 			if(group.hasClass('adjust_block')) {
 				sum_adjustment += fee_row + (gstexempt == 0 ? fee_row*tax_rate/100 : 0);
-				$('.detail_service_list').append('Adjustment: '+info+'<label class="pull-right">'+fee_row.toFixed(2)+'</label><br /><div class="clearfix"></div>');
+				$('.detail_service_list').append('Adjustment: '+info+'<label class="pull-right">'+fee_row.toFixed(2)+'</label><br /><div class="clearfix"></div>').prev('h4').show();
 			} else {
-				$('.detail_service_list').append(info+'<label class="pull-right">'+fee_row.toFixed(2)+'</label><br /><div class="clearfix"></div>');
+				$('.detail_service_list').append(info+'<label class="pull-right">'+fee_row.toFixed(2)+'</label><br /><div class="clearfix"></div>').prev('h4').show();
 			}
 			if(group.find('[name="servicerow_refund[]"]').is(':checked')) {
 				sum_fee -= fee_row;
@@ -832,7 +832,7 @@ function setTotalPrice() {
 					price_on_gst -= +$(this).val() || 0;
 				}
 				sum_refund += fee_row + (gstexempt == 0 ? fee_row*tax_rate/100 : 0);
-				$('.detail_service_list').append('Refund: '+info+'<label class="pull-right">'+(-fee_row).toFixed(2)+'</label><br /><div class="clearfix"></div>');
+				$('.detail_service_list').append('Refund: '+info+'<label class="pull-right">'+(-fee_row).toFixed(2)+'</label><br /><div class="clearfix"></div>').prev('h4').show();
 				//insurer_portions -= +this.value || 0;
 			}
 			group.find('[name="insurer_payment_amt[]"],[name="init_insurer_payment[]"]').each(function() {
@@ -852,7 +852,7 @@ function setTotalPrice() {
 
 	var sum_price = 0;
 	var sum_inv_gst = 0;
-	$('.detail_inventory_list').empty();
+	$('.detail_inventory_list').empty().prev('h4').hide();
 	$('[name="init_price[]"]').not(':disabled').each(function () {
 		var fee_row = +$(this).val() || 0;
 
@@ -865,7 +865,7 @@ function setTotalPrice() {
 				info = group.find('[name=inventorylabel]').val();
 			}
 			info = info+' X '+group.find('[name="init_quantity[]"]').val();
-			$('.detail_inventory_list').append(info+'<label class="pull-right">'+fee_row.toFixed(2)+'</label><br /><div class="clearfix"></div>');
+			$('.detail_inventory_list').append(info+'<label class="pull-right">'+fee_row.toFixed(2)+'</label><br /><div class="clearfix"></div>').prev('h4').show();
 			sum_price += fee_row;
 			var row_exempt = $(this).closest('.form-group').find('[name="inventory_gst_exempt[]"]').val();
 			sum_inv_gst += (row_exempt == 1 ? 0 : fee_row);
@@ -896,18 +896,18 @@ function setTotalPrice() {
 			});
 			if(fee_row < 0) {
 				sum_refund -= fee_row + (row_exempt == 1 ? 0 : (fee_row*tax_rate/100));
-				$('.detail_inventory_list').append('Return: '+info+'<label class="pull-right">'+fee_row.toFixed(2)+'</label><br /><div class="clearfix"></div>');
+				$('.detail_inventory_list').append('Return: '+info+'<label class="pull-right">'+fee_row.toFixed(2)+'</label><br /><div class="clearfix"></div>').prev('h4').show();
 			} else if(group.hasClass('adjust_block')) {
 				sum_adjustment += fee_row + (row_exempt == 1 ? 0 : (fee_row*tax_rate/100));
-				$('.detail_inventory_list').append('Adjustment: '+info+'<label class="pull-right">'+fee_row.toFixed(2)+'</label><br /><div class="clearfix"></div>');
+				$('.detail_inventory_list').append('Adjustment: '+info+'<label class="pull-right">'+fee_row.toFixed(2)+'</label><br /><div class="clearfix"></div>').prev('h4').show();
 			} else {
-				$('.detail_inventory_list').append(info+'<label class="pull-right">'+fee_row.toFixed(2)+'</label><br /><div class="clearfix"></div>');
+				$('.detail_inventory_list').append(info+'<label class="pull-right">'+fee_row.toFixed(2)+'</label><br /><div class="clearfix"></div>').prev('h4').show();
 			}
 		}
 	});
 
 	var package_cost = 0;
-	$('.detail_package_list').empty();
+	$('.detail_package_list').empty().prev('h4').hide();
 	$('.package_cost').not(':disabled').each(function () {
 		var fee_row = +$(this).val() || 0;
 		package_cost += fee_row;
@@ -921,14 +921,14 @@ function setTotalPrice() {
 			}
 			if(group.hasClass('adjust_block')) {
 				sum_adjustment += fee_row + (fee_row*tax_rate/100);
-				$('.detail_package_list').append('Adjustment: '+info+'<label class="pull-right">'+fee_row.toFixed(2)+'</label><br /><div class="clearfix"></div>');
+				$('.detail_package_list').append('Adjustment: '+info+'<label class="pull-right">'+fee_row.toFixed(2)+'</label><br /><div class="clearfix"></div>').prev('h4').show();
 			} else {
-				$('.detail_package_list').append(info+'<label class="pull-right">'+fee_row.toFixed(2)+'</label><br /><div class="clearfix"></div>');
+				$('.detail_package_list').append(info+'<label class="pull-right">'+fee_row.toFixed(2)+'</label><br /><div class="clearfix"></div>').prev('h4').show();
 			}
 			if(group.find('[name="packagerow_refund[]"]').is(':checked')) {
 				package_cost -= fee_row;
 				sum_refund += fee_row + (fee_row*tax_rate/100);
-				$('.detail_package_list').append('Refund: '+info+'<label class="pull-right">'+(-fee_row).toFixed(2)+'</label><br /><div class="clearfix"></div>');
+				$('.detail_package_list').append('Refund: '+info+'<label class="pull-right">'+(-fee_row).toFixed(2)+'</label><br /><div class="clearfix"></div>').prev('h4').show();
 			}
 			group.find('[name="insurer_payment_amt[]"],[name="init_insurer_payment[]"]').each(function() {
 				insurer_portions += +this.value || 0;
@@ -938,7 +938,7 @@ function setTotalPrice() {
 	});
 
 	var misc_price = 0;
-	$('.detail_misc_list').empty();
+	$('.detail_misc_list').empty().prev('h4').hide();
 	$('.misc_total').not(':disabled').each(function () {
 		var group = $(this).closest('.form-group');
 		var price = +group.find('.misc_price').val() || 0;
@@ -952,15 +952,15 @@ function setTotalPrice() {
 			var label = group.find('.misc_name').val() + ' X ';
 			if(group.hasClass('adjust_block')) {
 				sum_adjustment += total + (total*tax_rate/100);
-				$('.detail_misc_list').append('Adjustment: '+label+qty+'<label class="pull-right">'+total.toFixed(2)+'</label><br /><div class="clearfix"></div>');
+				$('.detail_misc_list').append('Adjustment: '+label+qty+'<label class="pull-right">'+total.toFixed(2)+'</label><br /><div class="clearfix"></div>').prev('h4').show();
 			} else if(group.hasClass('refundable')) {
-				$('.detail_misc_list').append(label+init_qty+'<label class="pull-right">'+init_total.toFixed(2)+'</label><br /><div class="clearfix"></div>');
+				$('.detail_misc_list').append(label+init_qty+'<label class="pull-right">'+init_total.toFixed(2)+'</label><br /><div class="clearfix"></div>').prev('h4').show();
 				if(total < 0) {
 					sum_refund -= total + (total*tax_rate/100);
-					$('.detail_misc_list').append('Return: '+label+qty+'<label class="pull-right">'+(total).toFixed(2)+'</label><br /><div class="clearfix"></div>');
+					$('.detail_misc_list').append('Return: '+label+qty+'<label class="pull-right">'+(total).toFixed(2)+'</label><br /><div class="clearfix"></div>').prev('h4').show();
 				}
 			} else {
-				$('.detail_misc_list').append(label+qty+'<label class="pull-right">'+total.toFixed(2)+'</label><br /><div class="clearfix"></div>');
+				$('.detail_misc_list').append(label+qty+'<label class="pull-right">'+total.toFixed(2)+'</label><br /><div class="clearfix"></div>').prev('h4').show();
 			}
 			group.find('[name="insurer_payment_amt[]"],[name="init_insurer_payment[]"]').each(function() {
 				insurer_portions += +this.value || 0;
