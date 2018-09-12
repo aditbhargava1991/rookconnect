@@ -1342,3 +1342,6 @@ function rem_ticket_row(btn) {
 function view_tabs() {
     $('.view_tabs').toggle();
 }
+function view_summary() {
+    $('.view_summary').toggle();
+}
