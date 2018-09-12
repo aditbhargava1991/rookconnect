@@ -146,6 +146,9 @@ $(document).ready(function() {
 function view_tabs() {
     $('.view_tabs').toggle();
 }
+function view_summary() {
+    $('.view_summary').toggle();
+}
 </script>
 </head>
 <body>
@@ -169,8 +172,83 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
                         echo '<a href="field_config_invoice.php" class="pull-right gap-right gap-top"><img width="30" title="Tile Settings" src="../img/icons/settings-4.png" class="settings-classic wiggle-me no-toggle"></a>';
                     } ?>
                     <span class="pull-right gap-top offset-right-5"><img src="../img/icons/eyeball.png" alt="View Tabs" title="View Tabs" class="cursor-hand no-toggle inline-img" onclick="view_tabs();" /></span>
+                    <span class="pull-right gap-top offset-right-5"><img src="../img/icons/pie-chart.png" alt="Reporting" title="Reporting" class="cursor-hand no-toggle inline-img" onclick="view_summary();" /></span>
                     <div class="clearfix"></div>
                     <div class="view_tabs double-padded" style="display:none;"><?php include('tile_tabs.php'); ?></div>
+                    
+                    <!-- Summary Blocks --><?php
+                    if (isset($_POST['display_all_inventory'])) {
+                        $search_user = '';
+                        $search_invoiceid = '';
+                        $search_date = '';
+                        $search_clause = "AND (`invoice_date` BETWEEN '".date('Y-m-01')."' AND '".date('Y-m-t')."')";
+                    } else if(isset($_POST['search_user_submit'])) {
+                        $search_user = $_POST['search_user'];
+                        $search_invoiceid = $_POST['search_invoiceid'];
+                        $search_date = $_POST['search_date'];
+                        $search_clause = !empty($search_user) ? "AND `patientid`='$search_user'" : '';
+                        $search_clause .= !empty($search_invoiceid) ? " AND `invoiceid`='$search_invoiceid'" : '';
+                        $search_clause .= !empty($search_date) ? " AND `invoice_date`='$search_date'" : '';
+                    } else if(!empty($_GET['search_user'])) {
+                        $search_user = $_GET['search_user'];
+                        $search_invoiceid = '';
+                        $search_date = '';
+                        $search_clause = !empty($search_user) ? "AND `patientid`='$search_user'" : '';
+                    } else if(!empty($_GET['search_invoice'])) {
+                        $search_invoiceid = $_GET['search_invoice'];
+                        $search_user = '';
+                        $search_date = '';
+                        $search_clause = !empty($search_invoiceid) ? " AND `invoiceid`='$search_invoiceid'" : '';
+                    } else if(!empty($_GET['search_date'])) {
+                        $search_date = $_GET['search_date'];
+                        $search_user = '';
+                        $search_invoiceid = '';
+                        $search_clause = !empty($search_date) ? " AND `invoice_date`='$search_date'" : '';
+                    } else {
+                        $search_user = '';
+                        $search_invoiceid = '';
+                        $search_date = '';
+                        $search_clause = "AND (`invoice_date` BETWEEN '".date('Y-m-01')."' AND '".date('Y-m-t')."')";
+                    } ?>
+                    <div class="view_summary double-gap-bottom" style="display:none;">
+                        <div class="col-xs-12 col-sm-4 gap-top">
+                            <div class="summary-block">
+                                <?php $total_invoices = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT SUM(`final_price`) `final_price` FROM `invoice` WHERE `deleted`=0 $search_clause")); ?>
+                                <div class="text-lg"><?= ( $total_invoices['final_price'] > 0 ) ? '<a href="../Reports/report_tiles.php?type=sales&report=POS%20Advanced%20Sales%20Summary&landing=true&pos_submit=yes&from='.$search_from.'&to='.$search_to.'">$'.number_format($total_invoices['final_price'], 2).'</a>' : '$'. 0; ?></div>
+                                <div>Total Invoices</div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-4 gap-top">
+                            <div class="summary-block"><?php
+                                $ar_types = array('On Account', 'Net 30', 'Net 30 Days', 'Net 60', 'Net 60 Days', 'Net 90', 'Net 90 Days', 'Net 120', 'Net 120 Days');
+                                $ar_amounts = 0;
+                                $nonar_amounts = 0;
+                                $ar_invoices = mysqli_query($dbc, "SELECT `payment_type` FROM `invoice` WHERE `deleted`=0 $search_clause");
+                                while ( $row = mysqli_fetch_assoc($ar_invoices) ) {
+                                    list($payment_types, $payment_amounts) = explode('#*#', $row['payment_type']);
+                                    $types = explode(',', $payment_types);
+                                    $amounts = explode(',', $payment_amounts);
+                                    $count = count($types);
+                                    for ( $i=0; $i <= $count; $i++ ) {
+                                        if ( in_array($types[$i], $ar_types) ) {
+                                            $ar_amounts += $amounts[$i];
+                                        } else {
+                                            $nonar_amounts += $amounts[$i];
+                                        }
+                                    }
+                                } ?>
+                                <div class="text-lg"><?= ( $ar_amounts > 0 ) ? '<a href="../Reports/report_tiles.php?type=sales&report=POS%20Advanced%20Sales%20Summary&landing=true&pos_submit=yes&from='.$search_from.'&to='.$search_to.'">$'.number_format($ar_amounts, 2).'</a>' : '$'. 0; ?></div>
+                                <div>Total A/R Invoices</div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-sm-4 gap-top">
+                            <div class="summary-block">
+                                <div class="text-lg"><?= ( $nonar_amounts > 0 ) ? '<a href="../Reports/report_tiles.php?type=sales&report=POS%20Advanced%20Sales%20Summary&landing=true&pos_submit=yes&from='.$search_from.'&to='.$search_to.'">$'.number_format($nonar_amounts, 2).'</a>' : '$'. 0; ?></div>
+                                <div>Total Paid Invoices</div>
+                            </div>
+                        </div>
+                        <div class="clearfix"></div>
+                    </div><!-- .view_summary -->
                 </div>
             </div><!-- .tile-header -->
 
@@ -190,92 +268,60 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
                             To Adjust: Adjustment is used for adding to an existing invoice, such as when a service was not added to an invoice when it was created. Click Refund / Adjustments under the Function heading for the invoice you wish to access. Search by <?= $purchaser_label ?>, Invoice # and/or Invoice Date and click Search. Click the blue Adjustment checkbox.  You will now see the details of the <?= $purchaser_label ?> invoice that can be adjusted.</div>
                             <div class="clearfix"></div>
                         </div>
-                        <?php
-                            if (isset($_POST['display_all_inventory'])) {
-                                $search_user = '';
-                                $search_invoiceid = '';
-                                $search_date = '';
-                            } else if(isset($_POST['search_user_submit'])) {
-                                $search_user = $_POST['search_user'];
-                                $search_invoiceid = $_POST['search_invoiceid'];
-                                $search_date = $_POST['search_date'];
-                            } else if(!empty($_GET['search_user'])) {
-                                $search_user = $_GET['search_user'];
-                                $search_invoiceid = '';
-                                $search_date = '';
-                            } else if(!empty($_GET['search_invoice'])) {
-                                $search_invoiceid = $_GET['search_invoice'];
-                                $search_user = '';
-                                $search_date = '';
-                            } else if(!empty($_GET['search_date'])) {
-                                $search_date = $_GET['search_date'];
-                                $search_user = '';
-                                $search_invoiceid = '';
-                            } else {
-                                $search_user = '';
-                                $search_invoiceid = '';
-                                $search_date = '';
-                            }
-                            ?>
 
                             <div class="row">
-                                <div class="col-sm-5">
-                                    <div class="row">
-                                        <div class="col-sm-4"><label for="search_user" class="control-label">Search by <?= $purchaser_label ?>:</label></div>
-                                        <div class="col-sm-8">
-                                            <select data-placeholder="Select a <?= $purchaser_label ?>" name="search_user" id="search_user" class="chosen-select-deselect form-control" width="380">
-                                                <option value=""></option>
-                                                <?php
-                                                /* function lastNameSort($a, $b) {
-                                                    $aLast = explode(' ', $a);
-                                                    $bLast = explode(' ', $b);
+                                <div class="col-sm-6">
+                                    <div class="col-sm-4"><label for="search_user" class="control-label">Search by <?= $purchaser_label ?>:</label></div>
+                                    <div class="col-sm-8">
+                                        <select data-placeholder="Select a <?= $purchaser_label ?>" name="search_user" id="search_user" class="chosen-select-deselect form-control" width="380">
+                                            <option value=""></option>
+                                            <?php
+                                            /* function lastNameSort($a, $b) {
+                                                $aLast = explode(' ', $a);
+                                                $bLast = explode(' ', $b);
 
-                                                    return strcasecmp($aLast, $bLast);
-                                                }
+                                                return strcasecmp($aLast, $bLast);
+                                            }
 
-                                                $query = mysqli_query($dbc,"SELECT distinct(patientid) FROM invoice WHERE deleted = 0 AND patientid != 0");
-                                                while($row = mysqli_fetch_array($query)) {
-                                                    $patients[$row['patientid']] = get_client($dbc,$row['patientid']).get_contact($dbc, $row['patientid']);
-                                                }
+                                            $query = mysqli_query($dbc,"SELECT distinct(patientid) FROM invoice WHERE deleted = 0 AND patientid != 0");
+                                            while($row = mysqli_fetch_array($query)) {
+                                                $patients[$row['patientid']] = get_client($dbc,$row['patientid']).get_contact($dbc, $row['patientid']);
+                                            }
 
-                                                uasort($patients, 'lastNameSort');
-                                                foreach($patients as $patientid => $patient) { */
-                                                ?><!--<option <?php if ($patientid == $search_user) { echo " selected"; } ?> value='<?php echo  $patientid; ?>' ><?php echo $patient; ?></option>-->
-                                                <?php	/* } */
-                                                ?>
-                                                <?php
-                                                        /* $query = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc,"SELECT contactid, first_name, last_name FROM contacts WHERE category IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND deleted=0 AND `status`>0"),MYSQLI_ASSOC));
-                                                        foreach($query as $id) {
-                                                            echo "<option value='". $id."'>".get_contact($dbc, $id).'</option>';
-                                                        } */
-                                                      ?>
-                                                <?php
-                                                    $query = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc,"SELECT contactid, name, first_name, last_name FROM contacts WHERE `contactid` IN (SELECT `patientid` FROM `invoice`) AND `deleted`=0 AND `status`>0"),MYSQLI_ASSOC));
+                                            uasort($patients, 'lastNameSort');
+                                            foreach($patients as $patientid => $patient) { */
+                                            ?><!--<option <?php if ($patientid == $search_user) { echo " selected"; } ?> value='<?php echo  $patientid; ?>' ><?php echo $patient; ?></option>-->
+                                            <?php	/* } */
+                                            ?>
+                                            <?php
+                                                    /* $query = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc,"SELECT contactid, first_name, last_name FROM contacts WHERE category IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND deleted=0 AND `status`>0"),MYSQLI_ASSOC));
                                                     foreach($query as $id) {
-                                                        $selected = '';
-                                                        $selected = $id == $search_user ? 'selected = "selected"' : '';
-                                                        echo "<option ".$selected." value='".$id."'>".get_contact($dbc, $id).'</option>';
-                                                    }
-                                                ?>
-                                            </select>
-                                        </div>
+                                                        echo "<option value='". $id."'>".get_contact($dbc, $id).'</option>';
+                                                    } */
+                                                  ?>
+                                            <?php
+                                                $query = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc,"SELECT contactid, name, first_name, last_name FROM contacts WHERE `contactid` IN (SELECT `patientid` FROM `invoice`) AND `deleted`=0 AND `status`>0"),MYSQLI_ASSOC));
+                                                foreach($query as $id) {
+                                                    $selected = '';
+                                                    $selected = $id == $search_user ? 'selected = "selected"' : '';
+                                                    echo "<option ".$selected." value='".$id."'>".get_contact($dbc, $id).'</option>';
+                                                }
+                                            ?>
+                                        </select>
                                     </div>
                                 </div>
-                                <div class="col-sm-3">
-                                    <div class="row">
-                                        <div class="col-sm-3"><label for="search_invoiceid" class="control-label">Invoice #:</label></div>
-                                        <div class="col-sm-9"><input name="search_invoiceid" placeholder="Invoice #" id="search_invoiceid" type="text" class="form-control" value="<?php echo $search_invoiceid; ?>" /></div>
-                                    </div>
+                                <div class="col-sm-6">
+                                    <div class="col-sm-4"><label for="search_invoiceid" class="control-label">Invoice #:</label></div>
+                                    <div class="col-sm-8"><input name="search_invoiceid" placeholder="Invoice #" id="search_invoiceid" type="text" class="form-control" value="<?php echo $search_invoiceid; ?>" /></div>
                                 </div>
-                                <div class="col-sm-3">
-                                    <div class="row">
-                                        <div class="col-sm-4"><label for="search_date" class="control-label">Invoice Date:</label></div>
-                                        <div class="col-sm-8"><input name="search_date" id="search_date" type="text" class="datepicker form-control" value="<?php echo $search_date; ?>" /></div>
-                                    </div>
+                                <div class="col-sm-6">
+                                    <div class="col-sm-4"><label for="search_date" class="control-label">Invoice Date:</label></div>
+                                    <div class="col-sm-8"><input name="search_date" id="search_date" type="text" class="datepicker form-control" value="<?php echo $search_date; ?>" /></div>
                                 </div>
-                                <div class="col-sm-1">
+                                <div class="clearfix"></div>
+                                <div class="col-sm-12 text-right">
                                     <button type="submit" name="search_user_submit" id="search_user_submit" value="Search" class="btn brand-btn mobile-block">Search</button>
-                                    <!-- <button type="submit" name="display_all_inventory" value="Display All" class="btn brand-btn mobile-block">Display All</button> -->
+                                    <button type="submit" name="display_all_inventory" value="Display All" class="btn brand-btn mobile-block">Display All</button>
                                 </div>
                             </div>
 
@@ -318,8 +364,8 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
                                     $query_check_credentials = "SELECT * FROM invoice WHERE deleted = 0 AND invoice_type!='Saved' AND invoice_date='$search_date' ORDER BY invoiceid DESC, paid ASC,payment_type ASC,final_price DESC";
                                     //$query = "SELECT count(*) as numrows FROM invoice WHERE deleted = 0 AND invoiceid='$search_invoiceid' ORDER BY invoiceid DESC, paid ASC,payment_type ASC,final_price DESC";
                                 } else {
-                                    //$query_check_credentials = "SELECT * FROM invoice WHERE deleted = 0 ORDER BY invoiceid DESC, paid ASC,payment_type ASC,final_price DESC LIMIT $offset, $rowsPerPage";
-                                    //$query = "SELECT count(*) as numrows FROM invoice WHERE deleted = 0 ORDER BY invoiceid DESC, paid ASC,payment_type ASC,final_price DESC";
+                                    $query_check_credentials = "SELECT * FROM invoice WHERE deleted = 0 ORDER BY invoiceid DESC, paid ASC,payment_type ASC,final_price DESC LIMIT $offset, $rowsPerPage";
+                                    $query = "SELECT count(*) as numrows FROM invoice WHERE deleted = 0 ORDER BY invoiceid DESC, paid ASC,payment_type ASC,final_price DESC";
                                 }
                             }
 
