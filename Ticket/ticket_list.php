@@ -172,11 +172,11 @@ function changePOSStatus(sel) {
 		<?php if(in_array('Project',$db_config)) { ?>
 			<div class="col-sm-5">
 				<label for="site_name" class="control-label col-sm-4">
-					<span class="popover-examples list-inline" style="margin:0;"><a data-toggle="tooltip" data-placement="top" title="Choose from the drop down menu for the Type of <?= PROJECT_NOUN ?> that is attached to <?= TICKET_TILE ?> you want to see."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
-					Select <?= in_array(substr(PROJECT_NOUN,0,1),['a','e','i','o','u','A','E','I','O','U']) ? 'an' : 'a' ?> <?= PROJECT_NOUN ?> Type:
+					<span class="popover-examples list-inline" style="margin:0;"><a data-toggle="tooltip" data-placement="top" title="Choose from the drop down menu for the tab of <?= PROJECT_NOUN ?> that is attached to <?= TICKET_TILE ?> you want to see."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
+					Select <?= in_array(substr(PROJECT_NOUN,0,1),['a','e','i','o','u','A','E','I','O','U']) ? 'an' : 'a' ?> <?= PROJECT_NOUN ?> Tab:
 				</label>
 				<div class="col-sm-8">
-					<select data-placeholder="Select a Type" name="search_project_type" id="" class="chosen-select-deselect form-control input-sm">
+					<select data-placeholder="Select a Tab" name="search_project_type" id="" class="chosen-select-deselect form-control input-sm">
 					  <option value=""></option>
 					  <?php foreach($project_types as $cat_tab_value => $cat_tab) {
 							echo "<option ".($cat_tab_value == $search_project_type_name ? 'selected' : '')." value='".$cat_tab_value."'>".$cat_tab.'</option>';

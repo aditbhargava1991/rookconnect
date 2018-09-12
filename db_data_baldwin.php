@@ -734,5 +734,57 @@
     }
     //2018-09-05 - Ticket #9007 - Vacation Pay
 
+    //2018-09-10 - Ticket #9085 - Manifest
+    if(!mysqli_query($dbc, "ALTER TABLE `ticket_attached` CHANGE `po_line` `po_line` text")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-09-10 - Ticket #9085 - Manifest
+
+    //2018-09-07 - Ticket #9008 - Stat Pay
+    $updated_already = get_config($dbc, 'updated_ticket9008_statpay');
+    if(empty($updated_already)) {
+        mysqli_query($dbc, "UPDATE `contacts` SET `stat_pay` = 'Alberta Standard 4%' WHERE `stat_pay` = 'Alberta Standard'");
+        set_config($dbc, 'updated_ticket9008_statpay', 1);
+    }
+    //2018-09-07 - Ticket #9008 - Stat Pay
+
+    //2018-09-11 - Ticket #8802 - Check In/Out
+    if(!mysqli_query($dbc, "CREATE TABLE `ticket_attached_checkin` (
+        `id` int(11) NOT NULL,
+        `ticket_attached_id` int(11) NOT NULL,
+        `checked_in` varchar(10),
+        `checked_out` varchar(10))")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `ticket_attached_checkin`
+        ADD PRIMARY KEY (`id`)")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `ticket_attached_checkin`
+        MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-09-11 - Ticket #8802 - Check In/Out
+
+    //2018-09-11 - Ticket #8811 - Tagging
+    if(!mysqli_query($dbc, "CREATE TABLE `contacts_tagging` (
+        `id` int(11) NOT NULL,
+        `contactid` int(11) NOT NULL,
+        `src_table` varchar(500) NOT NULL,
+        `item_id` int(11) NOT NULL,
+        `last_updated_date` date NOT NULL,
+        `deleted` int(1) NOT NULL DEFAULT 0)")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `contacts_tagging`
+        ADD PRIMARY KEY (`id`)")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `contacts_tagging`
+        MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-09-11 - Ticket #8811 - Tagging
+
     echo "Baldwin's DB Changes Done<br />\n";
-?> 
+?>

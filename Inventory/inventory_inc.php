@@ -188,7 +188,7 @@ $(document).ready(function() {
 		$('.iframe_holder').hide();
 		$('.hide_on_iframe').show();
 	});
-	
+
 	$('[data-inventory]').off('change').change(function() {
 		var field = this;
 		$.post('inventory_ajax.php?action=dashboard_update',
@@ -250,7 +250,7 @@ function setPallet(item) {
 				} else { ?>
 					<div class="form-group  mobile-100-container cate_fitter" style='width:80%; margin:auto;'>
 						<select name="search_category" class="chosen-select-deselect form-control mobile-100-pull-right category_actual">
-						  <option value="" selected>Select a Category</option>
+						  <option value="" selected>Select a Tab</option>
 						  <?php
 							if ($category == "dispall_31V2irt2u3e5S3s1f2ADe3_31") {
 								$xx = 'selected="selected"';
@@ -290,11 +290,11 @@ function setPallet(item) {
 
 			<?php if($dropdownornot == 'true' && $inventory_navigation_position != 'top') { ?>
 				<div class="col-sm-2 col-xs-6">
-					<label for="search_inventory" style="width:100%; text-align:right; padding-top:5px;">Category:</label>
+					<label for="search_inventory" style="width:100%; text-align:right; padding-top:5px;">Tab:</label>
 				</div>
 				<div class="col-sm-4 col-xs-6" style="margin-bottom:10px !important;">
-					<select data-placeholder="Select a Category..." name="search_category" class="chosen-select-deselect form-control mobile-100-pull-right category_actual">
-					  <option value="" selected>Select a Category</option>
+					<select data-placeholder="Select a Tab..." name="search_category" class="chosen-select-deselect form-control mobile-100-pull-right category_actual">
+					  <option value="" selected>Select a Tab</option>
 					  <?php
 						if ($category == "dispall_31V2irt2u3e5S3s1f2ADe3_31") {
 							$xx = 'selected="selected"';
@@ -331,6 +331,7 @@ function setPallet(item) {
 			<?php } ?>
 
 			<?php if($_GET['no_search'] != 'true') { ?>
+            <!--
 				<div class='col-sm-2 col-xs-6'>
 					<label for="search_category" style="width:100%; text-align:right; padding-top:5px;">Search <?= $active_cat ?>:</label>
 				</div>
@@ -338,29 +339,8 @@ function setPallet(item) {
 					<input  type="hidden" name="category" value="<?= $_GET['category'] ?>" class="form-control" />
 					<input  type="text" name="search_category" value="<?= $_GET['search_category'] ?>" class="form-control" />
 				</div>
-				<!--
-				<div class="form-group gap-right">
-					<label for="search_category" class="control-label">Search By Category:</label>
 
-					<select name="search_category" class="form-control col-6">
-					  <option value="" selected>Select</option>
-					  <?php
-						$tabs = html_entity_decode(get_config($dbc, 'inventory_tabs'));
-						$each_tab = explode('#*#', $tabs);
-						foreach ($each_tab as $cat_tab) {
-							$url_tab = preg_replace('/[^a-z]/','',strtolower($cat_tab));
-							if ($invtype == $cat_tab) {
-								$selected = 'selected="selected"';
-							} else {
-								$selected = '';
-							}
-							echo "<option ".$selected." value='". $url_tab."'>".$cat_tab.'</option>';
-						}
-					  ?>
-					</select>
-				</div>
-				-->
-				<div class="tab-container">
+                <div class="tab-container">
 					<div class="tab pull-left"><button type="submit" name="search_inventory_submit" value="Search" class="btn brand-btn mobile-block mobile-100">Search</button></div>
 					<div class="tab pull-left"><button type="submit" name="display_all_inventory" value="Display All" class="btn brand-btn mobile-block mobile-100">Display All</button></div>
 				<?php
@@ -370,6 +350,7 @@ function setPallet(item) {
 					</div>
 			  <?php } ?>
 				</div>
+                -->
 			<?php } ?>
 	<div class="clearfix"></div>
 </form>
