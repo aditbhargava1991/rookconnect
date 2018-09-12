@@ -496,7 +496,7 @@ if($_GET['action'] == 'mark_favourite') {
 	$check_lists = filter_var($_POST['check_list'],FILTER_SANITIZE_STRING);
 	$intake_forms = filter_var($_POST['intake_form'],FILTER_SANITIZE_STRING);
 	$items = filter_var($_POST['items'],FILTER_SANITIZE_STRING);
-	$intakes = filter_var($_POST['intakes'],FILTER_SANITIZE_STRING);
+	//$intakes = filter_var($_POST['intakes'],FILTER_SANITIZE_STRING);
 
 	if($id == 'new') {
 		mysqli_query($dbc, "INSERT INTO `project_path_milestone` () VALUES ()");

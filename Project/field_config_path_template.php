@@ -7,6 +7,12 @@ while($service = mysqli_fetch_array($service_list)) {
 	$services[] = ['id'=>$service['serviceid'],'label'=>$service['label']];
 }
 echo json_encode($services); ?>;
+var intake_list = <?php $intake_lists_arr = [];
+$intake_lists = mysqli_query($dbc, "SELECT `intakeformid`, `form_name` FROM `intake_forms` WHERE `deleted`=0");
+while($intake_form = mysqli_fetch_array($intake_lists)) {
+    $intake_lists_arr[] = ['id'=>$intake_form['intakeformid'],'label'=>$intake_form['form_name']];
+}
+echo json_encode($intake_lists_arr); ?>;
 $(document).ready(function(){
 	init_path();
 });
@@ -69,7 +75,7 @@ function save_path() {
 		intake_form += (delimiter ? '#*#' : '')+block.find('[name=intake_form]').map(function() { return this.value; }).get().join('*#*');
 
 		// items += (delimiter ? '#*#' : '')+block.find('[name=items]').filter(function() { return this.value != ''; }).map(function() { return this.value; }).get().join('*#*');
-		intakes += (delimiter ? '#*#' : '')+block.find('[name=intake]').filter(function() { return this.value > 0; }).map(function() { return this.value; }).get().join('*#*');
+		//intakes += (delimiter ? '#*#' : '')+block.find('[name=intake]').filter(function() { return this.value > 0; }).map(function() { return this.value; }).get().join('*#*');
 
 	});
 	$.ajax({
@@ -80,7 +86,7 @@ function save_path() {
 			template_name: $('[name=template_name]').val(),
 			milestone: milestone,
 			timeline: timeline,
-			checklist: checklist,
+			checklist: tasks,
 			ticket: ticket,
 			workorder: workorder,
 			check_list: check_list,
@@ -245,15 +251,19 @@ function add_check(btn) {
 }
 function add_intake(btn) {
 	var item = '<div class="form-group sortable_group">' +
-		'<label class="col-sm-4">Intake Form:</label>' +
-		'<div class="col-sm-7">' +
-			'<input type="text" class="form-control" name="intake_form">' +
-		'</div>' +
-		'<div class="col-sm-1">' +
-			'<img src="../img/remove.png" class="inline-img pull-right" onclick="remove_group(this);">' +
-			'<img src="../img/icons/drag_handle.png" class="inline-img pull-right group-handle no-toggle" title="Drag" />' +
-		'</div>' +
-	'</div>';
+    	'<label class="col-sm-4">Intake Form:</label>' +
+    	'<div class="col-sm-6">' +
+    		'<select data-placeholder="Select Form" class="chosen-select-deselect" name="intake_form"><option></option>';
+    		intake_list.forEach(function(obj) {
+            	item += '<option value="'+obj.id+'">'+obj.label+'</option>';
+            });
+    item += '</select>' +
+    	'</div>' +
+    	'<div class="col-sm-2">' +
+    		'<img src="../img/remove.png" class="inline-img pull-right" onclick="remove_group(this);">' +
+    		'<img src="../img/icons/drag_handle.png" class="inline-img pull-right group-handle no-toggle" title="Drag" />' +
+    	'</div>' +
+    '</div>';
 	$(btn).closest('.block-group').find('button').first().before(item);
 	init_path();
 }
@@ -334,7 +344,7 @@ function add_intake(btn) {
 				<?php foreach(explode('*#*',$intakes[$i]) as $intake) { ?>
                     <div class="intake form-group sortable_group">
                         <label class="col-sm-4">Intake Form:</label>
-                        <div class="col-sm-6"><select data-placeholder="Select Form" class="chosen-select-deselect" name="intake"><option />
+                        <div class="col-sm-6"><select data-placeholder="Select Form" class="chosen-select-deselect" name="intake_form"><option />
                                 <?php foreach($form_list as $form) { ?>
                                     <option <?= $intake == $form['intakeformid'] ? 'selected' : '' ?> value="<?= $form['intakeformid'] ?>"><?= $form['form_name'] ?></option>
                                 <?php } ?>
