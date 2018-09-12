@@ -335,11 +335,12 @@ function saveFieldMethod(field) {
 	}
 	if(field.name == 'item_id' && $(field).data('table') == 'ticket_attached' && $(field).data('type') == 'Staff' && ($(field).data('verified-shift') == undefined || $(field).data('verified-shift') == 'true')) {
 		var check_field = field;
+		var check_field_value = field.value;
 		checkStaffShifts(check_field.value).success(function(response) {
 			var response = JSON.parse(response);
 			if(response.success == true) {
 				$(check_field).data('verified-shift','true');
-				$(check_field).change();
+				$(check_field).val(check_field_value).trigger('change.select2').change();
 			} else {
 				alert(response.message);
 				$(check_field).val('').trigger('change.select2');
