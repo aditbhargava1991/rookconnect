@@ -1,9 +1,9 @@
-if(window.location.pathname != '/Calendar/calendars_mobile.php' && $('[name="edit_access"]').val() == 1) {
+if($('[name="edit_access"]').val() == 1) {
 	// Resizable appointment blocks
 	$(document).ready(function() {
+		itemsDraggable();
 		itemsHoverInit();
 		// shiftsResizable();
-		itemsDraggable();
 		// itemsResizable();
 		unbookedDraggable();
 		dispatchDraggable();
@@ -29,34 +29,45 @@ if(window.location.pathname != '/Calendar/calendars_mobile.php' && $('[name="edi
 	}
 
 	function itemsHoverInit() {
-		$('.calendar_view table:not(#time_html)').find('div.used-block:not(.sorting-initialize):visible').not('.no_change').off('mouseenter').on('mouseenter', function() {
-			$(this).addClass('sorting-initialize');
-		    $( ".calendar_view table:not(#time_html)" ).sortable('refresh');
-		});
-		$('.equip_assign_div').find('.equip_assign_draggable:not(.sorting-initialize)').not('.no_change').off('mouseenter').on('mouseenter', function() {
-			$(this).addClass('sorting-initialize');
-			$('.equip_assign_div').sortable('refresh');
-		});
-		$('.team_assign_div').find('.team_assign_draggable:not(.sorting-initialize)').not('.no_change').off('mouseenter').on('mouseenter', function() {
-			$(this).addClass('sorting-initialize');
-			$('.team_assign_div').sortable('refresh');
-		});
-		$('.client_assign_div').find('.client_assign_draggable:not(.sorting-initialize)').not('.no_change').off('mouseenter').on('mouseenter', function() {
-			$(this).addClass('sorting-initialize');
-			$('.client_assign_div').sortable('refresh');
-		});
-		$('.unbooked, .bookable').find('.block-item:not(.sorting-initialize)').not('.no_change').off('mouseenter').on('mouseenter', function() {
-			$(this).addClass('sorting-initialize');
-		    $( ".unbooked, .bookable" ).sortable('refresh');
-		});		
-		$('td:not(.resize-initialize):not(.ui-resizable),th div.resizer:not(.resize-initialize):not(.ui-resizable)').not('.no_change').off('mouseenter').on('mouseenter', function() {
-			$(this).addClass('resize-initialize');
-			itemsResizable();
-		});
-		$('.calendar_view table:not(#time_html) div.resizable-shift:not(.resize-initialize):not(.ui-resizable)').not('.no_change').off('mouseenter').on('mouseenter', function() {
-			$(this).addClass('resize-initialize');
-			shiftsResizable();
-		});
+		if(window.location.pathname == '/Calendar/calendars_mobile.php') {
+			if($('.calendar_view table:not(#time_html)').find('div.used-block:not(.sorting-initialize):visible').not('.no_change').length > 0) {
+				$('.calendar_view table:not(#time_html)').find('div.used-block:not(.sorting-initialize):visible').not('.no_change').addClass('sorting-initialize');
+			    $( ".calendar_view table:not(#time_html)" ).sortable('refresh');
+			}
+			if($('td:not(.resize-initialize):not(.ui-resizable),th div.resizer:not(.resize-initialize):not(.ui-resizable)').not('.no_change').length > 0) {
+				$('td:not(.resize-initialize):not(.ui-resizable),th div.resizer:not(.resize-initialize):not(.ui-resizable)').not('.no_change').addClass('resize-initialize');
+				itemsResizable();
+			}
+		} else {
+			$('.calendar_view table:not(#time_html)').find('div.used-block:not(.sorting-initialize):visible').not('.no_change').off('mouseenter').on('mouseenter', function() {
+				$(this).addClass('sorting-initialize');
+			    $( ".calendar_view table:not(#time_html)" ).sortable('refresh');
+			});
+			$('.equip_assign_div').find('.equip_assign_draggable:not(.sorting-initialize)').not('.no_change').off('mouseenter').on('mouseenter', function() {
+				$(this).addClass('sorting-initialize');
+				$('.equip_assign_div').sortable('refresh');
+			});
+			$('.team_assign_div').find('.team_assign_draggable:not(.sorting-initialize)').not('.no_change').off('mouseenter').on('mouseenter', function() {
+				$(this).addClass('sorting-initialize');
+				$('.team_assign_div').sortable('refresh');
+			});
+			$('.client_assign_div').find('.client_assign_draggable:not(.sorting-initialize)').not('.no_change').off('mouseenter').on('mouseenter', function() {
+				$(this).addClass('sorting-initialize');
+				$('.client_assign_div').sortable('refresh');
+			});
+			$('.unbooked, .bookable').find('.block-item:not(.sorting-initialize)').not('.no_change').off('mouseenter').on('mouseenter', function() {
+				$(this).addClass('sorting-initialize');
+			    $( ".unbooked, .bookable" ).sortable('refresh');
+			});
+			$('td:not(.resize-initialize):not(.ui-resizable),th div.resizer:not(.resize-initialize):not(.ui-resizable)').not('.no_change').off('mouseenter').on('mouseenter', function() {
+				$(this).addClass('resize-initialize');
+				itemsResizable();
+			});
+			$('.calendar_view table:not(#time_html) div.resizable-shift:not(.resize-initialize):not(.ui-resizable)').not('.no_change').off('mouseenter').on('mouseenter', function() {
+				$(this).addClass('resize-initialize');
+				shiftsResizable();
+			});
+		}
 	}
 
 	function reloadDragResize() {
@@ -676,38 +687,42 @@ if(window.location.pathname != '/Calendar/calendars_mobile.php' && $('[name="edi
 			method: 'POST',
 			data: data,
 			success: function(response) {
-				if($('#collapse_teams .block-item.active').length > 0) {
-					reload_teams();
+				if(window.location.pathname == '/Calendar/calendars_mobile.php') {
+					reload_all_data();
 				} else {
-					if(response != '') {
-						all_contacts = JSON.parse(response);
-						$.each(all_contacts, function() {
-							var anchor = $('[id^='+retrieve_collapse+']').find('.block-item[data-'+retrieve_contact+'='+this+']').closest('a');
-							retrieve_items(anchor);
-						});
+					if($('#collapse_teams .block-item.active').length > 0) {
+						reload_teams();
 					} else {
-						// window.location.reload();
-						if(!(old_contact > 0) && !(new_contact > 0)) {
-							reload_all_data();
-						} else if(data.move_type == 'resize') {
-							$('[id^='+retrieve_collapse+']').find('.block-item.active').each(function() {
-								retrieve_items($(this).closest('a'), old_date);
+						if(response != '') {
+							all_contacts = JSON.parse(response);
+							$.each(all_contacts, function() {
+								var anchor = $('[id^='+retrieve_collapse+']').find('.block-item[data-'+retrieve_contact+'='+this+']').closest('a');
+								retrieve_items(anchor);
 							});
 						} else {
-							if(old_contact > 0) {
-								var anchor = $('[id^='+retrieve_collapse+']').find('.block-item[data-'+retrieve_contact+'='+old_contact+']').closest('a');
-								if(old_date != new_date) {
-									retrieve_items(anchor);
-								} else {
-									retrieve_items(anchor, old_date);
+							// window.location.reload();
+							if(!(old_contact > 0) && !(new_contact > 0)) {
+								reload_all_data();
+							} else if(data.move_type == 'resize') {
+								$('[id^='+retrieve_collapse+']').find('.block-item.active').each(function() {
+									retrieve_items($(this).closest('a'), old_date);
+								});
+							} else {
+								if(old_contact > 0) {
+									var anchor = $('[id^='+retrieve_collapse+']').find('.block-item[data-'+retrieve_contact+'='+old_contact+']').closest('a');
+									if(old_date != new_date) {
+										retrieve_items(anchor);
+									} else {
+										retrieve_items(anchor, old_date);
+									}
 								}
-							}
-							if(new_contact > 0) {
-								var anchor = $('[id^='+retrieve_collapse+']').find('.block-item[data-'+retrieve_contact+'='+new_contact+']').closest('a');
-								if(old_date != new_date) {
-									retrieve_items(anchor);
-								} else {
-									retrieve_items(anchor, new_date);
+								if(new_contact > 0) {
+									var anchor = $('[id^='+retrieve_collapse+']').find('.block-item[data-'+retrieve_contact+'='+new_contact+']').closest('a');
+									if(old_date != new_date) {
+										retrieve_items(anchor);
+									} else {
+										retrieve_items(anchor, new_date);
+									}
 								}
 							}
 						}
