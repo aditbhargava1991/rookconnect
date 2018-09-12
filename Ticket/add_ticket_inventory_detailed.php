@@ -12,6 +12,18 @@ $include_blanks = true;
 $row_item = 0;
 $inventory_fields = explode(',',$dbc->query("SELECT GROUP_CONCAT(DISTINCT `inventory` SEPARATOR ',') `fields` FROM `field_config_inventory`")->fetch_assoc()['fields']);
 do {
+	if(strpos($value_config,',Inventory General Weight Convert KG to LB,') !== FALSE) {
+		$general_inventory['weight_units'] = explode('#*#',$general_inventory['weight_units']);
+		$general_inventory['weight'] = explode('#*#',$general_inventory['weight']);
+		foreach($general_inventory['weight'] as $id => $general_weight) {
+			if($general_inventory['weight_units'][$id] == 'kg' && $general_weight > 0) {
+				$general_inventory['weight'][$id] = number_format(($general_inventory['weight'][$id]*2.20462262185),2);
+				$general_inventory['weight_units'][$id] = 'lbs';
+			}
+		}
+		$general_inventory['weight_units'] = implode('#*#',$general_inventory['weight_units']);
+		$general_inventory['weight'] = implode('#*#',$general_inventory['weight']);
+	}
 	if(!($general_item['piece_num'] > 0)) {
 		$general_item['piece_num'] = 1;
 	}
@@ -26,6 +38,20 @@ do {
 			$inventory = mysqli_fetch_assoc($inventory_list);
 			$line_item = 0;
 			do {
+				if(strpos($value_config,',Inventory General Weight Convert KG to LB,') !== FALSE) {
+					if($inventory['weight_units'] == 'kg' && $inventory['weight'] > 0) {
+						$inventory['weight'] = number_format(($inventory['weight']*2.20462262185),2);
+						$inventory['weight_units'] = 'lbs';
+					}
+					if($inventory['net_units'] == 'kg' && $inventory['net_weight'] > 0) {
+						$inventory['net_weight'] = number_format(($inventory['net_weight']*2.20462262185),2);
+						$inventory['net_units'] = 'lbs';
+					}
+					if($inventory['gross_units'] == 'kg' && $inventory['gross_weight'] > 0) {
+						$inventory['gross_weight'] = number_format(($inventory['gross_weight']*2.20462262185),2);
+						$inventory['gross_units'] = 'lbs';
+					}
+				}
 				if($line_item++ > 0) {
 					echo '<hr />';
 				}
