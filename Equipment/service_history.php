@@ -16,7 +16,7 @@ $equipmentid = $_GET['equipmentid']; ?>
 			echo '<th>Advised Service Date</th>';
 		}
 		if (strpos($service_config, ','."Service Type".',') !== FALSE) {
-			echo '<th>Service Type</th>';
+			echo '<th>Service Tab</th>';
 		}
 		if (strpos($service_config, ','."Inventory".',') !== FALSE) {
 			echo '<th>Inventory</th>';
@@ -62,7 +62,7 @@ $equipmentid = $_GET['equipmentid']; ?>
 				echo '<td data-title="Advised Srv. Date">' . $service_row['advised_service_date'] . '</td>';
 			}
 			if (strpos($service_config, ','."Service Type".',') !== FALSE) {
-				echo '<td data-title="Service Type">' . $service_row['service_type'] . '</td>';
+				echo '<td data-title="Service Tab">' . $service_row['service_type'] . '</td>';
 			}
 
 			if (strpos($service_config, ','."Inventory".',') !== FALSE) {

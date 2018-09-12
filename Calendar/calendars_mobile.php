@@ -57,7 +57,7 @@ $(document).on("overlayIFrameSliderInit", function() {
 	$('.iframe_overlay .iframe').width('100%');
 });
 $(document).on("overlayIFrameSliderLoad", function() {
-	$('[name="calendar_iframe"]').contents().find('body').prepend('<img src="<?= WEBSITE_URL ?>/img/remove.png" class="pull-right" style="padding-top: 2em; padding-right: 0.5em;" onclick="window.parent.$(\'[name=calendar_iframe]\').load();">');
+	$('[name="calendar_iframe"]').contents().find('h3').first().prepend('<img src="<?= WEBSITE_URL ?>/img/icons/ROOK-status-rejected.jpg" class="pull-right offset-top-5 offset-left-5 offset-right-5" width="25" onclick="window.parent.$(\'[name=calendar_iframe]\').load();">');
 	window.parent.$('[name="calendar_iframe"]').off('load').load(function() {
 		$('.iframe_overlay').hide();
 		$('.hide_on_iframe').show();

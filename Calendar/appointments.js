@@ -238,7 +238,7 @@ if($('[name="edit_access"]').val() == 1) {
 						}
 						duration = td.item.data('duration');
 						if(target.closest('tr').find('td').first().text() != 'Notes' && target.closest('tr').find('td').first().text() != 'Reminders' && target.closest('tr').find('td').first().text() != 'Warnings' && $('.highlightCell').last().data('draggable') != '0' && parseInt(contact) > 0) {
-							data = { id: id, time_slot: new_time, duration: duration, appointment: appt, old_contact: old_contact, contact: contact, mode: page_mode, item: item_type, workorder: workorder, ticket: ticket, ticket_status: ticket_status, move_type: 'move', calendar_type: calendar_type, shift: shift, equipassign: equipassign, teamid: teamid, blocktype: blocktype, td_blocktype: td_blocktype };
+							data = { id: id, new_date: new_date, time_slot: new_time, duration: duration, appointment: appt, old_contact: old_contact, contact: contact, mode: page_mode, item: item_type, workorder: workorder, ticket: ticket, ticket_status: ticket_status, move_type: 'move', calendar_type: calendar_type, shift: shift, equipassign: equipassign, teamid: teamid, blocktype: blocktype, td_blocktype: td_blocktype };
 							if(item_type == 'shift') {
 								data.old_date = old_date;
 								data.recurring = recurring;
@@ -251,28 +251,65 @@ if($('[name="edit_access"]').val() == 1) {
 										reload_all_data();
 									} else {
 										if(old_contact != contact && item_type == 'ticket' && calendar_type != 'schedule' && calendar_type != 'event' && page_mode != 'client') {
-										    $( "#dialog-staff-add" ).dialog({
-												resizable: false,
-												height: "auto",
-												width: ($(window).width() <= 500 ? $(window).width() : 500),
-												modal: true,
-												buttons: {
-											        "Add Staff": function() {
-											        	data.add_staff = 1;
-														ajaxMoveAppt(data, old_contact, contact, old_date, new_date);
-											        	$(this).dialog('close');
-											        },
-											        "Replace Staff": function() {
-											        	data.add_staff = 0;
-														ajaxMoveAppt(data, old_contact, contact, old_date, new_date);
-											        	$(this).dialog('close');
-											        },
-											        Cancel: function() {
-											        	reload_all_data();
-											        	$(this).dialog('close');
+											if(td_blocktype != 'team') {
+												var check_staff_shifts = checkStaffShifts(contact, new_date);
+												check_staff_shifts.success(function(response) {
+													// console.log(response);
+													var response = JSON.parse(response);
+													if(response.success == true) {
+													    $( "#dialog-staff-add" ).dialog({
+															resizable: false,
+															height: "auto",
+															width: ($(window).width() <= 500 ? $(window).width() : 500),
+															modal: true,
+															buttons: {
+														        "Add Staff": function() {
+														        	data.add_staff = 1;
+																	ajaxMoveAppt(data, old_contact, contact, old_date, new_date);
+														        	$(this).dialog('close');
+														        },
+														        "Replace Staff": function() {
+														        	data.add_staff = 0;
+																	ajaxMoveAppt(data, old_contact, contact, old_date, new_date);
+														        	$(this).dialog('close');
+														        },
+														        Cancel: function() {
+														        	reload_all_data();
+														        	$(this).dialog('close');
+														        }
+													        }
+													    });
+													} else {
+														alert(response.message);
+														reload_all_data();
+													}
+												});
+											} else {
+											    $( "#dialog-staff-add" ).dialog({
+													resizable: false,
+													height: "auto",
+													width: ($(window).width() <= 500 ? $(window).width() : 500),
+													modal: true,
+													buttons: {
+												        "Add Staff": function() {
+												        	data.add_staff = 1;
+												        	data.check_team_shifts = 1;
+															ajaxMoveAppt(data, old_contact, contact, old_date, new_date);
+												        	$(this).dialog('close');
+												        },
+												        "Replace Staff": function() {
+												        	data.add_staff = 0;
+												        	data.check_team_shifts = 1;
+															ajaxMoveAppt(data, old_contact, contact, old_date, new_date);
+												        	$(this).dialog('close');
+												        },
+												        Cancel: function() {
+												        	reload_all_data();
+												        	$(this).dialog('close');
+												        }
 											        }
-										        }
-										    });
+											    });
+											}
 										} else {
 											ajaxMoveAppt(data, old_contact, contact, old_date, new_date);
 										}
@@ -418,7 +455,7 @@ if($('[name="edit_access"]').val() == 1) {
 							item_type = 'appt';
 						}
 
-						data = { id: id, time_slot: new_time, duration: duration, appointment: appt, contact: contact, old_contact: contact, mode: page_mode, item: item_type, workorder: workorder, ticket: ticket, ticket_status: ticket_status, move_type: 'resize', calendar_type: calendar_type, shift: shift, equipassign: equipassign, teamid: teamid, blocktype: blocktype, td_blocktype: td_blocktype };
+						data = { id: id, new_date: new_date, time_slot: new_time, duration: duration, appointment: appt, contact: contact, old_contact: contact, mode: page_mode, item: item_type, workorder: workorder, ticket: ticket, ticket_status: ticket_status, move_type: 'resize', calendar_type: calendar_type, shift: shift, equipassign: equipassign, teamid: teamid, blocktype: blocktype, td_blocktype: td_blocktype };
 						if(item_type == 'shift' && recurring == 'yes') {
 						    $( "#dialog-confirm" ).dialog({
 								resizable: false,
@@ -527,27 +564,62 @@ if($('[name="edit_access"]').val() == 1) {
 					var calendar_type = td.data('calendartype');
 					var td_blocktype = td.data('blocktype');
 					var item_type = blocks[0].data('type');
+					var new_contact = td.data('contact');
+					var new_date = td.data('date');
+
 					if(item_type == 'ticket' && calendar_type != 'schedule' && calendar_type != 'event') {
-						$( "#dialog-staff-add" ).dialog({
-							resizable: false,
-							height: "auto",
-							width: ($(window).width() <= 500 ? $(window).width() : 500),
-							modal: true,
-							buttons: {
-						        "Add Staff": function() {
-						        	ajaxUnbooked(blocks, block, 1, td_blocktype);
-						        	$(this).dialog('close');
-						        },
-						        "Replace Staff": function() {
-						        	ajaxUnbooked(blocks, block, 0, td_blocktype);
-						        	$(this).dialog('close');
-						        },
-						        Cancel: function() {
-						        	reload_all_data();
-						        	$(this).dialog('close');
+						if(td_blocktype != 'team') {
+							var check_staff_shifts = checkStaffShifts(new_contact, new_date);
+							check_staff_shifts.success(function(response) {
+								var response = JSON.parse(response);
+								if(response.success == true) {
+									$( "#dialog-staff-add" ).dialog({
+										resizable: false,
+										height: "auto",
+										width: ($(window).width() <= 500 ? $(window).width() : 500),
+										modal: true,
+										buttons: {
+									        "Add Staff": function() {
+									        	ajaxUnbooked(blocks, block, 1, td_blocktype);
+									        	$(this).dialog('close');
+									        },
+									        "Replace Staff": function() {
+									        	ajaxUnbooked(blocks, block, 0, td_blocktype);
+									        	$(this).dialog('close');
+									        },
+									        Cancel: function() {
+									        	reload_all_data();
+									        	$(this).dialog('close');
+									        }
+								        }
+								    });
+								} else {
+									alert(response.message);
+									reload_all_data();
+								}
+							});
+						} else {
+							$( "#dialog-staff-add" ).dialog({
+								resizable: false,
+								height: "auto",
+								width: ($(window).width() <= 500 ? $(window).width() : 500),
+								modal: true,
+								buttons: {
+							        "Add Staff": function() {
+							        	ajaxUnbooked(blocks, block, 1, td_blocktype, 1);
+							        	$(this).dialog('close');
+							        },
+							        "Replace Staff": function() {
+							        	ajaxUnbooked(blocks, block, 0, td_blocktype, 1);
+							        	$(this).dialog('close');
+							        },
+							        Cancel: function() {
+							        	reload_all_data();
+							        	$(this).dialog('close');
+							        }
 						        }
-					        }
-					    });
+						    });
+						}
 					} else {
 						ajaxUnbooked(blocks, block);
 					}
@@ -566,7 +638,7 @@ if($('[name="edit_access"]').val() == 1) {
 	    });
 	}
 
-	function ajaxUnbooked(blocks, block, add_staff = 0, td_blocktype = '') {
+	function ajaxUnbooked(blocks, block, add_staff = 0, td_blocktype = '', check_team_shifts = 0) {
 		var i = 0;
 		var td = $('.highlightCell').removeClass('highlightCell');
 		var new_contact = td.data('contact');
@@ -581,6 +653,7 @@ if($('[name="edit_access"]').val() == 1) {
 			}
 			i++;
 			new_time = td.data('date') + ' ' + time.find('td').first().text();
+			new_date = td.data('date');
 			var header = td.closest('table').find('tr').first().find('th').eq(1);
 			var item_label = item.text().trim().split('\n')[0];
 			if(item.data('preferred-staff') != undefined && item.data('preferred-staff').length > 0) {
@@ -675,6 +748,15 @@ if($('[name="edit_access"]').val() == 1) {
 			// } else {
 			    reload_all_data();
 			// }
+
+			if(check_team_shifts == 1) {
+				checkStaffShifts(new_contact, new_date, 'team').success(function(response) {
+					var response = JSON.parse(response);
+					if(response.success == false) {
+						alert(response.message);
+					}
+				});
+			}
 		});
 		// setTimeout(function() { reload_all_data(); }, 250);
 	}
@@ -726,9 +808,27 @@ if($('[name="edit_access"]').val() == 1) {
 								}
 							}
 						}
+						if(data.check_team_shifts != undefined && data.check_team_shifts == 1) {
+							checkStaffShifts(new_contact, data.new_date, 'team').success(function(response) {
+								var response = JSON.parse(response);
+								if(response.success == false) {
+									alert(response.message);
+								}
+							});
+						}
 					}
 				}
 			}
+		});
+	}
+
+	function checkStaffShifts(staffid, to_do_date, blocktype) {
+		var check_shifts = $('#calendar_check_shifts').val();
+		var check_days_off = $('#calendar_check_days_off').val();
+		return $.ajax({
+			url: '../Ticket/ticket_ajax_all.php?action=check_staff_shifts',
+			method: 'POST',
+			data: { staffid: staffid, to_do_date: to_do_date, from_calendar: '1', check_shifts: check_shifts, check_days_off: check_days_off, blocktype: blocktype }
 		});
 	}
 

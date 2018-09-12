@@ -33,9 +33,9 @@ if(!empty($_FILES['upload']['name'])) {
     <div class="form-group">
         <label class="col-sm-4">
             <span class="popover-examples list-inline hide-on-mobile"><a style="margin:0 0 0 15px;" data-toggle="tooltip" data-placement="bottom" title="<?= $_GET['action'] == 'import' ? 'When importing a spreadsheet, this category will be used for any equipment with no category specified.' : 'Only equipment with this category will be exported.' ?>"><img src="<?= WEBSITE_URL ?>/img/info.png" style="width:1em;"></a></span>
-            Equipment Category:</label>
+            Equipment Tab:</label>
         <div class="col-sm-8">
-            <select class="chosen-select-deselect" name="category" data-placeholder="Select Category">
+            <select class="chosen-select-deselect" name="category" data-placeholder="Select Tab">
                 <option value="ALL">All Equipment</option>
                 <?php foreach (explode(',', get_config($dbc, 'equipment_tabs')) as $cat_tab) {
                     echo "<option ".(!empty($_GET['category']) && $_GET['category'] == $cat_tab ? 'selected' : '').' value="'.$cat_tab.'">'.$cat_tab."</option>";

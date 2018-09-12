@@ -70,22 +70,17 @@ $set_check_value    = ','.mysqli_fetch_assoc(mysqli_query($dbc,"SELECT value FRO
 								<?php if(strpos($set_check_value, ',summary category,') !== FALSE) { ?>
 									<div class="col-sm-6">
 										<div class="overview-block">
-											<h4><?= INVENTORY_TILE ?> by Category</h4>
+											<h4><?= INVENTORY_TILE ?> by Tab</h4>
 											<?php $inventory_list = $dbc->query("SELECT COUNT(*) count, SUM(`quantity`) sum, `category` FROM `inventory` WHERE `deleted`=0 GROUP BY `category`");
 											while($inventory = $inventory_list->fetch_assoc()) { ?>
-												<b><a href="inventory.php?category=<?= preg_replace('/[^a-z]/','',strtolower($inventory['category'])) ?>"><?= $inventory['category'] ?></a></b>: <?= INVENTORY_NOUN ?> Types: <?= $inventory['count'] ?>, Total Quantity: <?= $inventory['sum'] ?><br />
+												<b><a href="inventory.php?category=<?= preg_replace('/[^a-z]/','',strtolower($inventory['category'])) ?>"><?= $inventory['category'] ?></a></b>: <?= INVENTORY_NOUN ?> Tabs: <?= $inventory['count'] ?>, Total Quantity: <?= $inventory['sum'] ?><br />
 											<?php } ?>
 										</div>
 									</div>
 								<?php } ?>
 							<?php } else { ?>
 					        	<!-- Notice -->
-					            <div class="notice gap-bottom gap-top popover-examples">
-					                <div class="col-sm-1 notice-icon"><img src="<?= WEBSITE_URL; ?>/img/info.png" class="wiggle-me" width="25"></div>
-					                <div class="col-sm-11"><span class="notice-name">NOTE:</span>
-						            This tile monitors all physical inventory for resale, displaying the main overview of your inventory. These items are managed by the software with auto Min Bin reminders for when each inventory item reaches a designated level.</div>
-					                <div class="clearfix"></div>
-					            </div>
+
 					            <?php include('../Inventory/inventory_inc.php'); ?>
 						<?php } ?>
 					</div>
