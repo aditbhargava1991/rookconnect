@@ -279,7 +279,7 @@ function reports_tiles($dbc) {
                             $title = 'Estimates';
                             break;
                         case 'search':
-                            $title = 'Search Results';
+                            $title = 'Search Results '. ( !empty($_GET['q']) ? 'for "'. $_GET['q'] .'"' : '' );
                             break;
                         case 'operations':
                         default:
@@ -355,6 +355,8 @@ function reports_tiles($dbc) {
                                 foreach($sorted_reports as $key => $report) {
                                     echo '<div class="dashboard-item"><a data-file="'.$report[0].'" href="report_tiles.php?type='.$report[2].'&report='.$report[1].'">'.$key.'</a></div>';
                                 }
+                            } else {
+                                echo '<div class="dashboard-item">No Record Found</div>';
                             } ?>
                         </div><?php
                     
