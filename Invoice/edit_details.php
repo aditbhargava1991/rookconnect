@@ -31,7 +31,7 @@ function view_profile(img) {
 </script>
 
 <div id="inv_details">
-    <h3>Details</h3>
+    <h4 class="col-sm-12">Details</h4>
     <?php $invoice_types = array_filter(explode(',',get_config($dbc, 'invoice_types')));
     if(!empty($invoice_types)) { ?>
         <div class="form-group">

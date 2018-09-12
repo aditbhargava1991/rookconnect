@@ -1,11 +1,11 @@
 <div id="inv_misc">
-    <h3>Miscellaneous<span class="popover-examples list-inline">
+    <h4 class="col-sm-12">Miscellaneous<span class="popover-examples list-inline">
         <a href="#job_file" data-toggle="tooltip" data-placement="top" title="Add any Miscellaneous Items here."><img src="<?php echo WEBSITE_URL;?>/img/info.png" width="20"></a>
-    </span></h3>
+    </span></h4>
     <div class="form-group misc_option" <?= (in_array('misc_items',$field_config) ? '' : 'style="display:none;"') ?>>
         <div class="col-sm-12">
             <div class="form-group clearfix hide-titles-mob">
-                <label class="col-sm-<?= $_GET['inv_mode'] == 'adjust' ? '4' : '5' ?> text-center">Product Name</label>
+                <label class="col-sm-<?= $_GET['inv_mode'] == 'adjust' ? '3' : '4' ?> text-center">Product Name</label>
                 <label class="col-sm-<?= $_GET['inv_mode'] == 'adjust' ? '2' : '3' ?> text-center">Price</label>
                 <label class="col-sm-1 text-center">Qty</label>
                 <label class="col-sm-2 text-center">Total</label>
@@ -25,7 +25,7 @@
                     $misc_qty = $each_misc_qty[$loop]; ?>
                     <div class="additional_misc form-group clearfix <?= empty($misc_item) && empty($each_misc_qty[$loop]) && $_GET['inv_mode'] == 'adjust' ? 'adjust_block' : ($_GET['inv_mode'] == 'adjust' ? 'refundable' : '') ?>">
                         <input type="hidden" name="misc_ticketid[]" value="">
-                        <div class="col-sm-<?= $_GET['inv_mode'] == 'adjust' ? '4' : '5' ?>"><label class="show-on-mob">Product Name:</label>
+                        <div class="col-sm-<?= $_GET['inv_mode'] == 'adjust' ? '3' : '4' ?>"><label class="show-on-mob">Product Name:</label>
                             <input type="text" <?= !empty($misc_item) && $_GET['inv_mode'] == 'adjust' ? 'readonly' : '' ?> name="misc_item[]" value="<?= $misc_item ?>" class="form-control misc_name">
                         </div>
                         <div class="col-sm-<?= $_GET['inv_mode'] == 'adjust' ? '2' : '3' ?>"><label class="show-on-mob">Unit Price:</label>
@@ -46,7 +46,7 @@
                                 <?php } ?>
                             </div>
                         <?php } ?>
-                        <div class="col-sm-1 adjust_block">
+                        <div class="col-sm-2 adjust_block">
                             <img src="<?= WEBSITE_URL ?>/img/remove.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right cursor-hand" onclick="rem_misc_row(this);">
                             <img src="<?= WEBSITE_URL ?>/img/icons/ROOK-add-icon.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right cursor-hand" onclick="add_misc_row();">
                         </div>

@@ -190,7 +190,9 @@ if($id_card_fields == '') {
         <?php } ?>
         <div class="clearfix"></div>
         <!-- POS Summary -->
-    <?php } ?>
+    <?php } else if($summary_only === true) {
+        echo '<h3>No '.CONTACTS_NOUN.' Summary Found</h3>';
+    } ?>
     
     <?php if(!($summary_only === true)) { ?>
         <div class="col-sm-6">

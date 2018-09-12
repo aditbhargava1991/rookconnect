@@ -1,5 +1,5 @@
 <div id="inv_summary">
-    <h3>Summary</h3>
+    <h4 class="col-sm-12">Summary</h4>
     <div class="form-group" <?= (in_array('promo',$field_config) ? '' : 'style="display:none;"') ?>>
         <label for="site_name" class="col-sm-3 control-label">
         <span class="popover-examples list-inline">
@@ -389,7 +389,7 @@
         <div class="form-group">
             <div class="col-sm-3 col-xs-4">
                 <span class="popover-examples list-inline"><a data-toggle="tooltip" data-placement="top" title="Clicking here will discard changes and return you to the <?= (empty($current_tile_name) ? 'Check Out' : $current_tile_name) ?> tile main dashboard."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
-                <a href="today_invoice.php"><img class="inline-img text-lg" src="../img/icons/ROOK-trash-icon.png"></a>
+                <a href="today_invoice.php"><img class="inline-img text-lg no-toggle" title="Cancel Invoice" src="../img/icons/ROOK-trash-icon.png"></a>
             </div>
             <div class="col-sm-9 col-xs-8">
                 <button type="submit" name="submit_btn" onclick="return validateappo();" id="submit" value="<?= $_GET['inv_mode'] == 'adjust' ? 'Adjustment' : 'New' ?>" class="btn brand-btn pull-right">Submit</button>
@@ -421,7 +421,7 @@ $(document).ready(function() {
 			} else {
 				$('.detail_patient_name').html($('[name=patientid] option:selected').text());
                 if($('select[name=patientid]').val() > 0) {
-                    $('#header_summary').load('../Contacts/contact_profile.php?summary=true&contactid='+$('select[name=patientid]').val());
+                    $('#header_summary').load('../Contacts/contact_profile.php?summary=true&contactid='+$('select[name=patientid]').val(),function() { $(this).append('<div class="clearfix"></div>'); });
                 }
 				if($('#injuryid_chosen').is(':visible')) {
 					$('.detail_patient_injury').html($('[name=injuryid] option:selected').text() == '' ? 'Please Select' : $('[name=injuryid] option:selected').text()).closest('h4').show();

@@ -1,8 +1,8 @@
 <div id="inv_inventory">
-    <h3><?= INVENTORY_TILE ?>
+    <h4 class="col-sm-12"><?= INVENTORY_TILE ?>
     <span class="popover-examples list-inline">
         <a href="#job_file" data-toggle="tooltip" data-placement="top" title="Select any products from inventory here."><img src="<?php echo WEBSITE_URL;?>/img/info.png" width="20"></a>
-    </span></h3>
+    </span></h4>
     <div class="form-group product_option" <?= (in_array('inventory',$field_config) ? '' : 'style="display:none;"') ?>>
         <label for="additional_note" class="col-sm-2 control-label">
         <?php echo (in_array('injury', $field_config) ? '<br>MVA Claim Price:' : '');
@@ -15,7 +15,7 @@
         //Calculate Column Widths
         $col1 = 2;
         $col2 = 1;
-        $col3 = 2;
+        $col3 = 1;
         $col4 = 1;
         $col5 = 1;
         $col6 = $_GET['inv_mode'] == 'adjust' ? 1 : 2;
@@ -23,55 +23,60 @@
         if(in_array('inventory_cat',$field_config) && in_array('inventory_part',$field_config) && in_array('inventory_type',$field_config) && in_array('inventory_price',$field_config)) {
             $col1 = $col2 = $col3 = $col4 = 2;
         } else if(in_array('inventory_cat',$field_config) && in_array('inventory_part',$field_config) && in_array('inventory_type',$field_config)) {
-            $col1 = $col2 = $col3 = $col4 = 2;
+            $col1 = $col2 = $col3 = 2;
+            $col4 = 1;
             $col5 = 0;
         } else if(in_array('inventory_cat',$field_config) && in_array('inventory_part',$field_config) && in_array('inventory_price',$field_config)) {
-            $col2 = 1;
-            $col1 = $col3 = $col5 = 2;
+            $col2 = $col5 = 1;
+            $col1 = $col3 = 2;
             $col4 = 0;
         } else if(in_array('inventory_cat',$field_config) && in_array('inventory_type',$field_config) && in_array('inventory_price',$field_config)) {
-            $col1 = $col3 = $col4 = $col5 = 2;
+            $col1 = $col3 = $col4 = 2;
+            $col5 = 1;
             $col2 = 0;
         } else if(in_array('inventory_part',$field_config) && in_array('inventory_type',$field_config) && in_array('inventory_price',$field_config)) {
-            $col2 = $col3 = $col4 = $col5 = 2;
+            $col2 = $col3 = $col4 = 2;
+            $col5 = 1;
             $col1 = 0;
         } else if(in_array('inventory_cat',$field_config) && in_array('inventory_part',$field_config)) {
             $col1 = $col3 = 3;
-            $col2 = 2;
+            $col2 = 1;
             $col4 = $col5 = 0;
         } else if(in_array('inventory_cat',$field_config) && in_array('inventory_type',$field_config)) {
             $col1 = $col3 = 3;
-            $col4 = 2;
+            $col4 = 1;
             $col2 = $col5 = 0;
         } else if(in_array('inventory_cat',$field_config) && in_array('inventory_price',$field_config)) {
             //$col1 = $col3 = 3;
             $col3 = 3;
-            $col5 = 2;
+            $col5 = 1;
             $col2 = $col4 = 0;
         } else if(in_array('inventory_part',$field_config) && in_array('inventory_type',$field_config)) {
             $col2 = $col3 = 3;
-            $col4 = 2;
+            $col4 = 1;
             $col1 = $col5 = 0;
         } else if(in_array('inventory_part',$field_config) && in_array('inventory_price',$field_config)) {
             $col2 = $col3 = 3;
-            $col5 = 2;
+            $col5 = 1;
             $col1 = $col4 = 0;
         } else if(in_array('inventory_type',$field_config) && in_array('inventory_price',$field_config)) {
             $col3 = $col4 = 3;
-            $col5 = 2;
+            $col5 = 1;
             $col1 = $col2 = 0;
         } else if(in_array('inventory_cat',$field_config)) {
-            $col1 = $col3 = 4;
+            $col1 = 4;
+            $col3 = 3;
             $col2 = $col4 = $col5 = 0;
         } else if(in_array('inventory_part',$field_config)) {
-            $col2 = $col3 = 4;
+            $col2 = 3;
+            $col3 = 4;
             $col1 = $col4 = $col5 = 0;
         } else if(in_array('inventory_type',$field_config)) {
-            $col3 = 5;
+            $col3 = 4;
             $col4 = 3;
             $col1 = $col2 = $col5 = 0;
         } else if(in_array('inventory_price',$field_config)) {
-            $col3 = 6;
+            $col3 = 5;
             $col5 = 2;
             $col1 = $col2 = $col4 = 0;
         }
@@ -200,7 +205,7 @@
                                         <input name="quantity[]" id="<?php echo 'quantity_'.$id_loop; ?>" onchange="changeProduct(this);" value="0" max="0" min="<?php echo -$quantity; ?>" type="number" step="any" class="form-control quantity" />
                                     </div>
                                 <?php } ?>
-                                <div class="col-sm-1 adjust_block">
+                                <div class="col-sm-2 adjust_block">
                                     <img src="<?= WEBSITE_URL ?>/img/remove.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right cursor-hand" onclick="rem_product_row(this);">
                                     <img src="<?= WEBSITE_URL ?>/img/icons/ROOK-add-icon.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right cursor-hand" onclick="add_product_row();">
                                 </div>
@@ -271,7 +276,7 @@
                     <div class="return_block col-sm-2">
                     </div>
                 <?php } ?>
-                <div class="col-sm-1 col-pricing" <?= (in_array('pricing',$field_config) ? '' : 'style="display:none;"') ?>>
+                <div class="col-sm-2 col-pricing" <?= (in_array('pricing',$field_config) ? '' : 'style="display:none;"') ?>>
                     <img src="../img/icons/ROOK-edit-icon.png" alt="Edit Pricing" title="Edit Pricing" width="30" class="cursor-hand no-toggle" onclick="$(this).hide(); $(this).closest('.col-pricing').find('.pricing-div').show();" />
                     <div class="pricing-div" style="display:none;">
                         <select data-placeholder="Select Pricing" id="linepricing_0" name="linepricing[]" class="chosen-select-deselect form-control linepricing" onchange="changeProduct($('#inventoryid_'+this.id.split('_')[1]).get(0));">

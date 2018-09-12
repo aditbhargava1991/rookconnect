@@ -1,4 +1,4 @@
 <div id="inv_products">
-    <h3>Products</h3>
-    <h4>Coming Soon...</h4>
+    <h4 class="col-sm-12">Products</h4>
+    <h5 class="col-sm-12">Coming Soon...</h5>
 </div>

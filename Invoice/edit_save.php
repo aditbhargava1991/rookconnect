@@ -1,4 +1,4 @@
-﻿<?php if (!empty($_GET['type']) && $_GET['invoiceid'] > 0) {
+<?php if (!empty($_GET['type']) && $_GET['invoiceid'] > 0) {
     mysqli_query($dbc, "UPDATE `invoice` SET `type` = '".$invoice_type."' WHERE `invoiceid` = '".$_GET['invoiceid']."'");
 }
 
@@ -160,4 +160,4 @@ if (isset($_POST['submit_pay'])) {
 		} else {
             echo '<script type="text/javascript"> alert("Invoice Successfully Paid."); window.location.replace("today_invoice.php"); </script>';
 		}
-} ?>
+}

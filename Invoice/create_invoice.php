@@ -10,14 +10,16 @@ include_once ('../navigation.php'); ?>
     <div class="row">
 		<div class="main-screen">
 			<div class="tile-header standard-header" id="header_divs">
-				<div class="pull-right text-lg">
-                    <a data-toggle="collapse" data-parent="#header_divs" href="#header_summary" onclick="setWindowSize();"><img src="<?= WEBSITE_URL ?>/img/icons/pie-chart.png" height="32" width="32" title="Show <?= CONTACTS_NOUN ?> Summary" class="override-theme-color-icon no-toggle pad-5"></a>
-                    <a data-toggle="collapse" data-parent="#header_divs" href="#header_tabs" onclick="setWindowSize();"><img src="<?= WEBSITE_URL ?>/img/icons/ROOK-3dot-icon.png" height="32" width="32" title="Show <?= (empty($current_tile_name) ? 'Check Out' : $current_tile_name) ?> Tabs" class="override-theme-color-icon no-toggle pad-5"></a>
+				<div class="pull-right pad-5">
+                    <a href="invoice_main.php"><img class="inline-img no-toggle" title="Cancel Invoice" src="../img/icons/ROOK-trash-icon.png"></a>
+                    <a href="../quick_action_reminders.php?tile=invoice" onclick="overlayIFrameSlider(this.href,'auto',true,true); return false;"><img class="inline-img no-toggle" title="Create Reminder" src="../img/icons/ROOK-reminder-icon.png"></a>
+                    <a data-toggle="collapse" data-parent="#header_divs" href="#header_summary" onclick="setWindowSize();"><img src="<?= WEBSITE_URL ?>/img/icons/pie-chart.png" title="Show <?= CONTACTS_NOUN ?> Summary" class="inline-img override-theme-color-icon no-toggle"></a>
+                    <a data-toggle="collapse" data-parent="#header_divs" href="#header_tabs" onclick="setWindowSize();"><img src="<?= WEBSITE_URL ?>/img/icons/ROOK-3dot-icon.png" title="Show <?= (empty($current_tile_name) ? 'Check Out' : $current_tile_name) ?> Tabs" class="inline-img override-theme-color-icon no-toggle"></a>
 					<?php if($security['edit'] > 0 && $_GET['inv_mode'] != 'adjust') { ?>
-                        <a href="" onclick="$('#save').click(); return false;"><img src="<?= WEBSITE_URL ?>/img/icons/save.png" height="32" width="32" title="Save Invoice" class="override-theme-color-icon no-toggle pad-5"></a>
+                        <a href="" onclick="$('#save').click(); return false;"><img src="<?= WEBSITE_URL ?>/img/icons/save.png" title="Save Invoice" class="inline-img override-theme-color-icon no-toggle"></a>
 					<?php } ?>
 					<?php if($security['config'] > 0) { ?>
-                        <a href="field_config_invoice.php"><img title="Tile Settings" src="../img/icons/settings-4.png" class="settings-classic wiggle-me inline-img no-toggle smaller"></a>
+                        <a href="field_config_invoice.php"><img title="Tile Settings" src="../img/icons/settings-4.png" class="settings-classic wiggle-me inline-img no-toggle"></a>
 					<?php } ?>
 				</div>
 				<div class="scale-to-fill">
@@ -33,7 +35,7 @@ include_once ('../navigation.php'); ?>
                     include('../Contacts/contact_profile.php');
                     $field_config = $invoice_config;
                     $patient = $invoice_patient; ?>
-                    <div class="clearfix"></div>
+                    <hr />
                 </div>
                 <div class="clearfix"></div>
             </div>
@@ -54,23 +56,30 @@ include_once ('../navigation.php'); ?>
                                 <script> window.location.replace('touch_main.php'); </script>
                             <?php } ?>
                             <?php include('edit_details.php');
+                            echo '<hr />';
                             if(in_array('services',$field_config) || in_array('unbilled_tickets',$field_config)) {
                                 include('edit_services.php');
+                                echo '<hr />';
                             }
                             if(in_array('inventory',$field_config)) {
                                 include('edit_inventory.php');
+                                echo '<hr />';
                             }
                             if(in_array('products',$field_config)) {
                                 include('edit_products.php');
+                                echo '<hr />';
                             }
                             if(in_array('packages',$field_config)) {
                                 include('edit_packages.php');
+                                echo '<hr />';
                             }
                             if(in_array('misc_items',$field_config) || in_array('unbilled_tickets',$field_config)) {
                                 include('edit_misc.php');
+                                echo '<hr />';
                             }
                             if(in_array('unbilled_tickets',$field_config)) {
                                 include('edit_tickets.php');
+                                echo '<hr />';
                             }
                             include('edit_summary.php'); ?>
                         </form>

@@ -1,15 +1,15 @@
 <div id="inv_packages">
-    <h3>Packages
+    <h4 class="col-sm-12">Packages
     <span class="popover-examples list-inline">
         <a href="#job_file" data-toggle="tooltip" data-placement="top" title="Select any packages here."><img src="<?php echo WEBSITE_URL;?>/img/info.png" width="20"></a>
-    </span></h3>
+    </span></h4>
     <div class="form-group package_option" <?= (in_array('packages',$field_config) ? '' : 'style="display:none;"') ?>>
         <div class="col-sm-12">
             <div class="form-group clearfix hide-titles-mob">
                 <label class="col-sm-4 text-center">Category</label>
-                <label class="col-sm-5 text-center">Package Name</label>
+                <label class="col-sm-4 text-center">Package Name</label>
                 <label class="col-sm-2 text-center">Fee</label>
-                <label class="col-sm-1 text-center"></label>
+                <label class="col-sm-2 text-center"></label>
             </div>
 
             <?php $each_package = array_filter(explode(',', $packageid));
@@ -32,7 +32,7 @@
                             </select>
                         <?php } ?>
                     </div>
-                    <div class="col-sm-5"><label class="show-on-mob">Package Name:</label>
+                    <div class="col-sm-4"><label class="show-on-mob">Package Name:</label>
                         <?php if($_GET['inv_mode'] == 'adjust' && $package > 0) {
                             $package_heading = get_field_value('heading','package','packageid',$package);
                             echo $package_heading;
@@ -58,7 +58,7 @@
                         <input name="package_row_id[]" type="hidden" value="<?= $insurer_row_id++ ?>" class="insurer_row_id" />
                         <input name="package_gst_exempt[]" type="hidden" value="0" />
                     </div>
-                    <div class="col-sm-1">
+                    <div class="col-sm-2">
                         <img src="<?= WEBSITE_URL ?>/img/remove.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right cursor-hand adjust_block" onclick="rem_package_row(this);">
                         <img src="<?= WEBSITE_URL ?>/img/icons/ROOK-add-icon.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right cursor-hand adjust_block" onclick="add_package_row();">
                         <?php if($_GET['inv_mode'] == 'adjust' && $package > 0) { ?>

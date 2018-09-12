@@ -2551,3 +2551,4 @@ $dbc->query("UPDATE `invoice` SET `status`='$inv_status' WHERE `invoiceid`='$inv
 // Update the Invoice Ticket List
 $ticketid = filter_var(implode(',',$_POST['ticketid']),FILTER_SANITIZE_STRING);
 $dbc->query("UPDATE `invoice` SET `ticketid`='$ticketid' WHERE `invoiceid`='$invoiceid'");
+$dbc->query("UPDATE `reminders` SET `src_tableid`='$invoiceid', `body`=REPLACE(`body`,'search_invoice_submit=true','search_invoiceid=".$invoiceid."&search_invoice_submit=true') WHERE `src_table`='invoice' AND `src_tableid` IS NULL");

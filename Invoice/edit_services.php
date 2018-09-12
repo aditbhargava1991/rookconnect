@@ -1,13 +1,13 @@
 <div id="inv_services">
-    <h3>Services
+    <h4 class="col-sm-12">Services
     <span class="popover-examples list-inline">
         <a href="#job_file" data-toggle="tooltip" data-placement="top" title="Select the service."><img src="<?php echo WEBSITE_URL;?>/img/info.png" width="20"></a>
-    </span></h3>
+    </span></h4>
     <div class="form-group service_option" <?= (in_array('services',$field_config) ? '' : 'style="display:none;"') ?>>
         <div class="col-sm-12">
             <div class="form-group clearfix hide-titles-mob">
                 <label class="col-sm-4 text-center">Category</label>
-                <label class="col-sm-5 text-center">Service Name</label>
+                <label class="col-sm-4 text-center">Service Name</label>
                 <label class="col-sm-2 text-center">Fee</label>
             </div>
 
@@ -52,7 +52,7 @@
                             <?php } ?>
                         </div> <!-- Quantity -->
 
-                        <div class="col-sm-5"><label class="show-on-mob">Service Name:</label>
+                        <div class="col-sm-4"><label class="show-on-mob">Service Name:</label>
                             <input type="hidden" name="service_ticketid[]" value="">
                             <?php if($_GET['inv_mode'] == 'adjust') { ?>
                                 <input type="hidden" id="<?php echo 'serviceid_'.$id_loop; ?>" name="serviceid[]" class="serviceid"><?= get_all_from_service($dbc, $serviceid, 'heading') ?>
@@ -94,7 +94,7 @@
                             <input name="service_row_id[]" type="hidden" value="<?= $insurer_row_id++ ?>" class="insurer_row_id" />
                         </div>
 
-                        <div class="col-sm-1">
+                        <div class="col-sm-2">
                             <img src="<?= WEBSITE_URL ?>/img/remove.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right cursor-hand adjust_block" onclick="rem_service_row(this);">
                             <img src="<?= WEBSITE_URL ?>/img/icons/ROOK-add-icon.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right cursor-hand adjust_block" onclick="add_service_row();">
                             <label class="return_block"><input type="checkbox" name="servicerow_refund[]" value="<?= $insurer_row_id ?>" onchange="countTotalPrice()"> Refund</label>
@@ -128,7 +128,7 @@
                         ?>
                     </select>
                 </div>
-                <div class="col-sm-5"><label class="show-on-mob">Service Name:</label>
+                <div class="col-sm-4"><label class="show-on-mob">Service Name:</label>
                     <input type="hidden" name="service_ticketid[]" value="">
                     <select id="serviceid_0" data-placeholder="Select a Service..." name="serviceid[]" class="chosen-select-deselect form-control serviceid" width="380">
                         <option value=""></option>
@@ -140,7 +140,7 @@
                     <input name="service_row_id[]" type="hidden" value="<?= $insurer_row_id++ ?>" class="insurer_row_id" />
                 </div>
 
-                <div class="col-sm-1">
+                <div class="col-sm-2">
                     <img src="<?= WEBSITE_URL ?>/img/remove.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right cursor-hand" onclick="rem_service_row(this);">
                     <img src="<?= WEBSITE_URL ?>/img/icons/ROOK-add-icon.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right cursor-hand" onclick="add_service_row();">
                 </div>
