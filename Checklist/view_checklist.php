@@ -406,7 +406,7 @@ $quick_actions = explode(',',get_config($dbc, 'quick_action_icons')); ?>
                 if(trim($checklist['assign_staff'],',') == $_SESSION['contactid']) { ?>
                     <span class="block-label" style="margin: 0.25em;">Private</span><?php
                 } */ ?>
-                <?php if($security['edit'] > 0) { ?><a class="header-icon no-toggle" title="Checklist Settings"" onclick="overlayIFrameSlider('<?= $link.$_GET['view'] ?>', 'auto', false, false);"><img src="<?= WEBSITE_URL; ?>/img/icons/settings-4.png" class="inline-img" width="25" /></a><?php } ?>
+                <?php if($security['edit'] > 0) { ?><a class="header-icon no-toggle" title="Checklist Settings"" onclick="overlayIFrameSlider('edit_checklist.php<?= $link.$_GET['view'] ?>', 'auto', false, false);"><img src="<?= WEBSITE_URL; ?>/img/icons/settings-4.png" class="inline-img" width="25" /></a><?php } ?>
                 <br />
                 <input type="text" name="reminder_board_<?php echo $checklistid; ?>" style="display:none; margin-top:2em;" class="form-control datepicker" />
             </span>
