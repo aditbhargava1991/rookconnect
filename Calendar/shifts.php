@@ -823,15 +823,16 @@ function createShiftFor(input) {
 
             <?php if (strpos($enabled_fields, ',hours_type,') !== FALSE) { ?>
                 <div class="form-group">
-                    <label for="hours_type" class="super-label">Shift Type:
+                    <label for="hours_type" class="col-xs-4">Shift Type:</label>
+                    <div class="col-xs-8">
                         <select data-placeholder="Select Type" name="hours_type" class="chosen-select-deselect">
                             <option <?= $hours_type == 'Regular Hrs.' || $hours_type == '' ? 'selected' : '' ?> value="daily">Regular</option>
                             <option <?= $hours_type == 'Extra Hrs.' ? 'selected' : '' ?> value="weekly">Extra</option>
                             <option <?= $hours_type == 'Relief Hrs.' ? 'selected' : '' ?> value="weekly">Relief</option>
                         </select>
-                    </label>
-                    <hr class="offset-bottom-5">
+                    </div>
                 </div>
+                <hr class="offset-bottom-5">
             <?php } ?>
 
             <?php if (strpos($enabled_fields, ',breaks,') !== FALSE) { ?>
