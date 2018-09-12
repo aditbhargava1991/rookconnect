@@ -340,7 +340,7 @@ function saveFieldMethod(field) {
 	if(force_caps && field.type == 'text') {
 		field.value = field.value.toUpperCase();
 	}
-	if(field.name == 'item_id' && $(field).data('table') == 'ticket_attached' && $(field).data('type') == 'Staff' && ($(field).data('verified-shift') == undefined || $(field).data('verified-shift') == 'true')) {
+	if(field.name == 'item_id' && $(field).data('table') == 'ticket_attached' && $(field).data('type') == 'Staff' && ($(field).data('verified-shift') == undefined || $(field).data('verified-shift') != 'true')) {
 		var check_field = field;
 		var check_field_value = field.value;
 		checkStaffShifts(check_field.value).success(function(response) {
