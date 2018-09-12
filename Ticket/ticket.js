@@ -199,12 +199,19 @@ function send_email(button) {
 function setSave() {
 	$('[data-table]').off('blur',unsaved).blur(unsaved).off('focus',unsaved).focus(unsaved).off('change',saveField).change(saveField);
 	$('.toggleSwitch').off('click').click(function() {
-		$(this).find('span').toggle();
-		$(this).find('.toggle').val($(this).find('.toggle').val() == 1 ? 0 : 1).change();
-		if($(this).hasClass('staffSwitch')) {
-			reload_checkin();
+		if($(this).find('.toggle').data('no-toggle-off') == undefined || $(this).find('.toggle').data('no-toggle-off') != 1 || $(this).find('.toggle').val() != 1 || $(this).find('.on_img').is(':visible')) {
+			$(this).find('span').toggle();
+			if($(this).find('.toggle').data('no-toggle-off') != undefined && $(this).find('.toggle').data('no-toggle-off') == 1) {
+				$(this).find('.toggle').val(1).change();
+				reload_checkin();
+			} else {
+				$(this).find('.toggle').val($(this).find('.toggle').val() == 1 ? 0 : 1).change();
+				if($(this).hasClass('staffSwitch')) {
+					reload_checkin();
+				}
+			}
+			reload_summary();
 		}
-		reload_summary();
 	});
 	$('#collapse_delivery,#tab_section_ticket_delivery').sortable({
 		handle: '.stop_sort',
@@ -549,7 +556,8 @@ function saveFieldMethod(field) {
 					tile_name: tile_name,
 					auto_create_unscheduled: $('[name="auto_create_unscheduled"]').val(),
 					track_timesheet: $(field).data('track-timesheet'),
-					sync_recurring_data: $('#sync_recurrences').val()
+					sync_recurring_data: $('#sync_recurrences').val(),
+					no_toggle_off: $(field).data('no-toggle-off')
 				},
 				success: function(response) {
 					updateTicketLabel();
@@ -1569,25 +1577,45 @@ function reload_billing() {
 	});
 }
 function reload_checkin() {
-	destroyInputs($('#collapse_checkin,#tab_section_ticket_checkin'));
+	destroyInputs($('#collapse_ticket_checkin,#tab_section_ticket_checkin'));
 	$.ajax({
 		url: '../Ticket/add_ticket_checkin.php?folder='+folder_name+'&ticketid='+ticketid+'&action_mode='+$('#action_mode').val(),
 		dataType: 'html',
 		success: function(response) {
-			$('#collapse_checkin .panel-body,#tab_section_ticket_checkin').html(response);
-			initInputs('#collapse_checkin');
+			$('#collapse_ticket_checkin .panel-body,#tab_section_ticket_checkin').html(response);
+			initInputs('#collapse_ticket_checkin');
 			initInputs('#tab_section_ticket_checkin');
-			destroyInputs($('#collapse_checkout,#tab_section_ticket_checkout'));
+			destroyInputs($('#collapse_ticket_checkout,#tab_section_ticket_checkout'));
 			$.ajax({
 				url: '../Ticket/add_ticket_checkout.php?folder='+folder_name+'&ticketid='+ticketid+'&action_mode='+$('#action_mode').val(),
 				dataType: 'html',
 				success: function(response) {
-					$('#collapse_checkout .panel-body,#tab_section_ticket_checkout').html(response);
-					initInputs('#collapse_checkout');
+					$('#collapse_ticket_checkout .panel-body,#tab_section_ticket_checkout').html(response);
+					initInputs('#collapse_ticket_checkout');
 					initInputs('#tab_section_ticket_checkout');
-					setSave();
-					initSelectOnChanges();
-					reload_complete();
+					destroyInputs($('#collapse_ticket_checkout_staff,#tab_section_ticket_checkout_staff'));
+					$.ajax({
+						url: '../Ticket/add_ticket_checkout.php?folder='+folder_name+'&ticketid='+ticketid+'&action_mode='+$('#action_mode').val()+'&staffcheckout=true',
+						dataType: 'html',
+						success: function(response) {
+							$('#collapse_ticket_checkout_staff .panel-body,#tab_section_ticket_checkout_staff').html(response);
+							initInputs('#collapse_ticket_checkout');
+							initInputs('#tab_section_ticket_checkout_staff');
+							if($('#collapse_ticket_staff_list,#tab_section_ticket_staff_list').find('.toggleSwitch').length > 0) {
+								destroyInputs('#collapse_ticket_staff_list,#tab_section_ticket_staff_list');
+								$('#collapse_ticket_staff_list .panel-body,#tab_section_ticket_staff_list').load('../Ticket/edit_ticket_tab.php?tab=ticket_staff_list&ticketid='+ticketid, function() {
+									setSave();
+									initSelectOnChanges();
+									initInputs('#collapse_ticket_staff_list');
+									initInputs('#tab_section_ticket_staff_list');
+								});
+							} else {
+								setSave();
+								initSelectOnChanges();
+								reload_complete();
+							}
+						}
+					});
 				}
 			});
 		}
@@ -1687,7 +1715,9 @@ function reload_service_checklist() {
 			$('.service_checklist').html(response);
 			initInputs('.service_checklist');
 			initSelectOnChanges();
-			calculateTimeEstimate();
+			if(typeof calculateTimeEstimate == 'function') {
+				calculateTimeEstimate();
+			}
 			reload_hidden_services();
 		}
 	});
@@ -1701,7 +1731,9 @@ function reload_hidden_services() {
 			$('.hidden_services').html(response);
 			initInputs('.hidden_services');
 			initSelectOnChanges();
-			calculateTimeEstimate();
+			if(typeof calculateTimeEstimate == 'function') {
+				calculateTimeEstimate();
+			}
 		}
 	});
 }
@@ -2657,7 +2689,7 @@ function checkoutAll(button) {
 		return false;
 	} else {
 		if(confirm("Are you sure you want to check out all Staff?")) {
-			$('#collapse_checkout,#tab_section_ticket_checkout,#collapse_ticket_complete,#tab_section_ticket_complete').find('.toggle[value=0]').closest('.toggleSwitch').click();
+			$('#collapse_ticket_checkout,#tab_section_ticket_checkout,#collapse_ticket_complete,#tab_section_ticket_complete').find('.toggle[value=0]').closest('.toggleSwitch').click();
 			if($(button).data('recurring-ticket') != undefined && $(button).data('recurring-ticket') == 1) {
 				createRecurringTicket();
 			}
@@ -2674,7 +2706,7 @@ function checkoutAll(button) {
 }
 function checkinAll(button) {
 	reload_summary();
-	$('#collapse_checkin,#tab_section_ticket_checkin').find('.toggle[value=0]').closest('.toggleSwitch').click();
+	$('#collapse_ticket_checkin,#tab_section_ticket_checkin').find('.toggle[value=0]').closest('.toggleSwitch').click();
 	$.ajax({
 		url: 'ticket_ajax_all.php?action=update_fields'+($('[name=no_time_sheet]').val() > 0 ? '&time_sheet=none' : ''),
 		method: 'POST',

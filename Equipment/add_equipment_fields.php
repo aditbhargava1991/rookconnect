@@ -69,7 +69,7 @@ function filterClassifications() {
 }
 </script>
 <div class="form-group">
-<label for="phone_number" class="col-sm-4 control-label"><?php echo (strpos($equipment_mandatory_fields, ','.$temp_value.',') !== FALSE ? '<span class="text-red">* </span>' : ''); ?>Category<span class="brand-color">*</span>:</label>
+<label for="phone_number" class="col-sm-4 control-label">Tab<span class="brand-color">*</span>:</label>
 <div class="col-sm-8">
   <select id="category" name="category" class=" chosen-select-deselect <?php echo (strpos($equipment_mandatory_fields, ','.$temp_value.',') !== FALSE ? 'mandatory' : ''); ?> form-control" width="380">
   <option value=''></option>
@@ -117,7 +117,7 @@ function filterClassifications() {
 
 <?php $temp_value = 'Description'; ?><?php if (strpos($value_config, ','."Type".',') !== FALSE) { ?>
 <div class="form-group">
-<label for="phone_number" class="col-sm-4 control-label"><?php echo (strpos($equipment_mandatory_fields, ','.$temp_value.',') !== FALSE ? '<span class="text-red">* </span>' : ''); ?>Type<span class="brand-color">*</span>:</label>
+<label for="phone_number" class="col-sm-4 control-label">Tab<span class="brand-color">*</span>:</label>
 <div class="col-sm-8">
   <select id="type" name="type" class="chosen-select-deselect <?php echo (strpos($equipment_mandatory_fields, ','.$temp_value.',') !== FALSE ? 'mandatory' : ''); ?> form-control" width="380">
       <option value=''></option>
@@ -138,7 +138,7 @@ function filterClassifications() {
 </div>
 
 <div class="form-group" id="type_name" style="display: none;">
-<label for="travel_task" class="col-sm-4 control-label">Other Type<span class="text-red">*</span>:</label>
+<label for="travel_task" class="col-sm-4 control-label">Other Tab<span class="text-red">*</span>:</label>
 <div class="col-sm-8">
 	<input name="type_name" type="text" class="form-control" />
 </div>
@@ -324,7 +324,7 @@ function filterClassifications() {
 <?php $temp_value = 'Fuel Type'; ?>
 <?php if (strpos($value_config, ','.$temp_value.',') !== FALSE) { ?>
   <div class="form-group">
-    <label for="phone_number" class="col-sm-4 control-label"><?php echo (strpos($equipment_mandatory_fields, ','.$temp_value.',') !== FALSE ? '<span class="text-red">* </span>' : ''); ?>Fuel Type:</label>
+    <label for="phone_number" class="col-sm-4 control-label">Fuel Tab:</label>
     <div class="col-sm-8">
       <input name="fuel_type" type="text" value="<?php echo $fuel_type; ?>" class="<?php echo (strpos($equipment_mandatory_fields, ','.$temp_value.',') !== FALSE ? 'mandatory' : ''); ?> form-control"/>
     </div>
@@ -334,7 +334,7 @@ function filterClassifications() {
 <?php $temp_value = 'Tire Type'; ?>
 <?php if (strpos($value_config, ','.$temp_value.',') !== FALSE) { ?>
 <div class="form-group">
-<label for="fax_number"	class="col-sm-4	control-label"><?php echo (strpos($equipment_mandatory_fields, ','.$temp_value.',') !== FALSE ? '<span class="text-red">* </span>' : ''); ?>Tire Type:</label>
+<label for="fax_number"	class="col-sm-4	control-label">Tire Tab:</label>
 <div class="col-sm-8">
   <input name="tire_type" type="text" value="<?php	echo $tire_type; ?>" class="<?php echo (strpos($equipment_mandatory_fields, ','.$temp_value.',') !== FALSE ? 'mandatory' : ''); ?> form-control"/>
 </div>
