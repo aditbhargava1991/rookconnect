@@ -123,7 +123,9 @@ checkAuthorised();
             </div><!-- .tile-header -->
 
             <div class="tile-container" style="height: 100%;">
-                <form id="form1" name="form1" method="post" action="" enctype="multipart/form-data" class="form-horizontal" role="form">
+                <?php if($_GET['tab'] != 'timesheets') { ?>
+                    <form id="form1" name="form1" method="post" action="" enctype="multipart/form-data" class="form-horizontal" role="form">
+                <?php } ?>
 
                 	<?php if($_GET['settings'] == 'config') { ?>
 	                    <!-- Sidebar -->
@@ -152,7 +154,9 @@ checkAuthorised();
                     
                     <div class="clearfix"></div>
                 </div><!-- .tile-container -->
-            </form>
+            <?php if($_GET['tab'] != 'timesheets') { ?>
+                </form>
+            <?php } ?>
 
         </div><!-- .main-screen -->
     </div><!-- .row -->

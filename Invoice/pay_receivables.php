@@ -10,7 +10,7 @@ if (isset($_POST['submit_patient'])) {
         exit("<script> alert('No payment type selected, no payment applied.'); </script>");
     }
     $paid_date = date('Y-m-d');
-	$payment_receipt = "download/ar_receipt_".preg_replace('/[^a-z]/','',strtolower($payment_type))."_".date('Y_m_d_H_i_s').".pdf";
+	$payment_receipt = $download_folder."download/ar_receipt_".preg_replace('/[^a-z]/','',strtolower($payment_type))."_".date('Y_m_d_H_i_s').".pdf";
 	$patient_ids = [];
 	$invoice = [];
 
@@ -108,8 +108,7 @@ if (isset($_POST['submit_patient'])) {
 	$tax_amt = 0;
 	
     $ar_lines = [];
-    $invoice[] = [$invoice_info['invoice_date'],$invoice_info['invoiceid'],$therapist_info,$invoice_info['patient_price'],$invoice_info['sub_total'],$invoice_info['gst_amt']];
-	foreach($invoice as $inv) {
+    foreach($invoice as $inv) {
         if(!isset($ar_lines[$inv[1]])) {
             $ar_lines[$inv[1]] = [$inv[0],$inv[1],$inv[2],0,0,0];
         }

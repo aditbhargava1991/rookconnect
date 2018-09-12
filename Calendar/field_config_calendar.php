@@ -109,6 +109,13 @@ if (isset($_POST['add_tab'])) {
 	}
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'my_ticket_summary' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='my_ticket_summary') num WHERE num.rows=0");
 	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$my_ticket_summary."' WHERE `name`='my_ticket_summary'");
+	if (!empty($_POST['my_ticket_summary_deleted'])) {
+		$my_ticket_summary_deleted = $_POST['my_ticket_summary_deleted'];
+	} else {
+		$my_ticket_summary_deleted = '';
+	}
+	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'my_ticket_summary_deleted' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='my_ticket_summary_deleted') num WHERE num.rows=0");
+	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$my_ticket_summary_deleted."' WHERE `name`='my_ticket_summary_deleted'");
 	if (!empty($_POST['my_availability_indication'])) {
 		$my_availability_indication = $_POST['my_availability_indication'];
 	} else {
@@ -204,6 +211,13 @@ if (isset($_POST['add_tab'])) {
 	}
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'uni_ticket_summary' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='uni_ticket_summary') num WHERE num.rows=0");
 	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$uni_ticket_summary."' WHERE `name`='uni_ticket_summary'");
+	if (!empty($_POST['uni_ticket_summary_deleted'])) {
+		$uni_ticket_summary_deleted = $_POST['uni_ticket_summary_deleted'];
+	} else {
+		$uni_ticket_summary_deleted = '';
+	}
+	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'uni_ticket_summary_deleted' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='uni_ticket_summary_deleted') num WHERE num.rows=0");
+	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$uni_ticket_summary_deleted."' WHERE `name`='uni_ticket_summary_deleted'");
 	if (!empty($_POST['uni_availability_indication'])) {
 		$uni_availability_indication = $_POST['uni_availability_indication'];
 	} else {
@@ -797,6 +811,13 @@ if (isset($_POST['add_tab'])) {
 	}
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'ticket_ticket_summary' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='ticket_ticket_summary') num WHERE num.rows=0");
 	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$ticket_ticket_summary."' WHERE `name`='ticket_ticket_summary'");
+	if (!empty($_POST['ticket_ticket_summary_deleted'])) {
+		$ticket_ticket_summary_deleted = $_POST['ticket_ticket_summary_deleted'];
+	} else {
+		$ticket_ticket_summary_deleted = '';
+	}
+	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'ticket_ticket_summary_deleted' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='ticket_ticket_summary_deleted') num WHERE num.rows=0");
+	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$ticket_ticket_summary_deleted."' WHERE `name`='ticket_ticket_summary_deleted'");
 	if (!empty($_POST['ticket_availability_indication'])) {
 		$ticket_availability_indication = $_POST['ticket_availability_indication'];
 	} else {
@@ -846,6 +867,13 @@ if (isset($_POST['add_tab'])) {
 	}
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'ticket_ticket_summary_tab' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='ticket_ticket_summary_tab') num WHERE num.rows=0");
 	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$ticket_ticket_summary_tab."' WHERE `name`='ticket_ticket_summary_tab'");
+	if (!empty($_POST['ticket_ticket_summary_tab_deleted'])) {
+		$ticket_ticket_summary_tab_deleted = $_POST['ticket_ticket_summary_tab_deleted'];
+	} else {
+		$ticket_ticket_summary_tab_deleted = '';
+	}
+	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'ticket_ticket_summary_tab_deleted' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='ticket_ticket_summary_tab_deleted') num WHERE num.rows=0");
+	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$ticket_ticket_summary_tab_deleted."' WHERE `name`='ticket_ticket_summary_tab_deleted'");
 	if (!empty($_POST['ticket_client_tab'])) {
 		$ticket_client_tab = $_POST['ticket_client_tab'];
 	} else {
@@ -1404,6 +1432,13 @@ function deleteLogo(logo) {
 								</div>
 							</div>
 							<div class="form-group">
+								<label class="col-sm-4 control-label">My Calendar <?= TICKET_NOUN ?> Summary - Display Deleted:</label>
+								<div class="col-sm-8">
+									<?php $my_ticket_summary_deleted = get_config($dbc, 'my_ticket_summary_deleted'); ?>
+									<label class="form-checkbox"><input type="checkbox" name="my_ticket_summary_deleted" <?= $my_ticket_summary_deleted != '' ? 'checked' : '' ?> value="1"></label>
+								</div>
+							</div>
+							<div class="form-group">
 								<label class="col-sm-4 control-label">My Calendar No Shift Indicates:</label>
 								<div class="col-sm-8">
 									<?php $my_availability_indication = get_config($dbc, 'my_availability_indication'); ?>
@@ -1596,6 +1631,13 @@ function deleteLogo(logo) {
 								<div class="col-sm-8">
 									<?php $uni_ticket_summary = get_config($dbc, 'uni_ticket_summary'); ?>
 									<label class="form-checkbox"><input type="checkbox" name="uni_ticket_summary" <?= $uni_ticket_summary != '' ? 'checked' : '' ?> value="1"></label>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-4 control-label">Universal Calendar <?= TICKET_NOUN ?> Summary - Display Deleted:</label>
+								<div class="col-sm-8">
+									<?php $uni_ticket_summary_deleted = get_config($dbc, 'uni_ticket_summary_deleted'); ?>
+									<label class="form-checkbox"><input type="checkbox" name="uni_ticket_summary_deleted" <?= $uni_ticket_summary_deleted != '' ? 'checked' : '' ?> value="1"></label>
 								</div>
 							</div>
 							<div class="form-group">
@@ -2708,6 +2750,13 @@ function deleteLogo(logo) {
 								</div>
 							</div>
 							<div class="form-group">
+								<label class="col-sm-4 control-label"><?= TICKET_NOUN ?> Calendar <?= TICKET_NOUN ?> Summary - Display Deleted:</label>
+								<div class="col-sm-8">
+									<?php $ticket_ticket_summary_deleted = get_config($dbc, 'ticket_ticket_summary_deleted'); ?>
+									<label class="form-checkbox"><input type="checkbox" name="ticket_ticket_summary_deleted" <?= $ticket_ticket_summary_deleted != '' ? 'checked' : '' ?> value="1"></label>
+								</div>
+							</div>
+							<div class="form-group">
 								<label class="col-sm-4 control-label">Ticket Calendar No Shift Indicates:</label>
 								<div class="col-sm-8">
 									<?php $ticket_availability_indication = get_config($dbc, 'ticket_availability_indication'); ?>
@@ -2748,6 +2797,13 @@ function deleteLogo(logo) {
 								<div class="col-sm-8">
 									<?php $ticket_ticket_summary_tab = get_config($dbc, 'ticket_ticket_summary_tab'); ?>
 									<label class="form-checkbox"><input type="checkbox" name="ticket_ticket_summary_tab" <?= $ticket_ticket_summary_tab != '' ? 'checked' : '' ?> value="1"></label>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-4 control-label">Enable <?= TICKET_NOUN ?> Summary Tab - Display Deleted:</label>
+								<div class="col-sm-8">
+									<?php $ticket_ticket_summary_tab_deleted = get_config($dbc, 'ticket_ticket_summary_tab_deleted'); ?>
+									<label class="form-checkbox"><input type="checkbox" name="ticket_ticket_summary_tab_deleted" <?= $ticket_ticket_summary_tab_deleted != '' ? 'checked' : '' ?> value="1"></label>
 								</div>
 							</div>
 							<div class="form-group">

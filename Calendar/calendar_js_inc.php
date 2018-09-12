@@ -582,9 +582,10 @@ function loadShiftView() {
 	var calendar_type = $('#calendar_type').val();
 	var calendar_view = $('#calendar_view').val();
 	var calendar_mode = $('#calendar_mode').val();
+	var calendar_start = $('#calendar_start').val();
 	<?php if($_GET['view'] == 'monthly') { ?>
 		$.ajax({
-			url: '../Calendar/monthly_display.php?type='+calendar_type+'&view='+calendar_view+'&mode='+calendar_mode,
+			url: '../Calendar/monthly_display.php?type='+calendar_type+'&view='+calendar_view+'&mode='+calendar_mode+'&date='+calendar_start,
 			method: 'GET',
 			success: function(response) {
 				$('.calendar_view').html(response);
@@ -595,7 +596,7 @@ function loadShiftView() {
 		});
 	<?php } else { ?>
 		$.ajax({
-			url: '../Calendar/load_calendar_empty.php?type='+calendar_type+'&view='+calendar_view+'&mode='+calendar_mode,
+			url: '../Calendar/load_calendar_empty.php?type='+calendar_type+'&view='+calendar_view+'&mode='+calendar_mode+'&date='+calendar_start,
 			method: 'GET',
 			success: function(response) {
 				$('.calendar_view').html(response);
