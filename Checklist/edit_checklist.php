@@ -304,7 +304,7 @@ $(document).on('click', '#add_row_doc, .add_row_doc', function() {
 $(document).on('click', '.add_row_doc2', function() {
     var clone = $(this).closest('.form-group').clone();
 	clone.find('.col-xs-1').first().remove();
-	clone.find('.col-sm-10').addClass('col-sm-11 col-xs-10').removeClass('col-sm-10 col-xs-9');
+	clone.find('.col-sm-10').addClass('col-md-10 col-sm-11 col-xs-10').removeClass('col-md-9 col-sm-10 col-xs-9');
 	clone.find('input').attr('name', 'checklist[]');
 	clone.find('input').val('');
     clone.find('#item_remove').contents().unwrap();
@@ -686,8 +686,8 @@ function removeNewRow2(button) {
                     </div>
                 </div>
             </div>
-            <?php if(tile_enabled($dbc, 'project')) { ?>
-                <div class="panel panel-default">
+            <?php //if(tile_enabled($dbc, 'project')) { ?>
+                <!--<div class="panel panel-default">
                     <div class="panel-heading">
                         <h4 class="panel-title">
                             <a data-toggle="collapse" data-parent="#edit_accordions" href="#collapse_project">
@@ -703,7 +703,7 @@ function removeNewRow2(button) {
                               <div class="col-sm-8">
                                 <select data-placeholder="Select a <?= PROJECT_NOUN ?>..." name="projectid" id="projectid"  class="chosen-select-deselect form-control" width="380">
                                   <option value=""></option>
-                                  <?php $project_tabs = get_config($dbc, 'project_tabs');
+                                  <?php /* $project_tabs = get_config($dbc, 'project_tabs');
                                     if($project_tabs == '') {
                                         $project_tabs = 'Client,SR&ED,Internal,R&D,Business Development,Process Development,Addendum,Addition,Marketing,Manufacturing,Assembly';
                                     }
@@ -723,15 +723,15 @@ function removeNewRow2(button) {
                                                 }
                                             }
                                         }
-                                    }
+                                    } */
                                   ?>
                                 </select>
                               </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            <?php } ?>
+                </div>-->
+            <?php //} ?>
 				<?php if(tile_enabled($dbc, 'project')) { ?>
 					<div class="panel panel-default">
 						<div class="panel-heading">
@@ -790,8 +790,8 @@ function removeNewRow2(button) {
 						</div>
 					</div>
 				<?php } ?>
-				<?php if(tile_enabled($dbc, 'ticket')) { ?>
-					<div class="panel panel-default">
+				<?php //if(tile_enabled($dbc, 'ticket')) { ?>
+					<!--<div class="panel panel-default">
 						<div class="panel-heading">
 							<h4 class="panel-title">
 								<a data-toggle="collapse" data-parent="#edit_accordions" href="#collapse_ticket_list">
@@ -806,18 +806,18 @@ function removeNewRow2(button) {
 								  <label for="site_name" class="col-sm-4 control-label"><?= TICKET_NOUN ?>:</label>
 								  <div class="col-sm-8">
 									<select data-placeholder="Select a <?= TICKET_NOUN ?>..." name="ticketid[]" multiple id="ticketid"  class="chosen-select-deselect form-control">
-									  <?php $query = mysqli_query($dbc,"SELECT * FROM `tickets` WHERE `deleted`=0 OR `ticketid`='$ticketid'");
+									  <?php /* $query = mysqli_query($dbc,"SELECT * FROM `tickets` WHERE `deleted`=0 OR `ticketid`='$ticketid'");
 										while($row = mysqli_fetch_array($query)) {
 											echo "<option ".(in_array($row['ticketid'],explode(',',$ticketid)) ? 'selected' : '')." value='".$row['ticketid']."'>".TICKET_NOUN."# ".$row['ticketid'].' '.$row['heading'].'</option>';
-										}
+										} */
 									  ?>
 									</select>
 								  </div>
 								</div>
 							</div>
 						</div>
-					</div>
-				<?php } ?>
+					</div>-->
+				<?php //} ?>
             <?php if(tile_enabled($dbc, 'ticket')) { ?>
                 <div class="panel panel-default">
                     <div class="panel-heading">
@@ -848,6 +848,7 @@ function removeNewRow2(button) {
                                         ?>
                                     </select>
                                 </div>
+                            </div>
 
                             <div class="form-group assign_staff">
                               <label for="site_name" class="col-sm-4 control-label"><?= TICKET_NOUN ?>:</label>
@@ -1014,9 +1015,9 @@ function removeNewRow2(button) {
                     if($num_rows > 0) {
                         while($row = mysqli_fetch_array($result)) {
                             echo '<div class="form-group" id="'. $row['checklistnameid'] .'">';
-                            echo '<div class="col-sm-1 col-xs-1">'.($row['checked'] == 1 ? '<input disabled type="checkbox" checked value="" style="height: 1em;"> ' : '').'#'.$row['checklistnameid'].': </div><div class="col-sm-10 col-xs-9">';
+                            echo '<div class="col-sm-1 col-xs-1">'.($row['checked'] == 1 ? '<input disabled type="checkbox" checked value="" style="height: 1em;"> ' : '').'#'.$row['checklistnameid'].': </div><div class="col-md-9 col-sm-10 col-xs-9">';
                             echo '<input type="text" name="checklist_update[]" class="form-control" value= "'.explode('<p>',html_entity_decode($row['checklist']))[0].'"/></div>';
-                            echo '<div class="col-sm-1 col-xs-2">
+                            echo '<div class="col-md-2 col-sm-1 col-xs-2">
                                 <img src="'.WEBSITE_URL.'/img/icons/ROOK-add-icon.png" class="cursor-hand add_row_doc2" style="height:1.5em;" />
                                 <a href=\'../delete_restore.php?action=delete&checklistnameid='.$row['checklistnameid'].'&checklistid='.$row['checklistid'].'\' onclick="return confirm(\'Are you sure you want to archive this item?\')" id="item_remove"><img class="item_remove_img" style="height:1.5em;" src="'.WEBSITE_URL.'/img/remove.png"></a>
                                 <img class="drag_handle no-toggle" src="'.WEBSITE_URL.'/img/icons/drag_handle.png" style="margin:0.25em; height:1.25em; width:1.25em;" title="Drag" />
@@ -1030,10 +1031,10 @@ function removeNewRow2(button) {
             </div>
             <div class="checklist clearfix">
                 <div class="form-group additional_doc clearfix">
-                    <div class="col-sm-11 col-xs-10">
+                    <div class="col-md-10 col-sm-11 col-xs-10">
                         <input type="text" id="first_task" name="checklist[]" class="form-control" width="380" />
                     </div>
-                    <div class="col-sm-1 col-xs-2 pad-5">
+                    <div class="col-md-2 col-sm-1 col-xs-2 pad-5">
                         <!-- <img src="<?= WEBSITE_URL ?>/img/icons/ROOK-trash-icon.png" style="height:1.5em;" onclick="removeNewRow(this);"> -->
                         <img src="<?= WEBSITE_URL ?>/img/icons/ROOK-add-icon.png" class="cursor-hand add_row_doc" style="height:1.5em;" />
                         <img src="<?= WEBSITE_URL ?>/img/remove.png" class="cursor-hand" style="height:1.5em;" onclick="removeNewRow(this);" />
