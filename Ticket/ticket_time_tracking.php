@@ -22,7 +22,7 @@ if($num_rows > 0) { ?>
 	<div id="no-more-tables">
     <table class='table table-bordered'>
 	<tr class='hidden-xs'>
-		<th>Type</th>
+		<th>Tab</th>
 		<th>Time</th>
 		<th>Date</th>
 		<th>Added By</th>
@@ -38,7 +38,7 @@ if($num_rows > 0) { ?>
 		}
 		echo '<tr data-table="'.$row['ticket_table'].'" data-id="'.($row['id'] > 0 ? $row['id'] : $row['tickettimerid']).'" '.$deleted_styling.'>';
 		$by = $row['created_by'];
-		echo '<td data-title="Type">'.$row['type'].'</td>';
+		echo '<td data-title="Tab">'.$row['type'].'</td>';
 		echo '<td data-title="Time">'.$row['time'].'</td>';
 		echo '<td data-title="Date">'.substr($row['created_date'],0,10).'</td>';
 		echo '<td data-title="Added By">'.get_staff($dbc, $by).'</td>';

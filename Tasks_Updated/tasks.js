@@ -130,7 +130,7 @@ function tasksInit() {
 			}
 		});
 	});
-	
+
     $( ".connectedSortable" ).sortable({
 		connectWith: ".connectedSortable",
 		handle: ".drag_handle",
@@ -141,7 +141,7 @@ function tasksInit() {
 			var id_field = ui.item.data('id-field');
 			var table_class = ui.item.parent().attr("class");
 			var status = table_class.split(' ')[2];
-			
+
 			$.ajax({    //create an ajax request to load_page.php
 				type: "GET",
 				url: "task_ajax_all.php?fill=tasklist&tasklistid="+taskid+"&table="+table+"&id_field="+id_field+"&task_milestone_timeline="+status,
@@ -181,7 +181,7 @@ function changeEndAme(sel) {
 	$(this).prop("disabled",false);
 	var stage = sel.value;
 	var typeId = sel.id;
-	
+
 	var tasklistid = typeId.split(' ');
 
 	var status = tasklistid[1];

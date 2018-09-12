@@ -676,9 +676,15 @@ if($_GET['action'] == 'update_fields') {
 		if($field_name == 'arrived' && $value == 1) {
 			mysqli_query($dbc, "UPDATE `ticket_attached` SET `timer_start`='$seconds' WHERE `id`='$id'");
 			mysqli_query($dbc, "UPDATE `ticket_attached` SET `checked_in`='".date('h:i a')."' WHERE `id`='$id' AND IFNULL(`checked_in`,'') = ''");
+			if($_POST['no_toggle_off'] == 1) {
+				mysqli_query($dbc, "UPDATE `ticket_attached` SET `completed`=0 WHERE `id`='$id'");
+			}
 		} else {
 			$hours = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `timer_start`, `hours_tracked` FROM `ticket_attached` WHERE `id`='$id'"));
 			if($hours['timer_start'] > 0) {
+				$checked_in_time = date('h:i a', $hours['timer_start']);
+				$checked_out_time = date('h:i a');
+				mysqli_query($dbc, "INSERT INTO `ticket_attached_checkin` (`ticket_attached_id`, `checked_in`, `checked_out`) VALUES ('$id', '$checked_in_time', '$checked_out_time')");
 				$tracked = ($seconds - $hours['timer_start']) / 3600 + $hours['hours_tracked'];
 				mysqli_query($dbc, "UPDATE `ticket_attached` SET `hours_tracked`='$tracked', `timer_start`=0, `date_stamp`='".date('Y-m-d')."' WHERE `id`='$id'");
 				mysqli_query($dbc, "UPDATE `ticket_attached` SET `checked_out`='".date('h:i a')."' WHERE `id`='$id'");
@@ -3124,5 +3130,17 @@ if($_GET['action'] == 'update_fields') {
 		$result = [staff_list=>[]];
 	}
 	echo json_encode($result);
+} else if($_GET['action'] == 'reload_po_num_dropdown') {
+	$ticketid = $_GET['ticketid'];
+	$get_ticket = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticketid` = '$ticketid'"));
+	$ticket_po_list = array_filter(explode('#*#',$get_ticket['purchase_order']));
+	$po_numbers = $dbc->query("SELECT `po_num` FROM `ticket_attached` WHERE `deleted`=0 AND `ticketid` > 0 AND `src_table` IN ('inventory_general','inventory') AND `ticketid`='$ticketid' AND IFNULL(`po_num`,'') != '' GROUP BY `po_num`");
+	$po_line_list = [];
+	while($po_num_line = $po_numbers->fetch_assoc()) {
+		$po_line_list[] = $po_num_line['po_num'];
+	}
+	$po_list = array_unique(array_merge($po_line_list,$ticket_po_list));
+	sort($po_list);
+	echo json_encode($po_list);
 }
 ?>
