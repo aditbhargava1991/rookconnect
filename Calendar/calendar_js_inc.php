@@ -560,6 +560,7 @@ function toggleMobileView(cell = '') {
 			$('#calendar-month-block').show();
 		}
 		$('#calendar_dates').val('["'+active_date+'"]');
+		itemsHoverInit();
 	}
 }
 
