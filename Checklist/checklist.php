@@ -577,7 +577,7 @@ if(empty($_GET['subtabid']) && empty($_GET['edit']) && empty($_GET['view']) && e
 				</ul>
 			</div>
 <?php } ?>
-			<div class="scale-to-fill has-main-screen <?= (empty($_GET['view']) && empty($_GET['edit']) && empty($_GET['edittab']) && empty($_GET['reports']) ? 'hide-titles-mob' : '') ?>">
+			<div class="scale-to-fill has-main-screen <?= (empty($_GET['view']) && empty($_GET['edit']) && empty($_GET['edittab']) && empty($_GET['reports']) ? 'hide-titles-mob' : '') ?> <?= (!empty($_GET['edit']) ? 'no-gap-pad' : '') ?>">
 				<div class="checklist_screen main-screen standard-body" data-querystring='<?= $_SERVER['QUERY_STRING'] ?>'><?php
                 if(!empty($_GET['view'])) {
 					include('view_checklist.php');

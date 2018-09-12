@@ -36,7 +36,7 @@ if (isset($_POST['submit'])) {
     }
     </script>
     <div class="form-group">
-        <label for="fax_number" class="col-sm-4 control-label"><span class="popover-examples list-inline"><a class="" style="margin:7px 5px 0 0;" data-toggle="tooltip" data-placement="top" title="These tabs sort your inventory by Category, so please make sure the tab names match your inventory's category names."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span> Add Tabs:</label>
+        <label for="fax_number" class="col-sm-4 control-label"><span class="popover-examples list-inline"><a class="" style="margin:7px 5px 0 0;" data-toggle="tooltip" data-placement="top" title="These tabs sort your inventory by Tab, so please make sure the tab names match your inventory's tab names."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span> Add Tabs:</label>
         <div class="col-sm-8 inv-tabs">
             <?php foreach($inventory_tab_list as $inventory_tab) { ?>
                 <div class="form-group">
@@ -48,7 +48,7 @@ if (isset($_POST['submit'])) {
         </div>
     </div>
     <div class="form-group">
-        <label for="fax_number" class="col-sm-4 control-label"><span class="popover-examples list-inline"><a class="" style="margin:7px 5px 0 0;" data-toggle="tooltip" data-placement="top" title="Instead of tabs, have a drop down menu that will sort your inventory by their respective categories."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span> Or Use a Drop Down Menu:</label>
+        <label for="fax_number" class="col-sm-4 control-label"><span class="popover-examples list-inline"><a class="" style="margin:7px 5px 0 0;" data-toggle="tooltip" data-placement="top" title="Instead of tabs, have a drop down menu that will sort your inventory by their respective tabs."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span> Or Use a Drop Down Menu:</label>
         <div class="col-sm-8">
         <?php
         $checked = '';

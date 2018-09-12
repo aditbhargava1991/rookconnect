@@ -29,7 +29,7 @@ if($incident_reports_count > 0) {
             echo '<th>Client</th>';
         }
         if (strpos($value_config_ir, ','."Type".',') !== FALSE) {
-            echo '<th>Type</th>';
+            echo '<th>Tab</th>';
         }
         if (strpos($value_config_ir, ','."Staff".',') !== FALSE) {
             echo '<th>Staff</th>';
@@ -107,7 +107,7 @@ if($incident_reports_count > 0) {
                 echo implode(', ',$client_list) . '</td>';
         }
         if (strpos($value_config_ir, ','."Type".',') !== FALSE) {
-            echo '<td data-title="Type">' . $row['type'] . '</td>';
+            echo '<td data-title="Tab">' . $row['type'] . '</td>';
         }
         if (strpos($value_config_ir, ','."Staff".',') !== FALSE) {
             echo '<td data-title="Staff">' . $contact_list . '</td>';

@@ -61,7 +61,7 @@ $result = mysqli_query($dbc, $query); ?>
 		<div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
 			<div class="col-sm-4">
 				<label for="site_name" class="control-label">
-					<span class="popover-examples list-inline" style="margin:0 2px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Click here to see the inspection types."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
+					<span class="popover-examples list-inline" style="margin:0 2px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Click here to see the inspection tabss."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
 					Search by Equipment:</label>
 			</div>
 			<div class="col-sm-8">

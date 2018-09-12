@@ -98,7 +98,6 @@ if($_GET['performance_review'] == 'add' && !empty($_GET['form_id'])) {
 							echo "<div class='pull-right gap-left'><a href='?hr_edit=0&tile_name=$tile'><img src='".WEBSITE_URL."/img/icons/ROOK-add-icon.png' class='inline-img show-on-mob' /><button class='btn brand-btn hide-on-mobile'>Add Form</button></a></div>";
 							echo "<div class='pull-right gap-left'><a href='?manual_edit=0&tile_name=$tile'><img src='".WEBSITE_URL."/img/icons/ROOK-add-icon.png' class='inline-img show-on-mob' /><button class='btn brand-btn hide-on-mobile'>Add Manual</button></a></div>";
 						} ?>
-						<img class="no-toggle statusIcon pull-right no-margin inline-img" title="" src="" />
 					</div>
 					<div class="scale-to-fill"><h1 class="gap-left"><a href="?tile_name=<?= $tile ?>"><span class="hide-on-mobile"><?= $label ?></span><span class="show-on-mob">HR</span></a></h1></div>
 					<div class="clearfix"></div>
@@ -152,6 +151,9 @@ if($_GET['performance_review'] == 'add' && !empty($_GET['form_id'])) {
 			} else if($_GET['tab'] == 'summary') {
 				include('sidebar.php');
 				include('summary.php');
+			} else if($_GET['tab'] == 'search') {
+				include('sidebar.php');
+				include('search.php');
 			} else {
 				checkAuthorised($tile, $tab_cat);
 				$tab_cat = $tab;

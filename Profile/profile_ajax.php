@@ -118,4 +118,11 @@ if($_GET['action'] == 'setStatus') {
 		$dbc->query("UPDATE `tickets` SET `status`='$status' WHERE `ticketid`='{$_POST['stopid']}'");
 	}
 }
+
+if($_GET['action'] == 'contacts_untag') {
+    $id = $_GET['id'];
+    if($id > 0) {
+        mysqli_query($dbc, "UPDATE `contacts_tagging` SET `deleted` = 1 WHERE `id` = '$id'");
+    }
+}
 ?>
