@@ -32,6 +32,11 @@
     if(!mysqli_query($dbc, "CREATE TABLE `newsboard_boards` (`boardid` INT(11) NOT NULL AUTO_INCREMENT, `board_name` VARCHAR(250) NULL DEFAULT NULL, `shared_staff` TEXT NULL DEFAULT NULL, `deleted` TINYINT(1) NOT NULL DEFAULT '0', PRIMARY KEY (`boardid`));")) {
         echo "Error: ".mysqli_error($dbc)."<br />\n";
     }
+    
+    // 10-Sep-2018
+    if(!mysqli_query($dbc, "ALTER TABLE `invoice` ADD `reference` VARCHAR(250) NULL DEFAULT NULL AFTER `patient_payment_receipt`;")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
 	
     echo "Jay's DB Changes Done<br /><br />\n";
 ?>

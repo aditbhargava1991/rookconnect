@@ -179,7 +179,7 @@ $set_check_value    = ','.$inventory_setting['value'].','; ?>
 							}
 						}
 						if(in_array('Project',$ticket_filters)) {
-							echo '<b>'.PROJECT_NOUN.' Types</b>';
+							echo '<b>'.PROJECT_NOUN.' Tabs</b>';
 							$project_types = [];
 							foreach(explode(',',get_config($dbc, 'project_tabs')) as $type_name) {
 								$project_types[preg_replace('/[^a-z_]/','',str_replace(' ','_',strtolower($type_name)))] = $type_name;

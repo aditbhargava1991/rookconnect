@@ -189,7 +189,7 @@ if($strict_view > 0) {
 				</div>
 				<div class="form-group clearfix"><?php
 					if ( strpos ( $value_config, ',Category,' ) !== FALSE ) { ?>
-	                    <label class="col-sm-2">Category</label><?php
+	                    <label class="col-sm-2">Tab</label><?php
 					}
 					if ( strpos ( $value_config, ',Name,' ) !== FALSE ) { ?>
 	                    <label class="col-sm-3">Name</label><?php
@@ -223,7 +223,7 @@ if($strict_view > 0) {
 					<div class="form-group clearfix" id="prodservices_0" width="100%">
 						<?php if ( strpos ( $value_config, ',Category,' ) !== FALSE ) { ?>
 							<div class="col-sm-2 <?= !($tile_security['edit'] > 0) ? 'readonly-block' : '' ?>">
-								<select data-placeholder="Choose a Category..." id="category_0" name="prodcategory[]" class="chosen-select-deselect form-control prodcategory">
+								<select data-placeholder="Choose a Tab..." id="category_0" name="prodcategory[]" class="chosen-select-deselect form-control prodcategory">
 									<option value=""></option><?php
 									$query = mysqli_query ( $dbc, "SELECT DISTINCT(`category`) FROM `inventory` WHERE `deleted`=0 ORDER BY `category`" );
 									while ( $row = mysqli_fetch_array ( $query ) ) { ?>
@@ -310,8 +310,8 @@ if($strict_view > 0) {
 				<div class="col-sm-12"><?php
 					if ( strpos ( $value_config, ',Category,' ) !== FALSE ) { ?>
 						<div class="col-sm-4 <?= !($tile_security['edit'] > 0) ? 'readonly-block' : '' ?> double-gap-bottom">
-							<label class="text-center">Category</label>
-							<select data-placeholder="Choose a Category..." name="new_category" class="chosen-select-deselect form-control">
+							<label class="text-center">Tab</label>
+							<select data-placeholder="Choose a Tab..." name="new_category" class="chosen-select-deselect form-control">
 								<option value=""></option><?php
 								$query = mysqli_query ( $dbc, "SELECT DISTINCT(`category`) FROM `products` WHERE `deleted`=0 ORDER BY `category`" );
 								while ( $row = mysqli_fetch_array ( $query ) ) { ?>
@@ -322,8 +322,8 @@ if($strict_view > 0) {
 					}
 					if ( strpos ( $value_config, ',Type,' ) !== FALSE ) { ?>
 						<div class="col-sm-4 <?= !($tile_security['edit'] > 0) ? 'readonly-block' : '' ?> double-gap-bottom">
-							<label class="text-center">Product Type</label>
-							<select data-placeholder="Choose a Category..." name="new_type" class="chosen-select-deselect form-control">
+							<label class="text-center">Product Tab</label>
+							<select data-placeholder="Choose a Tab..." name="new_type" class="chosen-select-deselect form-control">
 								<option value=""></option><?php
 								$query = mysqli_query ( $dbc, "SELECT DISTINCT(`product_type`) FROM `products` WHERE `deleted`=0 ORDER BY `product_type`" );
 								while ( $row = mysqli_fetch_array ( $query ) ) { ?>

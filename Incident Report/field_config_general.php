@@ -7,6 +7,10 @@
 	$inc_rep_saved_tab = filter_var($_POST['inc_rep_saved_tab'],FILTER_SANITIZE_STRING);
 	set_config($dbc, 'inc_rep_saved_tab', $inc_rep_saved_tab);
 
+	//Rows per Page
+	$inc_rep_rows_per_page = filter_var($_POST['inc_rep_rows_per_page'],FILTER_SANITIZE_STRING);
+	set_config($dbc, 'inc_rep_rows_per_page', $inc_rep_rows_per_page);
+
 	//Logo
 	if (!file_exists('download')) {
 		mkdir('download', 0777, true);
@@ -135,6 +139,13 @@
   	<label class="col-sm-4 control-label">Save to Journal:<br /><em>Creating or updating <?= INC_REP_TILE ?> will create a note in the user's Journal.</em></label>
   	<div class="col-sm-8">
   		<label class="form-checkbox"><input type="checkbox" name="inc_rep_save_journal" value="1" <?= $inc_rep_save_journal == 1 ? 'checked' : '' ?>> Enable</label>
+  	</div>
+  </div>
+  <div class="form-group">
+  	<?php $inc_rep_rows_per_page = get_config($dbc, 'inc_rep_rows_per_page') > 0 ? get_config($dbc, 'inc_rep_rows_per_page') : 25; ?>
+  	<label class="col-sm-4 control-label">Number of Rows Per Page:<br /><em>This will display the inputted number of rows per page in the <?= INC_REP_TILE ?> Dashboard.</em></label>
+  	<div class="col-sm-8">
+  		<input type="number" name="inc_rep_rows_per_page" value="<?= $inc_rep_rows_per_page ?>" class="form-control" min="0" step="1">
   	</div>
   </div>
 </div>

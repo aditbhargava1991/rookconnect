@@ -87,6 +87,8 @@ if(!empty($_POST['submit'])) {
             $tile_settings = 'active_tab';
         } else if($_GET['category'] == 'quick_actions') {
             $quick_actions = 'active_tab';
+        } else if($_GET['category'] == 'mandatory_field') {
+          $mandatory_field = 'active_tab';
         } else if($_GET['category'] == 'add_field') {
             $add_field = 'active_tab';
         } else if($_GET['category'] == 'auto_archive') {
@@ -98,6 +100,7 @@ if(!empty($_POST['submit'])) {
         echo "<a href='field_config_project_manage.php?category=tile_settings'><button type='button' class='btn brand-btn mobile-block ".$tile_settings."'>Tile Settings</button></a>";
         echo "<a href='field_config_project_manage.php?category=add_tab'><button type='button' class='btn brand-btn mobile-block ".$add_tab."'>Edit Task Tabs</button></a>";
         echo "<a href='field_config_project_manage.php?category=add_field'><button type='button' class='btn brand-btn mobile-block ".$add_field."'>Edit Task Fields</button></a>";
+        echo "<a href='field_config_project_manage.php?category=mandatory_field'><button type='button' class='btn brand-btn mobile-block ".$mandatory_field."'>Edit Mandatory Task Fields</button></a>";
         echo "<a href='field_config_project_manage.php?category=quick_actions'><button type='button' class='btn brand-btn mobile-block ".$quick_actions."'>Quick Actions</button></a>";
         echo "<a href='field_config_project_manage.php?category=auto_archive'><button type='button' class='btn brand-btn mobile-block ".$auto_archive."'>Auto Archive Settings</button></a>";
         ?>
@@ -524,6 +527,30 @@ if(!empty($_POST['submit'])) {
                         </div>
                     </div>
                 </div>
+              <?php } else if($_GET['category'] == 'mandatory_field') { ?>
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                            <h4 class="panel-title">
+                            <span class="popover-examples list-inline"><a data-toggle="tooltip" data-placement="top" title="Click here to add or remove your Tabs."><img src=" <?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
+                            <a data-toggle="collapse" data-parent="#accordion_tabs" href="#collapse_00">
+                                Mandatory Task Fields<span class="glyphicon glyphicon-plus"></span>
+                            </a>
+                        </h4>
+                    </div>
+
+                    <div class="panel-collapse collapse in" id="collapse_00" style="height: auto;">
+                        <div class="panel-body">
+                            <?php $get_field_config_tiles = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT task_fields FROM task_dashboard")); ?>
+                            <?php $task_mandatory_fields = explode(",", $get_field_config_tiles['task_fields']); ?>
+                            <?php $get_mandatory_field_config_tiles = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT task_fields FROM task_dashboard_mandatory")); ?>
+                            <?php $task_get_mandatory_fields = ','.$get_mandatory_field_config_tiles['task_fields'] . ','; ?>
+                            <?php foreach($task_mandatory_fields as $mandatory_field): ?>
+                                <input type="checkbox" onchange="saveMandatoryFields(this)" name="task_mandatory_fields[]" <?= (strpos($task_get_mandatory_fields, ','.$mandatory_field.',') !== FALSE ? 'checked' : '') ?> style="height: 20px; width: 20px;" value="<?php echo $mandatory_field; ?>">&nbsp;&nbsp;<?php echo $mandatory_field; ?>
+                                &nbsp;&nbsp;
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                </div>
                 <?php } else if($_GET['category'] == 'auto_archive') { ?>
                 <input type="hidden" name="auto_archive_config" value="1">
                 <div class="panel panel-default">
@@ -572,4 +599,18 @@ if(!empty($_POST['submit'])) {
         </form>
     </div>
 </div>
+<script>
+function saveMandatoryFields() {
+	var tab_list = [];
+	$('[name="task_mandatory_fields[]"]:checked').not(':disabled').each(function() {
+		tab_list.push(this.value);
+	});
+
+	$.ajax({    //create an ajax request to ajax_all.php
+		type: "GET",
+		url: "task_ajax_all.php?fill=setting_mandatory_fields&tab_list="+tab_list,
+		dataType: "html",   //expect html to be returned
+	});
+}
+</script>
 <?php include ('../footer.php'); ?>
