@@ -28,6 +28,9 @@ if($invoice_mode != 'Adjustment') {
 	$misc_patient_price = 0;
 	$misc_insurer_price = [];
 
+    $contract = isset($_POST['contract']) ? filter_var(htmlentities($_POST['contract']),FILTER_SANITIZE_STRING) : '';
+    $po_num = isset($_POST['po_num']) ? filter_var(htmlentities($_POST['po_num']),FILTER_SANITIZE_STRING) : '';
+    $area = isset($_POST['area']) ? filter_var(htmlentities($_POST['area']),FILTER_SANITIZE_STRING) : '';
     $reference = isset($_POST['reference']) ? filter_var(htmlentities($_POST['reference']),FILTER_SANITIZE_STRING) : '';
 	$comment = filter_var(htmlentities($_POST['comment']),FILTER_SANITIZE_STRING);
 
@@ -383,7 +386,13 @@ if($invoice_mode != 'Adjustment') {
             //Update Inventory quantity
             if ( $invoice_mode != 'Saved' ) {
                 $qty = filter_var($_POST['quantity'][$i], FILTER_SANITIZE_STRING);
-                mysqli_query($dbc, "UPDATE `inventory` SET `quantity`=`quantity`-'$qty' WHERE `inventoryid`='$inv'");
+                $query_inv = "UPDATE `inventory` SET `quantity`=`quantity`-'$qty' WHERE `inventoryid`='$inv'";
+                mysqli_query($dbc, $query_inv);
+                
+                //Connection set on database_connection.php Check Admin Settings > Sync Inventory for details.
+                if ( $dbc_inventory ) {
+                    mysqli_query($dbc_inventory, $query_inv);
+                }
             }
 
 			$promo_applied = 0;
@@ -773,6 +782,21 @@ if($invoice_mode != 'Adjustment') {
     //Update Reference (similar to POS Basic. SEA Alberta is using this)
     if ( !empty($reference) ) {
         mysqli_query($dbc, "UPDATE `contacts` SET `referred_by`='$reference' WHERE `contactid`='$patientid'");
+    }
+
+    //Update Contract
+    if ( !empty($contract) ) {
+        mysqli_query($dbc, "UPDATE `invoice` SET `contract`='$contract' WHERE `invoiceid`='$invoiceid'");
+    }
+
+    //Update PO #
+    if ( !empty($po_num) ) {
+        mysqli_query($dbc, "UPDATE `invoice` SET `po_num`='$po_num' WHERE `invoiceid`='$invoiceid'");
+    }
+
+    //Update Area
+    if ( !empty($area) ) {
+        mysqli_query($dbc, "UPDATE `invoice` SET `area`='$area' WHERE `invoiceid`='$invoiceid'");
     }
         
     //Update promotion times_used
@@ -1411,7 +1435,13 @@ if($invoice_mode != 'Adjustment') {
         //Update Inventory quantity
         if ( $invoice_mode!='Saved' && $inv > 0 ) {
             $qty = filter_var($_POST['quantity'][$i], FILTER_SANITIZE_STRING);
-            mysqli_query($dbc, "UPDATE `inventory` SET `quantity`=`quantity`-'$qty' WHERE `inventoryid`='$inv'");
+            $query_inv = "UPDATE `inventory` SET `quantity`=`quantity`-'$qty' WHERE `inventoryid`='$inv'";
+            mysqli_query($dbc, $query_inv);
+            
+            //Connection set on database_connection.php Check Admin Settings > Sync Inventory for details.
+            if ( $dbc_inventory ) {
+                mysqli_query($dbc_inventory, $query_inv);
+            }
         }
 	}
 

@@ -205,7 +205,6 @@ function displayLockAlerts() {
 		<div class="col-sm-8">
 			<?php $staff_schedule_limit_by_staff = ','.get_config($dbc, 'staff_schedule_limit_by_staff').','; ?>
 			<select name="staff_schedule_limit_by_staff[]" multiple class="chosen-select-deselect form-control">
-				<option></option>
 				<?php $staff_list = sort_contacts_query(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name` FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `deleted`=0 AND `status`=1 AND `show_hide_user`=1"));
 				foreach($staff_list as $staff) {
 					echo '<option value="'.$staff['contactid'].'" '.(strpos($staff_schedule_limit_by_staff,','.$staff['contactid'].',') !== FALSE ? 'selected' : '').'>'.$staff['full_name'].'</option>';
@@ -218,7 +217,6 @@ function displayLockAlerts() {
 		<div class="col-sm-8">
 			<?php $staff_schedule_limit_by_security = ','.get_config($dbc, 'staff_schedule_limit_by_security').','; ?>
 			<select name="staff_schedule_limit_by_security[]" multiple class="chosen-select-deselect form-control">
-				<option></option>
 				<?php foreach(get_security_levels($dbc) as $security_name => $security_level) {
 					echo '<option value="'.$security_level.'" '.(strpos($staff_schedule_limit_by_security, ','.$security_level.',') !== FALSE ? 'selected' : '').'>'.$security_name.'</option>';
 				} ?>

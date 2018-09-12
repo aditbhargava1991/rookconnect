@@ -68,7 +68,7 @@ if(!empty($_GET['formid'])) {
     $desc = $get_field_level['desc'];
     $all_task = $get_field_level['all_task'];
     $fields = explode('**FFM**', $get_field_level['fields']);
-    
+
 }
 ?>
 
@@ -380,7 +380,7 @@ $form_config = ','.$get_field_config['fields'].',';
                     echo "<table class='table table-bordered'>";
                     echo "<tr class='hidden-xs hidden-sm'>
                     <th>Priority</th>
-                    <th>Tasks</th>
+                    <th>".TASK_TILE."</th>
                     <th>Hazards</th>
                     <th>Controls</th>
 					<th>Risk Level</th>";
@@ -411,7 +411,7 @@ $form_config = ','.$get_field_config['fields'].',';
                             <input type="text" name="task[]" class="task_list"/>
                         </div>
                         <div class="col-md-2 col-sm-6 col-xs-6 padded">
-                            <p>Tasks</p>
+                            <p><?= TASK_TILE ?></p>
                             <input type="text" name="hazard[]" class="task_list"/>
                         </div>
                         <div class="col-md-2 col-sm-6 col-xs-6 padded">

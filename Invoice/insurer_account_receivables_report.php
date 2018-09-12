@@ -5,7 +5,8 @@ Client Listing
 include ('../include.php');
 include_once('../tcpdf/tcpdf.php');
 error_reporting(0);
-if(FOLDER_NAME == 'posadvanced') {
+if(!empty($folder)) {
+} else if(FOLDER_NAME == 'posadvanced') {
     checkAuthorised('posadvanced');
 } else {
     checkAuthorised('check_out');
@@ -100,10 +101,10 @@ define('PAYER_LABEL', count($payer_config) > 1 ? 'Third Party' : $payer_config[0
         <div class="col-md-12">
         <h2><?= PAYER_LABEL ?> Accounts Receivable</h2>
 		
-        <?php if(config_visible_function($dbc, (FOLDER_NAME == 'posadvanced' ? 'posadvanced' : 'check_out')) == 1) {
+        <?php if(!isset($download_folder) && config_visible_function($dbc, (FOLDER_NAME == 'posadvanced' ? 'posadvanced' : 'check_out')) == 1) {
             echo '<a href="field_config_invoice.php" class="mobile-block pull-right "><img style="width: 50px;" title="Tile Settings" src="../img/icons/settings-4.png" class="settings-classic wiggle-me"></a>';
         } ?>
-		<?php include('tile_tabs.php'); ?>
+		<?php include($folder.'tile_tabs.php'); ?>
         
         <form id="form1" name="form1" method="post" action="" enctype="multipart/form-data" class="form-horizontal" role="form">
 

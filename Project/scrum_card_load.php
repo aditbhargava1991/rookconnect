@@ -131,7 +131,7 @@ if($type == 'Ticket') {
 			<label class="col-sm-4">Staff:</label>
 			<div class="col-sm-8 '.(!($security['edit'] > 0) ? 'readonly-block' : '').'">
 			<select name="contactid[]" multiple data-concat="," data-table="tickets" data-id="'.$item['ticketid'].'" data-id-field="ticketid" class="chosen-select-deselect" data-placeholder="Select Staff">
-				<option></option>';
+				';
 				foreach($staff_list as $staff) {
 					$contents .= '<option '.(in_array($staff['contactid'],explode(',',$item['contactid'])) ? 'selected' : '').' value="'.$staff['contactid'].'">'.$staff['first_name'].' '.$staff['last_name'].'</option>';
 				}
@@ -360,7 +360,8 @@ if($type == 'Ticket') {
 	$flag_colours = explode(',',get_config($dbc,'ticket_colour_flags'));
 	$actions = '<a target="_parent" href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Checklist/edit_checklist.php?edit='.$item['checklistid'].'\'); return false;"><img src="../img/icons/ROOK-edit-icon.png" class="inline-img no-toggle" title="Edit"></a>'.
 		'<input type="file" name="attach_checklist_board_'.$item['checklistid'].'" style="display:none;" />'.
-		(in_array('flag_manual',$quick_actions) || in_array('flag',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-flag-icon.png" class="inline-img flag-icon no-toggle" title="Flag This!': '').
+		(in_array('flag_manual',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-flag-icon.png" class="inline-img manual-flag-icon no-toggle" title="Flag This!">': '').
+		(!in_array('flag_manual',$quick_actions) && in_array('flag',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-flag-icon.png" class="inline-img manual-flag-icon no-toggle" title="Flag This!">': '').
 		(in_array('alert',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-alert-icon.png" class="inline-img alert-icon no-toggle" title="Activate Alerts &amp; Get Notified">' : '').
 		(in_array('email',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-email-icon.png" class="inline-img email-icon no-toggle" title="Send Email">' : '').
 		(in_array('reminder',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-reminder-icon.png" class="inline-img reminder-icon no-toggle" title="Schedule Reminder">' : '').
@@ -420,7 +421,7 @@ if($type == 'Ticket') {
 			<option <?= $external_milestone == $item_external ? 'selected' : '' ?> value="<?= $external_milestone ?>"><?= $external_milestone ?></option>
 		<?php } ?></select></div>
 	<div class="select_users" style="display:none;">
-		<select data-placeholder="Select Staff" multiple class="chosen-select-deselect"><option></option>
+		<select data-placeholder="Select Staff" multiple class="chosen-select-deselect">
 		<?php foreach($staff_list as $staff) { ?>
 			<option value="<?= $staff['contactid'] ?>"><?= $staff['first_name'].' '.$staff['last_name'] ?></option>
 		<?php } ?>

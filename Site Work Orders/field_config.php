@@ -8,18 +8,18 @@ if (isset($_POST['submit'])) {
 	$staff_leads = implode(',',$_POST['team_leads']);
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'site_work_order_leads' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='site_work_order_leads') num WHERE num.rows=0");
 	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='$staff_leads' WHERE `name`='site_work_order_leads'");
-	
+
 	// Driving Log Equipment Category
 	$site_log_equip_cat = implode(',',$_POST['site_log_equip_cat']);
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'site_log_equip_cat' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='site_log_equip_cat') num WHERE num.rows=0");
 	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='$site_log_equip_cat' WHERE `name`='site_log_equip_cat'");
-	
+
 	// Maximum Timer Time
 	$max_timer = explode(':',$_POST['max_timer']);
 	$max_timer = ($max_timer[0] * 3600) + ($max_timer[1] * 60);
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'max_timer' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='max_timer') num WHERE num.rows=0");
 	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='$max_timer' WHERE `name`='max_timer'");
-	
+
 	// General Flag Colours
 	$colours = [];
 	foreach($_POST['flag_colours'] as $colour) {
@@ -27,7 +27,7 @@ if (isset($_POST['submit'])) {
 	}
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'general_flag_colours' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='general_flag_colours') num WHERE num.rows=0");
 	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".implode('#*#',$colours)."' WHERE `name`='general_flag_colours'");
-	
+
 	$task_groups = [];
 	foreach($_POST as $key => $value) {
 		if(substr($key,0,10) == 'taskgroup_') {
@@ -101,7 +101,7 @@ $site_work_order_staff_groups = get_config($dbc, 'site_work_order_staff_groups')
 			<div class="panel-body">
 				<label class="col-sm-4 control-label">Team Leads</label>
 				<div class="col-sm-8">
-					<select name="team_leads[]" multiple class="chosen-select-deselect form-control" data-placeholder="Select Team Leads"><option></option>
+					<select name="team_leads[]" multiple class="chosen-select-deselect form-control" data-placeholder="Select Team Leads">
 						<?php $staff_list = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT `first_name`, `last_name`, `contactid` FROM `contacts` WHERE `category`='Staff' AND `deleted`=0 AND `status`=1"), MYSQLI_ASSOC));
 						foreach($staff_list as $id) {
 							echo "<option ".(in_array($id, $staff_leads) ? 'selected' : '')." value='$id'>".get_contact($dbc, $id)."</option>";
@@ -111,7 +111,7 @@ $site_work_order_staff_groups = get_config($dbc, 'site_work_order_staff_groups')
 			</div>
 		</div>
 	</div>
-	
+
 	<div class="panel panel-default">
 		<div class="panel-heading">
 			<h4 class="panel-title">
@@ -125,7 +125,7 @@ $site_work_order_staff_groups = get_config($dbc, 'site_work_order_staff_groups')
 			<div class="panel-body">
 				<label class="col-sm-4 control-label">Driving Log Equipment Category</label>
 				<div class="col-sm-8">
-					<select name="site_log_equip_cat[]" multiple class="chosen-select-deselect form-control" data-placeholder="Select Equipment Category"><option></option>
+					<select name="site_log_equip_cat[]" multiple class="chosen-select-deselect form-control" data-placeholder="Select Equipment Category">
 						<?php $cat_list = explode(',', get_config($dbc, 'equipment_tabs'));
 						$site_log_equip_cat = explode(',',get_config($dbc, 'site_log_equip_cat'));
 						foreach($cat_list as $equip_cat) {
@@ -136,12 +136,12 @@ $site_work_order_staff_groups = get_config($dbc, 'site_work_order_staff_groups')
 			</div>
 		</div>
 	</div>
-	
+
 	<div class="panel panel-default">
 		<div class="panel-heading">
 			<h4 class="panel-title">
 				<a data-toggle="collapse" data-parent="#accordion2" href="#collapse_tasks" >
-					Site Work Order Tasks<span class="glyphicon glyphicon-plus"></span>
+					Site Work Order <?= TASK_TILE ?><span class="glyphicon glyphicon-plus"></span>
 				</a>
 			</h4>
 		</div>
@@ -150,7 +150,6 @@ $site_work_order_staff_groups = get_config($dbc, 'site_work_order_staff_groups')
 			<div class="panel-body">
 				<div class="col-sm-12"><div class="form-group"><label class="col-sm-4 control-label">Who can view Site Work Orders: </label><div class="col-sm-8">
 					<select multiple data-placeholder="Select Staff Category" name="site_work_order_staff_groups[]" class="chosen-select-deselect form-control">
-						<option></option>
 						<?php $query = mysqli_query($dbc, "SELECT DISTINCT `position` FROM `contacts` WHERE `category` = 'Staff' ORDER BY `position`");
 						while ($row = mysqli_fetch_array($query)) {
 							echo "<option ".(strpos(','.$site_work_order_staff_groups.',', ','.$row['position'].',') !== FALSE ? 'selected' : '')." value='".$row['position']."'>".$row['position']."</option>";
@@ -208,7 +207,7 @@ $site_work_order_staff_groups = get_config($dbc, 'site_work_order_staff_groups')
 				<div class="col-sm-12"><div class="form-group"><div class="col-sm-offset-4 col-sm-8" style="">
 					<label class="control-label" style="color: #ffffff;">Select staff positions that you would like to have read-only access to for Site Work Order accordions.</label>
 				</div></div></div>
-			<?php 
+			<?php
 				$accordion_list = ['who' => 'Who', 'staff' => 'Staff & Crew', 'services' => 'Services', 'equip' => 'Equipment', 'material' => 'Materials', 'where' => 'Where', 'when' => 'When', 'docs' => 'Support Documents', 'checklist' => 'Site Checklist', 'pos' => 'Purchase Orders', 'comments' => 'Comments', 'safety' => 'Safety Checklist', 'addendum' => 'Addendum'];
 				foreach ($accordion_list as $accordion => $accordion_title) {
 					$permission = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `general_configuration` WHERE `name` = 'swo_readonly_".$accordion."'"));
@@ -216,7 +215,6 @@ $site_work_order_staff_groups = get_config($dbc, 'site_work_order_staff_groups')
 			?>
 				<div class="col-sm-12"><div class="form-group"><label class="col-sm-4 control-label"><?php echo $accordion_title; ?>: </label><div class="col-sm-8">
 					<select multiple data-placeholder="Select Staff Positions" name="swo_readonly_<?php echo $accordion; ?>[]" class="chosen-select-deselect form-control">
-						<option></option>
 						<?php
 							$query = mysqli_query($dbc, "SELECT DISTINCT `position` FROM `contacts` WHERE `category` = 'Staff' AND `deleted` = 0 AND `status` = 1");
 							while ($row = mysqli_fetch_array($query)) {
@@ -231,7 +229,7 @@ $site_work_order_staff_groups = get_config($dbc, 'site_work_order_staff_groups')
 			</div>
 		</div>
 	</div>
-	
+
 	<div class="panel panel-default">
 		<div class="panel-heading">
 			<h4 class="panel-title">
@@ -255,7 +253,7 @@ $site_work_order_staff_groups = get_config($dbc, 'site_work_order_staff_groups')
 			</div>
 		</div>
 	</div>
-		
+
 	<div class="panel panel-default">
 		<div class="panel-heading">
 			<h4 class="panel-title">

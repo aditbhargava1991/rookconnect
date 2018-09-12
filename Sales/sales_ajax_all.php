@@ -553,11 +553,22 @@ if($_GET['action'] == 'dashboard_lead_statuses') {
 	set_config($dbc, 'sales_lead_status', implode(',',$_POST['sales_lead_status']));
 }
 if($_GET['action'] == 'setting_lead_status') {
-	set_config($dbc, 'sales_lead_status', filter_var($_GET['sales_lead_status'],FILTER_SANITIZE_STRING));
-	set_config($dbc, 'lead_status_won', filter_var($_GET['lead_status_won'],FILTER_SANITIZE_STRING));
-	set_config($dbc, 'lead_status_lost', filter_var($_GET['lead_status_lost'],FILTER_SANITIZE_STRING));
-	set_config($dbc, 'lead_status_retained', filter_var($_GET['lead_status_retained'],FILTER_SANITIZE_STRING));
-	set_config($dbc, 'lead_convert_to', filter_var($_GET['lead_convert_to'],FILTER_SANITIZE_STRING));
+    $current_sales_contacts = explode(',',get_config($dbc, 'lead_all_contact_cat'));
+    foreach(explode(',',$_POST['lead_all_contact_cat']) as $new_sales_contact_cat) {
+        if(!in_array($new_sales_contact_cat,$current_sales_contacts)) {
+            // ID Card Fields
+            set_config($dbc, config_safe_str($new_sales_contact_cat).'_id_card_fields', get_config($dbc, config_safe_str($new_sales_contact_cat).'_id_card_fields').',Sales Lead');
+            // Profile Additions
+            mysqli_query($dbc, "UPDATE `field_config_contacts` SET `contacts`=CONCAT(IFNULL(CONCAT(`contacts`,','),''),',Sales Lead Details,') WHERE `tab`='$new_sales_contact_cat' AND `subtab`='additions'");
+        }
+    }
+	set_config($dbc, 'sales_lead_status', filter_var($_POST['sales_lead_status'],FILTER_SANITIZE_STRING));
+	set_config($dbc, 'lead_status_won', filter_var($_POST['lead_status_won'],FILTER_SANITIZE_STRING));
+	set_config($dbc, 'lead_status_lost', filter_var($_POST['lead_status_lost'],FILTER_SANITIZE_STRING));
+	set_config($dbc, 'lead_status_retained', filter_var($_POST['lead_status_retained'],FILTER_SANITIZE_STRING));
+	set_config($dbc, 'lead_convert_to', filter_var($_POST['lead_convert_to'],FILTER_SANITIZE_STRING));
+	set_config($dbc, 'lead_new_contact_cat', filter_var($_POST['lead_new_contact_cat'],FILTER_SANITIZE_STRING));
+	set_config($dbc, 'lead_all_contact_cat', filter_var($_POST['lead_all_contact_cat'],FILTER_SANITIZE_STRING));
 	set_config($dbc, 'sales_quick_reports', implode(',',$_POST['sales_quick_reports']));
 }
 if($_GET['action'] == 'setting_auto_archive') {
@@ -641,7 +652,8 @@ if($_GET['action'] == 'update_fields') {
             if(isEncrypted($field)) {
                 $value = encryptIt($value);
             }
-            $dbc->query("INSERT INTO `$table` (`category`,`$field`".($field == 'name' ? '' : ',`businessid`').") VALUES ('Sales Leads','$value'".($field == 'name' ? '' : ",'".filter_var($_POST['business'],FILTER_SANITIZE_STRING)."'").")");
+            $new_contact_cat = get_config($dbc, 'lead_new_contact_cat');
+            $dbc->query("INSERT INTO `$table` (`category`,`$field`".($field == 'name' ? '' : ',`businessid`').") VALUES ('$new_contact_cat','$value'".($field == 'name' ? '' : ",'".filter_var($_POST['business'],FILTER_SANITIZE_STRING)."'").")");
             echo $dbc->insert_id;
             $target_field = filter_var($_POST['target'],FILTER_SANITIZE_STRING);
             $dbc->query("UPDATE `sales` SET `$target_field`='".$dbc->insert_id."' WHERE `salesid`='$salesid'");
@@ -674,5 +686,25 @@ if($_GET['action'] == 'new_lead') {
     $businessid = filter_var($_POST['businessid'],FILTER_SANITIZE_STRING);
     $dbc->query("INSERT INTO `contacts` (`category`,`first_name`,`businessid`) VALUES ('Sales Leads','".encryptIt('New Sales Lead')."','$businessid')");
     echo $dbc->insert_id;
+}
+if($_GET['action'] == 'sales_path') {
+    $salesid = filter_var($_POST['salesid'],FILTER_SANITIZE_STRING);
+    foreach($_POST['milestones'] as $milestone) {
+        $label = filter_var($milestone['name'],FILTER_SANITIZE_STRING);
+        $dbc->query("INSERT INTO `sales_path_custom_milestones` (`salesid`,`label`) VALUES ('$salesid','$label')");
+        $milestone_id = $dbc->insert_id;
+        $name = config_safe_str($label).'.'.$milestone_id;
+        $dbc->query("UPDATE `sales_path_custom_milestones` SET `milestone`='$name',`sort`='$milestone_id' WHERE `id`='$milestone_id'");
+        foreach($milestone['tasks'] as $i => $task) {
+            $task = filter_var($task,FILTER_SANITIZE_STRING);
+            $staff = filter_var($milestone['task_staff'][$i],FILTER_SANITIZE_STRING);
+            $dbc->query("INSERT INTO `tasklist` (`heading`,`contactid`,`salesid`,`sales_milestone`) VALUES ('$task','$staff','$salesid','$name')");
+        }
+        foreach($milestone['intakes'] as $i => $form) {
+            if($form > 0) {
+                $dbc->query("INSERT INTO `intake` (`intakeformid`,`salesid`,`sales_milestone`) VALUES ('$form','$salesid','$name')");
+            }
+        }
+    }
 }
 ?>

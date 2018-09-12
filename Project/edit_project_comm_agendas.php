@@ -108,6 +108,3 @@ if($num_rows > 0) {
 } else {
     echo "<h4>No Agendas Found.</h4>";
 } ?>
-
-<div class="clearfix"></div>
-<hr />

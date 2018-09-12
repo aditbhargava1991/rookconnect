@@ -1,7 +1,7 @@
 <?php include_once('../include.php');
 include_once('../Ticket/field_list.php');
 include_once('../Ticket/config.php');
-if(!isset($ticketid)) {
+if(empty($ticketid)) {
 	$access_view_project_info = check_subtab_persmission($dbc, 'ticket', ROLE, 'view_project_info');
 	$access_view_project_details = check_subtab_persmission($dbc, 'ticket', ROLE, 'view_project_details');
 	$access_view_staff = check_subtab_persmission($dbc, 'ticket', ROLE, 'view_staff');
@@ -12,8 +12,8 @@ if(!isset($ticketid)) {
 	$get_ticket = $dbc->query("SELECT * FROM `tickets` WHERE `ticketid`='$ticketid'")->fetch_assoc();
 	$value_config = get_field_config($dbc, 'tickets');
 	$sort_order = explode(',',get_config($dbc, 'ticket_sortorder'));
-	if(!empty($get_ticket['type'])) {
-		$ticket_type = $get_ticket['type'];
+	$ticket_type = empty($get_ticket['ticket_type']) ? $ticket_type : $get_ticket['ticket_type'];
+	if(!empty($ticket_type)) {
 		$value_config .= get_config($dbc, 'ticket_fields_'.$ticket_type).',';
 		$sort_order = explode(',',get_config($dbc, 'ticket_sortorder_'.$ticket_type));
 	}

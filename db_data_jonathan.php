@@ -131,15 +131,20 @@
 			echo "Error: ".mysqli_error($dbc)."<br />\n";
 		}
 		
-		set_config($dbc, 'db_version_jonathan', 8);
-	}
-	
-	if($db_version_jonathan < 9) {
 		// July 25, 2018
 		if(!mysqli_query($dbc, "ALTER TABLE `ticket_pdf_field_values` ADD `deleted` TINYINT(1) NOT NULL DEFAULT 0")) {
 			echo "Error: ".mysqli_error($dbc)."<br />\n";
 		}
 		
+		// July 4, 2018
+		if(!mysqli_query($dbc, "ALTER TABLE `phone_communication` ADD `file` TEXT AFTER `comment`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+		if(!mysqli_query($dbc, "ALTER TABLE `phone_communication` ADD `manual` VARCHAR(20) AFTER `contactid`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+		
+		set_config($dbc, 'db_version_jonathan', 7);
 		// July 23, 2018
 		if(!mysqli_query($dbc, "ALTER TABLE `sales` ADD `flag_colour` VARCHAR(7) AFTER `contactid`")) {
 			echo "Error: ".mysqli_error($dbc)."<br />\n";
@@ -281,6 +286,60 @@
     
     //August 29, 2018
 		if(!mysqli_query($dbc, "ALTER TABLE `email_communication` ADD `salesid` INT(11) UNSIGNED NOT NULL DEFAULT 0 AFTER `contactid`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+    
+        //August 31, 2018
+		if(!mysqli_query($dbc, "ALTER TABLE `invoice` ADD `area` TEXT AFTER `injuryid`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+		if(!mysqli_query($dbc, "ALTER TABLE `invoice` ADD `po_num` TEXT AFTER `injuryid`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+		if(!mysqli_query($dbc, "ALTER TABLE `invoice` ADD `contract` TEXT AFTER `injuryid`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+    
+        //September 5, 2018
+		if(!mysqli_query($dbc, "ALTER TABLE `project` CHANGE `projection_service_heading` `projection_service_heading` TEXT")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+		if(!mysqli_query($dbc, "ALTER TABLE `project` CHANGE `projection_service_price` `projection_service_price` TEXT")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+		if(!mysqli_query($dbc, "ALTER TABLE `project` CHANGE `projection_product_heading` `projection_product_heading` TEXT")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+		if(!mysqli_query($dbc, "ALTER TABLE `project` CHANGE `projection_product_price` `projection_product_price` TEXT")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+		if(!mysqli_query($dbc, "ALTER TABLE `project` CHANGE `projection_task_heading` `projection_task_heading` TEXT")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+		if(!mysqli_query($dbc, "ALTER TABLE `project` CHANGE `projection_task_price` `projection_task_price` TEXT")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+		if(!mysqli_query($dbc, "ALTER TABLE `project` CHANGE `projection_inventory_heading` `projection_inventory_heading` TEXT")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+		if(!mysqli_query($dbc, "ALTER TABLE `project` CHANGE `projection_inventory_price` `projection_inventory_price` TEXT")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+		if(!mysqli_query($dbc, "ALTER TABLE `project` CHANGE `projection_admin_heading` `projection_admin_heading` TEXT")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+		if(!mysqli_query($dbc, "ALTER TABLE `project` CHANGE `projection_admin_price` `projection_admin_price` TEXT")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+		if(!mysqli_query($dbc, "ALTER TABLE `field_config_incident_report` ADD `user_emails` TINYINT(1) NOT NULL DEFAULT 0 AFTER `keep_revisions`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+		if(!mysqli_query($dbc, "ALTER TABLE `field_config_incident_report` ADD `all_emails` TEXT AFTER `user_emails`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+    
+        //September 6, 2018
+		if(!mysqli_query($dbc, "ALTER TABLE `project` ADD `deadline` VARCHAR(10) AFTER `followup`")) {
 			echo "Error: ".mysqli_error($dbc)."<br />\n";
 		}
 		

@@ -388,7 +388,7 @@ function get_tabs_social($tab = '')
         } else {
             $html .= "<button type='button' class='btn brand-btn mobile-block disabled-btn'>".$title."</button></a>";
         }
-		
+
 	}
 	return $html;
 }
@@ -612,7 +612,6 @@ function contact_call_social($dbc, $select_id, $select_name, $contact_value,$mul
         <label for="fax_number"	class="col-sm-4	control-label">Contact:</label>
         <div class="col-sm-8">
             <select <?php echo $multiple; ?> data-placeholder="Choose a Contact..." name="<?php echo $select_name; ?>" id="<?php echo $select_id; ?>" class="chosen-select-deselect form-control" width="380">
-              <option value=""></option>
               <?php if($contact_value != '') {
 
                 $query = mysqli_query($dbc,"SELECT contactid, name, first_name, last_name FROM contacts WHERE category = '$from_contact' order by name");

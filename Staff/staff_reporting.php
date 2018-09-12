@@ -219,7 +219,7 @@ if($endtime == 0000-00-00) {
         <label class="col-sm-4">Staff:</label>
         <div class="col-sm-8">
             <?php $query = sort_contacts_query(mysqli_query($dbc,"SELECT contactid, first_name, last_name FROM contacts WHERE deleted=0 AND status=1 AND category IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY."")); ?>
-            <select name="staffid[]" multiple data-placeholder="Select Staff" class="chosen-select-deselect"><option />
+            <select name="staffid[]" multiple data-placeholder="Select Staff" class="chosen-select-deselect">
                 <?php foreach($query as $staff) { ?>
                     <option <?= in_array($staff['contactid'],explode(',',$staffid)) ? 'selected' : '' ?> value="<?= $staff['contactid'] ?>"><?= $staff['first_name'].' '.$staff['last_name'] ?></option>
                 <?php } ?>

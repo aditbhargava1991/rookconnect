@@ -378,7 +378,6 @@ $tab_list = get_config($dbc, 'checklist_tabs_' . $_SESSION['contactid']); ?>
         </label>
         <div class="col-sm-8">
             <select name="subtab_shared[]" id="subtab_shared" multiple data-placeholder="Select Shared Contacts..." class="chosen-select-deselect form-control">
-                <option value=''></option>
                 <option value='ALL'>Share with Everyone</option>
                 <?php
                 $cat = '';
@@ -449,7 +448,6 @@ $tab_list = get_config($dbc, 'checklist_tabs_' . $_SESSION['contactid']); ?>
 		</label>
         <div class="col-sm-8">
             <select name="assign_staff[]" multiple data-placeholder="Select Assigned Staff..." class="chosen-select-deselect form-control">
-                <option value=''></option>
                 <option value='ALL'>Assign All Staff</option>
                 <?php
                 $cat = '';

@@ -794,7 +794,7 @@ checkAuthorised('hr');
 							<label for="first_name" class="col-sm-4 control-label text-right">Staff:</label>
 							<div class="col-sm-8">
 								<select name="assign_staff[]" data-placeholder="Choose a Staff Member..." class="chosen-select-deselect form-control" multiple width="380">
-									<option value=""></option><?php
+									<?php
 									$query = mysqli_query($dbc,"SELECT contactid, first_name, last_name FROM contacts WHERE category IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND deleted=0 AND status = 1 order by first_name");
 									//$check_assigned = mysqli_query ( $dbc, "SELECT c.`contactid` FROM `contacts` c INNER JOIN `manuals` m ON (c.`contactid` = " );
 

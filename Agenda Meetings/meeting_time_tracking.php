@@ -34,11 +34,11 @@ if($num_rows > 0) { ?>
 			}
 		}
 	}
-	
+
 	$hours = str_pad(floor($add_times / 3600),2,'0',STR_PAD_LEFT);
 	$minutes = str_pad(floor(($add_times % 3600) / 60),2,'0',STR_PAD_LEFT);
 	$seconds = str_pad(floor($add_times % 60),2,'0',STR_PAD_LEFT);
-	
+
 	echo '<tr><td><b>Total Time Spent - Timer</b></td><td colspan="3"><b>'.$hours.':'.$minutes.':'.$seconds.'</b></td></tr>';
 	echo '</table>';
 } else {

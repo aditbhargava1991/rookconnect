@@ -898,7 +898,7 @@ checkAuthorised('hr');
                                 <label for="first_name" class="col-sm-4 control-label text-right">Staff:</label>
                                 <div class="col-sm-8">
                                     <select name="assign_staff[]" data-placeholder="Choose a Staff Member..." class="chosen-select-deselect form-control" multiple width="380">
-                                        <option value=""></option><?php
+                                        <?php
                                         $query = mysqli_query($dbc, "SELECT contactid, first_name, last_name FROM contacts WHERE category IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND deleted=0 order by first_name");
                                         while($row = mysqli_fetch_array($query)) {
 											if ( !empty ( $assign_staff ) ) { ?>
@@ -1014,7 +1014,6 @@ checkAuthorised('hr');
                                 <label for="permissions_position" class="col-sm-4 control-label text-right">Permissions by Position:</label>
                                 <div class="col-sm-8">
                                 <select data-placeholder="Choose Positions..." id="permissions_position" name="permissions_position[]" class="chosen-select-deselect form-control" width="380" multiple>
-                                    <option value=""></option>
                                     <?php
                                         $query = "SELECT DISTINCT `position` FROM `contacts` WHERE `deleted` = 0";
                                         $result = mysqli_query($dbc, $query);

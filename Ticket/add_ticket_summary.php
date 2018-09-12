@@ -518,10 +518,10 @@ if(!empty($summary_hide_positions)) {
 						<td data-title="Tracked Hours"><?= $summary['checked_in'].' - '.$summary['checked_out'] ?></td>
 						<td data-title="Total Tracked Time">
 							<?php $tracked_time = '-';
-							if($summary['hours_tracked'] > 0) {
-								$tracked_time = number_format($summary['hours_tracked'],2);
-							} else if(!empty($summary['checked_out']) && !empty($summary['checked_in'])) {
+							if(!empty($summary['checked_out']) && !empty($summary['checked_in'])) {
 								$tracked_time = number_format((strtotime(date('Y-m-d').' '.$summary['checked_out']) - strtotime(date('Y-m-d').' '.$summary['checked_in']))/3600,2);
+							} else if($summary['hours_tracked'] > 0) {
+								$tracked_time = number_format($summary['hours_tracked'],2);
 							}
 							echo $tracked_time; ?>
 						</td>
@@ -551,10 +551,10 @@ if(!empty($summary_hide_positions)) {
 						<td data-title="Tracked Hours"><?= $summary['checked_in'].' - '.$summary['checked_out'] ?></td>
 						<td data-title="Total Tracked Time">
 							<?php $tracked_time = '-';
-							if($summary['hours_tracked'] > 0) {
-								$tracked_time = number_format($summary['hours_tracked'],2);
-							} else if(!empty($summary['checked_out']) && !empty($summary['checked_in'])) {
+							if(!empty($summary['checked_out']) && !empty($summary['checked_in'])) {
 								$tracked_time = number_format((strtotime(date('Y-m-d').' '.$summary['checked_out']) - strtotime(date('Y-m-d').' '.$summary['checked_in']))/3600,2);
+							} else if($summary['hours_tracked'] > 0) {
+								$tracked_time = number_format($summary['hours_tracked'],2);
 							}
 							echo $tracked_time; ?>
 						</td>
@@ -800,10 +800,10 @@ if(!empty($summary_hide_positions)) {
 						<td data-title="Tracked Hours"><?= $summary['checked_in'].' - '.$summary['checked_out'] ?></td>
 						<td data-title="Total Tracked Time">
 							<?php $tracked_time = '-';
-							if($summary['hours_tracked'] > 0) {
-								$tracked_time = number_format($summary['hours_tracked'],2);
-							} else if(!empty($summary['checked_out']) && !empty($summary['checked_in'])) {
+							if(!empty($summary['checked_out']) && !empty($summary['checked_in'])) {
 								$tracked_time = number_format((strtotime(date('Y-m-d').' '.$summary['checked_out']) - strtotime(date('Y-m-d').' '.$summary['checked_in']))/3600,2);
+							} else if($summary['hours_tracked'] > 0) {
+								$tracked_time = number_format($summary['hours_tracked'],2);
 							}
 							echo $tracked_time; ?>
 						</td>
@@ -836,10 +836,10 @@ if(!empty($summary_hide_positions)) {
 						<td data-title="Tracked Hours"><?= $summary['checked_in'].' - '.$summary['checked_out'] ?></td>
 						<td data-title="Total Tracked Time">
 							<?php $tracked_time = '-';
-							if($summary['hours_tracked'] > 0) {
-								$tracked_time = number_format($summary['hours_tracked'],2);
-							} else if(!empty($summary['checked_out']) && !empty($summary['checked_in'])) {
+							if(!empty($summary['checked_out']) && !empty($summary['checked_in'])) {
 								$tracked_time = number_format((strtotime(date('Y-m-d').' '.$summary['checked_out']) - strtotime(date('Y-m-d').' '.$summary['checked_in']))/3600,2);
+							} else if($summary['hours_tracked'] > 0) {
+								$tracked_time = number_format($summary['hours_tracked'],2);
 							}
 							echo $tracked_time; ?>
 						</td>

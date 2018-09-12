@@ -702,7 +702,6 @@ checkAuthorised();
                 <label for="first_name" class="col-sm-4 control-label text-right">Staff:</label>
                 <div class="col-sm-8">
                     <select name="assign_staff[]" data-placeholder="Choose a Staff Member..." class="chosen-select-deselect form-control" multiple width="380">
-                        <option value=''></option>
 						<?php
 					$query = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc,"SELECT contactid, first_name, last_name FROM contacts WHERE category IN (".STAFF_CATS.") AND IFNULL(`staff_category`,'') NOT IN (".STAFF_CATS_HIDE.") AND deleted=0 AND `status`>0"),MYSQLI_ASSOC));
 					foreach($query as $id) {
@@ -804,7 +803,7 @@ checkAuthorised();
 		  </div>
         </div>
 
-        
+
 
     </form>
 
