@@ -417,9 +417,9 @@ $(document).ready(function () {
 						</div>
 					</div>
 					<div class="form-group">
-						<label for="fax_number"	class="col-sm-4	control-label">Inspection Type:</label>
+						<label for="fax_number"	class="col-sm-4	control-label">Inspection Tab:</label>
 						<div class="col-sm-8">
-							<select name="type" data-placeholder="Select Type" class="chosen-select-deselect form-control"><option></option>
+							<select name="type" data-placeholder="Select Tab" class="chosen-select-deselect form-control"><option></option>
 								<option value="Pre Trip">Pre Trip</option>
 								<option value="Post Trip">Post Trip</option>
 								<option value="Maintenance">Maintenance</option>
@@ -455,9 +455,9 @@ $(document).ready(function () {
 				<div id="tab_section_equipment" class="tab-section col-sm-12">
 					<h4>Equipment Details</h4>
 					<div class="form-group">
-						<label for="fax_number"	class="col-sm-4	control-label">Category:</label>
+						<label for="fax_number"	class="col-sm-4	control-label">Tab:</label>
 						<div class="col-sm-8">
-							<select name="category" data-placeholder="Select a Category" class="chosen-select-deselect form-control"><option></option>
+							<select name="category" data-placeholder="Select a Tab" class="chosen-select-deselect form-control"><option></option>
 								<?php $list = mysqli_query($dbc, "SELECT `category` FROM `equipment` WHERE `deleted`=0 $access_query GROUP BY `category`");
 								while($row = mysqli_fetch_array($list)) {
 									echo "<option ".($category == $row['category'] ? 'selected' : '')." value='".$row['category']."'>".$row['category']."</option>";
@@ -504,7 +504,7 @@ $(document).ready(function () {
 				<div id="tab_section_checklist" class="tab-section col-sm-12">
 					<h4>Equipment Checklist</h4>
 					<div class="form-group">
-						<h4>Please select a category to view the relevant checklist.</h4>
+						<h4>Please select a tab to view the relevant checklist.</h4>
 					</div>
 					<hr>
 				</div>

@@ -91,7 +91,7 @@ $(document).ready(function() {
                             $note = 'Through this section, full services records and tracking can be done on all equipment. These records are ideal for reporting, sales, year end and tracking the profit and losses on all equipment.';
                             break;
                         case 'equipment_checklist':
-                            $note = 'A checklist is defined for either an equipment category, a type of equipment, or a specific piece of equipment. Once you have selected a piece of equipment, any checklists that match the piece of equipment will be displayed.';
+                            $note = 'A checklist is defined for either an equipment tab, a type of equipment, or a specific piece of equipment. Once you have selected a piece of equipment, any checklists that match the piece of equipment will be displayed.';
                             break;
                         default:
                             $note = 'Tracking and maintaining equipment is an essential element for every business. Through this section you\'ll be able to Add/Edit/Archive equipment you wish to use throughout projects or capture essential data on.';

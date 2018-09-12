@@ -182,9 +182,9 @@ if (isset($_POST['submit'])) {
     			}
     			</script>
     		    <div class="form-group">
-    			    <label for="phone_number" class="col-sm-4 control-label">Category<span class="hp-red">*</span>:</label>
+    			    <label for="phone_number" class="col-sm-4 control-label">Tab<span class="hp-red">*</span>:</label>
     			    <div class="col-sm-8">
-                        <select data-placeholder="Select Category..."  name="category" id="category" class="chosen-select-deselect form-control" width="380">
+                        <select data-placeholder="Select Tab..."  name="category" id="category" class="chosen-select-deselect form-control" width="380">
                             <option value=""></option>
                             <?php
                                 $query = mysqli_query($dbc,"SELECT category FROM equipment $access_query_where GROUP BY category ORDER BY category");
@@ -271,9 +271,9 @@ if (isset($_POST['submit'])) {
 
                 <?php if (strpos($value_config, ','."Service Type".',') !== FALSE) { ?>
                 <div class="form-group">
-                  <label for="site_name" class="col-sm-4 control-label">Service Type:</label>
+                  <label for="site_name" class="col-sm-4 control-label">Service Tab:</label>
                   <div class="col-sm-8">
-                    <select data-placeholder="Choose a Type..." name="service_type" class="chosen-select-deselect form-control" width="380">
+                    <select data-placeholder="Choose a Tab..." name="service_type" class="chosen-select-deselect form-control" width="380">
                       <option value=""></option>
                       <option value="Oil Change">Oil Change</option>
                       <option value="Tires">Tires</option>
