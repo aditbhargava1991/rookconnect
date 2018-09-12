@@ -638,6 +638,8 @@ if($_GET['type'] == 'schedule') {
 <input type="hidden" id="calendar_type" value="<?= $_GET['type'] ?>">
 <input type="hidden" id="calendar_config_type" value="<?= $config_type ?>">
 <input type="hidden" id="calendar_auto_refresh" value="<?= $calendar_auto_refresh ?>">
+<input type="hidden" id="calendar_check_shifts" value="<?= get_config($dbc, 'calendar_ticket_check_shifts') ?>">
+<input type="hidden" id="calendar_check_days_off" value="<?= get_config($dbc, 'calendar_ticket_check_days_off') ?>">
 
 <?php $ticket_config = ','.get_field_config($dbc, 'tickets').',';
 foreach(explode(',',get_config($dbc, 'ticket_tabs')) as $ticket_type) {
