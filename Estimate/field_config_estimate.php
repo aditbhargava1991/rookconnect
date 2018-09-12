@@ -286,7 +286,6 @@ $project_tabs = get_config($dbc, 'project_tabs');
 						<div class="col-sm-4"><input type="text" name="group_name[]" class="form-control" value="<?php echo $group[0]; ?>"></div>
 						<div class="col-sm-8">
 							<select multiple name="group_staff[]" data-placeholder="Choose an Option..." class="chosen-select-deselect form-control" width="380">
-								<option value=''></option>
 								<?php
 								$query = mysqli_query($dbc,"SELECT contactid, first_name, last_name FROM contacts WHERE category IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND deleted=0 order by first_name");
 								while($row = mysqli_fetch_array($query)) {

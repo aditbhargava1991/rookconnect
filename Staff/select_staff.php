@@ -4,7 +4,7 @@ Inventory Listing
 */
 include ('../include.php');
 checkAuthorised('staff');
-error_reporting(0); 
+error_reporting(0);
 
 if(empty($_GET['target'])) {
 	$sql = "SELECT `first_name`, `last_name`, `contactid` FROM `contacts` WHERE `category`='Staff' AND `deleted`=0 AND `status`=1";
@@ -42,7 +42,7 @@ if($_GET['id'] > 0 && $_GET['type'] == 'checklist') {
 <div class="form-group">
 	<label class="col-sm-4 control-label">Select User:</label>
 	<div class="col-sm-8">
-		<select <?php echo $multiple; ?> name="staff_select<?php echo $isarray; ?>" data-placeholder="Select Users..." class="chosen-select-deselect form-control change_staff_onchange"><option></option>
+		<select <?php echo $multiple; ?> name="staff_select<?php echo $isarray; ?>" data-placeholder="Select Users..." class="chosen-select-deselect form-control change_staff_onchange">
 		<?php if(isset($_GET['multiple']) && $_GET['multiple'] == 'true') { ?>
 			<option value='ALL'>Assign All Staff</option>
 		<?php }

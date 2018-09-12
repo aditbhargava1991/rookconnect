@@ -44,7 +44,7 @@
 		<label for="first_name" class="col-sm-4 control-label text-right">Assign Staff:</label>
 		<div class="col-sm-8">
 			<select name="assign_staff[]" data-placeholder="Choose a Staff Member..." class="chosen-select-deselect form-control" multiple width="380">
-				<option value=""></option><?php
+				<?php
 				$query = mysqli_query($dbc,"SELECT contactid, first_name, last_name FROM contacts WHERE category IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND deleted=0 ORDER BY first_name");
 				while($row = mysqli_fetch_array($query)) {
 					if ( !empty ( $assign_staff ) ) { ?>

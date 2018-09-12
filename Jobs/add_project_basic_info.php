@@ -6,7 +6,7 @@
 		 */
 		$row = mysqli_fetch_assoc ( mysqli_query ( $dbc, "SELECT `contactid` FROM `contacts` WHERE `contactid`='$contactid_intake' AND `deleted`=0" ) ); ?>
 		<input type="hidden" name="businessid" id="businessid" value="<?php echo $row['contactid']; ?>" /><?php
-	
+
 	} else { ?>
 		<label for="first_name" class="col-sm-4 control-label text-right">Business<span class="brand-color">*</span>:</label>
 		<div class="col-sm-8">
@@ -32,12 +32,11 @@
     <label for="first_name" class="col-sm-4 control-label text-right">Contact<span class="brand-color">*</span>:</label>
     <div class="col-sm-8">
         <select name="projectclientid[]" multiple <?php echo $disable_client; ?> id="projectclientid" data-placeholder="Select a Contact..." class="chosen-select-deselect form-control" width="380">
-            <option value=''></option>
             <?php
             $cat = '';
 			$cat_list = [];
 			$category_group = [];
-            
+
 			$query = mysqli_query($dbc,"SELECT contactid, name, first_name, last_name, category FROM contacts WHERE businessid='$businessid' AND deleted=0 AND status=1 ORDER BY `category`");
 			if ( mysqli_num_rows($query) == 0 ) {
 				/*
@@ -46,7 +45,7 @@
 				 */
 				$query = mysqli_query($dbc,"SELECT contactid, name, first_name, last_name, category FROM contacts WHERE contactid='$businessid' AND deleted=0 AND status=1 ORDER BY `category`");
 			}
-			
+
 			$client_list = explode(',',$clientid);
             while($row = mysqli_fetch_array($query)) {
                 if($cat != $row['category']) {

@@ -242,6 +242,7 @@ switch($_GET['type']) {
         $monthly_start = get_config($dbc, 'my_monthly_start');
         $monthly_days = explode(',', get_config($dbc, 'my_monthly_days'));
         $ticket_summary = get_config($dbc, 'my_ticket_summary');
+        $ticket_summary_deleted = get_config($dbc, 'my_ticket_summary_deleted');
         $availability_indication = get_config($dbc, 'my_availability_indication');
         $sidebar_file = 'my_sidebar.php';
         $all_tickets_button = '';
@@ -268,7 +269,7 @@ switch($_GET['type']) {
         }
         $offline_mode = get_config($dbc, 'uni_offline');
         $add_reminder = get_config($dbc, 'uni_reminders');
-        $teams = '';
+        $teams = get_config($dbc, 'uni_teams');
         $equipment_assignment = '';
         $weekly_start = get_config($dbc, 'uni_weekly_start');
         $weekly_days = explode(',', get_config($dbc, 'uni_weekly_days'));
@@ -276,9 +277,15 @@ switch($_GET['type']) {
         $monthly_start = get_config($dbc, 'uni_monthly_start');
         $monthly_days = explode(',', get_config($dbc, 'uni_monthly_days'));
         $ticket_summary = get_config($dbc, 'uni_ticket_summary');
+        $ticket_summary_deleted = get_config($dbc, 'uni_ticket_summary_deleted');
         $availability_indication = get_config($dbc, 'uni_availability_indication');
         $sidebar_file = 'uni_sidebar.php';
         $all_tickets_button = '';
+        $staff_split_security = get_config($dbc, 'uni_staff_split_security');
+        $client_staff_freq = get_config($dbc, 'uni_client_staff_freq');
+        $client_draggable = get_config($dbc, 'uni_client_draggable');
+        $staff_summary = get_config($dbc, 'uni_staff_summary');
+        $day_summary_tab = get_config($dbc, 'uni_day_summary_tab');
 
         $mobile_calendar_views = ['staff'=>'Staff'];
         if($use_shifts != '') {
@@ -409,6 +416,7 @@ switch($_GET['type']) {
         $scheduling_summary_view = get_config($dbc, 'scheduling_summary_view');
         $warning_num_tickets = get_config($dbc, 'scheduling_warning_num_tickets');
         $equip_display_classification = get_config($dbc, 'scheduling_equip_classification');
+        $equip_display_classification_ticket = get_config($dbc, 'scheduling_equip_classification_ticket');
         $service_followup = get_config($dbc, 'scheduling_service_followup');
         $service_date = get_config($dbc, 'scheduling_service_date');
         $passed_service = get_config($dbc, 'scheduling_passed_service');
@@ -465,6 +473,7 @@ switch($_GET['type']) {
         $monthly_start = get_config($dbc, 'ticket_monthly_start');
         $monthly_days = explode(',', get_config($dbc, 'ticket_monthly_days'));
         $ticket_summary = get_config($dbc, 'ticket_ticket_summary');
+        $ticket_summary_deleted = get_config($dbc, 'ticket_ticket_summary_deleted');
         $availability_indication = get_config($dbc, 'ticket_availability_indication');
         $sidebar_file = 'tickets_sidebar.php';
         $all_tickets_button = get_config($dbc, 'ticket_use_all_tickets');
@@ -473,6 +482,7 @@ switch($_GET['type']) {
         $client_draggable = get_config($dbc, 'ticket_client_draggable');
         $staff_summary = get_config($dbc, 'ticket_staff_summary');
         $ticket_summary_tab = get_config($dbc, 'ticket_ticket_summary_tab');
+        $ticket_summary_tab_deleted = get_config($dbc, 'ticket_ticket_summary_tab_deleted');
         $client_tab = get_config($dbc, 'ticket_client_tab');
 
         $mobile_calendar_views = [''=>'Staff'];

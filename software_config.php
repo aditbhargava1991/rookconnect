@@ -441,7 +441,7 @@ checkAuthorised();
 
 			<?php if (strpos($tasks, 'turn_on') !== FALSE) { ?>
             <tr>
-                <td data-title="Comment">Tasks</td>
+                <td data-title="Comment"><?= TASK_TILE ?></td>
                 <?php echo tile_config_function($dbc,'tasks'); ?>
             </tr>
             <?php } ?>

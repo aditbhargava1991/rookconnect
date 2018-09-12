@@ -202,7 +202,12 @@ if($_GET['view'] == 'monthly') {
 						$clientids = $equip_assign['client_list'];
 
 						$classification_label = '';
-						if($equip_display_classification == 1 && !empty($equip_classifications)) {
+						if($equip_display_classification_ticket == 1) {
+							$equip_classifications = getEquipmentTicketClassification($dbc, $equipment['equipmentid'], $date_month_start, $date_month_end);
+							if(!empty($equip_classifications)) {
+								$classification_label = ' - '.implode(', ', $equip_classifications);
+							}
+						} else if($equip_display_classification == 1 && !empty($equip_classifications)) {
 							$classification_label = ' - '.str_replace('*#*', ', ', $equip_classifications);
 						}
                         if(in_array('region_sort',$equip_options) && $region != $equipment['region']) {

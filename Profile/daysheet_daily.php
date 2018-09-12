@@ -306,7 +306,7 @@ $(document).ready(function () {
 <?php } ?>
 
 <?php if (in_array('Tasks', $daysheet_fields_config)) { ?>
-    <h4 style="font-weight: normal;">Tasks</h4>
+    <h4 style="font-weight: normal;"><?= TASK_TILE ?></h4>
     <?php if (!empty($tasks_result)) {
         if($daysheet_styling != 'card') {
             echo '<ul id="tasks_daily">';
@@ -492,3 +492,21 @@ $(document).ready(function () {
     } ?>
     <hr>
 <?php } ?>
+
+<?php if (in_array('Tags', $daysheet_fields_config)) { ?>
+    <h4 style="font-weight: normal;">Tags</h4>
+    <?php $tags_html = daysheet_get_tags($dbc, $_SESSION['contactid']);
+    if(!empty($tags_html)) {
+        if($daysheet_styling != 'card') {
+            echo '<ul id="tags_daily">';
+        }
+        echo $tags_html;
+        if($daysheet_styling != 'card') {
+            echo '</ul>';
+        }
+    } else {
+        echo '<ul id="tags_daily">';
+        echo 'No tags found.';
+        echo '</ul>';
+    }
+}

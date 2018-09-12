@@ -6,7 +6,8 @@ include ('../include.php');
 checkAuthorised('incident_report');
 include_once('../tcpdf/tcpdf.php');
 require_once('../phpsign/signature-to-image.php');
-echo "<script> var active_accordion = ''; </script>";
+echo "<script> var active_accordion = '".$_GET['active_accordion']."'; </script>";
+$quick_action_icons = explode(',',get_config($dbc, 'inc_rep_quick_action_icons'));
 
 if (isset($_POST['add_ir']) || isset($_POST['save_ir'])) {
 	$user_form_id = filter_var($_POST['user_form_id'],FILTER_SANITIZE_STRING);
@@ -105,7 +106,8 @@ if (isset($_POST['add_ir']) || isset($_POST['save_ir'])) {
 	    
     $from = filter_var($_POST['from'],FILTER_SANITIZE_STRING);
 
-    $keep_revisions = mysqli_fetch_array(mysqli_query($dbc, "SELECT `incident_report`, `hide_fields`, `report_info`, `keep_revisions` FROM `field_config_incident_report` WHERE `row_type`='$type' AND '$type'!=''"))['keep_revisions'];
+    $report_options = mysqli_fetch_array(mysqli_query($dbc, "SELECT `incident_report`, `hide_fields`, `report_info`, `keep_revisions`, `user_emails`, `all_emails` FROM `field_config_incident_report` WHERE `row_type`='$type' AND '$type'!=''"));
+    $keep_revisions = $report_options['keep_revisions'];
     $revision_number = '';
     $revision_date = '';
 
@@ -669,11 +671,31 @@ if (isset($_POST['add_ir']) || isset($_POST['save_ir'])) {
 	    }
 	}
 
+	//Tagged Staff
+	mysqli_query($dbc, "UPDATE `contacts_tagging` SET `last_updated_date` = '".date('Y-m-d')."' WHERE `src_table` = 'incident_report' AND `item_id` = '".$incidentreportid.'"');
+
 	//Journal Entry
     $inc_rep_save_journal = get_config($dbc, 'inc_rep_save_journal');
     if($inc_rep_save_journal == 1) {
 	    $journal_note = $url.' '.INC_REP_NOUN.': <a href="'.WEBSITE_URL.'/Incident Report/add_incident_report.php?incidentreportid='.$incidentreportid.'">'.$type.' #'.$incidentreportid.'</a> at '.date('h:i a').'.';
 	    mysqli_query($dbc, "INSERT INTO `daysheet_notepad` (`contactid`, `date`, `notes`) VALUES ('".$_SESSION['contactid']."', '".date('Y-m-d')."', '".htmlentities($journal_note)."')");
+    }
+    
+    // Notification Emails
+    $send_report_to = [];
+    if($report_options['user_emails'] > 0) {
+        $send_report_to[] = get_email($dbc, $_SESSION['contactid']);
+    }
+    if(!empty($report_options['all_emails'])) {
+        $send_report_to[] = $report_options['all_emails'];
+    }
+    if(!empty($send_report_to)) {
+        try {
+            send_email('', $send_report_to, '', '', INC_REP_NOUN.' Successfully Submitted', "Thank you for submitting this ".INC_REP_NOUN.". For your reference, a copy has been attached to this email.", (!empty($pdf_url) && file_exists($pdf_url) ? $pdf_url : ''));
+        } catch(Exception $e) {
+            $log = "Unable to send e-mail to ".implode('; ',$send_report_to).": ".$e->getMessage()."\n";
+            mysqli_query($dbc, "UPDATE `incident_report` SET `email_error_log` = CONCAT(`email_error_log`, '$log') WHERE `incidentreportid` = '$incidentreportid'");
+        }
     }
 
 	//Follow Up Emails
@@ -701,6 +723,7 @@ if (isset($_POST['add_ir']) || isset($_POST['save_ir'])) {
 		echo "<script> $(window.top.document).find('iframe[src*=Ticket]').get(0).contentWindow.reloadTab('view_ticket_incident_reports'); window.parent.reloadTab('view_ticket_incident_reports'); </script>";
 	} else {
 		echo "<script> active_accordion = '".$_POST['active_accordion']."'; </script>";
+		echo '<script type="text/javascript">window.location.replace("?incidentreportid='.$incidentreportid.'&active_accordion='.$_POST['active_accordion'].'&tagging_click='.$_POST['quick_action_tagging'].'"); </script>';
 	}
 }
 ?>
@@ -736,6 +759,10 @@ if($user_form_id > 0) {
             return false;
         }
     });
+    setQuickActions();
+    <?php if($_GET['tagging_click'] == 1) { ?>
+    	$('.tagging-icon').click();
+    <?php } ?>
   });
 
     function changeType(txb) {
@@ -807,6 +834,17 @@ if($user_form_id > 0) {
 		$('select[name="<?= $is_userform ?>memberid[]"] option').hide().filter('[data-businessid="'+programid+'"]').show()
 		$('select[name="<?= $is_userform ?>memberid[]"]').trigger('change.select2');
 	}
+  	function setQuickActions() {
+  		$('.tagging-icon').off('click').click(function() {
+  			if($('[name="incidentreportid"]').val() != undefined && $('[name="incidentreportid"]').val() > 0) {
+				overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_tagging.php?tile=incident_report&id='+$('[name="incidentreportid"]').val(), 'auto', false, true);
+  			} else {
+  				$('[name="quick_action_tagging"]').val(1);
+  				$('[name="save_ir"]').first().click();
+  			}
+  			return false;
+  		});
+  	}
 </script>
 </head>
 <body>
@@ -814,12 +852,19 @@ if($user_form_id > 0) {
 <?php include ('../navigation.php'); ?>
 
 <div class="container" <?= $user_form_layout == 'Sidebar' ? 'style="padding: 0; margin: 0;"' : '' ?>>
+    <div class="iframe_overlay" style="display:none; margin-top: -20px;margin-left:-15px;">
+        <div class="iframe">
+            <div class="iframe_loading">Loading...</div>
+            <iframe name="inc_rep_iframe" src=""></iframe>
+        </div>
+    </div>
 	<div class="row">
 	    <?php if($user_form_id > 0) { ?>
 	        <h1 style="margin-top: 0; padding-top: 0;"><a href="incident_report.php"><?= INC_REP_TILE ?></a></h1>
 	    <?php } ?>
 	    <form id="form1" name="form1" method="post"	action="" enctype="multipart/form-data" class="form-horizontal" role="form" <?= $user_form_layout == 'Sidebar' ? 'style="padding: 0; margin: 0; border-top: 1px solid #E1E1E1;"' : '' ?>>
 			<input type="hidden" name="active_accordion" value="">
+			<input type="hidden" name="quick_action_tagging" value="">
 	        <?php $type = '';
 	        $completed_by = $_SESSION['contactid'];
 	        $date_of_happening = '';
@@ -1036,12 +1081,23 @@ if($user_form_id > 0) {
 		        	echo '</div></div></div>';
 		        }
 	        } else { ?>
-				<h1><?= (empty($_GET['incidentreportid']) ? 'Add '.INC_REP_NOUN.(!empty($type) ? ' - '.$type : '') : 'Edit '.INC_REP_NOUN.' - '.$type) ?></h1>
+				<h1><?= (empty($_GET['incidentreportid']) ? 'Add '.INC_REP_NOUN.(!empty($type) ? ' - '.$type : '') : 'Edit '.INC_REP_NOUN.' - '.$type) ?>
+					<?php if(!IFRAME_PAGE) { ?>
+						<div class="action-icons pull-right">
+							<?php echo (in_array('tagging',$quick_action_icons) ? '<img src="'.WEBSITE_URL.'/img/icons/tagging.png" class="inline-img tagging-icon no-toggle" title="Tag Staff">' : ''); ?>
+						</div>
+						<div class="clearfix"></div>
+					<?php } ?>
+				</h1>
 				<?php if(!IFRAME_PAGE) { ?>
 					<button type="submit" name="save_ir" id="save_ir" value="Submit" class="btn brand-btn btn-lg pull-right" onclick="storePanel();">Save</button>
 					<div class="pad-left gap-top double-gap-bottom"><a href="<?= $from; ?>" class="btn config-btn">Back to Dashboard</a></div>
 				<?php } else { ?>
 					<a href="../blank_loading_page.php"><img class="slider-close" src="../img/icons/cancel.png"></a>
+					<div class="action-icons pull-right">
+						<?php echo (in_array('tagging',$quick_action_icons) ? '<img src="'.WEBSITE_URL.'/img/icons/tagging.png" class="inline-img tagging-icon no-toggle" title="Tag Staff">' : ''); ?>
+					</div>
+					<div class="clearfix"></div>
 				<?php } ?>
 
 		        <div class="panel-group" id="accordion2">

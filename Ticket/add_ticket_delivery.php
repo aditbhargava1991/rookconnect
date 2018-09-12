@@ -38,7 +38,7 @@ if(isset($_GET['ticketid']) && empty($ticketid)) {
 			$value_config = ','.implode(',',array_intersect(explode(',',$value_config), explode(',',$value_config_all))).',';
 		}
 	}
-	
+
 	if($get_ticket['to_do_date'] > date('Y-m-d') && strpos($value_config,',Ticket Edit Cutoff,') !== FALSE && $config_visible_function($dbc, 'ticket') < 1) {
 		$access_all = false;
 	} else if($get_ticket['status'] == 'Archive') {
@@ -94,13 +94,13 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 			<?php if(strpos($value_config,',Assigned Equipment Inline,') !== FALSE) { ?>
 				<div class="multi-block-assign form-group">
 					<div class="hide-titles-mob">
-						<label class="text-center col-sm-3">Category</label>
+						<label class="text-center col-sm-3">Tab</label>
 						<label class="text-center col-sm-3">Make</label>
 						<label class="text-center col-sm-3">Model</label>
 						<label class="text-center col-sm-3">Unit #</label>
 					</div>
 					<div class="col-sm-3">
-						<label class="control-label show-on-mob">Category:</label>
+						<label class="control-label show-on-mob">Tab:</label>
 						<select name="assign_eq_category" class="chosen-select-deselect"><option></option>
 							<?php $groups = mysqli_query($dbc, "SELECT `category` FROM `equipment` WHERE `deleted`=0 GROUP BY `category` ORDER BY `category`");
 							while($category = mysqli_fetch_assoc($groups)) { ?>
@@ -140,7 +140,7 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 				<h4>Assigned Equipment</h4>
 				<div class="multi-block-assign">
 					<div class="form-group">
-						<label class="control-label col-sm-4">Category:</label>
+						<label class="control-label col-sm-4">Tab:</label>
 						<div class="col-sm-8">
 							<select name="assign_eq_category" class="chosen-select-deselect"><option></option>
 								<?php $groups = mysqli_query($dbc, "SELECT `category` FROM `equipment` WHERE `deleted`=0 GROUP BY `category` ORDER BY `category`");
@@ -315,7 +315,7 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 							<?php foreach ($field_sort_order as $field_sort_field) { ?>
 								<?php if (strpos($value_config, ','."Delivery Pickup Equipment Category".',') !== FALSE && strpos($value_config, ','."Assigned Equipment Inline".',') === FALSE && $field_sort_field == 'Delivery Pickup Equipment Category') { ?>
 									<div class="form-group">
-										<label class="control-label col-sm-4">Equipment Category:</label>
+										<label class="control-label col-sm-4">Equipment Tab:</label>
 										<div class="col-sm-8">
 											<select name="stop_eq_category" class="chosen-select-deselect"><option></option>
 												<?php $groups = mysqli_query($dbc, "SELECT `category` FROM `equipment` WHERE `deleted`=0 GROUP BY `category` ORDER BY `category`");
@@ -366,8 +366,8 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 									</div>
 								<?php } else if (strpos($value_config, ','."Delivery Pickup Equipment".',') !== FALSE && strpos($value_config, ','."Assigned Equipment Inline".',') !== FALSE && $field_sort_field == 'Delivery Pickup Equipment') { ?>
 									<div class="form-group">
-										<?php if (strpos($value_config, ','."Delivery Pickup Equipment Category".',') !== FALSE) { ?>
-											<label class="hide-titles-mob text-center col-sm-<?= floor(12 / $equip_col_count) ?>">Equipment Category</label>
+										<?php if (strpos($value_config, ','."Delivery Pickup Equipment Tab".',') !== FALSE) { ?>
+											<label class="hide-titles-mob text-center col-sm-<?= floor(12 / $equip_col_count) ?>">Equipment Tab</label>
 										<?php } ?>
 										<?php if (strpos($value_config, ','."Delivery Pickup Equipment Make".',') !== FALSE) { ?>
 											<label class="hide-titles-mob text-center col-sm-<?= floor(12 / $equip_col_count) ?>">Equipment Make</label>
@@ -380,7 +380,7 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 										<?php } ?>
 										<?php if (strpos($value_config, ','."Delivery Pickup Equipment Category".',') !== FALSE) { ?>
 											<div class="col-sm-<?= floor(12 / $equip_col_count) ?>">
-												<label class="control-label show-on-mob">Category:</label>
+												<label class="control-label show-on-mob">Tab:</label>
 												<select name="stop_eq_category" class="chosen-select-deselect"><option></option>
 													<?php $groups = mysqli_query($dbc, "SELECT `category` FROM `equipment` WHERE `deleted`=0 GROUP BY `category` ORDER BY `category`");
 													while($category = mysqli_fetch_assoc($groups)) { ?>
@@ -533,7 +533,7 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 												<label class="form-checkbox"><input type="checkbox" name="check_send_email" onclick="ticket_delivery_email(this);"> Send an email to this address</label>
 											</div>
 										</div>
-										
+
 										<script>
 										function ticket_delivery_email(checked) {
 											var div = $(checked).closest('.scheduled_stop');
@@ -587,9 +587,9 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 								<?php } ?>
 								<?php if (strpos($value_config, ','."Delivery Pickup Type".',') !== FALSE && $field_sort_field == 'Delivery Pickup Type') { ?>
 									<div class="form-group">
-										<label class="col-sm-4 control-label">Delivery Type:</label>
+										<label class="col-sm-4 control-label">Delivery Tab:</label>
 										<div class="col-sm-8">
-											<?php if(count($delivery_types) > 0) { ?>
+											<?php if(count($delivery_types) > 0) { ?>tab
 												<select name="type" class="chosen-select-deselect" data-placeholder="Select Type" data-table="ticket_schedule" data-id="<?= $stop['id'] ?>" data-id-field="id" value="<?= $stop['type'] ?>"><option></option>
 													<?php foreach($delivery_types as $type_name) { ?>
 														<option <?= $type_name == $stop['type'] ? 'selected' : '' ?> value="<?= $type_name ?>"><?= $type_name ?></option>
@@ -629,7 +629,7 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 									<div class="form-group">
 										<label class="col-sm-4 control-label">Services:</label>
 										<div class="col-sm-8">
-											<select name="serviceid[]" multiple data-placeholder="Select Services" class="form-control chosen-select-deselect" data-concat="," data-table="ticket_schedule" data-id="<?= $stop['id'] ?>" data-id-field="id"><option />
+											<select name="serviceid[]" multiple data-placeholder="Select Services" class="form-control chosen-select-deselect" data-concat="," data-table="ticket_schedule" data-id="<?= $stop['id'] ?>" data-id-field="id">
 												<?php if(empty($service_list)) {
 													$service_list = $dbc->query("SELECT * FROM `services` LEFT JOIN `rate_card` ON CONCAT('**',`rate_card`.`services`,'#') LIKE CONCAT('%**',`services`.`serviceid`,'#%') WHERE `rate_card`.`clientid`='$businessid' AND `rate_card`.`deleted`=0 AND `services`.`deleted`=0")->fetch_all(MYSQLI_ASSOC);
 												}
@@ -656,6 +656,14 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 										<label class="col-sm-4 control-label"><?= get_contact($dbc, $get_ticket['businessid'], 'name_company') ?> Estimated Time:</label>
 										<div class="col-sm-8">
 											<input type="text" name="cust_est" class="form-control" readonly value="<?= $stop['cust_est'] ?>">
+										</div>
+									</div>
+								<?php } ?>
+								<?php if (strpos($value_config, ','."Delivery Pickup Estimate".',') !== FALSE && $field_sort_field == 'Delivery Pickup Estimate') { ?>
+									<div class="form-group">
+										<label class="col-sm-4 control-label">Estimated Time:</label>
+										<div class="col-sm-8">
+											<input type="text" name="est_time" class="form-control timepicker" data-table="ticket_schedule" data-id="<?= $stop['id'] ?>" data-id-field="id" value="<?= time_decimal2time($stop['est_time'],true) ?>">
 										</div>
 									</div>
 								<?php } ?>
@@ -821,7 +829,7 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 			$equipment = mysqli_fetch_assoc($equipment_list); ?>
 			<div class="multi-block-assign">
 				<div class="form-group">
-					<label class="control-label col-sm-4">Category:</label>
+					<label class="control-label col-sm-4">Tab:</label>
 					<div class="col-sm-8">
 						<?= $equipment['category'] ?>
 					</div>
@@ -957,7 +965,7 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 										<label class="form-checkbox"><input type="checkbox" name="check_send_email" onclick="ticket_delivery_email(this);"> Send an email to this address</label>
 									</div>
 								</div>
-								
+
 								<script>
 								function ticket_delivery_email(checked) {
 									var div = $(checked).closest('.scheduled_stop');
@@ -1003,7 +1011,7 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 							<?php } ?>
 							<?php if (strpos($value_config, ','."Delivery Pickup Type".',') !== FALSE && $field_sort_field == 'Delivery Pickup Type') { ?>
 								<div class="form-group">
-									<label class="col-sm-4 control-label">Delivery Type:</label>
+									<label class="col-sm-4 control-label">Delivery Tab:</label>
 									<div class="col-sm-8">
 										<?= $stop['type'] ?>
 									</div>
@@ -1038,6 +1046,14 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 									<label class="col-sm-4 control-label"><?= get_contact($dbc, $get_ticket['businessid'], 'name_company') ?> Estimated Time:</label>
 									<div class="col-sm-8">
 										<?= $stop['cust_est'] ?>
+									</div>
+								</div>
+							<?php } ?>
+							<?php if (strpos($value_config, ','."Delivery Pickup Estimate".',') !== FALSE && $field_sort_field == 'Delivery Pickup Estimate') { ?>
+								<div class="form-group">
+									<label class="col-sm-4 control-label">Estimated Time:</label>
+									<div class="col-sm-8">
+										<?= time_decimal2time($stop['est_time'],true) ?>
 									</div>
 								</div>
 							<?php } ?>

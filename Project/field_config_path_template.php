@@ -39,7 +39,7 @@ function init_path() {
 		});
 		$(select).trigger('change.select2');
 	});
-	$('input,select').off('change').change(save_path);
+	$('input,select').off('change',save_path).change(save_path);
 	initInputs();
 }
 function save_path() {
@@ -47,12 +47,8 @@ function save_path() {
 	var timeline = '';
 	var tasks = '';
 	var ticket = '';
-
-	var workorder = '';
 	var check_list = '';
 	var intake_form = '';
-
-    // var items = '';
     var intakes = '';
 
 	$('[name=milestone]').each(function() {
@@ -69,11 +65,8 @@ function save_path() {
 			ticket_list.push(this.value+'FFMSPLIT'+$(this).closest('.form-group').find('[name=ticket_service]').val());
 		});
 		ticket += (delimiter ? '#*#' : '')+ticket_list.join('*#*');
-
-		workorder += (delimiter ? '#*#' : '')+block.find('[name=workorder]').map(function() { return this.value; }).get().join('*#*');
 		check_list += (delimiter ? '#*#' : '')+block.find('[name=check_list]').map(function() { return this.value; }).get().join('*#*');
 		intake_form += (delimiter ? '#*#' : '')+block.find('[name=intake_form]').map(function() { return this.value; }).get().join('*#*');
-
 		// items += (delimiter ? '#*#' : '')+block.find('[name=items]').filter(function() { return this.value != ''; }).map(function() { return this.value; }).get().join('*#*');
 		//intakes += (delimiter ? '#*#' : '')+block.find('[name=intake]').filter(function() { return this.value > 0; }).map(function() { return this.value; }).get().join('*#*');
 
@@ -87,9 +80,10 @@ function save_path() {
 			milestone: milestone,
 			timeline: timeline,
 			checklist: tasks,
+			tasks: tasks,
 			ticket: ticket,
-			workorder: workorder,
 			check_list: check_list,
+            intakes: intakes,
 			intake_form: intake_form
 		},
 		success: function(response) {
@@ -171,11 +165,13 @@ function remove_block(img) {
 }
 function add_group(img) {
     destroyInputs();
+    $('.form-horizontal').sortable('destroy');
+	$('.sortable_group_block').sortable('destroy');
     var type = $(img).closest('.form-group').attr('class').split(' ')[0];
-    var clone = $(img).closest('.block-group').find('.'+type).clone();
+    var clone = $(img).closest('.block-group').find('.'+type).last().clone();
     clone.find('input,select').val('');
     $(img).closest('.block-group').find('.'+type).last().after(clone);
-    initInputs();
+    init_path();
 }
 function remove_group(img) {
     var type = $(img).closest('.form-group').attr('class').split(' ')[0];
@@ -308,7 +304,7 @@ function add_intake(btn) {
 			<div class="block-group sortable_group_block">
 				<?php foreach(explode('*#*',$tickets[$i]) as $ticket) {
                     $ticket = explode('FFMSPLIT',$ticket); ?>
-                    <div class="form-group sortable_group">
+                    <div class="ticket form-group sortable_group">
                         <label class="col-sm-4"><?= TICKET_NOUN ?> Heading &amp; Service:</label>
                         <div class="col-sm-3"><input type="text" class="form-control" name="ticket_heading" value="<?= $ticket[0] ?>"></div>
                         <div class="col-sm-3"><select class="chosen-select-deselect" name="ticket_service" data-service="<?= $ticket[1] ?>"><option></option></select></div>

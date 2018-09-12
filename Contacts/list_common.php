@@ -510,4 +510,4 @@ if(strpos($contacts_summary_config,'Per Archived Data') !== false) {
 */
 
  } ?>
-</div>
+</div> 

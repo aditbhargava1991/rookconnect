@@ -21,7 +21,7 @@ if (isset($_POST['inspection'])) {
 			}
 		}
 	}
-	
+
 	$equipment_service_alert = filter_var(implode(',',$_POST['equipment_service_alert']),FILTER_SANITIZE_STRING);
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'equipment_service_alert' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='equipment_service_alert') num WHERE num.rows=0");
 	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='$equipment_service_alert' WHERE `name`='equipment_service_alert'");
@@ -43,7 +43,7 @@ if (isset($_POST['inspection'])) {
 	$equipment_service_body = filter_var(htmlentities($_POST['equipment_service_body']),FILTER_SANITIZE_STRING);
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'equipment_service_body' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='equipment_service_body') num WHERE num.rows=0");
 	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='$equipment_service_body' WHERE `name`='equipment_service_body'");
-	
+
 	if(!empty($_FILES['equipment_service_logo']['name'])) {
 		$filename = $_FILES['equipment_service_logo']['name'];
 		$file = $_FILES['equipment_service_logo']['tmp_name'];
@@ -60,7 +60,7 @@ if (isset($_POST['inspection'])) {
 		mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'equipment_service_logo' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='equipment_service_logo') num WHERE num.rows=0");
 		mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='$equipment_service_logo' WHERE `name`='equipment_service_logo'");
 	}
-	
+
 	echo '<script type="text/javascript"> window.location.replace("?settings=inspection"); </script>';
 }
 ?>
@@ -112,10 +112,9 @@ $(document).ready(function() {
 	}
 	</script>
 	<div class="form-group">
-		<label for="fax_number"	class="col-sm-4	control-label">Current Equipment Categories:<br /><em>These are the categories for which this Inspection List is currently applying. To change this list, remove categories from the Inspection List accordion.</em></label>
+		<label for="fax_number"	class="col-sm-4	control-label">Current Equipment Tabs:<br /><em>These are the tab for which this Inspection List is currently applying. To change this list, remove tabs from the Inspection List accordion.</em></label>
 		<div class="col-sm-8">
 			<select data-placeholder="Select a Tab..." id="tab_inspect" name="tab_inspect_current[]" multiple class="chosen-select-deselect form-control" width="380">
-				<option value=""></option>
 				<?php $each_tab = explode(',', get_config($dbc, 'equipment_tabs'));
 				foreach ($each_tab as $cat_tab) {
 					echo "<option ".(in_array($cat_tab, $inv_type) ? 'selected' : '')." value='". $cat_tab."'>".$cat_tab.'</option>';
@@ -130,7 +129,7 @@ $(document).ready(function() {
 	<div class="form-group">
 		<label for="fax_number"	class="col-sm-4	control-label">Service Alert Staff:<br /><em>Select all staff that should receive an alert when service is requested from the checklist.</em></label>
 		<div class="col-sm-8">
-			<select name="equipment_service_alert[]" data-placeholder="Select Staff..." multiple class="chosen-select-deselect form-control"><option></option>
+			<select name="equipment_service_alert[]" data-placeholder="Select Staff..." multiple class="chosen-select-deselect form-control">
 				<?php $staff_list = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT `contactid`, `last_name`, `first_name` FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `deleted`=0 AND `status`>0"),MYSQLI_ASSOC));
 				$selected = explode(',',get_config($dbc, 'equipment_service_alert'));
 				foreach($staff_list as $id) {
@@ -190,10 +189,9 @@ $(document).ready(function() {
 
 	<h4>Inspection Checklist</h4>
 	<div class="form-group">
-		<label for="fax_number"	class="col-sm-4	control-label">Equipment Categories to which this checklist applies:</label>
+		<label for="fax_number"	class="col-sm-4	control-label">Equipment Tabs to which this checklist applies:</label>
 		<div class="col-sm-8">
 			<select data-placeholder="Select a Tab..." name="tab_inspect[]" multiple class="chosen-select-deselect form-control" width="380">
-				<option value=""></option>
 				<?php $each_tab = explode(',', get_config($dbc, 'equipment_tabs'));
 				foreach ($each_tab as $cat_tab) {
 					echo "<option ".(in_array($cat_tab, $inv_type) ? 'selected' : '')." value='". $cat_tab."'>".$cat_tab.'</option>';
@@ -222,10 +220,10 @@ $(document).ready(function() {
 						<div class="col-sm-7"><input type="text" class="form-control" name="inspection_checklist[<?= $counter ?>]" value="<?= $custom_options['inspection_checklist'] ?>"></div>
 						<label class="col-sm-1" style="text-align: center;"><input type="checkbox" <?= ($custom_options['inspection_details'] == 1 ? 'checked' : '') ?> name="inspection_details[<?= $counter ?>]" value="1"></label>
 					</div>
-					<?php 
+					<?php
 						$counter++;
 					} ?>
-				
+
 				<h3>Additional Inspection Items</h3>
 				<?php $inspection_custom = array_filter($inspection_list, function($value) { return $value != '' && !in_array($value, ["Oil","Coolant - Rad","Coolant Overflow","Hydraulic Oil","Hydraulic Oil - Leaks","Transmission Oil","Air Filters","Belts","Track SAG","Brake Emergency","Planetaries","Brake Pedal","Hydraulic Brake Fluid","Parking Brake","Defroster & Heaters","Emergency Equipment","Engine","Exhaust System","Fire Extinguisher","Fuel System","Generator/Alternator","Horn","Lights & Reflectors","Head - Stop Lights","Tail - Dash Lights","Blade","Bucket","Body Damage","Doors","Mirrors (Adjustment & Condition)","Oil Pressure","Radiator","Driver&#39;s Seat Belt & Seat Security","Cutting Edges","Ripper Teeth","Towing & Coupling Devices","Windshield & Windows","Windshield Washer & Wipers"]); });
 				foreach($inspection_custom as $item) {

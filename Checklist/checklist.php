@@ -12,6 +12,13 @@ if($_GET['archivetab'] > 0) {
 }
 $security = get_security($dbc, 'checklist'); ?>
 <style>
+@supports (zoom:2) {
+	input[type=checkbox] { zoom:2; }
+}
+@supports not (zoom:2) {
+	input[type=checkbox] { transform:scale(2); margin:15px; }
+}
+.large-checkbox-label { font-weight:normal; margin-top:5px; vertical-align:top; }
 @media (max-width:767px) {
     .show-on-mob2 { display:block; }
 }
@@ -23,7 +30,7 @@ $(document).ready(function() {
 		$('.sidebar').outerHeight($(window).height() - $('.sidebar ul').offset().top - $('footer').outerHeight());
 	}).resize();
     
-    $('input["name=search"]').keypress(function(event) {
+    $('input[name=search]').keypress(function(event) {
         if (event.which == 13) {
             event.preventDefault();
             $("form").submit();
@@ -78,8 +85,8 @@ $tab_counts = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT SUM(IF(`checklistid`
 $tab_counts['equipment'] = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT COUNT(*) `count` FROM `item_checklist` WHERE `deleted`=0 AND `checklist_item`='equipment'"))['count'];
 $tab_counts['inventory'] = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT COUNT(*) `count` FROM `item_checklist` WHERE `deleted`=0 AND `checklist_item`='inventory'"))['count'];
 if(empty($_GET['subtabid']) && empty($_GET['edit']) && empty($_GET['view']) && empty($_GET['reports']) && empty($_GET['search'])) {
-	$_GET['subtabid'] = 'categories';
-    $_GET['categories'] = 'all';
+	$_GET['subtabid'] = 'favourites';
+    //$_GET['categories'] = 'all';
 } ?>
 <?php if($_GET['iframe_slider'] != 1) { ?>
 <div class="container">
@@ -393,7 +400,7 @@ if(empty($_GET['subtabid']) && empty($_GET['edit']) && empty($_GET['view']) && e
 			<div class="tile-sidebar sidebar hide-titles-mob standard-collapsible">
 				<ul id="category_accordions_desktop" class="panel-group">
 					<li class="standard-sidebar-searchbox"><form method="get" action=""><input type="text" name="search" class="search-text form-control" placeholder="Search Checklists" /></form></li>
-					<li class="sidebar-higher-level"><a href="?subtabid=categories&categories=all" class="<?= $_GET['categories'] == 'all' ? 'active' : '' ?> cursor-hand">Categories</a></li>
+					<li class="sidebar-higher-level"><a href="?subtabid=categories&categories=all" class="<?= $_GET['categories'] == 'all' ? 'active' : '' ?> cursor-hand">Tabs</a></li>
                     <li class="sidebar-higher-level">
                         <a class="<?= $_GET['subtabid'] == 'favourites' ? 'active' : 'collapsed' ?> cursor-hand" data-toggle="collapse" data-parent="#category_accordions_desktop" data-target="#collapse_favourites_desktop">Favourites<span class="arrow"></span></a><?php
                         $query = mysqli_query($dbc, "SELECT checklistid, checklist_name FROM checklist WHERE checklistid IN (0".implode(',',array_filter(explode(',',$user_settings['checklist_fav']))).") AND deleted='0' AND checklist_name <> ''"); ?>
@@ -570,7 +577,7 @@ if(empty($_GET['subtabid']) && empty($_GET['edit']) && empty($_GET['view']) && e
 				</ul>
 			</div>
 <?php } ?>
-			<div class="scale-to-fill has-main-screen <?= (empty($_GET['view']) && empty($_GET['edit']) && empty($_GET['edittab']) && empty($_GET['reports']) ? 'hide-titles-mob' : '') ?>">
+			<div class="scale-to-fill has-main-screen <?= (empty($_GET['view']) && empty($_GET['edit']) && empty($_GET['edittab']) && empty($_GET['reports']) ? 'hide-titles-mob' : '') ?> <?= (!empty($_GET['edit']) ? 'no-gap-pad' : '') ?>">
 				<div class="checklist_screen main-screen standard-body" data-querystring='<?= $_SERVER['QUERY_STRING'] ?>'><?php
                 if(!empty($_GET['view'])) {
 					include('view_checklist.php');

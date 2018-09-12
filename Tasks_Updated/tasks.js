@@ -1,6 +1,122 @@
 $(document).ready(function() {
 	tasksInit();
 });
+
+function saveFields() {
+	var tab_list = [];
+	$('[name="task_fields[]"]:checked').not(':disabled').each(function() {
+		tab_list.push(this.value);
+	});
+
+	$.ajax({    //create an ajax request to ajax_all.php
+		type: "GET",
+		url: "task_ajax_all.php?fill=setting_fields&tab_list="+tab_list,
+		dataType: "html",   //expect html to be returned
+	});
+
+}
+
+function saveTabs() {
+	var tab_list = [];
+	$('[name="project_manage_dashboard[]"]:checked').not(':disabled').each(function() {
+		tab_list.push(this.value);
+	});
+
+	$.ajax({    //create an ajax request to ajax_all.php
+		type: "GET",
+		url: "task_ajax_all.php?fill=setting_tabs&tab_list="+tab_list,
+		dataType: "html",   //expect html to be returned
+	});
+
+}
+
+function saveQuickIcon() {
+	var tab_list = [];
+	$('[name="task_quick_action_icons[]"]:checked').not(':disabled').each(function() {
+		tab_list.push(this.value);
+	});
+
+	$.ajax({    //create an ajax request to ajax_all.php
+		type: "GET",
+		url: "task_ajax_all.php?fill=setting_quick_icon&tab_list="+tab_list,
+		dataType: "html",   //expect html to be returned
+	});
+}
+
+function saveFlagColours() {
+	var flag_colours = [];
+	$('[name="flag_colours[]"]:checked').not(':disabled').each(function() {
+		flag_colours.push(this.value);
+	});
+
+	$.ajax({    //create an ajax request to ajax_all.php
+		type: "GET",
+		url: "task_ajax_all.php?fill=setting_flag_colours&flag_colours="+flag_colours,
+		dataType: "html",   //expect html to be returned
+	});
+}
+
+function saveFlagName() {
+	var flag_name = [];
+
+	$('[name="flag_name[]"]').each(function() {
+		flag_name.push(this.value);
+	});
+
+	$.ajax({    //create an ajax request to ajax_all.php
+		type: "GET",
+		url: "task_ajax_all.php?fill=setting_flag_name&flag_name="+flag_name,
+		dataType: "html",   //expect html to be returned
+	});
+}
+
+function sliderLayout(sel) {
+	var tile_value = sel.value;
+
+	$.ajax({    //create an ajax request to ajax_all.php
+		type: "GET",
+		url: "task_ajax_all.php?fill=tasks_slider_layout&layout="+tile_value,
+		dataType: "html",   //expect html to be returned
+	});
+}
+
+function taskTileNoun(sel) {
+	var task_tile = $('.task_tile').val();
+	var task_noun = $('.task_noun').val();
+
+	$.ajax({    //create an ajax request to ajax_all.php
+		type: "GET",
+		url: "task_ajax_all.php?fill=task_tile_noun&task_tile="+task_tile+"&task_noun="+task_noun,
+		dataType: "html",   //expect html to be returned
+	});
+}
+
+function saveAutoArchive(sel) {
+	var tile_value = sel.value;
+
+    if ( $(sel).is(':checked') ) {
+        status = 1;
+    } else {
+        status = 0;
+    }
+
+	$.ajax({    //create an ajax request to ajax_all.php
+		type: "GET",
+		url: "task_ajax_all.php?fill=tasklist_auto_archive&archive="+status,
+		dataType: "html",   //expect html to be returned
+	});
+}
+
+function saveAutoArchiveDays(sel) {
+	var tile_value = sel.value;
+
+	$.ajax({    //create an ajax request to ajax_all.php
+		type: "GET",
+		url: "task_ajax_all.php?fill=tasklist_auto_archive_days&archivedays="+tile_value,
+		dataType: "html",   //expect html to be returned
+	});
+}
+
 function tasksInit() {
 	$("#task_path").change(function() {
 		var task_path = $("#task_path").val();
@@ -14,7 +130,7 @@ function tasksInit() {
 			}
 		});
 	});
-	
+
     $( ".connectedSortable" ).sortable({
 		connectWith: ".connectedSortable",
 		handle: ".drag_handle",
@@ -25,7 +141,7 @@ function tasksInit() {
 			var id_field = ui.item.data('id-field');
 			var table_class = ui.item.parent().attr("class");
 			var status = table_class.split(' ')[2];
-			
+
 			$.ajax({    //create an ajax request to load_page.php
 				type: "GET",
 				url: "task_ajax_all.php?fill=tasklist&tasklistid="+taskid+"&table="+table+"&id_field="+id_field+"&task_milestone_timeline="+status,
@@ -65,7 +181,7 @@ function changeEndAme(sel) {
 	$(this).prop("disabled",false);
 	var stage = sel.value;
 	var typeId = sel.id;
-	
+
 	var tasklistid = typeId.split(' ');
 
 	var status = tasklistid[1];

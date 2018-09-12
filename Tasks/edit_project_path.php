@@ -799,7 +799,7 @@ if($_GET['tab'] != 'scrum_board') {
 										<option <?= $external_milestone == $item_external ? 'selected' : '' ?> value="<?= $external_milestone ?>"><?= $external_milestone ?></option>
 									<?php } ?></select></div>
 								<div class="select_users" style="display:none;">
-									<select data-placeholder="Select Staff" multiple class="chosen-select-deselect"><option></option>
+									<select data-placeholder="Select Staff" multiple class="chosen-select-deselect">
 									<?php foreach($staff_list as $staff) { ?>
 										<option value="<?= $staff['contactid'] ?>"><?= $staff['first_name'].' '.$staff['last_name'] ?></option>
 									<?php } ?>

@@ -101,7 +101,7 @@ checkAuthorised('communication');
 	<div class="row hide_on_iframe">
 
     <div class="col-sm-10">
-			<h1 class="single-pad-bottom">My Tasks</h1>
+			<h1 class="single-pad-bottom">My <?= TASK_TILE ?></h1>
 		</div>
 		<div class="col-sm-2 double-gap-top">
 			<?php
@@ -110,20 +110,20 @@ checkAuthorised('communication');
 				}
 			?>
         </div>
-		
+
 		<div class="clearfix double-gap-bottom"></div>
 
 	<?php
     $value_config = ','.get_config($dbc, 'task_ticket').',';
 	echo '<div class="tab-container mobile-100-container">';
     if (strpos($value_config, ','."Task".',') !== FALSE) {
-    echo "<a href='tasks.php?category=All'><button type='button' class='btn brand-btn mobile-block mobile-100 active_tab' >My Tasks</button></a>&nbsp;&nbsp;";
+    echo "<a href='tasks.php?category=All'><button type='button' class='btn brand-btn mobile-block mobile-100 active_tab' >My ".TASK_TILE."</button></a>&nbsp;&nbsp;";
     }
     if (strpos($value_config, ','."Ticket".',') !== FALSE) {
     echo "<a href='tickets.php?category=All'><button type='button' class='btn brand-btn mobile-100 mobile-block' >".TICKET_TILE."</button></a>&nbsp;&nbsp;";
     }
     if (strpos($value_config, ','."Task".',') !== FALSE) {
-    echo "<a href='scrum_tasks.php?category=All'><button type='button' class='btn brand-btn mobile-100 mobile-block' >Scrum Tasks</button></a>&nbsp;&nbsp;";
+    echo "<a href='scrum_tasks.php?category=All'><button type='button' class='btn brand-btn mobile-100 mobile-block' >Scrum ".TASK_TILE."</button></a>&nbsp;&nbsp;";
     }
     if (strpos($value_config, ','."Ticket".',') !== FALSE) {
     echo "<a href='scrum_tickets.php?category=All'><button type='button' class='btn brand-btn mobile-100 mobile-block' >Scrum ".TICKET_TILE."</button></a>&nbsp;&nbsp;";

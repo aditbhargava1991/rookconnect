@@ -1,4 +1,5 @@
 <!-- Estimate -->
+<?php include_once('../Sales/config.php'); ?>
 <div class="accordion-block-details padded" id="quote">
     <div class="accordion-block-details-heading"><h4>Quote</h4></div>
     <div class="row">

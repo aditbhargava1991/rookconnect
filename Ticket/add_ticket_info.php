@@ -235,7 +235,7 @@ $oldservice = mysqli_fetch_array(mysqli_query($dbc, "SELECT `serviceid` FROM `se
 if($oldservice > 0) {
 	mysqli_query($dbc, "UPDATE `tickets` SET `service_type`='', `service`='', `sub_heading`='', `serviceid`=CONCAT('$oldservice,',`serviceid`), `service_total_time` = '' WHERE `ticketid`='$ticketid'");
 }
-$service_fields = (strpos($value_config,',Service Category,') !== FALSE ? 1 : 0) + (strpos($value_config,',Service Type,') !== FALSE ? 1 : 0) + (strpos($value_config,',Service Heading,') !== FALSE ? 1 : 0)  + (strpos($value_config,',Service Total Time,') !== FALSE ? 1 : 0)+ ((strpos($value_config,',Service Quantity,') !== FALSE || strpos($value_config,',Service # of Rooms') !== FALSE) ? 1 : 0) + (strpos($value_config,',Service Estimated Hours,') !== FALSE ? 1 : 0) + (strpos($value_config,',Service Fuel Charge,') !== FALSE ? 1 : 0);
+$service_fields = (strpos($value_config,',Service Category,') !== FALSE ? 1 : 0) + (strpos($value_config,',Service Type,') !== FALSE ? 1 : 0) + (strpos($value_config,',Service Heading,') !== FALSE ? 1 : 0)  + (strpos($value_config,',Service Total Time,') !== FALSE ? 1 : 0) + (strpos($value_config,',Service Direct Time,') !== FALSE ? 1 : 0) + (strpos($value_config,',Service Indirect Time,') !== FALSE ? 1 : 0) + ((strpos($value_config,',Service Quantity,') !== FALSE || strpos($value_config,',Service # of Rooms') !== FALSE) ? 1 : 0) + (strpos($value_config,',Service Estimated Hours,') !== FALSE ? 1 : 0) + (strpos($value_config,',Service Fuel Charge,') !== FALSE ? 1 : 0);
 
 if((strpos($value_config,',Service Customer Template,') !== FALSE || strpos($value_config,',Service Customer Template In Service Checklist,') !== FALSE) && !($strict_view > 0)) { ?>
 	<script type="text/javascript">
@@ -409,16 +409,22 @@ if(!empty($_GET['add_service_iframe'])) { ?>
 					<h4>Services</h4>
 					<?php foreach ($field_sort_order as $field_sort_field) { ?>
 						<?php if(strpos($value_config,',Service Category,') !== FALSE && $field_sort_field == 'Service Category') { ?>
-							<label class="text-center col-sm-<?= floor(12 / $service_fields) ?>">Category</label>
+							<label class="text-center col-sm-<?= floor(12 / $service_fields) ?>">Tab</label>
 						<?php } ?>
 						<?php if(strpos($value_config,',Service Type,') !== FALSE && $field_sort_field == 'Service Type') { ?>
-							<label class="text-center col-sm-<?= floor(12 / $service_fields) ?>">Type</label>
+							<label class="text-center col-sm-<?= floor(12 / $service_fields) ?>">Tab</label>
 						<?php } ?>
 						<?php if(strpos($value_config,',Service Heading,') !== FALSE && $field_sort_field == 'Service Heading') { ?>
 							<label class="text-center col-sm-<?= floor(12 / $service_fields) ?>">Heading</label>
 						<?php } ?>
 						<?php if(strpos($value_config,',Service Total Time,') !== FALSE && $field_sort_field == 'Service Total Time') { ?>
 							<label class="text-center col-sm-<?= floor(12 / $service_fields) ?>">Total Time</label>
+						<?php } ?>
+						<?php if(strpos($value_config,',Service Direct Time,') !== FALSE && $field_sort_field == 'Service Direct Time') { ?>
+							<label class="text-center col-sm-<?= floor(12 / $service_fields) ?>">Direct Time</label>
+						<?php } ?>
+						<?php if(strpos($value_config,',Service Indirect Time,') !== FALSE && $field_sort_field == 'Service Indirect Time') { ?>
+							<label class="text-center col-sm-<?= floor(12 / $service_fields) ?>">Indirect Time</label>
 						<?php } ?>
 						<?php if(strpos($value_config,',Service Estimated Hours,') !== FALSE && $field_sort_field == 'Service Estimated Hours') { ?>
 							<label class="text-center col-sm-<?= floor(12 / $service_fields) ?>">Time Estimate</label>
@@ -449,8 +455,8 @@ if(!empty($_GET['add_service_iframe'])) { ?>
 							$col_num = 0; ?>
 							<?php foreach ($field_sort_order as $field_sort_field) { ?>
 								<?php if(strpos($value_config,',Service Category,') !== FALSE && $field_sort_field == 'Service Category') { ?>
-									<div class="col-sm-<?= floor(12 / $service_fields) - (++$col_num == $service_fields && floor(12 / $service_fields) == (12 / $service_fields) ? 1 : 0) ?>"><label class="show-on-mob">Category:</label>
-										<select data-placeholder="Select a Category..." name="service" class="chosen-select-deselect form-control service_category">
+									<div class="col-sm-<?= floor(12 / $service_fields) - (++$col_num == $service_fields && floor(12 / $service_fields) == (12 / $service_fields) ? 1 : 0) ?>"><label class="show-on-mob">Tab:</label>
+										<select data-placeholder="Select a Tab..." name="service" class="chosen-select-deselect form-control service_category">
 										  <option value=""></option>
 										  <?php $query = mysqli_query($dbc,"SELECT distinct(category) FROM services WHERE ". $query_mod ." order by category");
 											while($row = mysqli_fetch_array($query)) {
@@ -466,7 +472,7 @@ if(!empty($_GET['add_service_iframe'])) { ?>
 									</div>
 								<?php } ?>
 								<?php if(strpos($value_config,',Service Type,') !== FALSE && $field_sort_field == 'Service Type') { ?>
-									<div class="col-sm-<?= floor(12 / $service_fields) - (++$col_num == $service_fields && floor(12 / $service_fields) == (12 / $service_fields) ? 1 : 0) ?>"><label class="show-on-mob">Type:</label>
+									<div class="col-sm-<?= floor(12 / $service_fields) - (++$col_num == $service_fields && floor(12 / $service_fields) == (12 / $service_fields) ? 1 : 0) ?>"><label class="show-on-mob">Tab:</label>
 										<select data-placeholder="Select a Type..." name="service_type" class="chosen-select-deselect form-control service_type">
 										  <option value=""></option>
 										  <?php $query = mysqli_query($dbc,"SELECT `service_type`, `category` FROM `services` WHERE ". $query_mod ." GROUP BY `service_type`, `category` ORDER BY `service_type`");
@@ -511,23 +517,35 @@ if(!empty($_GET['add_service_iframe'])) { ?>
 								<?php if(strpos($value_config,',Service Total Time,') !== FALSE && $field_sort_field == 'Service Total Time') { ?>
 									<div class="col-sm-<?= floor(12 / $service_fields) - (++$col_num == $service_fields && floor(12 / $service_fields) == (12 / $service_fields) ? 1 : 0) ?>"><label class="show-on-mob">Total Time:</label>
 										<select data-placeholder="Select a Time..." name="service_total_time" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" data-concat="," class="chosen-select-deselect form-control">
-										  <option value=""></option>
-                                          <option <?php if (explode(',',$get_ticket['service_total_time'])[$i] == '15 Min') { echo  'selected="selected"'; } ?> value="15 Min">15 Min</option>
-                                          <option <?php if (explode(',',$get_ticket['service_total_time'])[$i] == '30 Min') { echo  'selected="selected"'; } ?> value="30 Min">30 Min</option>
-                                          <option <?php if (explode(',',$get_ticket['service_total_time'])[$i] == '45 Min') { echo  'selected="selected"'; } ?> value="45 Min">45 Min</option>
-                                          <option <?php if (explode(',',$get_ticket['service_total_time'])[$i] == '60 Min') { echo  'selected="selected"'; } ?> value="60 Min">60 Min</option>
-                                          <option <?php if (explode(',',$get_ticket['service_total_time'])[$i] == '1 Hr 15 Min') { echo  'selected="selected"'; } ?> value="1 Hr 15 Min">1 Hr 15 Min</option>
-                                          <option <?php if (explode(',',$get_ticket['service_total_time'])[$i] == '1 Hr 30 Min') { echo  'selected="selected"'; } ?> value="1 Hr 30 Min">1 Hr 30 Min</option>
-                                          <option <?php if (explode(',',$get_ticket['service_total_time'])[$i] == '1 Hr 45 Min') { echo  'selected="selected"'; } ?> value="1 Hr 45 Min">1 Hr 45 Min</option>
-                                          <option <?php if (explode(',',$get_ticket['service_total_time'])[$i] == '2 Hr') { echo  'selected="selected"'; } ?> value="2 Hr">2 Hr</option>
-                                          <option <?php if (explode(',',$get_ticket['service_total_time'])[$i] == '2 Hr 15 Min') { echo  'selected="selected"'; } ?> value="2 Hr 15 Min">2 Hr 15 Min</option>
-                                          <option <?php if (explode(',',$get_ticket['service_total_time'])[$i] == '2 Hr 30 Min') { echo  'selected="selected"'; } ?> value="2 Hr 30 Min">2 Hr 30 Min</option>
-                                          <option <?php if (explode(',',$get_ticket['service_total_time'])[$i] == '2 Hr 45 Min') { echo  'selected="selected"'; } ?> value="2 Hr 45 Min">2 Hr 45 Min</option>
-                                          <option <?php if (explode(',',$get_ticket['service_total_time'])[$i] == '3 Hr') { echo  'selected="selected"'; } ?> value="3 Hr">3 Hr</option>
+											<option value=""></option>
+											<?php for($hours = 0.25; $hours <= 3; $hours += 0.25) { ?>
+												<option <?php if (explode(',',$get_ticket['service_total_time'])[$i] == $hours) { echo  'selected="selected"'; } ?> value="<?= $hours ?>"><?= time_time2string($hours); ?></option>
+											<?php } ?>
 										</select>
 									</div>
 								<?php } ?>
 
+								<?php if(strpos($value_config,',Service Direct Time,') !== FALSE && $field_sort_field == 'Service Direct Time') { ?>
+									<div class="col-sm-<?= floor(12 / $service_fields) - (++$col_num == $service_fields && floor(12 / $service_fields) == (12 / $service_fields) ? 1 : 0) ?>"><label class="show-on-mob">Indirect Time:</label>
+										<select data-placeholder="Select a Time..." name="service_direct_time" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" data-concat="," class="chosen-select-deselect form-control">
+											<option value=""></option>
+											<?php for($hours = 0.25; $hours <= 3; $hours += 0.25) { ?>
+												<option <?php if (explode(',',$get_ticket['service_direct_time'])[$i] == $hours) { echo  'selected="selected"'; } ?> value="<?= $hours ?>"><?= time_time2string($hours); ?></option>
+											<?php } ?>
+										</select>
+									</div>
+								<?php } ?>
+
+								<?php if(strpos($value_config,',Service Indirect Time,') !== FALSE && $field_sort_field == 'Service Indirect Time') { ?>
+									<div class="col-sm-<?= floor(12 / $service_fields) - (++$col_num == $service_fields && floor(12 / $service_fields) == (12 / $service_fields) ? 1 : 0) ?>"><label class="show-on-mob">Indirect Time:</label>
+										<select data-placeholder="Select a Time..." name="service_indirect_time" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" data-concat="," class="chosen-select-deselect form-control">
+											<option value=""></option>
+											<?php for($hours = 0.25; $hours <= 3; $hours += 0.25) { ?>
+												<option <?php if (explode(',',$get_ticket['service_indirect_time'])[$i] == $hours) { echo  'selected="selected"'; } ?> value="<?= $hours ?>"><?= time_time2string($hours); ?></option>
+											<?php } ?>
+										</select>
+									</div>
+								<?php } ?>
 
 								<?php if(strpos($value_config,',Service Estimated Hours,') !== FALSE && $field_sort_field == 'Service Estimated Hours') {
 									$estimated_hours = empty($service['estimated_hours']) ? '00:00' : $service['estimated_hours'];
@@ -578,9 +596,9 @@ if(!empty($_GET['add_service_iframe'])) { ?>
 
 								<?php if(strpos($value_config,',Service Category,') !== FALSE && $field_sort_field == 'Service Category') { ?>
 									<div class="form-group">
-									  <label for="site_name" class="col-sm-4 control-label">Service Category:</label>
+									  <label for="site_name" class="col-sm-4 control-label">Service Tab:</label>
 									  <div class="col-sm-8">
-										<select data-placeholder="Select a Category..." name="service" class="chosen-select-deselect form-control service_category">
+										<select data-placeholder="Select a Tab..." name="service" class="chosen-select-deselect form-control service_category">
 										  <option value=""></option>
 										  <?php $query = mysqli_query($dbc,"SELECT distinct(category) FROM services WHERE ". $query_mod ." order by category");
 											while($row = mysqli_fetch_array($query)) {
@@ -599,7 +617,7 @@ if(!empty($_GET['add_service_iframe'])) { ?>
 
 								<?php if(strpos($value_config,',Service Type,') !== FALSE && $field_sort_field == 'Service Type') { ?>
 									<div class="form-group">
-									  <label for="site_name" class="col-sm-4 control-label">Service Type:</label>
+									  <label for="site_name" class="col-sm-4 control-label">Service Tab:</label>
 									  <div class="col-sm-8">
 										<select data-placeholder="Select a Type..." name="service_type" class="chosen-select-deselect form-control service_type">
 										  <option value=""></option>
@@ -697,7 +715,7 @@ if(!empty($_GET['add_service_iframe'])) { ?>
 						<?php foreach ($field_sort_order as $field_sort_field) { ?>
 							<?php if(strpos($value_config,',Service Category,') !== FALSE && $field_sort_field == 'Service Category') { ?>
 								<div class="form-group">
-								  <label for="site_name" class="col-sm-4 control-label">Service Category:</label>
+								  <label for="site_name" class="col-sm-4 control-label">Service Tab:</label>
 								  <div class="col-sm-8">
 									<?= $service['category'] ?>
 								  </div>
@@ -707,7 +725,7 @@ if(!empty($_GET['add_service_iframe'])) { ?>
 
 							<?php if(strpos($value_config,',Service Type,') !== FALSE && $field_sort_field == 'Service Type') { ?>
 								<div class="form-group">
-								  <label for="site_name" class="col-sm-4 control-label">Service Type:</label>
+								  <label for="site_name" class="col-sm-4 control-label">Service Tab:</label>
 								  <div class="col-sm-8">
 									<?= $service['service_type'] ?>
 								  </div>
@@ -732,7 +750,27 @@ if(!empty($_GET['add_service_iframe'])) { ?>
 									<?= explode(',',$get_ticket['service_total_time'])[$i] ?>
 								  </div>
 								</div>
-								<?php $pdf_contents[] = ['Total Time', explode(',',$get_ticket['service_total_time'])[$i]]; ?>
+								<?php $pdf_contents[] = ['Total Time', time_time2string(explode(',',$get_ticket['service_total_time'])[$i])]; ?>
+							<?php } ?>
+
+							<?php if(strpos($value_config,',Service Direct Time,') !== FALSE && $field_sort_field == 'Service Direct Time') { ?>
+								<div class="form-group">
+								  <label for="site_name" class="col-sm-4 control-label">Direct Time:</label>
+								  <div class="col-sm-7">
+									<?= time_time2string(explode(',',$get_ticket['service_direct_time'])[$i]) ?>
+								  </div>
+								</div>
+								<?php $pdf_contents[] = ['Direct Time', time_time2string(explode(',',$get_ticket['service_direct_time'])[$i])]; ?>
+							<?php } ?>
+
+							<?php if(strpos($value_config,',Service Indirect Time,') !== FALSE && $field_sort_field == 'Service Indirect Time') { ?>
+								<div class="form-group">
+								  <label for="site_name" class="col-sm-4 control-label">Indirect Time:</label>
+								  <div class="col-sm-7">
+									<?= time_time2string(explode(',',$get_ticket['service_indirect_time'])[$i]) ?>
+								  </div>
+								</div>
+								<?php $pdf_contents[] = ['Indirect Time', time_time2string(explode(',',$get_ticket['service_indirect_time'])[$i])]; ?>
 							<?php } ?>
 
 							<?php if(strpos($value_config,',Service Estimated Hours,') !== FALSE && $field_sort_field == 'Service Estimated Hours') {

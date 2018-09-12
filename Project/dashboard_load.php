@@ -22,6 +22,9 @@ $status_list = explode('#*#',get_config($dbc, 'project_status'));
 $staff_list = sort_contacts_query(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name` FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `deleted`=0 AND `status` > 0 AND `show_hide_user`=1"));
 $project_slider = get_config($dbc, 'project_slider');
 $project_slider_label = get_config($dbc, 'project_slider_label');
+$project_tab_list = array_merge(explode(',',mysqli_fetch_assoc(mysqli_query($dbc,"SELECT `config_tabs` FROM field_config_project WHERE type='$projecttype'"))['config_tabs']),explode(',',mysqli_fetch_assoc(mysqli_query($dbc,"SELECT `config_tabs` FROM field_config_project WHERE type='ALL'"))['config_tabs']));
+$status_report = in_array('Report Action Items',$project_tab_list);
+$quick_actions = explode(',',get_config($dbc, 'quick_action_icons'));
 foreach($_POST['projectids'] as $projectid) {
 	if($projectid > 0) {
 		$project_count++;
@@ -32,8 +35,32 @@ foreach($_POST['projectids'] as $projectid) {
 		$invoices = mysqli_fetch_array(mysqli_query($dbc, "SELECT `paid` FROM `invoice` WHERE `projectid`='$projectid'"));
 		if($invoices['paid'] == '')
 			$invoices['paid'] = 'No';
+
+        $border_colour = '';
+		if(!empty($project['deadline']) && $project['deadline'] != 0000-00-00 && date('Y-m-d') >= $project['deadline'] && $project['status'] != 'Archive') {
+            $border_colour = "#FF0000";
+        }
+		$flag_label = '';
+        if($project['flag_colour'] != '' && $project['flag_colour'] != 'FFFFFF') {
+			if(in_array('flag_manual',$quick_actions)) {
+				if(time() < strtotime($project['flag_start']) || time() > strtotime($project['flag_end'].' + 1 day')) {
+					$project['flag_colour'] = '';
+				} else {
+					$flag_label = $project['flag_label'];
+				}
+			} else {
+				$ticket_flag_names = [''=>''];
+				$flag_names = explode('#*#', get_config($dbc, 'ticket_colour_flag_names'));
+				foreach(explode(',',get_config($dbc, 'ticket_colour_flags')) as $i => $colour) {
+					$ticket_flag_names[$colour] = $flag_names[$i];
+				}
+				$flag_label = $ticket_flag_names[$ticket['flag_colour']];
+			}
+		}
+
 		?>
-		<div class="dashboard-item override-dashboard-item" data-id="<?= $project['projectid'] ?>">
+		<div class="dashboard-item override-dashboard-item" data-id="<?= $project['projectid'] ?>" data-colour="<?= $project['flag_colour'] ?>" data-table="project" data-id-field="projectid" style="<?= $project['flag_colour'] != '' ? 'background-color: #'.$project['flag_colour'].';' : '' ?><?= empty($border_colour) ? '' : "border: 3px solid $border_colour;" ?>">
+			<span class="flag-label"><?= $flag_label ?></span>
 			<h4>
 				<?php $subtab_config = get_config($dbc, 'project_subtab');
 					$config_value = $subtab_config;
@@ -44,7 +71,7 @@ foreach($_POST['projectids'] as $projectid) {
 				?>
 				<a href="?edit=<?= $project['projectid'] ?>&tile_name=<?= $tile ?><?= $subtab_value ?>"><?= get_project_label($dbc, $project) ?>
 					<span class="small">(<?= $project_tabs[$project['projecttype']] ?>)
-						<?php if((in_array('DB Review',$value_config) || !in_array_any(['DB Project','DB Review','DB Status','DB Business','DB Contact','DB Billing','DB Type','DB Follow Up','DB Assign','DB Milestones'],$value_config)) && $security['edit'] > 0) { ?>
+						<?php if((in_array('DB Review',$value_config) || !in_array_any(['DB Project','DB Review','DB Status','DB Business','DB Contact','DB Billing','DB Type','DB Follow Up','DB Deadline','DB Assign','DB Milestones'],$value_config)) && $security['edit'] > 0) { ?>
 							<span class="review_date">Last Reviewed: <?= $project['reviewer_id'] > 0 ? date('Y-m-d', strtotime($project['review_date'])).' by '.get_contact($dbc, $project['reviewer_id']) : 'Never' ?></span>
 						<?php } ?>
 					</span>
@@ -56,9 +83,22 @@ foreach($_POST['projectids'] as $projectid) {
 				<?php } ?>
 				<img class="inline-img pull-right" src="../img/full_favourite.png" style="<?= strpos($project['favourite'],','.$_SESSION['contactid'].',') !== FALSE ? '' : 'display: none' ?>" onclick="markFavourite(this);">
 				<img class="inline-img pull-right" src="../img/blank_favourite.png" style="<?= strpos($project['favourite'],','.$_SESSION['contactid'].',') !== FALSE ? 'display: none' : '' ?>" onclick="markFavourite(this);">
-				<?php if((in_array('DB Review',$value_config) || !in_array_any(['DB Project','DB Review','DB Status','DB Business','DB Contact','DB Billing','DB Type','DB Follow Up','DB Assign','DB Milestones'],$value_config)) && $security['edit'] > 0) { ?>
+				<?php if((in_array('DB Review',$value_config) || !in_array_any(['DB Project','DB Review','DB Status','DB Business','DB Contact','DB Billing','DB Type','DB Follow Up','DB Deadline','DB Assign','DB Milestones'],$value_config)) && $security['edit'] > 0) { ?>
 					<button class="inline-img pull-right image-btn double-gap-right" onclick="markReviewed($(this).closest('.dashboard-item')); return false;"><img src="../img/icons/ROOK-review-icon.png" alt="Review Now" title="Review Now" width="30" /></button>
 				<?php } ?>
+                <?php if(in_array('DB Action Items',$value_config)) { ?>
+                    <span class="small pull-right pad-horizontal">
+                        <?php if(in_array('Tickets',$project_tab_list)) {
+                            echo '<a href="projects.php?edit='.$projectid.'&tab=tickets" title="The total number of incomplete '.TICKET_TILE.' assigned to this '.PROJECT_NOUN.'" class="no-toggle">'.TICKET_TILE.' - '.mysqli_fetch_assoc(mysqli_query($dbc,"SELECT COUNT(projectid) AS `tickets` FROM `tickets` WHERE `projectid` = '$projectid' AND `deleted`=0 AND `status` NOT IN ('Archive','Archived','Done')"))['tickets'].'</a><br />';
+                        }
+                        if(in_array('Tasks',$project_tab_list)) {
+                            echo '<a href="projects.php?edit='.$projectid.'&tab=tasks" title="The total number of incomplete Tasks assigned to this '.PROJECT_NOUN.'" class="no-toggle">Tasks - '.mysqli_fetch_assoc(mysqli_query($dbc,"SELECT COUNT(projectid) AS `tasks` FROM `tasklist` WHERE `projectid` = '$projectid' AND `deleted`=0 AND `status` NOT IN ('Archive','Archived','Done')"))['tasks'].'</a><br />';
+                        }
+                        if(in_array('Checklists In Path',$project_tab_list)) {
+                            echo '<a href="projects.php?edit='.$projectid.'&tab=tasks&status=project" title="The total number of incomplete Checklists assigned to this '.PROJECT_NOUN.'" class="no-toggle">Checklists - '.mysqli_fetch_assoc(mysqli_query($dbc,"SELECT COUNT(projectid) AS `checklists` FROM `checklist` WHERE `projectid` = '$projectid' AND `deleted`=0 AND `checklistid` IN (SELECT `checklistid` FROM `checklist_name` WHERE `deleted`=0 AND `checked`=0)"))['checklists'].'</a><br />';
+                        } ?>
+                    </span>
+                <?php } ?>
                 <?php foreach(explode(',',$project['project_lead'].','.$project['project_colead'].','.$project['project_team']) as $project_staff) {
                     if($project_staff > 0) {
                         echo '<div class="pull-right">'.profile_id($dbc,$project_staff,false).'</div>';
@@ -69,7 +109,7 @@ foreach($_POST['projectids'] as $projectid) {
 
             <?php include('quick_actions.php'); ?>
 
-			<?php if(in_array('DB Business',$value_config) || !in_array_any(['DB Project','DB Review','DB Status','DB Business','DB Contact','DB Billing','DB Type','DB Follow Up','DB Assign','DB Milestones'],$value_config)) { ?>
+			<?php if(in_array('DB Business',$value_config) || !in_array_any(['DB Project','DB Review','DB Status','DB Business','DB Contact','DB Billing','DB Type','DB Follow Up','DB Deadline','DB Assign','DB Milestones'],$value_config)) { ?>
 				<div class="col-sm-6">
 					<div class="form-group">
 						<label class="col-sm-4"><?= BUSINESS_CAT ?>:</label>
@@ -79,7 +119,7 @@ foreach($_POST['projectids'] as $projectid) {
 					</div>
 				</div>
 			<?php } ?>
-			<?php if(in_array('DB Contact',$value_config) || !in_array_any(['DB Project','DB Review','DB Status','DB Business','DB Contact','DB Billing','DB Type','DB Follow Up','DB Assign','DB Milestones'],$value_config)) { ?>
+			<?php if(in_array('DB Contact',$value_config) || !in_array_any(['DB Project','DB Review','DB Status','DB Business','DB Contact','DB Billing','DB Type','DB Follow Up','DB Deadline','DB Assign','DB Milestones'],$value_config)) { ?>
 				<div class="col-sm-6">
 					<div class="form-group">
 						<label class="col-sm-4">Contact:</label>
@@ -89,7 +129,7 @@ foreach($_POST['projectids'] as $projectid) {
 					</div>
 				</div>
 			<?php } ?>
-			<?php if(in_array('DB Status',$value_config) || !in_array_any(['DB Project','DB Review','DB Status','DB Business','DB Contact','DB Billing','DB Type','DB Follow Up','DB Assign','DB Milestones'],$value_config)) { ?>
+			<?php if(in_array('DB Status',$value_config) || !in_array_any(['DB Project','DB Review','DB Status','DB Business','DB Contact','DB Billing','DB Type','DB Follow Up','DB Deadline','DB Assign','DB Milestones'],$value_config)) { ?>
 				<div class="col-sm-6">
 					<div class="form-group">
 						<label class="col-sm-4">Status:</label>
@@ -111,7 +151,7 @@ foreach($_POST['projectids'] as $projectid) {
 					</div>
 				</div>
 			<?php } ?>
-			<?php if(in_array('DB Billing',$value_config) || !in_array_any(['DB Project','DB Review','DB Status','DB Business','DB Contact','DB Billing','DB Type','DB Follow Up','DB Assign','DB Milestones'],$value_config)) { ?>
+			<?php if(in_array('DB Billing',$value_config) || !in_array_any(['DB Project','DB Review','DB Status','DB Business','DB Contact','DB Billing','DB Type','DB Follow Up','DB Deadline','DB Assign','DB Milestones'],$value_config)) { ?>
 				<div class="col-sm-6">
 					<div class="form-group">
 						<label class="col-sm-4">Paid:</label>
@@ -123,7 +163,7 @@ foreach($_POST['projectids'] as $projectid) {
 					</div>
 				</div>
 			<?php } ?>
-			<?php if(in_array('DB Type',$value_config) || !in_array_any(['DB Project','DB Review','DB Status','DB Business','DB Contact','DB Billing','DB Type','DB Follow Up','DB Assign','DB Milestones'],$value_config)) { ?>
+			<?php if(in_array('DB Type',$value_config) || !in_array_any(['DB Project','DB Review','DB Status','DB Business','DB Contact','DB Billing','DB Type','DB Follow Up','DB Deadline','DB Assign','DB Milestones'],$value_config)) { ?>
 				<div class="col-sm-6">
 					<div class="form-group">
 						<label class="col-sm-4"><?= PROJECT_NOUN ?> Type:</label>
@@ -144,7 +184,7 @@ foreach($_POST['projectids'] as $projectid) {
 					</div>
 				</div>
 			<?php } ?>
-			<?php if(in_array('DB Follow Up',$value_config) || !in_array_any(['DB Project','DB Review','DB Status','DB Business','DB Contact','DB Billing','DB Type','DB Follow Up','DB Assign','DB Milestones'],$value_config)) { ?>
+			<?php if(in_array('DB Follow Up',$value_config) || !in_array_any(['DB Project','DB Review','DB Status','DB Business','DB Contact','DB Billing','DB Type','DB Follow Up','DB Deadline','DB Assign','DB Milestones'],$value_config)) { ?>
 				<div class="col-sm-6">
 					<div class="form-group">
 						<label class="col-sm-4">Follow Up Date:</label>
@@ -158,7 +198,21 @@ foreach($_POST['projectids'] as $projectid) {
 					</div>
 				</div>
 			<?php } ?>
-			<?php if(in_array('DB Assign',$value_config) || !in_array_any(['DB Project','DB Review','DB Status','DB Business','DB Contact','DB Billing','DB Type','DB Follow Up','DB Assign','DB Milestones'],$value_config)) { ?>
+			<?php if(in_array('DB Deadline',$value_config)) { ?>
+				<div class="col-sm-6">
+					<div class="form-group">
+						<label class="col-sm-4">Deadline:</label>
+						<div class="col-sm-8">
+							<?php if($security['edit'] > 0) { ?>
+								<input type="text" class="form-control datepicker" name="deadline" value="<?= $project['deadline'] ?>" data-table="project" data-identifier="projectid" data-id="<?= $project['projectid'] ?>" data-project="<?= $project['projectid'] ?>">
+							<?php } else {
+								echo $project['deadline'];
+							} ?>
+						</div>
+					</div>
+				</div>
+			<?php } ?>
+			<?php if(in_array('DB Assign',$value_config) || !in_array_any(['DB Project','DB Review','DB Status','DB Business','DB Contact','DB Billing','DB Type','DB Follow Up','DB Deadline','DB Assign','DB Milestones'],$value_config)) { ?>
 				<div class="col-sm-6">
 					<div class="form-group">
 						<label class="col-sm-4"><?= PROJECT_NOUN ?> Lead:</label>
@@ -178,7 +232,7 @@ foreach($_POST['projectids'] as $projectid) {
 				</div>
 			<?php } ?>
 
-			<?php if(in_array('DB Colead',$value_config) || !in_array_any(['DB Project','DB Review','DB Status','DB Business','DB Contact','DB Billing','DB Type','DB Follow Up','DB Colead','DB Milestones'],$value_config)) { ?>
+			<?php if(in_array('DB Colead',$value_config) || !in_array_any(['DB Project','DB Review','DB Status','DB Business','DB Contact','DB Billing','DB Type','DB Follow Up','DB Deadline','DB Colead','DB Milestones'],$value_config)) { ?>
 				<div class="col-sm-6">
 					<div class="form-group">
 						<label class="col-sm-4"><?= PROJECT_NOUN ?> Co-Lead:</label>
@@ -199,7 +253,7 @@ foreach($_POST['projectids'] as $projectid) {
 			<?php } ?>
 
 
-			<?php if(in_array('DB Total Tickets',$value_config) || !in_array_any(['DB Project','DB Review','DB Status','DB Business','DB Contact','DB Billing','DB Type','DB Follow Up','DB Colead','DB Milestones','DB Total Tickets'],$value_config)) { ?>
+			<?php if(in_array('DB Total Tickets',$value_config) || !in_array_any(['DB Project','DB Review','DB Status','DB Business','DB Contact','DB Billing','DB Type','DB Follow Up','DB Deadline','DB Colead','DB Milestones','DB Total Tickets'],$value_config)) { ?>
 				<div class="col-sm-6">
 					<div class="form-group">
 						<label class="col-sm-4">Total Tickets:</label>
@@ -207,9 +261,9 @@ foreach($_POST['projectids'] as $projectid) {
                         <?php
                                     $projectid = $project['projectid'];
 								    $active_ticket = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT COUNT(projectid) AS total_id FROM tickets WHERE `projectid` = '$projectid' AND `deleted`=0 AND `status` NOT IN ('Archive','Archived','Done')"));
-                                    echo 'Active - '.$active_ticket['total_id'].' : ';
+                                    echo '<a href="projects.php?edit='.$projectid.'&tab=tickets">Active - '.$active_ticket['total_id'].'</a> : ';
 								    $inactive_ticket = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT COUNT(projectid) AS total_id FROM tickets WHERE `projectid` = '$projectid' AND `deleted`=0 AND `status` IN ('Archive','Archived','Done')"));
-                                    echo 'Archived/Done - '.$inactive_ticket['total_id'];
+                                    echo '<a href="projects.php?edit='.$projectid.'&tab=tickets&status=archive">Archived/Done - '.$inactive_ticket['total_id'].'</a>';
                          ?>
 						</div>
 					</div>

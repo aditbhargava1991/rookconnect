@@ -499,11 +499,11 @@ if(in_array('touch',$ux_options) && (!in_array('standard',$ux_options) || $_GET[
                         <option value=""></option>
                         <option value="NEW">Add New <?= count($purchaser_config) > 1 ? 'Customer' : $purchaser_config[0] ?></option>
                         <?php
-                            $query = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc,"SELECT contactid, name, first_name, last_name FROM contacts WHERE category IN ('".implode("','",$purchaser_config)."') AND status>0 AND deleted=0"),MYSQLI_ASSOC));
-                            foreach($query as $id) {
+                            $query = sort_contacts_query(mysqli_query($dbc,"SELECT contactid, name, first_name, last_name FROM contacts WHERE category IN ('".implode("','",$purchaser_config)."') AND status>0 AND deleted=0"));
+                            foreach($query as $contact) {
                                 $selected = '';
-                                $selected = $id == $_GET['contactid'] ? 'selected="selected"' : '';
-                                echo "<option ".$selected." value='".$id."'>".get_contact($dbc, $id).'</option>';
+                                $selected = $contact['contactid'] == $_GET['contactid'] ? 'selected="selected"' : '';
+                                echo "<option ".$selected." value='".$contact['contactid']."'>".$contact['full_name'].'</option>';
                             }
                         ?>
                     </select>
@@ -515,6 +515,21 @@ if(in_array('touch',$ux_options) && (!in_array('standard',$ux_options) || $_GET[
         <div class="form-group patient  <?= (in_array('reference',$field_config) ? 'reference' : '" style="display:none;') ?>">
             <label for="site_name" class="col-sm-2 control-label">Reference:</label>
             <div class="col-sm-7"><input type="text" name="reference" class="form-control" /></div>
+        </div>
+
+        <div class="form-group patient  <?= (in_array('contract',$field_config) ? 'reference' : '" style="display:none;') ?>">
+            <label for="site_name" class="col-sm-2 control-label">Contract:</label>
+            <div class="col-sm-7"><input type="text" name="contract" class="form-control" /></div>
+        </div>
+
+        <div class="form-group patient  <?= (in_array('po_num',$field_config) ? 'reference' : '" style="display:none;') ?>">
+            <label for="site_name" class="col-sm-2 control-label">PO #:</label>
+            <div class="col-sm-7"><input type="text" name="po_num" class="form-control" /></div>
+        </div>
+
+        <div class="form-group patient  <?= (in_array('area',$field_config) ? 'reference' : '" style="display:none;') ?>">
+            <label for="site_name" class="col-sm-2 control-label">Area:</label>
+            <div class="col-sm-7"><input type="text" name="area" class="form-control" /></div>
         </div>
 
               <div class="form-group patient  <?= (in_array('injury',$field_config) ? 'patient_type_fields' : '" style="display:none;') ?>">
@@ -1178,7 +1193,7 @@ if(in_array('touch',$ux_options) && (!in_array('standard',$ux_options) || $_GET[
 					$each_misc_price = explode(',', $misc_prices);
 					$each_misc_qty = explode(',', $misc_qtys);
 					foreach($each_misc as $loop => $misc_item) {
-                        if(!($each_misc_ticketid > 0)) {
+                        if(!($each_misc_ticketid[$loop] > 0)) {
     						$misc_price = $each_misc_price[$loop];
     						$misc_qty = $each_misc_qty[$loop]; ?>
     						<div class="additional_misc form-group clearfix">

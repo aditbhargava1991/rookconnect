@@ -54,7 +54,7 @@ if (isset($_POST['tasklist'])) {
 
     $checklist_type = filter_var($_POST['checklist_type'],FILTER_SANITIZE_STRING);
     $checklist_name = filter_var($_POST['checklist_name'],FILTER_SANITIZE_STRING);
-	
+
 	$reset_time = '12:00 am';
 	$reset_day = '1';
 	switch($checklist_type) {
@@ -135,7 +135,7 @@ if (isset($_POST['tasklist'])) {
             $result_insert_client_doc = mysqli_query($dbc, $query_insert_client_doc);
         }
     }
-	
+
 	if(isset($_POST['from']) && $_POST['from'] == 'project') {
 		$url = '/Project/review_project.php?type=checklist&projectid='.$projectid;
 	} else if(isset($_GET['category']) && isset($_GET['contactid'])) {
@@ -331,7 +331,7 @@ function removeNewRow(button) {
 						$('[name=checklist_type]').change();
 					});
 					</script>
-					
+
 					<div class="form-group clearfix reset_time" style="display:none;">
 						<label for="first_name" class="col-sm-12 clearfix" style="text-align:center;">
 							<span class="popover-examples list-inline" style="margin:0 3px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Daily, Weekly, and Monthly checklists will roll over to unchecked at the specified reset time."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
@@ -481,7 +481,6 @@ function removeNewRow(button) {
 						</label>
 						<div class="col-sm-8">
 							<select name="assign_staff[]" multiple data-placeholder="Select Assigned Staff..." class="chosen-select-deselect form-control">
-								<option value=''></option>
 								<option value='ALL'>Assign All Staff</option>
 								<?php
 								$cat = '';

@@ -4,6 +4,7 @@
  */
 error_reporting(0);
 include ('../include.php');
+include_once('../Sales/config.php');
 
 // Form submission from details.php
 if (isset($_POST['add_sales'])) {
@@ -222,10 +223,6 @@ $(document).ready(function() {
     	include_once ('../navigation.php');
     }
     checkAuthorised('sales');
-    $statuses     = get_config($dbc, 'sales_lead_status');
-    $next_actions = get_config($dbc, 'sales_next_action');
-    $field_config = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `sales` FROM `field_config`"));
-    $value_config = ','.$field_config['sales'].',';
 ?>
 
 <div id="sales_div" class="container">
@@ -237,7 +234,7 @@ $(document).ready(function() {
 
     <div class="row">
 		<div class="main-screen"><?php
-            if($_GET['iframe_slider'] != 1) {
+            if($_GET['iframe_slider'] != 1 && !IFRAME_PAGE) {
                 include('tile_header.php');
             }
 
@@ -299,17 +296,17 @@ $(document).ready(function() {
                 </div>
                 
                 <!-- Sidebar -->
-                <div class="standard-collapsible tile-sidebar tile-sidebar-noleftpad hide-on-mobile" <?= $_GET['iframe_slider'] == 1 ? 'style="display:none;"' : '' ?>>
+                <div class="standard-collapsible tile-sidebar tile-sidebar-noleftpad hide-on-mobile" <?= $_GET['iframe_slider'] == 1 || IFRAME_PAGE ? 'style="display:none;"' : '' ?>>
                     <ul><?php
                         if (strpos($value_config, ',Sales Path,') !== false) { ?>
-                            <a href="#salespath"><li class="collapsed cursor-hand <?= $_GET['p'] == 'salespath' ? 'active' : '' ?>" data-toggle="collapse" data-target="#collapse_salespath" id="nav_salespath"><?= SALES_NOUN ?> Path</li></a><?php
+                            <a href="#salespath"><li class="collapsed cursor-hand <?= $_GET['p'] == 'salespath' ? 'active' : '' ?>" data-toggle="collapse" data-target="#collapse_salespath" id="nav_salespath"><?= SALES_NOUN ?> Task Path</li></a><?php
                         }
                         if (strpos($value_config, ',Staff Information,') !== false) { ?>
-                            <a href="#staffinfo"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_staff_information" id="nav_staffinfo">Staff Information</li></a><?php
-                        }
+                            <a href="#staffinfo"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_staff_information" id="nav_staffinfo">Staff Information</li></a>
+                        <?php }
                         if (strpos($value_config, ',Next Action,') !== false) { ?>
-                            <a href="#nextaction"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_next_action" id="nav_nextaction">Next Action</li></a><?php
-                        }
+                            <a href="#nextaction"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_next_action" id="nav_nextaction">Next Action</li></a>
+                        <?php }
                         if (strpos($value_config, ',Lead Information,') !== false) { ?>
                             <a href="#leadinfo"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_lead_information" id="nav_leadinfo">Lead Information</li></a><?php
                             foreach(explode(',',$lead['contactid']) as $contactid) {
@@ -317,39 +314,39 @@ $(document).ready(function() {
                                     <a href="#contact_<?= $contactid ?>"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_contact_<?= $contactid ?>" id="nav_contact_<?= $contactid ?>"><?= get_contact($dbc, $contactid) ?></li></a>
                                 <?php }
                             } ?>
-                            <a href="#business"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_business" id="nav_business"><?= get_contact($dbc, $lead['businessid'], 'name_company') ?></li></a><?php
-                        }
+                            <a href="#business"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_business" id="nav_business"><?= get_contact($dbc, $lead['businessid'], 'name_company') ?></li></a>
+                        <?php }
                         if (strpos($value_config, ',Service,') !== false) { ?>
-                            <a href="#services"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_services" id="nav_services">Services</li></a><?php
-                        }
+                            <a href="#services"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_services" id="nav_services">Services</li></a>
+                        <?php }
                         if (strpos($value_config, ',Products,') !== false) { ?>
-                            <a href="#products"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_products" id="nav_products">Products</li></a><?php
-                        }
+                            <a href="#products"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_products" id="nav_products">Products</li></a>
+                        <?php }
                         if (strpos($value_config, ',Reference Documents,') !== false) { ?>
-                            <a href="#refdocs"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_reference_documents" id="nav_refdocs">Reference Documents</li></a><?php
-                        }
+                            <a href="#refdocs"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_reference_documents" id="nav_refdocs">Reference Documents</li></a>
+                        <?php }
                         if (strpos($value_config, ',Marketing Material,') !== false) { ?>
-                            <a href="#marketing"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_reference_documents" id="nav_marketing">Marketing Material</li></a><?php
-                        }
+                            <a href="#marketing"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_reference_documents" id="nav_marketing">Marketing Material</li></a>
+                        <?php }
                         if (strpos($value_config, 'Information Gathering,') !== false) { ?>
-                            <a href="#infogathering"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_information_gathering" id="nav_infogathering">Information Gathering</li></a><?php
-                        }
+                            <a href="#infogathering"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_information_gathering" id="nav_infogathering">Information Gathering</li></a>
+                        <?php }
                         if (strpos($value_config, ',Estimate,') !== false) { ?>
-                            <a href="#estimate"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_estimate" id="nav_estimate">Estimate</li></a><?php
-                        }
+                            <a href="#estimate"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_estimate" id="nav_estimate">Estimate</li></a>
+                        <?php }
                         if (strpos($value_config, ',Lead Notes,') !== false) { ?>
-                            <a href="#leadnotes"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_lead_notes" id="nav_leadnotes">Lead Notes</li></a><?php
-                        }
+                            <a href="#leadnotes"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_lead_notes" id="nav_leadnotes">Lead Notes</li></a>
+                        <?php }
                         if (strpos($value_config, ',Tasks,') !== false) { ?>
-                            <a href="#tasks"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_tasks" id="nav_tasks">Tasks</li></a><?php
-                        }
+                            <a href="#tasks"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_tasks" id="nav_tasks">Tasks</li></a>
+                        <?php }
                         if (strpos($value_config, ',Time,') !== false) { ?>
-                            <a href="#time"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_time" id="nav_time">Time Tracking</li></a><?php
-                        }
+                            <a href="#time"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_time" id="nav_time">Time Tracking</li></a>
+                        <?php }
                         if (strpos($value_config, ',History,') !== false) { ?>
-                            <a href="#history"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_history" id="nav_history">History</li></a><?php
-                        } ?>
-                        <li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_history" id="nav_history"><?= SALES_NOUN ?> Created by<br /><?= $salesid > 0 ? $lead['lead_created_by'] : get_contact($dbc, $_SESSION['contactid']) ?><br /> on <?= $salesid > 0 ? $lead['created_date'] : date('Y-m-d') ?></li>
+                            <a href="#history"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_history" id="nav_history">History</li></a>
+                        <?php } ?>
+                        <li><?= SALES_NOUN ?> Created by<br /><?= $salesid > 0 ? $lead['lead_created_by'] : get_contact($dbc, $_SESSION['contactid']) ?><br /> on <?= $salesid > 0 ? $lead['created_date'] : date('Y-m-d') ?></li>
                     </ul>
                 </div><!-- .tile-sidebar -->
 

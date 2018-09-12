@@ -74,7 +74,7 @@ $each_tab = explode('/', $folder_path);
 
 DEFINE('FOLDER_NAME', strtolower($each_tab[1]));
 DEFINE('FOLDER_URL', $each_tab[1]);
-DEFINE('WEBSITE_URL', (isset($_SERVER["HTTPS"]) ? 'https://' : 'http://').$_SERVER['SERVER_NAME']);
+DEFINE('WEBSITE_URL', (isset($_SERVER["HTTPS"]) ? 'https://' : 'http://').(!empty($_SERVER['SERVER_NAME']) ? $_SERVER['SERVER_NAME'] : basename(__DIR__)));
 DEFINE('ITEMS_PER_PAGE', 25);
 DEFINE('COMPANY_NAME', 'Washtech');
 DEFINE('ROLE', $_SESSION['role']);

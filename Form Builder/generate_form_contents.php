@@ -3,6 +3,12 @@ $form = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `user_forms` WHERE 
 $form_layout = !empty($form['form_layout']) ? $form['form_layout'] : 'Accordions';
 
 $div_i = 0;
+
+$attached_contact_default_field = '';
+if($attached_contactid > 0 && !empty($form['attached_contact_default_field']) && empty($pdf_id)) {
+    $attached_contact_default_field = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `user_form_fields` WHERE `field_id` = '".$form['attached_contact_default_field']."'"));
+    $attached_contact_default_field = 'field_'.preg_replace('/[^a-z0-9_]/','',strtolower($attached_contact_default_field['name']));
+}
 ?>
 <script>
 $(document).ready(function () {
@@ -11,21 +17,27 @@ $(document).ready(function () {
             $(this).text($(this).text() + ':');
         }
     });
+    <?php if(!empty($attached_contact_default_field)) { ?>
+        $('[name="<?= $attached_contact_default_field ?>"]').val('<?= $attached_contactid ?>').trigger('change.select2').change();
+    <?php } ?>
 });
-$(document).on('change', 'select[name="heading_number"]', function() { populateReferenceValues(this); });
+$(document).on('change', 'select[name="heading_number"],.form_div select', function() { populateReferenceValues(this); });
 function populateReferenceValues(link) {
-    $('[name="form1"]').find('input[data-refsource="'+$(link).attr('name')+'"]').each(function() {
+    var form_id = $('[name="form_id"]').val();
+    $('.form_div input[data-refsource="'+$(link).attr('name')+'"]').each(function() {
         var ref_source = $(link).val();
         var ref_value = $(this).data('refvalue');
         var ref_name = $(this).attr('name');
-        $.ajax({
-            type: "GET",
-            url: "<?= WEBSITE_URL ?>/Form Builder/form_ajax.php?fill=retrieve_ref&ref_source="+ref_source+"&ref_value="+ref_value,
-            dataType: "html",
-            success: function(response) {
-                $('[name="'+ref_name+'"]').val(response);
-            }
-        });
+        if(ref_source != undefined && ref_source != '' && ref_value != undefined && ref_value != '') {
+            $.ajax({
+                type: "GET",
+                url: "<?= WEBSITE_URL ?>/Form Builder/form_ajax.php?fill=retrieve_ref&ref_source="+ref_source+"&ref_value="+ref_value+'&ref_name='+ref_name+'&form_id='+form_id,
+                dataType: "html",
+                success: function(response) {
+                    $('[name="'+ref_name+'"]').val(response);
+                }
+            });
+        }
     });
 }
 function addRow(link) {
@@ -94,7 +106,7 @@ function checkMandatoryFields() {
 }
 </script>
 
-<div class="scale-to-fill">
+<div class="scale-to-fill form_div">
     <input type="hidden" name="form_id" value="<?= $form_id ?>">
     <input type="hidden" name="assign_id" value="<?= $_GET['assign_id'] ?>">
 
@@ -340,7 +352,9 @@ function checkMandatoryFields() {
                                         echo '<span class="pull-left">'.$field['label'].'</span>';
                                         break;
                                     case 'DATE':
-                                        echo '<input type="text" name="'.$field_post.'" class="form-control datepicker" value="'.substr($default,0,10).'">';
+                                        $ref_source = 'field_'.mysqli_fetch_array(mysqli_query($dbc, "SELECT `name` FROM `user_form_fields` WHERE `field_id` = '".$field['references']."'"))['name'];
+                                        $ref_value = $field['source_conditions'];
+                                        echo '<input type="text" name="'.$field_post.'" class="form-control datepicker" value="'.substr($default,0,10).'" data-refsource="'.$ref_source.'" data-refvalue="'.$ref_value.'">';
                                         break;
                                     case 'DATETIME':
                                         echo '<input type="text" name="'.$field_post.'" class="form-control dateandtimepicker" value="'.substr($default,11).'">';
@@ -705,7 +719,13 @@ function checkMandatoryFields() {
                                         <hr />
                                         <?php break;
                                     default:
-                                        echo '<input type="text" name="'.$field_post.'" class="form-control" value="'.$default.'">';
+                                        $ref_source = 'field_'.mysqli_fetch_array(mysqli_query($dbc, "SELECT `name` FROM `user_form_fields` WHERE `field_id` = '".$field['references']."'"))['name'];
+                                        $ref_value = $field['source_conditions'];
+                                        $ref_html = '';
+                                        if(!empty($ref_source)) {
+                                            $ref_html = 'data-refsource="'.$ref_source.'" data-refvalue="'.$ref_value.'"';
+                                        }
+                                        echo '<input type="text" name="'.$field_post.'" class="form-control" value="'.$default.'" '.$ref_html.'>';
                                         break;
                                 } ?>
                             </div>

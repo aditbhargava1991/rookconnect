@@ -532,7 +532,7 @@ function changeCategory(sel) {
 		url: "../ajax_all.php?fill=invoice&category="+action+"&app_type="+app_type+"&invoiceid="+invoiceid+"&sid="+serviceid,
 		dataType: "html",   //expect html to be returned
 		success: function(response){
-			$("#serviceid_"+arr[1]).html(response);
+			$("#serviceid_"+arr[1]).html('<option value=""></option>'+response);
 			$("#serviceid_"+arr[1]).trigger("change.select2");
 		}
 	});
@@ -1326,4 +1326,10 @@ function rem_ticket_row(btn) {
 	}
 	$(btn).closest('.invoice_ticket').remove();
 	countTotalPrice();
+}
+function view_tabs() {
+    $('.view_tabs').toggle();
+}
+function view_summary() {
+    $('.view_summary').toggle();
 }

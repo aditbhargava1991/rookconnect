@@ -424,7 +424,6 @@
 					<div class="col-sm-8">
 					<?php if(strpos($edit_config, ',Role,') !== FALSE) { ?>
 					<select name="role[]" multiple data-placeholder="Select a Security Level" width="380" class="chosen-select-deselect">
-						<option value=''></option>
 						<?php
 						$selected = '';
 						$sql=mysqli_query($dbc,"SELECT * FROM  security_level");

@@ -163,7 +163,7 @@ $(document).ready(function() {
             <div class="form-group">
                 <label class="col-sm-4 control-label">Staff:</label>
                 <div class="col-sm-8">
-                    <select name="staff_include[]" multiple data-placeholder="Select Staff" class="chosen-select-deselect form-control"><option></option>
+                    <select name="staff_include[]" multiple data-placeholder="Select Staff" class="chosen-select-deselect form-control">
                         <option value="ALL">All Staff</option>
                         <?php $contact_list = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name` FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `deleted`=0 AND `status`=1 AND `show_hide_user`=1 AND IFNULL(`calendar_enabled`,1)=1".$region_query),MYSQLI_ASSOC));
                         foreach($contact_list as $staffid) { ?>

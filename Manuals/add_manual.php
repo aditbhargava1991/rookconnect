@@ -59,7 +59,7 @@ if (isset($_POST['view_manual'])) {
 	}
 	$manual_id = mysqli_fetch_array(mysqli_query($dbc, "SELECT MAX(`manualstaffid`) id FROM `manuals_staff` WHERE `manualtypeid` = '$manualtypeid' AND staffid='$staffid' AND `today_date`='$today_date'"))['id'];
 	imagepng(sigJsonToImage($_POST['output']), 'download/sign_'.$manual_id.'.png');
-	
+
 	$pdf_path = 'download/manual_'.$manualtypeid.'_signed_'.$manual_id.'_'.$today_date.'.pdf';
 	include('manual_pdf.php');
 
@@ -101,7 +101,7 @@ if (isset($_POST['view_manual'])) {
 	if(!empty($_GET['return_url'])) {
 		$return_url = urldecode($_GET['return_url']);
 	}
-	
+
 	if($_GET['source'] == 'hr') {
 		$base_url=WEBSITE_URL;
 		$category_s = $_GET['category_pnp'];
@@ -320,7 +320,7 @@ if (isset($_POST['add_manual'])) {
 		$category_s = $_GET['category_pnp'];
 		$return_url = $base_url.'/HR/hr.php?tab=Manual&category=Policies and Procedures&category_pnp='.$category_s;
 	}
-	
+
     echo '<script type="text/javascript"> window.location.replace("'.$return_url.'"); </script>';
 
 	$manual_type = $_POST['type'];
@@ -798,7 +798,7 @@ checkAuthorised();
 							<label for="first_name" class="col-sm-4 control-label text-right">Staff:</label>
 							<div class="col-sm-8">
 								<select name="assign_staff[]" data-placeholder="Choose a Staff Member..." class="chosen-select-deselect form-control" multiple width="380">
-									<option value=""></option><?php
+									<?php
 									$query = mysqli_query($dbc,"SELECT contactid, first_name, last_name FROM contacts WHERE category IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND deleted=0 AND status>0 order by first_name");
 									//$check_assigned = mysqli_query ( $dbc, "SELECT c.`contactid` FROM `contacts` c INNER JOIN `manuals` m ON (c.`contactid` = " );
 
@@ -918,7 +918,7 @@ checkAuthorised();
 			</div>
         <?php } ?>
 
-        
+
 
     </form>
 

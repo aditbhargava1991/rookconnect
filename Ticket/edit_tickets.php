@@ -90,7 +90,7 @@ if(!empty($_GET['clientid'])) {
 if(!empty($_GET['projectid'])) {
 	$projectid = $_GET['projectid'];
 	$businessid = get_project($dbc, $projectid, 'businessid');
-	$clientid = get_project($dbc, $projectid, 'clientid');
+	$clientid = explode(',',trim(get_project($dbc, $projectid, 'clientid'),','))[0];
 	$project_path = get_project($dbc, $projectid, 'project_path');
 	$project_lead = get_project($dbc, $projectid, 'project_lead');
 }
@@ -277,6 +277,32 @@ if($_GET['overview_mode'] == 1) {
 	$force_readonly = true;
 	$ticket_layout = 'full';
 	$calendar_ticket_slider = 'full';
+}
+
+//Force read only if Ticket is deleted
+if($get_ticket['deleted'] == 1) {
+	$force_readonly = true;
+	$strict_view = 1;
+}
+
+//Status Fields
+if(!empty($ticket_status)) {
+	$value_config_all = $value_config;
+	$value_config = ','.get_config($dbc, 'ticket_status_fields_'.$ticket_status).',';
+	if(!empty($ticket_type)) {
+		$value_config .= get_config($dbc, 'ticket_status_fields_'.$ticket_status.'_'.$ticket_type).',';
+	}
+	if(empty(trim($value_config,','))) {
+		$value_config = $value_config_all;
+	} else {
+		foreach($action_mode_ignore_fields as $action_mode_ignore_field) {
+			if(strpos(','.$value_config_all.',',','.$action_mode_ignore_field.',') !== FALSE) {
+				$value_config .= ','.$action_mode_ignore_field;
+			}
+		}
+		$value_config = ','.implode(',',array_intersect(explode(',',$value_config), explode(',',$value_config_all))).',';
+	}
+	$ticket_layout = $calendar_ticket_slider = 'full';
 }
 
 //Edit Staff From Dashboard
@@ -530,14 +556,14 @@ foreach($security_levels as $security_level) {
 	}
 }
 $is_recurrence = false;
-if($get_ticket['main_ticketid'] > 0 && $get_ticket['is_recurrence'] == 1) {
+if($get_ticket['main_ticketid'] > 0 && $get_ticket['is_recurrence'] == 1 && !$force_readonly) {
 	$is_recurrence = true;
 }
 $quick_action_html = '';
 if(!($strict_view > 0)) {
 	$quick_actions = explode(',',get_config($dbc, 'quick_action_icons'));
 	$quick_action_html .= '<div class="action-icons pull-right">';
-	$quick_action_html .= (strpos($value_config,',Create Recurrence Button,') !== FALSE ? '<img src="'.WEBSITE_URL.'/img/month-overview-blue.png" class="inline-img no-toggle" title="Create Recurring '.TICKET_TILE .'" onclick="dialogCreateRecurrence(this);">' : '');
+	$quick_action_html .= (strpos($value_config,',Create Recurrence Button,') !== FALSE ? '<img src="'.WEBSITE_URL.'/img/month-overview-blue.png" class="inline-img no-toggle" title="Recurring '.TICKET_TILE .'" onclick="dialogCreateRecurrence(this);">' : '');
 	$quick_action_html .= (in_array('flag_manual',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-flag-icon.png" class="inline-img manual-flag-icon no-toggle" title="Flag This!">' : '');
 	$quick_action_html .= (!in_array('flag_manual',$quick_actions) && in_array('flag',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-flag-icon.png" class="inline-img flag-icon no-toggle" title="Flag This!">' : '');
 	$quick_action_html .= (in_array('email',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-email-icon.png" class="inline-img email-icon no-toggle" title="Send Email">' : '');
@@ -559,43 +585,7 @@ var no_verify = <?= IFRAME_PAGE ? 'true' : 'false' ?>;
 $(document).ready(function() {
 	setActions();
 	window.onbeforeunload = function() {
-		var ready = ticketid > 0 || ticketid == 'multi' || <?= IFRAME_PAGE ? 'true' : 'false' ?>;
-		$('[name=projectid],select[name=businessid]').not('[type=checkbox]').each(function() {
-			if(!no_verify && this.value == '' && $(this).attr('type') != 'hidden' && (this.name != 'projectid' || $('[name=piece_work]').filter(function() { return this.value != ''; }).length != 1)) {
-				var target = this;
-				if($(target).is('select')) {
-					var select2 = $(target).next('.select2');
-					$(select2).find('.select2-selection').css('background-color', 'red');
-					$(select2).find('.select2-selection__placeholder').css('color', 'white');
-				} else {
-					$(target).css('background-color', 'red');
-				}
-				if(ready) {
-					<?php $incomplete_status = get_config($dbc, 'incomplete_ticket_status_'.$ticket_type);
-					if($incomplete_status == '') {
-						$incomplete_status = get_config($dbc, 'incomplete_ticket_status');
-					}
-					if($incomplete_status != '') { ?>
-						$('[name=status]').val('<?= $incomplete_status ?>').change();
-					<?php } ?>
-					setTimeout(function() {
-						alert("Please fill in the "+$(target).closest('.form-group').find('label').text().split("\n")[0].replace(/^[^a-zA-Z0-9()]*/g,'').replace(/[^a-zA-Z0-9()]*$/g,'')+".");
-						$('.main-screen .default_screen').scrollTop($('.main-screen .default_screen').scrollTop() + $(target).offset().top - $('.main-screen .default_screen').offset().top - 30);
-						$(target).focus();
-					}, 0);
-					ready = false;
-				}
-			}
-		});
-		if(ready && ($('[name=arrived][value=1]').length != $('[name=completed][value=1]').not('.no_time').length && $('[name=completed][value=0]').not('.no_time').length > 0) || $.inArray($('[name=timer]').val(),['',undefined]) < 0) {
-			setTimeout(function() {
-				alert("This <?= TICKET_NOUN ?> is currently actively tracking time.");
-			}, 0);
-			ready = false;
-		}
-		if(!ready) {
-			return false;
-		}
+		return checkMandatoryFields();
 	}
 	$('#mobile_tabs .panel-heading').off('click',loadPanel).click(loadPanel);
 	<?php if($ticket_layout != 'Accordions' || $include_hidden == 'true') { ?>
@@ -663,6 +653,31 @@ $(document).ready(function() {
 			}
 		});
 	<?php } ?>
+    
+    var menu_bar_height = $('#nav').height() + $('.tile-header').height() + 12;
+    $('.menu-bar').css('top', menu_bar_height);
+    
+    $('.main-screen .main-screen').scroll(function() {
+        if ($(this).scrollTop() > 70) {
+            $('.menu-bar').fadeIn("fast");
+            $('.menu-content:visible').fadeOut("fast");
+            $('.menu_button:hidden').fadeIn("fast");
+        } else {
+            $('.menu-bar').fadeOut("fast");
+            $('.menu-content').fadeOut("fast");
+        }
+    });
+});
+$(document).on('click', '.menu_button', function() {
+    $('.menu-content').load('edit_tickets.php .standard-body-title', function() {
+        setActions();
+        $(this).find('.action-icons img').addClass('theme-color-icon');
+        $(this).find('.action-icons img.archive-icon').removeClass('theme-color-icon');
+        $('.menu-bar').innerWidth($('#main_screen_block').innerWidth() - 20);
+        $('.menu-content .standard-body-title').css('cssText', 'margin-top: -9px !important; margin-right: -4px; padding-top: 1px !important;');
+    });
+    $('.menu-content').fadeIn("fast");
+    $('.menu_button').hide();
 });
 function loadPanel() {
 	if(!$(this).hasClass('higher_level_heading')) {
@@ -770,7 +785,58 @@ function setManualFlag(ticketid = '', colour, label) {
 		$('.flag-label-block').hide();
 	}
 }
+function checkMandatoryFields() {
+	var ready = ticketid > 0 || ticketid == 'multi' || <?= IFRAME_PAGE ? 'true' : 'false' ?>;
+	$('[name=projectid],select[name=businessid]').not('[type=checkbox]').each(function() {
+		if(!no_verify && this.value == '' && $(this).attr('type') != 'hidden' && (this.name != 'projectid' || $('[name=piece_work]').filter(function() { return this.value != ''; }).length != 1)) {
+			var target = this;
+			if($(target).is('select')) {
+				var select2 = $(target).next('.select2');
+				$(select2).find('.select2-selection').css('background-color', 'red');
+				$(select2).find('.select2-selection__placeholder').css('color', 'white');
+			} else {
+				$(target).css('background-color', 'red');
+			}
+			if(ready) {
+				<?php $incomplete_status = get_config($dbc, 'incomplete_ticket_status_'.$ticket_type);
+				if($incomplete_status == '') {
+					$incomplete_status = get_config($dbc, 'incomplete_ticket_status');
+				}
+				if($incomplete_status != '') { ?>
+					$('[name=status]').val('<?= $incomplete_status ?>').change();
+				<?php } ?>
+				setTimeout(function() {
+					alert("Please fill in the "+$(target).closest('.form-group').find('label').text().split("\n")[0].replace(/^[^a-zA-Z0-9()]*/g,'').replace(/[^a-zA-Z0-9()]*$/g,'')+".");
+					$('.main-screen .default_screen').scrollTop($('.main-screen .default_screen').scrollTop() + $(target).offset().top - $('.main-screen .default_screen').offset().top - 30);
+					$(target).focus();
+				}, 0);
+				ready = false;
+			}
+		}
+	});
+	if(ready && ($('[name=arrived][value=1]').length != $('[name=completed][value=1]').not('.no_time').length && $('[name=completed][value=0]').not('.no_time').length > 0) || $.inArray($('[name=timer]').val(),['',undefined]) < 0) {
+		setTimeout(function() {
+			alert("This <?= TICKET_NOUN ?> is currently actively tracking time.");
+		}, 0);
+		ready = false;
+	}
+	if(!ready) {
+		return false;
+	}
+}
+function fillCustomForm(a) {
+	var target = $(a).data('target');
+	var href = $(a).prop('href');
+	if(checkMandatoryFields() != false) {
+		if(target == 'slider') {
+			overlayIFrameSlider(href, 'auto', true, true);
+		} else {
+			window.location.href = href;
+		}
+	}
+}
 var ticketid = 0;
+var stopid = '<?= $_GET['stop'] ?>';
 var ticketid_list = [];
 var ticket_wait = false;
 var user_email = '<?= decryptIt($_SESSION['email_address']) ?>';
@@ -861,7 +927,6 @@ var setHeading = function() {
 			<label class="col-sm-4 control-label">Staff:</label>
 			<div class="col-sm-8">
 				<select name="quick_reminder_staff[]" multiple data-placeholder="Select a Staff" class="chosen-select-deselect">
-					<option></option>
 					<?php $quick_reminder_staffs = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `deleted` = 0 AND `status` = 1 AND `show_hide_user` = 1"),MYSQLI_ASSOC));
 					foreach ($quick_reminder_staffs as $quick_reminder_staff) {
 						echo '<option value="'.$quick_reminder_staff.'" '.($quick_reminder_staff == $_SESSION['contactid'] ? 'selected' : '').'>'.get_contact($dbc, $quick_reminder_staff).'</option>';
@@ -890,7 +955,7 @@ var setHeading = function() {
 			</div>
 		</div>
 	</div>
-	<div id="dialog_create_recurrence" title="Recurrence Details" style="display: none;">
+	<div id="dialog_create_recurrence" title="Create New Recurrences" style="display: none;">
 		<script type="text/javascript">
 		$(document).on('change', 'select[name="recurrence_repeat_type"],select[name="recurrence_repeat_monthly_type"]', function() {
 			var repeat_type = $('[name="recurrence_repeat_type"]').val();
@@ -914,7 +979,7 @@ var setHeading = function() {
 		<div class="form-group">
 			<label class="col-sm-4 control-label">Start Date:</label>
 			<div class="col-sm-8">
-				<input type="text" name="recurrence_start_date" class="form-control datepicker" value="<?= date('Y-m-d') ?>">
+				<input type="text" name="recurrence_start_date" data-current-day="<?= date('Y-m-d') ?>" class="form-control datepicker" value="<?= date('Y-m-d') ?>">
 			</div>
 		</div>
 		<div class="form-group">
@@ -934,7 +999,7 @@ var setHeading = function() {
 			</div>
 		</div>
 		<div class="form-group recurrence_monthly_settings" style="display:none;">
-			<label class="col-sm-4 control-label">Repeat Type:</label>
+			<label class="col-sm-4 control-label">Repeat Tab:</label>
 			<div class="col-sm-8">
 				<select name="recurrence_repeat_monthly_type" class="form-control  chosen-select-deselect">
 					<option value="day" selected>By Day</option>
@@ -969,12 +1034,16 @@ var setHeading = function() {
 	<div id="dialog_edit_recurrence" title="Edit Recurrences?" style="display: none;">
 		Would you like to edit all recurrences for this <?= TICKET_NOUN ?> or just this one occurence?
 	</div>
+	<div id="dialog_recurrence_settings" title="Edit or Create Recurrences?" style="display: none;">
+		Would you like to edit current Recurrence settings or create new Recurrences?
+	</div>
 <?php } ?>
 <?php if(!empty($_GET['calendar_view'])) { ?>
 	<div class="double-gap-top standard-body form-horizontal calendar-iframe-screen <?= $calendar_ticket_slider=='full' ? 'calendar-iframe-full' : 'calendar-iframe-accordion'; ?>">
 		<input type="hidden" id="calendar_view" value="true">
 <?php } ?>
 <input type="hidden" name="sync_recurrences" id="sync_recurrences" value="0">
+<input type="hidden" name="checkout_before_checkin" id="checkin_before_checkout" value="<?= strpos($value_config,',Check Out Before Check In,') !== FALSE ? 1 : 0 ?>">
 <?php if(get_config($dbc, 'ticket_textarea_style') == 'no_editor') { ?>
 	<script>
 	var no_tools = true;
@@ -1008,9 +1077,9 @@ var setHeading = function() {
 	echo '<div class="pull-right '.($calendar_ticket_slider != 'accordion' ? 'show-on-mob' : '').'">'.$quick_action_html.'</div>';
 	if(count($ticket_tabs) > 1 && !($_GET['action_mode'] > 0 || $_GET['overview_mode'] > 0) && $tile_security['edit'] > 0 && !($strict_view > 0)) { ?>
 		<div class="form-group clearfix <?= $calendar_ticket_slider != 'accordion' ? 'show-on-mob' : '' ?>">
-			<label for="ticket_type" class="col-sm-4 control-label text-right"><?= TICKET_NOUN ?> Type:</label>
+			<label for="ticket_type" class="col-sm-4 control-label text-right"><?= TICKET_NOUN ?> Tab:</label>
 			<div class="col-sm-8">
-				<select name="ticket_type" id="ticket_type" data-placeholder="Select a Type..." data-initial="<?= $ticket_type ?>" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" class="chosen-select-deselect form-control">
+				<select name="ticket_type" id="ticket_type" data-placeholder="Select a Tab..." data-initial="<?= $ticket_type ?>" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" class="chosen-select-deselect form-control">
 					<option value=''></option>
 					<?php foreach($ticket_tabs as $type_name) {
 						$type_value = config_safe_str($type_name);
@@ -2542,13 +2611,18 @@ var setHeading = function() {
 						</div>
 					<?php } ?>
 					<?= '<div class="pull-right" style="position: relative; bottom: 0.3em;">'.$quick_action_html.'</div>' ?>
-					<span class="flag-label" style="<?= $get_ticket['flag_colour'] != '' && $get_ticket['flag_colour'] != 'FFFFFF' ? '' : 'dispaly:none;' ?>background-color:#<?= $get_ticket['flag_colour'] ?>;"><?= $flag_comment ?></span></h3>
+					<span class="flag-label" style="<?= $get_ticket['flag_colour'] != '' && $get_ticket['flag_colour'] != 'FFFFFF' ? '' : 'dispaly:none;' ?>background-color:#<?= $get_ticket['flag_colour'] ?>;"><?= $flag_comment ?></span>
+					<span class="sync_recurrences_note" style="display: none; color: red;"><div class="clearfix"></div><b>You are editing all Recurrences of this <?= TICKET_NOUN?>. Please refresh the page if you would like to edit only this occurrence.</b></span>
 				</h3>
+                <div class="menu-bar" style="display:none; position:fixed; right:20px; z-index:1;">
+                    <div class="menu-content"></div>
+                    <img src="../img/icons/ROOK-3dot-icon.png" width="30" class="no-toggle cursor-hand pull-right menu_button offset-right-10" title="More Options" />
+                </div>
 			</div>
 <?php } ?>
 <?php if($calendar_ticket_slider != 'accordion' || $include_hidden == 'true') { ?>
 		<div class="standard-body-content pad-top <?= $ticket_layout == 'Accordions' ? 'standard-body-accordions' : '' ?>">
-			<?php if(empty($_GET['calendar_view']) && ($_GET['action_mode'] > 0 || $_GET['overview_mode'] > 0) && $ticket_layout == 'accordion') {
+            <?php if(empty($_GET['calendar_view']) && ($_GET['action_mode'] > 0 || $_GET['overview_mode'] > 0) && $ticket_layout == 'accordion') {
 				$get_query = $_GET;
 				unset($get_query['action_mode']);
 				unset($get_query['overview_mode']); ?>
@@ -2613,13 +2687,12 @@ var setHeading = function() {
 			<?php if($wait_on_approval) {
 				echo '<h4>Awaiting Admin Approval</h4>';
 			} ?>
-			<span class="sync_recurrences_note gap-left" style="display: none; color: red;"><b>You are editing all Recurrences of this <?= TICKET_NOUN?>. Please refresh the page if you would like to edit only this occurrence.</b></span>
 			<?php if(count($ticket_tabs) > 1 && !($_GET['action_mode'] > 0 || $_GET['overview_mode'] > 0) && $tile_security['edit'] > 0 && !($strict_view > 0)) { ?>
 				<div class="tab-section col-sm-12" id="tab_section_ticket_type">
-					<h3><?= TICKET_NOUN ?> Type</h3>
-					<label for="ticket_type" class="col-sm-4 control-label" style="text-align: left;"><?= TICKET_NOUN ?> Type:</label>
+					<h3><?= TICKET_NOUN ?> Tab</h3>
+					<label for="ticket_type" class="col-sm-4 control-label" style="text-align: left;"><?= TICKET_NOUN ?> Tab:</label>
 					<div class="col-sm-8">
-						<select name="ticket_type" id="ticket_type" data-initial="<?= $ticket_type ?>" data-placeholder="Select a Type..." data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" class="chosen-select-deselect form-control">
+						<select name="ticket_type" id="ticket_type" data-initial="<?= $ticket_type ?>" data-placeholder="Select a Tab..." data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" class="chosen-select-deselect form-control">
 							<option value=''></option>
 							<?php foreach($ticket_tabs as $type_name) {
 								$type_value = config_safe_str($type_name);
@@ -3091,7 +3164,7 @@ var setHeading = function() {
 			<?php } ?>
 			<div class="gap-top add_gap_here" <?= $calendar_ticket_slider == 'accordion' ? 'style="display:none;"' : '' ?>>
 				<?php if(strpos($value_config,',Finish Button Hide,') === FALSE) { ?>
-					<a href="index.php" class="pull-right btn brand-btn finish_btn" onclick="<?= (strpos($value_config, ','."Timer".',') !== FALSE) ? 'stopTimers();' : '' ?><?= (strpos($value_config, ','."Check Out".',') !== FALSE || strpos($value_config, ','."Complete Combine Checkout Summary".',') !== FALSE) ? 'return checkoutAll(this);' : '' ?>" <?= strpos($value_config, ','."Finish Check Out Require Signature".',') !== FALSE ? 'data-require-signature="1"' : '' ?> <?= strpos($value_config, ','."Finish Create Recurring Ticket".',') !== FALSE ? 'data-recurring-ticket="1"' : '' ?>>Finish</a>
+					<a href="<?= empty($ticket_next_step_timesheet) ? 'index.php' : 'next_ticket_step.php?action_mode='.$_GET['action_mode'] ?>" <?= empty($ticket_next_step_timesheet) ? '' : 'target="_top"' ?> class="pull-right btn brand-btn finish_btn" onclick="<?= (strpos($value_config, ','."Timer".',') !== FALSE) ? 'stopTimers();' : '' ?><?= (strpos($value_config, ','."Check Out".',') !== FALSE || strpos($value_config, ','."Complete Combine Checkout Summary".',') !== FALSE) ? 'return checkoutAll(this);' : '' ?>" <?= strpos($value_config, ','."Finish Check Out Require Signature".',') !== FALSE ? 'data-require-signature="1"' : '' ?> <?= strpos($value_config, ','."Finish Create Recurring Ticket".',') !== FALSE ? 'data-recurring-ticket="1"' : '' ?>>Finish</a>
 				<?php } ?>
 				<?php if($access_any) { ?>
 					<a href="<?= $back_url ?>" class="pull-right gap-right"><img class="no-toggle" src="<?= WEBSITE_URL ?>/img/icons/save.png" alt="Save" width="36" title="Save" /></a>
@@ -3110,7 +3183,7 @@ var setHeading = function() {
 					<?php } ?>
 					<?php $pdfs = $dbc->query("SELECT `id`, `pdf_name`, `target` FROM `ticket_pdf` WHERE `deleted`=0 AND CONCAT(',',IFNULL(NULLIF(`ticket_types`,''),'$ticket_type'),',') LIKE '%,$ticket_type,%'");
 					while($pdf = $pdfs->fetch_assoc()) { ?>
-						<a href="../Ticket/index.php?custom_form=<?= $pdf['id'] ?>&ticketid=<?= $ticketid > 0 ? $ticketid : '' ?>" target="_blank" class="pull-right btn brand-btn margin-horizontal" onclick="<?= $pdf['target'] == 'slider' ? "overlayIFrameSlider(this.href, 'auto', true, true); return false;" : "" ?>"><?= $pdf['pdf_name'] ?></a>
+						<a href="../Ticket/index.php?custom_form=<?= $pdf['id'] ?>&ticketid=<?= $ticketid > 0 ? $ticketid : '' ?>" target="_blank" class="pull-right btn brand-btn margin-horizontal" data-target="<?= $pdf['target'] ?>" onclick="fillCustomForm(this); return false;"><?= $pdf['pdf_name'] ?></a>
 					<?php } ?>
 				<?php } ?>
 				<?php if(strpos($value_config,',Export Ticket Log,') !== FALSE && !empty($ticketid)) {

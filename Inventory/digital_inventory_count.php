@@ -477,12 +477,12 @@ checkAuthorised('inventory');
 								$sql = mysqli_query($dbc, "SELECT * FROM inventory WHERE deleted = 0 GROUP BY category ORDER BY IF(category RLIKE '^[a-z]', 1, 2), category, IF(name RLIKE '^[a-z]', 1, 2), name");  ?>
 
 								<div class="col-lg-1 col-md-1 col-sm-1 col-xs-4">
-								<label for="travel_task" class="" style='text-align:right;width:100%;'>Category:</label>
+								<label for="travel_task" class="" style='text-align:right;width:100%;'>Tab:</label>
 								</div>
 								<div class="col-lg-2 col-md-3 col-sm-3 col-xs-8" style='margin-bottom:10px;'>
 									<select name="category_search" class="chosen-select-deselect form-control category_actual" width="380">
 									<option value="3456780123456971232">Most Recently Added (25 Rows)</option>
-									<option value="3456780123456971230">All Categories</option>
+									<option value="3456780123456971230">All Tabs</option>
 									<?php
 									while($row = mysqli_fetch_assoc($sql)){
 										$selected = '';
@@ -552,7 +552,7 @@ checkAuthorised('inventory');
 						    if($num_rows > 0) {
 								echo "<form><div id='no-more-tables'><table border='2' cellpadding='10' class='table table-striped'>";
 				                echo "<thead><tr class='hidden-xs hidden-sm'>
-				                <th>Category</th>
+				                <th>Tab</th>
 								<th>Name</th>
 								<th>Shipping $</th>
 								<th>Exchange $</th>";
@@ -586,7 +586,7 @@ checkAuthorised('inventory');
 								if($row['cdn_cpu'] == '' || $row['cdn_cpu'] == NULL) {
 									$cdn_cpu = 0;
 								} else { $cdn_cpu = $row['cdn_cpu']; }
-								echo '<td data-title="Category">' . $row['category'] . '</td>';
+								echo '<td data-title="Tab">' . $row['category'] . '</td>';
 				                echo '<td data-title="Name">' . $row['name'] . '</td>';
 				                echo '<td data-title="Shipping $">$' . $shipping_cash . '</td>';
 								echo '<td data-title="Exchange $">$' . $exchange_cash . '</td>';

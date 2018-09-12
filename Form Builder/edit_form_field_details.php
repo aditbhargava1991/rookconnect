@@ -63,6 +63,8 @@ $(document).ready(function() {
 		case 'DATE':
 			group.find('.pdf_styling_options').show();
 			group.find('.date_format').show();
+			group.find('.reference_fields [name="field_references"]').trigger('change.select2');
+			group.find('.reference_fields').show();
 			break;
 		case 'TABLEADV':
 			group.find('.default_value').hide();
@@ -142,6 +144,14 @@ $(document).ready(function() {
 			group.find('.tableadv_fields').hide();
 			group.find('.textblock_format').show();
 			break;
+		case 'TEXTBOX':
+			group.find('.reference_fields [name="field_references"]').trigger('change.select2');
+			group.find('.reference_fields').show();
+			group.find('.pdf_styling_options').show();
+			group.find('.default_value').show();
+			group.find('.text_content').hide();
+			group.find('.tableadv_fields').hide();
+		break;
 		case 'TEXTAREA':
 		default:
 			group.find('.pdf_styling_options').show();
@@ -195,6 +205,9 @@ function saveFields(field) {
 
 	var ref_source_table = $('[name=field_references]').val();
 	var ref_source_conditions = $('[name=field_field]').val();
+	if(ref_source_conditions == 'CUSTOM_VALUE') {
+		ref_source_conditions = $('[name="custom_ref_value"]').val();
+	}
 	var ref_custom_val = $('[name=custom_ref_value]').val();
 	var table_styling = $('[name=field_styling]').val();
 	var content = $('[name=field_content]').val();
@@ -565,9 +578,10 @@ function sortableServices() {
 		<label class="col-sm-12">Reference Source:<br /><em>This field will pull a chosen value based on the contact selected in the Reference Source field.</em></label>
 		<div class="col-sm-12">
 			<select class="chosen-select-deselect form-control" name="field_references" data-id="<?= $field_info['references'] ?>">
+				<option></option>
 				<?php if(!empty($ref_sources)) {
 					foreach($ref_sources as $ref_source) { ?>
-						<option <?= $field_info['references'] == $ref_source['field_id'] ? 'selected' : '' ?> value="<?= $ref_source['field_id'] ?>"><?= $ref_source['name'].(!empty($ref_source['label']) ? '('.$ref_source['label'].')' : '') ?></option>
+						<option <?= $field_info['references'] == $ref_source['field_id'] ? 'selected' : '' ?> value="<?= $ref_source['field_id'] ?>"><?= $ref_source['name'].(!empty($ref_source['label']) ? ' ('.$ref_source['label'].')' : '') ?></option>
 					<?php }
 				} else { ?>
 					<option value=0>N/A</option>

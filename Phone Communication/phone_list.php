@@ -119,6 +119,10 @@ function changeFollowupDate(sel) {
             $query = "SELECT count(*) as numrows FROM phone_communication WHERE communication_type = 'Internal' AND deleted = 0 AND status != 'Archived' $project_clause ORDER BY phone_communicationid DESC";
             $get_field_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT internal_communication_dashboard FROM field_config"));
             $value_config = ','.$get_field_config['internal_communication_dashboard'].',';
+        } else if($_GET['type'] == 'Fax') {
+			$query_check_credentials = "SELECT * FROM phone_communication WHERE communication_type = 'Fax' AND deleted = 0 AND status != 'Archived' $project_clause ORDER BY phone_communicationid DESC LIMIT $offset, $rowsPerPage";
+            $query = "SELECT count(*) as numrows FROM phone_communication WHERE communication_type = 'Fax' AND deleted = 0 AND status != 'Archived' $project_clause ORDER BY phone_communicationid DESC";
+            $value_config = $fax_db;
         } elseif($_GET['type'] == 'External') {
             $query_check_credentials = "SELECT * FROM phone_communication WHERE communication_type = 'External' AND deleted = 0 AND status != 'Archived' $project_clause ORDER BY phone_communicationid DESC LIMIT $offset, $rowsPerPage";
             $query = "SELECT count(*) as numrows FROM phone_communication WHERE communication_type = 'External' AND deleted = 0 AND status != 'Archived' $project_clause ORDER BY phone_communicationid DESC";
@@ -154,6 +158,9 @@ function changeFollowupDate(sel) {
         if (strpos($value_config, ','."Phone#".',') !== FALSE) {
             echo '<th>Phone#</th>';
         }
+        if (strpos($value_config, ','."Fax#".',') !== FALSE) {
+            echo '<th>Fax #</th>';
+        }
 		echo '<th>Date</th>';
         if (strpos($value_config, ','."Email By".',') !== FALSE) {
             echo '<th>Staff</th>';
@@ -182,6 +189,9 @@ function changeFollowupDate(sel) {
         if (strpos($value_config, ','."Attachment".',') !== FALSE) {
             echo '<th>Attachment</th>';
         }
+        if (strpos($value_config, ','."File".',') !== FALSE) {
+            echo '<th>File</th>';
+        }
         if (strpos($value_config, ','."To Staff".',') !== FALSE) {
             echo '<th>To Staff</th>';
         }
@@ -196,6 +206,19 @@ function changeFollowupDate(sel) {
         }
 		if (strpos($value_config, ','."Additional Phone".',') !== FALSE) {
             echo '<th>Additional Phone</th>';
+        }
+		if (strpos($value_config, ','."Manual Number".',') !== FALSE) {
+            echo '<th>Manual Fax Number</th>';
+        }
+		echo '<th>Date of Call</th>';
+        if (strpos($value_config, ','."Phone Date".',') !== FALSE) {
+            echo '<th>Phone Date</th>';
+        }
+        if (strpos($value_config, ','."Phone By".',') !== FALSE) {
+            echo '<th>Staff</th>';
+        }
+        if (strpos($value_config, ','."Sent Info".',') !== FALSE) {
+            echo '<th>Sent</th>';
         }
         if (strpos($value_config, ','."Phone Date".',') !== FALSE) {
             echo '<th>Phone Date</th>';
@@ -219,6 +242,12 @@ function changeFollowupDate(sel) {
         echo '<tr>';
         if (strpos($value_config, ','."Phone#".',') !== FALSE) {
             echo '<td data-title="Phone#">' . $row['phone_communicationid']. '</td>';
+        }
+        if (strpos($value_config, ','."Fax#".',') !== FALSE) {
+            echo '<td data-title="Fax #">' . $row['phone_communicationid']. '</td>';
+        }
+        if (strpos($value_config, ','."Business".',') !== FALSE) {
+            echo '<td data-title="Business">' . get_contact($dbc, $row['businessid'], 'name'). '</td>';
         }
         echo '<td data-title="Date">' . $row['doc']. '</td>';
         if (strpos($value_config, ','."Email By".',') !== FALSE) {
@@ -252,6 +281,16 @@ function changeFollowupDate(sel) {
         /*
 		if (strpos($value_config, ','."Additional Phone".',') !== FALSE) {
             echo '<td data-title="Additional Phone">' . $row['new_phoneid']. '</td>';
+        }
+		if (strpos($value_config, ','."Manual Number".',') !== FALSE) {
+            echo '<td data-title="Manual Fax Number">' . $row['new_phoneid']. '</td>';
+        }
+        echo '<td data-title="Phone Date">' . $row['doc']. '</td>';
+        if (strpos($value_config, ','."Phone By".',') !== FALSE) {
+            echo '<td data-title="Phone By">'.get_staff($dbc, $row['created_by']) . '</td>';
+        }
+        if (strpos($value_config, ','."Sent Info".',') !== FALSE) {
+            echo '<td data-title="Sent Info">'.get_staff($dbc, $row['created_by']).' '.$row['doc'] . '</td>';
         }
 		if (strpos($value_config, ','."Follow Up By".',') !== FALSE) {
 			echo '<td data-title="Follow Up By"><select name="followup_by[]" id="followupdate_'.$row['phone_communicationid'].'" data-placeholder="Select a Staff..." class="chosen-select-deselect form-control">

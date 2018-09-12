@@ -47,6 +47,7 @@ $value_config = ','.get_config($dbc, 'hr_fields').','; ?>
 			<h2>
 				<?= $get_manual['category'] != '' ? '<b>'.$get_manual['category'].'</b><br />' : '' ?>
 				<?= $get_manual['third_heading'] != '' ? $get_manual['third_heading_number'].' '.$get_manual['third_heading'] : ($get_manual['sub_heading'] != '' ? $get_manual['sub_heading_number'].' '.$get_manual['sub_heading'] : $get_manual['heading_number'].' '.$get_manual['heading']) ?>
+                <a href="../blank_loading_page.php" class="pull-right"><img src="../img/icons/cancel.png" class="inline-img"></a>
 				<a href="?manualid_pdf=<?= $manual ?>" class="pull-right" target="_blank">Download PDF<img class="inline-img" src="../img/pdf.png"></a><div class="clearfix"></div>
 			</h2>
 			<div class="block-group pad-horiz-2 pad-vertical">

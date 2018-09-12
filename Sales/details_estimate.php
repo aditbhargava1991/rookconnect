@@ -1,4 +1,5 @@
 <?php include_once('../include.php');
+include_once('../Sales/config.php');
 if(empty($salesid)) {
 	$salesid = filter_var($_GET['id'],FILTER_SANITIZE_STRING);
 } ?>
@@ -86,7 +87,8 @@ var reload_estimates = function() {
             if ($get_config['total_id'] > 0) {
                 echo '<a target="_blank" href="'.WEBSITE_URL.'/Estimate/estimate.php?businessid='.$businessid.'&from='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']).'" id="'.$businessid.'">Click to View/Add Estimate</a>';
             } else {
-                echo '<a target="_blank" href="'.WEBSITE_URL.'/Estimate/add_estimate.php?from='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']).'">Click to Add Estimate</a>';
+                //echo '<a target="_blank" href="'.WEBSITE_URL.'/Estimate/add_estimate.php?from='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']).'">Click to Add Estimate</a>';
+                echo '<a target="_blank" href="'.WEBSITE_URL.'/Estimate/estimates.php?edit=new">Click to Add Estimate</a>';
             } ?>
         </div>
         <div class="clearfix"></div>

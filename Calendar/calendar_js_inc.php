@@ -23,7 +23,7 @@ $(document).ready(function() {
 	<?php } ?>
 	$('.block-button.legend-block').on('mouseover', function() { toggleTicketLegend('show') });
 	$('.block-button.legend-block').on('mouseout', function() { toggleTicketLegend('hide') });
-	<?php if($_GET['view'] != 'monthly' && $_GET['mode'] != 'staff_summary' && $_GET['mode'] != 'ticket_summary') { ?>
+	<?php if($_GET['view'] != 'monthly' && $_GET['mode'] != 'staff_summary' && $_GET['mode'] != 'ticket_summary' && $_GET['mode'] != 'day_summary') { ?>
 		calendarScrollLoad();
 	<?php } ?>
 
@@ -106,6 +106,7 @@ function setUrlWithCurrentDate() {
 		}
 	});
 	query_string_arr["date"] = $('#calendar_start').val();
+	query_string_arr["view"] = $('#calendar_view').val();
 	var new_url = "?"+$.param(query_string_arr);
 	window.history.replaceState(null, '', new_url);
 }
@@ -309,7 +310,7 @@ function changeDate(date, type = '') {
 					clear_all_data_month();
 					var reload_calendar = reload_calendar_month(response_arr[0]);
 					reload_calendar.success(function() {
-						if(calendar_type == 'ticket' && $('#collapse_teams').length > 0) {
+						if((calendar_type == 'ticket' || calendar_type == 'uni') && $('#collapse_teams').length > 0) {
 							reload_teams();
 						}
 						reload_all_data_month();
@@ -323,7 +324,7 @@ function changeDate(date, type = '') {
 					if(typeof teamsDraggable == 'function') {
 						teamsDraggable();
 					}
-					if(calendar_type == 'ticket' && $('#collapse_teams').length > 0) {
+					if((calendar_type == 'ticket' || calendar_type == 'uni') && $('#collapse_teams').length > 0) {
 						reload_teams();
 					}
 					reload_all_data();
@@ -581,9 +582,10 @@ function loadShiftView() {
 	var calendar_type = $('#calendar_type').val();
 	var calendar_view = $('#calendar_view').val();
 	var calendar_mode = $('#calendar_mode').val();
+	var calendar_start = $('#calendar_start').val();
 	<?php if($_GET['view'] == 'monthly') { ?>
 		$.ajax({
-			url: '../Calendar/monthly_display.php?type='+calendar_type+'&view='+calendar_view+'&mode='+calendar_mode,
+			url: '../Calendar/monthly_display.php?type='+calendar_type+'&view='+calendar_view+'&mode='+calendar_mode+'&date='+calendar_start,
 			method: 'GET',
 			success: function(response) {
 				$('.calendar_view').html(response);
@@ -594,7 +596,7 @@ function loadShiftView() {
 		});
 	<?php } else { ?>
 		$.ajax({
-			url: '../Calendar/load_calendar_empty.php?type='+calendar_type+'&view='+calendar_view+'&mode='+calendar_mode,
+			url: '../Calendar/load_calendar_empty.php?type='+calendar_type+'&view='+calendar_view+'&mode='+calendar_mode+'&date='+calendar_start,
 			method: 'GET',
 			success: function(response) {
 				$('.calendar_view').html(response);
@@ -728,7 +730,7 @@ function calendarScrollLoad() {
 function reload_all_data() {
 	var retrieve_collapse = $('#retrieve_collapse').val();
 	var calendar_type = $('#calendar_type').val();
-	if(calendar_type == 'ticket' && $('#collapse_teams .block-item.active').length > 0) {
+	if((calendar_type == 'ticket' || calendar_type == 'uni') && $('#collapse_teams .block-item.active').length > 0) {
 		reload_teams();
 	} else {
 		$('[id^='+retrieve_collapse+']').find('.block-item.active').each(function() {

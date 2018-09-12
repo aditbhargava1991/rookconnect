@@ -15,6 +15,10 @@ $(document).ready(function() {
 			<?php } ?>
 			if(available_height > 200) {
 				$('.main-screen .main-screen').outerHeight(available_height).css('overflow-y','auto');
+				/* Sticky header
+                $('.main-screen .main-screen').outerHeight(available_height).css('overflow-y','hidden');
+				$('.main-screen .main-screen .standard-body-content').outerHeight(available_height - $('.standard-body-title').height()).css('overflow-y','auto');
+                */
 				$('.sidebar').outerHeight(available_height).css('overflow-y','auto');
 				$('.search-results').outerHeight(available_height).css('overflow-y','auto');
 			}
@@ -35,7 +39,7 @@ function blankPDFForm() {
 		width: ($(window).width() <= 800 ? $(window).width() : 800),
 		modal: true,
 		buttons: {
-			"No <?= TICKET_NOUN ?> Type": function() {
+			"No <?= TICKET_NOUN ?> Tab": function() {
 				window.open('<?= WEBSITE_URL ?>/Ticket/ticket_pdf.php?ticketid=&ticket_type=', '_blank');
 				$(this).dialog('close');
 			},
@@ -59,8 +63,8 @@ function blankPDFForm() {
 			<iframe name="ticket_iframe" src=""></iframe>
 		</div>
 	</div>
-	<div id="dialog-blank-pdf" title="Select <?= TICKET_NOUN ?> Type" style="display: none;">
-		Please choose a <?= TICKET_NOUN ?> Type for your Blank PDF Form.
+	<div id="dialog-blank-pdf" title="Select <?= TICKET_NOUN ?> Tab" style="display: none;">
+		Please choose a <?= TICKET_NOUN ?> Tab for your Blank PDF Form.
 	</div>
 	<div class="row">
 		<div class="main-screen">

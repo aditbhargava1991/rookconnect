@@ -28,6 +28,9 @@ if($invoice_mode != 'Adjustment') {
 	$misc_patient_price = 0;
 	$misc_insurer_price = [];
 
+    $contract = isset($_POST['contract']) ? filter_var(htmlentities($_POST['contract']),FILTER_SANITIZE_STRING) : '';
+    $po_num = isset($_POST['po_num']) ? filter_var(htmlentities($_POST['po_num']),FILTER_SANITIZE_STRING) : '';
+    $area = isset($_POST['area']) ? filter_var(htmlentities($_POST['area']),FILTER_SANITIZE_STRING) : '';
     $reference = isset($_POST['reference']) ? filter_var(htmlentities($_POST['reference']),FILTER_SANITIZE_STRING) : '';
 	$comment = filter_var(htmlentities($_POST['comment']),FILTER_SANITIZE_STRING);
 
@@ -383,7 +386,13 @@ if($invoice_mode != 'Adjustment') {
             //Update Inventory quantity
             if ( $invoice_mode != 'Saved' ) {
                 $qty = filter_var($_POST['quantity'][$i], FILTER_SANITIZE_STRING);
-                mysqli_query($dbc, "UPDATE `inventory` SET `quantity`=`quantity`-'$qty' WHERE `inventoryid`='$inv'");
+                $query_inv = "UPDATE `inventory` SET `quantity`=`quantity`-'$qty' WHERE `inventoryid`='$inv'";
+                mysqli_query($dbc, $query_inv);
+                
+                //Connection set on database_connection.php Check Admin Settings > Sync Inventory for details.
+                if ( $dbc_inventory ) {
+                    mysqli_query($dbc_inventory, $query_inv);
+                }
             }
 
 			$promo_applied = 0;
@@ -657,8 +666,8 @@ if($invoice_mode != 'Adjustment') {
 		$misc_ins = implode(',',$misc_insurer).',';
 		//$gst_amt = $final_price + $promo_total - $gratuity - $credit_balance - $delivery - $total_price;
         $gst_amt = $final_price + $promo_total + $discount - $gratuity - $delivery - $assembly - $total_price;
-		$query_insert_invoice = "INSERT INTO `invoice` (`type`, `invoice_type`, `injuryid`, `patientid`, `therapistsid`, `serviceid`, `fee`, `admin_fee`, `service_patient`, `service_insurer`, `service_pro_bono`, `service_promo`, `inventoryid`, `sell_price`, `invtype`, `quantity`, `inventory_patient`, `inventory_insurer`, `inventory_pro_bono`, `inventory_promo`, `packageid`, `package_cost`, `package_patient`, `package_insurer`, `package_pro_bono`, `package_promo`, `misc_item`, `misc_price`, `misc_qty`, `misc_total`, `misc_patient`, `misc_insurer`, `misc_promo`, `misc_pro_bono`, `total_price`, `gst_amt`, `gratuity`, `credit_balance`, `delivery`, `delivery_type`, `delivery_address`, `contractorid`, `assembly`, `created_by`, `discount`, `final_price`, `pro_bono`, `insurerid`, `insurance_payment`, `paid`, `payment_type`, `pricing`, `service_date`, `invoice_date`, `ship_date`, `survey`, `request_recommend`, `follow_up_email`, `promotionid`, `giftcardid`, `comment`, `service_ticketid`, `misc_ticketid`)
-			VALUES ('$type_type', '$invoice_mode', '$injuryid', '$patientid', '$therapistsid', '$serviceid', '$fee', '$all_af', '$service_patient', '$service_ins', '$service_pro_bono', '$service_promo', '$inventoryid', '$sell_price', '$invtype', '$quantity', '$product_patient', '$product_ins', '$product_pro_bono', '$product_promo', '$packageid', '$package_cost', '$package_patient', '$package_ins', '$package_pro_bono', '$package_promo', '$misc_item', '$misc_price', '$misc_qty', '$misc_total', '$misc_patient', '$misc_ins', '$misc_promo', '$misc_pro_bono', '$total_price', '$gst_amt', '$gratuity', '$credit_balance', '$delivery', '$delivery_type', '$delivery_address', '$contractorid', '$assembly', '$created_by', '$discount', '$final_price', '$pro_bono', '$insurerid', '$insurance_payment', '$paid', '$payment_type', '$pricing', '$service_date', '$today_date', '$ship_date', '".$_POST['survey']."', '".$_POST['request_recommendation']."', '".$_POST['follow_up_assessment_email']."', '$promotionid', '$giftcardid', '$comment', '$service_ticketid', '$misc_ticketid')";
+		$query_insert_invoice = "INSERT INTO `invoice` (`type`, `invoice_type`, `injuryid`, `patientid`, `therapistsid`, `serviceid`, `fee`, `admin_fee`, `service_patient`, `service_insurer`, `service_pro_bono`, `service_promo`, `inventoryid`, `sell_price`, `invtype`, `quantity`, `inventory_patient`, `inventory_insurer`, `inventory_pro_bono`, `inventory_promo`, `packageid`, `package_cost`, `package_patient`, `package_insurer`, `package_pro_bono`, `package_promo`, `misc_item`, `misc_price`, `misc_qty`, `misc_total`, `misc_patient`, `misc_insurer`, `misc_promo`, `misc_pro_bono`, `total_price`, `gst_amt`, `gratuity`, `credit_balance`, `delivery`, `delivery_type`, `delivery_address`, `contractorid`, `assembly`, `created_by`, `discount`, `final_price`, `pro_bono`, `insurerid`, `insurance_payment`, `paid`, `payment_type`, `pricing`, `service_date`, `invoice_date`, `ship_date`, `survey`, `request_recommend`, `follow_up_email`, `promotionid`, `giftcardid`, `comment`, `service_ticketid`, `misc_ticketid`, `reference`)
+			VALUES ('$type_type', '$invoice_mode', '$injuryid', '$patientid', '$therapistsid', '$serviceid', '$fee', '$all_af', '$service_patient', '$service_ins', '$service_pro_bono', '$service_promo', '$inventoryid', '$sell_price', '$invtype', '$quantity', '$product_patient', '$product_ins', '$product_pro_bono', '$product_promo', '$packageid', '$package_cost', '$package_patient', '$package_ins', '$package_pro_bono', '$package_promo', '$misc_item', '$misc_price', '$misc_qty', '$misc_total', '$misc_patient', '$misc_ins', '$misc_promo', '$misc_pro_bono', '$total_price', '$gst_amt', '$gratuity', '$credit_balance', '$delivery', '$delivery_type', '$delivery_address', '$contractorid', '$assembly', '$created_by', '$discount', '$final_price', '$pro_bono', '$insurerid', '$insurance_payment', '$paid', '$payment_type', '$pricing', '$service_date', '$today_date', '$ship_date', '".$_POST['survey']."', '".$_POST['request_recommendation']."', '".$_POST['follow_up_assessment_email']."', '$promotionid', '$giftcardid', '$comment', '$service_ticketid', '$misc_ticketid', '$reference')";
         $result_insert_invoice = mysqli_query($dbc, $query_insert_invoice);
 		$invoiceid = mysqli_insert_id($dbc);
 
@@ -770,9 +779,19 @@ if($invoice_mode != 'Adjustment') {
 		$patientid = $_POST['patientid'];
 	}
 
-    //Update Reference (similar to POS Basic. SEA Alberta is using this)
-    if ( !empty($reference) ) {
-        mysqli_query($dbc, "UPDATE `contacts` SET `referred_by`='$reference' WHERE `contactid`='$patientid'");
+    //Update Contract
+    if ( !empty($contract) ) {
+        mysqli_query($dbc, "UPDATE `invoice` SET `contract`='$contract' WHERE `invoiceid`='$invoiceid'");
+    }
+
+    //Update PO #
+    if ( !empty($po_num) ) {
+        mysqli_query($dbc, "UPDATE `invoice` SET `po_num`='$po_num' WHERE `invoiceid`='$invoiceid'");
+    }
+
+    //Update Area
+    if ( !empty($area) ) {
+        mysqli_query($dbc, "UPDATE `invoice` SET `area`='$area' WHERE `invoiceid`='$invoiceid'");
     }
         
     //Update promotion times_used
@@ -1411,7 +1430,13 @@ if($invoice_mode != 'Adjustment') {
         //Update Inventory quantity
         if ( $invoice_mode!='Saved' && $inv > 0 ) {
             $qty = filter_var($_POST['quantity'][$i], FILTER_SANITIZE_STRING);
-            mysqli_query($dbc, "UPDATE `inventory` SET `quantity`=`quantity`-'$qty' WHERE `inventoryid`='$inv'");
+            $query_inv = "UPDATE `inventory` SET `quantity`=`quantity`-'$qty' WHERE `inventoryid`='$inv'";
+            mysqli_query($dbc, $query_inv);
+            
+            //Connection set on database_connection.php Check Admin Settings > Sync Inventory for details.
+            if ( $dbc_inventory ) {
+                mysqli_query($dbc_inventory, $query_inv);
+            }
         }
 	}
 
