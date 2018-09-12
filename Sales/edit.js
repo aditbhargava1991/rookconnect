@@ -92,6 +92,7 @@ function saveSalesMethod(field) {
                     $('[name=primary_staff]').change();
                 } else if(response > 0 && $(field).data('table') == 'contacts') {
                     $(field).closest('.row').find('[data-table="contacts"]').data('id',response);
+                    $(field).closest('.row').parents('.row').first().find('select[name=contactid],select[name=businessid]').first().append('<option value="'+response+'">New Record</option>').trigger('select2.change').val(response).change();
                 } else if(response > 0 && $(field).data('after') != undefined) {
                     try {
                         window[$(field).data('after')]();

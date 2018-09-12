@@ -131,15 +131,20 @@
 			echo "Error: ".mysqli_error($dbc)."<br />\n";
 		}
 		
-		set_config($dbc, 'db_version_jonathan', 8);
-	}
-	
-	if($db_version_jonathan < 9) {
 		// July 25, 2018
 		if(!mysqli_query($dbc, "ALTER TABLE `ticket_pdf_field_values` ADD `deleted` TINYINT(1) NOT NULL DEFAULT 0")) {
 			echo "Error: ".mysqli_error($dbc)."<br />\n";
 		}
 		
+		// July 4, 2018
+		if(!mysqli_query($dbc, "ALTER TABLE `phone_communication` ADD `file` TEXT AFTER `comment`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+		if(!mysqli_query($dbc, "ALTER TABLE `phone_communication` ADD `manual` VARCHAR(20) AFTER `contactid`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+		
+		set_config($dbc, 'db_version_jonathan', 7);
 		// July 23, 2018
 		if(!mysqli_query($dbc, "ALTER TABLE `sales` ADD `flag_colour` VARCHAR(7) AFTER `contactid`")) {
 			echo "Error: ".mysqli_error($dbc)."<br />\n";

@@ -15,6 +15,9 @@ Change Log:
 
 // Get settings
 $current_page = basename($_SERVER['SCRIPT_FILENAME']);
+if($current_page == 'daysheet.php') {
+    $current_page = 'time_cards.php';
+}
 $layout = get_config($dbc, 'timesheet_layout');
 $value_config = explode(',',get_field_config($dbc, 'time_cards'));
 if(!in_array('reg_hrs',$value_config) && !in_array('direct_hrs',$value_config) && !in_array('payable_hrs',$value_config) && !in_array($layout, ['ticket_task','position_dropdown'])) {

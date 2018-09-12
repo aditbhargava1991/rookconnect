@@ -279,6 +279,12 @@ if($_GET['overview_mode'] == 1) {
 	$calendar_ticket_slider = 'full';
 }
 
+//Force read only if Ticket is deleted
+if($get_ticket['deleted'] == 1) {
+	$force_readonly = true;
+	$strict_view = 1;
+}
+
 //Status Fields
 if(!empty($ticket_status)) {
 	$value_config_all = $value_config;
@@ -550,7 +556,7 @@ foreach($security_levels as $security_level) {
 	}
 }
 $is_recurrence = false;
-if($get_ticket['main_ticketid'] > 0 && $get_ticket['is_recurrence'] == 1) {
+if($get_ticket['main_ticketid'] > 0 && $get_ticket['is_recurrence'] == 1 && !$force_readonly) {
 	$is_recurrence = true;
 }
 $quick_action_html = '';
@@ -683,6 +689,31 @@ $(document).ready(function() {
 			}
 		});
 	<?php } ?>
+    
+    var menu_bar_height = $('#nav').height() + $('.tile-header').height() + 12;
+    $('.menu-bar').css('top', menu_bar_height);
+    
+    $('.main-screen .main-screen').scroll(function() {
+        if ($(this).scrollTop() > 70) {
+            $('.menu-bar').fadeIn("fast");
+            $('.menu-content:visible').fadeOut("fast");
+            $('.menu_button:hidden').fadeIn("fast");
+        } else {
+            $('.menu-bar').fadeOut("fast");
+            $('.menu-content').fadeOut("fast");
+        }
+    });
+});
+$(document).on('click', '.menu_button', function() {
+    $('.menu-content').load('edit_tickets.php .standard-body-title', function() {
+        setActions();
+        $(this).find('.action-icons img').addClass('theme-color-icon');
+        $(this).find('.action-icons img.archive-icon').removeClass('theme-color-icon');
+        $('.menu-bar').innerWidth($('#main_screen_block').innerWidth() - 20);
+        $('.menu-content .standard-body-title').css('cssText', 'margin-top: -9px !important; margin-right: -4px; padding-top: 1px !important;');
+    });
+    $('.menu-content').fadeIn("fast");
+    $('.menu_button').hide();
 });
 function loadPanel() {
 	if(!$(this).hasClass('higher_level_heading')) {
@@ -2566,13 +2597,17 @@ var setHeading = function() {
 					<?php } ?>
 					<?= '<div class="pull-right" style="position: relative; bottom: 0.3em;">'.$quick_action_html.'</div>' ?>
 					<span class="flag-label" style="<?= $get_ticket['flag_colour'] != '' && $get_ticket['flag_colour'] != 'FFFFFF' ? '' : 'dispaly:none;' ?>background-color:#<?= $get_ticket['flag_colour'] ?>;"><?= $flag_comment ?></span>
-					<span class="sync_recurrences_note" style="display: none; color: red;"><div class="clearfix"></div><b>You are editing all Recurrences of this <?= TICKET_NOUN?>. Please refresh the page if you would like to edit only this occurrence.</b></span></h3>
+					<span class="sync_recurrences_note" style="display: none; color: red;"><div class="clearfix"></div><b>You are editing all Recurrences of this <?= TICKET_NOUN?>. Please refresh the page if you would like to edit only this occurrence.</b></span>
 				</h3>
+                <div class="menu-bar" style="display:none; position:fixed; right:20px; z-index:1;">
+                    <div class="menu-content"></div>
+                    <img src="../img/icons/ROOK-3dot-icon.png" width="30" class="no-toggle cursor-hand pull-right menu_button offset-right-10" title="More Options" />
+                </div>
 			</div>
 <?php } ?>
 <?php if($calendar_ticket_slider != 'accordion' || $include_hidden == 'true') { ?>
 		<div class="standard-body-content pad-top <?= $ticket_layout == 'Accordions' ? 'standard-body-accordions' : '' ?>">
-			<?php if(empty($_GET['calendar_view']) && ($_GET['action_mode'] > 0 || $_GET['overview_mode'] > 0) && $ticket_layout == 'accordion') {
+            <?php if(empty($_GET['calendar_view']) && ($_GET['action_mode'] > 0 || $_GET['overview_mode'] > 0) && $ticket_layout == 'accordion') {
 				$get_query = $_GET;
 				unset($get_query['action_mode']);
 				unset($get_query['overview_mode']); ?>
