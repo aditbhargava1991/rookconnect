@@ -2827,12 +2827,12 @@ ul.select2-results__options {
 	padding: 0.25em 1em;
 }
 
-.calendar-mobile-list tr:nth-child(odd) {
-	background-color: #E7F7FD;
+.calendar-mobile-list tr:nth-child(odd) td {
+	background-color: #E7F7FD !important;
 }
 
-.calendar-mobile-list tr:nth-child(even) {
-	background-color: #FFFFFF;
+.calendar-mobile-list tr:nth-child(even) td {
+	background-color: #FFFFFF !important;
 }
 .calendar-mobile-list tr:nth-child(odd) td,
 .calendar-mobile-list tr:nth-child(even) td {
