@@ -15,6 +15,10 @@ $(document).ready(function() {
 			<?php } ?>
 			if(available_height > 200) {
 				$('.main-screen .main-screen').outerHeight(available_height).css('overflow-y','auto');
+				/* Sticky header
+                $('.main-screen .main-screen').outerHeight(available_height).css('overflow-y','hidden');
+				$('.main-screen .main-screen .standard-body-content').outerHeight(available_height - $('.standard-body-title').height()).css('overflow-y','auto');
+                */
 				$('.sidebar').outerHeight(available_height).css('overflow-y','auto');
 				$('.search-results').outerHeight(available_height).css('overflow-y','auto');
 			}
