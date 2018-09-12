@@ -3015,5 +3015,114 @@ if($_GET['action'] == 'update_fields') {
 	$recurrence_settings = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `ticket_recurrences` WHERE `ticketid` = '$main_ticketid' AND `deleted` = 0"));
 	$result = [start_date=>$recurrence_settings['start_date'], end_date=>$recurrence_settings['end_date'], repeat_type=>$recurrence_settings['repeat_type'], repeat_monthly=>$recurrence_settings['repeat_monthly'], repeat_interval=>$recurrence_settings['repeat_interval'], repeat_days=>explode(',',$recurrence_settings['repeat_days'])];
 	echo json_encode($result);
+} else if($_GET['action'] == 'check_staff_shifts') {
+	include_once('../Calendar/calendar_functions_inc.php');
+
+	if($_POST['from_calendar'] == 1) {
+		$to_do_date = $_POST['to_do_date'];
+		$value_config = ',';
+		if($_POST['check_shifts'] == 1) {
+			$value_config .= 'Staff Check Shifts,';
+		}
+		if($_POST['check_days_off'] == 1) {
+			$value_config .= 'Staff Check Days Off,';
+		}
+	} else {
+		$ticketid = $_POST['ticketid'];
+		if($ticketid > 0) {
+			$get_ticket = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT * FROM tickets WHERE ticketid='$ticketid'"));
+			$ticket_type = $get_ticket['ticket_type'];
+			$to_do_date = $get_ticket['to_do_date'];
+		}
+		$value_config = ','.get_field_config($dbc, 'tickets').',';
+		if($ticket_type == '') {
+			$ticket_type = get_config($dbc, 'default_ticket_type');
+		}
+		if(!empty($ticket_type)) {
+			$value_config .= get_config($dbc, 'ticket_fields_'.$ticket_type).',';
+		}
+	}
+
+	if((strpos($value_config, ',Staff Check Shifts,') !== FALSE || strpos($value_config, ',Staff Check Days Off,') !== FALSE) && !empty(str_replace('0000-00-00','',$to_do_date))) {
+		if($_POST['from_calendar'] == 1) {
+			if($_POST['blocktype'] == 'team') {
+				$teamid = $_POST['staffid'];
+				$staff_list = [];
+				$team_contacts = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `teams_staff` WHERE `teamid` = '$teamid' AND `deleted` = 0"),MYSQLI_ASSOC);
+				foreach($team_contacts as $team_contact) {
+					if(strtolower(get_contact($dbc, $team_contact['contactid'], 'category')) == 'staff') {
+						$staff_list[] = $team_contact['contactid'];
+					}
+				}
+			} else {
+				$staff_list = [$_POST['staffid']];
+			}
+		} else {
+			$staffid = $_POST['staffid'];
+			$staff_list = array_column(mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `ticket_attached` WHERE `ticketid` = '$ticketid' AND `deleted` = 0 AND `src_table` LIKE 'Staff%'"),MYSQLI_ASSOC),'item_id');
+			$staff_list[] = $staffid;	
+		}
+		$staff_list = array_unique(array_filter($staff_list));
+
+		$day_of_week = date('l',$to_do_date);
+
+		$message = [];
+		foreach($staff_list as $staffid) {
+			$daysoff = checkShiftIntervals($dbc, $staffid, $day_of_week, $to_do_date, 'daysoff');
+			if(!empty($daysoff)) {
+				$message[] = get_contact($dbc, $staffid).' has Time Off';
+			} else if(strpos($value_config, ',Staff Check Shifts,') !== FALSE) {
+				$shifts = checkShiftIntervals($dbc, $staffid, $day_of_week, $to_do_date, 'shifts');
+				if(empty($shifts)) {
+					$message[] = get_contact($dbc, $staffid).' has No Shift';
+				}
+			}
+		}
+		if(!empty($message)) {
+			$result = [success=>false, message=>implode("\n",$message)];
+		} else {
+			$result = [success=>true, message=>''];
+		}
+	} else {
+		$result = [success=>true, message=>''];
+	}
+	echo json_encode($result);
+} else if($_GET['action'] == 'get_staff_no_shifts') {
+	include_once('../Calendar/calendar_functions_inc.php');
+	$ticketid = $_POST['ticketid'];
+
+	$value_config = ','.get_field_config($dbc, 'tickets').',';
+	if($ticketid > 0) {
+		$get_ticket = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT * FROM tickets WHERE ticketid='$ticketid'"));
+		$ticket_type = $get_ticket['ticket_type'];
+		$to_do_date = $get_ticket['to_do_date'];
+	}
+	if($ticket_type == '') {
+		$ticket_type = get_config($dbc, 'default_ticket_type');
+	}
+	if(!empty($ticket_type)) {
+		$value_config .= get_config($dbc, 'ticket_fields_'.$ticket_type).',';
+	}
+
+	if((strpos($value_config, ',Staff Hide No Shift,') !== FALSE || strpos($value_config, ',Staff Hide Days Off,') !== FALSE) && !empty(str_replace('0000-00-00','',$to_do_date))) {
+		$staff_list = mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name`, `position`, `positions_allowed` FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `deleted`=0 AND `status`>0");
+		$staff_no_shifts = [];
+		$day_of_week = date('l',$to_do_date);
+		while($row = mysqli_fetch_assoc($staff_list)) {
+			$daysoff = checkShiftIntervals($dbc, $row['contactid'], $day_of_week, $to_do_date, 'daysoff');
+			if(!empty($daysoff)) {
+				$staff_no_shifts[] = $row['contactid'];
+			} else if(strpos($value_config, ',Staff Hide No Shift,') !== FALSE) {
+				$shifts = checkShiftIntervals($dbc, $row['contactid'], $day_of_week, $to_do_date, 'shifts');
+				if(empty($shifts)) {
+					$staff_no_shifts[] = $row['contactid'];
+				}
+			}
+		}
+		$result = [staff_list=>$staff_no_shifts];
+	} else {
+		$result = [staff_list=>[]];
+	}
+	echo json_encode($result);
 }
 ?>

@@ -937,6 +937,18 @@ if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) {
 							<?php if($field_sort_field == 'Staff Multiple Times Set Hours') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Staff Multiple Times Set Hours", $all_config) ? 'checked disabled' : (in_array("Staff Multiple Times Set Hours", $value_config) ? "checked" : '') ?> value="Staff Multiple Times Set Hours" name="tickets[]"> Multiple Dates/Times - Payable Hours</label>
 							<?php } ?>
+							<?php if($field_sort_field == 'Staff Check Shifts') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Staff Check Shifts", $all_config) ? 'checked disabled' : (in_array("Staff Check Shifts", $value_config) ? "checked" : '') ?> value="Staff Check Shifts" name="tickets[]"> Check Shifts</label>
+							<?php } ?>
+							<?php if($field_sort_field == 'Staff Check Days Off') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Staff Days Off", $all_config) ? 'checked disabled' : (in_array("Staff Days Off", $value_config) ? "checked" : '') ?> value="Staff Days Off" name="tickets[]"> Check Days Off</label>
+							<?php } ?>
+							<?php if($field_sort_field == 'Staff Hide No Shift') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Staff Hide No Shift", $all_config) ? 'checked disabled' : (in_array("Staff Hide No Shift", $value_config) ? "checked" : '') ?> value="Staff Hide No Shift" name="tickets[]"> Hide Staff With No Shift</label>
+							<?php } ?>
+							<?php if($field_sort_field == 'Staff Hide Days Off') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Staff Hide Days Off", $all_config) ? 'checked disabled' : (in_array("Staff Hide Days Off", $value_config) ? "checked" : '') ?> value="Staff Hide Days Off" name="tickets[]"> Hide Staff With Days Off</label>
+							<?php } ?>
 						<?php } ?>
 						</div>
 						<div class="form-group">
