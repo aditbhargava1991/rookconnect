@@ -2595,7 +2595,7 @@ var setHeading = function() {
 				</h3>
                 <div class="menu-bar" style="display:none; position:fixed; right:20px; z-index:1;">
                     <div class="menu-content"></div>
-                    <img src="../img/icons/menu-bar.png" width="40" class="no-toggle cursor-hand pull-right menu_button offset-right-10" title="Menu" />
+                    <img src="../img/icons/ROOK-3dot-icon.png" width="30" class="no-toggle cursor-hand pull-right menu_button offset-right-10" title="More Options" />
                 </div>
 			</div>
 <?php } ?>
