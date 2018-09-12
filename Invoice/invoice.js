@@ -849,6 +849,9 @@ function setTotalPrice() {
 			price_on_gst += 0;
 		}
 	});
+    if($('.detail_service_list').text() != '') {
+        $('.detail_service_list').append('<hr>');
+    }
 
 	var sum_price = 0;
 	var sum_inv_gst = 0;
@@ -905,6 +908,9 @@ function setTotalPrice() {
 			}
 		}
 	});
+    if($('.detail_inventory_list').text() != '') {
+        $('.detail_inventory_list').append('<hr>');
+    }
 
 	var package_cost = 0;
 	$('.detail_package_list').empty().prev('h4').hide();
@@ -936,6 +942,9 @@ function setTotalPrice() {
 			});
 		}
 	});
+    if($('.detail_package_list').text() != '') {
+        $('.detail_package_list').append('<hr>');
+    }
 
 	var misc_price = 0;
 	$('.detail_misc_list').empty().prev('h4').hide();
@@ -967,6 +976,9 @@ function setTotalPrice() {
 			});
 		}
 	});
+    if($('.detail_misc_list').text() != '') {
+        $('.detail_misc_list').append('<hr>');
+    }
 
 	var ship_type = $('#delivery_type').val();
 	if(ship_type == 'Company Delivery') {

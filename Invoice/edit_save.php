@@ -11,7 +11,7 @@ if (isset($_POST['save_btn'])) {
     echo '<script type="text/javascript"> alert("Invoice Successfully Saved"); window.location.replace("today_invoice.php"); </script>';
 }
 
-if (isset($_POST['submit_btn'])) {error_reporting(E_ALL);
+if (isset($_POST['submit_btn'])) {
     include_once('../tcpdf/tcpdf.php');
 	$invoice_mode = filter_var($_POST['submit_btn'],FILTER_SANITIZE_STRING);
 	if (!file_exists('download')) {

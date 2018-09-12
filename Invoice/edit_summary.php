@@ -58,81 +58,81 @@
     <input name="final_price" value="<?php echo 0+$final_price; ?>" id="final_price" type="hidden" />
 
     <div class="form-group" <?= (in_array('tips',$field_config) ? '' : 'style="display:none;"') ?>>
-    <label for="site_name" class="col-sm-3 control-label">
-        <span class="popover-examples list-inline">
-            <a href="#job_file" data-toggle="tooltip" data-placement="top" title="Select the gratuity to be applied to the assigned staff."><img src="<?php echo WEBSITE_URL;?>/img/info.png" width="20"></a>
-        </span>
-    Gratuity($):</label>
-    <div class="col-sm-9">
-      <input name="gratuity" onchange="countTotalPrice()" id="gratuity" type="text" class="form-control" value="<?= $gratuity ?>" />
-    </div>
+        <label for="site_name" class="col-sm-3 control-label">
+            <span class="popover-examples list-inline">
+                <a href="#job_file" data-toggle="tooltip" data-placement="top" title="Select the gratuity to be applied to the assigned staff."><img src="<?php echo WEBSITE_URL;?>/img/info.png" width="20"></a>
+            </span>
+        Gratuity($):</label>
+        <div class="col-sm-9">
+          <input name="gratuity" onchange="countTotalPrice()" id="gratuity" type="text" class="form-control" value="<?= $gratuity ?>" />
+        </div>
     </div>
 
     <div class="form-group" <?= (in_array('delivery',$field_config) ? '' : 'style="display:none;"') ?>>
-    <label for="site_name" class="col-sm-3 control-label">
-        <span class="popover-examples list-inline">
-            <a href="#job_file" data-toggle="tooltip" data-placement="top" title="Select the delivery method chosen by the <?= count($purchaser_config) > 1 ? 'Customer' : $purchaser_config[0] ?>."><img src="<?php echo WEBSITE_URL;?>/img/info.png" width="20"></a>
-        </span>
-    Delivery Option:</label>
-    <div class="col-sm-9">
-      <select name="delivery_type" data-placeholder="Select a Delivery Option..." id="delivery_type" class="form-control chosen-select-deselect"><option></option>
-        <option <?= ($delivery_type == 'Pick-Up' ? 'selected' : '') ?> value="Pick-Up">Pick-Up</option>
-        <option <?= ($delivery_type == 'Company Delivery' ? 'selected' : '') ?> value="Company Delivery">Company Delivery</option>
-        <option <?= ($delivery_type == 'Drop Ship' ? 'selected' : '') ?> value="Drop Ship">Drop Ship</option>
-        <option <?= ($delivery_type == 'Shipping' ? 'selected' : '') ?> value="Shipping">Shipping</option>
-        <option <?= ($delivery_type == 'Shipping on Customer Account' ? 'selected' : '') ?> value="Shipping on Customer Account">Shipping on Customer Account</option>
-      </select>
-    </div>
+        <label for="site_name" class="col-sm-3 control-label">
+            <span class="popover-examples list-inline">
+                <a href="#job_file" data-toggle="tooltip" data-placement="top" title="Select the delivery method chosen by the <?= count($purchaser_config) > 1 ? 'Customer' : $purchaser_config[0] ?>."><img src="<?php echo WEBSITE_URL;?>/img/info.png" width="20"></a>
+            </span>
+        Delivery Option:</label>
+        <div class="col-sm-9">
+          <select name="delivery_type" data-placeholder="Select a Delivery Option..." id="delivery_type" class="form-control chosen-select-deselect"><option></option>
+            <option <?= ($delivery_type == 'Pick-Up' ? 'selected' : '') ?> value="Pick-Up">Pick-Up</option>
+            <option <?= ($delivery_type == 'Company Delivery' ? 'selected' : '') ?> value="Company Delivery">Company Delivery</option>
+            <option <?= ($delivery_type == 'Drop Ship' ? 'selected' : '') ?> value="Drop Ship">Drop Ship</option>
+            <option <?= ($delivery_type == 'Shipping' ? 'selected' : '') ?> value="Shipping">Shipping</option>
+            <option <?= ($delivery_type == 'Shipping on Customer Account' ? 'selected' : '') ?> value="Shipping on Customer Account">Shipping on Customer Account</option>
+          </select>
+        </div>
     </div>
 
     <div class="form-group confirm_delivery" <?= (($delivery_type == 'Drop Ship' || $delivery_type == 'Shipping' || $delivery_type == 'Company Delivery') ? '' : 'style="display:none;"') ?>>
-    <label for="site_name" class="col-sm-3 control-label">
-        <span class="popover-examples list-inline">
-            <a href="#job_file" data-toggle="tooltip" data-placement="top" title="Update the address for delivery. If it is wrong, you will need to update it on the <?= count($purchaser_config) > 1 ? 'Customer' : $purchaser_config[0] ?> profile. You can also enter a one-time shipping address."><img src="<?php echo WEBSITE_URL;?>/img/info.png" width="20"></a>
-        </span>
-    Confirm Delivery Address:</label>
-    <div class="col-sm-9">
-      <input name="delivery_address" onchange="countTotalPrice()" id="delivery_address" type="text" class="form-control" value="<?= $delivery_address ?>" />
-    </div>
+        <label for="site_name" class="col-sm-3 control-label">
+            <span class="popover-examples list-inline">
+                <a href="#job_file" data-toggle="tooltip" data-placement="top" title="Update the address for delivery. If it is wrong, you will need to update it on the <?= count($purchaser_config) > 1 ? 'Customer' : $purchaser_config[0] ?> profile. You can also enter a one-time shipping address."><img src="<?php echo WEBSITE_URL;?>/img/info.png" width="20"></a>
+            </span>
+        Confirm Delivery Address:</label>
+        <div class="col-sm-9">
+          <input name="delivery_address" onchange="countTotalPrice()" id="delivery_address" type="text" class="form-control" value="<?= $delivery_address ?>" />
+        </div>
     </div>
 
     <div class="form-group deliver_contractor" <?= (($delivery_type == 'Drop Ship' || $delivery_type == 'Shipping') ? '' : 'style="display:none;"') ?>>
-    <label for="site_name" class="col-sm-3 control-label">
-        <span class="popover-examples list-inline">
-            <a href="#job_file" data-toggle="tooltip" data-placement="top" title="Select the contractor that will handle the delivery."><img src="<?php echo WEBSITE_URL;?>/img/info.png" width="20"></a>
-        </span>
-    Delivery Contractor:</label>
-    <div class="col-sm-9">
-      <select name="contractorid" id="contractorid" class="form-control chosen-select-deselect"><option></option>
-        <?php $contractors = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT `contactid`, `last_name`, `first_name`, `name` FROM `contacts` WHERE `category` LIKE 'Contractor%' AND `deleted`=0 AND `status`>0"),MYSQLI_ASSOC));
-        foreach($contractors as $contractor) {
-            $contractor = mysqli_fetch_array(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name`, `name` FROM `contacts` WHERE `contactid`='$contractor'"));
-            echo "<option ".($contractor['contactid'] == $contractorid ? 'selected' : '')." value='". $contractor['contactid']."'>".($contractor['name'] != '' ? decryptIt($contractor['name']) : decryptIt($contractor['first_name']).' '.decryptIt($contractor['last_name'])).'</option>';
-        } ?>
-      </select>
-    </div>
+        <label for="site_name" class="col-sm-3 control-label">
+            <span class="popover-examples list-inline">
+                <a href="#job_file" data-toggle="tooltip" data-placement="top" title="Select the contractor that will handle the delivery."><img src="<?php echo WEBSITE_URL;?>/img/info.png" width="20"></a>
+            </span>
+        Delivery Contractor:</label>
+        <div class="col-sm-9">
+          <select name="contractorid" id="contractorid" class="form-control chosen-select-deselect"><option></option>
+            <?php $contractors = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT `contactid`, `last_name`, `first_name`, `name` FROM `contacts` WHERE `category` LIKE 'Contractor%' AND `deleted`=0 AND `status`>0"),MYSQLI_ASSOC));
+            foreach($contractors as $contractor) {
+                $contractor = mysqli_fetch_array(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name`, `name` FROM `contacts` WHERE `contactid`='$contractor'"));
+                echo "<option ".($contractor['contactid'] == $contractorid ? 'selected' : '')." value='". $contractor['contactid']."'>".($contractor['name'] != '' ? decryptIt($contractor['name']) : decryptIt($contractor['first_name']).' '.decryptIt($contractor['last_name'])).'</option>';
+            } ?>
+          </select>
+        </div>
     </div>
 
     <div class="form-group ship_amt" <?= (($delivery_type == '' || $delivery_type == 'Pick-Up') ? 'style="display:none;"' : '') ?>>
-    <label for="site_name" class="col-sm-3 control-label">
-        <span class="popover-examples list-inline">
-            <a href="#job_file" data-toggle="tooltip" data-placement="top" title="Enter the cost of shipping."><img src="<?php echo WEBSITE_URL;?>/img/info.png" width="20"></a>
-        </span>
-    Delivery/Shipping Amount:</label>
-    <div class="col-sm-9">
-      <input name="delivery" onchange="countTotalPrice()" id="delivery" type="text" class="form-control" value="<?= $delivery ?>" />
-    </div>
+        <label for="site_name" class="col-sm-3 control-label">
+            <span class="popover-examples list-inline">
+                <a href="#job_file" data-toggle="tooltip" data-placement="top" title="Enter the cost of shipping."><img src="<?php echo WEBSITE_URL;?>/img/info.png" width="20"></a>
+            </span>
+        Delivery/Shipping Amount:</label>
+        <div class="col-sm-9">
+          <input name="delivery" onchange="countTotalPrice()" id="delivery" type="text" class="form-control" value="<?= $delivery ?>" />
+        </div>
     </div>
 
     <div class="form-group" <?= (in_array('ship_date',$field_config) ? '' : 'style="display:none;"') ?>>
-    <label for="site_name" class="col-sm-3 control-label">
-        <span class="popover-examples list-inline">
-            <a href="#job_file" data-toggle="tooltip" data-placement="top" title="Enter the date by which the order will ship."><img src="<?php echo WEBSITE_URL;?>/img/info.png" width="20"></a>
-        </span>
-    Ship Date:</label>
-    <div class="col-sm-9">
-      <input name="ship_date" onchange="countTotalPrice()" id="ship_date" type="text" class="form-control datepicker" value="<?= $ship_date ?>" />
-    </div>
+        <label for="site_name" class="col-sm-3 control-label">
+            <span class="popover-examples list-inline">
+                <a href="#job_file" data-toggle="tooltip" data-placement="top" title="Enter the date by which the order will ship."><img src="<?php echo WEBSITE_URL;?>/img/info.png" width="20"></a>
+            </span>
+        Ship Date:</label>
+        <div class="col-sm-9">
+          <input name="ship_date" onchange="countTotalPrice()" id="ship_date" type="text" class="form-control datepicker" value="<?= $ship_date ?>" />
+        </div>
     </div>
 
     <?php if (in_array('assembly',$field_config)) { ?>
@@ -389,7 +389,7 @@
         <div class="form-group">
             <div class="col-sm-3 col-xs-4">
                 <span class="popover-examples list-inline"><a data-toggle="tooltip" data-placement="top" title="Clicking here will discard changes and return you to the <?= (empty($current_tile_name) ? 'Check Out' : $current_tile_name) ?> tile main dashboard."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
-                <a href="today_invoice.php" class="btn brand-btn">Back</a>
+                <a href="today_invoice.php"><img class="inline-img text-lg" src="../img/icons/ROOK-trash-icon.png"></a>
             </div>
             <div class="col-sm-9 col-xs-8">
                 <button type="submit" name="submit_btn" onclick="return validateappo();" id="submit" value="<?= $_GET['inv_mode'] == 'adjust' ? 'Adjustment' : 'New' ?>" class="btn brand-btn pull-right">Submit</button>
@@ -401,6 +401,7 @@
             </div>
         </div>
     </div>
+</div>
 <script>
 $(document).ready(function() {
 	$('.form-control').change(function() {

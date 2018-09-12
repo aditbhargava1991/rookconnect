@@ -12,12 +12,12 @@ include_once ('../navigation.php'); ?>
 			<div class="tile-header standard-header" id="header_divs">
 				<div class="pull-right text-lg">
                     <a data-toggle="collapse" data-parent="#header_divs" href="#header_summary" onclick="setWindowSize();"><img src="<?= WEBSITE_URL ?>/img/icons/pie-chart.png" height="32" width="32" title="Show <?= CONTACTS_NOUN ?> Summary" class="override-theme-color-icon no-toggle pad-5"></a>
-                    <a data-toggle="collapse" data-parent="#header_divs" href="#header_tabs" onclick="setWindowSize();"><img src="<?= WEBSITE_URL ?>/img/icons/eyeball.png" height="32" width="32" title="Show <?= (empty($current_tile_name) ? 'Check Out' : $current_tile_name) ?> Tabs" class="override-theme-color-icon no-toggle pad-5"></a>
+                    <a data-toggle="collapse" data-parent="#header_divs" href="#header_tabs" onclick="setWindowSize();"><img src="<?= WEBSITE_URL ?>/img/icons/ROOK-3dot-icon.png" height="32" width="32" title="Show <?= (empty($current_tile_name) ? 'Check Out' : $current_tile_name) ?> Tabs" class="override-theme-color-icon no-toggle pad-5"></a>
 					<?php if($security['edit'] > 0 && $_GET['inv_mode'] != 'adjust') { ?>
                         <a href="" onclick="$('#save').click(); return false;"><img src="<?= WEBSITE_URL ?>/img/icons/save.png" height="32" width="32" title="Save Invoice" class="override-theme-color-icon no-toggle pad-5"></a>
 					<?php } ?>
 					<?php if($security['config'] > 0) { ?>
-                        <a href="field_config_invoice.php"><img title="Tile Settings" src="../img/icons/settings-4.png" class="settings-classic wiggle-me inline-img no-toggle pad-5"></a>
+                        <a href="field_config_invoice.php"><img title="Tile Settings" src="../img/icons/settings-4.png" class="settings-classic wiggle-me inline-img no-toggle smaller"></a>
 					<?php } ?>
 				</div>
 				<div class="scale-to-fill">
@@ -50,29 +50,29 @@ include_once ('../navigation.php'); ?>
                     </div>
                     <div class="standard-body-content col-sm-12">
                         <form action="" method="POST" enctype="multipart/form-data" class="form-horizontal" role="form">
-                        <?php if(in_array('touch',$ux_options) && (!in_array('standard',$ux_options) || $_GET['ux'] == 'touch')) { ?>
-                            <script> window.location.replace('touch_main.php'); </script>
-                        <?php } ?>
-                        <?php include('edit_details.php');
-                        if(in_array('services',$field_config) || in_array('unbilled_tickets',$field_config)) {
-                            include('edit_services.php');
-                        }
-                        if(in_array('inventory',$field_config)) {
-                            include('edit_inventory.php');
-                        }
-                        if(in_array('products',$field_config)) {
-                            include('edit_products.php');
-                        }
-                        if(in_array('packages',$field_config)) {
-                            include('edit_packages.php');
-                        }
-                        if(in_array('misc_items',$field_config) || in_array('unbilled_tickets',$field_config)) {
-                            include('edit_misc.php');
-                        }
-                        if(in_array('unbilled_tickets',$field_config)) {
-                            include('edit_tickets.php');
-                        }
-                        include('edit_summary.php'); ?>
+                            <?php if(in_array('touch',$ux_options) && (!in_array('standard',$ux_options) || $_GET['ux'] == 'touch')) { ?>
+                                <script> window.location.replace('touch_main.php'); </script>
+                            <?php } ?>
+                            <?php include('edit_details.php');
+                            if(in_array('services',$field_config) || in_array('unbilled_tickets',$field_config)) {
+                                include('edit_services.php');
+                            }
+                            if(in_array('inventory',$field_config)) {
+                                include('edit_inventory.php');
+                            }
+                            if(in_array('products',$field_config)) {
+                                include('edit_products.php');
+                            }
+                            if(in_array('packages',$field_config)) {
+                                include('edit_packages.php');
+                            }
+                            if(in_array('misc_items',$field_config) || in_array('unbilled_tickets',$field_config)) {
+                                include('edit_misc.php');
+                            }
+                            if(in_array('unbilled_tickets',$field_config)) {
+                                include('edit_tickets.php');
+                            }
+                            include('edit_summary.php'); ?>
                         </form>
                     </div>
                 </div>
