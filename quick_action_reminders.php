@@ -31,8 +31,12 @@ if(isset($_POST['submit'])) {
             $dbc->query("INSERT INTO `reminders` (`contactid`,`reminder_date`,`reminder_type`,`subject`,`body`,`src_table`,`src_tableid`) VALUES ('$staff','$date','Intake Form Reminder','$subject','".htmlentities("This is a reminder about an Intake Form. Please log into the software to review the form <a href=\"".WEBSITE_URL."/Intake/add_form.php?intakeid=$id\">here</a>.")."','intake','$id')");
             break;
         case 'invoice':
-            $salesid = $id;
-            $dbc->query("INSERT INTO `reminders` (`contactid`,`reminder_date`,`reminder_type`,`subject`,`body`,`src_table`) VALUES ('$staff','$date','Invoice Reminder','$subject','".htmlentities("This is a reminder about an Invoice. Please log into the software to review the form <a href=\"".WEBSITE_URL."/POSAdvanced/invoice_list.php?search_from=".date('Y-m-d')."&search_to=".date('Y-m-d')."&search_invoice_submit=true\">here</a>.")."','invoice')");
+            $invoiceid = $id;
+            $start_date = empty($_GET['end_date']) ? date('Y-m-d') : filter_var($_GET['start_date'],FILTER_SANITIZE_STRING);
+            $end_date = empty($_GET['end_date']) ? date('Y-m-d') : filter_var($_GET['end_date'],FILTER_SANITIZE_STRING);
+            $customer = filter_var($_GET['customer'],FILTER_SANITIZE_STRING);
+            $url = empty($_GET['ar']) ? "invoice_list.php?search_from=".date('Y-m-d')."&search_to=".date('Y-m-d')."&search_invoice_submit=true" : "patient_account_receivables.php?p1=$start_date&p2=$end_date&p3=$customer&p5=$invoiceid";
+            $dbc->query("INSERT INTO `reminders` (`contactid`,`reminder_date`,`reminder_type`,`subject`,`body`,`src_table`) VALUES ('$staff','$date','Invoice Reminder','$subject','".htmlentities("This is a reminder about an Invoice. Please log into the software to review the form <a href=\"".WEBSITE_URL."/POSAdvanced/$url\">here</a>.")."','invoice')");
             break;
         case 'tasks':
             $taskid = $id;
@@ -98,7 +102,7 @@ switch($tile) {
         $subject = "Intake Form Reminder";
         break;
     case 'invoice':
-        $subject = "Invoice Reminder";
+        $subject = "Invoice Reminder".($id > 0 ? " for Invoice #".$id : '');
         break;
     case 'tasks':
         $subject = "A reminder about the $title task";
