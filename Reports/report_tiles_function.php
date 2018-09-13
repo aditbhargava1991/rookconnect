@@ -13,6 +13,21 @@ function reports_tiles($dbc) {
             }
         });
     });
+    function email_doc(report){
+        var documents=[];
+        var id = $(report).attr('id');
+        var date = '<?= str_replace('-', '_', date('Y-m-d')) ?>';
+        if ( id == 'ticket_activity_report' ) {
+            var report_pdf = '../<?= FOLDER_NAME ?>/Download/activity_report_'+date+'.pdf';
+            <?php $report_pdf = '../'. FOLDER_NAME .'/Download/activity_report_'. str_replace('-', '_', date('Y-m-d')) .'.pdf'; ?>
+            <?php if ( file_exists($report_pdf) ) { ?>
+                documents.push(report_pdf);
+                overlayIFrameSlider('../Email Communication/add_email.php?type=external&attach_docs='+documents.join('#*#'), 'auto', false, true);
+            <?php } else { ?>
+                alert('Please generate the report first.');
+            <?php } ?>
+        }
+    }
     </script>
     <div class="main-screen">
         <div class="tile-header standard-header">
@@ -286,7 +301,16 @@ function reports_tiles($dbc) {
                     if(!empty($_GET['report'])) {
                         $title .= ': '.$report_list[$_GET['report']][1];
                     } ?>
-                    <h3><?= $title ?></h3>
+                    <h3>
+                        <?= $title ?>
+                        <?php if ( $_GET['report'] == 'Ticket Activity Report' ) { ?>
+                            <div class="pull-right">
+                                <a class="cursor-hand printpdf"><img src="../img/pdf.png" class="no-toggle" title="Print Report" /></a>
+                                <img src="../img/icons/ROOK-email-icon.png" id="<?= strtolower(str_replace(' ', '_', $_GET['report'])) ?>" class="show_search no-toggle cursor-hand offset-left-5" title="Email Report" width="25" onclick="email_doc(this);" />
+                                <img src="../img/icons/ROOK-3dot-icon.png" class="show_search no-toggle cursor-hand offset-left-5" title="Show/Hide Search" width="25" />
+                            </div>
+                        <?php } ?>
+                    </h3>
                 </div>
 
                 <div class="standard-body" style="padding: 0.5em;">
