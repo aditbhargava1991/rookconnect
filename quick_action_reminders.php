@@ -30,7 +30,10 @@ if(isset($_POST['submit'])) {
             $salesid = $id;
             $dbc->query("INSERT INTO `reminders` (`contactid`,`reminder_date`,`reminder_type`,`subject`,`body`,`src_table`,`src_tableid`) VALUES ('$staff','$date','Intake Form Reminder','$subject','".htmlentities("This is a reminder about an Intake Form. Please log into the software to review the form <a href=\"".WEBSITE_URL."/Intake/add_form.php?intakeid=$id\">here</a>.")."','intake','$id')");
             break;
-
+        case 'invoice':
+            $salesid = $id;
+            $dbc->query("INSERT INTO `reminders` (`contactid`,`reminder_date`,`reminder_type`,`subject`,`body`,`src_table`) VALUES ('$staff','$date','Invoice Reminder','$subject','".htmlentities("This is a reminder about an Invoice. Please log into the software to review the form <a href=\"".WEBSITE_URL."/POSAdvanced/invoice_list.php?search_from=".date('Y-m-d')."&search_to=".date('Y-m-d')."&search_invoice_submit=true\">here</a>.")."','invoice')");
+            break;
         case 'tasks':
             $taskid = $id;
 	        $sender = get_email($dbc, $_SESSION['contactid']);
@@ -93,6 +96,9 @@ switch($tile) {
         break;
     case 'intake':
         $subject = "Intake Form Reminder";
+        break;
+    case 'invoice':
+        $subject = "Invoice Reminder";
         break;
     case 'tasks':
         $subject = "A reminder about the $title task";
