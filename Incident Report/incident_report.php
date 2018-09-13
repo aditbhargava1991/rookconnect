@@ -25,9 +25,16 @@ $project_vars = [];
 foreach($project_tabs as $item) {
     $project_vars[preg_replace('/[^a-z_]/','',str_replace(' ','_',strtolower($item)))] = $item;
 }
+$quick_action_icons = explode(',',get_config($dbc, 'inc_rep_quick_action_icons'));
 ?>
 
 <div class="container">
+    <div class="iframe_overlay" style="display:none; margin-top: -20px;margin-left:-15px;">
+        <div class="iframe">
+            <div class="iframe_loading">Loading...</div>
+            <iframe name="inc_rep_iframe" src=""></iframe>
+        </div>
+    </div>
     <div class='iframe_holder' style='display:none;'>
         <img src='<?php echo WEBSITE_URL; ?>/img/icons/close.png' class='close_iframe' width="45px" style='position:relative; right: 10px; float:right;top:58px; cursor:pointer;'>
         <span class='iframe_title' style='color:white; font-weight:bold; position: relative;top:58px; left: 20px; font-size: 30px;'></span>
@@ -83,7 +90,7 @@ foreach($project_tabs as $item) {
 								<div class="clearfix"></div>
                             <?php
                             /* Pagination Counting */
-                            $rowsPerPage = 25;
+                            $rowsPerPage = get_config($dbc, 'inc_rep_rows_per_page') > 0 ? get_config($dbc, 'inc_rep_rows_per_page') : 25;;
                             $pageNum = 1;
 
                             if(isset($_GET['page'])) {
@@ -220,7 +227,7 @@ foreach($project_tabs as $item) {
                                             echo '<td data-title="Program">'.$program.'</td>';
                                         }
                                         if (strpos($value_config, ','."Project Type".',') !== FALSE) {
-                                            echo '<td data-title="'.PROJECT_NOUN.' Noun">'.$project_type.'</td>';
+                                            echo '<td data-title="'.PROJECT_NOUN.' Type">'.$project_type.'</td>';
                                         }
                                         if (strpos($value_config, ','."Project".',') !== FALSE) {
                                             echo '<td data-title="'.PROJECT_NOUN.'">'.$project.'</td>';
@@ -275,6 +282,7 @@ foreach($project_tabs as $item) {
                                         }
                                         if(vuaed_visible_function($dbc, 'incident_report') == 1) {
                                             echo '<td data-title="Function">';
+                                            echo in_array('tagging',$quick_action_icons) ? '<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/quick_action_tagging.php?tile=incident_report&id='.$row['incidentreportid'].'\', \'auto\', false, true); return false;"><img src="'.WEBSITE_URL.'/img/icons/tagging.png" class="inline-img no-toggle" title="Tag Staff"></a> | ' : '';
                     						echo '<a href=\'add_incident_report.php?type='.$row['type'].'&incidentreportid='.$row['incidentreportid'].'\'>Edit</a> | ';
                     						echo '<a href=\'../delete_restore.php?action=delete&incidentreportid='.$row['incidentreportid'].'\' onclick="return confirm(\'Are you sure?\')">Archive</a>';
                                             echo '</td>';

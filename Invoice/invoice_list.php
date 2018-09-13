@@ -214,7 +214,6 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
                                     }
                                 } ?>
                                 <div class="text-lg"><?= ( $ar_amounts > 0 ) ? '<a href="../Reports/report_tiles.php?type=sales&report=POS%20Advanced%20Sales%20Summary&landing=true&pos_submit=yes&from='.$search_from.'&to='.$search_to.'">$'.number_format($ar_amounts, 2).'</a>' : '$'. 0; ?></div>
-
                                 <div>Total A/R Invoices</div>
                             </div>
                         </div>

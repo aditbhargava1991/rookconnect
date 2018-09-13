@@ -99,7 +99,6 @@ define('PURCHASER', count($purchaser_config) > 1 ? 'Customer' : $purchaser_confi
                     <span class="pull-right gap-top offset-right-5"><img src="../img/icons/pie-chart.png" alt="Reporting" title="Reporting" class="cursor-hand no-toggle inline-img" onclick="view_summary();" /></span>
                     <div class="clearfix"></div>
                     <div class="view_tabs double-padded" style="<?= !isset($download_folder) ? 'display:none;' : '' ?>"><?php include($folder.'tile_tabs.php'); ?></div>
-
                     
                     <!-- Summary Blocks --><?php
                     if(!empty($_GET['p1'])) {
@@ -134,6 +133,9 @@ define('PURCHASER', count($purchaser_config) > 1 ? 'Customer' : $purchaser_confi
                         $patient = $_GET['patientid'];
                     }
                     
+
+                    $patient_clause = !empty($patient) ? "AND patientid = '$patientid'" : '';
+
                     /*$patient_clause = !empty($patient) ? "AND patientid = '$patientid'" : '';
 
                     
@@ -163,6 +165,7 @@ define('PURCHASER', count($purchaser_config) > 1 ? 'Customer' : $purchaser_confi
 
                     $total_120 = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT SUM(patient_price) AS `all_payment` FROM invoice_patient WHERE (DATE(invoice_date) >= '".$starttime."' AND DATE(invoice_date) <= '".$endtime."') AND (DATE(invoice_date) < '".$last119."') $patient_clause AND (paid_date > '$as_at_date' OR IFNULL(`paid`,'') IN ($ar_types))"));
                     $total_last120 = $total_120['all_payment'];*/
+
 
                     $ar_types = "'On Account', 'Net 30', 'Net 30 Days', 'Net 60', 'Net 60 Days', 'Net 90', 'Net 90 Days', 'Net 120', 'Net 120 Days', ''";
                     
@@ -208,7 +211,6 @@ define('PURCHASER', count($purchaser_config) > 1 ? 'Customer' : $purchaser_confi
                         $total_ar_90 += $total_last90119;
                         $total_ar_120 += $total_last120;
                     } ?>
-
                     
                     <div class="view_summary double-gap-bottom" style="display:none;">
                         <?php $total_invoices = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT SUM(`final_price`) `final_price` FROM `invoice` WHERE `deleted`=0 $search_clause $search_invoice_clause")); ?>
