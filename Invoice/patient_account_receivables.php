@@ -97,8 +97,8 @@ define('PURCHASER', count($purchaser_config) > 1 ? 'Customer' : $purchaser_confi
                     <span class="pull-right gap-top offset-right-5"><img src="../img/icons/eyeball.png" alt="View Tabs" title="View Tabs" class="cursor-hand no-toggle inline-img" onclick="view_tabs();" /></span>
 
                     <span class="pull-right gap-top offset-right-5"><img src="../img/icons/pie-chart.png" alt="Reporting" title="Reporting" class="cursor-hand no-toggle inline-img" onclick="view_summary();" /></span>
+                    <span class="pull-right gap-top offset-right-5"><img src="../img/icons/ROOK-reminder-icon.png" alt="Schedule Reminder" title="Schedule Reminder" class="cursor-hand no-toggle inline-img" onclick="add_reminder();" /></span>
                     <div class="clearfix"></div>
-                    <div class="view_tabs double-padded" style="<?= !isset($download_folder) ? 'display:none;' : '' ?>"><?php include($folder.'tile_tabs.php'); ?></div>
 
                     
                     <!-- Summary Blocks --><?php
@@ -254,6 +254,7 @@ define('PURCHASER', count($purchaser_config) > 1 ? 'Customer' : $purchaser_confi
                         </div>
                         <div class="clearfix"></div>
                     </div><!-- .view_summary -->
+                    <div class="view_tabs double-padded" style="<?= !isset($download_folder) ? 'display:none;' : '' ?>"><?php include($folder.'tile_tabs.php'); ?></div>
                 </div>
             </div><!-- .tile-header -->
 
