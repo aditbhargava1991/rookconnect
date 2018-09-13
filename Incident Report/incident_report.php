@@ -27,7 +27,42 @@ foreach($project_tabs as $item) {
 }
 $quick_action_icons = explode(',',get_config($dbc, 'inc_rep_quick_action_icons'));
 ?>
-
+<script type="text/javascript">
+$(document).ready(function() {
+    setQuickActions();
+});
+function setQuickActions() {
+    $('.manual-flag-icon').off('click').click(function() {
+        var item = $(this).closest('tr');
+        $(item).addClass('flag_target');
+        overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_flags.php?tile=incident_report&id='+$(item).data('id'), 'auto', false, true);
+    });
+    $('.flag-icon').off('click').click(function() {
+        var item = $(this).closest('tr');
+        var incidentreportid = $(this).closest('.action-icons').data('id');
+        $.ajax({
+            url: 'incident_report_ajax.php?action=quick_actions',
+            method: 'POST',
+            data: {
+                field: 'flag_colour',
+                value: item.data('colour'),
+                table: item.data('table'),
+                id: item.data('id'),
+                id_field: item.data('id-field')
+            },
+            success: function(response) {
+                item.data('colour',response.substr(0,6));
+                item.css('background-color','#'+response.substr(0,6));
+                item.find('.flag-label').html(response.substr(6));
+            }
+        });
+    });
+    $('.tagging-icon').off('click').click(function() {
+        var item = $(this).closest('tr');
+        overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_tagging.php?tile=incident_report&id='+$(item).data('id'), 'auto', false, true);
+    });
+}
+</script>
 <div class="container">
     <div class="iframe_overlay" style="display:none; margin-top: -20px;margin-left:-15px;">
         <div class="iframe">
@@ -167,12 +202,37 @@ $quick_action_icons = explode(',',get_config($dbc, 'inc_rep_quick_action_icons')
                                     }
                                     if(vuaed_visible_function($dbc, 'incident_report') == 1) {
                                         echo '<th>Function</th>';
+                                        if(!empty(array_filter($quick_action_icons))) {
+                                            echo '<th>Quick Actions</th>';
+                                        }
                                     }
                                 echo "</tr>";
                                 echo "</thead>";
 
                                 while($row = mysqli_fetch_array( $result ))
                                 {
+                                    $flag_label = '';
+                                    if($row['flag_colour'] != '' && $row['flag_colour'] != 'FFFFFF') {
+                                        if(in_array('flag_manual',$quick_action_icons)) {
+                                            if(time() < strtotime($row['flag_start']) || time() > strtotime(str_replace('9999',date('Y'),$row['flag_end']).' + 1 day')) {
+                                                $row['flag_colour'] = '';
+                                            } else {
+                                                $flag_label = $row['flag_label'];
+                                            }
+                                        } else {
+                                            $ticket_flag_names = [''=>''];
+                                            $flag_names = explode('#*#', get_config($dbc, 'ticket_colour_flag_names'));
+                                            foreach(explode(',',get_config($dbc, 'ticket_colour_flags')) as $i => $colour) {
+                                                $ticket_flag_names[$colour] = $flag_names[$i];
+                                            }
+                                            $flag_label = $ticket_flag_names[$ticket['flag_colour']];
+                                        }
+                                    }
+                                    $flag_styling = '';
+                                    if(!empty($row['flag_colour']) && $row['flag_colour'] != 'FFFFFF') {
+                                        $flag_styling = 'background-color: #'.$row['flag_colour'].';';
+                                    }
+
                                     $contact_list = [];
                                     if ($row['contactid'] != '') {
                                         $contact_list[$row['contactid']] = get_staff($dbc, $row['contactid']);
@@ -218,10 +278,10 @@ $quick_action_icons = explode(',',get_config($dbc, 'inc_rep_quick_action_icons')
                                         if(!empty($_POST['search_incident_reports'])) {
                                             $search_key = $_POST['search_incident_reports'];
                                             if(stripos($project, $search_key) === FALSE && stripos($ticket, $search_key) === FALSE && stripos($program, $search_key) === FALSE && stripos($member_list, $search_key) === FALSE && stripos($client_list, $search_key) === FALSE && stripos($contact_name, $search_key) === FALSE && stripos($project_type, $search_key) === FALSE) {
-                                                $hidden_row = 'style="display: none;"';
+                                                $hidden_row = 'display: none;';
                                             }
                                         }
-                                        echo "<tr $hidden_row>";
+                                        echo '<tr data-id="'.$row['incidentreportid'].'" data-colour="'. $row['flag_colour'].'" data-table="incident_report" data-id-field="incidentreportid" style="'.$hidden_row.$flag_styling.'">';
 
                                         if (strpos($value_config, ','."Program".',') !== FALSE) {
                                             echo '<td data-title="Program">'.$program.'</td>';
@@ -282,10 +342,20 @@ $quick_action_icons = explode(',',get_config($dbc, 'inc_rep_quick_action_icons')
                                         }
                                         if(vuaed_visible_function($dbc, 'incident_report') == 1) {
                                             echo '<td data-title="Function">';
-                                            echo in_array('tagging',$quick_action_icons) ? '<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/quick_action_tagging.php?tile=incident_report&id='.$row['incidentreportid'].'\', \'auto\', false, true); return false;"><img src="'.WEBSITE_URL.'/img/icons/tagging.png" class="inline-img no-toggle" title="Tag Staff"></a> | ' : '';
                     						echo '<a href=\'add_incident_report.php?type='.$row['type'].'&incidentreportid='.$row['incidentreportid'].'\'>Edit</a> | ';
                     						echo '<a href=\'../delete_restore.php?action=delete&incidentreportid='.$row['incidentreportid'].'\' onclick="return confirm(\'Are you sure?\')">Archive</a>';
                                             echo '</td>';
+
+                                            if(!empty(array_filter($quick_action_icons))) {
+                                                echo '<td data-title="Quick Actions">';
+                                                echo '<span class="flag-label">'.$flag_label.'</span><div class="clearfix"></div>';
+                                                echo '<div class="action-icons pull-left">';
+                                                echo (in_array('flag_manual',$quick_action_icons) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-flag-icon.png" class="inline-img manual-flag-icon no-toggle" title="Flag This!">' : '');
+                                                echo (!in_array('flag_manual',$quick_action_icons) && in_array('flag',$quick_action_icons) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-flag-icon.png" class="inline-img flag-icon no-toggle" title="Flag This!">' : '');
+                                                echo (in_array('tagging',$quick_action_icons) ? '<img src="'.WEBSITE_URL.'/img/icons/tagging.png" class="inline-img tagging-icon no-toggle" title="Tag Staff">' : '');
+                                                echo '</div>';
+                                                echo '</td>';
+                                            }
                                         }
 
                                         echo "</tr>";

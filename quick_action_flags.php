@@ -17,11 +17,13 @@ if(isset($_POST['submit'])) {
         $flag_colour = '';
         $flag_start = '';
         $flag_end = '';
+        $flag_user = '';
     } else {
         $flag_label = filter_var($_POST['flag_label'],FILTER_SANITIZE_STRING);
         $flag_colour = filter_var($_POST['flag_colour'],FILTER_SANITIZE_STRING);
         $flag_start = filter_var($_POST['flag_start'],FILTER_SANITIZE_STRING);
         $flag_end = filter_var($_POST['flag_end'],FILTER_SANITIZE_STRING);
+        $flag_user = filter_var(implode(',',$_POST['flag_user']),FILTER_SANITIZE_STRING);
     }
 	$error = '';
 
@@ -111,6 +113,17 @@ if(isset($_POST['submit'])) {
             $(window.top.document).find('.flag_target').removeClass('flag_target');
             </script>
             <?php break;
+        case 'incident_report':
+            $incidentreportid = $id;
+            mysqli_query($dbc, "UPDATE `incident_report` SET `flag_colour`='$flag_colour', `flag_start`='$flag_start', `flag_end`='$flag_end', `flag_label`='$flag_label', `flag_user`='$flag_user' WHERE `incidentreportid`='$id'"); ?>
+            <script>
+            $(window.top.document).find('.flag_target').data('colour','<?= $flag_colour ?>');
+            $(window.top.document).find('.flag_target').css('background-color','<?= empty($flag_colour) ? '' : '#'.$flag_colour ?>');
+            $(window.top.document).find('.flag_target').find('.flag-label').text('<?= $flag_label ?>');
+            $(window.top.document).find('.flag-label-block').find('.flag-label').text('<?= !empty($flag_label) ? ': '.$flag_label : '' ?>');
+            $(window.top.document).find('.flag_target').removeClass('flag_target');
+            </script>
+            <?php break;
 
         default:
             break;
@@ -140,6 +153,10 @@ if(isset($_POST['submit'])) {
         break;
     case 'checklist':
         $row = $dbc->query("SELECT `flag_colour`,`flag_label`,`flag_start`,`flag_end` FROM `checklist` WHERE `checklistid`='$id'")->fetch_assoc();
+        break;
+    case 'incident_report':
+        $row = $dbc->query("SELECT `flag_colour`,`flag_label`,`flag_start`,`flag_end`,`flag_user` FROM `incident_report` WHERE `incidentreportid`='$id'")->fetch_assoc();
+        $quick_action_icons = explode(',',get_config($dbc, 'inc_rep_quick_action_icons'));
         break;
     default:
         break;
@@ -183,6 +200,19 @@ if(isset($_POST['submit'])) {
                     <input type="text" name="flag_end" value="<?= $row['flag_end'] ?>" class="datepicker form-control">
                 </div>
         	</div>
+            <?php if(in_array('flag_manual tag_user',$quick_action_icons)) { ?>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Tag Staff:</label>
+                    <div class="col-sm-8">
+                        <select name="flag_user[]" multiple data-placeholder="Select a Staff..." class="chosen-select-deselect form-control">
+                            <option></option>
+                            <?php foreach(sort_contacts_query($dbc->query("SELECT contactid, first_name, last_name FROM contacts WHERE deleted=0 AND status>0 AND category IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY."")) as $staff) { ?>
+                                <option <?= strpos(','.$row['flag_user'].',', ','.$staff['contactid'].',') !== FALSE ? 'selected' : '' ?> value="<?= $staff['contactid'] ?>"><?= $staff['full_name'] ?></option>
+                            <?php } ?>
+                        </select>
+                    </div>
+                </div>
+            <?php } ?>
         	<div class="form-group pull-right">
         		<a href="" class="btn brand-btn">Cancel</a>
         		<button type="submit" name="submit" value="remove" class="btn brand-btn">Remove Flag</button>

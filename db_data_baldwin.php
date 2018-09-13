@@ -786,5 +786,23 @@
     }
     //2018-09-11 - Ticket #8811 - Tagging
 
+    //2018-09-13 - Ticket #8814 - Incident Report Flagging
+    if(!mysqli_query($dbc, "ALTER TABLE `incident_report` ADD `flag_colour` VARCHAR(7)")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `incident_report` ADD `flag_start` DATE NOT NULL DEFAULT '0000-00-00' AFTER `flag_colour`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `incident_report` ADD `flag_end` DATE NOT NULL DEFAULT '9999-12-31' AFTER `flag_start`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `incident_report` ADD `flag_label` TEXT AFTER `flag_colour`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `incident_report` ADD `flag_user` TEXT AFTER `flag_colour`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-09-13 - Ticket #8814 - Incident Report Flagging
+
     echo "Baldwin's DB Changes Done<br />\n";
 ?>
