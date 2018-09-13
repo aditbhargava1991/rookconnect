@@ -88,14 +88,15 @@ foreach ($each_tab as $cat_tab) {
 			$status_date = $row['task_tododate'] != '0000-00-00' ? '['.$row['task_tododate'].']' : '';
 			echo '<li id="'.$row['tasklistid'].'" class="ui-state-default '.$class_on.'" style=" '.($row['flag_colour'] != '' ? 'background-color: #'.$row['flag_colour'].';' : '').'">';
 			echo '<span class="pull-right" style="width: 100%;" data-ticket="'.$row['tasklistid'].'" data-class="task">';
-			echo '<span style="display:inline-block; text-align:center; width:12.5%;" title="Flag This!" onclick="flag_item(this); return false;"><img src="'.WEBSITE_URL.'/img/icons/ROOK-flag-icon.png" style="height:1.5em;"></span>';
-			echo '<span style="display:inline-block; text-align:center; width:12.5%;" title="Send Alert" onclick="send_alert(this); return false;"><img src="'.WEBSITE_URL.'/img/icons/ROOK-alert-icon.png" style="height:1.5em;" onclick="return false;"></span>';
-			echo '<span style="display:inline-block; text-align:center; width:12.5%;" title="Send Email" onclick="send_email(this); return false;"><img src="'.WEBSITE_URL.'/img/icons/ROOK-email-icon.png" style="height:1.5em;" onclick="return false;"></span>';
-			echo '<span style="display:inline-block; text-align:center; width:12.5%;" title="Schedule Reminder" onclick="send_reminder(this); return false;"><img src="'.WEBSITE_URL.'/img/icons/ROOK-reminder-icon.png" style="height:1.5em;" onclick="return false;"></span>';
-			echo '<span style="display:inline-block; text-align:center; width:12.5%;" title="Attach File" onclick="attach_file(this); return false;"><img src="'.WEBSITE_URL.'/img/icons/ROOK-attachment-icon.png" style="height:1.5em;" onclick="return false;"></span>';
-			echo '<span style="display:inline-block; text-align:center; width:12.5%;" title="Add Note" onclick="send_reply(this); return false;"><img src="'.WEBSITE_URL.'/img/icons/ROOK-reply-icon.png" style="height:1.5em;" onclick="return false;"></span>';
-			echo '<span style="display:inline-block; text-align:center; width:12.5%;" title="Add Time" onclick="add_time(this); return false;"><img src="'.WEBSITE_URL.'/img/icons/ROOK-timer-icon.png" style="height:1.5em;" onclick="return false;"></span>';
-			echo '<span style="display:inline-block; text-align:center; width:12.5%;" title="Archive Item" onclick="archive(this); return false;"><img src="'.WEBSITE_URL.'/img/icons/ROOK-trash-icon.png" style="height:1.5em;" onclick="return false;"></span>';
+			echo '<span style="display:inline-block; text-align:center; width:11.11%;" title="Flag This!" onclick="flag_item(this); return false;"><img src="'.WEBSITE_URL.'/img/icons/ROOK-flag-icon.png" style="height:1.5em;"></span>';
+			echo '<span style="display:inline-block; text-align:center; width:11.11%;" title="Send Alert" onclick="send_alert(this); return false;"><img src="'.WEBSITE_URL.'/img/icons/ROOK-alert-icon.png" style="height:1.5em;" onclick="return false;"></span>';
+			echo '<span style="display:inline-block; text-align:center; width:11.11%;" title="Send Email" onclick="send_email(this); return false;"><img src="'.WEBSITE_URL.'/img/icons/ROOK-email-icon.png" style="height:1.5em;" onclick="return false;"></span>';
+			echo '<span style="display:inline-block; text-align:center; width:11.11%;" title="Schedule Reminder" onclick="send_reminder(this); return false;"><img src="'.WEBSITE_URL.'/img/icons/ROOK-reminder-icon.png" style="height:1.5em;" onclick="return false;"></span>';
+			echo '<span style="display:inline-block; text-align:center; width:11.11%;" title="Attach File" onclick="attach_file(this); return false;"><img src="'.WEBSITE_URL.'/img/icons/ROOK-attachment-icon.png" style="height:1.5em;" onclick="return false;"></span>';
+			echo '<span style="display:inline-block; text-align:center; width:11.11%;" title="Add Note" onclick="send_reply(this); return false;"><img src="'.WEBSITE_URL.'/img/icons/ROOK-reply-icon.png" style="height:1.5em;" onclick="return false;"></span>';
+			echo '<span style="display:inline-block; text-align:center; width:11.11%;" title="Add Time" onclick="add_time(this); return false;"><img src="'.WEBSITE_URL.'/img/icons/ROOK-timer-icon.png" style="height:1.5em;" onclick="return false;"></span>';
+			echo '<span style="display:inline-block; text-align:center; width:11.11%;" title="Track Time" onclick="track_time(this); return false;"><img src="'.WEBSITE_URL.'/img/icons/ROOK-timer2-icon.png" style="height:1.5em;" onclick="return false;"></span>';
+			echo '<span style="display:inline-block; text-align:center; width:11.11%;" title="Archive Item" onclick="archive(this); return false;"><img src="'.WEBSITE_URL.'/img/icons/ROOK-trash-icon.png" style="height:1.5em;" onclick="return false;"></span>';
 			echo '</span><div class="clearfix"></div><a href="'.WEBSITE_URL.'/Tasks_Updated/add_task.php?tasklistid='.$row['tasklistid'].'&from='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']).'" onclick="overlayIFrameSlider(this.href,\'auto\',true,true); return false;">Task #'.$row['tasklistid'].' : '.get_client($dbc, $row['businessid']).' - '.limit_text($row['heading'], 5 ).'<br><em>'.get_multiple_contact($dbc, $row['contactid']).$status_date. '</em></a>';
 			echo '<img class="drag_handle pull-right" src="'.WEBSITE_URL.'/img/icons/hold.png" style="height:1.5em; width:1.5em;" />';
 			echo '<input type="text" name="reply_'.$row['tasklistid'].'" style="display:none; margin-top: 2em;" class="form-control" />';
@@ -110,3 +111,12 @@ foreach ($each_tab as $cat_tab) {
 if($scrum_tab != 'status') { ?>
 	</div>
 <?php } ?>
+<script>
+function track_time(task) {
+    var task_id = $(task).parents('span').data('ticket');
+   if(task_id.toString().substring(0,5) == 'BOARD') {
+           task_id = task_id.substring(5);
+   }
+   overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_timer.php?tile=tasks&id='+task_id, 'auto', false, true);
+}
+</script>
