@@ -18,8 +18,8 @@ function reports_tiles($dbc) {
         var id = $(report).attr('id');
         var date = '<?= str_replace('-', '_', date('Y-m-d')) ?>';
         if ( id == 'ticket_activity_report' ) {
-            var report_pdf = '../<?= FOLDER_NAME ?>/Download/activity_report_'+date+'.pdf';
-            <?php $report_pdf = '../'. FOLDER_NAME .'/Download/activity_report_'. str_replace('-', '_', date('Y-m-d')) .'.pdf'; ?>
+            var report_pdf = '../Reports/Download/activity_report_'+date+'.pdf';
+            <?php $report_pdf = '../Reports/Download/activity_report_'. str_replace('-', '_', date('Y-m-d')) .'.pdf'; ?>
             <?php if ( file_exists($report_pdf) ) { ?>
                 documents.push(report_pdf);
                 overlayIFrameSlider('../Email Communication/add_email.php?type=external&attach_docs='+documents.join('#*#'), 'auto', false, true);
