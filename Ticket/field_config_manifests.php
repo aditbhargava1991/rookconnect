@@ -36,7 +36,7 @@ function saveFields() {
 	<label class="col-sm-4 control-label">Fields to Display on Manifests:</label>
 	<div class="col-sm-8">
 		<label class="form-checkbox"><input type="checkbox" <?= in_array('sort_top', $manifest_fields) ? 'checked' : '' ?> value="sort_top" style="height: 20px; width: 20px;" name="tickets_manifests[]"> Show Most Recent Inventory</label>
-		<label class="form-checkbox"><input type="checkbox" <?= in_array('sort_project', $manifest_fields) ? 'checked' : '' ?> value="sort_project" style="height: 20px; width: 20px;" name="tickets_manifests[]"> Sort by <?= PROJECT_NOUN ?> Types</label>
+		<label class="form-checkbox"><input type="checkbox" <?= in_array('sort_project', $manifest_fields) ? 'checked' : '' ?> value="sort_project" style="height: 20px; width: 20px;" name="tickets_manifests[]"> Sort by <?= PROJECT_NOUN ?> Tabs</label>
 		<label class="form-checkbox"><input type="checkbox" <?= in_array('pdf_collapse', $manifest_fields) ? 'checked' : '' ?> value="pdf_collapse" style="height: 20px; width: 20px;" name="tickets_manifests[]"> Hide Empty Columns on PDF</label>
 		<label class="form-checkbox"><input type="checkbox" <?= in_array('file', $manifest_fields) ? 'checked' : '' ?> value="file" style="height: 20px; width: 20px;" name="tickets_manifests[]"> File #</label>
 		<label class="form-checkbox"><input type="checkbox" <?= in_array('po', $manifest_fields) ? 'checked' : '' ?> value="po" style="height: 20px; width: 20px;" name="tickets_manifests[]"> PO #</label>
@@ -94,7 +94,7 @@ function saveFields() {
 	</div>
 </div>
 <div class="form-group">
-	<label class="col-sm-4 control-label"><?= PROJECT_NOUN ?> Types to Display For Manifests:</label>
+	<label class="col-sm-4 control-label"><?= PROJECT_NOUN ?> Tabs to Display For Manifests:</label>
 	<div class="col-sm-8">
 		<?php foreach(explode(',',get_config($dbc, 'project_tabs')) as $project_type) {
 			$type_id = config_safe_str($project_type); ?>

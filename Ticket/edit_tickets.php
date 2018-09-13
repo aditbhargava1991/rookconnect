@@ -993,7 +993,7 @@ var setHeading = function() {
 			</div>
 		</div>
 		<div class="form-group recurrence_monthly_settings" style="display:none;">
-			<label class="col-sm-4 control-label">Repeat Type:</label>
+			<label class="col-sm-4 control-label">Repeat Tab:</label>
 			<div class="col-sm-8">
 				<select name="recurrence_repeat_monthly_type" class="form-control  chosen-select-deselect">
 					<option value="day" selected>By Day</option>
@@ -1070,9 +1070,9 @@ var setHeading = function() {
 	echo '<div class="pull-right '.($calendar_ticket_slider != 'accordion' ? 'show-on-mob' : '').'">'.$quick_action_html.'</div>';
 	if(count($ticket_tabs) > 1 && !($_GET['action_mode'] > 0 || $_GET['overview_mode'] > 0) && $tile_security['edit'] > 0 && !($strict_view > 0)) { ?>
 		<div class="form-group clearfix <?= $calendar_ticket_slider != 'accordion' ? 'show-on-mob' : '' ?>">
-			<label for="ticket_type" class="col-sm-4 control-label text-right"><?= TICKET_NOUN ?> Type:</label>
+			<label for="ticket_type" class="col-sm-4 control-label text-right"><?= TICKET_NOUN ?> Tab:</label>
 			<div class="col-sm-8">
-				<select name="ticket_type" id="ticket_type" data-placeholder="Select a Type..." data-initial="<?= $ticket_type ?>" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" class="chosen-select-deselect form-control">
+				<select name="ticket_type" id="ticket_type" data-placeholder="Select a Tab..." data-initial="<?= $ticket_type ?>" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" class="chosen-select-deselect form-control">
 					<option value=''></option>
 					<?php foreach($ticket_tabs as $type_name) {
 						$type_value = config_safe_str($type_name);
@@ -2682,10 +2682,10 @@ var setHeading = function() {
 			} ?>
 			<?php if(count($ticket_tabs) > 1 && !($_GET['action_mode'] > 0 || $_GET['overview_mode'] > 0) && $tile_security['edit'] > 0 && !($strict_view > 0)) { ?>
 				<div class="tab-section col-sm-12" id="tab_section_ticket_type">
-					<h3><?= TICKET_NOUN ?> Type</h3>
-					<label for="ticket_type" class="col-sm-4 control-label" style="text-align: left;"><?= TICKET_NOUN ?> Type:</label>
+					<h3><?= TICKET_NOUN ?> Tab</h3>
+					<label for="ticket_type" class="col-sm-4 control-label" style="text-align: left;"><?= TICKET_NOUN ?> Tab:</label>
 					<div class="col-sm-8">
-						<select name="ticket_type" id="ticket_type" data-initial="<?= $ticket_type ?>" data-placeholder="Select a Type..." data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" class="chosen-select-deselect form-control">
+						<select name="ticket_type" id="ticket_type" data-initial="<?= $ticket_type ?>" data-placeholder="Select a Tab..." data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" class="chosen-select-deselect form-control">
 							<option value=''></option>
 							<?php foreach($ticket_tabs as $type_name) {
 								$type_value = config_safe_str($type_name);

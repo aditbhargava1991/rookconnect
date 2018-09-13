@@ -233,7 +233,7 @@ $qty = explode(',',$manifest['qty']);
 $col_count = 2; ?>
 <form class="form-horizontal" action="" method="POST">
 	<button class="btn brand-btn pull-right" name="update" value="update" type="submit">Update Manifest</button>
-	<h4 class="scale-to-fill"><p><?= SITES_CAT ?>: <?= get_contact($dbc, $manifest['siteid']) ?></p><?= empty($type) ? '' : '<p>Type: '.$type_label.'</p>' ?></h4>
+	<h4 class="scale-to-fill"><p><?= SITES_CAT ?>: <?= get_contact($dbc, $manifest['siteid']) ?></p><?= empty($type) ? '' : '<p>Tab: '.$type_label.'</p>' ?></h4>
 	<div class="clearfix"></div>
 	<table class="table table-bordered">
 		<tr class="hidden-sm hidden-xs">
