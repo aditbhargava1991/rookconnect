@@ -289,7 +289,10 @@ function reports_tiles($dbc) {
                     if(!empty($_GET['report'])) {
                         $title .= ': '.$report_list[$_GET['report']][1];
                     } ?>
-                    <h3><?= $title ?></h3>
+                    <h3>
+                        <?= $title ?>
+                        <?= $_GET['report'] == 'Ticket Activity Report' ? '<div class="pull-right"><a class="cursor-hand printpdf"><img src="../img/pdf.png" class="no-toggle" title="Print Report" /></a><img src="../img/icons/ROOK-3dot-icon.png" class="show_search no-toggle cursor-hand offset-left-5" title="Show/Hide Search" width="25" /></div>' : '' ?>
+                    </h3>
                 </div>
 
                 <div class="standard-body" style="padding: 0.5em;"><?php
