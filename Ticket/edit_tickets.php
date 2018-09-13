@@ -683,7 +683,7 @@ $(document).ready(function() {
 					$('#sync_recurrences').val(1);
 					$('.sync_recurrences_note').show();
 					$.ajax({
-						url: '../Ticket/ticket_ajax_all.php?ticketid='+ticketid,
+						url: '../Ticket/ticket_ajax_all.php?action=set_ticket_recurring&ticketid='+ticketid,
 						method: 'GET',
 						success: function(response) {
 
