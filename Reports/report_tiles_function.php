@@ -291,7 +291,12 @@ function reports_tiles($dbc) {
                     } ?>
                     <h3>
                         <?= $title ?>
-                        <?= $_GET['report'] == 'Ticket Activity Report' ? '<div class="pull-right"><a class="cursor-hand printpdf"><img src="../img/pdf.png" class="no-toggle" title="Print Report" /></a><img src="../img/icons/ROOK-3dot-icon.png" class="show_search no-toggle cursor-hand offset-left-5" title="Show/Hide Search" width="25" /></div>' : '' ?>
+                        <?php if ( $_GET['report'] == 'Ticket Activity Report' ) { ?>
+                            <div class="pull-right">
+                                <a class="cursor-hand printpdf"><img src="../img/pdf.png" class="no-toggle" title="Print Report" /></a>
+                                <img src="../img/icons/ROOK-3dot-icon.png" class="show_search no-toggle cursor-hand offset-left-5" title="Show/Hide Search" width="25" />
+                            </div>
+                        <?php } ?>
                     </h3>
                 </div>
 
