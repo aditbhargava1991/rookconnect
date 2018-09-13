@@ -46,8 +46,10 @@ function saveFields() {
 	});
 }
 </script>
-<div class="block-group">
-	<h1>Performance Reviews</h1>
+<div class="standard-body-title">
+    <h1>Performance Reviews</h1>
+</div>
+<div class="standard-body-content">
 	<div class="form-group">
 		<label class="control-label col-sm-4">Enable Performance Reviews:</label>
 		<div class="col-sm-8">

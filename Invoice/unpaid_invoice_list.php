@@ -215,8 +215,7 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
                         $search_to = date('Y-m-d');
                     }
                     
-                    /*$patient_clause = !empty($search_contact) ? "AND patientid = '$search_contact'" : '';
-
+                    $patient_clause = !empty($search_contact) ? "AND patientid = '$search_contact'" : '';
                     
                     $today_date = date('Y-m-d');
                     $as_at_date = $search_to;

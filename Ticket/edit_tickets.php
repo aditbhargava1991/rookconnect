@@ -585,43 +585,7 @@ var no_verify = <?= IFRAME_PAGE ? 'true' : 'false' ?>;
 $(document).ready(function() {
 	setActions();
 	window.onbeforeunload = function() {
-		var ready = ticketid > 0 || ticketid == 'multi' || <?= IFRAME_PAGE ? 'true' : 'false' ?>;
-		$('[name=projectid],select[name=businessid]').not('[type=checkbox]').each(function() {
-			if(!no_verify && this.value == '' && $(this).attr('type') != 'hidden' && (this.name != 'projectid' || $('[name=piece_work]').filter(function() { return this.value != ''; }).length != 1)) {
-				var target = this;
-				if($(target).is('select')) {
-					var select2 = $(target).next('.select2');
-					$(select2).find('.select2-selection').css('background-color', 'red');
-					$(select2).find('.select2-selection__placeholder').css('color', 'white');
-				} else {
-					$(target).css('background-color', 'red');
-				}
-				if(ready) {
-					<?php $incomplete_status = get_config($dbc, 'incomplete_ticket_status_'.$ticket_type);
-					if($incomplete_status == '') {
-						$incomplete_status = get_config($dbc, 'incomplete_ticket_status');
-					}
-					if($incomplete_status != '') { ?>
-						$('[name=status]').val('<?= $incomplete_status ?>').change();
-					<?php } ?>
-					setTimeout(function() {
-						alert("Please fill in the "+$(target).closest('.form-group').find('label').text().split("\n")[0].replace(/^[^a-zA-Z0-9()]*/g,'').replace(/[^a-zA-Z0-9()]*$/g,'')+".");
-						$('.main-screen .default_screen').scrollTop($('.main-screen .default_screen').scrollTop() + $(target).offset().top - $('.main-screen .default_screen').offset().top - 30);
-						$(target).focus();
-					}, 0);
-					ready = false;
-				}
-			}
-		});
-		if(ready && ($('[name=arrived][value=1]').length != $('[name=completed][value=1]').not('.no_time').length && $('[name=completed][value=0]').not('.no_time').length > 0) || $.inArray($('[name=timer]').val(),['',undefined]) < 0) {
-			setTimeout(function() {
-				alert("This <?= TICKET_NOUN ?> is currently actively tracking time.");
-			}, 0);
-			ready = false;
-		}
-		if(!ready) {
-			return false;
-		}
+		return checkMandatoryFields();
 	}
 	$('#mobile_tabs .panel-heading').off('click',loadPanel).click(loadPanel);
 	<?php if($ticket_layout != 'Accordions' || $include_hidden == 'true') { ?>
@@ -827,6 +791,56 @@ function setManualFlag(ticketid = '', colour, label) {
 	} else {
 		$('.standard-body-title').css('background-color', '');
 		$('.flag-label-block').hide();
+	}
+}
+function checkMandatoryFields() {
+	var ready = ticketid > 0 || ticketid == 'multi' || <?= IFRAME_PAGE ? 'true' : 'false' ?>;
+	$('[name=projectid],select[name=businessid]').not('[type=checkbox]').each(function() {
+		if(!no_verify && this.value == '' && $(this).attr('type') != 'hidden' && (this.name != 'projectid' || $('[name=piece_work]').filter(function() { return this.value != ''; }).length != 1)) {
+			var target = this;
+			if($(target).is('select')) {
+				var select2 = $(target).next('.select2');
+				$(select2).find('.select2-selection').css('background-color', 'red');
+				$(select2).find('.select2-selection__placeholder').css('color', 'white');
+			} else {
+				$(target).css('background-color', 'red');
+			}
+			if(ready) {
+				<?php $incomplete_status = get_config($dbc, 'incomplete_ticket_status_'.$ticket_type);
+				if($incomplete_status == '') {
+					$incomplete_status = get_config($dbc, 'incomplete_ticket_status');
+				}
+				if($incomplete_status != '') { ?>
+					$('[name=status]').val('<?= $incomplete_status ?>').change();
+				<?php } ?>
+				setTimeout(function() {
+					alert("Please fill in the "+$(target).closest('.form-group').find('label').text().split("\n")[0].replace(/^[^a-zA-Z0-9()]*/g,'').replace(/[^a-zA-Z0-9()]*$/g,'')+".");
+					$('.main-screen .default_screen').scrollTop($('.main-screen .default_screen').scrollTop() + $(target).offset().top - $('.main-screen .default_screen').offset().top - 30);
+					$(target).focus();
+				}, 0);
+				ready = false;
+			}
+		}
+	});
+	if(ready && ($('[name=arrived][value=1]').length != $('[name=completed][value=1]').not('.no_time').length && $('[name=completed][value=0]').not('.no_time').length > 0) || $.inArray($('[name=timer]').val(),['',undefined]) < 0) {
+		setTimeout(function() {
+			alert("This <?= TICKET_NOUN ?> is currently actively tracking time.");
+		}, 0);
+		ready = false;
+	}
+	if(!ready) {
+		return false;
+	}
+}
+function fillCustomForm(a) {
+	var target = $(a).data('target');
+	var href = $(a).prop('href');
+	if(checkMandatoryFields() != false) {
+		if(target == 'slider') {
+			overlayIFrameSlider(href, 'auto', true, true);
+		} else {
+			window.location.href = href;
+		}
 	}
 }
 var ticketid = 0;
@@ -1037,6 +1051,7 @@ var setHeading = function() {
 		<input type="hidden" id="calendar_view" value="true">
 <?php } ?>
 <input type="hidden" name="sync_recurrences" id="sync_recurrences" value="0">
+<input type="hidden" name="checkout_before_checkin" id="checkin_before_checkout" value="<?= strpos($value_config,',Check Out Before Check In,') !== FALSE ? 1 : 0 ?>">
 <?php if(get_config($dbc, 'ticket_textarea_style') == 'no_editor') { ?>
 	<script>
 	var no_tools = true;
@@ -2659,7 +2674,7 @@ var setHeading = function() {
 							</div>
 						<?php } ?>
 						<?php $get_query = $_GET; ?>
-							<div class="pull-right gap-left gap-top">
+							<div class="pull-right gap-left">
 								<a href="" class="btn brand-btn" onclick="openFullView(); return false;">Open Full Window</a>
 							</div>
 						<?php if(strpos($value_config,',Quick Reminder Button,') !== FALSE && !($strict_view > 0)) { ?>
@@ -2668,6 +2683,7 @@ var setHeading = function() {
 							</div>
 							<div class="clearfix"></div>
 						<?php } ?>
+                        <div class="clearfix"></div>
 					</h3>
 					<hr>
 				</div>
@@ -3176,7 +3192,7 @@ var setHeading = function() {
 					<?php } ?>
 					<?php $pdfs = $dbc->query("SELECT `id`, `pdf_name`, `target` FROM `ticket_pdf` WHERE `deleted`=0 AND CONCAT(',',IFNULL(NULLIF(`ticket_types`,''),'$ticket_type'),',') LIKE '%,$ticket_type,%'");
 					while($pdf = $pdfs->fetch_assoc()) { ?>
-						<a href="../Ticket/index.php?custom_form=<?= $pdf['id'] ?>&ticketid=<?= $ticketid > 0 ? $ticketid : '' ?>" target="_blank" class="pull-right btn brand-btn margin-horizontal" onclick="<?= $pdf['target'] == 'slider' ? "overlayIFrameSlider(this.href, 'auto', true, true); return false;" : "" ?>"><?= $pdf['pdf_name'] ?></a>
+						<a href="../Ticket/index.php?custom_form=<?= $pdf['id'] ?>&ticketid=<?= $ticketid > 0 ? $ticketid : '' ?>" target="_blank" class="pull-right btn brand-btn margin-horizontal" data-target="<?= $pdf['target'] ?>" onclick="fillCustomForm(this); return false;"><?= $pdf['pdf_name'] ?></a>
 					<?php } ?>
 				<?php } ?>
 				<?php if(strpos($value_config,',Export Ticket Log,') !== FALSE && !empty($ticketid)) {

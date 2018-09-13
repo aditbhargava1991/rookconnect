@@ -15,7 +15,7 @@ function submitButton(search_type, search_category) {
 <ul class="sidebar">
     <li class="standard-sidebar-searchbox">
         <form action="" method="POST">
-        	<input name="search_vendor" type="text" value="<?= $_POST['search_vendor'] ?>" class="form-control search_vendor" placeholder="Search Document">
+        	<input name="search_vendor" type="text" value="<?= $_POST['search_vendor'] ?>" class="form-control search_vendor" placeholder="Search Documents">
         	<input type="submit" name="search_user_submit" style="display: none;">
         </form>
     </li>

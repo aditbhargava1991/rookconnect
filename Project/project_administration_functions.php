@@ -14,7 +14,17 @@
 	$status = $name[2];
 	$id = $name[1];
 	$filter_region = $name[3];
+    foreach(mysqli_fetch_all($dbc->query("SELECT IFNULL(`region`,'') FROM `tickets` WHERE `deleted`=0 ".($other_groups['regions'] != "','" && $other_groups['regions'] != "" ? " AND ((`region` IN ('{$admin_group['region']}','') AND `region` NOT IN ('{$other_groups['regions']}')) OR ('{$admin_group['region']}'='' AND `region` NOT IN ('{$other_groups['regions']}')))" : "")." GROUP BY IFNULL(`region`,'')")) as $region) {
+        if($filter_region == str_replace('_','',config_safe_str($region[0]))) {
+            $filter_region = $region[0];
+        }
+    }
 	$filter_class = $name[4];
+    foreach(mysqli_fetch_all($dbc->query("SELECT IFNULL(`classification`,'') FROM `tickets` WHERE `deleted`=0 ".($other_groups['classifications'] != "','" && $other_groups['classifications'] != "" ? " AND (`classification` IN ('{$admin_group['classification']}','') OR ('{$admin_group['classification']}'='' AND `classification` NOT IN ('{$other_groups['classifications']}')))" : "")." GROUP BY IFNULL(`classification`,'')")) as $class) {
+        if($filter_class == str_replace('_','',config_safe_str($class[0]))) {
+            $filter_class = $class[0];
+        }
+    }
 	$filter_site = $name[5];
 	$filter_business = $name[6];
 

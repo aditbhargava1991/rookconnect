@@ -42,7 +42,7 @@ function archive(type, id) {
 </script>
 <div class='scale-to-fill has-main-screen'>
 	<div class='main-screen form-horizontal'>
-		<h3>Summary</h3>
+		<h3 class="gap">Summary</h3>
 		<?php $total_height = 0;
 		$blocks = [];
 		if(in_array('individual_fave',$hr_summary)) {

@@ -511,6 +511,18 @@ function setTotalBudgetTime(input) {
 }
 </script><?php
 IF(!IFRAME_PAGE) { ?>
+<style>
+	.li-collapsed-active-show ul.collapse{
+		display: block !important;
+		height:auto !important;
+	}
+	.li-collapsed-active-show a.collapsed + ul.collapse li{
+		display: none !important;
+	}
+	.li-collapsed-active-show a.collapsed + ul.collapse li.active.blue{
+		display: block !important;
+	}
+</style>
 	<div class="tile-sidebar sidebar sidebar-override hide-titles-mob standard-collapsible">
 		<ul>
 			<li class="standard-sidebar-searchbox"><input type="text" class="form-control search_list" placeholder="Search <?= $ticket_tile ?>"></li>
@@ -1524,3 +1536,15 @@ IF(!IFRAME_PAGE) { ?>
 		</div>
 	</div>
 <?php } ?>
+
+<script>
+	$('.sidebar-higher-level.highest-level ul li.sidebar-higher-level').on('click', function (e) {
+		e.preventDefault();
+		if($(this).children('a').hasClass('collapsed')){
+			$(this).removeClass('li-collapsed-active-show');
+		}else{
+			$(this).addClass('li-collapsed-active-show');
+		}
+	});
+
+</script>

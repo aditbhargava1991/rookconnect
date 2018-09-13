@@ -146,6 +146,9 @@ $(document).ready(function () {
             } else if ($daysheet_reminder['type'] == 'equipment_service') {
                 $reminder = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `equipment` WHERE `equipmentid` = '".$daysheet_reminder['reminderid']."'"));
                 $reminder_label = '<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Equipment/edit_equipment.php?edit='.$reminder['equipmentid'].'&iframe_slider=1\'); return false;" style="color: black;">Equipment Service Reminder ('.$reminder['category'].' #'.$reminder['unit_number'].'): Service Date scheduled for '.$reminder['next_service_date'].'</a>';
+            } else if ($daysheet_reminder['type'] == 'incident_report_flag') {
+                $reminder = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `incident_report` WHERE `incidentreportid` = '".$daysheet_reminder['reminderid']."'"));
+                $reminder_label = '<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Incident Report/add_incident_report.php?incidentreportid='.$reminder['incidentreportid'].'\'); return false;" style="color: black;">Flagged '.INC_REP_NOUN.': '.$reminder['type'].' #'.$reminder['incidentreportid'].(!empty($reminder['flag_label']) ? ' - '.$reminder['flag_label'] : '').'</a>';
             }
             if(!empty($reminder_label)) {
                 if($daysheet_styling == 'card') {
@@ -492,3 +495,21 @@ $(document).ready(function () {
     } ?>
     <hr>
 <?php } ?>
+
+<?php if (in_array('Tags', $daysheet_fields_config)) { ?>
+    <h4 style="font-weight: normal;">Tags</h4>
+    <?php $tags_html = daysheet_get_tags($dbc, $_SESSION['contactid']);
+    if(!empty($tags_html)) {
+        if($daysheet_styling != 'card') {
+            echo '<ul id="tags_daily">';
+        }
+        echo $tags_html;
+        if($daysheet_styling != 'card') {
+            echo '</ul>';
+        }
+    } else {
+        echo '<ul id="tags_daily">';
+        echo 'No tags found.';
+        echo '</ul>';
+    }
+}

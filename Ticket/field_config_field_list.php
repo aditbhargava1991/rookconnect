@@ -43,6 +43,8 @@ if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) {
 			<span class="popover-examples"><a data-toggle="tooltip" data-original-title="If this is enabled, the Delete button will prompt the user to add a Note."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Delete Button Add Note</label>
 		<label class="form-checkbox"><input type="checkbox" <?= in_array("Create Recurrence Button", $all_config) ? 'checked disabled' : (in_array("Create Recurrence Button", $value_config) ? "checked" : '') ?> value="Create Recurrence Button" name="tickets[]">
 			<span class="popover-examples"><a data-toggle="tooltip" data-original-title="If this is enabled, the Create Recurrence button will allow creating Recurrences of the <?= TICKET_NOUN ?>."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Create Recurrence Button</label>
+		<label class="form-checkbox"><input type="checkbox" <?= in_array("Check Out Before Check In", $all_config) ? 'checked disabled' : (in_array("Check Out Before Check In", $value_config) ? "checked" : '') ?> value="Check Out Before Check In" name="tickets[]">
+			<span class="popover-examples"><a data-toggle="tooltip" data-original-title="If this is enabled, the user must Check Out from the Check Out section before allowing Checking In again."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Must Check Out Before Checking In Again</label>
 		<div class="form-group">
 			<label class="col-sm-4 control-label"><span class="popover-examples"><a data-toggle="tooltip" data-original-title="This setting will dictate how far ahead the software will create Recurring <?= TICKET_TILE ?> (eg. visible in the software) that are ongoing, and will continue creating <?= TICKET_TILE ?> on an ongoing basis up to the selected amount here. This is required as the software cannot create an infinite number of <?= TICKET_TILE ?>."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Ongoing Recurring <?= TICKET_TILE ?> Sync Up To:</label>
 			<div class="col-sm-8">
@@ -936,6 +938,18 @@ if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) {
 							<?php } ?>
 							<?php if($field_sort_field == 'Staff Multiple Times Set Hours') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Staff Multiple Times Set Hours", $all_config) ? 'checked disabled' : (in_array("Staff Multiple Times Set Hours", $value_config) ? "checked" : '') ?> value="Staff Multiple Times Set Hours" name="tickets[]"> Multiple Dates/Times - Payable Hours</label>
+							<?php } ?>
+							<?php if($field_sort_field == 'Staff Check Shifts') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Staff Check Shifts", $all_config) ? 'checked disabled' : (in_array("Staff Check Shifts", $value_config) ? "checked" : '') ?> value="Staff Check Shifts" name="tickets[]"> Check Shifts</label>
+							<?php } ?>
+							<?php if($field_sort_field == 'Staff Check Days Off') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Staff Days Off", $all_config) ? 'checked disabled' : (in_array("Staff Days Off", $value_config) ? "checked" : '') ?> value="Staff Days Off" name="tickets[]"> Check Days Off</label>
+							<?php } ?>
+							<?php if($field_sort_field == 'Staff Hide No Shift') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Staff Hide No Shift", $all_config) ? 'checked disabled' : (in_array("Staff Hide No Shift", $value_config) ? "checked" : '') ?> value="Staff Hide No Shift" name="tickets[]"> Hide Staff With No Shift</label>
+							<?php } ?>
+							<?php if($field_sort_field == 'Staff Hide Days Off') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Staff Hide Days Off", $all_config) ? 'checked disabled' : (in_array("Staff Hide Days Off", $value_config) ? "checked" : '') ?> value="Staff Hide Days Off" name="tickets[]"> Hide Staff With Days Off</label>
 							<?php } ?>
 						<?php } ?>
 						</div>
@@ -2288,6 +2302,9 @@ if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) {
 							<?php if($field_sort_field == 'Inventory General PO Number') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Inventory General PO Number", $all_config) ? 'checked disabled' : (in_array("Inventory General PO Number", $value_config) ? "checked" : '') ?> value="Inventory General PO Number" name="tickets[]"> Purchase Order Number</label>
 							<?php } ?>
+							<?php if($field_sort_field == 'Inventory General PO Number Dropdown') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Inventory General PO Number Dropdown", $all_config) ? 'checked disabled' : (in_array("Inventory General PO Number Dropdown", $value_config) ? "checked" : '') ?> value="Inventory General PO Number Dropdown" name="tickets[]"> Dropdown Purchase Order Number</label>
+							<?php } ?>
 							<?php if($field_sort_field == 'Inventory General PO Item') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Inventory General PO Item", $all_config) ? 'checked disabled' : (in_array("Inventory General PO Item", $value_config) ? "checked" : '') ?> value="Inventory General PO Item" name="tickets[]"> Purchase Order Item</label>
 							<?php } ?>
@@ -2296,6 +2313,9 @@ if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) {
 							<?php } ?>
 							<?php if($field_sort_field == 'Inventory General PO Dropdown') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Inventory General PO Dropdown", $all_config) ? 'checked disabled' : (in_array("Inventory General PO Dropdown", $value_config) ? "checked" : '') ?> value="Inventory General PO Dropdown" name="tickets[]"> Dropdown PO Line Item</label>
+							<?php } ?>
+							<?php if($field_sort_field == 'Inventory General PO Dropdown Multiple') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Inventory General PO Dropdown Multiple", $all_config) ? 'checked disabled' : (in_array("Inventory General PO Dropdown Multiple", $value_config) ? "checked" : '') ?> value="Inventory General PO Dropdown Multiple" name="tickets[]"> Dropdown PO Line Item - Multiple with Range</label>
 							<?php } ?>
 							<?php if($field_sort_field == 'Inventory General PO Line Read') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Inventory General PO Line Read", $all_config) ? 'checked disabled' : (in_array("Inventory General PO Line Read", $value_config) ? "checked" : '') ?> value="Inventory General PO Line Read" name="tickets[]"> Read Only PO Line Item</label>
