@@ -748,6 +748,12 @@
     }
     //2018-09-07 - Ticket #9008 - Stat Pay
 
+    //2018-09-13 - Ticket #8978 - Washroom Support
+    if(!mysqli_query($dbc, "ALTER TABLE `key_methodologies` ADD `toileting_info` text AFTER `toileting`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-09-13 - Ticket #8978 - Washroom Support
+
     //2018-09-11 - Ticket #8802 - Check In/Out
     if(!mysqli_query($dbc, "CREATE TABLE `ticket_attached_checkin` (
         `id` int(11) NOT NULL,
