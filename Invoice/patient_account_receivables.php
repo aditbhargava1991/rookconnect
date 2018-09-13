@@ -71,6 +71,12 @@ function view_tabs() {
 function view_summary() {
     $('.view_summary').toggle();
 }
+function add_reminder(invoiceid) {
+    if(invoiceid === undefined) {
+        invoiceid = '<?= empty($_GET['p5']) ? $_POST['invoice_no'] : $_GET['p5'] ?>';
+    }
+    overlayIFrameSlider('../quick_action_reminders.php?tile=invoice&ar=true&id='+invoiceid+'&start_date=<?= empty($_GET['p1']) ? $_POST['starttime'] : $_GET['p1'] ?>&end_date=<?= empty($_GET['p2']) ? $_POST['endtime'] : $_GET['p2'] ?>&customer=<?= empty($_GET['p3']) ? $_POST['patient'] : $_GET['p3'] ?>','auto',false,true);
+}
 </script>
 </head>
 <body>
@@ -97,9 +103,8 @@ define('PURCHASER', count($purchaser_config) > 1 ? 'Customer' : $purchaser_confi
                     <span class="pull-right gap-top offset-right-5"><img src="../img/icons/eyeball.png" alt="View Tabs" title="View Tabs" class="cursor-hand no-toggle inline-img" onclick="view_tabs();" /></span>
 
                     <span class="pull-right gap-top offset-right-5"><img src="../img/icons/pie-chart.png" alt="Reporting" title="Reporting" class="cursor-hand no-toggle inline-img" onclick="view_summary();" /></span>
+                    <span class="pull-right gap-top offset-right-5"><img src="../img/icons/ROOK-reminder-icon.png" alt="Schedule Reminder" title="Schedule Reminder" class="cursor-hand no-toggle inline-img" onclick="add_reminder();" /></span>
                     <div class="clearfix"></div>
-                    <div class="view_tabs double-padded" style="<?= !isset($download_folder) ? 'display:none;' : '' ?>"><?php include($folder.'tile_tabs.php'); ?></div>
-
                     
                     <!-- Summary Blocks --><?php
                     if(!empty($_GET['p1'])) {
@@ -254,6 +259,7 @@ define('PURCHASER', count($purchaser_config) > 1 ? 'Customer' : $purchaser_confi
                         </div>
                         <div class="clearfix"></div>
                     </div><!-- .view_summary -->
+                    <div class="view_tabs double-padded" style="<?= !isset($download_folder) ? 'display:none;' : '' ?>"><?php include($folder.'tile_tabs.php'); ?></div>
                 </div>
             </div><!-- .tile-header -->
 
@@ -404,7 +410,7 @@ function report_receivables($dbc, $starttime, $endtime, $table_style, $table_row
         $report_data .= '<td data-title="Invoice Date">'.$row_report['service_date'].'</td>';
         $report_data .= '<td data-title="'.PURCHASER.'"><a href="../Contacts/contacts_inbox.php?edit='.$row_report['patientid'].'" onclick="overlayIFrameSlider(this.href, \'auto\', false, true); return false;">'.get_contact($dbc, $row_report['patientid']).' <img class="inline-img" src="../img/person.PNG"></a></td>';
         $report_data .= '<td data-title="Amount" align="right">'.$row_report['patient_price'].'</td>';
-        $report_data .= '<td data-title="Pay"><label class="form-checkbox any-width"><input type="checkbox" class="invoice" name="invoiceid" value="'.$row_report['invoiceid'].'"> Select</label><a onclick="pay_receivables('.$row_report['invoiceid'].'); return false;" class="btn brand-btn" href="">Pay Now</a></td>';
+        $report_data .= '<td data-title="Pay"><label class="form-checkbox any-width"><input type="checkbox" class="invoice" name="invoiceid" value="'.$row_report['invoiceid'].'"> Select</label><a onclick="pay_receivables('.$row_report['invoiceid'].'); return false;" class="btn brand-btn" href="">Pay Now</a><span class="pull-right gap-top offset-right-5"><img src="../img/icons/ROOK-reminder-icon.png" alt="Schedule Reminder" title="Schedule Reminder" class="cursor-hand no-toggle inline-img" onclick="add_reminder('.$row_report['invoiceid'].');" /></span></td>';
         $report_data .= '<input type="hidden" name="invoiceallid" value="'.$row_report['invoiceid'].'">';
 
         $report_data .= '</tr>';

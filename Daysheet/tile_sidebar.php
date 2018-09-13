@@ -53,6 +53,9 @@
         <?php if (in_array('My Time Sheets', $daysheet_button_config)) { ?>
             <a href="?tab=timesheets&daily_date=<?= date('Y-m-d') ?>&side_content=my_timesheets&date_display=daily"><li class="<?= $_GET['tab'] == 'timesheets' || ($_GET['side_content'] == 'my_timesheets') ? 'active' : '' ?>">My Time Sheet</li></a>
         <?php } ?>
+        <?php if (in_array('My Tags', $daysheet_button_config)) { ?>
+            <a href="?tab=tags&daily_date=<?= date('Y-m-d') ?>&side_content=my_tags&date_display=daily"><li class="<?= $_GET['tab'] == 'tags' ? 'active' : '' ?>">My Tags</li></a>
+        <?php } ?>
         <?php if (in_array('Attached Contact Forms', $daysheet_button_config)) {
             $match_contacts = [];
             $match_query = mysqli_query($dbc, "SELECT * FROM `match_contact` WHERE CONCAT(',',`staff_contact`,',') LIKE '%,".$_SESSION['contactid'].",%' AND `deleted` = 0 AND `match_date` <= '".date('Y-m-d')."' AND `end_date` >= '".date('Y-m-d')."' AND `status` = 'Active'");

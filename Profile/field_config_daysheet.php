@@ -115,6 +115,7 @@ $(document).ready(function() {
             <label class="form-checkbox"><input type="checkbox" <?= in_array('Communication', $daysheet_fields_config) ? 'checked' : '' ?> name="daysheet_fields_config[]" value="Communication">Communications</label>
             <label class="form-checkbox"><input type="checkbox" <?= in_array('Support', $daysheet_fields_config) ? 'checked' : '' ?> name="daysheet_fields_config[]" value="Support">Support Requests</label>
             <label class="form-checkbox"><input type="checkbox" <?= in_array('Shifts', $daysheet_fields_config) ? 'checked' : '' ?> name="daysheet_fields_config[]" value="Shifts">Shifts</label>
+            <label class="form-checkbox"><input type="checkbox" <?= in_array('Tags', $daysheet_fields_config) ? 'checked' : '' ?> name="daysheet_fields_config[]" value="Tags">Tags</label>
         </div>
         <div class="clearfix"></div>
         <?php if($settings_type == 'software') { ?>
@@ -198,6 +199,7 @@ $(document).ready(function() {
             <label class="form-checkbox"><input type="checkbox" <?= in_array('My Sales', $daysheet_button_config) ? 'checked' : '' ?> name="daysheet_button_config[]" value="My Sales">My <?= SALES_TILE ?></label>
             <label class="form-checkbox"><input type="checkbox" <?= in_array('My Shifts', $daysheet_button_config) ? 'checked' : '' ?> name="daysheet_button_config[]" value="My Shifts">My Shifts</label>
             <label class="form-checkbox"><input type="checkbox" <?= in_array('My Time Sheets', $daysheet_button_config) ? 'checked' : '' ?> name="daysheet_button_config[]" value="My Time Sheets">My Time Sheet</label>
+            <label class="form-checkbox"><input type="checkbox" <?= in_array('My Tags', $daysheet_button_config) ? 'checked' : '' ?> name="daysheet_button_config[]" value="My Tags">My Tags</label>
             <label class="form-checkbox"><input type="checkbox" <?= in_array('Attached Contact Forms', $daysheet_button_config) ? 'checked' : '' ?> name="daysheet_button_config[]" value="Attached Contact Forms">Attached Contact Forms (based on Match)</label>
 			<?php if($settings_type == 'software') { ?>
 				<label class="form-checkbox"><input type="checkbox" <?= in_array('My Notifications', $daysheet_button_config) ? 'checked' : '' ?> data-off="hide" name="daysheet_button_config[]" value="My Notifications">My Notifications</label>
