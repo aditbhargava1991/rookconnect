@@ -13,10 +13,10 @@ $payer_label = count($payer_config) > 1 ? 'Third Party' : $payer_config[0]; ?>
 				<?php break;
 			case 'sell':
 				if(in_array('touch',$ux_options)) { ?>
-					<a href='add_invoice.php'><span class="btn brand-btn mobile-block mobile-100 <?= strpos($_SERVER['PHP_SELF'],'/add_invoice.php') !== FALSE ? 'active_tab' : '' ?>">Create Invoice (Keyboard)</span></a>
+					<a href='create_invoice.php'><span class="btn brand-btn mobile-block mobile-100 <?= strpos($_SERVER['PHP_SELF'],'/create_invoice.php') !== FALSE ? 'active_tab' : '' ?>">Create Invoice (Keyboard)</span></a>
 					<a href='touch_main.php'><span class="btn brand-btn mobile-block mobile-100 <?= strpos($_SERVER['PHP_SELF'],'/touch_main.php') !== FALSE ? 'active_tab' : '' ?>">Create Invoice (Touchscreen)</span></a>
 				<?php } else { ?>
-					<a href='add_invoice.php'><span class="btn brand-btn mobile-block mobile-100 <?= strpos($_SERVER['PHP_SELF'],'/add_invoice.php') !== FALSE ? 'active_tab' : '' ?>">Create Invoice</span></a>
+					<a href='create_invoice.php'><span class="btn brand-btn mobile-block mobile-100 <?= strpos($_SERVER['PHP_SELF'],'/create_invoice.php') !== FALSE ? 'active_tab' : '' ?>">Create Invoice</span></a>
 				<?php }
 				break;
 			case 'today': ?>
