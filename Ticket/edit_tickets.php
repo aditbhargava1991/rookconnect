@@ -643,8 +643,16 @@ $(document).ready(function() {
 			modal: true,
 			buttons: {
 				"All Recurrences": function() {
+					var ticketid = $('#ticketid').val();
 					$('#sync_recurrences').val(1);
 					$('.sync_recurrences_note').show();
+					$.ajax({
+						url: '../Ticket/ticket_ajax_all.php?action=set_ticket_recurring&ticketid='+ticketid,
+						method: 'GET',
+						success: function(response) {
+
+						}
+					});
 					$(this).dialog('close');
 				},
 				"One Occurence": function() {
