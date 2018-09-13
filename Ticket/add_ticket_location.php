@@ -9,7 +9,7 @@ function filterSitesByClient() {
 	$('[name="clientid"]').each(function() {
 		var clientid = $(this).val();
 		$('[name="siteid"] option[data-businessid="'+clientid+'"]').show();
-		if($('[name="siteid"]').val() == undefined || $('[name="siteid"]').val() == '') {
+		if(($('[name="siteid"]').val() == undefined || $('[name="siteid"]').val() == '') && clientid != undefined && clientid > 0) {
 			$('[name="siteid"] option[data-businessid="'+clientid+'"]').first().prop('selected', true);
 		}
 	});

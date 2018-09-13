@@ -152,22 +152,20 @@ $contact = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `contacts` LEFT 
         <?php } ?>
         <?php if(in_array('POS Credit', $id_card_fields)) {
             $patient = mysqli_fetch_assoc ( mysqli_query ( $dbc, "SELECT `amount_credit` FROM `contacts` WHERE `contactid`='$contactid'" ) );
-            $patient_ar = empty($patient['patient_ar']) ? '0.00' : $patient['patient_ar'];
-            $patient_ar = explode('.', $patient_ar); ?>
+            $patient_ar = empty($patient['amount_credit']) ? 0 : $patient['amount_credit']; ?>
             <div class="col-xs-6 col-sm-4 col-md-3 col-lg-2 gap-top">
                 <div class="summary-block">
-                    <span class="text-lg"><?= '$'.$patient_ar[0].'.<sup>'.$patient_ar[1].'</sup>' ?></span><br />
+                    <span class="text-lg"><?= '$'.floor($patient_ar).'.<sup>'.sprintf("%02d",($patient_ar * 100 % 100)).'</sup>' ?></span><br />
                     Credit<br />On Account
                 </div>
             </div>
         <?php } ?>
         <?php if(in_array('POS Balance', $id_card_fields)) {
             $patient = mysqli_fetch_assoc ( mysqli_query ( $dbc, "SELECT `amount_owing` FROM `contacts` WHERE `contactid`='$contactid'" ) );
-            $patient_ar = empty($patient['patient_ar']) ? '0.00' : $patient['patient_ar'];
-            $patient_ar = explode('.', $patient_ar); ?>
+            $patient_ar = empty($patient['amount_owing']) ? 0 : $patient['amount_owing']; ?>
             <div class="col-xs-6 col-sm-4 col-md-3 col-lg-2 gap-top">
                 <div class="summary-block">
-                    <span class="text-lg"><?= '$'.$patient_ar[0].'.<sup>'.$patient_ar[1].'</sup>' ?></span><br />
+                    <span class="text-lg"><?= '$'.floor($patient_ar).'.<sup>'.sprintf("%02d",($patient_ar * 100 % 100)).'</sup>' ?></span><br />
                     Account<br />Balance
                 </div>
             </div>

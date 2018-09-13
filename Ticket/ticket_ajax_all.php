@@ -3021,6 +3021,7 @@ if($_GET['action'] == 'update_fields') {
 	$recurrence_settings = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `ticket_recurrences` WHERE `ticketid` = '$main_ticketid' AND `deleted` = 0"));
 	$result = [start_date=>$recurrence_settings['start_date'], end_date=>$recurrence_settings['end_date'], repeat_type=>$recurrence_settings['repeat_type'], repeat_monthly=>$recurrence_settings['repeat_monthly'], repeat_interval=>$recurrence_settings['repeat_interval'], repeat_days=>explode(',',$recurrence_settings['repeat_days'])];
 	echo json_encode($result);
+
 } else if($_GET['action'] == 'reload_po_num_dropdown') {
 	$ticketid = $_GET['ticketid'];
 	$get_ticket = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticketid` = '$ticketid'"));
@@ -3033,5 +3034,16 @@ if($_GET['action'] == 'update_fields') {
 	$po_list = array_unique(array_merge($po_line_list,$ticket_po_list));
 	sort($po_list);
 	echo json_encode($po_list);
+
+} else if($_GET['action'] == 'set_ticket_recurring') {
+	$ticketid = $_GET['ticketid'];
+	if($ticketid > 0) {
+		mysqli_query($dbc, "UPDATE `tickets` SET `is_recurrence` = 1 WHERE `ticketid` = '$ticketid'");
+		mysqli_query($dbc, "UPDATE `ticket_attached` SET `is_recurrence` = 1 WHERE `ticketid` = '$ticketid'");
+		mysqli_query($dbc, "UPDATE `ticket_schedule` SET `is_recurrence` = 1 WHERE `ticketid` = '$ticketid'");
+		mysqli_query($dbc, "UPDATE `ticket_comment` SET `is_recurrence` = 1 WHERE `ticketid` = '$ticketid'");
+		sync_recurring_tickets($dbc, $ticketid);
+	}
+
 }
 ?>

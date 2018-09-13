@@ -99,21 +99,31 @@ if($tickets->num_rows > 0) { ?>
 			<?php while($ticket = $tickets->fetch_assoc()) {
 				$active = 0;
 				$total_cost = 0.00;
+				$services_cost_num = [];
 				$services_cost = [];
 				$services = [];
 				$qty = explode(',',$ticket['service_qty']);
+                $cust_rate_card = $dbc->query("SELECT * FROM `rate_card` WHERE `clientid`='".$ticket['businessid']."' AND `deleted`=0 AND `on_off`=1")->fetch_assoc();
 				foreach(explode(',',$ticket['serviceid']) as $i => $service) {
 					if($service > 0) {
-						$service = $dbc->query("SELECT `services`.`heading`, `rate`.`cust_price` FROM `services` LEFT JOIN `company_rate_card` `rate` ON `services`.`serviceid`=`rate`.`item_id` AND `rate`.`tile_name` LIKE 'Services' WHERE `services`.`serviceid`='$service'")->fetch_assoc();
+						$service = $dbc->query("SELECT `services`.`serviceid`, `services`.`heading`, `rate`.`cust_price` FROM `services` LEFT JOIN `company_rate_card` `rate` ON `services`.`serviceid`=`rate`.`item_id` AND `rate`.`tile_name` LIKE 'Services' WHERE `services`.`serviceid`='$service'")->fetch_assoc();
+                        $service_rate = 0;
+                        foreach(explode('**',$cust_rate_card['services']) as $service_cust_rate) {
+                            $service_cust_rate = explode('#',$service_cust_rate);
+                            if($service_cust_rate[0] == $service['serviceid']) {
+                                $service_rate = $service_cust_rate[1];
+                            }
+                        }
 						$services[] = $service['heading'].($qty[$i] > 0 ? ' x '.$qty[$i] : '');
-						$services_cost[] = '$'.number_format($service['cust_price'],2);
+						$services_cost_num[] = ($qty[$i] > 0 ? $qty[$i] : 1) * ($service_rate > 0 ? $service_rate : $service['cust_price']);
+						$services_cost[] = number_format(($qty[$i] > 0 ? $qty[$i] : 1) * ($service_rate > 0 ? $service_rate : $service['cust_price']),2);
 					}
 				} ?>
 				<tr>
 					<td data-title="Date"><?= $ticket['ticket_date'] ?></td>
 					<td data-title="<?= empty($ticket_noun) ? TICKET_NOUN : $ticket_noun ?>"><a href="../Ticket/index.php?edit=<?= $ticket['ticketid'] ?>" onclick="overlayIFrameSlider(this.href+'&calendar_view=true'); return false;"><?= get_ticket_label($dbc, $ticket) ?></a></td>
 					<?php if(strpos($value_config, ',Services,') !== FALSE) {
-						foreach($services_cost as $cost_amt) {
+						foreach($services_cost_num as $cost_amt) {
 							$total_cost += $cost_amt;
 						} ?>
 						<td data-title="Services"><?= implode('<br />',$services) ?></td>

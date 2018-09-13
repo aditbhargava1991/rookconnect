@@ -1172,7 +1172,8 @@ function saveMethod(field) {
 					category: $(field).data('category'),
 					tile_name: tile_name,
 					auto_create_unscheduled: $('[name="auto_create_unscheduled"]').val(),
-					track_timesheet: $(field).data('track-timesheet')
+					track_timesheet: $(field).data('track-timesheet'),
+					sync_recurring_data: $('#sync_recurrences').val()
 				},
 				success: function(response) {console.log(response);
 					updateTicketLabel();
@@ -2594,7 +2595,8 @@ function add_staff_task(checkin) {
 					extra_id: extra_id,
 					task_group: extra_task_group,
 					task_list: task_list,
-					extra_ticket_inserted: extra_ticket_inserted
+					extra_ticket_inserted: extra_ticket_inserted,
+					sync_recurring_data: $('#sync_recurrences').val()
 				},
 				success: function(response) {
 					console.log(response);
@@ -2614,7 +2616,8 @@ function add_staff_task(checkin) {
 								value: 1,
 								id: response,
 								id_field: 'id',
-								ticketid: ticketid
+								ticketid: ticketid,
+								sync_recurring_data: $('#sync_recurrences').val()
 							}
 						});
 					}
@@ -2632,7 +2635,8 @@ function add_staff_task(checkin) {
 									id: '',
 									id_field: 'ticketcommid',
 									ticketid: ticket,
-									type: 'addendum'
+									type: 'addendum',
+									sync_recurring_data: $('#sync_recurrences').val()
 								}
 							});
 						}
@@ -2720,7 +2724,8 @@ function checkinAll(button) {
 			type: 'completion_notes',
 			type_field: '',
 			attach: '',
-			attach_field: ''
+			attach_field: '',
+			sync_recurring_data: $('#sync_recurrences').val()
 		}
 	});
 }

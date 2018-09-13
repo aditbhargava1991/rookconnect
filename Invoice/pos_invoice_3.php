@@ -108,7 +108,7 @@ if ( !class_exists('MYPDF') ) {
         // Page footer
         public function Footer() {
             // Position at 15 mm from bottom /* CHANGED (SetY used to be -25) */
-            $this->SetY(-27);
+            $this->SetY(-20);
             // Set font
             $this->SetFont('helvetica', 'I', 8);
             // Page number
@@ -117,9 +117,10 @@ if ( !class_exists('MYPDF') ) {
                   //<table width="400px" style="border-bottom:1px solid black;text-align:left;font-style: normal !important;font-size:9"><tr><td style="text-align:left;font-style: normal !important;font-size:9">
         //Signature</td></tr></table>
                   //$footer_text = '<br><br><center><p style="text-align:center;">Transfer Funds to '.COMPANY_SOFTWARE_NAME.'<br>Thank you for your business!</p></center><br>'.INVOICE_FOOTER;
+                  $footer_text = '<center><p style="text-align:center;">'. INVOICE_FOOTER .'</p></center>';
                 } else {
                   // ... footer for the normal page ...
-                  $footer_text = INVOICE_FOOTER;
+                  $footer_text = '<center><p style="text-align:center;">'. INVOICE_FOOTER .'</p></center>';
                 }
 
             $this->writeHTMLCell(0, 0, '', '', $footer_text, 0, 0, false, "L", true);
