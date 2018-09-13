@@ -218,7 +218,7 @@ if(!empty($_GET['action']) && $_GET['action'] == 'invoice_values') {
 				$discount = explode(',',$ticket['service_discount'])[$i];
 				$dis_type = explode(',',$ticket['service_discount_type'])[$i];
 				$price = 0;
-				$customer_rate = $dbc->query("SELECT `services` FROM `rate_card` WHERE `clientid`='' AND `deleted`=0 AND `on_off`=1")->fetch_assoc();
+				$customer_rate = $dbc->query("SELECT `services` FROM `rate_card` WHERE `clientid`='".$ticket['businessid']."' AND `deleted`=0 AND `on_off`=1")->fetch_assoc();
 				foreach(explode('**',$customer_rate['services']) as $service_rate) {
 					$service_rate = explode('#',$service_rate);
 					if($service == $service_rate[0] && $service_rate[1] > 0) {
