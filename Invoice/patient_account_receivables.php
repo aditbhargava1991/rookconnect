@@ -134,7 +134,7 @@ define('PURCHASER', count($purchaser_config) > 1 ? 'Customer' : $purchaser_confi
                         $patient = $_GET['patientid'];
                     }
                     
-                    $patient_clause = !empty($patient) ? "AND patientid = '$patientid'" : '';
+                    /*$patient_clause = !empty($patient) ? "AND patientid = '$patientid'" : '';
 
                     
                     $today_date = date('Y-m-d');
@@ -162,7 +162,7 @@ define('PURCHASER', count($purchaser_config) > 1 ? 'Customer' : $purchaser_confi
                     $total_last90119 = $total_90119['all_payment'];
 
                     $total_120 = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT SUM(patient_price) AS `all_payment` FROM invoice_patient WHERE (DATE(invoice_date) >= '".$starttime."' AND DATE(invoice_date) <= '".$endtime."') AND (DATE(invoice_date) < '".$last119."') $patient_clause AND (paid_date > '$as_at_date' OR IFNULL(`paid`,'') IN ($ar_types))"));
-                    $total_last120 = $total_120['all_payment']; ?>
+                    $total_last120 = $total_120['all_payment'];*/
 
                     $ar_types = "'On Account', 'Net 30', 'Net 30 Days', 'Net 60', 'Net 60 Days', 'Net 90', 'Net 90 Days', 'Net 120', 'Net 120 Days', ''";
                     
