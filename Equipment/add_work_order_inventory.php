@@ -50,7 +50,7 @@ function inventory_total(text) {
 }
 </script>
 <div class="form-group clearfix hide-titles-mob">
-	<label class="col-sm-2  text-center">Category</label>
+	<label class="col-sm-2  text-center">Tab</label>
 	<label class="col-sm-3 text-center">Part #</label>
 	<label class="col-sm-2 text-center">Qty</label>
 	<label class="col-sm-2 text-center">Cost</label>
@@ -63,9 +63,9 @@ foreach($inventory_used as $line) {
 	$inventory = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `inventory` WHERE `inventoryid`='".$line['inventoryid']."'")); ?>
 	<div class="form-group clearfix inventory_line" width="100%">
 		<input type="hidden" name="in_lineid[]" value="<?= $line['lineid'] ?>">
-		<label for="company_name" class="col-sm-4 show-on-mob control-label">Category:</label>
+		<label for="company_name" class="col-sm-4 show-on-mob control-label">Tab:</label>
 		<div class="col-sm-2 expand-mobile type">
-			<select data-placeholder="Select a Category..." name="in_category[]" class="chosen-select-deselect form-control category">
+			<select data-placeholder="Select a Tab..." name="in_category[]" class="chosen-select-deselect form-control category">
 				<option value="<?= $inventory['category']; ?>"><?= $inventory['category']; ?></option><?php
 				$query = mysqli_query ( $dbc, "SELECT DISTINCT `category` FROM `inventory` ORDER BY `category`" );
 				while ( $row = mysqli_fetch_assoc ( $query ) ) { ?>

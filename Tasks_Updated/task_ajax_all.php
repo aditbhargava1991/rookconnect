@@ -35,7 +35,7 @@ if($_GET['fill'] == 'setting_tabs') {
 
 if($_GET['fill'] == 'setting_fields') {
     $tab_list = $_GET['tab_list'];
-    $get_field_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT count(task_id) as task_count FROM task_dashboard"));
+    $get_field_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT task_id as task_count FROM task_dashboard"));
     if($get_field_config['task_count'] == 1) {
         $query_insert_dashboard = "UPDATE `task_dashboard` SET `task_fields` = '" . $tab_list . "' WHERE task_id = 1";
     }
@@ -44,6 +44,19 @@ if($_GET['fill'] == 'setting_fields') {
     }
 
     mysqli_query($dbc, $query_insert_dashboard);
+}
+
+if($_GET['fill'] == 'setting_mandatory_fields') {
+  $tab_list = $_GET['tab_list'];
+  $get_field_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT task_id as task_count FROM task_dashboard_mandatory"));
+  if($get_field_config['task_count'] == 1) {
+      $query_insert_dashboard = "UPDATE `task_dashboard_mandatory` SET `task_fields` = '" . $tab_list . "' WHERE task_id = 1";
+  }
+  else {
+      $query_insert_dashboard = "INSERT INTO `task_dashboard_mandatory` (`task_id`,`task_fields`) VALUES (1, '$tab_list')";
+  }
+
+  mysqli_query($dbc, $query_insert_dashboard);
 }
 
 if($_GET['fill'] == 'setting_quick_icon') {

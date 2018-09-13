@@ -1207,7 +1207,7 @@ checkAuthorised('security');
 						<tr><td>Software Functionality</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'tiles' ); ?></tr>
 						<tr><td>Security Levels &amp; Groups</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'levels' ); ?></tr>
 						<tr><td>Set Security Privileges</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'privileges' ); ?></tr>
-						<tr><td>Assign Privileges</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'assign' ); ?></tr>
+						<tr><td>User Privileges</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'assign' ); ?></tr>
 						<tr><td>Contact Category Default Levels</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'contact_cat' ); ?></tr>
 						<tr><td>Password Reset</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'password' ); ?></tr>
 						<tr><td>Reporting</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'reporting' ); ?></tr><?php

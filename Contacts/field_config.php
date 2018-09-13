@@ -132,6 +132,23 @@ function loadPanel() {
 			</div>
 		</div>
 	</div>
+
+	<div class="panel panel-default">
+		<div class="panel-heading">
+			<h4 class="panel-title">
+				<a data-toggle="collapse" data-parent="#settings_accordions" href="#collapse_subtab_fields">
+					Mandatory Fields<span class="glyphicon glyphicon-plus"></span>
+				</a>
+			</h4>
+		</div>
+
+		<div id="collapse_subtab_fields" class="panel-collapse collapse">
+			<div class="panel-body" data-file="field_config_mandatory_fields.php">
+				Loading...
+			</div>
+		</div>
+	</div>
+
 	<div class="panel panel-default">
 		<div class="panel-heading">
 			<h4 class="panel-title">
@@ -232,6 +249,7 @@ function loadPanel() {
         <a href="?settings=titles"><li class="<?= $_GET['settings'] == 'titles' ? 'active blue' : '' ?>">Titles</li></a>
         <a href="?settings=tabs"><li class="<?= $_GET['settings'] == 'tabs' ? 'active blue' : '' ?>">Contact Categories</li></a>
         <a href="?settings=fields"><li class="<?= $_GET['settings'] == 'fields' ? 'active blue' : '' ?>">Fields</li></a>
+				<a href="?settings=mandatory_fields"><li class="<?= $_GET['settings'] == 'mandatory_fields' ? 'active blue' : '' ?>">Mandatory Fields</li></a>
         <a href="?settings=subtab_sort_order"><li class="<?= $_GET['settings'] == 'subtab_sort_order' ? 'active blue' : '' ?>">Subtab Sort Order</li></a>
         <a href="?settings=dashboard"><li class="<?= $_GET['settings'] == 'dashboard' ? 'active blue' : '' ?>">Dashboard</li></a>
         <a href="?settings=summary"><li class="<?= $_GET['settings'] == 'summary' ? 'active blue' : '' ?>">Summary</li></a>
@@ -284,6 +302,9 @@ function loadPanel() {
 			break;
 		case 'fields':
 			include('field_config_fields.php');
+			break;
+		case 'mandatory_fields':
+			include('field_config_mandatory_fields.php');
 			break;
 		case 'subtab_sort_order':
 			include('field_config_subtab_sort_order.php');

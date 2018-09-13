@@ -113,13 +113,13 @@ if($num_rows > 0) {
 	    }
 	    if (strpos($value_config, ','."Category".',') !== FALSE) {
 	    echo '<div class="col-sm-6">
-			<label class="col-sm-4">Category:</label>
+			<label class="col-sm-4">Tab:</label>
 			<div class="col-sm-8">' . $row['category'] . '</div>
 		</div>';
 	    }
 	    if (strpos($value_config, ','."Type".',') !== FALSE) {
 	    echo '<div class="col-sm-6">
-			<label class="col-sm-4">Type:</label>
+			<label class="col-sm-4">Tab:</label>
 			<div class="col-sm-8">' . $row['type'] . '</div>
 		</div>';
 	    }
@@ -204,14 +204,14 @@ if($num_rows > 0) {
 
 	    if (strpos($value_config, ','."Fuel Type".',') !== FALSE) {
 	    echo '<div class="col-sm-6">
-			<label class="col-sm-4">Fuel Type:</label>
+			<label class="col-sm-4">Fuel Tab:</label>
 			<div class="col-sm-8">' . $row['fuel_type'] . '</div>
 		</div>';
 	    }
 
 	    if (strpos($value_config, ','."Tire Type".',') !== FALSE) {
 	    echo '<div class="col-sm-6">
-			<label class="col-sm-4">Tire Type:</label>
+			<label class="col-sm-4">Tire Tab:</label>
 			<div class="col-sm-8">' . $row['tire_type'] . '</div>
 		</div>';
 	    }

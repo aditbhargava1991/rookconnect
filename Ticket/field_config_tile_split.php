@@ -79,7 +79,7 @@ do {
             <div class="col-sm-9"><input type="text" name="noun" class="form-control" value="<?= $tile_list[1] ?>"></div>
         </div>
         <div class="col-sm-12 type_lists block-group">
-            <h4><?= TICKET_NOUN ?> Types</h4>
+            <h4><?= TICKET_NOUN ?> Tabs</h4>
             <?php foreach(array_filter($type_list) as $type) { ?>
                 <div class="type-option col-sm-12 block-element" data-type="<?= $type ?>"><?= $type_labels[$type] ?><img class="drag-handle inline-img pull-right" src="../img/icons/drag_handle.png"></div>
             <?php } ?>
@@ -87,7 +87,7 @@ do {
     </div>
 <?php } while($tile_list = $tile_lists->fetch_assoc()['value']); ?>
 <div class="col-sm-6 type_lists block-group">
-    <h4>Unassigned <?= TICKET_NOUN ?> Types</h4>
+    <h4>Unassigned <?= TICKET_NOUN ?> Tabs</h4>
     <?php foreach($ticket_tabs as $type) {
         if(!in_array(config_safe_str($type),$assigned_types)) { ?>
             <div class="type-option col-sm-12 block-element" data-type="<?= config_safe_str($type) ?>"><?= $type ?><img class="drag-handle inline-img pull-right" src="../img/icons/drag_handle.png"></div>
