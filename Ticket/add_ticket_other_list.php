@@ -7,7 +7,7 @@ do {
 			<?php foreach($field_sort_order as $field_sort_field) { ?>
 				<?php if(strpos($value_config,',Other Type,') !== FALSE && $field_sort_field == 'Other Type') { ?>
 					<div class="form-group">
-						<label class="control-label col-sm-4">Type:</label>
+						<label class="control-label col-sm-4">Tab:</label>
 						<div class="col-sm-7 select-div">
 							<select name="item_id" data-table="ticket_attached" data-id="<?= $other['id'] ?>" data-id-field="id" data-type="other_list" data-type-field="src_table" class="chosen-select-deselect"><option></option>
 								<?php $other_descriptions = mysqli_query($dbc, "SELECT `description` FROM `ticket_attached` WHERE `deleted`=0 AND `src_table`='other_list' GROUP BY `description` ORDER BY `description`");
@@ -62,7 +62,7 @@ do {
 			<?php foreach($field_sort_order as $field_sort_field) { ?>
 				<?php if(strpos($value_config,',Other Type,') !== FALSE && $field_sort_field == 'Other Type') { ?>
 					<div class="form-group">
-						<label class="control-label col-sm-4">Type:</label>
+						<label class="control-label col-sm-4">Tab:</label>
 						<div class="col-sm-8"><?= $other['description'] ?></div>
 					</div>
 					<?php $pdf_contents[] = ['Type', $other['description']]; ?>

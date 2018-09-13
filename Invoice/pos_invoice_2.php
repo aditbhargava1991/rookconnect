@@ -150,8 +150,8 @@ $html = '';
 
 $html .= '<br><br><br><br><br><p style="text-align:left;">'.decryptIt($customer['name']).' '.decryptIt($customer['first_name']).' '.decryptIt($customer['last_name']).'<br>'.$customer['business_address'].'<br>'.$customer['city'].', '.$customer['state'].' '.$customer['zip_code'].'<br>'.decryptIt($customer['cell_phone']).'<br>'.decryptIt($customer['email_address']).'<br>';
 
-if ( !empty($customer['referred_by']) ) {
-    $html .= 'Reference: '.$customer['referred_by'].'<br><br>';
+if ( !empty($get_invoice['reference']) ) {
+    $html .= 'Reference: '.$get_invoice['reference'].'<br><br>';
 }
 
 if($client_tax_number != '') {

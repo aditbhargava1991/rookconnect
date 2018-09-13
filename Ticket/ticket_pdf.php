@@ -4,11 +4,16 @@ include_once('../Ticket/field_list.php');
 if(!file_exists('download')) {
 	mkdir('download', 0777, true);
 }
+$ticketid = filter_var($_GET['ticketid'],FILTER_SANITIZE_STRING);
 $hide_blank_fields = false;
-if(get_config($dbc, 'ticket_pdf_hide_blank') == 1 && $_GET['ticketid'] > 0) {
+if(get_config($dbc, 'ticket_pdf_hide_blank') == 1 && $ticketid > 0) {
 	$hide_blank_fields = true;
 }
-$ticketid = filter_var($_GET['ticketid'],FILTER_SANITIZE_STRING);
+if(!($ticketid > 0) && get_config($dbc, 'ticket_pdf_blank_new_id') == 1) {
+    $ticket_type = filter_var(!empty($_GET['ticket_type']) ? $_GET['ticket_type'] : get_config($dbc, 'default_ticket_type'),FILTER_SANITIZE_STRING);
+    $dbc->query("INSERT INTO `tickets` (`ticket_type`) VALUES ('$ticket_type')");
+    $ticketid = $dbc->insert_id;
+}
 $filename = "download/output_".($ticketid > 0 ? $ticketid : 'new_'.config_safe_str(TICKET_NOUN))."_".date('Y_m_d').".pdf";
 $get_ticket = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticketid`='$ticketid'"));
 if(!empty($get_ticket) && $get_ticket['ticketid'] >0) {	

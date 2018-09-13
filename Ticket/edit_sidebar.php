@@ -66,7 +66,7 @@ if($_GET['action_mode'] == 1) {
 }
 ?>
 <?php if(count($ticket_tabs) > 1 && !($_GET['action_mode'] > 0 || $_GET['overview_mode'] > 0) && $tile_security['edit'] > 0 && !($strict_view > 0)) { ?>
-	<a href="" data-tab-target="ticket_type"><li class="<?= $_GET['tab'] == 'ticket_type' ? 'active blue' : '' ?>"><?= TICKET_NOUN ?> Type</li></a>
+	<a href="" data-tab-target="ticket_type"><li class="<?= $_GET['tab'] == 'ticket_type' ? 'active blue' : '' ?>"><?= TICKET_NOUN ?> Tab</li></a>
 <?php } ?>
 <?php $current_heading = '';
 $current_heading_closed = true;
