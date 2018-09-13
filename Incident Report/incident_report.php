@@ -284,51 +284,51 @@ function setQuickActions() {
                                         echo '<tr data-id="'.$row['incidentreportid'].'" data-colour="'. $row['flag_colour'].'" data-table="incident_report" data-id-field="incidentreportid" style="'.$hidden_row.$flag_styling.'">';
 
                                         if (strpos($value_config, ','."Program".',') !== FALSE) {
-                                            echo '<td data-title="Program">'.$program.'</td>';
+                                            echo '<td style="'.$flag_styling.'" data-title="Program">'.$program.'</td>';
                                         }
                                         if (strpos($value_config, ','."Project Type".',') !== FALSE) {
-                                            echo '<td data-title="'.PROJECT_NOUN.' Type">'.$project_type.'</td>';
+                                            echo '<td style="'.$flag_styling.'" data-title="'.PROJECT_NOUN.' Type">'.$project_type.'</td>';
                                         }
                                         if (strpos($value_config, ','."Project".',') !== FALSE) {
-                                            echo '<td data-title="'.PROJECT_NOUN.'">'.$project.'</td>';
+                                            echo '<td style="'.$flag_styling.'" data-title="'.PROJECT_NOUN.'">'.$project.'</td>';
                                         }
                                         if (strpos($value_config, ','."Ticket".',') !== FALSE) {
-                                            echo '<td data-title="'.TICKET_NOUN.'">'.$ticket.'</td>';
+                                            echo '<td style="'.$flag_styling.'" data-title="'.TICKET_NOUN.'">'.$ticket.'</td>';
                                         }
                                         if (strpos($value_config, ','."Member".',') !== FALSE) {
-                                            echo '<td data-title="Member">'.$member_list.'</td>';
+                                            echo '<td style="'.$flag_styling.'" data-title="Member">'.$member_list.'</td>';
                                         }
                                         if (strpos($value_config, ','."Client".',') !== FALSE) {
-                                            echo '<td data-title="Client">'.$client_list.'</td>';
+                                            echo '<td style="'.$flag_styling.'" data-title="Client">'.$client_list.'</td>';
                                         }
                                         if (strpos($value_config, ','."Type".',') !== FALSE) {
-                                            echo '<td data-title="Type">' . $row['type'] . '</td>';
+                                            echo '<td style="'.$flag_styling.'" data-title="Type">' . $row['type'] . '</td>';
                                         }
                                         if (strpos($value_config, ','."Staff".',') !== FALSE) {
-                                            echo '<td data-title="Staff">' . $contact_name . '</td>';
+                                            echo '<td style="'.$flag_styling.'" data-title="Staff">' . $contact_name . '</td>';
                                         }
                                         if (strpos($value_config, ','."Follow Up".',') !== FALSE) {
                                             if($row['type'] == 'Near Miss') {
-                                                echo '<td data-title="Follow Up">N/A</td>';
+                                                echo '<td style="'.$flag_styling.'" data-title="Follow Up">N/A</td>';
                                             } else {
-                                                echo '<td data-title="Follow Up">' . $row['ir14'] . '</td>';
+                                                echo '<td style="'.$flag_styling.'" data-title="Follow Up">' . $row['ir14'] . '</td>';
                                             }
                                         }
                                         if (strpos($value_config, ','."Date of Happening".',') !== FALSE) {
-                                            echo '<td data-title="Date of Happening">' . $row['date_of_happening'] . '</td>';
+                                            echo '<td style="'.$flag_styling.'" data-title="Date of Happening">' . $row['date_of_happening'] . '</td>';
                                         }
                                         if (strpos($value_config, ','."Date of Incident".',') !== FALSE) {
-                                            echo '<td data-title="Date of Incident">' . $row['incident_date'] . '</td>';
+                                            echo '<td style="'.$flag_styling.'" data-title="Date of Incident">' . $row['incident_date'] . '</td>';
                                         }
                                         if (strpos($value_config, ','."Date Created".',') !== FALSE) {
-                                            echo '<td data-title="Date Created">' . $row['today_date'] . '</td>';
+                                            echo '<td style="'.$flag_styling.'" data-title="Date Created">' . $row['today_date'] . '</td>';
                                         }
                                         if (strpos($value_config, ','."Location".',') !== FALSE) {
-                                            echo '<td data-title="Location">' . $row['location'] . '</td>';
+                                            echo '<td style="'.$flag_styling.'" data-title="Location">' . $row['location'] . '</td>';
                                         }
                                         if (strpos($value_config, ','."PDF".',') !== FALSE) {
                                             $name_of_file = 'incident_report_'.$row['incidentreportid'].'.pdf';
-                        					echo '<td data-title="PDF">'.(file_exists('download/'.$name_of_file) ? '<a href="download/'.$name_of_file.'" target="_blank" ><img src="'.WEBSITE_URL.'/img/pdf.png" width="16" height="16" border="0" alt="View">View</a>' : '');
+                        					echo '<td style="'.$flag_styling.'" data-title="PDF">'.(file_exists('download/'.$name_of_file) ? '<a href="download/'.$name_of_file.'" target="_blank" ><img src="'.WEBSITE_URL.'/img/pdf.png" width="16" height="16" border="0" alt="View">View</a>' : '');
                                             if ($row['revision_number'] > 0) {
                                                 $revision_dates = explode('*#*', $row['revision_date']);
                                                 for ($i = 0; $i < $row['revision_number']; $i++) {
@@ -341,13 +341,13 @@ function setQuickActions() {
                                             echo '</td>';
                                         }
                                         if(vuaed_visible_function($dbc, 'incident_report') == 1) {
-                                            echo '<td data-title="Function">';
+                                            echo '<td style="'.$flag_styling.'" data-title="Function">';
                     						echo '<a href=\'add_incident_report.php?type='.$row['type'].'&incidentreportid='.$row['incidentreportid'].'\'>Edit</a> | ';
                     						echo '<a href=\'../delete_restore.php?action=delete&incidentreportid='.$row['incidentreportid'].'\' onclick="return confirm(\'Are you sure?\')">Archive</a>';
                                             echo '</td>';
 
                                             if(!empty(array_filter($quick_action_icons))) {
-                                                echo '<td data-title="Quick Actions">';
+                                                echo '<td style="'.$flag_styling.'" data-title="Quick Actions">';
                                                 echo '<span class="flag-label">'.$flag_label.'</span><div class="clearfix"></div>';
                                                 echo '<div class="action-icons pull-left">';
                                                 echo (in_array('flag_manual',$quick_action_icons) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-flag-icon.png" class="inline-img manual-flag-icon no-toggle" title="Flag This!">' : '');

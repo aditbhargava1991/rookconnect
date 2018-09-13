@@ -119,6 +119,7 @@ if(isset($_POST['submit'])) {
             <script>
             $(window.top.document).find('.flag_target').data('colour','<?= $flag_colour ?>');
             $(window.top.document).find('.flag_target').css('background-color','<?= empty($flag_colour) ? '' : '#'.$flag_colour ?>');
+            $(window.top.document).find('.flag_target').find('td').css('background-color','<?= empty($flag_colour) ? '' : '#'.$flag_colour ?>');
             $(window.top.document).find('.flag_target').find('.flag-label').text('<?= $flag_label ?>');
             $(window.top.document).find('.flag-label-block').find('.flag-label').text('<?= !empty($flag_label) ? ': '.$flag_label : '' ?>');
             $(window.top.document).find('.flag_target').removeClass('flag_target');
