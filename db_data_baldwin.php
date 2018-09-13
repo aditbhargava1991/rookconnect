@@ -742,5 +742,11 @@
     }
     //2018-09-07 - Ticket #9008 - Stat Pay
 
+    //2018-09-13 - Ticket #8978 - Washroom Support
+    if(!mysqli_query($dbc, "ALTER TABLE `key_methodologies` ADD `toileting_info` text AFTER `toileting`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-09-13 - Ticket #8978 - Washroom Support
+
     echo "Baldwin's DB Changes Done<br />\n";
 ?> 
