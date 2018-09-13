@@ -161,7 +161,7 @@ if($_GET['type'] == 'schedule') {
 //Table data
 $contact_id = $mobile_calendar_contact;
 $column_id = 0;
-for($cur_day = $first_day; strtotime($cur_day) <= strtotime($last_day); $cur_day = date('Y-m-d', strtotime($cur_day.'+ 1 day'))) {
+for($cur_day = date('Y-m-d',strtotime($first_day.'- 1 day')); strtotime($cur_day) <= strtotime($last_day); $cur_day = date('Y-m-d', strtotime($cur_day.'+ 1 day'))) {
     $calendar_date = date('Y-m-d', strtotime($cur_day));
     $day_of_week = date('l', strtotime($calendar_date));
     $_POST['config_type'] = $config_type;
@@ -188,10 +188,15 @@ $current_row = strtotime($day_start);
 $appointment_calendar = 'mobile';
 $calendar_table[0][0] = [];
 $calendar_table[0][0]['title'] = "Time";
+if(!empty($use_shifts)) {
+	$calendar_table[0][0]['shifts'] = "Shifts";
+}
 if(get_config($dbc, $calendar_config.'_calendar_notes') == '1') { $calendar_table[0][0]['notes'] = "Notes"; }
 if(get_config($dbc, $calendar_config.'_reminders') == '1') { $calendar_table[0][0]['reminders'] = "Reminders"; }
 $calendar_table[0][0]['warnings'] = "Warnings";
 while($current_row <= strtotime($day_end)) {
 	$calendar_table[0][0][] = date('g:i a', $current_row);
 	$current_row = strtotime('+'.$day_period.' minutes', $current_row);
-} ?>
+}
+unset($calendar_table[date('Y-m-d',strtotime($first_day.'- 1 day'))]);
+?>

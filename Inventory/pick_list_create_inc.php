@@ -89,7 +89,7 @@ if($_POST['save'] == 'save' || !empty($_POST['get_all'])) {
 	$pick_list_filters = array_filter(explode(',',get_config($dbc, 'pick_list_filters')));
 	$html .= '<table style="width:100%;">
 		<tr>
-			'.(in_array('category',$pick_list_filters) ? '<th>Category</th>' : '').'
+			'.(in_array('category',$pick_list_filters) ? '<th>Tab</th>' : '').'
 			'.(in_array('ticket_po',$pick_list_filters) ? '<th>Purchase Order #</th>' : '').'
 			'.(in_array('ticket',$pick_list_filters) ? '<th>'.TICKET_NOUN.'</th>' : '').'
 			'.(in_array('ticket_customer_order',$pick_list_filters) ? '<th>Customer Order #</th>' : '').'
@@ -577,7 +577,7 @@ $mandatory_fields = explode(',',get_config($dbc, 'pick_list_mandatory')); ?>
 			<div class="hide-titles-mob">
 				<div class="col-sm-<?= in_array('display_all',$pick_list_filters) ? 7 : 8 ?>">
 					<?php if(in_array('category',$pick_list_filters)) { ?>
-						<div class="col-sm-<?= $filter_cols ?>"><?= INVENTORY_NOUN ?> Category</div>
+						<div class="col-sm-<?= $filter_cols ?>"><?= INVENTORY_NOUN ?> Tab</div>
 					<?php } ?>
 					<?php if(in_array('ticket_po',$pick_list_filters)) { ?>
 						<div class="col-sm-<?= $filter_cols ?>">Purchase Order #</div>
@@ -618,9 +618,9 @@ $mandatory_fields = explode(',',get_config($dbc, 'pick_list_mandatory')); ?>
 					<div class="col-sm-<?= in_array('display_all',$pick_list_filters) ? 7 : 8 ?>">
 						<?php if(in_array('category',$pick_list_filters)) { ?>
 							<div class="col-sm-<?= $filter_cols ?>">
-								<span class="show-on-mob"><?= INVENTORY_NOUN ?> Category: </span>
+								<span class="show-on-mob"><?= INVENTORY_NOUN ?> Tab: </span>
 								<?php if($inv_security['edit'] > 0) { ?>
-									<select name="filter_category" class="chosen-select-deselect" data-placeholder="Select Category"><option />
+									<select name="filter_category" class="chosen-select-deselect" data-placeholder="Select Tab"><option />
 										<?php if($item['category'] != '') { ?>
 											<option selected value="<?= $item['category'] ?>" ><?= $item['category'] ?></option>
 										<?php } ?>

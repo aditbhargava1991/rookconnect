@@ -141,7 +141,6 @@
                 <tr class="hidden-xs hidden-sm">
                     <th style="width:25em;">Staff Name</th>
                     <th>Security Level</th>
-                    <th>Effective Privileges</th>
                     <?= count($region_list) > 0 ? '<th>Allowed Regions</th>' : '' ?>
                     <?= count($location_list) > 0 ? '<th>Allowed Locations</th>' : '' ?>
                     <?= count($classification_list) > 0 ? '<th>Allowed Classifications</th>' : '' ?>
@@ -171,7 +170,6 @@
 							<?php } ?>
 						</select>
 					</td>
-					<td data-title="Effective Privileges">View</td>
 					<?php if(count($region_list) > 0) { ?>
 						<td data-title="Allowed Regions">
 							<select name="regions[]" multiple id="<?= $row['contactid'] ?>" data-placeholder="Select Allowed Regions" class="regions chosen-select-deselect form-control">

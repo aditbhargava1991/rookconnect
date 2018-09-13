@@ -159,22 +159,20 @@ if($id_card_fields == '') {
         <?php } ?>
         <?php if(in_array('POS Credit', $id_card_fields)) {
             $patient = mysqli_fetch_assoc ( mysqli_query ( $dbc, "SELECT `amount_credit` FROM `contacts` WHERE `contactid`='$contactid'" ) );
-            $patient_ar = empty($patient['patient_ar']) ? '0.00' : $patient['patient_ar'];
-            $patient_ar = explode('.', $patient_ar); ?>
+            $patient_ar = empty($patient['amount_credit']) ? 0 : $patient['amount_credit']; ?>
             <div class="col-xs-6 col-sm-4 col-md-3 col-lg-2 gap-top">
                 <div class="summary-block">
-                    <span class="text-lg"><?= '$'.$patient_ar[0].'.<sup>'.$patient_ar[1].'</sup>' ?></span><br />
+                    <span class="text-lg"><?= '$'.floor($patient_ar).'.<sup>'.sprintf("%02d",($patient_ar * 100 % 100)).'</sup>' ?></span><br />
                     Credit<br />On Account
                 </div>
             </div>
         <?php } ?>
         <?php if(in_array('POS Balance', $id_card_fields)) {
             $patient = mysqli_fetch_assoc ( mysqli_query ( $dbc, "SELECT `amount_owing` FROM `contacts` WHERE `contactid`='$contactid'" ) );
-            $patient_ar = empty($patient['patient_ar']) ? '0.00' : $patient['patient_ar'];
-            $patient_ar = explode('.', $patient_ar); ?>
+            $patient_ar = empty($patient['amount_owing']) ? 0 : $patient['amount_owing']; ?>
             <div class="col-xs-6 col-sm-4 col-md-3 col-lg-2 gap-top">
                 <div class="summary-block">
-                    <span class="text-lg"><?= '$'.$patient_ar[0].'.<sup>'.$patient_ar[1].'</sup>' ?></span><br />
+                    <span class="text-lg"><?= '$'.floor($patient_ar).'.<sup>'.sprintf("%02d",($patient_ar * 100 % 100)).'</sup>' ?></span><br />
                     Account<br />Balance
                 </div>
             </div>
@@ -198,7 +196,7 @@ if($id_card_fields == '') {
         <div class="col-sm-6">
             <ul class="chained-list col-sm-6 small">
                 <?php if($contact['contactimage'] != '' && file_exists($contact_url.'download/'.$contact['contactimage'])) { ?><li style="text-align: center;"><img src="<?= $contact_url ?>download/<?= $contact['contactimage'] ?>" style="max-width: 200px; max-height: 200px;"></li><?php } ?>
-                <?php if(in_array_any(['Sales Lead'], $id_card_fields) && in_array($contact['category'],explode(',',get_config($dbc, 'lead_all_contact_cat').',Sales Lead,Sales Leads,'))) {
+          			<?php if((in_array_any(['Sales Lead'], $id_card_fields) || in_array($contact['category'],['Sales Lead','Sales Leads'])) && in_array($contact['category'],explode(',',get_config($dbc, 'lead_all_contact_cat').',Sales Lead,Sales Leads,'))) {
                     $sales_lead_id = $dbc->query("SELECT `salesid` FROM `sales` WHERE `deleted`=0 AND CONCAT(',',`contactid`,',') LIKE '%,".$contactid.",%'")->fetch_assoc()['salesid'];
                     if($sales_lead_id > 0) { ?>
                         <li><img src="../img/person.PNG" class="dashboard-profile-icon" title="Sales Lead"><a href="../Sales/sale.php?p=details&id=<?= $sales_lead_id ?>" onclick="overlayIFrameSlider(this.href,'80%',true,true); return false;">Sales Lead #<?= $sales_lead_id ?></a></li>

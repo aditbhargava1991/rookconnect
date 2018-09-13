@@ -12,6 +12,18 @@ $include_blanks = true;
 $row_item = 0;
 $inventory_fields = explode(',',$dbc->query("SELECT GROUP_CONCAT(DISTINCT `inventory` SEPARATOR ',') `fields` FROM `field_config_inventory`")->fetch_assoc()['fields']);
 do {
+	if(strpos($value_config,',Inventory General Weight Convert KG to LB,') !== FALSE) {
+		$general_inventory['weight_units'] = explode('#*#',$general_inventory['weight_units']);
+		$general_inventory['weight'] = explode('#*#',$general_inventory['weight']);
+		foreach($general_inventory['weight'] as $id => $general_weight) {
+			if($general_inventory['weight_units'][$id] == 'kg' && $general_weight > 0) {
+				$general_inventory['weight'][$id] = number_format(($general_inventory['weight'][$id]*2.20462262185),2);
+				$general_inventory['weight_units'][$id] = 'lbs';
+			}
+		}
+		$general_inventory['weight_units'] = implode('#*#',$general_inventory['weight_units']);
+		$general_inventory['weight'] = implode('#*#',$general_inventory['weight']);
+	}
 	if(!($general_item['piece_num'] > 0)) {
 		$general_item['piece_num'] = 1;
 	}
@@ -26,6 +38,20 @@ do {
 			$inventory = mysqli_fetch_assoc($inventory_list);
 			$line_item = 0;
 			do {
+				if(strpos($value_config,',Inventory General Weight Convert KG to LB,') !== FALSE) {
+					if($inventory['weight_units'] == 'kg' && $inventory['weight'] > 0) {
+						$inventory['weight'] = number_format(($inventory['weight']*2.20462262185),2);
+						$inventory['weight_units'] = 'lbs';
+					}
+					if($inventory['net_units'] == 'kg' && $inventory['net_weight'] > 0) {
+						$inventory['net_weight'] = number_format(($inventory['net_weight']*2.20462262185),2);
+						$inventory['net_units'] = 'lbs';
+					}
+					if($inventory['gross_units'] == 'kg' && $inventory['gross_weight'] > 0) {
+						$inventory['gross_weight'] = number_format(($inventory['gross_weight']*2.20462262185),2);
+						$inventory['gross_units'] = 'lbs';
+					}
+				}
 				if($line_item++ > 0) {
 					echo '<hr />';
 				}
@@ -37,9 +63,9 @@ do {
 						<?php foreach($field_sort_order as $field_sort_field) { ?>
 							<?php if(strpos($value_config,',Inventory Detail Category,') !== FALSE && $field_sort_field == 'Inventory Detail Category') { ?>
 								<div class="form-group select-div" <?= $general_inventory['description'] == '' || $inventory['category'] != '' ? '' : 'style="display:none;"' ?>>
-									<label class="control-label col-sm-4">Category:</label>
+									<label class="control-label col-sm-4">Tab:</label>
 									<div class="col-sm-8"><div class="col-sm-12">
-										<select name="inv_category" data-placeholder="Select a Category" class="chosen-select-deselect"><option></option>
+										<select name="inv_category" data-placeholder="Select a Tab" class="chosen-select-deselect"><option></option>
 											<?php $groups = mysqli_query($dbc, "SELECT `category` FROM `inventory` WHERE `deleted`=0 GROUP BY `category` ORDER BY `category`");
 											while($category = mysqli_fetch_assoc($groups)) { ?>
 												<option <?= $inventory['category'] == $category['category'] ? 'selected' : '' ?> value="<?= $category['category'] ?>"><?= $category['category'] ?></option>
@@ -50,7 +76,7 @@ do {
 								<?php $sub_cats = mysqli_query($dbc, "SELECT `category`, `sub_category` FROM `inventory` WHERE IFNULL(`sub_category`,'') != '' GROUP BY `sub_category` ORDER BY `sub_category`");
 								if(mysqli_num_rows($sub_cats) > 0) { ?>
 									<div class="form-group select-div" <?= $general_inventory['description'] == '' || $inventory['sub_category'] != '' ? '' : 'style="display:none;"' ?>>
-										<label class="control-label col-sm-4">Sub-Category:</label>
+										<label class="control-label col-sm-4">Sub-Tab:</label>
 										<div class="col-sm-8"><div class="col-sm-12">
 											<select name="inv_sub" data-placeholder="Select a Sub-Category" class="chosen-select-deselect"><option></option>
 												<?php while($sub_cat = mysqli_fetch_assoc($sub_cats)) { ?>
@@ -89,9 +115,9 @@ do {
 								<?php } ?>
 								<?php if(in_array('Category',$inventory_fields)) { ?>
 									<div class="form-group" <?= $general_inventory['description'] == '' || $inventory['category'] != '' ? '' : 'style="display:none;"' ?>>
-										<label class="control-label col-sm-4">Category:</label>
+										<label class="control-label col-sm-4">Tab:</label>
 										<div class="col-sm-8"><div class="col-sm-12">
-											<select name="category" data-placeholder="Select a Category..." data-table="inventory" data-id="<?= $inventory['item_id'] ?>" data-id-field="inventoryid" class="chosen-select-deselect"><option></option>
+											<select name="category" data-placeholder="Select a Tab..." data-table="inventory" data-id="<?= $inventory['item_id'] ?>" data-id-field="inventoryid" class="chosen-select-deselect"><option></option>
 												<?php $groups = mysqli_query($dbc, "SELECT `category` FROM `inventory` WHERE `deleted`=0 GROUP BY `category` ORDER BY `category`");
 												while($category = mysqli_fetch_assoc($groups)) { ?>
 													<option <?= $inventory['category'] == $category['category'] ? 'selected' : '' ?> value="<?= $category['category'] ?>"><?= $category['category'] ?></option>
@@ -183,7 +209,7 @@ do {
 													<input name="brand" data-table="inventory" data-id="" data-id-field="inventoryid" class="form-control" placeholder="Enter Brand...">
 												<?php } ?>
 												<?php if(in_array('Category',$inventory_fields)) { ?>
-													<input name="category" data-table="inventory" data-id="" data-id-field="inventoryid" class="form-control" placeholder="Enter Category...">
+													<input name="category" data-table="inventory" data-id="" data-id-field="inventoryid" class="form-control" placeholder="Enter Tab">
 												<?php } ?>
 												<?php if(in_array('Description',$inventory_fields)) { ?>
 													<input name="description" data-table="inventory" data-id="" data-id-field="inventoryid" class="form-control" placeholder="Enter Description...">
@@ -223,7 +249,7 @@ do {
 							<?php } ?>
 							<?php if(strpos($value_config,',Inventory Detail Piece Type,') !== FALSE && $field_sort_field == 'Inventory Detail Piece Type') { ?>
 								<div class="form-group" <?= $general_inventory['description'] == '' || $inventory['piece_type'] != '' ? '' : 'style="display:none;"' ?>>
-									<label class="control-label col-sm-4">Piece Type:</label>
+									<label class="control-label col-sm-4">Piece Tab:</label>
 									<div class="col-sm-8"><div class="col-sm-12">
 										<?php if(count($piece_types) > 0) { ?>
 											<select name="piece_type" data-placeholder="Package details (e.g. box/skid etc.)..." data-table="ticket_attached" data-id="<?= $inventory['id'] ?>" data-id-field="id" data-type="inventory" data-type-field="src_table" data-attach="<?= $general_item['id'] ?>" data-attach-field="line_id" data-detail="<?= $i ?>" data-detail-field="piece_num" class="chosen-select-deselect"><option></option>
@@ -523,7 +549,7 @@ do {
 					<?php foreach($field_sort_order as $field_sort_field) { ?>
 						<?php if(strpos($value_config,',Inventory Detail Category,') !== FALSE && $field_sort_field == 'Inventory Detail Category') { ?>
 							<div class="form-group select-div" <?= $general_inventory['description'] == '' || $inventory['category'] != '' ? '' : 'style="display:none;"' ?>>
-								<label class="control-label col-sm-4">Category:</label>
+								<label class="control-label col-sm-4">Tab:</label>
 								<div class="col-sm-8">
 										<?= $inventory['category'] ?>
 								</div>
@@ -532,7 +558,7 @@ do {
 							<?php $sub_cats = mysqli_query($dbc, "SELECT `category`, `sub_category` FROM `inventory` WHERE IFNULL(`sub_category`,'') != '' GROUP BY `sub_category` ORDER BY `sub_category`");
 							if(mysqli_num_rows($sub_cats) > 0) { ?>
 								<div class="form-group select-div" <?= $general_inventory['description'] == '' || $inventory['sub_category'] != '' ? '' : 'style="display:none;"' ?>>
-									<label class="control-label col-sm-4">Sub-Category:</label>
+									<label class="control-label col-sm-4">Sub-Tab:</label>
 									<div class="col-sm-8">
 										<?= $inventory['sub_category'] ?>
 									</div>
@@ -571,7 +597,7 @@ do {
 							<?php } ?>
 							<?php if(in_array('Category',$inventory_fields)) { ?>
 								<div class="form-group" <?= $general_inventory['description'] == '' || $inventory['category'] != '' ? '' : 'style="display:none;"' ?>>
-									<label class="control-label col-sm-4">Category:</label>
+									<label class="control-label col-sm-4">Tab:</label>
 									<div class="col-sm-8"><div class="col-sm-12">
 										<?= $inventory['category'] ?>
 									</div></div>
@@ -664,7 +690,7 @@ do {
 						<?php } ?>
 						<?php if(strpos($value_config,',Inventory Detail Piece Type,') !== FALSE && $field_sort_field == 'Inventory Detail Piece Type') { ?>
 							<div class="form-group" <?= $general_inventory['description'] == '' || $inventory['piece_type'] != '' ? '' : 'style="display:none;"' ?>>
-								<label class="control-label col-sm-4">Piece Type:</label>
+								<label class="control-label col-sm-4">Piece Tab:</label>
 								<div class="col-sm-8">
 									<?= $inventory['piece_type'] ?>
 								</div>

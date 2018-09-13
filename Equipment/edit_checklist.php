@@ -147,11 +147,11 @@ function changeSecurity(sel) {
 				<?php if(strpos($value_config,',Category,') !== FALSE): ?>
 					<div class="form-group clearfix">
 						<label for="first_name" class="col-sm-4 control-label text-right">
-							<span class="popover-examples list-inline" style="margin:0 3px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Select an equipment category to attach the checklist to it."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
-							Equipment Category:
+							<span class="popover-examples list-inline" style="margin:0 3px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Select an equipment tab to attach the checklist to it."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
+							Equipment Tab:
 						</label>
 						<div class="col-sm-8">
-							<select data-placeholder="Select a Category of Equipment" name="category" class="chosen-select-deselect form-control" width="380">
+							<select data-placeholder="Select a Tab of Equipment" name="category" class="chosen-select-deselect form-control" width="380">
 								<option value=""></option>
 								<?php $tabs = get_config($dbc, 'equipment_tabs');
 								$each_tab = explode(',', $tabs);
@@ -168,10 +168,10 @@ function changeSecurity(sel) {
 					<div class="form-group clearfix">
 						<label for="first_name" class="col-sm-4 control-label text-right">
 							<span class="popover-examples list-inline" style="margin:0 3px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Select an equipment type to attach the checklist to it."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
-							Equipment Type:
+							Equipment Tab:
 						</label>
 						<div class="col-sm-8">
-							<select data-placeholder="Select a Type of Equipment" name="type" class="chosen-select-deselect form-control" width="380">
+							<select data-placeholder="Select a Tab of Equipment" name="type" class="chosen-select-deselect form-control" width="380">
 								<option value=""></option>
 								<?php $result = mysqli_query($dbc, "SELECT distinct(type) FROM equipment");
 								while($row = mysqli_fetch_assoc($result)) {

@@ -101,7 +101,7 @@ function saveFields() {
          <div class="form-group">
             <label for="company_name" class="col-sm-4 control-label"><span class="popover-examples list-inline"><a style="margin:0 5px 0 0;" data-toggle="tooltip" data-placement="top" title="Select the Contact category a Sales Lead will convert to upon successful closure."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span> Successful Sales Lead:</label>
             <div class="col-sm-8"><?php
-                $contacts_tabs = explode(',',get_config($dbc, 'contacts_tabs'));
+                $contacts_tabs = array_filter(explode(',',get_config($dbc, 'contacts_tabs')));
                 $lead_convert_to = get_config($dbc, 'lead_convert_to'); ?>
                 <select name="lead_convert_to" class="form-control">
                     <option value="">Select Contact Category</option><?php

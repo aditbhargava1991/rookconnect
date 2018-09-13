@@ -90,7 +90,7 @@ if(isset($_POST['upload_file']) && !empty($_FILES['csv_file']['tmp_name'])) {
 		<li>Upload your CSV file using the File Uploader.</li>
 		<li>Specify whether to combine the SKU Descriptions using a comma or separated by new line. (NOTE: New line sometimes doesn't display properly depending on the CSV viewer you are using. If this doesn't work, use the comma separator).</li>
 		<li>Select the business to which the deliveries will be attached.</li>
-		<li>Press the Submit button to run the macro and generate the new CSV file.</li>
+		<li>Press the Submit button to run the macro and import the <?= TICKET_TILE ?> into the software.</li>
 		<br>
 		<p>
 			<label class="form-checkbox"><input type="radio" name="delimiter" value="newline" checked>New Line</label>
