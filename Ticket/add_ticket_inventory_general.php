@@ -297,7 +297,7 @@ do {
 							</div>
 							<div class="col-sm-6">
 								<?php if(count($piece_types) > 0) { ?>
-									<select name="piece_type" data-placeholder="Select Piece Type" data-table="ticket_attached" data-id="<?= $general_inventory['id'] ?>" data-id-field="id" data-type="inventory_general" data-type-field="src_table" class="chosen-select-deselect"><option></option>
+									<select name="piece_type" data-placeholder="Select Piece Tab" data-table="ticket_attached" data-id="<?= $general_inventory['id'] ?>" data-id-field="id" data-type="inventory_general" data-type-field="src_table" class="chosen-select-deselect"><option></option>
 										<?php foreach($piece_types as $piece_type_name) { ?>
 											<option <?= $general_inventory['piece_type'] == $piece_type_name ? 'selected' : '' ?> value="<?= $piece_type_name ?>"><?= $piece_type_name ?></option>
 										<?php } ?>
@@ -334,10 +334,10 @@ do {
 				<?php } ?>
 				<?php if(strpos($value_config,',Inventory General Piece Type,') !== FALSE && $field_sort_field == 'Inventory General Piece Type') { ?>
 					<div class="form-group" <?= $general_inventory['description'] == '' || $general_inventory['piece_type'] != '' ? '' : 'style="display:none;"' ?>>
-						<label class="control-label col-sm-4">Piece Type:</label>
+						<label class="control-label col-sm-4">Piece Tab:</label>
 						<div class="col-sm-8"><div class="col-sm-12">
 							<?php if(count($piece_types) > 0) { ?>
-								<select name="piece_type" data-placeholder="Select Type" data-table="ticket_attached" data-id="<?= $general_inventory['id'] ?>" data-id-field="id" data-type="inventory_general" data-type-field="src_table" class="chosen-select-deselect"><option></option>
+								<select name="piece_type" data-placeholder="Select Tab" data-table="ticket_attached" data-id="<?= $general_inventory['id'] ?>" data-id-field="id" data-type="inventory_general" data-type-field="src_table" class="chosen-select-deselect"><option></option>
 									<?php foreach($piece_types as $piece_type_name) { ?>
 										<option <?= $general_inventory['piece_type'] == $piece_type_name ? 'selected' : '' ?> value="<?= $piece_type_name ?>"><?= $piece_type_name ?></option>
 									<?php } ?>
@@ -377,6 +377,38 @@ do {
 					</div>
 					<div class="clearfix"></div>
 				<?php } ?>
+				<?php if(strpos($value_config,',Inventory General PO Number Dropdown,') !== FALSE && $field_sort_field == 'Inventory General PO Number Dropdown') { ?>
+					<div class="form-group po_num_group" <?= $general_inventory['description'] == '' || $inventory['po_num'] != '' ? '' : 'style="display:none;"' ?>>
+						<label class="control-label col-sm-4">Purchase Order #:</label>
+						<div class="col-sm-8"><div class="col-sm-12">
+							<select name="po_num" data-table="ticket_attached" data-id="<?= $general_inventory['id'] ?>" data-id-field="id" data-type="inventory_general" data-type-field="src_table" class="chosen-select-deselect form-control po_num_dropdown" value="<?= $general_inventory['po_num'] ?>">
+								<option></option>
+								<option value="MANUAL">Custom Purchase Order #</option>
+								<?php $ticket_po_list = array_filter(explode('#*#',$get_ticket['purchase_order']));
+								$po_numbers = $dbc->query("SELECT `po_num` FROM `ticket_attached` WHERE `deleted`=0 AND `ticketid` > 0 AND `src_table` IN ('inventory_general','inventory') AND `ticketid`='$ticketid' AND IFNULL(`po_num`,'') != '' GROUP BY `po_num`");
+								$po_line_list = [];
+								while($po_num_line = $po_numbers->fetch_assoc()) {
+									$po_line_list[] = $po_num_line['po_num'];
+								}
+								$po_list = array_unique(array_merge($po_line_list,$ticket_po_list));
+								sort($po_list);
+								foreach($po_list as $po_num_line) {
+									echo '<option value="'.$po_num_line.'" '.($po_num_line == $general_inventory['po_num'] ? 'selected' : '').'>'.$po_num_line.'</option>';
+								}
+								if(!in_array($general_inventory['po_num'],$po_list) && !empty($general_inventory['po_num'])) {
+									echo '<option value="'.$general_inventory['po_num'].'" selected>'.$general_inventory['po_num'].'</option>';
+								} ?>
+							</select>
+						</div></div>
+					</div>
+					<div class="form-group clearfix custom_po_num" style="display:none;">
+						<label class="control-label col-sm-4">Purchase Order #:</label>
+						<div class="col-sm-8"><div class="col-sm-12">
+							<input type="text" name="po_num" data-table="ticket_attached" data-id="<?= $general_inventory['id'] ?>" data-id-field="id" data-type="inventory_general" data-type-field="src_table" class="form-control">
+						</div></div>
+					</div>
+					<div class="clearfix"></div>
+				<?php } ?>
 				<?php if(strpos($value_config,',Inventory General PO Line Read,') !== FALSE && $field_sort_field == 'Inventory General PO Line Read') { ?>
 					<div class="form-group" <?= $general_inventory['description'] == '' || $general_inventory['po_line'] != '' ? '' : 'style="display:none;"' ?>>
 						<label class="control-label col-sm-4">Purchase Order Line Item:</label>
@@ -412,6 +444,60 @@ do {
 								<?php } ?>
 							</select>
 						</div></div>
+					</div>
+					<div class="clearfix"></div>
+				<?php } else if(strpos($value_config,',Inventory General PO Dropdown Multiple,') !== FALSE && $field_sort_field == 'Inventory General PO Dropdown Multiple') { ?>
+					<div class="form-group">
+						<label class="control-label col-sm-4">Purchase Order Line Item:</label>
+						<div class="col-sm-8 po_lines_div">
+							<?php $po_lines = explode(',', $general_inventory['po_line']);
+							foreach($po_lines as $po_line) { ?>
+								<div class="multi-block">
+									<div class="po_line_div po_line_single" <?= strpos($po_line, '-') !== FALSE ? 'style="display:none;"' : '' ?>>
+										<div class="col-sm-10">
+											<select name="po_line<?= strpos($po_line, '-') !== FALSE ? '_disabled' : '' ?>" data-table="ticket_attached" data-id="<?= $general_inventory['id'] ?>" data-id-field="id" data-type="inventory_general" data-type-field="src_table" data-concat="," class="chosen-select-deselect po_line_value"><option />
+												<?php for($i = 10; $i <= 550; $i += 10) { ?>
+													<option <?= $po_line == $i ? 'selected' : '' ?> value="<?= $i ?>"><?= $i ?></option>
+												<?php } ?>
+											</select>
+										</div>
+										<div class="col-sm-2 pull-right">
+											<img class="inline-img pull-right no-toggle theme-color-icon" onclick="rangeMultiPOLine(this);" src="../img/icons/range.png" title="Toggle Range">
+											<img class="inline-img pull-right" onclick="addMultiPOLine(this);" src="../img/icons/ROOK-add-icon.png">
+											<img class="inline-img pull-right" onclick="remMultiPOLine(this);" src="../img/remove.png">
+										</div>
+									</div>
+									<div class="clearfix"></div>
+									<div class="po_line_div po_line_range" <?= strpos($po_line, '-') !== FALSE ? '' : 'style="display:none;"' ?>>
+										<input type="hidden" name="po_line<?= strpos($po_line, '-') !== FALSE ? '' : '_disabled' ?>" data-table="ticket_attached" data-id="<?= $general_inventory['id'] ?>" data-id-field="id" data-type="inventory_general" data-type-field="src_table" data-concat="," value="<?= $po_line ?>" class="po_line_value">
+										<div class="col-sm-10">
+											<div class="col-sm-5 no-pad">
+												<select name="po_line_range_min" class="chosen-select-deselect"><option />
+													<?php for($i = 10; $i <= 550; $i += 10) { ?>
+														<option <?= explode('-',$po_line)[0] == $i ? 'selected' : '' ?> value="<?= $i ?>"><?= $i ?></option>
+													<?php } ?>
+												</select>
+											</div>
+											<div style="text-align: center;" class="col-sm-2 no-pad">
+												<label style="font-size: large;"> - </label>
+											</div>
+											<div class="col-sm-5 no-pad">
+												<select name="po_line_range_max" class="chosen-select-deselect"><option />
+													<?php for($i = 10; $i <= 550; $i += 10) { ?>
+														<option <?= explode('-',$po_line)[1] == $i ? 'selected' : '' ?> value="<?= $i ?>"><?= $i ?></option>
+													<?php } ?>
+												</select>
+											</div>
+										</div>
+										<div class="col-sm-2 pull-right">
+											<img class="inline-img pull-right no-toggle theme-color-icon" onclick="rangeMultiPOLine(this);" src="../img/icons/range.png" title="Toggle Range">
+											<img class="inline-img pull-right" onclick="addMultiPOLine(this);" src="../img/icons/ROOK-add-icon.png">
+											<img class="inline-img pull-right" onclick="remMultiPOLine(this);" src="../img/remove.png">
+										</div>
+									</div>
+								</div>
+							<?php } ?>
+						</div>
 					</div>
 					<div class="clearfix"></div>
 				<?php } ?>
@@ -591,7 +677,7 @@ do {
 		<?php } ?>
 		<?php if(strpos($value_config,',Inventory General Piece Type,') !== FALSE || strpos($value_config,',Inventory General Piece Count Type,') !== FALSE) { ?>
 			<div class="form-group" <?= $general_inventory['description'] == '' || $general_inventory['piece_type'] != '' ? '' : 'style="display:none;"' ?>>
-				<label class="control-label col-sm-4">Piece Type:</label>
+				<label class="control-label col-sm-4">Piece Tab:</label>
 				<div class="col-sm-8">
 					<?= $general_inventory['piece_type'] ?>
 				</div>
@@ -600,6 +686,16 @@ do {
 			<?php $pdf_contents[] = ['Piece Type', $general_inventory['piece_type']]; ?>
 		<?php } ?>
 		<?php if(strpos($value_config,',Inventory General PO Number,') !== FALSE) { ?>
+			<div class="form-group" <?= $general_inventory['description'] == '' || $general_inventory['po_num'] != '' ? '' : 'style="display:none;"' ?>>
+				<label class="control-label col-sm-4">Purchase Order Item:</label>
+				<div class="col-sm-8">
+					<?= $general_inventory['po_num'] ?>
+				</div>
+			</div>
+			<div class="clearfix"></div>
+			<?php $pdf_contents[] = ['Purchase Order Number', $general_inventory['po_num']]; ?>
+		<?php } ?>
+		<?php if(strpos($value_config,',Inventory General PO Number Dropdown,') !== FALSE) { ?>
 			<div class="form-group" <?= $general_inventory['description'] == '' || $general_inventory['po_num'] != '' ? '' : 'style="display:none;"' ?>>
 				<label class="control-label col-sm-4">Purchase Order Item:</label>
 				<div class="col-sm-8">
@@ -627,7 +723,7 @@ do {
 			</div>
 			<div class="clearfix"></div>
 			<?php $pdf_contents[] = ['Purchase Order Line Item', $general_inventory['po_line']]; ?>
-		<?php } else if(strpos($value_config,',Inventory General PO Line Read,') !== FALSE || strpos($value_config,',Inventory General PO Dropdown,') !== FALSE) { ?>
+		<?php } else if(strpos($value_config,',Inventory General PO Line Read,') !== FALSE || strpos($value_config,',Inventory General PO Dropdown,') !== FALSE || strpos($value_config,',Inventory General PO Dropdown Multiple,') !== FALSE) { ?>
 			<div class="form-group" <?= $general_inventory['description'] == '' || $general_inventory['po_line'] != '' ? '' : 'style="display:none;"' ?>>
 				<label class="control-label col-sm-4">Purchase Order Line Item:</label>
 				<div class="col-sm-8">

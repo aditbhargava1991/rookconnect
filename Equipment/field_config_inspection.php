@@ -112,7 +112,7 @@ $(document).ready(function() {
 	}
 	</script>
 	<div class="form-group">
-		<label for="fax_number"	class="col-sm-4	control-label">Current Equipment Categories:<br /><em>These are the categories for which this Inspection List is currently applying. To change this list, remove categories from the Inspection List accordion.</em></label>
+		<label for="fax_number"	class="col-sm-4	control-label">Current Equipment Tabs:<br /><em>These are the tab for which this Inspection List is currently applying. To change this list, remove tabs from the Inspection List accordion.</em></label>
 		<div class="col-sm-8">
 			<select data-placeholder="Select a Tab..." id="tab_inspect" name="tab_inspect_current[]" multiple class="chosen-select-deselect form-control" width="380">
 				<?php $each_tab = explode(',', get_config($dbc, 'equipment_tabs'));
@@ -189,7 +189,7 @@ $(document).ready(function() {
 
 	<h4>Inspection Checklist</h4>
 	<div class="form-group">
-		<label for="fax_number"	class="col-sm-4	control-label">Equipment Categories to which this checklist applies:</label>
+		<label for="fax_number"	class="col-sm-4	control-label">Equipment Tabs to which this checklist applies:</label>
 		<div class="col-sm-8">
 			<select data-placeholder="Select a Tab..." name="tab_inspect[]" multiple class="chosen-select-deselect form-control" width="380">
 				<?php $each_tab = explode(',', get_config($dbc, 'equipment_tabs'));

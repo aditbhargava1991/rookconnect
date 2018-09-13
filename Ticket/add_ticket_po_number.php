@@ -24,7 +24,7 @@ foreach($field_sort_order as $field_sort_field) {
 								<a href="line_item_views.php?po=<?= $po_num_line ?>" onclick="overlayIFrameSlider('line_item_views.php?po='+$(this).closest('.form-group').find('[name=purchase_order]').val(),'auto',true,true); return false;"><img class="inline-img pull-right" src="../img/icons/eyeball.png"></a>
 							<?php } ?>
 							<img class="inline-img pull-right" onclick="addMulti(this);" src="../img/icons/ROOK-add-icon.png">
-							<img class="inline-img pull-right" onclick="remMulti(this);" src="../img/remove.png">
+							<img class="inline-img pull-right" data-remove="1" onclick="remMulti(this);" src="../img/remove.png">
 						</div>
 					</div>
 				<?php } else { ?>

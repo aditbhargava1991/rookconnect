@@ -83,7 +83,7 @@ if (isset($_POST['service_record_btn'])) {
 				<input type="checkbox" <?php if (strpos($value_config_equipment, ','."Service Record Cost".',') !== FALSE) { echo " checked"; } ?> value="Service Record Cost" style="height: 20px; width: 20px;" name="service_record[]">&nbsp;&nbsp;Service Record Cost
 			</td>
 			<td>
-				<input type="checkbox" <?php if (strpos($value_config_equipment, ','."Service Type".',') !== FALSE) { echo " checked"; } ?> value="Service Type" style="height: 20px; width: 20px;" name="service_record[]">&nbsp;&nbsp;Service Type
+				<input type="checkbox" <?php if (strpos($value_config_equipment, ','."Service Type".',') !== FALSE) { echo " checked"; } ?> value="Service Type" style="height: 20px; width: 20px;" name="service_record[]">&nbsp;&nbsp;Service Tab
 			</td>
 
 			<td>
@@ -150,7 +150,7 @@ if (isset($_POST['service_record_btn'])) {
 				<input type="checkbox" <?php if (strpos($value_config_equipment_dashboard, ','."Service Record Cost".',') !== FALSE) { echo " checked"; } ?> value="Service Record Cost" style="height: 20px; width: 20px;" name="service_record_dashboard[]">&nbsp;&nbsp;Service Record Cost
 			</td>
 			<td>
-				<input type="checkbox" <?php if (strpos($value_config_equipment_dashboard, ','."Service Type".',') !== FALSE) { echo " checked"; } ?> value="Service Type" style="height: 20px; width: 20px;" name="service_record_dashboard[]">&nbsp;&nbsp;Service Type
+				<input type="checkbox" <?php if (strpos($value_config_equipment_dashboard, ','."Service Type".',') !== FALSE) { echo " checked"; } ?> value="Service Type" style="height: 20px; width: 20px;" name="service_record_dashboard[]">&nbsp;&nbsp;Service Tab
 			</td>
 		</tr>
 
