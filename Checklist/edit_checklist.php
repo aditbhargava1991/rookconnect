@@ -23,6 +23,9 @@ if (isset($_POST['tasklist'])) {
 		$client_projectid = substr($projectid,1);
 		$projectid = '';
 	}
+    if($projectid = '') {
+		$projectid = 0;
+    }
     $project_milestone = filter_var($_POST['project_milestone'],FILTER_SANITIZE_STRING);
 	$ticketid = filter_var(implode(',',$_POST['ticketid']),FILTER_SANITIZE_STRING);
     $businessid = $_POST['businessid'];
@@ -95,6 +98,7 @@ if (isset($_POST['tasklist'])) {
             $subtabid = 0;
         }
         $query_insert_ca = "INSERT INTO `checklist` (`subtabid`, `assign_staff`, `checklist_type`, `reset_day`, `reset_time`, `checklist_name`, `created_by`, `projectid`, `project_milestone`, `client_projectid`, `ticketid`, `businessid`) VALUES ('$subtabid', '$assign_staff', '$checklist_type', '$reset_day', '$reset_time', '$checklist_name', '$created_by', '$projectid', '$project_milestone', '$client_projectid', '$ticketid', '$businessid')";
+
         $result_insert_ca = mysqli_query($dbc, $query_insert_ca);
         $checklistid = mysqli_insert_id($dbc);
 
@@ -277,7 +281,7 @@ $(document).ready(function () {
             return false;
         }
     });
-    
+
     $('#sortable_items').sortable({
         update: function( event, ui ) {
 			var checklistnameid = ui.item.attr("id");
@@ -426,8 +430,12 @@ function removeNewRow2(button) {
         echo '<input type="hidden" name="sales_milestone" value="'.$_GET['sales_milestone'].'">';
     }
     if(!empty($_GET['add_to_taskboard'])) {
+        $task_milestone_timeline = $_GET['task_milestone_timeline'];
+        $task_milestone_timeline = str_replace("FFMEND","&",$task_milestone_timeline);
+        $task_milestone_timeline = str_replace("FFMSPACE"," ",$task_milestone_timeline);
+        $task_milestone_timeline = str_replace("FFMHASH","#",$task_milestone_timeline);
         echo '<input type="hidden" name="add_to_taskboard" value="'.$_GET['add_to_taskboard'].'">';
-        echo '<input type="hidden" name="task_milestone_timeline" value="'.$_GET['task_milestone_timeline'].'">';
+        echo '<input type="hidden" name="task_milestone_timeline" value="'.$task_milestone_timeline.'">';
         echo '<input type="hidden" name="task_path" value="'.$_GET['task_path'].'">';
         echo '<input type="hidden" name="task_board" value="'.$_GET['task_board'].'">';
     }
