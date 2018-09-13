@@ -310,7 +310,7 @@ function bus_filter(select) {
             <input type="hidden" name="hide_wopdf" value="<?php echo $hide_wo; ?>">
             <input type="hidden" name="disable_staffpdf" value="<?php echo $disable_staff; ?>">
 
-            <!--<button type="submit" name="printpdf" value="Print Report" class="btn brand-btn pull-right">Print Report</button>-->
+            <button type="submit" name="printpdf" value="Print Report" class="btn brand-btn pull-right" style="visibility:hidden;">Print Report</button>
             <br><br>
 			<div class="clearfix"></div>
 
