@@ -188,6 +188,8 @@ $(document).ready(function() {
         <h4>Choose Buttons to Display</h4>
         <label class="col-sm-4 control-label">Buttons:</label>
         <div class="col-sm-8 block-group">
+            <label class="form-checkbox"><input type="checkbox" <?= in_array('My Notes', $daysheet_button_config) ? 'checked' : '' ?> name="daysheet_button_config[]" value="My Notes">My Notes</label>
+            <label class="form-checkbox"><input type="checkbox" <?= in_array('Scrum Notes', $daysheet_button_config) ? 'checked' : '' ?> name="daysheet_button_config[]" value="Scrum Notes">Scrum Notes</label>
             <label class="form-checkbox"><input type="checkbox" <?= in_array('My Projects', $daysheet_button_config) ? 'checked' : '' ?> name="daysheet_button_config[]" value="My Projects">My Projects</label>
             <label class="form-checkbox"><input type="checkbox" <?= in_array('My Tickets', $daysheet_button_config) ? 'checked' : '' ?> name="daysheet_button_config[]" value="My Tickets">My <?= TICKET_TILE ?></label>
             <label class="form-checkbox"><input type="checkbox" <?= in_array('My Checklists', $daysheet_button_config) ? 'checked' : '' ?> name="daysheet_button_config[]" value="My Checklists">My Checklists</label>
