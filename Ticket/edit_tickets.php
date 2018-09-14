@@ -1886,23 +1886,62 @@ var setHeading = function() {
 				</div>
 			<?php } ?>
 
-			<?php if (strpos($value_config, ','."Delivery".',') !== FALSE && $sort_field == 'Delivery') { ?>
-				<div class="panel panel-default">
-					<div class="panel-heading mobile_load">
-						<h4 class="panel-title">
-							<a data-toggle="collapse" data-parent="#mobile_tabs<?= $heading_id ?>" <?= $indent_accordion_text ?> href="#collapse_ticket_delivery">
-								<?= !empty($renamed_accordion) ? $renamed_accordion : 'Delivery Details' ?><span class="glyphicon glyphicon-plus"></span>
-							</a>
-						</h4>
-					</div>
+			<?php if (strpos($value_config, ','."Delivery".',') !== FALSE && strpos($value_config, ',Delivery Stops') === FALSE && $sort_field == 'Delivery') {
+                $stopid = filter_var($_GET['stop'],FILTER_SANITIZE_STRING);
+                $stop_list = $dbc->query("SELECT * FROM `ticket_schedule` WHERE `ticketid`='$ticketid' AND `deleted`=0 AND '$stopid' IN (`id`,'')");
+                $ticket_stop = $stop_list->fetch_assoc();
+                do { ?>
+                    <div class="panel panel-default">
+                        <div class="panel-heading mobile_load">
+                            <h4 class="panel-title">
+                                <a data-toggle="collapse" data-parent="#mobile_tabs<?= $heading_id ?>" <?= $indent_accordion_text ?> href="#collapse_ticket_delivery_<?= $ticket_stop['id'] ?>">
+                                    <?= (!empty($renamed_accordion) ? $renamed_accordion : 'Delivery Details').($ticket_stop['id'] > 0 ? ': '.(empty($ticket_stop['client_name']) ? $ticket_stop['location_name'] : $ticket_stop['client_name']) : '') ?><span class="glyphicon glyphicon-plus"></span>
+                                </a>
+                            </h4>
+                        </div>
 
-					<div id="collapse_ticket_delivery" class="panel-collapse collapse">
-						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?ticketid=<?= $ticketid ?>&tab=ticket_delivery&stop=<?= $_GET['stop'] ?>">
-							Loading...
-						</div>
-					</div>
-				</div>
+                        <div id="collapse_ticket_delivery_<?= $ticket_stop['id'] ?>" class="panel-collapse collapse">
+                            <div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?ticketid=<?= $ticketid ?>&tab=ticket_delivery&stop=<?= $ticket_stop['id'] ?>">
+                                Loading...
+                            </div>
+                        </div>
+                    </div>
+                <?php } while($ticket_stop = $stop_list->fetch_assoc()); ?>
+			<?php } else if (strpos($value_config, ','."Delivery".',') !== FALSE && $sort_field == 'Delivery') { ?>
+                <div class="panel panel-default">
+                    <div class="panel-heading mobile_load">
+                        <h4 class="panel-title">
+                            <a data-toggle="collapse" data-parent="#mobile_tabs<?= $heading_id ?>" <?= $indent_accordion_text ?> href="#collapse_ticket_delivery_<?= $ticket_stop['id'] ?>">
+                                <?= (!empty($renamed_accordion) ? $renamed_accordion : 'Delivery Details') ?><span class="glyphicon glyphicon-plus"></span>
+                            </a>
+                        </h4>
+                    </div>
+
+                    <div id="collapse_ticket_delivery_<?= $ticket_stop['id'] ?>" class="panel-collapse collapse">
+                        <div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?ticketid=<?= $ticketid ?>&tab=ticket_delivery&stop=<?= $_GET['stop'] ?>">
+                            Loading...
+                        </div>
+                    </div>
+                </div>
 			<?php } ?>
+
+			<?php if (strpos($value_config, ',Delivery Summary,') !== FALSE && $sort_field == 'Delivery Summary') { ?>
+                <div class="panel panel-default">
+                    <div class="panel-heading mobile_load">
+                        <h4 class="panel-title">
+                            <a data-toggle="collapse" data-parent="#mobile_tabs<?= $heading_id ?>" <?= $indent_accordion_text ?> href="#collapse_ticket_delivery_summary">
+                                <?= !empty($renamed_accordion) ? $renamed_accordion : 'Delivery Summary' ?><span class="glyphicon glyphicon-plus"></span>
+                            </a>
+                        </h4>
+                    </div>
+
+                    <div id="collapse_ticket_delivery_summary" class="panel-collapse collapse">
+                        <div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?ticketid=<?= $ticketid ?>&tab=ticket_delivery_summary">
+                            Loading...
+                        </div>
+                    </div>
+                </div>
+            <?php } ?>
 
 			<?php if (strpos($value_config, ',Transport,') !== FALSE && $sort_field == 'Transport') { ?>
 				<?php if(strpos($value_config, ',Transport Origin') !== FALSE) { ?>
@@ -2935,6 +2974,11 @@ var setHeading = function() {
 				if (strpos($value_config, ','."Delivery".',') !== FALSE && $sort_field == 'Delivery') {
 					$_GET['tab'] = 'ticket_delivery';
 					$acc_label = 'Delivery Details';
+					include('edit_ticket_tab.php');
+				}
+				if (strpos($value_config, ','."Delivery Summary".',') !== FALSE && $sort_field == 'Delivery Summary') {
+					$_GET['tab'] = 'ticket_delivery_summary';
+					$acc_label = 'Delivery Summary';
 					include('edit_ticket_tab.php');
 				}
 				if (strpos($value_config, ',Transport Origin') !== FALSE && $sort_field == 'Transport') {

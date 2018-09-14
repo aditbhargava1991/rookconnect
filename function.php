@@ -553,6 +553,8 @@ function get_config($dbc, $name, $multi = false, $separator = ',') {
 			return 'tasks,material,services,products,staff,position,contractor,clients,customer,vpl,inventory,equipment,labour,timesheet,driving_log';
 		} else if($name == 'lead_new_contact_cat') {
 			return 'Sales Leads';
+		} else if($name == 'ticket_archive_status') {
+			return 'Archive#*#Archived';
 		}
 	}
 
