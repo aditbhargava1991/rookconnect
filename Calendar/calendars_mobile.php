@@ -15,6 +15,7 @@ $calendar_add_urls = [
 ];
 
 include_once('calendars_mobile_data.php');
+// var_dump($calendar_table['2018-08-29']['18979']);
 include_once('calendar_js_inc.php');
 
 $page_query = $_GET;
@@ -24,11 +25,9 @@ unset($page_query['mobile_tab']);
 </head>
 <script type="text/javascript" src="appointments.js"></script>
 <script>
+var page_mode = '<?= $_GET['mode'] ?>';
 $(document).ready(function() {
 	$('#calendar-menu-wrapper').height($('#calendar-menu').height());
-	$('#calendar-view-day table td a.shift').closest('td').css('background-color', '');
-	$('#calendar-view-day table td').filter(function() { return $(this).data('contact') > 0 }).css('background-color', '');
-	$('#calendar-view-day table td a.shift').remove();
 	$('#calendar-view-day table td,#calendar-view-day table th').filter(function() { return $(this).data('date') == 0 }).width('10%');
 	$('#calendar-view-day table td,#calendar-view-day table th').filter(function() { return $(this).data('date') != 0 }).width('auto');
 	$('#calendar-view-day table thead tr').css('position', '');
@@ -58,7 +57,7 @@ $(document).on("overlayIFrameSliderInit", function() {
 	$('.iframe_overlay .iframe').width('100%');
 });
 $(document).on("overlayIFrameSliderLoad", function() {
-	$('[name="calendar_iframe"]').contents().find('body').prepend('<img src="<?= WEBSITE_URL ?>/img/remove.png" class="pull-right" style="padding-top: 2em; padding-right: 0.5em;" onclick="window.parent.$(\'[name=calendar_iframe]\').load();">');
+	$('[name="calendar_iframe"]').contents().find('h3').first().prepend('<img src="<?= WEBSITE_URL ?>/img/icons/ROOK-status-rejected.jpg" class="pull-right offset-top-5 offset-left-5 offset-right-5" width="25" onclick="window.parent.$(\'[name=calendar_iframe]\').load();">');
 	window.parent.$('[name="calendar_iframe"]').off('load').load(function() {
 		$('.iframe_overlay').hide();
 		$('.hide_on_iframe').show();
@@ -71,8 +70,9 @@ $(document).on("overlayIFrameSliderLoad", function() {
 <div class="loading_overlay" style="display: none;"><div class="loading_wheel"></div></div>
 <?php include_once ('../navigation.php');
 checkAuthorised('calendar_rook');
-$calendar_types = explode(',',get_config($dbc, 'calendar_types')); ?>
+?>
 <div class="container">
+	<a style="display:none;"><div class="block-item active" id="mobile_active_contact" data-<?= $retrieve_contact ?>="<?= $contact_id ?>"></div></a>
 	<div class="mobile-calendar-main-screen" style="float: left; width: 100%; height: 100%;">
 		<div id="dialog-calendartype" title="Select a Calendar" style="display: none;">
 			<div class="col-sm-12">Select a Calendar:</div>

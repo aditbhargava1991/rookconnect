@@ -174,7 +174,6 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
                     <span class="pull-right gap-top offset-right-5"><img src="../img/icons/eyeball.png" alt="View Tabs" title="View Tabs" class="cursor-hand no-toggle inline-img" onclick="view_tabs();" /></span>
                     <span class="pull-right gap-top offset-right-5"><img src="../img/icons/pie-chart.png" alt="Reporting" title="Reporting" class="cursor-hand no-toggle inline-img" onclick="view_summary();" /></span>
                     <div class="clearfix"></div>
-                    <div class="view_tabs double-padded" style="display:none;"><?php include('tile_tabs.php'); ?></div>
                     
                     <!-- Summary Blocks --><?php
                     if (isset($_POST['display_all_inventory'])) {
@@ -249,6 +248,7 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
                         </div>
                         <div class="clearfix"></div>
                     </div><!-- .view_summary -->
+                    <div class="view_tabs double-padded" style="display:none;"><?php include('tile_tabs.php'); ?></div>
                 </div>
             </div><!-- .tile-header -->
 
