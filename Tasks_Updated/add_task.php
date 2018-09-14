@@ -1292,7 +1292,6 @@ function mark_done(sel) {
                                     <div class="clearfix"></div>
                                     <div class="col-sm-6">
                                         <select data-placeholder="Select User" name="task_userid[]" data-table="tasklist" data-field="contactid" class="<?php echo (strpos($task_mandatory_fields, ',Assign Staff,') !== FALSE ? 'required' : ''); ?> chosen-select-deselect form-control" style="width: 20%;float: left;margin-right: 10px;" width="380">
-
                                             <?php $staff_list = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name` FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `deleted`=0 AND `status`>0"),MYSQLI_ASSOC));
                                             foreach($staff_list as $staff_id) { ?>
                                                 <!-- <option <?//= ($staff_id == $_SESSION['contactid'] ? "selected" : '') ?> value='<?//=  $staff_id; ?>' ><?//= get_contact($dbc, $staff_id) ?></option> -->
