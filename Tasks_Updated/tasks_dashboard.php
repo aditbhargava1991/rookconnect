@@ -758,7 +758,7 @@ function addIntakeForm(btn) {
 								$result = mysqli_query($dbc, "SELECT * FROM tasklist WHERE task_path='$task_path' AND task_board='$taskboardid' AND task_milestone_timeline='$cat_tab' AND clientid <> '' AND contactid IN (". $_SESSION['contactid'] .") AND (archived_date IS NULL OR archived_date='0000-00-00') AND deleted=0 ORDER BY task_tododate");
 							}
 
-							$checklist_result = mysqli_query($dbc, "SELECT * FROm `checklist` WHERE `task_path` = '$task_path' AND `task_board` = '$taskboardid' AND `task_milestone_timeline` = '$cat_tab' AND `deleted` = 0");
+							$checklist_result = mysqli_query($dbc, "SELECT * FROM `checklist` WHERE `task_path` = '$task_path' AND `task_board` = '$taskboardid' AND `task_milestone_timeline` = '$cat_tab' AND `deleted` = 0");
 
 							$task_count = mysqli_num_rows($result);
 
@@ -1007,7 +1007,7 @@ function addIntakeForm(btn) {
                                 $task_path = $row['task_path'];
                                 $task_board = $row['task_board'];
 							}
-               
+
 							if(is_array($task_board)) {
 								$task_board = $task_board['taskboardid'];
 							}
@@ -1021,26 +1021,29 @@ function addIntakeForm(btn) {
                             ?>
 
 							<!-- <li class="no-sort"> -->
-					
+
+                    <?php if(get_config($dbc, 'task_include_intake') == 1) { ?>
 					<a href="" onclick="addIntakeForm(this); return false;" data-milestone="<?= $milestone_row['milestone'] ?>" class="btn brand-btn pull-right">Add Intake</a>
+                    <?php } ?>
+                    <?php if(get_config($dbc, 'task_include_checklists') == 1) {
+                    ?>
+                    <a href="" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Checklist/edit_checklist.php?edit=NEW&iframe_slider=1&add_to_taskboard=1&task_milestone_timeline=<?=$status?>&task_path=<?=$task_path?>&task_board=<?=$task_board?>', '50%', false, false, $('.iframe_overlay').closest('.container').outerHeight() + 20); return false;" class="btn brand-btn pull-right">Add Checklist</a>
+                    <?php } ?>
+
                     <?php
                     $slider_layout = !empty(get_config($dbc, 'tasks_slider_layout')) ? get_config($dbc, 'tasks_slider_layout') : 'accordion';
 
                     if($slider_layout == 'accordion') {
                     ?>
 
-					<a href="" onclick="addIntakeForm(this); return false;" data-milestone="<?= $milestone_row['milestone'] ?>" class="btn brand-btn pull-right">Add Intake</a>
                     <a href="" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Tasks_Updated/add_task.php?tab=<?=$_GET['tab']?>&task_milestone_timeline=<?=$status?>&task_path=<?=$task_path?>&task_board=<?=$task_board?>&salesid=<?=$_GET['category']?>', '50%', false, false, $('.iframe_overlay').closest('.container').outerHeight() + 20); return false;" class="btn brand-btn pull-right">Add <?= TASK_NOUN ?></a>
 
                     <?php } else { ?>
                     <a href="../Tasks_Updated/add_task_full_view.php?tab=<?=$_GET['tab']?>&task_milestone_timeline=<?=$status?>&task_path=<?=$task_path?>&task_board=<?=$task_board?>&salesid=<?=$_GET['category']?>" class="btn brand-btn pull-right">Add <?= TASK_NOUN ?></a>
                     <?php } ?>
-                            <!--
-                            <?php if(get_config($dbc, 'task_include_checklists') == 1) { ?><a href="" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Checklist/edit_checklist.php?edit=NEW&iframe_slider=1&add_to_taskboard=1&task_milestone_timeline=<?=$status?>&task_path=<?=$task_path?>&task_board=<?=$task_board?>', '50%', false, false, $('.iframe_overlay').closest('.container').outerHeight() + 20); return false;" class="btn brand-btn pull-right">Add Checklist</a><?php } ?>
-                            -->
 
                             </li><?php
-                            
+
 							if(get_config($dbc, 'task_include_checklists') == 1) {
                                 while($row = mysqli_fetch_array( $checklist_result )) {
 									$colour = $row['flag_colour'];
@@ -1103,7 +1106,7 @@ function addIntakeForm(btn) {
 								echo '</li>';
 								}
 							}
-              
+
 							echo '</ul>';
 							$i++;
 						}

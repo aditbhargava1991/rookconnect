@@ -195,12 +195,11 @@ if(!empty($_POST['submit'])) {
                     </div>
                 </div>
 
-                <!--
                 <div class="panel panel-default">
                     <div class="panel-heading">
                         <h4 class="panel-title">
                             <a data-toggle="collapse" data-parent="#accordion2" href="#collapse_fields">
-                               Task Settings<span class="glyphicon glyphicon-plus"></span>
+                               Include Checklists<span class="glyphicon glyphicon-plus"></span>
                             </a>
                         </h4>
                     </div>
@@ -211,13 +210,34 @@ if(!empty($_POST['submit'])) {
                                 <label class="col-sm-4">Include Checklists:</label>
                                 <div class="col-sm-8">
                                     <?php $task_include_checklists = get_config($dbc, 'task_include_checklists'); ?>
-                                    <label class="form-checkbox"><input type="checkbox" name="task_include_checklists" value="1" <?= $task_include_checklists == 1 ? 'checked' : '' ?>> Enable</label>
+                                    <label class="form-checkbox"><input onchange="saveTaskChecklist(this)" type="checkbox" name="task_include_checklists" value="1" <?= $task_include_checklists == 1 ? 'checked' : '' ?>> Enable</label>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                -->
+
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h4 class="panel-title">
+                            <a data-toggle="collapse" data-parent="#accordion2" href="#collapse_fields2">
+                               Include Intake<span class="glyphicon glyphicon-plus"></span>
+                            </a>
+                        </h4>
+                    </div>
+
+                    <div id="collapse_fields2" class="panel-collapse collapse">
+                        <div class="panel-body">
+                            <div class="form-group">
+                                <label class="col-sm-4">Include Intake:</label>
+                                <div class="col-sm-8">
+                                    <?php $task_include_intake = get_config($dbc, 'task_include_intake'); ?>
+                                    <label class="form-checkbox"><input onchange="saveTaskIntake(this)" type="checkbox" name="task_include_intake" value="1" <?= $task_include_intake == 1 ? 'checked' : '' ?>> Enable</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
 				<div class="panel panel-default">
                     <div class="panel-heading">
