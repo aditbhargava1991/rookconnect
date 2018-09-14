@@ -639,7 +639,7 @@ if(!empty($_GET['add_service_iframe'])) { ?>
 								<?php if(strpos($value_config,',Service Heading,') !== FALSE && $field_sort_field == 'Service Heading') { ?>
 									<div class="form-group">
 									  <label for="site_name" class="col-sm-4 control-label"><!--<span class="text-red">*</span>--> Service Heading:</label>
-									  <div class="col-sm-<?= strpos($value_config,',Service Multiple,') !== FALSE ? '6' : '7' ?>">
+									  <div class="col-sm-<?= strpos($value_config,',Service Multiple,') !== FALSE ? '6' : '8' ?>">
 										<select data-placeholder="Select a Heading..." name="serviceid" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" data-concat="," class="chosen-select-deselect form-control serviceid">
 										  <option value=""></option>
 										  <?php $query = mysqli_query($dbc,"SELECT serviceid, heading, service_type, category, estimated_hours FROM services WHERE ". $query_mod ." order by heading");

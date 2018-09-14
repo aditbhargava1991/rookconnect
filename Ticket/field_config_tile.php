@@ -131,7 +131,7 @@ function saveField() {
 				value: this.value
 			}
 		});
-	} else if(['ticket_archive_status'].indexOf(this.name) >= 0) {
+	} else if(['ticket_archive_status','ticket_invoice_status'].indexOf(this.name) >= 0) {
         var value = '';
         if(this.type == 'select-multiple') {
             var list = [];
@@ -217,6 +217,16 @@ function saveField() {
 				<option <?= in_array($status_option,$status_list) ? 'selected' : '' ?> value="<?= $status_option ?>"><?= $status_option ?></option>
 			<?php } ?>
 		</select>
+	</div>
+	<div class="clearfix"></div>
+</div>
+<hr>
+<div class="form-group type-option">
+	<label class="col-sm-4">Display Status:</label>
+	<div class="col-sm-8">
+		<?php $invoice_status = get_config($dbc, "ticket_invoice_status"); ?>
+        <label class="form-checkbox"><input type="radio" name="ticket_invoice_status" value="1" <?= $invoice_status == '1' ? 'checked' : '' ?>>Status from Attached Invoice</label>
+        <label class="form-checkbox"><input type="radio" name="ticket_invoice_status" value="" <?= $invoice_status == '1' ? '' : 'checked' ?>><?= TICKET_NOUN ?> Status</label>
 	</div>
 	<div class="clearfix"></div>
 </div>

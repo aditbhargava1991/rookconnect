@@ -181,8 +181,9 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
                     } ?>
                     <span class="pull-right gap-top offset-right-5"><img src="../img/icons/eyeball.png" alt="View Tabs" title="View Tabs" class="cursor-hand no-toggle inline-img" onclick="view_tabs();" /></span>
                     <span class="pull-right gap-top offset-right-5"><img src="../img/icons/pie-chart.png" alt="Reporting" title="Reporting" class="cursor-hand no-toggle inline-img" onclick="view_summary();" /></span>
+                    <span class="pull-right gap-top offset-right-5"><img src="../img/icons/ROOK-reminder-icon.png" alt="Schedule Reminder" title="Schedule Reminder" class="cursor-hand no-toggle inline-img" onclick="add_reminder();" /></span>
+
                     <div class="clearfix"></div>
-                    <div class="view_tabs double-padded" style="display:none;"><?php include('tile_tabs.php'); ?></div>
                     
                     <!-- Summary Blocks --><?php
                     $search_contact = 0;
@@ -212,8 +213,8 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
                     if($search_to == 0000-00-00) {
                         $search_to = date('Y-m-d');
                     }
-                    
-                    $patient_clause = !empty($search_contact) ? "AND patientid = '$search_contact'" : '';
+                  
+                    /*$patient_clause = !empty($search_contact) ? "AND patientid = '$search_contact'" : '';
                     
                     $today_date = date('Y-m-d');
                     $as_at_date = $search_to;
@@ -240,7 +241,7 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
                     $total_last90119 = $total_90119['all_payment'];
 
                     $total_120 = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT SUM(patient_price) AS `all_payment` FROM invoice_patient WHERE (DATE(invoice_date) >= '".$search_from."' AND DATE(invoice_date) <= '".$search_to."') AND (DATE(invoice_date) < '".$last119."') $patient_clause AND (paid_date > '$as_at_date' OR IFNULL(`paid`,'') IN ($ar_types))"));
-                    $total_last120 = $total_120['all_payment']; ?>
+                    $total_last120 = $total_120['all_payment'];*/
 
                     $ar_types = "'On Account', 'Net 30', 'Net 30 Days', 'Net 60', 'Net 60 Days', 'Net 90', 'Net 90 Days', 'Net 120', 'Net 120 Days', ''";
                     
@@ -304,7 +305,7 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
                         <div class="col-xs-12 col-sm-3 gap-top">
                             <div class="summary-block">
                                 <div class="text-lg"><?= ( $total_ar_60 > 0 ) ? '<a href="../Reports/report_tiles.php?type=ar&report=A/R Aging Summary&from='.$starttime.'&to='.$endtime.'">$'.number_format($total_ar_60, 2).'</a>' : '$'. 0; ?></div>
-                                <div>60 - 89 Dyas A/R</div>
+                                <div>60 - 89 Days A/R</div>
                             </div>
                         </div>
                         <div class="col-xs-12 col-sm-3 gap-top">
@@ -321,6 +322,7 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
                         </div>
                         <div class="clearfix"></div>
                     </div><!-- .view_summary -->
+                    <div class="view_tabs double-padded" style="display:none;"><?php include('tile_tabs.php'); ?></div>
                 </div>
             </div><!-- .tile-header -->
 

@@ -3,6 +3,7 @@ include_once ('include.php');
 error_reporting(0);
 
 if(isset($_POST['upload_file']) && !empty($_FILES['csv_file']['tmp_name'])) {
+	$default_status = get_config($dbc, 'ticket_default_status');
 	$warehouse_start_time = get_config($dbc, 'ticket_warehouse_start_time');
 	$warehouses = [];
 	$warehouse_assignments = explode('#*#', get_config($dbc, 'bb_macro_warehouse_assignments'));
@@ -72,9 +73,9 @@ if(isset($_POST['upload_file']) && !empty($_FILES['csv_file']['tmp_name'])) {
 				$dbc->query("INSERT INTO `tickets` (`ticket_type`,`businessid`,`region`,`classification`, `salesorderid`,`ticket_label`,`heading`) VALUES ('$ticket_type','$businessid','$region','$classification','$key".($existing->num_rows > 0 ? '-'.($existing->num_rows + 1) : '')."','$business_name - $key','$business_name - $key')");
 				$ticketid = $dbc->insert_id;
 				if(!empty($warehouses[$value['origin_city']]) && !empty($value['origin_city'])) {
-					$dbc->query("INSERT INTO `ticket_schedule` (`ticketid`,`type`,`to_do_date`,`to_do_start_time`,`client_name`,`address`,`city`,`postal_code`,`order_number`) VALUES ('$ticketid','".$warehouses[$value['origin_city']]['warehouse_name']."','".$value['date']."','".$warehouse_start_time."','".$business_name."','".$warehouses[$value['origin_city']]['address']."','".$warehouses[$value['origin_city']]['city']."','".$warehouses[$value['origin_city']]['postal_code']."','".$key."')");
+					$dbc->query("INSERT INTO `ticket_schedule` (`ticketid`,`type`,`to_do_date`,`to_do_start_time`,`client_name`,`address`,`city`,`postal_code`,`order_number`,`status`) VALUES ('$ticketid','".$warehouses[$value['origin_city']]['warehouse_name']."','".$value['date']."','".$warehouse_start_time."','".$business_name."','".$warehouses[$value['origin_city']]['address']."','".$warehouses[$value['origin_city']]['city']."','".$warehouses[$value['origin_city']]['postal_code']."','".$key."','$default_status')");
 				}
-				$dbc->query("INSERT INTO `ticket_schedule` (`ticketid`,`to_do_date`,`client_name`,`address`,`city`,`details`,`order_number`,`notes`) VALUES ('$ticketid','".$value['date']."','".$value['customer_name']."','".$value['address']."','".$value['city']."','".$value['phone']."','".$key."','&lt;p&gt;".$value['sku']."&lt;/p&gt;&lt;p&gt;".$value['comments']."&lt;/p&gt;')");
+				$dbc->query("INSERT INTO `ticket_schedule` (`ticketid`,`to_do_date`,`client_name`,`address`,`city`,`details`,`order_number`,`notes`,`status`) VALUES ('$ticketid','".$value['date']."','".$value['customer_name']."','".$value['address']."','".$value['city']."','".$value['phone']."','".$key."','&lt;p&gt;".$value['sku']."&lt;/p&gt;&lt;p&gt;".$value['comments']."&lt;/p&gt;','$default_status')");
 				$dbc->query("INSERT INTO `ticket_history` (`ticketid`,`userid`,`src`,`description`) VALUES ('$ticketid',".$_SESSION['contactid'].",'optimizer','Best Buy macro imported ".TICKET_NOUN." $ticketid')");
 			}
 		}
