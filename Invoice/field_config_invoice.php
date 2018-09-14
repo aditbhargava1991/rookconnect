@@ -398,6 +398,7 @@ if(!empty($invoice_types)) { ?>
     					<label class="form-checkbox"><input <?= (in_array('today',$tab_list) ? 'checked' : '') ?> type="checkbox" name="invoice_tabs[]" value="today"> Today's Invoices</label>
     					<label class="form-checkbox"><input <?= (in_array('all',$tab_list) ? 'checked' : '') ?> type="checkbox" name="invoice_tabs[]" value="all"> All Invoices</label>
     					<!--<label class="form-checkbox"><input <?= (in_array('invoices',$tab_list) ? 'checked' : '') ?> type="checkbox" name="invoice_tabs[]" value="invoices"> Invoices</label>-->
+                        <label class="form-checkbox"><input <?= (in_array('unbilled_tickets',$tab_list) ? 'checked' : '') ?> type="checkbox" name="invoice_tabs[]" value="unbilled_tickets"> Unbilled <?= TICKET_TILE ?></label>
     					<label class="form-checkbox"><input <?= (in_array('unpaid',$tab_list) ? 'checked' : '') ?> type="checkbox" name="invoice_tabs[]" value="unpaid"> Accounts Receivable</label>
     					<label class="form-checkbox"><input <?= (in_array('contact_ar',$tab_list) ? 'checked' : '') ?> type="checkbox" name="invoice_tabs[]" value="contact_ar"> Contact A/R</label>
     					<label class="form-checkbox"><input <?= (in_array('third_party_ar',$tab_list) ? 'checked' : '') ?> type="checkbox" name="invoice_tabs[]" value="third_party_ar"> Third Party A/R</label>
