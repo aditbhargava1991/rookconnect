@@ -246,6 +246,17 @@ if (isset($_POST['submit'])) {
 ?>
 <script type="text/javascript">
 $(document).ready(function () {
+    <?php if($_GET['view'] == 'readonly') { ?>
+        destroyInputs();
+        $('.chosen-select-deselect,input[type=text]').each(function() {
+            $(this).after($(this).find('option:selected').text());
+        }).removeClass('chosen-select-deselect').hide();
+        $('input[type=text]').each(function() {
+            $(this).after($(this).val());
+        }).hide();
+        $('input[type=file]').hide();
+        $('img[src*=ROOK-add-icon],img[src*=remove]').hide();
+    <?php } ?>
 	<?php if(isset($_GET['target_field'])) { ?>
 		$('[name=<?= $_GET['target_field'] ?>]').closest('.panel').find('a[href^=#collapse_]').click();
 		$('[name=<?= $_GET['target_field'] ?>]').focus();
@@ -598,7 +609,9 @@ while($row = mysqli_fetch_array($query)) {
     <div class="main-screen standard-body form-horizontal">
         <div class="standard-body-title">
             <h3><?= (!empty($_GET['edit']) ? 'Edit Equipment: Unit #'.$unit_number : 'Add New Equipment') ?>
-            <?php
+            <?php if($_GET['view'] == 'readonly') { ?>
+                <a href="../blank_loading_page.php" class="pull-right"><img src="../img/icons/cancel.png" class="inline-img"></a>
+            <?php }
             $quick_actions = explode(',',get_config($dbc, 'equipment_quick_action_icons'));
             if($equipmentid > 0) {
                 echo '<span class="pull-right action-icons  ">';
@@ -650,17 +663,19 @@ while($row = mysqli_fetch_array($query)) {
                     </div>
                 <?php } ?>
 
-                <div class="form-group">
-                    <div class="col-sm-6">
-                        <p><span class="brand-color"><em>Required Fields *</em></span></p>
-                    </div>
-                    <div class="col-sm-6">
-                        <div class="pull-right">
-                            <a href="?category=<?= $category ?>" class="btn brand-btn">Back</a>
-                            <button type="submit" name="submit" value="Submit" class="btn brand-btn" onclick="return presave();">Submit</button>
+                <?php if($_GET['view'] !== 'readonly') { ?>
+                    <div class="form-group">
+                        <div class="col-sm-6">
+                            <p><span class="brand-color"><em>Required Fields *</em></span></p>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="pull-right">
+                                <a href="?category=<?= $category ?>" class="btn brand-btn">Back</a>
+                                <button type="submit" name="submit" value="Submit" class="btn brand-btn" onclick="return presave();">Submit</button>
+                            </div>
                         </div>
                     </div>
-                </div>
+                <?php } ?>
 
     		</form>
         </div>
