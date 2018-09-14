@@ -461,7 +461,9 @@ if($_GET['fill'] == 'move_appt') {
 					$contacts = [];
 					$team_contacts = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `teams_staff` WHERE `teamid` = '$teamid' AND `deleted` = 0"),MYSQLI_ASSOC);
 					foreach($team_contacts as $team_contact) {
-						$contacts[] = $team_contacts['contactid'];
+						if(strtolower(get_contact($dbc, $team_contact['contactid'], 'category')) == 'staff') {
+							$contacts[] = $team_contact['contactid'];
+						}
 					}
 				} else {
 					$contacts = [$contact];
@@ -1540,7 +1542,9 @@ if($_GET['fill'] == 'schedule_unbooked') {
 						$contacts = [];
 						$team_contacts = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `teams_staff` WHERE `teamid` = '$teamid' AND `deleted` = 0"),MYSQLI_ASSOC);
 						foreach($team_contacts as $team_contact) {
-							$contacts[] = $team_contacts['contactid'];
+							if(strtolower(get_contact($dbc, $team_contact['contactid'], 'category')) == 'staff') {
+								$contacts[] = $team_contact['contactid'];
+							}
 						}
 					} else {
 						$contacts = [$contact];
@@ -2038,7 +2042,9 @@ if($_GET['fill'] == 'move_appt_month') {
 				$contacts = [];
 				$team_contacts = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `teams_staff` WHERE `teamid` = '$teamid' AND `deleted` = 0"),MYSQLI_ASSOC);
 				foreach($team_contacts as $team_contact) {
-					$contacts[] = $team_contacts['contactid'];
+					if(strtolower(get_contact($dbc, $team_contact['contactid'], 'category')) == 'staff') {
+						$contacts[] = $team_contact['contactid'];
+					}
 				}
 			} else {
 				$contacts = [$contactid];
@@ -2078,7 +2084,9 @@ if($_GET['fill'] == 'move_appt_month') {
 				$contacts = [];
 				$team_contacts = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `teams_staff` WHERE `teamid` = '$teamid' AND `deleted` = 0"),MYSQLI_ASSOC);
 				foreach($team_contacts as $team_contact) {
-					$contacts[] = $team_contacts['contactid'];
+					if(strtolower(get_contact($dbc, $team_contact['contactid'], 'category')) == 'staff') {
+						$contacts[] = $team_contact['contactid'];
+					}
 				}
 			} else {
 				$contacts = [$contactid];
