@@ -213,7 +213,7 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
                     if($search_to == 0000-00-00) {
                         $search_to = date('Y-m-d');
                     }
-                    
+                  
                     /*$patient_clause = !empty($search_contact) ? "AND patientid = '$search_contact'" : '';
                     
                     $today_date = date('Y-m-d');
@@ -305,7 +305,7 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
                         <div class="col-xs-12 col-sm-3 gap-top">
                             <div class="summary-block">
                                 <div class="text-lg"><?= ( $total_ar_60 > 0 ) ? '<a href="../Reports/report_tiles.php?type=ar&report=A/R Aging Summary&from='.$starttime.'&to='.$endtime.'">$'.number_format($total_ar_60, 2).'</a>' : '$'. 0; ?></div>
-                                <div>60 - 89 Dyas A/R</div>
+                                <div>60 - 89 Days A/R</div>
                             </div>
                         </div>
                         <div class="col-xs-12 col-sm-3 gap-top">
