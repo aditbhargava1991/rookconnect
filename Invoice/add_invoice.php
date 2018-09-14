@@ -350,7 +350,7 @@ if(in_array('touch',$ux_options) && (!in_array('standard',$ux_options) || $_GET[
       
       
         $field_config = explode(',',get_config($dbc, 'invoice_fields'));
-        if(!empty($invoice_type)) {
+        if(!empty($invoice_type) && !empty(get_config($dbc, 'invoice_fields_'.$invoice_type))) {
             $field_config = explode(',',get_config($dbc, 'invoice_fields_'.$invoice_type));
         }
         ?>
