@@ -19,6 +19,12 @@
     <ul class="sidebar">
         <a href="?tab=daysheet"><li class="<?= $_GET['tab'] == 'daysheet' ? 'active' : '' ?>">Day Sheet</li></a>
         <a href="?tab=journals"><li class="<?= $_GET['tab'] == 'journals' ? 'active' : '' ?>">My Journal</li></a>
+        <?php if (in_array('My Notes', $daysheet_button_config)) { ?>
+            <a href="?tab=notes&daily_date=<?= date('Y-m-d') ?>&side_content=my_notes"><li class="<?= $_GET['tab'] == 'notes' ? 'active' : '' ?>">My Notes</li></a>
+        <?php } ?>
+        <?php if (in_array('Scrum Notes', $daysheet_button_config)) { ?>
+            <a href="?tab=scrum_notes&daily_date=<?= date('Y-m-d') ?>&side_content=my_scrum_notes"><li class="<?= $_GET['tab'] == 'scrum_notes' ? 'active' : '' ?>">Scrum Notes</li></a>
+        <?php } ?>
         <a href="?tab=alerts&daily_date=<?= date('Y-m-d') ?>&side_content=past_due"><li class="<?= $_GET['tab'] == 'alerts' ? 'active' : '' ?>">My Alerts</li></a>
         <?php if (in_array('My Projects', $daysheet_button_config)) { ?>
             <a href="?tab=projects&daily_date=<?= date('Y-m-d') ?>&side_content=my_projects"><li class="<?= $_GET['tab'] == 'projects' ? 'active' : '' ?>">My <?= PROJECT_TILE ?></li></a>
@@ -51,6 +57,9 @@
         <?php if (in_array('My Tags', $daysheet_button_config)) { ?>
             <a href="?tab=tags&daily_date=<?= date('Y-m-d') ?>&side_content=my_tags&date_display=daily"><li class="<?= $_GET['tab'] == 'tags' ? 'active' : '' ?>">My Tags</li></a>
 
+        <?php } ?>
+        <?php if (in_array('My Tags', $daysheet_button_config)) { ?>
+            <a href="?tab=tags&daily_date=<?= date('Y-m-d') ?>&side_content=my_tags&date_display=daily"><li class="<?= $_GET['tab'] == 'tags' ? 'active' : '' ?>">My Tags</li></a>
         <?php } ?>
         <?php if (in_array('Attached Contact Forms', $daysheet_button_config)) {
             $match_contacts = [];

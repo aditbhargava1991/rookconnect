@@ -734,13 +734,11 @@
     }
     //2018-09-05 - Ticket #9007 - Vacation Pay
 
-
     //2018-09-10 - Ticket #9085 - Manifest
     if(!mysqli_query($dbc, "ALTER TABLE `ticket_attached` CHANGE `po_line` `po_line` text")) {
         echo "Error: ".mysqli_error($dbc)."<br />\n";
     }
     //2018-09-10 - Ticket #9085 - Manifest
-
 
     //2018-09-07 - Ticket #9008 - Stat Pay
     $updated_already = get_config($dbc, 'updated_ticket9008_statpay');
@@ -750,6 +748,11 @@
     }
     //2018-09-07 - Ticket #9008 - Stat Pay
 
+    //2018-09-13 - Ticket #8978 - Washroom Support
+    if(!mysqli_query($dbc, "ALTER TABLE `key_methodologies` ADD `toileting_info` text AFTER `toileting`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-09-13 - Ticket #8978 - Washroom Support
 
     //2018-09-11 - Ticket #8802 - Check In/Out
     if(!mysqli_query($dbc, "CREATE TABLE `ticket_attached_checkin` (
@@ -789,6 +792,122 @@
     }
     //2018-09-11 - Ticket #8811 - Tagging
 
+    //2018-09-13 - Ticket #8814 - Incident Report Flagging
+    if(!mysqli_query($dbc, "ALTER TABLE `incident_report` ADD `flag_colour` VARCHAR(7)")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `incident_report` ADD `flag_start` DATE NOT NULL DEFAULT '0000-00-00' AFTER `flag_colour`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `incident_report` ADD `flag_end` DATE NOT NULL DEFAULT '9999-12-31' AFTER `flag_start`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `incident_report` ADD `flag_label` TEXT AFTER `flag_colour`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `incident_report` ADD `flag_user` TEXT AFTER `flag_colour`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-09-13 - Ticket #8814 - Incident Report Flagging
+
+    //2018-09-13 - Ticket #8826 - Planner My Notes/Journal/Scrum Notes
+    $updated_already = get_config($dbc, 'updated_ticket8826_planner');
+    if(empty($updated_already)) {
+        mysqli_query($dbc, "UPDATE `user_settings` SET `daysheet_button_config` = CONCAT(`daysheet_button_config`,',My Notes') WHERE IFNULL(`daysheet_button_config`,'') != ''");
+        set_config($dbc, 'daysheet_button_config', get_config($dbc, 'daysheet_button_config').',My Notes');
+        set_config($dbc, 'updated_ticket8826_planner', 1);
+    }
+
+    if(!mysqli_query($dbc, "ALTER TABLE `daysheet_notepad` ADD `last_updated_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "CREATE TRIGGER `daysheet_notepad_last_updated` BEFORE UPDATE ON `daysheet_notepad`
+         FOR EACH ROW BEGIN
+            SET NEW.`last_updated_time` = CURRENT_TIMESTAMP;
+        END")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+
+    if(!mysqli_query($dbc, "ALTER TABLE `budget_comment` ADD `last_updated_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "CREATE TRIGGER `budget_comment_last_updated` BEFORE UPDATE ON `budget_comment`
+         FOR EACH ROW BEGIN
+            SET NEW.`last_updated_time` = CURRENT_TIMESTAMP;
+        END")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+
+    if(!mysqli_query($dbc, "ALTER TABLE `project_comment` ADD `last_updated_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "CREATE TRIGGER `project_comment_last_updated` BEFORE UPDATE ON `project_comment`
+         FOR EACH ROW BEGIN
+            SET NEW.`last_updated_time` = CURRENT_TIMESTAMP;
+        END")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+
+    if(!mysqli_query($dbc, "ALTER TABLE `task_comments` ADD `last_updated_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "CREATE TRIGGER `task_comments_last_updated` BEFORE UPDATE ON `task_comments`
+         FOR EACH ROW BEGIN
+            SET NEW.`last_updated_time` = CURRENT_TIMESTAMP;
+        END")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+
+    if(!mysqli_query($dbc, "ALTER TABLE `ticket_comment` ADD `last_updated_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "CREATE TRIGGER `ticket_comment_last_updated` BEFORE UPDATE ON `ticket_comment`
+         FOR EACH ROW BEGIN
+            SET NEW.`last_updated_time` = CURRENT_TIMESTAMP;
+        END")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+
+    if(!mysqli_query($dbc, "ALTER TABLE `email_comment` ADD `last_updated_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "CREATE TRIGGER `email_comment_last_updated` BEFORE UPDATE ON `email_comment`
+         FOR EACH ROW BEGIN
+            SET NEW.`last_updated_time` = CURRENT_TIMESTAMP;
+        END")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+
+    if(!mysqli_query($dbc, "ALTER TABLE `estimate_notes` ADD `last_updated_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "CREATE TRIGGER `estimate_notes_last_updated` BEFORE UPDATE ON `estimate_notes`
+         FOR EACH ROW BEGIN
+            SET NEW.`last_updated_time` = CURRENT_TIMESTAMP;
+        END")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+
+    if(!mysqli_query($dbc, "ALTER TABLE `client_daily_log_notes` ADD `last_updated_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "CREATE TRIGGER `client_daily_log_notes_last_updated` BEFORE UPDATE ON `client_daily_log_notes`
+         FOR EACH ROW BEGIN
+            SET NEW.`last_updated_time` = CURRENT_TIMESTAMP;
+        END")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+
+    if(!mysqli_query($dbc, "ALTER TABLE `day_overview` ADD `last_updated_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "CREATE TRIGGER `day_overview_last_updated` BEFORE UPDATE ON `day_overview`
+         FOR EACH ROW BEGIN
+            SET NEW.`last_updated_time` = CURRENT_TIMESTAMP;
+        END")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-09-13 - Ticket #8826 - Planner My Notes/Journal/Scrum Notes
 
     echo "Baldwin's DB Changes Done<br />\n";
 ?>

@@ -921,7 +921,6 @@ function get_ticket_total_tracked_time($dbc, $date, $staff, $layout = '', $time_
 	$query = mysqli_query($dbc, $sql);
 	while($row = mysqli_fetch_assoc($query)) {
 		$curr_tracked_time = 0;
-
 		$attached_checkins = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `ticket_attached_checkin` WHERE `ticket_attached_id` = '".$row['id']."'"),MYSQLI_ASSOC);
 		if(!empty($attached_checkins)) {
 			foreach($attached_checkins as $attached_checkin) {
