@@ -908,6 +908,9 @@ if($invoice_mode != 'Adjustment') {
 			$result_update_in = mysqli_query($dbc, "UPDATE `invoice` SET `patient_payment_receipt` = 1 WHERE `invoiceid`='$invoiceid'");
 
 			$logo = get_config($dbc, 'invoice_logo');
+			if(!empty($type_type) && !empty(get_config($dbc, 'invoice_logo_'.$type_type))) {
+				$logo = get_config($dbc, 'invoice_logo_'.$type_type);
+			}
 			DEFINE('INVOICE_LOGO', $logo);
 
 			include ('patient_payment_receipt_pdf.php');
@@ -1751,6 +1754,9 @@ if($invoice_mode != 'Adjustment') {
 		$result_update_in = mysqli_query($dbc, "UPDATE `invoice` SET `patient_payment_receipt` = 1 WHERE `invoiceid`='$invoiceid'");
 
 		$logo = get_config($dbc, 'invoice_logo');
+		if(!empty($type_type) && !empty(get_config($dbc, 'invoice_logo_'.$type_type))) {
+			$logo = get_config($dbc, 'invoice_logo_'.$type_type);
+		}
 		DEFINE('INVOICE_LOGO', $logo);
 
 		//include ('patient_payment_receipt_pdf.php');
@@ -1759,6 +1765,9 @@ if($invoice_mode != 'Adjustment') {
 	$get_invoice = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `invoice` WHERE `invoiceid`='$invoiceid'"));
 	// PDF
 	/*$invoice_design = get_config($dbc, 'invoice_design');
+  if(!empty($get_invoice['type']) && !empty(get_config($dbc, 'invoice_design_'.$get_invoice['type']))) {
+      $invoice_design = get_config($dbc, 'invoice_design_'.$get_invoice['type']);
+  }
 	switch($invoice_design) {
 		case 1:
 			include('pos_invoice_1.php');
@@ -2471,6 +2480,9 @@ if($invoice_mode != 'Adjustment') {
 		$result_update_in = mysqli_query($dbc, "UPDATE `invoice` SET `patient_payment_receipt` = 1 WHERE `invoiceid`='$invoiceid'");
 
 		$logo = get_config($dbc, 'invoice_logo');
+		if(!empty($type_type) && !empty(get_config($dbc, 'invoice_logo_'.$type_type))) {
+			$logo = get_config($dbc, 'invoice_logo_'.$type_type);
+		}
 		DEFINE('INVOICE_LOGO', $logo);
 
 		include ('patient_payment_receipt_pdf.php');
@@ -2479,6 +2491,9 @@ if($invoice_mode != 'Adjustment') {
 	$get_invoice = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `invoice` WHERE `invoiceid`='$invoiceid'"));
 	// PDF
 	/*$invoice_design = get_config($dbc, 'invoice_design');
+  if(!empty($get_invoice['type']) && !empty(get_config($dbc, 'invoice_design_'.$get_invoice['type']))) {
+      $invoice_design = get_config($dbc, 'invoice_design_'.$get_invoice['type']);
+  }
 	switch($invoice_design) {
 		case 1:
 			include('pos_invoice_1.php');
