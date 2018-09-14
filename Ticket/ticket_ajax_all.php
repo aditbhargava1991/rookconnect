@@ -3021,6 +3021,20 @@ if($_GET['action'] == 'update_fields') {
 	$recurrence_settings = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `ticket_recurrences` WHERE `ticketid` = '$main_ticketid' AND `deleted` = 0"));
 	$result = [start_date=>$recurrence_settings['start_date'], end_date=>$recurrence_settings['end_date'], repeat_type=>$recurrence_settings['repeat_type'], repeat_monthly=>$recurrence_settings['repeat_monthly'], repeat_interval=>$recurrence_settings['repeat_interval'], repeat_days=>explode(',',$recurrence_settings['repeat_days'])];
 	echo json_encode($result);
+
+} else if($_GET['action'] == 'reload_po_num_dropdown') {
+	$ticketid = $_GET['ticketid'];
+	$get_ticket = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticketid` = '$ticketid'"));
+	$ticket_po_list = array_filter(explode('#*#',$get_ticket['purchase_order']));
+	$po_numbers = $dbc->query("SELECT `po_num` FROM `ticket_attached` WHERE `deleted`=0 AND `ticketid` > 0 AND `src_table` IN ('inventory_general','inventory') AND `ticketid`='$ticketid' AND IFNULL(`po_num`,'') != '' GROUP BY `po_num`");
+	$po_line_list = [];
+	while($po_num_line = $po_numbers->fetch_assoc()) {
+		$po_line_list[] = $po_num_line['po_num'];
+	}
+	$po_list = array_unique(array_merge($po_line_list,$ticket_po_list));
+	sort($po_list);
+	echo json_encode($po_list);
+
 } else if($_GET['action'] == 'set_ticket_recurring') {
 	$ticketid = $_GET['ticketid'];
 	if($ticketid > 0) {

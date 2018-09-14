@@ -342,6 +342,7 @@ function setQuickActions() {
                                         }
                                         if(vuaed_visible_function($dbc, 'incident_report') == 1) {
                                             echo '<td style="'.$flag_styling.'" data-title="Function">';
+                                            echo in_array('tagging',$quick_action_icons) ? '<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/quick_action_tagging.php?tile=incident_report&id='.$row['incidentreportid'].'\', \'auto\', false, true); return false;"><img src="'.WEBSITE_URL.'/img/icons/tagging.png" class="inline-img no-toggle" title="Tag Staff"></a> | ' : '';
                     						echo '<a href=\'add_incident_report.php?type='.$row['type'].'&incidentreportid='.$row['incidentreportid'].'\'>Edit</a> | ';
                     						echo '<a href=\'../delete_restore.php?action=delete&incidentreportid='.$row['incidentreportid'].'\' onclick="return confirm(\'Are you sure?\')">Archive</a>';
                                             echo '</td>';

@@ -180,7 +180,6 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
                         echo '<a href="field_config_invoice.php" class="pull-right gap-right gap-top"><img width="30" title="Tile Settings" src="../img/icons/settings-4.png" class="settings-classic wiggle-me no-toggle"></a>';
                     } ?>
                     <span class="pull-right gap-top offset-right-5"><img src="../img/icons/eyeball.png" alt="View Tabs" title="View Tabs" class="cursor-hand no-toggle inline-img" onclick="view_tabs();" /></span>
-
                     <span class="pull-right gap-top offset-right-5"><img src="../img/icons/pie-chart.png" alt="Reporting" title="Reporting" class="cursor-hand no-toggle inline-img" onclick="view_summary();" /></span>
                     <span class="pull-right gap-top offset-right-5"><img src="../img/icons/ROOK-reminder-icon.png" alt="Schedule Reminder" title="Schedule Reminder" class="cursor-hand no-toggle inline-img" onclick="add_reminder();" /></span>
 
@@ -288,47 +287,36 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
                         $total_ar_90 += $total_last90119;
                         $total_ar_120 += $total_last120;
                     } ?>
-
                     
                     <div class="view_summary double-gap-bottom" style="display:none;">
                         <?php $total_invoices = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT SUM(`final_price`) `final_price` FROM `invoice` WHERE `deleted`=0 $search_clause $search_invoice_clause")); ?>
                         <div class="col-xs-12 col-sm-3 gap-top">
                             <div class="summary-block">
-
                                 <div class="text-lg"><?= ( $total_ar_current > 0 ) ? '<a href="../Reports/report_tiles.php?type=ar&report=A/R Aging Summary&from='.$starttime.'&to='.$endtime.'">$'.number_format($total_ar_current, 2).'</a>' : '$'. 0; ?></div>
-
                                 <div>Current A/R</div>
                             </div>
                         </div>
                         <div class="col-xs-12 col-sm-3 gap-top">
                             <div class="summary-block">
-
                                 <div class="text-lg"><?= ( $total_ar_30 > 0 ) ? '<a href="../Reports/report_tiles.php?type=ar&report=A/R Aging Summary&from='.$starttime.'&to='.$endtime.'">$'.number_format($total_ar_30, 2).'</a>' : '$'. 0; ?></div>
-
                                 <div>30 - 59 Days A/R</div>
                             </div>
                         </div>
                         <div class="col-xs-12 col-sm-3 gap-top">
                             <div class="summary-block">
-
                                 <div class="text-lg"><?= ( $total_ar_60 > 0 ) ? '<a href="../Reports/report_tiles.php?type=ar&report=A/R Aging Summary&from='.$starttime.'&to='.$endtime.'">$'.number_format($total_ar_60, 2).'</a>' : '$'. 0; ?></div>
-
                                 <div>60 - 89 Dyas A/R</div>
                             </div>
                         </div>
                         <div class="col-xs-12 col-sm-3 gap-top">
                             <div class="summary-block">
-
                                 <div class="text-lg"><?= ( $total_ar_90 > 0 ) ? '<a href="../Reports/report_tiles.php?type=ar&report=A/R Aging Summary&from='.$starttime.'&to='.$endtime.'">$'.number_format($total_ar_90, 2).'</a>' : '$'. 0; ?></div>
-
                                 <div>90 - 119 Days A/R</div>
                             </div>
                         </div>
                         <div class="col-xs-12 col-sm-3 gap-top">
                             <div class="summary-block">
-
                                 <div class="text-lg"><?= ( $total_ar_120 > 0 ) ? '<a href="../Reports/report_tiles.php?type=ar&report=A/R Aging Summary&from='.$starttime.'&to='.$endtime.'">$'.number_format($total_ar_120, 2).'</a>' : '$'. 0; ?></div>
-
                                 <div>120+ Days A/R</div>
                             </div>
                         </div>

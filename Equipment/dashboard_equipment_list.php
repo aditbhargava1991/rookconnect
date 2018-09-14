@@ -77,6 +77,7 @@ if($num_rows > 0) {
 
 		$quick_actions = explode(',',get_config($dbc, 'equipment_quick_action_icons'));
         echo '<span class="pull-right action-icons double-gap-bottom gap-top" style="width: 100%;">';
+        echo in_array('preview', $quick_actions) ? '<span title="View Equipment" onclick="overlayIFrameSlider(\'edit_equipment.php?edit='.$row['equipmentid'].'&view=readonly&iframe_slider=1\',\'auto\',true,true); return false;"><img title="View Equipment" src="../img/icons/eyeball.png" class="inline-img no-toggle" onclick="return false;"></span>' : '';
         if (in_array('edit', $quick_actions)) { ?>
             <span  onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Equipment/edit_equipment.php?edit=<?=$row['equipmentid']?>&iframe_slider=1'); return false;"><img src="<?=WEBSITE_URL?>/img/icons/ROOK-edit-icon.png" title="Edit Equipment" class="inline-img no-toggle" onclick="return false;"></span><?php
         }
