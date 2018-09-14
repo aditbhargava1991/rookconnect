@@ -88,6 +88,9 @@ if(!tile_visible($dbc, 'check_out')) {
 $get_invoice = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `invoice` WHERE `invoiceid`='$invoiceid'"));
 // PDF
 $invoice_design = get_config($dbc, 'invoice_design');
+if(!empty($get_invoice['type']) && !empty(get_config($dbc, 'invoice_design_'.$get_invoice['type']))) {
+    $invoice_design = get_config($dbc, 'invoice_design_'.$get_invoice['type']);
+}
 switch($invoice_design) {
     case 1:
         include('pos_invoice_1.php');
