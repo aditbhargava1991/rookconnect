@@ -7,6 +7,9 @@ $show_forms = $tasks_only ? false : tile_enabled($dbc, 'intake');
 $show_checklists = $tasks_only ? false : tile_enabled($dbc, 'checklist');
 $flag_labels = explode('#*#', get_config($dbc, "ticket_colour_flag_names"));
 $sales_lead = $dbc->query("SELECT * FROM `sales` WHERE `salesid`='$salesid'")->fetch_assoc();
+$task_statuses = explode(',',get_config($dbc, 'task_status'));
+$status_complete = $task_statuses[count($task_statuses) - 1];
+$status_incomplete = $task_statuses[0];
 
 if(!empty($sales_lead['flag_label'])) {
     $flag_colour = $sales_lead['flag_colour'];
@@ -23,9 +26,9 @@ $(document).ready(function() {
 });
 
 function changeEndAme(sel) {
-	$(this).focus();
+	$(sel).focus();
 
-	$(this).prop("disabled",false);
+	$(sel).prop("disabled",false);
 	var stage = sel.value;
 	var typeId = sel.id;
 
@@ -199,27 +202,8 @@ function task_send_email(task) {
 
 function task_send_reminder(task) {
 	task_id = $(task).parents('span').data('task');
-	var type = 'task';
-	if(task_id.toString().substring(0,5) == 'BOARD') {
-		var type = 'task board';
-		task_id = task_id.substring(5);
-	}
-	var name_id = (type == 'task board' ? 'board_' : '');
-	$('[name=reminder_'+name_id+task_id+']').show().focus();
-	$('[name=reminder_'+name_id+task_id+']').keyup(function(e) {
-		if(e.which == 13) {
-			$(this).blur();
-		}
-	});
-	$('[name=reminder_'+name_id+task_id+']').change(function() {
-		$(this).hide();
-		var date = $(this).val().trim();
-		$(this).val('');
-		if(date != '') {
-			choose_user('reminder', type, task_id, date);
-		}
-	});
-
+	console.log(task_id);
+	overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_reminders.php?tile=tasks&id='+task_id, 'auto', false, true);
 }
 
 function task_send_reply(task) {
@@ -322,37 +306,9 @@ function task_attach_file(task) {
 
 function task_manual_flag_item(task) {
 	var item = $(task).closest('li');
-	item.find('.flag_field_labels,[name=label],[name=colour],[name=flag_it],[name=flag_cancel],[name=flag_off],[name=flag_start],[name=flag_end]').show();
-	item.find('[name=flag_cancel]').off('click').click(function() {
-		item.find('.flag_field_labels,[name=label],[name=colour],[name=flag_it],[name=flag_cancel],[name=flag_off],[name=flag_start],[name=flag_end]').hide();
-		return false;
-	});
-	item.find('[name=flag_off]').off('click').click(function() {
-		item.find('[name=colour]').val('FFFFFF');
-		item.find('[name=label]').val('');
-		item.find('[name=flag_start]').val('');
-		item.find('[name=flag_end]').val('');
-		item.find('[name=flag_it]').click();
-		return false;
-	});
-	item.find('[name=flag_it]').off('click').click(function() {
-		$.ajax({
-			url: '../Tasks_Updated/task_ajax_all.php?fill=taskflagmanual',
-			method: 'POST',
-			data: {
-				value: item.find('[name=colour]').val(),
-				label: item.find('[name=label]').val(),
-				start: item.find('[name=flag_start]').val(),
-				end: item.find('[name=flag_end]').val(),
-				id: item.find('[data-task]').data('task')
-			}
-		});
-		item.find('.flag_field_labels,[name=label],[name=colour],[name=flag_it],[name=flag_cancel],[name=flag_off],[name=flag_start],[name=flag_end]').hide();
-		item.data('colour',item.find('[name=colour]').val());
-		item.css('background-color','#'+item.find('[name=colour]').val());
-		item.find('.flag-label').text(item.find('[name=label]').val());
-		return false;
-	});
+	$('.flag_target').removeClass('flag_target');
+	$(item).addClass('flag_target');
+	overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_flags.php?tile=tasklist&id='+item.data('id'), 'auto', false, true);
 }
 
 function task_flag_item(task) {
@@ -749,7 +705,17 @@ function checklist_attach_file(checklist) {
                                 $border_colour = get_contact($dbc, $userid, 'calendar_color');
                             }
                         }
-                            echo '<li id="'.$row['tasklistid'].'" data-id-field="tasklistid" data-table="tasklist" class="ui-state-default '.$class_on.'" style="'.($row['flag_colour'] == '' ? '' : 'background-color: '.$row['flag_colour'].';').($border_colour == '' ? '' : 'border-style:solid;border-color: '.$border_colour.';border-width:3px;').'">';
+						$colour = $row['flag_colour'];
+						if($colour == 'FFFFFF' || $colour == '') {
+							$colour = 'F2F2F2';
+						}
+						$flag_colours = explode(',',mysqli_fetch_assoc(mysqli_query($dbc,"SELECT `flag_colours` FROM task_dashboard"))['flag_colours']);
+						$flag_label = $ticket_flag_names[$colour];
+					    if(!empty($row['flag_label'])) {
+					        $flag_label = $row['flag_label'];
+					    }
+						$flag_text = $row['flag_label'];
+                        echo '<li id="'.$row['tasklistid'].'" data-id="'.$row['tasklistid'].'" data-id-field="tasklistid" data-table="tasklist" class="ui-state-default '.$class_on.'" style="'.($colour == '' ? '' : 'background-color: #'.$colour.';').($border_colour == '' ? '' : 'border-style:solid;border-color: '.$border_colour.';border-width:3px;').'"><span class="flag-label">'.$flag_label.'</span>';
 
                         $businessid = $url_tab=='Business' ? $row['businessid'] : '';
                         $clientid = $url_tab=='Client' ? $row['clientid'] : '';
@@ -764,7 +730,7 @@ function checklist_attach_file(checklist) {
                         } ?>
                         <div class="row">
 
-                            <h4 style="<?= $style_strikethrough ?>"><input type="checkbox" name="status" value="<?= $row['tasklistid'] ?>" class="form-checkbox no-margin" onchange="mark_done(this);" <?= ( $row['status'] == $status_complete ) ? 'checked' : '' ?> />
+                            <h4 style="<?= $style_strikethrough ?>"><input type="checkbox" name="status" value="<?= $row['tasklistid'] ?>" class="form-checkbox no-margin" onchange="task_mark_done(this);" <?= ( $row['status'] == $status_complete ) ? 'checked' : '' ?> />
                                 <a href="" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Tasks_Updated/add_task.php?type=<?=$row['status']?>&tasklistid=<?=$row['tasklistid']?>', '50%', false, false, $('.iframe_overlay').closest('.container').outerHeight() + 20); return false;">Task #<?= $row['tasklistid'] ?></a>: <?= ($url_tab=='Business') ? get_contact($dbc, $businessid, 'name') . ': ' : '' ?><?= ($url_tab=='Client') ? get_contact($dbc, $clientid) . ': ' : '' ?><?=limit_text($row['heading'], 5 )?>
                         <?php echo '<img class="drag_handle pull-right inline-img no-toggle" src="../img/icons/drag_handle.png" title="Drag" />';
                         echo '<span class="pull-right small">';
@@ -870,67 +836,7 @@ function checklist_attach_file(checklist) {
                         foreach(array_unique(array_filter(explode('#*#',mysqli_fetch_assoc(mysqli_query($dbc, "SELECT GROUP_CONCAT(`project_path_milestone`.`milestone` SEPARATOR '#*#') `milestones` FROM `project` LEFT JOIN `project_path_milestone` ON CONCAT(',',`project`.`external_path`,',') LIKE CONCAT('%,',`project_path_milestone`.`project_path_milestone`,',%') WHERE `projectid`='".$row['projectid']."'"))['milestones']))) as $external_milestone) { ?>
                                 <option <?= $external_milestone == $row['external'] ? 'selected' : '' ?> value="<?= $external_milestone ?>"><?= $external_milestone ?></option>
                         <?php }
-                        echo '</select></div><div class="clearfix"></div>'; ?>
-
-                        <div class="row">
-
-                            <h4 style="<?= $style_strikethrough ?>"><input type="checkbox" name="status" value="<?= $row['tasklistid'] ?>" class="form-checkbox no-margin" onchange="mark_done(this);" <?= ( $row['status'] == $status_complete ) ? 'checked' : '' ?> />
-                                <a href="" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Tasks/add_task.php?type=<?=$row['status']?>&tasklistid=<?=$row['tasklistid']?>', '50%', false, false, $('.iframe_overlay').closest('.container').outerHeight() + 20); return false;">Task #<?= $row['tasklistid'] ?></a>: <?= ($url_tab=='Business') ? get_contact($dbc, $businessid, 'name') . ': ' : '' ?><?= ($url_tab=='Client') ? get_contact($dbc, $clientid) . ': ' : '' ?><?=limit_text($row['heading'], 5 )?>
-                        <?php
-                        echo '<span class="pull-right small">';
-                        if ( $row['company_staff_sharing'] ) {
-                            foreach ( array_filter(explode(',', $row['company_staff_sharing'])) as $staffid ) {
-                                profile_id($dbc, $staffid);
-                            }
-                        } else {
-                            profile_id($dbc, $row['contactid']);
-                        }
-                        echo '</span></h4></span></div>';
-
-                        echo '<div class="clearfix"></div>';
-
-                        $documents = mysqli_query($dbc, "SELECT `created_by`, `created_date`, `document` FROM `task_document` WHERE `tasklistid`='{$row['tasklistid']}' ORDER BY `taskdocid` DESC");
-                        if ( $documents->num_rows > 0 ) { ?>
-                            <div class="form-group clearfix">
-                                <div class="updates_<?= $row['tasklistid'] ?> col-sm-12"><?php
-                                    while ( $row_doc=mysqli_fetch_assoc($documents) ) { ?>
-                                        <div class="note_block row">
-                                            <div class="col-xs-1"><?= profile_id($dbc, $row_doc['created_by']); ?></div>
-                                            <div class="col-xs-11" style="<?= $style_strikethrough ?>">
-                                                <div><a href="../Tasks_Updated/download/<?= $row_doc['document'] ?>"><?= $row_doc['document'] ?></a></div>
-                                                <div><em>Added by <?= get_contact($dbc, $row_doc['created_by']); ?> on <?= $row_doc['created_date']; ?></em></div>
-                                            </div>
-                                            <div class="clearfix"></div>
-                                        </div>
-                                        <hr class="margin-vertical" /><?php
-                                    } ?>
-                                </div>
-                                <div class="clearfix"></div>
-                            </div><?php
-                        }
-                        $comments = mysqli_query($dbc, "SELECT `created_by`, `created_date`, `comment` FROM `task_comments` WHERE `tasklistid`='{$row['tasklistid']}' AND `deleted`=0 ORDER BY `taskcommid` DESC");
-                        if ( $comments->num_rows > 0 ) {
-                            $odd_even = 0; ?>
-                            <div class="form-group clearfix">
-                                <div class="updates_<?= $row['tasklistid'] ?> col-sm-12"><?php
-                                    while ( $row_comment=mysqli_fetch_assoc($comments) ) {
-                  $bg_class = $odd_even % 2 == 0 ? 'row-even-bg' : 'row-odd-bg'; ?>
-                                        <div class="note_block row <?= $bg_class ?>">
-                                            <div class="col-xs-1"><?= profile_id($dbc, $row_comment['created_by']); ?></div>
-                                            <div class="col-xs-11" style="<?= $style_strikethrough ?>">
-                                                <div><?= html_entity_decode($row_comment['comment']); ?></div>
-                                                <div><em>Added by <?= get_contact($dbc, $row_comment['created_by']); ?> on <?= $row_comment['created_date']; ?></em></div>
-                                            </div>
-                                            <div class="clearfix"></div>
-                                        </div><?php
-                                        $odd_even++;
-                                    } ?>
-                                </div>
-                                <div class="clearfix"></div>
-                            </div><?php
-                        }
-
-
+                        echo '</select></div><div class="clearfix"></div>';
                         echo '</li>';
                     }
                     while($row = mysqli_fetch_array( $ticket_result )) {
@@ -940,7 +846,7 @@ function checklist_attach_file(checklist) {
                                 $border_colour = get_contact($dbc, $userid, 'calendar_color');
                             }
                         }
-                            echo '<li id="'.$row['ticketid'].' data-id-field="ticketid" data-table="tickets" class="ui-state-default '.$class_on.'" style="'.($row['flag_colour'] == '' ? '' : 'background-color: '.$row['flag_colour'].';').($border_colour == '' ? '' : 'border-style:solid;border-color: '.$border_colour.';border-width:3px;').'">';
+                            echo '<li id="'.$row['ticketid'].' data-id="'.$row['ticketid'].' data-id-field="ticketid" data-table="tickets" class="ui-state-default '.$class_on.'" style="'.($row['flag_colour'] == '' ? '' : 'background-color: '.$row['flag_colour'].';').($border_colour == '' ? '' : 'border-style:solid;border-color: '.$border_colour.';border-width:3px;').'">';
 
                         $businessid = $url_tab=='Business' ? $row['businessid'] : '';
                         $clientid = $url_tab=='Client' ? $row['clientid'] : '';
