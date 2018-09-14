@@ -235,7 +235,7 @@ define('PURCHASER', count($purchaser_config) > 1 ? 'Customer' : $purchaser_confi
 
                                 <div class="text-lg"><?= ( $total_ar_60 > 0 ) ? '<a href="../Reports/report_tiles.php?type=ar&report=A/R Aging Summary&from='.$starttime.'&to='.$endtime.'">$'.number_format($total_ar_60, 2).'</a>' : '$'. 0; ?></div>
 
-                                <div>60 - 89 Dyas A/R</div>
+                                <div>60 - 89 Days A/R</div>
                             </div>
                         </div>
                         <div class="col-xs-12 col-sm-3 gap-top">

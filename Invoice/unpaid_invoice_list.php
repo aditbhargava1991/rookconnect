@@ -212,35 +212,6 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
                     if($search_to == 0000-00-00) {
                         $search_to = date('Y-m-d');
                     }
-                    
-                    $patient_clause = !empty($search_contact) ? "AND patientid = '$search_contact'" : '';
-                    
-                    $today_date = date('Y-m-d');
-                    $as_at_date = $search_to;
-                    $last29 = date('Y-m-d', strtotime($as_at_date.' - 29 days'));
-                    $last30 = date('Y-m-d', strtotime($as_at_date.' - 30 days'));
-                    $last59 = date('Y-m-d', strtotime($as_at_date.' - 59 days'));
-                    $last60 = date('Y-m-d', strtotime($as_at_date.' - 60 days'));
-                    $last89 = date('Y-m-d', strtotime($as_at_date.' - 89 days'));
-                    $last90 = date('Y-m-d', strtotime($as_at_date.' - 90 days'));
-                    $last119 = date('Y-m-d', strtotime($as_at_date.' - 119 days'));
-                    $last120 = date('Y-m-d', strtotime($as_at_date.' - 120 days'));
-                    $ar_types = "'On Account', 'Net 30', 'Net 30 Days', 'Net 60', 'Net 60 Days', 'Net 90', 'Net 90 Days', 'Net 120', 'Net 120 Days', ''";
-
-                    $total_30 = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT SUM(patient_price) AS `all_payment` FROM invoice_patient WHERE (DATE(invoice_date) >= '".$search_from."' AND DATE(invoice_date) <= '".$search_to."') AND DATE(invoice_date) >= '".$last29."' $patient_clause AND (paid_date > '$as_at_date' OR IFNULL(`paid`,'') IN ($ar_types))"));
-                    $total_last30 = $total_30['all_payment'];
-
-                    $total_3059 = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT SUM(patient_price) AS `all_payment` FROM invoice_patient WHERE (DATE(invoice_date) >= '".$search_from."' AND DATE(invoice_date) <= '".$search_to."') AND (DATE(invoice_date) >= '".$last59."' AND DATE(invoice_date) < '".$last29."') $patient_clause AND (paid_date > '$as_at_date' OR IFNULL(`paid`,'') IN ($ar_types))"));
-                    $total_last3059 = $total_3059['all_payment'];
-
-                    $total_6089 = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT SUM(patient_price) AS `all_payment` FROM invoice_patient WHERE (DATE(invoice_date) >= '".$search_from."' AND DATE(invoice_date) <= '".$search_to."') AND (DATE(invoice_date) >= '".$last89."' AND DATE(invoice_date) < '".$last59."') $patient_clause AND (paid_date > '$as_at_date' OR IFNULL(`paid`,'') IN ($ar_types))"));
-                    $total_last6089 = $total_6089['all_payment'];
-
-                    $total_90119 = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT SUM(patient_price) AS `all_payment` FROM invoice_patient WHERE (DATE(invoice_date) >= '".$search_from."' AND DATE(invoice_date) <= '".$search_to."') AND (DATE(invoice_date) >= '".$last119."' AND DATE(invoice_date) < '".$last89."') $patient_clause AND (paid_date > '$as_at_date' OR IFNULL(`paid`,'') IN ($ar_types))"));
-                    $total_last90119 = $total_90119['all_payment'];
-
-                    $total_120 = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT SUM(patient_price) AS `all_payment` FROM invoice_patient WHERE (DATE(invoice_date) >= '".$search_from."' AND DATE(invoice_date) <= '".$search_to."') AND (DATE(invoice_date) < '".$last119."') $patient_clause AND (paid_date > '$as_at_date' OR IFNULL(`paid`,'') IN ($ar_types))"));
-                    $total_last120 = $total_120['all_payment']; ?>
 
                     $ar_types = "'On Account', 'Net 30', 'Net 30 Days', 'Net 60', 'Net 60 Days', 'Net 90', 'Net 90 Days', 'Net 120', 'Net 120 Days', ''";
                     
@@ -304,7 +275,7 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
                         <div class="col-xs-12 col-sm-3 gap-top">
                             <div class="summary-block">
                                 <div class="text-lg"><?= ( $total_ar_60 > 0 ) ? '<a href="../Reports/report_tiles.php?type=ar&report=A/R Aging Summary&from='.$starttime.'&to='.$endtime.'">$'.number_format($total_ar_60, 2).'</a>' : '$'. 0; ?></div>
-                                <div>60 - 89 Dyas A/R</div>
+                                <div>60 - 89 Days A/R</div>
                             </div>
                         </div>
                         <div class="col-xs-12 col-sm-3 gap-top">
