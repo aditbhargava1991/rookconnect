@@ -1225,6 +1225,9 @@ function mark_done(sel) {
 					  <?php
 						$tabs = get_config($dbc, 'ticket_status');
 						$each_tab = explode(',', $tabs);
+                        if($task_status == '') {
+                            $task_status = 'To Be Scheduled';
+                        }
 						foreach ($each_tab as $cat_tab) {
 							if ($task_status == $cat_tab) {
 								$selected = 'selected="selected"';
@@ -1273,7 +1276,11 @@ function mark_done(sel) {
             </div>
                         <?php } ?>
 
-                        <?php if(strpos($task_fields, ',To Do Date,') !== FALSE) { ?>
+                        <?php if(strpos($task_fields, ',To Do Date,') !== FALSE) {
+                        if($task_tododate == '') {
+                            $task_tododate = date('Y-m-d');
+                        }
+                        ?>
             <div class="form-group clearfix">
                 <label for="first_name" class="col-sm-4 control-label text-right"><?php echo (strpos($task_mandatory_fields, ',To Do Date,') !== FALSE ? '<font color="red">* </font>' : ''); ?>To Do Date:</label>
                 <div class="col-sm-8">
@@ -1295,7 +1302,7 @@ function mark_done(sel) {
 
                                             <?php $staff_list = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name` FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `deleted`=0 AND `status`>0"),MYSQLI_ASSOC));
                                             foreach($staff_list as $staff_id) { ?>
-                                                <!-- <option <?//= ($staff_id == $_SESSION['contactid'] ? "selected" : '') ?> value='<?//=  $staff_id; ?>' ><?//= get_contact($dbc, $staff_id) ?></option> -->
+                                                 <option <?= ($staff_id == $_SESSION['contactid'] ? "selected" : '') ?> value='<?=  $staff_id; ?>' ><?= get_contact($dbc, $staff_id) ?></option>
                                                 <option <?= (strpos(','.$task_contactid.',', ','.$staff_id.',') !== false) ? ' selected' : ''; ?> value="<?= $staff_id; ?>"><?= get_contact($dbc, $staff_id); ?></option>
                                             <?php } ?>
                                         </select>
