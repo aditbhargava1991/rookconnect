@@ -531,7 +531,6 @@ if(!empty($summary_hide_positions)) {
 						</td>
 						<td data-title="Total Tracked Time">
 							<?php $tracked_time = '-';
-
 							if(!empty($tracked_hours)) {
 								$tracked_time = 0;
 								foreach($tracked_hours as $tracked_hour) {
@@ -583,7 +582,6 @@ if(!empty($summary_hide_positions)) {
 						</td>
 						<td data-title="Total Tracked Time">
 							<?php $tracked_time = '-';
-
 							if(!empty($tracked_hours)) {
 								$tracked_time = 0;
 								foreach($tracked_hours as $tracked_hour) {

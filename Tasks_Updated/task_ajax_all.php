@@ -5,6 +5,16 @@ include ('../function.php');
 include ('../global.php');
 include ('../phpmailer.php');
 
+if($_GET['fill'] == 'setting_task_checklist') {
+    $checklist = $_GET['checklist'];
+    set_config($dbc, 'task_include_checklists', $checklist);
+}
+
+if($_GET['fill'] == 'setting_task_intake') {
+    $intake = $_GET['intake'];
+    set_config($dbc, 'task_include_intake', $intake);
+}
+
 if($_GET['fill'] == 'tasks_slider_layout') {
     $layout = $_GET['layout'];
     set_config($dbc, 'tasks_slider_layout', $layout);

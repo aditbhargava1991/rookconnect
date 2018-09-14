@@ -56,27 +56,19 @@ include ('../include.php'); ?>
 
         var $sections = $('.accordion-block-details');
         var $subsections = $('.accordion-block-details-sub');
-        $('.main-screen').on('scroll', function(){
+        $('.has-main-screen').on('scroll', function(){
             var currentScroll = $('.main-screen .tile-container').offset().top + $('.main-screen').find('.standard-body-title').height();
             var $currentSection;
+            $('.tile-sidebar .active').removeClass('active');
             $sections.each(function(){
-                var divPosition = this.getBoundingClientRect().top;
-                if( divPosition < currentScroll ){
-                    $currentSection = $(this);
-                }
-                var id = $currentSection.attr('id');
-                $('.tile-sidebar .active:not(.sub_heading)').removeClass('active');
-                $('.tile-sidebar [href=#'+id+']').find('li:not(.sidebar-higher-level)').addClass('active');
-                $('.tile-sidebar a.cursor-hand[href=#'+id+']').addClass('active');
-            });
-            $('.tile-sidebar a.cursor-hand').each(function() {
-                if($(this).hasClass('active') && !($(this).closest('.sidebar_heading').find('ul').hasClass('in'))) {
-                    $(this).click();
-                } else if(!($(this).hasClass('active')) && $(this).closest('.sidebar_heading').find('ul').hasClass('in')) {
-                    $(this).click();
+                var top = $('.has-main-screen').offset().top;
+                var bottom = $('.has-main-screen').outerHeight() + top;
+                if($(this).offset().top < bottom - 15 && $(this).offset().top + $(this).outerHeight() > top + 10) {
+                    var id = this.id;
+                    $('.tile-sidebar [href$=#'+id+']').find('li:not(.sidebar-higher-level)').addClass('active');
                 }
             });
-        });
+        }).scroll();
 
         var current_tab = [];
         $('[data-tab-name]:visible').each(function() {
@@ -91,16 +83,19 @@ include ('../include.php'); ?>
             if($('.main-screen .main-screen').is(':visible') && $('.sidebar').is(':visible')) {
                 var available_height = window.innerHeight - $('footer:visible').outerHeight() - $('.sidebar:visible').offset().top;
                 if(available_height > 300) {
-                    $('.main-screen .main-screen').outerHeight(available_height).css('overflow-y','auto');
                     $('.sidebar').outerHeight(available_height).css('overflow-y','auto');
-                    $('.search-results').outerHeight(available_height).css('overflow-y','auto');
+                    var sidebar_height = $('.tile-sidebar').outerHeight(true);
+                    $('.has-main-screen .main-screen').css('height','auto');
+                    $('.has-main-screen').outerHeight(sidebar_height).css('overflow-y','auto');
                 }
-                var sidebar_height = $('.tile-sidebar').outerHeight(true);
-                $('.has-main-screen, .has-main-screen .main-screen').css('min-height', sidebar_height);
             } else {
                 $('.main-screen .main-screen').css('height','auto');
             }
         }).resize();
+        
+        $('.tile-sidebar a').click(function() {
+            $('.has-main-screen').scroll();
+        });
     });
 
     function resizeScreen() {
@@ -250,50 +245,50 @@ if (isset($_POST['add_service'])) {
                 <!-- Sidebar -->
                 <div class="tile-sidebar sidebar sidebar-override hide-titles-mob standard-collapsible">
                     <ul>
-                        <a href="index.php"><li class="collapsed cursor-hand">Dashboard</li></a>
-                        <a href="#serviceinfo"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_serviceinfo" id="nav_serviceinfo">Service Information</li></a><?php
+                        <a href="index.php"><li class="collapsed cursor-hand">Back to Dashboard</li></a>
+                        <a href="?p=details&id=<?= $serviceid ?>#serviceinfo"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_serviceinfo" id="nav_serviceinfo">Service Information</li></a><?php
                         if (strpos($value_config, ',Quantity,') !== false) { ?>
-                            <a href="#quantity"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_quantity" id="nav_quantity">Quantity</li></a><?php
+                            <a href="?p=details&id=<?= $serviceid ?>#quantity"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_quantity" id="nav_quantity">Quantity</li></a><?php
                         }
                         if (strpos($value_config, ',Description,') !== false || strpos($value_config, ',Quote Description,') !== false || strpos($value_config, ',Invoice Description,') !== false || strpos($value_config, ',Ticket Description,') !== false || strpos($value_config, ',Service Image,') !== false) { ?>
-                            <a href="#descriptions"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_descriptions" id="nav_descriptions">Descriptions</li></a><?php
+                            <a href="?p=details&id=<?= $serviceid ?>#descriptions"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_descriptions" id="nav_descriptions">Descriptions</li></a><?php
                         }
                         if (strpos($value_config, ',Checklist,') !== false) { ?>
-                            <a href="#checklist"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_checklist" id="nav_checklist">Checklist</li></a><?php
+                            <a href="?p=details&id=<?= $serviceid ?>#checklist"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_checklist" id="nav_checklist">Checklist</li></a><?php
                         }
                         if (strpos($value_config, ',Fee,') !== false) { ?>
-                            <a href="#fee"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_fee" id="nav_fee">Fee</li></a><?php
+                            <a href="?p=details&id=<?= $serviceid ?>#fee"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_fee" id="nav_fee">Fee</li></a><?php
                         }
                         if (strpos($value_config, ',Cost,') !== false || strpos($value_config, ',Unit Cost,') !== false) { ?>
-                            <a href="#costs"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_costs" id="nav_costs">Costs</li></a><?php
+                            <a href="?p=details&id=<?= $serviceid ?>#costs"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_costs" id="nav_costs">Costs</li></a><?php
                         }
                         if (strpos($value_config, ',Final Retail Price,') !== false || strpos($value_config, ',Admin Price,') !== false || strpos($value_config, ',Wholesale Price,') !== false || strpos($value_config, ',Commercial Price,') !== false || strpos($value_config, ',Client Price,') !== false || strpos($value_config, ',Purchase Order Price,') !== false || strpos($value_config, ',Sales Order Price,') !== false || strpos($value_config, ',MSRP,') !== false || strpos($value_config, ',Unit Price,') !== false) { ?>
-                            <a href="#pricepoints"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_pricepoints" id="nav_pricepoints">Price Points</li></a><?php
+                            <a href="?p=details&id=<?= $serviceid ?>#pricepoints"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_pricepoints" id="nav_pricepoints">Price Points</li></a><?php
                         }
                         if (strpos($value_config, ',Include in Sales Orders,') !== false || strpos($value_config, ',Include in Purchase Orders,') !== false || strpos($value_config, ',Include in P.O.S.,') !== false) { ?>
-                            <a href="#inclusions"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_inclusions" id="nav_inclusions">Inclusions</li></a><?php
+                            <a href="?p=details&id=<?= $serviceid ?>#inclusions"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_inclusions" id="nav_inclusions">Inclusions</li></a><?php
                         }
                         if (strpos($value_config, ',Rent Price,') !== false || strpos($value_config, ',Rental Days,') !== false || strpos($value_config, ',Rental Weeks,') !== false || strpos($value_config, ',Rental Months,') !== false || strpos($value_config, ',Rental Years,') !== false) { ?>
-                            <a href="#rentalinfo"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_rentalinfo" id="nav_rentalinfo">Rental Information</li></a><?php
+                            <a href="?p=details&id=<?= $serviceid ?>#rentalinfo"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_rentalinfo" id="nav_rentalinfo">Rental Information</li></a><?php
                         }
                         if (strpos($value_config, ',Reminder/Alert,') !== false || strpos($value_config, ',Daily,') !== false || strpos($value_config, ',Weekly,') !== false || strpos($value_config, ',Monthly,') !== false || strpos($value_config, ',Annually,') !== false) { ?>
-                            <a href="#reminderalert"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_reminderalert" id="nav_reminderalert">Reminder/Alert</li></a><?php
+                            <a href="?p=details&id=<?= $serviceid ?>#reminderalert"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_reminderalert" id="nav_reminderalert">Reminder/Alert</li></a><?php
                         }
                         if (strpos($value_config, ',#Of Days,') !== false || strpos($value_config, ',#Of Hours,') !== false || strpos($value_config, ',#Of Kilometers,') !== false || strpos($value_config, ',#Of Miles,') !== false || strpos($value_config, ',Estimated Hours,') !== false) { ?>
-                            <a href="#unitinfo"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_unitinfo" id="nav_unitinfo">Unit Information</li></a><?php
+                            <a href="?p=details&id=<?= $serviceid ?>#unitinfo"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_unitinfo" id="nav_unitinfo">Unit Information</li></a><?php
                         }
                         if (strpos($value_config, ',GST exempt,') !== false) { ?>
-                            <a href="#gstexempt"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_gst_exempt" id="nav_gstexempt">GST Exempt</li></a><?php
+                            <a href="?p=details&id=<?= $serviceid ?>#gstexempt"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_gst_exempt" id="nav_gstexempt">GST Exempt</li></a><?php
                         }
                         if (strpos($value_config, ',Appointment Type,') !== false) { ?>
-                            <a href="#appttype"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_appointment_type" id="nav_appttype">Appointment Type</li></a><?php
+                            <a href="?p=details&id=<?= $serviceid ?>#appttype"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_appointment_type" id="nav_appttype">Appointment Type</li></a><?php
                         } ?>
                     </ul>
                 </div><!-- .tile-sidebar -->
 
                 <!-- Main Screen -->
                 <div class="scale-to-fill tile-content has-main-screen" style="padding:0;">
-                    <div class="main-screen override-main-screen full-height no-overflow-x"><?php
+                    <div class="main-screen override-main-screen no-overflow-x"><?php
                         if ( $page=='preview' || empty($page) ) {
                             include('preview.php');
                         } elseif ( $page=='detailsmob' ) {
