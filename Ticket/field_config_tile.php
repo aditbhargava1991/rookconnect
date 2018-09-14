@@ -114,10 +114,6 @@ function saveField() {
 			}
 		});
 	} else if(this.name == 'ticket_uneditable_status[]') {
-		var statuses = [];
-		$(this).find('option:selected').each(function () {
-			statuses.push(this.value);
-		});
 		$.ajax({
 			url: 'ticket_ajax_all.php?action=setting_tile',
 			method: 'POST',
@@ -135,7 +131,19 @@ function saveField() {
 				value: this.value
 			}
 		});
-	}
+	} else if(['ticket_archive_status'].indexOf(this.name) >= 0) {
+        var value = '';
+        if(this.type == 'select-multiple') {
+            var list = [];
+            $(this).find('option:selected').each(function () {
+                list.push(this.value);
+            });
+            value = list.join('#*#');
+        } else {
+            value = this.value;
+        }
+        $.post('ticket_ajax_all.php?action=setting_tile', { field: this.name, value: value });
+    }
 }
 </script>
 <h3>Tickets Tile Name</h3>
@@ -194,6 +202,19 @@ function saveField() {
 		<select name="ticket_uneditable_status[]" multiple class="chosen-select-deselect">
 			<?php foreach(explode(',',get_config($dbc, 'ticket_status')) as $status_option) { ?>
 				<option <?= strpos($status, ','.$status_option.',') !== FALSE ? 'selected' : '' ?> value="<?= $status_option ?>"><?= $status_option ?></option>
+			<?php } ?>
+		</select>
+	</div>
+	<div class="clearfix"></div>
+</div>
+<hr>
+<div class="form-group type-option">
+	<label class="col-sm-4">Auto Archive Statuses:</label>
+	<div class="col-sm-8">
+		<?php $status_list = explode('#*#',get_config($dbc, "ticket_archive_status")); ?>
+		<select name="ticket_archive_status" multiple data-placeholder="Select Statuses" class="chosen-select-deselect">
+			<?php foreach(explode(',',get_config($dbc, 'ticket_status')) as $status_option) { ?>
+				<option <?= in_array($status_option,$status_list) ? 'selected' : '' ?> value="<?= $status_option ?>"><?= $status_option ?></option>
 			<?php } ?>
 		</select>
 	</div>

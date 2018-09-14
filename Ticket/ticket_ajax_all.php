@@ -397,7 +397,7 @@ if($_GET['fill'] == 'update_ticket_status') {
     $status = $_GET['status'];
 	$query_update_employee = "UPDATE `tickets` SET status = '$status', `status_date`=CURDATE() WHERE ticketid='$ticketid'";
 	$result_update_employee = mysqli_query($dbc, $query_update_employee);
-	if($status == 'Archive') {
+	if(in_array(explode('#*#',get_config($dbc, "ticket_archive_status")), $status)) {
 		$ticket = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticketid`='$ticketid'"));
 		$ticket_config = get_field_config($dbc, 'tickets');
 		if($ticket['ticket_type'] != '') {
@@ -507,25 +507,29 @@ if($_GET['action'] == 'update_fields') {
 		$changer = get_contact($dbc, $_SESSION['contactid']);
 		$history = $current_history . "<b>$changer</b> has Changed the status to $value on " . date("Y-m-d H:m:s") . "<br>";
 		mysqli_query($dbc, "UPDATE tickets set history = '$history' where ticketid = $id");
-		if($value == 'Archive') {
-			$ticket = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticketid`='$id'"));
-			$ticket_config = get_field_config($dbc, 'tickets');
-			if($ticket['ticket_type'] != '') {
-				$ticket_config .= ','.get_config($dbc, 'ticket_fields_'.$ticket['ticket_type']).',';
-			}
-			if(strpos($ticket_config,',Send Archive Email,') !== FALSE) {
-				$ticket_label = get_ticket_label($dbc, $ticket);
-				foreach(explode(',',$ticket['contactid'].','.$ticket['internal_qa_contactid'].','.$ticket['deliverable_contactid']) as $staffid) {
-					if($staffid > 0) {
-						$email = get_email($dbc, $staffid);
-						if($email != '') {
-							$subject = $ticket_label." has been Archived";
-							$body = "You are receiving this email because you were involved in $ticket_label, and it has been archived.<br />
-								To review this ".TICKET_NOUN.", <a href='".WEBSITE_URL."/Ticket/index.php?edit=".$ticket['ticketid']."&tile_name=".$ticket['ticket_type']."'>click here</a>.";
-							send_email('', $email, '', '', $subject, $body);
-						}
-					}
-				}
+		if(in_array($value, explode('#*#',get_config($dbc, "ticket_archive_status")))) {
+            if($table_name != 'tickets') {
+                $dbc->query("UPDATE `$table_name` SET `deleted`=1 WHERE `$id_field`='$id'");
+            } else {
+                $ticket = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticketid`='$id'"));
+                $ticket_config = get_field_config($dbc, 'tickets');
+                if($ticket['ticket_type'] != '') {
+                    $ticket_config .= ','.get_config($dbc, 'ticket_fields_'.$ticket['ticket_type']).',';
+                }
+                if(strpos($ticket_config,',Send Archive Email,') !== FALSE) {
+                    $ticket_label = get_ticket_label($dbc, $ticket);
+                    foreach(explode(',',$ticket['contactid'].','.$ticket['internal_qa_contactid'].','.$ticket['deliverable_contactid']) as $staffid) {
+                        if($staffid > 0) {
+                            $email = get_email($dbc, $staffid);
+                            if($email != '') {
+                                $subject = $ticket_label." has been Archived";
+                                $body = "You are receiving this email because you were involved in $ticket_label, and it has been archived.<br />
+                                    To review this ".TICKET_NOUN.", <a href='".WEBSITE_URL."/Ticket/index.php?edit=".$ticket['ticketid']."&tile_name=".$ticket['ticket_type']."'>click here</a>.";
+                                send_email('', $email, '', '', $subject, $body);
+                            }
+                        }
+                    }
+                }
 			}
 		}
 		if(!empty($_POST['auto_create_unscheduled']) && !empty($value) && strpos($_POST['auto_create_unscheduled'], ','.$value.',') !== FALSE) {

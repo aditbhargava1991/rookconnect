@@ -2791,6 +2791,41 @@ if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) {
 			</div>
 		<?php }
 
+		if($sort_field == 'Delivery Summary') { ?>
+			<div class="form-group sort_order_accordion" data-accordion="Delivery Summary">
+				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Delivery Summary' ?></span>:<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
+					<span class="dataToggle cursor-hand no-toggle <?= in_array('ticket_delivery',$all_unlocked_tabs) ? 'disabled' : '' ?>" title="Locking a tab will hide the contents of that tab on all new <?= TICKET_TILE ?>. A user with access to edit the <?= TICKET_NOUN ?> can then unlock that tab for that <?= TICKET_NOUN ?>.<?= in_array('ticket_delivery',$all_unlocked_tabs) ? ' This tab has been locked for all '.TICKET_TILE.'.' : '' ?>">
+						<input type="hidden" name="ticket_tab_locks<?= empty($tab) ? '' : '_'.$tab ?>" value="ticket_delivery" data-toggle="<?= in_array('ticket_delivery',$unlocked_tabs) ? 1 : 0 ?>">
+						<img class="inline-img" style="<?= in_array('ticket_delivery',array_merge($unlocked_tabs,$all_unlocked_tabs)) ? '' : 'display:none;' ?>" src="../img/icons/lock.png">
+						<img class="inline-img" style="<?= in_array('ticket_delivery',array_merge($unlocked_tabs,$all_unlocked_tabs)) ? 'display:none;' : '' ?>" src="../img/icons/lock-open.png"></span><?php } ?></label>
+				<div class="col-sm-4 accordion_rename" style="display: none;">
+					<input type="text" name="renamed_accordion[]" value="<?= !empty($renamed_accordion) ? $renamed_accordion : 'Delivery Summary' ?>" onfocusout="updateAccordion(this);" class="form-control">
+				</div>
+				<div class="col-sm-8">
+					<label class="form-checkbox"><input type="checkbox" <?= in_array("Delivery Summary", $all_config) ? 'checked disabled' : (in_array("Delivery Summary", $value_config) ? "checked" : '') ?> value="Delivery Summary" name="tickets[]">
+						<span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will allow you to add additional locations and times to the <?= TICKET_NOUN ?>."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Enable</label>
+					<div class="block-group">
+						<div class="fields_sortable">
+						<?php foreach ($field_sort_order as $field_sort_field) { ?>
+							<?php if($field_sort_field == 'Delivery Summary Stop') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Delivery Summary Stop", $all_config) ? 'checked disabled' : (in_array("Delivery Summary Stop", $value_config) ? "checked" : '') ?> value="Delivery Summary Stop" name="tickets[]"> Delivery Stop</label>
+							<?php } ?>
+							<?php if($field_sort_field == 'Delivery Summary Client') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Delivery Summary Client", $all_config) ? 'checked disabled' : (in_array("Delivery Summary Client", $value_config) ? "checked" : '') ?> value="Delivery Summary Client" name="tickets[]"> Delivery Client</label>
+							<?php } ?>
+							<?php if($field_sort_field == 'Delivery Summary Address') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Delivery Summary Address", $all_config) ? 'checked disabled' : (in_array("Delivery Summary Address", $value_config) ? "checked" : '') ?> value="Delivery Summary Address" name="tickets[]"> Delivery Address</label>
+							<?php } ?>
+							<?php if($field_sort_field == 'Delivery Summary Status') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Delivery Summary Status", $all_config) ? 'checked disabled' : (in_array("Delivery Summary Status", $value_config) ? "checked" : '') ?> value="Delivery Summary Status" name="tickets[]"> Delivery Status</label>
+							<?php } ?>
+						<?php } ?>
+						</div>
+					</div>
+				</div>
+			</div>
+		<?php }
+
 		if($sort_field == 'Transport') { ?>
 			<div class="form-group sort_order_accordion" data-accordion="Transport">
 				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Transport Log' ?></span>:<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a><?php } ?></label>
