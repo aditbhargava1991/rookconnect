@@ -1,5 +1,5 @@
 <?php include('../include.php');
-ob_clean();
+ob_clean(); 
 
 if($_GET['action'] == 'field_config') {
 	$tab = filter_var($_POST['tab'],FILTER_SANITIZE_STRING);

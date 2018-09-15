@@ -9,7 +9,7 @@
 // 	include_once ('../email.php');
 // 	include_once ('../user_font_settings.php');
 // }
-checkAuthorised('staff');
+checkAuthorised('staff'); 
 $rookconnect = get_software_name(); ?>
 <script type="text/javascript">
 	/*$(window).scroll(scrollScreen);
