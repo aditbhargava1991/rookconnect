@@ -530,7 +530,7 @@ function syncTable(link) {
 			while($resTables = mysqli_fetch_assoc($tables_config)) {
 				$table_config = $resTables['table_name'];
 			?>
-				<?php if(tile_enabled($dbc, $table_config)['user_enabled'] > 0) { ?>
+				<?php //if(tile_enabled($dbc, $table_config)['user_enabled'] > 0) { ?>
 					<tr data-table="<?php echo $table_config; ?>">
 						<?php $count_live = $db_all->query("SELECT SUM(IF(`deleted`=0,1,0)) `active`, SUM(IF(`deleted`=0,0,1)) `archived` FROM `".DATABASE_NAME2."`.`".$table_config."`")->fetch_assoc();
 						$count_demo = $db_all->query("SELECT SUM(IF(`deleted`=0,1,0)) `active`, SUM(IF(`deleted`=0,0,1)) `archived` FROM `".DATABASE_NAME."`.`$table_config`")->fetch_assoc();
@@ -540,7 +540,7 @@ function syncTable(link) {
 						<td data-title="Rows in Demo Software"><?= $count_demo['active'] ?> Rows, <?= $count_demo['archived'] ?> Archived</td>
 						<td data-title="Function"><?php if($cols['live_cols'] == $cols['demo_cols']) { ?><a class="cursor-hand" onclick="syncTable(this);">Sync Live data to Demo</a><?php } else { ?>The number of columns in your Live Sofware (<?= $cols['live_cols'] ?>) does not match your Demo Software (<?= $cols['demo_cols'] ?>)<?php } ?></td>
 					</tr>
-				<?php } ?>
+				<?php //} ?>
 			<?php } ?>
 		</table>
 	<?php } ?>
