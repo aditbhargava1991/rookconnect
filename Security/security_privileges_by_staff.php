@@ -25,7 +25,7 @@ jQuery(document).ready(function($){
 			var tile = $(this).data('option');
 			var level = $('#sub_category').val();
 			var title = $(this).parents('tr').children(':first').text();
-		   $('#iframe_instead_of_window').attr('src', 'privileges_history.php?tile_name='+tile+'&title='+title+'&level='+level);
+		   $('#iframe_instead_of_window').attr('src', 'privileges_staff_history.php?tile_name='+tile+'&title='+title+'&level='+level);
 		   $('.iframe_title').text('Security Privileges History');
 		   $('.iframe_holder').show();
 		   $('.hide_on_iframe').hide();
@@ -121,6 +121,16 @@ function privilegesConfig(sel) {
 		dataType: "html",   //expect html to be returned
 		success: function(response){
 			//alert(forwhat + " is changed successfully for " + name + ".");
+		}
+	});
+
+	//CHANGE LOG
+	var contactid = $('.contacterid').val();
+	$.ajax({    //create an ajax request to load_page.php
+		type: "GET",
+		url: "../ajax_all.php?fill=privileges_config_staff_log&name="+name+"&level="+level+"&value="+final_value+"&contactid="+contactid+"&uncheck_staff="+uncheck_staff+"&check_staff="+check_staff,
+		dataType: "html",   //expect html to be returned
+		success: function(response){
 		}
 	});
 }
@@ -1325,7 +1335,7 @@ function go_to_dashboard(target) {
 		</td>
 		<?php if ( $subtab == 1 ) { ?>
 			<td data-title="Subtab Permissions" align="center">
-				<a class="" href="software_config_subtabs.php?tile=<?= $field; ?>&level=<?= $level_url; ?>"><img class="settings-classic wiggle-me" src="../img/icons/settings-4.png" title="Sub Tab Settings" style="width:30px;"></a>
+				<a class="" href="software_config_staff_subtabs.php?tile=<?= $field; ?>&level=<?= $level_url; ?>"><img class="settings-classic wiggle-me" src="../img/icons/settings-4.png" title="Sub Tab Settings" style="width:30px;"></a>
 			</td><?php
 		} else { ?>
 			<td>&nbsp;</td><?php
@@ -1379,7 +1389,7 @@ function go_to_dashboard(target) {
 		</td>
 		<?php if ( $subtab == 1 ) { ?>
 			<td data-title="Subtab Permissions" align="center">
-				<a class="" href="software_config_subtabs.php?tile=<?= $field; ?>&level=<?= $level_url; ?>"><img class="settings-classic wiggle-me" src="../img/icons/settings-4.png" title="Sub Tab Settings" style="width:30px;"></a>
+				<a class="" href="software_config_staff_subtabs.php?tile=<?= $field; ?>&level=<?= $level_url; ?>"><img class="settings-classic wiggle-me" src="../img/icons/settings-4.png" title="Sub Tab Settings" style="width:30px;"></a>
 			</td><?php
 		} else { ?>
 			<td>&nbsp;</td><?php

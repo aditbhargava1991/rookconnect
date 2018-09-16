@@ -170,6 +170,38 @@ if($_GET['fill'] == 'subtab_config') {
     }
 }
 
+if($_GET['fill'] == 'subtab_staff_config') {
+    $tile           = $_GET[ 'tile' ];
+    $level          = $_GET[ 'level' ];
+    $subtab         = $_GET[ 'subtab' ];
+    $value          = $_GET[ 'value' ] . '*#*' . date('Y-m-d');
+    $turnOn         = $_GET[ 'turnOn' ];
+    $turnOff        = $_GET[ 'turnOff' ];
+    $turn_off_value = 'turn_off*#*' . date('Y-m-d');
+    $turn_on_value  = 'turn_on*#*'  . date('Y-m-d');
+
+    if ( !empty ( $turnOff ) ) {
+        $query = mysqli_query ( $dbc, "DELETE FROM subtab_staff_config WHERE subtab='$subtab'" );
+    }
+
+    $get_config = mysqli_fetch_assoc ( mysqli_query ( $dbc, "SELECT `id`, COUNT(`id`) AS `total_ids` FROM `subtab_staff_config` WHERE `tile`='$tile' AND `security_level`='$level' AND `subtab`='$subtab'" ) );
+
+    if ( $get_config[ 'total_ids' ] == 0 ) {
+        //No entries found so we insert a record
+        $query      = "INSERT INTO `subtab_staff_config` (`tile`, `security_level`, `subtab`, `status`) VALUES ('$tile', '$level', '$subtab', '$value')";
+        $results    = mysqli_query ( $dbc, $query );
+
+    } else {
+        if ( !empty ( $turnOff ) ) {
+            $results = mysqli_query ( $dbc, "UPDATE `subtab_config` SET `status`='$turn_off_value'  WHERE `tile`='$tile' AND `security_level`='$level' AND `subtab`='$subtab'" );
+        } elseif ( !empty ( $turnOn ) ) {
+            $results = mysqli_query ( $dbc, "UPDATE `subtab_config` SET `status`='$turn_on_value'   WHERE `tile`='$tile' AND `security_level`='$level' AND `subtab`='$subtab'" );
+        } else {
+            $results = mysqli_query ( $dbc, "UPDATE `subtab_config` SET `status`='$value'           WHERE `tile`='$tile' AND `security_level`='$level' AND `subtab`='$subtab'" );
+        }
+    }
+}
+
 /*
  * Title:       Dashboard Permission Configuration
  * File:        software_config_dashboard.php
@@ -337,6 +369,24 @@ if($_GET['fill'] == 'privileges_config_log') {
 	date_default_timezone_set('America/Denver');
 	$date = date('m/d/Y h:i:s a', time());
         $query_insert_customer = "INSERT INTO `security_privileges_log` (`tile`, `level`, `privileges`,`contact`, `date_time`) VALUES ('$tile', '$level', '$value','$name', '$date')";
+        $result_insert_customer = mysqli_query($dbc, $query_insert_customer);
+        $before_change = '';
+        $history = "Security Privileges have been added. <br />";
+        add_update_history($dbc, 'security_history', $history, '', $before_change);
+}
+
+if($_GET['fill'] == 'privileges_config_staff_log') {
+    $tile = $_GET['name'];
+    $value = $_GET['value'];
+    $level = $_GET['level'];
+	$contactid = $_GET['contactid'];
+	$result = mysqli_query($dbc, "SELECT * FROM contacts WHERE contactid= '$contactid'");
+    while($row = mysqli_fetch_assoc($result)) {
+		$name = decryptIt($row['first_name']).' '.decryptIt($row['last_name']).' ('.$row['contactid'].')';
+    }
+	date_default_timezone_set('America/Denver');
+	$date = date('m/d/Y h:i:s a', time());
+        $query_insert_customer = "INSERT INTO `security_privileges_log` (`tile`, `level`, `privileges`,`contact`, `date_time`, `type`) VALUES ('$tile', '$level', '$value','$name', '$date', 'staff')";
         $result_insert_customer = mysqli_query($dbc, $query_insert_customer);
         $before_change = '';
         $history = "Security Privileges have been added. <br />";
