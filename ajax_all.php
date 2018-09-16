@@ -246,6 +246,28 @@ if($_GET['fill'] == 'security_level') {
         add_update_history($dbc, 'security_history', $history, '', $before_change);
     }
 }
+if($_GET['fill'] == 'security_level_order') {
+    $current = $_GET['current'];
+    $previous = $_GET['next'];
+    $next = $_GET['previous'];
+
+    if($current_order < $previous_order) {
+      for($i = $current_order+1; $i <= $previous_order; $i++) {
+        $custom_count = $i - 1;
+        mysqli_query($dbc, "update security_level_names set custom_order = $custom_count where custom_order = $i");
+      }
+
+      mysqli_query($dbc, "update security_level_names set custom_order = $previous_order where identifier = '$current'");
+    }
+    elseif($current_order > $previous_order) {
+      for($i = $next_order; $i <= $current_order; $i++) {
+        $custom_count = $i + 1;
+        mysqli_query($dbc, "update security_level_names set custom_order = $custom_count where custom_order = $i");
+      }
+
+      mysqli_query($dbc, "update security_level_names set custom_order = $next_order where identifier = '$current'");
+    }
+}
 if($_GET['fill'] == 'privileges_config') {
     $tile = $_GET['name'];
     $value = $_GET['value'];
