@@ -304,6 +304,27 @@ if($_GET['fill'] == 'privileges_config') {
     */
 
 }
+if($_GET['fill'] == 'privileges_config_staff') {
+    $tile = $_GET['name'];
+    $value = $_GET['value'];
+    $staffid = $_GET['level'];
+
+    $get_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT COUNT(privilegesid) AS total_id FROM security_privileges_staff WHERE tile='$tile' AND staff='$staffid'"));
+
+    if($get_config['total_id'] == 0) {
+        $query_insert_customer = "INSERT INTO `security_privileges_staff` (`tile`, `staff`, `privileges`) VALUES ('$tile', '$staffid', '$value')";
+        $result_insert_customer = mysqli_query($dbc, $query_insert_customer);
+        $before_change = '';
+        $history = "Security Privileges have been added. <br />";
+        add_update_history($dbc, 'security_history', $history, '', $before_change);
+    } else {
+        $before_change = capture_before_change($dbc, 'security_privileges_staff', 'privileges', 'tile', $tile, 'staff', $staffid);
+        $query_rate_card = "UPDATE `security_privileges_staff` SET `privileges` = '$value' WHERE tile='$tile' AND staff='$staffid'";
+        $result_rate_card	= mysqli_query($dbc, $query_rate_card);
+        $history = capture_after_change('privileges', $value);
+        add_update_history($dbc, 'security_history', $history, '', $before_change);
+    }
+}
 if($_GET['fill'] == 'privileges_config_log') {
     $tile = $_GET['name'];
     $value = $_GET['value'];

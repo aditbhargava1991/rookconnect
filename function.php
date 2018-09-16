@@ -936,6 +936,17 @@ function get_security_levels($dbc) {
 	}
 	return $on_security;
 }
+
+function get_security_levels_staff($dbc) {
+	$on_security = ['Super Admin'=>'super'];
+	$security_levels = mysqli_query($dbc, "SELECT contactid FROM `contacts` WHERE `category` = 'Staff'");
+	while($level = mysqli_fetch_assoc($security_levels)) {
+		$on_security[get_contact($dbc, $level['contactid'])] = $level['contactid'];
+	}
+
+	return $on_security;
+}
+
 function get_securitylevel($dbc, $level) {
 	$level_row = mysqli_query($dbc, "SELECT * FROM `security_level_names` WHERE `identifier`='$level'");
 	if(mysqli_num_rows($level_row) > 0) {
@@ -1108,6 +1119,58 @@ function get_privileges($dbc, $tile,$level) {
 		}
 		else if($role != '') {
 			$get_pri =	mysqli_fetch_assoc(mysqli_query($dbc,"SELECT privileges FROM security_privileges WHERE	tile='$tile' AND level LIKE '$role' UNION SELECT ''"));
+			$my_priv = '*';
+			if(strpos($get_pri['privileges'],'*hide*') === FALSE || strpos($get_pri['privileges'],'*detailed_dash*') !== FALSE || strpos($get_pri['privileges'],'*detailed_view*') !== FALSE) {
+				$this_priv = 2;
+                if(strpos($get_pri['privileges'],'*hide*') !== FALSE) {
+                    $my_priv .= 'hide*';
+                }
+                if(strpos($get_pri['privileges'].$return_priv,'*detailed_dash*') !== FALSE) {
+                    $my_priv .= 'detailed_dash*';
+                }
+                if(strpos($get_pri['privileges'].$return_priv,'*detailed_view*') !== FALSE) {
+                    $my_priv .= 'detailed_view*';
+                }
+                if(strpos($get_pri['privileges'].$return_priv,'*detailed_add*') !== FALSE) {
+                    $my_priv .= 'detailed_add*';
+                }
+                if(strpos($get_pri['privileges'].$return_priv,'*detailed_edit*') !== FALSE) {
+                    $my_priv .= 'detailed_edit*';
+                }
+                if(strpos($get_pri['privileges'].$return_priv,'*detailed_archive*') !== FALSE) {
+                    $my_priv .= 'detailed_archive*';
+                }
+				if(strpos($get_pri['privileges'].$return_priv,'*view_use_add_edit_delete*') !== FALSE) {
+					$my_priv .= 'view_use_add_edit_delete*';
+				}
+				if(strpos($get_pri['privileges'].$return_priv,'*search*') !== FALSE) {
+					$my_priv .= 'search*';
+				}
+				if(strpos($get_pri['privileges'].$return_priv,'*configure*') !== FALSE) {
+					$my_priv .= 'configure*';
+				}
+				if(strpos($get_pri['privileges'].$return_priv,'*approvals*') !== FALSE) {
+					$my_priv .= 'approvals*';
+				}
+                if(strpos($get_pri['privileges'].$return_priv,'*strictview') !== FALSE) {
+                    $my_priv .= 'strictview*';
+                }
+				$return_priv = $my_priv;
+			}
+		}
+	}
+    return $return_priv;
+}
+
+function get_privileges_staff($dbc, $tile,$level) {
+	$roles = explode(',',$level);
+	$return_priv = '*hide*';
+	foreach($roles as $role) {
+		if(strtolower($role) == 'super') {
+			return '*detailed_dash*detailed_view*detailed_add*detailed_edit*detailed_archive*view_use_add_edit_delete*search*configure*approvals*';
+		}
+		else if($role != '') {
+			$get_pri =	mysqli_fetch_assoc(mysqli_query($dbc,"SELECT privileges FROM security_privileges_staff WHERE	tile='$tile' AND staff = $role UNION SELECT ''"));
 			$my_priv = '*';
 			if(strpos($get_pri['privileges'],'*hide*') === FALSE || strpos($get_pri['privileges'],'*detailed_dash*') !== FALSE || strpos($get_pri['privileges'],'*detailed_view*') !== FALSE) {
 				$this_priv = 2;
@@ -3270,7 +3333,7 @@ function get_recurrence_days($limit = 0, $start_date, $end_date, $repeat_type, $
         } else {
             if(strtotime($cur) >= strtotime($create_starting_at)) {
                 $recurring_dates[] = $cur;
-                $reached_limit++;   
+                $reached_limit++;
             }
         }
     }
