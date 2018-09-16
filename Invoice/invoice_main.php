@@ -7,6 +7,9 @@ if(FOLDER_NAME == 'posadvanced') {
 ob_clean();
 $tab_list = explode(',',get_config($dbc, 'invoice_tabs'));
 $redirected = false;
+header('Location: index.php');
+$redirected = true;
+/*
 foreach($tab_list as $tab_name) {
 	if(!$redirected && check_subtab_persmission($dbc, FOLDER_NAME == 'invoice' ? 'check_out' : 'posadvanced', $_SESSION['role'], $tab_name)) {
 		switch($tab_name) {
@@ -44,3 +47,4 @@ foreach($tab_list as $tab_name) {
 		}
 	}
 }
+*/
