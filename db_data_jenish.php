@@ -14,6 +14,11 @@ if(!mysqli_query($dbc, "ALTER TABLE `security_privileges_log` ADD `type` TEXT(50
   echo "Error: ".mysqli_error($dbc)."<br />\n";
 }
 
+
+if(!mysqli_query($dbc, "CREATE TABLE subtab_staff_config SELECT * FROM subtab_config LIMIT 0")) {
+  echo "Error: ".mysqli_error($dbc)."<br />\n";
+}
+
 if(!mysqli_query($dbc, "CREATE TABLE security_privileges_staff SELECT * FROM security_privileges LIMIT 0")) {
   echo "Error: ".mysqli_error($dbc)."<br />\n";
 }
@@ -23,10 +28,6 @@ if(!mysqli_query($dbc, "ALTER TABLE `security_privileges_staff` ADD `staff` INT(
 }
 
 if(!mysqli_query($dbc, "ALTER TABLE `security_privileges_staff` ADD PRIMARY KEY(`privilegesid`)")) {
-  echo "Error: ".mysqli_error($dbc)."<br />\n";
-}
-
-if(!mysqli_query($dbc, "ALTER TABLE `security_privileges_staff` CHANGE `privilegesid` `privilegesid` INT(10) NOT NULL AUTO_INCREMENT")) {
   echo "Error: ".mysqli_error($dbc)."<br />\n";
 }
 
@@ -68,6 +69,10 @@ foreach($level_array as $level => $label) {
   }
 
   $custom_count++;
+}
+
+if(!mysqli_query($dbc, "ALTER TABLE `security_privileges_staff` CHANGE `privilegesid` `privilegesid` INT(10) NOT NULL AUTO_INCREMENT")) {
+  echo "Error: ".mysqli_error($dbc)."<br />\n";
 }
 
 echo "<br> ======Jenish's db changes Done======<br>";
