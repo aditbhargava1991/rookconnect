@@ -26,6 +26,10 @@ if(!mysqli_query($dbc, "ALTER TABLE `security_privileges_staff` ADD PRIMARY KEY(
   echo "Error: ".mysqli_error($dbc)."<br />\n";
 }
 
+if(!mysqli_query($dbc, "ALTER TABLE `security_privileges_staff` CHANGE `privilegesid` `privilegesid` INT(10) NOT NULL AUTO_INCREMENT")) {
+  echo "Error: ".mysqli_error($dbc)."<br />\n";
+}
+
 if(!mysqli_query($dbc, "ALTER TABLE `field_config_contacts` ADD `mandatory` BOOLEAN DEFAULT 0")) {
   echo "Error: ".mysqli_error($dbc)."<br />\n";
 }
