@@ -71,7 +71,7 @@ $(document).ready(function() {
         $(this).addClass('active');
         $('#nav_salespath, #nav_staffinfo, #nav_leadinfo, #nav_services, #nav_products, #nav_refdocs, #nav_marketing, #nav_infogathering, #nav_estimate, #nav_quote, #nav_nextaction, #nav_leadnotes, #nav_tasks, #nav_time, #nav_history').removeClass('active');
     });
-    
+
     <?php foreach(explode(',',$lead['contactid']) as $contactid) {
         if($contactid > 0) { ?>
             $('#nav_contact_<?= $contactid ?>').click(function() {<?php
@@ -294,7 +294,7 @@ $(document).ready(function() {
                         </div>
                     <?php } ?>
                 </div>
-                
+
                 <!-- Sidebar -->
                 <div class="standard-collapsible tile-sidebar tile-sidebar-noleftpad hide-on-mobile" <?= $_GET['iframe_slider'] == 1 || IFRAME_PAGE ? 'style="display:none;"' : '' ?>>
                     <ul><?php
@@ -339,6 +339,9 @@ $(document).ready(function() {
                         <?php }
                         if (strpos($value_config, ',Tasks,') !== false) { ?>
                             <a href="#tasks"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_tasks" id="nav_tasks">Tasks</li></a>
+                        <?php }
+                        if (strpos($value_config, ',Deliverable,') !== false) { ?>
+                            <a href="#deli"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_deli" id="nav_deli">Deliverable</li></a>
                         <?php }
                         if (strpos($value_config, ',Time,') !== false) { ?>
                             <a href="#time"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_time" id="nav_time">Time Tracking</li></a>

@@ -268,5 +268,9 @@ mysqli_query($dbc, "UPDATE task_dashboard SET task_fields='Board Type,Board Name
 
 mysqli_query($dbc, "ALTER TABLE `tasklist` CHANGE `flag_label` `flag_label` VARCHAR(200) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL");
 
+mysqli_query($dbc, "ALTER TABLE `sales` ADD `number_of_days` INT(10) NOT NULL DEFAULT '0' AFTER `classification`");
+
+mysqli_query($dbc, "ALTER TABLE `sales` ADD `number_of_days_start_date` DATE NULL AFTER `number_of_days`");
+
     echo "Dayana's DB Changes Done<br />\n";
 ?>
