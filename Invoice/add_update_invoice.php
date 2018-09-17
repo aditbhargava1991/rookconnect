@@ -666,8 +666,8 @@ if($invoice_mode != 'Adjustment') {
 		$misc_ins = implode(',',$misc_insurer).',';
 		//$gst_amt = $final_price + $promo_total - $gratuity - $credit_balance - $delivery - $total_price;
         $gst_amt = $final_price + $promo_total + $discount - $gratuity - $delivery - $assembly - $total_price;
-		$query_insert_invoice = "INSERT INTO `invoice` (`type`, `invoice_type`, `injuryid`, `patientid`, `therapistsid`, `serviceid`, `fee`, `admin_fee`, `service_patient`, `service_insurer`, `service_pro_bono`, `service_promo`, `inventoryid`, `sell_price`, `invtype`, `quantity`, `inventory_patient`, `inventory_insurer`, `inventory_pro_bono`, `inventory_promo`, `packageid`, `package_cost`, `package_patient`, `package_insurer`, `package_pro_bono`, `package_promo`, `misc_item`, `misc_price`, `misc_qty`, `misc_total`, `misc_patient`, `misc_insurer`, `misc_promo`, `misc_pro_bono`, `total_price`, `gst_amt`, `gratuity`, `credit_balance`, `delivery`, `delivery_type`, `delivery_address`, `contractorid`, `assembly`, `created_by`, `discount`, `final_price`, `pro_bono`, `insurerid`, `insurance_payment`, `paid`, `payment_type`, `pricing`, `service_date`, `invoice_date`, `ship_date`, `survey`, `request_recommend`, `follow_up_email`, `promotionid`, `giftcardid`, `comment`, `service_ticketid`, `misc_ticketid`)
-			VALUES ('$type_type', '$invoice_mode', '$injuryid', '$patientid', '$therapistsid', '$serviceid', '$fee', '$all_af', '$service_patient', '$service_ins', '$service_pro_bono', '$service_promo', '$inventoryid', '$sell_price', '$invtype', '$quantity', '$product_patient', '$product_ins', '$product_pro_bono', '$product_promo', '$packageid', '$package_cost', '$package_patient', '$package_ins', '$package_pro_bono', '$package_promo', '$misc_item', '$misc_price', '$misc_qty', '$misc_total', '$misc_patient', '$misc_ins', '$misc_promo', '$misc_pro_bono', '$total_price', '$gst_amt', '$gratuity', '$credit_balance', '$delivery', '$delivery_type', '$delivery_address', '$contractorid', '$assembly', '$created_by', '$discount', '$final_price', '$pro_bono', '$insurerid', '$insurance_payment', '$paid', '$payment_type', '$pricing', '$service_date', '$today_date', '$ship_date', '".$_POST['survey']."', '".$_POST['request_recommendation']."', '".$_POST['follow_up_assessment_email']."', '$promotionid', '$giftcardid', '$comment', '$service_ticketid', '$misc_ticketid')";
+		$query_insert_invoice = "INSERT INTO `invoice` (`type`, `invoice_type`, `injuryid`, `patientid`, `therapistsid`, `serviceid`, `fee`, `admin_fee`, `service_patient`, `service_insurer`, `service_pro_bono`, `service_promo`, `inventoryid`, `sell_price`, `invtype`, `quantity`, `inventory_patient`, `inventory_insurer`, `inventory_pro_bono`, `inventory_promo`, `packageid`, `package_cost`, `package_patient`, `package_insurer`, `package_pro_bono`, `package_promo`, `misc_item`, `misc_price`, `misc_qty`, `misc_total`, `misc_patient`, `misc_insurer`, `misc_promo`, `misc_pro_bono`, `total_price`, `gst_amt`, `gratuity`, `credit_balance`, `delivery`, `delivery_type`, `delivery_address`, `contractorid`, `assembly`, `created_by`, `discount`, `final_price`, `pro_bono`, `insurerid`, `insurance_payment`, `paid`, `payment_type`, `pricing`, `service_date`, `invoice_date`, `ship_date`, `survey`, `request_recommend`, `follow_up_email`, `promotionid`, `giftcardid`, `comment`, `service_ticketid`, `misc_ticketid`, `reference`)
+			VALUES ('$type_type', '$invoice_mode', '$injuryid', '$patientid', '$therapistsid', '$serviceid', '$fee', '$all_af', '$service_patient', '$service_ins', '$service_pro_bono', '$service_promo', '$inventoryid', '$sell_price', '$invtype', '$quantity', '$product_patient', '$product_ins', '$product_pro_bono', '$product_promo', '$packageid', '$package_cost', '$package_patient', '$package_ins', '$package_pro_bono', '$package_promo', '$misc_item', '$misc_price', '$misc_qty', '$misc_total', '$misc_patient', '$misc_ins', '$misc_promo', '$misc_pro_bono', '$total_price', '$gst_amt', '$gratuity', '$credit_balance', '$delivery', '$delivery_type', '$delivery_address', '$contractorid', '$assembly', '$created_by', '$discount', '$final_price', '$pro_bono', '$insurerid', '$insurance_payment', '$paid', '$payment_type', '$pricing', '$service_date', '$today_date', '$ship_date', '".$_POST['survey']."', '".$_POST['request_recommendation']."', '".$_POST['follow_up_assessment_email']."', '$promotionid', '$giftcardid', '$comment', '$service_ticketid', '$misc_ticketid', '$reference')";
         $result_insert_invoice = mysqli_query($dbc, $query_insert_invoice);
 		$invoiceid = mysqli_insert_id($dbc);
 
@@ -778,11 +778,6 @@ if($invoice_mode != 'Adjustment') {
 		$result_update_invoice = mysqli_query($dbc, $query_update_invoice);
 		$patientid = $_POST['patientid'];
 	}
-
-    //Update Reference (similar to POS Basic. SEA Alberta is using this)
-    if ( !empty($reference) ) {
-        mysqli_query($dbc, "UPDATE `contacts` SET `referred_by`='$reference' WHERE `contactid`='$patientid'");
-    }
 
     //Update Contract
     if ( !empty($contract) ) {
@@ -913,6 +908,9 @@ if($invoice_mode != 'Adjustment') {
 			$result_update_in = mysqli_query($dbc, "UPDATE `invoice` SET `patient_payment_receipt` = 1 WHERE `invoiceid`='$invoiceid'");
 
 			$logo = get_config($dbc, 'invoice_logo');
+			if(!empty($type_type) && !empty(get_config($dbc, 'invoice_logo_'.$type_type))) {
+				$logo = get_config($dbc, 'invoice_logo_'.$type_type);
+			}
 			DEFINE('INVOICE_LOGO', $logo);
 
 			include ('patient_payment_receipt_pdf.php');
@@ -1756,6 +1754,9 @@ if($invoice_mode != 'Adjustment') {
 		$result_update_in = mysqli_query($dbc, "UPDATE `invoice` SET `patient_payment_receipt` = 1 WHERE `invoiceid`='$invoiceid'");
 
 		$logo = get_config($dbc, 'invoice_logo');
+		if(!empty($type_type) && !empty(get_config($dbc, 'invoice_logo_'.$type_type))) {
+			$logo = get_config($dbc, 'invoice_logo_'.$type_type);
+		}
 		DEFINE('INVOICE_LOGO', $logo);
 
 		//include ('patient_payment_receipt_pdf.php');
@@ -1763,7 +1764,10 @@ if($invoice_mode != 'Adjustment') {
 
 	$get_invoice = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `invoice` WHERE `invoiceid`='$invoiceid'"));
 	// PDF
-	$invoice_design = get_config($dbc, 'invoice_design');
+	/*$invoice_design = get_config($dbc, 'invoice_design');
+  if(!empty($get_invoice['type']) && !empty(get_config($dbc, 'invoice_design_'.$get_invoice['type']))) {
+      $invoice_design = get_config($dbc, 'invoice_design_'.$get_invoice['type']);
+  }
 	switch($invoice_design) {
 		case 1:
 			include('pos_invoice_1.php');
@@ -1804,7 +1808,7 @@ if($invoice_mode != 'Adjustment') {
         default:
 			include('pos_invoice_1.php');
 			break;
-	}
+	}*/
 
 	//Adjustment Information
 	$receipt_payments = [];
@@ -2476,6 +2480,9 @@ if($invoice_mode != 'Adjustment') {
 		$result_update_in = mysqli_query($dbc, "UPDATE `invoice` SET `patient_payment_receipt` = 1 WHERE `invoiceid`='$invoiceid'");
 
 		$logo = get_config($dbc, 'invoice_logo');
+		if(!empty($type_type) && !empty(get_config($dbc, 'invoice_logo_'.$type_type))) {
+			$logo = get_config($dbc, 'invoice_logo_'.$type_type);
+		}
 		DEFINE('INVOICE_LOGO', $logo);
 
 		include ('patient_payment_receipt_pdf.php');
@@ -2483,7 +2490,10 @@ if($invoice_mode != 'Adjustment') {
 
 	$get_invoice = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `invoice` WHERE `invoiceid`='$invoiceid'"));
 	// PDF
-	$invoice_design = get_config($dbc, 'invoice_design');
+	/*$invoice_design = get_config($dbc, 'invoice_design');
+  if(!empty($get_invoice['type']) && !empty(get_config($dbc, 'invoice_design_'.$get_invoice['type']))) {
+      $invoice_design = get_config($dbc, 'invoice_design_'.$get_invoice['type']);
+  }
 	switch($invoice_design) {
 		case 1:
 			include('pos_invoice_1.php');
@@ -2524,7 +2534,7 @@ if($invoice_mode != 'Adjustment') {
 		default:
 			include('pos_invoice_1.php');
 			break;
-	}
+	}*/
 
 	$final_amount = $adjust_amount + $refund_amount;
 	$gst_amt = $adjust_gst + $refund_gst;
@@ -2551,3 +2561,4 @@ $dbc->query("UPDATE `invoice` SET `status`='$inv_status' WHERE `invoiceid`='$inv
 // Update the Invoice Ticket List
 $ticketid = filter_var(implode(',',$_POST['ticketid']),FILTER_SANITIZE_STRING);
 $dbc->query("UPDATE `invoice` SET `ticketid`='$ticketid' WHERE `invoiceid`='$invoiceid'");
+$dbc->query("UPDATE `reminders` SET `src_tableid`='$invoiceid', `body`=REPLACE(`body`,'search_invoice_submit=true','search_invoiceid=".$invoiceid."&search_invoice_submit=true') WHERE `src_table`='invoice' AND `src_tableid` IS NULL");

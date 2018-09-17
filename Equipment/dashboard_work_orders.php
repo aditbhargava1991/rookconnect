@@ -32,7 +32,7 @@ $result = mysqli_query($dbc, $query); ?>
 		<div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
 			<div class="col-sm-4">
 				<label for="site_name" class="control-label">
-					<span class="popover-examples list-inline" style="margin:0 2px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Click here to see the inspection types."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
+					<span class="popover-examples list-inline" style="margin:0 2px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Click here to see the inspection tabs."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
 					Search by Equipment:</label>
 			</div>
 			<div class="col-sm-8">
@@ -66,7 +66,7 @@ $result = mysqli_query($dbc, $query); ?>
 				<th><span class="popover-examples" style="margin:0;"><a data-toggle="tooltip" data-placement="top" title="The Work Order #, as set when creating it was created."><img src="<?= WEBSITE_URL; ?>/img/info-w.png" width="18"></a></span> WO#</th>
 				<th><span class="popover-examples" style="margin:0;"><a data-toggle="tooltip" data-placement="top" title="The Date the work order was created on."><img src="<?= WEBSITE_URL; ?>/img/info-w.png" width="18"></a></span> Date Created</th>
 				<th><span class="popover-examples" style="margin:0;"><a data-toggle="tooltip" data-placement="top" title="The Service(s) outlined in the work order."><img src="<?= WEBSITE_URL; ?>/img/info-w.png" width="18"></a></span> Service</th>
-				<th><span class="popover-examples" style="margin:0;"><a data-toggle="tooltip" data-placement="top" title="The Category of the equipment used in the work order."><img src="<?= WEBSITE_URL; ?>/img/info-w.png" width="18"></a></span> Category</th>
+				<th><span class="popover-examples" style="margin:0;"><a data-toggle="tooltip" data-placement="top" title="The Tab of the equipment used in the work order."><img src="<?= WEBSITE_URL; ?>/img/info-w.png" width="18"></a></span> Category</th>
 				<th><span class="popover-examples" style="margin:0;"><a data-toggle="tooltip" data-placement="top" title="The Make of this item of equipment as set in the equipment profile."><img src="<?= WEBSITE_URL; ?>/img/info-w.png" width="18"></a></span> Make</th>
 				<th><span class="popover-examples" style="margin:0;"><a data-toggle="tooltip" data-placement="top" title="The Model of this item of equipment as set in the equipment profile."><img src="<?= WEBSITE_URL; ?>/img/info-w.png" width="18"></a></span> Model</th>
 				<th><span class="popover-examples" style="margin:0;"><a data-toggle="tooltip" data-placement="top" title="The Unit # for this item of equipment as set in the equipment profile."><img src="<?= WEBSITE_URL; ?>/img/info-w.png" width="18"></a></span> Unit #</th>
@@ -80,8 +80,8 @@ $result = mysqli_query($dbc, $query); ?>
 				<tr>
 					<td data-title="Work Order #"><?= $row['workorderid'] ?></td>
 					<td data-title="Date Created"><?= $row['date'] ?></td>
-					<td data-title="Service Category &amp; Service Heading"><?= $service['category'].' - '.$service['heading'] ?></td>
-					<td data-title="Category"><?= $equipment['category'] ?></td>
+					<td data-title="Service Tab &amp; Service Heading"><?= $service['category'].' - '.$service['heading'] ?></td>
+					<td data-title="Tab"><?= $equipment['category'] ?></td>
 					<td data-title="Make"><?= $equipment['make'] ?></td>
 					<td data-title="Model"><?= $equipment['model'] ?></td>
 					<td data-title="Unit #"><?= $equipment['unit_no'] ?></td>

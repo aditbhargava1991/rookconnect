@@ -332,7 +332,9 @@ function initIconColors() {
                 src.match('/project-path.png') ||
                 src.match('/id-card.png') ||
                 src.match('/job.png') ||
-                src.match('/icons/recurring.png') ) {
+                src.match('/icons/recurring.png') ||
+                src.match('/icons/range.png') ||
+                src.match('/icons/tagging.png') ) {
 	            if ( !self.hasClass('white-color') && !self.hasClass('black-color') ) {
 	                self.addClass('theme-color-icon');
 	            }

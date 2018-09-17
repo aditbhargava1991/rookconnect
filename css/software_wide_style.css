@@ -1485,6 +1485,8 @@ footer#footer { margin:0; padding:0; }
 	.menu-box-dropper {
 		max-height: calc(100vh - 160px);
 	}
+    
+    .padded-desktop { padding:10px; }
 }
 @media (min-width: 801px) {
 	.sel2 {
@@ -2786,7 +2788,7 @@ ul.select2-results__options {
 }
 
 .calendar-mobile-block-item span.menu-item.active {
-	color: #000000;
+	color: #000 !important;
 	border-bottom: solid #6DCFF6 3px;
 }
 
@@ -2814,7 +2816,7 @@ ul.select2-results__options {
 }
 
 .calendar-mobile-month td span.active {
-	color: #000000;
+	color: #000 !important;
 	border: 1px solid #6DCFF6;
 	border-radius: 50%;
 }
@@ -2827,12 +2829,20 @@ ul.select2-results__options {
 	padding: 0.25em 1em;
 }
 
-.calendar-mobile-list tr:nth-child(odd) {
-	background-color: #E7F7FD;
+.calendar-mobile-list tr:nth-child(odd) td {
+	background-color: #E7F7FD !important;
 }
 
-.calendar-mobile-list tr:nth-child(even) {
-	background-color: #FFFFFF;
+.calendar-mobile-list tr:nth-child(even) td {
+	background-color: #FFFFFF !important;
+}
+.calendar-mobile-list tr:nth-child(odd) td,
+.calendar-mobile-list tr:nth-child(even) td {
+	background-color:transparent;
+}
+.calendar-mobile-list tr:nth-child(odd) td,
+.calendar-mobile-list tr:nth-child(even) td {
+	background-color:transparent;
 }
 
 .calendar-mobile-list td .list-date {

@@ -511,6 +511,18 @@ function setTotalBudgetTime(input) {
 }
 </script><?php
 IF(!IFRAME_PAGE) { ?>
+<style>
+	.li-collapsed-active-show ul.collapse{
+		display: block !important;
+		height:auto !important;
+	}
+	.li-collapsed-active-show a.collapsed + ul.collapse li{
+		display: none !important;
+	}
+	.li-collapsed-active-show a.collapsed + ul.collapse li.active.blue{
+		display: block !important;
+	}
+</style>
 	<div class="tile-sidebar sidebar sidebar-override hide-titles-mob standard-collapsible">
 		<ul>
 			<li class="standard-sidebar-searchbox"><input type="text" class="form-control search_list" placeholder="Search <?= $ticket_tile ?>"></li>
@@ -629,7 +641,7 @@ IF(!IFRAME_PAGE) { ?>
 							</li>
 						<?php } ?>
 						<?php if(in_array('Project',$db_sort)) { ?>
-							<li class="sidebar-higher-level"><a class="collapsed cursor-hand" data-toggle="collapse" data-target="#filter_project_type_<?= $type ?>"><?= PROJECT_NOUN ?> Types<span class="arrow"></span></a>
+							<li class="sidebar-higher-level"><a class="collapsed cursor-hand" data-toggle="collapse" data-target="#filter_project_type_<?= $type ?>"><?= PROJECT_NOUN ?> Tabs<span class="arrow"></span></a>
 								<ul class="collapse" id="filter_project_type_<?= $type ?>" style="overflow: hidden;">
 									<?php foreach($project_types as $cat_tab_value => $cat_tab) {
 										$row = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT COUNT(*) `count` FROM `tickets` WHERE `projectid` IN (SELECT `projectid` FROM `project` WHERE `deleted`=0 AND `projecttype`='$cat_tab_value') AND `deleted`=0 AND `status` NOT IN ('Done','Archive','Archived','On Hold','Pending') AND '".$_GET['tile_name']."' IN (`ticket_type`,'') $filter")); ?>
@@ -773,7 +785,7 @@ IF(!IFRAME_PAGE) { ?>
 			<?php if(in_array('Invoicing',$db_config) && check_subtab_persmission($dbc, 'ticket', ROLE, 'invoice') === TRUE && !($strict_view > 0)) { ?>
 				<li class="sidebar-higher-level"><a class="cursor-hand <?= $_GET['tab'] == 'invoice' ? 'active blue' : 'collapsed' ?>" data-toggle="collapse" data-target="#tab_invoice">Accounting<span class="arrow"></span></a>
 					<ul id="tab_invoice" class="collapse <?= $_GET['tab'] == 'invoice' ? 'in' : '' ?>">
-						<?php $inv_count = $dbc->query("SELECT SUM(IF(`invoice`.`invoiceid` IS NULL, 1, 0)) `unbilled`, SUM(IF(`invoice`.`invoiceid` IS NULL, 0, 1)) `billed` FROM `tickets` LEFT JOIN `invoice` ON CONCAT(',',`invoice`.`ticketid`,',') LIKE CONCAT('%,',`tickets`.`ticketid`,',%') WHERE `tickets`.`ticket_type` IN ('".implode("','",$ticket_conf_list)."') AND `tickets`.`deleted`=0 ".(in_array('Administration',$db_config) ?"AND `approvals` IS NOT NULL" : ''))->fetch_assoc(); ?>
+						<?php $inv_count = $dbc->query("SELECT SUM(IF(`invoice`.`invoiceid` IS NULL, 1, 0)) `unbilled`, SUM(IF(`invoice`.`invoiceid` IS NULL, 0, 1)) `billed` FROM `tickets` LEFT JOIN `invoice` ON CONCAT(',',`invoice`.`ticketid`,',') LIKE CONCAT('%,',`tickets`.`ticketid`,',%') WHERE `tickets`.`ticket_type` IN ('".implode("','",$ticket_conf_list)."') AND `tickets`.`deleted`=0 ".(in_array('Administration',$db_config) ?"AND IFNULL(`approvals`,'') != ''" : ''))->fetch_assoc(); ?>
 						<li class="sidebar-lower-level <?= $_GET['tab'] == 'invoice' && $_GET['status'] == 'unbilled' ? 'active blue' : '' ?>"><a href="?<?= $current_tile ?>tab=invoice&status=unbilled">Unbilled<span class="pull-right"><?= $inv_count['unbilled'] ?></span></a></li>
 						<li class="sidebar-lower-level <?= $_GET['tab'] == 'invoice' && $_GET['status'] == 'billed' ? 'active blue' : '' ?>"><a href="?<?= $current_tile ?>tab=invoice&status=billed">Billed<span class="pull-right"><?= $inv_count['billed'] > 25 ? 'Last 25' : $inv_count['billed'] ?></span></a></li>
 					</ul>
@@ -843,7 +855,7 @@ IF(!IFRAME_PAGE) { ?>
 			$form = $dbc->query("SELECT * FROM `ticket_pdf` WHERE `id`='{$_GET['form_list']}'")->fetch_assoc();
 			$form['file_name'] = config_safe_str($form['pdf_name']);
 		} ?>
-		<div class="standard-<?= substr($_GET['tab'],0,14) == 'administration' ? '' : 'dashboard-' ?>body-title">
+		<div class="standard-<?= substr($_GET['tab'],0,14) == 'administration' || $_GET['tab'] == 'invoice' ? '' : 'dashboard-' ?>body-title">
 			<h3><?= $ticket_tile.($_GET['form_list'] > 0 ? ': '.$form['pdf_name'] : (substr($_GET['tab'],0,14) == 'administration' ? ': Administration' : (substr($_GET['tab'],0,14) == 'invoice' ? ': Accounting - '.($_GET['status'] == 'billed' ? 'Billed' : 'Unbilled').' '.$ticket_tile : ($_GET['tab'] == 'manifest' && $_GET['site'] == 'recent' ? ': Last '.$recent_manifests.' Manifests '.(IFRAME_PAGE ? '<a href="../blank_loading_page.php" class="pull-right"><img class="inline-img" src="../img/icons/cancel.png"></a>' : '').'<a href="../Reports/report_daily_manifest_summary.php?type=operations" class="pull-right"><img class="inline-img" src="../img/icons/pie-chart.png"></a>' : ($_GET['tab'] == 'manifest' ? (IFRAME_PAGE ? '<a href="../blank_loading_page.php" class="pull-right"><img class="inline-img" src="../img/icons/cancel.png"></a>' : '').': '.($_GET['manifestid'] > 0 ? 'Edit Manifest' : 'Create Manifests').' '.($_GET['site'] > 0 ? '<a href="?tile_name='.$_GET['tile_name'].'&tab=manifest&site=recent&siteid='.$_GET['site'].'" onclick="overlayIFrameSlider(this.href,\'auto\',true,true); return false;"><img class="inline-img pull-right" src="../img/icons/eyeball.png"></a>' : '').'<a href="../Reports/report_daily_manifest_summary.php?type=operations" class="pull-right"><img class="inline-img" src="../img/icons/pie-chart.png"></a>' : ''))))) ?></h3><?php
 				$notes = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT note FROM notes_setting WHERE subtab='tickets_summary'"));
 				if ( !empty($notes['note']) ) { ?>
@@ -868,7 +880,7 @@ IF(!IFRAME_PAGE) { ?>
 				}
 			} ?>
 		</div>
-		<div class="standard-<?= substr($_GET['tab'],0,14) == 'administration' ? '' : 'dashboard-' ?>body-content">
+		<div class="standard-<?= substr($_GET['tab'],0,14) == 'administration' || $_GET['tab'] == 'invoice' ? '' : 'dashboard-' ?>body-content">
 			<?php if($_GET['tab'] == 'export') {
 				include('ticket_import.php');
 			} else if($_GET['form_list'] > 0) {
@@ -884,7 +896,7 @@ IF(!IFRAME_PAGE) { ?>
 					<?php include('../Project/project_administration.php'); ?>
 				</div>
 			<?php } else if($_GET['tab'] == 'invoice') { ?>
-				<div class="col-sm-12" id="no-more-tables">
+				<div class="col-sm-12 gap-top" id="no-more-tables">
 					<?php include('ticket_invoice.php'); ?>
 				</div>
 			<?php } else if($_GET['tab'] == 'manifest' && $_GET['manifestid'] > 0) { ?>
@@ -1087,7 +1099,7 @@ IF(!IFRAME_PAGE) { ?>
 					<div class="panel-heading mobile_load">
 						<h4 class="panel-title">
 							<a data-toggle="collapse" data-parent="#mobile_accordions" href="#project_list">
-								<?= PROJECT_NOUN ?> Types<span class="glyphicon glyphicon-plus"></span>
+								<?= PROJECT_NOUN ?> Tabs<span class="glyphicon glyphicon-plus"></span>
 							</a>
 						</h4>
 					</div>
@@ -1101,7 +1113,7 @@ IF(!IFRAME_PAGE) { ?>
 										<div class="panel-heading mobile_load">
 											<h4 class="panel-title">
 												<a data-toggle="collapse" data-parent="#project_mobile_accordions" href="#project_<?= $cat_tab_value ?>" class="double-pad-left">
-													<?= PROJECT_NOUN ?> Type: <?= $cat_tab.' ('.$row['count'].')' ?><span class="glyphicon glyphicon-plus"></span>
+													<?= PROJECT_NOUN ?> Tab: <?= $cat_tab.' ('.$row['count'].')' ?><span class="glyphicon glyphicon-plus"></span>
 												</a>
 											</h4>
 										</div>
@@ -1325,7 +1337,7 @@ IF(!IFRAME_PAGE) { ?>
 		if(in_array('Project',$db_summary)) {
 			$block_length = 68;
 			$block = '<div class="overview-block">
-				<h4>'.TICKET_TILE.' per '.PROJECT_NOUN.' Type</h4>';
+				<h4>'.TICKET_TILE.' per '.PROJECT_NOUN.' Tab</h4>';
 				foreach($project_types as $cat_tab_value => $cat_tab) {
 					$ticket = $dbc->query("SELECT COUNT(*) count FROM `tickets` WHERE `deleted`=0 AND `status` != 'Archive' AND `projectid` > 0  AND `projectid` IN (SELECT `projectid` FROM `project` WHERE `deleted` = 0 AND `projecttype` = '$cat_tab_value')")->fetch_assoc();
 					$block .= '<p>'.(in_array('Project',$db_sort) ? '<a class="cursor-hand" onclick="$(\'[data-project=\\\''.$cat_tab_value.'\\\']\').first().click().parents(\'li\').each(function() { $(this).find(\'a\').first().filter(\'.collapsed\').click(); });">' : '').$cat_tab.(in_array('Project',$db_sort) ? '</a>' : '').': '.$ticket['count'].'</p>';
@@ -1524,3 +1536,15 @@ IF(!IFRAME_PAGE) { ?>
 		</div>
 	</div>
 <?php } ?>
+
+<script>
+	$('.sidebar-higher-level.highest-level ul li.sidebar-higher-level').on('click', function (e) {
+		e.preventDefault();
+		if($(this).children('a').hasClass('collapsed')){
+			$(this).removeClass('li-collapsed-active-show');
+		}else{
+			$(this).addClass('li-collapsed-active-show');
+		}
+	});
+
+</script>

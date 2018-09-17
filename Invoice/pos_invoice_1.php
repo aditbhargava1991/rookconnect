@@ -60,8 +60,16 @@ if($get_pos_tax != '') {
 //Tax
 
 $invoice_footer = get_config($dbc, 'invoice_footer');
+if(!empty($point_of_sell['type']) && !empty(get_config($dbc, 'invoice_footer_'.$point_of_sell['type']))) {
+    $invoice_footer = get_config($dbc, 'invoice_footer_'.$point_of_sell['type']);
+}
 
-$logo = 'download/'.get_config($dbc, 'invoice_logo');
+$logo = get_config($dbc, 'invoice_logo');
+if(!empty($point_of_sell['type']) && !empty(get_config($dbc, 'invoice_logo_'.$point_of_sell['type']))) {
+    $logo = get_config($dbc, 'invoice_logo_'.$point_of_sell['type']);
+}
+
+$logo = 'download/'.$logo;
 if(!file_exists($logo)) {
     $logo = '../POSAdvanced/'.$logo;
     if(!file_exists($logo)) {
@@ -135,7 +143,7 @@ $html = '<br><br><br /><br /><center><div style="margin-top:10px; text-align:cen
 	<td>'.( !empty($customer['name']) ? decryptIt($customer['name']).': ' : '') . decryptIt($customer['first_name']) .' '. decryptIt($customer['last_name']) .'</td>
 	<td>'.$customer_phone.'</td>
 	<td>'.decryptIt($customer['email_address']).'</td>
-	<td>'.$customer['referred_by'].'</td>
+	<td>'.( !empty($point_of_sell['reference']) ? $point_of_sell['reference'] : '-' ).'</td>
 </tr>';
 
 if($client_tax_number != '') {

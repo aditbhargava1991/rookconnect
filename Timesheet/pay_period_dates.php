@@ -1,6 +1,6 @@
 <?php // Get Pay Period for Staff to set default dates
 $default_tab = get_config($dbc, 'timesheet_default_tab');
-$_GET['tab'] = !empty($_GET['tab']) ? $_GET['tab'] : (!empty($default_tab) ? $default_tab : 'Custom');
+$_GET['tab'] = !empty($_GET['tab'] && $_GET['tab'] != 'timesheets') ? $_GET['tab'] : (!empty($default_tab) ? $default_tab : 'Custom');
 
 switch($_GET['tab']) {
 	case 'Daily':

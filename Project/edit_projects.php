@@ -1044,7 +1044,7 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 		$previous_tab = '';
 		$next_set = false;
 		$ticket_bypass = true;
-		$sub_tabs = ['Summary'];
+		$sub_tabs = ['Summary', 'Project', 'Tickets', 'Tasks', 'Checklists', 'Projections'];
 		foreach($sub_tabs as $i => $tab) {
 			if(!in_array($tab,$tab_config)) {
 				unset($sub_tabs[$i]);
@@ -1052,12 +1052,16 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 		}
 		if(count($sub_tabs) > 0 && $projectid > 0) {
 			$ticket_bypass = false;
-			$show_sub = in_array($_GET['tab'],['summary']) || $no_sub_shown;
+			$show_sub = in_array($_GET['tab'],['summary', 'summary_project', 'summary_tickets', 'summary_tasks', 'summary_checklists', 'summary_projections']) || $no_sub_shown;
 			$no_sub_shown = false; ?>
 			<a href="?edit=<?= $_GET['edit'] ?>&tab=summary" onclick="$('.standard-collapsible ul ul:visible').not($(this).next('ul')).toggle().prev('a').find('li').toggleClass('collapsed'); $(this).next('ul').toggle(); $(this).find('li').toggleClass('collapsed'); return false;" style="<?= count($sub_tabs) > 0 ? '' : 'display:none;' ?>">
 				<li class="sidebar-higher-level <?= $show_sub ? 'active blue' : 'collapsed' ?>">Summary<span class="arrow"></span></li></a>
 			<ul id="ul_summ" style="<?= $show_sub ? (count($sub_tabs) > 0 ? '' : 'padding-left:0;') : 'display: none;' ?>">
-				<?php if(in_array('Summary',$tab_config)) { $_GET['tab'] = ($_GET['tab'] == '' ? 'summary' : $_GET['tab']); $next_tab = (!$next_set ? 'summary' : $next_tab); $next_set = ($prev_set ? true : false); $prev_set = ($_GET['tab'] == 'summary' ? true : $prev_set); $previous_tab = ($prev_set ? $previous_tab : 'summary'); ?><a href="?edit=<?= $_GET['edit'] ?>&tab=summary"><li class="sidebar-lower-level <?= $_GET['tab'] == 'summary' ? 'active blue' : '' ?>">Summary</li></a><?php } ?>
+				<a href="?edit=<?= $_GET['edit'] ?>&tab=summary"><li class="sidebar-lower-level <?= $_GET['tab'] == 'summary' ? 'active blue' : '' ?>"><?php echo PROJECT_NOUN ?></li></a>
+				<?php if(in_array('Summary',$tab_config)) { $_GET['tab'] = ($_GET['tab'] == '' ? 'summary_tickets' : $_GET['tab']); $next_tab = (!$next_set ? 'summary_tickets' : $next_tab); $next_set = ($prev_set ? true : false); $prev_set = ($_GET['tab'] == 'summary_tickets' ? true : $prev_set); $previous_tab = ($prev_set ? $previous_tab : 'summary_tickets'); ?><a href="?edit=<?= $_GET['edit'] ?>&tab=summary_tickets"><li class="sidebar-lower-level <?= $_GET['tab'] == 'summary_tickets' ? 'active blue' : '' ?>">Tickets</li></a><?php } ?>
+				<?php if(in_array('Summary',$tab_config)) { $_GET['tab'] = ($_GET['tab'] == '' ? 'summary_tasks' : $_GET['tab']); $next_tab = (!$next_set ? 'summary_tasks' : $next_tab); $next_set = ($prev_set ? true : false); $prev_set = ($_GET['tab'] == 'summary_tasks' ? true : $prev_set); $previous_tab = ($prev_set ? $previous_tab : 'summary_tasks'); ?><a href="?edit=<?= $_GET['edit'] ?>&tab=summary_tasks"><li class="sidebar-lower-level <?= $_GET['tab'] == 'summary_tasks' ? 'active blue' : '' ?>">Tasks</li></a><?php } ?>
+				<?php if(in_array('Summary',$tab_config)) { $_GET['tab'] = ($_GET['tab'] == '' ? 'summary_checklists' : $_GET['tab']); $next_tab = (!$next_set ? 'summary_checklists' : $next_tab); $next_set = ($prev_set ? true : false); $prev_set = ($_GET['tab'] == 'summary_checklists' ? true : $prev_set); $previous_tab = ($prev_set ? $previous_tab : 'summary_checklists'); ?><a href="?edit=<?= $_GET['edit'] ?>&tab=summary_checklists"><li class="sidebar-lower-level <?= $_GET['tab'] == 'summary_checklists' ? 'active blue' : '' ?>">Checklists</li></a><?php } ?>
+				<?php if(in_array('Summary',$tab_config)) { $_GET['tab'] = ($_GET['tab'] == '' ? 'summary_projections' : $_GET['tab']); $next_tab = (!$next_set ? 'summary_projections' : $next_tab); $next_set = ($prev_set ? true : false); $prev_set = ($_GET['tab'] == 'summary_projections' ? true : $prev_set); $previous_tab = ($prev_set ? $previous_tab : 'summary_projections'); ?><a href="?edit=<?= $_GET['edit'] ?>&tab=summary_projections"><li class="sidebar-lower-level <?= $_GET['tab'] == 'summary_projections' ? 'active blue' : '' ?>">Projections</li></a><?php } ?>
 			</ul>
 		<?php }
 		if($security['edit'] > 0) {
@@ -1828,6 +1832,21 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 			case 'summary':
 				$body_title = PROJECT_NOUN.' Summary';
 				$include_files[] = 'edit_project_summary.php'; break;
+			case 'summary_project':
+				$body_title = 'Summary Project';
+				$include_files[] = 'edit_project_summary_project.php'; break;
+			case 'summary_tickets':
+				$body_title = 'Summary Tickets';
+				$include_files[] = 'edit_project_summary_tickets.php'; break;
+			case 'summary_tasks':
+				$body_title = 'Summary Tasks';
+				$include_files[] = 'edit_project_summary_tasks.php'; break;
+			case 'summary_checklists':
+				$body_title = 'Summary Tasks';
+				$include_files[] = 'edit_project_summary_checklists.php'; break;
+			case 'summary_projections':
+				$body_title = 'Summary Tasks';
+				$include_files[] = 'edit_project_summary_projections.php'; break;
 			case 'custom_details':
 				$body_title = $_GET['custom_tab'];
 				$include_files[] = 'edit_project_custom_details.php'; ?>

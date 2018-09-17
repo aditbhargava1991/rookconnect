@@ -33,6 +33,8 @@ if($_GET['tab'] == 'general') {
 	$field_title = 'General Settings';
 } else if($_GET['tab'] == 'followup') {
 	$field_title = 'Follow Up Settings';
+} else if($_GET['tab'] == 'quick_action') {
+    $field_title = 'Quick Action Icons';
 } ?>
 
 <div class="container">
@@ -49,6 +51,7 @@ if($_GET['tab'] == 'general') {
                         <a href="incident_report.php"><li>Back to Dashboard</li></a>
                         <a href="field_config.php?tab=general"><li <?= $_GET['tab'] == 'general' ? 'class="active"' : '' ?>>General Settings</li></a>
                         <a href="field_config.php?tab=followup"><li <?= $_GET['tab'] == 'followup' ? 'class="active"' : '' ?>>Follow Up Settings</li></a>
+                        <a href="field_config.php?tab=quick_action"><li <?= $_GET['tab'] == 'quick_action' ? 'class="active"' : '' ?>>Quick Action Icons</li>
 						<?php foreach(str_getcsv(html_entity_decode($get_field_config['incident_types']), ',') as $in_type) {
 							$current_type = preg_replace('/[^a-z]/','',strtolower($in_type));
 							if($_GET['type'] == $current_type) {
@@ -70,6 +73,8 @@ if($_GET['tab'] == 'general') {
                                 	include('field_config_fields.php');
                                 } else if($_GET['tab'] == 'followup') {
                                 	include('field_config_followup.php');
+                                } else if($_GET['tab'] == 'quick_action') {
+                                    include('field_config_quick_action.php');
                                 } else {
                                 	include('field_config_general.php');
                                 } ?>

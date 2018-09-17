@@ -461,7 +461,9 @@ if($_GET['fill'] == 'move_appt') {
 					$contacts = [];
 					$team_contacts = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `teams_staff` WHERE `teamid` = '$teamid' AND `deleted` = 0"),MYSQLI_ASSOC);
 					foreach($team_contacts as $team_contact) {
-						$contacts[] = $team_contacts['contactid'];
+						if(strtolower(get_contact($dbc, $team_contact['contactid'], 'category')) == 'staff') {
+							$contacts[] = $team_contact['contactid'];
+						}
 					}
 				} else {
 					$contacts = [$contact];
@@ -1540,7 +1542,9 @@ if($_GET['fill'] == 'schedule_unbooked') {
 						$contacts = [];
 						$team_contacts = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `teams_staff` WHERE `teamid` = '$teamid' AND `deleted` = 0"),MYSQLI_ASSOC);
 						foreach($team_contacts as $team_contact) {
-							$contacts[] = $team_contacts['contactid'];
+							if(strtolower(get_contact($dbc, $team_contact['contactid'], 'category')) == 'staff') {
+								$contacts[] = $team_contact['contactid'];
+							}
 						}
 					} else {
 						$contacts = [$contact];
@@ -2038,7 +2042,9 @@ if($_GET['fill'] == 'move_appt_month') {
 				$contacts = [];
 				$team_contacts = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `teams_staff` WHERE `teamid` = '$teamid' AND `deleted` = 0"),MYSQLI_ASSOC);
 				foreach($team_contacts as $team_contact) {
-					$contacts[] = $team_contacts['contactid'];
+					if(strtolower(get_contact($dbc, $team_contact['contactid'], 'category')) == 'staff') {
+						$contacts[] = $team_contact['contactid'];
+					}
 				}
 			} else {
 				$contacts = [$contactid];
@@ -2078,7 +2084,9 @@ if($_GET['fill'] == 'move_appt_month') {
 				$contacts = [];
 				$team_contacts = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `teams_staff` WHERE `teamid` = '$teamid' AND `deleted` = 0"),MYSQLI_ASSOC);
 				foreach($team_contacts as $team_contact) {
-					$contacts[] = $team_contacts['contactid'];
+					if(strtolower(get_contact($dbc, $team_contact['contactid'], 'category')) == 'staff') {
+						$contacts[] = $team_contact['contactid'];
+					}
 				}
 			} else {
 				$contacts = [$contactid];
@@ -2359,7 +2367,7 @@ if($_GET['fill'] == 'delete_shift') {
 	$equipment = filter_var($_POST['equipment'],FILTER_SANITIZE_STRING);
 	$start_address = filter_var($_POST['start_address'],FILTER_SANITIZE_STRING);
 	$end_address = filter_var($_POST['end_address'],FILTER_SANITIZE_STRING);
-    $warehouses = $dbc->query("SELECT `tickets`.`ticketid`, `ticket_schedule`.`id` FROM `tickets` LEFT JOIN `ticket_schedule` ON `tickets`.`ticketid`=`ticket_schedule`.`ticketid` AND `ticket_schedule`.`deleted`=0 WHERE `tickets`.`deleted`=0 AND ((`tickets`.`to_do_date` = '".$date."' OR '".$date."' BETWEEN `tickets`.`to_do_date` AND `tickets`.`to_do_end_date` OR `ticket_schedule`.`to_do_date`='".$date."' OR '".$date."' BETWEEN `ticket_schedule`.`to_do_date` AND IFNULL(`ticket_schedule`.`to_do_end_date`,`ticket_schedule`.`to_do_date`)) AND (IFNULL(`ticket_schedule`.`equipmentid`,`tickets`.`equipmentid`) IN ('$equipment') AND IFNULL(`ticket_schedule`.`equipmentid`,`tickets`.`equipmentid`) > 0)) AND (IFNULL(NULLIF(CONCAT(IFNULL(`ticket_schedule`.`address`,''),IFNULL(`ticket_schedule`.`city`,'')),''),CONCAT(IFNULL(`tickets`.`address`,''),IFNULL(`tickets`.`city`,''))) IN (SELECT CONCAT(IFNULL(`address`,''),IFNULL(`city`,'')) FROM `contacts` WHERE `category`='Warehouses') OR `ticket_schedule`.`type`='warehouse') ORDER BY `ticket_schedule`.`to_do_date`,`ticket_schedule`.`to_do_start_time`");
+    $warehouses = $dbc->query("SELECT `tickets`.`ticketid`, `ticket_schedule`.`id` FROM `tickets` LEFT JOIN `ticket_schedule` ON `tickets`.`ticketid`=`ticket_schedule`.`ticketid` AND `ticket_schedule`.`deleted`=0 WHERE `tickets`.`deleted`=0 AND ((`tickets`.`to_do_date` = '".$date."' OR '".$date."' BETWEEN `tickets`.`to_do_date` AND `tickets`.`to_do_end_date` OR `ticket_schedule`.`to_do_date`='".$date."' OR '".$date."' BETWEEN `ticket_schedule`.`to_do_date` AND IFNULL(`ticket_schedule`.`to_do_end_date`,`ticket_schedule`.`to_do_date`)) AND (IFNULL(`ticket_schedule`.`equipmentid`,`tickets`.`equipmentid`) IN ('$equipment') AND IFNULL(`ticket_schedule`.`equipmentid`,`tickets`.`equipmentid`) > 0)) AND (REPLACE(REPLACE(IFNULL(NULLIF(CONCAT(IFNULL(`ticket_schedule`.`address`,''),IFNULL(`ticket_schedule`.`city`,'')),''),CONCAT(IFNULL(`tickets`.`address`,''),IFNULL(`tickets`.`city`,''))),' ',''),'-','') IN (SELECT REPLACE(REPLACE(CONCAT(IFNULL(`address`,''),IFNULL(`city`,'')),' ',''),'-','') FROM `contacts` WHERE `category`='Warehouses') OR `ticket_schedule`.`type`='warehouse') ORDER BY `ticket_schedule`.`to_do_date`,`ticket_schedule`.`to_do_start_time`");
     if($warehouses->num_rows > 0) {
         $start_time = get_config($dbc, 'ticket_warehouse_start_time');
 		$end_time = date('H:i:s',strtotime($start_time.' + 30 minutes'));
@@ -3243,8 +3251,10 @@ if($_GET['fill'] == 'book_client_ticket') {
 		$contact = implode(',',array_filter(array_unique($contact)));
 	}
 	$contact = ','.$contact.',';
+	$main_siteid = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `main_siteid` FROM `contacts` WHERE `contactid` = '$clientid'"))['main_siteid'];
+	$siteid = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `contactid` FROM `contacts` WHERE `category`='".SITES_CAT."' AND `businessid`='$clientid' AND `deleted` = 0 AND `contactid` = '$main_siteid' UNION SELECT `contactid` FROM `contacts` WHERE `category`='".SITES_CAT."' AND `businessid`='$clientid' AND `deleted` = 0 AND `contactid` != '$main_siteid'"))['contactid'];
 
-	mysqli_query($dbc, "INSERT INTO `tickets` (`ticket_type`, `clientid`, `contactid`, `to_do_date`, `to_do_start_time`, `status`) VALUES ('$ticket_type', '$clientid', '$contact', '$start_date', '$start_time', '$status')");
+	mysqli_query($dbc, "INSERT INTO `tickets` (`ticket_type`, `clientid`, `contactid`, `to_do_date`, `to_do_start_time`, `status`, `siteid`) VALUES ('$ticket_type', '$clientid', '$contact', '$start_date', '$start_time', '$status', '$siteid')");
 	$ticketid = mysqli_insert_id($dbc);
 
 	foreach(array_filter(array_unique(explode(',', $contact))) as $contact_id) {

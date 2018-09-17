@@ -2,7 +2,7 @@
 <ul class="sidebar">
     <li class="standard-sidebar-searchbox">
         <form action="" method="POST">
-        	<input name="search_asset" type="text" value="<?= $_POST['search_asset'] ?>" class="form-control search_asset" placeholder="Search Asset">
+        	<input name="search_asset" type="text" value="<?= $_POST['search_asset'] ?>" class="form-control search_asset" placeholder="Search Assets">
         	<input type="submit" value="search_asset_submit" name="search_asset_submit" style="display: none;">
         </form>
     </li>

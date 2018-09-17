@@ -10,11 +10,11 @@ if (isset($_POST['submit_patient'])) {
         exit("<script> alert('No payment type selected, no payment applied.'); </script>");
     }
     $paid_date = date('Y-m-d');
-	$payment_receipt = "download/ar_receipt_".preg_replace('/[^a-z]/','',strtolower($payment_type))."_".date('Y_m_d_H_i_s').".pdf";
+	$payment_receipt = $download_folder."download/ar_receipt_".preg_replace('/[^a-z]/','',strtolower($payment_type))."_".date('Y_m_d_H_i_s').".pdf";
 	$patient_ids = [];
 	$invoice = [];
 
-    foreach ($_POST['invoicepatientid'] as $id => $value) {
+    foreach (explode(',',implode(',',$_POST['invoicepatientid'])) as $id => $value) {
 		$query_update_in = "UPDATE `invoice_patient` SET `paid` = '$payment_type', `paid_date` = '$paid_date', `receipt_file`=CONCAT(IFNULL(CONCAT(`receipt_file`,'#*#'),''),'$payment_receipt') WHERE `invoicepatientid` = '$value'";
 		$result_update_in = mysqli_query($dbc, $query_update_in);
 		$invoice_info = mysqli_fetch_array(mysqli_query($dbc, "SELECT `invoice`.`patientid`, `invoice`.`invoice_date`, `invoice`.`invoiceid`, `invoice`.`therapistsid`, `invoice_patient`.`patient_price`, `invoice_patient`.`sub_total`, `invoice_patient`.`gst_amt` FROM `invoice_patient` LEFT JOIN `invoice` ON `invoice_patient`.`invoiceid`=`invoice`.`invoiceid` WHERE `invoice_patient`.`invoicepatientid`='$value'"));
@@ -41,9 +41,21 @@ if (isset($_POST['submit_patient'])) {
 	if($next_booking['bookingid'] > 0) {
 		$footer_text = '<p style="color: #37C6F4; font-size: 14; font-weight: bold; text-align: center;">Your next appointment is '.date('d/m/y',strtotime($next_booking['appoint_date']))." at ".date('G:ia',strtotime($next_booking['appoint_date'])).'</p>';
 	}
-	$footer_text .= html_entity_decode(get_config($dbc, 'invoice_footer'));
-    DEFINE('INVOICE_LOGO', get_config($dbc, 'invoice_logo'));
-    DEFINE('INVOICE_HEADER', html_entity_decode(get_config($dbc, 'invoice_header')));
+    $invoice_footer = get_config($dbc, 'invoice_footer');
+    if(!empty($get_invoice['type']) && !empty(get_config($dbc, 'invoice_footer_'.$get_invoice['type']))) {
+        $invoice_footer = get_config($dbc, 'invoice_footer_'.$get_invoice['type']);
+    }
+	$footer_text .= html_entity_decode($invoice_footer);
+    $logo = get_config($dbc, 'invoice_logo');
+    if(!empty($get_invoice['type']) && !empty(get_config($dbc, 'invoice_logo_'.$get_invoice['type']))) {
+        $logo = get_config($dbc, 'invoice_logo_'.$get_invoice['type']);
+    }
+    $invoice_header = get_config($dbc, 'invoice_header');
+    if(!empty($get_invoice['type']) && !empty(get_config($dbc, 'invoice_header_'.$get_invoice['type']))) {
+        $invoice_header = get_config($dbc, 'invoice_header_'.$get_invoice['type']);
+    }
+    DEFINE('INVOICE_LOGO', $logo);
+    DEFINE('INVOICE_HEADER', html_entity_decode($invoice_header));
     DEFINE('INVOICE_FOOTER', $footer_text);
 
     //Patient Invoice
@@ -107,7 +119,16 @@ if (isset($_POST['submit_patient'])) {
 	$sub_total = 0;
 	$tax_amt = 0;
 	
-	foreach($invoice as $ar_line) {
+    $ar_lines = [];
+    foreach($invoice as $inv) {
+        if(!isset($ar_lines[$inv[1]])) {
+            $ar_lines[$inv[1]] = [$inv[0],$inv[1],$inv[2],0,0,0];
+        }
+        $ar_lines[$inv[1]][3] += $inv[3];
+        $ar_lines[$inv[1]][4] += $inv[4];
+        $ar_lines[$inv[1]][5] += $inv[5];
+    }
+	foreach($ar_lines as $ar_line) {
 		$html .= '<tr style="border: solid black 1px;"><td>'.$ar_line[0].'</td><td>'.$ar_line[1].'</td><td>'.$ar_line[2].'</td><td>$'.number_format($ar_line[3],2).'</td></tr>';
 		$total_amt += $ar_line[3];
 		$sub_total += $ar_line[4];
@@ -165,11 +186,10 @@ if (isset($_POST['submit_patient'])) {
         <?php $bill_amt = 0;
         $contactid = $_GET['customer'];
         $show_statement = $contactid > 0;
-        foreach(explode(',',$_GET['invoices']) as $paymentid) {
-            if($paymentid > 0) {
-                $invoice = $dbc->query("SELECT ii.*, i.service_date FROM invoice_patient ii, invoice i WHERE ii.invoiceid = i.invoiceid AND ii.invoicepatientid='$paymentid'")->fetch_assoc();
-                $invoiceid = $invoice['invoiceid'];
-                $payment_type = ltrim($invoice['payment_type'],'#*#'); ?>
+        foreach(explode(',',$_GET['invoices']) as $invoiceid) {
+            if($invoiceid > 0) {
+                $invoice = $dbc->query("SELECT `i`.`invoice_date`, `i`.`service_date`, `i`.`payment_type`, `i`.`patientid`, SUM(`ii`.`patient_price`) `patient_price`, GROUP_CONCAT(`ii`.`invoicepatientid`) `invoicepatientid` FROM invoice_patient ii, invoice i WHERE ii.invoiceid = i.invoiceid AND i.invoiceid='$invoiceid' AND (IFNULL(ii.`paid`,'') IN ('On Account','','No') OR ii.`paid` LIKE 'Net %')")->fetch_assoc();
+                $payment_type = implode(', ',array_filter(array_unique(explode('#*#',$row_report['payment_type'])))); ?>
                 <tr nobr="true">
                     <td>#<?= $invoiceid ?></td>
                     <td><?= $invoice['invoice_date'] ?></td>

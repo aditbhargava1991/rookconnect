@@ -94,13 +94,13 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 			<?php if(strpos($value_config,',Assigned Equipment Inline,') !== FALSE) { ?>
 				<div class="multi-block-assign form-group">
 					<div class="hide-titles-mob">
-						<label class="text-center col-sm-3">Category</label>
+						<label class="text-center col-sm-3">Tab</label>
 						<label class="text-center col-sm-3">Make</label>
 						<label class="text-center col-sm-3">Model</label>
 						<label class="text-center col-sm-3">Unit #</label>
 					</div>
 					<div class="col-sm-3">
-						<label class="control-label show-on-mob">Category:</label>
+						<label class="control-label show-on-mob">Tab:</label>
 						<select name="assign_eq_category" class="chosen-select-deselect"><option></option>
 							<?php $groups = mysqli_query($dbc, "SELECT `category` FROM `equipment` WHERE `deleted`=0 GROUP BY `category` ORDER BY `category`");
 							while($category = mysqli_fetch_assoc($groups)) { ?>
@@ -140,7 +140,7 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 				<h4>Assigned Equipment</h4>
 				<div class="multi-block-assign">
 					<div class="form-group">
-						<label class="control-label col-sm-4">Category:</label>
+						<label class="control-label col-sm-4">Tab:</label>
 						<div class="col-sm-8">
 							<select name="assign_eq_category" class="chosen-select-deselect"><option></option>
 								<?php $groups = mysqli_query($dbc, "SELECT `category` FROM `equipment` WHERE `deleted`=0 GROUP BY `category` ORDER BY `category`");
@@ -304,9 +304,9 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 				do {
 					$stop_i++;
 					if($stop['id'] == $_GET['stop'] || !($_GET['stop'] > 0)) { ?>
-						<div class="scheduled_stop">
+						<div id="tab_section_ticket_delivery_<?= $stop['id'] ?>" class="tab-section scheduled_stop">
 							<?php if(strpos($value_config, ',Delivery Pickup') !== FALSE && $get_ticket['main_ticketid'] == 0) { ?>
-								<h4>Scheduled Stop <span class="block_count"><?= ++$stop_count ?></span><img class="inline-img small pull-right stop_sort" src="../img/icons/drag_handle.png"></h4>
+								<h4>Scheduled Stop <span class="block_count"><?= ++$stop_count ?> of <?= $ticket_stops->num_rows ?></span><img class="inline-img small pull-right stop_sort" src="../img/icons/drag_handle.png"></h4>
 								<input type="hidden" name="sort" data-table="ticket_schedule" data-id="<?= $stop['id'] ?>" data-id-field="id" value="<?= $stop['sort'] ?>">
 							<?php } ?>
 							<?php $equipment_list = mysqli_query($dbc, "SELECT * FROM `equipment` WHERE `equipmentid` = '{$stop['equipmentid']}'");
@@ -315,7 +315,7 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 							<?php foreach ($field_sort_order as $field_sort_field) { ?>
 								<?php if (strpos($value_config, ','."Delivery Pickup Equipment Category".',') !== FALSE && strpos($value_config, ','."Assigned Equipment Inline".',') === FALSE && $field_sort_field == 'Delivery Pickup Equipment Category') { ?>
 									<div class="form-group">
-										<label class="control-label col-sm-4">Equipment Category:</label>
+										<label class="control-label col-sm-4">Equipment Tab:</label>
 										<div class="col-sm-8">
 											<select name="stop_eq_category" class="chosen-select-deselect"><option></option>
 												<?php $groups = mysqli_query($dbc, "SELECT `category` FROM `equipment` WHERE `deleted`=0 GROUP BY `category` ORDER BY `category`");
@@ -366,8 +366,8 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 									</div>
 								<?php } else if (strpos($value_config, ','."Delivery Pickup Equipment".',') !== FALSE && strpos($value_config, ','."Assigned Equipment Inline".',') !== FALSE && $field_sort_field == 'Delivery Pickup Equipment') { ?>
 									<div class="form-group">
-										<?php if (strpos($value_config, ','."Delivery Pickup Equipment Category".',') !== FALSE) { ?>
-											<label class="hide-titles-mob text-center col-sm-<?= floor(12 / $equip_col_count) ?>">Equipment Category</label>
+										<?php if (strpos($value_config, ','."Delivery Pickup Equipment Tab".',') !== FALSE) { ?>
+											<label class="hide-titles-mob text-center col-sm-<?= floor(12 / $equip_col_count) ?>">Equipment Tab</label>
 										<?php } ?>
 										<?php if (strpos($value_config, ','."Delivery Pickup Equipment Make".',') !== FALSE) { ?>
 											<label class="hide-titles-mob text-center col-sm-<?= floor(12 / $equip_col_count) ?>">Equipment Make</label>
@@ -380,7 +380,7 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 										<?php } ?>
 										<?php if (strpos($value_config, ','."Delivery Pickup Equipment Category".',') !== FALSE) { ?>
 											<div class="col-sm-<?= floor(12 / $equip_col_count) ?>">
-												<label class="control-label show-on-mob">Category:</label>
+												<label class="control-label show-on-mob">Tab:</label>
 												<select name="stop_eq_category" class="chosen-select-deselect"><option></option>
 													<?php $groups = mysqli_query($dbc, "SELECT `category` FROM `equipment` WHERE `deleted`=0 GROUP BY `category` ORDER BY `category`");
 													while($category = mysqli_fetch_assoc($groups)) { ?>
@@ -587,7 +587,7 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 								<?php } ?>
 								<?php if (strpos($value_config, ','."Delivery Pickup Type".',') !== FALSE && $field_sort_field == 'Delivery Pickup Type') { ?>
 									<div class="form-group">
-										<label class="col-sm-4 control-label">Delivery Type:</label>
+										<label class="col-sm-4 control-label">Delivery Tab:</label>
 										<div class="col-sm-8">
 											<?php if(count($delivery_types) > 0) { ?>
 												<select name="type" class="chosen-select-deselect" data-placeholder="Select Type" data-table="ticket_schedule" data-id="<?= $stop['id'] ?>" data-id-field="id" value="<?= $stop['type'] ?>"><option></option>
@@ -829,7 +829,7 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 			$equipment = mysqli_fetch_assoc($equipment_list); ?>
 			<div class="multi-block-assign">
 				<div class="form-group">
-					<label class="control-label col-sm-4">Category:</label>
+					<label class="control-label col-sm-4">Tab:</label>
 					<div class="col-sm-8">
 						<?= $equipment['category'] ?>
 					</div>
@@ -1011,7 +1011,7 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 							<?php } ?>
 							<?php if (strpos($value_config, ','."Delivery Pickup Type".',') !== FALSE && $field_sort_field == 'Delivery Pickup Type') { ?>
 								<div class="form-group">
-									<label class="col-sm-4 control-label">Delivery Type:</label>
+									<label class="col-sm-4 control-label">Delivery Tab:</label>
 									<div class="col-sm-8">
 										<?= $stop['type'] ?>
 									</div>

@@ -25,7 +25,7 @@ switch($_GET['settings']) {
 		$page_title = 'Tile Splitting';
 		break;
 	case 'types':
-		$page_title = TICKET_NOUN.' Types';
+		$page_title = TICKET_NOUN.' Tabs';
 		break;
 	case 'status':
 		$page_title = 'Statuses';
@@ -53,6 +53,9 @@ switch($_GET['settings']) {
 		break;
 	case 'administration':
 		$page_title = 'Administration';
+		break;
+	case 'accounting':
+		$page_title = 'Accounting';
 		break;
 	case 'tasks':
 		$page_title = 'Staff Tasks';
@@ -208,7 +211,7 @@ function loadPanel() {
 			<div class="panel-heading">
 				<h4 class="panel-title">
 					<a data-toggle="collapse" data-parent="#settings_accordions" href="#collapse_ticket_types">
-						<?= TICKET_NOUN ?> Types<span class="glyphicon glyphicon-plus"></span>
+						<?= TICKET_NOUN ?> Tabs<span class="glyphicon glyphicon-plus"></span>
 					</a>
 				</h4>
 			</div>
@@ -252,14 +255,29 @@ function loadPanel() {
 		<div class="panel panel-default">
 			<div class="panel-heading">
 				<h4 class="panel-title">
-					<a data-toggle="collapse" data-parent="#settings_accordions" href="#collapse_quick_action">
+					<a data-toggle="collapse" data-parent="#settings_accordions" href="#collapse_administration">
 						Administration<span class="glyphicon glyphicon-plus"></span>
 					</a>
 				</h4>
 			</div>
 
-			<div id="collapse_quick_action" class="panel-collapse collapse">
+			<div id="collapse_administration" class="panel-collapse collapse">
 				<div class="panel-body" data-file="../Project/field_config_administration.php">
+					Loading...
+				</div>
+			</div>
+		</div>
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<h4 class="panel-title">
+					<a data-toggle="collapse" data-parent="#settings_accordions" href="#collapse_accounting">
+						Accounting<span class="glyphicon glyphicon-plus"></span>
+					</a>
+				</h4>
+			</div>
+
+			<div id="collapse_accounting" class="panel-collapse collapse">
+				<div class="panel-body" data-file="../Project/field_config_accounting.php">
 					Loading...
 				</div>
 			</div>
@@ -383,11 +401,12 @@ function loadPanel() {
 			<a href="?settings=summary_security"><li class="<?= $_GET['settings'] == 'summary_security' ? 'active blue' : '' ?>">Summary Access</li></a>
 			<a href="?settings=manifests"><li class="<?= $_GET['settings'] == 'manifests' ? 'active blue' : '' ?>">Manifest Fields</li></a>
 			<a href="?settings=pdf"><li class="<?= $_GET['settings'] == 'pdf' ? 'active blue' : '' ?>">PDF Options</li></a>
-			<a href="?settings=types"><li class="<?= $_GET['settings'] == 'types' ? 'active blue' : '' ?>"><?= TICKET_NOUN ?> Types</li></a>
+			<a href="?settings=types"><li class="<?= $_GET['settings'] == 'types' ? 'active blue' : '' ?>"><?= TICKET_NOUN ?> Tabs</li></a>
 			<a href="?settings=status"><li class="<?= $_GET['settings'] == 'status' ? 'active blue' : '' ?>">Statuses</li></a>
 			<a href="?settings=tile"><li class="<?= $_GET['settings'] == 'tile' ? 'active blue' : '' ?>">Tile Settings</li></a>
 			<a href="?settings=tile_split"><li class="<?= $_GET['settings'] == 'tile_split' ? 'active blue' : '' ?>">Tile Splitting</li></a>
 			<a href="?settings=administration"><li class="<?= $_GET['settings'] == 'administration' ? 'active blue' : '' ?>">Administration</li></a>
+			<a href="?settings=accounting"><li class="<?= $_GET['settings'] == 'accounting' ? 'active blue' : '' ?>">Accounting</li></a>
 			<a href="?settings=flags"><li class="<?= $_GET['settings'] == 'flags' ? 'active blue' : '' ?>">Quick Action Icons</li></a>
 			<a href="?settings=security"><li class="<?= $_GET['settings'] == 'security' ? 'active blue' : '' ?>">Roles &amp; Security</li></a>
 			<a href="?settings=groups"><li class="<?= $_GET['settings'] == 'groups' ? 'active blue' : '' ?>">Staff Groups</li></a>
@@ -463,6 +482,9 @@ function loadPanel() {
 				break;
 			case 'administration':
 				include('../Project/field_config_administration.php');
+				break;
+			case 'accounting':
+				include('field_config_accounting.php');
 				break;
 			case 'tasks':
 				include('field_config_staff_tasks.php');

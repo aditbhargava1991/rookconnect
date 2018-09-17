@@ -174,6 +174,25 @@ function get_field_contact_ss($field, $value, $dbc = '', $contact = 0, $other = 
                       <textarea name="'.$field[2].'" rows="5" cols="50" class="form-control" data-field="'.$field[2].'" data-table="'.$data_table.'" data-row-field="'.$data_row_field.'" data-row-id="'.$data_row_id.'" data-contactid-field="'.$data_contactid_field.'" data-contactid="'.$contact.'">'.$value.'</textarea>
                     </div>
                   </div>';
+    } else if($field[1] == 'textarea_hidden') {
+    $get_contact = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT * FROM key_methodologies WHERE support_contact='".$contact."' ORDER BY `keymethodologiesid` DESC"));
+    $html .= '<script type="text/javascript">
+          $(document).ready(function() {
+              $(\'[name="'.$field[3].'"]\').change(function() {
+                if($(\'[name="'.$field[3].'"]:checked\').val() == \''.$field[4].'\') {
+                  $(\'.ss_'.$field[2].'\').show();
+                } else {
+                  $(\'.ss_'.$field[2].'\').hide();
+                }
+            });
+          });
+        </script>';
+    $html .= '<div class="form-group ss_'.$field[2].'" '.($get_contact[$field[3]] == $field[4] ? '' : 'style="display:none;"').'>
+                    <label for="'.$field[2].'" class="col-sm-4 control-label">'.$field[0].': </label>
+                    <div class="col-sm-8">
+                      <textarea name="'.$field[2].'" rows="5" cols="50" class="form-control" data-field="'.$field[2].'" data-table="'.$data_table.'" data-row-field="'.$data_row_field.'" data-row-id="'.$data_row_id.'" data-contactid-field="'.$data_contactid_field.'" data-contactid="'.$contact.'">'.$value.'</textarea>
+                    </div>
+                  </div>';
    	} else if($field[1] == 'yes_default_no') {
 		$html .= '<div class="form-group">
                     <label for="'.$field[2].'" class="col-sm-4 control-label">'.$field[0].': </label>
