@@ -336,7 +336,26 @@ if($ticket['flag_colour'] != '' && $ticket['flag_colour'] != 'FFFFFF') {
 		echo '<div class="col-sm-6">
 			<label class="col-sm-4">Status:</label>
 			<div class="col-sm-8">';
-			if($tile_security['edit'] > 0) {
+            $invoice_status = '';
+            if(get_config($dbc, 'ticket_invoice_status') > 0) {
+                $invoice = $dbc->query("SELECT * FROM `invoice` WHERE `deleted`=0 AND CONCAT(',',`ticketid`,',') LIKE '%,$ticketid,%'")->fetch_assoc();
+                switch($invoice['status']) {
+                    case 'Completed':
+                        $invoice_status = 'Paid';
+                        break;
+                    case 'Void':
+                        $invoice_status = 'Voided';
+                        break;
+                    case 'Saved':
+                        $invoice_status = 'Unbilled';
+                        break;
+                    case 'Posted':
+                    default:
+                        $invoice_status = 'Accounts Receivable';
+                        break;
+                }
+            }
+			if($tile_security['edit'] > 0 && empty($invoice_status)) {
 				echo '<select name="status[]" data-id="'.$ticket['ticketid'].'" onchange="setStatus(this);" class="chosen-select-deselect1 form-control">
 						<option value=""></option>';
 						foreach ($ticket_status_list as $cat_tab) {
@@ -344,7 +363,7 @@ if($ticket['flag_colour'] != '' && $ticket['flag_colour'] != 'FFFFFF') {
 						}
 				echo '</select>';
 			} else {
-				echo $ticket['status'];
+				echo empty($invoice_status) ? $invoice_status : $ticket['status'];
 			}
 			echo '</div>
 		</div>';

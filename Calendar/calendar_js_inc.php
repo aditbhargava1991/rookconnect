@@ -559,6 +559,10 @@ function toggleMobileView(cell = '') {
 			$('#calendar-view-list tr[data-date="'+active_date+'"]').show();
 			$('#calendar-month-block').show();
 		}
+		$('#calendar_dates').val('["'+active_date+'"]');
+		if(reloadDragResize != undefined) {
+			reloadDragResize();
+		}
 	}
 }
 
@@ -730,12 +734,16 @@ function calendarScrollLoad() {
 function reload_all_data() {
 	var retrieve_collapse = $('#retrieve_collapse').val();
 	var calendar_type = $('#calendar_type').val();
-	if((calendar_type == 'ticket' || calendar_type == 'uni') && $('#collapse_teams .block-item.active').length > 0) {
-		reload_teams();
+	if(window.location.pathname == '/Calendar/calendars_mobile.php') {
+		retrieve_items($('#mobile_active_contact').closest('a'), '', true);
 	} else {
-		$('[id^='+retrieve_collapse+']').find('.block-item.active').each(function() {
-			retrieve_items($(this).closest('a'));
-		});
+		if((calendar_type == 'ticket' || calendar_type == 'uni') && $('#collapse_teams .block-item.active').length > 0) {
+			reload_teams();
+		} else {
+			$('[id^='+retrieve_collapse+']').find('.block-item.active').each(function() {
+				retrieve_items($(this).closest('a'));
+			});
+		}
 	}
 }
 function clear_excess_data(remove_type) {
@@ -853,6 +861,7 @@ function retrieve_items(anchor, calendar_date = '', force_show = false, retrieve
 						} else {
 							item_list[calendar_date].push(item_data);
 						}
+						load_items(item_data, calendar_date, contact);
 					}
 				});
 

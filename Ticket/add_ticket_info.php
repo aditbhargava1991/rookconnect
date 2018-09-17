@@ -262,6 +262,32 @@ if((strpos($value_config,',Service Customer Template,') !== FALSE || strpos($val
 			}
 		});
 	}
+
+	function getBusinessServiceTemplate() {
+		var businessid = $('[name=businessid] option:selected').val();
+		$.ajax({
+			url: 'ticket_ajax_all.php?action=get_customer_service_templates&clientid='+businessid,
+			type: 'GET',
+			dataType: 'html',
+			success: function(response) {
+				$('[name="customer_service_template"]').html(response);
+				$('[name="customer_service_template"]').trigger('change.select2');
+				initSelectOnChanges();
+				<?php if(strpos($value_config, ',Service Staff Checklist Default Customer Template,') !== FALSE) { ?>
+					var templateid = '';
+					$('[name="customer_service_template"] option').each(function() {
+						if($(this).val() != undefined && $(this).val() != '') {
+							templateid = $(this).val();
+							return;
+						}
+					});
+					loadCustomerServiceTemplate(templateid, 1);
+				<?php } ?>
+			}
+		});
+	}
+
+
 	function addCustomerServiceTemplate() {
 		var templateid = $('[name="customer_service_template"]').val();
 		if(templateid != undefined && templateid > 0) {
@@ -639,7 +665,7 @@ if(!empty($_GET['add_service_iframe'])) { ?>
 								<?php if(strpos($value_config,',Service Heading,') !== FALSE && $field_sort_field == 'Service Heading') { ?>
 									<div class="form-group">
 									  <label for="site_name" class="col-sm-4 control-label"><!--<span class="text-red">*</span>--> Service Heading:</label>
-									  <div class="col-sm-<?= strpos($value_config,',Service Multiple,') !== FALSE ? '6' : '7' ?>">
+									  <div class="col-sm-<?= strpos($value_config,',Service Multiple,') !== FALSE ? '6' : '8' ?>">
 										<select data-placeholder="Select a Heading..." name="serviceid" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" data-concat="," class="chosen-select-deselect form-control serviceid">
 										  <option value=""></option>
 										  <?php $query = mysqli_query($dbc,"SELECT serviceid, heading, service_type, category, estimated_hours FROM services WHERE ". $query_mod ." order by heading");

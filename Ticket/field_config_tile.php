@@ -126,10 +126,29 @@ function saveFieldMethod(field) {
 				value: statuses.join(',')
 			}
 		});
-	} else if(['auto_archive_unbooked_day','auto_archive_unbooked_time','ticket_default_session_user'].indexOf(field.name) >= 0) {
+	} else if(this.name == 'ticket_default_session_user') {
+		$.ajax({
+			url: 'ticket_ajax_all.php?action=setting_tile',
+			method: 'POST',
+			data: {
+				field: 'ticket_default_session_user',
+				value: this.value
+			}
+		});
+	} else if(['auto_archive_unbooked_day','auto_archive_unbooked_time','ticket_default_session_user','ticket_archive_status','ticket_invoice_status'].indexOf(field.name) >= 0) {
+        var value = '';
+        if(field.type == 'select-multiple') {
+            var list = [];
+            $(field).find('option:selected').each(function () {
+                list.push(this.value);
+            });
+            value = list.join('#*#');
+        } else {
+            value = field.value;
+        }
 		$.post('ticket_ajax_all.php?action=setting_tile', {
             field: field.name,
-            value: field.value
+            value: value
         });
 	}
     doneSaving();
@@ -193,6 +212,29 @@ function saveFieldMethod(field) {
 				<option <?= strpos($status, ','.$status_option.',') !== FALSE ? 'selected' : '' ?> value="<?= $status_option ?>"><?= $status_option ?></option>
 			<?php } ?>
 		</select>
+	</div>
+	<div class="clearfix"></div>
+</div>
+<hr>
+<div class="form-group type-option">
+	<label class="col-sm-4">Auto Archive Statuses:</label>
+	<div class="col-sm-8">
+		<?php $status_list = explode('#*#',get_config($dbc, "ticket_archive_status")); ?>
+		<select name="ticket_archive_status" multiple data-placeholder="Select Statuses" class="chosen-select-deselect">
+			<?php foreach(explode(',',get_config($dbc, 'ticket_status')) as $status_option) { ?>
+				<option <?= in_array($status_option,$status_list) ? 'selected' : '' ?> value="<?= $status_option ?>"><?= $status_option ?></option>
+			<?php } ?>
+		</select>
+	</div>
+	<div class="clearfix"></div>
+</div>
+<hr>
+<div class="form-group type-option">
+	<label class="col-sm-4">Display Status:</label>
+	<div class="col-sm-8">
+		<?php $invoice_status = get_config($dbc, "ticket_invoice_status"); ?>
+        <label class="form-checkbox"><input type="radio" name="ticket_invoice_status" value="1" <?= $invoice_status == '1' ? 'checked' : '' ?>>Status from Attached Invoice</label>
+        <label class="form-checkbox"><input type="radio" name="ticket_invoice_status" value="" <?= $invoice_status == '1' ? '' : 'checked' ?>><?= TICKET_NOUN ?> Status</label>
 	</div>
 	<div class="clearfix"></div>
 </div>

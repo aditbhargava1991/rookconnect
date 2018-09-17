@@ -15,6 +15,9 @@ var businessFilter = function() {
 		$('[name=clientid]').trigger('change.select2');
 		$('[name=rate_card] option[data-business]').hide().filter('[data-business='+option.val()+']').show();
 		$('[name=rate_card]').trigger('change.select2');
+		if(typeof getBusinessServiceTemplate == 'function') {
+			getBusinessServiceTemplate();
+		}
 	} else {
 		$('[name=projectid] option').show();
 		$('[name=projectid]').trigger('change.select2');
