@@ -55,6 +55,10 @@ if (isset($_POST['submit'])) {
         }
         //Logo
 
+        //Customizable Ticket Fields
+        set_config($dbc, 'invoice_custom_ticket_fields_'.config_safe_str($invoice_type), filter_var(implode(',', $_POST['invoice_custom_ticket_fields']),FILTER_SANITIZE_STRING));
+        //Customizable Ticket Fields
+
         //Customizable Ticket Service Columns
         set_config($dbc, 'invoice_custom_ticket_'.config_safe_str($invoice_type), filter_var(implode(',', $_POST['invoice_custom_ticket']),FILTER_SANITIZE_STRING));
         //Customizable Ticket Service Columns
@@ -164,6 +168,10 @@ if (isset($_POST['submit'])) {
             $result_insert_config = mysqli_query($dbc, $query_insert_config);
         }
         //Design
+
+        //Customizable Ticket Fields
+        set_config($dbc, 'invoice_custom_ticket_fields', filter_var(implode(',', $_POST['invoice_custom_ticket_fields']),FILTER_SANITIZE_STRING));
+        //Customizable Ticket Fields
 
         //Customizable Ticket Service Columns
         set_config($dbc, 'invoice_custom_ticket', filter_var(implode(',', $_POST['invoice_custom_ticket']),FILTER_SANITIZE_STRING));
@@ -560,6 +568,16 @@ if(!empty($invoice_types)) { ?>
                                 Customizable <?= TICKET_NOUN ?><br /><a target="_blank" href="../img/invoice_contractor3.png"><img src="../img/invoice_contractor3.png" width="100" height="100" border="0" alt=""></a></label>
 						</div>
 					</div>
+
+                    <?php $invoice_custom_ticket_fields = (!empty($_GET['type']) ? (!empty(get_config($dbc, 'invoice_custom_ticket_fields_'.config_safe_str($_GET['type']))) ? get_config($dbc, 'invoice_custom_ticket_fields_'.config_safe_str($_GET['type'])) : get_config($dbc, 'invoice_custom_ticket_fields')) : get_config($dbc, 'invoice_custom_ticket_fields'));
+                    $invoice_custom_ticket_fields = explode(',', $invoice_custom_ticket_fields); ?>
+                    <div class="form-group custom_ticket" <?= $invoice_design != 'custom_ticket' ? 'style="display: none;"' : '' ?>>
+                    <label class="col-sm-4 control-label">Customizable <?= TICKET_NOUN ?> Fields:</label>
+                    <div class="col-sm-8">
+                        <label class="form-checkbox"><input <?= (in_array('num_stops',$invoice_custom_ticket_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_custom_ticket_fields[]" value="num_stops"> # of Stops</label>
+                    </div>
+                    </div>
+
 
                     <?php $invoice_custom_ticket = (!empty($_GET['type']) ? (!empty(get_config($dbc, 'invoice_custom_ticket_'.config_safe_str($_GET['type']))) ? get_config($dbc, 'invoice_custom_ticket_'.config_safe_str($_GET['type'])) : get_config($dbc, 'invoice_custom_ticket')) : get_config($dbc, 'invoice_custom_ticket')); ?>
                     <div class="form-group custom_ticket" <?= $invoice_design != 'custom_ticket' ? 'style="display: none;"' : '' ?>>
