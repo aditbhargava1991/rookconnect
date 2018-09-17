@@ -4,8 +4,8 @@ include_once('../include.php'); ?>
 $(document).ready(function() {
 	$('input,select').change(saveField);
 });
-function saveField() {
-	if(this.name == 'ticket_tile' || this.name == 'ticket_noun') {
+function saveFieldMethod(field) {
+	if(field.name == 'ticket_tile' || field.name == 'ticket_noun') {
 		$.ajax({
 			url: 'ticket_ajax_all.php?action=setting_tile',
 			method: 'POST',
@@ -14,7 +14,7 @@ function saveField() {
 				value: $('[name=ticket_tile]').val()+'#*#'+($('[name=ticket_noun]').val() == '' ? $('[name=ticket_tile]').val() : $('[name=ticket_noun]').val())
 			}
 		});
-	} else if(this.name == 'ticket_sorting') {
+	} else if(field.name == 'ticket_sorting') {
 		$.ajax({
 			url: 'ticket_ajax_all.php?action=setting_tile',
 			method: 'POST',
@@ -23,100 +23,100 @@ function saveField() {
 				value: $('[name=ticket_sorting]:checked').val()
 			}
 		});
-	} else if(this.name == 'ticket_label') {
+	} else if(field.name == 'ticket_label') {
 		$.ajax({
 			url: 'ticket_ajax_all.php?action=setting_tile',
 			method: 'POST',
 			data: {
 				field: 'ticket_label',
-				value: this.value
+				value: field.value
 			}
 		});
-	} else if(this.name == 'default_status') {
+	} else if(field.name == 'default_status') {
 		$.ajax({
 			url: 'ticket_ajax_all.php?action=setting_tile',
 			method: 'POST',
 			data: {
 				field: 'ticket_default_status',
-				value: this.value
+				value: field.value
 			}
 		});
-	} else if(this.name == 'auto_archive') {
+	} else if(field.name == 'auto_archive') {
 		$.ajax({
 			url: 'ticket_ajax_all.php?action=setting_tile',
 			method: 'POST',
 			data: {
 				field: 'auto_archive',
-				value: this.value
+				value: field.value
 			}
 		});
-	} else if(this.name == 'ticket_layout') {
+	} else if(field.name == 'ticket_layout') {
 		$.ajax({
 			url: 'ticket_ajax_all.php?action=setting_tile',
 			method: 'POST',
 			data: {
 				field: 'ticket_layout',
-				value: this.value
+				value: field.value
 			}
 		});
-	} else if(this.name == 'ticket_exclude_archive') {
+	} else if(field.name == 'ticket_exclude_archive') {
 		$.ajax({
 			url: 'ticket_ajax_all.php?action=setting_tile',
 			method: 'POST',
 			data: {
 				field: 'ticket_exclude_archive',
-				value: this.value
+				value: field.value
 			}
 		});
-	} else if(this.name == 'ticket_project_function') {
+	} else if(field.name == 'ticket_project_function') {
 		$.ajax({
 			url: 'ticket_ajax_all.php?action=setting_tile',
 			method: 'POST',
 			data: {
 				field: 'ticket_project_function',
-				value: this.value
+				value: field.value
 			}
 		});
-	} else if(this.name == 'ticket_summary_urls') {
+	} else if(field.name == 'ticket_summary_urls') {
 		$.ajax({
 			url: 'ticket_ajax_all.php?action=setting_tile',
 			method: 'POST',
 			data: {
 				field: 'ticket_summary_urls',
-				value: this.value
+				value: field.value
 			}
 		});
-	} else if(this.name == 'ticket_slider_layout') {
+	} else if(field.name == 'ticket_slider_layout') {
 		$.ajax({
 			url: 'ticket_ajax_all.php?action=setting_tile',
 			method: 'POST',
 			data: {
 				field: 'ticket_slider_layout',
-				value: this.value
+				value: field.value
 			}
 		});
-	} else if(this.name == 'ticket_textarea_style') {
+	} else if(field.name == 'ticket_textarea_style') {
 		$.ajax({
 			url: 'ticket_ajax_all.php?action=setting_tile',
 			method: 'POST',
 			data: {
 				field: 'ticket_textarea_style',
-				value: this.value
+				value: field.value
 			}
 		});
-	} else if(this.name == 'ticket_unassigned_status') {
+	} else if(field.name == 'ticket_unassigned_status') {
 		$.ajax({
 			url: 'ticket_ajax_all.php?action=setting_tile',
 			method: 'POST',
 			data: {
 				field: 'ticket_unassigned_status',
-				value: this.value
+				value: field.value
 			}
 		});
-	} else if(this.name == 'ticket_uneditable_status[]') {
+	} else if(field.name == 'ticket_uneditable_status[]') {
 		var statuses = [];
-		$(this).find('option:selected').each(function () {
-			statuses.push(this.value);
+		$(field).find('option:selected').each(function () {
+			statuses.push(field.value);
 		});
 		$.ajax({
 			url: 'ticket_ajax_all.php?action=setting_tile',
@@ -126,16 +126,13 @@ function saveField() {
 				value: statuses.join(',')
 			}
 		});
-	} else if(this.name == 'ticket_default_session_user') {
-		$.ajax({
-			url: 'ticket_ajax_all.php?action=setting_tile',
-			method: 'POST',
-			data: {
-				field: 'ticket_default_session_user',
-				value: this.value
-			}
-		});
+	} else if(['auto_archive_unbooked_day','auto_archive_unbooked_time','ticket_default_session_user'].indexOf(field.name) >= 0) {
+		$.post('ticket_ajax_all.php?action=setting_tile', {
+            field: field.name,
+            value: field.value
+        });
 	}
+    doneSaving();
 }
 </script>
 <h3>Tickets Tile Name</h3>
@@ -217,6 +214,32 @@ function saveField() {
 		<?php $auto_archive = get_config($dbc, 'auto_archive'); ?>
 		<label><input name="auto_archive" type="radio" value="auto_archive" <?= $auto_archive == 'auto_archive' ? 'checked' : '' ?> class="form-control"/> Yes</label>
 		<label><input name="auto_archive" type="radio" value="" <?= $auto_archive == 'auto_archive' ? '' : 'checked' ?> class="form-control"/> No</label>
+	</div>
+	<div class="clearfix"></div>
+</div>
+<hr>
+<div class="form-group type-option">
+	<label class="col-sm-4">Auto-Archive Unbooked <?= TICKET_TILE ?>:</label>
+	<div class="col-sm-4">
+		<?php $auto_archive_unbooked_day = get_config($dbc, 'auto_archive_unbooked_day'); ?>
+        <select class="chosen-select-deselect" name="auto_archive_unbooked_day" data-placeholder="Select Day">
+            <option <?= trim($auto_archive_unbooked_day) === '' ? 'selected' : '' ?> value=" ">Never</option>
+            <?php foreach(['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'] as $day_name) { ?>
+                <option <?= $auto_archive_unbooked_day === $day_name ? 'selected' : '' ?> value="<?= $day_name ?>"><?= $day_name ?></option>
+            <?php }
+            for($i = 1; $i < 29; $i++) { ?>
+                <option <?= $auto_archive_unbooked_day === $i ? 'selected' : '' ?> value="<?= $i ?>">Day <?= $i ?> of Month</option>
+            <?php } ?>
+        </select>
+	</div>
+	<div class="col-sm-4">
+		<?php $auto_archive_unbooked_time = get_config($dbc, 'auto_archive_unbooked_time'); ?>
+        <select class="chosen-select-deselect" name="auto_archive_unbooked_time" data-placeholder="Select Hour">
+            <option <?= trim($auto_archive_unbooked_time) === '' ? 'selected' : '' ?> value=" ">Never</option>
+            <?php for($i = 0; $i < 24; $i++) { ?>
+                <option <?= $auto_archive_unbooked_time === "$i" ? 'selected' : '' ?> value="<?= $i ?>"><?= date('h:i a',strtotime($i.':00')) ?></option>
+            <?php } ?>
+        </select>
 	</div>
 	<div class="clearfix"></div>
 </div>
