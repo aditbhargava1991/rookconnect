@@ -2045,7 +2045,7 @@ function remMultiPOLine(img) {
 
 	var block = $(img).closest('.po_lines_div');
 	$(img).closest('.multi-block').remove();
-	$(block).find('.multi-block .po_line_value').first().change();
+	$(block).find('.po_line_value').first().change();
 }
 function rangeMultiPOLine(img) {
 	var block = $(img).closest('.multi-block');
