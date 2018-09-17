@@ -2043,7 +2043,7 @@ function remMultiPOLine(img) {
 		addMultiPOLine(img);
 	}
 
-	var block = $(img).closest('.tab-section').find('.po_lines_div');
+	var block = $(img).closest('.po_lines_div');
 	$(img).closest('.multi-block').remove();
 	$(block).find('.multi-block .po_line_value').first().change();
 }
