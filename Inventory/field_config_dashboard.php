@@ -231,7 +231,6 @@ $get_field_order = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT GROUP_CONCAT(`or
                     <input type="checkbox" <?php if (strpos($inventory_dashboard_config, ','."Commission Price".',') !== false) { echo " checked"; } ?> value="Commission Price" name="inventory_dashboard[]">&nbsp;&nbsp;Commission Price
                     <input type="checkbox" <?php if (strpos($inventory_dashboard_config, ','."MSRP".',') !== false) { echo " checked"; } ?> value="MSRP" name="inventory_dashboard[]">&nbsp;&nbsp;MSRP
                     <input type="checkbox" <?php if (strpos($inventory_dashboard_config, ','."Unit Price".',') !== false) { echo " checked"; } ?> value="Unit Price" name="inventory_dashboard[]">&nbsp;&nbsp;Unit Price
-                    <input type="checkbox" <?php if (strpos($inventory_dashboard_config, ','."Unit Cost".',') !== false) { echo " checked"; } ?> value="Unit Cost" name="inventory_dashboard[]">&nbsp;&nbsp;Unit Cost
                     <input type="checkbox" <?php if (strpos($inventory_dashboard_config, ','."Purchase Order Price".',') !== false) { echo " checked"; } ?> value="Purchase Order Price" name="inventory_dashboard[]">&nbsp;&nbsp;Purchase Order Price
                     <input type="checkbox" <?php if (strpos($inventory_dashboard_config, ','."Sales Order Price".',') !== false) { echo " checked"; } ?> value="Sales Order Price" name="inventory_dashboard[]">&nbsp;&nbsp;<?= SALES_ORDER_NOUN ?> Price
                     <input type="checkbox" <?php if (strpos($value_config, ','."Drum Unit Cost".',') !== false) { echo " checked"; } ?> value="Drum Unit Cost" name="inventory_dashboard[]">&nbsp;&nbsp;Drum Unit Cost
@@ -241,6 +240,8 @@ $get_field_order = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT GROUP_CONCAT(`or
                     <input type="checkbox" <?php if (strpos($value_config, ','."WCB Price".',') !== false) { echo " checked"; } ?> value="WCB Price" name="inventory_dashboard[]">&nbsp;&nbsp;WCB Price
                     <input type="checkbox" <?php if (strpos($value_config, ','."Suggested Retail Price".',') !== false) { echo " checked"; } ?> value="Suggested Retail Price" name="inventory_dashboard[]">&nbsp;&nbsp;Suggested Retail Price
                     <input type="checkbox" <?php if (strpos($value_config, ','."Rush Price".',') !== false) { echo " checked"; } ?> value="Rush Price" name="inventory_dashboard[]">&nbsp;&nbsp;Rush Price
+                    <input type="checkbox" <?php if (strpos($inventory_dashboard_config, ','."Unit Cost".',') !== false) { echo " checked"; } ?> value="Unit Cost" name="inventory_dashboard[]">&nbsp;&nbsp;Unit Cost
+                    <input type="checkbox" <?php if (strpos($inventory_dashboard_config, ','."CDN CPU".',') !== false) { echo " checked"; } ?> value="CDN CPU" name="inventory_dashboard[]">&nbsp;&nbsp;CDN Cost
 
                 </div>
             </div>

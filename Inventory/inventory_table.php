@@ -283,6 +283,16 @@ if($num_rows > 0) {
 		if (strpos($value_config, ','."Unit Cost".',') !== FALSE) {
 			echo '<th>Unit Cost</th>';
 		}
+		if (strpos($value_config, ','."CDN CPU".',') !== FALSE) {
+			if ( $rookconnect == 'sea' ) {
+				// On SEA software only allow George to see the cost
+				if ( isset ( $_SESSION['user_name'] ) && $_SESSION['user_name'] == 'georgev' ) {
+					echo '<th>CDN Cost</th>';
+				}
+			} else {
+				echo '<th>CDN Cost</th>';
+			}
+		}
 		if (strpos($value_config, ','."Rent Price".',') !== FALSE) {
 			echo '<th>Rent Price</th>';
 		}
@@ -702,6 +712,16 @@ if($num_rows > 0) {
 		}
 		if (strpos($value_config, ','."Unit Cost".',') !== FALSE) {
 			echo '<td data-title="Unit Cost">' . $row['unit_cost'] . '</td>';
+		}
+		if (strpos($value_config, ','."CDN CPU".',') !== FALSE) {
+			if ( $rookconnect == 'sea' ) {
+				// On SEA software only allow George to see the cost
+				if ( isset ( $_SESSION['user_name'] ) && $_SESSION['user_name'] == 'georgev' ) {
+					echo '<td data-title="CDN Cost">' . $row['cdn_cpu'] . '</td>';
+				}
+			} else {
+				echo '<td data-title="CDN Cost">' . $row['cdn_cpu'] . '</td>';
+			}
 		}
 		if (strpos($value_config, ','."Rent Price".',') !== FALSE) {
 			echo '<td data-title="Rent Price">' . $row['rent_price'] . '</td>';
