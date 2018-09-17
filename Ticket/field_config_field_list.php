@@ -2647,6 +2647,9 @@ if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) {
 							<?php if($field_sort_field == 'Delivery Pickup Phone') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Delivery Stops", array_merge($all_config,$value_config)) ? 'disabled' : (in_array("Delivery Pickup Phone", $all_config) ? 'checked disabled' : (in_array("Delivery Pickup Phone", $value_config) ? "checked" : '')) ?> value="Delivery Pickup Phone" name="tickets[]"> Multi-Stop Contact Info</label>
 							<?php } ?>
+							<?php if($field_sort_field == 'Delivery Pickup Phone2') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Delivery Stops", array_merge($all_config,$value_config)) ? 'disabled' : (in_array("Delivery Pickup Phone2", $all_config) ? 'checked disabled' : (in_array("Delivery Pickup Phone2", $value_config) ? "checked" : '')) ?> value="Delivery Pickup Phone2" name="tickets[]"> Multi-Stop Additional Contact</label>
+							<?php } ?>
 							<?php if($field_sort_field == 'Delivery Pickup Type') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Delivery Stops", array_merge($all_config,$value_config)) ? 'disabled' : (in_array("Delivery Pickup Type", $all_config) ? 'checked disabled' : (in_array("Delivery Pickup Type", $value_config) ? "checked" : '')) ?> value="Delivery Pickup Type" name="tickets[]"> Multi-Stop Tab</label>
 							<?php } ?>
