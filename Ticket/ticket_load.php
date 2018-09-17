@@ -488,6 +488,20 @@ if($ticket['flag_colour'] != '' && $ticket['flag_colour'] != 'FFFFFF') {
 			</div>
 		</div>';
 	}
+	if(in_array('Delivery Status',$db_config)) {
+		$ticket_stops = mysqli_query($dbc, "SELECT * FROM `ticket_schedule` WHERE `ticketid` = '".$ticket['ticketid']."' AND `deleted` = 0 AND `type` != 'origin' AND `type` != 'destination'");
+		$stop_count = 0;
+		$delivery_stops = [];
+		while($stop = mysqli_fetch_assoc($ticket_stops)) {
+			$stop_count++;
+            $delivery_stops[] = 'Stop #'.$stop_count.' '.(empty($stop['client_name']) ? $stop['location_name'] : $stop['client_name']).': '.$stop['status'];
+		}
+		echo '<div class="col-sm-6">
+			<label class="col-sm-4">Delivery Status Summary:</label>
+			<div class="col-sm-8">'.implode('<br>',$delivery_stops).'
+			</div>
+		</div>';
+	}
 	if(in_array('Edit Archive',$db_config) || (in_array('Edit Staff',$db_config) && $tile_security['edit'] > 0)) { ?>
 		<div class="col-sm-6">
 			<?php $functions = [];
