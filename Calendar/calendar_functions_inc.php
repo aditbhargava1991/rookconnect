@@ -348,7 +348,7 @@ function getTeamTickets($dbc, $date, $teamid) {
 	}
 	return $tickets_list;
 }
-function calendarTicketLabel($dbc, $ticket, $max_time, $start_time, $end_time) {
+function calendarTicketLabel($dbc, $ticket, $max_time, $start_time, $end_time, $ticket_fields = '') {
 	if(is_array($max_time) || empty($max_time)) {
 		$max_time = $ticket['max_time'];
 	}
@@ -358,6 +358,9 @@ function calendarTicketLabel($dbc, $ticket, $max_time, $start_time, $end_time) {
 	    $calendar_ticket_label = get_config($dbc, 'calendar_ticket_label');
 	}
 	$calendar_ticket_card_fields = explode(',',get_config($dbc, 'calendar_ticket_card_fields'));
+	if(!empty($ticket_fields)) {
+		$calendar_ticket_card_fields = explode(',',$ticket_fields);
+	}
 
 	$clients = [];
 	foreach(array_filter(explode(',',$ticket['clientid'])) as $clientid) {
