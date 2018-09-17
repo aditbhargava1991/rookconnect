@@ -404,8 +404,8 @@ $search_invoice_clause = !empty($search_invoiceid) ? " AND `invoiceid`='$search_
                                 echo 'Accounts Receivable';
                                 break;
                         }
-                        echo ' <a class="cursor-hand" onclick="void_invoice('.$invoice['invoiceid'].');">Void</a>';
-                        echo ' <a class="cursor-hand" href="adjust_invoice.php?invoiceid='.$invoice['invoiceid'].'&contactid='.$contactid.'&search_user=&search_invoice=">Refund</a>';
+                        echo ' <a class="cursor-hand" onclick="void_invoice('.$invoice['invoiceid'].');"><img src="../img/icons/void.png" class="no-toggle inline-img" title="Void Invoice" /></a>';
+                        echo ' <a class="cursor-hand" href="adjust_invoice.php?invoiceid='.$invoice['invoiceid'].'&contactid='.$contactid.'&search_user=&search_invoice="><img src="../img/icons/refund.png" class="no-toggle inline-img" title="Refund / Adjustment" /></a>';
                     echo '</td>';
                     }
                     if (strpos($value_config, ','."send") !== FALSE) {
