@@ -271,6 +271,7 @@ mysqli_query($dbc, "ALTER TABLE `tasklist` CHANGE `flag_label` `flag_label` VARC
 mysqli_query($dbc, "ALTER TABLE `sales` ADD `number_of_days` INT(10) NOT NULL DEFAULT '0' AFTER `classification`");
 
 mysqli_query($dbc, "ALTER TABLE `sales` ADD `number_of_days_start_date` DATE NULL AFTER `number_of_days`");
+mysqli_query($dbc, "ALTER TABLE `contacts` ADD `serviceid` INT(10) NULL AFTER `vaca_pay`");
 
     echo "Dayana's DB Changes Done<br />\n";
 ?>
