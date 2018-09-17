@@ -931,15 +931,13 @@ if(!empty($_GET['add_service_iframe'])) { ?>
 				</div>
 			<?php } ?>
 		  <?php if(strpos($value_config,',Service Total Price,') !== FALSE && $field_sort_field == 'Service Total Price') { ?>
-				<?php $editable = check_subtab_persmission($dbc, 'ticket', ROLE, 'edit_service_total');
-				if(check_subtab_persmission($dbc, 'ticket', ROLE, 'view_service_total')) { ?>
+
 					<div class="form-group">
 						<label for="site_name" class="col-sm-4 control-label">Total Price of Services:</label>
 						<div class="col-sm-8">
 							<input type="number" data-manual="<?= $get_ticket['service_cost_manual'] ?>" data-manual-field="service_cost_manual" min="0" step="any" name="services_cost" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" <?= $editable ? '' : 'readonly' ?> class="form-control" value="<?= $get_ticket['services_cost'] ?>">
 						</div>
 					</div>
-				<?php } ?>
 			<?php } ?>
 		<?php } ?>
 	<?php } else { ?>
