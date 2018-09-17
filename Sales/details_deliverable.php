@@ -17,6 +17,7 @@ if(empty($salesid)) {
 
             $number_of_days = $get_contact ['number_of_days'];
             $number_of_days_start_date = $get_contact ['number_of_days_start_date'];
+        }
         ?>
 
         <div class="row set-row-height">
