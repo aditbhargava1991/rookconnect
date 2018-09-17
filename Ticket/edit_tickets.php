@@ -2674,7 +2674,7 @@ var setHeading = function() {
 							</div>
 						<?php } ?>
 						<?php $get_query = $_GET; ?>
-							<div class="pull-right gap-left gap-top">
+							<div class="pull-right gap-left">
 								<a href="" class="btn brand-btn" onclick="openFullView(); return false;">Open Full Window</a>
 							</div>
 						<?php if(strpos($value_config,',Quick Reminder Button,') !== FALSE && !($strict_view > 0)) { ?>
@@ -2683,6 +2683,7 @@ var setHeading = function() {
 							</div>
 							<div class="clearfix"></div>
 						<?php } ?>
+                        <div class="clearfix"></div>
 					</h3>
 					<hr>
 				</div>

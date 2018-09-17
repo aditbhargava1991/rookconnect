@@ -76,12 +76,14 @@ function loadTeam(teamid) {
 }
 </script>
 
-<a href="" onclick="loadTeam('NEW'); return false;" class="btn brand-btn pull-right">New Team</a>
-
-<h3 id="team_header"><?= $_GET['teamid'] > 0 ? 'Edit' : 'New' ?> Team</h3>
+<h3 id="team_header" class="gap-left gap-right">
+    <?= $_GET['teamid'] > 0 ? 'Edit' : 'New' ?> Team
+    <a href="" onclick="loadTeam('NEW'); return false;" class="btn brand-btn pull-right">New Team</a>
+    <div class="clearfix"></div>
+</h3>
 <!-- <div align="right"><a href="#" class="block-label-sml<?= $active_schedule ?>">Schedule</a>
 <a href="#" class="block-label-sml<?= $active_team ?>">Team</a></div> -->
 
-<div class="block-group team_block" style="height: calc(100% - 8em); overflow-y: auto;">
+<div class="team_block" style="height: calc(100% - 8em); overflow-y: auto;">
     <?php include('../Calendar/teams_inc.php'); ?>
 </div>  
