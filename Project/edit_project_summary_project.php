@@ -1,4 +1,4 @@
-<?php 
+<?php
     include_once('../include.php');
     error_reporting(0);
     if($_GET['edit'] > 0) {
@@ -26,5 +26,5 @@
         } else {
             echo "<h2>Please add Project Details in order to see a Summary of the Project.</h2>";
         }
-    } 
+    }
     ?>

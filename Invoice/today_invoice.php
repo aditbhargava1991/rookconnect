@@ -150,6 +150,7 @@ $search_clause .= $search_from != '' ? " AND `invoice_date` >= '$search_from'" :
 $search_clause .= $search_to != '' ? " AND `invoice_date` <= '$search_to'" : '';
 $search_invoice_clause = !empty($search_invoiceid) ? " AND `invoiceid`='$search_invoiceid'" : '';
 ?>
+
 <div class="view_summary double-gap-bottom" style="display:none;">
     <div class="col-xs-12 col-sm-4 gap-top">
         <div class="summary-block">
@@ -246,7 +247,7 @@ $search_invoice_clause = !empty($search_invoiceid) ? " AND `invoiceid`='$search_
         }
 
         $offsett = ($pageNumm - 1) * $rowsPerPagee;
-
+                                                     
         /* Pagination Counting */
         $rowsPerPage = 25;
         $pageNum = 1;

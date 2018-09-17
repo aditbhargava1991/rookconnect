@@ -3,6 +3,7 @@ include_once ('include.php');
 error_reporting(0);
 
 if(isset($_POST['upload_file']) && !empty($_FILES['csv_file']['tmp_name'])) {
+	$default_status = get_config($dbc, 'ticket_default_status');
 	$warehouse_start_time = get_config($dbc, 'ticket_warehouse_start_time');
 	$warehouses = [];
 	$warehouse_assignments = explode('#*#', get_config($dbc, 'bb_macro_warehouse_assignments'));
@@ -77,15 +78,15 @@ if(isset($_POST['upload_file']) && !empty($_FILES['csv_file']['tmp_name'])) {
 	$date = date('Y-m-d');
 	foreach ($new_values as $key => $value) {
 		if(!empty($value['date']) && !empty($value['customer_name']) && !empty($value['street_address']) && !empty($value['city']) && !empty($value['phone1']) && !empty(strip_tags(html_entity_decode($value['description'])))) {
-			$existing = $dbc->query("SELECT * FROM `ticket_schedule` LEFT JOIN `tickets` ON `ticket_schedule`.`ticketid`=`tickets`.`ticketid` WHERE `tickets`.`businessid`='$businessid' AND `ticket_schedule`.`order_number`='$key' AND `ticket_schedule`.`to_do_date`='".$value['date']."' AND `ticket_schedule`.`client_name`='".$value['customer_name']."' AND `ticket_schedule`.`address`='".$value['street_address']."' AND `ticket_schedule`.`city`='".$value['city']."' AND `ticket_schedule`.`details`='".$value['phone1'].','.$value['phone2'].','.$value['phone3']."'");
-			if($existing->num_rows == 0) {
+			$existing = $dbc->query("SELECT * FROM `ticket_schedule` LEFT JOIN `tickets` ON `ticket_schedule`.`ticketid`=`tickets`.`ticketid` WHERE `tickets`.`businessid`='$businessid' AND CONCAT(`ticket_schedule`.`order_number`,'-') LIKE '$key-%' AND `ticket_schedule`.`to_do_date`='".$value['date']."' AND `ticket_schedule`.`client_name`='".$value['customer_name']."' AND `ticket_schedule`.`address`='".$value['street_address']."' AND `ticket_schedule`.`city`='".$value['city']."' AND `ticket_schedule`.`details`='".$value['phone1'].','.$value['phone2'].','.$value['phone3']."'");
+			if($existing->num_rows == 0 || $_POST['duplicate'] == 'all_dupes') {
 				$date = $value['date'];
-				$dbc->query("INSERT INTO `tickets` (`ticket_type`,`businessid`,`region`,`classification`, `salesorderid`,`ticket_label`,`heading`) VALUES ('$ticket_type','$businessid','$region','$classification','$key','$business_name - $key','$business_name - $key')");
+				$dbc->query("INSERT INTO `tickets` (`ticket_type`,`businessid`,`region`,`classification`, `salesorderid`,`ticket_label`,`heading`) VALUES ('$ticket_type','$businessid','$region','$classification','$key".($existing->num_rows > 0 ? '-'.($existing->num_rows + 1) : '')."','$business_name - $key','$business_name - $key')");
 				$ticketid = $dbc->insert_id;
 				if(!empty($warehouses[$value['city']]) && !empty($value['city'])) {
-					$dbc->query("INSERT INTO `ticket_schedule` (`ticketid`,`type`,`to_do_date`,`to_do_start_time`,`client_name`,`address`,`city`,`postal_code`,`order_number`) VALUES ('$ticketid','".$warehouses[$value['city']]['warehouse_name']."','".$value['date']."','".$warehouse_start_time."','".$business_name."','".$warehouses[$value['city']]['address']."','".$warehouses[$value['city']]['city']."','".$warehouses[$value['city']]['postal_code']."','".$key."')");
+					$dbc->query("INSERT INTO `ticket_schedule` (`ticketid`,`type`,`to_do_date`,`to_do_start_time`,`client_name`,`address`,`city`,`postal_code`,`order_number`,`status`) VALUES ('$ticketid','".$warehouses[$value['city']]['warehouse_name']."','".$value['date']."','".$warehouse_start_time."','".$business_name."','".$warehouses[$value['city']]['address']."','".$warehouses[$value['city']]['city']."','".$warehouses[$value['city']]['postal_code']."','".$key."','$default_status')");
 				}
-				$dbc->query("INSERT INTO `ticket_schedule` (`ticketid`,`to_do_date`,`client_name`,`address`,`city`,`province`,`postal_code`,`details`,`email`,`order_number`,`notes`) VALUES ('$ticketid','".$value['date']."','".$value['customer_name']."','".$value['street_address'].' '.$value['unit_number']."','".$value['city']."','".$value['province']."','".$value['postal_code']."','".$value['email']."','".$value['phone1'].','.$value['phone2'].','.$value['phone3']."','".$key."','&lt;p&gt;".$value['description']."&lt;/p&gt;&lt;p&gt;Gross Volume (LTR): ".$value['volume']."&lt;/p&gt;&lt;p&gt;Gross Weight (KG): ".$value['weight']."&lt;/p&gt;&lt;p&gt;".$value['info']."&lt;/p&gt;')");
+				$dbc->query("INSERT INTO `ticket_schedule` (`ticketid`,`to_do_date`,`client_name`,`address`,`city`,`province`,`postal_code`,`details`,`email`,`order_number`,`notes`,`status`) VALUES ('$ticketid','".$value['date']."','".$value['customer_name']."','".$value['street_address'].' '.$value['unit_number']."','".$value['city']."','".$value['province']."','".$value['postal_code']."','".$value['email']."','".$value['phone1'].','.$value['phone2'].','.$value['phone3']."','".$key."','&lt;p&gt;".$value['description']."&lt;/p&gt;&lt;p&gt;Gross Volume (LTR): ".$value['volume']."&lt;/p&gt;&lt;p&gt;Gross Weight (KG): ".$value['weight']."&lt;/p&gt;&lt;p&gt;".$value['info']."&lt;/p&gt;','$default_status')");
 				$dbc->query("INSERT INTO `ticket_history` (`ticketid`,`userid`,`src`,`description`) VALUES ('$ticketid',".$_SESSION['contactid'].",'optimizer','Best Buy macro imported ".TICKET_NOUN." $ticketid')");
 			}
 		}
@@ -106,6 +107,8 @@ if(isset($_POST['upload_file']) && !empty($_FILES['csv_file']['tmp_name'])) {
 		<p>
 			<label class="form-checkbox"><input type="radio" name="delimiter" value="newline" checked>New Line</label>
 			<label class="form-checkbox"><input type="radio" name="delimiter" value="comma">Comma</label><br>
+			<label class="form-checkbox"><input type="radio" name="duplicate" value="no_dupe" checked>No Duplicates</label>
+			<label class="form-checkbox"><input type="radio" name="duplicate" value="all_dupes">Allow Duplicates</label><br>
 			<select class="chosen-select-deselect" data-placeholder="Select <?= BUSINESS_CAT ?>" name="businessid"><option />
 				<?php foreach(sort_contacts_query($dbc->query("SELECT `name`, `contactid` FROM `contacts` WHERE `category`='".BUSINESS_CAT."' AND `deleted`=0 AND `status` > 0")) as $business) { ?>
 					<option value="<?= $business['contactid'] ?>"><?= $business['name'] ?></option>

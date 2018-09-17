@@ -494,6 +494,8 @@ if($_GET['action'] == 'mark_favourite') {
 	$ticket = filter_var($_POST['ticket'],FILTER_SANITIZE_STRING);
 	$check_lists = filter_var($_POST['check_list'],FILTER_SANITIZE_STRING);
 	$intake_forms = filter_var($_POST['intake_form'],FILTER_SANITIZE_STRING);
+	$items = filter_var($_POST['items'],FILTER_SANITIZE_STRING);
+	//$intakes = filter_var($_POST['intakes'],FILTER_SANITIZE_STRING);
 	$intakes = filter_var($_POST['intakes'],FILTER_SANITIZE_STRING);
 
 	if($id == 'new') {

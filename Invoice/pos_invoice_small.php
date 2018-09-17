@@ -53,7 +53,12 @@ if($get_pos_tax != '') {
 }
 //Tax
 
-$logo = 'download/'.get_config($dbc, 'invoice_logo');
+$logo = get_config($dbc, 'invoice_logo');
+if(!empty($get_invoice['type']) && !empty(get_config($dbc, 'invoice_logo_'.$get_invoice['type']))) {
+    $logo = get_config($dbc, 'invoice_logo_'.$get_invoice['type']);
+}
+
+$logo = 'download/'.$logo;
 if(!file_exists($logo)) {
     $logo = '../POSAdvanced/'.$logo;
     if(!file_exists($logo)) {

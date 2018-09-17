@@ -75,6 +75,13 @@ function deleteLogo() {
 		<label class="form-checkbox"><input type="checkbox" <?php if ($ticket_pdf_hide_blank == 1) { echo " checked"; } ?> value="1" style="height: 20px; width: 20px;" name="ticket_pdf_hide_blank"> Enable</label>
 	</div>
 </div>
+<div class="form-group">
+	<label class="col-sm-4 control-label">Create <?= TICKET_NOUN ?> for Blank <?= TICKET_NOUN ?> Forms:<br /><em>Assign ID from <?= TICKET_TILE ?> and use for Blank <?= TICKET_NOUN ?> Forms</em></label>
+	<div class="col-sm-8">
+		<?php $ticket_pdf_blank_new_id = get_config($dbc, 'ticket_pdf_blank_new_id'); ?>
+		<label class="form-checkbox"><input type="checkbox" <?php if ($ticket_pdf_blank_new_id == 1) { echo " checked"; } ?> value="1" style="height: 20px; width: 20px;" name="ticket_pdf_blank_new_id"> Enable</label>
+	</div>
+</div>
 <hr>
 <div class="form-group">
 	<label class="col-sm-4 control-label">Left Header:</label>

@@ -76,6 +76,12 @@ function view_tabs() {
 function view_summary() {
     $('.view_summary').toggle();
 }
+function add_reminder(invoiceid) {
+    if(invoiceid === undefined) {
+        invoiceid = '<?= empty($_GET['p5']) ? $_POST['invoice_no'] : $_GET['p5'] ?>';
+    }
+    overlayIFrameSlider('../quick_action_reminders.php?tile=invoice&ar=true&id='+invoiceid+'&start_date=<?= empty($_GET['p1']) ? $_POST['starttime'] : $_GET['p1'] ?>&end_date=<?= empty($_GET['p2']) ? $_POST['endtime'] : $_GET['p2'] ?>&customer=<?= empty($_GET['p3']) ? $_POST['patient'] : $_GET['p3'] ?>','auto',false,true);
+}
 </script>
 
 <!-- Summary Blocks --><?php
@@ -182,7 +188,7 @@ while($row = mysqli_fetch_array($query_ar)) {
 
     $total_120 = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT SUM(patient_price) AS `all_payment` FROM invoice_patient WHERE (DATE(invoice_date) >= '".$starttime."' AND DATE(invoice_date) <= '".$endtime."') AND (DATE(invoice_date) < '".$last119."') AND patientid = '$patientid' AND (paid_date > '$as_at_date' OR IFNULL(`paid`,'') IN ($ar_types))"));
     $total_last120 = $total_120['all_payment'];
-    
+  
     $total_ar_current += $total_last30;
     $total_ar_30 += $total_last3059;
     $total_ar_60 += $total_last6089;
@@ -373,7 +379,7 @@ function report_receivables($dbc, $starttime, $endtime, $table_style, $table_row
         $report_data .= '<td data-title="Invoice Date">'.$row_report['service_date'].'</td>';
         $report_data .= '<td data-title="'.$purchaser_label.'"><a href="../Contacts/contacts_inbox.php?edit='.$row_report['patientid'].'" onclick="overlayIFrameSlider(this.href, \'auto\', false, true, $(\'#invoice_div\').outerHeight()+20); return false;">'.get_contact($dbc, $row_report['patientid']).' <img class="inline-img" src="../img/person.PNG"></a></td>';
         $report_data .= '<td data-title="Amount" align="right">'.$row_report['patient_price'].'</td>';
-        $report_data .= '<td data-title="Pay"><label class="form-checkbox any-width"><input type="checkbox" class="invoice" name="invoiceid" value="'.$row_report['invoiceid'].'"> Select</label><a onclick="pay_receivables('.$row_report['invoiceid'].'); return false;" class="btn brand-btn" href="">Pay Now</a></td>';
+        $report_data .= '<td data-title="Pay"><label class="form-checkbox any-width"><input type="checkbox" class="invoice" name="invoiceid" value="'.$row_report['invoiceid'].'"> Select</label><a onclick="pay_receivables('.$row_report['invoiceid'].'); return false;" class="btn brand-btn" href="">Pay Now</a><span class="pull-right gap-top offset-right-5"><img src="../img/icons/ROOK-reminder-icon.png" alt="Schedule Reminder" title="Schedule Reminder" class="cursor-hand no-toggle inline-img" onclick="add_reminder('.$row_report['invoiceid'].');" /></span></td>';
         $report_data .= '<input type="hidden" name="invoiceallid" value="'.$row_report['invoiceid'].'">';
 
         $report_data .= '</tr>';

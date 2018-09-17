@@ -2,6 +2,38 @@ $(document).ready(function() {
 	tasksInit();
 });
 
+function saveTaskChecklist() {
+	var checklist = 0;
+
+    if ($('[name="task_include_checklists"]').is(':checked')) {
+        checklist = 1;
+    } else {
+        checklist = 0;
+    }
+
+	$.ajax({    //create an ajax request to ajax_all.php
+		type: "GET",
+		url: "task_ajax_all.php?fill=setting_task_checklist&checklist="+checklist,
+		dataType: "html",   //expect html to be returned
+	});
+}
+
+function saveTaskIntake() {
+	var intake = 0;
+
+    if ($('[name="task_include_intake"]').is(':checked')) {
+        intake = 1;
+    } else {
+        intake = 0;
+    }
+
+	$.ajax({    //create an ajax request to ajax_all.php
+		type: "GET",
+		url: "task_ajax_all.php?fill=setting_task_intake&intake="+intake,
+		dataType: "html",   //expect html to be returned
+	});
+}
+
 function saveFields() {
 	var tab_list = [];
 	$('[name="task_fields[]"]:checked').not(':disabled').each(function() {

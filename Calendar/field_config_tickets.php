@@ -8,6 +8,12 @@ if (isset($_POST['add_tickets'])) {
 
     $calendar_ticket_label = filter_var($_POST['calendar_ticket_label'], FILTER_SANITIZE_STRING);
     set_config($dbc, 'calendar_ticket_label', $calendar_ticket_label);
+
+    $calendar_ticket_check_shifts = filter_var($_POST['calendar_ticket_check_shifts'], FILTER_SANITIZE_STRING);
+    set_config($dbc, 'calendar_ticket_check_shifts', $calendar_ticket_check_shifts);
+
+    $calendar_ticket_check_days_off = filter_var($_POST['calendar_ticket_check_days_off'], FILTER_SANITIZE_STRING);
+    set_config($dbc, 'calendar_ticket_check_days_off', $calendar_ticket_check_days_off);
     
     $calendar_ticket_slider = filter_var($_POST['calendar_ticket_slider'], FILTER_SANITIZE_STRING);
     set_config($dbc, 'calendar_ticket_slider', $calendar_ticket_slider);
@@ -144,6 +150,20 @@ $ticket_status_color_code_legend = get_config($dbc, 'ticket_status_color_code_le
                     <div class="col-sm-8">
                         <?php $calendar_ticket_label = get_config($dbc, 'calendar_ticket_label'); ?>
                         <input type="text" name="calendar_ticket_label" value="<?= $calendar_ticket_label ?>" class="form-control">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Check Staff Shift When Booking:</label>
+                    <div class="col-sm-8">
+                        <?php $calendar_ticket_check_shifts = get_config($dbc, 'calendar_ticket_check_shifts'); ?>
+                        <label class="form-checkbox"><input type="checkbox" name="calendar_ticket_check_shifts" value="1" <?= $calendar_ticket_check_shifts == 1 ? 'checked' : '' ?>> Enable</label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Check Staff Days Off When Booking:</label>
+                    <div class="col-sm-8">
+                        <?php $calendar_ticket_check_days_off = get_config($dbc, 'calendar_ticket_check_days_off'); ?>
+                        <label class="form-checkbox"><input type="checkbox" name="calendar_ticket_check_days_off" value="1" <?= $calendar_ticket_check_days_off == 1 ? 'checked' : '' ?>> Enable</label>
                     </div>
                 </div>
             </div>
