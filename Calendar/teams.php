@@ -76,8 +76,8 @@ function loadTeam(teamid) {
 }
 </script>
 
-<h3 id="team_header" class="gap-left gap-right">
-    <?= $_GET['teamid'] > 0 ? 'Edit' : 'New' ?> Team
+<h3 class="gap-left gap-right">
+    <span id="team_header"><?= $_GET['teamid'] > 0 ? 'Edit' : 'New' ?> Team</span>
     <a href="" onclick="loadTeam('NEW'); return false;" class="btn brand-btn pull-right">New Team</a>
     <div class="clearfix"></div>
 </h3>

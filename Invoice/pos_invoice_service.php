@@ -39,7 +39,12 @@ if($get_pos_tax != '') {
 }
 
 // Invoice Logo
-$logo = 'download/'.get_config($dbc, 'invoice_logo');
+$logo = get_config($dbc, 'invoice_logo');
+if(!empty($point_of_sell['type']) && !empty(get_config($dbc, 'invoice_logo_'.$point_of_sell['type']))) {
+    $logo = get_config($dbc, 'invoice_logo_'.$point_of_sell['type']);
+}
+
+$logo = 'download/'.$logo;
 if(!file_exists($logo)) {
     $logo = '../POSAdvanced/'.$logo;
     if(!file_exists($logo)) {
@@ -48,6 +53,9 @@ if(!file_exists($logo)) {
 }
 DEFINE('INVOICE_LOGO', $logo);
 $invoice_footer = get_config($dbc, 'invoice_footer');
+if(!empty($point_of_sell['type']) && !empty(get_config($dbc, 'invoice_footer_'.$point_of_sell['type']))) {
+    $invoice_footer = get_config($dbc, 'invoice_footer_'.$point_of_sell['type']);
+}
 $payment_type = explode('#*#', $point_of_sell['payment_type']);
 
 DEFINE('INVOICE_FOOTER', $invoice_footer);
