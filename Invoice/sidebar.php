@@ -68,6 +68,23 @@
                     </div><?php
                     break;
                     
+                case 'unbilled_tickets': ?>
+                    <div class="panel panel-default">
+                        <div class="panel-heading mobile_load">
+                            <h4 class="panel-title">
+                                <a data-toggle="collapse" data-parent="#mobile_accordions" href="#collapse_unbilled_tickets">
+                                    Unbilled <?= TICKET_TILE ?><span class="glyphicon glyphicon-plus"></span>
+                                </a>
+                            </h4>
+                        </div>
+                        <div id="collapse_unbilled_tickets" class="panel-collapse collapse">
+                            <div class="panel-body" data-url="unbilled_tickets.php">
+                                Loading...
+                            </div>
+                        </div>
+                    </div><?php
+                    break;
+                    
                 case 'unpaid': ?>
                     <div class="panel panel-default">
                         <div class="panel-heading mobile_load">
@@ -282,6 +299,9 @@
                         break;
                     case 'all': ?>
                         <li class="sidebar-higher-level <?= $_GET['tab'] == 'all' ? 'active' : '' ?>"><a href="index.php?tab=all">All Invoices</a></li><?php
+                        break;
+                    case 'unbilled_tickets': ?>
+                        <li class="sidebar-higher-level <?= $_GET['tab'] == 'unbilled_tickets' ? 'active' : '' ?>"><a href="index.php?tab=unbilled_tickets">Unbilled <?= TICKET_TILE ?></a></li><?php
                         break;
                     case 'unpaid': ?>
                         <li class="sidebar-higher-level <?= $_GET['tab'] == 'unpaid' ? 'active' : '' ?>"><a href="index.php?tab=unpaid">Accounts Receivable</a></li><?php
