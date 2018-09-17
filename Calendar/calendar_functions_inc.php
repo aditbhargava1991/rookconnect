@@ -408,7 +408,9 @@ function calendarTicketLabel($dbc, $ticket, $max_time, $start_time, $end_time, $
 		}
 	}
 	$row_html .= (in_array('address',$calendar_ticket_card_fields) ? '<br />'.$ticket['pickup_name'].($ticket['pickup_name'] != '' ? '<br />' : ' ').$ticket['client_name'].($ticket['client_name'] != '' ? '<br />' : ' ').$ticket['pickup_address'].($ticket['pickup_address'] != '' ? '<br />' : ' ').$ticket['pickup_city'] : '');
-	$row_html .= '<br />'."Status: ".$ticket['status'];
+	if(in_array('status',$calendar_ticket_card_fields)) {
+		$row_html .= '<br />'."Status: ".$ticket['status'];
+	}
 	if(in_array('ticket_notes',$calendar_ticket_card_fields)) {
 		$ticket_notes = mysqli_query($dbc, "SELECT * FROM `ticket_comment` WHERE `ticketid` = '".$ticket['ticketid']."' AND `deleted` = 0");
 		if(mysqli_num_rows($ticket_notes) > 0) {
