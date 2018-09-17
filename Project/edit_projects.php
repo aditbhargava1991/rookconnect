@@ -1834,19 +1834,20 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 				$body_title = PROJECT_NOUN.' Summary';
 				$include_files[] = 'edit_project_summary.php'; break;
 			case 'summary_project':
-				$body_title = 'Summary Project';
-				$include_files[] = 'edit_project_summary_project.php'; break;
+				$body_title = 'Project Summary';
+				//$include_files[] = 'edit_project_summary_project.php'; break;
+				$include_files[] = 'edit_project_summary.php'; break;
 			case 'summary_tickets':
-				$body_title = 'Summary Tickets';
+				$body_title = 'Tickets Summary';
 				$include_files[] = 'edit_project_summary_tickets.php'; break;
 			case 'summary_tasks':
-				$body_title = 'Summary Tasks';
+				$body_title = 'Tasks Summary';
 				$include_files[] = 'edit_project_summary_tasks.php'; break;
 			case 'summary_checklists':
-				$body_title = 'Summary Tasks';
+				$body_title = 'Checklists Summary';
 				$include_files[] = 'edit_project_summary_checklists.php'; break;
 			case 'summary_projections':
-				$body_title = 'Summary Tasks';
+				$body_title = 'Projections Summary';
 				$include_files[] = 'edit_project_summary_projections.php'; break;
 			case 'custom_details':
 				$body_title = $_GET['custom_tab'];
