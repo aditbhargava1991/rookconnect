@@ -197,23 +197,7 @@ function allow_sort() {
                                     <div class="col-sm-5">Follow Up:</div>
                                     <div class="col-sm-7"><input type="text" name="follow_up" value="<?= $row['new_reminder'] ?>" class="form-control datepicker" onchange="changeLeadFollowUpDate(this);" id="fsid_<?= $row['salesid'] ?>" /></div>
                                 </div>
-                            </div>
-
-                            <div class="row set-row-height">
-                                    <div class="col-sm-5">Time Line:</div>
-                                    <div class="col-sm-7">
-                                        <?php
-                                            $now = time(); // or your date as well
-                                            $your_date = strtotime($row['number_of_days_start_date']);
-                                            $datediff = $now - $your_date;
-
-                                            echo round($datediff / (60 * 60 * 24)).'/'.$row['number_of_days'].' Days';
-                                        ?>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <?php
+                            </div><?php
                         } ?>
                     <?php } else { ?>
                         <div class="info-block-detail">No <?= strtolower($status); ?> sales leads.</div><?php
