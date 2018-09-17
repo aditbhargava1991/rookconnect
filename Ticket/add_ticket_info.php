@@ -262,6 +262,32 @@ if((strpos($value_config,',Service Customer Template,') !== FALSE || strpos($val
 			}
 		});
 	}
+
+	function getBusinessServiceTemplate() {
+		var businessid = $('[name=businessid] option:selected').val();
+		$.ajax({
+			url: 'ticket_ajax_all.php?action=get_customer_service_templates&clientid='+businessid,
+			type: 'GET',
+			dataType: 'html',
+			success: function(response) {
+				$('[name="customer_service_template"]').html(response);
+				$('[name="customer_service_template"]').trigger('change.select2');
+				initSelectOnChanges();
+				<?php if(strpos($value_config, ',Service Staff Checklist Default Customer Template,') !== FALSE) { ?>
+					var templateid = '';
+					$('[name="customer_service_template"] option').each(function() {
+						if($(this).val() != undefined && $(this).val() != '') {
+							templateid = $(this).val();
+							return;
+						}
+					});
+					loadCustomerServiceTemplate(templateid, 1);
+				<?php } ?>
+			}
+		});
+	}
+
+
 	function addCustomerServiceTemplate() {
 		var templateid = $('[name="customer_service_template"]').val();
 		if(templateid != undefined && templateid > 0) {
