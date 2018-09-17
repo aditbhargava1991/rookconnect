@@ -687,6 +687,14 @@ $(document).ready(function() {
             $('.menu-content').fadeOut("fast");
         }
     });
+	if(ticketid > 0) {
+		checkStaffShifts().success(function(response) {
+			var response = JSON.parse(response);
+			if(response.success == false) {
+				alert(response.message);
+			}
+		});
+	}
 });
 $(document).on('click', '.menu_button', function() {
     $('.menu-content').load('edit_tickets.php .standard-body-title', function() {
