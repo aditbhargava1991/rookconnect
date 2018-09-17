@@ -70,7 +70,7 @@ foreach($ticket_list as $ticketid) {
 		$price_final += $total_price - $billing_discount_total;
 	}
 }
-mysqli_query($dbc, "INSERT INTO `invoice` (`tile_name`,`projectid`,`ticketid`,`businessid`,`patientid`,`invoice_date`,`total_price`,`discount`,`final_price`,`serviceid`,`fee`,`misc_item`,`misc_price`,`misc_qty`,`misc_total`,`service_ticketid`,`misc_ticketid`) SELECT 'invoice',MAX(`projectid`),GROUP_CONCAT(`ticketid` SEPARATOR ','),MAX(`businessid`),MAX(`businessid`),DATE(NOW()),'$total_price','$billing_discount_total','$price_final','".implode(',',$inv_services)."','".implode(',',$inv_service_fee)."','".implode(',',$misc_item)."','".implode(',',$misc_price)."','".implode(',',$misc_qty)."','".implode(',',$misc_total)."','".implode(',',$inv_service_ticketid)."','".implode(',',$misc_ticketid)."' FROM `tickets` WHERE `ticketid` IN (".implode($ticket_list).")");
+mysqli_query($dbc, "INSERT INTO `invoice` (`tile_name`,`projectid`,`ticketid`,`businessid`,`patientid`,`invoice_date`,`total_price`,`discount`,`final_price`,`serviceid`,`fee`,`misc_item`,`misc_price`,`misc_qty`,`misc_total`,`service_ticketid`,`misc_ticketid`) SELECT 'invoice',MAX(`projectid`),GROUP_CONCAT(`ticketid` SEPARATOR ','),MAX(`businessid`),MAX(`businessid`),DATE(NOW()),'$total_price','$billing_discount_total','$price_final','".implode(',',$inv_services)."','".implode(',',$inv_service_fee)."','".implode(',',$misc_item)."','".implode(',',$misc_price)."','".implode(',',$misc_qty)."','".implode(',',$misc_total)."','".implode(',',$inv_service_ticketid)."','".implode(',',$misc_ticketid)."' FROM `tickets` WHERE `ticketid` IN (".implode(',',$ticket_list).")");
 $invoiceid = $dbc->insert_id;
 foreach($inv_services as $i => $service) {
 	$service = $dbc->query("SELECT * FROM `services` WHERE `serviceid`='$service'")->fetch_assoc();
@@ -88,6 +88,9 @@ if(!tile_visible($dbc, 'check_out')) {
 $get_invoice = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `invoice` WHERE `invoiceid`='$invoiceid'"));
 // PDF
 $invoice_design = get_config($dbc, 'invoice_design');
+if(!empty($get_invoice['type']) && !empty(get_config($dbc, 'invoice_design_'.$get_invoice['type']))) {
+    $invoice_design = get_config($dbc, 'invoice_design_'.$get_invoice['type']);
+}
 switch($invoice_design) {
     case 1:
         include('pos_invoice_1.php');

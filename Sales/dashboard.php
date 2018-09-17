@@ -141,6 +141,20 @@ function allow_sort() {
                                 <?php if($row['primary_staff'] > 0) { ?>
                                     <div class="pull-right"><?= profile_id($dbc, $row['primary_staff']); ?></div>
                                 <?php } ?>
+
+                                <?php
+                                if($row['number_of_days'] > 0) { ?>
+                                <div class="row set-row-height"><div class="col-sm-12">
+                                    <?php
+                                        $now = time(); // or your date as well
+                                        $your_date = strtotime($row['number_of_days_start_date']);
+                                        $datediff = $now - $your_date;
+
+                                        echo '<b class="pull-right">'.round($datediff / (60 * 60 * 24)).'/'.$row['number_of_days'].' Days'.'</b>';
+                                    ?>
+                                </div></div>
+                                <?php } ?>
+
 								<a href="sale.php?p=preview&id=<?= $row['salesid'] ?>">
                                 <div class="row set-row-height" style="<?= empty($row['status']) || empty($row['next_action']) || empty($row['new_reminder']) ? 'color: red;' : '' ?>">
                                     <div class="col-sm-12"><?= get_client($dbc, $row['businessid']); ?><img class="inline-img no-toggle" src="../img/icons/ROOK-edit-icon.png" title="Edit">
