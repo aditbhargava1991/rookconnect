@@ -8,6 +8,12 @@ $couponid		= $point_of_sell['couponid'];
 $coupon_value	= $point_of_sell['coupon_value'];
 $customer = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM contacts WHERE contactid='$contactid'"));
 
+$custom_ticket_fields = get_config($dbc, 'invoice_custom_ticket_fields');
+if(!empty($point_of_sell['type']) && !empty(get_config($dbc, 'invoice_custom_ticket_fields_'.$point_of_sell['type']))) {
+	$custom_ticket_fields = get_config($dbc, 'invoice_custom_ticket_fields_'.$point_of_sell['type']);
+}
+$custom_ticket_fields = explode(',', $custom_ticket_fields);
+
 // if ( $edit_id == '0' ) {
 	// $edited = '';
 // } else {
@@ -430,8 +436,13 @@ if($num_rows7 > 0) {
 		<table border="1px" style="padding:3px; border:1px solid black;">
 		<tr nobr="true" style="background-color:lightgrey; color:black;  width:22%;">
 		<th width="10%">Date</th><th width="10%">'.TICKET_NOUN.'</th>';
+		$service_width_diff = 0;
+		if(in_array('num_stops',$custom_ticket_fields)) {
+			$service_width_diff += 10;
+			$html .= '<th width="10%">Stops</th>';
+		}
 		$service_widths = count($invoice_custom_ticket) + 1;
-		$service_widths = 70 / $service_widths;
+		$service_widths = (70 - $service_width_diff) / $service_widths;
 		foreach($invoice_custom_ticket as $service_id) {
 			$service = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `services` WHERE `serviceid` = '$service_id'"));
 			$html .= '<th width="'.$service_widths.'%">'.$service['heading'].'</th>';
@@ -445,6 +456,10 @@ if($num_rows7 > 0) {
 		$html .= '<tr>';
 		$html .= '<td>'.$ticket['to_do_date'].'</td>';
 		$html .= '<td>'.get_ticket_label($dbc, $ticket).'</td>';
+		if(in_array('num_stops',$custom_ticket_fields)) {
+			$num_stops = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT COUNT(`id`) num_rows FROM `ticket_schedule` WHERE `ticketid` = '".$ticket['ticketid']."' AND `deleted` = 0 AND `type` != 'origin' AND `type` != 'destination'"))['num_rows'];
+			$html .= '<td>'.$num_stops.'</td>';
+		}
 
 		foreach($invoice_custom_ticket as $service_id) {
 			$html .= '<td>';
