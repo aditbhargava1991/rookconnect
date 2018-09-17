@@ -240,8 +240,6 @@ $get_field_order = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT GROUP_CONCAT(`or
                     <input type="checkbox" <?php if (strpos($value_config, ','."WCB Price".',') !== false) { echo " checked"; } ?> value="WCB Price" name="inventory_dashboard[]">&nbsp;&nbsp;WCB Price
                     <input type="checkbox" <?php if (strpos($value_config, ','."Suggested Retail Price".',') !== false) { echo " checked"; } ?> value="Suggested Retail Price" name="inventory_dashboard[]">&nbsp;&nbsp;Suggested Retail Price
                     <input type="checkbox" <?php if (strpos($value_config, ','."Rush Price".',') !== false) { echo " checked"; } ?> value="Rush Price" name="inventory_dashboard[]">&nbsp;&nbsp;Rush Price
-                    <input type="checkbox" <?php if (strpos($inventory_dashboard_config, ','."Unit Cost".',') !== false) { echo " checked"; } ?> value="Unit Cost" name="inventory_dashboard[]">&nbsp;&nbsp;Unit Cost
-                    <input type="checkbox" <?php if (strpos($inventory_dashboard_config, ','."CDN CPU".',') !== false) { echo " checked"; } ?> value="CDN CPU" name="inventory_dashboard[]">&nbsp;&nbsp;CDN Cost
 
                 </div>
             </div>
