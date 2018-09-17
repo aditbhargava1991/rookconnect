@@ -589,7 +589,7 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 									<div class="form-group">
 										<label class="col-sm-4 control-label">Delivery Tab:</label>
 										<div class="col-sm-8">
-											<?php if(count($delivery_types) > 0) { ?>tab
+											<?php if(count($delivery_types) > 0) { ?>
 												<select name="type" class="chosen-select-deselect" data-placeholder="Select Type" data-table="ticket_schedule" data-id="<?= $stop['id'] ?>" data-id-field="id" value="<?= $stop['type'] ?>"><option></option>
 													<?php foreach($delivery_types as $type_name) { ?>
 														<option <?= $type_name == $stop['type'] ? 'selected' : '' ?> value="<?= $type_name ?>"><?= $type_name ?></option>
