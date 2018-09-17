@@ -88,14 +88,6 @@ $(document).ready(function() {
 	setSave();
 	initSelectOnChanges();
 	filterStaffNoShift();
-	if(ticketid > 0) {
-		checkStaffShifts().success(function(response) {
-			var response = JSON.parse(response);
-			if(response.success == false) {
-				alert(response.message);
-			}
-		});
-	}
 });
 $(window).load(function() {
 	destroyTinyMce();
