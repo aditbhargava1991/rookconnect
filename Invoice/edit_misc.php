@@ -32,7 +32,7 @@
                             <input type="number" <?= !empty($misc_item) && $_GET['inv_mode'] == 'adjust' ? 'readonly' : '' ?> step="any" min="0" name="misc_price[]" value="<?= $misc_price / $misc_qty ?>" onchange="setThirdPartyMisc(this); countTotalPrice()" class="form-control misc_price">
                         </div>
                         <div class="col-sm-1"><label class="show-on-mob">Quantity:</label>
-                            <input type="number" <?= !empty($misc_item) && $_GET['inv_mode'] == 'adjust' ? 'readonly' : '' ?> step="any" min="0" name="misc_qty[]" value="<?= $misc_qty ?>" onchange="setThirdPartyMisc(this); countTotalPrice()" class="form-control <?= $_GET['inv_mode'] == 'adjust' ? 'init_qty' : 'misc_qty' ?>">
+                            <input type="number" <?= !empty($misc_item) && $_GET['inv_mode'] == 'adjust' ? 'readonly' : '' ?> step="any" min="0" name="misc_qty[]" value="<?= $misc_qty ?>" onchange="setThirdPartyMisc(this); countTotalPrice()" class="form-control <?= $_GET['inv_mode'] == 'adjust' && $misc_qty > 0 ? 'init_qty' : 'misc_qty' ?>">
                         </div>
                         <div class="col-sm-2"><label class="show-on-mob">Total:</label>
                             <input type="number" <?= !empty($misc_item) && $_GET['inv_mode'] == 'adjust' ? 'readonly' : '' ?> readonly name="misc_total[]" value="<?= $misc_price ?>" class="form-control misc_total">

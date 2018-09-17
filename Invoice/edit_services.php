@@ -55,8 +55,10 @@
                         <div class="col-sm-4"><label class="show-on-mob">Service Name:</label>
                             <input type="hidden" name="service_ticketid[]" value="">
                             <?php if($_GET['inv_mode'] == 'adjust') { ?>
-                                <input type="hidden" id="<?php echo 'serviceid_'.$id_loop; ?>" name="serviceid[]" class="serviceid"><?= get_all_from_service($dbc, $serviceid, 'heading') ?>
+                                <input type="hidden" id="<?php echo 'serviceid_'.$id_loop; ?>" name="init_serviceid[]" class="serviceid" value="<?= $serviceid ?>"><?= get_all_from_service($dbc, $serviceid, 'heading') ?>
                                 <input type="hidden" name="servicelabel" value="<?= get_all_from_service($dbc, $serviceid, 'category') ?>: <?= get_all_from_service($dbc, $serviceid, 'heading') ?>">
+                                <input name="init_gst_exempt[]" id="<?php echo 'gstexempt_'.$id_loop; ?>"  type="hidden" value="<?php echo get_all_from_service($dbc, $serviceid, 'gst_exempt'); ?>" class="form-control gstexempt" />
+                                <input name="init_service_row_id[]" type="hidden" value="<?= $client_loop ?>" class="insurer_row_id" />
                             <?php } else { ?>
                                 <select id="<?php echo 'serviceid_'.$id_loop; ?>" data-placeholder="Select a Service..." name="serviceid[]" class="chosen-select-deselect form-control serviceid" width="380">
                                     <option value=""></option>
@@ -97,7 +99,7 @@
                         <div class="col-sm-2">
                             <img src="<?= WEBSITE_URL ?>/img/remove.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right cursor-hand adjust_block" onclick="rem_service_row(this);">
                             <img src="<?= WEBSITE_URL ?>/img/icons/ROOK-add-icon.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right cursor-hand adjust_block" onclick="add_service_row();">
-                            <label class="return_block"><input type="checkbox" name="servicerow_refund[]" value="<?= $insurer_row_id ?>" onchange="countTotalPrice()"> Refund</label>
+                            <label class="return_block"><input type="checkbox" name="servicerow_refund[]" value="<?= $client_loop ?>" onchange="countTotalPrice()"> Refund</label>
                         </div>
 
                         <div class="col-sm-12 pay-div"></div>

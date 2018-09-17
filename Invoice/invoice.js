@@ -820,7 +820,9 @@ function setTotalPrice() {
 			if(label == '' || label == undefined) {
 				info = group.find('[name=servicelabel]').val();
 			}
-			if(group.hasClass('adjust_block')) {
+			if(fee_row < 0) {
+				$('.detail_service_list').append('<label class="pull-right">'+fee_row.toFixed(2)+'</label>Refund: '+info+'<br /><div class="clearfix"></div>').prev('h4').show();
+            } else if(group.hasClass('adjust_block')) {
 				sum_adjustment += fee_row + (gstexempt == 0 ? fee_row*tax_rate/100 : 0);
 				$('.detail_service_list').append('<label class="pull-right">'+fee_row.toFixed(2)+'</label>Adjustment: '+info+'<br /><div class="clearfix"></div>').prev('h4').show();
 			} else {

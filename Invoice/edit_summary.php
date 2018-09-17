@@ -263,7 +263,8 @@
         </div>
     <?php } ?>
 
-    <?php if($_GET['inv_mode'] == 'adjust') { ?>
+    <?php if($_GET['inv_mode'] == 'adjust') {
+        $previous_payments = 0; ?>
         <div class="form-group">
             <label for="additional_note" class="col-sm-3 control-label">Invoice Payment Information:</label>
             <div class="col-sm-9">
@@ -300,7 +301,8 @@
                             <div class="col-sm-3"><label class="col-sm-4 show-on-mob">Payment Type:</label><?= count($payer_config) > 1 ? 'Third Party' : $payer_config[0] ?> Payment</div>
                             <div class="col-sm-3"><label class="col-sm-4 show-on-mob">Payment Amount:</label>$<?= number_format($insurer_paid_amt[$i],2) ?><input type="hidden" name="amount_previously_paid[]" value="<?= $insurer_paid_amt[$i] ?>"><input type="hidden" name="insurer_amt[]" value="<?= $insurer_paid_amt[$i] ?>"><input type="hidden" name="insurer_payer[]" value="<?= $ins_pay_id ?>"></div>
                         </div>
-                    <?php }
+                        <?php $previous_payments += $insurer_paid_amt[$i] * 1;
+                    }
                 }
 
                 foreach($patient_paid_type as $loop_check => $check_patient) {
@@ -330,9 +332,13 @@
                         <div class="col-sm-2 return_block"><label class="col-sm-4 show-on-mob">Refund amount to <?= $patient_pay_type ?>:</label>
                             <input type="hidden" name="refund_to_type[]" value="<?= $patient_pay_type ?>"><input type="number" class="form-control" name="refund_type_amount[]" value="0" min="0" max="<?= $patient_paid_amt[$i] ?>" data-status="auto" onchange="adjustRefundAmt();" step="any"></div>
                     </div>
-                <?php } ?>
+                    <?php $previous_payments += $patient_paid_amt[$i] * 1;
+                } ?>
             </div>
         </div>
+        <script>
+        var previous_payment = '<?= $previous_payments ?>' * 1;
+        </script>
     <?php } ?>
     <div class="form-group payment_option">
         <label for="additional_note" class="col-sm-3 control-label"><?= count($purchaser_config) > 1 ? 'Customer' : $purchaser_config[0] ?> Payment:</label>
