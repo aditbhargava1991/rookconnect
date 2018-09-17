@@ -302,7 +302,6 @@ if(!empty($ticket_status)) {
 		}
 		$value_config = ','.implode(',',array_intersect(explode(',',$value_config), explode(',',$value_config_all))).',';
 	}
-	$ticket_layout = $calendar_ticket_slider = 'full';
 }
 
 //Edit Staff From Dashboard
