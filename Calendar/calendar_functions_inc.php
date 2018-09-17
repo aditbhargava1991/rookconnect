@@ -380,11 +380,17 @@ function calendarTicketLabel($dbc, $ticket, $max_time, $start_time, $end_time, $
 	if($ticket['service_templateid'] > 0) {
 		$service_template = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `name` FROM `services_service_templates` WHERE `templateid` = '".$ticket['service_templateid']."'"))['name'];
 	}
+	$assigned_staff = [];
+	foreach(array_unique(array_filter(explode(',',$ticket['contactid']))) as $contactid) {
+		$assigned_staff[] = get_contact($dbc, $contactid);
+	}
+	$assigned_staff = implode(', ',$assigned_staff);
 	
 	$row_html = '<b>'.get_ticket_label($dbc, $ticket, null, null, $calendar_ticket_label).(empty($calendar_ticket_label) ? $ticket['location_description'] : '').($ticket['sub_label'] != '' ? '-'.$ticket['sub_label'] : '').'</b>'.
 	(in_array('project',$calendar_ticket_card_fields) ? '<br />'.PROJECT_NOUN.' #'.$ticket['projectid'].' '.$ticket['project_name'].'<br />' : '').
 	(in_array('customer',$calendar_ticket_card_fields) ? '<br />'.'Customer: '.get_contact($dbc, $ticket['businessid'], 'name') : '').
 	(in_array('client',$calendar_ticket_card_fields) ? '<br />'.'Client: '.$clients : '').
+	(in_array('assigned',$calendar_ticket_card_fields) ? '<br />'.'Staff: '.$assigned_staff : '').
 	(in_array('site_address',$calendar_ticket_card_fields) ? '<br />'.'Site Address: '.$site_address : '').
 	(in_array('service_template',$calendar_ticket_card_fields) ? '<br />'.'Service Template: '.$service_template : '').
 	(in_array('start_date',$calendar_ticket_card_fields) ? '<br />'.'Date: '.$ticket['to_do_date'] : '').
