@@ -39,7 +39,7 @@ $rookconnect = get_software_name();
                 var newsboard_type = $(this).data('type');
                 $.ajax({
                     type: 'GET',
-                    url: 'news_ajax_all.php?fill=delete_newsitem&newsboardid='+newsboardid,
+                    url: 'news_ajax_all.php?fill=delete_newsitem&newsboardid='+newsboardid+'&newsboard_type='+newsboard_type,
                     success: function(response) {
                         alert('News item deleted successfully.');
                         window.location.replace('index.php');
@@ -151,8 +151,8 @@ $rookconnect = get_software_name();
                     <div class="pull-right gap-top"><?php
                         if ( vuaed_visible_function($dbc, 'newsboard') == 1 ) { ?>
                             <a href="field_config_newsboard.php" class="mobile-block pull-right gap-right offset-left-5"><img style="width:30px;" title="Tile Settings" src="../img/icons/settings-4.png" class="settings-classic wiggle-me"></a>
-                            <button class="pull-right btn brand-btn offset-left-5" onclick="overlayIFrameSlider('add_board.php', 'auto', true, true);">Add News Board</button>
-                            <button class="pull-right btn brand-btn" onclick="overlayIFrameSlider('add_news.php', 'auto', true, true);">Add News</button><?php
+                            <button class="pull-right btn brand-btn offset-left-5" onclick="overlayIFrameSlider('add_board.php', 'auto', true, false);">Add News Board</button>
+                            <button class="pull-right btn brand-btn" onclick="overlayIFrameSlider('add_news.php', 'auto', true, false);">Add News</button><?php
                         } ?>
                     </div>
                 </div>
