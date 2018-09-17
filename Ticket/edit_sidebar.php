@@ -403,8 +403,13 @@ foreach($sort_order as $sort_field) { ?>
 		<a href="" data-tab-target="ticket_billing"><li class="<?= $_GET['tab'] == 'ticket_billing' ? 'active blue' : '' ?>"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Billing' ?></li></a>
 	<?php } ?>
 
-	<?php if (strpos($value_config, ','."Customer Notes".',') !== FALSE && $sort_field == 'Customer Notes') { ?>
-		<a href="" data-tab-target="ticket_customer_notes"><li class="<?= $_GET['tab'] == 'ticket_customer_notes' ? 'active blue' : '' ?>"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Customer Notes' ?></li></a>
+	<?php if (strpos($value_config, ','."Customer Notes".',') !== FALSE && $sort_field == 'Customer Notes') {
+        $stopid = filter_var($_GET['stop'],FILTER_SANITIZE_STRING);
+        $stop_list = $dbc->query("SELECT * FROM `ticket_schedule` WHERE `ticketid`='$ticketid' AND `deleted`=0 AND '$stopid' IN (`id`,'')");
+        $ticket_stop = $stop_list->fetch_assoc();
+        do { ?>
+            <a href="" data-tab-target="ticket_customer_notes_<?= $ticket_stop['id'] ?>"><li class="<?= $_GET['tab'] == 'ticket_customer_notes' ? 'active blue' : '' ?>"><?= (!empty($renamed_accordion) ? $renamed_accordion : 'Customer Notes').($ticket_stop['id'] > 0 ? ': '.(empty($ticket_stop['client_name']) ? $ticket_stop['location_name'] : $ticket_stop['client_name']) : '') ?></li></a>
+        <?php } while($ticket_stop = $stop_list->fetch_assoc()); ?>
 	<?php } ?>
 
 	<?php if (strpos($value_config, ','."Reading".',') !== FALSE && $sort_field == 'Reading') { ?>
