@@ -64,7 +64,12 @@ if (isset($_POST['submit_btn'])) {
 
     $result_update_in = mysqli_query($dbc, "UPDATE `invoice_refund` SET `final_price` = '$refund_final_price' WHERE refundid='$refundid'");
 
+    $get_invoice = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM invoice WHERE invoiceid='$invoiceid'"));
+
     $logo = get_config($dbc, 'invoice_logo');
+    if(!empty($get_invoice['type']) && !empty(get_config($dbc, 'invoice_logo_'.$get_invoice['type']))) {
+        $logo = get_config($dbc, 'invoice_logo_'.$get_invoice['type']);
+    }
     DEFINE('INVOICE_LOGO', $logo);
 
     include ('refund_invoice_pdf.php');

@@ -1,5 +1,4 @@
 <?php include_once('../include.php');
-
 if(!empty($_GET['reload_table']) || !empty($_GET['reload_hidden_services'])) {
 	ob_clean();
 	$ticketid = $_GET['ticketid'];

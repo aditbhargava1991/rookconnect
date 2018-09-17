@@ -5,17 +5,30 @@
     $therapistsid = $get_invoice['therapistsid'];
     $service_date = $get_invoice['service_date'];
 	if(!defined(INVOICE_LOGO)) {
-		DEFINE('INVOICE_LOGO', get_config($dbc, 'invoice_logo'));
+	    $logo = get_config($dbc, 'invoice_logo');
+	    if(!empty($get_invoice['type']) && !empty(get_config($dbc, 'invoice_logo_'.$get_invoice['type']))) {
+	        $logo = get_config($dbc, 'invoice_logo_'.$get_invoice['type']);
+	    }
+
+		DEFINE('INVOICE_LOGO', $logo);
 	}
 	if(!defined(INVOICE_HEADER)) {
-		DEFINE('INVOICE_HEADER', html_entity_decode(get_config($dbc, 'invoice_header')));
+	    $invoice_header = get_config($dbc, 'invoice_header');
+	    if(!empty($get_invoice['type']) && !empty(get_config($dbc, 'invoice_header_'.$get_invoice['type']))) {
+	        $invoice_header = get_config($dbc, 'invoice_header_'.$get_invoice['type']);
+	    }
+		DEFINE('INVOICE_HEADER', html_entity_decode($invoice_header));
 	}
 	if(!defined(INVOICE_FOOTER)) {
 		$next_booking = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `booking` WHERE `appoint_date` > DATE_ADD(NOW(), INTERVAL 1 HOUR) AND `deleted`=0 AND `patientid`='".$get_invoice['patientid']."' ORDER BY `appoint_date` ASC"));
 		if($next_booking['bookingid'] > 0) {
 			$footer_text = '<p style="color: #37C6F4; font-size: 14; font-weight: bold; text-align: center;">Your next appointment is '.date('d/m/y',strtotime($next_booking['appoint_date']))." at ".date('G:ia',strtotime($next_booking['appoint_date'])).'</p>';
 		}
-		$footer_text .= html_entity_decode(get_config($dbc, 'invoice_footer'));
+	    $invoice_footer = get_config($dbc, 'invoice_footer');
+	    if(!empty($get_invoice['type']) && !empty(get_config($dbc, 'invoice_footer_'.$get_invoice['type']))) {
+	        $invoice_footer = get_config($dbc, 'invoice_footer_'.$get_invoice['type']);
+	    }
+		$footer_text .= html_entity_decode($invoice_footer);
 		DEFINE('INVOICE_FOOTER', $footer_text);
 	}
 
