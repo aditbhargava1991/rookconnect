@@ -1485,6 +1485,8 @@ footer#footer { margin:0; padding:0; }
 	.menu-box-dropper {
 		max-height: calc(100vh - 160px);
 	}
+    
+    .padded-desktop { padding:10px; }
 }
 @media (min-width: 801px) {
 	.sel2 {

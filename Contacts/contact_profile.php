@@ -134,7 +134,7 @@ if($id_card_fields == '') {
             $inv_count = $dbc->query("SELECT COUNT(*) `count` FROM `invoice` WHERE `patientid`='$contactid' AND `status` NOT IN ('Void') AND `deleted`=0")->fetch_assoc(); ?>
             <div class="col-xs-6 col-sm-4 col-md-3 col-lg-2 gap-top">
                 <div class="summary-block">
-                    <span class="text-lg"><?= ($inv_count['count'] > 0) ? '<a target="_top" href="../POSAdvanced/invoice_list.php?contactid='.$contactid.'&type=&search_from=0000-00-00&search_to='.date('Y-m-t').'&search_invoice_submit=Search">'.$inv_count['count'].'</a>' : 0; ?></span><br />
+                    <span class="text-lg"><?= ($inv_count['count'] > 0) ? '<a target="_top" href="../POSAdvanced/index.php?tab=all&contactid='.$contactid.'&type=&search_from=0000-00-00&search_to='.date('Y-m-t').'&search_invoice_submit=Search">'.$inv_count['count'].'</a>' : 0; ?></span><br />
                     Total<br />Invoices
                 </div>
             </div>
@@ -152,7 +152,7 @@ if($id_card_fields == '') {
             $patient_ar = mysqli_fetch_assoc ( mysqli_query ( $dbc, "SELECT SUM(`p`.`patient_price`) `patient_ar` FROM `invoice_patient` `p` LEFT JOIN `invoice` `inv` ON (`inv`.`invoiceid`=`p`.`invoiceid`) WHERE (IFNULL(`p`.`paid`,'') IN ('On Account','No','') OR `p`.`paid` LIKE 'Net %') AND `inv`.`status` NOT IN ('Void') AND `inv`.`patientid`='$contactid'" ) )['patient_ar']; ?>
             <div class="col-xs-6 col-sm-4 col-md-3 col-lg-2 gap-top">
                 <div class="summary-block">
-                    <span class="text-lg"><?= '$'.($patient_ar > 0 ? '<a target="_top" href="../POSAdvanced/patient_account_receivables.php?patientid='.$contactid.'&from=0000-00-00&until='.date('Y-m-d').'">' : '').floor($patient_ar).'.<sup>'.sprintf("%02d",($patient_ar * 100 % 100)).'</sup>'.($patient_ar > 0 ? '</a>' : '') ?></span><br />
+                    <span class="text-lg"><?= '$'.($patient_ar > 0 ? '<a target="_top" href="../POSAdvanced/index.php?tab=contact_ar&patientid='.$contactid.'&from=0000-00-00&until='.date('Y-m-d').'">' : '').floor($patient_ar).'.<sup>'.sprintf("%02d",($patient_ar * 100 % 100)).'</sup>'.($patient_ar > 0 ? '</a>' : '') ?></span><br />
                     A/R<br />&nbsp;
                 </div>
             </div>
@@ -181,7 +181,7 @@ if($id_card_fields == '') {
             $inv_count = $dbc->query("SELECT MAX(`invoice_date`) `date` FROM `invoice` WHERE `patientid`='$contactid' AND `status` NOT IN ('Void') AND `deleted`=0")->fetch_assoc(); ?>
             <div class="col-xs-6 col-sm-4 col-md-3 col-lg-2 gap-top">
                 <div class="summary-block">
-                    <span class="text-lg"><?= !empty($inv_count['date'] > 0) ? '<a target="_top" href="../POSAdvanced/invoice_list.php?contactid='.$contactid.'&type=&search_from=0000-00-00&search_to='.date('Y-m-d').'&search_invoice_submit=Search">'.$inv_count['date'].'</a>' : 'N/A'; ?></span><br />
+                    <span class="text-lg"><?= !empty($inv_count['date'] > 0) ? '<a target="_top" href="../POSAdvanced/index.php?tab=all&contactid='.$contactid.'&type=&search_from=0000-00-00&search_to='.date('Y-m-d').'&search_invoice_submit=Search">'.$inv_count['date'].'</a>' : 'N/A'; ?></span><br />
                     Date Last<br />Invoiced
                 </div>
             </div>

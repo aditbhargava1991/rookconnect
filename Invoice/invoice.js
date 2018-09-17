@@ -1345,3 +1345,25 @@ function view_tabs() {
 function view_summary() {
     $('.view_summary').toggle();
 }
+function void_invoice(invoiceid) {
+    var ans = confirm('Are you sure you want to void this invoice?');
+    if ( ans == true ) {
+        $.ajax({
+            url: '../Invoice/invoice_ajax.php?action=void_invoice',
+            type: 'POST',
+            data: { invoiceid: invoiceid },
+            success: function(response) {
+                alert('Invoice #'+invoiceid+' voided successfully.');
+                window.location.reload();
+            }
+        });
+    }
+}
+function email_doc(pdf, folder_name){
+    var documents=[];
+    if ( pdf != '' ){
+        var invoice_pdf = '../'+folder_name+'/'+pdf;
+        documents.push(invoice_pdf);
+        overlayIFrameSlider('../Email Communication/add_email.php?type=external&attach_docs='+documents.join('#*#'),'auto',false,true);
+    }
+}
