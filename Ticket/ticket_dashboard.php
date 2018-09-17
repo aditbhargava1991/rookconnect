@@ -710,11 +710,11 @@ IF(!IFRAME_PAGE) { ?>
 						<ul id="tab_admin" class="collapse <?= substr($_GET['tab'],0,14) == 'administration' ? 'in' : '' ?>">
 							<?php while($admin_group = $admin_groups->fetch_assoc()) {
 								$other_groups = $dbc->query("SELECT GROUP_CONCAT(`region` SEPARATOR ''',''') `regions`, GROUP_CONCAT(`classification` SEPARATOR ''',''') `classifications` FROM `field_config_project_admin` WHERE `id`!='{$admin_group['id']}' AND `deleted`=0")->fetch_assoc(); ?>
-								<h4><?= $admin_group['name'].
+								<a href="?tab=administration_<?= $admin_group['id'] ?>_summary"><h4><?= $admin_group['name'].
 									($admin_group['region'] != '' ? '<br /><em><small>'.$admin_group['region'].'</small></em>' : '').
 									($admin_group['classification'] != '' ? '<br /><em><small>'.$admin_group['classification'].'</small></em>' : '').
 									($admin_group['location'] != '' ? '<br /><em><small>'.$admin_group['location'].'</small></em>' : '').
-									($admin_group['customer'] > 0 ? '<br /><em><small>'.get_contact($dbc,$admin_group['customer'],'full_name').'</small></em>' : '') ?></h4>
+									($admin_group['customer'] > 0 ? '<br /><em><small>'.get_contact($dbc,$admin_group['customer'],'full_name').'</small></em>' : '') ?></h4></a>
 								<?php $admin_regions = $admin_classes = [''];
 								if($admin_group['region'] == '') {
 									$admin_regions = mysqli_fetch_all($dbc->query("SELECT IFNULL(`region`,'') FROM `tickets` WHERE `deleted`=0 ".($other_groups['regions'] != "','" && $other_groups['regions'] != "" ? " AND ((`region` IN ('{$admin_group['region']}','') AND `region` NOT IN ('{$other_groups['regions']}')) OR ('{$admin_group['region']}'='' AND `region` NOT IN ('{$other_groups['regions']}')))" : "")." GROUP BY IFNULL(`region`,'')"));

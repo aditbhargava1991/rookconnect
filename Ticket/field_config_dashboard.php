@@ -79,6 +79,7 @@ function saveFields() {
 		<label class="form-checkbox"><input type="checkbox" <?php if (strpos($db_config, ','."Google Maps Link".',') !== false) { echo " checked"; } ?> value="Google Maps Link" style="height: 20px; width: 20px;" name="tickets_dashboard[]"> Google Maps Link</label>
 		<label class="form-checkbox"><input type="checkbox" <?php if (strpos($db_config, ','."Ticket Notes".',') !== false) { echo " checked"; } ?> value="Ticket Notes" style="height: 20px; width: 20px;" name="tickets_dashboard[]"> <?= TICKET_NOUN ?> Notes</label>
 		<label class="form-checkbox"><input type="checkbox" <?php if (strpos($db_config, ','."Delivery Notes".',') !== false) { echo " checked"; } ?> value="Delivery Notes" style="height: 20px; width: 20px;" name="tickets_dashboard[]"> Delivery Notes</label>
+		<label class="form-checkbox"><input type="checkbox" <?php if (strpos($db_config, ','."Delivery Status".',') !== false) { echo " checked"; } ?> value="Delivery Status" style="height: 20px; width: 20px;" name="tickets_dashboard[]"> Delivery Status Summary</label>
 
 		<label class="form-checkbox"><input type="checkbox" <?php if (strpos($db_config, ','."Key Number".',') !== false) { echo " checked"; } ?> value="Key Number" style="height: 20px; width: 20px;" name="tickets_dashboard[]"> Key Number</label>
 		<label class="form-checkbox"><input type="checkbox" <?php if (strpos($db_config, ','."Door Code Number".',') !== false) { echo " checked"; } ?> value="Door Code Number" style="height: 20px; width: 20px;" name="tickets_dashboard[]"> Door Code Number</label>
