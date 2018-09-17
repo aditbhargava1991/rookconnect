@@ -364,7 +364,7 @@ if (isset($_POST['submit'])) {
         $before_change = '';
         $history = "Inventory with id $inventoryid is been Updated. <br />";
         add_update_history($dbc, 'inventory_history', $history, '', $before_change);
-            
+
         if ( $led ) {
             /* Update the same record on led.rookconnect.com
              * Change prices before inserting to LED
@@ -385,7 +385,7 @@ if (isset($_POST['submit'])) {
                 mysqli_query($dbc_inventory, $query_update_inventory);
             }
         }
-            
+
             $before_change = '';
             $history = "Inventory with id $inventoryid has been Updated. <br />";
             add_update_history($dbc, 'inventory_history', $history, '', $before_change);
@@ -2349,7 +2349,7 @@ if(!empty($_GET['inventoryid'])) {
 
                     		<div class="form-group pull-right">
                 				<a href="inventory.php?category=<?php echo preg_replace('/[^a-z]/','',strtolower($category)); ?>"	class="btn brand-btn">Back</a>
-                				<button	type="submit" name="submit"	value="Submit" class="btn brand-btn">Submit</button>
+                				<!--<button	type="submit" name="submit"	value="Submit" class="btn brand-btn">Submit</button>-->
                     		</div>
 
                     		<div class="clearfix"></div>
@@ -2364,5 +2364,36 @@ if(!empty($_GET['inventoryid'])) {
         </div>
 	</div>
 </div>
+<script>
+$(document).ready(function () {
+     $("#form1").find('input').addClass('saveonajax');
+     $("#form1").find('select').addClass('saveonajax');
+     $("#form1").find('textarea').addClass('saveonajax');
+});
 
+ $(document).on('change', '.saveonajax', function(){
+     addInventoryData();
+ });
+
+ /*$(".saveonajax").blur(function(){
+   addStaffData();
+ });*/
+ function addInventoryData() {
+   var formData = new FormData($("#form1")[0]);
+   $.ajax({
+     type: 'POST',
+     url: 'inventory_ajax.php?action=add_update_inventory',
+     //data: $('#form1').serialize(),
+     data:formData,
+     cache:false,
+     processData: false,
+         contentType: false,
+     success: function(response) {
+       if(response!=''){
+         $('#contact_id_val').val(response);
+       }
+     }
+   });
+ }
+</script>
 <?php include ('../footer.php'); ?>
