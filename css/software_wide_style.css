@@ -2840,6 +2840,10 @@ ul.select2-results__options {
 .calendar-mobile-list tr:nth-child(even) td {
 	background-color:transparent;
 }
+.calendar-mobile-list tr:nth-child(odd) td,
+.calendar-mobile-list tr:nth-child(even) td {
+	background-color:transparent;
+}
 
 .calendar-mobile-list td .list-date {
 	font-weight: bold;
