@@ -7,7 +7,7 @@ function copyPiece(event) {
 	var field = event.target;
 	if($(field).data('type') == 'inventory_general') {
 		$('[data-table=ticket_attached][data-type=inventory_general][name=contact_info]:checked').each(function() {
-			$(this).closest('.tab-section').find('[data-type=inventory_general][name="'+field.name+'"]').val(field.value).change();
+			$(this).change();
 		});
 	}
 }
@@ -15,27 +15,37 @@ function copyAllPiece() {
 	var i = 0;
 	$('.tab-section[data-type=general]:visible [data-type=inventory_general][name=contact_info]').each(function() {
 		if(!this.checked) {
-			$(this).prop('checked',true);
-			current_fields.push(this);
+			$(this).prop('checked',true).change();
 		}
-	});
-	$('.tab-section[data-type=general]:first').find('[data-table=ticket_attached][data-type=inventory_general][name!=contact_info]').each(function() {
-		var src = this;
-		$('.tab-section[data-type=general]:visible').not(':first').each(function() {
-			var field = $(this).find('[data-table=ticket_attached][data-type=inventory_general][name!=contact_info]').get(i);
-			if($(src).val() != $(field).val()) {
-				$(field).val($(src).val()).change();
-			}
-		});
-		i++;
 	});
 }
 function copyPieceOne(target) {
 	var first_piece = $('.tab-section[data-type=general]:first').find('[data-table=ticket_attached][data-type=inventory_general][name!=contact_info]');
+	var line_rows = $('.tab-section[data-type=general]:first').find('.po_lines_div .multi-block');
+	if(line_rows.length > 0) {
+		while($(target).closest('.tab-section').find('.po_lines_div .multi-block').length < line_rows.length) {
+			$(target).closest('.tab-section').find('.add_po_line').last().click();
+		}
+		while($(target).closest('.tab-section').find('.po_lines_div .mutli-block').length > line_rows.length) {
+			$(target).closest('.tab-section').find('.rem_po_line').last().click();
+		}
+		var i = 0;
+		$(target).closest('.tab-section').find('.po_lines_div .multi-block').each(function() {
+			if(($(line_rows.get(i)).closest('.multi-block').find('.po_line_div:visible').hasClass('po_line_range') && $(this).find('.po_line_div:visible').hasClass('po_line_single')) || ($(line_rows.get(i)).closest('.multi-block').find('.po_line_div:visible').hasClass('po_line_single') && $(this).find('.po_line_div:visible').hasClass('po_line_range'))) {
+				$(this).find('.range_po_line').click();
+			}
+			i++;
+		});
+	}
 	var i = 0;
 	$(target).closest('.tab-section').find('[data-table=ticket_attached][data-type=inventory_general][name!=contact_info]').each(function() {
 		if($(this).closest('.form-group').is(':visible') && $(this).val() != first_piece.get(i).value) {
 			$(this).val(first_piece.get(i).value).change();
+			if($(this).hasClass('po_line_value') && $(this).val() != undefined && $(this).val().indexOf('-') != -1) {
+				var line_range = $(this).val().split('-');
+				$(this).closest('.multi-block').find('[name="po_line_range_min"]').val(line_range[0]).trigger('change.select2');
+				$(this).closest('.multi-block').find('[name="po_line_range_max"]').val(line_range[1]).trigger('change.select2');
+			}
 		}
 		i++;
 	});
@@ -490,9 +500,9 @@ do {
 											</div>
 										</div>
 										<div class="col-sm-2 pull-right">
-											<img class="inline-img pull-right no-toggle theme-color-icon" onclick="rangeMultiPOLine(this);" src="../img/icons/range.png" title="Toggle Range">
-											<img class="inline-img pull-right" onclick="addMultiPOLine(this);" src="../img/icons/ROOK-add-icon.png">
-											<img class="inline-img pull-right" onclick="remMultiPOLine(this);" src="../img/remove.png">
+											<img class="inline-img pull-right no-toggle theme-color-icon range_po_line" onclick="rangeMultiPOLine(this);" src="../img/icons/range.png" title="Toggle Range">
+											<img class="inline-img pull-right add_po_line" onclick="addMultiPOLine(this);" src="../img/icons/ROOK-add-icon.png">
+											<img class="inline-img pull-right rem_po_line" onclick="remMultiPOLine(this);" src="../img/remove.png">
 										</div>
 									</div>
 								</div>
@@ -638,6 +648,7 @@ do {
 				<div class="general_piece_details" style="<?= $general_inventory['position'] > 0 ? '' : 'display:none;' ?>">
 					<hr />
 					<?php $field_list = $accordion_list['Inventory Detail'];
+					$previous_field_sort_order = $field_sort_order;
 					$field_sort_order = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_ticket_fields` WHERE `ticket_type` = '".(empty($ticket_type) ? 'tickets' : 'tickets_'.$ticket_type)."' AND `accordion` = 'Inventory Detail'"))['fields'];
 					if(empty($field_sort_order)) {
 						$field_sort_order = $value_config;
@@ -648,7 +659,8 @@ do {
 							$field_sort_order[] = $default_field;
 						}
 					}
-					include('add_ticket_inventory_detailed.php'); ?>
+					include('add_ticket_inventory_detailed.php');
+					$field_sort_order = $previous_field_sort_order; ?>
 					<div class="clearfix"></div>
 				</div>
 			<?php } ?>
@@ -780,6 +792,7 @@ do {
 			<div class="general_piece_details" style="<?= $general_inventory['position'] > 0 ? '' : 'display:none;' ?>">
 				<hr />
 				<?php $field_list = $accordion_list['Inventory Detail'];
+				$previous_field_sort_order = $field_sort_order;
 				$field_sort_order = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_ticket_fields` WHERE `ticket_type` = '".(empty($ticket_type) ? 'tickets' : 'tickets_'.$ticket_type)."' AND `accordion` = 'Inventory Detail'"))['fields'];
 				if(empty($field_sort_order)) {
 					$field_sort_order = $value_config;
@@ -790,7 +803,8 @@ do {
 						$field_sort_order[] = $default_field;
 					}
 				}
-				include('add_ticket_inventory_detailed.php'); ?>
+				include('add_ticket_inventory_detailed.php');
+				$field_sort_order = $previous_field_sort_order; ?>
 				<div class="clearfix"></div>
 			</div>
 		<?php } ?>
@@ -851,6 +865,7 @@ if(strpos($value_config,',Inventory General Detail by Pallet,') !== FALSE && $pa
 				<div class="general_pallet_details">
 					<hr />
 					<?php $field_list = $accordion_list['Inventory Detail'];
+					$previous_field_sort_order = $field_sort_order;
 					$field_sort_order = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_ticket_fields` WHERE `ticket_type` = '".(empty($ticket_type) ? 'tickets' : 'tickets_'.$ticket_type)."' AND `accordion` = 'Inventory Detail'"))['fields'];
 					if(empty($field_sort_order)) {
 						$field_sort_order = $value_config;
@@ -861,7 +876,8 @@ if(strpos($value_config,',Inventory General Detail by Pallet,') !== FALSE && $pa
 							$field_sort_order[] = $default_field;
 						}
 					}
-					include('add_ticket_inventory_detailed.php'); ?>
+					include('add_ticket_inventory_detailed.php');
+					$field_sort_order = $previous_field_sort_order; ?>
 					<div class="clearfix"></div>
 					<input type="hidden" name="lock_tabs" value="<?= 'inventory_general_pallet_'.config_safe_str($pallet_line['pallet']) ?>" data-toggle="1">
 				</div>
