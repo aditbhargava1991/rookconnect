@@ -46,7 +46,8 @@ if($_GET['fill'] == "daysheet_reminders") {
 if($_GET['fill'] == "daysheet_notepad_add") {
     $date = filter_var($_POST['date'], FILTER_SANITIZE_STRING);
     $contactid = filter_var($_POST['contactid'], FILTER_SANITIZE_STRING);
-    $notes = htmlentities(filter_var($_POST['notes'], FILTER_SANITIZE_STRING));
+    $notes = filter_var(htmlentities($_POST['notes']), FILTER_SANITIZE_STRING);
+    
 	if($notes != '') {
 		mysqli_query($dbc, "INSERT INTO `daysheet_notepad` (`contactid`,`date`,`notes`) VALUES ('$contactid','$date','$notes')");
 	}

@@ -21,8 +21,8 @@ if (isset($_POST['submit'])) {
     
     $email_body = htmlentities($_POST['email_body']);
     $subject = htmlentities($_POST['subject']);
-    $from_name = filter_var($_POST['from_name'],FILTER_SANITIZE_STRING);
-    $from_email = filter_var($_POST['from_email'],FILTER_SANITIZE_STRING);
+    $from_name = filter_var(empty($_POST['from_name']) ? get_config($dbc, 'company_name') : $_POST['from_name'],FILTER_SANITIZE_STRING);
+    $from_email = filter_var(empty($_POST['from_email']) ? get_config($_SERVER['DBC'], 'main_email_user') : $_POST['from_email'],FILTER_SANITIZE_STRING);
     $to_contact = implode(',',$_POST['businesscontact_to_emailid']);
     $cc_contact = implode(',',$_POST['businesscontact_cc_emailid']);
     $to_staff = implode(',',$_POST['companycontact_to_emailid']);
@@ -30,7 +30,7 @@ if (isset($_POST['submit'])) {
     $new_emailid = filter_var($_POST['new_emailid'],FILTER_SANITIZE_STRING);
 	$follow_up_date = $_POST['followup_date'];
 	$follow_up_by = $_POST['followup_by'];
-	$today_date = date('Y-m-d');
+	$today_date = date('Y-m-d h:i:s');
     $created_by = $_SESSION['contactid'];
 
     if (!file_exists('download')) {
@@ -102,12 +102,12 @@ if (isset($_POST['submit'])) {
 		if($ticketid > 0 && $communication_type == 'External') {
 			$ticket_options = $dbc->query("SELECT GROUP_CONCAT(`fields` SEPARATOR ',') `field_config` FROM (SELECT `value` `fields` FROM `general_configuration` LEFT JOIN `tickets` ON `general_configuration`.`name` LIKE CONCAT('ticket_fields_',`tickets`.`ticket_type`) WHERE `ticketid`='$ticketid' UNION SELECT `tickets` `fields` FROM `field_config`) `options`")->fetch_assoc();
 			if(strpos(','.$ticket_options['field_config'].',',',External Response,') !== FALSE) {
-				$send_body .= '<p><a href="'.WEBSITE_URL.'/external_response.php?r='.encryptIt(json_encode(['ticketid'=>$ticketid])).'" target="_blank">You can reply to this message by clicking here.</a></p>';
-				$email_body .= htmlentities('<p><a href="'.WEBSITE_URL.'/external_response.php?r='.encryptIt(json_encode(['ticketid'=>$ticketid])).'" target="_blank">You can reply to this message by clicking here.</a></p>');
+				$send_body .= '<p><a href="'.WEBSITE_URL.'/external_response.php?r='.urlencode(encryptIt(json_encode(['ticketid'=>$ticketid]))).'" target="_blank">You can reply to this message by clicking here.</a></p>';
+				// $email_body .= htmlentities('<p><a href="'.WEBSITE_URL.'/external_response.php?r='.urlencode(encryptIt(json_encode(['ticketid'=>$ticketid]))).'" target="_blank">You can reply to this message by clicking here.</a></p>');
 			}
 		} else if($ticketid > 0 && $communication_type == 'Internal') {
-            $send_body .= '<p><a href="'.WEBSITE_URL.'/external_response.php?r='.encryptIt(json_encode(['ticketid'=>$ticketid])).'" target="_blank">Click here</a> to view the '.TICKET_NOUN.'</p>';
-            $email_body .= htmlentities('<p><a href="'.WEBSITE_URL.'/external_response.php?r='.encryptIt(json_encode(['ticketid'=>$ticketid])).'" target="_blank">Click here</a> to view the '.TICKET_NOUN.'</p>');
+            $send_body .= '<p><a href="'.WEBSITE_URL.'/Ticket/index.php?edit='.$ticketid.'" target="_blank">Click here</a> to view the '.TICKET_NOUN.'</p>';
+            // $email_body .= htmlentities('<p><a href="'.WEBSITE_URL.'/external_response.php?r='.encryptIt(json_encode(['ticketid'=>$ticketid])).'" target="_blank">Click here</a> to view the '.TICKET_NOUN.'</p>');
 		}
 
         if (empty($from_email)) {
@@ -304,13 +304,16 @@ if (isset($_POST['submit'])) {
                 <input type="hidden" id="email_communicationid" name="email_communicationid" value="<?php echo $email_communicationid ?>" /><?php
             } else if (!empty($_GET['ticketid'])) {
                 $ticketid = filter_var($_GET['ticketid'],FILTER_SANITIZE_STRING);
-                $ticket_details = $dbc->query("SELECT `businessid`,`clientid`,`projectid` FROM `tickets` WHERE `ticketid`='$ticketid'")->fetch_assoc();
+                $ticket_details = $dbc->query("SELECT * FROM `tickets` WHERE `ticketid`='$ticketid'")->fetch_assoc();
                 $businessid = $ticket_details['businessid'];
                 $contactid = explode(',',$ticket_details['clientid'])[0];
                 if($contactid > 0 && !($businessid > 0)) {
                     $businessid = get_contact($dbc, $contactid, 'businessid');
                 }
                 $projectid = $ticket_details['projectid'];
+                if(empty($subject)) {
+                    $subject = get_ticket_label($dbc, $ticket_details);
+                }
             } ?>
             <input type="hidden" name="ticketid" value="<?= $ticketid ?>">
             

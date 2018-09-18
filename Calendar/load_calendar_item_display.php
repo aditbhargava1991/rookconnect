@@ -764,11 +764,17 @@ foreach($calendar_table[0][0] as $calendar_row => $calendar_cell) {
 					$row_html .= ($edit_access == 1 ? $echo_url : "")."<div class='used-block' data-contact='$contact_id' data-blocks='$rows' data-row='$calendar_row' data-shift='".$shift['shiftid']."' data-recurring='$recurring' data-currentdate='$current_day' ";
 					$row_html .= "data-duration='$duration' style='height: calc(".$rows." * (1em + 15px) - 1px); overflow-y: hidden; top: 0; left: 0; margin: 0; padding: 0.2em; position: absolute; width: 100%;".$shift_styling."'>";
 					$row_html .= "<span class='shift' style='display: block; float: left; width: calc(100% - 2em);'>".$warning_icon;
+					if(!empty($shift['heading'])) {
+						$row_html .= "<b>".$shift['heading']."</b>".'<br />';
+					}
 					$row_html .= "<b>".date('g:i a', strtotime($shift['starttime']))." - ".date('g:i a', strtotime($shift['endtime']))."</b>".'<br />';
 					if($_GET['mode'] == 'client') {
-						$row_html .= '<b>'.get_contact($dbc, $shift['contactid']).'</b>';
+						$row_html .= '<b>'.get_contact($dbc, $shift['contactid']).'</b><br />';
 					} else if(!empty($shift['clientid'])) {
-						$row_html .= '<b>'.get_contact($dbc, $shift['clientid']).'</b>';
+						$row_html .= '<b>'.get_contact($dbc, $shift['clientid']).'</b><br />';
+					}
+					if(!empty($shift['notes'])) {
+						$row_html .= '<b>Notes: '.html_entity_decode($shift['notes']).'</b ><br />';
 					}
 					$row_html .= "</span><div class='drag-handle full-height' title='Drag Me!'><img class='drag-handle no-toggle' src='".WEBSITE_URL."/img/icons/drag_handle.png' style='filter: brightness(200%); float: right; width: 2em;' title='Drag'></div></div>".($edit_access == 1 ? "</a>" : "");
 					unset($page_query['shiftid']);
@@ -1130,7 +1136,7 @@ foreach($calendar_table[0][0] as $calendar_row => $calendar_cell) {
 	}
 	$row_html .= "</td>";
 
-	$column['rows'][] = ['time'=>$calendar_row,'html'=>$row_html];
+	$column['rows'][$calendar_row] = ['time'=>$calendar_row,'html'=>$row_html];
 }
 
 if(!$is_mobile_view) {

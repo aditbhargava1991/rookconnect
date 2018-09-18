@@ -124,6 +124,7 @@ if(isset($_POST['submit'])) {
             $(window.top.document).find('.flag_target').removeClass('flag_target');
             </script>
             <?php break;
+
         case 'checklist_name':
             $checklistid = $id;
             mysqli_query($dbc, "UPDATE `checklist_name` SET `flag_colour`='$flag_colour', `flag_start`='$flag_start', `flag_end`='$flag_end', `flag_label`='$flag_label' WHERE `checklistnameid`='$id'");
@@ -170,6 +171,7 @@ if(isset($_POST['submit'])) {
         $row = $dbc->query("SELECT `flag_colour`,`flag_label`,`flag_start`,`flag_end`,`flag_user` FROM `incident_report` WHERE `incidentreportid`='$id'")->fetch_assoc();
         $quick_action_icons = explode(',',get_config($dbc, 'inc_rep_quick_action_icons'));
         break;
+
     case 'checklist_name':
         $row = $dbc->query("SELECT `flag_colour`,`flag_label`,`flag_start`,`flag_end` FROM `checklist_name` WHERE `checklistnameid`='$id'")->fetch_assoc();
         break;
@@ -177,6 +179,7 @@ if(isset($_POST['submit'])) {
     case 'common_checklist_flag':
         $row = $dbc->query("SELECT `flag_colour`,`flag_label`,`flag_start`,`flag_end` FROM `checklist` WHERE `checklistid`='$id'")->fetch_assoc();
         break;
+
     default:
         break;
 } ?>

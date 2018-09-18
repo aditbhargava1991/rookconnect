@@ -161,9 +161,10 @@ if(empty($_GET['contactid'])) {
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="col-sm-4 control-label">Reminder Heading:</label>
+                    <label class="col-sm-4 control-label">Reminder Notes:</label>
                     <div class="col-sm-8">
-                        <input type="text" name="reminder_heading" class="form-control" value="<?= $subject ?>">
+                    	<textarea rows="" cols="" name="reminder_heading" class="form-control"><?= $subject ?></textarea>
+                        <!-- <input type="text" name="reminder_heading" class="form-control" value="<?= $subject ?>"> -->
                     </div>
                 </div>
 

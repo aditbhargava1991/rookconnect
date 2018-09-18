@@ -30,8 +30,8 @@ function completeStopStatus(btn, stop_id) {
 $customer_approvals = $dbc->query("SELECT `ticket_attached`.*, IFNULL(`ticket_schedule`.`location_name`,`tickets`.`pickup_name`) `location_name`, `ticket_schedule`.`client_name`, `ticket_schedule`.`id` `stop` FROM `ticket_attached` LEFT JOIN `ticket_schedule` ON `ticket_attached`.`line_id`=`ticket_schedule`.`id` AND `ticket_schedule`.`deleted`=0 LEFT JOIN `tickets` ON `ticket_attached`.`ticketid`=`tickets`.`ticketid` AND `tickets`.`ticketid` > 0 WHERE `src_table`='customer_approve' AND `ticket_attached`.`deleted`=0 AND `ticket_attached`.`ticketid`='$ticketid' AND `ticket_attached`.`ticketid` > 0");
 while($customer_approval = $customer_approvals->fetch_assoc()) {
 	if(!($_GET['stop'] > 0) || $_GET['stop'] == $customer_approval['stop']) {
-		echo "<h4>".$customer_approval['location_name'].' '.$customer_approval['client_name']."</h4>";
-		echo '<div class="customer_notes">';
+		echo '<div id="tab_section_ticket_customer_notes_'.$customer_approval['stop'].'" class="customer_notes tab-section">';
+            echo "<h4>".$customer_approval['location_name'].' '.$customer_approval['client_name']."</h4>";
 			foreach($field_sort_order as $field_sort_field) {
 				if($customer_approval['completed'] == 0 && (strpos($value_config,',Customer Slider,') === FALSE || (IFRAME_PAGE && strpos($_SERVER['SCRIPT_NAME'],'edit_ticket_tab') !== FALSE) || $access_any > 0)) {
 					if(strpos($value_config, ','."Customer Slider".',') !== FALSE && $field_sort_field == 'Customer Slider') {

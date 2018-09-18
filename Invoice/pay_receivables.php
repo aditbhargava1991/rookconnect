@@ -41,9 +41,21 @@ if (isset($_POST['submit_patient'])) {
 	if($next_booking['bookingid'] > 0) {
 		$footer_text = '<p style="color: #37C6F4; font-size: 14; font-weight: bold; text-align: center;">Your next appointment is '.date('d/m/y',strtotime($next_booking['appoint_date']))." at ".date('G:ia',strtotime($next_booking['appoint_date'])).'</p>';
 	}
-	$footer_text .= html_entity_decode(get_config($dbc, 'invoice_footer'));
-    DEFINE('INVOICE_LOGO', get_config($dbc, 'invoice_logo'));
-    DEFINE('INVOICE_HEADER', html_entity_decode(get_config($dbc, 'invoice_header')));
+    $invoice_footer = get_config($dbc, 'invoice_footer');
+    if(!empty($get_invoice['type']) && !empty(get_config($dbc, 'invoice_footer_'.$get_invoice['type']))) {
+        $invoice_footer = get_config($dbc, 'invoice_footer_'.$get_invoice['type']);
+    }
+	$footer_text .= html_entity_decode($invoice_footer);
+    $logo = get_config($dbc, 'invoice_logo');
+    if(!empty($get_invoice['type']) && !empty(get_config($dbc, 'invoice_logo_'.$get_invoice['type']))) {
+        $logo = get_config($dbc, 'invoice_logo_'.$get_invoice['type']);
+    }
+    $invoice_header = get_config($dbc, 'invoice_header');
+    if(!empty($get_invoice['type']) && !empty(get_config($dbc, 'invoice_header_'.$get_invoice['type']))) {
+        $invoice_header = get_config($dbc, 'invoice_header_'.$get_invoice['type']);
+    }
+    DEFINE('INVOICE_LOGO', $logo);
+    DEFINE('INVOICE_HEADER', html_entity_decode($invoice_header));
     DEFINE('INVOICE_FOOTER', $footer_text);
 
     //Patient Invoice
