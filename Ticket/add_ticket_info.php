@@ -853,15 +853,7 @@ if(!empty($_GET['add_service_iframe'])) { ?>
 			</div>
 		</div>
 		    <?php } ?>
-		    <?php if(strpos($value_config,',Service Description,') !== FALSE && $field_sort_field == 'Service Description') { ?>
-	  <div class="form-group">
-		<label for="site_name" class="col-sm-4 control-label">Description:</label>
-		<div class="col-sm-12">
-			<label class="form-checkbox">Use Service Description: <input type="checkbox" onclick='changeDesc(this);'></label>
-			<textarea name="assign_work" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" id="assign_work" rows="4" cols="50" class="form-control" ><?php echo $assign_work; ?></textarea>
-		</div>
-	  </div>
-		    <?php } ?>
+
 		    <?php if(strpos($value_config,',Details Where,') !== FALSE && $field_sort_field == 'Details Where') { ?>
 		        <div class="form-group">
 		            <label for="site_name" class="col-sm-4 control-label"><span class="popover-examples list-inline"><a data-toggle="tooltip" data-placement="top" title="Tile Name, Tab, and Subtab for each part of the software that should be affected"><img src="../img/info.png" width="20"></a></span> Tile Name:</label>
@@ -910,6 +902,17 @@ if(!empty($_GET['add_service_iframe'])) { ?>
 		            </div>
 		        </div>
 		    <?php } ?>
+
+		    <?php if(strpos($value_config,',Service Description,') !== FALSE && $field_sort_field == 'Service Description') { ?>
+              <div class="form-group">
+                <label for="site_name" class="col-sm-4 control-label">Description:</label>
+                <div class="col-sm-12">
+                    <label class="form-checkbox">Use Service Description: <input type="checkbox" onclick='changeDesc(this);'></label>
+                    <textarea name="assign_work" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" id="assign_work" rows="4" cols="50" class="form-control" ><?php echo $assign_work; ?></textarea>
+                </div>
+              </div>
+		    <?php } ?>
+
 		    <?php if(strpos($value_config,',Details Position,') !== FALSE && $field_sort_field == 'Details Position') { ?>
 		        <div class="form-group">
 		            <label for="site_name" class="col-sm-12 control-label"><span class="popover-examples list-inline"><a data-toggle="tooltip" data-placement="top" title="The position on the screen of the new field or button, what field it should be added after, etc."><img src="../img/info.png" width="20"></a></span> Position:</label>
