@@ -14,9 +14,7 @@ function copyPiece(event) {
 function copyAllPiece() {
 	var i = 0;
 	$('.tab-section[data-type=general]:visible [data-type=inventory_general][name=contact_info]').each(function() {
-		if(!this.checked) {
-			$(this).prop('checked',true).change();
-		}
+		$(this).prop('checked',true).change();
 	});
 }
 function copyPieceOne(target) {
