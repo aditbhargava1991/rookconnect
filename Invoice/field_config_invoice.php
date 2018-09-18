@@ -584,6 +584,12 @@ if(!empty($invoice_types)) { ?>
                             <div class="col-sm-4">
                                 <label class="form-checkbox"><input <?= (in_array('location',$invoice_custom_ticket_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_custom_ticket_fields[]" value="location"> Location</label>
                             </div>
+                            <div class="col-sm-4">
+                                <label class="form-checkbox"><input <?= (in_array('departure_location',$invoice_custom_ticket_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_custom_ticket_fields[]" value="departure_location"> Departure Location</label>
+                            </div>
+                            <div class="col-sm-4">
+                                <label class="form-checkbox"><input <?= (in_array('destination',$invoice_custom_ticket_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_custom_ticket_fields[]" value="destination"> Destination</label>
+                            </div>
                         </div>
                     </div>
                     </div>
