@@ -239,7 +239,21 @@ if(!empty($_POST['search_start_date']) && !empty($_POST['search_end_date'])) {
 				<tr>
 					<td data-title="<?= TICKET_NOUN ?>"><?php if($tile_security['edit'] > 0) { ?><a href="index.php?edit=<?= $invoice['ticketid'] ?>" onclick="overlayIFrameSlider(this.href+'&calendar_view=true','auto',true,true); return false;"><?= get_ticket_label($dbc, $invoice) ?></a><?php } else { echo get_ticket_label($dbc, $invoice); } ?></td>
 					<td data-title="Invoice #">#<?= $invoice['invoiceid'].' '.$invoice['invoice_date'] ?></td>
-					<td data-title="Status"><?= $invoice['inv_status'] ?></td>
+					<td data-title="Status"><?php switch($invoice['inv_status']) {
+                        case 'Completed':
+                            echo 'Paid';
+                            break;
+                        case 'Void':
+                            echo 'Voided';
+                            break;
+                        case 'Saved':
+                            echo 'Unbilled';
+                            break;
+                        case 'Posted':
+                        default:
+                            echo 'Accounts Receivable';
+                            break;
+                    } ?></td>
 					<td data-title="Total Price"><?= $invoice['final_price'] ?></td>
 					<td data-title="Invoice"><?php if(file_exists($pdf_name)) { ?><a href="<?= $pdf_name ?>" target="_blank"><img src="../img/pdf.png" class="inline-img">Invoice #<?= $invoice['invoiceid'] ?></a><?php } ?></td>
 				</tr>

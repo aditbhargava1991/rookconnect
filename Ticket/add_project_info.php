@@ -479,6 +479,28 @@ var projectFilter = function() {
 			<div class="form-group">
 				<label for="site_name" class="col-sm-4 control-label">Status:</label>
 				<div class="col-sm-8">
+                    <?php $invoice_status = '';
+                    if(get_config($dbc, 'ticket_invoice_status') > 0) {
+                        $invoice = $dbc->query("SELECT * FROM `invoice` WHERE `deleted`=0 AND CONCAT(',',`ticketid`,',') LIKE '%,$ticketid,%'")->fetch_assoc();
+                        switch($invoice['status']) {
+                            case 'Completed':
+                                $invoice_status = 'Paid';
+                                break;
+                            case 'Void':
+                                $invoice_status = 'Voided';
+                                break;
+                            case 'Saved':
+                                $invoice_status = 'Unbilled';
+                                break;
+                            case 'Posted':
+                            default:
+                                $invoice_status = 'Accounts Receivable';
+                                break;
+                        }
+                    }
+                    if(!empty($invoice_status)) {
+                        echo 'Invoice Status: '.$invoice_status.'<br />';
+                    } ?>
 
 					<select data-placeholder="Select a Status..." name="status" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" id="status" class="chosen-select-deselect form-control input-sm">
 					  <option value=""></option>
