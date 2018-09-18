@@ -37,6 +37,9 @@ if(!empty($_POST['search_end_date'])) {
                         $total_booked_time = 0;
                         foreach($shifts as $shift) {
                             echo '<li>';
+                            if(!empty($shift['heading'])) {
+                                echo $shift['heading'].'<br>';
+                            }
                             if(!empty($shift['dayoff_type'])) {
                                 echo 'Day Off: '.date('h:i a', strtotime($shift['starttime'])).' - '.date('h:i a', strtotime($shift['endtime'])).'<br>';
                                 echo 'Day Off Type: '.$shift['dayoff_type'];
@@ -52,6 +55,10 @@ if(!empty($_POST['search_end_date'])) {
                                     echo get_contact($dbc, $shift['clientid'], 'category').': ';
                                     echo '<a href="'.WEBSITE_URL.'/'.ucfirst(get_contact($dbc, $shift['clientid'], 'tile_name')).'/contacts_inbox.php?edit='.$shift['clientid'].'">'.get_contact($dbc, $shift['clientid']).'</a>';
                                 }
+                            }
+                            if(!empty($shift['notes'])) {
+                                echo '<br>';
+                                echo 'Notes: '.html_entity_decode($shift['notes']);
                             }
                             echo '</li>';
                         }

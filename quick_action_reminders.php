@@ -30,7 +30,14 @@ if(isset($_POST['submit'])) {
             $salesid = $id;
             $dbc->query("INSERT INTO `reminders` (`contactid`,`reminder_date`,`reminder_type`,`subject`,`body`,`src_table`,`src_tableid`) VALUES ('$staff','$date','Intake Form Reminder','$subject','".htmlentities("This is a reminder about an Intake Form. Please log into the software to review the form <a href=\"".WEBSITE_URL."/Intake/add_form.php?intakeid=$id\">here</a>.")."','intake','$id')");
             break;
-
+        case 'invoice':
+            $invoiceid = $id;
+            $start_date = empty($_GET['end_date']) ? date('Y-m-d') : filter_var($_GET['start_date'],FILTER_SANITIZE_STRING);
+            $end_date = empty($_GET['end_date']) ? date('Y-m-d') : filter_var($_GET['end_date'],FILTER_SANITIZE_STRING);
+            $customer = filter_var($_GET['customer'],FILTER_SANITIZE_STRING);
+            $url = empty($_GET['ar']) ? "invoice_list.php?search_from=".date('Y-m-d')."&search_to=".date('Y-m-d')."&search_invoice_submit=true" : "patient_account_receivables.php?p1=$start_date&p2=$end_date&p3=$customer&p5=$invoiceid";
+            $dbc->query("INSERT INTO `reminders` (`contactid`,`reminder_date`,`reminder_type`,`subject`,`body`,`src_table`) VALUES ('$staff','$date','Invoice Reminder','$subject','".htmlentities("This is a reminder about an Invoice. Please log into the software to review the form <a href=\"".WEBSITE_URL."/POSAdvanced/$url\">here</a>.")."','invoice')");
+            break;
         case 'tasks':
             $taskid = $id;
 	        $sender = get_email($dbc, $_SESSION['contactid']);
@@ -77,6 +84,18 @@ if(isset($_POST['submit'])) {
             $body = htmlentities("This is a reminder about Intake #".$intake['intakeid'].": ".html_entity_decode($intake_form['form_name']).".<br />\n<br />");
             $dbc->query("INSERT INTO `reminders` (`contactid`,`reminder_date`,`reminder_type`,`subject`,`body`,`src_table`,`src_tableid`, `sender`) VALUES ('$staff','$date','Intake Reminder','$subject','$body','intake','$id', '$sender')");
             break;
+
+        case 'checklist':
+            $checklistid = $id;
+            $sender = get_email($dbc, $_SESSION['contactid']);
+
+            $body = htmlentities("This is a reminder about the $title checklist.<br />\n<br />
+            <a href=\"".WEBSITE_URL."/Checklist/checklist.php?subtabid=$tab&view=$id\">Click here</a> to see the checklist board.");
+            $result = mysqli_fetch_array(mysqli_query($dbc, "SELECT `list`.`task_board`, `list`.`heading`, `board`.`board_security` FROM `checklist` AS `list` JOIN `task_board` AS `board` ON (`list`.`task_board`=`board`.`taskboardid`) WHERE `list`.`checklistid`='$checklistid'"));
+            $tab = $result['board_security'];
+
+            $dbc->query("INSERT INTO `reminders` (`contactid`,`reminder_date`,`reminder_type`,`subject`,`body`,`src_table`,`src_tableid`, `sender`) VALUES ('$staff','$date','Checklist Reminder','$subject','".htmlentities("This is a reminder about a Checklist. Please log into the software to review the Checklist <a href=\"".WEBSITE_URL."/Checklist/checklist.php?subtabid=$tab&view=$id\">here</a>.")."','checklist','$id', '$sender')");
+            break;
             
         default:
             break;
@@ -94,6 +113,9 @@ switch($tile) {
     case 'intake':
         $subject = "Intake Form Reminder";
         break;
+    case 'invoice':
+        $subject = "Invoice Reminder".($id > 0 ? " for Invoice #".$id : '');
+        break;
     case 'tasks':
         $subject = "A reminder about the $title task";
         break;
@@ -109,6 +131,9 @@ switch($tile) {
         $intake = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `intake` WHERE `intakeid`='".$_GET['id']."'"));
         $intake_form = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `intake_forms` WHERE `intakeformid` = '".$intake['intakeformid']."'"));
         $subject = "A reminder about Intake #".$intake['intakeid'].": ".html_entity_decode($intake_form['form_name']);
+        break;
+    case 'checklist':
+        $subject = "A reminder about the $title checklist";
         break;
 }
 if(empty($_GET['contactid'])) {
@@ -136,7 +161,7 @@ if(empty($_GET['contactid'])) {
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="col-sm-4 control-label">Notes:</label>
+                    <label class="col-sm-4 control-label">Reminder Notes:</label>
                     <div class="col-sm-8">
                     	<textarea rows="" cols="" name="reminder_heading" class="form-control"><?= $subject ?></textarea>
                         <!-- <input type="text" name="reminder_heading" class="form-control" value="<?= $subject ?>"> -->

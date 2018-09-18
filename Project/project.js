@@ -10,6 +10,7 @@ function viewProfile(img, category) {
 	contact = $(img).closest('.form-group').find('option:selected').first().val();
 	if(contact > 0) {
 		overlayIFrameSlider('../Contacts/contacts_inbox.php?fields=all_fields&edit='+contact, '75%', true, true);
+        var options = $(img).closest('.form-group').find('select').first();
 		var iframe_check = setInterval(function() {
 			if(!$('.iframe_overlay iframe').is(':visible')) {
 				$.post('projects_ajax.php?action=get_category_list', { category: category }, function(response) {
@@ -20,7 +21,9 @@ function viewProfile(img, category) {
 				clearInterval(iframe_check);
 			}
 		}, 500);
-	}
+	} else {
+        alert("Please select a contact before attempting to view their profile.");
+    }
 }
 function addReminder(img) {
     projectid = $('[name=projectid]').val();
