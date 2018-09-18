@@ -7,7 +7,6 @@
 include_once('include.php');
 checkAuthorised();
 $html = '';
-
 $id = filter_var($_GET['id'],FILTER_SANITIZE_STRING);
 if(isset($_POST['submit'])) {
 	$contactid = $_SESSION['contactid'];
@@ -126,6 +125,19 @@ if(isset($_POST['submit'])) {
             </script>
             <?php break;
 
+        case 'checklist_name':
+            $checklistid = $id;
+            mysqli_query($dbc, "UPDATE `checklist_name` SET `flag_colour`='$flag_colour', `flag_start`='$flag_start', `flag_end`='$flag_end', `flag_label`='$flag_label' WHERE `checklistnameid`='$id'");
+            echo '<script type="text/javascript"> window.parent.setManualFlag(\''.$checklistid.'\', \''.$flag_colour.'\', \''.$flag_label.'\'); </script>';
+            ?>
+            <?php break;
+        case 'common_checklist_flag':
+            $checklistid = $id;
+            mysqli_query($dbc, "UPDATE `checklist` SET `flag_colour`='$flag_colour', `flag_start`='$flag_start', `flag_end`='$flag_end', `flag_label`='$flag_label' WHERE `checklistid`='$id'");
+            echo '<script type="text/javascript"> window.parent.setManualFlag(\''.$checklistid.'\', \''.$flag_colour.'\', \''.$flag_label.'\'); </script>';
+            ?>
+            <?php break;
+
         default:
             break;
     }
@@ -159,6 +171,15 @@ if(isset($_POST['submit'])) {
         $row = $dbc->query("SELECT `flag_colour`,`flag_label`,`flag_start`,`flag_end`,`flag_user` FROM `incident_report` WHERE `incidentreportid`='$id'")->fetch_assoc();
         $quick_action_icons = explode(',',get_config($dbc, 'inc_rep_quick_action_icons'));
         break;
+
+    case 'checklist_name':
+        $row = $dbc->query("SELECT `flag_colour`,`flag_label`,`flag_start`,`flag_end` FROM `checklist_name` WHERE `checklistnameid`='$id'")->fetch_assoc();
+        break;
+
+    case 'common_checklist_flag':
+        $row = $dbc->query("SELECT `flag_colour`,`flag_label`,`flag_start`,`flag_end` FROM `checklist` WHERE `checklistid`='$id'")->fetch_assoc();
+        break;
+
     default:
         break;
 } ?>

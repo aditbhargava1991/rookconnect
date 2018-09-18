@@ -84,6 +84,18 @@ if(isset($_POST['submit'])) {
             $body = htmlentities("This is a reminder about Intake #".$intake['intakeid'].": ".html_entity_decode($intake_form['form_name']).".<br />\n<br />");
             $dbc->query("INSERT INTO `reminders` (`contactid`,`reminder_date`,`reminder_type`,`subject`,`body`,`src_table`,`src_tableid`, `sender`) VALUES ('$staff','$date','Intake Reminder','$subject','$body','intake','$id', '$sender')");
             break;
+
+        case 'checklist':
+            $checklistid = $id;
+            $sender = get_email($dbc, $_SESSION['contactid']);
+
+            $body = htmlentities("This is a reminder about the $title checklist.<br />\n<br />
+            <a href=\"".WEBSITE_URL."/Checklist/checklist.php?subtabid=$tab&view=$id\">Click here</a> to see the checklist board.");
+            $result = mysqli_fetch_array(mysqli_query($dbc, "SELECT `list`.`task_board`, `list`.`heading`, `board`.`board_security` FROM `checklist` AS `list` JOIN `task_board` AS `board` ON (`list`.`task_board`=`board`.`taskboardid`) WHERE `list`.`checklistid`='$checklistid'"));
+            $tab = $result['board_security'];
+
+            $dbc->query("INSERT INTO `reminders` (`contactid`,`reminder_date`,`reminder_type`,`subject`,`body`,`src_table`,`src_tableid`, `sender`) VALUES ('$staff','$date','Checklist Reminder','$subject','".htmlentities("This is a reminder about a Checklist. Please log into the software to review the Checklist <a href=\"".WEBSITE_URL."/Checklist/checklist.php?subtabid=$tab&view=$id\">here</a>.")."','checklist','$id', '$sender')");
+            break;
             
         default:
             break;
@@ -119,6 +131,9 @@ switch($tile) {
         $intake = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `intake` WHERE `intakeid`='".$_GET['id']."'"));
         $intake_form = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `intake_forms` WHERE `intakeformid` = '".$intake['intakeformid']."'"));
         $subject = "A reminder about Intake #".$intake['intakeid'].": ".html_entity_decode($intake_form['form_name']);
+        break;
+    case 'checklist':
+        $subject = "A reminder about the $title checklist";
         break;
 }
 if(empty($_GET['contactid'])) {
