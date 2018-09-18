@@ -363,7 +363,7 @@ if($ticket['flag_colour'] != '' && $ticket['flag_colour'] != 'FFFFFF') {
 						}
 				echo '</select>';
 			} else {
-				echo empty($invoice_status) ? $invoice_status : $ticket['status'];
+				echo !empty($invoice_status) ? $invoice_status : $ticket['status'];
 			}
 			echo '</div>
 		</div>';
