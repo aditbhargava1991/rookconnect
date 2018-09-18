@@ -581,6 +581,9 @@ if($_GET['action'] == 'update_fields') {
     $table = filter_var($_POST['table'],FILTER_SANITIZE_STRING);
     $id_field = '';
     switch($table) {
+    	case 'infogathering_pdf':
+    		$id_field = 'infopdfid';
+    		break;
         case 'sales_notes':
             $id_field = 'salesnoteid';
             break;

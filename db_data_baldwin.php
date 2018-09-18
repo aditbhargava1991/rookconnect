@@ -789,6 +789,15 @@
     }
     //2018-09-11 - Ticket #8811 - Tagging
 
+    //2018-09-18 - Ticket #8755 - Sales Lead Info Gathering
+    if(!mysqli_query($dbc, "ALTER TABLE `infogathering_pdf` ADD `salesid` int(11) NOT NULL")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `infogathering_pdf` ADD `deleted` int(1) NOT NULL DEFAULT 0")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-09-18 - Ticket #8755 - Sales Lead Info Gathering
+
 
     echo "Baldwin's DB Changes Done<br />\n";
 ?>
