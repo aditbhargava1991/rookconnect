@@ -540,7 +540,13 @@ if($_GET['action'] == 'update_fields') {
 	}
 	if($table_name == 'mileage' && ($field_name == 'start' || $field_name == 'end')) {
 		$value = date('Y-m-d H:i:s', strtotime($value));
-	}
+	} else if(in_array($table_name,['tickets','ticket_schedule']) && in_array($field_name,['est_time','max_time'])) {
+        $start = get_field_value('to_do_start_time',$table_name,$id_field,$id);
+        if(!empty($start)) {
+            $end = date('h:i:s', strtotime($start.' + '.(floor($value) * 1).' hour '.floor($value * 60).' minute '.($value % 60).' second'));
+            set_field_value($end,'to_do_end_time',$table_name,$id_field,$id);
+        }
+    }
 	if($table_name == 'ticket_comment' && $type == 'member_note') {
 		$table_name = 'client_daily_log_notes';
 		$id_field = 'note_id';
