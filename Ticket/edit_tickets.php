@@ -1065,6 +1065,16 @@ var setHeading = function() {
 	<div id="dialog_recurrence_settings" title="Edit or Create Recurrences?" style="display: none;">
 		Would you like to edit current Recurrence settings or create new Recurrences?
 	</div>
+	<div id="dialog_view_site" title="Select a Site" style="display: none;">
+		<div class="form-group">
+			<label class="col-sm-4">Site:</label>
+			<div class="col-sm-8">
+				<select name="view_site" data-placeholder="Select a Site..." class="chosen-select-deselect">
+					<option></option>
+				</select>
+			</div>
+		</div>
+	</div>
 <?php } ?>
 <?php if(!empty($_GET['calendar_view'])) { ?>
 	<div class="double-gap-top standard-body form-horizontal calendar-iframe-screen <?= $calendar_ticket_slider=='full' ? 'calendar-iframe-full' : 'calendar-iframe-accordion'; ?>">
