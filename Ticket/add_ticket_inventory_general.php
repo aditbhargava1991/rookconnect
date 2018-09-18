@@ -2,14 +2,18 @@
 $(document).ready(function() {
 	$('.multi_dimensions .col-sm-2 input,.multi_dimensions .col-sm-2 select').off('change',setMultiDimensions).change(setMultiDimensions);
 });
-$(document).on('change', '.tab-section[data-type=general]:first [data-table],.tab-section[data-type=general]:first .po_line_value', copyPiece);
+$(document).on('change', '.tab-section[data-type=general]:first [data-table]', copyPiece);
+var copying_pieces = '';
 function copyPiece(event) {
 	var field = event.target;
-	if($(field).data('type') == 'inventory_general') {
-		$('[data-table=ticket_attached][data-type=inventory_general][name=contact_info]:checked').each(function() {
-			$(this).change();
-		});
-	}
+	clearTimeout(copying_pieces);
+	copying_pieces = setTimeout(function() {
+		if($(field).data('type') == 'inventory_general') {
+			$('[data-table=ticket_attached][data-type=inventory_general][name=contact_info]:checked').each(function() {
+				$(this).change();
+			});
+		}
+	},500);
 }
 function copyAllPiece() {
 	var i = 0;
