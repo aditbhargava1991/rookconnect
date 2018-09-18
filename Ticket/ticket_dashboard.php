@@ -1269,7 +1269,7 @@ IF(!IFRAME_PAGE) { ?>
 		            case '13':$disp13 = 'block'; break;
 		            case '14':$disp14 = 'block'; break;
 		            case '16':$disp16 = 'block'; break;
-		            default: break;
+		            default: $disp1 = $disp2 = $disp3 = $disp4 = $disp5 = $disp6 = $disp7 = $disp8 = $disp9 = $disp10 = $disp11 = $disp12 = $disp13 = $disp14 = $disp15 = $disp16 = $disp17 = 'block'; break;
 		        }
 		        
 		        if(in_array('Time Graph',$db_summary) && $disp1 == 'block') {
@@ -1368,7 +1368,7 @@ IF(!IFRAME_PAGE) { ?>
 		        foreach($overviews as $overview_key => $overview) {
 		            $start_date = $overview['start_date'];
 		            $end_date = $overview['end_date'];
-		            $disp5 = 'none';
+		            if($listarr!='0') {$disp5 = 'none';}
 		            if($listarr == '5-'.$overview_key){$disp5 = 'block';}
 		            if(in_array($overview_key,$db_summary) && $disp5 == 'block') {
 		                $block_length = 68;
@@ -1530,7 +1530,7 @@ IF(!IFRAME_PAGE) { ?>
 		            $total_length += $block_length;
 		        }
 		        foreach($ticket_tabs as $type => $label) {
-		            $disp15 = 'none';
+		            if($listarr!='0') { $disp15 = 'none';}
 		            if($listarr == '15-'.$type){$disp15 = 'block';}
 		            if(in_array('Top 25 '.$type,$db_summary) && $disp15 == 'block') {
 		                $block_length = 68;
@@ -1576,7 +1576,7 @@ IF(!IFRAME_PAGE) { ?>
 		        $forms = $dbc->query("SELECT `id`, `pdf_name`, `revisions` FROM `ticket_pdf` WHERE `deleted`=0 AND IFNULL(`dashboard`,'')!='hidden' ORDER BY `pdf_name`");
 		        $a = 0;
 		        while($form = $forms->fetch_assoc()) {
-		            $disp17 = 'none';
+		            if($listarr!='0') {$disp17 = 'none';}
 		            if($listarr == '17-'.$a){$disp17 = 'block';}
 		            if(in_array('Top 25 Form '.$form['id'],$db_summary) && $disp17 == 'block') {
 		                $block_length = 68;
