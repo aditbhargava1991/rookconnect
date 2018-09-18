@@ -212,8 +212,8 @@ window.onbeforeunload = function() {
 					}
 			}
 	});
-	setTimeout(function() {
-			alert("Please fill in the required fields");
-	}, 0);
+	// setTimeout(function() {
+			// alert("Please fill in the required fields");
+	// }, 0);
 }
 </script>

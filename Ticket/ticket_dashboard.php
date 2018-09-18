@@ -341,7 +341,40 @@ function setActions() {
 	});
 	$('.manual-flag-icon').off('click').click(function() {
 		var item = $(this).closest('.dashboard-item');
-		overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_flags.php?tile=tickets&id='+item.data('id'), 'auto', false, true);
+		item.find('.flag_field_labels,[name=label],[name=colour],[name=flag_it],[name=flag_cancel],[name=flag_off],[name=flag_start],[name=flag_end]').show();
+		item.find('[name=flag_cancel]').off('click').click(function() {
+			item.find('.flag_field_labels,[name=label],[name=colour],[name=flag_it],[name=flag_cancel],[name=flag_off],[name=flag_start],[name=flag_end]').hide();
+			return false;
+		});
+		item.find('[name=flag_off]').off('click').click(function() {
+			item.find('[name=colour]').val('FFFFFF');
+			item.find('[name=label]').val('');
+			item.find('[name=flag_start]').val('');
+			item.find('[name=flag_end]').val('');
+			item.find('[name=flag_it]').click();
+			return false;
+		});
+		item.find('[name=flag_it]').off('click').click(function() {
+			$.ajax({
+				url: 'ticket_ajax_all.php?action=quick_actions',
+				method: 'POST',
+				data: {
+					field: 'manual_flag_colour',
+					value: item.find('[name=colour]').val(),
+					table: item.data('table'),
+					label: item.find('[name=label]').val(),
+					start: item.find('[name=flag_start]').val(),
+					end: item.find('[name=flag_end]').val(),
+					id: item.data('id'),
+					id_field: item.data('id-field')
+				}
+			});
+			item.find('.flag_field_labels,[name=label],[name=colour],[name=flag_it],[name=flag_cancel],[name=flag_off],[name=flag_start],[name=flag_end]').hide();
+			item.data('colour',item.find('[name=colour]').val());
+			item.css('background-color','#'+item.find('[name=colour]').val());
+			item.find('.flag-label').text(item.find('[name=label]').val());
+			return false;
+		});
 	});
 	$('.flag-icon').off('click').click(function() {
 		var item = $(this).closest('.dashboard-item');
@@ -384,14 +417,101 @@ function setActions() {
 	$('.reply-icon').off('click').click(function() {
         var item = $(this).closest('.dashboard-item');
 		overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_notes.php?tile=tickets&id='+item.data('id'), 'auto', false, true);
+        /* Function before reply slider
+        var item = $(this).closest('.dashboard-item');
+		item.find('[name=reply]').off('change').off('blur').show().focus().blur(function() {
+			$(this).off('blur');
+			$.ajax({
+				url: '../Project/projects_ajax.php?action=project_actions',
+				method: 'POST',
+				data: {
+					field: 'comment',
+					value: this.value,
+					table: 'tickets',
+					id: item.data('id'),
+					id_field: 'ticketid'
+				}
+			});
+			$(this).hide().val('');
+		}).keyup(function(e) {
+			if(e.which == 13) {
+				$(this).blur();
+			} else if(e.which == 27) {
+				$(this).off('blur').hide();
+			}
+		}); */
 	});
+
+	$('.emailpdf-icon').off('click').click(function() {
+		var item = $(this).closest('.dashboard-item');
+		item.find('[name=emailpdf]').off('change').off('blur').show().focus().blur(function() {
+			$(this).off('blur');
+			$.ajax({
+				url: 'ticket_ajax_all.php?action=quick_actions',
+				method: 'POST',
+                data: {
+                        id: item.data('id'),
+                        id_field: item.data('id-field'),
+                        table: item.data('table'),
+                        field: 'emailpdf',
+                        value: this.value,
+                    },
+                success: function(response) {
+                            alert('PDF Sent');
+                }
+        		});
+			$(this).hide().val('');
+		}).keyup(function(e) {
+			if(e.which == 13) {
+				$(this).blur();
+			} else if(e.which == 27) {
+				$(this).off('blur').hide();
+			}
+		});
+	});
+
 	$('.reminder-icon').off('click').click(function() {
 		var item = $(this).closest('.dashboard-item');
-		overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_reminders.php?tile=tickets&id='+item.data('id'), 'auto', false, true);
-	});
-	$('.email-icon').off('click').click(function() {
-		var item = $(this).closest('.dashboard-item');
-		overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_email.php?tile=tickets&id='+item.data('id'), 'auto', false, true);
+		item.find('[name=reminder]').change(function() {
+			var reminder = $(this).val();
+			var select = item.find('.select_users');
+			select.find('.cancel_button').off('click').click(function() {
+				select.find('select option:selected').removeAttr('selected');
+				select.find('select').trigger('change.select2');
+				select.hide();
+				return false;
+			});
+			select.find('.submit_button').off('click').click(function() {
+				if(select.find('select').val() != '' && confirm('Are you sure you want to schedule reminders for the selected user(s)?')) {
+					var users = [];
+					select.find('select option:selected').each(function() {
+						users.push(this.value);
+						$(this).removeAttr('selected');
+					});
+					$.ajax({
+						method: 'POST',
+						url: 'ticket_ajax_all.php?action=quick_actions',
+						data: {
+							id: item.data('id'),
+							id_field: item.data('id-field'),
+							table: item.data('table'),
+							field: 'reminder',
+							value: reminder,
+							users: users,
+							ref_id: item.data('id'),
+							ref_id_field: item.data('id-field')
+						},
+						success: function(result) {
+							select.hide();
+							select.find('select').trigger('change.select2');
+							item.find('h4').append(result);
+						}
+					});
+				}
+				return false;
+			});
+			select.show();
+		}).focus();
 	});
 	$('.alert-icon').off('click').click(function() {
 		var item = $(this).closest('.dashboard-item');
@@ -435,39 +555,10 @@ function setActions() {
 		select.find('select').trigger('change.select2');
 		select.show();
 	});
-	$('.emailpdf-icon').off('click').click(function() {
+	$('.email-icon').off('click').click(function() {
 		var item = $(this).closest('.dashboard-item');
-		item.find('[name=emailpdf]').off('change').off('blur').show().focus().blur(function() {
-			$(this).off('blur');
-			$.ajax({
-				url: 'ticket_ajax_all.php?action=quick_actions',
-				method: 'POST',
-                data: {
-                        id: item.data('id'),
-                        id_field: item.data('id-field'),
-                        table: item.data('table'),
-                        field: 'emailpdf',
-                        value: this.value,
-                    },
-                success: function(response) {
-                            alert('PDF Sent');
-                }
-        		});
-			$(this).hide().val('');
-		}).keyup(function(e) {
-			if(e.which == 13) {
-				$(this).blur();
-			} else if(e.which == 27) {
-				$(this).off('blur').hide();
-			}
-		});
+		overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_email.php?tile=tickets&id='+item.data('id'), 'auto', false, true);
 	});
-}
-function setManualFlag(ticketid, colour, label) {
-	var item = $('.dashboard-item[data-id="'+ticketid+'"]');
-	item.data('colour',colour);
-	item.css('background-color','#'+colour);
-	item.find('.flag-label').text(label);
 }
 function setStatus(select) {
 	$.ajax({    //create an ajax request to load_page.php
@@ -629,7 +720,7 @@ IF(!IFRAME_PAGE) { ?>
 							</li>
 						<?php } ?>
 						<?php if(in_array('Project',$db_sort)) { ?>
-							<li class="sidebar-higher-level"><a class="collapsed cursor-hand" data-toggle="collapse" data-target="#filter_project_type_<?= $type ?>"><?= PROJECT_NOUN ?> Tabs<span class="arrow"></span></a>
+							<li class="sidebar-higher-level"><a class="collapsed cursor-hand" data-toggle="collapse" data-target="#filter_project_type_<?= $type ?>"><?= PROJECT_NOUN ?> Types<span class="arrow"></span></a>
 								<ul class="collapse" id="filter_project_type_<?= $type ?>" style="overflow: hidden;">
 									<?php foreach($project_types as $cat_tab_value => $cat_tab) {
 										$row = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT COUNT(*) `count` FROM `tickets` WHERE `projectid` IN (SELECT `projectid` FROM `project` WHERE `deleted`=0 AND `projecttype`='$cat_tab_value') AND `deleted`=0 AND `status` NOT IN ('Done','Archive','Archived','On Hold','Pending') AND '".$_GET['tile_name']."' IN (`ticket_type`,'') $filter")); ?>
@@ -1087,7 +1178,7 @@ IF(!IFRAME_PAGE) { ?>
 					<div class="panel-heading mobile_load">
 						<h4 class="panel-title">
 							<a data-toggle="collapse" data-parent="#mobile_accordions" href="#project_list">
-								<?= PROJECT_NOUN ?> Tabs<span class="glyphicon glyphicon-plus"></span>
+								<?= PROJECT_NOUN ?> Types<span class="glyphicon glyphicon-plus"></span>
 							</a>
 						</h4>
 					</div>
@@ -1101,7 +1192,7 @@ IF(!IFRAME_PAGE) { ?>
 										<div class="panel-heading mobile_load">
 											<h4 class="panel-title">
 												<a data-toggle="collapse" data-parent="#project_mobile_accordions" href="#project_<?= $cat_tab_value ?>" class="double-pad-left">
-													<?= PROJECT_NOUN ?> Tab: <?= $cat_tab.' ('.$row['count'].')' ?><span class="glyphicon glyphicon-plus"></span>
+													<?= PROJECT_NOUN ?> Type: <?= $cat_tab.' ('.$row['count'].')' ?><span class="glyphicon glyphicon-plus"></span>
 												</a>
 											</h4>
 										</div>
@@ -1325,7 +1416,7 @@ IF(!IFRAME_PAGE) { ?>
 		if(in_array('Project',$db_summary)) {
 			$block_length = 68;
 			$block = '<div class="overview-block">
-				<h4>'.TICKET_TILE.' per '.PROJECT_NOUN.' Tab</h4>';
+				<h4>'.TICKET_TILE.' per '.PROJECT_NOUN.' Type</h4>';
 				foreach($project_types as $cat_tab_value => $cat_tab) {
 					$ticket = $dbc->query("SELECT COUNT(*) count FROM `tickets` WHERE `deleted`=0 AND `status` != 'Archive' AND `projectid` > 0  AND `projectid` IN (SELECT `projectid` FROM `project` WHERE `deleted` = 0 AND `projecttype` = '$cat_tab_value')")->fetch_assoc();
 					$block .= '<p>'.(in_array('Project',$db_sort) ? '<a class="cursor-hand" onclick="$(\'[data-project=\\\''.$cat_tab_value.'\\\']\').first().click().parents(\'li\').each(function() { $(this).find(\'a\').first().filter(\'.collapsed\').click(); });">' : '').$cat_tab.(in_array('Project',$db_sort) ? '</a>' : '').': '.$ticket['count'].'</p>';

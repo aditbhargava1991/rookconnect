@@ -126,7 +126,7 @@ if ( $_GET['fill'] == 'get_tags' ) {
 
 if ( $_GET['fill'] == 'delete_newsitem' ) {
     $newsboardid = preg_replace('/[^0-9]/', '', $_GET['newsboardid']);
-    $newsboard_type = filter_var($_GET['$newsboard_type'], FILTER_SANITIZE_STRING);
+    $newsboard_type = filter_var($_GET['newsboard_type'], FILTER_SANITIZE_STRING);
     
     $query = "UPDATE `newsboard` SET `deleted`=1 WHERE `newsboardid`='$newsboardid'";
     if ( $newsboard_type == 'Softwarewide' ) {
