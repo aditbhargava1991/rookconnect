@@ -3,12 +3,39 @@
     <span class="popover-examples list-inline">
         <a href="#job_file" data-toggle="tooltip" data-placement="top" title="Select the service."><img src="<?php echo WEBSITE_URL;?>/img/info.png" width="20"></a>
     </span><img src="../img/icons/ROOK-add-icon.png" class="no-toggle cursor-hand adjust_block" title="Add Service" width="21" onclick="add_service_row();" /></h4>
+    <?php if(in_array('service_cat',$field_config) && in_array('service_qty',$field_config)) {
+        $col_cat = 3;
+        $col_head = 3;
+        $col_qty = 2;
+        $col_fee = 2;
+    } else if(in_array('service_cat',$field_config) && !in_array('service_qty',$field_config)) {
+        $col_cat = 4;
+        $col_head = 4;
+        $col_qty = 0;
+        $col_fee = 2;
+    } else if(!in_array('service_cat',$field_config) && in_array('service_qty',$field_config)) {
+        $col_cat = 0;
+        $col_head = 6;
+        $col_qty = 2;
+        $col_fee = 2;
+    } else if(in_array('unbilled_tickets',$field_config)) {
+        $col_cat = 4;
+        $col_head = 4;
+        $col_qty = 0;
+        $col_fee = 2;
+    } else {
+        $col_cat = 4;
+        $col_head = 4;
+        $col_qty = 0;
+        $col_fee = 2;
+    } ?>
     <div class="form-group service_option" <?= (in_array('services',$field_config) ? '' : 'style="display:none;"') ?>>
         <div class="col-sm-12">
             <div class="form-group clearfix hide-titles-mob service_labels" style="<?= ( empty(rtrim($serviceid, ',')) && $_GET['inv_mode'] == 'adjust' ) ? 'display:none;' : '' ?>">
-                <label class="col-sm-4 text-center">Category</label>
-                <label class="col-sm-4 text-center">Service Name</label>
-                <label class="col-sm-2 text-center">Fee</label>
+                <label class="col-sm-<?= $col_cat > 0 ? $col_cat : '0 hidden' ?> text-center">Category</label>
+                <label class="col-sm-<?= $col_head ?> text-center">Service Name</label>
+                <label class="col-sm-<?= $col_qty > 0 ? $col_qty : '0 hidden' ?> text-center">Qty</label>
+                <label class="col-sm-<?= $col_fee > 0 ? $col_fee : '0 hidden' ?> text-center">Fee</label>
             </div>
 
             <?php
@@ -27,7 +54,7 @@
                         $fee = $each_fee[$client_loop]; ?>
 
                     <div class="form-group clearfix">
-                        <div class="col-sm-4"><label class="show-on-mob">Service Category:</label>
+                        <div class="col-sm-<?= $col_cat > 0 ? $col_cat : '0 hidden' ?>"><label class="show-on-mob">Service Category:</label>
                             <?php if($_GET['inv_mode'] == 'adjust') { ?>
                                 <?= get_all_from_service($dbc, $serviceid, 'category') ?>
                             <?php } else { ?>
@@ -52,7 +79,7 @@
                             <?php } ?>
                         </div> <!-- Quantity -->
 
-                        <div class="col-sm-4"><label class="show-on-mob">Service Name:</label>
+                        <div class="col-sm-<?= $col_head ?>"><label class="show-on-mob">Service Name:</label>
                             <input type="hidden" name="service_ticketid[]" value="">
                             <?php if($_GET['inv_mode'] == 'adjust') { ?>
                                 <input type="hidden" id="<?php echo 'serviceid_'.$id_loop; ?>" name="init_serviceid[]" class="serviceid" value="<?= $serviceid ?>"><?= get_all_from_service($dbc, $serviceid, 'heading') ?>
@@ -85,7 +112,16 @@
                             <?php } ?>
                         </div>
 
-                        <div class="col-sm-2"><label class="show-on-mob">Total Fee:</label>
+                        <div class="col-sm-<?= $col_qty > 0 ? $col_qty : '0 hidden' ?>"><label class="show-on-mob">Quantity:</label>
+                            <?php if($_GET['inv_mode'] == 'adjust') { ?>
+                                <input name="srv_qty[]" id="<?php echo 'srv_qty_'.$id_loop; ?>"  type="hidden" value="<?php echo $qty; ?>" class="qty" onchange="setTotalPrice();" />
+                                <?= $qty ?>
+                            <?php } else { ?>
+                                <input name="srv_qty[]" id="<?php echo 'fee_'.$id_loop; ?>"  type="number" step="any" value="<?php echo $qty; ?>" class="form-control qty" onchange="setTotalPrice();" />
+                            <?php } ?>
+                        </div>
+
+                        <div class="col-sm-<?= $col_fee > 0 ? $col_fee : '0 hidden' ?>"><label class="show-on-mob">Total Fee:</label>
                             <?php if($_GET['inv_mode'] == 'adjust') { ?>
                                 <input name="fee[]" id="<?php echo 'fee_'.$id_loop; ?>"  type="hidden" value="<?php echo $fee; ?>" class="fee" />
                                 <?= $fee ?>
@@ -115,7 +151,7 @@
 
             <div class="additional_service form-group clearfix" style="<?= $_GET['inv_mode'] == 'adjust' ? 'display:none;' : '' ?>">
 
-                <div class="col-sm-4"><label class="show-on-mob">Service Category:</label>
+                <div class="col-sm-<?= $col_cat > 0 ? $col_cat : '0 hidden' ?>"><label class="show-on-mob">Service Category:</label>
                     <select data-placeholder="Select a Category..." id="category_0" class="chosen-select-deselect form-control service_category_onchange" width="380">
                         <option value=""></option>
                         <?php
@@ -130,13 +166,16 @@
                         ?>
                     </select>
                 </div>
-                <div class="col-sm-4"><label class="show-on-mob">Service Name:</label>
+                <div class="col-sm-<?= $col_head ?>"><label class="show-on-mob">Service Name:</label>
                     <input type="hidden" name="service_ticketid[]" value="">
                     <select id="serviceid_0" data-placeholder="Select a Service..." name="serviceid[]" class="chosen-select-deselect form-control serviceid" width="380">
                         <option value=""></option>
                     </select>
                 </div>
-                <div class="col-sm-2"><label class="show-on-mob">Total Fee:</label>
+                <div class="col-sm-<?= $col_qty > 0 ? $col_qty : '0 hidden' ?>"><label class="show-on-mob">Quantity:</label>
+                    <input name="srv_qty[]" id="srv_qty_0" type="number" step="any" min=0 value=1 class="form-control qty" onchange="setTotalPrice();" />
+                </div>
+                <div class="col-sm-<?= $col_fee > 0 ? $col_fee : '0 hidden' ?>"><label class="show-on-mob">Total Fee:</label>
                     <input name="fee[]" readonly id="fee_0" type="number" step="any" value=0 class="form-control fee" />
                     <input name="gst_exempt[]" id="gstexempt_0"  type="hidden" value="0" class="form-control gstexempt" />
                     <input name="service_row_id[]" type="hidden" value="<?= $insurer_row_id++ ?>" class="insurer_row_id" />
