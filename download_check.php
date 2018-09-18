@@ -4,7 +4,7 @@ session_start();
 if(!file_exists($filepath)) {
 	header('HTTP/1.0 404 Not Found');
 	include('404.html');
-} else if(!isset($_SESSION['contactid']) && !in_array(explode('/',$filepath)[0],['img','Settings','Inventory','Website','Contacts']) && stripos($_GET['path'],'.jpg') === FALSE && stripos($_GET['path'],'.png') === FALSE && stripos($_GET['path'],'.gif') === FALSE && stripos($_GET['path'],'.bmp') === FALSE) {
+} else if(!isset($_SESSION['contactid']) && !in_array(explode('/',$filepath)[0],['css','img','Settings','Inventory','Website','Contacts']) && stripos($_GET['path'],'.jpg') === FALSE && stripos($_GET['path'],'.png') === FALSE && stripos($_GET['path'],'.gif') === FALSE && stripos($_GET['path'],'.bmp') === FALSE) {
 	header('HTTP/1.0 403 Forbidden');
 	include('403.html');
 } else {

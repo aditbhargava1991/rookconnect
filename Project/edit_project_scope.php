@@ -190,7 +190,7 @@ function saveField(src) {
 			if(row.find('[name=margin]').val() != margin) {
 				row.find('[name=margin]').val(margin).change();
 			}
-			
+
 			total_cost = 0;
 			$('[name=cost][data-table]').each(function() { total_cost += +this.value * +$(this).closest('tr').find('[name=qty]').val(); });
 			var profit = +total_price - total_cost;
@@ -280,7 +280,7 @@ function add_line(src) {
 	clone.find('.select_div').show().find('option').hide();
 	resetChosen(clone.find("select[class^=chosen]"));
 	clone.find('[data-id]').data('id','');
-	
+
 	line.closest('table').append(clone);
 	$('[data-table]').off('change',update_field).change(update_field);
 }

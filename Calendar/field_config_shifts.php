@@ -177,6 +177,12 @@ $contact_category = $get_field_config['contact_category'];
                     </div>
                 </div>
                 <div class="form-group">
+                    <label for="heading" class="col-sm-4 control-label">Heading:</label>
+                    <div class="col-sm-8">
+                        <label class="form-checkbox"><input type="checkbox" name="enabled_fields[]" value="heading" <?= (strpos($enabled_fields, ',heading,') !== FALSE ? 'checked' : '') ?>></label>
+                    </div>
+                </div>
+                <div class="form-group">
                     <label for="time" class="col-sm-4 control-label">Time:</label>
                     <div class="col-sm-8">
                         <label class="form-checkbox"><input type="checkbox" name="enabled_fields[]" value="time" <?= (strpos($enabled_fields, ',time,') !== FALSE ? 'checked' : '') ?>></label>
