@@ -122,7 +122,7 @@
 
                         <div class="col-sm-<?= $col_qty > 0 ? $col_qty : '0 hidden' ?>"><label class="show-on-mob">Quantity:</label>
                             <?php if($_GET['inv_mode'] == 'adjust') { ?>
-                                <input name="srv_qty[]" id="<?php echo 'srv_qty_'.$id_loop; ?>"  type="hidden" value="<?php echo $qty; ?>" class="qty" onchange="setTotalPrice();" />
+                                <input name="init_qty[]" id="<?php echo 'srv_qty_'.$id_loop; ?>"  type="hidden" value="<?php echo $qty; ?>" class="qty" onchange="setTotalPrice();" />
                                 <?= $qty ?>
                             <?php } else { ?>
                                 <input name="srv_qty[]" id="<?php echo 'fee_'.$id_loop; ?>"  type="number" step="any" value="<?php echo $qty; ?>" class="form-control qty" onchange="setTotalPrice();" />
