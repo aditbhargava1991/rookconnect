@@ -124,6 +124,7 @@ function remGroup(img) {
 			$project_admin_fields = ',Services,Sub Totals per Service,';
 		}
 		$project_admin_fields = ','.$project_admin_fields.','; ?>
+		<label class="form-checkbox"><input type="checkbox" name="project_admin_fields" value="Status Summary" <?= strpos($project_admin_fields,',Status Summary,') !== FALSE ? 'checked' : '' ?>> Status Summary</label>
 		<label class="form-checkbox"><input type="checkbox" name="project_admin_fields" value="Services" <?= strpos($project_admin_fields,',Services,') !== FALSE ? 'checked' : '' ?>> Services</label>
 		<label class="form-checkbox"><input type="checkbox" name="project_admin_fields" value="Sub Totals per Service" <?= strpos($project_admin_fields,',Sub Totals per Service,') !== FALSE ? 'checked' : '' ?>> Sub Totals per Service</label>
 		<label class="form-checkbox"><input type="checkbox" name="project_admin_fields" value="Staff Tasks" <?= strpos($project_admin_fields,',Staff Tasks,') !== FALSE ? 'checked' : '' ?>> Staff <?= TASK_TILE ?></label>

@@ -145,7 +145,7 @@ checkAuthorised();
                             include('../Profile/daysheet_overview.php');
                         } else if ($_GET['settings'] == 'config') {
                             include('../Profile/field_config_daysheet.php');
-                        } else if ($_GET['tab'] == 'journals') {
+                        } else if ($_GET['tab'] == 'journals' || $_GET['tab'] == 'notes' || $_GET['tab'] == 'scrum_notes') {
                             include('../Daysheet/journal.php');
                         } else {
                             include('../Profile/daysheet_main.php');

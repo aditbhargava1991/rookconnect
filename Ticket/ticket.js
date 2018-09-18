@@ -87,6 +87,7 @@ $(document).ready(function() {
 	reload_related();
 	setSave();
 	initSelectOnChanges();
+	filterStaffNoShift();
 });
 $(window).load(function() {
 	destroyTinyMce();
@@ -331,6 +332,22 @@ function saveFieldMethod(field) {
 	if(force_caps && field.type == 'text') {
 		field.value = field.value.toUpperCase();
 	}
+	if(field.name == 'item_id' && $(field).data('table') == 'ticket_attached' && $(field).data('type') == 'Staff' && ($(field).data('verified-shift') == undefined || $(field).data('verified-shift') != 'true')) {
+		var check_field = field;
+		var check_field_value = field.value;
+		checkStaffShifts(check_field.value).success(function(response) {
+			var response = JSON.parse(response);
+			if(response.success == true) {
+				$(check_field).data('verified-shift','true');
+				$(check_field).val(check_field_value).trigger('change.select2').change();
+			} else {
+				alert(response.message);
+				$(check_field).val('').trigger('change.select2');
+				$(check_field).data('verified-shift','');
+			}
+		});
+		field = '';
+	}
 	ticketid_list.forEach(function(ticket) {
 		var current_ticketid = ticket;
 		if(field.type == 'file' && field.name == 'attached_image') {
@@ -398,7 +415,7 @@ function saveFieldMethod(field) {
 				}, 500);
 			}
 			doneSaving();
-		} else if(field.value != 'MANUAL') {
+		} else if(field.value != 'MANUAL' && field != '') {
 			var block = $(field).closest('.multi-block,.scheduled_stop,.staff-multi-time');
 			var id_num = $(field).data('id');
 			var table_name = $(field).data('table');
@@ -497,16 +514,18 @@ function saveFieldMethod(field) {
 				$(field).closest('.multi-block').find('[name=total]').first().val(save_value * $(field).closest('.multi-block').find('[name=qty]').val());
 			} else if((field_name == 'address' || field_name == 'city' || field_name == 'postal_code') && table_name == 'ticket_schedule' && block.find('[name=map_link]').first().data('auto-fill') == 'auto') {
 				block.find('[name=map_link]').first().val('https://www.google.ca/maps/place/'+encodeURI(block.find('[name=address]').val()+','+block.find('[name=city]').val()+','+block.find('[name=postal_code]').val())).change();
-				$.post('ticket_ajax_all.php?action=validate_address', { address: block.find('[name=address]').val(), city: block.find('[name=city]').val(), postal: block.find('[name=postal_code]').val() }, function(response) {
-					response = response.split('|');
-					if(response.join('') != '' && (response[0] != block.find('[name=address]').val() || response[1] != block.find('[name=city]').val() || response[2] != block.find('[name=postal_code]').val()) && confirm('We suggest the following corrections to your address: '+response.join(', ')+'. Would you like to use this suggestion? Using the current address may fail to display in Google Maps.')) {
-						block.find('[name=address]').val(response[0]).change();
-						block.find('[name=city]').val(response[1]).change();
-						block.find('[name=postal_code]').val(response[2]).change();
-					} else if(response.join('') == '') {
-						alert('The address provided may not be valid. It will not be found in Google Maps.');
-					}
-				});
+				if($(field).closest('.scheduled_stop').find('[name="type"]') == undefined || $(field).closest('.scheduled_stop').find('[name="type"] option:selected').data('warehouse') != 'yes') {
+					$.post('ticket_ajax_all.php?action=validate_address', { address: block.find('[name=address]').val(), city: block.find('[name=city]').val(), postal: block.find('[name=postal_code]').val() }, function(response) {
+						response = response.split('|');
+						if(response.join('') != '' && (response[0] != block.find('[name=address]').val() || response[1] != block.find('[name=city]').val() || response[2] != block.find('[name=postal_code]').val()) && confirm('We suggest the following corrections to your address: '+response.join(', ')+'. Would you like to use this suggestion? Using the current address may fail to display in Google Maps.')) {
+							block.find('[name=address]').val(response[0]).change();
+							block.find('[name=city]').val(response[1]).change();
+							block.find('[name=postal_code]').val(response[2]).change();
+						} else if(response.join('') == '') {
+							alert('The address provided may not be valid. It will not be found in Google Maps.');
+						}
+					});
+				}
 			} else if(field_name == 'type' && table_name == 'ticket_schedule') {
 				if($(field).find('option:selected').data('warehouse') == 'yes') {
 					$(field).closest('.scheduled_stop').find('[name=type_1]').prop('checked',false).filter(function() { return this.value == 'warehouse' }).first().prop('checked',true);
@@ -917,6 +936,15 @@ function saveFieldMethod(field) {
 							window.location.replace('../blank_loading_page.php');
 						}
 					}
+					if(field.name == 'to_do_date') {
+						filterStaffNoShift();
+						checkStaffShifts().success(function(response) {
+							var response = JSON.parse(response);
+							if(response.success == false) {
+								alert(response.message);
+							}
+						});
+          }
 					if(table_name == 'tickets' && field_name == 'purchase_order') {
 						reload_po_num_dropdown();
 					}
@@ -1980,6 +2008,7 @@ function addMulti(img, style, clone_location = '') {
 	block.find('[data-id][data-table][data-table!=tickets][data-table!=contacts_medical]').data('id','');
 	block.find('[name="ticket_comment_email_sender[]"]').val(user_email);
 	block.find('[name*=qty]').val(1);
+	block.find('[data-verified-shift]').data('verified-shift','');
 	block.find('textarea').removeAttr('id');
 	block.find('.select-div, .sig-div').show();
 	block.find('.manual-div, .img-div').hide();
@@ -2043,9 +2072,9 @@ function remMultiPOLine(img) {
 		addMultiPOLine(img);
 	}
 
-	var block = $('.po_lines_div');
+	var block = $(img).closest('.po_lines_div');
 	$(img).closest('.multi-block').remove();
-	$(block).find('.multi-block .po_line_value').first().change();
+	$(block).find('[name="po_line"]').first().change();
 }
 function rangeMultiPOLine(img) {
 	var block = $(img).closest('.multi-block');
@@ -3219,6 +3248,30 @@ function dialogCreateRecurrence(a, edit_recurrences = '') {
 			alert('Please put at least one detail in this '+$('[name="global_ticket_noun"]').val()+' before creating recurrences.');
 		}
 	}
+}
+function checkStaffShifts(staffid = '') {
+	var ticketid = $('#ticketid').val();
+	return $.ajax({
+		url: '../Ticket/ticket_ajax_all.php?action=check_staff_shifts',
+		method: 'POST',
+		data: { ticketid: ticketid, staffid: staffid }
+	});
+}
+function filterStaffNoShift() {
+	var ticketid = $('#ticketid').val();
+	$.ajax({
+		url: '../Ticket/ticket_ajax_all.php?action=get_staff_no_shifts',
+		method: 'POST',
+		data: { ticketid: ticketid },
+		success: function(response) {
+			var response = JSON.parse(response);
+			$('select[name="item_id"][data-table="ticket_attached"][data-type="Staff"] option').show();
+			response.staff_list.forEach(function(staffid) {
+				$('select[name="item_id"][data-table="ticket_attached"][data-type="Staff"] option[value="'+staffid+'"]').hide();
+			});
+			$('select[name="item_id"][data-table="ticket_attached"][data-type="Staff"]').trigger('change.select2');
+		}
+	});
 }
 function initSelectOnChanges() {
 	try {

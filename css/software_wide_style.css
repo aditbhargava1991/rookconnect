@@ -9,6 +9,7 @@
 .no-overflow { overflow:hidden !important; }
 .set-relative { position:relative; }
 .set-favourite { position:absolute; top:5px; right:5px; }
+.red { color:red; }
 .flex-columns {
 	display: flex;
 	flex-direction: column;
@@ -1485,6 +1486,8 @@ footer#footer { margin:0; padding:0; }
 	.menu-box-dropper {
 		max-height: calc(100vh - 160px);
 	}
+    
+    .padded-desktop { padding:10px; }
 }
 @media (min-width: 801px) {
 	.sel2 {
@@ -2827,12 +2830,16 @@ ul.select2-results__options {
 	padding: 0.25em 1em;
 }
 
-.calendar-mobile-list tr:nth-child(odd) {
-	background-color: #E7F7FD;
+.calendar-mobile-list tr:nth-child(odd) td {
+	background-color: #E7F7FD !important;
 }
 
-.calendar-mobile-list tr:nth-child(even) {
-	background-color: #FFFFFF;
+.calendar-mobile-list tr:nth-child(even) td {
+	background-color: #FFFFFF !important;
+}
+.calendar-mobile-list tr:nth-child(odd) td,
+.calendar-mobile-list tr:nth-child(even) td {
+	background-color:transparent;
 }
 .calendar-mobile-list tr:nth-child(odd) td,
 .calendar-mobile-list tr:nth-child(even) td {

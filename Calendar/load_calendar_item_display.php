@@ -1136,7 +1136,7 @@ foreach($calendar_table[0][0] as $calendar_row => $calendar_cell) {
 	}
 	$row_html .= "</td>";
 
-	$column['rows'][] = ['time'=>$calendar_row,'html'=>$row_html];
+	$column['rows'][$calendar_row] = ['time'=>$calendar_row,'html'=>$row_html];
 }
 
 if(!$is_mobile_view) {
