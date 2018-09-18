@@ -454,6 +454,9 @@ $(document).ready(function () {
             } else {
                 echo '<li>';
             }
+            if(!empty($shift['heading'])) {
+                echo $shift['heading'].'<br>';
+            }
             if(!empty($shift['dayoff_type'])) {
                 echo 'Day Off: '.date('h:i a', strtotime($shift['starttime'])).' - '.date('h:i a', strtotime($shift['endtime'])).'<br>';
                 echo 'Day Off Type: '.$shift['dayoff_type'];
@@ -469,6 +472,10 @@ $(document).ready(function () {
                     echo get_contact($dbc, $shift['clientid'], 'category').': ';
                     echo '<a href="'.WEBSITE_URL.'/'.ucfirst(get_contact($dbc, $shift['clientid'], 'tile_name')).'/contacts_inbox.php?edit='.$shift['clientid'].'" style="padding: 0; display: inline;">'.get_contact($dbc, $shift['clientid']).'</a>';
                 }
+            }
+            if(!empty($shift['notes'])) {
+                echo '<br>';
+                echo 'Notes: '.html_entity_decode($shift['notes']);
             }
 
             if($daysheet_styling == 'card') {
