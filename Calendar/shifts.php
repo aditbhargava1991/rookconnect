@@ -678,6 +678,21 @@ function createShiftFor(input) {
                         ?>
                     </select>
                 </div>
+            <?php } ?>
+
+            <div class="staff_div form-group" <?= !empty($security_level) ? 'style="display:none;"' : '' ?>>
+                <label for="contactid" class="col-xs-4">Staff:</label>
+                <div class="col-xs-8">
+                    <select data-placeholder="Select Staff" name="shift_contactid" class="chosen-select-deselect">
+                        <option></option>
+                        <?php
+                            $query = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `deleted` = 0 AND `status` = 1"),MYSQLI_ASSOC));
+                            foreach ($query as $id) {
+                                echo '<option value="'.$id.'"'.($id == $contactid ? ' selected' : '').'>'.get_contact($dbc, $id).'</option>';
+                            }
+                        ?>
+                    </select>
+                </div>
             </div>
 
             <?php if (!empty($contact_category)) { ?>
