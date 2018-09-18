@@ -304,9 +304,9 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 				do {
 					$stop_i++;
 					if($stop['id'] == $_GET['stop'] || !($_GET['stop'] > 0)) { ?>
-						<div class="scheduled_stop">
+						<div id="tab_section_ticket_delivery_<?= $stop['id'] ?>" class="tab-section scheduled_stop">
 							<?php if(strpos($value_config, ',Delivery Pickup') !== FALSE && $get_ticket['main_ticketid'] == 0) { ?>
-								<h4>Scheduled Stop <span class="block_count"><?= ++$stop_count ?></span><img class="inline-img small pull-right stop_sort" src="../img/icons/drag_handle.png"></h4>
+								<h4>Scheduled Stop <span class="block_count"><?= ++$stop_count ?> of <?= $ticket_stops->num_rows ?></span><img class="inline-img small pull-right stop_sort" src="../img/icons/drag_handle.png"></h4>
 								<input type="hidden" name="sort" data-table="ticket_schedule" data-id="<?= $stop['id'] ?>" data-id-field="id" value="<?= $stop['sort'] ?>">
 							<?php } ?>
 							<?php $equipment_list = mysqli_query($dbc, "SELECT * FROM `equipment` WHERE `equipmentid` = '{$stop['equipmentid']}'");
@@ -366,7 +366,7 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 									</div>
 								<?php } else if (strpos($value_config, ','."Delivery Pickup Equipment".',') !== FALSE && strpos($value_config, ','."Assigned Equipment Inline".',') !== FALSE && $field_sort_field == 'Delivery Pickup Equipment') { ?>
 									<div class="form-group">
-										<?php if (strpos($value_config, ','."Delivery Pickup Equipment Tab".',') !== FALSE) { ?>
+										<?php if (strpos($value_config, ','."Delivery Pickup Equipment Category".',') !== FALSE) { ?>
 											<label class="hide-titles-mob text-center col-sm-<?= floor(12 / $equip_col_count) ?>">Equipment Tab</label>
 										<?php } ?>
 										<?php if (strpos($value_config, ','."Delivery Pickup Equipment Make".',') !== FALSE) { ?>
@@ -597,7 +597,7 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 									<div class="form-group">
 										<label class="col-sm-4 control-label">Delivery Tab:</label>
 										<div class="col-sm-8">
-											<?php if(count($delivery_types) > 0) { ?>tab
+											<?php if(count($delivery_types) > 0) { ?>
 												<select name="type" class="chosen-select-deselect" data-placeholder="Select Type" data-table="ticket_schedule" data-id="<?= $stop['id'] ?>" data-id-field="id" value="<?= $stop['type'] ?>"><option></option>
 													<?php foreach($delivery_types as $type_name) { ?>
 														<option <?= $type_name == $stop['type'] ? 'selected' : '' ?> value="<?= $type_name ?>"><?= $type_name ?></option>
