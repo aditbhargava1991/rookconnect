@@ -820,7 +820,9 @@ function setTotalPrice() {
 			if(label == '' || label == undefined) {
 				info = group.find('[name=servicelabel]').val();
 			}
-			if(group.hasClass('adjust_block')) {
+			if(fee_row < 0) {
+				$('.detail_service_list').append('<label class="pull-right">'+fee_row.toFixed(2)+'</label>Refund: '+info+'<br /><div class="clearfix"></div>').prev('h4').show();
+            } else if(group.hasClass('adjust_block')) {
 				sum_adjustment += fee_row + (gstexempt == 0 ? fee_row*tax_rate/100 : 0);
 				$('.detail_service_list').append('<label class="pull-right">'+fee_row.toFixed(2)+'</label>Adjustment: '+info+'<br /><div class="clearfix"></div>').prev('h4').show();
 			} else {
@@ -1146,7 +1148,11 @@ function get_max_insurer_row() {
 
 function add_service_row() {
 	$(".hide_show_service").show();
+    if ( $('.service_labels').is(':hidden') ) {
+        $('.service_labels').show();
+    }
 	var clone = $('.service_option .form-group').last().clone();
+    clone.show();
 	clone.find('.form-control').val(0);
 	clone.find('[id^=serviceid]').attr('id', 'serviceid_'+inc);
 	resetChosen(clone.find('[id^=serviceid]'));
@@ -1171,7 +1177,11 @@ function rem_service_row(btn) {
 }
 function add_product_row() {
 	$(".hide_show_product").show();
+    if ( $('.product_labels').is(':hidden') ) {
+        $('.product_labels').show();
+    }
 	var clone = $('.additional_product').last().clone();
+    clone.show();
 	clone.find('.form-control').val(0);
 	clone.find('.inventorycat').attr('id', 'inventorycat_'+inc_pro);
 	clone.find('.inventorypart').attr('id', 'inventorypart_'+inc_pro);
@@ -1256,7 +1266,11 @@ function rem_patient_payment_row(btn) {
 }
 function add_package_row() {
 	$(".hide_show_package").show();
+    if ( $('.package_labels').is(':hidden') ) {
+        $('.package_labels').show();
+    }
 	var clone = $('.additional_package').last().clone();
+    clone.show();
 	clone.find('.form-control').val(0);
 	clone.find('.packagecat').attr('id', 'packagecat_'+inc_pack);
 	clone.find('.packageid').attr('id', 'packageid_'+inc_pack);
@@ -1279,7 +1293,11 @@ function rem_package_row(btn) {
 }
 function add_misc_row() {
 	$(".hide_show_package").show();
+    if ( $('.misc_labels').is(':hidden') ) {
+        $('.misc_labels').show();
+    }
 	var clone = $('.additional_misc').last().clone();
+    clone.show();
 	clone.find('.form-control').val('');
 	var max_row = get_max_insurer_row();
 	clone.find('.insurer_row_id').val(max_row);

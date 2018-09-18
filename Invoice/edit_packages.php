@@ -2,10 +2,10 @@
     <h4 class="col-sm-12">Packages
     <span class="popover-examples list-inline">
         <a href="#job_file" data-toggle="tooltip" data-placement="top" title="Select any packages here."><img src="<?php echo WEBSITE_URL;?>/img/info.png" width="20"></a>
-    </span></h4>
+    </span><img src="../img/icons/ROOK-add-icon.png" class="no-toggle cursor-hand adjust_block" title="Add Package" width="21" onclick="add_package_row();" /></h4>
     <div class="form-group package_option" <?= (in_array('packages',$field_config) ? '' : 'style="display:none;"') ?>>
         <div class="col-sm-12">
-            <div class="form-group clearfix hide-titles-mob">
+            <div class="form-group clearfix hide-titles-mob package_labels" style="<?= ( empty(rtrim($packageid, ',')) && $_GET['inv_mode'] == 'adjust' ) ? 'display:none;' : '' ?>">
                 <label class="col-sm-4 text-center">Category</label>
                 <label class="col-sm-4 text-center">Package Name</label>
                 <label class="col-sm-2 text-center">Fee</label>
@@ -18,7 +18,7 @@
             foreach($each_package as $loop => $package) {
                 $package_cost = $each_package_cost[$loop];
                 $package_cat = mysqli_fetch_array(mysqli_query($dbc, "SELECT `category` FROM `package` WHERE `packageid`='$package'"))['category']; ?>
-                <div class="additional_package form-group clearfix <?= $package > 0 ? '' : ($_GET['inv_mode'] == 'adjust' ? 'adjust_block' : '') ?>">
+                <div class="additional_package form-group clearfix" style="<?= $_GET['inv_mode'] == 'adjust' ? 'display:none;' : '' ?>">
                     <div class="col-sm-4"><label class="show-on-mob">Package Category:</label>
                         <?php if($_GET['inv_mode'] == 'adjust' && $package > 0) {
                             echo $package_cat;
