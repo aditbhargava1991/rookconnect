@@ -98,6 +98,7 @@ if(isset($_POST['submit'])) {
             break;
             
         default:
+            $dbc->query("INSERT INTO `reminders` (`contactid`,`reminder_date`,`reminder_type`,`subject`,`body`, `sender`) VALUES ('$staff','$date','Planner Reminder','$subject','$body', '$sender')");
             break;
     }
 }
@@ -134,6 +135,9 @@ switch($tile) {
         break;
     case 'checklist':
         $subject = "A reminder about the $title checklist";
+        break;
+    default:
+        $subject = ucwords($tile) .' Reminder';
         break;
 }
 if(empty($_GET['contactid'])) {
@@ -173,8 +177,11 @@ if(empty($_GET['contactid'])) {
             		<div class="col-sm-8">
                         <input type="text" name="reminder_date" class="datepicker form-control">
                     </div>
+                </div>
+                
+                <div class="form-group">
                     <div class="form-group pull-right">
-                        <a href="" class="btn brand-btn">Back</a>
+                        <a href="" class="btn brand-btn">Cancel</a>
                         <button type="submit" name="submit" value="Submit" class="btn brand-btn">Submit</button>
                     </div>
                 </div>
