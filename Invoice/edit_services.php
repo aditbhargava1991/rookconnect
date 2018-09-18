@@ -2,10 +2,10 @@
     <h4 class="col-sm-12">Services
     <span class="popover-examples list-inline">
         <a href="#job_file" data-toggle="tooltip" data-placement="top" title="Select the service."><img src="<?php echo WEBSITE_URL;?>/img/info.png" width="20"></a>
-    </span></h4>
+    </span><img src="../img/icons/ROOK-add-icon.png" class="no-toggle cursor-hand adjust_block" title="Add Service" width="21" onclick="add_service_row();" /></h4>
     <div class="form-group service_option" <?= (in_array('services',$field_config) ? '' : 'style="display:none;"') ?>>
         <div class="col-sm-12">
-            <div class="form-group clearfix hide-titles-mob">
+            <div class="form-group clearfix hide-titles-mob service_labels" style="<?= ( empty(rtrim($serviceid, ',')) && $_GET['inv_mode'] == 'adjust' ) ? 'display:none;' : '' ?>">
                 <label class="col-sm-4 text-center">Category</label>
                 <label class="col-sm-4 text-center">Service Name</label>
                 <label class="col-sm-2 text-center">Fee</label>
@@ -113,7 +113,7 @@
 
             <?php } ?>
 
-            <div class="additional_service form-group clearfix <?= $_GET['inv_mode'] == 'adjust' ? 'adjust_block' : '' ?>">
+            <div class="additional_service form-group clearfix" style="<?= $_GET['inv_mode'] == 'adjust' ? 'display:none;' : '' ?>">
 
                 <div class="col-sm-4"><label class="show-on-mob">Service Category:</label>
                     <select data-placeholder="Select a Category..." id="category_0" class="chosen-select-deselect form-control service_category_onchange" width="380">

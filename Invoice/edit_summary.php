@@ -272,7 +272,7 @@
                     <label class="col-sm-4">Paid By</label>
                     <label class="col-sm-3">Payment Type</label>
                     <label class="col-sm-3">Payment Amount</label>
-                    <label class="col-sm-2 return_block">Refund Amounts</label>
+                    <label class="col-sm-2 return_block">Refund Amount</label>
                 </div>
 
                 <?php foreach($insurer_paid_who as $loop_check => $check_insurer) {

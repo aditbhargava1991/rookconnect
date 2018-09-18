@@ -1,13 +1,13 @@
 <div id="inv_misc">
     <h4 class="col-sm-12">Miscellaneous<span class="popover-examples list-inline">
         <a href="#job_file" data-toggle="tooltip" data-placement="top" title="Add any Miscellaneous Items here."><img src="<?php echo WEBSITE_URL;?>/img/info.png" width="20"></a>
-    </span></h4>
+    </span><img src="../img/icons/ROOK-add-icon.png" class="no-toggle cursor-hand adjust_block" title="Add Miscellaneous Item" width="21" onclick="add_misc_row();" /></h4>
     <div class="form-group misc_option" <?= (in_array('misc_items',$field_config) ? '' : 'style="display:none;"') ?>>
         <div class="col-sm-12">
-            <div class="form-group clearfix hide-titles-mob">
+            <div class="form-group clearfix hide-titles-mob misc_labels" style="<?= ( empty(rtrim($misc_items, ',')) && $_GET['inv_mode'] == 'adjust' ) ? 'display:none;' : '' ?>">
                 <label class="col-sm-<?= $_GET['inv_mode'] == 'adjust' ? '3' : '4' ?> text-center">Product Name</label>
-                <label class="col-sm-<?= $_GET['inv_mode'] == 'adjust' ? '2' : '3' ?> text-center">Price</label>
                 <label class="col-sm-1 text-center">Qty</label>
+                <label class="col-sm-<?= $_GET['inv_mode'] == 'adjust' ? '2' : '3' ?> text-center">Price</label>
                 <label class="col-sm-2 text-center">Total</label>
                 <?php if($_GET['inv_mode'] == 'adjust') { ?>
                     <label class="col-sm-1 text-center return_block">Return</label>
@@ -23,16 +23,16 @@
                 if(!($each_misc_ticketid[$loop] > 0)) {
                     $misc_price = $each_misc_price[$loop];
                     $misc_qty = $each_misc_qty[$loop]; ?>
-                    <div class="additional_misc form-group clearfix <?= empty($misc_item) && empty($each_misc_qty[$loop]) && $_GET['inv_mode'] == 'adjust' ? 'adjust_block' : ($_GET['inv_mode'] == 'adjust' ? 'refundable' : '') ?>">
+                    <div class="additional_misc form-group clearfix <?= empty($misc_item) && empty($each_misc_qty[$loop]) && $_GET['inv_mode'] == 'adjust' ? 'adjust_block2' : ($_GET['inv_mode'] == 'adjust' ? 'refundable' : '') ?>" style="<?= empty($misc_item) && empty($each_misc_qty[$loop]) && $_GET['inv_mode'] == 'adjust' ? 'display:none;' : '' ?>">
                         <input type="hidden" name="misc_ticketid[]" value="">
                         <div class="col-sm-<?= $_GET['inv_mode'] == 'adjust' ? '3' : '4' ?>"><label class="show-on-mob">Product Name:</label>
                             <input type="text" <?= !empty($misc_item) && $_GET['inv_mode'] == 'adjust' ? 'readonly' : '' ?> name="misc_item[]" value="<?= $misc_item ?>" class="form-control misc_name">
                         </div>
-                        <div class="col-sm-<?= $_GET['inv_mode'] == 'adjust' ? '2' : '3' ?>"><label class="show-on-mob">Unit Price:</label>
-                            <input type="number" <?= !empty($misc_item) && $_GET['inv_mode'] == 'adjust' ? 'readonly' : '' ?> step="any" min="0" name="misc_price[]" value="<?= $misc_price / $misc_qty ?>" onchange="setThirdPartyMisc(this); countTotalPrice()" class="form-control misc_price">
-                        </div>
                         <div class="col-sm-1"><label class="show-on-mob">Quantity:</label>
                             <input type="number" <?= !empty($misc_item) && $_GET['inv_mode'] == 'adjust' ? 'readonly' : '' ?> step="any" min="0" name="misc_qty[]" value="<?= $misc_qty ?>" onchange="setThirdPartyMisc(this); countTotalPrice()" class="form-control <?= $_GET['inv_mode'] == 'adjust' && $misc_qty > 0 ? 'init_qty' : 'misc_qty' ?>">
+                        </div>
+                        <div class="col-sm-<?= $_GET['inv_mode'] == 'adjust' ? '2' : '3' ?>"><label class="show-on-mob">Unit Price:</label>
+                            <input type="number" <?= !empty($misc_item) && $_GET['inv_mode'] == 'adjust' ? 'readonly' : '' ?> step="any" min="0" name="misc_price[]" value="<?= $misc_price / $misc_qty ?>" onchange="setThirdPartyMisc(this); countTotalPrice()" class="form-control misc_price">
                         </div>
                         <div class="col-sm-2"><label class="show-on-mob">Total:</label>
                             <input type="number" <?= !empty($misc_item) && $_GET['inv_mode'] == 'adjust' ? 'readonly' : '' ?> readonly name="misc_total[]" value="<?= $misc_price ?>" class="form-control misc_total">
