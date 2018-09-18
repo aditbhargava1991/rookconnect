@@ -31,7 +31,10 @@ function copyPieceOne(target) {
 		$(target).closest('.tab-section').find('.po_lines_div .multi-block').each(function() {
 			if(($(line_rows.get(i)).closest('.multi-block').find('.po_line_div:visible').hasClass('po_line_range') && $(this).find('.po_line_div:visible').hasClass('po_line_single')) || ($(line_rows.get(i)).closest('.multi-block').find('.po_line_div:visible').hasClass('po_line_single') && $(this).find('.po_line_div:visible').hasClass('po_line_range'))) {
 				$(this).find('.range_po_line').click();
+			} else if($(this).is('textarea')) {
+				tinymce.get($(this).prop('id')).setContent($(this).val());
 			}
+
 			i++;
 		});
 	}
