@@ -77,7 +77,8 @@ if (isset($_GET['printpdf'])) {
 		$pdf->writeHTML($html, true, false, true, false, '');
 	}
     $today_date = date('Y_m_d');
-	$pdf->Output('Download/activity_report_'.$today_date.'.pdf', 'F');
+    ob_end_clean(); //Maybe required in some instances when outputting to browser
+	$pdf->Output('activity_report_'.$today_date.'.pdf', 'I'); //I - won't save the PDF, F - save the PDF on server
     track_download($dbc, 'report_operation_ticket_tasks', 0, WEBSITE_URL.'/Reports/Download/activity_report_'.$today_date.'.pdf', 'Activity Report');
 
     ?>

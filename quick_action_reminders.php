@@ -79,6 +79,7 @@ if(isset($_POST['submit'])) {
             break;
             
         default:
+            $dbc->query("INSERT INTO `reminders` (`contactid`,`reminder_date`,`reminder_type`,`subject`,`body`, `sender`) VALUES ('$staff','$date','Planner Reminder','$subject','$body', '$sender')");
             break;
     }
 }
@@ -109,6 +110,9 @@ switch($tile) {
         $intake = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `intake` WHERE `intakeid`='".$_GET['id']."'"));
         $intake_form = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `intake_forms` WHERE `intakeformid` = '".$intake['intakeformid']."'"));
         $subject = "A reminder about Intake #".$intake['intakeid'].": ".html_entity_decode($intake_form['form_name']);
+        break;
+    default:
+        $subject = ucwords($tile) .' Reminder';
         break;
 }
 if(empty($_GET['contactid'])) {
@@ -148,8 +152,11 @@ if(empty($_GET['contactid'])) {
             		<div class="col-sm-8">
                         <input type="text" name="reminder_date" class="datepicker form-control">
                     </div>
+                </div>
+                
+                <div class="form-group">
                     <div class="form-group pull-right">
-                        <a href="" class="btn brand-btn">Back</a>
+                        <a href="" class="btn brand-btn">Cancel</a>
                         <button type="submit" name="submit" value="Submit" class="btn brand-btn">Submit</button>
                     </div>
                 </div>
