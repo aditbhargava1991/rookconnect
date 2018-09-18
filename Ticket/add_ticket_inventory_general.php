@@ -31,11 +31,7 @@ function copyPieceOne(target) {
 		$(target).closest('.tab-section').find('.po_lines_div .multi-block').each(function() {
 			if(($(line_rows.get(i)).closest('.multi-block').find('.po_line_div:visible').hasClass('po_line_range') && $(this).find('.po_line_div:visible').hasClass('po_line_single')) || ($(line_rows.get(i)).closest('.multi-block').find('.po_line_div:visible').hasClass('po_line_single') && $(this).find('.po_line_div:visible').hasClass('po_line_range'))) {
 				$(this).find('.range_po_line').click();
-			} else if($(this).is('textarea')) {
-				var editor = tinymce.get($(this).prop('id'));
-				editor.setContent($(this).val());
 			}
-
 			i++;
 		});
 	}
@@ -47,6 +43,8 @@ function copyPieceOne(target) {
 				var line_range = $(this).val().split('-');
 				$(this).closest('.multi-block').find('[name="po_line_range_min"]').val(line_range[0]).trigger('change.select2');
 				$(this).closest('.multi-block').find('[name="po_line_range_max"]').val(line_range[1]).trigger('change.select2');
+			} else if($(this).is('textarea')) {
+				tinymce.get($(this).prop('id')).setContent($(this).val());
 			}
 		}
 		i++;
