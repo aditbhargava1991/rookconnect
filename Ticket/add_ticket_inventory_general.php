@@ -1,8 +1,8 @@
 <script>
 $(document).ready(function() {
 	$('.multi_dimensions .col-sm-2 input,.multi_dimensions .col-sm-2 select').off('change',setMultiDimensions).change(setMultiDimensions);
-	$('.tab-section[data-type=general]:first').find('[data-table]').off('change',copyPiece).change(copyPiece);
 });
+$(document).on('change', '.tab-section[data-type=general]:first [data-table],.tab-section[data-type=general]:first .po_line_value', copyPiece);
 function copyPiece(event) {
 	var field = event.target;
 	if($(field).data('type') == 'inventory_general') {
