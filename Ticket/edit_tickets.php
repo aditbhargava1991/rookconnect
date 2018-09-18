@@ -302,7 +302,6 @@ if(!empty($ticket_status)) {
 		}
 		$value_config = ','.implode(',',array_intersect(explode(',',$value_config), explode(',',$value_config_all))).',';
 	}
-	$ticket_layout = $calendar_ticket_slider = 'full';
 }
 
 //Edit Staff From Dashboard
@@ -688,6 +687,14 @@ $(document).ready(function() {
             $('.menu-content').fadeOut("fast");
         }
     });
+	if(ticketid > 0) {
+		checkStaffShifts().success(function(response) {
+			var response = JSON.parse(response);
+			if(response.success == false) {
+				alert(response.message);
+			}
+		});
+	}
 });
 $(document).on('click', '.menu_button', function() {
     $('.menu-content').load('edit_tickets.php .standard-body-title', function() {

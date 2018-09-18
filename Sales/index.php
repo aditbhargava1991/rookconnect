@@ -17,7 +17,7 @@ include ('../include.php');
             });
         }
         $('.dashboard-container').css('height', 'calc(100% - '+$('.double-scroller').height()+'px)');
-        
+
         $(window).resize(function() {
             var available_height = window.innerHeight - $('footer:visible').outerHeight() - $('.tile-sidebar').offset().top - 19;
             if(available_height > 200) {
@@ -25,14 +25,14 @@ include ('../include.php');
             }
         }).resize();
     });
-    
+
 	function doubleScroll() {
 		$('.main-screen-white:visible').scrollLeft(this.scrollLeft).scroll();
 	}
 	function setDoubleScroll() {
 		$('.double-scroller').scrollLeft(this.scrollLeft);
 	}
-    
+
     function searchLeads(string) {
 		$('[data-searchable]').hide();
 		$('[data-searchable*="'+(string == '' ? ' ' : string)+'" i]').show();
@@ -83,13 +83,13 @@ include ('../include.php');
 
     function resizeScreen() {
         var view_height = $(window).height() > 500 ? $(window).height() : 500;
-        
+
         if ( $('header .container').is(':visible')==true ) {
             view_height = $('header').height() + $('#nav').height() + $('footer').height();
         } else {
             view_height = 0;
         }
-        
+
         //$('#sales_div .scale-to-fill,#sales_div .scale-to-fill .main-screen,#sales_div .tile-sidebar').height($('#sales_div .tile-container').height());
         $('#sales_div .tile-sidebar, #sales_div .tile-content').height($(window).height() - view_height - $('#sales_div .tile-header').height() - 21);
     }
@@ -129,7 +129,7 @@ include ('../include.php');
                 <!-- Notice --><?php
                 $notes = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT note FROM notes_setting WHERE `tile`='sales' AND subtab='sales_sales'"));
                 $note = $notes['note'];
-                    
+
                 if ( !empty($note) && 1 == 0 ) { ?>
                     <div class="notice double-gap-bottom popover-examples">
                         <div class="col-sm-1 notice-icon"><img src="../img/info.png" class="wiggle-me" width="25"></div>
@@ -145,7 +145,7 @@ include ('../include.php');
                 $lead_status_won = get_config($dbc, 'lead_status_won');
                 $lead_status_retained = get_config($dbc, 'lead_status_retained');
                 $lead_status_lost = get_config($dbc, 'lead_status_lost');
-                
+
                 $oppotunities = mysqli_fetch_assoc( mysqli_query($dbc, "SELECT COUNT(*) `count`, SUM(`lead_value`) `value` FROM `sales` WHERE IFNULL(`status`,'') NOT IN ('$lead_status_won','$lead_status_lost','$lead_status_retained','') AND (IFNULL(NULLIF(`status_date`,''),`created_date`) BETWEEN '". date('Y-m-01') ."' AND '". date('Y-m-d') ."')" . $query_mod) );
                 $closed = mysqli_fetch_assoc( mysqli_query($dbc, "SELECT COUNT(*) `count`, SUM(`lead_value`) `value` FROM `sales` WHERE `status` IN ('$lead_status_won','$lead_status_retained') AND (`status_date` BETWEEN '". date('Y-m-01') ."' AND '". date('Y-m-d') ."')" . $query_mod) );
                 $tasks_total = mysqli_fetch_assoc( mysqli_query($dbc, "SELECT COUNT(*) `count` FROM `tasklist` `t` LEFT JOIN `sales` `s` ON `t`.`salesid`=`s`.`salesid` OR (`t`.`clientid` > 0 AND CONCAT(',',`s`.`contactid`,',') LIKE CONCAT('%,',`t`.`clientid`,',%')) WHERE (`t`.`clientid`>0 AND `t`.`clientid` IN (`s`.`contactid`)) AND (`s`.`created_date` BETWEEN '". date('Y-m-01') ."' AND '". date('Y-m-d') ."')") );

@@ -366,7 +366,7 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 									</div>
 								<?php } else if (strpos($value_config, ','."Delivery Pickup Equipment".',') !== FALSE && strpos($value_config, ','."Assigned Equipment Inline".',') !== FALSE && $field_sort_field == 'Delivery Pickup Equipment') { ?>
 									<div class="form-group">
-										<?php if (strpos($value_config, ','."Delivery Pickup Equipment Tab".',') !== FALSE) { ?>
+										<?php if (strpos($value_config, ','."Delivery Pickup Equipment Category".',') !== FALSE) { ?>
 											<label class="hide-titles-mob text-center col-sm-<?= floor(12 / $equip_col_count) ?>">Equipment Tab</label>
 										<?php } ?>
 										<?php if (strpos($value_config, ','."Delivery Pickup Equipment Make".',') !== FALSE) { ?>
@@ -585,11 +585,19 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 										</div>
 									</div>
 								<?php } ?>
+								<?php if (strpos($value_config, ','."Delivery Pickup Phone2".',') !== FALSE && $field_sort_field == 'Delivery Pickup Phone2') { ?>
+									<div class="form-group">
+										<label class="col-sm-4 control-label">Additional Phone:</label>
+										<div class="col-sm-8">
+											<input type="tel" name="vendor" class="form-control" data-table="ticket_schedule" data-id="<?= $stop['id'] ?>" data-id-field="id" value="<?= $stop['vendor'] ?>">
+										</div>
+									</div>
+								<?php } ?>
 								<?php if (strpos($value_config, ','."Delivery Pickup Type".',') !== FALSE && $field_sort_field == 'Delivery Pickup Type') { ?>
 									<div class="form-group">
 										<label class="col-sm-4 control-label">Delivery Tab:</label>
 										<div class="col-sm-8">
-											<?php if(count($delivery_types) > 0) { ?>tab
+											<?php if(count($delivery_types) > 0) { ?>
 												<select name="type" class="chosen-select-deselect" data-placeholder="Select Type" data-table="ticket_schedule" data-id="<?= $stop['id'] ?>" data-id-field="id" value="<?= $stop['type'] ?>"><option></option>
 													<?php foreach($delivery_types as $type_name) { ?>
 														<option <?= $type_name == $stop['type'] ? 'selected' : '' ?> value="<?= $type_name ?>"><?= $type_name ?></option>
@@ -1007,6 +1015,14 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 									</div>
 									<button class="btn brand-btn pull-right" onclick="send_email(this); return false;">Send Email</button>
 									<div class="clearfix"></div>
+								</div>
+							<?php } ?>
+							<?php if (strpos($value_config, ','."Delivery Pickup Phone2".',') !== FALSE && $field_sort_field == 'Delivery Pickup Phone2') { ?>
+								<div class="form-group">
+									<label class="col-sm-4 control-label">Additional Phone:</label>
+									<div class="col-sm-8">
+										<?= $stop['vendor'] ?>
+									</div>
 								</div>
 							<?php } ?>
 							<?php if (strpos($value_config, ','."Delivery Pickup Type".',') !== FALSE && $field_sort_field == 'Delivery Pickup Type') { ?>

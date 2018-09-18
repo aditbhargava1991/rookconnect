@@ -88,14 +88,6 @@ $(document).ready(function() {
 	setSave();
 	initSelectOnChanges();
 	filterStaffNoShift();
-	if(ticketid > 0) {
-		checkStaffShifts().success(function(response) {
-			var response = JSON.parse(response);
-			if(response.success == false) {
-				alert(response.message);
-			}
-		});
-	}
 });
 $(window).load(function() {
 	destroyTinyMce();
@@ -522,16 +514,18 @@ function saveFieldMethod(field) {
 				$(field).closest('.multi-block').find('[name=total]').first().val(save_value * $(field).closest('.multi-block').find('[name=qty]').val());
 			} else if((field_name == 'address' || field_name == 'city' || field_name == 'postal_code') && table_name == 'ticket_schedule' && block.find('[name=map_link]').first().data('auto-fill') == 'auto') {
 				block.find('[name=map_link]').first().val('https://www.google.ca/maps/place/'+encodeURI(block.find('[name=address]').val()+','+block.find('[name=city]').val()+','+block.find('[name=postal_code]').val())).change();
-				$.post('ticket_ajax_all.php?action=validate_address', { address: block.find('[name=address]').val(), city: block.find('[name=city]').val(), postal: block.find('[name=postal_code]').val() }, function(response) {
-					response = response.split('|');
-					if(response.join('') != '' && (response[0] != block.find('[name=address]').val() || response[1] != block.find('[name=city]').val() || response[2] != block.find('[name=postal_code]').val()) && confirm('We suggest the following corrections to your address: '+response.join(', ')+'. Would you like to use this suggestion? Using the current address may fail to display in Google Maps.')) {
-						block.find('[name=address]').val(response[0]).change();
-						block.find('[name=city]').val(response[1]).change();
-						block.find('[name=postal_code]').val(response[2]).change();
-					} else if(response.join('') == '') {
-						alert('The address provided may not be valid. It will not be found in Google Maps.');
-					}
-				});
+				if($(field).closest('.scheduled_stop').find('[name="type"]') == undefined || $(field).closest('.scheduled_stop').find('[name="type"] option:selected').data('warehouse') != 'yes') {
+					$.post('ticket_ajax_all.php?action=validate_address', { address: block.find('[name=address]').val(), city: block.find('[name=city]').val(), postal: block.find('[name=postal_code]').val() }, function(response) {
+						response = response.split('|');
+						if(response.join('') != '' && (response[0] != block.find('[name=address]').val() || response[1] != block.find('[name=city]').val() || response[2] != block.find('[name=postal_code]').val()) && confirm('We suggest the following corrections to your address: '+response.join(', ')+'. Would you like to use this suggestion? Using the current address may fail to display in Google Maps.')) {
+							block.find('[name=address]').val(response[0]).change();
+							block.find('[name=city]').val(response[1]).change();
+							block.find('[name=postal_code]').val(response[2]).change();
+						} else if(response.join('') == '') {
+							alert('The address provided may not be valid. It will not be found in Google Maps.');
+						}
+					});
+				}
 			} else if(field_name == 'type' && table_name == 'ticket_schedule') {
 				if($(field).find('option:selected').data('warehouse') == 'yes') {
 					$(field).closest('.scheduled_stop').find('[name=type_1]').prop('checked',false).filter(function() { return this.value == 'warehouse' }).first().prop('checked',true);
@@ -2078,9 +2072,9 @@ function remMultiPOLine(img) {
 		addMultiPOLine(img);
 	}
 
-	var block = $('.po_lines_div');
+	var block = $(img).closest('.po_lines_div');
 	$(img).closest('.multi-block').remove();
-	$(block).find('.multi-block .po_line_value').first().change();
+	$(block).find('[name="po_line"]').first().change();
 }
 function rangeMultiPOLine(img) {
 	var block = $(img).closest('.multi-block');
@@ -3039,7 +3033,7 @@ function addNote(type, btn, force_allow = 0) {
 function addCommunication(type, method) {
 	if(ticketid > 0) {
 		$('.ticket_communication[data-type='+type+'][data-method='+method+']').first().addClass('reload');
-		overlayIFrameSlider('../Email Communication/add_communication.php?type='+type+'&ticketid='+ticketid,'auto',false,true,'auto',false);
+		overlayIFrameSlider('../Email Communication/add_email.php?type='+type+'&ticketid='+ticketid,'auto',false,true,'auto',false);
 	} else {
 		alert('Please create the '+ticket_name+' before adding communications.');
 	}

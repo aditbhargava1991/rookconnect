@@ -813,7 +813,6 @@ function add_custom_row() {
 									url: "/ajax_all.php?fill=security_level_order&current="+current+"&previous="+previous+"&next="+next,
 									dataType: "html",   //expect html to be returned
 									success: function(response){
-										alert(response);
 									}
 								});
             }

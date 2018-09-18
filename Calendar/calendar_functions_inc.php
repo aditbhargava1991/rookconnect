@@ -348,7 +348,7 @@ function getTeamTickets($dbc, $date, $teamid) {
 	}
 	return $tickets_list;
 }
-function calendarTicketLabel($dbc, $ticket, $max_time, $start_time, $end_time) {
+function calendarTicketLabel($dbc, $ticket, $max_time, $start_time, $end_time, $ticket_fields = '') {
 	if(is_array($max_time) || empty($max_time)) {
 		$max_time = $ticket['max_time'];
 	}
@@ -358,6 +358,9 @@ function calendarTicketLabel($dbc, $ticket, $max_time, $start_time, $end_time) {
 	    $calendar_ticket_label = get_config($dbc, 'calendar_ticket_label');
 	}
 	$calendar_ticket_card_fields = explode(',',get_config($dbc, 'calendar_ticket_card_fields'));
+	if(!empty($ticket_fields)) {
+		$calendar_ticket_card_fields = explode(',',$ticket_fields);
+	}
 
 	$clients = [];
 	foreach(array_filter(explode(',',$ticket['clientid'])) as $clientid) {
@@ -377,11 +380,17 @@ function calendarTicketLabel($dbc, $ticket, $max_time, $start_time, $end_time) {
 	if($ticket['service_templateid'] > 0) {
 		$service_template = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `name` FROM `services_service_templates` WHERE `templateid` = '".$ticket['service_templateid']."'"))['name'];
 	}
+	$assigned_staff = [];
+	foreach(array_unique(array_filter(explode(',',$ticket['contactid']))) as $contactid) {
+		$assigned_staff[] = get_contact($dbc, $contactid);
+	}
+	$assigned_staff = implode(', ',$assigned_staff);
 	
 	$row_html = '<b>'.get_ticket_label($dbc, $ticket, null, null, $calendar_ticket_label).(empty($calendar_ticket_label) ? $ticket['location_description'] : '').($ticket['sub_label'] != '' ? '-'.$ticket['sub_label'] : '').'</b>'.
 	(in_array('project',$calendar_ticket_card_fields) ? '<br />'.PROJECT_NOUN.' #'.$ticket['projectid'].' '.$ticket['project_name'].'<br />' : '').
 	(in_array('customer',$calendar_ticket_card_fields) ? '<br />'.'Customer: '.get_contact($dbc, $ticket['businessid'], 'name') : '').
 	(in_array('client',$calendar_ticket_card_fields) ? '<br />'.'Client: '.$clients : '').
+	(in_array('assigned',$calendar_ticket_card_fields) ? '<br />'.'Staff: '.$assigned_staff : '').
 	(in_array('site_address',$calendar_ticket_card_fields) ? '<br />'.'Site Address: '.$site_address : '').
 	(in_array('service_template',$calendar_ticket_card_fields) ? '<br />'.'Service Template: '.$service_template : '').
 	(in_array('start_date',$calendar_ticket_card_fields) ? '<br />'.'Date: '.$ticket['to_do_date'] : '').
@@ -399,7 +408,9 @@ function calendarTicketLabel($dbc, $ticket, $max_time, $start_time, $end_time) {
 		}
 	}
 	$row_html .= (in_array('address',$calendar_ticket_card_fields) ? '<br />'.$ticket['pickup_name'].($ticket['pickup_name'] != '' ? '<br />' : ' ').$ticket['client_name'].($ticket['client_name'] != '' ? '<br />' : ' ').$ticket['pickup_address'].($ticket['pickup_address'] != '' ? '<br />' : ' ').$ticket['pickup_city'] : '');
-	$row_html .= '<br />'."Status: ".$ticket['status'];
+	if(in_array('status',$calendar_ticket_card_fields)) {
+		$row_html .= '<br />'."Status: ".$ticket['status'];
+	}
 	if(in_array('ticket_notes',$calendar_ticket_card_fields)) {
 		$ticket_notes = mysqli_query($dbc, "SELECT * FROM `ticket_comment` WHERE `ticketid` = '".$ticket['ticketid']."' AND `deleted` = 0");
 		if(mysqli_num_rows($ticket_notes) > 0) {

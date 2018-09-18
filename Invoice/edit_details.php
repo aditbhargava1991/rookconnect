@@ -20,6 +20,11 @@ if(!empty($_GET['search_invoice'])) {
     echo '<input type="hidden" name="search_invoice" value="'.$_GET['search_invoice'].'" />';
 } ?>
 <script>
+$(document).ready(function() {
+	<?php if ( isset($_GET['inv_mode']) && $_GET['inv_mode'] == 'adjust' ) { ?>
+		$('.adjust_block_pricing').hide();
+	<?php } ?>
+});
 function view_profile(img) {
     var id = $(img).closest('.form-group').find('select').val();
     if(id > 0) {
@@ -270,12 +275,14 @@ function view_profile(img) {
                 <label for="site_name" class="col-sm-3 control-label">Invoiced Product Pricing:</label>
                 <div class="col-sm-9">
                     <?= ucwords(str_replace('_',' ',$pricing)) ?>
+					<span class="adjust_block"><img src="../img/icons/ROOK-add-icon.png" class="no-toggle cursor-hand inline-img" title="Add Pricing for Adjustment" onclick="$('.adjust_block_pricing').toggle();" /></span>
                 </div>
+				
             </div>
         <?php } ?>
-        <div class="adjust_block">
+        <div class="adjust_block_pricing">
             <label for="site_name" class="col-sm-3 control-label">Product Pricing:</label>
-            <div class="col-sm-9">
+            <div class="col-sm-8">
                 <select name="pricing" data-placeholder="Select Pricing" class="chosen-select-deselect"><option></option>
                     <?php if(in_array('price_admin', $field_config)) { ?><option <?= ($pricing == 'admin_price' ? 'selected' : '') ?> value="admin_price">Admin Price</option><?php } ?>
                     <?php if(in_array('price_client', $field_config)) { ?><option <?= ($pricing == 'client_price' ? 'selected' : '') ?> value="client_price">Client Price</option><?php } ?>
@@ -289,6 +296,12 @@ function view_profile(img) {
                     <?php if(in_array('price_wholesale', $field_config)) { ?><option <?= ($pricing == 'wholesale_price' ? 'selected' : '') ?> value="wholesale_price">Wholesale Price</option><?php } ?>
                 </select>
             </div>
+			<div class="col-sm-1">
+				<label>
+					<input type="checkbox" checked="checked" name="pricing_change" onchange="if (this.checked) { $('.price_edit').hide(); $('.pricing-div').hide(); } else { $('.price_edit').show(); }" />
+					<span class="popover-examples"><a data-toggle="tooltip" data-placement="top" title="Use this pricing for all Inventory." class="cursor-hand" style="display:inline-block; float:right; margin-top:1px;"><img src="../img/info.png" width="20" /></a></span>
+				</label>
+			</div>
         </div>
     </div>
 

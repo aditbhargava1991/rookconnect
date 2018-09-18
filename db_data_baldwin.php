@@ -911,5 +911,19 @@
     }
     //2018-09-13 - Ticket #8826 - Planner My Notes/Journal/Scrum Notes
 
+    //2018-09-17 - Ticket #9189 - Calendar
+    $updated_already = get_config($dbc, 'updated_ticket9189_calendar');
+    if(empty($updated_already)) {
+        mysqli_query($dbc, "UPDATE `general_configuration` SET `value` = CONCAT(`value`,',status') WHERE `name` = 'calendar_ticket_card_fields'");
+        set_config($dbc, 'updated_ticket9189_calendar', 1);
+    }
+    //2018-09-17 - Ticket #9189 - Calendar
+
+    //2018-09-18 - Ticket #9010 - Shift Heading
+    if(!mysqli_query($dbc, "ALTER TABLE `contacts_shifts` ADD `heading` VARCHAR(500) AFTER `security_level`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-09-18 - Ticket #9010 - Shift Heading
+
     echo "Baldwin's DB Changes Done<br />\n";
 ?>
