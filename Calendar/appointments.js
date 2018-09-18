@@ -989,6 +989,9 @@ if(window.location.pathname != '/Calendar/calendars_mobile.php' && $('[name="edi
 
 // Javascript Common Display Functions
 function resize_calendar_view() {
+	if(window.location.pathname == '/Calendar/calendars_mobile.php') {
+		$('.calendar_view table td').not('.calendar_notes').css('pointer-events', '');
+	}
 	if(window.location.pathname != '/Calendar/calendars_mobile.php') {
 		var deferred = $.Deferred();
 		//setTimeout(function() {
@@ -1150,6 +1153,9 @@ function reloadExpandDivs() {
     	td.find('.calendar_notes_edit').show();
     	textarea.text(td.find('.calendar_notes').text()).focus();
     	resize_calendar_view();
+    	if(window.location.pathname == '/Calendar/calendars_mobile.php') {
+    		$('.calendar_view table td').not('.calendar_notes').css('pointer-events', 'none');
+    	}
     	return false;
     });
     $('.calendar_notes_edit').focusout(function() {
