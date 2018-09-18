@@ -441,6 +441,16 @@ if($num_rows7 > 0) {
 			$service_width_diff += 10;
 			$html .= '<th width="10%">Stops</th>';
 		}
+        /* 
+		if(in_array('customer_code',$custom_ticket_fields)) {
+			$service_width_diff += 10;
+			$html .= '<th width="10%">Customer Code</th>';
+		}
+         */
+		if(in_array('location',$custom_ticket_fields)) {
+			$service_width_diff += 10;
+			$html .= '<th width="10%">Location</th>';
+		}
 		$service_widths = count($invoice_custom_ticket) + 1;
 		$service_widths = (70 - $service_width_diff) / $service_widths;
 		foreach($invoice_custom_ticket as $service_id) {
@@ -459,6 +469,20 @@ if($num_rows7 > 0) {
 		if(in_array('num_stops',$custom_ticket_fields)) {
 			$num_stops = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT COUNT(`id`) num_rows FROM `ticket_schedule` WHERE `ticketid` = '".$ticket['ticketid']."' AND `deleted` = 0 AND `type` != 'origin' AND `type` != 'destination'"))['num_rows'];
 			$html .= '<td>'.$num_stops.'</td>';
+		}
+        /*
+		if(in_array('customer_code',$custom_ticket_fields)) {
+			$customer_code = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT COUNT(`id`) num_rows FROM `ticket_schedule` WHERE `ticketid` = '".$ticket['ticketid']."' AND `deleted` = 0 AND `type` != 'origin' AND `type` != 'destination'"))['num_rows'];
+			$html .= '<td>'.$customer_code.'</td>';
+		}
+        */
+		if(in_array('location',$custom_ticket_fields)) {
+			$locations = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT CONCAT(IF(`address`='', '', `address`), IF(`city`='', '', CONCAT(', ', `city`)), IF(`postal_code`='', '', CONCAT(', ', `postal_code`))) locations FROM `ticket_schedule` WHERE `ticketid` = '".$ticket['ticketid']."' AND `deleted` = 0 AND `type` != 'origin' AND `type` != 'destination'"))['locations'];
+			$html .= '<td>';
+                foreach ( $locations as $location ) {
+                    $html .= $location .'<br />';
+                }
+            $html .= '</td>';
 		}
 
 		foreach($invoice_custom_ticket as $service_id) {

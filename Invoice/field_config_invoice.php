@@ -574,7 +574,17 @@ if(!empty($invoice_types)) { ?>
                     <div class="form-group custom_ticket" <?= $invoice_design != 'custom_ticket' ? 'style="display: none;"' : '' ?>>
                     <label class="col-sm-4 control-label">Customizable <?= TICKET_NOUN ?> Fields:</label>
                     <div class="col-sm-8">
-                        <label class="form-checkbox"><input <?= (in_array('num_stops',$invoice_custom_ticket_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_custom_ticket_fields[]" value="num_stops"> # of Stops</label>
+                        <div class="row">
+                            <div class="col-sm-4">
+                                <label class="form-checkbox"><input <?= (in_array('num_stops',$invoice_custom_ticket_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_custom_ticket_fields[]" value="num_stops"> # of Stops</label>
+                            </div>
+                            <div class="col-sm-4">
+                                <label class="form-checkbox"><input <?= (in_array('customer_code',$invoice_custom_ticket_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_custom_ticket_fields[]" value="customer_code"> Customer Code</label>
+                            </div>
+                            <div class="col-sm-4">
+                                <label class="form-checkbox"><input <?= (in_array('location',$invoice_custom_ticket_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_custom_ticket_fields[]" value="location"> Location</label>
+                            </div>
+                        </div>
                     </div>
                     </div>
 
