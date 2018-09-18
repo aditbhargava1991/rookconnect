@@ -956,15 +956,7 @@ if(!empty($_GET['add_service_iframe'])) { ?>
 		</div>
 				<?php $pdf_contents[] = ['Heading', $heading]; ?>
 			<?php } ?>
-			<?php if(strpos($value_config,',Service Description,') !== FALSE && $field_sort_field == 'Service Description') { ?>
-	  <div class="form-group">
-		<label for="site_name" class="col-sm-4 control-label">Description:</label>
-		<div class="col-sm-8">
-		  <?php echo html_entity_decode($assign_work); ?>
-		</div>
-	  </div>
-		<?php $pdf_contents[] = ['Description', html_entity_decode($assign_work)]; ?>
-			<?php } ?>
+
 			<?php if(strpos($value_config,',Service Preferred Staff,') !== FALSE && $field_sort_field == 'Service Preferred Staff') { ?>
 			<div class="form-group">
 			  <label for="site_name" class="col-sm-4 control-label">Preferred Staff:</label>
@@ -1028,6 +1020,17 @@ if(!empty($_GET['add_service_iframe'])) { ?>
 	        </div>
 	        <?php $pdf_contents[] = ['What', $details_what]; ?>
 	    <?php } ?>
+
+			<?php if(strpos($value_config,',Service Description,') !== FALSE && $field_sort_field == 'Service Description') { ?>
+	  <div class="form-group">
+		<label for="site_name" class="col-sm-4 control-label">Description:</label>
+		<div class="col-sm-8">
+		  <?php echo html_entity_decode($assign_work); ?>
+		</div>
+	  </div>
+		<?php $pdf_contents[] = ['Description', html_entity_decode($assign_work)]; ?>
+			<?php } ?>
+
 	    <?php if(strpos($value_config,',Details Position,') !== FALSE && $field_sort_field == 'Details Position') { ?>
 	        <div class="form-group">
 	            <label for="site_name" class="col-sm-12 control-label"><span class="popover-examples list-inline"><a data-toggle="tooltip" data-placement="top" title="The position on the screen of the new field or button, what field it should be added after, etc."><img src="../img/info.png" width="20"></a></span> Position:</label>
