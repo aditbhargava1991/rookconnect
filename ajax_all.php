@@ -1141,6 +1141,11 @@ else if($_GET['action'] == 'text_template_sort') {
 		mysqli_query($dbc, "UPDATE `text_templates` SET `sort`='$i' WHERE `id`='$id'");
 	}
 }
+else if($_GET['action'] == 'summary_block_sort') {
+    $id = $_POST['template_id'];
+    $id_val = implode('||*||',$id);
+    mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$id_val."' WHERE `name`='summary_block_sort'");
+}
 // Get  User's Profile Image
 else if($_GET['action'] == 'user_profile_id') {
 	$id = $_GET['user'];
