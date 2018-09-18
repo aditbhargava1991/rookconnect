@@ -51,7 +51,14 @@
                 for($client_loop=0; $client_loop<=$total_count; $client_loop++) {
                     if($each_serviceid[$client_loop] != '' && !($each_serviceticketid[$client_loop] > 0)) {
                         $serviceid = $each_serviceid[$client_loop];
-                        $fee = $each_fee[$client_loop]; ?>
+                        $fee = $each_fee[$client_loop];
+                        $qty = 1;
+                        $service_line = $dbc->query("SELECT * FROM `invoice_lines` WHERE `invoiceid`='$invoiceid' AND `category`='service' AND `item_id`='$serviceid' AND `total`='$fee'");
+                        if($service_line->num_rows > 0) {
+                            $service_line = $service_line->fetch_assoc();
+                            $fee = $service_line['unit_price'];
+                            $qty = $service_line['quantity'];
+                        } ?>
 
                     <div class="form-group clearfix">
                         <div class="col-sm-<?= $col_cat > 0 ? $col_cat : '0 hidden' ?>"><label class="show-on-mob">Service Category:</label>
@@ -114,7 +121,7 @@
 
                         <div class="col-sm-<?= $col_qty > 0 ? $col_qty : '0 hidden' ?>"><label class="show-on-mob">Quantity:</label>
                             <?php if($_GET['inv_mode'] == 'adjust') { ?>
-                                <input name="srv_qty[]" id="<?php echo 'srv_qty_'.$id_loop; ?>"  type="hidden" value="<?php echo $qty; ?>" class="qty" onchange="setTotalPrice();" />
+                                <input name="init_qty[]" id="<?php echo 'srv_qty_'.$id_loop; ?>"  type="hidden" value="<?php echo $qty; ?>" class="qty" onchange="setTotalPrice();" />
                                 <?= $qty ?>
                             <?php } else { ?>
                                 <input name="srv_qty[]" id="<?php echo 'fee_'.$id_loop; ?>"  type="number" step="any" value="<?php echo $qty; ?>" class="form-control qty" onchange="setTotalPrice();" />
