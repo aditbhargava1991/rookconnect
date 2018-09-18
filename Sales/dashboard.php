@@ -113,7 +113,7 @@ function allow_sort() {
                         <?php } ?>
                     </h4>
                     <?php $count = mysqli_fetch_assoc ( mysqli_query($dbc, "SELECT COUNT(`status`) AS `count` FROM `sales` WHERE `status`='{$status}' AND `deleted`=0" . $query_mod) );
-                    echo '<div class="info-block-small">' . $count['count'] . '</div>'; ?>
+                    echo '<div class="info-block-small">Lead : ' . $count['count'] . '</div>'; ?>
                 </div></a>
                 <div class="info-block-details padded" style="max-height: calc(100% - 4.5em);"><?php
                     $result = mysqli_query($dbc, "SELECT * FROM `sales` WHERE `status`='{$status}' AND `deleted`=0" . $query_mod.' LIMIT 0,10');
@@ -133,7 +133,7 @@ function allow_sort() {
 							}
                             $lead_colour = get_contact($dbc, $row['primary_staff'],'calendar_color');
 							$lead_count++; ?>
-                            <div class="info-block-detail <?= $approvals > 0 || $status != 'Pending' ? '' : 'no-sort' ?>" data-id="<?= $row['salesid'] ?>" style="<?= $lead_count > 10 ? 'display: none;' : '' ?> <?= empty($flag_colour) ? '' : 'background-color:#'.$flag_colour.';' ?> <?= empty($lead_colour) ? '' : 'border: 3px solid '.$lead_colour.' !important;' ?>" data-searchable="<?= get_client($dbc, $row['businessid']); ?> <?= get_contact($dbc, $row['contactid']); ?>" data-colour="<?= $flag_colour ?>">
+                            <div class="info-block-detail <?= $approvals > 0 || $status != 'Pending' ? '' : 'no-sort' ?>" data-id="<?= $row['salesid'] ?>" style="<?= $lead_count > 10 ? 'display: none;' : '' ?> <?= empty($flag_colour) ? '' : 'background-color:#'.$flag_colour.';' ?> <?= empty($lead_colour) ? '' : 'border: 3px solid '.$lead_colour.' !important;' ?>" data-searchable="<?= get_client($dbc, $row['businessid']); ?> <?= get_contact($dbc, $row['contactid']); ?> <?= $row['next_action']; ?><?= $row['lead_value']; ?><?= $row['new_reminder']; ?>" data-colour="<?= $flag_colour ?>">
                                 <span class="flag-label"><?= $flag_label ?></span>
                                 <?php if($approvals > 0 || $status != 'Pending') { ?>
                                     <img src="../img/icons/drag_handle.png" class="inline-img pull-right lead-handle no-toggle" title="Drag" />
