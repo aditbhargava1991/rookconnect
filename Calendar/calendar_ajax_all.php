@@ -3351,4 +3351,30 @@ if($_GET['fill'] == 'unassign_ticket_booking_conflicts') {
 if($_GET['fill'] == 'delete_logo') {
 	set_config($dbc, $_POST['logo'], '');
 }
+if($_GET['fill'] == 'set_last_active') {
+	$type = $_POST['type'];
+	$contactid = $_POST['contactid'];
+    $last_active = date('Y-m-d H:i:s');
+	if($contactid > 0) {
+	    mysqli_query($dbc, "INSERT INTO `calendar_last_active` (`type`, `contactid`) SELECT '$type', '$contactid' FROM (SELECT COUNT(*) rows FROM `calendar_last_active` WHERE `contactid` = '$contactid' AND `type` = '$type') num WHERE num.rows = 0");
+	    mysqli_query($dbc, "UPDATE `calendar_last_active` SET `last_active` = '$last_active' WHERE `contactid` = '$contactid' AND `type` ='$type'");
+	}
+}
+if($_GET['fill'] == 'get_last_active') {
+	$type = $_POST['type'];
+	$past_15_mins = date('Y-m-d H:i:s', strtotime(date('Y-m-d H:i:s').'- 15 minutes'));
+	$active_users_sql = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `calendar_last_active` WHERE `type` = '$type' AND `last_active` >= '$past_15_mins' ORDER BY `last_active` DESC"),MYSQLI_ASSOC);
+	foreach ($active_users_sql as $active_user_sql) {
+		$active_users[$active_user_sql['contactid']] = (!empty(get_client($dbc, $active_user_sql['contactid'])) ? get_client($dbc, $active_user_sql['contactid']) : get_contact($dbc, $active_user_sql['contactid']));
+	}
+	$active_html = '<span><b>Active Users:</b><br>';
+	foreach ($active_users as $active_userid => $active_user) {
+		$active_html .= profile_id($dbc, $active_userid, false).' '.$active_user.'<br>';
+	}
+	if(empty($active_users)) {
+		$active_html .= 'No Active Users';
+	}
+	$active_html .= '</span>';
+	echo count($active_users).'*#*'.$active_html;
+}
 ?>

@@ -919,5 +919,23 @@
     }
     //2018-09-17 - Ticket #9189 - Calendar
 
+    //2018-09-19 - Ticket #8929 - Calendar Onlin Staff
+    if(!mysqli_query($dbc, "CREATE TABLE `calendar_last_active` (
+        `calendarlastactiveid` int(11) NOT NULL,
+        `type` varchar(500) NOT NULL,
+        `contactid` int(11) NOT NULL,
+        `last_active` datetime NOT NULL)")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `calendar_last_active`
+        ADD PRIMARY KEY (`calendarlastactiveid`)")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `calendar_last_active`
+        MODIFY `calendarlastactiveid` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-09-19 - Ticket #8929 - Calendar Onlin Staff
+
     echo "Baldwin's DB Changes Done<br />\n";
 ?>
