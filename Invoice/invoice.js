@@ -1159,6 +1159,7 @@ function add_service_row() {
 	var clone = $('.service_option .form-group').last().clone();
     clone.show();
 	clone.find('.form-control').val(0);
+	clone.find('.qty').val(1);
 	clone.find('[id^=serviceid]').attr('id', 'serviceid_'+inc);
 	resetChosen(clone.find('[id^=serviceid]'));
 	clone.find('[id^=category]').attr('id', 'category_'+inc);
