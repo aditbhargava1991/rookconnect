@@ -290,7 +290,16 @@ function loadPanel() {
 <div class='scalable preview-bar hide-titles-mob ui-resizable' style="padding:0;"></div>
 <div class='scale-to-fill has-main-screen hide-titles-mob'>
 	<div class='main-screen default_screen form-horizontal standard-body'>
-		<div class="standard-body-title"><h3><?= rtrim(ESTIMATE_TILE, 's') ?> Details</h3></div>
+		<div class="standard-body-title">
+			<div class="row">
+				<div class="col-md-6">
+    				<h3><?= rtrim(ESTIMATE_TILE, 's') ?> Details</h3>
+				</div>
+    			<div class="col-md-6 icons_div text-right" data-id="<?= $_GET['edit'] ?>">
+		            <img src='<?= WEBSITE_URL?>/img/icons/ROOK-reminder-icon.png' class='no-toggle reminder-icon' title='Schedule Reminder' style='margin-top: 5px;padding-right: 20px'>
+		        </div>
+	        </div>
+		</div>
 		<div class="standard-dashboard-body-content pad-top pad-left pad-right">
 			<input type="hidden" name="estimateid" value="<?= $_GET['edit'] ?>">
 			<?php $config = explode(',',mysqli_fetch_array(mysqli_query($dbc,"SELECT `config_fields` FROM `field_config_estimate`"))[0]);
@@ -306,3 +315,11 @@ function loadPanel() {
 		</div>
 	</div>
 </div>
+<script>
+$(document).ready(function() {
+	$('.icons_div .reminder-icon').off('click').click(function() {
+        var item = $(this).closest('.icons_div');
+        overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_reminders.php?tile=estimates&id='+item.data('id'), 'auto', false, true);
+    });
+})
+</script>

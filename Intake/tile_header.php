@@ -13,17 +13,6 @@
         if(vuaed_visible_function($dbc, 'intake') == 1) {
             echo '<a href="" onclick="addIntakeForm(); return false;"><button type="button" class="btn brand-btn mobile-block gap-bottom mobile-100-pull-right pull-right gap-right hide-titles-mob" style="margin-bottom:10px !important;">Add Intake Form</button><img src="'.WEBSITE_URL.'/img/icons/ROOK-add-icon.png" class="show-on-mob add-icon-lg gap-right"></a>';
         } ?>
-        <div class="icons_div pull-right" data-id="<?= $_GET['edit'] ?>">
-            <a href='Add Reminder' onclick='return false;'><img src='<?= WEBSITE_URL?>/img/icons/ROOK-reminder-icon.png' class='no-toggle reminder-icon' title='Schedule Reminder' style='width: 2.5em;margin-right: 1em;'></a>
-        </div>
     </div>
 </div>
 <div class="clearfix"></div>
-<script>
-$(document).ready(function() {
-    $('.icons_div .reminder-icon').off('click').click(function() {
-        var item = $(this).closest('.icons_div');
-        overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_reminders.php?tile=add_intake&id='+item.data('id'), 'auto', false, true);
-    });
-})
-</script>

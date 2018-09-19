@@ -97,7 +97,7 @@ if(array_filter($summary_view) && (!isset($_GET['view']) || $_GET['view'] == 'su
 	</div>
 	<div class="row">
 		<div class="main-screen">
-            <div class="tile-header col-sm-12 icons_div" data-id="<?= $_GET['edit'] ?>">
+            <div class="tile-header col-sm-12">
 				<h1><a href="?"><?= ESTIMATE_TILE ?></a>
 					<?php if(!empty($_GET['edit'])) {
 						echo ': '.ESTIMATE_TILE.' #'.$_GET['edit'].' - <span id="estimate_name_fill">'.get_field_value('estimate_name','estimate','estimateid',$_GET['edit']).'</span>';
@@ -155,12 +155,4 @@ if(array_filter($summary_view) && (!isset($_GET['view']) || $_GET['view'] == 'su
 	</div>
 </div>
 <div class="clearfix"></div>
-<script>
-$(document).ready(function() {
-	$('.icons_div .reminder-icon').off('click').click(function() {
-        var item = $(this).closest('.icons_div');
-        overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_reminders.php?tile=estimates&id='+item.data('id'), 'auto', false, true);
-    });
-})
-</script>
 <?php include('../footer.php'); ?>
