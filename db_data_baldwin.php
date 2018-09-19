@@ -919,6 +919,12 @@
     }
     //2018-09-17 - Ticket #9189 - Calendar
 
+    //2018-09-18 - Ticket #9010 - Shift Heading
+    if(!mysqli_query($dbc, "ALTER TABLE `contacts_shifts` ADD `heading` VARCHAR(500) AFTER `security_level`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-09-18 - Ticket #9010 - Shift Heading
+
     //2018-09-19 - Ticket #8929 - Calendar Onlin Staff
     if(!mysqli_query($dbc, "CREATE TABLE `calendar_last_active` (
         `calendarlastactiveid` int(11) NOT NULL,
