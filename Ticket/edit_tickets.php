@@ -1937,17 +1937,20 @@ var setHeading = function() {
                         </div>
                     </div>
                 </div>
-            <?php } else if (strpos($value_config, ','."Delivery".',') !== FALSE && $sort_field == 'Delivery') { ?>
+			<?php } else if (strpos($value_config, ','."Delivery".',') !== FALSE && $sort_field == 'Delivery') { ?>
                 <div class="panel panel-default">
                     <div class="panel-heading mobile_load">
                         <h4 class="panel-title">
-                            <a data-toggle="collapse" data-parent="#mobile_tabs<?= $heading_id ?>" <?= $indent_accordion_text ?> href="#collapse_ticket_delivery">
+                            <a data-toggle="collapse" data-parent="#mobile_tabs<?= $heading_id ?>" <?= $indent_accordion_text ?> href="#collapse_ticket_delivery_<?= $ticket_stop['id'] ?>">
+
                                 <?= (!empty($renamed_accordion) ? $renamed_accordion : 'Delivery Details') ?><span class="glyphicon glyphicon-plus"></span>
                             </a>
                         </h4>
                     </div>
 
-                    <div id="collapse_ticket_delivery" class="panel-collapse collapse">
+
+                    <div id="collapse_ticket_delivery_<?= $ticket_stop['id'] ?>" class="panel-collapse collapse">
+
                         <div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?ticketid=<?= $ticketid ?>&tab=ticket_delivery&stop=<?= $_GET['stop'] ?>">
                             Loading...
                         </div>
@@ -2624,6 +2627,7 @@ var setHeading = function() {
 			<?php if (strpos($value_config, ','."Customer Notes".',') !== FALSE && $sort_field == 'Customer Notes') {
                 $stopid = filter_var($_GET['stop'],FILTER_SANITIZE_STRING);
                 $stop_list = $dbc->query("SELECT * FROM `ticket_schedule` WHERE `ticketid`='$ticketid' AND `deleted`=0 AND '$stopid' IN (`id`,'')");
+
                 if($stop_list->num_rows > 0) { ?>
                     <div class="panel panel-default">
                         <div class="panel-heading mobile_load higher_level_heading">
@@ -2660,20 +2664,24 @@ var setHeading = function() {
                     <div class="panel panel-default">
                         <div class="panel-heading mobile_load">
                             <h4 class="panel-title">
-                                <a data-toggle="collapse" data-parent="#mobile_tabs<?= $heading_id ?>" <?= $indent_accordion_text ?> href="#collapse_ticket_customer_notes">
-                                    <?= (!empty($renamed_accordion) ? $renamed_accordion : 'Customer Notes') ?><span class="glyphicon glyphicon-plus"></span>
+                                <a data-toggle="collapse" data-parent="#mobile_tabs<?= $heading_id ?>" <?= $indent_accordion_text ?> href="#collapse_ticket_customer_notes_<?= $ticket_stop['id'] ?>">
+                                    <?= (!empty($renamed_accordion) ? $renamed_accordion : 'Customer Notes').($ticket_stop['id'] > 0 ? ': '.(empty($ticket_stop['client_name']) ? $ticket_stop['location_name'] : $ticket_stop['client_name']) : '') ?><span class="glyphicon glyphicon-plus"></span>
+
                                 </a>
                             </h4>
                         </div>
 
-                        <div id="collapse_ticket_customer_notes" class="panel-collapse collapse">
+
+                        <div id="collapse_ticket_customer_notes_<?= $ticket_stop['id'] ?>" class="panel-collapse collapse">
+
                             <div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?ticketid=<?= $ticketid ?>&tab=ticket_customer_notes&stop=<?= $ticket_stop['id'] ?>">
                                 Loading...
                             </div>
                         </div>
                     </div>
-                <?php }
-			} ?>
+                <?php } ?>
+			<?php } ?>
+
 		<?php } ?>
 		<?php //Close heading if not already closed
 		if(!$current_heading_closed) { ?>

@@ -647,6 +647,7 @@ function createShiftFor(input) {
                     <div class="col-xs-8">
                         <label class="form-checkbox"><input type="radio" id="create_shift_for" name="create_shift_for" value="staff"<?= empty($security_level) ? ' checked' : '' ?> onclick="createShiftFor(this)"> Staff</label>
                         <label class="form-checkbox"><input type="radio" id="create_shift_for" name="create_shift_for" value="security_level"<?= !empty($security_level) ? ' checked' : '' ?> onclick="createShiftFor(this)"> Security Level</label>
+
                     </div>
                 </div>
 
@@ -661,9 +662,11 @@ function createShiftFor(input) {
                             }
                             ?>
                         </select>
+
                     </div>
                 </div>
             <?php } ?>
+
 
             <div class="staff_div form-group" <?= !empty($security_level) ? 'style="display:none;"' : '' ?>>
                 <label for="contactid" class="col-xs-4">Staff:</label>
@@ -677,6 +680,20 @@ function createShiftFor(input) {
                             }
                         ?>
                     </select>
+
+                <div class="form-group security_level_div" <?= empty($security_level) ? 'style="display:none;"' : '' ?>>
+                    <label for="contactid" class="col-xs-4">Security Level:</label>
+                    <div class="col-xs-8">
+                        <select data-placeholder="Select Security Level" name="shift_security_level" class="chosen-select-deselect">
+                            <option></option>
+                            <?php $on_security = get_security_levels($dbc);
+                            foreach($on_security as $security_label => $security_value) {
+                                echo '<option value="'.$security_value.'"'.($security_value == $security_level ? ' selected' : '').'>'.$security_label.'</option>';
+                            }
+                            ?>
+                        </select>
+                    </div>
+
                 </div>
             <?php } ?>
 

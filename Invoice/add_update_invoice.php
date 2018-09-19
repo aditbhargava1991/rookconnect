@@ -1083,6 +1083,7 @@ if($invoice_mode != 'Adjustment') {
                 $final_amount += $fee;
                 $invoice_lines[] = "INSERT INTO `invoice_lines` (`invoiceid`, `item_id`, `description`, `category`, `quantity`, `unit_price`, `sub_total`, `gst`, `total`)
                     VALUES ('INVOICEID', '".$sid."', '".$service['category'].': '.$service['heading']."', 'service', '".$qty."', '".(-$_POST['service_rate'])."', '".(-$_POST['service_rate'] * $qty)."', '$gst', '$fee')";
+
                 foreach($_POST['insurer_row_applied'] as $j => $match_row) {
                     $applied = 0;
                     if($row == $match_row && $_POST['insurer_payment_amt'][$j] != 0) {
@@ -1927,6 +1928,7 @@ if($invoice_mode != 'Adjustment') {
 			$final_amount += $fee;
             $invoice_lines[] = "INSERT INTO `invoice_lines` (`invoiceid`, `item_id`, `description`, `category`, `quantity`, `unit_price`, `sub_total`, `gst`, `total`)
                 VALUES ('INVOICEID', '".$sid."', '".$service['category'].': '.$service['heading']."', 'service', '".$qty."', '".($service_fee / $qty)."', '".$service_fee."', '$gst', '$fee')";
+
 			foreach($_POST['insurer_row_applied'] as $j => $match_row) {
 				$applied = 0;
 				if($row == $match_row && $_POST['insurer_payment_amt'][$j] != 0) {

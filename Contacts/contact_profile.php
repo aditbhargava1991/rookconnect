@@ -125,7 +125,7 @@ if($id_card_fields == '') {
             }
             </script>
     <?php } ?>
-        
+
     <?php if(!($contactid > 0)) {
         echo '<h3>No '.CONTACTS_NOUN.' Selected</h3>';
     } else if(in_array_starts('POS ',$id_card_fields)) { ?>
@@ -191,7 +191,7 @@ if($id_card_fields == '') {
     <?php } else if($summary_only === true) {
         echo '<h3>No '.CONTACTS_NOUN.' Summary Found</h3>';
     } ?>
-    
+
     <?php if(!($summary_only === true)) { ?>
         <div class="col-sm-6">
             <ul class="chained-list col-sm-6 small">
@@ -285,7 +285,7 @@ if($id_card_fields == '') {
                     $business_card_template = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `business_card_template` WHERE `contact_category` = '".$contact['category']."'")); ?>
                     <li>&nbsp;<img src="../img/pdf.png" style="height:1.2em;" title="PDF" />
                         <?PHP if(!empty($business_card_template['template'])) { ?>
-                            <a href="../Staff/business_card_templates/<?= $business_card_template['template'] ?>_pdf.php?contactid=<?= $contactid ?>">Business Card PDF</a> | 
+                            <a href="../Staff/business_card_templates/<?= $business_card_template['template'] ?>_pdf.php?contactid=<?= $contactid ?>">Business Card PDF</a> |
                         <?php } ?>
                         <a href="../Staff/id_card_pdf.php?contactid=<?= $contactid ?>">ID Card PDF</a>
                     </li>

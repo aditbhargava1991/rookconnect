@@ -1,4 +1,5 @@
 <?php // Contacts View
+
 error_reporting(0);
 include_once('../include.php'); ?>
 </head>
