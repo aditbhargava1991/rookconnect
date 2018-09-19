@@ -268,20 +268,37 @@ do {
 								<div class="clearfix"></div>
 							<?php } ?>
 							<?php if(strpos($value_config,',Inventory Detail Site,') !== FALSE && $field_sort_field == 'Inventory Detail Site') { ?>
-								<div class="form-group" <?= $general_inventory['description'] == '' || $inventory['siteid'] != '' ? '' : 'style="display:none;"' ?>>
-									<label class="control-label col-sm-4"><?= SITES_CAT ?>:</label>
-									<div class="col-sm-8"><div class="col-sm-12">
-										<select name="siteid[]" multiple data-concat="," data-placeholder="Select <?= SITES_CAT ?>" data-table="ticket_attached" data-id="<?= $inventory['id'] ?>" data-id-field="id" data-type="inventory_general" data-type-field="src_table" class="chosen-select-deselect">
-											<?php if(!isset($site_list)) {
-												$site_list = sort_contacts_query(mysqli_query($dbc,"SELECT contactid, site_name, `display_name`, businessid FROM `contacts` WHERE `category`='".SITES_CAT."' AND deleted=0 ORDER BY IFNULL(NULLIF(`display_name`,''),`site_name`)"));
-											}
-											foreach($site_list as $site_row) { ?>
-												<option <?= $inventory['siteid'] == $site_row['contactid'] ? 'selected' : '' ?> value="<?= $site_row['contactid'] ?>"><?= $site_row['full_name'] ?></option>
-											<?php } ?>
-										</select>
-									</div></div>
+								<div class="site_group">
+									<div class="form-group" <?= $general_inventory['description'] == '' || $inventory['siteid'] != '' ? '' : 'style="display:none;"' ?>>
+										<label class="control-label col-sm-4"><?= SITES_CAT ?>:</label>
+										<div class="col-sm-8">
+											<div class="col-sm-10">
+												<select name="siteid[]" multiple data-concat="," data-placeholder="Select <?= SITES_CAT ?>" data-table="ticket_attached" data-id="<?= $inventory['id'] ?>" data-id-field="id" data-type="inventory_general" data-type-field="src_table" class="chosen-select-deselect">
+													<?php if(!isset($site_list)) {
+														$site_list = sort_contacts_query(mysqli_query($dbc,"SELECT contactid, site_name, `display_name`, businessid FROM `contacts` WHERE `category`='".SITES_CAT."' AND deleted=0 ORDER BY IFNULL(NULLIF(`display_name`,''),`site_name`)"));
+													}
+													foreach($site_list as $site_row) { ?>
+														<option <?= $inventory['siteid'] == $site_row['contactid'] ? 'selected' : '' ?> value="<?= $site_row['contactid'] ?>"><?= $site_row['full_name'] ?></option>
+													<?php } ?>
+													<option value="MANUAL">Add New Site</option>
+												</select>
+											</div>
+											<div class="col-sm-2">
+												<a href="" onclick="viewSite(this); return false;"><img class="inline-img pull-right no-toggle" src="../img/person.PNG" title="View Profile"></a>
+												<a href="" onclick="$(this).closest('.form-group').find('select').val('MANUAL').change(); return false;"><img class="inline-img pull-right" src="../img/icons/ROOK-add-icon.png"></a>
+											</div>
+										</div>
+									</div>
+									<div class="form-group clearfix site_name" style="display:none;">
+										<label class="control-label col-sm-4">Name of Location:</label>
+										<div class="col-sm-8">
+											<div class="col-sm-12">
+												<input type="text" name="site_name" data-table="contacts" data-id="" data-id-field="contactid" data-attach="Sites" data-attach-field="category" class="form-control">
+											</div>
+										</div>
+									</div>
+									<div class="clearfix"></div>
 								</div>
-								<div class="clearfix"></div>
 							<?php } ?>
 							<?php if(strpos($value_config,',Inventory Detail Customer Order,') !== FALSE && $field_sort_field == 'Inventory Detail Customer Order') { ?>
 								<div class="form-group" <?= $general_inventory['description'] == '' || $inventory['position'] != '' ? '' : 'style="display:none;"' ?>>
@@ -682,11 +699,18 @@ do {
 							<div class="form-group" <?= $general_inventory['description'] == '' || $inventory['siteid'] != '' ? '' : 'style="display:none;"' ?>>
 								<label class="control-label col-sm-4"><?= SITES_CAT ?>:</label>
 								<div class="col-sm-8">
-									<?= get_contact($dbc, $inventory['siteid']) ?>
+									<?php $site_names = [];
+									foreach(array_filter(explode(',',$inventory['siteid'])) as $site_id) {
+										$query = mysqli_query($dbc,"SELECT contactid, site_name, `display_name`, businessid FROM `contacts` WHERE `category`='Sites' AND deleted=0 AND `contactid`='".$site_id."' ORDER BY IFNULL(NULLIF(`display_name`,''),`site_name`)");
+										$row = mysqli_fetch_array($query);
+										$site_names[] = ($row['display_name'] == '' ? $row['site_name'] : $row['display_name']);
+									}
+									$site_names = implode(', ',$site_names);
+									echo $site_names; ?>
 								</div>
 							</div>
 							<div class="clearfix"></div>
-							<?php $pdf_contents[] = [SITES_CAT, get_contact($dbc, $inventory['siteid'])]; ?>
+							<?php $pdf_contents[] = [SITES_CAT, $site_names]; ?>
 						<?php } ?>
 						<?php if(strpos($value_config,',Inventory Detail Piece Type,') !== FALSE && $field_sort_field == 'Inventory Detail Piece Type') { ?>
 							<div class="form-group" <?= $general_inventory['description'] == '' || $inventory['piece_type'] != '' ? '' : 'style="display:none;"' ?>>

@@ -45,9 +45,11 @@ $purchaser = count($purchaser_config) > 1 ? 'Customer' : $purchaser_config[0];?>
         }
         
         mysqli_query($dbc, "INSERT INTO contacts (category, businessid, first_name, last_name, office_phone, email_address, mailing_address, business_address, city, postal_code, zip_code, province, state) VALUES ('{$purchaser_config[0]}', '$businessid', '$first_name', '$last_name', '$phone', '$email', '$address', '$address', '$city', '$postal_code', '$postal_code', '$province', '$province')");
-        $contactid = mysqli_insert_id($dbc);
-        
-        echo '<script>window.top.location.href="add_invoice.php?contactid='.$contactid.'&type='.$_POST['type'].'";</script>';
+        $contactid = mysqli_insert_id($dbc); ?>
+        <script>
+        $(window.top.document).find('select[name=patientid]').append('<option value="<?= $contactid ?>"><?= $_POST['first_name'].' '.$_POST['last_name'] ?></option>').val(<?= $contactid ?>).change();
+        </script>
+        <?php // echo '<script>window.top.location.href="add_invoice.php?contactid='.$contactid.'&type='.$_POST['type'].'";</script>';
     } ?>
 	
     <h3>Add <?= $purchaser ?></h3>

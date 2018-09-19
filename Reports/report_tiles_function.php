@@ -12,7 +12,16 @@ function reports_tiles($dbc) {
                 window.location.replace(this.value);
             }
         });
+        $('[name=printpdf]').click(function() {
+            setTimeout(function (){
+                $('[name=printpdf]').closest('form').removeAttr('target');
+            },500);
+        });
     });
+
+    function printPDF() {
+        $('[name=printpdf]').closest('form').prop('target', '_blank');
+    }
     function email_doc(report){
         var documents=[];
         var id = $(report).attr('id');
@@ -27,6 +36,7 @@ function reports_tiles($dbc) {
                 alert('Please generate the report first.');
             <?php } ?>
         }
+
     }
     </script>
     <div class="main-screen">
@@ -308,9 +318,10 @@ function reports_tiles($dbc) {
                         <?= $title ?>
                         <?php if ( $_GET['report'] == 'Ticket Activity Report' ) { ?>
                             <div class="pull-right">
-                                <a class="cursor-hand printpdf"><img src="../img/pdf.png" class="no-toggle" title="Print Report" /></a>
 
-                                <img src="../img/icons/ROOK-email-icon.png" id="<?= strtolower(str_replace(' ', '_', $_GET['report'])) ?>" class="show_search no-toggle cursor-hand offset-left-5" title="Email Report" width="25" onclick="email_doc(this);" />
+                                <a class="cursor-hand printpdf" onclick="printPDF();"><img src="../img/pdf.png" class="no-toggle" title="Print Report" /></a>
+                                <img src="../img/icons/ROOK-email-icon.png" id="<?= strtolower(str_replace(' ', '_', $_GET['report'])) ?>" class="no-toggle cursor-hand offset-left-5" title="Email Report" width="25" onclick="email_doc(this);" data-title="<?= $title ?>" />
+                                <a href="../quick_action_reminders.php?tile=reports" onclick="overlayIFrameSlider(this.href,'auto',true,true); return false;"><img class="no-toggle" title="Create Reminder" width="25" src="../img/icons/ROOK-reminder-icon.png" /></a>
 
                                 <img src="../img/icons/ROOK-3dot-icon.png" class="show_search no-toggle cursor-hand offset-left-5" title="Show/Hide Search" width="25" />
                             </div>

@@ -1,22 +1,30 @@
 <script>
 $(document).ready(function() {
 	$('.multi_dimensions .col-sm-2 input,.multi_dimensions .col-sm-2 select').off('change',setMultiDimensions).change(setMultiDimensions);
-	$('.tab-section[data-type=general]:first').find('[data-table]').off('change',copyPiece).change(copyPiece);
 });
+$(document).on('change', '.tab-section[data-type=general]:first [data-table]', copyPiece);
+var copying_pieces = '';
 function copyPiece(event) {
 	var field = event.target;
-	if($(field).data('type') == 'inventory_general') {
-		$('[data-table=ticket_attached][data-type=inventory_general][name=contact_info]:checked').each(function() {
-			$(this).change();
-		});
-	}
+
+	clearTimeout(copying_pieces);
+	copying_pieces = setTimeout(function() {
+		if($(field).data('type') == 'inventory_general') {
+			$('[data-table=ticket_attached][data-type=inventory_general][name=contact_info]:checked').each(function() {
+				$(this).change();
+			});
+		}
+	},500);
+
 }
 function copyAllPiece() {
 	var i = 0;
 	$('.tab-section[data-type=general]:visible [data-type=inventory_general][name=contact_info]').each(function() {
+
 		if(!this.checked) {
 			$(this).prop('checked',true).change();
 		}
+
 	});
 }
 function copyPieceOne(target) {
@@ -45,6 +53,9 @@ function copyPieceOne(target) {
 				var line_range = $(this).val().split('-');
 				$(this).closest('.multi-block').find('[name="po_line_range_min"]').val(line_range[0]).trigger('change.select2');
 				$(this).closest('.multi-block').find('[name="po_line_range_max"]').val(line_range[1]).trigger('change.select2');
+			} else if($(this).is('textarea')) {
+				tinymce.get($(this).prop('id')).setContent($(this).val());
+
 			}
 		}
 		i++;
@@ -363,20 +374,37 @@ do {
 					<div class="clearfix"></div>
 				<?php } ?>
 				<?php if(strpos($value_config,',Inventory General Site,') !== FALSE && $field_sort_field == 'Inventory General Site') { ?>
-					<div class="form-group" <?= $general_inventory['description'] == '' || $general_inventory['siteid'] != '' ? '' : 'style="display:none;"' ?>>
-						<label class="control-label col-sm-4"><?= SITES_CAT ?>:</label>
-						<div class="col-sm-8"><div class="col-sm-12">
-							<select name="siteid[]" multiple data-concat="," data-placeholder="Select <?= SITES_CAT ?>" data-table="ticket_attached" data-id="<?= $general_inventory['id'] ?>" data-id-field="id" data-type="inventory_general" data-type-field="src_table" class="chosen-select-deselect">
-								<?php if(!isset($site_list)) {
-									$site_list = sort_contacts_query(mysqli_query($dbc,"SELECT contactid, site_name, `display_name`, businessid FROM `contacts` WHERE `category`='".SITES_CAT."' AND deleted=0 ORDER BY IFNULL(NULLIF(`display_name`,''),`site_name`)"));
-								}
-								foreach($site_list as $site_row) { ?>
-									<option <?= strpos(','.$general_inventory['siteid'].',',','.$site_row['contactid'].',') !== FALSE ? 'selected' : '' ?> value="<?= $site_row['contactid'] ?>"><?= $site_row['full_name'] ?></option>
-								<?php } ?>
-							</select>
-						</div></div>
+					<div class="site_group">
+						<div class="form-group" <?= $general_inventory['description'] == '' || $general_inventory['siteid'] != '' ? '' : 'style="display:none;"' ?>>
+							<label class="control-label col-sm-4"><?= SITES_CAT ?>:</label>
+							<div class="col-sm-8">
+								<div class="col-sm-10">
+									<select name="siteid[]" multiple data-concat="," data-placeholder="Select <?= SITES_CAT ?>" data-table="ticket_attached" data-id="<?= $general_inventory['id'] ?>" data-id-field="id" data-type="inventory_general" data-type-field="src_table" class="chosen-select-deselect">
+										<?php if(!isset($site_list)) {
+											$site_list = sort_contacts_query(mysqli_query($dbc,"SELECT contactid, site_name, `display_name`, businessid FROM `contacts` WHERE `category`='".SITES_CAT."' AND deleted=0 ORDER BY IFNULL(NULLIF(`display_name`,''),`site_name`)"));
+										}
+										foreach($site_list as $site_row) { ?>
+											<option <?= strpos(','.$general_inventory['siteid'].',',','.$site_row['contactid'].',') !== FALSE ? 'selected' : '' ?> value="<?= $site_row['contactid'] ?>"><?= $site_row['full_name'] ?></option>
+										<?php } ?>
+										<option value="MANUAL">Add New Site</option>
+									</select>
+								</div>
+								<div class="col-sm-2">
+									<a href="" onclick="viewSite(this); return false;"><img class="inline-img pull-right no-toggle" src="../img/person.PNG" title="View Profile"></a>
+									<a href="" onclick="$(this).closest('.form-group').find('select').val('MANUAL').change(); return false;"><img class="inline-img pull-right" src="../img/icons/ROOK-add-icon.png"></a>
+								</div>
+							</div>
+						</div>
+						<div class="form-group clearfix site_name" style="display:none;">
+							<label class="control-label col-sm-4">Name of Location:</label>
+							<div class="col-sm-8">
+								<div class="col-sm-12">
+									<input type="text" name="site_name" data-table="contacts" data-id="" data-id-field="contactid" data-attach="Sites" data-attach-field="category" class="form-control">
+								</div>
+							</div>
+						</div>
+						<div class="clearfix"></div>
 					</div>
-					<div class="clearfix"></div>
 				<?php } ?>
 				<?php if(strpos($value_config,',Inventory General PO Number,') !== FALSE && $field_sort_field == 'Inventory General PO Number') { ?>
 					<div class="form-group" <?= $general_inventory['description'] == '' || $inventory['po_num'] != '' ? '' : 'style="display:none;"' ?>>
@@ -681,11 +709,18 @@ do {
 			<div class="form-group" <?= $general_inventory['description'] == '' || $general_inventory['siteid'] != '' ? '' : 'style="display:none;"' ?>>
 				<label class="control-label col-sm-4"><?= SITES_CAT ?>:</label>
 				<div class="col-sm-8">
-					<?= get_contact($dbc, $general_inventory['siteid']) ?>
+					<?php $site_names = [];
+					foreach(array_filter(explode(',',$general_inventory['siteid'])) as $site_id) {
+						$query = mysqli_query($dbc,"SELECT contactid, site_name, `display_name`, businessid FROM `contacts` WHERE `category`='Sites' AND deleted=0 AND `contactid`='".$site_id."' ORDER BY IFNULL(NULLIF(`display_name`,''),`site_name`)");
+						$row = mysqli_fetch_array($query);
+						$site_names[] = ($row['display_name'] == '' ? $row['site_name'] : $row['display_name']);
+					}
+					$site_names = implode(', ',$site_names);
+					echo $site_names; ?>
 				</div>
 			</div>
 			<div class="clearfix"></div>
-			<?php $pdf_contents[] = [SITES_CAT, get_contact($dbc, $general_inventory['siteid'])]; ?>
+			<?php $pdf_contents[] = [SITES_CAT, $site_names]; ?>
 		<?php } ?>
 		<?php if(strpos($value_config,',Inventory General Piece Type,') !== FALSE || strpos($value_config,',Inventory General Piece Count Type,') !== FALSE) { ?>
 			<div class="form-group" <?= $general_inventory['description'] == '' || $general_inventory['piece_type'] != '' ? '' : 'style="display:none;"' ?>>

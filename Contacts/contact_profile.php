@@ -24,7 +24,9 @@ if($id_card_fields == '') {
 } ?>
 <div class="col-sm-12">
 	<?php if(!($summary_only === true)) {
-        if($contact['category'] != 'Staff' && vuaed_visible_function($dbc, $security_folder) > 0) { ?><button onclick="copyContact(this); return false;" class="btn brand-btn pull-right gap-top">Copy Contact</button><button onclick="<?= IFRAME_PAGE ? "$('#profile_accordions').show(); $('.iframe_edit').show(); $('#view_profile').hide();" : " edit_profile();" ?> return false;" class="btn brand-btn pull-right gap-top">Edit Contact</button><?= IFRAME_PAGE ? '<a href="" onclick="openFullView(); return false;" class="btn brand-btn pull-right gap-top">Open Full Window</a>' : '' ?><?php }
+
+        if($contact['category'] != 'Staff' && vuaed_visible_function($dbc, $security_folder) > 0) { ?><button onclick="copyContact(this); return false;" class="btn brand-btn pull-right gap-top">Copy Contact</button><button onclick="<?= IFRAME_PAGE ? "$('#profile_accordions').show(); $('.iframe_edit').show(); $('#view_profile').hide();" : " edit_profile();" ?> return false;" class="btn brand-btn pull-right gap-top">Edit Contact</button><div class='pull-right icons_div' data-id="<?= $_GET['edit'] ?>"><a href='Add Reminder' onclick='return false;'><img src='<?= WEBSITE_URL?>/img/icons/ROOK-reminder-icon.png' class='no-toggle reminder-icon' title='Schedule Reminder' style='padding-right: 5px;margin-top: 3px;'></a></div><?= IFRAME_PAGE ? '<a href="" onclick="openFullView(); return false;" class="btn brand-btn pull-right gap-top">Open Full Window</a>' : '' ?><?php }
+
         else if(FOLDER_NAME != 'profile' && !isset($_GET['view_only']) && vuaed_visible_function($dbc, 'staff') > 0) { ?><a href='?contactid=<?php echo $contactid; ?>&subtab=staff_information' class="hide-on-mobile btn brand-btn pull-right gap-top">Edit Staff</a><?php }
         else if(FOLDER_NAME != 'profile' && !isset($_GET['view_only']) && !(vuaed_visible_function($dbc, 'staff') > 0) && $contactid == $_SESSION['contactid']) { ?><a href='<?= WEBSITE_URL ?>/Profile/my_profile.php?edit_contact=true&from_staff_tile=true' class="hide-on-mobile btn brand-btn pull-right gap-top">Edit My Profile</a><?php } ?>
         <h3 class="gap-left"><?php if($contact['contactimage'] != '' && file_exists('download/'.$contact['contactimage']) && $contact['category'] != 'Staff') {
@@ -293,4 +295,15 @@ if($id_card_fields == '') {
             </ul>
         </div>
     <?php } ?>
+
+</div>
+<script>
+$(document).ready(function() {
+    $('.icons_div .reminder-icon').off('click').click(function() {
+        var item = $(this).closest('.icons_div');
+        overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_reminders.php?tile=contacts&id='+item.data('id'), 'auto', false, true);
+    });
+})
+</script>
+
 </div>

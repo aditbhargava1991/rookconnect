@@ -364,6 +364,40 @@ function <?= $diff_function ?>mark_favourite(button) {
 		}
 	});
 }
+function <?= $diff_function ?>flag_item_manual(checklist) {
+       	checklist_id = $(checklist).closest('[data-checklist]').data('checklist');
+		var type = 'checklist';
+		if(checklist_id.toString().substring(0,5) == 'BOARD') {
+			checklist_id = checklist_id.substring(5);
+		}
+
+       overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_flags.php?tile=checklist_name&id='+checklist_id, 'auto', false, true);
+}
+function <?= $diff_function ?>common_flag_item_manual(checklist) {
+       	checklist_id = $(checklist).closest('[data-checklist]').data('checklist');
+		var type = 'checklist';
+		if(checklist_id.toString().substring(0,5) == 'BOARD') {
+			checklist_id = checklist_id.substring(5);
+		}
+
+       overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_flags.php?tile=common_checklist_flag&id='+checklist_id, 'auto', false, true);
+}
+function setManualFlag(tasklistid, colour, label) {
+    window.location.reload();
+	//var item = $('.dashboard-item[data-id="'+tasklistid+'"]');
+	//item.data('colour',colour);
+	//item.css('background-color','#'+colour);
+	//item.find('.flag-label').text(label);
+}
+function <?= $diff_function ?>send_checklist_reminder(checklist) {
+       	checklist_id = $(checklist).closest('[data-checklist]').data('checklist');
+		var type = 'checklist';
+		if(checklist_id.toString().substring(0,5) == 'BOARD') {
+			var type = 'checklist board';
+			checklist_id = checklist_id.substring(5);
+		}
+       overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_reminders.php?tile=checklist&id='+checklist_id, 'auto', false, true);
+}
 </script>
 <?php $checklistid = $_GET['view'];
 $checklist = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `checklist` WHERE `checklistid`='$checklistid'"));
@@ -395,9 +429,10 @@ $quick_actions = explode(',',get_config($dbc, 'quick_action_icons')); ?>
             <span class="pull-right hide-on-mobile" data-checklist="BOARD<?= $checklistid; ?>">
                 <div class="pull-left cursor-hand id-circle-other offset-top-5 gap-right"><img src="<?= WEBSITE_URL ?>/img/<?= (in_array($checklist['checklistid'],explode(',',$user_settings['checklist_fav'])) ? 'full' : 'blank') ?>_favourite.png" onclick="<?= $diff_function ?>mark_favourite(this);" data-id="<?= $checklist['checklistid'] ?>" class="inline-img no-toggle" title="Favourite" /></div>
                 <?php if(in_array('flag',$quick_actions)) { ?><span class="header-icon no-toggle" title="Flag This!" onclick="<?= $diff_function ?>flag_item(this); return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-flag-icon.png" class="inline-img" /></span><?php } ?>
+                <?php if(in_array('flag_manual',$quick_actions)) { ?><span class="header-icon no-toggle" title="Flag This!" onclick="<?php echo $diff_function;?>common_flag_item_manual(this); return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-flag-icon.png" class="inline-img" /></span><?php } ?>
                 <?php /* if(in_array('alert',$quick_actions)) { ?><span class="header-icon no-toggle" title="Send Alert" onclick="<?= $diff_function ?>send_alert(this); return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-alert-icon.png" class="inline-img" /></span><?php } */ ?>
                 <?php if(in_array('email',$quick_actions)) { ?><span class="header-icon no-toggle" title="Send Email" onclick="<?= $diff_function ?>send_email(this); return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-email-icon.png" class="inline-img" /></span><?php } ?>
-                <?php if(in_array('reminder',$quick_actions)) { ?><span class="header-icon no-toggle" title="Schedule Reminder" onclick="<?= $diff_function ?>send_reminder(this); return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-reminder-icon.png" class="inline-img" /></span><?php } ?>
+                <?php if(in_array('reminder',$quick_actions)) { ?><span class="header-icon no-toggle" title="Schedule Reminder" onclick="<?= $diff_function ?>send_checklist_reminder(this); return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-reminder-icon.png" class="inline-img" /></span><?php } ?>
                 <?php if(in_array('attach',$quick_actions)) { ?><span class="header-icon no-toggle" title="Attach File" onclick="<?= $diff_function ?>attach_file(this); return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-attachment-icon.png" class="inline-img" /></span><?php } ?>
                 <span class="header-icon no-toggle" title="Download Checklist" onclick="<?= $diff_function ?>export_pdf(this); return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-download-icon.png" class="inline-img" /></span>
                 <span class="header-icon no-toggle" title="Share Checklist" onclick="overlayIFrameSlider('../Checklist/share_staff.php?edit=<?= $_GET['view'] ?>', 'auto', false, false, 'auto', true);"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-share-icon.png" class="inline-img" /></span>
@@ -566,13 +601,13 @@ if($num_rows > 0) { ?>
                         echo '<span class="col-sm-12 gap-top" data-checklist="'.$row['checklistnameid'].'">
 							<span class="action-icons">';
 								//echo $security['edit'] > 0 && in_array('edit',$quick_actions) ? '<span class="" title="Edit" onclick="'.$diff_function.'edit_item(this); return false;"><img src="'.WEBSITE_URL.'/img/icons/ROOK-edit-icon.png" style="height:100%;" onclick="return false;" class="inline-img"></span>' : '';
-								echo in_array('flag_manual',$quick_actions) ? '<span class="no-toggle" title="Flag This!" onclick="'.$diff_function.'manual_flag_item(this); return false;"><img src="'.WEBSITE_URL.'/img/icons/ROOK-flag-icon.png" style="height:100%;" onclick="return false;" class="inline-img"></span>' : '';
+								echo in_array('flag_manual',$quick_actions) ? '<span class="no-toggle" title="Flag This!" onclick="'.$diff_function.'flag_item_manual(this); return false;"><img src="'.WEBSITE_URL.'/img/icons/ROOK-flag-icon.png" style="height:100%;" onclick="return false;" class="inline-img"></span>' : '';
 								echo !in_array('flag_manual',$quick_actions) && in_array('flag',$quick_actions) ? '<span class="no-toggle" title="Flag This!" onclick="'.$diff_function.'flag_item(this); return false;"><img src="'.WEBSITE_URL.'/img/icons/ROOK-flag-icon.png" style="height:100%;" onclick="return false;" class="inline-img"></span>' : '';
 								echo in_array('reply',$quick_actions) ? '<span class="no-toggle" title="Add Note" onclick="'.$diff_function.'send_reply(this); return false;"><img src="'.WEBSITE_URL.'/img/icons/ROOK-reply-icon.png" style="height:100%;" onclick="return false;" class="inline-img"></span>' : '';
 								echo in_array('attach',$quick_actions) ? '<span class="no-toggle" title="Attach File" onclick="'.$diff_function.'attach_file(this); return false;"><img src="'.WEBSITE_URL.'/img/icons/ROOK-attachment-icon.png" style="height:100%;" onclick="return false;" class="inline-img"></span>' : '';
 								echo in_array('alert',$quick_actions) ? '<span class="no-toggle" title="Send Alert" onclick="'.$diff_function.'send_alert(this); return false;"><img src="'.WEBSITE_URL.'/img/icons/ROOK-alert-icon.png" style="height:100%;" onclick="return false;" class="inline-img"></span>' : '';
 								echo in_array('email',$quick_actions) ? '<span class="no-toggle" title="Send Email" onclick="'.$diff_function.'send_email(this); return false;"><img src="'.WEBSITE_URL.'/img/icons/ROOK-email-icon.png" style="height:100%;" onclick="return false;" class="inline-img"></span>' : '';
-								echo in_array('reminder',$quick_actions) ? '<span class="no-toggle" title="Schedule Reminder" onclick="'.$diff_function.'send_reminder(this); return false;"><img src="'.WEBSITE_URL.'/img/icons/ROOK-reminder-icon.png" style="height:100%;" onclick="return false;" class="inline-img"></span>': '';
+								echo in_array('reminder',$quick_actions) ? '<span class="no-toggle" title="Schedule Reminder" onclick="'.$diff_function.'send_checklist_reminder(this); return false;"><img src="'.WEBSITE_URL.'/img/icons/ROOK-reminder-icon.png" style="height:100%;" onclick="return false;" class="inline-img"></span>': '';
 								echo in_array('time',$quick_actions) ? '<span class="no-toggle" title="Add Time" onclick="'.$diff_function.'add_time(this); return false;"><img src="'.WEBSITE_URL.'/img/icons/ROOK-timer-icon.png" style="height:100%;" onclick="return false;" class="inline-img"></span>' : '';
 								echo $security['edit'] > 0 && in_array('archive',$quick_actions) ? '<span class="no-toggle" title="Archive Item" onclick="'.$diff_function.'archive(this); return false;"><img src="'.WEBSITE_URL.'/img/icons/ROOK-trash-icon.png" style="height:100%;" onclick="return false;" class="inline-img"></span>' : '';
 								//echo '<span class=" middle-valign text-center drag_handle-container"><img class="drag_handle" src="'.WEBSITE_URL.'/img/icons/drag_handle.png" style="margin:0.25em; height:1.25em; width:1.25em;" /></span>';

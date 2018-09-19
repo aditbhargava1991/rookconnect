@@ -110,12 +110,15 @@ function viewFullTicket(a) {
 		window.location.href = '../Ticket/index.php?edit='+ticketid+'&ticketid='+ticketid+'&from='+from_url;
 	}
 }
-function viewProfile(img) {
+function viewProfile(img, view_contactid = '') {
 	var contact = $(img).closest('.multi-block,.form-group').find('[name=item_id],select').first();
-	if(contact.val() > 0 && contact.data('type') == 'Staff') {
-		overlayIFrameSlider('../Staff/staff_edit.php?view_only=id_card&contactid='+contact.val(), '33%', true, true);
-	} else if(contact.val() > 0) {
-		overlayIFrameSlider('../Contacts/contacts_inbox.php?fields=all_fields&edit='+contact.val(), '75%', true, true);
+	if(view_contactid == '') {
+		view_contactid = contact.val();
+	}
+	if(view_contactid > 0 && contact.data('type') == 'Staff') {
+		overlayIFrameSlider('../Staff/staff_edit.php?view_only=id_card&contactid='+view_contactid, '33%', true, true);
+	} else if(view_contactid > 0) {
+		overlayIFrameSlider('../Contacts/contacts_inbox.php?fields=all_fields&edit='+view_contactid, '75%', true, true);
 	} else {
 		alert('Please select the contact before attempting to view their profile.');
 	}
@@ -137,6 +140,41 @@ function viewService(img) {
 	} else {
 		alert('Please select the Service before attempting to view summary.');
 	}
+}
+
+function viewSite(img) {
+	var contact = $(img).closest('.multi-block,.form-group').find('[name=item_id],select').first();
+	if($(contact).find('option:selected').length > 1) {
+		dialogViewSite(img);
+	} else {
+		viewProfile(img);
+	}
+}	
+
+function dialogViewSite(img) {
+	$('#dialog_view_site').dialog({
+		resizable: true,
+		height: "auto",
+		width: ($(window).width() <= 800 ? $(window).width() : 800),
+		modal: true,
+		open: function() {
+			var contact = $(img).closest('.multi-block,.form-group').find('[name=item_id],select').first();
+			var site_html = '';
+			$(contact).find('option:selected').each(function() {
+				site_html += '<option value="'+$(this).val()+'">'+$(this).text()+'</option>';
+			});
+			$('[name="view_site"]').html(site_html).trigger('change.select2');
+		},
+		buttons: {
+			"View Site": function() {
+				viewProfile(img,$('[name="view_site"]').val());
+				$(this).dialog('close');
+			},
+			Cancel: function() {
+				$(this).dialog('close');
+			}
+		}
+	});
 }
 
 function send_email(button) {
@@ -615,8 +653,8 @@ function saveFieldMethod(field) {
 						$('[name=contactid]').first().change();
 						$('[name="status"]').change();
 						if(table_name == 'contacts' && field_name == 'site_name') {
-							$('[name=siteid],[name="siteid[]"]').find('option[value="MANUAL"]').prop('selected', false);
-							$('[name=siteid],[name="siteid[]"]').append('<option selected data-police="911" value="'+response+'">'+save_value+'</option>').trigger('change.select2').change();
+							$(field).closest('.site_group').find('[name=siteid],[name="siteid[]"]').find('option[value="MANUAL"]').prop('selected', false);
+							$(field).closest('.site_group').find('[name=siteid],[name="siteid[]"]').append('<option selected data-police="911" value="'+response+'">'+save_value+'</option>').trigger('change.select2').change();
 						} else if(block.length > 0 && table_name != 'tickets' && data_type != undefined) {
 							block.find('[data-table='+table_name+'][data-type='+data_type+']').data('id',response);
 						} else if(block.length > 0 && table_name != 'tickets') {
@@ -2481,7 +2519,7 @@ function siteSelect(select) {
 	var value = $(select).find('option:selected').val();
 	if(value == 'MANUAL') {
 		$('.site_info').hide();
-		$('.site_name').show().find('input').focus();
+		$(select).closest('.site_group').find('.site_name').show().find('input').focus();
 	} else {
 		$('.site_info').show();
 		$('.site_name').hide();
@@ -3033,7 +3071,7 @@ function addNote(type, btn, force_allow = 0) {
 function addCommunication(type, method) {
 	if(ticketid > 0) {
 		$('.ticket_communication[data-type='+type+'][data-method='+method+']').first().addClass('reload');
-		overlayIFrameSlider('../Email Communication/add_communication.php?type='+type+'&ticketid='+ticketid,'auto',false,true,'auto',false);
+		overlayIFrameSlider('../Email Communication/add_email.php?type='+type+'&ticketid='+ticketid,'auto',false,true,'auto',false);
 	} else {
 		alert('Please create the '+ticket_name+' before adding communications.');
 	}

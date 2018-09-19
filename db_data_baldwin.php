@@ -925,6 +925,15 @@
     }
     //2018-09-18 - Ticket #9010 - Shift Heading
 
+
+    //2018-09-18 - Ticket #8755 - Sales Lead Info Gathering
+    if(!mysqli_query($dbc, "ALTER TABLE `infogathering_pdf` ADD `salesid` int(11) NOT NULL")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `infogathering_pdf` ADD `deleted` int(1) NOT NULL DEFAULT 0")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+
     //2018-09-19 - Ticket #8929 - Calendar Onlin Staff
     if(!mysqli_query($dbc, "CREATE TABLE `calendar_last_active` (
         `calendarlastactiveid` int(11) NOT NULL,
@@ -942,6 +951,7 @@
         echo "Error: ".mysqli_error($dbc)."<br />\n";
     }
     //2018-09-19 - Ticket #8929 - Calendar Onlin Staff
+
 
     echo "Baldwin's DB Changes Done<br />\n";
 ?>

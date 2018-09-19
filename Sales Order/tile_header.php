@@ -74,6 +74,8 @@ if(!empty($sales_order_types)) { ?>
         }
         if ( !isset($_GET['edit']) && !isset($_GET['view']) ) { ?>
             <div class="pull-right top-dashboard">
+                
+
                 <img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-Speedometer.png" height="30" class="pull-right gap-left cursor-hand no-toggle" title="View Dashboards" onclick="$('.dashboard_select').toggle();">
                 <div class="dashboard_select pull-right" style="display: none;">
                     <select class="chosen-select-deselect" onchange="window.location.replace('?dashboard='+this.value);">

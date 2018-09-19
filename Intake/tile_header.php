@@ -11,8 +11,8 @@
             <span class="popover-examples list-inline pull-right" style="margin:5px 5px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Click here for the settings within this tile. Any changes made will appear on your dashboard."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span><?php
         } ?><?php
         if(vuaed_visible_function($dbc, 'intake') == 1) {
-    	    echo '<a href="" onclick="addIntakeForm(); return false;"><button type="button" class="btn brand-btn mobile-block gap-bottom mobile-100-pull-right pull-right gap-right hide-titles-mob" style="margin-bottom:10px !important;">Add Intake Form</button><img src="'.WEBSITE_URL.'/img/icons/ROOK-add-icon.png" class="show-on-mob add-icon-lg gap-right"></a>';
-    	} ?>
+            echo '<a href="" onclick="addIntakeForm(); return false;"><button type="button" class="btn brand-btn mobile-block gap-bottom mobile-100-pull-right pull-right gap-right hide-titles-mob" style="margin-bottom:10px !important;">Add Intake Form</button><img src="'.WEBSITE_URL.'/img/icons/ROOK-add-icon.png" class="show-on-mob add-icon-lg gap-right"></a>';
+        } ?>
     </div>
 </div>
 <div class="clearfix"></div>

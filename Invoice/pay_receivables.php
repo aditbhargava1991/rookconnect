@@ -1,7 +1,7 @@
 <?php include_once('../include.php');
 $purchaser_config = explode(',',get_config($dbc, 'invoice_purchase_contact'));
 define('PURCHASER', count($purchaser_config) > 1 ? 'Customer' : $purchaser_config[0]);
-    
+
 if (isset($_POST['submit_patient'])) {
     include_once('../tcpdf/tcpdf.php');
     error_reporting(E_ALL);
@@ -31,11 +31,17 @@ if (isset($_POST['submit_patient'])) {
 		}
 		$invoice[] = [$invoice_info['invoice_date'],$invoice_info['invoiceid'],$therapist_info,$invoice_info['patient_price'],$invoice_info['sub_total'],$invoice_info['gst_amt']];
     }
-	
+
 	$therapistsid = get_all_from_invoice($dbc, $invoiceid, 'therapistsid');
     $service_date = get_all_from_invoice($dbc, $invoiceid, 'service_date');
 
     $staff = get_contact($dbc, $therapistsid);
+
+
+//
+	$invoice_design = get_config($dbc, 'invoice_design');
+    if(!empty($get_invoice['type']) && !empty(get_config($dbc, 'invoice_design_'.$get_invoice['type']))) {
+        $invoice_design = get_config($dbc, 'invoice_design_'.$get_invoice['type']);
 
 	$next_booking = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `booking` WHERE `appoint_date` > NOW() AND `deleted`=0 AND `patientid`='".$get_invoice['patientid']."' ORDER BY `appoint_date` ASC"));
 	if($next_booking['bookingid'] > 0) {
@@ -128,31 +134,48 @@ if (isset($_POST['submit_patient'])) {
         $ar_lines[$inv[1]][4] += $inv[4];
         $ar_lines[$inv[1]][5] += $inv[5];
     }
-	foreach($ar_lines as $ar_line) {
-		$html .= '<tr style="border: solid black 1px;"><td>'.$ar_line[0].'</td><td>'.$ar_line[1].'</td><td>'.$ar_line[2].'</td><td>$'.number_format($ar_line[3],2).'</td></tr>';
-		$total_amt += $ar_line[3];
-		$sub_total += $ar_line[4];
-		$tax_amt += $ar_line[5];
-	}
-	
-	$html .= '</table><table style="border: none;" cellpadding="20"><tr><td></td><td></td><td>Total Due by '.PURCHASER.':</td><td>$'.number_format($sub_total,2).'</td></tr>';
-    //Tax
-    $get_pos_tax = get_config($dbc, 'invoice_tax');
-    if($get_pos_tax != '') {
-		$total_tax_rate = 0;
-		foreach(explode('*#*',$get_pos_tax) as $pos_tax) {
-			$total_tax_rate += explode('**',$pos_tax)[1];
-		}
-		foreach(explode('*#*',$get_pos_tax) as $pos_tax) {
-			if($pos_tax != '') {
-				$pos_tax_name_rate = explode('**',$pos_tax);
-				$html .= '<tr><td></td><td></td><td>'.$pos_tax_name_rate[0].'  ['.$pos_tax_name_rate[2].']:</td><td>$'.number_format($tax_amt * $pos_tax_name_rate[1] / $total_tax_rate,2).'</td></tr>';
+	switch($invoice_design) {
+		case 1:
+			include('pos_invoice_1.php');
+			break;
+		case 2:
+			include('pos_invoice_2.php');
+			break;
+		case 3:
+			include('pos_invoice_3.php');
+			break;
+		case 4:
+			include ('patient_invoice_pdf.php');
+			if($insurerid != '') {
+				include ('insurer_invoice_pdf.php');
 			}
-		}
+			break;
+		case 5:
+            include('pos_invoice_small.php');
+			break;
+		case 'service':
+            include('pos_invoice_service.php');
+			break;
+		case 'pink':
+			include ('pos_receivables_pink.php');
+			break;
+		case 'cnt1':
+			include ('pos_invoice_contractor_1.php');
+			break;
+		case 'cnt2':
+			include ('pos_invoice_contractor_2.php');
+			break;
+		case 'cnt3':
+			include ('pos_invoice_contractor_3.php');
+			break;
+        case 'custom_ticket':
+            include ('pos_invoice_custom_ticket.php');
+            break;
+	}
+//
+    if (!file_exists('download')) {
+        mkdir('download', 0777, true);
     }
-	$html .= '<tr><td></td><td></td><td style="color: #37C6F4; font-weight: bold;">TOTAL AMOUNT OWING:</td><td style="color: #37C6F4; font-weight: bold;">$'.number_format($total_amt,2).'</td></tr>';
-	$html .= '<tr><td></td><td></td><td style="color: #37C6F4; font-weight: bold;">PAYMENT BY:</td><td style="color: #37C6F4; font-weight: bold;">'.$payment_type.' (-$'.number_format($total_amt,2).')</td></tr>';
-	$html .= '<tr><td></td><td></td><td style="color: #37C6F4; font-weight: bold;">BALANCE:</td><td style="color: #37C6F4; font-weight: bold;">$0.00</td></tr></table>';
 
 	$pdf->writeHTML(utf8_encode($html), true, false, true, false, '');
 	$pdf->Output($payment_receipt, 'F');
