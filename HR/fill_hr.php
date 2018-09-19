@@ -146,7 +146,7 @@ if(isset($_POST['submit'])) {
 }
 $form_config = ','.$get_hr['fields'].','; ?>
 <?php if($user_form_layout != 'Sidebar') { ?>
-<div class='scale-to-fill has-main-screen'>
+<div class='scale-to-fill has-main-screen no-pad'>
 	<div class='main-screen form-horizontal'>
 <?php } ?>
 		<form class="form-horizontal" action="" method="POST">
@@ -161,9 +161,9 @@ $form_config = ','.$get_hr['fields'].','; ?>
                 </h3>
                 <div class="clearfix"></div>
             </div>
-            <div class="standard-body-content">
+            <div class="standard-body-content pad-horiz-2 pad-vertical">
                 <div class="clearfix"></div>
-                <div class="col-sm-12"><?= $get_hr['pdf_logo'] != '' ? '<img src="download/'.$get_hr['pdf_logo'].'" style="height: auto; max-height: 10em; max-width: 10em; width: auto;">' : '' ?><div class="pull-right"><?= html_entity_decode($get_hr['pdf_header']) ?></div></div>
+                <div class="col-sm-12"><?= !empty($get_hr['pdf_logo']) && file_exists('download/'.$get_hr['pdf_logo']) ? '<img src="download/'.$get_hr['pdf_logo'].'" style="height: auto; max-height: 10em; max-width: 10em; width: auto;" class="pad-vertical">' : '' ?><div class="pull-right"><?= html_entity_decode($get_hr['pdf_header']) ?></div></div>
                 <?php if($get_hr['hr_description'] != '') { ?>
                     <div class="form-group">
                         <label class="col-sm-4 control-label">Details:</label>
