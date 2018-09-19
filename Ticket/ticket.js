@@ -3109,11 +3109,7 @@ function addServices(btn) {
 	}
 }
 function displayCustomerHistory() {
-	overlayIFrameSlider('../Ticket/ticket_customer_history.php?edit='+ticketid,'auto',true,true);
-	$(document).on("overlayIFrameSliderLoad", function() {
-		$('.iframe_overlay iframe').contents().find('html,body').css('background-color', 'white');
-		$('.iframe_overlay iframe').contents().find('html,body').css('background', 'none');
-	});
+	overlayIFrameSlider('../Ticket/ticket_history.php?ticketid='+ticketid,'auto',true,true);
 }
 function cancelClick() {
 	alert('Please mark yourself as arrived first.');

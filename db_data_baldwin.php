@@ -952,6 +952,45 @@
     }
     //2018-09-19 - Ticket #8929 - Calendar Onlin Staff
 
+    //2018-09-19 - Ticket #9060 - Ticket History Icon
+    $updated_already = get_config($dbc, 'updated_ticket9060_tickethistory');
+    if(empty($updated_already)) {
+        $ticket_fields = ','.get_field_config($dbc, 'ticket_fields').',';
+        $ticket_tabs = explode(',',get_config($dbc, 'ticket_tabs'));
+        foreach($ticket_tabs as $type) {
+            $ticket_fields .= get_config($dbc, 'ticket_fields_'.config_safe_str($type)).',';
+        }
+        $history_fields = [];
+        if(strpos($ticket_fields, ',History,') !== FALSE) {
+            $history_fields[] = 'Ticket History';
+        }
+        if(strpos($ticket_fields, ',Customer History Business Ticket Type,') !== FALSE) {
+            $history_fields[] = 'Customer History Business Ticket Type';
+        }
+        if(strpos($ticket_fields, ',Customer History Business Project Type,') !== FALSE) {
+            $history_fields[] = 'Customer History Business Project Type';
+        }
+        if(strpos($ticket_fields, ',Customer History Business Ticket Project Type,') !== FALSE) {
+            $history_fields[] = 'Customer History Business Ticket Project Type';
+        }
+        if(strpos($ticket_fields, ',Customer History Customer Ticket Type,') !== FALSE) {
+            $history_fields[] = 'Customer History Customer Ticket Type';
+        }
+        if(strpos($ticket_fields, ',Customer History Customer Project Type,') !== FALSE) {
+            $history_fields[] = 'Customer History Customer Project Type';
+        }
+        if(strpos($ticket_fields, ',Customer History Customer Ticket Project Type,') !== FALSE) {
+            $history_fields[] = 'Customer History Customer Ticket Project Type';
+        }
+        $history_fields = implode(',', $history_fields);
+        if(!empty($history_fields)) {
+            set_config($dbc, 'ticket_history_fields', $history_fields);
+            $ticket_quick_actions = get_config($dbc, 'quick_action_icons');
+            set_config($dbc, 'quick_action_icons', $ticket_quick_actions.',history');
+        }
+        set_config($dbc, 'updated_ticket9060_tickethistory', 1);
+    }
+    //2018-09-19 - Ticket #9060 - Ticket History Icon
 
     echo "Baldwin's DB Changes Done<br />\n";
 ?>

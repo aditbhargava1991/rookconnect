@@ -559,6 +559,10 @@ function setActions() {
 		var item = $(this).closest('.dashboard-item');
 		overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_email.php?tile=tickets&id='+item.data('id'), 'auto', false, true);
 	});
+	$('.history-icon').off('click').click(function() {
+		var item = $(this).closest('.dashboard-item');
+		overlayIFrameSlider('<?= WEBSITE_URL ?>/Ticket/ticket_history.php?tile=tickets&ticketid='+item.data('id'), 'auto', false, true);
+	});
 }
 function setStatus(select) {
 	$.ajax({    //create an ajax request to load_page.php
