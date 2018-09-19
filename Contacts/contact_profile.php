@@ -24,9 +24,7 @@ if($id_card_fields == '') {
 } ?>
 <div class="col-sm-12">
 	<?php if(!($summary_only === true)) {
-
         if($contact['category'] != 'Staff' && vuaed_visible_function($dbc, $security_folder) > 0) { ?><button onclick="copyContact(this); return false;" class="btn brand-btn pull-right gap-top">Copy Contact</button><button onclick="<?= IFRAME_PAGE ? "$('#profile_accordions').show(); $('.iframe_edit').show(); $('#view_profile').hide();" : " edit_profile();" ?> return false;" class="btn brand-btn pull-right gap-top">Edit Contact</button><div class='pull-right icons_div' data-id="<?= $_GET['edit'] ?>"><a href='Add Reminder' onclick='return false;'><img src='<?= WEBSITE_URL?>/img/icons/ROOK-reminder-icon.png' class='no-toggle reminder-icon' title='Schedule Reminder' style='padding-right: 5px;margin-top: 3px;'></a></div><?= IFRAME_PAGE ? '<a href="" onclick="openFullView(); return false;" class="btn brand-btn pull-right gap-top">Open Full Window</a>' : '' ?><?php }
-
         else if(FOLDER_NAME != 'profile' && !isset($_GET['view_only']) && vuaed_visible_function($dbc, 'staff') > 0) { ?><a href='?contactid=<?php echo $contactid; ?>&subtab=staff_information' class="hide-on-mobile btn brand-btn pull-right gap-top">Edit Staff</a><?php }
         else if(FOLDER_NAME != 'profile' && !isset($_GET['view_only']) && !(vuaed_visible_function($dbc, 'staff') > 0) && $contactid == $_SESSION['contactid']) { ?><a href='<?= WEBSITE_URL ?>/Profile/my_profile.php?edit_contact=true&from_staff_tile=true' class="hide-on-mobile btn brand-btn pull-right gap-top">Edit My Profile</a><?php } ?>
         <h3 class="gap-left"><?php if($contact['contactimage'] != '' && file_exists('download/'.$contact['contactimage']) && $contact['category'] != 'Staff') {
@@ -127,7 +125,7 @@ if($id_card_fields == '') {
             }
             </script>
     <?php } ?>
-        
+
     <?php if(!($contactid > 0)) {
         echo '<h3>No '.CONTACTS_NOUN.' Selected</h3>';
     } else if(in_array_starts('POS ',$id_card_fields)) { ?>
@@ -193,7 +191,7 @@ if($id_card_fields == '') {
     <?php } else if($summary_only === true) {
         echo '<h3>No '.CONTACTS_NOUN.' Summary Found</h3>';
     } ?>
-    
+
     <?php if(!($summary_only === true)) { ?>
         <div class="col-sm-6">
             <ul class="chained-list col-sm-6 small">
@@ -287,7 +285,7 @@ if($id_card_fields == '') {
                     $business_card_template = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `business_card_template` WHERE `contact_category` = '".$contact['category']."'")); ?>
                     <li>&nbsp;<img src="../img/pdf.png" style="height:1.2em;" title="PDF" />
                         <?PHP if(!empty($business_card_template['template'])) { ?>
-                            <a href="../Staff/business_card_templates/<?= $business_card_template['template'] ?>_pdf.php?contactid=<?= $contactid ?>">Business Card PDF</a> | 
+                            <a href="../Staff/business_card_templates/<?= $business_card_template['template'] ?>_pdf.php?contactid=<?= $contactid ?>">Business Card PDF</a> |
                         <?php } ?>
                         <a href="../Staff/id_card_pdf.php?contactid=<?= $contactid ?>">ID Card PDF</a>
                     </li>
@@ -295,7 +293,6 @@ if($id_card_fields == '') {
             </ul>
         </div>
     <?php } ?>
-
 </div>
 <script>
 $(document).ready(function() {
@@ -305,5 +302,3 @@ $(document).ready(function() {
     });
 })
 </script>
-
-</div>
