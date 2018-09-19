@@ -1192,7 +1192,7 @@ function scrollToToday() {
 		if(still_loading <= 0 && scroll_to_today) {
 			scroll_to_today = false;
 			clearInterval(clear_today);
-			while($('.calendar_view table:not(#time_html) th').length <= 10 && $('.calendar_view table:not(#time_html) th').filter(function() { return $(this).data('contact') > 0; }).length > 0 && still_loading <= 0 && scroll_to_today) {
+			while($('.calendar_view table:not(#time_html) th').length <= 10 && $('.calendar_view table:not(#time_html) th').filter(function() { return $(this).data('contact') > 0; }).length > 0) {
 				if(start_of_list) {
 					break;
 				}
@@ -1217,7 +1217,7 @@ function scrollToToday() {
 					start_of_list = true;
 				}
 			}
-			if($('.calendar_view').scrollLeft() <= 50) {
+			if($('.calendar_view').scrollLeft() == 0) {
 				$('.calendar_view').scrollLeft(10);
 			}
 		} else {
