@@ -78,7 +78,7 @@ $invoice_footer = get_config($dbc, 'invoice_footer');
 if(!empty($point_of_sell['type']) && !empty(get_config($dbc, 'invoice_footer_'.$point_of_sell['type']))) {
     $invoice_footer = get_config($dbc, 'invoice_footer_'.$point_of_sell['type']);
 }
-$payment_type = explode('#*#', $point_of_sell['payment_type']);
+//$payment_type = explode('#*#', $point_of_sell['payment_type']);
 
 DEFINE('INVOICE_HEADER', $invoice_header);
 DEFINE('INVOICE_FOOTER', $invoice_footer);
@@ -155,11 +155,24 @@ $html = '';
 
 $html .= '
     <br /><br /><br /><br /><br />
-    <p style="color:#df5a87; font-size:1.3em; margin-left:5px;">Payment of Accounts Receivable</p><br /><br />
+    <p style="color:#df5a87; font-size:1.3em; margin-left:5px;">PAYMENT OF ACCOUNTS RECEIVABLE</p><br /><br />
     <table border="0" style="border-bottom:1px solid #df5a87;">
         <tr>
-            <td width="50%"><b>TO: </b>'.get_contact($dbc, $contactid).'</td>
-            <td width="50%"><b>PAYMENT DATE: </b>'.date('Y-m-d').'</td>
+            <td width="50%"><b>TO: </b>';
+
+            foreach(array_unique($patient_ids) as $contactid) {
+                if($contactid == 0) {
+                    $non_patient = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `invoice_nonpatient` WHERE `invoiceid`='".$get_invoice['invoiceid']."'"));
+                    $html .= '<p>'.$non_patient['first_name'].' '.$non_patient['last_name'].'<br/>'.$non_patient['email'].'</p>';
+                } else {
+                    $html .= '<p>'.get_contact($dbc, $contactid).'<br/>'.get_address($dbc, $contactid).'</p>';
+                }
+            }
+
+            $html .= '</td><td width="50%"><b>PAYMENT DATE: </b>'.date('Y-m-d').'</td>
+        </tr>
+        <tr>
+            <td colspan="2"></td>
         </tr>
     </table>';
 
@@ -185,7 +198,7 @@ $html .= '
         $ar_lines[$inv[1]][5] += $inv[5];
     }
 	foreach($ar_lines as $ar_line) {
-		$html .= '<tr><td>'.$ar_line[0].'</td><td>'.$ar_line[1].'</td><td>$'.number_format($ar_line[3],2).'</td></tr>';
+		$html .= '<tr><td>'.$ar_line[0].'</td><td>'.$ar_line[1].'</td><td align="right">$'.number_format($ar_line[3],2).'</td></tr>';
 		$total_amt += $ar_line[3];
 		$sub_total += $ar_line[4];
 		$tax_amt += $ar_line[5];
@@ -219,7 +232,7 @@ $html .= '
 		foreach(explode('*#*',$get_pos_tax) as $pos_tax) {
 			if($pos_tax != '') {
 				$pos_tax_name_rate = explode('**',$pos_tax);
-				$html .= '<tr><td></td><td></td><td>'.$pos_tax_name_rate[0].'  ['.$pos_tax_name_rate[2].']:</td><td>$'.number_format($tax_amt * $pos_tax_name_rate[1] / $total_tax_rate,2).'</td></tr>';
+				$html .= '<tr><td></td><td>'.$pos_tax_name_rate[0].'  ['.$pos_tax_name_rate[2].']:</td><td  align="right">$'.number_format($tax_amt * $pos_tax_name_rate[1] / $total_tax_rate,2).'</td></tr>';
 			}
 		}
     }
