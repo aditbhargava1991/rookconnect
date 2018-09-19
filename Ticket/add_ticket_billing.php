@@ -33,6 +33,7 @@ function updateTotalTimeEstimate() {
 		$services = $_SERVER['DBC']->query("SELECT `serviceid`, `service_qty`, `service_discount`, `service_discount_type`, `service_time_estimate`, `service_fuel_charge` FROM `tickets` WHERE `ticketid`='$ticketid'")->fetch_assoc();
 		$service_delivers = [];
 		$service_deliver_id = [];
+		$service_delivers = [];
 		$service = explode(',',$services['serviceid']);
 		$service_surcharge = explode(',',$services['service_fuel_charge']);
         foreach($service as $id) {
