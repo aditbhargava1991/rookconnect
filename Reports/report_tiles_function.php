@@ -309,7 +309,9 @@ function reports_tiles($dbc) {
                         <?php if ( $_GET['report'] == 'Ticket Activity Report' ) { ?>
                             <div class="pull-right">
                                 <a class="cursor-hand printpdf"><img src="../img/pdf.png" class="no-toggle" title="Print Report" /></a>
+
                                 <img src="../img/icons/ROOK-email-icon.png" id="<?= strtolower(str_replace(' ', '_', $_GET['report'])) ?>" class="show_search no-toggle cursor-hand offset-left-5" title="Email Report" width="25" onclick="email_doc(this);" />
+
                                 <img src="../img/icons/ROOK-3dot-icon.png" class="show_search no-toggle cursor-hand offset-left-5" title="Show/Hide Search" width="25" />
                             </div>
                         <?php } ?>
