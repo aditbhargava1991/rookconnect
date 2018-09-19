@@ -39,6 +39,32 @@ foreach($ticket_list as $ticketid) {
 			$inv_service_fee[] = $price_total;
 			$total_price += $price_total;
 		}
+        $srv_i = count(explode(',',$ticket['serviceid']));
+		$tickets = $dbc->query("SELECT * FROM `ticket_schedule` WHERE `ticketid`='$ticketid' AND `deleted`=0 ORDER BY `sort`");
+        while($ticket = $tickets->fetch_assoc()) {
+            foreach(explode(',',$ticket['serviceid']) as $i => $service) {
+                $fuel = explode(',',$ticket['service_fuel_charge'])[$i + $srv_i];
+                $price = 0;
+                $customer_rate = $dbc->query("SELECT `services` FROM `rate_card` WHERE `clientid`='".$ticket['businessid']."' AND `deleted`=0 AND `on_off`=1")->fetch_assoc();
+                foreach(explode('**',$customer_rate['services']) as $service_rate) {
+                    $service_rate = explode('#',$service_rate);
+                    if($service == $service_rate[0] && $service_rate[1] > 0) {
+                        $price = $service_rate[1];
+                    }
+                }
+                if(!($price > 0)) {
+                    $service_rate = $dbc->query("SELECT `cust_price`, `admin_fee` FROM `company_rate_card` WHERE `deleted`=0 AND `item_id`='$service' AND `tile_name` LIKE 'Services' AND `start_date` < DATE(NOW()) AND IFNULL(NULLIF(`end_date`,'0000-00-00'),'9999-12-31') > DATE(NOW()) AND `cust_price` > 0")->fetch_assoc();
+                    $price = $service_rate['cust_price'];
+                }
+                $inv_services[] = $service;
+                $inv_service_ticketid[] = $ticketid;
+                $inv_service_qty[] = 1;
+                $price_total = ($price + $fuel);
+                $inv_service_fee[] = $price_total;
+                $total_price += $price_total;
+            }
+            $srv_i += count(explode(',',$ticket['serviceid']));
+        }
 		$ticket_lines = $dbc->query("SELECT * FROM `ticket_attached` WHERE `ticketid`='$ticketid' AND `deleted`=0 AND `src_table` LIKE 'Staff%'");
 		while($line = $ticket_lines->fetch_assoc()) {
 			$description = get_contact($dbc, $line['item_id']).' - '.$line['position'];

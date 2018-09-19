@@ -366,7 +366,7 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 									</div>
 								<?php } else if (strpos($value_config, ','."Delivery Pickup Equipment".',') !== FALSE && strpos($value_config, ','."Assigned Equipment Inline".',') !== FALSE && $field_sort_field == 'Delivery Pickup Equipment') { ?>
 									<div class="form-group">
-										<?php if (strpos($value_config, ','."Delivery Pickup Equipment Tab".',') !== FALSE) { ?>
+										<?php if (strpos($value_config, ','."Delivery Pickup Equipment Category".',') !== FALSE) { ?>
 											<label class="hide-titles-mob text-center col-sm-<?= floor(12 / $equip_col_count) ?>">Equipment Tab</label>
 										<?php } ?>
 										<?php if (strpos($value_config, ','."Delivery Pickup Equipment Make".',') !== FALSE) { ?>
@@ -629,24 +629,24 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
                                     <?php if(empty($delivery_service_list)) {
                                         $delivery_service_list = $dbc->query("SELECT `services`.* FROM `services` LEFT JOIN `rate_card` ON CONCAT('**',`rate_card`.`services`,'#') LIKE CONCAT('%**',`services`.`serviceid`,'#%') WHERE `rate_card`.`clientid`='$businessid' AND `rate_card`.`deleted`=0 AND `services`.`deleted`=0")->fetch_all(MYSQLI_ASSOC);
                                     } ?>
-                                    <div class="multi-block">
-                                        <?php foreach(explode(',',$stop['serviceid']) as $stop_service) { ?>
+                                    <?php foreach(explode(',',$stop['serviceid']) as $stop_service) { ?>
+                                        <div class="multi-block no_id_reset">
                                             <div class="form-group">
                                                 <label class="col-sm-4 control-label">Services:</label>
                                                 <div class="col-sm-7">
                                                     <select name="serviceid" data-placeholder="Select Services" class="form-control chosen-select-deselect" data-concat="," data-table="ticket_schedule" data-id="<?= $stop['id'] ?>" data-id-field="id"><option />
                                                         <?php foreach($delivery_service_list as $service) { ?>
-                                                            <option <?= $service['serviceid'] == $stop_service ? 'selected' : '' ?> value="<?= $service['serviceid'] ?>"><?= $service['category'].' '.$service['service_type'].' '.$service['heading'] ?></option>
+                                                            <option <?= $service['serviceid'] == $stop_service ? 'selected' : '' ?> value="<?= $service['serviceid'] ?>"><?= implode(': ',array_filter([$service['category'],$service['service_type'],$service['heading']])) ?></option>
                                                         <?php } ?>
                                                     </select>
                                                 </div>
                                                 <div class="col-sm-1">
                                                     <img class="cursor-hand inline-img pull-right" onclick="addMulti(this);" src="../img/icons/ROOK-add-icon.png">
-                                                    <img class="cursor-hand inline-img pull-right" onclick="remMulti(this);" src="../img/remove.png">
+                                                    <img class="cursor-hand inline-img pull-right" onclick="remMulti(this);" data-remove="1" src="../img/remove.png">
                                                 </div>
                                             </div>
-                                        <?php } ?>
-                                    </div>
+                                        </div>
+                                    <?php } ?>
 								<?php } ?>
 								<?php if (strpos($value_config, ','."Delivery Pickup ETA".',') !== FALSE && $field_sort_field == 'Delivery Pickup ETA') { ?>
 									<div class="form-group">
