@@ -914,7 +914,7 @@ function mark_done(sel) {
             <?php $get_field_config_tiles = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT task_fields FROM task_dashboard")); ?>
             <?php $task_fields = ','.$get_field_config_tiles['task_fields'] . ','; ?>
             <?php $get_mandatory_field_config_tiles = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT task_fields FROM task_dashboard_mandatory")); ?>
-            <?php $task_mandatory_fields = ','.$get_mandatory_field_config_tiles['task_fields'] . ','; echo $task_mandatory_fields; ?>
+            <?php $task_mandatory_fields = ','.$get_mandatory_field_config_tiles['task_fields'] . ','; ?>
 
                 <div id="accordion_tabs" class="sidebar panel-group block-panels main-screen" style="background-color: #fff; padding: 0; margin-left: 0.5em; width: calc(100% - 1em);">
 
