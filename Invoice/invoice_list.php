@@ -208,6 +208,7 @@ $search_invoice_clause = !empty($search_invoiceid) ? " AND `invoiceid`='$search_
                     <div class="col-sm-4">
                         <label for="site_name" class="control-label"><?= $purchaser_label ?>:</label>
                     </div>
+
                     <div class="col-sm-8">
                         <select name="contactid" data-placeholder="Select <?= $purchaser_label ?>..." class="chosen-select-deselect form-control width-me">
                             <option value=""></option><?php
