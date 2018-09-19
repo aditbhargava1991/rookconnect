@@ -1,7 +1,6 @@
 <?php
 //This is the list of all accordions in Tickets. This will be the default order of accordions in a Ticket. Each different Ticket type will have it's own setting for accordion sort order. The setting for the sort order will be compared against this array and if there are any missing fields in the sort order config it will add it to the list so no accordions will be missed.
 $accordion_list = [
-	'Customer History' => ['Customer History Business Ticket Type','Customer History Business Project Type','Customer History Business Ticket Project Type','Customer History Customer Ticket Type','Customer History Customer Project Type','Customer History Customer Ticket Project Type','Customer History Field Display Notes','Customer History Field Service Template'],
 	'Information' => ['PI Business','PI Name','PI Guardian','PI AFE','PI Project','PI Pieces','PI Sites','PI Rate Card','PI Customer Order','PI Sales Order','PI Invoice','PI Order','PI Purchase Order','PI WTS Order','PI Cross Ref','PI Invoiced Out','PI Work Order','PI Scheduled Date','PI Date of Entry','PI Time of Entry','PI Agent','PI Status','PI Ban','PI Vendor','PI Operator','PI Waste Manifest','PI Reference Ticket','PI TDG Doc Num','PI VTI Num','PI TEXT FIELD'],
 	'Purchase Order List' => ['PO List','PO Slider Icons'],
 	'Customer Orders' => ['CO List','CO Slider Icons'],
