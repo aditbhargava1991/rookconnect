@@ -42,6 +42,7 @@ var businessFilter = function() {
 			}
 		});
 	<?php } ?>
+
 	<?php if(strpos($value_config, ',Service Rate Card,') !== FALSE) { ?>
 		$.ajax({
 			url: 'ticket_ajax_all.php?action=business_services&agentid='+$('[name=agentid]').val()+'&carrierid='+$('[id$=transport_details] [name=carrier]').val()+'&originvendor='+$('[id$=transport_origin] [name=vendor]').val()+'&destvendor='+$('[id$=transport_destination] [name=vendor]').val()+'&business='+option.val(),
@@ -53,7 +54,18 @@ var businessFilter = function() {
 				});
 			}
 		});
-	<?php } ?>
+	<?php  } ?>
+
+    $.ajax({
+        url: 'ticket_ajax_all.php?action=business_services_fetch&business='+option.val(),
+        dataType: 'html',
+        success: function(response) {
+            var arr = response.split('FFM');
+            $('.serviceid').val(arr[0]).trigger('change.select2');
+            $('[name=services_cost]').val(arr[1]);
+        }
+    });
+
 	if(typeof filterRegLocClass == 'function') {
 		filterRegLocClass(1);
 	}

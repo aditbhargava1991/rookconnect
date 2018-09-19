@@ -8,7 +8,7 @@
     </script>
     <div class="tile-sidebar sidebar sidebar-override hide-titles-mob standard-collapsible <?= $tile == 'hr' ? '' : 'collapsed' ?>">
         <ul id="desktop_accordions" class="panel-group">
-            <li class="standard-sidebar-searchbox"><input class="form-control search_list" placeholder="Search" type="text" value="<?= $_GET['key'] ?>"></li>
+            <li class="standard-sidebar-searchbox"><input class="form-control search_list" placeholder="Search HR" type="text" value="<?= $_GET['key'] ?>"></li>
             <?php if(get_config($dbc, 'hr_include_profile') == 1) {
                 include('../Staff/field_list.php');
                 $contact = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `contacts` LEFT JOIN `contacts_cost` ON `contacts`.`contactid`=`contacts_cost`.`contactid` LEFT JOIN `contacts_dates` ON `contacts`.`contactid`=`contacts_dates`.`contactid` LEFT JOIN `contacts_description` ON `contacts`.`contactid`=`contacts_description`.`contactid` LEFT JOIN `contacts_medical` ON `contacts`.`contactid`=`contacts_medical`.`contactid` LEFT JOIN `contacts_upload` ON `contacts`.`contactid`=`contacts_upload`.`contactid` WHERE `contacts`.`contactid`='".$_SESSION['contactid']."'"));
@@ -68,6 +68,9 @@
                         } ?>
                         <a href="?performance_review=list"><li class="<?= $_GET['performance_review'] == 'list' && empty($pr_tab) ? 'active' : '' ?>">View All</li></a>
                     </ul>
+                <?php }
+                if(check_subtab_persmission($dbc, 'hr', ROLE, 'reporting')) { ?>
+                    <a href='?reports=view&tile_name=<?= $tile ?>'><li class='<?= ($_GET['reports'] == 'view' ? "active_tab" : "") ?>'>Reporting</li></a>
                 <?php }
             } ?>
         </ul>

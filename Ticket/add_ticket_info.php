@@ -639,7 +639,7 @@ if(!empty($_GET['add_service_iframe'])) { ?>
 								<?php if(strpos($value_config,',Service Heading,') !== FALSE && $field_sort_field == 'Service Heading') { ?>
 									<div class="form-group">
 									  <label for="site_name" class="col-sm-4 control-label"><!--<span class="text-red">*</span>--> Service Heading:</label>
-									  <div class="col-sm-<?= strpos($value_config,',Service Multiple,') !== FALSE ? '6' : '7' ?>">
+									  <div class="col-sm-<?= strpos($value_config,',Service Multiple,') !== FALSE ? '6' : '8' ?>">
 										<select data-placeholder="Select a Heading..." name="serviceid" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" data-concat="," class="chosen-select-deselect form-control serviceid">
 										  <option value=""></option>
 										  <?php $query = mysqli_query($dbc,"SELECT serviceid, heading, service_type, category, estimated_hours FROM services WHERE ". $query_mod ." order by heading");
@@ -934,15 +934,13 @@ if(!empty($_GET['add_service_iframe'])) { ?>
 				</div>
 			<?php } ?>
 		  <?php if(strpos($value_config,',Service Total Price,') !== FALSE && $field_sort_field == 'Service Total Price') { ?>
-				<?php $editable = check_subtab_persmission($dbc, 'ticket', ROLE, 'edit_service_total');
-				if(check_subtab_persmission($dbc, 'ticket', ROLE, 'view_service_total')) { ?>
+
 					<div class="form-group">
 						<label for="site_name" class="col-sm-4 control-label">Total Price of Services:</label>
 						<div class="col-sm-8">
 							<input type="number" data-manual="<?= $get_ticket['service_cost_manual'] ?>" data-manual-field="service_cost_manual" min="0" step="any" name="services_cost" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" <?= $editable ? '' : 'readonly' ?> class="form-control" value="<?= $get_ticket['services_cost'] ?>">
 						</div>
 					</div>
-				<?php } ?>
 			<?php } ?>
 		<?php } ?>
 	<?php } else { ?>
