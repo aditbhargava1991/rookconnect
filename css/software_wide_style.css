@@ -2962,6 +2962,7 @@ ul.select2-results__options {
 }
 .standard-body-content {
 	background-color: #FFFFFF;
+    min-height: calc(100% - 36px - 1.5em);
 }
 .standard-body .control-label,.standard-body-content .control-label {
 	text-align: left;
