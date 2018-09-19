@@ -174,7 +174,7 @@ $html .= '
         <tr>
             <td colspan="2"></td>
         </tr>
-    </table>';
+    </table><br><br>';
 
 	$html .= '
 		<table border="0" style="padding:3px;">
