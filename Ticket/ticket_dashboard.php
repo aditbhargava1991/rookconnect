@@ -798,8 +798,14 @@ IF(!IFRAME_PAGE) { ?>
 								if($admin_group['region'] == '') {
 									$admin_regions = mysqli_fetch_all($dbc->query("SELECT IFNULL(`region`,'') FROM `tickets` WHERE `deleted`=0 ".($other_groups['regions'] != "','" && $other_groups['regions'] != "" ? " AND ((`region` IN ('{$admin_group['region']}','') AND `region` NOT IN ('{$other_groups['regions']}')) OR ('{$admin_group['region']}'='' AND `region` NOT IN ('{$other_groups['regions']}')))" : "")." GROUP BY IFNULL(`region`,'')"));
 								}
+								if(empty($admin_regions)) {
+									$admin_regions = [''];
+								}
 								if($admin_group['classification'] == '') {
 									$admin_classes = mysqli_fetch_all($dbc->query("SELECT IFNULL(`classification`,'') FROM `tickets` WHERE `deleted`=0 ".($other_groups['classifications'] != "','" && $other_groups['classifications'] != "" ? " AND (`classification` IN ('{$admin_group['classification']}','') OR ('{$admin_group['classification']}'='' AND `classification` NOT IN ('{$other_groups['classifications']}')))" : "")." GROUP BY IFNULL(`classification`,'')"));
+								}
+								if(empty($admin_classes)) {
+									$admin_classes = [''];
 								}
 								foreach($admin_regions as $region_i => $admin_region) {
 									foreach($admin_classes as $class_i => $admin_class) { ?>
