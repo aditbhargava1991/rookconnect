@@ -111,7 +111,6 @@ if(array_filter($summary_view) && (!isset($_GET['view']) || $_GET['view'] == 'su
                         echo "<div class='pull-right gap-left'><a href='?edit=new' style='font-size: 0.5em;'><button class='btn brand-btn hide-titles-mob'>New ".rtrim(ESTIMATE_TILE, 's')."</button>";
                         echo "<img src='".WEBSITE_URL."/img/icons/ROOK-add-icon.png' class='show-on-mob' height='30'></a></div>";
                     }
-					echo "<div class='pull-right'><a href='Add Reminder' onclick='return false;'><img src='".WEBSITE_URL."/img/icons/ROOK-reminder-icon.png' class='no-toggle reminder-icon' title='Schedule Reminder' style='width:1.5em;'></a></div>";
                     if(!isset($_GET['edit']) && !isset($_GET['view'])) { ?>
 						<img class="inline-img pull-right btn-horizontal-collapse hide-titles-mob small no-toggle" src="../img/icons/pie-chart.png" title="View Summary">
                         <div class="pull-right top-dashboard"><img src="../img/icons/ROOK-Speedometer.png" class="cursor-hand" height="30" onclick="$('.dashboard_select').toggle();" /></div>

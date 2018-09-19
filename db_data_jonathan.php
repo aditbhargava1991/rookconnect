@@ -342,6 +342,11 @@
 		if(!mysqli_query($dbc, "ALTER TABLE `project` ADD `deadline` VARCHAR(10) AFTER `followup`")) {
 			echo "Error: ".mysqli_error($dbc)."<br />\n";
 		}
+    
+        //September 11, 2018
+		if(!mysqli_query($dbc, "ALTER TABLE `match_contact` ADD `tile_list` TEXT AFTER `staff_contact`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
         
         //September 17, 2018
 		if(!mysqli_query($dbc, "ALTER TABLE `ticket_schedule` CHANGE `volume` `volume` TEXT")) {

@@ -14,7 +14,7 @@ function changeForm(sel) {
 }
 </script>
 <?php if($user_form_layout != 'Sidebar') { ?>
-<div class='scale-to-fill has-main-screen'>
+<div class='scale-to-fill has-main-screen background-white'>
 	<div class='main-screen form-horizontal'>
         <div class="standard-body-title">
             <h3>Performance Review</h3>
