@@ -118,7 +118,7 @@ $match_tile_lists = '';
 if(in_array(FOLDER_NAME,['posadvanced','invoice','account receivables','project','ticket'])) {
     $match_tile_lists = str_replace(['posadvanced','invoice','account receivables','project','ticket'],
         ['posadvanced','check_out','accounts_receivables','project','ticket'],
-        "OR `tile_list` LIKE '".FOLDER_NAME."'");
+        "OR `tile_list` LIKE '%".FOLDER_NAME."%'");
 }
 $match_contacts_query = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `match_contact` WHERE CONCAT(',',`staff_contact`,',') LIKE '%,".$_SESSION['contactid'].",%' AND `deleted` = 0 AND `match_date` <= '$today_date' AND (IFNULL(`tile_list`,'')='' $match_tile_lists)"),MYSQLI_ASSOC);
 $match_contacts = [];
