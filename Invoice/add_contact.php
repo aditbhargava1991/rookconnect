@@ -36,9 +36,13 @@ $category = $purchaser_config[0]; ?>
         
         mysqli_query($dbc, "INSERT INTO contacts (category, businessid, name, first_name, last_name, office_phone, email_address, mailing_address, business_address, city, postal_code, zip_code, province, state) VALUES ('$category', '$businessid', '$name', '$first_name', '$last_name', '$phone', '$email', '$address', '$address', '$city', '$postal_code', '$postal_code', '$province', '$province')");
         $contactid = mysqli_insert_id($dbc);
-        mysqli_query($dbc, "UPDATE `match_contact` SET `support_contact`=CONCAT(IFNULL(CONCAT(`support_contact`,','),''),'$contactid') WHERE CONCAT(',',`staff_contact`,',') LIKE '%,".$_SESSION['contactid'].",%' AND `deleted` = 0 AND `match_date` <= '$today_date' AND (IFNULL(`tile_list`,'')='' OR `tile_list` LIKE '%".FOLDER_NAME."%')");
+        mysqli_query($dbc, "UPDATE `match_contact` SET `support_contact`=CONCAT(IFNULL(CONCAT(`support_contact`,','),''),'$contactid') WHERE CONCAT(',',`staff_contact`,',') LIKE '%,".$_SESSION['contactid'].",%' AND `deleted` = 0 AND `match_date` <= '$today_date' AND (IFNULL(`tile_list`,'')='' OR `tile_list` LIKE '%".FOLDER_NAME."%')"); ?>
         
+        <script>
+        $(window.top.document).find('select[name=patientid]').append('<option value="<?= $contactid ?>"><?= $_POST['first_name'].' '.$_POST['last_name'] ?></option>').val(<?= $contactid ?>).change();
+        </script>
         echo '<script>window.top.location.href="add_invoice.php?contactid='.$contactid.'&type='.$_POST['type'].'";</script>';
+        <?php // echo '<script>window.top.location.href="add_invoice.php?contactid='.$contactid.'&type='.$_POST['type'].'";</script>';
     }
     $field_config = explode(',', mysqli_fetch_array(mysqli_query($dbc, "SELECT `contacts` FROM `field_config_contacts` WHERE `tab`='$category' AND `subtab` = '**no_subtab**'"))[0] . ',' . mysqli_fetch_array(mysqli_query($dbc, "SELECT `contacts` FROM `field_config_contacts` WHERE `tab`='$category' AND `subtab` = 'additions'"))[0]); ?>
 	

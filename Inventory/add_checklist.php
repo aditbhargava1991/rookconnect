@@ -145,11 +145,11 @@ checkAuthorised('inventory');
 	<?php if(strpos($value_config,',Category,') !== FALSE): ?>
 		<div class="form-group clearfix">
 			<label for="first_name" class="col-sm-4 control-label text-right">
-				<span class="popover-examples list-inline" style="margin:0 3px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Select an inventory category to attach the Checklist to it."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
-				Inventory Category:
+				<span class="popover-examples list-inline" style="margin:0 3px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Select an inventory tab to attach the Checklist to it."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
+				Inventory Tab:
 			</label>
 			<div class="col-sm-8">
-				<select data-placeholder="Select a Category of Inventory" name="category" class="chosen-select-deselect form-control" width="380">
+				<select data-placeholder="Select a Tab of Inventory" name="category" class="chosen-select-deselect form-control" width="380">
 					<option value=""></option>
 					<?php $tabs = get_config($dbc, 'inventory_tabs');
 					$each_tab = explode('#*#', $tabs);
@@ -165,10 +165,10 @@ checkAuthorised('inventory');
 		<div class="form-group clearfix">
 			<label for="first_name" class="col-sm-4 control-label text-right">
 				<span class="popover-examples list-inline" style="margin:0 3px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Select an inventory type to attach the Checklist to it."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
-				Inventory Type:
+				Inventory Tab:
 			</label>
 			<div class="col-sm-8">
-				<select data-placeholder="Select a Type of Inventory" name="type" class="chosen-select-deselect form-control" width="380">
+				<select data-placeholder="Select a Tab of Inventory" name="type" class="chosen-select-deselect form-control" width="380">
 					<option value=""></option>
 					<option <?php if ($type=='Project Inventory') echo 'selected="selected"';?> value="Project Inventory">Project Inventory</option>
 					<option <?php if ($type=='Consumables') echo 'selected="selected"';?> value="Consumables">Consumables</option>

@@ -1,41 +1,55 @@
 <script>
 $(document).ready(function() {
 	$('.multi_dimensions .col-sm-2 input,.multi_dimensions .col-sm-2 select').off('change',setMultiDimensions).change(setMultiDimensions);
-	$('.tab-section[data-type=general]:first').find('[data-table]').off('change',copyPiece).change(copyPiece);
 });
+$(document).on('change', '.tab-section[data-type=general]:first [data-table]', copyPiece);
+var copying_pieces = '';
 function copyPiece(event) {
 	var field = event.target;
-	if($(field).data('type') == 'inventory_general') {
-		$('[data-table=ticket_attached][data-type=inventory_general][name=contact_info]:checked').each(function() {
-			$(this).closest('.tab-section').find('[data-type=inventory_general][name="'+field.name+'"]').val(field.value).change();
-		});
-	}
+	clearTimeout(copying_pieces);
+	copying_pieces = setTimeout(function() {
+		if($(field).data('type') == 'inventory_general') {
+			$('[data-table=ticket_attached][data-type=inventory_general][name=contact_info]:checked').each(function() {
+				$(this).change();
+			});
+		}
+	},500);
 }
 function copyAllPiece() {
 	var i = 0;
 	$('.tab-section[data-type=general]:visible [data-type=inventory_general][name=contact_info]').each(function() {
-		if(!this.checked) {
-			$(this).prop('checked',true);
-			current_fields.push(this);
-		}
-	});
-	$('.tab-section[data-type=general]:first').find('[data-table=ticket_attached][data-type=inventory_general][name!=contact_info]').each(function() {
-		var src = this;
-		$('.tab-section[data-type=general]:visible').not(':first').each(function() {
-			var field = $(this).find('[data-table=ticket_attached][data-type=inventory_general][name!=contact_info]').get(i);
-			if($(src).val() != $(field).val()) {
-				$(field).val($(src).val()).change();
-			}
-		});
-		i++;
+		$(this).prop('checked',true).change();
 	});
 }
 function copyPieceOne(target) {
 	var first_piece = $('.tab-section[data-type=general]:first').find('[data-table=ticket_attached][data-type=inventory_general][name!=contact_info]');
+	var line_rows = $('.tab-section[data-type=general]:first').find('.po_lines_div .multi-block');
+	if(line_rows.length > 0) {
+		while($(target).closest('.tab-section').find('.po_lines_div .multi-block').length < line_rows.length) {
+			$(target).closest('.tab-section').find('.add_po_line').last().click();
+		}
+		while($(target).closest('.tab-section').find('.po_lines_div .mutli-block').length > line_rows.length) {
+			$(target).closest('.tab-section').find('.rem_po_line').last().click();
+		}
+		var i = 0;
+		$(target).closest('.tab-section').find('.po_lines_div .multi-block').each(function() {
+			if(($(line_rows.get(i)).closest('.multi-block').find('.po_line_div:visible').hasClass('po_line_range') && $(this).find('.po_line_div:visible').hasClass('po_line_single')) || ($(line_rows.get(i)).closest('.multi-block').find('.po_line_div:visible').hasClass('po_line_single') && $(this).find('.po_line_div:visible').hasClass('po_line_range'))) {
+				$(this).find('.range_po_line').click();
+			}
+			i++;
+		});
+	}
 	var i = 0;
 	$(target).closest('.tab-section').find('[data-table=ticket_attached][data-type=inventory_general][name!=contact_info]').each(function() {
 		if($(this).closest('.form-group').is(':visible') && $(this).val() != first_piece.get(i).value) {
 			$(this).val(first_piece.get(i).value).change();
+			if($(this).hasClass('po_line_value') && $(this).val() != undefined && $(this).val().indexOf('-') != -1) {
+				var line_range = $(this).val().split('-');
+				$(this).closest('.multi-block').find('[name="po_line_range_min"]').val(line_range[0]).trigger('change.select2');
+				$(this).closest('.multi-block').find('[name="po_line_range_max"]').val(line_range[1]).trigger('change.select2');
+			} else if($(this).is('textarea')) {
+				tinymce.get($(this).prop('id')).setContent($(this).val());
+			}
 		}
 		i++;
 	});
@@ -152,6 +166,12 @@ if(strpos($value_config,',Inventory General Detail by Pallet,') !== FALSE) {
 if(strpos($value_config,',Inventory General Shipment Count Weight,') !== FALSE) {
 	$general_shipment = $dbc->query("SELECT `id`, `qty`, `weight`, `weight_units` FROM `ticket_attached` WHERE `ticketid`='$ticketid' AND `src_table`='inventory_shipment' AND `deleted`=0".$query_daily.(strpos($value_config,',Inventory General PO Line Sort,') !== FALSE ? ' ORDER BY `ticket_attached`.`po_line`' : ''))->fetch_assoc();
 	$shipment_count = $general_shipment['qty'] * 1;
+	if(strpos($value_config,',Inventory General Weight Convert KG to LB,') !== FALSE && $general_shipment['weight_units'] == 'kg') {
+		$general_shipment['weight_units'] = 'lbs';
+		if($general_shipment['weight'] > 0) {
+			$general_shipment['weight'] = number_format(($general_shipment['weight']*2.20462262185),2);
+		}
+	}
 	if($access_all > 0) { ?>
 		<div class="form-group">
 			<label class="control-label col-sm-4">Shipment Count &amp; Weight:</label>
@@ -193,6 +213,12 @@ if(strpos($value_config,',Inventory General Shipment Count Weight,') !== FALSE) 
 } ?>
 <?php if(strpos($value_config,',Inventory General Total Count Weight,') !== FALSE) {
 	$general_shipment = $dbc->query("SELECT `qty`, `weight`, `weight_units` FROM `ticket_attached` WHERE `ticketid`='$ticketid' AND `src_table`='inventory_total_ship' AND `deleted`=0".$query_daily)->fetch_assoc();
+	if(strpos($value_config,',Inventory General Weight Convert KG to LB,') !== FALSE && $general_shipment['weight_units'] == 'kg') {
+		$general_shipment['weight_units'] = 'lbs';
+		if($general_shipment['weight'] > 0) {
+			$general_shipment['weight'] = number_format(($general_shipment['weight']*2.20462262185),2);
+		}
+	}
 	if($access_all > 0) { ?>
 		<div class="form-group">
 			<label class="control-label col-sm-4">Total Shipment Count &amp; Total Weight:</label>
@@ -234,6 +260,18 @@ $general_inventory = mysqli_fetch_assoc($general_inventory_list);
 $piece_types = array_filter(explode(',',get_config($dbc, 'piece_types')));
 $general_line_item = 0;
 do {
+	if(strpos($value_config,',Inventory General Weight Convert KG to LB,') !== FALSE) {
+		$general_inventory['weight_units'] = explode('#*#',$general_inventory['weight_units']);
+		$general_inventory['weight'] = explode('#*#',$general_inventory['weight']);
+		foreach($general_inventory['weight'] as $id => $general_weight) {
+			if($general_inventory['weight_units'][$id] == 'kg' && $general_weight > 0) {
+				$general_inventory['weight'][$id] = number_format(($general_inventory['weight'][$id]*2.20462262185),2);
+				$general_inventory['weight_units'][$id] = 'lbs';
+			}
+		}
+		$general_inventory['weight_units'] = implode('#*#',$general_inventory['weight_units']);
+		$general_inventory['weight'] = implode('#*#',$general_inventory['weight']);
+	}
 	if($general_inventory['dimensions'] == '') {
 		$general_inventory['dimensions'] = ' x x ';
 	}
@@ -273,7 +311,7 @@ do {
 							</div>
 							<div class="col-sm-6">
 								<?php if(count($piece_types) > 0) { ?>
-									<select name="piece_type" data-placeholder="Select Piece Type" data-table="ticket_attached" data-id="<?= $general_inventory['id'] ?>" data-id-field="id" data-type="inventory_general" data-type-field="src_table" class="chosen-select-deselect"><option></option>
+									<select name="piece_type" data-placeholder="Select Piece Tab" data-table="ticket_attached" data-id="<?= $general_inventory['id'] ?>" data-id-field="id" data-type="inventory_general" data-type-field="src_table" class="chosen-select-deselect"><option></option>
 										<?php foreach($piece_types as $piece_type_name) { ?>
 											<option <?= $general_inventory['piece_type'] == $piece_type_name ? 'selected' : '' ?> value="<?= $piece_type_name ?>"><?= $piece_type_name ?></option>
 										<?php } ?>
@@ -310,10 +348,10 @@ do {
 				<?php } ?>
 				<?php if(strpos($value_config,',Inventory General Piece Type,') !== FALSE && $field_sort_field == 'Inventory General Piece Type') { ?>
 					<div class="form-group" <?= $general_inventory['description'] == '' || $general_inventory['piece_type'] != '' ? '' : 'style="display:none;"' ?>>
-						<label class="control-label col-sm-4">Piece Type:</label>
+						<label class="control-label col-sm-4">Piece Tab:</label>
 						<div class="col-sm-8"><div class="col-sm-12">
 							<?php if(count($piece_types) > 0) { ?>
-								<select name="piece_type" data-placeholder="Select Type" data-table="ticket_attached" data-id="<?= $general_inventory['id'] ?>" data-id-field="id" data-type="inventory_general" data-type-field="src_table" class="chosen-select-deselect"><option></option>
+								<select name="piece_type" data-placeholder="Select Tab" data-table="ticket_attached" data-id="<?= $general_inventory['id'] ?>" data-id-field="id" data-type="inventory_general" data-type-field="src_table" class="chosen-select-deselect"><option></option>
 									<?php foreach($piece_types as $piece_type_name) { ?>
 										<option <?= $general_inventory['piece_type'] == $piece_type_name ? 'selected' : '' ?> value="<?= $piece_type_name ?>"><?= $piece_type_name ?></option>
 									<?php } ?>
@@ -329,26 +367,75 @@ do {
 					<div class="clearfix"></div>
 				<?php } ?>
 				<?php if(strpos($value_config,',Inventory General Site,') !== FALSE && $field_sort_field == 'Inventory General Site') { ?>
-					<div class="form-group" <?= $general_inventory['description'] == '' || $general_inventory['siteid'] != '' ? '' : 'style="display:none;"' ?>>
-						<label class="control-label col-sm-4"><?= SITES_CAT ?>:</label>
-						<div class="col-sm-8"><div class="col-sm-12">
-							<select name="siteid[]" multiple data-concat="," data-placeholder="Select <?= SITES_CAT ?>" data-table="ticket_attached" data-id="<?= $general_inventory['id'] ?>" data-id-field="id" data-type="inventory_general" data-type-field="src_table" class="chosen-select-deselect">
-								<?php if(!isset($site_list)) {
-									$site_list = sort_contacts_query(mysqli_query($dbc,"SELECT contactid, site_name, `display_name`, businessid FROM `contacts` WHERE `category`='".SITES_CAT."' AND deleted=0 ORDER BY IFNULL(NULLIF(`display_name`,''),`site_name`)"));
-								}
-								foreach($site_list as $site_row) { ?>
-									<option <?= strpos(','.$general_inventory['siteid'].',',','.$site_row['contactid'].',') !== FALSE ? 'selected' : '' ?> value="<?= $site_row['contactid'] ?>"><?= $site_row['full_name'] ?></option>
-								<?php } ?>
-							</select>
-						</div></div>
+					<div class="site_group">
+						<div class="form-group" <?= $general_inventory['description'] == '' || $general_inventory['siteid'] != '' ? '' : 'style="display:none;"' ?>>
+							<label class="control-label col-sm-4"><?= SITES_CAT ?>:</label>
+							<div class="col-sm-8">
+								<div class="col-sm-10">
+									<select name="siteid[]" multiple data-concat="," data-placeholder="Select <?= SITES_CAT ?>" data-table="ticket_attached" data-id="<?= $general_inventory['id'] ?>" data-id-field="id" data-type="inventory_general" data-type-field="src_table" class="chosen-select-deselect">
+										<?php if(!isset($site_list)) {
+											$site_list = sort_contacts_query(mysqli_query($dbc,"SELECT contactid, site_name, `display_name`, businessid FROM `contacts` WHERE `category`='".SITES_CAT."' AND deleted=0 ORDER BY IFNULL(NULLIF(`display_name`,''),`site_name`)"));
+										}
+										foreach($site_list as $site_row) { ?>
+											<option <?= strpos(','.$general_inventory['siteid'].',',','.$site_row['contactid'].',') !== FALSE ? 'selected' : '' ?> value="<?= $site_row['contactid'] ?>"><?= $site_row['full_name'] ?></option>
+										<?php } ?>
+										<option value="MANUAL">Add New Site</option>
+									</select>
+								</div>
+								<div class="col-sm-2">
+									<a href="" onclick="viewSite(this); return false;"><img class="inline-img pull-right no-toggle" src="../img/person.PNG" title="View Profile"></a>
+									<a href="" onclick="$(this).closest('.form-group').find('select').val('MANUAL').change(); return false;"><img class="inline-img pull-right" src="../img/icons/ROOK-add-icon.png"></a>
+								</div>
+							</div>
+						</div>
+						<div class="form-group clearfix site_name" style="display:none;">
+							<label class="control-label col-sm-4">Name of Location:</label>
+							<div class="col-sm-8">
+								<div class="col-sm-12">
+									<input type="text" name="site_name" data-table="contacts" data-id="" data-id-field="contactid" data-attach="Sites" data-attach-field="category" class="form-control">
+								</div>
+							</div>
+						</div>
+						<div class="clearfix"></div>
 					</div>
-					<div class="clearfix"></div>
 				<?php } ?>
 				<?php if(strpos($value_config,',Inventory General PO Number,') !== FALSE && $field_sort_field == 'Inventory General PO Number') { ?>
 					<div class="form-group" <?= $general_inventory['description'] == '' || $inventory['po_num'] != '' ? '' : 'style="display:none;"' ?>>
 						<label class="control-label col-sm-4">Purchase Order #:</label>
 						<div class="col-sm-8"><div class="col-sm-12">
 							<input type="text" name="po_num" data-table="ticket_attached" data-id="<?= $general_inventory['id'] ?>" data-id-field="id" data-type="inventory_general" data-type-field="src_table" class="form-control" value="<?= $general_inventory['po_num'] ?>">
+						</div></div>
+					</div>
+					<div class="clearfix"></div>
+				<?php } ?>
+				<?php if(strpos($value_config,',Inventory General PO Number Dropdown,') !== FALSE && $field_sort_field == 'Inventory General PO Number Dropdown') { ?>
+					<div class="form-group po_num_group" <?= $general_inventory['description'] == '' || $inventory['po_num'] != '' ? '' : 'style="display:none;"' ?>>
+						<label class="control-label col-sm-4">Purchase Order #:</label>
+						<div class="col-sm-8"><div class="col-sm-12">
+							<select name="po_num" data-table="ticket_attached" data-id="<?= $general_inventory['id'] ?>" data-id-field="id" data-type="inventory_general" data-type-field="src_table" class="chosen-select-deselect form-control po_num_dropdown" value="<?= $general_inventory['po_num'] ?>">
+								<option></option>
+								<option value="MANUAL">Custom Purchase Order #</option>
+								<?php $ticket_po_list = array_filter(explode('#*#',$get_ticket['purchase_order']));
+								$po_numbers = $dbc->query("SELECT `po_num` FROM `ticket_attached` WHERE `deleted`=0 AND `ticketid` > 0 AND `src_table` IN ('inventory_general','inventory') AND `ticketid`='$ticketid' AND IFNULL(`po_num`,'') != '' GROUP BY `po_num`");
+								$po_line_list = [];
+								while($po_num_line = $po_numbers->fetch_assoc()) {
+									$po_line_list[] = $po_num_line['po_num'];
+								}
+								$po_list = array_unique(array_merge($po_line_list,$ticket_po_list));
+								sort($po_list);
+								foreach($po_list as $po_num_line) {
+									echo '<option value="'.$po_num_line.'" '.($po_num_line == $general_inventory['po_num'] ? 'selected' : '').'>'.$po_num_line.'</option>';
+								}
+								if(!in_array($general_inventory['po_num'],$po_list) && !empty($general_inventory['po_num'])) {
+									echo '<option value="'.$general_inventory['po_num'].'" selected>'.$general_inventory['po_num'].'</option>';
+								} ?>
+							</select>
+						</div></div>
+					</div>
+					<div class="form-group clearfix custom_po_num" style="display:none;">
+						<label class="control-label col-sm-4">Purchase Order #:</label>
+						<div class="col-sm-8"><div class="col-sm-12">
+							<input type="text" name="po_num" data-table="ticket_attached" data-id="<?= $general_inventory['id'] ?>" data-id-field="id" data-type="inventory_general" data-type-field="src_table" class="form-control">
 						</div></div>
 					</div>
 					<div class="clearfix"></div>
@@ -388,6 +475,60 @@ do {
 								<?php } ?>
 							</select>
 						</div></div>
+					</div>
+					<div class="clearfix"></div>
+				<?php } else if(strpos($value_config,',Inventory General PO Dropdown Multiple,') !== FALSE && $field_sort_field == 'Inventory General PO Dropdown Multiple') { ?>
+					<div class="form-group">
+						<label class="control-label col-sm-4">Purchase Order Line Item:</label>
+						<div class="col-sm-8 po_lines_div">
+							<?php $po_lines = explode(',', $general_inventory['po_line']);
+							foreach($po_lines as $po_line) { ?>
+								<div class="multi-block">
+									<div class="po_line_div po_line_single" <?= strpos($po_line, '-') !== FALSE ? 'style="display:none;"' : '' ?>>
+										<div class="col-sm-10">
+											<select name="po_line<?= strpos($po_line, '-') !== FALSE ? '_disabled' : '' ?>" data-table="ticket_attached" data-id="<?= $general_inventory['id'] ?>" data-id-field="id" data-type="inventory_general" data-type-field="src_table" data-concat="," class="chosen-select-deselect po_line_value"><option />
+												<?php for($i = 10; $i <= 550; $i += 10) { ?>
+													<option <?= $po_line == $i ? 'selected' : '' ?> value="<?= $i ?>"><?= $i ?></option>
+												<?php } ?>
+											</select>
+										</div>
+										<div class="col-sm-2 pull-right">
+											<img class="inline-img pull-right no-toggle theme-color-icon" onclick="rangeMultiPOLine(this);" src="../img/icons/range.png" title="Toggle Range">
+											<img class="inline-img pull-right" onclick="addMultiPOLine(this);" src="../img/icons/ROOK-add-icon.png">
+											<img class="inline-img pull-right" onclick="remMultiPOLine(this);" src="../img/remove.png">
+										</div>
+									</div>
+									<div class="clearfix"></div>
+									<div class="po_line_div po_line_range" <?= strpos($po_line, '-') !== FALSE ? '' : 'style="display:none;"' ?>>
+										<input type="hidden" name="po_line<?= strpos($po_line, '-') !== FALSE ? '' : '_disabled' ?>" data-table="ticket_attached" data-id="<?= $general_inventory['id'] ?>" data-id-field="id" data-type="inventory_general" data-type-field="src_table" data-concat="," value="<?= $po_line ?>" class="po_line_value">
+										<div class="col-sm-10">
+											<div class="col-sm-5 no-pad">
+												<select name="po_line_range_min" class="chosen-select-deselect"><option />
+													<?php for($i = 10; $i <= 550; $i += 10) { ?>
+														<option <?= explode('-',$po_line)[0] == $i ? 'selected' : '' ?> value="<?= $i ?>"><?= $i ?></option>
+													<?php } ?>
+												</select>
+											</div>
+											<div style="text-align: center;" class="col-sm-2 no-pad">
+												<label style="font-size: large;"> - </label>
+											</div>
+											<div class="col-sm-5 no-pad">
+												<select name="po_line_range_max" class="chosen-select-deselect"><option />
+													<?php for($i = 10; $i <= 550; $i += 10) { ?>
+														<option <?= explode('-',$po_line)[1] == $i ? 'selected' : '' ?> value="<?= $i ?>"><?= $i ?></option>
+													<?php } ?>
+												</select>
+											</div>
+										</div>
+										<div class="col-sm-2 pull-right">
+											<img class="inline-img pull-right no-toggle theme-color-icon range_po_line" onclick="rangeMultiPOLine(this);" src="../img/icons/range.png" title="Toggle Range">
+											<img class="inline-img pull-right add_po_line" onclick="addMultiPOLine(this);" src="../img/icons/ROOK-add-icon.png">
+											<img class="inline-img pull-right rem_po_line" onclick="remMultiPOLine(this);" src="../img/remove.png">
+										</div>
+									</div>
+								</div>
+							<?php } ?>
+						</div>
 					</div>
 					<div class="clearfix"></div>
 				<?php } ?>
@@ -528,6 +669,7 @@ do {
 				<div class="general_piece_details" style="<?= $general_inventory['position'] > 0 ? '' : 'display:none;' ?>">
 					<hr />
 					<?php $field_list = $accordion_list['Inventory Detail'];
+					$previous_field_sort_order = $field_sort_order;
 					$field_sort_order = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_ticket_fields` WHERE `ticket_type` = '".(empty($ticket_type) ? 'tickets' : 'tickets_'.$ticket_type)."' AND `accordion` = 'Inventory Detail'"))['fields'];
 					if(empty($field_sort_order)) {
 						$field_sort_order = $value_config;
@@ -538,7 +680,8 @@ do {
 							$field_sort_order[] = $default_field;
 						}
 					}
-					include('add_ticket_inventory_detailed.php'); ?>
+					include('add_ticket_inventory_detailed.php');
+					$field_sort_order = $previous_field_sort_order; ?>
 					<div class="clearfix"></div>
 				</div>
 			<?php } ?>
@@ -559,15 +702,22 @@ do {
 			<div class="form-group" <?= $general_inventory['description'] == '' || $general_inventory['siteid'] != '' ? '' : 'style="display:none;"' ?>>
 				<label class="control-label col-sm-4"><?= SITES_CAT ?>:</label>
 				<div class="col-sm-8">
-					<?= get_contact($dbc, $general_inventory['siteid']) ?>
+					<?php $site_names = [];
+					foreach(array_filter(explode(',',$general_inventory['siteid'])) as $site_id) {
+						$query = mysqli_query($dbc,"SELECT contactid, site_name, `display_name`, businessid FROM `contacts` WHERE `category`='Sites' AND deleted=0 AND `contactid`='".$site_id."' ORDER BY IFNULL(NULLIF(`display_name`,''),`site_name`)");
+						$row = mysqli_fetch_array($query);
+						$site_names[] = ($row['display_name'] == '' ? $row['site_name'] : $row['display_name']);
+					}
+					$site_names = implode(', ',$site_names);
+					echo $site_names; ?>
 				</div>
 			</div>
 			<div class="clearfix"></div>
-			<?php $pdf_contents[] = [SITES_CAT, get_contact($dbc, $general_inventory['siteid'])]; ?>
+			<?php $pdf_contents[] = [SITES_CAT, $site_names]; ?>
 		<?php } ?>
 		<?php if(strpos($value_config,',Inventory General Piece Type,') !== FALSE || strpos($value_config,',Inventory General Piece Count Type,') !== FALSE) { ?>
 			<div class="form-group" <?= $general_inventory['description'] == '' || $general_inventory['piece_type'] != '' ? '' : 'style="display:none;"' ?>>
-				<label class="control-label col-sm-4">Piece Type:</label>
+				<label class="control-label col-sm-4">Piece Tab:</label>
 				<div class="col-sm-8">
 					<?= $general_inventory['piece_type'] ?>
 				</div>
@@ -576,6 +726,16 @@ do {
 			<?php $pdf_contents[] = ['Piece Type', $general_inventory['piece_type']]; ?>
 		<?php } ?>
 		<?php if(strpos($value_config,',Inventory General PO Number,') !== FALSE) { ?>
+			<div class="form-group" <?= $general_inventory['description'] == '' || $general_inventory['po_num'] != '' ? '' : 'style="display:none;"' ?>>
+				<label class="control-label col-sm-4">Purchase Order Item:</label>
+				<div class="col-sm-8">
+					<?= $general_inventory['po_num'] ?>
+				</div>
+			</div>
+			<div class="clearfix"></div>
+			<?php $pdf_contents[] = ['Purchase Order Number', $general_inventory['po_num']]; ?>
+		<?php } ?>
+		<?php if(strpos($value_config,',Inventory General PO Number Dropdown,') !== FALSE) { ?>
 			<div class="form-group" <?= $general_inventory['description'] == '' || $general_inventory['po_num'] != '' ? '' : 'style="display:none;"' ?>>
 				<label class="control-label col-sm-4">Purchase Order Item:</label>
 				<div class="col-sm-8">
@@ -603,7 +763,7 @@ do {
 			</div>
 			<div class="clearfix"></div>
 			<?php $pdf_contents[] = ['Purchase Order Line Item', $general_inventory['po_line']]; ?>
-		<?php } else if(strpos($value_config,',Inventory General PO Line Read,') !== FALSE || strpos($value_config,',Inventory General PO Dropdown,') !== FALSE) { ?>
+		<?php } else if(strpos($value_config,',Inventory General PO Line Read,') !== FALSE || strpos($value_config,',Inventory General PO Dropdown,') !== FALSE || strpos($value_config,',Inventory General PO Dropdown Multiple,') !== FALSE) { ?>
 			<div class="form-group" <?= $general_inventory['description'] == '' || $general_inventory['po_line'] != '' ? '' : 'style="display:none;"' ?>>
 				<label class="control-label col-sm-4">Purchase Order Line Item:</label>
 				<div class="col-sm-8">
@@ -660,6 +820,7 @@ do {
 			<div class="general_piece_details" style="<?= $general_inventory['position'] > 0 ? '' : 'display:none;' ?>">
 				<hr />
 				<?php $field_list = $accordion_list['Inventory Detail'];
+				$previous_field_sort_order = $field_sort_order;
 				$field_sort_order = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_ticket_fields` WHERE `ticket_type` = '".(empty($ticket_type) ? 'tickets' : 'tickets_'.$ticket_type)."' AND `accordion` = 'Inventory Detail'"))['fields'];
 				if(empty($field_sort_order)) {
 					$field_sort_order = $value_config;
@@ -670,7 +831,8 @@ do {
 						$field_sort_order[] = $default_field;
 					}
 				}
-				include('add_ticket_inventory_detailed.php'); ?>
+				include('add_ticket_inventory_detailed.php');
+				$field_sort_order = $previous_field_sort_order; ?>
 				<div class="clearfix"></div>
 			</div>
 		<?php } ?>
@@ -694,7 +856,7 @@ do {
 				</div>
 				<div class="col-sm-4">
 					<input type="number" min="0" step="any" name="total_shipment_weight" placeholder="Total Shipment Weight" readonly class="form-control" value="<?= $total_shipment_weight ?>">
-					<?php if($general_shipment['weight'] != $total_shipment_weight) { ?>
+					<?php if(number_format($general_shipment['weight'],2) != number_format($total_shipment_weight,2)) { ?>
 						<span class="text-red">The shipment weight was <?= $general_shipment['weight'] ?></span>
 					<?php } ?>
 				</div>
@@ -731,6 +893,7 @@ if(strpos($value_config,',Inventory General Detail by Pallet,') !== FALSE && $pa
 				<div class="general_pallet_details">
 					<hr />
 					<?php $field_list = $accordion_list['Inventory Detail'];
+					$previous_field_sort_order = $field_sort_order;
 					$field_sort_order = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_ticket_fields` WHERE `ticket_type` = '".(empty($ticket_type) ? 'tickets' : 'tickets_'.$ticket_type)."' AND `accordion` = 'Inventory Detail'"))['fields'];
 					if(empty($field_sort_order)) {
 						$field_sort_order = $value_config;
@@ -741,7 +904,8 @@ if(strpos($value_config,',Inventory General Detail by Pallet,') !== FALSE && $pa
 							$field_sort_order[] = $default_field;
 						}
 					}
-					include('add_ticket_inventory_detailed.php'); ?>
+					include('add_ticket_inventory_detailed.php');
+					$field_sort_order = $previous_field_sort_order; ?>
 					<div class="clearfix"></div>
 					<input type="hidden" name="lock_tabs" value="<?= 'inventory_general_pallet_'.config_safe_str($pallet_line['pallet']) ?>" data-toggle="1">
 				</div>

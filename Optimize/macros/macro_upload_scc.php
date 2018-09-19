@@ -44,6 +44,10 @@ if(isset($_POST['upload_file']) && !empty($_FILES['csv_file']['tmp_name'])) {
 		}
 		$start_available = $to_do_start_time;
 		$end_available = date('H:i',strtotime($to_do_start_time.' + 3 hours'));
+        $prior_attempts = $dbc->query("SELECT * FROM `ticket_schedule` WHERE CONCAT(`order_number`,'-') LIKE '$order_number-%' AND `client_name`='$client_name' AND `address`='$address' AND `city`='$city'")->num_rows;
+        if($prior_attempts > 0) {
+            $order_number = $order_number.'-'.($prior_attempts + 1);
+        }
 		echo "INSERT INTO `ticket_schedule` (`ticketid`,`order_number`,`client_name`,`address`,`city`,`to_do_date`,`to_do_start_time`,`details`,`cust_est`,`start_available`,`end_available`,`type`,`status`) VALUES ('$ticketid','$order_number','$client_name','$address','$city','$to_do_date','$to_do_start_time','$details','$est_time','$start_available','$end_available','Drop Off','$default_status')-->";
 		$dbc->query("INSERT INTO `ticket_schedule` (`ticketid`,`order_number`,`client_name`,`address`,`city`,`to_do_date`,`to_do_start_time`,`details`,`cust_est`,`start_available`,`end_available`,`type`,`status`) VALUES ('$ticketid','$order_number','$client_name','$address','$city','$to_do_date','$to_do_start_time','$details','$est_time','$start_available','$end_available','Drop Off','$default_status')");
 	}

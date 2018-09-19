@@ -347,6 +347,22 @@
 		if(!mysqli_query($dbc, "ALTER TABLE `match_contact` ADD `tile_list` TEXT AFTER `staff_contact`")) {
 			echo "Error: ".mysqli_error($dbc)."<br />\n";
 		}
+        
+        //September 17, 2018
+		if(!mysqli_query($dbc, "ALTER TABLE `ticket_schedule` CHANGE `volume` `volume` TEXT")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+        
+        //September 18, 2018
+		if(!mysqli_query($dbc, "ALTER TABLE `email_communication` CHANGE `today_date` `today_date` DATETIME")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+		if(!mysqli_query($dbc, "ALTER TABLE `tickets` ADD `communication_tags` TEXT AFTER `created_by`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+		if(!mysqli_query($dbc, "UPDATE `tickets` SET `communication_tags`=`clientid` WHERE `communication_tags` IS NULL AND `clientid` IS NOT NULL AND `clientid` != '' AND `deleted`=0 AND `status` != 'Archive'")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
 		
 		set_config($dbc, 'db_version_jonathan', 8);
 	}

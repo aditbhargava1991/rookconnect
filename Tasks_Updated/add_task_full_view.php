@@ -379,6 +379,16 @@ if (isset($_POST['tasklist'])) {
             });
         });
 
+        $('.save-btn').on('click', function() {
+            var tasklistid = $('[name=tasklistid]').val();
+            if(document.location.href.indexOf('tasklistid=') != -1) {
+                window.location.replace(document.location.href);
+            } else {
+                var url = document.location.href+"?tasklistid="+tasklistid;
+                window.location.replace(url);
+            }
+        });
+
         // Save data
         $('[data-table]').change(function() {
             var table_name = $(this).data('table');
@@ -668,7 +678,7 @@ if (isset($_POST['tasklist'])) {
         });
 
         //$('#task_path').trigger('change');
-        
+
         $('.tile-sidebar a').on('click', function(event) {
             $(this).parent().find('a li').removeClass('active');
             $(this).find('li').addClass('active');
@@ -829,7 +839,7 @@ function deletestartTicketStaff(button) {
 <div class="container">
 	<div class="row">
         <div class="main-screen">
-            
+
             <div class="tile-header standard-header">
                 <div class="row">
                     <div class="col-xs-10"><h1 class="gap-left"><a href="index.php?category=All&tab=Summary">Tasks</a></h1></div>
@@ -837,7 +847,7 @@ function deletestartTicketStaff(button) {
                 </div>
                 <div class="clearfix"></div>
             </div>
-            
+
             <form id="form1" name="form1" method="post"	action="" enctype="multipart/form-data" class="form-horizontal" role="form">
                 <div class="tile-sidebar sidebar sidebar-override hide-titles-mob standard-collapsible">
                     <ul>
@@ -876,7 +886,7 @@ function deletestartTicketStaff(button) {
                         if(!empty($_GET['task_milestone_timeline'])) {
                             $task_milestone_timeline = $_GET['task_milestone_timeline'];
                         }
-                           
+
                         if(!empty($_GET['project_milestone'])) {
                             $project_milestone = $_GET['project_milestone'];
                         }
@@ -990,7 +1000,7 @@ function deletestartTicketStaff(button) {
                             </div>
                             <div class="clearfix"></div>
                         </div>
-                      
+
                         <div class="standard-body-content">
                             <div class="accordion-block-details padded" id="taskboard">
                                 <div class="accordion-block-details-heading"><h4>Task Board</h4></div>
@@ -1038,7 +1048,7 @@ function deletestartTicketStaff(button) {
                                     </div>
                                 </div>
                             </div><!-- .accordion-block-details -->
-                            
+
                             <div class="project-section project_section_display" style="<?= $project_section_display ?>">
                                 <div class="accordion-block-details padded" id="project">
                                     <div class="accordion-block-details-heading"><h4>Project</h4></div>
@@ -1063,7 +1073,7 @@ function deletestartTicketStaff(button) {
                                     <input type="hidden" name="project_milestone" value="<?= $project_milestone ?>">
                                 </div>
                             </div><!-- .project-section -->
-                            
+
                             <div class="taskpath-section taskpath_section_display" style="<?= $taskpath_section_display ?>">
                                 <div class="accordion-block-details padded" id="taskpath">
                                     <div class="accordion-block-details-heading"><h4>Task Path</h4></div>
@@ -1194,7 +1204,7 @@ function deletestartTicketStaff(button) {
                                     } ?>
                                 </div>
                             </div><!-- .contact-section -->
-                            
+
                             <div class="sales-section sales_section_display" style="<?= $sales_section_display ?>">
                                 <div class="accordion-block-details padded" id="sales">
                                     <div class="accordion-block-details-heading"><h4><?php echo SALES_TILE; ?></h4></div>
@@ -1211,7 +1221,7 @@ function deletestartTicketStaff(button) {
                                     <input type="hidden" name="sales_milestone" data-table="tasklist" data-field="sales_milestone" value="<?= $sales_milestone ?>">
                                 </div>
                             </div><!-- .sales-section -->
-                            
+
                             <div class="accordion-block-details padded" id="details">
                                 <div class="accordion-block-details-heading"><h4>Details</h4></div>
                                 <div class="form-group clearfix">
@@ -1222,6 +1232,9 @@ function deletestartTicketStaff(button) {
                                           <?php
                                             $tabs = get_config($dbc, 'ticket_status');
                                             $each_tab = explode(',', $tabs);
+                                            if($task_status == '') {
+                                                $task_status = 'To Be Scheduled';
+                                            }
                                             foreach ($each_tab as $cat_tab) {
                                                 if ($task_status == $cat_tab) {
                                                     $selected = 'selected="selected"';
@@ -1270,6 +1283,11 @@ function deletestartTicketStaff(button) {
                                 <div class="form-group clearfix">
                                     <label for="first_name" class="col-sm-4 control-label text-right">To Do Date:</label>
                                     <div class="col-sm-8">
+                                    <?php
+                                        if($task_tododate == '') {
+                                            $task_tododate = date('Y-m-d');
+                                        }
+                                        ?>
                                         <input name="task_tododate" value="<?php echo $task_tododate; ?>" type="text" data-table="tasklist" data-field="task_tododate" class="datepicker form-control">
                                     </div>
                                 </div>
@@ -1285,7 +1303,7 @@ function deletestartTicketStaff(button) {
                                                     <option value=""></option>
                                                     <?php $staff_list = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name` FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `deleted`=0 AND `status`>0"),MYSQLI_ASSOC));
                                                     foreach($staff_list as $staff_id) { ?>
-                                                        <!-- <option <?//= ($staff_id == $_SESSION['contactid'] ? "selected" : '') ?> value='<?//=  $staff_id; ?>' ><?//= get_contact($dbc, $staff_id) ?></option> -->
+                                                        <option <?= ($staff_id == $_SESSION['contactid'] ? "selected" : '') ?> value='<?=  $staff_id; ?>' ><?= get_contact($dbc, $staff_id) ?></option>
                                                         <option <?= (strpos(','.$task_contactid.',', ','.$staff_id.',') !== false) ? ' selected' : ''; ?> value="<?= $staff_id; ?>"><?= get_contact($dbc, $staff_id); ?></option>
                                                     <?php } ?>
                                                 </select>
@@ -1302,7 +1320,7 @@ function deletestartTicketStaff(button) {
 
                                     </div>
                                 </div>
-                              
+
                                 <div class="form-group clearfix">
                                     <label for="first_name" class="col-sm-4 control-label">
                                         <!-- <img src="../img/icons/ROOK-flag-icon.png" class="inline-img" /> --> Flag This:
@@ -1410,7 +1428,7 @@ function deletestartTicketStaff(button) {
                                     <?php include('task_comment_list.php'); ?>
                                 </div>
                             </div><!-- .accordion-block-details -->
-                            
+
                             <div class="accordion-block-details padded" id="timetracking">
                                 <div class="accordion-block-details-heading"><h4>Time Tracking</h4></div><?php
                                 if(!empty($_GET['tasklistid'])) {
@@ -1440,7 +1458,7 @@ function deletestartTicketStaff(button) {
                                         echo '</table>';
                                     }
                                 } ?>
-                              
+
                                 <div class="form-group clearfix">
                                     <label for="first_name" class="col-xs-6 col-sm-3 control-label text-right"><!-- <img src="../img/icons/ROOK-timer-icon.png" class="inline-img" />--> Add Time:</label>
                                     <div class="col-xs-6 col-sm-3">
@@ -1457,23 +1475,24 @@ function deletestartTicketStaff(button) {
                                     </div>
                                 </div>
                             </div><!-- .accordion-block-details -->
-                            
+
                             <div class="form-group padded">
                                 <?php if(!empty($_GET['tasklistid'])) { ?>
                                     <button name="" type="button" value="" class="delete_task pull-left image-btn no-toggle" title="Archive"><img class="no-margin small" src="../img/icons/ROOK-trash-icon.png" alt="Archive Task" width="30"></button>
                                 <?php } ?>
                                 <button name="tasklist" value="tasklist" class="btn brand-btn pull-right stop-timer-submit">Submit</button>
-                                <a href="index.php?category=All&tab=Summary" class="btn brand-btn pull-right">Cancel</a>
+                                <button type="button" name="" value="" class="btn brand-btn pull-right save-btn">Save</button>
+                                <!-- <a href="index.php?category=All&tab=Summary" class="btn brand-btn pull-right">Cancel</a> -->
                                 <div class="clearfix"></div>
                             </div>
-                            
+
                         </div><!-- .standard-body-content -->
                     </div><!-- .standard-body -->
                 </div><!-- .tile-content -->
-          
+
                 <div class="clearfix"></div>
             </form>
-            
+
         </div><!-- .main-screen -->
     </div><!-- .row -->
 </div><!-- .container -->

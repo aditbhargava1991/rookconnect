@@ -1,5 +1,62 @@
-<?php include_once('config.php');
-$siteid = filter_var($_GET['site'],FILTER_SANITIZE_STRING);
+<?php include_once('config.php'); ?>
+<script type="text/javascript">
+function viewProfile(img, view_contactid = '') {
+	var contact = $(img).closest('td').find('select[name="siteid"]').first();
+	if(view_contactid == '') {
+		view_contactid = contact.val();
+	}
+	if(view_contactid > 0) {
+		overlayIFrameSlider('../Contacts/contacts_inbox.php?fields=all_fields&edit='+view_contactid, '75%', true, true);
+	} else {
+		alert('Please select the contact before attempting to view their profile.');
+	}
+}
+
+function viewSite(img) {
+	var contact = $(img).closest('td').find('select[name="siteid"]').first();
+	if($(contact).find('option:selected').length > 1) {
+		dialogViewSite(img);
+	} else {
+		viewProfile(img);
+	}
+}
+function dialogViewSite(img) {
+	$('#dialog_view_site').dialog({
+		resizable: true,
+		height: "auto",
+		width: ($(window).width() <= 800 ? $(window).width() : 800),
+		modal: true,
+		open: function() {
+			var contact = $(img).closest('td').find('select[name="siteid"]').first();
+			var site_html = '';
+			$(contact).find('option:selected').each(function() {
+				site_html += '<option value="'+$(this).val()+'">'+$(this).text()+'</option>';
+			});
+			$('[name="view_site"]').html(site_html).trigger('change.select2');
+		},
+		buttons: {
+			"View Site": function() {
+				viewProfile(img,$('[name="view_site"]').val());
+				$(this).dialog('close');
+			},
+			Cancel: function() {
+				$(this).dialog('close');
+			}
+		}
+	});
+}
+</script>
+<div id="dialog_view_site" title="Select a Site" style="display: none;">
+	<div class="form-group">
+		<label class="col-sm-4">Site:</label>
+		<div class="col-sm-8">
+			<select name="view_site" data-placeholder="Select a Site..." class="chosen-select-deselect">
+				<option></option>
+			</select>
+		</div>
+	</div>
+</div>
+<?php $siteid = filter_var($_GET['site'],FILTER_SANITIZE_STRING);
 $manifest_fields = explode(',',get_config($dbc, 'ticket_manifest_fields'));
 $ticket_filter = '';
 if(in_array_starts('type ',$manifest_fields)) {
@@ -33,7 +90,7 @@ if($siteid == 'recent') {
 					<tr>
 						<td data-title="Date"><?= $manifest['date'] ?></td>
 						<td data-title="ID"><?= date('y',strtotime($manifest['date'])).'-'.str_pad($manifest['id'],4,0,STR_PAD_LEFT) ?></td>
-						<td data-title="Site"><?= get_contact($dbc, $manifest['siteid']) ?></td>
+						<td data-title="Site"><a href="" onclick="overlayIFrameSlider('<?= WEBSITE_URL ?>/Contacts/contacts_inbox.php?fields=all_fields&edit=<?= $manifest['siteid'] ?>', '75%', true, true); return false;"><?= get_contact($dbc, $manifest['siteid']) ?></a></td>
 						<td data-title="Manifest"><?php if(file_exists('manifest/manifest_'.$manifest['id'].($manifest['revision'] > 1 ? '_'.$manifest['revision'] : '').'.pdf')) { ?><a target="_blank" href="manifest/manifest_<?= $manifest['id'].($manifest['revision'] > 1 ? '_'.$manifest['revision'] : '') ?>.pdf">PDF <img class="inline-img" src="../img/pdf.png"></a><?php } ?></td>
 						<?php if(in_array('edit',$manifest_fields) && $tile_security['edit'] > 0) { ?><td data-title="Function"><a href="?tile_name=<?= $_GET['tile_name'] ?>&tab=manifest&manifestid=<?= $manifest['id'] ?>" onclick="overlayIFrameSlider(this.href); return false;">Edit <?= $manifest['revision'] > 1 ? '(Revision '.$manifest['revision'].')' : '' ?></a></td><?php } ?>
 					</tr>
@@ -82,6 +139,7 @@ if($siteid == 'recent') {
 		$row_colour_1 = get_config($dbc, 'report_row_colour_1');
 		$row_colour_2 = get_config($dbc, 'report_row_colour_2');
 		$sum_qty = 0;
+		$total_weight = 0;
 		$lines = [];
 		if(in_array('pdf_collapse',$manifest_fields)) {
 			$columns = ['po'=>0,'vendor'=>0,'line'=>0,'qty'=>0,'manual_qty'=>0,'site'=>0,'notes'=>0,'weight'=>0];
@@ -111,7 +169,18 @@ if($siteid == 'recent') {
 				$weight = [];
 				$inv_weight_units = explode('#*#',$row['weight_units']);
 				foreach(explode('#*#',$row['weight']) as $id => $inv_weight) {
+					if(in_array('weight convert kg to lb',$manifest_fields) && $inv_weight_units[$id] == 'kg') {
+						$inv_weight = number_format(($inv_weight*2.20462262185),2);
+						$inv_weight_units[$id] = 'lbs';
+					}
 					$weight[] = $inv_weight.' '.$inv_weight_units[$id];
+					if(in_array('total weight lb',$manifest_fields)) {
+						if($inv_weight_units[$id] == 'kg') {
+							$total_weight += ($inv_weight*2.20462262185);
+						} else {
+							$total_weight += $inv_weight;
+						}
+					}
 				}
 				$weight = implode('<br />', $weight);
 			} else {
@@ -119,7 +188,7 @@ if($siteid == 'recent') {
 				$weight = '';
 			}
 
-			$lines[] = ['file'=>$row['ticket_label'], 'po'=>implode('<br />',array_filter(explode('#*#',$row['po_num']))), 'vendor'=>($row['vendor'] > 0 ? get_contact($dbc, $row['vendor'],'name_company') : ''), 'line'=>(empty($ticket['po_line']) ? 'N/A' : $ticket['po_line']), 'qty'=>($row['qty'] > 0 ? round($row['qty'],3) : ''), 'manual_qty'=>$manual_qty[$i], 'site'=>($row['siteid'] == $siteid ? $manifest_label : ($row['siteid'] > 0 ? get_contact($dbc, $row['siteid']) : 'UNASSIGNED')), 'notes'=>$row['notes'], 'weight'=>$weight];
+			$lines[] = ['file'=>$row['ticket_label'], 'po'=>implode('<br />',array_filter(explode('#*#',$row['po_num']))), 'vendor'=>($row['vendor'] > 0 ? get_contact($dbc, $row['vendor'],'name_company') : ''), 'line'=>(empty($row['po_line']) ? 'N/A' : $row['po_line']), 'qty'=>($row['qty'] > 0 ? round($row['qty'],3) : ''), 'manual_qty'=>$manual_qty[$i], 'site'=>($row['siteid'] == $siteid ? $manifest_label : ($row['siteid'] > 0 ? get_contact($dbc, $row['siteid']) : 'UNASSIGNED')), 'notes'=>$row['notes'], 'weight'=>$weight];
 
 			if(in_array('pdf_collapse',$manifest_fields)) {
 				$columns['po'] += (!empty($row['po_num']) ? 1 : 0);
@@ -132,6 +201,7 @@ if($siteid == 'recent') {
 				$columns['weight'] += (!empty($weight) ? 1 : 0);
 			}
 		}
+		$total_weight = number_format($total_weight,2);
 		$col_count = (in_array('file',$manifest_fields) ? 1 : 0) + (in_array('po',$manifest_fields) && $columns['po'] > 0 ? 1 : 0) + (in_array('vendor',$manifest_fields) && $columns['vendor'] > 0 ? 1 : 0) + (in_array('line',$manifest_fields) && $columns['line'] > 0 ? 1 : 0) + ((in_array('qty',$manifest_fields) || in_array('group pieces',$manifest_fields)) && $columns['qty'] > 0 ? 1 : 0) + (in_array('manual qty',$manifest_fields) && $columns['manual_qty'] > 0 ? 1 : 0) + (in_array('site',$manifest_fields) && $columns['site'] > 0 ? 1 : 0) + (in_array('notes',$manifest_fields) && $columns['notes'] > 0 ? 1 : 0) + (!in_array('group pieces',$manifest_fields) ? 1 : 0) + (in_array('weight',$manifest_fields) && $columns['weight'] > 0 ? 1 : 0);
 		$html = '<table style="width:100%;border:none;">
 			<tr>
@@ -176,11 +246,11 @@ if($siteid == 'recent') {
 				'.(in_array('po',$manifest_fields) && $columns['po'] > 0 ? '<td style="border-top: 1px solid black;"></td>' : '').'
 				'.(in_array('vendor',$manifest_fields) && $columns['vendor'] > 0 ? '<td style="border-top: 1px solid black;"></td>' : '').'
 				'.(in_array('line',$manifest_fields) && $columns['line'] > 0 ? '<td style="border-top: 1px solid black;"></td>' : '').'
-				'.((in_array('qty',$manifest_fields) || in_array('group pieces',$manifest_fields)) && $columns['qty'] > 0 ? '<td data-title="TOTAL LAND TRAN PIECE COUNT" style="text-align:center; border-top: 1px solid black;">'.$sum_qty.((in_array('site',$manifest_fields) && $columns['site'] > 0) || (in_array('notes',$manifest_fields) && $columns['notes'] > 0) || (in_array('weight',$manifest_fields) && $columns['weight'] > 0) ? '' : ' TOTAL PIECES').'</td>' : '').'
-				'.(in_array('manual qty',$manifest_fields) && $columns['manual_qty'] > 0 ? '<td data-title="TOTAL LAND TRAN PIECE COUNT" style="text-align:center; border-top: 1px solid black;">'.$sum_qty.((in_array('site',$manifest_fields) && $columns['site'] > 0) || (in_array('notes',$manifest_fields) && $columns['notes'] > 0) || (in_array('weight',$manifest_fields) && $columns['weight'] > 0) ? '' : ' TOTAL PIECES').'</td>' : '').'
-				'.(in_array('weight',$manifest_fields) && $columns['weight'] > 0 ? '<td style="border-top: 1px solid black;">TOTAL PIECES</td>' : '').'
-				'.(in_array('site',$manifest_fields) && $columns['site'] > 0 ? '<td style="border-top: 1px solid black;">'.(in_array('weight',$manifest_fields) && $columns['weight'] > 0 ? '' : 'TOTAL PIECES').'</td>' : '').'
-				'.(in_array('notes',$manifest_fields) && $columns['notes'] > 0 ? '<td style="border-top: 1px solid black;">'.((in_array('site',$manifest_fields) && $columns['site'] > 0) || (in_array('weight',$manifest_fields) && $column['weight'] > 0) ? '' : 'TOTAL PIECES').'</td>' : '').'
+				'.((in_array('qty',$manifest_fields) || in_array('group pieces',$manifest_fields)) && $columns['qty'] > 0 ? '<td data-title="TOTAL LAND TRAN PIECE COUNT" style="text-align:center; border-top: 1px solid black;">'.$sum_qty.' TOTAL PIECE</td>' : '').'
+				'.(in_array('manual qty',$manifest_fields) && $columns['manual_qty'] > 0 ? '<td data-title="TOTAL LAND TRAN PIECE COUNT" style="text-align:center; border-top: 1px solid black;">'.$sum_qty.' TOTAL PIECES</td>' : '').'
+				'.(in_array('weight',$manifest_fields) && $columns['weight'] > 0 ? '<td style="text-align:center; border-top: 1px solid black;">'.(in_array('total weight lb',$manifest_fields) ? $total_weight.' lbs' : '').'</td>' : '').'
+				'.(in_array('site',$manifest_fields) && $columns['site'] > 0 ? '<td style="border-top: 1px solid black;"></td>' : '').'
+				'.(in_array('notes',$manifest_fields) && $columns['notes'] > 0 ? '<td style="border-top: 1px solid black;"></td>' : '').'
 			</tr>';
 			$stamp_img = get_config($dbc, 'stamp_upload');
 			$html .= '<tr>
@@ -318,11 +388,11 @@ if($siteid == 'recent') {
 				<?php while($ticket = $ticket_list->fetch_assoc()) { ?>
 					<tr>
 						<?php if(in_array('file',$manifest_fields)) { ?><td data-title="<?= empty($ticket_noun) ? TICKET_NOUN : $ticket_noun ?>"><?php if($tile_security['edit'] > 0) { ?><a href="index.php?edit=<?= $ticket['ticketid'] ?>" onclick="overlayIFrameSlider(this.href+'&calendar_view=true','auto',true,true); return false;"><?= get_ticket_label($dbc, $ticket) ?></a><?php } else { echo get_ticket_label($dbc, $ticket); } ?></td><?php } ?>
-						<td data-title="<?= SITES_CAT ?>"><select name="siteid" multiple data-table="<?= in_array('group pieces',$manifest_fields) ? 'tickets' : 'ticket_attached' ?>" data-id="<?= in_array('group pieces',$manifest_fields) ? $ticket['ticketid'] : $ticket['id'] ?>" data-id-field="<?= in_array('group pieces',$manifest_fields) ? 'ticketid' : 'id' ?>" class="chosen-select-deselect" data-placeholder="Select <?= SITES_CAT ?>"><option />
+						<td data-title="<?= SITES_CAT ?>"><div class="col-xs-10"><select name="siteid" multiple data-table="<?= in_array('group pieces',$manifest_fields) ? 'tickets' : 'ticket_attached' ?>" data-id="<?= in_array('group pieces',$manifest_fields) ? $ticket['ticketid'] : $ticket['id'] ?>" data-id-field="<?= in_array('group pieces',$manifest_fields) ? 'ticketid' : 'id' ?>" class="chosen-select-deselect" data-placeholder="Select <?= SITES_CAT ?>"><option />
 							<?php foreach($site_list as $site) { ?>
 								<option <?= in_array($site['contactid'],explode(',',$ticket['siteid'])) ? 'selected' : '' ?> value="<?= $site['contactid'] ?>"><?= $site['full_name'] ?></option>
 							<?php } ?>
-						</select></td>
+						</select></div><div class="col-xs-2"><a href="" onclick="viewSite(this); return false;"><img class="inline-img pull-right no-toggle" src="../img/person.PNG" title="View Profile"></a></td>
 						<?php if(in_array('po',$manifest_fields)) { ?><td data-title="PO">
 							<?php foreach(explode('#*#',$ticket['po_num']) as $po_num) { ?>
 								<a href="line_item_views.php?po=<?= $po_num ?>" onclick="overlayIFrameSlider(this.href,'auto',true,true); return false;"><?= $po_num ?></a><br />
@@ -345,6 +415,10 @@ if($siteid == 'recent') {
 								$weight = [];
 								$inv_weight_units = explode('#*#',$piece_weights['weight_units']);
 								foreach(explode('#*#',$piece_weights['weight']) as $id => $inv_weight) {
+									if(in_array('weight convert kg to lb',$manifest_fields) && $inv_weight_units[$id] == 'kg') {
+										$inv_weight = number_format(($inv_weight*2.20462262185),2);
+										$inv_weight_units[$id] = 'lbs';
+									}
 									$weight[] = $inv_weight.' '.$inv_weight_units[$id];
 								}
 								$weight = implode(', ', $weight); ?>

@@ -14,9 +14,24 @@ if (isset($_POST['submit'])) {
     $invoiceid = $_POST['submit'];
     $refund_amount = $_POST['refund_'.$invoiceid];
     $refund_date = date('Y-m-d');
-    DEFINE('INVOICE_LOGO', get_config($dbc, 'invoice_logo'));
-    DEFINE('INVOICE_HEADER', html_entity_decode(get_config($dbc, 'invoice_header')));
-    DEFINE('INVOICE_FOOTER', html_entity_decode(get_config($dbc, 'invoice_footer')));
+
+    $get_invoice = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `invoice` WHERE `invoiceid`='$invoiceid'"));
+    $logo = get_config($dbc, 'invoice_logo');
+    if(!empty($get_invoice['type']) && !empty(get_config($dbc, 'invoice_logo_'.$get_invoice['type']))) {
+        $logo = get_config($dbc, 'invoice_logo_'.$get_invoice['type']);
+    }
+    $invoice_header = get_config($dbc, 'invoice_header');
+    if(!empty($get_invoice['type']) && !empty(get_config($dbc, 'invoice_header_'.$get_invoice['type']))) {
+        $invoice_header = get_config($dbc, 'invoice_header_'.$get_invoice['type']);
+    }
+    $invoice_footer = get_config($dbc, 'invoice_footer');
+    if(!empty($get_invoice['type']) && !empty(get_config($dbc, 'invoice_footer_'.$get_invoice['type']))) {
+        $invoice_footer = get_config($dbc, 'invoice_footer_'.$get_invoice['type']);
+    }
+
+    DEFINE('INVOICE_LOGO', $logo);
+    DEFINE('INVOICE_HEADER', html_entity_decode($invoice_header));
+    DEFINE('INVOICE_FOOTER', html_entity_decode($invoice_footer));
 
     //Refund Invoice
 	class MYPDF extends TCPDF {

@@ -568,6 +568,8 @@ function get_config($dbc, $name, $multi = false, $separator = ',') {
 			return 'tasks,material,services,products,staff,position,contractor,clients,customer,vpl,inventory,equipment,labour,timesheet,driving_log';
 		} else if($name == 'lead_new_contact_cat') {
 			return 'Sales Leads';
+		} else if($name == 'ticket_archive_status') {
+			return 'Archive#*#Archived';
 		}
 	}
 
@@ -949,6 +951,17 @@ function get_security_levels($dbc) {
 	}
 	return $on_security;
 }
+
+function get_security_levels_staff($dbc) {
+	$on_security = ['Super Admin'=>'super'];
+	$security_levels = mysqli_query($dbc, "SELECT contactid FROM `contacts` WHERE `category` = 'Staff'");
+	while($level = mysqli_fetch_assoc($security_levels)) {
+		$on_security[get_contact($dbc, $level['contactid'])] = $level['contactid'];
+	}
+
+	return $on_security;
+}
+
 function get_securitylevel($dbc, $level) {
 	$level_row = mysqli_query($dbc, "SELECT * FROM `security_level_names` WHERE `identifier`='$level'");
 	if(mysqli_num_rows($level_row) > 0) {
@@ -1121,6 +1134,58 @@ function get_privileges($dbc, $tile,$level) {
 		}
 		else if($role != '') {
 			$get_pri =	mysqli_fetch_assoc(mysqli_query($dbc,"SELECT privileges FROM security_privileges WHERE	tile='$tile' AND level LIKE '$role' UNION SELECT ''"));
+			$my_priv = '*';
+			if(strpos($get_pri['privileges'],'*hide*') === FALSE || strpos($get_pri['privileges'],'*detailed_dash*') !== FALSE || strpos($get_pri['privileges'],'*detailed_view*') !== FALSE) {
+				$this_priv = 2;
+                if(strpos($get_pri['privileges'],'*hide*') !== FALSE) {
+                    $my_priv .= 'hide*';
+                }
+                if(strpos($get_pri['privileges'].$return_priv,'*detailed_dash*') !== FALSE) {
+                    $my_priv .= 'detailed_dash*';
+                }
+                if(strpos($get_pri['privileges'].$return_priv,'*detailed_view*') !== FALSE) {
+                    $my_priv .= 'detailed_view*';
+                }
+                if(strpos($get_pri['privileges'].$return_priv,'*detailed_add*') !== FALSE) {
+                    $my_priv .= 'detailed_add*';
+                }
+                if(strpos($get_pri['privileges'].$return_priv,'*detailed_edit*') !== FALSE) {
+                    $my_priv .= 'detailed_edit*';
+                }
+                if(strpos($get_pri['privileges'].$return_priv,'*detailed_archive*') !== FALSE) {
+                    $my_priv .= 'detailed_archive*';
+                }
+				if(strpos($get_pri['privileges'].$return_priv,'*view_use_add_edit_delete*') !== FALSE) {
+					$my_priv .= 'view_use_add_edit_delete*';
+				}
+				if(strpos($get_pri['privileges'].$return_priv,'*search*') !== FALSE) {
+					$my_priv .= 'search*';
+				}
+				if(strpos($get_pri['privileges'].$return_priv,'*configure*') !== FALSE) {
+					$my_priv .= 'configure*';
+				}
+				if(strpos($get_pri['privileges'].$return_priv,'*approvals*') !== FALSE) {
+					$my_priv .= 'approvals*';
+				}
+                if(strpos($get_pri['privileges'].$return_priv,'*strictview') !== FALSE) {
+                    $my_priv .= 'strictview*';
+                }
+				$return_priv = $my_priv;
+			}
+		}
+	}
+    return $return_priv;
+}
+
+function get_privileges_staff($dbc, $tile,$level) {
+	$roles = explode(',',$level);
+	$return_priv = '*hide*';
+	foreach($roles as $role) {
+		if(strtolower($role) == 'super') {
+			return '*detailed_dash*detailed_view*detailed_add*detailed_edit*detailed_archive*view_use_add_edit_delete*search*configure*approvals*';
+		}
+		else if($role != '') {
+			$get_pri =	mysqli_fetch_assoc(mysqli_query($dbc,"SELECT privileges FROM security_privileges_staff WHERE	tile='$tile' AND staff = $role UNION SELECT ''"));
 			$my_priv = '*';
 			if(strpos($get_pri['privileges'],'*hide*') === FALSE || strpos($get_pri['privileges'],'*detailed_dash*') !== FALSE || strpos($get_pri['privileges'],'*detailed_view*') !== FALSE) {
 				$this_priv = 2;
@@ -1360,6 +1425,26 @@ function tile_config_function($dbc,$field,$mode='user') {
  */
 function subtab_config_function ( $dbc, $tile, $level_url, $subtab ) {
 	$row = mysqli_fetch_assoc ( mysqli_query ( $dbc, "SELECT `status` FROM `subtab_config` WHERE `tile`='$tile' AND `security_level`='$level_url' AND `subtab`='$subtab'" ) );
+
+    $subtabid   = str_replace ( ['&', '/', ',', ' ', '___', '__'], ['', '_', '', '_', '_', '_'], $subtab );
+	//$subtabid	= str_replace( ' ', '_', $subtab );
+	$status 	= $row[ 'status' ];
+	$date		= explode ( '*#*', $status );
+
+	if ( $status != NULL ) { ?>
+		<td align="center"><input type="radio" name="<?= $subtab; ?>" id="<?= $subtabid; ?>_turn_on" value="turn_on" <?= ( strpos ( $status, 'turn_on' ) !== FALSE ) ? ' checked' : ''; ?> onchange="subtabConfig(this)" /></td>
+		<td align="center"><input type="radio" name="<?= $subtab; ?>" id="<?= $subtabid; ?>_turn_off" value="turn_off" <?= ( strpos ( $status, 'turn_off' ) !== FALSE ) ? ' checked' : ''; ?> onchange="subtabConfig(this)" /></td><?php
+
+	} else { ?>
+		<td align="center"><input type="radio" name="<?= $subtab; ?>" id="<?= $subtabid; ?>_turn_on" value="turn_on" onchange="subtabConfig(this)" /></td>
+		<td align="center"><input type="radio" name="<?= $subtab; ?>" id="<?= $subtabid; ?>_turn_off" value="turn_off" onchange="subtabConfig(this)" /></td><?php
+	} ?>
+
+	<td align="center"><?php echo ( !empty( $date[1] ) ) ? $date[1] : '-'; ?></td><?php
+}
+
+function subtab_staff_config_function ( $dbc, $tile, $level_url, $subtab ) {
+	$row = mysqli_fetch_assoc ( mysqli_query ( $dbc, "SELECT `status` FROM `subtab_staff_config` WHERE `tile`='$tile' AND `security_level`='$level_url' AND `subtab`='$subtab'" ) );
 
     $subtabid   = str_replace ( ['&', '/', ',', ' ', '___', '__'], ['', '_', '', '_', '_', '_'], $subtab );
 	//$subtabid	= str_replace( ' ', '_', $subtab );
@@ -3283,7 +3368,7 @@ function get_recurrence_days($limit = 0, $start_date, $end_date, $repeat_type, $
         } else {
             if(strtotime($cur) >= strtotime($create_starting_at)) {
                 $recurring_dates[] = $cur;
-                $reached_limit++;   
+                $reached_limit++;
             }
         }
     }

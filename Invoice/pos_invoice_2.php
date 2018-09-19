@@ -49,8 +49,16 @@ if($get_pos_tax != '') {
 //Tax
 
 $invoice_footer = get_config($dbc, 'invoice_footer');
+if(!empty($get_invoice['type']) && !empty(get_config($dbc, 'invoice_footer_'.$get_invoice['type']))) {
+    $invoice_footer = get_config($dbc, 'invoice_footer_'.$get_invoice['type']);
+}
 
-$logo = 'download/'.get_config($dbc, 'invoice_logo');
+$logo = get_config($dbc, 'invoice_logo');
+if(!empty($get_invoice['type']) && !empty(get_config($dbc, 'invoice_logo_'.$get_invoice['type']))) {
+    $logo = get_config($dbc, 'invoice_logo_'.$get_invoice['type']);
+}
+
+$logo = 'download/'.$logo;
 if(!file_exists($logo)) {
     $logo = '../POSAdvanced/'.$logo;
     if(!file_exists($logo)) {
@@ -150,8 +158,8 @@ $html = '';
 
 $html .= '<br><br><br><br><br><p style="text-align:left;">'.decryptIt($customer['name']).' '.decryptIt($customer['first_name']).' '.decryptIt($customer['last_name']).'<br>'.$customer['business_address'].'<br>'.$customer['city'].', '.$customer['state'].' '.$customer['zip_code'].'<br>'.decryptIt($customer['cell_phone']).'<br>'.decryptIt($customer['email_address']).'<br>';
 
-if ( !empty($customer['referred_by']) ) {
-    $html .= 'Reference: '.$customer['referred_by'].'<br><br>';
+if ( !empty($get_invoice['reference']) ) {
+    $html .= 'Reference: '.$get_invoice['reference'].'<br><br>';
 }
 
 if($client_tax_number != '') {

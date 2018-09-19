@@ -6,7 +6,8 @@ include ('../include.php');
 checkAuthorised('incident_report');
 include_once('../tcpdf/tcpdf.php');
 require_once('../phpsign/signature-to-image.php');
-echo "<script> var active_accordion = ''; </script>";
+echo "<script> var active_accordion = '".$_GET['active_accordion']."'; </script>";
+$quick_action_icons = explode(',',get_config($dbc, 'inc_rep_quick_action_icons'));
 
 if (isset($_POST['add_ir']) || isset($_POST['save_ir'])) {
 	$user_form_id = filter_var($_POST['user_form_id'],FILTER_SANITIZE_STRING);
@@ -670,6 +671,9 @@ if (isset($_POST['add_ir']) || isset($_POST['save_ir'])) {
 	    }
 	}
 
+	//Tagged Staff
+	mysqli_query($dbc, "UPDATE `contacts_tagging` SET `last_updated_date` = '".date('Y-m-d')."' WHERE `src_table` = 'incident_report' AND `item_id` = '".$incidentreportid.'"');
+
 	//Journal Entry
     $inc_rep_save_journal = get_config($dbc, 'inc_rep_save_journal');
     if($inc_rep_save_journal == 1) {
@@ -719,6 +723,7 @@ if (isset($_POST['add_ir']) || isset($_POST['save_ir'])) {
 		echo "<script> $(window.top.document).find('iframe[src*=Ticket]').get(0).contentWindow.reloadTab('view_ticket_incident_reports'); window.parent.reloadTab('view_ticket_incident_reports'); </script>";
 	} else {
 		echo "<script> active_accordion = '".$_POST['active_accordion']."'; </script>";
+		echo '<script type="text/javascript">window.location.replace("?incidentreportid='.$incidentreportid.'&active_accordion='.$_POST['active_accordion'].'&tagging_click='.$_POST['quick_action_tagging'].'&flagging_click='+$_POST['quick_action_flagging'].'"); </script>';
 	}
 }
 ?>
@@ -754,6 +759,13 @@ if($user_form_id > 0) {
             return false;
         }
     });
+    setQuickActions();
+    <?php if($_GET['tagging_click'] == 1) { ?>
+    	$('.tagging-icon').click();
+    <?php } ?>
+    <?php if($_GET['flagging_click'] == 1) { ?>
+    	$('.flag-icon,.manual-flag-icon').click();
+    <?php } ?>
   });
 
     function changeType(txb) {
@@ -825,6 +837,49 @@ if($user_form_id > 0) {
 		$('select[name="<?= $is_userform ?>memberid[]"] option').hide().filter('[data-businessid="'+programid+'"]').show()
 		$('select[name="<?= $is_userform ?>memberid[]"]').trigger('change.select2');
 	}
+  	function setQuickActions() {
+		$('.manual-flag-icon').off('click').click(function() {
+  			if($('[name="incidentreportid"]').val() != undefined && $('[name="incidentreportid"]').val() > 0) {
+  				$('.flag-label-block').addClass('flag_target');
+		        overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_flags.php?tile=incident_report&id='+$('[name="incidentreportid"]').val(), 'auto', false, true);
+		    } else {
+  				$('[name="quick_action_flagging"]').val(1);
+  				$('[name="save_ir"]').first().click();
+		    }
+		});
+		$('.flag-icon').off('click').click(function() {
+  			if($('[name="incidentreportid"]').val() != undefined && $('[name="incidentreportid"]').val() > 0) {
+				var incidentreportid = $('[name="incidentreportid"]').val();
+				var item = $('.flag-label-block');
+				$.ajax({
+					url: 'incident_report_ajax.php?action=quick_actions',
+					method: 'POST',
+					data: {
+						field: 'flag_colour',
+		                value: item.data('colour'),
+						id: incidentreportid
+					},
+					success: function(response) {
+						item.data('colour',response.substr(0,6));
+						item.css('background-color','#'+response.substr(0,6));
+						item.find('.flag-label').html(response.substr(6));
+					}
+				});
+			} else {
+  				$('[name="quick_action_flagging"]').val(1);
+  				$('[name="save_ir"]').first().click();
+			}
+		});
+  		$('.tagging-icon').off('click').click(function() {
+  			if($('[name="incidentreportid"]').val() != undefined && $('[name="incidentreportid"]').val() > 0) {
+				overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_tagging.php?tile=incident_report&id='+$('[name="incidentreportid"]').val(), 'auto', false, true);
+  			} else {
+  				$('[name="quick_action_tagging"]').val(1);
+  				$('[name="save_ir"]').first().click();
+  			}
+  			return false;
+  		});
+  	}
 </script>
 </head>
 <body>
@@ -832,12 +887,20 @@ if($user_form_id > 0) {
 <?php include ('../navigation.php'); ?>
 
 <div class="container" <?= $user_form_layout == 'Sidebar' ? 'style="padding: 0; margin: 0;"' : '' ?>>
+    <div class="iframe_overlay" style="display:none; margin-top: -20px;margin-left:-15px;">
+        <div class="iframe">
+            <div class="iframe_loading">Loading...</div>
+            <iframe name="inc_rep_iframe" src=""></iframe>
+        </div>
+    </div>
 	<div class="row">
 	    <?php if($user_form_id > 0) { ?>
 	        <h1 style="margin-top: 0; padding-top: 0;"><a href="incident_report.php"><?= INC_REP_TILE ?></a></h1>
 	    <?php } ?>
 	    <form id="form1" name="form1" method="post"	action="" enctype="multipart/form-data" class="form-horizontal" role="form" <?= $user_form_layout == 'Sidebar' ? 'style="padding: 0; margin: 0; border-top: 1px solid #E1E1E1;"' : '' ?>>
 			<input type="hidden" name="active_accordion" value="">
+			<input type="hidden" name="quick_action_tagging" value="">
+			<input type="hidden" name="quick_action_flagging" value="">
 	        <?php $type = '';
 	        $completed_by = $_SESSION['contactid'];
 	        $date_of_happening = '';
@@ -1032,10 +1095,16 @@ if($user_form_id > 0) {
 	        } else {
 	            $from = 'incident_report.php';
 	        }
+
+	        $quick_action_html = '<div class="action-icons pull-right">';
+            $quick_action_html .= (in_array('flag_manual',$quick_action_icons) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-flag-icon.png" class="inline-img manual-flag-icon no-toggle" title="Flag This!">' : '');
+            $quick_action_html .= (!in_array('flag_manual',$quick_action_icons) && in_array('flag',$quick_action_icons) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-flag-icon.png" class="inline-img flag-icon no-toggle" title="Flag This!">' : '');
+	        $quick_action_html .= (in_array('tagging',$quick_action_icons) ? '<img src="'.WEBSITE_URL.'/img/icons/tagging.png" class="inline-img tagging-icon no-toggle" title="Tag Staff">' : '');
+	        $quick_action_html .= '</div><div class="clearfix"></div>';
 	        ?>
 	        
 	        <input type="hidden" name="from" value="<?= $from; ?>" />
-	    
+
 	        <?php if ($keep_revisions == 1) { ?>
 	            <input type="hidden" name="revision_number" value="<?= $revision_number ?>">
 	            <input type="hidden" name="revision_date" value="<?= $revision_date ?>">
@@ -1054,12 +1123,34 @@ if($user_form_id > 0) {
 		        	echo '</div></div></div>';
 		        }
 	        } else { ?>
-				<h1><?= (empty($_GET['incidentreportid']) ? 'Add '.INC_REP_NOUN.(!empty($type) ? ' - '.$type : '') : 'Edit '.INC_REP_NOUN.' - '.$type) ?></h1>
+				<h1><?= (empty($_GET['incidentreportid']) ? 'Add '.INC_REP_NOUN.(!empty($type) ? ' - '.$type : '') : 'Edit '.INC_REP_NOUN.' - '.$type) ?>
+				<?php if(time() < strtotime($get_contact['flag_start']) || time() > strtotime(str_replace('9999',date('Y'),$get_contact['flag_end']).' + 1 day')) {
+					$get_contact['flag_colour'] = '';
+				}
+				if($get_contact['flag_colour'] != '' && $get_contact['flag_colour'] != 'FFFFFF') {
+					$flag_comment = '';
+					if(in_array('flag_manual',$quick_action_icons)) {
+						$flag_comment = $get_contact['flag_label'];
+					} else {
+						$ticket_flag_names = [''=>''];
+						$flag_names = explode('#*#', get_config($dbc, 'ticket_colour_flag_names'));
+						foreach(explode(',',get_config($dbc, 'ticket_colour_flags')) as $i => $colour) {
+							$ticket_flag_names[$colour] = $flag_names[$i];
+						}
+						$flag_comment = $ticket_flag_names[$$get_contact['flag_colour']];
+					} ?>
+				<?php } ?>
+				<span class="block-label flag-label-block" data-colour="'. $row['flag_colour'].'" style="<?= $get_contact['flag_colour'] != '' && $get_contact['flag_colour'] != 'FFFFFF' ? '' : 'dispaly:none;' ?>background-color:#<?= $get_contact['flag_colour'] ?>;">Flagged<span class="flag-label"><?= empty($flag_comment) ? '' : ': '.$flag_comment ?></span></span></h3>
+					<?php if(!IFRAME_PAGE) {
+						echo $quick_action_html;
+					} ?>
+				</h1>
 				<?php if(!IFRAME_PAGE) { ?>
 					<button type="submit" name="save_ir" id="save_ir" value="Submit" class="btn brand-btn btn-lg pull-right" onclick="storePanel();">Save</button>
 					<div class="pad-left gap-top double-gap-bottom"><a href="<?= $from; ?>" class="btn config-btn">Back to Dashboard</a></div>
 				<?php } else { ?>
 					<a href="../blank_loading_page.php"><img class="slider-close" src="../img/icons/cancel.png"></a>
+					<?php echo $quick_action_html; ?>
 				<?php } ?>
 
 		        <div class="panel-group" id="accordion2">
