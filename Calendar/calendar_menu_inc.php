@@ -247,7 +247,7 @@
             <div class="pull-right">
                 <div class="online-users">
                     <img src="<?= WEBSITE_URL ?>/img/person.PNG" class="online-users-icon theme-color-icon"><span class="online-users-count">0</span>
-                    <div class="block-button online-users-block" style="display: none; width: 20em; position: absolute; top: 2em; left: 1.5em; z-index: 99999999999;">Baldwin<br>Baldwin<br>Baldwin<br>Baldwin<br>Baldwin<br></div>
+                    <div class="block-button online-users-block" style="display: none; width: 20em; position: absolute; top: 2em; left: 1.5em; z-index: 99999999999;"></div>
                 </div>
             </div>
         <?php } ?>
