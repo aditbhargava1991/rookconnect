@@ -42,6 +42,16 @@ switch($_GET['tab']) {
         $include_file = 'field_config_auto_archive.php';
 		break;
 
+    case 'sales_lead':
+        $page_title = "Sales Lead";
+        $include_file = 'field_config_sales_lead.php';
+        break;
+
+    case 'manage_sub_tabs':
+        $page_title = "Manage Sub Tabs";
+        $include_file = 'field_config_manage_sub_tabs.php';
+        break;
+
     case 'actions':
         $_GET['tab'] = 'actions';
         $page_title = "Quick Action Flags";
@@ -100,15 +110,15 @@ function resizeScreen() {
                         <!--
                         <a href="?tab=general"><li <?= $_GET['tab'] == 'general' ? 'class="active"' : '' ?>><?= SALES_TILE ?> Settings</li></a>
                         -->
-                        <a href="?tab=tile"><li <?= $_GET['tab'] == 'tile' ? 'class="active"' : '' ?>>Tile Settings</li></a>
-                        <a href="?tab=fields"><li <?= $_GET['tab'] == 'fields' ? 'class="active"' : '' ?>>Fields</li></a>
-                        <a href="?tab=dashboards"><li <?= $_GET['tab'] == 'dashboards' ? 'class="active"' : '' ?>> Dashboards</li></a>
-                        <a href="?tab=actions"><li <?= $_GET['tab'] == 'actions' ? 'class="active"' : '' ?>>Quick Action Icons</li></a>
-                       <a href="?tab=accordion"><li <?= $_GET['tab'] == 'accordion' ? 'class="active"' : '' ?>>Accordion</li></a>
-                        <a href="?tab=lead_source"><li <?= $_GET['tab'] == 'lead_source' ? 'class="active"' : '' ?>>Lead Source</li></a>
-                        <a href="?tab=next_action"><li <?= $_GET['tab'] == 'next_action' ? 'class="active"' : '' ?>>Next Action</li></a>
-                        <a href="?tab=lead_status"><li <?= $_GET['tab'] == 'lead_status' ? 'class="active"' : '' ?>>Lead Status</li></a>
-                        <a href="?tab=auto_archive"><li <?= $_GET['tab'] == 'auto_archive' ? 'class="active"' : '' ?>>Auto Archive</li></a>
+                        <?php
+                        $get_field_config_tabs_order   = mysqli_fetch_assoc ( mysqli_query ( $dbc, "SELECT `value` FROM `general_configuration` where `name` = 'sales_sub_tabs_order'" ) );
+                        $tab_order = stripslashes(html_entity_decode($get_field_config_tabs_order['value']));
+                        $tab_order = json_decode($tab_order, true);
+                        foreach ($tab_order as $key => $value) { 
+                        ?>
+                            <a href="?tab=<?php echo $value['segment'];?>"><li <?= $_GET['tab'] == $value['segment'] ? 'class="active"' : '' ?>><?php echo $value['title'];?></li></a>
+                        <?php
+                        }?>
                     </ul>
                 </div>
                 <?php
