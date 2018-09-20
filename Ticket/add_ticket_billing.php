@@ -30,25 +30,32 @@ function updateTotalTimeEstimate() {
 	$customer_rates = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `services`, `staff`, `staff_position` FROM `rate_card` WHERE `clientid` IN ('$rate_contact', '{$bill['businessid']}', '{$bill['clientid']}') AND `clientid` != '' AND `deleted`=0 ORDER BY `clientid`='$rate_contact' DESC"));
 	if(strpos($value_config,',Billing Services,') !== FALSE && (!isset($_GET['tab_only']) || $_GET['tab_only'] == 'services')) {
 		$service_rates = explode('**',$customer_rates['services']);
-		$services = $_SERVER['DBC']->query("SELECT `serviceid`, `service_qty`, `service_discount`, `service_discount_type`, `service_time_estimate` FROM `tickets` WHERE `ticketid`='$ticketid'")->fetch_assoc();
+		$services = $_SERVER['DBC']->query("SELECT `serviceid`, `service_qty`, `service_discount`, `service_discount_type`, `service_time_estimate`, `service_fuel_charge` FROM `tickets` WHERE `ticketid`='$ticketid'")->fetch_assoc();
 		$service_delivers = [];
+		$service_deliver_id = [];
 		$service = explode(',',$services['serviceid']);
+		$service_surcharge = explode(',',$services['service_fuel_charge']);
         foreach($service as $id) {
             $service_delivers[] = '';
+            $service_deliver_id[] = '';
         }
 		$qty = explode(',',$services['service_qty']);
 		$time_estimate = explode(',',$services['service_time_estimate']);
 		$discount_type = explode(',',$services['service_discount_type']);
 		$discount = explode(',',$services['service_discount']);
 		$total_time_estimate = 0;
-        $delivery_services = $_SERVER['DBC']->query("SELECT `location_name`,`client_name`,`serviceid`, `est_time` FROM `ticket_schedule` WHERE `ticketid`='$ticketid' AND `deleted`=0 ORDER BY `sort`");
+        $delivery_services = $_SERVER['DBC']->query("SELECT `location_name`,`client_name`,`serviceid`, `est_time`, `id`, `surcharge`, `service_discount`, `service_discount_type` FROM `ticket_schedule` WHERE `ticketid`='$ticketid' AND `deleted`=0 ORDER BY `sort`");
         $stop_number = 0;
         while($delivery_service = $delivery_services->fetch_assoc()) {
             $stop_number++;
             $delivery_serviceid = explode(',',$delivery_service['serviceid']);
             foreach($delivery_serviceid as $id) {
                 $service_delivers[] = 'Delivery #'.$stop_number.': '.(empty($delivery_service['client_name']) ? $delivery_service['location_name'] : $delivery_service['client_name']);
+                $service_deliver_id[] = $delivery_service['id'];
                 $service[] = $id;
+                $service_surcharge[] = explode(',',$delivery_service['surcharge'])[$i];
+                $discount[] = explode(',',$delivery_service['service_discount'])[$i];
+                $discount_type[] = explode(',',$delivery_service['service_discount_type'])[$i];
                 $qty[] = 1;
                 $time_estimate[] = $delivery_service['est_tiime'] / count($delivery_serviceid);
                 $discount_type[] = '';
@@ -80,10 +87,15 @@ function updateTotalTimeEstimate() {
 					$new_minutes = sprintf('%02d', $new_minutes);
 					$time_estimate[$i] = $new_hours.':'.$new_minutes;
 				}
+                $surcharge = $service_surcharge[$i];
 				$minutes = explode(':', $time_estimate[$i]);
 				$minutes = ($minutes[0]*60) + $minutes[1];
 				$total_time_estimate += $minutes;
-				$billing_lines[] = ['discount_edit'=>'name="service_discount" data-table="tickets" data-id="'.$ticketid.'" data-id-field="ticketid" data-concat=","', 'type_edit'=>'name="service_discount_type" data-table="tickets" data-id="'.$ticketid.'" data-id-field="ticketid" data-concat=","', 'rate'=>$rate, 'description'=>$description, 'qty'=>(empty($qty[$i]) ? '1' : $qty[$i]), 'discount_type'=>$discount_type[$i], 'discount'=>$discount[$i], 'service_time_estimate'=>$time_estimate[$i], 'serviceid'=>$id];
+                if(!empty($service_delivers[$i])) {
+                    $billing_lines[] = ['surcharge_edit'=>'name="surcharge" data-table="ticket_schedule" data-id="'.$service_deliver_id[$i].'" data-id-field="id" data-concat=","', 'discount_edit'=>'name="service_discount" data-table="ticket_schedule" data-id="'.$service_deliver_id[$i].'" data-id-field="id" data-concat=","', 'type_edit'=>'name="service_discount_type" data-table="ticket_schedule" data-id="'.$service_deliver_id[$i].'" data-id-field="id" data-concat=","', 'rate'=>$rate, 'surcharge'=>$surcharge, 'description'=>$description, 'qty'=>(empty($qty[$i]) ? '1' : $qty[$i]), 'discount_type'=>$discount_type[$i], 'discount'=>$discount[$i], 'service_time_estimate'=>$time_estimate[$i], 'serviceid'=>$id];
+                } else {
+                    $billing_lines[] = ['surcharge_edit'=>'name="service_fuel_charge" data-table="tickets" data-id="'.$ticketid.'" data-id-field="ticketid" data-concat=","', 'discount_edit'=>'name="service_discount" data-table="tickets" data-id="'.$ticketid.'" data-id-field="ticketid" data-concat=","', 'type_edit'=>'name="service_discount_type" data-table="tickets" data-id="'.$ticketid.'" data-id-field="ticketid" data-concat=","', 'rate'=>$rate, 'surcharge'=>$surcharge, 'description'=>$description, 'qty'=>(empty($qty[$i]) ? '1' : $qty[$i]), 'discount_type'=>$discount_type[$i], 'discount'=>$discount[$i], 'service_time_estimate'=>$time_estimate[$i], 'serviceid'=>$id];
+                }
 			}
 		}
 		$new_hours = $total_time_estimate / 60;
@@ -188,7 +200,7 @@ function updateTotalTimeEstimate() {
 			}
 			$line_discount = 0;
 			if($line['discount_type'] == '%') {
-				$line_discount = $line['qty'] * $line['rate'] * $line['discount'] / 100;
+				$line_discount = ($line['qty'] * $line['rate'] + $line_surcharge) * $line['discount'] / 100;
 			} else {
 				$line_discount = $line['discount'];
 			} ?>
@@ -201,7 +213,7 @@ function updateTotalTimeEstimate() {
 				<?php } ?>
 				<?php if(strpos($value_config, ',Billing Surcharge,') !== FALSE && ($access_any > 0 || $view_totals)) { ?>
 					<td data-title="Fuel Service Charge">
-						<?php if($access_any > 0) { ?>
+						<?php if($access_any > 0 && isset($line['surcharge_edit'])) { ?>
 							<div class="col-sm-11">
 								<input type="number" step="any" value="<?= $line['surcharge'] ?>" <?= $line['surcharge_edit'] ?> class="form-control surcharge" placeholder="Service Charge">
 							</div>
@@ -239,7 +251,7 @@ function updateTotalTimeEstimate() {
 					</td>
 				<?php } ?>
 				<?php if($access_any > 0 || $view_totals) { ?>
-					<td data-title="Total">$<?= number_format($line['qty'] * $line['rate'] - $line_discount,2) ?></td>
+					<td data-title="Total">$<?= number_format($line['qty'] * $line['rate'] + $line_surcharge - $line_discount,2) ?></td>
 				<?php } ?>
 			</tr>
 		<?php } ?>
