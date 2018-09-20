@@ -169,6 +169,9 @@ function updateTotalTimeEstimate() {
 			<?php if(strpos($value_config, ',Service Estimated Hours,') !== FALSE) { ?>
 				<th>Time Estimate</th>
 			<?php } ?>
+			<?php if(strpos($value_config, ',Billing Surcharge,') !== FALSE && ($access_any > 0 || $view_totals)) { ?>
+				<th>Fuel Service Charge</th>
+			<?php } ?>
 			<?php if(strpos($value_config, ',Billing Discount,') !== FALSE && ($access_any > 0 || $view_totals)) { ?>
 				<th>Discount</th>
 			<?php } ?>
@@ -177,6 +180,12 @@ function updateTotalTimeEstimate() {
 			<?php } ?>
 		</tr>
 		<?php foreach($billing_lines as $line) {
+			$line_surcharge = 0;
+			if($line['surcharge_type'] == '$') {
+				$line_surcharge = $line['surcharge'];
+			} else {
+				$line_surcharge = $line['qty'] * $line['rate'] * $line['surcharge'] / 100;
+			}
 			$line_discount = 0;
 			if($line['discount_type'] == '%') {
 				$line_discount = $line['qty'] * $line['rate'] * $line['discount'] / 100;
@@ -189,6 +198,26 @@ function updateTotalTimeEstimate() {
 				<td data-title="<?= strpos($value_config,',Service # of Rooms,') !== FALSE ? '# of Rooms' : 'Quantity' ?>"><?= $line['qty'] ?></td>
 				<?php if(strpos($value_config, ',Service Estimated Hours,') !== FALSE) { ?>
 					<td data-title="Time Estimate"><input name="service_time_estimate" <?= $access_any > 0 ? 'data-table="tickets" data-id="'.$ticketid.'" data-id-field="ticketid" data-concat=","' : 'disabled' ?> value="<?= $line['service_time_estimate'] ?>" data-serviceid="<?= $line['serviceid'] ?>" type="text" class="timepicker-5 form-control" onchange="updateTotalTimeEstimate();" /></td>
+				<?php } ?>
+				<?php if(strpos($value_config, ',Billing Surcharge,') !== FALSE && ($access_any > 0 || $view_totals)) { ?>
+					<td data-title="Fuel Service Charge">
+						<?php if($access_any > 0) { ?>
+							<div class="col-sm-11">
+								<input type="number" step="any" value="<?= $line['surcharge'] ?>" <?= $line['surcharge_edit'] ?> class="form-control surcharge" placeholder="Service Charge">
+							</div>
+							<div class="col-sm-1">
+								<!--<select class="charge" <?= $line['type_edit'] ?> data-placeholder="Charge Type">
+									<option <?= $line['surcharge_type'] == '$' ? '' : 'selected' ?> value="%">%</option>
+									<option <?= $line['surcharge_type'] == '$' ? 'selected' : '' ?> value="$">$</option>
+								</select>-->
+                                %
+							</div>
+						<?php } else if($line['surcharge_type'] == '$') {
+							echo '$'.number_format($line_surcharge,2);
+						} else {
+							echo number_format($line['surcharge'],2).'%';
+						} ?>
+					</td>
 				<?php } ?>
 				<?php if(strpos($value_config, ',Billing Discount,') !== FALSE && ($access_any > 0 || $view_totals)) { ?>
 					<td data-title="Discount">
