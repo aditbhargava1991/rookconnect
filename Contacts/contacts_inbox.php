@@ -129,7 +129,7 @@ include_once ('../navigation.php'); ?>
 			<span class="iframe_title" style="color:white; font-weight:bold; position:relative; top:58px; left:20px; font-size:30px;"></span>
 			<iframe id="iframe_instead_of_window" style="width:100%; overflow:hidden; height:200px; border:0;" src=""></iframe>
 		</div>
-		<div class="row hide_on_iframe">
+		<div class="row hide_on_iframe icons_div" data-id="<?= $_GET['edit'] ?>">
 			<div class="main-screen" style="background-color: #fff; border-width: 0; height: auto; margin-top: -20px;">
 				<h1 class="no-gap-top padded"><a href="<?= !empty($_GET['from']) ? urldecode(strpos($_GET['from'],'list_common') !== FALSE ? '?'.explode('?',$_GET['from'])[1] : $_GET['from']) : '?' ?>"><?= $folder_label ?><?= ($_GET['edit'] > 0 ? ': '.(!empty(get_client($dbc, $_GET['edit'])) ? get_client($dbc, $_GET['edit']) : get_contact($dbc, $_GET['edit'])) : '') ?></a><?php if($config_access > 0) {
 					echo "<div class='pull-right'><a href='?settings=fields'><img src='".WEBSITE_URL."/img/icons/settings-4.png' class='settings-classic wiggle-me settings-icon'></a></div>";
@@ -138,6 +138,9 @@ include_once ('../navigation.php'); ?>
 				if($edit_access > 0) {
 					echo "<div class='pull-right' style='height: 1em; padding: 0 0.25em;'><a href='?edit=new&category=".$_GET['list']."' style='font-size: 0.5em;'><button class='btn brand-btn hide-titles-mob'>New Contact</button>";
 					echo "<img src='".WEBSITE_URL."/img/icons/ROOK-add-icon.png' class='show-on-mob add-icon-lg'></a></div>";
+					if($_GET['category']=='Customers' && $_GET['edit']!=''){
+						echo "<div class='pull-right'><a href='Add Reminder' onclick='return false;'><img src='".WEBSITE_URL."/img/icons/ROOK-reminder-icon.png' class='no-toggle reminder-icon' title='Schedule Reminder' style='width:1.5em;'></a></div>";
+					}
 				} ?>
 				<!--
                 <?php /* if($view_access > 0) { ?>
@@ -183,5 +186,11 @@ function searchContact()
 		var search_url = updateQueryStringParameter(window.location.href, "search_contacts", search_parameter);
 		window.location.href = search_url;
 }
+$(document).ready(function() {
+	$('.icons_div .reminder-icon').off('click').click(function() {
+        var item = $(this).closest('.icons_div');
+        overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_reminders.php?tile=contacts&id='+item.data('id'), 'auto', false, true);
+    });
+})
 </script>
 <?php include('../footer.php'); ?>

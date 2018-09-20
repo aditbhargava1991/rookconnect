@@ -63,16 +63,8 @@ if(!empty($_GET['edit'])) {
             <div class="scale-to-fill has-main-screen">
             	<div class="main-screen standard-body">
 	        		<div class="standard-body-title">
-	        			<div class="row">
-	        				<div class="col-md-6">
-		        				<h3><?= !empty($_GET['edit']) ? 'Edit' : 'Add' ?> Intake Form</h3>
-	        				</div>
-		        			<div class="col-md-6 icons_div text-right" data-id="<?= $_GET['edit'] ?>">
-					            <img src='<?= WEBSITE_URL?>/img/icons/ROOK-reminder-icon.png' class='no-toggle reminder-icon' title='Schedule Reminder' style='margin-top: 5px;padding-right: 20px'>
-					        </div>
-				        </div>
+	        			<h3><?= !empty($_GET['edit']) ? 'Edit' : 'Add' ?> Intake Form</h3>
 	        		</div>
-	        		<div class="clearfix"></div>
             		<div class="standard-body-content" style="padding: 0 0.5em;">
 			            <form id="form1" name="form1" method="post" action="" enctype="multipart/form-data" class="form-horizontal" role="form">
 							<input type="hidden" name="intakeformid" value="<?= $intakeformid ?>">
@@ -119,12 +111,4 @@ if(!empty($_GET['edit'])) {
 		</div>
 	</div>
 </div>
-<script>
-$(document).ready(function() {
-    $('.icons_div .reminder-icon').off('click').click(function() {
-        var item = $(this).closest('.icons_div');
-        overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_reminders.php?tile=add_intake&id='+item.data('id'), 'auto', false, true);
-    });
-})
-</script>
 <?php include ('../footer.php'); ?>

@@ -17,9 +17,6 @@ if(!empty($_GET['sotid'])) {
         <h3><?= !empty($order_name) ? $order_name : SALES_ORDER_NOUN.' '.$soid ?>
             <?php if(!empty($_GET['sotid'])) { ?>
                 <a href="order.php?p=details&sotid=<?= $soid ?>" class="btn brand-btn pull-right">Edit</a>
-                <div class="pull-right icons_div" data-id="<?= $_GET['sotid'] ?>">
-                    <a href='Add Reminder' onclick='return false;'><img src='<?= WEBSITE_URL?>/img/icons/ROOK-reminder-icon.png' class='no-toggle reminder-icon' title='Schedule Reminder' style='width: 1.9em;margin-right: 1em;'></a>
-                </div>
                 <?php if(!empty($cat_config)) { ?>
                     <a href="order_details.php?p=details&sotid=<?= $soid ?>" class="btn brand-btn pull-right">Order Details</a>
                 <?php } ?>
@@ -400,11 +397,3 @@ if(!empty($_GET['sotid'])) {
         } ?>
     </div>
 </div><!-- .main-screen-white -->
-<script>
-$(document).ready(function() {
-    $('.icons_div .reminder-icon').off('click').click(function() {
-        var item = $(this).closest('.icons_div');
-        overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_reminders.php?tile=sales_order&id='+item.data('id'), 'auto', false, true);
-    });
-})
-</script>
