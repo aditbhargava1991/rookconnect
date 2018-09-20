@@ -141,7 +141,7 @@ if($invoice_mode != 'Adjustment') {
 			$service_cats[] = $service['category'];
 			$service_names[] = $service['heading'];
 			$qty = $_POST['srv_qty'][$i] > 0 ? $_POST['srv_qty'][$i] : 1;
-			$service_fee = ($service['editable'] > 0 && $_POST['fee'] > 0 ? $_POST['fee'][$i] * $qty : $service['service_rate'] * $qty);
+			$service_fee = ($service['editable'] > 0 || $_POST['fee'] > 0 ? $_POST['fee'][$i] * $qty : $service['service_rate'] * $qty);
 			$service_fees[] = $service_fee;
 			$gst = $_POST['gst_exempt'][$i] == "1" ? 0 : $service_fee * $_POST['tax_rate'] / 100;
 			$service_gst[] = $gst;
