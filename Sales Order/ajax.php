@@ -358,7 +358,12 @@ if ($_GET['fill']=='deleteSalesOrderTemplate') {
 if ($_GET['fill']=='loadItems') {
     $table = $_GET['table'];
     $all_items = [];
-    if($table == 'labour') {
+    if($table == 'equipment') {
+        $query = mysqli_query($dbc, "SELECT DISTINCT `unit_number`, `category` FROM `$table` WHERE `deleted`=0 AND `unit_number`<>'' ORDER BY `unit_number`");
+        while($row = mysqli_fetch_array($query)) {
+            $all_items[] = ['category'=>$row['category'], 'label'=>$row['unit_number'], 'value'=>htmlspecialchars($row['unit_number'])];
+        }
+    } else if($table == 'labour') {
         $query = mysqli_query($dbc, "SELECT DISTINCT `heading`, `labour_type`, `category` FROM `$table` WHERE `deleted`=0 AND `heading`<>'' ORDER BY `heading`");
         while($row = mysqli_fetch_array($query)) {
             $all_items[] = ['labour_type'=>$row['labour_type'], 'category'=>$row['category'], 'label'=>$row['heading'], 'value'=>htmlspecialchars($row['heading'])];
@@ -386,6 +391,14 @@ if ($_GET['fill']=='loadItemDetails') {
     $customer = mysqli_real_escape_string($dbc, $_POST['customer']);
     $item_type = $_POST['item_type'];
     switch($item_type) {
+        case 'equipment':
+            $table = 'equipment';
+            $table_field = 'unit_number';
+            $table_cat_field = 'category';
+            $table_subcat_field = '';
+            $table_id = 'equipmentid';
+            $config_table = 'field_cnfig_equipment';
+            break;
         case 'labour':
             $table = 'labour';
             $table_field = 'heading';
@@ -422,7 +435,11 @@ if ($_GET['fill']=='loadItemDetails') {
 
     $price_types = ['Client Price','Admin Price','Commercial Price','Wholesale Price','Final Retail Price','Preferred Price','Web Price','Purchase Order Price','Sales Order Price','Drum Unit Cost','Drum Unit Price','Tote Unit Cost','Suggested Retail Price','Rush Price','Unit Price','MSRP','Fee','Unit Cost','Rent Price','Hourly Rate','Purchase Order Price','Sales Order Price'];
 
-    if($item_type == 'labour') {
+    if($item_type == 'equipment') {
+        $price_types = [];
+        $field_config = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT equipment_dashboard FROM field_config_equipment WHERE tab='$category' AND accordion IS NULL UNION SELECT equipment_dashboard FROM field_config_equipment WHERE `tab` NOT IN ('service_record','service_request') AND equipment_dashboard IS NOT NULL"));
+        $field_config = explode(',', $field_config['equipment_dashboard']);
+    } else if($item_type == 'labour') {
         include('../Labour/field_list.php');
         $price_types = [];
         $field_config = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `labour_dashboard` FROM `field_config` WHERE `labour_dashboard` IS NOT NULL AND `labour_dashboard` != ''"));
@@ -472,14 +489,16 @@ if ($_GET['fill']=='loadItemDetails') {
     }
 
     // if($name == '**NEW_ITEM**') {
-        if($item_type == 'services' || $item_type == 'labour') {
+        if($item_type == 'equipment') {
+            $html .= '<th>Unit #</th>';
+        } else if($item_type == 'services' || $item_type == 'labour') {
             $html .= '<th>Heading</th>';
         } else {
             $html .= '<th>Name</th>';
         }
     // }
     foreach ($field_config as $field) {
-        if ($field != 'Labour Type' && $field != 'Rate Card' && $field != 'Rate Card Price' && $field != 'Category' && $field != 'Subcategory' && $field != 'Name' && $field != 'Heading' && $field != 'Estimated Hours') {
+        if ($field != 'Labour Type' && $field != 'Rate Card' && $field != 'Rate Card Price' && $field != 'Category' && $field != 'Subcategory' && $field != 'Name' && $field != 'Heading' && $field != 'Estimated Hours' && $field != 'Unit #') {
             $html .= '<th>'.$field.'</th>';
         }
     }

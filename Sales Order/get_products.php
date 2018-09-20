@@ -414,6 +414,10 @@ checkAuthorised('sales_order');
             break;
         case 'labour':
             $item_type_title = 'LABOUR';
+            break;
+        case 'equipment':
+            $item_type_title = 'EQUIPMENT';
+            break;
     } ?>
     
 	<div class="container triple-gap-top"><?php
@@ -447,6 +451,10 @@ checkAuthorised('sales_order');
                     $table = 'inventory';
                     $tableid = 'inventoryid';
                     break;
+                case 'equipment':
+                    $table = 'equipment';
+                    $tableid = 'equipmentid';
+                    break;
             }
             $contact_category = $_POST['contact_category'];
 
@@ -454,7 +462,10 @@ checkAuthorised('sales_order');
             $from_type = $_POST['from_type'];
 
             foreach ($_POST['new_item_category'] as $key => $new_item) {
-                if($item_type == 'labour') {
+                if($Item_type == 'equipment') {
+                    $field_config = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT equipment_dashboard FROM field_config_equipment WHERE tab='$new_item' AND accordion IS NULL UNION SELECT equipment_dashboard FROM field_config_equipment WHERE `tab` NOT IN ('service_record','service_request') AND equipment_dashboard IS NOT NULL"));
+                    $field_config = explode(',',$field_config['equipment_dashboard']);
+                } else if($item_type == 'labour') {
                     $field_config = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `labour_dashboard` FROM `field_config` WHERE `labour_dashboard` IS NOT NULL AND `labour_dashboard` != ''"));
                     $field_config = explode(',', $field_config['labour_dashboard']);
                 } else if($item_type == 'services') {
@@ -481,7 +492,9 @@ checkAuthorised('sales_order');
                 } else {
                     $query_update[] = "`category` = '$item_category'";
                 }
-                if($item_type == 'labour') {
+                if($item_type == 'equipment') {
+                    $query_update[] = "`unit_number` = '$new_item_heading'";
+                } else if($item_type == 'labour') {
                     $query_update[] = "`category` = '$subcategory'";
                     $query_update[] = "`heading` = '$new_item_heading'";
                 } else if ($item_type != 'services') {
@@ -492,14 +505,16 @@ checkAuthorised('sales_order');
                 }
                 foreach ($field_config as $field) {
                     $field_key = array_search($field,$field_list);
-                    if ($field != 'Labour Type' && $field != 'Rate Card' && $field != 'Rate Card Price' && $field != 'Category' && $field != 'Subcategory' && $field != 'Name' && $field != 'Heading') {
+                    if ($field != 'Labour Type' && $field != 'Rate Card' && $field != 'Rate Card Price' && $field != 'Category' && $field != 'Subcategory' && $field != 'Name' && $field != 'Heading' && $field != 'Unit #') {
                         $query_update[] = "`$field_key` = '".$_POST['new_item_'.$field_key][$key]."'";
                     }
                 }
                 $query_update = implode(',', $query_update);
                 mysqli_query($dbc, "UPDATE `$table` SET $query_update WHERE `$tableid` = '$inventoryid'");
                 $item = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `$table` WHERE `$tableid` = '$inventoryid'"));
-                if($item_type == 'services') {
+                if($item_type == 'equipment') {
+                    $item_value = $item['unit_number'];
+                } else if($item_type == 'services') {
                     $item_value = $item['heading'];
                 } else {
                     $item_value = '';
@@ -785,7 +800,15 @@ checkAuthorised('sales_order');
                         </div>
                     <?php } ?>
 
-                    <?php if($category == 'labour') { ?>
+                    <?php if($category == 'equipment') { ?>
+                        <div class="col-xs-12 col-sm-5" style="display:none;">
+                            <b>Equipment:</b><br />
+                            <select data-placeholder="Choose an Equipment..." id="product_0" name="inventory[]" class="chosen-select-deselect form-control product labour">
+                                <option class="always_visible" value=""></option>
+                                <option class="always_visible" value="**NEW_ITEM**">NEW <?= $item_type_title ?></option>
+                            </select>
+                        </div>
+                    <?php } else if($category == 'labour') { ?>
                         <div class="col-xs-12 col-sm-3" style="display:none;">
                             <b>Category:</b><br />
                             <select data-placeholder="Choose a Category..." id="labourcategory_0" name="labourcategory[]" class="chosen-select-deselect form-control labourcategory">
