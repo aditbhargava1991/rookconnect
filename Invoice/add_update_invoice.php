@@ -140,7 +140,7 @@ if($invoice_mode != 'Adjustment') {
 			$service_pdf .= $service['category'].' : '.$service['heading'].'<br>';
 			$service_cats[] = $service['category'];
 			$service_names[] = $service['heading'];
-			$service_fee = ($service['editable'] > 0 ? $_POST['fee'][$i] : $service['service_rate']);
+			$service_fee = ($service['editable'] > 0 || $_POST['fee'][$i] > 0 ? $_POST['fee'][$i] : $service['service_rate']);
 			$service_fees[] = $service_fee;
 			$gst = $_POST['gst_exempt'][$i] == "1" ? 0 : $service_fee * $_POST['tax_rate'] / 100;
 			$service_gst[] = $gst;
