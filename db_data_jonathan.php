@@ -376,6 +376,16 @@
 		}
 		set_config($dbc, 'update_project_details_path_config', 1);
 	}
+	if(get_config($dbc, 'update_timesheet_layout_fields') < 1) {
+		// September 19, 2018
+		if(!mysqli_query($dbc, "UPDATE `general_configuration` LEFT JOIN `field_config` ON 1=1 SET `time_cards`=CONCAT(REPLACE(`time_cards`,'total_tracked_hrs,',''),',ticket_select,task_select,total_tracked_hrs_task,total_hrs,') WHERE `general_configuration`.`name`='timesheet_layout' AND `general_configuration`.`value`='ticket_task'")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+		if(!mysqli_query($dbc, "UPDATE `general_configuration` LEFT JOIN `field_config` ON 1=1 SET `time_cards`=CONCAT(REPLACE(`time_cards`,'total_tracked_hrs,',''),',position_select,total_tracked_hrs_task,total_hrs,') WHERE `general_configuration`.`name`='timesheet_layout' AND `general_configuration`.`value`='position_dropdown'")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+		set_config($dbc, 'update_timesheet_layout_fields', 1);
+	}
 	
 	echo "Jonathan's DB Changes Done<br />\n";
 ?>
