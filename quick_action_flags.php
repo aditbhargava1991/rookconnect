@@ -125,6 +125,7 @@ if(isset($_POST['submit'])) {
             </script>
             <?php break;
 
+
         case 'checklist_name':
             $checklistid = $id;
             mysqli_query($dbc, "UPDATE `checklist_name` SET `flag_colour`='$flag_colour', `flag_start`='$flag_start', `flag_end`='$flag_end', `flag_label`='$flag_label' WHERE `checklistnameid`='$id'");
@@ -137,6 +138,7 @@ if(isset($_POST['submit'])) {
             echo '<script type="text/javascript"> window.parent.setManualFlag(\''.$checklistid.'\', \''.$flag_colour.'\', \''.$flag_label.'\'); </script>';
             ?>
             <?php break;
+
 
         default:
             break;

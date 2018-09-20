@@ -30,6 +30,7 @@ if (isset($_POST['add_tab'])) {
     set_config($dbc, 'calendar_reset_active', $_POST['calendar_reset_active']);
     set_config($dbc, 'calendar_reset_active_mode', $_POST['calendar_reset_active_mode']);
     set_config($dbc, 'calendar_auto_refresh', $_POST['calendar_auto_refresh']);
+    set_config($dbc, 'calendar_online_users', $_POST['calendar_online_users']);
 
 	// My Calendar Settings
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'my_day_start' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='my_day_start') num WHERE num.rows=0");
@@ -1264,6 +1265,13 @@ function deleteLogo(logo) {
                             	<div class="col-sm-8"><?php
                             		$calendar_auto_refresh = get_config($dbc, 'calendar_auto_refresh'); ?>
                             		<input type="text" name="calendar_auto_refresh" class="timepicker form-control" value="<?= $calendar_auto_refresh ?>">
+                            	</div>
+                            </div>
+                            <div class="form-group">
+                            	<label class="col-sm-4 control-label">Display Online Users:</label>
+								<div class="col-sm-8"><?php
+                                    $calendar_online_users = get_config($dbc, 'calendar_online_users'); ?>
+                                    <label class="form-checkbox"><input type="checkbox" name="calendar_online_users" <?= $calendar_online_users==1 ? 'checked' : ''; ?> value="1" /></label>
                             	</div>
                             </div>
 						</div>

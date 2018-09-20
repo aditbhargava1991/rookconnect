@@ -559,6 +559,10 @@ function setActions() {
 		var item = $(this).closest('.dashboard-item');
 		overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_email.php?tile=tickets&id='+item.data('id'), 'auto', false, true);
 	});
+	$('.history-icon').off('click').click(function() {
+		var item = $(this).closest('.dashboard-item');
+		overlayIFrameSlider('<?= WEBSITE_URL ?>/Ticket/ticket_history.php?tile=tickets&ticketid='+item.data('id'), 'auto', false, true);
+	});
 }
 function setStatus(select) {
 	$.ajax({    //create an ajax request to load_page.php
@@ -602,6 +606,18 @@ function setTotalBudgetTime(input) {
 }
 </script><?php
 IF(!IFRAME_PAGE) { ?>
+<style>
+	.li-collapsed-active-show ul.collapse{
+		display: block !important;
+		height:auto !important;
+	}
+	.li-collapsed-active-show a.collapsed + ul.collapse li{
+		display: none !important;
+	}
+	.li-collapsed-active-show a.collapsed + ul.collapse li.active.blue{
+		display: block !important;
+	}
+</style>
 	<div class="tile-sidebar sidebar sidebar-override hide-titles-mob standard-collapsible">
 		<ul>
 			<li class="standard-sidebar-searchbox"><input type="text" class="form-control search_list" placeholder="Search <?= $ticket_tile ?>"></li>
@@ -789,17 +805,23 @@ IF(!IFRAME_PAGE) { ?>
 						<ul id="tab_admin" class="collapse <?= substr($_GET['tab'],0,14) == 'administration' ? 'in' : '' ?>">
 							<?php while($admin_group = $admin_groups->fetch_assoc()) {
 								$other_groups = $dbc->query("SELECT GROUP_CONCAT(`region` SEPARATOR ''',''') `regions`, GROUP_CONCAT(`classification` SEPARATOR ''',''') `classifications` FROM `field_config_project_admin` WHERE `id`!='{$admin_group['id']}' AND `deleted`=0")->fetch_assoc(); ?>
-								<h4><?= $admin_group['name'].
+								<a href="?tab=administration_<?= $admin_group['id'] ?>_summary"><h4><?= $admin_group['name'].
 									($admin_group['region'] != '' ? '<br /><em><small>'.$admin_group['region'].'</small></em>' : '').
 									($admin_group['classification'] != '' ? '<br /><em><small>'.$admin_group['classification'].'</small></em>' : '').
 									($admin_group['location'] != '' ? '<br /><em><small>'.$admin_group['location'].'</small></em>' : '').
-									($admin_group['customer'] > 0 ? '<br /><em><small>'.get_contact($dbc,$admin_group['customer'],'full_name').'</small></em>' : '') ?></h4>
+									($admin_group['customer'] > 0 ? '<br /><em><small>'.get_contact($dbc,$admin_group['customer'],'full_name').'</small></em>' : '') ?></h4></a>
 								<?php $admin_regions = $admin_classes = [''];
 								if($admin_group['region'] == '') {
 									$admin_regions = mysqli_fetch_all($dbc->query("SELECT IFNULL(`region`,'') FROM `tickets` WHERE `deleted`=0 ".($other_groups['regions'] != "','" && $other_groups['regions'] != "" ? " AND ((`region` IN ('{$admin_group['region']}','') AND `region` NOT IN ('{$other_groups['regions']}')) OR ('{$admin_group['region']}'='' AND `region` NOT IN ('{$other_groups['regions']}')))" : "")." GROUP BY IFNULL(`region`,'')"));
 								}
+								if(empty($admin_regions)) {
+									$admin_regions = [''];
+								}
 								if($admin_group['classification'] == '') {
 									$admin_classes = mysqli_fetch_all($dbc->query("SELECT IFNULL(`classification`,'') FROM `tickets` WHERE `deleted`=0 ".($other_groups['classifications'] != "','" && $other_groups['classifications'] != "" ? " AND (`classification` IN ('{$admin_group['classification']}','') OR ('{$admin_group['classification']}'='' AND `classification` NOT IN ('{$other_groups['classifications']}')))" : "")." GROUP BY IFNULL(`classification`,'')"));
+								}
+								if(empty($admin_classes)) {
+									$admin_classes = [''];
 								}
 								foreach($admin_regions as $region_i => $admin_region) {
 									foreach($admin_classes as $class_i => $admin_class) { ?>
@@ -864,7 +886,7 @@ IF(!IFRAME_PAGE) { ?>
 			<?php if(in_array('Invoicing',$db_config) && check_subtab_persmission($dbc, 'ticket', ROLE, 'invoice') === TRUE && !($strict_view > 0)) { ?>
 				<li class="sidebar-higher-level"><a class="cursor-hand <?= $_GET['tab'] == 'invoice' ? 'active blue' : 'collapsed' ?>" data-toggle="collapse" data-target="#tab_invoice">Accounting<span class="arrow"></span></a>
 					<ul id="tab_invoice" class="collapse <?= $_GET['tab'] == 'invoice' ? 'in' : '' ?>">
-						<?php $inv_count = $dbc->query("SELECT SUM(IF(`invoice`.`invoiceid` IS NULL, 1, 0)) `unbilled`, SUM(IF(`invoice`.`invoiceid` IS NULL, 0, 1)) `billed` FROM `tickets` LEFT JOIN `invoice` ON CONCAT(',',`invoice`.`ticketid`,',') LIKE CONCAT('%,',`tickets`.`ticketid`,',%') WHERE `tickets`.`ticket_type` IN ('".implode("','",$ticket_conf_list)."') AND `tickets`.`deleted`=0 ".(in_array('Administration',$db_config) ?"AND `approvals` IS NOT NULL" : ''))->fetch_assoc(); ?>
+						<?php $inv_count = $dbc->query("SELECT SUM(IF(`invoice`.`invoiceid` IS NULL, 1, 0)) `unbilled`, SUM(IF(`invoice`.`invoiceid` IS NULL, 0, 1)) `billed` FROM `tickets` LEFT JOIN `invoice` ON CONCAT(',',`invoice`.`ticketid`,',') LIKE CONCAT('%,',`tickets`.`ticketid`,',%') WHERE `tickets`.`ticket_type` IN ('".implode("','",$ticket_conf_list)."') AND `tickets`.`deleted`=0 ".(in_array('Administration',$db_config) ?"AND IFNULL(`approvals`,'') != ''" : ''))->fetch_assoc(); ?>
 						<li class="sidebar-lower-level <?= $_GET['tab'] == 'invoice' && $_GET['status'] == 'unbilled' ? 'active blue' : '' ?>"><a href="?<?= $current_tile ?>tab=invoice&status=unbilled">Unbilled<span class="pull-right"><?= $inv_count['unbilled'] ?></span></a></li>
 						<li class="sidebar-lower-level <?= $_GET['tab'] == 'invoice' && $_GET['status'] == 'billed' ? 'active blue' : '' ?>"><a href="?<?= $current_tile ?>tab=invoice&status=billed">Billed<span class="pull-right"><?= $inv_count['billed'] > 25 ? 'Last 25' : $inv_count['billed'] ?></span></a></li>
 					</ul>
@@ -934,7 +956,7 @@ IF(!IFRAME_PAGE) { ?>
 			$form = $dbc->query("SELECT * FROM `ticket_pdf` WHERE `id`='{$_GET['form_list']}'")->fetch_assoc();
 			$form['file_name'] = config_safe_str($form['pdf_name']);
 		} ?>
-		<div class="standard-<?= substr($_GET['tab'],0,14) == 'administration' ? '' : 'dashboard-' ?>body-title">
+		<div class="standard-<?= substr($_GET['tab'],0,14) == 'administration' || $_GET['tab'] == 'invoice' ? '' : 'dashboard-' ?>body-title">
 			<h3><?= $ticket_tile.($_GET['form_list'] > 0 ? ': '.$form['pdf_name'] : (substr($_GET['tab'],0,14) == 'administration' ? ': Administration' : (substr($_GET['tab'],0,14) == 'invoice' ? ': Accounting - '.($_GET['status'] == 'billed' ? 'Billed' : 'Unbilled').' '.$ticket_tile : ($_GET['tab'] == 'manifest' && $_GET['site'] == 'recent' ? ': Last '.$recent_manifests.' Manifests '.(IFRAME_PAGE ? '<a href="../blank_loading_page.php" class="pull-right"><img class="inline-img" src="../img/icons/cancel.png"></a>' : '').'<a href="../Reports/report_daily_manifest_summary.php?type=operations" class="pull-right"><img class="inline-img" src="../img/icons/pie-chart.png"></a>' : ($_GET['tab'] == 'manifest' ? (IFRAME_PAGE ? '<a href="../blank_loading_page.php" class="pull-right"><img class="inline-img" src="../img/icons/cancel.png"></a>' : '').': '.($_GET['manifestid'] > 0 ? 'Edit Manifest' : 'Create Manifests').' '.($_GET['site'] > 0 ? '<a href="?tile_name='.$_GET['tile_name'].'&tab=manifest&site=recent&siteid='.$_GET['site'].'" onclick="overlayIFrameSlider(this.href,\'auto\',true,true); return false;"><img class="inline-img pull-right" src="../img/icons/eyeball.png"></a>' : '').'<a href="../Reports/report_daily_manifest_summary.php?type=operations" class="pull-right"><img class="inline-img" src="../img/icons/pie-chart.png"></a>' : ''))))) ?></h3><?php
 				$notes = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT note FROM notes_setting WHERE subtab='tickets_summary'"));
 				if ( !empty($notes['note']) ) { ?>
@@ -959,7 +981,7 @@ IF(!IFRAME_PAGE) { ?>
 				}
 			} ?>
 		</div>
-		<div class="standard-<?= substr($_GET['tab'],0,14) == 'administration' ? '' : 'dashboard-' ?>body-content">
+		<div class="standard-<?= substr($_GET['tab'],0,14) == 'administration' || $_GET['tab'] == 'invoice' ? '' : 'dashboard-' ?>body-content">
 			<?php if($_GET['tab'] == 'export') {
 				include('ticket_import.php');
 			} else if($_GET['form_list'] > 0) {
@@ -975,7 +997,7 @@ IF(!IFRAME_PAGE) { ?>
 					<?php include('../Project/project_administration.php'); ?>
 				</div>
 			<?php } else if($_GET['tab'] == 'invoice') { ?>
-				<div class="col-sm-12" id="no-more-tables">
+				<div class="col-sm-12 gap-top" id="no-more-tables">
 					<?php include('ticket_invoice.php'); ?>
 				</div>
 			<?php } else if($_GET['tab'] == 'manifest' && $_GET['manifestid'] > 0) { ?>
@@ -1615,3 +1637,15 @@ IF(!IFRAME_PAGE) { ?>
 		</div>
 	</div>
 <?php } ?>
+
+<script>
+	$('.sidebar-higher-level.highest-level ul li.sidebar-higher-level').on('click', function (e) {
+		e.preventDefault();
+		if($(this).children('a').hasClass('collapsed')){
+			$(this).removeClass('li-collapsed-active-show');
+		}else{
+			$(this).addClass('li-collapsed-active-show');
+		}
+	});
+
+</script>

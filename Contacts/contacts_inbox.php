@@ -1,4 +1,5 @@
 <?php // Contacts View
+
 error_reporting(0);
 include_once('../include.php'); ?>
 </head>
@@ -137,7 +138,9 @@ include_once ('../navigation.php'); ?>
 				if($edit_access > 0) {
 					echo "<div class='pull-right' style='height: 1em; padding: 0 0.25em;'><a href='?edit=new&category=".$_GET['list']."' style='font-size: 0.5em;'><button class='btn brand-btn hide-titles-mob'>New Contact</button>";
 					echo "<img src='".WEBSITE_URL."/img/icons/ROOK-add-icon.png' class='show-on-mob add-icon-lg'></a></div>";
-					echo "<div class='pull-right'><a href='Add Reminder' onclick='return false;'><img src='".WEBSITE_URL."/img/icons/ROOK-reminder-icon.png' class='no-toggle reminder-icon' title='Schedule Reminder' style='width:1.5em;'></a></div>";
+					if($_GET['category']=='Customers' && $_GET['edit']!=''){
+						echo "<div class='pull-right'><a href='Add Reminder' onclick='return false;'><img src='".WEBSITE_URL."/img/icons/ROOK-reminder-icon.png' class='no-toggle reminder-icon' title='Schedule Reminder' style='width:1.5em;'></a></div>";
+					}
 				} ?>
 				<!--
                 <?php /* if($view_access > 0) { ?>

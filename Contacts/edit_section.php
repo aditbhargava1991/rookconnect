@@ -1,4 +1,5 @@
 <?php include_once('../include.php');
+
 $field_config_mandate = explode(',', mysqli_fetch_array(mysqli_query($dbc, "SELECT `contacts` FROM `field_config_contacts` WHERE `tile_name`='".FOLDER_NAME."' AND `tab`='$current_type' AND `subtab`='**no_subtab**' AND `mandatory` = 1"))[0]);
 if(!isset($tab_label)) {
 	error_reporting(0);

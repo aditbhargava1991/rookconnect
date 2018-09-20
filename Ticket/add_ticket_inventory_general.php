@@ -6,6 +6,7 @@ $(document).on('change', '.tab-section[data-type=general]:first [data-table]', c
 var copying_pieces = '';
 function copyPiece(event) {
 	var field = event.target;
+
 	clearTimeout(copying_pieces);
 	copying_pieces = setTimeout(function() {
 		if($(field).data('type') == 'inventory_general') {
@@ -14,11 +15,16 @@ function copyPiece(event) {
 			});
 		}
 	},500);
+
 }
 function copyAllPiece() {
 	var i = 0;
 	$('.tab-section[data-type=general]:visible [data-type=inventory_general][name=contact_info]').each(function() {
-		$(this).prop('checked',true).change();
+
+		if(!this.checked) {
+			$(this).prop('checked',true).change();
+		}
+
 	});
 }
 function copyPieceOne(target) {
@@ -49,6 +55,7 @@ function copyPieceOne(target) {
 				$(this).closest('.multi-block').find('[name="po_line_range_max"]').val(line_range[1]).trigger('change.select2');
 			} else if($(this).is('textarea')) {
 				tinymce.get($(this).prop('id')).setContent($(this).val());
+
 			}
 		}
 		i++;
