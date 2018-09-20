@@ -31,7 +31,7 @@ function remove_option(img, copy_class) {
 				<select name="admin_security[]" class="chosen-select-deselect" data-placeholder="Select Security Level">
 					<option />
 					<?php foreach(get_security_levels($dbc) as $sec_level_name => $sec_level) { ?>
-						<option <?= $sec_level_name == $admin_security ? 'selected' : '' ?> value="<?= $sec_level_name ?>"><?= $sec_level_name ?></option>
+						<option <?= $sec_level == $admin_security ? 'selected' : '' ?> value="<?= $sec_level ?>"><?= $sec_level_name ?></option>
 					<?php } ?>
 				</select>
 			</div>
