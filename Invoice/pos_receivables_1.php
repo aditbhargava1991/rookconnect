@@ -12,18 +12,6 @@ $coupon_value	= $point_of_sell['coupon_value'];
 $dep_total		= $point_of_sell['deposit_total'];
 $updatedtotal	= $point_of_sell['updatedtotal'];
 
-$customer = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT name, first_name, last_name, office_phone, home_phone, cell_phone, email_address, business_address, city, state, country, zip_code, referred_by FROM contacts WHERE contactid='$contactid'"));
-
-$customer_phone = '';
-
-if ( decryptIt($customer['office_phone']) != '' || decryptIt($customer['office_phone']) != NULL ) {
-	$customer_phone = decryptIt($customer['office_phone']);
-} else {
-	if ( decryptIt($customer['cell_phone']) != '' || decryptIt($customer['cell_phone']) != NULL ) {
-		$customer_phone = decryptIt($customer['cell_phone']);
-	}
-}
-
 /* Tax */
 $point_of_sell_product = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT SUM(gst) AS `total_gst`, SUM(pst) AS `total_pst` FROM `invoice_lines` WHERE `invoiceid`='$invoiceid'"));
 
@@ -149,17 +137,21 @@ $html .= '<div style="font-size:10px;">
 	<td>Customer Phone</td>
 	<td>Email</td>
 </tr>
-<tr style="background-color:lightgrey; color:black;">
-	<td>'.( !empty($customer['name']) ? decryptIt($customer['name']).': ' : '') . decryptIt($customer['first_name']) .' '. decryptIt($customer['last_name']) .'</td>
-	<td>'.$customer_phone.'</td>
-	<td>'.decryptIt($customer['email_address']).'</td>
-</tr>';
+';
 
-if($client_tax_number != '') {
-	$html .= '<tr style="padding:3px;  text-align:center" >
-		<th colspan="4" style="background-color:white; color:black;">Tax Exemption : '.$point_of_sell['tax_exemption_number'].'</th>
-	</tr>';
+foreach(array_unique($patient_ids) as $contactid) {
+    if($contactid == 0) {
+        $non_patient = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `invoice_nonpatient` WHERE `invoiceid`='".$get_invoice['invoiceid']."'"));
+        $html .= '<p>'.$non_patient['first_name'].' '.$non_patient['last_name'].'<br/>'.$non_patient['email'].'</p>';
+    } else {
+        $html .=  '<tr style="background-color:lightgrey; color:black;">
+	<td>'.get_contact($dbc, $contactid).'</td>
+	<td>'.get_contact_phone($dbc, $contactid).'</td>
+	<td>'.get_address($dbc, $contactid).'</td>
+    </tr>';
+    }
 }
+
 $html .= '
 </table>
 <br><br>
@@ -185,7 +177,7 @@ $html .= '
         $ar_lines[$inv[1]][5] += $inv[5];
     }
 	foreach($ar_lines as $ar_line) {
-		$html .= '<tr><td>'.$ar_line[0].'</td><td>'.$ar_line[1].'</td><td align="right">$'.number_format($ar_line[3],2).'</td></tr>';
+		$html .= '<tr><td>'.$ar_line[0].'</td><td>'.$ar_line[1].'</td><td>$'.number_format($ar_line[3],2).'</td></tr>';
 		$total_amt += $ar_line[3];
 		$sub_total += $ar_line[4];
 		$tax_amt += $ar_line[5];
@@ -199,7 +191,7 @@ $html .= '
 <br><br><br>
 <table style="padding:3px;" border="1px" class="table table-bordered">
 <tr style="padding:3px;  text-align:center" >
-	<th colspan="'.$col_span.'" style="background-color:grey; color:black;">Payment Information</th>
+	<th colspan="5" style="background-color:grey; color:black;">Payment Information</th>
 </tr>
 <tr style="padding:3px; text-align:center; background-color:white; color:black;" >
 	<td>Total Due By Customer</td>
@@ -251,7 +243,7 @@ $html .= '</td>
 		}
     }
 
-$html .= 'Created By: '.decryptIt($_SESSION['first_name']).' '.decryptIt($_SESSION['last_name']).'
+$html .= '<br><br>Created By: '.decryptIt($_SESSION['first_name']).' '.decryptIt($_SESSION['last_name']).'
 <br><br><br>
 <table width="400px" style="border-bottom:1px solid black;"><tr><td>
 Signature</td></tr></table></div>
