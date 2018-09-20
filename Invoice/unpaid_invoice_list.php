@@ -508,10 +508,10 @@ while($row = mysqli_fetch_array($query_ar)) {
                 if (strpos($value_config, ','."invoice_pdf".',') !== FALSE) {
                     echo '<td data-title="Invoice PDF">';
                     if(file_exists($invoice_pdf)) {
-                        echo '<a target="_blank" href="'.$invoice_pdf.'">Invoice #'.$invoice['invoiceid'].' <img src="'.WEBSITE_URL.'/img/pdf.png" title="PDF"></a><br />';
+                        echo '<a target="_blank" href="'.$invoice_pdf.'">Invoice #'.$invoice['invoiceid'].' <img src="'.WEBSITE_URL.'/img/icons/pdf.png" title="Invoice PDF" class="no-toggle inline-img" /></a><br />';
                     }
                     if($invoice['invoiceid_src'] > 0 && file_exists('../'.FOLDER_NAME.'/Download/invoice_'.$invoice['invoiceid_src'].'.pdf')) {
-                        echo '<a target="_blank" href="'.'../'.FOLDER_NAME.'/Download/invoice_'.$invoice['invoiceid_src'].'.pdf'.'">Primary Invoice #'.$invoice['invoiceid_src'].' <img src="'.WEBSITE_URL.'/img/pdf.png" title="PDF"></a><br />';
+                        echo '<a target="_blank" href="'.'../'.FOLDER_NAME.'/Download/invoice_'.$invoice['invoiceid_src'].'.pdf'.'">Primary Invoice #'.$invoice['invoiceid_src'].' <img src="'.WEBSITE_URL.'/img/icons/pdf.png" title="Primary Invoice PDF" class="no-toggle inline-img" /></a><br />';
                     }
                     echo '</td>';
                 }
