@@ -189,8 +189,8 @@ function addCustomer() {
             foreach ($business_contact as $contact) { ?>
                 <div class="row_contact">
                     <div class="row set-row-height business_contact gap-md-left-15">
-                        <div class="col-xs-12 col-sm-3">Contact:</div>
-                        <div class="col-xs-12 col-sm-7">
+                        <div class="col-sm-3 pad-5">Contact:</div>
+                        <div class="col-sm-7">
                             <select data-placeholder="Select a Contact..." name="business_contact[]" class="chosen-select-deselect form-control business_contact">
                                 <option value=""></option><?php
                                 $businessid = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `customerid` FROM `sales_order_temp` WHERE `sotid` = '$sotid'"))['customerid'];
@@ -211,9 +211,9 @@ function addCustomer() {
         }
 
         if (strpos($value_config, ',Classification,') !== FALSE) { ?>
-            <div class="row set-row-height">
-                <div class="col-xs-12 col-sm-3 gap-md-left-15">Classification:</div>
-                <div class="col-xs-12 col-sm-7">
+            <div class="row set-row-height gap-md-left-15">
+                <div class="col-sm-3 pad-5">Classification:</div>
+                <div class="col-sm-7">
                     <select data-placeholder="Select a Classification..." name="classification" class="chosen-select-deselect" id="sales_classification">
                         <option value=""></option>
                         <option value="new_classification">New Classification</option><?php
@@ -227,9 +227,9 @@ function addCustomer() {
             </div>
 
             <div id="new_classification" style="display:none;">
-                <div class="row set-row-height">
-                    <div class="col-xs-12 col-sm-4 gap-md-left-15">New Classification:</div>
-                    <div class="col-xs-12 col-sm-5"><input name="new_classification" type="text" class="form-control" /></div>
+                <div class="row set-row-height gap-md-left-15">
+                    <div class="col-sm-4 pad-5">New Classification:</div>
+                    <div class="col-sm-5"><input name="new_classification" type="text" class="form-control" /></div>
                     <div class="clearfix"></div>
                 </div>
             </div>

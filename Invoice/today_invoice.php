@@ -66,7 +66,7 @@ if((!empty($_GET['action'])) && ($_GET['action'] == 'email')) {
 
     send_email('', $to, '', '', $subject, $body, $attachment);
 
-    echo '<script type="text/javascript"> alert("Invoice Successfully Sent to Patient."); window.location.replace("today_invoice.php"); </script>';
+    echo '<script type="text/javascript"> alert("Invoice Successfully Sent to Patient."); window.location.replace("index.php?tab=today"); </script>';
 
 	//header('Location: unpaid_invoice.php');
     // Send Email to Client
@@ -81,7 +81,7 @@ $(document).ready(function() {
             $('#invoice_div .standard-body').height(available_height);
         }
     }).resize();
-    
+
     $('.selectall').click(
 		function() {
 			if($('.selectall').hasClass("deselectall")) {
@@ -204,7 +204,7 @@ $search_invoice_clause = !empty($search_invoiceid) ? " AND `invoiceid`='$search_
 <div class="standard-body-content padded-desktop">
     <form name="invoice" method="post" action="" class="form-horizontal" role="form">
         <?php $value_config = ','.get_config($dbc, 'invoice_dashboard').','; ?>
-        
+
         <div class="search-group double-gap-top">
             <div class="row">
                 <div class="col-sm-12">
@@ -232,9 +232,9 @@ $search_invoice_clause = !empty($search_invoiceid) ? " AND `invoiceid`='$search_
             </div>
         </div>
     </form>
-    
+
     <div class="clearfix"></div>
-    
+
     <form method="POST" action="" name="send_email" class="form-horizontal">
         <?php
         // Display Pager
@@ -247,7 +247,7 @@ $search_invoice_clause = !empty($search_invoiceid) ? " AND `invoiceid`='$search_
         }
 
         $offsett = ($pageNumm - 1) * $rowsPerPagee;
-                                                     
+
         /* Pagination Counting */
         $rowsPerPage = 25;
         $pageNum = 1;
@@ -334,10 +334,10 @@ $search_invoice_clause = !empty($search_invoiceid) ? " AND `invoiceid`='$search_
                 if (strpos($value_config, ','."invoice_pdf".',') !== FALSE) {
                     echo '<td data-title="Invoice PDF">';
                     if(file_exists($invoice_pdf)) {
-                        echo '<a target="_blank" href="'.$invoice_pdf.'">Invoice #'.$invoice['invoiceid'].' <img src="'.WEBSITE_URL.'/img/pdf.png" title="PDF"></a><br />';
+                        echo '<a target="_blank" href="'.$invoice_pdf.'">Invoice #'.$invoice['invoiceid'].' <img src="'.WEBSITE_URL.'/img/icons/pdf.png" title="Invoice PDF" class="no-toggle inline-img" /></a><br />';
                     }
                     if($invoice['invoiceid_src'] > 0 && file_exists('../'.FOLDER_NAME.'/Download/invoice_'.$invoice['invoiceid_src'].'.pdf')) {
-                        echo '<a target="_blank" href="'.'../'.FOLDER_NAME.'/Download/invoice_'.$invoice['invoiceid_src'].'.pdf'.'">Primary Invoice #'.$invoice['invoiceid_src'].' <img src="'.WEBSITE_URL.'/img/pdf.png" title="PDF"></a><br />';
+                        echo '<a target="_blank" href="'.'../'.FOLDER_NAME.'/Download/invoice_'.$invoice['invoiceid_src'].'.pdf'.'">Primary Invoice #'.$invoice['invoiceid_src'].' <img src="'.WEBSITE_URL.'/img/icons/pdf.png" title="Primary Invoice PDF" class="no-toggle inline-img" /></a><br />';
                     }
                     echo '</td>';
                 }
@@ -362,7 +362,7 @@ $search_invoice_clause = !empty($search_invoiceid) ? " AND `invoiceid`='$search_
                                 break;
                         }
                         echo ' <a class="cursor-hand" onclick="void_invoice('.$invoice['invoiceid'].');"><img src="../img/icons/void.png" class="no-toggle inline-img" title="Void Invoice" /></a>';
-                        echo ' <a class="cursor-hand" href="adjust_invoice.php?invoiceid='.$invoice['invoiceid'].'&contactid='.$contactid.'&search_user=&search_invoice="><img src="../img/icons/refund.png" class="no-toggle inline-img" title="Refund / Adjustment" /></a>';
+                        echo ' <a class="cursor-hand" href="create_invoice.php?invoiceid='.$invoice['invoiceid'].'&inv_mode=adjust"><img src="../img/icons/refund.png" class="no-toggle inline-img" title="Refund / Adjustment" /></a>';
                     echo '</td>';
                     }
                     if (strpos($value_config, ','."send") !== FALSE) {

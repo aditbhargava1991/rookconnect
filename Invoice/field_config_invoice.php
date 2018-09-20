@@ -74,7 +74,7 @@ if (isset($_POST['submit'])) {
             $result_insert_config = mysqli_query($dbc, $query_insert_config);
         }
         //Design
-        
+
         //Header & Footer
         $invoice_header = filter_var(htmlentities($_POST['invoice_header']),FILTER_SANITIZE_STRING);
         $get_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT COUNT(configid) AS configid FROM general_configuration WHERE name='invoice_header_".config_safe_str($invoice_type)."'"));
@@ -670,7 +670,7 @@ if(!empty($invoice_types)) { ?>
 
                     <div class="form-group">
                         <div class="col-sm-6">
-                            <a href="today_invoice.php" class="btn config-btn btn-lg">Back</a>
+                            <a href="index.php?tab=today" class="btn config-btn btn-lg">Back</a>
                         </div>
                         <div class="col-sm-6">
                             <button	type="submit" name="submit"	value="Submit" class="btn config-btn btn-lg	pull-right">Submit</button>
@@ -788,7 +788,7 @@ if(!empty($invoice_types)) { ?>
 
                         <div class="form-group">
                             <div class="col-sm-6">
-                                <a href="today_invoice.php" class="btn config-btn btn-lg">Back</a>
+                                <a href="index.php?tab=today" class="btn config-btn btn-lg">Back</a>
                             </div>
                             <div class="col-sm-6">
                                 <button	type="submit" name="submit"	value="Submit" class="btn config-btn btn-lg	pull-right">Submit</button>
@@ -820,7 +820,7 @@ if(!empty($invoice_types)) { ?>
 
                         <div class="form-group double-gap-top">
                             <div class="col-sm-6">
-                                <a href="today_invoice.php" class="btn config-btn btn-lg">Back</a>
+                                <a href="index.php?tab=today" class="btn config-btn btn-lg">Back</a>
                             </div>
                             <div class="col-sm-6">
                                 <button	type="submit" name="submit"	value="Submit" class="btn config-btn btn-lg	pull-right">Submit</button>
@@ -965,7 +965,7 @@ if(!empty($invoice_types)) { ?>
 
                     <div class="form-group double-gap-top">
                         <div class="col-sm-6">
-                            <a href="today_invoice.php" class="btn config-btn btn-lg">Back</a>
+                            <a href="index.php?tab=today" class="btn config-btn btn-lg">Back</a>
                         </div>
                         <div class="col-sm-6">
                             <button	type="submit" name="submit"	value="Submit" class="btn config-btn btn-lg	pull-right">Submit</button>
@@ -1006,7 +1006,7 @@ if(!empty($invoice_types)) { ?>
 
                         <div class="form-group double-gap-top">
                             <div class="col-sm-6">
-                                <a href="today_invoice.php" class="btn config-btn btn-lg">Back</a>
+                                <a href="index.php?tab=today" class="btn config-btn btn-lg">Back</a>
                             </div>
                             <div class="col-sm-6">
                                 <button	type="submit" name="submit"	value="Submit" class="btn config-btn btn-lg	pull-right">Submit</button>
@@ -1042,7 +1042,7 @@ if(!empty($invoice_types)) { ?>
 
                         <div class="form-group double-gap-top">
                             <div class="col-sm-6">
-                                <a href="today_invoice.php" class="btn config-btn btn-lg">Back</a>
+                                <a href="index.php?tab=today" class="btn config-btn btn-lg">Back</a>
                             </div>
                             <div class="col-sm-6">
                                 <button	type="submit" name="submit"	value="Submit" class="btn config-btn btn-lg	pull-right">Submit</button>
@@ -1069,7 +1069,7 @@ if(!empty($invoice_types)) { ?>
 
                         <div class="form-group double-gap-top">
                             <div class="col-sm-6">
-                                <a href="today_invoice.php" class="btn config-btn btn-lg">Back</a>
+                                <a href="index.php?tab=today" class="btn config-btn btn-lg">Back</a>
                             </div>
                             <div class="col-sm-6">
                                 <button	type="submit" name="submit"	value="Submit" class="btn config-btn btn-lg	pull-right">Submit</button>
@@ -1085,7 +1085,7 @@ if(!empty($invoice_types)) { ?>
 
 <div class="form-group">
     <div class="col-sm-6">
-        <a href="today_invoice.php" class="btn config-btn btn-lg">Back</a>
+        <a href="index.php?tab=today" class="btn config-btn btn-lg">Back</a>
     </div>
     <div class="col-sm-6">
         <button	type="submit" name="submit"	value="Submit" class="btn config-btn btn-lg	pull-right">Submit</button>
