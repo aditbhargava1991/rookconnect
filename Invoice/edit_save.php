@@ -9,7 +9,7 @@ if (isset($_POST['save_btn'])) {
 	}
     include('add_update_invoice.php');
 
-    echo '<script type="text/javascript"> alert("Invoice Successfully Saved"); window.location.replace("today_invoice.php"); </script>';
+    echo '<script type="text/javascript"> alert("Invoice Successfully Saved"); window.location.replace("index.php?tab=today"); </script>';
 
 }
 
@@ -124,7 +124,7 @@ if (isset($_POST['submit_btn'])) {
             window.location.replace("invoice_list.php?search_invoice=<?= $search_invoice ?>");
         <?php } else { ?>
             alert("Invoice Generated.");
-            window.location.replace("today_invoice.php");
+            window.location.replace("index.php?tab=today");
 
         <?php } ?>
         if('<?= $invoiceid ?>' * 1 > 0) {
@@ -170,8 +170,8 @@ if (isset($_POST['submit_pay'])) {
 			$result_update_patient = mysqli_query($dbc, $query_update_patient);
 		}
 		if ($from == 'patient') {
-            echo '<script type="text/javascript"> alert("Invoice Successfully Paid."); window.location.replace("today_invoice.php?patientid='.$patientid.'"); </script>';
+            echo '<script type="text/javascript"> alert("Invoice Successfully Paid."); window.location.replace("index.php?tab=today?patientid='.$patientid.'"); </script>';
 		} else {
-            echo '<script type="text/javascript"> alert("Invoice Successfully Paid."); window.location.replace("today_invoice.php"); </script>';
+            echo '<script type="text/javascript"> alert("Invoice Successfully Paid."); window.location.replace("index.php?tab=today"); </script>';
 		}
 }

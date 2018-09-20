@@ -33,7 +33,7 @@
                         </div>
                     </div><?php
                     break;
-                    
+
                 case 'today': ?>
                     <div class="panel panel-default">
                         <div class="panel-heading mobile_load">
@@ -44,13 +44,13 @@
                             </h4>
                         </div>
                         <div id="collapse_today" class="panel-collapse collapse">
-                            <div class="panel-body" data-url="today_invoice.php">
+                            <div class="panel-body" data-url="index.php?tab=today">
                                 Loading...
                             </div>
                         </div>
                     </div><?php
                     break;
-                    
+
                 case 'all': ?>
                     <div class="panel panel-default">
                         <div class="panel-heading mobile_load">
@@ -67,7 +67,7 @@
                         </div>
                     </div><?php
                     break;
-                    
+
                 case 'unbilled_tickets': ?>
                     <div class="panel panel-default">
                         <div class="panel-heading mobile_load">
@@ -84,7 +84,7 @@
                         </div>
                     </div><?php
                     break;
-                    
+
                 case 'unpaid': ?>
                     <div class="panel panel-default">
                         <div class="panel-heading mobile_load">
@@ -101,7 +101,7 @@
                         </div>
                     </div><?php
                     break;
-                    
+
                 case 'contact_ar': ?>
                     <div class="panel panel-default">
                         <div class="panel-heading mobile_load">
@@ -118,7 +118,7 @@
                         </div>
                     </div><?php
                     break;
-                    
+
                 case 'third_party_ar': ?>
                     <div class="panel panel-default">
                         <div class="panel-heading mobile_load">
@@ -135,7 +135,7 @@
                         </div>
                     </div><?php
                     break;
-                    
+
                 case 'unpaid_third_party': ?>
                     <div class="panel panel-default">
                         <div class="panel-heading mobile_load">
@@ -152,7 +152,7 @@
                         </div>
                     </div><?php
                     break;
-                    
+
                 case 'paid_third_party_ar': ?>
                     <div class="panel panel-default">
                         <div class="panel-heading mobile_load">
@@ -169,7 +169,7 @@
                         </div>
                     </div><?php
                     break;
-                    
+
                 case 'clinic_master': ?>
                     <div class="panel panel-default">
                         <div class="panel-heading mobile_load">
@@ -186,7 +186,7 @@
                         </div>
                     </div><?php
                     break;
-                    
+
                 case 'voided': ?>
                     <div class="panel panel-default">
                         <div class="panel-heading mobile_load">
@@ -203,7 +203,7 @@
                         </div>
                     </div><?php
                     break;
-                    
+
                 case 'refunds': ?>
                     <div class="panel panel-default">
                         <div class="panel-heading mobile_load">
@@ -220,7 +220,7 @@
                         </div>
                     </div><?php
                     break;
-                    
+
                 case 'ui_report': ?>
                     <div class="panel panel-default">
                         <div class="panel-heading mobile_load">
@@ -237,7 +237,7 @@
                         </div>
                     </div><?php
                     break;
-                    
+
                 case 'cashout': ?>
                     <div class="panel panel-default">
                         <div class="panel-heading mobile_load">
@@ -254,7 +254,7 @@
                         </div>
                     </div><?php
                     break;
-                    
+
                 case 'gf': ?>
                     <div class="panel panel-default">
                         <div class="panel-heading mobile_load">

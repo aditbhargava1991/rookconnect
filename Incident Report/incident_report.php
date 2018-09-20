@@ -30,6 +30,14 @@ $quick_action_icons = explode(',',get_config($dbc, 'inc_rep_quick_action_icons')
 <script type="text/javascript">
 $(document).ready(function() {
     setQuickActions();
+    
+    $(window).resize(function() {
+        var available_height = window.innerHeight - $('footer:visible').outerHeight() - $('.tile-sidebar').offset().top;
+        if(available_height > 200) {
+            $('tile-container, .tile-sidebar, .tile-sidebar ul, .tile-content').height(available_height);
+            $('.tile-content .main-screen-white').height(available_height - 11);
+        }
+    }).resize();
 });
 function setQuickActions() {
     $('.manual-flag-icon').off('click').click(function() {

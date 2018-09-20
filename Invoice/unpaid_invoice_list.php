@@ -67,7 +67,7 @@ if((!empty($_GET['action'])) && ($_GET['action'] == 'email')) {
 
     send_email('', $to, '', '', $subject, $body, $attachment);
 
-    echo '<script type="text/javascript"> alert("Invoice Successfully Sent to Patient."); window.location.replace("today_invoice.php"); </script>';
+    echo '<script type="text/javascript"> alert("Invoice Successfully Sent to Patient."); window.location.replace("index.php?tab=today"); </script>';
 
 	//header('Location: unpaid_invoice.php');
     // Send Email to Client
@@ -82,7 +82,7 @@ $(document).ready(function() {
             $('#invoice_div .standard-body').height(available_height);
         }
     }).resize();
-    
+
 	$('.selectall').click(
 		function() {
 			if($('.selectall').hasClass("deselectall")) {
@@ -320,7 +320,7 @@ while($row = mysqli_fetch_array($query_ar)) {
 
     $total_120 = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT SUM(patient_price) AS `all_payment` FROM invoice_patient WHERE (DATE(invoice_date) >= '".$starttime."' AND DATE(invoice_date) <= '".$endtime."') AND (DATE(invoice_date) < '".$last119."') AND patientid = '$patientid' AND (paid_date > '$as_at_date' OR IFNULL(`paid`,'') IN ($ar_types))"));
     $total_last120 = $total_120['all_payment'];
-    
+
     $total_ar_current += $total_last30;
     $total_ar_30 += $total_last3059;
     $total_ar_60 += $total_last6089;
@@ -370,7 +370,7 @@ while($row = mysqli_fetch_array($query_ar)) {
 <div class="standard-body-content padded-desktop">
     <form name="invoice" method="post" action="" class="form-horizontal" role="form">
         <?php $value_config = ','.get_config($dbc, 'invoice_dashboard').','; ?>
-        
+
         <div class="form-group search-group double-gap-top">
             <div class="col-xs-12">
                 <div class="col-sm-6 col-xs-12">
@@ -444,9 +444,9 @@ while($row = mysqli_fetch_array($query_ar)) {
         </div>
         <div class="clearfix"></div>
     </form>
-    
+
     <div class="clearfix"></div>
-    
+
     <form method="POST" action="" name="send_email" class="form-horizontal">
         <?php
         // Display Pager
@@ -579,10 +579,10 @@ while($row = mysqli_fetch_array($query_ar)) {
                 if (strpos($value_config, ','."invoice_pdf".',') !== FALSE) {
                     echo '<td data-title="Invoice PDF">';
                     if(file_exists($invoice_pdf)) {
-                        echo '<a target="_blank" href="'.$invoice_pdf.'">Invoice #'.$invoice['invoiceid'].' <img src="'.WEBSITE_URL.'/img/pdf.png" title="PDF"></a><br />';
+                        echo '<a target="_blank" href="'.$invoice_pdf.'">Invoice #'.$invoice['invoiceid'].' <img src="'.WEBSITE_URL.'/img/icons/pdf.png" title="Invoice PDF" class="no-toggle inline-img" /></a><br />';
                     }
                     if($invoice['invoiceid_src'] > 0 && file_exists('../'.FOLDER_NAME.'/Download/invoice_'.$invoice['invoiceid_src'].'.pdf')) {
-                        echo '<a target="_blank" href="'.'../'.FOLDER_NAME.'/Download/invoice_'.$invoice['invoiceid_src'].'.pdf'.'">Primary Invoice #'.$invoice['invoiceid_src'].' <img src="'.WEBSITE_URL.'/img/pdf.png" title="PDF"></a><br />';
+                        echo '<a target="_blank" href="'.'../'.FOLDER_NAME.'/Download/invoice_'.$invoice['invoiceid_src'].'.pdf'.'">Primary Invoice #'.$invoice['invoiceid_src'].' <img src="'.WEBSITE_URL.'/img/icons/pdf.png" title="Primary Invoice PDF" class="no-toggle inline-img" /></a><br />';
                     }
                     echo '</td>';
                 }

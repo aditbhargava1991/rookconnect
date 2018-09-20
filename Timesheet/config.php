@@ -133,43 +133,28 @@ $config['pdf_options'] = [
 $config['settings']['Choose Fields for Time Sheets']['config_field'] = 'time_cards';
 $config['settings']['Choose Fields for Time Sheets']['data'] = array(
 	'General' => array(
-			array(PROJECT_NOUN, 'dropdown', 'project'),
-			array('Business', 'dropdown', 'business'),
-			array('Customer', 'dropdown', 'customer'),
-			array(TICKET_NOUN, 'dropdown', 'ticketid'),
-			array('Search by Staff', 'dropdown', 'search_staff'),
-			array('Search by Client', 'dropdown', 'search_client'),
-			array('Show Hours', 'hidden', 'show_hours'),
-			array('Scheduled Hours', 'hidden', 'scheduled'),
+			array('Editable Dates', 'hidden', 'editable_dates'),
 			array('Schedule', 'hidden', 'schedule'),
-			array('Position Drop Down', 'hidden', 'position'),
-			array('Start Time', 'time', 'start_time'),
-			array('End Time', 'time', 'end_time'),
-			array('Start Time (Editable)', 'time', 'start_time_editable'),
-			array('End Time (Editable)', 'time', 'end_time_editable'),
-			array($timesheet_start_tile, 'time', 'start_day_tile'),
-			array($timesheet_start_tile.' - Separate Hours', 'time', 'start_day_tile_separate'),
-			array('Calculate Hours On Start/End Time Change', 'hidden', 'calculate_hours_start_end'),
-			array('Type of Time', 'dropdown', 'type_of_time'),
-			array('Address', 'text', 'address'),
-			array('Phone', 'text', 'phone'),
-			array('Email', 'text', 'email'),
-			array('Payment', 'text', 'payment'),
-			array('Confirmation', 'text', 'confirm'),
-			array('Frequency', 'text', 'frequency'),
-			array('Time Slot', 'text', 'time_slot'),
-			array('Staff', 'dropdown', 'staff'),
-			array('Cell Phone Carrier', 'dropdown', 'contact_staff'),
-			array('Timeframe', 'text', 'timeframe'),
-			array('Date', 'date', 'date'),
-			array('Total Hrs', 'hours', 'total_hrs'),
+			array('Scheduled Hours', 'hidden', 'scheduled'),
+			array(TICKET_NOUN, 'dropdown', 'ticketid'),
+			array('Show Hours', 'hidden', 'show_hours'),
 			array('Total Tracked Hrs', 'hidden', 'total_tracked_hrs'),
+			array('Start Time (Editable)', 'time', 'start_time_editable'),
+			array('Start Time', 'time', 'start_time'),
+			array('End Time (Editable)', 'time', 'end_time_editable'),
+			array('End Time', 'time', 'end_time'),
 			array('Planned Hours ('.TICKET_TILE.')', 'hidden', 'planned_hrs'),
 			array('Tracked Hours ('.TICKET_TILE.')', 'hidden', 'tracked_hrs'),
 			array('Total Tracked Time ('.TICKET_TILE.')', 'hidden', 'total_tracked_time'),
-			array('Payable Hours', 'hidden', 'payable_hrs'),
-			array('Payable Hours Updates '.TICKET_NOUN, 'hidden', 'update_ticket_payable'),
+			array($timesheet_start_tile, 'time', 'start_day_tile'),
+			array(TICKET_NOUN.' Dropdown', 'hidden', 'ticket_select'),
+			array('Task Dropdown', 'hidden', 'task_select'),
+			array('Position Drop Down', 'hidden', 'position_select'),
+			array('Task Tracked Hrs', 'hidden', 'total_tracked_hrs_task'),
+			array('Total Hours', 'hidden', 'total_hrs'),
 			array('Regular Hours', 'hidden', 'reg_hrs'),
+			array('Payable Hours', 'hidden', 'payable_hrs'),
+			array($timesheet_start_tile.' - Separate Hours', 'time', 'start_day_tile_separate'),
 			array('Direct Hours', 'hidden', 'direct_hrs'),
 			array('Indirect Hours', 'hidden', 'indirect_hrs'),
 			array('Extra Hours', 'hidden', 'extra_hrs'),
@@ -181,18 +166,41 @@ $config['settings']['Choose Fields for Time Sheets']['data'] = array(
 			array('Sick Taken - Check Conflicts', 'hidden', 'sick_used_conflicts'),
 			array('Stat Hours', 'hidden', 'stat_hrs'),
 			array('Stat Taken', 'hidden', 'stat_used'),
-			array('Breaks', 'hidden', 'breaks'),
 			array('Vacation Hrs', 'hidden', 'vaca_hrs'),
 			array('Vacation Taken', 'hidden', 'vaca_used'),
+			array('Breaks', 'hidden', 'breaks'),
 			array('View '.TICKET_NOUN, 'hidden', 'view_ticket'),
 			array('Comments', 'hidden', 'comment_box'),
 			array('Parent/Guardian Signature', 'signature', 'signature'),
-			array('Hide Signature on PDF', '', 'signature_pdf_hidden'),
-			array('Approve All Checkbox', 'hidden', 'approve_all'),
+
+			array('Day Totals', 'hidden', 'total_per_day'),
+			array('Calculate Hours On Start/End Time Change', 'hidden', 'calculate_hours_start_end'),
 			array('Show Time Overlaps', 'hidden', 'time_overlaps'),
-			array('Editable Dates', 'hidden', 'editable_dates'),
+			array('Approve All Checkbox', 'hidden', 'approve_all'),
+
+			array(PROJECT_NOUN, 'dropdown', 'project'),
+			array('Search by Client', 'dropdown', 'search_client'),
+
+			array('Business', 'dropdown', 'business'),
+			array('Staff', 'dropdown', 'staff'),
+
+			array('Customer', 'dropdown', 'customer'),
+			array('Search by Staff', 'dropdown', 'search_staff'),
+			array('Position Drop Down', 'hidden', 'position'),
+			array('Type of Time', 'dropdown', 'type_of_time'),
+			array('Address', 'text', 'address'),
+			array('Phone', 'text', 'phone'),
+			array('Email', 'text', 'email'),
+			array('Payment', 'text', 'payment'),
+			array('Confirmation', 'text', 'confirm'),
+			array('Frequency', 'text', 'frequency'),
+			array('Time Slot', 'text', 'time_slot'),
+			array('Cell Phone Carrier', 'dropdown', 'contact_staff'),
+			array('Timeframe', 'text', 'timeframe'),
+			array('Date', 'date', 'date'),
+			array('Hide Signature on PDF', '', 'signature_pdf_hidden'),
 			array('Combine Staff on Report', 'tab', 'staff_combine'),
-			array('Day Totals', 'hidden', 'total_per_day')
+			array('Payable Hours Updates '.TICKET_NOUN, 'hidden', 'update_ticket_payable'),
 		)
 );
 
@@ -959,7 +967,6 @@ function is_training_hrs($dbc, $time_cards_id) {
 
 function get_pdf_options($dbc, $styling = '', $timesheet_tab = '') {
 	global $config;
-	$layout = get_config($dbc, 'timesheet_layout');
 	if($styling == 'EGS') {
 		$value_config = explode(',',get_field_config($dbc, 'time_cards_total_hrs_layout'));
 		if(empty(array_filter($value_config))) {
@@ -967,7 +974,7 @@ function get_pdf_options($dbc, $styling = '', $timesheet_tab = '') {
 		}
 	} else {
 		$value_config = explode(',',get_field_config($dbc, 'time_cards'));
-		if(!in_array('reg_hrs',$value_config) && !in_array('direct_hrs',$value_config) && !in_array('payable_hrs',$value_config) && !in_array($layout, ['ticket_task','position_dropdown'])) {
+		if(!in_array('reg_hrs',$value_config) && !in_array('direct_hrs',$value_config) && !in_array('payable_hrs',$value_config) && !in_array('total_hrs',$value_config)) {
 		    $value_config = array_merge($value_config,['reg_hrs','extra_hrs','relief_hrs','sleep_hrs','sick_hrs','sick_used','stat_hrs','stat_used','vaca_hrs','vaca_used']);
 		}
 	}
