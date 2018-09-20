@@ -41,15 +41,13 @@ $(document).ready(function() {
 		});
 	});
 
-	$("#patientid").change(function() {
+	$("[name=patientid]").change(function() {
 		var type = '';
 		if($('[name="type"]').val() != undefined) {
 			type = $('[name="type"]').val();
 		}
 		if ($(this).val()=='NEW') {
-            overlayIFrameSlider('add_contact.php?type='+type, '50%', false, false, $('.iframe_overlay').closest('.container').outerHeight() + 20);
-        } else {
-            window.location = 'add_invoice.php?contactid='+this.value+'&type='+type;
+            overlayIFrameSlider('add_contact.php?type='+type, '50%', false, true, $('.iframe_overlay').closest('.container').outerHeight() + 20);
         }
 	});
 
@@ -806,7 +804,6 @@ function setTotalPrice() {
 		var gstexempt = $('#gstexempt_'+arr[1]).val();
 
 		var fee_row = +$(this).val() || 0;
-		sum_fee += fee_row;
 
 		if(fee_row != 0) {
 			var group = $(this).closest('.form-group');
@@ -820,6 +817,16 @@ function setTotalPrice() {
 			if(label == '' || label == undefined) {
 				info = group.find('[name=servicelabel]').val();
 			}
+
+            var qty = group.find('.qty').val();
+            if(qty > 0) {
+                info = info + ' x ' + qty;
+                fee_row = fee_row * qty;
+            } else {
+                qty = 1;
+            }
+            sum_fee += fee_row;
+
 			if(fee_row < 0) {
 				$('.detail_service_list').append('<label class="pull-right">'+fee_row.toFixed(2)+'</label>Refund: '+info+'<br /><div class="clearfix"></div>').prev('h4').show();
             } else if(group.hasClass('adjust_block')) {
@@ -1154,6 +1161,7 @@ function add_service_row() {
 	var clone = $('.service_option .form-group').last().clone();
     clone.show();
 	clone.find('.form-control').val(0);
+	clone.find('.qty').val(1);
 	clone.find('[id^=serviceid]').attr('id', 'serviceid_'+inc);
 	resetChosen(clone.find('[id^=serviceid]'));
 	clone.find('[id^=category]').attr('id', 'category_'+inc);
@@ -1362,4 +1370,26 @@ function view_tabs() {
 }
 function view_summary() {
     $('.view_summary').toggle();
+}
+function void_invoice(invoiceid) {
+    var ans = confirm('Are you sure you want to void this invoice?');
+    if ( ans == true ) {
+        $.ajax({
+            url: '../Invoice/invoice_ajax.php?action=void_invoice',
+            type: 'POST',
+            data: { invoiceid: invoiceid },
+            success: function(response) {
+                alert('Invoice #'+invoiceid+' voided successfully.');
+                window.location.reload();
+            }
+        });
+    }
+}
+function email_doc(pdf, folder_name){
+    var documents=[];
+    if ( pdf != '' ){
+        var invoice_pdf = '../'+folder_name+'/'+pdf;
+        documents.push(invoice_pdf);
+        overlayIFrameSlider('../Email Communication/add_email.php?type=external&attach_docs='+documents.join('#*#'),'auto',false,true);
+    }
 }

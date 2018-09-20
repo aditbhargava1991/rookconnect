@@ -29,6 +29,9 @@ $(document).ready(function() {
 
 	setAutoRefresh();
 	setUrlWithCurrentDate();
+	setLastActive();
+	getLastActive();
+	initLastActive();
 });
 $(document).on('click','#calendar_div a',function() { loadUrlWithCurrentDate(this); });
 $(document).on("overlayIFrameSliderLoad", function(e) {
@@ -73,6 +76,56 @@ function setAutoRefresh() {
 			auto_refresh_calendar = setTimeout(function() { reload_all_data(); }, refresh_time);
 		}
 	}
+}
+function setLastActive() {
+	var calendar_type = $('#calendar_type').val();
+	$.ajax({
+		url: '../Calendar/calendar_ajax_all.php?fill=set_last_active',
+		method: 'POST',
+		data: { type: calendar_type, contactid: '<?= $_SESSION['contactid'] ?>' },
+		success: function(response) {
+			autoSetLastActive();
+		}
+	});
+}
+var auto_set_last_active = '';
+function autoSetLastActive() {
+	clearTimeout(auto_set_last_active);
+	auto_set_last_active = setTimeout(function() {
+		setLastActive();
+	}, 60000);
+}
+function getLastActive() {
+	var calendar_type = $('#calendar_type').val();
+	$.ajax({
+		url: '../Calendar/calendar_ajax_all.php?fill=get_last_active',
+		method: 'POST',
+		data: { type: calendar_type },
+		success: function(response) {
+			var response = response.split('*#*');
+			var active_count = response[0];
+			var active_html = response[1];
+			$('.online-users-count').text(active_count);
+			$('.online-users-block').html(active_html);
+			autoGetLastActive();
+		}
+	});
+}
+var auto_get_last_active = '';
+function autoGetLastActive() {
+	clearTimeout(auto_get_last_active);
+	auto_get_last_active = setTimeout(function() {
+		getLastActive();
+	}, 60000);
+}
+function initLastActive() {
+	$('.online-users').off('mouseover').on('mouseover', function(e) {
+		getLastActive();
+		$('.online-users-block').show();
+	});
+	$('.online-users').off('mouseout').on('mouseout', function() {
+		$('.online-users-block').hide();
+	});
 }
 function loadUrlWithCurrentDate(a) {
 	var href = $(a).attr('href');
@@ -596,6 +649,8 @@ function loadShiftView() {
 				reload_resize_all_month();
 				clear_all_data_month();
 				reload_all_data_month();
+				setLastActive();
+				getLastActive();
 			}
 		});
 	<?php } else { ?>
@@ -607,6 +662,8 @@ function loadShiftView() {
 				reload_resize_all();
 				clear_all_data();
 				reload_all_data();
+				setLastActive();
+				getLastActive();
 			}
 		});
 	<?php } ?>
@@ -861,7 +918,9 @@ function retrieve_items(anchor, calendar_date = '', force_show = false, retrieve
 						} else {
 							item_list[calendar_date].push(item_data);
 						}
-						load_items(item_data, calendar_date, contact);
+						if(window.location.pathname == '/Calendar/calendars_mobile.php') {
+							load_items(item_data, calendar_date, contact);
+						}
 					}
 				});
 

@@ -13,6 +13,7 @@ $(document).ready(function() {
     }).scroll();
 });
 </script>
+<a href="invoice_main.php"><li>Back to Dashboard</li></a>
 <a href="#inv_details"><li>Details</li></a>
 <?php if(in_array('services',$field_config) || in_array('unbilled_tickets',$field_config)) { ?>
     <a href="#inv_services"><li>Services</li></a>

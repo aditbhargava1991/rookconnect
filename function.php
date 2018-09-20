@@ -1,6 +1,15 @@
 <?php // Define all Tile Name Constants
 // @$_SERVER['page_load_info'] .= 'Session Started: '.number_format(microtime(true) - $_SERVER['REQUEST_TIME_FLOAT'],5)."\n";
 session_start();
+
+if(!defined('FOLDER_NAME')) {
+    $folder_path = $_SERVER['REQUEST_URI'];
+    $each_tab = explode('/', $folder_path);
+
+    DEFINE('FOLDER_NAME', strtolower($each_tab[1]));
+    DEFINE('FOLDER_URL', $each_tab[1]);
+}
+
 if($_SESSION['CONSTANT_UPDATED'] + 600 < time()) {
 	@session_start(['cookie_lifetime' => 518400]);
 	// Update SESSION Constants no more than once every 600 seconds
@@ -62,27 +71,6 @@ if($_SESSION['CONSTANT_UPDATED'] + 600 < time()) {
 
 	$_SESSION['CONSTANT_UPDATED'] = time();
 	$_SERVER['page_load_info'] .= 'Constants Reloaded: '.number_format(microtime(true) - $_SERVER['REQUEST_TIME_FLOAT'],5)."\n";
-
-    // Match Contacts
-    $today_date = date('Y-m-d');
-    $match_contacts_query = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `match_contact` WHERE CONCAT(',',`staff_contact`,',') LIKE '%,".$_SESSION['contactid'].",%' AND `deleted` = 0 AND `match_date` <= '$today_date'"),MYSQLI_ASSOC);
-    $match_contacts = [];
-    $match_exclude_security = array_filter(explode('#*#', get_config($dbc, 'match_exclude_security')));
-    $match_exclude = false;
-    foreach($match_exclude_security as $exclude_security) {
-        if(strpos(','.$_SESSION['role'].',',','.$exclude_security.',') !== FALSE) {
-            $match_exclude = true;
-        }
-    }
-    if(!empty($match_contacts_query) && !$match_exclude) {
-        $match_contacts[] = $_SESSION['contactid'];
-        foreach($match_contacts_query as $match_contact) {
-            if(strtotime($match_contact['end_date']) >= strtotime($today_date) && $match_contact['status'] == 'Active') {
-                $match_contacts = array_merge($match_contacts, explode(',',$match_contact['support_contact']));
-            }
-        }
-    }
-    $_SESSION['MATCH_CONTACTS'] = implode(',',array_unique(array_filter($match_contacts)));
     $staff_email_field = get_config($dbc, 'staff_email_field');
     $staff_email_field = empty($staff_email_field) ? 'email_address' : $staff_email_field;
     $_SESSION['STAFF_EMAIL_FIELD'] = $staff_email_field;
@@ -122,8 +110,35 @@ DEFINE('COMPANY_SOFTWARE_NAME', $_SESSION['COMPANY_SOFTWARE_NAME']);
 DEFINE('ACTIVE_DAY_BANNER', $_SESSION['ACTIVE_DAY_BANNER']);
 DEFINE('ACTIVE_TICKET_BUTTON', $_SESSION['ACTIVE_TICKET_BUTTON']);
 DEFINE('SHOW_SIGN_IN', $_SESSION['SHOW_SIGN_IN']);
-DEFINE('MATCH_CONTACTS', $_SESSION['MATCH_CONTACTS']);
 DEFINE('STAFF_EMAIL_FIELD', $_SESSION['STAFF_EMAIL_FIELD']);
+
+// Match Contacts
+$today_date = date('Y-m-d');
+$match_tile_lists = '';
+if(in_array(FOLDER_NAME,['posadvanced','invoice','account receivables','project','ticket'])) {
+    $match_tile_lists = str_replace(['posadvanced','invoice','account receivables','project','ticket'],
+        ['posadvanced','check_out','accounts_receivables','project','ticket'],
+        "OR `tile_list` LIKE '%".FOLDER_NAME."%'");
+}
+$match_contacts_query = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `match_contact` WHERE CONCAT(',',`staff_contact`,',') LIKE '%,".$_SESSION['contactid'].",%' AND `deleted` = 0 AND `match_date` <= '$today_date' AND (IFNULL(`tile_list`,'')='' $match_tile_lists)"),MYSQLI_ASSOC);
+$match_contacts = [];
+$match_exclude_security = array_filter(explode('#*#', get_config($dbc, 'match_exclude_security')));
+$match_exclude = false;
+foreach($match_exclude_security as $exclude_security) {
+    if(strpos(','.$_SESSION['role'].',',','.$exclude_security.',') !== FALSE) {
+        $match_exclude = true;
+    }
+}
+if(!empty($match_contacts_query) && !$match_exclude) {
+    $match_contacts[] = $_SESSION['contactid'];
+    foreach($match_contacts_query as $match_contact) {
+        if(strtotime($match_contact['end_date']) >= strtotime($today_date) && $match_contact['status'] == 'Active') {
+            $match_contacts = array_merge($match_contacts, explode(',',$match_contact['support_contact']));
+        }
+    }
+}
+DEFINE('MATCH_CONTACTS',implode(',',array_unique(array_filter($match_contacts))));
+// echo '<script>console.log("'.MATCH_CONTACTS.' '."SELECT * FROM `match_contact` WHERE CONCAT(',',`staff_contact`,',') LIKE '%,".$_SESSION['contactid'].",%' AND `deleted` = 0 AND `match_date` <= '$today_date' AND (IFNULL(`tile_list`,'')='' $match_tile_lists) ".FOLDER_NAME.'");</script>';
 $_SERVER['page_load_info'] .= 'Constants Defined: '.number_format(microtime(true) - $_SERVER['REQUEST_TIME_FLOAT'],5)."\n";
 
 // List all function here
@@ -553,6 +568,8 @@ function get_config($dbc, $name, $multi = false, $separator = ',') {
 			return 'tasks,material,services,products,staff,position,contractor,clients,customer,vpl,inventory,equipment,labour,timesheet,driving_log';
 		} else if($name == 'lead_new_contact_cat') {
 			return 'Sales Leads';
+		} else if($name == 'ticket_archive_status') {
+			return 'Archive#*#Archived';
 		}
 	}
 
@@ -934,6 +951,17 @@ function get_security_levels($dbc) {
 	}
 	return $on_security;
 }
+
+function get_security_levels_staff($dbc) {
+	$on_security = ['Super Admin'=>'super'];
+	$security_levels = mysqli_query($dbc, "SELECT contactid FROM `contacts` WHERE `category` = 'Staff'");
+	while($level = mysqli_fetch_assoc($security_levels)) {
+		$on_security[get_contact($dbc, $level['contactid'])] = $level['contactid'];
+	}
+
+	return $on_security;
+}
+
 function get_securitylevel($dbc, $level) {
 	$level_row = mysqli_query($dbc, "SELECT * FROM `security_level_names` WHERE `identifier`='$level'");
 	if(mysqli_num_rows($level_row) > 0) {
@@ -1106,6 +1134,58 @@ function get_privileges($dbc, $tile,$level) {
 		}
 		else if($role != '') {
 			$get_pri =	mysqli_fetch_assoc(mysqli_query($dbc,"SELECT privileges FROM security_privileges WHERE	tile='$tile' AND level LIKE '$role' UNION SELECT ''"));
+			$my_priv = '*';
+			if(strpos($get_pri['privileges'],'*hide*') === FALSE || strpos($get_pri['privileges'],'*detailed_dash*') !== FALSE || strpos($get_pri['privileges'],'*detailed_view*') !== FALSE) {
+				$this_priv = 2;
+                if(strpos($get_pri['privileges'],'*hide*') !== FALSE) {
+                    $my_priv .= 'hide*';
+                }
+                if(strpos($get_pri['privileges'].$return_priv,'*detailed_dash*') !== FALSE) {
+                    $my_priv .= 'detailed_dash*';
+                }
+                if(strpos($get_pri['privileges'].$return_priv,'*detailed_view*') !== FALSE) {
+                    $my_priv .= 'detailed_view*';
+                }
+                if(strpos($get_pri['privileges'].$return_priv,'*detailed_add*') !== FALSE) {
+                    $my_priv .= 'detailed_add*';
+                }
+                if(strpos($get_pri['privileges'].$return_priv,'*detailed_edit*') !== FALSE) {
+                    $my_priv .= 'detailed_edit*';
+                }
+                if(strpos($get_pri['privileges'].$return_priv,'*detailed_archive*') !== FALSE) {
+                    $my_priv .= 'detailed_archive*';
+                }
+				if(strpos($get_pri['privileges'].$return_priv,'*view_use_add_edit_delete*') !== FALSE) {
+					$my_priv .= 'view_use_add_edit_delete*';
+				}
+				if(strpos($get_pri['privileges'].$return_priv,'*search*') !== FALSE) {
+					$my_priv .= 'search*';
+				}
+				if(strpos($get_pri['privileges'].$return_priv,'*configure*') !== FALSE) {
+					$my_priv .= 'configure*';
+				}
+				if(strpos($get_pri['privileges'].$return_priv,'*approvals*') !== FALSE) {
+					$my_priv .= 'approvals*';
+				}
+                if(strpos($get_pri['privileges'].$return_priv,'*strictview') !== FALSE) {
+                    $my_priv .= 'strictview*';
+                }
+				$return_priv = $my_priv;
+			}
+		}
+	}
+    return $return_priv;
+}
+
+function get_privileges_staff($dbc, $tile,$level) {
+	$roles = explode(',',$level);
+	$return_priv = '*hide*';
+	foreach($roles as $role) {
+		if(strtolower($role) == 'super') {
+			return '*detailed_dash*detailed_view*detailed_add*detailed_edit*detailed_archive*view_use_add_edit_delete*search*configure*approvals*';
+		}
+		else if($role != '') {
+			$get_pri =	mysqli_fetch_assoc(mysqli_query($dbc,"SELECT privileges FROM security_privileges_staff WHERE	tile='$tile' AND staff = $role UNION SELECT ''"));
 			$my_priv = '*';
 			if(strpos($get_pri['privileges'],'*hide*') === FALSE || strpos($get_pri['privileges'],'*detailed_dash*') !== FALSE || strpos($get_pri['privileges'],'*detailed_view*') !== FALSE) {
 				$this_priv = 2;
@@ -1345,6 +1425,26 @@ function tile_config_function($dbc,$field,$mode='user') {
  */
 function subtab_config_function ( $dbc, $tile, $level_url, $subtab ) {
 	$row = mysqli_fetch_assoc ( mysqli_query ( $dbc, "SELECT `status` FROM `subtab_config` WHERE `tile`='$tile' AND `security_level`='$level_url' AND `subtab`='$subtab'" ) );
+
+    $subtabid   = str_replace ( ['&', '/', ',', ' ', '___', '__'], ['', '_', '', '_', '_', '_'], $subtab );
+	//$subtabid	= str_replace( ' ', '_', $subtab );
+	$status 	= $row[ 'status' ];
+	$date		= explode ( '*#*', $status );
+
+	if ( $status != NULL ) { ?>
+		<td align="center"><input type="radio" name="<?= $subtab; ?>" id="<?= $subtabid; ?>_turn_on" value="turn_on" <?= ( strpos ( $status, 'turn_on' ) !== FALSE ) ? ' checked' : ''; ?> onchange="subtabConfig(this)" /></td>
+		<td align="center"><input type="radio" name="<?= $subtab; ?>" id="<?= $subtabid; ?>_turn_off" value="turn_off" <?= ( strpos ( $status, 'turn_off' ) !== FALSE ) ? ' checked' : ''; ?> onchange="subtabConfig(this)" /></td><?php
+
+	} else { ?>
+		<td align="center"><input type="radio" name="<?= $subtab; ?>" id="<?= $subtabid; ?>_turn_on" value="turn_on" onchange="subtabConfig(this)" /></td>
+		<td align="center"><input type="radio" name="<?= $subtab; ?>" id="<?= $subtabid; ?>_turn_off" value="turn_off" onchange="subtabConfig(this)" /></td><?php
+	} ?>
+
+	<td align="center"><?php echo ( !empty( $date[1] ) ) ? $date[1] : '-'; ?></td><?php
+}
+
+function subtab_staff_config_function ( $dbc, $tile, $level_url, $subtab ) {
+	$row = mysqli_fetch_assoc ( mysqli_query ( $dbc, "SELECT `status` FROM `subtab_staff_config` WHERE `tile`='$tile' AND `security_level`='$level_url' AND `subtab`='$subtab'" ) );
 
     $subtabid   = str_replace ( ['&', '/', ',', ' ', '___', '__'], ['', '_', '', '_', '_', '_'], $subtab );
 	//$subtabid	= str_replace( ' ', '_', $subtab );
@@ -2185,28 +2285,23 @@ function get_patientform($dbc, $patientformid, $field_name) {
 
 function get_contact_phone($dbc, $contactid) {
     $get_staff =	mysqli_fetch_assoc(mysqli_query($dbc,"SELECT office_phone, cell_phone, home_phone, category FROM	contacts WHERE	contactid='$contactid'"));
-    if($get_staff['category'] == 'Patient') {
         $phone = '';
         if($get_staff['cell_phone'] != '') {
             $phone .= '(M)'.decryptIt($get_staff['cell_phone']);
             $phone .= '<br>';
         }
-        //$phone .= '<br>';
-        //if($get_staff['office_phone'] != '') {
-        //    $phone .= '(O)'.decryptIt($get_staff['office_phone']);
-        //} else {
-        //    $phone .= '(O)-';
-        //}
+
+        if($get_staff['office_phone'] != '') {
+            $phone .= '(O)'.decryptIt($get_staff['office_phone']);
+            $phone .= '<br>';
+        }
 
         if($get_staff['home_phone'] != '') {
             $phone .= '(H)'.decryptIt($get_staff['home_phone']);
         }
         return $phone;
-        //return '(M)'.decryptIt($get_staff['cell_phone']).'<br>(O)'.decryptIt($get_staff['office_phone']).'<br>(H)'.decryptIt($get_staff['home_phone']);
-    } else {
-        return '(M)'.decryptIt($get_staff['cell_phone']).'<br>(O)'.decryptIt($get_staff['office_phone']).'<br>(H)'.decryptIt($get_staff['home_phone']);
-    }
 }
+
 function get_contact_first_phone($dbc, $contactid) {
     $get_staff =	mysqli_fetch_assoc(mysqli_query($dbc,"SELECT office_phone, cell_phone, home_phone, category FROM	contacts WHERE	contactid='$contactid'"));
 	return $get_staff['cell_phone'] != '' ? decryptIt($get_staff['cell_phone']) : ($get_staff['office_phone'] != '' ? decryptIt($get_staff['office_phone']) : decryptIt($get_staff['home_phone']));
@@ -3268,7 +3363,7 @@ function get_recurrence_days($limit = 0, $start_date, $end_date, $repeat_type, $
         } else {
             if(strtotime($cur) >= strtotime($create_starting_at)) {
                 $recurring_dates[] = $cur;
-                $reached_limit++;   
+                $reached_limit++;
             }
         }
     }

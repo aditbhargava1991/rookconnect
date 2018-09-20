@@ -140,7 +140,8 @@ if($invoice_mode != 'Adjustment') {
 			$service_pdf .= $service['category'].' : '.$service['heading'].'<br>';
 			$service_cats[] = $service['category'];
 			$service_names[] = $service['heading'];
-			$service_fee = ($service['editable'] > 0 ? $_POST['fee'][$i] : $service['service_rate']);
+			$qty = $_POST['srv_qty'][$i] > 0 ? $_POST['srv_qty'][$i] : 1;
+			$service_fee = ($service['editable'] > 0 || $_POST['fee'] > 0 ? $_POST['fee'][$i] * $qty : $service['service_rate'] * $qty);
 			$service_fees[] = $service_fee;
 			$gst = $_POST['gst_exempt'][$i] == "1" ? 0 : $service_fee * $_POST['tax_rate'] / 100;
 			$service_gst[] = $gst;
@@ -150,7 +151,7 @@ if($invoice_mode != 'Adjustment') {
 			$service_totals[] = $fee;
 			$row = $_POST['service_row_id'][$i];
             $invoice_lines[] = "INSERT INTO `invoice_lines` (`invoiceid`, `item_id`, `description`, `category`, `quantity`, `unit_price`, `sub_total`, `gst`, `total`, `ticketid`)
-				VALUES ('INVOICEID', '$sid', '".$service['category'].': '.$service['heading']."', 'service', '1', '".$service_fee."', '".$service_fee."', '$gst', '$fee', '".$_POST['service_ticketid'][$i]."')";
+				VALUES ('INVOICEID', '$sid', '".$service['category'].': '.$service['heading']."', 'service', '".$qty."', '".($service_fee / $qty)."', '".$service_fee."', '$gst', '$fee', '".$_POST['service_ticketid'][$i]."')";
 			foreach($_POST['insurer_row_applied'] as $j => $match_row) {
 				$applied = 0;
 				if($row == $match_row && $_POST['insurer_payment_amt'][$j] != 0) {
@@ -908,6 +909,9 @@ if($invoice_mode != 'Adjustment') {
 			$result_update_in = mysqli_query($dbc, "UPDATE `invoice` SET `patient_payment_receipt` = 1 WHERE `invoiceid`='$invoiceid'");
 
 			$logo = get_config($dbc, 'invoice_logo');
+			if(!empty($type_type) && !empty(get_config($dbc, 'invoice_logo_'.$type_type))) {
+				$logo = get_config($dbc, 'invoice_logo_'.$type_type);
+			}
 			DEFINE('INVOICE_LOGO', $logo);
 
 			include ('patient_payment_receipt_pdf.php');
@@ -1067,7 +1071,8 @@ if($invoice_mode != 'Adjustment') {
                 $service_pdf .= $service['category'].' : '.$service['heading'].'<br>';
                 $service_cats[] = $service['category'];
                 $service_names[] = $service['heading'];
-                $service_fees[] = (-$service['service_rate']);
+                $qty = $_POST['init_qty'][$i] > 0 ? $_POST['init_qty'][$i] : 1;
+                $service_fees[] = (-$service['service_rate'] * $qty);
                 $gst = $_POST['init_gst_exempt'][$i] == "1" ? 0 : (-$service['service_rate']) * $_POST['tax_rate'] / 100;
                 $service_gst[] = $gst;
                 $service_admin_fees[] = (-$service['admin_fee']);
@@ -1077,7 +1082,8 @@ if($invoice_mode != 'Adjustment') {
                 $total_amount += $fee - $gst;
                 $final_amount += $fee;
                 $invoice_lines[] = "INSERT INTO `invoice_lines` (`invoiceid`, `item_id`, `description`, `category`, `quantity`, `unit_price`, `sub_total`, `gst`, `total`)
-                    VALUES ('INVOICEID', '".$sid."', '".$service['category'].': '.$service['heading']."', 'service', '1', '".(-$_POST['service_rate'])."', '".(-$_POST['service_rate'])."', '$gst', '$fee')";
+                    VALUES ('INVOICEID', '".$sid."', '".$service['category'].': '.$service['heading']."', 'service', '".$qty."', '".(-$_POST['service_rate'])."', '".(-$_POST['service_rate'] * $qty)."', '$gst', '$fee')";
+
                 foreach($_POST['insurer_row_applied'] as $j => $match_row) {
                     $applied = 0;
                     if($row == $match_row && $_POST['insurer_payment_amt'][$j] != 0) {
@@ -1755,6 +1761,9 @@ if($invoice_mode != 'Adjustment') {
 		$result_update_in = mysqli_query($dbc, "UPDATE `invoice` SET `patient_payment_receipt` = 1 WHERE `invoiceid`='$invoiceid'");
 
 		$logo = get_config($dbc, 'invoice_logo');
+		if(!empty($type_type) && !empty(get_config($dbc, 'invoice_logo_'.$type_type))) {
+			$logo = get_config($dbc, 'invoice_logo_'.$type_type);
+		}
 		DEFINE('INVOICE_LOGO', $logo);
 
 		//include ('patient_payment_receipt_pdf.php');
@@ -1763,6 +1772,9 @@ if($invoice_mode != 'Adjustment') {
 	/* $get_invoice = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `invoice` WHERE `invoiceid`='$invoiceid'"));
 	// PDF
 	/*$invoice_design = get_config($dbc, 'invoice_design');
+  if(!empty($get_invoice['type']) && !empty(get_config($dbc, 'invoice_design_'.$get_invoice['type']))) {
+      $invoice_design = get_config($dbc, 'invoice_design_'.$get_invoice['type']);
+  }
 	switch($invoice_design) {
 		case 1:
 			include('pos_invoice_1.php');
@@ -1902,18 +1914,21 @@ if($invoice_mode != 'Adjustment') {
 			$service_pdf .= $service['category'].' : '.$service['heading'].'<br>';
 			$service_cats[] = $service['category'];
 			$service_names[] = $service['heading'];
-			$service_fees[] = $service['service_rate'];
+			$qty = $_POST['srv_qty'][$i] > 0 ? $_POST['srv_qty'][$i] : 1;
+			$service_fee = ($service['editable'] > 0 && $_POST['service_rate'][$i] > 0 ? $_POST['service_rate'][$i] * $qty : $service['service_rate'] * $qty);
+			$service_fees[] = $service_fee;
 			$gst = $_POST['gst_exempt'][$i] == "1" ? 0 : $service['service_rate'] * $_POST['tax_rate'] / 100;
 			$service_gst[] = $gst;
 			$service_admin_fees[] = $service['admin_fee'];
-			$fee = $service['service_rate'] + $gst;
+			$fee = $service_fee + $gst;
 			$fee_total_price += $fee;
 			$service_totals[] = $fee;
 			$adjust_amount += $fee;
 			$total_amount += $fee - $gst;
 			$final_amount += $fee;
             $invoice_lines[] = "INSERT INTO `invoice_lines` (`invoiceid`, `item_id`, `description`, `category`, `quantity`, `unit_price`, `sub_total`, `gst`, `total`)
-                VALUES ('INVOICEID', '".$sid."', '".$service['category'].': '.$service['heading']."', 'service', '1', '".$_POST['service_rate']."', '".$_POST['service_rate']."', '$gst', '$fee')";
+                VALUES ('INVOICEID', '".$sid."', '".$service['category'].': '.$service['heading']."', 'service', '".$qty."', '".($service_fee / $qty)."', '".$service_fee."', '$gst', '$fee')";
+
 			foreach($_POST['insurer_row_applied'] as $j => $match_row) {
 				$applied = 0;
 				if($row == $match_row && $_POST['insurer_payment_amt'][$j] != 0) {
@@ -2479,6 +2494,9 @@ if($invoice_mode != 'Adjustment') {
 		$result_update_in = mysqli_query($dbc, "UPDATE `invoice` SET `patient_payment_receipt` = 1 WHERE `invoiceid`='$invoiceid'");
 
 		$logo = get_config($dbc, 'invoice_logo');
+		if(!empty($type_type) && !empty(get_config($dbc, 'invoice_logo_'.$type_type))) {
+			$logo = get_config($dbc, 'invoice_logo_'.$type_type);
+		}
 		DEFINE('INVOICE_LOGO', $logo);
 
 		include ('patient_payment_receipt_pdf.php');
@@ -2487,6 +2505,9 @@ if($invoice_mode != 'Adjustment') {
 	$get_invoice = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `invoice` WHERE `invoiceid`='$invoiceid'"));
 	// PDF
 	/*$invoice_design = get_config($dbc, 'invoice_design');
+  if(!empty($get_invoice['type']) && !empty(get_config($dbc, 'invoice_design_'.$get_invoice['type']))) {
+      $invoice_design = get_config($dbc, 'invoice_design_'.$get_invoice['type']);
+  }
 	switch($invoice_design) {
 		case 1:
 			include('pos_invoice_1.php');

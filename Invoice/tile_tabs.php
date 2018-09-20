@@ -35,6 +35,9 @@ $payer_label = count($payer_config) > 1 ? 'Third Party' : $payer_config[0]; ?>
 			//case 'invoices': ?>
 				<!-- <a href='invoice_list.php'><span class="btn brand-btn mobile-block mobile-100 <?= strpos($_SERVER['PHP_SELF'],'/invoice_list.php') !== FALSE ? 'active_tab' : '' ?>">Invoices</span></a> -->
 				<?php //break;
+			case 'unbilled_tickets': ?>
+				<a href='unbilled_tickets.php'><span class="btn brand-btn mobile-block mobile-100 <?= strpos($_SERVER['PHP_SELF'],'/unbilled_tickets.php') !== FALSE ? 'active_tab' : '' ?>">Unbilled <?= TICKET_TILE ?></span></a>
+				<?php break;
 			case 'unpaid': ?>
 				<a href='index.php?tab=unpaid'><span class="btn brand-btn mobile-block mobile-100 <?= $_GET['tab'] == 'unpaid' ? 'active_tab' : '' ?>">Accounts Receivable</span></a>
 				<?php break;

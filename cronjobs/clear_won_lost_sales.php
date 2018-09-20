@@ -1,8 +1,9 @@
-<?php
+<?php $guest_access = true;
 /* Auto archive won and lost Sales Leads */
 error_reporting(0);
 include(substr(dirname(__FILE__), 0, -8).'database_connection.php');
 include(substr(dirname(__FILE__), 0, -8).'function.php');
+ob_clean();
 
 /* $date = date('Y-m-d');
 if(date('d', strtotime($date)) === '01') {

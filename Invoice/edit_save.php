@@ -8,7 +8,9 @@ if (isset($_POST['save_btn'])) {
 		mkdir('download', 0777, true);
 	}
     include('add_update_invoice.php');
-    echo '<script type="text/javascript"> alert("Invoice Successfully Saved"); window.location.replace("today_invoice.php"); </script>';
+
+    echo '<script type="text/javascript"> alert("Invoice Successfully Saved"); window.location.replace("index.php?tab=today"); </script>';
+
 }
 
 if (isset($_POST['submit_btn'])) {
@@ -49,6 +51,11 @@ if (isset($_POST['submit_btn'])) {
 
 	// PDF
 	$invoice_design = get_config($dbc, 'invoice_design');
+
+    if(!empty($get_invoice['type']) && !empty(get_config($dbc, 'invoice_design_'.$get_invoice['type']))) {
+        $invoice_design = get_config($dbc, 'invoice_design_'.$get_invoice['type']);
+    }
+
 	switch($invoice_design) {
 		case 1:
 			include('pos_invoice_1.php');
@@ -117,7 +124,8 @@ if (isset($_POST['submit_btn'])) {
             window.location.replace("invoice_list.php?search_invoice=<?= $search_invoice ?>");
         <?php } else { ?>
             alert("Invoice Generated.");
-            window.location.replace("today_invoice.php");
+            window.location.replace("index.php?tab=today");
+
         <?php } ?>
         if('<?= $invoiceid ?>' * 1 > 0) {
             window.open("download/invoice_<?= $invoiceid ?>.pdf", "fullscreen=yes");
@@ -162,8 +170,8 @@ if (isset($_POST['submit_pay'])) {
 			$result_update_patient = mysqli_query($dbc, $query_update_patient);
 		}
 		if ($from == 'patient') {
-            echo '<script type="text/javascript"> alert("Invoice Successfully Paid."); window.location.replace("today_invoice.php?patientid='.$patientid.'"); </script>';
+            echo '<script type="text/javascript"> alert("Invoice Successfully Paid."); window.location.replace("index.php?tab=today?patientid='.$patientid.'"); </script>';
 		} else {
-            echo '<script type="text/javascript"> alert("Invoice Successfully Paid."); window.location.replace("today_invoice.php"); </script>';
+            echo '<script type="text/javascript"> alert("Invoice Successfully Paid."); window.location.replace("index.php?tab=today"); </script>';
 		}
 }

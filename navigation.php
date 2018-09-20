@@ -241,34 +241,36 @@ if(!isset($_SESSION['fullscreen'])) {
             <div class="container no-pad-mobile">
             <?php include('tile_menu.php'); ?>
                 <div class="navbar-collapse">
-                    <ul class="nav navbar-nav navbar-right pad-right pull-right">
-                        <?php //include('Navigation/social_media_links.php'); ?>
-                        <li><?= $active_ticket_buttons ?></li><?php
-                        $contact_category = $_SESSION['category'];
-                        /*
-                        if(tile_enabled($dbc, 'contacts_rolodex')) {
-                            $contacts_folder = 'ContactsRolodex';
-                        } else {
-                            $contacts_folder = 'Contacts';
-                        }
-                        */
-                        $contacts_folder = 'Contacts';
-                        if(strtolower($contact_category) != 'staff') {
-                            $profile_access = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_contacts_security` WHERE `category` = '$contact_category' AND `security_level` = '".ROLE."'"))['profile_access'];
-                            if($profile_access == 'disable') {
-                                $profile_html = profile_id($dbc, $_SESSION['contactid'], false);
+                    <?php if($_SESSION['contactid'] > 0) { ?>
+                        <ul class="nav navbar-nav navbar-right pad-right pull-right">
+                            <?php //include('Navigation/social_media_links.php'); ?>
+                            <li><?= $active_ticket_buttons ?></li><?php
+                            $contact_category = $_SESSION['category'];
+                            /*
+                            if(tile_enabled($dbc, 'contacts_rolodex')) {
+                                $contacts_folder = 'ContactsRolodex';
                             } else {
-                                $profile_html = '<a href="'.WEBSITE_URL.'/'.$contacts_folder.'/contacts_inbox.php?edit='.$_SESSION['contactid'].'" title="My Profile">'.profile_id($dbc, $_SESSION['contactid'], false).'</a>';
+                                $contacts_folder = 'Contacts';
                             }
-                        } else {
-                            $profile_html = '<a href="'.WEBSITE_URL.'/Profile/my_profile.php" title="My Profile">'.profile_id($dbc, $_SESSION['contactid'], false).'</a>';
-                        }
-                        echo '<li>'.$profile_html .'</li>'; ?>
-                        <li class="hide-header-footer">
-                            <div class="pullup"><img src="<?= WEBSITE_URL;?>/img/pullup.png" alt="" class="no-toggle" title="Hide Header &amp; Footer" data-placement="bottom" /></div>
-                        </li>
-                        <li><a href="<?= WEBSITE_URL; ?>/logout.php"><img src="<?= WEBSITE_URL; ?>/img/logout-icon.png" class="offset-top-15 no-toggle" title="Logout" data-placement="bottom" /></a></li>
-                    </ul>
+                            */
+                            $contacts_folder = 'Contacts';
+                            if(strtolower($contact_category) != 'staff') {
+                                $profile_access = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_contacts_security` WHERE `category` = '$contact_category' AND `security_level` = '".ROLE."'"))['profile_access'];
+                                if($profile_access == 'disable') {
+                                    $profile_html = profile_id($dbc, $_SESSION['contactid'], false);
+                                } else {
+                                    $profile_html = '<a href="'.WEBSITE_URL.'/'.$contacts_folder.'/contacts_inbox.php?edit='.$_SESSION['contactid'].'" title="My Profile">'.profile_id($dbc, $_SESSION['contactid'], false).'</a>';
+                                }
+                            } else {
+                                $profile_html = '<a href="'.WEBSITE_URL.'/Profile/my_profile.php" title="My Profile">'.profile_id($dbc, $_SESSION['contactid'], false).'</a>';
+                            }
+                            echo '<li>'.$profile_html .'</li>'; ?>
+                            <li class="hide-header-footer">
+                                <div class="pullup"><img src="<?= WEBSITE_URL;?>/img/pullup.png" alt="" class="no-toggle" title="Hide Header &amp; Footer" data-placement="bottom" /></div>
+                            </li>
+                            <li><a href="<?= WEBSITE_URL; ?>/logout.php"><img src="<?= WEBSITE_URL; ?>/img/logout-icon.png" class="offset-top-15 no-toggle" title="Logout" data-placement="bottom" /></a></li>
+                        </ul>
+                    <?php } ?>
                     <ul class="nav navbar-nav scale-to-fill" style="overflow: hidden;">
                         <?php if (strpos($site_url,'forgot_pwd.php') == false) { ?>
                             <li class="pull-left home-button">

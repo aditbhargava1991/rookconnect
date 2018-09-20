@@ -209,6 +209,22 @@
 			} ?>
 		</select>
 	</div>
+<?php } else if($field_option == 'Service') { ?>
+	<label class="col-sm-4 control-label"><?php echo (in_array($field_option, $field_config_mandate) ? '<font color="red">*</font>' : ''); ?> Service:</label>
+	<div class="col-sm-8">
+		<select name="serviceid" data-field="serviceid" data-table="contacts" class="<?php echo (in_array($field_option, $field_config_mandate) ? 'required' : ''); ?> form-control chosen-select-deselect"><option></option>
+                <?php
+                $query = mysqli_query($dbc,"SELECT serviceid, category, heading FROM services WHERE deleted=0");
+                while($row = mysqli_fetch_array($query)) {
+                    if ($contact['serviceid'] == $row['serviceid']) {
+                        $selected = 'selected="selected"';
+                    } else {
+                        $selected = '';
+                    }
+                    echo "<option ".$selected." value='". $row['serviceid']."'>".$row['category'].' : '.$row['heading'].'</option>';
+                } ?>
+		</select>
+	</div>
 <?php } else if($field_option == 'LinkedIn' || $field_option == 'Profile LinkedIn') { ?>
 	<label class="col-sm-4 control-label"><?php echo (in_array($field_option, $field_config_mandate) ? '<font color="red">*</font>' : ''); ?> LinkedIn:</label>
 	<div class="col-sm-8">

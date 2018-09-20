@@ -125,7 +125,7 @@ if($id_card_fields == '') {
             }
             </script>
     <?php } ?>
-        
+
     <?php if(!($contactid > 0)) {
         echo '<h3>No '.CONTACTS_NOUN.' Selected</h3>';
     } else if(in_array_starts('POS ',$id_card_fields)) { ?>
@@ -134,7 +134,7 @@ if($id_card_fields == '') {
             $inv_count = $dbc->query("SELECT COUNT(*) `count` FROM `invoice` WHERE `patientid`='$contactid' AND `status` NOT IN ('Void') AND `deleted`=0")->fetch_assoc(); ?>
             <div class="col-xs-6 col-sm-4 col-md-3 col-lg-2 gap-top">
                 <div class="summary-block">
-                    <span class="text-lg"><?= ($inv_count['count'] > 0) ? '<a target="_top" href="../POSAdvanced/invoice_list.php?contactid='.$contactid.'&type=&search_from=0000-00-00&search_to='.date('Y-m-t').'&search_invoice_submit=Search">'.$inv_count['count'].'</a>' : 0; ?></span><br />
+                    <span class="text-lg"><?= ($inv_count['count'] > 0) ? '<a target="_top" href="../POSAdvanced/index.php?tab=all&contactid='.$contactid.'&type=&search_from=0000-00-00&search_to='.date('Y-m-t').'&search_invoice_submit=Search">'.$inv_count['count'].'</a>' : 0; ?></span><br />
                     Total<br />Invoices
                 </div>
             </div>
@@ -152,7 +152,7 @@ if($id_card_fields == '') {
             $patient_ar = mysqli_fetch_assoc ( mysqli_query ( $dbc, "SELECT SUM(`p`.`patient_price`) `patient_ar` FROM `invoice_patient` `p` LEFT JOIN `invoice` `inv` ON (`inv`.`invoiceid`=`p`.`invoiceid`) WHERE (IFNULL(`p`.`paid`,'') IN ('On Account','No','') OR `p`.`paid` LIKE 'Net %') AND `inv`.`status` NOT IN ('Void') AND `inv`.`patientid`='$contactid'" ) )['patient_ar']; ?>
             <div class="col-xs-6 col-sm-4 col-md-3 col-lg-2 gap-top">
                 <div class="summary-block">
-                    <span class="text-lg"><?= '$'.($patient_ar > 0 ? '<a target="_top" href="../POSAdvanced/patient_account_receivables.php?patientid='.$contactid.'&from=0000-00-00&until='.date('Y-m-d').'">' : '').floor($patient_ar).'.<sup>'.sprintf("%02d",($patient_ar * 100 % 100)).'</sup>'.($patient_ar > 0 ? '</a>' : '') ?></span><br />
+                    <span class="text-lg"><?= '$'.($patient_ar > 0 ? '<a target="_top" href="../POSAdvanced/index.php?tab=contact_ar&patientid='.$contactid.'&from=0000-00-00&until='.date('Y-m-d').'">' : '').floor($patient_ar).'.<sup>'.sprintf("%02d",($patient_ar * 100 % 100)).'</sup>'.($patient_ar > 0 ? '</a>' : '') ?></span><br />
                     A/R<br />&nbsp;
                 </div>
             </div>
@@ -181,7 +181,7 @@ if($id_card_fields == '') {
             $inv_count = $dbc->query("SELECT MAX(`invoice_date`) `date` FROM `invoice` WHERE `patientid`='$contactid' AND `status` NOT IN ('Void') AND `deleted`=0")->fetch_assoc(); ?>
             <div class="col-xs-6 col-sm-4 col-md-3 col-lg-2 gap-top">
                 <div class="summary-block">
-                    <span class="text-lg"><?= !empty($inv_count['date'] > 0) ? '<a target="_top" href="../POSAdvanced/invoice_list.php?contactid='.$contactid.'&type=&search_from=0000-00-00&search_to='.date('Y-m-d').'&search_invoice_submit=Search">'.$inv_count['date'].'</a>' : 'N/A'; ?></span><br />
+                    <span class="text-lg"><?= !empty($inv_count['date'] > 0) ? '<a target="_top" href="../POSAdvanced/index.php?tab=all&contactid='.$contactid.'&type=&search_from=0000-00-00&search_to='.date('Y-m-d').'&search_invoice_submit=Search">'.$inv_count['date'].'</a>' : 'N/A'; ?></span><br />
                     Date Last<br />Invoiced
                 </div>
             </div>
@@ -191,12 +191,12 @@ if($id_card_fields == '') {
     <?php } else if($summary_only === true) {
         echo '<h3>No '.CONTACTS_NOUN.' Summary Found</h3>';
     } ?>
-    
+
     <?php if(!($summary_only === true)) { ?>
         <div class="col-sm-6">
             <ul class="chained-list col-sm-6 small">
                 <?php if($contact['contactimage'] != '' && file_exists($contact_url.'download/'.$contact['contactimage'])) { ?><li style="text-align: center;"><img src="<?= $contact_url ?>download/<?= $contact['contactimage'] ?>" style="max-width: 200px; max-height: 200px;"></li><?php } ?>
-          			<?php if((in_array_any(['Sales Lead'], $id_card_fields) || in_array($contact['category'],['Sales Lead','Sales Leads'])) && in_array($contact['category'],explode(',',get_config($dbc, 'lead_all_contact_cat').',Sales Lead,Sales Leads,'))) {
+                <?php if((in_array_any(['Sales Lead'], $id_card_fields) || in_array($contact['category'],['Sales Lead','Sales Leads'])) && in_array($contact['category'],explode(',',get_config($dbc, 'lead_all_contact_cat').',Sales Lead,Sales Leads,'))) {
                     $sales_lead_id = $dbc->query("SELECT `salesid` FROM `sales` WHERE `deleted`=0 AND CONCAT(',',`contactid`,',') LIKE '%,".$contactid.",%'")->fetch_assoc()['salesid'];
                     if($sales_lead_id > 0) { ?>
                         <li><img src="../img/person.PNG" class="dashboard-profile-icon" title="Sales Lead"><a href="../Sales/sale.php?p=details&id=<?= $sales_lead_id ?>" onclick="overlayIFrameSlider(this.href,'80%',true,true); return false;">Sales Lead #<?= $sales_lead_id ?></a></li>
@@ -285,7 +285,7 @@ if($id_card_fields == '') {
                     $business_card_template = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `business_card_template` WHERE `contact_category` = '".$contact['category']."'")); ?>
                     <li>&nbsp;<img src="../img/pdf.png" style="height:1.2em;" title="PDF" />
                         <?PHP if(!empty($business_card_template['template'])) { ?>
-                            <a href="../Staff/business_card_templates/<?= $business_card_template['template'] ?>_pdf.php?contactid=<?= $contactid ?>">Business Card PDF</a> | 
+                            <a href="../Staff/business_card_templates/<?= $business_card_template['template'] ?>_pdf.php?contactid=<?= $contactid ?>">Business Card PDF</a> |
                         <?php } ?>
                         <a href="../Staff/id_card_pdf.php?contactid=<?= $contactid ?>">ID Card PDF</a>
                     </li>

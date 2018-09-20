@@ -734,11 +734,13 @@
     }
     //2018-09-05 - Ticket #9007 - Vacation Pay
 
+
     //2018-09-10 - Ticket #9085 - Manifest
     if(!mysqli_query($dbc, "ALTER TABLE `ticket_attached` CHANGE `po_line` `po_line` text")) {
         echo "Error: ".mysqli_error($dbc)."<br />\n";
     }
     //2018-09-10 - Ticket #9085 - Manifest
+
 
     //2018-09-07 - Ticket #9008 - Stat Pay
     $updated_already = get_config($dbc, 'updated_ticket9008_statpay');
@@ -809,6 +811,212 @@
         echo "Error: ".mysqli_error($dbc)."<br />\n";
     }
     //2018-09-13 - Ticket #8814 - Incident Report Flagging
+
+    //2018-09-13 - Ticket #8826 - Planner My Notes/Journal/Scrum Notes
+    $updated_already = get_config($dbc, 'updated_ticket8826_planner');
+    if(empty($updated_already)) {
+        mysqli_query($dbc, "UPDATE `user_settings` SET `daysheet_button_config` = CONCAT(`daysheet_button_config`,',My Notes') WHERE IFNULL(`daysheet_button_config`,'') != ''");
+        set_config($dbc, 'daysheet_button_config', get_config($dbc, 'daysheet_button_config').',My Notes');
+        set_config($dbc, 'updated_ticket8826_planner', 1);
+    }
+
+    if(!mysqli_query($dbc, "ALTER TABLE `daysheet_notepad` ADD `last_updated_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "CREATE TRIGGER `daysheet_notepad_last_updated` BEFORE UPDATE ON `daysheet_notepad`
+         FOR EACH ROW BEGIN
+            SET NEW.`last_updated_time` = CURRENT_TIMESTAMP;
+        END")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+
+    if(!mysqli_query($dbc, "ALTER TABLE `budget_comment` ADD `last_updated_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "CREATE TRIGGER `budget_comment_last_updated` BEFORE UPDATE ON `budget_comment`
+         FOR EACH ROW BEGIN
+            SET NEW.`last_updated_time` = CURRENT_TIMESTAMP;
+        END")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+
+    if(!mysqli_query($dbc, "ALTER TABLE `project_comment` ADD `last_updated_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "CREATE TRIGGER `project_comment_last_updated` BEFORE UPDATE ON `project_comment`
+         FOR EACH ROW BEGIN
+            SET NEW.`last_updated_time` = CURRENT_TIMESTAMP;
+        END")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+
+    if(!mysqli_query($dbc, "ALTER TABLE `task_comments` ADD `last_updated_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "CREATE TRIGGER `task_comments_last_updated` BEFORE UPDATE ON `task_comments`
+         FOR EACH ROW BEGIN
+            SET NEW.`last_updated_time` = CURRENT_TIMESTAMP;
+        END")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+
+    if(!mysqli_query($dbc, "ALTER TABLE `ticket_comment` ADD `last_updated_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "CREATE TRIGGER `ticket_comment_last_updated` BEFORE UPDATE ON `ticket_comment`
+         FOR EACH ROW BEGIN
+            SET NEW.`last_updated_time` = CURRENT_TIMESTAMP;
+        END")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+
+    if(!mysqli_query($dbc, "ALTER TABLE `email_comment` ADD `last_updated_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "CREATE TRIGGER `email_comment_last_updated` BEFORE UPDATE ON `email_comment`
+         FOR EACH ROW BEGIN
+            SET NEW.`last_updated_time` = CURRENT_TIMESTAMP;
+        END")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+
+    if(!mysqli_query($dbc, "ALTER TABLE `estimate_notes` ADD `last_updated_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "CREATE TRIGGER `estimate_notes_last_updated` BEFORE UPDATE ON `estimate_notes`
+         FOR EACH ROW BEGIN
+            SET NEW.`last_updated_time` = CURRENT_TIMESTAMP;
+        END")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+
+    if(!mysqli_query($dbc, "ALTER TABLE `client_daily_log_notes` ADD `last_updated_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "CREATE TRIGGER `client_daily_log_notes_last_updated` BEFORE UPDATE ON `client_daily_log_notes`
+         FOR EACH ROW BEGIN
+            SET NEW.`last_updated_time` = CURRENT_TIMESTAMP;
+        END")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+
+    if(!mysqli_query($dbc, "ALTER TABLE `day_overview` ADD `last_updated_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "CREATE TRIGGER `day_overview_last_updated` BEFORE UPDATE ON `day_overview`
+         FOR EACH ROW BEGIN
+            SET NEW.`last_updated_time` = CURRENT_TIMESTAMP;
+        END")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-09-13 - Ticket #8826 - Planner My Notes/Journal/Scrum Notes
+
+    //2018-09-17 - Ticket #9189 - Calendar
+    $updated_already = get_config($dbc, 'updated_ticket9189_calendar');
+    if(empty($updated_already)) {
+        mysqli_query($dbc, "UPDATE `general_configuration` SET `value` = CONCAT(`value`,',status') WHERE `name` = 'calendar_ticket_card_fields'");
+        set_config($dbc, 'updated_ticket9189_calendar', 1);
+    }
+    //2018-09-17 - Ticket #9189 - Calendar
+
+    //2018-09-18 - Ticket #9010 - Shift Heading
+    if(!mysqli_query($dbc, "ALTER TABLE `contacts_shifts` ADD `heading` VARCHAR(500) AFTER `security_level`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-09-18 - Ticket #9010 - Shift Heading
+
+
+    //2018-09-18 - Ticket #8755 - Sales Lead Info Gathering
+    if(!mysqli_query($dbc, "ALTER TABLE `infogathering_pdf` ADD `salesid` int(11) NOT NULL")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `infogathering_pdf` ADD `deleted` int(1) NOT NULL DEFAULT 0")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+
+    //2018-09-19 - Ticket #8929 - Calendar Onlin Staff
+    if(!mysqli_query($dbc, "CREATE TABLE `calendar_last_active` (
+        `calendarlastactiveid` int(11) NOT NULL,
+        `type` varchar(500) NOT NULL,
+        `contactid` int(11) NOT NULL,
+        `last_active` datetime NOT NULL)")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `calendar_last_active`
+        ADD PRIMARY KEY (`calendarlastactiveid`)")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `calendar_last_active`
+        MODIFY `calendarlastactiveid` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-09-19 - Ticket #8929 - Calendar Onlin Staff
+
+    //2018-09-19 - Ticket #9060 - Ticket History Icon
+    $updated_already = get_config($dbc, 'updated_ticket9060_tickethistory');
+    if(empty($updated_already)) {
+        $ticket_fields = ','.get_field_config($dbc, 'ticket_fields').',';
+        $ticket_tabs = explode(',',get_config($dbc, 'ticket_tabs'));
+        foreach($ticket_tabs as $type) {
+            $ticket_fields .= get_config($dbc, 'ticket_fields_'.config_safe_str($type)).',';
+        }
+        $history_fields = [];
+        if(strpos($ticket_fields, ',History,') !== FALSE) {
+            $history_fields[] = 'Ticket History';
+        }
+        if(strpos($ticket_fields, ',Customer History Business Ticket Type,') !== FALSE) {
+            $history_fields[] = 'Customer History Business Ticket Type';
+        }
+        if(strpos($ticket_fields, ',Customer History Business Project Type,') !== FALSE) {
+            $history_fields[] = 'Customer History Business Project Type';
+        }
+        if(strpos($ticket_fields, ',Customer History Business Ticket Project Type,') !== FALSE) {
+            $history_fields[] = 'Customer History Business Ticket Project Type';
+        }
+        if(strpos($ticket_fields, ',Customer History Customer Ticket Type,') !== FALSE) {
+            $history_fields[] = 'Customer History Customer Ticket Type';
+        }
+        if(strpos($ticket_fields, ',Customer History Customer Project Type,') !== FALSE) {
+            $history_fields[] = 'Customer History Customer Project Type';
+        }
+        if(strpos($ticket_fields, ',Customer History Customer Ticket Project Type,') !== FALSE) {
+            $history_fields[] = 'Customer History Customer Ticket Project Type';
+        }
+        $history_fields = implode(',', $history_fields);
+        if(!empty($history_fields)) {
+            set_config($dbc, 'ticket_history_fields', $history_fields);
+            $ticket_quick_actions = get_config($dbc, 'quick_action_icons');
+            set_config($dbc, 'quick_action_icons', $ticket_quick_actions.',history');
+        }
+        set_config($dbc, 'updated_ticket9060_tickethistory', 1);
+    }
+    //2018-09-19 - Ticket #9060 - Ticket History Icon
+
+    //2018-09-19 - Ticket #8929 - Calendar Onlin Staff
+    if(!mysqli_query($dbc, "CREATE TABLE `calendar_last_active` (
+        `calendarlastactiveid` int(11) NOT NULL,
+        `type` varchar(500) NOT NULL,
+        `contactid` int(11) NOT NULL,
+        `last_active` datetime NOT NULL)")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `calendar_last_active`
+        ADD PRIMARY KEY (`calendarlastactiveid`)")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `calendar_last_active`
+        MODIFY `calendarlastactiveid` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-09-19 - Ticket #8929 - Calendar Onlin Staff
+
+    //2018-09-20 - Ticket #8804 - Notable Happenings
+    $updated_already = get_config($dbc, 'updated_ticket8804_increp');
+    if(empty($updated_already)) {
+        set_config($dbc, 'incident_report_tabs', get_config($dbc, 'incident_report_summary'));
+        set_config($dbc, 'updated_ticket8804_increp', 1);
+    }
+    //2018-09-20 - Ticket #8804 - Notable Happenings
 
     echo "Baldwin's DB Changes Done<br />\n";
 ?>
