@@ -147,8 +147,10 @@
                         </div>
 
                         <div class="col-sm-2">
+                            <!-- Hidden on Returns/Adjustment
                             <img src="<?= WEBSITE_URL ?>/img/remove.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right cursor-hand adjust_block" onclick="rem_service_row(this);">
                             <img src="<?= WEBSITE_URL ?>/img/icons/ROOK-add-icon.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right cursor-hand adjust_block" onclick="add_service_row();">
+                            -->
                             <label class="return_block"><input type="checkbox" name="servicerow_refund[]" value="<?= $client_loop ?>" onchange="countTotalPrice()"> Refund</label>
                         </div>
 
