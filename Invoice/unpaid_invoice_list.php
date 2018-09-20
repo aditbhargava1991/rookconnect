@@ -152,80 +152,47 @@ function show_hide_email() {
 }
 </script>
 
-<!-- Summary Blocks --><?php
-$search_contact = 0;
-$search_invoiceid = '';
-$search_from = date('Y-m-01');
-$search_to = date('Y-m-t');
-if (isset($_POST['search_invoice_submit'])) {
-    if($_POST['contactid'] != '') {
-       $search_contact = $_POST['contactid'];
+<div class="standard-body-title hide-titles-mob">
+    <h3 class="pull-left">Accounts Receivable</h3>
+    <div class="pull-right"><img src="../img/icons/pie-chart.png" class="no-toggle cursor-hand offset-top-15 double-gap-right" title="View Summary" onclick="view_summary();" /></div>
+    <div class="clearfix"></div>
+</div>
+
+<div class="standard-body-content padded-desktop">
+    <!-- Summary Blocks --><?php
+    $search_contact = 0;
+    $search_invoiceid = '';
+    $search_from = date('Y-m-01');
+    $search_to = date('Y-m-t');
+    if (isset($_POST['search_invoice_submit'])) {
+        if($_POST['contactid'] != '') {
+           $search_contact = $_POST['contactid'];
+        }
+        if($_POST['type'] != '') {
+           $search_delivery = $_POST['type'];
+        }
+        if($_POST['search_from'] != '') {
+           $search_from = $_POST['search_from'];
+        }
+        if($_POST['search_to'] != '') {
+           $search_to = $_POST['search_to'];
+        }
+        $search_invoiceid = isset($_POST['search_invoiceid']) ? preg_replace('/[^0-9]/', '', $_POST['search_invoiceid']) : '';
     }
-    if($_POST['type'] != '') {
-       $search_delivery = $_POST['type'];
+
+    if($search_from == 0000-00-00) {
+        $search_from = (in_array($rookconnect,['sea','led']) ? '' : date('Y-m-d'));
     }
-    if($_POST['search_from'] != '') {
-       $search_from = $_POST['search_from'];
+
+    if($search_to == 0000-00-00) {
+        $search_to = date('Y-m-d');
     }
-    if($_POST['search_to'] != '') {
-       $search_to = $_POST['search_to'];
-    }
-    $search_invoiceid = isset($_POST['search_invoiceid']) ? preg_replace('/[^0-9]/', '', $_POST['search_invoiceid']) : '';
-}
 
-if($search_from == 0000-00-00) {
-    $search_from = (in_array($rookconnect,['sea','led']) ? '' : date('Y-m-d'));
-}
+    /*
+    $patient_clause = !empty($search_contact) ? "AND patientid = '$search_contact'" : '';
 
-if($search_to == 0000-00-00) {
-    $search_to = date('Y-m-d');
-}
-
-/*
-$patient_clause = !empty($search_contact) ? "AND patientid = '$search_contact'" : '';
-
-$today_date = date('Y-m-d');
-$as_at_date = $search_to;
-$last29 = date('Y-m-d', strtotime($as_at_date.' - 29 days'));
-$last30 = date('Y-m-d', strtotime($as_at_date.' - 30 days'));
-$last59 = date('Y-m-d', strtotime($as_at_date.' - 59 days'));
-$last60 = date('Y-m-d', strtotime($as_at_date.' - 60 days'));
-$last89 = date('Y-m-d', strtotime($as_at_date.' - 89 days'));
-$last90 = date('Y-m-d', strtotime($as_at_date.' - 90 days'));
-$last119 = date('Y-m-d', strtotime($as_at_date.' - 119 days'));
-$last120 = date('Y-m-d', strtotime($as_at_date.' - 120 days'));
-$ar_types = "'On Account', 'Net 30', 'Net 30 Days', 'Net 60', 'Net 60 Days', 'Net 90', 'Net 90 Days', 'Net 120', 'Net 120 Days', ''";
-
-$total_30 = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT SUM(patient_price) AS `all_payment` FROM invoice_patient WHERE (DATE(invoice_date) >= '".$search_from."' AND DATE(invoice_date) <= '".$search_to."') AND DATE(invoice_date) >= '".$last29."' $patient_clause AND (paid_date > '$as_at_date' OR IFNULL(`paid`,'') IN ($ar_types))"));
-$total_last30 = $total_30['all_payment'];
-
-$total_3059 = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT SUM(patient_price) AS `all_payment` FROM invoice_patient WHERE (DATE(invoice_date) >= '".$search_from."' AND DATE(invoice_date) <= '".$search_to."') AND (DATE(invoice_date) >= '".$last59."' AND DATE(invoice_date) < '".$last29."') $patient_clause AND (paid_date > '$as_at_date' OR IFNULL(`paid`,'') IN ($ar_types))"));
-$total_last3059 = $total_3059['all_payment'];
-
-$total_6089 = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT SUM(patient_price) AS `all_payment` FROM invoice_patient WHERE (DATE(invoice_date) >= '".$search_from."' AND DATE(invoice_date) <= '".$search_to."') AND (DATE(invoice_date) >= '".$last89."' AND DATE(invoice_date) < '".$last59."') $patient_clause AND (paid_date > '$as_at_date' OR IFNULL(`paid`,'') IN ($ar_types))"));
-$total_last6089 = $total_6089['all_payment'];
-
-$total_90119 = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT SUM(patient_price) AS `all_payment` FROM invoice_patient WHERE (DATE(invoice_date) >= '".$search_from."' AND DATE(invoice_date) <= '".$search_to."') AND (DATE(invoice_date) >= '".$last119."' AND DATE(invoice_date) < '".$last89."') $patient_clause AND (paid_date > '$as_at_date' OR IFNULL(`paid`,'') IN ($ar_types))"));
-$total_last90119 = $total_90119['all_payment'];
-
-$total_120 = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT SUM(patient_price) AS `all_payment` FROM invoice_patient WHERE (DATE(invoice_date) >= '".$search_from."' AND DATE(invoice_date) <= '".$search_to."') AND (DATE(invoice_date) < '".$last119."') $patient_clause AND (paid_date > '$as_at_date' OR IFNULL(`paid`,'') IN ($ar_types))"));
-$total_last120 = $total_120['all_payment'];
-*/
-
-$ar_types = "'On Account', 'Net 30', 'Net 30 Days', 'Net 60', 'Net 60 Days', 'Net 90', 'Net 90 Days', 'Net 120', 'Net 120 Days', ''";
-
-$query_ar = mysqli_query($dbc,"SELECT DISTINCT(patientid) FROM invoice_patient WHERE (paid_date > '$as_at_date' OR `paid` IN ($ar_types)) AND (DATE(invoice_date) >= '".$starttime."' AND DATE(invoice_date) <= '".$endtime."') ORDER BY patientid");
-
-$total_ar_current = 0;
-$total_ar_30 = 0;
-$total_ar_60 = 0;
-$total_ar_90 = 0;
-$total_ar_120 = 0;
-
-while($row = mysqli_fetch_array($query_ar)) {
-    $patientid = $row['patientid'];
     $today_date = date('Y-m-d');
-    $as_at_date = $_GET['search_to'] != '' ? $_GET['search_to'] : $today_date;
+    $as_at_date = $search_to;
     $last29 = date('Y-m-d', strtotime($as_at_date.' - 29 days'));
     $last30 = date('Y-m-d', strtotime($as_at_date.' - 30 days'));
     $last59 = date('Y-m-d', strtotime($as_at_date.' - 59 days'));
@@ -234,69 +201,104 @@ while($row = mysqli_fetch_array($query_ar)) {
     $last90 = date('Y-m-d', strtotime($as_at_date.' - 90 days'));
     $last119 = date('Y-m-d', strtotime($as_at_date.' - 119 days'));
     $last120 = date('Y-m-d', strtotime($as_at_date.' - 120 days'));
+    $ar_types = "'On Account', 'Net 30', 'Net 30 Days', 'Net 60', 'Net 60 Days', 'Net 90', 'Net 90 Days', 'Net 120', 'Net 120 Days', ''";
 
-    $total_30 = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT SUM(patient_price) AS `all_payment` FROM invoice_patient WHERE (DATE(invoice_date) >= '".$starttime."' AND DATE(invoice_date) <= '".$endtime."') AND DATE(invoice_date) >= '".$last29."' AND patientid = '$patientid' AND (paid_date > '$as_at_date' OR IFNULL(`paid`,'') IN ($ar_types))"));
+    $total_30 = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT SUM(patient_price) AS `all_payment` FROM invoice_patient WHERE (DATE(invoice_date) >= '".$search_from."' AND DATE(invoice_date) <= '".$search_to."') AND DATE(invoice_date) >= '".$last29."' $patient_clause AND (paid_date > '$as_at_date' OR IFNULL(`paid`,'') IN ($ar_types))"));
     $total_last30 = $total_30['all_payment'];
 
-    $total_3059 = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT SUM(patient_price) AS `all_payment` FROM invoice_patient WHERE (DATE(invoice_date) >= '".$starttime."' AND DATE(invoice_date) <= '".$endtime."') AND (DATE(invoice_date) >= '".$last59."' AND DATE(invoice_date) < '".$last29."') AND patientid = '$patientid' AND (paid_date > '$as_at_date' OR IFNULL(`paid`,'') IN ($ar_types))"));
+    $total_3059 = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT SUM(patient_price) AS `all_payment` FROM invoice_patient WHERE (DATE(invoice_date) >= '".$search_from."' AND DATE(invoice_date) <= '".$search_to."') AND (DATE(invoice_date) >= '".$last59."' AND DATE(invoice_date) < '".$last29."') $patient_clause AND (paid_date > '$as_at_date' OR IFNULL(`paid`,'') IN ($ar_types))"));
     $total_last3059 = $total_3059['all_payment'];
 
-    $total_6089 = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT SUM(patient_price) AS `all_payment` FROM invoice_patient WHERE (DATE(invoice_date) >= '".$starttime."' AND DATE(invoice_date) <= '".$endtime."') AND (DATE(invoice_date) >= '".$last89."' AND DATE(invoice_date) < '".$last59."') AND patientid = '$patientid' AND (paid_date > '$as_at_date' OR IFNULL(`paid`,'') IN ($ar_types))"));
+    $total_6089 = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT SUM(patient_price) AS `all_payment` FROM invoice_patient WHERE (DATE(invoice_date) >= '".$search_from."' AND DATE(invoice_date) <= '".$search_to."') AND (DATE(invoice_date) >= '".$last89."' AND DATE(invoice_date) < '".$last59."') $patient_clause AND (paid_date > '$as_at_date' OR IFNULL(`paid`,'') IN ($ar_types))"));
     $total_last6089 = $total_6089['all_payment'];
 
-    $total_90119 = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT SUM(patient_price) AS `all_payment` FROM invoice_patient WHERE (DATE(invoice_date) >= '".$starttime."' AND DATE(invoice_date) <= '".$endtime."') AND (DATE(invoice_date) >= '".$last119."' AND DATE(invoice_date) < '".$last89."') AND patientid = '$patientid' AND (paid_date > '$as_at_date' OR IFNULL(`paid`,'') IN ($ar_types))"));
+    $total_90119 = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT SUM(patient_price) AS `all_payment` FROM invoice_patient WHERE (DATE(invoice_date) >= '".$search_from."' AND DATE(invoice_date) <= '".$search_to."') AND (DATE(invoice_date) >= '".$last119."' AND DATE(invoice_date) < '".$last89."') $patient_clause AND (paid_date > '$as_at_date' OR IFNULL(`paid`,'') IN ($ar_types))"));
     $total_last90119 = $total_90119['all_payment'];
 
-    $total_120 = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT SUM(patient_price) AS `all_payment` FROM invoice_patient WHERE (DATE(invoice_date) >= '".$starttime."' AND DATE(invoice_date) <= '".$endtime."') AND (DATE(invoice_date) < '".$last119."') AND patientid = '$patientid' AND (paid_date > '$as_at_date' OR IFNULL(`paid`,'') IN ($ar_types))"));
+    $total_120 = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT SUM(patient_price) AS `all_payment` FROM invoice_patient WHERE (DATE(invoice_date) >= '".$search_from."' AND DATE(invoice_date) <= '".$search_to."') AND (DATE(invoice_date) < '".$last119."') $patient_clause AND (paid_date > '$as_at_date' OR IFNULL(`paid`,'') IN ($ar_types))"));
     $total_last120 = $total_120['all_payment'];
-    
-    $total_ar_current += $total_last30;
-    $total_ar_30 += $total_last3059;
-    $total_ar_60 += $total_last6089;
-    $total_ar_90 += $total_last90119;
-    $total_ar_120 += $total_last120;
-} ?>
+    */
 
-<div class="view_summary double-gap-bottom" style="display:none;">
-    <?php $total_invoices = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT SUM(`final_price`) `final_price` FROM `invoice` WHERE `deleted`=0 $search_clause $search_invoice_clause")); ?>
-    <div class="col-xs-12 col-sm-3 gap-top">
-        <div class="summary-block">
-            <div class="text-lg"><?= ( $total_ar_current > 0 ) ? '<a href="../Reports/report_tiles.php?type=ar&report=A/R Aging Summary&from='.$starttime.'&to='.$endtime.'">$'.number_format($total_ar_current, 2).'</a>' : '$'. 0; ?></div>
-            <div>Current A/R</div>
-        </div>
-    </div>
-    <div class="col-xs-12 col-sm-3 gap-top">
-        <div class="summary-block">
-            <div class="text-lg"><?= ( $total_ar_30 > 0 ) ? '<a href="../Reports/report_tiles.php?type=ar&report=A/R Aging Summary&from='.$starttime.'&to='.$endtime.'">$'.number_format($total_ar_30, 2).'</a>' : '$'. 0; ?></div>
-            <div>30 - 59 Days A/R</div>
-        </div>
-    </div>
-    <div class="col-xs-12 col-sm-3 gap-top">
-        <div class="summary-block">
-            <div class="text-lg"><?= ( $total_ar_60 > 0 ) ? '<a href="../Reports/report_tiles.php?type=ar&report=A/R Aging Summary&from='.$starttime.'&to='.$endtime.'">$'.number_format($total_ar_60, 2).'</a>' : '$'. 0; ?></div>
-            <div>60 - 89 Dyas A/R</div>
-        </div>
-    </div>
-    <div class="col-xs-12 col-sm-3 gap-top">
-        <div class="summary-block">
-            <div class="text-lg"><?= ( $total_ar_90 > 0 ) ? '<a href="../Reports/report_tiles.php?type=ar&report=A/R Aging Summary&from='.$starttime.'&to='.$endtime.'">$'.number_format($total_ar_90, 2).'</a>' : '$'. 0; ?></div>
-            <div>90 - 119 Days A/R</div>
-        </div>
-    </div>
-    <div class="col-xs-12 col-sm-3 gap-top">
-        <div class="summary-block">
-            <div class="text-lg"><?= ( $total_ar_120 > 0 ) ? '<a href="../Reports/report_tiles.php?type=ar&report=A/R Aging Summary&from='.$starttime.'&to='.$endtime.'">$'.number_format($total_ar_120, 2).'</a>' : '$'. 0; ?></div>
-            <div>120+ Days A/R</div>
-        </div>
-    </div>
-    <div class="clearfix"></div>
-</div><!-- .view_summary -->
+    $ar_types = "'On Account', 'Net 30', 'Net 30 Days', 'Net 60', 'Net 60 Days', 'Net 90', 'Net 90 Days', 'Net 120', 'Net 120 Days', ''";
 
-<div class="standard-body-title hide-titles-mob">
-    <h3>Accounts Receivable</h3>
-</div>
+    $query_ar = mysqli_query($dbc,"SELECT DISTINCT(patientid) FROM invoice_patient WHERE (paid_date > '$as_at_date' OR `paid` IN ($ar_types)) AND (DATE(invoice_date) >= '".$starttime."' AND DATE(invoice_date) <= '".$endtime."') ORDER BY patientid");
 
-<div class="standard-body-content padded-desktop">
+    $total_ar_current = 0;
+    $total_ar_30 = 0;
+    $total_ar_60 = 0;
+    $total_ar_90 = 0;
+    $total_ar_120 = 0;
+
+    while($row = mysqli_fetch_array($query_ar)) {
+        $patientid = $row['patientid'];
+        $today_date = date('Y-m-d');
+        $as_at_date = $_GET['search_to'] != '' ? $_GET['search_to'] : $today_date;
+        $last29 = date('Y-m-d', strtotime($as_at_date.' - 29 days'));
+        $last30 = date('Y-m-d', strtotime($as_at_date.' - 30 days'));
+        $last59 = date('Y-m-d', strtotime($as_at_date.' - 59 days'));
+        $last60 = date('Y-m-d', strtotime($as_at_date.' - 60 days'));
+        $last89 = date('Y-m-d', strtotime($as_at_date.' - 89 days'));
+        $last90 = date('Y-m-d', strtotime($as_at_date.' - 90 days'));
+        $last119 = date('Y-m-d', strtotime($as_at_date.' - 119 days'));
+        $last120 = date('Y-m-d', strtotime($as_at_date.' - 120 days'));
+
+        $total_30 = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT SUM(patient_price) AS `all_payment` FROM invoice_patient WHERE (DATE(invoice_date) >= '".$starttime."' AND DATE(invoice_date) <= '".$endtime."') AND DATE(invoice_date) >= '".$last29."' AND patientid = '$patientid' AND (paid_date > '$as_at_date' OR IFNULL(`paid`,'') IN ($ar_types))"));
+        $total_last30 = $total_30['all_payment'];
+
+        $total_3059 = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT SUM(patient_price) AS `all_payment` FROM invoice_patient WHERE (DATE(invoice_date) >= '".$starttime."' AND DATE(invoice_date) <= '".$endtime."') AND (DATE(invoice_date) >= '".$last59."' AND DATE(invoice_date) < '".$last29."') AND patientid = '$patientid' AND (paid_date > '$as_at_date' OR IFNULL(`paid`,'') IN ($ar_types))"));
+        $total_last3059 = $total_3059['all_payment'];
+
+        $total_6089 = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT SUM(patient_price) AS `all_payment` FROM invoice_patient WHERE (DATE(invoice_date) >= '".$starttime."' AND DATE(invoice_date) <= '".$endtime."') AND (DATE(invoice_date) >= '".$last89."' AND DATE(invoice_date) < '".$last59."') AND patientid = '$patientid' AND (paid_date > '$as_at_date' OR IFNULL(`paid`,'') IN ($ar_types))"));
+        $total_last6089 = $total_6089['all_payment'];
+
+        $total_90119 = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT SUM(patient_price) AS `all_payment` FROM invoice_patient WHERE (DATE(invoice_date) >= '".$starttime."' AND DATE(invoice_date) <= '".$endtime."') AND (DATE(invoice_date) >= '".$last119."' AND DATE(invoice_date) < '".$last89."') AND patientid = '$patientid' AND (paid_date > '$as_at_date' OR IFNULL(`paid`,'') IN ($ar_types))"));
+        $total_last90119 = $total_90119['all_payment'];
+
+        $total_120 = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT SUM(patient_price) AS `all_payment` FROM invoice_patient WHERE (DATE(invoice_date) >= '".$starttime."' AND DATE(invoice_date) <= '".$endtime."') AND (DATE(invoice_date) < '".$last119."') AND patientid = '$patientid' AND (paid_date > '$as_at_date' OR IFNULL(`paid`,'') IN ($ar_types))"));
+        $total_last120 = $total_120['all_payment'];
+        
+        $total_ar_current += $total_last30;
+        $total_ar_30 += $total_last3059;
+        $total_ar_60 += $total_last6089;
+        $total_ar_90 += $total_last90119;
+        $total_ar_120 += $total_last120;
+    } ?>
+
+    <div class="view_summary double-gap-bottom" style="display:none;">
+        <?php $total_invoices = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT SUM(`final_price`) `final_price` FROM `invoice` WHERE `deleted`=0 $search_clause $search_invoice_clause")); ?>
+        <div class="col-xs-12 col-sm-3 gap-top">
+            <div class="summary-block">
+                <div class="text-lg"><?= ( $total_ar_current > 0 ) ? '<a href="../Reports/report_tiles.php?type=ar&report=A/R Aging Summary&from='.$starttime.'&to='.$endtime.'">$'.number_format($total_ar_current, 2).'</a>' : '$'. 0; ?></div>
+                <div>Current A/R</div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-3 gap-top">
+            <div class="summary-block">
+                <div class="text-lg"><?= ( $total_ar_30 > 0 ) ? '<a href="../Reports/report_tiles.php?type=ar&report=A/R Aging Summary&from='.$starttime.'&to='.$endtime.'">$'.number_format($total_ar_30, 2).'</a>' : '$'. 0; ?></div>
+                <div>30 - 59 Days A/R</div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-3 gap-top">
+            <div class="summary-block">
+                <div class="text-lg"><?= ( $total_ar_60 > 0 ) ? '<a href="../Reports/report_tiles.php?type=ar&report=A/R Aging Summary&from='.$starttime.'&to='.$endtime.'">$'.number_format($total_ar_60, 2).'</a>' : '$'. 0; ?></div>
+                <div>60 - 89 Days A/R</div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-3 gap-top">
+            <div class="summary-block">
+                <div class="text-lg"><?= ( $total_ar_90 > 0 ) ? '<a href="../Reports/report_tiles.php?type=ar&report=A/R Aging Summary&from='.$starttime.'&to='.$endtime.'">$'.number_format($total_ar_90, 2).'</a>' : '$'. 0; ?></div>
+                <div>90 - 119 Days A/R</div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-3 gap-top">
+            <div class="summary-block">
+                <div class="text-lg"><?= ( $total_ar_120 > 0 ) ? '<a href="../Reports/report_tiles.php?type=ar&report=A/R Aging Summary&from='.$starttime.'&to='.$endtime.'">$'.number_format($total_ar_120, 2).'</a>' : '$'. 0; ?></div>
+                <div>120+ Days A/R</div>
+            </div>
+        </div>
+        <div class="clearfix"></div>
+    </div><!-- .view_summary -->
+
     <form name="invoice" method="post" action="" class="form-horizontal" role="form">
         <?php $value_config = ','.get_config($dbc, 'invoice_dashboard').','; ?>
         
