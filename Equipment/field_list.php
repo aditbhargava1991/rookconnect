@@ -1,5 +1,5 @@
 <?php
-$field_list = []
+$field_list = [
 	'category' => 'Category',
 	'equ_description' => 'Description',
 	'type' => 'Type',

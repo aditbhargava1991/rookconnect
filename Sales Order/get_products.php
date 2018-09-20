@@ -462,7 +462,7 @@ checkAuthorised('sales_order');
             $from_type = $_POST['from_type'];
 
             foreach ($_POST['new_item_category'] as $key => $new_item) {
-                if($Item_type == 'equipment') {
+                if($item_type == 'equipment') {
                     include('../Equipment/field_list.php');
                     $field_config = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT equipment_dashboard FROM field_config_equipment WHERE tab='$new_item' AND accordion IS NULL UNION SELECT equipment_dashboard FROM field_config_equipment WHERE `tab` NOT IN ('service_record','service_request') AND equipment_dashboard IS NOT NULL"));
                     $field_config = explode(',',$field_config['equipment_dashboard']);
@@ -495,7 +495,6 @@ checkAuthorised('sales_order');
                     $query_update[] = "`category` = '$item_category'";
                 }
                 if($item_type == 'equipment') {
-                    $query_update[] = "`unit_number` = '$new_item_heading'";
                 } else if($item_type == 'labour') {
                     $query_update[] = "`category` = '$subcategory'";
                     $query_update[] = "`heading` = '$new_item_heading'";
@@ -507,15 +506,16 @@ checkAuthorised('sales_order');
                 }
                 foreach ($field_config as $field) {
                     $field_key = array_search($field,$field_list);
-                    if ($field != 'Labour Type' && $field != 'Rate Card' && $field != 'Rate Card Price' && $field != 'Category' && $field != 'Subcategory' && $field != 'Name' && $field != 'Heading' && $field != 'Unit #') {
+                    if ($field != 'Labour Type' && $field != 'Rate Card' && $field != 'Rate Card Price' && $field != 'Category' && $field != 'Subcategory' && $field != 'Name' && $field != 'Heading' && $field != 'Staff' && !empty($field_key)) {
                         $query_update[] = "`$field_key` = '".$_POST['new_item_'.$field_key][$key]."'";
                     }
                 }
                 $query_update = implode(',', $query_update);
                 mysqli_query($dbc, "UPDATE `$table` SET $query_update WHERE `$tableid` = '$inventoryid'");
+                echo "UPDATE `$table` SET $query_update WHERE `$tableid` = '$inventoryid'";
                 $item = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `$table` WHERE `$tableid` = '$inventoryid'"));
                 if($item_type == 'equipment') {
-                    $item_value = $item['unit_number'];
+                    $item_value = get_equipment_label($dbc, $item);
                 } else if($item_type == 'services') {
                     $item_value = $item['heading'];
                 } else {

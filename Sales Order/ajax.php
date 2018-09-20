@@ -397,7 +397,7 @@ if ($_GET['fill']=='loadItemDetails') {
             $table_cat_field = 'category';
             $table_subcat_field = '';
             $table_id = 'equipmentid';
-            $config_table = 'field_cnfig_equipment';
+            $config_table = 'field_config_equipment';
             break;
         case 'labour':
             $table = 'labour';
@@ -490,7 +490,9 @@ if ($_GET['fill']=='loadItemDetails') {
 
     // if($name == '**NEW_ITEM**') {
         if($item_type == 'equipment') {
-            $html .= '<th>Unit #</th>';
+            if($name != '**NEW_ITEM**') {
+                $html .= '<th>Name</th>';
+            }
         } else if($item_type == 'services' || $item_type == 'labour') {
             $html .= '<th>Heading</th>';
         } else {
@@ -498,7 +500,7 @@ if ($_GET['fill']=='loadItemDetails') {
         }
     // }
     foreach ($field_config as $field) {
-        if ($field != 'Labour Type' && $field != 'Rate Card' && $field != 'Rate Card Price' && $field != 'Category' && $field != 'Subcategory' && $field != 'Name' && $field != 'Heading' && $field != 'Estimated Hours' && $field != 'Unit #') {
+        if ($field != 'Labour Type' && $field != 'Rate Card' && $field != 'Rate Card Price' && $field != 'Category' && $field != 'Subcategory' && $field != 'Name' && $field != 'Heading' && $field != 'Estimated Hours' && $field != 'Staff') {
             $html .= '<th>'.$field.'</th>';
         }
     }
@@ -524,14 +526,13 @@ if ($_GET['fill']=='loadItemDetails') {
             $html .= '<input type="hidden" name="new_item_subcategory[]" value="'.$subcategory.'">';
         }
         if($item_type == 'equipment') {
-            $html .= '<td data-title="Unit #"><input type="text" name="new_item_heading[]" class="form-control"></td>';
         } else if($item_type == 'services' || $item_type == 'labour') {
             $html .= '<td data-title="Heading"><input type="text" name="new_item_heading[]" class="form-control"></td>';
         } else {
             $html .= '<td data-title="Name"><input type="text" name="new_item_name[]" class="form-control"></td>';
         }
         foreach ($field_config as $field) {
-            if ($field != 'Labour Type' && $field != 'Rate Card' && $field != 'Rate Card Price' && $field != 'Category' && $field != 'Subcategory' && $field != 'Name' && $field != 'Heading' && $field != 'Estimated Hours' && $field != 'Unit #') {
+            if ($field != 'Labour Type' && $field != 'Rate Card' && $field != 'Rate Card Price' && $field != 'Category' && $field != 'Subcategory' && $field != 'Name' && $field != 'Heading' && $field != 'Estimated Hours' && $field != 'Staff') {
                 $field_key = array_search($field,$field_list);
                 if(strpos($field_key, '**NOCSV**') === FALSE) {
                     $field_key = trim($field_key, '#');
@@ -551,13 +552,15 @@ if ($_GET['fill']=='loadItemDetails') {
     } else {
         foreach ($item_list as  $item) {
             $html .= '<tr>';
-            if($item_type == 'services' || $item_type == 'labour') {
+            if($item_type == 'equipment') {
+                $html .= '<td data-title="Name">'.get_equipment_label($dbc, $item).'</td>';
+            } else if($item_type == 'services' || $item_type == 'labour') {
                 $html .= '<td data-title="Heading">'.$item['heading'].'</td>';
             } else {
                 $html .= '<td data-title="Name">'.$item['name'].'</td>';
             }
             foreach ($field_config as $field) {
-                if ($field != 'Labour Type' && $field != 'Rate Card' && $field != 'Rate Card Price' && $field != 'Category' && $field != 'Subcategory' && $field != 'Name' && $field != 'Heading' && $field != 'Estimated Hours') {
+                if ($field != 'Labour Type' && $field != 'Rate Card' && $field != 'Rate Card Price' && $field != 'Category' && $field != 'Subcategory' && $field != 'Name' && $field != 'Heading' && $field != 'Estimated Hours' && $field != 'Staff') {
                     $field_key = array_search($field,$field_list);
                     if (in_array($field, $price_types)) {
                         $html .= '<td data-title="'.$field.'">'.number_format(trim((!empty($item[$field_key]) ? $item[$field_key] : '0.00'),'$'),2,'.','').'&nbsp;&nbsp;<input type="checkbox" onchange="setPrice(this);" style="transform: scale(1.5); position: relative; top: 0.2em;"></td>';
@@ -615,7 +618,7 @@ if ($_GET['fill']=='loadItemDetails') {
             }
             $html .= '<td data-title="Price"><input type="number" step="0.01" name="price[]" value="" class="form-control" min="0.00" onchange="updatePrice(this);" onpaste="updatePrice(this);" oninput="updatePrice(this);"></td>';
             if($item_type == 'equipment') {
-                $item_value = $item['unit_number'];
+                $item_value = get_equipment_label($dbc, $item);
             } else if($item_type == 'services' || $item_type == 'labour') {
                 $item_value = $item['heading'];
             } else {
