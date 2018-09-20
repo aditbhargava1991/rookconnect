@@ -463,9 +463,11 @@ checkAuthorised('sales_order');
 
             foreach ($_POST['new_item_category'] as $key => $new_item) {
                 if($Item_type == 'equipment') {
+                    include('../Equipment/field_list.php');
                     $field_config = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT equipment_dashboard FROM field_config_equipment WHERE tab='$new_item' AND accordion IS NULL UNION SELECT equipment_dashboard FROM field_config_equipment WHERE `tab` NOT IN ('service_record','service_request') AND equipment_dashboard IS NOT NULL"));
                     $field_config = explode(',',$field_config['equipment_dashboard']);
                 } else if($item_type == 'labour') {
+                    include('../Labour/field_list.php');
                     $field_config = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `labour_dashboard` FROM `field_config` WHERE `labour_dashboard` IS NOT NULL AND `labour_dashboard` != ''"));
                     $field_config = explode(',', $field_config['labour_dashboard']);
                 } else if($item_type == 'services') {
