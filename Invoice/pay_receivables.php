@@ -37,6 +37,69 @@ if (isset($_POST['submit_patient'])) {
 
     $staff = get_contact($dbc, $therapistsid);
 
+	$next_booking = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `booking` WHERE `appoint_date` > NOW() AND `deleted`=0 AND `patientid`='".$get_invoice['patientid']."' ORDER BY `appoint_date` ASC"));
+	if($next_booking['bookingid'] > 0) {
+		$footer_text = '<p style="color: #37C6F4; font-size: 14; font-weight: bold; text-align: center;">Your next appointment is '.date('d/m/y',strtotime($next_booking['appoint_date']))." at ".date('G:ia',strtotime($next_booking['appoint_date'])).'</p>';
+	}
+    $invoice_footer = get_config($dbc, 'invoice_footer');
+    if(!empty($get_invoice['type']) && !empty(get_config($dbc, 'invoice_footer_'.$get_invoice['type']))) {
+        $invoice_footer = get_config($dbc, 'invoice_footer_'.$get_invoice['type']);
+    }
+	$footer_text .= html_entity_decode($invoice_footer);
+    $logo = get_config($dbc, 'invoice_logo');
+    if(!empty($get_invoice['type']) && !empty(get_config($dbc, 'invoice_logo_'.$get_invoice['type']))) {
+        $logo = get_config($dbc, 'invoice_logo_'.$get_invoice['type']);
+    }
+    $invoice_header = get_config($dbc, 'invoice_header');
+    if(!empty($get_invoice['type']) && !empty(get_config($dbc, 'invoice_header_'.$get_invoice['type']))) {
+        $invoice_header = get_config($dbc, 'invoice_header_'.$get_invoice['type']);
+    }
+    DEFINE('INVOICE_LOGO', $logo);
+    DEFINE('INVOICE_HEADER', html_entity_decode($invoice_header));
+    DEFINE('INVOICE_FOOTER', $footer_text);
+
+    //Patient Invoice
+	if(!class_exists('PATIENTPDF')) {
+		class PATIENTPDF extends TCPDF {
+
+			//Page header
+			public function Header() {
+				if(INVOICE_LOGO != '') {
+					$image_file = 'download/'.INVOICE_LOGO;
+					$this->Image($image_file, 10, 10, '', 25, '', '', 'T', false, 300, '', false, false, 0, false, false, false);
+				}
+				$this->setCellHeightRatio(0.7);
+				$this->SetFont('helvetica', '', 8);
+				$footer_text = '<p style="text-align:right;">'.INVOICE_HEADER.'</p>';
+				$this->writeHTMLCell(0, 0, 0 , 5, $footer_text, 0, 0, false, "R", true);
+			}
+
+			// Page footer
+			public function Footer() {
+				// Position at 30 mm from bottom
+				$this->SetY(-30);
+				// Set font
+				$this->SetFont('helvetica', 'I', 10);
+				// Page number
+				$footer_text = INVOICE_FOOTER;
+				$this->writeHTMLCell(0, 0, '', '', $footer_text, 0, 0, false, "L", true);
+			}
+		}
+	}
+
+	$pdf = new PATIENTPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
+
+    $pdf->SetHeaderData(PDF_HEADER_LOGO, PDF_HEADER_LOGO_WIDTH, false, false);
+    $pdf->setFooterData(array(0,64,0), array(0,64,128));
+
+    $pdf->SetMargins(PDF_MARGIN_LEFT, 40, PDF_MARGIN_RIGHT);
+    $pdf->SetHeaderMargin(PDF_MARGIN_HEADER);
+    $pdf->SetFooterMargin(PDF_MARGIN_FOOTER);
+    $pdf->SetAutoPageBreak(TRUE, PDF_MARGIN_BOTTOM);
+
+    $pdf->AddPage();
+    $pdf->SetFont('helvetica', '', 9);
+
 //
 	$invoice_design = get_config($dbc, 'invoice_design');
     if(!empty($get_invoice['type']) && !empty(get_config($dbc, 'invoice_design_'.$get_invoice['type']))) {
@@ -81,9 +144,60 @@ if (isset($_POST['submit_patient'])) {
             break;
 	}
 //
-    if (!file_exists('download')) {
-        mkdir('download', 0777, true);
+
+	$html = '<h2>Payment of Accounts Receivable</h2>
+	<table style="border: none;" cellpadding="20"><tr><td style="color: #46A251; width: 20%;"><p>Payment Date:</p></td>
+		<td style="width: 20%;"><p>'.$paid_date.'</p></td>
+		<td style="color: #46A251; width: 30%;">'.PURCHASER.' Information:</td><td style="width: 30%;">';
+
+	foreach(array_unique($patient_ids) as $contactid) {
+		if($contactid == 0) {
+			$non_patient = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `invoice_nonpatient` WHERE `invoiceid`='".$get_invoice['invoiceid']."'"));
+			$html .= '<p>'.$non_patient['first_name'].' '.$non_patient['last_name'].'<br/>'.$non_patient['email'].'</p>';
+		} else {
+			$html .= '<p>'.get_contact($dbc, $contactid).'<br/>'.get_address($dbc, $contactid).'</p>';
+		}
+	}
+	$html .= '</td></tr></table>';
+	$html .= '<table style="border: none;" cellpadding="5"><tr style="background-color: #37C6F4; border: solid black 1px;"><td>Invoice Date</td><td>Invoice Number</td><td>Provider Name & Registration Information</td><td>Invoice Amount</td></tr>';
+	$total_amt = 0;
+	$sub_total = 0;
+	$tax_amt = 0;
+
+    $ar_lines = [];
+    foreach($invoice as $inv) {
+        if(!isset($ar_lines[$inv[1]])) {
+            $ar_lines[$inv[1]] = [$inv[0],$inv[1],$inv[2],0,0,0];
+        }
+        $ar_lines[$inv[1]][3] += $inv[3];
+        $ar_lines[$inv[1]][4] += $inv[4];
+        $ar_lines[$inv[1]][5] += $inv[5];
     }
+	foreach($ar_lines as $ar_line) {
+		$html .= '<tr style="border: solid black 1px;"><td>'.$ar_line[0].'</td><td>'.$ar_line[1].'</td><td>'.$ar_line[2].'</td><td>$'.number_format($ar_line[3],2).'</td></tr>';
+		$total_amt += $ar_line[3];
+		$sub_total += $ar_line[4];
+		$tax_amt += $ar_line[5];
+	}
+
+	$html .= '</table><table style="border: none;" cellpadding="20"><tr><td></td><td></td><td>Total Due by '.PURCHASER.':</td><td>$'.number_format($sub_total,2).'</td></tr>';
+    //Tax
+    $get_pos_tax = get_config($dbc, 'invoice_tax');
+    if($get_pos_tax != '') {
+		$total_tax_rate = 0;
+		foreach(explode('*#*',$get_pos_tax) as $pos_tax) {
+			$total_tax_rate += explode('**',$pos_tax)[1];
+		}
+		foreach(explode('*#*',$get_pos_tax) as $pos_tax) {
+			if($pos_tax != '') {
+				$pos_tax_name_rate = explode('**',$pos_tax);
+				$html .= '<tr><td></td><td></td><td>'.$pos_tax_name_rate[0].'  ['.$pos_tax_name_rate[2].']:</td><td>$'.number_format($tax_amt * $pos_tax_name_rate[1] / $total_tax_rate,2).'</td></tr>';
+			}
+		}
+    }
+	$html .= '<tr><td></td><td></td><td style="color: #37C6F4; font-weight: bold;">TOTAL AMOUNT OWING:</td><td style="color: #37C6F4; font-weight: bold;">$'.number_format($total_amt,2).'</td></tr>';
+	$html .= '<tr><td></td><td></td><td style="color: #37C6F4; font-weight: bold;">PAYMENT BY:</td><td style="color: #37C6F4; font-weight: bold;">'.$payment_type.' (-$'.number_format($total_amt,2).')</td></tr>';
+	$html .= '<tr><td></td><td></td><td style="color: #37C6F4; font-weight: bold;">BALANCE:</td><td style="color: #37C6F4; font-weight: bold;">$0.00</td></tr></table>';
 
 	$pdf->writeHTML(utf8_encode($html), true, false, true, false, '');
 	$pdf->Output($payment_receipt, 'F');
