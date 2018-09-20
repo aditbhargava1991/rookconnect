@@ -27,7 +27,7 @@ if((!empty($_GET['action'])) && ($_GET['action'] == 'email')) {
 
     send_email('', $to, '', '', $subject, $body, $attachment);
 
-    echo '<script type="text/javascript"> alert("Invoice Successfully Sent to Patient."); window.location.replace("today_invoice.php"); </script>';
+    echo '<script type="text/javascript"> alert("Invoice Successfully Sent to Patient."); window.location.replace("index.php?tab=today"); </script>';
 
 	//header('Location: unpaid_invoice.php');
     // Send Email to Client
@@ -85,7 +85,7 @@ $(document).ready(function() {
         ?>
         </h2>
 
-        <a href='today_invoice.php'><button type="button" class="btn brand-btn mobile-block" >Today's Invoices</button></a>
+        <a href='index.php?tab=today'><button type="button" class="btn brand-btn mobile-block" >Today's Invoices</button></a>
         <a href='generate_invoice.php'><button type="button" class="btn brand-btn mobile-block" >Generate Invoice</button></a>
         <a href='unpaid_invoice.php'><button type="button" class="btn brand-btn mobile-block" >Unpaid Invoice</button></a>
         <a href='waiting_on_insurer_invoice.php'><button type="button" class="btn brand-btn mobile-block" >Waiting on Insurer Invoice</button></a>
@@ -283,7 +283,7 @@ $(document).ready(function() {
             echo '<a href="add_invoice.php" class="btn brand-btn pull-right">Sell</a>';
             ?>
 
-        
+
 
         </form>
 
