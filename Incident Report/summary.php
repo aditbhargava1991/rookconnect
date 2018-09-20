@@ -64,7 +64,7 @@ if(in_array('Staff Only',$tile_summary)) {
                                         <h4><?= INC_REP_TILE ?> by Type</h4>
                                         <?php foreach(str_getcsv(html_entity_decode($get_field_config['incident_types']), ',') as $in_type) {
                                             $count = mysqli_fetch_array($dbc->query("SELECT COUNT(*) FROM `incident_report` WHERE `deleted`=0 AND `type`='$in_type'".$view_sql),MYSQLI_NUM)[0];
-                                            echo '<a href="incident_report.php?type='.$in_type.'">'.$in_type.': '.$count.'</a><br />';
+                                            echo '<a href="incident_report.php?type='.$in_type.'&search_from=&search_to=">'.$in_type.': '.$count.'</a><br />';
                                         } ?>
                                     </div>
                                 </div>
@@ -75,7 +75,7 @@ if(in_array('Staff Only',$tile_summary)) {
                                         <h4>Completed <?= INC_REP_TILE ?></h4>
                                         <?php foreach(str_getcsv(html_entity_decode($get_field_config['incident_types']), ',') as $in_type) {
                                             $count = mysqli_fetch_array($dbc->query("SELECT COUNT(*) FROM `incident_report` WHERE (status = 'Done') AND `deleted`=0 AND `type`='$in_type'".$view_sql),MYSQLI_NUM)[0];
-                                            echo '<a href="admin.php?status=Done&type='.$in_type.'">'.$in_type.': '.$count.'</a><br />';
+                                            echo '<a href="admin.php?status=Done&type='.$in_type.'&search_from=&search_to=">'.$in_type.': '.$count.'</a><br />';
                                         } ?>
                                     </div>
                                 </div>
