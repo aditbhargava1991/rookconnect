@@ -62,7 +62,7 @@ function archive(type, id) {
                                 $assigned = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `done` FROM `manuals_staff` WHERE `manualtypeid`='".$form['id']."' AND `staffid`='".$_SESSION['contactid']."' ORDER BY `manualstaffid` DESC"))['done'];
                             }
                             $form_name = ($form['third_heading_number'] != '' ? $form['third_heading_number'].' '.$form['third_heading'] : ($form['sub_heading_number'] != '' ? $form['sub_heading_number'].' '.$form['sub_heading'] : $form['heading_number'].' '.$form['heading']));
-                            $block .= "<div class='form-group'>";
+                            $block .= "<div class='form-group no-margin double-pad-top'>";
                             $block .= '<img class="pull-left inline-img neg-25-margin-vertical" src="../img/'.($assigned == '1' ? 'checkmark.png' : 'error.png').'">';
                             $block .= "<a href='?tile_name=".$tile."&".$form['listing_type']."=".$form['id']."' onclick='overlayIFrameSlider(this.href,\"auto\",true,true); return false;'>";
                             if($form['sub_heading_number'] != '') {
@@ -98,7 +98,7 @@ function archive(type, id) {
                                 $assigned = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `done` FROM `manuals_staff` WHERE `manualtypeid`='".$form['id']."' AND `staffid`='".$_SESSION['contactid']."' ORDER BY `manualstaffid` DESC"))['done'];
                             }
                             $form_name = ($form['third_heading_number'] != '' ? $form['third_heading_number'].' '.$form['third_heading'] : ($form['sub_heading_number'] != '' ? $form['sub_heading_number'].' '.$form['sub_heading'] : $form['heading_number'].' '.$form['heading']));
-                            $block .= "<div class='form-group'>";
+                            $block .= "<div class='form-group no-margin double-pad-top'>";
                             $block .= '<img class="pull-left inline-img neg-25-margin-vertical" src="../img/'.($assigned == '1' ? 'checkmark.png' : 'error.png').'">';
                             $block .= "<a href='?tile_name=".$tile."&".$form['listing_type']."=".$form['id']."' onclick='overlayIFrameSlider(this.href,\"auto\",true,true); return false;'>";
                             if($form['sub_heading_number'] != '') {
@@ -131,7 +131,7 @@ function archive(type, id) {
                                 $assigned = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `done` FROM `manuals_staff` WHERE `manualtypeid`='".$form['id']."' AND `staffid`='".$_SESSION['contactid']."' ORDER BY `manualstaffid` DESC"))['done'];
                             }
                             $form_name = ($form['third_heading_number'] != '' ? $form['third_heading_number'].' '.$form['third_heading'] : ($form['sub_heading_number'] != '' ? $form['sub_heading_number'].' '.$form['sub_heading'] : $form['heading_number'].' '.$form['heading']));
-                            $block .= "<div class='form-group'>";
+                            $block .= "<div class='form-group no-margin double-pad-top'>";
                             $block .= '<img class="pull-left inline-img neg-25-margin-vertical" src="../img/'.($assigned == '1' ? 'checkmark.png' : 'error.png').'">';
                             $block .= "<a href='?tile_name=".$tile."&".$form['listing_type']."=".$form['id']."' onclick='overlayIFrameSlider(this.href,\"auto\",true,true); return false;'>";
                             if($form['sub_heading_number'] != '') {
@@ -163,7 +163,7 @@ function archive(type, id) {
                                 $assigned = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `done` FROM `manuals_staff` WHERE `manualtypeid`='".$form['id']."' AND `staffid`='".$_SESSION['contactid']."' ORDER BY `manualstaffid` DESC"))['done'];
                             }
                             $form_name = ($form['third_heading_number'] != '' ? $form['third_heading_number'].' '.$form['third_heading'] : ($form['sub_heading_number'] != '' ? $form['sub_heading_number'].' '.$form['sub_heading'] : $form['heading_number'].' '.$form['heading']));
-                            $block .= "<div class='form-group'>";
+                            $block .= "<div class='form-group no-margin double-pad-top'>";
                             $block .= '<img class="pull-left inline-img neg-25-margin-vertical" src="../img/'.($assigned == '1' ? 'checkmark.png' : 'error.png').'">';
                             $block .= "<a href='?tile_name=".$tile."&".$form['listing_type']."=".$form['id']."' onclick='overlayIFrameSlider(this.href,\"auto\",true,true); return false;'>";
                             if($form['sub_heading_number'] != '') {
@@ -195,7 +195,7 @@ function archive(type, id) {
                                 $assigned = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `done` FROM `manuals_staff` WHERE `manualtypeid`='".$form['id']."' AND `staffid`='".$_SESSION['contactid']."' ORDER BY `manualstaffid` DESC"))['done'];
                             }
                             $form_name = ($form['third_heading_number'] != '' ? $form['third_heading_number'].' '.$form['third_heading'] : ($form['sub_heading_number'] != '' ? $form['sub_heading_number'].' '.$form['sub_heading'] : $form['heading_number'].' '.$form['heading']));
-                            $block .= "<div class='form-group'>";
+                            $block .= "<div class='form-group no-margin double-pad-top'>";
                             $block .= '<img class="pull-left inline-img neg-25-margin-vertical" src="../img/'.($assigned == '1' ? 'checkmark.png' : 'error.png').'">';
                             $block .= "<a href='?tile_name=".$tile."&".$form['listing_type']."=".$form['id']."' onclick='overlayIFrameSlider(this.href,\"auto\",true,true); return false;'>";
                             if($form['sub_heading_number'] != '') {
@@ -227,7 +227,7 @@ function archive(type, id) {
                                 $assigned = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `done` FROM `manuals_staff` WHERE `manualtypeid`='".$form['id']."' AND `staffid`='".$_SESSION['contactid']."' ORDER BY `manualstaffid` DESC"))['done'];
                             }
                             $form_name = ($form['third_heading_number'] != '' ? $form['third_heading_number'].' '.$form['third_heading'] : ($form['sub_heading_number'] != '' ? $form['sub_heading_number'].' '.$form['sub_heading'] : $form['heading_number'].' '.$form['heading']));
-                            $block .= "<div class='form-group'>";
+                            $block .= "<div class='form-group no-margin double-pad-top'>";
                             $block .= '<img class="pull-left inline-img neg-25-margin-vertical" src="../img/'.($assigned == '1' ? 'checkmark.png' : 'error.png').'">';
                             $block .= "<a href='?tile_name=".$tile."&".$form['listing_type']."=".$form['id']."' onclick='overlayIFrameSlider(this.href,\"auto\",true,true); return false;'>";
                             if($form['sub_heading_number'] != '') {
@@ -260,7 +260,7 @@ function archive(type, id) {
                                 $assigned = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `done` FROM `manuals_staff` WHERE `manualtypeid`='".$form['id']."' AND `staffid`='".$_SESSION['contactid']."' ORDER BY `manualstaffid` DESC"))['done'];
                             }
                             $form_name = ($form['third_heading_number'] != '' ? $form['third_heading_number'].' '.$form['third_heading'] : ($form['sub_heading_number'] != '' ? $form['sub_heading_number'].' '.$form['sub_heading'] : $form['heading_number'].' '.$form['heading']));
-                            $block .= "<div class='form-group'>";
+                            $block .= "<div class='form-group no-margin double-pad-top'>";
                             $block .= '<img class="pull-left inline-img neg-25-margin-vertical" src="../img/'.($assigned == '1' ? 'checkmark.png' : 'error.png').'">';
                             $block .= "<a href='?tile_name=".$tile."&".$form['listing_type']."=".$form['id']."' onclick='overlayIFrameSlider(this.href,\"auto\",true,true); return false;'>";
                             if($form['sub_heading_number'] != '') {
@@ -292,7 +292,7 @@ function archive(type, id) {
                                 $assigned = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `done` FROM `manuals_staff` WHERE `manualtypeid`='".$form['id']."' AND `staffid`='".$_SESSION['contactid']."' ORDER BY `manualstaffid` DESC"))['done'];
                             }
                             $form_name = ($form['third_heading_number'] != '' ? $form['third_heading_number'].' '.$form['third_heading'] : ($form['sub_heading_number'] != '' ? $form['sub_heading_number'].' '.$form['sub_heading'] : $form['heading_number'].' '.$form['heading']));
-                            $block .= "<div class='form-group'>";
+                            $block .= "<div class='form-group no-margin double-pad-top'>";
                             $block .= '<img class="pull-left inline-img neg-25-margin-vertical" src="../img/'.($assigned == '1' ? 'checkmark.png' : 'error.png').'">';
                             $block .= "<a href='?tile_name=".$tile."&".$form['listing_type']."=".$form['id']."' onclick='overlayIFrameSlider(this.href,\"auto\",true,true); return false;'>";
                             if($form['sub_heading_number'] != '') {
@@ -319,7 +319,7 @@ function archive(type, id) {
                     if(count($staff_list) > 0) {
                         foreach($staff_list as $staff) {
                             $height += 38;
-                            $block .= "<div class='form-group'><label class='col-sm-4'>".$staff['full_name'].":</label><div class='col-sm-8 text-center' style='background-color: #AAA; padding: 0 0 0 0;line-height:1.85em;'><div style='background-color: #6DCFF6; line-height: 1.5em; width:".($staff['complete'] / $staff['total'] * 100)."%;'>&nbsp;</div><div style='margin: -1.75em 1em 0;'><b>".round($staff['complete'] / $staff['total'] * 100,3)."% Completed</b></div></div></div>";
+                            $block .= "<div class='form-group no-margin double-pad-top'><label class='col-sm-4'>".$staff['full_name'].":</label><div class='col-sm-8 text-center' style='background-color: #AAA; padding: 0 0 0 0;line-height:1.85em;'><div style='background-color: #6DCFF6; line-height: 1.5em; width:".($staff['complete'] / $staff['total'] * 100)."%;'>&nbsp;</div><div style='margin: -1.75em 1em 0;'><b>".round($staff['complete'] / $staff['total'] * 100,3)."% Completed</b></div></div></div>";
                         }
                     } else {
                         $height += 24;

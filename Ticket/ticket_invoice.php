@@ -508,7 +508,21 @@ if(!empty($_POST['search_start_date']) && !empty($_POST['search_end_date'])) {
 						<td data-title="Extra Billing"><?= $extra_billing['num'] > 0 ? '<img class="inline-img small no-toggle" title="Extra Billing" src="../img/icons/ROOK-status-paid.png">' : '' ?></td>
 					<?php } ?>
 					<td data-title="Invoice #">#<?= $invoice['invoiceid'].' '.$invoice['invoice_date'] ?></td>
-					<td data-title="Status"><?= $invoice['inv_status'] ?></td>
+					<td data-title="Status"><?php switch($invoice['inv_status']) {
+                        case 'Completed':
+                            echo 'Paid';
+                            break;
+                        case 'Void':
+                            echo 'Voided';
+                            break;
+                        case 'Saved':
+                            echo 'Unbilled';
+                            break;
+                        case 'Posted':
+                        default:
+                            echo 'Accounts Receivable';
+                            break;
+                    } ?></td>
 					<td data-title="Total Price"><?= $invoice['final_price'] ?></td>
 					<td data-title="Invoice"><?php if(file_exists($pdf_name)) { ?><a href="<?= $pdf_name ?>" target="_blank"><img src="../img/pdf.png" class="inline-img">Invoice #<?= $invoice['invoiceid'] ?></a><?php } ?></td>
 				</tr>

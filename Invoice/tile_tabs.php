@@ -23,7 +23,7 @@ $payer_label = count($payer_config) > 1 ? 'Third Party' : $payer_config[0]; ?>
 				<span class="popover-examples list-inline">
 					<a href="#job_file" data-toggle="tooltip" data-placement="top" title="Invoices created today."><img src="<?php echo WEBSITE_URL;?>/img/info.png" width="20"></span></a>
 				</span>
-				<a href='today_invoice.php'><span class="btn brand-btn mobile-block mobile-100 <?= strpos($_SERVER['PHP_SELF'],'/today_invoice.php') !== FALSE ? 'active_tab' : '' ?>">Today's Summary</span></a>
+				<a href='index.php?tab=today'><span class="btn brand-btn mobile-block mobile-100 <?= strpos($_SERVER['PHP_SELF'],'/index.php?tab=today') !== FALSE ? 'active_tab' : '' ?>">Today's Summary</span></a>
 				<?php break;
 			case 'all': ?>
 				<span class="popover-examples list-inline">

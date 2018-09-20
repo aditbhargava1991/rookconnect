@@ -67,7 +67,7 @@ if((!empty($_GET['action'])) && ($_GET['action'] == 'email')) {
 
     send_email('', $to, '', '', $subject, $body, $attachment);
 
-    echo '<script type="text/javascript"> alert("Invoice Successfully Sent to Patient."); window.location.replace("today_invoice.php"); </script>';
+    echo '<script type="text/javascript"> alert("Invoice Successfully Sent to Patient."); window.location.replace("index.php?tab=today"); </script>';
 
 	//header('Location: unpaid_invoice.php');
     // Send Email to Client
@@ -82,7 +82,7 @@ $(document).ready(function() {
             $('#invoice_div .standard-body').height(available_height);
         }
     }).resize();
-    
+
 	$('.selectall').click(
 		function() {
 			if($('.selectall').hasClass("deselectall")) {
@@ -190,7 +190,7 @@ function show_hide_email() {
 
     /*
     $patient_clause = !empty($search_contact) ? "AND patientid = '$search_contact'" : '';
-
+    
     $today_date = date('Y-m-d');
     $as_at_date = $search_to;
     $last29 = date('Y-m-d', strtotime($as_at_date.' - 29 days'));
@@ -301,7 +301,7 @@ function show_hide_email() {
 
     <form name="invoice" method="post" action="" class="form-horizontal" role="form">
         <?php $value_config = ','.get_config($dbc, 'invoice_dashboard').','; ?>
-        
+
         <div class="form-group search-group double-gap-top">
             <div class="col-xs-12">
                 <div class="col-sm-6 col-xs-12">
@@ -375,9 +375,9 @@ function show_hide_email() {
         </div>
         <div class="clearfix"></div>
     </form>
-    
+
     <div class="clearfix"></div>
-    
+
     <form method="POST" action="" name="send_email" class="form-horizontal">
         <?php
         // Display Pager

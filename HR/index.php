@@ -89,6 +89,9 @@ if($_GET['performance_review'] == 'add' && !empty($_GET['form_id'])) {
 							echo "<div class='pull-right gap-left'><a href='?hr_edit=0&tile_name=$tile'><img src='".WEBSITE_URL."/img/icons/ROOK-add-icon.png' class='inline-img show-on-mob' /><button class='btn brand-btn hide-on-mobile'>Add Form</button></a></div>";
 							echo "<div class='pull-right gap-left'><a href='?manual_edit=0&tile_name=$tile'><img src='".WEBSITE_URL."/img/icons/ROOK-add-icon.png' class='inline-img show-on-mob' /><button class='btn brand-btn hide-on-mobile'>Add Manual</button></a></div>";
 						} ?>
+                        <?php if(vuaed_visible_function($dbc, 'preformance_review')) { ?>
+                            <a href="?performance_review=add" class="btn brand-btn pull-right">Add Performance Review</a>
+                        <?php } ?>
 					</div>
 					<div class="scale-to-fill"><h1 class="gap-left"><a href="?tile_name=<?= $tile ?>"><span class="hide-on-mobile"><?= $label ?></span><span class="show-on-mob">HR</span></a></h1></div>
 					<div class="clearfix"></div>

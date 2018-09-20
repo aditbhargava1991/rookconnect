@@ -66,7 +66,7 @@ if((!empty($_GET['action'])) && ($_GET['action'] == 'email')) {
 
     send_email('', $to, '', '', $subject, $body, $attachment);
 
-    echo '<script type="text/javascript"> alert("Invoice Successfully Sent to Patient."); window.location.replace("today_invoice.php"); </script>';
+    echo '<script type="text/javascript"> alert("Invoice Successfully Sent to Patient."); window.location.replace("index.php?tab=today"); </script>';
 
 	//header('Location: unpaid_invoice.php');
     // Send Email to Client
@@ -81,7 +81,7 @@ $(document).ready(function() {
             $('#invoice_div .standard-body').height(available_height);
         }
     }).resize();
-    
+
     $('.selectall').click(
 		function() {
 			if($('.selectall').hasClass("deselectall")) {
@@ -206,7 +206,7 @@ function show_hide_email() {
 
     <form name="invoice" method="post" action="" class="form-horizontal" role="form">
         <?php $value_config = ','.get_config($dbc, 'invoice_dashboard').','; ?>
-        
+
         <div class="search-group double-gap-top">
             <div class="row">
                 <div class="col-sm-12">
@@ -234,9 +234,9 @@ function show_hide_email() {
             </div>
         </div>
     </form>
-    
+
     <div class="clearfix"></div>
-    
+
     <form method="POST" action="" name="send_email" class="form-horizontal">
         <?php
         // Display Pager
@@ -249,7 +249,7 @@ function show_hide_email() {
         }
 
         $offsett = ($pageNumm - 1) * $rowsPerPagee;
-                                                     
+
         /* Pagination Counting */
         $rowsPerPage = 25;
         $pageNum = 1;
