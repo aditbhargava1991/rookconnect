@@ -111,5 +111,4 @@ if(!empty($_GET['edit'])) {
 		</div>
 	</div>
 </div>
-
 <?php include ('../footer.php'); ?>

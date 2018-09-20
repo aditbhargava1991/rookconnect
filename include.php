@@ -8,8 +8,8 @@ $_SERVER['page_load_info'] .= 'Database Connected: '.number_format(microtime(tru
 include_once ('function.php');
 $_SERVER['page_load_info'] .= 'Functions Loaded: '.number_format(microtime(true) - $_SERVER['REQUEST_TIME_FLOAT'],5)."\n";
 include_once ('global.php');
-session_write_close();
 $_SERVER['page_load_info'] .= 'Globals Declared: '.number_format(microtime(true) - $_SERVER['REQUEST_TIME_FLOAT'],5)."\n";
+session_write_close();
 if ($_SERVER['HTTP_X_REQUESTED_WITH'] != 'XMLHttpRequest') {
 	include_once ('header.php');
 } else { ?>

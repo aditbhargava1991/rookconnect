@@ -817,6 +817,7 @@ function setTotalPrice() {
 			if(label == '' || label == undefined) {
 				info = group.find('[name=servicelabel]').val();
 			}
+
             var qty = group.find('.qty').val();
             if(qty > 0) {
                 info = info + ' x ' + qty;
@@ -825,6 +826,7 @@ function setTotalPrice() {
                 qty = 1;
             }
             sum_fee += fee_row;
+
 			if(fee_row < 0) {
 				$('.detail_service_list').append('<label class="pull-right">'+fee_row.toFixed(2)+'</label>Refund: '+info+'<br /><div class="clearfix"></div>').prev('h4').show();
             } else if(group.hasClass('adjust_block')) {

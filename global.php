@@ -69,11 +69,13 @@ $_SESSION['LAST_ACTIVITY'] = time(); // update last activity time stamp
 
 date_default_timezone_set('America/Denver');
 
-$folder_path = $_SERVER['REQUEST_URI'];
-$each_tab = explode('/', $folder_path);
+if(!defined('FOLDER_NAME')) {
+    $folder_path = $_SERVER['REQUEST_URI'];
+    $each_tab = explode('/', $folder_path);
 
-DEFINE('FOLDER_NAME', strtolower($each_tab[1]));
-DEFINE('FOLDER_URL', $each_tab[1]);
+    DEFINE('FOLDER_NAME', strtolower($each_tab[1]));
+    DEFINE('FOLDER_URL', $each_tab[1]);
+}
 DEFINE('WEBSITE_URL', (isset($_SERVER["HTTPS"]) ? 'https://' : 'http://').(!empty($_SERVER['SERVER_NAME']) ? $_SERVER['SERVER_NAME'] : basename(__DIR__)));
 DEFINE('ITEMS_PER_PAGE', 25);
 DEFINE('COMPANY_NAME', 'Washtech');
