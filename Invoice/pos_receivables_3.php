@@ -14,8 +14,8 @@ $updatedtotal	= $point_of_sell['updatedtotal'];
 
 $customer = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM contacts WHERE contactid='$contactid'"));
 
-/* Tax */
-$point_of_sell_product = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT SUM(gst) AS `total_gst`, SUM(pst) AS `total_pst` FROM `invoice_lines` WHERE `invoiceid`='$invoiceid'"));
+//Tax
+$point_of_sell_product = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT SUM(gst) AS total_gst, SUM(pst) AS total_pst FROM invoice_lines WHERE invoiceid='$invoiceid'"));
 
 $get_pos_tax = get_config($dbc, 'pos_tax');
 $pdf_tax = '';
@@ -42,12 +42,7 @@ if($get_pos_tax != '') {
 
 		} else {
 			//$pdf_tax .= $pos_tax_name_rate[0] .' : '.$pos_tax_name_rate[1].'% : $'.$taxrate_value.'<br>';
-			$pdf_tax .= '
-                <tr>
-                    <td></td>
-                    <td style="text-transform:uppercase;">'.$pos_tax_name_rate[0] .'['.$pos_tax_name_rate[1].'%]['.$pos_tax_name_rate[2].']</td>
-                    <td align="right">$'. $taxrate_value .'</td>
-                </tr>';
+			$pdf_tax .= '<tr><td align="right" width="75%"><strong>'.$pos_tax_name_rate[0] .'['.$pos_tax_name_rate[1].'%]['.$pos_tax_name_rate[2].']</strong></td><td align="right" border="1" width="25%" style="background-color:rgb(232,238,238);">$'.$taxrate_value.'</td></tr>';
 		}
 
 		$pdf_tax_number .= $pos_tax_name_rate[0].' ['.$pos_tax_name_rate[2].'] <br>';
@@ -63,7 +58,7 @@ $invoice_footer = get_config($dbc, 'invoice_footer');
 if(!empty($point_of_sell['type']) && !empty(get_config($dbc, 'invoice_footer_'.$point_of_sell['type']))) {
     $invoice_footer = get_config($dbc, 'invoice_footer_'.$point_of_sell['type']);
 }
-$payment_type = explode('#*#', $point_of_sell['payment_type']);
+//$payment_type = explode('#*#', $point_of_sell['payment_type']);
 
 $logo = get_config($dbc, 'invoice_logo');
 if(!empty($point_of_sell['type']) && !empty(get_config($dbc, 'invoice_logo_'.$point_of_sell['type']))) {
@@ -147,7 +142,7 @@ $pdf->SetFont('helvetica', '', 9);
 $html = '';
 
 $html .= '<p style="text-align:center"><h2>'.COMPANY_SOFTWARE_NAME.'</h2></p><br><br><br><br>
-    <table border="0" style="border-bottom:1px solid #df5a87;">
+    <table>
         <tr>
             <td width="100%"><b>To: </b>';
 
@@ -160,11 +155,7 @@ $html .= '<p style="text-align:center"><h2>'.COMPANY_SOFTWARE_NAME.'</h2></p><br
                 }
             }
 
-            $html .= '</td><td width="50%"><b>PAYMENT DATE: </b>'.date('Y-m-d').'</td>
-        </tr>
-        <tr>
-            <td colspan="2"></td>
-        </tr>
+            $html .= '</td></tr>
     </table><br><br>';
 
 
