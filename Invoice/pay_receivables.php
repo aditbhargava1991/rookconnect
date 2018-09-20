@@ -48,40 +48,48 @@ if (isset($_POST['submit_patient'])) {
     }
 	switch($invoice_design) {
 		case 1:
-			include('pos_invoice_1.php');
+			//include('pos_invoice_1.php');
+            include ('pos_receivables_1.php');
 			break;
 		case 2:
-			include('pos_invoice_2.php');
+			//include('pos_invoice_2.php');
+            include ('pos_receivables_pink.php');
 			break;
 		case 3:
-			include('pos_invoice_3.php');
+			//include('pos_invoice_3.php');
+            include ('pos_receivables_pink.php');
 			break;
 		case 4:
-			include ('patient_invoice_pdf.php');
-			if($insurerid != '') {
-				include ('insurer_invoice_pdf.php');
-			}
+			//include ('patient_invoice_pdf.php');
+            include ('pos_receivables_pink.php');
+
 			break;
 		case 5:
-            include('pos_invoice_small.php');
+            //include('pos_invoice_small.php');
+            include ('pos_receivables_pink.php');
 			break;
 		case 'service':
-            include('pos_invoice_service.php');
+            //include('pos_invoice_service.php');
+            include ('pos_receivables_pink.php');
 			break;
 		case 'pink':
 			include ('pos_receivables_pink.php');
 			break;
 		case 'cnt1':
-			include ('pos_invoice_contractor_1.php');
+			//include ('pos_invoice_contractor_1.php');
+            include ('pos_receivables_pink.php');
 			break;
 		case 'cnt2':
-			include ('pos_invoice_contractor_2.php');
+			//include ('pos_invoice_contractor_2.php');
+            include ('pos_receivables_pink.php');
 			break;
 		case 'cnt3':
-			include ('pos_invoice_contractor_3.php');
+			//include ('pos_invoice_contractor_3.php');
+            include ('pos_receivables_pink.php');
 			break;
         case 'custom_ticket':
-            include ('pos_invoice_custom_ticket.php');
+            //include ('pos_invoice_custom_ticket.php');
+            include ('pos_receivables_pink.php');
             break;
 	}
 
