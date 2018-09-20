@@ -454,7 +454,7 @@ if (isset($_POST['display_all_inventory'])) {
                 if(file_exists($name_of_file)) {
                     //$md5 = md5_file($name_of_file);
                     //if($md5 == $row['invoice_md5']) {
-                        echo '<a href="'.$name_of_file.'" target="_blank">Invoice #'.$row['invoiceid'].' <img src="'.WEBSITE_URL.'/img/pdf.png" title="PDF"></a><br />';
+                        echo '<a href="'.$name_of_file.'" target="_blank">Invoice #'.$row['invoiceid'].' <img src="'.WEBSITE_URL.'/img/icons/pdf.png" title="Invoice PDF" class="no-toggle inline-img" /></a><br />';
                         //echo '| <a href=\'unpaid_invoice.php?action=email&invoiceid='.$row['invoiceid'].'&patientid='.$patientid.'\' >Email</a></td>';
                     //} else {
                     //    echo '<td>(Error : File has been Changed)</td>';
@@ -464,7 +464,7 @@ if (isset($_POST['display_all_inventory'])) {
             if($row['invoiceid_src'] > 0) {
                 $name_of_file = 'download/invoice_'.$row['invoiceid_src'].'.pdf';
                 if(file_exists($name_of_file)) {
-                    echo '<a href="'.$name_of_file.'" target="_blank">Primary Invoice #'.$row['invoiceid_src'].' <img src="'.WEBSITE_URL.'/img/pdf.png" title="PDF"></a>';
+                    echo '<a href="'.$name_of_file.'" target="_blank">Primary Invoice #'.$row['invoiceid_src'].' <img src="'.WEBSITE_URL.'/img/icons/pdf.png" title="Primary Invoice PDF" class="no-toggle inline-img" /></a>';
                 }
             }
             echo '</td>';
@@ -511,7 +511,7 @@ if (isset($_POST['display_all_inventory'])) {
                         echo ' | <a onclick="return confirm(\'Are you sure you want to archive this invoice?\')" href=\'index.php?tab=today?invoiceid='.$row['invoiceid'].'&action=delete\' >Archive</a>';
                     }
                 } else {
-                    echo '<td data-title="Function"><a href=\'adjust_invoice.php?invoiceid='.($row['invoiceid_src'] == 0 ? $row['invoiceid'] : $row['invoiceid_src']).'&contactid='.$row['patientid'].'&search_user='.$search_user.'&search_invoice='.$search_invoiceid.'\' >Refund / Adjustments</a>';
+                    echo '<td data-title="Function"><a class="cursor-hand" href="create_invoice.php?invoiceid='.($row['invoiceid_src'] == 0 ? $row['invoiceid'] : $row['invoiceid_src']).'&inv_mode=adjust"><img src="../img/icons/refund.png" class="no-toggle inline-img" title="Refund / Adjustment" /></a>';
                 }
             //} else {
             //    echo '<td>-</td>';
