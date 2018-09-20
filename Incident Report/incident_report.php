@@ -8,7 +8,7 @@ include ('../include.php');
 <body>
 <?php include_once ('../navigation.php');
 checkAuthorised('incident_report');
-$view_sql = (search_visible_function($dbc,'incident_report') > 0 ? '' : " AND (CONCAT(',',`contactid`,',',`clientid`,',') LIKE '%,{$_SESSION['contactid']},%' OR `completed_by` = '{$_SESSION['contactid']}')");
+$view_sql = (search_visible_function($dbc,'incident_report') == 0 ? '' : " AND (CONCAT(',',`contactid`,',',`clientid`,',') LIKE '%,{$_SESSION['contactid']},%' OR `completed_by` = '{$_SESSION['contactid']}')");
 $current_type = $_GET['type'];
 if(!empty($current_type)) {
     $type_query = " AND `type` = '$current_type'";
@@ -101,10 +101,14 @@ function setQuickActions() {
                                 }
 								if(isset($_POST['search_from'])) {
 									$search_from = filter_var($_POST['search_from'],FILTER_SANITIZE_STRING);
-								}
+								} else if(isset($_GET['search_from'])) {
+                                    $search_from = filter_var($_GET['search_from'],FILTER_SANITIZE_STRING);
+                                }
 								if(isset($_POST['search_to'])) {
 									$search_to = filter_var($_POST['search_to'],FILTER_SANITIZE_STRING);
-								} ?>
+								} else if(isset($_GET['search_to'])) {
+                                    $search_to = filter_var($_GET['search_to'],FILTER_SANITIZE_STRING);
+                                } ?>
                                 <div class="preview-block">
                                     <div class="preview-block-header"><h4><?= empty($current_type) ? 'All '.INC_REP_TILE : ($current_type == 'SAVED' ? 'Saved '.INC_REP_TILE : $current_type) ?></h4></div>
 									<br />
@@ -342,7 +346,6 @@ function setQuickActions() {
                                         }
                                         if(vuaed_visible_function($dbc, 'incident_report') == 1) {
                                             echo '<td style="'.$flag_styling.'" data-title="Function">';
-                                            echo in_array('tagging',$quick_action_icons) ? '<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/quick_action_tagging.php?tile=incident_report&id='.$row['incidentreportid'].'\', \'auto\', false, true); return false;"><img src="'.WEBSITE_URL.'/img/icons/tagging.png" class="inline-img no-toggle" title="Tag Staff"></a> | ' : '';
                     						echo '<a href=\'add_incident_report.php?type='.$row['type'].'&incidentreportid='.$row['incidentreportid'].'\'>Edit</a> | ';
                     						echo '<a href=\'../delete_restore.php?action=delete&incidentreportid='.$row['incidentreportid'].'\' onclick="return confirm(\'Are you sure?\')">Archive</a>';
                                             echo '</td>';

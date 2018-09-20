@@ -971,5 +971,13 @@
     }
     //2018-09-19 - Ticket #8929 - Calendar Onlin Staff
 
+    //2018-09-20 - Ticket #8804 - Notable Happenings
+    $updated_already = get_config($dbc, 'updated_ticket8804_increp');
+    if(empty($updated_already)) {
+        set_config($dbc, 'incident_report_tabs', get_config($dbc, 'incident_report_summary'));
+        set_config($dbc, 'updated_ticket8804_increp', 1);
+    }
+    //2018-09-20 - Ticket #8804 - Notable Happenings
+
     echo "Baldwin's DB Changes Done<br />\n";
 ?>
