@@ -88,14 +88,6 @@ $(document).ready(function() {
 	setSave();
 	initSelectOnChanges();
 	filterStaffNoShift();
-	if(ticketid > 0) {
-		checkStaffShifts().success(function(response) {
-			var response = JSON.parse(response);
-			if(response.success == false) {
-				alert(response.message);
-			}
-		});
-	}
 });
 $(window).load(function() {
 	destroyTinyMce();
@@ -118,12 +110,15 @@ function viewFullTicket(a) {
 		window.location.href = '../Ticket/index.php?edit='+ticketid+'&ticketid='+ticketid+'&from='+from_url;
 	}
 }
-function viewProfile(img) {
+function viewProfile(img, view_contactid = '') {
 	var contact = $(img).closest('.multi-block,.form-group').find('[name=item_id],select').first();
-	if(contact.val() > 0 && contact.data('type') == 'Staff') {
-		overlayIFrameSlider('../Staff/staff_edit.php?view_only=id_card&contactid='+contact.val(), '33%', true, true);
-	} else if(contact.val() > 0) {
-		overlayIFrameSlider('../Contacts/contacts_inbox.php?fields=all_fields&edit='+contact.val(), '75%', true, true);
+	if(view_contactid == '') {
+		view_contactid = contact.val();
+	}
+	if(view_contactid > 0 && contact.data('type') == 'Staff') {
+		overlayIFrameSlider('../Staff/staff_edit.php?view_only=id_card&contactid='+view_contactid, '33%', true, true);
+	} else if(view_contactid > 0) {
+		overlayIFrameSlider('../Contacts/contacts_inbox.php?fields=all_fields&edit='+view_contactid, '75%', true, true);
 	} else {
 		alert('Please select the contact before attempting to view their profile.');
 	}
@@ -145,6 +140,41 @@ function viewService(img) {
 	} else {
 		alert('Please select the Service before attempting to view summary.');
 	}
+}
+
+function viewSite(img) {
+	var contact = $(img).closest('.multi-block,.form-group').find('[name=item_id],select').first();
+	if($(contact).find('option:selected').length > 1) {
+		dialogViewSite(img);
+	} else {
+		viewProfile(img);
+	}
+}	
+
+function dialogViewSite(img) {
+	$('#dialog_view_site').dialog({
+		resizable: true,
+		height: "auto",
+		width: ($(window).width() <= 800 ? $(window).width() : 800),
+		modal: true,
+		open: function() {
+			var contact = $(img).closest('.multi-block,.form-group').find('[name=item_id],select').first();
+			var site_html = '';
+			$(contact).find('option:selected').each(function() {
+				site_html += '<option value="'+$(this).val()+'">'+$(this).text()+'</option>';
+			});
+			$('[name="view_site"]').html(site_html).trigger('change.select2');
+		},
+		buttons: {
+			"View Site": function() {
+				viewProfile(img,$('[name="view_site"]').val());
+				$(this).dialog('close');
+			},
+			Cancel: function() {
+				$(this).dialog('close');
+			}
+		}
+	});
 }
 
 function send_email(button) {
@@ -522,16 +552,18 @@ function saveFieldMethod(field) {
 				$(field).closest('.multi-block').find('[name=total]').first().val(save_value * $(field).closest('.multi-block').find('[name=qty]').val());
 			} else if((field_name == 'address' || field_name == 'city' || field_name == 'postal_code') && table_name == 'ticket_schedule' && block.find('[name=map_link]').first().data('auto-fill') == 'auto') {
 				block.find('[name=map_link]').first().val('https://www.google.ca/maps/place/'+encodeURI(block.find('[name=address]').val()+','+block.find('[name=city]').val()+','+block.find('[name=postal_code]').val())).change();
-				$.post('ticket_ajax_all.php?action=validate_address', { address: block.find('[name=address]').val(), city: block.find('[name=city]').val(), postal: block.find('[name=postal_code]').val() }, function(response) {
-					response = response.split('|');
-					if(response.join('') != '' && (response[0] != block.find('[name=address]').val() || response[1] != block.find('[name=city]').val() || response[2] != block.find('[name=postal_code]').val()) && confirm('We suggest the following corrections to your address: '+response.join(', ')+'. Would you like to use this suggestion? Using the current address may fail to display in Google Maps.')) {
-						block.find('[name=address]').val(response[0]).change();
-						block.find('[name=city]').val(response[1]).change();
-						block.find('[name=postal_code]').val(response[2]).change();
-					} else if(response.join('') == '') {
-						alert('The address provided may not be valid. It will not be found in Google Maps.');
-					}
-				});
+				if($(field).closest('.scheduled_stop').find('[name="type"]') == undefined || $(field).closest('.scheduled_stop').find('[name="type"] option:selected').data('warehouse') != 'yes') {
+					$.post('ticket_ajax_all.php?action=validate_address', { address: block.find('[name=address]').val(), city: block.find('[name=city]').val(), postal: block.find('[name=postal_code]').val() }, function(response) {
+						response = response.split('|');
+						if(response.join('') != '' && (response[0] != block.find('[name=address]').val() || response[1] != block.find('[name=city]').val() || response[2] != block.find('[name=postal_code]').val()) && confirm('We suggest the following corrections to your address: '+response.join(', ')+'. Would you like to use this suggestion? Using the current address may fail to display in Google Maps.')) {
+							block.find('[name=address]').val(response[0]).change();
+							block.find('[name=city]').val(response[1]).change();
+							block.find('[name=postal_code]').val(response[2]).change();
+						} else if(response.join('') == '') {
+							alert('The address provided may not be valid. It will not be found in Google Maps.');
+						}
+					});
+				}
 			} else if(field_name == 'type' && table_name == 'ticket_schedule') {
 				if($(field).find('option:selected').data('warehouse') == 'yes') {
 					$(field).closest('.scheduled_stop').find('[name=type_1]').prop('checked',false).filter(function() { return this.value == 'warehouse' }).first().prop('checked',true);
@@ -621,8 +653,8 @@ function saveFieldMethod(field) {
 						$('[name=contactid]').first().change();
 						$('[name="status"]').change();
 						if(table_name == 'contacts' && field_name == 'site_name') {
-							$('[name=siteid],[name="siteid[]"]').find('option[value="MANUAL"]').prop('selected', false);
-							$('[name=siteid],[name="siteid[]"]').append('<option selected data-police="911" value="'+response+'">'+save_value+'</option>').trigger('change.select2').change();
+							$(field).closest('.site_group').find('[name=siteid],[name="siteid[]"]').find('option[value="MANUAL"]').prop('selected', false);
+							$(field).closest('.site_group').find('[name=siteid],[name="siteid[]"]').append('<option selected data-police="911" value="'+response+'">'+save_value+'</option>').trigger('change.select2').change();
 						} else if(block.length > 0 && table_name != 'tickets' && data_type != undefined) {
 							block.find('[data-table='+table_name+'][data-type='+data_type+']').data('id',response);
 						} else if(block.length > 0 && table_name != 'tickets') {
@@ -2107,9 +2139,9 @@ function remMultiPOLine(img) {
 		addMultiPOLine(img);
 	}
 
-	var block = $('.po_lines_div');
+	var block = $(img).closest('.po_lines_div');
 	$(img).closest('.multi-block').remove();
-	$(block).find('.multi-block .po_line_value').first().change();
+	$(block).find('[name="po_line"]').first().change();
 }
 function rangeMultiPOLine(img) {
 	var block = $(img).closest('.multi-block');
@@ -2521,7 +2553,7 @@ function siteSelect(select) {
 	var value = $(select).find('option:selected').val();
 	if(value == 'MANUAL') {
 		$('.site_info').hide();
-		$('.site_name').show().find('input').focus();
+		$(select).closest('.site_group').find('.site_name').show().find('input').focus();
 	} else {
 		$('.site_info').show();
 		$('.site_name').hide();
@@ -3073,7 +3105,7 @@ function addNote(type, btn, force_allow = 0) {
 function addCommunication(type, method) {
 	if(ticketid > 0) {
 		$('.ticket_communication[data-type='+type+'][data-method='+method+']').first().addClass('reload');
-		overlayIFrameSlider('../Email Communication/add_communication.php?type='+type+'&ticketid='+ticketid,'auto',false,true,'auto',false);
+		overlayIFrameSlider('../Email Communication/add_email.php?type='+type+'&ticketid='+ticketid,'auto',false,true,'auto',false);
 	} else {
 		alert('Please create the '+ticket_name+' before adding communications.');
 	}
@@ -3111,11 +3143,7 @@ function addServices(btn) {
 	}
 }
 function displayCustomerHistory() {
-	overlayIFrameSlider('../Ticket/ticket_customer_history.php?edit='+ticketid,'auto',true,true);
-	$(document).on("overlayIFrameSliderLoad", function() {
-		$('.iframe_overlay iframe').contents().find('html,body').css('background-color', 'white');
-		$('.iframe_overlay iframe').contents().find('html,body').css('background', 'none');
-	});
+	overlayIFrameSlider('../Ticket/ticket_history.php?ticketid='+ticketid,'auto',true,true);
 }
 function cancelClick() {
 	alert('Please mark yourself as arrived first.');

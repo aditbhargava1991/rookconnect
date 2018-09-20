@@ -9,6 +9,7 @@
 .no-overflow { overflow:hidden !important; }
 .set-relative { position:relative; }
 .set-favourite { position:absolute; top:5px; right:5px; }
+.red { color:red; }
 .flex-columns {
 	display: flex;
 	flex-direction: column;
@@ -1485,6 +1486,8 @@ footer#footer { margin:0; padding:0; }
 	.menu-box-dropper {
 		max-height: calc(100vh - 160px);
 	}
+    
+    .padded-desktop { padding:10px; }
 }
 @media (min-width: 801px) {
 	.sel2 {
@@ -2838,6 +2841,14 @@ ul.select2-results__options {
 .calendar-mobile-list tr:nth-child(even) td {
 	background-color:transparent;
 }
+.calendar-mobile-list tr:nth-child(odd) td,
+.calendar-mobile-list tr:nth-child(even) td {
+	background-color:transparent;
+}
+.calendar-mobile-list tr:nth-child(odd) td,
+.calendar-mobile-list tr:nth-child(even) td {
+	background-color:transparent;
+}
 
 .calendar-mobile-list td .list-date {
 	font-weight: bold;
@@ -2966,6 +2977,7 @@ ul.select2-results__options {
 }
 .standard-body-content {
 	background-color: #FFFFFF;
+    min-height: calc(100% - 36px - 1.5em);
 }
 .standard-body .control-label,.standard-body-content .control-label {
 	text-align: left;
@@ -3347,3 +3359,31 @@ position: relative;
 	top: -10px;
 }
 
+.online-users {
+	position: relative;
+	display: block;
+}
+.online-users .online-users-icon {
+	height: auto;
+	max-height: 2.5em;
+	margin: 0.70em 0.25em;
+	width: 1.5em;
+	max-width: 100%;
+}
+.online-users .online-users-count {
+	pointer-events: none;
+	height: 12px;
+	width: 12px;
+	border-radius: 12px;
+	border: 1px solid white;
+	background-color: #00CC00;
+	padding: 0;
+	margin: 0;
+	color: white;
+	font-size: 8px;
+	position: absolute;
+	bottom: 6px;
+	right: 1px;
+	text-align: center;
+	line-height: 10px;
+}

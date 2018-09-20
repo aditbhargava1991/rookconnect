@@ -1,5 +1,6 @@
 <?php include_once('../Equipment/region_location_access.php');
 $ticket_accounting_fields = explode(',', get_config($dbc, 'ticket_accounting_fields'));
+$value_config = ','.get_config($dbc, 'project_admin_fields').',';
 
 if(isset($_POST['display_all_accounting'])) {
 	$_POST['search_region'] = '';
@@ -201,18 +202,152 @@ if(!empty($_POST['search_start_date']) && !empty($_POST['search_end_date'])) {
 		$(link).closest('tr').hide();
 	}
 	</script>
-	<?php $invoice_list = $dbc->query("SELECT `tickets`.* FROM `tickets` LEFT JOIN `invoice` ON CONCAT(',',`invoice`.`ticketid`,',') LIKE CONCAT('%,',`tickets`.`ticketid`,',%') WHERE `tickets`.`ticket_type` IN ('".implode("','",$ticket_conf_list)."') AND `invoice`.`invoiceid` IS NULL AND `tickets`.`deleted`=0 ".(in_array('Administration',$db_config) ?"AND IFNULL(`approvals`,'') != ''" : '').$filter_query);
+	<?php $invoice_list = $dbc->query("SELECT `tickets`.*, `tickets`.`to_do_date` `ticket_date` FROM `tickets` LEFT JOIN `invoice` ON CONCAT(',',`invoice`.`ticketid`,',') LIKE CONCAT('%,',`tickets`.`ticketid`,',%') WHERE `tickets`.`ticket_type` IN ('".implode("','",$ticket_conf_list)."') AND `invoice`.`invoiceid` IS NULL AND `tickets`.`deleted`=0 ".(in_array('Administration',$db_config) ?"AND IFNULL(`approvals`,'') != ''" : '').$filter_query);
 	if($invoice_list->num_rows > 0) { ?>
 		<button class="btn brand-btn pull-right" onclick="multi_invoice(); return false;">Create Invoice for Selected</button>
 		<table class="table table-bordered">
 			<tr>
+				<th>Date</th>
 				<th><?= TICKET_NOUN ?></th>
+				<?php if(strpos($value_config, ',Services,') !== FALSE) { ?>
+					<th>Services</th>
+				<?php } ?>
+				<?php if(strpos($value_config, ',Sub Totals per Service,') !== FALSE) { ?>
+					<th>Sub Totals per Service</th>
+				<?php } ?>
+				<?php if(strpos($value_config, ',Staff Tasks,') !== FALSE) { ?>
+					<th>Staff</th>
+					<th><?= TASK_TILE ?></th>
+					<th>Hours</th>
+				<?php } ?>
+				<?php if(strpos($value_config, ',Inventory,') !== FALSE) { ?>
+					<th>Inventory</th>
+				<?php } ?>
+				<?php if(strpos($value_config, ',Materials,') !== FALSE) { ?>
+					<th>Materials</th>
+				<?php } ?>
+				<?php if(strpos($value_config, ',Misc Item,') !== FALSE) { ?>
+					<th>Miscellaneous</th>
+				<?php } ?>
+				<th>Total</th>
+				<th>Notes</th>
+				<?php if(strpos($value_config, ',Extra Billing,') !== FALSE) { ?>
+					<th>Extra Billing</th>
+				<?php } ?>
 				<th style="width: 20em;">Invoice</th>
 			</tr>
 			<?php while($invoice = $invoice_list->fetch_assoc()) {
+				$active = 0;
+				$total_cost = 0.00;
+				$services_cost_num = [];
+				$services_cost = [];
+				$services = [];
+				$qty = explode(',',$invoice['service_qty']);
+                $cust_rate_card = $dbc->query("SELECT * FROM `rate_card` WHERE `clientid`='".$invoice['businessid']."' AND `deleted`=0 AND `on_off`=1")->fetch_assoc();
+				foreach(explode(',',$invoice['serviceid']) as $i => $service) {
+					if($service > 0) {
+						$service = $dbc->query("SELECT `services`.`serviceid`, `services`.`heading`, `rate`.`cust_price` FROM `services` LEFT JOIN `company_rate_card` `rate` ON `services`.`serviceid`=`rate`.`item_id` AND `rate`.`tile_name` LIKE 'Services' WHERE `services`.`serviceid`='$service'")->fetch_assoc();
+                        $service_rate = 0;
+                        foreach(explode('**',$cust_rate_card['services']) as $service_cust_rate) {
+                            $service_cust_rate = explode('#',$service_cust_rate);
+                            if($service_cust_rate[0] == $service['serviceid']) {
+                                $service_rate = $service_cust_rate[1];
+                            }
+                        }
+						$services[] = $service['heading'].($qty[$i] > 0 ? ' x '.$qty[$i] : '');
+						$services_cost_num[] = ($qty[$i] > 0 ? $qty[$i] : 1) * ($service_rate > 0 ? $service_rate : $service['cust_price']);
+						$services_cost[] = number_format(($qty[$i] > 0 ? $qty[$i] : 1) * ($service_rate > 0 ? $service_rate : $service['cust_price']),2);
+					}
+				}
 				$pdf_name = '../Invoice/Download/invoice_'.$invoice['invoiceid'].'.pdf'; ?>
 				<tr>
-					<td data-title="<?= TICKET_NOUN ?>"><?php if($tile_security['edit'] > 0) { ?><a href="index.php?edit=<?= $invoice['ticketid'] ?>" onclick="overlayIFrameSlider(this.href+'&calendar_view=true','auto',true,true); return false;"><?= get_ticket_label($dbc, $invoice) ?></a><?php } else { echo get_ticket_label($dbc, $invoice); } ?></td>
+					<td data-title="Date"><?= $invoice['ticket_date'] ?></td>
+					<td data-title="<?= TICKET_NOUN ?>"><?php if($tile_security['edit'] > 0) { ?><a href="<?= WEBSITE_URL ?>/Ticket/index.php?edit=<?= $invoice['ticketid'] ?>" onclick="overlayIFrameSlider(this.href+'&calendar_view=true','auto',true,true); return false;"><?= get_ticket_label($dbc, $invoice) ?></a><?php } else { echo get_ticket_label($dbc, $invoice); } ?></td>
+					<?php if(strpos($value_config, ',Services,') !== FALSE) {
+						foreach($services_cost_num as $cost_amt) {
+							$total_cost += $cost_amt;
+						} ?>
+						<td data-title="Services"><?= implode('<br />',$services) ?></td>
+					<?php } ?>
+					<?php if(strpos($value_config, ',Sub Totals per Service,') !== FALSE) { ?>
+						<td data-title="Sub Totals per Service"><?= implode('<br />',$services_cost) ?></td>
+					<?php } ?>
+					<?php if(strpos($value_config, ',Staff Tasks,') !== FALSE) {
+						$staff_tasks_staff = [];
+						$staff_tasks_task = [];
+						$staff_tasks_hours = [];
+						$sql = "SELECT * FROM `ticket_attached` WHERE `ticketid` = '{$invoice['ticketid']}' AND `deleted` = 0 AND `src_table` = 'Staff_Tasks'";
+						if($project_admin_multiday_tickets == 1) {
+							$sql .= " AND `date_stamp` = '{$invoice['ticket_date']}'";
+						}
+						$query = mysqli_query($dbc, $sql);
+						while($row = mysqli_fetch_assoc($query)) {
+							$staff_tasks_staff[] = get_contact($dbc, $row['item_id']);
+							$staff_tasks_task[] = $row['position'];
+							$staff_tasks_hours[] = number_format($row['hours_tracked'],2);
+						} ?>
+						<td data-title="Staff"><?= implode("<br />", $staff_tasks_staff) ?></td>
+						<td data-title="Task"><?= implode("<br />", $staff_tasks_task) ?></td>
+						<td data-title="Hours"><?= implode("<br />", $staff_tasks_hours) ?></td>
+					<?php } ?>
+					<?php if(strpos($value_config, ',Inventory,') !== FALSE) {
+						$inventory = [];
+						$sql = "SELECT * FROM `ticket_attached` WHERE `ticketid` = '{$invoice['ticketid']}' AND `deleted` = 0 AND `src_table` = 'inventory'";
+						if($project_admin_multiday_tickets == 1) {
+							$sql .= " AND `date_stamp` = '{$invoice['ticket_date']}'";
+						}
+						$query = mysqli_query($dbc, $sql);
+						while($row = mysqli_fetch_assoc($query)) {
+							if($row['description'] != '') {
+								$inventory[] = $row['description'].': '.round($row['qty'],3).' @ $'.number_format($row['rate'],2).': $'.number_format($row['qty'] * $row['rate'],2);
+								$total_cost += $row['qty'] * $row['rate'];
+							} else {
+								$inv_row = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `product_name`, `name`, `final_retail_price` FROM `inventory` WHERE `inventoryid` = '{$row['item_id']}'"));
+								$inventory[] = (empty($inv_row['product_name']) ? $inv_row['name'] : $inv_row['product_name']).': '.round($row['qty'],3).' @ $'.number_format($row['rate'] > 0 ? $row['rate'] : $inv_row['final_retail_price'],2).': $'.number_format($row['qty'] * $inv_row['final_retail_price'],2);
+								$total_cost += $row['qty'] * ($row['rate'] > 0 ? $row['rate'] : $inv_row['final_retail_price']);
+							}
+						} ?>
+						<td data-title="Inventory"><?= implode("<br />", $inventory) ?></td>
+					<?php } ?>
+					<?php if(strpos($value_config, ',Materials,') !== FALSE) {
+						$materials = [];
+						$sql = "SELECT * FROM `ticket_attached` WHERE `ticketid` = '{$invoice['ticketid']}' AND `deleted` = 0 AND `src_table` = 'material'";
+						if($project_admin_multiday_tickets == 1) {
+							$sql .= " AND `date_stamp` = '{$invoice['ticket_date']}'";
+						}
+						$query = mysqli_query($dbc, $sql);
+						while($row = mysqli_fetch_assoc($query)) {
+							if($row['description'] != '') {
+								$materials[] = $row['description'].': '.round($row['qty'],3);
+							} else {
+								$materials[] = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `name` FROM `material` WHERE `materialid` = '{$row['item_id']}'"))['name'].': '.round($row['qty'],3);
+							}
+						} ?>
+						<td data-title="Materials"><?= implode("<br />", $materials) ?></td>
+					<?php } ?>
+					<?php if(strpos($value_config, ',Misc Item,') !== FALSE) {
+						$misc = [];
+						$sql = "SELECT * FROM `ticket_attached` WHERE `ticketid` = '{$invoice['ticketid']}' AND `deleted` = 0 AND `src_table` = 'misc_item'";
+						if($project_admin_multiday_tickets == 1) {
+							$sql .= " AND `date_stamp` = '{$invoice['ticket_date']}'";
+						}
+						$query = mysqli_query($dbc, $sql);
+						while($row = mysqli_fetch_assoc($query)) {
+							$misc[] = $row['description'].': '.round($row['qty'],3).' @ $'.number_format($row['rate'],2).': $'.number_format($row['qty'] * $row['rate'],2);
+							$total_cost += $row['qty'] * $row['rate'];
+						} ?>
+						<td data-title="Miscellaneous"><?= implode("<br />", $misc) ?></td>
+					<?php } ?>
+					<td data-title="Total">$<?= number_format($total_cost,2); ?></td>
+					<td data-title="Notes"><?php $notes = $dbc->query("SELECT * FROM `ticket_comment` WHERE `ticketid`='{$invoice['ticketid']}' AND `type`='administration_note' AND `deleted`=0") ?></td>
+					<?php if(strpos($value_config, ',Extra Billing,') !== FALSE) {
+						$sql = "SELECT COUNT(*) `num` FROM `ticket_comment` WHERE `ticketid` = '{$invoice['ticketid']}' AND '{$invoice['ticketid']}' > 0 AND `type` = 'service_extra_billing' AND `deleted` = 0";
+						if($project_admin_multiday_tickets == 1) {
+							$sql .= " AND `created_date` = '{$invoice['ticket_date']}'";
+						}
+						$extra_billing = mysqli_fetch_assoc(mysqli_query($dbc, $sql)); ?>
+						<td data-title="Extra Billing"><?= $extra_billing['num'] > 0 ? '<img class="inline-img small no-toggle" title="Extra Billing" src="../img/icons/ROOK-status-paid.png">' : '' ?></td>
+					<?php } ?>
 					<td data-title="Invoice" data-id="<?= $invoice['ticketid'] ?>"><a href="" onclick="create_invoice($(this).closest('td').data('id')); return false;">Create</a> <label class="form-checkbox any-width"><input type="checkbox" class="invoice_ticket" name="ticketid" value="<?= $invoice['ticketid'] ?>">Select</label><?= in_array('Administration',$db_config) ? ' <a href="" onclick="revert_to_admin(this); return false;">Back to Admin</a>' : '' ?></td>
 				</tr>
 			<?php } ?>
@@ -222,24 +357,172 @@ if(!empty($_POST['search_start_date']) && !empty($_POST['search_end_date'])) {
 		echo '<h3>No Unbilled '.TICKET_TILE.' Found</h3>';
 	} ?>
 <?php } else { ?>
-	<?php $invoice_list = $dbc->query("SELECT `tickets`.*, `invoice`.`invoiceid`, `invoice`.`invoice_date`, `invoice`.`status` `inv_status`, `invoice`.`final_price` FROM `invoice` LEFT JOIN `tickets` ON CONCAT(',',`invoice`.`ticketid`,',') LIKE CONCAT('%,',`tickets`.`ticketid`,',%') WHERE `invoice`.`deleted`=0 AND `tickets`.`deleted`=0 ORDER BY `invoiceid` DESC LIMIT 0,25");
+	<?php $invoice_list = $dbc->query("SELECT `tickets`.*, `tickets`.`to_do_date` `ticket_date`, `invoice`.`invoiceid`, `invoice`.`invoice_date`, `invoice`.`status` `inv_status`, `invoice`.`final_price` FROM `invoice` LEFT JOIN `tickets` ON CONCAT(',',`invoice`.`ticketid`,',') LIKE CONCAT('%,',`tickets`.`ticketid`,',%') WHERE `invoice`.`deleted`=0 AND `tickets`.`deleted`=0 ORDER BY `invoiceid` DESC LIMIT 0,25");
 	if($invoice_list->num_rows > 0) { ?>
 		<h3>Top 25 <?= TICKET_NOUN ?> Invoices</h3>
 		<h4>To see more Invoices, go to the <?= tile_visible($dbc, 'posadvanced') ? '<a href="../POSAdvanced/invoice_main.php">'.POS_ADVANCE_TILE.'</a>' : (tile_visible($dbc, 'check_out') ? '<a href="../Invoice/invoice_main.php">Check Out</a>' : 'Point of Sale') ?> tile.</h4>
 		<table class="table table-bordered">
 			<tr>
+				<th>Date</th>
 				<th><?= TICKET_NOUN ?></th>
+				<?php if(strpos($value_config, ',Services,') !== FALSE) { ?>
+					<th>Services</th>
+				<?php } ?>
+				<?php if(strpos($value_config, ',Sub Totals per Service,') !== FALSE) { ?>
+					<th>Sub Totals per Service</th>
+				<?php } ?>
+				<?php if(strpos($value_config, ',Staff Tasks,') !== FALSE) { ?>
+					<th>Staff</th>
+					<th><?= TASK_TILE ?></th>
+					<th>Hours</th>
+				<?php } ?>
+				<?php if(strpos($value_config, ',Inventory,') !== FALSE) { ?>
+					<th>Inventory</th>
+				<?php } ?>
+				<?php if(strpos($value_config, ',Materials,') !== FALSE) { ?>
+					<th>Materials</th>
+				<?php } ?>
+				<?php if(strpos($value_config, ',Misc Item,') !== FALSE) { ?>
+					<th>Miscellaneous</th>
+				<?php } ?>
+				<th>Total</th>
+				<th>Notes</th>
+				<?php if(strpos($value_config, ',Extra Billing,') !== FALSE) { ?>
+					<th>Extra Billing</th>
+				<?php } ?>
 				<th>Invoice #</th>
 				<th>Status</th>
 				<th>Total Price</th>
 				<th>Invoice</th>
 			</tr>
 			<?php while($invoice = $invoice_list->fetch_assoc()) {
+				$active = 0;
+				$total_cost = 0.00;
+				$services_cost_num = [];
+				$services_cost = [];
+				$services = [];
+				$qty = explode(',',$invoice['service_qty']);
+                $cust_rate_card = $dbc->query("SELECT * FROM `rate_card` WHERE `clientid`='".$invoice['businessid']."' AND `deleted`=0 AND `on_off`=1")->fetch_assoc();
+				foreach(explode(',',$invoice['serviceid']) as $i => $service) {
+					if($service > 0) {
+						$service = $dbc->query("SELECT `services`.`serviceid`, `services`.`heading`, `rate`.`cust_price` FROM `services` LEFT JOIN `company_rate_card` `rate` ON `services`.`serviceid`=`rate`.`item_id` AND `rate`.`tile_name` LIKE 'Services' WHERE `services`.`serviceid`='$service'")->fetch_assoc();
+                        $service_rate = 0;
+                        foreach(explode('**',$cust_rate_card['services']) as $service_cust_rate) {
+                            $service_cust_rate = explode('#',$service_cust_rate);
+                            if($service_cust_rate[0] == $service['serviceid']) {
+                                $service_rate = $service_cust_rate[1];
+                            }
+                        }
+						$services[] = $service['heading'].($qty[$i] > 0 ? ' x '.$qty[$i] : '');
+						$services_cost_num[] = ($qty[$i] > 0 ? $qty[$i] : 1) * ($service_rate > 0 ? $service_rate : $service['cust_price']);
+						$services_cost[] = number_format(($qty[$i] > 0 ? $qty[$i] : 1) * ($service_rate > 0 ? $service_rate : $service['cust_price']),2);
+					}
+				}
 				$pdf_name = '../Invoice/Download/invoice_'.$invoice['invoiceid'].'.pdf'; ?>
 				<tr>
-					<td data-title="<?= TICKET_NOUN ?>"><?php if($tile_security['edit'] > 0) { ?><a href="index.php?edit=<?= $invoice['ticketid'] ?>" onclick="overlayIFrameSlider(this.href+'&calendar_view=true','auto',true,true); return false;"><?= get_ticket_label($dbc, $invoice) ?></a><?php } else { echo get_ticket_label($dbc, $invoice); } ?></td>
+					<td data-title="Date"><?= $invoice['ticket_date'] ?></td>
+					<td data-title="<?= TICKET_NOUN ?>"><?php if($tile_security['edit'] > 0) { ?><a href="<?= WEBSITE_URL ?>/Ticket/index.php?edit=<?= $invoice['ticketid'] ?>" onclick="overlayIFrameSlider(this.href+'&calendar_view=true','auto',true,true); return false;"><?= get_ticket_label($dbc, $invoice) ?></a><?php } else { echo get_ticket_label($dbc, $invoice); } ?></td>
+					<?php if(strpos($value_config, ',Services,') !== FALSE) {
+						foreach($services_cost_num as $cost_amt) {
+							$total_cost += $cost_amt;
+						} ?>
+						<td data-title="Services"><?= implode('<br />',$services) ?></td>
+					<?php } ?>
+					<?php if(strpos($value_config, ',Sub Totals per Service,') !== FALSE) { ?>
+						<td data-title="Sub Totals per Service"><?= implode('<br />',$services_cost) ?></td>
+					<?php } ?>
+					<?php if(strpos($value_config, ',Staff Tasks,') !== FALSE) {
+						$staff_tasks_staff = [];
+						$staff_tasks_task = [];
+						$staff_tasks_hours = [];
+						$sql = "SELECT * FROM `ticket_attached` WHERE `ticketid` = '{$invoice['ticketid']}' AND `deleted` = 0 AND `src_table` = 'Staff_Tasks'";
+						if($project_admin_multiday_tickets == 1) {
+							$sql .= " AND `date_stamp` = '{$invoice['ticket_date']}'";
+						}
+						$query = mysqli_query($dbc, $sql);
+						while($row = mysqli_fetch_assoc($query)) {
+							$staff_tasks_staff[] = get_contact($dbc, $row['item_id']);
+							$staff_tasks_task[] = $row['position'];
+							$staff_tasks_hours[] = number_format($row['hours_tracked'],2);
+						} ?>
+						<td data-title="Staff"><?= implode("<br />", $staff_tasks_staff) ?></td>
+						<td data-title="Task"><?= implode("<br />", $staff_tasks_task) ?></td>
+						<td data-title="Hours"><?= implode("<br />", $staff_tasks_hours) ?></td>
+					<?php } ?>
+					<?php if(strpos($value_config, ',Inventory,') !== FALSE) {
+						$inventory = [];
+						$sql = "SELECT * FROM `ticket_attached` WHERE `ticketid` = '{$invoice['ticketid']}' AND `deleted` = 0 AND `src_table` = 'inventory'";
+						if($project_admin_multiday_tickets == 1) {
+							$sql .= " AND `date_stamp` = '{$invoice['ticket_date']}'";
+						}
+						$query = mysqli_query($dbc, $sql);
+						while($row = mysqli_fetch_assoc($query)) {
+							if($row['description'] != '') {
+								$inventory[] = $row['description'].': '.round($row['qty'],3).' @ $'.number_format($row['rate'],2).': $'.number_format($row['qty'] * $row['rate'],2);
+								$total_cost += $row['qty'] * $row['rate'];
+							} else {
+								$inv_row = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `product_name`, `name`, `final_retail_price` FROM `inventory` WHERE `inventoryid` = '{$row['item_id']}'"));
+								$inventory[] = (empty($inv_row['product_name']) ? $inv_row['name'] : $inv_row['product_name']).': '.round($row['qty'],3).' @ $'.number_format($row['rate'] > 0 ? $row['rate'] : $inv_row['final_retail_price'],2).': $'.number_format($row['qty'] * $inv_row['final_retail_price'],2);
+								$total_cost += $row['qty'] * ($row['rate'] > 0 ? $row['rate'] : $inv_row['final_retail_price']);
+							}
+						} ?>
+						<td data-title="Inventory"><?= implode("<br />", $inventory) ?></td>
+					<?php } ?>
+					<?php if(strpos($value_config, ',Materials,') !== FALSE) {
+						$materials = [];
+						$sql = "SELECT * FROM `ticket_attached` WHERE `ticketid` = '{$invoice['ticketid']}' AND `deleted` = 0 AND `src_table` = 'material'";
+						if($project_admin_multiday_tickets == 1) {
+							$sql .= " AND `date_stamp` = '{$invoice['ticket_date']}'";
+						}
+						$query = mysqli_query($dbc, $sql);
+						while($row = mysqli_fetch_assoc($query)) {
+							if($row['description'] != '') {
+								$materials[] = $row['description'].': '.round($row['qty'],3);
+							} else {
+								$materials[] = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `name` FROM `material` WHERE `materialid` = '{$row['item_id']}'"))['name'].': '.round($row['qty'],3);
+							}
+						} ?>
+						<td data-title="Materials"><?= implode("<br />", $materials) ?></td>
+					<?php } ?>
+					<?php if(strpos($value_config, ',Misc Item,') !== FALSE) {
+						$misc = [];
+						$sql = "SELECT * FROM `ticket_attached` WHERE `ticketid` = '{$invoice['ticketid']}' AND `deleted` = 0 AND `src_table` = 'misc_item'";
+						if($project_admin_multiday_tickets == 1) {
+							$sql .= " AND `date_stamp` = '{$invoice['ticket_date']}'";
+						}
+						$query = mysqli_query($dbc, $sql);
+						while($row = mysqli_fetch_assoc($query)) {
+							$misc[] = $row['description'].': '.round($row['qty'],3).' @ $'.number_format($row['rate'],2).': $'.number_format($row['qty'] * $row['rate'],2);
+							$total_cost += $row['qty'] * $row['rate'];
+						} ?>
+						<td data-title="Miscellaneous"><?= implode("<br />", $misc) ?></td>
+					<?php } ?>
+					<td data-title="Total">$<?= number_format($total_cost,2); ?></td>
+					<td data-title="Notes"><?php $notes = $dbc->query("SELECT * FROM `ticket_comment` WHERE `ticketid`='{$invoice['ticketid']}' AND `type`='administration_note' AND `deleted`=0") ?></td>
+					<?php if(strpos($value_config, ',Extra Billing,') !== FALSE) {
+						$sql = "SELECT COUNT(*) `num` FROM `ticket_comment` WHERE `ticketid` = '{$invoice['ticketid']}' AND '{$invoice['ticketid']}' > 0 AND `type` = 'service_extra_billing' AND `deleted` = 0";
+						if($project_admin_multiday_tickets == 1) {
+							$sql .= " AND `created_date` = '{$invoice['ticket_date']}'";
+						}
+						$extra_billing = mysqli_fetch_assoc(mysqli_query($dbc, $sql)); ?>
+						<td data-title="Extra Billing"><?= $extra_billing['num'] > 0 ? '<img class="inline-img small no-toggle" title="Extra Billing" src="../img/icons/ROOK-status-paid.png">' : '' ?></td>
+					<?php } ?>
 					<td data-title="Invoice #">#<?= $invoice['invoiceid'].' '.$invoice['invoice_date'] ?></td>
-					<td data-title="Status"><?= $invoice['inv_status'] ?></td>
+					<td data-title="Status"><?php switch($invoice['inv_status']) {
+                        case 'Completed':
+                            echo 'Paid';
+                            break;
+                        case 'Void':
+                            echo 'Voided';
+                            break;
+                        case 'Saved':
+                            echo 'Unbilled';
+                            break;
+                        case 'Posted':
+                        default:
+                            echo 'Accounts Receivable';
+                            break;
+                    } ?></td>
 					<td data-title="Total Price"><?= $invoice['final_price'] ?></td>
 					<td data-title="Invoice"><?php if(file_exists($pdf_name)) { ?><a href="<?= $pdf_name ?>" target="_blank"><img src="../img/pdf.png" class="inline-img">Invoice #<?= $invoice['invoiceid'] ?></a><?php } ?></td>
 				</tr>

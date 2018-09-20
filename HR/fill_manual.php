@@ -42,7 +42,7 @@ if(isset($_POST['submit'])) {
 $get_manual = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `manuals` WHERE `manualtypeid`='$manual'"));
 $value_config = ','.get_config($dbc, 'hr_fields').','; ?>
 <form name="manual" action="" method="POST">
-	<div class='scale-to-fill has-main-screen'>
+	<div class='scale-to-fill has-main-screen no-pad'>
 		<div class='main-screen form-horizontal'>
             <div class="standard-body-title">
                 <h3>

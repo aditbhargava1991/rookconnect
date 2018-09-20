@@ -32,6 +32,81 @@ if (isset($_POST['submit'])) {
         }
         //Fields
 
+        //Logo
+        if (!file_exists('download')) {
+            mkdir('download', 0777, true);
+        }
+        $logo = htmlspecialchars($_FILES["logo"]["name"], ENT_QUOTES);
+
+        $get_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT COUNT(configid) AS configid FROM general_configuration WHERE name='invoice_logo_".config_safe_str($invoice_type)."'"));
+        if($get_config['configid'] > 0) {
+            if($logo == '') {
+                $logo_update = $_POST['logo_file'];
+            } else {
+                $logo_update = $logo;
+            }
+            move_uploaded_file($_FILES["logo"]["tmp_name"],"download/" . $logo_update);
+            $query_update_employee = "UPDATE `general_configuration` SET value = '$logo_update' WHERE name='invoice_logo_".config_safe_str($invoice_type)."'";
+            $result_update_employee = mysqli_query($dbc, $query_update_employee);
+        } else {
+            move_uploaded_file($_FILES["logo"]["tmp_name"], "download/" . $_FILES["logo"]["name"]) ;
+            $query_insert_config = "INSERT INTO `general_configuration` (`name`, `value`) VALUES ('invoice_logo_".config_safe_str($invoice_type)."', '$logo')";
+            $result_insert_config = mysqli_query($dbc, $query_insert_config);
+        }
+        //Logo
+
+        //Customizable Ticket Fields
+        set_config($dbc, 'invoice_custom_ticket_fields_'.config_safe_str($invoice_type), filter_var(implode(',', $_POST['invoice_custom_ticket_fields']),FILTER_SANITIZE_STRING));
+        //Customizable Ticket Fields
+
+        //Customizable Ticket Service Columns
+        set_config($dbc, 'invoice_custom_ticket_'.config_safe_str($invoice_type), filter_var(implode(',', $_POST['invoice_custom_ticket']),FILTER_SANITIZE_STRING));
+        //Customizable Ticket Service Columns
+
+        //Design
+        $invoice_design = $_POST['invoice_design'];
+        $get_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT COUNT(configid) AS configid FROM general_configuration WHERE name='invoice_design_".config_safe_str($invoice_type)."'"));
+        if($get_config['configid'] > 0) {
+            $query_update_employee = "UPDATE `general_configuration` SET value = '$invoice_design' WHERE name='invoice_design_".config_safe_str($invoice_type)."'";
+            $result_update_employee = mysqli_query($dbc, $query_update_employee);
+        } else {
+            $query_insert_config = "INSERT INTO `general_configuration` (`name`, `value`) VALUES ('invoice_design_".config_safe_str($invoice_type)."', '$invoice_design')";
+            $result_insert_config = mysqli_query($dbc, $query_insert_config);
+        }
+        //Design
+        
+        //Header & Footer
+        $invoice_header = filter_var(htmlentities($_POST['invoice_header']),FILTER_SANITIZE_STRING);
+        $get_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT COUNT(configid) AS configid FROM general_configuration WHERE name='invoice_header_".config_safe_str($invoice_type)."'"));
+        if($get_config['configid'] > 0) {
+            $query_update_employee = "UPDATE `general_configuration` SET value = '$invoice_header' WHERE name='invoice_header_".config_safe_str($invoice_type)."'";
+            $result_update_employee = mysqli_query($dbc, $query_update_employee);
+        } else {
+            $query_insert_config = "INSERT INTO `general_configuration` (`name`, `value`) VALUES ('invoice_header_".config_safe_str($invoice_type)."', '$invoice_header')";
+            $result_insert_config = mysqli_query($dbc, $query_insert_config);
+        }
+
+        $invoice_footer = filter_var(htmlentities($_POST['invoice_footer']),FILTER_SANITIZE_STRING);
+        $get_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT COUNT(configid) AS configid FROM general_configuration WHERE name='invoice_footer_".config_safe_str($invoice_type)."'"));
+        if($get_config['configid'] > 0) {
+            $query_update_employee = "UPDATE `general_configuration` SET value = '$invoice_footer' WHERE name='invoice_footer_".config_safe_str($invoice_type)."'";
+            $result_update_employee = mysqli_query($dbc, $query_update_employee);
+        } else {
+            $query_insert_config = "INSERT INTO `general_configuration` (`name`, `value`) VALUES ('invoice_footer_".config_safe_str($invoice_type)."', '$invoice_footer')";
+            $result_insert_config = mysqli_query($dbc, $query_insert_config);
+        }
+
+        $invoice_unpaid_footer = filter_var(htmlentities($_POST['invoice_unpaid_footer']),FILTER_SANITIZE_STRING);
+        $get_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT COUNT(configid) AS configid FROM general_configuration WHERE name='invoice_unpaid_footer_".config_safe_str($invoice_type)."'"));
+        if($get_config['configid'] > 0) {
+            $query_update_employee = "UPDATE `general_configuration` SET value = '$invoice_unpaid_footer' WHERE name='invoice_unpaid_footer_".config_safe_str($invoice_type)."'";
+            $result_update_employee = mysqli_query($dbc, $query_update_employee);
+        } else {
+            $query_insert_config = "INSERT INTO `general_configuration` (`name`, `value`) VALUES ('invoice_unpaid_footer_".config_safe_str($invoice_type)."', '$invoice_unpaid_footer')";
+            $result_insert_config = mysqli_query($dbc, $query_insert_config);
+        }
+        //Header & Footer
+
         echo '<script type="text/javascript"> window.location.replace("field_config_invoice.php?type='.$invoice_type.'"); </script>';
     } else {
         //Invoice Types
@@ -93,6 +168,10 @@ if (isset($_POST['submit'])) {
             $result_insert_config = mysqli_query($dbc, $query_insert_config);
         }
         //Design
+
+        //Customizable Ticket Fields
+        set_config($dbc, 'invoice_custom_ticket_fields', filter_var(implode(',', $_POST['invoice_custom_ticket_fields']),FILTER_SANITIZE_STRING));
+        //Customizable Ticket Fields
 
         //Customizable Ticket Service Columns
         set_config($dbc, 'invoice_custom_ticket', filter_var(implode(',', $_POST['invoice_custom_ticket']),FILTER_SANITIZE_STRING));
@@ -447,167 +526,200 @@ if(!empty($invoice_types)) { ?>
                     </div>
                 </div>
             </div>
+        <?php } ?>
 
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title">
+                    <a data-toggle="collapse" data-parent="#accordion" href="#collapse_pdf" >
+                        PDF Settings<span class="glyphicon glyphicon-plus"></span>
+                    </a>
+                </h4>
+            </div>
+
+            <div id="collapse_pdf" class="panel-collapse collapse">
+                <div class="panel-body">
+
+					<?php $invoice_design = (!empty($_GET['type']) ? (!empty(get_config($dbc, 'invoice_design_'.config_safe_str($_GET['type']))) ? get_config($dbc, 'invoice_design_'.config_safe_str($_GET['type'])) : get_config($dbc, 'invoice_design')) : get_config($dbc, 'invoice_design')); ?>
+					<div class="form-group">
+						<label class="col-sm-4 control-label">Select Invoice Design:</label>
+						<div class="col-sm-8">
+							<label class="form-checkbox"><input style="height: 30px; width: 30px;" class="tax_exemption" <?php if ($invoice_design == '1') { echo 'checked'; } ?> type="radio" name="invoice_design" value="1">
+								Layout 1<br /><a target="_blank" href="../img/invoice_design1.png"><img src="../img/invoice_design1.png" width="100" height="100" border="0" alt=""></a></label>
+							<label class="form-checkbox"><input style="height: 30px; width: 30px;" class="tax_exemption" <?php if ($invoice_design == '2') { echo 'checked'; } ?> type="radio" name="invoice_design" value="2">
+								Layout 2<br /><a target="_blank" href="../img/invoice_design2.png"><img src="../img/invoice_design2.png" width="100" height="100" border="0" alt=""></a></label>
+							<label class="form-checkbox"><input style="height: 30px; width: 30px;" class="tax_exemption" <?php if ($invoice_design == '3') { echo 'checked'; } ?> type="radio" name="invoice_design" value="3">
+								Layout 3<br /><a target="_blank" href="../img/invoice_design3.png"><img src="../img/invoice_design3.png" width="100" height="100" border="0" alt=""></a></label>
+							<label class="form-checkbox"><input style="height: 30px; width: 30px;" class="tax_exemption" <?php if ($invoice_design == '4') { echo 'checked'; } ?> type="radio" name="invoice_design" value="4">
+								Layout 4<br /><a target="_blank" href="../img/invoice_design4.png"><img src="../img/invoice_design4.png" width="100" height="100" border="0" alt=""></a></label>
+							<label class="form-checkbox"><input style="height: 30px; width: 30px;" class="tax_exemption" <?php if ($invoice_design == 'service') { echo 'checked'; } ?> type="radio" name="invoice_design" value="service">
+								Service Record<br /><a target="_blank" href="../img/invoice_design_service.png"><img src="../img/invoice_design_service.png" width="100" height="100" border="0" alt=""></a></label>
+							<label class="form-checkbox"><input style="height: 30px; width: 30px;" class="tax_exemption" <?php if ($invoice_design == '5') { echo 'checked'; } ?> type="radio" name="invoice_design" value="5">
+								Miniature<br /><a target="_blank" href="../img/invoice_design_small.png"><img src="../img/invoice_design_small.png" width="100" height="100" border="0" alt=""></a></label>
+							<label class="form-checkbox"><input style="height: 30px; width: 30px;" class="tax_exemption" <?php if ($invoice_design == 'pink') { echo 'checked'; } ?> type="radio" name="invoice_design" value="pink">
+								Pink<br /><a target="_blank" href="../img/invoice_design_pink.png"><img src="../img/invoice_design_pink.png" width="100" height="100" border="0" alt=""></a></label>
+							<label class="form-checkbox"><input style="height: 30px; width: 30px;" class="tax_exemption" <?php if ($invoice_design == 'cnt1') { echo 'checked'; } ?> type="radio" name="invoice_design" value="cnt1">
+								Contractor Design 1<br /><a target="_blank" href="../img/invoice_contractor1.png"><img src="../img/invoice_contractor1.png" width="100" height="100" border="0" alt=""></a></label>
+							<label class="form-checkbox"><input style="height: 30px; width: 30px;" class="tax_exemption" <?php if ($invoice_design == 'cnt2') { echo 'checked'; } ?> type="radio" name="invoice_design" value="cnt2">
+								Contractor Design 2<br /><a target="_blank" href="../img/invoice_contractor2.png"><img src="../img/invoice_contractor2.png" width="100" height="100" border="0" alt=""></a></label>
+                            <label class="form-checkbox"><input style="height: 30px; width: 30px;" class="tax_exemption" <?php if ($invoice_design == 'cnt3') { echo 'checked'; } ?> type="radio" name="invoice_design" value="cnt3">
+                                Contractor Design 3<br /><a target="_blank" href="../img/invoice_contractor3.png"><img src="../img/invoice_contractor3.png" width="100" height="100" border="0" alt=""></a></label>
+                            <label class="form-checkbox"><input style="height: 30px; width: 30px;" class="tax_exemption" <?php if ($invoice_design == 'custom_ticket') { echo 'checked'; } ?> type="radio" name="invoice_design" value="custom_ticket">
+                                Customizable <?= TICKET_NOUN ?><br /><a target="_blank" href="../img/invoice_contractor3.png"><img src="../img/invoice_contractor3.png" width="100" height="100" border="0" alt=""></a></label>
+						</div>
+					</div>
+
+                    <?php $invoice_custom_ticket_fields = (!empty($_GET['type']) ? (!empty(get_config($dbc, 'invoice_custom_ticket_fields_'.config_safe_str($_GET['type']))) ? get_config($dbc, 'invoice_custom_ticket_fields_'.config_safe_str($_GET['type'])) : get_config($dbc, 'invoice_custom_ticket_fields')) : get_config($dbc, 'invoice_custom_ticket_fields'));
+                    $invoice_custom_ticket_fields = explode(',', $invoice_custom_ticket_fields); ?>
+                    <div class="form-group custom_ticket" <?= $invoice_design != 'custom_ticket' ? 'style="display: none;"' : '' ?>>
+                    <label class="col-sm-4 control-label">Customizable <?= TICKET_NOUN ?> Fields:</label>
+                    <div class="col-sm-8">
+
+                        <div class="row">
+                            <div class="col-sm-4">
+                                <label class="form-checkbox"><input <?= (in_array('num_stops',$invoice_custom_ticket_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_custom_ticket_fields[]" value="num_stops"> # of Stops</label>
+                            </div>
+                            <div class="col-sm-4">
+                                <label class="form-checkbox"><input <?= (in_array('customer_code',$invoice_custom_ticket_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_custom_ticket_fields[]" value="customer_code"> Customer Code</label>
+                            </div>
+                            <div class="col-sm-4">
+                                <label class="form-checkbox"><input <?= (in_array('location',$invoice_custom_ticket_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_custom_ticket_fields[]" value="location"> Location</label>
+                            </div>
+                            <div class="col-sm-4">
+                                <label class="form-checkbox"><input <?= (in_array('departure_location',$invoice_custom_ticket_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_custom_ticket_fields[]" value="departure_location"> Departure Location</label>
+                            </div>
+                            <div class="col-sm-4">
+                                <label class="form-checkbox"><input <?= (in_array('destination',$invoice_custom_ticket_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_custom_ticket_fields[]" value="destination"> Destination</label>
+                            </div>
+                        </div>
+
+                    </div>
+                    </div>
+
+
+                    <?php $invoice_custom_ticket = (!empty($_GET['type']) ? (!empty(get_config($dbc, 'invoice_custom_ticket_'.config_safe_str($_GET['type']))) ? get_config($dbc, 'invoice_custom_ticket_'.config_safe_str($_GET['type'])) : get_config($dbc, 'invoice_custom_ticket')) : get_config($dbc, 'invoice_custom_ticket')); ?>
+                    <div class="form-group custom_ticket" <?= $invoice_design != 'custom_ticket' ? 'style="display: none;"' : '' ?>>
+                    <label class="col-sm-4 control-label">Customizable <?= TICKET_NOUN ?> Service Columns:
+                    <span class="popover-examples list-inline">&nbsp;
+                    <a href="#job_file" data-toggle="tooltip" data-placement="top" title="This will display each of the selected Service as columns. Any services that are not selected will be under the All Other Services column."><img src="<?php echo WEBSITE_URL; ?>/img/info.png" width="20"></a>
+                    </span>
+                    :</label>
+                    <div class="col-sm-8">
+                        <?php foreach(explode(',', $invoice_custom_ticket) as $service_column) { ?>
+                            <div class="service_column">
+                                <div class="col-sm-10">
+                                    <select name="invoice_custom_ticket[]" class="chosen-select-deselect">
+                                        <option></option>
+                                        <?php $services = mysqli_query($dbc, "SELECT * FROM `services` WHERE `heading`!='' AND `deleted`=0 ORDER BY CONCAT(`category`,`heading`)");
+                                        while($service = mysqli_fetch_assoc($services)) {
+                                            echo '<option value="'.$service['serviceid'].'" '.($service['serviceid'] == $service_column ? 'selected' : '').'>'.(!empty($service['category']) ? $service['category'].': ' : '').$service['heading'].'</option>';
+                                        } ?>
+                                    </select>
+                                </div>
+                                <div class="col-sm-2 pull-right">
+                                    <img src="<?= WEBSITE_URL ?>/img/remove.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right cursor-hand" onclick="rem_service_column(this);">
+                                    <img src="<?= WEBSITE_URL ?>/img/icons/ROOK-add-icon.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right cursor-hand black-color" onclick="add_service_column();">
+                                </div>
+                            </div>
+                        <?php } ?>
+                    </div>
+                    </div>
+
+                    <?php $logo = (!empty($_GET['type']) ? (!empty(get_config($dbc, 'invoice_logo_'.config_safe_str($_GET['type']))) ? get_config($dbc, 'invoice_logo_'.config_safe_str($_GET['type'])) : get_config($dbc, 'invoice_logo')) : get_config($dbc, 'invoice_logo')); ?>
+                    <div class="form-group">
+                    <label for="file[]" class="col-sm-4 control-label">Upload Logo:
+                    <span class="popover-examples list-inline">&nbsp;
+                    <a href="#job_file" data-toggle="tooltip" data-placement="top" title="File name cannot contain apostrophes, quotations or commas."><img src="<?php echo WEBSITE_URL; ?>/img/info.png" width="20"></a>
+                    </span>
+                    :</label>
+                    <div class="col-sm-8">
+                    <?php if($logo != '') {
+                        echo '<a href="download/'.$logo.'" target="_blank">View</a>';
+                        ?>
+                        <input type="hidden" name="logo_file" value="<?php echo $logo; ?>" />
+                        <input name="logo" type="file" data-filename-placement="inside" class="form-control" />
+                      <?php } else { ?>
+                      <input name="logo" type="file" data-filename-placement="inside" class="form-control" />
+                      <?php } ?>
+                    </div>
+                    </div>
+
+                    <?php $invoice_header = (!empty($_GET['type']) ? (!empty(get_config($dbc, 'invoice_header_'.config_safe_str($_GET['type']))) ? get_config($dbc, 'invoice_header_'.config_safe_str($_GET['type'])) : get_config($dbc, 'invoice_header')) : get_config($dbc, 'invoice_header')); ?>
+                    <div class="form-group">
+                    <label for="company_name" class="col-sm-4 control-label">Header:</label>
+                    <div class="col-sm-8">
+                        <textarea name="invoice_header" rows="5" cols="50" class="form-control"><?php echo $invoice_header; ?></textarea>
+                    </div>
+                    </div>
+
+                    <?php $invoice_footer = (!empty($_GET['type']) ? (!empty(get_config($dbc, 'invoice_footer_'.config_safe_str($_GET['type']))) ? get_config($dbc, 'invoice_footer_'.config_safe_str($_GET['type'])) : get_config($dbc, 'invoice_footer')) : get_config($dbc, 'invoice_footer')); ?>
+                    <div class="form-group">
+                    <label for="company_name" class="col-sm-4 control-label">Footer for Customer and Third Party Invoices:</label>
+                    <div class="col-sm-8">
+                        <textarea name="invoice_footer" rows="5" cols="50" class="form-control"><?php echo $invoice_footer; ?></textarea>
+                    </div>
+                    </div>
+
+                    <?php $invoice_unpaid_footer = (!empty($_GET['type']) ? (!empty(get_config($dbc, 'invoice_unpaid_footer_'.config_safe_str($_GET['type']))) ? get_config($dbc, 'invoice_unpaid_footer_'.config_safe_str($_GET['type'])) : get_config($dbc, 'invoice_unpaid_footer')) : get_config($dbc, 'invoice_unpaid_footer')); ?>
+                    <div class="form-group">
+                    <label for="company_name" class="col-sm-4 control-label">Footer for Unpaid Third Party Invoices:</label>
+                    <div class="col-sm-8">
+                        <textarea name="invoice_unpaid_footer" rows="5" cols="50" class="form-control"><?php echo $invoice_unpaid_footer; ?></textarea>
+                    </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="col-sm-6">
+                            <a href="today_invoice.php" class="btn config-btn btn-lg">Back</a>
+                        </div>
+                        <div class="col-sm-6">
+                            <button	type="submit" name="submit"	value="Submit" class="btn config-btn btn-lg	pull-right">Submit</button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <?php if(empty($_GET['type'])) { ?>
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <h4 class="panel-title">
-                        <a data-toggle="collapse" data-parent="#accordion" href="#collapse_pdf" >
-                            PDF Settings<span class="glyphicon glyphicon-plus"></span>
+                        <a data-toggle="collapse" data-parent="#accordion" href="#collapse_survey" >
+                            Check In Communication Method<span class="glyphicon glyphicon-plus"></span>
                         </a>
                     </h4>
                 </div>
 
-                <div id="collapse_pdf" class="panel-collapse collapse">
+                <div id="collapse_survey" class="panel-collapse collapse">
                     <div class="panel-body">
 
-    					<?php $invoice_design = get_config($dbc, 'invoice_design'); ?>
-    					<div class="form-group">
-    						<label class="col-sm-4 control-label">Select Invoice Design:</label>
-    						<div class="col-sm-8">
-    							<label class="form-checkbox"><input style="height: 30px; width: 30px;" class="tax_exemption" <?php if ($invoice_design == '1') { echo 'checked'; } ?> type="radio" name="invoice_design" value="1">
-    								Layout 1<br /><a target="_blank" href="../img/invoice_design1.png"><img src="../img/invoice_design1.png" width="100" height="100" border="0" alt=""></a></label>
-    							<label class="form-checkbox"><input style="height: 30px; width: 30px;" class="tax_exemption" <?php if ($invoice_design == '2') { echo 'checked'; } ?> type="radio" name="invoice_design" value="2">
-    								Layout 2<br /><a target="_blank" href="../img/invoice_design2.png"><img src="../img/invoice_design2.png" width="100" height="100" border="0" alt=""></a></label>
-    							<label class="form-checkbox"><input style="height: 30px; width: 30px;" class="tax_exemption" <?php if ($invoice_design == '3') { echo 'checked'; } ?> type="radio" name="invoice_design" value="3">
-    								Layout 3<br /><a target="_blank" href="../img/invoice_design3.png"><img src="../img/invoice_design3.png" width="100" height="100" border="0" alt=""></a></label>
-    							<label class="form-checkbox"><input style="height: 30px; width: 30px;" class="tax_exemption" <?php if ($invoice_design == '4') { echo 'checked'; } ?> type="radio" name="invoice_design" value="4">
-    								Layout 4<br /><a target="_blank" href="../img/invoice_design4.png"><img src="../img/invoice_design4.png" width="100" height="100" border="0" alt=""></a></label>
-    							<label class="form-checkbox"><input style="height: 30px; width: 30px;" class="tax_exemption" <?php if ($invoice_design == 'service') { echo 'checked'; } ?> type="radio" name="invoice_design" value="service">
-    								Service Record<br /><a target="_blank" href="../img/invoice_design_service.png"><img src="../img/invoice_design_service.png" width="100" height="100" border="0" alt=""></a></label>
-    							<label class="form-checkbox"><input style="height: 30px; width: 30px;" class="tax_exemption" <?php if ($invoice_design == '5') { echo 'checked'; } ?> type="radio" name="invoice_design" value="5">
-    								Miniature<br /><a target="_blank" href="../img/invoice_design_small.png"><img src="../img/invoice_design_small.png" width="100" height="100" border="0" alt=""></a></label>
-    							<label class="form-checkbox"><input style="height: 30px; width: 30px;" class="tax_exemption" <?php if ($invoice_design == 'pink') { echo 'checked'; } ?> type="radio" name="invoice_design" value="pink">
-    								Pink<br /><a target="_blank" href="../img/invoice_design_pink.png"><img src="../img/invoice_design_pink.png" width="100" height="100" border="0" alt=""></a></label>
-    							<label class="form-checkbox"><input style="height: 30px; width: 30px;" class="tax_exemption" <?php if ($invoice_design == 'cnt1') { echo 'checked'; } ?> type="radio" name="invoice_design" value="cnt1">
-    								Contractor Design 1<br /><a target="_blank" href="../img/invoice_contractor1.png"><img src="../img/invoice_contractor1.png" width="100" height="100" border="0" alt=""></a></label>
-    							<label class="form-checkbox"><input style="height: 30px; width: 30px;" class="tax_exemption" <?php if ($invoice_design == 'cnt2') { echo 'checked'; } ?> type="radio" name="invoice_design" value="cnt2">
-    								Contractor Design 2<br /><a target="_blank" href="../img/invoice_contractor2.png"><img src="../img/invoice_contractor2.png" width="100" height="100" border="0" alt=""></a></label>
-                                <label class="form-checkbox"><input style="height: 30px; width: 30px;" class="tax_exemption" <?php if ($invoice_design == 'cnt3') { echo 'checked'; } ?> type="radio" name="invoice_design" value="cnt3">
-                                    Contractor Design 3<br /><a target="_blank" href="../img/invoice_contractor3.png"><img src="../img/invoice_contractor3.png" width="100" height="100" border="0" alt=""></a></label>
-                                <label class="form-checkbox"><input style="height: 30px; width: 30px;" class="tax_exemption" <?php if ($invoice_design == 'custom_ticket') { echo 'checked'; } ?> type="radio" name="invoice_design" value="custom_ticket">
-                                    Customizable <?= TICKET_NOUN ?><br /><a target="_blank" href="../img/invoice_contractor3.png"><img src="../img/invoice_contractor3.png" width="100" height="100" border="0" alt=""></a></label>
-    						</div>
-    					</div>
+                       <?php
+                        $communication_check_in_way = get_config($dbc, 'communication_check_in_way');
+                       ?>
 
-                        <?php $invoice_custom_ticket = get_config($dbc, 'invoice_custom_ticket'); ?>
-                        <div class="form-group custom_ticket" <?= $invoice_design != 'custom_ticket' ? 'style="display: none;"' : '' ?>>
-                        <label class="col-sm-4 control-label">Customizable <?= TICKET_NOUN ?> Service Columns:
-                        <span class="popover-examples list-inline">&nbsp;
-                        <a href="#job_file" data-toggle="tooltip" data-placement="top" title="This will display each of the selected Service as columns. Any services that are not selected will be under the All Other Services column."><img src="<?php echo WEBSITE_URL; ?>/img/info.png" width="20"></a>
-                        </span>
-                        :</label>
+                      <div class="form-group">
+                        <label for="fax_number"	class="col-sm-4	control-label">Method of Communication:</label>
                         <div class="col-sm-8">
-                            <?php foreach(explode(',', $invoice_custom_ticket) as $service_column) { ?>
-                                <div class="service_column">
-                                    <div class="col-sm-10">
-                                        <select name="invoice_custom_ticket[]" class="chosen-select-deselect">
-                                            <option></option>
-                                            <?php $services = mysqli_query($dbc, "SELECT * FROM `services` WHERE `heading`!='' AND `deleted`=0 ORDER BY CONCAT(`category`,`heading`)");
-                                            while($service = mysqli_fetch_assoc($services)) {
-                                                echo '<option value="'.$service['serviceid'].'" '.($service['serviceid'] == $service_column ? 'selected' : '').'>'.(!empty($service['category']) ? $service['category'].': ' : '').$service['heading'].'</option>';
-                                            } ?>
-                                        </select>
-                                    </div>
-                                    <div class="col-sm-2 pull-right">
-                                        <img src="<?= WEBSITE_URL ?>/img/remove.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right cursor-hand" onclick="rem_service_column(this);">
-                                        <img src="<?= WEBSITE_URL ?>/img/icons/ROOK-add-icon.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right cursor-hand black-color" onclick="add_service_column();">
-                                    </div>
-                                </div>
-                            <?php } ?>
+                            <select data-placeholder="Choose a Way..."  name="communication_check_in_way" class="chosen-select-deselect form-control" width="380">
+                                <option value=""></option>
+                                <option <?php if ($communication_check_in_way == "Email") { echo " selected"; } ?> value="Email">Email</option>
+                            </select>
                         </div>
-                        </div>
+                      </div>
 
-                        <?php $logo = get_config($dbc, 'invoice_logo'); ?>
-                        <div class="form-group">
-                        <label for="file[]" class="col-sm-4 control-label">Upload Logo:
-                        <span class="popover-examples list-inline">&nbsp;
-                        <a href="#job_file" data-toggle="tooltip" data-placement="top" title="File name cannot contain apostrophes, quotations or commas."><img src="<?php echo WEBSITE_URL; ?>/img/info.png" width="20"></a>
-                        </span>
-                        :</label>
-                        <div class="col-sm-8">
-                        <?php if($logo != '') {
-                            echo '<a href="download/'.$logo.'" target="_blank">View</a>';
-                            ?>
-                            <input type="hidden" name="logo_file" value="<?php echo $logo; ?>" />
-                            <input name="logo" type="file" data-filename-placement="inside" class="form-control" />
-                          <?php } else { ?>
-                          <input name="logo" type="file" data-filename-placement="inside" class="form-control" />
-                          <?php } ?>
+                    <div class="form-group">
+                        <div class="col-sm-6">
+                            <a href="checkin.php" class="btn config-btn btn-lg">Back</a>
                         </div>
+                        <div class="col-sm-6">
+                            <button	type="submit" name="submit"	value="Submit" class="btn config-btn btn-lg	pull-right">Submit</button>
                         </div>
-
-                        <div class="form-group">
-                        <label for="company_name" class="col-sm-4 control-label">Header:</label>
-                        <div class="col-sm-8">
-                            <textarea name="invoice_header" rows="5" cols="50" class="form-control"><?php echo get_config($dbc, 'invoice_header'); ?></textarea>
-                        </div>
-                        </div>
-
-                        <div class="form-group">
-                        <label for="company_name" class="col-sm-4 control-label">Footer for Customer and Third Party Invoices:</label>
-                        <div class="col-sm-8">
-                            <textarea name="invoice_footer" rows="5" cols="50" class="form-control"><?php echo get_config($dbc, 'invoice_footer'); ?></textarea>
-                        </div>
-                        </div>
-
-                        <div class="form-group">
-                        <label for="company_name" class="col-sm-4 control-label">Footer for Unpaid Third Party Invoices:</label>
-                        <div class="col-sm-8">
-                            <textarea name="invoice_unpaid_footer" rows="5" cols="50" class="form-control"><?php echo get_config($dbc, 'invoice_unpaid_footer'); ?></textarea>
-                        </div>
-                        </div>
-
-                        <div class="form-group">
-                            <div class="col-sm-6">
-                                <a href="today_invoice.php" class="btn config-btn btn-lg">Back</a>
-                            </div>
-                            <div class="col-sm-6">
-                                <button	type="submit" name="submit"	value="Submit" class="btn config-btn btn-lg	pull-right">Submit</button>
-                            </div>
-                        </div>
+                    </div>
 
                     </div>
                 </div>
             </div>
-
-                <div class="panel panel-default">
-                    <div class="panel-heading">
-                        <h4 class="panel-title">
-                            <a data-toggle="collapse" data-parent="#accordion" href="#collapse_survey" >
-                                Check In Communication Method<span class="glyphicon glyphicon-plus"></span>
-                            </a>
-                        </h4>
-                    </div>
-
-                    <div id="collapse_survey" class="panel-collapse collapse">
-                        <div class="panel-body">
-
-                           <?php
-                            $communication_check_in_way = get_config($dbc, 'communication_check_in_way');
-                           ?>
-
-                          <div class="form-group">
-                            <label for="fax_number"	class="col-sm-4	control-label">Method of Communication:</label>
-                            <div class="col-sm-8">
-                                <select data-placeholder="Choose a Way..."  name="communication_check_in_way" class="chosen-select-deselect form-control" width="380">
-                                    <option value=""></option>
-                                    <option <?php if ($communication_check_in_way == "Email") { echo " selected"; } ?> value="Email">Email</option>
-                                </select>
-                            </div>
-                          </div>
-
-                        <div class="form-group">
-                            <div class="col-sm-6">
-                                <a href="checkin.php" class="btn config-btn btn-lg">Back</a>
-                            </div>
-                            <div class="col-sm-6">
-                                <button	type="submit" name="submit"	value="Submit" class="btn config-btn btn-lg	pull-right">Submit</button>
-                            </div>
-                        </div>
-
-                        </div>
-                    </div>
-                </div>
 
             <div class="panel panel-default">
                 <div class="panel-heading">
@@ -785,7 +897,7 @@ if(!empty($invoice_types)) { ?>
 
             <div id="collapse_invoice_fields" class="panel-collapse collapse">
                 <div class="panel-body">
-					<?php $invoice_fields = (!empty($_GET['type']) ? explode(',',get_config($dbc, 'invoice_fields_'.config_safe_str($_GET['type']))) : explode(',',get_config($dbc, 'invoice_fields'))); ?>
+					<?php $invoice_fields = (!empty($_GET['type']) ? (!empty(get_config($dbc, 'invoice_fields_'.config_safe_str($_GET['type']))) ? explode(',',get_config($dbc, 'invoice_fields_'.config_safe_str($_GET['type']))) : explode(',',get_config($dbc, 'invoice_fields'))) : explode(',',get_config($dbc, 'invoice_fields'))); ?>
 					<label class="form-checkbox"><input <?= (in_array('invoice_type',$invoice_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_fields[]" value="invoice_type"> Invoice Type</label>
 					<label class="form-checkbox"><input <?= (in_array('customer',$invoice_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_fields[]" value="customer"> Customer</label>
 					<label class="form-checkbox"><input <?= (in_array('contract',$invoice_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_fields[]" value="contract"> Contract #</label>

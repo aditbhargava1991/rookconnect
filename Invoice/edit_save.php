@@ -8,7 +8,9 @@ if (isset($_POST['save_btn'])) {
 		mkdir('download', 0777, true);
 	}
     include('add_update_invoice.php');
+
     echo '<script type="text/javascript"> alert("Invoice Successfully Saved"); window.location.replace("today_invoice.php"); </script>';
+
 }
 
 if (isset($_POST['submit_btn'])) {
@@ -49,6 +51,11 @@ if (isset($_POST['submit_btn'])) {
 
 	// PDF
 	$invoice_design = get_config($dbc, 'invoice_design');
+
+    if(!empty($get_invoice['type']) && !empty(get_config($dbc, 'invoice_design_'.$get_invoice['type']))) {
+        $invoice_design = get_config($dbc, 'invoice_design_'.$get_invoice['type']);
+    }
+
 	switch($invoice_design) {
 		case 1:
 			include('pos_invoice_1.php');
@@ -107,17 +114,24 @@ if (isset($_POST['submit_btn'])) {
         </script>';
     } else if($invoicefrom == 'calendar') {
         echo '<script type="text/javascript"> window.top.close(); window.opener.location.reload(); </script>';
-    } else {
-        if($search_user != '') {
-            echo '<script type="text/javascript"> alert("Invoice Updated."); window.location.replace("all_invoice.php?search_user='.$search_user.'");</script>';
-        } else if($search_invoice != '') {
-            echo '<script type="text/javascript"> alert("Invoice Updated."); window.location.replace("all_invoice.php?search_invoice='.$search_invoice.'");</script>';
-        } else {
-            echo '<script type="text/javascript"> alert("Invoice Generated."); window.location.replace("today_invoice.php");
-            window.open("download/invoice_'.$invoiceid.'.pdf", "fullscreen=yes");
-            </script>';
+    } else { ?>
+        <script>
+        <?php if($search_user != '') { ?>
+            alert("Invoice Updated.");
+            window.location.replace("invoice_list.php?search_user=<?= $search_user ?>");
+        <?php } else if($search_invoice != '') { ?>
+            alert("Invoice Updated.");
+            window.location.replace("invoice_list.php?search_invoice=<?= $search_invoice ?>");
+        <?php } else { ?>
+            alert("Invoice Generated.");
+            window.location.replace("today_invoice.php");
+
+        <?php } ?>
+        if('<?= $invoiceid ?>' * 1 > 0) {
+            window.open("download/invoice_<?= $invoiceid ?>.pdf", "fullscreen=yes");
         }
-    }
+        </script>
+    <?php }
 
     mysqli_close($dbc); //Close the DB Connection
 }

@@ -278,6 +278,7 @@ foreach($sort_order as $sort_field) { ?>
 		<a href="" data-tab-target="ticket_attach_purchase_orders"><li class="<?= $_GET['tab'] == 'ticket_attach_purchase_orders' ? 'active blue' : '' ?>"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Purchase Orders' ?></li></a>
 	<?php } ?>
 
+
     <?php if (strpos($value_config, ','."Delivery".',') !== FALSE && strpos($value_config, ',Delivery Stops') === FALSE && $sort_field == 'Delivery') { ?>
         <?php $stopid = filter_var($_GET['stop'],FILTER_SANITIZE_STRING);
         $stop_list = $dbc->query("SELECT * FROM `ticket_schedule` WHERE `ticketid`='$ticketid' AND `deleted`=0 AND '$stopid' IN (`id`,'')"); ?>
@@ -287,6 +288,7 @@ foreach($sort_order as $sort_field) { ?>
             <a href="" data-tab-target="ticket_delivery_<?= $ticket_stop['id'] ?>"><li class="<?= $_GET['tab'] == 'ticket_delivery' ? 'active blue' : '' ?> sidebar-lower-level"><?= ($ticket_stop['id'] > 0 ? (empty($ticket_stop['client_name']) ? $ticket_stop['location_name'] : $ticket_stop['client_name']) : '').'<br /><em>Status: '.$ticket_stop['status'].'</em>' ?></li></a>
         <?php } ?>
         </ul></li>
+
     <?php } else if (strpos($value_config, ','."Delivery".',') !== FALSE && $sort_field == 'Delivery') { ?>
         <a href="" data-tab-target="ticket_delivery"><li class="<?= $_GET['tab'] == 'ticket_delivery' ? 'active blue' : '' ?>"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Delivery Details' ?></li></a>
 	<?php } ?>
@@ -405,6 +407,7 @@ foreach($sort_order as $sort_field) { ?>
 		<a href="" data-tab-target="ticket_billing"><li class="<?= $_GET['tab'] == 'ticket_billing' ? 'active blue' : '' ?>"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Billing' ?></li></a>
 	<?php } ?>
 
+
 	<?php if (strpos($value_config, ','."Customer Notes".',') !== FALSE && $sort_field == 'Customer Notes') { ?>
         <?php $stopid = filter_var($_GET['stop'],FILTER_SANITIZE_STRING);
         $stop_list = $dbc->query("SELECT * FROM `ticket_schedule` WHERE `ticketid`='$ticketid' AND `deleted`=0 AND '$stopid' IN (`id`,'')"); ?>
@@ -414,6 +417,7 @@ foreach($sort_order as $sort_field) { ?>
             <a href="" data-tab-target="ticket_customer_notes_<?= $ticket_stop['id'] ?>"><li class="sidebar-lower-level <?= $_GET['tab'] == 'ticket_customer_notes' ? 'active blue' : '' ?>"><?= ($ticket_stop['id'] > 0 ? (empty($ticket_stop['client_name']) ? $ticket_stop['location_name'] : $ticket_stop['client_name']) : '').'<br /><em>Status: '.$ticket_stop['status'].'</em>' ?></li></a>
         <?php } ?>
         </ul></li>
+
 	<?php } ?>
 
 	<?php if (strpos($value_config, ','."Reading".',') !== FALSE && $sort_field == 'Reading') { ?>

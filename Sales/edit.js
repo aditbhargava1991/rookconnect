@@ -147,6 +147,11 @@ function rem_doc(img) {
     }
     line.find('[data-table][name="deleted"]').val(1).change();
 }
+function rem_infogathering(img) {
+    var line = $(img).closest('tr');
+    line.find('[data-table][name="deleted"]').val(1).change();
+    line.remove();
+}
 function add_note() {
     overlayIFrameSlider('../Sales/add_sales_comment.php?salesid='+$('[name=salesid]').val(),'auto',true,true);
 }

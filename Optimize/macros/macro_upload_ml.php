@@ -18,28 +18,27 @@ if(isset($_POST['upload_file']) && !empty($_FILES['csv_file']['tmp_name'])) {
     }
 
 	while (($csv = fgetcsv($handle, 2048, ",")) !== FALSE) {
-		$num = count($csv);
-		$values = [];
-		for($i = 0; $i < $num; $i++) {
-			$values[$headers[$i]] = trim($csv[$i]);
-		}
-		$new_values[$values['Order-No.']]['invoice_number'] = $values['Order-No.'];
-		$new_values[$values['Order-No.']]['date'] = date('Y-m-d',strtotime($values['Delivery Date']));
-		$new_values[$values['Order-No.']]['description'] = ($new_values[$values['Order-No.']]['description'] == '' ? implode(' ',array_filter([$values['Qty'],$values['Appliance'],$values['Appliance /Part']])) : implode(', ',array_merge(explode(', ',$new_values[$values['Order-No.']]['description']),[implode(' ',array_filter([$values['Qty'],$values['Appliance'],$values['Appliance /Part']]))])));
-		$new_values[$values['Order-No.']]['weight'] = ($new_values[$values['Order-No.']]['weight'] == '' ? $values['Gross Weight (KG)'] : implode(', ',array_merge(explode(', ',$new_values[$values['Order-No.']]['weight']),[$values['Gross Weight (KG)']])));
-		$new_values[$values['Order-No.']]['volume'] = ($new_values[$values['Order-No.']]['volume'] == '' ? $values['Gross Volume (LTR)'] : implode(', ',array_merge(explode(', ',$new_values[$values['Order-No.']]['volume']),[$values['Gross Volume (LTR)']])));
-		$new_values[$values['Order-No.']]['customer_name'] = $values['Name'];
-		$new_values[$values['Order-No.']]['street_address'] = $values['Street'];
-		$new_values[$values['Order-No.']]['unit_number'] = $values['Additional Address Info'];
-		$new_values[$values['Order-No.']]['city'] = $values['City'];
-		$new_values[$values['Order-No.']]['province'] = $values['Prov'];
-		$new_values[$values['Order-No.']]['postal_code'] = $values['Postalcode'];
-		$new_values[$values['Order-No.']]['phone1'] = $values['Phone 1'];
-		$new_values[$values['Order-No.']]['phone2'] = $values['Phone 2'];
-		$new_values[$values['Order-No.']]['phone3'] = $values['Phone 3'];
-		$new_values[$values['Order-No.']]['email'] = $values['eMail'];
-		$new_values[$values['Order-No.']]['info'] = $values['00022'];
-		$new_values[$values['Order-No.']]['status'] = $values['Shipment Status'];
+        $values = [ 'ORDER' => trim($csv[0]), 'DATE' => trim($csv[1]), 'QTY' => trim($csv[2]), 'SKU' => trim($csv[3]), 'MODEL' => trim($csv[4]), 'APPLIANCE' => trim($csv[5]),
+            'APP_PART' => trim($csv[6]), 'WEIGHT' => trim($csv[7]), 'VOLUME' => trim($csv[8]), 'CUST_NO' => trim($csv[9]), 'NAME' => trim($csv[10]), 'STREET' => trim($csv[11]),
+            'UNIT' => trim($csv[12]), 'CITY' => trim($csv[13]), 'PROV' => trim($csv[14]), 'POSTAL' => trim($csv[15]), 'PHONE1' => trim($csv[16]), 'PHONE2' => trim($csv[17]),
+            'PHONE3' => trim($csv[18]), 'EMAIL' => trim($csv[19]), 'DAYNOTE' => trim($csv[20]), 'STATUS' => trim($csv[21]) ];
+		$new_values[$values['ORDER']]['invoice_number'] = $values['ORDER'];
+		$new_values[$values['ORDER']]['date'] = date('Y-m-d',strtotime($values['DATE']));
+		$new_values[$values['ORDER']]['description'] = ($new_values[$values['ORDER']]['description'] == '' ? implode(' ',array_filter([$values['QTY'],$values['APPLIANCE'],$values['APP_PART']])) : implode(', ',array_merge(explode(', ',$new_values[$values['ORDER']]['description']),[implode(' ',array_filter([$values['QTY'],$values['APPLIANCE'],$values['APP_PART']]))])));
+		$new_values[$values['ORDER']]['weight'] = ($new_values[$values['ORDER']]['weight'] == '' ? $values['WEIGHT'] : implode(', ',array_merge(explode(', ',$new_values[$values['ORDER']]['weight']),[$values['WEIGHT']])));
+		$new_values[$values['ORDER']]['volume'] = ($new_values[$values['ORDER']]['volume'] == '' ? $values['VOLUME'] : implode(', ',array_merge(explode(', ',$new_values[$values['ORDER']]['volume']),[$values['VOLUME']])));
+		$new_values[$values['ORDER']]['customer_name'] = $values['NAME'];
+		$new_values[$values['ORDER']]['street_address'] = $values['STREET'];
+		$new_values[$values['ORDER']]['unit_number'] = $values['UNIT'];
+		$new_values[$values['ORDER']]['city'] = $values['CITY'];
+		$new_values[$values['ORDER']]['province'] = $values['PROV'];
+		$new_values[$values['ORDER']]['postal_code'] = $values['POSTAL'];
+		$new_values[$values['ORDER']]['phone1'] = $values['PHONE1'];
+		$new_values[$values['ORDER']]['phone2'] = $values['PHONE2'];
+		$new_values[$values['ORDER']]['phone3'] = $values['PHONE3'];
+		$new_values[$values['ORDER']]['email'] = $values['EMAIL'];
+		$new_values[$values['ORDER']]['info'] = $values['DAYNOTE'];
+		$new_values[$values['ORDER']]['status'] = $values['STATUS'];
 	}
 	fclose($handle);
 

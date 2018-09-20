@@ -342,6 +342,27 @@
 		if(!mysqli_query($dbc, "ALTER TABLE `project` ADD `deadline` VARCHAR(10) AFTER `followup`")) {
 			echo "Error: ".mysqli_error($dbc)."<br />\n";
 		}
+    
+        //September 11, 2018
+		if(!mysqli_query($dbc, "ALTER TABLE `match_contact` ADD `tile_list` TEXT AFTER `staff_contact`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+        
+        //September 17, 2018
+		if(!mysqli_query($dbc, "ALTER TABLE `ticket_schedule` CHANGE `volume` `volume` TEXT")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+        
+        //September 18, 2018
+		if(!mysqli_query($dbc, "ALTER TABLE `email_communication` CHANGE `today_date` `today_date` DATETIME")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+		if(!mysqli_query($dbc, "ALTER TABLE `tickets` ADD `communication_tags` TEXT AFTER `created_by`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+		if(!mysqli_query($dbc, "UPDATE `tickets` SET `communication_tags`=`clientid` WHERE `communication_tags` IS NULL AND `clientid` IS NOT NULL AND `clientid` != '' AND `deleted`=0 AND `status` != 'Archive'")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
 		
 		set_config($dbc, 'db_version_jonathan', 8);
 	}
@@ -359,6 +380,16 @@
 			echo "Error: ".mysqli_error($dbc)."<br />\n";
 		}
 		set_config($dbc, 'update_project_details_path_config', 1);
+	}
+	if(get_config($dbc, 'update_timesheet_layout_fields') < 1) {
+		// September 19, 2018
+		if(!mysqli_query($dbc, "UPDATE `general_configuration` LEFT JOIN `field_config` ON 1=1 SET `time_cards`=CONCAT(REPLACE(`time_cards`,'total_tracked_hrs,',''),',ticket_select,task_select,total_tracked_hrs_task,total_hrs,') WHERE `general_configuration`.`name`='timesheet_layout' AND `general_configuration`.`value`='ticket_task'")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+		if(!mysqli_query($dbc, "UPDATE `general_configuration` LEFT JOIN `field_config` ON 1=1 SET `time_cards`=CONCAT(REPLACE(`time_cards`,'total_tracked_hrs,',''),',position_select,total_tracked_hrs_task,total_hrs,') WHERE `general_configuration`.`name`='timesheet_layout' AND `general_configuration`.`value`='position_dropdown'")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+		set_config($dbc, 'update_timesheet_layout_fields', 1);
 	}
 	
 	echo "Jonathan's DB Changes Done<br />\n";
