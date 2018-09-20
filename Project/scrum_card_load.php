@@ -275,13 +275,13 @@ if($type == 'Ticket') {
         $slider_layout = !empty(get_config($dbc, 'tasks_slider_layout')) ? get_config($dbc, 'tasks_slider_layout') : 'accordion';
 
         if($slider_layout == 'accordion') {
-            $label .= '<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Tasks_Updated/add_task.php?type='.$item['status'].'&tasklistid='.$item['tasklistid'].'\', \'50%\', false, false, $(\'.iframe_overlay\').closest(\'.container\').outerHeight() + 20); return false;">Task #'.$item['tasklistid'].': </a>';
+            $label .= '<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Tasks_Updated/add_task.php?type='.$item['status'].'&tasklistid='.$item['tasklistid'].'\', \'50%\', false, false, $(\'.iframe_overlay\').closest(\'.container\').outerHeight() + 20); return false;">Task #'.$item['tasklistid'].' </a>';
         } else {
-            $label .= '<a href="../Tasks_Updated/add_task_full_view.php?type='.$item['status'].'&tasklistid='.$item['tasklistid'].'">Task #'.$item['tasklistid'].': </a>';
+            $label .= '<a href="../Tasks_Updated/add_task_full_view.php?type='.$item['status'].'&tasklistid='.$item['tasklistid'].'">Task #'.$item['tasklistid'].' </a>';
         }
 
 
-       $label .= html_entity_decode($item['heading']).'</div>
+       $label .= '<br>'.html_entity_decode($item['heading']).'</div>
 		<input type="hidden" name="comment" value="" data-name="comment" data-table="taskcomments" data-id-field="taskcommid" data-id="" data-type="'.$item['tasklistid'].'" data-type-field="tasklistid">';
 
 	$contents = '<div class="action_notifications">';

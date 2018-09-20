@@ -764,8 +764,14 @@ function checklist_attach_file(checklist) {
                         } ?>
                         <div class="row">
 
-                            <h4 style="<?= $style_strikethrough ?>"><input type="checkbox" name="status" value="<?= $row['tasklistid'] ?>" class="form-checkbox no-margin" onchange="mark_done(this);" <?= ( $row['status'] == $status_complete ) ? 'checked' : '' ?> />
-                                <a href="" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Tasks_Updated/add_task.php?type=<?=$row['status']?>&tasklistid=<?=$row['tasklistid']?>', '50%', false, false, $('.iframe_overlay').closest('.container').outerHeight() + 20); return false;">Task #<?= $row['tasklistid'] ?></a>: <?= ($url_tab=='Business') ? get_contact($dbc, $businessid, 'name') . ': ' : '' ?><?= ($url_tab=='Client') ? get_contact($dbc, $clientid) . ': ' : '' ?><?=limit_text($row['heading'], 5 )?>
+                            <h4 style="<?= $style_strikethrough ?>"><input type="checkbox" name="status" value="<?= $row['tasklistid'] ?>" class="form-checkbox no-margin pull-left" onchange="mark_done(this);" <?= ( $row['status'] == $status_complete ) ? 'checked' : '' ?> />
+                                <div class="col-sm-5">
+                                <a href="" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Tasks_Updated/add_task.php?type=<?=$row['status']?>&tasklistid=<?=$row['tasklistid']?>', '50%', false, false, $('.iframe_overlay').closest('.container').outerHeight() + 20); return false;">
+                                	Task #<?= $row['tasklistid'] ?>
+                                </a><br>
+                                <?= ($url_tab=='Business') ? get_contact($dbc, $businessid, 'name') . ': ' : '' ?><?= ($url_tab=='Client') ? get_contact($dbc, $clientid) . ': ' : '' ?><?=limit_text($row['heading'], 5 )?>
+                                </div>
+                                <div>
                         <?php echo '<img class="drag_handle pull-right inline-img no-toggle" src="../img/icons/drag_handle.png" title="Drag" />';
                         echo '<span class="pull-right small">';
                         if ( $row['company_staff_sharing'] ) {
@@ -775,7 +781,7 @@ function checklist_attach_file(checklist) {
                         } else {
                             profile_id($dbc, $row['contactid']);
                         }
-                        echo '</span></h4></span></div>';
+                        echo '</span></div></h4></span></div>';
 
 
                         echo '<div class="clearfix"></div>';
@@ -873,9 +879,15 @@ function checklist_attach_file(checklist) {
                         echo '</select></div><div class="clearfix"></div>'; ?>
 
                         <div class="row">
-
-                            <h4 style="<?= $style_strikethrough ?>"><input type="checkbox" name="status" value="<?= $row['tasklistid'] ?>" class="form-checkbox no-margin" onchange="mark_done(this);" <?= ( $row['status'] == $status_complete ) ? 'checked' : '' ?> />
-                                <a href="" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Tasks/add_task.php?type=<?=$row['status']?>&tasklistid=<?=$row['tasklistid']?>', '50%', false, false, $('.iframe_overlay').closest('.container').outerHeight() + 20); return false;">Task #<?= $row['tasklistid'] ?></a>: <?= ($url_tab=='Business') ? get_contact($dbc, $businessid, 'name') . ': ' : '' ?><?= ($url_tab=='Client') ? get_contact($dbc, $clientid) . ': ' : '' ?><?=limit_text($row['heading'], 5 )?>
+							
+                            <h4 style="<?= $style_strikethrough ?>"><input type="checkbox" name="status" value="<?= $row['tasklistid'] ?>" class="form-checkbox no-margin pull-left" onchange="mark_done(this);" <?= ( $row['status'] == $status_complete ) ? 'checked' : '' ?> />
+                                <div class="col-sm-5">
+                                    <a href="" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Tasks/add_task.php?type=<?=$row['status']?>&tasklistid=<?=$row['tasklistid']?>', '50%', false, false, $('.iframe_overlay').closest('.container').outerHeight() + 20); return false;">
+                                    	Task #<?= $row['tasklistid'] ?>
+                                    </a><br>
+                                <?= ($url_tab=='Business') ? get_contact($dbc, $businessid, 'name') . ': ' : '' ?><?= ($url_tab=='Client') ? get_contact($dbc, $clientid) . ': ' : '' ?><?=limit_text($row['heading'], 5 )?>
+                        		</div>
+                        		<div>
                         <?php
                         echo '<span class="pull-right small">';
                         if ( $row['company_staff_sharing'] ) {
@@ -885,7 +897,7 @@ function checklist_attach_file(checklist) {
                         } else {
                             profile_id($dbc, $row['contactid']);
                         }
-                        echo '</span></h4></span></div>';
+                        echo '</span></div></h4></span></div>';
 
                         echo '<div class="clearfix"></div>';
 
