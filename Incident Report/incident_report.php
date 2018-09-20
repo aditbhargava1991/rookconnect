@@ -10,6 +10,9 @@ include ('../include.php');
 checkAuthorised('incident_report');
 $view_sql = (search_visible_function($dbc,'incident_report') > 0 ? '' : " AND (CONCAT(',',`contactid`,',',`clientid`,',') LIKE '%,{$_SESSION['contactid']},%' OR `completed_by` = '{$_SESSION['contactid']}')");
 $current_type = $_GET['type'];
+if($current_type == 'ALL') {
+    $current_type = '';
+}
 if(!empty($current_type)) {
     $type_query = " AND `type` = '$current_type'";
 }

@@ -31,7 +31,7 @@ if(empty($current_type) && in_array('Summary',$tile_tabs) && $current_file != 's
 	<?php if(in_array('Summary',$tile_tabs)) { ?>
         <a href="summary.php"><li <?= $current_file == 'summary.php' ? 'class="active"' : '' ?>>Summary</li></a>
 	<?php } ?>
-    <a href="incident_report.php"><li <?= $current_file == 'incident_report.php' && empty($current_type) ? 'class="active"' : '' ?>>All <?= INC_REP_TILE ?></li></a>
+    <a href="incident_report.php?type=ALL"><li <?= $current_file == 'incident_report.php' && empty($current_type) || $current_type == 'ALL' ? 'class="active"' : '' ?>>All <?= INC_REP_TILE ?></li></a>
     <?php if(get_config($dbc, 'inc_rep_saved_tab') == 1) { ?>
 		<a href="incident_report.php?type=SAVED"><li <?= $current_file == 'incident_report.php' && $current_type == 'SAVED' ? 'class="active"' : '' ?>>Saved <?= INC_REP_TILE ?></li></a>
     <?php } ?>
