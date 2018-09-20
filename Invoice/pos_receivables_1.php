@@ -147,7 +147,7 @@ foreach(array_unique($patient_ids) as $contactid) {
         $html .=  '<tr style="background-color:lightgrey; color:black;">
 	<td>'.get_contact($dbc, $contactid).'</td>
 	<td>'.get_contact_phone($dbc, $contactid).'</td>
-	<td>'.get_address($dbc, $contactid).'</td>
+	<td>'.get_email($dbc, $contactid).'</td>
     </tr>';
     }
 }
