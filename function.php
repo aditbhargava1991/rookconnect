@@ -2285,28 +2285,23 @@ function get_patientform($dbc, $patientformid, $field_name) {
 
 function get_contact_phone($dbc, $contactid) {
     $get_staff =	mysqli_fetch_assoc(mysqli_query($dbc,"SELECT office_phone, cell_phone, home_phone, category FROM	contacts WHERE	contactid='$contactid'"));
-    if($get_staff['category'] == 'Patient') {
         $phone = '';
         if($get_staff['cell_phone'] != '') {
             $phone .= '(M)'.decryptIt($get_staff['cell_phone']);
             $phone .= '<br>';
         }
-        //$phone .= '<br>';
-        //if($get_staff['office_phone'] != '') {
-        //    $phone .= '(O)'.decryptIt($get_staff['office_phone']);
-        //} else {
-        //    $phone .= '(O)-';
-        //}
+
+        if($get_staff['office_phone'] != '') {
+            $phone .= '(O)'.decryptIt($get_staff['office_phone']);
+            $phone .= '<br>';
+        }
 
         if($get_staff['home_phone'] != '') {
             $phone .= '(H)'.decryptIt($get_staff['home_phone']);
         }
         return $phone;
-        //return '(M)'.decryptIt($get_staff['cell_phone']).'<br>(O)'.decryptIt($get_staff['office_phone']).'<br>(H)'.decryptIt($get_staff['home_phone']);
-    } else {
-        return '(M)'.decryptIt($get_staff['cell_phone']).'<br>(O)'.decryptIt($get_staff['office_phone']).'<br>(H)'.decryptIt($get_staff['home_phone']);
-    }
 }
+
 function get_contact_first_phone($dbc, $contactid) {
     $get_staff =	mysqli_fetch_assoc(mysqli_query($dbc,"SELECT office_phone, cell_phone, home_phone, category FROM	contacts WHERE	contactid='$contactid'"));
 	return $get_staff['cell_phone'] != '' ? decryptIt($get_staff['cell_phone']) : ($get_staff['office_phone'] != '' ? decryptIt($get_staff['office_phone']) : decryptIt($get_staff['home_phone']));
