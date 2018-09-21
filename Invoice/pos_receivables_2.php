@@ -73,7 +73,7 @@ DEFINE('INVOICEID', $invoiceid);
 DEFINE('DUEDATE', date('Y-m-d', strtotime($roww['invoice_date'] . "+30 days")));
 DEFINE('SHIP_DATE', $get_invoice['ship_date']);
 DEFINE('SALESPERSON', decryptIt($_SESSION['first_name']).' '.decryptIt($_SESSION['last_name']));
-DEFINE('PAYMENT_TYPE', trim(explode('#*#',$get_invoice['payment_type'])[0],','));
+DEFINE('PAYMENT_TYPE', $payment_type);
 
 // Hide Sales Person from Washtech
 if ( $rookconnect !== 'washtech' ) {
@@ -100,7 +100,7 @@ class MYPDF extends TCPDF {
 
 		$this->SetFont('helvetica', '', 9);
 
-	    $footer_text = '<p style="text-align:right;">Payment Date : ' .date('Y-m-d').'<br>Payment Type : ' .$payment_type.'</p>';
+	    $footer_text = '<p style="text-align:right;">Payment Date : ' .date('Y-m-d').'<br>Payment Type : ' .PAYMENT_TYPE.'</p>';
 		$this->writeHTMLCell(0, 0, 0 , 10, $footer_text, 0, 0, false, "R", true);
 	}
 
@@ -153,18 +153,6 @@ $html .= '
             $html .= '</td></tr>
     </table><br><br>';
 
-///
-
-
-
-
-$html .= '<table border="1px" style="padding:3px; border:1px solid grey;">
-		<tr nobr="true" style="background-color:rgb(140,173,174); color:black; "><td>Salesperson</td><td>Payment Type</td></tr>
-<tr><td>'.SALESPERSON.'</td><td>'.$payment_type.'</td></tr>
-</table><br><br>
-';
-
-
 	$html .= '
 		<table border="1px" style="padding:3px; border:1px solid black;">
 		<tr nobr="true" style="background-color:lightgrey; color:black;  width:22%;">';
@@ -198,16 +186,14 @@ $html .= '
 		<br><br>
 		<table border="0" cellpadding="2">';
 
-	    $html .= '<tr><td align="right" width="75%"><strong>Total Due By Customer</strong></td><td align="right" border="1" width="25%">$'.number_format($sub_total,2).'</td></tr>';
+	    $html .= '<tr><td style="text-align:right;" width="75%"><strong>Total Due By Customer</strong></td><td border="1" width="25%" style="text-align:right;">$'.number_format($sub_total,2).'</td></tr>';
 
 		if($pdf_tax != '') {
 			$html .= $pdf_tax;
 		}
 
-		$html .= '<tr><td align="right" width="75%"><strong>Total Amount Owing</strong></td><td align="right" border="1" width="25%"">$'.number_format($total_amt,2).'</td></tr>';
-
-		$html .= '<tr><td align="right" width="75%"><strong>Payment By</strong></td><td align="right" border="1" width="25%"">'.$payment_type.' (-$'.number_format($total_amt,2).')</td></tr>';
-
-		$html .= '<tr><td align="right" width="75%"><strong>Balance</strong></td><td align="right" border="1" width="25%"">$0.00</td></tr>';
+	    $html .= '<tr><td style="text-align:right;" width="75%"><strong>Total Amount Owing</strong></td><td border="1" width="25%" style="text-align:right;">$'.number_format($total_amt,2).'</td></tr>';
+	    $html .= '<tr><td style="text-align:right;" width="75%"><strong>Payment By</strong></td><td border="1" width="25%" style="text-align:right;">'.$payment_type.' (-$'.number_format($total_amt,2).')</td></tr>';
+	    $html .= '<tr><td style="text-align:right;" width="75%"><strong>Balance</strong></td><td border="1" width="25%" style="text-align:right;">$0.00</td></tr>';
 
 		$html .= '</table><br><br>';
