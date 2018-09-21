@@ -111,7 +111,7 @@ var projectFilter = function() {
 				</div>
 				<div class="col-sm-1">
 					<a href="" onclick="viewProfile(this); return false;"><img class="inline-img pull-right no-toggle" src="../img/person.PNG" title="View Profile"></a>
-					<a href="" onclick="$(this).closest('.form-group').find('select').val('ADD_NEW').change(); return false;"><img class="inline-img pull-right" src="../img/icons/ROOK-add-icon.png"></a>
+					<a href="" onclick="$(this).closest('.form-group').find('select').val('ADD_NEW').change(); return false;"><img class="inline-img pull-right" data-history-label="New Business" src="../img/icons/ROOK-add-icon.png"></a>
 				</div>
 			</div>
 		<?php } ?>
@@ -131,7 +131,7 @@ var projectFilter = function() {
 				</div>
 				<div class="col-sm-1">
 					<a href="" onclick="viewProfile(this); return false;"><img class="inline-img pull-right no-toggle" src="../img/person.PNG" title="View Profile"></a>
-					<a href="" onclick="$(this).closest('.form-group').find('select').val('ADD_NEW').change(); return false;"><img class="inline-img pull-right" src="../img/icons/ROOK-add-icon.png"></a>
+					<a href="" onclick="$(this).closest('.form-group').find('select').val('ADD_NEW').change(); return false;"><img class="inline-img pull-right" data-history-label="New Contact" src="../img/icons/ROOK-add-icon.png"></a>
 				</div>
 			</div>
 		<?php } ?>

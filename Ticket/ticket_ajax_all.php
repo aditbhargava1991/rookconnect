@@ -3224,5 +3224,13 @@ if($_GET['action'] == 'update_fields') {
 		sync_recurring_tickets($dbc, $ticketid);
 	}
 
+} else if($_GET['action'] == 'ticket_click_history') {
+	$ticketid = $_POST['ticketid'];
+	$section = $_POST['section'];
+	$label = $_POST['label'];
+	$icon = $_POST['icon'];
+
+	// Record History
+	mysqli_query($dbc, "INSERT INTO `ticket_history` (`ticketid`, `userid`, `description`) VALUES ('$ticketid','{$_SESSION['contactid']}','Clicked on $icon for $label in $section section')");
 }
 ?>
