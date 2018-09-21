@@ -107,7 +107,7 @@ $(document).ready(function() {
 });
 </script>
 <h3><?= (!empty($renamed_accordion) ? $renamed_accordion : (strpos($value_config, ','."Check In Member Drop Off".',') !== FALSE ? 'Member Drop Off' : 'Check In')) ?>
-<?php $checkins = mysqli_query($dbc, "SELECT `id`, `src_table`, `arrived`, `item_id`, `position`, `description`, `notes` FROM `ticket_attached` WHERE `item_id` > 0 AND `src_table` NOT IN ('Wait List') AND `deleted`=0 AND `ticketid`='$ticketid' AND '$ticketid' > 0 AND (`src_table` != 'Delivery' OR `line_id`='$stopid') AND `tile_name`='".$folder."' $query_daily ORDER BY `src_table` != 'Staff', `src_table`");
+<?php $checkins = mysqli_query($dbc, "SELECT `id`, `src_table`, `arrived`, `item_id`, `position`, `description`, `notes`, `timer_start` FROM `ticket_attached` WHERE `item_id` > 0 AND `src_table` NOT IN ('Wait List') AND `deleted`=0 AND `ticketid`='$ticketid' AND '$ticketid' > 0 AND (`src_table` != 'Delivery' OR `line_id`='$stopid') AND `tile_name`='".$folder."' $query_daily ORDER BY `src_table` != 'Staff', `src_table`");
 if(strpos($value_config, ',Checkin Delivery Require,') !== FALSE && !($_GET['stop'] > 0)) { ?>
 	<script>
 	$(document).ready(function() {
