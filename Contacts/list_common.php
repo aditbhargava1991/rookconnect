@@ -184,7 +184,7 @@ if(ucwords($category) == 'Vendors') {
 			<a href="?list=<?= $_GET['list'] ?>&status=archive" class="btn brand-btn <?= $status == 'archive' ? 'active_tab' : '' ?>">Archived</a>
 			-->
             <!-- <input type="submit" value="Filter" class="btn brand-btn" name="search_<?php //echo $category; ?>_submit"> -->
-			<button type="submit" value="<?= $category ?>" class="btn brand-btn" name="export_contacts">Export CSV</button>
+			<button type="submit" value="<?= $category ?>" class="image-btn no-toggle" name="export_contacts" title="Export CSV"><img src="../img/icons/csv.png" width="30" /></button>
 			<input type="hidden" name="export_option" value="Contact Information">
 		</span>
 	</form>

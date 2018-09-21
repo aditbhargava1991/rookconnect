@@ -1,8 +1,8 @@
 <?php include_once('config.php'); ?>
 <?php if($_GET['inv_mode'] === 'adjust') { ?>
-    <div class="col-sm-12" style="text-align:right;"><h3>
-        <label style="color: blue;">Adjustment <input type="checkbox" onchange="if(this.checked) { $('.adjust_block').show(); $('[name=paid]').first().change(); } else { $('.adjust_block').hide(); }"></label>
-        <label style="color: red;">Refund <input type="checkbox" onchange="if(this.checked) { $('.return_block').show(); } else { $('.return_block').hide(); }"></label>
+    <div class="col-sm-12"><h3>
+        <label class="col-xs-6" style="color: red;"><input type="checkbox" onchange="if(this.checked) { $('.return_block').show(); } else { $('.return_block').hide(); }"> Refund</label>
+        <label class="col-xs-6" style="color: blue;"><input type="checkbox" onchange="if(this.checked) { $('.adjust_block').show(); $('[name=paid]').first().change(); } else { $('.adjust_block').hide(); $('.adjust_block_pricing').hide(); }"> Adjustment</label>
     </h3></div>
 <?php } ?>
 <script>
@@ -51,7 +51,7 @@
     <h4 class="clearfix" <?= (in_array('gf',$field_config) ? '' : 'style="display:none;"') ?>><label class="detail_gf_amt pull-right"><span id="detail_gift_amount">N/A</span></label>Gift Card Value:</h4>
     <h4 class="clearfix" style="display:none;"><label class="detail_credit_balance pull-right">$0.00</label>Credit to Account:</h4>
     <h4 class="clearfix"><label class="detail_total_amt pull-right">$0.00</label>Total:</h4>
-    <h4 class="clearfix" style="display:none;"><label class="detail_refund_amt pull-right">$0.00</label>Refund Amount:</h4>
+    <h4 class="clearfix red" style="display:none;"><label class="detail_refund_amt pull-right">$0.00</label>Refund Amount:</h4>
     <h4 class="clearfix" style="display:none;"><label class="detail_adjust_amt pull-right">$0.00</label>Adjustment Amount:</h4>
     <h4 class="clearfix" style="display:none;"><label class="detail_insurer_amt pull-right">$0.00</label><?= count($payer_config) > 1 ? 'Third Party' : $payer_config[0] ?> Portion: </h4>
     <h4 class="clearfix" style="display:none;"><label class="detail_patient_amt pull-right">$0.00</label><?= count($purchaser_config) > 1 ? 'Customer' : $purchaser_config[0] ?> Portion:</h4>

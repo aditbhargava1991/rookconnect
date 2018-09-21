@@ -263,7 +263,8 @@
         </div>
     <?php } ?>
 
-    <?php if($_GET['inv_mode'] == 'adjust') { ?>
+    <?php if($_GET['inv_mode'] == 'adjust') {
+        $previous_payments = 0; ?>
         <div class="form-group">
             <label for="additional_note" class="col-sm-3 control-label">Invoice Payment Information:</label>
             <div class="col-sm-9">
@@ -271,7 +272,7 @@
                     <label class="col-sm-4">Paid By</label>
                     <label class="col-sm-3">Payment Type</label>
                     <label class="col-sm-3">Payment Amount</label>
-                    <label class="col-sm-2 return_block">Refund Amounts</label>
+                    <label class="col-sm-2 return_block">Refund Amount</label>
                 </div>
 
                 <?php foreach($insurer_paid_who as $loop_check => $check_insurer) {
@@ -300,7 +301,8 @@
                             <div class="col-sm-3"><label class="col-sm-4 show-on-mob">Payment Type:</label><?= count($payer_config) > 1 ? 'Third Party' : $payer_config[0] ?> Payment</div>
                             <div class="col-sm-3"><label class="col-sm-4 show-on-mob">Payment Amount:</label>$<?= number_format($insurer_paid_amt[$i],2) ?><input type="hidden" name="amount_previously_paid[]" value="<?= $insurer_paid_amt[$i] ?>"><input type="hidden" name="insurer_amt[]" value="<?= $insurer_paid_amt[$i] ?>"><input type="hidden" name="insurer_payer[]" value="<?= $ins_pay_id ?>"></div>
                         </div>
-                    <?php }
+                        <?php $previous_payments += $insurer_paid_amt[$i] * 1;
+                    }
                 }
 
                 foreach($patient_paid_type as $loop_check => $check_patient) {
@@ -330,9 +332,13 @@
                         <div class="col-sm-2 return_block"><label class="col-sm-4 show-on-mob">Refund amount to <?= $patient_pay_type ?>:</label>
                             <input type="hidden" name="refund_to_type[]" value="<?= $patient_pay_type ?>"><input type="number" class="form-control" name="refund_type_amount[]" value="0" min="0" max="<?= $patient_paid_amt[$i] ?>" data-status="auto" onchange="adjustRefundAmt();" step="any"></div>
                     </div>
-                <?php } ?>
+                    <?php $previous_payments += $patient_paid_amt[$i] * 1;
+                } ?>
             </div>
         </div>
+        <script>
+        var previous_payment = '<?= $previous_payments ?>' * 1;
+        </script>
     <?php } ?>
     <div class="form-group payment_option">
         <label for="additional_note" class="col-sm-3 control-label"><?= count($purchaser_config) > 1 ? 'Customer' : $purchaser_config[0] ?> Payment:</label>
@@ -389,7 +395,7 @@
         <div class="form-group">
             <div class="col-sm-3 col-xs-4">
                 <span class="popover-examples list-inline"><a data-toggle="tooltip" data-placement="top" title="Clicking here will discard changes and return you to the <?= (empty($current_tile_name) ? 'Check Out' : $current_tile_name) ?> tile main dashboard."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
-                <a href="today_invoice.php"><img width="30" class="override-theme-color-icon no-toggle" title="Cancel Invoice" src="../img/icons/ROOK-trash-icon.png"></a>
+                <a href="index.php?tab=today"><img width="30" class="override-theme-color-icon no-toggle" title="Cancel Invoice" src="../img/icons/ROOK-trash-icon.png"></a>
             </div>
             <div class="col-sm-9 col-xs-8">
                 <button type="submit" name="submit_btn" onclick="return validateappo();" id="submit" value="<?= $_GET['inv_mode'] == 'adjust' ? 'Adjustment' : 'New' ?>" class="btn brand-btn pull-right">Submit</button>

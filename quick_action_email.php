@@ -197,6 +197,10 @@ switch($_GET['tile']) {
 		$body = "This is a reminder about a ".PROJECT_TILE.".<br />\n<br />
                 <a href='".WEBSITE_URL."/Project/projects.php?edit=$id&tile_name=project'>Click here</a> to see the ".PROJECT_TILE.".<br />\n<br />";
 		break;
+    default:
+        $subject = $_GET['subject'];
+		$body = $_GET['body'];
+        break;
 } ?>
 
 <div class="container">
@@ -338,7 +342,7 @@ switch($_GET['tile']) {
         	</div>
 
         	<div class="form-group pull-right">
-        		<a href="" class="btn brand-btn">Back</a>
+        		<a href="" class="btn brand-btn">Cancel</a>
         		<button type="submit" name="submit" value="Submit" class="btn brand-btn">Submit</button>
         	</div>
 

@@ -101,20 +101,6 @@ if (isset($_GET['printpdf'])) {
 } ?>
 
 <script type="text/javascript">
-$(document).ready(function() {
-    $('a.printpdf').click(function() {
-        $('[name=printpdf]').click();
-    });
-    <?php if ( isset($_GET['search_email_submit']) ) { ?>
-        $('#search_div').hide();
-    <?php } else { ?>
-        $('#search_div').show();
-    <?php } ?>
-    
-    $('.show_search').click(function(){
-        $('#search_div').toggle();
-    });
-});
 function bus_filter(select) {
 	var bus = select.value;
 	$('[name="siteid[]"] option').each(function() {
@@ -173,8 +159,8 @@ function bus_filter(select) {
                 $siteid = [];
             } ?>
 
-            <div id="search_div">
-				<div class="form-group col-sm-6">
+            <center>
+				<div class="form-group col-sm-5">
 					<label class="col-sm-4"><?= BUSINESS_CAT ?>:</label>
 					<div class="col-sm-8">
 						<select name="businessid" class="chosen-select-deselect" data-placeholder="Select <?= BUSINESS_CAT ?>" onchange="bus_filter(this);"><option />
@@ -184,7 +170,7 @@ function bus_filter(select) {
 						</select>
 					</div>
                 </div>
-				<div class="form-group col-sm-6">
+				<div class="form-group col-sm-5">
 					<label class="col-sm-4"><?= SITES_CAT ?>:</label>
 					<div class="col-sm-8">
 						<select name="siteid[]" multiple class="chosen-select-deselect" data-placeholder="Select <?= SITES_CAT ?>"><option />
@@ -194,7 +180,7 @@ function bus_filter(select) {
 						</select>
 					</div>
                 </div>
-				<div class="form-group col-sm-6">
+				<div class="form-group col-sm-5">
 					<label class="col-sm-4"><?= TICKET_NOUN ?>:</label>
 					<div class="col-sm-8">
 						<select name="ticketid" class="chosen-select-deselect" data-placeholder="Select <?= TICKET_NOUN ?>"><option />
@@ -205,7 +191,7 @@ function bus_filter(select) {
 						</select>
 					</div>
                 </div>
-				<div class="form-group col-sm-6">
+				<div class="form-group col-sm-5">
 					<label class="col-sm-4"><?= PROJECT_NOUN ?>:</label>
 					<div class="col-sm-8">
 						<select name="projectid" class="chosen-select-deselect" data-placeholder="Select <?= PROJECT_NOUN ?>"><option />
@@ -217,7 +203,7 @@ function bus_filter(select) {
 					</div>
                 </div>
 				<?php if(in_array('filter_extra_billing',$report_fields)) { ?>
-					<div class="form-group col-sm-6">
+					<div class="form-group col-sm-5">
 						<label for="search_extra_ticket" class="col-sm-4 control-label">Search By Extra Billing <?= TICKET_NOUN ?>:</label>
 						<div class="col-sm-8">
 							<select data-placeholder="Select a <?= TICKET_NOUN ?> #" name="search_extra_ticket" class="chosen-select-deselect form-control">
@@ -232,7 +218,7 @@ function bus_filter(select) {
 					</div>
 				<?php } ?>
 				<?php if(in_array('filter_materials',$report_fields)) { ?>
-					<div class="form-group col-sm-6">
+					<div class="form-group col-sm-5">
 						<label for="search_material" class="col-sm-4 control-label">Search By Materials:</label>
 						<div class="col-sm-8">
 							<select data-placeholder="Select Material" name="search_material" class="chosen-select-deselect form-control">
@@ -247,7 +233,7 @@ function bus_filter(select) {
 					</div>
 				<?php } ?>
 				<?php if(in_array('filter_staff_expenses',$report_fields)) { ?>
-					<div class="form-group col-sm-6">
+					<div class="form-group col-sm-5">
 						<label for="search_expenses" class="col-sm-4 control-label">Only <?= TICKET_TILE ?> with Expenses:</label>
 						<div class="col-sm-8">
 							<select data-placeholder="Select Option" name="search_material" class="chosen-select-deselect form-control">
@@ -258,7 +244,7 @@ function bus_filter(select) {
 					</div>
 				<?php } ?>
 				<?php if(in_array('filter_ticket_notes',$report_fields)) { ?>
-					<div class="form-group col-sm-6">
+					<div class="form-group col-sm-5">
 						<label for="search_notes" class="col-sm-4 control-label">Only <?= TICKET_TILE ?> with Notes:</label>
 						<div class="col-sm-8">
 							<select data-placeholder="Select Option" name="search_material" class="chosen-select-deselect form-control">
@@ -268,34 +254,33 @@ function bus_filter(select) {
 						</div>
 					</div>
 				<?php } ?>
-				<div class="form-group col-sm-6">
+				<div class="form-group col-sm-5">
 					<label class="col-sm-4">Date From:</label>
 					<div class="col-sm-8"><input name="starttime" type="text" class="datepicker form-control" value="<?php echo $starttime; ?>"></div>
                 </div>
-				<div class="form-group col-sm-6">
+				<div class="form-group col-sm-5">
 					<label class="col-sm-4">Date Until:</label>
 					<div class="col-sm-8"><input name="endtime" type="text" class="datepicker form-control" value="<?php echo $endtime; ?>"></div>
 				</div>
 				<?php if(in_array('ticket_activity_created_dates',$report_fields)) { ?>
-					<div class="form-group col-sm-6">
+					<div class="form-group col-sm-5">
 						<label class="col-sm-4"><?= TICKET_NOUN ?> Created From:</label>
 						<div class="col-sm-8"><input name="createstart" type="text" class="datepicker form-control" value="<?php echo $createstart; ?>"></div>
 					</div>
-					<div class="form-group col-sm-6">
+					<div class="form-group col-sm-5">
 						<label class="col-sm-4"><?= TICKET_NOUN ?> Created Until:</label>
 						<div class="col-sm-8"><input name="createend" type="text" class="datepicker form-control" value="<?php echo $createend; ?>"></div>
 					</div>
 				<?php } ?>
-				<div class="form-group">
-					<label class="form-checkbox col-sm-4"><input name="hide_staff" type="checkbox" <?= $hide_staff == 'hide' ? 'checked' : '' ?> value="hide">Hide Staff on Report</label>
-					<label class="form-checkbox col-sm-4"><input name="hide_wo" type="checkbox" <?= $hide_wo == 'hide' ? 'checked' : '' ?> value="hide">Hide <?= TICKET_NOUN ?> on Report</label>
+				<div class="form-group col-sm-10">
+					<label class="form-checkbox"><input name="hide_staff" type="checkbox" <?= $hide_staff == 'hide' ? 'checked' : '' ?> value="hide">Hide Staff on Report</label>
+					<label class="form-checkbox"><input name="hide_wo" type="checkbox" <?= $hide_wo == 'hide' ? 'checked' : '' ?> value="hide">Hide <?= TICKET_NOUN ?> on Report</label>
 					<?php if($disable_staff != '') { ?>
-						<label class="form-checkbox col-sm-4 any-width"><input name="disable_staff[]" type="checkbox" checked value="<?= $disable_staff ?>">Keep Selected Staff Hidden from Report</label>
+						<label class="form-checkbox any-width"><input name="disable_staff[]" type="checkbox" checked value="<?= $disable_staff ?>">Keep Selected Staff Hidden from Report</label>
 					<?php } ?>
 				</div>
-				<button type="submit" name="search_email_submit" value="Search" class="btn brand-btn mobile-block pull-right">Submit</button>
-                <div class="clearfix"></div>
-			</div>
+				<button type="submit" name="search_email_submit" value="Search" class="btn brand-btn mobile-block">Submit</button>
+			</center>
 
             <input type="hidden" name="starttimepdf" value="<?php echo $starttime; ?>">
             <input type="hidden" name="endtimepdf" value="<?php echo $endtime; ?>">
@@ -310,7 +295,7 @@ function bus_filter(select) {
             <input type="hidden" name="hide_wopdf" value="<?php echo $hide_wo; ?>">
             <input type="hidden" name="disable_staffpdf" value="<?php echo $disable_staff; ?>">
 
-            <button type="submit" name="printpdf" value="Print Report" class="btn brand-btn pull-right" style="visibility:hidden;">Print Report</button>
+            <button type="submit" name="printpdf" value="Print Report" class="btn brand-btn pull-right">Print Report</button>
             <br><br>
 			<div class="clearfix"></div>
 

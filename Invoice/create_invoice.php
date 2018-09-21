@@ -11,13 +11,7 @@ include_once ('../navigation.php'); ?>
 		<div class="main-screen">
 			<div class="tile-header standard-header" id="header_divs">
 				<div class="pull-right pad-5">
-                    <a data-toggle="collapse" data-parent="#header_divs" href="#header_summary" onclick="setWindowSize();"><img src="<?= WEBSITE_URL ?>/img/icons/pie-chart.png" title="Show <?= CONTACTS_NOUN ?> Summary" class="inline-img override-theme-color-icon no-toggle"></a>
-                    <a href="invoice_main.php"><img class="inline-img no-toggle" title="Cancel Invoice" src="../img/icons/ROOK-trash-icon.png"></a>
-                    <a href="../quick_action_reminders.php?tile=invoice" onclick="overlayIFrameSlider(this.href,'auto',true,true); return false;"><img class="inline-img no-toggle" title="Create Reminder" src="../img/icons/ROOK-reminder-icon.png"></a>
                     <a data-toggle="collapse" data-parent="#header_divs" href="#header_tabs" onclick="setWindowSize();"><img src="<?= WEBSITE_URL ?>/img/icons/ROOK-3dot-icon.png" title="Show <?= (empty($current_tile_name) ? 'Check Out' : $current_tile_name) ?> Tabs" class="inline-img override-theme-color-icon no-toggle"></a>
-					<?php if($security['edit'] > 0 && $_GET['inv_mode'] != 'adjust') { ?>
-                        <a href="" onclick="$('#save').click(); return false;"><img src="<?= WEBSITE_URL ?>/img/icons/save.png" title="Save Invoice" class="inline-img override-theme-color-icon no-toggle"></a>
-					<?php } ?>
 					<?php if($security['config'] > 0) { ?>
                         <a href="field_config_invoice.php"><img title="Tile Settings" src="../img/icons/settings-4.png" width="30" class="settings-classic wiggle-me no-toggle"></a>
 					<?php } ?>
@@ -48,7 +42,16 @@ include_once ('../navigation.php'); ?>
             <div class="scale-to-fill has-main-screen">
                 <div class="main-screen standard-body default_screen form-horizontal">
                     <div class="standard-body-title">
-                        <h3><?= $_GET['inv_mode'] === 'adjust' ? 'Adjust Invoice #'.$invoiceid : 'Create Invoice' ?></h3>
+                        <h3><?= $_GET['inv_mode'] === 'adjust' ? 'Adjust Invoice #'.$invoiceid : 'Create Invoice' ?>
+                            <div class="pull-right small">
+                                <a data-toggle="collapse" data-parent="#header_divs" href="#header_summary" onclick="setWindowSize();"><img src="<?= WEBSITE_URL ?>/img/icons/pie-chart.png" title="Show <?= CONTACTS_NOUN ?> Summary" class="inline-img override-theme-color-icon no-toggle"></a>
+                                <a href="invoice_main.php"><img class="inline-img no-toggle" title="Cancel Invoice" src="../img/icons/ROOK-trash-icon.png"></a>
+                                <a href="../quick_action_reminders.php?tile=invoice" onclick="overlayIFrameSlider(this.href,'auto',true,true); return false;"><img class="inline-img no-toggle" title="Create Reminder" src="../img/icons/ROOK-reminder-icon.png"></a>
+                                <?php if($security['edit'] > 0 && $_GET['inv_mode'] != 'adjust') { ?>
+                                    <a href="" onclick="$('#save').click(); return false;"><img src="<?= WEBSITE_URL ?>/img/icons/save.png" title="Save Invoice" class="inline-img override-theme-color-icon no-toggle"></a>
+                                <?php } ?>
+                            </div>
+                        </h3>
                     </div>
                     <div class="standard-body-content col-sm-12">
                         <form action="" method="POST" enctype="multipart/form-data" class="form-horizontal" role="form">

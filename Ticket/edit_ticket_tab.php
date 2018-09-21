@@ -586,10 +586,23 @@ if(basename($_SERVER['SCRIPT_FILENAME']) == 'edit_ticket_tab.php' && ($_GET['tic
 		if($get_ticket['status'] == $admin_group['status']) {
 			$wait_on_approval = true;
 		}
-		$value_config_all = $value_config;
-		if(!empty($admin_group['unlocked_fields']) && !$wait_on_approval && $get_ticket['status'] != 'Archive' && !$force_readonly) {
-			$value_config = $admin_group['unlocked_fields'];
-		}
+        $value_config_all = $value_config;
+        if(!empty($admin_group['unlocked_fields']) && !$wait_on_approval && $get_ticket['status'] != 'Archive' && !$force_readonly) {
+            $value_config = ','.$admin_group['unlocked_fields'].',';
+        }
+        if(empty(trim($value_config,','))) {
+            $value_config = $value_config_all;
+        } else {
+            if(strpos($value_config, ','."Hide Trash Icon".',') !== FALSE) {
+                $hide_trash_icon = 1;
+            }
+            foreach($action_mode_ignore_fields as $action_mode_ignore_field) {
+                if(strpos(','.$value_config_all.',',','.$action_mode_ignore_field.',') !== FALSE) {
+                    $value_config .= ','.$action_mode_ignore_field;
+                }
+            }
+            $value_config = ','.implode(',',array_intersect(explode(',',$value_config), explode(',',$value_config_all))).',';
+        }
 	} else {
 		$admin_group = [];
 	}	

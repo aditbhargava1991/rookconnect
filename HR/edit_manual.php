@@ -69,7 +69,6 @@ if(isset($_POST['submit'])) {
 	}
 	foreach($_POST['assign_staff'] as $staff) {
 		if($staff > 0) {
-			echo "INSERT INTO `manuals_staff` (`manualtypeid`, `staffid`) SELECT '$manualid', '$staff' FROM (SELECT COUNT(*) `rows` FROM `manuals_staff` WHERE `manualtypeid`='$manualid' AND `staffid`='$staff' AND `done`=0 AND `today_date` IS NULL) `num` WHERE `num`.`rows`=0";
 			mysqli_query($dbc, "INSERT INTO `manuals_staff` (`manualtypeid`, `staffid`) SELECT '$manualid', '$staff' FROM (SELECT COUNT(*) `rows` FROM `manuals_staff` WHERE `manualtypeid`='$manualid' AND `staffid`='$staff' AND `done`=0 AND `today_date` IS NULL) `num` WHERE `num`.`rows`=0");
 			$before_change = '';
 			$history = "Manuals upload entry added. <br />";

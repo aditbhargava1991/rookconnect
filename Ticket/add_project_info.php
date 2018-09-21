@@ -42,6 +42,7 @@ var businessFilter = function() {
 			}
 		});
 	<?php } ?>
+
 	<?php if(strpos($value_config, ',Service Rate Card,') !== FALSE) { ?>
 		$.ajax({
 			url: 'ticket_ajax_all.php?action=business_services&agentid='+$('[name=agentid]').val()+'&carrierid='+$('[id$=transport_details] [name=carrier]').val()+'&originvendor='+$('[id$=transport_origin] [name=vendor]').val()+'&destvendor='+$('[id$=transport_destination] [name=vendor]').val()+'&business='+option.val(),
@@ -53,7 +54,18 @@ var businessFilter = function() {
 				});
 			}
 		});
-	<?php } ?>
+	<?php  } ?>
+
+    $.ajax({
+        url: 'ticket_ajax_all.php?action=business_services_fetch&business='+option.val(),
+        dataType: 'html',
+        success: function(response) {
+            var arr = response.split('FFM');
+            $('.serviceid').val(arr[0]).trigger('change.select2');
+            $('[name=services_cost]').val(arr[1]);
+        }
+    });
+
 	if(typeof filterRegLocClass == 'function') {
 		filterRegLocClass(1);
 	}
@@ -218,28 +230,30 @@ var projectFilter = function() {
 		<?php } ?>
 
 		<?php if ( strpos($value_config, ',PI Sites,') !== false && $field_sort_field == 'PI Sites' ) { ?>
-			<div class="form-group">
-			  <label for="site_name" class="col-sm-4 control-label">Site:</label>
-			  <div class="col-sm-7">
-				<select data-placeholder="Select Site..." multiple name="siteid[]" id="siteid" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" data-concat="," class="chosen-select-deselect form-control">
-					<?php if(empty($site_list)) {
-						$site_list = sort_contacts_query(mysqli_query($dbc,"SELECT contactid, site_name, `display_name`, businessid FROM `contacts` WHERE `category`='".SITES_CAT."' AND deleted=0 ORDER BY IFNULL(NULLIF(`display_name`,''),`site_name`)"));
-					}
-					foreach($site_list as $site_row) {
-						echo "<option data-business='".$site_row['businessid']."' ".(strpos(','.$get_ticket['siteid'].',',','.$site_row['contactid'].',') !== FALSE ? 'selected' : ($get_ticket['businessid'] > 0 && $get_ticket['businessid'] != $site_row['businessid'] && $site_row['businessid'] > 0 ? 'style="display:none;"' : ''))." value='".$site_row['contactid']."'>".$site_row['full_name'].'</option>';
-					} ?>
-					<option value="MANUAL">Add New Site</option>
-				</select>
-			  </div>
-			  <div class="col-sm-1">
-				<a href="" onclick="viewProfile(this); return false;"><img class="inline-img pull-right no-toggle" src="../img/person.PNG" title="View Profile"></a>
-				<a href="" onclick="$(this).closest('.form-group').find('select').val('MANUAL').change(); return false;"><img class="inline-img pull-right" src="../img/icons/ROOK-add-icon.png"></a>
-			  </div>
-			</div>
-			<div class="form-group clearfix site_name" style="display:none;">
-				<label class="control-label col-sm-4">Name of Location:</label>
-				<div class="col-sm-8">
-					<input type="text" name="site_name" data-table="contacts" data-id="" data-id-field="contactid" data-attach="Sites" data-attach-field="category" class="form-control">
+			<div class="site_group">
+				<div class="form-group">
+				  <label for="site_name" class="col-sm-4 control-label">Site:</label>
+				  <div class="col-sm-7">
+					<select data-placeholder="Select Site..." multiple name="siteid[]" id="siteid" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" data-concat="," class="chosen-select-deselect form-control">
+						<?php if(empty($site_list)) {
+							$site_list = sort_contacts_query(mysqli_query($dbc,"SELECT contactid, site_name, `display_name`, businessid FROM `contacts` WHERE `category`='".SITES_CAT."' AND deleted=0 ORDER BY IFNULL(NULLIF(`display_name`,''),`site_name`)"));
+						}
+						foreach($site_list as $site_row) {
+							echo "<option data-business='".$site_row['businessid']."' ".(strpos(','.$get_ticket['siteid'].',',','.$site_row['contactid'].',') !== FALSE ? 'selected' : ($get_ticket['businessid'] > 0 && $get_ticket['businessid'] != $site_row['businessid'] && $site_row['businessid'] > 0 ? 'style="display:none;"' : ''))." value='".$site_row['contactid']."'>".$site_row['full_name'].'</option>';
+						} ?>
+						<option value="MANUAL">Add New Site</option>
+					</select>
+				  </div>
+				  <div class="col-sm-1">
+					<a href="" onclick="viewSite(this); return false;"><img class="inline-img pull-right no-toggle" src="../img/person.PNG" title="View Profile"></a>
+					<a href="" onclick="$(this).closest('.form-group').find('select').val('MANUAL').change(); return false;"><img class="inline-img pull-right" src="../img/icons/ROOK-add-icon.png"></a>
+				  </div>
+				</div>
+				<div class="form-group clearfix site_name" style="display:none;">
+					<label class="control-label col-sm-4">Name of Location:</label>
+					<div class="col-sm-8">
+						<input type="text" name="site_name" data-table="contacts" data-id="" data-id-field="contactid" data-attach="Sites" data-attach-field="category" class="form-control">
+					</div>
 				</div>
 			</div>
 		<?php } ?>
@@ -479,6 +493,28 @@ var projectFilter = function() {
 			<div class="form-group">
 				<label for="site_name" class="col-sm-4 control-label">Status:</label>
 				<div class="col-sm-8">
+                    <?php $invoice_status = '';
+                    if(get_config($dbc, 'ticket_invoice_status') > 0) {
+                        $invoice = $dbc->query("SELECT * FROM `invoice` WHERE `deleted`=0 AND CONCAT(',',`ticketid`,',') LIKE '%,$ticketid,%'")->fetch_assoc();
+                        switch($invoice['status']) {
+                            case 'Completed':
+                                $invoice_status = 'Paid';
+                                break;
+                            case 'Void':
+                                $invoice_status = 'Voided';
+                                break;
+                            case 'Saved':
+                                $invoice_status = 'Unbilled';
+                                break;
+                            case 'Posted':
+                            default:
+                                $invoice_status = 'Accounts Receivable';
+                                break;
+                        }
+                    }
+                    if(!empty($invoice_status)) {
+                        echo 'Invoice Status: '.$invoice_status.'<br />';
+                    } ?>
 
 					<select data-placeholder="Select a Status..." name="status" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" id="status" class="chosen-select-deselect form-control input-sm">
 					  <option value=""></option>
@@ -613,12 +649,17 @@ var projectFilter = function() {
 			<div class="form-group">
 			  <label for="site_name" class="col-sm-4 control-label">Site:</label>
 			  <div class="col-sm-8">
-				<?php $query = mysqli_query($dbc,"SELECT contactid, site_name, `display_name`, businessid FROM `contacts` WHERE `category`='Sites' AND deleted=0 AND `contactid`='".$get_ticket['siteid']."' ORDER BY IFNULL(NULLIF(`display_name`,''),`site_name`)");
+				<?php $site_names = [];
+				foreach(array_filter(explode(',',$get_ticket['siteid'])) as $site_id) {
+					$query = mysqli_query($dbc,"SELECT contactid, site_name, `display_name`, businessid FROM `contacts` WHERE `category`='Sites' AND deleted=0 AND `contactid`='".$site_id."' ORDER BY IFNULL(NULLIF(`display_name`,''),`site_name`)");
 					$row = mysqli_fetch_array($query);
-					echo ($row['display_name'] == '' ? $row['site_name'] : $row['display_name']); ?>
+					$site_names[] = ($row['display_name'] == '' ? $row['site_name'] : $row['display_name']);
+				}
+				$site_names = implode(', ',$site_names);
+				echo $site_names; ?>
 			  </div>
 			</div>
-			<?php $pdf_contents[] = ['Site', ($row['display_name'] == '' ? $row['site_name'] : $row['display_name'])]; ?>
+			<?php $pdf_contents[] = ['Site', $site_names]; ?>
 		<?php } ?>
 
 		<?php if ( strpos($value_config, ',PI Customer Order,') !== false && $field_sort_field == 'PI Customer Order' ) {

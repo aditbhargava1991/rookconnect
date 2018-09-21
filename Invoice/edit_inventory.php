@@ -2,7 +2,7 @@
     <h4 class="col-sm-12"><?= INVENTORY_TILE ?>
     <span class="popover-examples list-inline">
         <a href="#job_file" data-toggle="tooltip" data-placement="top" title="Select any products from inventory here."><img src="<?php echo WEBSITE_URL;?>/img/info.png" width="20"></a>
-    </span></h4>
+    </span><img src="../img/icons/ROOK-add-icon.png" class="no-toggle cursor-hand adjust_block" title="Add <?= INVENTORY_TILE ?>" width="21" onclick="add_product_row();" /></h4>
     <div class="form-group product_option" <?= (in_array('inventory',$field_config) ? '' : 'style="display:none;"') ?>>
         <label for="additional_note" class="col-sm-2 control-label">
         <?php echo (in_array('injury', $field_config) ? '<br>MVA Claim Price:' : '');
@@ -17,9 +17,9 @@
         $col2 = 1;
         $col3 = 1;
         $col4 = 1;
-        $col5 = 1;
-        $col6 = $_GET['inv_mode'] == 'adjust' ? 1 : 2;
-        $col7 = $_GET['inv_mode'] == 'adjust' ? 1 : 2;
+        $col5 = 2;
+        $col6 = 1;
+        $col7 = 2;
         if(in_array('inventory_cat',$field_config) && in_array('inventory_part',$field_config) && in_array('inventory_type',$field_config) && in_array('inventory_price',$field_config)) {
             $col1 = $col2 = $col3 = $col4 = 2;
         } else if(in_array('inventory_cat',$field_config) && in_array('inventory_part',$field_config) && in_array('inventory_type',$field_config)) {
@@ -27,16 +27,16 @@
             $col4 = 1;
             $col5 = 0;
         } else if(in_array('inventory_cat',$field_config) && in_array('inventory_part',$field_config) && in_array('inventory_price',$field_config)) {
-            $col2 = $col5 = 1;
+            //$col2 = $col5 = 1;
             $col1 = $col3 = 2;
             $col4 = 0;
         } else if(in_array('inventory_cat',$field_config) && in_array('inventory_type',$field_config) && in_array('inventory_price',$field_config)) {
             $col1 = $col3 = $col4 = 2;
-            $col5 = 1;
+            //$col5 = 1;
             $col2 = 0;
         } else if(in_array('inventory_part',$field_config) && in_array('inventory_type',$field_config) && in_array('inventory_price',$field_config)) {
             $col2 = $col3 = $col4 = 2;
-            $col5 = 1;
+            //$col5 = 1;
             $col1 = 0;
         } else if(in_array('inventory_cat',$field_config) && in_array('inventory_part',$field_config)) {
             $col1 = $col3 = 3;
@@ -49,7 +49,7 @@
         } else if(in_array('inventory_cat',$field_config) && in_array('inventory_price',$field_config)) {
             //$col1 = $col3 = 3;
             $col3 = 3;
-            $col5 = 1;
+            //$col5 = 1;
             $col2 = $col4 = 0;
         } else if(in_array('inventory_part',$field_config) && in_array('inventory_type',$field_config)) {
             $col2 = $col3 = 3;
@@ -57,11 +57,11 @@
             $col1 = $col5 = 0;
         } else if(in_array('inventory_part',$field_config) && in_array('inventory_price',$field_config)) {
             $col2 = $col3 = 3;
-            $col5 = 1;
+            //$col5 = 1;
             $col1 = $col4 = 0;
         } else if(in_array('inventory_type',$field_config) && in_array('inventory_price',$field_config)) {
             $col3 = $col4 = 3;
-            $col5 = 1;
+            //$col5 = 1;
             $col1 = $col2 = 0;
         } else if(in_array('inventory_cat',$field_config)) {
             $col1 = 4;
@@ -77,7 +77,7 @@
             $col1 = $col2 = $col5 = 0;
         } else if(in_array('inventory_price',$field_config)) {
             $col3 = 5;
-            $col5 = 2;
+            //$col5 = 2;
             $col1 = $col2 = $col4 = 0;
         }
         mysqli_set_charset($dbc, 'utf8');
@@ -87,16 +87,16 @@
         var inv_list = <?= json_encode($inventory_list) ?>;
         </script>
         <div class="col-sm-12">
-            <div class="form-group clearfix hide-titles-mob">
+            <div class="form-group clearfix hide-titles-mob product_labels" style="<?= ( empty(rtrim($inventoryid, ',')) && $_GET['inv_mode'] == 'adjust' ) ? 'display:none;' : '' ?>">
                 <?php if(in_array('inventory_cat',$field_config)) { ?><label class="col-sm-<?= $col1 ?> text-center">Category</label><?php } ?>
                 <?php if(in_array('inventory_part',$field_config)) { ?><label class="col-sm-<?= $col2 ?> text-center">Part #</label><?php } ?>
                 <label class="col-sm-<?= $col3 ?> text-center">Name</label>
                 <?php if(in_array('inventory_type',$field_config)) { ?><label class="col-sm-<?= $col4 ?> text-center">Type</label><?php } ?>
-                <?php if(in_array('inventory_price',$field_config)) { ?><label class="col-sm-<?= $col5 ?> text-center">Price</label><?php } ?>
                 <label class="col-sm-<?= $col6 ?> text-center">Qty</label>
+                <?php if(in_array('inventory_price',$field_config)) { ?><label class="col-sm-<?= $col5 ?> text-center">Price</label><?php } ?>
                 <label class="col-sm-<?= $col7 ?> text-center">Total</label>
                 <?php if($_GET['inv_mode'] == 'adjust') { ?>
-                    <label class="col-sm-2 text-center return_block">Return</label>
+                    <label class="col-sm-1 text-center return_block">Return</label>
                 <?php } ?>
             </div>
 
@@ -174,20 +174,20 @@
                                         </select>
                                     <?php } ?>
                                 </div>
-                                <div class="col-sm-<?= $col5 ?>" <?= (in_array('inventory_price',$field_config) ? '' : 'style="display:none;"') ?>><label class="show-on-mob">Unit Price:</label>
-                                    <?php if($_GET['inv_mode'] == 'adjust') { ?>
-                                        <input name="unit_price[]" id="<?php echo 'unitprice_'.$id_loop; ?>" value="<?php echo $sell_price / $quantity; ?>" type="hidden" readonly class="form-control invunitprice" />
-                                        <?php echo $sell_price / $quantity; ?>
-                                    <?php } else { ?>
-                                        <input name="unit_price[]" id="<?php echo 'unitprice_'.$id_loop; ?>" value="<?php echo $sell_price / $quantity; ?>" type="number" step="any" readonly class="form-control invunitprice" />
-                                    <?php } ?>
-                                </div> <!-- Quantity -->
                                 <div class="col-sm-<?= $col6 ?>"><label class="show-on-mob">Quantity:</label>
                                     <?php if($_GET['inv_mode'] == 'adjust') { ?>
                                         <?= $quantity ?>
                                         <input name="init_quantity[]" id="<?php echo 'quantity_'.$id_loop; ?>" onchange="changeProduct($('#inventoryid_'+this.id.split('_')[1]).get(0));" value="<?php echo $quantity; ?>" type="hidden" class="form-control quantity" />
                                     <?php } else { ?>
                                         <input name="quantity[]" id="<?php echo 'quantity_'.$id_loop; ?>" onchange="changeProduct($('#inventoryid_'+this.id.split('_')[1]).get(0));" value="<?php echo $quantity; ?>" type="number" min="0" step="any" class="form-control quantity" />
+                                    <?php } ?>
+                                </div> <!-- Quantity -->
+                                <div class="col-sm-<?= $col5 ?>" <?= (in_array('inventory_price',$field_config) ? '' : 'style="display:none;"') ?>><label class="show-on-mob">Unit Price:</label>
+                                    <?php if($_GET['inv_mode'] == 'adjust') { ?>
+                                        <input name="unit_price[]" id="<?php echo 'unitprice_'.$id_loop; ?>" value="<?php echo $sell_price / $quantity; ?>" type="hidden" readonly class="form-control invunitprice" />
+                                        <?php echo $sell_price / $quantity; ?>
+                                    <?php } else { ?>
+                                        <input name="unit_price[]" id="<?php echo 'unitprice_'.$id_loop; ?>" value="<?php echo $sell_price / $quantity; ?>" type="number" step="any" readonly class="form-control invunitprice" />
                                     <?php } ?>
                                 </div> <!-- Quantity -->
                                 <div class="col-sm-<?= $col7 ?>"><label class="show-on-mob">Total:</label>
@@ -201,14 +201,16 @@
                                     <?php } ?>
                                 </div>
                                 <?php if($_GET['inv_mode'] == 'adjust') { ?>
-                                    <div class="return_block col-sm-2">
+                                    <div class="return_block col-sm-1">
                                         <input name="quantity[]" id="<?php echo 'quantity_'.$id_loop; ?>" onchange="changeProduct(this);" value="0" max="0" min="<?php echo -$quantity; ?>" type="number" step="any" class="form-control quantity" />
                                     </div>
                                 <?php } ?>
+                                <!-- Hidden on Returns/Adjustment
                                 <div class="col-sm-2 adjust_block">
                                     <img src="<?= WEBSITE_URL ?>/img/remove.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right cursor-hand" onclick="rem_product_row(this);">
                                     <img src="<?= WEBSITE_URL ?>/img/icons/ROOK-add-icon.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right cursor-hand" onclick="add_product_row();">
                                 </div>
+                                -->
                                 <div class="col-sm-12 pay-div"></div>
                             </div>
                         <?php
@@ -220,7 +222,7 @@
             ?>
 
             <div class="clearfix"></div>
-            <div class="additional_product form-group clearfix <?= $_GET['inv_mode'] == 'adjust' ? 'adjust_block' : '' ?>">
+            <div class="additional_product form-group clearfix" style="<?= $_GET['inv_mode'] == 'adjust' ? 'display:none;' : '' ?>">
                 <div class="col-sm-<?= $col1 ?>" <?= (in_array('inventory_cat',$field_config) ? '' : 'style="display:none;"') ?>>
                     <label class="show-on-mob">Inventory Category:</label>
                     <select data-placeholder="Select Category..." id="inventorycat_0" name="inventorycat[]" class="chosen-select-deselect form-control inventorycat" width="380">
@@ -259,13 +261,13 @@
                         <option <?= (strpos($injury_type,'MVA') === false && $injury_type != '' ? "disabled" : '') ?> value="MVA">MVA</option>
                     </select>
                 </div>
-                <div class="col-sm-<?= $col5 ?>" <?= (in_array('inventory_price',$field_config) ? '' : 'style="display:none;"') ?>>
-                    <label class="show-on-mob">Unit Price:</label>
-                    <input name="unit_price[]" id="unitprice_0" value="0" type="text" step="any" readonly class="form-control invunitprice" />
-                </div>
                 <div class="col-sm-<?= $col6 ?>">
                     <label class="show-on-mob">Quantity:</label>
                     <input name="quantity[]" id="quantity_0" onchange="changeProduct($('#inventoryid_'+this.id.split('_')[1]).get(0));" value=1 type="number" min="0" step="any" class="form-control quantity" />
+                </div>
+                <div class="col-sm-<?= $col5 ?>" <?= (in_array('inventory_price',$field_config) ? '' : 'style="display:none;"') ?>>
+                    <label class="show-on-mob">Unit Price:</label>
+                    <input name="unit_price[]" id="unitprice_0" value="0" type="text" step="any" readonly class="form-control invunitprice" />
                 </div>
                 <div class="col-sm-<?= $col7 ?>"><label class="show-on-mob">Total:</label>
                     <input name="sell_price[]" id="sellprice_0" onchange="countTotalPrice()" value="0" type="text" step="any" readonly class="form-control sellprice" />
@@ -277,7 +279,6 @@
                     </div>
                 <?php } ?>
                 <div class="col-sm-2 col-pricing" <?= (in_array('pricing',$field_config) ? '' : 'style="display:none;"') ?>>
-                    <img src="../img/icons/ROOK-edit-icon.png" alt="Edit Pricing" title="Edit Pricing" width="30" class="cursor-hand no-toggle" onclick="$(this).hide(); $(this).closest('.col-pricing').find('.pricing-div').show();" />
                     <div class="pricing-div" style="display:none;">
                         <select data-placeholder="Select Pricing" id="linepricing_0" name="linepricing[]" class="chosen-select-deselect form-control linepricing" onchange="changeProduct($('#inventoryid_'+this.id.split('_')[1]).get(0));">
                             <option></option>
@@ -294,6 +295,7 @@
                         </select>
                     </div>
                     <img src="<?= WEBSITE_URL ?>/img/remove.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right cursor-hand" onclick="rem_product_row(this);">
+                    <img src="../img/icons/ROOK-edit-icon.png" alt="Edit Pricing" title="Edit Pricing" width="21" class="pull-right cursor-hand no-toggle price_edit" style="display:none; margin:3px 2px 0 2px;" onclick="$(this).hide(); $(this).closest('.col-pricing').find('.pricing-div').show();" />
                     <img src="<?= WEBSITE_URL ?>/img/icons/ROOK-add-icon.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right cursor-hand" onclick="add_product_row();">
                 </div>
                 <div class="col-sm-12 pay-div"></div>

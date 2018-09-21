@@ -581,6 +581,9 @@ if($_GET['action'] == 'update_fields') {
     $table = filter_var($_POST['table'],FILTER_SANITIZE_STRING);
     $id_field = '';
     switch($table) {
+    	case 'infogathering_pdf':
+    		$id_field = 'infopdfid';
+    		break;
         case 'sales_notes':
             $id_field = 'salesnoteid';
             break;
@@ -598,15 +601,19 @@ if($_GET['action'] == 'update_fields') {
     $value = filter_var($_POST['value'],FILTER_SANITIZE_STRING);
     $salesid = filter_var($_POST['salesid'],FILTER_SANITIZE_STRING);
     $history = '';
-    
+
     if($id > 0) {
         $prior = get_field_value($field, $table, $id_field, $id);
         if($table == 'contacts' && isEncrypted($field)) {
             $value = encryptIt($value);
         }
+        if($field == 'number_of_days' && $value > 0) {
+            $today_date = date('Y-m-d');
+            $dbc->query("UPDATE `sales` SET `number_of_days_start_date`='$today_date' WHERE `$id_field`='$id'");
+        }
         $history = "$field updated to '$value' by ".get_contact($dbc, $_SESSION['contactid'])." on ".date('Y-m-d');
         $dbc->query("UPDATE `$table` SET `$field`='$value' WHERE `$id_field`='$id'");
-        
+
         // Convert Successfully Won Sales Leads
         if($field == 'status' && $value == get_config($dbc, 'lead_status_won')) {
             $lead_convert_to = get_config($dbc, 'lead_convert_to');
@@ -623,14 +630,14 @@ if($_GET['action'] == 'update_fields') {
                     $dbc->query("UPDATE `contacts` SET `category`='$lead_convert_to' WHERE `contactid`='$contactid'");
                 }
             }
-            
+
             if(!empty($get_config_retained)) {
                 $value = $get_config_retained;
             } else {
                 $value = $prior;
             }
         }
-        
+
         //Schedule Reminders
         if($field == 'next_action') {
             $new_reminder = get_field_value('new_reminder', $table, $id_field, $id);
@@ -662,7 +669,7 @@ if($_GET['action'] == 'update_fields') {
             echo $dbc->insert_id;
         }
     }
-    
+
     add_update_history($dbc, 'sales_history', $history.'<br />', '', $prior, $salesid);
 }
 if($_GET['action'] == 'upload_files') {

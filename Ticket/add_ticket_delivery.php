@@ -585,6 +585,14 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 										</div>
 									</div>
 								<?php } ?>
+								<?php if (strpos($value_config, ','."Delivery Pickup Phone2".',') !== FALSE && $field_sort_field == 'Delivery Pickup Phone2') { ?>
+									<div class="form-group">
+										<label class="col-sm-4 control-label">Additional Phone:</label>
+										<div class="col-sm-8">
+											<input type="tel" name="vendor" class="form-control" data-table="ticket_schedule" data-id="<?= $stop['id'] ?>" data-id-field="id" value="<?= $stop['vendor'] ?>">
+										</div>
+									</div>
+								<?php } ?>
 								<?php if (strpos($value_config, ','."Delivery Pickup Type".',') !== FALSE && $field_sort_field == 'Delivery Pickup Type') { ?>
 									<div class="form-group">
 										<label class="col-sm-4 control-label">Delivery Tab:</label>
@@ -1015,6 +1023,14 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 									</div>
 									<button class="btn brand-btn pull-right" onclick="send_email(this); return false;">Send Email</button>
 									<div class="clearfix"></div>
+								</div>
+							<?php } ?>
+							<?php if (strpos($value_config, ','."Delivery Pickup Phone2".',') !== FALSE && $field_sort_field == 'Delivery Pickup Phone2') { ?>
+								<div class="form-group">
+									<label class="col-sm-4 control-label">Additional Phone:</label>
+									<div class="col-sm-8">
+										<?= $stop['vendor'] ?>
+									</div>
 								</div>
 							<?php } ?>
 							<?php if (strpos($value_config, ','."Delivery Pickup Type".',') !== FALSE && $field_sort_field == 'Delivery Pickup Type') { ?>
