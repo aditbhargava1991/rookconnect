@@ -1,22 +1,30 @@
 <script>
 $(document).ready(function() {
 	$('.multi_dimensions .col-sm-2 input,.multi_dimensions .col-sm-2 select').off('change',setMultiDimensions).change(setMultiDimensions);
-	$('.tab-section[data-type=general]:first').find('[data-table]').off('change',copyPiece).change(copyPiece);
 });
+$(document).on('change', '.tab-section[data-type=general]:first [data-table]', copyPiece);
+var copying_pieces = '';
 function copyPiece(event) {
 	var field = event.target;
-	if($(field).data('type') == 'inventory_general') {
-		$('[data-table=ticket_attached][data-type=inventory_general][name=contact_info]:checked').each(function() {
-			$(this).change();
-		});
-	}
+
+	clearTimeout(copying_pieces);
+	copying_pieces = setTimeout(function() {
+		if($(field).data('type') == 'inventory_general') {
+			$('[data-table=ticket_attached][data-type=inventory_general][name=contact_info]:checked').each(function() {
+				$(this).change();
+			});
+		}
+	},500);
+
 }
 function copyAllPiece() {
 	var i = 0;
 	$('.tab-section[data-type=general]:visible [data-type=inventory_general][name=contact_info]').each(function() {
+
 		if(!this.checked) {
 			$(this).prop('checked',true).change();
 		}
+
 	});
 }
 function copyPieceOne(target) {
@@ -45,6 +53,9 @@ function copyPieceOne(target) {
 				var line_range = $(this).val().split('-');
 				$(this).closest('.multi-block').find('[name="po_line_range_min"]').val(line_range[0]).trigger('change.select2');
 				$(this).closest('.multi-block').find('[name="po_line_range_max"]').val(line_range[1]).trigger('change.select2');
+			} else if($(this).is('textarea')) {
+				tinymce.get($(this).prop('id')).setContent($(this).val());
+
 			}
 		}
 		i++;

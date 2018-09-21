@@ -914,7 +914,7 @@ function mark_done(sel) {
             <?php $get_field_config_tiles = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT task_fields FROM task_dashboard")); ?>
             <?php $task_fields = ','.$get_field_config_tiles['task_fields'] . ','; ?>
             <?php $get_mandatory_field_config_tiles = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT task_fields FROM task_dashboard_mandatory")); ?>
-            <?php $task_mandatory_fields = ','.$get_mandatory_field_config_tiles['task_fields'] . ','; echo $task_mandatory_fields; ?>
+            <?php $task_mandatory_fields = ','.$get_mandatory_field_config_tiles['task_fields'] . ','; ?>
 
                 <div id="accordion_tabs" class="sidebar panel-group block-panels main-screen" style="background-color: #fff; padding: 0; margin-left: 0.5em; width: calc(100% - 1em);">
 
@@ -1000,7 +1000,8 @@ function mark_done(sel) {
                     <div class="col-sm-8">
                         <select data-placeholder="Select <?= PROJECT_NOUN ?>..." name="task_projectid" data-table="tasklist" data-field="projectid" class="chosen-select-deselect form-control" id="task_projectid" width="380">
                             <option></option><?php
-                            $query = "SELECT * FROM (SELECT `projectid`, `project_name` FROM `project` WHERE ('$task_businessid'='' OR `businessid`='$task_businessid') AND `deleted`=0 UNION SELECT CONCAT('C',`projectid`), `project_name` FROM `client_project` WHERE (`clientid`='$taskbusinessid' OR '$task_businessid'='') AND `deleted`=0) PROJECTS ORDER BY `project_name`";
+                            //$query = "SELECT * FROM (SELECT `projectid`, `project_name` FROM `project` WHERE ('$task_businessid'='' OR `businessid`='$task_businessid') AND `deleted`=0 UNION SELECT CONCAT('C',`projectid`), `project_name` FROM `client_project` WHERE (`clientid`='$taskbusinessid' OR '$task_businessid'='') AND `deleted`=0) PROJECTS ORDER BY `project_name`";
+                            $query = "SELECT `projectid`, `project_name` FROM `project` WHERE `deleted`=0 ORDER BY `project_name`";
                             $query = mysqli_query($dbc,$query);
                             while($row = mysqli_fetch_array($query)) {
                                 if ($task_projectid == $row['projectid']) {
@@ -1277,7 +1278,7 @@ function mark_done(sel) {
                         <?php } ?>
 
                         <?php if(strpos($task_fields, ',To Do Date,') !== FALSE) {
-                        if($task_tododate == '') {
+                        if($task_tododate == '' && (empty($_GET['tasklistid']))) {
                             $task_tododate = date('Y-m-d');
                         }
                         ?>

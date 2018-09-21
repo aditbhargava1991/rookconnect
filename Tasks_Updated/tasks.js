@@ -2,6 +2,19 @@ $(document).ready(function() {
 	tasksInit();
 });
 
+function mark_date(sel) {
+    var todo_date = sel.value;
+	var tasklistid = sel.id.split('_')[1];
+
+    $.ajax({
+        type: "GET",
+        url: "../Tasks_Updated/task_ajax_all.php?fill=mark_date&tasklistid="+tasklistid+'&todo_date='+todo_date,
+        dataType: "html",
+        success: function(response){
+		}
+    });
+}
+
 function saveTaskChecklist() {
 	var checklist = 0;
 

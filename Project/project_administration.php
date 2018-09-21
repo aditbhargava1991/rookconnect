@@ -153,7 +153,7 @@ $approv_count = $admin_group['precedence'] > 1 ? count(array_filter(explode(',',
                     $date_list = [];
                     $sql = "SELECT * FROM `ticket_schedule` WHERE `ticketid` = '{$ticket['ticketid']}' AND `deleted` = 0 AND `type` NOT IN ('origin','destination')";
                     if($project_admin_multiday_tickets == 1) {
-                        $sql .= " AND `date_stamp` = '{$ticket['ticket_date']}'";
+                        $sql .= " AND `to_do_date` = '{$ticket['ticket_date']}'";
                     }
                     $query = mysqli_query($dbc, $sql);
                     while($sched_line = $query->fetch_assoc()) {
