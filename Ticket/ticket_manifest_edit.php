@@ -74,21 +74,6 @@ if(isset($_POST['update'])) {
 		if($line_id > 0) {
 			$row = $dbc->query("SELECT `tickets`.`ticket_label`,IFNULL(NULLIF(`ticket_attached`.`po_num`,''),`tickets`.`purchase_order`) `po_num`,`origin`.`vendor`,`ticket_attached`.`po_line`,`ticket_attached`.`notes`,`inventory`.`inventoryid`,IFNULL(`inventory`.`quantity`,`ticket_attached`.`qty`) `qty`,IFNULL(`ticket_attached`.`siteid`,`tickets`.`siteid`) `siteid`,IFNULL(`ticket_attached`.`weight`,'') `weight`,IFNULL(`ticket_attached`.`weight_units`,'') `weight_units` FROM `ticket_attached` LEFT JOIN `inventory` ON `ticket_attached`.`src_table`='inventory' AND `ticket_attached`.`item_id`=`inventory`.`inventoryid` LEFT JOIN `tickets` ON `ticket_attached`.`ticketid`=`tickets`.`ticketid` LEFT JOIN `ticket_schedule` `origin` ON `tickets`.`ticketid`=`origin`.`ticketid` AND `origin`.`type`='origin' WHERE `ticket_attached`.`id`='$line_id'")->fetch_assoc();
 
-			$qty = empty($manual_qty[$i]) ? $row['qty'] : $manual_qty[$i];
-			if($qty > 0 && $row['inventoryid'] > 0) {
-				$old_qty = $row['qty'];
-				$new_qty = $old_qty - $manual_qty[$i];
-				$sum_qty += $manual_qty[$i];
-				$dbc->query("UPDATE `inventory` SET `quantity`='$new_qty' WHERE `inventoryid`='{$row['inventoryid']}'");
-				$dbc->query("INSERT INTO `inventory_change_log` (`inventoryid`,`contactid`,`old_inventory`,`changed_quantity`,`new_inventory`,`date_time`,`location_of_change`,`change_comment`) VALUES ('{$row['inventoryid']}','{$_SESSION['contactid']}','$old_qty','{$manual_qty[$i]}','$new_qty','".date('Y-m-d h:i:s')."','{$manual_qty[$i]} assigned to Manifest $manifestid')");
-			} else {
-				$new_qty = $qty > 0 ? $qty : 1;
-				$sum_qty += $qty > 0 ? $qty : 1;
-				$dbc->query("UPDATE `ticket_attached` SET `used`=`used`+'$new_qty', `siteid`='$siteid' WHERE `id`='$line_id'");
-			}
-			if(in_array('revert site',$manifest_fields)) {
-				$dbc->query("UPDATE `tickets` LEFT JOIN `ticket_attached` ON `tickets`.`ticketid`=`ticket_attached`.`ticketid` SET `tickets`.`siteid`='' WHERE `ticket_attached`.`id`='$line_id'");
-			}
 			$weight = [];
 			$weights = [];
 			$inv_weight_units = explode('#*#',$row['weight_units']);
