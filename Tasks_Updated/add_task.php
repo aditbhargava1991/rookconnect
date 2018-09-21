@@ -1277,7 +1277,7 @@ function mark_done(sel) {
                         <?php } ?>
 
                         <?php if(strpos($task_fields, ',To Do Date,') !== FALSE) {
-                        if($task_tododate == '') {
+                        if($task_tododate == '' && (empty($_GET['tasklistid']))) { {
                             $task_tododate = date('Y-m-d');
                         }
                         ?>
