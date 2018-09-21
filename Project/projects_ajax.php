@@ -315,6 +315,9 @@ if($_GET['action'] == 'mark_favourite') {
 		$project_info = $dbc->query("SELECT * FROM `project` WHERE `projectid`='$project'")->fetch_assoc();
 		mysqli_query($dbc, "INSERT INTO `$table` (`projectid`) VALUES ('$project')");
 		$id = mysqli_insert_id($dbc);
+        if($table == 'tasklist' && $field == 'heading') {
+            mysqli_query($dbc, "UPDATE `tasklist` SET `task_tododate`='".date('Y-m-d')."' WHERE `tasklistid`='$id'");
+        }
 		if($type != '' && $type_field != '') {
 			mysqli_query($dbc, "UPDATE `$table` SET `$type_field`='$type' WHERE `$id_field`='$id'");
 		} else if($type != '') {
@@ -1109,7 +1112,7 @@ if($_GET['action'] == 'mark_favourite') {
 	$salesid = filter_var($_POST['sales'],FILTER_SANITIZE_STRING);
     // Add Sales Lead Communication to Project
     $dbc->query("UPDATE `email_communication` SET `projectid`='$projectid' WHERE `projectid`=0 AND `salesid`='$salesid'");
-    
+
     // Add Scope from Sales Lead to Project
 	$sales_scope = $dbc->query("SELECT `serviceid`,`productid` FROM `sales` WHERE `salesid`='$salesid'")->fetch_assoc();
 	foreach(explode(',',$sales_scope['serviceid']) as $service) {
