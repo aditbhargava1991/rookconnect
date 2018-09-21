@@ -22,8 +22,8 @@ do {
 						</div>
 						<div class="col-sm-1">
 							<input type="hidden" name="deleted" data-table="ticket_attached" data-id="<?= $shipping['id'] ?>" data-id-field="id" data-type="shipping_list" data-type-field="src_table" value="0">
-							<img class="inline-img pull-right" onclick="addMulti(this);" src="../img/icons/ROOK-add-icon.png">
-							<img class="inline-img pull-right" onclick="remMulti(this);" src="../img/remove.png">
+							<img class="inline-img pull-right" data-history-label="Shipping List" onclick="addMulti(this);" src="../img/icons/ROOK-add-icon.png">
+							<img class="inline-img pull-right" data-history-label="Shipping List" onclick="remMulti(this);" src="../img/remove.png">
 						</div>
 						<div class="clearfix"></div>
 					</div>

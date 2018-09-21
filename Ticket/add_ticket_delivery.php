@@ -189,7 +189,7 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 		<?php if($field_sort_field == 'Delivery Stops') { ?>
 			<?php if(strpos($value_config, ',Delivery Stops') !== FALSE) { ?>
 				<div class="delivery_stop_group">
-					<h4><?= TICKET_NOUN ?> Stop<img class="inline-img pull-left small black-color" onclick="add_stop();" src="../img/icons/ROOK-add-icon.png"><div class="clearfix"></div></h4>
+					<h4><?= TICKET_NOUN ?> Stop<img class="inline-img pull-left small black-color" onclick="add_stop();" data-history-label="Delivery Stop" src="../img/icons/ROOK-add-icon.png"><div class="clearfix"></div></h4>
 					<div class="form-group">
 						<label class="col-sm-4 control-label">Location Name:</label>
 						<div class="col-sm-8">
@@ -808,7 +808,7 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 									<label class="form-checkbox"><input type="checkbox" name="complete" data-table="ticket_schedule" data-id="<?= $stop['id'] ?>" data-id-field="id" value="1" <?= $stop['complete'] == 1 ? 'checked' : '' ?>>Completed</label>
 								</div>
 								<input type="hidden" name="deleted" value="0" data-table="ticket_schedule" data-id="<?= $stop['id'] ?>" data-id-field="id">
-								<div class="col-sm-2"><img class="inline-img small black-color pull-right" src="../img/icons/ROOK-add-icon.png" onclick="addScheduledStop();"><img class="inline-img small pull-right" src="../img/remove.png" onclick="remScheduledStop(this);"></div>
+								<div class="col-sm-2"><img class="inline-img small black-color pull-right" src="../img/icons/ROOK-add-icon.png" data-history-label="Delivery Stop" onclick="addScheduledStop();"><img class="inline-img small pull-right" src="../img/remove.png" data-history-label="Delivery Stop" onclick="remScheduledStop(this);"></div>
 							</div>
 						</div>
 						<hr>
@@ -1170,7 +1170,7 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 							<div class="col-sm-6">
 								<label class="form-checkbox"><input type="checkbox" name="complete" data-table="ticket_schedule" data-id="<?= $stop['id'] ?>" data-id-field="id" value="1" <?= $stop['complete'] == 1 ? 'checked' : '' ?> <?= $strict_view > 0 ? 'readonly disabled' : '' ?>>Completed</label>
 							</div>
-							<div class="col-sm-2"><?php if(!($strict_view > 0)) { ?><img class="inline-img small black-color pull-right" src="../img/icons/ROOK-add-icon.png" onclick="addScheduledStop();"><?php } ?><!--<img class="inline-img small pull-right" src="../img/remove.png" onclick="remScheduledStop();">--></div>
+							<div class="col-sm-2"><?php if(!($strict_view > 0)) { ?><img class="inline-img small black-color pull-right" src="../img/icons/ROOK-add-icon.png" data-history-label="Delivery Stop" onclick="addScheduledStop();"><?php } ?><!--<img class="inline-img small pull-right" src="../img/remove.png" onclick="remScheduledStop();">--></div>
 						</div>
 						<hr>
 					<?php } ?>
