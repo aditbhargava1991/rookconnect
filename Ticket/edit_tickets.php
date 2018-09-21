@@ -1154,7 +1154,7 @@ var setHeading = function() {
 	</div>
 	<div class="<?= $calendar_ticket_slider != 'accordion' ? 'show-on-mob' : 'main-screen' ?> panel-group block-panels col-xs-12 form-horizontal" style="background-color: #fff; padding: 0; margin-left: 5px; width: calc(100% - 10px); height: 100%;" id="mobile_tabs">
 		<?php if($wait_on_approval) {
-			echo '<h4>Awaiting Admin Approval</h4>';
+			echo '<h4>Submitted for Administration Approval</h4>';
 		} ?>
 		<?php $current_heading = '';
 		$current_heading_closed = true;
