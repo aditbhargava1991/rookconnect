@@ -2,7 +2,7 @@ $(document).ready(function() {
 	tasksInit();
 });
 
-function mark_date(sel) {
+function mark_task_date(sel) {
     var todo_date = sel.value;
 	var tasklistid = sel.id.split('_')[1];
 
@@ -11,6 +11,24 @@ function mark_date(sel) {
         url: "../Tasks_Updated/task_ajax_all.php?fill=mark_date&tasklistid="+tasklistid+'&todo_date='+todo_date,
         dataType: "html",
         success: function(response){
+		}
+    });
+}
+
+function mark_task_staff(sel) {
+	var tasklistid = sel.id.split('_')[1];
+
+	var staff = [];
+
+	$(sel).find('option:selected').each(function() {
+			staff.push(this.value);
+	});
+
+    $.ajax({
+        type: "GET",
+        url: "../Tasks_Updated/task_ajax_all.php?fill=mark_staff&tasklistid="+tasklistid+'&staff='+staff,
+        dataType: "html",
+        success: function(response) {
 		}
     });
 }
