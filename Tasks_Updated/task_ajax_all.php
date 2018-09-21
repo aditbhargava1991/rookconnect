@@ -171,6 +171,14 @@ if($_GET['fill'] == 'project_path_milestone') {
     */
 }
 
+if($_GET['fill'] == 'mark_date') {
+    $tasklistid = $_GET['tasklistid'];
+	    $task_tododate = $_GET['todo_date'];
+    $query_update_project = "UPDATE `tasklist` SET `task_tododate`='$task_tododate' WHERE `tasklistid` = '$tasklistid'";
+	$result_update_project = mysqli_query($dbc, $query_update_project);
+    echo $query_update_project;
+}
+
 if($_GET['fill'] == 'delete_task') {
     $tasklistid = $_GET['taskid'];
 	    $archived_date = date('Y-m-d');

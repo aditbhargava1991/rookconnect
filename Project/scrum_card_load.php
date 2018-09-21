@@ -280,9 +280,16 @@ if($type == 'Ticket') {
             $label .= '<a href="../Tasks_Updated/add_task_full_view.php?type='.$item['status'].'&tasklistid='.$item['tasklistid'].'">Task #'.$item['tasklistid'].': </a>';
         }
 
-
        $label .= html_entity_decode($item['heading']).'</div>
 		<input type="hidden" name="comment" value="" data-name="comment" data-table="taskcomments" data-id-field="taskcommid" data-id="" data-type="'.$item['tasklistid'].'" data-type-field="tasklistid">';
+
+        $label .= '<br>
+                    <div class="form-group">
+                <label for="first_name" class="col-sm-4 control-label">To Do Date:</label>
+                <div class="col-sm-4">
+                    <input name="task_tododate" data-table="tasklist" data-id="'.$item['tasklistid'].'" onchange="mark_done(this);" data-id-field="tasklistid" value="'.$item['task_tododate'].'" type="text" data-table="tasklist" data-field="task_tododate" class="datepicker form-control">
+                </div>
+            </div>';
 
 	$contents = '<div class="action_notifications">';
 	$item_comments = mysqli_query($dbc, "SELECT * FROM `task_comments` WHERE `tasklistid`='".$item['tasklistid']."' AND `comment` != '' ORDER BY `taskcommid` DESC");
