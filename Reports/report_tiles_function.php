@@ -24,19 +24,11 @@ function reports_tiles($dbc) {
     }
     function email_doc(report){
         var documents=[];
-        var id = $(report).attr('id');
-        var date = '<?= str_replace('-', '_', date('Y-m-d')) ?>';
-        if ( id == 'ticket_activity_report' ) {
-            var report_pdf = '../Reports/Download/activity_report_'+date+'.pdf';
-            <?php $report_pdf = '../Reports/Download/activity_report_'. str_replace('-', '_', date('Y-m-d')) .'.pdf'; ?>
-            <?php if ( file_exists($report_pdf) ) { ?>
-                documents.push(report_pdf);
-                overlayIFrameSlider('../Email Communication/add_email.php?type=external&attach_docs='+documents.join('#*#'), 'auto', false, true);
-            <?php } else { ?>
-                alert('Please generate the report first.');
-            <?php } ?>
-        }
-
+        var url = window.location.href;
+        var subject = $(report).data('title');
+        var body = '<a href="'+encodeURIComponent(url)+'" target="_blank">View Report</a>'
+        //overlayIFrameSlider('../Email Communication/add_email.php?type=external&subject='+subject+'&body='+body, 'auto', false, true);
+        overlayIFrameSlider('../quick_action_email.php?subject='+subject+'&body='+body, 'auto', true, true);
     }
     </script>
     <div class="main-screen">
