@@ -540,7 +540,13 @@ if($_GET['action'] == 'update_fields') {
 	}
 	if($table_name == 'mileage' && ($field_name == 'start' || $field_name == 'end')) {
 		$value = date('Y-m-d H:i:s', strtotime($value));
-	}
+	} else if(in_array($table_name,['tickets','ticket_schedule']) && in_array($field_name,['est_time','max_time'])) {
+        $start = get_field_value('to_do_start_time',$table_name,$id_field,$id);
+        if(!empty($start)) {
+            $end = date('h:i:s', strtotime($start.' + '.(floor($value) * 1).' hour '.floor($value * 60).' minute '.($value % 60).' second'));
+            set_field_value($end,'to_do_end_time',$table_name,$id_field,$id);
+        }
+    }
 	if($table_name == 'ticket_comment' && $type == 'member_note') {
 		$table_name = 'client_daily_log_notes';
 		$id_field = 'note_id';
@@ -1216,10 +1222,24 @@ if($_GET['action'] == 'update_fields') {
 	}
 } else if($_GET['action'] == 'complete') {
 	$ticketid = filter_var($_GET['ticketid'],FILTER_SANITIZE_STRING);
+	$value_config = ','.get_field_config($dbc, 'tickets').',';
+	if($ticketid > 0) {
+		$get_ticket = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT * FROM tickets WHERE ticketid='$ticketid'"));
+		$ticket_type = $get_ticket['ticket_type'];
+	}
+	if($ticket_type == '') {
+		$ticket_type = get_config($dbc, 'default_ticket_type');
+	}
+	if(!empty($ticket_type)) {
+		$value_config .= get_config($dbc, 'ticket_fields_'.$ticket_type).',';
+	}
 	$result = [];
-	$ready = mysqli_query($dbc, "SELECT `created_by` `contact`, 'Running Timer' `status` FROM `ticket_timer` WHERE `ticketid`='$ticketid' AND `ticketid` > 0 AND `start_timer_time` > 0 AND `end_time` IS NULL AND `deleted` = 0 UNION
-		SELECT `item_id` `contact`, CONCAT('Checked In ',`src_table`) `status` FROM `ticket_attached` WHERE `src_table` IN ('Staff','Staff_Tasks','Members','Clients') AND `item_id` > 0 AND `arrived` != `completed` AND `deleted`=0 AND `ticketid`='$ticketid' AND `ticketid` > 0 UNION
-		SELECT `item_id` `contact`, 'Notes Not Complete' `status` FROM `ticket_attached` WHERE `src_table` IN ('Staff') AND `item_id` > 0 AND `deleted`=0 AND `ticketid`='$ticketid' AND `ticketid` > 0 AND `discrepancy`=0 AND `item_id` NOT IN (SELECT `created_by` FROM `ticket_comment` WHERE `ticketid`='$ticketid' AND `ticketid` > 0 AND `deleted`=0 UNION SELECT `created_by` FROM `client_daily_log_notes` WHERE `ticketid`='$ticketid' AND `ticketid` > 0 AND `deleted`=0)");
+	$sql = "SELECT `created_by` `contact`, 'Running Timer' `status` FROM `ticket_timer` WHERE `ticketid`='$ticketid' AND `ticketid` > 0 AND `start_timer_time` > 0 AND `end_time` IS NULL AND `deleted` = 0 UNION
+		SELECT `item_id` `contact`, CONCAT('Checked In ',`src_table`) `status` FROM `ticket_attached` WHERE `src_table` IN ('Staff','Staff_Tasks','Members','Clients') AND `item_id` > 0 AND `arrived` != `completed` AND `deleted`=0 AND `ticketid`='$ticketid' AND `ticketid` > 0";
+	if(strpos($value_config, ',Complete Do Not Require Notes,') === FALSE) {
+		$sql .= " UNION SELECT `item_id` `contact`, 'Notes Not Complete' `status` FROM `ticket_attached` WHERE `src_table` IN ('Staff') AND `item_id` > 0 AND `deleted`=0 AND `ticketid`='$ticketid' AND `ticketid` > 0 AND `discrepancy`=0 AND `item_id` NOT IN (SELECT `created_by` FROM `ticket_comment` WHERE `ticketid`='$ticketid' AND `ticketid` > 0 AND `deleted`=0 UNION SELECT `created_by` FROM `client_daily_log_notes` WHERE `ticketid`='$ticketid' AND `ticketid` > 0 AND `deleted`=0)";
+	}
+	$ready = mysqli_query($dbc, $sql);
 	if(mysqli_num_rows($ready) > 0 && !isset($_GET['force'])) {
 		$result = [success => false,message => ''];
 		$result['message'] .= "Unable to complete ".TICKET_NOUN.":\n";
@@ -1294,7 +1314,7 @@ if($_GET['action'] == 'update_fields') {
 			$service_price[] = $service[1];
 		}
 	}
-	$services = mysqli_query($dbc, "SELECT `serviceid`, `heading` FROM `services` WHERE `serviceid` IN (".implode(',',$service_list).") AND `deleted`=0");
+	$services = mysqli_query($dbc, "SELECT `serviceid`, `category`, `service_type`, `heading` FROM `services` WHERE `serviceid` IN (".implode(',',$service_list).") AND `deleted`=0");
 	while($service = mysqli_fetch_assoc($services)) {
 		$row_price = 0;
 		foreach($service_list as $i => $id) {
@@ -1302,7 +1322,7 @@ if($_GET['action'] == 'update_fields') {
 				$row_price = $service_price[$i];
 			}
 		}
-		echo "<option data-rate-price='".$row_price."' value='".$service['serviceid']."'>".$service['heading']."</option>";
+		echo "<option data-rate-price='".$row_price."' value='".$service['serviceid']."'>".implode(': ',array_filter([$service['category'],$service['service_type'],$service['heading']]))."</option>";
 	}
 } else if($_GET['action'] == 'business_services_fetch') {
 	$businessid = filter_var($_GET['business'],FILTER_SANITIZE_STRING);
@@ -1557,6 +1577,7 @@ if($_GET['action'] == 'update_fields') {
 	set_config($dbc, 'quick_action_icons', filter_var($_POST['quick_action_icons'],FILTER_SANITIZE_STRING));
 	set_config($dbc, 'ticket_colour_flags', filter_var($_POST['flags'],FILTER_SANITIZE_STRING));
 	set_config($dbc, 'ticket_colour_flag_names', filter_var($_POST['names'],FILTER_SANITIZE_STRING));
+	set_config($dbc, 'ticket_history_fields', filter_var($_POST['history_fields'],FILTER_SANITIZE_STRING));
 } else if($_GET['action'] == 'update_max_time') {
 	$ticketid = filter_var($_POST['ticketid'],FILTER_SANITIZE_STRING);
 	mysqli_query($dbc, "UPDATE `tickets` LEFT JOIN (SELECT `ticketid`, SEC_TO_TIME(SUM(TIME_TO_SEC(`time_length`))) `time_length` FROM `ticket_time_list` WHERE `time_type`='QA Estimate' AND `deleted`=0 GROUP BY `ticketid`) `time_list` ON `time_list`.`ticketid`=`tickets`.`ticketid` SET `tickets`.`max_qa_time`=`time_list`.`time_length` WHERE `time_list`.`ticketid` = '$ticketid'");
@@ -2721,6 +2742,9 @@ if($_GET['action'] == 'update_fields') {
 		echo '<a href="?settings=forms&id='.$id.'&page=1"><img src="pdf_contents/'.$filename.'" style="width: 30%; margin: 2em;"></a>';
 		echo '#*#'.$id;
 	}
+} else if($_GET['action'] == 'list_customer_service_templates') {
+	$contact = filter_var($_GET['contactid'],FILTER_SANITIZE_STRING);
+	echo mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `services_service_templates` WHERE `deleted`=0 AND `contactid`='$contact'"))['serviceid'];
 } else if($_GET['action'] == 'get_customer_service_templates') {
 	echo '<option></option>';
 	$clientid = $_GET['clientid'];

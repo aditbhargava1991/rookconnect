@@ -74,7 +74,7 @@ if (isset($_POST['submit'])) {
             $result_insert_config = mysqli_query($dbc, $query_insert_config);
         }
         //Design
-        
+
         //Header & Footer
         $invoice_header = filter_var(htmlentities($_POST['invoice_header']),FILTER_SANITIZE_STRING);
         $get_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT COUNT(configid) AS configid FROM general_configuration WHERE name='invoice_header_".config_safe_str($invoice_type)."'"));
@@ -574,7 +574,25 @@ if(!empty($invoice_types)) { ?>
                     <div class="form-group custom_ticket" <?= $invoice_design != 'custom_ticket' ? 'style="display: none;"' : '' ?>>
                     <label class="col-sm-4 control-label">Customizable <?= TICKET_NOUN ?> Fields:</label>
                     <div class="col-sm-8">
-                        <label class="form-checkbox"><input <?= (in_array('num_stops',$invoice_custom_ticket_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_custom_ticket_fields[]" value="num_stops"> # of Stops</label>
+
+                        <div class="row">
+                            <div class="col-sm-4">
+                                <label class="form-checkbox"><input <?= (in_array('num_stops',$invoice_custom_ticket_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_custom_ticket_fields[]" value="num_stops"> # of Stops</label>
+                            </div>
+                            <div class="col-sm-4">
+                                <label class="form-checkbox"><input <?= (in_array('customer_code',$invoice_custom_ticket_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_custom_ticket_fields[]" value="customer_code"> Customer Code</label>
+                            </div>
+                            <div class="col-sm-4">
+                                <label class="form-checkbox"><input <?= (in_array('location',$invoice_custom_ticket_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_custom_ticket_fields[]" value="location"> Location</label>
+                            </div>
+                            <div class="col-sm-4">
+                                <label class="form-checkbox"><input <?= (in_array('departure_location',$invoice_custom_ticket_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_custom_ticket_fields[]" value="departure_location"> Departure Location</label>
+                            </div>
+                            <div class="col-sm-4">
+                                <label class="form-checkbox"><input <?= (in_array('destination',$invoice_custom_ticket_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_custom_ticket_fields[]" value="destination"> Destination</label>
+                            </div>
+                        </div>
+
                     </div>
                     </div>
 
@@ -652,7 +670,7 @@ if(!empty($invoice_types)) { ?>
 
                     <div class="form-group">
                         <div class="col-sm-6">
-                            <a href="today_invoice.php" class="btn config-btn btn-lg">Back</a>
+                            <a href="index.php?tab=today" class="btn config-btn btn-lg">Back</a>
                         </div>
                         <div class="col-sm-6">
                             <button	type="submit" name="submit"	value="Submit" class="btn config-btn btn-lg	pull-right">Submit</button>
@@ -770,7 +788,7 @@ if(!empty($invoice_types)) { ?>
 
                         <div class="form-group">
                             <div class="col-sm-6">
-                                <a href="today_invoice.php" class="btn config-btn btn-lg">Back</a>
+                                <a href="index.php?tab=today" class="btn config-btn btn-lg">Back</a>
                             </div>
                             <div class="col-sm-6">
                                 <button	type="submit" name="submit"	value="Submit" class="btn config-btn btn-lg	pull-right">Submit</button>
@@ -802,7 +820,7 @@ if(!empty($invoice_types)) { ?>
 
                         <div class="form-group double-gap-top">
                             <div class="col-sm-6">
-                                <a href="today_invoice.php" class="btn config-btn btn-lg">Back</a>
+                                <a href="index.php?tab=today" class="btn config-btn btn-lg">Back</a>
                             </div>
                             <div class="col-sm-6">
                                 <button	type="submit" name="submit"	value="Submit" class="btn config-btn btn-lg	pull-right">Submit</button>
@@ -947,7 +965,7 @@ if(!empty($invoice_types)) { ?>
 
                     <div class="form-group double-gap-top">
                         <div class="col-sm-6">
-                            <a href="today_invoice.php" class="btn config-btn btn-lg">Back</a>
+                            <a href="index.php?tab=today" class="btn config-btn btn-lg">Back</a>
                         </div>
                         <div class="col-sm-6">
                             <button	type="submit" name="submit"	value="Submit" class="btn config-btn btn-lg	pull-right">Submit</button>
@@ -988,7 +1006,7 @@ if(!empty($invoice_types)) { ?>
 
                         <div class="form-group double-gap-top">
                             <div class="col-sm-6">
-                                <a href="today_invoice.php" class="btn config-btn btn-lg">Back</a>
+                                <a href="index.php?tab=today" class="btn config-btn btn-lg">Back</a>
                             </div>
                             <div class="col-sm-6">
                                 <button	type="submit" name="submit"	value="Submit" class="btn config-btn btn-lg	pull-right">Submit</button>
@@ -1024,7 +1042,7 @@ if(!empty($invoice_types)) { ?>
 
                         <div class="form-group double-gap-top">
                             <div class="col-sm-6">
-                                <a href="today_invoice.php" class="btn config-btn btn-lg">Back</a>
+                                <a href="index.php?tab=today" class="btn config-btn btn-lg">Back</a>
                             </div>
                             <div class="col-sm-6">
                                 <button	type="submit" name="submit"	value="Submit" class="btn config-btn btn-lg	pull-right">Submit</button>
@@ -1051,7 +1069,7 @@ if(!empty($invoice_types)) { ?>
 
                         <div class="form-group double-gap-top">
                             <div class="col-sm-6">
-                                <a href="today_invoice.php" class="btn config-btn btn-lg">Back</a>
+                                <a href="index.php?tab=today" class="btn config-btn btn-lg">Back</a>
                             </div>
                             <div class="col-sm-6">
                                 <button	type="submit" name="submit"	value="Submit" class="btn config-btn btn-lg	pull-right">Submit</button>
@@ -1067,7 +1085,7 @@ if(!empty($invoice_types)) { ?>
 
 <div class="form-group">
     <div class="col-sm-6">
-        <a href="today_invoice.php" class="btn config-btn btn-lg">Back</a>
+        <a href="index.php?tab=today" class="btn config-btn btn-lg">Back</a>
     </div>
     <div class="col-sm-6">
         <button	type="submit" name="submit"	value="Submit" class="btn config-btn btn-lg	pull-right">Submit</button>

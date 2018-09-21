@@ -85,4 +85,15 @@ function email_doc(img) {
     var body = encodeURIComponent('');
     overlayIFrameSlider('../Email Communication/add_email.php?type=external&subject='+subject+'&body='+body+'&bid='+business+'&cid='+contact+'&salesid='+sales+'&attach_docs='+encodeURIComponent(documents.join('#*#')), 'auto', false, true);
 }
+function email_infogathering(img) {
+    var documents = [];
+    var line = $(img).closest('tr');
+    line.find('a[href*=download]').each(function() { documents.push(this.href.replace('<?= WEBSITE_URL ?>','..')); });
+    var business = $('[name=businessid][data-table=sales]').val();
+    var contact = '<?= array_values(array_filter(explode(',',$contactid)))[0] ?>';
+    var sales = $('[name=salesid]').val();
+    var subject = encodeURIComponent('');
+    var body = encodeURIComponent('');
+    overlayIFrameSlider('../Email Communication/add_email.php?type=external&subject='+subject+'&body='+body+'&bid='+business+'&cid='+contact+'&salesid='+sales+'&attach_docs='+encodeURIComponent(documents.join('#*#')), 'auto', false, true);
+}
 </script>

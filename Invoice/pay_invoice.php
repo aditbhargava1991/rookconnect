@@ -82,7 +82,7 @@ foreach($tags as $invoiceid) {
 
   <div class="form-group">
     <div class="col-sm-4 clearfix">
-        <a href="today_invoice.php" class="btn brand-btn pull-right">Back</a>
+        <a href="index.php?tab=today" class="btn brand-btn pull-right">Back</a>
     </div>
     <div class="col-sm-8">
         <button type="submit" name="submit_pay" value="Submit" class="btn brand-btn btn-lg pull-right">Submit</button>

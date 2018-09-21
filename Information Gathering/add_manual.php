@@ -133,11 +133,14 @@ if (isset($_POST['manual_btn'])) {
         }
         $projectid = $_POST['projectid'];
         $businessid = $_POST['businessid'];
-        if(empty($_POST['fieldlevelriskid'])) {
+        if(empty($_POST['infopdfid'])) {
             $staffid = $_SESSION['contactid'];
             $staffid_query = ", `staffid` = '$staffid'";
+            if(!empty($_POST['salesid'])) {
+                $salesid_query = ", `salesid` = '".$_POST['salesid']."'";
+            }
         }
-        mysqli_query($dbc, "UPDATE `infogathering_pdf` SET `businessid` = '$businessid', `projectid` = '$projectid' $staffid_query WHERE `fieldlevelriskid` = '$fieldlevelriskid' AND `infogatheringid`= '$infogatheringid'");
+        mysqli_query($dbc, "UPDATE `infogathering_pdf` SET `businessid` = '$businessid', `projectid` = '$projectid' $staffid_query $salesid_query WHERE `fieldlevelriskid` = '$fieldlevelriskid' AND `infogatheringid`= '$infogatheringid'");
     }
 }
 ?>
@@ -256,10 +259,12 @@ function projectFilter() {
     }
 }
 </script>
-</head>
+<?php if(!IFRAME_PAGE) { ?>
+    </head>
 
-<body>
-<?php include_once ('../navigation.php');
+    <body>
+    <?php include_once ('../navigation.php');
+}
 checkAuthorised('infogathering');
 if(!empty($_GET['infogatheringid'])) {
     $user_form_id = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT * FROM infogathering WHERE infogatheringid='".$_GET['infogatheringid']."'"))['user_form_id'];
@@ -279,6 +284,7 @@ if(!empty($_GET['infogatheringid'])) {
     <?php } ?>
 
     <form id="form1" name="form1" method="post"	action="" enctype="multipart/form-data" class="form-horizontal" role="form" <?= $user_form_layout == 'Sidebar' ? 'style="padding: 0; margin: 0; border-top: 1px solid #E1E1E1;"' : '' ?>>
+        <input type="hidden" name="salesid" value="<?= $_GET['salesid'] ?>">
     <?php
         $category = '';
         $heading = '';
@@ -754,4 +760,4 @@ if(!empty($_GET['infogatheringid'])) {
 
   </div>
 </div>
-<?php include ('../footer.php'); ?>
+<?php if(!IFRAME_PAGE) { include ('../footer.php'); } ?>
