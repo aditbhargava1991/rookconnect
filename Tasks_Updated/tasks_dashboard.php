@@ -864,6 +864,12 @@ function addIntakeForm(btn) {
 
                                             </div> &nbsp;<span><?= $row['heading']; ?></span>
                                         </h4>
+                                        <div class="form-group">
+                                            <label for="first_name" class="col-sm-4 control-label">To Do Date:</label>
+                                            <div class="col-sm-7">
+                                                <input name="task_tododate" data-table="tasklist" data-id="<?php echo $row['tasklistid']; ?>" onchange="mark_date(this);" data-id-field="tasklistid" value="<?php echo $row['task_tododate']; ?>" type="text" data-table="tasklist" data-field="task_tododate" class="datepicker form-control" id="todo_<?php echo $row['tasklistid']; ?>">
+                                            </div>
+                                        </div>
                                     </div>
                                     <span class="pull-right action-icons offset-top-5 t_drag" data-task="<?= $row['tasklistid'] ?>">
                                         <img class="drag_handle pull-right inline-img offset-top-7 no-toggle" src="../img/icons/drag_handle.png" title="Drag" />
