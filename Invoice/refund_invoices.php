@@ -131,7 +131,7 @@ if((!empty($_GET['action'])) && ($_GET['action'] == 'email')) {
 
     send_email('', $to, '', '', $subject, $body, $attachment);
 
-    echo '<script type="text/javascript"> alert("Invoice Successfully Sent to Patient."); window.location.replace("today_invoice.php"); </script>';
+    echo '<script type="text/javascript"> alert("Invoice Successfully Sent to Patient."); window.location.replace("index.php?tab=today"); </script>';
 
 	//header('Location: unpaid_invoice.php');
     // Send Email to Client
@@ -146,7 +146,7 @@ $(document).ready(function() {
             $('#invoice_div .standard-body').height(available_height);
         }
     }).resize();
-    
+
     $('.all_view').click(function(event) {  //on click
 		var arr = $('.patientid_for_invoice').val().split('_');
         if(this.checked) { // check select status
@@ -508,7 +508,7 @@ if (isset($_POST['display_all_inventory'])) {
                     echo '<td data-title="Function"><a href=\'add_invoice.php?invoiceid='.$row['invoiceid'].'&contactid='.$row['patientid'].'&search_user='.$search_user.'&search_invoice='.$search_invoiceid.'\' >Edit</a>';
                     $role = $_SESSION['role'];
                     if($role== 'super' || $role == ',office_admin,' || $role == ',executive_front_staff,') {
-                        echo ' | <a onclick="return confirm(\'Are you sure you want to archive this invoice?\')" href=\'today_invoice.php?invoiceid='.$row['invoiceid'].'&action=delete\' >Archive</a>';
+                        echo ' | <a onclick="return confirm(\'Are you sure you want to archive this invoice?\')" href=\'index.php?tab=today?invoiceid='.$row['invoiceid'].'&action=delete\' >Archive</a>';
                     }
                 } else {
                     echo '<td data-title="Function"><a class="cursor-hand" href="create_invoice.php?invoiceid='.($row['invoiceid_src'] == 0 ? $row['invoiceid'] : $row['invoiceid_src']).'&inv_mode=adjust"><img src="../img/icons/refund.png" class="no-toggle inline-img" title="Refund / Adjustment" /></a>';

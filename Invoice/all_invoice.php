@@ -128,7 +128,7 @@ if((!empty($_GET['action'])) && ($_GET['action'] == 'email')) {
 
     send_email('', $to, '', '', $subject, $body, $attachment);
 
-    echo '<script type="text/javascript"> alert("Invoice Successfully Sent to Patient."); window.location.replace("today_invoice.php"); </script>';
+    echo '<script type="text/javascript"> alert("Invoice Successfully Sent to Patient."); window.location.replace("index.php?tab=today"); </script>';
 
 	//header('Location: unpaid_invoice.php');
     // Send Email to Client
@@ -459,7 +459,7 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
 						echo '<td><a href=\'add_invoice.php?invoiceid='.$row['invoiceid'].'&contactid='.$row['patientid'].'&search_user='.$search_user.'&search_invoice='.$search_invoiceid.'\' >Edit</a>';
 						$role = $_SESSION['role'];
 						if($role== 'super' || $role == ',office_admin,' || $role == ',executive_front_staff,') {
-							echo ' | <a onclick="return confirm(\'Are you sure you want to archive this invoice?\')" href=\'today_invoice.php?invoiceid='.$row['invoiceid'].'&action=delete\' >Archive</a>';
+							echo ' | <a onclick="return confirm(\'Are you sure you want to archive this invoice?\')" href=\'index.php?tab=today?invoiceid='.$row['invoiceid'].'&action=delete\' >Archive</a>';
 						}
 					} else {
 						echo '<td><a href=\'adjust_invoice.php?invoiceid='.($row['invoiceid_src'] == 0 ? $row['invoiceid'] : $row['invoiceid_src']).'&contactid='.$row['patientid'].'&search_user='.$search_user.'&search_invoice='.$search_invoiceid.'\' >Refund / Adjustments</a>';
