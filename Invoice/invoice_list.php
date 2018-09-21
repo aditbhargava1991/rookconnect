@@ -338,6 +338,7 @@ function show_hide_email() {
 
             $src_row = false;
             $src_ids = [];
+            $invoiceLayout = get_config($dbc, 'invoice_design');
             while($src_row || $invoice = mysqli_fetch_array( $result ))
             {
                 if(!$src_row && in_array($invoice['invoiceid'],$src_ids)) {
@@ -381,6 +382,10 @@ function show_hide_email() {
                     if(file_exists($invoice_pdf)) {
                         echo '<a target="_blank" href="'.$invoice_pdf.'">Invoice #'.$invoice['invoiceid'].' <img src="'.WEBSITE_URL.'/img/icons/pdf.png" title="Invoice PDF" class="no-toggle inline-img" /></a><br />';
                     }
+                    if($invoiceLayout=='cnt1'){
+                        echo '<a target="_blank" href="../Invoice/invoice_ajax.php?action=download_XSL_file&invoice='.$invoice['invoiceid'].'"><img src="'.WEBSITE_URL.'/img/icons/POS_XSL.png" title="Invoice XSL" class="no-toggle inline-img" /></a><br />';
+                    }
+
                     if($invoice['invoiceid_src'] > 0 && file_exists('../'.FOLDER_NAME.'/Download/invoice_'.$invoice['invoiceid_src'].'.pdf')) {
                         echo '<a target="_blank" href="'.'../'.FOLDER_NAME.'/Download/invoice_'.$invoice['invoiceid_src'].'.pdf'.'">Primary Invoice #'.$invoice['invoiceid_src'].' <img src="'.WEBSITE_URL.'/img/icons/pdf.png" title="Primary Invoice PDF" class="no-toggle inline-img" /></a><br />';
                     }
