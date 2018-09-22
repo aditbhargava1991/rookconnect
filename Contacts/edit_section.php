@@ -201,6 +201,8 @@ function viewOnlyFields(div) {
 <?php } ?>
 <script>
 window.onbeforeunload = function() {
+	var newflag = 0;
+	var flag = 0;
 	$('.form-group .required').each(function() {
 			var target = this;
 				if($(target).val() != null && $(target).val().length === 0) {
@@ -211,10 +213,17 @@ window.onbeforeunload = function() {
 					} else {
 						$(target).css('background-color', 'red');
 					}
+
+					flag=1;
 			}
 	});
-	// setTimeout(function() {
-			// alert("Please fill in the required fields");
-	// }, 0);
+
+	setTimeout(function() {
+			if(flag == 1 && newflag ==0) {
+				alert("Please fill in the required fields");
+			}
+
+			newflag = 1;
+	}, 0);
 }
 </script>
