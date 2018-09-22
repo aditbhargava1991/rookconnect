@@ -300,7 +300,7 @@ function show_hide_email() {
                 echo display_pagination($dbc, $query, $pageNum, $rowsPerPage);
             // Pagination Finish //
 
-            echo "<br /><div id='no-more-tables'><table class='table table-bordered table-striped'>";
+            echo "<br /><div id='no-more-tables'><table class='table table-bordered table-striped' id='invoiceData'>";
                 echo "<thead>";
                     echo "<tr class='hidden-xs hidden-sm'>";
                         if (strpos($value_config, ','."invoiceid".',') !== FALSE) {
@@ -383,7 +383,9 @@ function show_hide_email() {
                         echo '<a target="_blank" href="'.$invoice_pdf.'">Invoice #'.$invoice['invoiceid'].' <img src="'.WEBSITE_URL.'/img/icons/pdf.png" title="Invoice PDF" class="no-toggle inline-img" /></a><br />';
                     }
                     if($invoiceLayout=='cnt1'){
-                        echo '<a target="_blank" href="../Invoice/invoice_ajax.php?action=download_XSL_file&invoice='.$invoice['invoiceid'].'"><img src="'.WEBSITE_URL.'/img/icons/POS_XSL.png" title="Invoice XSL" class="no-toggle inline-img" /></a><br />';
+                        echo '<a target="_blank" href="../Invoice/invoice_ajax.php?action=export_pos_file&invoice='.$invoice['invoiceid'].'&format=xsl"><img src="'.WEBSITE_URL.'/img/icons/POS_XSL.png" title="Invoice XSL" class="no-toggle inline-img" /></a><br />';
+
+                        echo '<a target="_blank" href="../Invoice/invoice_ajax.php?action=export_pos_file&invoice='.$invoice['invoiceid'].'&format=xml"><img src="'.WEBSITE_URL.'/img/icons/POS_XML.png" title="Invoice XML" class="no-toggle inline-img" /></a><br />';
                     }
 
                     if($invoice['invoiceid_src'] > 0 && file_exists('../'.FOLDER_NAME.'/Download/invoice_'.$invoice['invoiceid_src'].'.pdf')) {
@@ -472,3 +474,17 @@ function show_hide_email() {
 
     </form>
 </div><!-- .standard-body-content -->
+
+<div>  
+<script type="text/javascript">  
+function exportInvoiceData(invoiceId, format) {
+    $.ajax({
+        type: "GET",
+        url: "../Invoice/invoice_ajax.php?action=export_pos_file&invoice="+invoiceId+"&format="+format,
+        dataType: "html",
+        success: function(response){
+           console.log(response)
+        }
+    });
+}
+</script>

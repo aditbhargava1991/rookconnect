@@ -1,4 +1,5 @@
-<?php include('../include.php');
+<?php 
+include('../include.php');
 ob_clean();
 
 if(!empty($_GET['action']) && $_GET['action'] == 'update_status') {
@@ -341,7 +342,7 @@ if(!empty($_GET['action']) && $_GET['action'] == 'invoice_values') {
     $invoiceid = preg_replace('/[^0-9]/', '', $_POST['invoiceid']);
     mysqli_query($dbc, "UPDATE `invoice` SET `status`='Void' WHERE `invoiceid`='$invoiceid'");
 }
-if(!empty($_GET['action']) && $_GET['action'] == 'download_XSL_file') {
+if(!empty($_GET['action']) && $_GET['action'] == 'export_pos_file') {
     $invoiceid = $_GET['invoice'];
     //invoice HTML
     $point_of_sell = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM invoice WHERE invoiceid='$invoiceid'"));
@@ -366,8 +367,7 @@ if(!empty($_GET['action']) && $_GET['action'] == 'download_XSL_file') {
 	if($get_pos_tax != '') {
 		$pos_tax = explode('*#*',$get_pos_tax);
 
-		$total_count = 2;
-		//$total_count = mb_substr_count($get_pos_tax,'*#*','UTF-8');
+		$total_count = mb_substr_count($get_pos_tax,'*#*','UTF-8');
 		for($eq_loop=0; $eq_loop<=$total_count; $eq_loop++) {
 			$pos_tax_name_rate = explode('**',$pos_tax[$eq_loop]);
 
@@ -384,7 +384,7 @@ if(!empty($_GET['action']) && $_GET['action'] == 'download_XSL_file') {
 
 			} else {
 				//$pdf_tax .= $pos_tax_name_rate[0] .' : '.$pos_tax_name_rate[1].'% : $'.$taxrate_value.'<br>';
-				$pdf_tax .= '<tr><td align="right" width="75%"><strong>'.$pos_tax_name_rate[0] .'['.$pos_tax_name_rate[1].'%]['.$pos_tax_name_rate[2].']</strong></td><td align="right" border="1" width="25%" style="">$'.$taxrate_value.'</td></tr>';
+				$pdf_tax .= '<tr><td align="right" width="75%" colspan="10"><strong>'.$pos_tax_name_rate[0] .'['.$pos_tax_name_rate[1].'%]['.$pos_tax_name_rate[2].']</strong></td><td align="right" border="1" width="25%" style="" colspan="2">$'.$taxrate_value.'</td></tr>';
 			}
 
 			$pdf_tax_number .= $pos_tax_name_rate[0].' ['.$pos_tax_name_rate[2].'] <br>';
@@ -442,7 +442,7 @@ if(!empty($_GET['action']) && $_GET['action'] == 'download_XSL_file') {
 			$this->SetFont('helvetica', '', 9);
 
 				//$footer_text = '<p style="text-align:right;">Date : ' .INVOICE_DATE.'<br>Invoice# : '.INVOICEID.'<br>Ship Date : ' .SHIP_DATE.'<br>Sales Person : ' .SALESPERSON.'<br>Payment Type : ' .PAYMENT_TYPE.'<br>Shipping Method : '.$point_of_sell['delivery_type'].'</p>';
-				$footer_text = '<table border="0"><tr><td style="width:50%;padding:10px;"><br><br><br><br><br></td><td  style="width:50%;">'.INVOICE_HEADER.'</td></tr></table>';
+				$footer_text = '<table border="0"><tr><td style="width:100%; text-align:center" colspan="12">'.$image_file.'</td></tr><tr><td style="width:100%; text-align:center" colspan="12">'.INVOICE_HEADER.'</td></tr></table>';
 
 			$this->writeHTMLCell(0, 0, 0 , 10, $footer_text, 0, 0, false, "R", true);
 		}
@@ -493,236 +493,474 @@ if(!empty($_GET['action']) && $_GET['action'] == 'download_XSL_file') {
 	//$pdf->AddPage();
 	$html = '';
 
-	//$html .= '<p style="text-align:left;">Box 2052, Sundre, AB, T0M 1X0<br>Phone: 403-638-4030<br>Fax: 403-638-4001<br>Email: info@highlandprojects.com<br>Work Ticket# : </p>';
-	if($point_of_sell['invoice_date'] !== '') {
-		$tdduedate = '<td>'.date('Y-m-d', strtotime($roww['invoice_date'] . "+30 days")).'</td>';
-		$thduedate = '<td>Due Date</td>';
-	} else { $tdduedate = ''; $thduedate = ''; }
-	$html .= '<table style="width:100%;"><tr>
-		<td style="width:50%;"><table style="width:100%;"><tr><td>BILL TO</td></tr><tr><td>'.decryptIt($customer['name']).' '.decryptIt($customer['first_name']).' '.decryptIt($customer['last_name']).'<br>'.$customer['mailing_address'].'<br>'.$customer['city'].', '.$customer['state'].' '.$customer['zip_code'].'<br>'.decryptIt($customer['cell_phone']).'<br>'.decryptIt($customer['email_address']).'</td></tr></table></td>
-		<td style="width:5%;"></td>
-		<td style="width:25%;"><h1 style="text-align:center;">Invoice</h1><p style="text-align:center;">[[FINAL_PRICE]]</p><table style="width:100%;"><tr><td style="text-align:center;">CONTRACT/MSA #</td></tr><tr><td>'.$point_of_sell['contract'].'</td></tr></table></td>
-		<td style="width:5%;"></td>
-		<td style="width:15%;"><table style="width:100%;"><tr><td style="text-align:center;">INVOICE #</td></tr><tr><td style="text-align:center;">'.$invoiceid.'</td></tr><tr><td style="text-align:center;">INVOICE DATE</td></tr><tr><td style="text-align:center;">'.$point_of_sell['invoice_date'].'</td></tr><tr><td style="text-align:center;">DUE DATE</td></tr><tr><td style="text-align:center;">'.$point_of_sell['due_date'].'</td></tr></table></td></tr></table>';
+	$html .= '<table style="width:100%;" id="invoiceData">
+				<tr rowspan="2">
+					<th colspan="12" style="text-align:center;"><p style="text-align:center;">'.$image_file.'</p><h1 style="text-align:center;">Invoice</h1></th>
+				</tr>
+			</table>';
 
-	$html .= '<br /><table border="1px" style="width:100%; padding:3px; border:1px solid grey;">
-			<tr nobr="true"><td style="text-align:center;">ORDERED BY</td><td style="text-align:center;">P.O. NO.</td><td style="text-align:center;">Area</tr>
-	<tr><td style="text-align:center;">'.SALESPERSON.'</td><td style="text-align:center;">'.$point_of_sell['po_num'].'</td><td style="text-align:center;">'.$point_of_sell['area'].'</td></tr>
-	</table><br />';
+	if($_GET['format']=='xsl'){
+		//$html .= '<p style="text-align:left;">Box 2052, Sundre, AB, T0M 1X0<br>Phone: 403-638-4030<br>Fax: 403-638-4001<br>Email: info@highlandprojects.com<br>Work Ticket# : </p>';
+		if($point_of_sell['invoice_date'] !== '') {
+			$tdduedate = '<td>'.date('Y-m-d', strtotime($roww['invoice_date'] . "+30 days")).'</td>';
+			$thduedate = '<td>Due Date</td>';
+		} else { $tdduedate = ''; $thduedate = ''; }
+		$html .= '<table style="width:100%;" id="invoiceData">
+					<tr>
+						<td colspan="6" style="text-align:left;">
+							<table style="width:100%;"><tr><td colspan="6">BILL TO :</td></tr><tr><td colspan="6">'.decryptIt($customer['name']).' '.decryptIt($customer['first_name']).' '.decryptIt($customer['last_name']).'<br>'.$customer['mailing_address'].'<br>'.$customer['city'].', '.$customer['state'].' '.$customer['zip_code'].'<br>'.decryptIt($customer['cell_phone']).'<br>'.decryptIt($customer['email_address']).'</td></tr>
+							</table>
+						</td>
+						
+						<td colspan="6" style="text-align:right;">
+							<table style="width:100%;"><tr><td colspan="6">INVOICE # : '.$invoiceid.'</td></tr><tr><td style="text-align:center;" colspan="6">INVOICE DATE : '.$point_of_sell['invoice_date'].'<br>DUE DATE : '.$point_of_sell['due_date'].'</td></tr>
+							</table>
+						</td>
+					</tr>
+				</table>';
 
-	$html .= '<table border="0x" style="width:100%;padding:3px;">
-		<tr nobr="true" style="color:black;  width:22%; border:1px solid grey;">';
+		$html .= '<br /><table border="1px" style="width:100%; padding:3px; border:1px solid grey;">
+				<tr nobr="true"><td style="text-align:center;" colspan="4">ORDERED BY</td><td style="text-align:center;" colspan="4">P.O. NO.</td><td style="text-align:center;" colspan="4">Area</tr>
+		<tr><td style="text-align:center;" colspan="4">'.SALESPERSON.'</td><td style="text-align:center;" colspan="4">'.$point_of_sell['po_num'].'</td><td style="text-align:center;" colspan="4">'.$point_of_sell['area'].'</td></tr>
+		</table><br />';
 
-	$html .= '<th>TICKET NO.</th><th>LOCATION</th><th>DESCRIPTION</th><th>HRS/QTY</th><th>RATE</th><th>AMOUNT</th></tr>';
-	// START INVENTORY & MISC PRODUCTS
-	$result = mysqli_query($dbc, "SELECT * FROM invoice_lines WHERE invoiceid='$invoiceid' AND category = 'inventory' AND item_id IS NOT NULL");
-	$result2 = mysqli_query($dbc, "SELECT * FROM invoice_lines WHERE invoiceid='$invoiceid' AND category = 'misc product'");
-	$return_result = mysqli_fetch_array(mysqli_query($dbc, "SELECT MAX(`returned_qty`) FROM `invoice_lines` WHERE `invoiceid`='$invoiceid'"))[0];
-	$returned_amt = 0;
-	$num_rows = mysqli_num_rows($result);
-	$num_rows2 = mysqli_num_rows($result2);
+		$html .= '<table border="0x" style="width:100%;padding:3px;">
+			<tr nobr="true" style="color:black;  width:22%; border:1px solid grey;">';
 
-	if($num_rows > 0 || $num_rows2 > 0) {
-		while ( $row = mysqli_fetch_array ( $result ) ) {
-			$inventoryid	= $row['item_id'];
-			$price			= $row['unit_price'];
-			$quantity		= $row['quantity'];
-			$returned		= $row['returned_qty'];
+		$html .= '<th colspan="2">TICKET NO.</th><th colspan="2">LOCATION</th><th colspan="2">DESCRIPTION</th><th colspan="2">HRS - QTY</th><th colspan="2">RATE</th><th colspan="2">AMOUNT</th></tr>';
+		// START INVENTORY & MISC PRODUCTS
+		$result = mysqli_query($dbc, "SELECT * FROM invoice_lines WHERE invoiceid='$invoiceid' AND category = 'inventory' AND item_id IS NOT NULL");
+		$result2 = mysqli_query($dbc, "SELECT * FROM invoice_lines WHERE invoiceid='$invoiceid' AND category = 'misc product'");
+		$return_result = mysqli_fetch_array(mysqli_query($dbc, "SELECT MAX(`returned_qty`) FROM `invoice_lines` WHERE `invoiceid`='$invoiceid'"))[0];
+		$returned_amt = 0;
+		$num_rows = mysqli_num_rows($result);
+		$num_rows2 = mysqli_num_rows($result2);
 
-			if ( $inventoryid != '' ) {
-				$amount = $price*($quantity-$returned);
+		if($num_rows > 0 || $num_rows2 > 0) {
+			while ( $row = mysqli_fetch_array ( $result ) ) {
+				$inventoryid	= $row['item_id'];
+				$price			= $row['unit_price'];
+				$quantity		= $row['quantity'];
+				$returned		= $row['returned_qty'];
 
-				$html .= '<tr>';
-					// Don't display Part# for SEA
-					//if ( $rookconnect !== 'sea' ) {
-						$html .= '<td></td><td>' . get_inventory ( $dbc, $inventoryid, 'part_no' ) . '</td>';
-					//}
-					$html .= '<td>' . get_inventory ( $dbc, $inventoryid, 'name' ) . '</td>';
-					$html .= '<td>' . number_format($quantity,0) . '</td>';
+				if ( $inventoryid != '' ) {
+					$amount = $price*($quantity-$returned);
+
+					$html .= '<tr>';
+						// Don't display Part# for SEA
+						//if ( $rookconnect !== 'sea' ) {
+							$html .= '<td colspan="2"></td><td colspan="2">' . get_inventory ( $dbc, $inventoryid, 'part_no' ) . '</td>';
+						//}
+						$html .= '<td colspan="2">' . get_inventory ( $dbc, $inventoryid, 'name' ) . '</td>';
+						$html .= '<td colspan="2">' . number_format($quantity,0) . '</td>';
+						if($return_result > 0) {
+							$html .= '<td colspan="2">'.$returned.'</td>';
+						}
+						$html .= '<td colspan="2">$'. $price . '</td>';
+						$html .= '<td style="text-align:right; " colspan="2">$'.number_format($amount,2).'</td>';
+					$html .= '</tr>';
+				}
+		        
+		        $returned_amt += $price * $returned;
+			}
+
+			$result = mysqli_query($dbc, "SELECT * FROM invoice_lines WHERE invoiceid='$invoiceid' AND category = 'misc product'");
+			while($row = mysqli_fetch_array( $result )) {
+				$misc_product = $row['misc_product'];
+				$price = $row['unit_price'];
+				$qty = $row['quantity'];
+				$returned = $row['returned_qty'];
+
+				if($misc_product != '') {
+					$html .= '<tr>';
+					$html .=  '<td colspan="2"></td><td colspan="2">Not Available</td>';
+					$html .=  '<td colspan="2">'.$misc_product.'</td>';
+					$html .=  '<td colspan="2">'.number_format($qty,0).'</td>';
 					if($return_result > 0) {
-						$html .= '<td>'.$returned.'</td>';
+						$html .= '<td colspan="2">'.$returned.'</td>';
 					}
-					$html .= '<td>$'. $price . '</td>';
-					$html .= '<td style="text-align:right; ">$'.number_format($amount,2).'</td>';
-				$html .= '</tr>';
-			}
-	        
-	        $returned_amt += $price * $returned;
-		}
-
-		$result = mysqli_query($dbc, "SELECT * FROM invoice_lines WHERE invoiceid='$invoiceid' AND category = 'misc product'");
-		while($row = mysqli_fetch_array( $result )) {
-			$misc_product = $row['misc_product'];
-			$price = $row['unit_price'];
-			$qty = $row['quantity'];
-			$returned = $row['returned_qty'];
-
-			if($misc_product != '') {
-				$html .= '<tr>';
-				$html .=  '<td></td><td>Not Available</td>';
-				$html .=  '<td>'.$misc_product.'</td>';
-				$html .=  '<td>'.number_format($qty,0).'</td>';
-				if($return_result > 0) {
-					$html .= '<td>'.$returned.'</td>';
+					$html .=  '<td colspan="2">$'.$price.'</td>';
+					$html .=  '<td style="text-align:right; " colspan="2">$'.$price * ($qty - $returned).'</td>';
+					$html .= '</tr>';
 				}
-				$html .=  '<td>$'.$price.'</td>';
-				$html .=  '<td style="text-align:right; ">$'.$price * ($qty - $returned).'</td>';
-				$html .= '</tr>';
 			}
 		}
-	}
-	// END INVENTORY AND MISC PRODUCTS
+		// END INVENTORY AND MISC PRODUCTS
 
-	// START PRODUCTS
-	$result = mysqli_query($dbc, "SELECT * FROM invoice_lines WHERE invoiceid='$invoiceid' AND category = 'package' AND item_id IS NOT NULL");
-	$num_rows3 = mysqli_num_rows($result);
-	if($num_rows3 > 0) {
-		while($row = mysqli_fetch_array( $result )) {
-			$inventoryid = $row['item_id'];
-			$price = $row['unit_price'];
-			$quantity = $row['quantity'];
-			$returned = $row['returned_qty'];
+		// START PRODUCTS
+		$result = mysqli_query($dbc, "SELECT * FROM invoice_lines WHERE invoiceid='$invoiceid' AND category = 'package' AND item_id IS NOT NULL");
+		$num_rows3 = mysqli_num_rows($result);
+		if($num_rows3 > 0) {
+			while($row = mysqli_fetch_array( $result )) {
+				$inventoryid = $row['item_id'];
+				$price = $row['unit_price'];
+				$quantity = $row['quantity'];
+				$returned = $row['returned_qty'];
 
-			if($inventoryid != '') {
-				$amount = $price*($quantity-$returned);
-				$html .= '<tr>';
-				$html .=  '<td></td><td>'.get_products($dbc, $inventoryid, 'category').'</td>';
-				$html .=  '<td>'.get_products($dbc, $inventoryid, 'heading').'</td>';
-				$html .=  '<td>'.number_format($quantity,0).'</td>';
-				if($return_result > 0) {
-					$html .= '<td>'.$returned.'</td>';
+				if($inventoryid != '') {
+					$amount = $price*($quantity-$returned);
+					$html .= '<tr>';
+					$html .=  '<td colspan="2"></td><td colspan="2">'.get_products($dbc, $inventoryid, 'category').'</td>';
+					$html .=  '<td colspan="2">'.get_products($dbc, $inventoryid, 'heading').'</td>';
+					$html .=  '<td colspan="2">'.number_format($quantity,0).'</td>';
+					if($return_result > 0) {
+						$html .= '<td colspan="2">'.$returned.'</td>';
+					}
+					$html .=  '<td colspan="2">$'.$price.'</td>';
+					$html .=  '<td style="text-align:right; " colspan="2">$'.number_format($amount,2).'</td>';
+					$html .= '</tr>';
 				}
-				$html .=  '<td>$'.$price.'</td>';
-				$html .=  '<td style="text-align:right; ">$'.number_format($amount,2).'</td>';
-				$html .= '</tr>';
 			}
 		}
-	}
-	// END PRODUCTS
+		// END PRODUCTS
 
-	// START SERVICES
-	$result = mysqli_query($dbc, "SELECT * FROM invoice_lines WHERE invoiceid='$invoiceid' AND category = 'service' AND item_id IS NOT NULL");
-	$num_rows4 = mysqli_num_rows($result);
-	if($num_rows4 > 0) {
-		while($row = mysqli_fetch_array( $result )) {
-			$inventoryid = $row['item_id'];
-			$price = $row['unit_price'];
-			$quantity = $row['quantity'];
-			$returned = $row['returned_qty'];
+		// START SERVICES
+		$result = mysqli_query($dbc, "SELECT * FROM invoice_lines WHERE invoiceid='$invoiceid' AND category = 'service' AND item_id IS NOT NULL");
+		$num_rows4 = mysqli_num_rows($result);
+		if($num_rows4 > 0) {
+			while($row = mysqli_fetch_array( $result )) {
+				$inventoryid = $row['item_id'];
+				$price = $row['unit_price'];
+				$quantity = $row['quantity'];
+				$returned = $row['returned_qty'];
 
-			if($inventoryid != '') {
-				$amount = $price*($quantity-$returned);
-				$html .= '<tr>';
-				$html .=  '<td></td><td>'.get_services($dbc, $inventoryid, 'category').'</td>';
-				$html .=  '<td>'.get_services($dbc, $inventoryid, 'heading').'</td>';
-				$html .=  '<td>'.number_format($quantity,0).'</td>';
-				if($return_result > 0) {
-					$html .= '<td>'.$returned.'</td>';
+				if($inventoryid != '') {
+					$amount = $price*($quantity-$returned);
+					$html .= '<tr>';
+					$html .=  '<td colspan="2"></td><td>'.get_services($dbc, $inventoryid, 'category').'</td>';
+					$html .=  '<td colspan="2">'.get_services($dbc, $inventoryid, 'heading').'</td>';
+					$html .=  '<td colspan="2">'.number_format($quantity,0).'</td>';
+					if($return_result > 0) {
+						$html .= '<td colspan="2">'.$returned.'</td>';
+					}
+					$html .=  '<td colspan="2">$'.$price.'</td>';
+					$html .=  '<td style="text-align:right; " colspan="2">$'.number_format($amount,2).'</td>';
+					$html .= '</tr>';
 				}
-				$html .=  '<td>$'.$price.'</td>';
-				$html .=  '<td style="text-align:right; ">$'.number_format($amount,2).'</td>';
-				$html .= '</tr>';
 			}
 		}
-	}
-	// END SERVICES
+		// END SERVICES
 
-	// START VPL
-	$result = mysqli_query($dbc, "SELECT * FROM invoice_lines WHERE invoiceid='$invoiceid' AND category = 'vpl' AND item_id IS NOT NULL");
-	$num_rows5 = mysqli_num_rows($result);
-	if($num_rows5 > 0) {
-		while($row = mysqli_fetch_array( $result )) {
-			$inventoryid = $row['item_id'];
-			$price = $row['unit_price'];
-			$quantity = $row['quantity'];
-			$returned = $row['returned_qty'];
+		// START VPL
+		$result = mysqli_query($dbc, "SELECT * FROM invoice_lines WHERE invoiceid='$invoiceid' AND category = 'vpl' AND item_id IS NOT NULL");
+		$num_rows5 = mysqli_num_rows($result);
+		if($num_rows5 > 0) {
+			while($row = mysqli_fetch_array( $result )) {
+				$inventoryid = $row['item_id'];
+				$price = $row['unit_price'];
+				$quantity = $row['quantity'];
+				$returned = $row['returned_qty'];
 
-			if($inventoryid != '') {
-				$amount = $price*($quantity-$returned);
+				if($inventoryid != '') {
+					$amount = $price*($quantity-$returned);
+
+					$html .= '<tr>';
+					$html .=  '<td colspan="2"></td><td colspan="2">'.get_vpl($dbc, $inventoryid, 'part_no').'</td>';
+					$html .=  '<td colspan="2">'.get_vpl($dbc, $inventoryid, 'name').'</td>';
+					$html .=  '<td colspan="2">'.number_format($quantity,0).'</td>';
+					if($return_result > 0) {
+						$html .= '<td colspan="2">'.$returned.'</td>';
+					}
+					$html .=  '<td colspan="2">$'.$price.'</td>';
+					$html .=  '<td style="text-align:right; " colspan="2">$'.number_format($amount,2).'</td>';
+					$html .= '</tr>';
+				}
+			}
+		}
+		// END VPL
+
+		// START TIME SHEET
+		$result = mysqli_query($dbc, "SELECT * FROM invoice_lines WHERE invoiceid='$invoiceid' AND category = 'time_cards' AND item_id IS NOT NULL");
+		$num_rows6 = mysqli_num_rows($result);
+		if($num_rows6 > 0) {
+			while($row = mysqli_fetch_array( $result )) {
+				$amount = $row['sub_total'];
 
 				$html .= '<tr>';
-				$html .=  '<td></td><td>'.get_vpl($dbc, $inventoryid, 'part_no').'</td>';
-				$html .=  '<td>'.get_vpl($dbc, $inventoryid, 'name').'</td>';
-				$html .=  '<td>'.number_format($quantity,0).'</td>';
-				if($return_result > 0) {
-					$html .= '<td>'.$returned.'</td>';
-				}
-				$html .=  '<td>$'.$price.'</td>';
-				$html .=  '<td style="text-align:right; ">$'.number_format($amount,2).'</td>';
+				$html .=  '<td colspan="2"></td><td colspan="2">'.$row['heading'].'</td>';
+				$html .=  '<td colspan="2">'.number_format($row['quantity'],0).'</td>';
+				$html .=  '<td colspan="2">$'.$row['unit_price'].'</td>';
+				$html .=  '<td style="text-align:right;">$'.number_format($amount,2).'</td>';
 				$html .= '</tr>';
 			}
 		}
-	}
-	// END VPL
+		// START TIME SHEET
+		$html .= '</table>';
 
-	// START TIME SHEET
-	$result = mysqli_query($dbc, "SELECT * FROM invoice_lines WHERE invoiceid='$invoiceid' AND category = 'time_cards' AND item_id IS NOT NULL");
-	$num_rows6 = mysqli_num_rows($result);
-	if($num_rows6 > 0) {
-		while($row = mysqli_fetch_array( $result )) {
-			$amount = $row['sub_total'];
-
-			$html .= '<tr>';
-			$html .=  '<td></td><td>'.$row['heading'].'</td>';
-			$html .=  '<td>'.number_format($row['quantity'],0).'</td>';
-			$html .=  '<td>$'.$row['unit_price'].'</td>';
-			$html .=  '<td style="text-align:right;">$'.number_format($amount,2).'</td>';
-			$html .= '</tr>';
+		if($client_tax_number != '') {
+			$html .= '<br>Tax Exemption Number : '.$point_of_sell['tax_exemption_number'];
 		}
+		$html .= '
+				<br><br>
+				<table border="0" cellpadding="2" style="width:100%;">';
+				if ( !empty($couponid) || $coupon_value!=0 ) {
+					$html .= '<tr><td style="text-align:right;" width="75%" colspan="10"><strong>Coupon Value</strong></td><td align="right" border="1" width="25%" style="" colspan="2">$'.$point_of_sell['coupon_value'].'</td></tr>';
+				}
+				if($point_of_sell['discount'] != '' && $point_of_sell['discount'] != 0) {
+					$html .= '<tr><td align="right" width="75%" colspan="10"><strong>Total Before Discount</strong></td><td align="right" border="1" width="25%" style="" colspan="2">$'.$point_of_sell['total_price'].'</td></tr>';
+					$html .= '<tr><td align="right" width="75%" colspan="10"><strong>Discount Value</strong></td><td align="right" border="1" width="25%" style="" colspan="2">$'.$point_of_sell['discount'].'</td></tr>';
+					$html .= '<tr><td align="right" width="75%" colspan="10"><strong>Total After Discount</strong></td><td align="right" border="1" width="25%" style="" colspan="2">$'.number_format($point_of_sell['total_price'] - $point_of_sell['discount'], 2).'</td></tr>';
+				} else {
+					$html .= '<tr><td align="right" width="75%" colspan="10"><strong>Sub Total</strong></td><td align="right" border="1" width="25%" style="" colspan="2">$'.number_format($point_of_sell['total_price'], 2).'</td></tr>';
+				}
+				if($point_of_sell['delivery'] != '' && $point_of_sell['delivery'] != 0) {
+					$html .= '<tr><td align="right" width="75%" colspan="10"><strong>Delivery</strong></td><td align="right" border="1" width="25%" style="" colspan="2">$'.number_format($point_of_sell['delivery'],2).'</td></tr>';
+				}
+				if($point_of_sell['assembly'] != '' && $point_of_sell['assembly'] != 0) {
+					$html .= '<tr><td align="right" width="75%" colspan="10"><strong>Assembly</strong></td><td align="right" border="1" width="25%" style="" colspan="2">$'.number_format($point_of_sell['assembly'],2).'</td></tr>';
+				}
+
+				if($pdf_tax != '') {
+					$html .= $pdf_tax;
+					//$html .= '<tr><td style="text-align:right;" width="75%"><strong>Tax</strong></td><td width="25%" style="text-align:right;">'.$pdf_tax.'</td></tr>';
+				}
+		        
+				$total_returned_amt = 0;
+		        if($returned_amt != 0) {
+					$total_tax_rate = ($gst_rate/100) + ($pst_rate/100);
+		            $total_returned_amt = $returned_amt + ($returned_amt * $total_tax_rate);
+		            $html .= '<tr><td align="right" width="75%" colspan="10"><strong>Returned Total (Including Tax)</strong></td><td align="right" border="1" width="25%" style="" colspan="2">$'.$total_returned_amt.'</td></tr>';
+				}
+
+		        
+				$html .= '<tr><td align="right" width="75%" colspan="10"><strong>Total</strong></td><td align="right" border="1" width="25%" style="" colspan="2">$'.number_format($point_of_sell['final_price'] - $total_returned_amt, 2).'</td></tr>';
+				if($point_of_sell['deposit_paid'] > 0) {
+					$html .='<tr><td align="right" width="75%" colspan="10"><strong>Deposit Paid</strong></td><td align="right" border="1" width="25%" style="" colspan="2">$'.$point_of_sell['deposit_paid'].'</td></tr>';
+					$html .='<tr><td align="right" width="75%" colspan="10"><strong>Updated Total</strong></td><td align="right" border="1" width="25%" style="" colspan="2">$'.$point_of_sell['updatedtotal'].'</td></tr>';
+				}
+
+				$html .= '</table><br><br>';
+
+
+		$html .= '<br />';
+
+		$html .= $comment.'<br>';
+		$html = str_replace('[[FINAL_PRICE]]','$'.number_format($point_of_sell['final_price'] - $total_returned_amt,2),$html);
+
+		header("Content-type: application/vnd.ms-excel");
+		header('Content-Disposition: attachment; filename=invoice_'.$invoiceid.'.xls');
 	}
-	// START TIME SHEET
-	$html .= '</table>';
+	if($_GET['format']=='xml'){
+		$xml = new SimpleXMLElement('<xml/>');
 
-	if($client_tax_number != '') {
-		$html .= '<br>Tax Exemption Number : '.$point_of_sell['tax_exemption_number'];
+		$billto = $xml->addChild('bill_to');
+	    $customer = $billto->addChild('customer');
+	    $customer->addChild('first_name', decryptIt($customer['first_name']));
+	    $customer->addChild('last_name', decryptIt($customer['last_name']));
+
+	    $address = $billto->addChild('billing_address');
+	    $address->addChild('mailing_address', $customer['mailing_address']);
+	    $address->addChild('city', $customer['city']);
+	    $address->addChild('state', $customer['state']);
+	    $address->addChild('zip_code', $customer['zip_code']);
+	    $address->addChild('cell_phone', decryptIt($customer['cell_phone']));
+	    $address->addChild('email_address', decryptIt($customer['email_address']));
+
+	    $invoice = $xml->addChild('invoice');
+	    $invoice->addChild('contract_msa', $point_of_sell['contract']);
+	    $invoice->addChild('invoice_id', $invoiceid);
+	    $invoice->addChild('invoice_date', $point_of_sell['invoice_date']);
+	    $invoice->addChild('due_date', $point_of_sell['due_date']);
+
+	    $detail = $xml->addChild('detail');
+	    $detail->addChild('ordered_by', SALESPERSON);
+	    $detail->addChild('po_number', $point_of_sell['po_num']);
+	    $detail->addChild('area', $point_of_sell['area']);
+
+		$items = $xml->addChild('items');
+
+		// START INVENTORY & MISC PRODUCTS
+		$result = mysqli_query($dbc, "SELECT * FROM invoice_lines WHERE invoiceid='$invoiceid' AND category = 'inventory' AND item_id IS NOT NULL");
+		$result2 = mysqli_query($dbc, "SELECT * FROM invoice_lines WHERE invoiceid='$invoiceid' AND category = 'misc product'");
+		$return_result = mysqli_fetch_array(mysqli_query($dbc, "SELECT MAX(`returned_qty`) FROM `invoice_lines` WHERE `invoiceid`='$invoiceid'"))[0];
+		$returned_amt = 0;
+		$num_rows = mysqli_num_rows($result);
+		$num_rows2 = mysqli_num_rows($result2);
+		$countItems = 1;
+		if($num_rows > 0 || $num_rows2 > 0) {
+			while ( $row = mysqli_fetch_array ( $result ) ) {
+				$inventoryid	= $row['item_id'];
+				$price			= $row['unit_price'];
+				$quantity		= $row['quantity'];
+				$returned		= $row['returned_qty'];
+
+				if ( $inventoryid != '' ) {
+					$amount = $price*($quantity-$returned);
+
+					$items.$countItems = $items->addChild('items'.$countItems);
+				    $items.$countItems->addChild('ticket_no.', '');
+				    $items.$countItems->addChild('location', get_inventory ( $dbc, $inventoryid, 'part_no' ));
+				    $items.$countItems->addChild('description', get_inventory ( $dbc, $inventoryid, 'name' ));
+				    $items.$countItems->addChild('hours_quantity', number_format($quantity,0));
+				    $items.$countItems->addChild('rate', '$'.$price);
+				    $items.$countItems->addChild('amount', '$'.number_format($amount,2));
+		        	$countItems++;
+				}
+		        $returned_amt += $price * $returned;
+			}
+
+			$result = mysqli_query($dbc, "SELECT * FROM invoice_lines WHERE invoiceid='$invoiceid' AND category = 'misc product'");
+			while($row = mysqli_fetch_array( $result )) {
+				$misc_product = $row['misc_product'];
+				$price = $row['unit_price'];
+				$qty = $row['quantity'];
+				$returned = $row['returned_qty'];
+
+				if($misc_product != '') {
+					$items.$countItems = $items->addChild('items'.$countItems);
+				    $items.$countItems->addChild('ticket_no.', '');
+				    $items.$countItems->addChild('location', 'Not Available');
+				    $items.$countItems->addChild('description', $misc_product);
+				    $items.$countItems->addChild('hours_quantity', number_format($quantity,0));
+				    $items.$countItems->addChild('rate', '$'.$price);
+				    $items.$countItems->addChild('amount', '$'.$price * ($qty - $returned));
+				    $countItems++;
+				}
+			}
+		}
+		// END INVENTORY AND MISC PRODUCTS
+
+		// START PRODUCTS
+		$result = mysqli_query($dbc, "SELECT * FROM invoice_lines WHERE invoiceid='$invoiceid' AND category = 'package' AND item_id IS NOT NULL");
+		$num_rows3 = mysqli_num_rows($result);
+		if($num_rows3 > 0) {
+			while($row = mysqli_fetch_array( $result )) {
+				$inventoryid = $row['item_id'];
+				$price = $row['unit_price'];
+				$quantity = $row['quantity'];
+				$returned = $row['returned_qty'];
+
+				if($inventoryid != '') {
+					$amount = $price*($quantity-$returned);
+
+					$items.$countItems = $items->addChild('items'.$countItems);
+				    $items.$countItems->addChild('ticket_no.', '');
+				    $items.$countItems->addChild('location', get_products($dbc, $inventoryid, 'category'));
+				    $items.$countItems->addChild('description', get_products($dbc, $inventoryid, 'heading'));
+				    $items.$countItems->addChild('hours_quantity', number_format($quantity,0));
+				    $items.$countItems->addChild('rate', '$'.$price);
+				    $items.$countItems->addChild('amount', '$'.number_format($amount,2));
+				    $countItems++;
+				}
+			}
+		}
+		// END PRODUCTS
+
+		// START SERVICES
+		$result = mysqli_query($dbc, "SELECT * FROM invoice_lines WHERE invoiceid='$invoiceid' AND category = 'service' AND item_id IS NOT NULL");
+		$num_rows4 = mysqli_num_rows($result);
+		if($num_rows4 > 0) {
+			while($row = mysqli_fetch_array( $result )) {
+				$inventoryid = $row['item_id'];
+				$price = $row['unit_price'];
+				$quantity = $row['quantity'];
+				$returned = $row['returned_qty'];
+
+				if($inventoryid != '') {
+					$amount = $price*($quantity-$returned);
+
+					$items.$countItems = $items->addChild('items'.$countItems);
+				    $items.$countItems->addChild('ticket_no.', '');
+				    $items.$countItems->addChild('location', get_services($dbc, $inventoryid, 'category'));
+				    $items.$countItems->addChild('description', get_services($dbc, $inventoryid, 'heading'));
+				    $items.$countItems->addChild('hours_quantity', number_format($quantity,0));
+				    $items.$countItems->addChild('rate', '$'.$price);
+				    $items.$countItems->addChild('amount', '$'.number_format($amount,2));
+				    $countItems++;
+				}
+			}
+		}
+		// END SERVICES
+
+		// START VPL
+		$result = mysqli_query($dbc, "SELECT * FROM invoice_lines WHERE invoiceid='$invoiceid' AND category = 'vpl' AND item_id IS NOT NULL");
+		$num_rows5 = mysqli_num_rows($result);
+		if($num_rows5 > 0) {
+			while($row = mysqli_fetch_array( $result )) {
+				$inventoryid = $row['item_id'];
+				$price = $row['unit_price'];
+				$quantity = $row['quantity'];
+				$returned = $row['returned_qty'];
+
+				if($inventoryid != '') {
+					$amount = $price*($quantity-$returned);
+
+					$items.$countItems = $items->addChild('items'.$countItems);
+				    $items.$countItems->addChild('ticket_no.', '');
+				    $items.$countItems->addChild('location',get_vpl($dbc, $inventoryid, 'part_no'));
+				    $items.$countItems->addChild('description', get_vpl($dbc, $inventoryid, 'name'));
+				    $items.$countItems->addChild('hours_quantity', number_format($quantity,0));
+				    $items.$countItems->addChild('rate', '$'.$price);
+				    $items.$countItems->addChild('amount', '$'.number_format($amount,2));
+				    $countItems++;
+				}
+			}
+		}
+		// END VPL
+
+		// START TIME SHEET
+		$result = mysqli_query($dbc, "SELECT * FROM invoice_lines WHERE invoiceid='$invoiceid' AND category = 'time_cards' AND item_id IS NOT NULL");
+		$num_rows6 = mysqli_num_rows($result);
+		if($num_rows6 > 0) {
+			while($row = mysqli_fetch_array( $result )) {
+				$amount = $row['sub_total'];
+
+				$items.$countItems = $items->addChild('items'.$countItems);
+			    $items.$countItems->addChild('ticket_no.', '');
+			    $items.$countItems->addChild('location',$row['heading']);
+			    $items.$countItems->addChild('description', '');
+			    $items.$countItems->addChild('hours_quantity', number_format($row['quantity'],0));
+			    $items.$countItems->addChild('rate', '$'.$row['unit_price']);
+			    $items.$countItems->addChild('amount', '$'.number_format($amount,2));
+			    $countItems++;
+			}
+		}
+		// START TIME SHEET
+		if($client_tax_number != '') {
+			$tax_exemption_number = $xml->addChild('tax_exemption_number', $point_of_sell['tax_exemption_number']);
+		}
+		$tax_exemption_number = $xml->addChild('tax_exemption_number', $point_of_sell['tax_exemption_number']);
+
+		if ( !empty($couponid) || $coupon_value!=0 ) {
+			$coupon_value = $xml->addChild('coupon_value', $point_of_sell['coupon_value']);
+		}
+		if($point_of_sell['discount'] != '' && $point_of_sell['discount'] != 0) {
+			$total_before_discount = $xml->addChild('total_before_discount', $point_of_sell['total_price']);
+			$discount_value = $xml->addChild('discount_value', $point_of_sell['discount']);
+			$total_after_discount = $xml->addChild('total_after_discount', number_format($point_of_sell['total_price'] - $point_of_sell['discount'], 2));
+		} else {
+			$subtotal = $xml->addChild('subtotal', number_format($point_of_sell['total_price'], 2));
+		}
+		if($point_of_sell['delivery'] != '' && $point_of_sell['delivery'] != 0) {
+			$delivery = $xml->addChild('delivery', number_format($point_of_sell['delivery'],2));
+		}
+		if($point_of_sell['assembly'] != '' && $point_of_sell['assembly'] != 0) {
+			$assembly = $xml->addChild('assembly', number_format($point_of_sell['assembly'],2));
+		}
+
+		if($pdf_tax != '') {
+			$html .= $pdf_tax;
+			//$tax = $xml->addChild('tax', $pdf_tax);
+		}
+        
+		$total_returned_amt = 0;
+        if($returned_amt != 0) {
+			$total_tax_rate = ($gst_rate/100) + ($pst_rate/100);
+            $total_returned_amt = $returned_amt + ($returned_amt * $total_tax_rate);
+            $returned_total_including_tax = $xml->addChild('returned_total_including_tax', '$'.$total_returned_amt);
+		}
+
+	   	$xml->addChild('total', '$'.number_format($point_of_sell['final_price'] - $total_returned_amt, 2));
+
+		if($point_of_sell['deposit_paid'] > 0) {
+			$xml->addChild('deposite_paid', '$'.$point_of_sell['deposit_paid']);
+			$xml->addChild('updated_total', '$'.$point_of_sell['updatedtotal']);
+		}
+
+		$html = $xml->asXML();
+
+		Header('Content-type: text/xml');
+		header('Content-Disposition: attachment; filename=invoice_'.$invoiceid.'.xml');
 	}
-	$html .= '
-			<br><br>
-			<table border="0" cellpadding="2" style="width:100%;">';
-			if ( !empty($couponid) || $coupon_value!=0 ) {
-				$html .= '<tr><td style="text-align:right;" width="75%"><strong>Coupon Value</strong></td><td align="right" border="1" width="25%" style="">$'.$point_of_sell['coupon_value'].'</td></tr>';
-			}
-			if($point_of_sell['discount'] != '' && $point_of_sell['discount'] != 0) {
-				$html .= '<tr><td align="right" width="75%"><strong>Total Before Discount</strong></td><td align="right" border="1" width="25%" style="">$'.$point_of_sell['total_price'].'</td></tr>';
-				$html .= '<tr><td align="right" width="75%"><strong>Discount Value</strong></td><td align="right" border="1" width="25%" style="">$'.$point_of_sell['discount'].'</td></tr>';
-				$html .= '<tr><td align="right" width="75%"><strong>Total After Discount</strong></td><td align="right" border="1" width="25%" style="">$'.number_format($point_of_sell['total_price'] - $point_of_sell['discount'], 2).'</td></tr>';
-			} else {
-				$html .= '<tr><td align="right" width="75%"><strong>Sub Total</strong></td><td align="right" border="1" width="25%" style="">$'.number_format($point_of_sell['total_price'], 2).'</td></tr>';
-			}
-			if($point_of_sell['delivery'] != '' && $point_of_sell['delivery'] != 0) {
-				$html .= '<tr><td align="right" width="75%"><strong>Delivery</strong></td><td align="right" border="1" width="25%" style="">$'.number_format($point_of_sell['delivery'],2).'</td></tr>';
-			}
-			if($point_of_sell['assembly'] != '' && $point_of_sell['assembly'] != 0) {
-				$html .= '<tr><td align="right" width="75%"><strong>Assembly</strong></td><td align="right" border="1" width="25%" style="">$'.number_format($point_of_sell['assembly'],2).'</td></tr>';
-			}
-
-			if($pdf_tax != '') {
-				$html .= $pdf_tax;
-				//$html .= '<tr><td style="text-align:right;" width="75%"><strong>Tax</strong></td><td width="25%" style="text-align:right;">'.$pdf_tax.'</td></tr>';
-			}
-	        
-			$total_returned_amt = 0;
-	        if($returned_amt != 0) {
-				$total_tax_rate = ($gst_rate/100) + ($pst_rate/100);
-	            $total_returned_amt = $returned_amt + ($returned_amt * $total_tax_rate);
-	            $html .= '<tr><td align="right" width="75%"><strong>Returned Total (Including Tax)</strong></td><td align="right" border="1" width="25%" style="">$'.$total_returned_amt.'</td></tr>';
-			}
-
-	        
-			$html .= '<tr><td align="right" width="75%"><strong>Total</strong></td><td align="right" border="1" width="25%" style="">$'.number_format($point_of_sell['final_price'] - $total_returned_amt, 2).'</td></tr>';
-			if($point_of_sell['deposit_paid'] > 0) {
-				$html .='<tr><td align="right" width="75%"><strong>Deposit Paid</strong></td><td align="right" border="1" width="25%" style="">$'.$point_of_sell['deposit_paid'].'</td></tr>';
-				$html .='<tr><td align="right" width="75%"><strong>Updated Total</strong></td><td align="right" border="1" width="25%" style="">$'.$point_of_sell['updatedtotal'].'</td></tr>';
-			}
-
-			$html .= '</table><br><br>';
-
-
-	$html .= '<br />';
-
-	$html .= $comment.'<br>';
-	$html = str_replace('[[FINAL_PRICE]]','$'.number_format($point_of_sell['final_price'] - $total_returned_amt,2),$html);
-	header("Content-type: application/vnd.ms-excel");
-	header('Content-Disposition: attachment; filename=invoice_'.$invoiceid.'.xls');
 	echo $html;die;
 }
