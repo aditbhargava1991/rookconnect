@@ -179,6 +179,14 @@ if($_GET['fill'] == 'mark_date') {
     echo $query_update_project;
 }
 
+if($_GET['fill'] == 'mark_staff') {
+    $tasklistid = $_GET['tasklistid'];
+	$staff = $_GET['staff'];
+    $query_update_project = "UPDATE `tasklist` SET `contactid`='$staff' WHERE `tasklistid` = '$tasklistid'";
+	$result_update_project = mysqli_query($dbc, $query_update_project);
+    echo $query_update_project;
+}
+
 if($_GET['fill'] == 'delete_task') {
     $tasklistid = $_GET['taskid'];
 	    $archived_date = date('Y-m-d');
