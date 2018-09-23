@@ -203,27 +203,39 @@ function viewOnlyFields(div) {
 window.onbeforeunload = function() {
 	var newflag = 0;
 	var flag = 0;
+	var counter = 0;
+	var newcounter = 0;
 	$('.form-group .required').each(function() {
 			var target = this;
-				if($(target).val() != null && $(target).val().length === 0) {
-					if($(target).is('select')) {
-						var select2 = $(target).next('.select2');
-						$(select2).find('.select2-selection').css('background-color', 'red');
-						$(select2).find('.select2-selection__placeholder').css('color', 'white');
-					} else {
-						$(target).css('background-color', 'red');
-					}
-
-					flag=1;
-			}
+			flag = verifycondition(target, flag);
 	});
 
-	setTimeout(function() {
-			if(flag == 1 && newflag ==0) {
-				alert("Please fill in the required fields");
+	/*function prealert(){
+    sendalert(flag);
+  }
+  setTimeout(prealert, 0);*/
+}
+
+function verifycondition(target, flag) {
+	if($(target).val() == null || $(target).val().length === 0) {
+			if($(target).is('select')) {
+				var select2 = $(target).next('.select2');
+				$(select2).find('.select2-selection').css('background-color', 'red');
+				$(select2).find('.select2-selection__placeholder').css('color', 'white');
+			} else {
+				$(target).css('background-color', 'red');
 			}
 
-			newflag = 1;
-	}, 0);
+			flag=1;
+	}
+
+	return flag;
+}
+
+function sendalert(flag) {
+	alert(flag);
+	if(flag == 1) {
+		alert("Please fill in the required fields");
+	}
 }
 </script>
