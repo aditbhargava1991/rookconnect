@@ -30,7 +30,7 @@ $(document).ready(function() {
             $('#sales_div .main-screen-white .standard-body-content').css('overflow-y','auto');
             $('#sales_div .main-screen-white .standard-body-content').css('margin-top',$('#sales_div .main-screen-white .standard-body-title').height()+'px');
         }
-	}).resize();
+    }).resize();
 
     $('.main-screen-white').css('overflow-x','hidden');
     var $sections = $('.accordion-block-details');
@@ -40,10 +40,10 @@ $(document).ready(function() {
         $sections.each(function(){
             var divPosition = $(this).offset().top;
             if( divPosition - 1 < currentScroll ){
-				$('.tile-sidebar li').removeClass('active');
-				$('.tile-sidebar [href=#'+$(this).attr('id')+'] li').addClass('active');
+                $('.tile-sidebar li').removeClass('active');
+                $('.tile-sidebar [href=#'+$(this).attr('id')+'] li').addClass('active');
             } else if(divPosition < currentScroll + $('.main-screen .tile-container').height()) {
-				$('.tile-sidebar [href=#'+$(this).attr('id')+'] li').addClass('active');
+                $('.tile-sidebar [href=#'+$(this).attr('id')+'] li').addClass('active');
             }
         });
     });
@@ -220,20 +220,20 @@ $(document).ready(function() {
 <body>
 <?php
     if($_GET['iframe_slider'] != 1) {
-    	include_once ('../navigation.php');
+        include_once ('../navigation.php');
     }
     checkAuthorised('sales');
 ?>
 
 <div id="sales_div" class="container">
     <div class="iframe_overlay" style="display:none;">
-		<div class="iframe">
-			<iframe src=""></iframe>
-		</div>
-	</div>
+        <div class="iframe">
+            <iframe src=""></iframe>
+        </div>
+    </div>
 
     <div class="row">
-		<div class="main-screen"><?php
+        <div class="main-screen"><?php
             if($_GET['iframe_slider'] != 1 && !IFRAME_PAGE) {
                 include('tile_header.php');
             }
@@ -298,57 +298,29 @@ $(document).ready(function() {
                 <!-- Sidebar -->
                 <div class="standard-collapsible tile-sidebar tile-sidebar-noleftpad hide-on-mobile" <?= $_GET['iframe_slider'] == 1 || IFRAME_PAGE ? 'style="display:none;"' : '' ?>>
                     <ul><?php
-                        if (strpos($value_config, ',Sales Path,') !== false) { ?>
-                            <a href="#salespath"><li class="collapsed cursor-hand <?= $_GET['p'] == 'salespath' ? 'active' : '' ?>" data-toggle="collapse" data-target="#collapse_salespath" id="nav_salespath"><?= SALES_NOUN ?> Task Path</li></a><?php
+                        $get_field_config_tabs_order   = mysqli_fetch_assoc ( mysqli_query ( $dbc, "SELECT `value` FROM `general_configuration` where `name` = 'sales_sub_tabs_order'" ) );
+                        $tab_order = stripslashes(html_entity_decode($get_field_config_tabs_order['value']));
+                        $tab_order = json_decode($tab_order, true);
+                        foreach ($tab_order as $key => $value) {
+
+                            if (strpos($value_config, $value['condition']) !== false) { ?>
+                                <a href="<?php echo $value['ahref'];?>"><li class="collapsed cursor-hand <?= $_GET['p'] == 'salespath' ? 'active' : '' ?>" data-toggle="collapse" data-target="<?php echo $value['target'];?>" id="<?php echo $value['id'];?>"><?php echo $value['label'];?></li></a>
+
+                                <?php
+                            }elseif((strpos($value_config, ',Lead Information,') !== false && $value['condition']=='nav_contact')) {
+                                foreach(explode(',',$lead['contactid']) as $contactid) {
+                                    if($contactid > 0) { ?>
+                                        <a href="<?php echo $value['ahref'].$contactid;?>"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="<?php echo $value['target'].$contactid;?>" id="<?php echo $value['id'].$contactid;?>" data-condition=""><?php echo $value['label'];?></li></a>
+                                    <?php }
+                                }
+                            }
+                            elseif((strpos($value_config, ',Lead Information,') !== false && $value['condition']=='nav_business')) {
+                                ?>
+                                    <a href="<?php echo $value['ahref'];?>"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="<?php echo $value['target'];?>" id="<?php echo $value['id'];?>" data-condition=""><?php echo $value['label'];?></li></a>
+                                <?php
+                            }
                         }
-                        if (strpos($value_config, ',Staff Information,') !== false) { ?>
-                            <a href="#staffinfo"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_staff_information" id="nav_staffinfo">Staff Information</li></a>
-                        <?php }
-                        if (strpos($value_config, ',Next Action,') !== false) { ?>
-                            <a href="#nextaction"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_next_action" id="nav_nextaction">Next Action</li></a>
-                        <?php }
-                        if (strpos($value_config, ',Lead Information,') !== false) { ?>
-                            <a href="#leadinfo"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_lead_information" id="nav_leadinfo">Lead Information</li></a><?php
-                            foreach(explode(',',$lead['contactid']) as $contactid) {
-                                if($contactid > 0) { ?>
-                                    <a href="#contact_<?= $contactid ?>"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_contact_<?= $contactid ?>" id="nav_contact_<?= $contactid ?>"><?= get_contact($dbc, $contactid) ?></li></a>
-                                <?php }
-                            } ?>
-                            <a href="#business"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_business" id="nav_business"><?= get_contact($dbc, $lead['businessid'], 'name_company') ?></li></a>
-                        <?php }
-                        if (strpos($value_config, ',Service,') !== false) { ?>
-                            <a href="#services"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_services" id="nav_services">Services</li></a>
-                        <?php }
-                        if (strpos($value_config, ',Products,') !== false) { ?>
-                            <a href="#products"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_products" id="nav_products">Products</li></a>
-                        <?php }
-                        if (strpos($value_config, ',Reference Documents,') !== false) { ?>
-                            <a href="#refdocs"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_reference_documents" id="nav_refdocs">Reference Documents</li></a>
-                        <?php }
-                        if (strpos($value_config, ',Marketing Material,') !== false) { ?>
-                            <a href="#marketing"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_reference_documents" id="nav_marketing">Marketing Material</li></a>
-                        <?php }
-                        if (strpos($value_config, 'Information Gathering,') !== false) { ?>
-                            <a href="#infogathering"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_information_gathering" id="nav_infogathering">Information Gathering</li></a>
-                        <?php }
-                        if (strpos($value_config, ',Estimate,') !== false) { ?>
-                            <a href="#estimate"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_estimate" id="nav_estimate">Estimate</li></a>
-                        <?php }
-                        if (strpos($value_config, ',Lead Notes,') !== false) { ?>
-                            <a href="#leadnotes"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_lead_notes" id="nav_leadnotes">Lead Notes</li></a>
-                        <?php }
-                        if (strpos($value_config, ',Tasks,') !== false) { ?>
-                            <a href="#tasks"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_tasks" id="nav_tasks">Tasks</li></a>
-                        <?php }
-                        if (strpos($value_config, ',Deliverable,') !== false) { ?>
-                            <a href="#deli"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_deli" id="nav_deli">Deliverable</li></a>
-                        <?php }
-                        if (strpos($value_config, ',Time,') !== false) { ?>
-                            <a href="#time"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_time" id="nav_time">Time Tracking</li></a>
-                        <?php }
-                        if (strpos($value_config, ',History,') !== false) { ?>
-                            <a href="#history"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_history" id="nav_history">History</li></a>
-                        <?php } ?>
+                         ?>
                         <li><?= SALES_NOUN ?> Created by<br /><?= $salesid > 0 ? $lead['lead_created_by'] : get_contact($dbc, $_SESSION['contactid']) ?><br /> on <?= $salesid > 0 ? $lead['created_date'] : date('Y-m-d') ?></li>
                     </ul>
                 </div><!-- .tile-sidebar -->

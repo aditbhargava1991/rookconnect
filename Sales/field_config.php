@@ -110,15 +110,17 @@ function resizeScreen() {
                         <!--
                         <a href="?tab=general"><li <?= $_GET['tab'] == 'general' ? 'class="active"' : '' ?>><?= SALES_TILE ?> Settings</li></a>
                         -->
-                        <?php
-                        $get_field_config_tabs_order   = mysqli_fetch_assoc ( mysqli_query ( $dbc, "SELECT `value` FROM `general_configuration` where `name` = 'sales_sub_tabs_order'" ) );
-                        $tab_order = stripslashes(html_entity_decode($get_field_config_tabs_order['value']));
-                        $tab_order = json_decode($tab_order, true);
-                        foreach ($tab_order as $key => $value) { 
-                        ?>
-                            <a href="?tab=<?php echo $value['segment'];?>"><li <?= $_GET['tab'] == $value['segment'] ? 'class="active"' : '' ?>><?php echo $value['title'];?></li></a>
-                        <?php
-                        }?>
+                        <a href="?tab=tile"><li <?= $_GET['tab'] == 'tile' ? 'class="active"' : '' ?>>Tile Settings</li></a>
+                        <a href="?tab=fields"><li <?= $_GET['tab'] == 'fields' ? 'class="active"' : '' ?>>Fields</li></a>
+                        <a href="?tab=dashboards"><li <?= $_GET['tab'] == 'dashboards' ? 'class="active"' : '' ?>> Dashboards</li></a>
+                        <a href="?tab=actions"><li <?= $_GET['tab'] == 'actions' ? 'class="active"' : '' ?>>Quick Action Icons</li></a>
+                        <a href="?tab=accordion"><li <?= $_GET['tab'] == 'accordion' ? 'class="active"' : '' ?>>Accordion</li></a>
+                        <a href="?tab=lead_source"><li <?= $_GET['tab'] == 'lead_source' ? 'class="active"' : '' ?>>Lead Source</li></a>
+                        <a href="?tab=next_action"><li <?= $_GET['tab'] == 'next_action' ? 'class="active"' : '' ?>>Next Action</li></a>
+                        <a href="?tab=lead_status"><li <?= $_GET['tab'] == 'lead_status' ? 'class="active"' : '' ?>>Lead Status</li></a>
+                        <a href="?tab=auto_archive"><li <?= $_GET['tab'] == 'auto_archive' ? 'class="active"' : '' ?>>Auto Archive</li></a>
+                        <a href="?tab=sales_lead"><li <?= $_GET['tab'] == 'sales_lead' ? 'class="active"' : '' ?>>Sales Lead</li></a>
+                        <a href="?tab=manage_sub_tabs"><li <?= $_GET['tab'] == 'manage_sub_tabs' ? 'class="active"' : '' ?>>Manage Sub-Tabs</li></a>
                     </ul>
                 </div>
                 <?php

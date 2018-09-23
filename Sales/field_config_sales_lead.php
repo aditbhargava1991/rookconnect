@@ -36,7 +36,7 @@ $(document).ready(function() {
     <div class="form-group">
         <div class="row">
             <?php
-            $query   = mysqli_query ( $dbc, "SELECT `sales_lead_is_active`,`contactid`,`first_name`, `last_name` FROM `contacts` where `category` = 'Staff'" );
+            $query   = mysqli_query ( $dbc, "SELECT `sales_lead_is_active`,`contactid`,`first_name`, `last_name` FROM `contacts` where `category` = 'Staff' and `first_name` != ''" );
             while($row = mysqli_fetch_array($query)) { 
             ?>
                 <div class="col-sm-4 ui-state-default" id="salesLead_list">
