@@ -202,52 +202,82 @@ if(!empty($_GET['action']) && $_GET['action'] == 'invoice_values') {
 } else if($_GET['action'] == 'load_ticket_details') {
 	$ticketid = $_POST['ticketid'];
 
-	$ticket = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticketid` = '$ticketid'"));
+	$ticket = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `tickets`.*, SUM(`ticket_schedule`.`id`) `deliveries` FROM `tickets` LEFT JOIN `ticket_schedule` ON `tickets`.`ticketid`=`ticket_schedule`.`ticketid` AND `ticket_schedule`.`deleted`=0 AND IFNULL(`ticket_schedule`.`serviceid`,'') != '' WHERE `tickets`.`ticketid` = '$ticketid'"));
 	if($ticket['ticketid'] > 0) { ?>
-		<?php if(!empty($ticket['serviceid'])) { ?>
+		<?php if(!empty($ticket['serviceid']) || $ticket['deliveries'] > 0) { ?>
 			<div class="form-group clearfix hide-titles-mob">
 				<label class="col-sm-3 text-center">Category</label>
 				<label class="col-sm-5 text-center">Service Name</label>
-				<label class="col-sm-4 text-center">Fee</label>
+				<label class="col-sm-2 text-center">Qty</label>
+				<label class="col-sm-2 text-center">Fee</label>
 			</div>
 		<?php }
+        $businessid = $ticket['businessid'];
+        $clientid = implode("','",explode(',',$ticket['clientid']));
+        $business_rates = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `services`, `staff`, `staff_position` FROM `rate_card` WHERE `clientid` IN ('$rate_contact', '$businessid', '$clientid') AND `clientid` != '' AND `deleted`=0 ORDER BY `clientid`='$rate_contact' DESC"));
+        $service_rates = explode('**',$business_rates['services']);
+        $serviceid = [];
+        $srv_qty = [];
+        $srv_fuel = [];
+        $srv_discount = [];
+        $srv_dis_type = [];
 		foreach(explode(',',$ticket['serviceid']) as $i => $service) {
 			if($service > 0) {
-				$qty = explode(',',$ticket['service_qty'])[$i];
-				$fuel = explode(',',$ticket['service_fuel_charge'])[$i];
-				$discount = explode(',',$ticket['service_discount'])[$i];
-				$dis_type = explode(',',$ticket['service_discount_type'])[$i];
-				$price = 0;
-				$customer_rate = $dbc->query("SELECT `services` FROM `rate_card` WHERE `clientid`='".$ticket['businessid']."' AND `deleted`=0 AND `on_off`=1")->fetch_assoc();
-				foreach(explode('**',$customer_rate['services']) as $service_rate) {
-					$service_rate = explode('#',$service_rate);
-					if($service == $service_rate[0] && $service_rate[1] > 0) {
-						$price = $service_rate[1];
-					}
-				}
-				if(!($price > 0)) {
-					$service_rate = $dbc->query("SELECT `cust_price`, `admin_fee` FROM `company_rate_card` WHERE `deleted`=0 AND `item_id`='$service' AND `tile_name` LIKE 'Services' AND `start_date` < DATE(NOW()) AND IFNULL(NULLIF(`end_date`,'0000-00-00'),'9999-12-31') > DATE(NOW()) AND `cust_price` > 0")->fetch_assoc();
-					$price = $service_rate['cust_price'];
-				}
-				$price_total = ($price * $qty + $fuel);
-				$price_total -= ($dis_type == '%' ? $discount / 100 * $price_total : $discount);
-				$service_details = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `services` WHERE `serviceid` = '$service'")); ?>
-				<div class="dis_service form-group">
-					<div class="col-sm-3">
-						<input type="text" readonly name="service_cat[]" value="<?= $service_details['category'] ?>" class="form-control">
-					</div>
-					<div class="col-sm-5">
-						<input type="text" readonly name="service_name[]" value="<?= $service_details['heading'] ?>" class="form-control">
-					</div>
-					<div class="col-sm-4">
-						<input type="text" readonly name="fee[]" value="<?= $price_total ?>" class="form-control fee" />
-					</div>
-					<input type="hidden" name="service_ticketid[]" value="<?= $ticketid ?>">
-					<input type="hidden" readonly name="serviceid[]" value="<?= $service ?>" class="form-control serviceid">
-					<input type="hidden" readonly name="gst_exempt[]" value="0" class="form-control gstexempt" />
-				</div>
-			<?php }
-		}
+                $serviceid[] = $service;
+				$srv_qty[] = explode(',',$ticket['service_qty'])[$i] > 0 ? explode(',',$ticket['service_qty'])[$i] : 1;
+				$srv_fuel[] = explode(',',$ticket['service_fuel_charge'])[$i];
+				$srv_discount[] = explode(',',$ticket['service_discount'])[$i];
+				$srv_dis_type[] = explode(',',$ticket['service_discount_type'])[$i];
+            }
+        }
+        $ticket_deliveries = $dbc->query("SELECT * FROM `ticket_schedule` WHERE `ticketid`='$ticketid' AND `deleted`=0 ORDER BY `sort`");
+        while($ticket = $ticket_deliveries->fetch_assoc()) {
+            foreach(explode(',',$ticket['serviceid']) as $i => $service) {
+                if($service > 0) {
+                    $serviceid[] = $service;
+                    $srv_qty[] = 1;
+                    $srv_fuel[] = explode(',',$ticket['surcharge'])[$i];
+                    $srv_discount[] = explode(',',$ticket['service_discount'])[$i];
+                    $srv_dis_type[] = explode(',',$ticket['service_discount_type'])[$i];
+                }
+            }
+        }
+        foreach($serviceid as $i => $service) {
+            $qty = $srv_qty[$i];
+            $discount = $srv_discount[$i];
+            $dis_type = $srv_dis_type[$i];
+            $fuel = $srv_fuel[$i];
+            $price = 0;
+            foreach($service_rates as $rate_line) {
+                $rate_line = explode('#',$rate_line);
+                if($rate_line[0] == $service) {
+                    $price = $rate_line[1];
+                }
+            }
+            if($price == 0) {
+                $price = $_SERVER['DBC']->query("SELECT `cust_price` FROM `company_rate_card` WHERE `item_id`='$service' AND `tile_name` LIKE 'Services' AND `deleted`=0 AND IFNULL(NULLIF(`end_date`,'0000-00-00'),'9999-99-99') > NOW() ORDER BY `start_date` DESC")->fetch_assoc()['cust_price'];
+            }
+            $price += ($fuel / $qty);
+            $price -= (($dis_type == '%' ? $discount / 100 * $price_total : $discount) / $qty);
+            $service_details = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `services` WHERE `serviceid` = '$service'")); ?>
+            <div class="dis_service form-group">
+                <div class="col-sm-3">
+                    <input type="text" readonly name="service_cat[]" value="<?= $service_details['category'] ?>" class="form-control">
+                </div>
+                <div class="col-sm-5">
+                    <input type="text" readonly name="service_name[]" value="<?= $service_details['heading'] ?>" class="form-control">
+                </div>
+                <div class="col-sm-2">
+                    <input type="text" readonly name="srv_qty[]" value="<?= $qty ?>" class="form-control qty" />
+                </div>
+                <div class="col-sm-2">
+                    <input type="text" readonly name="fee[]" value="<?= $price ?>" class="form-control fee" />
+                </div>
+                <input type="hidden" name="service_ticketid[]" value="<?= $ticketid ?>">
+                <input type="hidden" readonly name="serviceid[]" value="<?= $service ?>" class="form-control serviceid">
+                <input type="hidden" readonly name="gst_exempt[]" value="<?= $service_details['gst_exempt'] ?>" class="form-control gstexempt" />
+            </div>
+        <?php }
 		$ticket_lines = $dbc->query("SELECT * FROM `ticket_attached` WHERE `ticketid`='$ticketid' AND `deleted`=0 AND `src_table` LIKE 'Staff%'");
 		$misc_headings = false;
 		if(mysqli_num_rows($ticket_lines) > 0) {

@@ -488,12 +488,10 @@ if($_GET['action'] == 'mark_favourite') {
 	$id = filter_var($_POST['id'],FILTER_SANITIZE_STRING);
 	$dbc->query("UPDATE `project` SET `status`='Archive', `deleted`=1 WHERE `projectid`='$id'");
     add_update_history($dbc,'project_history',PROJECT_NOUN." archived.",'','',$id);
-
     $dbc->query("UPDATE `tickets` SET `deleted`=1 WHERE `projectid`='$id'");
     $dbc->query("UPDATE `tasklist` SET `deleted`=1 WHERE `projectid`='$id'");
     $dbc->query("UPDATE `checklist` SET `deleted`=1 WHERE `projectid`='$id'");
     $dbc->query("UPDATE `email_communication` SET `deleted`=1 WHERE `projectid`='$id'");
-
 } else if($_GET['action'] == 'path_template') {
 	$id = filter_var($_POST['templateid'],FILTER_SANITIZE_STRING);
 	$project_path = filter_var($_POST['template_name'],FILTER_SANITIZE_STRING);
