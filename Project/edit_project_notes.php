@@ -22,6 +22,48 @@ function get_notes() {
 </script>
 <div id="head_notes" class="form-horizontal col-sm-12 new_group" data-tab-name="details">
 	<h3><?= PROJECT_NOUN ?> Notes</h3>
+    <div id="no-more-tables" class="notes_table">
+        <div class="form-group">
+            <label class="col-md-2 col-sm-4">Start Date:</label>
+            <div class="col-md-3 col-sm-6"><input type="text" class="form-control datepicker" name="notes_start_date" value="<?= $_GET['start_date'] ?>"></div>
+            <label class="col-md-2 col-sm-4">End Date:</label>
+            <div class="col-md-3 col-sm-6"><input type="text" class="form-control datepicker" name="notes_end_date" value="<?= $_GET['end_date'] ?>"></div>
+            <div class="col-sm-2">
+                <a href="project_notes_pdf.php?projectid=<?= $projectid ?>&start_date=<?= $_GET['start_date'] ?>&end_date=<?= $_GET['end_date'] ?>" target="_blank" class="pull-right"><img class="inline-img" src="../img/pdf.png"></a>
+                <a href="" onclick="get_notes(); return false;" class="btn brand-btn pull-right">Search</a>
+            </div>
+        </div>
+        <?php $note_start_date = (empty($_GET['start_date']) ? '0000-00-00' : date('Y-m-d',strtotime($_GET['start_date'])));
+        $note_end_date = (empty($_GET['end_date']) ? '9999-12-31' : date('Y-m-d',strtotime($_GET['end_date'])));
+        $project_notes = mysqli_query($dbc, "SELECT * FROM `project_comment` WHERE `projectid`='$projectid' AND '$projectid' > 0 AND `type` NOT LIKE 'detail_%' AND `created_date` BETWEEN '".$note_start_date."' AND '".$note_end_date."'");
+        if(mysqli_num_rows($project_notes) > 0) {
+            $odd_even = 0; ?>
+            <table class='table table-bordered'>
+                <tr class='hidden-xs hidden-sm'>
+                    <th>Date Created</th>
+                    <th>Tagged</th>
+                    <th>Sent To</th>
+                    <th>Created By</th>
+                    <th>Note</th>
+                    <th style="width:3em;"></th>
+                </tr>
+                <?php while($note = mysqli_fetch_assoc($project_notes)) { ?>
+                    <?php $bg_class = $odd_even % 2 == 0 ? 'row-even-bg' : 'row-odd-bg'; ?>
+                    <tr class="<?= $bg_class ?>">
+                        <td data-title="Date Created"><?= $note['created_date'] ?></td>
+                        <td data-title="Tagged"><?= get_contact($dbc, $note['email_comment']) ?></td>
+                        <td data-title="Sent To"><?= get_contact($dbc, $note['email_comment']) ?></td>
+                        <td data-title="Created By"><?= get_contact($dbc, $note['created_by']) ?></td>
+                        <td data-title="Note"><?= html_entity_decode($note['comment']) ?></td>
+                    </tr>
+                    <?php $odd_even++; ?>
+                <?php } ?>
+            </table>
+        <?php } else {
+            echo '<button class="btn brand-btn" onclick="addNewNote(); return false;">Add Note</button>';
+        } ?>
+    </div>
+    
 	<?php if($security['edit'] > 0) { ?>
         <div class="col-sm-8 pull-right text-md">
             <img class="inline-img cursor-hand" src="../img/icons/ROOK-share-icon.png" onclick="$('.tag_group').toggle();">
@@ -162,47 +204,6 @@ function get_notes() {
 		<a href="" class="btn brand-btn pull-right gap-bottom" onclick="waitForSave(this); $(this).text('Save Note'); get_notes(); return false;">Save Note</a>
 		<div class="clearfix"></div>
 	<?php } ?>
-    
-    <div id="no-more-tables" class="notes_table">
-        <div class="form-group">
-            <label class="col-md-2 col-sm-4">Start Date:</label>
-            <div class="col-md-3 col-sm-6"><input type="text" class="form-control datepicker" name="notes_start_date" value="<?= $_GET['start_date'] ?>"></div>
-            <label class="col-md-2 col-sm-4">End Date:</label>
-            <div class="col-md-3 col-sm-6"><input type="text" class="form-control datepicker" name="notes_end_date" value="<?= $_GET['end_date'] ?>"></div>
-            <div class="col-sm-2">
-                <a href="project_notes_pdf.php?projectid=<?= $projectid ?>&start_date=<?= $_GET['start_date'] ?>&end_date=<?= $_GET['end_date'] ?>" target="_blank" class="pull-right"><img class="inline-img" src="../img/pdf.png"></a>
-                <a href="" onclick="get_notes(); return false;" class="btn brand-btn pull-right">Search</a>
-            </div>
-        </div>
-        <?php $note_start_date = (empty($_GET['start_date']) ? '0000-00-00' : date('Y-m-d',strtotime($_GET['start_date'])));
-        $note_end_date = (empty($_GET['end_date']) ? '9999-12-31' : date('Y-m-d',strtotime($_GET['end_date'])));
-        $project_notes = mysqli_query($dbc, "SELECT * FROM `project_comment` WHERE `projectid`='$projectid' AND '$projectid' > 0 AND `type` NOT LIKE 'detail_%' AND `created_date` BETWEEN '".$note_start_date."' AND '".$note_end_date."'");
-        if(mysqli_num_rows($project_notes) > 0) {
-            $odd_even = 0; ?>
-            <table class='table table-bordered'>
-                <tr class='hidden-xs hidden-sm'>
-                    <th>Date Created</th>
-                    <th>Tagged</th>
-                    <th>Sent To</th>
-                    <th>Created By</th>
-                    <th>Note</th>
-                </tr>
-                <?php while($note = mysqli_fetch_assoc($project_notes)) { ?>
-                    <?php $bg_class = $odd_even % 2 == 0 ? 'row-even-bg' : 'row-odd-bg'; ?>
-                    <tr class="<?= $bg_class ?>">
-                        <td data-title="Date Created"><?= $note['created_date'] ?></td>
-                        <td data-title="Tagged"><?= get_contact($dbc, $note['email_comment']) ?></td>
-                        <td data-title="Sent To"><?= get_contact($dbc, $note['email_comment']) ?></td>
-                        <td data-title="Created By"><?= get_contact($dbc, $note['created_by']) ?></td>
-                        <td data-title="Note"><?= html_entity_decode($note['comment']) ?></td>
-                    </tr>
-                    <?php $odd_even++; ?>
-                <?php } ?>
-            </table>
-        <?php } else {
-            echo '<h3>No Notes Found</h3>';
-        } ?>
-    </div>
 </div>
 <?php if(basename($_SERVER['SCRIPT_FILENAME']) == 'edit_project_notes.php') { ?>
 	<div style="display:none;"><?php include('../footer.php'); ?></div>
