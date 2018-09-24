@@ -719,7 +719,7 @@ if (isset($_POST['tasklist'])) {
                 });
             }
         });
-        $(task).timepicker('show');
+        //$(task).timepicker('show');
     }
 
     function manual_add_time(task) {
