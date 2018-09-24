@@ -310,6 +310,7 @@ if (isset($_POST['submit'])) {
                 if($contactid > 0 && !($businessid > 0)) {
                     $businessid = get_contact($dbc, $contactid, 'businessid');
                 }
+                $comm_tags = explode(',',$ticket_details['communication_tags']);
                 $projectid = $ticket_details['projectid'];
                 if(empty($subject)) {
                     $subject = get_ticket_label($dbc, $ticket_details);
