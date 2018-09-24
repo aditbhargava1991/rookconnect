@@ -487,8 +487,7 @@ if (isset($_POST['tasklist'])) {
                     dataType: "html",   //expect html to be returned
                     success: function(response){
                         alert('You have successfully deleted this task.');
-                        window.location.href = "add_task.php";
-
+                        window.location.href = "index.php?category=All&tab=Summary";
                     }
                 });
             }

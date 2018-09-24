@@ -25,7 +25,7 @@ if(isset($_POST['submit'])) {
             $salesid = $id;
             $dbc->query("INSERT INTO `reminders` (`contactid`,`reminder_date`,`reminder_type`,`subject`,`body`,`src_table`,`src_tableid`) VALUES ('$staff','$date','Sales Lead Reminder','$subject','".htmlentities("This is a reminder about a sales lead. Please log into the software to review the lead <a href=\"".WEBSITE_URL."/Sales/sale.php?p=details&id=$id\">here</a>.")."','sales','$id')");
             break;
-            
+
         case 'intake':
             $salesid = $id;
             $dbc->query("INSERT INTO `reminders` (`contactid`,`reminder_date`,`reminder_type`,`subject`,`body`,`src_table`,`src_tableid`) VALUES ('$staff','$date','Intake Form Reminder','$subject','".htmlentities("This is a reminder about an Intake Form. Please log into the software to review the form <a href=\"".WEBSITE_URL."/Intake/add_form.php?intakeid=$id\">here</a>.")."','intake','$id')");
@@ -48,6 +48,10 @@ if(isset($_POST['submit'])) {
             $tab = $result['board_security'];
 
             $dbc->query("INSERT INTO `reminders` (`contactid`,`reminder_date`,`reminder_type`,`subject`,`body`,`src_table`,`src_tableid`, `sender`) VALUES ('$staff','$date','Task Reminder','$subject','".htmlentities("This is a reminder about a Task. Please log into the software to review the Task <a href=\"".WEBSITE_URL."/Tasks_Updated/index.php?category=$id&tab=$tab\">here</a>.")."','tasklist','$id', '$sender')");
+
+			$note = '<em>Reminder added for '.get_contact($dbc, $staff).' [PROFILE '.$_SESSION['contactid'].']</em>';
+			mysqli_query($dbc, "INSERT INTO `task_comments` (`tasklistid`, `comment`, `created_by`, `created_date`) VALUES ('$taskid','".filter_var(htmlentities($note),FILTER_SANITIZE_STRING)."','".$_SESSION['contactid']."','".date('Y-m-d')."')");
+
             break;
 
         case 'equipment':
@@ -74,7 +78,7 @@ if(isset($_POST['submit'])) {
         case 'planner':
             $dbc->query("INSERT INTO `reminders` (`contactid`,`reminder_date`,`reminder_type`,`subject`,`body`,`src_table`,`src_tableid`, `sender`) VALUES ('$staff','$date','Planner Reminder','$subject','$body','planner','$id', '$sender')");
             break;
-        
+
         case 'intake':
             $intakeid = $id;
             $intake = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `intake` WHERE `intakeid`='$intakeid'"));
@@ -176,7 +180,7 @@ if(empty($_GET['contactid'])) {
                 <div class="pull-right gap-top"><a href=""><img src="../img/icons/cancel.png" alt="Close" title="Close" class="inline-img" /></a></div>
                 <div class="clearfix"></div>
                 <hr />
-                
+
                 <input type="hidden" name="tile" value="<?= $_GET['tile'] ?>" />
                 <div class="form-group">
                     <label class="col-sm-4 control-label">Staff:</label>
@@ -202,7 +206,7 @@ if(empty($_GET['contactid'])) {
                         <input type="text" name="reminder_date" class="datepicker form-control">
                     </div>
                 </div>
-                
+
                 <div class="form-group">
                     <div class="form-group pull-right">
                         <a href="" class="btn brand-btn">Cancel</a>
