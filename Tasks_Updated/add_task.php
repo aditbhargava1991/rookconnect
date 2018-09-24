@@ -950,7 +950,7 @@ function mark_done(sel) {
                 <div class="col-sm-8">
                     <select data-placeholder="Select a <?= TASK_NOUN ?> Board Type..." name="task_board_type" id="task_board_type" class="<?php echo (strpos($task_mandatory_fields, ',Board Type,') !== FALSE ? 'required' : ''); ?> chosen-select-deselect form-control" data-field="board_security" width="380">
                         <option></option>
-                        <option value="Private" <?= $board_security=='Private' ? 'selected' : '' ?>>Private</option><?php
+                        <?php
                         $all_board_types = mysqli_fetch_array(mysqli_query($dbc, "SELECT task_dashboard_tile FROM task_dashboard"));
                         foreach(explode(',', $all_board_types['task_dashboard_tile']) as $board_type) {
                             $board_type = str_replace(' Tasks', '', $board_type);
@@ -1231,6 +1231,27 @@ function mark_done(sel) {
                     <div id="collapse_task_details" class="panel-collapse collapse">
                         <div class="panel-body">
 
+            <!--
+            <div class="form-group clearfix">
+                <?= $slider_layout != 'accordion' ? '<h4>Task'. ( !empty($tasklistid) ) ? ' #'.$tasklistid : ':'.' Details</h4>' : '' ?>
+                <label for="first_name" class="col-sm-4 control-label text-right">Completed:</label>
+                <div class="col-sm-8">
+                    <input type="checkbox" name="status" value="<?= $tasklistid ?>" class="form-checkbox no-margin" onchange="mark_done(this);" <?= ($task_status==$status_complete) ? 'checked' : '' ?> />
+                </div>
+            </div>
+            -->
+
+                        <?php if(strpos($task_fields, ',Task Name,') !== FALSE) { ?>
+            <div class="form-group clearfix">
+                <label for="first_name" class="col-sm-4 control-label text-right"><?php echo (strpos($task_mandatory_fields, ',Task Name,') !== FALSE ? '<font color="red">* </font>' : ''); ?>
+                    <!-- <img src="../img/icons/ROOK-edit-icon.png" class="inline-img" /> --> Task Name:
+                </label>
+                <div class="col-sm-8">
+                    <input type="text" name="task_heading" value="<?= $task_heading ?>" data-table="tasklist" data-field="heading" class="form-control" width="380" />
+                </div>
+            </div>
+                        <?php } ?>
+
                         <?php if(strpos($task_fields, ',Status,') !== FALSE) { ?>
             <div class="form-group clearfix">
                 <label for="first_name" class="col-sm-4 control-label text-right"><?php echo (strpos($task_mandatory_fields, ',Status,') !== FALSE ? '<font color="red">* </font>' : ''); ?> Status:</label>
@@ -1253,40 +1274,6 @@ function mark_done(sel) {
 						}
 					  ?>
                     </select>
-                </div>
-            </div>
-                        <?php } ?>
-
-            <!--
-            <div class="form-group clearfix">
-                <?= $slider_layout != 'accordion' ? '<h4>Task'. ( !empty($tasklistid) ) ? ' #'.$tasklistid : ':'.' Details</h4>' : '' ?>
-                <label for="first_name" class="col-sm-4 control-label text-right">Completed:</label>
-                <div class="col-sm-8">
-                    <input type="checkbox" name="status" value="<?= $tasklistid ?>" class="form-checkbox no-margin" onchange="mark_done(this);" <?= ($task_status==$status_complete) ? 'checked' : '' ?> />
-                </div>
-            </div>
-            -->
-
-                        <?php if(strpos($task_fields, ',Task Name,') !== FALSE) { ?>
-            <div class="form-group clearfix">
-                <label for="first_name" class="col-sm-4 control-label text-right"><?php echo (strpos($task_mandatory_fields, ',Task Name,') !== FALSE ? '<font color="red">* </font>' : ''); ?>
-                    <!-- <img src="../img/icons/ROOK-edit-icon.png" class="inline-img" /> --> Task Name:
-                </label>
-                <div class="col-sm-8">
-					<?php $groups = $dbc->query("SELECT `category` FROM `task_types` WHERE `deleted`=0 GROUP BY `category` ORDER BY MIN(`sort`), MIN(`id`)");
-					if($groups->num_rows > 0) { ?>
-						<select name="heading_src" onchange="if(this.value != '' && this.value != undefined) { $('[name=task_heading]').val(this.value).change(); }" class="<?php echo (strpos($task_mandatory_fields, ',Task Name,') !== FALSE ? 'required' : ''); ?> chosen-select-deselect"><option />
-							<?php while($task_group = $groups->fetch_assoc()) { ?>
-								<optgroup label="<?= $task_group['category'] ?>">
-									<?php $task_names = $dbc->query("SELECT `id`, `description` FROM `task_types` WHERE `deleted`=0 AND `category`='{$task_group['category']}' ORDER BY `sort`, `id`");
-									while($task_name = $task_names->fetch_assoc()) { ?>
-										<option value="<?= $task_name['description'] ?>"><?= $task_name['description'] ?></option>
-									<?php } ?>
-								</optgroup>
-							<?php } ?>
-						</select>
-					<?php } ?>
-                    <input type="text" name="task_heading" value="<?= $task_heading ?>" data-table="tasklist" data-field="heading" class="form-control" width="380" />
                 </div>
             </div>
                         <?php } ?>
@@ -1334,6 +1321,29 @@ function mark_done(sel) {
                             </div>
                         </div>
 
+                        <?php } ?>
+
+                        <?php if(strpos($task_fields, ',Task Name,') !== FALSE) { ?>
+            <div class="form-group clearfix">
+                <label for="first_name" class="col-sm-4 control-label text-right"><?php echo (strpos($task_mandatory_fields, ',Task Name,') !== FALSE ? '<font color="red">* </font>' : ''); ?>
+                    <!-- <img src="../img/icons/ROOK-edit-icon.png" class="inline-img" /> --> Task Billing:
+                </label>
+                <div class="col-sm-8">
+					<?php $groups = $dbc->query("SELECT `category` FROM `task_types` WHERE `deleted`=0 GROUP BY `category` ORDER BY MIN(`sort`), MIN(`id`)");
+					if($groups->num_rows > 0) { ?>
+						<select name="heading_src" class="<?php echo (strpos($task_mandatory_fields, ',Task Name,') !== FALSE ? 'required' : ''); ?> chosen-select-deselect"><option />
+							<?php while($task_group = $groups->fetch_assoc()) { ?>
+								<optgroup label="<?= $task_group['category'] ?>">
+									<?php $task_names = $dbc->query("SELECT `id`, `description` FROM `task_types` WHERE `deleted`=0 AND `category`='{$task_group['category']}' ORDER BY `sort`, `id`");
+									while($task_name = $task_names->fetch_assoc()) { ?>
+										<option value="<?= $task_name['description'] ?>"><?= $task_name['description'] ?></option>
+									<?php } ?>
+								</optgroup>
+							<?php } ?>
+						</select>
+					<?php } ?>
+                </div>
+            </div>
                         <?php } ?>
 
                         <?php if(strpos($task_fields, ',Flag This,') !== FALSE) { ?>
