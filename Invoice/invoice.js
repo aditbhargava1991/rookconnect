@@ -801,7 +801,7 @@ function setTotalPrice() {
 	$('.fee').not(':disabled').each(function () {
 		var fee_id = this.id;
 		var arr = fee_id.split('_');
-		var gstexempt = $('#gstexempt_'+arr[1]).val();
+		var gstexempt = $(this).closest('.form-group').find('.gstexempt').val();
 
 		var fee_row = +$(this).val() || 0;
 
@@ -838,7 +838,7 @@ function setTotalPrice() {
 			if(group.find('[name="servicerow_refund[]"]').is(':checked')) {
 				sum_fee -= fee_row;
 				if(gstexempt == 0) {
-					price_on_gst -= +$(this).val() || 0;
+					price_on_gst -= +fee_row || 0;
 				}
 				sum_refund += fee_row + (gstexempt == 0 ? fee_row*tax_rate/100 : 0);
 				$('.detail_service_list').append('<label class="pull-right">'+(-fee_row).toFixed(2)+'</label>Refund: '+info+'<br /><div class="clearfix"></div>').prev('h4').show();
@@ -853,7 +853,7 @@ function setTotalPrice() {
 		}
 
 		if(gstexempt == 0) {
-			price_on_gst += +$(this).val() || 0;
+			price_on_gst += +fee_row || 0;
 		} else {
 			price_on_gst += 0;
 		}
