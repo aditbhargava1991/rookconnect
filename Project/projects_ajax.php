@@ -134,6 +134,11 @@ if($_GET['action'] == 'mark_favourite') {
 		$label = ($colour_key === FALSE ? $labels[0] : ($colour_key + 1 < count($colours) ? $labels[$colour_key + 1] : ''));
 		echo $new_colour.html_entity_decode($label);
 		mysqli_query($dbc, "UPDATE `$table` SET `flag_colour`='$new_colour' WHERE `$id_field`='$id'");
+
+        $note = '<em>Flag added by '.get_contact($dbc, $_SESSION['contactid']).' [PROFILE '.$_SESSION['contactid'].']: '.$value.'</em>';
+
+        mysqli_query($dbc, "INSERT INTO `task_comments` (`tasklistid`, `comment`, `created_by`, `created_date`) VALUES ('$refid','".filter_var(htmlentities($note),FILTER_SANITIZE_STRING)."','".$_SESSION['contactid']."','".date('Y-m-d')."')");
+
 	} else if($field == 'flag_manual') {
 		$colour = filter_var($_POST['colour'],FILTER_SANITIZE_STRING);
 		$label = filter_var($_POST['label'],FILTER_SANITIZE_STRING);
@@ -148,6 +153,11 @@ if($_GET['action'] == 'mark_favourite') {
 		} else {
 			mysqli_query($dbc, "UPDATE `$table` SET `flag_colour`='$colour',`flag_label`='$label',`flag_start`='$start',`flag_end`='$end' WHERE `$id_field`='$id'");
 		}
+
+        $note = '<em>Manual Flag added by '.get_contact($dbc, $_SESSION['contactid']).' [PROFILE '.$_SESSION['contactid'].']: '.$value.'</em>';
+
+        mysqli_query($dbc, "INSERT INTO `task_comments` (`tasklistid`, `comment`, `created_by`, `created_date`) VALUES ('$refid','".filter_var(htmlentities($note),FILTER_SANITIZE_STRING)."','".$_SESSION['contactid']."','".date('Y-m-d')."')");
+
 	} else if($field == 'work_time') {
 		if($table == 'tasklist') {
 			$time = strtotime($value);
