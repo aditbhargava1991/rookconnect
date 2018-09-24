@@ -28,9 +28,12 @@ if(isset($_POST['submit'])) {
 
         case 'tasks':
             $taskid = $id;
+            $end_time = date('h:i A');
 
             if($timer_value != '0' && $timer_value != '00:00:00' && $timer_value != '') {
-                $query_add_time = "INSERT INTO `tasklist_time` (`tasklistid`, `work_time`, `src`, `contactid`, `timer_date`) VALUES ('$taskid', '$timer_value', 'A', '$contactid', '$timer_date')";
+                //$query_add_time = "INSERT INTO `tasklist_time` (`tasklistid`, `work_time`, `src`, `contactid`, `timer_date`) VALUES ('$taskid', '$timer_value', 'A', '$contactid', '$timer_date')";
+
+                $query_add_time = "UPDATE `tasklist_time` SET `end_time` = '$end_time', `work_time`='$timer_value' WHERE `tasklistid`='$taskid' AND `contactid` = '$contactid' AND `timer_date` = '$timer_date' AND `src` = 'A' AND `start_time` IS NOT NULL AND `end_time` IS NULL";
                 $result_add_time = mysqli_query($dbc, $query_add_time);
 
                 insert_day_overview($dbc, $contactid, 'Task', date('Y-m-d'), '', "Updated Task #$taskid - Added Time : $timer_value");
@@ -61,6 +64,24 @@ $(document).ready(function() {
         $(this).next('.stop-timer-btn').removeClass('hidden');
     });
 
+
+    $('.start-timer-btn').on('click', function() {
+        var taskid = $(this).data('id');
+	    var tile_name = $('[name="tile"]').val();
+
+        if(tile_name == 'tasks') {
+            var contactid = '<?= $_SESSION['contactid'] ?>';
+            if ( taskid!='' && typeof taskid!='undefined') {
+                $.ajax({
+                    type: "GET",
+                    url: "../Tasks_Updated/task_ajax_all.php?fill=start_timer&taskid="+taskid+"&contactid="+contactid,
+                    dataType: "html",
+                });
+            }
+        }
+
+    });
+
     /* Timer */
 });
 </script>
@@ -77,7 +98,7 @@ $(document).ready(function() {
                     <label class="col-sm-3 control-label">Timer:</label>
                     <div class="col-sm-9">
                         <input type="text" name="timer_value" id="timer_value" style="float:left; max-width:56%;" class="form-control timer" placeholder="0 sec" />&nbsp;&nbsp;
-                        <a class="btn btn-success start-timer-btn brand-btn mobile-block">Start</a>
+                        <a class="btn btn-success start-timer-btn brand-btn mobile-block" data-id="<?= $id ?>">Start</a>
                         <button type="submit" name="submit" value="submit" class="btn brand-btn stop-timer-btn hidden mobile-block" data-id="<?= $id ?>">Stop</button>
                          <!--<a class="btn stop-timer-btn hidden brand-btn mobile-block" data-id="<?= $id ?>">Stop</a>-->
                     </div>
