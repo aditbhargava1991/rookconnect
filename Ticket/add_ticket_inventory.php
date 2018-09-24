@@ -126,8 +126,8 @@ do {
 					<?php } ?>
 					<div class="col-sm-1">
 						<input type="hidden" name="deleted" data-table="ticket_attached" data-id="<?= $inventory['id'] ?>" data-id-field="id" data-type="inventory" data-type-field="src_table" value="0">
-						<img class="inline-img pull-right" onclick="addMulti(this);" src="../img/icons/ROOK-add-icon.png">
-						<img class="inline-img pull-right" onclick="remMulti(this);" src="../img/remove.png">
+						<img class="inline-img pull-right" data-history-label="Inventory" onclick="addMulti(this);" src="../img/icons/ROOK-add-icon.png">
+						<img class="inline-img pull-right" data-history-label="Inventory" onclick="remMulti(this);" src="../img/remove.png">
 					</div>
 				<?php } ?>
 				<?php if(strpos($value_config,',Inventory Basic Inline,') === FALSE && strpos($value_config,',Inventory Basic Category,') !== FALSE && $field_sort_field == 'Inventory Basic Category') { ?>
@@ -173,9 +173,9 @@ do {
 						</div>
 						<div class="col-sm-1">
 							<input type="hidden" name="deleted" data-table="ticket_attached" data-id="<?= $inventory['id'] ?>" data-id-field="id" data-type="inventory" data-type-field="src_table" value="0">
-							<img class="inline-img pull-right" onclick="addMulti(this);" src="../img/icons/ROOK-add-icon.png">
-							<img class="inline-img pull-right" onclick="remMulti(this);" src="../img/remove.png">
-							<a href="" onclick="$(this).closest('.form-group').find('select').val('MANUAL').change(); return false;"><img class="inline-img pull-left" src="../img/icons/ROOK-add-icon.png"></a>
+							<img class="inline-img pull-right" data-history-label="Inventory" onclick="addMulti(this);" src="../img/icons/ROOK-add-icon.png">
+							<img class="inline-img pull-right" data-history-label="Inventory" onclick="remMulti(this);" src="../img/remove.png">
+							<a href="" onclick="$(this).closest('.form-group').find('select').val('MANUAL').change(); return false;"><img class="inline-img pull-left" data-history-label="New Inventory" src="../img/icons/ROOK-add-icon.png"></a>
 						</div>
 						<div class="clearfix"></div>
 					</div>

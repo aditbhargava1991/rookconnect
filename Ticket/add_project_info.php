@@ -127,7 +127,7 @@ var projectFilter = function() {
 				</div>
 				<div class="col-sm-1">
 					<a href="" onclick="viewProfile(this); return false;"><img class="inline-img pull-right no-toggle" src="../img/person.PNG" title="View Profile"></a>
-					<a href="" onclick="$(this).closest('.form-group').find('select').val('ADD_NEW').change(); return false;"><img class="inline-img pull-right" src="../img/icons/ROOK-add-icon.png"></a>
+					<a href="" onclick="$(this).closest('.form-group').find('select').val('ADD_NEW').change(); return false;"><img class="inline-img pull-right" data-history-label="New <?= BUSINESS_CAT ?>" src="../img/icons/ROOK-add-icon.png"></a>
 				</div>
 			</div>
 		<?php } else if(empty($businessid_inserted)) {
@@ -155,7 +155,7 @@ var projectFilter = function() {
 				</div>
 				<div class="col-sm-1">
 					<a href="" onclick="viewProfile(this); return false;"><img class="inline-img pull-right no-toggle" src="../img/person.PNG" title="View Profile"></a>
-					<a href="" onclick="$(this).closest('.form-group').find('select').val('ADD_NEW').change(); return false;"><img class="inline-img pull-right" src="../img/icons/ROOK-add-icon.png"></a>
+					<a href="" onclick="$(this).closest('.form-group').find('select').val('ADD_NEW').change(); return false;"><img class="inline-img pull-right" data-history-label="New Contact" src="../img/icons/ROOK-add-icon.png"></a>
 				</div>
 			</div>
 		<?php } ?>
@@ -180,7 +180,7 @@ var projectFilter = function() {
 				</div>
 				<div class="col-sm-1">
 					<a href="" onclick="viewProfile(this); return false;"><img class="inline-img pull-right no-toggle" src="../img/person.PNG" title="View Profile"></a>
-					<a href="" onclick="$(this).closest('.form-group').find('select').val('ADD_NEW').change(); return false;"><img class="inline-img pull-right" src="../img/icons/ROOK-add-icon.png"></a>
+					<a href="" onclick="$(this).closest('.form-group').find('select').val('ADD_NEW').change(); return false;"><img class="inline-img pull-right" data-history-label="New Parent/Guardian" src="../img/icons/ROOK-add-icon.png"></a>
 				</div>
 			</div>
 		<?php } ?>
@@ -246,7 +246,7 @@ var projectFilter = function() {
 				  </div>
 				  <div class="col-sm-1">
 					<a href="" onclick="viewSite(this); return false;"><img class="inline-img pull-right no-toggle" src="../img/person.PNG" title="View Profile"></a>
-					<a href="" onclick="$(this).closest('.form-group').find('select').val('MANUAL').change(); return false;"><img class="inline-img pull-right" src="../img/icons/ROOK-add-icon.png"></a>
+					<a href="" onclick="$(this).closest('.form-group').find('select').val('MANUAL').change(); return false;"><img class="inline-img pull-right" data-history-label="New Site" src="../img/icons/ROOK-add-icon.png"></a>
 				  </div>
 				</div>
 				<div class="form-group clearfix site_name" style="display:none;">
@@ -284,8 +284,8 @@ var projectFilter = function() {
 					<input type="text" name="customer_order_num" id="customer_order_num" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" data-concat="#*#" class="form-control" value="<?= $customer_order_line ?>" placeholder="The Customer Order # provided by the customer">
 				  </div>
 				  <div class="col-sm-1">
-						<img class="inline-img pull-right" onclick="addMulti(this);" src="../img/icons/ROOK-add-icon.png">
-						<img class="inline-img pull-right" onclick="remMulti(this);" src="../img/remove.png">
+						<img class="inline-img pull-right" data-history-label="Customer Order #" onclick="addMulti(this);" src="../img/icons/ROOK-add-icon.png">
+						<img class="inline-img pull-right" data-history-label="Customer Order #" onclick="remMulti(this);" src="../img/remove.png">
 				  </div>
 				</div>
 			<?php } ?>
@@ -335,8 +335,8 @@ var projectFilter = function() {
 					<input type="text" name="purchase_order" id="purchase_order" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" data-concat="#*#" class="form-control" value="<?= $po_num_line ?>" placeholder="The PO# provided by the customer">
 				  </div>
 				  <div class="col-sm-1">
-						<img class="inline-img pull-right" onclick="addMulti(this);" src="../img/icons/ROOK-add-icon.png">
-						<img class="inline-img pull-right" onclick="remMulti(this);" src="../img/remove.png">
+						<img class="inline-img pull-right" data-history-label="Purchase Order #" onclick="addMulti(this);" src="../img/icons/ROOK-add-icon.png">
+						<img class="inline-img pull-right" data-history-label="Purchase Order #" onclick="remMulti(this);" src="../img/remove.png">
 				  </div>
 				</div>
 			<?php } ?>
@@ -416,7 +416,7 @@ var projectFilter = function() {
 				  </div>
 				  <div class="col-sm-1 select-div" style="<?= trim($get_ticket['agentid'],',') > 0 || $get_ticket['agentid'] == '' ? '' : 'display:none;' ?>">
 					<a href="" onclick="viewProfile(this); return false;"><img class="inline-img pull-right no-toggle" src="../img/person.PNG" title="View Profile"></a>
-					<a href="" onclick="$(this).closest('.form-group').find('select').val('ADD_NEW').change(); return false;"><img class="inline-img pull-right" src="../img/icons/ROOK-add-icon.png"></a>
+					<a href="" onclick="$(this).closest('.form-group').find('select').val('ADD_NEW').change(); return false;"><img class="inline-img pull-right" data-history-label="New <?= $contact_category ?>" src="../img/icons/ROOK-add-icon.png"></a>
 				  </div>
 				<div class="col-sm-8 manual-div" style="<?= trim($get_ticket['agentid'],',') > 0 || $get_ticket['agentid'] == '' ? 'display:none;' : '' ?>">
 					<input type="text" name="agentid" class="form-control" data-one-time="true" data-category="<?= $contact_category ?>" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" value="<?= $get_ticket['agentid'] > 0 ? '' : $get_ticket['agentid'] ?>">
@@ -441,7 +441,7 @@ var projectFilter = function() {
 				  </div>
 				  <div class="col-sm-1 select-div" style="<?= trim($get_ticket['banid'],',') > 0 || $get_ticket['banid'] == '' ? '' : 'display:none;' ?>">
 					<a href="" onclick="viewProfile(this); return false;"><img class="inline-img pull-right no-toggle" src="../img/person.PNG" title="View Profile"></a>
-					<a href="" onclick="$(this).closest('.form-group').find('select').val('ADD_NEW').change(); return false;"><img class="inline-img pull-right" src="../img/icons/ROOK-add-icon.png"></a>
+					<a href="" onclick="$(this).closest('.form-group').find('select').val('ADD_NEW').change(); return false;"><img class="inline-img pull-right" data-history-label="New <?= $contact_category ?>" src="../img/icons/ROOK-add-icon.png"></a>
 				  </div>
 				<div class="col-sm-8 manual-div" style="<?= trim($get_ticket['banid'],',') > 0 || $get_ticket['banid'] == '' ? 'display:none;' : '' ?>">
 					<input type="text" name="banid" class="form-control" data-one-time="true" data-category="<?= $contact_category ?>" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" value="<?= $get_ticket['banid'] > 0 ? '' : $get_ticket['banid'] ?>">
@@ -466,7 +466,7 @@ var projectFilter = function() {
 				  </div>
 				  <div class="col-sm-1 select-div" style="<?= trim($get_ticket['vendorid'],',') > 0 || $get_ticket['vendorid'] == '' ? '' : 'display:none;' ?>">
 					<a href="" onclick="viewProfile(this); return false;"><img class="inline-img pull-right no-toggle" src="../img/person.PNG" title="View Profile"></a>
-					<a href="" onclick="$(this).closest('.form-group').find('select').val('ADD_NEW').change(); return false;"><img class="inline-img pull-right" src="../img/icons/ROOK-add-icon.png"></a>
+					<a href="" onclick="$(this).closest('.form-group').find('select').val('ADD_NEW').change(); return false;"><img class="inline-img pull-right" data-history-label="New <?= $contact_category ?>" src="../img/icons/ROOK-add-icon.png"></a>
 				  </div>
 				<div class="col-sm-8 manual-div" style="<?= trim($get_ticket['vendorid'],',') > 0 || $get_ticket['vendorid'] == '' ? 'display:none;' : '' ?>">
 					<input type="text" name="vendorid" class="form-control" data-one-time="true" data-category="<?= $contact_category ?>" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" value="<?= $get_ticket['vendorid'] > 0 ? '' : $get_ticket['vendorid'] ?>">

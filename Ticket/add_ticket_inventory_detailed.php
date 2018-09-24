@@ -232,7 +232,7 @@ do {
 											</div>
 											<div class="col-sm-1">
 												<input type="hidden" name="deleted" data-table="ticket_attached" data-id="<?= $inventory['id'] ?>" data-id-field="id" data-type="inventory" data-type-field="src_table" data-attach="<?= $general_item['id'] ?>" data-attach-field="line_id" data-detail="<?= $i ?>" data-detail-field="piece_num" value="0">
-												<a href="" onclick="$(this).closest('.form-group').find('select').val('MANUAL').change(); return false;"><img class="inline-img pull-left" src="../img/icons/ROOK-add-icon.png"></a>
+												<a href="" onclick="$(this).closest('.form-group').find('select').val('MANUAL').change(); return false;"><img class="inline-img pull-left" data-history-label="New Inventory" src="../img/icons/ROOK-add-icon.png"></a>
 											</div>
 										<div class="clearfix"></div>
 									</div>
@@ -285,7 +285,7 @@ do {
 											</div>
 											<div class="col-sm-2">
 												<a href="" onclick="viewSite(this); return false;"><img class="inline-img pull-right no-toggle" src="../img/person.PNG" title="View Profile"></a>
-												<a href="" onclick="$(this).closest('.form-group').find('select').val('MANUAL').change(); return false;"><img class="inline-img pull-right" src="../img/icons/ROOK-add-icon.png"></a>
+												<a href="" onclick="$(this).closest('.form-group').find('select').val('MANUAL').change(); return false;"><img class="inline-img pull-right" data-history-label="New <?= SITES_CAT ?>" src="../img/icons/ROOK-add-icon.png"></a>
 											</div>
 										</div>
 									</div>
@@ -558,8 +558,8 @@ do {
 							<?php } ?>
 						<?php } ?>
 						<?php if(!$no_fetch || strpos($value_config,',Inventory General Manual Add Pieces,') === FALSE || strpos($value_config,',Inventory Detail Manual Add,') !== FALSE) { ?>
-							<img class="inline-img pull-right" onclick="addMulti(this);" src="../img/icons/ROOK-add-icon.png">
-							<img class="inline-img pull-right" onclick="remMulti(this);" src="../img/remove.png">
+							<img class="inline-img pull-right" data-history-label="Inventory" onclick="addMulti(this);" src="../img/icons/ROOK-add-icon.png">
+							<img class="inline-img pull-right" data-history-label="Inventory" onclick="remMulti(this);" src="../img/remove.png">
 						<?php } ?>
 					</div>
 				<?php } else { ?>
