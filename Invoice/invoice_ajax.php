@@ -229,7 +229,8 @@ if(!empty($_GET['action']) && $_GET['action'] == 'invoice_values') {
 					$service_rate = $dbc->query("SELECT `cust_price`, `admin_fee` FROM `company_rate_card` WHERE `deleted`=0 AND `item_id`='$service' AND `tile_name` LIKE 'Services' AND `start_date` < DATE(NOW()) AND IFNULL(NULLIF(`end_date`,'0000-00-00'),'9999-12-31') > DATE(NOW()) AND `cust_price` > 0")->fetch_assoc();
 					$price = $service_rate['cust_price'];
 				}
-				$price_total = ($price * $qty + $fuel);
+                $price += ($fuel / $qty);
+				$price_total = ($price * $qty);
 				$price_total -= ($dis_type == '%' ? $discount / 100 * $price_total : $discount);
 				$service_details = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `services` WHERE `serviceid` = '$service'")); ?>
 				<div class="dis_service form-group">
@@ -240,10 +241,12 @@ if(!empty($_GET['action']) && $_GET['action'] == 'invoice_values') {
 						<input type="text" readonly name="service_name[]" value="<?= $service_details['heading'] ?>" class="form-control">
 					</div>
 					<div class="col-sm-4">
-						<input type="text" readonly name="fee[]" value="<?= $price_total ?>" class="form-control fee" />
+						<input type="text" readonly name="srv_fee_total[]" value="<?= $price_total ?>" class="form-control" />
 					</div>
 					<input type="hidden" name="service_ticketid[]" value="<?= $ticketid ?>">
 					<input type="hidden" readonly name="serviceid[]" value="<?= $service ?>" class="form-control serviceid">
+                    <input type="hidden" readonly name="fee[]" value="<?= $price ?>" class="form-control fee" />
+					<input type="hidden" readonly name="srv_qty[]" value="<?= $qty ?>" class="form-control qty">
 					<input type="hidden" readonly name="gst_exempt[]" value="0" class="form-control gstexempt" />
 				</div>
 			<?php }
