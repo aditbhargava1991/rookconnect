@@ -523,6 +523,20 @@ $(document).ready(function () {
         });
         $(this).addClass('hidden');
         $(this).next('.stop-timer-btn').removeClass('hidden');
+
+        var taskid = $(this).data('id');
+
+        var contactid = '<?= $_SESSION['contactid'] ?>';
+		if ( taskid!='' && typeof taskid!='undefined') {
+            $.ajax({
+                type: "GET",
+                url: "../Tasks_Updated/task_ajax_all.php?fill=start_timer&taskid="+taskid+"&contactid="+contactid,
+                dataType: "html",
+                success: function(response) {
+                }
+            });
+        }
+
     });
 
     $('.full-btn').on('click', function() {
@@ -648,7 +662,7 @@ function quick_add_time(task) {
 			});
 		}
 	});
-	$(task).timepicker('show');
+	//$(task).timepicker('show');
 }
 
 function manual_add_time(task) {
@@ -1493,9 +1507,8 @@ function mark_done(sel) {
 
             <div class="form-group clearfix">
                         <?php if(strpos($task_fields, ',Add Time,') !== FALSE) { ?>
-                <label for="first_name" class="col-xs-3 control-label text-right"><?php echo (strpos($task_mandatory_fields, ',Add Time,') !== FALSE ? '<font color="red">* </font>' : ''); ?><!-- <img src="../img/icons/ROOK-timer-icon.png" class="inline-img" />--> Add Time:</label>
+                <label for="first_name" class="col-xs-3 control-label text-right"><?php echo (strpos($task_mandatory_fields, ',Add Time,') !== FALSE ? '<font color="red">* </font>' : ''); ?>Add Time:</label>
                 <div class="col-xs-3">
-                    <!-- <input name="task_work_time" type="text" value="00:00" data-table="tasklist" data-field="work_time" class="timepicker form-control" /> -->
                     <input name="task_work_time" type="text" value="00:00" class="<?php echo (strpos($task_mandatory_fields, ',Add Time,') !== FALSE ? 'required' : ''); ?> timepicker form-control" onchange="quick_add_time(this);" />
                 </div>
                         <?php } ?>
@@ -1504,7 +1517,7 @@ function mark_done(sel) {
                 <label for="first_name" class="col-xs-3 control-label text-right"><?php echo (strpos($task_mandatory_fields, ',Track Time,') !== FALSE ? '<font color="red">* </font>' : ''); ?><!-- <img src="../img/icons/ROOK-timer2-icon.png" class="inline-img" /> --> Track Time:</label>
                 <div class="col-xs-3">
                     <input type="text" name="timer_<?= $tasklistid ?>" id="timer_value" class="<?php echo (strpos($task_mandatory_fields, ',Track Time,') !== FALSE ? 'required' : ''); ?> form-control timer" placeholder="0 sec" />
-                    <a class="btn btn-success start-timer-btn brand-btn mobile-block">Start</a>
+                    <a class="btn btn-success start-timer-btn brand-btn mobile-block" data-id="<?= $tasklistid ?>">Start</a>
                     <a class="btn stop-timer-btn hidden brand-btn mobile-block" data-id="<?= $tasklistid ?>">Stop</a><br />
                     <input type="hidden" value="" name="track_time" />
                     <span class="added-time"></span>

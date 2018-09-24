@@ -316,7 +316,7 @@ if($_GET['action'] == 'mark_favourite') {
 		mysqli_query($dbc, "INSERT INTO `$table` (`projectid`) VALUES ('$project')");
 		$id = mysqli_insert_id($dbc);
         if($table == 'tasklist' && $field == 'heading') {
-            mysqli_query($dbc, "UPDATE `tasklist` SET `task_tododate`='".date('Y-m-d')."' WHERE `tasklistid`='$id'");
+            mysqli_query($dbc, "UPDATE `tasklist` SET `task_tododate`='".date('Y-m-d')."', `contactid`='".$_SESSION['contactid']."' WHERE `tasklistid`='$id'");
         }
 		if($type != '' && $type_field != '') {
 			mysqli_query($dbc, "UPDATE `$table` SET `$type_field`='$type' WHERE `$id_field`='$id'");
@@ -488,12 +488,12 @@ if($_GET['action'] == 'mark_favourite') {
 	$id = filter_var($_POST['id'],FILTER_SANITIZE_STRING);
 	$dbc->query("UPDATE `project` SET `status`='Archive', `deleted`=1 WHERE `projectid`='$id'");
     add_update_history($dbc,'project_history',PROJECT_NOUN." archived.",'','',$id);
-    
+
     $dbc->query("UPDATE `tickets` SET `deleted`=1 WHERE `projectid`='$id'");
     $dbc->query("UPDATE `tasklist` SET `deleted`=1 WHERE `projectid`='$id'");
     $dbc->query("UPDATE `checklist` SET `deleted`=1 WHERE `projectid`='$id'");
     $dbc->query("UPDATE `email_communication` SET `deleted`=1 WHERE `projectid`='$id'");
-    
+
 } else if($_GET['action'] == 'path_template') {
 	$id = filter_var($_POST['templateid'],FILTER_SANITIZE_STRING);
 	$project_path = filter_var($_POST['template_name'],FILTER_SANITIZE_STRING);
