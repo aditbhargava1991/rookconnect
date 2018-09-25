@@ -575,8 +575,8 @@ if(!empty($_GET['add_service_iframe'])) { ?>
 							<?php } ?>
 							<?php if(strpos($value_config,',Service Multiple,') !== FALSE) { ?>
 								<div class="col-sm-1">
-									<img class="inline-img pull-right" data-history-label="Service" onclick="addMulti(this);" src="../img/icons/ROOK-add-icon.png">
-									<img class="inline-img pull-right" data-history-label="Service" onclick="remMulti(this);" src="../img/remove.png">
+									<img class="inline-img pull-right" onclick="addMulti(this);" src="../img/icons/ROOK-add-icon.png">
+									<img class="inline-img pull-right" onclick="remMulti(this);" src="../img/remove.png">
 								</div>
 							<?php } ?>
 						<?php } else { ?>
@@ -664,8 +664,8 @@ if(!empty($_GET['add_service_iframe'])) { ?>
 									  </div>
 									  <?php if(strpos($value_config,',Service Multiple,') !== FALSE) { ?>
 										<div class="col-sm-2">
-											<img class="inline-img pull-right" data-history-label="Service" onclick="addMulti(this);" src="../img/icons/ROOK-add-icon.png">
-											<img class="inline-img pull-right" data-history-label="Service" onclick="remMulti(this);" src="../img/remove.png">
+											<img class="inline-img pull-right" onclick="addMulti(this);" src="../img/icons/ROOK-add-icon.png">
+											<img class="inline-img pull-right" onclick="remMulti(this);" src="../img/remove.png">
                                             <a href="" onclick="viewService(this); return false;"><img class="inline-img" src="../img/icons/eyeball.png"></a>
 
 										</div>

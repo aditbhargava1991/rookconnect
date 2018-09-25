@@ -363,6 +363,12 @@
 		if(!mysqli_query($dbc, "UPDATE `tickets` SET `communication_tags`=`clientid` WHERE `communication_tags` IS NULL AND `clientid` IS NOT NULL AND `clientid` != '' AND `deleted`=0 AND `status` != 'Archive'")) {
 			echo "Error: ".mysqli_error($dbc)."<br />\n";
 		}
+        
+        // September 25, 2018 - Ticket 9343
+		if(!mysqli_query($dbc, "ALTER TABLE `invoice_lines` ADD `stop_id` INT(11) UNSIGNED NOT NULL DEFAULT 0 AFTER `ticketid`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+        // Ticket 9343
 		
 		set_config($dbc, 'db_version_jonathan', 8);
 	}

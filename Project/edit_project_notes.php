@@ -19,12 +19,150 @@ function get_notes() {
         }
     });
 }
-function addNewNote() {
-    $('.add_note').show();
-}
 </script>
 <div id="head_notes" class="form-horizontal col-sm-12 new_group" data-tab-name="details">
 	<h3><?= PROJECT_NOUN ?> Notes</h3>
+	<?php if($security['edit'] > 0) { ?>
+        <div class="col-sm-8 pull-right text-md">
+            <img class="inline-img cursor-hand" src="../img/icons/ROOK-share-icon.png" onclick="$('.tag_group').toggle();">
+            <img class="inline-img cursor-hand" src="../img/icons/ROOK-email-icon.png" onclick="show_email_options(this);">
+            <img class="inline-img cursor-hand" src="../img/icons/ROOK-reminder-icon.png" onclick="addReminder();">
+        </div>
+        <div class="clearfix"></div>
+
+		<div class="form-group tag_group" style="display:none;">
+		  <label for="site_name" class="col-sm-4 control-label">Tag:</label>
+		  <div class="col-sm-8">
+			<select data-placeholder="Select <?= $comment_category ?>..." name="email_comment" data-table="project_comment" data-id="" data-id-field="projectcommid" data-project="<?= $projectid ?>" data-type="project_note" class="chosen-select-deselect form-control email_recipient" width="380">
+			  <option value=""></option>
+			  <?php
+				$query = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc,"SELECT contactid, first_name, last_name FROM contacts WHERE category IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND deleted=0 AND `status` > 0"),MYSQLI_ASSOC));
+				foreach($query as $id) {
+					echo "<option value='". $id."'>".get_contact($dbc, $id).'</option>';
+				}
+			  ?>
+			</select>
+		  </div>
+		</div>
+
+		<?php $subject = 'Note added on '.PROJECT_NOUN.' for you to Review';
+		$body = 'The following note has been added on a '.PROJECT_NOUN.' for you:<br>[REFERENCE]<br><br>
+				Client: [CLIENT]<br>
+				'.PROJECT_NOUN.' Name: [HEADING]<br>
+				Status: [STATUS]<br>
+				Please click the '.PROJECT_NOUN.' link below to view all information.<br>
+				<a target="_blank" href="'.WEBSITE_URL.'/Project/projects.php?edit=[PROJECTID]">'.PROJECT_NOUN.' #[PROJECTID]</a><br>';
+		?>
+		<script>
+		function show_email_options(img) {
+            $(img).closest('[data-tab-name]').find('.project_email_options').toggle();
+		}
+		function send_email(button) {
+			$.ajax({
+				url: 'projects_ajax.php?action=send_email',
+				method: 'POST',
+				data: {
+					table: $(button).data('table'),
+					id_field: $(button).data('id-field'),
+					id: $(button).data('id'),
+					field: $(button).data('field'),
+					recipient: $(button).closest('.email-block').find('.email_recipient').val(),
+					sender: $(button).closest('.email_div').find('.email_sender').val(),
+					sender_name: $(button).closest('.email_div').find('.email_sender_name').val(),
+					subject: $(button).closest('.email_div').find('.email_subject').val(),
+					body: $(button).closest('.email_div').find('.email_body').val()
+				},
+				success: function(response) {
+					if(response != '') {
+						alert(response);
+					}
+				}
+			});
+			$(button).closest('.email_div').hide().closest('[data-tab-name]').find('[name=check_send_email]').removeAttr('checked');
+		}
+		</script>
+		<div class="project_email_options email_div" style="display:none;">
+            <div class="form-group">
+              <label for="site_name" class="col-sm-4 control-label">To:</label>
+              <div class="col-sm-8">
+                <select data-placeholder="Select <?= $comment_category ?>..." name="email_comment[]" data-table="project_comment" data-id="" data-id-field="projectcommid" data-project="<?= $projectid ?>" data-type="project_note" class="chosen-select-deselect form-control email_recipient" width="380">
+                  <option value=""></option>
+                  <?php
+                    $query = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc,"SELECT contactid, first_name, last_name FROM contacts WHERE category IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND deleted=0 AND `status` > 0"),MYSQLI_ASSOC));
+                    foreach($query as $id) {
+                        echo "<option value='". $id."'>".get_contact($dbc, $id).'</option>';
+                    }
+                  ?>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="site_name" class="col-sm-4 control-label">CC:</label>
+              <div class="col-sm-8">
+                <select data-placeholder="Select <?= $comment_category ?>..." name="email_comment[]" data-table="project_comment" data-id="" data-id-field="projectcommid" data-project="<?= $projectid ?>" data-type="project_note" class="chosen-select-deselect form-control email_recipient" width="380">
+                  <option value=""></option>
+                  <?php
+                    $query = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc,"SELECT contactid, first_name, last_name FROM contacts WHERE category IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND deleted=0 AND `status` > 0"),MYSQLI_ASSOC));
+                    foreach($query as $id) {
+                        echo "<option value='". $id."'>".get_contact($dbc, $id).'</option>';
+                    }
+                  ?>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="site_name" class="col-sm-4 control-label">BCC:</label>
+              <div class="col-sm-8">
+                <select data-placeholder="Select <?= $comment_category ?>..." name="email_comment[]" data-table="project_comment" data-id="" data-id-field="projectcommid" data-project="<?= $projectid ?>" data-type="project_note" class="chosen-select-deselect form-control email_recipient" width="380">
+                  <option value=""></option>
+                  <?php
+                    $query = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc,"SELECT contactid, first_name, last_name FROM contacts WHERE category IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND deleted=0 AND `status` > 0"),MYSQLI_ASSOC));
+                    foreach($query as $id) {
+                        echo "<option value='". $id."'>".get_contact($dbc, $id).'</option>';
+                    }
+                  ?>
+                </select>
+              </div>
+            </div>
+			<div class="form-group">
+				<label class="col-sm-4 control-label">Email Sender's Name:</label>
+				<div class="col-sm-8">
+					<input type="text" name="email_sender_name" class="form-control email_sender_name" value="<?= get_contact($dbc, $_SESSION['contactid']) ?>">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-4 control-label">Email Sender's Address:</label>
+				<div class="col-sm-8">
+					<input type="text" name="email_sender" class="form-control email_sender" value="<?= get_email($dbc, $_SESSION['contactid']) ?>">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-4 control-label">Email Subject:</label>
+				<div class="col-sm-8">
+					<input type="text" name="email_subject" class="form-control email_subject" value="<?php echo $subject; ?>">
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="col-sm-4 control-label">Email Body:</label>
+				<div class="col-sm-8">
+					<textarea name="email_body" class="form-control email_body"><?php echo $body; ?></textarea>
+				</div>
+			</div>
+			<button class="btn brand-btn pull-right" data-table="project_comment" data-id-field="projectcommid" data-id="" data-field="comment" onclick="send_email(this); return false;">Send Email</button>
+            <div class="clearfix"></div>
+		</div>
+        
+        <div class="form-group">
+            <label for="site_name" class="col-sm-4 control-label">Add Note:</label>
+            <div class="col-sm-8">
+                <input type="hidden" name="ticket_comment_type" value="project_note">
+              <textarea name="comment" data-table="project_comment" data-id="" data-id-field="projectcommid" data-project="<?= $projectid ?>" data-type="project_note" rows="4" cols="50" class="form-control" ></textarea>
+            </div>
+        </div>
+		<a href="" class="btn brand-btn pull-right gap-bottom" onclick="waitForSave(this); $(this).text('Save Note'); get_notes(); return false;">Save Note</a>
+		<div class="clearfix"></div>
+	<?php } ?>
+    
     <div id="no-more-tables" class="notes_table">
         <div class="form-group">
             <label class="col-md-2 col-sm-4">Start Date:</label>
@@ -48,7 +186,6 @@ function addNewNote() {
                     <th>Sent To</th>
                     <th>Created By</th>
                     <th>Note</th>
-                    <th style="width:3em;"></th>
                 </tr>
                 <?php while($note = mysqli_fetch_assoc($project_notes)) { ?>
                     <?php $bg_class = $odd_even % 2 == 0 ? 'row-even-bg' : 'row-odd-bg'; ?>
@@ -58,158 +195,14 @@ function addNewNote() {
                         <td data-title="Sent To"><?= get_contact($dbc, $note['email_comment']) ?></td>
                         <td data-title="Created By"><?= get_contact($dbc, $note['created_by']) ?></td>
                         <td data-title="Note"><?= html_entity_decode($note['comment']) ?></td>
-                        <td data-tile="Function"><img class="cursor-hand pull-right inline-img no-toggle" src="../img/icons/ROOK-add-icon.png" title="Add Note" onclick="addNewNote();"></td>
                     </tr>
                     <?php $odd_even++; ?>
                 <?php } ?>
             </table>
         <?php } else {
-            echo '<button class="btn brand-btn" onclick="addNewNote(); return false;">Add Note</button>';
+            echo '<h3>No Notes Found</h3>';
         } ?>
     </div>
-    
-	<?php if($security['edit'] > 0) { ?>
-        <div class="add_note" style="display:none;">
-            <div class="col-sm-8 pull-right text-md">
-                <img class="inline-img cursor-hand" src="../img/icons/ROOK-share-icon.png" onclick="$('.tag_group').toggle();">
-                <img class="inline-img cursor-hand" src="../img/icons/ROOK-email-icon.png" onclick="show_email_options(this);">
-                <img class="inline-img cursor-hand" src="../img/icons/ROOK-reminder-icon.png" onclick="addReminder();">
-            </div>
-            <div class="clearfix"></div>
-
-            <div class="form-group tag_group" style="display:none;">
-              <label for="site_name" class="col-sm-4 control-label">Tag:</label>
-              <div class="col-sm-8">
-                <select data-placeholder="Select <?= $comment_category ?>..." name="email_comment" data-table="project_comment" data-id="" data-id-field="projectcommid" data-project="<?= $projectid ?>" data-type="project_note" class="chosen-select-deselect form-control email_recipient" width="380">
-                  <option value=""></option>
-                  <?php
-                    $query = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc,"SELECT contactid, first_name, last_name FROM contacts WHERE category IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND deleted=0 AND `status` > 0"),MYSQLI_ASSOC));
-                    foreach($query as $id) {
-                        echo "<option value='". $id."'>".get_contact($dbc, $id).'</option>';
-                    }
-                  ?>
-                </select>
-              </div>
-            </div>
-
-            <?php $subject = 'Note added on '.PROJECT_NOUN.' for you to Review';
-            $body = 'The following note has been added on a '.PROJECT_NOUN.' for you:<br>[REFERENCE]<br><br>
-                    Client: [CLIENT]<br>
-                    '.PROJECT_NOUN.' Name: [HEADING]<br>
-                    Status: [STATUS]<br>
-                    Please click the '.PROJECT_NOUN.' link below to view all information.<br>
-                    <a target="_blank" href="'.WEBSITE_URL.'/Project/projects.php?edit=[PROJECTID]">'.PROJECT_NOUN.' #[PROJECTID]</a><br>';
-            ?>
-            <script>
-            function show_email_options(img) {
-                $(img).closest('[data-tab-name]').find('.project_email_options').toggle();
-            }
-            function send_email(button) {
-                $.ajax({
-                    url: 'projects_ajax.php?action=send_email',
-                    method: 'POST',
-                    data: {
-                        table: $(button).data('table'),
-                        id_field: $(button).data('id-field'),
-                        id: $(button).data('id'),
-                        field: $(button).data('field'),
-                        recipient: $(button).closest('.email-block').find('.email_recipient').val(),
-                        sender: $(button).closest('.email_div').find('.email_sender').val(),
-                        sender_name: $(button).closest('.email_div').find('.email_sender_name').val(),
-                        subject: $(button).closest('.email_div').find('.email_subject').val(),
-                        body: $(button).closest('.email_div').find('.email_body').val()
-                    },
-                    success: function(response) {
-                        if(response != '') {
-                            alert(response);
-                        }
-                    }
-                });
-                $(button).closest('.email_div').hide().closest('[data-tab-name]').find('[name=check_send_email]').removeAttr('checked');
-            }
-            </script>
-            <div class="project_email_options email_div" style="display:none;">
-                <div class="form-group">
-                  <label for="site_name" class="col-sm-4 control-label">To:</label>
-                  <div class="col-sm-8">
-                    <select data-placeholder="Select <?= $comment_category ?>..." name="email_comment[]" data-table="project_comment" data-id="" data-id-field="projectcommid" data-project="<?= $projectid ?>" data-type="project_note" class="chosen-select-deselect form-control email_recipient" width="380">
-                      <option value=""></option>
-                      <?php
-                        $query = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc,"SELECT contactid, first_name, last_name FROM contacts WHERE category IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND deleted=0 AND `status` > 0"),MYSQLI_ASSOC));
-                        foreach($query as $id) {
-                            echo "<option value='". $id."'>".get_contact($dbc, $id).'</option>';
-                        }
-                      ?>
-                    </select>
-                  </div>
-                </div>
-                <div class="form-group">
-                  <label for="site_name" class="col-sm-4 control-label">CC:</label>
-                  <div class="col-sm-8">
-                    <select data-placeholder="Select <?= $comment_category ?>..." name="email_comment[]" data-table="project_comment" data-id="" data-id-field="projectcommid" data-project="<?= $projectid ?>" data-type="project_note" class="chosen-select-deselect form-control email_recipient" width="380">
-                      <option value=""></option>
-                      <?php
-                        $query = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc,"SELECT contactid, first_name, last_name FROM contacts WHERE category IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND deleted=0 AND `status` > 0"),MYSQLI_ASSOC));
-                        foreach($query as $id) {
-                            echo "<option value='". $id."'>".get_contact($dbc, $id).'</option>';
-                        }
-                      ?>
-                    </select>
-                  </div>
-                </div>
-                <div class="form-group">
-                  <label for="site_name" class="col-sm-4 control-label">BCC:</label>
-                  <div class="col-sm-8">
-                    <select data-placeholder="Select <?= $comment_category ?>..." name="email_comment[]" data-table="project_comment" data-id="" data-id-field="projectcommid" data-project="<?= $projectid ?>" data-type="project_note" class="chosen-select-deselect form-control email_recipient" width="380">
-                      <option value=""></option>
-                      <?php
-                        $query = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc,"SELECT contactid, first_name, last_name FROM contacts WHERE category IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND deleted=0 AND `status` > 0"),MYSQLI_ASSOC));
-                        foreach($query as $id) {
-                            echo "<option value='". $id."'>".get_contact($dbc, $id).'</option>';
-                        }
-                      ?>
-                    </select>
-                  </div>
-                </div>
-                <div class="form-group">
-                    <label class="col-sm-4 control-label">Email Sender's Name:</label>
-                    <div class="col-sm-8">
-                        <input type="text" name="email_sender_name" class="form-control email_sender_name" value="<?= get_contact($dbc, $_SESSION['contactid']) ?>">
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="col-sm-4 control-label">Email Sender's Address:</label>
-                    <div class="col-sm-8">
-                        <input type="text" name="email_sender" class="form-control email_sender" value="<?= get_email($dbc, $_SESSION['contactid']) ?>">
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="col-sm-4 control-label">Email Subject:</label>
-                    <div class="col-sm-8">
-                        <input type="text" name="email_subject" class="form-control email_subject" value="<?php echo $subject; ?>">
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="col-sm-4 control-label">Email Body:</label>
-                    <div class="col-sm-8">
-                        <textarea name="email_body" class="form-control email_body"><?php echo $body; ?></textarea>
-                    </div>
-                </div>
-                <button class="btn brand-btn pull-right" data-table="project_comment" data-id-field="projectcommid" data-id="" data-field="comment" onclick="send_email(this); return false;">Send Email</button>
-                <div class="clearfix"></div>
-            </div>
-            
-            <div class="form-group">
-                <label for="site_name" class="col-sm-4 control-label">Add Note:</label>
-                <div class="col-sm-8">
-                    <input type="hidden" name="ticket_comment_type" value="project_note">
-                  <textarea name="comment" data-table="project_comment" data-id="" data-id-field="projectcommid" data-project="<?= $projectid ?>" data-type="project_note" rows="4" cols="50" class="form-control" ></textarea>
-                </div>
-            </div>
-            <a href="" class="btn brand-btn pull-right gap-bottom" onclick="if(waitForSave(this)) { $(this).text('Save Note'); get_notes(); $('.add_note').hide().find('[data-id]').data('id',0); tinyMCE.get('comment').setContent(''); } return false;">Save Note</a>
-            <div class="clearfix"></div>
-        </div>
-	<?php } ?>
 </div>
 <?php if(basename($_SERVER['SCRIPT_FILENAME']) == 'edit_project_notes.php') { ?>
 	<div style="display:none;"><?php include('../footer.php'); ?></div>

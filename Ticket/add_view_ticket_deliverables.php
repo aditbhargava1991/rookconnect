@@ -85,8 +85,8 @@
 									</div>
 
 									<div class="col-sm-2">
-										<img class="inline-img pull-right" data-history-label="Staff" onclick="startTicketStaff(this);" src="../img/icons/ROOK-add-icon.png">
-										<img class="inline-img pull-right" data-history-label="Staff" onclick="deletestartTicketStaff(this);" src="../img/remove.png">
+										<img class="inline-img pull-right" onclick="startTicketStaff(this);" src="../img/icons/ROOK-add-icon.png">
+										<img class="inline-img pull-right" onclick="deletestartTicketStaff(this);" src="../img/remove.png">
 									</div>
 								</div>
 							<?php } ?>
@@ -247,8 +247,8 @@
 									</div>
 
 									<div class="col-sm-2">
-										<img class="inline-img pull-right" data-history-label="Internal QA Staff" onclick="internalTicketStaff(this);" src="../img/icons/ROOK-add-icon.png">
-										<img class="inline-img pull-right" data-history-label="Internal QA Staff" onclick="deleteinternalTicketStaff(this);" src="../img/remove.png">
+										<img class="inline-img pull-right" onclick="internalTicketStaff(this);" src="../img/icons/ROOK-add-icon.png">
+										<img class="inline-img pull-right" onclick="deleteinternalTicketStaff(this);" src="../img/remove.png">
 									</div>
 								</div>
 							<?php } ?>
@@ -331,8 +331,8 @@
 									</div>
 
 									<div class="col-sm-2">
-										<img class="inline-img pull-right" data-history-label="Customer QA Staff" onclick="customerTicketStaff(this);" src="../img/icons/ROOK-add-icon.png">
-										<img class="inline-img pull-right" data-history-label="Customer QA Staff" onclick="deletecustomerTicketStaff(this);" src="../img/remove.png">
+										<img class="inline-img pull-right" onclick="customerTicketStaff(this);" src="../img/icons/ROOK-add-icon.png">
+										<img class="inline-img pull-right" onclick="deletecustomerTicketStaff(this);" src="../img/remove.png">
 									</div>
 								</div>
 							<?php } ?>

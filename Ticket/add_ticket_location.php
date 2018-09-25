@@ -2,7 +2,9 @@
 <script type="text/javascript">
 $(document).ready(function() {
 	$('[name="clientid"]').off('change',filterSitesByClient).change(filterSitesByClient);
-	filterSitesByClient();
+	if(ticketid > 0) {
+		filterSitesByClient();
+	}
 });
 function filterSitesByClient() {
 	$('[name="siteid"] option').hide();
@@ -57,7 +59,7 @@ function filterSitesByClient() {
 					</div>
 					<div class="col-sm-1">
 						<a href="" onclick="viewSite(this); return false;"><img class="inline-img pull-right no-toggle" src="../img/person.PNG" title="View Profile"></a>
-						<a href="" onclick="$(this).closest('.form-group').find('select').val('MANUAL').change(); return false;"><img class="inline-img pull-right"  data-history-label="New Site" src="../img/icons/ROOK-add-icon.png"></a>
+						<a href="" onclick="$(this).closest('.form-group').find('select').val('MANUAL').change(); return false;"><img class="inline-img pull-right" src="../img/icons/ROOK-add-icon.png"></a>
 					</div>
 				</div>
 				<div class="form-group clearfix site_name" style="display:none;">
@@ -375,7 +377,7 @@ function filterSitesByClient() {
 				</div>
 			</div>
 			<?php if(strpos($value_config, ','."Location Notes Anyone Can Add".',') !== FALSE && !$strict_view) { ?>
-				<a class="pull-right no-toggle" href="" title="Add a Note" onclick="addSiteNote(this, '<?= $row['contactid'] ?>', 1); return false;"><img class="inline-img" data-history-label="Site Note" src="<?= WEBSITE_URL ?>/img/icons/ROOK-add-icon.png" /></a>
+				<a class="pull-right no-toggle" href="" title="Add a Note" onclick="addSiteNote(this, '<?= $row['contactid'] ?>', 1); return false;"><img class="inline-img" src="<?= WEBSITE_URL ?>/img/icons/ROOK-add-icon.png" /></a>
 				<div class="clearfix"></div>
 			<?php } ?>
 			<?php $pdf_contents[] = ['Notes', html_entity_decode($get_ticket['location_notes'])]; ?>

@@ -35,10 +35,6 @@ if($_GET['tab'] == 'general') {
 	$field_title = 'Follow Up Settings';
 } else if($_GET['tab'] == 'quick_action') {
     $field_title = 'Quick Action Icons';
-} else if($_GET['tab'] == 'summary') {
-    $field_title = 'Summary Access';
-} else if($_GET['tab'] == 'admin') {
-    $field_title = 'Administration';
 } ?>
 
 <div class="container">
@@ -54,8 +50,6 @@ if($_GET['tab'] == 'general') {
                     <ul class="sidebar">
                         <a href="incident_report.php"><li>Back to Dashboard</li></a>
                         <a href="field_config.php?tab=general"><li <?= $_GET['tab'] == 'general' ? 'class="active"' : '' ?>>General Settings</li></a>
-                        <a href="field_config.php?tab=summary"><li <?= $_GET['tab'] == 'summary' ? 'class="active"' : '' ?>>Summary Access</li></a>
-                        <a href="field_config.php?tab=admin"><li <?= $_GET['tab'] == 'admin' ? 'class="active"' : '' ?>>Administration</li></a>
                         <a href="field_config.php?tab=followup"><li <?= $_GET['tab'] == 'followup' ? 'class="active"' : '' ?>>Follow Up Settings</li></a>
                         <a href="field_config.php?tab=quick_action"><li <?= $_GET['tab'] == 'quick_action' ? 'class="active"' : '' ?>>Quick Action Icons</li>
 						<?php foreach(str_getcsv(html_entity_decode($get_field_config['incident_types']), ',') as $in_type) {
@@ -81,10 +75,6 @@ if($_GET['tab'] == 'general') {
                                 	include('field_config_followup.php');
                                 } else if($_GET['tab'] == 'quick_action') {
                                     include('field_config_quick_action.php');
-                                } else if($_GET['tab'] == 'summary') {
-                                    include('field_config_summary.php');
-                                } else if($_GET['tab'] == 'admin') {
-                                    include('field_config_admin.php');
                                 } else {
                                 	include('field_config_general.php');
                                 } ?>
