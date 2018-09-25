@@ -12,9 +12,6 @@
                 <?php if (strpos($value_config, ','."Delivery Summary Address".',') !== FALSE && $field_sort_field == 'Delivery Summary Address') { ?>
                     <th>Address</th>
                 <?php } ?>
-                <?php if (strpos($value_config, ','."Delivery Summary Services".',') !== FALSE && $field_sort_field == 'Delivery Summary Services') { ?>
-                    <th>Services</th>
-                <?php } ?>
                 <?php if (strpos($value_config, ','."Delivery Summary Status".',') !== FALSE && $field_sort_field == 'Delivery Summary Status') { ?>
                     <th>Status</th>
                 <?php } ?>
@@ -34,18 +31,6 @@
                     <?php } ?>
                     <?php if (strpos($value_config, ','."Delivery Summary Address".',') !== FALSE && $field_sort_field == 'Delivery Summary Address') { ?>
                         <td data-title="Address"><?= $ticket_stop['address'] ?></td>
-                    <?php } ?>
-                    <?php if (strpos($value_config, ','."Delivery Summary Services".',') !== FALSE && $field_sort_field == 'Delivery Summary Services') { ?>
-                        <td data-title="Services">
-                            <?php $service_list = [];
-                            foreach(explode(',',$ticket_stop['serviceid']) as $delivery_service) {
-                                if($delivery_service > 0) {
-                                    $delivery_service = $dbc->query("SELECT `category`, `service_type`, `heading` FROM `services` WHERE `serviceid`='$delivery_service'")->fetch_assoc();
-                                    $service_list[] = implode(': ',array_filter($delivery_service));
-                                }
-                            }
-                            echo implode('<br />',$service_list); ?>
-                        </td>
                     <?php } ?>
                     <?php if (strpos($value_config, ','."Delivery Summary Status".',') !== FALSE && $field_sort_field == 'Delivery Summary Status') { ?>
                         <td data-title="Status"><?= $ticket_stop['status'] ?></td>

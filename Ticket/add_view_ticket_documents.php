@@ -51,8 +51,8 @@
 							</select>
 						</div>
 						<div class="col-sm-1">
-							<img class="inline-img pull-right" data-history-label="Document" onclick="addMulti(this);" src="../img/icons/ROOK-add-icon.png">
-							<img class="inline-img pull-right" data-history-label="Document" onclick="remMulti(this);" src="../img/remove.png">
+							<img class="inline-img pull-right" onclick="addMulti(this);" src="../img/icons/ROOK-add-icon.png">
+							<img class="inline-img pull-right" onclick="remMulti(this);" src="../img/remove.png">
 						</div>
 					</div>
 				</div>

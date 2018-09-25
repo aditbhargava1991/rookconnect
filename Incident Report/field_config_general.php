@@ -55,8 +55,7 @@
 	} else {
 		mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`, `value`) VALUES ('inc_rep_tile_name', '$inc_rep_tile_name')");
 	}
-	set_config($dbc, 'incident_report_tabs', implode(',',$_POST['incident_report_tabs']));
-	set_config($dbc, 'incident_report_summary', implode(',',$_POST['incident_report_summary']));
+	 set_config($dbc, 'incident_report_summary', implode(',',$_POST['incident_report_summary']));
 	//Tile Settings
 	
     echo '<script type="text/javascript"> window.location.replace(""); </script>';
@@ -227,20 +226,12 @@
 		</div>
 	</div>
 	<div class="form-group">
-		<label for="office_country" class="col-sm-4 control-label">Tab Options:</label>
-		<div class="col-sm-8">
-			<?php $tabs = explode(',',get_config($dbc, 'incident_report_tabs')); ?>
-			<label class="form-checkbox"><input type="checkbox" <?= in_array('Summary',$tabs) ? 'checked' : '' ?> name="incident_report_tabs[]" value="Summary"> Summary</label>
-			<label class="form-checkbox"><input type="checkbox" <?= in_array('Admin',$tabs) ? 'checked' : '' ?> name="incident_report_tabs[]" value="Admin"> Admin Approval</label>
-		</div>
-	</div>
-	<div class="form-group">
-		<label for="office_country" class="col-sm-4 control-label">Summary Options:</label>
+		<label for="office_country" class="col-sm-4 control-label">Tab Options</label>
 		<div class="col-sm-8">
 			<?php $summary = explode(',',get_config($dbc, 'incident_report_summary')); ?>
 			<label class="form-checkbox"><input type="checkbox" <?= in_array('Types',$summary) ? 'checked' : '' ?> name="incident_report_summary[]" value="Types"> Summary by Type</label>
 			<label class="form-checkbox"><input type="checkbox" <?= in_array('Complete',$summary) ? 'checked' : '' ?> name="incident_report_summary[]" value="Complete"> Summary by Completed</label>
-			<label class="form-checkbox"><input type="checkbox" <?= in_array('Staff Only',$summary) ? 'checked' : '' ?> name="incident_report_summary[]" value="Staff Only"> Staff <?= INC_REP_TILE ?> Only</label>
+			<label class="form-checkbox"><input type="checkbox" <?= in_array('Admin',$summary) ? 'checked' : '' ?> name="incident_report_summary[]" value="Admin"> Admin Approval</label>
 		</div>
 	</div>
 </div>

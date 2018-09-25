@@ -659,7 +659,6 @@ $(document).ready(function() {
 			modal: true,
 			buttons: {
 				"All Recurrences": function() {
-					clearInterval(check_recurrence);
 					var ticketid = $('#ticketid').val();
 					$('#sync_recurrences').val(1);
 					$('.sync_recurrences_note').show();
@@ -673,19 +672,10 @@ $(document).ready(function() {
 					$(this).dialog('close');
 				},
 				"One Occurence": function() {
-					clearInterval(check_recurrence);
-					$('#sync_recurrences').val(0);
 					$(this).dialog('close');
 				}
 			}
 		});
-		var check_recurrence = '';
-		check_recurrence = setInterval(function() {
-			if(!($('#dialog_edit_recurrence').is(':visible'))) {
-				$('#sync_recurrences').val(0);
-				clearInterval(check_recurrence);
-			}
-		},50);
 	<?php } ?>
     
     var menu_bar_height = $('#nav').height() + $('.tile-header').height() + 12;
@@ -1094,7 +1084,7 @@ var setHeading = function() {
 	<div class="double-gap-top standard-body form-horizontal calendar-iframe-screen <?= $calendar_ticket_slider=='full' ? 'calendar-iframe-full' : 'calendar-iframe-accordion'; ?>">
 		<input type="hidden" id="calendar_view" value="true">
 <?php } ?>
-<input type="hidden" name="sync_recurrences" id="sync_recurrences" value="<?= ($is_recurrence && !($_GET['action_mode'] > 0) && !($_GET['overview_mode'] > 0) ? 1 : 0) ?>">
+<input type="hidden" name="sync_recurrences" id="sync_recurrences" value="0">
 <input type="hidden" name="checkout_before_checkin" id="checkin_before_checkout" value="<?= strpos($value_config,',Check Out Before Check In,') !== FALSE ? 1 : 0 ?>">
 <?php if(get_config($dbc, 'ticket_textarea_style') == 'no_editor') { ?>
 	<script>
@@ -1168,7 +1158,7 @@ var setHeading = function() {
 	</div>
 	<div class="<?= $calendar_ticket_slider != 'accordion' ? 'show-on-mob' : 'main-screen' ?> panel-group block-panels col-xs-12 form-horizontal" style="background-color: #fff; padding: 0; margin-left: 5px; width: calc(100% - 10px); height: 100%;" id="mobile_tabs">
 		<?php if($wait_on_approval) {
-			echo '<h4>Submitted for Administration Approval</h4>';
+			echo '<h4>Awaiting Admin Approval</h4>';
 		} ?>
 		<?php $current_heading = '';
 		$current_heading_closed = true;
