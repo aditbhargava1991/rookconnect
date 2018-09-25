@@ -37,6 +37,28 @@ if(empty($ticketid)) {
 		}
 	}
 
+	//Intake Fields
+	if(isset($_GET['intake_key'])) {
+		$value_config_all = $value_config;
+		$value_config = ','.get_config($dbc, 'ticket_intake_fields').',';
+		if(!empty($ticket_type)) {
+			$value_config .= get_config($dbc, 'ticket_intake_fields_'.$ticket_type).',';
+		}
+		if(empty(trim($value_config,','))) {
+			$value_config = $value_config_all;
+		} else {
+			if(strpos($value_config, ','."Hide Trash Icon".',') !== FALSE) {
+				$hide_trash_icon = 1;
+			}
+			foreach($action_mode_ignore_fields as $action_mode_ignore_field) {
+				if(strpos(','.$value_config_all.',',','.$action_mode_ignore_field.',') !== FALSE) {
+					$value_config .= ','.$action_mode_ignore_field;
+				}
+			}
+			$value_config = ','.implode(',',array_intersect(explode(',',$value_config), explode(',',$value_config_all))).',';
+		}
+	}
+
 	$created_by = $get_ticket['created_by'];
 	$created_date = $get_ticket['created_date'];
 }
