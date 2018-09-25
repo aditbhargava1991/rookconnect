@@ -96,7 +96,7 @@
                 <?php if(in_array('inventory_price',$field_config)) { ?><label class="col-sm-<?= $col5 ?> text-center">Price</label><?php } ?>
                 <label class="col-sm-<?= $col7 ?> text-center">Total</label>
                 <?php if($_GET['inv_mode'] == 'adjust') { ?>
-                    <label class="col-sm-1 text-center return_block">Return</label>
+                    <label class="col-sm-2 text-center return_block">Return</label>
                 <?php } ?>
             </div>
 
@@ -201,16 +201,14 @@
                                     <?php } ?>
                                 </div>
                                 <?php if($_GET['inv_mode'] == 'adjust') { ?>
-                                    <div class="return_block col-sm-1">
+                                    <div class="return_block col-sm-2">
                                         <input name="quantity[]" id="<?php echo 'quantity_'.$id_loop; ?>" onchange="changeProduct(this);" value="0" max="0" min="<?php echo -$quantity; ?>" type="number" step="any" class="form-control quantity" />
                                     </div>
                                 <?php } ?>
-                                <!-- Hidden on Returns/Adjustment
                                 <div class="col-sm-2 adjust_block">
                                     <img src="<?= WEBSITE_URL ?>/img/remove.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right cursor-hand" onclick="rem_product_row(this);">
                                     <img src="<?= WEBSITE_URL ?>/img/icons/ROOK-add-icon.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right cursor-hand" onclick="add_product_row();">
                                 </div>
-                                -->
                                 <div class="col-sm-12 pay-div"></div>
                             </div>
                         <?php

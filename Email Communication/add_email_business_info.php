@@ -52,12 +52,19 @@ $(document).ready(function() {
 			foreach($project_tabs as $item) {
 				$project_vars[] = preg_replace('/[^a-z_]/','',str_replace(' ','_',strtolower($item)));
 			}
-			$project_query = !empty($projectid) ? "AND businessid='$businessid'" : "";
-            $query = mysqli_query($dbc, "SELECT projectid, projecttype, project_name FROM project WHERE (deleted=0 $project_query) OR `projectid`='$projectid' ORDER BY project_name");
+			//$project_vars[] = '';
+            //$query = mysqli_query($dbc,"SELECT * FROM (SELECT projectid, projecttype, project_name FROM project WHERE businessid='$businessid' UNION SELECT CONCAT('C',`projectid`), 'Client Project', `project_name` FROM `client_project` WHERE `clientid`='$businessid' AND `deleted`=0) PROJECTS order by project_name");
+            $project_query = !empty($projectid) ? "AND businessid='$businessid'" : "";
+            $query = mysqli_query($dbc, "SELECT projectid, projecttype, project_name FROM project WHERE deleted=0 $project_query ORDER BY project_name");
             while($row = mysqli_fetch_array($query)) {
 				if(substr($row['projectid'],0,1)=='C') {
 					echo "<option ".($projectid == $row['projectid'] ? 'selected' : '')." value='".$row['projectid']."'>Client Project: ".$row['project_name'].'</option>';
 				}
+				/* foreach($project_vars as $key => $type_name) {
+					if($type_name == $row['projecttype']) {
+						echo "<option ".($projectid == $row['projectid'] ? 'selected' : '')." value='".$row['projectid']."'>".$project_tabs[$key].': '.$row['project_name'].'</option>';
+					}
+				} */
                 echo "<option ".($projectid == $row['projectid'] ? 'selected' : '')." value='".$row['projectid']."'>".$row['project_name'].'</option>';
             }
           ?>
