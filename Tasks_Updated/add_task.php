@@ -1357,16 +1357,15 @@ function mark_done(sel) {
                         <?php } ?>
 
                         <?php if(strpos($task_fields, ',Flag This,') !== FALSE) { ?>
-
-            <div class="form-group clearfix">
-                <label for="first_name" class="col-sm-4"><?php echo (strpos($task_mandatory_fields, ',Flag This,') !== FALSE ? '<font color="red">* </font>' : ''); ?>
-                    <!-- <img src="../img/icons/ROOK-flag-icon.png" class="inline-img" /> --> Flag This:
-                </label>
-                <div class="col-sm-8">
-                    <a class="btn brand-btn" data-tasklistid="<?= $tasklistid ?>" onclick="flag_item(this);">Flag</a>
-                    <input type="hidden" name="flag" value="" />
-                </div>
-            </div>
+                            <div class="form-group clearfix">
+                                <label for="first_name" class="col-sm-4"><?php echo (strpos($task_mandatory_fields, ',Flag This,') !== FALSE ? '<font color="red">* </font>' : ''); ?>
+                                    <!-- <img src="../img/icons/ROOK-flag-icon.png" class="inline-img" /> --> Flag This:
+                                </label>
+                                <div class="col-sm-8">
+                                    <a class="btn brand-btn" data-tasklistid="<?= $tasklistid ?>" onclick="flag_item(this);">Flag</a>
+                                    <input type="hidden" name="flag" value="" />
+                                </div>
+                            </div>
                         <?php } ?>
 
                         <?php if(strpos($task_fields, ',Send Alert,') !== FALSE) { ?>
