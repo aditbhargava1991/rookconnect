@@ -176,7 +176,17 @@ if($_GET['fill'] == 'mark_date') {
 	    $task_tododate = $_GET['todo_date'];
     $query_update_project = "UPDATE `tasklist` SET `task_tododate`='$task_tododate' WHERE `tasklistid` = '$tasklistid'";
 	$result_update_project = mysqli_query($dbc, $query_update_project);
-    echo $query_update_project;
+}
+
+if($_GET['fill'] == 'task_status') {
+    $tasklistid = $_GET['tasklistid'];
+    $status = $_GET['status'];
+	$status = str_replace("FFMEND","&",$status);
+    $status = str_replace("FFMSPACE"," ",$status);
+    $status = str_replace("FFMHASH","#",$status);
+
+    echo $query_update_project = "UPDATE `tasklist` SET `status`='$status' WHERE `tasklistid` = '$tasklistid'";
+	$result_update_project = mysqli_query($dbc, $query_update_project);
 }
 
 if($_GET['fill'] == 'mark_staff') {
@@ -184,7 +194,6 @@ if($_GET['fill'] == 'mark_staff') {
 	$staff = $_GET['staff'];
     $query_update_project = "UPDATE `tasklist` SET `contactid`='$staff' WHERE `tasklistid` = '$tasklistid'";
 	$result_update_project = mysqli_query($dbc, $query_update_project);
-    echo $query_update_project;
 }
 
 if($_GET['fill'] == 'delete_task') {
