@@ -24,6 +24,23 @@ if(!empty($_GET['calendar_view'])) {
 	echo '<input type="hidden" name="from" value="'.$_GET['from'].'">';
 	$back_url = urldecode($_GET['from']);
 }
+if(!empty($_GET['from_alert'])) {
+	$get_ticket = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticketid` = '".$_GET['edit']."'"));
+	if(trim($get_ticket['contactid'],',') == '') {
+		mysqli_query($dbc, "UPDATE `tickets` SET `contactid` = ',".$_SESSION['contactid'].",' WHERE `ticketid` = '".$_GET['edit']."'");
+	} else if(!in_array($_SESSION['contactid'], explode(',', trim($get_ticket['contactid'],',')))) {
+		$staff_labels = [];
+		foreach(explode(',', trim($get_ticket['contactid'],',')) as $ticket_contactid) {
+			$staff_labels[] = get_contact($dbc, $ticket_contactid);
+		}
+		$staff_labels = implode(', ', $staff_labels); ?>
+		<script type="text/javascript">
+			$(document).ready(function() {
+				alert("<?= $staff_labels ?> has taken responsibility of this <?= TICKET_NOUN ?>.");
+			});
+		</script>
+	<?php }
+}
 
 $ticket_layout = get_config($dbc, 'ticket_layout');
 $value_config = ','.get_field_config($dbc, 'tickets').',';

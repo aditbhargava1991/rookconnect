@@ -3149,6 +3149,9 @@ function get_reminder_url($dbc, $reminder, $slider = 0) {
                 case 'tickets':
                     $reminder_url = WEBSITE_URL.'/Ticket/index.php?calendar_view=true&edit='.$reminder['src_tableid'];
                     break;
+                case 'ticket_alerts':
+                    $reminder_url = WEBSITE_URL.'/Ticket/index.php?calendar_view=true&edit='.$reminder['src_tableid'].'&from_alert=1';
+                    break;
                 case 'checklist_name':
                     $reminder_url = WEBSITE_URL.'/Checklist/checklist.php?iframe_slider=1&view='.$reminder['src_tableid'];
                     break;
@@ -3221,6 +3224,9 @@ function get_reminder_url($dbc, $reminder, $slider = 0) {
             switch($reminder['src_table']) {
                 case 'tickets':
                     $reminder_url = WEBSITE_URL.'/Ticket/index.php?edit='.$reminder['src_tableid'];
+                    break;
+                case 'ticket_alerts':
+                    $reminder_url = WEBSITE_URL.'/Ticket/index.php?edit='.$reminder['src_tableid'].'&from_alert=1';
                     break;
                 case 'checklist_name':
                     $reminder_url = WEBSITE_URL.'/Checklist/checklist.php?view='.$reminder['src_tableid'];
