@@ -178,7 +178,7 @@ if($num_rows > 0 || $num_rows2 > 0) {
             if ( $misc_product != '' ) {
                 $html .= '<tr>';
                     $html .= '<td>';
-                        $html .= $misc_product .'<br />';
+                        $html .= ($quantity < 0 ? 'Return: ' : '').$misc_product .'<br />';
                         $html .= number_format($quantity, 0) .' @ $' . number_format($price, 2);
                     $html .= '</td>';
                     if($return_result > 0) {
@@ -210,7 +210,7 @@ if ( $num_rows3 > 0 ) {
                 $amount = $row['sub_total'];
                 $html .= '<tr>';
                     $html .= '<td>';
-                        $html .= get_package($dbc, $inventoryid, 'heading') .'<br />';
+                        $html .= ($quantity < 0 ? 'Refund: ' : '').get_package($dbc, $inventoryid, 'heading') .'<br />';
                         $html .= number_format($quantity, 0) .' @ $' . number_format($price, 2);
                     $html .= '</td>';
                     if($return_result > 0) {
@@ -241,7 +241,7 @@ if($num_rows3 > 0) {
                 $amount = $row['sub_total'];
                 $html .= '<tr>';
                     $html .= '<td>';
-                        $html .= get_products($dbc, $inventoryid, 'heading') .'<br />';
+                        $html .= ($quantity < 0 ? 'Refund: ' : '').get_products($dbc, $inventoryid, 'heading') .'<br />';
                         $html .= number_format($quantity, 0) .' @ $'. number_format($price, 2);
                     $html .= '</td>';
                     if($return_result > 0) {
@@ -272,7 +272,7 @@ if($num_rows4 > 0) {
                 $amount = $row['sub_total'];
                 $html .= '<tr>';
                     $html .= '<td>';
-                        $html .= get_services($dbc, $inventoryid, 'heading') .'<br />';
+                        $html .= ($quantity < 0 ? 'Refund: ' : '').get_services($dbc, $inventoryid, 'heading') .'<br />';
                         $html .= number_format($quantity, 0) .' @ $'. number_format($price, 2);
                     $html .= '</td>';
                     if($return_result > 0) {
@@ -304,7 +304,7 @@ if($num_rows5 > 0) {
 
                 $html .= '<tr>';
                     $html .= '<td>';
-                        $html .= get_vpl($dbc, $inventoryid, 'name') .'<br />';
+                        $html .= ($quantity < 0 ? 'Return: ' : '').get_vpl($dbc, $inventoryid, 'name') .'<br />';
                         $html .= number_format($quantity, 0) .' @ $'. number_format($price, 2);
                     $html .= '</td>';
                     if($return_result > 0) {

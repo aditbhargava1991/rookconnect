@@ -141,7 +141,7 @@ if($invoice_mode != 'Adjustment') {
 			$service_cats[] = $service['category'];
 			$service_names[] = $service['heading'];
 			$qty = $_POST['srv_qty'][$i] > 0 ? $_POST['srv_qty'][$i] : 1;
-			$service_fee = ($service['editable'] > 0 && $_POST['fee'] > 0 ? $_POST['fee'][$i] * $qty : $service['service_rate'] * $qty);
+			$service_fee = ($service['editable'] > 0 || $_POST['fee'] > 0 ? $_POST['fee'][$i] * $qty : $service['service_rate'] * $qty);
 			$service_fees[] = $service_fee;
 			$gst = $_POST['gst_exempt'][$i] == "1" ? 0 : $service_fee * $_POST['tax_rate'] / 100;
 			$service_gst[] = $gst;
@@ -1071,18 +1071,19 @@ if($invoice_mode != 'Adjustment') {
                 $service_pdf .= $service['category'].' : '.$service['heading'].'<br>';
                 $service_cats[] = $service['category'];
                 $service_names[] = $service['heading'];
-                $qty = $_POST['init_qty'][$i] > 0 ? $_POST['init_qty'][$i] : 1;
-                $service_fees[] = (-$service['service_rate'] * $qty);
-                $gst = $_POST['init_gst_exempt'][$i] == "1" ? 0 : (-$service['service_rate']) * $_POST['tax_rate'] / 100;
+                $qty = $_POST['init_qty'][$i] > 0 ? $_POST['init_qty'][$i] * (-1) : -1;
+                $service_fee = $_POST['init_fee'][$i] > 0 ? $_POST['init_fee'][$i] : $service['service_rate'];
+                $service_fees[] = ($service_fee * $qty);
+                $gst = $_POST['init_gst_exempt'][$i] == "1" ? 0 : ($service_fee * $qty * $_POST['tax_rate'] / 100);
                 $service_gst[] = $gst;
                 $service_admin_fees[] = (-$service['admin_fee']);
-                $fee = (-$service['service_rate']) + $gst;
+                $fee = ($service_fee * $qty) + $gst;
                 $fee_total_price += $fee;
                 $service_totals[] = $fee;
-                $total_amount += $fee - $gst;
+                $total_amount += $service_fee * $qty;
                 $final_amount += $fee;
                 $invoice_lines[] = "INSERT INTO `invoice_lines` (`invoiceid`, `item_id`, `description`, `category`, `quantity`, `unit_price`, `sub_total`, `gst`, `total`)
-                    VALUES ('INVOICEID', '".$sid."', '".$service['category'].': '.$service['heading']."', 'service', '".$qty."', '".(-$_POST['service_rate'])."', '".(-$_POST['service_rate'] * $qty)."', '$gst', '$fee')";
+                    VALUES ('INVOICEID', '".$sid."', 'Refund: ".(!empty($service['category']) ? $service['category'].': ' : '').$service['heading']."', 'service', '".$qty."', '".($service_fee)."', '".($service_fee * $qty)."', '$gst', '$fee')";
 
                 foreach($_POST['insurer_row_applied'] as $j => $match_row) {
                     $applied = 0;
@@ -1164,8 +1165,15 @@ if($invoice_mode != 'Adjustment') {
                         'service_cat' => $service['category'],
                         'service_name' => $service['heading'],
                         'product_name' => '',
-                        'paid' => 'Account' ];
+                        'paid' => 'Refund Credit' ];
                     $service_patient[$i] += $applied;
+                    if(!in_array('Refund Credit',$payment_types)) {
+                        $payment_types[] = 'Refund Credit';
+                        $payment_amts[] = 0;
+                        $payment_used[] = 0;
+                    }
+                    $payment_amts[array_search('Refund Credit',$payment_types)] -= $applied;
+                    $payment_used[array_search('Refund Credit',$payment_types)] -= $applied;
                 }
             } else if($sid > 0) {
                 $service = mysqli_fetch_array(mysqli_query($dbc, "SELECT s.category, s.heading, r.cust_price service_rate, r.admin_fee FROM services s, company_rate_card r WHERE s.serviceid='$sid' AND s.serviceid = r.item_id AND r.tile_name LIKE 'Services' AND '$today_date' >= r.start_date AND ('$today_date' <= r.end_date OR IFNULL(r.end_date,'0000-00-00') = '0000-00-00')"));
@@ -1209,7 +1217,7 @@ if($invoice_mode != 'Adjustment') {
                 $total_amount += $total - $gst;
                 $final_amount += $total;
                 $invoice_lines[] = "INSERT INTO `invoice_lines` (`invoiceid`, `item_id`, `description`, `category`, `quantity`, `unit_price`, `sub_total`, `gst`, `total`)
-                    VALUES ('INVOICEID', '".$package."', '".$details['heading']."', 'package', '1', '".(-$_POST['package_cost'][$i])."', '".(-$_POST['package_cost'][$i])."', '$gst', '$total')";
+                    VALUES ('INVOICEID', '".$package."', 'Refund: ".$details['heading']."', 'package', '1', '".(-$_POST['package_cost'][$i])."', '".(-$_POST['package_cost'][$i])."', '$gst', '$total')";
                 foreach($_POST['insurer_row_applied'] as $j => $match_row) {
                     $applied = 0;
                     if($row == $match_row && $_POST['insurer_payment_amt'][$j] != 0) {
@@ -1290,8 +1298,15 @@ if($invoice_mode != 'Adjustment') {
                         'service_cat' => 'Package',
                         'service_name' => $details['heading'],
                         'product_name' => '',
-                        'paid' => 'Account' ];
+                        'paid' => 'Refund Credit' ];
                     $package_patient[$i] += $applied;
+                    if(!in_array('Refund Credit',$payment_types)) {
+                        $payment_types[] = 'Refund Credit';
+                        $payment_amts[] = 0;
+                        $payment_used[] = 0;
+                    }
+                    $payment_amts[array_search('Refund Credit',$payment_types)] -= $applied;
+                    $payment_used[array_search('Refund Credit',$payment_types)] -= $applied;
                 }
             } else if($package > 0) {
                 $details = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `package` WHERE `packageid`='$package'"));
@@ -1338,7 +1353,7 @@ if($invoice_mode != 'Adjustment') {
 			$final_amount += $total;
 			$row = $_POST['inventory_row_id'][$i];
             $invoice_lines[] = "INSERT INTO `invoice_lines` (`invoiceid`, `item_id`, `description`, `category`, `quantity`, `unit_price`, `sub_total`, `gst`, `total`)
-				VALUES ('INVOICEID', '".$inv."', '".get_inventory($dbc, $inv, 'name')."', 'inventory', '".$_POST['quantity'][$i]."', '".$_POST['unit_price'][$i]."', '".$_POST['sell_price'][$i]."', '$gst', '$total')";
+				VALUES ('INVOICEID', '".$inv."', 'Return: ".get_inventory($dbc, $inv, 'name')."', 'inventory', '".$_POST['quantity'][$i]."', '".$_POST['unit_price'][$i]."', '".$_POST['sell_price'][$i]."', '$gst', '$total')";
 			if ( isset($_POST['insurer_row_applied']) ) {
                 foreach($_POST['insurer_row_applied'] as $j => $match_row) {
                     $applied = 0;
@@ -1421,8 +1436,15 @@ if($invoice_mode != 'Adjustment') {
 					'service_cat' => '',
 					'service_name' => '',
 					'product_name' => $inventory['name'],
-					'paid' => 'Account' ];
+					'paid' => 'Refund Credit' ];
 				$inv_patient[$i] += $applied;
+                if(!in_array('Refund Credit',$payment_types)) {
+                    $payment_types[] = 'Refund Credit';
+                    $payment_amts[] = 0;
+                    $payment_used[] = 0;
+                }
+                $payment_amts[array_search('Refund Credit',$payment_types)] -= $applied;
+                $payment_used[array_search('Refund Credit',$payment_types)] -= $applied;
 			}
 		} else if($inv > 0) {
 			$inventory = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `inventory` WHERE `inventoryid`='$inv'"));
@@ -1475,7 +1497,7 @@ if($invoice_mode != 'Adjustment') {
 			$misc_total_price += $total;
 			$row = $_POST['misc_row_id'][$i];
 			$invoice_lines[] = "INSERT INTO `invoice_lines` (`invoiceid`, `description`, `category`, `quantity`, `unit_price`, `sub_total`, `gst`, `total`)
-				VALUES ('INVOICEID', '".$misc."', 'misc product', '".$_POST['misc_return'][$i]."', '".$_POST['misc_price'][$i]."', '".$_POST['misc_total'][$i]."', '$gst', '$total')";
+				VALUES ('INVOICEID', 'Return: ".$misc."', 'misc product', '".$_POST['misc_return'][$i]."', '".$_POST['misc_price'][$i]."', '".$_POST['misc_total'][$i]."', '$gst', '$total')";
 			foreach($_POST['insurer_row_applied'] as $j => $match_row) {
 				$applied = 0;
 				if($row == $match_row && $_POST['insurer_payment_amt'][$j] != 0) {
@@ -1564,8 +1586,15 @@ if($invoice_mode != 'Adjustment') {
 					'service_cat' => '',
 					'service_name' => '',
 					'product_name' => 'Miscellaneous: '.$misc,
-					'paid' => 'Account' ];
+					'paid' => 'Refund Credit' ];
 				$misc_patient[$i] += $applied;
+                if(!in_array('Refund Credit',$payment_types)) {
+                    $payment_types[] = 'Refund Credit';
+                    $payment_amts[] = 0;
+                    $payment_used[] = 0;
+                }
+                $payment_amts[array_search('Refund Credit',$payment_types)] -= $applied;
+                $payment_used[array_search('Refund Credit',$payment_types)] -= $applied;
 			}
 		} else if($misc != '' && isset($_POST['misc_return'])) {
 			$fee = -$_POST['misc_price'][$i] * $_POST['misc_qty'][$i];
@@ -1581,13 +1610,13 @@ if($invoice_mode != 'Adjustment') {
 	}
 
 	//Apply further refunds to the non-refunded items
-	foreach($payment_used as $j => $amt_unused) {
+	/*foreach($payment_used as $j => $amt_unused) {
 		$applied = 0;
 		if($amt_unused > 0) {
 			foreach($refund_categories as $i => $refund_category) {
 				$refund = $refund_category['price'] + $refund_category['refund'];
 				$applied = ($refund < -$amt_unused ? -$amt_unused : $refund);
-				//Invoice Patient Portion
+				// Invoice Patient Portion
 				if($applied != 0) {
 					$payment_used[$j] += $applied;
 					$amt_unused += $applied;
@@ -1636,7 +1665,7 @@ if($invoice_mode != 'Adjustment') {
 			$on_account += $applied;
             $inv_status = 'Posted';
 		}
-	}
+	}*/
 
 	$serviceid = implode(',', $services).',';
 	$fee = implode(',', $service_fees).',';
@@ -2224,7 +2253,7 @@ if($invoice_mode != 'Adjustment') {
 			$gst = $_POST['misc_total'][$i] * $_POST['tax_rate'] / 100;
 			$misc_gst[] = $gst;
 			$total = $_POST['misc_total'][$i] + $gst;
-			$adjust_amount += $total;
+			$total_amount += $total - $gst;
 			$final_amount += $total;
 			$misc_totals[] = $total;
 			$misc_total_price += $total;
@@ -2407,6 +2436,12 @@ if($invoice_mode != 'Adjustment') {
 	$misc_price = implode(',', $misc_prices).',';
 	$misc_qty = implode(',', $misc_qtys).',';
 	$misc_total = implode(',', $misc_totals).',';
+    foreach($payment_types as $j => $type_name) {
+        if($type_name == 'Refund Credit') {
+            unset($payment_typs[$j]);
+            unset($payment_amts[$j]);
+        }
+    }
 	$payment_type = implode(',', $payment_types).'#*#'.implode(',',$payment_amts);
 	$insurerid = '';
 	$insurance_payment = '';
@@ -2481,7 +2516,7 @@ if($invoice_mode != 'Adjustment') {
 		}
 		//Patient and Insurer Portions
 		foreach($invoice_patient as $payment) {
-			echo "INSERT INTO `invoice_patient` (`invoiceid`, `injury_type`, `invoice_date`, `patientid`, `sub_total`, `gst_amt`, `gratuity_portion`, `patient_price`, `service_category`, `service_name`, `product_name`, `paid`, `paid_date`) VALUES ('$invoiceid', '$injury_type', '$invoice_date', '$patientid', '".$payment['sub_total']."', '".$payment['gst_amt']."', '".$payment['gratuity']."', '".$payment['price']."', '".$payment['service_cat']."', '".$payment['service_name']."', '".$payment['product_name']."', '".$payment['paid']."', '$invoice_report_date')";
+			// echo "INSERT INTO `invoice_patient` (`invoiceid`, `injury_type`, `invoice_date`, `patientid`, `sub_total`, `gst_amt`, `gratuity_portion`, `patient_price`, `service_category`, `service_name`, `product_name`, `paid`, `paid_date`) VALUES ('$invoiceid', '$injury_type', '$invoice_date', '$patientid', '".$payment['sub_total']."', '".$payment['gst_amt']."', '".$payment['gratuity']."', '".$payment['price']."', '".$payment['service_cat']."', '".$payment['service_name']."', '".$payment['product_name']."', '".$payment['paid']."', '$invoice_report_date')";
 			mysqli_query($dbc, "INSERT INTO `invoice_patient` (`invoiceid`, `injury_type`, `invoice_date`, `patientid`, `sub_total`, `gst_amt`, `gratuity_portion`, `patient_price`, `service_category`, `service_name`, `product_name`, `paid`, `paid_date`) VALUES ('$invoiceid', '$injury_type', '$invoice_date', '$patientid', '".$payment['sub_total']."', '".$payment['gst_amt']."', '".$payment['gratuity']."', '".$payment['price']."', '".$payment['service_cat']."', '".$payment['service_name']."', '".$payment['product_name']."', '".$payment['paid']."', '$invoice_report_date')");
 		}
 		$receipt_payments = array_merge($receipt_payments, $invoice_patient);
@@ -2575,4 +2610,5 @@ $dbc->query("UPDATE `invoice` SET `status`='$inv_status' WHERE `invoiceid`='$inv
 // Update the Invoice Ticket List
 $ticketid = filter_var(implode(',',$_POST['ticketid']),FILTER_SANITIZE_STRING);
 $dbc->query("UPDATE `invoice` SET `ticketid`='$ticketid' WHERE `invoiceid`='$invoiceid'");
+
 $dbc->query("UPDATE `reminders` SET `src_tableid`='$invoiceid', `body`=REPLACE(`body`,'search_invoice_submit=true','search_invoiceid=".$invoiceid."&search_invoice_submit=true') WHERE `src_table`='invoice' AND `src_tableid` IS NULL");

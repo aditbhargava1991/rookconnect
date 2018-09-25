@@ -50,7 +50,7 @@ if (isset($_POST['submit'])) {
 <div class="container">
 <div class="row">
 <h1>News Board</h1>
-<div class="pad-left gap-top double-gap-bottom"><a href="newsboard.php" class="btn config-btn">Back to Dashboard</a></div>
+<div class="pad-left gap-top double-gap-bottom"><a href="index.php" class="btn config-btn">Back to Dashboard</a></div>
 
 <form id="form1" name="form1" method="post"	action="" enctype="multipart/form-data" class="form-horizontal" role="form">
 
@@ -160,7 +160,7 @@ if (isset($_POST['submit'])) {
 </div>
 <div class="pull-left">
     <span class="popover-examples list-inline"><a style="margin:0 5px 0 0;" data-toggle="tooltip" data-placement="top" title="Click here to discard your changes."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
-    <a href="newsboard.php" class="btn brand-btn btn-lg">Back</a>
+    <a href="index.php" class="btn brand-btn btn-lg">Back</a>
 </div>
 <div class="pull-right">
     <span class="popover-examples list-inline"><a style="margin:0 5px 0 0;" data-toggle="tooltip" data-placement="top" title="Click here to submit your changes."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>

@@ -79,6 +79,10 @@ if(isset($_POST['submit'])) {
             $tasklistid = $id;
             mysqli_query($dbc, "UPDATE `tasklist` SET `flag_colour`='$flag_colour',`flag_label`='$flag_label', `flag_start`='$flag_start', `flag_end`='$flag_end' WHERE `tasklistid`='$tasklistid'");
 
+            $note = '<em>Flag added by '.get_contact($dbc, $_SESSION['contactid']).' [PROFILE '.$_SESSION['contactid'].']: </em>';
+
+            mysqli_query($dbc, "INSERT INTO `task_comments` (`tasklistid`, `comment`, `created_by`, `created_date`) VALUES ('$tasklistid','".filter_var(htmlentities($note),FILTER_SANITIZE_STRING)."','".$_SESSION['contactid']."','".date('Y-m-d')."')");
+
             echo '<script type="text/javascript"> window.parent.setManualFlag(\''.$tasklistid.'\', \''.$flag_colour.'\', \''.$flag_label.'\'); </script>';
             break;
 

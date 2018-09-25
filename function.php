@@ -3387,7 +3387,7 @@ function create_recurring_tickets($dbc, $ticketid, $start_date, $end_date, $repe
         array_shift($recurring_dates);
     }
     foreach($recurring_dates as $recurring_date) {
-        $date_exists = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `main_ticketid` = '$ticketid' AND `to_do_date` = '$recurring_date'"));
+        $date_exists = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `main_ticketid` = '$ticketid' AND `to_do_date` = '$recurring_date' AND `deleted` = 0"));
         if(empty($date_exists)) {
             //Insert into tickets with to_do_date/to_do_end_date as the recurring date
             mysqli_query($dbc, "INSERT INTO `tickets` (`main_ticketid`, `to_do_date`, `to_do_end_date`, `is_recurrence`) VALUES ('$ticketid', '$recurring_date', '$recurring_date', 1)");

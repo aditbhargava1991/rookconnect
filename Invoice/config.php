@@ -70,6 +70,8 @@ if(!empty($_GET['invoiceid'])) {
     $misc_qtys =$get_invoice['misc_qty'];
     $mis_ins = $get_invoice['misc_insurer'];
 
+    $discount_value = $get_invoice['discount'];
+    $assembly = $get_invoice['assembly'];
     $delivery = $get_invoice['delivery'];
     $delivery_address = $get_invoice['delivery_address'];
     $delivery_type = $get_invoice['delivery_type'];

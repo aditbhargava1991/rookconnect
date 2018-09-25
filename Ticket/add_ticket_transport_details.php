@@ -32,7 +32,7 @@ $carriers = sort_contacts_query($dbc->query("SELECT `first_name`, `last_name`, `
 				</div>
 					<div class="col-sm-1 select-div" style="<?= $origin['carrier'] > 0 || $origin['carrier'] == '' ? '' : 'display:none;' ?>">
 						<a href="" onclick="overlayIFrameSlider('../Contacts/contacts_inbox.php?fields=all_fields&edit='+$(this).closest('.form-group').find('select').val(), '75%', true, true);return false;"><img class="inline-img pull-right no-toggle" src="../img/person.PNG" title="View Profile"></a>
-						<a href="" onclick="$(this).closest('.form-group').find('select').val('ADD_NEW').change(); return false;"><img class="inline-img pull-right" src="../img/icons/ROOK-add-icon.png"></a>
+						<a href="" onclick="$(this).closest('.form-group').find('select').val('ADD_NEW').change(); return false;"><img class="inline-img pull-right" data-history-label="New <?= $contact_category ?>" src="../img/icons/ROOK-add-icon.png"></a>
 					</div>
 				<div class="col-sm-8 manual-div" style="<?= $origin['carrier'] > 0 || $origin['carrier'] == '' ? 'display:none;' : '' ?>">
 					<input type="text" name="carrier" class="form-control" data-one-time="true" <?= $origin_save ?> value="<?= $origin['carrier'] > 0 ? '' : $origin['carrier'] ?>">
@@ -163,7 +163,7 @@ $carriers = sort_contacts_query($dbc->query("SELECT `first_name`, `last_name`, `
 				</div>
 				<div class="col-sm-1 select-div" style="<?= $origin['warehouse_location'] > 0 || $origin['warehouse_location'] == '' ? '' : 'display:none;' ?>">
 					<a href="" onclick="if($(this).closest('.form-group').find('select').val() > 0) { overlayIFrameSlider('../Contacts/contacts_inbox.php?fields=all_fields&edit='+$(this).closest('.form-group').find('select').val(), '75%', true, true) };return false;"><img class="inline-img pull-right no-toggle" src="../img/person.PNG" title="View Profile"></a>
-					<a href="" onclick="$(this).closest('.form-group').find('select').val('ADD_NEW').change(); return false;"><img class="inline-img pull-right" src="../img/icons/ROOK-add-icon.png"></a>
+					<a href="" onclick="$(this).closest('.form-group').find('select').val('ADD_NEW').change(); return false;"><img class="inline-img pull-right" data-history-label="Warehouse Location" src="../img/icons/ROOK-add-icon.png"></a>
 				</div>
 			<?php } ?>
 		</div>

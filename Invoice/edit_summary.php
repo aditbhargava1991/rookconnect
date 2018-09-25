@@ -27,8 +27,8 @@
         <div class="form-group">
             <label for="giftcard" class="col-sm-3 control-label">Discount Type:</label>
             <div class="col-sm-9">
-                <label><input type="radio" name="discount_type" value="%" />%</label>
-                <label><input type="radio" name="discount_type" value="$" />$</label>
+                <label><input type="radio" name="discount_type"  value="%" />%</label>
+                <label><input type="radio" name="discount_type" checked value="$" />$</label>
             </div>
         </div>
         <div class="form-group">
@@ -53,6 +53,16 @@
             </select>
         </div>
     </div>
+    
+    <?php $value_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT value FROM general_configuration WHERE name='invoice_tax'"))['value'];
+    $invoice_tax = explode('*#*',$value_config);
+
+    $total_count = mb_substr_count($value_config,'*#*');
+    $tax_rate = 0;
+    foreach($invoice_tax as $invoice_tax_line) {
+        $invoice_tax_name_rate = explode('**',$invoice_tax_line);
+        $tax_rate += floatval($invoice_tax_name_rate[1]);
+    } ?>
     <input type="hidden" name="tax_rate" id="tax_rate" value="<?= $tax_rate ?>" />
     <input name="total_price" value="<?php echo 0+$total_price; ?>" id="total_price" type="hidden" />
     <input name="final_price" value="<?php echo 0+$final_price; ?>" id="final_price" type="hidden" />

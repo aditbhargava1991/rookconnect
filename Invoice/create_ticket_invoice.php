@@ -42,11 +42,11 @@ foreach($ticket_list as $ticketid) {
 			$inv_service_fee[] = $price_total;
 			$total_price += $price_total;
 		}
-		$ticket_stops = $dbc->query("SELECT * FROM `ticket_schedule` WHERE `ticketid`='$ticketid' AND `deleted`=0 ORDER BY `sort`");
-		while($stop = $ticket_stops->fetch_assoc()) {
-            foreach(explode(',',$stop['serviceid']) as $i => $service) {
-                $qty = 1;
-                $fuel = explode(',',$stop['surcharge'])[$i];
+        $srv_i = count(explode(',',$ticket['serviceid']));
+		$tickets = $dbc->query("SELECT * FROM `ticket_schedule` WHERE `ticketid`='$ticketid' AND `deleted`=0 ORDER BY `sort`");
+        while($ticket = $tickets->fetch_assoc()) {
+            foreach(explode(',',$ticket['serviceid']) as $i => $service) {
+                $fuel = explode(',',$ticket['service_fuel_charge'])[$i + $srv_i];
                 $discount = explode(',',$stop['service_discount'])[$i];
                 $dis_type = explode(',',$stop['service_discount_type'])[$i];
                 $price = 0;
@@ -63,14 +63,15 @@ foreach($ticket_list as $ticketid) {
                 }
                 $inv_services[] = $service;
                 $inv_service_ticketid[] = $ticketid;
-                $inv_service_stopid[] = $stop['id'];
-                $inv_service_qty[] = $qty;
-                $price_total = ($price * $qty + $fuel);
+                $inv_service_stopid[] = $ticket['id'];
+                $inv_service_qty[] = 1;
+                $price_total = ($price + $fuel);
                 $price_total -= ($dis_type == '%' ? $discount / 100 * $price_total : $discount);
                 $inv_service_fee[] = $price_total;
                 $total_price += $price_total;
             }
-		}
+            $srv_i += count(explode(',',$ticket['serviceid']));
+        }
 		$ticket_lines = $dbc->query("SELECT * FROM `ticket_attached` WHERE `ticketid`='$ticketid' AND `deleted`=0 AND `src_table` LIKE 'Staff%'");
 		while($line = $ticket_lines->fetch_assoc()) {
 			$description = get_contact($dbc, $line['item_id']).' - '.$line['position'];
