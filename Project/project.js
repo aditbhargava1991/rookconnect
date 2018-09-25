@@ -7,6 +7,23 @@ $(document).ready(function() {
 	});
 });
 
+function task_status(sel) {
+    var status = sel.value;
+	var tasklistid = sel.id.split('_')[1];
+
+	var status = status.replace(" ", "FFMSPACE");
+	var status = status.replace("&", "FFMEND");
+	var status = status.replace("#", "FFMHASH");
+    $.ajax({
+        type: "GET",
+        url: "../Tasks_Updated/task_ajax_all.php?fill=task_status&tasklistid="+tasklistid+'&status='+status,
+        dataType: "html",
+		success: function(response){
+			window.location.reload();
+		}
+    });
+}
+
 function mark_task_date(sel) {
     var todo_date = sel.value;
 	var tasklistid = sel.id.split('_')[1];
@@ -16,6 +33,7 @@ function mark_task_date(sel) {
         url: "../Tasks_Updated/task_ajax_all.php?fill=mark_date&tasklistid="+tasklistid+'&todo_date='+todo_date,
         dataType: "html",
         success: function(response){
+			window.location.reload();
 		}
     });
 }
@@ -34,6 +52,7 @@ function mark_task_staff(sel) {
         url: "../Tasks_Updated/task_ajax_all.php?fill=mark_staff&tasklistid="+tasklistid+'&staff='+staff,
         dataType: "html",
         success: function(response) {
+			window.location.reload();
 		}
     });
 }

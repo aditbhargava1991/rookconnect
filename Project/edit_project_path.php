@@ -376,7 +376,7 @@ function send_task_alert(task) {
        if(task_id.toString().substring(0,5) == 'BOARD') {
                task_id = task_id.substring(5);
        }
-       overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_alert.php?tile=tasks&id='+task_id, 'auto', false, true);
+       overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_alert.php?tile=tasks&id='+task_id, 'auto', false, false);
 }
 
 function send_task_reminder(task) {
@@ -384,7 +384,7 @@ function send_task_reminder(task) {
        if(task_id.toString().substring(0,5) == 'BOARD') {
                task_id = task_id.substring(5);
        }
-       overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_reminders.php?tile=tasks&id='+task_id, 'auto', false, true);
+       overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_reminders.php?tile=tasks&id='+task_id, 'auto', false, false);
 }
 
 function track_time(task) {
@@ -392,7 +392,7 @@ function track_time(task) {
    if(task_id.toString().substring(0,5) == 'BOARD') {
            task_id = task_id.substring(5);
    }
-   overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_timer.php?tile=tasks&id='+task_id, 'auto', false, true);
+   overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_timer.php?tile=tasks&id='+task_id, 'auto', false, false);
 }
 
 //Add Intake
