@@ -189,7 +189,7 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 		<?php if($field_sort_field == 'Delivery Stops') { ?>
 			<?php if(strpos($value_config, ',Delivery Stops') !== FALSE) { ?>
 				<div class="delivery_stop_group">
-					<h4><?= TICKET_NOUN ?> Stop<img class="inline-img pull-left small black-color" onclick="add_stop();" src="../img/icons/ROOK-add-icon.png"><div class="clearfix"></div></h4>
+					<h4><?= TICKET_NOUN ?> Stop<img class="inline-img pull-left small black-color" onclick="add_stop();" data-history-label="Delivery Stop" src="../img/icons/ROOK-add-icon.png"><div class="clearfix"></div></h4>
 					<div class="form-group">
 						<label class="col-sm-4 control-label">Location Name:</label>
 						<div class="col-sm-8">
@@ -634,19 +634,27 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 									</div>
 								<?php } ?>
 								<?php if (strpos($value_config, ','."Delivery Pickup Service List".',') !== FALSE && $field_sort_field == 'Delivery Pickup Service List') { ?>
-									<div class="form-group">
-										<label class="col-sm-4 control-label">Services:</label>
-										<div class="col-sm-8">
-											<select name="serviceid[]" multiple data-placeholder="Select Services" class="form-control chosen-select-deselect" data-concat="," data-table="ticket_schedule" data-id="<?= $stop['id'] ?>" data-id-field="id">
-												<?php if(empty($service_list)) {
-													$service_list = $dbc->query("SELECT * FROM `services` LEFT JOIN `rate_card` ON CONCAT('**',`rate_card`.`services`,'#') LIKE CONCAT('%**',`services`.`serviceid`,'#%') WHERE `rate_card`.`clientid`='$businessid' AND `rate_card`.`deleted`=0 AND `services`.`deleted`=0")->fetch_all(MYSQLI_ASSOC);
-												}
-												foreach($service_list as $service) { ?>
-													<option <?= in_array($service['serviceid'],explode(',',$stop['serviceid'])) ? 'selected' : '' ?> value="<?= $service['serviceid'] ?>"><?= $service['category'].' '.$service['service_type'].' '.$service['heading'] ?></option>
-												<?php } ?>
-											</select>
-										</div>
-									</div>
+                                    <?php if(empty($delivery_service_list)) {
+                                        $delivery_service_list = $dbc->query("SELECT `services`.* FROM `services` LEFT JOIN `rate_card` ON CONCAT('**',`rate_card`.`services`,'#') LIKE CONCAT('%**',`services`.`serviceid`,'#%') WHERE `rate_card`.`clientid`='$businessid' AND `rate_card`.`deleted`=0 AND `services`.`deleted`=0")->fetch_all(MYSQLI_ASSOC);
+                                    } ?>
+                                    <?php foreach(explode(',',$stop['serviceid']) as $stop_service) { ?>
+                                        <div class="multi-block no_id_reset">
+                                            <div class="form-group">
+                                                <label class="col-sm-4 control-label">Services:</label>
+                                                <div class="col-sm-7">
+                                                    <select name="serviceid" data-placeholder="Select Services" class="form-control chosen-select-deselect" data-concat="," data-table="ticket_schedule" data-id="<?= $stop['id'] ?>" data-id-field="id"><option />
+                                                        <?php foreach($delivery_service_list as $service) { ?>
+                                                            <option <?= $service['serviceid'] == $stop_service ? 'selected' : '' ?> value="<?= $service['serviceid'] ?>"><?= implode(': ',array_filter([$service['category'],$service['service_type'],$service['heading']])) ?></option>
+                                                        <?php } ?>
+                                                    </select>
+                                                </div>
+                                                <div class="col-sm-1">
+                                                    <img class="cursor-hand inline-img pull-right" onclick="addMulti(this);" src="../img/icons/ROOK-add-icon.png">
+                                                    <img class="cursor-hand inline-img pull-right" onclick="remMulti(this);" data-remove="1" src="../img/remove.png">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    <?php } ?>
 								<?php } ?>
 								<?php if (strpos($value_config, ','."Delivery Pickup ETA".',') !== FALSE && $field_sort_field == 'Delivery Pickup ETA') { ?>
 									<div class="form-group">
@@ -808,7 +816,7 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 									<label class="form-checkbox"><input type="checkbox" name="complete" data-table="ticket_schedule" data-id="<?= $stop['id'] ?>" data-id-field="id" value="1" <?= $stop['complete'] == 1 ? 'checked' : '' ?>>Completed</label>
 								</div>
 								<input type="hidden" name="deleted" value="0" data-table="ticket_schedule" data-id="<?= $stop['id'] ?>" data-id-field="id">
-								<div class="col-sm-2"><img class="inline-img small black-color pull-right" src="../img/icons/ROOK-add-icon.png" onclick="addScheduledStop();"><img class="inline-img small pull-right" src="../img/remove.png" onclick="remScheduledStop(this);"></div>
+								<div class="col-sm-2"><img class="inline-img small black-color pull-right" src="../img/icons/ROOK-add-icon.png" data-history-label="Delivery Stop" onclick="addScheduledStop();"><img class="inline-img small pull-right" src="../img/remove.png" data-history-label="Delivery Stop" onclick="remScheduledStop(this);"></div>
 							</div>
 						</div>
 						<hr>
@@ -1170,7 +1178,7 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 							<div class="col-sm-6">
 								<label class="form-checkbox"><input type="checkbox" name="complete" data-table="ticket_schedule" data-id="<?= $stop['id'] ?>" data-id-field="id" value="1" <?= $stop['complete'] == 1 ? 'checked' : '' ?> <?= $strict_view > 0 ? 'readonly disabled' : '' ?>>Completed</label>
 							</div>
-							<div class="col-sm-2"><?php if(!($strict_view > 0)) { ?><img class="inline-img small black-color pull-right" src="../img/icons/ROOK-add-icon.png" onclick="addScheduledStop();"><?php } ?><!--<img class="inline-img small pull-right" src="../img/remove.png" onclick="remScheduledStop();">--></div>
+							<div class="col-sm-2"><?php if(!($strict_view > 0)) { ?><img class="inline-img small black-color pull-right" src="../img/icons/ROOK-add-icon.png" data-history-label="Delivery Stop" onclick="addScheduledStop();"><?php } ?><!--<img class="inline-img small pull-right" src="../img/remove.png" onclick="remScheduledStop();">--></div>
 						</div>
 						<hr>
 					<?php } ?>

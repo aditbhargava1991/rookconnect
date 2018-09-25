@@ -391,7 +391,7 @@ do {
 								</div>
 								<div class="col-sm-2">
 									<a href="" onclick="viewSite(this); return false;"><img class="inline-img pull-right no-toggle" src="../img/person.PNG" title="View Profile"></a>
-									<a href="" onclick="$(this).closest('.form-group').find('select').val('MANUAL').change(); return false;"><img class="inline-img pull-right" src="../img/icons/ROOK-add-icon.png"></a>
+									<a href="" onclick="$(this).closest('.form-group').find('select').val('MANUAL').change(); return false;"><img class="inline-img pull-right" data-history-label="New <?= SITES_CAT ?>" src="../img/icons/ROOK-add-icon.png"></a>
 								</div>
 							</div>
 						</div>
@@ -501,8 +501,8 @@ do {
 										</div>
 										<div class="col-sm-2 pull-right">
 											<img class="inline-img pull-right no-toggle theme-color-icon" onclick="rangeMultiPOLine(this);" src="../img/icons/range.png" title="Toggle Range">
-											<img class="inline-img pull-right" onclick="addMultiPOLine(this);" src="../img/icons/ROOK-add-icon.png">
-											<img class="inline-img pull-right" onclick="remMultiPOLine(this);" src="../img/remove.png">
+											<img class="inline-img pull-right" data-history-label="Purchase Order Line Item" onclick="addMultiPOLine(this);" src="../img/icons/ROOK-add-icon.png">
+											<img class="inline-img pull-right" data-history-label="Purchase Order Line Item" onclick="remMultiPOLine(this);" src="../img/remove.png">
 										</div>
 									</div>
 									<div class="clearfix"></div>
@@ -529,8 +529,8 @@ do {
 										</div>
 										<div class="col-sm-2 pull-right">
 											<img class="inline-img pull-right no-toggle theme-color-icon range_po_line" onclick="rangeMultiPOLine(this);" src="../img/icons/range.png" title="Toggle Range">
-											<img class="inline-img pull-right add_po_line" onclick="addMultiPOLine(this);" src="../img/icons/ROOK-add-icon.png">
-											<img class="inline-img pull-right rem_po_line" onclick="remMultiPOLine(this);" src="../img/remove.png">
+											<img class="inline-img pull-right add_po_line" data-history-label="Purchase Order Line Item" onclick="addMultiPOLine(this);" src="../img/icons/ROOK-add-icon.png">
+											<img class="inline-img pull-right rem_po_line" data-history-label="Purchase Order Line Item" onclick="remMultiPOLine(this);" src="../img/remove.png">
 										</div>
 									</div>
 								</div>
@@ -663,8 +663,8 @@ do {
 			<?php } ?>
 			<input type="hidden" data-table="ticket_attached" data-id="<?= $general_inventory['id'] ?>" data-id-field="id" data-type="inventory_general" data-type-field="src_table" name="deleted" value="0">
 			<?php if(strpos($value_config,',Inventory General Manual Add Pieces,') === FALSE) { ?>
-				<img class="inline-img pull-right" onclick="addMulti(this);" src="../img/icons/ROOK-add-icon.png">
-				<img class="inline-img pull-right" onclick="remMulti(this);" src="../img/remove.png">
+				<img class="inline-img pull-right" data-history-label="Inventory" onclick="addMulti(this);" src="../img/icons/ROOK-add-icon.png">
+				<img class="inline-img pull-right" data-history-label="Inventory" onclick="remMulti(this);" src="../img/remove.png">
 			<?php } ?>
 			<?php if(strpos($value_config,',Inventory General Manual Remove Pieces,') !== FALSE) { ?>
 				<img class="inline-img pull-right" onclick="remMulti(this); setPieceNumbers(); updatePieceCount(); reload_sidebar();" src="../img/remove.png">
