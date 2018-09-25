@@ -2516,7 +2516,7 @@ if($invoice_mode != 'Adjustment') {
 		}
 		//Patient and Insurer Portions
 		foreach($invoice_patient as $payment) {
-			echo "INSERT INTO `invoice_patient` (`invoiceid`, `injury_type`, `invoice_date`, `patientid`, `sub_total`, `gst_amt`, `gratuity_portion`, `patient_price`, `service_category`, `service_name`, `product_name`, `paid`, `paid_date`) VALUES ('$invoiceid', '$injury_type', '$invoice_date', '$patientid', '".$payment['sub_total']."', '".$payment['gst_amt']."', '".$payment['gratuity']."', '".$payment['price']."', '".$payment['service_cat']."', '".$payment['service_name']."', '".$payment['product_name']."', '".$payment['paid']."', '$invoice_report_date')";
+			// echo "INSERT INTO `invoice_patient` (`invoiceid`, `injury_type`, `invoice_date`, `patientid`, `sub_total`, `gst_amt`, `gratuity_portion`, `patient_price`, `service_category`, `service_name`, `product_name`, `paid`, `paid_date`) VALUES ('$invoiceid', '$injury_type', '$invoice_date', '$patientid', '".$payment['sub_total']."', '".$payment['gst_amt']."', '".$payment['gratuity']."', '".$payment['price']."', '".$payment['service_cat']."', '".$payment['service_name']."', '".$payment['product_name']."', '".$payment['paid']."', '$invoice_report_date')";
 			mysqli_query($dbc, "INSERT INTO `invoice_patient` (`invoiceid`, `injury_type`, `invoice_date`, `patientid`, `sub_total`, `gst_amt`, `gratuity_portion`, `patient_price`, `service_category`, `service_name`, `product_name`, `paid`, `paid_date`) VALUES ('$invoiceid', '$injury_type', '$invoice_date', '$patientid', '".$payment['sub_total']."', '".$payment['gst_amt']."', '".$payment['gratuity']."', '".$payment['price']."', '".$payment['service_cat']."', '".$payment['service_name']."', '".$payment['product_name']."', '".$payment['paid']."', '$invoice_report_date')");
 		}
 		$receipt_payments = array_merge($receipt_payments, $invoice_patient);
@@ -2610,4 +2610,5 @@ $dbc->query("UPDATE `invoice` SET `status`='$inv_status' WHERE `invoiceid`='$inv
 // Update the Invoice Ticket List
 $ticketid = filter_var(implode(',',$_POST['ticketid']),FILTER_SANITIZE_STRING);
 $dbc->query("UPDATE `invoice` SET `ticketid`='$ticketid' WHERE `invoiceid`='$invoiceid'");
+
 $dbc->query("UPDATE `reminders` SET `src_tableid`='$invoiceid', `body`=REPLACE(`body`,'search_invoice_submit=true','search_invoiceid=".$invoiceid."&search_invoice_submit=true') WHERE `src_table`='invoice' AND `src_tableid` IS NULL");
