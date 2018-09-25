@@ -313,48 +313,6 @@ if(!empty($_GET['sotid'])) {
                             
                         $html .= '</table>';
                     }
-
-                    //Equipment
-                    if(!empty($_GET['sotid'])) {
-                        $result   = mysqli_query($dbc, "SELECT `sopt`.*, `sopd`.`quantity` FROM `sales_order_product_temp` `sopt` LEFT JOIN `sales_order_product_details_temp` `sopd` ON `sopt`.`sotid` = `sopd`.`parentsotid` WHERE `sopt`.`parentsotid`='$soid' AND `sopt`.`item_type`='equipment' AND `sopt`.`item_type_id` IS NOT NULL AND `sopd`.`quantity` > 0");
-                    } else {
-                        $result    = mysqli_query($dbc, "SELECT * FROM `sales_order_product` WHERE `posid`='$soid' AND `type_category`='equipment' AND `inventoryid` IS NOT NULL");
-                    }
-                    $num_rows6 = mysqli_num_rows($result);
-                    
-                    if($num_rows6 > 0) {
-                        if($num_rows > 0 || $num_rows2 > 0 || $num_rows3 > 0 || $num_rows4 > 0 || $num_rows5 > 0) { $html .= '<br>'; }
-
-                        $html .= '
-                            <h5>Equipment</h5>
-                            <table border="1px" style="padding:3px; border:1px solid black;">
-                                <tr>
-                                    <th>Equipment</th>
-                                    <th>Quantity</th>
-                                    <th>Price</th>
-                                    <th>Total</th>
-                                </tr>';
-                        
-                            while($row = mysqli_fetch_array( $result )) {
-                                $inventoryid = !empty($row['item_type_id']) ? $row['item_type_id'] : $row['inventoryid'];
-
-                                if($inventoryid != '') {
-                                    $row['price'] = !empty($row['item_price']) ? $row['item_price'] : $row['price'];
-                                    $price = $row['price'];
-                                    $quantity = $row['quantity'];
-                                    $amount = $price*$quantity;
-
-                                    $html .= '<tr>';
-                                        $html .= '<td>'. get_equipment_label($dbc, mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `equipment` WHERE `equipmentid` = '".$row['inventoryid']."'"))) .'</td>';
-                                        $html .= '<td>'. $row['quantity'] .'</td>';
-                                        $html .= '<td>$'. $row['price'] .'</td>';
-                                        $html .= '<td style="text-align:right;">$'. number_format($amount,2) .'</td>';
-                                    $html .= '</tr>';
-                                }
-                            }
-                            
-                        $html .= '</table>';
-                    }
                     
                     $html .= '<br>';
                     echo $html; ?>

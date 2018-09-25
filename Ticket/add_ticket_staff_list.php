@@ -257,9 +257,9 @@ do {
 				<img class="inline-img pull-left black-color counterclockwise small" onclick="showStaff(this);" src="../img/icons/dropdown-arrow.png">
 				<input type="hidden" name="deleted" data-table="ticket_attached" data-id="<?= $staff['id'] ?>" data-id-field="id" data-type="Staff" data-type-field="src_table" value="0">
 				<a href="" onclick="viewProfile(this); return false;"><img class="inline-img pull-right no-toggle" src="../img/person.PNG" title="View Profile"></a>
-				<img class="inline-img pull-right" data-history-label="Staff" onclick="addMulti(this, '', 'after');" src="../img/icons/ROOK-add-icon.png">
+				<img class="inline-img pull-right" onclick="addMulti(this, '', 'after');" src="../img/icons/ROOK-add-icon.png">
 				<?php if($access_staff === TRUE) { ?>
-					<img class="inline-img pull-right" data-history-label="Staff" onclick="remMulti(this);" src="../img/remove.png">
+					<img class="inline-img pull-right" onclick="remMulti(this);" src="../img/remove.png">
 				<?php } ?>
 			</div>
 		<?php } else if($staff['item_id'] > 0) { ?>
@@ -414,8 +414,8 @@ do {
 									<?php } ?>
 								<?php } ?>
 								<td data-title="Function">
-									<img class="inline-img pull-right" onclick="addStaffMultiTime(this, '', 'after');" data-history-label="Staff Time" src="../img/icons/ROOK-add-icon.png">
-									<img class="inline-img pull-right" data-history-label="Staff Time" onclick="remStaffMultiTIme(this);" src="../img/remove.png">
+									<img class="inline-img pull-right" onclick="addStaffMultiTime(this, '', 'after');" src="../img/icons/ROOK-add-icon.png">
+									<img class="inline-img pull-right" onclick="remStaffMultiTIme(this);" src="../img/remove.png">
 								</td>
 							<?php } else {
 								foreach($field_sort_order as $field_sort_field) { ?>

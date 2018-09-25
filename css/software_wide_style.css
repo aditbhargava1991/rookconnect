@@ -2376,11 +2376,6 @@ a.newsboard-button, a.calendar-button {
     margin-top:6px;
     padding:5px !important;
 }
-a.newsboard-button {
-    margin-top:9px;
-    padding-right:0 !important;
-    padding-left:8px !important;
-}
 a.alert-button {
     margin-top:14px;
     padding:5px !important;

@@ -214,7 +214,7 @@ if($num_rows > 0 || $num_rows2 > 0) {
                     $html .= '
                         <tr>
                             <td>'. get_inventory($dbc, $inventoryid, 'part_no') .'</td>
-                            <td>'. ($amount < 0 ? 'Return: ' : '').get_inventory($dbc, $inventoryid, 'name') .'</td>
+                            <td>'. get_inventory($dbc, $inventoryid, 'name') .'</td>
                             <td align="right">'. number_format($quantity,0) .'</td>
                             '.($return_result > 0 ? '<td align="right">'.$returned.'</td>' : '').'
                             <td align="right">$'. $price . '</td>
@@ -236,7 +236,7 @@ if($num_rows > 0 || $num_rows2 > 0) {
 			$html .= '
                 <tr>
                     <td>Not Available</td>
-                    <td>'. ($qty < 0 ? 'Return: ' : '').$misc_product .'</td>
+                    <td>'. $misc_product .'</td>
                     <td align="right">'. number_format($qty,0) .'</td>
                     '.($return_result > 0 ? '<td align="right">'.$returned.'</td>' : '').'
                     <td align="right">$'. $price .'</td>
@@ -275,7 +275,7 @@ if($num_rows3 > 0) {
                     $html .= '
                         <tr>
                             <td>'. get_products($dbc, $inventoryid, 'category') .'</td>
-                            <td>'. ($amount < 0 ? 'Refund: ' : '').get_products($dbc, $inventoryid, 'heading') .'</td>
+                            <td>'. get_products($dbc, $inventoryid, 'heading') .'</td>
                             <td align="right">'. number_format($quantity,0) .'</td>'.
                             ($return_result > 0 ? '<td align="right">'.$returned.'</td>' : '').'
                             <td align="right">$'. $price .'</td>
@@ -311,7 +311,7 @@ if($num_rows4 > 0) {
                     $amount = $price*($quantity-$returned);
                     $html .= '
                         <tr>
-                            <td>'. ($amount < 0 ? 'Refund: ' : '').get_services($dbc, $inventoryid, 'heading') .'</td>
+                            <td>'. get_services($dbc, $inventoryid, 'heading') .'</td>
                             <td align="right">'. number_format($quantity,0) .'</td>
                             <td align="right">$'. $price .'</td>
                             <td align="right">$'. number_format($amount,2) .'</td>
@@ -350,7 +350,7 @@ if($num_rows5 > 0) {
                     $html .= '
                         <tr>
                             <td>'. get_vpl($dbc, $inventoryid, 'part_no') .'</td>
-                            <td>'. ($amount < 0 ? 'Return: ' : '').get_vpl($dbc, $inventoryid, 'name') .'</td>
+                            <td>'. get_vpl($dbc, $inventoryid, 'name') .'</td>
                             <td align="right">'. number_format($quantity,0) .'</td>'.
                             ($return_result > 0 ? '<td align="right">'. $returned .'</td>' : '').'
                             <td align="right">$'. $price .'</td>
@@ -381,7 +381,7 @@ if($num_rows6 > 0) {
                 $amount = $row['sub_total'];
                 $html .= '
                     <tr>
-                        <td>'. ($amount < 0 ? 'Refund: ' : '').$row['heading'] .'</td>
+                        <td>'. $row['heading'] .'</td>
                         <td align="right">'. number_format($row['quantity'],0) .'</td>
                         <td align="right">$'. $row['unit_price'] .'</td>
                         <td align="right">$'. number_format($amount, 2) .'</td>

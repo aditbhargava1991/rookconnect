@@ -1,8 +1,8 @@
 <?php include_once('config.php'); ?>
 <?php if($_GET['inv_mode'] === 'adjust') { ?>
-    <div class="col-sm-12"><h3>
-        <label class="col-xs-6" style="color: red;"><input type="checkbox" onchange="if(this.checked) { $('.return_block').show(); } else { $('.return_block').hide(); }"> Refund</label>
-        <label class="col-xs-6" style="color: blue;"><input type="checkbox" onchange="if(this.checked) { $('.adjust_block').show(); $('[name=paid]').first().change(); } else { $('.adjust_block').hide(); $('.adjust_block_pricing').hide(); }"> Adjustment</label>
+    <div class="col-sm-12" style="text-align:right;"><h3>
+        <label style="color: red;">Refund <input type="checkbox" onchange="if(this.checked) { $('.return_block').show(); } else { $('.return_block').hide(); }"></label>
+        <label style="color: blue;">Adjustment <input type="checkbox" onchange="if(this.checked) { $('.adjust_block').show(); $('[name=paid]').first().change(); } else { $('.adjust_block').hide(); $('.adjust_block_pricing').hide(); }"></label>
     </h3></div>
 <?php } ?>
 <script>

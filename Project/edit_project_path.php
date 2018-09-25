@@ -256,7 +256,7 @@ function setActions() {
 	$('.email-icon').off('click').click(function() {
 		var item = $(this).closest('.dashboard-item');
 		var id = $(item).data('id');
-		overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_email.php?tile=projects&from_task=task&id='+id,'auto',false,true);
+		overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_email.php?tile=projects&id='+id,'auto',false,true);
 	});
 	$('.new_task').off('keyup').keyup(function(e) {
 		if(e.which == 13) {
