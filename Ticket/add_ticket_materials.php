@@ -207,7 +207,7 @@ $cols = (strpos($value_config,',Material Category,') !== FALSE ? 2 : 0)
 	<?php } else if($material['materialid'] > 0) { ?>
 		<div class="multi-block">
 			<?php if(strpos($value_config,',Material Inline,') !== FALSE) { ?>
-				
+
 			<?php } else { ?>
 				<?php foreach($field_sort_order as $field_sort_field) { ?>
 					<?php if(strpos($value_config,',Material Category,') !== FALSE && $field_sort_field == 'Material Category') { ?>

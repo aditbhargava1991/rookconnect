@@ -27,7 +27,7 @@ if (isset($_POST['submit'])) {
         $query_insert_config = "INSERT INTO `field_config` (`newsboard`, `newsboard_dashboard`) VALUES ('$newsboard', '$newsboard_dashboard')";
         $result_insert_config = mysqli_query($dbc, $query_insert_config);
     }
-    
+
     if ( isset($_POST['comment_reply_recepient_email']) ) {
         $comment_reply_recepient_email = !empty($_POST['comment_reply_recepient_email']) ? filter_var($_POST['comment_reply_recepient_email'], FILTER_SANITIZE_EMAIL) : 'info@rookconnect.com';
         $get_newsboard_config = mysqli_fetch_assoc(mysqli_query($dbc_htg, "SELECT COUNT(newsboardconfigid) newsboardconfigid FROM newsboard_config"));
@@ -37,7 +37,7 @@ if (isset($_POST['submit'])) {
             mysqli_query($dbc_htg, "INSERT INTO `newsboard_config` (`comment_reply_recepient_email`) VALUES('$comment_reply_recepient_email')");
         }
     }
-    
+
     echo '<script type="text/javascript"> window.location.replace("field_config_newsboard.php"); </script>';
 
 }

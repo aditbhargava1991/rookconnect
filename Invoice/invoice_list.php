@@ -81,7 +81,7 @@ $(document).ready(function() {
             $('#invoice_div .standard-body').height(available_height);
         }
     }).resize();
-    
+
 	$('.selectall').click(
 		function() {
 			if($('.selectall').hasClass("deselectall")) {
@@ -256,16 +256,16 @@ function show_hide_email() {
             </div>
         </div>
     </form>
-    
+
     <div class="clearfix"></div>
-    
+
     <form method="POST" action="" name="send_email" class="form-horizontal">
         <?php
         // Display Pager
 
         $rowsPerPagee = ITEMS_PER_PAGE;
         $pageNumm  = 1;
-                               
+
         if(isset($_GET['pagee'])) {
             $pageNumm = $_GET['pagee'];
         }

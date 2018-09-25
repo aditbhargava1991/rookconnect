@@ -389,7 +389,7 @@ if($invoice_mode != 'Adjustment') {
                 $qty = filter_var($_POST['quantity'][$i], FILTER_SANITIZE_STRING);
                 $query_inv = "UPDATE `inventory` SET `quantity`=`quantity`-'$qty' WHERE `inventoryid`='$inv'";
                 mysqli_query($dbc, $query_inv);
-                
+
                 //Connection set on database_connection.php Check Admin Settings > Sync Inventory for details.
                 if ( $dbc_inventory ) {
                     mysqli_query($dbc_inventory, $query_inv);
@@ -794,7 +794,7 @@ if($invoice_mode != 'Adjustment') {
     if ( !empty($area) ) {
         mysqli_query($dbc, "UPDATE `invoice` SET `area`='$area' WHERE `invoiceid`='$invoiceid'");
     }
-        
+
     //Update promotion times_used
     if ( !empty($promotionid) ) {
         mysqli_query($dbc, "UPDATE `promotion` SET `times_used` = IF(ISNULL(`times_used`), 1, `times_used` + 1) WHERE `promotionid`='$promotionid'");
@@ -1464,7 +1464,7 @@ if($invoice_mode != 'Adjustment') {
             $qty = filter_var($_POST['quantity'][$i], FILTER_SANITIZE_STRING);
             $query_inv = "UPDATE `inventory` SET `quantity`=`quantity`-'$qty' WHERE `inventoryid`='$inv'";
             mysqli_query($dbc, $query_inv);
-            
+
             //Connection set on database_connection.php Check Admin Settings > Sync Inventory for details.
             if ( $dbc_inventory ) {
                 mysqli_query($dbc_inventory, $query_inv);

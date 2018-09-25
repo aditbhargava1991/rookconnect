@@ -524,7 +524,6 @@ $(document).ready(function () {
         });
         $(this).addClass('hidden');
         $(this).next('.stop-timer-btn').removeClass('hidden');
-
         var taskid = $(this).data('id');
 
         var contactid = '<?= $_SESSION['contactid'] ?>';
@@ -537,7 +536,6 @@ $(document).ready(function () {
                 }
             });
         }
-
     });
 
     $('.full-btn').on('click', function() {
@@ -1241,27 +1239,6 @@ function mark_done(sel) {
                     <div id="collapse_task_details" class="panel-collapse collapse">
                         <div class="panel-body">
 
-            <!--
-            <div class="form-group clearfix">
-                <?= $slider_layout != 'accordion' ? '<h4>Task'. ( !empty($tasklistid) ) ? ' #'.$tasklistid : ':'.' Details</h4>' : '' ?>
-                <label for="first_name" class="col-sm-4">Completed:</label>
-                <div class="col-sm-8">
-                    <input type="checkbox" name="status" value="<?= $tasklistid ?>" class="form-checkbox no-margin" onchange="mark_done(this);" <?= ($task_status==$status_complete) ? 'checked' : '' ?> />
-                </div>
-            </div>
-            -->
-
-                        <?php if(strpos($task_fields, ',Task Name,') !== FALSE) { ?>
-            <div class="form-group clearfix">
-                <label for="first_name" class="col-sm-4"><?php echo (strpos($task_mandatory_fields, ',Task Name,') !== FALSE ? '<font color="red">* </font>' : ''); ?>
-                    <!-- <img src="../img/icons/ROOK-edit-icon.png" class="inline-img" /> --> Task Name:
-                </label>
-                <div class="col-sm-8">
-                    <input type="text" name="task_heading" value="<?= $task_heading ?>" data-table="tasklist" data-field="heading" class="form-control" width="380" />
-                </div>
-            </div>
-                        <?php } ?>
-
                         <?php if(strpos($task_fields, ',Status,') !== FALSE) { ?>
             <div class="form-group clearfix">
                 <label for="first_name" class="col-sm-4"><?php echo (strpos($task_mandatory_fields, ',Status,') !== FALSE ? '<font color="red">* </font>' : ''); ?> Status:</label>
@@ -1286,6 +1263,27 @@ function mark_done(sel) {
                     </select>
                 </div>
             </div>
+                        <?php } ?>
+
+            <!--
+            <div class="form-group clearfix">
+                <?= $slider_layout != 'accordion' ? '<h4>Task'. ( !empty($tasklistid) ) ? ' #'.$tasklistid : ':'.' Details</h4>' : '' ?>
+                <label for="first_name" class="col-sm-4">Completed:</label>
+                <div class="col-sm-8">
+                    <input type="checkbox" name="status" value="<?= $tasklistid ?>" class="form-checkbox no-margin" onchange="mark_done(this);" <?= ($task_status==$status_complete) ? 'checked' : '' ?> />
+                </div>
+            </div>
+            -->
+
+                        <?php if(strpos($task_fields, ',Task Name,') !== FALSE) { ?>
+                    <div class="form-group clearfix">
+                        <label for="first_name" class="col-sm-4"><?php echo (strpos($task_mandatory_fields, ',Task Name,') !== FALSE ? '<font color="red">* </font>' : ''); ?>
+                            <!-- <img src="../img/icons/ROOK-edit-icon.png" class="inline-img" /> --> Task Name:
+                        </label>
+                        <div class="col-sm-8">
+                            <input type="text" name="task_heading" value="<?= $task_heading ?>" data-table="tasklist" data-field="heading" class="form-control" width="380" />
+                        </div>
+                    </div>
                         <?php } ?>
 
                         <?php if(strpos($task_fields, ',To Do Date,') !== FALSE) {
@@ -1522,9 +1520,7 @@ function mark_done(sel) {
                         }
                     } ?>
 
-
             <?php if(strpos($task_fields, ',Add Time,') !== FALSE) { ?>
-
             <div class="form-group clearfix">
                 <label for="first_name" class="col-sm-4"><?php echo (strpos($task_mandatory_fields, ',Add Time,') !== FALSE ? '<font color="red">* </font>' : ''); ?>Add Time:</label>
                 <div class="col-sm-8">

@@ -163,7 +163,7 @@ function addCustomer() {
         $customerid_cat = $customer_cat[0]; ?>
         <input type="hidden" name="customer_cat" id="customer_cat" value="<?= $customer_cat[0] ?>">
     <?php } ?>
-    
+
     <div class="row set-row-height gap-md-left-15 customer_block">
         <div class="col-sm-3 pad-5">Customer:*</div>
         <div class="col-sm-7">
@@ -182,7 +182,7 @@ function addCustomer() {
         </div>
         <div class="clearfix"></div>
     </div>
-    
+
     <?php if (isset($businessid)) {
         if (strpos($value_config, ',Business Contact,') !== FALSE) {
             $business_contact = explode(',',$business_contact);

@@ -444,7 +444,7 @@ if($num_rows7 > 0) {
 			$html .= '<th width="10%">Stops</th>';
 		}
 
-        /* 
+        /*
 		if(in_array('customer_code',$custom_ticket_fields)) {
 			$service_width_diff += 10;
 			$html .= '<th width="10%">Customer Code</th>';

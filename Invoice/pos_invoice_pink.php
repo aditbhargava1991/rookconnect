@@ -98,7 +98,7 @@ class MYPDF extends TCPDF {
 		} */
 
 		$this->SetFont('helvetica', '', 9);
-        
+
         $header_text = '
             <table>
                 <tr>
@@ -106,10 +106,10 @@ class MYPDF extends TCPDF {
                     <td width="50%">'.(!empty($image_file) ? '<img src="'.$image_file.'" />' : '').'</td>
                 </tr>
             </table>';
-            
+
 		$this->writeHTMLCell(0, 0, 15 , 10, $header_text, 0, 0, false, "L", true);
 	}
-    
+
     protected $last_page_flag = false;
 
     public function Close() {
@@ -122,7 +122,7 @@ class MYPDF extends TCPDF {
 		// Position from bottom
 		$this->SetY(-27);
 		$this->SetFont('helvetica', 'I', 8);
-        
+
         if ($this->last_page_flag) {
             $footer_text = '
                 <table>
@@ -221,7 +221,7 @@ if($num_rows > 0 || $num_rows2 > 0) {
                             <td align="right">$'. number_format($amount, 2). '</td>
                         </tr>';
                 }
-                
+
                 $returned_amt += $price * $returned;
             }
 
@@ -263,7 +263,7 @@ if($num_rows3 > 0) {
                 <th align="right" style="background-color:#f9e7ee; color:#df5a87;">RATE</th>
                 <th align="right" style="background-color:#f9e7ee; color:#df5a87;">AMOUNT</th>
             </tr>';
-            
+
             while ( $row=mysqli_fetch_array($result) ) {
                 $inventoryid = $row['item_id'];
                 $price = $row['unit_price'];
@@ -300,7 +300,7 @@ if($num_rows4 > 0) {
                 <th align="right" style="background-color:#f9e7ee; color:#df5a87;">RATE</th>
                 <th align="right" style="background-color:#f9e7ee; color:#df5a87;">AMOUNT</th>
             </tr>';
-            
+
             while ( $row=mysqli_fetch_array($result) ) {
                 $inventoryid = $row['item_id'];
                 $price = $row['unit_price'];
@@ -452,7 +452,7 @@ $html .= '
         if($pdf_tax != '') {
             $html .= $pdf_tax;
         }
-        
+
         $total_returned_amt = 0;
         if($returned_amt != 0) {
             $total_tax_rate = ($gst_rate/100) + ($pst_rate/100);
@@ -464,7 +464,7 @@ $html .= '
                     <td align="right">$'. $total_returned_amt .'</td>
                 </tr>';
         }
-        
+
         $html .= '
             <tr>
                 <td></td>
@@ -476,7 +476,7 @@ $html .= '
                 <td>BALANCE DUE</td>
                 <td align="right" style="font-size:1.3em; font-weight:bold;">$'.number_format($point_of_sell['final_price'] - $total_returned_amt, 2).'</td>
             </tr>';
-        
+
         if($point_of_sell['deposit_paid'] > 0) {
             $html .='
                 <tr>

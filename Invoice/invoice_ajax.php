@@ -51,7 +51,7 @@ if(!empty($_GET['action']) && $_GET['action'] == 'invoice_values') {
 		echo $line_id;
 	}
 	mysqli_query($dbc, "UPDATE `invoice_payment` LEFT JOIN `invoice` ON `invoice_payment`.`invoiceid`=`invoice`.`invoiceid` LEFT JOIN `invoice_lines` ON `invoice_lines`.`line_id`=`invoice_payment`.`line_id` SET `invoice_payment`.`contactid`=`invoice`.`patientid`, `invoice_payment`.`deleted`=IF(`invoice_payment`.`deleted`=0,IFNULL(`invoice_lines`.`deleted`,`invoice`.`deleted`),1) WHERE `invoice`.`invoiceid`='$invoiceid'");
-	
+
 	//Prevent changes to invoices from previous days
 	$current_invoice = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `invoiceid` FROM `invoice` WHERE '$invoiceid' IN (`invoiceid`, `invoiceid_src`) AND `invoice_date`=DATE(NOW())"));
 	if($current_invoice['invoiceid'] > 0) {
@@ -61,7 +61,7 @@ if(!empty($_GET['action']) && $_GET['action'] == 'invoice_values') {
 		$invoiceid = mysqli_insert_id($dbc);
 	}
 	$invoiceid_src = $current_invoice['invoiceid'];
-	
+
 	//Update inventory quantity
 	if($table_name == 'invoice_lines' && $field_name='quantity' && $line_id > 0) {
 		$line = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT SUM(`quantity`) qty, `item`.`item_id`, `item`.`unit_price` FROM `invoice_lines` line LEFT JOIN `invoice_lines` item ON line.`item_id`=item.`item_id` AND line.`category`=item.`category` AND line.`invoiceid`=item.`invoiceid` WHERE item.`line_id`='$line_id' GROUP BY item.`item_id`"));
@@ -70,7 +70,7 @@ if(!empty($_GET['action']) && $_GET['action'] == 'invoice_values') {
 		$price = $line['unit_price'];
 		mysqli_query($dbc, "UPDATE `inventory` SET `current_stock` = `current_stock` - $change WHERE `inventoryid` = '$inventory'");
 		mysqli_query($dbc, "INSERT INTO `report_inventory` (`invoiceid`, `inventoryid`, `type`, `quantity`, `sell_price`, `today_date`) VALUES ('$invoiceid', '$inventory', '', '$change', '$price', DATE(NOW()))");
-		
+
 		//Send an e-mail if the item is low on stock --DISABLED
 		// $item = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `current_stock`, `min_bin` FROM `inventory` WHERE `inventoryid`='$inventory'"));
 		// if($item['current_stock'] < $item['min_bin']) {
@@ -96,7 +96,7 @@ if(!empty($_GET['action']) && $_GET['action'] == 'invoice_values') {
 		}
 		echo $line_id;
 	}
-	
+
 	if(is_array($field_value)) {
 		$field_value = implode(',',$field_value).',';
 	} else if($table_name == 'invoice_lines' && in_array($field_name, ['quantity','sub_total','pst','gst','total'])) {

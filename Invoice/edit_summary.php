@@ -53,7 +53,7 @@
             </select>
         </div>
     </div>
-    
+
     <?php $value_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT value FROM general_configuration WHERE name='invoice_tax'"))['value'];
     $invoice_tax = explode('*#*',$value_config);
 

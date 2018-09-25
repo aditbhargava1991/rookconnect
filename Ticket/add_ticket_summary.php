@@ -61,7 +61,7 @@ if(basename($_SERVER['SCRIPT_FILENAME']) == 'add_ticket_summary.php') {
 			$value_config = ','.implode(',',array_intersect(explode(',',$value_config), explode(',',$value_config_all))).',';
 		}
 	}
-	
+
 	//Apply Templates
 	if(strpos($value_config,',TEMPLATE Work Ticket') !== FALSE) {
 		$value_config = ',Information,PI Business,PI Name,PI Project,PI AFE,PI Sites,Staff,Staff Position,Staff Hours,Staff Overtime,Staff Travel,Staff Subsistence,Services,Service Category,Equipment,Materials,Material Quantity,Material Rates,Purchase Orders,Notes,';
@@ -527,7 +527,7 @@ if(!empty($summary_hide_positions)) {
 								$tracked_html = $summary['checked_in'].' - '.$summary['checked_out'];
 							}
 							echo $tracked_html;
-							?>		
+							?>
 						</td>
 						<td data-title="Total Tracked Time">
 							<?php $tracked_time = '-';
@@ -579,7 +579,7 @@ if(!empty($summary_hide_positions)) {
 								$tracked_html = $summary['checked_in'].' - '.$summary['checked_out'];
 							}
 							echo $tracked_html;
-							?>		
+							?>
 						</td>
 						<td data-title="Total Tracked Time">
 							<?php $tracked_time = '-';

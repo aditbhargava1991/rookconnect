@@ -33,7 +33,7 @@ $quick_action_icons = explode(',',get_config($dbc, 'inc_rep_quick_action_icons')
 <script type="text/javascript">
 $(document).ready(function() {
     setQuickActions();
-    
+
     $(window).resize(function() {
         var available_height = window.innerHeight - $('footer:visible').outerHeight() - $('.tile-sidebar').offset().top;
         if(available_height > 200) {
@@ -102,7 +102,7 @@ function setQuickActions() {
 
                         <form name="form_sites" method="post" action="" class="form-inline" role="form">
                             <div id="no-more-tables">
-								<?php 
+								<?php
                                 if($current_type == 'SAVED') {
                                     $search_from = '';
                                     $search_to = '';

@@ -25,7 +25,7 @@ checkAuthorised('sales_order');
             clone.find('.product').attr('id', 'product_'+count);
             clone.find('.price').attr('id', 'price_'+count);
             clone.find('.quantity').attr('id', 'quantity_'+count);
-            
+
             clone.find('#inventory_0').attr('id', 'inventory_'+count);
             clone.find('#delete_item_0').attr('id', 'delete_item_'+count);
             clone.find('#inventory_details_0').html('');
@@ -46,7 +46,7 @@ checkAuthorised('sales_order');
             count++;
             return false;
         });
-        
+
         $('#cancel').on('click', function(){
             var from_type = $('#from_type').val();
             var redirect_url = '';
@@ -119,7 +119,7 @@ checkAuthorised('sales_order');
             $('#mandatory_quantity').hide();
         }
     }
-    
+
     //Category
     function changeCategory(sel) {
         var subcategory_sel = $(sel).closest('.inventory-block').find('[name="subcategory[]"]');
@@ -164,7 +164,7 @@ checkAuthorised('sales_order');
 
         changeItem(sel);
     }
-    
+
     //Item
     function changeItem(sel) {
         var category = $(sel).closest('.inventory-block').find('[name="category[]"]');
@@ -173,7 +173,7 @@ checkAuthorised('sales_order');
             loadItemDetails(sel);
         }
     }
-    
+
     //Delete
     function deleteItem(sel, hide) {
         $(sel).closest('.inventory-block').remove();
@@ -194,7 +194,7 @@ checkAuthorised('sales_order');
 
     //Filter items
     function filterItems(category, subcategory) {
-        var items = allItems.filter(function (item) { 
+        var items = allItems.filter(function (item) {
             var filtered_item = true;
             if(category != '' && category != item.category) {
                 filtered_item = false;
@@ -353,7 +353,7 @@ checkAuthorised('sales_order');
 
         changeItem(sel);
     }
-    
+
     //Labour Item
     function changeLabourItem(sel) {
         var labourtype = $(sel).closest('.inventory-block').find('[name="labourtype[]"]');
@@ -365,7 +365,7 @@ checkAuthorised('sales_order');
 
     //Filter labour items
     function filterLabourItems(labour_type, category) {
-        var items = allItems.filter(function (item) { 
+        var items = allItems.filter(function (item) {
             var filtered_item = true;
             if(labour_type != '' && labour_type != item.labour_type) {
                 filtered_item = false;
@@ -419,7 +419,7 @@ checkAuthorised('sales_order');
             $item_type_title = 'EQUIPMENT';
             break;
     } ?>
-    
+
 	<div class="container triple-gap-top"><?php
         //Form submit. There's a Javascript check before getting here.
         if ($_SERVER['REQUEST_METHOD'] == 'POST') {
@@ -632,7 +632,7 @@ checkAuthorised('sales_order');
                 }
 
                 mysqli_query($dbc, "UPDATE `sales_order_template_product` SET `mandatory_quantity` = '$mandatory_quantity' WHERE `template_id` = '$templateid' AND `item_type` = '$item_type' AND `contact_category` = '$contact_category' AND `heading_name` = '$heading_name'");
-                
+
                 for ( $i=0; $i<count($_POST['inventoryid']); $i++ ) {
                     $product       = $_POST['inventoryid'][$i];
                     $arr           = explode('*#*', $product);
@@ -668,7 +668,7 @@ checkAuthorised('sales_order');
                 }
 
                 mysqli_query($dbc, "UPDATE `sales_order_product_temp` SET `mandatory_quantity` = '$mandatory_quantity' WHERE `parentsotid` = '$sotid' AND `item_type` = '$item_type' AND `contact_category` = '$contact_category' AND `heading_name` = '$heading_name'");
-                
+
                 for ( $i=0; $i<count($_POST['inventoryid']); $i++ ) {
                     $product       = $_POST['inventoryid'][$i];
                     $arr           = explode('*#*', $product);
@@ -690,7 +690,7 @@ checkAuthorised('sales_order');
                         $history .= 'Added Product to '.$contact_category.' from '.$item_type.' - '.$item_category.': '.$item_name.' with a price of '.$item_price.'<br />';
                     }
                 }
-                
+
                 //History
                 if($history != '') {
                     $historyid = mysqli_fetch_array(mysqli_query($dbc, "SELECT MAX(`id`) FROM `sales_order_history` WHERE `sales_order_id`='$sotid' AND `contactid`='".$_SESSION['contactid']."' AND `date` >= '".date('Y-m-d H:i:s',strtotime('-15min'))."'"))[0];
@@ -700,7 +700,7 @@ checkAuthorised('sales_order');
                         mysqli_query($dbc, "INSERT INTO `sales_order_history` (`sales_order_id`, `history`, `contactid`) VALUES ('$sotid', '".filter_var(htmlentities($history),FILTER_SANITIZE_STRING)."', '".$_SESSION['contactid']."')");
                     }
                 }
-            
+
                 $url_has = '#'.$contact_category.'_order';
                 if($from_type == 'sot_iframe') {
                     echo '<script>
@@ -720,7 +720,7 @@ checkAuthorised('sales_order');
                 }
             }
         } ?>
-        
+
         <form name="form1" id="form1" method="post" action="" class="form-horizontal">
             <?php if ($_GET['from_type'] == 'load_template') { ?>
                 <input type="hidden" name="sotid" id="sotid" value="<?= $sotid ?>" />
@@ -740,7 +740,7 @@ checkAuthorised('sales_order');
             <input type="hidden" name="pricing" id="pricing" value="<?= $pricing; ?>" />
             <input type="hidden" name="item_type" id="item_type" value="<?= $category; ?>" />
             <input type="hidden" name="contact_category" id="contact_category" value="<?= $contact_category ?>" />
-            
+
             <div id="dialog-newproduct" title="Add New <?= $title ?>">
             </div>
 
@@ -757,7 +757,7 @@ checkAuthorised('sales_order');
                                 $query = mysqli_query($dbc, "SELECT DISTINCT `heading_name` FROM `sales_order_product_temp` WHERE `parentsotid` = '$sotid' AND `contact_category` = '$contact_category' AND `item_type` = '$category'");
                             }
                             while ( $row=mysqli_fetch_array($query) ) { ?>
-                                <option value="<?= $row['heading_name'] ?>"><?= $row['heading_name'] ?></option><?php 
+                                <option value="<?= $row['heading_name'] ?>"><?= $row['heading_name'] ?></option><?php
                             } ?>
                         </select>
                         <div class="clearifx"></div>
@@ -870,11 +870,11 @@ checkAuthorised('sales_order');
                 <div class="clearfix"></div>
                 <div id="inventory_details_0" class="inventory-details" style="display:none;"></div>
             </div><!-- .row -->
-            
+
             <div id="add_new_item"></div>
-            
+
             <div class="row"><div class="col-sm-12 text-right"><a href="javascript:void(0);" id="add_item"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-add-icon.png" height="20" /></a></div></div>
-            
+
             <div class="row double-gap-top">
                 <div class="col-sm-12 text-right">
                     <a href="javascript:void(0);" id="cancel" class="btn brand-btn">Cancel</a>
@@ -882,9 +882,9 @@ checkAuthorised('sales_order');
                 </div>
             </div>
         </form>
-        
+
 	</div><!-- .container -->
-	
+
 </body>
 </html>
 <?php //include ('../footer.php'); ?>

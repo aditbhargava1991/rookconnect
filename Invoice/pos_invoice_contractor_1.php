@@ -206,7 +206,7 @@ if($num_rows > 0 || $num_rows2 > 0) {
 				$html .= '<td style="text-align:right; ">$'.number_format($amount,2).'</td>';
 			$html .= '</tr>';
 		}
-        
+
         $returned_amt += $price * $returned;
 	}
 
@@ -360,7 +360,7 @@ $html .= '
 			$html .= $pdf_tax;
 			//$html .= '<tr><td style="text-align:right;" width="75%"><strong>Tax</strong></td><td width="25%" style="text-align:right;">'.$pdf_tax.'</td></tr>';
 		}
-        
+
 		$total_returned_amt = 0;
         if($returned_amt != 0) {
 			$total_tax_rate = ($gst_rate/100) + ($pst_rate/100);
@@ -368,7 +368,7 @@ $html .= '
             $html .= '<tr><td align="right" width="75%"><strong>Returned Total (Including Tax)</strong></td><td align="right" border="1" width="25%" style="">$'.$total_returned_amt.'</td></tr>';
 		}
 
-        
+
 		$html .= '<tr><td align="right" width="75%"><strong>Total</strong></td><td align="right" border="1" width="25%" style="">$'.number_format($point_of_sell['final_price'] - $total_returned_amt, 2).'</td></tr>';
 		if($point_of_sell['deposit_paid'] > 0) {
 			$html .='<tr><td align="right" width="75%"><strong>Deposit Paid</strong></td><td align="right" border="1" width="25%" style="">$'.$point_of_sell['deposit_paid'].'</td></tr>';

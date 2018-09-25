@@ -16,7 +16,7 @@ error_reporting(0);
 $purchaser_config = explode(',',get_config($dbc, 'invoice_purchase_contact'));
 $purchaser_label = count($purchaser_config) > 1 ? 'Customer' : $purchaser_config[0];
  ?>
- 
+
 <script type="text/javascript">
 $(document).ready(function() {
 	$(window).resize(function() {
@@ -195,7 +195,7 @@ function add_reminder(invoiceid) {
 
         $total_120 = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT SUM(patient_price) AS `all_payment` FROM invoice_patient WHERE (DATE(invoice_date) >= '".$starttime."' AND DATE(invoice_date) <= '".$endtime."') AND (DATE(invoice_date) < '".$last119."') AND patientid = '$patientid' AND (paid_date > '$as_at_date' OR IFNULL(`paid`,'') IN ($ar_types))"));
         $total_last120 = $total_120['all_payment'];
-      
+
         $total_ar_current += $total_last30;
         $total_ar_30 += $total_last3059;
         $total_ar_60 += $total_last6089;
@@ -327,7 +327,7 @@ function add_reminder(invoiceid) {
         <?php
             echo report_receivables($dbc, $starttime, $endtime, '', '', '', $patient, $invoice_no);
         ?>
-        
+
         <?php $show_statement = ($patient > 0);
         if($show_statement) {
             $category = get_field_value('category','contacts','contactid',$patient);
@@ -344,7 +344,7 @@ function add_reminder(invoiceid) {
 function report_receivables($dbc, $starttime, $endtime, $table_style, $table_row_style, $grand_total_style, $patient, $invoice_no) {
     $purchaser_config = explode(',',get_config($dbc, 'invoice_purchase_contact'));
     $purchaser_label = count($purchaser_config) > 1 ? 'Customer' : $purchaser_config[0];
-    
+
     if($starttime == 0000-00-00) {
         $starttime = '0000-00-00';
     }
