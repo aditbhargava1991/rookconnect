@@ -20,6 +20,12 @@ if ( !empty($url_newsid) ) {
     $news = mysqli_query($dbc_news, "SELECT `b`.`board_name`, `b`.`shared_staff`, `n`.`newsboardid`, `n`.`newsboard_type`, `n`.`tags`, `n`.`title`, `n`.`description`, `img`.`document_link` FROM `newsboard` `n` LEFT JOIN `newsboard_uploads` `img` ON (`n`.`newsboardid` = `img`.`newsboardid`) LEFT JOIN `newsboard_boards` `b` ON (`n`.`boardid` = `b`.`boardid`) WHERE `n`.`newsboardid`='$url_newsid' AND `n`.`deleted`=0");
     
     if ( $news->num_rows > 0 ) {
+        // Insert to newsboard_seen on the local software as this news item is seen by the user now
+        $query_mod_insert = $url_type=='sw' ? ", `newsboard_src`" : '';
+        $query_mod_select = $url_type=='sw' ? ", 'sw'" : '';
+        $query_mod_from = $url_type=='sw' ? "AND `newsboard_src`='sw'" : '';
+        mysqli_query($dbc, "INSERT INTO `newsboard_seen` (`newsboardid`, `contactid`".$query_mod_insert.") SELECT '".$url_newsid."', '".$_SESSION['contactid']."'".$query_mod_select." FROM (SELECT COUNT(*) `rows` FROM `newsboard_seen` WHERE `newsboardid`='".$url_newsid."' AND `contactid`='".$_SESSION['contactid']."' ".$query_mod_from.") `count` WHERE `count`.`rows`=0");
+        
         while ( $row = mysqli_fetch_assoc($news) ) { ?>
             <div class="standard-body-title">
                 <div class="col-xs-9">

@@ -190,6 +190,7 @@ if($search_from == 0000-00-00) {
 
 if($search_to == 0000-00-00) {
     $search_to = date('Y-m-d');
+
 } ?>
 
 
