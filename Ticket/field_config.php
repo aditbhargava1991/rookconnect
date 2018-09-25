@@ -51,6 +51,9 @@ switch($_GET['settings']) {
 	case 'importing':
 		$page_title = 'Import Templates';
 		break;
+	case 'intake':
+		$page_title = 'Intake Fields';
+		break;
 	case 'summary_security':
 		$page_title = 'Summary Access';
 		break;
@@ -161,6 +164,21 @@ function loadPanel() {
 
 			<div id="collapse_status_fields" class="panel-collapse collapse">
 				<div class="panel-body" data-file="field_config_status_fields.php">
+					Loading...
+				</div>
+			</div>
+		</div>
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<h4 class="panel-title">
+					<a data-toggle="collapse" data-parent="#settings_accordions" href="#collapse_intake">
+						Intake Fields<span class="glyphicon glyphicon-plus"></span>
+					</a>
+				</h4>
+			</div>
+
+			<div id="collapse_intake" class="panel-collapse collapse">
+				<div class="panel-body" data-file="field_config_intake.php">
 					Loading...
 				</div>
 			</div>
@@ -416,6 +434,7 @@ function loadPanel() {
 			<a href="?settings=action"><li class="<?= $_GET['settings'] == 'action' ? 'active blue' : '' ?>">Action Mode Fields</li></a>
 			<a href="?settings=overview"><li class="<?= $_GET['settings'] == 'overview' ? 'active blue' : '' ?>">Overview Fields</li></a>
 			<a href="?settings=status_fields"><li class="<?= $_GET['settings'] == 'status_fields' ? 'active blue' : '' ?>">Status Fields</li></a>
+			<a href="?settings=intake"><li class="<?= $_GET['settings'] == 'intake' ? 'active blue' : '' ?>">Intake Fields</li></a>
 			<a href="?settings=summary_security"><li class="<?= $_GET['settings'] == 'summary_security' ? 'active blue' : '' ?>">Summary Access</li></a>
 			<a href="?settings=manifests"><li class="<?= $_GET['settings'] == 'manifests' ? 'active blue' : '' ?>">Manifest Fields</li></a>
 			<a href="?settings=pdf"><li class="<?= $_GET['settings'] == 'pdf' ? 'active blue' : '' ?>">PDF Options</li></a>
@@ -450,6 +469,9 @@ function loadPanel() {
 		<?php switch($_GET['settings']) {
 			case 'dashboard':
 				include('field_config_dashboard.php');
+				break;
+			case 'intake':
+				include('field_config_intake.php');
 				break;
 			case 'summary_security':
 				include('field_config_summary_security.php');

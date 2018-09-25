@@ -707,6 +707,10 @@ function saveFieldMethod(field) {
 							}
 							$('[name=ticketid]').val(ticketid);
 							window.history.replaceState('',"Software", window.location.href.replace('edit=0','edit='+ticketid));
+							if($('[name="intake_alerted"]').val() == 1) {
+								alert('Your '+$('[name="global_ticket_noun"]').val()+' ID is '+ticketid+'. Please keep this for your reference. You will not be able to edit this '+$('[name="global_ticket_noun"]').val()+' once you leave this page.');
+								$('[name="intake_alerted"]').val(0);
+							}
 							$('.ticket_timer_div').show();
 							if((field_name != 'projectid' && field_name != 'businessid' && $('[name=projectid]').val() > 0 && $('[name=projectid]').data('id') > 0) || $('[name=projectid]').length == 0) {
 								$('[name=projectid]').filter(function() { return this.value != ''; }).first().change();
