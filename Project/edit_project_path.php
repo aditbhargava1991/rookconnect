@@ -6,16 +6,16 @@ function mark_done(sel) {
     var task_id = sel.value;
     var status = '';
     if ( $(sel).is(':checked') ) {
-        status = '<?= $status_complete ?>';
+        status = 'Done';
     } else {
-        status = '<?= $status_incomplete ?>';
+        status = '';
     }
-
     $.ajax({
         type: "GET",
-        url: "../Tasks_Updated/task_ajax_all.php?fill=mark_done&taskid="+task_id+'&status=Done',
+        url: "../Tasks_Updated/task_ajax_all.php?fill=mark_done&taskid="+task_id+'&status='+status,
         dataType: "html",
-        success: function(response){}
+        success: function(response){
+        }
     });
 }
 

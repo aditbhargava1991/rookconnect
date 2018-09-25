@@ -275,7 +275,11 @@ if($type == 'Ticket') {
         $slider_layout = !empty(get_config($dbc, 'tasks_slider_layout')) ? get_config($dbc, 'tasks_slider_layout') : 'accordion';
 
         if($slider_layout == 'accordion') {
-            $label .= '<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Tasks_Updated/add_task.php?type='.$item['status'].'&projectid='.$item['projectid'].'&tasklistid='.$item['tasklistid'].'\', \'50%\', false, false, $(\'.iframe_overlay\').closest(\'.container\').outerHeight() + 20); return false;">Task #'.$item['tasklistid'].': </a>';
+            if($item['status'] == 'Done') {
+                $label .= '<strike><a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Tasks_Updated/add_task.php?type='.$item['status'].'&projectid='.$item['projectid'].'&tasklistid='.$item['tasklistid'].'\', \'50%\', false, false, $(\'.iframe_overlay\').closest(\'.container\').outerHeight() + 20); return false;">Task #'.$item['tasklistid'].': </a></strike>';
+            } else {
+                $label .= '<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Tasks_Updated/add_task.php?type='.$item['status'].'&projectid='.$item['projectid'].'&tasklistid='.$item['tasklistid'].'\', \'50%\', false, false, $(\'.iframe_overlay\').closest(\'.container\').outerHeight() + 20); return false;">Task #'.$item['tasklistid'].': </a>';
+            }
         } else {
             $label .= '<a href="../Tasks_Updated/add_task_full_view.php?type='.$item['status'].'&projectid='.$item['projectid'].'&tasklistid='.$item['tasklistid'].'">Task #'.$item['tasklistid'].': </a>';
         }
