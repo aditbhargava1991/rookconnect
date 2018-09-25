@@ -27,8 +27,8 @@
         <div class="form-group">
             <label for="giftcard" class="col-sm-3 control-label">Discount Type:</label>
             <div class="col-sm-9">
-                <label><input type="radio" name="discount_type" value="%" />%</label>
-                <label><input type="radio" name="discount_type" value="$" />$</label>
+                <label><input type="radio" name="discount_type"  value="%" />%</label>
+                <label><input type="radio" name="discount_type" checked value="$" />$</label>
             </div>
         </div>
         <div class="form-group">
