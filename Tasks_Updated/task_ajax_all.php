@@ -526,7 +526,9 @@ if($_GET['fill'] == 'task_quick_time') {
 if($_GET['fill'] == 'mark_done') {
 	$taskid = preg_replace('/[^0-9]/', '', $_GET['taskid']);
     $status = filter_var($_GET['status'], FILTER_SANITIZE_STRING);
-	$result = mysqli_query($dbc, "UPDATE `tasklist` SET `status`='$status' WHERE `tasklistid`='$taskid'");
+    if($status == 'Done') {
+	    $result = mysqli_query($dbc, "UPDATE `tasklist` SET `status`='$status' WHERE `tasklistid`='$taskid'");
+    }
 	if (mysqli_affected_rows($dbc) > 0) {
         $contactid = $_SESSION['contactid'];
         $created_date = date('Y-m-d');

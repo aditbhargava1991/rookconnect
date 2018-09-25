@@ -1332,6 +1332,29 @@ function mark_done(sel) {
 
                         <?php } ?>
 
+                        <?php if(strpos($task_fields, ',Task Name,') !== FALSE) { ?>
+            <div class="form-group clearfix">
+                <label for="first_name" class="col-sm-4"><?php echo (strpos($task_mandatory_fields, ',Task Name,') !== FALSE ? '<font color="red">* </font>' : ''); ?>
+                    <?= TASK_NOUN ?> Billing:
+                </label>
+                <div class="col-sm-8">
+					<?php $groups = $dbc->query("SELECT `category` FROM `task_types` WHERE `deleted`=0 GROUP BY `category` ORDER BY MIN(`sort`), MIN(`id`)");
+					if($groups->num_rows > 0) { ?>
+						<select name="heading_src" class="<?php echo (strpos($task_mandatory_fields, ',Task Name,') !== FALSE ? 'required' : ''); ?> chosen-select-deselect"><option />
+							<?php while($task_group = $groups->fetch_assoc()) { ?>
+								<optgroup label="<?= $task_group['category'] ?>">
+									<?php $task_names = $dbc->query("SELECT `id`, `description` FROM `task_types` WHERE `deleted`=0 AND `category`='{$task_group['category']}' ORDER BY `sort`, `id`");
+									while($task_name = $task_names->fetch_assoc()) { ?>
+										<option value="<?= $task_name['description'] ?>"><?= $task_name['description'] ?></option>
+									<?php } ?>
+								</optgroup>
+							<?php } ?>
+						</select>
+					<?php } ?>
+                </div>
+            </div>
+                        <?php } ?>
+
                         <?php if(strpos($task_fields, ',Flag This,') !== FALSE) { ?>
 
             <div class="form-group clearfix">
