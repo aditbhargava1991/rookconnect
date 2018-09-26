@@ -578,7 +578,7 @@ if($get_ticket['main_ticketid'] > 0 && $get_ticket['is_recurrence'] == 1 && !$fo
 $quick_action_html = '';
 if(!($strict_view > 0)) {
 	$quick_actions = explode(',',get_config($dbc, 'quick_action_icons'));
-	$quick_action_html .= '<div class="action-icons pull-right">';
+	$quick_action_html .= '<div class="action-icons pull-right" data-colour="'.$get_ticket['flag_colour'].'" data-table="tickets" data-id-field="ticketid">';
 	$quick_action_html .= (strpos($value_config,',Create Recurrence Button,') !== FALSE ? '<img src="'.WEBSITE_URL.'/img/month-overview-blue.png" class="inline-img no-toggle" title="Recurring '.TICKET_TILE .'" onclick="dialogCreateRecurrence(this);">' : '');
 	$quick_action_html .= (in_array('flag_manual',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-flag-icon.png" class="inline-img manual-flag-icon no-toggle" title="Flag This!">' : '');
 	$quick_action_html .= (!in_array('flag_manual',$quick_actions) && in_array('flag',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-flag-icon.png" class="inline-img flag-icon no-toggle" title="Flag This!">' : '');
@@ -757,6 +757,7 @@ function setActions() {
 	});
 	$('.flag-icon').off('click').click(function() {
 		var ticketid = $('#ticketid').val();
+		var item = $(this).closest('.action-icons');
 		$.ajax({
 			url: 'ticket_ajax_all.php?action=quick_actions',
 			method: 'POST',
@@ -776,7 +777,7 @@ function setActions() {
 	});
 	$('.attach-icon').off('click').click(function() {
 		var ticketid = $('#ticketid').val();
-		var item = $(this).closest('.action_items');
+		var item = $(this).closest('.action-icons');
 		item.find('[type=file]').off('change').change(function() {
 			var fileData = new FormData();
 			fileData.append('file',$(this)[0].files[0]);
@@ -1122,7 +1123,7 @@ var setHeading = function() {
 					$flag_comment = $ticket_flag_names[$get_ticket['flag_colour']];
 				} ?>
 			<?php } ?>
-			<span class="block-label flag-label-block" style="<?= $get_ticket['flag_colour'] != '' && $get_ticket['flag_colour'] != 'FFFFFF' ? '' : 'dispaly:none;' ?>background-color:#<?= $get_ticket['flag_colour'] ?>;">Flagged<?= empty($flag_comment) ? '' : ': '.$flag_comment ?></span></h3>
+			<span class="block-label flag-label-block" style="<?= $get_ticket['flag_colour'] != '' && $get_ticket['flag_colour'] != 'FFFFFF' ? '' : 'display:none;' ?>background-color:#<?= $get_ticket['flag_colour'] ?>;">Flagged<?= empty($flag_comment) ? '' : ': '.$flag_comment ?></span></h3>
 			<hr>
 		</div>
 	<?php }
@@ -2759,7 +2760,7 @@ var setHeading = function() {
 						</div>
 					<?php } ?>
 					<?= '<div class="pull-right" style="position: relative; bottom: 0.3em;">'.$quick_action_html.'</div>' ?>
-					<span class="flag-label" style="<?= $get_ticket['flag_colour'] != '' && $get_ticket['flag_colour'] != 'FFFFFF' ? '' : 'dispaly:none;' ?>background-color:#<?= $get_ticket['flag_colour'] ?>;"><?= $flag_comment ?></span>
+					<span class="flag-label" style="<?= $get_ticket['flag_colour'] != '' && $get_ticket['flag_colour'] != 'FFFFFF' ? '' : 'display:none;' ?>background-color:#<?= $get_ticket['flag_colour'] ?>;"><?= $flag_comment ?></span>
 					<span class="sync_recurrences_note" style="display: none; color: red;"><div class="clearfix"></div><b>You are editing all Recurrences of this <?= TICKET_NOUN?>. Please refresh the page if you would like to edit only this occurrence.</b></span>
 				</h3>
                 <div class="menu-bar" style="display:none; position:fixed; right:20px; z-index:1;">
