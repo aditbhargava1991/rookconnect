@@ -39,7 +39,7 @@
                         <div class="panel-heading mobile_load">
                             <h4 class="panel-title">
                                 <a data-toggle="collapse" data-parent="#mobile_accordions" href="#collapse_today">
-                                    Today's Invoices<span class="glyphicon glyphicon-plus"></span>
+                                    Today's Summary<span class="glyphicon glyphicon-plus"></span>
                                 </a>
                             </h4>
                         </div>
@@ -300,7 +300,7 @@
                     */
 
                     case 'today': ?>
-                        <li class="sidebar-higher-level <?= $_GET['tab'] == 'today' || $_GET['tab'] == '' ? 'active' : '' ?>"><a href="index.php?tab=today">Today's Invoices</a></li><?php
+                        <li class="sidebar-higher-level <?= $_GET['tab'] == 'today' || $_GET['tab'] == '' ? 'active' : '' ?>"><a href="index.php?tab=today">Today's Summary</a></li><?php
                         break;
                     case 'all': ?>
                         <li class="sidebar-higher-level <?= $_GET['tab'] == 'all' ? 'active' : '' ?>"><a href="index.php?tab=all">All Invoices</a></li><?php

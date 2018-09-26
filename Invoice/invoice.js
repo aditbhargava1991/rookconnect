@@ -1051,7 +1051,14 @@ function setTotalPrice() {
     $(".detail_discount_amt").html('$'+round2Fixed(discount_amt));
 	$(".detail_sub_total_after_discount").html('$'+round2Fixed(total_after_discount));
 
-	var total_price_for_gst = Math.round(+price_on_gst + +sum_inv_gst + +package_cost + +misc_price + +shipping + +assembly - +promotion - +discount_amt);
+	var total_price_for_gst = +price_on_gst + +sum_inv_gst + +package_cost + +misc_price;
+    if (discount_type=='%') {
+        total_price_for_gst -= total_price_for_gst * (discount_value/100);
+    } else if(discount_value != undefined) {
+        total_price_for_gst -= discount_value * (total_price_for_gst / total_price);
+    }
+    total_price_for_gst += +shipping + +assembly - +promotion;
+    total_price_for_gst = Math.round(total_price_for_gst * 100) / 100;
 	$(".detail_shipping_amt").html('$'+round2Fixed(shipping));
     $(".detail_assembly_amt").html('$'+round2Fixed(assembly));
 	total_price = total_price + +shipping + +assembly - +promotion - +gf - +discount_amt;
@@ -1088,7 +1095,7 @@ function setTotalPrice() {
 		var tax_rate_value = 0;
 	}
 
-	var total_after_gst = Math.round(parseFloat(total_price)) + parseFloat(tax_rate_value);
+	var total_after_gst = Math.round(parseFloat(total_price) * 100) / 100 + parseFloat(tax_rate_value);
 	var total_count_cost = (payment_price+insurer_portions);
 	var final_price_cost = +total_after_gst + +gratuity + +account_balance - +promo_price;
 	if(total_count_cost > final_price_cost && $('[name=add_credit]').is(':checked')) {
@@ -1103,9 +1110,9 @@ function setTotalPrice() {
         total_after_gst += refund_owes - sum_refund;
         final_price_cost += refund_owes - sum_refund;
         patient_owes += refund_owes - sum_refund;
-        refund_owes = sum_refund;
+        refund_owes = Math.round(sum_refund * 100) / 100;
     } else if(refund_owes == Math.ceil(sum_refund * 100) / 100) {
-        sum_refund = refund_owes;
+        sum_refund = Math.round(refund_owes * 100) / 100;
     }
     //var refund_owes = Math.round((patient_owes + 0.00001) * 100) / 100;
 	$('[name="refund_type_amount[]"]').each(function() {
@@ -1116,7 +1123,7 @@ function setTotalPrice() {
 		}
 	});
 	if(sum_refund != 0) {
-		$(".detail_refund_amt").html('$' + (sum_refund).toFixed(2)).closest('h4').show();
+		$(".detail_refund_amt").html('$' + (Math.round(sum_refund * 100) / 100).toFixed(2)).closest('h4').show();
 	}
 	if(sum_adjustment != 0) {
 		$(".detail_adjust_amt").html('$' + (sum_adjustment).toFixed(2)).closest('h4').show();
