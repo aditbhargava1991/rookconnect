@@ -23,12 +23,12 @@
         </div>
     </div>
 
-    <?php if (in_array('discount',$field_config)) { ?>
+    <?php if (in_array('discount',$field_config) && $_GET['inv_mode'] != 'adjust') { ?>
         <div class="form-group">
             <label for="giftcard" class="col-sm-3 control-label">Discount Type:</label>
             <div class="col-sm-9">
                 <label><input type="radio" name="discount_type" value="%" />%</label>
-                <label><input type="radio" name="discount_type" value="$" />$</label>
+                <label><input type="radio" name="discount_type" checked value="$" />$</label>
             </div>
         </div>
         <div class="form-group">
@@ -53,6 +53,16 @@
             </select>
         </div>
     </div>
+
+    <?php $value_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT value FROM general_configuration WHERE name='invoice_tax'"))['value'];
+    $invoice_tax = explode('*#*',$value_config);
+
+    $total_count = mb_substr_count($value_config,'*#*');
+    $tax_rate = 0;
+    foreach($invoice_tax as $invoice_tax_line) {
+        $invoice_tax_name_rate = explode('**',$invoice_tax_line);
+        $tax_rate += floatval($invoice_tax_name_rate[1]);
+    } ?>
     <input type="hidden" name="tax_rate" id="tax_rate" value="<?= $tax_rate ?>" />
     <input name="total_price" value="<?php echo 0+$total_price; ?>" id="total_price" type="hidden" />
     <input name="final_price" value="<?php echo 0+$final_price; ?>" id="final_price" type="hidden" />
@@ -68,7 +78,7 @@
         </div>
     </div>
 
-    <div class="form-group" <?= (in_array('delivery',$field_config) ? '' : 'style="display:none;"') ?>>
+    <div class="form-group" <?= (in_array('delivery',$field_config) && $_GET['inv_mode'] == 'adjust' ? '' : 'style="display:none;"') ?>>
         <label for="site_name" class="col-sm-3 control-label">
             <span class="popover-examples list-inline">
                 <a href="#job_file" data-toggle="tooltip" data-placement="top" title="Select the delivery method chosen by the <?= count($purchaser_config) > 1 ? 'Customer' : $purchaser_config[0] ?>."><img src="<?php echo WEBSITE_URL;?>/img/info.png" width="20"></a>
@@ -85,7 +95,7 @@
         </div>
     </div>
 
-    <div class="form-group confirm_delivery" <?= (($delivery_type == 'Drop Ship' || $delivery_type == 'Shipping' || $delivery_type == 'Company Delivery') ? '' : 'style="display:none;"') ?>>
+    <div class="form-group confirm_delivery" <?= (($delivery_type == 'Drop Ship' || $delivery_type == 'Shipping' || $delivery_type == 'Company Delivery') && $_GET['inv_mode'] == 'adjust' ? '' : 'style="display:none;"') ?>>
         <label for="site_name" class="col-sm-3 control-label">
             <span class="popover-examples list-inline">
                 <a href="#job_file" data-toggle="tooltip" data-placement="top" title="Update the address for delivery. If it is wrong, you will need to update it on the <?= count($purchaser_config) > 1 ? 'Customer' : $purchaser_config[0] ?> profile. You can also enter a one-time shipping address."><img src="<?php echo WEBSITE_URL;?>/img/info.png" width="20"></a>
@@ -96,7 +106,7 @@
         </div>
     </div>
 
-    <div class="form-group deliver_contractor" <?= (($delivery_type == 'Drop Ship' || $delivery_type == 'Shipping') ? '' : 'style="display:none;"') ?>>
+    <div class="form-group deliver_contractor" <?= (($delivery_type == 'Drop Ship' || $delivery_type == 'Shipping') && $_GET['inv_mode'] == 'adjust' ? '' : 'style="display:none;"') ?>>
         <label for="site_name" class="col-sm-3 control-label">
             <span class="popover-examples list-inline">
                 <a href="#job_file" data-toggle="tooltip" data-placement="top" title="Select the contractor that will handle the delivery."><img src="<?php echo WEBSITE_URL;?>/img/info.png" width="20"></a>
@@ -113,7 +123,7 @@
         </div>
     </div>
 
-    <div class="form-group ship_amt" <?= (($delivery_type == '' || $delivery_type == 'Pick-Up') ? 'style="display:none;"' : '') ?>>
+    <div class="form-group ship_amt" <?= (($delivery_type == '' || $delivery_type == 'Pick-Up') && $_GET['inv_mode'] == 'adjust' ? 'style="display:none;"' : '') ?>>
         <label for="site_name" class="col-sm-3 control-label">
             <span class="popover-examples list-inline">
                 <a href="#job_file" data-toggle="tooltip" data-placement="top" title="Enter the cost of shipping."><img src="<?php echo WEBSITE_URL;?>/img/info.png" width="20"></a>
@@ -124,7 +134,7 @@
         </div>
     </div>
 
-    <div class="form-group" <?= (in_array('ship_date',$field_config) ? '' : 'style="display:none;"') ?>>
+    <div class="form-group" <?= (in_array('ship_date',$field_config) && $_GET['inv_mode'] == 'adjust' ? '' : 'style="display:none;"') ?>>
         <label for="site_name" class="col-sm-3 control-label">
             <span class="popover-examples list-inline">
                 <a href="#job_file" data-toggle="tooltip" data-placement="top" title="Enter the date by which the order will ship."><img src="<?php echo WEBSITE_URL;?>/img/info.png" width="20"></a>
@@ -135,7 +145,7 @@
         </div>
     </div>
 
-    <?php if (in_array('assembly',$field_config)) { ?>
+    <?php if (in_array('assembly',$field_config) && $_GET['inv_mode'] != 'adjust') { ?>
     <div class="form-group">
         <label for="giftcard" class="col-sm-3 control-label">
         Assembly:</label>
@@ -346,11 +356,11 @@
             <label class="col-sm-12 control-checkbox"><input type="checkbox" name="add_credit" value="add_credit" onchange="allow_edit_amount();">
             <input type="hidden" name="credit_balance" value=0>Add balance as credit on <?= count($purchaser_config) > 1 ? 'Customer' : $purchaser_config[0] ?> Account</label>
             <div class="form-group clearfix hide-titles-mob">
-                <label class="col-sm-6 text-center">Type</label>
-                <label class="col-sm-6 text-center">Amount</label>
+                <label class="col-sm-5 text-center">Type</label>
+                <label class="col-sm-5 text-center">Amount</label>
             </div>
             <div class="additional_payment form-group clearfix adjust_block">
-                <div class="col-sm-6"><label class="show-on-mob">Payment Type:</label>
+                <div class="col-sm-5"><label class="show-on-mob">Payment Type:</label>
                   <select id="payment_type" name="payment_type[]" data-placeholder="Select a Type..." class="chosen-select-deselect form-control" width="380">
                         <option value=''></option>
                         <?php foreach(explode(',',get_config($dbc, 'invoice_payment_types')) as $available_pay_method) { ?>
@@ -367,7 +377,7 @@
                 <div class="col-sm-5"><label class="show-on-mob">Payment Amount:</label>
                     <input name="payment_price[]" type="text" id="payment_price_0" class="form-control payment_price" onchange="countTotalPrice();" />
                 </div>
-                <div class="col-sm-1">
+                <div class="col-sm-2">
                     <img src="<?= WEBSITE_URL ?>/img/remove.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right cursor-hand" onclick="rem_patient_payment_row(this);">
                     <img src="<?= WEBSITE_URL ?>/img/icons/ROOK-add-icon.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right cursor-hand" onclick="add_patient_payment_row();">
                 </div>

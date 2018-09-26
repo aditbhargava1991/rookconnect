@@ -286,6 +286,7 @@
                     case 'checkin': ?>
                         <li class="sidebar-higher-level <?= $_GET['tab'] == 'checkin' ? 'active' : '' ?>"><a href="index.php?tab=checkin">Check In</a></li><?php
                         break;
+                    /*
 
                     case 'sell':
                         if(in_array('touch',$ux_options)) { ?>
@@ -295,6 +296,8 @@
                             <li class="sidebar-higher-level <?= $_GET['tab'] == 'sell' ? 'active' : '' ?>"><a href="create_invoice.php">New Invoice</a></li>
                         <?php }
                         break;
+
+                    */
 
                     case 'today': ?>
                         <li class="sidebar-higher-level <?= $_GET['tab'] == 'today' || $_GET['tab'] == '' ? 'active' : '' ?>"><a href="index.php?tab=today">Today's Invoices</a></li><?php

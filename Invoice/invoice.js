@@ -611,7 +611,7 @@ function adminPrice(sel) {
 function changeProduct(sel) {
 	if($(sel).closest('.form-group').hasClass('refundable')) {
 		var id = sel.id.split('_')[1];
-		$("#sellprice_"+id).val(sel.value*$("#unitprice_"+id).val());
+		$("#sellprice_"+id).val(round2Fixed(sel.value*$("#unitprice_"+id).val()));
 		countTotalPrice();
 		return;
 	}
@@ -801,7 +801,7 @@ function setTotalPrice() {
 	$('.fee').not(':disabled').each(function () {
 		var fee_id = this.id;
 		var arr = fee_id.split('_');
-		var gstexempt = $('#gstexempt_'+arr[1]).val();
+		var gstexempt = $(this).closest('.form-group').find('.gstexempt').val();
 
 		var fee_row = +$(this).val() || 0;
 
@@ -838,7 +838,7 @@ function setTotalPrice() {
 			if(group.find('[name="servicerow_refund[]"]').is(':checked')) {
 				sum_fee -= fee_row;
 				if(gstexempt == 0) {
-					price_on_gst -= +$(this).val() || 0;
+					price_on_gst -= +fee_row || 0;
 				}
 				sum_refund += fee_row + (gstexempt == 0 ? fee_row*tax_rate/100 : 0);
 				$('.detail_service_list').append('<label class="pull-right">'+(-fee_row).toFixed(2)+'</label>Refund: '+info+'<br /><div class="clearfix"></div>').prev('h4').show();
@@ -853,7 +853,7 @@ function setTotalPrice() {
 		}
 
 		if(gstexempt == 0) {
-			price_on_gst += +$(this).val() || 0;
+			price_on_gst += +fee_row || 0;
 		} else {
 			price_on_gst += 0;
 		}
@@ -1051,7 +1051,7 @@ function setTotalPrice() {
     $(".detail_discount_amt").html('$'+round2Fixed(discount_amt));
 	$(".detail_sub_total_after_discount").html('$'+round2Fixed(total_after_discount));
 
-	var total_price_for_gst = +price_on_gst + +sum_inv_gst + +package_cost + +misc_price + +shipping + +assembly - +promotion - +discount_amt;
+	var total_price_for_gst = Math.round(+price_on_gst + +sum_inv_gst + +package_cost + +misc_price + +shipping + +assembly - +promotion - +discount_amt);
 	$(".detail_shipping_amt").html('$'+round2Fixed(shipping));
     $(".detail_assembly_amt").html('$'+round2Fixed(assembly));
 	total_price = total_price + +shipping + +assembly - +promotion - +gf - +discount_amt;
@@ -1088,16 +1088,33 @@ function setTotalPrice() {
 		var tax_rate_value = 0;
 	}
 
-	var total_after_gst = parseFloat(total_price) + parseFloat(tax_rate_value);
+	var total_after_gst = Math.round(parseFloat(total_price)) + parseFloat(tax_rate_value);
 	var total_count_cost = (payment_price+insurer_portions);
 	var final_price_cost = +total_after_gst + +gratuity + +account_balance - +promo_price;
 	if(total_count_cost > final_price_cost && $('[name=add_credit]').is(':checked')) {
 		credit_balance = total_count_cost - final_price_cost;
 	}
 	// final_price_cost += credit_balance;
-	$(".detail_gst_amt").html('$' + (+tax_rate_value).toFixed(2));
-	$(".detail_gratuity_amt").html('$'+ (+gratuity).toFixed(2));
-	$(".detail_total_amt").html('$' + (total_after_gst + +gratuity + credit_balance).toFixed(2));
+
+	var patient_owes = Math.round((+total_after_gst + +gratuity - +promo_price - +insurer_portions - previous_payment + credit_balance) * 100) / 100;
+	var refund_owes = patient_owes * -1;
+    if(refund_owes > Math.ceil(sum_refund)) {
+        tax_rate_value += refund_owes - sum_refund;
+        total_after_gst += refund_owes - sum_refund;
+        final_price_cost += refund_owes - sum_refund;
+        patient_owes += refund_owes - sum_refund;
+        refund_owes = sum_refund;
+    } else if(refund_owes == Math.ceil(sum_refund * 100) / 100) {
+        sum_refund = refund_owes;
+    }
+    //var refund_owes = Math.round((patient_owes + 0.00001) * 100) / 100;
+	$('[name="refund_type_amount[]"]').each(function() {
+		var applied = (refund_owes > this.max ? this.max : (refund_owes < this.min ? this.min : refund_owes));
+		if($(this).data('status') == 'auto') {
+			refund_owes -= applied;
+			$(this).val(round2Fixed(applied));
+		}
+	});
 	if(sum_refund != 0) {
 		$(".detail_refund_amt").html('$' + (sum_refund).toFixed(2)).closest('h4').show();
 	}
@@ -1110,20 +1127,12 @@ function setTotalPrice() {
 		$(".detail_credit_balance").closest('h4').hide()
 	}
 
+	$(".detail_gst_amt").html('$' + (+tax_rate_value).toFixed(2));
+	$(".detail_gratuity_amt").html('$'+ (+gratuity).toFixed(2));
+	$(".detail_total_amt").html('$' + (total_after_gst + +gratuity + credit_balance).toFixed(2));
 	$("#final_price").val(round2Fixed(final_price_cost));
 	$("[name=credit_balance]").val(round2Fixed(credit_balance));
-
-	var patient_owes = Math.round((+total_after_gst + +gratuity - +promo_price - +insurer_portions - previous_payment + credit_balance) * 100) / 100;
-	var refund_owes = patient_owes * -1;
-    //var refund_owes = Math.round((patient_owes + 0.00001) * 100) / 100;
-	$('[name="refund_type_amount[]"]').each(function() {
-		var applied = (refund_owes > this.max ? this.max : (refund_owes < this.min ? this.min : refund_owes));
-		if($(this).data('status') == 'auto') {
-			refund_owes -= applied;
-			$(this).val(round2Fixed(applied));
-		}
-	});
-
+    
 	$('[name="refund_type_amount[]"]').each(function() {
 		patient_owes += +$(this).val() || 0;
 	});
@@ -1139,8 +1148,8 @@ function setTotalPrice() {
 		insurer_portions -= +$(this).val() || 0;
 	});
 
-	$(".detail_patient_amt").html('$' + (patient_owes ).toFixed(2));
-	$(".detail_insurer_amt").html('$' + (+insurer_portions).toFixed(2));
+	$(".detail_patient_amt").html('$' + round2Fixed(patient_owes));
+	$(".detail_insurer_amt").html('$' + round2Fixed(+insurer_portions));
 }
 
 function get_max_insurer_row() {

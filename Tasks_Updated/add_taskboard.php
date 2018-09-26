@@ -249,7 +249,7 @@ function changeLevel(sel) {
                     <select name="board_security" id="board_security" data-placeholder="Choose a <?= TASK_NOUN ?> Board Type..." class="chosen-select-deselect form-control" width="380">
                         <option></option><?php
                         $all_board_types = mysqli_fetch_array(mysqli_query($dbc, "SELECT task_dashboard_tile FROM task_dashboard"));
-                        foreach(explode(',', 'Private,'.$all_board_types['task_dashboard_tile']) as $board_type) {
+                        foreach(explode(',', $all_board_types['task_dashboard_tile']) as $board_type) {
                             $board_type = str_replace('Sales Tasks', '', $board_type);
                             $board_type = str_replace('Project Tasks', '', $board_type);
                             $board_type = str_replace(' Tasks', '', $board_type);

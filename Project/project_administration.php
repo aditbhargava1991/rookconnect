@@ -151,20 +151,24 @@ $approv_count = $admin_group['precedence'] > 1 ? count(array_filter(explode(',',
                     }
                     $status_list = [];
                     $date_list = [];
+                    $completed_stops = 0;
                     $sql = "SELECT * FROM `ticket_schedule` WHERE `ticketid` = '{$ticket['ticketid']}' AND `deleted` = 0 AND `type` NOT IN ('origin','destination')";
                     if($project_admin_multiday_tickets == 1) {
                         $sql .= " AND `to_do_date` = '{$ticket['ticket_date']}'";
                     }
                     $query = mysqli_query($dbc, $sql);
                     while($sched_line = $query->fetch_assoc()) {
-                        $status_list[] = (empty($sched_line['client_name']) ? $sched_line['location_name'] : $sched_line['client_name']).': '.$sched_line['status'];
+                        $status_list[] = '<a href="../Ticket/index.php?edit='.$sched_line['ticketid'].'&stop='.$sched_line['id'].'" onclick="overlayIFrameSlider(this.href+\'&calendar_view=true\',\'auto\',true,true); return false;">'.(empty($sched_line['client_name']) ? $sched_line['location_name'] : $sched_line['client_name']).': '.$sched_line['status'].'</a>';
                         $date_list[] = $sched_line['to_do_date'];
+                        if(in_array($sched_line['status'],array_merge(['Complete','Completed','Done','Finished','Archive','Archived'],explode('#*#,',get_config($dbc, 'ticket_archive_status'))))) {
+                            $completed_stops++;
+                        }
                     } ?>
                     <tr>
                         <td data-title="Date"><?= empty($ticket['ticket_date']) ? implode(', ',array_unique($date_list)) : $ticket['ticket_date'] ?></td>
                         <td data-title="<?= empty($ticket_noun) ? TICKET_NOUN : $ticket_noun ?>"><a href="../Ticket/index.php?edit=<?= $ticket['ticketid'] ?>" onclick="overlayIFrameSlider(this.href+'&calendar_view=true'); return false;"><?= get_ticket_label($dbc, $ticket) ?></a></td>
                         <?php if(strpos($value_config, ',Status Summary,') !== FALSE) { ?>
-                            <td data-title="Status Summary"><?= implode('<br />',$status_list) ?></td>
+                            <td data-title="Status Summary"><?= $completed_stops ?> of <?= count($status_list) ?> Stops Completed<br /><?= implode('<br />',$status_list) ?></td>
                         <?php } ?>
                         <?php if(strpos($value_config, ',Services,') !== FALSE) {
                             foreach($services_cost_num as $cost_amt) {
