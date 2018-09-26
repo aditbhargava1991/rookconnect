@@ -18,7 +18,7 @@ if (isset($_POST['submit'])) {
 		$projectid = '';
 	}
     $salesid = filter_var($_POST['salesid'],FILTER_SANITIZE_STRING);
-    
+
     $email_body = htmlentities($_POST['email_body']);
     $subject = htmlentities($_POST['subject']);
     $from_name = filter_var(empty($_POST['from_name']) ? get_config($dbc, 'company_name') : $_POST['from_name'],FILTER_SANITIZE_STRING);
@@ -201,7 +201,7 @@ if (isset($_POST['submit'])) {
             }
         });
     });
-    
+
     function addStaff(button) {
         var block_class = $(button).parent().parent().parent().attr('class');
         var block = $('div.'+block_class).last();
@@ -232,7 +232,7 @@ if (isset($_POST['submit'])) {
         <h3 class="gap-left pull-left">Email</h3>
         <div class="pull-right offset-top-15"><a href=""><img src="../img/icons/ROOK-status-rejected.jpg" alt="Close" title="Close" class="inline-img" /></a></div>
         <div class="clearfix"></div>
-        
+
         <form id="form1" name="form1" method="post"	action="" enctype="multipart/form-data" class="form-horizontal" role="form">
         <?php
             if(!empty($_GET['category'])) {
@@ -265,7 +265,7 @@ if (isset($_POST['submit'])) {
             if(!empty($_GET['salesid'])) { ?>
                 <input type="hidden" name="salesid" value="<?= $_GET['salesid'] ?>">
             <?php }
-            
+
             if(!empty($_GET['projectid'])) {
                 $projectid = $_GET['projectid'];
                 $businessid = get_project($dbc, $projectid, 'businessid');
@@ -281,7 +281,7 @@ if (isset($_POST['submit'])) {
             $followup_by = '';
             $followup_date = '';
             $contactid = $_SESSION['contactid'];
-            
+
             if (!empty($_GET['email_communicationid'])) {
                 $email_communicationid = $_GET['email_communicationid'];
                 $get_ticket = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT * FROM email_communication WHERE email_communicationid='$email_communicationid'"));
@@ -310,13 +310,14 @@ if (isset($_POST['submit'])) {
                 if($contactid > 0 && !($businessid > 0)) {
                     $businessid = get_contact($dbc, $contactid, 'businessid');
                 }
+                $comm_tags = explode(',',$ticket_details['communication_tags']);
                 $projectid = $ticket_details['projectid'];
                 if(empty($subject)) {
                     $subject = get_ticket_label($dbc, $ticket_details);
                 }
             } ?>
             <input type="hidden" name="ticketid" value="<?= $ticketid ?>">
-            
+
             <div class="panel-group block-panels main-screen" id="accordion2" style="background-color: #fff; padding: 0; margin-left: 0.5em; width: calc(100% - 1em);">
                 <?php if (strpos($value_config, ','."Communication Timer".',') !== FALSE) { ?>
                     <div class="panel panel-default">
@@ -335,7 +336,7 @@ if (isset($_POST['submit'])) {
                         </div>
                     </div>
                 <?php } ?>
-                
+
                 <div class="panel panel-default">
                     <div class="panel-heading">
                         <h4 class="panel-title">
@@ -353,7 +354,7 @@ if (isset($_POST['submit'])) {
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="panel panel-default">
                     <div class="panel-heading">
                         <h4 class="panel-title">
