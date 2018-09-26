@@ -326,7 +326,7 @@ if($_GET['action'] == 'mark_favourite') {
 		mysqli_query($dbc, "INSERT INTO `$table` (`projectid`) VALUES ('$project')");
 		$id = mysqli_insert_id($dbc);
         if($table == 'tasklist' && $field == 'heading') {
-            mysqli_query($dbc, "UPDATE `tasklist` SET `task_tododate`='".date('Y-m-d')."', `contactid`='".$_SESSION['contactid']."' WHERE `tasklistid`='$id'");
+            mysqli_query($dbc, "UPDATE `tasklist` SET `status` = 'To Be Scheduled', `task_tododate`='".date('Y-m-d')."', `contactid`='".$_SESSION['contactid']."' WHERE `tasklistid`='$id'");
         }
 		if($type != '' && $type_field != '') {
 			mysqli_query($dbc, "UPDATE `$table` SET `$type_field`='$type' WHERE `$id_field`='$id'");
