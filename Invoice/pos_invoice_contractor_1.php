@@ -97,7 +97,9 @@ class MYPDF extends TCPDF {
 		} else {
 			$image_file = '../Point of Sale/'.$image_file;
 		}
-		$this->Image($image_file, 0, 3, '', 40, '', '', 'T', false, 300, 'L', false, false, 0, false, false, false);
+		if(file_get_contents($image_file)) {
+			$this->Image($image_file, 0, 3, '', 40, '', '', 'T', false, 300, 'L', false, false, 0, false, false, false);
+		}
 
 		$this->SetFont('helvetica', '', 9);
 
