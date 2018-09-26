@@ -3000,17 +3000,19 @@ if($_GET['action'] == 'update_fields') {
 		echo json_encode($result);
 	} else {
 		$ticketid = $_POST['ticketid'];
-		if($edit == 1) {
-			$ticket = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticketid` = '$ticketid'"));
-			$main_ticketid = $ticket['main_ticketid'];
-			mysqli_query($dbc, "UPDATE `tickets` SET `is_recurrence` = 0 WHERE `main_ticketid` = '$main_ticketid' AND `to_do_date` < '$create_starting_at'");
-			mysqli_query($dbc, "UPDATE `tickets` SET `deleted` = 1 WHERE `main_ticketid` = '$main_ticketid' AND `to_do_date` >= '$create_starting_at' AND `ticketid` != '$ticketid'");
-			$recurring_dates = get_recurrence_days(1, $start_date, $end_date, $repeat_type, $repeat_interval, $repeat_days, $repeat_monthly, $create_starting_at);
-			mysqli_query($dbc, "UPDATE `tickets` SET `to_do_date` = '".$recurring_dates[0]."', `to_do_end_date` = '".$recurring_dates[0]."' WHERE `ticketid` = '$ticketid'");
-			mysqli_query($dbc, "UPDATE `ticket_recurrences` SET `deleted` = 1 WHERE `ticketid` = '$main_ticketid'");
-		}
 
 		if($ticketid > 0) {
+			$recurring_dates = get_recurrence_days(1, $start_date, $end_date, $repeat_type, $repeat_interval, $repeat_days, $repeat_monthly, $create_starting_at);
+			mysqli_query($dbc, "UPDATE `tickets` SET `to_do_date` = '".$recurring_dates[0]."', `to_do_end_date` = '".$recurring_dates[0]."' WHERE `ticketid` = '$ticketid'");
+			
+			if($edit == 1) {
+				$ticket = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticketid` = '$ticketid'"));
+				$main_ticketid = $ticket['main_ticketid'];
+				mysqli_query($dbc, "UPDATE `tickets` SET `is_recurrence` = 0 WHERE `main_ticketid` = '$main_ticketid' AND `to_do_date` < '$create_starting_at'");
+				mysqli_query($dbc, "UPDATE `tickets` SET `deleted` = 1 WHERE `main_ticketid` = '$main_ticketid' AND (`to_do_date` >= '$create_starting_at' OR IFNULL(`to_do_date`,'0000-00-00') = '0000-00-00') AND `ticketid` != '$ticketid'");
+				mysqli_query($dbc, "UPDATE `ticket_recurrences` SET `deleted` = 1 WHERE `ticketid` = '$main_ticketid'");
+			}
+
 			//Insert into ticket_recurrences table to save settings for ongoing Recurrences cron job
 			mysqli_query($dbc, "INSERT INTO `ticket_recurrences` (`ticketid`, `start_date`, `end_date`, `repeat_type`, `repeat_monthly`, `repeat_interval`, `repeat_days`) VALUES ('$ticketid', '$start_date', '$end_date', '$repeat_type', '$repeat_monthly', '$repeat_interval', '".implode(',',$repeat_days)."')");
 
