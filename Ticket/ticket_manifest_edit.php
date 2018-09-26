@@ -94,7 +94,7 @@ if(isset($_POST['update'])) {
 			$row = ['qty'=>'','siteid'=>$siteid];
 			$weight = '';
 		}
-		$lines[] = ['file'=>$row['ticket_label'], 'po'=>$row['po_num'], 'vendor'=>($row['vendor'] > 0 ? get_contact($dbc, $row['vendor'],'name_company') : ''), 'line'=>(empty($ticket['po_line']) ? 'N/A' : $ticket['po_line']), 'qty'=>($row['qty'] > 0 ? round($row['qty'],3) : '1'), 'manual_qty'=>$manual_qty[$i], 'site'=>($row['siteid'] == $siteid ? $manifest_label : ($row['siteid'] > 0 ? get_contact($dbc, $row['siteid']) : 'UNASSIGNED')), 'notes'=>$row['notes'], 'weight'=>$weight];
+		$lines[] = ['file'=>$row['ticket_label'], 'po'=>$row['po_num'], 'vendor'=>($row['vendor'] > 0 ? get_contact($dbc, $row['vendor'],'name_company') : ''), 'line'=>(empty($row['po_line']) ? 'N/A' : $row['po_line']), 'qty'=>($row['qty'] > 0 ? round($row['qty'],3) : '1'), 'manual_qty'=>$manual_qty[$i], 'site'=>($row['siteid'] == $siteid ? $manifest_label : ($row['siteid'] > 0 ? get_contact($dbc, $row['siteid']) : 'UNASSIGNED')), 'notes'=>$row['notes'], 'weight'=>$weight];
 		if(in_array('pdf_collapse',$manifest_fields)) {
 			$columns['po'] += (!empty($row['po_num']) ? 1 : 0);
 			$columns['vendor'] += ($row['vendor'] > 0 ? 1 : 0);
@@ -256,7 +256,7 @@ $qty = explode(',',$manifest['qty']);
 $col_count = 2; ?>
 <form class="form-horizontal" action="" method="POST">
 	<button class="btn brand-btn pull-right" name="update" value="update" type="submit">Update Manifest</button>
-	<h4 class="scale-to-fill"><p><?= SITES_CAT ?>: <?= get_contact($dbc, $manifest['siteid']) ?></p><?= empty($type) ? '' : '<p>Type: '.$type_label.'</p>' ?></h4>
+	<h4 class="scale-to-fill"><p><?= SITES_CAT ?>: <?= get_contact($dbc, $manifest['siteid']) ?></p><?= empty($type) ? '' : '<p>Tab: '.$type_label.'</p>' ?></h4>
 	<div class="clearfix"></div>
 	<table class="table table-bordered">
 		<tr class="hidden-sm hidden-xs">
@@ -275,7 +275,7 @@ $col_count = 2; ?>
 			$ticket = $dbc->query("SELECT `tickets`.`ticketid`, `tickets`.`ticket_label`, IF(`ticket_attached`.`siteid` IN ('0','',',,') OR `ticket_attached`.`siteid` IS NULL,IF(`piece`.`siteid` IN ('0','',',,') OR `piece`.`siteid` IS NULL,`tickets`.`siteid`,`piece`.`siteid`),`ticket_attached`.`siteid`) `siteid`, `ticket_attached`.`id`, `ticket_attached`.`notes`, IFNULL(`inventory`.`quantity`,`ticket_attached`.`qty`) `qty`, GROUP_CONCAT(DISTINCT `ticket_attached`.`po_num` SEPARATOR '#*#'), `ticket_attached`.`po_line`, `ticket_schedule`.`vendor`, GROUP_CONCAT(`ticket_attached`.`id` SEPARATOR ',') `piece_id`, GROUP_CONCAT(`ticket_attached`.`piece_type` SEPARATOR '#*#') `piece_types` FROM `tickets` LEFT JOIN `ticket_attached` ON `tickets`.`ticketid`=`ticket_attached`.`ticketid` LEFT JOIN `inventory` ON `ticket_attached`.`item_id`=`inventory`.`inventoryid` LEFT JOIN `ticket_attached` `piece` ON `ticket_attached`.`line_id`=`piece`.`id` LEFT JOIN `ticket_schedule` ON `tickets`.`ticketid`=`ticket_schedule`.`ticketid` AND `ticket_schedule`.`type`='origin' WHERE `ticket_attached`.`id`='$item'")->fetch_assoc();?>
 			<tr>
 				<?php if(in_array('file',$manifest_fields)) { ?><td data-title="<?= empty($ticket_noun) ? TICKET_NOUN : $ticket_noun ?>"><?php if($tile_security['edit'] > 0) { ?><a href="index.php?edit=<?= $ticket['ticketid'] ?>" onclick="overlayIFrameSlider(this.href+'&calendar_view=true','auto',true,true); return false;"><?= get_ticket_label($dbc, $ticket) ?></a><?php } else { echo get_ticket_label($dbc, $ticket); } ?></td><?php } ?>
-				<td data-title="<?= SITES_CAT ?>"><?= $manifest_label ?></td>
+				<td data-title="<?= SITES_CAT ?>"><a href="" onclick="overlayIFrameSlider('<?= WEBSITE_URL ?>/Contacts/contacts_inbox.php?fields=all_fields&edit=<?= $siteid ?>', '75%', true, true); return false;"><?= $manifest_label ?></a></td>
 				<?php if(in_array('po',$manifest_fields)) { ?><td data-title="PO"><a href="line_item_views.php?po=<?= $ticket['po_num'] ?>" onclick="overlayIFrameSlider(this.href,'auto',true,true); return false;"><?= $ticket['po_num'] ?></a></td><?php } ?>
 				<?php if(in_array('line',$manifest_fields)) { ?><td data-title="Line Item"><?= empty($ticket['po_line']) ? 'N/A' : $ticket['po_line'] ?></td><?php } ?>
 				<?php if(in_array('vendor',$manifest_fields)) { ?><td data-title="Vendor / Shipper"><?= $ticket['vendor'] > 0 ? '<a href="../Contacts/contacts_inbox.php?fields=all_fields&edit='.$ticket['vendor'].'" onclick="overlayIFrameSlider(this.href,\'auto\',true,true); return false;">'.get_contact($dbc, $ticket['vendor'], 'name_company').'</a>' : '<a href="?edit='.$ticket['ticketid'].'" onclick="overlayIFrameSlider(\'edit_ticket_tab.php?ticketid='.$ticket['ticketid'].'&tab=ticket_transport_origin\',\'auto\',true); return false;"><img src="../img/icons/ROOK-add-icon.png" class="inline-img"></a>' ?></td><?php } ?>
@@ -323,7 +323,7 @@ $col_count = 2; ?>
 			<?php while($ticket = $new_lines->fetch_assoc()) { ?>
 				<tr class="new_row" style="display:none;">
 					<?php if(in_array('file',$manifest_fields)) { ?><td data-title="<?= empty($ticket_noun) ? TICKET_NOUN : $ticket_noun ?>"><?php if($tile_security['edit'] > 0) { ?><a href="index.php?edit=<?= $ticket['ticketid'] ?>" onclick="overlayIFrameSlider(this.href+'&calendar_view=true','auto',true,true); return false;"><?= get_ticket_label($dbc, $ticket) ?></a><?php } else { echo get_ticket_label($dbc, $ticket); } ?></td><?php } ?>
-					<td data-title="<?= SITES_CAT ?>"><?= $manifest_label ?></td>
+					<td data-title="<?= SITES_CAT ?>"><a href="" onclick="overlayIFrameSlider('<?= WEBSITE_URL ?>/Contacts/contacts_inbox.php?fields=all_fields&edit=<?= $siteid ?>', '75%', true, true); return false;"><?= $manifest_label ?></a></td>
 					<?php if(in_array('po',$manifest_fields)) { ?><td data-title="PO"><a href="line_item_views.php?po=<?= $ticket['po_num'] ?>" onclick="overlayIFrameSlider(this.href,'auto',true,true); return false;"><?= $ticket['po_num'] ?></a></td><?php } ?>
 					<?php if(in_array('line',$manifest_fields)) { ?><td data-title="Line Item"><?= empty($ticket['po_line']) ? 'N/A' : $ticket['po_line'] ?></td><?php } ?>
 					<?php if(in_array('vendor',$manifest_fields)) { ?><td data-title="Vendor / Shipper"><?= $ticket['vendor'] > 0 ? '<a href="../Contacts/contacts_inbox.php?fields=all_fields&edit='.$ticket['vendor'].'" onclick="overlayIFrameSlider(this.href,\'auto\',true,true); return false;">'.get_contact($dbc, $ticket['vendor'], 'name_company').'</a>' : '<a href="?edit='.$ticket['ticketid'].'" onclick="overlayIFrameSlider(\'edit_ticket_tab.php?ticketid='.$ticket['ticketid'].'&tab=ticket_transport_origin\',\'auto\',true); return false;"><img src="../img/icons/ROOK-add-icon.png" class="inline-img"></a>' ?></td><?php } ?>

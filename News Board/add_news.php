@@ -38,7 +38,7 @@ if (isset($_POST['add_news'])) {
     $url = '';
 
     if ( empty($_POST['newsboardid']) ) {
-        $query_insert = "INSERT INTO `newsboard` (`contactid`, `boardid`, `newsboard_type`, `tags`, `title`, `issue_date`, `expiry_date`, `description`) VALUES ('$contactid', '$newsboard_board', '$newsboard_type', '$tags', '$title', '$issue_date', '$expiry_date, '$description'')";
+        $query_insert = "INSERT INTO `newsboard` (`contactid`, `boardid`, `newsboard_type`, `tags`, `title`, `issue_date`, `expiry_date`, `description`) VALUES ('$contactid', '$newsboard_board', '$newsboard_type', '$tags', '$title', '$issue_date', '$expiry_date', '$description')";
 
         if ( $newsboard_type=='Softwarewide' ) {
             $result_insert_newsboard = mysqli_query($dbc_htg, $query_insert) or die(mysqli_error($dbc));
@@ -246,9 +246,9 @@ $newsboardid = isset($_GET['news']) ? preg_replace('/[^0-9]/', '', $_GET['news']
                         <option value=""></option>
                         <option value="NEW">Add New News Board</option>
                         <?php
-                            if ( $rookconnect=='rook' || $rookconnect=='localhost' ) {
+                            /* if ( $rookconnect=='rook' || $rookconnect=='localhost' ) {
                                 echo '<option value="FFM">FFM Board</option>';
-                            }
+                            } */
                         ?>
                         <?php
                             $query = mysqli_query($dbc, "SELECT * FROM `newsboard_boards` WHERE `deleted`=0 ORDER BY `board_name`");

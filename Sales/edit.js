@@ -92,6 +92,7 @@ function saveSalesMethod(field) {
                     $('[name=primary_staff]').change();
                 } else if(response > 0 && $(field).data('table') == 'contacts') {
                     $(field).closest('.row').find('[data-table="contacts"]').data('id',response);
+                    $(field).closest('.row').parents('.row').first().find('select[name=contactid],select[name=businessid]').first().append('<option value="'+response+'">New Record</option>').trigger('select2.change').val(response).change();
                 } else if(response > 0 && $(field).data('after') != undefined) {
                     try {
                         window[$(field).data('after')]();
@@ -145,6 +146,11 @@ function rem_doc(img) {
         line.closest('.accordion-block-details').find('.add_doc').show();
     }
     line.find('[data-table][name="deleted"]').val(1).change();
+}
+function rem_infogathering(img) {
+    var line = $(img).closest('tr');
+    line.find('[data-table][name="deleted"]').val(1).change();
+    line.remove();
 }
 function add_note() {
     overlayIFrameSlider('../Sales/add_sales_comment.php?salesid='+$('[name=salesid]').val(),'auto',true,true);

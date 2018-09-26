@@ -2,11 +2,13 @@
 $total_price = 0;
 $inv_services = [];
 $inv_service_ticketid = [];
+$inv_service_stopid = [];
 $inv_service_qty = [];
 $inv_service_fee = [];
 $services_price = 0;
 $misc_item = [];
 $misc_ticketid = [];
+$misc_stopid = [];
 $misc_price = [];
 $misc_qty = [];
 $misc_total = [];
@@ -20,7 +22,7 @@ foreach($ticket_list as $ticketid) {
 			$discount = explode(',',$ticket['service_discount'])[$i];
 			$dis_type = explode(',',$ticket['service_discount_type'])[$i];
 			$price = 0;
-			$customer_rate = $dbc->query("SELECT `services` FROM `rate_card` WHERE `clientid`='' AND `deleted`=0 AND `on_off`=1")->fetch_assoc();
+			$customer_rate = $dbc->query("SELECT `services` FROM `rate_card` WHERE `clientid`='".$ticket['businessid']."' AND `deleted`=0 AND `on_off`=1")->fetch_assoc();
 			foreach(explode('**',$customer_rate['services']) as $service_rate) {
 				$service_rate = explode('#',$service_rate);
 				if($service == $service_rate[0] && $service_rate[1] > 0) {
@@ -33,12 +35,43 @@ foreach($ticket_list as $ticketid) {
 			}
 			$inv_services[] = $service;
 			$inv_service_ticketid[] = $ticketid;
+			$inv_service_stopid[] = 0;
 			$inv_service_qty[] = $qty;
 			$price_total = ($price * $qty + $fuel);
 			$price_total -= ($dis_type == '%' ? $discount / 100 * $price_total : $discount);
 			$inv_service_fee[] = $price_total;
 			$total_price += $price_total;
 		}
+        $srv_i = count(explode(',',$ticket['serviceid']));
+		$tickets = $dbc->query("SELECT * FROM `ticket_schedule` WHERE `ticketid`='$ticketid' AND `deleted`=0 ORDER BY `sort`");
+        while($ticket = $tickets->fetch_assoc()) {
+            foreach(explode(',',$ticket['serviceid']) as $i => $service) {
+                $fuel = explode(',',$ticket['service_fuel_charge'])[$i + $srv_i];
+                $discount = explode(',',$stop['service_discount'])[$i];
+                $dis_type = explode(',',$stop['service_discount_type'])[$i];
+                $price = 0;
+                $customer_rate = $dbc->query("SELECT `services` FROM `rate_card` WHERE `clientid`='".$ticket['businessid']."' AND `deleted`=0 AND `on_off`=1")->fetch_assoc();
+                foreach(explode('**',$customer_rate['services']) as $service_rate) {
+                    $service_rate = explode('#',$service_rate);
+                    if($service == $service_rate[0] && $service_rate[1] > 0) {
+                        $price = $service_rate[1];
+                    }
+                }
+                if(!($price > 0)) {
+                    $service_rate = $dbc->query("SELECT `cust_price`, `admin_fee` FROM `company_rate_card` WHERE `deleted`=0 AND `item_id`='$service' AND `tile_name` LIKE 'Services' AND `start_date` < DATE(NOW()) AND IFNULL(NULLIF(`end_date`,'0000-00-00'),'9999-12-31') > DATE(NOW()) AND `cust_price` > 0")->fetch_assoc();
+                    $price = $service_rate['cust_price'];
+                }
+                $inv_services[] = $service;
+                $inv_service_ticketid[] = $ticketid;
+                $inv_service_stopid[] = $ticket['id'];
+                $inv_service_qty[] = 1;
+                $price_total = ($price + $fuel);
+                $price_total -= ($dis_type == '%' ? $discount / 100 * $price_total : $discount);
+                $inv_service_fee[] = $price_total;
+                $total_price += $price_total;
+            }
+            $srv_i += count(explode(',',$ticket['serviceid']));
+        }
 		$ticket_lines = $dbc->query("SELECT * FROM `ticket_attached` WHERE `ticketid`='$ticketid' AND `deleted`=0 AND `src_table` LIKE 'Staff%'");
 		while($line = $ticket_lines->fetch_assoc()) {
 			$description = get_contact($dbc, $line['item_id']).' - '.$line['position'];
@@ -47,6 +80,7 @@ foreach($ticket_list as $ticketid) {
 			$price = $price['cust_price'] > 0 ? $price['cust_price'] : $price['hourly'];
 			$misc_item[] = $description;
 			$misc_ticketid[] = $ticketid;
+			$misc_stopid[] = 0;
 			$misc_qty[] = $qty;
 			$misc_price[] = $price;
 			$misc_total[] = $price * $qty;
@@ -59,6 +93,7 @@ foreach($ticket_list as $ticketid) {
 			$price = $line['rate'];
 			$misc_item[] = $description;
 			$misc_ticketid[] = $ticketid;
+			$misc_stopid[] = 0;
 			$misc_price[] = $price;
 			$misc_qty[] = $qty;
 			$misc_total[] = $price * $qty;
@@ -70,7 +105,7 @@ foreach($ticket_list as $ticketid) {
 		$price_final += $total_price - $billing_discount_total;
 	}
 }
-mysqli_query($dbc, "INSERT INTO `invoice` (`tile_name`,`projectid`,`ticketid`,`businessid`,`patientid`,`invoice_date`,`total_price`,`discount`,`final_price`,`serviceid`,`fee`,`misc_item`,`misc_price`,`misc_qty`,`misc_total`,`service_ticketid`,`misc_ticketid`) SELECT 'invoice',MAX(`projectid`),GROUP_CONCAT(`ticketid` SEPARATOR ','),MAX(`businessid`),GROUP_CONCAT(`clientid` SEPARATOR ','),DATE(NOW()),'$total_price','$billing_discount_total','$price_final','".implode(',',$inv_services)."','".implode(',',$inv_service_fee)."','".implode(',',$misc_item)."','".implode(',',$misc_price)."','".implode(',',$misc_qty)."','".implode(',',$misc_total)."','".implode(',',$inv_service_ticketid)."','".implode(',',$misc_ticketid)."' FROM `tickets` WHERE `ticketid` IN (".implode($ticket_list).")");
+mysqli_query($dbc, "INSERT INTO `invoice` (`tile_name`,`projectid`,`ticketid`,`businessid`,`patientid`,`invoice_date`,`total_price`,`discount`,`final_price`,`serviceid`,`fee`,`misc_item`,`misc_price`,`misc_qty`,`misc_total`,`service_ticketid`,`misc_ticketid`) SELECT 'invoice',MAX(`projectid`),GROUP_CONCAT(`ticketid` SEPARATOR ','),MAX(`businessid`),MAX(`businessid`),DATE(NOW()),'$total_price','$billing_discount_total','$price_final','".implode(',',$inv_services)."','".implode(',',$inv_service_fee)."','".implode(',',$misc_item)."','".implode(',',$misc_price)."','".implode(',',$misc_qty)."','".implode(',',$misc_total)."','".implode(',',$inv_service_ticketid)."','".implode(',',$misc_ticketid)."' FROM `tickets` WHERE `ticketid` IN (".implode(',',$ticket_list).")");
 $invoiceid = $dbc->insert_id;
 foreach($inv_services as $i => $service) {
 	$service = $dbc->query("SELECT * FROM `services` WHERE `serviceid`='$service'")->fetch_assoc();
@@ -88,6 +123,9 @@ if(!tile_visible($dbc, 'check_out')) {
 $get_invoice = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `invoice` WHERE `invoiceid`='$invoiceid'"));
 // PDF
 $invoice_design = get_config($dbc, 'invoice_design');
+if(!empty($get_invoice['type']) && !empty(get_config($dbc, 'invoice_design_'.$get_invoice['type']))) {
+    $invoice_design = get_config($dbc, 'invoice_design_'.$get_invoice['type']);
+}
 switch($invoice_design) {
     case 1:
         include('pos_invoice_1.php');

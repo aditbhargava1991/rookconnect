@@ -13,17 +13,17 @@ $payer_label = count($payer_config) > 1 ? 'Third Party' : $payer_config[0]; ?>
 				<?php break;
 			case 'sell':
 				if(in_array('touch',$ux_options)) { ?>
-					<a href='add_invoice.php'><span class="btn brand-btn mobile-block mobile-100 <?= strpos($_SERVER['PHP_SELF'],'/add_invoice.php') !== FALSE ? 'active_tab' : '' ?>">Create Invoice (Keyboard)</span></a>
+					<a href='create_invoice.php'><span class="btn brand-btn mobile-block mobile-100 <?= strpos($_SERVER['PHP_SELF'],'/create_invoice.php') !== FALSE ? 'active_tab' : '' ?>">Create Invoice (Keyboard)</span></a>
 					<a href='touch_main.php'><span class="btn brand-btn mobile-block mobile-100 <?= strpos($_SERVER['PHP_SELF'],'/touch_main.php') !== FALSE ? 'active_tab' : '' ?>">Create Invoice (Touchscreen)</span></a>
 				<?php } else { ?>
-					<a href='add_invoice.php'><span class="btn brand-btn mobile-block mobile-100 <?= strpos($_SERVER['PHP_SELF'],'/add_invoice.php') !== FALSE ? 'active_tab' : '' ?>">Create Invoice</span></a>
+					<a href='create_invoice.php'><span class="btn brand-btn mobile-block mobile-100 <?= strpos($_SERVER['PHP_SELF'],'/create_invoice.php') !== FALSE ? 'active_tab' : '' ?>">Create Invoice</span></a>
 				<?php }
 				break;
 			case 'today': ?>
 				<span class="popover-examples list-inline">
 					<a href="#job_file" data-toggle="tooltip" data-placement="top" title="Invoices created today."><img src="<?php echo WEBSITE_URL;?>/img/info.png" width="20"></span></a>
 				</span>
-				<a href='today_invoice.php'><span class="btn brand-btn mobile-block mobile-100 <?= strpos($_SERVER['PHP_SELF'],'/today_invoice.php') !== FALSE ? 'active_tab' : '' ?>">Today's Invoices</span></a>
+				<a href='index.php?tab=today'><span class="btn brand-btn mobile-block mobile-100 <?= strpos($_SERVER['PHP_SELF'],'/index.php?tab=today') !== FALSE ? 'active_tab' : '' ?>">Today's Summary</span></a>
 				<?php break;
 			case 'all': ?>
 				<span class="popover-examples list-inline">
@@ -35,6 +35,9 @@ $payer_label = count($payer_config) > 1 ? 'Third Party' : $payer_config[0]; ?>
 			//case 'invoices': ?>
 				<!-- <a href='invoice_list.php'><span class="btn brand-btn mobile-block mobile-100 <?= strpos($_SERVER['PHP_SELF'],'/invoice_list.php') !== FALSE ? 'active_tab' : '' ?>">Invoices</span></a> -->
 				<?php //break;
+			case 'unbilled_tickets': ?>
+				<a href='unbilled_tickets.php'><span class="btn brand-btn mobile-block mobile-100 <?= strpos($_SERVER['PHP_SELF'],'/unbilled_tickets.php') !== FALSE ? 'active_tab' : '' ?>">Unbilled <?= TICKET_TILE ?></span></a>
+				<?php break;
 			case 'unpaid': ?>
 				<a href='unpaid_invoice_list.php'><span class="btn brand-btn mobile-block mobile-100 <?= strpos($_SERVER['PHP_SELF'],'/unpaid_invoice_list.php') !== FALSE ? 'active_tab' : '' ?>">Accounts Receivable</span></a>
 				<?php break;

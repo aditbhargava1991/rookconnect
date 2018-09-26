@@ -1,6 +1,7 @@
-<?php
+<?php $guest_access = true;
 include(substr(dirname(__FILE__), 0, -8).'include.php');
 include(substr(dirname(__FILE__), 0, -8).'/Profile/daysheet_functions.php');
+ob_clean();
 
 $daysheet_styling = '';
 $daysheet_ticket_fields = explode(',',get_config($dbc, 'daysheet_ticket_fields'));

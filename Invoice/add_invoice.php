@@ -21,7 +21,7 @@ if (isset($_POST['save_btn'])) {
 		mkdir('download', 0777, true);
 	}
     include('add_update_invoice.php');
-    echo '<script type="text/javascript"> alert("Invoice Successfully Saved"); window.location.replace("today_invoice.php"); </script>';
+    echo '<script type="text/javascript"> alert("Invoice Successfully Saved"); window.location.replace("index.php?tab=today"); </script>';
 }
 
 if (isset($_POST['submit_btn'])) {
@@ -61,6 +61,9 @@ if (isset($_POST['submit_btn'])) {
 
 	// PDF
 	$invoice_design = get_config($dbc, 'invoice_design');
+    if(!empty($get_invoice['type']) && !empty(get_config($dbc, 'invoice_design_'.$get_invoice['type']))) {
+        $invoice_design = get_config($dbc, 'invoice_design_'.$get_invoice['type']);
+    }
 	switch($invoice_design) {
 		case 1:
 			include('pos_invoice_1.php');
@@ -125,7 +128,7 @@ if (isset($_POST['submit_btn'])) {
         } else if($search_invoice != '') {
             echo '<script type="text/javascript"> alert("Invoice Updated."); window.location.replace("all_invoice.php?search_invoice='.$search_invoice.'");</script>';
         } else {
-            echo '<script type="text/javascript"> alert("Invoice Generated."); window.location.replace("today_invoice.php");
+            echo '<script type="text/javascript"> alert("Invoice Generated."); window.location.replace("index.php?tab=today");
             window.open("download/invoice_'.$invoiceid.'.pdf", "fullscreen=yes");
             </script>';
         }
@@ -170,9 +173,9 @@ if (isset($_POST['submit_pay'])) {
 			$result_update_patient = mysqli_query($dbc, $query_update_patient);
 		}
 		if ($from == 'patient') {
-            echo '<script type="text/javascript"> alert("Invoice Successfully Paid."); window.location.replace("today_invoice.php?patientid='.$patientid.'"); </script>';
+            echo '<script type="text/javascript"> alert("Invoice Successfully Paid."); window.location.replace("index.php?tab=today?patientid='.$patientid.'"); </script>';
 		} else {
-            echo '<script type="text/javascript"> alert("Invoice Successfully Paid."); window.location.replace("today_invoice.php"); </script>';
+            echo '<script type="text/javascript"> alert("Invoice Successfully Paid."); window.location.replace("index.php?tab=today"); </script>';
 		}
 }
 
@@ -232,7 +235,7 @@ if(in_array('touch',$ux_options) && (!in_array('standard',$ux_options) || $_GET[
 		<div class="clearfix"></div>
 
 		<?php include('tile_tabs.php'); ?><br /><br />
-      
+
 		<form id="form1" name="form1" method="post" action="" enctype="multipart/form-data" class="form-horizontal" role="form">
         <?php $invoice_type = '';
         if(!empty($_GET['type'])) {
@@ -347,14 +350,14 @@ if(in_array('touch',$ux_options) && (!in_array('standard',$ux_options) || $_GET[
 				echo '<input type="hidden" name="set_gf" id="set_gf" />';
 
         echo '<input type="hidden" id="paid_notpaid" name="paid_notpaid" value="'.$paid.'" />';
-      
-      
+
+
         $field_config = explode(',',get_config($dbc, 'invoice_fields'));
-        if(!empty($invoice_type)) {
+        if(!empty($invoice_type) && !empty(get_config($dbc, 'invoice_fields_'.$invoice_type))) {
             $field_config = explode(',',get_config($dbc, 'invoice_fields_'.$invoice_type));
         }
         ?>
-      
+
 		<div class="wrapper">
         <div class="col-sm-3 preview_div">
 			<h3>Details</h3>
@@ -388,7 +391,7 @@ if(in_array('touch',$ux_options) && (!in_array('standard',$ux_options) || $_GET[
 			<h4 style="display:none;"><?= count($payer_config) > 1 ? 'Third Party' : $payer_config[0] ?> Portion: <label class="detail_insurer_amt pull-right">$0.00</label></h4>
 			<h4 style="display:none;"><?= count($purchaser_config) > 1 ? 'Customer' : $purchaser_config[0] ?> Portion: <label class="detail_patient_amt pull-right">$0.00</label></h4>
 		</div>
-      
+
         <div class="main-div">
         <?php $invoice_types = array_filter(explode(',',get_config($dbc, 'invoice_types')));
         if(!empty($invoice_types)) { ?>
@@ -405,7 +408,7 @@ if(in_array('touch',$ux_options) && (!in_array('standard',$ux_options) || $_GET[
                 </div>
             </div>
         <?php } ?>
-          
+
 		<div class="form-group" <?= (in_array('invoice_date',$field_config) ? '' : 'style="display:none;"') ?>>
 			<label for="site_name" class="col-sm-2 control-label">Invoice Date:</label>
 			<div class="col-sm-7">
@@ -1938,7 +1941,7 @@ if(in_array('touch',$ux_options) && (!in_array('standard',$ux_options) || $_GET[
           <div class="form-group">
             <div class="col-sm-2 col-xs-4">
             	<span class="popover-examples list-inline"><a data-toggle="tooltip" data-placement="top" title="Clicking here will discard changes and return you to the <?= (empty($current_tile_name) ? 'Check Out' : $current_tile_name) ?> tile main dashboard."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
-                <a href="today_invoice.php" class="btn brand-btn">Back</a>
+                <a href="index.php?tab=today" class="btn brand-btn">Back</a>
 			</div>
             <div class="col-sm-7 col-xs-8">
                 <button type="submit" name="submit_btn" onclick="return validateappo();" id="submit" value="Submit" class="btn brand-btn pull-right">Submit</button>
@@ -1952,7 +1955,7 @@ if(in_array('touch',$ux_options) && (!in_array('standard',$ux_options) || $_GET[
             </div>
           </div>
         </div>
-          
+
         </div><!-- .wrapper -->
 
         </form>

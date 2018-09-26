@@ -341,7 +341,40 @@ function setActions() {
 	});
 	$('.manual-flag-icon').off('click').click(function() {
 		var item = $(this).closest('.dashboard-item');
-		overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_flags.php?tile=tickets&id='+item.data('id'), 'auto', false, true);
+		item.find('.flag_field_labels,[name=label],[name=colour],[name=flag_it],[name=flag_cancel],[name=flag_off],[name=flag_start],[name=flag_end]').show();
+		item.find('[name=flag_cancel]').off('click').click(function() {
+			item.find('.flag_field_labels,[name=label],[name=colour],[name=flag_it],[name=flag_cancel],[name=flag_off],[name=flag_start],[name=flag_end]').hide();
+			return false;
+		});
+		item.find('[name=flag_off]').off('click').click(function() {
+			item.find('[name=colour]').val('FFFFFF');
+			item.find('[name=label]').val('');
+			item.find('[name=flag_start]').val('');
+			item.find('[name=flag_end]').val('');
+			item.find('[name=flag_it]').click();
+			return false;
+		});
+		item.find('[name=flag_it]').off('click').click(function() {
+			$.ajax({
+				url: 'ticket_ajax_all.php?action=quick_actions',
+				method: 'POST',
+				data: {
+					field: 'manual_flag_colour',
+					value: item.find('[name=colour]').val(),
+					table: item.data('table'),
+					label: item.find('[name=label]').val(),
+					start: item.find('[name=flag_start]').val(),
+					end: item.find('[name=flag_end]').val(),
+					id: item.data('id'),
+					id_field: item.data('id-field')
+				}
+			});
+			item.find('.flag_field_labels,[name=label],[name=colour],[name=flag_it],[name=flag_cancel],[name=flag_off],[name=flag_start],[name=flag_end]').hide();
+			item.data('colour',item.find('[name=colour]').val());
+			item.css('background-color','#'+item.find('[name=colour]').val());
+			item.find('.flag-label').text(item.find('[name=label]').val());
+			return false;
+		});
 	});
 	$('.flag-icon').off('click').click(function() {
 		var item = $(this).closest('.dashboard-item');
@@ -384,14 +417,101 @@ function setActions() {
 	$('.reply-icon').off('click').click(function() {
         var item = $(this).closest('.dashboard-item');
 		overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_notes.php?tile=tickets&id='+item.data('id'), 'auto', false, true);
+        /* Function before reply slider
+        var item = $(this).closest('.dashboard-item');
+		item.find('[name=reply]').off('change').off('blur').show().focus().blur(function() {
+			$(this).off('blur');
+			$.ajax({
+				url: '../Project/projects_ajax.php?action=project_actions',
+				method: 'POST',
+				data: {
+					field: 'comment',
+					value: this.value,
+					table: 'tickets',
+					id: item.data('id'),
+					id_field: 'ticketid'
+				}
+			});
+			$(this).hide().val('');
+		}).keyup(function(e) {
+			if(e.which == 13) {
+				$(this).blur();
+			} else if(e.which == 27) {
+				$(this).off('blur').hide();
+			}
+		}); */
 	});
+
+	$('.emailpdf-icon').off('click').click(function() {
+		var item = $(this).closest('.dashboard-item');
+		item.find('[name=emailpdf]').off('change').off('blur').show().focus().blur(function() {
+			$(this).off('blur');
+			$.ajax({
+				url: 'ticket_ajax_all.php?action=quick_actions',
+				method: 'POST',
+                data: {
+                        id: item.data('id'),
+                        id_field: item.data('id-field'),
+                        table: item.data('table'),
+                        field: 'emailpdf',
+                        value: this.value,
+                    },
+                success: function(response) {
+                            alert('PDF Sent');
+                }
+        		});
+			$(this).hide().val('');
+		}).keyup(function(e) {
+			if(e.which == 13) {
+				$(this).blur();
+			} else if(e.which == 27) {
+				$(this).off('blur').hide();
+			}
+		});
+	});
+
 	$('.reminder-icon').off('click').click(function() {
 		var item = $(this).closest('.dashboard-item');
-		overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_reminders.php?tile=tickets&id='+item.data('id'), 'auto', false, true);
-	});
-	$('.email-icon').off('click').click(function() {
-		var item = $(this).closest('.dashboard-item');
-		overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_email.php?tile=tickets&id='+item.data('id'), 'auto', false, true);
+		item.find('[name=reminder]').change(function() {
+			var reminder = $(this).val();
+			var select = item.find('.select_users');
+			select.find('.cancel_button').off('click').click(function() {
+				select.find('select option:selected').removeAttr('selected');
+				select.find('select').trigger('change.select2');
+				select.hide();
+				return false;
+			});
+			select.find('.submit_button').off('click').click(function() {
+				if(select.find('select').val() != '' && confirm('Are you sure you want to schedule reminders for the selected user(s)?')) {
+					var users = [];
+					select.find('select option:selected').each(function() {
+						users.push(this.value);
+						$(this).removeAttr('selected');
+					});
+					$.ajax({
+						method: 'POST',
+						url: 'ticket_ajax_all.php?action=quick_actions',
+						data: {
+							id: item.data('id'),
+							id_field: item.data('id-field'),
+							table: item.data('table'),
+							field: 'reminder',
+							value: reminder,
+							users: users,
+							ref_id: item.data('id'),
+							ref_id_field: item.data('id-field')
+						},
+						success: function(result) {
+							select.hide();
+							select.find('select').trigger('change.select2');
+							item.find('h4').append(result);
+						}
+					});
+				}
+				return false;
+			});
+			select.show();
+		}).focus();
 	});
 	$('.alert-icon').off('click').click(function() {
 		var item = $(this).closest('.dashboard-item');
@@ -435,39 +555,14 @@ function setActions() {
 		select.find('select').trigger('change.select2');
 		select.show();
 	});
-	$('.emailpdf-icon').off('click').click(function() {
+	$('.email-icon').off('click').click(function() {
 		var item = $(this).closest('.dashboard-item');
-		item.find('[name=emailpdf]').off('change').off('blur').show().focus().blur(function() {
-			$(this).off('blur');
-			$.ajax({
-				url: 'ticket_ajax_all.php?action=quick_actions',
-				method: 'POST',
-                data: {
-                        id: item.data('id'),
-                        id_field: item.data('id-field'),
-                        table: item.data('table'),
-                        field: 'emailpdf',
-                        value: this.value,
-                    },
-                success: function(response) {
-                            alert('PDF Sent');
-                }
-        		});
-			$(this).hide().val('');
-		}).keyup(function(e) {
-			if(e.which == 13) {
-				$(this).blur();
-			} else if(e.which == 27) {
-				$(this).off('blur').hide();
-			}
-		});
+		overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_email.php?tile=tickets&id='+item.data('id'), 'auto', false, true);
 	});
-}
-function setManualFlag(ticketid, colour, label) {
-	var item = $('.dashboard-item[data-id="'+ticketid+'"]');
-	item.data('colour',colour);
-	item.css('background-color','#'+colour);
-	item.find('.flag-label').text(label);
+	$('.history-icon').off('click').click(function() {
+		var item = $(this).closest('.dashboard-item');
+		overlayIFrameSlider('<?= WEBSITE_URL ?>/Ticket/ticket_history.php?tile=tickets&ticketid='+item.data('id'), 'auto', false, true);
+	});
 }
 function setStatus(select) {
 	$.ajax({    //create an ajax request to load_page.php
@@ -511,6 +606,18 @@ function setTotalBudgetTime(input) {
 }
 </script><?php
 IF(!IFRAME_PAGE) { ?>
+<style>
+	.li-collapsed-active-show ul.collapse{
+		display: block !important;
+		height:auto !important;
+	}
+	.li-collapsed-active-show a.collapsed + ul.collapse li{
+		display: none !important;
+	}
+	.li-collapsed-active-show a.collapsed + ul.collapse li.active.blue{
+		display: block !important;
+	}
+</style>
 	<div class="tile-sidebar sidebar sidebar-override hide-titles-mob standard-collapsible">
 		<ul>
 			<li class="standard-sidebar-searchbox"><input type="text" class="form-control search_list" placeholder="Search <?= $ticket_tile ?>"></li>
@@ -698,17 +805,23 @@ IF(!IFRAME_PAGE) { ?>
 						<ul id="tab_admin" class="collapse <?= substr($_GET['tab'],0,14) == 'administration' ? 'in' : '' ?>">
 							<?php while($admin_group = $admin_groups->fetch_assoc()) {
 								$other_groups = $dbc->query("SELECT GROUP_CONCAT(`region` SEPARATOR ''',''') `regions`, GROUP_CONCAT(`classification` SEPARATOR ''',''') `classifications` FROM `field_config_project_admin` WHERE `id`!='{$admin_group['id']}' AND `deleted`=0")->fetch_assoc(); ?>
-								<h4><?= $admin_group['name'].
+								<a href="?tab=administration_<?= $admin_group['id'] ?>_summary"><h4><?= $admin_group['name'].
 									($admin_group['region'] != '' ? '<br /><em><small>'.$admin_group['region'].'</small></em>' : '').
 									($admin_group['classification'] != '' ? '<br /><em><small>'.$admin_group['classification'].'</small></em>' : '').
 									($admin_group['location'] != '' ? '<br /><em><small>'.$admin_group['location'].'</small></em>' : '').
-									($admin_group['customer'] > 0 ? '<br /><em><small>'.get_contact($dbc,$admin_group['customer'],'full_name').'</small></em>' : '') ?></h4>
+									($admin_group['customer'] > 0 ? '<br /><em><small>'.get_contact($dbc,$admin_group['customer'],'full_name').'</small></em>' : '') ?></h4></a>
 								<?php $admin_regions = $admin_classes = [''];
 								if($admin_group['region'] == '') {
 									$admin_regions = mysqli_fetch_all($dbc->query("SELECT IFNULL(`region`,'') FROM `tickets` WHERE `deleted`=0 ".($other_groups['regions'] != "','" && $other_groups['regions'] != "" ? " AND ((`region` IN ('{$admin_group['region']}','') AND `region` NOT IN ('{$other_groups['regions']}')) OR ('{$admin_group['region']}'='' AND `region` NOT IN ('{$other_groups['regions']}')))" : "")." GROUP BY IFNULL(`region`,'')"));
 								}
+								if(empty($admin_regions)) {
+									$admin_regions = [''];
+								}
 								if($admin_group['classification'] == '') {
 									$admin_classes = mysqli_fetch_all($dbc->query("SELECT IFNULL(`classification`,'') FROM `tickets` WHERE `deleted`=0 ".($other_groups['classifications'] != "','" && $other_groups['classifications'] != "" ? " AND (`classification` IN ('{$admin_group['classification']}','') OR ('{$admin_group['classification']}'='' AND `classification` NOT IN ('{$other_groups['classifications']}')))" : "")." GROUP BY IFNULL(`classification`,'')"));
+								}
+								if(empty($admin_classes)) {
+									$admin_classes = [''];
 								}
 								foreach($admin_regions as $region_i => $admin_region) {
 									foreach($admin_classes as $class_i => $admin_class) { ?>
@@ -773,7 +886,7 @@ IF(!IFRAME_PAGE) { ?>
 			<?php if(in_array('Invoicing',$db_config) && check_subtab_persmission($dbc, 'ticket', ROLE, 'invoice') === TRUE && !($strict_view > 0)) { ?>
 				<li class="sidebar-higher-level"><a class="cursor-hand <?= $_GET['tab'] == 'invoice' ? 'active blue' : 'collapsed' ?>" data-toggle="collapse" data-target="#tab_invoice">Accounting<span class="arrow"></span></a>
 					<ul id="tab_invoice" class="collapse <?= $_GET['tab'] == 'invoice' ? 'in' : '' ?>">
-						<?php $inv_count = $dbc->query("SELECT SUM(IF(`invoice`.`invoiceid` IS NULL, 1, 0)) `unbilled`, SUM(IF(`invoice`.`invoiceid` IS NULL, 0, 1)) `billed` FROM `tickets` LEFT JOIN `invoice` ON CONCAT(',',`invoice`.`ticketid`,',') LIKE CONCAT('%,',`tickets`.`ticketid`,',%') WHERE `tickets`.`ticket_type` IN ('".implode("','",$ticket_conf_list)."') AND `tickets`.`deleted`=0 ".(in_array('Administration',$db_config) ?"AND `approvals` IS NOT NULL" : ''))->fetch_assoc(); ?>
+						<?php $inv_count = $dbc->query("SELECT SUM(IF(`invoice`.`invoiceid` IS NULL, 1, 0)) `unbilled`, SUM(IF(`invoice`.`invoiceid` IS NULL, 0, 1)) `billed` FROM `tickets` LEFT JOIN `invoice` ON CONCAT(',',`invoice`.`ticketid`,',') LIKE CONCAT('%,',`tickets`.`ticketid`,',%') WHERE `tickets`.`ticket_type` IN ('".implode("','",$ticket_conf_list)."') AND `tickets`.`deleted`=0 ".(in_array('Administration',$db_config) ?"AND IFNULL(`approvals`,'') != ''" : ''))->fetch_assoc(); ?>
 						<li class="sidebar-lower-level <?= $_GET['tab'] == 'invoice' && $_GET['status'] == 'unbilled' ? 'active blue' : '' ?>"><a href="?<?= $current_tile ?>tab=invoice&status=unbilled">Unbilled<span class="pull-right"><?= $inv_count['unbilled'] ?></span></a></li>
 						<li class="sidebar-lower-level <?= $_GET['tab'] == 'invoice' && $_GET['status'] == 'billed' ? 'active blue' : '' ?>"><a href="?<?= $current_tile ?>tab=invoice&status=billed">Billed<span class="pull-right"><?= $inv_count['billed'] > 25 ? 'Last 25' : $inv_count['billed'] ?></span></a></li>
 					</ul>
@@ -843,7 +956,7 @@ IF(!IFRAME_PAGE) { ?>
 			$form = $dbc->query("SELECT * FROM `ticket_pdf` WHERE `id`='{$_GET['form_list']}'")->fetch_assoc();
 			$form['file_name'] = config_safe_str($form['pdf_name']);
 		} ?>
-		<div class="standard-<?= substr($_GET['tab'],0,14) == 'administration' ? '' : 'dashboard-' ?>body-title">
+		<div class="standard-<?= substr($_GET['tab'],0,14) == 'administration' || $_GET['tab'] == 'invoice' ? '' : 'dashboard-' ?>body-title">
 			<h3><?= $ticket_tile.($_GET['form_list'] > 0 ? ': '.$form['pdf_name'] : (substr($_GET['tab'],0,14) == 'administration' ? ': Administration' : (substr($_GET['tab'],0,14) == 'invoice' ? ': Accounting - '.($_GET['status'] == 'billed' ? 'Billed' : 'Unbilled').' '.$ticket_tile : ($_GET['tab'] == 'manifest' && $_GET['site'] == 'recent' ? ': Last '.$recent_manifests.' Manifests '.(IFRAME_PAGE ? '<a href="../blank_loading_page.php" class="pull-right"><img class="inline-img" src="../img/icons/cancel.png"></a>' : '').'<a href="../Reports/report_daily_manifest_summary.php?type=operations" class="pull-right"><img class="inline-img" src="../img/icons/pie-chart.png"></a>' : ($_GET['tab'] == 'manifest' ? (IFRAME_PAGE ? '<a href="../blank_loading_page.php" class="pull-right"><img class="inline-img" src="../img/icons/cancel.png"></a>' : '').': '.($_GET['manifestid'] > 0 ? 'Edit Manifest' : 'Create Manifests').' '.($_GET['site'] > 0 ? '<a href="?tile_name='.$_GET['tile_name'].'&tab=manifest&site=recent&siteid='.$_GET['site'].'" onclick="overlayIFrameSlider(this.href,\'auto\',true,true); return false;"><img class="inline-img pull-right" src="../img/icons/eyeball.png"></a>' : '').'<a href="../Reports/report_daily_manifest_summary.php?type=operations" class="pull-right"><img class="inline-img" src="../img/icons/pie-chart.png"></a>' : ''))))) ?></h3><?php
 				$notes = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT note FROM notes_setting WHERE subtab='tickets_summary'"));
 				if ( !empty($notes['note']) ) { ?>
@@ -868,7 +981,7 @@ IF(!IFRAME_PAGE) { ?>
 				}
 			} ?>
 		</div>
-		<div class="standard-<?= substr($_GET['tab'],0,14) == 'administration' ? '' : 'dashboard-' ?>body-content">
+		<div class="standard-<?= substr($_GET['tab'],0,14) == 'administration' || $_GET['tab'] == 'invoice' ? '' : 'dashboard-' ?>body-content">
 			<?php if($_GET['tab'] == 'export') {
 				include('ticket_import.php');
 			} else if($_GET['form_list'] > 0) {
@@ -884,7 +997,7 @@ IF(!IFRAME_PAGE) { ?>
 					<?php include('../Project/project_administration.php'); ?>
 				</div>
 			<?php } else if($_GET['tab'] == 'invoice') { ?>
-				<div class="col-sm-12" id="no-more-tables">
+				<div class="col-sm-12 gap-top" id="no-more-tables">
 					<?php include('ticket_invoice.php'); ?>
 				</div>
 			<?php } else if($_GET['tab'] == 'manifest' && $_GET['manifestid'] > 0) { ?>
@@ -1524,3 +1637,15 @@ IF(!IFRAME_PAGE) { ?>
 		</div>
 	</div>
 <?php } ?>
+
+<script>
+	$('.sidebar-higher-level.highest-level ul li.sidebar-higher-level').on('click', function (e) {
+		e.preventDefault();
+		if($(this).children('a').hasClass('collapsed')){
+			$(this).removeClass('li-collapsed-active-show');
+		}else{
+			$(this).addClass('li-collapsed-active-show');
+		}
+	});
+
+</script>

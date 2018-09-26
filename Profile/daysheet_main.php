@@ -174,7 +174,9 @@ if ( !empty($note) ) { ?>
 
                 </div>
                 <div class="scale-to-fill weekly-overview-header">
-                    <?php if ($side_content == 'contact_form') {
+                    <?php if ($side_content == 'my_tags') { ?>
+                        <h1 class="no-margin">Tags</h1>
+                    <?php } else if ($side_content == 'contact_form') {
                         $form_id = $_GET['form_id'];
                         $contact_form = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `user_forms` WHERE `form_id` = '$form_id'"));
                         $attached_contact = $_GET['attached_contactid']; ?>
@@ -232,7 +234,9 @@ if ( !empty($note) ) { ?>
             </div>
             <div class="clearfix"></div>
             <div class="sidebar weekly" style="padding: 1em; margin: 0 auto; overflow-y: auto; <?= $_GET['tab'] == 'tickets' ? ' background-color: transparent;' : '' ?>">
-                <?php if($side_content == 'contact_form') {
+                <?php if($side_content == 'my_tags') {
+                    include('daysheet_tags.php');
+                } else if($side_content == 'contact_form') {
                     include('daysheet_contact_form.php');
                 } else if($side_content == 'my_shifts') {
                     include('daysheet_shifts.php');

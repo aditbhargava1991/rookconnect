@@ -2,6 +2,69 @@ $(document).ready(function() {
 	tasksInit();
 });
 
+function mark_task_date(sel) {
+    var todo_date = sel.value;
+	var tasklistid = sel.id.split('_')[1];
+
+    $.ajax({
+        type: "GET",
+        url: "../Tasks_Updated/task_ajax_all.php?fill=mark_date&tasklistid="+tasklistid+'&todo_date='+todo_date,
+        dataType: "html",
+        success: function(response){
+		}
+    });
+}
+
+function mark_task_staff(sel) {
+	var tasklistid = sel.id.split('_')[1];
+
+	var staff = [];
+
+	$(sel).find('option:selected').each(function() {
+			staff.push(this.value);
+	});
+
+    $.ajax({
+        type: "GET",
+        url: "../Tasks_Updated/task_ajax_all.php?fill=mark_staff&tasklistid="+tasklistid+'&staff='+staff,
+        dataType: "html",
+        success: function(response) {
+		}
+    });
+}
+
+function saveTaskChecklist() {
+	var checklist = 0;
+
+    if ($('[name="task_include_checklists"]').is(':checked')) {
+        checklist = 1;
+    } else {
+        checklist = 0;
+    }
+
+	$.ajax({    //create an ajax request to ajax_all.php
+		type: "GET",
+		url: "task_ajax_all.php?fill=setting_task_checklist&checklist="+checklist,
+		dataType: "html",   //expect html to be returned
+	});
+}
+
+function saveTaskIntake() {
+	var intake = 0;
+
+    if ($('[name="task_include_intake"]').is(':checked')) {
+        intake = 1;
+    } else {
+        intake = 0;
+    }
+
+	$.ajax({    //create an ajax request to ajax_all.php
+		type: "GET",
+		url: "task_ajax_all.php?fill=setting_task_intake&intake="+intake,
+		dataType: "html",   //expect html to be returned
+	});
+}
+
 function saveFields() {
 	var tab_list = [];
 	$('[name="task_fields[]"]:checked').not(':disabled').each(function() {
@@ -130,7 +193,7 @@ function tasksInit() {
 			}
 		});
 	});
-	
+
     $( ".connectedSortable" ).sortable({
 		connectWith: ".connectedSortable",
 		handle: ".drag_handle",
@@ -141,7 +204,7 @@ function tasksInit() {
 			var id_field = ui.item.data('id-field');
 			var table_class = ui.item.parent().attr("class");
 			var status = table_class.split(' ')[2];
-			
+
 			$.ajax({    //create an ajax request to load_page.php
 				type: "GET",
 				url: "task_ajax_all.php?fill=tasklist&tasklistid="+taskid+"&table="+table+"&id_field="+id_field+"&task_milestone_timeline="+status,
@@ -181,7 +244,7 @@ function changeEndAme(sel) {
 	$(this).prop("disabled",false);
 	var stage = sel.value;
 	var typeId = sel.id;
-	
+
 	var tasklistid = typeId.split(' ');
 
 	var status = tasklistid[1];

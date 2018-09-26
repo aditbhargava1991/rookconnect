@@ -315,6 +315,9 @@ if($_GET['action'] == 'mark_favourite') {
 		$project_info = $dbc->query("SELECT * FROM `project` WHERE `projectid`='$project'")->fetch_assoc();
 		mysqli_query($dbc, "INSERT INTO `$table` (`projectid`) VALUES ('$project')");
 		$id = mysqli_insert_id($dbc);
+        if($table == 'tasklist' && $field == 'heading') {
+            mysqli_query($dbc, "UPDATE `tasklist` SET `task_tododate`='".date('Y-m-d')."' WHERE `tasklistid`='$id'");
+        }
 		if($type != '' && $type_field != '') {
 			mysqli_query($dbc, "UPDATE `$table` SET `$type_field`='$type' WHERE `$id_field`='$id'");
 		} else if($type != '') {
@@ -485,6 +488,12 @@ if($_GET['action'] == 'mark_favourite') {
 	$id = filter_var($_POST['id'],FILTER_SANITIZE_STRING);
 	$dbc->query("UPDATE `project` SET `status`='Archive', `deleted`=1 WHERE `projectid`='$id'");
     add_update_history($dbc,'project_history',PROJECT_NOUN." archived.",'','',$id);
+    
+    $dbc->query("UPDATE `tickets` SET `deleted`=1 WHERE `projectid`='$id'");
+    $dbc->query("UPDATE `tasklist` SET `deleted`=1 WHERE `projectid`='$id'");
+    $dbc->query("UPDATE `checklist` SET `deleted`=1 WHERE `projectid`='$id'");
+    $dbc->query("UPDATE `email_communication` SET `deleted`=1 WHERE `projectid`='$id'");
+    
 } else if($_GET['action'] == 'path_template') {
 	$id = filter_var($_POST['templateid'],FILTER_SANITIZE_STRING);
 	$project_path = filter_var($_POST['template_name'],FILTER_SANITIZE_STRING);
@@ -494,6 +503,8 @@ if($_GET['action'] == 'mark_favourite') {
 	$ticket = filter_var($_POST['ticket'],FILTER_SANITIZE_STRING);
 	$check_lists = filter_var($_POST['check_list'],FILTER_SANITIZE_STRING);
 	$intake_forms = filter_var($_POST['intake_form'],FILTER_SANITIZE_STRING);
+	$items = filter_var($_POST['items'],FILTER_SANITIZE_STRING);
+	//$intakes = filter_var($_POST['intakes'],FILTER_SANITIZE_STRING);
 	$intakes = filter_var($_POST['intakes'],FILTER_SANITIZE_STRING);
 
 	if($id == 'new') {
@@ -1101,7 +1112,7 @@ if($_GET['action'] == 'mark_favourite') {
 	$salesid = filter_var($_POST['sales'],FILTER_SANITIZE_STRING);
     // Add Sales Lead Communication to Project
     $dbc->query("UPDATE `email_communication` SET `projectid`='$projectid' WHERE `projectid`=0 AND `salesid`='$salesid'");
-    
+
     // Add Scope from Sales Lead to Project
 	$sales_scope = $dbc->query("SELECT `serviceid`,`productid` FROM `sales` WHERE `salesid`='$salesid'")->fetch_assoc();
 	foreach(explode(',',$sales_scope['serviceid']) as $service) {

@@ -6,10 +6,62 @@ $(document).ready(function() {
 		}
 	});
 });
+
+function task_status(sel) {
+    var status = sel.value;
+	var tasklistid = sel.id.split('_')[1];
+
+	var status = status.replace(" ", "FFMSPACE");
+	var status = status.replace("&", "FFMEND");
+	var status = status.replace("#", "FFMHASH");
+    $.ajax({
+        type: "GET",
+        url: "../Tasks_Updated/task_ajax_all.php?fill=task_status&tasklistid="+tasklistid+'&status='+status,
+        dataType: "html",
+		success: function(response){
+			window.location.reload();
+		}
+    });
+}
+
+function mark_task_date(sel) {
+    var todo_date = sel.value;
+	var tasklistid = sel.id.split('_')[1];
+
+    $.ajax({
+        type: "GET",
+        url: "../Tasks_Updated/task_ajax_all.php?fill=mark_date&tasklistid="+tasklistid+'&todo_date='+todo_date,
+        dataType: "html",
+        success: function(response){
+			window.location.reload();
+		}
+    });
+}
+
+function mark_task_staff(sel) {
+	var tasklistid = sel.id.split('_')[1];
+
+	var staff = [];
+
+	$(sel).find('option:selected').each(function() {
+			staff.push(this.value);
+	});
+
+    $.ajax({
+        type: "GET",
+        url: "../Tasks_Updated/task_ajax_all.php?fill=mark_staff&tasklistid="+tasklistid+'&staff='+staff,
+        dataType: "html",
+        success: function(response) {
+			window.location.reload();
+		}
+    });
+}
+
 function viewProfile(img, category) {
 	contact = $(img).closest('.form-group').find('option:selected').first().val();
 	if(contact > 0) {
 		overlayIFrameSlider('../Contacts/contacts_inbox.php?fields=all_fields&edit='+contact, '75%', true, true);
+        var options = $(img).closest('.form-group').find('select').first();
 		var iframe_check = setInterval(function() {
 			if(!$('.iframe_overlay iframe').is(':visible')) {
 				$.post('projects_ajax.php?action=get_category_list', { category: category }, function(response) {
@@ -20,7 +72,9 @@ function viewProfile(img, category) {
 				clearInterval(iframe_check);
 			}
 		}, 500);
-	}
+	} else {
+        alert("Please select a contact before attempting to view their profile.");
+    }
 }
 function addReminder(img) {
     projectid = $('[name=projectid]').val();
