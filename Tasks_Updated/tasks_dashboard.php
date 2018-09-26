@@ -992,7 +992,7 @@ function addIntakeForm(btn) {
                                                         <div class="col-xs-2 col-sm-1"><?= profile_id($dbc, $row_comment['created_by']); ?></div>
                                                         <div class="col-xs-10 col-sm-11" style="<?= $style_strikethrough ?>">
                                                             <div><?= html_entity_decode($row_comment['comment']); ?></div>
-                                                            <div><em>Added by 1 <?= get_contact($dbc, $row_comment['created_by']); ?> on <?= $row_comment['created_date']; ?></em></div>
+                                                            <!-- <div><em>Added by <?= get_contact($dbc, $row_comment['created_by']); ?> on <?= $row_comment['created_date']; ?></em></div> -->
                                                         </div>
                                                         <div class="clearfix"></div>
                                                     </div><?php

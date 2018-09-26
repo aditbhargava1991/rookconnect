@@ -272,6 +272,10 @@ if($_GET['fill'] == 'add_task') {
     if($heading != '') {
         echo $query_insert_log = "INSERT INTO `tasklist` (`task_milestone_timeline`, `task_path`, `heading`, `contactid`, `task_board`, `salesid`, `created_date`, `created_by`, `status_date`, `task_tododate`, `status`) VALUES ('$task_milestone_timeline', '$task_path', '$heading', '$contactid', '$taskboardid', '$salesid', '$created_date', '$contactid', '$created_date', '$created_date', 'To Be Scheduled')";
         $result_insert_log = mysqli_query($dbc, $query_insert_log);
+        $last_id = mysqli_insert_id($dbc);
+
+        $note = "<em>Added by ".get_contact($dbc, $_SESSION['contactid'])." [PROFILE ".$_SESSION['contactid']."]</em> on ".$created_date;
+        mysqli_query($dbc, "INSERT INTO `task_comments` (`tasklistid`, `comment`, `created_by`, `created_date`) VALUES ('$last_id','".filter_var(htmlentities($note),FILTER_SANITIZE_STRING)."','".$_SESSION['contactid']."','".date('Y-m-d')."')");
     }
 }
 if($_GET['fill'] == 'ticket') {
