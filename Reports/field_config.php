@@ -57,6 +57,10 @@ switch($_GET['tab']) {
         $title = 'Compensation Reports';
         $filename = 'field_config_compensation.php';
         break;
+    case 'dashboard_navigation':
+        $title = 'Dashboard Navigations';
+        $filename = 'field_config_navigation.php';
+        break;
     case 'tabs':
     default:
         $_GET['tab'] = 'tabs';
@@ -187,6 +191,21 @@ switch($_GET['tab']) {
                         </div>
                     </div>
                 </div>
+                <div class="panel panel-default">
+                    <div class="panel-heading mobile_load">
+                        <h4 class="panel-title">
+                            <a data-toggle="collapse" data-parent="#mobile_tabs" href="#collapse_compensation">
+                                Dashboard Navigation<span class="glyphicon glyphicon-plus"></span>
+                            </a>
+                        </h4>
+                    </div>
+
+                    <div id="collapse_compensation" class="panel-collapse collapse">
+                        <div class="panel-body" data-file-name="field_config_compensation.php">
+                            Loading...
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div class="tile-sidebar sidebar hide-titles-mob standard-collapsible">
@@ -198,6 +217,7 @@ switch($_GET['tab']) {
                     <a href="?tab=default"><li <?= $_GET['tab'] == 'default' ? 'class="active"' : '' ?>>Default Report</li></a>
                     <a href="?tab=operations"><li <?= $_GET['tab'] == 'operations' ? 'class="active"' : '' ?>>Operations Reports</li></a>
                     <a href="?tab=compensation"><li <?= $_GET['tab'] == 'compensation' ? 'class="active"' : '' ?>>Compensation Reports</li></a>
+                    <a href="?tab=dashboard_navigation"><li <?= $_GET['tab'] == 'dashboard_navigation' ? 'class="active"' : '' ?>>Dashboard Navigation</li></a>
                 </ul>
             </div>
 

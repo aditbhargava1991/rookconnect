@@ -1891,18 +1891,18 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 				}
 			} ?>
 			<div class='standard-body-title' data-colour="<?= $project['flag_colour'] ?>" data-table="project" data-id-field="projectid" style="<?= $project['flag_colour'] != '' ? 'background-color: #'.$project['flag_colour'].';' : '' ?>">
-				<h3><?= $body_title ?>
-                    <div class="pull-right" style="position: relative; bottom: 0.5em;">
+				<h3 style="margin:12px 18px;">
+                    <div class="pull-left" style="margin-top:7px;"><?= $body_title ?></div>
+                    <div class="pull-left" style="height:30px; position:relative; margin:-6px 0 0 3px;">
                         <?php foreach(explode(',',$project['project_lead'].','.$project['project_colead'].','.$project['project_team']) as $project_staff) {
                             if($project_staff > 0) {
                                 echo '<div class="pull-left">'.profile_id($dbc,$project_staff,false).'</div>';
                             }
-                        }
-                        echo '<div class="pull-right">';
-                        include('quick_actions.php');
-                        echo '</div>'; ?>
+                        } ?>
                     </div>
+                    <div class="pull-right"><?php include('quick_actions.php'); ?></div>
                     <span class="flag-label"><?= $flag_label ?></span>
+                    <div class="clearfix"></div>
                 </h3>
 			</div>
 		<?php } ?>

@@ -34,7 +34,7 @@ function changeInventoryPart(sel) {
 	<div class="col-sm-1 hide-titles-mob text-center"></div>
 	<div class="clearfix"></div>
 <?php } ?>
-<?php $inventory_list = mysqli_query($dbc, "SELECT `ticket_attached`.`id`, `ticket_attached`.`item_id`, IFNULL(NULLIF(`ticket_attached`.`rate`,0),`inventory`.`final_retail_price`) `rate`, `ticket_attached`.`qty`, `ticket_attached`.`received`, `ticket_attached`.`used`, `ticket_attached`.`description`, `ticket_attached`.`status`, `ticket_attached`.`po_line`, `ticket_attached`.`piece_num`, `ticket_attached`.`piece_type`, `ticket_attached`.`used`, `ticket_attached`.`weight`, `ticket_attached`.`weight_units`, `ticket_attached`.`dimensions`, `ticket_attached`.`dimension_units`, `ticket_attached`.`discrepancy`, `ticket_attached`.`backorder`, `ticket_attached`.`position`, `ticket_attached`.`notes`, `ticket_attached`.`contact_info`, `inventory`.`category`, `inventory`.`sub_category`, `inventory`.`part_no`, `inventory`.`final_retail_price`, `inventory`.`preferred_price`, `inventory`.`web_price`, `inventory`.`sell_price`, `inventory`.`admin_price`, `inventory`.`wholesale_price`, `inventory`.`commercial_price`, `inventory`.`client_price`, `inventory`.`clearance_price`, `inventory`.`distributor_price`, `inventory`.`unit_price` FROM `ticket_attached` LEFT JOIN `inventory` ON `ticket_attached`.`item_id`=`inventory`.`inventoryid` WHERE `ticket_attached`.`src_table`='inventory' AND `ticket_attached`.`ticketid`='$ticketid' AND `ticket_attached`.`ticketid` > 0 AND `ticket_attached`.`deleted`=0".$query_daily); // Removed Validation clause: (`ticket_attached`.`item_id` > 0 OR `ticket_attached`.`description` != '' OR `ticket_attached`.`weight` > 0) AND 
+<?php $inventory_list = mysqli_query($dbc, "SELECT `ticket_attached`.`id`, `ticket_attached`.`item_id`, IFNULL(NULLIF(`ticket_attached`.`rate`,0),`inventory`.`final_retail_price`) `rate`, `ticket_attached`.`qty`, `ticket_attached`.`received`, `ticket_attached`.`used`, `ticket_attached`.`description`, `ticket_attached`.`status`, `ticket_attached`.`po_line`, `ticket_attached`.`piece_num`, `ticket_attached`.`piece_type`, `ticket_attached`.`used`, `ticket_attached`.`weight`, `ticket_attached`.`weight_units`, `ticket_attached`.`dimensions`, `ticket_attached`.`dimension_units`, `ticket_attached`.`discrepancy`, `ticket_attached`.`backorder`, `ticket_attached`.`position`, `ticket_attached`.`notes`, `ticket_attached`.`contact_info`, `inventory`.`category`, `inventory`.`sub_category`, `inventory`.`part_no`, `inventory`.`final_retail_price`, `inventory`.`preferred_price`, `inventory`.`web_price`, `inventory`.`sell_price`, `inventory`.`admin_price`, `inventory`.`wholesale_price`, `inventory`.`commercial_price`, `inventory`.`client_price`, `inventory`.`clearance_price`, `inventory`.`distributor_price`, `inventory`.`unit_price` FROM `ticket_attached` LEFT JOIN `inventory` ON `ticket_attached`.`item_id`=`inventory`.`inventoryid` WHERE `ticket_attached`.`src_table`='inventory' AND `ticket_attached`.`ticketid`='$ticketid' AND `ticket_attached`.`ticketid` > 0 AND `ticket_attached`.`deleted`=0".$query_daily); // Removed Validation clause: (`ticket_attached`.`item_id` > 0 OR `ticket_attached`.`description` != '' OR `ticket_attached`.`weight` > 0) AND
 $inventory = mysqli_fetch_assoc($inventory_list);
 $piece_types = array_filter(explode(',',get_config($dbc, 'piece_types')));
 $inventory_units = $dbc->query("SELECT `category`, `sub_category`,  `part_no`, `final_retail_price`, `preferred_price`, `web_price`, `sell_price`, `admin_price`, `wholesale_price`, `commercial_price`, `client_price`, `clearance_price`, `distributor_price`, `unit_price`, CONCAT(IFNULL(`product_name`,''),' ',IFNULL(`name`,'')) `label`, `inventoryid` FROM `inventory` WHERE `deleted`=0 ORDER BY `category`, `sub_category`, `label`")->fetch_all(MYSQLI_ASSOC);
@@ -126,8 +126,8 @@ do {
 					<?php } ?>
 					<div class="col-sm-1">
 						<input type="hidden" name="deleted" data-table="ticket_attached" data-id="<?= $inventory['id'] ?>" data-id-field="id" data-type="inventory" data-type-field="src_table" value="0">
-						<img class="inline-img pull-right" onclick="addMulti(this);" src="../img/icons/ROOK-add-icon.png">
-						<img class="inline-img pull-right" onclick="remMulti(this);" src="../img/remove.png">
+						<img class="inline-img pull-right" data-history-label="Inventory" onclick="addMulti(this);" src="../img/icons/ROOK-add-icon.png">
+						<img class="inline-img pull-right" data-history-label="Inventory" onclick="remMulti(this);" src="../img/remove.png">
 					</div>
 				<?php } ?>
 				<?php if(strpos($value_config,',Inventory Basic Inline,') === FALSE && strpos($value_config,',Inventory Basic Category,') !== FALSE && $field_sort_field == 'Inventory Basic Category') { ?>
@@ -173,9 +173,9 @@ do {
 						</div>
 						<div class="col-sm-1">
 							<input type="hidden" name="deleted" data-table="ticket_attached" data-id="<?= $inventory['id'] ?>" data-id-field="id" data-type="inventory" data-type-field="src_table" value="0">
-							<img class="inline-img pull-right" onclick="addMulti(this);" src="../img/icons/ROOK-add-icon.png">
-							<img class="inline-img pull-right" onclick="remMulti(this);" src="../img/remove.png">
-							<a href="" onclick="$(this).closest('.form-group').find('select').val('MANUAL').change(); return false;"><img class="inline-img pull-left" src="../img/icons/ROOK-add-icon.png"></a>
+							<img class="inline-img pull-right" data-history-label="Inventory" onclick="addMulti(this);" src="../img/icons/ROOK-add-icon.png">
+							<img class="inline-img pull-right" data-history-label="Inventory" onclick="remMulti(this);" src="../img/remove.png">
+							<a href="" onclick="$(this).closest('.form-group').find('select').val('MANUAL').change(); return false;"><img class="inline-img pull-left" data-history-label="New Inventory" src="../img/icons/ROOK-add-icon.png"></a>
 						</div>
 						<div class="clearfix"></div>
 					</div>

@@ -184,7 +184,7 @@ if(ucwords($category) == 'Vendors') {
 			<a href="?list=<?= $_GET['list'] ?>&status=archive" class="btn brand-btn <?= $status == 'archive' ? 'active_tab' : '' ?>">Archived</a>
 			-->
             <!-- <input type="submit" value="Filter" class="btn brand-btn" name="search_<?php //echo $category; ?>_submit"> -->
-			<button type="submit" value="<?= $category ?>" class="btn brand-btn" name="export_contacts">Export CSV</button>
+			<button type="submit" value="<?= $category ?>" class="image-btn no-toggle" name="export_contacts" title="Export CSV"><img src="../img/icons/csv.png" width="30" /></button>
 			<input type="hidden" name="export_option" value="Contact Information">
 		</span>
 	</form>
@@ -473,16 +473,16 @@ $get_current_url = "$_SERVER[REQUEST_URI]";
 if(strpos($contacts_summary_config,'Per Archived Data') !== false) {
     echo '<h3 class="double-gap-left">'.CONTACTS_TILE.' Per Archived Data</h3>';
 	$query = mysqli_query($dbc,"SELECT contactid, `name`, `first_name`, `last_name` FROM `contacts` WHERE `deleted`=1 AND `tile_name`='".FOLDER_NAME."'");
-	while($row = mysqli_fetch_array($query)) {
-        if($row['name'] != '' || $row['first_name'] != '') {
 		echo '<div class="col-sm-6">';
             echo '<div class="overview-block">';
-                echo decryptIt($row['name']).decryptIt($row['first_name']).' '.decryptIt($row['last_name']);
-                echo ' : <a href=\'../delete_restore.php?action=restore&from='.$get_current_url.'&contactid='.$row['contactid'].'\' onclick="return confirm(\'Are you sure?\')">Restore</a>';
+                while($row = mysqli_fetch_array($query)) {
+                    if($row['name'] != '' || $row['first_name'] != '') {
+                            echo decryptIt($row['name']).decryptIt($row['first_name']).' '.decryptIt($row['last_name']);
+                            echo ' : <a href=\'../delete_restore.php?action=restore&from='.$get_current_url.'&contactid='.$row['contactid'].'\' onclick="return confirm(\'Are you sure?\')">Restore</a><br>';
+                    }
+                }
             echo '</div>';
         echo '</div>';
-        }
-	}
     echo '<div class="clearfix"></div>';
 }
 /*
@@ -510,4 +510,4 @@ if(strpos($contacts_summary_config,'Per Archived Data') !== false) {
 */
 
  } ?>
-</div> 
+</div>

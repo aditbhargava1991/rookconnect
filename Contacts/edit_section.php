@@ -1,4 +1,5 @@
 <?php include_once('../include.php');
+
 $field_config_mandate = explode(',', mysqli_fetch_array(mysqli_query($dbc, "SELECT `contacts` FROM `field_config_contacts` WHERE `tile_name`='".FOLDER_NAME."' AND `tab`='$current_type' AND `subtab`='**no_subtab**' AND `mandatory` = 1"))[0]);
 if(!isset($tab_label)) {
 	error_reporting(0);
@@ -200,20 +201,41 @@ function viewOnlyFields(div) {
 <?php } ?>
 <script>
 window.onbeforeunload = function() {
+	var newflag = 0;
+	var flag = 0;
+	var counter = 0;
+	var newcounter = 0;
 	$('.form-group .required').each(function() {
 			var target = this;
-				if($(target).val() != null && $(target).val().length === 0) {
-					if($(target).is('select')) {
-						var select2 = $(target).next('.select2');
-						$(select2).find('.select2-selection').css('background-color', 'red');
-						$(select2).find('.select2-selection__placeholder').css('color', 'white');
-					} else {
-						$(target).css('background-color', 'red');
-					}
-			}
+			flag = verifycondition(target, flag);
 	});
-	setTimeout(function() {
-			alert("Please fill in the required fields");
-	}, 0);
+
+	/*function prealert(){
+    sendalert(flag);
+  }
+  setTimeout(prealert, 0);*/
+}
+
+function verifycondition(target, flag) {
+	if($(target).val() == null || $(target).val().length === 0) {
+			if($(target).is('select')) {
+				var select2 = $(target).next('.select2');
+				$(select2).find('.select2-selection').css('background-color', 'red');
+				$(select2).find('.select2-selection__placeholder').css('color', 'white');
+			} else {
+				$(target).css('background-color', 'red');
+			}
+
+			flag=1;
+	}
+
+	return flag;
+}
+
+function sendalert(flag) {
+	alert(flag);
+	if(flag == 1) {
+		alert("Please fill in the required fields");
+	}
 }
 </script>

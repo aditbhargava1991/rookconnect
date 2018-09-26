@@ -49,16 +49,20 @@ else if($_GET['action'] == 'assign_ticket_deliveries') {
 	}
 	$start_time = date('H:i',strtotime($start_time));
 	if($increment == '') {
+		$increment = get_config($dbc, 'scheduling_increments').' minutes';
+	}
+	if($increment == '') {
 		$increment = '30 minutes';
 	}
 	$available_increment = get_config($dbc, 'delivery_timeframe_default');
 	$dbc->query("INSERT INTO `ticket_history` (`ticketid`,`userid`,`src`,`description`) VALUES ($ticketid,".$_SESSION['contactid'].",'optimizer','Deliveries assigned to be completed at $start_time on $date at increments of $increment.')");
 	$stops = $dbc->query("SELECT `id` FROM `ticket_schedule` WHERE `ticketid`='$ticket' AND `deleted`=0 ORDER BY `id`");
 	while($stop = $stops->fetch_assoc()) {
+        $end_time = date('H:i',strtotime($start_time.' + '.$increment));
 		$start_available = $start_time;
 		$end_available = date('H:i',strtotime($start_time.' + '.$available_increment.' hours'));
-		$dbc->query("UPDATE `ticket_schedule` SET `to_do_start_time`='$start_time', `start_available`='$start_available', `end_available`='$end_available', `equipmentid`='$equipmentid' WHERE `id`='".$stop['id']."'");
-		$start_time = date('H:i',strtotime($start_time.' + '.$increment));
+		$dbc->query("UPDATE `ticket_schedule` SET `to_do_start_time`='$start_time', `to_do_end_time`='$end_time', `start_available`='$start_available', `end_available`='$end_available', `equipmentid`='$equipmentid' WHERE `id`='".$stop['id']."'");
+		$start_time = $end_time;
 	}
 }
 else if($_GET['action'] == 'archive') {

@@ -5,7 +5,7 @@ if(get_config($dbc, 'ticket_unassigned_status') == 1) {
 }
 
 $summary_block_list = explode(',',get_config($dbc, 'summary_block_sort'));
-$block_list_arr = explode('||*||',$summary_block_list[0]); 
+$block_list_arr = explode('||*||',$summary_block_list[0]);
 
 $ticket_status_list = explode(',',get_config($dbc, 'ticket_status'));
 $project_types = [];
@@ -291,7 +291,7 @@ function loadTickets() {
 					});
 				}
 			});
-			
+
 			/*$('.sort_div1').sortable({
 				connectWith: '.sort_div',
 				handle: '.drag_handle',
@@ -499,6 +499,10 @@ function setActions() {
 				$(this).off('blur').hide();
 			}
 		});
+	});
+	$('.history-icon').off('click').click(function() {
+		var item = $(this).closest('.dashboard-item');
+		overlayIFrameSlider('<?= WEBSITE_URL ?>/Ticket/ticket_history.php?tile=tickets&ticketid='+item.data('id'), 'auto', false, true);
 	});
 }
 function setManualFlag(ticketid, colour, label) {
@@ -757,8 +761,14 @@ IF(!IFRAME_PAGE) { ?>
 								if($admin_group['region'] == '') {
 									$admin_regions = mysqli_fetch_all($dbc->query("SELECT IFNULL(`region`,'') FROM `tickets` WHERE `deleted`=0 ".($other_groups['regions'] != "','" && $other_groups['regions'] != "" ? " AND ((`region` IN ('{$admin_group['region']}','') AND `region` NOT IN ('{$other_groups['regions']}')) OR ('{$admin_group['region']}'='' AND `region` NOT IN ('{$other_groups['regions']}')))" : "")." GROUP BY IFNULL(`region`,'')"));
 								}
+								if(empty($admin_regions)) {
+									$admin_regions = [''];
+								}
 								if($admin_group['classification'] == '') {
 									$admin_classes = mysqli_fetch_all($dbc->query("SELECT IFNULL(`classification`,'') FROM `tickets` WHERE `deleted`=0 ".($other_groups['classifications'] != "','" && $other_groups['classifications'] != "" ? " AND (`classification` IN ('{$admin_group['classification']}','') OR ('{$admin_group['classification']}'='' AND `classification` NOT IN ('{$other_groups['classifications']}')))" : "")." GROUP BY IFNULL(`classification`,'')"));
+								}
+								if(empty($admin_classes)) {
+									$admin_classes = [''];
 								}
 								foreach($admin_regions as $region_i => $admin_region) {
 									foreach($admin_classes as $class_i => $admin_class) { ?>
@@ -1249,7 +1259,7 @@ IF(!IFRAME_PAGE) { ?>
 		<script>
 		google.charts.load("current", {"packages":["corechart"]});
 		</script>
-		<?php 
+		<?php
 		$blocks = [];
 		$total_length = 0;
 		if(!empty($block_list_arr)){
@@ -1294,15 +1304,15 @@ IF(!IFRAME_PAGE) { ?>
 				</div>
 				<script>
 				google.charts.setOnLoadCallback(drawTimeChart);
-		                    
+
 				function drawTimeChart() {
-		                    
+
 				var data = google.visualization.arrayToDataTable([
 						["My Tracked Time", "Hours"],
 						["Tracked Time - '.$total_tracked_time['time'].'", '.$total_tracked_time['seconds'].'],
 						["Remaining Estimated Time - '.$total_estimated_time['time'].'", '.($total_estimated_time['seconds'] - $total_tracked_time['seconds']).']
 					]);
-		                    
+
 					var options = {
 						title: "My Tracked Time",
 						pieHole: 0.5,
@@ -1312,9 +1322,9 @@ IF(!IFRAME_PAGE) { ?>
 							1: { color: "#84C6E4" },
 						}
 					};
-		                    
+
 					var chart = new google.visualization.PieChart(document.getElementById("time_chart"));
-		                    
+
 					chart.draw(data, options);
 				}
 				</script>'];
@@ -1482,7 +1492,7 @@ IF(!IFRAME_PAGE) { ?>
 		                    $color_apply = $ticket_status_color[$occr];
 		                }
 		                $c_a = 'style="background-color:'.$color_apply.';height: 12px;width: 12px;margin-top: 4px;"';
-		                
+
 		                $block .= '<div class="row"><div class="col-sm-1"><a class="cursor-hand" onclick="'.(in_array('Status',$db_sort) ? '$(\'[data-status=\\\''.$ticket['status'].'\\\']\').first().click().parents(\'li\').each(function() { $(this).find(\'a\').first().filter(\'.collapsed\').click(); });' : '').'$(\'[data-staff='.$_SESSION['contactid'].']\').first().click().parents(\'li\').each(function() { $(this).find(\'a\').first().filter(\'.collapsed\').click(); });"><div '. $c_a .'></div></div><div class="col-sm-8">'.$ticket['status'].'</a>: '.$ticket['count'].'</div></div>';
 		                $block_length += 17;
 		            }
@@ -1613,16 +1623,16 @@ IF(!IFRAME_PAGE) { ?>
 		            } $a++;
 		        }
 		        $display_column = 0;
-		        $displayed_length = 0; 
-		        
-		        
+		        $displayed_length = 0;
+
+
 		    }
 		}
-		
+
 		?>
 		<div class="sort-block-group ui-sortable">
 			<div class="col-sm-6 block-group" id="sort_div">
-				<?php foreach($blocks as $block_count => $block) { 
+				<?php foreach($blocks as $block_count => $block) {
 					if(($block_count+1)/(round(count($blocks)/2)+1) == 1) {
 						$displayed_length = 0;
 						$display_column = 1;
@@ -1649,4 +1659,3 @@ IF(!IFRAME_PAGE) { ?>
 	});
 
 </script>
-

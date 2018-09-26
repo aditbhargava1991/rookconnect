@@ -78,7 +78,7 @@ if((!empty($_GET['action'])) && ($_GET['action'] == 'email')) {
 
     send_email('', $to, '', '', $subject, $body, $attachment);
 
-    echo '<script type="text/javascript"> alert("Invoice Successfully Sent to Patient."); window.location.replace("today_invoice.php"); </script>';
+    echo '<script type="text/javascript"> alert("Invoice Successfully Sent to Patient."); window.location.replace("index.php?tab=today"); </script>';
 
 	//header('Location: unpaid_invoice.php');
     // Send Email to Client
@@ -93,7 +93,7 @@ $(document).ready(function() {
             $('#invoice_div .standard-body').height(available_height);
         }
     }).resize();
-    
+
 	$('.selectall').click(
 		function() {
 			if($('.selectall').hasClass("deselectall")) {
@@ -163,45 +163,53 @@ function show_hide_email() {
 }
 </script>
 
-<!-- Summary Blocks -->
-<div class="view_summary double-gap-bottom" style="display:none;">
-    <div class="col-xs-12 col-sm-4 gap-top">
-        <div class="summary-block">
-            <?php $total_invoices = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT SUM(`final_price`) `final_price` FROM `invoice` WHERE `deleted`=0 AND (`invoice_date` BETWEEN '".date('Y-m-01')."' AND '".date('Y-m-t')."') AND `status`='Void'")); ?>
-            <div class="text-lg"><?= ( $total_invoices['final_price'] > 0 ) ? '$'.number_format($total_invoices['final_price'], 2) : '$'. 0; ?></div>
-            <div>Total Invoices</div>
-        </div>
-    </div>
-    <div class="clearfix"></div>
-</div><!-- .view_summary -->
-
 <div class="standard-body-title hide-titles-mob">
-    <h3>Voided / Credit Memo</h3>
+    <h3 class="pull-left">Voided / Credit Memo</h3>
+    <div class="pull-right"><img src="../img/icons/pie-chart.png" class="no-toggle cursor-hand offset-top-15 double-gap-right" title="View Summary" onclick="view_summary();" /></div>
+    <div class="clearfix"></div>
 </div>
 
 <div class="standard-body-content padded-desktop">
+    <!-- Summary Blocks -->
+    <div class="view_summary double-gap-bottom" style="display:none;">
+        <div class="col-xs-12 col-sm-4 gap-top">
+            <div class="summary-block"><?php
+                $search_contact = 0;
+                $search_invoiceid = '';
+                $search_from = date('Y-m-01');
+                $search_to = date('Y-m-t');
+                if (isset($_POST['search_invoice_submit'])) {
+                    if($_POST['contactid'] != '') {
+                       $search_contact = $_POST['contactid'];
+                    }
+                    if($_POST['type'] != '') {
+                       $search_delivery = $_POST['type'];
+                    }
+                    if($_POST['search_from'] != '') {
+                       $search_from = $_POST['search_from'];
+                    }
+                    if($_POST['search_to'] != '') {
+                       $search_to = $_POST['search_to'];
+                    }
+                    $search_invoiceid = isset($_POST['search_invoiceid']) ? preg_replace('/[^0-9]/', '', $_POST['search_invoiceid']) : '';
+                }
+
+                $search_clause = $search_contact > 0 ? " AND `patientid`='$search_contact'" : '';
+                $search_clause .= $search_from != '' ? " AND `invoice_date` >= '$search_from'" : '';
+                $search_clause .= $search_to != '' ? " AND `invoice_date` <= '$search_to'" : '';
+                $search_invoice_clause = !empty($search_invoiceid) ? " AND `invoiceid`='$search_invoiceid'" : '';
+
+                $total_invoices = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT SUM(`final_price`) `final_price` FROM `invoice` WHERE `deleted`=0 $search_clause $search_invoice_clause AND `status`='Void'")); ?>
+                <div class="text-lg"><?= ( $total_invoices['final_price'] > 0 ) ? '$'.number_format($total_invoices['final_price'], 2) : '$'. 0; ?></div>
+                <div>Total Invoices</div>
+            </div>
+        </div>
+        <div class="clearfix"></div>
+    </div><!-- .view_summary -->
+
     <form name="invoice" method="post" action="" class="form-horizontal" role="form">
         <?php $value_config = ','.get_config($dbc, 'invoice_dashboard').','; ?>
-        <?php
-        $search_contact = 0;
-        $search_invoiceid = '';
-        $search_from = date('Y-m-01');
-        $search_to = date('Y-m-t');
-        if (isset($_POST['search_invoice_submit'])) {
-            if($_POST['contactid'] != '') {
-               $search_contact = $_POST['contactid'];
-            }
-            if($_POST['type'] != '') {
-               $search_delivery = $_POST['type'];
-            }
-            if($_POST['search_from'] != '') {
-               $search_from = $_POST['search_from'];
-            }
-            if($_POST['search_to'] != '') {
-               $search_to = $_POST['search_to'];
-            }
-            $search_invoiceid = isset($_POST['search_invoiceid']) ? preg_replace('/[^0-9]/', '', $_POST['search_invoiceid']) : '';
-        } ?>
+
         <div class="form-group search-group double-gap-top">
             <div class="col-xs-12">
                 <div class="col-sm-6 col-xs-12">
@@ -246,9 +254,9 @@ function show_hide_email() {
             </div>
         </div>
     </form>
-    
+
     <div class="clearfix"></div>
-    
+
     <form method="POST" action="" name="send_email" class="form-horizontal">
         <?php
         // Display Pager
@@ -384,10 +392,10 @@ function show_hide_email() {
                 if (strpos($value_config, ','."invoice_pdf".',') !== FALSE) {
                     echo '<td data-title="Invoice PDF">';
                     if(file_exists($invoice_pdf)) {
-                        echo '<a target="_blank" href="'.$invoice_pdf.'">Invoice #'.$invoice['invoiceid'].' <img src="'.WEBSITE_URL.'/img/pdf.png" title="PDF"></a><br />';
+                        echo '<a target="_blank" href="'.$invoice_pdf.'">Invoice #'.$invoice['invoiceid'].' <img src="'.WEBSITE_URL.'/img/icons/pdf.png" title="Invoice PDF" class="no-toggle inline-img" /></a><br />';
                     }
                     if($invoice['invoiceid_src'] > 0 && file_exists('../'.FOLDER_NAME.'/Download/invoice_'.$invoice['invoiceid_src'].'.pdf')) {
-                        echo '<a target="_blank" href="'.'../'.FOLDER_NAME.'/Download/invoice_'.$invoice['invoiceid_src'].'.pdf'.'">Primary Invoice #'.$invoice['invoiceid_src'].' <img src="'.WEBSITE_URL.'/img/pdf.png" title="PDF"></a><br />';
+                        echo '<a target="_blank" href="'.'../'.FOLDER_NAME.'/Download/invoice_'.$invoice['invoiceid_src'].'.pdf'.'">Primary Invoice #'.$invoice['invoiceid_src'].' <img src="'.WEBSITE_URL.'/img/icons/pdf.png" title="Primary Invoice PDF" class="no-toggle inline-img" /></a><br />';
                     }
                     echo '</td>';
                 }

@@ -61,7 +61,7 @@ if(basename($_SERVER['SCRIPT_FILENAME']) == 'add_ticket_summary.php') {
 			$value_config = ','.implode(',',array_intersect(explode(',',$value_config), explode(',',$value_config_all))).',';
 		}
 	}
-	
+
 	//Apply Templates
 	if(strpos($value_config,',TEMPLATE Work Ticket') !== FALSE) {
 		$value_config = ',Information,PI Business,PI Name,PI Project,PI AFE,PI Sites,Staff,Staff Position,Staff Hours,Staff Overtime,Staff Travel,Staff Subsistence,Services,Service Category,Equipment,Materials,Material Quantity,Material Rates,Purchase Orders,Notes,';
@@ -164,8 +164,8 @@ if(!empty($summary_hide_positions)) {
 						</div>
 						<div class="col-sm-1">
 							<a href="" onclick="viewProfile(this); return false;"><img class="inline-img pull-right no-toggle" src="../img/person.PNG" title="View Profile"></a>
-							<a href="" onclick="addMulti(this, 'inline'); return false;"><img class="inline-img pull-right" src="../img/icons/ROOK-add-icon.png"></a>
-							<a href="" onclick="remMulti(this); return false;"><img class="inline-img pull-right" src="../img/remove.png"></a>
+							<a href="" onclick="addMulti(this, 'inline'); return false;"><img class="inline-img pull-right" data-history-label="Staff Summary" src="../img/icons/ROOK-add-icon.png"></a>
+							<a href="" onclick="remMulti(this); return false;"><img class="inline-img pull-right" data-history-label="Staff Summary" src="../img/remove.png"></a>
 						</div>
 					</div>
 				<?php }
@@ -527,7 +527,7 @@ if(!empty($summary_hide_positions)) {
 								$tracked_html = $summary['checked_in'].' - '.$summary['checked_out'];
 							}
 							echo $tracked_html;
-							?>		
+							?>
 						</td>
 						<td data-title="Total Tracked Time">
 							<?php $tracked_time = '-';
@@ -579,7 +579,7 @@ if(!empty($summary_hide_positions)) {
 								$tracked_html = $summary['checked_in'].' - '.$summary['checked_out'];
 							}
 							echo $tracked_html;
-							?>		
+							?>
 						</td>
 						<td data-title="Total Tracked Time">
 							<?php $tracked_time = '-';

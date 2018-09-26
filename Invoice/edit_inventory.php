@@ -96,7 +96,7 @@
                 <?php if(in_array('inventory_price',$field_config)) { ?><label class="col-sm-<?= $col5 ?> text-center">Price</label><?php } ?>
                 <label class="col-sm-<?= $col7 ?> text-center">Total</label>
                 <?php if($_GET['inv_mode'] == 'adjust') { ?>
-                    <label class="col-sm-2 text-center return_block">Return</label>
+                    <label class="col-sm-1 text-center return_block">Return</label>
                 <?php } ?>
             </div>
 
@@ -114,7 +114,7 @@
                     for($client_loop=0; $client_loop<=$total_count; $client_loop++) {
                         if($each_inventoryid[$client_loop] != '') {
                             $inventoryid = $each_inventoryid[$client_loop];
-                            $sell_price = $each_sell_price[$client_loop];
+                            $sell_price = $each_sell_price[$client_loop] * $discount_percent;
                             $invtype = $each_invtype[$client_loop];
                             $quantity = $each_quantity[$client_loop];
                             $inv_info = mysqli_fetch_array(mysqli_query($dbc, "SELECT `category`, `part_no`, `name`, `final_retail_price`, `wcb_price`, `client_price`, `web_price`, `purchase_order_price`, `sales_order_price`, `admin_price`, `wholesale_price`, `commercial_price`, `preferred_price`, `gst_exempt` FROM `inventory` WHERE `inventoryid`='$inventoryid'"));
@@ -185,7 +185,7 @@
                                 <div class="col-sm-<?= $col5 ?>" <?= (in_array('inventory_price',$field_config) ? '' : 'style="display:none;"') ?>><label class="show-on-mob">Unit Price:</label>
                                     <?php if($_GET['inv_mode'] == 'adjust') { ?>
                                         <input name="unit_price[]" id="<?php echo 'unitprice_'.$id_loop; ?>" value="<?php echo $sell_price / $quantity; ?>" type="hidden" readonly class="form-control invunitprice" />
-                                        <?php echo $sell_price / $quantity; ?>
+                                        <?= number_format($sell_price / $quantity,2) ?>
                                     <?php } else { ?>
                                         <input name="unit_price[]" id="<?php echo 'unitprice_'.$id_loop; ?>" value="<?php echo $sell_price / $quantity; ?>" type="number" step="any" readonly class="form-control invunitprice" />
                                     <?php } ?>
@@ -201,14 +201,16 @@
                                     <?php } ?>
                                 </div>
                                 <?php if($_GET['inv_mode'] == 'adjust') { ?>
-                                    <div class="return_block col-sm-2">
+                                    <div class="return_block col-sm-1">
                                         <input name="quantity[]" id="<?php echo 'quantity_'.$id_loop; ?>" onchange="changeProduct(this);" value="0" max="0" min="<?php echo -$quantity; ?>" type="number" step="any" class="form-control quantity" />
                                     </div>
                                 <?php } ?>
+                                <!-- Hidden on Returns/Adjustment
                                 <div class="col-sm-2 adjust_block">
                                     <img src="<?= WEBSITE_URL ?>/img/remove.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right cursor-hand" onclick="rem_product_row(this);">
                                     <img src="<?= WEBSITE_URL ?>/img/icons/ROOK-add-icon.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right cursor-hand" onclick="add_product_row();">
                                 </div>
+                                -->
                                 <div class="col-sm-12 pay-div"></div>
                             </div>
                         <?php

@@ -1104,6 +1104,9 @@ if($('[name="edit_access"]').val() == 1) {
 
 // Javascript Common Display Functions
 function resize_calendar_view() {
+	if(window.location.pathname == '/Calendar/calendars_mobile.php') {
+		$('.calendar_view table td').not('.calendar_notes').css('pointer-events', '');
+	}
 	if(window.location.pathname != '/Calendar/calendars_mobile.php') {
 		var deferred = $.Deferred();
 		//setTimeout(function() {
@@ -1265,6 +1268,9 @@ function reloadExpandDivs() {
     	td.find('.calendar_notes_edit').show();
     	textarea.text(td.find('.calendar_notes').text()).focus();
     	resize_calendar_view();
+    	if(window.location.pathname == '/Calendar/calendars_mobile.php') {
+    		$('.calendar_view table td').not('.calendar_notes').css('pointer-events', 'none');
+    	}
     	return false;
     });
     $('.calendar_notes_edit').focusout(function() {
@@ -1425,4 +1431,16 @@ function loadUnbookedList(anchor) {
 		});
 		$(anchor).addClass('active');
 	}
+}
+
+function removeTicketSchedule(ticketid, stopid) {
+    $.post('calendar_ajax_all.php?action=removeSchedule', {
+        ticketid: ticketid,
+        stopid: stopid
+    }, function(response) {
+        $('[data-ticket='+ticketid+']'+(stopid > 0 ? '[data-ticketscheduleid='+stopid+']' : '')).each(function() {
+            var td = $(this).closest('td');
+            retrieve_items($('[id^='+$('#retrieve_collapse').val()+']').find('.block-item[data-'+$('#retrieve_contact').val()+'='+$(td).data('contact')+']').closest('a'),$(td).data('date'))
+        });
+    });
 }
