@@ -200,7 +200,7 @@ function send_email(task) {
 		var type = 'task board';
 		task_id = task_id.substring(5);
 	}
-	overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_email.php?tile=tasks&id='+task_id+'&type='+type, 'auto', false, true);
+	overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_email.php?tile=tasks&id='+task_id+'&from_task=task&type='+type, 'auto', false, false);
 }
 
 function send_task_reminder(task) {
@@ -208,7 +208,7 @@ function send_task_reminder(task) {
        if(task_id.toString().substring(0,5) == 'BOARD') {
                task_id = task_id.substring(5);
        }
-       overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_reminders.php?tile=tasks&id='+task_id, 'auto', false, true);
+       overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_reminders.php?tile=tasks&id='+task_id, 'auto', false, false);
 }
 
 function send_task_alert(task) {
@@ -216,7 +216,7 @@ function send_task_alert(task) {
        if(task_id.toString().substring(0,5) == 'BOARD') {
                task_id = task_id.substring(5);
        }
-       overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_alert.php?tile=tasks&id='+task_id, 'auto', false, true);
+       overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_alert.php?tile=tasks&id='+task_id, 'auto', false, false);
 }
 
 
@@ -225,7 +225,7 @@ function send_note(task) {
        if(task_id.toString().substring(0,5) == 'BOARD') {
                task_id = task_id.substring(5);
        }
-       overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_notes.php?tile=tasks&id='+task_id, 'auto', false, true);
+       overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_notes.php?tile=tasks&id='+task_id, 'auto', false, false);
 }
 
 function track_time(task) {
@@ -233,7 +233,7 @@ function track_time(task) {
    if(task_id.toString().substring(0,5) == 'BOARD') {
            task_id = task_id.substring(5);
    }
-   overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_timer.php?tile=tasks&id='+task_id, 'auto', false, true);
+   overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_timer.php?tile=tasks&id='+task_id, 'auto', false, false);
 
     //$('.timer_block_'+task_id).toggle();
 }
@@ -289,13 +289,12 @@ function attach_file(task) {
 	$('[name='+file_id+']').click();
 }
 
-
 function flag_item_manual(task) {
        task_id = $(task).parents('span').data('task');
        if(task_id.toString().substring(0,5) == 'BOARD') {
                task_id = task_id.substring(5);
        }
-       overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_flags.php?tile=tasks&id='+task_id, 'auto', false, true);
+       overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_flags.php?tile=tasks&id='+task_id, 'auto', false, false);
 }
 
 function setManualFlag(tasklistid, colour, label) {
@@ -340,9 +339,6 @@ function flag_item_manual1(task) {
 		return false;
 	});
 }
-
-
-
 
 function flag_item(task) {
 	task_id = $(task).parents('span').data('task');
