@@ -539,11 +539,18 @@ if($_GET['action'] == 'update_fields') {
 		}
 	}
 	if($table_name == 'mileage' && ($field_name == 'start' || $field_name == 'end')) {
-		$value = date('Y-m-d H:i:s', strtotime($value));
+		$value = date('Y-m-d '.TIME_FORMAT_SEC, strtotime($value));
 	} else if(in_array($table_name,['tickets','ticket_schedule']) && in_array($field_name,['est_time','max_time'])) {
         $start = get_field_value('to_do_start_time',$table_name,$id_field,$id);
         if(!empty($start)) {
-            $end = date('h:i:s', strtotime($start.' + '.(floor($value) * 1).' hour '.floor($value * 60).' minute '.($value % 60).' second'));
+            $end = date('H:i:s', strtotime($start.' + '.(floor($value) * 1).' hour '.floor($value * 60).' minute '.($value % 60).' second'));
+            set_field_value($end,'to_do_end_time',$table_name,$id_field,$id);
+        }
+    } else if(in_array($table_name,['tickets','ticket_schedule']) && in_array($field_name,['to_do_start_time'])) {
+        $start = get_field_value('to_do_start_time',$table_name,$id_field,$id);
+        $end = get_field_value('to_do_end_time',$table_name,$id_field,$id);
+        if(!empty($end) && !empty($start)) {
+            $end = date('H:i:s', strtotime($value) + strtotime($end) - strtotime($start));
             set_field_value($end,'to_do_end_time',$table_name,$id_field,$id);
         }
     }
@@ -1062,7 +1069,7 @@ if($_GET['action'] == 'update_fields') {
 
 	//Insert into day overview if last edit was not within 15 minutes
 	$day_overview_last = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `timestamp` FROM `day_overview` WHERE `type` = 'Ticket' AND `tableid` = '$ticketid' AND `contactid` = '".$_SESSION['contactid']."' ORDER BY `timestamp` DESC"));
-	$timestamp_now = date('Y-m-d h:i:s');
+	$timestamp_now = date('Y-m-d H:i:s');
 	$timediff = strtotime($timestamp_now) - strtotime($day_overview_last['timestamp']);
 	if($timediff > 900 && !empty($ticketid)) {
 		$ticket_heading = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `heading` FROM `tickets` WHERE `ticketid` = '$ticketid'"))['heading'];
