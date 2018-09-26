@@ -11,6 +11,7 @@ $all_unlocked_tabs = explode(',',get_config($dbc, 'ticket_tab_locks'));
 if(empty($_GET['tile_name']) && empty($_GET['type_name'])) {
 	$all_config = [];
 	$value_config = explode(',',get_field_config($dbc, 'tickets'));
+	$value_mandatory_config = explode(',',get_mandatory_field_config($dbc, 'tickets'));
 	$sort_order = explode(',',get_config($dbc, 'ticket_sortorder'));
 	$unlocked_tabs = $all_unlocked_tabs;
 	$all_unlocked_tabs = [];
@@ -21,7 +22,9 @@ if(empty($_GET['tile_name']) && empty($_GET['type_name'])) {
 } else if(!empty($_GET['type_name'])) {
 	$tab = filter_var($_GET['type_name'], FILTER_SANITIZE_STRING);
 	$all_config = explode(',',get_field_config($dbc, 'tickets'));
+	$all_mandatory_config = explode(',',get_mandatory_field_config($dbc, 'tickets'));
 	$value_config = explode(',',get_config($dbc, 'ticket_fields_'.$tab));
+	$value_mandatory_config = explode(',',get_mandatory_config($dbc, 'ticket_fields_'.$tab));
 	$sort_order = explode(',',get_config($dbc, 'ticket_sortorder_'.$tab));
 	if(empty(get_config($dbc, 'ticket_sortorder_'.$tab))) {
 		$sort_order = explode(',',get_config($dbc, 'ticket_sortorder'));
@@ -37,7 +40,9 @@ if(empty($_GET['tile_name']) && empty($_GET['type_name'])) {
 	$summary_hide_positions = explode('#*#',get_config($dbc, 'ticket_summary_hide_positions_'.$tab));
 } else {
 	$all_config = explode(',',get_field_config($dbc, 'tickets'));
+	$all_mandatory_config = explode(',',get_mandatory_field_config($dbc, 'tickets'));
 	$value_config = explode(',',get_config($dbc, 'ticket_fields_'.$tab));
+	$value_mandatory_config = explode(',',get_mandatory_config($dbc, 'ticket_fields_'.$tab));
 	$sort_order = explode(',',get_config($dbc, 'ticket_sortorder_'.$tab));
 	if(empty(get_config($dbc, 'ticket_sortorder_'.$tab))) {
 		$sort_order = explode(',',get_config($dbc, 'ticket_sortorder'));
@@ -132,6 +137,12 @@ function reloadSortableAccordions() {
 	});
 }
 function saveFields() {
+	var mandatory = "<?php echo $mandatory; ?>";
+	var mandate = 0;
+	if(mandatory == 1) {
+		mandate = 1;
+	}
+
 	var this_field_name = this.name;
 	var ticket_fields = [];
 	$('[name="tickets[]"]:checked').not(':disabled').each(function() {
@@ -270,7 +281,8 @@ function saveFields() {
 		ticket_approval_status: $('[name="ticket_approval_status"]').val(),
 		ticket_guardian_contact: $('[name^=ticket_guardian_contact]').attr('name'),
 		ticket_guardian_contact_value: $('[name^=ticket_guardian_contact]').val(),
-		ticket_recurrence_sync_upto: ticket_recurrence_sync_upto
+		ticket_recurrence_sync_upto: ticket_recurrence_sync_upto,
+		mandatory: mandate
 	}).success(function(response) {
 		if(this_field_name == 'delivery_types') {
 			reloadDeliveryColors();
@@ -695,14 +707,15 @@ function removeHidePosition(sel) {
 }
 </script>
 <!-- <h1><?= (!empty($tab) ? $ticket_tabs[$tab].' Fields' : 'All '.TICKET_NOUN.' Fields') ?></h1> -->
-<?php if(empty($_GET['tile_name'])) {
-	echo '<a href="?settings=fields" class="btn brand-btn '.(empty($tab) ? 'active_tab' : '').'">All '.TICKET_TILE.'</a>';
-	foreach($ticket_tabs as $tab_id => $tab_label) {
-		echo '<a href="?settings=fields&type_name='.$tab_id.'" class="btn brand-btn '.($tab_id == $tab ? 'active_tab' : '').'">'.$tab_label.'</a>';
-	}
-} ?>
+
 <?php if($mandatory == 1): ?>
 	<?php include('field_config_mandatory_field_list.php'); ?>
 <?php else: ?>
+	<?php if(empty($_GET['tile_name'])) {
+		echo '<a href="?settings=fields" class="btn brand-btn '.(empty($tab) ? 'active_tab' : '').'">All '.TICKET_TILE.'</a>';
+		foreach($ticket_tabs as $tab_id => $tab_label) {
+			echo '<a href="?settings=fields&type_name='.$tab_id.'" class="btn brand-btn '.($tab_id == $tab ? 'active_tab' : '').'">'.$tab_label.'</a>';
+		}
+	} ?>
 	<?php include('field_config_field_list.php'); ?>
 <?php endif; ?>

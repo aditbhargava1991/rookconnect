@@ -482,7 +482,7 @@ if($_GET['action'] == 'update_fields') {
 	$manual_value = filter_var($_POST['manually_set'],FILTER_SANITIZE_STRING);
 	$manual_field = filter_var($_POST['manual_field'],FILTER_SANITIZE_STRING);
 	$ticket_history_addition = '';
-	
+
     //Insert into Time Sheet tile
     // mysqli_query($dbc, "INSERT INTO `time_cards` (`ticketid`,`staff`,`date`,`type_of_time`,`total_hrs`,`timer_tracked`,`comment_box`) VALUES ('$ticketid','$attach','".date('Y-m-d')."','Regular Hrs.','".((strtotime($value) - strtotime('00:00:00')) / 3600)."','0','Time Added on Ticket #$ticketid')");
 
@@ -997,7 +997,7 @@ if($_GET['action'] == 'update_fields') {
 		$user = decryptIt($_SESSION['first_name']).' '.decryptIt($_SESSION['last_name']);
 		mysqli_query($dbc, "INSERT INTO `project_history` (`updated_by`, `description`, `projectid`) VALUES ('$user', '".TICKET_NOUN." #$ticketid attached', '$projectid')");
 	}
-	
+
 	// Insert/Update Time Sheets if tracking Service Total/Direct/Indirect Time
 	$ticket = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticketid` = '$ticketid'"));
 	$staff_list = mysqli_query($dbc, "SELECT * FROM `ticket_attached` WHERE `ticketid` = '".$ticketid."' AND `deleted` = 0 AND `src_table` LIKE 'Staff%' AND `item_id` > 0");
@@ -1394,99 +1394,197 @@ if($_GET['action'] == 'update_fields') {
 	}
 } else if($_GET['action'] == 'ticket_fields') {
 	// Save the settings for ticket fields
-	$ticket_fields = filter_var(implode(',',$_POST['fields']),FILTER_SANITIZE_STRING);
-	$ticket_type = filter_var($_POST['field_name'],FILTER_SANITIZE_STRING);
-	if($ticket_type == 'tickets') {
-		set_field_config($dbc, $ticket_type, $ticket_fields);
-	} else {
-		set_config($dbc, $ticket_type, $ticket_fields);
-	}
-
-	// Save the settings for the types of tasks
-	$tasks = filter_var($_POST['tasks'],FILTER_SANITIZE_STRING);
-	$tasks_name = filter_var($_POST['tasks_name'],FILTER_SANITIZE_STRING);
-	set_config($dbc, $tasks_name, $tasks);
-
-	// Save the settings for labels, billing emails, and custom notes
-	set_config($dbc, 'ticket_multiple_labels', filter_var($_POST['labels'],FILTER_SANITIZE_STRING));
-	set_config($dbc, 'ticket_extra_billing_email', filter_var($_POST['billing'],FILTER_SANITIZE_STRING));
-	set_config($dbc, 'ticket_custom_notes_heading', filter_var($_POST['note_heading'],FILTER_SANITIZE_STRING));
-	set_config($dbc, 'ticket_custom_notes_type', filter_var(implode('#*#',$_POST['note_types']),FILTER_SANITIZE_STRING));
-	set_config($dbc, 'ticket_individuals', filter_var(implode('#*#',$_POST['individuals']),FILTER_SANITIZE_STRING));
-	set_config($dbc, 'ticket_cancellation_reasons', filter_var(implode('#*#',$_POST['cancel_reasons']),FILTER_SANITIZE_STRING));
-	set_config($dbc, 'ticket_checkout_info', filter_var(implode('#*#',$_POST['checkout_info']),FILTER_SANITIZE_STRING));
-	set_config($dbc, 'ticket_checkout_info_staff', filter_var(implode('#*#',$_POST['checkout_info_staff']),FILTER_SANITIZE_STRING));
-	set_config($dbc, 'transport_types', filter_var($_POST['transport_types'],FILTER_SANITIZE_STRING));
-	set_config($dbc, 'piece_types', filter_var($_POST['piece_types'],FILTER_SANITIZE_STRING));
-	set_config($dbc, 'delivery_types', filter_var($_POST['delivery_types'],FILTER_SANITIZE_STRING));
-	set_config($dbc, 'delivery_timeframe_default', filter_var($_POST['delivery_timeframe_default'],FILTER_SANITIZE_STRING));
-	set_config($dbc, 'ticket_warehouse_start_time', filter_var($_POST['ticket_warehouse_start_time'],FILTER_SANITIZE_STRING));
-	set_config($dbc, $_POST['tab_transport_log_contact'], filter_var($_POST['tab_transport_log_contact_value'],FILTER_SANITIZE_STRING));
-	set_config($dbc, $_POST['ticket_custom_field'], filter_var($_POST['ticket_custom_field_value'],FILTER_SANITIZE_STRING));
-	set_config($dbc, $_POST['ticket_custom_field_values'], filter_var($_POST['ticket_custom_field_values_value'],FILTER_SANITIZE_STRING));
-	set_config($dbc, $_POST['transport_destination_contact'], filter_var($_POST['transport_destination_contact_value'],FILTER_SANITIZE_STRING));
-	set_config($dbc, $_POST['transport_carrier_category'], filter_var($_POST['transport_carrier_category_value'],FILTER_SANITIZE_STRING));
-	set_config($dbc, $_POST['ticket_project_contact'], filter_var($_POST['ticket_project_contact_value'],FILTER_SANITIZE_STRING));
-	set_config($dbc, $_POST['ticket_business_contact'], filter_var($_POST['ticket_business_contact_value'],FILTER_SANITIZE_STRING));
-	set_config($dbc, $_POST['incomplete_ticket_status'], filter_var($_POST['incomplete_ticket_status_value'],FILTER_SANITIZE_STRING));
-	set_config($dbc, $_POST['client_accordion_category'], filter_var($_POST['client_accordion_category_value'],FILTER_SANITIZE_STRING));
-	set_config($dbc, $_POST['ticket_tab_locks'], filter_var(implode(',',$_POST['ticket_tab_locks_value']),FILTER_SANITIZE_STRING));
-	set_config($dbc, $_POST['rate_card_contact'], filter_var($_POST['rate_card_contact_value'],FILTER_SANITIZE_STRING));
-	set_config($dbc, $_POST['ticket_chemical_label'], filter_var($_POST['ticket_chemical_label_value'],FILTER_SANITIZE_STRING));
-	set_config($dbc, $_POST['delivery_type_contacts'], filter_var($_POST['delivery_type_contacts_value'],FILTER_SANITIZE_STRING));
-	set_config($dbc, 'auto_archive_complete_tickets', filter_var($_POST['auto_archive_complete_tickets'],FILTER_SANITIZE_STRING));
-	set_config($dbc, 'delivery_km_service', filter_var($_POST['delivery_km_service'],FILTER_SANITIZE_STRING));
-	set_config($dbc, 'incomplete_inventory_reminder_email', filter_var($_POST['incomplete_inventory_reminder_email'],FILTER_SANITIZE_STRING));
-	set_config($dbc, 'ticket_notify_list', filter_var($_POST['ticket_notify_list'],FILTER_SANITIZE_STRING));
-	set_config($dbc, 'ticket_notify_pdf_content', filter_var(htmlentities($_POST['ticket_notify_pdf_content']),FILTER_SANITIZE_STRING));
-	set_config($dbc, 'ticket_notify_cc', filter_var($_POST['ticket_notify_cc'],FILTER_SANITIZE_STRING));
-	set_config($dbc, 'ticket_notify_list_items', filter_var(implode('#*#',$_POST['ticket_notify_list_items']),FILTER_SANITIZE_STRING));
-	set_config($dbc, 'ticket_email_approval', filter_var($_POST['ticket_email_approval'],FILTER_SANITIZE_STRING));
-	set_config($dbc, 'ticket_approval_status', filter_var($_POST['ticket_approval_status'],FILTER_SANITIZE_STRING));
-	if($ticket_type == 'tickets') {
-		set_config($dbc, 'ticket_attached_charts', filter_var(implode(',',array_filter($_POST['attached_charts'])),FILTER_SANITIZE_STRING));
-		set_config($dbc, 'ticket_auto_create_unscheduled', filter_var(implode(',',$_POST['auto_create_unscheduled'])),FILTER_SANITIZE_STRING);
-	} else {
-		$tab = explode('ticket_fields_', $ticket_type)[1];
-		set_config($dbc, 'ticket_attached_charts_'.$tab, filter_var(implode(',',array_filter($_POST['attached_charts'])),FILTER_SANITIZE_STRING));
-		set_config($dbc, 'ticket_auto_create_unscheduled_'.$tab, filter_var(implode(',',$_POST['auto_create_unscheduled'])),FILTER_SANITIZE_STRING);
-	}
-
-	$delivery_colors = $_POST['ticket_delivery_colors'];
-	if(!is_array($delivery_colors)) {
-		$delivery_colors = [$delivery_colors];
-	}
-	foreach($delivery_colors as $delivery_color) {
-		$delivery = explode('*#*', $delivery_color);
-		if(!empty($delivery[0])) {
-			$delivery_type = $delivery[0];
-			$delivery_color = $delivery[1];
-			mysqli_query($dbc, "INSERT INTO `field_config_ticket_delivery_color` (`delivery`, `color`) SELECT '$delivery_type', '$delivery_color' FROM (SELECT COUNT(*) rows FROM `field_config_ticket_delivery_color` WHERE `delivery` = '$delivery_type') num WHERE num.rows = 0");
-			mysqli_query($dbc, "UPDATE `field_config_ticket_delivery_color` SET `color` = '$delivery_color' WHERE `delivery` = '$delivery_type'");
+	if($_POST['mandatory'] == 1) {
+		$ticket_fields = filter_var(implode(',',$_POST['fields']),FILTER_SANITIZE_STRING);
+		$ticket_type = filter_var($_POST['field_name'],FILTER_SANITIZE_STRING);
+		if($ticket_type == 'tickets') {
+			set_field_mandatory_config($dbc, $ticket_type, $ticket_fields);
+		} else {
+			set_config($dbc, $ticket_type, $ticket_fields,1);
 		}
+
+		// Save the settings for the types of tasks
+		$tasks = filter_var($_POST['tasks'],FILTER_SANITIZE_STRING);
+		$tasks_name = filter_var($_POST['tasks_name'],FILTER_SANITIZE_STRING);
+		set_config($dbc, $tasks_name, $tasks);
+
+		// Save the settings for labels, billing emails, and custom notes
+		set_config($dbc, 'ticket_multiple_labels', filter_var($_POST['labels'],FILTER_SANITIZE_STRING), 1);
+		set_config($dbc, 'ticket_extra_billing_email', filter_var($_POST['billing'],FILTER_SANITIZE_STRING), 1);
+		set_config($dbc, 'ticket_custom_notes_heading', filter_var($_POST['note_heading'],FILTER_SANITIZE_STRING), 1);
+		set_config($dbc, 'ticket_custom_notes_type', filter_var(implode('#*#',$_POST['note_types']),FILTER_SANITIZE_STRING), 1);
+		set_config($dbc, 'ticket_individuals', filter_var(implode('#*#',$_POST['individuals']),FILTER_SANITIZE_STRING), 1);
+		set_config($dbc, 'ticket_cancellation_reasons', filter_var(implode('#*#',$_POST['cancel_reasons']),FILTER_SANITIZE_STRING), 1);
+		set_config($dbc, 'ticket_checkout_info', filter_var(implode('#*#',$_POST['checkout_info']),FILTER_SANITIZE_STRING), 1);
+		set_config($dbc, 'ticket_checkout_info_staff', filter_var(implode('#*#',$_POST['checkout_info_staff']),FILTER_SANITIZE_STRING), 1);
+		set_config($dbc, 'transport_types', filter_var($_POST['transport_types'],FILTER_SANITIZE_STRING), 1);
+		set_config($dbc, 'piece_types', filter_var($_POST['piece_types'],FILTER_SANITIZE_STRING), 1);
+		set_config($dbc, 'delivery_types', filter_var($_POST['delivery_types'],FILTER_SANITIZE_STRING), 1);
+		set_config($dbc, 'delivery_timeframe_default', filter_var($_POST['delivery_timeframe_default'],FILTER_SANITIZE_STRING), 1);
+		set_config($dbc, 'ticket_warehouse_start_time', filter_var($_POST['ticket_warehouse_start_time'],FILTER_SANITIZE_STRING), 1);
+		set_config($dbc, $_POST['tab_transport_log_contact'], filter_var($_POST['tab_transport_log_contact_value'],FILTER_SANITIZE_STRING), 1);
+		set_config($dbc, $_POST['ticket_custom_field'], filter_var($_POST['ticket_custom_field_value'],FILTER_SANITIZE_STRING), 1);
+		set_config($dbc, $_POST['ticket_custom_field_values'], filter_var($_POST['ticket_custom_field_values_value'],FILTER_SANITIZE_STRING), 1);
+		set_config($dbc, $_POST['transport_destination_contact'], filter_var($_POST['transport_destination_contact_value'],FILTER_SANITIZE_STRING), 1);
+		set_config($dbc, $_POST['transport_carrier_category'], filter_var($_POST['transport_carrier_category_value'],FILTER_SANITIZE_STRING), 1);
+		set_config($dbc, $_POST['ticket_project_contact'], filter_var($_POST['ticket_project_contact_value'],FILTER_SANITIZE_STRING), 1);
+		set_config($dbc, $_POST['ticket_business_contact'], filter_var($_POST['ticket_business_contact_value'],FILTER_SANITIZE_STRING), 1);
+		set_config($dbc, $_POST['incomplete_ticket_status'], filter_var($_POST['incomplete_ticket_status_value'],FILTER_SANITIZE_STRING), 1);
+		set_config($dbc, $_POST['client_accordion_category'], filter_var($_POST['client_accordion_category_value'],FILTER_SANITIZE_STRING), 1);
+		set_config($dbc, $_POST['ticket_tab_locks'], filter_var(implode(',',$_POST['ticket_tab_locks_value']),FILTER_SANITIZE_STRING), 1);
+		set_config($dbc, $_POST['rate_card_contact'], filter_var($_POST['rate_card_contact_value'],FILTER_SANITIZE_STRING), 1);
+		set_config($dbc, $_POST['ticket_chemical_label'], filter_var($_POST['ticket_chemical_label_value'],FILTER_SANITIZE_STRING), 1);
+		set_config($dbc, $_POST['delivery_type_contacts'], filter_var($_POST['delivery_type_contacts_value'],FILTER_SANITIZE_STRING), 1);
+		set_config($dbc, 'auto_archive_complete_tickets', filter_var($_POST['auto_archive_complete_tickets'],FILTER_SANITIZE_STRING), 1);
+		set_config($dbc, 'delivery_km_service', filter_var($_POST['delivery_km_service'],FILTER_SANITIZE_STRING), 1);
+		set_config($dbc, 'incomplete_inventory_reminder_email', filter_var($_POST['incomplete_inventory_reminder_email'],FILTER_SANITIZE_STRING), 1);
+		set_config($dbc, 'ticket_notify_list', filter_var($_POST['ticket_notify_list'],FILTER_SANITIZE_STRING), 1);
+		set_config($dbc, 'ticket_notify_pdf_content', filter_var(htmlentities($_POST['ticket_notify_pdf_content']),FILTER_SANITIZE_STRING), 1);
+		set_config($dbc, 'ticket_notify_cc', filter_var($_POST['ticket_notify_cc'],FILTER_SANITIZE_STRING), 1);
+		set_config($dbc, 'ticket_notify_list_items', filter_var(implode('#*#',$_POST['ticket_notify_list_items']),FILTER_SANITIZE_STRING), 1);
+		set_config($dbc, 'ticket_email_approval', filter_var($_POST['ticket_email_approval'],FILTER_SANITIZE_STRING), 1);
+		set_config($dbc, 'ticket_approval_status', filter_var($_POST['ticket_approval_status'],FILTER_SANITIZE_STRING), 1);
+		if($ticket_type == 'tickets') {
+			set_config($dbc, 'ticket_attached_charts', filter_var(implode(',',array_filter($_POST['attached_charts'])),FILTER_SANITIZE_STRING), 1);
+			set_config($dbc, 'ticket_auto_create_unscheduled', filter_var(implode(',',$_POST['auto_create_unscheduled'])),FILTER_SANITIZE_STRING);
+		} else {
+			$tab = explode('ticket_fields_', $ticket_type)[1];
+			set_config($dbc, 'ticket_attached_charts_'.$tab, filter_var(implode(',',array_filter($_POST['attached_charts'])),FILTER_SANITIZE_STRING), 1);
+			set_config($dbc, 'ticket_auto_create_unscheduled_'.$tab, filter_var(implode(',',$_POST['auto_create_unscheduled'])),FILTER_SANITIZE_STRING);
+		}
+
+		$delivery_colors = $_POST['ticket_delivery_colors'];
+		if(!is_array($delivery_colors)) {
+			$delivery_colors = [$delivery_colors];
+		}
+		foreach($delivery_colors as $delivery_color) {
+			$delivery = explode('*#*', $delivery_color);
+			if(!empty($delivery[0])) {
+				$delivery_type = $delivery[0];
+				$delivery_color = $delivery[1];
+				mysqli_query($dbc, "INSERT INTO `field_config_ticket_delivery_color` (`delivery`, `color`) SELECT '$delivery_type', '$delivery_color' FROM (SELECT COUNT(*) rows FROM `field_config_ticket_delivery_color` WHERE `delivery` = '$delivery_type') num WHERE num.rows = 0");
+				mysqli_query($dbc, "UPDATE `field_config_ticket_delivery_color` SET `color` = '$delivery_color' WHERE `delivery` = '$delivery_type'");
+			}
+		}
+
+		set_config($dbc, 'ticket_notes_limit', filter_var($_POST['ticket_notes_limit'],FILTER_SANITIZE_STRING), 1);
+
+		$ticket_summary_hide_positions = $_POST['ticket_summary_hide_positions'];
+		if(!is_array($ticket_summary_hide_positions)) {
+			$ticket_summary_hide_positions = [$ticket_summary_hide_positions];
+		}
+		$ticket_summary_hide_positions = filter_var(implode('#*#', array_filter($ticket_summary_hide_positions)),FILTER_SANITIZE_STRING);
+		if($ticket_type == 'tickets') {
+			set_config($dbc, 'ticket_summary_hide_positions', $ticket_summary_hide_positions);
+		} else {
+			set_config($dbc, 'ticket_summary_hide_positions_'.filter_var($_POST['tab'],FILTER_SANITIZE_STRING), $ticket_summary_hide_positions);
+		}
+		set_config($dbc, 'ticket_delivery_time_mintime', filter_var($_POST['ticket_delivery_time_mintime'],FILTER_SANITIZE_STRING), 1);
+		set_config($dbc, 'ticket_delivery_time_maxtime', filter_var($_POST['ticket_delivery_time_maxtime'],FILTER_SANITIZE_STRING), 1);
+		set_config($dbc, 'ticket_recurring_status', filter_var($_POST['ticket_recurring_status'],FILTER_SANITIZE_STRING), 1);
+		set_config($dbc, 'ticket_material_increment', filter_var($_POST['ticket_material_increment'],FILTER_SANITIZE_STRING), 1);
+		set_config($dbc, 'ticket_notes_alert_role', filter_var($_POST['ticket_notes_alert_role'],FILTER_SANITIZE_STRING), 1);
+		set_config($dbc, 'ticket_business_contact_add_pos', filter_var($_POST['ticket_business_contact_add_pos'],FILTER_SANITIZE_STRING), 1);
+		set_config($dbc, 'ticket_staff_travel_default', filter_var($_POST['ticket_staff_travel_default'],FILTER_SANITIZE_STRING), 1);
+		set_config($dbc, 'ticket_guardian_contact', filter_var($_POST['ticket_guardian_contact_value'],FILTER_SANITIZE_STRING), 1);
+		set_config($dbc, 'ticket_recurrence_sync_upto', filter_var($_POST['ticket_recurrence_sync_upto'],FILTER_SANITIZE_STRING), 1);
+	}
+	else {
+		$ticket_fields = filter_var(implode(',',$_POST['fields']),FILTER_SANITIZE_STRING);
+		$ticket_type = filter_var($_POST['field_name'],FILTER_SANITIZE_STRING);
+		if($ticket_type == 'tickets') {
+			set_field_config($dbc, $ticket_type, $ticket_fields);
+		} else {
+			set_config($dbc, $ticket_type, $ticket_fields);
+		}
+
+		// Save the settings for the types of tasks
+		$tasks = filter_var($_POST['tasks'],FILTER_SANITIZE_STRING);
+		$tasks_name = filter_var($_POST['tasks_name'],FILTER_SANITIZE_STRING);
+		set_config($dbc, $tasks_name, $tasks);
+
+		// Save the settings for labels, billing emails, and custom notes
+		set_config($dbc, 'ticket_multiple_labels', filter_var($_POST['labels'],FILTER_SANITIZE_STRING));
+		set_config($dbc, 'ticket_extra_billing_email', filter_var($_POST['billing'],FILTER_SANITIZE_STRING));
+		set_config($dbc, 'ticket_custom_notes_heading', filter_var($_POST['note_heading'],FILTER_SANITIZE_STRING));
+		set_config($dbc, 'ticket_custom_notes_type', filter_var(implode('#*#',$_POST['note_types']),FILTER_SANITIZE_STRING));
+		set_config($dbc, 'ticket_individuals', filter_var(implode('#*#',$_POST['individuals']),FILTER_SANITIZE_STRING));
+		set_config($dbc, 'ticket_cancellation_reasons', filter_var(implode('#*#',$_POST['cancel_reasons']),FILTER_SANITIZE_STRING));
+		set_config($dbc, 'ticket_checkout_info', filter_var(implode('#*#',$_POST['checkout_info']),FILTER_SANITIZE_STRING));
+		set_config($dbc, 'ticket_checkout_info_staff', filter_var(implode('#*#',$_POST['checkout_info_staff']),FILTER_SANITIZE_STRING));
+		set_config($dbc, 'transport_types', filter_var($_POST['transport_types'],FILTER_SANITIZE_STRING));
+		set_config($dbc, 'piece_types', filter_var($_POST['piece_types'],FILTER_SANITIZE_STRING));
+		set_config($dbc, 'delivery_types', filter_var($_POST['delivery_types'],FILTER_SANITIZE_STRING));
+		set_config($dbc, 'delivery_timeframe_default', filter_var($_POST['delivery_timeframe_default'],FILTER_SANITIZE_STRING));
+		set_config($dbc, 'ticket_warehouse_start_time', filter_var($_POST['ticket_warehouse_start_time'],FILTER_SANITIZE_STRING));
+		set_config($dbc, $_POST['tab_transport_log_contact'], filter_var($_POST['tab_transport_log_contact_value'],FILTER_SANITIZE_STRING));
+		set_config($dbc, $_POST['ticket_custom_field'], filter_var($_POST['ticket_custom_field_value'],FILTER_SANITIZE_STRING));
+		set_config($dbc, $_POST['ticket_custom_field_values'], filter_var($_POST['ticket_custom_field_values_value'],FILTER_SANITIZE_STRING));
+		set_config($dbc, $_POST['transport_destination_contact'], filter_var($_POST['transport_destination_contact_value'],FILTER_SANITIZE_STRING));
+		set_config($dbc, $_POST['transport_carrier_category'], filter_var($_POST['transport_carrier_category_value'],FILTER_SANITIZE_STRING));
+		set_config($dbc, $_POST['ticket_project_contact'], filter_var($_POST['ticket_project_contact_value'],FILTER_SANITIZE_STRING));
+		set_config($dbc, $_POST['ticket_business_contact'], filter_var($_POST['ticket_business_contact_value'],FILTER_SANITIZE_STRING));
+		set_config($dbc, $_POST['incomplete_ticket_status'], filter_var($_POST['incomplete_ticket_status_value'],FILTER_SANITIZE_STRING));
+		set_config($dbc, $_POST['client_accordion_category'], filter_var($_POST['client_accordion_category_value'],FILTER_SANITIZE_STRING));
+		set_config($dbc, $_POST['ticket_tab_locks'], filter_var(implode(',',$_POST['ticket_tab_locks_value']),FILTER_SANITIZE_STRING));
+		set_config($dbc, $_POST['rate_card_contact'], filter_var($_POST['rate_card_contact_value'],FILTER_SANITIZE_STRING));
+		set_config($dbc, $_POST['ticket_chemical_label'], filter_var($_POST['ticket_chemical_label_value'],FILTER_SANITIZE_STRING));
+		set_config($dbc, $_POST['delivery_type_contacts'], filter_var($_POST['delivery_type_contacts_value'],FILTER_SANITIZE_STRING));
+		set_config($dbc, 'auto_archive_complete_tickets', filter_var($_POST['auto_archive_complete_tickets'],FILTER_SANITIZE_STRING));
+		set_config($dbc, 'delivery_km_service', filter_var($_POST['delivery_km_service'],FILTER_SANITIZE_STRING));
+		set_config($dbc, 'incomplete_inventory_reminder_email', filter_var($_POST['incomplete_inventory_reminder_email'],FILTER_SANITIZE_STRING));
+		set_config($dbc, 'ticket_notify_list', filter_var($_POST['ticket_notify_list'],FILTER_SANITIZE_STRING));
+		set_config($dbc, 'ticket_notify_pdf_content', filter_var(htmlentities($_POST['ticket_notify_pdf_content']),FILTER_SANITIZE_STRING));
+		set_config($dbc, 'ticket_notify_cc', filter_var($_POST['ticket_notify_cc'],FILTER_SANITIZE_STRING));
+		set_config($dbc, 'ticket_notify_list_items', filter_var(implode('#*#',$_POST['ticket_notify_list_items']),FILTER_SANITIZE_STRING));
+		set_config($dbc, 'ticket_email_approval', filter_var($_POST['ticket_email_approval'],FILTER_SANITIZE_STRING));
+		set_config($dbc, 'ticket_approval_status', filter_var($_POST['ticket_approval_status'],FILTER_SANITIZE_STRING));
+		if($ticket_type == 'tickets') {
+			set_config($dbc, 'ticket_attached_charts', filter_var(implode(',',array_filter($_POST['attached_charts'])),FILTER_SANITIZE_STRING));
+			set_config($dbc, 'ticket_auto_create_unscheduled', filter_var(implode(',',$_POST['auto_create_unscheduled'])),FILTER_SANITIZE_STRING);
+		} else {
+			$tab = explode('ticket_fields_', $ticket_type)[1];
+			set_config($dbc, 'ticket_attached_charts_'.$tab, filter_var(implode(',',array_filter($_POST['attached_charts'])),FILTER_SANITIZE_STRING));
+			set_config($dbc, 'ticket_auto_create_unscheduled_'.$tab, filter_var(implode(',',$_POST['auto_create_unscheduled'])),FILTER_SANITIZE_STRING);
+		}
+
+		$delivery_colors = $_POST['ticket_delivery_colors'];
+		if(!is_array($delivery_colors)) {
+			$delivery_colors = [$delivery_colors];
+		}
+		foreach($delivery_colors as $delivery_color) {
+			$delivery = explode('*#*', $delivery_color);
+			if(!empty($delivery[0])) {
+				$delivery_type = $delivery[0];
+				$delivery_color = $delivery[1];
+				mysqli_query($dbc, "INSERT INTO `field_config_ticket_delivery_color` (`delivery`, `color`) SELECT '$delivery_type', '$delivery_color' FROM (SELECT COUNT(*) rows FROM `field_config_ticket_delivery_color` WHERE `delivery` = '$delivery_type') num WHERE num.rows = 0");
+				mysqli_query($dbc, "UPDATE `field_config_ticket_delivery_color` SET `color` = '$delivery_color' WHERE `delivery` = '$delivery_type'");
+			}
+		}
+
+		set_config($dbc, 'ticket_notes_limit', filter_var($_POST['ticket_notes_limit'],FILTER_SANITIZE_STRING));
+
+		$ticket_summary_hide_positions = $_POST['ticket_summary_hide_positions'];
+		if(!is_array($ticket_summary_hide_positions)) {
+			$ticket_summary_hide_positions = [$ticket_summary_hide_positions];
+		}
+		$ticket_summary_hide_positions = filter_var(implode('#*#', array_filter($ticket_summary_hide_positions)),FILTER_SANITIZE_STRING);
+		if($ticket_type == 'tickets') {
+			set_config($dbc, 'ticket_summary_hide_positions', $ticket_summary_hide_positions);
+		} else {
+			set_config($dbc, 'ticket_summary_hide_positions_'.filter_var($_POST['tab'],FILTER_SANITIZE_STRING), $ticket_summary_hide_positions);
+		}
+		set_config($dbc, 'ticket_delivery_time_mintime', filter_var($_POST['ticket_delivery_time_mintime'],FILTER_SANITIZE_STRING));
+		set_config($dbc, 'ticket_delivery_time_maxtime', filter_var($_POST['ticket_delivery_time_maxtime'],FILTER_SANITIZE_STRING));
+		set_config($dbc, 'ticket_recurring_status', filter_var($_POST['ticket_recurring_status'],FILTER_SANITIZE_STRING));
+		set_config($dbc, 'ticket_material_increment', filter_var($_POST['ticket_material_increment'],FILTER_SANITIZE_STRING));
+		set_config($dbc, 'ticket_notes_alert_role', filter_var($_POST['ticket_notes_alert_role'],FILTER_SANITIZE_STRING));
+		set_config($dbc, 'ticket_business_contact_add_pos', filter_var($_POST['ticket_business_contact_add_pos'],FILTER_SANITIZE_STRING));
+		set_config($dbc, 'ticket_staff_travel_default', filter_var($_POST['ticket_staff_travel_default'],FILTER_SANITIZE_STRING));
+		set_config($dbc, 'ticket_guardian_contact', filter_var($_POST['ticket_guardian_contact_value'],FILTER_SANITIZE_STRING));
+		set_config($dbc, 'ticket_recurrence_sync_upto', filter_var($_POST['ticket_recurrence_sync_upto'],FILTER_SANITIZE_STRING));
 	}
 
-	set_config($dbc, 'ticket_notes_limit', filter_var($_POST['ticket_notes_limit'],FILTER_SANITIZE_STRING));
-
-	$ticket_summary_hide_positions = $_POST['ticket_summary_hide_positions'];
-	if(!is_array($ticket_summary_hide_positions)) {
-		$ticket_summary_hide_positions = [$ticket_summary_hide_positions];
-	}
-	$ticket_summary_hide_positions = filter_var(implode('#*#', array_filter($ticket_summary_hide_positions)),FILTER_SANITIZE_STRING);
-	if($ticket_type == 'tickets') {
-		set_config($dbc, 'ticket_summary_hide_positions', $ticket_summary_hide_positions);
-	} else {
-		set_config($dbc, 'ticket_summary_hide_positions_'.filter_var($_POST['tab'],FILTER_SANITIZE_STRING), $ticket_summary_hide_positions);
-	}
-	set_config($dbc, 'ticket_delivery_time_mintime', filter_var($_POST['ticket_delivery_time_mintime'],FILTER_SANITIZE_STRING));
-	set_config($dbc, 'ticket_delivery_time_maxtime', filter_var($_POST['ticket_delivery_time_maxtime'],FILTER_SANITIZE_STRING));
-	set_config($dbc, 'ticket_recurring_status', filter_var($_POST['ticket_recurring_status'],FILTER_SANITIZE_STRING));
-	set_config($dbc, 'ticket_material_increment', filter_var($_POST['ticket_material_increment'],FILTER_SANITIZE_STRING));
-	set_config($dbc, 'ticket_notes_alert_role', filter_var($_POST['ticket_notes_alert_role'],FILTER_SANITIZE_STRING));
-	set_config($dbc, 'ticket_business_contact_add_pos', filter_var($_POST['ticket_business_contact_add_pos'],FILTER_SANITIZE_STRING));
-	set_config($dbc, 'ticket_staff_travel_default', filter_var($_POST['ticket_staff_travel_default'],FILTER_SANITIZE_STRING));
-	set_config($dbc, 'ticket_guardian_contact', filter_var($_POST['ticket_guardian_contact_value'],FILTER_SANITIZE_STRING));
-	set_config($dbc, 'ticket_recurrence_sync_upto', filter_var($_POST['ticket_recurrence_sync_upto'],FILTER_SANITIZE_STRING));
 } else if($_GET['action'] == 'ticket_field_config') {
 	if(is_array($_POST['fields'])) {
 		$value = implode(',',$_POST['fields']);
@@ -1778,7 +1876,7 @@ if($_GET['action'] == 'update_fields') {
 		}
 		echo $ticket_label;
 	}
-} else if($_GET['action'] == 'new_ticket_from_calendar') { 
+} else if($_GET['action'] == 'new_ticket_from_calendar') {
 	$to_do_date = $_POST['to_do_date'];
 	$to_do_end_date= $_POST['to_do_end_date'];
 	$to_do_start_time = $_POST['to_do_start_time'];

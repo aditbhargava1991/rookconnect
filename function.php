@@ -358,14 +358,24 @@ function set_field_config($dbc, $name, $value) {
 	mysqli_query($dbc, "INSERT INTO `field_config` (`fieldconfigid`) SELECT 0 FROM (SELECT COUNT(*) rows FROM `field_config`) num WHERE num.rows=0");
 	mysqli_query($dbc, "UPDATE `field_config` SET `$name`='$value'");
 }
+function set_field_mandatory_config($dbc, $name, $value) {
+	$name = filter_var($name, FILTER_SANITIZE_STRING);
+	$value = filter_var($value, FILTER_SANITIZE_STRING);
+	mysqli_query($dbc, "INSERT INTO `field_mandatory_config` (`fieldconfigid`) SELECT 0 FROM (SELECT COUNT(*) rows FROM `field_mandatory_config`) num WHERE num.rows=0");
+	mysqli_query($dbc, "UPDATE `field_mandatory_config` SET `$name`='$value'");
+}
 function get_field_config($dbc, $name) {
     return ','.mysqli_fetch_array(mysqli_query($dbc,"SELECT `".filter_var($name,FILTER_SANITIZE_STRING)."` FROM `field_config`"))[0].',';
 }
-function set_config($dbc, $name, $value) {
+function get_mandatory_field_config($dbc, $name) {
+    return ','.mysqli_fetch_array(mysqli_query($dbc,"SELECT `".filter_var($name,FILTER_SANITIZE_STRING)."` FROM `field_mandatory_config`"))[0].',';
+}
+
+function set_config($dbc, $name, $value, $mandatory=0) {
 	$name = filter_var($name, FILTER_SANITIZE_STRING);
 	$value = filter_var($value, FILTER_SANITIZE_STRING);
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT '$name' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='$name') num WHERE num.rows=0");
-	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='$value' WHERE `name`='$name'");
+	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='$value',`mandatory`='$mandatory' WHERE `name`='$name'");
 	$_SESSION['CONSTANT_UPDATED'] = 0;
 }
 function get_config($dbc, $name, $multi = false, $separator = ',') {
@@ -394,6 +404,178 @@ function get_config($dbc, $name, $multi = false, $separator = ',') {
         $sql = "SELECT `value` FROM `general_configuration` WHERE `name`='$name'";
         $get_config = mysqli_fetch_assoc(mysqli_query($dbc,$sql));
     }
+
+	// Define Defaults for specific fields
+	if(str_replace(',','',$get_config['value']) == '') {
+		if($name == 'timesheet_tabs') {
+			return 'Time Sheets,Pay Period,Holidays,Coordinator Approvals,Manager Approvals,Reporting,Payroll';
+		} else if($name == 'time_tracking_tabs') {
+			return 'tracking,shop_time_sheets';
+		} else if($name == 'staff_field_subtabs') {
+			return 'ID Card,Staff Information,Staff Address,Employee Information,Driver Information,Direct Deposit Information,Software ID,Social Media,Emergency,Health,Schedule,Certificates,HR,Ticket,Project,History';
+		} else if($name == 'payroll_tabs') {
+			return 'compensation,salary,contractor,field_ticket,shop_work_order';
+		} else if($name == 'billing_tabs') {
+			return 'billing,invoices,accounts_receivable';
+		} else if($name == 'project_nav_tabs') {
+			return 'projects,scrum,tickets,daysheet';
+		} else if($name == 'communication_schedule_tabs') {
+			return 'email,phone';
+		} else if($name == 'site_work_orders') {
+			return 'sites,pending,active,schedule,po';
+		} else if($name == 'checklist_tabs') {
+			return 'my_ongoing,my_daily,my_weekly,my_monthly,company_ongoing,company_daily,company_weekly,company_monthly,project_tab,reporting';
+		} else if($name == 'tile_enable_section') {
+			return 'software_settings,profiles,human_resources,sales,inventory_management,collaborative_workflow,estimates,safety,project_management,operations,project_details,project_type,time_tracking,accounting,reporting,medical,point_of_sale,crm,analytics,equipment,digital_forms,common_practice,project_addon,project_tracking,clinic_ace,communication,safety,pos,crm,anlytics';
+		} else if($name == 'client_project_tabs') {
+			return 'pending,active,archived,tickets,daysheet';
+		} else if($name == 'general_flag_colours') {
+			return 'FB0D0D*#*Default Flag Colour';
+		} else if($name == 'ticket_colour_flags') {
+			return 'FF6060';
+		} else if($name == 'expense_tabs') {
+			return 'budget,current_month,business,customers,clients,staff,sales,manager,payables,report';
+		} else if($name == 'rate_card_tabs') {
+			return ',company,customer,';
+		} else if($name == 'expense_provinces') {
+			return 'AB*5*0*0#*#BC*5*7*0#*#MB*8*5*0#*#NB*0*0*15#*#NL*0*0*15#*#NT*5*0*0#*#NS*0*0*15#*#NU*5*0*0#*#ON*0*0*13#*#PE*0*0*15#*#QC*5*9.975*0#*#SK*5*5*0#*#YT*5*0*0';
+		} else if($name == 'equipment_tabs') {
+			return 'Truck,Trailer';
+		} else if($name == 'equipment_main_tabs') {
+			return 'Equipment,Inspection,Work Order,Expenses,Requests,Records,Checklists';
+		} else if($name == 'equipment_remind_subject') {
+			return 'Reminder of a Renewal for Equipment';
+		} else if($name == 'equipment_remind_body') {
+			return htmlentities('Hi,<p>There is an upcoming renewal for some equipment.</p>');
+		} else if($name == 'equipment_service_subject') {
+			return 'Request for Service for Equipment';
+		} else if($name == 'equipment_service_body') {
+			return htmlentities('Hi,<p>During the inspection of the equipment, it was found that service was needed. You will find a PDF with the details attached.</p>');
+		} else if($name == 'equipment_expense_fields') {
+			return 'Description,Country,Province,Date,Receipt,Amount,HST,PST,GST,Total';
+		} else if($name == 'invoice_design') {
+			return 4;
+		} else if($name == 'pos_design') {
+			return 1;
+		} else if($name == 'invoice_tabs') {
+			return 'today,all,ui_report,refunds,cashout';
+		} else if($name == 'invoice_purchase_contact') {
+			return 'Patient';
+		} else if($name == 'invoice_payer_contact') {
+			return 'Insurer';
+		} else if($name == 'invoice_fields') {
+			return 'invoice_type,customer,injury,staff,appt_type,treatment,service_date,pay_mode,services,service_cat,service_head,service_price,inventory,inventory_name,inventory_type,inventory_price,inventory_qty,packages,packages_cat,packages_name,packages_fee,promo,tips,next_appt,survey,followup';
+		} else if($name == 'invoice_payment_types') {
+			return 'Master Card,Visa,Debit Card,Cash,Cheque,Amex,Direct Deposit,Gift Certificate Redeem,Pro-Bono';
+		} else if($name == 'invoice_dashboard') {
+			return 'invoiceid,invoice_date,customer,total_price,payment_type,invoice_pdf,comment,status,send,delivery';
+		} else if($name == 'max_timer') {
+			return 28800;
+		} else if($name == 'appt_day_start') {
+			return '06:00 am';
+		} else if($name == 'appt_day_end') {
+			return '08:00 pm';
+		} else if($name == 'appt_increments') {
+			return 15;
+		} else if($name == 'appt_wait_list') {
+			return 'yes';
+		} else if($name == 'calendar_default') {
+			return 'ticket_wk';
+		} else if($name == 'expense_mode') {
+			return 'inbox';
+		} else if($name == 'estimate_dashboard_length') {
+			return 10;
+		} else if($name == 'project_status') {
+			return "In Development#*#Active Project";
+		} else if($name == 'estimate_status') {
+			return "Opportunities#*#In Negotiations#*#Closed Successfully";
+		} else if($name == 'business_category') {
+			return "Business";
+		} else if($name == 'site_category') {
+			return "Sites";
+		} else if($name == 'project_classify') {
+			return "Types";
+		} else if($name == 'ticket_label') {
+			return "[TICKET_NOUN] #[TICKETID] - [TICKET_HEADING]";
+		} else if($name == 'project_label') {
+			return "#[PROJECTID] [PROJECT_NAME]";
+		} else if($name == 'mileage_fields') {
+			return "staff,startdate,enddate,category,details,contact,double_mileage";
+		} else if($name == 'comp_staff_groups') {
+			return 'ALL';
+		} else if($name == 'ticket_min_hours' || $name == 'timesheet_hour_intervals') {
+			return '0';
+		} else if($name == 'hr_fields') {
+			return 'Sub Category,First Name,Last Name,Birth Date,Employee Number,Address including Postal Code,Topic (Sub Tab),Sub Section Heading,Third Tier Heading,Detail,Document,Link,Videos,Signature box,Comments,Staff,Review Deadline,Status,Configure Email,Form,Permissions by Position';
+		} else if($name == 'volume_units') {
+			return 'm&sup3;';
+		} else if($name == 'quick_action_icons') {
+			return 'edit,flag,reply,attach,alert,email,reminder,time,archive';
+		} else if($name == 'manual_subject_completed') {
+			return 'Manual Read by [USER]';
+		} else if($name == 'manual_body_completed') {
+			return htmlentities('<p>Category: [CATEGORY]<br>Heading: [HEADING]</p>[COMMENT]');
+		} else if($name == 'manual_completed_email') {
+			return mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `value` FROM `general_configuration` WHERE `name` LIKE 'manual_%_email'"))['value'];
+		} else if($name == 'log_note_categories') {
+			return get_config($dbc, 'all_contact_tabs');
+		} else if($name == 'staff_tabs') {
+			return 'suspended,security,positions,reminders';
+		} else if($name == 'inventory_markup') {
+			return 0;
+		} else if($name == 'calendar_ticket_card_fields') {
+			return 'label,project,customer,assigned,preferred,time,available';
+		} else if($name == 'tickets_summary') {
+			return 'Created,Assigned';
+		} else if($name == 'timesheet_include_time') {
+			return 'ticket,project,meeting,email,task,checklist';
+		} else if($name == 'daysheet_ticket_fields') {
+			return 'Project,Time Estimate';
+		} else if($name == 'client_accordion_category') {
+			return 'Clients';
+		} else if($name == 'rate_card_contact') {
+			return 'businessid';
+		} else if($name == 'transport_carrier_category') {
+			return 'Carrier';
+		} else if($name == 'expense_default_staff') {
+			return 'NA';
+		} else if($name == 'inventory_cost') {
+			return 'cost';
+		} else if($name == 'planner_end_day') {
+			return 'show';
+		} else if($name == 'ticket_project_function') {
+			return 'manual';
+		} else if($name == 'inventory_sort') {
+			return 'default';
+		} else if($name == 'po_tabs') {
+			return 'create,pending,receiving,payable,completed,remote,site_po';
+		} else if($name == 'ticket_manifest_fields') {
+			return 'file,po,vendor,line,qty,site';
+		} else if($name == 'report_row_colour_1') {
+			return '#BBBBBB';
+		} else if($name == 'report_row_colour_2') {
+			return '#DDDDDD';
+		} else if($name == 'recent_manifests') {
+			return '25';
+		} else if($name == 'recent_inventory') {
+			return '25';
+		} else if($name == 'company_rate_card_sections') {
+			return 'tasks,material,services,products,staff,position,contractor,clients,customer,vpl,inventory,equipment,labour,timesheet,driving_log';
+		} else if($name == 'lead_new_contact_cat') {
+			return 'Sales Leads';
+		}
+	}
+
+	return $get_config['value'];
+}
+function get_mandatory_config($dbc, $name, $multi = false, $separator = ',') {
+    // Defined Overrided Settings
+    if($name == 'show_category_dropdown_equipment') {
+        return 0;
+    }
+
+    $sql = "SELECT `value` FROM `general_configuration` WHERE `name`='$name' AND mandatory=1";
+    $get_config = mysqli_fetch_assoc(mysqli_query($dbc,$sql));
 
 	// Define Defaults for specific fields
 	if(str_replace(',','',$get_config['value']) == '') {
@@ -3268,7 +3450,7 @@ function get_recurrence_days($limit = 0, $start_date, $end_date, $repeat_type, $
         } else {
             if(strtotime($cur) >= strtotime($create_starting_at)) {
                 $recurring_dates[] = $cur;
-                $reached_limit++;   
+                $reached_limit++;
             }
         }
     }
