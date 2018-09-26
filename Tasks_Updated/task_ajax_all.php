@@ -206,9 +206,12 @@ if($_GET['fill'] == 'delete_task') {
 if($_GET['fill'] == 'delete_board') {
     $boardid = $_GET['boardid'];
 	if($boardid > 0) {
-    $archived_date = date('Y-m-d');
-		$query_update_project = "UPDATE `task_board` SET `deleted`=1, `archived_date` = '$archived_date' WHERE `taskboardid` = '$boardid'";
+        $archived_date = date('Y-m-d');
+		$query_update_project = "UPDATE `task_board` SET `deleted`=1, `date_of_archival` = '$archived_date' WHERE `taskboardid` = '$boardid'";
 		$result_update_project = mysqli_query($dbc, $query_update_project);
+
+        $query_update_project = "UPDATE `tasklist` SET `deleted`=1, `archived_date` = '$archived_date' WHERE `task_board` = '$boardid'";
+	    $result_update_project = mysqli_query($dbc, $query_update_project);
 	}
 	echo "deleted";
 }
@@ -267,7 +270,7 @@ if($_GET['fill'] == 'add_task') {
     $created_date = date('Y-m-d');
 
     if($heading != '') {
-        echo $query_insert_log = "INSERT INTO `tasklist` (`task_milestone_timeline`, `task_path`, `heading`, `contactid`, `task_board`, `salesid`, `created_date`, `created_by`, `status_date`) VALUES ('$task_milestone_timeline', '$task_path', '$heading', '$contactid', '$taskboardid', '$salesid', '$created_date', '$contactid', '$created_date')";
+        echo $query_insert_log = "INSERT INTO `tasklist` (`task_milestone_timeline`, `task_path`, `heading`, `contactid`, `task_board`, `salesid`, `created_date`, `created_by`, `status_date`, `task_tododate`, `status`) VALUES ('$task_milestone_timeline', '$task_path', '$heading', '$contactid', '$taskboardid', '$salesid', '$created_date', '$contactid', '$created_date', '$created_date', 'To Be Scheduled')";
         $result_insert_log = mysqli_query($dbc, $query_insert_log);
     }
 }
