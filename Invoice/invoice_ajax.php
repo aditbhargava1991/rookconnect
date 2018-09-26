@@ -437,7 +437,9 @@ if(!empty($_GET['action']) && $_GET['action'] == 'export_pos_file') {
 			} else {
 				$image_file = '../Point of Sale/'.$image_file;
 			}
-			$this->Image($image_file, 0, 3, '', 40, '', '', 'T', false, 300, 'L', false, false, 0, false, false, false);
+			if($logo!=''){
+				$this->Image($image_file, 0, 3, '', 40, '', '', 'T', false, 300, 'L', false, false, 0, false, false, false);
+			}
 
 			$this->SetFont('helvetica', '', 9);
 
