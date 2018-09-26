@@ -27,9 +27,6 @@ switch($_GET['settings']) {
 	case 'types':
 		$page_title = TICKET_NOUN.' Tabs';
 		break;
-	case 'alerts':
-		$page_title = TICKET_NOUN.' Tab Alerts';
-		break;
 	case 'status':
 		$page_title = 'Statuses';
 		break;
@@ -246,21 +243,6 @@ function loadPanel() {
 		<div class="panel panel-default">
 			<div class="panel-heading">
 				<h4 class="panel-title">
-					<a data-toggle="collapse" data-parent="#settings_accordions" href="#collapse_ticket_alerts">
-						<?= TICKET_NOUN ?> Tab Alerts<span class="glyphicon glyphicon-plus"></span>
-					</a>
-				</h4>
-			</div>
-
-			<div id="collapse_ticket_alerts" class="panel-collapse collapse">
-				<div class="panel-body" data-file="field_config_alerts.php">
-					Loading...
-				</div>
-			</div>
-		</div>
-		<div class="panel panel-default">
-			<div class="panel-heading">
-				<h4 class="panel-title">
 					<a data-toggle="collapse" data-parent="#settings_accordions" href="#collapse_status">
 						Statuses<span class="glyphicon glyphicon-plus"></span>
 					</a>
@@ -439,7 +421,6 @@ function loadPanel() {
 			<a href="?settings=manifests"><li class="<?= $_GET['settings'] == 'manifests' ? 'active blue' : '' ?>">Manifest Fields</li></a>
 			<a href="?settings=pdf"><li class="<?= $_GET['settings'] == 'pdf' ? 'active blue' : '' ?>">PDF Options</li></a>
 			<a href="?settings=types"><li class="<?= $_GET['settings'] == 'types' ? 'active blue' : '' ?>"><?= TICKET_NOUN ?> Tabs</li></a>
-			<a href="?settings=alerts"><li class="<?= $_GET['settings'] == 'alerts' ? 'active blue' : '' ?>"><?= TICKET_NOUN ?> Tab Alerts</li></a>
 			<a href="?settings=status"><li class="<?= $_GET['settings'] == 'status' ? 'active blue' : '' ?>">Statuses</li></a>
 			<a href="?settings=tile"><li class="<?= $_GET['settings'] == 'tile' ? 'active blue' : '' ?>">Tile Settings</li></a>
 			<a href="?settings=tile_split"><li class="<?= $_GET['settings'] == 'tile_split' ? 'active blue' : '' ?>">Tile Splitting</li></a>
@@ -496,9 +477,6 @@ function loadPanel() {
 				break;
 			case 'types':
 				include('field_config_types.php');
-				break;
-			case 'alerts':
-				include('field_config_alerts.php');
 				break;
 			case 'status':
 				include('field_config_status.php');

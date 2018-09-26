@@ -24,23 +24,6 @@ if(!empty($_GET['calendar_view'])) {
 	echo '<input type="hidden" name="from" value="'.$_GET['from'].'">';
 	$back_url = urldecode($_GET['from']);
 }
-if(!empty($_GET['from_alert'])) {
-	$get_ticket = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticketid` = '".$_GET['edit']."'"));
-	if(trim($get_ticket['contactid'],',') == '') {
-		mysqli_query($dbc, "UPDATE `tickets` SET `contactid` = ',".$_SESSION['contactid'].",' WHERE `ticketid` = '".$_GET['edit']."'");
-	} else if(!in_array($_SESSION['contactid'], explode(',', trim($get_ticket['contactid'],',')))) {
-		$staff_labels = [];
-		foreach(explode(',', trim($get_ticket['contactid'],',')) as $ticket_contactid) {
-			$staff_labels[] = get_contact($dbc, $ticket_contactid);
-		}
-		$staff_labels = implode(', ', $staff_labels); ?>
-		<script type="text/javascript">
-			$(document).ready(function() {
-				alert("<?= $staff_labels ?> has taken responsibility of this <?= TICKET_NOUN ?>.");
-			});
-		</script>
-	<?php }
-}
 
 $ticket_layout = get_config($dbc, 'ticket_layout');
 $value_config = ','.get_field_config($dbc, 'tickets').',';
@@ -429,10 +412,6 @@ if($_GET['new_ticket_calendar'] == 'true' && empty($_GET['edit'])) {
 	if(strpos($value_config,',Deliverable To Do,') === FALSE) {
 		echo '<input type="hidden" name="contactid[]" value="'.$calendar_contactid.'">';
 	}
-	if(strpos($value_config,',Deliverable To Do,') === FALSE && strpos($value_config,',Detail Times,') === FALSE) {
-		echo '<input type="hidden" name="to_do_start_time" value="'.$get_ticket['to_do_start_time'].'">';
-		echo '<input type="hidden" name="to_do_end_time" value="'.$get_ticket['to_do_end_time'].'">';
-	}
 }
 
 //Check if only using today's data
@@ -712,6 +691,7 @@ $(document).ready(function() {
 			modal: true,
 			buttons: {
 				"All Recurrences": function() {
+					clearInterval(check_recurrence);
 					var ticketid = $('#ticketid').val();
 					$('#sync_recurrences').val(1);
 					$('.sync_recurrences_note').show();
@@ -725,10 +705,19 @@ $(document).ready(function() {
 					$(this).dialog('close');
 				},
 				"One Occurence": function() {
+					clearInterval(check_recurrence);
+					$('#sync_recurrences').val(0);
 					$(this).dialog('close');
 				}
 			}
 		});
+		var check_recurrence = '';
+		check_recurrence = setInterval(function() {
+			if(!($('#dialog_edit_recurrence').is(':visible'))) {
+				$('#sync_recurrences').val(0);
+				clearInterval(check_recurrence);
+			}
+		},50);
 	<?php } ?>
     
     var menu_bar_height = $('#nav').height() + $('.tile-header').height() + 12;
@@ -1137,7 +1126,7 @@ var setHeading = function() {
 	<div class="double-gap-top standard-body form-horizontal calendar-iframe-screen <?= $calendar_ticket_slider=='full' ? 'calendar-iframe-full' : 'calendar-iframe-accordion'; ?>">
 		<input type="hidden" id="calendar_view" value="true">
 <?php } ?>
-<input type="hidden" name="sync_recurrences" id="sync_recurrences" value="0">
+<input type="hidden" name="sync_recurrences" id="sync_recurrences" value="<?= ($is_recurrence && !($_GET['action_mode'] > 0) && !($_GET['overview_mode'] > 0) ? 1 : 0) ?>">
 <input type="hidden" name="checkout_before_checkin" id="checkin_before_checkout" value="<?= strpos($value_config,',Check Out Before Check In,') !== FALSE ? 1 : 0 ?>">
 <?php if(get_config($dbc, 'ticket_textarea_style') == 'no_editor') { ?>
 	<script>
@@ -1211,7 +1200,7 @@ var setHeading = function() {
 	</div>
 	<div class="<?= $calendar_ticket_slider != 'accordion' ? 'show-on-mob' : 'main-screen' ?> panel-group block-panels col-xs-12 form-horizontal" style="background-color: #fff; padding: 0; margin-left: 5px; width: calc(100% - 10px); height: 100%;" id="mobile_tabs">
 		<?php if($wait_on_approval) {
-			echo '<h4>Awaiting Admin Approval</h4>';
+			echo '<h4>Submitted for Administration Approval</h4>';
 		} ?>
 		<?php $current_heading = '';
 		$current_heading_closed = true;

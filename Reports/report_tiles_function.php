@@ -322,7 +322,7 @@ function reports_tiles($dbc) {
                         <?php if ( $_GET['report'] == 'Ticket Activity Report' ) { ?>
                             <div class="pull-right">
 
-                                <a class="cursor-hand printpdf" onclick="printPDF();"><img src="../img/pdf.png" class="no-toggle" title="Print Report" /></a>
+                                <a class="cursor-hand printpdf" onclick="printPDF();"><img src="../img/icons/pdf.png" class="no-toggle" title="Print Report" width="25" /></a>
                                 <img src="../img/icons/ROOK-email-icon.png" id="<?= strtolower(str_replace(' ', '_', $_GET['report'])) ?>" class="no-toggle cursor-hand offset-left-5" title="Email Report" width="25" onclick="email_doc(this);" data-title="<?= $title ?>" />
                                 <a href="../quick_action_reminders.php?tile=reports" onclick="overlayIFrameSlider(this.href,'auto',true,true); return false;"><img class="no-toggle" title="Create Reminder" width="25" src="../img/icons/ROOK-reminder-icon.png" /></a>
 

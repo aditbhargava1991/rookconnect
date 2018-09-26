@@ -49,7 +49,8 @@ if(isset($_POST['upload_file']) && !empty($_FILES['csv_file']['tmp_name'])) {
             'PHONE3' => trim($csv[18]), 'EMAIL' => trim($csv[19]), 'DAYNOTE' => trim($csv[20]), 'STATUS' => trim($csv[21]) ];
 		$new_values[$values['ORDER']]['invoice_number'] = $values['ORDER'];
 		$new_values[$values['ORDER']]['date'] = date('Y-m-d',strtotime($values['DATE']));
-		$new_values[$values['ORDER']]['description'] = ($new_values[$values['ORDER']]['description'] == '' ? implode(' ',array_filter([$values['QTY'],$values['APPLIANCE'],$values['APP_PART']])) : implode(', ',array_merge(explode(', ',$new_values[$values['ORDER']]['description']),[implode(' ',array_filter([$values['QTY'],$values['APPLIANCE'],$values['APP_PART'],$values['WEIGHT']]))])));
+		$new_values[$values['ORDER']]['description'] = ($new_values[$values['ORDER']]['description'] == '' ? implode(' ',array_filter([$values['QTY'],$values['APPLIANCE'],$values['APP_PART']])) : implode(', ',array_merge(explode(', ',$new_values[$values['ORDER']]['description']),[implode(' ',array_filter([$values['QTY'],$values['APPLIANCE'],$values['APP_PART']]))])));
+		$new_values[$values['ORDER']]['weight'] = ($new_values[$values['ORDER']]['weight'] == '' ? $values['WEIGHT'] : implode(', ',array_merge(explode(', ',$new_values[$values['ORDER']]['weight']),[$values['WEIGHT']])));
 		$new_values[$values['ORDER']]['volume'] = ($new_values[$values['ORDER']]['volume'] == '' ? $values['VOLUME'] : implode(', ',array_merge(explode(', ',$new_values[$values['ORDER']]['volume']),[$values['VOLUME']])));
 		$new_values[$values['ORDER']]['customer_name'] = $values['NAME'];
 		$new_values[$values['ORDER']]['street_address'] = $values['STREET'];
@@ -71,7 +72,7 @@ if(isset($_POST['upload_file']) && !empty($_FILES['csv_file']['tmp_name'])) {
 	$today_date = date('Y_m_d');
 	$FileName = "output_ml/".file_safe_str("macro_miele_".$today_date.".csv",'output_ml/');
 	$file = fopen($FileName, "w");
-	$new_csv = ['Invoice Number', 'Date', 'Description', 'Gross Volume', 'Customer Name', 'Street Address', 'Unit Number', 'City', 'Province', 'Postal Code','Phone 1','Phone 2','Phone 3','Email','00022','Shipment Status'];
+	$new_csv = ['Invoice Number', 'Date', 'Description', 'Gross Weight', 'Gross Volume', 'Customer Name', 'Street Address', 'Unit Number', 'City', 'Province', 'Postal Code','Phone 1','Phone 2','Phone 3','Email','00022','Shipment Status'];
 	$date = date('Y-m-d');
 	foreach ($new_values as $key => $value) {
 		if(!empty($value['date']) && !empty($value['customer_name']) && !empty($value['street_address']) && !empty($value['city']) && !empty($value['phone1']) && !empty(strip_tags(html_entity_decode($value['description'])))) {
@@ -83,7 +84,7 @@ if(isset($_POST['upload_file']) && !empty($_FILES['csv_file']['tmp_name'])) {
 				if(!empty($warehouses[$value['city']]) && !empty($value['city'])) {
 					$dbc->query("INSERT INTO `ticket_schedule` (`ticketid`,`type`,`to_do_date`,`to_do_start_time`,`client_name`,`address`,`city`,`postal_code`,`order_number`,`status`) VALUES ('$ticketid','".$warehouses[$value['city']]['warehouse_name']."','".$value['date']."','".$warehouse_start_time."','".$business_name."','".$warehouses[$value['city']]['address']."','".$warehouses[$value['city']]['city']."','".$warehouses[$value['city']]['postal_code']."','".$key."','$default_status')");
 				}
-				$dbc->query("INSERT INTO `ticket_schedule` (`ticketid`,`to_do_date`,`client_name`,`address`,`city`,`province`,`postal_code`,`details`,`vendor`,`email`,`order_number`,`volume`,`notes`,`status`) VALUES ('$ticketid','".$value['date']."','".$value['customer_name']."','".$value['street_address'].' '.$value['unit_number']."','".$value['city']."','".$value['province']."','".$value['postal_code']."','".$value['email']."','".$value['phone1']."','".$value['phone2']."','".$key."','".$value['volume']."','&lt;p&gt;".$value['description']."&lt;/p&gt;&lt;p&gt;".$value['info']."&lt;/p&gt;','$default_status')");
+				$dbc->query("INSERT INTO `ticket_schedule` (`ticketid`,`to_do_date`,`client_name`,`address`,`city`,`province`,`postal_code`,`details`,`vendor`,`email`,`order_number`,`volume`,`notes`,`status`) VALUES ('$ticketid','".$value['date']."','".$value['customer_name']."','".$value['street_address'].' '.$value['unit_number']."','".$value['city']."','".$value['province']."','".$value['postal_code']."','".$value['email']."','".$value['phone1']."','".$value['phone2']."','".$key."','".$value['volume']."','&lt;p&gt;".$value['description']."&lt;/p&gt;&lt;p&gt;Gross Weight (KG): ".$value['weight']."&lt;/p&gt;&lt;p&gt;".$value['info']."&lt;/p&gt;','$default_status')");
 				$dbc->query("INSERT INTO `ticket_history` (`ticketid`,`userid`,`src`,`description`) VALUES ('$ticketid',".$_SESSION['contactid'].",'optimizer','Best Buy macro imported ".TICKET_NOUN." $ticketid')");
 			}
 		}

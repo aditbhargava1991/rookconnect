@@ -625,15 +625,24 @@ if($_GET['fill'] == 'update_fields') {
     echo $id_value;
 }
 
+if($_GET['fill'] == 'start_timer') {
+    $taskid = filter_var($_GET['taskid'],FILTER_SANITIZE_STRING);
+    $contactid = filter_var($_GET['contactid'],FILTER_SANITIZE_STRING);
+    $timer_date = date('Y-m-d');
+    $start_time = date('h:i A');
 
-if($_GET['fill'] == 'stop_timer') {
+    $query_add_time = "INSERT INTO `tasklist_time` (`tasklistid`, `start_time`, `src`, `contactid`, `timer_date`) VALUES ('$taskid', '$start_time', 'A', '$contactid', '$timer_date')";
+    $result_add_time = mysqli_query($dbc, $query_add_time);
+} else if($_GET['fill'] == 'stop_timer') {
     $taskid = filter_var($_GET['taskid'],FILTER_SANITIZE_STRING);
     $timer_value = filter_var($_GET['timer_value'],FILTER_SANITIZE_STRING);
     $contactid = filter_var($_GET['contactid'],FILTER_SANITIZE_STRING);
     $timer_date = date('Y-m-d');
+    $end_time = date('h:i A');
 
     if($timer_value != '0' && $timer_value != '00:00:00' && $timer_value != '') {
-        $query_add_time = "INSERT INTO `tasklist_time` (`tasklistid`, `work_time`, `src`, `contactid`, `timer_date`) VALUES ('$taskid', '$timer_value', 'A', '$contactid', '$timer_date')";
+        //$query_add_time = "INSERT INTO `tasklist_time` (`tasklistid`, `work_time`, `src`, `contactid`, `timer_date`) VALUES ('$taskid', '$timer_value', 'A', '$contactid', '$timer_date')";
+        $query_add_time = "UPDATE `tasklist_time` SET `end_time` = '$end_time', `work_time`='$timer_value' WHERE `tasklistid`='$taskid' AND `contactid` = '$contactid' AND `timer_date` = '$timer_date' AND `src` = 'A' AND `start_time` IS NOT NULL AND `end_time` IS NULL";
         $result_add_time = mysqli_query($dbc, $query_add_time);
 
         insert_day_overview($dbc, $contactid, 'Task', date('Y-m-d'), '', "Updated Task #$taskid - Added Time : $timer_value");
