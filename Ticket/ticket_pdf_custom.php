@@ -9,18 +9,25 @@ if($_GET['revision'] > 0 && $form['pdf_name'] != '' && $ticketid > 0 && file_exi
 	echo "<script> window.top.location.href = 'download/".config_safe_str($form['pdf_name']).'_'.$_GET['revision'].'_'.$ticketid.".pdf'; </script>";
 } else if(!empty($_GET['form'])) {
 	DEFINE("PDF_IMAGES", $form['pages']);
+	DEFINE("FORM_PAGE_ORIENTATION", $form['page_orientation']);
 
 	class MYPDF extends TCPDF {
 		public function Header() {
 			$image = explode('#*#',PDF_IMAGES)[$this->page-1];
 			if(!empty($image) && file_exists('pdf_contents/'.$image)) {
 				$image = 'pdf_contents/'.$image;
-				$this->Image($image, 0, 0, 216, 279, '', '', '', false, 300, '', false, false, 0);
+				$width = 216;
+				$height = 279;
+				if(FORM_PAGE_ORIENTATION == 'L') {
+					$width = 279;
+					$height = 216;
+				}
+				$this->Image($image, 0, 0, $width, $height, '', '', '', false, 300, '', false, false, 0);
 			}
 		}
 	}
 
-	$pdf = new MYPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, 'LETTER', true, 'UTF-8', false);
+	$pdf = new MYPDF((!empty($form['page_orientation']) ? $form['page_orientation'] : PDF_PAGE_ORIENTATION), PDF_UNIT, 'LETTER', true, 'UTF-8', false);
 	$pdf->SetMargins(10, 10, 10);
 	$pdf->SetFooterMargin(10);
 	$pdf->SetAutoPageBreak(FALSE, 0);
