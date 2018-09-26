@@ -206,9 +206,12 @@ if($_GET['fill'] == 'delete_task') {
 if($_GET['fill'] == 'delete_board') {
     $boardid = $_GET['boardid'];
 	if($boardid > 0) {
-    $archived_date = date('Y-m-d');
-		$query_update_project = "UPDATE `task_board` SET `deleted`=1, `archived_date` = '$archived_date' WHERE `taskboardid` = '$boardid'";
+        $archived_date = date('Y-m-d');
+		$query_update_project = "UPDATE `task_board` SET `deleted`=1, `date_of_archival` = '$archived_date' WHERE `taskboardid` = '$boardid'";
 		$result_update_project = mysqli_query($dbc, $query_update_project);
+
+        $query_update_project = "UPDATE `tasklist` SET `deleted`=1, `archived_date` = '$archived_date' WHERE `task_board` = '$boardid'";
+	    $result_update_project = mysqli_query($dbc, $query_update_project);
 	}
 	echo "deleted";
 }

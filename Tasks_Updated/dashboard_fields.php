@@ -31,13 +31,14 @@
                 if($item['status'] == '') {
                     $item['status'] = 'To Be Scheduled';
                 }
-                foreach ($each_tab as $cat_tab) {
-                    if ($item['status'] == $cat_tab) {
+                $selected_cat_tab = $cat_tab;
+                foreach ($each_tab as $selected_cat_tab) {
+                    if ($item['status'] == $selected_cat_tab) {
                         $selected = 'selected="selected"';
                     } else {
                         $selected = '';
                     }
-                    echo "<option ".$selected." value='". $cat_tab."'>".$cat_tab.'</option>';
+                    echo "<option ".$selected." value='". $selected_cat_tab."'>".$selected_cat_tab.'</option>';
                 }
               ?>
             </select>
