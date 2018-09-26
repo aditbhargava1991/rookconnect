@@ -861,11 +861,17 @@ if(!empty($invoice_types)) { ?>
     							<td>
     								<input type="checkbox" <?php if (strpos($value_config, ','."payment_type".',') !== FALSE) { echo " checked"; } ?> value="payment_type" name="invoice_dashboard[]">&nbsp;&nbsp;Payment Type
     							</td>
+                                <td>
+                                    <input type="checkbox" <?php if (strpos($value_config, ','."invoice_pdf".',') !== FALSE) { echo " checked"; } ?> value="invoice_pdf" name="invoice_dashboard[]">&nbsp;&nbsp;Invoice PDF
+                                </td>
     						</tr>
     						<tr>
-    							<td>
-    								<input type="checkbox" <?php if (strpos($value_config, ','."invoice_pdf".',') !== FALSE) { echo " checked"; } ?> value="invoice_pdf" name="invoice_dashboard[]">&nbsp;&nbsp;Invoice PDF
-    							</td>
+                                <td>
+                                    <input type="checkbox" <?php if (strpos($value_config, ','."invoice_xsl".',') !== FALSE) { echo " checked"; } ?> value="invoice_xsl" name="invoice_dashboard[]">&nbsp;&nbsp;Invoice XSL
+                                </td>
+                                <td>
+                                    <input type="checkbox" <?php if (strpos($value_config, ','."invoice_xml".',') !== FALSE) { echo " checked"; } ?> value="invoice_xml" name="invoice_dashboard[]">&nbsp;&nbsp;Invoice XML
+                                </td>
     							<td>
     								<input type="checkbox" <?php if (strpos($value_config, ','."comment".',') !== FALSE) { echo " checked"; } ?> value="comment" name="invoice_dashboard[]">&nbsp;&nbsp;Comment
     							</td>

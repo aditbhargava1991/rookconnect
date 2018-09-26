@@ -500,6 +500,12 @@ if(!empty($_GET['action']) && $_GET['action'] == 'export_pos_file') {
 					<th colspan="12" style="text-align:center;"><p style="text-align:center;">'.$image_file.'</p><h1 style="text-align:center;">Invoice</h1></th>
 				</tr>
 			</table>';
+	$stripAddress = strip_tags((string)html_entity_decode($invoice_header));
+	$html .= '<table style="width:100%;" id="invoiceData">
+				<tr rowspan="2">
+					<td align="right" colspan="12" style="text-align:right;">'.$stripAddress.'</td>
+				</tr>
+			</table>';
 
 	if($_GET['format']=='xsl'){
 		//$html .= '<p style="text-align:left;">Box 2052, Sundre, AB, T0M 1X0<br>Phone: 403-638-4030<br>Fax: 403-638-4001<br>Email: info@highlandprojects.com<br>Work Ticket# : </p>';
@@ -509,13 +515,13 @@ if(!empty($_GET['action']) && $_GET['action'] == 'export_pos_file') {
 		} else { $tdduedate = ''; $thduedate = ''; }
 		$html .= '<table style="width:100%;" id="invoiceData">
 					<tr>
-						<td colspan="6" style="text-align:left;">
-							<table style="width:100%;"><tr><td colspan="6">BILL TO :</td></tr><tr><td colspan="6">'.decryptIt($customer['name']).' '.decryptIt($customer['first_name']).' '.decryptIt($customer['last_name']).'<br>'.$customer['mailing_address'].'<br>'.$customer['city'].', '.$customer['state'].' '.$customer['zip_code'].'<br>'.decryptIt($customer['cell_phone']).'<br>'.decryptIt($customer['email_address']).'</td></tr>
+						<td style="text-align:left;">
+							<table style="width:100%;"><tr><td colspan="6">BILL TO :</td></tr><tr><td colspan="6">'.decryptIt($customer['name']).' '.decryptIt($customer['first_name']).' '.decryptIt($customer['last_name']).($customer['mailing_address']!='' ? '<br>'.$customer['mailing_address']:'').($customer['city']!='' ? '<br>'.$customer['city'].', '.$customer['state'].' '.$customer['zip_code']:'').(decryptIt($customer['cell_phone'])!='' ? '<br>'.decryptIt($customer['cell_phone']):'').(decryptIt($customer['email_address'])!='' ? '<br>'.decryptIt($customer['email_address']):'').'</td></tr>
 							</table>
 						</td>
 						
-						<td colspan="6" style="text-align:right;">
-							<table style="width:100%;"><tr><td colspan="6">INVOICE # : '.$invoiceid.'</td></tr><tr><td style="text-align:center;" colspan="6">INVOICE DATE : '.$point_of_sell['invoice_date'].'<br>DUE DATE : '.$point_of_sell['due_date'].'</td></tr>
+						<td colspan ="6" style="text-align:right;">
+							<table style="width:100%;"><tr><td align="right" colspan ="6">INVOICE # : '.$invoiceid.'</td></tr><tr><td align="right"  colspan ="6" style="text-align:center;">INVOICE DATE : '.$point_of_sell['invoice_date'].'<br>DUE DATE : '.$point_of_sell['due_date'].'</td></tr>
 							</table>
 						</td>
 					</tr>
@@ -743,13 +749,14 @@ if(!empty($_GET['action']) && $_GET['action'] == 'export_pos_file') {
 		header('Content-Disposition: attachment; filename=invoice_'.$invoiceid.'.xls');
 	}
 	if($_GET['format']=='xml'){
+		$stripAddress = strip_tags((string)html_entity_decode($invoice_header));
 		$xml = new SimpleXMLElement('<xml/>');
 
 		$billto = $xml->addChild('bill_to');
 	    $customer = $billto->addChild('customer');
 	    $customer->addChild('first_name', decryptIt($customer['first_name']));
 	    $customer->addChild('last_name', decryptIt($customer['last_name']));
-
+	    $billto->addChild('office_address', $stripAddress);
 	    $address = $billto->addChild('billing_address');
 	    $address->addChild('mailing_address', $customer['mailing_address']);
 	    $address->addChild('city', $customer['city']);

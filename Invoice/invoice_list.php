@@ -377,21 +377,24 @@ function show_hide_email() {
                 if (strpos($value_config, ','."delivery".',') !== FALSE) {
                     echo '<td data-title="Delivery/Shipping Type">' . $invoice['delivery_type'] . '</td>';
                 }
-                echo '<td data-title="Invoice PDF">';
+                echo '<td data-title="Invoice">';
                 echo 'Invoice#'.$invoice['invoiceid'];
                 if (strpos($value_config, ','."invoice_pdf".',') !== FALSE) {
                     if(file_exists($invoice_pdf)) {
-                        echo '<a target="_blank" href="'.$invoice_pdf.'"><img src="'.WEBSITE_URL.'/img/icons/pdf.png" title="Invoice PDF" class="no-toggle inline-img" /></a><br />';
+                        echo '<a class="pull-left" target="_blank" href="'.$invoice_pdf.'"><img src="'.WEBSITE_URL.'/img/icons/pdf.png" title="Invoice PDF" class="no-toggle inline-img" /></a>';
                     }
 
                     if($invoice['invoiceid_src'] > 0 && file_exists('../'.FOLDER_NAME.'/Download/invoice_'.$invoice['invoiceid_src'].'.pdf')) {
-                        echo '<a target="_blank" href="'.'../'.FOLDER_NAME.'/Download/invoice_'.$invoice['invoiceid_src'].'.pdf'.'">Primary <img src="'.WEBSITE_URL.'/img/icons/pdf.png" title="Primary Invoice PDF" class="no-toggle inline-img" /></a><br />';
+                        echo '<a class="pull-left" target="_blank" href="'.'../'.FOLDER_NAME.'/Download/invoice_'.$invoice['invoiceid_src'].'.pdf'.'"><img src="'.WEBSITE_URL.'/img/icons/pdf.png" title="Primary Invoice PDF" class="no-toggle inline-img" /></a>';
                     }
                 }
                 if($invoiceLayout=='cnt1'){
-                    echo '<a target="_blank" href="../Invoice/invoice_ajax.php?action=export_pos_file&invoice='.$invoice['invoiceid'].'&format=xsl"><img src="'.WEBSITE_URL.'/img/icons/POS_XSL.png" title="Invoice XSL" class="no-toggle inline-img" /></a><br />';
-
-                    echo '<a target="_blank" href="../Invoice/invoice_ajax.php?action=export_pos_file&invoice='.$invoice['invoiceid'].'&format=xml"><img src="'.WEBSITE_URL.'/img/icons/POS_XML.png" title="Invoice XML" class="no-toggle inline-img" /></a><br />';
+                    if (strpos($value_config, ','."invoice_xsl".',') !== FALSE) {
+                        echo '<a class="pull-left" target="_blank" href="../Invoice/invoice_ajax.php?action=export_pos_file&invoice='.$invoice['invoiceid'].'&format=xsl"><img src="'.WEBSITE_URL.'/img/icons/POS_XSL.png" title="Invoice XSL" class="no-toggle inline-img" /></a>';
+                    }
+                    if (strpos($value_config, ','."invoice_xml".',') !== FALSE) {
+                        echo '<a class="pull-left" target="_blank" href="../Invoice/invoice_ajax.php?action=export_pos_file&invoice='.$invoice['invoiceid'].'&format=xml"><img src="'.WEBSITE_URL.'/img/icons/POS_XML.png" title="Invoice XML" class="no-toggle inline-img" /></a>';
+                    }
                 }
                 echo '</td>';
                 if (strpos($value_config, ','."comment".',') !== FALSE) {
