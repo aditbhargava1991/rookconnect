@@ -3387,3 +3387,6 @@ position: relative;
 	text-align: center;
 	line-height: 10px;
 }
+.active_blocks .block-item.active:hover {
+	cursor: pointer;
+}

@@ -64,6 +64,12 @@ $(document).on("overlayIFrameSliderLoad", function(e) {
 		}
 	});
 });
+$(document).on('click', '.active_blocks .block-item.active', function() {
+	var parent = $(this).closest('.active_blocks');
+	var accordion = $(parent).data('accordion');
+	var activevalue = $(this).data('activevalue');
+	$('#'+accordion).find('.block-item.active[data-activevalue="'+activevalue+'"]').closest('a').click();
+});
 var auto_refresh_calendar = '';
 function setAutoRefresh() {
 	clearTimeout(auto_refresh_calendar);
