@@ -388,6 +388,10 @@ if($_GET['new_ticket_calendar'] == 'true' && empty($_GET['edit'])) {
 	if(strpos($value_config,',Deliverable To Do,') === FALSE) {
 		echo '<input type="hidden" name="contactid[]" value="'.$calendar_contactid.'">';
 	}
+	if(strpos($value_config,',Deliverable To Do,') === FALSE && strpos($value_config,',Detail Times,') === FALSE) {
+		echo '<input type="hidden" name="to_do_start_time" value="'.$get_ticket['to_do_start_time'].'">';
+		echo '<input type="hidden" name="to_do_end_time" value="'.$get_ticket['to_do_end_time'].'">';
+	}
 }
 
 //Check if only using today's data
