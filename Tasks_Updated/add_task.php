@@ -1239,6 +1239,17 @@ function mark_done(sel) {
                     <div id="collapse_task_details" class="panel-collapse collapse">
                         <div class="panel-body">
 
+                        <?php if(strpos($task_fields, ',Task Name,') !== FALSE) { ?>
+                    <div class="form-group clearfix">
+                        <label for="first_name" class="col-sm-4"><?php echo (strpos($task_mandatory_fields, ',Task Name,') !== FALSE ? '<font color="red">* </font>' : ''); ?>
+                            <!-- <img src="../img/icons/ROOK-edit-icon.png" class="inline-img" /> --> Task Name:
+                        </label>
+                        <div class="col-sm-8">
+                            <input type="text" name="task_heading" value="<?= $task_heading ?>" data-table="tasklist" data-field="heading" class="form-control" width="380" />
+                        </div>
+                    </div>
+                        <?php } ?>
+
                         <?php if(strpos($task_fields, ',Status,') !== FALSE) { ?>
             <div class="form-group clearfix">
                 <label for="first_name" class="col-sm-4"><?php echo (strpos($task_mandatory_fields, ',Status,') !== FALSE ? '<font color="red">* </font>' : ''); ?> Status:</label>
@@ -1274,17 +1285,6 @@ function mark_done(sel) {
                 </div>
             </div>
             -->
-
-                        <?php if(strpos($task_fields, ',Task Name,') !== FALSE) { ?>
-                    <div class="form-group clearfix">
-                        <label for="first_name" class="col-sm-4"><?php echo (strpos($task_mandatory_fields, ',Task Name,') !== FALSE ? '<font color="red">* </font>' : ''); ?>
-                            <!-- <img src="../img/icons/ROOK-edit-icon.png" class="inline-img" /> --> Task Name:
-                        </label>
-                        <div class="col-sm-8">
-                            <input type="text" name="task_heading" value="<?= $task_heading ?>" data-table="tasklist" data-field="heading" class="form-control" width="380" />
-                        </div>
-                    </div>
-                        <?php } ?>
 
                         <?php if(strpos($task_fields, ',To Do Date,') !== FALSE) {
                         if($task_tododate == '' && (empty($_GET['tasklistid']))) {
