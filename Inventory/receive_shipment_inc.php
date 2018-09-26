@@ -118,8 +118,8 @@ if (isset($_POST['submit'])) {
         echo "<tr>";
 
         //echo '<td>' . decryptIt($row['first_name']).' '.decryptIt($row['last_name']) . '</td>';
-        echo '<td data-title="Category">' . $row['date_added'] . '</td>';
-        echo '<td data-title="Category">' . get_staff($dbc, $row['who_added']) . '</td>';
+        echo '<td data-title="Tab">' . $row['date_added'] . '</td>';
+        echo '<td data-title="Tab">' . get_staff($dbc, $row['who_added']) . '</td>';
 
         if (strpos($inventory_config, ',Inventory,') !== FALSE) {
         echo '<td data-title="Inventory">' . get_inventory($dbc, $row['inventoryid'], 'name') . '</td>';

@@ -1,9 +1,24 @@
 <?php
 $current_type = $_GET['type'];
 $get_field_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT * FROM field_config_incident_report WHERE row_type=''"));
-$tile_summary = explode(',',get_config($dbc, 'incident_report_summary'));
+$tile_tabs = explode(',',get_config($dbc, 'incident_report_tabs'));
 $current_file = basename($_SERVER['PHP_SELF']);
 $approvals = approval_visible_function($dbc, 'incident_report');
+$admin_securitys = explode(',',get_config($dbc, 'incident_report_admin_security'));
+$admin_staffs = explode(',',get_config($dbc, 'incident_report_admin_staff'));
+
+$admin_access = false;
+if(in_array($_SESSION['contactid'],$admin_staffs)) {
+	$admin_access = true;
+}
+foreach(explode(',', $_SESSION['role']) as $session_role) {
+	if(in_array($session_role, $admin_securitys)) {
+		$admin_access = true;
+	}
+}
+if(empty($current_type) && in_array('Summary',$tile_tabs) && $current_file != 'summary.php') {
+	header('Location: summary.php');
+}
 ?>
 
 <ul class="sidebar">
@@ -13,14 +28,14 @@ $approvals = approval_visible_function($dbc, 'incident_report');
         	<input type="submit" value="search_submit" name="search_submit" style="display: none;">
         </form>
     </li>
-    <a href="incident_report.php"><li <?= $current_file == 'incident_report.php' && empty($current_type) ? 'class="active"' : '' ?>>All <?= INC_REP_TILE ?></li></a>
+	<?php if(in_array('Summary',$tile_tabs)) { ?>
+        <a href="summary.php"><li <?= $current_file == 'summary.php' ? 'class="active"' : '' ?>>Summary</li></a>
+	<?php } ?>
+    <a href="incident_report.php?type=ALL"><li <?= $current_file == 'incident_report.php' && empty($current_type) || $current_type == 'ALL' ? 'class="active"' : '' ?>>All <?= INC_REP_TILE ?></li></a>
     <?php if(get_config($dbc, 'inc_rep_saved_tab') == 1) { ?>
 		<a href="incident_report.php?type=SAVED"><li <?= $current_file == 'incident_report.php' && $current_type == 'SAVED' ? 'class="active"' : '' ?>>Saved <?= INC_REP_TILE ?></li></a>
     <?php } ?>
-	<?php if(count(array_filter($tile_summary, function($str) { return $str != 'Admin'; })) > 0) { ?>
-        <a href="summary.php"><li <?= $current_file == 'summmary.php' ? 'class="active"' : '' ?>>Summary</li></a>
-	<?php } ?>
-	<?php if(in_array('Admin',$tile_summary) && $approvals > 0) { ?>
+	<?php if(in_array('Admin',$tile_tabs) && $approvals > 0 && $admin_access) { ?>
 		<li class="sidebar-higher-level highest-level"><a class="cursor-hand <?= $current_file == 'admin.php' ? 'active blue' : 'collapsed' ?>" data-toggle="collapse" data-target="#admin_stat">Administration<span class="arrow pull-right"></span></a>
 			<ul id="admin_stat" class="collapse <?= $current_file == 'admin.php' ? 'in' : '' ?>">
 				<?php foreach (str_getcsv(html_entity_decode($get_field_config['incident_types']), ',') as $in_type) { ?>

@@ -124,13 +124,13 @@ if (isset($_POST['add_tab'])) {
 		</div>
 	</div>
 	<div class="form-group">
-		<label for="fax_number"	class="col-sm-4	control-label">Add Equipment Categories:<br /><em>Separate the categories by commas. These will display on the dashboard as tabs to separate the Categories of Equipment.</em></label>
+		<label for="fax_number"	class="col-sm-4	control-label">Add Equipment Tabs:<br /><em>Separate the tabs by commas. These will display on the dashboard as tabs to separate the Tabs of Equipment.</em></label>
 		<div class="col-sm-8">
 			<input name="equipment_tabs" type="text" value="<?php echo get_config($dbc, 'equipment_tabs'); ?>" class="form-control"/>
 		</div>
 	</div>
 	<div class="form-group">
-		<label for="fax_number" class="col-sm-4 control-label">Use Category Drop Down Menu:</label>
+		<label for="fax_number" class="col-sm-4 control-label">Use Tab Drop Down Menu:</label>
 		<div class="col-sm-8">
 		<?php
 		$checked = '';
@@ -213,9 +213,9 @@ if (isset($_POST['add_tab'])) {
 
 	<h4>Mass Equipment Update</h4>
 	<div class="form-group">
-		<label for="mass_update_field" class="col-sm-4 control-label">Category to Update:</label>
+		<label for="mass_update_field" class="col-sm-4 control-label">Tab to Update:</label>
 		<div class="col-sm-8">
-			<select name="mass_update_category" class="chosen-select-deselect" data-placeholder="Select a Category"><option></option>
+			<select name="mass_update_category" class="chosen-select-deselect" data-placeholder="Select a Tab"><option></option>
 				<?php foreach(explode(',',get_config($dbc, 'equipment_tabs')) as $cat) { ?>
 					<option value="<?= $cat ?>"><?= $cat ?></option>
 				<?php } ?>

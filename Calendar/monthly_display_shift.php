@@ -10,7 +10,16 @@ while($row = mysqli_fetch_array( $result )) {
     	$row['calendar_color'] = '#3ac4f2';
     }
 
-	$shifts = checkShiftIntervals($dbc, $contactid, $day_of_week, $new_today_date, 'all');
+    if(get_config($dbc, 'shift_hide_if_day_off') == 1) {
+        $daysoff = checkShiftIntervals($dbc, $contactid, $day_of_week, $new_today_date, 'daysoff');
+        if(!empty($daysoff)) {
+            $shifts = $daysoff;
+        } else {
+            $shifts = checkShiftIntervals($dbc, $contactid, $day_of_week, $new_today_date, 'shifts');
+        }
+    } else {
+    	$shifts = checkShiftIntervals($dbc, $contactid, $day_of_week, $new_today_date, 'all');
+    }
 
     $num_rows = mysqli_num_rows($shifts);
 
@@ -50,10 +59,16 @@ while($row = mysqli_fetch_array( $result )) {
 			unset($page_query['shiftid']);
 			unset($page_query['current_day']);
 			$column .= ($row_shifts['startdate'] < $lock_date ? '<span class="sortable-blocks" ' : '<a class="sortable-blocks" ').($edit_access == 1 ? 'href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Calendar/shifts.php?'.http_build_query($page_query).'&shiftid='.$row_shifts['shiftid'].'&current_day='.$new_today_date.'\'); return false;"' : 'href="" onclick="return false;"').'style="display:block; margin: 0.5em; padding:5px; color:black; border-radius: 10px; background-color:'.$shift_bg_color.';" data-shift="'.$row_shifts['shiftid'].'" data-currentdate="'.$new_today_date.'" data-currentcontact="'.$staff.'" data-clientid="'.$row_shifts['clientid'].'" data-itemtype="shift">'.$warning_icon;
-			$column .= (!empty($row_shifts['dayoff_type']) ? 'Day Off: ' : 'Shift: ').date('g:i a', strtotime($row_shifts['starttime']))." - ".date('g:i a', strtotime($row_shifts['endtime'])).'<br />';
+            if(!empty($row_shifts['heading'])) {
+                $column .= $row_shifts['heading'].'<br />';
+            }
+			$column .= (!empty($row_shifts['dayoff_type']) ? 'Time Off: ' : 'Shift: ').date('g:i a', strtotime($row_shifts['starttime']))." - ".date('g:i a', strtotime($row_shifts['endtime'])).'<br />';
 			if(!empty($row_shifts['clientid'])) {
 				$column .= $client_type.': '.get_contact($dbc, $row_shifts['clientid']).'<br />';
 			}
+            if(!empty($row_shifts['notes'])) {
+                $column .= 'Notes: '.html_entity_decode($row_shifts['notes']);
+            }
 			$column .= $row_shifts['startdate'] < $lock_date ? '</span>' : '</a>';
         }
         $column .= '</div>';

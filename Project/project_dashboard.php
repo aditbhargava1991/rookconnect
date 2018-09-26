@@ -390,7 +390,7 @@ $(document).ready(function() {
 		<?php if(in_array('Business',$project_classify)) { ?>
             <li class="sidebar-higher-level"><a class="collapsed cursor-hand" data-toggle="collapse" data-target="#Business">Business<span class="arrow"></span></a>
                 <ul class="collapse" id="Business" style="overflow: hidden;">
-			<?php sort($businesses); ?>
+			<?php asort($businesses); ?>
 			<?php foreach($businesses as $business) {
 				if(isset($business_list[$business['contactid']])) { ?>
 					<a href="?tile_name=<?= $tile ?>&type=business_<?= $business['contactid'] ?>" onclick="selectType('business_<?= $business['contactid'] ?>', undefined, '<?= $business['name'] == '' ? '(Unknown)' : htmlentities($business['name'], ENT_QUOTES) ?>'); return false;"><li class="<?= 'business_'.$business['contactid'] == $project_type ? 'active blue' : '' ?>"><?= $business['name'] == '' ? '(Unknown)' : $business['name'] ?><span class="pull-right"><?= count(array_unique($business_list[$business['contactid']])) ?></span></li></a>
@@ -401,7 +401,7 @@ $(document).ready(function() {
 		<?php if(in_array('Classifications',$project_classify)) { ?>
             <li class="sidebar-higher-level"><a class="collapsed cursor-hand" data-toggle="collapse" data-target="#Classifications">Classifications<span class="arrow"></span></a>
                 <ul class="collapse" id="Classifications" style="overflow: hidden;">
-			<?php sort($class_list); ?>
+			<?php asort($class_list); ?>
 			<?php foreach($class_list as $class_name => $class_projects) { ?>
 				<?php $class_string = config_safe_str($class_name); ?>
 				<a href="?tile_name=<?= $tile ?>&type=class_<?= $class_string ?>" onclick="selectType('class_<?= $class_string ?>', undefined, '<?= $class_name == '' ? 'No Classification' : htmlentities($class_name,ENT_QUOTES) ?>'); return false;"><li class="<?= $project_type == 'class_'.$class_string && isset($_GET['classification']) ? 'active blue' : '' ?>"><?= $class_name == '' ? 'No Classification' : $class_name ?><span class="pull-right"><?= count(array_unique($class_projects)) ?></span></li></a>
@@ -411,7 +411,7 @@ $(document).ready(function() {
 		<?php if(in_array('Contact',$project_classify)) { ?>
             <li class="sidebar-higher-level"><a class="collapsed cursor-hand" data-toggle="collapse" data-target="#Contact">Contact<span class="arrow"></span></a>
                 <ul class="collapse" id="Contact" style="overflow: hidden;">
-			<?php sort($contacts); ?>
+			<?php asort($contacts); ?>
 			<?php foreach($contacts as $contact) {
 				if(isset($contact_list[$contact['contactid']])) { ?>
 					<a href="?tile_name=<?= $tile ?>&type=contact_<?= $contact['contactid'] ?>" onclick="selectType('contact_<?= $contact['contactid'] ?>', undefined, '<?= $contact['first_name'].$contact['last_name'] == '' ? '(Unknown)' : htmlentities($contact['first_name'].' '.$contact['last_name'], ENT_QUOTES) ?>'); return false;"><li class="<?= 'contact_'.$contact['contactid'] == $project_type ? 'active blue' : '' ?>"><?= $contact['first_name'].$contact['last_name'] == '' ? '(Unknown)' : $contact['first_name'].' '.$contact['last_name'] ?><span class="pull-right"><?= count(array_unique($contact_list[$contact['contactid']])) ?></span></li></a>
@@ -422,7 +422,7 @@ $(document).ready(function() {
 		<?php if(in_array('Lead',$project_classify)) { ?>
             <li class="sidebar-higher-level"><a class="collapsed cursor-hand" data-toggle="collapse" data-target="#Lead">Lead<span class="arrow"></span></a>
                 <ul class="collapse" id="Lead" style="overflow: hidden;">
-			<?php sort($leads); ?>
+			<?php asort($leads); ?>
 			<?php foreach($leads as $contact) {
 				if(isset($lead_list[$contact['contactid']])) { ?>
 					<a href="?tile_name=<?= $tile ?>&type=lead_<?= $contact['contactid'] ?>" onclick="selectType('lead_<?= $contact['contactid'] ?>', undefined, '<?= $contact['first_name'].$contact['last_name'] == '' ? '(Unknown)' : htmlentities($contact['first_name'].' '.$contact['last_name'], ENT_QUOTES) ?>'); return false;"><li class="<?= 'lead_'.$contact['contactid'] == $project_type ? 'active blue' : '' ?>"><?= $contact['first_name'].$contact['last_name'] == '' ? '(Unknown)' : $contact['first_name'].' '.$contact['last_name'] ?><span class="pull-right"><?= count(array_unique($lead_list[$contact['contactid']])) ?></span></li></a>
@@ -433,7 +433,7 @@ $(document).ready(function() {
 		<?php if(in_array('Regions',$project_classify)) { ?>
             <li class="sidebar-higher-level"><a class="collapsed cursor-hand" data-toggle="collapse" data-target="#Regions">Regions<span class="arrow"></span></a>
                 <ul class="collapse" id="Regions" style="overflow: hidden;">
-			<?php sort($region_list); ?>
+			<?php asort($region_list); ?>
 			<?php foreach($region_list as $region_name => $region_projects) { ?>
 				<?php $region_string = config_safe_str($region_name); ?>
 				<a href="?tile_name=<?= $tile ?>&type=region_<?= $region_string ?>" onclick="selectType('region_<?= $region_string ?>', undefined, '<?= $region_name == '' ? 'No Region' : htmlentities($region_name, ENT_QUOTES) ?>'); return false;"><li class="<?= $project_type == 'region_'.$region_string && isset($_GET['region_name']) ? 'active blue' : '' ?>"><?= $region_name == '' ? 'No Region' : $region_name ?><span class="pull-right"><?= count(array_unique($region_projects)) ?></span></li></a>
@@ -445,7 +445,7 @@ $(document).ready(function() {
 
             <li class="sidebar-higher-level"><a class="collapsed cursor-hand" data-toggle="collapse" data-target="#types">Types<span class="arrow"></span></a>
                 <ul class="collapse" id="types" style="overflow: hidden;">
-			<?php sort($project_tabs); ?>
+			<?php asort($project_tabs); ?>
 			<?php foreach($project_tabs as $type_name => $project_label) {
 
                 $project_tabs_for_color = get_config($dbc, "project_tabs");

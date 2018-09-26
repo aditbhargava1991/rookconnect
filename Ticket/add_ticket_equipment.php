@@ -8,7 +8,7 @@ do {
 			if($access_all > 0) { ?>
 				<?php if ( strpos($value_config, ',Equipment Category,') !== false && $field_sort_field == 'Equipment Category' ) { ?>
 					<div class="form-group">
-						<label class="control-label col-sm-4">Category:</label>
+						<label class="control-label col-sm-4">Tab:</label>
 						<div class="col-sm-8">
 							<select name="eq_category" class="chosen-select-deselect"><option></option>
 								<?php $groups = mysqli_query($dbc, "SELECT `category` FROM `equipment` WHERE `deleted`=0 GROUP BY `category` ORDER BY `category`");
@@ -130,7 +130,7 @@ do {
 				<?php } ?>
 			<?php } else if ($equipment['equipmentid'] > 0) { ?>
 					<div class="form-group">
-						<label class="control-label col-sm-4">Category:</label>
+						<label class="control-label col-sm-4">Tab:</label>
 						<div class="col-sm-8"><?= $equipment['category'] ?></div>
 					</div>
 					<?php $pdf_contents[] = ['Category', $equipment['category'] ]; ?>
@@ -185,8 +185,8 @@ do {
 		}
 		if($access_all > 0) { ?>
 			<input type="hidden" name="deleted" data-table="ticket_attached" data-id="<?= $equipment['id'] ?>" data-id-field="id" data-type="equipment" data-type-field="src_table" value="0">
-			<img class="inline-img pull-right" onclick="addMulti(this);" src="../img/icons/ROOK-add-icon.png">
-			<img class="inline-img pull-right" onclick="remMulti(this);" src="../img/remove.png">
+			<img class="inline-img pull-right" data-history-label="Equipment" onclick="addMulti(this);" src="../img/icons/ROOK-add-icon.png">
+			<img class="inline-img pull-right" data-history-label="Equipment" onclick="remMulti(this);" src="../img/remove.png">
 			<div class="clearfix"></div>
 		<?php } ?>
 	</div>

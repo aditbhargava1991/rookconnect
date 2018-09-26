@@ -31,12 +31,30 @@ function updateTotalTimeEstimate() {
 	if(strpos($value_config,',Billing Services,') !== FALSE && (!isset($_GET['tab_only']) || $_GET['tab_only'] == 'services')) {
 		$service_rates = explode('**',$customer_rates['services']);
 		$services = $_SERVER['DBC']->query("SELECT `serviceid`, `service_qty`, `service_discount`, `service_discount_type`, `service_time_estimate` FROM `tickets` WHERE `ticketid`='$ticketid'")->fetch_assoc();
+		$service_delivers = [];
 		$service = explode(',',$services['serviceid']);
+        foreach($service as $id) {
+            $service_delivers[] = '';
+        }
 		$qty = explode(',',$services['service_qty']);
 		$time_estimate = explode(',',$services['service_time_estimate']);
 		$discount_type = explode(',',$services['service_discount_type']);
 		$discount = explode(',',$services['service_discount']);
 		$total_time_estimate = 0;
+        $delivery_services = $_SERVER['DBC']->query("SELECT `location_name`,`client_name`,`serviceid`, `est_time` FROM `ticket_schedule` WHERE `ticketid`='$ticketid' AND `deleted`=0 ORDER BY `sort`");
+        $stop_number = 0;
+        while($delivery_service = $delivery_services->fetch_assoc()) {
+            $stop_number++;
+            $delivery_serviceid = explode(',',$delivery_service['serviceid']);
+            foreach($delivery_serviceid as $id) {
+                $service_delivers[] = 'Delivery #'.$stop_number.': '.(empty($delivery_service['client_name']) ? $delivery_service['location_name'] : $delivery_service['client_name']);
+                $service[] = $id;
+                $qty[] = 1;
+                $time_estimate[] = $delivery_service['est_tiime'] / count($delivery_serviceid);
+                $discount_type[] = '';
+                $discount[] = 0;
+            }
+        }
 		foreach($service as $i => $id) {
 			if($id > 0) {
 				$service = $_SERVER['DBC']->query("SELECT `category`, `service_type`, `heading`, `estimated_hours` FROM `services` WHERE `serviceid`='$id'")->fetch_assoc();
@@ -50,7 +68,7 @@ function updateTotalTimeEstimate() {
 				if($rate == 0) {
 					$rate = $_SERVER['DBC']->query("SELECT `cust_price` FROM `company_rate_card` WHERE `item_id`='$id' AND `tile_name` LIKE 'Services' AND `deleted`=0 AND IFNULL(NULLIF(`end_date`,'0000-00-00'),'9999-99-99') > NOW() ORDER BY `start_date` DESC")->fetch_assoc()['cust_price'];
 				}
-				$description = ($service['category'].(!empty($service['service_type']) ? (!empty($service['category']) ? ' ('.$service['service_type'].')' : $service['service_type']) : '').(!empty($service['category'].$service['service_type']) ? ': ' : '').$service['heading']);
+				$description = (!empty($service_delivers[$i]) ? $service_delivers[$i].': ' : '').($service['category'].(!empty($service['service_type']) ? (!empty($service['category']) ? ' ('.$service['service_type'].')' : $service['service_type']) : '').(!empty($service['category'].$service['service_type']) ? ': ' : '').$service['heading']);
 				if(empty($time_estimate[$i])) {
 					$estimated_hours = empty($service['estimated_hours']) ? '00:00' : $service['estimated_hours'];
 					$minutes = explode(':', $estimated_hours);

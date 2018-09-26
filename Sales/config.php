@@ -15,6 +15,8 @@ $lead_source            = '';
 $next_action            = '';
 $new_reminder           = '';
 $status                 = '';
+$number_of_days                 = '';
+$number_of_days_start_date = '';
 $flag_colour = $flag_label = '';
 $flag_colours = explode(',', get_config($dbc, "ticket_colour_flags"));
 $flag_labels = explode('#*#', get_config($dbc, "ticket_colour_flag_names"));
@@ -24,7 +26,7 @@ if ( !empty($_GET['businessid']) ) {
 }
 if($_GET['id'] > 0) {
     $salesid = $_GET['id'];
-    
+
     if ( !empty($salesid) ) {
         $get_contact = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `sales` WHERE `salesid`='{$salesid}'"));
 
@@ -54,7 +56,7 @@ if($_GET['id'] > 0) {
 			$flag_colour = $get_contact['flag_colour'];
 			$flag_label = $flag_labels[array_search($get_contact['flag_colour'], $flag_colours)];
 		}
-        
+
         $get_lead_source = mysqli_fetch_array(mysqli_query($dbc, "SELECT `contactid`, `businessid`, `referred_contactid` FROM `contacts` WHERE (`referred_contactid` IN ($contactid) OR `referred_contactid` IN ($businessid))"));
         $lead_source_cid = $get_lead_source['contactid'];
         $lead_source_bid = $get_lead_source['businessid'];
@@ -63,14 +65,14 @@ if($_GET['id'] > 0) {
 $statuses     = get_config($dbc, 'sales_lead_status');
 $next_actions = get_config($dbc, 'sales_next_action');
 $value_config = get_field_config($dbc, 'sales'); ?>
-<script>	
-$(document).ready(function() {	
-    init_page();	
-});	
-function init_page() {	
-    destroyInputs();	
-    $('[data-table]').off('change',saveField).change(saveField);	
-    initInputs();	
+<script>
+$(document).ready(function() {
+    init_page();
+});
+function init_page() {
+    destroyInputs();
+    $('[data-table]').off('change',saveField).change(saveField);
+    initInputs();
 }
 function email_doc(img) {
     var documents = [];
@@ -80,6 +82,17 @@ function email_doc(img) {
     var contact = '<?= array_values(array_filter(explode(',',$contactid)))[0] ?>';
     var sales = $('[name=salesid]').val();
     var subject = encodeURIComponent(line.find('[name=marketingmaterialid] option:selected,a').first().text());
+    var body = encodeURIComponent('');
+    overlayIFrameSlider('../Email Communication/add_email.php?type=external&subject='+subject+'&body='+body+'&bid='+business+'&cid='+contact+'&salesid='+sales+'&attach_docs='+encodeURIComponent(documents.join('#*#')), 'auto', false, true);
+}
+function email_infogathering(img) {
+    var documents = [];
+    var line = $(img).closest('tr');
+    line.find('a[href*=download]').each(function() { documents.push(this.href.replace('<?= WEBSITE_URL ?>','..')); });
+    var business = $('[name=businessid][data-table=sales]').val();
+    var contact = '<?= array_values(array_filter(explode(',',$contactid)))[0] ?>';
+    var sales = $('[name=salesid]').val();
+    var subject = encodeURIComponent('');
     var body = encodeURIComponent('');
     overlayIFrameSlider('../Email Communication/add_email.php?type=external&subject='+subject+'&body='+body+'&bid='+business+'&cid='+contact+'&salesid='+sales+'&attach_docs='+encodeURIComponent(documents.join('#*#')), 'auto', false, true);
 }

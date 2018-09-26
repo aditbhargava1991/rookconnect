@@ -1,6 +1,6 @@
 <?php include_once('../include.php');
 include_once('../Sales/config.php');
-if(empty($salesid)) {
+if(empty($salesid) || empty($lead)) {
 	$salesid = filter_var($_GET['id'],FILTER_SANITIZE_STRING);
     if($salesid > 0) {
         $businessid = $dbc->query("SELECT `businessid` FROM `sales` WHERE `salesid`='$salesid'")->fetch_assoc()['businessid'];
@@ -12,7 +12,7 @@ $(document).ready(function() {
     init_page();
 });
 var reload_business = function() {
-	$.get('details_business.php?id=<?= $salesid ?>', function(response) {
+	$.get('details_business.php?id='+$('[name=salesid]').val(), function(response) {
 		$('[id^=business]').parents('div').first().html(response);
 	});
 }

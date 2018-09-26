@@ -13,6 +13,10 @@ if(isset($_POST['upload_file']) && !empty($_FILES['csv_file']['tmp_name'])) {
 	$classification = $business['classification'];
 	$date = '';
 	$ticket_type = filter_var($_POST['ticket_type'],FILTER_SANITIZE_STRING);
+    $duration = strtotime(get_config($dbc, 'scheduling_increments').' minutes') - strtotime('0 minutes');
+    if(!($duration > 0)) {
+        $duration = 900;
+    }
 
 	$current_order = '';
 	$ticket_list = [];
@@ -31,11 +35,13 @@ if(isset($_POST['upload_file']) && !empty($_FILES['csv_file']['tmp_name'])) {
 		$est_time = filter_var($csv[14],FILTER_SANITIZE_STRING);
 		$date = empty($to_do_date) ? $date : $to_do_date;
 		if($salesorderid == $current_order) {
-			$to_do_start_time = date('H:i',strtotime($to_do_start_time.' + 30 minutes'));
+			$to_do_start_time = date('H:i',strtotime($to_do_start_time) + $duration * ceil((strtotime($est_time) - strtotime('00:00')) / $duration));
+            $to_do_end_time = date('H:i',strtotime($to_do_start_time) + strtotime($est_time) - strtotime('00:00'));
 			echo "<!--Same Ticket...";
 		} else {
 			$current_order = $salesorderid;
 			$to_do_start_time = '08:00';
+            $to_do_end_time = date('H:i',strtotime($to_do_start_time) + strtotime($est_time) - strtotime('00:00'));
 			echo "<!--INSERT INTO `tickets` (`ticket_type`,`businessid`,`region`,`classification`, `salesorderid`, `created_by`, `ticket_label`, `ticket_label_date`, `heading`) VALUES ('$ticket_type','$businessid','$region','$classification','$salesorderid','".$_SESSION['contactid']."','$business_name - $salesorderid',NOW(),'$business_name - $salesorderid')";
 			$dbc->query("INSERT INTO `tickets` (`ticket_type`,`businessid`,`region`,`classification`, `salesorderid`, `created_by`, `ticket_label`, `ticket_label_date`, `heading`) VALUES ('$ticket_type','$businessid','$region','$classification','$salesorderid','".$_SESSION['contactid']."','$business_name - $salesorderid',NOW(),'$business_name - $salesorderid')");
 			$ticketid = $dbc->insert_id;
@@ -44,8 +50,12 @@ if(isset($_POST['upload_file']) && !empty($_FILES['csv_file']['tmp_name'])) {
 		}
 		$start_available = $to_do_start_time;
 		$end_available = date('H:i',strtotime($to_do_start_time.' + 3 hours'));
-		echo "INSERT INTO `ticket_schedule` (`ticketid`,`order_number`,`client_name`,`address`,`city`,`to_do_date`,`to_do_start_time`,`details`,`cust_est`,`start_available`,`end_available`,`type`,`status`) VALUES ('$ticketid','$order_number','$client_name','$address','$city','$to_do_date','$to_do_start_time','$details','$est_time','$start_available','$end_available','Drop Off','$default_status')-->";
-		$dbc->query("INSERT INTO `ticket_schedule` (`ticketid`,`order_number`,`client_name`,`address`,`city`,`to_do_date`,`to_do_start_time`,`details`,`cust_est`,`start_available`,`end_available`,`type`,`status`) VALUES ('$ticketid','$order_number','$client_name','$address','$city','$to_do_date','$to_do_start_time','$details','$est_time','$start_available','$end_available','Drop Off','$default_status')");
+        $prior_attempts = $dbc->query("SELECT * FROM `ticket_schedule` WHERE CONCAT(`order_number`,'-') LIKE '$order_number-%' AND `client_name`='$client_name' AND `address`='$address' AND `city`='$city'")->num_rows;
+        if($prior_attempts > 0) {
+            $order_number = $order_number.'-'.($prior_attempts + 1);
+        }
+		echo "INSERT INTO `ticket_schedule` (`ticketid`,`order_number`,`client_name`,`address`,`city`,`to_do_date`,`to_do_start_time`,`to_do_end_time`,`details`,`cust_est`,`start_available`,`end_available`,`type`,`status`) VALUES ('$ticketid','$order_number','$client_name','$address','$city','$to_do_date','$to_do_start_time','$to_do_end_time','$details','$est_time','$start_available','$end_available','Drop Off','$default_status')-->";
+		$dbc->query("INSERT INTO `ticket_schedule` (`ticketid`,`order_number`,`client_name`,`address`,`city`,`to_do_date`,`to_do_start_time`,`to_do_end_time`,`details`,`cust_est`,`start_available`,`end_available`,`type`,`status`) VALUES ('$ticketid','$order_number','$client_name','$address','$city','$to_do_date','$to_do_start_time','$to_do_end_time','$details','$est_time','$start_available','$end_available','Drop Off','$default_status')");
 	}
 	fclose($handle); ?>
 	<script>

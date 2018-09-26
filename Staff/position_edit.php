@@ -123,8 +123,8 @@ $value_config = ','.get_config($dbc, 'positions_field_config').',';
                 </div><!-- .tile-sidebar -->
 
 				<!-- Main Screen -->
-                <div class="scale-to-fill has-main-screen tile-content">
-            		<div class="main-screen override-main-screen <?= !in_array($_GET['tab'], ['active','suspended','probation']) ? 'standard-body' : '' ?>" style="height: inherit;">
+                <div class="scale-to-fill has-main-screen tile-content set-section-height">
+            		<div class="main-screen-details main-screen override-main-screen <?= !in_array($_GET['tab'], ['active','suspended','probation']) ? 'standard-body' : '' ?>" style="height: inherit;">
 						<div class='standard-body-title' style="<?= in_array($_GET['tab'], ['active','suspended','probation']) ? 'border-bottom: none;' : '' ?>">
 							<h3><?php echo ($id == '' ? 'Add' : 'Edit'); ?> Position</h3>
 						</div>

@@ -1,5 +1,7 @@
 <?php //HR Recurring Dates Cron Job
+$guest_access = true;
 include(substr(dirname(__FILE__), 0, -8).'include.php');
+ob_clean();
 $today_date = date('Y-m-d');
 
 $hrs = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `hr` WHERE `recurring_due_date` = 1 AND `deleted` = 0"),MYSQLI_ASSOC);
