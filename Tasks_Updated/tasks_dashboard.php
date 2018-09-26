@@ -957,6 +957,7 @@ function addIntakeForm(btn) {
                                             $item['task_tododate'] = $row['task_tododate'];
                                             $item['tasklistid'] = $row['tasklistid'];
                                             $item['contactid'] = $row['contactid'];
+                                            $item['status'] = $row['status'];
                                             include('../Tasks_Updated/dashboard_fields.php'); ?>
 
                                     <?php
