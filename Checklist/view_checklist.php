@@ -410,21 +410,21 @@ $quick_actions = explode(',',get_config($dbc, 'quick_action_icons')); ?>
 <form name="form_sites1" method="post" action="" class="form-inline" role="form" <?= ($checklist['flag_colour'] == '' ? '' : 'style="background-color: #'.$checklist['flag_colour'].';"') ?>>
 <?php if($hide_header != 'true') { ?>
     <div class="standard-body-title">
-        <a href="?" class="show-on-mob show-on-mob2"><img src="../img/icons/ROOK-back-icon.png" class="pull-left" style="width:14%;"></a>
         <h3>
             <div class="pull-left">
-                
                 <div class="pull-left id-circle-other pad-top pad-left">
                     <?= $checklist['checklist_name']; ?>
                     <small style="display:block; margin-top:5px;"><?= ucwords($checklist['checklist_type']); ?></small>
-                </div><?php
-                foreach(array_filter(array_unique(explode(',',$checklist['assign_staff']))) as $assigned_staff) {
-                    if($assigned_staff == 'ALL') {
-                        echo '<div class="pull-left id-circle" style="background-color:#6DCFF6">All</div>';
-                    } else {
-                        profile_id($dbc, $assigned_staff);
-                    }
-                } ?>
+                </div>
+                <div class="pull-left mobile-offset-top-10"><?php
+                    foreach(array_filter(array_unique(explode(',',$checklist['assign_staff']))) as $assigned_staff) {
+                        if($assigned_staff == 'ALL') {
+                            echo '<div class="pull-left id-circle" style="background-color:#6DCFF6">All</div>';
+                        } else {
+                            profile_id($dbc, $assigned_staff);
+                        }
+                    } ?>
+                </div>
             </div>
             <span class="pull-right hide-on-mobile" data-checklist="BOARD<?= $checklistid; ?>">
                 <div class="pull-left cursor-hand id-circle-other offset-top-5 gap-right"><img src="<?= WEBSITE_URL ?>/img/<?= (in_array($checklist['checklistid'],explode(',',$user_settings['checklist_fav'])) ? 'full' : 'blank') ?>_favourite.png" onclick="<?= $diff_function ?>mark_favourite(this);" data-id="<?= $checklist['checklistid'] ?>" class="inline-img no-toggle" title="Favourite" /></div>
