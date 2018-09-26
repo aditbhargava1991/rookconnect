@@ -7,6 +7,25 @@ $(document).ready(function() {
 	});
 });
 
+function clearCompletedProjectTask(sel) {
+	var projectid = sel.value;
+
+	if(confirm("Are you sure you want to clear all the completed tasks on this board?")) { //&& confirm("Are you sure you want to clear all the completed tasks on this board?")) {
+        $.ajax({
+            type: "GET",
+            url: "../Tasks_Updated/task_ajax_all.php?fill=clear_project_completed_task&projectid="+projectid,
+            dataType: "html",   //expect html to be returned
+            success: function(response){
+				alert('Completed task Deleted.');
+                window.location.reload();
+            }
+        });
+        //window.location.reload();
+	} else {
+		return false;
+	}
+}
+
 function task_status(sel) {
     var status = sel.value;
 	var tasklistid = sel.id.split('_')[1];
