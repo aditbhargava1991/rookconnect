@@ -546,6 +546,13 @@ if($_GET['action'] == 'update_fields') {
             $end = date('h:i:s', strtotime($start.' + '.(floor($value) * 1).' hour '.floor($value * 60).' minute '.($value % 60).' second'));
             set_field_value($end,'to_do_end_time',$table_name,$id_field,$id);
         }
+    } else if(in_array($table_name,['tickets','ticket_schedule']) && in_array($field_name,['to_do_start_time'])) {
+        $start = get_field_value('to_do_start_time',$table_name,$id_field,$id);
+        $end = get_field_value('to_do_end_time',$table_name,$id_field,$id);
+        if(!empty($end) && !empty($start)) {
+            $end = date('h:i:s', strtotime($value.' + '.$end.' - '.$start));
+            set_field_value($end,'to_do_end_time',$table_name,$id_field,$id);
+        }
     }
 	if($table_name == 'ticket_comment' && $type == 'member_note') {
 		$table_name = 'client_daily_log_notes';

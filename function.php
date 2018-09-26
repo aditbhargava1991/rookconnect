@@ -111,6 +111,24 @@ DEFINE('ACTIVE_DAY_BANNER', $_SESSION['ACTIVE_DAY_BANNER']);
 DEFINE('ACTIVE_TICKET_BUTTON', $_SESSION['ACTIVE_TICKET_BUTTON']);
 DEFINE('SHOW_SIGN_IN', $_SESSION['SHOW_SIGN_IN']);
 DEFINE('STAFF_EMAIL_FIELD', $_SESSION['STAFF_EMAIL_FIELD']);
+switch($_SESSION['user_preferences']['time_format'] > 0 ? $_SESSION['user_preferences']['time_format'] : get_config($dbc, 'system_time_format')) {
+	case 4:
+        DEFINE('TIME_FORMAT', 'H:mm');
+        DEFINE('TIME_FORMAT_SEC', 'H:mm:ss');
+        break;
+	case 3:
+        DEFINE('TIME_FORMAT', 'HH:mm');
+        DEFINE('TIME_FORMAT_SEC', 'HH:mm:ss');
+        break;
+	case 2:
+        DEFINE('TIME_FORMAT', 'h:mm tt');
+        DEFINE('TIME_FORMAT_SEC', 'h:mm:ss tt');
+        break;
+	default:
+        DEFINE('TIME_FORMAT', 'hh:mm tt');
+        DEFINE('TIME_FORMAT_SEC', 'hh:mm:ss tt');
+        break;
+}
 
 // Match Contacts
 $today_date = date('Y-m-d');
