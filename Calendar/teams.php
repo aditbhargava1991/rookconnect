@@ -11,7 +11,7 @@ if (isset($_POST['submit'])) {
     $notes = filter_var(htmlentities($_POST['team_notes']),FILTER_SANITIZE_STRING);
 
     if (empty($_POST['teamid']) || $_POST['teamid'] == 'NEW') {
-        $query = "INSERT INTO `teams` (`team_name`, `region`, `location`, `classification`, `start_date`, `end_date`, `notes`) VALUES ('$team_team_name', $region', '$location', '$classification', '$start_date', '$end_date', '$notes')";
+        $query = "INSERT INTO `teams` (`team_name`, `region`, `location`, `classification`, `start_date`, `end_date`, `notes`) VALUES ('$team_team_name', '$region', '$location', '$classification', '$start_date', '$end_date', '$notes')";
         $result = mysqli_query($dbc, $query);
         $teamid = mysqli_insert_id($dbc);
     } else {
@@ -32,7 +32,7 @@ if (isset($_POST['submit'])) {
     $query = $_GET;
     $query['subtab'] = 'team';
     unset ($query['teamid']);
-    echo '<script>window.location.replace("?'.http_build_query($query).'&teamid='.$teamid.'");</script>';
+    // echo '<script>window.location.replace("?'.http_build_query($query).'&teamid='.$teamid.'");</script>';
 }
 ?>
 <script type="text/javascript">
