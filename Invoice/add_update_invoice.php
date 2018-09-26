@@ -997,7 +997,7 @@ if($invoice_mode != 'Adjustment') {
 			$type = $_POST['refund_to_type'][$i];
 			if($type == 'Pro-Bono') {
 				$payment_types = array_merge([$type], $payment_types);
-				$payment_amts = array_merge([$amt], $payment_amts);
+				$payment_amts = array_merge([$amt], -$payment_amts);
 				$payment_used = array_merge([$amt], $payment_used);
 				$pro_bono -= $amt;
 			} else {
@@ -1514,13 +1514,13 @@ if($invoice_mode != 'Adjustment') {
 			$misc_promo .= $promo_applied.',';
 			foreach($payment_used as $j => $amt_unused) {
 				$applied = 0;
-				if($total > 0 && $amt_unused > 0) {
-					if($total > $amt_unused) {
+				if($total < 0 && $amt_unused > 0) {
+					if($total * -1 > $amt_unused) {
 						$applied = $amt_unused;
 					} else {
 						$applied = $total;
 					}
-					$payment_used[$j] -= $applied;
+					$payment_used[$j] += $applied;
 
 					//Invoice Patient Portion
 					$gst_patient = round($applied / $total * $gst,2);
@@ -1666,7 +1666,7 @@ if($invoice_mode != 'Adjustment') {
 	foreach($payment_amts as $j => $amt_applied) {
 		$final_refunded += $amt_applied;
 		$payment_type_names .= $payment_types[$j].',';
-		$payment_type_amts .= -$amt_applied.',';
+		$payment_type_amts .= $amt_applied.',';
 	}
 	$insurerid = '';
 	$insurance_payment = '';
@@ -2407,7 +2407,15 @@ if($invoice_mode != 'Adjustment') {
 	$misc_price = implode(',', $misc_prices).',';
 	$misc_qty = implode(',', $misc_qtys).',';
 	$misc_total = implode(',', $misc_totals).',';
-	$payment_type = implode(',', $payment_types).'#*#'.implode(',',$payment_amts);
+    foreach($payment_types as $j => $type_name) {
+        if($type_name == 'Refund Credit' || round($payment_amts[$j],2) == 0) {
+            unset($payment_types[$j]);
+            unset($payment_amts[$j]);
+        } else if($final_amount < 0) {
+            $payment_amts[$j] *= -1;
+        }
+    }
+	$payment_type = trim(implode(',', $payment_types),',').'#*#'.trim(implode(',',$payment_amts),',');
 	$insurerid = '';
 	$insurance_payment = '';
 	foreach($insurers as $ins_id => $ins_amt) {
