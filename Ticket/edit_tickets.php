@@ -823,8 +823,9 @@ function setActions() {
 			},
 			success: function(response) {
 				item.data('colour',response.substr(0,6));
-				item.css('background-color','#'+response.substr(0,6));
-				item.find('.flag-label').html(response.substr(6));
+				// item.css('background-color','#'+response.substr(0,6));
+				// item.find('.flag-label').html(response.substr(6));
+				setManualFlag('', response.substr(0,6), response.substr(6));
 			}
 		});
 	});
