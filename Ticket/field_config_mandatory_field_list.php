@@ -1269,7 +1269,7 @@ if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) {
 						<label class="form-checkbox"><input type="checkbox" <?= in_array("Check Out", $all_mandatory_config) ? 'checked disabled' : (in_array("Check Out", $value_mandatory_config) ? "checked" : '') ?> value="Check Out" name="tickets[]">
 							<span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will allow you to mark individuals, equipment, or other supplies as done for the <?= TICKET_NOUN ?>."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Enable Check Out</label>
 					<?php } ?>
-					
+
 					<div class="block-group">
 						<div class="fields_sortable">
 							<?php

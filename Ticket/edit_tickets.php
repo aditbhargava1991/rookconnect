@@ -730,10 +730,10 @@ $(document).ready(function() {
 			}
 		});
 	<?php } ?>
-    
+
     var menu_bar_height = $('#nav').height() + $('.tile-header').height() + 12;
     $('.menu-bar').css('top', menu_bar_height);
-    
+
     $('.main-screen .main-screen').scroll(function() {
         if ($(this).scrollTop() > 70) {
             $('.menu-bar').fadeIn("fast");
@@ -872,7 +872,7 @@ function setManualFlag(ticketid = '', colour, label) {
 }
 function checkMandatoryFields() {
 	var ready = ticketid > 0 || ticketid == 'multi' || <?= IFRAME_PAGE ? 'true' : 'false' ?>;
-	$('[name=projectid],select[name=businessid]').not('[type=checkbox]').each(function() {
+	$('.required').each(function() {
 		if(!no_verify && this.value == '' && $(this).attr('type') != 'hidden' && (this.name != 'projectid' || $('[name=piece_work]').filter(function() { return this.value != ''; }).length != 1)) {
 			var target = this;
 			if($(target).is('select')) {
