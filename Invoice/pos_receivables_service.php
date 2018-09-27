@@ -141,8 +141,7 @@ $html .= '<table style="border: 2px solid black;" width="100%" cellspacing="0" c
 					</td>
 					<td width="18%" style="border:1px solid black;">
 						Salesperson : <br />
-						'.decryptIt($_SESSION['first_name']).' '.decryptIt($_SESSION['last_name']).'<br>
-                        Payment Type : <br />'.$payment_type.'
+						'.decryptIt($_SESSION['first_name']).' '.decryptIt($_SESSION['last_name']).'<br><br>Payment Type : <br />'.$payment_type.'
 					</td>
 				</tr>
 			</table>
