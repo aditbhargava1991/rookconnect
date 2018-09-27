@@ -14,7 +14,7 @@ if (isset($_POST['add_tab'])) {
     if($board_security == 'Private') {
         $company_staff_sharing = ','.$_SESSION['contactid'].',';
     } else {
-	    $company_staff_sharing = ','.$_SESSION['contactid'].','.implode(',',$_POST['company_staff_sharing']).',';
+	    $company_staff_sharing = ','.implode(',',$_POST['company_staff_sharing']).',';
 
         //$company_staff_sharing = ','.implode(',',$_POST['company_staff_sharing']).',';
     }
