@@ -39,7 +39,6 @@ function retrieve_tickets(date = '') {
 			result_list = JSON.parse(response);
 			load_buttons();
 			load_tickets();
-			resize_blocks();
 		}
 	});
 }
@@ -48,14 +47,16 @@ function load_buttons() {
 	result_list['buttons'].forEach(function(button) {
 		$('.dispatch-equipment-buttons').append(button);
 	});
-	resize_blocks();
+
+	setTimeout(function() { resize_blocks() }, 500);
 }
 function load_tickets() {
 	$('.dispatch-equipment-list').html('');
 	result_list['equipment'].forEach(function(equipment) {
 		$('.dispatch-equipment-list').append(equipment['html']);
 	});
-	resize_blocks();
+	
+	setTimeout(function() { resize_blocks() }, 500);
 }
 function filter_equipment(a = '') {
 	if(a != '') {
