@@ -344,4 +344,6 @@ if(!empty($_GET['action']) && $_GET['action'] == 'invoice_values') {
 } else if($_GET['action'] == 'void_invoice') {
     $invoiceid = preg_replace('/[^0-9]/', '', $_POST['invoiceid']);
     mysqli_query($dbc, "UPDATE `invoice` SET `status`='Void' WHERE `invoiceid`='$invoiceid'");
+} else if($_GET['action'] == 'get_tax_exempt') {
+    echo get_field_value('client_tax_exemption', 'contacts', 'contactid', $_POST['contactid']);
 }

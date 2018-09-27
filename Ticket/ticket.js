@@ -368,7 +368,7 @@ function saveFieldMethod(field) {
 		field = field.target;
 	}
 	if($('#new_ticket_from_calendar').val() == '1') {
-		$('#new_ticket_from_calendar').val('0');
+		$('#new_ticket_from_calendar').val(0);
 		saveNewTicketFromCalendar(field);
 		return;
 	} else if($(field).data('table') != 'tickets' && !(ticketid > 0)) {
@@ -521,7 +521,7 @@ function saveFieldMethod(field) {
 				save_value = value.join('#*#');
 			} else if($(field).is('[data-concat]')) {
 				var value = [];
-				$('[name='+field.name+'][data-concat="'+$(field).data('concat')+'"]').filter(function() { return $(this).data('id') == $(field).data('id'); }).each(function() {
+				$('[name='+field.name+'][data-concat="'+$(field).data('concat')+'"]').filter(function() { return $(this).data('id') == $(field).data('id') && $(this).data('group') == $(field).data('group'); }).each(function() {
 					if(!$(this).is(':disabled') && (this.type != 'checkbox' || this.checked)) {
 						value.push(this.value);
 					}
@@ -669,9 +669,6 @@ function saveFieldMethod(field) {
 						}
 					}
 					if(response > 0) {
-						$('[name=to_do_date]').change();
-						$('[name=contactid]').first().change();
-						$('[name="status"]').change();
 						if(table_name == 'contacts' && field_name == 'site_name') {
 							$(field).closest('.site_group').find('[name=siteid],[name="siteid[]"]').find('option[value="MANUAL"]').prop('selected', false);
 							$(field).closest('.site_group').find('[name=siteid],[name="siteid[]"]').append('<option selected data-police="911" value="'+response+'">'+save_value+'</option>').trigger('change.select2').change();
@@ -768,6 +765,9 @@ function saveFieldMethod(field) {
 							var staff_attached_id = $(field).closest('.staff_block').find('[data-id]').first().data('id');
 							$(field).closest('.staff-multi-time').find('[name="item_id"]').val(staff_attached_id).change();
 						}
+						$('[name=to_do_date]').change();
+						$('[name=contactid]').first().change();
+						$('[name="status"]').change();
 					} else if(response.split('#*#')[0] == 'ERROR') {
 						alert(response.split('#*#')[1]);
 					} else if(response != '' && (field_name == 'signature' || field_name == 'witnessed')) {
@@ -2905,7 +2905,9 @@ function saveNewTicketFromCalendar(element) {
 		data: data,
 		success: function(response) {
 			ticketid = response.split('*#*')[0];
-			$('#ticketid').val(ticketid);
+			$('[name="ticketid"]').val(ticketid);
+			$('[data-table=tickets]').data('id',ticketid);
+			updateTicketLabel();
 			if($('.scheduled_stop').length > 0) {
 				var block = $('.scheduled_stop').first();
 				block.find('[data-table=ticket_schedule]').data('id',response.split('*#*')[1]);
@@ -2913,7 +2915,11 @@ function saveNewTicketFromCalendar(element) {
 			}
 			$(element).change();
 			if($('select[name="item_id"][data-table="ticket_attached"][data-type="Staff"]').length > 0) {
-				$('select[name="item_id"][data-table="ticket_attached"][data-type="Staff"]').change();
+				$('select[name="item_id"][data-table="ticket_attached"][data-type="Staff"]').each(function() {
+					if($(this).val() != undefined && $(this).val() != '' && $(this).val() != 0) {
+						$(this).change();
+					}
+				});
 			}
 			doneSaving();
 		}
@@ -3044,8 +3050,12 @@ function saveAddress(idClass, contactid) {
 function setBilling() {
 	var total = 0;
 	$('.billing tr').each(function() {
-		var line = $(this).find('[name=billing_sub]').val();
+		var line = $(this).find('[name=billing_sub]').val() * 1;
 		if(line > 0) {
+            var surcharge = $(this).find('.surcharge').val();
+            if(surcharge > 0) {
+                line += (line * surcharge / 100);
+            }
 			var discount = 0;
 			if($(this).find('.discount_type').val() == '%') {
 				discount = $(this).find('.discount').val() * line / 100;
@@ -3125,7 +3135,7 @@ function addNote(type, btn, force_allow = 0) {
 function addCommunication(type, method) {
 	if(ticketid > 0) {
 		$('.ticket_communication[data-type='+type+'][data-method='+method+']').first().addClass('reload');
-		overlayIFrameSlider('../Email Communication/add_email.php?type='+type+'&ticketid='+ticketid,'auto',false,true,'auto',false);
+		overlayIFrameSlider('../Email Communication/add_email.php?type='+type+'&ticketid='+ticketid,'75%',false,true,'auto',false);
 	} else {
 		alert('Please create the '+ticket_name+' before adding communications.');
 	}

@@ -67,14 +67,14 @@ if($type == 'Ticket') {
 	} else {
 		$div_width = '';
 	}
-	$contents = '<span class="pull-right small">';
+	/* $contents = '<span class="pull-right small">';
 	if(!in_array('Staff',$ticket_field_config) && count($ticket_field_config) > 0) {
 		foreach(array_unique(explode(',',$item['contactid'].','.$item['internal_qa_contactid'].','.$item['deliverable_contactid'])) as $assignid) {
 			if($assignid > 0) {
 				$contents .= profile_id($dbc, $assignid, false);
 			}
 		}
-	}
+	} */
 	$contents .= '</span><div class="clearfix"></div></h3>';
 	if(in_array('Business',$ticket_field_config) || count($ticket_field_config) == 0) {
 		$contents .= '<div class="'.$div_width.' form-group">
@@ -275,11 +275,13 @@ if($type == 'Ticket') {
         $slider_layout = !empty(get_config($dbc, 'tasks_slider_layout')) ? get_config($dbc, 'tasks_slider_layout') : 'accordion';
 
         if($slider_layout == 'accordion') {
+
             if($item['status'] == 'Done') {
                 $label .= '<strike><a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Tasks_Updated/add_task.php?type='.$item['status'].'&projectid='.$item['projectid'].'&tasklistid='.$item['tasklistid'].'\', \'50%\', false, false, $(\'.iframe_overlay\').closest(\'.container\').outerHeight() + 20); return false;">Task #'.$item['tasklistid'].': </a></strike>';
             } else {
                 $label .= '<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Tasks_Updated/add_task.php?type='.$item['status'].'&projectid='.$item['projectid'].'&tasklistid='.$item['tasklistid'].'\', \'50%\', false, false, $(\'.iframe_overlay\').closest(\'.container\').outerHeight() + 20); return false;">Task #'.$item['tasklistid'].': </a>';
             }
+
         } else {
             $label .= '<a href="../Tasks_Updated/add_task_full_view.php?type='.$item['status'].'&projectid='.$item['projectid'].'&tasklistid='.$item['tasklistid'].'">Task #'.$item['tasklistid'].': </a>';
         }
