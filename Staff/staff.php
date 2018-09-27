@@ -216,7 +216,7 @@ switch($tab) {
 		$staff_cat = $_GET['staff_cat'];
 		break;
 }
-if(empty($_GET['staff_cat'])) {
+if(empty($_GET['staff_cat']) && in_array($_GET['tab'], ['active','suspended','probation'])) {
 	$_GET['staff_cat'] = 'ALL';
 }
 $db_tabs = explode(',','active,'.get_config($dbc, 'staff_tabs'));

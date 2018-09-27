@@ -225,6 +225,9 @@ if(empty(trim($value_config,','))) {
 													foreach($shifts as $shift) {
 														echo '<li>';
 														echo ($shift['startdate'] < $lock_date ? '' : '<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Calendar/shifts.php?shiftid='.$shift['shiftid'].'&hideaddbutton=true\'); return false;" >');
+											            if(!empty($shift['heading'])) {
+											                echo $shift['heading'].'<br>';
+											            }
 														if(!empty($shift['dayoff_type'])) {
 															echo 'Day Off: '.date('h:i a', strtotime($shift['starttime'])).' - '.date('h:i a', strtotime($shift['endtime'])).'<br>';
 															echo 'Day Off Type: '.$shift['dayoff_type'];
@@ -241,6 +244,10 @@ if(empty(trim($value_config,','))) {
 																echo get_contact($dbc, $shift['clientid']);
 															}
 														}
+							                            if(!empty($shift['notes'])) {
+							                                echo '<br>';
+							                                echo 'Notes: '.html_entity_decode($shift['notes']);
+							                            }
 														echo ($shift['startdate'] < $lock_date ? '' : '</a>');
 														echo '</li>';
 													}
@@ -290,6 +297,9 @@ if(empty(trim($value_config,','))) {
 												foreach($shifts as $shift) {
 													echo '<li>';
 													echo ($shift['startdate'] < $lock_date ? '' : '<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Calendar/shifts.php?shiftid='.$shift['shiftid'].'&hideaddbutton=true\'); return false;" >');
+										            if(!empty($shift['heading'])) {
+										                echo $shift['heading'].'<br>';
+										            }
 													if(!empty($shift['dayoff_type'])) {
 														echo 'Day Off: '.date('h:i a', strtotime($shift['starttime'])).' - '.date('h:i a', strtotime($shift['endtime'])).'<br>';
 														echo 'Day Off Type: '.$shift['dayoff_type'];
@@ -306,6 +316,10 @@ if(empty(trim($value_config,','))) {
 															echo get_contact($dbc, $shift['clientid']);
 														}
 													}
+						                            if(!empty($shift['notes'])) {
+						                                echo '<br>';
+						                                echo 'Notes: '.html_entity_decode($shift['notes']);
+						                            }
 													echo ($shift['startdate'] < $lock_date ? '' : '</a>');
 													echo '</li>';
 												}

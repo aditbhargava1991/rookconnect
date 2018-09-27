@@ -50,7 +50,7 @@
 ?>	
 	<?php 
 	$login_page = $_SERVER['PHP_SELF'] == '/index.php';
-	if(!$login_page && $_SESSION['contactid'] > 0) { 
+	if(!$login_page && ($_SESSION['contactid'] > 0 || $guest_access || isset($_SESSION['intake_ticket']))) {
 		$social_off = false;
         if($facebook_link !== 'turn_off' || $linkedin_link !== 'turn_off' || $twitter_link !== 'turn_off' || $google_link !== 'turn_off' || $youtube_link !== 'turn_off' || $instagram_link !== 'turn_off') {
             $social_off = true; ?>

@@ -49,7 +49,7 @@ function handleClick(cb) {
                 echo "<table class='table table-bordered'>";
 			    echo "<tr class='hidden-sm hidden-xs'>";
                         echo '<th>Checklist Name</th>';
-                        echo '<th>Type</th>';
+                        echo '<th>Tab</th>';
                         echo '<th>Assigned Staff</th>';
                        echo '<th>Create Tile</th>';
                     echo "</tr>";

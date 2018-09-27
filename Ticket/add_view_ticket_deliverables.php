@@ -11,6 +11,28 @@
 				<div class="form-group clearfix">
 					<label for="site_name" class="col-sm-4 control-label text-right">Status:</label>
 					<div class="col-sm-4">
+                        <?php $invoice_status = '';
+                        if(get_config($dbc, 'ticket_invoice_status') > 0) {
+                            $invoice = $dbc->query("SELECT * FROM `invoice` WHERE `deleted`=0 AND CONCAT(',',`ticketid`,',') LIKE '%,$ticketid,%'")->fetch_assoc();
+                            switch($invoice['status']) {
+                                case 'Completed':
+                                    $invoice_status = 'Paid';
+                                    break;
+                                case 'Void':
+                                    $invoice_status = 'Voided';
+                                    break;
+                                case 'Saved':
+                                    $invoice_status = 'Unbilled';
+                                    break;
+                                case 'Posted':
+                                default:
+                                    $invoice_status = 'Accounts Receivable';
+                                    break;
+                            }
+                        }
+                        if(!empty($invoice_status)) {
+                            echo 'Invoice Status: '.$invoice_status.'<br />';
+                        } ?>
 
 						<select data-placeholder="Select a Status..." name="status" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" id="status" class="chosen-select-deselect form-control input-sm">
 						  <option value=""></option>
@@ -63,8 +85,8 @@
 									</div>
 
 									<div class="col-sm-2">
-										<img class="inline-img pull-right" onclick="startTicketStaff(this);" src="../img/icons/ROOK-add-icon.png">
-										<img class="inline-img pull-right" onclick="deletestartTicketStaff(this);" src="../img/remove.png">
+										<img class="inline-img pull-right" data-history-label="Staff" onclick="startTicketStaff(this);" src="../img/icons/ROOK-add-icon.png">
+										<img class="inline-img pull-right" data-history-label="Staff" onclick="deletestartTicketStaff(this);" src="../img/remove.png">
 									</div>
 								</div>
 							<?php } ?>
@@ -225,8 +247,8 @@
 									</div>
 
 									<div class="col-sm-2">
-										<img class="inline-img pull-right" onclick="internalTicketStaff(this);" src="../img/icons/ROOK-add-icon.png">
-										<img class="inline-img pull-right" onclick="deleteinternalTicketStaff(this);" src="../img/remove.png">
+										<img class="inline-img pull-right" data-history-label="Internal QA Staff" onclick="internalTicketStaff(this);" src="../img/icons/ROOK-add-icon.png">
+										<img class="inline-img pull-right" data-history-label="Internal QA Staff" onclick="deleteinternalTicketStaff(this);" src="../img/remove.png">
 									</div>
 								</div>
 							<?php } ?>
@@ -309,8 +331,8 @@
 									</div>
 
 									<div class="col-sm-2">
-										<img class="inline-img pull-right" onclick="customerTicketStaff(this);" src="../img/icons/ROOK-add-icon.png">
-										<img class="inline-img pull-right" onclick="deletecustomerTicketStaff(this);" src="../img/remove.png">
+										<img class="inline-img pull-right" data-history-label="Customer QA Staff" onclick="customerTicketStaff(this);" src="../img/icons/ROOK-add-icon.png">
+										<img class="inline-img pull-right" data-history-label="Customer QA Staff" onclick="deletecustomerTicketStaff(this);" src="../img/remove.png">
 									</div>
 								</div>
 							<?php } ?>

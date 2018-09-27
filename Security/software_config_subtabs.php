@@ -933,6 +933,7 @@ checkAuthorised('security');
 						<tr><td>Today's Invoices</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'today' ); ?></tr>
 						<tr><td>All Invoices</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'all' ); ?></tr>
 						<tr><td>Invoices</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'invoices' ); ?></tr>
+						<tr><td>Unbilled <?= TICKET_TILE ?></td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'unbilled_tickets' ); ?></tr>
 						<tr><td>Refund / Adjustments</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'refunds' ); ?></tr>
 						<tr><td>Accounts Receivable</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'unpaid' ); ?></tr>
 						<tr><td>Voided Invoices</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'voided' ); ?></tr>
@@ -946,6 +947,7 @@ checkAuthorised('security');
 						<tr><td>Today's Invoices</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'today' ); ?></tr>
 						<tr><td>All Invoices</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'all' ); ?></tr>
 						<tr><td>Invoices</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'invoices' ); ?></tr>
+						<tr><td>Unbilled <?= TICKET_TILE ?></td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'unbilled_tickets' ); ?></tr>
 						<tr><td>Refund / Adjustments</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'refunds' ); ?></tr>
 						<tr><td>Accounts Receivable</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'unpaid' ); ?></tr>
 						<tr><td>Voided Invoices</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'voided' ); ?></tr>
@@ -1207,7 +1209,7 @@ checkAuthorised('security');
 						<tr><td>Software Functionality</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'tiles' ); ?></tr>
 						<tr><td>Security Levels &amp; Groups</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'levels' ); ?></tr>
 						<tr><td>Set Security Privileges</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'privileges' ); ?></tr>
-						<tr><td>Assign Privileges</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'assign' ); ?></tr>
+						<tr><td>User Privileges</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'assign' ); ?></tr>
 						<tr><td>Contact Category Default Levels</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'contact_cat' ); ?></tr>
 						<tr><td>Password Reset</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'password' ); ?></tr>
 						<tr><td>Reporting</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'reporting' ); ?></tr><?php
@@ -1467,6 +1469,7 @@ checkAuthorised('security');
 						<tr><td>Today's Invoices</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'today' ); ?></tr>
 						<tr><td>All Invoices</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'all' ); ?></tr>
 						<tr><td>Invoices</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'invoices' ); ?></tr>
+						<tr><td>Unbilled <?= TICKET_TILE ?></td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'unbilled_tickets' ); ?></tr>
 						<tr><td>Accounts Receivable</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'unpaid' ); ?></tr>
 						<tr><td>Voided Invoices</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'voided' ); ?></tr>
 						<tr><td>Refund / Adjustments</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'refunds' ); ?></tr>

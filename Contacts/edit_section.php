@@ -1,4 +1,5 @@
 <?php include_once('../include.php');
+$field_config_mandate = explode(',', mysqli_fetch_array(mysqli_query($dbc, "SELECT `contacts` FROM `field_config_contacts` WHERE `tile_name`='".FOLDER_NAME."' AND `tab`='$current_type' AND `subtab`='**no_subtab**' AND `mandatory` = 1"))[0]);
 if(!isset($tab_label)) {
 	error_reporting(0);
 	$tab_label = $_POST['tab_label'];
@@ -197,3 +198,27 @@ function viewOnlyFields(div) {
 <?php if(basename($_SERVER['SCRIPT_FILENAME']) == 'edit_section.php') { ?>
 	<div style="display:none;"><?php include('../footer.php'); ?></div>
 <?php } ?>
+<script>
+$(document).ready(function() {
+	window.onbeforeunload = function() {
+		$('.required').each(function() {
+				var target = this;
+					if($(target).val() != null && $(target).val().length === 0) {
+						if($(target).is('select')) {
+							var select2 = $(target).next('.select2');
+							$(select2).find('.select2-selection').css('background-color', 'red');
+							$(select2).find('.select2-selection__placeholder').css('color', 'white');
+						} else {
+							$(target).css('background-color', 'red');
+						}
+
+						setTimeout(function() {
+								alert("Please fill in the "+$(target).closest('.form-group').find('label').text().split("\n")[0].replace(/^[^a-zA-Z0-9()]*/g,'').replace(/[^a-zA-Z0-9()]*$/g,'')+".");
+								$(target).focus();
+						}, 0);
+				}
+		});
+
+	}
+});
+</script>

@@ -246,6 +246,17 @@ if (isset($_POST['submit'])) {
 ?>
 <script type="text/javascript">
 $(document).ready(function () {
+    <?php if($_GET['view'] == 'readonly') { ?>
+        destroyInputs();
+        $('.chosen-select-deselect,input[type=text]').each(function() {
+            $(this).after($(this).find('option:selected').text());
+        }).removeClass('chosen-select-deselect').hide();
+        $('input[type=text]').each(function() {
+            $(this).after($(this).val());
+        }).hide();
+        $('input[type=file]').hide();
+        $('img[src*=ROOK-add-icon],img[src*=remove]').hide();
+    <?php } ?>
 	<?php if(isset($_GET['target_field'])) { ?>
 		$('[name=<?= $_GET['target_field'] ?>]').closest('.panel').find('a[href^=#collapse_]').click();
 		$('[name=<?= $_GET['target_field'] ?>]').focus();
@@ -567,7 +578,7 @@ if(!empty($_GET['edit']))   {
     $use = $get_equipment['use'];
     $staff = $get_equipment['staffid'];
     $equipment_image = $get_equipment['equipment_image'];
-	
+
 	$total_billed = $get_equipment['invoiced_amt'];
 	$total_hours = $get_equipment['invoiced_hours'];
 	$total_expenses = $get_equipment['expense_total'];
@@ -598,7 +609,9 @@ while($row = mysqli_fetch_array($query)) {
     <div class="main-screen standard-body form-horizontal">
         <div class="standard-body-title">
             <h3><?= (!empty($_GET['edit']) ? 'Edit Equipment: Unit #'.$unit_number : 'Add New Equipment') ?>
-            <?php 
+            <?php if($_GET['view'] == 'readonly') { ?>
+                <a href="../blank_loading_page.php" class="pull-right"><img src="../img/icons/cancel.png" class="inline-img"></a>
+            <?php }
             $quick_actions = explode(',',get_config($dbc, 'equipment_quick_action_icons'));
             if($equipmentid > 0) {
                 echo '<span class="pull-right action-icons  ">';
@@ -613,7 +626,7 @@ while($row = mysqli_fetch_array($query)) {
 
                 <input type="hidden" id="equipmentid"   name="equipmentid" value="<?php echo $equipmentid ?>" />
                 <input type="hidden" id="category"	name="category" value="<?php echo $category ?>" />
-                
+
                 <!-- List fields that are updated on other pages -->
                 <input name="mileage" type="hidden" value="<?= $mileage ?>" />
                 <input name="hours_operated" type="hidden" value="<?= $hours_operated ?>" />
@@ -650,19 +663,62 @@ while($row = mysqli_fetch_array($query)) {
                     </div>
                 <?php } ?>
 
-                <div class="form-group">
-                    <div class="col-sm-6">
-                        <p><span class="brand-color"><em>Required Fields *</em></span></p>
-                    </div>
-                    <div class="col-sm-6">
-                        <div class="pull-right">
-                            <a href="?category=<?= $category ?>" class="btn brand-btn">Back</a>
-                            <button type="submit" name="submit" value="Submit" class="btn brand-btn">Submit</button>
+                <?php if($_GET['view'] !== 'readonly') { ?>
+                    <div class="form-group">
+                        <div class="col-sm-6">
+                            <p><span class="brand-color"><em>Required Fields *</em></span></p>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="pull-right">
+                                <a href="?category=<?= $category ?>" class="btn brand-btn">Back</a>
+                                <button type="submit" name="submit" value="Submit" class="btn brand-btn" onclick="return presave();">Submit</button>
+                            </div>
                         </div>
                     </div>
-                </div>
+                <?php } ?>
 
     		</form>
         </div>
     </div>
 </div>
+<script>
+  function presave() {
+    var flag = 0;
+    var firsttarget = '';
+  	$('.mandatory').each(function() {
+  			var target = this;
+  				if($(target).val() != null && $(target).val().length === 0) {
+            if(flag == 0) {
+              $firsttarget = $(this);
+            }
+
+  					if($(target).is('select')) {
+  						var select2 = $(target).next('.select2');
+  						$(select2).find('.select2-selection').css('background-color', 'red');
+  						$(select2).find('.select2-selection__placeholder').css('color', 'white');
+  					} else {
+  						$(target).css('background-color', 'red');
+  					}
+
+            flag = 1;
+  			}
+        else {
+          if($(target).is('select')) {
+            var select2 = $(target).next('.select2');
+            $(select2).find('.select2-selection').css('background-color', 'white');
+          } else {
+            $(target).css('background-color', 'white');
+          }
+        }
+  	});
+
+    var currenttop = $firsttarget.offset().top;
+    if(flag == 1) {
+        alert("Please fill in the required fields");
+        $('.main-screen .main-screen').scrollTop($('.standard-body-content').scrollTop() + currenttop - $('.standard-body-content').offset().top - 30);
+        return false;
+    }
+
+    return true;
+  }
+</script>

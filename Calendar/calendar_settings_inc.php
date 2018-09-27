@@ -242,6 +242,7 @@ switch($_GET['type']) {
         $monthly_start = get_config($dbc, 'my_monthly_start');
         $monthly_days = explode(',', get_config($dbc, 'my_monthly_days'));
         $ticket_summary = get_config($dbc, 'my_ticket_summary');
+        $ticket_summary_deleted = get_config($dbc, 'my_ticket_summary_deleted');
         $availability_indication = get_config($dbc, 'my_availability_indication');
         $sidebar_file = 'my_sidebar.php';
         $all_tickets_button = '';
@@ -276,6 +277,7 @@ switch($_GET['type']) {
         $monthly_start = get_config($dbc, 'uni_monthly_start');
         $monthly_days = explode(',', get_config($dbc, 'uni_monthly_days'));
         $ticket_summary = get_config($dbc, 'uni_ticket_summary');
+        $ticket_summary_deleted = get_config($dbc, 'uni_ticket_summary_deleted');
         $availability_indication = get_config($dbc, 'uni_availability_indication');
         $sidebar_file = 'uni_sidebar.php';
         $all_tickets_button = '';
@@ -471,6 +473,7 @@ switch($_GET['type']) {
         $monthly_start = get_config($dbc, 'ticket_monthly_start');
         $monthly_days = explode(',', get_config($dbc, 'ticket_monthly_days'));
         $ticket_summary = get_config($dbc, 'ticket_ticket_summary');
+        $ticket_summary_deleted = get_config($dbc, 'ticket_ticket_summary_deleted');
         $availability_indication = get_config($dbc, 'ticket_availability_indication');
         $sidebar_file = 'tickets_sidebar.php';
         $all_tickets_button = get_config($dbc, 'ticket_use_all_tickets');
@@ -479,6 +482,7 @@ switch($_GET['type']) {
         $client_draggable = get_config($dbc, 'ticket_client_draggable');
         $staff_summary = get_config($dbc, 'ticket_staff_summary');
         $ticket_summary_tab = get_config($dbc, 'ticket_ticket_summary_tab');
+        $ticket_summary_tab_deleted = get_config($dbc, 'ticket_ticket_summary_tab_deleted');
         $client_tab = get_config($dbc, 'ticket_client_tab');
 
         $mobile_calendar_views = [''=>'Staff'];
@@ -557,4 +561,91 @@ switch($_GET['view']) {
         $date_string = date('F Y', strtotime($calendar_start));
         break;
 }
+
+$calendar_types = explode(',',get_config($dbc, 'calendar_types'));
+$edit_access = vuaed_visible_function($dbc, 'calendar_rook');
+if($is_customer) {
+    $edit_access = 0;
+}
+$ticket_view_access = tile_visible($dbc, 'ticket');
+echo '<input type="hidden" name="edit_access" value="'.$edit_access.'">';
+echo '<input type="hidden" name="ticket_view_access" value="'.$ticket_view_access.'">';
+// CALENDAR DATES
+$calendar_start = $_GET['date'];
+if($calendar_start == '') {
+    $calendar_start = date('Y-m-d');
+} else {
+    $calendar_start = date('Y-m-d', strtotime($calendar_start));
+}
+
+$day = date('w', strtotime($calendar_start));
+$week_start_date_check = date('Y-m-d', strtotime($calendar_start.' -'.($day - 1 + $weekly_start).' days'));
+$week_end_date_check = date('Y-m-d', strtotime($calendar_start.' -'.($day - 7 + $weekly_start).' days'));
+
+$calendar_dates = [];
+if($_GET['view'] == 'weekly') {
+    for($i = 1; $i <= 7; $i++) {
+        $calendar_date = date('Y-m-d', strtotime($calendar_start.' -'.($day - $i + $weekly_start).' days'));
+        $day_of_week = date('l', strtotime($calendar_date));
+        if(in_array($day_of_week, $weekly_days)) {
+            $calendar_dates[] = $calendar_date;
+        }
+    }
+} else if($_GET['view'] == 'daily') {
+    $calendar_dates = [$calendar_start];
+}
+
+// COLLAPSE AND DATA VARIABLE FOR CONTACTID
+if($_GET['type'] == 'schedule') {
+    if($_GET['mode'] == 'staff') {
+        $retrieve_collapse = 'collapse_staff';
+        $retrieve_block_type = 'dispatch_staff';
+        $retrieve_contact = 'staff';
+    } else if($_GET['mode'] == 'contractors') {
+        $retrieve_collapse = 'collapse_contractors';
+        $retrieve_block_type = 'dispatch_staff';
+        $retrieve_contact = 'staff';
+    } else {
+        $retrieve_collapse = 'collapse_equipment';
+        $retrieve_block_type = 'equipment';
+        $retrieve_contact = 'equipment';
+    }
+} else if($_GET['type'] == 'event') {
+    $retrieve_collapse = 'category_accordions';
+    $retrieve_block_type = '';
+    $retrieve_contact = 'projectid';
+} else if($_GET['type'] == 'shift' || $_GET['type'] == 'staff') {
+    $retrieve_collapse = 'collapse_contact';
+    $retrieve_block_type = '';
+    $retrieve_contact = 'contact';
+} else if($_GET['type'] == 'ticket' && $_GET['mode'] == 'client') {
+    $retrieve_collapse = 'collapse_clients';
+    $retrieve_block_type = '';
+    $retrieve_contact = 'client';
+} else {
+    $retrieve_collapse = 'collapse_staff';
+    $retrieve_block_type = '';
+    $retrieve_contact = 'staff';
+}
 ?>
+<input type="hidden" id="retrieve_collapse" value="<?= $retrieve_collapse ?>">
+<input type="hidden" id="retrieve_block_type" value="<?= $retrieve_block_type ?>">
+<input type="hidden" id="retrieve_contact" value="<?= $retrieve_contact ?>">
+<input type="hidden" id="calendar_view" value="<?= $_GET['view'] ?>">
+<input type="hidden" id="calendar_mode" value="<?= $_GET['mode'] ?>">
+<input type="hidden" id="calendar_start" value="<?= $calendar_start ?>">
+<input type="hidden" id="calendar_dates" value='<?= json_encode($calendar_dates); ?>'>
+<input type="hidden" id="calendar_type" value="<?= $_GET['type'] ?>">
+<input type="hidden" id="calendar_config_type" value="<?= $config_type ?>">
+<input type="hidden" id="calendar_auto_refresh" value="<?= $calendar_auto_refresh ?>">
+<input type="hidden" id="calendar_check_shifts" value="<?= get_config($dbc, 'calendar_ticket_check_shifts') ?>">
+<input type="hidden" id="calendar_check_days_off" value="<?= get_config($dbc, 'calendar_ticket_check_days_off') ?>">
+
+<?php $ticket_config = ','.get_field_config($dbc, 'tickets').',';
+foreach(explode(',',get_config($dbc, 'ticket_tabs')) as $ticket_type) {
+    $ticket_types[config_safe_str($ticket_type)] = $ticket_type;
+}
+foreach($ticket_types as $type_i => $type_label) {
+    $ticket_config .= get_config($dbc, 'ticket_fields_'.$type_i).',';
+} ?>
+<input type="hidden" id="tickets_have_recurrence" value="<?= strpos($ticket_config, ',Create Recurrence Button,') !== FALSE ? 1 : 0 ?>">

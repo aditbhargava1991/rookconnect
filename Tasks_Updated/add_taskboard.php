@@ -14,7 +14,7 @@ if (isset($_POST['add_tab'])) {
     if($board_security == 'Private') {
         $company_staff_sharing = ','.$_SESSION['contactid'].',';
     } else {
-	    $company_staff_sharing = ','.$_SESSION['contactid'].','.implode(',',$_POST['company_staff_sharing']).',';
+	    $company_staff_sharing = ','.implode(',',$_POST['company_staff_sharing']).',';
 
         //$company_staff_sharing = ','.implode(',',$_POST['company_staff_sharing']).',';
     }
@@ -119,7 +119,7 @@ $(document).ready(function() {
         $( "#contactid_show" ).hide();
         $( "#company_staff_sharing" ).hide();
         $('.task-board-name').show();
-    } else if(taskboard == 'Company') {
+    } else if(taskboard == 'Shared') {
         $( "#company_staff_sharing" ).show();
         $( "#businessid_show" ).hide();
         $( "#contactid_show" ).hide();
@@ -147,7 +147,7 @@ $(document).ready(function() {
             $('#businessid_show').show();
             $('#contactid_show').show();
             $('.task-board-name').hide();
-        } else if ( $('#board_security option:selected').val()=='Company' ) {
+        } else if ( $('#board_security option:selected').val()=='Shared' ) {
             $('#company_staff_sharing').show();
             $('#businessid_show').hide();
             $('#contactid_show').hide();
@@ -249,7 +249,7 @@ function changeLevel(sel) {
                     <select name="board_security" id="board_security" data-placeholder="Choose a <?= TASK_NOUN ?> Board Type..." class="chosen-select-deselect form-control" width="380">
                         <option></option><?php
                         $all_board_types = mysqli_fetch_array(mysqli_query($dbc, "SELECT task_dashboard_tile FROM task_dashboard"));
-                        foreach(explode(',', 'Private,'.$all_board_types['task_dashboard_tile']) as $board_type) {
+                        foreach(explode(',', $all_board_types['task_dashboard_tile']) as $board_type) {
                             $board_type = str_replace('Sales Tasks', '', $board_type);
                             $board_type = str_replace('Project Tasks', '', $board_type);
                             $board_type = str_replace(' Tasks', '', $board_type);

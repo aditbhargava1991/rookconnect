@@ -49,6 +49,7 @@ if (isset($_POST['add_shifts'])) {
     mysqli_query($dbc, "UPDATE `field_config_contacts_shifts_pdf` SET `header_logo_align` = '$header_logo_align', `header_text` = '$header_text', `header_align` = '$header_align', `footer_logo_align` = '$footer_logo_align', `footer_text` = '$footer_text', `footer_align` = '$footer_align'");
 
     set_config($dbc, 'shift_calendar_quick_add', filter_var($_POST['shift_calendar_quick_add'],FILTER_SANITIZE_STRING));
+    set_config($dbc, 'shift_hide_if_day_off', filter_var($_POST['shift_hide_if_day_off'],FILTER_SANITIZE_STRING));
 }
 ?>
 <script type="text/javascript">
@@ -133,6 +134,13 @@ $contact_category = $get_field_config['contact_category'];
                         <label class="form-checkbox"><input type="checkbox" name="shift_calendar_quick_add" value="1" <?= $shift_calendar_quick_add == 1 ? 'checked' : '' ?>></label>
                     </div>
                 </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Hide Shifts If Staff Has Day Off:</label>
+                    <div class="col-sm-8">
+                        <?php $shift_hide_if_day_off = get_config($dbc, 'shift_hide_if_day_off'); ?>
+                        <label class="form-checkbox"><input type="checkbox" name="shift_hide_if_day_off" value="1" <?= $shift_hide_if_day_off == 1 ? 'checked' : '' ?>></label>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -166,6 +174,12 @@ $contact_category = $get_field_config['contact_category'];
                     <label for="time" class="col-sm-4 control-label">Security Level Defaults:</label>
                     <div class="col-sm-8">
                         <label class="form-checkbox"><input type="checkbox" name="enabled_fields[]" value="security_level" <?= (strpos($enabled_fields, ',security_level,') !== FALSE ? 'checked' : '') ?>></label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="heading" class="col-sm-4 control-label">Heading:</label>
+                    <div class="col-sm-8">
+                        <label class="form-checkbox"><input type="checkbox" name="enabled_fields[]" value="heading" <?= (strpos($enabled_fields, ',heading,') !== FALSE ? 'checked' : '') ?>></label>
                     </div>
                 </div>
                 <div class="form-group">

@@ -41,24 +41,18 @@ foreach(explode(',',get_config($dbc, 'hr_tabs')) as $cat) {
 	$categories[config_safe_str($cat)] = $cat;
 }
 $tab = $_GET['tab'] == '' ? ($tile == 'hr' ? (in_array('Pinned',$categories) ? 'pinned' : 'favourites') : $tile) : filter_var($_GET['tab'],FILTER_SANITIZE_STRING);
-$label = $tile == 'hr' ? 'HR: '.$categories[$tab] : $categories[$tile];
+$label = $tile == 'hr' ? 'HR' : $categories[$tile];
 if($_GET['reports'] == 'view') {
-	$label = 'HR: Reports';
 	$tab = 'reporting';
 } else if(isset($_GET['hr_edit']) || isset($_GET['manual_edit'])) {
-	$label = 'HR: Configure';
 	$tab = 'editforms';
 } else if(isset($_GET['hr']) || isset($_GET['manual'])) {
-	$label = 'HR: Review';
 	$tab = 'viewforms';
 } else if(isset($_GET['settings'])) {
-	$label = 'HR: Settings';
 	$tab = 'configure';
 } else if(isset($_GET['performance_review'])) {
-	$label = 'HR: Performance Reviews';
 	$tab = 'performance_review';
 } else if($_GET['tab'] == 'summary') {
-	$label = 'HR: Summary';
 	$tab = 'summary';
 }
 checkAuthorised('hr');
@@ -91,14 +85,13 @@ if($_GET['performance_review'] == 'add' && !empty($_GET['form_id'])) {
 					<div class="pull-right settings-block"><?php if($security['config'] > 0) {
 							echo "<div class='pull-right gap-left'><a href='?settings=tabs&tile_name=$tile'><img src='".WEBSITE_URL."/img/icons/settings-4.png' class='settings-classic wiggle-me' width='30' /></a></div>";
 						}
-						if(check_subtab_persmission($dbc, 'hr', ROLE, 'reporting')) {
-							echo "<div class='pull-right gap-left'><a href='?reports=view&tile_name=$tile'><button class='btn brand-btn ".($_GET['reports'] == 'view' ? "active_tab" : "")." icon-pie-chart'>Reporting</button></a></div>";
-						}
 						if($security['edit'] > 0) {
 							echo "<div class='pull-right gap-left'><a href='?hr_edit=0&tile_name=$tile'><img src='".WEBSITE_URL."/img/icons/ROOK-add-icon.png' class='inline-img show-on-mob' /><button class='btn brand-btn hide-on-mobile'>Add Form</button></a></div>";
 							echo "<div class='pull-right gap-left'><a href='?manual_edit=0&tile_name=$tile'><img src='".WEBSITE_URL."/img/icons/ROOK-add-icon.png' class='inline-img show-on-mob' /><button class='btn brand-btn hide-on-mobile'>Add Manual</button></a></div>";
 						} ?>
-						<img class="no-toggle statusIcon pull-right no-margin inline-img" title="" src="" />
+                        <?php if(vuaed_visible_function($dbc, 'preformance_review')) { ?>
+                            <a href="?performance_review=add" class="btn brand-btn pull-right">Add Performance Review</a>
+                        <?php } ?>
 					</div>
 					<div class="scale-to-fill"><h1 class="gap-left"><a href="?tile_name=<?= $tile ?>"><span class="hide-on-mobile"><?= $label ?></span><span class="show-on-mob">HR</span></a></h1></div>
 					<div class="clearfix"></div>
@@ -152,6 +145,9 @@ if($_GET['performance_review'] == 'add' && !empty($_GET['form_id'])) {
 			} else if($_GET['tab'] == 'summary') {
 				include('sidebar.php');
 				include('summary.php');
+			} else if($_GET['tab'] == 'search') {
+				include('sidebar.php');
+				include('search.php');
 			} else {
 				checkAuthorised($tile, $tab_cat);
 				$tab_cat = $tab;

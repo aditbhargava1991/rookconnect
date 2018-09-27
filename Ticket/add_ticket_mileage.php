@@ -38,13 +38,13 @@ do {
 			</div>
 			<?php if(in_array('category',$mile_config)) { ?>
 				<div class="form-group">
-					<label class="col-sm-4 control-label">Category:</label>
+					<label class="col-sm-4 control-label">Tab:</label>
 					<div class="col-sm-8">
-					<select class="chosen-select-deselect" data-placeholder="Select a Category..." name="category" data-table="mileage" data-id="<?= $mileage['id'] ?>" data-id-field="id" data-attach="<?= $ticketid ?>" data-attach-field="ticketid" ><option></option>
+					<select class="chosen-select-deselect" data-placeholder="Select a Tab..." name="category" data-table="mileage" data-id="<?= $mileage['id'] ?>" data-id-field="id" data-attach="<?= $ticketid ?>" data-attach-field="ticketid" ><option></option>
 						<?php foreach($categories as $category) { ?>
 							<option <?= $category == $mileage['category'] ? 'selected' : '' ?> value="<?= $category ?>"><?= $category ?></option>
 						<?php } ?>
-						<option value="MANUAL">Add Category</option>
+						<option value="MANUAL">Add Tab</option>
 					</select>
 						<input type="text" class="form-control" name="category" data-table="mileage" data-id="<?= $mileage['id'] ?>" data-id-field="id" data-attach="<?= $ticketid ?>" data-attach-field="ticketid" value="" style="display:none;">
 					</div>
@@ -95,8 +95,8 @@ do {
 				</div><?php } ?>
 			<div class="col-sm-1 pull-right">
 					<input type="hidden" name="deleted" data-table="mileage" data-id="<?= $mileage['id'] ?>" data-id-field="id" data-attach="<?= $ticketid ?>" data-attach-field="ticketid" value="0">
-				<img class="inline-img pull-right" src="../img/icons/ROOK-add-icon.png" onclick="addMulti(this);">
-				<img class="inline-img pull-right" src="../img/remove.png" onclick="remMulti(this);">
+				<img class="inline-img pull-right" src="../img/icons/ROOK-add-icon.png" data-history-label="Mileage" onclick="addMulti(this);">
+				<img class="inline-img pull-right" src="../img/remove.png" data-history-label="Mileage" onclick="remMulti(this);">
 			</div>
 			<div class="clearfix"></div>
 		</div>
@@ -137,7 +137,7 @@ do {
 		<?php $pdf_contents[] = ['Mileage', $mileage['mileage']]; ?>
 		<?php if(in_array('category',$mile_config)) { ?>
 			<div class="form-group">
-				<label class="col-sm-4 control-label">Category:</label>
+				<label class="col-sm-4 control-label">Tab:</label>
 				<div class="col-sm-8">
 					<?= $category ?>
 				</div>

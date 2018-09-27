@@ -6,6 +6,9 @@ switch($_GET['settings']) {
 		$include_file = 'field_config_field.php';
 		$title = 'Fields';
 		break;
+	case 'mandatory_fields':
+		$include_file = 'field_config_mandatory_field.php';
+		break;
 	case 'dashboard':
 		$include_file = 'field_config_dashboard.php';
 		$title = 'Dashboard';
@@ -48,7 +51,7 @@ switch($_GET['settings']) {
 
 <script type="text/javascript">
 $(document).ready(function() {
-	$('#mobile_tabs .panel-heading').click(loadPanel);	
+	$('#mobile_tabs .panel-heading').click(loadPanel);
 });
 function loadPanel() {
 	var panel = $(this).closest('.panel').find('.panel-body');
@@ -91,6 +94,21 @@ function loadPanel() {
 
 		<div id="collapse_field" class="panel-collapse collapse">
 			<div class="panel-body" data-file-name="field_config_field.php">
+				Loading...
+			</div>
+		</div>
+	</div>
+	<div class="panel panel-default">
+		<div class="panel-heading mobile_load">
+			<h4 class="panel-title">
+				<a data-toggle="collapse" data-parent="#mobile_tabs" href="#collapse_field">
+					Mandatory Fields<span class="glyphicon glyphicon-plus"></span>
+				</a>
+			</h4>
+		</div>
+
+		<div id="collapse_field" class="panel-collapse collapse">
+			<div class="panel-body" data-file-name="field_config_mandatory_field.php">
 				Loading...
 			</div>
 		</div>
@@ -221,6 +239,7 @@ function loadPanel() {
 	<ul>
 		<a href="?settings=tab"><li class="<?= $_GET['settings'] == 'tab' ? 'active blue' : '' ?>">General</li></a>
 		<a href="?settings=field"><li class="<?= $_GET['settings'] == 'field' ? 'active blue' : '' ?>">Fields</li></a>
+		<a href="?settings=mandatory_fields"><li class="<?= $_GET['settings'] == 'mandatory_fields' ? 'active blue' : '' ?>">Mandatory Fields</li></a>
 		<a href="?settings=dashboard"><li class="<?= $_GET['settings'] == 'dashboard' ? 'active blue' : '' ?>">Dashboard</li></a>
 		<a href="?settings=inspection"><li class="<?= $_GET['settings'] == 'inspection' ? 'active blue' : '' ?>">Inspections</li></a>
 		<a href="?settings=expenses"><li class="<?= $_GET['settings'] == 'expenses' ? 'active blue' : '' ?>">Expenses</li></a>

@@ -266,5 +266,17 @@ mysqli_query($dbc, "ALTER TABLE `task_dashboard` ADD `task_fields` TEXT NULL AFT
 
 mysqli_query($dbc, "UPDATE task_dashboard SET task_fields='Board Type,Board Name,Status,Task Name,To Do Date,Assign Staff,Flag This,Send Alert,Send Email,Schedule Reminder,Attach File,Comments,Add Time,Track Time' WHERE task_id=1");
 
+mysqli_query($dbc, "ALTER TABLE `tasklist` CHANGE `flag_label` `flag_label` VARCHAR(200) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL");
+
+mysqli_query($dbc, "ALTER TABLE `sales` ADD `number_of_days` INT(10) NOT NULL DEFAULT '0' AFTER `classification`");
+
+mysqli_query($dbc, "ALTER TABLE `sales` ADD `number_of_days_start_date` DATE NULL AFTER `number_of_days`");
+mysqli_query($dbc, "ALTER TABLE `contacts` ADD `serviceid` INT(10) NULL AFTER `vaca_pay`");
+
+mysqli_query($dbc, "ALTER TABLE `tasklist_time` ADD `start_time` VARCHAR(50) NULL AFTER `tasklistid`, ADD
+`end_time` VARCHAR(50) NULL AFTER `start_time`");
+
+mysqli_query($dbc, "ALTER TABLE `tasklist` CHANGE `status` `status` VARCHAR(100) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL");
+
     echo "Dayana's DB Changes Done<br />\n";
 ?>

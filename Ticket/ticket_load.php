@@ -81,6 +81,7 @@ if($ticket['flag_colour'] != '' && $ticket['flag_colour'] != 'FFFFFF') {
 			echo (in_array('reminder',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-reminder-icon.png" class="inline-img reminder-icon no-toggle" title="Schedule Reminder">' : '');
 			echo (in_array('attach',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-attachment-icon.png" class="inline-img attach-icon no-toggle" title="Attach File">' : '');
 			echo (in_array('reply',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-reply-icon.png" class="inline-img reply-icon no-toggle" title="Add Note">' : '');
+			echo (in_array('history',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/eyeball.png" class="inline-img history-icon no-toggle" title="History">' : '');
 			echo (in_array('archive',$quick_actions) && $tile_security['edit'] > 0 ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-trash-icon.png" class="inline-img archive-icon no-toggle" title="Archive">' : '');
 
 			//echo (in_array('reply',$quick_actions) ? '<a href="../Ticket/ticket_pdf.php?action=notopen&ticketid='.$ticket['ticketid'].'"><img src="'.WEBSITE_URL.'/img/icons/ROOK-reply-icon.png" class="inline-img emailpdf-icon" title="Add Note"></a>' : '');
@@ -336,7 +337,26 @@ if($ticket['flag_colour'] != '' && $ticket['flag_colour'] != 'FFFFFF') {
 		echo '<div class="col-sm-6">
 			<label class="col-sm-4">Status:</label>
 			<div class="col-sm-8">';
-			if($tile_security['edit'] > 0) {
+            $invoice_status = '';
+            if(get_config($dbc, 'ticket_invoice_status') > 0) {
+                $invoice = $dbc->query("SELECT * FROM `invoice` WHERE `deleted`=0 AND CONCAT(',',`ticketid`,',') LIKE '%,$ticketid,%'")->fetch_assoc();
+                switch($invoice['status']) {
+                    case 'Completed':
+                        $invoice_status = 'Paid';
+                        break;
+                    case 'Void':
+                        $invoice_status = 'Voided';
+                        break;
+                    case 'Saved':
+                        $invoice_status = 'Unbilled';
+                        break;
+                    case 'Posted':
+                    default:
+                        $invoice_status = 'Accounts Receivable';
+                        break;
+                }
+            }
+			if($tile_security['edit'] > 0 && empty($invoice_status)) {
 				echo '<select name="status[]" data-id="'.$ticket['ticketid'].'" onchange="setStatus(this);" class="chosen-select-deselect1 form-control">
 						<option value=""></option>';
 						foreach ($ticket_status_list as $cat_tab) {
@@ -344,7 +364,7 @@ if($ticket['flag_colour'] != '' && $ticket['flag_colour'] != 'FFFFFF') {
 						}
 				echo '</select>';
 			} else {
-				echo $ticket['status'];
+				echo !empty($invoice_status) ? $invoice_status : $ticket['status'];
 			}
 			echo '</div>
 		</div>';
@@ -484,6 +504,20 @@ if($ticket['flag_colour'] != '' && $ticket['flag_colour'] != 'FFFFFF') {
 		}
 		echo '<div class="col-sm-6">
 			<label class="col-sm-4">Delivery Notes:</label>
+			<div class="col-sm-8">'.implode('<br>',$delivery_stops).'
+			</div>
+		</div>';
+	}
+	if(in_array('Delivery Status',$db_config)) {
+		$ticket_stops = mysqli_query($dbc, "SELECT * FROM `ticket_schedule` WHERE `ticketid` = '".$ticket['ticketid']."' AND `deleted` = 0 AND `type` != 'origin' AND `type` != 'destination'");
+		$stop_count = 0;
+		$delivery_stops = [];
+		while($stop = mysqli_fetch_assoc($ticket_stops)) {
+			$stop_count++;
+            $delivery_stops[] = 'Stop #'.$stop_count.' '.(empty($stop['client_name']) ? $stop['location_name'] : $stop['client_name']).': '.$stop['status'];
+		}
+		echo '<div class="col-sm-6">
+			<label class="col-sm-4">Delivery Status Summary:</label>
 			<div class="col-sm-8">'.implode('<br>',$delivery_stops).'
 			</div>
 		</div>';

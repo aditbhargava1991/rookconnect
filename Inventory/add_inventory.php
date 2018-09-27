@@ -364,7 +364,7 @@ if (isset($_POST['submit'])) {
         $before_change = '';
         $history = "Inventory with id $inventoryid is been Updated. <br />";
         add_update_history($dbc, 'inventory_history', $history, '', $before_change);
-            
+
         if ( $led ) {
             /* Update the same record on led.rookconnect.com
              * Change prices before inserting to LED
@@ -385,7 +385,7 @@ if (isset($_POST['submit'])) {
                 mysqli_query($dbc_inventory, $query_update_inventory);
             }
         }
-            
+
             $before_change = '';
             $history = "Inventory with id $inventoryid has been Updated. <br />";
             add_update_history($dbc, 'inventory_history', $history, '', $before_change);
@@ -831,7 +831,7 @@ if(!empty($_GET['inventoryid'])) {
                     		<!-- <input type="hidden" id="category"	name="category" value="<?php echo $category ?>" /> -->
 
                             <div class="form-group">
-                                <label class="col-sm-4 control-label">Category:</label>
+                                <label class="col-sm-4 control-label">Tab:</label>
                                 <div class="col-sm-8">
                                     <select name="category" id="category" class="chosen-select-deselect form-control">
                                         <option></option>
@@ -919,7 +919,7 @@ if(!empty($_GET['inventoryid'])) {
 
                                         <!-- <?php if (strpos($value_config, ','."Category".',') !== FALSE) { ?>
                                         <div class="form-group">
-                                        <label for="travel_task" class="col-sm-4 control-label">Category<span class="brand-color">*</span>:</label>
+                                        <label for="travel_task" class="col-sm-4 control-label">Tab<span class="brand-color">*</span>:</label>
                                         <div class="col-sm-8">
                                           <select id="category" name="category" class="chosen-select-deselect1 form-control" width="380">
                                           <option value=''></option>
@@ -943,7 +943,7 @@ if(!empty($_GET['inventoryid'])) {
 
                                         <?php if (strpos($value_config, ','."Subcategory".',') !== FALSE) { ?>
                                         <div class="form-group">
-                                        <label for="travel_task" class="col-sm-4 control-label">Subcategory<span class="brand-color">*</span>:</label>
+                                        <label for="travel_task" class="col-sm-4 control-label">Subtab<span class="brand-color">*</span>:</label>
                                         <div class="col-sm-8">
                                           <select id="sub_category" name="sub_category" class="chosen-select-deselect form-control" width="380">
                                           <option value=''></option>
@@ -989,9 +989,9 @@ if(!empty($_GET['inventoryid'])) {
 
                                         <?php if (strpos($value_config, ','."Type".',') !== FALSE) { ?>
                                         <div class="form-group">
-                                        <label for="phone_number" class="col-sm-4 control-label">Type:</label>
+                                        <label for="phone_number" class="col-sm-4 control-label">Tab:</label>
                                         <div class="col-sm-8">
-                                            <select data-placeholder="Choose a Type..." id="type" name="type" class="chosen-select-deselect form-control" width="380">
+                                            <select data-placeholder="Choose a Tab..." id="type" name="type" class="chosen-select-deselect form-control" width="380">
                                               <option value=""></option>
                                               <option <?php if ($type=='Project Inventory') echo 'selected="selected"';?> value="Project Inventory">Project Inventory</option>
                                               <option <?php if ($type=='Consumables') echo 'selected="selected"';?> value="Consumables">Consumables</option>
@@ -2192,7 +2192,7 @@ if(!empty($_GET['inventoryid'])) {
                     									} else if($rw['product_name'] !== '' && $rw['product_name'] !== NULL) {
                     										$name = $rw['product_name'];
                     									}
-                    								  echo '<li><span title="Category: '.$rw['category'].'">'.$name.' (ID: <a href="add_inventory.php?inventoryid='.$rw['inventoryid'].'&bomhist=true">'.$rw['inventoryid'].'</a>)</span></li>';
+                    								  echo '<li><span title="Tab: '.$rw['category'].'">'.$name.' (ID: <a href="add_inventory.php?inventoryid='.$rw['inventoryid'].'&bomhist=true">'.$rw['inventoryid'].'</a>)</span></li>';
                     								}
                                                 }
                     							if($nmy == 0) {
@@ -2349,7 +2349,7 @@ if(!empty($_GET['inventoryid'])) {
 
                     		<div class="form-group pull-right">
                 				<a href="inventory.php?category=<?php echo preg_replace('/[^a-z]/','',strtolower($category)); ?>"	class="btn brand-btn">Back</a>
-                				<button	type="submit" name="submit"	value="Submit" class="btn brand-btn">Submit</button>
+                				<!--<button	type="submit" name="submit"	value="Submit" class="btn brand-btn">Submit</button>-->
                     		</div>
 
                     		<div class="clearfix"></div>
@@ -2364,5 +2364,36 @@ if(!empty($_GET['inventoryid'])) {
         </div>
 	</div>
 </div>
+<script>
+$(document).ready(function () {
+     $("#form1").find('input').addClass('saveonajax');
+     $("#form1").find('select').addClass('saveonajax');
+     $("#form1").find('textarea').addClass('saveonajax');
+});
 
+ $(document).on('change', '.saveonajax', function(){
+     addInventoryData();
+ });
+
+ /*$(".saveonajax").blur(function(){
+   addStaffData();
+ });*/
+ function addInventoryData() {
+   var formData = new FormData($("#form1")[0]);
+   $.ajax({
+     type: 'POST',
+     url: 'inventory_ajax.php?action=add_update_inventory',
+     //data: $('#form1').serialize(),
+     data:formData,
+     cache:false,
+     processData: false,
+         contentType: false,
+     success: function(response) {
+       if(response!=''){
+         $('#contact_id_val').val(response);
+       }
+     }
+   });
+ }
+</script>
 <?php include ('../footer.php'); ?>
