@@ -59,7 +59,7 @@ $invoice_footer = get_config($dbc, 'invoice_footer');
 if(!empty($point_of_sell['type']) && !empty(get_config($dbc, 'invoice_footer_'.$point_of_sell['type']))) {
     $invoice_footer = get_config($dbc, 'invoice_footer_'.$point_of_sell['type']);
 }
-$payment_type = explode('#*#', $point_of_sell['payment_type']);
+//$payment_type = explode('#*#', $point_of_sell['payment_type']);
 
 DEFINE('INVOICE_FOOTER', $invoice_footer);
 
@@ -116,7 +116,7 @@ if(count($ship_address > 0)) {
 }
 
 
-$html = '<h2 style="text-align:center;">Sales/Service Record</h2>';
+$html = '<h2 style="text-align:center;">Payment Of Accounts Receivable</h2>';
 $html .= '<table style="border: 2px solid black;" width="100%" cellspacing="0" cellpadding="0">
 	<tr style="border:2px solid black;">
 		<td>
@@ -125,15 +125,23 @@ $html .= '<table style="border: 2px solid black;" width="100%" cellspacing="0" c
 					<td rowspan="5" width="18%" style="border:1px solid black;">
 						'.(INVOICE_LOGO != '' ? '<img src="'.INVOICE_LOGO.'" style="width:100px;">' : '').'
 					</td>
-					<td width="32%" colspan="3" style="border:1px solid black;">
-						To : '.get_contact($dbc, $point_of_sell['businessid']).'
-					</td>
+                    <td width="32%" colspan="3" style="border:1px solid black;">
+                    To : ';
+                    foreach(array_unique($patient_ids) as $contactid) {
+                        if($contactid == 0) {
+                            $non_patient = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `invoice_nonpatient` WHERE `invoiceid`='".$get_invoice['invoiceid']."'"));
+                            $html .= '<p>'.$non_patient['first_name'].' '.$non_patient['last_name'].'<br/>'.$non_patient['email'].'</p>';
+                        } else {
+                            $html .= '<p>'.get_contact($dbc, $contactid).'<br/>'.get_address($dbc, $contactid).'<br/>'.get_contact_phone($dbc, $contactid).'<br/>'.get_email($dbc, $contactid).'</p>';
+                        }
+                    }
+					$html .= '</td>
 					<td width="32%" colspan="3" style="border:1px solid black;">
 						Ship To
 					</td>
 					<td rowspan="2" width="18%" style="border:1px solid black;">
 						Salesperson : <br />
-						<span style="font-size:1.5em;">'.decryptIt($_SESSION['first_name']).' '.decryptIt($_SESSION['last_name']).'</span>
+						'.decryptIt($_SESSION['first_name']).' '.decryptIt($_SESSION['last_name']).'
 					</td>
 				</tr>
 				<tr height="27px">
@@ -171,13 +179,13 @@ $html .= '<table style="border: 2px solid black;" width="100%" cellspacing="0" c
 		<td>
 			<table width="100%" cellpadding="3" cellspacing="0">
 				<tr height="27px">
-					<td style="border:1px solid black; text-align:center;" width="8%">
+					<td style="border:1px solid black; text-align:center;" width="20%">
 						Invoice Date
 					</td>
-					<td style="border:1px solid black; text-align:center;" width="8%">
+					<td style="border:1px solid black; text-align:center;" width="20%">
 						Invoice#
 					</td>
-					<td colspan="4" style="border:1px solid black; text-align:center;" width="52%">
+					<td colspan="5" style="border:1px solid black; text-align:center;" width="52%">
 						Invoice Amount
 					</td>
 				</tr>';
@@ -202,21 +210,6 @@ $html .= '<table style="border: 2px solid black;" width="100%" cellspacing="0" c
                 }
 
 				$html .= '
-				<tr height="27px">
-					<td colspan="4" rowspan="2" style="border:1px solid black;">
-						SIGNED &amp; ACCEPTED BY:<br />&nbsp;
-					</td>
-					<td colspan="3" rowspan="2" style="border:1px solid black; text-align:center;">
-						GST Registration<br />'.$gst_registrant.'
-					</td>
-					<td colspan="2" style="border:1px solid black; text-align:right;">
-						GST
-					</td>
-					<td style="border:1px solid black; text-align:right;">
-						$'.number_format($gst_amt,2).'
-					</td>
-				</tr>
-
 				<tr height="27px">
 					<td colspan="6" style="border:1px solid black; text-align:right;">
 						Total Due By Customer
@@ -248,6 +241,21 @@ $html .= '<table style="border: 2px solid black;" width="100%" cellspacing="0" c
 					</td>
 					<td style="border:1px solid black; text-align:right;">
 						$0.00
+					</td>
+				</tr>
+
+				<tr height="27px">
+					<td colspan="4" rowspan="2" style="border:1px solid black;">
+						SIGNED &amp; ACCEPTED BY:<br />&nbsp;
+					</td>
+					<td colspan="3" rowspan="2" style="border:1px solid black; text-align:center;">
+						GST Registration<br />'.$gst_registrant.'
+					</td>
+					<td colspan="2" style="border:1px solid black; text-align:right;">
+						GST
+					</td>
+					<td style="border:1px solid black; text-align:right;">
+						$'.number_format($gst_amt,2).'
 					</td>
 				</tr>
 
