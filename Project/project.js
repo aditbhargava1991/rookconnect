@@ -382,7 +382,7 @@ function loadPanel() {
 		}
 	});
 }
-function waitForSave(btn,btname) {
+function waitForSave(btn,btname,funct) {
 	if(btname == 'next'){
 		var i = 0;
 		var err = 0;
@@ -397,22 +397,23 @@ function waitForSave(btn,btname) {
 		});
 		if(err == 0){
 			$(btn).text('Saving...');
-			if(current_fields.length > 0) {
+			if(saving_field == null && current_fields.length == 0) {
 				console.log('Waiting for Save to finish');
 				setTimeout(function() { $(btn).click(); }, 500);
 				return false;
 			}
-		}else{
+		} else {
 			return false;
 		}
-	}else{
+	} else {
 		$(btn).text('Saving...');
-		if(current_fields.length > 0) {
+		if(saving_field == null && current_fields.length == 0) {
 			console.log('Waiting for Save to finish');
 			setTimeout(function() { $(btn).click(); }, 500);
 			return false;
 		}
 	}
+    return true;
 }
 function setSelectOnChange() {
 	$('select[name="status[]"]').on('change', function() { selectStatus(this); });

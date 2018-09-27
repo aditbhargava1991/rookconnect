@@ -189,7 +189,7 @@ function saveNote(sel) {
 </div>
  <!-- All icons -->
  
-<br /><div class="clearfix"></div>
+<div class="clearfix"></div>
 <!-- Timer -->
 <div class="timer" style="display:none;">
     <input type="text" name="timer_<?= $projectid ?>" id="timer_value" class="form-control timer" placeholder="0 sec" />

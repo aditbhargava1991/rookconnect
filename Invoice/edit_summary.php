@@ -53,7 +53,7 @@
             </select>
         </div>
     </div>
-    <input type="hidden" name="tax_rate" id="tax_rate" value="<?= $tax_rate ?>" />
+    <input type="hidden" name="tax_rate" id="tax_rate" data-value="<?= $tax_rate ?>" value="<?= strtoupper(get_contact($dbc, $patientid, 'client_tax_exemption')) == 'YES' ? 0 : $tax_rate ?>" />
     <input name="total_price" value="<?php echo 0+$total_price; ?>" id="total_price" type="hidden" />
     <input name="final_price" value="<?php echo 0+$final_price; ?>" id="final_price" type="hidden" />
 
@@ -428,6 +428,15 @@ $(document).ready(function() {
 				$('.detail_patient_name').html($('[name=patientid] option:selected').text());
                 if($('select[name=patientid]').val() > 0) {
                     $('#header_summary').load('../Contacts/contact_profile.php?summary=true&contactid='+$('select[name=patientid]').val(),function() { $(this).append('<div class="clearfix"></div>'); });
+                    $.post('invoice_ajax.php?action=get_tax_exempt', {
+                        contactid: $('select[name=patientid]').val()
+                    }, function(response) {
+                        if(response.toUpperCase() == 'YES') {
+                            $('[name=tax_rate]').val(0);
+                        } else {
+                            $('[name=tax_rate]').val($('[name=tax_rate]').data('value'));
+                        }
+                    });
                 }
 				if($('#injuryid_chosen').is(':visible')) {
 					$('.detail_patient_injury').html($('[name=injuryid] option:selected').text() == '' ? 'Please Select' : $('[name=injuryid] option:selected').text()).closest('h4').show();

@@ -1335,7 +1335,7 @@ if($_GET['action'] == 'update_fields') {
 			$service_price[] = $service[1];
 		}
 	}
-	$services = mysqli_query($dbc, "SELECT `serviceid`, `heading` FROM `services` WHERE `serviceid` IN (".implode(',',$service_list).") AND `deleted`=0");
+	$services = mysqli_query($dbc, "SELECT `serviceid`, `category`, `service_type`, `heading` FROM `services` WHERE `serviceid` IN (".implode(',',$service_list).") AND `deleted`=0");
 	while($service = mysqli_fetch_assoc($services)) {
 		$row_price = 0;
 		foreach($service_list as $i => $id) {
@@ -1343,7 +1343,7 @@ if($_GET['action'] == 'update_fields') {
 				$row_price = $service_price[$i];
 			}
 		}
-		echo "<option data-rate-price='".$row_price."' value='".$service['serviceid']."'>".$service['heading']."</option>";
+		echo "<option data-rate-price='".$row_price."' value='".$service['serviceid']."'>".implode(': ',array_filter([$service['category'],$service['service_type'],$service['heading']]))."</option>";
 	}
 } else if($_GET['action'] == 'business_services_fetch') {
 	$businessid = filter_var($_GET['business'],FILTER_SANITIZE_STRING);
@@ -2763,6 +2763,9 @@ if($_GET['action'] == 'update_fields') {
 		echo '<a href="?settings=forms&id='.$id.'&page=1"><img src="pdf_contents/'.$filename.'" style="width: 30%; margin: 2em;"></a>';
 		echo '#*#'.$id;
 	}
+} else if($_GET['action'] == 'list_customer_service_templates') {
+	$contact = filter_var($_GET['contactid'],FILTER_SANITIZE_STRING);
+	echo mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `services_service_templates` WHERE `deleted`=0 AND `contactid`='$contact'"))['serviceid'];
 } else if($_GET['action'] == 'get_customer_service_templates') {
 	echo '<option></option>';
 	$clientid = $_GET['clientid'];
@@ -3032,17 +3035,19 @@ if($_GET['action'] == 'update_fields') {
 		echo json_encode($result);
 	} else {
 		$ticketid = $_POST['ticketid'];
-		if($edit == 1) {
-			$ticket = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticketid` = '$ticketid'"));
-			$main_ticketid = $ticket['main_ticketid'];
-			mysqli_query($dbc, "UPDATE `tickets` SET `is_recurrence` = 0 WHERE `main_ticketid` = '$main_ticketid' AND `to_do_date` < '$create_starting_at'");
-			mysqli_query($dbc, "UPDATE `tickets` SET `deleted` = 1 WHERE `main_ticketid` = '$main_ticketid' AND `to_do_date` >= '$create_starting_at' AND `ticketid` != '$ticketid'");
-			$recurring_dates = get_recurrence_days(1, $start_date, $end_date, $repeat_type, $repeat_interval, $repeat_days, $repeat_monthly, $create_starting_at);
-			mysqli_query($dbc, "UPDATE `tickets` SET `to_do_date` = '".$recurring_dates[0]."', `to_do_end_date` = '".$recurring_dates[0]."' WHERE `ticketid` = '$ticketid'");
-			mysqli_query($dbc, "UPDATE `ticket_recurrences` SET `deleted` = 1 WHERE `ticketid` = '$main_ticketid'");
-		}
 
 		if($ticketid > 0) {
+			$recurring_dates = get_recurrence_days(1, $start_date, $end_date, $repeat_type, $repeat_interval, $repeat_days, $repeat_monthly, $create_starting_at);
+			mysqli_query($dbc, "UPDATE `tickets` SET `to_do_date` = '".$recurring_dates[0]."', `to_do_end_date` = '".$recurring_dates[0]."' WHERE `ticketid` = '$ticketid'");
+			
+			if($edit == 1) {
+				$ticket = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticketid` = '$ticketid'"));
+				$main_ticketid = $ticket['main_ticketid'];
+				mysqli_query($dbc, "UPDATE `tickets` SET `is_recurrence` = 0 WHERE `main_ticketid` = '$main_ticketid' AND `to_do_date` < '$create_starting_at'");
+				mysqli_query($dbc, "UPDATE `tickets` SET `deleted` = 1 WHERE `main_ticketid` = '$main_ticketid' AND (`to_do_date` >= '$create_starting_at' OR IFNULL(`to_do_date`,'0000-00-00') = '0000-00-00') AND `ticketid` != '$ticketid'");
+				mysqli_query($dbc, "UPDATE `ticket_recurrences` SET `deleted` = 1 WHERE `ticketid` = '$main_ticketid'");
+			}
+
 			//Insert into ticket_recurrences table to save settings for ongoing Recurrences cron job
 			mysqli_query($dbc, "INSERT INTO `ticket_recurrences` (`ticketid`, `start_date`, `end_date`, `repeat_type`, `repeat_monthly`, `repeat_interval`, `repeat_days`) VALUES ('$ticketid', '$start_date', '$end_date', '$repeat_type', '$repeat_monthly', '$repeat_interval', '".implode(',',$repeat_days)."')");
 

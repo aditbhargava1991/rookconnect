@@ -3389,4 +3389,13 @@ if($_GET['fill'] == 'get_last_active') {
 	$active_html .= '</span>';
 	echo count($active_users).'*#*'.$active_html;
 }
+if($_GET['action'] == 'removeSchedule') {
+    $ticketid = filter_var($_POST['ticketid'],FILTER_SANITIZE_STRING);
+    $stopid = filter_var($_POST['stopid'],FILTER_SANITIZE_STRING);
+    if($stopid > 0) {
+        $dbc->query("UPDATE `ticket_schedule` SET `equipmentid`='0',`contactid`='0' WHERE `ticketid`='$ticketid' AND `id`='$stopid'");
+    } else {
+        $dbc->query("UPDATE `tickets` SET `equipmentid`='0',`contactid`='0' WHERE `ticketid`='$ticketid'");
+    }
+}
 ?>

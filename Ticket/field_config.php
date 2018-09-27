@@ -73,7 +73,7 @@ switch($_GET['settings']) {
 ?>
 <script>
 $(document).ready(function() {
-	$('.panel-heading').click(loadPanel);
+	$('.panel-heading').not('.no_load').click(loadPanel);
 });
 function loadPanel() {
 	$('.panel-body').html('Loading...');

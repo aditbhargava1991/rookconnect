@@ -1118,6 +1118,7 @@ function load_items(item_row, date, contact, insert_type = 'next', block_type = 
 			});
 		}
 	}
+    initTooltips();
 	return deferred.promise();
 }
 function destroy_items(contact, block_type) {

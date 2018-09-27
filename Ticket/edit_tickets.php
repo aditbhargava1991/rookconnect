@@ -595,7 +595,7 @@ if($get_ticket['main_ticketid'] > 0 && $get_ticket['is_recurrence'] == 1 && !$fo
 $quick_action_html = '';
 if(!($strict_view > 0)) {
 	$quick_actions = explode(',',get_config($dbc, 'quick_action_icons'));
-	$quick_action_html .= '<div class="action-icons pull-right">';
+	$quick_action_html .= '<div class="action-icons pull-right" data-colour="'.$get_ticket['flag_colour'].'" data-table="tickets" data-id-field="ticketid">';
 	$quick_action_html .= (strpos($value_config,',Create Recurrence Button,') !== FALSE ? '<img src="'.WEBSITE_URL.'/img/month-overview-blue.png" class="inline-img no-toggle" title="Recurring '.TICKET_TILE .'" onclick="dialogCreateRecurrence(this);">' : '');
 	$quick_action_html .= (in_array('flag_manual',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-flag-icon.png" class="inline-img manual-flag-icon no-toggle" title="Flag This!">' : '');
 	$quick_action_html .= (!in_array('flag_manual',$quick_actions) && in_array('flag',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-flag-icon.png" class="inline-img flag-icon no-toggle" title="Flag This!">' : '');
@@ -676,6 +676,7 @@ $(document).ready(function() {
 			modal: true,
 			buttons: {
 				"All Recurrences": function() {
+					clearInterval(check_recurrence);
 					var ticketid = $('#ticketid').val();
 					$('#sync_recurrences').val(1);
 					$('.sync_recurrences_note').show();
@@ -689,10 +690,19 @@ $(document).ready(function() {
 					$(this).dialog('close');
 				},
 				"One Occurence": function() {
+					clearInterval(check_recurrence);
+					$('#sync_recurrences').val(0);
 					$(this).dialog('close');
 				}
 			}
 		});
+		var check_recurrence = '';
+		check_recurrence = setInterval(function() {
+			if(!($('#dialog_edit_recurrence').is(':visible'))) {
+				$('#sync_recurrences').val(0);
+				clearInterval(check_recurrence);
+			}
+		},50);
 	<?php } ?>
     
     var menu_bar_height = $('#nav').height() + $('.tile-header').height() + 12;
@@ -764,6 +774,7 @@ function setActions() {
 	});
 	$('.flag-icon').off('click').click(function() {
 		var ticketid = $('#ticketid').val();
+		var item = $(this).closest('.action-icons');
 		$.ajax({
 			url: 'ticket_ajax_all.php?action=quick_actions',
 			method: 'POST',
@@ -776,14 +787,15 @@ function setActions() {
 			},
 			success: function(response) {
 				item.data('colour',response.substr(0,6));
-				item.css('background-color','#'+response.substr(0,6));
-				item.find('.flag-label').html(response.substr(6));
+				// item.css('background-color','#'+response.substr(0,6));
+				// item.find('.flag-label').html(response.substr(6));
+				setManualFlag('', response.substr(0,6), response.substr(6));
 			}
 		});
 	});
 	$('.attach-icon').off('click').click(function() {
 		var ticketid = $('#ticketid').val();
-		var item = $(this).closest('.action_items');
+		var item = $(this).closest('.action-icons');
 		item.find('[type=file]').off('change').change(function() {
 			var fileData = new FormData();
 			fileData.append('file',$(this)[0].files[0]);
@@ -1101,7 +1113,7 @@ var setHeading = function() {
 	<div class="double-gap-top standard-body form-horizontal calendar-iframe-screen <?= $calendar_ticket_slider=='full' ? 'calendar-iframe-full' : 'calendar-iframe-accordion'; ?>">
 		<input type="hidden" id="calendar_view" value="true">
 <?php } ?>
-<input type="hidden" name="sync_recurrences" id="sync_recurrences" value="0">
+<input type="hidden" name="sync_recurrences" id="sync_recurrences" value="<?= ($is_recurrence && !($_GET['action_mode'] > 0) && !($_GET['overview_mode'] > 0) ? 1 : 0) ?>">
 <input type="hidden" name="checkout_before_checkin" id="checkin_before_checkout" value="<?= strpos($value_config,',Check Out Before Check In,') !== FALSE ? 1 : 0 ?>">
 <?php if(get_config($dbc, 'ticket_textarea_style') == 'no_editor') { ?>
 	<script>
@@ -1129,7 +1141,7 @@ var setHeading = function() {
 					$flag_comment = $ticket_flag_names[$get_ticket['flag_colour']];
 				} ?>
 			<?php } ?>
-			<span class="block-label flag-label-block" style="<?= $get_ticket['flag_colour'] != '' && $get_ticket['flag_colour'] != 'FFFFFF' ? '' : 'dispaly:none;' ?>background-color:#<?= $get_ticket['flag_colour'] ?>;">Flagged<?= empty($flag_comment) ? '' : ': '.$flag_comment ?></span></h3>
+			<span class="block-label flag-label-block" style="<?= $get_ticket['flag_colour'] != '' && $get_ticket['flag_colour'] != 'FFFFFF' ? '' : 'display:none;' ?>background-color:#<?= $get_ticket['flag_colour'] ?>;">Flagged<?= empty($flag_comment) ? '' : ': '.$flag_comment ?></span></h3>
 			<hr>
 		</div>
 	<?php }
@@ -1175,7 +1187,7 @@ var setHeading = function() {
 	</div>
 	<div class="<?= $calendar_ticket_slider != 'accordion' ? 'show-on-mob' : 'main-screen' ?> panel-group block-panels col-xs-12 form-horizontal" style="background-color: #fff; padding: 0; margin-left: 5px; width: calc(100% - 10px); height: 100%;" id="mobile_tabs">
 		<?php if($wait_on_approval) {
-			echo '<h4>Awaiting Admin Approval</h4>';
+			echo '<h4>Submitted for Administration Approval</h4>';
 		} ?>
 		<?php $current_heading = '';
 		$current_heading_closed = true;
@@ -1962,7 +1974,7 @@ var setHeading = function() {
                 <div class="panel panel-default">
                     <div class="panel-heading mobile_load">
                         <h4 class="panel-title">
-                            <a data-toggle="collapse" data-parent="#mobile_tabs<?= $heading_id ?>" <?= $indent_accordion_text ?> href="#collapse_ticket_delivery_<?= $ticket_stop['id'] ?>">
+                            <a data-toggle="collapse" data-parent="#mobile_tabs<?= $heading_id ?>" <?= $indent_accordion_text ?> href="#collapse_ticket_delivery">
 
                                 <?= (!empty($renamed_accordion) ? $renamed_accordion : 'Delivery Details') ?><span class="glyphicon glyphicon-plus"></span>
                             </a>
@@ -2648,7 +2660,6 @@ var setHeading = function() {
 			<?php if (strpos($value_config, ','."Customer Notes".',') !== FALSE && $sort_field == 'Customer Notes') {
                 $stopid = filter_var($_GET['stop'],FILTER_SANITIZE_STRING);
                 $stop_list = $dbc->query("SELECT * FROM `ticket_schedule` WHERE `ticketid`='$ticketid' AND `deleted`=0 AND '$stopid' IN (`id`,'')");
-
                 if($stop_list->num_rows > 0) { ?>
                     <div class="panel panel-default">
                         <div class="panel-heading mobile_load higher_level_heading">
@@ -2685,8 +2696,8 @@ var setHeading = function() {
                     <div class="panel panel-default">
                         <div class="panel-heading mobile_load">
                             <h4 class="panel-title">
-                                <a data-toggle="collapse" data-parent="#mobile_tabs<?= $heading_id ?>" <?= $indent_accordion_text ?> href="#collapse_ticket_customer_notes_<?= $ticket_stop['id'] ?>">
-                                    <?= (!empty($renamed_accordion) ? $renamed_accordion : 'Customer Notes').($ticket_stop['id'] > 0 ? ': '.(empty($ticket_stop['client_name']) ? $ticket_stop['location_name'] : $ticket_stop['client_name']) : '') ?><span class="glyphicon glyphicon-plus"></span>
+                                <a data-toggle="collapse" data-parent="#mobile_tabs<?= $heading_id ?>" <?= $indent_accordion_text ?> href="#collapse_ticket_customer_notes">
+                                    <?= (!empty($renamed_accordion) ? $renamed_accordion : 'Customer Notes') ?><span class="glyphicon glyphicon-plus"></span>
 
                                 </a>
                             </h4>
@@ -2766,7 +2777,7 @@ var setHeading = function() {
 						</div>
 					<?php } ?>
 					<?= '<div class="pull-right" style="position: relative; bottom: 0.3em;">'.$quick_action_html.'</div>' ?>
-					<span class="flag-label" style="<?= $get_ticket['flag_colour'] != '' && $get_ticket['flag_colour'] != 'FFFFFF' ? '' : 'dispaly:none;' ?>background-color:#<?= $get_ticket['flag_colour'] ?>;"><?= $flag_comment ?></span>
+					<span class="flag-label" style="<?= $get_ticket['flag_colour'] != '' && $get_ticket['flag_colour'] != 'FFFFFF' ? '' : 'display:none;' ?>background-color:#<?= $get_ticket['flag_colour'] ?>;"><?= $flag_comment ?></span>
 					<span class="sync_recurrences_note" style="display: none; color: red;"><div class="clearfix"></div><b>You are editing all Recurrences of this <?= TICKET_NOUN?>. Please refresh the page if you would like to edit only this occurrence.</b></span>
 				</h3>
                 <div class="menu-bar" style="display:none; position:fixed; right:20px; z-index:1;">

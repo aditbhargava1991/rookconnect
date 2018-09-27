@@ -2831,6 +2831,9 @@ if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) {
 							<?php if($field_sort_field == 'Delivery Summary Address') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Delivery Summary Address", $all_config) ? 'checked disabled' : (in_array("Delivery Summary Address", $value_config) ? "checked" : '') ?> value="Delivery Summary Address" name="tickets[]"> Delivery Address</label>
 							<?php } ?>
+							<?php if($field_sort_field == 'Delivery Summary Services') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Delivery Summary Services", $all_config) ? 'checked disabled' : (in_array("Delivery Summary Services", $value_config) ? "checked" : '') ?> value="Delivery Summary Services" name="tickets[]"> Delivery Services</label>
+							<?php } ?>
 							<?php if($field_sort_field == 'Delivery Summary Status') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Delivery Summary Status", $all_config) ? 'checked disabled' : (in_array("Delivery Summary Status", $value_config) ? "checked" : '') ?> value="Delivery Summary Status" name="tickets[]"> Delivery Status</label>
 							<?php } ?>
@@ -3221,6 +3224,9 @@ if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode) {
 							<?php } ?>
 							<?php if($field_sort_field == 'Billing Misc') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Billing Misc", $all_config) ? 'checked disabled' : (in_array("Billing Misc", $value_config) ? "checked" : '') ?> value="Billing Misc" name="tickets[]"> List Miscellaneous Items</label>
+							<?php } ?>
+							<?php if($field_sort_field == 'Billing Surcharge') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Billing Surcharge", $all_config) ? 'checked disabled' : (in_array("Billing Surcharge", $value_config) ? "checked" : '') ?> value="Billing Surcharge" name="tickets[]"> Fuel Service Charge</label>
 							<?php } ?>
 							<?php if($field_sort_field == 'Billing Discount') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Billing Discount", $all_config) ? 'checked disabled' : (in_array("Billing Discount", $value_config) ? "checked" : '') ?> value="Billing Discount" name="tickets[]"> Discount per Item</label>

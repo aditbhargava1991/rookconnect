@@ -501,7 +501,7 @@ function saveFieldMethod(field) {
 				save_value = value.join('#*#');
 			} else if($(field).is('[data-concat]')) {
 				var value = [];
-				$('[name='+field.name+'][data-concat="'+$(field).data('concat')+'"]').filter(function() { return $(this).data('id') == $(field).data('id'); }).each(function() {
+				$('[name='+field.name+'][data-concat="'+$(field).data('concat')+'"]').filter(function() { return $(this).data('id') == $(field).data('id') && $(this).data('group') == $(field).data('group'); }).each(function() {
 					if(!$(this).is(':disabled') && (this.type != 'checkbox' || this.checked)) {
 						value.push(this.value);
 					}
@@ -875,7 +875,33 @@ function saveFieldMethod(field) {
 							}
 						}, 250);
 					}
-					if(field_name == 'serviceid' || field_name == 'service_qty') {
+					if(field_name == 'businessid' && table_name == 'tickets') {
+                        $.get('../Ticket/ticket_ajax_all.php', {
+                            action: 'business_services',
+                            business: $('[name=businessid]').val()
+                        }, function(response) {
+                            $('[name=serviceid]').empty().html(response);
+                            $.get('../Ticket/ticket_ajax_all.php', {
+                                contactid: $('[name=businessid]').val(),
+                                action: 'list_customer_service_templates'
+                            }, function(response) {
+                                $('[name=default_services]').val(response);
+                                $('[name=default_services]').each(function() {
+                                    var services = this.value.trim(',').split(',');
+                                    for(var i = 0; i < services.length; i++) {
+                                        $('.scheduled_stop [name=serviceid]').last().each(function() {
+                                            if(services[i] > 0) {
+                                                if(i > 0) {
+                                                    addMulti(this);
+                                                }
+                                                $(this).val(services[i]).change();
+                                            }
+                                        });
+                                    }
+                                });
+                            });
+                        });
+                    } else if(field_name == 'serviceid' || field_name == 'service_qty') {
 						clearTimeout(ticket_reloading_service_checklist);
 						ticket_reloading_service_checklist = setTimeout(function() {
 							reload_service_checklist();
@@ -2043,7 +2069,7 @@ function addMulti(img, style, clone_location = '') {
 	block.find('[data-table=tickets][data-id]').each(function() {
 		$(this).data('id',(source.find('[name='+this.name+']').data('id')));
 	});
-	block.find('[data-id][data-table][data-table!=tickets][data-table!=contacts_medical]').data('id','');
+	block.not('.no_id_reset').find('[data-id][data-table][data-table!=tickets][data-table!=contacts_medical]').data('id','');
 	block.find('[name="ticket_comment_email_sender[]"]').val(user_email);
 	block.find('[name*=qty]').val(1);
 	block.find('[data-verified-shift]').data('verified-shift','');
@@ -2083,7 +2109,10 @@ function remMulti(img) {
 		var field_name = first_block.attr('name');
 		var field_table = first_block.data('table');
 		block.remove();
-		$('[name='+field_name+'][data-table='+field_table+']').first().change();
+		panel.find('[name='+field_name+'][data-table='+field_table+']').first().change();
+        if(panel.find('[name='+field_name+'][data-table='+field_table+']').length < 1) {
+            $('[name='+field_name+'][data-table='+field_table+']').first().change();
+        }
 	} else {
 		block.find('[data-table]').first().change();
 		block.hide();
@@ -2497,14 +2526,6 @@ function addScheduledStop() {
 	});
 	clone.find('[data-id][data-table]').data('id','');
 	clone.find('[data-table]').not('[name=equipmentid],[name=to_do_date],[name=order_number]').val('');
-	var default_services = $('[name=default_services]').val()
-	if(default_services != undefined) {
-		default_services.split(',').forEach(function(service) {
-			if(service > 0) {
-				clone.find('[name=serviceid]').find('option[value='+service+']').prop('selected');
-			}
-		});
-	}
 	$('.scheduled_stop:visible').last().after(clone).after('<hr>');
 	initInputs('.scheduled_stop');
 	setSave();
@@ -2512,6 +2533,19 @@ function addScheduledStop() {
 	if(defaultStatus != '') {
 		clone.find('[name=status]').val(defaultStatus).trigger('change.select2');
 	}
+    $('[name=default_services]').each(function() {
+        var services = this.value.trim(',').split(',');
+        for(var i = 0; i < services.length; i++) {
+            clone.find('[name=serviceid]').last().each(function() {
+                if(services[i] > 0) {
+                    if(i > 0) {
+                        addMulti(this);
+                    }
+                    $(this).val(services[i]).change();
+                }
+            });
+        }
+    });
 	sortScheduledStops();
 	$('.scheduled_stop').last().find('input').first().focus();
 }
@@ -2996,8 +3030,12 @@ function saveAddress(idClass, contactid) {
 function setBilling() {
 	var total = 0;
 	$('.billing tr').each(function() {
-		var line = $(this).find('[name=billing_sub]').val();
+		var line = $(this).find('[name=billing_sub]').val() * 1;
 		if(line > 0) {
+            var surcharge = $(this).find('.surcharge').val();
+            if(surcharge > 0) {
+                line += (line * surcharge / 100);
+            }
 			var discount = 0;
 			if($(this).find('.discount_type').val() == '%') {
 				discount = $(this).find('.discount').val() * line / 100;
@@ -3077,7 +3115,7 @@ function addNote(type, btn, force_allow = 0) {
 function addCommunication(type, method) {
 	if(ticketid > 0) {
 		$('.ticket_communication[data-type='+type+'][data-method='+method+']').first().addClass('reload');
-		overlayIFrameSlider('../Email Communication/add_email.php?type='+type+'&ticketid='+ticketid,'auto',false,true,'auto',false);
+		overlayIFrameSlider('../Email Communication/add_email.php?type='+type+'&ticketid='+ticketid,'75%',false,true,'auto',false);
 	} else {
 		alert('Please create the '+ticket_name+' before adding communications.');
 	}
