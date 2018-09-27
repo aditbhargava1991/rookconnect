@@ -3301,4 +3301,14 @@ if($_GET['action'] == 'update_fields') {
 	}
 
 }
+if($_GET['action'] == 'get_ticket_client') {
+	$ticketid = $_GET['ticketid'];
+	if($ticketid > 0) {
+		$ticket = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticketid` = '$ticketid'"));
+		$clientid = array_filter(explode(',',$ticket['clientid']))[0];
+		if($clientid > 0) {
+			echo $clientid;
+		}
+	}
+}
 ?>

@@ -1036,6 +1036,9 @@ function saveFieldMethod(field) {
 					if(table_name == 'tickets' && field_name == 'purchase_order') {
 						reload_po_num_dropdown();
 					}
+					if(field_name == 'clientid' && typeof filterSitesByClient == 'function') {
+						filterSitesByClient();
+					}
 					doneSaving();
 				}
 			});
