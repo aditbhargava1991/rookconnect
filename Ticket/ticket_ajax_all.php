@@ -6,7 +6,7 @@ if(!file_exists('download')) {
 }
 ob_clean();
 date_default_timezone_set('America/Denver');
-if(!($_SESSION['contactid'] > 0)) {
+if(!($_SESSION['contactid'] > 0) && !isset($_SESSION['intake_ticket'])) {
 	echo "ERROR#*#Your session has timed out. Please log in and try again.";
 	exit();
 }
@@ -1581,6 +1581,27 @@ if($_GET['action'] == 'update_fields') {
 	set_config($dbc, filter_var($_POST['field_name'],FILTER_SANITIZE_STRING), filter_var(implode(',',$_POST['fields']),FILTER_SANITIZE_STRING));
 } else if($_GET['action'] == 'ticket_overview_fields') {
 	set_config($dbc, filter_var($_POST['field_name'],FILTER_SANITIZE_STRING), filter_var(implode(',',$_POST['fields']),FILTER_SANITIZE_STRING));
+} else if($_GET['action'] == 'ticket_intake_fields') {
+	set_config($dbc, filter_var($_POST['field_name'],FILTER_SANITIZE_STRING), filter_var(implode(',',$_POST['fields']),FILTER_SANITIZE_STRING));
+} else if($_GET['action'] == 'generate_intake_url') {
+	$type = $_GET['type'];
+	$today_date = date('Y-m-d h:i:s');
+	$ticket_intake_url = preg_replace('/[^\p{L}\p{N}\s]/u', '', encryptIt($type.'_'.$today_date));
+	if(empty($type)) {
+		$config_name = 'ticket_intake_url';
+	} else {
+		$config_name = 'ticket_intake_url_'.$type;
+	}	
+	set_config($dbc, $config_name, $ticket_intake_url);
+	echo '<a href="'.WEBSITE_URL.'/Ticket/index.php?edit=0&type='.$type.'&intake_key='.$ticket_intake_url.'" target="_blank">'.WEBSITE_URL.'/Ticket/index.php?edit=0&type='.$type.'&intake_key='.$ticket_intake_url.'</a>';
+} else if($_GET['action'] == 'remove_intake_url') {
+	$type = $_GET['type'];
+	if(empty($type)) {
+		$config_name = 'ticket_intake_url';
+	} else {
+		$config_name = 'ticket_intake_url_'.$type;
+	}	
+	set_config($dbc, $config_name, '');
 } else if($_GET['action'] == 'ticket_db') {
 	// Save the settings for ticket dashboard fields
 	set_field_config($dbc, 'tickets_dashboard', filter_var(implode(',',$_POST['fields']),FILTER_SANITIZE_STRING));
