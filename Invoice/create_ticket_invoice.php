@@ -37,7 +37,7 @@ foreach($ticket_list as $ticketid) {
 			$inv_service_ticketid[] = $ticketid;
 			$inv_service_stopid[] = 0;
 			$inv_service_qty[] = $qty;
-			$price_total = ($price * $qty + $fuel);
+			$price_total = ($price * $qty * ($fuel / 100 + 100));
 			$price_total -= ($dis_type == '%' ? $discount / 100 * $price_total : $discount);
 			$inv_service_fee[] = $price_total;
 			$total_price += $price_total;
@@ -63,9 +63,13 @@ foreach($ticket_list as $ticketid) {
                 }
                 $inv_services[] = $service;
                 $inv_service_ticketid[] = $ticketid;
+
+
                 $inv_service_stopid[] = $ticket['id'];
                 $inv_service_qty[] = 1;
                 $price_total = ($price + $fuel);
+
+
                 $price_total -= ($dis_type == '%' ? $discount / 100 * $price_total : $discount);
                 $inv_service_fee[] = $price_total;
                 $total_price += $price_total;

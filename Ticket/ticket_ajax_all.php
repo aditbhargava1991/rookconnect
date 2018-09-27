@@ -3385,6 +3385,7 @@ if($_GET['action'] == 'update_fields') {
 		sync_recurring_tickets($dbc, $ticketid);
 	}
 
+
 } else if($_GET['action'] == 'ticket_click_history') {
 	$ticketid = $_POST['ticketid'];
 	$section = $_POST['section'];

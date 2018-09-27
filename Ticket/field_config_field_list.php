@@ -3227,6 +3227,9 @@ if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode && !$int
 							<?php if($field_sort_field == 'Billing Misc') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Billing Misc", $all_config) ? 'checked disabled' : (in_array("Billing Misc", $value_config) ? "checked" : '') ?> value="Billing Misc" name="tickets[]"> List Miscellaneous Items</label>
 							<?php } ?>
+							<?php if($field_sort_field == 'Billing Surcharge') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Billing Surcharge", $all_config) ? 'checked disabled' : (in_array("Billing Surcharge", $value_config) ? "checked" : '') ?> value="Billing Surcharge" name="tickets[]"> Fuel Service Charge</label>
+							<?php } ?>
 							<?php if($field_sort_field == 'Billing Discount') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Billing Discount", $all_config) ? 'checked disabled' : (in_array("Billing Discount", $value_config) ? "checked" : '') ?> value="Billing Discount" name="tickets[]"> Discount per Item</label>
 							<?php } ?>

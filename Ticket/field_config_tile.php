@@ -126,15 +126,6 @@ function saveFieldMethod(field) {
 				value: statuses.join(',')
 			}
 		});
-	} else if(this.name == 'ticket_default_session_user') {
-		$.ajax({
-			url: 'ticket_ajax_all.php?action=setting_tile',
-			method: 'POST',
-			data: {
-				field: 'ticket_default_session_user',
-				value: this.value
-			}
-		});
 	} else if(['auto_archive_unbooked_day','auto_archive_unbooked_time','ticket_default_session_user','ticket_archive_status','ticket_invoice_status'].indexOf(field.name) >= 0) {
         var value = '';
         if(field.type == 'select-multiple') {

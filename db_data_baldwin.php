@@ -1043,6 +1043,7 @@
     }
     //2018-09-25 - Ticket #9310 - Bell Notification
 
+
  //2018-09-19 - Ticket #9060 - Ticket History Icon
     $updated_already = get_config($dbc, 'updated_ticket9060_tickethistory');
     if(empty($updated_already)) {

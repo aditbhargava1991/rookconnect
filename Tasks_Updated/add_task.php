@@ -777,7 +777,7 @@ function mark_done(sel) {
 <body>
 <?php
     include_once ('../navigation.php');
-    checkAuthorised('tasks_updated');
+    checkAuthorised('tasks');
     $back_url = (isset($_SERVER['HTTPS']) ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
 ?>
 <div class="container">
