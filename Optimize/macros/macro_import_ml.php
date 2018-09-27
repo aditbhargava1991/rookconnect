@@ -110,8 +110,8 @@ if(isset($_POST['upload_file']) && !empty($_FILES['csv_file']['tmp_name'])) {
 		<li>Press the Submit button to run the macro and import the <?= TICKET_TILE ?> into the software.</li>
 		<br>
 		<p>
-			<label class="form-checkbox"><input type="radio" name="delimiter" value="newline" checked>New Line</label>
-			<label class="form-checkbox"><input type="radio" name="delimiter" value="comma">Comma</label><br>
+			<label class="form-checkbox"><input type="radio" name="delimiter" value="newline">New Line</label>
+			<label class="form-checkbox"><input type="radio" name="delimiter" value="comma" checked>Comma</label><br>
 			<label class="form-checkbox"><input type="radio" name="duplicate" value="no_dupe">No Duplicates</label>
 			<label class="form-checkbox"><input type="radio" name="duplicate" value="all_dupes" checked>Allow Duplicates</label><br>
 			<select class="chosen-select-deselect" data-placeholder="Select <?= BUSINESS_CAT ?>" name="businessid"><option />
