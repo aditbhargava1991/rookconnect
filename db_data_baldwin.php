@@ -1010,5 +1010,38 @@
     }
     //2018-09-19 - Ticket #8929 - Calendar Onlin Staff
 
+    //2018-09-25 - Ticket #9310 - Bell Notification
+    if(!mysqli_query($dbc, "CREATE TABLE `field_config_ticket_alerts` (
+        `fieldconfigid` int(11) NOT NULL,
+        `ticket_type` varchar(500) NOT NULL,
+        `enabled` int(1) NOT NULL DEFAULT 0,
+        `status` varchar(500) NOT NULL,
+        `contactid` text NOT NULL)")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `field_config_ticket_alerts`
+        ADD PRIMARY KEY (`fieldconfigid`)")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `field_config_ticket_alerts`
+        MODIFY `fieldconfigid` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "CREATE TABLE `ticket_alerts` (
+        `id` int(11) NOT NULL,
+        `ticketid` int(11) NOT NULL,
+        `sent` int(1) NOT NULL DEFAULT 0)")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `ticket_alerts`
+        ADD PRIMARY KEY (`id`)")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `ticket_alerts`
+        MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-09-25 - Ticket #9310 - Bell Notification
+
     echo "Baldwin's DB Changes Done<br />\n";
 ?>

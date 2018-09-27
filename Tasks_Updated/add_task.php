@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Add Task
  * Called From
@@ -840,7 +841,8 @@ function mark_done(sel) {
                 }
                 */
 
-            } else if(!empty($_GET['projectid'])) {
+            }
+            if(!empty($_GET['projectid'])) {
                 $task_projectid = $_GET['projectid'];
                 $project = mysqli_fetch_array(mysqli_query($dbc, "SELECT `businessid`, `clientid`, `project_path` FROM `project` WHERE `projectid`='$task_projectid'"));
                 $task_businessid = $project['businessid'];
@@ -1038,17 +1040,21 @@ function mark_done(sel) {
                     <select data-placeholder="Select a <?= TASK_NOUN ?> Path..." id="task_path" name="task_path" data-table="tasklist" data-field="task_path" class="chosen-select-deselect form-control" width="380">
                         <option value=""></option><?php
                         $project_path_milestones = [];
-                        if($task_projectid > 0) {
+
+                            $query = mysqli_query($dbc,"SELECT project_path_milestone, project_path FROM project_path_milestone");
+                            while($row = mysqli_fetch_array($query)) { ?>
+                                <option <?php if ($row['project_path_milestone'] == $task_path) { echo " selected"; } ?> value='<?php echo  $row['project_path_milestone']; ?>' ><?php echo $row['project_path']; ?></option><?php
+                            }
+                            $project_path_milestones = get_project_paths($task_projectid);
+
+                            /* if($task_projectid > 0) {
                             $project_path_milestones = get_project_paths($task_projectid);
                             foreach($project_path_milestones as $path) { ?>
                                 <option <?= $task_path == $path['path_id'] ? 'selected' : '' ?> value='<?= $path['path_id'] ?>'><?= $path['path_name'] ?></option>
                             <?php }
                         } else {
-                            $query = mysqli_query($dbc,"SELECT project_path_milestone, project_path FROM project_path_milestone");
-                            while($row = mysqli_fetch_array($query)) { ?>
-                                <option <?php if ($row['project_path_milestone'] == $task_path) { echo " selected"; } ?> value='<?php echo  $row['project_path_milestone']; ?>' ><?php echo $row['project_path']; ?></option><?php
-                            }
-                        } ?>
+                            */
+                         ?>
                     </select>
                 </div>
             </div>
@@ -1059,6 +1065,10 @@ function mark_done(sel) {
                    		$task_milestone_timeline = str_replace("FFMEND","&",$task_milestone_timeline);
                         $task_milestone_timeline = str_replace("FFMSPACE"," ",$task_milestone_timeline);
                         $task_milestone_timeline = str_replace("FFMHASH","#",$task_milestone_timeline);
+
+                        $project_milestone = str_replace("FFMEND","&",$project_milestone);
+                        $project_milestone = str_replace("FFMSPACE"," ",$project_milestone);
+                        $project_milestone = str_replace("FFMHASH","#",$project_milestone);
                 ?>
                     <select data-placeholder="Select a Milestone & Timeline..." name="task_milestone_timeline" id="task_milestone_timeline" data-table="tasklist" data-field="task_milestone_timeline"  class="chosen-select-deselect form-control" width="580">
                         <option value=""></option>
@@ -1066,7 +1076,7 @@ function mark_done(sel) {
                             foreach($project_path_milestones as $path) {
                                 if($path['path_id'] == $task_path) {
                                     foreach($path['milestones'] as $milestone) { ?>
-                                        <option <?= $task_milestone_timeline == $milestone['milestone'] ? 'selected' : '' ?> value="<?= $milestone['milestone'] ?>"><?= $milestone['label'] ?></option>
+                                        <option <?= $project_milestone == $milestone['milestone'] ? 'selected' : '' ?> value="<?= $milestone['milestone'] ?>"><?= $milestone['label'] ?></option>
                                     <?php }
                                 }
                             }

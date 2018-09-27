@@ -1069,6 +1069,41 @@ if($_GET['action'] == 'update_fields') {
 		insert_day_overview($dbc, $_SESSION['contactid'], 'Ticket', date('Y-m-d'), '', 'Updated '.TICKET_NOUN.' #'.$ticketid.(!empty($ticket_heading) ? ': '.$ticket_heading : ''), $ticketid);
 	}
 
+	//Alert users if enabled
+	if($ticketid > 0) {
+		$get_ticket = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticketid` = '$ticketid'"));
+		$ticket_type = $get_ticket['ticket_type'];
+		if($ticket_type == '') {
+			$ticket_type = get_config($dbc, 'default_ticket_type');
+		}
+		$ticket_status = $get_ticket['status'];
+		if(empty($ticket_status)) {
+			$ticket_status = get_config($dbc, 'ticket_default_status');
+		}
+		$field_config = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `field_config_ticket_alerts` WHERE `ticket_type` = '".$ticket_type."'"));
+		$ticket_alert = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `ticket_alerts` WHERE `ticketid` = '".$ticketid."'"));
+		if($field_config['enabled'] == 1 && $ticket_alert['sent'] != 1 && ($ticket_status == $field_config['status'] || empty($field_config['status']))) {
+			$ticket_tabs = explode(',',get_config($dbc, 'ticket_tabs'));
+			$type_label = TICKET_NOUN;
+			foreach($ticket_tabs as $type) {
+				if(config_safe_str($type) == $ticket_type) {
+					$type_label = $type;
+				}
+			}
+			$subject = 'New '.$type_label.' has been created - '.get_ticket_label($dbc, $get_ticket);
+			$body = "You are receiving this email because you are tagged to be alerted when a new ".$type_label." is created.
+				To review this ".TICKET_NOUN.", <a href='".WEBSITE_URL."/Ticket/index.php?edit=".$get_ticket['ticketid']."&tile_name=".$get_ticket['ticket_type']."&from_alert=1'>click here</a>.";
+			foreach(explode(',', $field_config['contactid']) as $staffid) {
+				if($staffid > 0) {
+					$email = get_email($dbc, $staffid);
+					send_email('', $email, '', '', $subject, $body);
+				    mysqli_query($dbc, "INSERT INTO `reminders` (`contactid`, `reminder_date`, `reminder_type`, `subject`, `src_table`, `src_tableid`) VALUES ('$staffid', '".date('Y-m-d')."', 'TICKET_ALERTS', '$subject', 'ticket_alerts', '$ticketid')");
+				}
+			}
+			mysqli_query($dbc, "INSERT INTO `ticket_alerts` (`ticketid`, `sent`) VALUES ('$ticketid', 1)");
+		}
+	}
+
 	if($_POST['sync_recurring_data'] == 1) {
 		sync_recurring_tickets($dbc, $ticketid);
 	} else {
@@ -3210,5 +3245,14 @@ if($_GET['action'] == 'update_fields') {
 		sync_recurring_tickets($dbc, $ticketid);
 	}
 
+} else if($_GET['action'] == 'ticket_alerts') {
+	$ticket_tab = $_POST['ticket_tab'];
+	if(!empty($ticket_tab)) {
+		$enabled = $_POST['enabled'];
+		$status = $_POST['status'];
+		$staffid = $_POST['staffid'];
+		mysqli_query($dbc, "INSERT INTO `field_config_ticket_alerts` (`ticket_type`) SELECT '$ticket_tab' FROM (SELECT COUNT(*) rows FROM `field_config_ticket_alerts` WHERE `ticket_type`='$ticket_tab') num WHERE num.rows=0");
+		mysqli_query($dbc, "UPDATE `field_config_ticket_alerts` SET `enabled`='$enabled', `status`='$status', `contactid`='$staffid' WHERE `ticket_type`='$ticket_tab'");
+	}
 }
 ?>
