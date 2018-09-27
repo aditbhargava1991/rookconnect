@@ -2063,7 +2063,12 @@ function addMulti(img, style, clone_location = '') {
 	}
 	destroyInputs(panel);
 	var block = source.clone();
-	block.find('.staff_multiple_times').find('.staff-multi-time:not(:first)').remove();
+	block.find('[data-id]').each(function() {
+        if($(this).data('id') == '') {
+            $(this).data('id',source.find('[data-table="'+$(this).data('table')+'"][name="'+this.name+'"][data-id]').data('id'));
+        }
+    });
+    block.find('.staff_multiple_times').find('.staff-multi-time:not(:first)').remove();
 	block.find('input,select,textarea').val('');
 	block.find('[data-default]').each(function() {
 		$(this).val($(this).data('default'));
