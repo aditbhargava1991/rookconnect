@@ -57,7 +57,7 @@
                         $service_line = $dbc->query("SELECT * FROM `invoice_lines` WHERE `invoiceid`='$invoiceid' AND `category`='service' AND `item_id`='$serviceid' AND `sub_total`='$fee'");
                         if($service_line->num_rows > 0) {
                             $service_line = $service_line->fetch_assoc();
-                            $fee = $service_line['unit_price'];
+                            $fee = $service_line['unit_price'] * $discount_percent;
                             $qty = round($service_line['quantity'],4);
                         } ?>
 
@@ -132,7 +132,7 @@
                         <div class="col-sm-<?= $col_fee > 0 ? $col_fee : '0 hidden' ?>"><label class="show-on-mob">Total Fee:</label>
                             <?php if($_GET['inv_mode'] == 'adjust') { ?>
                                 <input name="init_fee[]" id="<?php echo 'fee_'.$id_loop; ?>"  type="hidden" value="<?php echo $fee; ?>" class="fee" />
-                                <?= $fee ?>
+                                <?= number_format($fee,2) ?>
                             <?php } else { ?>
                                 <input name="fee[]" <?= $fee_editable ? '' : 'readonly' ?> id="<?php echo 'fee_'.$id_loop; ?>"  type="number" step="any" value="<?php echo $fee; ?>" class="form-control fee" />
                             <?php } ?>

@@ -8,6 +8,7 @@ if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode && !$int
 		$value_config[] = 'Documents Docs';
 		$value_config[] = 'Documents Links';
 	} ?>
+
 	<div class="form-group">
 		<h4 class="double-gap-top"><?= TICKET_NOUN ?> Functionality</h4>
 		<label class="form-checkbox"><input type="checkbox" <?= in_array("TEMPLATE Work Ticket", $all_config) ? 'checked disabled' : (in_array("TEMPLATE Work Ticket", $value_config) ? "checked" : '') ?> value="TEMPLATE Work Ticket" name="tickets[]" onchange="if(this.checked) { $('[type=checkbox]').not(this).removeAttr('checked'); }">
@@ -193,6 +194,7 @@ if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode && !$int
 					<input type="text" name="renamed_accordion[]" value="<?= !empty($renamed_accordion) ? $renamed_accordion : 'Customer History Button' ?>" onfocusout="updateAccordion(this);" class="form-control">
 				</div>
 				<div class="col-sm-8">
+
 					<label class="form-checkbox"><input type="checkbox" <?= in_array("Customer History", $all_config) ? 'checked disabled' : (in_array("Customer History", $value_config) ? "checked" : '') ?> value="Customer History" name="tickets[]"> Enable</label>
 					<div class="block-group">
 						<div class="fields_sortable">
