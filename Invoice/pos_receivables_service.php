@@ -125,7 +125,7 @@ $html .= '<table style="border: 2px solid black;" width="100%" cellspacing="0" c
 					<td rowspan="5" width="18%" style="border:1px solid black;">
 						'.(INVOICE_LOGO != '' ? '<img src="'.INVOICE_LOGO.'" style="width:100px;">' : '').'
 					</td>
-                    <td width="32%" colspan="3" style="border:1px solid black;">
+                    <td width="32%" rowspan="5" colspan="3" style="border:1px solid black;">
                     To : ';
                     foreach(array_unique($patient_ids) as $contactid) {
                         if($contactid == 0) {
@@ -146,29 +146,15 @@ $html .= '<table style="border: 2px solid black;" width="100%" cellspacing="0" c
 				</tr>
 				<tr height="27px">
 					<td colspan="3" style="border:1px solid black;">
-						'.$bus_address[0].'
-					</td>
-					<td colspan="3" style="border:1px solid black;">
 						'.$ship_line_1.'
 					</td>
 				</tr>
 				<tr height="27px">
 					<td colspan="3" style="border:1px solid black;">
-						'.$bus_address[1].'
-					</td>
-					<td colspan="3" style="border:1px solid black;">
 						'.$ship_line_2.'
 					</td>
 					<td rowspan="2" style="border:1px solid black;">
-						Payment Type<br />&nbsp;
-					</td>
-				</tr>
-				<tr height="27px">
-					<td colspan="3" style="border:1px solid black;">
-						'.$bus_address[2].'
-					</td>
-					<td colspan="3" style="border:1px solid black;">
-                        '.$payment_type.'
+						Payment Type : <br />'.$payment_type.'
 					</td>
 				</tr>
 			</table>
@@ -185,7 +171,7 @@ $html .= '<table style="border: 2px solid black;" width="100%" cellspacing="0" c
 					<td style="border:1px solid black; text-align:center;" width="20%">
 						Invoice#
 					</td>
-					<td colspan="5" style="border:1px solid black; text-align:center;" width="52%">
+					<td colspan="6" style="border:1px solid black; text-align:center;" width="52%">
 						Invoice Amount
 					</td>
 				</tr>';
@@ -203,7 +189,7 @@ $html .= '<table style="border: 2px solid black;" width="100%" cellspacing="0" c
                     $ar_lines[$inv[1]][5] += $inv[5];
                 }
                 foreach($ar_lines as $ar_line) {
-                    $html .= '<tr height="27px"><td style="border:1px solid black;">'.$ar_line[0].'</td><td style="border:1px solid black;">'.$ar_line[1].'</td><td style="border:1px solid black; text-align:right;">$'.number_format($ar_line[3],2).'</td></tr>';
+                    $html .= '<tr height="27px"><td style="border:1px solid black;">'.$ar_line[0].'</td><td style="border:1px solid black;">'.$ar_line[1].'</td><td colspan="6" style="border:1px solid black; text-align:right;">$'.number_format($ar_line[3],2).'</td></tr>';
                     $total_amt += $ar_line[3];
                     $sub_total += $ar_line[4];
                     $tax_amt += $ar_line[5];
@@ -211,15 +197,26 @@ $html .= '<table style="border: 2px solid black;" width="100%" cellspacing="0" c
 
 				$html .= '
 				<tr height="27px">
-					<td colspan="6" style="border:1px solid black; text-align:right;">
+					<td colspan="7" style="border:1px solid black; text-align:right;">
 						Total Due By Customer
 					</td>
 					<td style="border:1px solid black; text-align:right;">
 						$'.number_format($sub_total,2).'
 					</td>
 				</tr>
+
 				<tr height="27px">
-					<td colspan="6" style="border:1px solid black; text-align:right;">
+					<td colspan="7" style="border:1px solid black; text-align:right;">
+						GST
+					</td>
+					<td style="border:1px solid black; text-align:right;">
+						$'.number_format($gst_amt,2).'
+					</td>
+				</tr>
+
+
+				<tr height="27px">
+					<td colspan="7" style="border:1px solid black; text-align:right;">
 						Total Amount Owing
 					</td>
 					<td style="border:1px solid black; text-align:right;">
@@ -228,7 +225,7 @@ $html .= '<table style="border: 2px solid black;" width="100%" cellspacing="0" c
 				</tr>
 
 				<tr height="27px">
-					<td colspan="6" style="border:1px solid black; text-align:right;">
+					<td colspan="7" style="border:1px solid black; text-align:right;">
 						Payment By
 					</td>
 					<td style="border:1px solid black; text-align:right;">
@@ -236,7 +233,7 @@ $html .= '<table style="border: 2px solid black;" width="100%" cellspacing="0" c
 					</td>
 				</tr>
 				<tr height="27px">
-					<td colspan="6" style="border:1px solid black; text-align:right;">
+					<td colspan="7" style="border:1px solid black; text-align:right;">
 						Balance
 					</td>
 					<td style="border:1px solid black; text-align:right;">
@@ -250,12 +247,6 @@ $html .= '<table style="border: 2px solid black;" width="100%" cellspacing="0" c
 					</td>
 					<td colspan="3" rowspan="2" style="border:1px solid black; text-align:center;">
 						GST Registration<br />'.$gst_registrant.'
-					</td>
-					<td colspan="2" style="border:1px solid black; text-align:right;">
-						GST
-					</td>
-					<td style="border:1px solid black; text-align:right;">
-						$'.number_format($gst_amt,2).'
 					</td>
 				</tr>
 
