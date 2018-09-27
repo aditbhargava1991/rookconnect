@@ -49,7 +49,6 @@ foreach($ticket_list as $ticketid) {
                 $fuel = explode(',',$ticket['service_fuel_charge'])[$i + $srv_i];
                 $discount = explode(',',$stop['service_discount'])[$i];
                 $dis_type = explode(',',$stop['service_discount_type'])[$i];
-
                 $price = 0;
                 $customer_rate = $dbc->query("SELECT `services` FROM `rate_card` WHERE `clientid`='".$ticket['businessid']."' AND `deleted`=0 AND `on_off`=1")->fetch_assoc();
                 foreach(explode('**',$customer_rate['services']) as $service_rate) {
@@ -65,9 +64,11 @@ foreach($ticket_list as $ticketid) {
                 $inv_services[] = $service;
                 $inv_service_ticketid[] = $ticketid;
 
+
                 $inv_service_stopid[] = $ticket['id'];
                 $inv_service_qty[] = 1;
                 $price_total = ($price + $fuel);
+
 
                 $price_total -= ($dis_type == '%' ? $discount / 100 * $price_total : $discount);
                 $inv_service_fee[] = $price_total;

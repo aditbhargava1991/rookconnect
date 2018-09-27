@@ -54,11 +54,11 @@
 
                         $fee = $each_fee[$client_loop];
                         $qty = 1;
-                        $service_line = $dbc->query("SELECT * FROM `invoice_lines` WHERE `invoiceid`='$invoiceid' AND `category`='service' AND `item_id`='$serviceid' AND `total`='$fee'");
+                        $service_line = $dbc->query("SELECT * FROM `invoice_lines` WHERE `invoiceid`='$invoiceid' AND `category`='service' AND `item_id`='$serviceid' AND `sub_total`='$fee'");
                         if($service_line->num_rows > 0) {
                             $service_line = $service_line->fetch_assoc();
                             $fee = $service_line['unit_price'];
-                            $qty = $service_line['quantity'];
+                            $qty = round($service_line['quantity'],4);
                         } ?>
 
                     <div class="form-group clearfix">
@@ -131,7 +131,7 @@
 
                         <div class="col-sm-<?= $col_fee > 0 ? $col_fee : '0 hidden' ?>"><label class="show-on-mob">Total Fee:</label>
                             <?php if($_GET['inv_mode'] == 'adjust') { ?>
-                                <input name="fee[]" id="<?php echo 'fee_'.$id_loop; ?>"  type="hidden" value="<?php echo $fee; ?>" class="fee" />
+                                <input name="init_fee[]" id="<?php echo 'fee_'.$id_loop; ?>"  type="hidden" value="<?php echo $fee; ?>" class="fee" />
                                 <?= $fee ?>
                             <?php } else { ?>
                                 <input name="fee[]" <?= $fee_editable ? '' : 'readonly' ?> id="<?php echo 'fee_'.$id_loop; ?>"  type="number" step="any" value="<?php echo $fee; ?>" class="form-control fee" />
@@ -141,8 +141,10 @@
                         </div>
 
                         <div class="col-sm-2">
+                            <!-- Hidden on Returns/Adjustment
                             <img src="<?= WEBSITE_URL ?>/img/remove.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right cursor-hand adjust_block" onclick="rem_service_row(this);">
                             <img src="<?= WEBSITE_URL ?>/img/icons/ROOK-add-icon.png" style="height: 1.5em; margin: 0.25em; width: 1.5em;" class="pull-right cursor-hand adjust_block" onclick="add_service_row();">
+                            -->
                             <label class="return_block"><input type="checkbox" name="servicerow_refund[]" value="<?= $client_loop ?>" onchange="countTotalPrice()"> Refund</label>
                         </div>
 

@@ -269,13 +269,19 @@ if($type == 'Ticket') {
 		(in_array('timer',$quick_actions) ? '<span title="Track Time" onclick="track_time(this); return false;"><img src="../img/icons/ROOK-timer2-icon.png" title="Track Time" class="inline-img no-toggle" onclick="return false;"></span>' : '').
 		(in_array('archive',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/trash-icon-red.png" class="inline-img archive-icon" title="Archive">' : '').'</span>';
 
-	$label = '<input type="checkbox" name="status" data-table="tasklist" data-id="'.$item['tasklistid'].'" onchange="mark_done(this);" data-id-field="tasklistid" '.($item['status'] == $status_complete ? 'checked' : '').' data-incomplete="'.$status_incomplete.'" value="'.$item['tasklistid'].'" class="form-checkbox no-margin small pull-left" '.(!($security['edit'] > 0) ? 'readonly disabled' : '').'>
+	$label = '<input type="checkbox" name="status" onchange="mark_done(this);" '.($item['status'] == 'Done' ? 'checked' : '').' value="'.$item['tasklistid'].'" class="form-checkbox no-margin small pull-left" '.(!($security['edit'] > 0) ? 'readonly disabled' : '').'>
 		<div class="pull-left" style="max-width: calc(100% - 4em);margin:0 0.5em;">';
 
         $slider_layout = !empty(get_config($dbc, 'tasks_slider_layout')) ? get_config($dbc, 'tasks_slider_layout') : 'accordion';
 
         if($slider_layout == 'accordion') {
-            $label .= '<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Tasks_Updated/add_task.php?type='.$item['status'].'&projectid='.$item['projectid'].'&tasklistid='.$item['tasklistid'].'\', \'50%\', false, false, $(\'.iframe_overlay\').closest(\'.container\').outerHeight() + 20); return false;">Task #'.$item['tasklistid'].': </a>';
+
+            if($item['status'] == 'Done') {
+                $label .= '<strike><a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Tasks_Updated/add_task.php?type='.$item['status'].'&projectid='.$item['projectid'].'&tasklistid='.$item['tasklistid'].'\', \'50%\', false, false, $(\'.iframe_overlay\').closest(\'.container\').outerHeight() + 20); return false;">Task #'.$item['tasklistid'].': </a></strike>';
+            } else {
+                $label .= '<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Tasks_Updated/add_task.php?type='.$item['status'].'&projectid='.$item['projectid'].'&tasklistid='.$item['tasklistid'].'\', \'50%\', false, false, $(\'.iframe_overlay\').closest(\'.container\').outerHeight() + 20); return false;">Task #'.$item['tasklistid'].': </a>';
+            }
+
         } else {
             $label .= '<a href="../Tasks_Updated/add_task_full_view.php?type='.$item['status'].'&projectid='.$item['projectid'].'&tasklistid='.$item['tasklistid'].'">Task #'.$item['tasklistid'].': </a>';
         }

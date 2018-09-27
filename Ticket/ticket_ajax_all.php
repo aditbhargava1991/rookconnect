@@ -1257,10 +1257,24 @@ if($_GET['action'] == 'update_fields') {
 	}
 } else if($_GET['action'] == 'complete') {
 	$ticketid = filter_var($_GET['ticketid'],FILTER_SANITIZE_STRING);
+	$value_config = ','.get_field_config($dbc, 'tickets').',';
+	if($ticketid > 0) {
+		$get_ticket = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT * FROM tickets WHERE ticketid='$ticketid'"));
+		$ticket_type = $get_ticket['ticket_type'];
+	}
+	if($ticket_type == '') {
+		$ticket_type = get_config($dbc, 'default_ticket_type');
+	}
+	if(!empty($ticket_type)) {
+		$value_config .= get_config($dbc, 'ticket_fields_'.$ticket_type).',';
+	}
 	$result = [];
-	$ready = mysqli_query($dbc, "SELECT `created_by` `contact`, 'Running Timer' `status` FROM `ticket_timer` WHERE `ticketid`='$ticketid' AND `ticketid` > 0 AND `start_timer_time` > 0 AND `end_time` IS NULL AND `deleted` = 0 UNION
-		SELECT `item_id` `contact`, CONCAT('Checked In ',`src_table`) `status` FROM `ticket_attached` WHERE `src_table` IN ('Staff','Staff_Tasks','Members','Clients') AND `item_id` > 0 AND `arrived` != `completed` AND `deleted`=0 AND `ticketid`='$ticketid' AND `ticketid` > 0 UNION
-		SELECT `item_id` `contact`, 'Notes Not Complete' `status` FROM `ticket_attached` WHERE `src_table` IN ('Staff') AND `item_id` > 0 AND `deleted`=0 AND `ticketid`='$ticketid' AND `ticketid` > 0 AND `discrepancy`=0 AND `item_id` NOT IN (SELECT `created_by` FROM `ticket_comment` WHERE `ticketid`='$ticketid' AND `ticketid` > 0 AND `deleted`=0 UNION SELECT `created_by` FROM `client_daily_log_notes` WHERE `ticketid`='$ticketid' AND `ticketid` > 0 AND `deleted`=0)");
+	$sql = "SELECT `created_by` `contact`, 'Running Timer' `status` FROM `ticket_timer` WHERE `ticketid`='$ticketid' AND `ticketid` > 0 AND `start_timer_time` > 0 AND `end_time` IS NULL AND `deleted` = 0 UNION
+		SELECT `item_id` `contact`, CONCAT('Checked In ',`src_table`) `status` FROM `ticket_attached` WHERE `src_table` IN ('Staff','Staff_Tasks','Members','Clients') AND `item_id` > 0 AND `arrived` != `completed` AND `deleted`=0 AND `ticketid`='$ticketid' AND `ticketid` > 0";
+	if(strpos($value_config, ',Complete Do Not Require Notes,') === FALSE) {
+		$sql .= " UNION SELECT `item_id` `contact`, 'Notes Not Complete' `status` FROM `ticket_attached` WHERE `src_table` IN ('Staff') AND `item_id` > 0 AND `deleted`=0 AND `ticketid`='$ticketid' AND `ticketid` > 0 AND `discrepancy`=0 AND `item_id` NOT IN (SELECT `created_by` FROM `ticket_comment` WHERE `ticketid`='$ticketid' AND `ticketid` > 0 AND `deleted`=0 UNION SELECT `created_by` FROM `client_daily_log_notes` WHERE `ticketid`='$ticketid' AND `ticketid` > 0 AND `deleted`=0)";
+	}
+	$ready = mysqli_query($dbc, $sql);
 	if(mysqli_num_rows($ready) > 0 && !isset($_GET['force'])) {
 		$result = [success => false,message => ''];
 		$result['message'] .= "Unable to complete ".TICKET_NOUN.":\n";
@@ -3245,6 +3259,16 @@ if($_GET['action'] == 'update_fields') {
 		sync_recurring_tickets($dbc, $ticketid);
 	}
 
+
+} else if($_GET['action'] == 'ticket_click_history') {
+	$ticketid = $_POST['ticketid'];
+	$section = $_POST['section'];
+	$label = $_POST['label'];
+	$icon = $_POST['icon'];
+
+	// Record History
+	mysqli_query($dbc, "INSERT INTO `ticket_history` (`ticketid`, `userid`, `description`) VALUES ('$ticketid','{$_SESSION['contactid']}','Clicked on $icon for $label in $section section')");
+
 } else if($_GET['action'] == 'ticket_alerts') {
 	$ticket_tab = $_POST['ticket_tab'];
 	if(!empty($ticket_tab)) {
@@ -3254,5 +3278,6 @@ if($_GET['action'] == 'update_fields') {
 		mysqli_query($dbc, "INSERT INTO `field_config_ticket_alerts` (`ticket_type`) SELECT '$ticket_tab' FROM (SELECT COUNT(*) rows FROM `field_config_ticket_alerts` WHERE `ticket_type`='$ticket_tab') num WHERE num.rows=0");
 		mysqli_query($dbc, "UPDATE `field_config_ticket_alerts` SET `enabled`='$enabled', `status`='$status', `contactid`='$staffid' WHERE `ticket_type`='$ticket_tab'");
 	}
+
 }
 ?>

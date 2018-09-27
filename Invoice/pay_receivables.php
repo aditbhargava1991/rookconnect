@@ -56,6 +56,9 @@ if (isset($_POST['submit_patient'])) {
 			break;
 		case 3:
 			//include('pos_invoice_3.php');
+            include ('pos_receivables_2.php');
+			break;
+		case 3:
             include ('pos_receivables_3.php');
 			break;
 		case 4:

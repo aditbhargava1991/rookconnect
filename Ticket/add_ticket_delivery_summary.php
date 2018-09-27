@@ -18,7 +18,7 @@
                 <?php if (strpos($value_config, ','."Delivery Summary Status".',') !== FALSE && $field_sort_field == 'Delivery Summary Status') { ?>
                     <th>Status</th>
                 <?php } ?>
-            <?php } ?>            
+            <?php } ?>
         </tr>
         <?php $ticket_stops = mysqli_query($dbc, "SELECT * FROM `ticket_schedule` WHERE `ticketid`='$ticketid' AND `deleted`=0 AND `type` != 'origin' AND `type` != 'destination' $stop_id ORDER BY `sort`");
         $stop_i = 0;
