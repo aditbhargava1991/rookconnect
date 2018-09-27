@@ -24,7 +24,7 @@ if(isset($_POST['upload_file']) && !empty($_FILES['csv_file']['tmp_name'])) {
 
 	$current_order = '';
 	$ticket_list = [];
-	$to_do_start_time = date('H:i',strtotime($to_do_start_time));
+    $to_do_start_time = '08:00';
 	while ($csv = fgetcsv($handle)) {
 		if(count(array_filter($csv)) < 5) {
 			continue;
