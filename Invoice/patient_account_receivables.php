@@ -16,7 +16,7 @@ error_reporting(0);
 $purchaser_config = explode(',',get_config($dbc, 'invoice_purchase_contact'));
 $purchaser_label = count($purchaser_config) > 1 ? 'Customer' : $purchaser_config[0];
  ?>
- 
+
 <script type="text/javascript">
 $(document).ready(function() {
 	$(window).resize(function() {
@@ -296,7 +296,7 @@ function add_reminder(invoiceid) {
         <?php
             echo report_receivables($dbc, $starttime, $endtime, '', '', '', $patient, $invoice_no);
         ?>
-        
+
         <?php $show_statement = ($patient > 0);
         if($show_statement) {
             $category = get_field_value('category','contacts','contactid',$patient);
@@ -313,7 +313,7 @@ function add_reminder(invoiceid) {
 function report_receivables($dbc, $starttime, $endtime, $table_style, $table_row_style, $grand_total_style, $patient, $invoice_no) {
     $purchaser_config = explode(',',get_config($dbc, 'invoice_purchase_contact'));
     $purchaser_label = count($purchaser_config) > 1 ? 'Customer' : $purchaser_config[0];
-    
+
     if($starttime == 0000-00-00) {
         $starttime = '0000-00-00';
     }

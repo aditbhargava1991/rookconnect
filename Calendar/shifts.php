@@ -764,7 +764,7 @@ function createShiftFor(input) {
                         <div class="clearfix"></div>
                     </div>
                 </div>
-                
+
                 <?php if (strpos($enabled_fields, ',dayoff_type,') !== FALSE) { ?>
                     <div class="col-xs-6">
                         <div class="form-group">
@@ -861,7 +861,7 @@ function createShiftFor(input) {
                             <div class="pull-left pad-left pad-right"> - </div>
                             <div class="pull-left"><input type="text" placeholder="End Time" name="shift_break_endtime" class="form-control datetimepicker" value="<?= $break_endtime ?>"></div>
                         </div>
-                        
+
                         <div class="clearfix"></div>
                         <hr class="offset-bottom-5">
                     </div>

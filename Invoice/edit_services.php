@@ -54,11 +54,11 @@
 
                         $fee = $each_fee[$client_loop];
                         $qty = 1;
-                        $service_line = $dbc->query("SELECT * FROM `invoice_lines` WHERE `invoiceid`='$invoiceid' AND `category`='service' AND `item_id`='$serviceid' AND `total`='$fee'");
+                        $service_line = $dbc->query("SELECT * FROM `invoice_lines` WHERE `invoiceid`='$invoiceid' AND `category`='service' AND `item_id`='$serviceid' AND `sub_total`='$fee'");
                         if($service_line->num_rows > 0) {
                             $service_line = $service_line->fetch_assoc();
                             $fee = $service_line['unit_price'];
-                            $qty = $service_line['quantity'];
+                            $qty = round($service_line['quantity'],4);
                         } ?>
 
                     <div class="form-group clearfix">
@@ -131,7 +131,7 @@
 
                         <div class="col-sm-<?= $col_fee > 0 ? $col_fee : '0 hidden' ?>"><label class="show-on-mob">Total Fee:</label>
                             <?php if($_GET['inv_mode'] == 'adjust') { ?>
-                                <input name="fee[]" id="<?php echo 'fee_'.$id_loop; ?>"  type="hidden" value="<?php echo $fee; ?>" class="fee" />
+                                <input name="init_fee[]" id="<?php echo 'fee_'.$id_loop; ?>"  type="hidden" value="<?php echo $fee; ?>" class="fee" />
                                 <?= $fee ?>
                             <?php } else { ?>
                                 <input name="fee[]" <?= $fee_editable ? '' : 'readonly' ?> id="<?php echo 'fee_'.$id_loop; ?>"  type="number" step="any" value="<?php echo $fee; ?>" class="form-control fee" />

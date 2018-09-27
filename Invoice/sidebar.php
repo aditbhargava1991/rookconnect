@@ -286,6 +286,9 @@
                     case 'checkin': ?>
                         <li class="sidebar-higher-level <?= $_GET['tab'] == 'checkin' ? 'active' : '' ?>"><a href="index.php?tab=checkin">Check In</a></li><?php
                         break;
+                    /*
+
+                    */
 
                     case 'today': ?>
                         <li class="sidebar-higher-level <?= $_GET['tab'] == 'today' || $_GET['tab'] == '' ? 'active' : '' ?>"><a href="index.php?tab=today">Today's Summary</a></li><?php

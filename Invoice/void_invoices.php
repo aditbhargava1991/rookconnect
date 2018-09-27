@@ -193,12 +193,12 @@ function show_hide_email() {
                     }
                     $search_invoiceid = isset($_POST['search_invoiceid']) ? preg_replace('/[^0-9]/', '', $_POST['search_invoiceid']) : '';
                 }
-                
+
                 $search_clause = $search_contact > 0 ? " AND `patientid`='$search_contact'" : '';
                 $search_clause .= $search_from != '' ? " AND `invoice_date` >= '$search_from'" : '';
                 $search_clause .= $search_to != '' ? " AND `invoice_date` <= '$search_to'" : '';
                 $search_invoice_clause = !empty($search_invoiceid) ? " AND `invoiceid`='$search_invoiceid'" : '';
-                
+
                 $total_invoices = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT SUM(`final_price`) `final_price` FROM `invoice` WHERE `deleted`=0 $search_clause $search_invoice_clause AND `status`='Void'")); ?>
                 <div class="text-lg"><?= ( $total_invoices['final_price'] > 0 ) ? '$'.number_format($total_invoices['final_price'], 2) : '$'. 0; ?></div>
                 <div>Total Invoices</div>
@@ -209,7 +209,7 @@ function show_hide_email() {
 
     <form name="invoice" method="post" action="" class="form-horizontal" role="form">
         <?php $value_config = ','.get_config($dbc, 'invoice_dashboard').','; ?>
-        
+
         <div class="form-group search-group double-gap-top">
             <div class="col-xs-12">
                 <div class="col-sm-6 col-xs-12">

@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Add Task
  * Called From
@@ -186,7 +187,9 @@ if (isset($_POST['tasklist'])) {
 
 	// Record Changes
 	$changes = htmlentities(implode('<br />',$changes));
-    $task_comment = htmlentities($_POST['task_comment']);
+    $task_comment = filter_var(htmlentities($_POST['task_comment']),FILTER_SANITIZE_STRING);
+
+    //$task_comment = htmlentities($_POST['task_comment']);
     if ( !empty($task_comment) ) {
         mysqli_query($dbc, "INSERT INTO `task_comments` (`tasklistid`, `created_by`, `created_date`, `comment`) VALUES ('$tasklistid', '".$_SESSION['contactid']."', DATE(NOW()), '$task_comment')");
     }
@@ -523,6 +526,18 @@ $(document).ready(function () {
         });
         $(this).addClass('hidden');
         $(this).next('.stop-timer-btn').removeClass('hidden');
+        var taskid = $(this).data('id');
+
+        var contactid = '<?= $_SESSION['contactid'] ?>';
+		if ( taskid!='' && typeof taskid!='undefined') {
+            $.ajax({
+                type: "GET",
+                url: "../Tasks_Updated/task_ajax_all.php?fill=start_timer&taskid="+taskid+"&contactid="+contactid,
+                dataType: "html",
+                success: function(response) {
+                }
+            });
+        }
     });
 
     $('.full-btn').on('click', function() {
@@ -648,7 +663,7 @@ function quick_add_time(task) {
 			});
 		}
 	});
-	$(task).timepicker('show');
+	//$(task).timepicker('show');
 }
 
 function manual_add_time(task) {
@@ -840,7 +855,8 @@ function mark_done(sel) {
                 }
                 */
 
-            } else if(!empty($_GET['projectid'])) {
+            }
+            if(!empty($_GET['projectid'])) {
                 $task_projectid = $_GET['projectid'];
                 $project = mysqli_fetch_array(mysqli_query($dbc, "SELECT `businessid`, `clientid`, `project_path` FROM `project` WHERE `projectid`='$task_projectid'"));
                 $task_businessid = $project['businessid'];
@@ -932,11 +948,11 @@ function mark_done(sel) {
                         <?php if(strpos($task_fields, ',Board Type,') !== FALSE) { ?>
 
             <div class="form-group">
-                <label for="site_name" class="col-sm-4 control-label"><?php echo (strpos($task_mandatory_fields, ',Board Type,') !== FALSE ? '<font color="red">* </font>' : ''); ?><?= TASK_NOUN ?> Board Type:</label>
+                <label for="site_name" class="col-sm-4"><?php echo (strpos($task_mandatory_fields, ',Board Type,') !== FALSE ? '<font color="red">* </font>' : ''); ?><?= TASK_NOUN ?> Board Type:</label>
                 <div class="col-sm-8">
                     <select data-placeholder="Select a <?= TASK_NOUN ?> Board Type..." name="task_board_type" id="task_board_type" class="<?php echo (strpos($task_mandatory_fields, ',Board Type,') !== FALSE ? 'required' : ''); ?> chosen-select-deselect form-control" data-field="board_security" width="380">
                         <option></option>
-                        <option value="Private" <?= $board_security=='Private' ? 'selected' : '' ?>>Private</option><?php
+                        <?php
                         $all_board_types = mysqli_fetch_array(mysqli_query($dbc, "SELECT task_dashboard_tile FROM task_dashboard"));
                         foreach(explode(',', $all_board_types['task_dashboard_tile']) as $board_type) {
                             $board_type = str_replace(' Tasks', '', $board_type);
@@ -958,7 +974,7 @@ function mark_done(sel) {
 
                         <?php if(strpos($task_fields, ',Board Name,') !== FALSE) { ?>
             <div class="form-group hide_task_board_name">
-                <label for="site_name" class="col-sm-4 control-label"><?php echo (strpos($task_mandatory_fields, ',Board Name,') !== FALSE ? '<font color="red">* </font>' : ''); ?><?= TASK_NOUN ?> Board Name:</label>
+                <label for="site_name" class="col-sm-4"><?php echo (strpos($task_mandatory_fields, ',Board Name,') !== FALSE ? '<font color="red">* </font>' : ''); ?><?= TASK_NOUN ?> Board Name:</label>
                 <div class="col-sm-8">
                     <select data-placeholder="Select a <?= TASK_NOUN ?> Board..." name="task_board" class="<?php echo (strpos($task_mandatory_fields, ',Board Name,') !== FALSE ? 'required' : ''); ?> chosen-select-deselect form-control" data-table="tasklist" data-field="task_board" width="380">
                         <option></option>
@@ -972,7 +988,7 @@ function mark_done(sel) {
                 </div>
             </div>
             <div class="form-group clearfix new-board-name" style="display:none;">
-                <label for="first_name" class="col-sm-4 control-label text-right">New <?= TASK_NOUN ?> Board Name:</label>
+                <label for="first_name" class="col-sm-4">New <?= TASK_NOUN ?> Board Name:</label>
                 <div class="col-sm-8">
                     <input type="text" name="new_task_board" value="" data-table="tasklist" data-field="board_name" class="form-control" width="380" />
                 </div>
@@ -996,7 +1012,7 @@ function mark_done(sel) {
             <div class="project-section project_section_display" style="<?= $project_section_display ?>">
                 <div class="form-group clearfix">
                     <?= $slider_layout != 'accordion' ? '<h4><?= PROJECT_TILE ?></h4>' : '' ?>
-                    <label for="first_name" class="col-sm-4 control-label text-right"><?= PROJECT_TILE ?>:</label>
+                    <label for="first_name" class="col-sm-4"><?= PROJECT_TILE ?>:</label>
                     <div class="col-sm-8">
                         <select data-placeholder="Select <?= PROJECT_NOUN ?>..." name="task_projectid" data-table="tasklist" data-field="projectid" class="chosen-select-deselect form-control" id="task_projectid" width="380">
                             <option></option><?php
@@ -1033,32 +1049,40 @@ function mark_done(sel) {
                         <div class="panel-body">
 
             <div class="form-group">
-                <label for="site_name" class="col-sm-4 control-label"><?= TASK_NOUN ?> Path:</label>
+                <label for="site_name" class="col-sm-4"><?= TASK_NOUN ?> Path:</label>
                 <div class="col-sm-8">
                     <select data-placeholder="Select a <?= TASK_NOUN ?> Path..." id="task_path" name="task_path" data-table="tasklist" data-field="task_path" class="chosen-select-deselect form-control" width="380">
                         <option value=""></option><?php
                         $project_path_milestones = [];
-                        if($task_projectid > 0) {
+
+                            $query = mysqli_query($dbc,"SELECT project_path_milestone, project_path FROM project_path_milestone");
+                            while($row = mysqli_fetch_array($query)) { ?>
+                                <option <?php if ($row['project_path_milestone'] == $task_path) { echo " selected"; } ?> value='<?php echo  $row['project_path_milestone']; ?>' ><?php echo $row['project_path']; ?></option><?php
+                            }
+                            $project_path_milestones = get_project_paths($task_projectid);
+
+                            /* if($task_projectid > 0) {
                             $project_path_milestones = get_project_paths($task_projectid);
                             foreach($project_path_milestones as $path) { ?>
                                 <option <?= $task_path == $path['path_id'] ? 'selected' : '' ?> value='<?= $path['path_id'] ?>'><?= $path['path_name'] ?></option>
                             <?php }
                         } else {
-                            $query = mysqli_query($dbc,"SELECT project_path_milestone, project_path FROM project_path_milestone");
-                            while($row = mysqli_fetch_array($query)) { ?>
-                                <option <?php if ($row['project_path_milestone'] == $task_path) { echo " selected"; } ?> value='<?php echo  $row['project_path_milestone']; ?>' ><?php echo $row['project_path']; ?></option><?php
-                            }
-                        } ?>
+                            */
+                         ?>
                     </select>
                 </div>
             </div>
             <div class="form-group">
-                <label for="site_name" class="col-sm-4 control-label">Milestone & Timeline:</label>
+                <label for="site_name" class="col-sm-4">Milestone & Timeline:</label>
                 <div class="col-sm-8">
                 <?php
                    		$task_milestone_timeline = str_replace("FFMEND","&",$task_milestone_timeline);
                         $task_milestone_timeline = str_replace("FFMSPACE"," ",$task_milestone_timeline);
                         $task_milestone_timeline = str_replace("FFMHASH","#",$task_milestone_timeline);
+
+                        $project_milestone = str_replace("FFMEND","&",$project_milestone);
+                        $project_milestone = str_replace("FFMSPACE"," ",$project_milestone);
+                        $project_milestone = str_replace("FFMHASH","#",$project_milestone);
                 ?>
                     <select data-placeholder="Select a Milestone & Timeline..." name="task_milestone_timeline" id="task_milestone_timeline" data-table="tasklist" data-field="task_milestone_timeline"  class="chosen-select-deselect form-control" width="580">
                         <option value=""></option>
@@ -1066,7 +1090,7 @@ function mark_done(sel) {
                             foreach($project_path_milestones as $path) {
                                 if($path['path_id'] == $task_path) {
                                     foreach($path['milestones'] as $milestone) { ?>
-                                        <option <?= $task_milestone_timeline == $milestone['milestone'] ? 'selected' : '' ?> value="<?= $milestone['milestone'] ?>"><?= $milestone['label'] ?></option>
+                                        <option <?= $project_milestone == $milestone['milestone'] ? 'selected' : '' ?> value="<?= $milestone['milestone'] ?>"><?= $milestone['label'] ?></option>
                                     <?php }
                                 }
                             }
@@ -1096,7 +1120,7 @@ function mark_done(sel) {
 				$external_path = array_filter(array_unique(explode('#*#',mysqli_fetch_assoc(mysqli_query($dbc, "SELECT GROUP_CONCAT(`path`.`milestone` SEPARATOR '#*#') `milestones` FROM `project` LEFT JOIN `project_path_milestone` `path` ON CONCAT(',',`external_path`,',') LIKE CONCAT('%,',`path`.`project_path_milestone`,',%') WHERE `projectid`='".$get_task['projectid']."'"))['milestones'])));
 				if(count($external_path) > 0) { ?>
 					<div class="form-group">
-						<label for="site_name" class="col-sm-4 control-label"><img class="inline-img" src="../img/icons/ROOK-sync-icon.png">External Path Milestone:</label>
+						<label for="site_name" class="col-sm-4"><img class="inline-img" src="../img/icons/ROOK-sync-icon.png">External Path Milestone:</label>
 						<div class="col-sm-8">
 							<select data-placeholder="Select a Milestone..." name="task_milestone_timeline" id="task_milestone_timeline" data-table="tasklist" data-field="task_milestone_timeline" class="chosen-select-deselect form-control" width="580">
 								<option value=""></option>
@@ -1128,7 +1152,7 @@ function mark_done(sel) {
                 <div class="contact-section">
                     <div class="form-group clearfix">
                         <?= $slider_layout != 'accordion' ? '<h4>'.CONTACTS_TILE.'</h4>' : '' ?>
-                        <label for="first_name" class="col-sm-4 control-label text-right">Business:</label>
+                        <label for="first_name" class="col-sm-4">Business:</label>
                         <div class="col-sm-8">
                             <select data-placeholder="Select a Business..." name="task_businessid" data-table="tasklist" data-field="businessid" id="task_businessid" class="chosen-select-deselect form-control" width="380">
                                 <option value=""></option><?php
@@ -1147,7 +1171,7 @@ function mark_done(sel) {
 
                     if($task_clientid != '') { ?>
                         <div class="form-group clearfix">
-                            <label for="first_name" class="col-sm-4 control-label text-right">Contact:</label>
+                            <label for="first_name" class="col-sm-4">Contact:</label>
                             <div class="col-sm-8">
                                 <select data-placeholder="Select a Client..." id="checklist_clientid" name="task_clientid" data-table="tasklist" data-field="clientid" class="chosen-select-deselect form-control" width="380">
                                     <option value=""></option><?php
@@ -1162,7 +1186,7 @@ function mark_done(sel) {
                         </div><?php
                     } else { ?>
                         <div class="form-group clearfix">
-                            <label for="first_name" class="col-sm-4 control-label text-right">Contact:</label>
+                            <label for="first_name" class="col-sm-4">Contact:</label>
                             <div class="col-sm-8">
                                 <select data-placeholder="Select a Client..." id="checklist_clientid" name="task_clientid" data-table="tasklist" data-field="clientid" class="chosen-select-deselect form-control" width="380">
                                   <option value=""></option>
@@ -1189,7 +1213,7 @@ function mark_done(sel) {
                             <div class="panel-body">
 				<div class="sales-section">
 					<div class="form-group clearfix">
-						<label for="first_name" class="col-sm-4 control-label text-right"><?= SALES_NOUN ?>:</label>
+						<label for="first_name" class="col-sm-4"><?= SALES_NOUN ?>:</label>
 						<div class="col-sm-8">
 							<select data-placeholder="Select <?= SALES_NOUN ?>..." name="task_salesid" data-table="tasklist" data-field="salesid" class="chosen-select-deselect form-control" id="task_salesid" width="380">
 								<option></option><?php foreach(sort_contacts_query($dbc->query("SELECT `sales`.`salesid`, `contacts`.`first_name`, `contacts`.`last_name`, `bus`.`name` FROM `sales` LEFT JOIN `contacts` ON `sales`.`contactid`=`contacts`.`contactid` LEFT JOIN `contacts` `bus` ON `sales`.`businessid`=`bus`.`contactid` WHERE `sales`.`deleted`=0")) as $lead) {
@@ -1217,9 +1241,20 @@ function mark_done(sel) {
                     <div id="collapse_task_details" class="panel-collapse collapse">
                         <div class="panel-body">
 
+                        <?php if(strpos($task_fields, ',Task Name,') !== FALSE) { ?>
+                    <div class="form-group clearfix">
+                        <label for="first_name" class="col-sm-4"><?php echo (strpos($task_mandatory_fields, ',Task Name,') !== FALSE ? '<font color="red">* </font>' : ''); ?>
+                            <!-- <img src="../img/icons/ROOK-edit-icon.png" class="inline-img" /> --> Task Name:
+                        </label>
+                        <div class="col-sm-8">
+                            <input type="text" name="task_heading" value="<?= $task_heading ?>" data-table="tasklist" data-field="heading" class="form-control" width="380" />
+                        </div>
+                    </div>
+                        <?php } ?>
+
                         <?php if(strpos($task_fields, ',Status,') !== FALSE) { ?>
             <div class="form-group clearfix">
-                <label for="first_name" class="col-sm-4 control-label text-right"><?php echo (strpos($task_mandatory_fields, ',Status,') !== FALSE ? '<font color="red">* </font>' : ''); ?> Status:</label>
+                <label for="first_name" class="col-sm-4"><?php echo (strpos($task_mandatory_fields, ',Status,') !== FALSE ? '<font color="red">* </font>' : ''); ?> Status:</label>
                 <div class="col-sm-8">
                     <select data-placeholder="Select a Status..." name="status" data-table="tasklist" data-field="status" class="<?php echo (strpos($task_mandatory_fields, ',Status,') !== FALSE ? 'required' : ''); ?> chosen-select-deselect form-control" width="380">
                         <option value=""></option>
@@ -1246,36 +1281,12 @@ function mark_done(sel) {
             <!--
             <div class="form-group clearfix">
                 <?= $slider_layout != 'accordion' ? '<h4>Task'. ( !empty($tasklistid) ) ? ' #'.$tasklistid : ':'.' Details</h4>' : '' ?>
-                <label for="first_name" class="col-sm-4 control-label text-right">Completed:</label>
+                <label for="first_name" class="col-sm-4">Completed:</label>
                 <div class="col-sm-8">
                     <input type="checkbox" name="status" value="<?= $tasklistid ?>" class="form-checkbox no-margin" onchange="mark_done(this);" <?= ($task_status==$status_complete) ? 'checked' : '' ?> />
                 </div>
             </div>
             -->
-
-                        <?php if(strpos($task_fields, ',Task Name,') !== FALSE) { ?>
-            <div class="form-group clearfix">
-                <label for="first_name" class="col-sm-4 control-label text-right"><?php echo (strpos($task_mandatory_fields, ',Task Name,') !== FALSE ? '<font color="red">* </font>' : ''); ?>
-                    <!-- <img src="../img/icons/ROOK-edit-icon.png" class="inline-img" /> --> Task Name:
-                </label>
-                <div class="col-sm-8">
-					<?php $groups = $dbc->query("SELECT `category` FROM `task_types` WHERE `deleted`=0 GROUP BY `category` ORDER BY MIN(`sort`), MIN(`id`)");
-					if($groups->num_rows > 0) { ?>
-						<select name="heading_src" onchange="if(this.value != '' && this.value != undefined) { $('[name=task_heading]').val(this.value).change(); }" class="<?php echo (strpos($task_mandatory_fields, ',Task Name,') !== FALSE ? 'required' : ''); ?> chosen-select-deselect"><option />
-							<?php while($task_group = $groups->fetch_assoc()) { ?>
-								<optgroup label="<?= $task_group['category'] ?>">
-									<?php $task_names = $dbc->query("SELECT `id`, `description` FROM `task_types` WHERE `deleted`=0 AND `category`='{$task_group['category']}' ORDER BY `sort`, `id`");
-									while($task_name = $task_names->fetch_assoc()) { ?>
-										<option value="<?= $task_name['description'] ?>"><?= $task_name['description'] ?></option>
-									<?php } ?>
-								</optgroup>
-							<?php } ?>
-						</select>
-					<?php } ?>
-                    <input type="text" name="task_heading" value="<?= $task_heading ?>" data-table="tasklist" data-field="heading" class="form-control" width="380" />
-                </div>
-            </div>
-                        <?php } ?>
 
                         <?php if(strpos($task_fields, ',To Do Date,') !== FALSE) {
                         if($task_tododate == '' && (empty($_GET['tasklistid']))) {
@@ -1283,7 +1294,7 @@ function mark_done(sel) {
                         }
                         ?>
             <div class="form-group clearfix">
-                <label for="first_name" class="col-sm-4 control-label text-right"><?php echo (strpos($task_mandatory_fields, ',To Do Date,') !== FALSE ? '<font color="red">* </font>' : ''); ?>To Do Date:</label>
+                <label for="first_name" class="col-sm-4"><?php echo (strpos($task_mandatory_fields, ',To Do Date,') !== FALSE ? '<font color="red">* </font>' : ''); ?>To Do Date:</label>
                 <div class="col-sm-8">
                     <input name="task_tododate" value="<?php echo $task_tododate; ?>" type="text" data-table="tasklist" data-field="task_tododate" class="<?php echo (strpos($task_mandatory_fields, ',To Do Date,') !== FALSE ? 'required' : ''); ?> datepicker form-control">
                 </div>
@@ -1293,7 +1304,7 @@ function mark_done(sel) {
 
                         <?php if(strpos($task_fields, ',Assign Staff,') !== FALSE) { ?>
                         <div class="form-group">
-                            <label for="site_name" class="col-sm-4 control-label"><?php echo (strpos($task_mandatory_fields, ',Assign Staff,') !== FALSE ? '<font color="red">* </font>' : ''); ?>Assign Staff:</label>
+                            <label for="site_name" class="col-sm-4"><?php echo (strpos($task_mandatory_fields, ',Assign Staff,') !== FALSE ? '<font color="red">* </font>' : ''); ?>Assign Staff:</label>
                             <div class="col-sm-8">
                                 <div class="clearfix"></div>
                                 <div class="start-ticket-staff">
@@ -1322,22 +1333,44 @@ function mark_done(sel) {
 
                         <?php } ?>
 
-                        <?php if(strpos($task_fields, ',Flag This,') !== FALSE) { ?>
-
+                        <?php if(strpos($task_fields, ',Task Name,') !== FALSE) { ?>
             <div class="form-group clearfix">
-                <label for="first_name" class="col-sm-4 control-label"><?php echo (strpos($task_mandatory_fields, ',Flag This,') !== FALSE ? '<font color="red">* </font>' : ''); ?>
-                    <!-- <img src="../img/icons/ROOK-flag-icon.png" class="inline-img" /> --> Flag This:
+                <label for="first_name" class="col-sm-4">
+                    <?= TASK_NOUN ?> Billing:
                 </label>
                 <div class="col-sm-8">
-                    <a class="btn brand-btn" data-tasklistid="<?= $tasklistid ?>" onclick="flag_item(this);">Flag</a>
-                    <input type="hidden" name="flag" value="" />
+					<?php $groups = $dbc->query("SELECT `category` FROM `task_types` WHERE `deleted`=0 GROUP BY `category` ORDER BY MIN(`sort`), MIN(`id`)");
+					if($groups->num_rows > 0) { ?>
+						<select name="heading_src" class="<?php echo (strpos($task_mandatory_fields, ',Task Name,') !== FALSE ? 'required' : ''); ?> chosen-select-deselect"><option />
+							<?php while($task_group = $groups->fetch_assoc()) { ?>
+								<optgroup label="<?= $task_group['category'] ?>">
+									<?php $task_names = $dbc->query("SELECT `id`, `description` FROM `task_types` WHERE `deleted`=0 AND `category`='{$task_group['category']}' ORDER BY `sort`, `id`");
+									while($task_name = $task_names->fetch_assoc()) { ?>
+										<option value="<?= $task_name['description'] ?>"><?= $task_name['description'] ?></option>
+									<?php } ?>
+								</optgroup>
+							<?php } ?>
+						</select>
+					<?php } ?>
                 </div>
             </div>
                         <?php } ?>
 
+                        <?php if(strpos($task_fields, ',Flag This,') !== FALSE) { ?>
+                            <div class="form-group clearfix">
+                                <label for="first_name" class="col-sm-4"><?php echo (strpos($task_mandatory_fields, ',Flag This,') !== FALSE ? '<font color="red">* </font>' : ''); ?>
+                                    <!-- <img src="../img/icons/ROOK-flag-icon.png" class="inline-img" /> --> Flag This:
+                                </label>
+                                <div class="col-sm-8">
+                                    <a class="btn brand-btn" data-tasklistid="<?= $tasklistid ?>" onclick="flag_item(this);">Flag</a>
+                                    <input type="hidden" name="flag" value="" />
+                                </div>
+                            </div>
+                        <?php } ?>
+
                         <?php if(strpos($task_fields, ',Send Alert,') !== FALSE) { ?>
 			<div class="form-group">
-				<label for="site_name" class="col-sm-4 control-label"><?php echo (strpos($task_mandatory_fields, ',Send Alert,') !== FALSE ? '<font color="red">* </font>' : ''); ?>
+				<label for="site_name" class="col-sm-4"><?php echo (strpos($task_mandatory_fields, ',Send Alert,') !== FALSE ? '<font color="red">* </font>' : ''); ?>
                     <!-- <img src="../img/icons/ROOK-alert-icon.png" class="inline-img" />-->  Send Alert:
                 </label>
 				<div class="col-sm-8">
@@ -1353,7 +1386,7 @@ function mark_done(sel) {
 
                         <?php if(strpos($task_fields, ',Send Email,') !== FALSE) { ?>
 			<div class="form-group">
-				<label for="site_name" class="col-sm-4 control-label"><?php echo (strpos($task_mandatory_fields, ',Send Email,') !== FALSE ? '<font color="red">* </font>' : ''); ?>
+				<label for="site_name" class="col-sm-4"><?php echo (strpos($task_mandatory_fields, ',Send Email,') !== FALSE ? '<font color="red">* </font>' : ''); ?>
                     <!-- <img src="../img/icons/ROOK-email-icon.png" class="inline-img" /> --> Send Email:
                 </label>
 				<div class="col-sm-8">
@@ -1369,7 +1402,7 @@ function mark_done(sel) {
 
                         <?php if(strpos($task_fields, ',Schedule Reminder,') !== FALSE) { ?>
 			<div class="form-group">
-				<label for="site_name" class="col-sm-4 control-label"><?php echo (strpos($task_mandatory_fields, ',Schedule Reminder,') !== FALSE ? '<font color="red">* </font>' : ''); ?>
+				<label for="site_name" class="col-sm-4"><?php echo (strpos($task_mandatory_fields, ',Schedule Reminder,') !== FALSE ? '<font color="red">* </font>' : ''); ?>
                     <!-- <img src="../img/icons/ROOK-reminder-icon.png" class="inline-img" /> --> Schedule Reminder:
                 </label>
 				<div class="col-sm-8">
@@ -1380,7 +1413,7 @@ function mark_done(sel) {
 
                         <?php if(strpos($task_fields, ',Attach File,') !== FALSE) { ?>
             <div class="form-group">
-                <label for="additional_note" class="col-sm-4 control-label"><?php echo (strpos($task_mandatory_fields, ',Attach File,') !== FALSE ? '<font color="red">* </font>' : ''); ?>
+                <label for="additional_note" class="col-sm-4"><?php echo (strpos($task_mandatory_fields, ',Attach File,') !== FALSE ? '<font color="red">* </font>' : ''); ?>
                    <!-- <img src="../img/icons/ROOK-attachment-icon.png" class="inline-img" />--> Attach File(s):
                     <span class="popover-examples list-inline">&nbsp;
                         <a href="#job_file" data-toggle="tooltip" data-placement="top" title="File name cannot contain apostrophes, quotations or commas"><img src="<?php echo WEBSITE_URL;?>/img/info.png" width="20"></a>
@@ -1432,10 +1465,10 @@ function mark_done(sel) {
 
                         <?php if(strpos($task_fields, ',Comments,') !== FALSE) { ?>
             <div class="form-group clearfix">
-                <label for="task_comment" class="col-sm-4 control-label text-right"><?php echo (strpos($task_mandatory_fields, ',Comments,') !== FALSE ? '<font color="red">* </font>' : ''); ?>
+                <label for="task_comment" class="col-sm-12"><?php echo (strpos($task_mandatory_fields, ',Comments,') !== FALSE ? '<font color="red">* </font>' : ''); ?>
                     <!-- <img src="../img/icons/ROOK-reply-icon.png" class="inline-img" /> --> Comments:
                 </label>
-                <div class="col-sm-8">
+                <div class="col-sm-12">
                     <!-- <input type="text" name="task_comment" id="task_comment" class="form-control" width="65536" /> -->
                     <textarea name="task_comment" id="task_comment" class="form-control"></textarea>
                 </div>
@@ -1489,27 +1522,27 @@ function mark_done(sel) {
                         }
                     } ?>
 
-
-
+            <?php if(strpos($task_fields, ',Add Time,') !== FALSE) { ?>
             <div class="form-group clearfix">
-                        <?php if(strpos($task_fields, ',Add Time,') !== FALSE) { ?>
-                <label for="first_name" class="col-xs-3 control-label text-right"><?php echo (strpos($task_mandatory_fields, ',Add Time,') !== FALSE ? '<font color="red">* </font>' : ''); ?><!-- <img src="../img/icons/ROOK-timer-icon.png" class="inline-img" />--> Add Time:</label>
-                <div class="col-xs-3">
-                    <!-- <input name="task_work_time" type="text" value="00:00" data-table="tasklist" data-field="work_time" class="timepicker form-control" /> -->
+                <label for="first_name" class="col-sm-4"><?php echo (strpos($task_mandatory_fields, ',Add Time,') !== FALSE ? '<font color="red">* </font>' : ''); ?>Add Time:</label>
+                <div class="col-sm-8">
                     <input name="task_work_time" type="text" value="00:00" class="<?php echo (strpos($task_mandatory_fields, ',Add Time,') !== FALSE ? 'required' : ''); ?> timepicker form-control" onchange="quick_add_time(this);" />
                 </div>
-                        <?php } ?>
+            </div>
+            <?php } ?>
 
-                        <?php if(strpos($task_fields, ',Track Time,') !== FALSE) { ?>
-                <label for="first_name" class="col-xs-3 control-label text-right"><?php echo (strpos($task_mandatory_fields, ',Track Time,') !== FALSE ? '<font color="red">* </font>' : ''); ?><!-- <img src="../img/icons/ROOK-timer2-icon.png" class="inline-img" /> --> Track Time:</label>
-                <div class="col-xs-3">
+            <?php if(strpos($task_fields, ',Track Time,') !== FALSE) { ?>
+            <div class="form-group clearfix">
+                <label for="first_name" class="col-sm-4"><?php echo (strpos($task_mandatory_fields, ',Track Time,') !== FALSE ? '<font color="red">* </font>' : ''); ?>Track Time:</label>
+                <div class="col-sm-8">
                     <input type="text" name="timer_<?= $tasklistid ?>" id="timer_value" class="<?php echo (strpos($task_mandatory_fields, ',Track Time,') !== FALSE ? 'required' : ''); ?> form-control timer" placeholder="0 sec" />
-                    <a class="btn btn-success start-timer-btn brand-btn mobile-block">Start</a>
+                    <a class="btn btn-success start-timer-btn brand-btn mobile-block" data-id="<?= $tasklistid ?>">Start</a>
                     <a class="btn stop-timer-btn hidden brand-btn mobile-block" data-id="<?= $tasklistid ?>">Stop</a><br />
                     <input type="hidden" value="" name="track_time" />
                     <span class="added-time"></span>
                 </div>
-                        <?php } ?>
+            </div>
+            <?php } ?>
 
             </div>
 
