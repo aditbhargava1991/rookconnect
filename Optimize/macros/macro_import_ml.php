@@ -36,7 +36,7 @@ if(isset($_POST['upload_file']) && !empty($_FILES['csv_file']['tmp_name'])) {
 	$business = $dbc->query("SELECT * FROM `contacts` WHERE `contactid`='$businessid'")->fetch_assoc();
 	$business_name = decryptIt($business['name']);
 	$region = $business['region'];
-	$classification = array_map(array_filter(explode(',',$business['classification'])))[0];
+	$classification = array_values(array_filter(explode(',',$business['classification'])))[0];
 	$ticket_type = filter_var($_POST['ticket_type'],FILTER_SANITIZE_STRING);
 	if($delimiter == 'comma') {
 		$delimiter = ", ";
