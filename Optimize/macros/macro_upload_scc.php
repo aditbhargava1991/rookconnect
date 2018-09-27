@@ -14,6 +14,7 @@ if(isset($_POST['upload_file']) && !empty($_FILES['csv_file']['tmp_name'])) {
         $service_est_time += $est_hours[0] * 1 + $est_hours[1] / 60 + $est_hours[2] / 3600;
     }
     $increment_time = get_config($dbc, 'scheduling_increments');
+    $increment_time = ($increment_time > 0 ? $increment_time * 60 : 1800);
     $business = $dbc->query("SELECT * FROM `contacts` WHERE `contactid`='$businessid'")->fetch_assoc();
 	$business_name = decryptIt($business['name']);
 	$region = $business['region'];
@@ -38,7 +39,7 @@ if(isset($_POST['upload_file']) && !empty($_FILES['csv_file']['tmp_name'])) {
 		$est_time = filter_var($csv[14],FILTER_SANITIZE_STRING);
 		$date = empty($to_do_date) ? $date : $to_do_date;
 		if($salesorderid == $current_order) {
-			$to_do_start_time = date('H:i', strtotime($to_do_start_time) + ($increment_time > 0 ? $increment_time * 60 : 1800));
+			$to_do_start_time = date('H:i', strtotime($to_do_start_time) + ($increment_time * ceil($service_est_time * 3600 / $increment_time)));
 			echo "<!--Same Ticket...";
 		} else {
 			$current_order = $salesorderid;
@@ -49,7 +50,7 @@ if(isset($_POST['upload_file']) && !empty($_FILES['csv_file']['tmp_name'])) {
 			$ticket_list[] = $ticketid;
 			$dbc->query("INSERT INTO `ticket_history` (`ticketid`,`userid`,`src`,`description`) VALUES ($ticketid,".$_SESSION['contactid'].",'optimizer','Sleep Country macro imported ".TICKET_NOUN." $ticketid')");
 		}
-        $to_do_end_time = date('H:i', strtotime($to_do_start_time) + ($est_time > 0 ? $est_time * 3600 : 1800));
+        $to_do_end_time = date('H:i', strtotime($to_do_start_time) + ($service_est_time > 0 ? $service_est_time * 3600 : 1800));
 		$start_available = $to_do_start_time;
 		$end_available = date('H:i',strtotime($to_do_start_time.' + 3 hours'));
         $prior_attempts = $dbc->query("SELECT * FROM `ticket_schedule` WHERE CONCAT(`order_number`,'-') LIKE '$order_number-%' AND `client_name`='$client_name' AND `address`='$address' AND `city`='$city'")->num_rows;
