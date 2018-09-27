@@ -29,11 +29,11 @@ else if($_GET['action'] == 'assign_ticket') {
 	$date = filter_var($_POST['date'],FILTER_SANITIZE_STRING);
 	$default_status = get_config($dbc, 'ticket_default_status');
 	$ticketid = $dbc->query("SELECT `ticketid` FROM `$table` WHERE `$id_field`='$id'")->fetch_array()[0];
-	$max_start = $dbc->query("SELECT MAX(`to_do_start_time`) FROM (SELECT `to_do_start_time` FROM `ticket_schedule` WHERE `equipmentid`='$equipmentid' AND `to_do_date`='$date' AND `deleted`=0 UNION SELECT `to_do_start_time` FROM `tickets` WHERE `equipmentid`='$equipmentid' AND `to_do_date`='$date' AND `deleted`=0) `times`")->fetch_array()[0];
+	$max_start = $dbc->query("SELECT MAX(`to_do_end_time`) FROM (SELECT `to_do_end_time` FROM `ticket_schedule` WHERE `equipmentid`='$equipmentid' AND `to_do_date`='$date' AND `deleted`=0 UNION SELECT `to_do_end_time` FROM `tickets` WHERE `equipmentid`='$equipmentid' AND `to_do_date`='$date' AND `deleted`=0) `times`")->fetch_array()[0];
 	if($max_start == '') {
-		$max_start = '7:00 AM';
+		$max_start = '07:00';
 	}
-	$start_time = date('g:i a',strtotime($max_start.' + 1 hour'));
+	$start_time = date('H:i',strtotime($max_start) + 1800);
 	$dbc->query("UPDATE `$table` SET `status`='$default_status', `to_do_date`='$date', `equipmentid`='$equipmentid', `to_do_start_time`=".($table == 'ticket_schedule' ? "IF(`scheduled_lock`='1',`to_do_start_time`,'$start_time')" : "'$start_time'")." WHERE `$id_field`='$id'");
 	//Update warehouse stop to match above
 	$dbc->query("UPDATE `ticket_schedule` SET `status`='$default_status', `to_do_date`='$date', `equipmentid`='$equipmentid' WHERE `ticketid` = '$ticketid' AND (`type` = 'warehouse' OR IFNULL(NULLIF(CONCAT(IFNULL(`ticket_schedule`.`address`,''),IFNULL(`ticket_schedule`.`city`,'')),''),'') IN (SELECT CONCAT(IFNULL(`address`,''),IFNULL(`city`,'')) FROM `contacts` WHERE `category`='Warehouses'))");
