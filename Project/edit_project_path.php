@@ -421,14 +421,15 @@ $status_complete = $task_statuses[count($task_statuses) - 1];
 $status_incomplete = $task_statuses[0];
 $ticket_security = get_security($dbc, 'ticket');
 $ticket_field_config = array_filter(explode(',',mysqli_fetch_assoc(mysqli_query($dbc,"SELECT `tickets_dashboard` FROM field_config"))['tickets_dashboard']));
+
 if(isset($_POST['clear']) || isset($_POST['clear_x']) || isset($_POST['clear_y'])) {
 	$editid = $_GET['edit'];
-        $date_of_archival = date('Y-m-d');
-	$select_query = "select count(*) as clear_count from tasklist where projectid=$editid and status='".$status_complete."'";
+    $date_of_archival = date('Y-m-d');
+	$select_query = "SELECT count(*) as clear_count FROM tasklist WHERE projectid=`$editid` AND status='Done' AND deleted = 0";
 	$count_query = mysqli_fetch_assoc(mysqli_query($dbc, $select_query));
-	$query = "update tasklist set deleted=1, `date_of_archival` = '$date_of_archival' where projectid=$editid and status='".$status_complete."'";
+	$query = "UPDATE tasklist SET deleted=1, `date_of_archival` = '$date_of_archival' WHERE projectid=`$editid` AND status='Done' AND deleted = 0";
 	$update_clear_completed = mysqli_query($dbc, $query);
-	echo '<script>alert("Archived '. $count_query['clear_count'] .' Tasks, which were completed.")</script>';
+	echo '<script>alert("Archived '. $count_query['clear_count'] .' Tasks, which were completed."); window.location.reload();</script>';
 }
 
 if(!isset($projectid)) {
@@ -737,7 +738,7 @@ if($_GET['tab'] != 'scrum_board' && !in_array($pathid,['AllSB','SB'])) {
 				</select></div>
 				<img class="inline-img pull-right no-toggle black-color small" src="../img/project-path.png" title="Select the <?= PROJECT_NOUN ?> Path" onclick="$('.path_select').show(); $(this).hide();">
 			<?php } ?>
-			<input type="image" src="../img/clear-checklist.png" name="clear" title="Clear Completed Tasks" class="no-toggle inline-img black-color pull-right small" alt="Submit"/>
+			<input type="image" src="../img/clear-checklist.png" onclick="clearCompletedProjectTask(this);" name="clear1" title="Clear Completed Tasks" value="<?php echo $projectid; ?>" class="no-toggle inline-img black-color pull-right small" alt="Submit"/>
 		<?php } ?>
         <div class="clearfix"></div>
 		</h3></form>

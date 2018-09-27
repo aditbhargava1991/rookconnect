@@ -562,6 +562,13 @@ if($_GET['fill'] == 'clear_completed') {
     $status = filter_var($_GET['status'],FILTER_SANITIZE_STRING);
 	$result = mysqli_query($dbc, "UPDATE `tasklist` SET `deleted`='1', `archived_date` = '$archived_date' WHERE `task_board`='$task_board_id' AND `status`='$status'");
 }
+
+if($_GET['fill'] == 'clear_project_completed_task') {
+	$projectid = filter_var($_GET['projectid'],FILTER_SANITIZE_STRING);
+    $archived_date = date('Y-m-d');
+	$result = mysqli_query($dbc, "UPDATE `tasklist` SET `deleted`='1', `archived_date` = '$archived_date' WHERE `projectid`='$projectid' AND `status`='Done' AND deleted = 0");
+}
+
 if($_GET['fill'] == 'clear_completed_auto') {
     $status = filter_var($_GET['status'],FILTER_SANITIZE_STRING);
     $archived_date = date('Y-m-d');
