@@ -8,10 +8,10 @@ if(isset($_POST['upload_file']) && !empty($_FILES['csv_file']['tmp_name'])) {
 	$default_status = get_config($dbc, 'ticket_default_status');
 	$businessid = filter_var($_POST['businessid'],FILTER_SANITIZE_STRING);
 	$default_services = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `services_service_templates` WHERE `deleted`=0 AND `contactid`='$businessid'"))['serviceid'];
-    $est_time = 0;
+    $service_est_time = 0;
     foreach(explode(',',$default_services) as $serviceid) {
         $est_hours = explode(':',$dbc->query("SELECT `estimated_hours` FROM `services` WHERE `serviceid`='$serviceid'")->fetch_assoc()['estimated_hours']);
-        $est_time += $est_hours[0] * 1 + $est_hours[1] / 60 + $est_hours[2] / 3600;
+        $service_est_time += $est_hours[0] * 1 + $est_hours[1] / 60 + $est_hours[2] / 3600;
     }
     $increment_time = get_config($dbc, 'scheduling_increments');
     $business = $dbc->query("SELECT * FROM `contacts` WHERE `contactid`='$businessid'")->fetch_assoc();
@@ -57,8 +57,8 @@ if(isset($_POST['upload_file']) && !empty($_FILES['csv_file']['tmp_name'])) {
             $order_number = $order_number.'-'.($prior_attempts + 1);
         }
         $google_link = 'https://www.google.ca/maps/place/'.urlencode($address).','.urlencode($city);
-		echo "INSERT INTO `ticket_schedule` (`ticketid`,`order_number`,`client_name`,`address`,`city`,`map_link`,`to_do_date`,`to_do_start_time`,`to_do_end_time`,`details`,`cust_est`,`start_available`,`end_available`,`serviceid`,`type`,`status`) VALUES ('$ticketid','$order_number','$client_name','$address','$city','$google_link','$to_do_date','$to_do_start_time','$to_do_end_time','$details','$est_time','$start_available','$end_available','$default_services','Drop Off','$default_status')-->";
-		$dbc->query("INSERT INTO `ticket_schedule` (`ticketid`,`order_number`,`client_name`,`address`,`city`,`map_link`,`to_do_date`,`to_do_start_time`,`to_do_end_time`,`details`,`cust_est`,`start_available`,`end_available`,`serviceid`,`type`,`status`) VALUES ('$ticketid','$order_number','$client_name','$address','$city','$google_link','$to_do_date','$to_do_start_time','$to_do_end_time','$details','$est_time','$start_available','$end_available','$default_services','Drop Off','$default_status')");
+		echo "INSERT INTO `ticket_schedule` (`ticketid`,`order_number`,`client_name`,`address`,`city`,`map_link`,`to_do_date`,`to_do_start_time`,`to_do_end_time`,`details`,`cust_est`,`est_time`,`start_available`,`end_available`,`serviceid`,`type`,`status`) VALUES ('$ticketid','$order_number','$client_name','$address','$city','$google_link','$to_do_date','$to_do_start_time','$to_do_end_time','$details','$est_time','$service_est_time','$start_available','$end_available','$default_services','Drop Off','$default_status')-->";
+		$dbc->query("INSERT INTO `ticket_schedule` (`ticketid`,`order_number`,`client_name`,`address`,`city`,`map_link`,`to_do_date`,`to_do_start_time`,`to_do_end_time`,`details`,`cust_est`,`est_time`,`start_available`,`end_available`,`serviceid`,`type`,`status`) VALUES ('$ticketid','$order_number','$client_name','$address','$city','$google_link','$to_do_date','$to_do_start_time','$to_do_end_time','$details','$est_time','$service_est_time','$start_available','$end_available','$default_services','Drop Off','$default_status')");
 	}
 	fclose($handle); ?>
     <script>
