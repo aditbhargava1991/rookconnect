@@ -466,8 +466,12 @@ if($num_rows7 > 0) {
 		$service_widths = count($invoice_custom_ticket) + 1;
 		$service_widths = (70 - $service_width_diff) / $service_widths;
 		foreach($invoice_custom_ticket as $service_id) {
-			$service = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `services` WHERE `serviceid` = '$service_id'"));
-			$html .= '<th width="'.$service_widths.'%">'.$service['heading'].'</th>';
+            if($service_id > 0) {
+                $service = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `services` WHERE `serviceid` = '$service_id'"));
+                $html .= '<th width="'.$service_widths.'%">'.$service['heading'].'</th>';
+            } else if(explode('|',$service_id)[0] == 'multi_srv_group') {
+                $html .= '<th width="'.$service_widths.'%">'.explode('|',$service_id)[1].'</th>';
+            }
 		}
 		$html .= '<th width="'.$service_widths.'%">All Other Items</th><th width="10%">Total</th></tr>';
 	while($ticketid = mysqli_fetch_array( $result )) {
@@ -517,18 +521,19 @@ if($num_rows7 > 0) {
 
 		$item_id_query = '';
 		foreach($invoice_custom_ticket as $service_id) {
-			$html .= '<td>';
-			$service = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `services` WHERE `serviceid` = '$service_id'"));
-			$result2 = mysqli_query($dbc, "SELECT * FROM invoice_lines WHERE invoiceid='$invoiceid' AND category = 'service' AND item_id = '$service_id' AND `ticketid` = '".$ticket['ticketid']."'");
-			while($row = mysqli_fetch_assoc($result2)) {
-				$inventoryid = $row['item_id'];
-				$price = $row['unit_price'];
-				$quantity = $row['quantity'];
-				$returned		= $row['returned_qty'];
+            if($service_id > 0) {
+                $html .= '<td>';
+                $service = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `services` WHERE `serviceid` = '$service_id'"));
+                $result2 = mysqli_query($dbc, "SELECT * FROM invoice_lines WHERE invoiceid='$invoiceid' AND category = 'service' AND item_id = '$service_id' AND `ticketid` = '".$ticket['ticketid']."'");
+                while($row = mysqli_fetch_assoc($result2)) {
+                    $inventoryid = $row['item_id'];
+                    $price = $row['unit_price'];
+                    $quantity = $row['quantity'];
+                    $returned		= $row['returned_qty'];
 
-				if($inventoryid != '') {
-					$amount = $price*($quantity-$returned);
-					$line_total += $amount;
+                    if($inventoryid != '') {
+                        $amount = $price*($quantity-$returned);
+                        $line_total += $amount;
 
                         $html .= '<table border="0"><tr>';
                         $html .= '<td width="75%">'.$service['heading'].'<br />$'.number_format($price,2).' x '.$quantity.'</td>';
@@ -565,8 +570,8 @@ if($num_rows7 > 0) {
                         }
                     }
                     $item_id_query .= " AND item_id NOT IN (".$service_id.")";
-                    $html .= '</td>';
                 }
+                $html .= '</td>';
             }
 		}
 		$html .= '<td>';
