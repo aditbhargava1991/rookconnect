@@ -171,7 +171,7 @@ $html .= '<table style="border: 2px solid black;" width="100%" cellspacing="0" c
 					<td style="border:1px solid black; text-align:center;" width="20%">
 						Invoice#
 					</td>
-					<td colspan="8" style="border:1px solid black; text-align:center;" width="52%">
+					<td colspan="8" style="border:1px solid black; text-align:center;" width="60%">
 						Invoice Amount
 					</td>
 				</tr>';
@@ -197,7 +197,7 @@ $html .= '<table style="border: 2px solid black;" width="100%" cellspacing="0" c
 
 				$html .= '
 				<tr height="27px">
-					<td colspan="7" style="border:1px solid black; text-align:right;">
+					<td colspan="8" style="border:1px solid black; text-align:right;">
 						Total Due By Customer
 					</td>
 					<td style="border:1px solid black; text-align:right;">
@@ -206,7 +206,7 @@ $html .= '<table style="border: 2px solid black;" width="100%" cellspacing="0" c
 				</tr>
 
 				<tr height="27px">
-					<td colspan="7" style="border:1px solid black; text-align:right;">
+					<td colspan="8" style="border:1px solid black; text-align:right;">
 						GST
 					</td>
 					<td style="border:1px solid black; text-align:right;">
@@ -215,7 +215,7 @@ $html .= '<table style="border: 2px solid black;" width="100%" cellspacing="0" c
 				</tr>
 
     			<tr height="27px">
-					<td colspan="7" style="border:1px solid black; text-align:right;">
+					<td colspan="8" style="border:1px solid black; text-align:right;">
 						Total Amount Owing
 					</td>
 					<td style="border:1px solid black; text-align:right;">
@@ -224,7 +224,7 @@ $html .= '<table style="border: 2px solid black;" width="100%" cellspacing="0" c
 				</tr>
 
 				<tr height="27px">
-					<td colspan="7" style="border:1px solid black; text-align:right;">
+					<td colspan="8" style="border:1px solid black; text-align:right;">
 						Payment By
 					</td>
 					<td style="border:1px solid black; text-align:right;">
@@ -232,7 +232,7 @@ $html .= '<table style="border: 2px solid black;" width="100%" cellspacing="0" c
 					</td>
 				</tr>
 				<tr height="27px">
-					<td colspan="7" style="border:1px solid black; text-align:right;">
+					<td colspan="8" style="border:1px solid black; text-align:right;">
 						Balance
 					</td>
 					<td style="border:1px solid black; text-align:right;">
