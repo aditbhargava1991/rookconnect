@@ -385,6 +385,7 @@
 
 		
 		set_config($dbc, 'db_version_jonathan', 8);
+    }
 
 	
 	if(get_config($dbc, 'update_timesheet_config') < 1) {
