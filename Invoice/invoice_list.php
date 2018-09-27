@@ -201,6 +201,7 @@ function show_hide_email() {
 
     <form name="invoice" method="GET" action="" class="form-horizontal" role="form">
         <?php $value_config = ','.get_config($dbc, 'invoice_dashboard').','; ?>
+        <?php $xsl_xml_value_config = ','.get_config($dbc, 'invoice_dashboard_xsl_xml').','; ?>
         <input type="hidden" name="tab" value="all" />
         <div class="form-group search-group double-gap-top">
             <div class="col-xs-12">
@@ -389,10 +390,10 @@ function show_hide_email() {
                     }
                 }
                 if($invoiceLayout=='cnt1'){
-                    if (strpos($value_config, ','."invoice_xsl".',') !== FALSE) {
+                    if (strpos($xsl_xml_value_config, ','."invoice_xsl".',') !== FALSE) {
                         echo '<a class="pull-left" target="_blank" href="../Invoice/invoice_ajax.php?action=export_pos_file&invoice='.$invoice['invoiceid'].'&format=xsl"><img src="'.WEBSITE_URL.'/img/icons/POS_XSL.png" title="Invoice XSL" class="no-toggle inline-img" /></a>';
                     }
-                    if (strpos($value_config, ','."invoice_xml".',') !== FALSE) {
+                    if (strpos($xsl_xml_value_config, ','."invoice_xml".',') !== FALSE) {
                         echo '<a class="pull-left" target="_blank" href="../Invoice/invoice_ajax.php?action=export_pos_file&invoice='.$invoice['invoiceid'].'&format=xml"><img src="'.WEBSITE_URL.'/img/icons/POS_XML.png" title="Invoice XML" class="no-toggle inline-img" /></a>';
                     }
                 }

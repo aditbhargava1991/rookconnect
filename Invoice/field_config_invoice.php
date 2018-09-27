@@ -17,7 +17,9 @@ $pos_advanced_tile = $pos_advance_tile_name[0] ?: 'Point of Sale';
 $pos_advanced_noun = 'Point of Sale';
 
 if (isset($_POST['submit'])) {
+    set_config($dbc, 'invoice_dashboard_xsl_xml'.config_safe_str($invoice_type), filter_var(implode(',', $_POST['invoice_dashboard_xsl_xml']),FILTER_SANITIZE_STRING));
 
+    //print_R((!empty($_POST['invoice_dashboard_xsl_xml']) ? implode(',', $_POST['invoice_dashboard_xsl_xml']) : ''));die;
     if(!empty($_POST['invoice_type'])) {
         $invoice_type = $_POST['invoice_type'];
         //Fields
@@ -843,7 +845,7 @@ if(!empty($invoice_types)) { ?>
     			<div id="collapse_dashboard" class="panel-collapse collapse">
     				<div class="panel-body" id="no-more-tables">
     					<?php $value_config = ','.get_config($dbc,'invoice_dashboard').','; ?>
-
+                        <?php $xsl_xml_value_config = ','.get_config($dbc,'invoice_dashboard_xsl_xml').','; ?>
     					<table border='2' cellpadding='10' class='table'>
     						<tr>
     							<td>
@@ -867,10 +869,10 @@ if(!empty($invoice_types)) { ?>
     						</tr>
     						<tr>
                                 <td>
-                                    <input type="checkbox" <?php if (strpos($value_config, ','."invoice_xsl".',') !== FALSE) { echo " checked"; } ?> value="invoice_xsl" name="invoice_dashboard[]">&nbsp;&nbsp;Invoice XSL
+                                    <input type="checkbox" <?php if (strpos($xsl_xml_value_config, ','."invoice_xsl".',') !== FALSE) { echo " checked"; } ?> value="invoice_xsl" name="invoice_dashboard_xsl_xml[]">&nbsp;&nbsp;Invoice XSL
                                 </td>
                                 <td>
-                                    <input type="checkbox" <?php if (strpos($value_config, ','."invoice_xml".',') !== FALSE) { echo " checked"; } ?> value="invoice_xml" name="invoice_dashboard[]">&nbsp;&nbsp;Invoice XML
+                                    <input type="checkbox" <?php if (strpos($xsl_xml_value_config, ','."invoice_xml".',') !== FALSE) { echo " checked"; } ?> value="invoice_xml" name="invoice_dashboard_xsl_xml[]">&nbsp;&nbsp;Invoice XML
                                 </td>
     							<td>
     								<input type="checkbox" <?php if (strpos($value_config, ','."comment".',') !== FALSE) { echo " checked"; } ?> value="comment" name="invoice_dashboard[]">&nbsp;&nbsp;Comment
