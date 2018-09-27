@@ -235,7 +235,16 @@ if (isset($_POST['submit'])) {
 <div class="container">
     <div class="row">
         <h3 class="gap-left pull-left">Email</h3>
-        <div class="pull-right offset-top-15"><a href=""><img src="../img/icons/ROOK-status-rejected.jpg" alt="Close" title="Close" class="inline-img" /></a></div>
+        <div class="pull-right offset-top-15"><?php
+            if (!empty($_GET['email_communicationid'])) {
+                $id = preg_replace('/[^0-9]/', '', $_GET['email_communicationid']);
+            } else {
+                $id = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT MAX(`email_communicationid`) + 1 `id` FROM `email_communication`"))['id'];
+            } ?>
+            <img src="../img/icons/ROOK-reminder-icon.png" alt="Add Reminder" title="Add Reminder" class="no-toggle cursor-hand" data-placement="bottom" width="25" onclick="overlayIFrameSlider('../quick_action_reminders.php?tile=email&id=<?= $id ?>', 'auto', false, true);" />
+            <img src="../img/icons/ROOK-timer2-icon.png" alt="Track Time" title="Track Time" class="no-toggle cursor-hand offset-left-5 offset-right-5" data-placement="bottom" width="25" onclick="overlayIFrameSlider('../quick_action_timer.php?tile=email&id=<?= $id ?>', 'auto', false, true);" />
+            <a href=""><img src="../img/icons/ROOK-status-rejected.jpg" alt="Close" title="Close" class="no-toggle" data-placement="bottom" width="25" /></a>
+        </div>
         <div class="clearfix"></div>
         
         <form id="form1" name="form1" method="post"	action="" enctype="multipart/form-data" class="form-horizontal" role="form">
@@ -398,6 +407,7 @@ if (isset($_POST['submit'])) {
                     </div>
                 </div>
 
+                <!--
                 <div class="panel panel-default">
                     <div class="panel-heading">
                         <h4 class="panel-title">
@@ -408,12 +418,14 @@ if (isset($_POST['submit'])) {
                     </div>
                     <div id="collapse_followup" class="panel-collapse collapse">
                         <div class="panel-body">
-                            <?php include ('add_email_followup.php'); ?>
+                            <?php //include ('add_email_followup.php'); ?>
                         </div>
                     </div>
                 </div>
+                -->
                 
-                <?php if (strpos($value_config, ','."Communication Timer".',') !== FALSE) { ?>
+                <?php //if (strpos($value_config, ','."Communication Timer".',') !== FALSE) { ?>
+                    <!--
                     <div class="panel panel-default">
                         <div class="panel-heading">
                             <h4 class="panel-title">
@@ -425,11 +437,12 @@ if (isset($_POST['submit'])) {
 
                         <div id="collapse_timer" class="panel-collapse collapse">
                             <div class="panel-body">
-                                <?php include ('add_email_communication_timer.php'); ?>
+                                <?php //include ('add_email_communication_timer.php'); ?>
                             </div>
                         </div>
                     </div>
-                <?php } ?>
+                    -->
+                <?php //} ?>
 
             </div><!-- .panel-group .block-panels .main-screen -->
 

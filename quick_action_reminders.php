@@ -77,6 +77,15 @@ if(isset($_POST['submit'])) {
             $body = htmlentities("This is a reminder about Intake #".$intake['intakeid'].": ".html_entity_decode($intake_form['form_name']).".<br />\n<br />");
             $dbc->query("INSERT INTO `reminders` (`contactid`,`reminder_date`,`reminder_type`,`subject`,`body`,`src_table`,`src_tableid`, `sender`) VALUES ('$staff','$date','Intake Reminder','$subject','$body','intake','$id', '$sender')");
             break;
+        
+        case 'email':
+            $communication_id = $id;
+            
+            $sender = get_email($dbc, $_SESSION['contactid']);
+            $body = htmlentities("This is a reminder about an Email Communication.<br />\n<br />
+            <a href=\"".WEBSITE_URL."/Email Communication/view_email.php?email_communicationid=$communication_id\">Click here</a> to see the Email Communication.<br />\n<br />");
+            $dbc->query("INSERT INTO `reminders` (`contactid`, `reminder_date`, `reminder_type`, `subject`, `body`, `src_table`, `src_tableid`, `sender`) VALUES ('$staff', '$date', 'Email Communication Reminder', '$subject','$body', 'email_communication', '$communication_id', '$sender')");
+            break;
             
         default:
             break;

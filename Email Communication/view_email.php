@@ -16,7 +16,17 @@ $communication_type = empty($_POST['comm_type']) ? (empty($_GET['type']) ? 'Inte
 <div class="container">
     <div class="row">
         <h3 class="gap-left pull-left">Email</h3>
-        <div class="pull-right offset-top-15"><a href=""><img src="../img/icons/ROOK-status-rejected.jpg" alt="Close" title="Close" class="inline-img no-toggle" /></a></div>
+        <div class="pull-right offset-top-15"><?php
+            $id = '';
+            if (!empty($_GET['email_communicationid'])) {
+                $id = preg_replace('/[^0-9]/', '', $_GET['email_communicationid']);
+            }
+            
+            if ( !empty($id) ) { ?>
+                <img src="../img/icons/ROOK-reminder-icon.png" alt="Add Reminder" title="Add Reminder" class="no-toggle cursor-hand" data-placement="bottom" width="25" onclick="overlayIFrameSlider('../quick_action_reminders.php?tile=email&id=<?= $id ?>', 'auto', false, true);" /><?php
+            } ?>
+            <a href=""><img src="../img/icons/ROOK-status-rejected.jpg" alt="Close" title="Close" class="inline-img no-toggle" data-placement="bottom" width="25" /></a>
+        </div>
         <div class="clearfix"></div>
         <hr />
         
@@ -35,7 +45,7 @@ $communication_type = empty($_POST['comm_type']) ? (empty($_GET['type']) ? 'Inte
             
             <div class="row gap-top">
                 <label class="col-xs-4">From:</label>
-                <div class="col-xs-8"><?= $email['from_name'] ?> <<?= $email['from_email'] ?>></div>
+                <div class="col-xs-8"><?= $email['from_name'] .' &lt'. $email['from_email'] .'&gt' ?></div>
             </div>
             
             <div class="row gap-top">
