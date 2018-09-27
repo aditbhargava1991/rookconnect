@@ -515,6 +515,7 @@ if($num_rows7 > 0) {
 		}
 
 
+		$item_id_query = '';
 		foreach($invoice_custom_ticket as $service_id) {
 			$html .= '<td>';
 			$service = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `services` WHERE `serviceid` = '$service_id'"));
@@ -529,20 +530,47 @@ if($num_rows7 > 0) {
 					$amount = $price*($quantity-$returned);
 					$line_total += $amount;
 
-					$html .= '<table border="0"><tr>';
-					$html .= '<td width="75%">'.$service['heading'].'<br />$'.number_format($price,2).' x '.$quantity.'</td>';
-					$html .= '<td width="25%" style="text-align:right;">$'.number_format($amount,2).'</td>';
-					$html .= '</tr></table><p style="font-size:1px;"></p>';
-				}
-			}
-			$html .= '</td>';
-		}
-		$item_id_query = '';
-		if(!empty($invoice_custom_ticket)) {
-			$item_id_query = "AND item_id NOT IN ('".implode("','", $invoice_custom_ticket)."')";
+                        $html .= '<table border="0"><tr>';
+                        $html .= '<td width="75%">'.$service['heading'].'<br />$'.number_format($price,2).' x '.$quantity.'</td>';
+                        $html .= '<td width="25%" style="text-align:right;">$'.number_format($amount,2).'</td>';
+                        $html .= '</tr></table><p style="font-size:1px;"></p>';
+                    }
+                }
+                $html .= '</td>';
+                $item_id_query .= " AND item_id NOT IN ('".$service_id."')";
+            } else if(explode('|',$service_id)[0] == 'multi_srv_group') {
+                $html .= '<td>';
+                $service_id = explode('|',$service_id);
+                unset($service_id[1]);
+                unset($service_id[0]);
+                if(count($service_id) > 0) {
+                    $service_id = implode(',',$service_id);
+                    $result2 = mysqli_query($dbc, "SELECT * FROM invoice_lines WHERE invoiceid='$invoiceid' AND category = 'service' AND item_id IN ($service_id) AND `ticketid` = '".$ticket['ticketid']."'".(in_array('delivery_group',$invoice_custom_ticket_fields) ? " AND `stop_id`='".$ticketid['stop_id']."'" : ''));
+                    while($row = mysqli_fetch_assoc($result2)) {
+                        $service = $row['item_id'];
+                        $service = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `services` WHERE `serviceid`='$service'"));
+                        $inventoryid = $row['item_id'];
+                        $price = $row['unit_price'];
+                        $quantity = $row['quantity'];
+                        $returned		= $row['returned_qty'];
+
+                        if($inventoryid != '') {
+                            $amount = $price*($quantity-$returned);
+                            $line_total += $amount;
+
+                            $html .= '<table border="0"><tr>';
+                            $html .= '<td width="75%">'.$service['heading'].'<br />$'.number_format($price,2).' x '.$quantity.'</td>';
+                            $html .= '<td width="25%" style="text-align:right;">$'.number_format($amount,2).'</td>';
+                            $html .= '</tr></table><p style="font-size:1px;"></p>';
+                        }
+                    }
+                    $item_id_query .= " AND item_id NOT IN (".$service_id.")";
+                    $html .= '</td>';
+                }
+            }
 		}
 		$html .= '<td>';
-		$result2 = mysqli_query($dbc, "SELECT * FROM invoice_lines WHERE invoiceid='$invoiceid' AND category = 'service' AND `ticketid` = '".$ticket['ticketid']."' AND `item_id` IS NOT NULL ".$item_id_query);
+		$result2 = mysqli_query($dbc, "SELECT * FROM invoice_lines WHERE invoiceid='$invoiceid' AND category = 'service' AND `ticketid` = '".$ticket['ticketid']."' AND `item_id` IS NOT NULL ".$item_id_query.(in_array('delivery_group',$invoice_custom_ticket_fields) ? " AND `stop_id`='".$ticketid['stop_id']."'" : ''));
 		while($row = mysqli_fetch_assoc($result2)) {
 			$inventoryid = $row['item_id'];
 			$service = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `services` WHERE `serviceid` = '$inventoryid'"));
