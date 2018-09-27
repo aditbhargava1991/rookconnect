@@ -114,7 +114,7 @@
                     for($client_loop=0; $client_loop<=$total_count; $client_loop++) {
                         if($each_inventoryid[$client_loop] != '') {
                             $inventoryid = $each_inventoryid[$client_loop];
-                            $sell_price = $each_sell_price[$client_loop];
+                            $sell_price = $each_sell_price[$client_loop] * $discount_percent;
                             $invtype = $each_invtype[$client_loop];
                             $quantity = $each_quantity[$client_loop];
                             $inv_info = mysqli_fetch_array(mysqli_query($dbc, "SELECT `category`, `part_no`, `name`, `final_retail_price`, `wcb_price`, `client_price`, `web_price`, `purchase_order_price`, `sales_order_price`, `admin_price`, `wholesale_price`, `commercial_price`, `preferred_price`, `gst_exempt` FROM `inventory` WHERE `inventoryid`='$inventoryid'"));
@@ -185,7 +185,7 @@
                                 <div class="col-sm-<?= $col5 ?>" <?= (in_array('inventory_price',$field_config) ? '' : 'style="display:none;"') ?>><label class="show-on-mob">Unit Price:</label>
                                     <?php if($_GET['inv_mode'] == 'adjust') { ?>
                                         <input name="unit_price[]" id="<?php echo 'unitprice_'.$id_loop; ?>" value="<?php echo $sell_price / $quantity; ?>" type="hidden" readonly class="form-control invunitprice" />
-                                        <?php echo $sell_price / $quantity; ?>
+                                        <?= number_format($sell_price / $quantity,2) ?>
                                     <?php } else { ?>
                                         <input name="unit_price[]" id="<?php echo 'unitprice_'.$id_loop; ?>" value="<?php echo $sell_price / $quantity; ?>" type="number" step="any" readonly class="form-control invunitprice" />
                                     <?php } ?>

@@ -1237,7 +1237,13 @@ else if($_GET['action'] == 'text_template_sort') {
 else if($_GET['action'] == 'summary_block_sort') {
     $id = $_POST['template_id'];
     $id_val = implode('||*||',$id);
-    mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$id_val."' WHERE `name`='summary_block_sort'");
+
+    $columnExist = mysqli_query($dbc, "SELECT `name` from `general_configuration` WHERE `name` = 'summary_block_sort' ");
+    if($columnExist->num_rows>0){
+        mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$id_val."' WHERE `name`='summary_block_sort'");
+    }else{
+        $mm = mysqli_query($dbc, "INSERT INTO `general_configuration` (`configid`, `name`, `value`, `calllog_schedule_status`) VALUES (NULL, 'summary_block_sort', '$id_val', NULL)");
+    }
 }
 // Get  User's Profile Image
 else if($_GET['action'] == 'user_profile_id') {
