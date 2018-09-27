@@ -119,7 +119,7 @@ $(document).ready(function() {
         $( "#contactid_show" ).hide();
         $( "#company_staff_sharing" ).hide();
         $('.task-board-name').show();
-    } else if(taskboard == 'Company') {
+    } else if(taskboard == 'Shared') {
         $( "#company_staff_sharing" ).show();
         $( "#businessid_show" ).hide();
         $( "#contactid_show" ).hide();
@@ -147,7 +147,7 @@ $(document).ready(function() {
             $('#businessid_show').show();
             $('#contactid_show').show();
             $('.task-board-name').hide();
-        } else if ( $('#board_security option:selected').val()=='Company' ) {
+        } else if ( $('#board_security option:selected').val()=='Shared' ) {
             $('#company_staff_sharing').show();
             $('#businessid_show').hide();
             $('#contactid_show').hide();
