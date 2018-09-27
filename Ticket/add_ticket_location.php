@@ -2,7 +2,9 @@
 <script type="text/javascript">
 $(document).ready(function() {
 	$('[name="clientid"]').off('change',filterSitesByClient).change(filterSitesByClient);
-	filterSitesByClient();
+	if(ticketid > 0) {
+		filterSitesByClient();
+	}
 });
 function filterSitesByClient() {
 	$('[name="siteid"] option').hide();
