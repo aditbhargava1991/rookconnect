@@ -3387,3 +3387,48 @@ position: relative;
 	text-align: center;
 	line-height: 10px;
 }
+.dispatch-equipment-list {
+	overflow: auto;
+	width: auto;
+	white-space:nowrap;
+}
+.dispatch-equipment-group {
+	display: inline-block;
+	border: 1px solid #E1E1E1;
+	margin: 0.5em;
+	vertical-align: top;
+}
+.dispatch-equipment-content {
+	overflow: auto;
+}
+.dispatch-equipment-title {
+	padding: 1em;
+	border-bottom: 1px solid #E1E1E1;
+}
+.dispatch-equipment-block {
+	margin: 0.5em;
+	padding: 0.5em;
+	background-color: #dddddd;
+	border: 1px solid #ACA9A9;
+}
+.dashboard-equipment-buttons-group {
+	padding: 0.5em;
+}
+.dispatch-equipment-button {
+	border: 1px solid #E1E1E1;
+	border-radius: 5px;
+	padding: 0.25em;
+	margin: 0.25em;
+	display: inline-block;
+	opacity: 0.5;
+	color: #000 !important;
+}
+.dispatch-equipment-button.active {
+	opacity: 1;
+}
+.dispatch-equipment-button a {
+	color: #000 !important;
+}
+.dispatch-equipment-button a:hover {
+	color: #000 !important;
+}
