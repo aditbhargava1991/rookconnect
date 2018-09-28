@@ -3404,9 +3404,6 @@ if($_GET['action'] == 'update_fields') {
 		mysqli_query($dbc, "UPDATE `field_config_ticket_alerts` SET `enabled`='$enabled', `status`='$status', `contactid`='$staffid' WHERE `ticket_type`='$ticket_tab'");
 	}
 }
-
-?>
-
 if($_GET['action'] == 'get_ticket_client') {
 	$ticketid = $_GET['ticketid'];
 	if($ticketid > 0) {
