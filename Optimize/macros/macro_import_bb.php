@@ -13,6 +13,22 @@ if(isset($_POST['upload_file']) && !empty($_FILES['csv_file']['tmp_name'])) {
     }
     $increment_time = get_config($dbc, 'scheduling_increments');
     $increment_time = ($increment_time > 0 ? $increment_time * 60 : 1800);
+
+    $business_warehouse = '';
+    if($businessid > 0) {
+    	$business = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `contacts` WHERE `contactid` = '$businessid'"));
+    	if(!empty($business['classification'])) {
+    		$business['classification'] = explode(',', $business['classification'])[0];
+    		$business_warehouse = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `contactid`, `name`, `first_name`, `last_name`, `address`, `city`, `postal_code` FROM `contacts` WHERE `deleted` = 0 AND `category` = 'Warehouses' AND CONCAT(',',`classification`,',') LIKE '%,".$business['classification'].",%'"));
+    		$warehouse_name = trim(decryptIt($warehouse['name']).(decryptIt($warehouse['name']) != '' && decryptIt($warehouse['first_name']).decryptIt($warehouse['last_name']) != '' ? ': ' : '').($warehouse['first_name']).' '.($warehouse['last_name']).' '.(empty($warehouse['display_name']) ? $warehouse['site_name'] : $warehouse['display_name']));
+    		if($warehouse_name == '') {
+    			$warehouse_name = 'warehouse';
+    		}
+
+			$business_warehouse = ['warehouseid' => $business_warehouse['contactid'], 'city' => $business_warehouse['city'], 'address' => $business_warehouse['address'], 'postal_code' => $business_warehouse['postal_code'], 'warehouse_name' => $warehouse_name];
+    	}
+    }
+
     $warehouse_start_time = get_config($dbc, 'ticket_warehouse_start_time');
 	$warehouses = [];
 	$warehouse_assignments = explode('#*#', get_config($dbc, 'bb_macro_warehouse_assignments'));
@@ -82,8 +98,15 @@ if(isset($_POST['upload_file']) && !empty($_FILES['csv_file']['tmp_name'])) {
 				$ticketid = $dbc->insert_id;
 				if(!empty($warehouses[$value['origin_city']]) && !empty($value['origin_city'])) {
 					$dbc->query("INSERT INTO `ticket_schedule` (`ticketid`,`type`,`to_do_date`,`to_do_start_time`,`client_name`,`address`,`city`,`postal_code`,`order_number`,`status`) VALUES ('$ticketid','".$warehouses[$value['origin_city']]['warehouse_name']."','".$value['date']."','".$warehouse_start_time."','".$business_name."','".$warehouses[$value['origin_city']]['address']."','".$warehouses[$value['origin_city']]['city']."','".$warehouses[$value['origin_city']]['postal_code']."','".$key."','$default_status')");
+				} else if(!empty($business_warehouse)) {
+					$dbc->query("INSERT INTO `ticket_schedule` (`ticketid`,`type`,`to_do_date`,`to_do_start_time`,`client_name`,`address`,`city`,`postal_code`,`order_number`,`status`) VALUES ('$ticketid','".$business_warehouse['warehouse_name']."','".$value['date']."','".$warehouse_start_time."','".$business_name."','".$business_warehouse['address']."','".$business_warehouse['city']."','".$business_warehouse['postal_code']."','".$key."','$default_status')");
 				}
 				$dbc->query("INSERT INTO `ticket_schedule` (`ticketid`,`to_do_date`,`client_name`,`address`,`city`,`details`,`order_number`,`serviceid`,`est_time`,`map_link`,`notes`,`status`) VALUES ('$ticketid','".$value['date']."','".$value['customer_name']."','".$value['address']."','".$value['city']."','".$value['phone']."','".$key."','$serviceid','$service_est_time','".'https://www.google.ca/maps/place/'.urlencode($value['address']).','.urlencode($value['city'])."','&lt;p&gt;".$value['sku']."&lt;/p&gt;&lt;p&gt;".$value['comments']."&lt;/p&gt;','$default_status')");
+				if(!empty($warehouses[$value['origin_city']]) && !empty($value['origin_city'])) {
+					$dbc->query("INSERT INTO `ticket_schedule` (`ticketid`,`type`,`to_do_date`,`client_name`,`address`,`city`,`postal_code`,`order_number`,`status`) VALUES ('$ticketid','".$warehouses[$value['origin_city']]['warehouse_name']."','".$value['date']."','".$business_name."','".$warehouses[$value['origin_city']]['address']."','".$warehouses[$value['origin_city']]['city']."','".$warehouses[$value['origin_city']]['postal_code']."','".$key."','$default_status')");
+				} else if(!empty($business_warehouse)) {
+					$dbc->query("INSERT INTO `ticket_schedule` (`ticketid`,`type`,`to_do_date`,`client_name`,`address`,`city`,`postal_code`,`order_number`,`status`) VALUES ('$ticketid','".$business_warehouse['warehouse_name']."','".$value['date']."','".$business_name."','".$business_warehouse['address']."','".$business_warehouse['city']."','".$business_warehouse['postal_code']."','".$key."','$default_status')");
+				}
 				$dbc->query("INSERT INTO `ticket_history` (`ticketid`,`userid`,`src`,`description`) VALUES ('$ticketid',".$_SESSION['contactid'].",'optimizer','Best Buy macro imported ".TICKET_NOUN." $ticketid')");
 			}
 		}
@@ -93,6 +116,13 @@ if(isset($_POST['upload_file']) && !empty($_FILES['csv_file']['tmp_name'])) {
 ?>
 
 <h1>Best Buy Macro</h1>
+
+<div class="notice double-gap-bottom popover-examples">
+	<div class="col-sm-1 notice-icon"><img src="<?= WEBSITE_URL; ?>/img/info.png" class="wiggle-me" width="25"></div>
+	<div class="col-sm-11"><span class="notice-name">NOTE:</span>
+	If a City is set up in the settings to be attached to a Warehouse, the first and last stops for each <?= TICKET_NOUN ?> will be the Warehouse. If no Warehouse is found in the settings, it will try and find the Warehouse based on the Classification of the selected Business.</div>
+	<div class="clearfix"></div>
+</div>
 
 <form class="form-horizontal" method="post" action="" enctype="multipart/form-data">
 	<ol>
