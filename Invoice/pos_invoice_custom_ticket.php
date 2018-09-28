@@ -542,6 +542,8 @@ if($num_rows7 > 0) {
                     }
                 }
                 $html .= '</td>';
+                $item_id_query .= " AND item_id NOT IN ('".$service_id."')";
+
             } else if(explode('|',$service_id)[0] == 'multi_srv_group') {
                 $html .= '<td>';
                 $service_id = explode('|',$service_id);
@@ -568,6 +570,8 @@ if($num_rows7 > 0) {
                             $html .= '</tr></table><p style="font-size:1px;"></p>';
                         }
                     }
+                    $item_id_query .= " AND item_id NOT IN (".$service_id.")";
+
                 }
                 $html .= '</td>';
             }
