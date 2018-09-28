@@ -224,7 +224,7 @@ $subtabs_hidden = [];
 $subtabs_viewonly = [];
 $fields_hidden = [];
 $fields_viewonly = [];
-$i = 0;
+$i = 0; $mobile_mode = '0';
 foreach($security_levels as $security_level) {
 	$security_config = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `field_config_staff_security` WHERE `security_level` = '$security_level'"));
 	if(!empty($security_config)) {
@@ -255,7 +255,7 @@ foreach($security_levels as $security_level) {
 				</div>
 			</div>
 		</div>
-	<?php } else if(!isset($_GET['mobile_view'])) { include('mobile_view.php'); } ?>
+	<?php } else if(!isset($_GET['mobile_view'])) { include('mobile_view.php'); }else{ $mobile_mode = '1';} ?>
 	<div class="row hide-titles-mob" style="<?= $_GET['view_only'] == 'id_card' ? 'display:none;' : '' ?>">
 		<!-- <div id="no-more-tables" class="main-screen contacts-list"> -->
 		<div class="main-screen">
@@ -362,13 +362,17 @@ foreach($security_levels as $security_level) {
 										}
 										$edit_config = ','.implode(',',$edit_config).',';
 									}
-
+									
 									$value_config_hidden = ','.implode(',',$value_config_hidden).',';
 									$value_config = ','.implode(',',$value_config).',';
 									if(str_replace(',','',$value_config) != '') {
 										?>
 <!--   echo ($row_main['subtab'] == $subtab ? '' : 'style="display:none;"');  (in_array($sidebar_fields[$subtab][0], $subtabs_viewonly) || (edit_visible_function($dbc, 'staff') == 0 && add_visible_function($dbc, 'staff') == 0)) ? 'class="viewonly_fields"' : ''  -->
-										<div>
+										<?php if($mobile_mode == '1'){ ?>
+										    <div <?php echo ($row_main['subtab'] == $subtab ? '' : 'style="display:none;"');  (in_array($sidebar_fields[$subtab][0], $subtabs_viewonly) || (edit_visible_function($dbc, 'staff') == 0 && add_visible_function($dbc, 'staff') == 0)) ? 'class="viewonly_fields"' : ''?>>
+										<?php }else{ ?>
+										    <div>
+										<?php } ?>
 											<hr>
 											<h4><?= $row_main['accordion'] ?></h4>
 
@@ -387,7 +391,11 @@ foreach($security_levels as $security_level) {
 										$value_config = $value_config_hidden;
 										?>
 
-										<div>
+										<?php if($mobile_mode == '1'){ ?>
+										    <div style="display:none">
+										<?php }else{ ?>
+										    <div>
+										<?php } ?>
 											<hr>
 											<h4><?= $row_main['accordion'] ?></h4>
 
@@ -405,17 +413,19 @@ foreach($security_levels as $security_level) {
 									$j++;
 								}
 							//}//$subtab == 'software_access' && 
-							if(check_subtab_persmission($dbc, 'staff', ROLE, 'software_access') === TRUE) {
-								include('../Staff/staff_edit_software_access.php');
-							} //else if($subtab == 'project') {
-								$value_config = ',Project,';
-								include ('../Contacts/add_contacts_data.php');
-							//} else if($subtab == 'ticket') {
-								$value_config = ',Ticket,';
-								include ('../Contacts/add_contacts_data.php');
-							//} else if($subtab == 'time_off') {
-								$tab = '%';
-								$form = 'Time Off Request'; ?>
+							
+							if($mobile_mode == '1'){
+							    if($subtab == 'software_access' && check_subtab_persmission($dbc, 'staff', ROLE, 'software_access') === TRUE) {
+							        include('../Staff/staff_edit_software_access.php');
+							    }else if($subtab == 'project') {
+							    $value_config = ',Project,';
+							    include ('../Contacts/add_contacts_data.php');
+							    } else if($subtab == 'ticket') {
+							    $value_config = ',Ticket,';
+							    include ('../Contacts/add_contacts_data.php');
+							    } else if($subtab == 'time_off') {
+							    $tab = '%';
+							    $form = 'Time Off Request'; ?>
 								<style>
 								.external-form-submit .panel .panel-title a {
 									color: #FFF !important;
@@ -427,7 +437,7 @@ foreach($security_levels as $security_level) {
 									<button class="btn brand-btn pull-right" type="submit" name="time_off_request" value="time_off">Submit Request</button>
 									<div class="clearfix"></div>
 								</div>
-							<?php //} else if($subtab == 'time_off_requests') {
+							<?php } else if($subtab == 'time_off_requests') {
 								if($_POST['time_off_request'] == 'time_off') {
 									$hrid = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `hrid` FROM `hr` WHERE `form`='Time Off Request'"))['hrid'];
 									$url_redirect = 'N/A';
@@ -462,10 +472,69 @@ foreach($security_levels as $security_level) {
 								<?php } else {
 									echo "<h3>No Requests Found.</h3>";
 								}
-							//} else if($subtab == 'rate_card') {
+							} else if($subtab == 'rate_card') {
                                 include('edit_staff_rate_card.php');
-                            //} ?>
-						<?php if($subtab != 'id_card') { ?>
+                            }
+							}else{
+							    if(check_subtab_persmission($dbc, 'staff', ROLE, 'software_access') === TRUE) {
+							        include('../Staff/staff_edit_software_access.php');
+							    }
+							    $value_config = ',Project,';
+							    include ('../Contacts/add_contacts_data.php');
+							    $value_config = ',Ticket,';
+							    include ('../Contacts/add_contacts_data.php');
+							    $tab = '%';
+							    $form = 'Time Off Request'; ?>
+							    <style>
+								.external-form-submit .panel .panel-title a {
+									color: #FFF !important;
+								}
+								</style>
+								<div class="external-form-submit">
+									<input type="hidden" name="subtab" value="time_off_requests">
+									<?php include('../HR/time_off_request/time_off_request.php'); ?>
+									<button class="btn brand-btn pull-right" type="submit" name="time_off_request" value="time_off">Submit Request</button>
+									<div class="clearfix"></div>
+								</div>
+								<?php //} else if($subtab == 'time_off_requests') {
+								if($_POST['time_off_request'] == 'time_off') {
+									$hrid = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `hrid` FROM `hr` WHERE `form`='Time Off Request'"))['hrid'];
+									$url_redirect = 'N/A';
+									$tab = 'Form';
+									include('../HR/time_off_request/save_time_off_request.php');
+								}
+								$requests = mysqli_query($dbc, "SELECT * FROM `hr_time_off_request` WHERE `contactid`='$contactid' ORDER BY `today_date`");
+								if(mysqli_num_rows($requests) > 0) { ?>
+									<div id="no-more-tables">
+										<h3>Time Off Requests</h3>
+										<table class="table table-bordered">
+											<tr class="hide-titles-mob">
+												<th>Type of Time Off</th>
+												<th>Dates</th>
+												<th>Reason</th>
+												<th>Signed</th>
+												<th>Function</th>
+											</tr>
+											<?php while($request = mysqli_fetch_assoc($requests)) {
+												$fields = explode('**FFM**',$request['fields']); ?>
+												<tr>
+													<td data-title="Type of Time Off"><?= $fields[0] == 'Other' ? $fields[1] : $fields[0] ?></td>
+													<td data-title="Dates"><?= $fields[2].' - '.$fields[3] ?></td>
+													<td data-title="Reason"><?= html_entity_decode($request['desc']) ?></td>
+													<td data-title="Signed"><?= get_contact($dbc, $request['contactid']) ?><br /><?= $request['today_date'] ?></td>
+													<td data-title=""><a href="../HR/time_off_request/download/hr_<?= $request['fieldlevelriskid'] ?>.pdf">View Request</a><br />
+														<?= $request['status'] == 'New' && approval_visible_function($dbc, 'staff') > 0 ? '<a href="../HR/time_off_request/approve_request.php?hrid='.$request['fieldlevelriskid'].'&status=Approved">Approve Request</a><br /><a href="../HR/time_off_request/approve_request.php?hrid='.$request['fieldlevelriskid'].'&status=Denied">Deny Request</a>' : 'Status: '.$request['status'] ?></td>
+												</tr>
+											<?php } ?>
+										</table>
+									</div>
+								<?php } else {
+									echo "<h3>No Requests Found.</h3>";
+								}
+                                include('edit_staff_rate_card.php');
+							}
+							
+							if($subtab != 'id_card') { ?>
 							<!-- <button type='submit' name='<?= $subtab=='rate_card' ? 'submit_rate_card' : 'contactid' ?>' value='<?php echo $contactid; ?>' class="btn brand-btn pull-right">Submit</button> -->
 							<button type='submit' name='contactid' value='<?php echo $contactid; ?>' class="btn brand-btn pull-right">Submit</button>
 						<?php }
