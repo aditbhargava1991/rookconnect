@@ -3392,3 +3392,22 @@ position: relative;
 	text-align: center;
 	line-height: 10px;
 }
+
+/*
+ * jQuery-Circle-Plugin v0.1 by Jamal hassouni
+ * https://github.com/jamalhassouni
+ */
+.radial-chart { position:relative; height:100px; width:100px; margin:0 auto; }
+    .radial-chart div { position:absolute; height:100px; width:100px; border-radius:50%; }
+        .radial-chart div span { position:absolute; font-family:Arial; font-size:25px; line-height:75px; height:75px; width:75px; left:12.5px; top:12.5px; text-align:center; border-radius:50%; background-color:white; }
+.radial-chart .background { background-color:#b3cef6; }
+.radial-chart .rotate { clip:rect(0 50px 100px 0); background-color:#4b86db; }
+.radial-chart .left { clip:rect(0 50px 100px 0); opacity:1; background-color:#b3cef6; }
+.radial-chart .right { clip:rect(0 50px 100px 0); transform:rotate(180deg); opacity:0; background-color:#4b86db; }
+.radial-chart-desc { height:100px; line-height:100px; }
+    .radial-chart-desc span { display:inline-block; line-height:normal; vertical-align:middle; }
+@keyframes
+    toggle {
+        0% { opacity:0; }
+        100% { opacity:1; }
+    }
