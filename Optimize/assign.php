@@ -120,14 +120,20 @@ function initOptions() {
 			$('.draw_sort').empty();
 			var block = $('.block-item.equipment.active').first();
 			if(block.length > 0) {
-				$.post('optimize_ajax.php?action=assign_ticket', {
-					equipment: block.data('id'),
-					table: ticket.item.data('table'),
-					id_field: ticket.item.data('id-field'),
-					id: ticket.item.data('id'),
-					date: $('[name=date]').val()
-				}, function(response) {
-					get_ticket_list();
+				$.ajax({
+					async: false,
+					url: 'optimize_ajax.php?action=assign_ticket',
+					method: 'POST',
+					data: {
+						equipment: block.data('id'),
+						table: ticket.item.data('table'),
+						id_field: ticket.item.data('id-field'),
+						id: ticket.item.data('id'),
+						date: $('[name=date]').val()
+					},
+					success: function(response) {
+						get_ticket_list();
+					}
 				});
 			}
 		},
@@ -152,15 +158,21 @@ function initDraw() {
 			var delay_load = '';
 			if(block.length > 0) {
 				ticket_list.forEach(function(ticket) {
-					$.post('optimize_ajax.php?action=assign_ticket', {
-						equipment: block.data('id'),
-						table: $(ticket).closest('span').data('table'),
-						id_field: $(ticket).closest('span').data('id-field'),
-						id: $(ticket).closest('span').data('id'),
-						date: $('[name=date]').val()
-					}, function(response) {
-						clearTimeout(delay_load);
-						delay_load = setTimeout(get_ticket_list(),1000);
+					$.ajax({
+						async: false,
+						url: 'optimize_ajax.php?action=assign_ticket',
+						method: 'POST',
+						data: {
+							equipment: block.data('id'),
+							table: $(ticket).closest('span').data('table'),
+							id_field: $(ticket).closest('span').data('id-field'),
+							id: $(ticket).closest('span').data('id'),
+							date: $('[name=date]').val()
+						},
+						success: function(response) {
+							clearTimeout(delay_load);
+							delay_load = setTimeout(get_ticket_list(),1000);
+						}
 					});
 				});
 				ticket_list = [];

@@ -29,7 +29,7 @@ else if($_GET['action'] == 'assign_ticket') {
 	$date = filter_var($_POST['date'],FILTER_SANITIZE_STRING);
 	$default_status = get_config($dbc, 'ticket_default_status');
 	$ticketid = $dbc->query("SELECT `ticketid` FROM `$table` WHERE `$id_field`='$id'")->fetch_array()[0];
-	$max_start = $dbc->query("SELECT MAX(`to_do_end_time`) FROM (SELECT IFNULL(`to_do_end_time`,`to_do_start_time`) `to_do_end_time` FROM `ticket_schedule` WHERE `equipmentid`='$equipmentid' AND `to_do_date`='$date' AND `deleted`=0 AND `type` != 'warehouse' AND IFNULL(NULLIF(CONCAT(IFNULL(`ticket_schedule`.`address`,''),IFNULL(`ticket_schedule`.`city`,'')),''),'') NOT IN (SELECT CONCAT(IFNULL(`address`,''),IFNULL(`city`,'')) FROM `contacts` WHERE `category`='Warehouses') UNION SELECT IFNULL(`to_do_end_time`,`to_do_start_time`) `to_do_end_time` FROM `tickets` WHERE `equipmentid`='$equipmentid' AND `to_do_date`='$date' AND `deleted`=0) `times`")->fetch_array()[0];
+	$max_start = $dbc->query("SELECT MAX(`to_do_end_time`) FROM (SELECT IFNULL(NULLIF(`to_do_end_time`,''),`to_do_start_time`) `to_do_end_time` FROM `ticket_schedule` WHERE `equipmentid`='$equipmentid' AND `to_do_date`='$date' AND `deleted`=0 AND `type` != 'warehouse' AND IFNULL(NULLIF(CONCAT(IFNULL(`ticket_schedule`.`address`,''),IFNULL(`ticket_schedule`.`city`,'')),''),'') NOT IN (SELECT CONCAT(IFNULL(`address`,''),IFNULL(`city`,'')) FROM `contacts` WHERE `category`='Warehouses') UNION SELECT IFNULL(NULLIF(`to_do_end_time`,''),`to_do_start_time`) `to_do_end_time` FROM `tickets` WHERE `equipmentid`='$equipmentid' AND `to_do_date`='$date' AND `deleted`=0) `times`")->fetch_array()[0];
 	if($max_start == '') {
 		$max_start = '07:00';
 	}
