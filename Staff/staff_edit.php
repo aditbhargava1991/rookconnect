@@ -299,10 +299,18 @@ foreach($security_levels as $security_level) {
 							</div>
 						<?php } ?>
 						<div class='standard-body-dashboard-content pad-top pad-left pad-right' style="background-color:#fff">
-							<?php //if($subtab == 'id_card') {
+							<?php 
+							if($mobile_mode == '1'){
+							    if($subtab == 'id_card'){ $display_this = '1'; }else{ $display_this = '0'; }
+							    if($subtab != 'id_card'){ $display_this1 = '1'; }else{ $display_this1 = '0'; }
+							}else{
+							    $display_this = $display_this1 = '1';
+							}
+							if($display_this) {
 								include('../Contacts/contact_profile.php');
 								echo '<input type="hidden" name="overview_page" value="1">';
-							//} else {
+							} 
+							if($display_this1) {
 								$staff_cat_query = [];
 								if(!empty($staff_category)) {
 									foreach(array_filter(explode(',', $staff_category)) as $staff_cat) {
@@ -412,7 +420,7 @@ foreach($security_levels as $security_level) {
 									<?php }
 									$j++;
 								}
-							//}//$subtab == 'software_access' && 
+							}//$subtab == 'software_access' && 
 							
 							if($mobile_mode == '1'){
 							    if($subtab == 'software_access' && check_subtab_persmission($dbc, 'staff', ROLE, 'software_access') === TRUE) {
