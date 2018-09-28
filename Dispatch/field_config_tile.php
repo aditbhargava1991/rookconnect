@@ -70,3 +70,18 @@ checkAuthorised('dispatch'); ?>
         <?php } ?>
     </div>
 </div>
+<div class="form-group">
+    <label class="col-sm-4 control-label">Search Fields:</label>
+    <div class="col-sm-8">
+        <?php $ticket_label_fields = [
+            'region'=>'Region',
+            'location'=>'Location',
+            'classification'=>'Classification',
+            'business'=>BUSINESS_CAT
+        ];
+        $dispatch_tile_search_fields = explode(',',get_config($dbc, 'dispatch_tile_search_fields'));
+        foreach($ticket_label_fields as $label_key => $label_field) { ?>
+            <label class="form-checkbox"><input type="checkbox" name="dispatch_tile_search_fields[]" value="<?= $label_key ?>" <?= in_array($label_key, $dispatch_tile_search_fields) ? 'checked' : '' ?>> <?= $label_field ?></label>
+        <?php } ?>
+    </div>
+</div>

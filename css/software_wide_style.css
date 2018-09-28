@@ -3397,6 +3397,7 @@ position: relative;
 	border: 1px solid #E1E1E1;
 	margin: 0.5em;
 	vertical-align: top;
+	white-space: normal;
 }
 .dispatch-equipment-content {
 	overflow: auto;
@@ -3404,6 +3405,7 @@ position: relative;
 .dispatch-equipment-title {
 	padding: 1em;
 	border-bottom: 1px solid #E1E1E1;
+	color: #fafafa !important;
 }
 .dispatch-equipment-block {
 	margin: 0.5em;
@@ -3415,20 +3417,24 @@ position: relative;
 	padding: 0.5em;
 }
 .dispatch-equipment-button {
-	border: 1px solid #E1E1E1;
-	border-radius: 5px;
-	padding: 0.25em;
+	font-size: 12px;
+	line-height: 1.5;
+	border-radius: 3px;
+	padding: 0.5em;
 	margin: 0.25em;
 	display: inline-block;
 	opacity: 0.5;
-	color: #000 !important;
+	color: #fafafa !important;
+	text-decoration: none;
+	text-transform:uppercase;
 }
 .dispatch-equipment-button.active {
 	opacity: 1;
 }
 .dispatch-equipment-button a {
-	color: #000 !important;
+	color: #fafafa !important;
+	display: inline-block;
 }
 .dispatch-equipment-button a:hover {
-	color: #000 !important;
+	color: #fafafa !important;
 }
