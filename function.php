@@ -1,12 +1,25 @@
 <?php // Define all Tile Name Constants
 // @$_SERVER['page_load_info'] .= 'Session Started: '.number_format(microtime(true) - $_SERVER['REQUEST_TIME_FLOAT'],5)."\n";
 session_start();
+
+if(!defined('FOLDER_NAME')) {
+    $folder_path = $_SERVER['REQUEST_URI'];
+    $each_tab = explode('/', $folder_path);
+
+    DEFINE('FOLDER_NAME', strtolower($each_tab[1]));
+    DEFINE('FOLDER_URL', $each_tab[1]);
+}
+
 if($_SESSION['CONSTANT_UPDATED'] + 600 < time()) {
 	@session_start(['cookie_lifetime' => 518400]);
 	// Update SESSION Constants no more than once every 600 seconds
 	$inventory_tile_name = explode('#*#',get_config($dbc, 'inventory_tile_name') ?: 'Inventory#*#Inventory');
 	$_SESSION['INVENTORY_TILE'] = $inventory_tile_name[0] ?: 'Inventory';
 	$_SESSION['INVENTORY_NOUN'] = !empty($inventory_tile_name[1]) ? $inventory_tile_name[1] : ($inventory_tile_name[0] == 'Inventory' ? 'Inventory' : $inventory_tile_name[0]) ?: 'Inventory';
+
+	$task_tile_name = explode('#*#',get_config($dbc, 'task_tile_name') ?: 'Task#*#Task');
+	$_SESSION['TASK_TILE'] = $task_tile_name[0] ?: 'Task';
+	$_SESSION['TASK_NOUN'] = !empty($task_tile_name[1]) ? $task_tile_name[1] : ($task_tile_name[0] == 'Task' ? 'Task' : $task_tile_name[0]) ?: 'Task';
 
 	$contacts_tile_name = explode('#*#',get_config($dbc, 'contacts_tile_name') ?: 'Contacts#*#Contact');
 	$_SESSION['CONTACTS_TILE'] = $contacts_tile_name[0] ?: 'Contacts';
@@ -58,27 +71,6 @@ if($_SESSION['CONSTANT_UPDATED'] + 600 < time()) {
 
 	$_SESSION['CONSTANT_UPDATED'] = time();
 	$_SERVER['page_load_info'] .= 'Constants Reloaded: '.number_format(microtime(true) - $_SERVER['REQUEST_TIME_FLOAT'],5)."\n";
-
-    // Match Contacts
-    $today_date = date('Y-m-d');
-    $match_contacts_query = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `match_contact` WHERE CONCAT(',',`staff_contact`,',') LIKE '%,".$_SESSION['contactid'].",%' AND `deleted` = 0 AND `match_date` <= '$today_date'"),MYSQLI_ASSOC);
-    $match_contacts = [];
-    $match_exclude_security = array_filter(explode('#*#', get_config($dbc, 'match_exclude_security')));
-    $match_exclude = false;
-    foreach($match_exclude_security as $exclude_security) {
-        if(strpos(','.$_SESSION['role'].',',','.$exclude_security.',') !== FALSE) {
-            $match_exclude = true;
-        }
-    }
-    if(!empty($match_contacts_query) && !$match_exclude) {
-        $match_contacts[] = $_SESSION['contactid'];
-        foreach($match_contacts_query as $match_contact) {
-            if(strtotime($match_contact['end_date']) >= strtotime($today_date) && $match_contact['status'] == 'Active') {
-                $match_contacts = array_merge($match_contacts, explode(',',$match_contact['support_contact']));
-            }
-        }
-    }
-    $_SESSION['MATCH_CONTACTS'] = implode(',',array_unique(array_filter($match_contacts)));
     $staff_email_field = get_config($dbc, 'staff_email_field');
     $staff_email_field = empty($staff_email_field) ? 'email_address' : $staff_email_field;
     $_SESSION['STAFF_EMAIL_FIELD'] = $staff_email_field;
@@ -86,6 +78,8 @@ if($_SESSION['CONSTANT_UPDATED'] + 600 < time()) {
 }
 // Pull from SESSION instead of Database
 DEFINE('INVENTORY_TILE', $_SESSION['INVENTORY_TILE']);
+DEFINE('TASK_TILE', $_SESSION['TASK_TILE']);
+DEFINE('TASK_NOUN', $_SESSION['TASK_NOUN']);
 DEFINE('POS_ADVANCE_TILE', $_SESSION['POS_ADVANCE_TILE']);
 DEFINE('INVENTORY_NOUN', $_SESSION['INVENTORY_NOUN']);
 DEFINE('CONTACTS_TILE', $_SESSION['CONTACTS_TILE']);
@@ -116,8 +110,53 @@ DEFINE('COMPANY_SOFTWARE_NAME', $_SESSION['COMPANY_SOFTWARE_NAME']);
 DEFINE('ACTIVE_DAY_BANNER', $_SESSION['ACTIVE_DAY_BANNER']);
 DEFINE('ACTIVE_TICKET_BUTTON', $_SESSION['ACTIVE_TICKET_BUTTON']);
 DEFINE('SHOW_SIGN_IN', $_SESSION['SHOW_SIGN_IN']);
-DEFINE('MATCH_CONTACTS', $_SESSION['MATCH_CONTACTS']);
 DEFINE('STAFF_EMAIL_FIELD', $_SESSION['STAFF_EMAIL_FIELD']);
+switch($_SESSION['user_preferences']['time_format'] > 0 ? $_SESSION['user_preferences']['time_format'] : get_config($dbc, 'system_time_format')) {
+	case 4:
+        DEFINE('TIME_FORMAT', 'H:mm');
+        DEFINE('TIME_FORMAT_SEC', 'H:mm:ss');
+        break;
+	case 3:
+        DEFINE('TIME_FORMAT', 'HH:mm');
+        DEFINE('TIME_FORMAT_SEC', 'HH:mm:ss');
+        break;
+	case 2:
+        DEFINE('TIME_FORMAT', 'h:mm tt');
+        DEFINE('TIME_FORMAT_SEC', 'h:mm:ss tt');
+        break;
+	default:
+        DEFINE('TIME_FORMAT', 'hh:mm tt');
+        DEFINE('TIME_FORMAT_SEC', 'hh:mm:ss tt');
+        break;
+}
+
+// Match Contacts
+$today_date = date('Y-m-d');
+$match_tile_lists = '';
+if(in_array(FOLDER_NAME,['posadvanced','invoice','account receivables','project','ticket'])) {
+    $match_tile_lists = str_replace(['posadvanced','invoice','account receivables','project','ticket'],
+        ['posadvanced','check_out','accounts_receivables','project','ticket'],
+        "OR `tile_list` LIKE '%".FOLDER_NAME."%'");
+}
+$match_contacts_query = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `match_contact` WHERE CONCAT(',',`staff_contact`,',') LIKE '%,".$_SESSION['contactid'].",%' AND `deleted` = 0 AND `match_date` <= '$today_date' AND (IFNULL(`tile_list`,'')='' $match_tile_lists)"),MYSQLI_ASSOC);
+$match_contacts = [];
+$match_exclude_security = array_filter(explode('#*#', get_config($dbc, 'match_exclude_security')));
+$match_exclude = false;
+foreach($match_exclude_security as $exclude_security) {
+    if(strpos(','.$_SESSION['role'].',',','.$exclude_security.',') !== FALSE) {
+        $match_exclude = true;
+    }
+}
+if(!empty($match_contacts_query) && !$match_exclude) {
+    $match_contacts[] = $_SESSION['contactid'];
+    foreach($match_contacts_query as $match_contact) {
+        if(strtotime($match_contact['end_date']) >= strtotime($today_date) && $match_contact['status'] == 'Active') {
+            $match_contacts = array_merge($match_contacts, explode(',',$match_contact['support_contact']));
+        }
+    }
+}
+DEFINE('MATCH_CONTACTS',implode(',',array_unique(array_filter($match_contacts))));
+// echo '<script>console.log("'.MATCH_CONTACTS.' '."SELECT * FROM `match_contact` WHERE CONCAT(',',`staff_contact`,',') LIKE '%,".$_SESSION['contactid'].",%' AND `deleted` = 0 AND `match_date` <= '$today_date' AND (IFNULL(`tile_list`,'')='' $match_tile_lists) ".FOLDER_NAME.'");</script>';
 $_SERVER['page_load_info'] .= 'Constants Defined: '.number_format(microtime(true) - $_SERVER['REQUEST_TIME_FLOAT'],5)."\n";
 
 // List all function here
@@ -352,17 +391,32 @@ function set_field_config($dbc, $name, $value) {
 	mysqli_query($dbc, "INSERT INTO `field_config` (`fieldconfigid`) SELECT 0 FROM (SELECT COUNT(*) rows FROM `field_config`) num WHERE num.rows=0");
 	mysqli_query($dbc, "UPDATE `field_config` SET `$name`='$value'");
 }
+function set_field_mandatory_config($dbc, $name, $value) {
+	$name = filter_var($name, FILTER_SANITIZE_STRING);
+	$value = filter_var($value, FILTER_SANITIZE_STRING);
+	mysqli_query($dbc, "INSERT INTO `field_mandatory_config` (`fieldconfigid`) SELECT 0 FROM (SELECT COUNT(*) rows FROM `field_mandatory_config`) num WHERE num.rows=0");
+	mysqli_query($dbc, "UPDATE `field_mandatory_config` SET `$name`='$value'");
+}
 function get_field_config($dbc, $name) {
     return ','.mysqli_fetch_array(mysqli_query($dbc,"SELECT `".filter_var($name,FILTER_SANITIZE_STRING)."` FROM `field_config`"))[0].',';
 }
-function set_config($dbc, $name, $value) {
+function get_mandatory_field_config($dbc, $name) {
+    return ','.mysqli_fetch_array(mysqli_query($dbc,"SELECT `".filter_var($name,FILTER_SANITIZE_STRING)."` FROM `field_mandatory_config`"))[0].',';
+}
+
+function set_config($dbc, $name, $value, $mandatory=0) {
 	$name = filter_var($name, FILTER_SANITIZE_STRING);
 	$value = filter_var($value, FILTER_SANITIZE_STRING);
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT '$name' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='$name') num WHERE num.rows=0");
-	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='$value' WHERE `name`='$name'");
+	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='$value',`mandatory`='$mandatory' WHERE `name`='$name'");
 	$_SESSION['CONSTANT_UPDATED'] = 0;
 }
 function get_config($dbc, $name, $multi = false, $separator = ',') {
+    // Defined Overrided Settings
+    if($name == 'show_category_dropdown_equipment') {
+        return 0;
+    }
+
 	// Get current values
     $name = filter_var($name, FILTER_SANITIZE_STRING);
     if($name == 'all_contact_tabs') {
@@ -540,6 +594,182 @@ function get_config($dbc, $name, $multi = false, $separator = ',') {
 			return '25';
 		} else if($name == 'company_rate_card_sections') {
 			return 'tasks,material,services,products,staff,position,contractor,clients,customer,vpl,inventory,equipment,labour,timesheet,driving_log';
+		} else if($name == 'lead_new_contact_cat') {
+			return 'Sales Leads';
+		} else if($name == 'ticket_archive_status') {
+			return 'Archive#*#Archived';
+		}
+	}
+
+	return $get_config['value'];
+}
+function get_mandatory_config($dbc, $name, $multi = false, $separator = ',') {
+    // Defined Overrided Settings
+    if($name == 'show_category_dropdown_equipment') {
+        return 0;
+    }
+
+    $sql = "SELECT `value` FROM `general_configuration` WHERE `name`='$name' AND mandatory=1";
+    $get_config = mysqli_fetch_assoc(mysqli_query($dbc,$sql));
+
+	// Define Defaults for specific fields
+	if(str_replace(',','',$get_config['value']) == '') {
+		if($name == 'timesheet_tabs') {
+			return 'Time Sheets,Pay Period,Holidays,Coordinator Approvals,Manager Approvals,Reporting,Payroll';
+		} else if($name == 'time_tracking_tabs') {
+			return 'tracking,shop_time_sheets';
+		} else if($name == 'staff_field_subtabs') {
+			return 'ID Card,Staff Information,Staff Address,Employee Information,Driver Information,Direct Deposit Information,Software ID,Social Media,Emergency,Health,Schedule,Certificates,HR,Ticket,Project,History';
+		} else if($name == 'payroll_tabs') {
+			return 'compensation,salary,contractor,field_ticket,shop_work_order';
+		} else if($name == 'billing_tabs') {
+			return 'billing,invoices,accounts_receivable';
+		} else if($name == 'project_nav_tabs') {
+			return 'projects,scrum,tickets,daysheet';
+		} else if($name == 'communication_schedule_tabs') {
+			return 'email,phone';
+		} else if($name == 'site_work_orders') {
+			return 'sites,pending,active,schedule,po';
+		} else if($name == 'checklist_tabs') {
+			return 'my_ongoing,my_daily,my_weekly,my_monthly,company_ongoing,company_daily,company_weekly,company_monthly,project_tab,reporting';
+		} else if($name == 'tile_enable_section') {
+			return 'software_settings,profiles,human_resources,sales,inventory_management,collaborative_workflow,estimates,safety,project_management,operations,project_details,project_type,time_tracking,accounting,reporting,medical,point_of_sale,crm,analytics,equipment,digital_forms,common_practice,project_addon,project_tracking,clinic_ace,communication,safety,pos,crm,anlytics';
+		} else if($name == 'client_project_tabs') {
+			return 'pending,active,archived,tickets,daysheet';
+		} else if($name == 'general_flag_colours') {
+			return 'FB0D0D*#*Default Flag Colour';
+		} else if($name == 'ticket_colour_flags') {
+			return 'FF6060';
+		} else if($name == 'expense_tabs') {
+			return 'budget,current_month,business,customers,clients,staff,sales,manager,payables,report';
+		} else if($name == 'rate_card_tabs') {
+			return ',company,customer,';
+		} else if($name == 'expense_provinces') {
+			return 'AB*5*0*0#*#BC*5*7*0#*#MB*8*5*0#*#NB*0*0*15#*#NL*0*0*15#*#NT*5*0*0#*#NS*0*0*15#*#NU*5*0*0#*#ON*0*0*13#*#PE*0*0*15#*#QC*5*9.975*0#*#SK*5*5*0#*#YT*5*0*0';
+		} else if($name == 'equipment_tabs') {
+			return 'Truck,Trailer';
+		} else if($name == 'equipment_main_tabs') {
+			return 'Equipment,Inspection,Work Order,Expenses,Requests,Records,Checklists';
+		} else if($name == 'equipment_remind_subject') {
+			return 'Reminder of a Renewal for Equipment';
+		} else if($name == 'equipment_remind_body') {
+			return htmlentities('Hi,<p>There is an upcoming renewal for some equipment.</p>');
+		} else if($name == 'equipment_service_subject') {
+			return 'Request for Service for Equipment';
+		} else if($name == 'equipment_service_body') {
+			return htmlentities('Hi,<p>During the inspection of the equipment, it was found that service was needed. You will find a PDF with the details attached.</p>');
+		} else if($name == 'equipment_expense_fields') {
+			return 'Description,Country,Province,Date,Receipt,Amount,HST,PST,GST,Total';
+		} else if($name == 'invoice_design') {
+			return 4;
+		} else if($name == 'pos_design') {
+			return 1;
+		} else if($name == 'invoice_tabs') {
+			return 'today,all,ui_report,refunds,cashout';
+		} else if($name == 'invoice_purchase_contact') {
+			return 'Patient';
+		} else if($name == 'invoice_payer_contact') {
+			return 'Insurer';
+		} else if($name == 'invoice_fields') {
+			return 'invoice_type,customer,injury,staff,appt_type,treatment,service_date,pay_mode,services,service_cat,service_head,service_price,inventory,inventory_name,inventory_type,inventory_price,inventory_qty,packages,packages_cat,packages_name,packages_fee,promo,tips,next_appt,survey,followup';
+		} else if($name == 'invoice_payment_types') {
+			return 'Master Card,Visa,Debit Card,Cash,Cheque,Amex,Direct Deposit,Gift Certificate Redeem,Pro-Bono';
+		} else if($name == 'invoice_dashboard') {
+			return 'invoiceid,invoice_date,customer,total_price,payment_type,invoice_pdf,comment,status,send,delivery';
+		} else if($name == 'max_timer') {
+			return 28800;
+		} else if($name == 'appt_day_start') {
+			return '06:00 am';
+		} else if($name == 'appt_day_end') {
+			return '08:00 pm';
+		} else if($name == 'appt_increments') {
+			return 15;
+		} else if($name == 'appt_wait_list') {
+			return 'yes';
+		} else if($name == 'calendar_default') {
+			return 'ticket_wk';
+		} else if($name == 'expense_mode') {
+			return 'inbox';
+		} else if($name == 'estimate_dashboard_length') {
+			return 10;
+		} else if($name == 'project_status') {
+			return "In Development#*#Active Project";
+		} else if($name == 'estimate_status') {
+			return "Opportunities#*#In Negotiations#*#Closed Successfully";
+		} else if($name == 'business_category') {
+			return "Business";
+		} else if($name == 'site_category') {
+			return "Sites";
+		} else if($name == 'project_classify') {
+			return "Types";
+		} else if($name == 'ticket_label') {
+			return "[TICKET_NOUN] #[TICKETID] - [TICKET_HEADING]";
+		} else if($name == 'project_label') {
+			return "#[PROJECTID] [PROJECT_NAME]";
+		} else if($name == 'mileage_fields') {
+			return "staff,startdate,enddate,category,details,contact,double_mileage";
+		} else if($name == 'comp_staff_groups') {
+			return 'ALL';
+		} else if($name == 'ticket_min_hours' || $name == 'timesheet_hour_intervals') {
+			return '0';
+		} else if($name == 'hr_fields') {
+			return 'Sub Category,First Name,Last Name,Birth Date,Employee Number,Address including Postal Code,Topic (Sub Tab),Sub Section Heading,Third Tier Heading,Detail,Document,Link,Videos,Signature box,Comments,Staff,Review Deadline,Status,Configure Email,Form,Permissions by Position';
+		} else if($name == 'volume_units') {
+			return 'm&sup3;';
+		} else if($name == 'quick_action_icons') {
+			return 'edit,flag,reply,attach,alert,email,reminder,time,archive';
+		} else if($name == 'manual_subject_completed') {
+			return 'Manual Read by [USER]';
+		} else if($name == 'manual_body_completed') {
+			return htmlentities('<p>Category: [CATEGORY]<br>Heading: [HEADING]</p>[COMMENT]');
+		} else if($name == 'manual_completed_email') {
+			return mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `value` FROM `general_configuration` WHERE `name` LIKE 'manual_%_email'"))['value'];
+		} else if($name == 'log_note_categories') {
+			return get_config($dbc, 'all_contact_tabs');
+		} else if($name == 'staff_tabs') {
+			return 'suspended,security,positions,reminders';
+		} else if($name == 'inventory_markup') {
+			return 0;
+		} else if($name == 'calendar_ticket_card_fields') {
+			return 'label,project,customer,assigned,preferred,time,available';
+		} else if($name == 'tickets_summary') {
+			return 'Created,Assigned';
+		} else if($name == 'timesheet_include_time') {
+			return 'ticket,project,meeting,email,task,checklist';
+		} else if($name == 'daysheet_ticket_fields') {
+			return 'Project,Time Estimate';
+		} else if($name == 'client_accordion_category') {
+			return 'Clients';
+		} else if($name == 'rate_card_contact') {
+			return 'businessid';
+		} else if($name == 'transport_carrier_category') {
+			return 'Carrier';
+		} else if($name == 'expense_default_staff') {
+			return 'NA';
+		} else if($name == 'inventory_cost') {
+			return 'cost';
+		} else if($name == 'planner_end_day') {
+			return 'show';
+		} else if($name == 'ticket_project_function') {
+			return 'manual';
+		} else if($name == 'inventory_sort') {
+			return 'default';
+		} else if($name == 'po_tabs') {
+			return 'create,pending,receiving,payable,completed,remote,site_po';
+		} else if($name == 'ticket_manifest_fields') {
+			return 'file,po,vendor,line,qty,site';
+		} else if($name == 'report_row_colour_1') {
+			return '#BBBBBB';
+		} else if($name == 'report_row_colour_2') {
+			return '#DDDDDD';
+		} else if($name == 'recent_manifests') {
+			return '25';
+		} else if($name == 'recent_inventory') {
+			return '25';
+		} else if($name == 'company_rate_card_sections') {
+			return 'tasks,material,services,products,staff,position,contractor,clients,customer,vpl,inventory,equipment,labour,timesheet,driving_log';
+		} else if($name == 'lead_new_contact_cat') {
+			return 'Sales Leads';
 		}
 	}
 
@@ -577,6 +807,45 @@ function get_client_project_path_milestone($dbc, $project_path_milestone, $field
 function get_project_path_milestone($dbc, $project_path_milestone, $field_name) {
     $get_custom =	mysqli_fetch_assoc(mysqli_query($dbc,"SELECT $field_name FROM project_path_milestone WHERE	project_path_milestone='$project_path_milestone'"));
     return $get_custom[$field_name];
+}
+// Get the list of actual paths for the Project
+function get_project_paths($projectid) {
+    $default_template = $_SERVER['DBC']->query("SELECT * FROM `project_path_milestone` WHERE `milestone` LIKE 'to do#*#doing#*#done'");
+    if($default_template->num_rows == 0) {
+        $_SERVER['DBC']->query("INSERT INTO `project_path_milestone` (`project_path`,`milestone`) VALUES ('Basic Task List','To Do#*#Doing#*#Done')");
+    }
+    if($projectid > 0) {
+        $paths = get_field_value('project_path project_path_name', 'project', 'projectid', $projectid);
+        $project_paths = [];
+        foreach(explode(',',$paths['project_path']) as $i => $pathid) {
+            if($pathid > 0) {
+                $path['path_id'] = $pathid;
+                $path['path_name'] = explode('#*#',$paths['project_path_name'])[$i];
+
+              // Add default milestones, if they have not yet been added
+                $milestones = explode('#*#',get_field_value('milestone','project_path_milestone','project_path_milestone',$pathid));
+                $prior_sort = 0;
+                foreach($milestones as $i => $milestone) {
+                    $milestone_rows = $_SERVER['DBC']->query("SELECT `sort` FROM `project_path_custom_milestones` WHERE `projectid`='$projectid' AND `milestone`='$milestone' AND `pathid`='$pathid' AND `path_type`='I'");
+                    if($milestone_rows->num_rows > 0) {
+                        $prior_sort = $milestone_rows->fetch_assoc()['sort'];
+                    } else if($milestone != 'Unassigned') {
+                        $_SERVER['DBC']->query("INSERT INTO `project_path_custom_milestones` (`projectid`,`milestone`,`label`,`path_type`,`pathid`,`sort`) VALUES ('$projectid','$milestone','$milestone','I','$pathid','$prior_sort')");
+                    }
+                }
+
+                // Load the actual list of milestones into the array
+                $path['milestones'] = [];
+                $milestone_list = $_SERVER['DBC']->query("SELECT `milestones`.`id`, `milestones`.`milestone`, `milestones`.`label`  FROM `project_path_custom_milestones` `milestones` WHERE `milestones`.`projectid`='$projectid' AND `milestones`.`pathid`='$pathid' AND `milestones`.`path_type`='I' AND `milestones`.`deleted`=0 ORDER BY `milestones`.`sort`,`milestones`.`id`");
+                while($milestone_row = $milestone_list->fetch_assoc()) {
+                    $path['milestones'][] = $milestone_row;
+                }
+                $project_paths[] = $path;
+            }
+        }
+        return $project_paths;
+    }
+    return false;
 }
 function get_jobs_path_milestone($dbc, $project_path_milestone, $field_name) {
     $get_custom =	mysqli_fetch_assoc(mysqli_query($dbc,"SELECT $field_name FROM jobs_path_milestone WHERE	project_path_milestone='$project_path_milestone'"));
@@ -796,8 +1065,13 @@ function get_ticket_label($dbc, $ticket, $project_type = null, $project_name = n
 			}
 		}
         $ticket_type = '';
+        $ticket_noun = TICKET_NOUN;
         if($ticket['ticket_type'] != '') {
             $ticket_tabs = explode(',',get_config($dbc, 'ticket_tabs'));
+            $tile_config = $dbc->query("SELECT `value` FROM `general_configuration` WHERE `name` LIKE 'ticket_split_tiles_%' AND (`value` LIKE '%#*#".$ticket['ticket_type']."|%' OR `value` LIKE '%|".$ticket['ticket_type']."|%' OR `value` LIKE '%#*#".$ticket['ticket_type']."')")->fetch_assoc();
+            if(!empty($tile_config)) {
+                $ticket_noun = explode('#*#',$tile_config)[1];
+            }
             foreach($ticket_tabs as $type_name) {
                 if($ticket['ticket_type'] == config_safe_str($type_name)) {
                     $ticket_type = $type_name;
@@ -808,7 +1082,7 @@ function get_ticket_label($dbc, $ticket, $project_type = null, $project_name = n
         if(!empty($custom_label)) {
             $ticket_label = $custom_label;
         }
-		$label = str_replace(['[PROJECT_NOUN]','[PROJECTID]','[PROJECT_NAME]','[PROJECT_TYPE]','[PROJECT_TYPE_CODE]','[TICKET_NOUN]','[TICKETID]','[TICKETID-4]','[TICKET_HEADING]','[TICKET_DATE]','[YYYY]','[YY]','[YYYY-MM]','[YY-MM]','[TICKET_SCHEDULE_DATE]','[SCHEDULE_YYYY]','[SCHEDULE_YY]','[SCHEDULE_YYYY-MM]','[SCHEDULE_YY-MM]','[BUSINESS]','[CONTACT]', '[SITE_NAME]', '[TICKET_TYPE]', '[STOP_LOCATION]', '[STOP_CLIENT]', '[ORDER_NUM]'],[PROJECT_NOUN,$ticket['projectid'],$project_name,$project_type,$code,TICKET_NOUN,($ticket['main_ticketid'] > 0 ? $ticket['main_ticketid'].' '.$ticket['sub_ticket'] : $ticket['ticketid']),substr('000'.$ticket['ticketid'],-4),$ticket['heading'],$ticket['created_date'],date('Y',strtotime($ticket['created_date'])),date('y',strtotime($ticket['created_date'])),date('Y-m',strtotime($ticket['created_date'])),date('y-m',strtotime($ticket['created_date'])),$ticket['to_do_date'],date('Y',strtotime($ticket['to_do_date'])),date('y',strtotime($ticket['to_do_date'])),date('Y-m',strtotime($ticket['to_do_date'])),date('y-m',strtotime($ticket['to_do_date'])),get_client($dbc,$ticket['businessid']),get_contact($dbc,explode(',',trim($ticket['clientid'],','))[0]),get_contact($dbc, $ticket['siteid'],'site_name'),$ticket_type,$ticket['location_name'],$ticket['client_name'],$ticket['salesorderid']],($ticket['status'] == 'Archive' ? 'Archived ' : ($ticket['status'] == 'Done' ? 'Done ' : '')).$ticket_label);
+		$label = str_replace(['[PROJECT_NOUN]','[PROJECTID]','[PROJECT_NAME]','[PROJECT_TYPE]','[PROJECT_TYPE_CODE]','[TICKET_NOUN]','[TICKETID]','[TICKETID-4]','[TICKET_HEADING]','[TICKET_DATE]','[YYYY]','[YY]','[YYYY-MM]','[YY-MM]','[TICKET_SCHEDULE_DATE]','[SCHEDULE_YYYY]','[SCHEDULE_YY]','[SCHEDULE_YYYY-MM]','[SCHEDULE_YY-MM]','[BUSINESS]','[CONTACT]', '[SITE_NAME]', '[TICKET_TYPE]', '[STOP_LOCATION]', '[STOP_CLIENT]', '[ORDER_NUM]'],[PROJECT_NOUN,$ticket['projectid'],$project_name,$project_type,$code,TICKET_NOUN,($ticket['main_ticketid'] > 0 ? $ticket['main_ticketid'].' '.$ticket['sub_ticket'] : $ticket['ticketid']),substr('000'.$ticket['ticketid'],-4),$ticket['heading'],$ticket['created_date'],date('Y',strtotime($ticket['created_date'])),date('y',strtotime($ticket['created_date'])),date('Y-m',strtotime($ticket['created_date'])),date('y-m',strtotime($ticket['created_date'])),$ticket['to_do_date'],date('Y',strtotime($ticket['to_do_date'])),date('y',strtotime($ticket['to_do_date'])),date('Y-m',strtotime($ticket['to_do_date'])),date('y-m',strtotime($ticket['to_do_date'])),get_client($dbc,$ticket['businessid']),get_contact($dbc,explode(',',trim($ticket['clientid'],','))[0]),get_contact($dbc, explode(',',trim($ticket['siteid'],','))[0],'site_name'),$ticket_type,$ticket['location_name'],$ticket['client_name'],$ticket['salesorderid']],($ticket['status'] == 'Archive' ? 'Archived ' : ($ticket['status'] == 'Done' ? 'Done ' : '')).$ticket_label);
         if(empty($custom_label)) {
         	$dbc->query("UPDATE `tickets` SET `ticket_label`='".filter_var($label,FILTER_SANITIZE_STRING)."', `ticket_label_date`=CURRENT_TIMESTAMP WHERE `ticketid`='".$ticket['ticketid']."'");
         }
@@ -877,6 +1151,17 @@ function get_security_levels($dbc) {
 	}
 	return $on_security;
 }
+
+function get_security_levels_staff($dbc) {
+	$on_security = ['Super Admin'=>'super'];
+	$security_levels = mysqli_query($dbc, "SELECT contactid FROM `contacts` WHERE `category` = 'Staff'");
+	while($level = mysqli_fetch_assoc($security_levels)) {
+		$on_security[get_contact($dbc, $level['contactid'])] = $level['contactid'];
+	}
+
+	return $on_security;
+}
+
 function get_securitylevel($dbc, $level) {
 	$level_row = mysqli_query($dbc, "SELECT * FROM `security_level_names` WHERE `identifier`='$level'");
 	if(mysqli_num_rows($level_row) > 0) {
@@ -1049,6 +1334,58 @@ function get_privileges($dbc, $tile,$level) {
 		}
 		else if($role != '') {
 			$get_pri =	mysqli_fetch_assoc(mysqli_query($dbc,"SELECT privileges FROM security_privileges WHERE	tile='$tile' AND level LIKE '$role' UNION SELECT ''"));
+			$my_priv = '*';
+			if(strpos($get_pri['privileges'],'*hide*') === FALSE || strpos($get_pri['privileges'],'*detailed_dash*') !== FALSE || strpos($get_pri['privileges'],'*detailed_view*') !== FALSE) {
+				$this_priv = 2;
+                if(strpos($get_pri['privileges'],'*hide*') !== FALSE) {
+                    $my_priv .= 'hide*';
+                }
+                if(strpos($get_pri['privileges'].$return_priv,'*detailed_dash*') !== FALSE) {
+                    $my_priv .= 'detailed_dash*';
+                }
+                if(strpos($get_pri['privileges'].$return_priv,'*detailed_view*') !== FALSE) {
+                    $my_priv .= 'detailed_view*';
+                }
+                if(strpos($get_pri['privileges'].$return_priv,'*detailed_add*') !== FALSE) {
+                    $my_priv .= 'detailed_add*';
+                }
+                if(strpos($get_pri['privileges'].$return_priv,'*detailed_edit*') !== FALSE) {
+                    $my_priv .= 'detailed_edit*';
+                }
+                if(strpos($get_pri['privileges'].$return_priv,'*detailed_archive*') !== FALSE) {
+                    $my_priv .= 'detailed_archive*';
+                }
+				if(strpos($get_pri['privileges'].$return_priv,'*view_use_add_edit_delete*') !== FALSE) {
+					$my_priv .= 'view_use_add_edit_delete*';
+				}
+				if(strpos($get_pri['privileges'].$return_priv,'*search*') !== FALSE) {
+					$my_priv .= 'search*';
+				}
+				if(strpos($get_pri['privileges'].$return_priv,'*configure*') !== FALSE) {
+					$my_priv .= 'configure*';
+				}
+				if(strpos($get_pri['privileges'].$return_priv,'*approvals*') !== FALSE) {
+					$my_priv .= 'approvals*';
+				}
+                if(strpos($get_pri['privileges'].$return_priv,'*strictview') !== FALSE) {
+                    $my_priv .= 'strictview*';
+                }
+				$return_priv = $my_priv;
+			}
+		}
+	}
+    return $return_priv;
+}
+
+function get_privileges_staff($dbc, $tile,$level) {
+	$roles = explode(',',$level);
+	$return_priv = '*hide*';
+	foreach($roles as $role) {
+		if(strtolower($role) == 'super') {
+			return '*detailed_dash*detailed_view*detailed_add*detailed_edit*detailed_archive*view_use_add_edit_delete*search*configure*approvals*';
+		}
+		else if($role != '') {
+			$get_pri =	mysqli_fetch_assoc(mysqli_query($dbc,"SELECT privileges FROM security_privileges_staff WHERE	tile='$tile' AND staff = $role UNION SELECT ''"));
 			$my_priv = '*';
 			if(strpos($get_pri['privileges'],'*hide*') === FALSE || strpos($get_pri['privileges'],'*detailed_dash*') !== FALSE || strpos($get_pri['privileges'],'*detailed_view*') !== FALSE) {
 				$this_priv = 2;
@@ -1288,6 +1625,26 @@ function tile_config_function($dbc,$field,$mode='user') {
  */
 function subtab_config_function ( $dbc, $tile, $level_url, $subtab ) {
 	$row = mysqli_fetch_assoc ( mysqli_query ( $dbc, "SELECT `status` FROM `subtab_config` WHERE `tile`='$tile' AND `security_level`='$level_url' AND `subtab`='$subtab'" ) );
+
+    $subtabid   = str_replace ( ['&', '/', ',', ' ', '___', '__'], ['', '_', '', '_', '_', '_'], $subtab );
+	//$subtabid	= str_replace( ' ', '_', $subtab );
+	$status 	= $row[ 'status' ];
+	$date		= explode ( '*#*', $status );
+
+	if ( $status != NULL ) { ?>
+		<td align="center"><input type="radio" name="<?= $subtab; ?>" id="<?= $subtabid; ?>_turn_on" value="turn_on" <?= ( strpos ( $status, 'turn_on' ) !== FALSE ) ? ' checked' : ''; ?> onchange="subtabConfig(this)" /></td>
+		<td align="center"><input type="radio" name="<?= $subtab; ?>" id="<?= $subtabid; ?>_turn_off" value="turn_off" <?= ( strpos ( $status, 'turn_off' ) !== FALSE ) ? ' checked' : ''; ?> onchange="subtabConfig(this)" /></td><?php
+
+	} else { ?>
+		<td align="center"><input type="radio" name="<?= $subtab; ?>" id="<?= $subtabid; ?>_turn_on" value="turn_on" onchange="subtabConfig(this)" /></td>
+		<td align="center"><input type="radio" name="<?= $subtab; ?>" id="<?= $subtabid; ?>_turn_off" value="turn_off" onchange="subtabConfig(this)" /></td><?php
+	} ?>
+
+	<td align="center"><?php echo ( !empty( $date[1] ) ) ? $date[1] : '-'; ?></td><?php
+}
+
+function subtab_staff_config_function ( $dbc, $tile, $level_url, $subtab ) {
+	$row = mysqli_fetch_assoc ( mysqli_query ( $dbc, "SELECT `status` FROM `subtab_staff_config` WHERE `tile`='$tile' AND `security_level`='$level_url' AND `subtab`='$subtab'" ) );
 
     $subtabid   = str_replace ( ['&', '/', ',', ' ', '___', '__'], ['', '_', '', '_', '_', '_'], $subtab );
 	//$subtabid	= str_replace( ' ', '_', $subtab );
@@ -1613,9 +1970,16 @@ function get_tile_names($tile_list) {
 			case 'products':
 				$tiles[] = 'Products';
 				break;
+
 			case 'tasks':
-				$tiles[] = 'Tasks';
+				$tiles[] = TASK_TILE;
 				break;
+
+			/*
+            case 'tasks_updated':
+				$tiles[] = 'Tasks (Updated)';
+				break;
+                */
 			case 'agenda_meeting':
 				$tiles[] = 'Agendas & Meetings';
 				break;
@@ -1651,6 +2015,9 @@ function get_tile_names($tile_list) {
 				break;
 			case 'newsboard':
 				$tiles[] = 'News Board';
+				break;
+			case 'customer_support':
+				$tiles[] = 'Customer Support';
 				break;
 			case 'ffmsupport':
 				$tiles[] = 'FFM Support';
@@ -1940,9 +2307,14 @@ function get_subtabs($tile_name) {
         case 'products':
             $subtabs = array('Dashboard', 'Add Multiple Products');
             break;
+
         case 'tasks':
-            $subtabs = array('Summary', 'Private Tasks', 'Shared Tasks', 'Project Tasks', 'Contact Tasks', 'Reporting');
+            $subtabs = array('Summary', 'Private Tasks', 'Shared Tasks', 'Project Tasks', 'Contact Tasks', 'Sales Tasks', 'Reporting');
             break;
+
+        /*case 'tasks_updated':
+            $subtabs = array('Summary', 'Private Tasks', 'Shared Tasks', 'Project Tasks', 'Contact Tasks', 'Sales Tasks', 'Reporting');
+            break;*/
         case 'agenda_meeting':
             $subtabs = array('Agendas', 'Meetings');
             break;
@@ -2113,28 +2485,23 @@ function get_patientform($dbc, $patientformid, $field_name) {
 
 function get_contact_phone($dbc, $contactid) {
     $get_staff =	mysqli_fetch_assoc(mysqli_query($dbc,"SELECT office_phone, cell_phone, home_phone, category FROM	contacts WHERE	contactid='$contactid'"));
-    if($get_staff['category'] == 'Patient') {
         $phone = '';
         if($get_staff['cell_phone'] != '') {
             $phone .= '(M)'.decryptIt($get_staff['cell_phone']);
             $phone .= '<br>';
         }
-        //$phone .= '<br>';
-        //if($get_staff['office_phone'] != '') {
-        //    $phone .= '(O)'.decryptIt($get_staff['office_phone']);
-        //} else {
-        //    $phone .= '(O)-';
-        //}
+
+        if($get_staff['office_phone'] != '') {
+            $phone .= '(O)'.decryptIt($get_staff['office_phone']);
+            $phone .= '<br>';
+        }
 
         if($get_staff['home_phone'] != '') {
             $phone .= '(H)'.decryptIt($get_staff['home_phone']);
         }
         return $phone;
-        //return '(M)'.decryptIt($get_staff['cell_phone']).'<br>(O)'.decryptIt($get_staff['office_phone']).'<br>(H)'.decryptIt($get_staff['home_phone']);
-    } else {
-        return '(M)'.decryptIt($get_staff['cell_phone']).'<br>(O)'.decryptIt($get_staff['office_phone']).'<br>(H)'.decryptIt($get_staff['home_phone']);
-    }
 }
+
 function get_contact_first_phone($dbc, $contactid) {
     $get_staff =	mysqli_fetch_assoc(mysqli_query($dbc,"SELECT office_phone, cell_phone, home_phone, category FROM	contacts WHERE	contactid='$contactid'"));
 	return $get_staff['cell_phone'] != '' ? decryptIt($get_staff['cell_phone']) : ($get_staff['office_phone'] != '' ? decryptIt($get_staff['office_phone']) : decryptIt($get_staff['home_phone']));
@@ -2625,9 +2992,9 @@ function sortByLastName($a) {
 }
 
 /* Convert Decimal Hours to Hours:Minutes */
-function time_decimal2time($decimal_time) {
-	$minutes = ceil($decimal_time * 60);
-	$hours = floor($minutes / 60);
+function time_decimal2time($decimal_time, $pad = false) {
+	$minutes = round($decimal_time * 60);
+	$hours = ($pad ? sprintf('%02d',floor($minutes / 60)) : floor($minutes / 60));
 	$minutes -= ($hours * 60);
 	return $hours.':'.sprintf('%02d',$minutes);
 }
@@ -2774,7 +3141,7 @@ function get_reminder_url($dbc, $reminder, $slider = 0) {
         if($slider == 1) {
             $reminder_url = WEBSITE_URL.'/Project/projects.php?iframe_slider=1&edit='.$reminder_projectid;
         } else {
-            $reminder_url = '../Project/projects.php?edit='.$reminder_projectid;
+            $reminder_url = WEBSITE_URL.'/Project/projects.php?edit='.$reminder_projectid;
         }
     } else if(!empty($reminder['src_table'])) {
         if($slider == 1) {
@@ -2782,12 +3149,16 @@ function get_reminder_url($dbc, $reminder, $slider = 0) {
                 case 'tickets':
                     $reminder_url = WEBSITE_URL.'/Ticket/index.php?calendar_view=true&edit='.$reminder['src_tableid'];
                     break;
+                case 'ticket_alerts':
+                    $reminder_url = WEBSITE_URL.'/Ticket/index.php?calendar_view=true&edit='.$reminder['src_tableid'].'&from_alert=1';
+                    break;
                 case 'checklist_name':
                     $reminder_url = WEBSITE_URL.'/Checklist/checklist.php?iframe_slider=1&view='.$reminder['src_tableid'];
                     break;
                 case 'client_daily_log_notes':
                     $reminder_url = WEBSITE_URL.'/Daily Log Notes/log_note_list.php?display_contact='.$reminder['contactid'];
                     break;
+                case 'equipment':
                 case 'equipment_insurance':
                 case 'equipment_registration':
                     $reminder_url = WEBSITE_URL.'/Equipment/edit_equipment.php?edit='.$reminder['src_tableid']+'&iframe_slider=1';
@@ -2836,83 +3207,122 @@ function get_reminder_url($dbc, $reminder, $slider = 0) {
                 case 'rate_card':
                     $reminder_url = WEBSITE_URL.'/Rate Card/ratecards.php?type=customer&status=add&ratecardid='.$reminder['src_tableid'];
                     break;
+                case 'intake':
+                    $intake = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `intake` WHERE `intakeid`='".$reminder['src_tableid']."'"));
+                    if($intake['projectid'] > 0) {
+                        $reminder_url = WEBSITE_URL.'/Project/projects.php?iframe_slider=1&edit='.$intake['projectid'];
+                    } else if($intake['ticketid'] > 0) {
+                        $reminder_url = WEBSITE_URL.'/Ticket/index.php?calendar_view=true&edit='.$intake['ticketid'];
+                    } else if($intake['salesid'] > 0) {
+                        $reminder_url = WEBSITE_URL.'/Sales/sale.php?iframe_slider=1&p=details&id='.$intake['salesid'];
+                    } else if($intake['contactid'] > 0) {
+                        $reminder_url = WEBSITE_URL.'/'.ucwords(get_contact($dbc, $intake['contactid'], 'tile_name')).'/contacts_inbox.php?edit='.$reminder['src_tableid'];
+                    }
+                    break;
+                case 'email_communication':
+                    $reminder_url = WEBSITE_URL.'/Email Communication/view_email.php?email_communicationid='.$reminder['src_tableid'];
+                    break;
             }
         } else {
             switch($reminder['src_table']) {
                 case 'tickets':
-                    $reminder_url = '../Ticket/index.php?edit='.$reminder['src_tableid'];
+                    $reminder_url = WEBSITE_URL.'/Ticket/index.php?edit='.$reminder['src_tableid'];
+                    break;
+                case 'ticket_alerts':
+                    $reminder_url = WEBSITE_URL.'/Ticket/index.php?edit='.$reminder['src_tableid'].'&from_alert=1';
                     break;
                 case 'checklist_name':
-                    $reminder_url = '../Checklist/checklist.php?view='.$reminder['src_tableid'];
+                    $reminder_url = WEBSITE_URL.'/Checklist/checklist.php?view='.$reminder['src_tableid'];
                     break;
                 case 'calllog':
-                    $reminder_url = '../Cold Call/add_call_log.php?calllogid='.$reminder['src_tableid'];
+                    $reminder_url = WEBSITE_URL.'/Cold Call/add_call_log.php?calllogid='.$reminder['src_tableid'];
                     break;
                 case 'calllog_goals':
-                    $reminder_url = '../Cold Call/field_config_call_log_goals.php?calllog_goal='.$reminder['src_tableid'];
+                    $reminder_url = WEBSITE_URL.'/Cold Call/field_config_call_log_goals.php?calllog_goal='.$reminder['src_tableid'];
                     break;
                 case 'client_daily_log_notes':
-                    $reminder_url = '../Daily Log Notes/index.php?display_contact='.$reminder['contactid'];
+                    $reminder_url = WEBSITE_URL.'/Daily Log Notes/index.php?display_contact='.$reminder['contactid'];
                     break;
+                case 'equipment':
                 case 'equipment_insurance':
                 case 'equipment_registration':
-                    $reminder_url = '../Equipment/index.php?edit='.$reminder['src_tableid'];
+                    $reminder_url = WEBSITE_URL.'/Equipment/index.php?edit='.$reminder['src_tableid'];
                     break;
                 case 'projects':
-                    $reminder_url = '../Project/projects.php?edit='.$reminder['src_tableid'];
+                    $reminder_url = WEBSITE_URL.'/Project/projects.php?edit='.$reminder['src_tableid'];
                     break;
                 case 'sales':
-                    $reminder_url = '../Sales/sale.php?p=preview&id='.$reminder['src_tableid'];
+                    $reminder_url = WEBSITE_URL.'/Sales/sale.php?p=preview&id='.$reminder['src_tableid'];
                     break;
                 case 'task_board':
-                    $reminder_url = '../Tasks/index.php?category='.$reminder['src_tableid'].'&tab='.get_task_board($dbc, $reminder['src_tableid'], 'board_security');
+                    $reminder_url = WEBSITE_URL.'/Tasks_Updated/index.php?category='.$reminder['src_tableid'].'&tab='.get_task_board($dbc, $reminder['src_tableid'], 'board_security');
                     break;
                 case 'calendar':
-                    $reminder_url = '../Calendar/calendars.php';
+                    $reminder_url = WEBSITE_URL.'/Calendar/calendars.php';
                     break;
                 case 'staff_reminders':
-                    $reminder_url = '../Staff/add_reminder.php?reminderid='.$reminder['reminderid'];
+                    $reminder_url = WEBSITE_URL.'/Staff/add_reminder.php?reminderid='.$reminder['reminderid'];
                     break;
                 case 'hr':
-                    $reminder_url = '../HR/index.php?hr='.$reminder['src_tableid'];
+                    $reminder_url = WEBSITE_URL.'/HR/index.php?hr='.$reminder['src_tableid'];
                     break;
                 case 'manuals':
-                    $reminder_url = '../HR/index.php?manual='.$reminder['src_tableid'];
+                    $reminder_url = WEBSITE_URL.'/HR/index.php?manual='.$reminder['src_tableid'];
                     break;
                 case 'contacts':
-                    $reminder_url = '../'.ucwords($reminder['reminder_type']).'/contacts_inbox.php?category='.$reminder['reminder_type'].'&edit='.$reminder['src_tableid'];
+                    $reminder_url = WEBSITE_URL.'/'.ucwords($reminder['reminder_type']).'/contacts_inbox.php?category='.$reminder['reminder_type'].'&edit='.$reminder['src_tableid'];
                     break;
                 case 'position_rate_table':
-                    $reminder_url = '../Rate Card/ratecards.php?type=position&status=add&id='.$reminder['src_tableid'];
+                    $reminder_url = WEBSITE_URL.'/Rate Card/ratecards.php?type=position&status=add&id='.$reminder['src_tableid'];
                     break;
                 case 'staff_rate_table':
-                    $reminder_url = '../Rate Card/ratecards.php?type=staff&status=add&id='.$reminder['src_tableid'];
+                    $reminder_url = WEBSITE_URL.'/Rate Card/ratecards.php?type=staff&status=add&id='.$reminder['src_tableid'];
                     break;
                 case 'equipment_rate_table':
-                    $reminder_url = '../Rate Card/ratecards.php?type=equipment&status=add&id='.$reminder['src_tableid'];
+                    $reminder_url = WEBSITE_URL.'/Rate Card/ratecards.php?type=equipment&status=add&id='.$reminder['src_tableid'];
                     break;
                 case 'category_rate_table':
-                    $reminder_url = '../Rate Card/ratecards.php?type=category&status=add&id='.$reminder['src_tableid'];
+                    $reminder_url = WEBSITE_URL.'/Rate Card/ratecards.php?type=category&status=add&id='.$reminder['src_tableid'];
                     break;
                 case 'tile_rate_card':
                     $rate_card = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tile_rate_card` WHERE `ratecardid` = '".$reminder['src_tableid']."'"));
                     switch($rate_card['tile_name']) {
                         case 'labour':
-                            $reminder_url = '../Rate Card/ratecards.php?type=labour&status=add&id='.$reminder['src_tableid'];
+                            $reminder_url = WEBSITE_URL.'/Rate Card/ratecards.php?type=labour&status=add&id='.$reminder['src_tableid'];
                             break;
                     }
                     break;
                 case 'service_rate_card':
-                    $reminder_url = '../Rate Card/ratecards.php?type=services&status=add&id='.$reminder['src_tableid'];
+                    $reminder_url = WEBSITE_URL.'/Rate Card/ratecards.php?type=services&status=add&id='.$reminder['src_tableid'];
                     break;
                 case 'company_rate_card':
-                    $reminder_url = '../Rate Card/ratecards.php?type=company&status=add&id='.$reminder['src_tableid'];
+                    $reminder_url = WEBSITE_URL.'/Rate Card/ratecards.php?type=company&status=add&id='.$reminder['src_tableid'];
                     break;
                 case 'rate_card':
-                    $reminder_url = '../Rate Card/ratecards.php?type=customer&status=add&ratecardid='.$reminder['src_tableid'];
+                    $reminder_url = WEBSITE_URL.'/Rate Card/ratecards.php?type=customer&status=add&ratecardid='.$reminder['src_tableid'];
                     break;
                 case 'holidays_update':
-                    $reminder_url = '../Timesheet/holidays.php';
+                    $reminder_url = WEBSITE_URL.'/Timesheet/holidays.php';
+                    break;
+                case 'intake':
+                    $intake = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `intake` WHERE `intakeid`='".$reminder['src_tableid']."'"));
+                    if($intake['projectid'] > 0) {
+                        $reminder_url = WEBSITE_URL.'/Project/projects.php?edit='.$intake['projectid'];
+                    } else if($intake['ticketid'] > 0) {
+                        $reminder_url = WEBSITE_URL.'/Ticket/index.php?edit='.$intake['ticketid'];
+                    } else if($intake['salesid'] > 0) {
+                        $reminder_url = WEBSITE_URL.'/Sales/sale.php?p=preview&id='.$intake['salesid'];
+                    } else if($intake['contactid'] > 0) {
+                        $reminder_url = WEBSITE_URL.'/'.ucwords(get_contact($dbc, $intake['contactid'], 'tile_name')).'/contacts_inbox.php?edit='.$reminder['src_tableid'];
+                    }
+                    break;
+                case 'email_communication':
+                    $email_comm = mysqli_fetch_array(mysqli_query($dbc, "SELECT `projectid` FROM `email_communication` WHERE `email_communicationid`='".$reminder['src_tableid']."'"));
+                    if($email_comm['projectid'] > 0) {
+                        $reminder_url = WEBSITE_URL.'/Project/projects.php?edit='.$email_comm['projectid'].'&tab=email';
+                    } else {
+                        $reminder_url = WEBSITE_URL.'/Email Communication/view_email.php?email_communicationid='.$reminder['src_tableid'];
+                    }
                     break;
             }
         }
@@ -3134,7 +3544,10 @@ function convert_timestamp_mysql($dbc, $timestamp) {
 
     return $new_timestamp;
 }
-function get_recurrence_days($limit = 0, $start_date, $end_date, $repeat_type, $repeat_interval, $repeat_days, $repeat_monthly) {
+function get_recurrence_days($limit = 0, $start_date, $end_date, $repeat_type, $repeat_interval, $repeat_days, $repeat_monthly, $create_starting_at) {
+    if(empty($create_starting_at)) {
+        $create_starting_at = $start_date;
+    }
     $recurring_dates = [];
     $reached_limit = 0;
     if(date('l', strtotime($start_date)) != 'Sunday') {
@@ -3150,7 +3563,7 @@ function get_recurrence_days($limit = 0, $start_date, $end_date, $repeat_type, $
                 } else {
                     $recurring_date = date('Y-m-d', strtotime('next '.$repeat_day, strtotime($cur)));
                 }
-                if(strtotime($recurring_date) >= strtotime($start_date) && strtotime($recurring_date) <= strtotime($end_date)) {
+                if(strtotime($recurring_date) >= strtotime($start_date) && strtotime($recurring_date) <= strtotime($end_date) && strtotime($recurring_date) >= strtotime($create_starting_at)) {
                     $recurring_dates[] = $recurring_date;
                     $reached_limit++;
                 }
@@ -3159,20 +3572,22 @@ function get_recurrence_days($limit = 0, $start_date, $end_date, $repeat_type, $
             $year_month = date('Y-m', strtotime($cur));
             foreach($repeat_days as $repeat_day) {
                 $recurring_date = date('Y-m-d', strtotime($repeat_monthly.' '.$repeat_day.' of '.$year_month));
-                if(strtotime($recurring_date) >= strtotime($start_date) && strtotime($recurring_date) <= strtotime($end_date)) {
+                if(strtotime($recurring_date) >= strtotime($start_date) && strtotime($recurring_date) <= strtotime($end_date) && strtotime($recurring_date) >= strtotime($create_starting_at)) {
                     $recurring_dates[] = $recurring_date;
                     $reached_limit++;
                 }
             }
         } else {
-            $recurring_dates[] = $cur;
-            $reached_limit++;
+            if(strtotime($cur) >= strtotime($create_starting_at)) {
+                $recurring_dates[] = $cur;
+                $reached_limit++;
+            }
         }
     }
     return $recurring_dates;
 }
 
-function create_recurring_tickets($dbc, $ticketid, $start_date, $end_date, $repeat_type, $repeat_interval, $repeat_days, $repeat_monthly, $skip_first = '') {
+function create_recurring_tickets($dbc, $ticketid, $start_date, $end_date, $repeat_type, $repeat_interval, $repeat_days, $repeat_monthly, $skip_first = '', $create_starting_at) {
     //Get all ticket rows from tickets, ticket_attached, ticket_schedule, and ticket_comment
     $ticket = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticketid` = '$ticketid' AND `deleted` = 0"));
     $ticket_attacheds = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `ticket_attached` WHERE `ticketid` = '$ticketid' AND `deleted` = 0"),MYSQLI_ASSOC);
@@ -3184,30 +3599,34 @@ function create_recurring_tickets($dbc, $ticketid, $start_date, $end_date, $repe
         $sync_upto = !empty(get_config($dbc, 'ticket_recurrence_sync_upto')) ? get_config($dbc, 'ticket_recurrence_sync_upto') : '2 years';
         $end_date = date('Y-m-d', strtotime(date('Y-m-d').' + '.$sync_upto));
     }
-    $recurring_dates = get_recurrence_days(0, $start_date, $end_date, $repeat_type, $repeat_interval, $repeat_days, $repeat_monthly);
+    $recurring_dates = get_recurrence_days(0, $start_date, $end_date, $repeat_type, $repeat_interval, $repeat_days, $repeat_monthly, $create_starting_at);
     if($skip_first == 1) {
         array_shift($recurring_dates);
     }
     foreach($recurring_dates as $recurring_date) {
-        //Insert into tickets with to_do_date/to_do_end_date as the recurring date
-        mysqli_query($dbc, "INSERT INTO `tickets` (`main_ticketid`, `to_do_date`, `to_do_end_date`, `is_recurrence`) VALUES ('$ticketid', '$recurring_date', '$recurring_date', 1)");
-        $new_ticketid = mysqli_insert_id($dbc);
+        $date_exists = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `main_ticketid` = '$ticketid' AND `to_do_date` = '$recurring_date' AND `deleted` = 0"));
+        if(empty($date_exists)) {
+            //Insert into tickets with to_do_date/to_do_end_date as the recurring date
+            mysqli_query($dbc, "INSERT INTO `tickets` (`main_ticketid`, `to_do_date`, `to_do_end_date`, `is_recurrence`) VALUES ('$ticketid', '$recurring_date', '$recurring_date', 1)");
+            $new_ticketid = mysqli_insert_id($dbc);
 
-        //Insert all ticket_attached records with the new ticketid
-        foreach($ticket_attacheds as $ticket_attached) {
-            mysqli_query($dbc, "INSERT INTO `ticket_attached` (`ticketid`, `main_id`, `is_recurrence`) VALUES ('$new_ticketid', '".$ticket_attached['id']."', 1)");
+            //Insert all ticket_attached records with the new ticketid
+            foreach($ticket_attacheds as $ticket_attached) {
+                mysqli_query($dbc, "INSERT INTO `ticket_attached` (`ticketid`, `main_id`, `is_recurrence`) VALUES ('$new_ticketid', '".$ticket_attached['id']."', 1)");
+            }
+
+            //Insert all ticket_schedule records with the new ticketid
+            foreach($ticket_schedules as $ticket_schedule) {
+                mysqli_query($dbc, "INSERT INTO `ticket_schedule` (`ticketid`, `main_id`, `is_recurrence`) VALUES ('$new_ticketid', '".$ticket_schedule['id']."', 1)");
+            }
+
+            //Insert all ticket_comment records with the new ticketid
+            foreach($ticket_comments as $ticket_comment) {
+                mysqli_query($dbc, "INSERT INTO `ticket_comment` (`ticketid`, `main_id`, `is_reccurence`) VALUES ('$new_ticketid', '".$ticket_comment['ticketcommid']."', 1)");
+            }
+        } else if(empty($date_exists['to_do_end_date'])) {
+            mysqli_query($dbc, "UPDATE `tickets` SET `to_do_end_date` = '".$date_exists['to_do_date']."' WHERE `ticketid` = '".$date_exists['ticketid']."'");
         }
-
-        //Insert all ticket_schedule records with the new ticketid
-        foreach($ticket_schedules as $ticket_schedule) {
-            mysqli_query($dbc, "INSERT INTO `ticket_schedule` (`ticketid`, `main_id`, `is_recurrence`) VALUES ('$new_ticketid', '".$ticket_schedule['id']."', 1)");
-        }
-
-        //Insert all ticket_comment records with the new ticketid
-        foreach($ticket_comments as $ticket_comment) {
-            mysqli_query($dbc, "INSERT INTO `ticket_comment` (`ticketid`, `main_id`, `is_reccurence`) VALUES ('$new_ticketid', '".$ticket_comment['ticketcommid']."', 1)");
-        }
-
         //Set last added date to the latest added date
         mysqli_query($dbc, "UPDATE `ticket_recurrences` SET `last_added_date` = '$recurring_date' WHERE `ticketid` = '$ticketid'");
     }
@@ -3270,6 +3689,7 @@ function sync_recurring_tickets($dbc, $ticketid) {
         $recurring_tickets = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `main_ticketid` = '".$ticket['main_ticketid']."' AND `is_recurrence` = 1 AND `deleted` = 0"),MYSQLI_ASSOC);
         foreach($recurring_tickets as $recurring_ticket) {
             mysqli_query($dbc, "UPDATE `tickets` SET $ticket_query WHERE `ticketid` = '".$recurring_ticket['ticketid']."'");
+            mysqli_query($dbc, "UPDATE `tickets` SET `ticket_label_date` = '' WHERE `ticketid` = '".$recurring_ticket['ticketid']."'");
 
             //Insert all ticket_attached records with the new ticketid
             foreach($ticket_attached_queries as $id => $ticket_attached_query) {
@@ -3338,12 +3758,16 @@ function get_contact_teams($dbc, $contactid) {
     return $teams = mysqli_fetch_array(mysqli_query($dbc, "SELECT GROUP_CONCAT(DISTINCT `teamid` SEPARATOR ',') as teams_list FROM `teams_staff` WHERE `contactid` = '$contactid' AND `deleted` = 0"))['teams_list'];
 }
 
-function add_update_history($dbc, $table, $history, $contactid, $before_change, $salesid = '') {
+function add_update_history($dbc, $table, $history, $contactid, $before_change, $tableid = '') {
 		$user_name = get_contact($dbc, $_SESSION['contactid']);
 		$history = filter_var(htmlentities($history),FILTER_SANITIZE_STRING);
 		if($table == 'sales_history') {
 			mysqli_query($dbc, "INSERT INTO `$table` (`updated_by`) SELECT '$user_name' FROM (SELECT COUNT(*) rows FROM `$table` WHERE `updated_by`='$user_name' AND TIMEDIFF(CURRENT_TIMESTAMP,`updated_at`) < '00:30:00') num WHERE num.rows = 0");
-			mysqli_query($dbc, "UPDATE `$table` SET `salesid`=$salesid, `before_change`=CONCAT(IFNULL(`before_change`,''),'$before_change'), `history`=CONCAT(IFNULL(`history`,''),'$history'), `updated_at` = now() WHERE `updated_by`='$user_name' AND TIMEDIFF(CURRENT_TIMESTAMP,`updated_at`) < '00:15:00'");
+			mysqli_query($dbc, "UPDATE `$table` SET `salesid`=$tableid, `before_change`=CONCAT(IFNULL(`before_change`,''),'$before_change'), `history`=CONCAT(IFNULL(`history`,''),'$history'), `updated_at` = now() WHERE `updated_by`='$user_name' AND TIMEDIFF(CURRENT_TIMESTAMP,`updated_at`) < '00:15:00'");
+		}
+		else if($table == 'project_history') {
+			mysqli_query($dbc, "INSERT INTO `$table` (`updated_at`,`updated_by`,`projectid`) SELECT NOW(), '$user_name', '$tableid' FROM (SELECT COUNT(*) rows FROM `$table` WHERE `updated_by`='$user_name' AND TIMEDIFF(CURRENT_TIMESTAMP,`updated_at`) < '00:15:00' AND `projectid`='$tableid') num WHERE num.rows = 0");
+			mysqli_query($dbc, "UPDATE `$table` SET `description`=CONCAT(IFNULL(CONCAT(`description`,'&lt;br&gt;\n'),''),'$history'), `updated_at` = NOW() WHERE `updated_by`='$user_name' AND `projectid`='$tableid' AND TIMEDIFF(CURRENT_TIMESTAMP,`updated_at`) < '00:15:00'");
 		}
 		else {
 			mysqli_query($dbc, "INSERT INTO `$table` (`updated_by`, `contactid`) SELECT '$user_name', '$contactid' FROM (SELECT COUNT(*) rows FROM `$table` WHERE `updated_by`='$user_name' AND `contactid`='$contactid' AND TIMEDIFF(CURRENT_TIMESTAMP,`updated_at`) < '00:30:00') num WHERE num.rows = 0");
@@ -3366,4 +3790,9 @@ function capture_before_change($dbc, $table, $find, $where, $wherevalue, $where2
 }
 function capture_after_change($find, $value) {
 	return "$find is set to " . $value . ".<br />";
+}
+function time_time2string($time) {
+    $hours = !empty(floor($time)) ? floor($time).' Hr' : '';
+    $minutes = !empty($time - floor($time)) ? (($time - floor($time)) * 60).' Min' : '';
+    return implode(' ', [$hours,$minutes]);
 }

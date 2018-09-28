@@ -96,10 +96,11 @@ function changeDailyDate(input) {
         <?php
             if (strpos($_SERVER['PHP_SELF'], 'Daysheet') === FALSE) {
         ?>
-            <?php if (in_array('My Tasks', $daysheet_button_config)) { ?><a href="?daily_date=<?= $daily_date ?>&side_content=my_tasks" class="btn brand-btn pull-right mobile-anchor">TASKS</a><?php } ?>
+            <?php if (in_array('My Tasks', $daysheet_button_config)) { ?><a href="?daily_date=<?= $daily_date ?>&side_content=my_tasks" class="btn brand-btn pull-right mobile-anchor"><?= TASK_TILE ?></a><?php } ?>
             <?php if (in_array('My Checklists', $daysheet_button_config) && mysqli_num_rows(mysqli_query($dbc, "SELECT * FROM `checklist` WHERE `checklistid` IN ('".implode("','", array_filter(explode(',',$user_settings['checklist_fav'])))."') AND (`assign_staff` LIKE '%,$contactid,%' OR `assign_staff`=',ALL,')")) > 0) { ?><a href="?daily_date=<?= $daily_date ?>&side_content=my_checklists" class="btn brand-btn pull-right mobile-anchor">CHECKLISTS</a><?php } ?>
             <?php if (in_array('My Tickets', $daysheet_button_config)) { ?><a href="?daily_date=<?= $daily_date ?>&side_content=my_tickets" class="btn brand-btn pull-right mobile-anchor"><?= strtoupper(TICKET_TILE) ?></a><?php } ?>
             <?php if (in_array('My Communications', $daysheet_button_config)) { ?><a href="?daily_date=<?= $daily_date ?>&side_content=my_communications" class="btn brand-btn pull-right mobile-anchor">COMMUNICATIONS</a><?php } ?>
+            <?php if (in_array('My Sales', $daysheet_button_config)) { ?><a href="?daily_date=<?= $daily_date ?>&side_content=my_sales" class="btn brand-btn pull-right mobile-anchor"><?= strtoupper(SALES_TILE) ?></a><?php } ?>
             <?php if (in_array('My Projects', $daysheet_button_config)) { ?><a href="?daily_date=<?= $daily_date ?>&side_content=my_projects" class="btn brand-btn pull-right mobile-anchor"><?= strtoupper(PROJECT_TILE) ?></a><?php } ?>
         <?php } ?>
 
@@ -139,9 +140,9 @@ if ( !empty($note) ) { ?>
                 <div class="pull-right">
                     <?php
                     if ($_GET['tab'] == 'daysheet' || $_GET['side_content'] == 'weekly' || $_GET['side_content'] == 'monthly') { ?>
-                    <a href="?daily_date=<?= $daily_date ?>&side_content=monthly" title="Monthly Overview" class="mobile-anchor"><img src="<?= WEBSITE_URL ?>/img/month-overview-blue.png" class="pull-right inline-img <?= $side_content == 'monthly' ? '' : 'black-color' ?>"></a>
-                    <a href="?daily_date=<?= $daily_date ?>&side_content=weekly" title="Weekly Overview" class="mobile-anchor"><img src="<?= WEBSITE_URL ?>/img/weekly-overview-blue.png" class="pull-right inline-img <?= !in_array($side_content,['monthly','journal','my_projects','my_tickets','my_tasks','my_checklists','my_communications','past_due','notifications']) ? '' : 'black-color' ?>"></a>
-                    <a href="?daily_date=<?= $daily_date ?>&side_content=journal" title="Journal" class="mobile-anchor"><img src="<?= WEBSITE_URL ?>/img/notepad-icon-blue.png" class="pull-right inline-img <?= $side_content == 'journal' ? '' : 'black-color' ?>"></a>
+                    <a href="?daily_date=<?= $daily_date ?>&side_content=monthly" class="mobile-anchor"><img src="<?= WEBSITE_URL ?>/img/month-overview-blue.png" class="pull-right inline-img no-toggle <?= $side_content == 'monthly' ? '' : 'black-color' ?>" title="Monthly Overview"></a>
+                    <a href="?daily_date=<?= $daily_date ?>&side_content=weekly" class="mobile-anchor"><img src="<?= WEBSITE_URL ?>/img/weekly-overview-blue.png" class="pull-right inline-img no-toggle <?= !in_array($side_content,['monthly','journal','my_projects','my_tickets','my_tasks','my_checklists','my_communications','my_sales','past_due','notifications']) ? '' : 'black-color' ?>" title="Weekly Overview"></a>
+                    <a href="?daily_date=<?= $daily_date ?>&side_content=journal" class="mobile-anchor"><img src="<?= WEBSITE_URL ?>/img/notepad-icon-blue.png" class="pull-right inline-img no-toggle <?= $side_content == 'journal' ? '' : 'black-color' ?>" title="Journal"></a>
                     <?php } ?>
 
 
@@ -153,21 +154,29 @@ if ( !empty($note) ) { ?>
 
                     <?php
                     if ($_GET['tab'] == 'checklists') { ?>
-                    <a href="?tab=checklists&daily_date=<?= $daily_date ?>&side_content=my_checklists&date_display=monthly" title="Monthly Overview" class="mobile-anchor"><img src="<?= WEBSITE_URL ?>/img/month-overview-blue.png" class="pull-right inline-img <?= $side_content == 'monthly' ? '' : 'black-color' ?>"></a>
+                    <a href="?tab=checklists&daily_date=<?= $daily_date ?>&side_content=my_checklists&date_display=monthly" class="mobile-anchor"><img src="<?= WEBSITE_URL ?>/img/month-overview-blue.png" class="pull-right inline-img no-toggle <?= $side_content == 'monthly' ? '' : 'black-color' ?>" title="Monthly Overview"></a>
 
-                    <a href="?tab=checklists&daily_date=<?= $daily_date ?>&side_content=my_checklists&date_display=weekly" title="Weekly Overview" class="mobile-anchor"><img src="<?= WEBSITE_URL ?>/img/weekly-overview-blue.png" class="pull-right inline-img <?= !in_array($side_content,['weekly','journal','my_projects','my_tickets','my_tasks','my_checklists','my_communications','past_due','notifications']) ? '' : 'black-color' ?>"></a>
+                    <a href="?tab=checklists&daily_date=<?= $daily_date ?>&side_content=my_checklists&date_display=weekly" class="mobile-anchor"><img src="<?= WEBSITE_URL ?>/img/weekly-overview-blue.png" class="pull-right inline-img no-toggle <?= !in_array($side_content,['weekly','journal','my_projects','my_tickets','my_tasks','my_checklists','my_communications','my_sales','past_due','notifications']) ? '' : 'black-color' ?>" title="Weekly Overview"></a>
                     <?php } ?>
 
                     <?php
                     if ($_GET['tab'] == 'communications') { ?>
-                    <a href="?tab=communications&daily_date=<?= $daily_date ?>&side_content=my_communications&date_display=monthly" title="Monthly Overview" class="mobile-anchor"><img src="<?= WEBSITE_URL ?>/img/month-overview-blue.png" class="pull-right inline-img <?= $side_content == 'monthly' ? '' : 'black-color' ?>"></a>
+                    <a href="?tab=communications&daily_date=<?= $daily_date ?>&side_content=my_communications&date_display=monthly" class="mobile-anchor"><img src="<?= WEBSITE_URL ?>/img/month-overview-blue.png" class="pull-right inline-img no-toggle <?= $side_content == 'monthly' ? '' : 'black-color' ?>" title="Monthly Overview"></a>
 
-                    <a href="?tab=communications&daily_date=<?= $daily_date ?>&side_content=my_communications&date_display=weekly" title="Weekly Overview" class="mobile-anchor"><img src="<?= WEBSITE_URL ?>/img/weekly-overview-blue.png" class="pull-right inline-img <?= !in_array($side_content,['weekly','journal','my_projects','my_tickets','my_tasks','my_checklists','my_communications','past_due','notifications']) ? '' : 'black-color' ?>"></a>
+                    <a href="?tab=communications&daily_date=<?= $daily_date ?>&side_content=my_communications&date_display=weekly" class="mobile-anchor"><img src="<?= WEBSITE_URL ?>/img/weekly-overview-blue.png" class="pull-right inline-img no-toggle <?= !in_array($side_content,['weekly','journal','my_projects','my_tickets','my_tasks','my_checklists','my_communications','past_due','notifications']) ? '' : 'black-color' ?>" title="Weekly Overview"></a>
+                    <?php } ?>
+
+                    <?php if ($_GET['tab'] == 'sales') { ?>
+                    <a href="?tab=saless&daily_date=<?= $daily_date ?>&side_content=my_saless&date_display=monthly" class="mobile-anchor"><img src="<?= WEBSITE_URL ?>/img/month-overview-blue.png" class="pull-right inline-img no-toggle <?= $side_content == 'monthly' ? '' : 'black-color' ?>" title="Monthly Overview"></a>
+
+                    <a href="?tab=saless&daily_date=<?= $daily_date ?>&side_content=my_saless&date_display=weekly" class="mobile-anchor"><img src="<?= WEBSITE_URL ?>/img/weekly-overview-blue.png" class="pull-right inline-img no-toggle <?= !in_array($side_content,['weekly','journal','my_projects','my_tickets','my_tasks','my_checklists','my_communications','my_sales','past_due','notifications']) ? '' : 'black-color' ?>" title="Weekly Overview"></a>
                     <?php } ?>
 
                 </div>
                 <div class="scale-to-fill weekly-overview-header">
-                    <?php if ($side_content == 'contact_form') {
+                    <?php if ($side_content == 'my_tags') { ?>
+                        <h1 class="no-margin">Tags</h1>
+                    <?php } else if ($side_content == 'contact_form') {
                         $form_id = $_GET['form_id'];
                         $contact_form = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `user_forms` WHERE `form_id` = '$form_id'"));
                         $attached_contact = $_GET['attached_contactid']; ?>
@@ -185,9 +194,11 @@ if ( !empty($note) ) { ?>
                     <?php } else if ($side_content == 'my_checklists') { ?>
                         <h1 class="no-margin">Checklists</h1>
                     <?php } else if ($side_content == 'my_tasks') { ?>
-                        <h1 class="no-margin">Tasks</h1>
+                        <h1 class="no-margin"><?= TASK_TILE ?></h1>
                     <?php } else if ($side_content == 'my_communications') { ?>
                         <h1 class="no-margin">Communications</h1>
+                    <?php } else if ($side_content == 'my_sales') { ?>
+                        <h1 class="no-margin"><?= SALES_TILE ?></h1>
                     <?php } else if ($side_content == 'my_timesheets') { ?>
                         <h1 class="no-margin">Time Sheets</h1>
                     <?php } else if ($side_content == 'past_due' && $_GET['tab'] == 'alerts') { ?>
@@ -223,7 +234,9 @@ if ( !empty($note) ) { ?>
             </div>
             <div class="clearfix"></div>
             <div class="sidebar weekly" style="padding: 1em; margin: 0 auto; overflow-y: auto; <?= $_GET['tab'] == 'tickets' ? ' background-color: transparent;' : '' ?>">
-                <?php if($side_content == 'contact_form') {
+                <?php if($side_content == 'my_tags') {
+                    include('daysheet_tags.php');
+                } else if($side_content == 'contact_form') {
                     include('daysheet_contact_form.php');
                 } else if($side_content == 'my_shifts') {
                     include('daysheet_shifts.php');
@@ -239,14 +252,14 @@ if ( !empty($note) ) { ?>
                     include('daysheet_tasks.php');
                 } else if ($side_content == 'my_checklists') {
                     include('daysheet_checklists.php');
-                } else if ($side_content == 'my_communications') {
-                    include('daysheet_communications.php');
                 } else if ($side_content == 'my_timesheets') {
                     include('daysheet_timesheets.php');
                 } else if ($side_content == 'my_support') {
                     include('daysheet_support.php');
                 } else if ($side_content == 'my_communications') {
                     include('daysheet_communications.php');
+                } else if ($side_content == 'my_sales') {
+                    include('daysheet_sales.php');
                 } else if ($side_content == 'past_due') {
                     include('daysheet_pastdue.php');
                 } else {

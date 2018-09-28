@@ -1,4 +1,8 @@
-<?php function get_administration_tickets($dbc, $name, $projectid) {
+<?php function get_administration_tickets($dbc, $name, $projectid, $type_list = []) {
+    $type_query = '';
+    if(!empty($type_list)) {
+        $type_query = " AND `tickets`.`ticket_type` IN ('".implode("','",$type_list)."')";
+    }
 	$project_query = '';
 	if($projectid > 0) {
 		$project_query = " AND `projectid` = '$projectid'";
@@ -10,7 +14,17 @@
 	$status = $name[2];
 	$id = $name[1];
 	$filter_region = $name[3];
+    foreach(mysqli_fetch_all($dbc->query("SELECT IFNULL(`region`,'') FROM `tickets` WHERE `deleted`=0 ".($other_groups['regions'] != "','" && $other_groups['regions'] != "" ? " AND ((`region` IN ('{$admin_group['region']}','') AND `region` NOT IN ('{$other_groups['regions']}')) OR ('{$admin_group['region']}'='' AND `region` NOT IN ('{$other_groups['regions']}')))" : "")." GROUP BY IFNULL(`region`,'')")) as $region) {
+        if($filter_region == str_replace('_','',config_safe_str($region[0]))) {
+            $filter_region = $region[0];
+        }
+    }
 	$filter_class = $name[4];
+    foreach(mysqli_fetch_all($dbc->query("SELECT IFNULL(`classification`,'') FROM `tickets` WHERE `deleted`=0 ".($other_groups['classifications'] != "','" && $other_groups['classifications'] != "" ? " AND (`classification` IN ('{$admin_group['classification']}','') OR ('{$admin_group['classification']}'='' AND `classification` NOT IN ('{$other_groups['classifications']}')))" : "")." GROUP BY IFNULL(`classification`,'')")) as $class) {
+        if($filter_class == str_replace('_','',config_safe_str($class[0]))) {
+            $filter_class = $class[0];
+        }
+    }
 	$filter_site = $name[5];
 	$filter_business = $name[6];
 
@@ -79,9 +93,9 @@
 	}
 
 	if($project_admin_multiday_tickets == 1) {
-		$tickets = $dbc->query("SELECT * FROM (SELECT `tickets`.*,`tickets`.`to_do_date` `ticket_date` FROM `tickets` WHERE `tickets`.`deleted`=0 AND (',".$admin_group['action_items'].",' LIKE '%,Tickets,%' OR ',".$admin_group['action_items'].",' LIKE CONCAT('%,ticket_type_',`tickets`.`ticket_type`,',%')) AND IFNULL(`tickets`.`to_do_date`,'') != ''".$status_query2.$project_query.$group_query.$region_query.$site_query.$business_query.$complete_query." UNION SELECT `tickets`.*, `ticket_attached`.`date_stamp` `ticket_date` FROM `tickets` RIGHT JOIN `ticket_attached` ON `tickets`.`ticketid` = `ticket_attached`.`ticketid` WHERE `tickets`.`deleted`=0 AND `ticket_attached`.`deleted`=0 AND `ticket_attached`.`src_table` LIKE 'Staff%' AND IFNULL(`ticket_attached`.`date_stamp`,'') != IFNULL(`tickets`.`to_do_date`,'')".$status_query.$project_query.$group_query.$region_query.$site_query.$business_query.$complete_query." GROUP BY `ticket_attached`.`date_stamp`) `all_tickets` ORDER BY `all_tickets`.`ticketid`");
+		$tickets = $dbc->query("SELECT * FROM (SELECT `tickets`.*,`tickets`.`to_do_date` `ticket_date` FROM `tickets` WHERE `tickets`.`deleted`=0 AND (',".$admin_group['action_items'].",' LIKE '%,Tickets,%' OR ',".$admin_group['action_items'].",' LIKE CONCAT('%,ticket_type_',`tickets`.`ticket_type`,',%')) AND IFNULL(`tickets`.`to_do_date`,'') != '' ".$type_query.$status_query2.$project_query.$group_query.$region_query.$site_query.$business_query.$complete_query." UNION SELECT `tickets`.*, `ticket_attached`.`date_stamp` `ticket_date` FROM `tickets` RIGHT JOIN `ticket_attached` ON `tickets`.`ticketid` = `ticket_attached`.`ticketid` WHERE `tickets`.`deleted`=0 AND `ticket_attached`.`deleted`=0 AND `ticket_attached`.`src_table` LIKE 'Staff%' AND IFNULL(`ticket_attached`.`date_stamp`,'') != IFNULL(`tickets`.`to_do_date`,'')".$status_query.$project_query.$group_query.$region_query.$site_query.$business_query.$complete_query." GROUP BY `ticket_attached`.`date_stamp`) `all_tickets` ORDER BY `all_tickets`.`ticketid`");
 	} else {
-		$tickets = $dbc->query("SELECT *, `tickets`.`to_do_date` `ticket_date` FROM `tickets` WHERE `tickets`.`deleted`=0 AND (',".$admin_group['action_items'].",' LIKE '%,Tickets,%' OR ',".$admin_group['action_items'].",' LIKE CONCAT('%,ticket_type_',`tickets`.`ticket_type`,',%')) ".$status_query.$project_query.$group_query.$region_query.$site_query.$business_query.$complete_query);
+		$tickets = $dbc->query("SELECT *, `tickets`.`to_do_date` `ticket_date` FROM `tickets` WHERE `tickets`.`deleted`=0 AND (',".$admin_group['action_items'].",' LIKE '%,Tickets,%' OR ',".$admin_group['action_items'].",' LIKE CONCAT('%,ticket_type_',`tickets`.`ticket_type`,',%')) ".$type_query.$status_query.$project_query.$group_query.$region_query.$site_query.$business_query.$complete_query);
 	}
 
 	return $tickets;

@@ -6,12 +6,14 @@
 		if(mysqli_num_rows($notes) > 0) {
             $odd_even = 0; ?>
 			<div id="no-more-tables" class="col-sm-12">
-				<table class="table table-bordered">
-					<tr class="hidden-sm hidden-xs">
-						<th>Note</th>
-						<th>Assigned To</th>
-						<th>Created</th>
-					</tr>
+				<table class="table table-bordered table-striped">
+                    <thead>
+                        <tr class="hidden-sm hidden-xs">
+                            <th>Note</th>
+                            <th>Assigned To</th>
+                            <th>Created</th>
+                        </tr>
+                    </thead>
 					<?php while($note = mysqli_fetch_assoc($notes)) { ?>
                         <?php $bg_class = $odd_even % 2 == 0 ? 'row-even-bg' : 'row-odd-bg'; ?>
 						<tr class="<?= $bg_class ?>">

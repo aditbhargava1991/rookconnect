@@ -45,7 +45,7 @@ function send_invoice(address, invoice) {
 			}
 			// Pagination Finish //
 
-			echo '<table class="table table-bordered">';
+			echo '<table class="table table-bordered table-striped">';
 			if(PROJECT_TILE == 'Projects') {
 				$project_tile_title = 'Project';
 			} else if(PROJECT_TILE == 'Jobs') {
@@ -53,7 +53,7 @@ function send_invoice(address, invoice) {
 			} else {
 				$project_tile_title = PROJECT_TILE;
 			}
-			echo '<tr class="hidden-xs hidden-sm">
+			echo '<thead><tr class="hidden-xs hidden-sm">
 				<th>'.$project_tile_title.' #</th>
 				<th>Business</th>
 				<th>Contact</th>
@@ -61,7 +61,7 @@ function send_invoice(address, invoice) {
 				<th>Invoice</th>
 				<th>Function</th>
 				<th>Status</th>
-				</tr>';
+				</tr></thead>';
 
 			// Get Project Types
 			$project_tabs = get_config($dbc, 'project_tabs');

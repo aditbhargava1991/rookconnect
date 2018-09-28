@@ -27,7 +27,8 @@
 		echo display_pagination($dbc, $count_sql, $pageNum, $rowsPerPage);
 		
 		// Table Headers ?>
-		<table class="table table-bordered">
+		<table class="table table-bordered table-striped">
+            <thead>
 			<tr class="hidden-xs hidden-sm">
 				<th>Rate Card</th>
 				<th>Category</th>
@@ -66,6 +67,7 @@
                     <th>Function</th>
                 <?php } ?>
 			</tr>
+            </thead>
 		<?php // Table Rows
 		while($row = mysqli_fetch_array($result)) {
 			echo '<tr>'; ?>

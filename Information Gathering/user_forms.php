@@ -53,7 +53,7 @@ if(!empty($_POST['manual_btn'])) {
         $query_update_site = "UPDATE `infogathering_pdf` SET `fieldlevelriskid` = '$pdf_id', `pdf_path` = 'download/".$pdf_name."', `today_date` = '$today_date', `created_by` = '$created_by', `company` = '$company', `projectid` = '$projectid', `businessid` = '$businessid' WHERE `infopdfid` = '$infopdfid'";
         $result_insert_site = mysqli_query($dbc, $query_update_site);
     } else {
-        $query_insert_site = "INSERT INTO `infogathering_pdf` (`infogatheringid`, `fieldlevelriskid`, `pdf_path`, `today_date`, `created_by`, `company`, `projectid`, `businessid`, `staffid`) VALUES ('$infogatheringid', '$pdf_id', 'download/".$pdf_name."', '$today_date', '$created_by', '$company', '$projectid', '$businessid', '$user_id')";
+        $query_insert_site = "INSERT INTO `infogathering_pdf` (`infogatheringid`, `fieldlevelriskid`, `pdf_path`, `today_date`, `created_by`, `company`, `projectid`, `businessid`, `staffid`, `salesid`) VALUES ('$infogatheringid', '$pdf_id', 'download/".$pdf_name."', '$today_date', '$created_by', '$company', '$projectid', '$businessid', '$user_id', '".$_POST['salesid']."')";
         $result_insert_site = mysqli_query($dbc, $query_insert_site);
         $infopdfid = mysqli_insert_id($dbc);
     }

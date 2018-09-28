@@ -84,6 +84,10 @@
             $result_insert_upload = mysqli_query($dbc, $query_insert_upload);
         }
 
+        $before_change = '';
+        $history = "Safety attendance entry has been added. <br />";
+        add_update_history($dbc, 'safety_history', $history, '', $before_change);
+
     } else {
         $fieldlevelriskid = $_POST['fieldlevelriskid'];
 
@@ -91,9 +95,17 @@
 			$query_insert_site = "INSERT INTO `safety_field_level_risk_assessment` (`safetyid`, `today_date`, `jobid`, `contactid`, `location`, `fields`, `fields_value`, `working_alone`, `all_task`, `job_complete`, `job_complete_value`, `attendance_staff`, `attendance_extra`, `workers_on_crew`, `crew_leader`) VALUES	('$safetyid', '$today_date', '$jobid', '$contactid', '$location', '$fields', '$fields_value', '$working_alone', '$all_task', '$job_complete', '$job_complete_value', '$attendance_staff', '$attendance_extra', '$workers_on_crew', '$crew_leader')";
 			$result_insert_site	= mysqli_query($dbc, $query_insert_site);
 			$fieldlevelriskid = mysqli_insert_id($dbc);
-			
+
+      $before_change = '';
+      $history = "Safety field level risk Assessment entry has been added. <br />";
+      add_update_history($dbc, 'safety_history', $history, '', $before_change);
+
 			$query_insert_upload = "INSERT INTO `safety_attendance` (`safetyid`, `fieldlevelriskid`, `assign_staff`) VALUES ('$safetyid', '$fieldlevelriskid', '".get_contact($dbc, $_SESSION['contactid'])."')";
             $result_insert_upload = mysqli_query($dbc, $query_insert_upload);
+
+            $before_change = '';
+            $history = "Safety attendance entry has been added. <br />";
+            add_update_history($dbc, 'safety_history', $history, '', $before_change);
 		} else {
 			$query_update_employee = "UPDATE `safety_field_level_risk_assessment` SET `fields` = '$fields', `fields_value` = '$fields_value', `working_alone` = '$working_alone',`all_task` = CONCAT(all_task,'$all_task'), `job_complete` = '$job_complete', `job_complete_value` = '$job_complete_value' WHERE fieldlevelriskid='$fieldlevelriskid'";
 			$result_update_employee = mysqli_query($dbc, $query_update_employee);
@@ -134,6 +146,10 @@
             }
         }
 
+        $before_change = '';
+        $history = "safety_attendance entry has been updated for safetyattid $assign_staff_id <br />";
+        add_update_history($dbc, 'safety_history', $history, '', $before_change);
+
         $get_total_notdone = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT COUNT(safetyattid) AS total_notdone FROM safety_attendance WHERE	fieldlevelriskid='$fieldlevelriskid' AND safetyid='$safetyid' AND done=0"));
         if($get_total_notdone['total_notdone'] == 0 && strpos($_SERVER['SCRIPT_NAME'],'index.php') !== FALSE) {
             include ('field_level_hazard_pdf.php');
@@ -157,7 +173,7 @@
 	} else if($url_redirect == '' && $field_level_hazard == 'field_level_hazard_submit') {
         $url_redirect = 'add_manual.php?safetyid='.$safetyid.'&action=view&formid='.$fieldlevelriskid.'';
     }
-	
+
     if(IFRAME_PAGE && strpos($url_redirect, 'reports') !== FALSE) {
         echo '<script type="text/javascript">
         top.window.location.replace("'.$url_redirect.'"); </script>';

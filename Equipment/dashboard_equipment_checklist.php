@@ -23,12 +23,6 @@ if (isset($_POST['export_pdf'])) {
 <?php $equipment_main_tabs = explode(',',get_config($dbc, 'equipment_main_tabs'));
 include_once ('../Equipment/region_location_access.php');
 ?>
-<div class="notice double-gap-bottom popover-examples">
-	<div class="col-sm-1 notice-icon"><img src="<?= WEBSITE_URL; ?>/img/info.png" class="wiggle-me" width="25"></div>
-	<div class="col-sm-11"><span class="notice-name">NOTE:</span>
-	A checklist is defined for either an equipment category, a type of equipment, or a specific piece of equipment. Once you have selected a piece of equipment, any checklists that match the piece of equipment will be displayed.</div>
-	<div class="clearfix"></div>
-</div>
 
 <form name="form_sites" method="post" action="" class="form-inline" role="form">
 
@@ -59,10 +53,10 @@ include_once ('../Equipment/region_location_access.php');
 				<div class="col-sm-4">
 					<label for="site_name" class="control-label">
 						<span class="popover-examples list-inline" style="margin:0 2px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Click here to see all equipment for which you have records."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
-						Select Category:</label>
+						Select Tab:</label>
 				</div>
 				<div class="col-sm-8">
-					<select data-placeholder="Select Category" name="search_cat" class="chosen-select-deselect form-control">
+					<select data-placeholder="Select Tab" name="search_cat" class="chosen-select-deselect form-control">
 						<option></option>
 						<?php $search_cat = (!empty($_POST['search_cat']) ? $_POST['search_cat'] : '');
 						$query = mysqli_query($dbc,"SELECT `category`, COUNT(*) FROM `equipment` WHERE `deleted`=0 $access_query GROUP BY `category` ORDER BY `category`");

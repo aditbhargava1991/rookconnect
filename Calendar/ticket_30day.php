@@ -405,7 +405,7 @@ function draw_calendar($dbc, $month,$year,$search_user,$search_client,$search_ti
 	$skip_days = $skip_days - $running_day;
 
 	for($list_day = $today_in_month - $skip_days + 1; $list_day <= $days_in_month; $list_day++):
-	
+
         $today_date = $list_day.'-'.$month.'-'.$year;
         $new_today_date = date_format(date_create_from_format('j-n-Y', $today_date), 'Y-m-d');
 
@@ -517,7 +517,7 @@ function draw_calendar($dbc, $month,$year,$search_user,$search_client,$search_ti
                     if($new_today_date == date('Y-m-d',strtotime("-1 days")) || $new_today_date == date('Y-m-d',strtotime("-2 days"))) {
                         $date_color = 'block/orange.png';
                     }
-                    $calendar .= '<a style="color:black;  display:block; border-bottom:1px solid black; white-space: nowrap; width:200px; text-overflow: ellipsis; overflow:hidden; padding: 2px;  background-color: '.$row['calendar_color'].';" href="'.WEBSITE_URL.'/Tasks/add_task.php?tasklistid='.$row_tasklist['tasklistid'].'&from='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']).'" id="task_'.$row_tasklist['tasklistid'].'" title="'.$row_tasklist['heading'].'"><img src="'.WEBSITE_URL.'/img/'.$date_color.'" width="10" height="10" border="0" alt="">&nbsp;Task: '.$row_tasklist['heading']. '</a><br>';
+                    $calendar .= '<a style="color:black;  display:block; border-bottom:1px solid black; white-space: nowrap; width:200px; text-overflow: ellipsis; overflow:hidden; padding: 2px;  background-color: '.$row['calendar_color'].';" href="'.WEBSITE_URL.'/Tasks_Updated/add_task.php?tasklistid='.$row_tasklist['tasklistid'].'&from='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']).'" id="task_'.$row_tasklist['tasklistid'].'" title="'.$row_tasklist['heading'].'"><img src="'.WEBSITE_URL.'/img/'.$date_color.'" width="10" height="10" border="0" alt="">&nbsp;Task: '.$row_tasklist['heading']. '</a><br>';
                     //$calendar .= '<img src="'.WEBSITE_URL.'/img/'.$date_color.'" width="10" height="10" border="0" alt="">&nbsp;<a href="#"  id="task_'.$row_tasklist['tasklistid'].'" onclick="wwindow.open(\''.WEBSITE_URL.'/Tasks/add_task.php?tasklistid='.$row_tasklist['tasklistid'].'\', \'newwindow\', \'width=1000, height=900\'); return false;">'.$row_tasklist['heading']. '</a><br>';
                 }
 
@@ -640,7 +640,7 @@ function draw_calendar($dbc, $month,$year,$search_user,$search_client,$search_ti
                     if($new_today_date == date('Y-m-d',strtotime("-1 days")) || $new_today_date == date('Y-m-d',strtotime("-2 days"))) {
                         $date_color = 'block/orange.png';
                     }
-                    $calendar .= '<a style="color:black;  display:block; border-bottom:1px solid black; white-space: nowrap; width:200px; text-overflow: ellipsis; overflow:hidden; padding: 2px;  background-color: '.$row['calendar_color'].';" href="'.WEBSITE_URL.'/Tasks/add_task.php?tasklistid='.$row_tasklist['tasklistid'].'&from='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']).'" id="task_'.$row_tasklist['tasklistid'].'" title="'.$row_tasklist['heading'].'"><img src="'.WEBSITE_URL.'/img/'.$date_color.'" width="10" height="10" border="0" alt="">&nbsp;Task: '.$row_tasklist['heading']. '</a><br>';
+                    $calendar .= '<a style="color:black;  display:block; border-bottom:1px solid black; white-space: nowrap; width:200px; text-overflow: ellipsis; overflow:hidden; padding: 2px;  background-color: '.$row['calendar_color'].';" href="'.WEBSITE_URL.'/Tasks_Updated/add_task.php?tasklistid='.$row_tasklist['tasklistid'].'&from='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']).'" id="task_'.$row_tasklist['tasklistid'].'" title="'.$row_tasklist['heading'].'"><img src="'.WEBSITE_URL.'/img/'.$date_color.'" width="10" height="10" border="0" alt="">&nbsp;Task: '.$row_tasklist['heading']. '</a><br>';
                     //$calendar .= '<img src="'.WEBSITE_URL.'/img/'.$date_color.'" width="10" height="10" border="0" alt="">&nbsp;<a href="#"  id="task_'.$row_tasklist['tasklistid'].'" onclick="wwindow.open(\''.WEBSITE_URL.'/Tasks/add_task.php?tasklistid='.$row_tasklist['tasklistid'].'\', \'newwindow\', \'width=1000, height=900\'); return false;">'.$row_tasklist['heading']. '</a><br>';
                 }
 

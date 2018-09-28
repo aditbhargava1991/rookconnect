@@ -1,176 +1,3 @@
-<script>
-
-    /* Timer */
-    $('.start-timer-btn').on('click', function() {
-        $(this).closest('div').find('.timer').timer({
-            editable: true
-        });
-        $(this).addClass('hidden');
-        $(this).next('.stop-timer-btn').removeClass('hidden');
-    });
-
-    $('.stop-timer-btn').on('click', function() {
-		$(this).closest('div').find('.timer').timer('stop');
-		$(this).addClass('hidden');
-		$('#timer_value').addClass('hidden');
-
-
-		//$(this).prev('.start-timer-btn').removeClass('hidden');
-
-        var projectid = $(this).data('id');
-
-        var timer_value = $(this).closest('div').find('#timer_value').val();
-
-		$(this).closest('div').find('.timer').timer('remove');
-
-		if ( projectid!='' && typeof projectid!='undefined' && timer_value!='' ) {
-            $.ajax({
-                type: "GET",
-                url: "projects_ajax.php?action=timer&projectid="+projectid+"&timer_value="+timer_value,
-                dataType: "html",
-                success: function(response) {
-                    alert('Time added');
-                }
-            });
-        }
-    });
-
-
-    /* Timer */
-
-
-	$('.archive-icon').off('click').click(function() {
-		var item = $(this).closest('.dashboard-item');
-		$.ajax({
-			url: 'projects_ajax.php?action=archive',
-			method: 'POST',
-			data: { id: item.data('id') },
-            success: function(result) {
-						alert('Project Archived');
-					}
-		});
-		item.hide();
-	});
-
-	$('.email-icon').off('click').click(function() {
-		// var item = $(this).closest('.dashboard-item');
-		// var select = item.find('.select_users');
-		// select.find('.cancel_button').off('click').click(function() {
-		// 	select.find('select option:selected').removeAttr('selected');
-		// 	select.hide();
-		// 	return false;
-		// });
-		// select.find('.submit_button').off('click').click(function() {
-		// 	if(select.find('select').val() != '' && confirm('Are you sure you want to send an e-mail to the selected user(s)?')) {
-		// 		var users = [];
-		// 		select.find('select option:selected').each(function() {
-		// 			users.push(this.value);
-		// 			$(this).removeAttr('selected');
-		// 			select.find('select').trigger('change.select2');
-		// 		});
-		// 		$.ajax({
-		// 			method: 'POST',
-		// 			url: 'projects_ajax.php?action=quick_actions',
-		// 			data: {
-		// 				id: item.data('id'),
-		// 				id_field: item.data('id-field'),
-		// 				table: item.data('table'),
-		// 				field: 'email',
-		// 				value: users
-		// 			},
-		// 			success: function(result) {
-		// 				select.hide();
-		// 				select.find('select').trigger('change.select2');
-		// 				item.find('h4').append(result);
-		// 			}
-		// 		});
-		// 	}
-		// 	return false;
-		// });
-		// select.show();
-	});
-
-	$('.attach-icon').off('click').click(function() {
-		var item = $(this).closest('.dashboard-item');
-		item.find('[type=file]').off('change').change(function() {
-			var fileData = new FormData();
-			fileData.append('file',$(this)[0].files[0]);
-			fileData.append('field','document');
-			fileData.append('table','project_document');
-			fileData.append('folder','download');
-			fileData.append('id',item.data('id'));
-			fileData.append('id_field','ticketid');
-			$.ajax({
-				contentType: false,
-				processData: false,
-				method: "POST",
-				url: "projects_ajax.php?action=quick_actions",
-				data: fileData
-			});
-                $(this).hide().val('');
-		}).click();
-	});
-
-$('.reminder-icon').off('click').click(function() {
-    var item = $(this).closest('.dashboard-item');
-    item.find('[name=reminder]').change(function() {
-        var reminder = $(this).val();
-        var select = item.find('.select_users');
-        select.find('.cancel_button').off('click').click(function() {
-            select.find('select option:selected').removeAttr('selected');
-            select.find('select').trigger('change.select2');
-            select.hide();
-            return false;
-        });
-        select.find('.submit_button').off('click').click(function() {
-            if(select.find('select').val() != '' && confirm('Are you sure you want to schedule reminders for the selected user(s)?')) {
-                var users = [];
-                select.find('select option:selected').each(function() {
-                    users.push(this.value);
-                    $(this).removeAttr('selected');
-                });
-                $.ajax({
-                    method: 'POST',
-                    url: 'projects_ajax.php?action=quick_actions',
-                    data: {
-                        id: item.data('id'),
-                        id_field: item.data('id-field'),
-                        table: item.data('table'),
-                        field: 'reminder',
-                        value: reminder,
-                        users: users,
-                        ref_id: item.data('id'),
-                        ref_id_field: item.data('id-field')
-                    },
-                    success: function(result) {
-                        select.hide();
-                        select.find('select').trigger('change.select2');
-                        item.find('h4').append(result);
-                        alert("Reminder set");
-                    }
-                });
-            }
-            return false;
-        });
-        select.show();
-    }).focus();
-});
-
-function saveNote(sel) {
-    var projectid = $(sel).data('projectid');
-    var note = sel.value;
-    if (note!='') {
-        $.ajax({
-            url: 'projects_ajax.php?action=saveNote&projectid='+projectid+'&note='+note,
-            success: function(response) {
-               alert("Note saved.");
-            }
-        });
-    }
-}
-
-</script>
-
 <?php error_reporting(0);
 include_once('../include.php');
 ob_clean();
@@ -195,6 +22,9 @@ $status_list = explode('#*#',get_config($dbc, 'project_status'));
 $staff_list = sort_contacts_query(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name` FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `deleted`=0 AND `status` > 0 AND `show_hide_user`=1"));
 $project_slider = get_config($dbc, 'project_slider');
 $project_slider_label = get_config($dbc, 'project_slider_label');
+$project_tab_list = array_merge(explode(',',mysqli_fetch_assoc(mysqli_query($dbc,"SELECT `config_tabs` FROM field_config_project WHERE type='$projecttype'"))['config_tabs']),explode(',',mysqli_fetch_assoc(mysqli_query($dbc,"SELECT `config_tabs` FROM field_config_project WHERE type='ALL'"))['config_tabs']));
+$status_report = in_array('Report Action Items',$project_tab_list);
+$quick_actions = explode(',',get_config($dbc, 'quick_action_icons'));
 foreach($_POST['projectids'] as $projectid) {
 	if($projectid > 0) {
 		$project_count++;
@@ -205,8 +35,32 @@ foreach($_POST['projectids'] as $projectid) {
 		$invoices = mysqli_fetch_array(mysqli_query($dbc, "SELECT `paid` FROM `invoice` WHERE `projectid`='$projectid'"));
 		if($invoices['paid'] == '')
 			$invoices['paid'] = 'No';
+
+        $border_colour = '';
+		if(!empty($project['deadline']) && $project['deadline'] != 0000-00-00 && date('Y-m-d') >= $project['deadline'] && $project['status'] != 'Archive') {
+            $border_colour = "#FF0000";
+        }
+		$flag_label = '';
+        if($project['flag_colour'] != '' && $project['flag_colour'] != 'FFFFFF') {
+			if(in_array('flag_manual',$quick_actions)) {
+				if(time() < strtotime($project['flag_start']) || time() > strtotime($project['flag_end'].' + 1 day')) {
+					$project['flag_colour'] = '';
+				} else {
+					$flag_label = $project['flag_label'];
+				}
+			} else {
+				$ticket_flag_names = [''=>''];
+				$flag_names = explode('#*#', get_config($dbc, 'ticket_colour_flag_names'));
+				foreach(explode(',',get_config($dbc, 'ticket_colour_flags')) as $i => $colour) {
+					$ticket_flag_names[$colour] = $flag_names[$i];
+				}
+				$flag_label = $ticket_flag_names[$ticket['flag_colour']];
+			}
+		}
+
 		?>
-		<div class="dashboard-item override-dashboard-item" data-id="<?= $project['projectid'] ?>">
+		<div class="dashboard-item override-dashboard-item" data-id="<?= $project['projectid'] ?>" data-colour="<?= $project['flag_colour'] ?>" data-table="project" data-id-field="projectid" style="<?= $project['flag_colour'] != '' ? 'background-color: #'.$project['flag_colour'].';' : '' ?><?= empty($border_colour) ? '' : "border: 3px solid $border_colour;" ?>">
+			<span class="flag-label"><?= $flag_label ?></span>
 			<h4>
 				<?php $subtab_config = get_config($dbc, 'project_subtab');
 					$config_value = $subtab_config;
@@ -217,7 +71,7 @@ foreach($_POST['projectids'] as $projectid) {
 				?>
 				<a href="?edit=<?= $project['projectid'] ?>&tile_name=<?= $tile ?><?= $subtab_value ?>"><?= get_project_label($dbc, $project) ?>
 					<span class="small">(<?= $project_tabs[$project['projecttype']] ?>)
-						<?php if((in_array('DB Review',$value_config) || !in_array_any(['DB Project','DB Review','DB Status','DB Business','DB Contact','DB Billing','DB Type','DB Follow Up','DB Assign','DB Milestones'],$value_config)) && $security['edit'] > 0) { ?>
+						<?php if((in_array('DB Review',$value_config) || !in_array_any(['DB Project','DB Review','DB Status','DB Business','DB Contact','DB Billing','DB Type','DB Follow Up','DB Deadline','DB Assign','DB Milestones'],$value_config)) && $security['edit'] > 0) { ?>
 							<span class="review_date">Last Reviewed: <?= $project['reviewer_id'] > 0 ? date('Y-m-d', strtotime($project['review_date'])).' by '.get_contact($dbc, $project['reviewer_id']) : 'Never' ?></span>
 						<?php } ?>
 					</span>
@@ -229,70 +83,33 @@ foreach($_POST['projectids'] as $projectid) {
 				<?php } ?>
 				<img class="inline-img pull-right" src="../img/full_favourite.png" style="<?= strpos($project['favourite'],','.$_SESSION['contactid'].',') !== FALSE ? '' : 'display: none' ?>" onclick="markFavourite(this);">
 				<img class="inline-img pull-right" src="../img/blank_favourite.png" style="<?= strpos($project['favourite'],','.$_SESSION['contactid'].',') !== FALSE ? 'display: none' : '' ?>" onclick="markFavourite(this);">
-				<?php if((in_array('DB Review',$value_config) || !in_array_any(['DB Project','DB Review','DB Status','DB Business','DB Contact','DB Billing','DB Type','DB Follow Up','DB Assign','DB Milestones'],$value_config)) && $security['edit'] > 0) { ?>
+				<?php if((in_array('DB Review',$value_config) || !in_array_any(['DB Project','DB Review','DB Status','DB Business','DB Contact','DB Billing','DB Type','DB Follow Up','DB Deadline','DB Assign','DB Milestones'],$value_config)) && $security['edit'] > 0) { ?>
 					<button class="inline-img pull-right image-btn double-gap-right" onclick="markReviewed($(this).closest('.dashboard-item')); return false;"><img src="../img/icons/ROOK-review-icon.png" alt="Review Now" title="Review Now" width="30" /></button>
 				<?php } ?>
+                <?php if(in_array('DB Action Items',$value_config)) { ?>
+                    <span class="small pull-right pad-horizontal">
+                        <?php if(in_array('Tickets',$project_tab_list)) {
+                            echo '<a href="projects.php?edit='.$projectid.'&tab=tickets" title="The total number of incomplete '.TICKET_TILE.' assigned to this '.PROJECT_NOUN.'" class="no-toggle">'.TICKET_TILE.' - '.mysqli_fetch_assoc(mysqli_query($dbc,"SELECT COUNT(projectid) AS `tickets` FROM `tickets` WHERE `projectid` = '$projectid' AND `deleted`=0 AND `status` NOT IN ('Archive','Archived','Done')"))['tickets'].'</a><br />';
+                        }
+                        if(in_array('Tasks',$project_tab_list)) {
+                            echo '<a href="projects.php?edit='.$projectid.'&tab=tasks" title="The total number of incomplete Tasks assigned to this '.PROJECT_NOUN.'" class="no-toggle">Tasks - '.mysqli_fetch_assoc(mysqli_query($dbc,"SELECT COUNT(projectid) AS `tasks` FROM `tasklist` WHERE `projectid` = '$projectid' AND `deleted`=0 AND `status` NOT IN ('Archive','Archived','Done')"))['tasks'].'</a><br />';
+                        }
+                        if(in_array('Checklists In Path',$project_tab_list)) {
+                            echo '<a href="projects.php?edit='.$projectid.'&tab=tasks&status=project" title="The total number of incomplete Checklists assigned to this '.PROJECT_NOUN.'" class="no-toggle">Checklists - '.mysqli_fetch_assoc(mysqli_query($dbc,"SELECT COUNT(projectid) AS `checklists` FROM `checklist` WHERE `projectid` = '$projectid' AND `deleted`=0 AND `checklistid` IN (SELECT `checklistid` FROM `checklist_name` WHERE `deleted`=0 AND `checked`=0)"))['checklists'].'</a><br />';
+                        } ?>
+                    </span>
+                <?php } ?>
+                <?php foreach(explode(',',$project['project_lead'].','.$project['project_colead'].','.$project['project_team']) as $project_staff) {
+                    if($project_staff > 0) {
+                        echo '<div class="pull-right">'.profile_id($dbc,$project_staff,false).'</div>';
+                    }
+                } ?>
 				<div  class="clearfix"></div>
 			</h4>
 
-            <div class="action-icons">
-                <!-- All icons -->
-                <!-- Email -->
+            <?php include('quick_actions.php'); ?>
 
-                <a href="Add Email" onclick="overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_email.php?tile=projects&id='+id,'auto',false,true); return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-email-icon.png" class="inline-img email-icon" title="Send Email"></a>
-                <!-- Email -->
-
-                <!--<a href="Add Note" onclick="$(this).closest('.dashboard-item').find('[name=notes]').show().focus(); return false;">--><a href="#" onclick="overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_notes.php?tile=projects&id=<?= $projectid ?>','auto', false, true); return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-reply-icon.png" class="inline-img reply-icon" title="Add Note" /></a>
-                <!-- Note -->
-
-                 <a href="Add Reminder" onclick="$(this).closest('.dashboard-item').find('[name=reminder]').show().focus(); return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-reminder-icon.png" class="inline-img reminder-icon" title="Schedule Reminder"></a>
-                <!-- reminder -->
-
-                <a href="Add Reminder" onclick="$(this).closest('.dashboard-item').find('[name=document]').show().focus(); return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-attachment-icon.png" class="inline-img attach-icon" title="Attach File"></a>
-                <!-- document -->
-
-                <a href="Add Timer" onclick="$(this).closest('.dashboard-item').find('.timer').show().focus(); return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-timer2-icon.png" class="inline-img timer-icon" title="Start Timer" /></a>
-                <!-- Timer -->
-
-                <!-- archive -->
-                <img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-trash-icon.png" class="inline-img archive-icon" title="Archive">
-                <!-- archive -->
-
-                 <!-- All icons -->
-            </div>
-
-                <!-- Timer -->
-                <div class="timer" style="display:none;">
-                    <input type="text" name="timer_<?= $projectid ?>" id="timer_value" class="form-control timer" placeholder="0 sec" />
-                    <a class="btn btn-success start-timer-btn brand-btn mobile-block">Start</a>
-                    <a class="btn stop-timer-btn hidden brand-btn mobile-block" data-id="<?= $projectid ?>">Stop</a><br />
-                    <input type="hidden" value="" name="track_time" />
-                    <span class="added-time"></span>
-                </div>
-                <!-- Timer -->
-
-            <!-- Note -->
-            <input type="text" class="form-control gap-top" name="notes" id="notes" value="" style="display:none;" data-table="project_comment" data-projectid="<?= $projectid; ?>" onkeypress="javascript:if(event.keyCode==13){ saveNote(this); $(this).val('').hide(); };" onblur="saveNote(this); $(this).val('').hide();">
-
-            <!-- reminder -->
-            <input type='text' name='reminder' value='' class="form-control datepicker" style="border:0;height:0;margin:0;padding:0;width:0;">
-            <div class="select_users" style="display:none;">
-                <select data-placeholder="Select Staff" multiple class="chosen-select-deselect"><option></option>
-                <?php foreach($staff_list as $staff) { ?>
-                    <option value="<?= $staff['contactid'] ?>"><?= $staff['first_name'].' '.$staff['last_name'] ?></option>
-                <?php } ?>
-                </select>
-                <button class="submit_button btn brand-btn pull-right">Submit</button>
-                <button class="cancel_button btn brand-btn pull-right">Cancel</button>
-            </div>
-
-            <!-- document -->
-            <input type='file' name='document' value='' style="display:none;">
-
-            <br>
-            <div class="clearfix"></div>
-
-			<?php if(in_array('DB Business',$value_config) || !in_array_any(['DB Project','DB Review','DB Status','DB Business','DB Contact','DB Billing','DB Type','DB Follow Up','DB Assign','DB Milestones'],$value_config)) { ?>
+			<?php if(in_array('DB Business',$value_config) || !in_array_any(['DB Project','DB Review','DB Status','DB Business','DB Contact','DB Billing','DB Type','DB Follow Up','DB Deadline','DB Assign','DB Milestones'],$value_config)) { ?>
 				<div class="col-sm-6">
 					<div class="form-group">
 						<label class="col-sm-4"><?= BUSINESS_CAT ?>:</label>
@@ -302,7 +119,7 @@ foreach($_POST['projectids'] as $projectid) {
 					</div>
 				</div>
 			<?php } ?>
-			<?php if(in_array('DB Contact',$value_config) || !in_array_any(['DB Project','DB Review','DB Status','DB Business','DB Contact','DB Billing','DB Type','DB Follow Up','DB Assign','DB Milestones'],$value_config)) { ?>
+			<?php if(in_array('DB Contact',$value_config) || !in_array_any(['DB Project','DB Review','DB Status','DB Business','DB Contact','DB Billing','DB Type','DB Follow Up','DB Deadline','DB Assign','DB Milestones'],$value_config)) { ?>
 				<div class="col-sm-6">
 					<div class="form-group">
 						<label class="col-sm-4">Contact:</label>
@@ -312,7 +129,7 @@ foreach($_POST['projectids'] as $projectid) {
 					</div>
 				</div>
 			<?php } ?>
-			<?php if(in_array('DB Status',$value_config) || !in_array_any(['DB Project','DB Review','DB Status','DB Business','DB Contact','DB Billing','DB Type','DB Follow Up','DB Assign','DB Milestones'],$value_config)) { ?>
+			<?php if(in_array('DB Status',$value_config) || !in_array_any(['DB Project','DB Review','DB Status','DB Business','DB Contact','DB Billing','DB Type','DB Follow Up','DB Deadline','DB Assign','DB Milestones'],$value_config)) { ?>
 				<div class="col-sm-6">
 					<div class="form-group">
 						<label class="col-sm-4">Status:</label>
@@ -334,7 +151,7 @@ foreach($_POST['projectids'] as $projectid) {
 					</div>
 				</div>
 			<?php } ?>
-			<?php if(in_array('DB Billing',$value_config) || !in_array_any(['DB Project','DB Review','DB Status','DB Business','DB Contact','DB Billing','DB Type','DB Follow Up','DB Assign','DB Milestones'],$value_config)) { ?>
+			<?php if(in_array('DB Billing',$value_config) || !in_array_any(['DB Project','DB Review','DB Status','DB Business','DB Contact','DB Billing','DB Type','DB Follow Up','DB Deadline','DB Assign','DB Milestones'],$value_config)) { ?>
 				<div class="col-sm-6">
 					<div class="form-group">
 						<label class="col-sm-4">Paid:</label>
@@ -346,7 +163,7 @@ foreach($_POST['projectids'] as $projectid) {
 					</div>
 				</div>
 			<?php } ?>
-			<?php if(in_array('DB Type',$value_config) || !in_array_any(['DB Project','DB Review','DB Status','DB Business','DB Contact','DB Billing','DB Type','DB Follow Up','DB Assign','DB Milestones'],$value_config)) { ?>
+			<?php if(in_array('DB Type',$value_config) || !in_array_any(['DB Project','DB Review','DB Status','DB Business','DB Contact','DB Billing','DB Type','DB Follow Up','DB Deadline','DB Assign','DB Milestones'],$value_config)) { ?>
 				<div class="col-sm-6">
 					<div class="form-group">
 						<label class="col-sm-4"><?= PROJECT_NOUN ?> Type:</label>
@@ -367,7 +184,7 @@ foreach($_POST['projectids'] as $projectid) {
 					</div>
 				</div>
 			<?php } ?>
-			<?php if(in_array('DB Follow Up',$value_config) || !in_array_any(['DB Project','DB Review','DB Status','DB Business','DB Contact','DB Billing','DB Type','DB Follow Up','DB Assign','DB Milestones'],$value_config)) { ?>
+			<?php if(in_array('DB Follow Up',$value_config) || !in_array_any(['DB Project','DB Review','DB Status','DB Business','DB Contact','DB Billing','DB Type','DB Follow Up','DB Deadline','DB Assign','DB Milestones'],$value_config)) { ?>
 				<div class="col-sm-6">
 					<div class="form-group">
 						<label class="col-sm-4">Follow Up Date:</label>
@@ -381,7 +198,21 @@ foreach($_POST['projectids'] as $projectid) {
 					</div>
 				</div>
 			<?php } ?>
-			<?php if(in_array('DB Assign',$value_config) || !in_array_any(['DB Project','DB Review','DB Status','DB Business','DB Contact','DB Billing','DB Type','DB Follow Up','DB Assign','DB Milestones'],$value_config)) { ?>
+			<?php if(in_array('DB Deadline',$value_config)) { ?>
+				<div class="col-sm-6">
+					<div class="form-group">
+						<label class="col-sm-4">Deadline:</label>
+						<div class="col-sm-8">
+							<?php if($security['edit'] > 0) { ?>
+								<input type="text" class="form-control datepicker" name="deadline" value="<?= $project['deadline'] ?>" data-table="project" data-identifier="projectid" data-id="<?= $project['projectid'] ?>" data-project="<?= $project['projectid'] ?>">
+							<?php } else {
+								echo $project['deadline'];
+							} ?>
+						</div>
+					</div>
+				</div>
+			<?php } ?>
+			<?php if(in_array('DB Assign',$value_config) || !in_array_any(['DB Project','DB Review','DB Status','DB Business','DB Contact','DB Billing','DB Type','DB Follow Up','DB Deadline','DB Assign','DB Milestones'],$value_config)) { ?>
 				<div class="col-sm-6">
 					<div class="form-group">
 						<label class="col-sm-4"><?= PROJECT_NOUN ?> Lead:</label>
@@ -401,7 +232,7 @@ foreach($_POST['projectids'] as $projectid) {
 				</div>
 			<?php } ?>
 
-			<?php if(in_array('DB Colead',$value_config) || !in_array_any(['DB Project','DB Review','DB Status','DB Business','DB Contact','DB Billing','DB Type','DB Follow Up','DB Colead','DB Milestones'],$value_config)) { ?>
+			<?php if(in_array('DB Colead',$value_config) || !in_array_any(['DB Project','DB Review','DB Status','DB Business','DB Contact','DB Billing','DB Type','DB Follow Up','DB Deadline','DB Colead','DB Milestones'],$value_config)) { ?>
 				<div class="col-sm-6">
 					<div class="form-group">
 						<label class="col-sm-4"><?= PROJECT_NOUN ?> Co-Lead:</label>
@@ -422,7 +253,7 @@ foreach($_POST['projectids'] as $projectid) {
 			<?php } ?>
 
 
-			<?php if(in_array('DB Total Tickets',$value_config) || !in_array_any(['DB Project','DB Review','DB Status','DB Business','DB Contact','DB Billing','DB Type','DB Follow Up','DB Colead','DB Milestones','DB Total Tickets'],$value_config)) { ?>
+			<?php if(in_array('DB Total Tickets',$value_config) || !in_array_any(['DB Project','DB Review','DB Status','DB Business','DB Contact','DB Billing','DB Type','DB Follow Up','DB Deadline','DB Colead','DB Milestones','DB Total Tickets'],$value_config)) { ?>
 				<div class="col-sm-6">
 					<div class="form-group">
 						<label class="col-sm-4">Total Tickets:</label>
@@ -430,9 +261,9 @@ foreach($_POST['projectids'] as $projectid) {
                         <?php
                                     $projectid = $project['projectid'];
 								    $active_ticket = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT COUNT(projectid) AS total_id FROM tickets WHERE `projectid` = '$projectid' AND `deleted`=0 AND `status` NOT IN ('Archive','Archived','Done')"));
-                                    echo 'Active - '.$active_ticket['total_id'].' : ';
+                                    echo '<a href="projects.php?edit='.$projectid.'&tab=tickets">Active - '.$active_ticket['total_id'].'</a> : ';
 								    $inactive_ticket = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT COUNT(projectid) AS total_id FROM tickets WHERE `projectid` = '$projectid' AND `deleted`=0 AND `status` IN ('Archive','Archived','Done')"));
-                                    echo 'Archived/Done - '.$inactive_ticket['total_id'];
+                                    echo '<a href="projects.php?edit='.$projectid.'&tab=tickets&status=archive">Archived/Done - '.$inactive_ticket['total_id'].'</a>';
                          ?>
 						</div>
 					</div>

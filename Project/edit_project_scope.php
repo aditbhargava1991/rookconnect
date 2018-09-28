@@ -190,7 +190,7 @@ function saveField(src) {
 			if(row.find('[name=margin]').val() != margin) {
 				row.find('[name=margin]').val(margin).change();
 			}
-			
+
 			total_cost = 0;
 			$('[name=cost][data-table]').each(function() { total_cost += +this.value * +$(this).closest('tr').find('[name=qty]').val(); });
 			var profit = +total_price - total_cost;
@@ -280,7 +280,7 @@ function add_line(src) {
 	clone.find('.select_div').show().find('option').hide();
 	resetChosen(clone.find("select[class^=chosen]"));
 	clone.find('[data-id]').data('id','');
-	
+
 	line.closest('table').append(clone);
 	$('[data-table]').off('change',update_field).change(update_field);
 }
@@ -465,7 +465,7 @@ function create_from_scope() {
 										<a href="" class="breakdown active" <?= $line['src_table'] == 'miscellaneous' ? '' : 'style="display: none;"' ?> onclick="return false;"><small>+ BREAKDOWN</small></a>
 										<img src="../img/remove.png" style="height: 1em;" onclick="remove_line(this);" data-table="project_scope" data-id="<?= $line['id'] ?>" data-id-field="id" name="deleted" data-project="<?= $projectid ?>">
 										<img src="../img/icons/ROOK-add-icon.png" style="height: 1em;" onclick="add_line(this);">
-										<img src="../img/icons/drag_handle.png" style="height: 1em; margin-top: 0.7em;" class="pull-right line-handle" data-table="project_scope" data-id="<?= $line['id'] ?>" data-id-field="id" data-project="<?= $projectid ?>">
+										<img src="../img/icons/drag_handle.png" style="height: 1em; margin-top: 0.7em;" class="pull-right line-handle no-toggle" data-table="project_scope" data-id="<?= $line['id'] ?>" data-id-field="id" data-project="<?= $projectid ?>" title="Drag">
 									<?php } ?>
 									<label class="control-checkbox small <?= !($security['edit'] > 0) ? 'readonly-block' : '' ?>"><input type="checkbox" name="attach_to_new" <?= $line['attach_id'] > 0 ? 'disabled checked' : '' ?> data-id="<?= $line['id'] ?>" style="position: relative; top: 0.5em;"></label>
 									</td>

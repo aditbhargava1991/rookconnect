@@ -72,15 +72,17 @@
 	$po_num = filter_var($_GET['po'],FILTER_SANITIZE_STRING);
 	$form_list = []; ?>
 	<div id="no-more-tables">
-		<table class="table table-bordered">
-			<tr class="hidden-xs hidden-sm">
-				<th>Purchase Order #</th>
-				<th>PO Line Item #</th>
-				<th>Contacts</th>
-				<th><?= TICKET_NOUN ?></th>
-				<th>Customer Order #</th>
-				<th>Cross Reference #</th>
-			</tr>
+		<table class="table table-bordered table-striped">
+            <thead>
+                <tr class="hidden-xs hidden-sm">
+                    <th>Purchase Order #</th>
+                    <th>PO Line Item #</th>
+                    <th>Contacts</th>
+                    <th><?= TICKET_NOUN ?></th>
+                    <th>Customer Order #</th>
+                    <th>Cross Reference #</th>
+                </tr>
+            </thead>
 			<?php $query = $dbc->query("SELECT `tickets`.`businessid`, `tickets`.`clientid`, `tickets`.`notes`, `tickets`.`ticket_label`, `ticket_attached`.`ticketid`, `ticket_attached`.`po_line`, `ticket_attached`.`position` FROM `ticket_attached` LEFT JOIN `tickets` ON `ticket_attached`.`ticketid`=`tickets`.`ticketid` WHERE `ticket_attached`.`deleted`=0 AND `tickets`.`deleted`=0 AND `ticket_attached`.`po_num`='$po_num' ORDER BY LPAD(`po_num`,100,0), LPAD(`po_line`,100,0)");
 			while($row = $query->fetch_assoc()) { ?>
 				<tr>

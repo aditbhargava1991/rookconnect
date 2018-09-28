@@ -43,7 +43,7 @@
 						</div>
 					</div>
 					<div class="form-group">
-						<label for="additional_note" class="col-sm-4 control-label">Type:</label>
+						<label for="additional_note" class="col-sm-4 control-label">Tab:</label>
 						<div class="col-sm-7">
 							<select name="type" data-table="ticket_document" data-id="" data-id-field="ticketdocid" class="chosen-select">
 								<option value="Support">Support</option>
@@ -51,8 +51,8 @@
 							</select>
 						</div>
 						<div class="col-sm-1">
-							<img class="inline-img pull-right" onclick="addMulti(this);" src="../img/icons/ROOK-add-icon.png">
-							<img class="inline-img pull-right" onclick="remMulti(this);" src="../img/remove.png">
+							<img class="inline-img pull-right" data-history-label="Document" onclick="addMulti(this);" src="../img/icons/ROOK-add-icon.png">
+							<img class="inline-img pull-right" data-history-label="Document" onclick="remMulti(this);" src="../img/remove.png">
 						</div>
 					</div>
 				</div>

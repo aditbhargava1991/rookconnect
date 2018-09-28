@@ -51,7 +51,7 @@ if(!empty($_GET['action']) && $_GET['action'] == 'invoice_values') {
 		echo $line_id;
 	}
 	mysqli_query($dbc, "UPDATE `invoice_payment` LEFT JOIN `invoice` ON `invoice_payment`.`invoiceid`=`invoice`.`invoiceid` LEFT JOIN `invoice_lines` ON `invoice_lines`.`line_id`=`invoice_payment`.`line_id` SET `invoice_payment`.`contactid`=`invoice`.`patientid`, `invoice_payment`.`deleted`=IF(`invoice_payment`.`deleted`=0,IFNULL(`invoice_lines`.`deleted`,`invoice`.`deleted`),1) WHERE `invoice`.`invoiceid`='$invoiceid'");
-	
+
 	//Prevent changes to invoices from previous days
 	$current_invoice = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `invoiceid` FROM `invoice` WHERE '$invoiceid' IN (`invoiceid`, `invoiceid_src`) AND `invoice_date`=DATE(NOW())"));
 	if($current_invoice['invoiceid'] > 0) {
@@ -61,7 +61,7 @@ if(!empty($_GET['action']) && $_GET['action'] == 'invoice_values') {
 		$invoiceid = mysqli_insert_id($dbc);
 	}
 	$invoiceid_src = $current_invoice['invoiceid'];
-	
+
 	//Update inventory quantity
 	if($table_name == 'invoice_lines' && $field_name='quantity' && $line_id > 0) {
 		$line = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT SUM(`quantity`) qty, `item`.`item_id`, `item`.`unit_price` FROM `invoice_lines` line LEFT JOIN `invoice_lines` item ON line.`item_id`=item.`item_id` AND line.`category`=item.`category` AND line.`invoiceid`=item.`invoiceid` WHERE item.`line_id`='$line_id' GROUP BY item.`item_id`"));
@@ -70,7 +70,7 @@ if(!empty($_GET['action']) && $_GET['action'] == 'invoice_values') {
 		$price = $line['unit_price'];
 		mysqli_query($dbc, "UPDATE `inventory` SET `current_stock` = `current_stock` - $change WHERE `inventoryid` = '$inventory'");
 		mysqli_query($dbc, "INSERT INTO `report_inventory` (`invoiceid`, `inventoryid`, `type`, `quantity`, `sell_price`, `today_date`) VALUES ('$invoiceid', '$inventory', '', '$change', '$price', DATE(NOW()))");
-		
+
 		//Send an e-mail if the item is low on stock --DISABLED
 		// $item = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `current_stock`, `min_bin` FROM `inventory` WHERE `inventoryid`='$inventory'"));
 		// if($item['current_stock'] < $item['min_bin']) {
@@ -96,7 +96,7 @@ if(!empty($_GET['action']) && $_GET['action'] == 'invoice_values') {
 		}
 		echo $line_id;
 	}
-	
+
 	if(is_array($field_value)) {
 		$field_value = implode(',',$field_value).',';
 	} else if($table_name == 'invoice_lines' && in_array($field_name, ['quantity','sub_total','pst','gst','total'])) {
@@ -199,4 +199,151 @@ if(!empty($_GET['action']) && $_GET['action'] == 'invoice_values') {
 	$value = filter_var($value, FILTER_SANITIZE_STRING);
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT '$name' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='$name') num WHERE num.rows=0");echo "INSERT INTO `general_configuration` SELECT '$name' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='$name') num WHERE num.rows=0";
 	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='$value' WHERE `name`='$name'");
+} else if($_GET['action'] == 'load_ticket_details') {
+	$ticketid = $_POST['ticketid'];
+
+	$ticket = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `tickets`.*, SUM(`ticket_schedule`.`id`) `deliveries` FROM `tickets` LEFT JOIN `ticket_schedule` ON `tickets`.`ticketid`=`ticket_schedule`.`ticketid` AND `ticket_schedule`.`deleted`=0 AND IFNULL(`ticket_schedule`.`serviceid`,'') != '' WHERE `tickets`.`ticketid` = '$ticketid'"));
+	if($ticket['ticketid'] > 0) { ?>
+		<?php if(!empty($ticket['serviceid']) || $ticket['deliveries'] > 0) { ?>
+			<div class="form-group clearfix hide-titles-mob">
+				<label class="col-sm-3 text-center">Category</label>
+				<label class="col-sm-5 text-center">Service Name</label>
+				<label class="col-sm-2 text-center">Qty</label>
+				<label class="col-sm-2 text-center">Fee</label>
+			</div>
+		<?php }
+        $businessid = $ticket['businessid'];
+        $clientid = implode("','",explode(',',$ticket['clientid']));
+        $business_rates = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `services`, `staff`, `staff_position` FROM `rate_card` WHERE `clientid` IN ('$rate_contact', '$businessid', '$clientid') AND `clientid` != '' AND `deleted`=0 ORDER BY `clientid`='$rate_contact' DESC"));
+        $service_rates = explode('**',$business_rates['services']);
+        $serviceid = [];
+        $srv_qty = [];
+        $srv_fuel = [];
+        $srv_discount = [];
+        $srv_dis_type = [];
+		foreach(explode(',',$ticket['serviceid']) as $i => $service) {
+			if($service > 0) {
+                $serviceid[] = $service;
+				$srv_qty[] = explode(',',$ticket['service_qty'])[$i] > 0 ? explode(',',$ticket['service_qty'])[$i] : 1;
+				$srv_fuel[] = explode(',',$ticket['service_fuel_charge'])[$i];
+				$srv_discount[] = explode(',',$ticket['service_discount'])[$i];
+				$srv_dis_type[] = explode(',',$ticket['service_discount_type'])[$i];
+            }
+        }
+        $ticket_deliveries = $dbc->query("SELECT * FROM `ticket_schedule` WHERE `ticketid`='$ticketid' AND `deleted`=0 ORDER BY `sort`");
+        while($ticket = $ticket_deliveries->fetch_assoc()) {
+            foreach(explode(',',$ticket['serviceid']) as $i => $service) {
+                if($service > 0) {
+                    $serviceid[] = $service;
+                    $srv_qty[] = 1;
+                    $srv_fuel[] = explode(',',$ticket['surcharge'])[$i];
+                    $srv_discount[] = explode(',',$ticket['service_discount'])[$i];
+                    $srv_dis_type[] = explode(',',$ticket['service_discount_type'])[$i];
+                }
+            }
+        }
+        foreach($serviceid as $i => $service) {
+            $qty = $srv_qty[$i];
+            $discount = $srv_discount[$i];
+            $dis_type = $srv_dis_type[$i];
+            $fuel = $srv_fuel[$i];
+            $price = 0;
+            foreach($service_rates as $rate_line) {
+                $rate_line = explode('#',$rate_line);
+                if($rate_line[0] == $service) {
+                    $price = $rate_line[1];
+                }
+            }
+            if($price == 0) {
+                $price = $_SERVER['DBC']->query("SELECT `cust_price` FROM `company_rate_card` WHERE `item_id`='$service' AND `tile_name` LIKE 'Services' AND `deleted`=0 AND IFNULL(NULLIF(`end_date`,'0000-00-00'),'9999-99-99') > NOW() ORDER BY `start_date` DESC")->fetch_assoc()['cust_price'];
+            }
+            $price += ($fuel / $qty);
+            $price -= (($dis_type == '%' ? $discount / 100 * $price_total : $discount) / $qty);
+            $service_details = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `services` WHERE `serviceid` = '$service'")); ?>
+            <div class="dis_service form-group">
+                <div class="col-sm-3">
+                    <input type="text" readonly name="service_cat[]" value="<?= $service_details['category'] ?>" class="form-control">
+                </div>
+                <div class="col-sm-5">
+                    <input type="text" readonly name="service_name[]" value="<?= $service_details['heading'] ?>" class="form-control">
+                </div>
+                <div class="col-sm-2">
+                    <input type="text" readonly name="srv_qty[]" value="<?= $qty ?>" class="form-control qty" />
+                </div>
+                <div class="col-sm-2">
+                    <input type="text" readonly name="fee[]" value="<?= $price ?>" class="form-control fee" />
+                </div>
+                <input type="hidden" name="service_ticketid[]" value="<?= $ticketid ?>">
+                <input type="hidden" readonly name="serviceid[]" value="<?= $service ?>" class="form-control serviceid">
+                <input type="hidden" readonly name="gst_exempt[]" value="<?= $service_details['gst_exempt'] ?>" class="form-control gstexempt" />
+            </div>
+        <?php }
+		$ticket_lines = $dbc->query("SELECT * FROM `ticket_attached` WHERE `ticketid`='$ticketid' AND `deleted`=0 AND `src_table` LIKE 'Staff%'");
+		$misc_headings = false;
+		if(mysqli_num_rows($ticket_lines) > 0) {
+			$misc_headings = true; ?>
+			<div class="form-group clearfix hide-titles-mob">
+				<label class="col-sm-5 text-center">Product Name</label>
+				<label class="col-sm-3 text-center">Price</label>
+                <label class="col-sm-1 text-center">Qty</label>
+                <label class="col-sm-3 text-center">Total</label>
+			</div>
+		<?php }
+		while($line = $ticket_lines->fetch_assoc()) {
+			$description = get_contact($dbc, $line['item_id']).' - '.$line['position'];
+			$qty = !empty($line['hours_set']) ? $line['hours_set'] : $line['hours_tracked'];
+			$price = $dbc->query("SELECT * FROM `company_rate_card` WHERE `deleted`=0 AND (`cust_price` > 0 OR `hourly` > 0) AND ((`tile_name`='Staff' AND (`item_id`='".$line['item_id']."' OR `description`='all_staff')) OR (`tile_name`='Position' AND (`description`='".$line['position']."' OR `item_id`='".get_field_value('position_id','positions','name',$line['position'])."')))")->fetch_assoc();
+			$price = $price['cust_price'] > 0 ? $price['cust_price'] : $price['hourly']; ?>
+			<div class="dis_misc form-group">
+				<div class="col-sm-5">
+					<input type="text" readonly name="misc_item[]" value="<?= $description ?>" class="form-control misc_name">
+				</div>
+				<div class="col-sm-3">
+					<input type="text" readonly name="misc_price[]" value="<?= $price ?>" onchange="setThirdPartyMisc(this); countTotalPrice()" class="form-control misc_price">
+				</div>
+				<div class="col-sm-1">
+					<input type="text" readonly name="misc_qty[]" value="<?= $qty ?>" onchange="setThirdPartyMisc(this); countTotalPrice()" class="form-control misc_qty">
+				</div>
+				<div class="col-sm-3">
+					<input type="text" readonly name="misc_total[]" value="<?= $price * $qty ?>" class="form-control misc_total">
+				</div>
+				<input type="hidden" name="misc_ticketid[]" value="<?= $ticketid ?>">
+			</div>
+		<?php }
+		$ticket_lines = $dbc->query("SELECT * FROM `ticket_attached` WHERE `ticketid`='$ticketid' AND `deleted`=0 AND `src_table` LIKE 'misc_item'");
+		if(mysqli_num_rows($ticket_lines) > 0 && !$misc_headings) {
+			$misc_headings = true; ?>
+			<div class="form-group clearfix hide-titles-mob">
+				<label class="col-sm-5 text-center">Product Name</label>
+				<label class="col-sm-3 text-center">Price</label>
+                <label class="col-sm-1 text-center">Qty</label>
+                <label class="col-sm-3 text-center">Total</label>
+			</div>
+		<?php }
+		while($line = $ticket_lines->fetch_assoc()) {
+			$description = get_contact($dbc, $line['description']);
+			$qty = $line['qty'];
+			$price = $line['rate']; ?>
+			<div class="dis_misc form-group">
+				<div class="col-sm-5">
+					<input type="text" readonly name="misc_item[]" value="<?= $description ?>" class="form-control misc_name">
+				</div>
+				<div class="col-sm-3">
+					<input type="text" readonly name="misc_price[]" value="<?= $price ?>" onchange="setThirdPartyMisc(this); countTotalPrice()" class="form-control misc_price">
+				</div>
+				<div class="col-sm-1">
+					<input type="text" readonly name="misc_qty[]" value="<?= $qty ?>" onchange="setThirdPartyMisc(this); countTotalPrice()" class="form-control misc_qty">
+				</div>
+				<div class="col-sm-3">
+					<input type="text" readonly name="misc_total[]" value="<?= $price * $qty ?>" class="form-control misc_total">
+				</div>
+				<input type="hidden" name="misc_ticketid[]" value="<?= $ticketid ?>">
+			</div>
+		<?php }
+	}
+} else if($_GET['action'] == 'void_invoice') {
+    $invoiceid = preg_replace('/[^0-9]/', '', $_POST['invoiceid']);
+    mysqli_query($dbc, "UPDATE `invoice` SET `status`='Void' WHERE `invoiceid`='$invoiceid'");
+} else if($_GET['action'] == 'get_tax_exempt') {
+    echo get_field_value('client_tax_exemption', 'contacts', 'contactid', $_POST['contactid']);
 }

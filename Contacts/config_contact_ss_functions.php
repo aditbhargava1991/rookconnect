@@ -174,6 +174,25 @@ function get_field_contact_ss($field, $value, $dbc = '', $contact = 0, $other = 
                       <textarea name="'.$field[2].'" rows="5" cols="50" class="form-control" data-field="'.$field[2].'" data-table="'.$data_table.'" data-row-field="'.$data_row_field.'" data-row-id="'.$data_row_id.'" data-contactid-field="'.$data_contactid_field.'" data-contactid="'.$contact.'">'.$value.'</textarea>
                     </div>
                   </div>';
+    } else if($field[1] == 'textarea_hidden') {
+    $get_contact = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT * FROM key_methodologies WHERE support_contact='".$contact."' ORDER BY `keymethodologiesid` DESC"));
+    $html .= '<script type="text/javascript">
+          $(document).ready(function() {
+              $(\'[name="'.$field[3].'"]\').change(function() {
+                if($(\'[name="'.$field[3].'"]:checked\').val() == \''.$field[4].'\') {
+                  $(\'.ss_'.$field[2].'\').show();
+                } else {
+                  $(\'.ss_'.$field[2].'\').hide();
+                }
+            });
+          });
+        </script>';
+    $html .= '<div class="form-group ss_'.$field[2].'" '.($get_contact[$field[3]] == $field[4] ? '' : 'style="display:none;"').'>
+                    <label for="'.$field[2].'" class="col-sm-4 control-label">'.$field[0].': </label>
+                    <div class="col-sm-8">
+                      <textarea name="'.$field[2].'" rows="5" cols="50" class="form-control" data-field="'.$field[2].'" data-table="'.$data_table.'" data-row-field="'.$data_row_field.'" data-row-id="'.$data_row_id.'" data-contactid-field="'.$data_contactid_field.'" data-contactid="'.$contact.'">'.$value.'</textarea>
+                    </div>
+                  </div>';
    	} else if($field[1] == 'yes_default_no') {
 		$html .= '<div class="form-group">
                     <label for="'.$field[2].'" class="col-sm-4 control-label">'.$field[0].': </label>
@@ -207,7 +226,7 @@ function get_field_contact_ss($field, $value, $dbc = '', $contact = 0, $other = 
 function contact_category_call_contact_ss($dbc, $select_id, $select_name, $contact_category_value, $disabled) {
     ?>
     <script type="text/javascript">
-    $(document).on('change', 'select[name="<?= $select_name ?>"]', function() { selectContactCategory(this); });
+    $(document).on('change', 'select[name="<?= $select_name ?>"]', function() { selectContactCategorySS(this); });
     </script>
     <div class="form-group">
         <label for="fax_number"	class="col-sm-4	control-label">Contact Category:</label>
@@ -237,7 +256,6 @@ function contact_call_contact_ss($dbc, $select_id, $select_name, $contact_value,
         <label for="fax_number"	class="col-sm-4	control-label">Contact:</label>
         <div class="col-sm-8">
             <select <?php echo $disabled; ?> <?php echo $multiple; ?> data-placeholder="Choose a Contact..." name="<?php echo $select_name; ?>" id="<?php echo $select_id; ?>" class="chosen-select-deselect form-control" width="380">
-              <option value=""></option>
               <?php if($contact_value != '') {
 
                 $query = mysqli_query($dbc,"SELECT contactid, name, first_name, last_name FROM contacts WHERE category = '$from_contact' order by name");

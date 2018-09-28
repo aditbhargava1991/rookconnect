@@ -1,5 +1,13 @@
 <?php //Calendar Helper Functions
 function checkShiftIntervals($dbc, $contact_id, $day_of_week, $calendar_date, $query_type, $clientid, $limits = '', $check_conflicts = '') {
+	$day_start = get_config($dbc, 'shift_day_start');
+	$day_end = get_config($dbc, 'shift_day_end');
+	if(empty($day_start)) {
+		$day_start = '12:00 am';
+	}
+	if(empty($day_end)) {
+		$day_end = '11:59 pm';
+	}
 	$contact_query = '';
 	$role_query = '';
 	if (!empty($contact_id)) {
@@ -42,8 +50,14 @@ function checkShiftIntervals($dbc, $contact_id, $day_of_week, $calendar_date, $q
 
 	foreach($shifts_arr as $key => $shift) {
 		if($shift['availability'] == 'Available Anytime') {
-			$shift['starttime'] = '12:00 AM';
-			$shift['endtime'] = '11:59 PM';
+			$shift['starttime'] = $day_start;
+			$shift['endtime'] = $day_end;
+		}
+		if(empty($shift['starttime'])) {
+			$shift['starttime'] = $day_start;
+		}
+		if(empty($shift['endtime'])) {
+			$shift['endtime'] = $day_end;
 		}
 		$repeat_type = $shift['repeat_type'];
 		switch($repeat_type) {
@@ -163,6 +177,11 @@ function getShiftConflicts($dbc, $contact_id, $calendar_date, $new_starttime = '
 	return $conflicts;
 }
 function getEquipmentAssignmentBlock($dbc, $equipmentid, $view, $date) {
+	$equipment_category = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_equip_assign`"))['equipment_category'];
+	$equipment_categories = array_filter(explode(',', $equipment_category));
+	if(empty($equipment_categories) || count($equipment_categories) > 1) {
+		$equipment_category = 'Equipment';
+	}
 	$block_html = '';
 	$reset_active = get_config($dbc, 'scheduling_reset_active');
     $customer_roles = array_filter(explode(',',get_config($dbc, 'scheduling_customer_roles')));
@@ -172,6 +191,7 @@ function getEquipmentAssignmentBlock($dbc, $equipmentid, $view, $date) {
         }
     }
 	$equip_display_classification = get_config($dbc, 'scheduling_equip_classification');
+	$equip_display_classification_ticket = get_config($dbc, 'scheduling_equip_classification_ticket');
 	$active_equipment = array_filter(explode(',',get_user_settings()['appt_calendar_equipment']));
 	if($reset_active == 1) {
 		$active_equipment = [];
@@ -185,7 +205,6 @@ function getEquipmentAssignmentBlock($dbc, $equipmentid, $view, $date) {
 			} else {
 				$calendar_start = date('Y-m-d', strtotime($calendar_start));
 			}
-			$equipment_category = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_equip_assign`"))['equipment_category'];
 			$client_type = get_config($dbc, 'scheduling_client_type');
 			$calendar_type = get_config($dbc, 'scheduling_wait_list');
 			if($calendar_type == 'ticket_multi') {
@@ -204,9 +223,6 @@ function getEquipmentAssignmentBlock($dbc, $equipmentid, $view, $date) {
 			$week_end_date_check = date('Y-m-d', strtotime($calendar_start.' -'.($day - 7 + $weekly_start).' days'));
 
 			$weekly_days = explode(',',get_config($dbc, 'scheduling_weekly_days'));
-			if (!empty($equipment_category)) {
-				$equipment_category = 'Truck';
-			}
 			$clientids = [];
 			$equipassign_weekly = "<div style='margin-top: 5px;'>";
 			$equip_regions = [$equipment['region']];
@@ -246,11 +262,16 @@ function getEquipmentAssignmentBlock($dbc, $equipmentid, $view, $date) {
 			$clientids = implode(',',$clientids);
 
 			$classification_label = '';
-			if($equip_display_classification == 1 && !empty($equip_classifications)) {
+			if($equip_display_classification_ticket == 1) {
+				$equip_classifications = getEquipmentTicketClassification($dbc, $equipment['equipmentid'], $week_start_date_check, $week_end_date_check);
+				if(!empty($equip_classifications)) {
+					$classification_label = ' - '.implode(', ', $equip_classifications);
+				}
+			} else if($equip_display_classification == 1 && !empty($equip_classifications)) {
 				$classification_label = ' - '.str_replace('*#*', ', ', $equip_classifications);
 			}
 
-			$block_html = "<a href='' onclick='$(this).find(\".block-item\").toggleClass(\"active\"); toggle_columns(\"\"); retrieve_items(this); return false;'><div class='block-item equip_assign_draggable ".(in_array($equipment['equipmentid'],$active_equipment) || $reset_active_equipment ? 'active' : '')."' data-blocktype='equipment' data-equipment='".$equipment['equipmentid']."' data-client='".$clientids."' data-region='".$equip_regions."' data-classification='".$equip_classifications."' data-location='".$equip_locations."' data-region-group='".explode('*#*',$equipment['region'])[0]."'><img class='drag-handle' src='".WEBSITE_URL."/img/icons/drag_handle.png' style='float: right; width: 2em;'>".$equipment['label'].$classification_label.$equipassign_weekly."</div></a>";
+			$block_html = "<a href='' onclick='$(this).find(\".block-item\").toggleClass(\"active\"); toggle_columns(\"\"); retrieve_items(this); return false;'><div class='block-item equip_assign_draggable ".(in_array($equipment['equipmentid'],$active_equipment) || $reset_active_equipment ? 'active' : '')."' data-blocktype='equipment' data-equipment='".$equipment['equipmentid']."' data-client='".$clientids."' data-region='".$equip_regions."' data-classification='".$equip_classifications."' data-location='".$equip_locations."' data-region-group='".explode('*#*',$equipment['region'])[0]."' data-activevalue='".$equipment['equipmentid']."'><img class='drag-handle no-toggle' src='".WEBSITE_URL."/img/icons/drag_handle.png' style='float: right; width: 2em;' title='Drag'>".$equipment['label'].$classification_label.$equipassign_weekly."</div></a>";
 			break;
 		case 'daily':
 		default:
@@ -260,14 +281,10 @@ function getEquipmentAssignmentBlock($dbc, $equipmentid, $view, $date) {
 			} else {
 				$calendar_start = date('Y-m-d', strtotime($calendar_start));
 			}
-			$equipment_category = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_equip_assign`"))['equipment_category'];
 			$client_type = get_config($dbc, 'scheduling_client_type');
 			$calendar_type = get_config($dbc, 'scheduling_wait_list');
 			if($calendar_type == 'ticket_multi') {
 				$calendar_type = 'ticket';
-			}
-			if (!empty($equipment_category)) {
-				$equipment_category = 'Truck';
 			}
 			$reset_active_equipment = false;
 
@@ -284,11 +301,16 @@ function getEquipmentAssignmentBlock($dbc, $equipmentid, $view, $date) {
 			}
 
 			$classification_label = '';
-			if($equip_display_classification == 1 && !empty($equip_classifications)) {
+			if($equip_display_classification_ticket == 1) {
+				$equip_classifications = getEquipmentTicketClassification($dbc, $equipment['equipmentid'], $calendar_start, $calendar_start);
+				if(!empty($equip_classifications)) {
+					$classification_label = ' - '.implode(', ', $equip_classifications);
+				}
+			} else if($equip_display_classification == 1 && !empty($equip_classifications)) {
 				$classification_label = ' - '.str_replace('*#*', ', ', $equip_classifications);
 			}
 			
-			$block_html = "<a href='' onclick='$(this).find(\".block-item\").toggleClass(\"active\"); toggle_columns(\"\"); retrieve_items(this); return false;'><div class='block-item equip_assign_draggable ".(in_array($equipment['equipmentid'],$active_equipment) || $reset_active_equipment ? 'active' : '')."' data-blocktype='equipment' data-equipment='".$equipment['equipmentid']."' data-equipassign='".$equip_assign['equipment_assignmentid']."' data-client='".$equip_assign['clientid']."' data-region='".$equip_regions."' data-classification='".$equip_locations."' data-location='".$equip_classifications."' data-region-group='".explode('*#*',$equipment['region'])[0]."'><img class='drag-handle' src='".WEBSITE_URL."/img/icons/drag_handle.png' style='float: right; width: 2em;'>".$equipment['label'].$classification_label.(empty($equip_assign) ? ' (Not Assigned)' : '')."</div></a>";
+			$block_html = "<a href='' onclick='$(this).find(\".block-item\").toggleClass(\"active\"); toggle_columns(\"\"); retrieve_items(this); return false;'><div class='block-item equip_assign_draggable ".(in_array($equipment['equipmentid'],$active_equipment) || $reset_active_equipment ? 'active' : '')."' data-blocktype='equipment' data-equipment='".$equipment['equipmentid']."' data-equipassign='".$equip_assign['equipment_assignmentid']."' data-client='".$equip_assign['clientid']."' data-region='".$equip_regions."' data-classification='".$equip_locations."' data-location='".$equip_classifications."' data-region-group='".explode('*#*',$equipment['region'])[0]."' data-activevalue='".$equipment['equipmentid']."'><img class='drag-handle no-toggle' src='".WEBSITE_URL."/img/icons/drag_handle.png' style='float: right; width: 2em;' title='Drag'>".$equipment['label'].$classification_label.(empty($equip_assign) ? ' (Not Assigned)' : '')."</div></a>";
 			break;
 	}
 	return $block_html;
@@ -326,10 +348,164 @@ function getTeamTickets($dbc, $date, $teamid) {
 	}
 	return $tickets_list;
 }
+function calendarTicketLabel($dbc, $ticket, $max_time, $start_time, $end_time, $ticket_fields = '') {
+	if(is_array($max_time) || empty($max_time)) {
+		$max_time = $ticket['max_time'];
+	}
+	$calendar_ticket_diff_label = get_config($dbc, 'calendar_ticket_diff_label');
+	$calendar_ticket_label = '';
+	if($calendar_ticket_diff_label == 1) {
+	    $calendar_ticket_label = get_config($dbc, 'calendar_ticket_label');
+	}
+	$calendar_ticket_card_fields = explode(',',get_config($dbc, 'calendar_ticket_card_fields'));
+	if(!empty($ticket_fields)) {
+		$calendar_ticket_card_fields = explode(',',$ticket_fields);
+	}
+
+	$clients = [];
+	foreach(array_filter(explode(',',$ticket['clientid'])) as $clientid) {
+		$client = !empty(get_client($dbc, $clientid)) ? get_client($dbc, $clientid) : get_contact($dbc, $clientid);
+		if(!empty($client) && $client != '-') {
+			$clients[] = $client;
+		}
+	}
+	$clients = implode(', ',$clients);
+
+	$site = $ticket['siteid'];
+	$site_address = '';
+	if($site > 0) {
+        $site_address = html_entity_decode(mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `contacts` WHERE `contactid` = '".$ticket['siteid']."'"))['address']);
+	}
+	$service_template = '';
+	if($ticket['service_templateid'] > 0) {
+		$service_template = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `name` FROM `services_service_templates` WHERE `templateid` = '".$ticket['service_templateid']."'"))['name'];
+	}
+	$assigned_staff = [];
+	foreach(array_unique(array_filter(explode(',',$ticket['contactid']))) as $contactid) {
+		$assigned_staff[] = get_contact($dbc, $contactid);
+	}
+	$assigned_staff = implode(', ',$assigned_staff);
+	
+	$row_html = '<b>'.get_ticket_label($dbc, $ticket, null, null, $calendar_ticket_label).(empty($calendar_ticket_label) ? $ticket['location_description'] : '').($ticket['sub_label'] != '' ? '-'.$ticket['sub_label'] : '').'</b>'.
+	(in_array('project',$calendar_ticket_card_fields) ? '<br />'.PROJECT_NOUN.' #'.$ticket['projectid'].' '.$ticket['project_name'].'<br />' : '').
+	(in_array('customer',$calendar_ticket_card_fields) ? '<br />'.'Customer: '.get_contact($dbc, $ticket['businessid'], 'name') : '').
+	(in_array('client',$calendar_ticket_card_fields) ? '<br />'.'Client: '.$clients : '').
+	(in_array('assigned',$calendar_ticket_card_fields) ? '<br />'.'Staff: '.$assigned_staff : '').
+	(in_array('site_address',$calendar_ticket_card_fields) ? '<br />'.'Site Address: '.$site_address : '').
+	(in_array('service_template',$calendar_ticket_card_fields) ? '<br />'.'Service Template: '.$service_template : '').
+	(in_array('start_date',$calendar_ticket_card_fields) ? '<br />'.'Date: '.$ticket['to_do_date'] : '').
+	(in_array('time',$calendar_ticket_card_fields) ? '<br />'.(!empty($max_time) && $max_time != '00:00:00' ? "(".$max_time.") " : '').$start_time." - ".$end_time : '');
+	if(in_array('available',$calendar_ticket_card_fields)) {
+		if($ticket['pickup_start_available'].$ticket['pickup_end_available'] != '') {
+			$row_html .= '<br />'."Available ";
+			if($ticket['pickup_end_available'] == '') {
+				$row_html .= "After ".$ticket['pickup_start_available'];
+			} else if($ticket['pickup_start_available'] == '') {
+				$row_html .= "Before ".$ticket['pickup_end_available'];
+			} else {
+				$row_html .= "Between ".$ticket['pickup_start_available']." and ".$ticket['pickup_end_available'];
+			}
+		}
+	}
+	$row_html .= (in_array('address',$calendar_ticket_card_fields) ? '<br />'.$ticket['pickup_name'].($ticket['pickup_name'] != '' ? '<br />' : ' ').$ticket['client_name'].($ticket['client_name'] != '' ? '<br />' : ' ').$ticket['pickup_address'].($ticket['pickup_address'] != '' ? '<br />' : ' ').$ticket['pickup_city'] : '');
+	if(in_array('status',$calendar_ticket_card_fields)) {
+		$row_html .= '<br />'."Status: ".$ticket['status'];
+	}
+	if(in_array('ticket_notes',$calendar_ticket_card_fields)) {
+		$ticket_notes = mysqli_query($dbc, "SELECT * FROM `ticket_comment` WHERE `ticketid` = '".$ticket['ticketid']."' AND `deleted` = 0");
+		if(mysqli_num_rows($ticket_notes) > 0) {
+			$row_html .= "<br />Notes: ";
+			while($ticket_note = mysqli_fetch_assoc($ticket_notes)) {
+				$row_html .= "<br />".trim(trim(html_entity_decode($ticket_note['comment']),"<p>"),"</p>")."<br />";
+				$row_html .= "<em>Added by ".get_contact($dbc, $ticket_note['created_by'])." at ".$ticket_note['created_date']."</em>";
+			}
+		}
+	}
+	if(in_array('delivery_notes',$calendar_ticket_card_fields) && !empty($ticket['delivery_notes'])) {
+		$row_html .= '<br />Delivery Notes: '.html_entity_decode($ticket['delivery_notes']);
+	}
+
+	return $row_html;
+}
 function getCustomerEquipment($dbc, $start_date, $end_date) {
 	$equipmentids = [];
 	for($calendar_date = $start_date; strtotime($calendar_date) <= strtotime($end_date); $calendar_date = date('Y-m-d', strtotime($calendar_date.' + 1 day'))) {
 		$equipmentids = array_merge($equipmentids, array_column(mysqli_fetch_all(mysqli_query($dbc, "SELECT DISTINCT IFNULL(`ticket_schedule`.`equipmentid`, `tickets`.`equipmentid`) `equipmentid` FROM `tickets` LEFT JOIN `ticket_schedule` ON `tickets`.`ticketid` = `ticket_schedule`.`ticketid` WHERE `tickets`.`deleted` = 0 AND `ticket_schedule`.`deleted` = 0 AND '".$calendar_date."' BETWEEN `tickets`.`to_do_date` AND `tickets`.`to_do_end_date` OR '".$calendar_date."' BETWEEN `ticket_schedule`.`to_do_date` AND IFNULL(`ticket_schedule`.`to_do_end_date`,`ticket_schedule`.`to_do_date`) AND (`tickets`.`businessid` = '".$_SESSION['contactid']."' OR CONCAT(',',`tickets`.`clientid`,',') LIKE '%,".$_SESSION['contactid'].",%')"),MYSQLI_ASSOC),'equipmentid'));
 	}
 	return $equipmentids;
+}
+function getEquipmentTicketClassification($dbc, $equipmentid, $start_date, $end_date) {
+	$classifications = [];
+
+	$tickets = mysqli_fetch_all(mysqli_query($dbc, "SELECT DISTINCT(`tickets`.`classification`) FROM `tickets` LEFT JOIN `ticket_schedule` ON `tickets`.`ticketid` = `ticket_schedule`.`ticketid` AND `ticket_schedule`.`deleted` = 0 WHERE (`tickets`.`to_do_date` BETWEEN '$start_date' AND '$end_date' OR `tickets`.`to_do_end_date` BETWEEN '$start_date' AND '$end_date' OR `ticket_schedule`.`to_do_date` BETWEEN '$start_date' AND '$end_date' OR `ticket_schedule`.`to_do_end_date` BETWEEN '$start_date' AND '$end_date' OR '$start_date' BETWEEN `tickets`.`to_do_date` AND `tickets`.`to_do_end_date` OR '$end_date' BETWEEN `ticket_schedule`.`to_do_date` AND `ticket_schedule`.`to_do_end_date`) AND IFNULL(IFNULL(`ticket_schedule`.`to_do_start_time`,`tickets`.`to_do_start_time`),'') != '' AND (IFNULL(`ticket_schedule`.`equipmentid`,`tickets`.`equipmentid`)='".$equipmentid."') AND `tickets`.`deleted` = 0 AND `tickets`.`status` NOT IN ('Archive', 'Done')"),MYSQLI_ASSOC);
+	foreach($tickets as $ticket) {
+		$classifications[] = $ticket['classification'];
+	}
+
+	return array_filter(array_unique($classifications));
+}
+function checkTicketBookingConflicts($dbc, $contact_id, $startdate, $enddate, $repeat_type, $repeat_days, $interval, $hide_days) {
+	$ticket_conflicts = [];
+	$booking_conflicts = [];
+	$check_startdate = (empty($startdate) || strtotime(date('Y-m-d')) > strtotime($startdate)) ? date('Y-m-d') : $startdate;
+	$check_enddate =  empty($enddate) ? date(strtotime(date('Y-m-d').' + 1 month')) : $enddate;
+
+	for($current_date = $check_startdate; strtotime($current_date) <= strtotime($check_enddate); $current_date = date('Y-m-d', strtotime($current_date.' + 1 day'))) {
+		$is_shift = false;
+		if(!in_array($current_date, $hide_days)) {
+			switch($repeat_type) {
+				case 'weekly':
+					$repeat_type = 'W';
+					$start_date = date('Y-m-d', strtotime('next Sunday -1 week', strtotime($startdate)));
+					$start_date = new DateTime($start_date);
+					$start_date->modify($day_of_week);
+					$end_date = new DateTime(date('Y-m-d', strtotime($calendar_date.' + 1 week')));
+					break;
+				case 'daily':
+					$repeat_type = 'D';
+					$start_date = date('Y-m-d', strtotime($startdate));
+					$start_date = new DateTime($start_date);
+					$end_date = new DateTime(date('Y-m-d', strtotime($calendar_date.' + 1 day')));
+					break;
+				case 'monthly':
+					$repeat_type = 'M';
+					$start_date = date('Y-m-d', strtotime($startdate));
+					$start_date = new DateTime($start_date);
+					$end_date = new DateTime(date('Y-m-d', strtotime($calendar_date.' + 1 month')));
+					break;
+			}
+			if($interval > 1) {
+				$interval = new DateInterval("P{$interval}{$repeat_type}");
+				$period = new DatePeriod($start_date, $interval, $end_date);
+				foreach($period as $period_date) {
+					if (date('Y-m-d', strtotime($calendar_date)) == $period_date->format('Y-m-d')) {
+						$is_shift = true;
+					}
+				}
+			} else {
+				$is_shift = true;
+			}
+			if($is_shift) {
+				//Ticket Conflicts
+				$equipment = [];
+				$equipment_ids = $dbc->query("SELECT `equipmentid` FROM `equipment_assignment_staff` LEFT JOIN `equipment_assignment` ON `equipment_assignment_staff`.`equipment_assignmentid`=`equipment_assignment`.`equipment_assignmentid` WHERE `equipment_assignment_staff`.`deleted`=0 AND `equipment_assignment`.`deleted`=0 AND `equipment_assignment_staff`.`contactid`='".$contact_id."' AND DATE(`equipment_assignment`.`start_date`) <= '".$current_date."' AND DATE(`equipment_assignment`.`end_date`) >= '".$current_date."' AND CONCAT(',',`hide_staff`,',') NOT LIKE '%,".$contact_id.",%' AND CONCAT(',',`hide_days`,',') NOT LIKE '%,".$current_date.",%'");
+				while($equipment[] = $equipment_ids->fetch_assoc()['equipmentid']) { }
+				$equipment = implode(',',array_filter($equipment));
+				if($equipment == '') {
+					$equipment = 0;
+				}
+				$tickets = mysqli_query($dbc, "SELECT `tickets`.* FROM `tickets` LEFT JOIN `ticket_schedule` ON `tickets`.`ticketid` = `ticket_schedule`.`ticketid` AND `ticket_schedule`.`deleted` = 0 WHERE ((internal_qa_date = '".$current_date."' AND CONCAT(',',IFNULL(`internal_qa_contactid`,''),',') LIKE '%,".$contact_id.",%') OR (`deliverable_date` = '".$current_date."' AND CONCAT(',',IFNULL(`deliverable_contactid`,''),',') LIKE '%,".$contact_id.",%') OR ((`tickets`.`to_do_date` = '".$current_date."' OR '".$current_date."' BETWEEN `tickets`.`to_do_date` AND `tickets`.`to_do_end_date` OR `ticket_schedule`.`to_do_date`='".$current_date."' OR '".$current_date."' BETWEEN `ticket_schedule`.`to_do_date` AND IFNULL(`ticket_schedule`.`to_do_end_date`,`ticket_schedule`.`to_do_date`)) AND ((CONCAT(',',IFNULL(IFNULL(`ticket_schedule`.`contactid`,`tickets`.`contactid`),''),',') LIKE '%,".$contact_id.",%') OR (IFNULL(`ticket_schedule`.`equipmentid`,`tickets`.`equipmentid`) IN (".$equipment.") AND IFNULL(`ticket_schedule`.`equipmentid`,`tickets`.`equipmentid`) > 0))))");
+				while($ticket = mysqli_fetch_assoc($tickets)) {
+					$ticket_conflicts[$ticket['ticketid']] = get_ticket_label($dbc, $ticket);
+				}
+
+				//Booking Conflicts
+				$bookings = mysqli_query($dbc, "SELECT * FROM `booking` WHERE ('".$contact_id."' IN (`therapistsid`,`patientid`) OR CONCAT('*#*',`therapistsid`,'*#*') LIKE '%*#*".$contact_id."*#*%') AND `follow_up_call_status` NOT LIKE '%cancel%' AND ((`appoint_date` LIKE '%".$current_date."%') OR '".date('Y-m-d H:i:s', strtotime($current_date.' 00:00:00'))."' BETWEEN `appoint_date` AND `end_appoint_date` OR '".date('Y-m-d H:i:s', strtotime($calendar_date.' 23:59:59'))."' BETWEEN `appoint_date` AND `end_appoint_date`) AND `deleted` = 0");
+				while($booking = mysqli_fetch_assoc($bookings)) {
+					$booking_conflicts[$booking['bookingid']] = 'Appointment #'.$booking['bookingid'].': '.get_contact($dbc, $booking['patientid']).' - '.($booking['serviceid'] > 0 ? get_services($dbc, $booking['serviceid'], "CONCAT(`category`,' ',`heading`)") : get_type_from_booking($dbc, $booking['type']));
+				}
+			}
+		}
+	}
+	return ['ticket' => $ticket_conflicts, 'booking' => $booking_conflicts];
 }

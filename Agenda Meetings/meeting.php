@@ -180,7 +180,8 @@ $value_config = ','.mysqli_fetch_assoc(mysqli_query($dbc,"SELECT * FROM field_co
         $num_rows = mysqli_num_rows($result);
         if($num_rows > 0) {
 			echo display_pagination($dbc, $query, $pageNum, $rowsPerPage);
-            echo "<div id='no-more-tables'><table class='table table-bordered'>";
+            echo "<div id='no-more-tables'><table class='table table-bordered table-striped'>";
+            echo "<thead>";
             echo "<tr class='hidden-xs hidden-sm'>";
             echo '<th>'.(strpos($value_config, ','."Business".',') !== FALSE ? BUSINESS_CAT : 'Contact').'</th>';
             echo '<th>Date of Meeting</th>';
@@ -189,6 +190,7 @@ $value_config = ','.mysqli_fetch_assoc(mysqli_query($dbc,"SELECT * FROM field_co
             echo '<th>Staff Members</th>';
             echo '<th>Function</th>';
             echo "</tr>";
+            echo "</thead>";
         } else {
             echo "<h2>No Record Found.</h2>";
         }

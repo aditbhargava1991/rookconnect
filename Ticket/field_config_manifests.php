@@ -36,7 +36,7 @@ function saveFields() {
 	<label class="col-sm-4 control-label">Fields to Display on Manifests:</label>
 	<div class="col-sm-8">
 		<label class="form-checkbox"><input type="checkbox" <?= in_array('sort_top', $manifest_fields) ? 'checked' : '' ?> value="sort_top" style="height: 20px; width: 20px;" name="tickets_manifests[]"> Show Most Recent Inventory</label>
-		<label class="form-checkbox"><input type="checkbox" <?= in_array('sort_project', $manifest_fields) ? 'checked' : '' ?> value="sort_project" style="height: 20px; width: 20px;" name="tickets_manifests[]"> Sort by <?= PROJECT_NOUN ?> Types</label>
+		<label class="form-checkbox"><input type="checkbox" <?= in_array('sort_project', $manifest_fields) ? 'checked' : '' ?> value="sort_project" style="height: 20px; width: 20px;" name="tickets_manifests[]"> Sort by <?= PROJECT_NOUN ?> Tabs</label>
 		<label class="form-checkbox"><input type="checkbox" <?= in_array('pdf_collapse', $manifest_fields) ? 'checked' : '' ?> value="pdf_collapse" style="height: 20px; width: 20px;" name="tickets_manifests[]"> Hide Empty Columns on PDF</label>
 		<label class="form-checkbox"><input type="checkbox" <?= in_array('file', $manifest_fields) ? 'checked' : '' ?> value="file" style="height: 20px; width: 20px;" name="tickets_manifests[]"> File #</label>
 		<label class="form-checkbox"><input type="checkbox" <?= in_array('po', $manifest_fields) ? 'checked' : '' ?> value="po" style="height: 20px; width: 20px;" name="tickets_manifests[]"> PO #</label>
@@ -44,9 +44,13 @@ function saveFields() {
 		<label class="form-checkbox"><input type="checkbox" <?= in_array('line', $manifest_fields) ? 'checked' : '' ?> value="line" style="height: 20px; width: 20px;" name="tickets_manifests[]"> Line Item #</label>
 		<label class="form-checkbox"><input type="checkbox" <?= in_array('qty', $manifest_fields) ? 'checked' : '' ?> value="qty" style="height: 20px; width: 20px;" name="tickets_manifests[]"> Quantity</label>
 		<label class="form-checkbox"><input type="checkbox" <?= in_array('manual qty', $manifest_fields) ? 'checked' : '' ?> value="manual qty" style="height: 20px; width: 20px;" name="tickets_manifests[]"> Manual Quantity</label>
+		<label class="form-checkbox"><input type="checkbox" <?= in_array('weight', $manifest_fields) ? 'checked' : '' ?> value="weight" style="height: 20px; width: 20px;" name="tickets_manifests[]"> Weight</label>
+		<label class="form-checkbox"><input type="checkbox" <?= in_array('weight convert kg to lb', $manifest_fields) ? 'checked' : '' ?> value="weight convert kg to lb" style="height: 20px; width: 20px;" name="tickets_manifests[]"> Weight - Convert KG to LB</label>
+		<label class="form-checkbox"><input type="checkbox" <?= in_array('total weight lb', $manifest_fields) ? 'checked' : '' ?> value="total weight lb" style="height: 20px; width: 20px;" name="tickets_manifests[]"> Total Weight in LB</label>
 		<label class="form-checkbox"><input type="checkbox" <?= in_array('max qty', $manifest_fields) ? 'checked' : '' ?> value="max qty" style="height: 20px; width: 20px;" name="tickets_manifests[]"> Default to Max Qty</label>
 		<label class="form-checkbox"><input type="checkbox" <?= in_array('hide qty', $manifest_fields) ? 'checked' : '' ?> value="hide qty" style="height: 20px; width: 20px;" name="tickets_manifests[]"> Hide 0 Qty</label>
 		<label class="form-checkbox"><input type="checkbox" <?= in_array('group pieces', $manifest_fields) ? 'checked' : '' ?> value="group pieces" style="height: 20px; width: 20px;" name="tickets_manifests[]"> Group Pieces by <?= TICKET_NOUN ?></label>
+		<label class="form-checkbox"><input type="checkbox" <?= in_array('group pieces po', $manifest_fields) ? 'checked' : '' ?> value="group pieces po" style="height: 20px; width: 20px;" name="tickets_manifests[]"> Group Pieces by PO</label>
 		<label class="form-checkbox"><input type="checkbox" <?= in_array('notes', $manifest_fields) ? 'checked' : '' ?> value="notes" style="height: 20px; width: 20px;" name="tickets_manifests[]"> Line Item Notes</label>
 		<label class="form-checkbox"><input type="checkbox" <?= in_array('site', $manifest_fields) ? 'checked' : '' ?> value="site" style="height: 20px; width: 20px;" name="tickets_manifests[]"> <?= SITES_CAT ?> on Manifest</label>
 		<label class="form-checkbox"><input type="checkbox" <?= in_array('revert site', $manifest_fields) ? 'checked' : '' ?> value="revert site" style="height: 20px; width: 20px;" name="tickets_manifests[]"> Revert <?= SITES_CAT ?> for Unused Pieces</label>
@@ -92,7 +96,7 @@ function saveFields() {
 	</div>
 </div>
 <div class="form-group">
-	<label class="col-sm-4 control-label"><?= PROJECT_NOUN ?> Types to Display For Manifests:</label>
+	<label class="col-sm-4 control-label"><?= PROJECT_NOUN ?> Tabs to Display For Manifests:</label>
 	<div class="col-sm-8">
 		<?php foreach(explode(',',get_config($dbc, 'project_tabs')) as $project_type) {
 			$type_id = config_safe_str($project_type); ?>

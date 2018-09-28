@@ -18,109 +18,102 @@ $(window).on('load', function() {
 		$('#nav_mar_sheet').trigger('click');
 	<?php } ?>
 });
+window.addMarSheetMedicationBool = false;
+window.addMarSheetBool = false;
 $(document).ready(function() {
-	window.addMarSheetMedication = false;
-	window.addMarSheet = false;
-	$('[name="add_marsheet"]').click(function() {
-		return addMarSheet(window.addMarSheet);
-	});
-	$('.add_marsheet_medication').click(function() {
-		return addMarSheetMedication(window.addMarSheetMedication, this);
-	});
-
-	function addMarSheet(addMarSheet) {
-		if(!addMarSheet) {
-			$('#dialog_marsheet').dialog({
-	            resizable: true,
-	            height: 500,
-	            width: ($(window).width() <= 600 ? $(window).width() : 600),
-	            modal: true,
-	            buttons: {
-	                "Add MAR Sheet": function() {
-	                	var month = $('[name="marsheet_month"]').val();
-	                	var year = $('[name="marsheet_year"]').val();
-	                	var medicationid = [];
-	                	$('[name="marsheet_medication[]"] option:selected').each(function() {
-	                		medicationid.push(this.value);
-	                	});
-	                	var new_medication = $('[name="new_marsheet_medication"]').val();
-	                	var contactid = $('[name="edit"]').val();
-	                	$.ajax({
-	                		url: '../Contacts/contacts_ajax.php?action=add_marsheet',
-	                		type: 'POST',
-	                		data: {
-	                			month: month,
-	                			year: year,
-	                			medicationid: medicationid,
-	                			new_medication: new_medication,
-	                			contactid: contactid
-	                		},
-	                		dataType: 'html',
-	                		success: function(response) {
-	                			// console.log(response);
-			                	window.addMarSheet = true;
-			                    $('[name="add_marsheet"]').trigger('click');
-	                		}
-	                	});
-	                    $(this).dialog('close');
-	                },
-	                Cancel: function() {
-	                    window.addMarSheet = false;
-	                    $(this).dialog('close');
-	                }
-	          }
-	        });
-			return false;
-		} else {
-			$('[name="subtab"]').val('MAR Sheet');
-			return true;
-		}
-	}
-
-	function addMarSheetMedication(addMarSheetMedication, btn) {
-		if(!addMarSheetMedication) {
-			$('#dialog_marsheet_med').dialog({
-	            resizable: true,
-	            height: 300,
-	            width: ($(window).width() <= 600 ? $(window).width() : 600),
-	            modal: true,
-	            buttons: {
-	                "Add Medication": function() {
-	                	var marsheetid = $(btn).closest('.marsheet_block').find('[name="marsheetid"]').val();
-	                	var medicationid = $('[name="add_marsheet_medication"]').val();
-	                	var new_medication = $('[name="add_new_marsheet_medication"]').val();
-	                	$.ajax({
-	                		url: '../Contacts/contacts_ajax.php?action=add_marsheet_medication',
-	                		type: 'POST',
-	                		data: {
-	                			marsheetid: marsheetid,
-	                			medicationid: medicationid,
-	                			new_medication: new_medication
-	                		},
-	                		dataType: 'html',
-	                		success: function(response) {
-	                			// console.log(response);
-			                	window.addMarSheetMedication = true;
-			                    $(btn).closest('.marsheet_block').find('.add_marsheet_medication').trigger('click');
-	                		}
-	                	});
-	                    $(this).dialog('close');
-	                },
-	                Cancel: function() {
-	                    window.addMarSheetMedication = false;
-	                    $(this).dialog('close');
-	                }
-	          }
-	        });
-			return false;
-		} else {
-			$('[name="subtab"]').val('MAR Sheet');
-			window.addMarSheet = true;
-            $('[name="add_marsheet"]').trigger('click');
-			return true;
-		}
-	}
 });
+function addMarSheet(addMarSheetBool) {
+	if(!addMarSheetBool) {
+		$('#dialog_marsheet').dialog({
+            resizable: true,
+            height: 500,
+            width: ($(window).width() <= 600 ? $(window).width() : 600),
+            modal: true,
+            buttons: {
+                "Add MAR Sheet": function() {
+                	var month = $('[name="marsheet_month"]').val();
+                	var year = $('[name="marsheet_year"]').val();
+                	var medicationid = [];
+                	$('[name="marsheet_medication[]"] option:selected').each(function() {
+                		medicationid.push(this.value);
+                	});
+                	var new_medication = $('[name="new_marsheet_medication"]').val();
+                	var contactid = $('[name="edit"]').val();
+                	$.ajax({
+                		url: '../Contacts/contacts_ajax.php?action=add_marsheet',
+                		type: 'POST',
+                		data: {
+                			month: month,
+                			year: year,
+                			medicationid: medicationid,
+                			new_medication: new_medication,
+                			contactid: contactid
+                		},
+                		dataType: 'html',
+                		success: function(response) {
+                			// console.log(response);
+		                	window.addMarSheetBool = true;
+		                    $('[name="add_marsheet"]').trigger('click');
+                		}
+                	});
+                    $(this).dialog('close');
+                },
+                Cancel: function() {
+                    window.addMarSheetBool = false;
+                    $(this).dialog('close');
+                }
+          }
+        });
+		return false;
+	} else {
+		$('[name="subtab"]').val('MAR Sheet');
+		return true;
+	}
+}
+
+function addMarSheetMedication(addMarSheetMedicationBool, btn) {
+	if(!addMarSheetMedicationBool) {
+		$('#dialog_marsheet_med').dialog({
+            resizable: true,
+            height: 300,
+            width: ($(window).width() <= 600 ? $(window).width() : 600),
+            modal: true,
+            buttons: {
+                "Add Medication": function() {
+                	var marsheetid = $(btn).closest('.marsheet_block').find('[name="marsheetid"]').val();
+                	var medicationid = $('[name="add_marsheet_medication"]').val();
+                	var new_medication = $('[name="add_new_marsheet_medication"]').val();
+                	$.ajax({
+                		url: '../Contacts/contacts_ajax.php?action=add_marsheet_medication',
+                		type: 'POST',
+                		data: {
+                			marsheetid: marsheetid,
+                			medicationid: medicationid,
+                			new_medication: new_medication
+                		},
+                		dataType: 'html',
+                		success: function(response) {
+                			// console.log(response);
+		                	window.addMarSheetMedicationBool = true;
+		                    $(btn).closest('.marsheet_block').find('.add_marsheet_medication').trigger('click');
+                		}
+                	});
+                    $(this).dialog('close');
+                },
+                Cancel: function() {
+                    window.addMarSheetMedicationBool = false;
+                    $(this).dialog('close');
+                }
+          }
+        });
+		return false;
+	} else {
+		$('[name="subtab"]').val('MAR Sheet');
+		window.addMarSheetBool = true;
+        $('[name="add_marsheet"]').trigger('click');
+		return true;
+	}
+}
 $(document).on('change', 'select[name="marsheet_medication[]"]', function() { newMarSheetMedication(this); });
 $(document).on('change', 'select[name="add_marsheet_medication"]', function() { newAddMarSheetMedication(this); });
 function addMarSheetRow(btn) {
@@ -140,7 +133,7 @@ function addMarSheetRow(btn) {
 			clone.find('input').each(function() {
 				$(this).attr('data-row-id', response);
 			});
-			clone.find('input').not('.tile-search').off('change').change(function() {saveField(this); }).off('keyup').keyup(syncUnsaved);
+			clone.find('[data-field]').not('.tile-search').off('blur',unsaved).blur(unsaved).off('focus',unsaved).focus(unsaved).off('change',saveField).change(saveField);
 		}
 	});
 	block.after(clone);
@@ -157,9 +150,9 @@ function deleteMarSheetRow(btn) {
 		if(table_block.find('.medication_column').length > 0) {
 			add_medication_column = true;
 			medication_column = table_block.find('.medication_column').clone();
-			medication_column.find('input,textarea').not('.tile-search').off('change').change(function() {saveField(this); }).off('keyup').keyup(syncUnsaved);
+			medication_column.find('[data-field]').not('.tile-search').off('blur',unsaved).blur(unsaved).off('focus',unsaved).focus(unsaved).off('change',saveField).change(saveField);
 			$('.add_marsheet_medication').click(function() {
-				return addMarSheetMedication(window.addMarSheetMedication, this);
+				return addMarSheetMedication(window.addMarSheetMedicationBool, this);
 			});
 		}
 		var block = $(btn).closest('.marsheet_detail_row');
@@ -266,7 +259,6 @@ function exportMarSheet() {
 		<label class="col-sm-4 control-label">Medication:</label>
 		<div class="col-sm-8">
 			<select name="marsheet_medication[]" multiple class="chosen-select-deselect form-control">
-				<option></option>
 				<option value="NEW_MED">New Medication</option>
 				<?php $medications = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `medication` WHERE `clientid` = '".$_GET['edit']."' AND `deleted` = 0"),MYSQLI_ASSOC);
 					foreach ($medications as $medication) { ?>
@@ -320,7 +312,7 @@ function exportMarSheet() {
 		<input type="hidden" name="subtab" value="MAR Sheet">
 	</div>
 	<div class="<?= (FOLDER_NAME == 'medication' ? 'col-sm-2' : 'col-sm-4') ?>">
-		<button name="add_marsheet" value="add_marsheet" class="btn brand-btn mobile-block pull-right">Add MAR Sheet</button>
+		<button name="add_marsheet" value="add_marsheet" class="btn brand-btn mobile-block pull-right" onclick="return addMarSheet(window.addMarSheetBool);">Add MAR Sheet</button>
 		<button name="export_marsheet" value="export_marsheet" onclick="exportMarSheet(); return false;" class="btn brand-btn mobile-block pull-right">Export to PDF</button>
 	</div>
 </div>
@@ -366,7 +358,7 @@ function exportMarSheet() {
 				<img class="inline-img pull-left" src="../img/remove.png" onclick="deleteMarSheet(this);"> <h4>MAR Sheet - <?= get_contact($dbc, $_GET['edit']) ?></h4>
 				<input type="hidden" name="marsheetid" value="<?= $marsheetid ?>">
 				<?php if(strpos($value_config, ','."Inline View".',') === FALSE) { ?>
-					<a class="btn brand-btn pull-right gap-bottom add_marsheet_medication">Add Medication</a>
+					<a class="btn brand-btn pull-right gap-bottom add_marsheet_medication" onclick="return addMarSheetMedication(window.addMarSheetMedicationBool, this);">Add Medication</a>
 					<div class="clearfix"></div>
 					<?php foreach(explode(',',$medicationid) as $medid) {
 						$medication_name = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `medication` WHERE `medicationid` = '$medid'"))['title'];
@@ -500,7 +492,7 @@ function exportMarSheet() {
 												} ?>
 											</div>
 										<?php } ?>
-										<img class="inline-img pull-right add_marsheet_medication" title="Add Medication" src="../img/icons/ROOK-add-icon.png">
+										<img class="inline-img pull-right add_marsheet_medication" title="Add Medication" src="../img/icons/ROOK-add-icon.png" onclick="return addMarSheetMedication(window.addMarSheetMedicationBool, this);">
 									</td>
 								<?php } ?>
 								<td data-title="Heading" style="min-width: 20em;">

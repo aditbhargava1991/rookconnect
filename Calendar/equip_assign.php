@@ -125,6 +125,14 @@ if (isset($_POST['submit'])) {
 $get_field_config = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_equip_assign`"));
 if (!empty($get_field_config)) {
     $equipment_category = $get_field_config['equipment_category'];
+    $equipment_categories = array_filter(explode(',', $equipment_category));
+    if(empty($equipment_categories) || count($equipment_categories) > 1) {
+        $equipment_category = 'Equipment';
+    }
+    $equip_cat_query = '';
+    if(count($equipment_categories) > 0) {
+        $equip_cat_query = " AND `equipment`.`category` IN ('".implode("','", $equipment_categories)."')";
+    }
     $client_type = $get_field_config['client_type'];
     $contact_category = explode(',', $get_field_config['contact_category']);
     $position_enabled = $get_field_config['position_enabled'];
@@ -200,9 +208,11 @@ function equipmentChange() {
 }
 </script>
 
-<a href="" onclick="newEquipmentAssignment(); return false;" class="btn brand-btn pull-right">New Assignment</a>
-
-<h3 id="equip_assign_header"><?= $_GET['equipment_assignmentid'] > 0 ? 'Edit' : 'New' ?> <?= $equipment_category ?> Assignment</h3>
+<h3>
+    <span id="equip_assign_header"><?= $_GET['equipment_assignmentid'] > 0 ? 'Edit' : 'New' ?> <?= $equipment_category ?> Assignment</span>
+    <a href="" onclick="newEquipmentAssignment(); return false;" class="btn brand-btn pull-right">New Assignment</a>
+    <div class="clearfix"></div>
+</h3>
 
 <div class="block-group equip_assign_block" style="height: calc(100% - 4.5em); overflow-y: auto;">
 <?php include('../Calendar/equip_assign_inc.php'); ?>

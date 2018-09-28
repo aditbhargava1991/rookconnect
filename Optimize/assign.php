@@ -106,11 +106,11 @@ function setTicketSave() {
 function initOptions() {
     $('.ticket[data-table][data-id]').off('mouseenter');
     $('.ticket[data-table][data-id]').mouseenter(function() {
-        $('.ticket[data-table='+$(this).data('table')+'][data-id='+$(this).data('id')+']').addClass('active').addClass('theme-color-icon').css('z-index',1);
+        $('.ticket[data-table='+$(this).data('table')+'][data-id='+$(this).data('id')+']').addClass('active').css('z-index',1);
     });
     $('.ticket[data-table][data-id]').off('mouseleave');
     $('.ticket[data-table][data-id]').mouseleave(function() {
-        $('.ticket[data-table='+$(this).data('table')+'][data-id='+$(this).data('id')+']').removeClass('active').removeClass('theme-color-icon').css('z-index',0);
+        $('.ticket[data-table='+$(this).data('table')+'][data-id='+$(this).data('id')+']').removeClass('active').css('z-index',0);
     });
     try {
 		$('.assign_list_box').sortable('destroy');

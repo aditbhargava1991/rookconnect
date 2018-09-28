@@ -1,12 +1,14 @@
 <?php if(empty($_GET['date'])) {
 	$scrum_list = $dbc->query("SELECT * FROM `daysheet_notepad` WHERE `contactid`=0 AND `date` != '' ORDER BY `date` DESC");
 	if($scrum_list->num_rows > 0) { ?>
-		<table class="table table-bordered">
-			<tr class="hidden-sm hidden-xs">
-				<th>Entry</th>
-				<th>Staff</th>
-				<th>Date Created</th>
-			</tr>
+		<table class="table table-bordered table-striped">
+            <thead>
+                <tr class="hidden-sm hidden-xs">
+                    <th>Entry</th>
+                    <th>Staff</th>
+                    <th>Date Created</th>
+                </tr>
+            </thead>
 			<?php while($notes = $scrum_list->fetch_assoc()) {
 				$note = strip_tags(html_entity_decode($notes['notes']));
 				$offset = strrpos($note,' ',150); ?>
@@ -97,7 +99,7 @@
 		<div class="form-group">
 			<label class="col-sm-4 control-label">Participants:</label>
 			<div class="col-sm-8">
-				<select class="chosen-select-deselect" multiple data-placeholder="Select Staff" name="assigned"><option />
+				<select class="chosen-select-deselect" multiple data-placeholder="Select Staff" name="assigned">
 					<option value="ALL_STAFF">Select All</option>
 					<?php foreach(sort_contacts_query($dbc->query("SELECT contactid, first_name, last_name FROM contacts WHERE deleted=0 AND status>0 AND category IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY."")) as $staff) { ?>
 						<option <?= in_array($staff['contactid'],explode(',',$scrum_notes['assigned'])) ? 'selected' : '' ?> value="<?= $staff['contactid'] ?>"><?= $staff['full_name'] ?></option>

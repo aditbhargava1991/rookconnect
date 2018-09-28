@@ -50,13 +50,15 @@
 					
 					echo display_pagination($dbc, $query, $pageNum, $rowsPerPage);
 
-					echo '<table class="table table-bordered">';
-						echo '<tr class="hidden-xs hidden-sm">';
-							echo '<th>Invoice #</th>';
-							echo '<th>Invoice Date</th>';
-							echo '<th>Status</th>';
-							echo '<th>Function</th>';
-						echo '</tr>';
+					echo '<table class="table table-bordered table-striped">';
+                        echo '<thead>';
+                            echo '<tr class="hidden-xs hidden-sm">';
+                                echo '<th>Invoice #</th>';
+                                echo '<th>Invoice Date</th>';
+                                echo '<th>Status</th>';
+                                echo '<th>Function</th>';
+                            echo '</tr>';
+                        echo '</thead>';
 
 						while ( $row = mysqli_fetch_array($result) ) {
 							echo '<tr>';

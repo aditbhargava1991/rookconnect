@@ -1,9 +1,10 @@
-<?php
+<?php $guest_access = true;
 /**
 ** Send appointment confirmation email before 2 days.
 */
 //include	('../database_connection.php');
 include(substr(dirname(__FILE__), 0, -8).'include.php');
+ob_clean();
 error_reporting(0);
 
 $starttime = date('Y-m-d', strtotime('+2 days'));

@@ -54,6 +54,18 @@
 				<label class="form-checkbox"><input type="checkbox" <?php if (strpos($access, ','."Today".',') !== false) { echo " checked"; } ?> value="Today" style="height: 20px; width: 20px;" name="tickets_summary[]">
 					<span class="popover-examples"><a data-toggle="tooltip" data-original-title="Display all <?= TICKET_TILE ?> assigned to the current user for the current day."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>My <?= TICKET_TILE ?> For Today</label>
 			<?php } ?>
+			<?php if(strpos($db_summary,'Day Overview') !== FALSE) { ?>
+				<label class="form-checkbox"><input type="checkbox" <?php if (strpos($access, ','."Day Overview".',') !== false) { echo " checked"; } ?> value="Day Overview" style="height: 20px; width: 20px;" name="tickets_summary[]">
+					<span class="popover-examples"><a data-toggle="tooltip" data-original-title="Displays all <?= TICKET_TILE ?> for the day."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Day Overview</label>
+			<?php } ?>
+			<?php if(strpos($db_summary,'Week Overview') !== FALSE) { ?>
+				<label class="form-checkbox"><input type="checkbox" <?php if (strpos($access, ','."Week Overview".',') !== false) { echo " checked"; } ?> value="Week Overview" style="height: 20px; width: 20px;" name="tickets_summary[]">
+					<span class="popover-examples"><a data-toggle="tooltip" data-original-title="Displays all <?= TICKET_TILE ?> for the week."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Week Overview</label>
+			<?php } ?>
+			<?php if(strpos($db_summary,'Month Overview') !== FALSE) { ?>
+				<label class="form-checkbox"><input type="checkbox" <?php if (strpos($access, ','."Month Overview".',') !== false) { echo " checked"; } ?> value="Month Overview" style="height: 20px; width: 20px;" name="tickets_summary[]">
+					<span class="popover-examples"><a data-toggle="tooltip" data-original-title="Displays all <?= TICKET_TILE ?> for the month."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Month Overview</label>
+			<?php } ?>
 			<?php if(strpos($db_summary,'Business') !== FALSE) { ?>
 				<label class="form-checkbox"><input type="checkbox" <?php if (strpos($access, ','."Business".',') !== false) { echo " checked"; } ?> value="Business" style="height: 20px; width: 20px;" name="tickets_summary[]">
 					<span class="popover-examples"><a data-toggle="tooltip" data-original-title="Display the number of <?= TICKET_TILE ?> by <?= BUSINESS_CAT ?>."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span><?= TICKET_TILE ?> Per <?= BUSINESS_CAT ?></label>
@@ -71,6 +83,10 @@
 					<span class="popover-examples"><a data-toggle="tooltip" data-original-title="Display the number of <?= TICKET_TILE ?> by who is assigned to them."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span><?= TICKET_TILE ?> Assigned To Staff</label>
 			<?php } ?>
 			<?php if(strpos($db_summary,'Project') !== FALSE) { ?>
+				<label class="form-checkbox"><input type="checkbox" <?php if (strpos($access, ','."Project".',') !== false) { echo " checked"; } ?> value="Project" style="height: 20px; width: 20px;" name="tickets_summary[]">
+					<span class="popover-examples"><a data-toggle="tooltip" data-original-title="Display the number of <?= TICKET_TILE ?> by <?= PROJECT_NOUN ?> Tab."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span><?= TICKET_TILE ?> By <?= PROJECT_NOUN ?> Type</label>
+			<?php } ?>
+			<?php if(strpos($db_summary,'Project ID') !== FALSE) { ?>
 				<label class="form-checkbox"><input type="checkbox" <?php if (strpos($access, ','."Project".',') !== false) { echo " checked"; } ?> value="Project" style="height: 20px; width: 20px;" name="tickets_summary[]">
 					<span class="popover-examples"><a data-toggle="tooltip" data-original-title="Display the number of <?= TICKET_TILE ?> by <?= PROJECT_NOUN ?>."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span><?= TICKET_TILE ?> By <?= PROJECT_NOUN ?></label>
 			<?php } ?>

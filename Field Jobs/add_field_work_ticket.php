@@ -122,7 +122,7 @@ if (isset($_POST['submit'])) {
 		$result_insert_wt	= mysqli_query($dbc, $query_insert_wt);
 		$in_number = mysqli_insert_id($dbc);
 
-		// fOR PAYROLL
+		// FOR PAYROLL
 		$fs_result = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM  field_foreman_sheet  WHERE fsid = '$fsid'"));
 		$employeeid = $fs_result['contactid'];
 		$total_emp = substr_count($employeeid, ',');
@@ -143,7 +143,7 @@ if (isset($_POST['submit'])) {
                 } else {
                     $sub = 0;
                 }
-				$query_update_payroll = "UPDATE `field_payroll` SET `workticketid`='$in_number', `reg`='$payroll_reg', `ot`='$payroll_ot', `travel`='$payroll_travel', `sub`='$sub' WHERE `fsid`='$fsid' AND `contactid`='$payroll_emp'";
+				$query_update_payroll = "UPDATE `field_payroll` SET `workticketid`='$in_number', `reg`='$payroll_reg', `ot`='$payroll_ot', `travel`='$payroll_travel', `sub`='$sub' WHERE `fsid`='$fsid' AND `contactid`='$payroll_emp' AND `created_date`='$created_date' AND `positionid`='$payroll_pos'";
 				mysqli_query($dbc, $query_update_payroll);
 
 				//$query_insert_payroll = "INSERT INTO `payroll` (`workticketid`, `employeeid`, `positionid`,`reg`, `ot`, `travel`, `sub`,`created_date`) VALUES ('$in_number', '$payroll_emp', '$payroll_pos', '$payroll_reg', '$payroll_ot', '$payroll_travel', '$sub', '$created_date')";
@@ -1113,6 +1113,15 @@ if (isset($_POST['submit'])) {
         $pdf->writeHTML($po_item, true, false, true, false, 'C');
     }
 
+    $filename = $basename = "field_work_ticket_".$in_number.".pdf";
+    $j = 0;
+    while(file_exists('download/'.$filename)) {
+        $filename = preg_replace('/(\.[a-z0-9]*)/', ' ('.++$j.')$1', $basename);
+    }
+    if(file_exists('download/'.$basename)) {
+        rename('download/'.$basename, 'download/'.$filename);
+    }
+    
 	$pdf->Output('download/field_work_ticket_'.$in_number.'.pdf', 'F');
 	// PDF
     if($_POST['submit'] == 'Submit1') {
@@ -1159,8 +1168,9 @@ if (isset($_POST['submit'])) {
 	$total_cost = round($grand_total, 2);
     $sub_total_wt = round($sub_total, 2);
     $gst_wt = round($gst, 2);
+    $subextra_total = round(number_format((float)($other_subtotal+$sub_pay_rate_card), 2, '.', ''), 2);
 
-	$query_update_wt = "UPDATE `field_work_ticket` SET `crew_total` = '$crew_total', `equip_total` = '$equip_total', `material_total` = '$material_subtotal', `subextra_total` = '$sub_pay_rate_card',    `sub_total` = '$sub_total_wt', `gst` = '$gst_wt', `total_cost` = '$total_cost' WHERE `workticketid` = '$in_number'";
+	$query_update_wt = "UPDATE `field_work_ticket` SET `crew_total` = '$crew_total', `equip_total` = '$equip_total', `material_total` = '$material_subtotal', `subextra_total` = '$subextra_total',    `sub_total` = '$sub_total_wt', `gst` = '$gst_wt', `total_cost` = '$total_cost' WHERE `workticketid` = '$in_number'";
 	$result_update_wt	= mysqli_query($dbc, $query_update_wt);
 
 	echo '<script type="text/javascript"> window.location.replace("field_work_ticket.php"); </script>';

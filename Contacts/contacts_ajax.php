@@ -11,6 +11,13 @@ if($_GET['action'] == 'contact_fields') {
 	mysqli_query($dbc, "INSERT INTO `field_config_contacts` (`tab`,`tile_name`,`subtab`) SELECT '$category', '$tile', '**no_subtab**' FROM (SELECT COUNT(*) rows FROM `field_config_contacts` WHERE `tab`='$category' AND `tile_name`='$tile' AND `subtab`='**no_subtab**' AND `subtab` != 'additions') num WHERE num.rows=0");
 	mysqli_query($dbc, "UPDATE `field_config_contacts` SET `contacts`='$fields' WHERE `tab`='$category' AND `tile_name`='$tile' AND `subtab` = '**no_subtab**' AND `subtab` != 'additions'");
 }
+else if($_GET['action'] == 'contact_mandatory_fields') {
+	$category = filter_var($_POST['category'],FILTER_SANITIZE_STRING);
+	$fields = filter_var($_POST['field_list'],FILTER_SANITIZE_STRING);
+	$tile = filter_var($_POST['tile'],FILTER_SANITIZE_STRING);
+	mysqli_query($dbc, "INSERT INTO `field_config_contacts` (`tab`,`tile_name`,`subtab`,`mandatory`) SELECT '$category', '$tile', '**no_subtab**',1 FROM (SELECT COUNT(*) rows FROM `field_config_contacts` WHERE `tab`='$category' AND `tile_name`='$tile' AND `subtab`='**no_subtab**' AND `subtab` != 'additions' AND `mandatory` = 1) num WHERE num.rows=0");
+	mysqli_query($dbc, "UPDATE `field_config_contacts` SET `contacts`='$fields' WHERE `tab`='$category' AND `tile_name`='$tile' AND `subtab` = '**no_subtab**' AND `subtab` != 'additions' AND `mandatory` = 1");
+}
 else if($_GET['action'] == 'contacts_dashboards') {
 	$tab_dashboard = filter_var($_POST['category'],FILTER_SANITIZE_STRING);
 	$contacts_dashboards = $_POST['field_list'];
@@ -27,6 +34,13 @@ else if($_GET['action'] == 'contacts_dashboards') {
 		$query_insert_config = "INSERT INTO `field_config_contacts` (`tab`, `contacts_dashboard`, `tile_name`) VALUES ('$tab_dashboard', '$contacts_dashboards', '$tile')";
 		$result_insert_config = mysqli_query($dbc, $query_insert_config);
 	}
+} else if($_GET['action'] == 'contacts_summary') {
+	$contacts_summary = $_POST['field_list'];
+	$tile = filter_var($_POST['tile'],FILTER_SANITIZE_STRING);
+    $heading = $tile.'_summary';
+
+    set_config($dbc, $heading, $contacts_summary);
+
 } else if($_GET['action'] == 'contact_configs') {
 	$name = filter_var($_POST['name'],FILTER_SANITIZE_STRING);
 	$value = filter_var($_POST['value'],FILTER_SANITIZE_STRING);

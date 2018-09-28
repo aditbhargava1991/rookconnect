@@ -303,6 +303,7 @@ function initIconColors() {
             !src.match('/ROOK-status-approved.png') &&
             !src.match('/ROOK-status-paid.png') &&
             !src.match('/ROOK-status-rejected.jpg') &&
+            !src.match('/ROOK-back-icon.png') &&
             !src.match('/ROOK-trash-icon.png') &&
             !src.match('/ROOK-status-error.png')) {
 	        if ( src.match('/ROOK-') ||
@@ -326,7 +327,14 @@ function initIconColors() {
 	            src.match('/icons/clock-button.png') ||
 	            src.match('/icons/save.png') ||
                 src.match('/clear-checklist.png') ||
-                src.match('/icons/recurring.png') ) {
+                src.match('/home_phone.PNG') ||
+                src.match('/cell_phone.PNG') ||
+                src.match('/project-path.png') ||
+                src.match('/id-card.png') ||
+                src.match('/job.png') ||
+                src.match('/icons/recurring.png') ||
+                src.match('/icons/range.png') ||
+                src.match('/icons/tagging.png') ) {
 	            if ( !self.hasClass('white-color') && !self.hasClass('black-color') ) {
 	                self.addClass('theme-color-icon');
 	            }
@@ -1114,7 +1122,7 @@ function addTimes(timeA, timeB) {
 			timeA[0] = timeA[0] * 1 - 12;
 		}
 	}
-	return timeA.join(':')+' '+AMtimeA[1];
+	return timeA.join(':')+(AMtimeA[1] != undefined ? ' '+AMtimeA[1] : '');
 }
 function getQueryStringArray(url) {
 	var query_string_arr = {};

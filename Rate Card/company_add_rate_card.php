@@ -346,12 +346,13 @@ function addBreakdownRow(button) {
 
 function changeTile(sel) {
 	var tile = sel.value;
+    var cat = $(sel).closest('.form-group').find('[name=category]').first().val();
 	if(tile == '') {
 		return;
 	}
 	$.ajax({
 		type: "GET",
-		url: "ratecard_ajax_all.php?fill=rate_card_desc&type="+tile,
+		url: "ratecard_ajax_all.php?fill=rate_card_desc&type="+tile+"&cat="+cat,
 		dataType: "html",   //expect html to be returned
 		success: function(response){
 			if(response == '') {
@@ -570,7 +571,7 @@ function loadRates(select) {
 			<div class="form-group clearfix completion_date">
 				<label for="first_name" class="col-sm-4 control-label text-right">Alert Staff:</label>
 				<div class="col-sm-8">
-					<select name="alert_staff[]" multiple data-placeholder="Select Staff..." class="form-control chosen-select-deselect"><option></option>
+					<select name="alert_staff[]" multiple data-placeholder="Select Staff..." class="form-control chosen-select-deselect">
 						<?php $staff_list = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name` FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `deleted`=0 AND `status`=1 AND `show_hide_user`=1"),MYSQLI_ASSOC));
 						foreach($staff_list as $staffid) {
 							echo '<option value="'.$staffid.'" '.(strpos(','.$alert_staff.',',','.$staffid.',') !== FALSE ? 'selected' : '').'>'.get_contact($dbc, $staffid).'</option>';
@@ -614,7 +615,7 @@ function loadRates(select) {
 				</div>
 			<?php } while($cat = $company_cats->fetch_assoc());
 		} else if($tile_name == 'Services') {
-			$company_cats = $dbc->query("SELECT `services`.`category` FROM `company_rate_card` LEFT JOIN `services` ON `company_rate_card`.`description`=`services`.`heading` WHERE `tile_name` LIKE 'Services' AND `item_id` > 0 AND `company_rate_card`.`deleted`=0 AND `rate_card_name`='$rate_name' GROUP BY `services`.`category`");
+			$company_cats = $dbc->query("SELECT `services`.`category` FROM `company_rate_card` LEFT JOIN `services` ON `company_rate_card`.`description`=`services`.`heading` OR `company_rate_card`.`item_id`=`services`.`serviceid` WHERE `tile_name` LIKE 'Services' AND `item_id` > 0 AND `company_rate_card`.`deleted`=0 AND `rate_card_name`='$rate_name' GROUP BY `services`.`category`");
 			$cat = $company_cats->fetch_assoc();
 			do { ?>
 				<div class="form-group">
@@ -635,8 +636,6 @@ function loadRates(select) {
 							$cat_name = $cat['category'];
 							$type_name = '';
 							include('company_add_tile_rates.php');
-						} else {
-							// echo '<h4>Please select a category</hr>';
 						} ?>
 					</div>
 				</div>

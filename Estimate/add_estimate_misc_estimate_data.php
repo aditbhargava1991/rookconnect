@@ -22,10 +22,14 @@
 			if($_GET['estimatetabid']) {
 				$estiamtetabid = $_GET['estimatetabid'];
 			}
-			
+
             $query_insert_ticket = "INSERT INTO `estimate_misc` (`estimateid`, `accordion`, `type`, `heading`, `description`, `uom`, `cost`, `estimate_price`, `qty`, `total`, `profit`, `margin`, `estimate_tab_id`)
             VALUES ('$miscestimteid', '$miscacco', '$misctype' , '$mischead', '$miscdisc', '$miscuom', '$misccost', '$miscesprice', '$misceqty', '$misctotal', '$miscprofit', '$miscmargin', '$estiamtetabid');";
             $result_insert_ticket = mysqli_query($dbc, $query_insert_ticket);
+
+            $before_change = '';
+            $history = "Estimates misc entry has been added. <br />";
+            add_update_history($dbc, 'estimates_history', $history, '', $before_change);
 
             $k++;
         }
@@ -99,10 +103,14 @@
 			if($_GET['estimatetabid']) {
 				$estiamtetabid = $_GET['estimatetabid'];
 			}
-			
+
             $query_insert_ticket = "INSERT INTO `estimate_misc` (`estimateid`, `accordion`, `type`, `heading`, `description`, `uom`, `cost`, `estimate_price`, `qty`, `total`, `profit`, `margin`, `estimate_tab_id`)
             VALUES ('$miscestimteid', '$miscacco', '$misctype' , '$mischead', '$miscdisc', '$miscuom', '$misccost', '$miscesprice', '$misceqty', '$misctotal', '$miscprofit', '$miscmargin', '$estiamtetabid');";
             $result_insert_ticket = mysqli_query($dbc, $query_insert_ticket);
+
+            $before_change = '';
+            $history = "Estimates misc entry has been added. <br />";
+            add_update_history($dbc, 'estimates_history', $history, '', $before_change);
 
             $k++;
         }
@@ -175,11 +183,15 @@
 			if($_GET['estimatetabid']) {
 				$estiamtetabid = $_GET['estimatetabid'];
 			}
-			
+
             $query_insert_ticket = "INSERT INTO `estimate_misc` (`estimateid`, `accordion`, `type`, `heading`, `description`, `uom`, `cost`, `estimate_price`, `qty`, `total`, `profit`, `margin`, `estimate_tab_id`)
             VALUES ('$miscestimteid', '$miscacco', '$misctype' , '$mischead', '$miscdisc', '$miscuom', '$misccost', '$miscesprice', '$misceqty', '$misctotal', '$miscprofit', '$miscmargin', '$estiamtetabid');";
             $result_insert_ticket = mysqli_query($dbc, $query_insert_ticket);
-			
+
+            $before_change = '';
+            $history = "Estimates misc entry has been added. <br />";
+            add_update_history($dbc, 'estimates_history', $history, '', $before_change);
+
             $k++;
         }
     }
@@ -237,7 +249,7 @@
         if($_POST['ltotalmisc'][$k] != 0) {
 			if($k == 0) {
 			}
-			
+
             $miscacco = 'Labour';
             $misctype = $_POST['ltype_misc'][$k];
             $mischead = $_POST['lheadmisc'][$k];
@@ -254,10 +266,15 @@
 			if($_GET['estimatetabid']) {
 				$estiamtetabid = $_GET['estimatetabid'];
 			}
-			
+
             $query_insert_ticket = "INSERT INTO `estimate_misc` (`estimateid`, `accordion`, `type`, `heading`, `description`, `uom`, `cost`, `estimate_price`, `qty`, `total`, `profit`, `margin`, `estimate_tab_id`)
             VALUES ('$miscestimteid', '$miscacco', '$misctype' , '$mischead', '$miscdisc', '$miscuom', '$misccost', '$miscesprice', '$misceqty', '$misctotal', '$miscprofit', '$miscmargin', '$estiamtetabid');";
             $result_insert_ticket = mysqli_query($dbc, $query_insert_ticket);
+
+            $before_change = '';
+            $history = "Estimate misc has been added. <br />";
+            add_update_history($dbc, 'estimates_history', $history, '', $before_change);
+
             $k++;
         }
     }
@@ -322,7 +339,7 @@
 			if($_POST[$id.'totalmisc'][$k] != 0) {
 				if($k == 0) {
 				}
-				
+
 				$miscacco = $name;
 				$misctype = $_POST[$id.'type_misc'][$k];
 				$mischead = $_POST[$id.'headmisc'][$k];
@@ -339,10 +356,15 @@
 				if($_GET['estimatetabid']) {
 					$estiamtetabid = $_GET['estimatetabid'];
 				}
-				
+
 				$query_insert_ticket = "INSERT INTO `estimate_misc` (`estimateid`, `accordion`, `type`, `heading`, `description`, `uom`, `cost`, `estimate_price`, `qty`, `total`, `profit`, `margin`, `estimate_tab_id`)
 				VALUES ('$miscestimteid', '$miscacco', '$misctype' , '$mischead', '$miscdisc', '$miscuom', '$misccost', '$miscesprice', '$misceqty', '$misctotal', '$miscprofit', '$miscmargin', '$estiamtetabid');";
 				$result_insert_ticket = mysqli_query($dbc, $query_insert_ticket);
+
+        $before_change = '';
+        $history = "Estimates misc entry has been added. <br />";
+        add_update_history($dbc, 'estimates_history', $history, '', $before_change);
+
 				$k++;
 			}
 		}

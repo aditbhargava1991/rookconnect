@@ -219,7 +219,7 @@ if($endtime == 0000-00-00) {
         <label class="col-sm-4">Staff:</label>
         <div class="col-sm-8">
             <?php $query = sort_contacts_query(mysqli_query($dbc,"SELECT contactid, first_name, last_name FROM contacts WHERE deleted=0 AND status=1 AND category IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY."")); ?>
-            <select name="staffid[]" multiple data-placeholder="Select Staff" class="chosen-select-deselect"><option />
+            <select name="staffid[]" multiple data-placeholder="Select Staff" class="chosen-select-deselect">
                 <?php foreach($query as $staff) { ?>
                     <option <?= in_array($staff['contactid'],explode(',',$staffid)) ? 'selected' : '' ?> value="<?= $staff['contactid'] ?>"><?= $staff['first_name'].' '.$staff['last_name'] ?></option>
                 <?php } ?>
@@ -425,7 +425,7 @@ function report_receivables($dbc, $starttime, $endtime, $staff, $table_style, $t
 			$tasks = mysqli_query($dbc, "SELECT tasklist.*, IFNULL(SEC_TO_TIME(SUM(TIME_TO_SEC(IF(`tasklist_time`.`src`='M',`tasklist_time`.`work_time`,'00:00:00')))),`tasklist`.`work_time`) `manual_time`, IFNULL(SEC_TO_TIME(SUM(TIME_TO_SEC(IF(`tasklist_time`.`src`='A',`tasklist_time`.`work_time`,'00:00:00')))),'00:00:00') `timer_total`, IFNULL(SEC_TO_TIME(SUM(TIME_TO_SEC(`tasklist_time`.`work_time`))),`tasklist`.`work_time`) `total_time` FROM tasklist LEFT JOIN `tasklist_time` ON `tasklist`.`tasklistid`=`tasklist_time`.`tasklistid` WHERE IFNULL(`tasklist_time`.`contactid`,`tasklist`.`contactid`) = '$cid' AND IFNULL(`tasklist_time`.`timer_date`,`tasklist`.`task_tododate`) = '".$starttime."' AND `tasklist`.`tasklistid` > 0 GROUP BY `tasklist`.`tasklistid`");
 			while($task = mysqli_fetch_array($tasks)) {
 				$tasklistid = $task['tasklistid'];
-				$task_list .= "<p><a target= '_blank' href='../Tasks/add_task.php?tasklistid=".$tasklistid."'>".$task['heading'].'</a> - '.substr($task['total_time'],0,-3).'</p>';
+				$task_list .= "<p><a target= '_blank' href='../Tasks_Updated/add_task.php?tasklistid=".$tasklistid."'>".$task['heading'].'</a> - '.substr($task['total_time'],0,-3).'</p>';
 				$total_timer[] = $task['timer_total'];
 				$total_spent[] = $task['manual_time'];
 				$total_all[] = $task['total_time'];

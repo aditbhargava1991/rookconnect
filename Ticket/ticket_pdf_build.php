@@ -310,6 +310,25 @@ if(isset($_POST['custom_form'])) {
 										$value .= $inv_row['qty'].' X '.$inv_row['name'].' Approx Weight '.$inv_row['weight'].' '.$inv_row['weight_units'].' Dimensions '.explode('#*#',$inv_row['dimensions'])[0].' '.explode('x',explode('#*#',$inv_row['dimension_units'])[0])[0]."\n";
 									}
 									break;
+								case 'inventory-row-detail':
+									$inventory = mysqli_query($dbc, "SELECT `ticket_attached`.*, `inventory`.`name` FROM `ticket_attached` LEFT JOIN `inventory` ON `ticket_attached`.`item_id`=`inventory`.`inventoryid` WHERE `src_table`='inventory' AND `ticket_attached`.`deleted`=0 AND `ticket_attached`.`ticketid`='$ticketid'");
+									while($inv_row = $inventory->fetch_assoc()) {
+										foreach(explode('+',$values[1]) as $row => $field_line) {
+											if($row > 0 && trim($value,"\n") == $value) {
+												$value .= "\n";
+											}
+											foreach(explode(',',$field_line) as $field_detail) {
+												$field_detail = explode('-',$field_detail);
+												if(!array_key_exists($field_detail[0],$inv_row)) {
+													$value = trim($value).trim(str_replace(['FFMCOMMA','FFMCOLON','FFMDASH','FFMPLUS','FFMHASH','FFMSINQUOT'],[',',':','-','+','#',"'"],implode('-',$field_detail)),"'");
+												} else {
+													$value .= $inv_row[$field_detail[0]].' ';
+												}
+											}
+										}
+										$value .= "\n";
+									}
+									break;
 								case 'contact-info':
 									$field_detail = explode('-',$values[1]);
 									$index = $field_detail[2];
@@ -464,7 +483,8 @@ if(isset($_POST['custom_form'])) {
 			<label class="col-sm-4 control-label"><?= TICKET_NOUN ?>:</label>
 			<div class="col-sm-8">
 				<select class="chosen-select-deselect" data-placeholder="Select a Ticket" name="ticketid"><option />
-					<?php $ticket_list = $dbc->query("SELECT * FROM `tickets` WHERE `deleted`=0 AND `status` != 'Archive'".($_GET['projectid'] > 0 ? " AND `projectid`='{$_GET['projectid']}'" : ''));
+					<?php $ticket_list = "SELECT * FROM `tickets` WHERE `deleted`=0 AND `status` != 'Archive' AND `ticket_type` IN ('".implode("','",$ticket_conf_list)."')".(empty($form['ticket_types']) || $form['ticket_types'] == 'ALL' ? '' : (" AND `ticket_type` IN ('".config_safe_str($form['ticket_types'])."')")).($_GET['projectid'] > 0 ? " AND `projectid`='{$_GET['projectid']}'" : '');
+					$ticket_list = $dbc->query($ticket_list);
 					while($ticket = $ticket_list->fetch_assoc()) { ?>
 						<option value="<?= $ticket['ticketid'] ?>"><?= get_ticket_label($dbc, $ticket) ?></option>
 					<?php } ?>

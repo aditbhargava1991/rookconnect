@@ -116,13 +116,12 @@ function viewTicket(a) {
             </div>
             <?php $search_clearfix++ ?>
         <?php } ?>
-		
+
         <div class="col-lg-2 col-md-3 col-sm-4 col-xs-12">
           <label for="site_name" class="control-label">Search By Staff:</label>
         </div>
           <div class="col-lg-4 col-md-3 col-sm-8 col-xs-12">
               <select multiple data-placeholder="Select Staff Members" name="search_staff[]" class="chosen-select-deselect form-control">
-                <option></option>
 				<option <?= 'ALL' == $search_staff ? 'selected' : '' ?> value="ALL">All Staff</option>
                 <?php $query = sort_contacts_query(mysqli_query($dbc,"SELECT distinct(`time_cards`.`staff`), `contacts`.`contactid`, `contacts`.`first_name`, `contacts`.`last_name`, `contacts`.`status` FROM `time_cards` LEFT JOIN `contacts` ON `contacts`.`contactid` = `time_cards`.`staff` WHERE `time_cards`.`staff` > 0 AND `contacts`.`deleted`=0".$security_query));
                 foreach($query as $staff_row) { ?>
@@ -240,11 +239,11 @@ function viewTicket(a) {
                 if($timesheet_reporting_styling == 'EGS') {
                 $search_staff_query = implode('search_staff%5B%5D=', explode(',',$search_staff)); ?>
 
-                <a target="_blank" href="<?= WEBSITE_URL ?>/Timesheet/reporting.php?export=pdf_egs&search_staff=<?php echo $search_staff; ?>&search_start_date=<?php echo $search_start_date; ?>&search_end_date=<?php echo $search_end_date; ?>&search_position=<?php echo $search_position; ?>&search_project=<?php echo $search_project; ?>&search_ticket=<?php echo $search_ticket; ?>&see_staff=<?= $_GET['see_staff'] ?>&timesheet_tab=reporting" onclick="displayPDFOptions(this); return false;" title="PDF"><img src="<?php echo WEBSITE_URL; ?>/img/pdf.png" style="height:100%; margin:0;" /></a>
+                <a target="_blank" href="<?= WEBSITE_URL ?>/Timesheet/reporting.php?export=pdf_egs&search_staff=<?php echo $search_staff; ?>&search_start_date=<?php echo $search_start_date; ?>&search_end_date=<?php echo $search_end_date; ?>&search_position=<?php echo $search_position; ?>&search_project=<?php echo $search_project; ?>&search_ticket=<?php echo $search_ticket; ?>&see_staff=<?= $_GET['see_staff'] ?>&timesheet_tab=reporting" onclick="displayPDFOptions(this); return false;"><img src="<?php echo WEBSITE_URL; ?>/img/pdf.png" style="height:100%; margin:0;" class="no-toggle" title="PDF" /></a>
 
 
                 <?php } else { ?>
-                <a target="_blank" href="<?= WEBSITE_URL ?>/Timesheet/reporting.php?export=pdf&search_staff=<?php echo $search_staff; ?>&search_start_date=<?php echo $search_start_date; ?>&search_end_date=<?php echo $search_end_date; ?>&search_position=<?php echo $search_position; ?>&search_project=<?php echo $search_project; ?>&search_ticket=<?php echo $search_ticket; ?>" onclick="displayPDFOptions(this); return false;" title="PDF"><img src="<?php echo WEBSITE_URL; ?>/img/pdf.png" style="height:100%; margin:0;" /></a>
+                <a target="_blank" href="<?= WEBSITE_URL ?>/Timesheet/reporting.php?export=pdf&search_staff=<?php echo $search_staff; ?>&search_start_date=<?php echo $search_start_date; ?>&search_end_date=<?php echo $search_end_date; ?>&search_position=<?php echo $search_position; ?>&search_project=<?php echo $search_project; ?>&search_ticket=<?php echo $search_ticket; ?>" onclick="displayPDFOptions(this); return false;"><img src="<?php echo WEBSITE_URL; ?>/img/pdf.png" style="height:100%; margin:0;" class="no-toggle" title="PDF" /></a>
 
                 <?php } ?>
 

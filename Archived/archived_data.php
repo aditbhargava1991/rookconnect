@@ -15,40 +15,59 @@ if(isset($_GET['page'])) {
 
 $offset = ($pageNum - 1) * $rowsPerPage;
 
+if($_GET['searching'] == 'true') {
+	$rowsPerPage = 9999999999999;
+	$offset = 0;
+}
 ?>
-<script src="js/jquery.cookie.js"></script>
+<!-- <script src="js/jquery.cookie.js"></script> -->
 <script>
-jQuery(document).ready(function($){
+var loadSearchResults = '';
+$(document).ready(function() {
+	$('.live-search-list2 tr').each(function(){
+		$(this).attr('data-search-term', $(this).text().toLowerCase());
+	});
+	$('.live-search-box2').on('keyup', function() {
+		var searchTerm = $(this).val().toLowerCase();
+		var searching = '';
+		if(searchTerm != '') {
+			searching = '&searching=true';
+		}
+		clearTimeout(loadSearchResults);
+		loadSearchResults = setTimeout(function() {
+			$.ajax({
+				url: '../Archived/archived_data.php?archive_type=<?= $_GET['archive_type'] ?>'+searching,
+				method: 'GET',
+				dataType: 'html',
+				success: function(response) {
+					var html = $(response).find('#no-more-tables');
+					$(html).find('tr').each(function(){
+						$(this).attr('data-search-term', $(this).text().toLowerCase());
+					});
+					$(html).find('tr').each(function(){
 
-			$('.live-search-list2 tr').each(function(){
-			$(this).attr('data-search-term', $(this).text().toLowerCase());
+						if ($(this).filter('[data-search-term *= ' + searchTerm + ']').length > 0 || searchTerm.length < 1) {
+							$(this).show();
+						} else if($(this).parents('thead').length <= 0) {
+							if($(this).hasClass('dont-hide')) {
+							} else { $(this).remove(); }
+						}
+
+					});
+
+					$('#no-more-tables').html(html);
+				}
 			});
-
-			$('.live-search-box2').on('keyup', function(){
-
-			var searchTerm = $(this).val().toLowerCase();
-
-				$('.live-search-list2 tr').each(function(){
-
-					if ($(this).filter('[data-search-term *= ' + searchTerm + ']').length > 0 || searchTerm.length < 1) {
-						$(this).show();
-					} else {
-						if($(this).hasClass('dont-hide')) {
-						} else { $(this).hide(); }
-					}
-
-				});
-
-			});
-
-			});
+		}, 500);
+	});
+});
 </script>
 </head>
 <body>
 <?php include_once ('../navigation.php');
 checkAuthorised('archiveddata');
 $edit_access = vuaed_visible_function($dbc, 'archiveddata');
-$archive = isset($_GET['archive_type']) ? $_GET['archive_type'] : 'contacts';
+$archive = $_GET['archive_type'] = isset($_GET['archive_type']) ? $_GET['archive_type'] : 'contacts';
 switch($archive) {
 	case "inventory" : $current_tab = "inventory"; break;
 	case "sales" : $current_tab = "sales"; break;
@@ -121,187 +140,220 @@ switch($archive) {
     <div class="row">
 		<div class="">
 		    <ul id="" class="tab-links nav nav-pills">
-				<?php if(tile_visible($dbc, 'contacts') == 1): ?>
-					<li><a href="archived_data.php?archive_type=contacts">Contacts</a></li>
+				<?php if(tile_visible($dbc, 'contacts') == 1 || tile_visible($dbc, 'contacts_inbox')):
+					if(empty($_GET['type'])) {
+						$_GET['type'] = 'contacts';
+					} ?>
+					<li <?= $_GET['archive_type'] == 'contacts' && $_GET['type'] == 'contacts' ? 'class="active"' : '' ?>><a href="archived_data.php?archive_type=contacts&type=contacts">Contacts</a></li>
+				<?php endif; ?>
+				<?php if(tile_visible($dbc, 'contacts3') == 1):
+					if(empty($_GET['type'])) {
+						$_GET['type'] = 'contacts3';
+					} ?>
+					<li <?= $_GET['archive_type'] == 'contacts' && $_GET['type'] == 'contacts3' ? 'class="active"' : '' ?>><a href="archived_data.php?archive_type=contacts&type=contacts3">Contacts</a></li>
+				<?php endif; ?>
+				<?php if(tile_visible($dbc, 'client_info') == 1):
+					if(empty($_GET['type'])) {
+						$_GET['type'] = 'clientinfo';
+					} ?>
+					<li <?= $_GET['archive_type'] == 'contacts' && $_GET['type'] == 'clientinfo' ? 'class="active"' : '' ?>><a href="archived_data.php?archive_type=contacts&type=clientinfo">Client Information</a></li>
+				<?php endif; ?>
+				<?php if(tile_visible($dbc, 'contacts_rolodex') == 1):
+					if(empty($_GET['type'])) {
+						$_GET['type'] = 'contactsrolodex';
+					} ?>
+					<li <?= $_GET['archive_type'] == 'contacts' && $_GET['type'] == 'contactsrolodex' ? 'class="active"' : '' ?>><a href="archived_data.php?archive_type=contacts&type=contactsrolodex">Contacts Rolodex</a></li>
+				<?php endif; ?>
+				<?php if(tile_visible($dbc, 'members') == 1):
+					if(empty($_GET['type'])) {
+						$_GET['type'] = 'members';
+					} ?>
+					<li <?= $_GET['archive_type'] == 'contacts' && $_GET['type'] == 'members' ? 'class="active"' : '' ?>><a href="archived_data.php?archive_type=contacts&type=members">Members</a></li>
+				<?php endif; ?>
+				<?php if(tile_visible($dbc, 'vendors') == 1):
+					if(empty($_GET['type'])) {
+						$_GET['type'] = 'vendors';
+					} ?>
+					<li <?= $_GET['archive_type'] == 'contacts' && $_GET['type'] == 'vendors' ? 'class="active"' : '' ?>><a href="archived_data.php?archive_type=contacts&type=vendors"><?= VENDOR_TILE ?></a></li>
 				<?php endif; ?>
 				<?php if(tile_visible($dbc, 'staff') == 1): ?>
-					<li><a href="archived_data.php?archive_type=staff">Staff</a></li>
+					<li <?= $_GET['archive_type'] == 'staff' ? 'class="active"' : '' ?>><a href="archived_data.php?archive_type=staff">Staff</a></li>
 				<?php endif; ?>
 				<?php if(tile_visible($dbc, 'field_job') == 1):
 					$field_job_tabs = get_config($dbc, 'field_job_tabs');
 					if(strpos($field_job_tabs,',sites,') !== false) { ?>
-						<li><a href="archived_data.php?archive_type=field_sites">Field Sites</a></li>
+						<li <?= $_GET['archive_type'] == 'field_sites' ? 'class="active"' : '' ?>><a href="archived_data.php?archive_type=field_sites">Field Sites</a></li>
 					<?php }
 					if(strpos($field_job_tabs,',jobs,') !== false) { ?>
-						<li><a href="archived_data.php?archive_type=field_jobs">Field Jobs</a></li>
+						<li <?= $_GET['archive_type'] == 'field_jobs' ? 'class="active"' : '' ?>><a href="archived_data.php?archive_type=field_jobs">Field Jobs</a></li>
 					<?php }
 					if(strpos($field_job_tabs,',foreman,') !== false) { ?>
-						<li><a href="archived_data.php?archive_type=field_foreman">Field Foreman Sheets</a></li>
+						<li <?= $_GET['archive_type'] == 'field_foreman' ? 'class="active"' : '' ?>><a href="archived_data.php?archive_type=field_foreman">Field Foreman Sheets</a></li>
 					<?php }
 					if(strpos($field_job_tabs,',po,') !== false) { ?>
-						<li><a href="archived_data.php?archive_type=field_po">Field PO</a></li>
+						<li <?= $_GET['archive_type'] == 'field_po' ? 'class="active"' : '' ?>><a href="archived_data.php?archive_type=field_po">Field PO</a></li>
 					<?php }
 					if(strpos($field_job_tabs,',work,') !== false) { ?>
-						<li><a href="archived_data.php?archive_type=field_work_ticket">Field Work Tickets</a></li>
+						<li <?= $_GET['archive_type'] == 'field_work_ticket' ? 'class="active"' : '' ?>><a href="archived_data.php?archive_type=field_work_ticket">Field Work Tickets</a></li>
 					<?php }
 					if(strpos($field_job_tabs,',invoice,') !== false) { ?>
-						<li><a href="archived_data.php?archive_type=field_invoices">Field Invoices</a></li>
+						<li <?= $_GET['archive_type'] == 'field_invoices' ? 'class="active"' : '' ?>><a href="archived_data.php?archive_type=field_invoices">Field Invoices</a></li>
 					<?php } ?>
 				<?php endif; ?>
 				<?php if(tile_visible($dbc, 'shop_work_orders') == 1): ?>
-					<li><a href="archived_data.php?archive_type=shop_work_order">Shop Work Orders</a></li>
+					<li <?= $_GET['archive_type'] == 'shop_work_order' ? 'class="active"' : '' ?>><a href="archived_data.php?archive_type=shop_work_order">Shop Work Orders</a></li>
 				<?php endif; ?>
 				<?php if(tile_visible($dbc, 'certificate') == 1): ?>
-					<li><a href="archived_data.php?archive_type=certificate">Certificates</a></li>
+					<li <?= $_GET['archive_type'] == 'certificate' ? 'class="active"' : '' ?>><a href="archived_data.php?archive_type=certificate">Certificates</a></li>
 				<?php endif; ?>
 				<?php if(tile_visible($dbc, 'how_to_guide') == 1): ?>
-					<li><a href="archived_data.php?archive_type=guide">How to Guide</a></li>
+					<li <?= $_GET['archive_type'] == 'guide' ? 'class="active"' : '' ?>><a href="archived_data.php?archive_type=guide">How to Guide</a></li>
 				<?php endif; ?>
 				<?php if(tile_visible($dbc, 'hr') == 1): ?>
-					<li><a href="archived_data.php?archive_type=hr">HR</a></li>
+					<li <?= $_GET['archive_type'] == 'hr' ? 'class="active"' : '' ?>><a href="archived_data.php?archive_type=hr">HR</a></li>
 				<?php endif; ?>
 				<?php if(tile_visible($dbc, 'emp_handbook') == 1): ?>
-					<li><a href="archived_data.php?archive_type=eh">Employee Handbook</a></li>
+					<li <?= $_GET['archive_type'] == 'eh' ? 'class="active"' : '' ?>><a href="archived_data.php?archive_type=eh">Employee Handbook</a></li>
 				<?php endif; ?>
 				<?php if(tile_visible($dbc, 'ops_manual') == 1): ?>
-					<li><a href="archived_data.php?archive_type=manual">Operational Manual</a></li>
+					<li <?= $_GET['archive_type'] == 'manual' ? 'class="active"' : '' ?>><a href="archived_data.php?archive_type=manual">Operational Manual</a></li>
 				<?php endif; ?>
 				<?php if(tile_visible($dbc, 'policy_procedure') == 1): ?>
-					<li><a href="archived_data.php?archive_type=pp">Policy & Procedure</a></li>
+					<li <?= $_GET['archive_type'] == 'pp' ? 'class="active"' : '' ?>><a href="archived_data.php?archive_type=pp">Policy & Procedure</a></li>
 				<?php endif; ?>
 				<?php if(tile_visible($dbc, 'checklist') == 1): ?>
-					<li><a href="archived_data.php?archive_type=checklist">Checklist</a></li>
+					<li <?= $_GET['archive_type'] == 'checklist' ? 'class="active"' : '' ?>><a href="archived_data.php?archive_type=checklist">Checklist</a></li>
 				<?php endif; ?>
 				<?php if(tile_visible($dbc, 'client_documents') == 1): ?>
-					<li><a href="archived_data.php?archive_type=cd">Client Documents</a></li>
+					<li <?= $_GET['archive_type'] == 'cd' ? 'class="active"' : '' ?>><a href="archived_data.php?archive_type=cd">Client Documents</a></li>
 				<?php endif; ?>
 				<?php if(tile_visible($dbc, 'internal_documents') == 1): ?>
-					<li><a href="archived_data.php?archive_type=id">Internal Documents</a></li>
+					<li <?= $_GET['archive_type'] == 'id' ? 'class="active"' : '' ?>><a href="archived_data.php?archive_type=id">Internal Documents</a></li>
 				<?php endif; ?>
 				<?php if(tile_visible($dbc, 'passwords') == 1): ?>
-					<li><a href="archived_data.php?archive_type=passwords">Passwords</a></li>
+					<li <?= $_GET['archive_type'] == 'passwords' ? 'class="active"' : '' ?>><a href="archived_data.php?archive_type=passwords">Passwords</a></li>
 				<?php endif; ?>
 				<?php if(tile_visible($dbc, 'documents') == 1): ?>
-					<li><a href="archived_data.php?archive_type=documents">Documents</a></li>
+					<li <?= $_GET['archive_type'] == 'documents' ? 'class="active"' : '' ?>><a href="archived_data.php?archive_type=documents">Documents</a></li>
 				<?php endif; ?>
 				<?php if(tile_visible($dbc, 'helpdesk') == 1): ?>
-					<li><a href="archived_data.php?archive_type=helpdesk">Help Desk</a></li>
+					<li <?= $_GET['archive_type'] == 'helpdesk' ? 'class="active"' : '' ?>><a href="archived_data.php?archive_type=helpdesk">Help Desk</a></li>
 				<?php endif; ?>
 				<?php if(tile_visible($dbc, 'project_workflow') == 1): ?>
-					<li><a href="archived_data.php?archive_type=project_workflow">Project Workflow</a></li>
+					<li <?= $_GET['archive_type'] == 'project_workflow' ? 'class="active"' : '' ?>><a href="archived_data.php?archive_type=project_workflow">Project Workflow</a></li>
 				<?php endif; ?>
 				<?php if(tile_visible($dbc, 'assets') == 1): ?>
-					<li><a href="archived_data.php?archive_type=asset">Assets</a></li>
+					<li <?= $_GET['archive_type'] == 'asset' ? 'class="active"' : '' ?>><a href="archived_data.php?archive_type=asset">Assets</a></li>
 				<?php endif; ?>
 				<?php if(tile_visible($dbc, 'equipment') == 1): ?>
-					<li><a href="archived_data.php?archive_type=equipment">Equipment</a></li>
+					<li <?= $_GET['archive_type'] == 'equipment' ? 'class="active"' : '' ?>><a href="archived_data.php?archive_type=equipment">Equipment</a></li>
 				<?php endif; ?>
 				<?php if(tile_visible($dbc, 'inventory') == 1): ?>
-					<li><a href="archived_data.php?archive_type=inventory">Inventory</a></li>
+					<li <?= $_GET['archive_type'] == 'inventory' ? 'class="active"' : '' ?>><a href="archived_data.php?archive_type=inventory">Inventory</a></li>
 				<?php endif; ?>
 				<?php if(tile_visible($dbc, 'material') == 1): ?>
-					<li><a href="archived_data.php?archive_type=material">Materials</a></li>
+					<li <?= $_GET['archive_type'] == 'material' ? 'class="active"' : '' ?>><a href="archived_data.php?archive_type=material">Materials</a></li>
 				<?php endif; ?>
 				<?php if(tile_visible($dbc, 'safety') == 1): ?>
-					<li><a href="archived_data.php?archive_type=safety">Safety Checklist</a></li>
+					<li <?= $_GET['archive_type'] == 'safety' ? 'class="active"' : '' ?>><a href="archived_data.php?archive_type=safety">Safety Checklist</a></li>
 				<?php endif; ?>
 				<?php if(tile_visible($dbc, 'ticket') == 1): ?>
-					<li><a href="archived_data.php?archive_type=tickets"><?= TICKET_TILE ?></a></li>
+					<li <?= $_GET['archive_type'] == 'tickets' ? 'class="active"' : '' ?>><a href="archived_data.php?archive_type=tickets"><?= TICKET_TILE ?></a></li>
 				<?php endif; ?>
 				<?php if(tile_visible($dbc, 'daysheet') == 1): ?>
-					<li><a href="archived_data.php?archive_type=daysheet">Planner</a></li>
+					<li <?= $_GET['archive_type'] == 'daysheet' ? 'class="active"' : '' ?>><a href="archived_data.php?archive_type=daysheet">Planner</a></li>
 				<?php endif; ?>
 				<?php if(tile_visible($dbc, 'time_tracking') == 1): ?>
-					<li><a href="archived_data.php?archive_type=time_tracking">Time Tracking</a></li>
+					<li <?= $_GET['archive_type'] == 'time_tracking' ? 'class="active"' : '' ?>><a href="archived_data.php?archive_type=time_tracking">Time Tracking</a></li>
 				<?php endif; ?>
 				<?php if(tile_visible($dbc, 'estimate') == 1): ?>
-					<li><a href="archived_data.php?archive_type=estimate"><?= ESTIMATE_TILE ?></a></li>
+					<li <?= $_GET['archive_type'] == 'estimate' ? 'class="active"' : '' ?>><a href="archived_data.php?archive_type=estimate"><?= ESTIMATE_TILE ?></a></li>
 				<?php endif; ?>
 				<?php if(tile_visible($dbc, 'quote') == 1): ?>
-					<li><a href="archived_data.php?archive_type=quote">Quote</a></li>
+					<li <?= $_GET['archive_type'] == 'quote' ? 'class="active"' : '' ?>><a href="archived_data.php?archive_type=quote">Quote</a></li>
 				<?php endif; ?>
 				<?php if(tile_visible($dbc, 'email_communication') == 1): ?>
-					<li><a href="archived_data.php?archive_type=email_communication">Email Communication</a></li>
+					<li <?= $_GET['archive_type'] == 'email_communication' ? 'class="active"' : '' ?>><a href="archived_data.php?archive_type=email_communication">Email Communication</a></li>
 				<?php endif; ?>
 				<?php if(tile_visible($dbc, 'newsboard') == 1): ?>
-					<li><a href="archived_data.php?archive_type=newsboard">News Board</a></li>
+					<li <?= $_GET['archive_type'] == 'newsboard' ? 'class="active"' : '' ?>><a href="archived_data.php?archive_type=newsboard">News Board</a></li>
 				<?php endif; ?>
 				<?php if(tile_visible($dbc, 'check_out') == 1): ?>
-					<li><a href="archived_data.php?archive_type=check_out">Checkout</a></li>
+					<li <?= $_GET['archive_type'] == 'check_out' ? 'class="active"' : '' ?>><a href="archived_data.php?archive_type=check_out">Checkout</a></li>
 				<?php endif; ?>
                 <?php if(tile_visible($dbc, 'match') == 1): ?>
-                    <li><a href="archived_data.php?archive_type=match">Match</a></li>
+                    <li <?= $_GET['archive_type'] == 'match' ? 'class="active"' : '' ?>><a href="archived_data.php?archive_type=match">Match</a></li>
                 <?php endif; ?>
 				<?php if(tile_visible($dbc, 'expense') == 1): ?>
-                    <li><a href="archived_data.php?archive_type=expense">Expenses</a></li>
+                    <li <?= $_GET['archive_type'] == 'expense' ? 'class="active"' : '' ?>><a href="archived_data.php?archive_type=expense">Expenses</a></li>
                 <?php endif; ?>
 				<?php if(tile_visible($dbc, 'pos') == 1): ?>
-                    <li><a href="archived_data.php?archive_type=pos"><?= POS_ADVANCE_TILE ?></a></li>
+                    <li <?= $_GET['archive_type'] == 'pos' ? 'class="active"' : '' ?>><a href="archived_data.php?archive_type=pos"><?= POS_ADVANCE_TILE ?></a></li>
                 <?php endif; ?>
 				<?php if(tile_visible($dbc, 'purchase_order') == 1): ?>
-                    <li><a href="archived_data.php?archive_type=purchase_order">Purchase Orders</a></li>
+                    <li <?= $_GET['archive_type'] == 'purchase_order' ? 'class="active"' : '' ?>><a href="archived_data.php?archive_type=purchase_order">Purchase Orders</a></li>
                 <?php endif; ?>
 				<?php if(tile_visible($dbc, 'vpl') == 1): ?>
-                    <li><a href="archived_data.php?archive_type=vpl">Vendors Price List</a></li>
+                    <li <?= $_GET['archive_type'] == 'vpl' ? 'class="active"' : '' ?>><a href="archived_data.php?archive_type=vpl">Vendors Price List</a></li>
                 <?php endif; ?>
 				<?php if(tile_visible($dbc, 'budget') == 1): ?>
-                    <li><a href="archived_data.php?archive_type=budget">Budget</a></li>
+                    <li <?= $_GET['archive_type'] == 'budget' ? 'class="active"' : '' ?>><a href="archived_data.php?archive_type=budget">Budget</a></li>
                 <?php endif; ?>
 				<?php if(tile_visible($dbc, 'infogathering') == 1): ?>
-                    <li><a href="archived_data.php?archive_type=infogathering">Information Gathering</a></li>
+                    <li <?= $_GET['archive_type'] == 'infogathering' ? 'class="active"' : '' ?>><a href="archived_data.php?archive_type=infogathering">Information Gathering</a></li>
                 <?php endif; ?>
 				<?php if(tile_visible($dbc, 'marketing_material') == 1): ?>
-                    <li><a href="archived_data.php?archive_type=marketing_material">Marketing Material</a></li>
+                    <li <?= $_GET['archive_type'] == 'marketing_material' ? 'class="active"' : '' ?>><a href="archived_data.php?archive_type=marketing_material">Marketing Material</a></li>
                 <?php endif; ?>
 				<?php if(tile_visible($dbc, 'sales_order') == 1): ?>
-                    <li><a href="archived_data.php?archive_type=sales_order"><?= SALES_ORDER_TILE ?></a></li>
+                    <li <?= $_GET['archive_type'] == 'sales_order' ? 'class="active"' : '' ?>><a href="archived_data.php?archive_type=sales_order"><?= SALES_ORDER_TILE ?></a></li>
                 <?php endif; ?>
                 <?php if(tile_visible($dbc, 'staff_documents') == 1): ?>
-                    <li><a href="archived_data.php?archive_type=staff_documents">Staff Documents</a></li>
+                    <li <?= $_GET['archive_type'] == 'staff_documents' ? 'class="active"' : '' ?>><a href="archived_data.php?archive_type=staff_documents">Staff Documents</a></li>
                 <?php endif; ?>
 				<?php if(tile_visible($dbc, 'treatment_charts') == 1): ?>
-                    <li><a href="archived_data.php?archive_type=treatment">Treatment</a></li>
+                    <li <?= $_GET['archive_type'] == 'treatment_charts' ? 'class="active"' : '' ?>><a href="archived_data.php?archive_type=treatment">Treatment</a></li>
                 <?php endif; ?>
 				<?php if(tile_visible($dbc, 'staff') == 1): ?>
-                    <li><a href="archived_data.php?archive_type=reminder">Reminders</a></li>
+                    <li <?= $_GET['archive_type'] == 'reminder' ? 'class="active"' : '' ?>><a href="archived_data.php?archive_type=reminder">Reminders</a></li>
                 <?php endif; ?>
 				<?php if(tile_visible($dbc, 'custom') == 1): ?>
-                    <li><a href="archived_data.php?archive_type=custom">Custom</a></li>
+                    <li <?= $_GET['archive_type'] == 'custom' ? 'class="active"' : '' ?>><a href="archived_data.php?archive_type=custom">Custom</a></li>
                 <?php endif; ?>
 				<?php if(tile_visible($dbc, 'labour') == 1): ?>
-                    <li><a href="archived_data.php?archive_type=labour">Labour</a></li>
+                    <li <?= $_GET['archive_type'] == 'labour' ? 'class="active"' : '' ?>><a href="archived_data.php?archive_type=labour">Labour</a></li>
                 <?php endif; ?>
 				<?php if(tile_visible($dbc, 'package') == 1): ?>
-                    <li><a href="archived_data.php?archive_type=package">Package</a></li>
+                    <li <?= $_GET['archive_type'] == 'package' ? 'class="active"' : '' ?>><a href="archived_data.php?archive_type=package">Package</a></li>
                 <?php endif; ?>
 				<?php if(tile_visible($dbc, 'products') == 1): ?>
-                    <li><a href="archived_data.php?archive_type=products">Products</a></li>
+                    <li <?= $_GET['archive_type'] == 'products' ? 'class="active"' : '' ?>><a href="archived_data.php?archive_type=products">Products</a></li>
                 <?php endif; ?>
 				<?php if(tile_visible($dbc, 'promotion') == 1): ?>
-                    <li><a href="archived_data.php?archive_type=promotion">Promotion</a></li>
+                    <li <?= $_GET['archive_type'] == 'promotion' ? 'class="active"' : '' ?>><a href="archived_data.php?archive_type=promotion">Promotion</a></li>
                 <?php endif; ?>
 				<?php if(tile_visible($dbc, 'services') == 1): ?>
-                    <li><a href="archived_data.php?archive_type=service">Services</a></li>
+                    <li <?= $_GET['archive_type'] == 'service' ? 'class="active"' : '' ?>><a href="archived_data.php?archive_type=service">Services</a></li>
                 <?php endif; ?>
 				<?php //if(tile_visible($dbc, 'charts') == 1): ?>
-                    <li><a href="archived_data.php?archive_type=charts">Charts</a></li>
+                    <li <?= $_GET['archive_type'] == 'charts' ? 'class="active"' : '' ?>><a href="archived_data.php?archive_type=charts">Charts</a></li>
                 <?php //endif; ?>
 				<?php if(tile_visible($dbc, 'day_program') == 1): ?>
-                    <li><a href="archived_data.php?archive_type=day_program">Day Program</a></li>
+                    <li <?= $_GET['archive_type'] == 'day_program' ? 'class="active"' : '' ?>><a href="archived_data.php?archive_type=day_program">Day Program</a></li>
                 <?php endif; ?>
 				<?php //if(tile_visible($dbc, 'fund_development') == 1): ?>
-                    <li><a href="archived_data.php?archive_type=fund_development">Fund Development</a></li>
+                    <li <?= $_GET['archive_type'] == 'fund_development' ? 'class="active"' : '' ?>><a href="archived_data.php?archive_type=fund_development">Fund Development</a></li>
                 <?php //endif; ?>
 				<?php //if(tile_visible($dbc, 'medication') == 1): ?>
-                    <li><a href="archived_data.php?archive_type=medication">Medication</a></li>
+                    <li <?= $_GET['archive_type'] == 'medication' ? 'class="active"' : '' ?>><a href="archived_data.php?archive_type=medication">Medication</a></li>
                 <?php //endif; ?>
 				<?php //if(tile_visible($dbc, 'individual_support_plan') == 1): ?>
-                    <li><a href="archived_data.php?archive_type=individual_support_plan">Individual Support Plan</a></li>
+                    <li <?= $_GET['archive_type'] == 'individual_support_plan' ? 'class="active"' : '' ?>><a href="archived_data.php?archive_type=individual_support_plan">Individual Support Plan</a></li>
                 <?php //endif; ?>
 				<?php //if(tile_visible($dbc, 'social_story') == 1): ?>
-                    <li><a href="archived_data.php?archive_type=social_story">Social Story</a></li>
+                    <li <?= $_GET['archive_type'] == 'social_story' ? 'class="active"' : '' ?>><a href="archived_data.php?archive_type=social_story">Social Story</a></li>
                 <?php //endif; ?>
-                	<li><a href="archived_data.php?archive_type=preformance_review">Performance Reviews</a></li>
+                	<li <?= $_GET['archive_type'] == 'performance_review' ? 'class="active"' : '' ?>><a href="archived_data.php?archive_type=preformance_review">Performance Reviews</a></li>
 
 				<!-- currently not working -> <li><a href="archived_data.php?archive_type=sales">Sales</a></li> -->
 				<!-- currently not working -> <li><a href="archived_data.php?archive_type=bid">Businesses</a></li> -->
@@ -318,16 +370,20 @@ switch($archive) {
 					<center><input type='text' name='x' class=' form-control live-search-box2' placeholder="Search..." style='max-width:300px; margin-bottom:20px;'></center>
                     <div id="no-more-tables">
                         <?php
-                        $result = mysqli_query($dbc, "SELECT * FROM contacts WHERE category != 'Staff' and deleted = 1 ORDER BY contactid LIMIT $offset, $rowsPerPage");
-                        $query = "SELECT count(*) as numrows FROM contacts WHERE category != 'Staff' and deleted = 1 ORDER BY contactid";
+                        $tile_query = '';
+                        if(!empty($_GET['type'])) {
+                        	$tile_query = " AND `tile_name` = '".$_GET['type']."'";
+                        }
+                        $result = mysqli_query($dbc, "SELECT * FROM contacts WHERE category != 'Staff' and deleted = 1".$tile_query." ORDER BY date_of_archival DESC, contactid ASC LIMIT $offset, $rowsPerPage");
+                        $query = "SELECT count(*) as numrows FROM contacts WHERE category != 'Staff' and deleted = 1".$tile_query." ORDER BY date_of_archival DESC, contactid ASC";
 
                         $num_rows = mysqli_num_rows($result);
                         if($num_rows > 0) {
                         // Added Pagination //
                         echo display_pagination($dbc, $query, $pageNum, $rowsPerPage);
                         // Pagination Finish //
-                        echo "<table border='2' cellpadding='10' class='table'>";
-                        echo "<tr class='dont-hide'>
+                        echo "<table border='2' cellpadding='10' class='table table-striped'>";
+                        echo "<thead><tr class='dont-hide'>
                                 <th>Contact ID</th>
 								<th>Category</th>
                                 <th>Name</th>
@@ -335,7 +391,7 @@ switch($archive) {
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
-						echo "</tr>";
+						echo "</tr></thead>";
                         } else{
                             echo "<h2>No Record Found.</h2>";
                         }
@@ -374,16 +430,16 @@ switch($archive) {
 					<center><input type='text' name='x' class=' form-control live-search-box2' placeholder="Search..." style='max-width:300px; margin-bottom:20px;'></center>
                     <div id="no-more-tables">
                         <?php
-                        $result = mysqli_query($dbc, "SELECT * FROM contacts WHERE category = 'Staff' and deleted = 1 ORDER BY contactid LIMIT $offset, $rowsPerPage");
-                        $query = "SELECT count(*) as numrows FROM contacts WHERE category = 'Staff' and deleted = 1 ORDER BY contactid";
+                        $result = mysqli_query($dbc, "SELECT * FROM contacts WHERE category = 'Staff' and deleted = 1 ORDER BY date_of_archival DESC LIMIT $offset, $rowsPerPage");
+                        $query = "SELECT count(*) as numrows FROM contacts WHERE category = 'Staff' and deleted = 1 ORDER BY date_of_archival DESC";
 
                         $num_rows = mysqli_num_rows($result);
                         if($num_rows > 0) {
                         // Added Pagination //
                         echo display_pagination($dbc, $query, $pageNum, $rowsPerPage);
                         // Pagination Finish //
-                        echo "<table border='2' cellpadding='10' class='table'>";
-                        echo "<tr class='dont-hide'>
+                        echo "<table border='2' cellpadding='10' class='table table-striped'>";
+                        echo "<thead><tr class='dont-hide'>
                                 <th>Contact ID</th>
 								<th>Category</th>
                                 <th>Name</th>
@@ -391,7 +447,7 @@ switch($archive) {
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
-						echo "</tr>";
+						echo "</tr></thead>";
                         } else{
                             echo "<h2>No Record Found.</h2>";
                         }
@@ -431,8 +487,8 @@ switch($archive) {
                 <div id="no-more-tables">
 
                 <?php
-                $query_check_credentials = "SELECT * FROM sales_lead WHERE deleted = 1 LIMIT $offset, $rowsPerPage";
-                $query = "SELECT count(*) as numrows FROM sales_lead WHERE deleted = 1";
+                $query_check_credentials = "SELECT * FROM sales WHERE deleted = 1 ORDER BY date_of_archival DESC LIMIT $offset, $rowsPerPage";
+                $query = "SELECT count(*) as numrows FROM sales WHERE deleted = 1 ORDER BY date_of_archival DESC";
 
                 $result = mysqli_query($dbc, $query_check_credentials);
 
@@ -443,8 +499,8 @@ switch($archive) {
                     echo display_pagination($dbc, $query, $pageNum, $rowsPerPage);
                     // Pagination Finish //
 
-                    echo "<table class='table table-bordered'>";
-                    echo "<tr class='hidden-xs hidden-sm'>
+                    echo "<table class='table table-bordered table-striped'>";
+                    echo "<thead><tr class='hidden-xs hidden-sm'>
                     <th>ID#</th>
                     <th>Business</th>
                     <th>Contact</th>
@@ -456,7 +512,7 @@ switch($archive) {
                     if($edit_access > 0) {
                         echo "<th>Restore</th>";
                     }
-					echo "</tr>";
+					echo "</tr></thead>";
                 } else{
                     echo "<div class='clearfix'><h2>No Record Found.</h2></div>";
                 }
@@ -509,12 +565,16 @@ switch($archive) {
 					<center><input type='text' name='x' class=' form-control live-search-box2' placeholder="Search..." style='max-width:300px; margin-bottom:20px;'></center>
                     <div id="no-more-tables">
                         <?php
-                        $result = mysqli_query($dbc, "SELECT * FROM inventory WHERE deleted = 1");
+                        $result = mysqli_query($dbc, "SELECT * FROM inventory WHERE deleted = 1 ORDER BY date_of_archival DESC LIMIT $offset, $rowsPerPage");
+                        $query = "SELECT COUNT(*) as numrows FROM inventory WHERE deleted = 1 ORDER BY date_of_archival";
 
                         $num_rows = mysqli_num_rows($result);
                         if($num_rows > 0) {
-                        echo "<table border='2' cellpadding='10' class='table'>";
-                        echo "<tr>
+                        // Added Pagination //
+                        echo display_pagination($dbc, $query, $pageNum, $rowsPerPage);
+                        // Pagination Finish //
+                        echo "<table border='2' cellpadding='10' class='table table-striped'>";
+                        echo "<thead><tr>
 								<th>Inventory ID</th>
                                 <th>Category</th>
                                 <th>Name</th>
@@ -522,7 +582,7 @@ switch($archive) {
                         if($edit_access > 0) {
                             echo "<th>Restore</th>";
                         }
-						echo "</tr>";
+						echo "</tr></thead>";
                         } else{
                             echo "<h2>No Record Found.</h2>";
                         }
@@ -541,6 +601,9 @@ switch($archive) {
                         }
 
                         echo '</table>';
+                        // Added Pagination //
+                        echo display_pagination($dbc, $query, $pageNum, $rowsPerPage);
+                        // Pagination Finish //
                         ?>
                     </div>
                 </form>
@@ -553,12 +616,12 @@ switch($archive) {
                 <form name="form_sites" method="post" action="" class="form-inline" role="form">
                     <div id="no-more-tables">
                         <?php
-                        $result = mysqli_query($dbc, "SELECT * FROM equipment WHERE deleted = 1");
+                        $result = mysqli_query($dbc, "SELECT * FROM equipment WHERE deleted = 1 ORDER BY date_of_archival DESC");
 
                         $num_rows = mysqli_num_rows($result);
                         if($num_rows > 0) {
-                        echo "<table border='2' cellpadding='10' class='table'>";
-                        echo "<tr>
+                        echo "<table border='2' cellpadding='10' class='table table-striped'>";
+                        echo "<thead><tr>
                                 <th>Serial Number</th>
                                 <th>Unit Number</th>
                                 <th>Type</th>
@@ -571,7 +634,7 @@ switch($archive) {
                         if($edit_access > 0) {
                             echo "<th>Restore</th>";
                         }
-						echo "</tr>";
+						echo "</tr></thead>";
                         } else{
                             echo "<h2>No Record Found.</h2>";
                         }
@@ -608,12 +671,12 @@ switch($archive) {
                 <form name="form_sites" method="post" action="" class="form-inline" role="form">
                     <div id="no-more-tables">
                         <?php
-                        $result = mysqli_query($dbc, "SELECT b.*, c.customer_name FROM bid_section b, customer c WHERE b.customerid = c.customerid AND b.deleted=1");
+                        $result = mysqli_query($dbc, "SELECT b.*, c.customer_name FROM bid_section b, customer c WHERE b.customerid = c.customerid AND b.deleted=1 ORDER BY date_of_archival DESC");
 
                         $num_rows = mysqli_num_rows($result);
                         if($num_rows > 0) {
-                        echo "<table border='2' cellpadding='10' class='table'>";
-                        echo "<tr>
+                        echo "<table border='2' cellpadding='10' class='table table-striped'>";
+                        echo "<thead><tr>
 								<th>Bid#</th>
 								<th>Client</th>
 								<th>Created Date</th>
@@ -621,7 +684,7 @@ switch($archive) {
                         if($edit_access > 0) {
                             echo "<th>Restore</th>";
                         }
-						echo "</tr>";
+						echo "</tr></thead>";
                         } else{
                             echo "<h2>No Record Found.</h2>";
                         }
@@ -686,7 +749,7 @@ switch($archive) {
 							// Added Pagination //
 							echo display_pagination($dbc, $query, $pageNum, $rowsPerPage);
 							// Pagination Finish //
-							echo "<table border='2' cellpadding='10' class='table'>";
+							echo "<table border='2' cellpadding='10' class='table table-striped'>";
 							echo "<thead><tr class='hidden-xs hidden-sm'>
 								<th>Information</th>
                                 <th>Date of Archival</th>";
@@ -752,7 +815,7 @@ switch($archive) {
 							// Added Pagination //
 							echo display_pagination($dbc, $query, $pageNum, $rowsPerPage);
 							// Pagination Finish //
-							echo "<table border='2' cellpadding='10' class='table'>";
+							echo "<table border='2' cellpadding='10' class='table table-striped'>";
 							echo "<thead><tr class='hidden-xs hidden-sm'>
 								<th>Information</th>
                                 <th>Date of Archival</th>";
@@ -818,7 +881,7 @@ switch($archive) {
 							// Added Pagination //
 							echo display_pagination($dbc, $query, $pageNum, $rowsPerPage);
 							// Pagination Finish //
-							echo "<table border='2' cellpadding='10' class='table'>";
+							echo "<table border='2' cellpadding='10' class='table table-striped'>";
 							echo "<thead><tr class='hidden-xs hidden-sm'>
 								<th>Information</th>
                                 <th>Date of Archival</th>";
@@ -886,7 +949,7 @@ switch($archive) {
 							// Added Pagination //
 							echo display_pagination($dbc, $query, $pageNum, $rowsPerPage);
 							// Pagination Finish //
-							echo "<table border='2' cellpadding='10' class='table'>";
+							echo "<table border='2' cellpadding='10' class='table table-striped'>";
 							echo "<thead><tr class='hidden-xs hidden-sm'>
 								<th>PO Status</th>
 								<th>Information</th>
@@ -957,7 +1020,7 @@ switch($archive) {
 							// Added Pagination //
 							echo display_pagination($dbc, $query, $pageNum, $rowsPerPage);
 							// Pagination Finish //
-							echo "<table border='2' cellpadding='10' class='table'>";
+							echo "<table border='2' cellpadding='10' class='table table-striped'>";
 							echo "<thead><tr class='hidden-xs hidden-sm'>
 								<th>Work Ticket Status</th>
 								<th>Information</th>
@@ -1029,7 +1092,7 @@ switch($archive) {
 							// Added Pagination //
 							echo display_pagination($dbc, $query, $pageNum, $rowsPerPage);
 							// Pagination Finish //
-							echo "<table border='2' cellpadding='10' class='table'>";
+							echo "<table border='2' cellpadding='10' class='table table-striped'>";
 							echo "<thead><tr class='hidden-xs hidden-sm'>
 								<th>Information</th>
                                 <th>Date of Archival</th>";
@@ -1075,8 +1138,8 @@ switch($archive) {
 
                         $num_rows = mysqli_num_rows($result);
                         if($num_rows > 0) {
-                        echo "<table border='2' cellpadding='10' class='table'>";
-                        echo "<tr>
+                        echo "<table border='2' cellpadding='10' class='table table-striped'>";
+                        echo "<thead><tr>
 								<th>Work Order #</th>
 								<th>Business</th>
 								<th>Status</th>
@@ -1084,7 +1147,7 @@ switch($archive) {
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
-						echo "</tr>";
+						echo "</tr></thead>";
                         } else{
                             echo "<h2>No Record Found.</h2>";
                         }
@@ -1115,12 +1178,12 @@ switch($archive) {
                 <form name="form_sites" method="post" action="" class="form-inline" role="form">
                     <div id="no-more-tables">
                         <?php
-                        $result = mysqli_query($dbc, "select * from certificate where deleted=1");
+                        $result = mysqli_query($dbc, "select * from certificate where deleted=1 ORDER BY date_of_archival DESC");
 
                         $num_rows = mysqli_num_rows($result);
                         if($num_rows > 0) {
-                        echo "<table border='2' cellpadding='10' class='table'>";
-                        echo "<tr>
+                        echo "<table border='2' cellpadding='10' class='table table-striped'>";
+                        echo "<thead><tr>
 								<th>Certificate Type</th>
 								<th>Title</th>
 								<th>Name</th>
@@ -1128,7 +1191,7 @@ switch($archive) {
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
-						echo "</tr>";
+						echo "</tr></thead>";
                         } else{
                             echo "<h2>No Record Found.</h2>";
                         }
@@ -1159,12 +1222,12 @@ switch($archive) {
                 <form name="form_sites" method="post" action="" class="form-inline" role="form">
                     <div id="no-more-tables">
                         <?php
-                        $result = mysqli_query($dbc, "select * from how_to_guide where deleted=1");
+                        $result = mysqli_query($dbc, "select * from how_to_guide where deleted=1 ORDER BY date_of_archival DESC");
 
                         $num_rows = mysqli_num_rows($result);
                         if($num_rows > 0) {
-                        echo "<table border='2' cellpadding='10' class='table'>";
-                        echo "<tr>
+                        echo "<table border='2' cellpadding='10' class='table table-striped'>";
+                        echo "<thead><tr>
 								<th>Tile</th>
 								<th>Sub Tab</th>
 								<th>Description</th>
@@ -1172,7 +1235,7 @@ switch($archive) {
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
-						echo "</tr>";
+						echo "</tr></thead>";
                         } else{
                             echo "<h2>No Record Found.</h2>";
                         }
@@ -1203,18 +1266,18 @@ switch($archive) {
                 <form name="form_sites" method="post" action="" class="form-inline" role="form">
                     <div id="no-more-tables">
                         <?php
-                        $result = mysqli_query($dbc, "select * from hr where deleted=1");
+                        $result = mysqli_query($dbc, "select * from hr where deleted=1 ORDER BY date_of_archival DESC");
 
                         $num_rows = mysqli_num_rows($result);
                         if($num_rows > 0) {
-                        echo "<table border='2' cellpadding='10' class='table'>";
-                        echo "<tr>
+                        echo "<table border='2' cellpadding='10' class='table table-striped'>";
+                        echo "<thead><tr>
 								<th>Description</th>
                                 <th>Date of Archival</th>";
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
-						echo "</tr>";
+						echo "</tr></thead>";
                         } else{
                             echo "<h2>No Record Found.</h2>";
                         }
@@ -1244,18 +1307,18 @@ switch($archive) {
                 <form name="form_sites" method="post" action="" class="form-inline" role="form">
                     <div id="no-more-tables">
                         <?php
-                        $result = mysqli_query($dbc, "select * from manuals where deleted=1 and manual_type='emp_handbook'");
+                        $result = mysqli_query($dbc, "select * from manuals where deleted=1 and manual_type='emp_handbook' ORDER BY date_of_archival DESC");
 
                         $num_rows = mysqli_num_rows($result);
                         if($num_rows > 0) {
-                        echo "<table border='2' cellpadding='10' class='table'>";
-                        echo "<tr>
+                        echo "<table border='2' cellpadding='10' class='table table-striped'>";
+                        echo "<thead><tr>
 								<th>Heading</th>
                                 <th>Date of Archival</th>";
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
-						echo "</tr>";
+						echo "</tr></thead>";
                         } else{
                             echo "<h2>No Record Found.</h2>";
                         }
@@ -1285,18 +1348,18 @@ switch($archive) {
                 <form name="form_sites" method="post" action="" class="form-inline" role="form">
                     <div id="no-more-tables">
                         <?php
-                        $result = mysqli_query($dbc, "select * from manuals where deleted=1 and manual_type='operations_manual'");
+                        $result = mysqli_query($dbc, "select * from manuals where deleted=1 and manual_type='operations_manual' ORDER BY date_of_archival DESC");
 
                         $num_rows = mysqli_num_rows($result);
                         if($num_rows > 0) {
-                        echo "<table border='2' cellpadding='10' class='table'>";
-                        echo "<tr>
+                        echo "<table border='2' cellpadding='10' class='table table-striped'>";
+                        echo "<thead><tr>
 								<th>Heading</th>
                                 <th>Date of Archival</th>";
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
-						echo "</tr>";
+						echo "</tr></thead>";
                         } else{
                             echo "<h2>No Record Found.</h2>";
                         }
@@ -1326,18 +1389,18 @@ switch($archive) {
                 <form name="form_sites" method="post" action="" class="form-inline" role="form">
                     <div id="no-more-tables">
                         <?php
-                        $result = mysqli_query($dbc, "select * from manuals where deleted=1 and manual_type='policy_procedures'");
+                        $result = mysqli_query($dbc, "select * from manuals where deleted=1 and manual_type='policy_procedures' ORDER BY date_of_archival DESC");
 
                         $num_rows = mysqli_num_rows($result);
                         if($num_rows > 0) {
-                        echo "<table border='2' cellpadding='10' class='table'>";
-                        echo "<tr>
+                        echo "<table border='2' cellpadding='10' class='table table-striped'>";
+                        echo "<thead><tr>
 								<th>Heading</th>
                                 <th>Date of Archival</th>";
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
-						echo "</tr>";
+						echo "</tr></thead>";
                         } else{
                             echo "<h2>No Record Found.</h2>";
                         }
@@ -1367,12 +1430,12 @@ switch($archive) {
                 <form name="form_sites" method="post" action="" class="form-inline" role="form">
                     <div id="no-more-tables">
                         <?php
-                        $result = mysqli_query($dbc, "select * from checklist where deleted=1");
+                        $result = mysqli_query($dbc, "select * from checklist where deleted=1 ORDER BY date_of_archival DESC");
 
                         $num_rows = mysqli_num_rows($result);
                         if($num_rows > 0) {
-                        echo "<table border='2' cellpadding='10' class='table'>";
-                        echo "<tr>
+                        echo "<table border='2' cellpadding='10' class='table table-striped'>";
+                        echo "<thead><tr>
 								<th>Checklist Name</th>
 								<th>Security</th>
 								<th>Checklist Type</th>
@@ -1380,7 +1443,7 @@ switch($archive) {
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
-						echo "</tr>";
+						echo "</tr></thead>";
                         } else{
                             echo "<h2>No Record Found.</h2>";
                         }
@@ -1412,12 +1475,12 @@ switch($archive) {
                 <form name="form_sites" method="post" action="" class="form-inline" role="form">
                     <div id="no-more-tables">
                         <?php
-                        $result = mysqli_query($dbc, "select * from client_documents where deleted=1");
+                        $result = mysqli_query($dbc, "select * from client_documents where deleted=1 ORDER BY date_of_archival DESC");
 
                         $num_rows = mysqli_num_rows($result);
                         if($num_rows > 0) {
-                        echo "<table border='2' cellpadding='10' class='table'>";
-                        echo "<tr>
+                        echo "<table border='2' cellpadding='10' class='table table-striped'>";
+                        echo "<thead><tr>
 								<th>Client Document Type</th>
 								<th>Category</th>
 								<th>Title</th>
@@ -1426,7 +1489,7 @@ switch($archive) {
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
-						echo "</tr>";
+						echo "</tr></thead>";
                         } else{
                             echo "<h2>No Record Found.</h2>";
                         }
@@ -1459,12 +1522,12 @@ switch($archive) {
                 <form name="form_sites" method="post" action="" class="form-inline" role="form">
                     <div id="no-more-tables">
                         <?php
-                        $result = mysqli_query($dbc, "select * from internal_documents where deleted=1");
+                        $result = mysqli_query($dbc, "select * from internal_documents where deleted=1 ORDER BY date_of_archival DESC");
 
                         $num_rows = mysqli_num_rows($result);
                         if($num_rows > 0) {
-                        echo "<table border='2' cellpadding='10' class='table'>";
-                        echo "<tr>
+                        echo "<table border='2' cellpadding='10' class='table table-striped'>";
+                        echo "<thead><tr>
 								<th>Internal Document Type</th>
 								<th>Category</th>
 								<th>Title</th>
@@ -1473,7 +1536,7 @@ switch($archive) {
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
-						echo "</tr>";
+						echo "</tr></thead>";
                         } else{
                             echo "<h2>No Record Found.</h2>";
                         }
@@ -1506,12 +1569,12 @@ switch($archive) {
                 <form name="form_sites" method="post" action="" class="form-inline" role="form">
                     <div id="no-more-tables">
                         <?php
-                        $result = mysqli_query($dbc, "select * from passwords where deleted=1");
+                        $result = mysqli_query($dbc, "select * from passwords where deleted=1 ORDER BY date_of_archival DESC");
 
                         $num_rows = mysqli_num_rows($result);
                         if($num_rows > 0) {
-                        echo "<table border='2' cellpadding='10' class='table'>";
-                        echo "<tr>
+                        echo "<table border='2' cellpadding='10' class='table table-striped'>";
+                        echo "<thead><tr>
 								<th>Password Type</th>
 								<th>Category</th>
 								<th>Heading</th>
@@ -1520,7 +1583,7 @@ switch($archive) {
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
-						echo "</tr>";
+						echo "</tr></thead>";
                         } else{
                             echo "<h2>No Record Found.</h2>";
                         }
@@ -1553,19 +1616,19 @@ switch($archive) {
                 <form name="form_sites" method="post" action="" class="form-inline" role="form">
                     <div id="no-more-tables">
                         <?php
-                        $result = mysqli_query($dbc, "select * from documents where deleted=1");
+                        $result = mysqli_query($dbc, "select * from documents where deleted=1 ORDER BY date_of_archival DESC");
 
                         $num_rows = mysqli_num_rows($result);
                         if($num_rows > 0) {
-                        echo "<table border='2' cellpadding='10' class='table'>";
-                        echo "<tr>
+                        echo "<table border='2' cellpadding='10' class='table table-striped'>";
+                        echo "<thead><tr>
 								<th>Tile Heading</th>
 								<th>Document</th>
                                 <th>Date of Archival</th>";
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
-						echo "</tr>";
+						echo "</tr></thead>";
                         } else{
                             echo "<h2>No Record Found.</h2>";
                         }
@@ -1596,12 +1659,12 @@ switch($archive) {
                 <form name="form_sites" method="post" action="" class="form-inline" role="form">
                     <div id="no-more-tables">
                         <?php
-                        $result = mysqli_query($dbc, "select * from support where deleted=1");
+                        $result = mysqli_query($dbc, "select * from support where deleted=1 ORDER BY date_of_archival DESC");
 
                         $num_rows = mysqli_num_rows($result);
                         if($num_rows > 0) {
-                        echo "<table border='2' cellpadding='10' class='table'>";
-                        echo "<tr>
+                        echo "<table border='2' cellpadding='10' class='table table-striped'>";
+                        echo "<thead><tr>
 								<th>Type Heading</th>
 								<th>Support Type</th>
 								<th>Client Info</th>
@@ -1609,7 +1672,7 @@ switch($archive) {
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
-						echo "</tr>";
+						echo "</tr></thead>";
                         } else{
                             echo "<h2>No Record Found.</h2>";
                         }
@@ -1643,19 +1706,19 @@ switch($archive) {
                 <form name="form_sites" method="post" action="" class="form-inline" role="form">
                     <div id="no-more-tables">
                         <?php
-                        $result = mysqli_query($dbc, "select * from project_workflow where deleted=1");
+                        $result = mysqli_query($dbc, "select * from project_workflow where deleted=1 ORDER BY date_of_archival DESC");
 
                         $num_rows = mysqli_num_rows($result);
                         if($num_rows > 0) {
-                        echo "<table border='2' cellpadding='10' class='table'>";
-                        echo "<tr>
+                        echo "<table border='2' cellpadding='10' class='table table-striped'>";
+                        echo "<thead><tr>
 								<th>Tile Name</th>
 								<th>Project Path</th>
                                 <th>Date of Archival</th>";
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
-						echo "</tr>";
+						echo "</tr></thead>";
                         } else{
                             echo "<h2>No Record Found.</h2>";
                         }
@@ -1688,12 +1751,12 @@ switch($archive) {
                 <form name="form_sites" method="post" action="" class="form-inline" role="form">
                     <div id="no-more-tables">
                         <?php
-                        $result = mysqli_query($dbc, "select * from asset where deleted=1");
+                        $result = mysqli_query($dbc, "select * from asset where deleted=1 ORDER BY date_of_archival DESC");
 
                         $num_rows = mysqli_num_rows($result);
                         if($num_rows > 0) {
-                        echo "<table border='2' cellpadding='10' class='table'>";
-                        echo "<tr>
+                        echo "<table border='2' cellpadding='10' class='table table-striped'>";
+                        echo "<thead><tr>
 								<th>Category</th>
 								<th>Sub Category</th>
 								<th>Name</th>
@@ -1701,7 +1764,7 @@ switch($archive) {
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
-						echo "</tr>";
+						echo "</tr></thead>";
                         } else{
                             echo "<h2>No Record Found.</h2>";
                         }
@@ -1735,12 +1798,12 @@ switch($archive) {
                 <form name="form_sites" method="post" action="" class="form-inline" role="form">
                     <div id="no-more-tables">
                         <?php
-                        $result = mysqli_query($dbc, "select * from material where deleted=1");
+                        $result = mysqli_query($dbc, "select * from material where deleted=1 ORDER BY date_of_archival DESC");
 
                         $num_rows = mysqli_num_rows($result);
                         if($num_rows > 0) {
-                        echo "<table border='2' cellpadding='10' class='table'>";
-                        echo "<tr>
+                        echo "<table border='2' cellpadding='10' class='table table-striped'>";
+                        echo "<thead><tr>
 								<th>Category</th>
 								<th>Sub Category</th>
 								<th>Name</th>
@@ -1748,7 +1811,7 @@ switch($archive) {
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
-						echo "</tr>";
+						echo "</tr></thead>";
                         } else{
                             echo "<h2>No Record Found.</h2>";
                         }
@@ -1782,12 +1845,12 @@ switch($archive) {
                 <form name="form_sites" method="post" action="" class="form-inline" role="form">
                     <div id="no-more-tables">
                         <?php
-                        $result = mysqli_query($dbc, "select * from safety where deleted=1");
+                        $result = mysqli_query($dbc, "select * from safety where deleted=1 ORDER BY date_of_archival DESC");
 
                         $num_rows = mysqli_num_rows($result);
                         if($num_rows > 0) {
-                        echo "<table border='2' cellpadding='10' class='table'>";
-                        echo "<tr>
+                        echo "<table border='2' cellpadding='10' class='table table-striped'>";
+                        echo "<thead><tr>
 								<th>Tab</th>
 								<th>Category</th>
 								<th>Form</th>
@@ -1797,7 +1860,7 @@ switch($archive) {
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
-						echo "</tr>";
+						echo "</tr></thead>";
                         } else{
                             echo "<h2>No Record Found.</h2>";
                         }
@@ -1834,8 +1897,8 @@ switch($archive) {
                         <?php $pageNum = $_GET['page'] ?: 1;
 						$rowsPerPage = 25;
 						$offset = ($pageNum - 1) * $rowsPerPage;
-                        $result = mysqli_query($dbc, "SELECT * FROM tickets WHERE (deleted=1 OR status='Archive') LIMIT $offset, $rowsPerPage");
-						$page_count = "SELECT COUNT(*) `numrows` FROM `tickets` WHERE (deleted=1 OR status='Archive')";
+                        $result = mysqli_query($dbc, "SELECT * FROM tickets WHERE (deleted=1 OR status='Archive') ORDER BY date_of_archival DESC LIMIT $offset, $rowsPerPage");
+						$page_count = "SELECT COUNT(*) `numrows` FROM `tickets` WHERE (deleted=1 OR status='Archive') ORDER BY date_of_archival DESC";
 
                         $num_rows = mysqli_num_rows($result);
                         if($num_rows > 0) {
@@ -1868,12 +1931,12 @@ switch($archive) {
 															(`deliverable_date`=DATE(NOW()) AND `deliverable_contactid` LIKE '%," . $search_user . ",%') OR
 															((DATE(NOW()) BETWEEN `to_do_date` AND `to_do_end_date`) AND `contactid` LIKE '%," . $search_user . ",%') AND deleted = 1 AND
 															`status` IN('Archived', 'Done')
-														ORDER BY `ticketid`");
+														ORDER BY date_of_archival DESC, `ticketid`");
 
                         $num_rows = mysqli_num_rows($result);
                         if($num_rows > 0) {
-                        echo "<table border='2' cellpadding='10' class='table'>";
-                        echo "<tr>
+                        echo "<table border='2' cellpadding='10' class='table table-striped'>";
+                        echo "<thead><tr>
 								<th>Service Type</th>
 								<th>".TICKET_NOUN." Heading</th>
 								<th>Sub Heading</th>
@@ -1882,7 +1945,7 @@ switch($archive) {
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
-						echo "</tr>";
+						echo "</tr></thead>";
                         } else{
                             echo "<h2>No Record Found.</h2>";
                         }
@@ -1917,12 +1980,12 @@ switch($archive) {
                 <form name="form_sites" method="post" action="" class="form-inline" role="form">
                     <div id="no-more-tables">
                         <?php
-                        $result = mysqli_query($dbc, "select * from time_tracking where deleted=1");
+                        $result = mysqli_query($dbc, "select * from time_tracking where deleted=1 ORDER BY date_of_archival DESC");
 
                         $num_rows = mysqli_num_rows($result);
                         if($num_rows > 0) {
-                        echo "<table border='2' cellpadding='10' class='table'>";
-                        echo "<tr>
+                        echo "<table border='2' cellpadding='10' class='table table-striped'>";
+                        echo "<thead><tr>
 								<th>Location</th>
 								<th>Short Description</th>
 								<th>Work Performed</th>
@@ -1930,7 +1993,7 @@ switch($archive) {
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
-						echo "</tr>";
+						echo "</tr></thead>";
                         } else{
                             echo "<h2>No Record Found.</h2>";
                         }
@@ -1964,19 +2027,19 @@ switch($archive) {
                 <form name="form_sites" method="post" action="" class="form-inline" role="form">
                     <div id="no-more-tables">
                         <?php
-                        $result = mysqli_query($dbc, "select * from estimate where deleted=1");
+                        $result = mysqli_query($dbc, "select * from estimate where deleted=1 ORDER BY date_of_archival DESC");
 
                         $num_rows = mysqli_num_rows($result);
                         if($num_rows > 0) {
-                        echo "<table border='2' cellpadding='10' class='table'>";
-                        echo "<tr>
+                        echo "<table border='2' cellpadding='10' class='table table-striped'>";
+                        echo "<thead><tr>
 								<th>Business</th>
 								<th>".ESTIMATE_TILE." Name</th>
                                 <th>Date of Archival</th>";
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
-						echo "</tr>";
+						echo "</tr></thead>";
                         } else{
                             echo "<h2>No Record Found.</h2>";
                         }
@@ -2009,19 +2072,19 @@ switch($archive) {
                 <form name="form_sites" method="post" action="" class="form-inline" role="form">
                     <div id="no-more-tables">
                         <?php
-                        $result = mysqli_query($dbc, "SELECT r.*, c.name FROM estimate r, contacts c WHERE r.businessid = c.contactid AND (r.deleted = 1 OR r.status='Delete') AND (r.status!='Saved' AND r.status!='Submitted' AND r.status!='Approved Quote') ORDER BY estimateid DESC");
+                        $result = mysqli_query($dbc, "SELECT r.*, c.name FROM estimate r, contacts c WHERE r.businessid = c.contactid AND (r.deleted = 1 OR r.status='Delete') AND (r.status!='Saved' AND r.status!='Submitted' AND r.status!='Approved Quote') ORDER BY date_of_archival DESC, estimateid DESC");
 
                         $num_rows = mysqli_num_rows($result);
                         if($num_rows > 0) {
-                        echo "<table border='2' cellpadding='10' class='table'>";
-                        echo "<tr>
+                        echo "<table border='2' cellpadding='10' class='table table-striped'>";
+                        echo "<thead><tr>
 								<th>Quote Name</th>
 								<th>Total Cost</th>
                                 <th>Date of Archival</th>";
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
-						echo "</tr>";
+						echo "</tr></thead>";
                         } else{
                             echo "<h2>No Record Found.</h2>";
                         }
@@ -2054,12 +2117,12 @@ switch($archive) {
                 <form name="form_sites" method="post" action="" class="form-inline" role="form">
                     <div id="no-more-tables">
                         <?php
-                        $result = mysqli_query($dbc, "SELECT * from email_communication where deleted = 1");
+                        $result = mysqli_query($dbc, "SELECT * from email_communication where deleted = 1 ORDER BY date_of_archival DESC");
 
                         $num_rows = mysqli_num_rows($result);
                         if($num_rows > 0) {
-                        echo "<table border='2' cellpadding='10' class='table'>";
-                        echo "<tr>
+                        echo "<table border='2' cellpadding='10' class='table table-striped'>";
+                        echo "<thead><tr>
 								<th>Communication Id</th>
 								<th>Subject</th>
 								<th>Status</th>
@@ -2067,7 +2130,7 @@ switch($archive) {
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
-						echo "</tr>";
+						echo "</tr></thead>";
                         } else{
                             echo "<h2>No Record Found.</h2>";
                         }
@@ -2101,12 +2164,12 @@ switch($archive) {
                 <form name="form_sites" method="post" action="" class="form-inline" role="form">
                     <div id="no-more-tables">
                         <?php
-                        $result = mysqli_query($dbc, "SELECT * from newsboard where deleted = 1");
+                        $result = mysqli_query($dbc, "SELECT * from newsboard where deleted = 1 ORDER BY date_of_archival DESC");
 
                         $num_rows = mysqli_num_rows($result);
                         if($num_rows > 0) {
-                        echo "<table border='2' cellpadding='10' class='table'>";
-                        echo "<tr>
+                        echo "<table border='2' cellpadding='10' class='table table-striped'>";
+                        echo "<thead><tr>
 								<th>Title</th>
 								<th>Description</th>
 								<th>Newsboard Type</th>
@@ -2114,7 +2177,7 @@ switch($archive) {
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
-						echo "</tr>";
+						echo "</tr></thead>";
                         } else{
                             echo "<h2>No Record Found.</h2>";
                         }
@@ -2228,8 +2291,8 @@ switch($archive) {
                             if($search_user == '' && $search_invoiceid == '' && $search_date == '') {
                                 echo display_pagination($dbc, $query, $pageNum, $rowsPerPage);
                             }
-                            echo "<table border='2' cellpadding='10' class='table'>";
-                            echo "<tr>";
+                            echo "<table border='2' cellpadding='10' class='table table-striped'>";
+                            echo "<thead><tr>";
                             echo "<th>Invoice#</th>
                             <th>Invoice Date</th>
                             <th>Patient</th>
@@ -2334,12 +2397,12 @@ switch($archive) {
                 <form name="form_sites" method="post" action="" class="form-inline" role="form">
                     <div id="no-more-tables">
                         <?php
-                        $result = mysqli_query($dbc, "SELECT * FROM match_contact WHERE deleted = 1");
+                        $result = mysqli_query($dbc, "SELECT * FROM match_contact WHERE deleted = 1 ORDER BY date_of_archival DESC");
 
                         $num_rows = mysqli_num_rows($result);
                         if($num_rows > 0) {
-                        echo "<table border='2' cellpadding='10' class='table'>";
-                        echo "<tr>
+                        echo "<table border='2' cellpadding='10' class='table table-striped'>";
+                        echo "<thead><tr>
                                 <th>Staff</th>
                                 <th>Contacts</th>
                                 <th>Timeline</th>
@@ -2349,7 +2412,7 @@ switch($archive) {
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
-						echo "</tr>";
+						echo "</tr></thead>";
                         } else{
                             echo "<h2>No Record Found.</h2>";
                         }
@@ -2403,12 +2466,12 @@ switch($archive) {
                 <form name="form_sites" method="post" action="" class="form-inline" role="form">
                     <div id="no-more-tables">
                         <?php
-                        $result = mysqli_query($dbc, "SELECT * FROM expense WHERE deleted = 1");
+                        $result = mysqli_query($dbc, "SELECT * FROM expense WHERE deleted = 1 ORDER BY date_of_archival DESC");
 
                         $num_rows = mysqli_num_rows($result);
                         if($num_rows > 0) {
-                        echo "<table border='2' cellpadding='10' class='table'>";
-                        echo "<tr>
+                        echo "<table border='2' cellpadding='10' class='table table-striped'>";
+                        echo "<thead><tr>
                                 <th>Heading</th>
                                 <th>Expense Date</th>
                                 <th>Description</th>
@@ -2418,7 +2481,7 @@ switch($archive) {
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
-						echo "</tr>";
+						echo "</tr></thead>";
                         } else{
                             echo "<h2>No Record Found.</h2>";
                         }
@@ -2454,12 +2517,12 @@ switch($archive) {
                 <form name="form_sites" method="post" action="" class="form-inline" role="form">
                     <div id="no-more-tables">
                         <?php
-                        $result = mysqli_query($dbc, "SELECT * FROM point_of_sell WHERE deleted = 1");
+                        $result = mysqli_query($dbc, "SELECT * FROM point_of_sell WHERE deleted = 1 ORDER BY date_of_archival DESC");
 
                         $num_rows = mysqli_num_rows($result);
                         if($num_rows > 0) {
-                        echo "<table border='2' cellpadding='10' class='table'>";
-                        echo "<tr>
+                        echo "<table border='2' cellpadding='10' class='table table-striped'>";
+                        echo "<thead><tr>
                                 <th>Invoice Date</th>
                                 <th>Invoice Name</th>
                                 <th>Total Amount</th>
@@ -2468,7 +2531,7 @@ switch($archive) {
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
-						echo "</tr>";
+						echo "</tr></thead>";
                         } else{
                             echo "<h2>No Record Found.</h2>";
                         }
@@ -2503,12 +2566,12 @@ switch($archive) {
                 <form name="form_sites" method="post" action="" class="form-inline" role="form">
                     <div id="no-more-tables">
                         <?php
-                        $result = mysqli_query($dbc, "SELECT * FROM sales_order WHERE deleted = 1");
+                        $result = mysqli_query($dbc, "SELECT * FROM sales_order WHERE deleted = 1 ORDER BY date_of_archival DESC");
 
                         $num_rows = mysqli_num_rows($result);
                         if($num_rows > 0) {
-                        echo "<table border='2' cellpadding='10' class='table'>";
-                        echo "<tr>
+                        echo "<table border='2' cellpadding='10' class='table table-striped'>";
+                        echo "<thead><tr>
                                 <th>Invoice Date</th>
                                 <th>Invoice Name</th>
                                 <th>Total Amount</th>
@@ -2517,7 +2580,7 @@ switch($archive) {
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
-						echo "</tr>";
+						echo "</tr></thead>";
                         } else{
                             echo "<h2>No Record Found.</h2>";
                         }
@@ -2552,12 +2615,12 @@ switch($archive) {
                 <form name="form_sites" method="post" action="" class="form-inline" role="form">
                     <div id="no-more-tables">
                         <?php
-                        $result = mysqli_query($dbc, "SELECT * FROM purchase_orders WHERE deleted = 1");
+                        $result = mysqli_query($dbc, "SELECT * FROM purchase_orders WHERE deleted = 1 ORDER BY date_of_archival DESC");
 
                         $num_rows = mysqli_num_rows($result);
                         if($num_rows > 0) {
-                        echo "<table border='2' cellpadding='10' class='table'>";
-                        echo "<tr>
+                        echo "<table border='2' cellpadding='10' class='table table-striped'>";
+                        echo "<thead><tr>
                                 <th>Invoice Date</th>
                                 <th>Invoice Name</th>
                                 <th>Total Amount</th>
@@ -2566,7 +2629,7 @@ switch($archive) {
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
-						echo "</tr>";
+						echo "</tr></thead>";
                         } else{
                             echo "<h2>No Record Found.</h2>";
                         }
@@ -2601,12 +2664,12 @@ switch($archive) {
                 <form name="form_sites" method="post" action="" class="form-inline" role="form">
                     <div id="no-more-tables">
                         <?php
-                        $result = mysqli_query($dbc, "SELECT * FROM vendor_price_list WHERE deleted = 1");
+                        $result = mysqli_query($dbc, "SELECT * FROM vendor_price_list WHERE deleted = 1 ORDER BY date_of_archival DESC");
 
                         $num_rows = mysqli_num_rows($result);
                         if($num_rows > 0) {
-                        echo "<table border='2' cellpadding='10' class='table'>";
-                        echo "<tr>
+                        echo "<table border='2' cellpadding='10' class='table table-striped'>";
+                        echo "<thead><tr>
                                 <th>Code</th>
                                 <th>Part Number</th>
                                 <th>Category</th>
@@ -2614,7 +2677,7 @@ switch($archive) {
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
-						echo "</tr>";
+						echo "</tr></thead>";
                         } else{
                             echo "<h2>No Record Found.</h2>";
                         }
@@ -2648,12 +2711,12 @@ switch($archive) {
                 <form name="form_sites" method="post" action="" class="form-inline" role="form">
                     <div id="no-more-tables">
                         <?php
-                        $result = mysqli_query($dbc, "SELECT * FROM budget WHERE status = 3");
+                        $result = mysqli_query($dbc, "SELECT * FROM budget WHERE status = 3 ORDER BY date_of_archival DESC");
 
                         $num_rows = mysqli_num_rows($result);
                         if($num_rows > 0) {
-                        echo "<table border='2' cellpadding='10' class='table'>";
-                        echo "<tr>
+                        echo "<table border='2' cellpadding='10' class='table table-striped'>";
+                        echo "<thead><tr>
                                 <th>Budget Name</th>
                                 <th>Staff Lead</th>
                                 <th>Business</th>
@@ -2662,7 +2725,7 @@ switch($archive) {
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
-						echo "</tr>";
+						echo "</tr></thead>";
                         } else{
                             echo "<h2>No Record Found.</h2>";
                         }
@@ -2697,12 +2760,12 @@ switch($archive) {
                 <form name="form_sites" method="post" action="" class="form-inline" role="form">
                     <div id="no-more-tables">
                         <?php
-                        $result = mysqli_query($dbc, "SELECT * FROM infogathering WHERE deleted = 1");
+                        $result = mysqli_query($dbc, "SELECT * FROM infogathering WHERE deleted = 1 ORDER BY date_of_archival DESC");
 
                         $num_rows = mysqli_num_rows($result);
                         if($num_rows > 0) {
-                        echo "<table border='2' cellpadding='10' class='table'>";
-                        echo "<tr>
+                        echo "<table border='2' cellpadding='10' class='table table-striped'>";
+                        echo "<thead><tr>
                                 <th>Title</th>
 								<th>Category</th>
                                 <th>Revised Date</th>
@@ -2710,7 +2773,7 @@ switch($archive) {
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
-						echo "</tr>";
+						echo "</tr></thead>";
                         } else{
                             echo "<h2>No Record Found.</h2>";
                         }
@@ -2744,12 +2807,12 @@ switch($archive) {
                 <form name="form_sites" method="post" action="" class="form-inline" role="form">
                     <div id="no-more-tables">
                         <?php
-                        $result = mysqli_query($dbc, "SELECT * FROM marketing_material WHERE deleted = 1");
+                        $result = mysqli_query($dbc, "SELECT * FROM marketing_material WHERE deleted = 1 ORDER BY date_of_archival DESC");
 
                         $num_rows = mysqli_num_rows($result);
                         if($num_rows > 0) {
-                        echo "<table border='2' cellpadding='10' class='table'>";
-                        echo "<tr>
+                        echo "<table border='2' cellpadding='10' class='table table-striped'>";
+                        echo "<thead><tr>
                                 <th>Title</th>
 								<th>Category</th>
                                 <th>Description</th>
@@ -2758,7 +2821,7 @@ switch($archive) {
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
-						echo "</tr>";
+						echo "</tr></thead>";
                         } else{
                             echo "<h2>No Record Found.</h2>";
                         }
@@ -2793,12 +2856,12 @@ switch($archive) {
                 <form name="form_sites" method="post" action="" class="form-inline" role="form">
                     <div id="no-more-tables">
                         <?php
-                        $result = mysqli_query($dbc, "select * from staff_documents where deleted=1");
+                        $result = mysqli_query($dbc, "select * from staff_documents where deleted=1 ORDER BY date_of_archival DESC");
 
                         $num_rows = mysqli_num_rows($result);
                         if($num_rows > 0) {
-                        echo "<table border='2' cellpadding='10' class='table'>";
-                        echo "<tr>
+                        echo "<table border='2' cellpadding='10' class='table table-striped'>";
+                        echo "<thead><tr>
                                 <th>Staff Document Type</th>
                                 <th>Category</th>
                                 <th>Title</th>
@@ -2839,12 +2902,12 @@ switch($archive) {
                 <form name="form_sites" method="post" action="" class="form-inline" role="form">
                     <div id="no-more-tables">
                         <?php
-                        $result = mysqli_query($dbc, "select * from patientform where deleted=1");
+                        $result = mysqli_query($dbc, "select * from patientform where deleted=1 ORDER BY date_of_archival DESC");
 
                         $num_rows = mysqli_num_rows($result);
                         if($num_rows > 0) {
-                        echo "<table border='2' cellpadding='10' class='table'>";
-                        echo "<tr>
+                        echo "<table border='2' cellpadding='10' class='table table-striped'>";
+                        echo "<thead><tr>
                                 <th>Form</th>
                                 <th>Category</th>
                                 <th>Heading</th>
@@ -2852,7 +2915,7 @@ switch($archive) {
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
-						echo "</tr>";
+						echo "</tr></thead>";
                         } else{
                             echo "<h2>No Record Found.</h2>";
                         }
@@ -2883,12 +2946,12 @@ switch($archive) {
                 <form name="form_sites" method="post" action="" class="form-inline" role="form">
                     <div id="no-more-tables">
                         <?php
-                        $result = mysqli_query($dbc, "select * from reminders where deleted=1");
+                        $result = mysqli_query($dbc, "select * from reminders where deleted=1 ORDER BY date_of_archival DESC");
 
                         $num_rows = mysqli_num_rows($result);
                         if($num_rows > 0) {
-                        echo "<table border='2' cellpadding='10' class='table'>";
-                        echo "<tr>
+                        echo "<table border='2' cellpadding='10' class='table table-striped'>";
+                        echo "<thead><tr>
                                 <th>Reminder Type</th>
                                 <th>Reminder By</th>
                                 <th>Subject</th>
@@ -2897,7 +2960,7 @@ switch($archive) {
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
-						echo "</tr>";
+						echo "</tr></thead>";
                         } else{
                             echo "<h2>No Record Found.</h2>";
                         }
@@ -2929,12 +2992,12 @@ switch($archive) {
                 <form name="form_sites" method="post" action="" class="form-inline" role="form">
                     <div id="no-more-tables">
                         <?php
-                        $result = mysqli_query($dbc, "select * from custom where deleted=1");
+                        $result = mysqli_query($dbc, "select * from custom where deleted=1 ORDER BY date_of_archival DESC");
 
                         $num_rows = mysqli_num_rows($result);
                         if($num_rows > 0) {
-                        echo "<table border='2' cellpadding='10' class='table'>";
-                        echo "<tr>
+                        echo "<table border='2' cellpadding='10' class='table table-striped'>";
+                        echo "<thead><tr>
                                 <th>Service Type</th>
                                 <th>Category</th>
                                 <th>Heading</th>
@@ -2942,7 +3005,7 @@ switch($archive) {
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
-						echo "</tr>";
+						echo "</tr></thead>";
                         } else{
                             echo "<h2>No Record Found.</h2>";
                         }
@@ -2973,12 +3036,12 @@ switch($archive) {
                 <form name="form_sites" method="post" action="" class="form-inline" role="form">
                     <div id="no-more-tables">
                         <?php
-                        $result = mysqli_query($dbc, "select * from labour where deleted=1");
+                        $result = mysqli_query($dbc, "select * from labour where deleted=1 ORDER BY date_of_archival DESC");
 
                         $num_rows = mysqli_num_rows($result);
                         if($num_rows > 0) {
-                        echo "<table border='2' cellpadding='10' class='table'>";
-                        echo "<tr>
+                        echo "<table border='2' cellpadding='10' class='table table-striped'>";
+                        echo "<thead><tr>
                                 <th>Labour Type</th>
                                 <th>Heading</th>
                                 <th>Cost</th>
@@ -2986,7 +3049,7 @@ switch($archive) {
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
-						echo "</tr>";
+						echo "</tr></thead>";
                         } else{
                             echo "<h2>No Record Found.</h2>";
                         }
@@ -3017,12 +3080,12 @@ switch($archive) {
                 <form name="form_sites" method="post" action="" class="form-inline" role="form">
                     <div id="no-more-tables">
                         <?php
-                        $result = mysqli_query($dbc, "select * from package where deleted=1");
+                        $result = mysqli_query($dbc, "select * from package where deleted=1 ORDER BY date_of_archival DESC");
 
                         $num_rows = mysqli_num_rows($result);
                         if($num_rows > 0) {
-                        echo "<table border='2' cellpadding='10' class='table'>";
-                        echo "<tr>
+                        echo "<table border='2' cellpadding='10' class='table table-striped'>";
+                        echo "<thead><tr>
                                 <th>Service Type</th>
                                 <th>Category</th>
                                 <th>Headig</th>
@@ -3030,7 +3093,7 @@ switch($archive) {
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
-						echo "</tr>";
+						echo "</tr></thead>";
                         } else{
                             echo "<h2>No Record Found.</h2>";
                         }
@@ -3061,12 +3124,12 @@ switch($archive) {
                 <form name="form_sites" method="post" action="" class="form-inline" role="form">
                     <div id="no-more-tables">
                         <?php
-                        $result = mysqli_query($dbc, "select * from products where deleted=1");
+                        $result = mysqli_query($dbc, "select * from products where deleted=1 ORDER BY date_of_archival DESC");
 
                         $num_rows = mysqli_num_rows($result);
                         if($num_rows > 0) {
-                        echo "<table border='2' cellpadding='10' class='table'>";
-                        echo "<tr>
+                        echo "<table border='2' cellpadding='10' class='table table-striped'>";
+                        echo "<thead><tr>
                                 <th>Product Type</th>
                                 <th>Category</th>
                                 <th>Headig</th>
@@ -3074,7 +3137,7 @@ switch($archive) {
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
-						echo "</tr>";
+						echo "</tr></thead>";
                         } else{
                             echo "<h2>No Record Found.</h2>";
                         }
@@ -3105,12 +3168,12 @@ switch($archive) {
                 <form name="form_sites" method="post" action="" class="form-inline" role="form">
                     <div id="no-more-tables">
                         <?php
-                        $result = mysqli_query($dbc, "select * from promotion where deleted=1");
+                        $result = mysqli_query($dbc, "select * from promotion where deleted=1 ORDER BY date_of_archival DESC");
 
                         $num_rows = mysqli_num_rows($result);
                         if($num_rows > 0) {
-                        echo "<table border='2' cellpadding='10' class='table'>";
-                        echo "<tr>
+                        echo "<table border='2' cellpadding='10' class='table table-striped'>";
+                        echo "<thead><tr>
                                 <th>Service Type</th>
                                 <th>Category</th>
                                 <th>Headig</th>
@@ -3118,7 +3181,7 @@ switch($archive) {
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
-						echo "</tr>";
+						echo "</tr></thead>";
                         } else{
                             echo "<h2>No Record Found.</h2>";
                         }
@@ -3149,12 +3212,12 @@ switch($archive) {
                 <form name="form_sites" method="post" action="" class="form-inline" role="form">
                     <div id="no-more-tables">
                         <?php
-                        $result = mysqli_query($dbc, "select * from services where deleted=1");
+                        $result = mysqli_query($dbc, "select * from services where deleted=1 ORDER BY date_of_archival DESC");
 
                         $num_rows = mysqli_num_rows($result);
                         if($num_rows > 0) {
-                        echo "<table border='2' cellpadding='10' class='table'>";
-                        echo "<tr>
+                        echo "<table border='2' cellpadding='10' class='table table-striped'>";
+                        echo "<thead><tr>
                                 <th>Service Type</th>
                                 <th>Category</th>
                                 <th>Headig</th>
@@ -3162,7 +3225,7 @@ switch($archive) {
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
-						echo "</tr>";
+						echo "</tr></thead>";
                         } else{
                             echo "<h2>No Record Found.</h2>";
                         }
@@ -3194,26 +3257,26 @@ switch($archive) {
                     <div id="no-more-tables">
                         <?php
 						$num_rows = 0;
-                        $result1 = mysqli_query($dbc, "select * from seizure_record where deleted=1");
+                        $result1 = mysqli_query($dbc, "select * from seizure_record where deleted=1 ORDER BY date_of_archival DESC");
                         $num_rows += mysqli_num_rows($result1);
-						$result2 = mysqli_query($dbc, "select * from blood_glucose where deleted=1");
+						$result2 = mysqli_query($dbc, "select * from blood_glucose where deleted=1 ORDER BY date_of_archival DESC");
                         $num_rows += mysqli_num_rows($result2);
-						$result3 = mysqli_query($dbc, "select * from bowel_movement where deleted=1");
+						$result3 = mysqli_query($dbc, "select * from bowel_movement where deleted=1 ORDER BY date_of_archival DESC");
                         $num_rows += mysqli_num_rows($result3);
-						$result4 = mysqli_query($dbc, "select * from daily_water_temp where deleted=1");
+						$result4 = mysqli_query($dbc, "select * from daily_water_temp where deleted=1 ORDER BY date_of_archival DESC");
                         $num_rows += mysqli_num_rows($result4);
-                        $result5 = mysqli_query($dbc, "select * from daily_water_temp_bus where deleted=1");
+                        $result5 = mysqli_query($dbc, "select * from daily_water_temp_bus where deleted=1 ORDER BY date_of_archival DESC");
                         $num_rows += mysqli_num_rows($result5);
-                        $result6 = mysqli_query($dbc, "select * from daily_fridge_temp where deleted=1");
+                        $result6 = mysqli_query($dbc, "select * from daily_fridge_temp where deleted=1 ORDER BY date_of_archival DESC");
                         $num_rows += mysqli_num_rows($result6);
-                        $result7 = mysqli_query($dbc, "select * from daily_freezer_temp where deleted=1");
+                        $result7 = mysqli_query($dbc, "select * from daily_freezer_temp where deleted=1 ORDER BY date_of_archival DESC");
                         $num_rows += mysqli_num_rows($result7);
-                        $result8 = mysqli_query($dbc, "select * from daily_dishwasher_temp where deleted=1");
+                        $result8 = mysqli_query($dbc, "select * from daily_dishwasher_temp where deleted=1 ORDER BY date_of_archival DESC");
                         $num_rows += mysqli_num_rows($result8);
 
                         if($num_rows > 0) {
-                        echo "<table border='2' cellpadding='10' class='table'>";
-                        echo "<tr>
+                        echo "<table border='2' cellpadding='10' class='table table-striped'>";
+                        echo "<thead><tr>
                                 <th>Chart Type</th>
                                 <th>Client/Business</th>
                                 <th>Time</th>
@@ -3221,7 +3284,7 @@ switch($archive) {
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
-						echo "</tr>";
+						echo "</tr></thead>";
                         } else{
                             echo "<h2>No Record Found.</h2>";
                         }
@@ -3340,8 +3403,8 @@ switch($archive) {
 
                         $num_rows = mysqli_num_rows($result);
                         if($num_rows > 0) {
-                        echo "<table border='2' cellpadding='10' class='table'>";
-                        echo "<tr>
+                        echo "<table border='2' cellpadding='10' class='table table-striped'>";
+                        echo "<thead><tr>
                                 <th>Support Contact Category</th>
                                 <th>Category</th>
                                 <th>Planned Activity</th>
@@ -3349,7 +3412,7 @@ switch($archive) {
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
-						echo "</tr>";
+						echo "</tr></thead>";
                         } else{
                             echo "<h2>No Record Found.</h2>";
                         }
@@ -3381,12 +3444,12 @@ switch($archive) {
                     <div id="no-more-tables">
                         <?php
 						$num_rows = 0;
-                        $result1 = mysqli_query($dbc, "select * from fund_development_funding where deleted=1");
+                        $result1 = mysqli_query($dbc, "select * from fund_development_funding where deleted=1 ORDER BY date_of_archival DESC");
 						$num_rows += mysqli_num_rows($result1);
 
                         if($num_rows > 0) {
-                            echo "<table border='2' cellpadding='10' class='table'>";
-                            echo "<tr>
+                            echo "<table border='2' cellpadding='10' class='table table-striped'>";
+                            echo "<thead><tr>
                                     <th>Type</th>
                                     <th>Funding For</th>
                                     <th>Staff</th>
@@ -3418,8 +3481,8 @@ switch($archive) {
 						$result2 = mysqli_query($dbc, "select * from fund_development_funder where deleted=1");
 						$num_rows2 += mysqli_num_rows($result2);
 						if($num_rows2 > 0) {
-                            echo "<table border='2' cellpadding='10' class='table'>";
-                            echo "<tr>
+                            echo "<table border='2' cellpadding='10' class='table table-striped'>";
+                            echo "<thead><tr>
                                     <th>Type</th>
                                     <th>Funding For</th>
                                     <th>First Name</th>
@@ -3470,8 +3533,8 @@ switch($archive) {
 
                         $num_rows = mysqli_num_rows($result);
                         if($num_rows > 0) {
-                        echo "<table border='2' cellpadding='10' class='table'>";
-                        echo "<tr>
+                        echo "<table border='2' cellpadding='10' class='table table-striped'>";
+                        echo "<thead><tr>
                                 <th>Contact</th>
                                 <th>Category</th>
                                 <th>Heading</th>
@@ -3481,7 +3544,7 @@ switch($archive) {
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
-						echo "</tr>";
+						echo "</tr></thead>";
                         } else{
                             echo "<h2>No Record Found.</h2>";
                         }
@@ -3514,19 +3577,19 @@ switch($archive) {
                 <form name="form_sites" method="post" action="" class="form-inline" role="form">
                     <div id="no-more-tables">
                         <?php
-                        $result = mysqli_query($dbc, "select * from individual_support_plan where deleted=1");
+                        $result = mysqli_query($dbc, "select * from individual_support_plan where deleted=1 ORDER BY date_of_archival DESC");
 
                         $num_rows = mysqli_num_rows($result);
                         if($num_rows > 0) {
-                        echo "<table border='2' cellpadding='10' class='table'>";
-                        echo "<tr>
+                        echo "<table border='2' cellpadding='10' class='table table-striped'>";
+                        echo "<thead><tr>
                                 <th>Category</th>
                                 <th>Support Contact</th>
                                 <th>Date of Archival</th>";
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
-						echo "</tr>";
+						echo "</tr></thead>";
                         } else{
                             echo "<h2>No Record Found.</h2>";
                         }
@@ -3556,19 +3619,19 @@ switch($archive) {
                 <form name="form_sites" method="post" action="" class="form-inline" role="form">
                     <div id="no-more-tables">
                         <?php
-                        $result = mysqli_query($dbc, "select * from key_methodologies where deleted=1");
+                        $result = mysqli_query($dbc, "select * from key_methodologies where deleted=1 ORDER BY date_of_archival DESC");
 
                         $num_rows = mysqli_num_rows($result);
                         if($num_rows > 0) {
-                        echo "<table border='2' cellpadding='10' class='table'>";
-                        echo "<tr>
+                        echo "<table border='2' cellpadding='10' class='table table-striped'>";
+                        echo "<thead><tr>
                                 <th>Contact Category</th>
                                 <th>Contact</th>
                                 <th>Date of Archival</th>";
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
-						echo "</tr>";
+						echo "</tr></thead>";
                         } else{
                             echo "<h2>No Record Found.</h2>";
                         }
@@ -3598,12 +3661,12 @@ switch($archive) {
                 <form name="form_sites" method="post" action="" class="form-inline" role="form">
                     <div id="no-more-tables">
                         <?php
-                        $result = mysqli_query($dbc, "select * from performance_review where deleted=1");
+                        $result = mysqli_query($dbc, "select * from performance_review where deleted=1 ORDER BY date_of_archival DESC");
 
                         $num_rows = mysqli_num_rows($result);
                         if($num_rows > 0) {
-                        echo "<table border='2' cellpadding='10' class='table'>";
-                        echo "<tr>
+                        echo "<table border='2' cellpadding='10' class='table table-striped'>";
+                        echo "<thead><tr>
                                 <th>Staff</th>
                                 <th>Position</th>
                                 <th>Date Created</th>
@@ -3611,7 +3674,7 @@ switch($archive) {
                         if($edit_access > 0) {
                             echo "<th>Restore / Delete</th>";
                         }
-						echo "</tr>";
+						echo "</tr></thead>";
                         } else{
                             echo "<h2>No Record Found.</h2>";
                         }
@@ -3642,23 +3705,23 @@ switch($archive) {
 </div>
 
 <script>
-	$('#myTab a').click(function (e) {
-	  e.preventDefault()
-	  $(this).tab('show')
-	})
+	// $('#myTab a').click(function (e) {
+	//   e.preventDefault()
+	//   $(this).tab('show')
+	// })
 
-    $('#myTab a').on('shown.bs.tab', function(e){
-      //save the latest tab using a cookie:
-      $.cookie('last_tab', $(e.target).attr('href'));
-    });
+ //    $('#myTab a').on('shown.bs.tab', function(e){
+ //      //save the latest tab using a cookie:
+ //      $.cookie('last_tab', $(e.target).attr('href'));
+ //    });
 
-    //activate latest tab, if it exists:
-    var lastTab = $.cookie('last_tab');
-    if (lastTab) {
-        $('ul.nav-pills').children().removeClass('active');
-        $('a[href='+ lastTab +']').parents('li:first').addClass('active');
-        $('div.tab-content').children().removeClass('active');
-        $(lastTab).addClass('active');
-    }
+ //    //activate latest tab, if it exists:
+ //    var lastTab = $.cookie('last_tab');
+ //    if (lastTab) {
+ //        $('ul.nav-pills').children().removeClass('active');
+ //        $('a[href='+ lastTab +']').parents('li:first').addClass('active');
+ //        $('div.tab-content').children().removeClass('active');
+ //        $(lastTab).addClass('active');
+ //    }
 </script>
 <?php include ('../footer.php'); ?>

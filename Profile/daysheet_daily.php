@@ -23,13 +23,13 @@ if(strtotime($daily_date.' 23:59:59') < time() && get_config($dbc, 'timesheet_hi
 $combine_category = get_config($dbc, 'daysheet_ticket_combine_contact_type');
 $warehouse_query = '';
 if(in_array('Combine Warehouse Stops',$daysheet_ticket_fields)) {
-    $warehouse_query = " AND IFNULL(NULLIF(CONCAT(IFNULL(`ticket_schedule`.`address`,''),IFNULL(`ticket_schedule`.`city`,'')),''),CONCAT(IFNULL(`tickets`.`address`,''),IFNULL(`tickets`.`city`,''))) NOT IN (SELECT CONCAT(IFNULL(`address`,''),IFNULL(`city`,'')) FROM `contacts` WHERE `category`='Warehouses')";
+    $warehouse_query = " AND REPLACE(REPLACE(IFNULL(NULLIF(CONCAT(IFNULL(`ticket_schedule`.`address`,''),IFNULL(`ticket_schedule`.`city`,'')),''),CONCAT(IFNULL(`tickets`.`address`,''),IFNULL(`tickets`.`city`,''))),' ',''),'-','') NOT IN (SELECT REPLACE(REPLACE(CONCAT(IFNULL(`address`,''),IFNULL(`city`,'')),' ',''),'-','') FROM `contacts` WHERE `category`='Warehouses')";
 }
 $pickup_query = '';
 if(in_array('Combine Pick Up Stops',$daysheet_ticket_fields)) {
-    $pickup_query = " AND `ticket_schedule`.`type` != 'Pick Up'";
+    $pickup_query = " AND IFNULL(`ticket_schedule`.`type`,'') != 'Pick Up'";
 }
-$tickets_query = "SELECT `tickets`.*, IF(`ticket_schedule`.`id` IS NULL,'ticket','ticket_schedule') `ticket_table`, IFNULL(`ticket_schedule`.`to_do_date`,`tickets`.`to_do_date`) `to_do_date`, CONCAT('<br>',IFNULL(NULLIF(`ticket_schedule`.`location_name`,''),`ticket_schedule`.`client_name`)) `location_description`, `ticket_schedule`.`id` `stop_id`, `ticket_schedule`.`eta`, `ticket_schedule`.`client_name`, IFNULL(`ticket_schedule`.`address`, `tickets`.`address`) `address`, `ticket_schedule`.`type` `delivery_type`, IFNULL(`ticket_schedule`.`to_do_start_time`, IFNULL(NULLIF(`tickets`.`start_time`,'00:00'),`tickets`.`to_do_start_time`)) `to_do_start_time`, CONCAT(`start_available`,' - ',`end_available`) `availability`, IFNULL(`ticket_schedule`.`status`, `tickets`.`status`) `status`, IFNULL(`ticket_schedule`.`map_link`,`tickets`.`google_maps`) `map_link`, `ticket_schedule`.`notes` `delivery_notes`, `tickets`.`siteid` FROM `tickets` LEFT JOIN `ticket_schedule` ON `tickets`.`ticketid`=`ticket_schedule`.`ticketid` AND `ticket_schedule`.`deleted`=0 WHERE ((internal_qa_date = '".$daily_date."' AND CONCAT(',',IFNULL(`internal_qa_contactid`,''),',') LIKE '%,".$contactid.",%') OR (`deliverable_date` = '".$daily_date."' AND CONCAT(',',IFNULL(`deliverable_contactid`,''),',') LIKE '%,".$contactid.",%') OR ((`tickets`.`to_do_date` = '".$daily_date."' OR '".$daily_date."' BETWEEN `tickets`.`to_do_date` AND `tickets`.`to_do_end_date` OR `ticket_schedule`.`to_do_date`='".$daily_date."' OR '".$daily_date."' BETWEEN `ticket_schedule`.`to_do_date` AND IFNULL(`ticket_schedule`.`to_do_end_date`,`ticket_schedule`.`to_do_date`)) AND ((CONCAT(',',IFNULL(IFNULL(`ticket_schedule`.`contactid`,`tickets`.`contactid`),''),',') LIKE '%,".$contactid.",%') OR (IFNULL(`ticket_schedule`.`equipmentid`,`tickets`.`equipmentid`) IN ($equipment) AND IFNULL(`ticket_schedule`.`equipmentid`,`tickets`.`equipmentid`) > 0)))) ".$warehouse_query.$pickup_query.(in_array('Combine Pick Up Stops',$daysheet_ticket_fields) ? "AND `ticket_schedule`.`type` != 'Pick Up'" : '')." $filtered_tickets AND `tickets`.`deleted` = 0 ORDER BY ".(in_array('Sort Completed to End',$daysheet_ticket_fields) ? "IFNULL(`ticket_schedule`.`status`,`tickets`.`status`)='$completed_ticket_status', " : '')."IFNULL(NULLIF(`ticket_schedule`.`to_do_start_time`,''),IFNULL(NULLIF(`tickets`.`start_time`,'00:00'),`tickets`.`to_do_start_time`)) ASC";
+$tickets_query = "SELECT `tickets`.*, IF(`ticket_schedule`.`id` IS NULL,'ticket','ticket_schedule') `ticket_table`, IFNULL(`ticket_schedule`.`to_do_date`,`tickets`.`to_do_date`) `to_do_date`, CONCAT('<br>',IFNULL(NULLIF(`ticket_schedule`.`location_name`,''),`ticket_schedule`.`client_name`)) `location_description`, `ticket_schedule`.`id` `stop_id`, `ticket_schedule`.`eta`, `ticket_schedule`.`client_name`, IFNULL(`ticket_schedule`.`address`, `tickets`.`address`) `address`, `ticket_schedule`.`type` `delivery_type`, IFNULL(`ticket_schedule`.`to_do_start_time`, IFNULL(NULLIF(`tickets`.`start_time`,'00:00'),`tickets`.`to_do_start_time`)) `to_do_start_time`, CONCAT(`start_available`,' - ',`end_available`) `availability`, IFNULL(`ticket_schedule`.`status`, `tickets`.`status`) `status`, IFNULL(`ticket_schedule`.`map_link`,`tickets`.`google_maps`) `map_link`, `ticket_schedule`.`notes` `delivery_notes`, `tickets`.`siteid` FROM `tickets` LEFT JOIN `ticket_schedule` ON `tickets`.`ticketid`=`ticket_schedule`.`ticketid` AND `ticket_schedule`.`deleted`=0 WHERE ((internal_qa_date = '".$daily_date."' AND CONCAT(',',IFNULL(`internal_qa_contactid`,''),',') LIKE '%,".$contactid.",%') OR (`deliverable_date` = '".$daily_date."' AND CONCAT(',',IFNULL(`deliverable_contactid`,''),',') LIKE '%,".$contactid.",%') OR ((`tickets`.`to_do_date` = '".$daily_date."' OR '".$daily_date."' BETWEEN `tickets`.`to_do_date` AND `tickets`.`to_do_end_date` OR `ticket_schedule`.`to_do_date`='".$daily_date."' OR '".$daily_date."' BETWEEN `ticket_schedule`.`to_do_date` AND IFNULL(`ticket_schedule`.`to_do_end_date`,`ticket_schedule`.`to_do_date`)) AND ((CONCAT(',',IFNULL(IFNULL(`ticket_schedule`.`contactid`,`tickets`.`contactid`),''),',') LIKE '%,".$contactid.",%') OR (IFNULL(`ticket_schedule`.`equipmentid`,`tickets`.`equipmentid`) IN ($equipment) AND IFNULL(`ticket_schedule`.`equipmentid`,`tickets`.`equipmentid`) > 0)))) ".$warehouse_query.$pickup_query." $filtered_tickets AND `tickets`.`deleted` = 0 ORDER BY ".(in_array('Sort Completed to End',$daysheet_ticket_fields) ? "IFNULL(`ticket_schedule`.`status`,`tickets`.`status`)='$completed_ticket_status', " : '')."IFNULL(NULLIF(`ticket_schedule`.`to_do_start_time`,''),IFNULL(NULLIF(`tickets`.`start_time`,'00:00'),`tickets`.`to_do_start_time`)) ASC";
 $tickets_result = mysqli_fetch_all(mysqli_query($dbc, $tickets_query),MYSQLI_ASSOC);
 
 //Tasks
@@ -146,6 +146,9 @@ $(document).ready(function () {
             } else if ($daysheet_reminder['type'] == 'equipment_service') {
                 $reminder = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `equipment` WHERE `equipmentid` = '".$daysheet_reminder['reminderid']."'"));
                 $reminder_label = '<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Equipment/edit_equipment.php?edit='.$reminder['equipmentid'].'&iframe_slider=1\'); return false;" style="color: black;">Equipment Service Reminder ('.$reminder['category'].' #'.$reminder['unit_number'].'): Service Date scheduled for '.$reminder['next_service_date'].'</a>';
+            } else if ($daysheet_reminder['type'] == 'incident_report_flag') {
+                $reminder = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `incident_report` WHERE `incidentreportid` = '".$daysheet_reminder['reminderid']."'"));
+                $reminder_label = '<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Incident Report/add_incident_report.php?incidentreportid='.$reminder['incidentreportid'].'\'); return false;" style="color: black;">Flagged '.INC_REP_NOUN.': '.$reminder['type'].' #'.$reminder['incidentreportid'].(!empty($reminder['flag_label']) ? ' - '.$reminder['flag_label'] : '').'</a>';
             }
             if(!empty($reminder_label)) {
                 if($daysheet_styling == 'card') {
@@ -172,7 +175,7 @@ $(document).ready(function () {
     <?php $no_tickets = true;
     $combined_tickets_shown = [];
     if(in_array('Combine Warehouse Stops', $daysheet_ticket_fields)) {
-        $combined_query = "SELECT `tickets`.*, IF(`ticket_schedule`.`id` IS NULL,'ticket','ticket_schedule') `ticket_table`, IFNULL(`ticket_schedule`.`to_do_date`,`tickets`.`to_do_date`) `to_do_date`, CONCAT('<br>',IFNULL(NULLIF(`ticket_schedule`.`location_name`,''),`ticket_schedule`.`client_name`)) `location_description`, `ticket_schedule`.`id` `stop_id`, `ticket_schedule`.`eta`, `ticket_schedule`.`client_name`, IFNULL(`ticket_schedule`.`address`, `tickets`.`address`) `address`, `ticket_schedule`.`type` `delivery_type`, IFNULL(`ticket_schedule`.`to_do_start_time`, IFNULL(NULLIF(`tickets`.`start_time`,'00:00'),`tickets`.`to_do_start_time`)) `to_do_start_time`, CONCAT(`start_available`,' - ',`end_available`) `availability`, `ticket_schedule`.`status` `schedule_status` FROM `tickets` LEFT JOIN `ticket_schedule` ON `tickets`.`ticketid`=`ticket_schedule`.`ticketid` AND `ticket_schedule`.`deleted`=0 WHERE ((internal_qa_date = '".$daily_date."' AND CONCAT(',',IFNULL(`internal_qa_contactid`,''),',') LIKE '%,".$contactid.",%') OR (`deliverable_date` = '".$daily_date."' AND CONCAT(',',IFNULL(`deliverable_contactid`,''),',') LIKE '%,".$contactid.",%') OR ((`tickets`.`to_do_date` = '".$daily_date."' OR '".$daily_date."' BETWEEN `tickets`.`to_do_date` AND `tickets`.`to_do_end_date` OR `ticket_schedule`.`to_do_date`='".$daily_date."' OR '".$daily_date."' BETWEEN `ticket_schedule`.`to_do_date` AND IFNULL(`ticket_schedule`.`to_do_end_date`,`ticket_schedule`.`to_do_date`)) AND ((CONCAT(',',IFNULL(IFNULL(`ticket_schedule`.`contactid`,`tickets`.`contactid`),''),',') LIKE '%,".$contactid.",%') OR (IFNULL(`ticket_schedule`.`equipmentid`,`tickets`.`equipmentid`) IN ($equipment) AND IFNULL(`ticket_schedule`.`equipmentid`,`tickets`.`equipmentid`) > 0)))) AND IFNULL(NULLIF(CONCAT(IFNULL(`ticket_schedule`.`address`,''),IFNULL(`ticket_schedule`.`city`,'')),''),CONCAT(IFNULL(`tickets`.`address`,''),IFNULL(`tickets`.`city`,''))) IN (SELECT CONCAT(IFNULL(`address`,''),IFNULL(`city`,'')) FROM `contacts` WHERE `category`='".$combine_category."') $filtered_tickets AND `tickets`.`deleted` = 0 ORDER BY IFNULL(`ticket_schedule`.`address`,`tickets`.`address`), ".(in_array('Sort Completed to End',$daysheet_ticket_fields) ? "IFNULL(`ticket_schedule`.`status`,`tickets`.`status`)='$completed_ticket_status', " : '')."IFNULL(NULLIF(`ticket_schedule`.`to_do_start_time`,''),IFNULL(NULLIF(`tickets`.`start_time`,'00:00'),`tickets`.`to_do_start_time`)) ASC";
+        $combined_query = "SELECT `tickets`.*, IF(`ticket_schedule`.`id` IS NULL,'ticket','ticket_schedule') `ticket_table`, IFNULL(`ticket_schedule`.`to_do_date`,`tickets`.`to_do_date`) `to_do_date`, CONCAT('<br>',IFNULL(NULLIF(`ticket_schedule`.`location_name`,''),`ticket_schedule`.`client_name`)) `location_description`, `ticket_schedule`.`id` `stop_id`, `ticket_schedule`.`eta`, `ticket_schedule`.`client_name`, IFNULL(`ticket_schedule`.`address`, `tickets`.`address`) `address`, `ticket_schedule`.`type` `delivery_type`, IFNULL(`ticket_schedule`.`to_do_start_time`, IFNULL(NULLIF(`tickets`.`start_time`,'00:00'),`tickets`.`to_do_start_time`)) `to_do_start_time`, CONCAT(`start_available`,' - ',`end_available`) `availability`, `ticket_schedule`.`status` `schedule_status` FROM `tickets` LEFT JOIN `ticket_schedule` ON `tickets`.`ticketid`=`ticket_schedule`.`ticketid` AND `ticket_schedule`.`deleted`=0 WHERE ((internal_qa_date = '".$daily_date."' AND CONCAT(',',IFNULL(`internal_qa_contactid`,''),',') LIKE '%,".$contactid.",%') OR (`deliverable_date` = '".$daily_date."' AND CONCAT(',',IFNULL(`deliverable_contactid`,''),',') LIKE '%,".$contactid.",%') OR ((`tickets`.`to_do_date` = '".$daily_date."' OR '".$daily_date."' BETWEEN `tickets`.`to_do_date` AND `tickets`.`to_do_end_date` OR `ticket_schedule`.`to_do_date`='".$daily_date."' OR '".$daily_date."' BETWEEN `ticket_schedule`.`to_do_date` AND IFNULL(`ticket_schedule`.`to_do_end_date`,`ticket_schedule`.`to_do_date`)) AND ((CONCAT(',',IFNULL(IFNULL(`ticket_schedule`.`contactid`,`tickets`.`contactid`),''),',') LIKE '%,".$contactid.",%') OR (IFNULL(`ticket_schedule`.`equipmentid`,`tickets`.`equipmentid`) IN ($equipment) AND IFNULL(`ticket_schedule`.`equipmentid`,`tickets`.`equipmentid`) > 0)))) AND REPLACE(REPLACE(IFNULL(NULLIF(CONCAT(IFNULL(`ticket_schedule`.`address`,''),IFNULL(`ticket_schedule`.`city`,'')),''),CONCAT(IFNULL(`tickets`.`address`,''),IFNULL(`tickets`.`city`,''))),' ',''),'-','') IN (SELECT REPLACE(REPLACE(CONCAT(IFNULL(`address`,''),IFNULL(`city`,'')),' ',''),'-','') FROM `contacts` WHERE `category`='".$combine_category."') $filtered_tickets AND `tickets`.`deleted` = 0 ORDER BY IFNULL(`ticket_schedule`.`address`,`tickets`.`address`), ".(in_array('Sort Completed to End',$daysheet_ticket_fields) ? "IFNULL(`ticket_schedule`.`status`,`tickets`.`status`)='$completed_ticket_status', " : '')."IFNULL(NULLIF(`ticket_schedule`.`to_do_start_time`,''),IFNULL(NULLIF(`tickets`.`start_time`,'00:00'),`tickets`.`to_do_start_time`)) ASC";
         $combined_result = mysqli_fetch_all(mysqli_query($dbc, $combined_query),MYSQLI_ASSOC);
         if(!empty($combined_result)) {
             $delivery_color = get_delivery_color($dbc, 'warehouse');
@@ -189,7 +192,7 @@ $(document).ready(function () {
             }
             $address = '';
             foreach ($combined_result as $ticket) {
-                if($address != $ticket['address']) {
+                if(strtolower($address) != strtolower($ticket['address'])) {
                     $address = $ticket['address'];
                     echo '<h4 class="pad-5">'.$combine_category.": ".$address.'</h4>';
                 }
@@ -306,7 +309,7 @@ $(document).ready(function () {
 <?php } ?>
 
 <?php if (in_array('Tasks', $daysheet_fields_config)) { ?>
-    <h4 style="font-weight: normal;">Tasks</h4>
+    <h4 style="font-weight: normal;"><?= TASK_TILE ?></h4>
     <?php if (!empty($tasks_result)) {
         if($daysheet_styling != 'card') {
             echo '<ul id="tasks_daily">';
@@ -316,7 +319,7 @@ $(document).ready(function () {
                 echo '<div class="block-group-daysheet">';
             }
 			$label = ($task['businessid'] > 0 ? get_contact($dbc, $task['businessid'], 'name').', ' : '').($task['projectid'] > 0 ? PROJECT_NOUN.' #'.$task['projectid'].' '.get_project($dbc,$task['projectid'],'project_name') : '');
-            echo '<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Tasks/add_task.php?tasklistid='.$task['tasklistid'].'&from_url='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']).'\'); return false;" ><span style="color: black;">'.($label != '' ? $label.'<br />' : '').$task['task_milestone_timeline'].' - '.get_contact($dbc, $task['businessid'], 'name').' - '.$task['heading'].'</span></a>';
+            echo '<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Tasks_Updated/add_task.php?tasklistid='.$task['tasklistid'].'&from_url='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']).'\'); return false;" ><span style="color: black;">'.($label != '' ? $label.'<br />' : '').$task['task_milestone_timeline'].' - '.get_contact($dbc, $task['businessid'], 'name').' - '.$task['heading'].'</span></a>';
             if($daysheet_styling == 'card') {
                 echo '</div>';
             }
@@ -437,44 +440,6 @@ $(document).ready(function () {
     <hr>
 <?php } ?>
 
-<?php if (in_array('Communication', $daysheet_fields_config)) { ?>
-    <h4 style="font-weight: normal;">Communications</h4>
-    <?php if (!empty($comm_result)) {
-        if($daysheet_styling != 'card') {
-            echo '<ul id="comm_daily">';
-        }
-        foreach ($comm_result as $row) {
-			echo '<div class="note_block">';
-			if($row['businessid'] > 0) {
-				echo BUSINESS_CAT.': <a href="../Contacts/contacts_inbox.php?edit='.$row['businessid'].'" onclick="overlayIFrameSlider(this.href+\'&fields=all_fields\',\'auto\',true,true); return false;">'.get_contact($dbc, $row['businessid'], 'name_company').'</a><br />';
-			}
-			$individuals = [];
-			foreach(array_filter(explode(',',$row['contactid'])) as $row_contactid) {
-				$individuals[] = '<a href="../Contacts/contacts_inbox.php?edit='.$row_contactid.'" onclick="overlayIFrameSlider(this.href+\'&fields=all_fields\',\'auto\',true,true); return false;">'.get_contact($dbc, $row_contactid, 'name_company').'</a>';
-			}
-			if(count($individuals) > 0) {
-				echo 'Individuals: '.implode(', ',$individuals).'<br />';
-			}
-			echo profile_id($dbc, $row['created_by'],false);
-			echo '<div class="pull-right" style="width: calc(100% - 3.5em);">';
-			echo '<p><b>From: '.$row['from_name'].' &lt;'.$row['from_email'].'&gt;</b><br />';
-			echo '<b>To: '.implode('; ',array_filter(explode(',',$row['to_staff'].','.$row['to_contact'].','.$row['new_emailid']))).'</b><br />';
-			echo '<b>CC: '.implode('; ',array_filter(explode(',',$row['cc_staff'].','.$row['cc_contact']))).'</b>';
-			echo '<b>Subject: '.$row['subject'].'</b></p>';
-			echo html_entity_decode($row['email_body']);
-			echo '</div><div class="clearfix"></div><hr></div>';
-        }
-        if($daysheet_styling != 'card') {
-            echo '</ul>';
-        }
-    } else {
-        echo '<ul id="comm_daily">';
-        echo 'No records found.';
-        echo '</ul>';
-    } ?>
-    <hr>
-<?php } ?>
-
 <?php if (in_array('Shifts', $daysheet_fields_config)) { ?>
     <?php include_once ('../Calendar/calendar_functions_inc.php'); ?>
     <h4 style="font-weight: normal;">Shifts</h4>
@@ -492,6 +457,9 @@ $(document).ready(function () {
             } else {
                 echo '<li>';
             }
+            if(!empty($shift['heading'])) {
+                echo $shift['heading'].'<br>';
+            }
             if(!empty($shift['dayoff_type'])) {
                 echo 'Day Off: '.date('h:i a', strtotime($shift['starttime'])).' - '.date('h:i a', strtotime($shift['endtime'])).'<br>';
                 echo 'Day Off Type: '.$shift['dayoff_type'];
@@ -507,6 +475,10 @@ $(document).ready(function () {
                     echo get_contact($dbc, $shift['clientid'], 'category').': ';
                     echo '<a href="'.WEBSITE_URL.'/'.ucfirst(get_contact($dbc, $shift['clientid'], 'tile_name')).'/contacts_inbox.php?edit='.$shift['clientid'].'" style="padding: 0; display: inline;">'.get_contact($dbc, $shift['clientid']).'</a>';
                 }
+            }
+            if(!empty($shift['notes'])) {
+                echo '<br>';
+                echo 'Notes: '.html_entity_decode($shift['notes']);
             }
 
             if($daysheet_styling == 'card') {
@@ -530,3 +502,21 @@ $(document).ready(function () {
     } ?>
     <hr>
 <?php } ?>
+
+<?php if (in_array('Tags', $daysheet_fields_config)) { ?>
+    <h4 style="font-weight: normal;">Tags</h4>
+    <?php $tags_html = daysheet_get_tags($dbc, $_SESSION['contactid']);
+    if(!empty($tags_html)) {
+        if($daysheet_styling != 'card') {
+            echo '<ul id="tags_daily">';
+        }
+        echo $tags_html;
+        if($daysheet_styling != 'card') {
+            echo '</ul>';
+        }
+    } else {
+        echo '<ul id="tags_daily">';
+        echo 'No tags found.';
+        echo '</ul>';
+    }
+}

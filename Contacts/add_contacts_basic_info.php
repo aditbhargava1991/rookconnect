@@ -81,7 +81,6 @@
     <div class="col-sm-8">
 		<?php if(strpos($edit_config, ',Staff Category,') !== FALSE) { ?>
             <select data-placeholder="Choose a Category..." class='chosen-select-deselect form-control' id="staff_category" name="staff_category[]" multiple width="380">
-              <option value=""></option>
               <?php
 				if($_GET['contactid']) {
 					$contactid = $_GET['contactid'];
@@ -573,7 +572,6 @@
 					<div class="col-sm-8">
 					<?php if(strpos($edit_config, ',Role,') !== FALSE) { ?>
 					<select name="role[]" multiple data-placeholder="Select a Security Level" width="380" class="chosen-select-deselect">
-						<option value=''></option>
 						<?php $on_security = get_security_levels($dbc);
 						foreach($on_security as $category => $value)  {
 							$select_value = get_securitylevel($dbc, $value);
@@ -4050,7 +4048,7 @@
 				if(mysqli_num_rows($doc_list) > 0) { ?>
 					<table class="table table-bordered">
 						<tr class="hidden-sm hidden-xs">
-			            	<?php 
+			            	<?php
 								if (strpos($sd_value_config, ','."Staff".',') !== FALSE) {
 									echo '<th>Staff</th>';
 								}
@@ -4128,7 +4126,7 @@
 						</tr>
 						<?php while($row = mysqli_fetch_array($doc_list)) { ?>
 							<tr>
-				            	<?php 
+				            	<?php
 									$staff_documentsid = $row['staff_documentsid'];
 									if (strpos($sd_value_config, ','."Staff".',') !== FALSE) {
 										echo '<td data-title="Staff"><a href="'.WEBSITE_URL.'/Staff/staff_edit.php?contactid=' . $row['contactid'] . '&from=' . urlencode(WEBSITE_URL . $_SERVER['REQUEST_URI']) . '">' . get_contact($dbc, $row['contactid']) . '</a></td>';
@@ -4295,7 +4293,7 @@
 
         <?php if (strpos($value_config, ','."Incident Reports".',') !== FALSE) { ?>
             <div class="form-group">
-				<?php 
+				<?php
 				$display_contact = $contactid;
 				$get_field_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT incident_report_dashboard FROM field_config_incident_report"));
 				$value_config_ir = ','.$get_field_config['incident_report_dashboard'].',';

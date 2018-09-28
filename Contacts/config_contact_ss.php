@@ -272,6 +272,7 @@ $config_contact_ss['settings']['Choose Fields for Key Methodologies']['data'] = 
 		),
 	'Toileting' => array(
 			array('Do you require extra support going to the bathroom?', 'yes_default_no', 'toileting'),
+			array('Washroom Support Information', 'textarea_hidden', 'toileting_info', 'toileting', 'Yes')
 		),
 	'Goals' => array(
 			array('Display Goals', 'textarea', 'goal_display'),

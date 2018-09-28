@@ -1,9 +1,7 @@
 <?php $include_folder = '';
 include_once('../include.php');
 include_once('../Ticket/field_list.php');
-if(!isset($strict_view)) {
-	$strict_view = strictview_visible_function($dbc, 'ticket');
-}
+include_once('../Ticket/config.php');
 if(!empty($_POST['accordion'])) {
 	$sort_field = $_POST['accordion'];
 }
@@ -153,13 +151,7 @@ if($_GET['tab'] == 'ticket_medications') {
 	$sort_field = 'External Communication';
 }
 
-if(!isset($ticketid) && ($_GET['ticketid'] > 0 || !empty($_GET['tab'])) && !$generate_pdf) {
-	$strict_view = strictview_visible_function($dbc, 'ticket');
-	$tile_security = get_security($dbc, ($_GET['tile_name'] == '' ? 'ticket' : 'ticket_type_'.$_GET['tile_name']));
-	if($strict_view > 0) {
-		$tile_security['edit'] = 0;
-		$tile_security['config'] = 0;
-	}
+if(basename($_SERVER['SCRIPT_FILENAME']) == 'edit_ticket_tab.php' && ($_GET['ticketid'] > 0 || !empty($_GET['tab'])) && !$generate_pdf) {
 	$ticketid = $_GET['edit'] = filter_var($_GET['ticketid'],FILTER_SANITIZE_STRING);
 	if(!empty($_GET['from'])) {
 		echo '<input type="hidden" name="from" value="'.$_GET['from'].'">';
@@ -218,7 +210,7 @@ if(!isset($ticketid) && ($_GET['ticketid'] > 0 || !empty($_GET['tab'])) && !$gen
 	if(!empty($_GET['projectid'])) {
 		$projectid = $_GET['projectid'];
 		$businessid = get_project($dbc, $projectid, 'businessid');
-		$clientid = get_project($dbc, $projectid, 'clientid');
+		$clientid = explode(',',trim(get_project($dbc, $projectid, 'clientid'),','))[0];
 		$project_path = get_project($dbc, $projectid, 'project_path');
 		$project_lead = get_project($dbc, $projectid, 'project_lead');
 	}
@@ -300,7 +292,7 @@ if(!isset($ticketid) && ($_GET['ticketid'] > 0 || !empty($_GET['tab'])) && !$gen
 			}
 		}
 
-		$ticket_type = $get_ticket['ticket_type'];
+		$ticket_type = empty($get_ticket['ticket_type']) ? $ticket_type : $get_ticket['ticket_type'];
 		$businessid = $get_ticket['businessid'];
 		$equipmentid = $get_ticket['equipmentid'];
 
@@ -375,16 +367,11 @@ if(!isset($ticketid) && ($_GET['ticketid'] > 0 || !empty($_GET['tab'])) && !$gen
 			$('#timer_type').val('<?= $timer_type ?>');
 		});
 		</script>
-	<?php } else if(!empty($_GET['type'])) {
-		$ticket_type = filter_var($_GET['type'],FILTER_SANITIZE_STRING);
-	}
+	<?php }
 	if(!empty(MATCH_CONTACTS) && !in_array($get_ticket['businessid'],explode(',',MATCH_CONTACTS)) && !in_array_any(array_filter(explode(',',$get_ticket['clientid'])),explode(',',MATCH_CONTACTS))) {
 		ob_clean();
 		header('Location: index.php');
 		exit();
-	}
-	if($ticket_type == '') {
-		$ticket_type = get_config($dbc, 'default_ticket_type');
 	} ?>
 	<script>
 	if(typeof ticketid_list == 'undefined') {
@@ -550,6 +537,32 @@ if(!isset($ticketid) && ($_GET['ticketid'] > 0 || !empty($_GET['tab'])) && !$gen
 		$force_readonly = true;
 	}
 
+	//Force read only if Ticket is deleted
+	if($get_ticket['deleted'] == 1) {
+		$force_readonly = true;
+		$strict_view = 1;
+	}
+
+    //Status Fields
+    if(!empty($ticket_status)) {
+        $value_config_all = $value_config;
+        $value_config = ','.get_config($dbc, 'ticket_status_fields_'.$ticket_status).',';
+        if(!empty($ticket_type)) {
+            $value_config .= get_config($dbc, 'ticket_status_fields_'.$ticket_status.'_'.$ticket_type).',';
+        }
+        if(empty(trim($value_config,','))) {
+            $value_config = $value_config_all;
+        } else {
+            foreach($action_mode_ignore_fields as $action_mode_ignore_field) {
+                if(strpos(','.$value_config_all.',',','.$action_mode_ignore_field.',') !== FALSE) {
+                    $value_config .= ','.$action_mode_ignore_field;
+                }
+            }
+            $value_config = ','.implode(',',array_intersect(explode(',',$value_config), explode(',',$value_config_all))).',';
+        }
+        $ticket_layout = $calendar_ticket_slider = 'full';
+    }
+
 	//Apply Templates
 	if(strpos($value_config,',TEMPLATE Work Ticket') !== FALSE) {
 		$value_config = ',Information,PI Business,PI Name,PI Project,PI AFE,PI Sites,Staff,Staff Position,Staff Hours,Staff Overtime,Staff Travel,Staff Subsistence,Services,Service Category,Equipment,Materials,Material Quantity,Material Rates,Purchase Orders,Notes,';
@@ -573,10 +586,23 @@ if(!isset($ticketid) && ($_GET['ticketid'] > 0 || !empty($_GET['tab'])) && !$gen
 		if($get_ticket['status'] == $admin_group['status']) {
 			$wait_on_approval = true;
 		}
-		$value_config_all = $value_config;
-		if(!empty($admin_group['unlocked_fields']) && !$wait_on_approval && $get_ticket['status'] != 'Archive' && !$force_readonly) {
-			$value_config = $admin_group['unlocked_fields'];
-		}
+        $value_config_all = $value_config;
+        if(!empty($admin_group['unlocked_fields']) && !$wait_on_approval && $get_ticket['status'] != 'Archive' && !$force_readonly) {
+            $value_config = ','.$admin_group['unlocked_fields'].',';
+        }
+        if(empty(trim($value_config,','))) {
+            $value_config = $value_config_all;
+        } else {
+            if(strpos($value_config, ','."Hide Trash Icon".',') !== FALSE) {
+                $hide_trash_icon = 1;
+            }
+            foreach($action_mode_ignore_fields as $action_mode_ignore_field) {
+                if(strpos(','.$value_config_all.',',','.$action_mode_ignore_field.',') !== FALSE) {
+                    $value_config .= ','.$action_mode_ignore_field;
+                }
+            }
+            $value_config = ','.implode(',',array_intersect(explode(',',$value_config), explode(',',$value_config_all))).',';
+        }
 	} else {
 		$admin_group = [];
 	}	
@@ -596,7 +622,7 @@ if(!isset($ticketid) && ($_GET['ticketid'] > 0 || !empty($_GET['tab'])) && !$gen
 	if(!empty($get_ticket['status']) && strpos($uneditable_statuses, ','.$get_ticket['status'].',') !== FALSE) {
 		$strict_view = 1;
 	}
-	if(($get_ticket['to_do_date'] > date('Y-m-d') && strpos($value_config,',Ticket Edit Cutoff,') !== FALSE && $config_access < 1) || $strict_view > 0 || $wait_on_approval) {
+	if(($get_ticket['to_do_date'] > date('Y-m-d') && strpos($value_config,',Ticket Edit Cutoff,') !== FALSE && $config_access < 1) || $strict_view > 0 || ($wait_on_approval && strpos(','.$admin_group.',',','.$_SESSION['contactid'].',') !== false)) {
 		$access_project = false;
 		$access_staff = false;
 		$access_contacts = false;
@@ -704,7 +730,7 @@ if(!empty($_GET['clientid'])) {
 if(!empty($_GET['projectid'])) {
 	$projectid = $_GET['projectid'];
 	$businessid = get_project($dbc, $projectid, 'businessid');
-	$clientid = get_project($dbc, $projectid, 'clientid');
+	$clientid = explode(',',trim(get_project($dbc, $projectid, 'clientid'),','))[0];
 	$project_path = get_project($dbc, $projectid, 'project_path');
 	$project_lead = get_project($dbc, $projectid, 'project_lead');
 }

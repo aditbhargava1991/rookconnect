@@ -74,6 +74,9 @@ if (isset($_POST['view_manual'])) {
 	// Insert a row if it isn't already there
 	$query_insert_row = "INSERT INTO `safety_staff` (`safetyid`, `staffid`) SELECT '$safetyid', '$staffid' FROM (SELECT COUNT(*) rows FROM `safety_staff` WHERE `safetyid`='$safetyid' AND `staffid`='$staffid') LOGTABLE WHERE rows=0";
 	mysqli_query($dbc, $query_insert_row);
+    $before_change = '';
+    $history = "Safety staff entry has been added. <br />";
+    add_update_history($dbc, 'safety_history', $history, '', $before_change);
     $query_update_ticket = "UPDATE `safety_staff` SET `done` = '1', `today_date` = '$today_date' WHERE `safetyid` = '$safetyid' AND staffid='$staffid' AND done=0";
     $result_update_ticket = mysqli_query($dbc, $query_update_ticket);
 
@@ -949,7 +952,7 @@ if(!empty($_GET['safetyid'])) {
                                 <label for="first_name" class="col-sm-4 control-label text-right">Staff:</label>
                                 <div class="col-sm-8">
                                     <select name="assign_staff[]" data-placeholder="Choose a Staff Member..." class="chosen-select-deselect form-control" multiple width="380">
-                                        <option value=""></option><?php
+                                        <?php
                                         $query = mysqli_query($dbc,"SELECT contactid, first_name, last_name FROM contacts WHERE category IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND deleted=0 ORDER BY first_name");
                                         while($row = mysqli_fetch_array($query)) {
 											if ( !empty ( $assign_staff ) ) { ?>
@@ -994,7 +997,6 @@ if(!empty($_GET['safetyid'])) {
 							<label for="first_name" class="col-sm-4 control-label text-right">Sites:</label>
 							<div class="col-sm-8">
 								<select name="assign_sites[]" data-placeholder="Select Sites" class="chosen-select-deselect form-control" multiple width="380">
-									<option value=""></option>
 									<option <?= ($assign_sites == ',ALL,' ? 'selected value="ALL"' : 'value="SELECT ALL"') ?>>All Sites</option><?php
 									$query = mysqli_query($dbc,"SELECT `contactid`, `site_name` FROM `contacts` WHERE `category`='Sites' ORDER BY `site_name`");
 									while($row = mysqli_fetch_array($query)) { ?>
@@ -1021,7 +1023,6 @@ if(!empty($_GET['safetyid'])) {
 							<label for="first_name" class="col-sm-4 control-label text-right">Site Work Orders:</label>
 							<div class="col-sm-8">
 								<select name="assign_work_orders[]" data-placeholder="Select Work Orders" class="chosen-select-deselect form-control" multiple width="380">
-									<option value=""></option>
 									<option <?= ($assign_work_orders == ',ALL,' ? 'selected value="ALL"' : 'value="SELECT ALL"') ?>>All Work Orders</option><?php
 									$query = mysqli_query($dbc,"SELECT * FROM `site_work_orders` WHERE `status`!='Archived'");
 									while($row = mysqli_fetch_array($query)) { ?>

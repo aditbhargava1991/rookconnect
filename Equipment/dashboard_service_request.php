@@ -26,13 +26,6 @@ function changeCategory(sel) {
 }
 </script>
 
-<div class="notice double-gap-bottom popover-examples">
-	<div class="col-sm-1 notice-icon"><img src="<?= WEBSITE_URL; ?>/img/info.png" class="wiggle-me" width="25"></div>
-	<div class="col-sm-11"><span class="notice-name">NOTE:</span>
-	Whether your business maintains its own equipment and wishes to file service requests or work orders through this section or you're looking to track and record progress on all service requests being run through your company, this section has the ability to maintain and monitor all your equipment.</div>
-	<div class="clearfix"></div>
-</div>
-
 <?php $category = $_GET['category'];
 $each_tab = explode(',', get_config($dbc, 'equipment_tabs'));
 
@@ -40,8 +33,8 @@ if (get_config($dbc, 'show_category_dropdown_equipment') == '1') { ?>
 	<div class="gap-left tab-container col-sm-12">
 		<div class="row">
 			<label class="control-label col-sm-2">
-                <span class="popover-examples" style="margin:0;"><a data-toggle="tooltip" data-placement="top" title="Filter equipment by Category."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
-                Category:
+                <span class="popover-examples" style="margin:0;"><a data-toggle="tooltip" data-placement="top" title="Filter equipment by Tab."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
+                Tab:
             </label>
 			<div class="col-sm-4">
 				<select name="search_category" class="chosen-select-deselect form-control mobile-100-pull-right category_actual">
@@ -160,11 +153,11 @@ if (get_config($dbc, 'show_category_dropdown_equipment') == '1') { ?>
 			}
 
 			if (strpos($value_config, ','."Defects".',') !== FALSE) {
-				echo '<td data-title="Category">' . $row['defect'] . '</td>';
+				echo '<td data-title="Tab">' . $row['defect'] . '</td>';
 			}
 
 			if (strpos($value_config, ','."Comment".',') !== FALSE) {
-				echo '<td data-title="Type">' . html_entity_decode($row['comment']) . '</td>';
+				echo '<td data-title="Tab">' . html_entity_decode($row['comment']) . '</td>';
 			}
 
 			echo "</tr>";

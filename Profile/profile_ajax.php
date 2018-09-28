@@ -46,7 +46,8 @@ if($_GET['fill'] == "daysheet_reminders") {
 if($_GET['fill'] == "daysheet_notepad_add") {
     $date = filter_var($_POST['date'], FILTER_SANITIZE_STRING);
     $contactid = filter_var($_POST['contactid'], FILTER_SANITIZE_STRING);
-    $notes = htmlentities(filter_var($_POST['notes'], FILTER_SANITIZE_STRING));
+    $notes = filter_var(htmlentities($_POST['notes']), FILTER_SANITIZE_STRING);
+    
 	if($notes != '') {
 		mysqli_query($dbc, "INSERT INTO `daysheet_notepad` (`contactid`,`date`,`notes`) VALUES ('$contactid','$date','$notes')");
 	}
@@ -54,7 +55,7 @@ if($_GET['fill'] == "daysheet_notepad_add") {
 if($_GET['fill'] == "daysheet_notepad") {
     $date = filter_var($_POST['date'], FILTER_SANITIZE_STRING);
     $contactid = filter_var($_POST['contactid'], FILTER_SANITIZE_STRING);
-    $notes = htmlentities(filter_var($_POST['notes'], FILTER_SANITIZE_STRING));
+    $notes = filter_var(htmlentities($_POST['notes']), FILTER_SANITIZE_STRING);
 
     mysqli_query($dbc, "INSERT INTO `daysheet_notepad` (`contactid`, `date`, `notes`) SELECT '$contactid', '$date', '$notes' FROM (SELECT COUNT(*) rows FROM `daysheet_notepad` WHERE `contactid` = '$contactid' AND `date` = '$date') num WHERE num.rows = 0");
     mysqli_query($dbc, "UPDATE `daysheet_notepad` SET `notes` = '$notes' WHERE `contactid` = '$contactid' AND `date` = '$date'");
@@ -72,6 +73,7 @@ if($_GET['fill'] == "daysheet_config") {
         $daysheet_rightside_views = '**ALL_OFF**';
     }
     $daysheet_ticket_default_mode = $_POST['daysheet_ticket_default_mode'];
+    $quick_action_icons = $_POST['quick_action_icons'];
     $contactid = $_POST['settings_contactid'];
 
     if($contactid == 'software') {
@@ -91,6 +93,8 @@ if($_GET['fill'] == "daysheet_config") {
             set_config($dbc, 'daysheet_rightside_views', $daysheet_rightside_views);
         } else if($field_name == 'daysheet_ticket_default_mode') {
             set_config($dbc, 'daysheet_ticket_default_mode', $daysheet_ticket_default_mode);
+        } else if($field_name == 'quick_action_icons[]') {
+            set_config($dbc, 'daysheet_quick_action_icons', $quick_action_icons);
         }
     } else {
         if($field_name == 'daysheet_styling') {
@@ -114,5 +118,12 @@ if($_GET['action'] == 'setStatus') {
 	} else if($_POST['ticketid'] > 0) {
 		$dbc->query("UPDATE `tickets` SET `status`='$status' WHERE `ticketid`='{$_POST['stopid']}'");
 	}
+}
+
+if($_GET['action'] == 'contacts_untag') {
+    $id = $_GET['id'];
+    if($id > 0) {
+        mysqli_query($dbc, "UPDATE `contacts_tagging` SET `deleted` = 1 WHERE `id` = '$id'");
+    }
 }
 ?>

@@ -121,7 +121,7 @@ if($_GET['mode'] == 'client') {
 	$project = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `project` WHERE `projectid` = '$mobile_calendar_contact' AND `deleted` = 0"));
 	$mobile_calendar_contact_label = get_project_label($dbc, $project);
 } else if($_GET['type'] == 'schedule' && $_GET['mode'] != 'staff') {
-	$equip_list = mysqli_fetch_all(mysqli_query($dbc, "SELECT *, CONCAT(`category`, ' #', `unit_number`) label FROM `equipment` WHERE `category`='".$equipment_category."' AND `deleted`=0"),MYSQLI_ASSOC);
+	$equip_list = mysqli_fetch_all(mysqli_query($dbc, "SELECT *, CONCAT(`category`, ' #', `unit_number`) label FROM `equipment` WHERE `deleted`=0".$equip_cat_query),MYSQLI_ASSOC);
 	foreach ($equip_list as $equipment) {
 		$equip_assign = mysqli_fetch_array(mysqli_query($dbc, "SELECT GROUP_CONCAT(DISTINCT `clientid` SEPARATOR ',') as client_list, GROUP_CONCAT(DISTINCT `region` SEPARATOR '*#*') as region_list, GROUP_CONCAT(DISTINCT `location` SEPARATOR '*#*') as location_list, GROUP_CONCAT(DISTINCT `classification` SEPARATOR '*#*') as classification_list FROM `equipment_assignment` WHERE `equipmentid` = '".$equipment['equipmentid']."' AND `deleted` = 0 AND (DATE(`start_date`) BETWEEN '$first_day' AND '$last_day' OR DATE(`end_date`) BETWEEN '$first_day' AND '$last_day')"));
 		$equip_regions = $equipment['region'].'*#*'.$equip_assign['region_list'];
@@ -161,7 +161,7 @@ if($_GET['type'] == 'schedule') {
 //Table data
 $contact_id = $mobile_calendar_contact;
 $column_id = 0;
-for($cur_day = $first_day; strtotime($cur_day) <= strtotime($last_day); $cur_day = date('Y-m-d', strtotime($cur_day.'+ 1 day'))) {
+for($cur_day = date('Y-m-d',strtotime($first_day.'- 1 day')); strtotime($cur_day) <= strtotime($last_day); $cur_day = date('Y-m-d', strtotime($cur_day.'+ 1 day'))) {
     $calendar_date = date('Y-m-d', strtotime($cur_day));
     $day_of_week = date('l', strtotime($calendar_date));
     $_POST['config_type'] = $config_type;
@@ -188,10 +188,15 @@ $current_row = strtotime($day_start);
 $appointment_calendar = 'mobile';
 $calendar_table[0][0] = [];
 $calendar_table[0][0]['title'] = "Time";
+if(!empty($use_shifts)) {
+	$calendar_table[0][0]['shifts'] = "Shifts";
+}
 if(get_config($dbc, $calendar_config.'_calendar_notes') == '1') { $calendar_table[0][0]['notes'] = "Notes"; }
 if(get_config($dbc, $calendar_config.'_reminders') == '1') { $calendar_table[0][0]['reminders'] = "Reminders"; }
 $calendar_table[0][0]['warnings'] = "Warnings";
 while($current_row <= strtotime($day_end)) {
 	$calendar_table[0][0][] = date('g:i a', $current_row);
 	$current_row = strtotime('+'.$day_period.' minutes', $current_row);
-} ?>
+}
+unset($calendar_table[date('Y-m-d',strtotime($first_day.'- 1 day'))]);
+?>

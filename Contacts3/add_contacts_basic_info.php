@@ -288,7 +288,6 @@
 					<label for="travel_task" class="col-sm-4 control-label">Select a Security Level:</label>
 					<div class="col-sm-8">
 					<select <?php echo (strpos($edit_config, ','."Role".',') === false ? 'readonly ' : ''); ?>name="role[]" multiple data-placeholder="Select a Security Level" class="chosen-select-deselect form-control" width="380">
-						<option value=''></option>
 						<?php
 						$selected = '';
 						$sql=mysqli_query($dbc,"SELECT * FROM  security_level");

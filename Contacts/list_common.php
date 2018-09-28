@@ -184,7 +184,7 @@ if(ucwords($category) == 'Vendors') {
 			<a href="?list=<?= $_GET['list'] ?>&status=archive" class="btn brand-btn <?= $status == 'archive' ? 'active_tab' : '' ?>">Archived</a>
 			-->
             <!-- <input type="submit" value="Filter" class="btn brand-btn" name="search_<?php //echo $category; ?>_submit"> -->
-			<button type="submit" value="<?= $category ?>" class="btn brand-btn" name="export_contacts">Export CSV</button>
+			<button type="submit" value="<?= $category ?>" class="image-btn no-toggle" name="export_contacts" title="Export CSV"><img src="../img/icons/csv.png" width="30" /></button>
 			<input type="hidden" name="export_option" value="Contact Information">
 		</span>
 	</form>
@@ -234,6 +234,7 @@ if ( !empty($note) ) { ?>
 		padding-right:0;
 	}
 }
+.dashboard-icon { margin-right:8px; width:18px; }
 </style>
 <div class="hide-on-mobile"><?php include('../Contacts/contacts_export.php'); ?></div>
 <div class="standard-dashboard-body-content">
@@ -259,39 +260,39 @@ if ( !empty($note) ) { ?>
 						</div>
                         <?php } ?>
 					<div class="col-sm-6">
-						<img src="../img/person.PNG" class="inline-img"><?= '<a href=\'?category='.$row['category'].'&edit='.$row['contactid'].'&from='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']).'\'>'.($row['category'] == 'Business' ? decryptIt($row['name']) : ($row['category'] == 'Sites' ? ($row['display_name'] != '' ? $row['display_name'] : $row['site_name']) : ($row['name'] != '' ? decryptIt($row['name']).': ' : '').decryptIt($row['first_name']) . ' ' . decryptIt($row['last_name']))).'</a>' ?>
+						<img src="../img/person.PNG" class="inline-img dashboard-icon"><?= '<a href=\'?category='.$row['category'].'&edit='.$row['contactid'].'&from='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']).'\'>'.($row['category'] == 'Business' ? decryptIt($row['name']) : ($row['category'] == 'Sites' ? ($row['display_name'] != '' ? $row['display_name'] : $row['site_name']) : ($row['name'] != '' ? decryptIt($row['name']).': ' : '').decryptIt($row['first_name']) . ' ' . decryptIt($row['last_name']))).'</a>' ?>
 					</div>
 					<?php if(in_array('Business', $field_display) && $row['businessid'] > 0): ?>
 						<div class="col-sm-6">
-							<img src="../img/business.PNG" class="inline-img"><?php echo get_contact($dbc, $row['businessid'], 'name'); ?>
+							<img src="../img/business.PNG" class="inline-img dashboard-icon"><?php echo get_contact($dbc, $row['businessid'], 'name'); ?>
 						</div>
 					<?php endif; ?>
 					<?php if(in_array('Email Address', $field_display)): ?>
 						<div class="col-sm-6">
-							<a href="mailto:<?= decryptIt($row['email_address']) ?>"><img src="../img/email.PNG" class="inline-img"><?= decryptIt($row['email_address']) ?></a>
+							<a href="mailto:<?= decryptIt($row['email_address']) ?>"><img src="../img/email.PNG" class="inline-img dashboard-icon"><?= decryptIt($row['email_address']) ?></a>
 						</div>
 					<?php endif; ?>
 					<?php if(in_array('Site', $field_display)): ?>
 						<div class="col-sm-6">
-							<img src="../img/project-path.png" class="inline-img"><?= $row['site_name'] ?>
+							<img src="../img/project-path.png" class="inline-img dashboard-icon"><?= $row['site_name'] ?>
 						</div>
 					<?php endif; ?>
 					<?php if(in_array('Address', $field_display)): ?>
 						<div class="col-sm-6">
 							<?php $address = ($row['business_address'] ?: ($row['address'] ?: ($row['mailing_address'] ?: ($row['ship_to_address'] ?: get_address($dbc, $row['businessid'])))));
 							$address = str_replace("<br>", ", ", $address); ?>
-							<a class="show-on-mob" href="maps:<?= trim($address,', ') ?>"><img src="../img/address.PNG" class="inline-img"><?php echo rtrim(trim($address), ','); ?></a>
-							<a class="hide-on-mobile" href="https://maps.google.com/maps/place/<?= trim($address,', ') ?>"><img src="../img/address.PNG" class="inline-img"><?php echo rtrim(trim($address), ','); ?></a>
+							<a class="show-on-mob" href="maps:<?= trim($address,', ') ?>"><img src="../img/address.PNG" class="inline-img dashboard-icon"><?php echo rtrim(trim($address), ','); ?></a>
+							<a class="hide-on-mobile" href="https://maps.google.com/maps/place/<?= trim($address,', ') ?>"><img src="../img/address.PNG" class="inline-img dashboard-icon"><?php echo rtrim(trim($address), ','); ?></a>
 						</div>
 						<?php if($row['google_maps_address'].$row['ship_google_link'] != ''): ?>
 							<div class="col-sm-6">
-								<a href="<?= $row['google_maps_address'] ?: $row['ship_google_link'] ?>"><img src="../img/address.PNG" class="inline-img">Google Maps</a>
+								<a href="<?= $row['google_maps_address'] ?: $row['ship_google_link'] ?>"><img src="../img/address.PNG" class="inline-img dashboard-icon">Google Maps</a>
 							</div>
 						<?php endif; ?>
 					<?php endif; ?>
 					<?php if(in_array('Pronoun', $field_display)): ?>
 						<div class="col-sm-6">
-							<img src="../img/gender.png" class="inline-img"><?php switch($row['preferred_pronoun']) {
+							<img src="../img/gender.png" class="inline-img dashboard-icon"><?php switch($row['preferred_pronoun']) {
 								case 1: echo "She/Her"; break;
 								case 2: echo "He/Him"; break;
 								case 3: echo "They/Them"; break;
@@ -302,32 +303,32 @@ if ( !empty($note) ) { ?>
 					<?php endif; ?>
 					<?php if(in_array('Birthdate', $field_display)): ?>
 						<div class="col-sm-6">
-							<img src="../img/birthday.png" class="inline-img"><?= $row['birth_date'] ?><?= ( $row['birth_date']=='0000-00-00' || empty($row['birth_date']) ) ? '' : ' Age: '.date_diff(date_create($row['birth_date']), date_create('now'))->y ?>
+							<img src="../img/birthday.png" class="inline-img dashboard-icon"><?= $row['birth_date'] ?><?= ( $row['birth_date']=='0000-00-00' || empty($row['birth_date']) ) ? '' : ' Age: '.date_diff(date_create($row['birth_date']), date_create('now'))->y ?>
 						</div>
 					<?php endif; ?>
 					<?php if(in_array_any(['Office Phone','Home Phone','Cell Phone'],$field_display)) { ?>
 						<div class="col-sm-6">
 							<?php if($row['office_phone'] && in_array('Office Phone', $field_display)): ?>
-								<a href="tel:<?= decryptIt($row['office_phone']) ?>"><img src="../img/office_phone.PNG" class="inline-img"><?= decryptIt($row['office_phone']); ?></a>
+								<a href="tel:<?= decryptIt($row['office_phone']) ?>"><img src="../img/office_phone.PNG" class="inline-img dashboard-icon"><?= decryptIt($row['office_phone']); ?></a>
 							<?php endif; ?>
 							<?php if($row['home_phone'] && in_array('Home Phone', $field_display)): ?>
-								<a href="tel:<?= decryptIt($row['home_phone']) ?>"><img src="../img/home_phone.PNG" class="inline-img"><?= decryptIt($row['home_phone']); ?></a>
+								<a href="tel:<?= decryptIt($row['home_phone']) ?>"><img src="../img/home_phone.PNG" class="inline-img dashboard-icon"><?= decryptIt($row['home_phone']); ?></a>
 							<?php endif; ?>
 							<?php if($row['cell_phone'] && in_array('Cell Phone', $field_display)): ?>
-								<a href="tel:<?= decryptIt($row['cell_phone']) ?>"><img src="../img/cell_phone.PNG" class="inline-img"><?= decryptIt($row['cell_phone']); ?></a>
+								<a href="tel:<?= decryptIt($row['cell_phone']) ?>"><img src="../img/cell_phone.PNG" class="inline-img dashboard-icon"><?= decryptIt($row['cell_phone']); ?></a>
 							<?php endif; ?>
 						</div>
 					<?php } ?>
 					<?php if(in_array('Social', $field_display)) { ?>
 						<div class="col-sm-6">
-							<?php if($row['linkedin'] != '') { ?><a href="<?= $row['linkedin'] ?>"><img src="../img/icons/social/linkedin.png" class="inline-img" /> LinkedIn</a><?php } ?>
-							<?php if($row['facebook'] != '') { ?><a href="<?= $row['facebook'] ?>"><img src="../img/icons/social/facebook.png" class="inline-img" /> Facebook</a><?php } ?>
-							<?php if($row['twitter'] != '') { ?><a href="<?= $row['twitter'] ?>"><img src="../img/icons/social/twitter.png" class="inline-img" /> Twitter</a><?php } ?>
-							<?php if($row['google_plus'] != '') { ?><a href="<?= $row['google_plus'] ?>"><img src="../img/icons/social/google+.png" class="inline-img" /> Google+</a><?php } ?>
-							<?php if($row['instagram'] != '') { ?><a href="<?= $row['instagram'] ?>"><img src="../img/icons/social/instagram.png" class="inline-img" /> Instagram</a><?php } ?>
-							<?php if($row['pinterest'] != '') { ?><a href="<?= $row['pinterest'] ?>"><img src="../img/icons/social/pinterest.png" class="inline-img" /> Pinterest</a><?php } ?>
-							<?php if($row['youtube'] != '') { ?><a href="<?= $row['youtube'] ?>"><img src="../img/icons/social/youtube.png" class="inline-img" /> YouTube</a><?php } ?>
-							<?php if($row['blog'] != '') { ?><a href="<?= $row['blog'] ?>"><img src="../img/icons/social/rss.png" class="inline-img" /> Blog</a><?php } ?>
+							<?php if($row['linkedin'] != '') { ?><a href="<?= $row['linkedin'] ?>"><img src="../img/icons/social/linkedin.png" class="inline-img dashboard-icon" /> LinkedIn</a><?php } ?>
+							<?php if($row['facebook'] != '') { ?><a href="<?= $row['facebook'] ?>"><img src="../img/icons/social/facebook.png" class="inline-img dashboard-icon" /> Facebook</a><?php } ?>
+							<?php if($row['twitter'] != '') { ?><a href="<?= $row['twitter'] ?>"><img src="../img/icons/social/twitter.png" class="inline-img dashboard-icon" /> Twitter</a><?php } ?>
+							<?php if($row['google_plus'] != '') { ?><a href="<?= $row['google_plus'] ?>"><img src="../img/icons/social/google+.png" class="inline-img dashboard-icon" /> Google+</a><?php } ?>
+							<?php if($row['instagram'] != '') { ?><a href="<?= $row['instagram'] ?>"><img src="../img/icons/social/instagram.png" class="inline-img dashboard-icon" /> Instagram</a><?php } ?>
+							<?php if($row['pinterest'] != '') { ?><a href="<?= $row['pinterest'] ?>"><img src="../img/icons/social/pinterest.png" class="inline-img dashboard-icon" /> Pinterest</a><?php } ?>
+							<?php if($row['youtube'] != '') { ?><a href="<?= $row['youtube'] ?>"><img src="../img/icons/social/youtube.png" class="inline-img dashboard-icon" /> YouTube</a><?php } ?>
+							<?php if($row['blog'] != '') { ?><a href="<?= $row['blog'] ?>"><img src="../img/icons/social/rss.png" class="inline-img dashboard-icon" /> Blog</a><?php } ?>
 						</div>
 					<?php } ?>
 					<?php if(in_array('Website', $field_display)): ?>
@@ -353,9 +354,9 @@ if ( !empty($note) ) { ?>
 					<div class="clearfix"></div>
                     <div class="set-favourite">
 						<?php if(strpos($row['is_favourite'],",".$_SESSION['contactid'].",") === FALSE): ?>
-							<a href="?list=<?php echo $list; ?>&favourite=<?php echo $row['contactid']; ?>"><img src="../img/blank_favourite.png" alt="Favourite" title="Click to make the contact favourite" class="inline-img pull-right small"></a>
+							<a href="?list=<?php echo $list; ?>&favourite=<?php echo $row['contactid']; ?>"><img src="../img/blank_favourite.png" alt="Favourite" title="Click to make the contact favourite" class="inline-img pull-right small no-toggle"></a>
 						<?php else: ?>
-							<a href="?list=<?php echo $list; ?>&unfavourite=<?php echo $row['contactid']; ?>"><img src="../img/full_favourite.png" alt="Favourite" title="Click to make the contact unfavourite" class="inline-img pull-right small"></a>
+							<a href="?list=<?php echo $list; ?>&unfavourite=<?php echo $row['contactid']; ?>"><img src="../img/full_favourite.png" alt="Favourite" title="Click to make the contact unfavourite" class="inline-img pull-right small no-toggle"></a>
 						<?php endif; ?>
                     </div>
 				</div>
@@ -375,8 +376,11 @@ if ( !empty($note) ) { ?>
 </div>
 <?php } else {
 
+$heading = FOLDER_NAME.'_summary';
+$contacts_summary_config = get_config($dbc, $heading);
 
-    echo '<h3 class="double-gap-left">Contact Per Category</h3>';
+if(strpos($contacts_summary_config,'Per Category') !== false) {
+    echo '<h3 class="double-gap-left">'.CONTACTS_TILE.' Per Category</h3>';
     $lists = array_filter(explode(',',get_config($dbc, FOLDER_NAME.'_tabs')));
     foreach($lists as $list_name) {
         echo '<div class="col-sm-6">';
@@ -391,8 +395,10 @@ if ( !empty($note) ) { ?>
         echo '</div>';
     }
     echo '<div class="clearfix"></div>';
+}
 
-    echo '<h3 class="double-gap-left">Contact Per Business</h3>';
+if(strpos($contacts_summary_config,'Per Business') !== false) {
+    echo '<h3 class="double-gap-left">'.CONTACTS_TILE.' Per Business</h3>';
     $lists = $dbc->query("SELECT contactid, name FROM `contacts` WHERE `deleted`=0 AND `tile_name`='".FOLDER_NAME."' AND `category`='Business' AND `status`=0");
     while($list = $lists->fetch_assoc()) {
                 $cid = $list['contactid'];
@@ -406,8 +412,10 @@ if ( !empty($note) ) { ?>
                 }
     }
     echo '<div class="clearfix"></div>';
+}
 
-    echo '<h3 class="double-gap-left">Contacts Per Gender</h3>';
+if(strpos($contacts_summary_config,'Per Gender') !== false) {
+    echo '<h3 class="double-gap-left">'.CONTACTS_TILE.' Per Gender</h3>';
     $service_categories = $dbc->query("SELECT `name`, `first_name`, `last_name`, COUNT(contactid) AS total_gender, `gender` FROM `contacts` WHERE `deleted`=0 AND `tile_name`='".FOLDER_NAME."' AND `status`=1 GROUP BY `gender`");
     while($service_row = $service_categories->fetch_assoc()) {
         echo '<div class="col-sm-6">';
@@ -420,8 +428,10 @@ if ( !empty($note) ) { ?>
         echo '</div>';
     }
     echo '<div class="clearfix"></div>';
+}
 
-    echo '<h3 class="double-gap-left">Contact Per Classification</h3>';
+if(strpos($contacts_summary_config,'Per Classification') !== false) {
+    echo '<h3 class="double-gap-left">'.CONTACTS_TILE.' Per Classification</h3>';
     $con_classifications = array_filter(explode(",", get_config($dbc, FOLDER_NAME.'_classification')));
     if(count($con_classifications) > 0) {
         foreach($con_classifications as $con_classification):
@@ -441,7 +451,40 @@ if ( !empty($note) ) { ?>
         endforeach;
     }
     echo '<div class="clearfix"></div>';
+}
 
+if(strpos($contacts_summary_config,'Per City') !== false) {
+    echo '<h3 class="double-gap-left">'.CONTACTS_TILE.' Per City</h3>';
+    $service_categories = $dbc->query("SELECT `name`, `first_name`, `last_name`, COUNT(contactid) AS total_city, `city` FROM `contacts` WHERE `deleted`=0 AND `tile_name`='".FOLDER_NAME."' AND `status`=1 GROUP BY `city`");
+    while($service_row = $service_categories->fetch_assoc()) {
+        echo '<div class="col-sm-6">';
+            echo '<div class="overview-block">';
+                if($service_row['city'] == '') {
+                    $service_row['city'] = 'Not specified';
+                }
+                echo $service_row['city'].': '.$service_row['total_city'];
+            echo '</div>';
+        echo '</div>';
+    }
+    echo '<div class="clearfix"></div>';
+}
+
+$get_current_url = "$_SERVER[REQUEST_URI]";
+if(strpos($contacts_summary_config,'Per Archived Data') !== false) {
+    echo '<h3 class="double-gap-left">'.CONTACTS_TILE.' Per Archived Data</h3>';
+	$query = mysqli_query($dbc,"SELECT contactid, `name`, `first_name`, `last_name` FROM `contacts` WHERE `deleted`=1 AND `tile_name`='".FOLDER_NAME."'");
+		echo '<div class="col-sm-6">';
+            echo '<div class="overview-block">';
+                while($row = mysqli_fetch_array($query)) {
+                    if($row['name'] != '' || $row['first_name'] != '') {
+                            echo decryptIt($row['name']).decryptIt($row['first_name']).' '.decryptIt($row['last_name']);
+                            echo ' : <a href=\'../delete_restore.php?action=restore&from='.$get_current_url.'&contactid='.$row['contactid'].'\' onclick="return confirm(\'Are you sure?\')">Restore</a><br>';
+                    }
+                }
+            echo '</div>';
+        echo '</div>';
+    echo '<div class="clearfix"></div>';
+}
 /*
     echo '<h3>Contact per Regions</h3>';
     $con_regions = array_filter(array_unique(explode(',', get_config($dbc, '%_region', true))));

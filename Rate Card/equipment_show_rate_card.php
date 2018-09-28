@@ -3,7 +3,7 @@
 	$id = false;
 	if(isset($_GET['id']))
 		$id = is_numeric($_GET['id']) ? $_GET['id'] : false;
-	
+
 	$sql = "SELECT * FROM `equipment_rate_table` WHERE `rate_id`='$id'";
 	$row = mysqli_fetch_array(mysqli_query($dbc, $sql));
 	if($id === false || mysqli_num_rows($result) > 0):
@@ -35,7 +35,7 @@
 						<div class='col-sm-8'><input class='form-control datepicker' type='text' name='alert_date' value='<?php echo $row['alert_date']; ?>'></div></div>
 						<div class='form-group clearfix completion_date'><label class='col-sm-4 control-label text-right'>Alert Staff</label>
 						<div class='col-sm-8'>
-							<select name="alert_staff[]" multiple data-placeholder="Select Staff..." class="form-control chosen-select-deselect"><option></option>
+							<select name="alert_staff[]" multiple data-placeholder="Select Staff..." class="form-control chosen-select-deselect">
 								<?php $staff_list = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name` FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `deleted`=0 AND `status`=1 AND `show_hide_user`=1"),MYSQLI_ASSOC));
 								foreach($staff_list as $staffid) {
 									echo '<option value="'.$staffid.'" '.(strpos(','.$row['alert_staff'].',',','.$staffid.',') !== FALSE ? 'selected' : '').'>'.get_contact($dbc, $staffid).'</option>';

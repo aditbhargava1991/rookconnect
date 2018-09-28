@@ -16,8 +16,13 @@ if (isset($_POST['submit'])) {
 	$qd = htmlentities($_POST['estimate_data']);
 	$estimate_data = filter_var($qd,FILTER_SANITIZE_STRING);
 
+	$before_change = capture_before_change($dbc, 'estimate', 'estimate_data', 'estimateid', $estimateid);
+
 	$query_update_report = "UPDATE `estimate` SET `estimate_data` = '$estimate_data' WHERE `estimateid` = '$estimateid'";
 	$result_update_report = mysqli_query($dbc, $query_update_report);
+
+	$history = capture_after_change('estimate_data', $estimate_data);
+	add_update_history($dbc, 'estimates_history', $history, '', $before_change);
 
 	$get_field_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT logo FROM field_config_estimate"));
 	$logo = $get_field_config['logo'];

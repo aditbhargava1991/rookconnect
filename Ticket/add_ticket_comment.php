@@ -113,7 +113,6 @@ if($access_any > 0 || $_GET['force_allow'] == 1) {
 			  <?php $category = ($comment_type == 'member_note' ? $category : "Staff"); ?>
 			  <div class="col-sm-8">
 				<select data-placeholder="Select <?= $category ?>..." name="assign[]" multiple class="chosen-select-deselect form-control">
-				  <option value=""></option>
 					<?php $query = sort_contacts_query(mysqli_query($dbc,"SELECT contactid, first_name, last_name FROM contacts WHERE category $comment_category AND CONCAT(IFNULL(`first_name`,''),IFNULL(`last_name`,'')) != '' AND deleted=0 AND `status`>0"));
 					foreach($query as $contact) {
 						echo "<option value='". $contact['contactid']."'>".$contact['first_name'].' '.$contact['last_name'].'</option>';
@@ -154,7 +153,6 @@ if($access_any > 0 || $_GET['force_allow'] == 1) {
 					<label class="col-sm-4 control-label">Alert:</label>
 					<div class="col-sm-8">
 						<select name="assign_role[]" multiple class="chosen-select-deselect form-control">
-							<option></option>
 							<?php $ticket_notes_alert_role = get_config($dbc, 'ticket_notes_alert_role');
 							$on_security = get_security_levels($dbc);
 							foreach($on_security as $category => $value) {

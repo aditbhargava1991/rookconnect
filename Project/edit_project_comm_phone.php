@@ -18,12 +18,13 @@ if(!isset($projectid)) {
 }
 $project = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `project` WHERE `projectid`='$projectid'"));
 $project_security = get_security($dbc, 'project'); ?>
-<h3 id="head_phone">Phone Communication</h3>
+<h3 id="head_phone">Phone</h3>
 <div class="notice double-gap-top double-gap-bottom popover-examples">
     <div class="col-sm-1 notice-icon"><img src="<?= WEBSITE_URL ?>/img/info.png" class="wiggle-me" width="25"></div>
     <div class="col-sm-11"><span class="notice-name">NOTE: </span>View all phone communication sent through the software for this project.</div>
     <div class="clearfix"></div>
 </div>
+<!--
 <div class="tab-container mobile-100-container">
 	<?php if ( check_subtab_persmission($dbc, 'phone_communication', ROLE, 'internal') === TRUE ) { ?>
 		<div class="pull-left"><span class="popover-examples no-gap-pad"><a data-toggle="tooltip" data-placement="top" title="Contains all internal phone communication, including follow up by/date and status, which can be edited from here."><img src="../img/info.png" width="20"></a></span>
@@ -41,6 +42,7 @@ $project_security = get_security($dbc, 'project'); ?>
 		</div><br /><br />
 	<?php } ?>
 </div>
+-->
 
 <?php if($_GET['category'] == 'Log') {
 	include('../Phone Communication/log_display.php');

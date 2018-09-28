@@ -36,6 +36,10 @@ function daysheet_ticket_label ($dbc, $daysheet_ticket_fields, $ticket, $status_
             $label .= '<br />Customer: '.get_contact($dbc, $ticket['clientid']);
         }
     }
+    if($ticket['service_templateid'] > 0 && in_array('Service Template', $daysheet_ticket_fields)) {
+        $service_template = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `name` FROM `services_service_templates` WHERE `templateid` = '".$ticket['service_templateid']."'"))['name'];
+        $label .= '<br />Service Template: '.$service_template;
+    }
     if(!empty($ticket['delivery_type']) && in_array('Delivery Type', $daysheet_ticket_fields)) {
         $label .= '<br />Delivery Type: '.ucfirst($ticket['delivery_type']);
     }
@@ -198,4 +202,139 @@ function daysheet_ticket_label ($dbc, $daysheet_ticket_fields, $ticket, $status_
     }
 
     return $label;
+}
+
+function daysheet_get_tags($dbc, $contactid, $start_date = '0000-00-00', $end_date = '9999-12-31', $offset = 0, $rowsPerPage = 9999999999) {
+    $daysheet_styling = $user_settings['daysheet_styling'];
+    if(empty($daysheet_styling)) {
+        $daysheet_styling = get_config($dbc, 'daysheet_styling');
+    }
+    if(empty($daysheet_styling)) {
+        $daysheet_styling = 'card';
+    }
+    $tagged_items = mysqli_query($dbc, "SELECT * FROM `contacts_tagging` WHERE `contactid` = '$contactid' AND `deleted` = 0 AND `last_updated_date` BETWEEN '$start_date' AND '$end_date' ORDER BY `last_updated_date` DESC LIMIT $offset, $rowsPerPage");
+
+    $html = '';
+    while($row = mysqli_fetch_assoc($tagged_items)) {
+        $block_html = '';
+        switch($row['src_table']) {
+            case 'incident_report':
+                $get_field_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT incident_report_dashboard FROM field_config_incident_report"));
+                $value_config = ','.$get_field_config['incident_report_dashboard'].',';
+
+                $incident_report = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `incident_report` WHERE `incidentreportid` = '".$row['item_id']."'"));
+                $contact_list = [];
+                if ($incident_report['contactid'] != '') {
+                    $contact_list[$incident_report['contactid']] = get_staff($dbc, $incident_report['contactid']);
+                }
+                $attendance_list = [];
+                if ($incident_report['attendance_staff'] != '') {
+                    $attendance_list = explode(',', $incident_report['attendance_staff']);
+                }
+                foreach($attendance_list as $attendee) {
+                    $contact_list[] = $attendee;
+                }
+                if ($incident_report['completed_by'] != '') {
+                    $contact_list[] = get_contact($dbc, $incident_report['completed_by']);
+                }
+                $contact_list = array_unique($contact_list);
+                if(empty($contact_list) && $current_type == 'SAVED') {
+                    $contact_list = [''];
+                }
+                $contact_name = implode(', ',$contact_list);
+
+                $project = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `project` WHERE `projectid` = '".$incident_report['projectid']."'"));
+                $project = get_project_label($dbc, $project);
+                $ticket = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticketid` = '".$incident_report['ticketid']."'"));
+                $ticket = get_ticket_label($dbc, $ticket);
+                $program = (!empty(get_client($dbc, $incident_report['programid'])) ? get_client($dbc, $incident_report['programid']) : get_contact($dbc, $incident_report['programid']));
+                $member_list = [];
+                foreach(explode(',',$incident_report['memberid']) as $member) {
+                    if($member != '') {
+                        $member_list[] = !empty(get_client($dbc, $member)) ? get_client($dbc, $member) : get_contact($dbc, $member);
+                    }
+                }
+                $member_list = implode(', ',$member_list);
+                $client_list = [];
+                foreach(explode(',',$incident_report['clientid']) as $client) {
+                    if($client != '') {
+                        $client_list[] = !empty(get_client($dbc, $client)) ? get_client($dbc, $client) : get_contact($dbc, $client);
+                    }
+                }
+                $client_list = implode(', ',$client_list);
+                $project_type = $project_vars[$incident_report['project_type']];
+
+                $block_html .= '<a href="" onclick="untagMyself(this, \''.$row['id'].'\'); return false;" class="pull-right"><img src="../img/icons/cancel.png" class="inline-img no-toggle" title="Untag Myself"></a>';
+                $block_html .= '<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Incident Report/add_incident_report.php?incidentreportid='.$row['item_id'].'\'); return false;">';
+
+                $block_html .= INC_REP_NOUN.' #'.$row['item_id'].'<br />';
+
+                if (strpos($value_config, ','."Program".',') !== FALSE && !empty(str_replace('-','',$program))) {
+                    $block_html .= 'Program: '.$program.'<br />';
+                }
+                if (strpos($value_config, ','."Project Type".',') !== FALSE && !empty($project_type)) {
+                    $block_html .= PROJECT_NOUN.' Type: '.$project_type.'<br />';
+                }
+                if (strpos($value_config, ','."Project".',') !== FALSE && !empty(str_replace('-','',$project))) {
+                    $block_html .= PROJECT_NOUN.': '.$project.'<br />';
+                }
+                if (strpos($value_config, ','."Ticket".',') !== FALSE && !empty(str_replace('-','',$ticket))) {
+                    $block_html .= TICKET_NOUN.': '.$ticket.'<br />';
+                }
+                if (strpos($value_config, ','."Member".',') !== FALSE && !empty($member_list)) {
+                    $block_html .= 'Member: '.$member_list.'<br />';
+                }
+                if (strpos($value_config, ','."Client".',') !== FALSE && !empty($client_list)) {
+                    $block_html .= 'Client: '.$client_list.'<br />';
+                }
+                if (strpos($value_config, ','."Type".',') !== FALSE && !empty($incident_report['type'])) {
+                    $block_html .= 'Type: ' . $incident_report['type'].'<br />';
+                }
+                if (strpos($value_config, ','."Staff".',') !== FALSE && !empty(str_replace('-','',$contact_name))) {
+                    $block_html .= 'Staff: ' . $contact_name.'<br />';
+                }
+                if (strpos($value_config, ','."Follow Up".',') !== FALSE && !empty($incident_report['ir14'])) {
+                    $block_html .= 'Follow Up: ' . $incident_report['ir14'].'<br />';
+                }
+                if (strpos($value_config, ','."Date of Happening".',') !== FALSE && !empty(str_replace('0000-00-00','',$incident_report['date_of_happening']))) {
+                    $block_html .= 'Date of Happening: ' . $incident_report['date_of_happening'].'<br />';
+                }
+                if (strpos($value_config, ','."Date of Incident".',') !== FALSE && !empty(str_replace('0000-00-00','',$incident_report['incident_date']))) {
+                    $block_html .= 'Date of Incident: ' . $incident_report['incident_date'].'<br />';
+                }
+                if (strpos($value_config, ','."Date Created".',') !== FALSE && !empty(str_replace('0000-00-00','',$incident_report['today_date']))) {
+                    $block_html .= 'Date Created: ' . $incident_report['today_date'].'<br />';
+                }
+                if (strpos($value_config, ','."Location".',') !== FALSE && !empty($incident_report['location'])) {
+                    $block_html .= 'Location: ' . $incident_report['location'].'<br />';
+                }
+                if (strpos($value_config, ','."PDF".',') !== FALSE) {
+                    $name_of_file = 'incident_report_'.$incident_report['incidentreportid'].'.pdf';
+                    $block_html .= 'PDF: '.(file_exists('../Incident Report/download/'.$name_of_file) ? '<span onclick="window.open(\''.WEBSITE_URL.'/Incident Report/download/'.$name_of_file.'\', \'_blank\');" class="no-slider"><img src="'.WEBSITE_URL.'/img/pdf.png" width="16" height="16" border="0" alt="View">View</span>' : '');
+                    if ($incident_report['revision_number'] > 0) {
+                        $revision_dates = explode('*#*', $incident_report['revision_date']);
+                        for ($i = 0; $i < $incident_report['revision_number']; $i++) {
+                            $name_of_file = 'incident_report_'.$incident_report['incidentreportid'].'_'.($i+1).'.pdf';
+                            if(file_exists('../Incident Report/download/'.$name_of_file)) {
+                                $block_html .= '<br /><span onclick="window.open(\''.WEBSITE_URL.'/Incident Report/download/'.$name_of_file.'\', \'_blank\');" class="no-slider"><img src="'.WEBSITE_URL.'/img/pdf.png" width="16" height="16" border="0" alt="view">View R'.($i+1).': '.$revision_dates[$i].'</span>';
+                            }
+                        }
+                    }
+                    $block_html .= '<br />';
+                }
+                $block_html .= 'Last Updated Date: '.$row['last_updated_date'];
+
+                $block_html .= '</a>';
+
+                break;
+        }
+        if(!empty($block_html)) {
+            if($daysheet_styling == 'card') {
+                $html .= '<div class="block-group-daysheet">'.$block_html.'</div>';
+            } else {
+                $html .= '<li>'.$block_html.'</li>';
+            }
+        }
+    }
+    return $html;
 }

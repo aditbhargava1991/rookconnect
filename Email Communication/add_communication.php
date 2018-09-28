@@ -39,7 +39,7 @@ if (isset($_POST['submit'])) {
 	$follow_up_date = $_POST['followup_date'];
 	$follow_up_by = $_POST['followup_by'];
 
-	$today_date = date('Y-m-d');
+	$today_date = date('Y-m-d h:i:s');
     $created_by = $_SESSION['contactid'];
 
     if (!file_exists('download')) {

@@ -1,6 +1,6 @@
 <?php
 if (isset($_POST['add_equip_assign'])) {
-	$equipment_category = filter_var($_POST['equipment_category'], FILTER_SANITIZE_STRING);
+	$equipment_category = filter_var(implode(',',$_POST['equipment_category']), FILTER_SANITIZE_STRING);
     $client_type = filter_var($_POST['client_type'], FILTER_SANITIZE_STRING);
     $contact_category = filter_var(implode(',', $_POST['contact_category']),FILTER_SANITIZE_STRING);
     $contractor_category = filter_var(implode(',', $_POST['contractor_category']),FILTER_SANITIZE_STRING);
@@ -80,14 +80,14 @@ if (!empty($get_field_config)) {
             	<div class="form-group">
 	            	<label for="equipment_category" class="col-sm-4 control-label">Equipment Category:</label>
 	            	<div class="col-sm-8">
-		            	<select data-placeholder="Select Equipment" name="equipment_category" class="chosen-select-deselect form-control">
+		            	<select data-placeholder="Select Equipment" name="equipment_category[]" multiple class="chosen-select-deselect form-control">
 		            		<option></option>
 		            		<?php
 		            		$equip_categories = get_config($dbc, 'equipment_tabs');
 		            		$equip_categories = explode(',', $equip_categories);
 		            		asort($equip_categories);
 		            		foreach($equip_categories as $equip_category) {
-		            			echo '<option value="'.$equip_category.'"'.($equip_category == $equipment_category ? ' selected' : '').'>'.$equip_category.'</option>';
+		            			echo '<option value="'.$equip_category.'"'.(strpos(','.$equipment_category.',', ','.$equip_category.',') !== FALSE ? ' selected' : '').'>'.$equip_category.'</option>';
 		            		}
 		            		?>
 		            	</select>

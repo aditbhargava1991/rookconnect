@@ -3,6 +3,9 @@
 	<span id="calendar_date_heading" style="font-size: 2em;">&nbsp;&nbsp;<?= $date_string ?></span>
     <div class="pull-right mobile-clear-floats">
         <?php
+        if($export_time_table == 1) { ?>
+                <a href='' onclick='overlayIFrameSlider("<?= WEBSITE_URL ?>/Calendar/export_time_table.php"); return false;' class="block-label pull-right">Export Time Table</a>
+        <?php }
         if((($_GET['type'] == 'event' && vuaed_visible_function($dbc, 'calendar_rook')) || ($wait_list == 'ticket' && $new_ticket_button !== '')) && $edit_access == 1) {
             if($_GET['type'] == 'schedule') { ?>
                 <a href='' onclick='dispatchNewWorkOrder(this); return false;' class="block-label pull-right">New <?= TICKET_NOUN ?></a><?php
@@ -10,7 +13,7 @@
                 <a href='<?= WEBSITE_URL ?>/Ticket/index.php?edit=0' onclick='overlayIFrameSlider(this.href+"&calendar_view=true"); return false;' class="block-label pull-right">New <?= TICKET_NOUN ?></a><?php
             }
         }
-        if($use_shifts !== '' && $_GET['mode'] != 'staff_summary' && $_GET['mode'] != 'ticket_summary') {
+        if($use_shifts !== '' && $_GET['mode'] != 'staff_summary' && $_GET['mode'] != 'ticket_summary' && $_GET['mode'] != 'client') {
             $shift_fields = ','.mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_contacts_shifts`"))['enabled_fields'].',';
             if(strpos($shift_fields, ',shifts_report,') !== FALSE) { ?>
                 <a href="" onclick='overlayIFrameSlider("<?= WEBSITE_URL ?>/Calendar/shifts_report.php?region=<?= $_GET['region'] ?>"); return false;' class="block-label pull-right shift_btn" <?= $_GET['type'] != 'shift' ? 'style="display:none;"' : '' ?>>Shifts Report</a>
@@ -34,7 +37,7 @@
                 <a href="" onclick='overlayIFrameSlider("<?= WEBSITE_URL ?>/Calendar/shifts.php?<?= http_build_query($page_query) ?>&shiftid=IMPORT"); return false;' class="block-label pull-right shift_btn" <?= $_GET['type'] != 'shift' ? 'style="display:none;"' : '' ?>>Import Shifts</a>
             <?php }
         }
-        if($use_shifts !== '' && $edit_access == 1 && $_GET['mode'] != 'staff_summary' && $_GET['mode'] != 'ticket_summary') {
+        if($use_shifts !== '' && $edit_access == 1 && $_GET['mode'] != 'staff_summary' && $_GET['mode'] != 'ticket_summary' && $_GET['mode'] != 'client') {
             if(!empty($_GET['shiftid'])) {
                 unset($page_query['shiftid']);
             } else {
@@ -93,7 +96,7 @@
             $page_query['add_reminder'] = $_GET['add_reminder'];
         } ?>
         <?php
-        if($all_tickets_button !== '' && $edit_access == 1 && $_GET['view'] != 'monthly' && $_GET['mode'] != 'staff_summary' && $_GET['mode'] != 'ticket_summary') {
+        if($all_tickets_button !== '' && $edit_access == 1 && $_GET['view'] != 'monthly' && $_GET['mode'] != 'staff_summary' && $_GET['mode'] != 'ticket_summary' && $_GET['mode'] != 'client') {
             unset($page_query['equipment_assignmentid']);
             unset($page_query['offline']);
             unset($page_query['teamid']);
@@ -122,7 +125,7 @@
             $page_query['add_reminder'] = $_GET['add_reminder'];
         } ?>
         <?php
-        if($use_unbooked !== '' && $edit_access == 1 && $_GET['mode'] != 'staff_summary' && $_GET['mode'] != 'ticket_summary') {
+        if($use_unbooked !== '' && $edit_access == 1 && $_GET['mode'] != 'staff_summary' && $_GET['mode'] != 'ticket_summary' && $_GET['mode'] != 'client') {
             unset($page_query['equipment_assignmentid']);
             unset($page_query['offline']);
             unset($page_query['teamid']);
@@ -180,6 +183,10 @@
         <?php
         if($equipment_assignment !== '' && $edit_access == 1) {
             $equipment_category = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_equip_assign`"))['equipment_category'];
+            $equipment_categories = array_filter(explode(',', $equipment_category));
+            if(empty($equipment_categories) || count($equipment_categories) > 1) {
+                $equipment_category = 'Equipment';
+            }
             if (!empty($equipment_category)) { ?>
                 <a href='' onclick='overlayIFrameSlider("<?= WEBSITE_URL ?>/Calendar/equip_assign.php?equipment_assignmentid=NEW&region=<?= $_GET['region'] ?>"); return false;' class="block-label pull-right"><?= $equipment_category ?> Assignment</a><?php
             }
@@ -236,5 +243,13 @@
             $page_query['shiftid'] = $_GET['shiftid'];
         }
         ?>
+        <?php if(get_config($dbc, 'calendar_online_users') == 1) { ?>
+            <div class="pull-right">
+                <div class="online-users">
+                    <img src="<?= WEBSITE_URL ?>/img/person.PNG" class="online-users-icon theme-color-icon"><span class="online-users-count">0</span>
+                    <div class="block-button online-users-block" style="display: none; width: 20em; position: absolute; top: 2em; left: 1.5em; z-index: 99999999999;"></div>
+                </div>
+            </div>
+        <?php } ?>
     </div>
 </div>

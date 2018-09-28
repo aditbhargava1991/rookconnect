@@ -37,15 +37,6 @@ function send_csv() {
 $equipment_main_tabs = explode(',',get_config($dbc, 'equipment_main_tabs'));
 include_once('../Equipment/region_location_access.php'); ?>
 
-<div class="notice double-gap-bottom popover-examples">
-    <div class="col-sm-1 notice-icon"><img src="<?= WEBSITE_URL; ?>/img/info.png" class="wiggle-me" width="25"></div>
-    <div class="col-sm-11">
-        <span class="notice-name">NOTE:</span>
-        Here you can add and edit all equipment assignments
-    </div>
-    <div class="clearfix"></div>
-</div>
-
 <?php
 $category = $_GET['category'];
 $each_tab = explode(',', get_config($dbc, 'equipment_tabs'));
@@ -54,8 +45,8 @@ if (get_config($dbc, 'show_category_dropdown_equipment') == '1') { ?>
     <div class="gap-left tab-container col-sm-10">
         <div class="row">
 			<label class="control-label col-sm-2">
-                <span class="popover-examples" style="margin:0;"><a data-toggle="tooltip" data-placement="top" title="Filter equipment by Category."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
-                Category:
+                <span class="popover-examples" style="margin:0;"><a data-toggle="tooltip" data-placement="top" title="Filter equipment by Tab."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
+                Tab:
             </label>
 			<div class="col-sm-4">
 				<select name="search_category" class="chosen-select-deselect form-control mobile-100-pull-right category_actual">

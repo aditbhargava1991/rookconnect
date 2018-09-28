@@ -1,5 +1,8 @@
 // AJAX Saving Functionality
 function saveFieldMethod(field) {
+    saveSalesMethod(field);
+}
+function saveSalesMethod(field) {
     if(field.type == 'file') {
         var uploaded = 0;
         var filecount = field.files.length;
@@ -11,7 +14,7 @@ function saveFieldMethod(field) {
             file.append('type',$(field).data('type'));
             file.append('salesid',$('[name=salesid]').val());
             $.ajax({
-                url: 'sales_ajax_all.php?action=upload_files',
+                url: '../Sales/sales_ajax_all.php?action=upload_files',
                 method: 'POST',
                 processData: false,
                 contentType: false,
@@ -41,6 +44,21 @@ function saveFieldMethod(field) {
         }
     } else {
         var save_value = field.value;
+        if($(field).data('table') == 'sales' && field.name == 'businessid' && save_value == 'New Business') {
+            $.post('../Sales/sales_ajax_all.php?action=new_business', { }, function(response) {
+                $('[name=businessid][data-table=sales]').append('<option selected value="'+response+'">New Business</option>').val(response).change();
+            });
+            doneSaving();
+            return;
+        } else if($(field).data('table') == 'sales' && field.name == 'contactid' && save_value == 'New Contact') {
+            $.post('../Sales/sales_ajax_all.php?action=new_lead', {
+                    businessid: $('[name=businessid][data-table=sales]').val()
+                }, function(response) {
+                $(field).append('<option selected value="'+response+'">New Sales Lead Contact</option>').val(response).change();
+            });
+            doneSaving();
+            return;
+        }
         if($(field).data('concat') != undefined) {
             var save_value = [];
             $('[data-table][name="'+field.name+'"]').each(function() {
@@ -57,7 +75,7 @@ function saveFieldMethod(field) {
             id = $(field).closest('.accordion-block-details').find('[name=contactid]').val();
         }
         $.ajax({
-            url: 'sales_ajax_all.php?action=update_fields',
+            url: '../Sales/sales_ajax_all.php?action=update_fields',
             method: 'POST',
             data: {
                 salesid: $('[name=salesid]').val(),
@@ -74,12 +92,18 @@ function saveFieldMethod(field) {
                     $('[name=primary_staff]').change();
                 } else if(response > 0 && $(field).data('table') == 'contacts') {
                     $(field).closest('.row').find('[data-table="contacts"]').data('id',response);
+                    $(field).closest('.row').parents('.row').first().find('select[name=contactid],select[name=businessid]').first().append('<option value="'+response+'">New Record</option>').trigger('select2.change').val(response).change();
                 } else if(response > 0 && $(field).data('after') != undefined) {
                     try {
                         window[$(field).data('after')]();
                     } catch(err) { }
                 } else if(response > 0) {
                     $('[data-table="'+$(field).data('table')+'"]').data('id',response);
+                }
+                if($(field).data('table') == 'sales' && field_name == 'businessid') {
+                    reload_business();
+                } else if ($(field).data('table') == 'sales' && field_name == 'contactid') {
+                    reload_contacts();
                 }
                 doneSaving();
             }
@@ -92,7 +116,13 @@ function add_row(img) {
     var line = $(img).closest('.row');
     var clone = line.clone();
     clone.find('input,select').val('').find('option').show();
+    clone.find('.sub_details').remove();
     line.after(clone);
+    if(clone.offset().top < $('.standard-body-title').offset().top + $('.standard-body-title').outerHeight() || clone.offset().top > window.innerHeight - 200) {
+        try {
+            $('.standard-body-content').scrollTop($('.standard-body-content').scrollTop() + clone.offset().top - $('.standard-body-title').offset().top - $('.standard-body-title').outerHeight());
+        } catch(err) { }
+    }
     init_page();
 }
 function rem_row(img) {
@@ -117,12 +147,17 @@ function rem_doc(img) {
     }
     line.find('[data-table][name="deleted"]').val(1).change();
 }
+function rem_infogathering(img) {
+    var line = $(img).closest('tr');
+    line.find('[data-table][name="deleted"]').val(1).change();
+    line.remove();
+}
 function add_note() {
-    overlayIFrameSlider('../sales/add_sales_comment.php?salesid='+$('[name=salesid]').val(),'auto',true,true);
+    overlayIFrameSlider('../Sales/add_sales_comment.php?salesid='+$('[name=salesid]').val(),'auto',true,true);
 }
 
 // Open the profile for the nearest contact
-function view_profile(img, tile) {
+function load_profile(img, tile) {
     var contactid = $(img).closest('.row').find('select').val();
     if(contactid > 0) {
         overlayIFrameSlider('../'+tile+contactid,'auto',true,true);
