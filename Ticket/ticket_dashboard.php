@@ -1266,6 +1266,7 @@ IF(!IFRAME_PAGE) { ?>
 		foreach($result as $r){
 		    array_push($block_list_arr,$r);
 		}
+		$block_list_arr = array_filter($block_list_arr);
 		if(!empty($block_list_arr)){
 		    foreach($block_list_arr as $listarr){
 		        //echo '<pre>';print_r($listarr);
