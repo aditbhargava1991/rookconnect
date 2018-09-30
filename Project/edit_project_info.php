@@ -471,7 +471,7 @@ $field_mandatory_config = array_filter(array_unique(array_merge(explode(',',mysq
 		<div class="form-group">
 			<label class="col-sm-4"><?php echo (in_array('Information AFE', $field_mandatory_config) ? '<font color="red">* </font>' : ''); ?>AFE #:</label>
 			<div class="col-sm-8 <?= !($security['edit'] > 0) ? 'readonly-block' : '' ?>">
-				<input name="afe_number" value="<?= $project['afe_number'] ?>" data-table="project" data-id="<?= $project['projectid'] ?>" data-id-field="projectid" type="text" class="form-control <?php echo (in_array('Information AFE', $field_mandatory_config) ? '<font color="red">* </font>' : ''); ?> required"></p>
+				<input name="afe_number" value="<?= $project['afe_number'] ?>" data-table="project" data-id="<?= $project['projectid'] ?>" data-id-field="projectid" type="text" class="form-control <?php echo (in_array('Information AFE', $field_mandatory_config) ? 'required' : ''); ?>"></p>
 			</div>
 		</div>
 	<?php } ?>
@@ -480,7 +480,7 @@ $field_mandatory_config = array_filter(array_unique(array_merge(explode(',',mysq
 		<div class="form-group">
 			<label class="col-sm-4"><?php echo (in_array('Information Project Short Name', $field_mandatory_config) ? '<font color="red">* </font>' : ''); ?><?= PROJECT_NOUN ?> Short Name:</label>
 			<div class="col-sm-8 <?= !($security['edit'] > 0) ? 'readonly-block' : '' ?>">
-				<input name="project_name" value="<?= $project['project_name'] ?>" data-table="project" data-id="<?= $project['projectid'] ?>" data-id-field="projectid" type="text" class="form-control <?php echo (in_array('Information Project Short Name', $field_mandatory_config) ? '<font color="red">* </font>' : ''); ?> required"></p>
+				<input name="project_name" value="<?= $project['project_name'] ?>" data-table="project" data-id="<?= $project['projectid'] ?>" data-id-field="projectid" type="text" class="form-control <?php echo (in_array('Information Project Short Name', $field_mandatory_config) ? 'required' : ''); ?>"></p>
 			</div>
 		</div>
 	<?php } ?>
