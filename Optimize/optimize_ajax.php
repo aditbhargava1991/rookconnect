@@ -49,6 +49,9 @@ else if($_GET['action'] == 'assign_ticket_deliveries') {
 	}
 	$start_time = date('H:i',strtotime($start_time));
 	if($increment == '') {
+		$increment = get_config($dbc, 'scheduling_increments').' minutes';
+	}
+	if($increment == '') {
 		$increment = '30 minutes';
 	}
 	$available_increment = get_config($dbc, 'delivery_timeframe_default');
@@ -62,7 +65,7 @@ else if($_GET['action'] == 'assign_ticket_deliveries') {
         $start_available = $start_time;
 		$end_available = date('H:i',strtotime($start_time.' + '.$available_increment.' hours'));
 		$dbc->query("UPDATE `ticket_schedule` SET `to_do_start_time`='$start_time', `to_do_end_time`='$end_time', `start_available`='$start_available', `end_available`='$end_available', `equipmentid`='$equipmentid' WHERE `id`='".$stop['id']."'");
-		$start_time = date('H:i',strtotime($start_time) + ($increment_time * ceil($est_time * 3600 / $increment_time)));
+
 	}
 }
 else if($_GET['action'] == 'archive') {

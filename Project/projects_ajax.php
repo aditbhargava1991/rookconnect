@@ -96,6 +96,11 @@ if($_GET['action'] == 'mark_favourite') {
 		mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT '$config' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='$config') num WHERE num.rows=0");
 		mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='$details' WHERE `name`='$config'");
 	}
+} else if($_GET['action'] == 'setting_mandatory_fields') {
+	$type = filter_var($_POST['projects'],FILTER_SANITIZE_STRING);
+	$fields = filter_var(implode(',',array_filter($_POST['fields'])),FILTER_SANITIZE_STRING);
+	mysqli_query($dbc, "INSERT INTO `field_config_mandatory_project` (`type`) SELECT '$type' FROM (SELECT COUNT(*) rows FROM `field_config_mandatory_project` WHERE `type`='$type') num WHERE num.rows=0");
+	mysqli_query($dbc, "UPDATE `field_config_mandatory_project` SET `config_fields`='$fields' WHERE `type`='$type'");
 } else if($_GET['action'] == 'setting_tile') {
 	$field = filter_var($_POST['field'],FILTER_SANITIZE_STRING);
 	$value = filter_var($_POST['value'],FILTER_SANITIZE_STRING);

@@ -1072,9 +1072,9 @@ if($invoice_mode != 'Adjustment') {
                 $service_cats[] = $service['category'];
                 $service_names[] = $service['heading'];
                 $qty = $_POST['init_qty'][$i] > 0 ? $_POST['init_qty'][$i] * (-1) : -1;
-                $service_fee = $_POST['init_fee'][$i] > 0 ? $_POST['init_fee'][$i] : $service['service_rate'];
+                $service_fee = round($_POST['init_fee'][$i] > 0 ? $_POST['init_fee'][$i] : $service['service_rate'],2);
                 $service_fees[] = ($service_fee * $qty);
-                $gst = $_POST['init_gst_exempt'][$i] == "1" ? 0 : ($service_fee * $qty * $_POST['tax_rate'] / 100);
+                $gst = round($_POST['init_gst_exempt'][$i] == "1" ? 0 : ($service_fee * $qty * $_POST['tax_rate'] / 100),2);
                 $service_gst[] = $gst;
                 $service_admin_fees[] = (-$service['admin_fee']);
                 $fee = ($service_fee * $qty) + $gst;
@@ -1148,7 +1148,7 @@ if($invoice_mode != 'Adjustment') {
                         $service_patient[$i] += $applied;
                     }
                 }
-                if($fee < 0) {
+                if(round($fee,2) < 0) {
                     $applied = 0;
                     $applied = $fee;
                     //$on_account -= $applied;
@@ -1208,8 +1208,8 @@ if($invoice_mode != 'Adjustment') {
                 $list_package_patient .= $details['category'].' : '.$details['heading'].'<br>';
                 $packages[] = $package;
                 $package_name[] = $details['heading'];
-                $package_fees[] = (-$_POST['package_cost'][$i]);
-                $gst = $_POST['package_gst_exempt'][$i] == "1" ? 0 : (-$_POST['package_cost'][$i]) * $_POST['tax_rate'] / 100;
+                $package_fees[] = round(-$_POST['package_cost'][$i],2);
+                $gst = round($_POST['package_gst_exempt'][$i] == "1" ? 0 : (-$_POST['package_cost'][$i]) * $_POST['tax_rate'] / 100,2);
                 $package_gst[] = $gst;
                 $total = (-$_POST['package_cost'][$i]) + $gst;
                 $package_totals[] = $total;
@@ -1281,7 +1281,7 @@ if($invoice_mode != 'Adjustment') {
                         $package_patient[$i] += $applied;
                     }
                 }
-                if($total < 0) {
+                if(round($total,2) < 0) {
                     $applied = 0;
                     $applied = $total;
                     //$on_account -= $total;
@@ -1343,8 +1343,8 @@ if($invoice_mode != 'Adjustment') {
 			$inv_types[] = $_POST['invtype'][$i];
 			$inv_names[] = $inventory['name'][$i];
 			$inv_qtys[] = $_POST['quantity'][$i];
-			$inv_prices[] = $_POST['sell_price'][$i];
-			$gst = ($_POST['inventory_gst_exempt'][$i] == "1" ? 0 : $_POST['sell_price'][$i] * $_POST['tax_rate'] / 100);
+			$inv_prices[] = round($_POST['sell_price'][$i],2);
+			$gst = round($_POST['inventory_gst_exempt'][$i] == "1" ? 0 : $_POST['sell_price'][$i] * $_POST['tax_rate'] / 100,2);
 			$inv_gst[] = $gst;
 			$total = $_POST['sell_price'][$i] + $gst;
 			$inv_totals[] = $total;
@@ -1419,7 +1419,7 @@ if($invoice_mode != 'Adjustment') {
 					$inv_patient[$i] += $applied;
 				}
 			}
-			if($total < 0) {
+			if(round($total,2) < 0) {
 				$applied = 0;
 				$applied = $total;
 				//$on_account -= $applied;
@@ -1488,8 +1488,8 @@ if($invoice_mode != 'Adjustment') {
 			$misc_names[] = $misc;
 			$misc_unit_prices[] = $_POST['misc_price'][$i];
 			$misc_qtys[] = $_POST['misc_return'][$i];
-			$misc_prices[] = $_POST['misc_total'][$i];
-			$gst = $_POST['misc_total'][$i] * $_POST['tax_rate'] / 100;
+			$misc_prices[] = round($_POST['misc_total'][$i],2);
+			$gst = round($_POST['misc_total'][$i] * $_POST['tax_rate'] / 100,2);
 			$misc_gst[] = $gst;
 			$total = $_POST['misc_total'][$i] + $gst;
 			$final_amount += $total;
@@ -1569,7 +1569,7 @@ if($invoice_mode != 'Adjustment') {
 					$misc_patient[$i] += $applied;
 				}
 			}
-			if($total < 0) {
+			if(round($total,2) < 0) {
 				$applied = 0;
 				$applied = $total;
 				//$on_account -= $applied;
@@ -2345,17 +2345,6 @@ if($invoice_mode != 'Adjustment') {
 			'paid' => $payment_types[$j] ];
 	}
 
-	if($delivery > 0) {
-		$invoice_patient[] = [ 'sub_total' => $delivery,
-			'gst_amt' => $delivery * $_POST['tax_rate'] / 100,
-			'gratuity' => 0,
-			'price' => $delivery + $delivery * $_POST['tax_rate'] / 100,
-			'service_cat' => '',
-			'service_name' => '',
-			'product_name' => 'Delivery: '.$delivery_type,
-			'paid' => $payment_types[$j] ];
-	}
-
 	//Apply further refunds to the the items used for excess refunds
 	foreach($payment_used as $j => $amt_unused) {
 		$applied = 0;
@@ -2393,20 +2382,26 @@ if($invoice_mode != 'Adjustment') {
 	foreach($payment_used as $j => $amt_unused) {
 		$applied = 0;
 		if($amt_unused > 0) {
-			$applied = $amt_unused;
-			$payment_used[$j] -= $applied;
-			$adjust_amount += $applied;
-			$total_amount += $applied;
-			$final_amount += $applied;
-			//Invoice Patient Portion
-			$invoice_patient[] = [ 'sub_total' => $applied,
-				'gst_amt' => 0,
-				'gratuity' => 0,
-				'price' => $applied,
-				'service_cat' => 'Adjustment',
-				'service_name' => 'Adjustment',
-				'product_name' => '',
-				'paid' => $payment_types[$j] ];
+            if($amt_unused < 1) {
+                $invoice_patient[count($invoice_patient) - 1]['gst_amt'] += $amt_unused;
+                $invoice_patient[count($invoice_patient) - 1]['price'] += $amt_unused;
+                $final_amount += $applied;
+            } else {
+                $applied = $amt_unused;
+                $payment_used[$j] -= $applied;
+                $adjust_amount += $applied;
+                $total_amount += $applied;
+                $final_amount += $applied;
+                //Invoice Patient Portion
+                $invoice_patient[] = [ 'sub_total' => $applied,
+                    'gst_amt' => 0,
+                    'gratuity' => 0,
+                    'price' => $applied,
+                    'service_cat' => 'Adjustment',
+                    'service_name' => 'Adjustment',
+                    'product_name' => '',
+                    'paid' => $payment_types[$j] ];
+            }
 		}
 
 		if($payment_types[$j] == 'On Account') {
@@ -2445,8 +2440,8 @@ if($invoice_mode != 'Adjustment') {
             $payment_amts[$j] *= -1;
         }
     }
-	$payment_type = trim(implode(',', $payment_types),',').'#*#'.trim(implode(',',$payment_amts),',');
 
+	$payment_type = trim(implode(',', $payment_types),',').'#*#'.trim(implode(',',$payment_amts),',');
 	$insurerid = '';
 	$insurance_payment = '';
 	foreach($insurers as $ins_id => $ins_amt) {
@@ -2467,16 +2462,11 @@ if($invoice_mode != 'Adjustment') {
 		$misc_ins = implode(',',$misc_insurer).',';
 		$gst_amt = $final_amount - $total_amount;
 		$adjust_gst = $gst_amt;
-		$delivery = $_POST['delivery'];
-		$delivery_type = $_POST['delivery_type'];
-		$delivery_address = $_POST['delivery_address'];
-		$ship_date = $_POST['ship_date'];
-		$contractorid = $_POST['contractorid'];
 		$created_by = $_SESSION['contactid'];
 		$pricing = $_POST['pricing'];
 
-		$query_insert_invoice = "INSERT INTO `invoice` (`invoice_type`, `invoiceid_src`, `injuryid`, `patientid`, `therapistsid`, `serviceid`, `fee`, `admin_fee`, `service_patient`, `service_insurer`, `service_pro_bono`, `service_promo`, `inventoryid`, `sell_price`, `invtype`, `quantity`, `inventory_patient`, `inventory_insurer`, `inventory_pro_bono`, `inventory_promo`, `packageid`, `package_cost`, `package_patient`, `package_insurer`, `package_pro_bono`, `package_promo`, `misc_item`, `misc_price`, `misc_qty`, `misc_total`, `misc_patient`, `misc_insurer`, `misc_promo`, `misc_pro_bono`, `total_price`, `gst_amt`, `gratuity`, `delivery`, `delivery_type`, `delivery_address`, `contractorid`, `created_by`, `final_price`, `pro_bono`, `insurerid`, `insurance_payment`, `paid`, `payment_type`, `pricing`, `service_date`, `invoice_date`, `ship_date`, `promotionid`, `giftcardid`, `comment`)
-			VALUES ('Adjustment', '$src_invoiceid', '$injuryid', '$patientid', '$therapistsid', '$serviceid', '$fee', '$all_af', '$service_patient', '$service_ins', '$service_pro_bono', '$service_promo', '$inventoryid', '$sell_price', '$invtype', '$quantity', '$product_patient', '$product_ins', '$product_pro_bono', '$product_promo', '$packageid', '$package_cost', '$package_patient', '$package_ins', '$package_pro_bono', '$package_promo', '$misc_item', '$misc_price', '$misc_qty', '$misc_total', '$misc_patient', '$misc_ins', '$misc_promo', '$misc_pro_bono', '$total_amount', '$gst_amt', '$gratuity', '$delivery', '$delivery_type', '$delivery_address', '$contractorid', '$created_by', '$final_amount', '$pro_bono', '$insurerid', '$insurance_payment', '$paid', '$payment_type', '$pricing', '$service_date', '$today_date', '$ship_date', '$promotionid', '$giftcardid', '$comment')";
+		$query_insert_invoice = "INSERT INTO `invoice` (`invoice_type`, `invoiceid_src`, `injuryid`, `patientid`, `therapistsid`, `serviceid`, `fee`, `admin_fee`, `service_patient`, `service_insurer`, `service_pro_bono`, `service_promo`, `inventoryid`, `sell_price`, `invtype`, `quantity`, `inventory_patient`, `inventory_insurer`, `inventory_pro_bono`, `inventory_promo`, `packageid`, `package_cost`, `package_patient`, `package_insurer`, `package_pro_bono`, `package_promo`, `misc_item`, `misc_price`, `misc_qty`, `misc_total`, `misc_patient`, `misc_insurer`, `misc_promo`, `misc_pro_bono`, `total_price`, `gst_amt`, `gratuity`, `created_by`, `final_price`, `pro_bono`, `insurerid`, `insurance_payment`, `paid`, `payment_type`, `pricing`, `service_date`, `invoice_date`, `ship_date`, `promotionid`, `giftcardid`, `comment`)
+			VALUES ('Adjustment', '$src_invoiceid', '$injuryid', '$patientid', '$therapistsid', '$serviceid', '$fee', '$all_af', '$service_patient', '$service_ins', '$service_pro_bono', '$service_promo', '$inventoryid', '$sell_price', '$invtype', '$quantity', '$product_patient', '$product_ins', '$product_pro_bono', '$product_promo', '$packageid', '$package_cost', '$package_patient', '$package_ins', '$package_pro_bono', '$package_promo', '$misc_item', '$misc_price', '$misc_qty', '$misc_total', '$misc_patient', '$misc_ins', '$misc_promo', '$misc_pro_bono', '$total_amount', '$gst_amt', '$gratuity', '$created_by', '$final_amount', '$pro_bono', '$insurerid', '$insurance_payment', '$paid', '$payment_type', '$pricing', '$service_date', '$today_date', '$ship_date', '$promotionid', '$giftcardid', '$comment')";
 		$result_insert_invoice = mysqli_query($dbc, $query_insert_invoice);
 		$invoiceid = mysqli_insert_id($dbc);
 		foreach($invoice_lines as $query) {

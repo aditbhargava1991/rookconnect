@@ -70,8 +70,18 @@
 	$checklist = $checklistpdf;
 } ?>
 
+<script>
+    $(document).ready(function() {
+        $('#print_report').click(function() {
+            $('[name=printpdf]').click();
+        });
+    });
+</script>
+
 <div class="standard-body-title">
-    <h3>Reporting</h3>
+    <h3 class="pull-left">Reporting</h3>
+    <div class="pull-right"><img id="print_report" src="../img/icons/pdf.png" alt="Print Report" title="Print Report" class="no-toggle cursor-hand offset-top-15 offset-right-15" width="30" /></div>
+    <div class="clearfix"></div>
 </div>
 
 <form name="form_sites" method="post" action="" class="form-horizontal" role="form">
@@ -117,7 +127,7 @@
 		<input type="hidden" name="endtimepdf" value="<?php echo $endtime; ?>">
 	</div>
     
-    <button type="submit" name="printpdf" value="Print Report" class="pull-right gap-right gap-bottom"><img src="../img/pdf.png" alt="Print Report" title="Print Report" /></button>
+    <button type="submit" name="printpdf" value="Print Report" class="pull-right gap-right gap-bottom image-btn no-toggle" title="Print Report" style="visibility:hidden;"><img src="../img/icons/pdf.png" alt="Print Report" width="30" /></button>
     
     <div class="clearfix"></div>
 

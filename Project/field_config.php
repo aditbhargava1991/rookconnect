@@ -81,6 +81,7 @@ function loadPanel() {
 	<ul>
 		<a href="projects.php"><li>Back to Dashboard</li></a>
 		<a href="?settings=fields"><li class="<?= empty($_GET['settings']) || $_GET['settings'] == 'fields' ? 'active blue' : '' ?>">Activate Fields</li></a>
+		<a href="?settings=mandatory_fields"><li class="<?= empty($_GET['settings']) || $_GET['settings'] == 'mandatory_fields' ? 'active blue' : '' ?>">Mandatory Fields</li></a>
 		<a href="?settings=tabs"><li class="<?= $_GET['settings'] == 'tabs' ? 'active blue' : '' ?>">Activate Tabs</li></a>
 		<a href="?settings=types"><li class="<?= $_GET['settings'] == 'types' ? 'active blue' : '' ?>"><?= PROJECT_NOUN ?> Types</li></a>
 		<a href="?settings=tile"><li class="<?= $_GET['settings'] == 'tile' ? 'active blue' : '' ?>">Tile Settings</li></a>
@@ -94,6 +95,9 @@ function loadPanel() {
 <?php switch($_GET['settings']) {
 	case 'fields':
 		$body_title = 'Activate Fields';
+		break;
+	case 'mandatory_fields':
+		$body_title = 'Mandatory Fields';
 		break;
 	case 'tabs':
 		$body_title = 'Activate Tabs';
@@ -150,6 +154,9 @@ function loadPanel() {
 				break;
 			case 'administration':
 				include('field_config_administration.php');
+				break;
+			case 'mandatory_fields':
+				include('field_config_mandatory_fields.php');
 				break;
 			default:
 				include('field_config_fields.php');

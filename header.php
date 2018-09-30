@@ -21,22 +21,8 @@ function updateQueryStringParameter(uri, key, value) {
 }
 
 // Javascript Stored User Preferences
-var time_format_style = '<?php
-switch($_SESSION['user_preferences']['time_format'] > 0 ? $_SESSION['user_preferences']['time_format'] : get_config($dbc, 'system_time_format')) {
-	case 4: echo 'H:mm'; break;
-	case 3: echo 'HH:mm'; break;
-	case 2: echo 'h:mm tt'; break;
-	default: echo 'hh:mm tt'; break;
-}
-?>';
-var time_format_seconds = '<?php
-switch($_SESSION['user_preferences']['time_format'] > 0 ? $_SESSION['user_preferences']['time_format'] : get_config($dbc, 'system_time_format')) {
-	case 4: echo 'H:mm:ss'; break;
-	case 3: echo 'HH:mm:ss'; break;
-	case 2: echo 'h:mm:ss tt'; break;
-	default: echo 'hh:mm:ss tt'; break;
-}
-?>';
+var time_format_style = '<?= TIME_FORMAT ?>';
+var time_format_seconds = '<?= TIME_FORMAT_SEC ?>';
 </script>
 
 <!-- css -->
