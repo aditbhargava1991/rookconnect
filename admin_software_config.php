@@ -1323,6 +1323,10 @@ checkAuthorised();
                                         <?php echo tile_config_function($dbc, 'communication', 'admin'); ?>
                                     </tr>
                                     <tr>
+                                        <td data-title="Comment">Dispatch</td>
+                                        <?php echo tile_config_function($dbc, 'dispatch', 'admin'); ?>
+                                    </tr>
+                                    <tr>
                                         <td data-title="Comment">Email Communication</td>
                                         <?php echo tile_config_function($dbc, 'email_communication', 'admin'); ?>
                                     </tr>
