@@ -821,6 +821,9 @@ function get_project_paths($projectid) {
             if($pathid > 0) {
                 $path['path_id'] = $pathid;
                 $path['path_name'] = explode('#*#',$paths['project_path_name'])[$i];
+                if(empty($path['path_name'])) {
+                    $path['path_name'] = get_field_value('project_path','project_path_milestone','project_path_milestone',$pathid);
+                }
 
               // Add default milestones, if they have not yet been added
                 $milestones = explode('#*#',get_field_value('milestone','project_path_milestone','project_path_milestone',$pathid));
