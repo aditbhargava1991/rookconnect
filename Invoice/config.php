@@ -70,6 +70,8 @@ if(!empty($_GET['invoiceid'])) {
     $misc_qtys =$get_invoice['misc_qty'];
     $mis_ins = $get_invoice['misc_insurer'];
 
+    $discount_value = $get_invoice['discount'];
+    $assembly = $get_invoice['assembly'];
     $delivery = $get_invoice['delivery'];
     $delivery_address = $get_invoice['delivery_address'];
     $delivery_type = $get_invoice['delivery_type'];
@@ -88,6 +90,13 @@ if(!empty($_GET['invoiceid'])) {
     $insurer_paid_who = $get_invoice['insurerid'];
     $insurer_paid_amt = $get_invoice['insurance_payment'];
     $gratuity = $get_invoice['gratuity'];
+    
+    // Prior Discount Percentage
+    $discount_percent = 1;
+    if($_GET['inv_mode'] == 'adjust') {
+        $discount_percent = 1 - ($discount_value / $total_price);
+    }
+    
     $adj_result = mysqli_query($dbc, "SELECT * FROM `invoice` WHERE `invoiceid_src`='$invoiceid'");
     while($invoice_adj = mysqli_fetch_array($adj_result)) {
         $serviceid .= $invoice_adj['serviceid'];

@@ -24,6 +24,25 @@ if(!empty($_GET['calendar_view'])) {
 	echo '<input type="hidden" name="from" value="'.$_GET['from'].'">';
 	$back_url = urldecode($_GET['from']);
 }
+if(!empty($_GET['from_alert'])) {
+	$get_ticket = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticketid` = '".$_GET['edit']."'"));
+	if(trim($get_ticket['contactid'],',') == '') {
+		mysqli_query($dbc, "UPDATE `tickets` SET `contactid` = ',".$_SESSION['contactid'].",' WHERE `ticketid` = '".$_GET['edit']."'");
+	} else if(!in_array($_SESSION['contactid'], explode(',', trim($get_ticket['contactid'],',')))) {
+		$staff_labels = [];
+		foreach(explode(',', trim($get_ticket['contactid'],',')) as $ticket_contactid) {
+			$staff_labels[] = get_contact($dbc, $ticket_contactid);
+		}
+		$staff_labels = implode(', ', $staff_labels); ?>
+		<script type="text/javascript">
+			$(document).ready(function() {
+				alert("<?= $staff_labels ?> has taken responsibility of this <?= TICKET_NOUN ?>.");
+            
+                
+			});
+		</script>
+	<?php }
+}
 
 $ticket_layout = get_config($dbc, 'ticket_layout');
 $value_config = ','.get_field_config($dbc, 'tickets').',';
@@ -304,6 +323,30 @@ if(!empty($ticket_status)) {
 	}
 }
 
+//Intake Fields
+if(isset($_GET['intake_key'])) {
+	$value_config_all = $value_config;
+	$value_config = ','.get_config($dbc, 'ticket_intake_fields').',';
+	if(!empty($ticket_type)) {
+		$value_config .= get_config($dbc, 'ticket_intake_fields_'.$ticket_type).',';
+	}
+	if(empty(trim($value_config,','))) {
+		$value_config = $value_config_all;
+	} else {
+		if(strpos($value_config, ','."Hide Trash Icon".',') !== FALSE) {
+			$hide_trash_icon = 1;
+		}
+		foreach($action_mode_ignore_fields as $action_mode_ignore_field) {
+			if(strpos(','.$value_config_all.',',','.$action_mode_ignore_field.',') !== FALSE) {
+				$value_config .= ','.$action_mode_ignore_field;
+			}
+		}
+		$value_config = ','.implode(',',array_intersect(explode(',',$value_config), explode(',',$value_config_all))).',';
+	}
+	echo '<input type="hidden" name="intake_key" value="'.$_GET['intake_key'].'">';
+	echo '<input type="hidden" name="intake_alerted" value="1">';
+}
+
 //Edit Staff From Dashboard
 if($_GET['edit_staff_dashboard'] == 1) {
 	$value_config = explode(',',$value_config);
@@ -447,7 +490,19 @@ $uneditable_statuses = ','.get_config($dbc, 'ticket_uneditable_status').',';
 if(!empty($get_ticket['status']) && strpos($uneditable_statuses, ','.$get_ticket['status'].',') !== FALSE) {
 	$strict_view = 1;
 }
-if(($get_ticket['to_do_date'] > date('Y-m-d') && strpos($value_config,',Ticket Edit Cutoff,') !== FALSE && $config_access < 1) || $strict_view > 0 || ($wait_on_approval && strpos(','.$admin_group.',',','.$_SESSION['contactid'].',') !== false)) {
+if(isset($_GET['intake_key']) && !($ticketid > 0)) {
+	$access_project = true;
+	$access_staff = true;
+	$access_contacts = true;
+	$access_waitlist = true;
+	$access_staff_checkin = true;
+	$access_all_checkin = true;
+	$access_medication = true;
+	$access_complete = true;
+	$access_services = true;
+	$access_all = true;
+	$access_any = true;
+} else if(($get_ticket['to_do_date'] > date('Y-m-d') && strpos($value_config,',Ticket Edit Cutoff,') !== FALSE && $config_access < 1) || $strict_view > 0 || ($wait_on_approval && strpos(','.$admin_group.',',','.$_SESSION['contactid'].',') !== false)) {
 	$access_project = false;
 	$access_staff = false;
 	$access_contacts = false;
@@ -576,7 +631,7 @@ if($get_ticket['main_ticketid'] > 0 && $get_ticket['is_recurrence'] == 1 && !$fo
 	$is_recurrence = true;
 }
 $quick_action_html = '';
-if(!($strict_view > 0)) {
+if(!($strict_view > 0) && !isset($_GET['intake_key'])) {
 	$quick_actions = explode(',',get_config($dbc, 'quick_action_icons'));
 	$quick_action_html .= '<div class="action-icons pull-right" data-colour="'.$get_ticket['flag_colour'].'" data-table="tickets" data-id-field="ticketid">';
 	$quick_action_html .= (strpos($value_config,',Create Recurrence Button,') !== FALSE ? '<img src="'.WEBSITE_URL.'/img/month-overview-blue.png" class="inline-img no-toggle" title="Recurring '.TICKET_TILE .'" onclick="dialogCreateRecurrence(this);">' : '');
@@ -687,18 +742,20 @@ $(document).ready(function() {
 			}
 		},50);
 	<?php } ?>
-    
+
     var menu_bar_height = $('#nav').height() + $('.tile-header').height() + 12;
     $('.menu-bar').css('top', menu_bar_height);
-    
+
     $('.main-screen .main-screen').scroll(function() {
         if ($(this).scrollTop() > 70) {
             $('.menu-bar').fadeIn("fast");
             $('.menu-content:visible').fadeOut("fast");
             $('.menu_button:hidden').fadeIn("fast");
+            $('#back_to_top').fadeIn("fast");
         } else {
             $('.menu-bar').fadeOut("fast");
             $('.menu-content').fadeOut("fast");
+            $('#back_to_top').fadeOut("fast");
         }
     });
 	if(ticketid > 0) {
@@ -720,6 +777,10 @@ $(document).on('click', '.menu_button', function() {
     });
     $('.menu-content').fadeIn("fast");
     $('.menu_button').hide();
+});
+$(document).on('click', '#back_to_top', function(e) {
+   e.preventDefault();
+   $('.standard-body').animate({scrollTop: 0}, 400);
 });
 function loadPanel() {
 	if(!$(this).hasClass('higher_level_heading')) {
@@ -831,7 +892,7 @@ function setManualFlag(ticketid = '', colour, label) {
 }
 function checkMandatoryFields() {
 	var ready = ticketid > 0 || ticketid == 'multi' || <?= IFRAME_PAGE ? 'true' : 'false' ?>;
-	$('[name=projectid],select[name=businessid]').not('[type=checkbox]').each(function() {
+	$('.required').each(function() {
 		if(!no_verify && this.value == '' && $(this).attr('type') != 'hidden' && (this.name != 'projectid' || $('[name=piece_work]').filter(function() { return this.value != ''; }).length != 1)) {
 			var target = this;
 			if($(target).is('select')) {
@@ -1130,7 +1191,7 @@ var setHeading = function() {
 	<?php }
 	echo '<div class="pull-right '.($calendar_ticket_slider != 'accordion' ? 'show-on-mob' : '').'">'.$quick_action_html.'</div>';
 	if(count($ticket_tabs) > 1 && !($_GET['action_mode'] > 0 || $_GET['overview_mode'] > 0) && $tile_security['edit'] > 0 && !($strict_view > 0)) { ?>
-		<div class="form-group clearfix <?= $calendar_ticket_slider != 'accordion' ? 'show-on-mob' : '' ?>">
+		<div class="form-group clearfix <?= $calendar_ticket_slider != 'accordion' ? 'show-on-mob' : '' ?>" <?= isset($_GET['intake_key']) ? 'style="display:none;"' : '' ?>>
 			<label for="ticket_type" class="col-sm-4 control-label text-right"><?= TICKET_NOUN ?> Tab:</label>
 			<div class="col-sm-8">
 				<select name="ticket_type" id="ticket_type" data-placeholder="Select a Tab..." data-initial="<?= $ticket_type ?>" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" class="chosen-select-deselect form-control">
@@ -1243,7 +1304,7 @@ var setHeading = function() {
 					</div>
 
 					<div id="collapse_<?= str_replace(' ','_',$sort_field) ?>" class="panel-collapse collapse">
-						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?ticketid=<?= $ticketid ?>&tab=<?= str_replace(' ','_',$sort_field) ?>">
+						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?<?= isset($_GET['intake_key']) ? 'intake_key='.$_GET['intake_key'].'&' : '' ?>ticketid=<?= $ticketid ?>&tab=<?= str_replace(' ','_',$sort_field) ?>">
 							Loading...
 						</div>
 					</div>
@@ -1261,7 +1322,7 @@ var setHeading = function() {
 					</div>
 
 					<div id="collapse_project_info" class="panel-collapse collapse">
-						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?ticketid=<?= $ticketid ?>&tab=project_info">
+						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?<?= isset($_GET['intake_key']) ? 'intake_key='.$_GET['intake_key'].'&' : '' ?>ticketid=<?= $ticketid ?>&tab=project_info">
 							Loading...
 						</div>
 					</div>
@@ -1278,7 +1339,7 @@ var setHeading = function() {
 					</div>
 
 					<div id="collapse_purchase_order" class="panel-collapse collapse">
-						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?ticketid=<?= $ticketid ?>&tab=ticket_po_number">
+						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?<?= isset($_GET['intake_key']) ? 'intake_key='.$_GET['intake_key'].'&' : '' ?>ticketid=<?= $ticketid ?>&tab=ticket_po_number">
 							Loading...
 						</div>
 					</div>
@@ -1295,7 +1356,7 @@ var setHeading = function() {
 					</div>
 
 					<div id="collapse_customer_order" class="panel-collapse collapse">
-						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?ticketid=<?= $ticketid ?>&tab=ticket_customer_order">
+						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?<?= isset($_GET['intake_key']) ? 'intake_key='.$_GET['intake_key'].'&' : '' ?>ticketid=<?= $ticketid ?>&tab=ticket_customer_order">
 							Loading...
 						</div>
 					</div>
@@ -1312,7 +1373,7 @@ var setHeading = function() {
 					</div>
 
 					<div id="collapse_project_details" class="panel-collapse collapse">
-						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?ticketid=<?= $ticketid ?>&tab=project_details">
+						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?<?= isset($_GET['intake_key']) ? 'intake_key='.$_GET['intake_key'].'&' : '' ?>ticketid=<?= $ticketid ?>&tab=project_details">
 							Loading...
 						</div>
 					</div>
@@ -1329,7 +1390,7 @@ var setHeading = function() {
 					</div>
 
 					<div id="collapse_contact_notes" class="panel-collapse collapse">
-						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?ticketid=<?= $ticketid ?>&tab=ticket_contact_notes">
+						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?<?= isset($_GET['intake_key']) ? 'intake_key='.$_GET['intake_key'].'&' : '' ?>ticketid=<?= $ticketid ?>&tab=ticket_contact_notes">
 							Loading...
 						</div>
 					</div>
@@ -1346,7 +1407,7 @@ var setHeading = function() {
 					</div>
 
 					<div id="collapse_ticket_path_milestone" class="panel-collapse collapse">
-						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?ticketid=<?= $ticketid ?>&tab=ticket_path_milestone">
+						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?<?= isset($_GET['intake_key']) ? 'intake_key='.$_GET['intake_key'].'&' : '' ?>ticketid=<?= $ticketid ?>&tab=ticket_path_milestone">
 							Loading...
 						</div>
 					</div>
@@ -1364,7 +1425,7 @@ var setHeading = function() {
 					</div>
 
 					<div id="collapse_ticket_individuals" class="panel-collapse collapse">
-						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?ticketid=<?= $ticketid ?>&tab=ticket_individuals">
+						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?<?= isset($_GET['intake_key']) ? 'intake_key='.$_GET['intake_key'].'&' : '' ?>ticketid=<?= $ticketid ?>&tab=ticket_individuals">
 							Loading...
 						</div>
 					</div>
@@ -1382,7 +1443,7 @@ var setHeading = function() {
 					</div>
 
 					<div id="collapse_ticket_fees" class="panel-collapse collapse">
-						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?ticketid=<?= $ticketid ?>&tab=ticket_fees">
+						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?<?= isset($_GET['intake_key']) ? 'intake_key='.$_GET['intake_key'].'&' : '' ?>ticketid=<?= $ticketid ?>&tab=ticket_fees">
 							Loading...
 						</div>
 					</div>
@@ -1400,7 +1461,7 @@ var setHeading = function() {
 					</div>
 
 					<div id="collapse_ticket_location" class="panel-collapse collapse">
-						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?ticketid=<?= $ticketid ?>&tab=ticket_location">
+						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?<?= isset($_GET['intake_key']) ? 'intake_key='.$_GET['intake_key'].'&' : '' ?>ticketid=<?= $ticketid ?>&tab=ticket_location">
 							Loading...
 						</div>
 					</div>
@@ -1418,7 +1479,7 @@ var setHeading = function() {
 					</div>
 
 					<div id="collapse_ticket_members_id_card" class="panel-collapse collapse">
-						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?ticketid=<?= $ticketid ?>&tab=ticket_members_id_card">
+						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?<?= isset($_GET['intake_key']) ? 'intake_key='.$_GET['intake_key'].'&' : '' ?>ticketid=<?= $ticketid ?>&tab=ticket_members_id_card">
 							Loading...
 						</div>
 					</div>
@@ -1436,7 +1497,7 @@ var setHeading = function() {
 					</div>
 
 					<div id="collapse_ticket_mileage" class="panel-collapse collapse">
-						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?ticketid=<?= $ticketid ?>&tab=ticket_mileage">
+						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?<?= isset($_GET['intake_key']) ? 'intake_key='.$_GET['intake_key'].'&' : '' ?>ticketid=<?= $ticketid ?>&tab=ticket_mileage">
 							Loading...
 						</div>
 					</div>
@@ -1454,7 +1515,7 @@ var setHeading = function() {
 					</div>
 
 					<div id="collapse_ticket_staff_list" class="panel-collapse collapse">
-						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?ticketid=<?= $ticketid ?>&tab=ticket_staff_list">
+						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?<?= isset($_GET['intake_key']) ? 'intake_key='.$_GET['intake_key'].'&' : '' ?>ticketid=<?= $ticketid ?>&tab=ticket_staff_list">
 							Loading...
 						</div>
 					</div>
@@ -1473,7 +1534,7 @@ var setHeading = function() {
 						</div>
 
 						<div id="collapse_ticket_staff_assign_tasks" class="panel-collapse collapse">
-							<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?ticketid=<?= $ticketid ?>&tab=ticket_staff_assign_tasks">
+							<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?<?= isset($_GET['intake_key']) ? 'intake_key='.$_GET['intake_key'].'&' : '' ?>ticketid=<?= $ticketid ?>&tab=ticket_staff_assign_tasks">
 								Loading...
 							</div>
 						</div>
@@ -1490,7 +1551,7 @@ var setHeading = function() {
 						</div>
 
 						<div id="collapse_ticket_staff_tasks" class="panel-collapse collapse">
-							<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?ticketid=<?= $ticketid ?>&tab=ticket_staff_tasks">
+							<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?<?= isset($_GET['intake_key']) ? 'intake_key='.$_GET['intake_key'].'&' : '' ?>ticketid=<?= $ticketid ?>&tab=ticket_staff_tasks">
 								Loading...
 							</div>
 						</div>
@@ -1509,7 +1570,7 @@ var setHeading = function() {
 					</div>
 
 					<div id="collapse_ticket_members" class="panel-collapse collapse">
-						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?ticketid=<?= $ticketid ?>&tab=ticket_members">
+						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?<?= isset($_GET['intake_key']) ? 'intake_key='.$_GET['intake_key'].'&' : '' ?>ticketid=<?= $ticketid ?>&tab=ticket_members">
 							Loading...
 						</div>
 					</div>
@@ -1527,7 +1588,7 @@ var setHeading = function() {
 					</div>
 
 					<div id="collapse_ticket_clients" class="panel-collapse collapse">
-						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?ticketid=<?= $ticketid ?>&tab=ticket_clients">
+						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?<?= isset($_GET['intake_key']) ? 'intake_key='.$_GET['intake_key'].'&' : '' ?>ticketid=<?= $ticketid ?>&tab=ticket_clients">
 							Loading...
 						</div>
 					</div>
@@ -1545,7 +1606,7 @@ var setHeading = function() {
 					</div>
 
 					<div id="collapse_ticket_wait_list" class="panel-collapse collapse">
-						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?ticketid=<?= $ticketid ?>&tab=ticket_wait_list">
+						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?<?= isset($_GET['intake_key']) ? 'intake_key='.$_GET['intake_key'].'&' : '' ?>ticketid=<?= $ticketid ?>&tab=ticket_wait_list">
 							Loading...
 						</div>
 					</div>
@@ -1563,7 +1624,7 @@ var setHeading = function() {
 					</div>
 
 					<div id="collapse_ticket_checkin" class="panel-collapse collapse">
-						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?ticketid=<?= $ticketid ?>&tab=ticket_checkin">
+						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?<?= isset($_GET['intake_key']) ? 'intake_key='.$_GET['intake_key'].'&' : '' ?>ticketid=<?= $ticketid ?>&tab=ticket_checkin">
 							Loading...
 						</div>
 					</div>
@@ -1581,7 +1642,7 @@ var setHeading = function() {
 					</div>
 
 					<div id="collapse_ticket_medication" class="panel-collapse collapse">
-						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?ticketid=<?= $ticketid ?>&tab=ticket_medications">
+						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?<?= isset($_GET['intake_key']) ? 'intake_key='.$_GET['intake_key'].'&' : '' ?>ticketid=<?= $ticketid ?>&tab=ticket_medications">
 							Loading...
 						</div>
 					</div>
@@ -1599,7 +1660,7 @@ var setHeading = function() {
 					</div>
 
 					<div id="collapse_ticket_info" class="panel-collapse collapse">
-						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?ticketid=<?= $ticketid ?>&tab=ticket_info">
+						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?<?= isset($_GET['intake_key']) ? 'intake_key='.$_GET['intake_key'].'&' : '' ?>ticketid=<?= $ticketid ?>&tab=ticket_info">
 							Loading...
 						</div>
 					</div>
@@ -1617,7 +1678,7 @@ var setHeading = function() {
 					</div>
 
 					<div id="collapse_ticket_services" class="panel-collapse collapse">
-						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?ticketid=<?= $ticketid ?>&tab=ticket_info">
+						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?<?= isset($_GET['intake_key']) ? 'intake_key='.$_GET['intake_key'].'&' : '' ?>ticketid=<?= $ticketid ?>&tab=ticket_info">
 							Loading...
 						</div>
 					</div>
@@ -1635,7 +1696,7 @@ var setHeading = function() {
 					</div>
 
 					<div id="collapse_ticket_service_checklist" class="panel-collapse collapse">
-						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?ticketid=<?= $ticketid ?>&tab=ticket_service_checklist">
+						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?<?= isset($_GET['intake_key']) ? 'intake_key='.$_GET['intake_key'].'&' : '' ?>ticketid=<?= $ticketid ?>&tab=ticket_service_checklist">
 							Loading...
 						</div>
 					</div>
@@ -1660,7 +1721,7 @@ var setHeading = function() {
 					</div>
 
 					<div id="collapse_ticket_service_extra_billing" class="panel-collapse collapse">
-						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?ticketid=<?= $ticketid ?>&tab=ticket_service_extra_billing">
+						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?<?= isset($_GET['intake_key']) ? 'intake_key='.$_GET['intake_key'].'&' : '' ?>ticketid=<?= $ticketid ?>&tab=ticket_service_extra_billing">
 							Loading...
 						</div>
 					</div>
@@ -1678,7 +1739,7 @@ var setHeading = function() {
 					</div>
 
 					<div id="collapse_ticket_equipment" class="panel-collapse collapse">
-						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?ticketid=<?= $ticketid ?>&tab=ticket_equipment">
+						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?<?= isset($_GET['intake_key']) ? 'intake_key='.$_GET['intake_key'].'&' : '' ?>ticketid=<?= $ticketid ?>&tab=ticket_equipment">
 							Loading...
 						</div>
 					</div>
@@ -1696,7 +1757,7 @@ var setHeading = function() {
 					</div>
 
 					<div id="collapse_ticket_inventory" class="panel-collapse collapse">
-						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?ticketid=<?= $ticketid ?>&tab=ticket_inventory">
+						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?<?= isset($_GET['intake_key']) ? 'intake_key='.$_GET['intake_key'].'&' : '' ?>ticketid=<?= $ticketid ?>&tab=ticket_inventory">
 							Loading...
 						</div>
 					</div>
@@ -1714,7 +1775,7 @@ var setHeading = function() {
 					</div>
 
 					<div id="collapse_ticket_inventory_general" class="panel-collapse collapse">
-						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?ticketid=<?= $ticketid ?>&tab=ticket_inventory_general">
+						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?<?= isset($_GET['intake_key']) ? 'intake_key='.$_GET['intake_key'].'&' : '' ?>ticketid=<?= $ticketid ?>&tab=ticket_inventory_general">
 							Loading...
 						</div>
 					</div>
@@ -1732,7 +1793,7 @@ var setHeading = function() {
 					</div>
 
 					<div id="collapse_ticket_inventory_detailed" class="panel-collapse collapse">
-						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?ticketid=<?= $ticketid ?>&tab=ticket_inventory_detailed">
+						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?<?= isset($_GET['intake_key']) ? 'intake_key='.$_GET['intake_key'].'&' : '' ?>ticketid=<?= $ticketid ?>&tab=ticket_inventory_detailed">
 							Loading...
 						</div>
 					</div>
@@ -1750,7 +1811,7 @@ var setHeading = function() {
 					</div>
 
 					<div id="collapse_ticket_inventory_return" class="panel-collapse collapse">
-						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?ticketid=<?= $ticketid ?>&tab=ticket_inventory_return">
+						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?<?= isset($_GET['intake_key']) ? 'intake_key='.$_GET['intake_key'].'&' : '' ?>ticketid=<?= $ticketid ?>&tab=ticket_inventory_return">
 							Loading...
 						</div>
 					</div>
@@ -1768,7 +1829,7 @@ var setHeading = function() {
 					</div>
 
 					<div id="collapse_ticket_checklist" class="panel-collapse collapse">
-						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?ticketid=<?= $ticketid ?>&tab=ticket_checklist">
+						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?<?= isset($_GET['intake_key']) ? 'intake_key='.$_GET['intake_key'].'&' : '' ?>ticketid=<?= $ticketid ?>&tab=ticket_checklist">
 							Loading...
 						</div>
 					</div>
@@ -1786,7 +1847,7 @@ var setHeading = function() {
 					</div>
 
 					<div id="collapse_ticket_view_checklist" class="panel-collapse collapse">
-						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?ticketid=<?= $ticketid ?>&tab=ticket_view_checklist">
+						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?<?= isset($_GET['intake_key']) ? 'intake_key='.$_GET['intake_key'].'&' : '' ?>ticketid=<?= $ticketid ?>&tab=ticket_view_checklist">
 							Loading...
 						</div>
 					</div>
@@ -1804,7 +1865,7 @@ var setHeading = function() {
 					</div>
 
 					<div id="collapse_ticket_view_charts" class="panel-collapse collapse">
-						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?ticketid=<?= $ticketid ?>&tab=ticket_view_charts">
+						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?<?= isset($_GET['intake_key']) ? 'intake_key='.$_GET['intake_key'].'&' : '' ?>ticketid=<?= $ticketid ?>&tab=ticket_view_charts">
 							Loading...
 						</div>
 					</div>
@@ -1822,7 +1883,7 @@ var setHeading = function() {
 					</div>
 
 					<div id="collapse_ticket_safety" class="panel-collapse collapse">
-						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?ticketid=<?= $ticketid ?>&tab=ticket_safety">
+						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?<?= isset($_GET['intake_key']) ? 'intake_key='.$_GET['intake_key'].'&' : '' ?>ticketid=<?= $ticketid ?>&tab=ticket_safety">
 							Loading...
 						</div>
 					</div>
@@ -1840,7 +1901,7 @@ var setHeading = function() {
 					</div>
 
 					<div id="collapse_ticket_materials" class="panel-collapse collapse">
-						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?ticketid=<?= $ticketid ?>&tab=ticket_materials">
+						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?<?= isset($_GET['intake_key']) ? 'intake_key='.$_GET['intake_key'].'&' : '' ?>ticketid=<?= $ticketid ?>&tab=ticket_materials">
 							Loading...
 						</div>
 					</div>
@@ -1858,7 +1919,7 @@ var setHeading = function() {
 					</div>
 
 					<div id="collapse_ticket_inventory" class="panel-collapse collapse">
-						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?ticketid=<?= $ticketid ?>&tab=ticket_inventory">
+						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?<?= isset($_GET['intake_key']) ? 'intake_key='.$_GET['intake_key'].'&' : '' ?>ticketid=<?= $ticketid ?>&tab=ticket_inventory">
 							Loading...
 						</div>
 					</div>
@@ -1876,7 +1937,7 @@ var setHeading = function() {
 					</div>
 
 					<div id="collapse_ticket_miscellaneous" class="panel-collapse collapse">
-						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?ticketid=<?= $ticketid ?>&tab=ticket_miscellaneous">
+						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?<?= isset($_GET['intake_key']) ? 'intake_key='.$_GET['intake_key'].'&' : '' ?>ticketid=<?= $ticketid ?>&tab=ticket_miscellaneous">
 							Loading...
 						</div>
 					</div>
@@ -1894,7 +1955,7 @@ var setHeading = function() {
 					</div>
 
 					<div id="collapse_ticket_purchase_orders" class="panel-collapse collapse">
-						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?ticketid=<?= $ticketid ?>&tab=ticket_purchase_orders">
+						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?<?= isset($_GET['intake_key']) ? 'intake_key='.$_GET['intake_key'].'&' : '' ?>ticketid=<?= $ticketid ?>&tab=ticket_purchase_orders">
 							Loading...
 						</div>
 					</div>
@@ -1912,7 +1973,7 @@ var setHeading = function() {
 					</div>
 
 					<div id="collapse_ticket_attach_purchase_orders" class="panel-collapse collapse">
-						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?ticketid=<?= $ticketid ?>&tab=ticket_attach_purchase_orders">
+						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?<?= isset($_GET['intake_key']) ? 'intake_key='.$_GET['intake_key'].'&' : '' ?>ticketid=<?= $ticketid ?>&tab=ticket_attach_purchase_orders">
 							Loading...
 						</div>
 					</div>
@@ -1944,7 +2005,7 @@ var setHeading = function() {
                                     </div>
 
                                     <div id="collapse_ticket_delivery_<?= $ticket_stop['id'] ?>" class="panel-collapse collapse">
-                                        <div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?ticketid=<?= $ticketid ?>&tab=ticket_delivery&stop=<?= $ticket_stop['id'] ?>">
+                                        <div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?<?= isset($_GET['intake_key']) ? 'intake_key='.$_GET['intake_key'].'&' : '' ?>ticketid=<?= $ticketid ?>&tab=ticket_delivery&stop=<?= $ticket_stop['id'] ?>">
                                             Loading...
                                         </div>
                                     </div>
@@ -1967,7 +2028,7 @@ var setHeading = function() {
 
                     <div id="collapse_ticket_delivery_<?= $ticket_stop['id'] ?>" class="panel-collapse collapse">
 
-                        <div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?ticketid=<?= $ticketid ?>&tab=ticket_delivery&stop=<?= $_GET['stop'] ?>">
+                        <div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?<?= isset($_GET['intake_key']) ? 'intake_key='.$_GET['intake_key'].'&' : '' ?>ticketid=<?= $ticketid ?>&tab=ticket_delivery&stop=<?= $_GET['stop'] ?>">
                             Loading...
                         </div>
                     </div>
@@ -1985,7 +2046,7 @@ var setHeading = function() {
                     </div>
 
                     <div id="collapse_ticket_delivery_summary" class="panel-collapse collapse">
-                        <div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?ticketid=<?= $ticketid ?>&tab=ticket_delivery_summary">
+                        <div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?<?= isset($_GET['intake_key']) ? 'intake_key='.$_GET['intake_key'].'&' : '' ?>ticketid=<?= $ticketid ?>&tab=ticket_delivery_summary">
                             Loading...
                         </div>
                     </div>
@@ -2004,7 +2065,7 @@ var setHeading = function() {
 						</div>
 
 						<div id="collapse_ticket_transport_origin" class="panel-collapse collapse">
-							<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?ticketid=<?= $ticketid ?>&tab=ticket_transport_origin">
+							<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?<?= isset($_GET['intake_key']) ? 'intake_key='.$_GET['intake_key'].'&' : '' ?>ticketid=<?= $ticketid ?>&tab=ticket_transport_origin">
 								Loading...
 							</div>
 						</div>
@@ -2021,7 +2082,7 @@ var setHeading = function() {
 						</div>
 
 						<div id="collapse_ticket_transport_destination" class="panel-collapse collapse">
-							<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?ticketid=<?= $ticketid ?>&tab=ticket_transport_destination">
+							<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?<?= isset($_GET['intake_key']) ? 'intake_key='.$_GET['intake_key'].'&' : '' ?>ticketid=<?= $ticketid ?>&tab=ticket_transport_destination">
 								Loading...
 							</div>
 						</div>
@@ -2038,7 +2099,7 @@ var setHeading = function() {
 						</div>
 
 						<div id="collapse_ticket_transport_details" class="panel-collapse collapse">
-							<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?ticketid=<?= $ticketid ?>&tab=ticket_transport_details">
+							<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?<?= isset($_GET['intake_key']) ? 'intake_key='.$_GET['intake_key'].'&' : '' ?>ticketid=<?= $ticketid ?>&tab=ticket_transport_details">
 								Loading...
 							</div>
 						</div>
@@ -2057,7 +2118,7 @@ var setHeading = function() {
 					</div>
 
 					<div id="collapse_view_ticket_documents" class="panel-collapse collapse">
-						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?ticketid=<?= $ticketid ?>&tab=view_ticket_documents">
+						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?<?= isset($_GET['intake_key']) ? 'intake_key='.$_GET['intake_key'].'&' : '' ?>ticketid=<?= $ticketid ?>&tab=view_ticket_documents">
 							Loading...
 						</div>
 					</div>
@@ -2075,7 +2136,7 @@ var setHeading = function() {
 					</div>
 
 					<div id="collapse_ticket_checkout" class="panel-collapse collapse">
-						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?ticketid=<?= $ticketid ?>&tab=ticket_checkout">
+						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?<?= isset($_GET['intake_key']) ? 'intake_key='.$_GET['intake_key'].'&' : '' ?>ticketid=<?= $ticketid ?>&tab=ticket_checkout">
 							Loading...
 						</div>
 					</div>
@@ -2093,7 +2154,7 @@ var setHeading = function() {
 					</div>
 
 					<div id="collapse_ticket_checkout_staff" class="panel-collapse collapse">
-						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?ticketid=<?= $ticketid ?>&tab=ticket_checkout_staff&staffcheckout=true">
+						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?<?= isset($_GET['intake_key']) ? 'intake_key='.$_GET['intake_key'].'&' : '' ?>ticketid=<?= $ticketid ?>&tab=ticket_checkout_staff&staffcheckout=true">
 							Loading...
 						</div>
 					</div>
@@ -2111,7 +2172,7 @@ var setHeading = function() {
 					</div>
 
 					<div id="collapse_view_ticket_deliverables" class="panel-collapse collapse">
-						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?ticketid=<?= $ticketid ?>&tab=view_ticket_deliverables">
+						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?<?= isset($_GET['intake_key']) ? 'intake_key='.$_GET['intake_key'].'&' : '' ?>ticketid=<?= $ticketid ?>&tab=view_ticket_deliverables">
 							Loading...
 						</div>
 					</div>
@@ -2129,7 +2190,7 @@ var setHeading = function() {
 					</div>
 
 					<div id="collapse_view_ticket_timer" class="panel-collapse collapse">
-						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?ticketid=<?= $ticketid ?>&tab=view_ticket_timer">
+						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?<?= isset($_GET['intake_key']) ? 'intake_key='.$_GET['intake_key'].'&' : '' ?>ticketid=<?= $ticketid ?>&tab=view_ticket_timer">
 							Loading...
 						</div>
 					</div>
@@ -2147,7 +2208,7 @@ var setHeading = function() {
 					</div>
 
 					<div id="collapse_view_day_tracking" class="panel-collapse collapse">
-						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?ticketid=<?= $ticketid ?>&tab=view_day_tracking">
+						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?<?= isset($_GET['intake_key']) ? 'intake_key='.$_GET['intake_key'].'&' : '' ?>ticketid=<?= $ticketid ?>&tab=view_day_tracking">
 							Loading...
 						</div>
 					</div>
@@ -2165,7 +2226,7 @@ var setHeading = function() {
 					</div>
 
 					<div id="collapse_addendum_view_ticket_comment" class="panel-collapse collapse">
-						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?ticketid=<?= $ticketid ?>&tab=addendum_view_ticket_comment">
+						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?<?= isset($_GET['intake_key']) ? 'intake_key='.$_GET['intake_key'].'&' : '' ?>ticketid=<?= $ticketid ?>&tab=addendum_view_ticket_comment">
 							Loading...
 						</div>
 					</div>
@@ -2183,7 +2244,7 @@ var setHeading = function() {
 					</div>
 
 					<div id="collapse_ticket_log_notes" class="panel-collapse collapse">
-						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?ticketid=<?= $ticketid ?>&tab=ticket_log_notes">
+						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?<?= isset($_GET['intake_key']) ? 'intake_key='.$_GET['intake_key'].'&' : '' ?>ticketid=<?= $ticketid ?>&tab=ticket_log_notes">
 							Loading...
 						</div>
 					</div>
@@ -2201,7 +2262,7 @@ var setHeading = function() {
 					</div>
 
 					<div id="collapse_debrief_view_ticket_comment" class="panel-collapse collapse">
-						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?ticketid=<?= $ticketid ?>&tab=debrief_view_ticket_comment">
+						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?<?= isset($_GET['intake_key']) ? 'intake_key='.$_GET['intake_key'].'&' : '' ?>ticketid=<?= $ticketid ?>&tab=debrief_view_ticket_comment">
 							Loading...
 						</div>
 					</div>
@@ -2219,7 +2280,7 @@ var setHeading = function() {
 					</div>
 
 					<div id="collapse_member_view_ticket_comment" class="panel-collapse collapse">
-						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?ticketid=<?= $ticketid ?>&tab=member_view_ticket_comment">
+						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?<?= isset($_GET['intake_key']) ? 'intake_key='.$_GET['intake_key'].'&' : '' ?>ticketid=<?= $ticketid ?>&tab=member_view_ticket_comment">
 							Loading...
 						</div>
 					</div>
@@ -2237,7 +2298,7 @@ var setHeading = function() {
 					</div>
 
 					<div id="collapse_ticket_cancellation" class="panel-collapse collapse">
-						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?ticketid=<?= $ticketid ?>&tab=ticket_cancellation">
+						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?<?= isset($_GET['intake_key']) ? 'intake_key='.$_GET['intake_key'].'&' : '' ?>ticketid=<?= $ticketid ?>&tab=ticket_cancellation">
 							Loading...
 						</div>
 					</div>
@@ -2255,7 +2316,7 @@ var setHeading = function() {
 					</div>
 
 					<div id="collapse_custom_view_ticket_comment" class="panel-collapse collapse">
-						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?ticketid=<?= $ticketid ?>&tab=custom_view_ticket_comment">
+						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?<?= isset($_GET['intake_key']) ? 'intake_key='.$_GET['intake_key'].'&' : '' ?>ticketid=<?= $ticketid ?>&tab=custom_view_ticket_comment">
 							Loading...
 						</div>
 					</div>
@@ -2273,7 +2334,7 @@ var setHeading = function() {
 					</div>
 
 					<div id="collapse_internal_communication" class="panel-collapse collapse">
-						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?ticketid=<?= $ticketid ?>&tab=internal_communication">
+						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?<?= isset($_GET['intake_key']) ? 'intake_key='.$_GET['intake_key'].'&' : '' ?>ticketid=<?= $ticketid ?>&tab=internal_communication">
 							Loading...
 						</div>
 					</div>
@@ -2291,7 +2352,7 @@ var setHeading = function() {
 					</div>
 
 					<div id="collapse_external_communication" class="panel-collapse collapse">
-						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?ticketid=<?= $ticketid ?>&tab=external_communication">
+						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?<?= isset($_GET['intake_key']) ? 'intake_key='.$_GET['intake_key'].'&' : '' ?>ticketid=<?= $ticketid ?>&tab=external_communication">
 							Loading...
 						</div>
 					</div>
@@ -2309,7 +2370,7 @@ var setHeading = function() {
 					</div>
 
 					<div id="collapse_notes_view_ticket_comment" class="panel-collapse collapse">
-						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?ticketid=<?= $ticketid ?>&tab=notes_view_ticket_comment">
+						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?<?= isset($_GET['intake_key']) ? 'intake_key='.$_GET['intake_key'].'&' : '' ?>ticketid=<?= $ticketid ?>&tab=notes_view_ticket_comment">
 							Loading...
 						</div>
 					</div>
@@ -2327,7 +2388,7 @@ var setHeading = function() {
 					</div>
 
 					<div id="collapse_ticket_summary" class="panel-collapse collapse">
-						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?ticketid=<?= $ticketid ?>&tab=ticket_summary">
+						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?<?= isset($_GET['intake_key']) ? 'intake_key='.$_GET['intake_key'].'&' : '' ?>ticketid=<?= $ticketid ?>&tab=ticket_summary">
 							Loading...
 						</div>
 					</div>
@@ -2345,7 +2406,7 @@ var setHeading = function() {
 					</div>
 
 					<div id="collapse_view_multi_disciplinary_summary_report" class="panel-collapse collapse">
-						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?ticketid=<?= $ticketid ?>&tab=view_multi_disciplinary_summary_report">
+						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?<?= isset($_GET['intake_key']) ? 'intake_key='.$_GET['intake_key'].'&' : '' ?>ticketid=<?= $ticketid ?>&tab=view_multi_disciplinary_summary_report">
 							Loading...
 						</div>
 					</div>
@@ -2363,7 +2424,7 @@ var setHeading = function() {
 					</div>
 
 					<div id="collapse_ticket_complete" class="panel-collapse collapse">
-						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?ticketid=<?= $ticketid ?>&tab=ticket_complete">
+						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?<?= isset($_GET['intake_key']) ? 'intake_key='.$_GET['intake_key'].'&' : '' ?>ticketid=<?= $ticketid ?>&tab=ticket_complete">
 							Loading...
 						</div>
 					</div>
@@ -2381,7 +2442,7 @@ var setHeading = function() {
 					</div>
 
 					<div id="collapse_view_ticcket_notifications" class="panel-collapse collapse">
-						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?ticketid=<?= $ticketid ?>&tab=view_ticket_notifications">
+						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?<?= isset($_GET['intake_key']) ? 'intake_key='.$_GET['intake_key'].'&' : '' ?>ticketid=<?= $ticketid ?>&tab=view_ticket_notifications">
 							Loading...
 						</div>
 					</div>
@@ -2399,7 +2460,7 @@ var setHeading = function() {
 					</div>
 
 					<div id="collapse_ticket_reg_loc_class" class="panel-collapse collapse">
-						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?ticketid=<?= $ticketid ?>&tab=ticket_reg_loc_class">
+						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?<?= isset($_GET['intake_key']) ? 'intake_key='.$_GET['intake_key'].'&' : '' ?>ticketid=<?= $ticketid ?>&tab=ticket_reg_loc_class">
 							Loading...
 						</div>
 					</div>
@@ -2417,7 +2478,7 @@ var setHeading = function() {
 					</div>
 
 					<div id="collapse_view_ticket_incident_reports" class="panel-collapse collapse">
-						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?ticketid=<?= $ticketid ?>&tab=view_ticket_incident_reports">
+						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?<?= isset($_GET['intake_key']) ? 'intake_key='.$_GET['intake_key'].'&' : '' ?>ticketid=<?= $ticketid ?>&tab=view_ticket_incident_reports">
 							Loading...
 						</div>
 					</div>
@@ -2435,7 +2496,7 @@ var setHeading = function() {
 					</div>
 
 					<div id="collapse_ticket_billing" class="panel-collapse collapse">
-						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?ticketid=<?= $ticketid ?>&tab=ticket_billing">
+						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?<?= isset($_GET['intake_key']) ? 'intake_key='.$_GET['intake_key'].'&' : '' ?>ticketid=<?= $ticketid ?>&tab=ticket_billing">
 							Loading...
 						</div>
 					</div>
@@ -2453,7 +2514,7 @@ var setHeading = function() {
 					</div>
 
 					<div id="collapse_ticket_residues" class="panel-collapse collapse">
-						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?ticketid=<?= $ticketid ?>&tab=ticket_residues">
+						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?<?= isset($_GET['intake_key']) ? 'intake_key='.$_GET['intake_key'].'&' : '' ?>ticketid=<?= $ticketid ?>&tab=ticket_residues">
 							Loading...
 						</div>
 					</div>
@@ -2471,7 +2532,7 @@ var setHeading = function() {
 					</div>
 
 					<div id="collapse_ticket_readings" class="panel-collapse collapse">
-						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?ticketid=<?= $ticketid ?>&tab=ticket_readings">
+						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?<?= isset($_GET['intake_key']) ? 'intake_key='.$_GET['intake_key'].'&' : '' ?>ticketid=<?= $ticketid ?>&tab=ticket_readings">
 							Loading...
 						</div>
 					</div>
@@ -2489,7 +2550,7 @@ var setHeading = function() {
 					</div>
 
 					<div id="collapse_ticket_other_list" class="panel-collapse collapse">
-						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?ticketid=<?= $ticketid ?>&tab=ticket_other_list">
+						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?<?= isset($_GET['intake_key']) ? 'intake_key='.$_GET['intake_key'].'&' : '' ?>ticketid=<?= $ticketid ?>&tab=ticket_other_list">
 							Loading...
 						</div>
 					</div>
@@ -2507,7 +2568,7 @@ var setHeading = function() {
 					</div>
 
 					<div id="collapse_ticket_pressure" class="panel-collapse collapse">
-						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?ticketid=<?= $ticketid ?>&tab=ticket_pressure">
+						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?<?= isset($_GET['intake_key']) ? 'intake_key='.$_GET['intake_key'].'&' : '' ?>ticketid=<?= $ticketid ?>&tab=ticket_pressure">
 							Loading...
 						</div>
 					</div>
@@ -2525,7 +2586,7 @@ var setHeading = function() {
 					</div>
 
 					<div id="collapse_ticket_chemicals" class="panel-collapse collapse">
-						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?ticketid=<?= $ticketid ?>&tab=ticket_chemicals">
+						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?<?= isset($_GET['intake_key']) ? 'intake_key='.$_GET['intake_key'].'&' : '' ?>ticketid=<?= $ticketid ?>&tab=ticket_chemicals">
 							Loading...
 						</div>
 					</div>
@@ -2543,7 +2604,7 @@ var setHeading = function() {
 					</div>
 
 					<div id="collapse_ticket_intake" class="panel-collapse collapse">
-						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?ticketid=<?= $ticketid ?>&tab=ticket_intake">
+						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?<?= isset($_GET['intake_key']) ? 'intake_key='.$_GET['intake_key'].'&' : '' ?>ticketid=<?= $ticketid ?>&tab=ticket_intake">
 							Loading...
 						</div>
 					</div>
@@ -2561,7 +2622,7 @@ var setHeading = function() {
 					</div>
 
 					<div id="collapse_ticket_history" class="panel-collapse collapse">
-						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?ticketid=<?= $ticketid ?>&tab=ticket_history">
+						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?<?= isset($_GET['intake_key']) ? 'intake_key='.$_GET['intake_key'].'&' : '' ?>ticketid=<?= $ticketid ?>&tab=ticket_history">
 							Loading...
 						</div>
 					</div>
@@ -2579,7 +2640,7 @@ var setHeading = function() {
 					</div>
 
 					<div id="collapse_ticket_work_history" class="panel-collapse collapse">
-						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?ticketid=<?= $ticketid ?>&tab=ticket_work_history">
+						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?<?= isset($_GET['intake_key']) ? 'intake_key='.$_GET['intake_key'].'&' : '' ?>ticketid=<?= $ticketid ?>&tab=ticket_work_history">
 							Loading...
 						</div>
 					</div>
@@ -2597,7 +2658,7 @@ var setHeading = function() {
 					</div>
 
 					<div id="collapse_ticket_tank_readings" class="panel-collapse collapse">
-						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?ticketid=<?= $ticketid ?>&tab=ticket_intake_tank_readings">
+						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?<?= isset($_GET['intake_key']) ? 'intake_key='.$_GET['intake_key'].'&' : '' ?>ticketid=<?= $ticketid ?>&tab=ticket_intake_tank_readings">
 							Loading...
 						</div>
 					</div>
@@ -2615,7 +2676,7 @@ var setHeading = function() {
 					</div>
 
 					<div id="collapse_ticket_shipping_list" class="panel-collapse collapse">
-						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?ticketid=<?= $ticketid ?>&tab=ticket_shipping_list">
+						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?<?= isset($_GET['intake_key']) ? 'intake_key='.$_GET['intake_key'].'&' : '' ?>ticketid=<?= $ticketid ?>&tab=ticket_shipping_list">
 							Loading...
 						</div>
 					</div>
@@ -2633,7 +2694,7 @@ var setHeading = function() {
 					</div>
 
 					<div id="collapse_ticket_location_details" class="panel-collapse collapse">
-						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?ticketid=<?= $ticketid ?>&tab=ticket_location_details">
+						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?<?= isset($_GET['intake_key']) ? 'intake_key='.$_GET['intake_key'].'&' : '' ?>ticketid=<?= $ticketid ?>&tab=ticket_location_details">
 							Loading...
 						</div>
 					</div>
@@ -2666,7 +2727,7 @@ var setHeading = function() {
                                         </div>
 
                                         <div id="collapse_ticket_customer_notes_<?= $ticket_stop['id'] ?>" class="panel-collapse collapse">
-                                            <div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?ticketid=<?= $ticketid ?>&tab=ticket_customer_notes&stop=<?= $ticket_stop['id'] ?>">
+                                            <div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?<?= isset($_GET['intake_key']) ? 'intake_key='.$_GET['intake_key'].'&' : '' ?>ticketid=<?= $ticketid ?>&tab=ticket_customer_notes&stop=<?= $ticket_stop['id'] ?>">
                                                 Loading...
                                             </div>
                                         </div>
@@ -2689,7 +2750,7 @@ var setHeading = function() {
 
                         <div id="collapse_ticket_customer_notes_<?= $ticket_stop['id'] ?>" class="panel-collapse collapse">
 
-                            <div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?ticketid=<?= $ticketid ?>&tab=ticket_customer_notes&stop=<?= $ticket_stop['id'] ?>">
+                            <div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?<?= isset($_GET['intake_key']) ? 'intake_key='.$_GET['intake_key'].'&' : '' ?>ticketid=<?= $ticketid ?>&tab=ticket_customer_notes&stop=<?= $ticket_stop['id'] ?>">
                                 Loading...
                             </div>
                         </div>
@@ -2706,10 +2767,10 @@ var setHeading = function() {
 		<?php } ?>
 		<div class="clearfix"></div>
 		<div class="gap-top add_gap_here">
-			<?php if(strpos($value_config,',Finish Button Hide,') === FALSE) { ?>
+			<?php if(strpos($value_config,',Finish Button Hide,') === FALSE && !isset($_GET['intake_key'])) { ?>
 				<a href="index.php" class="pull-right btn brand-btn finish_btn" onclick="<?= (strpos($value_config, ','."Timer".',') !== FALSE) ? 'stopTimers();' : '' ?><?= (strpos($value_config, ','."Check Out".',') !== FALSE || strpos($value_config, ','."Complete Combine Checkout Summary".',') !== FALSE) ? 'return checkoutAll(this);' : '' ?>" <?= strpos($value_config, ','."Finish Check Out Require Signature".',') !== FALSE ? 'data-require-signature="1"' : '' ?> <?= strpos($value_config, ','."Finish Create Recurring Ticket".',') !== FALSE ? 'data-recurring-ticket="1"' : '' ?>>Finish</a>
 			<?php } ?>
-			<?php if($access_any) { ?>
+			<?php if($access_any && !isset($_GET['intake_key'])) { ?>
 				<a href="<?= $back_url ?>" class="pull-right gap-right"><img class="no-toggle" src="<?= WEBSITE_URL ?>/img/icons/save.png" alt="Save" width="36" title="Save" /></a>
 				<?php if($hide_trash_icon != 1) { ?><a href="<?php echo $back_url; ?>" class="pull-left gap-left" onclick="<?= strpos($value_config, ',Delete Button Add Note,') ? 'dialogDeleteNote(this); return false;' : 'return archive();' ?>"><img class="no-toggle" src="<?= WEBSITE_URL; ?>/img/icons/ROOK-trash-icon.png" alt="Archive" width="36" title="Archive" /></a><?php } ?>
 
@@ -2729,7 +2790,7 @@ var setHeading = function() {
 					<a href="../Ticket/index.php?custom_form=<?= $pdf['id'] ?>&ticketid=<?= $ticketid > 0 ? $ticketid : '' ?>" target="_blank" class="pull-right btn brand-btn margin-horizontal" onclick="<?= $pdf['target'] == 'slider' ? "overlayIFrameSlider(this.href, 'auto', true, true); return false;" : "" ?>"><?= $pdf['pdf_name'] ?></a>
 				<?php } ?>
 			<?php } ?>
-			<?php if(strpos($value_config,',Export Ticket Log,') !== FALSE && !empty($ticketid)) {
+			<?php if(strpos($value_config,',Export Ticket Log,') !== FALSE && !empty($ticketid) && !isset($_GET['intake_key'])) {
 				$ticket_log_template = !empty(get_config($dbc, 'ticket_log_template')) ? get_config($dbc, 'ticket_log_template') : 'template_a'; ?>
 				<a href="../Ticket/ticket_log_templates/<?= $ticket_log_template ?>_pdf.php?ticketid=<?= $ticketid > 0 ? $ticketid : '' ?>" target="_blank" class="pull-right btn brand-btn">Export <?= TICKET_NOUN ?> Log</a>
 			<?php } ?>
@@ -2818,7 +2879,7 @@ var setHeading = function() {
 							<div class="pull-right gap-left">
 								<a href="" class="btn brand-btn" onclick="openFullView(); return false;">Open Full Window</a>
 							</div>
-						<?php if(strpos($value_config,',Quick Reminder Button,') !== FALSE && !($strict_view > 0)) { ?>
+						<?php if(strpos($value_config,',Quick Reminder Button,') !== FALSE && !($strict_view > 0) && !isset($_GET['intake_key'])) { ?>
 					        <div class="pull-right gap-top">
 								<a href="" onclick="dialogQuickReminder(); return false;"><img class="no-toggle" src="../img/icons/ROOK-reminder-icon.png" style="width: 1.25em;" border="0" alt="" title="Add a Quick Reminder." /></a>
 							</div>
@@ -2829,7 +2890,7 @@ var setHeading = function() {
 					<hr>
 				</div>
 			<?php } ?>
-			<?php if(strpos($value_config,',Export Ticket Log,') !== FALSE && !empty($ticketid)) {
+			<?php if(strpos($value_config,',Export Ticket Log,') !== FALSE && !empty($ticketid) && !isset($_GET['intake_key'])) {
 				$ticket_log_template = !empty(get_config($dbc, 'ticket_log_template')) ? get_config($dbc, 'ticket_log_template') : 'template_a'; ?>
 				<a href="../Ticket/ticket_log_templates/<?= $ticket_log_template ?>_pdf.php?ticketid=<?= $ticketid ?>" target="_blank" class="pull-right btn brand-btn gap-top gap-bottom">Export <?= TICKET_NOUN ?> Log</a>
 				<div class="clearfix"></div>
@@ -2838,7 +2899,7 @@ var setHeading = function() {
 				echo '<h4>Awaiting Admin Approval</h4>';
 			} ?>
 			<?php if(count($ticket_tabs) > 1 && !($_GET['action_mode'] > 0 || $_GET['overview_mode'] > 0) && $tile_security['edit'] > 0 && !($strict_view > 0)) { ?>
-				<div class="tab-section col-sm-12" id="tab_section_ticket_type">
+				<div class="tab-section col-sm-12" id="tab_section_ticket_type" <?= isset($_GET['intake_key']) ? 'style="display:none;"' : '' ?>>
 					<h3><?= TICKET_NOUN ?> Tab</h3>
 					<label for="ticket_type" class="col-sm-4 control-label" style="text-align: left;"><?= TICKET_NOUN ?> Tab:</label>
 					<div class="col-sm-8">
@@ -3263,12 +3324,14 @@ var setHeading = function() {
 				}
 				$collapse_i++;
 			} ?>
+            
+            <img id="back_to_top" src="../img/icons/ROOK-BackToTop-icon.png" class="no-toggle cursor-hand back-to-top" title="Back To Top" width="30" />
 <?php } ?>
 			<?php if($ticket_layout == 'Accordions' && $include_hidden != 'true') { ?>
 				</div>
 			<?php } ?>
 			<div class="clearfix"></div>
-			<?php if(!empty($admin_group)) {
+			<?php if(!empty($admin_group) && !isset($_GET['intake_key'])) {
 				$recipients = [];
 				foreach(explode(',',$admin_group['contactid']) as $admin_recipient) {
 					$recipients[] = get_email($dbc,$admin_recipient);
@@ -3318,10 +3381,10 @@ var setHeading = function() {
 				</div>
 			<?php } ?>
 			<div class="gap-top add_gap_here" <?= $calendar_ticket_slider == 'accordion' ? 'style="display:none;"' : '' ?>>
-				<?php if(strpos($value_config,',Finish Button Hide,') === FALSE) { ?>
+				<?php if(strpos($value_config,',Finish Button Hide,') === FALSE && !isset($_GET['intake_key'])) { ?>
 					<a href="<?= empty($ticket_next_step_timesheet) ? 'index.php' : 'next_ticket_step.php?action_mode='.$_GET['action_mode'] ?>" <?= empty($ticket_next_step_timesheet) ? '' : 'target="_top"' ?> class="pull-right btn brand-btn finish_btn" onclick="<?= (strpos($value_config, ','."Timer".',') !== FALSE) ? 'stopTimers();' : '' ?><?= (strpos($value_config, ','."Check Out".',') !== FALSE || strpos($value_config, ','."Complete Combine Checkout Summary".',') !== FALSE) ? 'return checkoutAll(this);' : '' ?>" <?= strpos($value_config, ','."Finish Check Out Require Signature".',') !== FALSE ? 'data-require-signature="1"' : '' ?> <?= strpos($value_config, ','."Finish Create Recurring Ticket".',') !== FALSE ? 'data-recurring-ticket="1"' : '' ?>>Finish</a>
 				<?php } ?>
-				<?php if($access_any) { ?>
+				<?php if($access_any && !isset($_GET['intake_key'])) { ?>
 					<a href="<?= $back_url ?>" class="pull-right gap-right"><img class="no-toggle" src="<?= WEBSITE_URL ?>/img/icons/save.png" alt="Save" width="36" title="Save" /></a>
 					<?php if($hide_trash_icon != 1) { ?><a href="<?php echo $back_url; ?>" class="pull-left gap-left" onclick="<?= strpos($value_config, ',Delete Button Add Note,') ? 'dialogDeleteNote(this); return false;' : 'return archive();' ?>"><img class="no-toggle" src="<?= WEBSITE_URL; ?>/img/icons/ROOK-trash-icon.png" alt="Archive" title="Archive" width="36" /></a><?php } ?>
 
@@ -3341,7 +3404,7 @@ var setHeading = function() {
 						<a href="../Ticket/index.php?custom_form=<?= $pdf['id'] ?>&ticketid=<?= $ticketid > 0 ? $ticketid : '' ?>" target="_blank" class="pull-right btn brand-btn margin-horizontal" data-target="<?= $pdf['target'] ?>" onclick="fillCustomForm(this); return false;"><?= $pdf['pdf_name'] ?></a>
 					<?php } ?>
 				<?php } ?>
-				<?php if(strpos($value_config,',Export Ticket Log,') !== FALSE && !empty($ticketid)) {
+				<?php if(strpos($value_config,',Export Ticket Log,') !== FALSE && !empty($ticketid) && !isset($_GET['intake_key'])) {
 					$ticket_log_template = !empty(get_config($dbc, 'ticket_log_template')) ? get_config($dbc, 'ticket_log_template') : 'template_a'; ?>
 					<a href="../Ticket/ticket_log_templates/<?= $ticket_log_template ?>_pdf.php?ticketid=<?= $ticketid > 0 ? $ticketid : '' ?>" target="_blank" class="pull-right btn brand-btn">Export <?= TICKET_NOUN ?> Log</a>
 				<?php } ?>

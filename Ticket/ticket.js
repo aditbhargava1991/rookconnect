@@ -92,6 +92,26 @@ $(document).ready(function() {
 $(window).load(function() {
 	destroyTinyMce();
 });
+$(document).on('click', 'img[src*="ROOK-add-icon.png"][data-history-label]', function() {
+	var label = $(this).data('history-label');
+	var section = $(this).closest('.tab-section').find('h3').first().text();
+	addClickHistory('Add', label, section);
+});
+$(document).on('click', 'img[src*="remove.png"][data-history-label]', function() {
+	var label = $(this).data('history-label');
+	var section = $(this).closest('.tab-section').find('h3').first().text();
+	addClickHistory('Remove', label, section);
+});
+function addClickHistory(icon, label, section) {
+	$.ajax({
+		url: '../Ticket/ticket_ajax_all.php?action=ticket_click_history',
+		method: 'POST',
+		data: { ticketid: ticketid, section: section, label: label, icon: icon },
+		success:function(response) {
+
+		}
+	});
+}
 function destroyTinyMce() {
 	// if($('#textarea_style').val() == 'no_editor') {
 		// destroyInputs('.tab-section');
@@ -432,7 +452,7 @@ function saveFieldMethod(field) {
 			});
 		} else if(field.value == 'ADD_NEW') {
 			if($(field).data('table') != 'inventory') {
-				overlayIFrameSlider('../Contacts/contacts_inbox.php?fields=all_fields&edit=new&category='+$(field).data('category')+(field.name == 'clientid' ? '&businessid='+$('[name=businessid]').val() : ''), '75%', true, true);
+				overlayIFrameSlider('../Contacts/contacts_inbox.php?fields=all_fields&edit=new&category='+$(field).data('category')+(field.name == 'clientid' ? '&businessid='+$('select[name=businessid]').val() : ''), '75%', true, true);
 				iframe_contactid = 0;
 				var this_category = $(field).data('category');
 				var iframe_check = setInterval(function() {
@@ -707,10 +727,14 @@ function saveFieldMethod(field) {
 							}
 							$('[name=ticketid]').val(ticketid);
 							window.history.replaceState('',"Software", window.location.href.replace('edit=0','edit='+ticketid));
+							if($('[name="intake_alerted"]').val() == 1) {
+								alert('Your '+$('[name="global_ticket_noun"]').val()+' ID is '+ticketid+'. Please keep this for your reference. You will not be able to edit this '+$('[name="global_ticket_noun"]').val()+' once you leave this page.');
+								$('[name="intake_alerted"]').val(0);
+							}
 							$('.ticket_timer_div').show();
 							if((field_name != 'projectid' && field_name != 'businessid' && $('[name=projectid]').val() > 0 && $('[name=projectid]').data('id') > 0) || $('[name=projectid]').length == 0) {
 								$('[name=projectid]').filter(function() { return this.value != ''; }).first().change();
-								$('[name=businessid]').filter(function() { return this.value != ''; }).first().change();
+								$('select[name=businessid]').filter(function() { return this.value != ''; }).first().change();
 								if(field_name != 'clientid')
 									$('[name=clientid]').filter(function() { return this.value != ''; }).first().change();
 								if(field_name != 'milestone_timeline')
@@ -720,7 +744,7 @@ function saveFieldMethod(field) {
 								if(field_name != 'ticket_type')
 									$('[name=ticket_type]').filter(function() { return this.value != ''; }).first().change();
 							} else if(field_name != 'businessid' && field_name != 'clientid' && field_name != 'projectid') {
-								$('[name=businessid]').filter(function() { return this.value != ''; }).last().change();
+								$('select[name=businessid]').filter(function() { return this.value != ''; }).last().change();
 								$('[name=clientid]').filter(function() { return this.value != ''; }).last().change();
 								$('[name=serviceid]').filter(function() { return this.value != ''; }).first().change();
 							}
@@ -878,11 +902,11 @@ function saveFieldMethod(field) {
 					if(field_name == 'businessid' && table_name == 'tickets') {
                         $.get('../Ticket/ticket_ajax_all.php', {
                             action: 'business_services',
-                            business: $('[name=businessid]').val()
+                            business: $('select[name=businessid]').val()
                         }, function(response) {
                             $('[name=serviceid]').empty().html(response);
                             $.get('../Ticket/ticket_ajax_all.php', {
-                                contactid: $('[name=businessid]').val(),
+                                contactid: $('select[name=businessid]').val(),
                                 action: 'list_customer_service_templates'
                             }, function(response) {
                                 $('[name=default_services]').val(response);
@@ -1012,6 +1036,9 @@ function saveFieldMethod(field) {
 					if(table_name == 'tickets' && field_name == 'purchase_order') {
 						reload_po_num_dropdown();
 					}
+					if(field_name == 'clientid' && typeof filterSitesByClient == 'function') {
+						filterSitesByClient();
+					}
 					doneSaving();
 				}
 			});
@@ -1134,7 +1161,7 @@ function saveMethod(field) {
 				}
 			});
 		} else if(field.value == 'ADD_NEW') {
-			overlayIFrameSlider('../Contacts/contacts_inbox.php?fields=all_fields&edit=new&category='+$(field).data('category')+(field.name == 'clientid' ? '&businessid='+$('[name=businessid]').val() : ''), '75%', true, true);
+			overlayIFrameSlider('../Contacts/contacts_inbox.php?fields=all_fields&edit=new&category='+$(field).data('category')+(field.name == 'clientid' ? '&businessid='+$('select[name=businessid]').val() : ''), '75%', true, true);
 			iframe_contactid = 0;
 			var this_category = $(field).data('category');
 			var iframe_check = setInterval(function() {
@@ -1358,13 +1385,13 @@ function saveMethod(field) {
 							$('.ticket_timer_div').show();
 							if((field_name != 'projectid' && field_name != 'businessid' && $('[name=projectid]').val() > 0 && $('[name=projectid]').data('id') > 0) || $('[name=projectid]').length == 0) {
 								$('[name=projectid]').filter(function() { return this.value != ''; }).change();
-								$('[name=businessid]').filter(function() { return this.value != ''; }).change();
+								$('select[name=businessid]').filter(function() { return this.value != ''; }).change();
 								$('[name=clientid]').filter(function() { return this.value != ''; }).change();
 								$('[name=milestone_timeline]').filter(function() { return this.value != ''; }).change();
 								$('[name=ticket_type]').filter(function() { return this.value != ''; }).change();
 								$('[name=serviceid]').filter(function() { return this.value != ''; }).first().change();
 							} else if(field_name != 'businessid' && field_name != 'clientid' && field_name != 'projectid') {
-								$('[name=businessid]').filter(function() { return this.value != ''; }).last().change();
+								$('select[name=businessid]').filter(function() { return this.value != ''; }).last().change();
 								$('[name=clientid]').filter(function() { return this.value != ''; }).last().change();
 								$('[name=serviceid]').filter(function() { return this.value != ''; }).first().change();
 							}
@@ -2039,7 +2066,12 @@ function addMulti(img, style, clone_location = '') {
 	}
 	destroyInputs(panel);
 	var block = source.clone();
-	block.find('.staff_multiple_times').find('.staff-multi-time:not(:first)').remove();
+	block.find('[data-id]').each(function() {
+        if($(this).data('id') == '') {
+            $(this).data('id',source.find('[data-table="'+$(this).data('table')+'"][name="'+this.name+'"][data-id]').data('id'));
+        }
+    });
+    block.find('.staff_multiple_times').find('.staff-multi-time:not(:first)').remove();
 	block.find('input,select,textarea').val('');
 	block.find('[data-default]').each(function() {
 		$(this).val($(this).data('default'));
@@ -3356,8 +3388,8 @@ function initSelectOnChanges() {
 		setServiceFilters();
 	} catch(e) { }
 	setSave();
-	if($('[name=businessid]').length > 0) {
-		$('[name=businessid]').off('change',businessFilter).change(businessFilter);
+	if($('select[name=businessid]').length > 0) {
+		$('select[name=businessid]').off('change',businessFilter).change(businessFilter);
 	}
 	if($('select#clientid').length > 0) {
 		$('select#clientid').off('change',clientFilter).change(clientFilter);

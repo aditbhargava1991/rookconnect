@@ -402,7 +402,7 @@ function popUpClosed() {
                         $tab = '';
 
                         switch($task_file_path) {
-                            case 'company_tasks': // Shared Task
+                            case 'shared_tasks': // Shared Task
                                 $info = "Click here to see shared tasks.";
                                 $display = ( check_subtab_persmission($dbc, 'tasks_updated', ROLE, 'company') !== false ) ? 1 : 0;
                                 $security = 'Company';

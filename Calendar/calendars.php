@@ -146,13 +146,13 @@ checkAuthorised('calendar_rook');
 			</div>
 			<div class="clearfix"></div>
 		</div>
-		<div class="form-group">
+		<!--<div class="form-group">
 			<label class="col-sm-4 control-label">Scheduled End Time:</label>
 			<div class="col-sm-8">
 				<input type="text" name="change_to_do_end_time" value="" class="form-control datetimepicker">
 			</div>
 			<div class="clearfix"></div>
-		</div>
+		</div>-->
 	</div>
 	<div id="dialog_create_recurrence_cal" title="Recurrence Details" style="display: none;">
 		<script type="text/javascript">

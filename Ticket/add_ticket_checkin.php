@@ -166,7 +166,7 @@ foreach ($field_sort_order as $field_sort_order) {
 											<label class="col-sm-4">Dosage</label>
 											<label class="col-sm-3">Time</label>
 										</div>
-										<?php 
+										<?php
 										if (strpos($value_config, ',Medication Multiple Days,') !== false) {
 											if(!empty($get_ticket['to_do_date'])) {
 												$ticket_start_date = $get_ticket['to_do_date'];
@@ -204,8 +204,8 @@ foreach ($field_sort_order as $field_sort_order) {
 												</div>
 												<?php if($access_all_checkin == TRUE) { ?>
 													<div class="col-sm-1">
-														<img class="inline-img pull-right" onclick="addMulti(this);" src="../img/icons/ROOK-add-icon.png">
-														<img class="inline-img pull-right" onclick="remMulti(this);" src="../img/remove.png">
+														<img class="inline-img pull-right" data-history-label="Medication" onclick="addMulti(this);" src="../img/icons/ROOK-add-icon.png">
+														<img class="inline-img pull-right" data-history-label="Medication" onclick="remMulti(this);" src="../img/remove.png">
 													</div>
 												<?php } ?>
 											</div>
@@ -268,8 +268,8 @@ foreach ($field_sort_order as $field_sort_order) {
 													<div class="col-sm-1">
 														<input type="hidden" name="deleted" value="<?= $guardian_status[$i] ?>" onchange="$(this).closest('.multi-block').find('[name=notes]').val(this.value == 1 ? 2 : 0).change(); return false;">
 														<button class="btn brand-btn pull-right" onclick="return false;">Save</button>
-														<img class="inline-img pull-right" onclick="addMulti(this);" src="../img/icons/ROOK-add-icon.png">
-														<img class="inline-img pull-right" onclick="remMulti(this);" src="../img/remove.png">
+														<img class="inline-img pull-right" data-history-label="Guardian" onclick="addMulti(this);" src="../img/icons/ROOK-add-icon.png">
+														<img class="inline-img pull-right" data-history-label="Guardian" onclick="remMulti(this);" src="../img/remove.png">
 													</div>
 												<?php } ?>
 											</div>
@@ -300,8 +300,8 @@ foreach ($field_sort_order as $field_sort_order) {
 													<div class="col-sm-1">
 														<input type="hidden" name="deleted" value="0" onchange="$(this).val($(this).val() + 1).change(); $(this).closest('.multi-block').find('[name=notes]').val(this.value).change();">
 														<button class="btn brand-btn pull-right" onclick="return false;">Save</button>
-														<img class="inline-img pull-right" onclick="addMulti(this);" src="../img/icons/ROOK-add-icon.png">
-														<img class="inline-img pull-right" onclick="remMulti(this);" src="../img/remove.png">
+														<img class="inline-img pull-right" data-history-label="Guardian" onclick="addMulti(this);" src="../img/icons/ROOK-add-icon.png">
+														<img class="inline-img pull-right" data-history-label="Guardian" onclick="remMulti(this);" src="../img/remove.png">
 													</div>
 												<?php } ?>
 											</div>
@@ -356,8 +356,8 @@ foreach ($field_sort_order as $field_sort_order) {
 														<input type="hidden" name="description" data-table="ticket_attached" data-id="<?= $checkin['id'] ?>" data-id-field="id" data-concat="," value="<?= $show_hide[$i] ?>">
 														<input type="hidden" name="deleted" value="<?= $show_hide[$i] ?>" onchange="$(this).closest('div').find('[name=description]').val(this.value).change();">
 														<button class="btn brand-btn pull-right" onclick="return false;">Save</button>
-														<img class="inline-img pull-right" onclick="addMulti(this);" src="../img/icons/ROOK-add-icon.png">
-														<img class="inline-img pull-right" onclick="remMulti(this);" src="../img/remove.png">
+														<img class="inline-img pull-right" data-history-label="Emergency Contacts" onclick="addMulti(this);" src="../img/icons/ROOK-add-icon.png">
+														<img class="inline-img pull-right" data-history-label="Emergency Contacts" onclick="remMulti(this);" src="../img/remove.png">
 													</div>
 												<?php } ?>
 											</div>
@@ -385,8 +385,8 @@ foreach ($field_sort_order as $field_sort_order) {
 														<input type="hidden" name="description" data-table="ticket_attached" data-id="<?= $checkin['id'] ?>" data-id-field="id" data-concat="," value="0">
 														<input type="hidden" name="deleted" value="0" onchange="$(this).closest('div').find('[name=description]').val(this.value).change();">
 														<button class="btn brand-btn pull-right" onclick="return false;">Save</button>
-														<img class="inline-img pull-right" onclick="addMulti(this);" src="../img/icons/ROOK-add-icon.png">
-														<img class="inline-img pull-right" onclick="remMulti(this);" src="../img/remove.png">
+														<img class="inline-img pull-right" data-history-label="Emergency Contacts" onclick="addMulti(this);" src="../img/icons/ROOK-add-icon.png">
+														<img class="inline-img pull-right" data-history-label="Emergency Contacts" onclick="remMulti(this);" src="../img/remove.png">
 													</div>
 												<?php } ?>
 											</div>

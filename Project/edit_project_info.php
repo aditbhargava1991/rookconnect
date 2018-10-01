@@ -165,14 +165,17 @@ function apply_template() {
 	}, 250);
 }
 </script>
+<?php
+$field_mandatory_config = array_filter(array_unique(array_merge(explode(',',mysqli_fetch_array(mysqli_query($dbc,"SELECT `config_fields` FROM field_config_mandatory_project WHERE type='$projecttype'"))[0]),explode(',',mysqli_fetch_array(mysqli_query($dbc,"SELECT `config_fields` FROM field_config_mandatory_project WHERE type='ALL'"))[0]))));
+?>
 <input type="hidden" name="projectid" value="<?= $projectid ?>">
 <div id="head_info">
 	<h3><?= PROJECT_NOUN ?> Information</h3>
 	<?php if (in_array("Information Project Short Name",$value_config)) { ?>
 		<div class="form-group">
-			<label class="col-sm-4"><?= PROJECT_NOUN ?> Name<span class="brand-color">*</span>:</label>
+			<label class="col-sm-4"><?php echo (in_array('Information Project Short Name', $field_mandatory_config) ? '<font color="red">* </font>' : ''); ?><?= PROJECT_NOUN ?> Name:</label>
 			<div class="col-sm-8 <?= !($security['edit'] > 0) ? 'readonly-block' : '' ?>">
-				<input name="project_name" value="<?= $project['project_name'] ?>" data-table="project" data-id="<?= $project['projectid'] ?>" data-id-field="projectid" type="text" class="form-control"></p>
+				<input name="project_name" value="<?= $project['project_name'] ?>" data-table="project" data-id="<?= $project['projectid'] ?>" data-id-field="projectid" type="text" class="form-control <?php echo (in_array('Information Project Short Name', $field_mandatory_config) ? 'required' : ''); ?>"></p>
 			</div>
 		</div>
 	<?php } ?>
@@ -195,9 +198,9 @@ function apply_template() {
 
 	if (in_array("Information Contact Region",$value_config)) { ?>
 	<div class="form-group">
-		<label class="col-sm-4">Region:</label>
+		<label class="col-sm-4"><?php echo (in_array('Information Contact Region', $field_mandatory_config) ? '<font color="red">* </font>' : ''); ?>Region:</label>
 		<div class="col-sm-8 <?= !($security['edit'] > 0) ? 'readonly-block' : '' ?>">
-			<select name="region" multiple id="contact_region" data-placeholder="Select a Region..." class="chosen-select-deselect form-control">
+			<select name="region" multiple id="contact_region" data-placeholder="Select a Region..." class="chosen-select-deselect form-control <?php echo (in_array('Information Contact Region', $field_mandatory_config) ? 'required' : ''); ?>">
 				<?php $contact_regions = array_filter(array_unique(explode(',', mysqli_fetch_array(mysqli_query($dbc, "SELECT GROUP_CONCAT(`value` SEPARATOR ',') FROM `general_configuration` WHERE `name` LIKE '%_region'"))[0])));
 				foreach ($contact_regions as $contact_region) {
 					echo "<option ".(in_array($contact_region, $region) ? 'selected' : '')." value='".$contact_region."'>".$contact_region.'</option>';
@@ -209,9 +212,9 @@ function apply_template() {
 
 	<?php if (in_array("Information Contact Location",$value_config)) { ?>
 	<div class="form-group">
-		<label class="col-sm-4">Location:</label>
+		<label class="col-sm-4"><?php echo (in_array('Information Contact Location', $field_mandatory_config) ? '<font color="red">* </font>' : ''); ?>Location:</label>
 		<div class="col-sm-8 <?= !($security['edit'] > 0) ? 'readonly-block' : '' ?>">
-			<select name="location" id="contact_location" data-placeholder="Select a Location..." class="chosen-select-deselect form-control">
+			<select name="location" id="contact_location" data-placeholder="Select a Location..." class="chosen-select-deselect form-control <?php echo (in_array('Information Contact Location', $field_mandatory_config) ? 'required' : ''); ?>">
 				<option value=''></option>
 				<?php $contact_locations = array_filter(array_unique(explode(',', mysqli_fetch_array(mysqli_query($dbc, "SELECT GROUP_CONCAT(DISTINCT `con_locations` SEPARATOR ',') FROM `field_config_contacts`"))[0])));
 				foreach ($contact_locations as $contact_location) {
@@ -224,9 +227,9 @@ function apply_template() {
 
 	<?php if (in_array("Information Contact Classification",$value_config)) { ?>
 	<div class="form-group">
-		<label class="col-sm-4">Classification:</label>
+		<label class="col-sm-4"><?php echo (in_array('Information Contact Classification', $field_mandatory_config) ? '<font color="red">* </font>' : ''); ?>Classification:</label>
 		<div class="col-sm-8 <?= !($security['edit'] > 0) ? 'readonly-block' : '' ?>">
-			<select name="classification" multiple id="contact_classification" data-placeholder="Select a Classification..." class="chosen-select-deselect form-control">
+			<select name="classification" multiple id="contact_classification" data-placeholder="Select a Classification..." class="chosen-select-deselect form-control <?php echo (in_array('Information Contact Classification', $field_mandatory_config) ? 'required' : ''); ?>">
 				<?php $contact_classifications = array_filter(array_unique(explode(',', mysqli_fetch_array(mysqli_query($dbc, "SELECT GROUP_CONCAT(`value` SEPARATOR ',') FROM `general_configuration` WHERE `name` LIKE '%_classification'"))[0])));
 				foreach ($contact_classifications as $contact_classification) {
 					echo "<option ".(in_array($contact_classification, $classification) ? 'selected' : '')." value='".$contact_classification."'>".$contact_classification.'</option>';
@@ -238,9 +241,9 @@ function apply_template() {
 
 	<?php if (in_array("Information Project Type",$value_config)) { ?>
 	<div class="form-group">
-		<label class="col-sm-4"><?= PROJECT_NOUN ?> Type<span class="brand-color">*</span>:</label>
+		<label class="col-sm-4"><?php echo (in_array('DB Type', $field_mandatory_config) ? '<font color="red">* </font>' : ''); ?><?= PROJECT_NOUN ?> Type:</label>
 		<div class="col-sm-8 <?= !($security['edit'] > 0) ? 'readonly-block' : '' ?>">
-			<select name="projecttype" id="projecttype" data-placeholder="Select a Type..." data-table="project" data-id="<?= $project['projectid'] ?>" data-id-field="projectid" class="chosen-select-deselect form-control">
+			<select name="projecttype" id="projecttype" data-placeholder="Select a Type..." data-table="project" data-id="<?= $project['projectid'] ?>" data-id-field="projectid" class="chosen-select-deselect form-control <?php echo (in_array('Information Project Type', $field_mandatory_config) ? 'required' : ''); ?>">
 				<option value=''></option>
 				<?php $project_tabs = get_config($dbc, 'project_tabs');
 				$project_tabs = explode(',',$project_tabs);
@@ -256,10 +259,10 @@ function apply_template() {
 	<?php } ?>
 
 	<div class="form-group">
-		<label class="col-sm-4"><?= PROJECT_NOUN ?> Status:</label>
+		<label class="col-sm-4"><?php echo (in_array('DB Status', $field_mandatory_config) ? '<font color="red">* </font>' : ''); ?><?= PROJECT_NOUN ?> Status:</label>
 		<div class="col-sm-8 <?= !($security['edit'] > 0) ? 'readonly-block' : '' ?>">
 			<?php if(approval_visible_function($dbc, 'project') > 0 || $project['status'] != 'Pending') { ?>
-				<select name="status" id="status" data-placeholder="Select a <?= PROJECT_NOUN ?> Status..." data-table="project" data-id="<?= $project['projectid'] ?>" data-id-field="projectid" class="chosen-select-deselect form-control">
+				<select name="status" id="status" data-placeholder="Select a <?= PROJECT_NOUN ?> Status..." data-table="project" data-id="<?= $project['projectid'] ?>" data-id-field="projectid" class="chosen-select-deselect form-control <?php echo (in_array('DB Status', $field_mandatory_config) ? 'required' : ''); ?>">
 					<option></option>
 					<option <?= 'Pending' == $project['status'] ? 'selected' : '' ?> value="Pending">Pending</option>
 					<?php foreach($status_list as $status_name) { ?>
@@ -275,10 +278,10 @@ function apply_template() {
 
 	<?php if (in_array("Information Business",$value_config)) { ?>
 	<div class="form-group">
-		<label class="col-sm-4"><?= BUSINESS_CAT ?><span class="brand-color">*</span>:</label>
+		<label class="col-sm-4"><?php echo (in_array('Information Business', $field_mandatory_config) ? '<font color="red">* </font>' : ''); ?><?= BUSINESS_CAT ?>:</label>
 		<div class="col-sm-7 <?= !($security['edit'] > 0) ? 'readonly-block' : '' ?>">
 
-			<select name="businessid" id="businessid" data-placeholder="Select a <?= BUSINESS_CAT ?>..." data-table="project" data-id="<?= $project['projectid'] ?>" data-id-field="projectid" class="chosen-select-deselect form-control" onchange="if(this.value > 0) { $(this).closest('.form-group').find('.current').show(); $(this).closest('.form-group').find('.new').hide(); } else { $(this).closest('.form-group').find('.current').hide(); $(this).closest('.form-group').find('.new').show(); }">
+			<select name="businessid" id="businessid" data-placeholder="Select a <?= BUSINESS_CAT ?>..." data-table="project" data-id="<?= $project['projectid'] ?>" data-id-field="projectid" class="chosen-select-deselect form-control <?php echo (in_array('Information Business', $field_mandatory_config) ? 'required' : ''); ?>" onchange="if(this.value > 0) { $(this).closest('.form-group').find('.current').show(); $(this).closest('.form-group').find('.new').hide(); } else { $(this).closest('.form-group').find('.current').hide(); $(this).closest('.form-group').find('.new').show(); }">
 
 				<option></option>
 				<?php foreach(sort_contacts_query(mysqli_query($dbc,"SELECT contactid, name, region, con_locations, classification FROM contacts WHERE (category='".BUSINESS_CAT."' AND deleted=0 AND `status`=1) OR `contactid`='".$project['businessid']."'")) as $business) {
@@ -300,9 +303,9 @@ function apply_template() {
 		for($i = 0; $i < count($contact_list) || $i == 0; $i++) {
 			$clientid = $contact_list[$i]; ?>
 			<div class="form-group">
-				<label class="col-sm-4"><?= CONTACTS_TILE ?>:</label>
+				<label class="col-sm-4"><?php echo (in_array('DB Contact', $field_mandatory_config) ? '<font color="red">* </font>' : ''); ?><?= CONTACTS_TILE ?>:</label>
 				<div class="col-sm-7 <?= !($security['edit'] > 0) ? 'readonly-block' : '' ?>">
-					<select name="clientid[]" data-placeholder="Select a <?= CONTACTS_NOUN ?>..." data-table="project" data-id="<?= $project['projectid'] ?>" data-id-field="projectid" class="chosen-select-deselect form-control" onchange="if(this.value > 0) { $(this).closest('.form-group').find('.current').show(); $(this).closest('.form-group').find('.new').hide(); } else { $(this).closest('.form-group').find('.current').hide(); $(this).closest('.form-group').find('.new').show(); }">
+					<select name="clientid[]" data-placeholder="Select a <?= CONTACTS_NOUN ?>..." data-table="project" data-id="<?= $project['projectid'] ?>" data-id-field="projectid" class="chosen-select-deselect form-control <?php echo (in_array('DB Contact', $field_mandatory_config) ? 'required' : ''); ?>" onchange="if(this.value > 0) { $(this).closest('.form-group').find('.current').show(); $(this).closest('.form-group').find('.new').hide(); } else { $(this).closest('.form-group').find('.current').hide(); $(this).closest('.form-group').find('.new').show(); }">
 						<option></option>
 						<?php foreach(sort_contacts_query(mysqli_query($dbc, "SELECT contactid, first_name, last_name, category, region, con_locations, classification, businessid FROM contacts WHERE (category!='Business' AND deleted=0 AND `status` > 0) OR `contactid`='$clientid'")) as $contact) {
 							echo "<option ".(($clientid == $contact['contactid'] || (in_array($contact['contactid'],$sales_contactids) && $_GET['edit']==0)) ? 'selected' : '')." value='". $contact['contactid']."' data-region='".$contact['region']."' data-location='".$contact['con_locations']."' data-classification='".$contact['classification']."' data-business='".$contact['businessid']."'>".$contact['first_name'].' '.$contact['last_name'].'</option>';
@@ -351,10 +354,10 @@ function apply_template() {
 
 	<?php if (in_array("Information Site",$value_config)) { ?>
 	<div class="form-group">
-		<label class="col-sm-4">Site<span class="brand-color">*</span>:</label>
+		<label class="col-sm-4"><?php echo (in_array('Information Site', $field_mandatory_config) ? '<font color="red">* </font>' : ''); ?>Site:</label>
 		<div class="col-sm-7 <?= !($security['edit'] > 0) ? 'readonly-block' : '' ?>">
 
-			<select name="siteid" id="siteid" data-placeholder="Select a Site..." data-table="project" data-id="<?= $project['projectid'] ?>" data-id-field="projectid" class="chosen-select-deselect form-control" onchange="if(this.value > 0) { $(this).closest('.form-group').find('.current').show(); $(this).closest('.form-group').find('.new').hide(); } else { $(this).closest('.form-group').find('.current').hide(); $(this).closest('.form-group').find('.new').show(); }">
+			<select name="siteid" id="siteid" data-placeholder="Select a Site..." data-table="project" data-id="<?= $project['projectid'] ?>" data-id-field="projectid" class="chosen-select-deselect form-control <?php echo (in_array('Information Site', $field_mandatory_config) ? 'required' : ''); ?>" onchange="if(this.value > 0) { $(this).closest('.form-group').find('.current').show(); $(this).closest('.form-group').find('.new').hide(); } else { $(this).closest('.form-group').find('.current').hide(); $(this).closest('.form-group').find('.new').show(); }">
 
 				<option></option>
 				<?php foreach(sort_contacts_query(mysqli_query($dbc,"SELECT contactid, businessid, IF(IFNULL(`display_name`,'')='',`site_name`,`display_name`) display, region, con_locations, classification FROM contacts WHERE (category='Sites' AND deleted=0 AND `status` > 0 AND '".$project['businessid']."' IN (`businessid`,'')) OR `contactid`='".$project['siteid']."'")) as $site) {
@@ -373,9 +376,9 @@ function apply_template() {
 
 	<?php if (in_array("Information Rate Card",$value_config)) { ?>
 	<div class="form-group">
-		<label class="col-sm-4">Rate Card:</label>
+		<label class="col-sm-4"><?php echo (in_array('Information Rate Card', $field_mandatory_config) ? '<font color="red">* </font>' : ''); ?>Rate Card:</label>
 		<div class="col-sm-8 <?= !($security['edit'] > 0) ? 'readonly-block' : '' ?>">
-			<select name="ratecardid" id="ratecardid" data-placeholder="Select a Rate Card..." data-table="project" data-id="<?= $project['projectid'] ?>" data-id-field="projectid" class="chosen-select-deselect form-control">
+			<select name="ratecardid" id="ratecardid" data-placeholder="Select a Rate Card..." data-table="project" data-id="<?= $project['projectid'] ?>" data-id-field="projectid" class="chosen-select-deselect form-control <?php echo (in_array('Information Rate Card', $field_mandatory_config) ? 'required' : ''); ?>">
 				<option value=''></option>
 				<?php $query = mysqli_query($dbc,"SELECT ratecardid, rate_card_name FROM rate_card WHERE on_off=1 AND DATE(NOW()) BETWEEN `start_date` AND IFNULL(NULLIF(`end_date`,'0000-00-00'),'9999-12-31') UNION SELECT CONCAT('company*',MIN(`companyrcid`)), `rate_card_name` FROM `company_rate_card` WHERE `deleted`=0 AND DATE(NOW()) BETWEEN `start_date` AND IFNULL(NULLIF(`end_date`,'0000-00-00'),'9999-12-31') GROUP BY `rate_card_name`");
 				while($row = mysqli_fetch_array($query)) {
@@ -388,9 +391,9 @@ function apply_template() {
 
 	<?php if (in_array("Information Project Type",$value_config)) { ?>
 	<div class="form-group">
-		<label class="col-sm-4">Type<span class="brand-color">*</span>:</label>
+		<label class="col-sm-4"><?php echo (in_array('Information Project Type', $field_mandatory_config) ? '<font color="red">* </font>' : ''); ?>Type:</label>
 		<div class="col-sm-8 <?= !($security['edit'] > 0) ? 'readonly-block' : '' ?>">
-			<select name="projecttype" id="projecttype" data-placeholder="Select a Type..." data-table="project" data-id="<?= $project['projectid'] ?>" data-id-field="projectid" class="chosen-select-deselect form-control required">
+			<select name="projecttype" id="projecttype" data-placeholder="Select a Type..." data-table="project" data-id="<?= $project['projectid'] ?>" data-id-field="projectid" class="chosen-select-deselect form-control <?php echo (in_array('Information Project Type', $field_mandatory_config) ? 'required' : ''); ?>">
 				<option value=''></option>
 				<?php $project_tabs = get_config($dbc, 'project_tabs');
 				$project_tabs = explode(',',$project_tabs);
@@ -407,7 +410,7 @@ function apply_template() {
 
 	<?php if (in_array('Path',$tab_config)) {    ?>
 		<div class="form-group">
-			<label class="col-sm-4"><?= in_array('External Path',$tab_config) ? 'Internal ' : '' ?><?= PROJECT_NOUN ?> Path Template:</label>
+			<label class="col-sm-4"><?php echo (in_array('Path', $field_mandatory_config) ? '<font color="red">* </font>' : ''); ?><?= in_array('External Path',$tab_config) ? 'Internal ' : '' ?><?= PROJECT_NOUN ?> Path Template:</label>
 			<div class="col-sm-8 <?= !($security['edit'] > 0) ? 'readonly-block' : '' ?>">
 				<select class="chosen-select-deselect" name="path_templates[]" multiple data-placeholder="Select a <?= PROJECT_NOUN ?> Path Template" data-template="<?= $project['project_path'] ?>">
 					<option></option>
@@ -427,7 +430,7 @@ function apply_template() {
 
 	<?php if (in_array('External Path',$tab_config)) { ?>
 		<div class="form-group">
-			<label class="col-sm-4">External <?= PROJECT_NOUN ?> Path Template:</label>
+			<label class="col-sm-4"><?php echo (in_array('External Path', $field_mandatory_config) ? '<font color="red">* </font>' : ''); ?>External <?= PROJECT_NOUN ?> Path Template:</label>
 			<div class="col-sm-8 <?= !($security['edit'] > 0) ? 'readonly-block' : '' ?>">
 				<select class="chosen-select-deselect" name="external_path[]" multiple data-placeholder="Select an External <?= PROJECT_NOUN ?> Path Template" data-table="project" data-id="<?= $project['projectid'] ?>" data-id-field="projectid">
 					<option></option>
@@ -449,7 +452,7 @@ function apply_template() {
 		<label class="col-sm-4"><?= PROJECT_NOUN ?> Status:</label>
 		<div class="col-sm-8 <?= !($security['edit'] > 0) ? 'readonly-block' : '' ?>">
 			<?php if(approval_visible_function($dbc, 'project') > 0 || $project['status'] != 'Pending') { ?>
-				<select name="status" id="status" data-placeholder="Select a <?= PROJECT_NOUN ?> Status..." data-table="project" data-id="<?= $project['projectid'] ?>" data-id-field="projectid" class="chosen-select-deselect form-control">
+				<select name="status" id="status" data-placeholder="Select a <?= PROJECT_NOUN ?> Status..." data-table="project" data-id="<?= $project['projectid'] ?>" data-id-field="projectid" class="chosen-select-deselect form-control <?php echo (in_array('Information Status', $field_mandatory_config) ? 'required' : ''); ?>">
 					<option></option>
 					<option <?= 'Pending' == $project['status'] ? 'selected' : '' ?> value="Pending">Pending</option>
 					<?php foreach($status_list as $status_name) { ?>
@@ -466,27 +469,27 @@ function apply_template() {
 
 	<?php if (in_array("Information AFE",$value_config)) { ?>
 		<div class="form-group">
-			<label class="col-sm-4">AFE #<span class="brand-color">*</span>:</label>
+			<label class="col-sm-4"><?php echo (in_array('Information AFE', $field_mandatory_config) ? '<font color="red">* </font>' : ''); ?>AFE #:</label>
 			<div class="col-sm-8 <?= !($security['edit'] > 0) ? 'readonly-block' : '' ?>">
-				<input name="afe_number" value="<?= $project['afe_number'] ?>" data-table="project" data-id="<?= $project['projectid'] ?>" data-id-field="projectid" type="text" class="form-control required"></p>
+				<input name="afe_number" value="<?= $project['afe_number'] ?>" data-table="project" data-id="<?= $project['projectid'] ?>" data-id-field="projectid" type="text" class="form-control <?php echo (in_array('Information AFE', $field_mandatory_config) ? 'required' : ''); ?>"></p>
 			</div>
 		</div>
 	<?php } ?>
 
 	<?php if (in_array("Information Project Short Name",$value_config)) { ?>
 		<div class="form-group">
-			<label class="col-sm-4"><?= PROJECT_NOUN ?> Short Name<span class="brand-color">*</span>:</label>
+			<label class="col-sm-4"><?php echo (in_array('Information Project Short Name', $field_mandatory_config) ? '<font color="red">* </font>' : ''); ?><?= PROJECT_NOUN ?> Short Name:</label>
 			<div class="col-sm-8 <?= !($security['edit'] > 0) ? 'readonly-block' : '' ?>">
-				<input name="project_name" value="<?= $project['project_name'] ?>" data-table="project" data-id="<?= $project['projectid'] ?>" data-id-field="projectid" type="text" class="form-control required"></p>
+				<input name="project_name" value="<?= $project['project_name'] ?>" data-table="project" data-id="<?= $project['projectid'] ?>" data-id-field="projectid" type="text" class="form-control <?php echo (in_array('Information Project Short Name', $field_mandatory_config) ? 'required' : ''); ?>"></p>
 			</div>
 		</div>
 	<?php } ?>
 
 	<?php if (in_array("Information Assign",$value_config)) { ?>
 		<div class="form-group">
-			<label class="col-sm-4">Project Lead:</label>
+			<label class="col-sm-4"><?php echo (in_array('Information Assign', $field_mandatory_config) ? '<font color="red">* </font>' : ''); ?>Project Lead:</label>
 			<div class="col-sm-8 <?= !($security['edit'] > 0) ? 'readonly-block' : '' ?>">
-				<select name="project_lead" data-placeholder="Select a Staff..." data-table="project" data-id="<?= $project['projectid'] ?>" data-id-field="projectid" class="chosen-select-deselect form-control">
+				<select name="project_lead" data-placeholder="Select a Staff..." data-table="project" data-id="<?= $project['projectid'] ?>" data-id-field="projectid" class="chosen-select-deselect form-control <?php echo (in_array('Information Assign', $field_mandatory_config) ? 'required' : ''); ?>">
 					<option></option>
 					<?php foreach(sort_contacts_query(mysqli_query($dbc, "SELECT contactid, first_name, last_name FROM contacts WHERE (category IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND deleted=0 AND `status` > 0) OR `contactid`='{$project['project_lead']}'")) as $contact) {
 						echo "<option ".($project['project_lead'] == $contact['contactid'] ? 'selected' : '')." value='". $contact['contactid']."' data-region='".$contact['region']."' data-location='".$contact['con_locations']."' data-classification='".$contact['classification']."'>".$contact['first_name'].' '.$contact['last_name'].'</option>';
@@ -498,9 +501,9 @@ function apply_template() {
 
 	<?php if (in_array("Information Colead",$value_config)) { ?>
 		<div class="form-group">
-			<label class="col-sm-4">Project Co-Lead:</label>
+			<label class="col-sm-4"><?php echo (in_array('Information Colead', $field_mandatory_config) ? '<font color="red">* </font>' : ''); ?>Project Co-Lead:</label>
 			<div class="col-sm-8 <?= !($security['edit'] > 0) ? 'readonly-block' : '' ?>">
-				<select name="project_colead" data-placeholder="Select a Staff..." data-table="project" data-id="<?= $project['projectid'] ?>" data-id-field="projectid" class="chosen-select-deselect form-control">
+				<select name="project_colead" data-placeholder="Select a Staff..." data-table="project" data-id="<?= $project['projectid'] ?>" data-id-field="projectid" class="chosen-select-deselect form-control <?php echo (in_array('Information Colead', $field_mandatory_config) ? 'required' : ''); ?>">
 					<option></option>
 					<?php foreach(sort_contacts_query(mysqli_query($dbc, "SELECT contactid, first_name, last_name FROM contacts WHERE (category IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND deleted=0 AND `status` > 0) OR `contactid`='{$project['project_colead']}'")) as $contact) {
 						echo "<option ".($project['project_colead'] == $contact['contactid'] ? 'selected' : '')." value='". $contact['contactid']."' data-region='".$contact['region']."' data-location='".$contact['con_locations']."' data-classification='".$contact['classification']."'>".$contact['first_name'].' '.$contact['last_name'].'</option>';

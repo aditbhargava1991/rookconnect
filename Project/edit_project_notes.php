@@ -67,7 +67,7 @@ function addNewNote() {
             echo '<button class="btn brand-btn" onclick="addNewNote(); return false;">Add Note</button>';
         } ?>
     </div>
-    
+
 	<?php if($security['edit'] > 0) { ?>
         <div class="add_note" style="display:none;">
             <div class="col-sm-8 pull-right text-md">
@@ -198,7 +198,7 @@ function addNewNote() {
                 <button class="btn brand-btn pull-right" data-table="project_comment" data-id-field="projectcommid" data-id="" data-field="comment" onclick="send_email(this); return false;">Send Email</button>
                 <div class="clearfix"></div>
             </div>
-            
+
             <div class="form-group">
                 <label for="site_name" class="col-sm-4 control-label">Add Note:</label>
                 <div class="col-sm-8">

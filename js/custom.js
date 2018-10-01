@@ -1121,7 +1121,7 @@ function addTimes(timeA, timeB) {
 			timeA[0] = timeA[0] * 1 - 12;
 		}
 	}
-	return timeA.join(':')+' '+AMtimeA[1];
+	return timeA.join(':')+(AMtimeA[1] != undefined ? ' '+AMtimeA[1] : '');
 }
 function getQueryStringArray(url) {
 	var query_string_arr = {};

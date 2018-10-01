@@ -30,6 +30,7 @@ function updateTotalTimeEstimate() {
 	$customer_rates = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `services`, `staff`, `staff_position` FROM `rate_card` WHERE `clientid` IN ('$rate_contact', '{$bill['businessid']}', '{$bill['clientid']}') AND `clientid` != '' AND `deleted`=0 ORDER BY `clientid`='$rate_contact' DESC"));
 	if(strpos($value_config,',Billing Services,') !== FALSE && (!isset($_GET['tab_only']) || $_GET['tab_only'] == 'services')) {
 		$service_rates = explode('**',$customer_rates['services']);
+
 		$services = $_SERVER['DBC']->query("SELECT `serviceid`, `service_qty`, `service_discount`, `service_discount_type`, `service_time_estimate`, `service_fuel_charge` FROM `tickets` WHERE `ticketid`='$ticketid'")->fetch_assoc();
 		$service_delivers = [];
 		$service_deliver_id = [];
@@ -39,24 +40,29 @@ function updateTotalTimeEstimate() {
         foreach($service as $id) {
             $service_delivers[] = '';
             $service_deliver_id[] = '';
+
         }
 		$qty = explode(',',$services['service_qty']);
 		$time_estimate = explode(',',$services['service_time_estimate']);
 		$discount_type = explode(',',$services['service_discount_type']);
 		$discount = explode(',',$services['service_discount']);
 		$total_time_estimate = 0;
+
         $delivery_services = $_SERVER['DBC']->query("SELECT `location_name`,`client_name`,`serviceid`, `est_time`, `id`, `surcharge`, `service_discount`, `service_discount_type` FROM `ticket_schedule` WHERE `ticketid`='$ticketid' AND `deleted`=0 ORDER BY `sort`");
+
         $stop_number = 0;
         while($delivery_service = $delivery_services->fetch_assoc()) {
             $stop_number++;
             $delivery_serviceid = explode(',',$delivery_service['serviceid']);
             foreach($delivery_serviceid as $id) {
                 $service_delivers[] = 'Delivery #'.$stop_number.': '.(empty($delivery_service['client_name']) ? $delivery_service['location_name'] : $delivery_service['client_name']);
+
                 $service_deliver_id[] = $delivery_service['id'];
                 $service[] = $id;
                 $service_surcharge[] = explode(',',$delivery_service['surcharge'])[$i];
                 $discount[] = explode(',',$delivery_service['service_discount'])[$i];
                 $discount_type[] = explode(',',$delivery_service['service_discount_type'])[$i];
+
                 $qty[] = 1;
                 $time_estimate[] = $delivery_service['est_tiime'] / count($delivery_serviceid);
                 $discount_type[] = '';

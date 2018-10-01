@@ -9,18 +9,25 @@ if($_GET['revision'] > 0 && $form['pdf_name'] != '' && $ticketid > 0 && file_exi
 	echo "<script> window.top.location.href = 'download/".config_safe_str($form['pdf_name']).'_'.$_GET['revision'].'_'.$ticketid.".pdf'; </script>";
 } else if(!empty($_GET['form'])) {
 	DEFINE("PDF_IMAGES", $form['pages']);
+	DEFINE("FORM_PAGE_ORIENTATION", $form['page_orientation']);
 
 	class MYPDF extends TCPDF {
 		public function Header() {
 			$image = explode('#*#',PDF_IMAGES)[$this->page-1];
 			if(!empty($image) && file_exists('pdf_contents/'.$image)) {
 				$image = 'pdf_contents/'.$image;
-				$this->Image($image, 0, 0, 216, 279, '', '', '', false, 300, '', false, false, 0);
+				$width = 216;
+				$height = 279;
+				if(FORM_PAGE_ORIENTATION == 'L') {
+					$width = 279;
+					$height = 216;
+				}
+				$this->Image($image, 0, 0, $width, $height, '', '', '', false, 300, '', false, false, 0);
 			}
 		}
 	}
 
-	$pdf = new MYPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, 'LETTER', true, 'UTF-8', false);
+	$pdf = new MYPDF((!empty($form['page_orientation']) ? $form['page_orientation'] : PDF_PAGE_ORIENTATION), PDF_UNIT, 'LETTER', true, 'UTF-8', false);
 	$pdf->SetMargins(10, 10, 10);
 	$pdf->SetFooterMargin(10);
 	$pdf->SetAutoPageBreak(FALSE, 0);
@@ -30,7 +37,7 @@ if($_GET['revision'] > 0 && $form['pdf_name'] != '' && $ticketid > 0 && file_exi
 
 	foreach(explode('#*#',$form['pages']) as $page => $img) {
 		$pdf->AddPage();
-		$fields = $dbc->query("SELECT `fields`.*, `values`.`field_value`, `values`.`revision` FROM `ticket_pdf_fields` `fields` LEFT JOIN `ticket_pdf_field_values` `values` ON `fields`.`field_name`=`values`.`field_name` AND `values`.`deleted`=0 LEFT JOIN `ticket_pdf_field_values` `older` ON `values`.`ticketid`=`older`.`ticketid` AND `values`.`pdf_type`=`older`.`pdf_type`AND `values`.`field_name`=`older`.`field_name` AND `values`.`id` < `older`.`id` AND `older`.`deleted`=0 WHERE (`older`.`id` IS NULL AND $revision=0 OR `values`.`revision`=$revision) AND `values`.`ticketid`='$ticketid' AND `fields`.`pdf_type`='{$form['id']}' AND `fields`.`deleted`=0 AND `page`='".($page+1)."'");
+		$fields = $dbc->query("SELECT `fields`.*, `values`.`field_value`, `values`.`revision` FROM `ticket_pdf_fields` `fields` LEFT JOIN `ticket_pdf_field_values` `values` ON `fields`.`field_name`=`values`.`field_name` AND `values`.`deleted`=0 LEFT JOIN `ticket_pdf_field_values` `older` ON `values`.`ticketid`=`older`.`ticketid` AND `values`.`pdf_type`=`older`.`pdf_type`AND `values`.`field_name`=`older`.`field_name` AND `values`.`id` < `older`.`id` AND `older`.`deleted`=0 WHERE (`older`.`id` IS NULL AND $revision=0 OR `values`.`revision`=$revision) AND `values`.`ticketid`='$ticketid' AND `fields`.`pdf_type`='{$form['id']}' AND `values`.`pdf_type`='{$form['id']}' AND `fields`.`deleted`=0 AND `page`='".($page+1)."'");
 		while($field = $fields->fetch_assoc()) {
 			$revision = $field['revision'];
 			$pdf->SetXY($field['x'],$field['y']);
