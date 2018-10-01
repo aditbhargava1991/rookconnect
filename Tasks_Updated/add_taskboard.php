@@ -11,7 +11,7 @@ if (isset($_POST['add_tab'])) {
     $board_security = filter_var($_POST['board_security'],FILTER_SANITIZE_STRING);
     $board_security = ($board_security=='Shared') ? 'Company' : $board_security;
 
-    if($board_security == 'Private') {
+    if($board_security == 'Private' || $board_security == 'Client') {
         $company_staff_sharing = ','.$_SESSION['contactid'].',';
     } else {
 	    $company_staff_sharing = ','.implode(',',$_POST['company_staff_sharing']).',';

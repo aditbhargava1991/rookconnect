@@ -298,7 +298,7 @@ $(document).ready(function () {
             $('.contact_section_display').hide();
             $('.sales_section_display').hide();
             $('.taskpath_section_display').show();
-        } else if(task_board_type == 'Company') {
+        } else if(task_board_type == 'Shared') {
             $('.hide_task_board_name').show();
             $('.project_section_display').hide();
             $('.contact_section_display').hide();
@@ -1025,8 +1025,10 @@ function mark_done(sel) {
                                 } else {
                                     $selected = '';
                                 }
-                                echo "<option ".$selected." value='". $row['projectid']."'>".$row['project_name'].'</option>';
-                            } ?>
+                                if($row['project_name'] != '') {
+                                    echo "<option ".$selected." value='". $row['projectid']."'>".$row['project_name'].'</option>';
+                                }
+                                } ?>
                         </select>
                     </div>
                 </div>
