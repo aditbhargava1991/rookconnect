@@ -845,7 +845,7 @@ function addIntakeForm(btn) {
                                     //echo '</span>'; ?>
                                     <div class="row pull-left t_name">
                                         <h4 style="<?= $style_strikethrough ?>">
-                                            <input type="checkbox" name="status" value="<?= $row['tasklistid'] ?>" class="form-checkbox no-margin small pull-left" onchange="mark_done(this);" <?= ( $row['status'] == $status_complete ) ? 'checked' : '' ?> />
+                                            <input type="checkbox" name="status" value="<?= $row['tasklistid'] ?>" class="form-checkbox no-margin small pull-left" onchange="mark_done(this);" <?= ( $row['status'] == 'Complete' ) ? 'checked disabled' : '' ?> />
                                             <div class="pull-left gap-left">
 
                                             <?php
