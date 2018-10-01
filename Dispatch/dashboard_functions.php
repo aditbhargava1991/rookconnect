@@ -68,7 +68,7 @@ function dispatch_ticket_label($dbc, $ticket) {
 		if(file_exists('../Ticket/download/'.$customer_notes['location_to']) && !empty($customer_notes['location_to'])) {
 			$camera_class = 'active';
 		}
-		$row_html .= '<img src="../img/camera.png" class="theme-color-icon inline-img dispatch-equipment-camera '.$camera_class.'" onmouseover="display_camera(this);" onmouseout="hide_camera();" data-file="'.WEBSITE_URL.'/Ticket/download/'.$customer_notes['location_to'].'">';
+		$row_html .= '<img src="../img/camera.png" class="inline-img dispatch-equipment-camera '.$camera_class.'" onmouseover="display_camera(this);" onmouseout="hide_camera();" data-file="'.WEBSITE_URL.'/Ticket/download/'.$customer_notes['location_to'].'">';
 	}
 	if(in_array('signature',$dispatch_tile_ticket_card_fields)) {
 		$customer_notes = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `ticket_attached` WHERE `ticketid` = '".$ticket['ticketid']."' AND `src_table` = 'customer_approve' AND `line_id` = '".$ticket['stop_id']."' AND `deleted` = 0"));
@@ -80,7 +80,7 @@ function dispatch_ticket_label($dbc, $ticket) {
 		if(vuaed_visible_function($dbc, 'ticket') > 0) {
 			$clickable_html .= 'onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Ticket/edit_ticket_tab.php?tab=ticket_customer_notes&ticketid='.$ticket['ticketid'].'&stop='.$ticket['stop_id'].'\', \'auto\', true, true, \'auto\', false, \'true\'); return false;"';
 		}
-		$row_html .= '<img '.$clickable_html.' src="../img/icons/ROOK-reply-icon.png" class="no-slider theme-color-icon inline-img dispatch-equipment-signature '.$signature_class.'" onmouseover="display_signature(this);" onmouseout="hide_signature();" data-file="'.WEBSITE_URL.'/Ticket/export/customer_sign_'.$customer_notes['id'].'.png">';
+		$row_html .= '<img '.$clickable_html.' src="../img/icons/ROOK-reply-icon.png" class="no-slider inline-img dispatch-equipment-signature '.$signature_class.'" onmouseover="display_signature(this);" onmouseout="hide_signature();" data-file="'.WEBSITE_URL.'/Ticket/export/customer_sign_'.$customer_notes['id'].'.png">';
 	}
 
 	return $row_html;
