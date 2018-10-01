@@ -359,7 +359,7 @@ function saveFieldMethod(field) {
 		},
 		success: function(response) {
 			if(response > 0 && name == 'link') {
-				window.location.reload();
+				// reloadDocuments();
 			} else if(response > 0 && table == 'project') {
 				$('[data-table=project]').data('id',response);
 				$('[name=projectid]').val(response);
