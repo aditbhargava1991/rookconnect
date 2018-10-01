@@ -170,14 +170,13 @@ if (isset($_POST['tasklist'])) {
 	}
 
     //Document
-	mkdir('download', 0777, true);
     if (!file_exists('download')) {
         mkdir('download', 0777, true);
     }
     for($i = 0; $i < count($_FILES['upload_document']['name']); $i++) {
         $document = htmlspecialchars($_FILES["upload_document"]["name"][$i], ENT_QUOTES);
 
-        move_uploaded_file($_FILES["upload_document"]["tmp_name"][$i], "download/".$_FILES["upload_document"]["name"][$i]);
+        move_uploaded_file($_FILES["upload_document"]["tmp_name"][$i], $_FILES["upload_document"]["name"][$i]);
 
         if($document != '') {
 			$changes[] = "Attached file: $document";
