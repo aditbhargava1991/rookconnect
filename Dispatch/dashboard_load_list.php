@@ -39,10 +39,10 @@ foreach($equip_list as $equipment) {
         	foreach($warehouse_tickets as $ticket) {
         		$warehouse_times[date('H:i', strtotime($ticket['to_do_start_time']))][$ticket['warehouse_full_address']][] = ($ticket['stop_id'] > 0 ? 'ticket_schedule-'.$ticket['stop_id'] : 'tickets-'.$ticket['ticketid']);
         		$status_summary[$ticket['status']]['count']++;
-        		$status_summary[$ticket['status']]['color'] = empty($ticket_status_color[$status]) ? '#'.substr(md5($status), 0, 6) : $ticket_status_color[$status];
+        		$status_summary[$ticket['status']]['color'] = empty($ticket_status_color[$status]) ? '#'.substr(md5(encryptIt($status)), 0, 6) : $ticket_status_color[$status];
         		$status_summary[$ticket['status']]['status'] = $ticket['status'];
         		$summary_result['status_summary'][$ticket['status']]['count']++;
-        		$summary_result['status_summary'][$ticket['status']]['color'] = empty($ticket_status_color[$status]) ? '#'.substr(md5($status), 0, 6) : $ticket_status_color[$status];
+        		$summary_result['status_summary'][$ticket['status']]['color'] = empty($ticket_status_color[$status]) ? '#'.substr(md5(encryptIt($status)), 0, 6) : $ticket_status_color[$status];
         		$summary_result['status_summary'][$ticket['status']]['status'] = $ticket['status'];
         	}
         }
@@ -80,10 +80,10 @@ foreach($equip_list as $equipment) {
         	foreach($pickup_tickets as $ticket) {
         		$pickup_times[date('H:i', strtotime($ticket['to_do_start_time']))][$ticket['pickup_full_address']][] = ($ticket['stop_id'] > 0 ? 'ticket_schedule-'.$ticket['stop_id'] : 'tickets-'.$ticket['ticketid']);
         		$status_summary[$ticket['status']]['count']++;
-        		$status_summary[$ticket['status']]['color'] = empty($ticket_status_color[$status]) ? '#'.substr(md5($status), 0, 6) : $ticket_status_color[$status];
+        		$status_summary[$ticket['status']]['color'] = empty($ticket_status_color[$status]) ? '#'.substr(md5(encryptIt($status)), 0, 6) : $ticket_status_color[$status];
         		$status_summary[$ticket['status']]['status'] = $ticket['status'];
         		$summary_result['status_summary'][$ticket['status']]['count']++;
-        		$summary_result['status_summary'][$ticket['status']]['color'] = empty($ticket_status_color[$status]) ? '#'.substr(md5($status), 0, 6) : $ticket_status_color[$status];
+        		$summary_result['status_summary'][$ticket['status']]['color'] = empty($ticket_status_color[$status]) ? '#'.substr(md5(encryptIt($status)), 0, 6) : $ticket_status_color[$status];
         		$summary_result['status_summary'][$ticket['status']]['status'] = $ticket['status'];
         	}
         }
@@ -179,10 +179,10 @@ foreach($equip_list as $equipment) {
 			$star_contacts[] = $star_contact;
 		}
 		$status_summary[$ticket['status']]['count']++;
-		$status_summary[$ticket['status']]['color'] = empty($ticket_status_color[$status]) ? '#'.substr(md5($status), 0, 6) : $ticket_status_color[$status];
+		$status_summary[$ticket['status']]['color'] = empty($ticket_status_color[$status]) ? '#'.substr(md5(encryptIt($status)), 0, 6) : $ticket_status_color[$status];
 		$status_summary[$ticket['status']]['status'] = $ticket['status'];
 		$summary_result['status_summary'][$ticket['status']]['count']++;
-		$summary_result['status_summary'][$ticket['status']]['color'] = empty($ticket_status_color[$status]) ? '#'.substr(md5($status), 0, 6) : $ticket_status_color[$status];
+		$summary_result['status_summary'][$ticket['status']]['color'] = empty($ticket_status_color[$status]) ? '#'.substr(md5(encryptIt($status)), 0, 6) : $ticket_status_color[$status];
 		$summary_result['status_summary'][$ticket['status']]['status'] = $ticket['status'];
 
 		$customer_notes = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `ticket_attached` WHERE `ticketid` = '".$ticket['ticketid']."' AND `src_table` = 'customer_approve' AND `line_id` = '".$ticket['stop_id']."' AND `deleted` = 0"));
