@@ -1,6 +1,6 @@
 <?php include_once('../include.php');
-include_once('../Dispatch/config.php');
 include_once('../Dispatch/dashboard_functions.php');
+include_once('../Dispatch/config.php');
 ob_clean();
 
 $daily_date = $_POST['date'];
