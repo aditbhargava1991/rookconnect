@@ -10,6 +10,9 @@ switch($_GET['settings']) {
     case 'fields':
         $field_title = TICKET_NOUN.' Fields';
         break;
+    case 'status_colors':
+        $field_title = 'Status Colors';
+        break;
 } ?>
 
 <script type="text/javascript">
@@ -68,6 +71,7 @@ function loadPanel() {
         <a href="?"><li>Back to Dashboard</li></a>
         <a href="?settings=tile"><li <?= $_GET['settings'] == 'tile' ? 'class="active"' : '' ?>>Tile Settings</li></a>
         <a href="?settings=fields"><li <?= $_GET['settings'] == 'fields' ? 'class="active"' : '' ?>><?= TICKET_NOUN ?> Fields</li></a>
+        <a href="?settings=status_colors"><li <?= $_GET['settings'] == 'status_colors' ? 'class="active"' : '' ?>>Status Colors</li></a>
     </ul>
 </div>
 
@@ -77,7 +81,9 @@ function loadPanel() {
             <h3><?= $field_title ?></h3>
         </div>
         <div class="standard-body-content" style="padding: 1em;">
-            <?php if($_GET['settings'] == 'fields') {
+            <?php if($_GET['settings'] == 'status_colors') {
+                include('field_config_status_colors.php');
+            } else if($_GET['settings'] == 'fields') {
                 include('field_config_fields.php');
             } else {
                 include('field_config_tile.php');
