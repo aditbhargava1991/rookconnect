@@ -91,7 +91,13 @@ function addPieces(button) {
 	$(button).prop('disabled',true).text('Adding Pieces...');
 	completed_last = function() {
 		$.post('ticket_ajax_all.php?action=add_pieces',{ticketid:ticketid,count:$('[name=qty][data-table=ticket_attached][data-type=inventory_shipment]').val(),units:$('[name=weight_units][data-table=ticket_attached][data-type=inventory_shipment]').val()},function(response) {
-			window.location.reload();
+			if($('#calendar_view').val() == 'true') {
+				window.parent.$('.iframe_overlay iframe').off('load');
+				window.parent.$('.iframe_overlay iframe').attr('src','../blank_loading_page.php');
+				window.parent.overlayIFrameSlider('../Ticket/index.php?edit='+ticketid+'&ticketid='+ticketid+'&from='+from_url+'&calendar_view=true');
+			} else {
+				window.location.reload();
+			}
 		});
 	}
 	if(current_fields.length == 0 && saving_field == null) {
