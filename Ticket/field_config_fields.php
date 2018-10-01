@@ -282,7 +282,8 @@ function saveFields() {
 		ticket_guardian_contact: $('[name^=ticket_guardian_contact]').attr('name'),
 		ticket_guardian_contact_value: $('[name^=ticket_guardian_contact]').val(),
 		ticket_recurrence_sync_upto: ticket_recurrence_sync_upto,
-		mandatory: mandate
+		mandatory: mandate,
+		delivery_type_default: $('[name="delivery_type_default"]').val()
 	}).success(function(response) {
 		if(this_field_name == 'delivery_types') {
 			reloadDeliveryColors();
@@ -704,6 +705,18 @@ function removeHidePosition(sel) {
 	}
 	$(sel).closest('.position_block').remove();
 	saveFields();
+}
+function loadDefaultDeliveryDropdown() {
+	destroyInputs('[name="delivery_type_default"]');
+	var default_type = $('[name="delivery_type_default"]').val();
+	var delivery_types = $('[name="delivery_types"]').val().split(',');
+	var default_html = '';
+	delivery_types.forEach(function(delivery_type) {
+		default_html += '<option value="'+delivery_type+'" '+(delivery_type == default_type ? 'selected' : '')+'>'+delivery_type+'</option>';
+	});
+	$('[name="delivery_type_default"]').html(default_html);
+	initInputs('[name="delivery_type_default"]');
+	$('[name="delivery_type_default"]').change();
 }
 </script>
 <!-- <h1><?= (!empty($tab) ? $ticket_tabs[$tab].' Fields' : 'All '.TICKET_NOUN.' Fields') ?></h1> -->

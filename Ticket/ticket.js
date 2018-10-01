@@ -769,6 +769,9 @@ function saveFieldMethod(field) {
 							var staff_attached_id = $(field).closest('.staff_block').find('[data-id]').first().data('id');
 							$(field).closest('.staff-multi-time').find('[name="item_id"]').val(staff_attached_id).change();
 						}
+						if(table_name == 'ticket_schedule' && field_name != 'type' && $(field).closest('.tab-section').hasClass('scheduled_stop')) {
+							$(field).closest('.scheduled_stop').find('[name="type"]').change();
+						}
 						$('[name=to_do_date]').change();
 						$('[name=contactid]').first().change();
 						$('[name="status"]').change();
@@ -2558,6 +2561,9 @@ function addScheduledStop() {
 	});
 	clone.find('[data-id][data-table]').data('id','');
 	clone.find('[data-table]').not('[name=equipmentid],[name=to_do_date],[name=order_number]').val('');
+	if($(clone).find('[name="type"]').data('default-value') != undefined && $(clone).find('[name="type"]').data('default-value')) {
+		$(clone).find('[name="type"]').val($(clone).find('[name="type"]').data('default-value'));
+	}
 	$('.scheduled_stop:visible').last().after(clone).after('<hr>');
 	initInputs('.scheduled_stop');
 	setSave();
