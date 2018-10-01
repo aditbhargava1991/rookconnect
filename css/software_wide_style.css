@@ -3401,6 +3401,89 @@ position: relative;
 	text-align: center;
 	line-height: 10px;
 }
+.dispatch-equipment-list {
+	overflow: auto;
+	width: auto;
+	white-space:nowrap;
+}
+.dispatch-equipment-group {
+	display: inline-block;
+	border: 1px solid #E1E1E1;
+	margin: 0.5em;
+	vertical-align: top;
+	white-space: normal;
+}
+.dispatch-equipment-content {
+	overflow: auto;
+}
+.dispatch-equipment-title {
+	padding: 1em;
+	border-bottom: 1px solid #E1E1E1;
+	color: #fafafa !important;
+}
+.dispatch-equipment-block {
+	margin: 0.5em;
+	padding: 0.5em;
+	background-color: #dddddd;
+	border: 1px solid #ACA9A9;
+}
+.dashboard-equipment-buttons-group {
+	padding: 0.5em;
+}
+.dispatch-equipment-button {
+	font-size: 12px;
+	line-height: 1.5;
+	border-radius: 3px;
+	padding: 0.5em;
+	margin: 0.25em;
+	display: inline-block;
+	opacity: 0.5;
+	color: #fafafa !important;
+	text-decoration: none;
+	text-transform:uppercase;
+}
+.dispatch-equipment-button.active {
+	opacity: 1;
+}
+.dispatch-equipment-button a {
+	color: #fafafa !important;
+	display: inline-block;
+}
+.dispatch-equipment-button a:hover {
+	color: #fafafa !important;
+}
+.dispatch-equipment-camera,.dispatch-equipment-signature {
+	opacity: 0.5;
+}
+.dispatch-equipment-camera.active,.dispatch-equipment-signature.active {
+	opacity: 1;
+}
+
+.dispatch-checkmark-ticket {
+    content: '';
+	background-image: url("../img/iconmonstr-check-mark-17.svg");
+	background-repeat: no-repeat;
+	background-position: center;
+	background-size: contain;
+    overflow: hidden;
+}
+.dispatch-summary-block {
+	height: 30vh;
+	display: inline-block;
+	border: 1px solid #E1E1E1;
+	margin: 0.25em;
+	padding: 0.5em;
+	vertical-align: top;
+	white-space: normal;
+}
+@media(max-width:767px) {
+	.dispatch-summary-block {
+		height: 100%;
+	}
+}
+.dispatch-summary-star {
+	padding: 0.5em;
+}
 
 /*
  * jQuery-Circle-Plugin v0.1 by Jamal hassouni
