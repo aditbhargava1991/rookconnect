@@ -1673,6 +1673,7 @@ if($_GET['action'] == 'update_fields') {
 		set_config($dbc, 'ticket_staff_travel_default', filter_var($_POST['ticket_staff_travel_default'],FILTER_SANITIZE_STRING));
 		set_config($dbc, 'ticket_guardian_contact', filter_var($_POST['ticket_guardian_contact_value'],FILTER_SANITIZE_STRING));
 		set_config($dbc, 'ticket_recurrence_sync_upto', filter_var($_POST['ticket_recurrence_sync_upto'],FILTER_SANITIZE_STRING));
+		set_config($dbc, 'delivery_type_default', filter_var($_POST['delivery_type_default'],FILTER_SANITIZE_STRING));
 	}
 
 } else if($_GET['action'] == 'ticket_field_config') {
