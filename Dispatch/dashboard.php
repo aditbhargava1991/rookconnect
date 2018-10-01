@@ -1,4 +1,5 @@
 <?php include_once ('../include.php');
+include_once('../Dispatch/dashboard_functions.php');
 include_once('../Dispatch/config.php');
 checkAuthorised('dispatch');
 ?>

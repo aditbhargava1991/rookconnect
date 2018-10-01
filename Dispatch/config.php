@@ -128,6 +128,7 @@ if(!empty($equipment_categories)) {
 }
 $customer_query = '';
 if($is_customer) {
+    $daily_date = !empty($_GET['date']) ? $_GET['date'] : (!empty($_POST['date']) ? $_POST['date'] : date('Y-m-d'));
 	$customer_equipments = get_customer_equipment($dbc, $daily_date, $daily_date);
 	$customer_query .= " AND `equipmentid` IN (".implode(',', $customer_equipments).")";
 }
