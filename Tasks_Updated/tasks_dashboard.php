@@ -873,7 +873,20 @@ function addIntakeForm(btn) {
                                                 profile_id($dbc, $staffid);
                                             }
                                         } else {
-                                            profile_id($dbc, $row['contactid']);
+                                        	if(!empty($row['contactid'])){
+                                        		$cids_ex = explode(',', $row['contactid']);
+	                                            $cids_unique = array_unique($cids_ex);
+	                                            $i=0;
+	                                            foreach (array_filter($cids_unique) as $staffcid ) {
+	                                            	$i++;
+	                                            	if($i>5){
+	                                            		break;
+	                                            	}
+	                                                profile_id($dbc, $staffcid);
+	                                            }
+                                        	}else{
+                                            	profile_id($dbc, $row['contactid']);
+                                        	}
                                         } ?>
                                     </div>
                                     <div class="clearfix"></div><?php
