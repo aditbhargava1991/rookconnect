@@ -79,6 +79,10 @@ if(isset($_POST['submit'])) {
             $tasklistid = $id;
             mysqli_query($dbc, "UPDATE `tasklist` SET `flag_colour`='$flag_colour',`flag_label`='$flag_label', `flag_start`='$flag_start', `flag_end`='$flag_end' WHERE `tasklistid`='$tasklistid'");
 
+            $note = '<em>Flag added by '.get_contact($dbc, $_SESSION['contactid']).' [PROFILE '.$_SESSION['contactid'].']: </em>';
+
+            mysqli_query($dbc, "INSERT INTO `task_comments` (`tasklistid`, `comment`, `created_by`, `created_date`) VALUES ('$tasklistid','".filter_var(htmlentities($note),FILTER_SANITIZE_STRING)."','".$_SESSION['contactid']."','".date('Y-m-d')."')");
+
             echo '<script type="text/javascript"> window.parent.setManualFlag(\''.$tasklistid.'\', \''.$flag_colour.'\', \''.$flag_label.'\'); </script>';
             break;
 
@@ -132,6 +136,14 @@ if(isset($_POST['submit'])) {
             echo '<script type="text/javascript"> window.parent.setManualFlag(\''.$checklistid.'\', \''.$flag_colour.'\', \''.$flag_label.'\'); </script>';
             ?>
             <?php break;
+        
+        case 'equipment':
+            $checklistid = $id;
+            mysqli_query($dbc, "UPDATE `equipment` SET `flag_colour`='$flag_colour', `flag_start`='$flag_start', `flag_end`='$flag_end', `flag_label`='$flag_label' WHERE `equipmentid`='$id'");
+            echo '<script type="text/javascript"> window.parent.setManualFlag(\''.$checklistid.'\', \''.$flag_colour.'\', \''.$flag_label.'\'); </script>';
+        	?>
+            
+            <?php break;
         case 'common_checklist_flag':
             $checklistid = $id;
             mysqli_query($dbc, "UPDATE `checklist` SET `flag_colour`='$flag_colour', `flag_start`='$flag_start', `flag_end`='$flag_end', `flag_label`='$flag_label' WHERE `checklistid`='$id'");
@@ -177,7 +189,9 @@ if(isset($_POST['submit'])) {
     case 'checklist_name':
         $row = $dbc->query("SELECT `flag_colour`,`flag_label`,`flag_start`,`flag_end` FROM `checklist_name` WHERE `checklistnameid`='$id'")->fetch_assoc();
         break;
-
+    case 'equipment_name':
+        $row = $dbc->query("SELECT `flag_colour`,`flag_label`,`flag_start`,`flag_end` FROM `equipment_name` WHERE `equipmentnameid`='$id'")->fetch_assoc();
+        break;
     case 'common_checklist_flag':
         $row = $dbc->query("SELECT `flag_colour`,`flag_label`,`flag_start`,`flag_end` FROM `checklist` WHERE `checklistid`='$id'")->fetch_assoc();
         break;

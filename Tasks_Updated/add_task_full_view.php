@@ -202,7 +202,7 @@ if (isset($_POST['tasklist'])) {
 
 	// Record Changes
 	$changes = htmlentities(implode('<br />',$changes));
-    $task_comment = htmlentities($_POST['task_comment']);
+    $task_comment = filter_var(htmlentities($_POST['task_comment']),FILTER_SANITIZE_STRING);
     if ( !empty($task_comment) ) {
         mysqli_query($dbc, "INSERT INTO `task_comments` (`tasklistid`, `created_by`, `created_date`, `comment`) VALUES ('$tasklistid', '".$_SESSION['contactid']."', DATE(NOW()), '$task_comment')");
     }
@@ -487,8 +487,7 @@ if (isset($_POST['tasklist'])) {
                     dataType: "html",   //expect html to be returned
                     success: function(response){
                         alert('You have successfully deleted this task.');
-                        window.location.href = "add_task.php";
-
+                        window.location.href = "index.php?category=All&tab=Summary";
                     }
                 });
             }
@@ -719,7 +718,7 @@ if (isset($_POST['tasklist'])) {
                 });
             }
         });
-        $(task).timepicker('show');
+        //$(task).timepicker('show');
     }
 
     function manual_add_time(task) {
@@ -833,7 +832,7 @@ function deletestartTicketStaff(button) {
 <body>
 <?php
     include_once ('../navigation.php');
-    checkAuthorised('tasks_updated');
+    checkAuthorised('tasks');
     $back_url = (isset($_SERVER['HTTPS']) ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
 ?>
 <div class="container">
@@ -936,7 +935,8 @@ function deletestartTicketStaff(button) {
                             }
                             */
 
-                        } else if(!empty($_GET['projectid'])) {
+                        }
+                        if(!empty($_GET['projectid'])) {
                             $task_projectid = $_GET['projectid'];
                             $project = mysqli_fetch_array(mysqli_query($dbc, "SELECT `businessid`, `clientid`, `project_path` FROM `project` WHERE `projectid`='$task_projectid'"));
                             $task_businessid = $project['businessid'];
@@ -1009,7 +1009,7 @@ function deletestartTicketStaff(button) {
                                     <div class="col-sm-8">
                                         <select data-placeholder="Select a Task Board Type..." name="task_board_type" id="task_board_type" class="chosen-select-deselect form-control" data-field="board_security" width="380">
                                             <option></option>
-                                            <option value="Private" <?= $board_security=='Private' ? 'selected' : '' ?>>Private</option><?php
+                                            <?php
                                             $all_board_types = mysqli_fetch_array(mysqli_query($dbc, "SELECT task_dashboard_tile FROM task_dashboard"));
                                             foreach(explode(',', $all_board_types['task_dashboard_tile']) as $board_type) {
                                                 $board_type = str_replace(' Tasks', '', $board_type);
@@ -1083,17 +1083,11 @@ function deletestartTicketStaff(button) {
                                             <select data-placeholder="Select a Task Path..." id="task_path" name="task_path" data-table="tasklist" data-field="task_path" class="chosen-select-deselect form-control" width="380">
                                                 <option value=""></option><?php
                                                 $project_path_milestones = [];
-                                                if($task_projectid > 0) {
-                                                    $project_path_milestones = get_project_paths($task_projectid);
-                                                    foreach($project_path_milestones as $path) { ?>
-                                                        <option <?= $task_path == $path['path_id'] ? 'selected' : '' ?> value='<?= $path['path_id'] ?>'><?= $path['path_name'] ?></option>
-                                                    <?php }
-                                                } else {
                                                     $query = mysqli_query($dbc,"SELECT project_path_milestone, project_path FROM project_path_milestone");
                                                     while($row = mysqli_fetch_array($query)) { ?>
                                                         <option <?php if ($row['project_path_milestone'] == $task_path) { echo " selected"; } ?> value='<?php echo  $row['project_path_milestone']; ?>' ><?php echo $row['project_path']; ?></option><?php
                                                     }
-                                                } ?>
+                                                 ?>
                                             </select>
                                         </div>
                                     </div>
@@ -1101,9 +1095,14 @@ function deletestartTicketStaff(button) {
                                         <label for="site_name" class="col-sm-4 control-label">Milestone & Timeline:</label>
                                         <div class="col-sm-8">
                                         <?php
+                                            $project_path_milestones = get_project_paths($task_projectid);
                                             $task_milestone_timeline = str_replace("FFMEND","&",$task_milestone_timeline);
                                             $task_milestone_timeline = str_replace("FFMSPACE"," ",$task_milestone_timeline);
                                             $task_milestone_timeline = str_replace("FFMHASH","#",$task_milestone_timeline);
+
+                                            $project_milestone = str_replace("FFMEND","&",$project_milestone);
+                                            $project_milestone = str_replace("FFMSPACE"," ",$project_milestone);
+                                            $project_milestone = str_replace("FFMHASH","#",$project_milestone);
                                         ?>
                                             <select data-placeholder="Select a Milestone & Timeline..." name="task_milestone_timeline" id="task_milestone_timeline" data-table="tasklist" data-field="task_milestone_timeline"  class="chosen-select-deselect form-control" width="580">
                                                 <option value=""></option>
@@ -1111,7 +1110,7 @@ function deletestartTicketStaff(button) {
                                                     foreach($project_path_milestones as $path) {
                                                         if($path['path_id'] == $task_path) {
                                                             foreach($path['milestones'] as $milestone) { ?>
-                                                                <option <?= $task_milestone_timeline == $milestone['milestone'] ? 'selected' : '' ?> value="<?= $milestone['milestone'] ?>"><?= $milestone['label'] ?></option>
+                                                                <option <?= $project_milestone == $milestone['milestone'] ? 'selected' : '' ?> value="<?= $milestone['milestone'] ?>"><?= $milestone['label'] ?></option>
                                                             <?php }
                                                         }
                                                     }
@@ -1224,6 +1223,26 @@ function deletestartTicketStaff(button) {
 
                             <div class="accordion-block-details padded" id="details">
                                 <div class="accordion-block-details-heading"><h4>Details</h4></div>
+
+                                <!--
+                                <div class="form-group clearfix">
+                                    <?= $slider_layout != 'accordion' ? '<h4>Task'. ( !empty($tasklistid) ) ? ' #'.$tasklistid : ':'.' Details</h4>' : '' ?>
+                                    <label for="first_name" class="col-sm-4 control-label text-right">Completed:</label>
+                                    <div class="col-sm-8">
+                                        <input type="checkbox" name="status" value="<?= $tasklistid ?>" class="form-checkbox no-margin" onchange="mark_done(this);" <?= ($task_status==$status_complete) ? 'checked' : '' ?> />
+                                    </div>
+                                </div>
+                                -->
+
+                                <div class="form-group clearfix">
+                                    <label for="first_name" class="col-sm-4 control-label text-right">
+                                        <!-- <img src="../img/icons/ROOK-edit-icon.png" class="inline-img" /> --> Task Name:
+                                    </label>
+                                    <div class="col-sm-8">
+                                        <input type="text" name="task_heading" value="<?= $task_heading ?>" data-table="tasklist" data-field="heading" class="form-control" width="380" />
+                                    </div>
+                                </div>
+
                                 <div class="form-group clearfix">
                                     <label for="first_name" class="col-sm-4 control-label text-right">Status:</label>
                                     <div class="col-sm-8">
@@ -1245,38 +1264,6 @@ function deletestartTicketStaff(button) {
                                             }
                                           ?>
                                         </select>
-                                    </div>
-                                </div>
-
-                                <!--
-                                <div class="form-group clearfix">
-                                    <?= $slider_layout != 'accordion' ? '<h4>Task'. ( !empty($tasklistid) ) ? ' #'.$tasklistid : ':'.' Details</h4>' : '' ?>
-                                    <label for="first_name" class="col-sm-4 control-label text-right">Completed:</label>
-                                    <div class="col-sm-8">
-                                        <input type="checkbox" name="status" value="<?= $tasklistid ?>" class="form-checkbox no-margin" onchange="mark_done(this);" <?= ($task_status==$status_complete) ? 'checked' : '' ?> />
-                                    </div>
-                                </div>
-                                -->
-
-                                <div class="form-group clearfix">
-                                    <label for="first_name" class="col-sm-4 control-label text-right">
-                                        <!-- <img src="../img/icons/ROOK-edit-icon.png" class="inline-img" /> --> Task Name:
-                                    </label>
-                                    <div class="col-sm-8">
-                                        <?php $groups = $dbc->query("SELECT `category` FROM `task_types` WHERE `deleted`=0 GROUP BY `category` ORDER BY MIN(`sort`), MIN(`id`)");
-                                        if($groups->num_rows > 0) { ?>
-                                            <select name="heading_src" onchange="if(this.value != '' && this.value != undefined) { $('[name=task_heading]').val(this.value).change(); }" class="chosen-select-deselect"><option />
-                                                <?php while($task_group = $groups->fetch_assoc()) { ?>
-                                                    <optgroup label="<?= $task_group['category'] ?>">
-                                                        <?php $task_names = $dbc->query("SELECT `id`, `description` FROM `task_types` WHERE `deleted`=0 AND `category`='{$task_group['category']}' ORDER BY `sort`, `id`");
-                                                        while($task_name = $task_names->fetch_assoc()) { ?>
-                                                            <option value="<?= $task_name['description'] ?>"><?= $task_name['description'] ?></option>
-                                                        <?php } ?>
-                                                    </optgroup>
-                                                <?php } ?>
-                                            </select>
-                                        <?php } ?>
-                                        <input type="text" name="task_heading" value="<?= $task_heading ?>" data-table="tasklist" data-field="heading" class="form-control" width="380" />
                                     </div>
                                 </div>
 
@@ -1318,6 +1305,27 @@ function deletestartTicketStaff(button) {
 
                                         <br><div class="clearfix"></div>
 
+                                    </div>
+                                </div>
+
+                                <div class="form-group clearfix">
+                                    <label for="first_name" class="col-sm-4 control-label text-right">
+                                        <!-- <img src="../img/icons/ROOK-edit-icon.png" class="inline-img" /> --> Task Billing:
+                                    </label>
+                                    <div class="col-sm-8">
+                                        <?php $groups = $dbc->query("SELECT `category` FROM `task_types` WHERE `deleted`=0 GROUP BY `category` ORDER BY MIN(`sort`), MIN(`id`)");
+                                        if($groups->num_rows > 0) { ?>
+                                            <select name="heading_src" class="chosen-select-deselect"><option />
+                                                <?php while($task_group = $groups->fetch_assoc()) { ?>
+                                                    <optgroup label="<?= $task_group['category'] ?>">
+                                                        <?php $task_names = $dbc->query("SELECT `id`, `description` FROM `task_types` WHERE `deleted`=0 AND `category`='{$task_group['category']}' ORDER BY `sort`, `id`");
+                                                        while($task_name = $task_names->fetch_assoc()) { ?>
+                                                            <option value="<?= $task_name['description'] ?>"><?= $task_name['description'] ?></option>
+                                                        <?php } ?>
+                                                    </optgroup>
+                                                <?php } ?>
+                                            </select>
+                                        <?php } ?>
                                     </div>
                                 </div>
 
@@ -1481,8 +1489,11 @@ function deletestartTicketStaff(button) {
                                     <button name="" type="button" value="" class="delete_task pull-left image-btn no-toggle" title="Archive"><img class="no-margin small" src="../img/icons/ROOK-trash-icon.png" alt="Archive Task" width="30"></button>
                                 <?php } ?>
                                 <button name="tasklist" value="tasklist" class="btn brand-btn pull-right stop-timer-submit">Submit</button>
-                                <button type="button" name="" value="" class="btn brand-btn pull-right save-btn">Save</button>
-                                <!-- <a href="index.php?category=All&tab=Summary" class="btn brand-btn pull-right">Cancel</a> -->
+
+                                <img class="no-toggle pull-right theme-color-icon save-btn gap-right" src="../img/icons/save.png" alt="Save" width="36" title="" data-original-title="Save">
+
+                                <!--<button type="button" name="" value="" class="btn brand-btn pull-right save-btn">Save</button>
+                                 <a href="index.php?category=All&tab=Summary" class="btn brand-btn pull-right">Cancel</a> -->
                                 <div class="clearfix"></div>
                             </div>
 

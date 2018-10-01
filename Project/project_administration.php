@@ -181,6 +181,25 @@ $approv_count = $admin_group['precedence'] > 1 ? count(array_filter(explode(',',
                         if(in_array($sched_line['status'],array_merge(['Complete','Completed','Done','Finished','Archive','Archived'],explode('#*#,',get_config($dbc, 'ticket_archive_status'))))) {
                             $completed_stops++;
                         }
+                        foreach(explode(',',$sched_line['serviceid']) as $i => $service) {
+                            if($service > 0) {
+                                $service = $dbc->query("SELECT `services`.`serviceid`, `services`.`heading`, `rate`.`cust_price` FROM `services` LEFT JOIN `company_rate_card` `rate` ON `services`.`serviceid`=`rate`.`item_id` AND `rate`.`tile_name` LIKE 'Services' WHERE `services`.`serviceid`='$service'")->fetch_assoc();
+                                $service_rate = 0;
+                                foreach(explode('**',$cust_rate_card['services']) as $service_cust_rate) {
+                                    $service_cust_rate = explode('#',$service_cust_rate);
+                                    if($service_cust_rate[0] == $service['serviceid']) {
+                                        $service_rate = $service_cust_rate[1];
+                                    }
+                                }
+                                $services[] = $service['heading'].($qty[$i] > 0 ? ' x '.$qty[$i] : '');
+                                $services_cost_num[] = ($qty[$i] > 0 ? $qty[$i] : 1) * ($service_rate > 0 ? $service_rate : $service['cust_price']);
+                                $services_cost[] = number_format(($qty[$i] > 0 ? $qty[$i] : 1) * ($service_rate > 0 ? $service_rate : $service['cust_price']),2);
+                            }
+                        }
+                        if(in_array($sched_line['status'],array_merge(['Complete','Completed','Done','Finished','Archive','Archived'],explode('#*#,',get_config($dbc, 'ticket_archive_status'))))) {
+                            $completed_stops++;
+                        }
+
                     } ?>
                     <tr>
                         <td data-title="Date"><?= empty($ticket['ticket_date']) ? implode(', ',array_unique($date_list)) : $ticket['ticket_date'] ?></td>
