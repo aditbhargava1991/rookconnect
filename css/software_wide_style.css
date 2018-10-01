@@ -3404,3 +3404,5 @@ position: relative;
 .active_blocks .block-item.active:hover {
 	cursor: pointer;
 }
+
+#back_to_top { position:fixed; bottom:80px; right:35px; z-index:1; }
