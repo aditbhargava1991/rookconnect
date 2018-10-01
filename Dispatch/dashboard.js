@@ -101,6 +101,7 @@ function view_summary(equipmentid) {
 	if($('.dispatch-summary-group').is(':visible') && $('.dispatch-summary-group').data('equipment') == equipmentid) {
 		$('.dispatch-equipment-summary').html('').hide();
 		$('.dispatch-equipment-summary-title').html('').hide();
+		resize_blocks();
 	} else {
 		var item_row = '';
 
@@ -140,6 +141,7 @@ function view_summary(equipmentid) {
 		}
 		$('.dispatch-equipment-summary').html(item_row).show();
 		$('.dispatch-equipment-summary-title').html('<h4>Summary - '+equip_label+'</h4>').show();
+		resize_blocks();
 
 		var ontime_data = google.visualization.arrayToDataTable(ontime_arr);
 		var ontime_options = {
@@ -157,7 +159,6 @@ function view_summary(equipmentid) {
 		var status_chart = new google.visualization.PieChart($('.dispatch-summary-status')[0]);
         status_chart.draw(status_data, status_options);
 	}
-	resize_blocks();
 }
 function load_summary() {
 
