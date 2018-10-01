@@ -3438,3 +3438,32 @@ position: relative;
 .dispatch-equipment-button a:hover {
 	color: #fafafa !important;
 }
+.dispatch-equipment-camera,.dispatch-equipment-signature {
+	opacity: 0.5;
+}
+.dispatch-equipment-camera.active,.dispatch-equipment-signature.active {
+	opacity: 1;
+}
+
+.dispatch-checkmark-ticket {
+    content: '';
+	background-image: url("../img/iconmonstr-check-mark-17.svg");
+	background-repeat: no-repeat;
+	background-position: center;
+	background-size: contain;
+    overflow: hidden;
+}
+.dispatch-summary-block {
+	height: 30vh;
+	display: inline-block;
+	border: 1px solid #E1E1E1;
+	margin: 0.25em;
+	padding: 0.5em;
+	vertical-align: top;
+	white-space: normal;
+}
+@media(max-width:767px) {
+	.dispatch-summary-block {
+		height: 100%;
+	}
+}

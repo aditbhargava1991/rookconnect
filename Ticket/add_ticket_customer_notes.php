@@ -257,6 +257,7 @@ while($customer_approval = $customer_approvals->fetch_assoc()) {
 								<?= $customer_approval['checked_in'] ?>
 							</div>
 						</div>
+						<div class="clearfix"></div>
 						<?php $pdf_contents[] = ['Customer Contacted', $customer_approval['checked_in']]; ?>
 					<?php }
 					if(strpos($value_config, ','."Customer Reset Details".',') !== FALSE && $field_sort_field == 'Customer Reset Details') { ?>
@@ -266,6 +267,7 @@ while($customer_approval = $customer_approvals->fetch_assoc()) {
 								<?= html_entity_decode($customer_approval['location_from']) ?>
 							</div>
 						</div>
+						<div class="clearfix"></div>
 						<?php $pdf_contents[] = ['Who Reset and Why', html_entity_decode($customer_approval['location_from'])]; ?>
 					<?php } else if(strpos($value_config, ','."Customer Driver Notes".',') !== FALSE && $field_sort_field == 'Customer Driver Notes') { ?>
 						<div class="form-group">
@@ -274,15 +276,17 @@ while($customer_approval = $customer_approvals->fetch_assoc()) {
 								<?= html_entity_decode($customer_approval['location_from']) ?>
 							</div>
 						</div>
+						<div class="clearfix"></div>
 						<?php $pdf_contents[] = ['Driver Notes', html_entity_decode($customer_approval['location_from'])]; ?>
 					<?php }
 					if(strpos($value_config, ','."Customer Property Photo".',') !== FALSE && $field_sort_field == 'Customer Property Photo') { ?>
 						<div class="form-group">
 							<label class="col-sm-4 control-label">Photo of Property:</label>
 							<div class="col-sm-8">
-								<?= ($customer_approval['weight_units'] != '' && file_exists('download/'.$customer_approval['location_to']) ? '<a href="download/'.$customer_approval['location_to'].'" target="_blank"><img src="download/'.$customer_approval['location_to'].'"  style="max-width: 20em; max-height: 20em; border: 1px solid black;"></a>' : '') ?>
+								<?= ($customer_approval['location_to'] != '' && file_exists('download/'.$customer_approval['location_to']) ? '<a href="download/'.$customer_approval['location_to'].'" target="_blank"><img src="download/'.$customer_approval['location_to'].'"  style="max-width: 20em; max-height: 20em; border: 1px solid black;"></a>' : '') ?>
 							</div>
 						</div>
+						<div class="clearfix"></div>
 						<?php $pdf_contents[] = ['Photo of Property', ($customer_approval['location_to'] != '' && file_exists('download/'.$customer_approval['location_to']) ? '<img src="download/'.$customer_approval['location_to'].'">' : '')]; ?>
 					<?php }
 					if(strpos($value_config, ','."Customer Property Damage".',') !== FALSE && $field_sort_field == 'Customer Property Damage') { ?>
@@ -292,6 +296,7 @@ while($customer_approval = $customer_approvals->fetch_assoc()) {
 								<?= $customer_approval['status'] == 1 ? 'Yes' : 'No:<br />'.html_entity_decode($customer_approval['description']).($customer_approval['weight_units'] != '' && file_exists('download/'.$customer_approval['weight_units']) ? '<a href="download/'.$customer_approval['weight_units'].'" target="_blank"><img src="download/'.$customer_approval['weight_units'].'"  style="max-width: 20em; max-height: 20em; border: 1px solid black;"></a>' : '') ?>
 							</div>
 						</div>
+						<div class="clearfix"></div>
 						<?php $pdf_contents[] = ['My Property Is Damage Free', $customer_approval['status'] == 1 ? 'Yes' : 'No:<br />'.html_entity_decode($customer_approval['description']).($customer_approval['weight_units'] != '' && file_exists('download/'.$customer_approval['weight_units']) ? '<img src="download/'.$customer_approval['weight_units'].'">' : '')]; ?>
 					<?php }
 					if(strpos($value_config, ','."Customer Product Damage Package".',') !== FALSE && $field_sort_field == 'Customer Product Damage Package') { ?>
@@ -301,6 +306,7 @@ while($customer_approval = $customer_approvals->fetch_assoc()) {
 								<?= $customer_approval['product'] == 1 ? 'Yes' : 'No:<br />'.html_entity_decode($customer_approval['notes']).($customer_approval['dimension_units'] != '' && file_exists('download/'.$customer_approval['dimension_units']) ? '<a href="download/'.$customer_approval['dimension_units'].'" target="_blank"><img src="download/'.$customer_approval['dimension_units'].'" style="max-width: 20em; max-height: 20em; border: 1px solid black;"></a>' : '').($customer_approval['dimensions'] != '' && file_exists('download/'.$customer_approval['dimensions']) ? '<a href="download/'.$customer_approval['dimensions'].'" target="_blank"><img src="download/'.$customer_approval['dimensions'].'" style="max-width: 20em; max-height: 20em; border: 1px solid black;"></a>' : '') ?>
 							</div>
 						</div>
+						<div class="clearfix"></div>
 						<?php $pdf_contents[] = ['My Product Is Damage Free', $customer_approval['product'] == 1 ? 'Yes' : 'No:<br />'.html_entity_decode($customer_approval['notes']).($customer_approval['dimension_units'] != '' && file_exists('download/'.$customer_approval['dimension_units']) ? '<img src="download/'.$customer_approval['dimension_units'].'">' : '').($customer_approval['dimensions'] != '' && file_exists('download/'.$customer_approval['dimensions']) ? '<img src="download/'.$customer_approval['dimensions'].'">' : '')]; ?>
 					<?php }
 					if(strpos($value_config, ','."Customer Product Damage".',') !== FALSE && $field_sort_field == 'Customer Product Damage') { ?>
@@ -310,6 +316,7 @@ while($customer_approval = $customer_approvals->fetch_assoc()) {
 								<?= $customer_approval['product'] == 1 ? 'Yes' : 'No:<br />'.html_entity_decode($customer_approval['notes']).($customer_approval['dimension_units'] != '' && file_exists('download/'.$customer_approval['dimension_units']) ? '<a href="download/'.$customer_approval['dimension_units'].'" target="_blank"><img src="download/'.$customer_approval['dimension_units'].'" style="max-width: 20em; max-height: 20em; border: 1px solid black;"></a>' : '').($customer_approval['dimensions'] != '' && file_exists('download/'.$customer_approval['dimensions']) ? '<a href="download/'.$customer_approval['dimensions'].'" target="_blank"><img src="download/'.$customer_approval['dimensions'].'" style="max-width: 20em; max-height: 20em; border: 1px solid black;"></a>' : '') ?>
 							</div>
 						</div>
+						<div class="clearfix"></div>
 						<?php $pdf_contents[] = ['My Product Is Damage Free', $customer_approval['product'] == 1 ? 'Yes' : 'No:<br />'.html_entity_decode($customer_approval['notes']).($customer_approval['dimension_units'] != '' && file_exists('download/'.$customer_approval['dimension_units']) ? '<img src="download/'.$customer_approval['dimension_units'].'">' : '').($customer_approval['dimensions'] != '' && file_exists('download/'.$customer_approval['dimensions']) ? '<img src="download/'.$customer_approval['dimensions'].'">' : '')]; ?>
 					<?php }
 					if(strpos($value_config, ','."Customer Rate".',') !== FALSE && $field_sort_field == 'Customer Rate') { ?>
@@ -319,6 +326,7 @@ while($customer_approval = $customer_approvals->fetch_assoc()) {
 								<?= number_format($customer_approval['rate'],0) ?>
 							</div>
 						</div>
+						<div class="clearfix"></div>
 						<?php $pdf_contents[] = ['How would you rate our team?', number_format($customer_approval['rate'],0)]; ?>
 					<?php } else if(strpos($value_config, ','."Customer Delivery Rate".',') !== FALSE && $field_sort_field == 'Customer Delivery Rate') { ?>
 						<div class="form-group">
@@ -327,6 +335,7 @@ while($customer_approval = $customer_approvals->fetch_assoc()) {
 								<?= number_format($customer_approval['rate'],0) ?>
 							</div>
 						</div>
+						<div class="clearfix"></div>
 						<?php $pdf_contents[] = ['How would you rate our team?', number_format($customer_approval['rate'],0)]; ?>
 					<?php }
 					if(strpos($value_config, ','."Customer Recommend".',') !== FALSE && $field_sort_field == 'Customer Recommend') { ?>
@@ -336,6 +345,7 @@ while($customer_approval = $customer_approvals->fetch_assoc()) {
 								<?= $customer_approval['contact_info'] == 1 ? 'Yes' : 'No' ?>
 							</div>
 						</div>
+						<div class="clearfix"></div>
 						<?php $pdf_contents[] = ['Would you recommend us?', $customer_approval['contact_info'] == 1 ? 'Yes' : 'No']; ?>
 					<?php } else if(strpos($value_config, ','."Customer Recommend Likely".',') !== FALSE && $field_sort_field == 'Customer Recommend Likely') { ?>
 						<div class="form-group">
@@ -344,6 +354,7 @@ while($customer_approval = $customer_approvals->fetch_assoc()) {
 								<?= number_format($customer_approval['contact_info'],0) ?>
 							</div>
 						</div>
+						<div class="clearfix"></div>
 						<?php $pdf_contents[] = ['Would you recommend us?', number_format($customer_approval['contact_info'],0)]; ?>
 					<?php }
 					if(strpos($value_config, ','."Customer Add Details".',') !== FALSE && $field_sort_field == 'Customer Add Details' && !empty(strip_tags(html_entity_decode($customer_approval['weight'])))) { ?>
@@ -353,6 +364,7 @@ while($customer_approval = $customer_approvals->fetch_assoc()) {
 								<?= html_entity_decode($customer_approval['weight']) ?>
 							</div>
 						</div>
+						<div class="clearfix"></div>
 						<?php $pdf_contents[] = ['Additional Comments', html_entity_decode($customer_approval['weight'])]; ?>
 					<?php }
 					if(strpos($value_config, ','."Customer Sign".',') !== FALSE && $field_sort_field == 'Customer Sign') { ?>
@@ -373,6 +385,7 @@ while($customer_approval = $customer_approvals->fetch_assoc()) {
 								} ?>
 							</div>
 						</div>
+						<div class="clearfix"></div>
 					<?php }
 				} ?>
 		<?php }

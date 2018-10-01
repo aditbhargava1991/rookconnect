@@ -18,11 +18,14 @@ checkAuthorised('dispatch'); ?>
             'service_template'=>'Service Template',
             'assigned'=>'Assigned Staff',
             'preferred'=>'Preferred Staff',
+            'available'=>'Availability',
             'address'=>'Address',
             'start_date'=>'Date',
             'ticket_notes'=>TICKET_NOUN.' Notes',
             'delivery_notes'=>'Delivery Notes',
-            'status'=>'Status'
+            'status'=>'Status',
+            'camera'=>'Camera Upload Hover',
+            'signature'=>'Signature Hover'
         ];
         $dispatch_tile_ticket_card_fields = explode(',',get_config($dbc, 'dispatch_tile_ticket_card_fields'));
         foreach($ticket_label_fields as $label_key => $label_field) { ?>

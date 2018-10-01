@@ -1,9 +1,12 @@
 <?php include_once('../include.php');
 //SETTINGS
+$reset_active = get_config($dbc, 'dispatch_tile_reset_active');
+$edit_access = vuaed_visible_function($dbc, 'dispatch');
+$ticket_view_access = tile_visible($dbc, 'ticket');
 $search_fields = array_filter(explode(',',get_config($dbc, 'dispatch_tile_search_fields')));
 $completed_ticket_status = get_config($dbc, 'auto_archive_complete_tickets');
-$combine_warehouse = get_config($dbc, 'dispatch_tile_combine_warehouse');
-$combine_pickup = get_config($dbc, 'dispatch_tile_combine_pickup');
+$combine_warehouses = get_config($dbc, 'dispatch_tile_combine_warehouse');
+$combine_pickups = get_config($dbc, 'dispatch_tile_combine_pickup');
 $contactid = $_SESSION['contactid'];
 $contact_regions = array_filter(array_unique(explode(',', mysqli_fetch_array(mysqli_query($dbc, "SELECT GROUP_CONCAT(`value` SEPARATOR ',') FROM `general_configuration` WHERE `name` LIKE '%_region'"))[0])));
 $region_colours = explode(',',get_config($dbc, '%_region_colour', true));

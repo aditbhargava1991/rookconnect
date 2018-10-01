@@ -2,8 +2,11 @@
 include_once('../Dispatch/config.php');
 checkAuthorised('dispatch');
 ?>
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 <script type="text/javascript" src="../Dispatch/dashboard.js"></script>
 
+<div id="camera_hover" class="block-button" style="position:absolute; z-index:9999; display:none;">Loading...</div>
+<div id="signature_hover" class="block-button" style="position:absolute; z-index:9999; display:none;">Loading...</div>
 <div class="scale-to-fill has-main-screen" style="padding: 0;">
     <div class="main-screen standard-body form-horizontal">
 
@@ -18,7 +21,7 @@ checkAuthorised('dispatch');
                 <div class="col-sm-6">
                     <label class="col-sm-4">Date:</label>
                     <div class="col-sm-8">
-                        <input type="text" name="search_date" value="<?= date('Y-m-d') ?>" class="form-control datepicker">
+                        <input type="text" name="search_date" value="<?= !empty($_GET['date']) ? $_GET['date'] : date('Y-m-d') ?>" class="form-control datepicker">
                     </div>
                 </div>
                 <?php if(in_array('region',$search_fields)) { ?>
@@ -92,11 +95,15 @@ checkAuthorised('dispatch');
                 <div class="clearfix"></div>
             </div>
             <div class="dispatch-body">
-                <div class="dispatch-equipment-summary" style="padding: 1em;"></div>
+                <div class="dispatch-summary" style="padding: 1em;">
+                    <div class="dispatch-equipment-summary-title"></div>
+                    <div class="dispatch-equipment-summary"></div>
+                </div>
+                <div class="clearfix"></div>
                 <div class="dashboard-equipment-buttons-group" style="padding: 1em;">
                     <h4 style="margin: 0; padding: 0.5em 0;"><?= count($equipment_categories) == 1 ? $equipment_categories[0] : 'Equipment' ?></h4>
                     <div class="dispatch-equipment-buttons"></div>
-                    <label class="form-checkbox"><input type="checkbox" onclick="select_all_buttons(this);" checked> Select All</label>
+                    <label class="form-checkbox"><input type="checkbox" onclick="select_all_buttons(this);"> Select All</label>
                 </div>
                 <div class="double-scroller"><div></div></div>
                 <div class="dispatch-equipment-list"></div>

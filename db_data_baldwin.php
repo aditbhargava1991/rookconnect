@@ -1010,5 +1010,19 @@
     }
     //2018-09-19 - Ticket #8929 - Calendar Onlin Staff
 
+    //2018-10-01 - Ticket #9354 - Dispatch
+    if(!mysqli_query($dbc, "ALTER TABLE `ticket_attached` ADD `completed_time` datetime NOT NULL AFTER `completed`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "CREATE TRIGGER `ticket_attached_completed_time` BEFORE UPDATE ON `ticket_attached`
+         FOR EACH ROW BEGIN
+            IF NEW.`completed` != OLD.`completed` THEN
+                SET NEW.`completed_time` = CURRENT_TIMESTAMP;
+            END IF;
+        END")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-10-01 - Ticket #9354 - Dispatch
+
     echo "Baldwin's DB Changes Done<br />\n";
 ?>

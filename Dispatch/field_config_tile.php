@@ -48,6 +48,13 @@ checkAuthorised('dispatch'); ?>
     </div>
 </div>
 <div class="form-group">
+    <label class="col-sm-4 control-label">Toggle All Equipment With <?= TICKET_TILE ?> When Changing Dates:</label>
+    <div class="col-sm-8">
+        <?php $dispatch_tile_reset_active = get_config($dbc, 'dispatch_tile_reset_active'); ?>
+        <label class="form-checkbox"><input type="checkbox" name="dispatch_tile_reset_active" <?= $dispatch_tile_reset_active == 1 ? 'checked' : '' ?> value="1"></label>
+    </div>
+</div>
+<div class="form-group">
     <label class="col-sm-4 control-label"><span class='popover-examples list-inline'><a data-toggle='tooltip' data-placement='top' title='This will display the Calendar to the selected Security Levels with a limited view to only things related to them.'><img src='<?= WEBSITE_URL ?>/img/info.png' width='20'></a></span> Customer View Security Levels:</label>
     <div class="col-sm-8">
         <?php $on_security = get_security_levels($dbc);

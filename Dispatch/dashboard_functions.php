@@ -41,6 +41,9 @@ function dispatch_ticket_label($dbc, $ticket) {
 	(in_array('site_address',$dispatch_tile_ticket_card_fields) ? '<br />'.'Site Address: '.$site_address : '').
 	(in_array('service_template',$dispatch_tile_ticket_card_fields) ? '<br />'.'Service Template: '.$service_template : '').
 	(in_array('start_date',$dispatch_tile_ticket_card_fields) ? '<br />'.'Date: '.$ticket['to_do_date'] : '');
+	if(in_array('available',$dispatch_tile_ticket_card_fields)) {
+		$row_html .= '<br />Availability: '.$ticket['availability'];
+	}
 	$row_html .= (in_array('address',$dispatch_tile_ticket_card_fields) ? '<br />'.$ticket['pickup_name'].($ticket['pickup_name'] != '' ? '<br />' : ' ').$ticket['client_name'].($ticket['client_name'] != '' ? '<br />' : ' ').$ticket['pickup_address'].($ticket['pickup_address'] != '' ? '<br />' : ' ').$ticket['pickup_city'] : '');
 	if(in_array('status',$dispatch_tile_ticket_card_fields)) {
 		$row_html .= '<br />'."Status: ".$ticket['status'];
@@ -57,6 +60,27 @@ function dispatch_ticket_label($dbc, $ticket) {
 	}
 	if(in_array('delivery_notes',$dispatch_tile_ticket_card_fields) && !empty($ticket['delivery_notes'])) {
 		$row_html .= '<br />Delivery Notes: '.html_entity_decode($ticket['delivery_notes']);
+	}
+	$row_html .= '<div class="clearfix"></div>';
+	if(in_array('camera',$dispatch_tile_ticket_card_fields)) {
+		$customer_notes = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `ticket_attached` WHERE `ticketid` = '".$ticket['ticketid']."' AND `src_table` = 'customer_approve' AND `line_id` = '".$ticket['stop_id']."' AND `deleted` = 0"));
+		$camera_class = '';
+		if(file_exists('../Ticket/download/'.$customer_notes['location_to']) && !empty($customer_notes['location_to'])) {
+			$camera_class = 'active';
+		}
+		$row_html .= '<img src="../img/camera.png" class="theme-color-icon inline-img dispatch-equipment-camera '.$camera_class.'" onmouseover="display_camera(this);" onmouseout="hide_camera();" data-file="'.WEBSITE_URL.'/Ticket/download/'.$customer_notes['location_to'].'">';
+	}
+	if(in_array('signature',$dispatch_tile_ticket_card_fields)) {
+		$customer_notes = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `ticket_attached` WHERE `ticketid` = '".$ticket['ticketid']."' AND `src_table` = 'customer_approve' AND `line_id` = '".$ticket['stop_id']."' AND `deleted` = 0"));
+		$signature_class = '';
+		if(file_exists('../Ticket/export/customer_sign_'.$customer_notes['id'].'.png')) {
+			$signature_class = 'active';
+		}
+		$clickable_html = '';
+		if(vuaed_visible_function($dbc, 'ticket') > 0) {
+			$clickable_html .= 'onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Ticket/edit_ticket_tab.php?tab=ticket_customer_notes&ticketid='.$ticket['ticketid'].'&stop='.$ticket['stop_id'].'\', \'auto\', true, true, \'auto\', false, \'true\'); return false;"';
+		}
+		$row_html .= '<img '.$clickable_html.' src="../img/icons/ROOK-reply-icon.png" class="no-slider theme-color-icon inline-img dispatch-equipment-signature '.$signature_class.'" onmouseover="display_signature(this);" onmouseout="hide_signature();" data-file="'.WEBSITE_URL.'/Ticket/export/customer_sign_'.$customer_notes['id'].'.png">';
 	}
 
 	return $row_html;
