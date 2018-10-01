@@ -176,8 +176,12 @@ if (isset($_POST['tasklist'])) {
     for($i = 0; $i < count($_FILES['upload_document']['name']); $i++) {
         $document = htmlspecialchars($_FILES["upload_document"]["name"][$i], ENT_QUOTES);
 
-        move_uploaded_file($_FILES["upload_document"]["tmp_name"][$i], "download/".$_FILES["upload_document"]["name"][$i]);
-
+        if(move_uploaded_file($_FILES["upload_document"]["tmp_name"][$i], "download/".$_FILES["upload_document"]["name"][$i])){
+            echo 'uploaded';
+        }else{
+            echo 'not uplaoded';
+        }
+exit;
         if($document != '') {
 			$changes[] = "Attached file: $document";
             $query_insert_client_doc = "INSERT INTO `task_document` (`tasklistid`, `type`, `document`, `created_date`, `created_by`) VALUES ('$tasklistid', 'Support Document', '$document', '$created_date', '$created_by')";
