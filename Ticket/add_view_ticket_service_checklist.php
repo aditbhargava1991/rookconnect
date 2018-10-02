@@ -178,10 +178,10 @@ var scrolling_to_top = '';
 function scrollToChecklist(a) {
 	if(self !== top) {
 		var block = $(a).closest('.panel').find('.panel-collapse');
-		clearTimeout(scrolling_to_top);
+		clearInterval(scrolling_to_top);
 		scrolling_to_top = setInterval(function() {
 			if($(block).hasClass('in')) {
-				clearTimeout(scrolling_to_top);
+				clearInterval(scrolling_to_top);
 				$('html,body').scrollTop($(a).offset().top + $('.standard-body').scrollTop() - $('.standard-body').offset().top);	
 			}
 		},250);

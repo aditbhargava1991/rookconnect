@@ -9,16 +9,31 @@ $(document).ready(function() {
 		resize_blocks();
 	}).resize();
 	$('.search-fields').find('input,select').change(function() { search_filters(this) });
+
+	$('.sidebar-higher-level:not(.active_li)').click(function(event) {
+		if($(event.target).hasClass('cursor-hand')) {
+			$('.sidebar-higher-level:not(.active_li)').not(this).find('a.cursor-hand:not(.collapsed)').click();
+		}
+	});
+});
+$(document).on('click', 'a', resize_blocks);
+$(document).on('click', '.active_li .active_li_item', function() {
+	var parent = $(this).closest('.active_li');
+	var accordion = $(parent).data('accordion');
+	var activevalue = $(this).data('activevalue');
+	$('#'+accordion).find('a[data-activevalue="'+activevalue+'"]').find('li.active').closest('a').click();
 });
 function resize_blocks() {
 	$('.dispatch-equipment-group').css('min-height', 0);
-	height_diff = $('.dashboard-equipment-buttons-group').outerHeight() + $('.dashboard-equipment-summary').height() + $('.double-scroller').height();
-	if($(window).width() < 768) {
+	height_diff = $(window).height() - $('.standard-body-content').offset().top - $('footer:visible').height() - $('.double-scroller').height();
+	if($('.standard-body-content').width() < 768) {
 		block_width = 'calc(100% - 1em)';
-	} else if($(window).width() < 1024) {
-		block_width = 'calc('+($(window).width() / 2)+'px'+' - 2em - 2px)';
+	} else if($('.standard-body-content').width() < 1280) {
+		block_width = 'calc('+($('.standard-body-content').width() / 2)+'px'+' - 2em - 2px)';
+		summary_width = 'calc('+($('.standard-body-content').width() / 3)+'px'+' - 2em - 2px)';
 	} else {
-		block_width = 'calc('+($(window).width() / 3)+'px'+' - 2em - 2px)';
+		block_width = 'calc('+($('.standard-body-content').width() / 3)+'px'+' - 2em - 2px)';
+		summary_width = 'calc('+($('.standard-body-content').width() / 3)+'px'+' - 2em - 2px)';
 	}
 	block_height = $('.dispatch-equipment-group:visible').first().height();
 	$('.dispatch-equipment-group:visible').each(function() {
@@ -26,14 +41,23 @@ function resize_blocks() {
 			block_height = $(this).height() + 2;
 		}
 	});
-	if(block_height < ($('.main-screen.standard-body').height() - height_diff)) {
-		block_height = 'calc('+$('.main-screen.standard-body').height()+'px'+' - '+height_diff+'px - 2.5em - 2px)';
+	if(block_height < height_diff) {
+		block_height = 'calc('+height_diff+'px - 2.5em - 2px)';
 	}
-	$('.dispatch-equipment-group,.dispatch-summary-block').css('width', block_width);
+	$('.dispatch-equipment-group').css('width', block_width);
+	$('.dispatch-summary-block').css('width', summary_width);
 	$('.dispatch-equipment-group').css('min-height', block_height);
 	$('.double-scroller div').width($('.dispatch-equipment-list').get(0).scrollWidth);
 	$('.double-scroller').off('scroll',double_scroll).scroll(double_scroll);
 	$('.dispatch-equipment-list').off('scroll',set_double_scroll).scroll(set_double_scroll);
+
+	$('.standard-collapsible').find('li.sidebar-higher-level').each(function() {
+		$(this).find('a.cursor-hand').first().removeClass('active');
+		if($(this).find('li.active').length > 0) {
+			$(this).find('a.cursor-hand').first().addClass('active');
+		}
+	});
+	display_active_blocks()
 }
 function set_url_with_current_date() {
 	var curr_url = window.location.search;
@@ -62,10 +86,8 @@ function retrieve_tickets() {
 	$('.dispatch-equipment-list').html('Loading...');
 	var date = $('[name="search_date"]').val()
 	var active_equipment = [];
-	$('.dispatch-equipment-button').each(function() {
-		if($(this).hasClass('active')) {
-			active_equipment.push($(this).data('equipment'));
-		}
+	$('.dispatch-equipment-button.active').each(function() {
+		active_equipment.push($(this).data('equipment'));
 	});
 	active_equipment = JSON.stringify(active_equipment);
 	$.ajax({
@@ -77,6 +99,7 @@ function retrieve_tickets() {
 			result_list = JSON.parse(response);
 			load_buttons();
 			load_tickets();
+			load_active_li();
 			filter_equipment();
 		}
 	});
@@ -97,10 +120,17 @@ function load_tickets() {
 	
 	setTimeout(function() { resize_blocks() }, 500);
 }
+function load_active_li() {
+	$('.equip_active_li ul').html('');
+	$('.equip_active_li ul').html(result_list['active_li']);
+	
+	setTimeout(function() { resize_blocks() }, 500);
+}
 function view_summary(equipmentid) {
 	if($('.dispatch-summary-group').is(':visible') && $('.dispatch-summary-group').data('equipment') == equipmentid) {
 		$('.dispatch-equipment-summary').html('').hide();
 		$('.dispatch-equipment-summary-title').html('').hide();
+		$('.dispatch-summary').hide();
 		resize_blocks();
 	} else {
 		var item_row = '';
@@ -139,6 +169,7 @@ function view_summary(equipmentid) {
 			});
 			item_row = item_row[0]['summary'];
 		}
+		$('.dispatch-summary').show();
 		$('.dispatch-equipment-summary').html(item_row).show();
 		$('.dispatch-equipment-summary-title').html('<h4>Summary - '+equip_label+'</h4>').show();
 		resize_blocks();
@@ -160,11 +191,9 @@ function view_summary(equipmentid) {
         status_chart.draw(status_data, status_options);
 	}
 }
-function load_summary() {
-
-}
 function search_filters(field) {
 	if(field.name == 'search_date') {
+		$('.standard-body-title h3').text('Dispatch Schedule - '+field.value);
 		set_url_with_current_date();
 		retrieve_tickets();
 	} else {
@@ -172,14 +201,138 @@ function search_filters(field) {
 	}
 	resize_blocks();
 }
+still_toggling = '';
+function display_active_blocks() {
+	clearInterval(still_toggling);
+	still_toggling = setInterval(function() {
+		if(!($('.collapsing').length > 0)) {
+			clearInterval(still_toggling);
+			$('.active_li .active_li_item,.active_li').hide();
+			$('.active_li').each(function() {
+				var accordion = $(this).data('accordion');
+				$(this).find('.active_li_item').each(function() {
+					var active_value = $(this).data('activevalue');
+					if($('#'+accordion+' a[data-activevalue="'+active_value+'"]').find('li').hasClass('active')) {
+						$(this).show();
+					} else {
+						$(this).hide();
+					}
+				});
+
+				if($('#'+accordion).hasClass('in') || $(this).find('.active_li_item').filter(function() { return $(this).css('display') != 'none'; }).length == 0) {
+					$(this).hide();
+				} else {
+					$(this).show();
+				}
+			});
+		}
+	}, 50);
+}
+function filter_sidebar(a = '') {
+	if(a != '') {
+		var block = $(a).find('li').toggleClass('active');
+	}
+
+	var regions = [];
+	var locations = [];
+	var classifications = [];
+
+	$('#collapse_region').find('li.active').each(function() {
+		var anchor = $(this).closest('a');
+		var region = $(anchor).data('region');
+		regions.push(region);
+	});
+
+	$('#collapse_location').find('li.active').each(function() {
+		var anchor = $(this).closest('a');
+		var location = $(anchor).data('location');
+		locations.push(location);
+	});
+
+	$('#collapse_classification').find('li').each(function() {
+		var anchor = $(this).closest('a');
+		$(anchor).show();
+
+		var class_regions = $(anchor).data('region');
+		if(regions.length > 0) {
+			if(class_regions.length > 0) {
+				class_regions.forEach(function(class_region) {
+					if(regions.indexOf(class_region) < 0) {
+						$(anchor).hide();
+						$(anchor).find('li').removeClass('active');
+					}
+				});
+			} else {
+				$(anchor).hide();
+				$(anchor).find('li').removeClass('active');
+			}
+		}
+		if($(anchor).find('li').hasClass('active')) {
+			var classification = $(anchor).data('classification');
+			classifications.push(classification);
+
+		}
+	});
+
+	$('#collapse_equipment').find('li').each(function() {
+		var anchor = $(this).closest('a');
+		$(anchor).show();
+
+		var equip_regions = $(anchor).data('region');
+		var equip_locations = $(anchor).data('location');
+		var equip_classifications = $(anchor).data('classification');
+
+		if(regions.length > 0) {
+			if(equip_regions.length > 0) {
+				equip_regions.forEach(function(equip_region) {
+					if(regions.indexOf(equip_region) < 0) {
+						$(anchor).hide();
+						$(anchor).find('li').removeClass('active');
+					}
+				});
+			} else {
+				$(anchor).hide();
+				$(anchor).find('li').removeClass('active');
+			}
+		}
+		if(locations.length > 0) {
+			if(equip_locations.length > 0) {
+				equip_locations.forEach(function(equip_location) {
+					if(locations.indexOf(equip_location) < 0) {
+						$(anchor).hide();
+						$(anchor).find('li').removeClass('active');
+					}
+				});
+			} else {
+				$(anchor).hide();
+				$(anchor).find('li').removeClass('active');
+			}
+		}
+		if(classifications.length > 0) {
+			if(equip_classifications.length > 0) {
+				equip_classifications.forEach(function(equip_classification) {
+					if(classifications.indexOf(equip_classification) < 0) {
+						$(anchor).hide();
+						$(anchor).find('li').removeClass('active');
+					}
+				});
+			} else {
+				$(anchor).hide();
+				$(anchor).find('li').removeClass('active');
+			}
+		}
+	});
+
+	filter_equipment();
+}
 function filter_equipment(a = '') {
 	if(a != '') {
-		var block = $(a).closest('.dispatch-equipment-button').toggleClass('active');
+		var block = $(a).find('li').toggleClass('active');
 	}
 
 	$('.dispatch-equipment-group').hide();
-	$('.dispatch-equipment-button').each(function() {
-		if($(this).hasClass('active')) {
+	$('.dispatch-equipment-button.active').each(function() {
+		if($(this).closest('a').css('display') != 'none') {
 			$('.dispatch-equipment-group[data-equipment="'+$(this).data('equipment')+'"]').show();
 		}
 	});
