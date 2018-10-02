@@ -480,7 +480,7 @@ if (isset($_POST['add_tab'])) {
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'scheduling_wait_list' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='scheduling_wait_list') num WHERE num.rows=0");
 	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$_POST['scheduling_wait_list']."' WHERE `name`='scheduling_wait_list'");
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'scheduling_calendar_sort_auto' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='scheduling_calendar_sort_auto') num WHERE num.rows=0");
-	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$_POST['scheduling_calendar_sort_auto']."' WHERE `name`='scheduling_calendar_sort_auto'");
+	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".implode(',',$_POST['scheduling_calendar_sort_auto'])."' WHERE `name`='scheduling_calendar_sort_auto'");
     set_config($dbc, 'scheduling_calendar_est_time', $_POST['scheduling_calendar_est_time']);
     set_config($dbc, 'auto_size_calendar_blocks', $_POST['auto_size_calendar_blocks']);
     set_config($dbc, 'auto_show_time', $_POST['auto_show_time']);
@@ -2286,8 +2286,13 @@ function deleteLogo(logo) {
 							<div class="form-group">
 								<label class="col-sm-4 control-label">Dispatch <?= TICKET_NOUN ?> Sorting:</label>
 								<div class="col-sm-8">
-									<label class="form-checkbox"><input type="radio" name="scheduling_calendar_sort_auto" <?= get_config($dbc, "scheduling_calendar_sort_auto") == 'map_sort' ? 'checked' : '' ?> value="map_sort"> Allow Auto-Sort using Map</label>
-									<label class="form-checkbox"><input type="radio" name="scheduling_calendar_sort_auto" <?= get_config($dbc, "scheduling_calendar_sort_auto") == '' ? 'checked' : '' ?> value=""> No Auto-Sort</label>
+									<?php $scheduling_calendar_sort_auto = explode(',',get_config($dbc, 'scheduling_calendar_sort_auto')); ?>
+									<label class="form-checkbox"><input type="checkbox" name="scheduling_calendar_sort_auto[]" <?= in_array('map_sort', $scheduling_calendar_sort_auto) ? 'checked' : '' ?> value="map_sort"> Allow Auto-Sort using Map</label>
+									<label class="form-checkbox any-width"><input type="checkbox" name="scheduling_calendar_sort_auto[]" <?= in_array('hide_unoptimized', $scheduling_calendar_sort_auto) ? 'checked' : '' ?> value="hide_unoptimized">Do Not Show Unoptimized <?= TICKET_TILE ?></label>
+									<label class="form-checkbox any-width"><input type="checkbox" name="scheduling_calendar_sort_auto[]" <?= in_array('limit_single_optimize', $scheduling_calendar_sort_auto) ? 'checked' : '' ?> value="limit_single_optimize">Hide Sort Button After Use</label>
+                                    <?php foreach(array_filter(explode(',',get_config($dbc, '%_classification', true, ','))) as $class_name) { ?>
+                                        <label class="form-checkbox any-width"><input type="checkbox" name="scheduling_calendar_sort_auto[]" <?= in_array('class_'.config_safe_str($class_name), $scheduling_calendar_sort_auto) ? 'checked' : '' ?> value="class_<?= config_safe_str($class_name) ?>">Use Sort Button for Classification: <?= $class_name ?></label>
+                                    <?php } ?>
 								</div>
 							</div>
 							<div class="form-group">

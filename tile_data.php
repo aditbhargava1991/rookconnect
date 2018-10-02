@@ -353,6 +353,7 @@ function tile_data($dbc, $tile_name, $is_mobile = FALSE) {
 			case 'quote': return ['link'=>"Quote/quotes.php",'name'=>'Quotes']; break;
 			case 'cost_estimate': return ['link'=>"Cost Estimate/estimate.php",'name'=>'Cost Estimates']; break;
 			case 'optimize': return ['link'=>"Optimize/index.php",'name'=>'Trip Optimizer']; break;
+			case 'dispatch': return ['link'=>"Dispatch/index.php",'name'=>'Dispatch']; break;
 		}
 	}
 	return ['link'=>false,'name'=>false];

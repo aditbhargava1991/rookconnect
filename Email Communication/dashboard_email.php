@@ -158,7 +158,7 @@ $from = FOLDER_NAME;
                                 }
                                 echo get_project($dbc, $row['projectid'], 'project_name').'</td>';
                             }
-                            echo (strpos($value_config, ','."Subject".',') !== false) ? '<td data-title="Subject">'. html_entity_decode(htmlspecialchars_decode($row['subject'])) .'</td>' : '';
+                            echo (strpos($value_config, ','."Subject".',') !== false) ? '<td data-title="Subject"><a class="cursor-hand" onclick="overlayIFrameSlider(\'../Email Communication/view_email.php?type='.$row['communication_type'].'&email_communicationid='.$row['email_communicationid'].'\', \'auto\', false, true);">'. html_entity_decode(htmlspecialchars_decode($row['subject'])) .'</a></td>' : '';
                             //echo (strpos($value_config, ','."Body".',') !== false) ? '<td data-title="Body">'. html_entity_decode(htmlspecialchars_decode($row['email_body'])) .'</td>' : '';
                             if (strpos($value_config, ','."Attachment".',') !== false) {
                                 echo '<td data-title="Attachment">';
@@ -199,7 +199,7 @@ $from = FOLDER_NAME;
                             */
                             echo '<td data-title="Details">';
                                 if(vuaed_visible_function($dbc, 'email_communication') == 1) {
-                                    echo '<a class="cursor-hand" onclick="overlayIFrameSlider(\'../Email Communication/add_email.php?type='.$row['communication_type'].'&email_communicationid='.$row['email_communicationid'].'\', \'auto\', false, true);"><img src="../img/icons/ROOK-edit-icon.png" class="no-toggle inline-img" title="View Details" /></a>';
+                                    echo '<a class="cursor-hand" onclick="overlayIFrameSlider(\'../Email Communication/view_email.php?type='.$row['communication_type'].'&email_communicationid='.$row['email_communicationid'].'\', \'auto\', false, true);">View</a>';
                                 }
                                 //echo '<a href=\''.WEBSITE_URL.'/delete_restore.php?type='.$_GET['type'].'&action=delete&email_communicationid='.$row['email_communicationid'].'\' onclick="return confirm(\'Are you sure?\')">Archive</a>';
                             echo '</td>';

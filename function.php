@@ -821,6 +821,9 @@ function get_project_paths($projectid) {
             if($pathid > 0) {
                 $path['path_id'] = $pathid;
                 $path['path_name'] = explode('#*#',$paths['project_path_name'])[$i];
+                if(empty($path['path_name'])) {
+                    $path['path_name'] = get_field_value('project_path','project_path_milestone','project_path_milestone',$pathid);
+                }
 
               // Add default milestones, if they have not yet been added
                 $milestones = explode('#*#',get_field_value('milestone','project_path_milestone','project_path_milestone',$pathid));
@@ -3219,6 +3222,9 @@ function get_reminder_url($dbc, $reminder, $slider = 0) {
                         $reminder_url = WEBSITE_URL.'/'.ucwords(get_contact($dbc, $intake['contactid'], 'tile_name')).'/contacts_inbox.php?edit='.$reminder['src_tableid'];
                     }
                     break;
+                case 'email_communication':
+                    $reminder_url = WEBSITE_URL.'/Email Communication/view_email.php?email_communicationid='.$reminder['src_tableid'];
+                    break;
             }
         } else {
             switch($reminder['src_table']) {
@@ -3311,6 +3317,14 @@ function get_reminder_url($dbc, $reminder, $slider = 0) {
                         $reminder_url = WEBSITE_URL.'/Sales/sale.php?p=preview&id='.$intake['salesid'];
                     } else if($intake['contactid'] > 0) {
                         $reminder_url = WEBSITE_URL.'/'.ucwords(get_contact($dbc, $intake['contactid'], 'tile_name')).'/contacts_inbox.php?edit='.$reminder['src_tableid'];
+                    }
+                    break;
+                case 'email_communication':
+                    $email_comm = mysqli_fetch_array(mysqli_query($dbc, "SELECT `projectid` FROM `email_communication` WHERE `email_communicationid`='".$reminder['src_tableid']."'"));
+                    if($email_comm['projectid'] > 0) {
+                        $reminder_url = WEBSITE_URL.'/Project/projects.php?edit='.$email_comm['projectid'].'&tab=email';
+                    } else {
+                        $reminder_url = WEBSITE_URL.'/Email Communication/view_email.php?email_communicationid='.$reminder['src_tableid'];
                     }
                     break;
             }

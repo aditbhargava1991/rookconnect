@@ -2760,7 +2760,19 @@ if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode && !$int
 							<div class="form-group">
 								<label class="col-sm-4 control-label">Delivery Tabs</label>
 								<div class="col-sm-8">
-									<input type="text" name="delivery_types" class="form-control" value="<?= get_config($dbc, 'delivery_types') ?>">
+									<input type="text" name="delivery_types" class="form-control" value="<?= get_config($dbc, 'delivery_types') ?>" onchange="loadDefaultDeliveryDropdown();">
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-4 control-label">Default Delivery Tab</label>
+								<div class="col-sm-8">
+									<select name="delivery_type_default" class="chosen-select-deselect">
+										<option></option>
+										<?php $delivery_type_default = get_config($dbc, 'delivery_type_default');
+										foreach(array_filter(explode(',', get_config($dbc, 'delivery_types'))) as $delivery_type) { ?>
+											<option value="<?= $delivery_type ?>" <?= $delivery_type_default == $delivery_type ? 'selected' : '' ?>><?= $delivery_type ?></option>
+										<?php } ?>
+									</select>
 								</div>
 							</div>
 							<div class="form-group">
