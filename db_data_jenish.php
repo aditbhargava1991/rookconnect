@@ -15,5 +15,11 @@ if(!mysqli_query($dbc, "ALTER TABLE `field_config_contacts` ADD `mandatory` BOOL
   echo "Error: ".mysqli_error($dbc)."<br />\n";
 }
 
+if(!mysqli_query($dbc, "CREATE TABLE `field_config_mandatory_project` LIKE `field_config_project`")) {
+  echo "Error: ".mysqli_error($dbc)."<br />\n";
+}
+
+
+
 echo "<br> ======Jenish's db changes Done======<br>";
 ?>

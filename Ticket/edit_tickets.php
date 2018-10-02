@@ -37,6 +37,8 @@ if(!empty($_GET['from_alert'])) {
 		<script type="text/javascript">
 			$(document).ready(function() {
 				alert("<?= $staff_labels ?> has taken responsibility of this <?= TICKET_NOUN ?>.");
+            
+                
 			});
 		</script>
 	<?php }
@@ -749,9 +751,11 @@ $(document).ready(function() {
             $('.menu-bar').fadeIn("fast");
             $('.menu-content:visible').fadeOut("fast");
             $('.menu_button:hidden').fadeIn("fast");
+            $('#back_to_top').fadeIn("fast");
         } else {
             $('.menu-bar').fadeOut("fast");
             $('.menu-content').fadeOut("fast");
+            $('#back_to_top').fadeOut("fast");
         }
     });
 	if(ticketid > 0) {
@@ -773,6 +777,10 @@ $(document).on('click', '.menu_button', function() {
     });
     $('.menu-content').fadeIn("fast");
     $('.menu_button').hide();
+});
+$(document).on('click', '#back_to_top', function(e) {
+   e.preventDefault();
+   $('.standard-body').animate({scrollTop: 0}, 400);
 });
 function loadPanel() {
 	if(!$(this).hasClass('higher_level_heading')) {
@@ -3316,6 +3324,8 @@ var setHeading = function() {
 				}
 				$collapse_i++;
 			} ?>
+            
+            <img id="back_to_top" src="../img/icons/ROOK-BackToTop-icon.png" class="no-toggle cursor-hand back-to-top" title="Back To Top" width="30" />
 <?php } ?>
 			<?php if($ticket_layout == 'Accordions' && $include_hidden != 'true') { ?>
 				</div>

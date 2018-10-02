@@ -360,6 +360,7 @@ if(basename($_SERVER['SCRIPT_FILENAME']) == 'edit_ticket_tab.php' && ($_GET['tic
 		$spent_time = $get_ticket['spent_time'];
 		$total_days = $get_ticket['total_days'];
 		$contactid = $get_ticket['contactid']; ?>
+		<script type="text/javascript" src="ticket.js"></script>
 		<script>
 		$(document).ready(function() {
 			$('.start_time').val(<?= $time_seconds ?>);
