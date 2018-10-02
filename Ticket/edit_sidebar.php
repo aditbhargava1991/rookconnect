@@ -1,7 +1,7 @@
 <?php include_once('../include.php');
 include_once('../Ticket/field_list.php');
 include_once('../Ticket/config.php');
-if(empty($ticketid)) {
+if(empty($ticketid) && !isset($value_config)) {
 	$access_view_project_info = check_subtab_persmission($dbc, 'ticket', ROLE, 'view_project_info');
 	$access_view_project_details = check_subtab_persmission($dbc, 'ticket', ROLE, 'view_project_details');
 	$access_view_staff = check_subtab_persmission($dbc, 'ticket', ROLE, 'view_staff');
