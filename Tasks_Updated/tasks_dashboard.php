@@ -838,14 +838,12 @@ function addIntakeForm(btn) {
                                         $past = 1;
                                     }
 
-
-
                                     //echo '<span class="pull-right action-icons gap-top" data-task="'.$row['tasklistid'].'">';
                                         //echo '<img class="drag_handle pull-right inline-img" src="../img/icons/drag_handle.png" />';
                                     //echo '</span>'; ?>
                                     <div class="row pull-left t_name">
                                         <h4 style="<?= $style_strikethrough ?>">
-                                            <input type="checkbox" name="status" value="<?= $row['tasklistid'] ?>" class="form-checkbox no-margin small pull-left" onchange="mark_done(this);" <?= ( $row['status'] == 'Complete' ) ? 'checked disabled' : '' ?> />
+                                            <input type="checkbox" name="status" value="<?= $row['tasklistid'] ?>" class="form-checkbox no-margin small pull-left" onchange="mark_done(this);" <?= ( $row['status'] == 'Complete' || $row['status'] == 'Done' || $row['status'] == 'Finish' ) ? 'checked disabled' : '' ?> />
                                             <div class="pull-left gap-left">
 
                                             <?php
