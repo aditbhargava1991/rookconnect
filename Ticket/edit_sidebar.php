@@ -9,10 +9,14 @@ if(empty($ticketid)) {
 	$access_view_complete = check_subtab_persmission($dbc, 'ticket', ROLE, 'view_complete');
 	$access_view_notifications = check_subtab_persmission($dbc, 'ticket', ROLE, 'view_notifications');
 	$ticketid = filter_var($_GET['ticketid'],FILTER_SANITIZE_STRING);
-	$get_ticket = $dbc->query("SELECT * FROM `tickets` WHERE `ticketid`='$ticketid'")->fetch_assoc();
-	$value_config = get_field_config($dbc, 'tickets');
+	$value_config = ','.get_field_config($dbc, 'tickets').',';
 	$sort_order = explode(',',get_config($dbc, 'ticket_sortorder'));
-	$ticket_type = empty($get_ticket['ticket_type']) ? $ticket_type : $get_ticket['ticket_type'];
+	if($ticketid > 0) {
+		$get_ticket = $dbc->query("SELECT * FROM `tickets` WHERE `ticketid`='$ticketid'")->fetch_assoc();
+		$ticket_type = empty($get_ticket['ticket_type']) ? $ticket_type : $get_ticket['ticket_type'];
+	} else if(!empty($_GET['type'])) {
+		$ticket_type = $_GET['type'];
+	}
 	if(!empty($ticket_type)) {
 		$value_config .= get_config($dbc, 'ticket_fields_'.$ticket_type).',';
 		$sort_order = explode(',',get_config($dbc, 'ticket_sortorder_'.$ticket_type));
