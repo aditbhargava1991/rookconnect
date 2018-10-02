@@ -1666,7 +1666,7 @@ function reloadTab(name) {
 	if(name != undefined && name != '') {
 		$('#tab_section_'+name).each(function() {
 			stopid_query = '';
-			if(stopid != undefined) {
+			if(typeof stopid != 'undefined') {
 				stopid_query = '&stop='+stopid;
 			}
 			$(this).load('edit_ticket_tab.php?ticketid='+ticketid+'&tab='+name+stopid_query);
