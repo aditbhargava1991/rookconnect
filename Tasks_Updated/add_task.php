@@ -1561,7 +1561,6 @@ function mark_done(sel) {
                     } ?>
 
             <?php if(strpos($task_fields, ',Add Time,') !== FALSE) { ?>
-
             <div class="form-group clearfix">
                 <label for="first_name" class="col-sm-4"><?php echo (strpos($task_mandatory_fields, ',Add Time,') !== FALSE ? '<font color="red">* </font>' : ''); ?>Estimated Time:</label>
                 <div class="col-sm-8">
