@@ -2900,7 +2900,7 @@ var setHeading = function() {
 			<?php if($wait_on_approval) {
 				echo '<h4>Awaiting Admin Approval</h4>';
 			} ?>
-			<?php if(count($ticket_tabs) > 1 && !($_GET['action_mode'] > 0 || $_GET['overview_mode'] > 0) && $tile_security['edit'] > 0 && !($strict_view > 0)) { ?>
+			<?php if((count($ticket_tabs) > 1 && !($_GET['action_mode'] > 0 || $_GET['overview_mode'] > 0) && $tile_security['edit'] > 0 && !($strict_view > 0)) || isset($_GET['intake_key'])) { ?>
 				<div class="tab-section col-sm-12" id="tab_section_ticket_type" <?= isset($_GET['intake_key']) ? 'style="display:none;"' : '' ?>>
 					<h3><?= TICKET_NOUN ?> Tab</h3>
 					<label for="ticket_type" class="col-sm-4 control-label" style="text-align: left;"><?= TICKET_NOUN ?> Tab:</label>

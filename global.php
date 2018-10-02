@@ -59,7 +59,7 @@ if((strtok($_SERVER['REQUEST_URI'], '?') == '/Ticket/index.php' && $_GET['edit']
 }
 DEFINE('INTAKE_TICKET', $intake_ticket);
 
-if(!isset($_SESSION['user_name']) && !isset($guest_access) && $guest_access != true && !$external_intake && !$update_contact && !$intake_ticket) {
+if(!isset($_SESSION['user_name']) && !isset($guest_access) && $guest_access != true && !$external_intake && !$update_contact && !$intake_ticket && !isset($_SESSION['intake_ticket'])) {
     ob_clean();
     $url = (isset($_SERVER["HTTPS"]) ? 'https://' : 'http://').$_SERVER['SERVER_NAME'];
     if($_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest') {
