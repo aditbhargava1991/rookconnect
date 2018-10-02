@@ -988,6 +988,10 @@ function get_promotion($dbc, $promotionid, $field_name) {
     $get_promotion =	mysqli_fetch_assoc(mysqli_query($dbc,"SELECT $field_name FROM promotion WHERE	promotionid='$promotionid'"));
     return $get_promotion[$field_name];
 }
+function get_sales($dbc, $salesid, $field_name) {
+    $get_promotion =	mysqli_fetch_assoc(mysqli_query($dbc,"SELECT $field_name FROM sales WHERE	salesid='$salesid'"));
+    return $get_promotion[$field_name];
+}
 function get_custom($dbc, $customid, $field_name) {
     $get_custom =	mysqli_fetch_assoc(mysqli_query($dbc,"SELECT $field_name FROM custom WHERE	customid='$customid'"));
     return $get_custom[$field_name];
