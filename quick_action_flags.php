@@ -208,6 +208,10 @@ if(isset($_POST['submit'])) {
 if(empty($row['flag_start']) || $row['flag_start'] == '0000-00-00') {
     $row['flag_start'] = date('Y-m-d');
 }
+
+if(empty($row['flag_end']) || $row['flag_end'] == '0000-00-00') {
+    $row['flag_start'] = '';
+}
 ?>
 
 <div class="container">
