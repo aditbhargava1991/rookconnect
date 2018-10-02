@@ -639,10 +639,14 @@ function saveFieldMethod(field) {
 				success: function(response) {
 					updateTicketLabel();
 					if(field_name == 'status' && response == 'created_unscheduled_stop') {
-                        reloadTab('ticket_customer_notes');
+						if($(field).closest('.tab-section').prop('id').indexOf('customer_notes') == -1) {
+	                        reloadTab('ticket_customer_notes');
+	                    }
 						reload_delivery();
 					} else if(field_name == 'status') {
-                        reloadTab('ticket_customer_notes');
+						if($(field).closest('.tab-section').prop('id').indexOf('customer_notes') == -1) {
+	                        reloadTab('ticket_customer_notes');
+	                    }
                     } else if(table_name == 'ticket_attached' && field_name == 'piece_type') {
 						var i = 1;
 						$('#tab_section_ticket_inventory_general .multi-block h4').each(function() {
