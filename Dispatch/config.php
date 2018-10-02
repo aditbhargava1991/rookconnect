@@ -3,6 +3,7 @@
 $reset_active = get_config($dbc, 'dispatch_tile_reset_active');
 $edit_access = vuaed_visible_function($dbc, 'dispatch');
 $ticket_view_access = tile_visible($dbc, 'ticket');
+$equipment_edit_access = vuaed_visible_function($dbc, 'equipment');
 $search_fields = array_filter(explode(',',get_config($dbc, 'dispatch_tile_search_fields')));
 $completed_ticket_status = get_config($dbc, 'auto_archive_complete_tickets');
 $combine_warehouses = get_config($dbc, 'dispatch_tile_combine_warehouse');
@@ -103,12 +104,10 @@ foreach($calendar_incomplete_status as $i => $incomplete_status) {
 if(empty($calendar_incomplete_color)) {
     $calendar_incomplete_color = '#ff0000';
 }
-$ticket_status_color_code = get_config($dbc, 'ticket_status_color_code');
-if($ticket_status_color_code == 1) {
-    $status_color_codes = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `field_config_ticket_status_color`"),MYSQLI_ASSOC);
-    foreach ($status_color_codes as $status_color_code) {
-        $ticket_status_color[$status_color_code['status']] = $status_color_code['color'];
-    }
+$ticket_status_color = [];
+$status_color_codes = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `field_config_ticket_status_color`"),MYSQLI_ASSOC);
+foreach ($status_color_codes as $status_color_code) {
+    $ticket_status_color[$status_color_code['status']] = $status_color_code['color'];
 }
 $customer_roles = array_filter(explode(',',get_config($dbc, 'dispatch_tile_customer_roles')));
 $is_customer = false;
@@ -123,8 +122,12 @@ if($is_customer) {
 }
 $equipment_categories = array_filter(explode(',',get_config($dbc, 'dispatch_tile_equipment_category')));
 $equip_cat_query = '';
+$equipment_label = 'Equipment';
 if(!empty($equipment_categories)) {
 	$equip_cat_query = " AND `category` IN ('".implode("','", $equipment_categories)."')";
+    if(count($equipment_categories) == 1) {
+        $equipment_label = $equipment_categories[0];
+    }
 }
 $customer_query = '';
 if($is_customer) {

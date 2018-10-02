@@ -44,7 +44,7 @@ function dispatch_ticket_label($dbc, $ticket) {
 	if(in_array('available',$dispatch_tile_ticket_card_fields)) {
 		$row_html .= '<br />Availability: '.$ticket['availability'];
 	}
-	$row_html .= (in_array('address',$dispatch_tile_ticket_card_fields) ? '<br />'.$ticket['pickup_name'].($ticket['pickup_name'] != '' ? '<br />' : ' ').$ticket['client_name'].($ticket['client_name'] != '' ? '<br />' : ' ').$ticket['pickup_address'].($ticket['pickup_address'] != '' ? '<br />' : ' ').$ticket['pickup_city'] : '');
+	$row_html .= (in_array('address',$dispatch_tile_ticket_card_fields) ? '<br />'.$ticket['pickup_name'].($ticket['pickup_name'] != '' ? '<br />' : ' ').$ticket['pickup_address'].($ticket['pickup_address'] != '' ? '<br />' : ' ').$ticket['pickup_city'] : '');
 	if(in_array('status',$dispatch_tile_ticket_card_fields)) {
 		$row_html .= '<br />'."Status: ".$ticket['status'];
 	}
@@ -80,7 +80,7 @@ function dispatch_ticket_label($dbc, $ticket) {
 		if(vuaed_visible_function($dbc, 'ticket') > 0) {
 			$clickable_html .= 'onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Ticket/edit_ticket_tab.php?tab=ticket_customer_notes&ticketid='.$ticket['ticketid'].'&stop='.$ticket['stop_id'].'\', \'auto\', true, true, \'auto\', false, \'true\'); return false;"';
 		}
-		$row_html .= '<img '.$clickable_html.' src="../img/icons/ROOK-reply-icon.png" class="no-slider inline-img dispatch-equipment-signature '.$signature_class.'" onmouseover="display_signature(this);" onmouseout="hide_signature();" data-file="'.WEBSITE_URL.'/Ticket/export/customer_sign_'.$customer_notes['id'].'.png">';
+		$row_html .= '<img '.$clickable_html.' src="../img/icons/star.png" class="black-color no-slider inline-img dispatch-equipment-signature '.$signature_class.'" onmouseover="display_signature(this);" onmouseout="hide_signature();" data-file="'.WEBSITE_URL.'/Ticket/export/customer_sign_'.$customer_notes['id'].'.png">';
 	}
 
 	return $row_html;
