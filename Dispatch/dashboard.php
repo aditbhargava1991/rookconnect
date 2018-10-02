@@ -22,7 +22,7 @@ checkAuthorised('dispatch');
             <li class="active_li sidebar-higher-level" data-accordion="collapse_region" style="display: none; padding-top: 0;">
                 <ul class="collapse in" data-accordion="collapse_region">
                     <?php foreach($allowed_regions as $region) { ?>
-                        <a data-activevalue="<?= $region ?>" class="active_li_item" style="cursor: pointer;"><li class="active"><?= $region ?></li></a>
+                        <a data-activevalue="<?= $region ?>" class="active_li_item" style="cursor: pointer;"><li class="active blue"><?= $region ?></li></a>
                     <?php } ?>
                 </ul>
             </li>
@@ -38,7 +38,7 @@ checkAuthorised('dispatch');
             <li class="active_li sidebar-higher-level" data-accordion="collapse_location" style="display: none; padding-top: 0;">
                 <ul class="collapse in" data-accordion="collapse_location">
                     <?php foreach($allowed_locations as $location) { ?>
-                        <a data-activevalue="<?= $location ?>" class="active_li_item" style="cursor: pointer;"><li class="active"><?= $location ?></li></a>
+                        <a data-activevalue="<?= $location ?>" class="active_li_item" style="cursor: pointer;"><li class="active blue"><?= $location ?></li></a>
                     <?php } ?>
                 </ul>
             </li>
@@ -54,7 +54,7 @@ checkAuthorised('dispatch');
             <li class="active_li sidebar-higher-level" data-accordion="collapse_classification" style="display: none; padding-top: 0;">
                 <ul class="collapse in" data-accordion="collapse_classification">
                     <?php foreach($allowed_classifications as $classification) { ?>
-                        <a data-activevalue="<?= $classification ?>" class="active_li_item" style="cursor: pointer;"><li class="active"><?= $classification ?></li></a>
+                        <a data-activevalue="<?= $classification ?>" class="active_li_item" style="cursor: pointer;"><li class="active blue"><?= $classification ?></li></a>
                     <?php } ?>
                 </ul>
             </li>
