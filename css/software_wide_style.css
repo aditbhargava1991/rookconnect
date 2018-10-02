@@ -3462,6 +3462,9 @@ position: relative;
 .dispatch-summary-star {
 	padding: 0.5em;
 }
+.dispatch-summary-block {
+	overflow: auto;
+}
 
 /*
  * jQuery-Circle-Plugin v0.1 by Jamal hassouni
