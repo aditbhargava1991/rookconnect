@@ -230,7 +230,7 @@ function display_active_blocks() {
 }
 function filter_sidebar(a = '') {
 	if(a != '') {
-		var block = $(a).find('li').toggleClass('active');
+		var block = $(a).find('li').toggleClass('active blue');
 	}
 
 	var regions = [];
@@ -259,15 +259,15 @@ function filter_sidebar(a = '') {
 				class_regions.forEach(function(class_region) {
 					if(regions.indexOf(class_region) < 0) {
 						$(anchor).hide();
-						$(anchor).find('li').removeClass('active');
+						$(anchor).find('li').removeClass('active blue');
 					}
 				});
 			} else {
 				$(anchor).hide();
-				$(anchor).find('li').removeClass('active');
+				$(anchor).find('li').removeClass('active blue');
 			}
 		}
-		if($(anchor).find('li').hasClass('active')) {
+		if($(anchor).find('li').hasClass('active blue')) {
 			var classification = $(anchor).data('classification');
 			classifications.push(classification);
 
@@ -287,12 +287,12 @@ function filter_sidebar(a = '') {
 				equip_regions.forEach(function(equip_region) {
 					if(regions.indexOf(equip_region) < 0) {
 						$(anchor).hide();
-						$(anchor).find('li').removeClass('active');
+						$(anchor).find('li').removeClass('active blue');
 					}
 				});
 			} else {
 				$(anchor).hide();
-				$(anchor).find('li').removeClass('active');
+				$(anchor).find('li').removeClass('active blue');
 			}
 		}
 		if(locations.length > 0) {
@@ -300,12 +300,12 @@ function filter_sidebar(a = '') {
 				equip_locations.forEach(function(equip_location) {
 					if(locations.indexOf(equip_location) < 0) {
 						$(anchor).hide();
-						$(anchor).find('li').removeClass('active');
+						$(anchor).find('li').removeClass('active blue');
 					}
 				});
 			} else {
 				$(anchor).hide();
-				$(anchor).find('li').removeClass('active');
+				$(anchor).find('li').removeClass('active blue');
 			}
 		}
 		if(classifications.length > 0) {
@@ -313,12 +313,12 @@ function filter_sidebar(a = '') {
 				equip_classifications.forEach(function(equip_classification) {
 					if(classifications.indexOf(equip_classification) < 0) {
 						$(anchor).hide();
-						$(anchor).find('li').removeClass('active');
+						$(anchor).find('li').removeClass('active blue');
 					}
 				});
 			} else {
 				$(anchor).hide();
-				$(anchor).find('li').removeClass('active');
+				$(anchor).find('li').removeClass('active blue');
 			}
 		}
 	});
@@ -327,7 +327,7 @@ function filter_sidebar(a = '') {
 }
 function filter_equipment(a = '') {
 	if(a != '') {
-		var block = $(a).find('li').toggleClass('active');
+		var block = $(a).find('li').toggleClass('active blue');
 	}
 
 	$('.dispatch-equipment-group').hide();
