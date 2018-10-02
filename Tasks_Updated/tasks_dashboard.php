@@ -559,6 +559,76 @@ function addIntakeForm(btn) {
 	});
 }
 </script>
+<?php
+        echo '<div class="row">';
+            //echo '<div class="col-sm-6"><h3>'. ($title=='Search' ? $title .': '. $term : $title .': '. $board_name['board_name']) .'</h3></div>';
+
+
+            $task_board = mysqli_fetch_array(mysqli_query($dbc, "SELECT `taskboardid`, `flag_colour`, `task_path_name` FROM `task_board` WHERE `taskboardid`='{$_GET['category']}'"));
+            $task_flag = $task_board['flag_colour'];
+            if ( !empty($taskboardid) ) {
+                $task_path = get_task_board($dbc, $taskboardid, 'task_path');
+            }
+            $path_name = empty($task_board['task_path_name']) ? ($task_path > 0 ? get_project_path_milestone($dbc, $task_path, 'project_path') : 'New Path') : $task_board['task_path_name'];
+            $businessid = get_sales($dbc, $_GET['category'], 'businessid');
+            if($_GET['tab'] != 'sales') {
+                $board_name = $board_name['board_name'];
+            } else {
+                $board_name = get_client($dbc, $businessid);
+            }
+            ?>
+            <div class="col-sm-6"><h3><?php echo $board_name .' : '.$path_name; ?>
+            <img class="inline-img cursor-hand small no-toggle" src="../img/icons/ROOK-edit-icon.png" onclick="$(this).hide();$(this).next('span').show().find('input').focus();" title="Edit"><span class="col-sm-4 pull-right" style="display:none;"><input onblur="savePathName(this.value); $(this).parent().hide().prev().show().prev().text(this.value);" type="text" value="<?php echo $path_name; ?>" class="form-control"></span></h3></div>
+
+            <div class="col-sm-6 text-right"><span class="pull-right text-right double-gap-top" style="" data-task="BOARD<?php echo $_GET['category']; ?>">
+            <?php
+                if ( $url_tab!='Search' && $url_tab!='Summary' && $url_tab!='Reporting' ) {
+                    echo '<div class="gap-top gap-right" style="font-size:1.5em;">'; ?>
+                      <img class="no-toggle" title="<?= TASK_NOUN ?> Board History" style="cursor:pointer; padding: 0.25em 0.5em; height:2.5em;" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Tasks_Updated/task_history.php?label=<?=$label?>&taskboardid=<?=$taskboardid?>','auto',true,true);" src="../img/icons/eyeball.png">
+                      <a href=""><img src="../img/clear-checklist.png" class="no-toggle" alt="Clear Completed Tasks" title="Clear Completed Tasks" style="height:2em;" onclick="clearCompleted(this);" /></a>
+                    <?php
+                    if ( !empty($_GET['category']) && !empty($_GET['tab']) && $_GET['tab'] != 'sales') { ?>
+                        <span class="no-toggle" style="cursor:pointer; padding: 0.25em 0.5em;" title="Edit <?= TASK_NOUN ?> Board" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Tasks_Updated/add_taskboard.php?taskboardid=<?=$_GET['category']?>', '50%', false, false, $('.iframe_overlay').closest('.container').outerHeight() + 20); return false;"><img src="<?php echo WEBSITE_URL; ?>/img/icons/ROOK-edit-icon.png" style="height:2em;"></span>
+                    <?php }
+                        if ( !empty($_GET['category']) && !empty($_GET['tab']) && in_array('archive', $quick_actions) && $_GET['tab'] != 'sales') { ?>
+                            <span class="no-toggle" style="cursor:pointer; padding: 0.25em 0.5em 0.25em 0;" title="Archive <?= TASK_NOUN ?> Board" onclick="task_archive(this); return false;"><img src="<?php echo WEBSITE_URL; ?>/img/icons/trash-icon-red.png" style="height:2em;"></span><?php
+                        }
+
+                        /*
+                        if ( $board_name['company_staff_sharing'] ) {
+                            $c_ex = explode(',', $board_name['company_staff_sharing']);
+                            $c_unique = array_unique($c_ex);
+                            foreach ( array_filter($c_unique) as $staffid ) {
+                                profile_id($dbc, $staffid);
+                            }
+                        } else {
+                            profile_id($dbc, $board_name['contactid']);
+                        }
+                        */
+                    echo '</div>';
+                }
+            echo '</span></div>';
+        echo '</div>';
+    ?>
+
+                <!--<span class="pull-right text-right double-gap-top" style="" data-task="BOARD<?php echo $_GET['category']; ?>">
+
+                <br />
+                    <select class="milestone_select" style="display:none; margin-top:10px; width:100%;">
+                        <option value="" disabled selected>Select Milestone...</option><?php
+                        $taskboardid = isset($_GET['category']) ? trim($_GET['category']) : '';
+                        if ( !empty($taskboardid) ) {
+                            $each_tab = explode('#*#', get_project_path_milestone($dbc, $task_path, 'milestone'));
+                            foreach ($each_tab as $cat_tab) {
+                                echo '<option value="?category='.$_GET['category'].'&tab='.$_GET['tab'].'&milestone='.$cat_tab.'">'. $cat_tab .'</option>';
+                            }
+                        } ?>
+                    </select>
+                </span>
+                -->
+
+<div class="standard-dashboard-body-content">
+<div class="dashboard-item">
 
 <div class="container">
 	<div class="iframe_holder" style="display:none;">
@@ -610,7 +680,7 @@ function addIntakeForm(btn) {
 			}
 			$path_name = empty($task_board['task_path_name']) ? ($task_path > 0 ? get_project_path_milestone($dbc, $task_path, 'project_path') : 'New Path') : $task_board['task_path_name']; ?>
             <form name="form_sites" method="post" action="" class="form-inline" role="form" <?php echo ($task_flag == '' ? '' : 'style="background-color: #'.$task_flag.';"'); ?>>
-				<span class="pull-left col-sm-6"><h3>Path: <?= '<span>'.$path_name.'</span>'.($task_path > 0 ? '<img class="inline-img cursor-hand small no-toggle" src="../img/icons/ROOK-edit-icon.png" onclick="$(this).hide();$(this).next(\'span\').show().find(\'input\').focus();" title="Edit"><span class="col-sm-4 pull-right" style="display:none;"><input onblur="savePathName(this.value); $(this).parent().hide().prev().show().prev().text(this.value);" type="text" value="'.$path_name.'" class="form-control"></span>' : '') ?></h3></span>
+				<!-- <span class="pull-left col-sm-6"><h3>Path: <?= '<span>'.$path_name.'</span>'.($task_path > 0 ? '<img class="inline-img cursor-hand small no-toggle" src="../img/icons/ROOK-edit-icon.png" onclick="$(this).hide();$(this).next(\'span\').show().find(\'input\').focus();" title="Edit"><span class="col-sm-4 pull-right" style="display:none;"><input onblur="savePathName(this.value); $(this).parent().hide().prev().show().prev().text(this.value);" type="text" value="'.$path_name.'" class="form-control"></span>' : '') ?></h3></span> -->
                 <!--
                 <span class="pull-right double-gap-top" style="cursor: pointer;" data-task="BOARD<?php echo $_GET['category']; ?>">
                     <?php if(in_array('flag', $quick_actions)) { ?><span style="padding: 0.25em 0.5em;" title="Flag This!" onclick="flag_item(this); return false;"><img src="<?php echo WEBSITE_URL; ?>/img/icons/ROOK-flag-icon.png" style="height:2em;"></span><?php } ?>
@@ -622,27 +692,7 @@ function addIntakeForm(btn) {
                     <br /><input type="text" name="reminder_board_<?php echo $_GET['category']; ?>" style="display:none; margin-top: 2em;" class="form-control datepicker" />
                 </span>
                 -->
-                <span class="pull-right text-right double-gap-top" style="" data-task="BOARD<?php echo $_GET['category']; ?>">
-										<img class="no-toggle" title="<?= TASK_NOUN ?> Board History" style="cursor:pointer; padding: 0.25em 0.5em; height:2.5em;" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Tasks_Updated/task_history.php?label=<?=$label?>&taskboardid=<?=$taskboardid?>','auto',true,true);" src="../img/icons/eyeball.png">
-                    <!-- <span style="cursor:pointer;"><img src="../img/icons/pie-chart.png" class="gap-right" onclick="milestone_reporting(this);" /></span> -->
-                    <a href=""><img src="../img/clear-checklist.png" class="no-toggle" alt="Clear Completed Tasks" title="Clear Completed Tasks" style="height:2em;" onclick="clearCompleted(this);" /></a><?php
-                    if ( !empty($_GET['category']) && !empty($_GET['tab']) && $_GET['tab'] != 'sales') { ?>
-                        <span class="no-toggle" style="cursor:pointer; padding: 0.25em 0.5em;" title="Edit <?= TASK_NOUN ?> Board" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Tasks_Updated/add_taskboard.php?taskboardid=<?=$_GET['category']?>', '50%', false, false, $('.iframe_overlay').closest('.container').outerHeight() + 20); return false;"><img src="<?php echo WEBSITE_URL; ?>/img/icons/ROOK-edit-icon.png" style="height:2em;"></span>
-                    <?php }
-					if ( !empty($_GET['category']) && !empty($_GET['tab']) && in_array('archive', $quick_actions) && $_GET['tab'] != 'sales') { ?>
-                        <span class="no-toggle" style="cursor:pointer; padding: 0.25em 0.5em 0.25em 0;" title="Archive <?= TASK_NOUN ?> Board" onclick="task_archive(this); return false;"><img src="<?php echo WEBSITE_URL; ?>/img/icons/trash-icon-red.png" style="height:2em;"></span><?php
-                    } ?><br />
-                    <select class="milestone_select" style="display:none; margin-top:10px; width:100%;">
-                        <option value="" disabled selected>Select Milestone...</option><?php
-                        $taskboardid = isset($_GET['category']) ? trim($_GET['category']) : '';
-                        if ( !empty($taskboardid) ) {
-                            $each_tab = explode('#*#', get_project_path_milestone($dbc, $task_path, 'milestone'));
-                            foreach ($each_tab as $cat_tab) {
-                                echo '<option value="?category='.$_GET['category'].'&tab='.$_GET['tab'].'&milestone='.$cat_tab.'">'. $cat_tab .'</option>';
-                            }
-                        } ?>
-                    </select>
-                </span>
+
                 <div class="clearfix"></div>
                 <input type="file" name="attach_board_<?php echo $_GET['category']; ?>" style="display:none;" />
 
@@ -1135,3 +1185,6 @@ function addIntakeForm(btn) {
 		</div>
 	</div>
 </div><!-- .container -->
+
+</div>
+</div>
