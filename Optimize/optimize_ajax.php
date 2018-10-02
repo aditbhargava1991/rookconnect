@@ -3,6 +3,7 @@ ob_clean();
 
 if($_GET['action'] == 'add_macro') {
 	set_config($dbc, 'upload_macros', filter_var(implode('#*#',$_POST['value']),FILTER_SANITIZE_STRING));
+	set_config($dbc, 'upload_macro_businesses', filter_var(implode('#*#',$_POST['businesses']),FILTER_SANITIZE_STRING));
 }
 if($_GET['action'] == 'bb_macro_warehouse_assignments') {
 	set_config($dbc, 'bb_macro_warehouse_assignments', filter_var(implode('#*#',$_POST['value']),FILTER_SANITIZE_STRING));
