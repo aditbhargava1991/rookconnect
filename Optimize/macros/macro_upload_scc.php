@@ -78,7 +78,11 @@ if(isset($_POST['upload_file']) && !empty($_FILES['csv_file']['tmp_name'])) {
 	alert('The CSV has been imported!');
     </script>
 <?php }
-if((isset($_POST['upload_file']) && !empty($_FILES['csv_file']['tmp_name'])) || $_GET['access'] == 'prior') { ?>
+if((isset($_POST['upload_file']) && !empty($_FILES['csv_file']['tmp_name'])) || $_GET['access'] == 'prior') {
+    if(empty($date) && !empty($_GET['date'])) {
+        $date = $_GET['date'];
+    } ?>
+    <script src="../Calendar/map_sorting.js"></script>
 	<script>
 	function get_details() {
 		equip_scroll = $('.equip_list').scrollTop();
@@ -104,7 +108,8 @@ if((isset($_POST['upload_file']) && !empty($_FILES['csv_file']['tmp_name'])) || 
 							ticket: ticketid,
 							start: $('[name=day_start_time]').val(),
 							increment: '30 minutes'
-						}, function(response) {
+						}, function(date) {
+                            sort_by_map(date, equipment, '', '', true);
 							$('.ticket_list').data('ids',$('.ticket_list').data('ids').filter(function(str) { return str != ticketid; }));
 							get_details();
 							$('[name=day_start_time]').val('');

@@ -65,8 +65,9 @@ else if($_GET['action'] == 'assign_ticket_deliveries') {
         $start_available = $start_time;
 		$end_available = date('H:i',strtotime($start_time.' + '.$available_increment.' hours'));
 		$dbc->query("UPDATE `ticket_schedule` SET `to_do_start_time`='$start_time', `to_do_end_time`='$end_time', `start_available`='$start_available', `end_available`='$end_available', `equipmentid`='$equipmentid' WHERE `id`='".$stop['id']."'");
-
+        $date = get_field_value('to_do_date','ticket_schedule','id',$stop['id']);
 	}
+    echo $date;
 }
 else if($_GET['action'] == 'archive') {
     $id = filter_var($_POST['id'],FILTER_SANITIZE_STRING);
