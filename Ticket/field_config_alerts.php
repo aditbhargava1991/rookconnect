@@ -41,7 +41,7 @@ function addStaff() {
 	$('input,select:not([name="ticket_tab"])').change(saveAlerts);
 	initInputs('.staff_div');
 }
-function removeType(a) {
+function removeStaff(a) {
 	if($('.staff_div').length <= 1) {
 		addStaff();
 	}
