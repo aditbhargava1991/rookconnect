@@ -226,7 +226,7 @@ function display_active_blocks() {
 				}
 			});
 		}
-	}, 50);
+	}, 250);
 }
 function filter_sidebar(a = '') {
 	if(a != '') {

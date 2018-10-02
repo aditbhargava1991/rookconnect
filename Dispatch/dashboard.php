@@ -46,7 +46,7 @@ checkAuthorised('dispatch');
         <?php if(in_array('classification',$search_fields) && !$is_customer) { ?>
             <li class="sidebar-higher-level"><a class="cursor-hand collapsed" data-parent="#accordion" data-toggle="collapse" data-target="#collapse_classification">Classification<span class="arrow"></span></a>
                 <ul class="collapse" id="collapse_classification" style="overflow: hidden;">
-                    <?php foreach($allowed_classifications as $classification) { ?>
+                    <?php foreach($allowed_classifications as $i => $classification) { ?>
                         <a href="" data-region='<?= json_encode($classification_regions[$i]) ?>' data-classification="<?= $classification ?>" data-activevalue="<?= $classification ?>" onclick="filter_sidebar(this); return false;"><li><?= $classification ?></li></a>
                     <?php } ?>
                 </ul>
