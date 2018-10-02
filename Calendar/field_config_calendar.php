@@ -481,6 +481,9 @@ if (isset($_POST['add_tab'])) {
 	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$_POST['scheduling_wait_list']."' WHERE `name`='scheduling_wait_list'");
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'scheduling_calendar_sort_auto' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='scheduling_calendar_sort_auto') num WHERE num.rows=0");
 	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".implode(',',$_POST['scheduling_calendar_sort_auto'])."' WHERE `name`='scheduling_calendar_sort_auto'");
+    set_config($dbc, 'scheduling_calendar_est_time', $_POST['scheduling_calendar_est_time']);
+    set_config($dbc, 'auto_size_calendar_blocks', $_POST['auto_size_calendar_blocks']);
+    set_config($dbc, 'auto_show_time', $_POST['auto_show_time']);
 	if (!empty($_POST['scheduling_use_shift_tickets'])) {
 		$scheduling_use_shift_tickets = $_POST['scheduling_use_shift_tickets'];
 	} else {
@@ -2183,6 +2186,22 @@ function deleteLogo(logo) {
 									<label class="form-checkbox"><input type="radio" name="scheduling_wait_list" <?= $scheduling_wait_list == 'appt' ? 'checked' : '' ?> value="appt"> Appointments</label>
 								</div>
 							</div>
+							<div class="form-group">
+								<label class="col-sm-4 control-label">Expand Rows to show Details:</label>
+								<div class="col-sm-8"><?php
+                                    $auto_size_calendar_blocks = get_config($dbc, 'auto_size_calendar_blocks'); ?>
+                                    <label class="form-checkbox"><input type="radio" name="auto_size_calendar_blocks" value="true" <?= $auto_size_calendar_blocks=='true' ? 'checked' : ''; ?> />Enable</label>
+                                    <label class="form-checkbox"><input type="radio" name="auto_size_calendar_blocks" value="" <?= $auto_size_calendar_blocks=='true' ? '' : 'checked'; ?> />Disable</label>
+                                </div>
+                            </div>
+							<div class="form-group">
+								<label class="col-sm-4 control-label">Jump to Current Time:</label>
+								<div class="col-sm-8"><?php
+                                    $auto_show_time = get_config($dbc, 'auto_show_time'); ?>
+                                    <label class="form-checkbox"><input type="radio" name="auto_show_time" value="true" <?= $auto_show_time=='true' ? 'checked' : ''; ?> />Enable</label>
+                                    <label class="form-checkbox"><input type="radio" name="auto_show_time" value="" <?= $auto_show_time=='true' ? '' : 'checked'; ?> />Disable</label>
+                                </div>
+                            </div>
 							<div class="form-group shift_tickets_block" <?= ($scheduling_wait_list == 'ticket' ? '' : 'style="display:none;"') ?>>
 								<label class="col-sm-4 control-label">Dispatch Calendar Use Shift <?= TICKET_TILE ?>:</label>
 								<div class="col-sm-8">
@@ -2274,6 +2293,13 @@ function deleteLogo(logo) {
                                     <?php foreach(array_filter(explode(',',get_config($dbc, '%_classification', true, ','))) as $class_name) { ?>
                                         <label class="form-checkbox any-width"><input type="checkbox" name="scheduling_calendar_sort_auto[]" <?= in_array('class_'.config_safe_str($class_name), $scheduling_calendar_sort_auto) ? 'checked' : '' ?> value="class_<?= config_safe_str($class_name) ?>">Use Sort Button for Classification: <?= $class_name ?></label>
                                     <?php } ?>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-4 control-label">Dispatch <?= TICKET_NOUN ?> Estimate Time:</label>
+								<div class="col-sm-8">
+									<label class="form-checkbox"><input type="radio" name="scheduling_calendar_est_time" <?= get_config($dbc, "scheduling_calendar_est_time") == 'auto_sort' ? 'checked' : '' ?> value="auto_sort"> Auto Add Time to <?= TICKET_TILE ?></label>
+									<label class="form-checkbox"><input type="radio" name="scheduling_calendar_est_time" <?= get_config($dbc, "scheduling_calendar_est_time") == '' ? 'checked' : '' ?> value=""> No Change of Time</label>
 								</div>
 							</div>
 							<div class="form-group">

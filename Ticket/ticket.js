@@ -2811,6 +2811,21 @@ function add_staff_task(checkin) {
 function toggleAll(button) {
 	$(button).closest('.panel-body,.tab-section,.has-main-screen .main-screen').find('.toggle[value=0]').closest('.toggleSwitch').click();
 }
+var sorting_done = 0;
+function getDriveTime(button, date, equipment) {
+    if(sorting_done == 0) {
+        sorting_done == 1;
+        $(button).text('Updating Drive Time...');
+        sorting_done = 1;
+        sort_by_map(date, equipment, '', '', true);
+    }
+    if(sorting_done == 1) {
+        setTimeout(function() {
+            $(button).click();
+        }, 250);
+        return false;
+    }
+}
 function checkoutAll(button) {
 	if($(button).hasClass('finish_btn')) {
 		finishing_ticket = true;
@@ -2832,6 +2847,7 @@ function checkoutAll(button) {
 		return false;
 	} else {
 		if(confirm("Are you sure you want to check out all Staff?")) {
+            $(button).text('Checking Out Staff...');
 			$('#collapse_ticket_checkout,#tab_section_ticket_checkout,#collapse_ticket_complete,#tab_section_ticket_complete').find('.toggle[value=0]').closest('.toggleSwitch').click();
 			if($(button).data('recurring-ticket') != undefined && $(button).data('recurring-ticket') == 1) {
 				createRecurringTicket();
