@@ -200,87 +200,88 @@ foreach($equip_list as $equipment) {
 
 	$title_color = substr(md5(encryptIt($equipment['equipmentid'])), 0, 6);
 
-	if(empty($equipment_html)) {
-		$equipment_html = '<div style="margin: 0.5em; padding: 0.5em;">No '.TICKET_TILE.' Found.</div>';
-	}
-	$equipment_html = '<div data-equipment="'.$equipment['equipmentid'].'" class="dispatch-equipment-group">
-            <div class="dispatch-equipment-title" style="background-color: #'.$title_color.'"><a href="" onclick="view_summary(\''.$equipment['equipmentid'].'\'); return false;"><img class="inline-img pull-right btn-horizontal-collapse no-toggle" src="../img/icons/pie-chart.png" title="View Summary" style="margin: 0;"></a><b>'.($equipment_edit_access > 0 ? '<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Equipment/edit_equipment.php?edit='.$equipment['equipmentid'].'&iframe_slider=1\', \'auto\', true, true); return false;">' : '').$equipment['label'].($equipment_edit_access > 0 ? '</a>' : '').'</b></div>
-            <div class="dispatch-equipment-content">'.$equipment_html.'</div>
-        </div>';
-
-	//Summary blocks
-	$assigned_team = $dbc->query("SELECT * FROM `equipment_assignment_staff` WHERE `equipment_assignmentid`='$equipment_assignmentid' AND `deleted`=0");
-	while($contact = $assigned_team->fetch_assoc()) {
-		$star_contacts[] = $contact['contactid'];
-	}
-    $star_html = '';
-	foreach(array_filter(array_unique($star_contacts)) as $star_contact) {
-		if($star_contact > 0) {
-            $rating = mysqli_fetch_array(mysqli_query($dbc, "SELECT COUNT(`ticket_schedule`.`id`) `num_rows`, `ticket_schedule`.`id`, `ticket_attached`.`rate`, AVG(`ticket_attached`.`rate`) `avg_rating` FROM `ticket_schedule` LEFT JOIN `equipment_assignment` ON `equipment_assignment`.`equipmentid` = `ticket_schedule`.`equipmentid` LEFT JOIN `equipment_assignment_staff` ON `equipment_assignment_staff`.`equipment_assignmentid` = `equipment_assignment`.`equipment_assignmentid` LEFT JOIN `ticket_attached` ON `ticket_attached`.`src_table`='customer_approve' AND `ticket_attached`.`line_id`=`ticket_schedule`.`id` WHERE `ticket_schedule`.`to_do_date` BETWEEN `equipment_assignment`.`start_date` AND IFNULL(NULLIF(`equipment_assignment`.`end_date`,'0000-00-00'),'9999-12-31') AND CONCAT(',',`equipment_assignment`.`hide_days`,',') NOT LIKE CONCAT('%,',`ticket_schedule`.`to_do_date`,',%') AND `equipment_assignment_staff`.`contactid` = '$star_contact' AND `equipment_assignment_staff`.`deleted` = 0 AND `ticket_schedule`.`deleted` = 0 AND `equipment_assignment`.`deleted` = 0 AND `ticket_attached`.`rate` != 0"));
-            $rating_html = '';
-            for($i = 0; $i < 5; $i++) {
-            	if($rating['avg_rating'] >= 1) {
-            		$rating_html .= '<img class="inline-img" src="../img/icons/star.png">';
-            	} else if($rating['avg_rating'] >= 0.5) {
-            		$rating_html .= '<img class="inline-img" src="../img/icons/star_half.png">';
-            	} else {
-            		$rating_html .= '<img class="inline-img" src="../img/icons/star_empty.png">';
-            	}
-            	$rating['avg_rating'] -= 1;
-            }
-			$contact = $dbc->query("SELECT `contacts`.`tile_name`, `contacts`.`first_name`, `contacts`.`last_name`, `contacts_upload`.`contactimage` FROM `contacts` LEFT JOIN `contacts_upload` ON `contacts`.`contactid`=`contacts_upload`.`contactid` WHERE `contacts`.`contactid`='$star_contact'")->fetch_assoc();
-			$img_url = '../'.($contact['tile_name'] == 'staff' || $contact['category'] == 'staff' ? (file_exists('../Staff/download/'.$contact['contactimage']) ? 'Staff' : 'Profile') : 'Contacts').'/download/'.$contact['contactimage'];
-			$star_html .= '<div class="small dispatch-summary-star" data-contact="'.$star_contact.'"><div class="pull-left"><img class="inline-img" src="'.(!empty($contact['contactimage']) && file_exists($img_url) ? $img_url : '../img/person.PNG').'" style="width: auto; height:6em; max-height:6em;"></div>'.decryptIt($contact['first_name']).' '.decryptIt($contact['last_name']).' - '.get_config($dbc, 'company_name').'<br />
-					'.$rating_html.'<br />
-					'.$rating['num_rows'].' Deliveries Completed</div>';
-			$star_html .= '<div class="clearfix"></div>';
-			$summary_result['star_summary'][$star_contact] = $star_html;
+	if(get_config($dbc, 'dispatch_tile_hide_empty') != 1 || !empty($equipment_html)) {
+		if(empty($equipment_html)) {
+			$equipment_html = '<div style="margin: 0.5em; padding: 0.5em;">No '.TICKET_TILE.' Found.</div>';
 		}
-	}
-	$star_summary = '<div class="dispatch-summary-block" data-equipment="'.$equipment['equipmentid'].'" style="border: 3px solid #'.$title_color.'"><b>Star Ratings</b>'.$star_html.'</div>';
+		$equipment_html = '<div data-equipment="'.$equipment['equipmentid'].'" class="dispatch-equipment-group">
+	            <div class="dispatch-equipment-title" style="background-color: #'.$title_color.'"><a href="" onclick="view_summary(\''.$equipment['equipmentid'].'\'); return false;"><img class="inline-img pull-right btn-horizontal-collapse no-toggle" src="../img/icons/pie-chart.png" title="View Summary" style="margin: 0;"></a><b>'.($equipment_edit_access > 0 ? '<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Equipment/edit_equipment.php?edit='.$equipment['equipmentid'].'&iframe_slider=1\', \'auto\', true, true); return false;">' : '').$equipment['label'].($equipment_edit_access > 0 ? '</a>' : '').'</b></div>
+	            <div class="dispatch-equipment-content">'.$equipment_html.'</div>
+	        </div>';
 
-	$ontime_summary_html = '<div class="dispatch-summary-block" data-equipment="'.$equipment['equipmentid'].'" style="border: 3px solid #'.$title_color.'"><div class="dispatch-summary-ontime"></div></div>';
-	$ontime_summary_arr = [
-		[
-			'label' => 'On Time',
-			'count' => empty($ontime_summary['On Time']['count']) ? 0 : $ontime_summary['On Time']['count'],
-			'color' => '#00ff00'
-		],
-		[
-			'label' => 'Not On Time',
-			'count' => empty($ontime_summary['Not On Time']['count']) ? 0 : $ontime_summary['Not On Time']['count'],
-			'color' => '#ff0000'
-		],
-		[
-			'label' => 'Ongoing',
-			'count' => empty($ontime_summary['Ongoing']['count']) ? 0 : $ontime_summary['Ongoing']['count'],
-			'color' => '#ddd'
-		]
-	];
+		//Summary blocks
+		$assigned_team = $dbc->query("SELECT * FROM `equipment_assignment_staff` WHERE `equipment_assignmentid`='$equipment_assignmentid' AND `deleted`=0");
+		while($contact = $assigned_team->fetch_assoc()) {
+			$star_contacts[] = $contact['contactid'];
+		}
+	    $star_html = '';
+		foreach(array_filter(array_unique($star_contacts)) as $star_contact) {
+			if($star_contact > 0) {
+	            $rating = mysqli_fetch_array(mysqli_query($dbc, "SELECT COUNT(`ticket_schedule`.`id`) `num_rows`, `ticket_schedule`.`id`, `ticket_attached`.`rate`, AVG(`ticket_attached`.`rate`) `avg_rating` FROM `ticket_schedule` LEFT JOIN `equipment_assignment` ON `equipment_assignment`.`equipmentid` = `ticket_schedule`.`equipmentid` LEFT JOIN `equipment_assignment_staff` ON `equipment_assignment_staff`.`equipment_assignmentid` = `equipment_assignment`.`equipment_assignmentid` LEFT JOIN `ticket_attached` ON `ticket_attached`.`src_table`='customer_approve' AND `ticket_attached`.`line_id`=`ticket_schedule`.`id` WHERE `ticket_schedule`.`to_do_date` BETWEEN `equipment_assignment`.`start_date` AND IFNULL(NULLIF(`equipment_assignment`.`end_date`,'0000-00-00'),'9999-12-31') AND CONCAT(',',`equipment_assignment`.`hide_days`,',') NOT LIKE CONCAT('%,',`ticket_schedule`.`to_do_date`,',%') AND `equipment_assignment_staff`.`contactid` = '$star_contact' AND `equipment_assignment_staff`.`deleted` = 0 AND `ticket_schedule`.`deleted` = 0 AND `equipment_assignment`.`deleted` = 0 AND `ticket_attached`.`rate` != 0"));
+	            $rating_html = '';
+	            for($i = 0; $i < 5; $i++) {
+	            	if($rating['avg_rating'] >= 1) {
+	            		$rating_html .= '<img class="inline-img" src="../img/icons/star.png">';
+	            	} else if($rating['avg_rating'] >= 0.5) {
+	            		$rating_html .= '<img class="inline-img" src="../img/icons/star_half.png">';
+	            	} else {
+	            		$rating_html .= '<img class="inline-img" src="../img/icons/star_empty.png">';
+	            	}
+	            	$rating['avg_rating'] -= 1;
+	            }
+				$contact = $dbc->query("SELECT `contacts`.`tile_name`, `contacts`.`first_name`, `contacts`.`last_name`, `contacts_upload`.`contactimage` FROM `contacts` LEFT JOIN `contacts_upload` ON `contacts`.`contactid`=`contacts_upload`.`contactid` WHERE `contacts`.`contactid`='$star_contact'")->fetch_assoc();
+				$img_url = '../'.($contact['tile_name'] == 'staff' || $contact['category'] == 'staff' ? (file_exists('../Staff/download/'.$contact['contactimage']) ? 'Staff' : 'Profile') : 'Contacts').'/download/'.$contact['contactimage'];
+				$star_html .= '<div class="small dispatch-summary-star" data-contact="'.$star_contact.'"><div class="pull-left"><img class="inline-img" src="'.(!empty($contact['contactimage']) && file_exists($img_url) ? $img_url : '../img/person.PNG').'" style="width: auto; height:6em; max-height:6em;"></div>'.decryptIt($contact['first_name']).' '.decryptIt($contact['last_name']).' - '.get_config($dbc, 'company_name').'<br />
+						'.$rating_html.'<br />
+						'.$rating['num_rows'].' Deliveries Completed</div>';
+				$star_html .= '<div class="clearfix"></div>';
+				$summary_result['star_summary'][$star_contact] = $star_html;
+			}
+		}
+		$star_summary = '<div class="dispatch-summary-block" data-equipment="'.$equipment['equipmentid'].'" style="border: 3px solid #'.$title_color.'"><b>Star Ratings</b>'.$star_html.'</div>';
 
-
-	$status_summary_html = '<div class="dispatch-summary-block" data-equipment="'.$equipment['equipmentid'].'" style="border: 3px solid #'.$title_color.'"><div class="dispatch-summary-status"></div></div>';
-	$status_summary_arr = [];
-	foreach($status_summary as $status) {
-		$status_summary_arr[] = [
-			'status' => $status['status'],
-			'count' => $status['count'],
-			'color' => $status['color']
+		$ontime_summary_html = '<div class="dispatch-summary-block" data-equipment="'.$equipment['equipmentid'].'" style="border: 3px solid #'.$title_color.'"><div class="dispatch-summary-ontime"></div></div>';
+		$ontime_summary_arr = [
+			[
+				'label' => 'On Time',
+				'count' => empty($ontime_summary['On Time']['count']) ? 0 : $ontime_summary['On Time']['count'],
+				'color' => '#00ff00'
+			],
+			[
+				'label' => 'Not On Time',
+				'count' => empty($ontime_summary['Not On Time']['count']) ? 0 : $ontime_summary['Not On Time']['count'],
+				'color' => '#ff0000'
+			],
+			[
+				'label' => 'Ongoing',
+				'count' => empty($ontime_summary['Ongoing']['count']) ? 0 : $ontime_summary['Ongoing']['count'],
+				'color' => '#ddd'
+			]
 		];
+
+		$status_summary_html = '<div class="dispatch-summary-block" data-equipment="'.$equipment['equipmentid'].'" style="border: 3px solid #'.$title_color.'"><div class="dispatch-summary-status"></div></div>';
+		$status_summary_arr = [];
+		foreach($status_summary as $status) {
+			$status_summary_arr[] = [
+				'status' => $status['status'],
+				'count' => $status['count'],
+				'color' => $status['color']
+			];
+		}
+
+		$equipment_arr = [
+			'equipmentid' => $equipment['equipmentid'],
+			'label' => $equipment['label'],
+			'html' => $equipment_html,
+			'summary' => '<div class="dispatch-summary-group" data-equipment="'.$equipment['equipmentid'].'">'.$ontime_summary_html.$status_summary_html.$star_summary.'</div>',
+			'status_summary' => $status_summary_arr,
+			'ontime_summary' => $ontime_summary_arr
+		];
+		$equipment_result[] = $equipment_arr;
+
+		$equipment_buttons[] = '<a href="" data-region=\''.json_encode($equip_regions).'\' data-location=\''.json_encode($equip_locations).'\' data-classification=\''.json_encode($equip_classifications).'\' data-equipment="'.$equipment['equipmentid'].'" data-activevalue="'.$equipment['equipmentid'].'" onclick="filter_equipment(this); return false;"><div class="pull-left" style="background-color: #'.$title_color.'; width: 20px; height: 20px; margin: 5px;"></div><li data-equipment="'.$equipment['equipmentid'].'" class="dispatch-equipment-button '.(($reset_active != 1 && (empty($active_equipment) || in_array($equipment['equipmentid'], $active_equipment))) || ($reset_active == 1 && !empty($ticket_times)) ? 'active blue' : '').'">'.$equipment['label'].'</li></a><div class="clearfix"></div>';
+		$equipment_active_li[] = '<a data-activevalue="'.$equipment['equipmentid'].'" class="active_li_item" style="cursor: pointer;"><li class="active blue">'.$equipment['label'].'</li></a>';
 	}
-
-	$equipment_arr = [
-		'equipmentid' => $equipment['equipmentid'],
-		'label' => $equipment['label'],
-		'html' => $equipment_html,
-		'summary' => '<div class="dispatch-summary-group" data-equipment="'.$equipment['equipmentid'].'">'.$ontime_summary_html.$status_summary_html.$star_summary.'</div>',
-		'status_summary' => $status_summary_arr,
-		'ontime_summary' => $ontime_summary_arr
-	];
-	$equipment_result[] = $equipment_arr;
-
-	$equipment_buttons[] = '<a href="" data-region=\''.json_encode($equip_regions).'\' data-location=\''.json_encode($equip_locations).'\' data-classification=\''.json_encode($equip_classifications).'\' data-equipment="'.$equipment['equipmentid'].'" data-activevalue="'.$equipment['equipmentid'].'" onclick="filter_equipment(this); return false;"><div class="pull-left" style="background-color: #'.$title_color.'; width: 20px; height: 20px; margin: 5px;"></div><li data-equipment="'.$equipment['equipmentid'].'" class="dispatch-equipment-button '.(($reset_active != 1 && (empty($active_equipment) || in_array($equipment['equipmentid'], $active_equipment))) || ($reset_active == 1 && !empty($ticket_times)) ? 'active blue' : '').'">'.$equipment['label'].'</li></a><div class="clearfix"></div>';
-	$equipment_active_li[] = '<a data-activevalue="'.$equipment['equipmentid'].'" class="active_li_item" style="cursor: pointer;"><li class="active blue">'.$equipment['label'].'</li></a>';
 }
 $summary_htmls[] = '<div class="dispatch-summary-block" data-equipment="ALL"><div class="dispatch-summary-ontime"></div></div>';
 $summary_htmls[] = '<div class="dispatch-summary-block" data-equipment="ALL"><div class="dispatch-summary-status"></div></div>';
