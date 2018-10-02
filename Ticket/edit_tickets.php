@@ -221,7 +221,9 @@ if(!empty($_GET['edit'])) {
 	<input type="hidden" class="start_time" value="<?php echo $time_seconds ?>">
 	<input type="hidden" id="login_contactid" value="<?php echo $_SESSION['contactid'] ?>" />
 	<input type="hidden" id="timer_type" value="<?php echo $timer_type ?>" />
-<?php }
+<?php } else if(!empty($_GET['type'])) {
+	$ticket_type = $_GET['type'];
+}
 if(!empty(MATCH_CONTACTS) && !in_array($get_ticket['businessid'],explode(',',MATCH_CONTACTS)) && !in_array_any(array_filter(explode(',',$get_ticket['clientid'])),explode(',',MATCH_CONTACTS)) && $ticketid > 0) {
 	ob_clean();
 	header('Location: index.php');
