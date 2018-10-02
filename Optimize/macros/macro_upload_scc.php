@@ -70,7 +70,7 @@ if(isset($_POST['upload_file']) && !empty($_FILES['csv_file']['tmp_name'])) {
 
         $google_link = 'https://www.google.ca/maps/place/'.urlencode($address).','.urlencode($city);
 		echo "INSERT INTO `ticket_schedule` (`ticketid`,`order_number`,`client_name`,`address`,`city`,`map_link`,`to_do_date`,`to_do_start_time`,`to_do_end_time`,`details`,`cust_est`,`est_time`,`start_available`,`end_available`,`serviceid`,`type`,`status`) VALUES ('$ticketid','$order_number','$client_name','$address','$city','$google_link','$to_do_date','$to_do_start_time','$to_do_end_time','$details','$est_time','$service_est_time','$start_available','$end_available','$default_services','Drop Off','$default_status')-->";
-		$dbc->query("INSERT INTO `ticket_schedule` (`ticketid`,`order_number`,`client_name`,`address`,`city`,`map_link`,`to_do_date`,`to_do_start_time`,`to_do_end_time`,`details`,`cust_est`,`est_time`,`start_available`,`end_available`,`serviceid`,`type`,`status`) VALUES ('$ticketid','$order_number','$client_name','$address','$city','$google_link','$to_do_date','$to_do_start_time','$to_do_end_time','$details','$est_time','$service_est_time','$start_available','$end_available','$default_services','Drop Off','$default_status')");
+		$dbc->query("INSERT INTO `ticket_schedule` (`type`, `ticketid`,`order_number`,`client_name`,`address`,`city`,`map_link`,`to_do_date`,`to_do_start_time`,`to_do_end_time`,`details`,`cust_est`,`est_time`,`start_available`,`end_available`,`serviceid`,`type`,`status`) VALUES ('".get_config($dbc, 'delivery_type_default')."', '$ticketid','$order_number','$client_name','$address','$city','$google_link','$to_do_date','$to_do_start_time','$to_do_end_time','$details','$est_time','$service_est_time','$start_available','$end_available','$default_services','Drop Off','$default_status')");
 
 	}
 	fclose($handle); ?>
@@ -149,16 +149,12 @@ if((isset($_POST['upload_file']) && !empty($_FILES['csv_file']['tmp_name'])) || 
 			<br>
 			<p>
 				<select class="chosen-select-deselect" data-placeholder="Select <?= BUSINESS_CAT ?>" name="businessid"><option />
-					<?php foreach(sort_contacts_query($dbc->query("SELECT `name`, `contactid` FROM `contacts` WHERE `category`='".BUSINESS_CAT."' AND `deleted`=0 AND `status` > 0")) as $business) { ?>
-						<option value="<?= $business['contactid'] ?>"><?= $business['name'] ?></option>
+					<?php foreach(sort_contacts_query($dbc->query("SELECT `name`, `first_name`, `last_name`, `contactid` FROM `contacts` WHERE `category`='".BUSINESS_CAT."' AND `deleted`=0 AND `status` > 0 AND (`classification` IN ('".implode("','",$cur_bus)."') OR `contactid` IN ('".implode("','",$cur_bus)."') OR '' IN ('".implode("','",$cur_bus)."') OR 'ALL' IN ('".implode("','",$cur_bus)."'))")) as $business) { ?>
+						<option value="<?= $business['contactid'] ?>"><?= $business['full_name'] ?></option>
 					<?php } ?>
 				</select>
 				<input type="file" name="csv_file" class="form-control">
-				<input type="hidden" name="ticket_type" value="<?php foreach($macro_list as $macro) {
-					if($macro[0] == $_GET['macro']) {
-						echo $macro[1];
-					}
-				} ?>">
+				<input type="hidden" name="ticket_type" value="<?= $cur_macro[1] ?>">
 				<input type="submit" name="upload_file" value="Submit" class="btn brand-btn">
 			</p>
 		</ol>
