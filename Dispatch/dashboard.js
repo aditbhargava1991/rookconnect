@@ -52,9 +52,9 @@ function resize_blocks() {
 	$('.dispatch-equipment-list').off('scroll',set_double_scroll).scroll(set_double_scroll);
 
 	$('.standard-collapsible').find('li.sidebar-higher-level').each(function() {
-		$(this).find('a.cursor-hand').first().removeClass('active');
+		$(this).find('a.cursor-hand').first().removeClass('active blue');
 		if($(this).find('li.active').length > 0) {
-			$(this).find('a.cursor-hand').first().addClass('active');
+			$(this).find('a.cursor-hand').first().addClass('active blue');
 		}
 	});
 	display_active_blocks()
@@ -366,9 +366,9 @@ function filter_equipment(a = '') {
 }
 function select_all_buttons(a) {
 	if($(a).is(':checked')) {
-		$('.dispatch-equipment-button').addClass('active');
+		$('.dispatch-equipment-button').addClass('active blue');
 	} else {
-		$('.dispatch-equipment-button').removeClass('active');
+		$('.dispatch-equipment-button').removeClass('active blue');
 	}
 	filter_equipment();
 }
