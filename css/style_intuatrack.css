@@ -5268,4 +5268,4 @@ li.sidebar-lower-level.active,li.sidebar-lower-level.active span,li.sidebar-lowe
 .calendar .main-screen .panel .panel-title > a:hover { color:#f04345 !important; }
 .theme-color-border-bottom { border-bottom:2px solid #f04345 !important; }
 
-.ticket_list .block-item.ticket.active a:hover { color:#fff; }
+.ticket_list .block-item.ticket.active a:hover { color:#fff !important; }
