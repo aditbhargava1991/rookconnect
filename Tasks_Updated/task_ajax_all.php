@@ -536,8 +536,9 @@ if($_GET['fill'] == 'task_quick_time') {
 
 if($_GET['fill'] == 'task_estimated_time') {
 	$taskid = $_POST['id'];
-	$time = strtotime($_POST['time']);
-	$query_time = "UPDATE `tasklist` SET `estimated_time` = '$time' WHERE tasklistid='$taskid'";
+	$time = $_POST['time'];
+    $contactid = $_SESSION['contactid'];
+	$query_time = "UPDATE `tasklist` SET `estimated_time` = '$time', `updated_by` = '$contactid' WHERE tasklistid='$taskid'";
 	$result = mysqli_query($dbc, $query_time);
 	insert_day_overview($dbc, $_SESSION['contactid'], 'Task', date('Y-m-d'), '', "Updated Task #$taskid - Estimated Time : ".$_POST['time']);
 	echo 'Added '.$_POST['time'];
