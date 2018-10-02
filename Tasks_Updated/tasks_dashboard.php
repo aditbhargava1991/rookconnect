@@ -916,15 +916,30 @@ function addIntakeForm(btn) {
                                         <img class="drag_handle pull-right inline-img offset-top-7 no-toggle" src="../img/icons/drag_handle.png" title="Drag" />
                                     </span>
                                     <div class="small pull-right offset-top-5 t_staff"><?php
-                                        if ( $row['company_staff_sharing'] ) {
+                                        /*if ( $row['company_staff_sharing'] ) {
                                             $c_ex = explode(',', $row['company_staff_sharing']);
                                             $c_unique = array_unique($c_ex);
                                             foreach (array_filter($c_unique) as $staffid ) {
                                                 profile_id($dbc, $staffid);
                                             }
                                         } else {
-                                            profile_id($dbc, $row['contactid']);
-                                        } ?>
+                                            */
+                                        	if(!empty($row['contactid'])){
+                                        		$cids_ex = explode(',', $row['contactid']);
+	                                            $cids_unique = array_unique($cids_ex);
+	                                            $i=0;
+	                                            foreach (array_filter($cids_unique) as $staffcid ) {
+	                                            	$i++;
+	                                            	if($i>5){
+	                                            		break;
+	                                            	}
+	                                                profile_id($dbc, $staffcid);
+	                                            }
+                                        	}else{
+                                            	profile_id($dbc, $row['contactid']);
+                                        	}
+                                        // }
+                                         ?>
                                     </div>
                                     <div class="clearfix"></div><?php
 
