@@ -1665,7 +1665,11 @@ function sign_off_complete_force() {
 function reloadTab(name) {
 	if(name != undefined && name != '') {
 		$('#tab_section_'+name).each(function() {
-			$(this).load('edit_ticket_tab.php?ticketid='+ticketid+'&tab='+name+'&stop='+stopid);
+			stopid_query = '';
+			if(stopid != undefined) {
+				stopid_query = '&stop='+stopid;
+			}
+			$(this).load('edit_ticket_tab.php?ticketid='+ticketid+'&tab='+name+stopid_query);
 		});
 	}
 }
