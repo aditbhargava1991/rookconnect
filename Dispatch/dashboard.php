@@ -172,6 +172,7 @@ checkAuthorised('dispatch');
                 </div> -->
                 <div class="double-scroller"><div></div></div>
                 <div class="dispatch-equipment-list"></div>
+                <div class="dispatch-equipment-list-none" style="padding: 1em; display: none;">No <?= $equipment_label ?> Selected</div>
             </div>
         </div>
     </div>
