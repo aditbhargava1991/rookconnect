@@ -46,7 +46,7 @@ if((basename($_SERVER['SCRIPT_FILENAME']) == 'contacts_inbox.php' || (strtolower
 DEFINE('UPDATE_CONTACT', $update_contact);
 
 $intake_ticket = false;
-if((strtok($_SERVER['REQUEST_URI'], '?') == '/Ticket/index.php' && $_GET['edit'] == 0) || strtok($_SERVER['REQUEST_URI'], '?') == '/Ticket/edit_ticket_tab.php') {
+if((strtok($_SERVER['REQUEST_URI'], '?') == '/Ticket/index.php' && $_GET['edit'] == 0 && isset($_GET['edit'])) || strtok($_SERVER['REQUEST_URI'], '?') == '/Ticket/edit_ticket_tab.php' || strtok($_SERVER['REQUEST_URI'], '?') == '/Ticket/ticket_ajax_all.php') {
 	$ticket_tab = $_GET['type'];
 	$intake_key = get_config($dbc, 'ticket_intake_url'.(!empty($ticket_tab) ? '_'.$ticket_tab : ''));
 	if($intake_key == $_GET['intake_key']) {
@@ -59,7 +59,7 @@ if((strtok($_SERVER['REQUEST_URI'], '?') == '/Ticket/index.php' && $_GET['edit']
 }
 DEFINE('INTAKE_TICKET', $intake_ticket);
 
-if(!isset($_SESSION['user_name']) && !isset($guest_access) && $guest_access != true && !$external_intake && !$update_contact && !$intake_ticket && !isset($_SESSION['intake_ticket'])) {
+if(!isset($_SESSION['user_name']) && !isset($guest_access) && $guest_access != true && !$external_intake && !$update_contact && !$intake_ticket) {
     ob_clean();
     $url = (isset($_SERVER["HTTPS"]) ? 'https://' : 'http://').$_SERVER['SERVER_NAME'];
     if($_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest') {
