@@ -111,6 +111,10 @@ if($_GET['fill'] == 'task_board_type') {
     $task_board_type = $_GET['task_board_type'];
 	echo '<option value=""></option>';
 
+    if($task_board_type == 'Shared') {
+        $task_board_type = 'Company';
+    }
+
     $query = mysqli_query($dbc, "SELECT taskboardid, board_name FROM task_board WHERE deleted = 0 AND board_security = '$task_board_type' AND company_staff_sharing LIKE '%,". $_SESSION['contactid'] .",%'");
     while($row = mysqli_fetch_array($query)) { ?>
         <option value="<?= $row['taskboardid'] ?>"><?= $row['board_name'] ?></option><?php

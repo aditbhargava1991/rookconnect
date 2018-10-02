@@ -91,7 +91,7 @@ if(isset($_POST['upload_file']) && !empty($_FILES['csv_file']['tmp_name'])) {
 				if(!empty($warehouses[$value['city']]) && !empty($value['city'])) {
 					$dbc->query("INSERT INTO `ticket_schedule` (`ticketid`,`type`,`to_do_date`,`to_do_start_time`,`client_name`,`address`,`city`,`postal_code`,`order_number`,`status`) VALUES ('$ticketid','".$warehouses[$value['city']]['warehouse_name']."','".$value['date']."','".$warehouse_start_time."','".$business_name."','".$warehouses[$value['city']]['address']."','".$warehouses[$value['city']]['city']."','".$warehouses[$value['city']]['postal_code']."','".$key."','$default_status')");
 				}
-				$dbc->query("INSERT INTO `ticket_schedule` (`ticketid`,`to_do_date`,`client_name`,`address`,`city`,`province`,`postal_code`,`details`,`vendor`,`email`,`order_number`,`serviceid`,`est_time`,`map_link`,`volume`,`notes`,`status`) VALUES ('$ticketid','".$value['date']."','".$value['customer_name']."','".$value['street_address'].' '.$value['unit_number']."','".$value['city']."','".$value['province']."','".$value['postal_code']."','".$value['email']."','".$value['phone1']."','".$value['phone2']."','".$key."','$serviceid','$service_est_time','".'https://www.google.ca/maps/place/'.urlencode($value['street_address'].' '.$value['unit_number'].",".$value['city'].",".$value['province'].",".$value['postal_code'])."','".$value['volume']."','&lt;p&gt;".$value['description']."&lt;/p&gt;&lt;p&gt;".$value['info']."&lt;/p&gt;','$default_status')");
+				$dbc->query("INSERT INTO `ticket_schedule` (`type`, `ticketid`,`to_do_date`,`client_name`,`address`,`city`,`province`,`postal_code`,`details`,`vendor`,`email`,`order_number`,`serviceid`,`est_time`,`map_link`,`volume`,`notes`,`status`) VALUES ('".get_config($dbc, 'delivery_type_default')."', '$ticketid','".$value['date']."','".$value['customer_name']."','".$value['street_address'].' '.$value['unit_number']."','".$value['city']."','".$value['province']."','".$value['postal_code']."','".$value['email']."','".$value['phone1']."','".$value['phone2']."','".$key."','$serviceid','$service_est_time','".'https://www.google.ca/maps/place/'.urlencode($value['street_address'].' '.$value['unit_number'].",".$value['city'].",".$value['province'].",".$value['postal_code'])."','".$value['volume']."','&lt;p&gt;".$value['description']."&lt;/p&gt;&lt;p&gt;".$value['info']."&lt;/p&gt;','$default_status')");
 				$dbc->query("INSERT INTO `ticket_history` (`ticketid`,`userid`,`src`,`description`) VALUES ('$ticketid',".$_SESSION['contactid'].",'optimizer','Best Buy macro imported ".TICKET_NOUN." $ticketid')");
 			}
 		}
@@ -115,16 +115,12 @@ if(isset($_POST['upload_file']) && !empty($_FILES['csv_file']['tmp_name'])) {
 			<label class="form-checkbox"><input type="radio" name="duplicate" value="no_dupe">No Duplicates</label>
 			<label class="form-checkbox"><input type="radio" name="duplicate" value="all_dupes" checked>Allow Duplicates</label><br>
 			<select class="chosen-select-deselect" data-placeholder="Select <?= BUSINESS_CAT ?>" name="businessid"><option />
-				<?php foreach(sort_contacts_query($dbc->query("SELECT `name`, `contactid` FROM `contacts` WHERE `category`='".BUSINESS_CAT."' AND `deleted`=0 AND `status` > 0")) as $business) { ?>
-					<option value="<?= $business['contactid'] ?>"><?= $business['name'] ?></option>
+				<?php foreach(sort_contacts_query($dbc->query("SELECT `name`, `first_name`, `last_name`, `contactid` FROM `contacts` WHERE `category`='".BUSINESS_CAT."' AND `deleted`=0 AND `status` > 0 AND (`classification` IN ('".implode("','",$cur_bus)."') OR `contactid` IN ('".implode("','",$cur_bus)."') OR '' IN ('".implode("','",$cur_bus)."') OR 'ALL' IN ('".implode("','",$cur_bus)."'))")) as $business) { ?>
+					<option value="<?= $business['contactid'] ?>"><?= $business['full_name'] ?></option>
 				<?php } ?>
 			</select>
 			<input type="file" name="csv_file">
-			<input type="hidden" name="ticket_type" value="<?php foreach($macro_list as $macro) {
-				if($macro[0] == $_GET['macro']) {
-					echo $macro[1];
-				}
-			} ?>">
+			<input type="hidden" name="ticket_type" value="<?= $cur_macro[1] ?>">
 			<input type="submit" name="upload_file" value="Submit" class="btn brand-btn">
 		</p>
 	</ol>
