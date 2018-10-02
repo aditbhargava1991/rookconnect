@@ -221,7 +221,9 @@ if(!empty($_GET['edit'])) {
 	<input type="hidden" class="start_time" value="<?php echo $time_seconds ?>">
 	<input type="hidden" id="login_contactid" value="<?php echo $_SESSION['contactid'] ?>" />
 	<input type="hidden" id="timer_type" value="<?php echo $timer_type ?>" />
-<?php }
+<?php } else if(!empty($_GET['type'])) {
+	$ticket_type = $_GET['type'];
+}
 if(!empty(MATCH_CONTACTS) && !in_array($get_ticket['businessid'],explode(',',MATCH_CONTACTS)) && !in_array_any(array_filter(explode(',',$get_ticket['clientid'])),explode(',',MATCH_CONTACTS)) && $ticketid > 0) {
 	ob_clean();
 	header('Location: index.php');
@@ -2593,6 +2595,24 @@ var setHeading = function() {
 				</div>
 			<?php } ?>
 
+			<?php if (strpos($value_config, ','."Application Report".',') !== FALSE && $sort_field == 'Application Report') { ?>
+				<div class="panel panel-default">
+					<div class="panel-heading mobile_load">
+						<h4 class="panel-title">
+							<a data-toggle="collapse" data-parent="#mobile_tabs<?= $heading_id ?>" <?= $indent_accordion_text ?> href="#collapse_ticket_apply_report">
+								<?= !empty($renamed_accordion) ? $renamed_accordion : 'Application Report' ?><span class="glyphicon glyphicon-plus"></span>
+							</a>
+						</h4>
+					</div>
+
+					<div id="collapse_ticket_apply_report" class="panel-collapse collapse">
+						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?<?= isset($_GET['intake_key']) ? 'intake_key='.$_GET['intake_key'].'&' : '' ?>ticketid=<?= $ticketid ?>&tab=ticket_apply_report">
+							Loading...
+						</div>
+					</div>
+				</div>
+			<?php } ?>
+
 			<?php if (strpos($value_config, ','."Intake".',') !== FALSE && $sort_field == 'Intake') { ?>
 				<div class="panel panel-default">
 					<div class="panel-heading mobile_load">
@@ -3305,6 +3325,11 @@ var setHeading = function() {
 				if (strpos($value_config, ','."Chemicals".',') !== FALSE && $sort_field == 'Chemicals') {
 					$_GET['tab'] = 'ticket_chemicals';
 					$acc_label = 'Chemicals';
+					include('edit_ticket_tab.php');
+				}
+				if (strpos($value_config, ','."Application Report".',') !== FALSE && $sort_field == 'Application Report') {
+					$_GET['tab'] = 'ticket_apply_report';
+					$acc_label = 'Application Report';
 					include('edit_ticket_tab.php');
 				}
 				if (strpos($value_config, ','."Intake".',') !== FALSE && $sort_field == 'Intake') {

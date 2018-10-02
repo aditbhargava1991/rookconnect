@@ -3961,6 +3961,47 @@ if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode && !$int
 			</div>
 		<?php }
 
+		if($sort_field == 'Application Report') { ?>
+			<div class="form-group sort_order_accordion" data-accordion="Application Report">
+				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Application Report' ?></span>:<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode && !$intake_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
+					<span class="dataToggle cursor-hand no-toggle <?= in_array('ticket_chemicals',$all_unlocked_tabs) ? 'disabled' : '' ?>" title="Locking a tab will hide the contents of that tab on all new <?= TICKET_TILE ?>. A user with access to edit the <?= TICKET_NOUN ?> can then unlock that tab for that <?= TICKET_NOUN ?>.<?= in_array('ticket_chemicals',$all_unlocked_tabs) ? ' This tab has been locked for all '.TICKET_TILE.'.' : '' ?>">
+						<input type="hidden" name="ticket_tab_locks<?= empty($tab) ? '' : '_'.$tab ?>" value="ticket_chemicals" data-toggle="<?= in_array('ticket_chemicals',$unlocked_tabs) ? 1 : 0 ?>">
+						<img class="inline-img" style="<?= in_array('ticket_chemicals',array_merge($unlocked_tabs,$all_unlocked_tabs)) ? '' : 'display:none;' ?>" src="../img/icons/lock.png">
+						<img class="inline-img" style="<?= in_array('ticket_chemicals',array_merge($unlocked_tabs,$all_unlocked_tabs)) ? 'display:none;' : '' ?>" src="../img/icons/lock-open.png"></span><?php } ?></label>
+				<div class="col-sm-4 accordion_rename" style="display: none;">
+					<input type="text" name="renamed_accordion[]" value="<?= !empty($renamed_accordion) ? $renamed_accordion : 'Application Report' ?>" onfocusout="updateAccordion(this);" class="form-control">
+				</div>
+				<div class="col-sm-8">
+					<label class="form-checkbox"><input type="checkbox" <?= in_array("Application Report", $all_config) ? 'checked disabled' : (in_array("Application Report", $value_config) ? "checked" : '') ?> value="Application Report" name="tickets[]"> Enable</label>
+					<div class="block-group">
+						<div class="fields_sortable">
+						<?php foreach ($field_sort_order as $field_sort_field) { ?>
+							<?php if($field_sort_field == 'Equipment') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Equipment", $all_config) ? 'checked disabled' : (in_array("Equipment", $value_config) ? "checked" : '') ?> value="Equipment" name="tickets[]"> Equipment Description</label>
+							<?php } ?>
+							<?php if($field_sort_field == 'Wind Speed') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Wind Speed", $all_config) ? 'checked disabled' : (in_array("Wind Speed", $value_config) ? "checked" : '') ?> value="Wind Speed" name="tickets[]"> Wind Speed</label>
+							<?php } ?>
+							<?php if($field_sort_field == 'Humidity') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Humidity", $all_config) ? 'checked disabled' : (in_array("Humidity", $value_config) ? "checked" : '') ?> value="Humidity" name="tickets[]"> Humidity</label>
+							<?php } ?>
+							<?php if($field_sort_field == 'Temperature') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Temperature", $all_config) ? 'checked disabled' : (in_array("Temperature", $value_config) ? "checked" : '') ?> value="Temperature" name="tickets[]"> Temperature</label>
+							<?php } ?>
+							<?php if($field_sort_field == 'Wind Direction') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Wind Direction", $all_config) ? 'checked disabled' : (in_array("Wind Direction", $value_config) ? "checked" : '') ?> value="Wind Direction" name="tickets[]"> Wind Direction</label>
+							<?php } ?>
+							<?php if($field_sort_field == 'Soil') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Soil", $all_config) ? 'checked disabled' : (in_array("Soil", $value_config) ? "checked" : '') ?> value="Soil" name="tickets[]"> Soil</label>
+							<?php } ?>
+						<?php } ?>
+						</div>
+						<div class="clearfix"></div>
+					</div>
+				</div>
+			</div>
+		<?php }
+
 		if($sort_field == 'Chemicals') { ?>
 			<div class="form-group sort_order_accordion" data-accordion="Chemicals">
 				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Chemicals' ?></span>:<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode && !$intake_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>

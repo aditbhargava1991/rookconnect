@@ -70,6 +70,7 @@ $accordion_list = [
 	'Incident Reports' => [],
 	'Pressure' => ['Pressure Pressure Test','Pressure PSV SET','Pressure Purge Closed'],
 	'Chemicals' => ['Chemical Location','Chemical Hours','Chemical Hrs Cost','Chemical Volume','Chemical Vol Cost','Chemical Total Cost'],
+	'Application Report' => ['Equipment','Wind Speed','Humidity','Temperature','Wind Direction','Soil'],
 	'Intake' => [],
 	'History' => [],
 	'Work History' => ['Work History Services','Work History Service Sub Totals','Work History Staff Tasks','Work History Materials']
