@@ -336,6 +336,11 @@ function filter_equipment(a = '') {
 			$('.dispatch-equipment-group[data-equipment="'+$(this).data('equipment')+'"]').show();
 		}
 	});
+	if($('.dispatch-equipment-group:visible').length > 0) {
+		$('.dispatch-equipment-list-none').hide();
+	} else {
+		$('.dispatch-equipment-list-none').show();
+	}
 
 	var region = $('[name="search_region"]').val();
 	var location = $('[name="search_location"]').val();
