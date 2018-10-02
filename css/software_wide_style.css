@@ -3431,7 +3431,7 @@ position: relative;
 	border: 1px solid #ACA9A9;
 }
 .dispatch-equipment-camera,.dispatch-equipment-signature {
-	opacity: 0.5;
+	opacity: 0.3;
 }
 .dispatch-equipment-camera.active,.dispatch-equipment-signature.active {
 	opacity: 1;

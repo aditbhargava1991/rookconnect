@@ -55,6 +55,7 @@ while($customer_approval = $customer_approvals->fetch_assoc()) {
 								</select>
 							</div>
 						</div>
+						<div class="clearfix"></div>
 					<?php }
 					if(strpos($value_config, ','."Customer Contacted".',') !== FALSE && $field_sort_field == 'Customer Contacted') { ?>
 						<div class="form-group">
@@ -63,6 +64,7 @@ while($customer_approval = $customer_approvals->fetch_assoc()) {
 								<label class="form-checkbox"><input type="checkbox" name="checked_in" data-table="ticket_attached" data-id="<?= $customer_approval['id'] ?>" data-id-field="id" value="<?= empty($customer_approval['checked_in']) ? date('H:i:s') : $customer_approval['checked_in'] ?>" <?= empty($customer_approval['checked_in']) ? '' : 'checked' ?> onclick="var time = new Date(); $(this).val(time.getHours()+':'+time.getMinutes()+':'+time.getSeconds()).change();"> Contacted <?= empty($customer_approval['checked_in']) ? '' : 'at '.date('h:i a',strtotime($customer_approval['checked_in'])) ?></label>
 							</div>
 						</div>
+						<div class="clearfix"></div>
 					<?php }
 					if(strpos($value_config, ','."Customer Reset Details".',') !== FALSE && $field_sort_field == 'Customer Reset Details') { ?>
 						<div class="form-group">
@@ -71,6 +73,7 @@ while($customer_approval = $customer_approvals->fetch_assoc()) {
 								<textarea name="location_from" class="full-width no_tools" data-table="ticket_attached" data-id="<?= $customer_approval['id'] ?>" data-id-field="id"><?= html_entity_decode($customer_approval['location_from']) ?></textarea>
 							</div>
 						</div>
+						<div class="clearfix"></div>
 					<?php } else if(strpos($value_config, ','."Customer Driver Notes".',') !== FALSE && $field_sort_field == 'Customer Driver Notes') { ?>
 						<div class="form-group">
 							<label class="col-sm-4 control-label">Driver Notes:</label>
@@ -78,6 +81,7 @@ while($customer_approval = $customer_approvals->fetch_assoc()) {
 								<textarea name="location_from" class="full-width no_tools" data-table="ticket_attached" data-id="<?= $customer_approval['id'] ?>" data-id-field="id"><?= html_entity_decode($customer_approval['location_from']) ?></textarea>
 							</div>
 						</div>
+						<div class="clearfix"></div>
 					<?php }
 					if(strpos($value_config, ','."Customer Property Photo".',') !== FALSE && $field_sort_field == 'Customer Property Photo') { ?>
 						<div class="form-group">
@@ -92,6 +96,7 @@ while($customer_approval = $customer_approvals->fetch_assoc()) {
 								</div>
 							</div>
 						</div>
+						<div class="clearfix"></div>
 					<?php }
 					if(strpos($value_config, ','."Customer Property Damage".',') !== FALSE && $field_sort_field == 'Customer Property Damage') { ?>
 						<div class="form-group">
@@ -113,6 +118,7 @@ while($customer_approval = $customer_approvals->fetch_assoc()) {
 								</div>
 							</div>
 						</div>
+						<div class="clearfix"></div>
 					<?php }
 					if(strpos($value_config, ','."Customer Product Damage Package".',') !== FALSE && $field_sort_field == 'Customer Product Damage Package') { ?>
 						<div class="form-group">
@@ -141,6 +147,7 @@ while($customer_approval = $customer_approvals->fetch_assoc()) {
 								</div>
 							</div>
 						</div>
+						<div class="clearfix"></div>
 					<?php } else if(strpos($value_config, ','."Customer Product Damage".',') !== FALSE && $field_sort_field == 'Customer Product Damage') { ?>
 						<div class="form-group">
 							<label class="col-sm-4 control-label">My Product Is Damage Free:</label>
@@ -168,6 +175,7 @@ while($customer_approval = $customer_approvals->fetch_assoc()) {
 								</div>
 							</div>
 						</div>
+						<div class="clearfix"></div>
 					<?php }
 					if(strpos($value_config, ','."Customer Rate".',') !== FALSE && $field_sort_field == 'Customer Rate') { ?>
 						<div class="form-group">
@@ -182,6 +190,7 @@ while($customer_approval = $customer_approvals->fetch_assoc()) {
 								</div>
 							</div>
 						</div>
+						<div class="clearfix"></div>
 					<?php } else if(strpos($value_config, ','."Customer Delivery Rate".',') !== FALSE && $field_sort_field == 'Customer Delivery Rate') { ?>
 						<div class="form-group">
 							<label class="col-sm-4 control-label">How Would You Rate Our Delivery Team?</label>
@@ -195,6 +204,7 @@ while($customer_approval = $customer_approvals->fetch_assoc()) {
 								</div>
 							</div>
 						</div>
+						<div class="clearfix"></div>
 					<?php }
 					if(strpos($value_config, ','."Customer Recommend".',') !== FALSE && $field_sort_field == 'Customer Recommend') { ?>
 						<div class="form-group">
@@ -204,6 +214,7 @@ while($customer_approval = $customer_approvals->fetch_assoc()) {
 								<label class="form-checkbox"><input type="radio" name="contact_info__<?= $customer_approval['id'] ?>" value="2" data-table="ticket_attached" data-id="<?= $customer_approval['id'] ?>" data-id-field="id" <?= $customer_approval['contact_info'] == 2 ? 'checked' : '' ?>>No</label>
 							</div>
 						</div>
+						<div class="clearfix"></div>
 					<?php } else if(strpos($value_config, ','."Customer Recommend Likely".',') !== FALSE && $field_sort_field == 'Customer Recommend Likely') { ?>
 						<div class="form-group">
 							<label class="col-sm-4 control-label">How Likely Are You To Recommend Our Delivery Service?</label>
@@ -217,6 +228,7 @@ while($customer_approval = $customer_approvals->fetch_assoc()) {
 								</div>
 							</div>
 						</div>
+						<div class="clearfix"></div>
 					<?php }
 					if(strpos($value_config, ','."Customer Add Details".',') !== FALSE && $field_sort_field == 'Customer Add Details') { ?>
 						<div class="form-group">
@@ -225,6 +237,7 @@ while($customer_approval = $customer_approvals->fetch_assoc()) {
 								<textarea name="weight" class="full-width noMceEditor" data-table="ticket_attached" data-id="<?= $customer_approval['id'] ?>" data-id-field="id"><?= html_entity_decode($customer_approval['weight']) ?></textarea>
 							</div>
 						</div>
+						<div class="clearfix"></div>
 					<?php }
 					if(strpos($value_config, ','."Customer Sign".',') !== FALSE && $field_sort_field == 'Customer Sign') { ?>
 						<div class="form-group">
@@ -235,6 +248,7 @@ while($customer_approval = $customer_approvals->fetch_assoc()) {
 								include('../phpsign/sign_multiple.php'); ?>
 							</div>
 						</div>
+						<div class="clearfix"></div>
 					<?php }
 					if(strpos($value_config, ','."Customer Complete".',') !== FALSE && $field_sort_field == 'Customer Complete') { ?>
 						<div class="form-group">
@@ -245,6 +259,7 @@ while($customer_approval = $customer_approvals->fetch_assoc()) {
 							<?php } ?>
 							<button class="btn brand-btn pull-right" onclick="<?= strpos($value_config,',Finish Button Hide,') !== FALSE ? "$(this).hide();" : "$(this).attr('disabled',true).text('Completed!');" ?>$(this).closest('.customer_notes').find('[name=signature]').change();$(this).closest('.customer_notes').find('input,select,textarea').attr('readonly',true).click(function() { return false; });<?= strpos($value_config, ','."Customer Sign Off Complete Status".',') !== FALSE ? "completeStopStatus(this, '".$customer_approval['stop']."');" : '' ?> $(this).closest('.form-group').find('[name=completed]').val(1).change(); return false;">Complete</button>
 						</div>
+						<div class="clearfix"></div>
 					<?php }
 				} else {
 					if(strpos($value_config, ','."Customer Slider".',') !== FALSE && $field_sort_field == 'Customer Slider' && !($customer_approval['completed'] > 0)) { ?>
