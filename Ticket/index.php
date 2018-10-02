@@ -100,7 +100,23 @@ function blankPDFForm() {
 	                    }
                     } ?>
                 </div>
-                <div class="scale-to-fill" <?= (!empty($_GET['intake_key']) && empty($_SESSION['contactid']) ? 'style="padding-top: 20px;"' : '') ?>>
+                <div class="scale-to-fill" <?= (!empty($_GET['intake_key']) && empty($_SESSION['contactid']) ? 'style="padding-top: 20px;"' : '') ?>><?php
+					if(isset($_GET['intake_key']) && !($_SESSION['contactid'] > 0)) { ?>
+                        <div class="pull-left" style="margin: 1em;">
+                            <?php
+                            $logo_upload = get_config($dbc, 'logo_upload');
+                            $logo_upload_icon = get_config($dbc, 'logo_upload_icon');
+                            if($logo_upload_icon == '') {
+                                if($logo_upload == '') {
+                                    echo '<img src="'.WEBSITE_URL.'/img/logo.png" height="30" alt="'.get_config($dbc, 'company_name').'" class="no-toggle" title="'.get_config($dbc, 'company_name').'" data-placement="bottom" style="margin:0; border: 1px solid #ddd; border-radius: 50%;" />';
+                                } else {
+                                    echo '<img src="'.WEBSITE_URL.'/Settings/download/'.$logo_upload.'" height="30" alt="'.get_config($dbc, 'company_name').'" class="no-toggle" title="'.get_config($dbc, 'company_name').'" data-placement="bottom" style="margin:0; border: 1px solid #ddd; border-radius: 50%;" />';
+                                }
+                            } else {
+                                echo '<img src="'.WEBSITE_URL.'/Settings/download/'.$logo_upload_icon.'" height="30" alt="'.get_config($dbc, 'company_name').'" class="no-toggle" title="'.get_config($dbc, 'company_name').'" data-placement="bottom" style="margin:0; border: 1px solid #ddd; border-radius: 50%;" />';
+                            } ?>
+                        </div>
+                	<?php } ?>
 					<h1 class="gap-left"><a href="?tile_name=<?= $_GET['tile_name'] ?>"><?= TICKET_TILE.(!empty($_GET['tile_name']) ? ': '.$ticket_tabs[$_GET['tile_name']] : '') ?></a><?= isset($_GET['edit']) ? ($ticketid > 0 && $_GET['new_ticket'] != 'true' ? ': <span class="ticketid_span">'.get_ticket_label($dbc, mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticketid`='$ticketid'"))).'</span>' : ': <span class="ticketid_span">New '.TICKET_NOUN.'</span>') : '' ?>
 						<!-- <img class="no-toggle statusIcon pull-right no-margin inline-img small" title="" src="" data-original-title=""> --></h1>
 				</div>
