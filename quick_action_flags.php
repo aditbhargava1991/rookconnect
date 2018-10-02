@@ -23,7 +23,8 @@ if(isset($_POST['submit'])) {
         $flag_start = filter_var($_POST['flag_start'],FILTER_SANITIZE_STRING);
         $flag_end = filter_var($_POST['flag_end'],FILTER_SANITIZE_STRING);
         $flag_user = filter_var(implode(',',$_POST['flag_user']),FILTER_SANITIZE_STRING);
-        if($flag_end == '') {
+
+        if($flag_end == '' || $flag_end == '0000-00-00') {
             $flag_end = '9999-12-31';
         }
     }
@@ -204,7 +205,7 @@ if(isset($_POST['submit'])) {
         break;
 }
 
-if(empty($row['flag_start'])) {
+if(empty($row['flag_start']) || $row['flag_start'] == '0000-00-00') {
     $row['flag_start'] = date('Y-m-d');
 }
 ?>
