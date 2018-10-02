@@ -2,7 +2,7 @@ function get_addresses(sort_date, equipmentid) {
     define_addresses(sort_date, equipmentid, '', '');
     return;
 	// $.ajax({
-		// url: 'calendar_ajax_all.php?fill=mapping_address',
+		// url: '../Calendar/calendar_ajax_all.php?fill=mapping_address',
 		// method: 'POST',
 		// data: {
 			// date: sort_date,
@@ -53,7 +53,7 @@ function get_addresses(sort_date, equipmentid) {
 }
 
 function define_addresses(date, equipmentid, origin, destination) {
-	overlayIFrameSlider('map_set_addresses.php?date='+date+'&equipment='+equipmentid,'auto',false,true);
+	overlayIFrameSlider('../Calendar/map_set_addresses.php?date='+date+'&equipment='+equipmentid,'auto',false,true);
     return;
 	// overlayIFrameSlider('map_set_addresses.php?origin='+encodeURI(origin)+'&destination='+encodeURI(destination));
 	// $('.iframe_overlay .iframe iframe').load(function() {
@@ -155,7 +155,7 @@ function sort_by_map(date, equipmentid, origin_address, destination_address, no_
 
 function get_day_map(date, equipmentid) {
 	$.ajax({
-		url: 'calendar_ajax_all.php?fill=get_ticket_addresses',
+		url: '../Calendar/calendar_ajax_all.php?fill=get_ticket_addresses',
 		method: 'POST',
 		data: {
 			date: date,
