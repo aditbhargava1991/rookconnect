@@ -721,6 +721,29 @@ if (isset($_POST['tasklist'])) {
         //$(task).timepicker('show');
     }
 
+    function quick_estimated_time(task) {
+        task_id = $('[name=tasklistid]').val();
+        $(task).timepicker('option', 'onClose', function(time) {
+            var time = $(task).val();
+            if(time != '' && time != '00:00') {
+                $.ajax({
+                    method: 'POST',
+                    url: '../Tasks_Updated/task_ajax_all.php?fill=task_estimated_time',
+                    data: { id: task_id, time: time+':00' },
+                    complete: function(result) {
+                        $.ajax({
+                            method: 'POST',
+                            url: '../Tasks_Updated/task_ajax_all.php?fill=taskreply',
+                            data: { taskid: task_id, reply: 'Time Estimated '+time+':00' },
+                            complete: function(result) {}
+                        });
+                    }
+                });
+            }
+        });
+        //$(task).timepicker('show');
+    }
+
     function manual_add_time(task) {
         taskid = $(task).data('taskid');
         timer = $(task).attr('name');

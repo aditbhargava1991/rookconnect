@@ -278,5 +278,7 @@ mysqli_query($dbc, "ALTER TABLE `tasklist_time` ADD `start_time` VARCHAR(50) NUL
 
 mysqli_query($dbc, "ALTER TABLE `tasklist` CHANGE `status` `status` VARCHAR(100) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL");
 
+mysqli_query($dbc, "ALTER TABLE `tasklist` ADD `estimated_time` TIME NOT NULL DEFAULT '00:00:00' AFTER `date_of_archival`");
+
     echo "Dayana's DB Changes Done<br />\n";
 ?>
