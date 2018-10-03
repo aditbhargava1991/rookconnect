@@ -275,7 +275,7 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 					<?php } ?>
 				</div>
 			<?php } else { ?>
-				<?php $ticket_stops = mysqli_query($dbc, "SELECT * FROM `ticket_schedule` WHERE `ticketid`='$ticketid' AND `deleted`=0 AND `type` != 'origin' AND `type` != 'destination' $stop_id ORDER BY `sort`");
+				<?php $ticket_stops = mysqli_query($dbc, "SELECT * FROM `ticket_schedule` WHERE `ticketid`='$ticketid' AND `ticketid` > 0 AND `deleted`=0 AND `type` != 'origin' AND `type` != 'destination' $stop_id ORDER BY `sort`");
                 if($ticket_stops->num_rows == 0) {
                     $delivery_default_tabs = get_config($dbc, 'delivery_default_tabs'.($ticket_type == '' ? '' : '_'.$ticket_type));
                     if(empty($delivery_default_tabs) && !empty($ticket_type)) {
