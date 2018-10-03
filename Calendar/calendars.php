@@ -80,8 +80,10 @@ if(!empty($calendar_auto_refresh)) {
 <script>
 function resize_rows() {
     <?php if(get_config($dbc, 'auto_show_time') == 'true') { ?>
-        var top = $('td.today-active a[data-currenttime]').filter(function() { return Date.parse($(this).data('currentdate')+' '+$(this).data('currenttime')) < Date.now(); }).last().offset().top;
-        $('.calendar_view').scrollTop(top);
+        var top = $('td.today-active a[data-currenttime]').filter(function() { return Date.parse($(this).data('currentdate')+' '+$(this).data('currenttime')) < Date.now(); }).last();
+        if(top != undefined) {
+            $('.calendar_view').scrollTop(top.offset().top);
+        }
     <?php } ?>
     <?php if(get_config($dbc, 'auto_size_calendar_blocks') == 'true') { ?>
         var min_size = 0;
