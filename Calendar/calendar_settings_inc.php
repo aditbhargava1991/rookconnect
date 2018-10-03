@@ -92,19 +92,19 @@ if($ticket_status_color_code_legend == 1) {
     $ticket_status_legend = '<b>Status Color Code:</b><br>';
     foreach ($ticket_statuses as $ticket_status) {
         $ticket_status_color_detail = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_ticket_status_color` WHERE `status` = '$ticket_status'"))['color'];
-        $ticket_status_legend .= '<label><div class="ticket-status-color" style="background-color: '.$ticket_status_color_detail.';"></div>'.$ticket_status.'</label>&nbsp;&nbsp;';
+        $ticket_status_legend .= '<label><div class="ticket-status-color" style="background-color: '.$ticket_status_color_detail.';"></div>'.$ticket_status.'</label><br />';
     }
 	/*$ticket_status_color_detail = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_ticket_status_color` WHERE `status` = 'Today'"))['color'];
 	if($ticket_status_color_detail != '') {*/
-		$ticket_status_legend .= '<label><img class="inline-img smaller" src="../img/block/green.png"> Today + Following Day</label>&nbsp;&nbsp;';
+		$ticket_status_legend .= '<label><img class="inline-img smaller" src="../img/block/green.png"> Today + Following Day</label><br />';
 	/*}
 	$ticket_status_color_detail = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_ticket_status_color` WHERE `status` = 'Recent'"))['color'];
 	if($ticket_status_color_detail != '') {*/
-		$ticket_status_legend .= '<label><img class="inline-img smaller" src="../img/block/orange	.png"> Last 2 Days</label>&nbsp;&nbsp;';
+		$ticket_status_legend .= '<label><img class="inline-img smaller" src="../img/block/orange	.png"> Last 2 Days</label><br />';
 	/*}
 	$ticket_status_color_detail = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_ticket_status_color` WHERE `status` = 'Old'"))['color'];
 	if($ticket_status_color_detail != '') {*/
-		$ticket_status_legend .= '<label><img class="inline-img smaller" src="../img/block/red.png"> Older than 2 Day</label>&nbsp;&nbsp;';
+		$ticket_status_legend .= '<label><img class="inline-img smaller" src="../img/block/red.png"> Older than 2 Day</label><br />';
 	/*}*/
 }
 $shift_conflicts_button = !empty(mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_contacts_shifts` WHERE CONCAT(',',`enabled_fields`,',') LIKE '%,conflicts_button,%'"))) ? 1 : 0;
