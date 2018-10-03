@@ -3976,22 +3976,22 @@ if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode && !$int
 					<div class="block-group">
 						<div class="fields_sortable">
 						<?php foreach ($field_sort_order as $field_sort_field) { ?>
-							<?php if($field_sort_field == 'Equipment') { ?>
+							<?php if($field_sort_field == 'Application Equipment') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Application Equipment", $all_config) ? 'checked disabled' : (in_array("Application Equipment", $value_config) ? "checked" : '') ?> value="Application Equipment" name="tickets[]"> Equipment Description</label>
 							<?php } ?>
-							<?php if($field_sort_field == 'Wind Speed') { ?>
+							<?php if($field_sort_field == 'Application Wind Speed') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Application Wind Speed", $all_config) ? 'checked disabled' : (in_array("Application Wind Speed", $value_config) ? "checked" : '') ?> value="Application Wind Speed" name="tickets[]"> Wind Speed</label>
 							<?php } ?>
-							<?php if($field_sort_field == 'Humidity') { ?>
+							<?php if($field_sort_field == 'Application Humidity') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Application Humidity", $all_config) ? 'checked disabled' : (in_array("Application Humidity", $value_config) ? "checked" : '') ?> value="Application Humidity" name="tickets[]"> Humidity</label>
 							<?php } ?>
-							<?php if($field_sort_field == 'Temperature') { ?>
+							<?php if($field_sort_field == 'Application Temperature') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Application Temperature", $all_config) ? 'checked disabled' : (in_array("Application Temperature", $value_config) ? "checked" : '') ?> value="Application Temperature" name="tickets[]"> Temperature</label>
 							<?php } ?>
-							<?php if($field_sort_field == 'Wind Direction') { ?>
+							<?php if($field_sort_field == 'Application Wind Direction') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Application Wind Direction", $all_config) ? 'checked disabled' : (in_array("Application Wind Direction", $value_config) ? "checked" : '') ?> value="Application Wind Direction" name="tickets[]"> Wind Direction</label>
 							<?php } ?>
-							<?php if($field_sort_field == 'Soil') { ?>
+							<?php if($field_sort_field == 'Application Soil') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Application Soil", $all_config) ? 'checked disabled' : (in_array("Application Soil", $value_config) ? "checked" : '') ?> value="Application Soil" name="tickets[]"> Soil</label>
 							<?php } ?>
 						<?php } ?>
