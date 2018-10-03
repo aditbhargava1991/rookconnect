@@ -92,7 +92,8 @@
 
             <div class="pull-right gap-top gap-right gap-bottom">
                 <a href="index.php" class="btn brand-btn">Cancel</a>
-                <button type="submit" name="add_sales" value="Submit" class="btn brand-btn">Save</button>
+                <button type="submit" name="add_sales" value="save_only" style="border: none;background: none;"><img class="no-toggle theme-color-icon" src="<?php echo WEBSITE_URL;?>/img/icons/save.png" alt="Save" width="36" title="" data-original-title="Save"></button>
+                <button type="submit" name="add_sales" value="Submit" class="btn brand-btn">Submit</button>
             </div>
         </div><!-- .preview-block-container -->
     </div><!-- .main-screen-white -->

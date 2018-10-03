@@ -60,7 +60,10 @@ function archive(type, id) {
 		$security_levels = get_security_levels($dbc);
 		$today = date('Y-m-d');
 		$heading = $sub_heading = ''; ?>
-		<div class='block-group form-list'>
+        <div class="standard-body-title">
+            <h3><?= $tab_cat ?></h3>
+        </div>
+		<div class='standard-body-content form-list'>
 			<?php if(mysqli_num_rows($query) > 0) {
 				while($form = mysqli_fetch_assoc($query)) {
 					if($form['listing_type'] == 'hr') {
@@ -68,12 +71,12 @@ function archive(type, id) {
 					} else if($form['listing_type'] == 'manual') {
 						$assigned = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `done` FROM `manuals_staff` WHERE `manualtypeid`='".$form['id']."' AND `staffid`='".$_SESSION['contactid']."' ORDER BY `manualstaffid` DESC"))['done'];
 					}
-					if($heading != $form['heading_number'].' '.$form['heading'] && $form['sub_heading_number'] != '') {
-						$heading = $form['heading_number'].' '.$form['heading'];
+					if($heading != '#'.$form['heading_number'].' '.$form['heading'] && $form['sub_heading_number'] != '') {
+						$heading = '#'.$form['heading_number'].' '.$form['heading'];
 						echo "<div class='heading'>$heading</div>";
 					}
-					if($sub_heading != $form['sub_heading_number'].' '.$form['sub_heading'] && $form['third_heading_number'] != '') {
-						$sub_heading = $form['sub_heading_number'].' '.$form['sub_heading'];
+					if($sub_heading != '#'.$form['sub_heading_number'].' '.$form['sub_heading'] && $form['third_heading_number'] != '') {
+						$sub_heading = '#'.$form['sub_heading_number'].' '.$form['sub_heading'];
 						echo "<div class='sub-heading'>$sub_heading</div>";
 					}
 					$form_name = ($form['third_heading_number'] != '' ? $form['third_heading_number'].' '.$form['third_heading'] : ($form['sub_heading_number'] != '' ? $form['sub_heading_number'].' '.$form['sub_heading'] : $form['heading_number'].' '.$form['heading']));

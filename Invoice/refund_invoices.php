@@ -131,7 +131,7 @@ if((!empty($_GET['action'])) && ($_GET['action'] == 'email')) {
 
     send_email('', $to, '', '', $subject, $body, $attachment);
 
-    echo '<script type="text/javascript"> alert("Invoice Successfully Sent to Patient."); window.location.replace("today_invoice.php"); </script>';
+    echo '<script type="text/javascript"> alert("Invoice Successfully Sent to Patient."); window.location.replace("index.php?tab=today"); </script>';
 
 	//header('Location: unpaid_invoice.php');
     // Send Email to Client
@@ -146,7 +146,7 @@ $(document).ready(function() {
             $('#invoice_div .standard-body').height(available_height);
         }
     }).resize();
-    
+
     $('.all_view').click(function(event) {  //on click
 		var arr = $('.patientid_for_invoice').val().split('_');
         if(this.checked) { // check select status
@@ -169,85 +169,87 @@ function view_summary() {
 }
 </script>
 
-<!-- Summary Blocks --><?php
-if (isset($_POST['display_all_inventory'])) {
-    $search_user = '';
-    $search_invoiceid = '';
-    $search_date = '';
-    $search_clause = "AND (`invoice_date` BETWEEN '".date('Y-m-01')."' AND '".date('Y-m-t')."')";
-} else if(isset($_POST['search_user_submit'])) {
-    $search_user = $_POST['search_user'];
-    $search_invoiceid = $_POST['search_invoiceid'];
-    $search_date = $_POST['search_date'];
-    $search_clause = !empty($search_user) ? "AND `patientid`='$search_user'" : '';
-    $search_clause .= !empty($search_invoiceid) ? " AND `invoiceid`='$search_invoiceid'" : '';
-    $search_clause .= !empty($search_date) ? " AND `invoice_date`='$search_date'" : '';
-} else if(!empty($_GET['search_user'])) {
-    $search_user = $_GET['search_user'];
-    $search_invoiceid = '';
-    $search_date = '';
-    $search_clause = !empty($search_user) ? "AND `patientid`='$search_user'" : '';
-} else if(!empty($_GET['search_invoice'])) {
-    $search_invoiceid = $_GET['search_invoice'];
-    $search_user = '';
-    $search_date = '';
-    $search_clause = !empty($search_invoiceid) ? " AND `invoiceid`='$search_invoiceid'" : '';
-} else if(!empty($_GET['search_date'])) {
-    $search_date = $_GET['search_date'];
-    $search_user = '';
-    $search_invoiceid = '';
-    $search_clause = !empty($search_date) ? " AND `invoice_date`='$search_date'" : '';
-} else {
-    $search_user = '';
-    $search_invoiceid = '';
-    $search_date = '';
-    $search_clause = "AND (`invoice_date` BETWEEN '".date('Y-m-01')."' AND '".date('Y-m-t')."')";
-} ?>
-<div class="view_summary double-gap-bottom" style="display:none;">
-    <div class="col-xs-12 col-sm-4 gap-top">
-        <div class="summary-block">
-            <?php $total_invoices = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT SUM(`final_price`) `final_price` FROM `invoice` WHERE `deleted`=0 $search_clause")); ?>
-            <div class="text-lg"><?= ( $total_invoices['final_price'] > 0 ) ? '<a href="../Reports/report_tiles.php?type=sales&report=POS%20Advanced%20Sales%20Summary&landing=true&pos_submit=yes&from='.$search_from.'&to='.$search_to.'">$'.number_format($total_invoices['final_price'], 2).'</a>' : '$'. 0; ?></div>
-            <div>Total Invoices</div>
-        </div>
-    </div>
-    <div class="col-xs-12 col-sm-4 gap-top">
-        <div class="summary-block"><?php
-            $ar_types = array('On Account', 'Net 30', 'Net 30 Days', 'Net 60', 'Net 60 Days', 'Net 90', 'Net 90 Days', 'Net 120', 'Net 120 Days');
-            $ar_amounts = 0;
-            $nonar_amounts = 0;
-            $ar_invoices = mysqli_query($dbc, "SELECT `payment_type` FROM `invoice` WHERE `deleted`=0 $search_clause");
-            while ( $row = mysqli_fetch_assoc($ar_invoices) ) {
-                list($payment_types, $payment_amounts) = explode('#*#', $row['payment_type']);
-                $types = explode(',', $payment_types);
-                $amounts = explode(',', $payment_amounts);
-                $count = count($types);
-                for ( $i=0; $i <= $count; $i++ ) {
-                    if ( in_array($types[$i], $ar_types) ) {
-                        $ar_amounts += $amounts[$i];
-                    } else {
-                        $nonar_amounts += $amounts[$i];
-                    }
-                }
-            } ?>
-            <div class="text-lg"><?= ( $ar_amounts > 0 ) ? '<a href="../Reports/report_tiles.php?type=sales&report=POS%20Advanced%20Sales%20Summary&landing=true&pos_submit=yes&from='.$search_from.'&to='.$search_to.'">$'.number_format($ar_amounts, 2).'</a>' : '$'. 0; ?></div>
-            <div>Total A/R Invoices</div>
-        </div>
-    </div>
-    <div class="col-xs-12 col-sm-4 gap-top">
-        <div class="summary-block">
-            <div class="text-lg"><?= ( $nonar_amounts > 0 ) ? '<a href="../Reports/report_tiles.php?type=sales&report=POS%20Advanced%20Sales%20Summary&landing=true&pos_submit=yes&from='.$search_from.'&to='.$search_to.'">$'.number_format($nonar_amounts, 2).'</a>' : '$'. 0; ?></div>
-            <div>Total Paid Invoices</div>
-        </div>
-    </div>
-    <div class="clearfix"></div>
-</div><!-- .view_summary -->
-
 <div class="standard-body-title hide-titles-mob">
-    <h3>Refund / Adjustments</h3>
+    <h3 class="pull-left">Refund / Adjustments</h3>
+    <div class="pull-right"><img src="../img/icons/pie-chart.png" class="no-toggle cursor-hand offset-top-15 double-gap-right" title="View Summary" onclick="view_summary();" /></div>
+    <div class="clearfix"></div>
 </div>
 
 <div class="standard-body-content padded-desktop">
+    <!-- Summary Blocks --><?php
+    if (isset($_POST['display_all_inventory'])) {
+        $search_user = '';
+        $search_invoiceid = '';
+        $search_date = '';
+        $search_clause = "AND (`invoice_date` BETWEEN '".date('Y-m-01')."' AND '".date('Y-m-t')."')";
+    } else if(isset($_POST['search_user_submit'])) {
+        $search_user = $_POST['search_user'];
+        $search_invoiceid = $_POST['search_invoiceid'];
+        $search_date = $_POST['search_date'];
+        $search_clause = !empty($search_user) ? "AND `patientid`='$search_user'" : '';
+        $search_clause .= !empty($search_invoiceid) ? " AND `invoiceid`='$search_invoiceid'" : '';
+        $search_clause .= !empty($search_date) ? " AND `invoice_date`='$search_date'" : '';
+    } else if(!empty($_GET['search_user'])) {
+        $search_user = $_GET['search_user'];
+        $search_invoiceid = '';
+        $search_date = '';
+        $search_clause = !empty($search_user) ? "AND `patientid`='$search_user'" : '';
+    } else if(!empty($_GET['search_invoice'])) {
+        $search_invoiceid = $_GET['search_invoice'];
+        $search_user = '';
+        $search_date = '';
+        $search_clause = !empty($search_invoiceid) ? " AND `invoiceid`='$search_invoiceid'" : '';
+    } else if(!empty($_GET['search_date'])) {
+        $search_date = $_GET['search_date'];
+        $search_user = '';
+        $search_invoiceid = '';
+        $search_clause = !empty($search_date) ? " AND `invoice_date`='$search_date'" : '';
+    } else {
+        $search_user = '';
+        $search_invoiceid = '';
+        $search_date = '';
+        $search_clause = "AND (`invoice_date` BETWEEN '".date('Y-m-01')."' AND '".date('Y-m-t')."')";
+    } ?>
+    <div class="view_summary double-gap-bottom" style="display:none;">
+        <div class="col-xs-12 col-sm-4 gap-top">
+            <div class="summary-block">
+                <?php $total_invoices = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT SUM(`final_price`) `final_price` FROM `invoice` WHERE `deleted`=0 $search_clause")); ?>
+                <div class="text-lg"><?= ( $total_invoices['final_price'] > 0 ) ? '<a href="../Reports/report_tiles.php?type=sales&report=POS%20Advanced%20Sales%20Summary&landing=true&pos_submit=yes&from='.$search_from.'&to='.$search_to.'">$'.number_format($total_invoices['final_price'], 2).'</a>' : '$'. 0; ?></div>
+                <div>Total Invoices</div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-4 gap-top">
+            <div class="summary-block"><?php
+                $ar_types = array('On Account', 'Net 30', 'Net 30 Days', 'Net 60', 'Net 60 Days', 'Net 90', 'Net 90 Days', 'Net 120', 'Net 120 Days');
+                $ar_amounts = 0;
+                $nonar_amounts = 0;
+                $ar_invoices = mysqli_query($dbc, "SELECT `payment_type` FROM `invoice` WHERE `deleted`=0 $search_clause");
+                while ( $row = mysqli_fetch_assoc($ar_invoices) ) {
+                    list($payment_types, $payment_amounts) = explode('#*#', $row['payment_type']);
+                    $types = explode(',', $payment_types);
+                    $amounts = explode(',', $payment_amounts);
+                    $count = count($types);
+                    for ( $i=0; $i <= $count; $i++ ) {
+                        if ( in_array($types[$i], $ar_types) ) {
+                            $ar_amounts += $amounts[$i];
+                        } else {
+                            $nonar_amounts += $amounts[$i];
+                        }
+                    }
+                } ?>
+                <div class="text-lg"><?= ( $ar_amounts > 0 ) ? '<a href="../Reports/report_tiles.php?type=sales&report=POS%20Advanced%20Sales%20Summary&landing=true&pos_submit=yes&from='.$search_from.'&to='.$search_to.'">$'.number_format($ar_amounts, 2).'</a>' : '$'. 0; ?></div>
+                <div>Total A/R Invoices</div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-4 gap-top">
+            <div class="summary-block">
+                <div class="text-lg"><?= ( $nonar_amounts > 0 ) ? '<a href="../Reports/report_tiles.php?type=sales&report=POS%20Advanced%20Sales%20Summary&landing=true&pos_submit=yes&from='.$search_from.'&to='.$search_to.'">$'.number_format($nonar_amounts, 2).'</a>' : '$'. 0; ?></div>
+                <div>Total Paid Invoices</div>
+            </div>
+        </div>
+        <div class="clearfix"></div>
+    </div><!-- .view_summary -->
+
     <form name="invoice" method="post" action="" class="form-horizontal" role="form">
     <div class="notice double-gap-bottom popover-examples">
         <div class="col-sm-1 notice-icon"><img src="<?= WEBSITE_URL; ?>/img/info.png" class="wiggle-me" width="25"></div>
@@ -454,7 +456,7 @@ if (isset($_POST['display_all_inventory'])) {
                 if(file_exists($name_of_file)) {
                     //$md5 = md5_file($name_of_file);
                     //if($md5 == $row['invoice_md5']) {
-                        echo '<a href="'.$name_of_file.'" target="_blank">Invoice #'.$row['invoiceid'].' <img src="'.WEBSITE_URL.'/img/pdf.png" title="PDF"></a><br />';
+                        echo '<a href="'.$name_of_file.'" target="_blank">Invoice #'.$row['invoiceid'].' <img src="'.WEBSITE_URL.'/img/icons/pdf.png" title="Invoice PDF" class="no-toggle inline-img" /></a><br />';
                         //echo '| <a href=\'unpaid_invoice.php?action=email&invoiceid='.$row['invoiceid'].'&patientid='.$patientid.'\' >Email</a></td>';
                     //} else {
                     //    echo '<td>(Error : File has been Changed)</td>';
@@ -464,7 +466,7 @@ if (isset($_POST['display_all_inventory'])) {
             if($row['invoiceid_src'] > 0) {
                 $name_of_file = 'download/invoice_'.$row['invoiceid_src'].'.pdf';
                 if(file_exists($name_of_file)) {
-                    echo '<a href="'.$name_of_file.'" target="_blank">Primary Invoice #'.$row['invoiceid_src'].' <img src="'.WEBSITE_URL.'/img/pdf.png" title="PDF"></a>';
+                    echo '<a href="'.$name_of_file.'" target="_blank">Primary Invoice #'.$row['invoiceid_src'].' <img src="'.WEBSITE_URL.'/img/icons/pdf.png" title="Primary Invoice PDF" class="no-toggle inline-img" /></a>';
                 }
             }
             echo '</td>';
@@ -508,10 +510,10 @@ if (isset($_POST['display_all_inventory'])) {
                     echo '<td data-title="Function"><a href=\'add_invoice.php?invoiceid='.$row['invoiceid'].'&contactid='.$row['patientid'].'&search_user='.$search_user.'&search_invoice='.$search_invoiceid.'\' >Edit</a>';
                     $role = $_SESSION['role'];
                     if($role== 'super' || $role == ',office_admin,' || $role == ',executive_front_staff,') {
-                        echo ' | <a onclick="return confirm(\'Are you sure you want to archive this invoice?\')" href=\'today_invoice.php?invoiceid='.$row['invoiceid'].'&action=delete\' >Archive</a>';
+                        echo ' | <a onclick="return confirm(\'Are you sure you want to archive this invoice?\')" href=\'index.php?tab=today?invoiceid='.$row['invoiceid'].'&action=delete\' >Archive</a>';
                     }
                 } else {
-                    echo '<td data-title="Function"><a href=\'adjust_invoice.php?invoiceid='.($row['invoiceid_src'] == 0 ? $row['invoiceid'] : $row['invoiceid_src']).'&contactid='.$row['patientid'].'&search_user='.$search_user.'&search_invoice='.$search_invoiceid.'\' >Refund / Adjustments</a>';
+                    echo '<td data-title="Function"><a class="cursor-hand" href="create_invoice.php?invoiceid='.($row['invoiceid_src'] == 0 ? $row['invoiceid'] : $row['invoiceid_src']).'&inv_mode=adjust"><img src="../img/icons/refund.png" class="no-toggle inline-img" title="Refund / Adjustment" /></a>';
                 }
             //} else {
             //    echo '<td>-</td>';

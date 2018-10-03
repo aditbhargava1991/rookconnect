@@ -92,6 +92,26 @@ $(document).ready(function() {
 $(window).load(function() {
 	destroyTinyMce();
 });
+$(document).on('click', 'img[src*="ROOK-add-icon.png"][data-history-label]', function() {
+	var label = $(this).data('history-label');
+	var section = $(this).closest('.tab-section').find('h3').first().text();
+	addClickHistory('Add', label, section);
+});
+$(document).on('click', 'img[src*="remove.png"][data-history-label]', function() {
+	var label = $(this).data('history-label');
+	var section = $(this).closest('.tab-section').find('h3').first().text();
+	addClickHistory('Remove', label, section);
+});
+function addClickHistory(icon, label, section) {
+	$.ajax({
+		url: '../Ticket/ticket_ajax_all.php?action=ticket_click_history',
+		method: 'POST',
+		data: { ticketid: ticketid, section: section, label: label, icon: icon },
+		success:function(response) {
+
+		}
+	});
+}
 function destroyTinyMce() {
 	// if($('#textarea_style').val() == 'no_editor') {
 		// destroyInputs('.tab-section');
@@ -242,11 +262,17 @@ function setSave() {
 			$(this).find('span').toggle();
 			if($(this).find('.toggle').data('no-toggle-off') != undefined && $(this).find('.toggle').data('no-toggle-off') == 1) {
 				$(this).find('.toggle').val(1).change();
-				reload_checkin();
+				if(typeof still_reloading_tab != 'undefined') {
+					clearInterval(still_reloading_tab);
+				}
+				reload_checkin($(this).closest('.tab-section'));
 			} else {
 				$(this).find('.toggle').val($(this).find('.toggle').val() == 1 ? 0 : 1).change();
 				if($(this).hasClass('staffSwitch')) {
-					reload_checkin();
+					if(typeof still_reloading_tab != 'undefined') {
+						clearInterval(still_reloading_tab);
+					}
+					reload_checkin($(this).closest('.tab-section'));
 				}
 			}
 			reload_summary();
@@ -348,7 +374,7 @@ function saveFieldMethod(field) {
 		field = field.target;
 	}
 	if($('#new_ticket_from_calendar').val() == '1') {
-		$('#new_ticket_from_calendar').val('0');
+		$('#new_ticket_from_calendar').val(0);
 		saveNewTicketFromCalendar(field);
 		return;
 	} else if($(field).data('table') != 'tickets' && !(ticketid > 0)) {
@@ -432,7 +458,7 @@ function saveFieldMethod(field) {
 			});
 		} else if(field.value == 'ADD_NEW') {
 			if($(field).data('table') != 'inventory') {
-				overlayIFrameSlider('../Contacts/contacts_inbox.php?fields=all_fields&edit=new&category='+$(field).data('category')+(field.name == 'clientid' ? '&businessid='+$('[name=businessid]').val() : ''), '75%', true, true);
+				overlayIFrameSlider('../Contacts/contacts_inbox.php?fields=all_fields&edit=new&category='+$(field).data('category')+(field.name == 'clientid' ? '&businessid='+$('select[name=businessid]').val() : ''), '75%', true, true);
 				iframe_contactid = 0;
 				var this_category = $(field).data('category');
 				var iframe_check = setInterval(function() {
@@ -501,7 +527,7 @@ function saveFieldMethod(field) {
 				save_value = value.join('#*#');
 			} else if($(field).is('[data-concat]')) {
 				var value = [];
-				$('[name='+field.name+'][data-concat="'+$(field).data('concat')+'"]').filter(function() { return $(this).data('id') == $(field).data('id'); }).each(function() {
+				$('[name='+field.name+'][data-concat="'+$(field).data('concat')+'"]').filter(function() { return $(this).data('id') == $(field).data('id') && $(this).data('group') == $(field).data('group'); }).each(function() {
 					if(!$(this).is(':disabled') && (this.type != 'checkbox' || this.checked)) {
 						value.push(this.value);
 					}
@@ -619,10 +645,14 @@ function saveFieldMethod(field) {
 				success: function(response) {
 					updateTicketLabel();
 					if(field_name == 'status' && response == 'created_unscheduled_stop') {
-                        reloadTab('ticket_customer_notes');
+						if($(field).closest('.tab-section').prop('id') != undefined && $(field).closest('.tab-section').prop('id').indexOf('customer_notes') == -1) {
+	                        reloadTab('ticket_customer_notes');
+	                    }
 						reload_delivery();
 					} else if(field_name == 'status') {
-                        reloadTab('ticket_customer_notes');
+						if($(field).closest('.tab-section').prop('id') != undefined && $(field).closest('.tab-section').prop('id').indexOf('customer_notes') == -1) {
+	                        reloadTab('ticket_customer_notes');
+	                    }
                     } else if(table_name == 'ticket_attached' && field_name == 'piece_type') {
 						var i = 1;
 						$('#tab_section_ticket_inventory_general .multi-block h4').each(function() {
@@ -649,9 +679,6 @@ function saveFieldMethod(field) {
 						}
 					}
 					if(response > 0) {
-						$('[name=to_do_date]').change();
-						$('[name=contactid]').first().change();
-						$('[name="status"]').change();
 						if(table_name == 'contacts' && field_name == 'site_name') {
 							$(field).closest('.site_group').find('[name=siteid],[name="siteid[]"]').find('option[value="MANUAL"]').prop('selected', false);
 							$(field).closest('.site_group').find('[name=siteid],[name="siteid[]"]').append('<option selected data-police="911" value="'+response+'">'+save_value+'</option>').trigger('change.select2').change();
@@ -710,10 +737,14 @@ function saveFieldMethod(field) {
 							}
 							$('[name=ticketid]').val(ticketid);
 							window.history.replaceState('',"Software", window.location.href.replace('edit=0','edit='+ticketid));
+							if($('[name="intake_alerted"]').val() == 1) {
+								alert('Your '+$('[name="global_ticket_noun"]').val()+' ID is '+ticketid+'. Please keep this for your reference. You will not be able to edit this '+$('[name="global_ticket_noun"]').val()+' once you leave this page.');
+								$('[name="intake_alerted"]').val(0);
+							}
 							$('.ticket_timer_div').show();
 							if((field_name != 'projectid' && field_name != 'businessid' && $('[name=projectid]').val() > 0 && $('[name=projectid]').data('id') > 0) || $('[name=projectid]').length == 0) {
 								$('[name=projectid]').filter(function() { return this.value != ''; }).first().change();
-								$('[name=businessid]').filter(function() { return this.value != ''; }).first().change();
+								$('select[name=businessid]').filter(function() { return this.value != ''; }).first().change();
 								if(field_name != 'clientid')
 									$('[name=clientid]').filter(function() { return this.value != ''; }).first().change();
 								if(field_name != 'milestone_timeline')
@@ -723,7 +754,7 @@ function saveFieldMethod(field) {
 								if(field_name != 'ticket_type')
 									$('[name=ticket_type]').filter(function() { return this.value != ''; }).first().change();
 							} else if(field_name != 'businessid' && field_name != 'clientid' && field_name != 'projectid') {
-								$('[name=businessid]').filter(function() { return this.value != ''; }).last().change();
+								$('select[name=businessid]').filter(function() { return this.value != ''; }).last().change();
 								$('[name=clientid]').filter(function() { return this.value != ''; }).last().change();
 								$('[name=serviceid]').filter(function() { return this.value != ''; }).first().change();
 							}
@@ -748,6 +779,12 @@ function saveFieldMethod(field) {
 							var staff_attached_id = $(field).closest('.staff_block').find('[data-id]').first().data('id');
 							$(field).closest('.staff-multi-time').find('[name="item_id"]').val(staff_attached_id).change();
 						}
+						if(table_name == 'ticket_schedule' && field_name != 'type' && $(field).closest('.tab-section').hasClass('scheduled_stop')) {
+							$(field).closest('.scheduled_stop').find('[name="type"]').change();
+						}
+						$('[name=to_do_date]').change();
+						$('[name=contactid]').first().change();
+						$('[name="status"]').change();
 					} else if(response.split('#*#')[0] == 'ERROR') {
 						alert(response.split('#*#')[1]);
 					} else if(response != '' && (field_name == 'signature' || field_name == 'witnessed')) {
@@ -782,7 +819,10 @@ function saveFieldMethod(field) {
 						line.find('[name=hours_tracked]').val(hours+':'+('00'+minutes).slice(-2));
 					}
 					if(table_name == 'ticket_attached' && data_type != 'medication' && (response > 0 || field_name == 'item_id')) {
-						reload_checkin();
+						if(typeof still_reloading_tab != 'undefined') {
+							clearInterval(still_reloading_tab);
+						}
+						reload_checkin($(field).closest('.tab-section'));
 						reload_summary();
 					} else if(field_name == 'sign_off_signature') {
 						$.ajax({
@@ -875,7 +915,33 @@ function saveFieldMethod(field) {
 							}
 						}, 250);
 					}
-					if(field_name == 'serviceid' || field_name == 'service_qty') {
+					if(field_name == 'businessid' && table_name == 'tickets') {
+                        $.get('../Ticket/ticket_ajax_all.php', {
+                            action: 'business_services',
+                            business: $('select[name=businessid]').val()
+                        }, function(response) {
+                            $('[name=serviceid]').empty().html(response);
+                            $.get('../Ticket/ticket_ajax_all.php', {
+                                contactid: $('select[name=businessid]').val(),
+                                action: 'list_customer_service_templates'
+                            }, function(response) {
+                                $('[name=default_services]').val(response);
+                                $('[name=default_services]').each(function() {
+                                    var services = this.value.trim(',').split(',');
+                                    for(var i = 0; i < services.length; i++) {
+                                        $('.scheduled_stop [name=serviceid]').last().each(function() {
+                                            if(services[i] > 0) {
+                                                if(i > 0) {
+                                                    addMulti(this);
+                                                }
+                                                $(this).val(services[i]).change();
+                                            }
+                                        });
+                                    }
+                                });
+                            });
+                        });
+                    } else if(field_name == 'serviceid' || field_name == 'service_qty') {
 						clearTimeout(ticket_reloading_service_checklist);
 						ticket_reloading_service_checklist = setTimeout(function() {
 							reload_service_checklist();
@@ -948,7 +1014,10 @@ function saveFieldMethod(field) {
 						limitServiceCategory();
 					}
 					if(table_name == 'ticket_attached' && field_name == 'arrived' && $('[name="reload_checkout_on_checkin"]').val() != undefined && $('[name="reload_checkout_on_checkin"]').val() == 1) {
-						reload_checkin();
+						if(typeof still_reloading_tab != 'undefined') {
+							clearInterval(still_reloading_tab);
+						}
+						reload_checkin($(field).closest('.tab-section'));
 					}
 					if(table_name == 'ticket_attached' && field_name == 'arrived' && $('[name="reload_checklist_on_checkin"]').val() != undefined && $('[name="reload_checklist_on_checkin"]').val() == 1) {
 						reload_service_checklist();
@@ -985,6 +1054,9 @@ function saveFieldMethod(field) {
           }
 					if(table_name == 'tickets' && field_name == 'purchase_order') {
 						reload_po_num_dropdown();
+					}
+					if(field_name == 'clientid' && typeof filterSitesByClient == 'function') {
+						filterSitesByClient();
 					}
 					doneSaving();
 				}
@@ -1108,7 +1180,7 @@ function saveMethod(field) {
 				}
 			});
 		} else if(field.value == 'ADD_NEW') {
-			overlayIFrameSlider('../Contacts/contacts_inbox.php?fields=all_fields&edit=new&category='+$(field).data('category')+(field.name == 'clientid' ? '&businessid='+$('[name=businessid]').val() : ''), '75%', true, true);
+			overlayIFrameSlider('../Contacts/contacts_inbox.php?fields=all_fields&edit=new&category='+$(field).data('category')+(field.name == 'clientid' ? '&businessid='+$('select[name=businessid]').val() : ''), '75%', true, true);
 			iframe_contactid = 0;
 			var this_category = $(field).data('category');
 			var iframe_check = setInterval(function() {
@@ -1332,13 +1404,13 @@ function saveMethod(field) {
 							$('.ticket_timer_div').show();
 							if((field_name != 'projectid' && field_name != 'businessid' && $('[name=projectid]').val() > 0 && $('[name=projectid]').data('id') > 0) || $('[name=projectid]').length == 0) {
 								$('[name=projectid]').filter(function() { return this.value != ''; }).change();
-								$('[name=businessid]').filter(function() { return this.value != ''; }).change();
+								$('select[name=businessid]').filter(function() { return this.value != ''; }).change();
 								$('[name=clientid]').filter(function() { return this.value != ''; }).change();
 								$('[name=milestone_timeline]').filter(function() { return this.value != ''; }).change();
 								$('[name=ticket_type]').filter(function() { return this.value != ''; }).change();
 								$('[name=serviceid]').filter(function() { return this.value != ''; }).first().change();
 							} else if(field_name != 'businessid' && field_name != 'clientid' && field_name != 'projectid') {
-								$('[name=businessid]').filter(function() { return this.value != ''; }).last().change();
+								$('select[name=businessid]').filter(function() { return this.value != ''; }).last().change();
 								$('[name=clientid]').filter(function() { return this.value != ''; }).last().change();
 								$('[name=serviceid]').filter(function() { return this.value != ''; }).first().change();
 							}
@@ -1386,7 +1458,10 @@ function saveMethod(field) {
 						$(field).after('<a href="'+field.value+'">'+field.value+'</a>');
 					}
 					if(table_name == 'ticket_attached' && data_type != 'medication' && (response > 0 || field_name == 'item_id')) {
-						reload_checkin();
+						if(typeof still_reloading_tab != 'undefined') {
+							clearInterval(still_reloading_tab);
+						}
+						reload_checkin($(field).closest('.tab-section'));
 						reload_summary();
 					} else if(field_name == 'sign_off_signature') {
 						$.ajax({
@@ -1526,7 +1601,10 @@ function saveMethod(field) {
 						limitServiceCategory();
 					}
 					if(table_name == 'ticket_attached' && field_name == 'arrived' && $('[name="reload_checkout_on_checkin"]').val() != undefined && $('[name="reload_checkout_on_checkin"]').val() == 1) {
-						reload_checkin();
+						if(typeof still_reloading_tab != 'undefined') {
+							clearInterval(still_reloading_tab);
+						}
+						reload_checkin($(field).closest('.tab-section'));
 					}
 				}
 			});
@@ -1609,7 +1687,11 @@ function sign_off_complete_force() {
 function reloadTab(name) {
 	if(name != undefined && name != '') {
 		$('#tab_section_'+name).each(function() {
-			$(this).load('edit_ticket_tab.php?ticketid='+ticketid+'&tab='+name+'&stop='+stopid);
+			stopid_query = '';
+			if(typeof stopid != 'undefined') {
+				stopid_query = '&stop='+stopid;
+			}
+			$(this).load('edit_ticket_tab.php?ticketid='+ticketid+'&tab='+name+stopid_query);
 		});
 	}
 }
@@ -1643,7 +1725,48 @@ function reload_billing() {
 		setBilling();
 	});
 }
-function reload_checkin() {
+if(typeof checkin_ajax == 'undefined') {
+	checkin_ajax = [];
+}
+if(typeof still_reloading_tab == 'undefined') {
+	still_reloading_tab = '';
+} else if(checkin_ajax.length == 0) {
+	clearInterval(still_reloading_tab);
+}
+if(typeof checkin_running == 'undefined') {
+	checkin_running = false;
+}
+function reload_checkin(tab_section = '') {
+	var tab_id = '';
+	if(tab_section != '') {
+		var tab_id = $(tab_section).attr('id');
+	}
+	clearInterval(still_reloading_tab);
+	checkin_running = false;
+	checkin_ajax = [];
+	if(tab_id != 'tab_section_ticket_checkin' && tab_id != 'tab_section_ticket_staff_list') {
+		checkin_ajax.push(function() { reload_checkin_checkin(); });
+		checkin_ajax.push(function() { reload_checkin_staff_checkin(); });
+	}
+	if(tab_id != 'tab_section_ticket_checkout' && tab_id != 'tab_section_ticket_checkout_staff') {
+		checkin_ajax.push(function() { reload_checkin_checkout(); });
+		checkin_ajax.push(function() { reload_checkin_staff_checkout(); });
+	}
+
+	still_reloading_tab = setInterval(function() {
+		if(checkin_ajax.length == 0) {
+			clearInterval(still_reloading_tab);
+			setSave();
+			initSelectOnChanges();
+			reload_complete();
+		} else if(!checkin_running) {
+			checkin_running = true;
+			checkin_ajax.shift()();
+		}
+	}, 50);
+}
+function reload_checkin_checkin() {
+	console.log('checkin');
 	destroyInputs($('#collapse_ticket_checkin,#tab_section_ticket_checkin'));
 	$.ajax({
 		url: '../Ticket/add_ticket_checkin.php?folder='+folder_name+'&ticketid='+ticketid+'&action_mode='+$('#action_mode').val(),
@@ -1652,39 +1775,48 @@ function reload_checkin() {
 			$('#collapse_ticket_checkin .panel-body,#tab_section_ticket_checkin').html(response);
 			initInputs('#collapse_ticket_checkin');
 			initInputs('#tab_section_ticket_checkin');
-			destroyInputs($('#collapse_ticket_checkout,#tab_section_ticket_checkout'));
-			$.ajax({
-				url: '../Ticket/add_ticket_checkout.php?folder='+folder_name+'&ticketid='+ticketid+'&action_mode='+$('#action_mode').val(),
-				dataType: 'html',
-				success: function(response) {
-					$('#collapse_ticket_checkout .panel-body,#tab_section_ticket_checkout').html(response);
-					initInputs('#collapse_ticket_checkout');
-					initInputs('#tab_section_ticket_checkout');
-					destroyInputs($('#collapse_ticket_checkout_staff,#tab_section_ticket_checkout_staff'));
-					$.ajax({
-						url: '../Ticket/add_ticket_checkout.php?folder='+folder_name+'&ticketid='+ticketid+'&action_mode='+$('#action_mode').val()+'&staffcheckout=true',
-						dataType: 'html',
-						success: function(response) {
-							$('#collapse_ticket_checkout_staff .panel-body,#tab_section_ticket_checkout_staff').html(response);
-							initInputs('#collapse_ticket_checkout');
-							initInputs('#tab_section_ticket_checkout_staff');
-							if($('#collapse_ticket_staff_list,#tab_section_ticket_staff_list').find('.toggleSwitch').length > 0) {
-								destroyInputs('#collapse_ticket_staff_list,#tab_section_ticket_staff_list');
-								$('#collapse_ticket_staff_list .panel-body,#tab_section_ticket_staff_list').load('../Ticket/edit_ticket_tab.php?tab=ticket_staff_list&ticketid='+ticketid, function() {
-									setSave();
-									initSelectOnChanges();
-									initInputs('#collapse_ticket_staff_list');
-									initInputs('#tab_section_ticket_staff_list');
-								});
-							} else {
-								setSave();
-								initSelectOnChanges();
-								reload_complete();
-							}
-						}
-					});
-				}
-			});
+			checkin_running = false;
+		}
+	});
+}
+function reload_checkin_checkout() {
+	console.log('checkout');
+	destroyInputs($('#collapse_ticket_checkout,#tab_section_ticket_checkout'));
+	$.ajax({
+		url: '../Ticket/add_ticket_checkout.php?folder='+folder_name+'&ticketid='+ticketid+'&action_mode='+$('#action_mode').val(),
+		dataType: 'html',
+		success: function(response) {
+			$('#collapse_ticket_checkout .panel-body,#tab_section_ticket_checkout').html(response);
+			initInputs('#collapse_ticket_checkout');
+			initInputs('#tab_section_ticket_checkout');
+			checkin_running = false;
+		}
+	});
+}
+function reload_checkin_staff_checkin() {
+	console.log('staff_checkin');
+	if($('#collapse_ticket_staff_list,#tab_section_ticket_staff_list').find('.toggleSwitch').length > 0) {
+		destroyInputs('#collapse_ticket_staff_list,#tab_section_ticket_staff_list');
+		$('#collapse_ticket_staff_list .panel-body,#tab_section_ticket_staff_list').load('../Ticket/edit_ticket_tab.php?tab=ticket_staff_list&ticketid='+ticketid, function() {
+			initInputs('#collapse_ticket_staff_list');
+			initInputs('#tab_section_ticket_staff_list');
+			checkin_running = false;
+		});
+	} else {
+		checkin_running = false;
+	}
+}
+function reload_checkin_staff_checkout() {
+	console.log('staff_checkout');
+	destroyInputs($('#collapse_ticket_checkout_staff,#tab_section_ticket_checkout_staff'));
+	$.ajax({
+		url: '../Ticket/add_ticket_checkout.php?folder='+folder_name+'&ticketid='+ticketid+'&action_mode='+$('#action_mode').val()+'&staffcheckout=true',
+		dataType: 'html',
+		success: function(response) {
+			$('#collapse_ticket_checkout_staff .panel-body,#tab_section_ticket_checkout_staff').html(response);
+			initInputs('#collapse_ticket_checkout');
+			initInputs('#tab_section_ticket_checkout_staff');
+			checkin_running = false;
 		}
 	});
 }
@@ -2013,7 +2145,12 @@ function addMulti(img, style, clone_location = '') {
 	}
 	destroyInputs(panel);
 	var block = source.clone();
-	block.find('.staff_multiple_times').find('.staff-multi-time:not(:first)').remove();
+	block.find('[data-id]').each(function() {
+        if($(this).data('id') == '') {
+            $(this).data('id',source.find('[data-table="'+$(this).data('table')+'"][name="'+this.name+'"][data-id]').data('id'));
+        }
+    });
+    block.find('.staff_multiple_times').find('.staff-multi-time:not(:first)').remove();
 	block.find('input,select,textarea').val('');
 	block.find('[data-default]').each(function() {
 		$(this).val($(this).data('default'));
@@ -2043,7 +2180,7 @@ function addMulti(img, style, clone_location = '') {
 	block.find('[data-table=tickets][data-id]').each(function() {
 		$(this).data('id',(source.find('[name='+this.name+']').data('id')));
 	});
-	block.find('[data-id][data-table][data-table!=tickets][data-table!=contacts_medical]').data('id','');
+	block.not('.no_id_reset').find('[data-id][data-table][data-table!=tickets][data-table!=contacts_medical]').data('id','');
 	block.find('[name="ticket_comment_email_sender[]"]').val(user_email);
 	block.find('[name*=qty]').val(1);
 	block.find('[data-verified-shift]').data('verified-shift','');
@@ -2083,7 +2220,10 @@ function remMulti(img) {
 		var field_name = first_block.attr('name');
 		var field_table = first_block.data('table');
 		block.remove();
-		$('[name='+field_name+'][data-table='+field_table+']').first().change();
+		panel.find('[name='+field_name+'][data-table='+field_table+']').first().change();
+        if(panel.find('[name='+field_name+'][data-table='+field_table+']').length < 1) {
+            $('[name='+field_name+'][data-table='+field_table+']').first().change();
+        }
 	} else {
 		block.find('[data-table]').first().change();
 		block.hide();
@@ -2497,13 +2637,8 @@ function addScheduledStop() {
 	});
 	clone.find('[data-id][data-table]').data('id','');
 	clone.find('[data-table]').not('[name=equipmentid],[name=to_do_date],[name=order_number]').val('');
-	var default_services = $('[name=default_services]').val()
-	if(default_services != undefined) {
-		default_services.split(',').forEach(function(service) {
-			if(service > 0) {
-				clone.find('[name=serviceid]').find('option[value='+service+']').prop('selected');
-			}
-		});
+	if($(clone).find('[name="type"]').data('default-value') != undefined && $(clone).find('[name="type"]').data('default-value')) {
+		$(clone).find('[name="type"]').val($(clone).find('[name="type"]').data('default-value'));
 	}
 	$('.scheduled_stop:visible').last().after(clone).after('<hr>');
 	initInputs('.scheduled_stop');
@@ -2512,6 +2647,19 @@ function addScheduledStop() {
 	if(defaultStatus != '') {
 		clone.find('[name=status]').val(defaultStatus).trigger('change.select2');
 	}
+    $('[name=default_services]').each(function() {
+        var services = this.value.trim(',').split(',');
+        for(var i = 0; i < services.length; i++) {
+            clone.find('[name=serviceid]').last().each(function() {
+                if(services[i] > 0) {
+                    if(i > 0) {
+                        addMulti(this);
+                    }
+                    $(this).val(services[i]).change();
+                }
+            });
+        }
+    });
 	sortScheduledStops();
 	$('.scheduled_stop').last().find('input').first().focus();
 }
@@ -2671,6 +2819,9 @@ function add_staff_task(checkin) {
 						extra_id = response.split('|')[2];
 					}
 					if(checkin == undefined) {
+						if(typeof still_reloading_tab != 'undefined') {
+							clearInterval(still_reloading_tab);
+						}
 						reload_checkin();
 						reload_summary();
 					} else {
@@ -2739,6 +2890,21 @@ function add_staff_task(checkin) {
 function toggleAll(button) {
 	$(button).closest('.panel-body,.tab-section,.has-main-screen .main-screen').find('.toggle[value=0]').closest('.toggleSwitch').click();
 }
+var sorting_done = 0;
+function getDriveTime(button, date, equipment) {
+    if(sorting_done == 0) {
+        sorting_done == 1;
+        $(button).text('Updating Drive Time...');
+        sorting_done = 1;
+        sort_by_map(date, equipment, '', '', true);
+    }
+    if(sorting_done == 1) {
+        setTimeout(function() {
+            $(button).click();
+        }, 250);
+        return false;
+    }
+}
 function checkoutAll(button) {
 	if($(button).hasClass('finish_btn')) {
 		finishing_ticket = true;
@@ -2760,6 +2926,7 @@ function checkoutAll(button) {
 		return false;
 	} else {
 		if(confirm("Are you sure you want to check out all Staff?")) {
+            $(button).text('Checking Out Staff...');
 			$('#collapse_ticket_checkout,#tab_section_ticket_checkout,#collapse_ticket_complete,#tab_section_ticket_complete').find('.toggle[value=0]').closest('.toggleSwitch').click();
 			if($(button).data('recurring-ticket') != undefined && $(button).data('recurring-ticket') == 1) {
 				createRecurringTicket();
@@ -2851,7 +3018,9 @@ function saveNewTicketFromCalendar(element) {
 		data: data,
 		success: function(response) {
 			ticketid = response.split('*#*')[0];
-			$('#ticketid').val(ticketid);
+			$('[name="ticketid"]').val(ticketid);
+			$('[data-table=tickets]').data('id',ticketid);
+			updateTicketLabel();
 			if($('.scheduled_stop').length > 0) {
 				var block = $('.scheduled_stop').first();
 				block.find('[data-table=ticket_schedule]').data('id',response.split('*#*')[1]);
@@ -2859,7 +3028,11 @@ function saveNewTicketFromCalendar(element) {
 			}
 			$(element).change();
 			if($('select[name="item_id"][data-table="ticket_attached"][data-type="Staff"]').length > 0) {
-				$('select[name="item_id"][data-table="ticket_attached"][data-type="Staff"]').change();
+				$('select[name="item_id"][data-table="ticket_attached"][data-type="Staff"]').each(function() {
+					if($(this).val() != undefined && $(this).val() != '' && $(this).val() != 0) {
+						$(this).change();
+					}
+				});
 			}
 			doneSaving();
 		}
@@ -2990,8 +3163,12 @@ function saveAddress(idClass, contactid) {
 function setBilling() {
 	var total = 0;
 	$('.billing tr').each(function() {
-		var line = $(this).find('[name=billing_sub]').val();
+		var line = $(this).find('[name=billing_sub]').val() * 1;
 		if(line > 0) {
+            var surcharge = $(this).find('.surcharge').val();
+            if(surcharge > 0) {
+                line += (line * surcharge / 100);
+            }
 			var discount = 0;
 			if($(this).find('.discount_type').val() == '%') {
 				discount = $(this).find('.discount').val() * line / 100;
@@ -3071,7 +3248,7 @@ function addNote(type, btn, force_allow = 0) {
 function addCommunication(type, method) {
 	if(ticketid > 0) {
 		$('.ticket_communication[data-type='+type+'][data-method='+method+']').first().addClass('reload');
-		overlayIFrameSlider('../Email Communication/add_email.php?type='+type+'&ticketid='+ticketid,'auto',false,true,'auto',false);
+		overlayIFrameSlider('../Email Communication/add_email.php?type='+type+'&ticketid='+ticketid,'75%',false,true,'auto',false);
 	} else {
 		alert('Please create the '+ticket_name+' before adding communications.');
 	}
@@ -3109,11 +3286,7 @@ function addServices(btn) {
 	}
 }
 function displayCustomerHistory() {
-	overlayIFrameSlider('../Ticket/ticket_customer_history.php?edit='+ticketid,'auto',true,true);
-	$(document).on("overlayIFrameSliderLoad", function() {
-		$('.iframe_overlay iframe').contents().find('html,body').css('background-color', 'white');
-		$('.iframe_overlay iframe').contents().find('html,body').css('background', 'none');
-	});
+	overlayIFrameSlider('../Ticket/ticket_history.php?ticketid='+ticketid,'auto',true,true);
 }
 function cancelClick() {
 	alert('Please mark yourself as arrived first.');
@@ -3316,8 +3489,8 @@ function initSelectOnChanges() {
 		setServiceFilters();
 	} catch(e) { }
 	setSave();
-	if($('[name=businessid]').length > 0) {
-		$('[name=businessid]').off('change',businessFilter).change(businessFilter);
+	if($('select[name=businessid]').length > 0) {
+		$('select[name=businessid]').off('change',businessFilter).change(businessFilter);
 	}
 	if($('select#clientid').length > 0) {
 		$('select#clientid').off('change',clientFilter).change(clientFilter);

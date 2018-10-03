@@ -5,7 +5,7 @@ if(get_config($dbc, 'ticket_unassigned_status') == 1) {
 }
 
 $summary_block_list = explode(',',get_config($dbc, 'summary_block_sort'));
-$block_list_arr = explode('||*||',$summary_block_list[0]); 
+$block_list_arr = explode('||*||',$summary_block_list[0]);
 
 $ticket_status_list = explode(',',get_config($dbc, 'ticket_status'));
 $project_types = [];
@@ -94,6 +94,26 @@ $(document).ready(function() {
 			panel.html('<h4>No <?= $ticket_tile ?> Found</h4>');
 		}
 	});
+    
+    /* $('.tile-sidebar .highest-level .top-a').click(function() {
+        $(this).each(function() {
+            if ( $('.tile-sidebar .highest-level .top-a').data('parent') == '#accordion' ) {
+                $('.tile-sidebar .highest-level .top-ul').removeClass('in');
+            }
+        });
+    }); */
+    
+    $('.tile-sidebar .highest-level .top-a').click(function() {
+        $(this).each(function() {
+            if ( $(this).data('parent') == '#accordion' ) {
+                $('.tile-sidebar .highest-level .top-ul').removeClass('in');
+            }
+        }).off('click').click(function() {
+            // alert('second');
+            $(this).addClass('collapsed');
+            // return false;
+        });
+    });
 });
 var ticket_list = [];
 var current_ticket_search_key = '';
@@ -291,7 +311,7 @@ function loadTickets() {
 					});
 				}
 			});
-			
+
 			/*$('.sort_div1').sortable({
 				connectWith: '.sort_div',
 				handle: '.drag_handle',
@@ -500,6 +520,10 @@ function setActions() {
 			}
 		});
 	});
+	$('.history-icon').off('click').click(function() {
+		var item = $(this).closest('.dashboard-item');
+		overlayIFrameSlider('<?= WEBSITE_URL ?>/Ticket/ticket_history.php?tile=tickets&ticketid='+item.data('id'), 'auto', false, true);
+	});
 }
 function setManualFlag(ticketid, colour, label) {
 	var item = $('.dashboard-item[data-id="'+ticketid+'"]');
@@ -561,8 +585,8 @@ IF(!IFRAME_PAGE) { ?>
 		display: block !important;
 	}
 </style>
-	<div class="tile-sidebar sidebar sidebar-override hide-titles-mob standard-collapsible">
-		<ul>
+  <div id="accordion" class="tile-sidebar sidebar sidebar-override hide-titles-mob standard-collapsible panel-group">
+		<ul class="panel">
 			<li class="standard-sidebar-searchbox"><input type="text" class="form-control search_list" placeholder="Search <?= $ticket_tile ?>"></li>
 			<?php $active_tab = true;
 			if(!in_array('Disable',$db_summary)) { ?>
@@ -641,8 +665,8 @@ IF(!IFRAME_PAGE) { ?>
 					});
 				});
 				</script>
-				<li class="sidebar-higher-level highest-level" data-type="<?= $type ?>" <?= $file_name != '' ? 'data-form="'.$file_name.'"' : '' ?>><a class="cursor-hand collapsed" data-toggle="collapse" data-target="#<?= $type ?>"><?= $type_name ?><span class="arrow" /></a>
-					<ul class="collapse" id="<?= $type ?>" style="overflow: hidden;">
+				<li class="sidebar-higher-level highest-level" data-type="<?= $type ?>" <?= $file_name != '' ? 'data-form="'.$file_name.'"' : '' ?>><a class="top-a cursor-hand collapsed" data-parent="#accordion" data-toggle="collapse" data-target="#<?= $type ?>"><?= $type_name ?><span class="arrow" /></a>
+					<ul class="top-ul collapse" id="<?= $type ?>" style="overflow: hidden;">
 						<?php if(in_array('Staff',$db_sort) || in_array('Deliverable Date',$db_sort)) { ?>
 							<li class="sidebar-higher-level"><a class="collapsed cursor-hand" data-toggle="collapse" data-target="#filter_staff_<?= $type ?>">Staff<span class="arrow"></span></a>
 								<ul class="collapse" id="filter_staff_<?= $type ?>" style="overflow: hidden;">
@@ -744,8 +768,8 @@ IF(!IFRAME_PAGE) { ?>
 				include_once('../Project/project_administration_functions.php');
 				$admin_groups = $dbc->query("SELECT `id`, `name`,`region`,`classification`,`location`,`customer` FROM `field_config_project_admin` WHERE CONCAT(',',`contactid`,',') LIKE '%".$_SESSION['contactid']."%' AND `deleted`=0");
 				if($admin_groups->num_rows > 0) { ?>
-					<li class="sidebar-higher-level"><a class="cursor-hand <?= substr($_GET['tab'],0,14) == 'administration' ? 'active blue' : 'collapsed' ?>" data-toggle="collapse" data-target="#tab_admin">Administration<span class="arrow"></span></a>
-						<ul id="tab_admin" class="collapse <?= substr($_GET['tab'],0,14) == 'administration' ? 'in' : '' ?>">
+					<li class="sidebar-higher-level highest-level"><a class="top-a cursor-hand <?= substr($_GET['tab'],0,14) == 'administration' ? 'active blue' : 'collapsed' ?>" data-parent="#accordion" data-toggle="collapse" data-target="#tab_admin">Administration<span class="arrow"></span></a>
+						<ul id="tab_admin" class="top-ul collapse <?= substr($_GET['tab'],0,14) == 'administration' ? 'in' : '' ?>">
 							<?php while($admin_group = $admin_groups->fetch_assoc()) {
 								$other_groups = $dbc->query("SELECT GROUP_CONCAT(`region` SEPARATOR ''',''') `regions`, GROUP_CONCAT(`classification` SEPARATOR ''',''') `classifications` FROM `field_config_project_admin` WHERE `id`!='{$admin_group['id']}' AND `deleted`=0")->fetch_assoc(); ?>
 								<a href="?tab=administration_<?= $admin_group['id'] ?>_summary"><h4><?= $admin_group['name'].
@@ -757,8 +781,14 @@ IF(!IFRAME_PAGE) { ?>
 								if($admin_group['region'] == '') {
 									$admin_regions = mysqli_fetch_all($dbc->query("SELECT IFNULL(`region`,'') FROM `tickets` WHERE `deleted`=0 ".($other_groups['regions'] != "','" && $other_groups['regions'] != "" ? " AND ((`region` IN ('{$admin_group['region']}','') AND `region` NOT IN ('{$other_groups['regions']}')) OR ('{$admin_group['region']}'='' AND `region` NOT IN ('{$other_groups['regions']}')))" : "")." GROUP BY IFNULL(`region`,'')"));
 								}
+								if(empty($admin_regions)) {
+									$admin_regions = [''];
+								}
 								if($admin_group['classification'] == '') {
 									$admin_classes = mysqli_fetch_all($dbc->query("SELECT IFNULL(`classification`,'') FROM `tickets` WHERE `deleted`=0 ".($other_groups['classifications'] != "','" && $other_groups['classifications'] != "" ? " AND (`classification` IN ('{$admin_group['classification']}','') OR ('{$admin_group['classification']}'='' AND `classification` NOT IN ('{$other_groups['classifications']}')))" : "")." GROUP BY IFNULL(`classification`,'')"));
+								}
+								if(empty($admin_classes)) {
+									$admin_classes = [''];
 								}
 								foreach($admin_regions as $region_i => $admin_region) {
 									foreach($admin_classes as $class_i => $admin_class) { ?>
@@ -821,8 +851,8 @@ IF(!IFRAME_PAGE) { ?>
 				<?php }
 			} ?>
 			<?php if(in_array('Invoicing',$db_config) && check_subtab_persmission($dbc, 'ticket', ROLE, 'invoice') === TRUE && !($strict_view > 0)) { ?>
-				<li class="sidebar-higher-level"><a class="cursor-hand <?= $_GET['tab'] == 'invoice' ? 'active blue' : 'collapsed' ?>" data-toggle="collapse" data-target="#tab_invoice">Accounting<span class="arrow"></span></a>
-					<ul id="tab_invoice" class="collapse <?= $_GET['tab'] == 'invoice' ? 'in' : '' ?>">
+				<li class="sidebar-higher-level highest-level"><a class="top-a cursor-hand <?= $_GET['tab'] == 'invoice' ? 'active blue' : 'collapsed' ?>" data-parent="#accordion" data-toggle="collapse" data-target="#tab_invoice">Accounting<span class="arrow"></span></a>
+					<ul id="tab_invoice" class="top-ul collapse <?= $_GET['tab'] == 'invoice' ? 'in' : '' ?>">
 						<?php $inv_count = $dbc->query("SELECT SUM(IF(`invoice`.`invoiceid` IS NULL, 1, 0)) `unbilled`, SUM(IF(`invoice`.`invoiceid` IS NULL, 0, 1)) `billed` FROM `tickets` LEFT JOIN `invoice` ON CONCAT(',',`invoice`.`ticketid`,',') LIKE CONCAT('%,',`tickets`.`ticketid`,',%') WHERE `tickets`.`ticket_type` IN ('".implode("','",$ticket_conf_list)."') AND `tickets`.`deleted`=0 ".(in_array('Administration',$db_config) ?"AND IFNULL(`approvals`,'') != ''" : ''))->fetch_assoc(); ?>
 						<li class="sidebar-lower-level <?= $_GET['tab'] == 'invoice' && $_GET['status'] == 'unbilled' ? 'active blue' : '' ?>"><a href="?<?= $current_tile ?>tab=invoice&status=unbilled">Unbilled<span class="pull-right"><?= $inv_count['unbilled'] ?></span></a></li>
 						<li class="sidebar-lower-level <?= $_GET['tab'] == 'invoice' && $_GET['status'] == 'billed' ? 'active blue' : '' ?>"><a href="?<?= $current_tile ?>tab=invoice&status=billed">Billed<span class="pull-right"><?= $inv_count['billed'] > 25 ? 'Last 25' : $inv_count['billed'] ?></span></a></li>
@@ -837,8 +867,8 @@ IF(!IFRAME_PAGE) { ?>
                 }
                 if(in_array_any($manifest_conf,$manifest_fields)) {
                     $recent_inventory = get_config($dbc, 'recent_inventory'); ?>
-                    <li class="sidebar-higher-level"><a class="cursor-hand <?= $_GET['tab'] == 'manifest' ? 'active blue' : 'collapsed' ?>" data-toggle="collapse" data-target="#tab_manifests">Manifests<span class="arrow"></span></a>
-                        <ul id="tab_manifests" class="collapse <?= $_GET['tab'] == 'manifest' ? 'in' : '' ?>">
+                    <li class="sidebar-higher-level highest-level"><a class="top-a cursor-hand <?= $_GET['tab'] == 'manifest' ? 'active blue' : 'collapsed' ?>" data-parent="#accordion" data-toggle="collapse" data-target="#tab_manifests">Manifests<span class="arrow"></span></a>
+                        <ul id="tab_manifests" class="top-ul collapse <?= $_GET['tab'] == 'manifest' ? 'in' : '' ?>">
                             <li class="sidebar-lower-level <?= $_GET['tab'] == 'manifest' && $_GET['site'] == 'recent' ? 'active blue' : '' ?>"><a href="?<?= $current_tile ?>tab=manifest&site=recent">Last <?= $recent_manifests ?> Manifests</a></li>
                             <?php if(in_array('sort_top',$manifest_fields)) { ?>
                                 <li class="sidebar-lower-level <?= $_GET['tab'] == 'manifest' && $_GET['site'] == 'top_25' ? 'active blue' : '' ?>"><a href="?<?= $current_tile ?>tab=manifest&site=top_25">Last <?= $recent_inventory ?> Line Items</a></li>
@@ -1249,37 +1279,42 @@ IF(!IFRAME_PAGE) { ?>
 		<script>
 		google.charts.load("current", {"packages":["corechart"]});
 		</script>
-		<?php 
-		$blocks = [];
+		<?php
+		$blocks = []; $all_summary = [];
 		$total_length = 0;
+		$result = array_filter(array_diff($db_summary, $block_list_arr));
+		foreach($result as $r){
+		    array_push($block_list_arr,$r);
+		}
+		$block_list_arr = array_filter($block_list_arr);
 		if(!empty($block_list_arr)){
 		    foreach($block_list_arr as $listarr){
 		        //echo '<pre>';print_r($listarr);
 		        $disp1 = $disp2 = $disp3 = $disp4 = $disp6 = $disp7 = $disp8 = $disp9 = $disp10 = $disp11 = $disp12 = $disp13 = $disp14 = $disp16 = 'none';
 		        if($listarr != '0'){
     		        switch($listarr){
-    		            case '1':$disp1 = 'block'; break;
-    		            case '2':$disp2 = 'block'; break;
-    		            case '3':$disp3 = 'block'; break;
-    		            case '4':$disp4 = 'block'; break;
-    		            case '6':$disp6 = 'block'; break;
-    		            case '7':$disp7 = 'block'; break;
-    		            case '8':$disp8 = 'block'; break;
-    		            case '9':$disp9 = 'block'; break;
-    		            case '10':$disp10 = 'block'; break;
-    		            case '11':$disp11 = 'block'; break;
-    		            case '12':$disp12 = 'block'; break;
-    		            case '13':$disp13 = 'block'; break;
-    		            case '14':$disp14 = 'block'; break;
-    		            case '16':$disp16 = 'block'; break;
-    		            default: if(!strstr($listarr,'5-') && !strstr($listarr,'15-') && !strstr($listarr,'17-')){
-    		                          $disp1 = $disp2 = $disp3 = $disp4 = $disp6 = $disp7 = $disp8 = $disp9 = $disp10 = $disp11 = $disp12 = $disp13 = $disp14 = $disp16 = 'block';
-    		                     } break;
+    		            case 'Time Graph':$disp1 = 'block'; break;
+    		            case 'Estimated':$disp2 = 'block'; break;
+    		            case 'Tracked':$disp3 = 'block'; break;
+    		            case 'Today':$disp4 = 'block'; break;
+    		            case 'Business':$disp6 = 'block'; break;
+    		            case 'Project':$disp7 = 'block'; break;
+    		            case 'Project ID':$disp8 = 'block'; break;
+    		            case 'Contact':$disp9 = 'block'; break;
+    		            case 'Status':$disp10 = 'block'; break;
+    		            case 'Mine':$disp11 = 'block'; break;
+    		            case 'Created':$disp12 = 'block'; break;
+    		            case 'Assigned':$disp13 = 'block'; break;
+    		            case 'Top 25 All':$disp14 = 'block'; break;
+    		            case 'Top 25 Forms':$disp16 = 'block'; break;
+    		            //default:  $disp1 = $disp2 = $disp3 = $disp4 = $disp6 = $disp7 = $disp8 = $disp9 = $disp10 = $disp11 = $disp12 = $disp13 = $disp14 = $disp16 = 'block';
+    		                      //break;
     		        }
 		        }else{
 		            $disp1 = $disp2 = $disp3 = $disp4 = $disp6 = $disp7 = $disp8 = $disp9 = $disp10 = $disp11 = $disp12 = $disp13 = $disp14 = $disp16 = 'block';
 		        }
 		        if(in_array('Time Graph',$db_summary) && $disp1 == 'block') {
+		            array_push($all_summary,'Time Graph');
 		            $total_estimated_time = $dbc->query("SELECT SUM(TIME_TO_SEC(`time_length`)) `seconds`, SEC_TO_TIME(SUM(TIME_TO_SEC(`time_length`))) `time` FROM `ticket_time_list` WHERE `created_by`='".$_SESSION['contactid']."' AND ((`time_type`='Completion Estimate' AND `ticketid` IN (SELECT `ticketid` FROM `tickets` WHERE `deleted`=0 AND '".date('Y-m-d')."' BETWEEN `to_do_date` AND IFNULL(`to_do_end_date`,`to_do_date`) AND `contactid` LIKE '%,".$_SESSION['contactid'].",%')) OR (`time_type`='QA Estimate' AND `ticketid` IN (SELECT `ticketid` FROM `tickets` WHERE `deleted`=0 AND `ticket_type` IN ('".implode("','",$ticket_conf_list)."') AND '".date('Y-m-d')."'=`internal_qa_date` AND `contactid` LIKE '%,".$_SESSION['contactid'].",%')))")->fetch_assoc();
 		            $total_tracked_time = $dbc->query("SELECT SUM(TIME_TO_SEC(`time`)) `seconds`, SEC_TO_TIME(SUM(TIME_TO_SEC(`time`))) `time` FROM (SELECT `time_length` `time` FROM `ticket_time_list` WHERE `created_by`='".$_SESSION['contactid']."' AND `created_date` LIKE '".date('Y-m-d')."%' AND `deleted`=0 AND `time_type`='Manual Time' UNION SELECT `timer` `time` FROM `ticket_timer` WHERE `deleted` = 0 AND `created_by`='".$_SESSION['contactid']."' AND `created_date` LIKE '".date('Y-m-d')."%') `time_list`")->fetch_assoc();
 		            if($total_estimated_time['seconds'] + $total_tracked_time['seconds'] > 0) {
@@ -1290,19 +1325,19 @@ IF(!IFRAME_PAGE) { ?>
 		                $blocks[] = [350, '<div class="overview-block">
                     <img class="inline-img pull-right drag_handle" src="../img/icons/drag_handle.png">
 					<div id="time_chart" style="width: 100%; height: 350px;"></div>
-                    <input type="hidden" name="id" value="1">
+                    <input type="hidden" name="id" value="Time Graph">
 				</div>
 				<script>
 				google.charts.setOnLoadCallback(drawTimeChart);
-		                    
+
 				function drawTimeChart() {
-		                    
+
 				var data = google.visualization.arrayToDataTable([
 						["My Tracked Time", "Hours"],
 						["Tracked Time - '.$total_tracked_time['time'].'", '.$total_tracked_time['seconds'].'],
 						["Remaining Estimated Time - '.$total_estimated_time['time'].'", '.($total_estimated_time['seconds'] - $total_tracked_time['seconds']).']
 					]);
-		                    
+
 					var options = {
 						title: "My Tracked Time",
 						pieHole: 0.5,
@@ -1312,34 +1347,36 @@ IF(!IFRAME_PAGE) { ?>
 							1: { color: "#84C6E4" },
 						}
 					};
-		                    
+
 					var chart = new google.visualization.PieChart(document.getElementById("time_chart"));
-		                    
+
 					chart.draw(data, options);
 				}
 				</script>'];
 		                $total_length += 350;
-		            } else {
+		            } else { array_push($all_summary,'Time Graph');
 		                $blocks[] = [68, '<div class="overview-block">
 					<h4>Today\'s Time Graph: No Time Found<img class="inline-img pull-right drag_handle" src="../img/icons/drag_handle.png"></h4>
-                    <input type="hidden" name="id" value="1">
+                    <input type="hidden" name="id" value="Time Graph">
 				</div>'];
 		                $total_length += 68;
 		            }
 		        }
 		        if(in_array('Estimated',$db_summary)  && $disp2 == 'block') {
+		            array_push($all_summary,'Estimated');
 		            $total_estimated_time = $dbc->query("SELECT SEC_TO_TIME(SUM(TIME_TO_SEC(`time_length`))) `time` FROM `ticket_time_list` WHERE `created_by`='".$_SESSION['contactid']."' AND ((`time_type`='Completion Estimate' AND `ticketid` IN (SELECT `ticketid` FROM `tickets` WHERE `deleted`=0 AND `ticket_type` IN ('".implode("','",$ticket_conf_list)."') AND '".date('Y-m-d')."' BETWEEN `to_do_date` AND IFNULL(`to_do_end_date`,`to_do_date`) AND `contactid` LIKE '%,".$_SESSION['contactid'].",%')) OR (`time_type`='QA Estimate' AND `ticketid` IN (SELECT `ticketid` FROM `tickets` WHERE `deleted`=0 AND '".date('Y-m-d')."'=`internal_qa_date` AND `contactid` LIKE '%,".$_SESSION['contactid'].",%')))")->fetch_assoc()['time'];
 		            $blocks[] = [68, '<div class="overview-block">
 				<h4>Today\'s Estimated Time: '.$total_estimated_time.'<img class="inline-img pull-right drag_handle" src="../img/icons/drag_handle.png"></h4>
-                <input type="hidden" name="id" value="2">
+                <input type="hidden" name="id" value="Estimated">
 			</div>'];
 		            $total_length += 68;
 		        }
 		        if(in_array('Tracked',$db_summary)  && $disp3 == 'block') {
+		            array_push($all_summary,'Tracked');
 		            $total_tracked_time = $dbc->query("SELECT SEC_TO_TIME(SUM(TIME_TO_SEC(`time`))) `time` FROM (SELECT `time_length` `time` FROM `ticket_time_list` WHERE `created_by`='".$_SESSION['contactid']."' AND `created_date` LIKE '".date('Y-m-d')."%' AND `deleted`=0 AND `time_type`='Manual Time' UNION SELECT `timer` `time` FROM `ticket_timer` WHERE `deleted` = 0 AND `created_by`='".$_SESSION['contactid']."' AND `created_date` LIKE '".date('Y-m-d')."%') `time_list`")->fetch_assoc()['time'];
 		            $blocks[] = [68, '<div class="overview-block">
 				<h4>Today\'s Tracked Time: '.$total_tracked_time.'<img class="inline-img pull-right drag_handle" src="../img/icons/drag_handle.png"></h4>
-                <input type="hidden" name="id" value="3">
+                <input type="hidden" name="id" value="Tracked">
 			</div>'];
 		            $total_length += 68;
 		        }
@@ -1347,7 +1384,7 @@ IF(!IFRAME_PAGE) { ?>
 		            $block_length = 68;
 		            $block = '<div class="overview-block">
 				<h4>Today\'s '.$ticket_tile.': '.date('F jS, Y').'<img class="inline-img pull-right drag_handle" src="../img/icons/drag_handle.png"></h4>
-                <input type="hidden" name="id" value="4">';
+                <input type="hidden" name="id" value="Today">';
 		            $today_tickets = $dbc->query("SELECT * FROM (SELECT *, `to_do_start_time` `ticket_start_time` FROM `tickets` WHERE `deleted`=0 AND '".date('Y-m-d')."' BETWEEN `to_do_date` AND IFNULL(`to_do_end_date`,`to_do_date`) AND `contactid` LIKE '%,".$_SESSION['contactid'].",%' UNION SELECT *, `internal_qa_start_time` `ticket_start_time` FROM `tickets` WHERE `deleted`=0 AND '".date('Y-m-d')."'=`internal_qa_date` AND `contactid` LIKE '%,".$_SESSION['contactid'].",%') `tickets` WHERE `deleted`=0 AND `ticket_type` IN ('".implode("','",$ticket_conf_list)."') ORDER BY `ticket_start_time` ASC, `ticketid` DESC");
 		            while($ticket = $today_tickets->fetch_assoc()) {
 		                if($summary_urls == 'slider') {
@@ -1373,14 +1410,15 @@ IF(!IFRAME_PAGE) { ?>
 		            'Month Overview' => ['start_date' => date('Y-m-01'), 'end_date' => date('Y-m-t')]
 		        ];
 		        foreach($overviews as $overview_key => $overview) {
+		            array_push($all_summary,$overview);
 		            $start_date = $overview['start_date'];
 		            $end_date = $overview['end_date'];
 		            if($listarr!='0') {$disp5 = 'none';}
-		            if($listarr == '5-'.$overview_key){$disp5 = 'block';}
+		            if($listarr == $overview_key){$disp5 = 'block';}
 		            if(in_array($overview_key,$db_summary) && $disp5 == 'block') {
 		                $block_length = 68;
 		                $block = '<div class="overview-block">
-                    <input type="hidden" name="id" value="5-'.$overview_key.'">
+                    <input type="hidden" name="id" value="'.$overview_key.'">
 					<h4>'.$overview_key.': '.($start_date == $end_date ? date('F jS, Y', strtotime($start_date)) : date('F jS, Y', strtotime($start_date)).' - '.date('F jS, Y', strtotime($end_date))).'<img class="inline-img pull-right drag_handle" src="../img/icons/drag_handle.png"></h4>';
 		                $tickets = $dbc->query("SELECT *, IF(`status` = 'Internal QA',`internal_qa_date`,IF(`status` = 'Customer QA',`deliverable_date`,`to_do_date`)) `ticket_start_date` FROM `tickets` WHERE (`to_do_date` BETWEEN '$start_date' AND '$end_date' OR `to_do_end_date` BETWEEN '$start_date' AND '$end_date' OR `internal_qa_date` BETWEEN '$start_date' AND '$end_date' OR `deliverable_date` BETWEEN '$start_date' AND '$end_date') AND `deleted` = 0 AND `status` != 'Archive' ORDER BY `ticket_start_date`");
 		                while($ticket = $tickets->fetch_assoc()) {
@@ -1397,9 +1435,10 @@ IF(!IFRAME_PAGE) { ?>
 		            }
 		        }
 		        if(in_array('Business',$db_summary) && $disp6 == 'block') {
+		            array_push($all_summary,'Business');
 		            $block_length = 68;
 		            $block = '<div class="overview-block">
-                <input type="hidden" name="id" value="6">
+                <input type="hidden" name="id" value="Business">
 				<h4>'.$ticket_tile.' per '.BUSINESS_CAT.'<img class="inline-img pull-right drag_handle" src="../img/icons/drag_handle.png"></h4>';
 		            $tickets = $dbc->query("SELECT COUNT(*) count, `businessid` FROM `tickets` WHERE `deleted`=0 AND `ticket_type` IN ('".implode("','",$ticket_conf_list)."') AND `status` != 'Archive' AND `businessid` > 0 $match_business GROUP BY `businessid`");
 		            while($ticket = $tickets->fetch_assoc()) {
@@ -1411,9 +1450,10 @@ IF(!IFRAME_PAGE) { ?>
 		            $total_length += $block_length;
 		        }
 		        if(in_array('Project',$db_summary) && $disp7 == 'block') {
+		            array_push($all_summary,'Project');
 		            $block_length = 68;
 		            $block = '<div class="overview-block">
-                <input type="hidden" name="id" value="7">
+                <input type="hidden" name="id" value="Project">
 				<h4>'.TICKET_TILE.' per '.PROJECT_NOUN.' Tab<img class="inline-img pull-right drag_handle" src="../img/icons/drag_handle.png"></h4>';
 		            foreach($project_types as $cat_tab_value => $cat_tab) {
 		                $ticket = $dbc->query("SELECT COUNT(*) count FROM `tickets` WHERE `deleted`=0 AND `status` != 'Archive' AND `projectid` > 0  AND `projectid` IN (SELECT `projectid` FROM `project` WHERE `deleted` = 0 AND `projecttype` = '$cat_tab_value')")->fetch_assoc();
@@ -1425,9 +1465,10 @@ IF(!IFRAME_PAGE) { ?>
 		            $total_length += $block_length;
 		        }
 		        if(in_array('Project ID',$db_summary) && $disp8 == 'block') {
+		            array_push($all_summary,'Project ID');
 		            $block_length = 68;
 		            $block = '<div class="overview-block">
-                <input type="hidden" name="id" value="8">
+                <input type="hidden" name="id" value="Project ID">
 				<h4>'.TICKET_TILE.' per '.PROJECT_NOUN.'<img class="inline-img pull-right drag_handle" src="../img/icons/drag_handle.png"></h4>';
 		            $project_list = $dbc->query("SELECT `tickets`.`projectid`, COUNT(*) `count` FROM `tickets` LEFT JOIN `project` ON `tickets`.`projectid` = `project`.`projectid` WHERE `tickets`.`projectid` > 0 AND `tickets`.`deleted` = 0 AND `project`.`deleted` = 0 AND `tickets`.`status` != 'Archive' GROUP BY `tickets`.`projectid`");
 		            while($project_item = $project_list->fetch_assoc()) {
@@ -1439,9 +1480,10 @@ IF(!IFRAME_PAGE) { ?>
 		            $total_length += $block_length;
 		        }
 		        if(in_array('Contact',$db_summary) && $disp9 == 'block') {
+		            array_push($all_summary,'Contact');
 		            $block_length = 68;
 		            $block = '<div class="overview-block">
-                <input type="hidden" name="id" value="9">
+                <input type="hidden" name="id" value="Contact">
 				<h4>'.$ticket_tile.' per '.(get_config($dbc, 'ticket_project_contact') ?: 'Contact').'<img class="inline-img pull-right drag_handle" src="../img/icons/drag_handle.png"></h4>';
 		            $tickets = $dbc->query("SELECT COUNT(*) count, `clientid` FROM `tickets` WHERE `deleted`=0 AND `ticket_type` IN ('".implode("','",$ticket_conf_list)."') AND `status` != 'Archive' AND `clientid` > 0 $match_business GROUP BY `clientid`");
 		            while($ticket = $tickets->fetch_assoc()) {
@@ -1453,9 +1495,10 @@ IF(!IFRAME_PAGE) { ?>
 		            $total_length += $block_length;
 		        }
 		        if(in_array('Status',$db_summary) && $disp10 == 'block') {
+		            array_push($all_summary,'Status');
 		            $block_length = 68;
 		            $block = '<div class="overview-block">
-                <input type="hidden" name="id" value="10">
+                <input type="hidden" name="id" value="Status">
 				<h4>'.$ticket_noun.' Summary<img class="inline-img pull-right drag_handle" src="../img/icons/drag_handle.png"></h4>';
 		            $tickets = $dbc->query("SELECT COUNT(*) count, `tickets`.`status` FROM `tickets` WHERE `tickets`.`deleted`=0 AND `tickets`.`ticket_type` IN ('".implode("','",$ticket_conf_list)."') AND `tickets`.`status` != 'Archive' $match_business GROUP BY `tickets`.`status`");
 		            while($ticket = $tickets->fetch_assoc()) {
@@ -1467,9 +1510,10 @@ IF(!IFRAME_PAGE) { ?>
 		            $total_length += $block_length;
 		        }
 		        if(in_array('Mine',$db_summary) && $disp11 == 'block') {
+		            array_push($all_summary,'Mine');
 		            $block_length = 68;
 		            $block = '<div class="overview-block">
-                <input type="hidden" name="id" value="11">
+                <input type="hidden" name="id" value="Mine">
 				<h4>My '.$ticket_tile.'<img class="inline-img pull-right drag_handle" src="../img/icons/drag_handle.png"></h4>';
 		            $tickets = $dbc->query("SELECT COUNT(*) count, `tickets`.`status` FROM `tickets` WHERE CONCAT(IFNULL(`tickets`.`contactid`,''),',',IFNULL(`internal_qa_contactid`,''),',',IFNULL(`deliverable_contactid`,'')) LIKE CONCAT('%".$_SESSION['contactid']."%') AND `tickets`.`deleted`=0 AND `tickets`.`ticket_type` IN ('".implode("','",$ticket_conf_list)."') AND `tickets`.`status` != 'Archive' GROUP BY `tickets`.`status`");
 		            $ticket_status = get_config($dbc, "ticket_status");
@@ -1482,7 +1526,7 @@ IF(!IFRAME_PAGE) { ?>
 		                    $color_apply = $ticket_status_color[$occr];
 		                }
 		                $c_a = 'style="background-color:'.$color_apply.';height: 12px;width: 12px;margin-top: 4px;"';
-		                
+
 		                $block .= '<div class="row"><div class="col-sm-1"><a class="cursor-hand" onclick="'.(in_array('Status',$db_sort) ? '$(\'[data-status=\\\''.$ticket['status'].'\\\']\').first().click().parents(\'li\').each(function() { $(this).find(\'a\').first().filter(\'.collapsed\').click(); });' : '').'$(\'[data-staff='.$_SESSION['contactid'].']\').first().click().parents(\'li\').each(function() { $(this).find(\'a\').first().filter(\'.collapsed\').click(); });"><div '. $c_a .'></div></div><div class="col-sm-8">'.$ticket['status'].'</a>: '.$ticket['count'].'</div></div>';
 		                $block_length += 17;
 		            }
@@ -1491,9 +1535,10 @@ IF(!IFRAME_PAGE) { ?>
 		            $total_length += $block_length;
 		        }
 		        if(in_array('Created',$db_summary) && $disp12 == 'block') {
+		            array_push($all_summary,'Created');
 		            $block_length = 68;
 		            $block = '<div class="overview-block">
-                <input type="hidden" name="id" value="12">
+                <input type="hidden" name="id" value="Created">
 				<h4>'.$ticket_tile.' Created by Staff<img class="inline-img pull-right drag_handle" src="../img/icons/drag_handle.png"></h4>';
 		            $tickets = $dbc->query("SELECT COUNT(*) count, `created_by` FROM `tickets` WHERE `deleted`=0 AND `tickets`.`ticket_type` IN ('".implode("','",$ticket_conf_list)."') AND `status` != 'Archive' AND `created_by` > 0 $match_business GROUP BY `created_by`");
 		            while($ticket = $tickets->fetch_assoc()) {
@@ -1505,9 +1550,10 @@ IF(!IFRAME_PAGE) { ?>
 		            $total_length += $block_length;
 		        }
 		        if(in_array('Assigned',$db_summary) && $disp13 == 'block') {
+		            array_push($all_summary,'Assigned');
 		            $block_length = 68;
 		            $block = '<div class="overview-block">
-                <input type="hidden" name="id" value="13">
+                <input type="hidden" name="id" value="Assigned">
 				<h4>'.$ticket_tile.' Assigned to Staff<img class="inline-img pull-right drag_handle" src="../img/icons/drag_handle.png"></h4>';
 		            $tickets = $dbc->query("SELECT COUNT(*) count, `contacts`.`contactid` FROM `tickets` LEFT JOIN `contacts` ON `contacts`.`deleted`=0 AND `contacts`.`status` > 0 AND `contacts`.`show_hide_user` > 0 AND CONCAT(',',IFNULL(`tickets`.`contactid`,''),',',IFNULL(`internal_qa_contactid`,''),',',IFNULL(`deliverable_contactid`,''),',') LIKE CONCAT('%,',`contacts`.`contactid`,',%') WHERE `tickets`.`deleted`=0 AND `tickets`.`ticket_type` IN ('".implode("','",$ticket_conf_list)."') AND `tickets`.`status` != 'Archive' AND `contacts`.`contactid` > 0 $match_business GROUP BY `contacts`.`contactid`");
 		            while($ticket = $tickets->fetch_assoc()) {
@@ -1519,9 +1565,10 @@ IF(!IFRAME_PAGE) { ?>
 		            $total_length += $block_length;
 		        }
 		        if(in_array('Top 25 All',$db_summary) && $disp14 == 'block') {
+		            array_push($all_summary,'Top 25 All');
 		            $block_length = 68;
 		            $block = '<div class="overview-block">
-                <input type="hidden" name="id" value="14">
+                <input type="hidden" name="id" value="Top 25 All">
 				<h4>Last 25 '.$ticket_tile.(in_array('ALL',$db_sort) ? '<a class="pull-right small" href="" onclick="$(\'[data-type=ticket] [data-status=ALL_STATUS]\').click().closest(\'[data-type]\').find(\'[data-toggle=collapse]\').first().filter(\'.collapsed\').click(); return false;">View All</a>' : '').'<img class="inline-img pull-right drag_handle" src="../img/icons/drag_handle.png"></h4>';
 		            $tickets = $dbc->query("SELECT * FROM `tickets` WHERE `deleted`=0 AND `tickets`.`ticket_type` IN ('".implode("','",$ticket_conf_list)."') AND `status` NOT IN ('Archive','Archived','Done') $match_business ORDER BY `ticketid` DESC LIMIT 0, 25");
 		            while($ticket = $tickets->fetch_assoc()) {
@@ -1537,12 +1584,13 @@ IF(!IFRAME_PAGE) { ?>
 		            $total_length += $block_length;
 		        }
 		        foreach($ticket_tabs as $type => $label) {
+		            array_push($all_summary,'Top 25 '.$type);
 		            if($listarr!='0') { $disp15 = 'none';}
-		            if($listarr == '15-'.$type){$disp15 = 'block';}
+		            if($listarr == 'Top 25 '.$type){$disp15 = 'block';}
 		            if(in_array('Top 25 '.$type,$db_summary) && $disp15 == 'block') {
 		                $block_length = 68;
 		                $block = '<div class="overview-block">
-                    <input type="hidden" name="id" value="15-'.$type.'">
+                    <input type="hidden" name="id" value="Top 25 '.$type.'">
 					<h4>Last 25 '.$label.(in_array('ALL',$db_sort) ? '<a class="pull-right small" href="" onclick="$(\'[data-type=ticket_'.$type.'] [data-status=ALL_STATUS]\').click().closest(\'[data-type]\').find(\'[data-toggle=collapse]\').first().filter(\'.collapsed\').click(); return false;">View All</a>' : '').'<img class="inline-img pull-right drag_handle" src="../img/icons/drag_handle.png"></h4>';
 		                $tickets = $dbc->query("SELECT * FROM `tickets` WHERE `deleted`=0 AND `status` NOT IN ('Archive','Archived','Done') $match_business AND `ticket_type`='$type' ORDER BY `ticketid` DESC LIMIT 0, 25");
 		                while($ticket = $tickets->fetch_assoc()) {
@@ -1559,9 +1607,10 @@ IF(!IFRAME_PAGE) { ?>
 		            }
 		        }
 		        if(in_array('Top 25 Forms',$db_summary) && $disp16 == 'block') {
+		            array_push($all_summary,'Top 25 Forms');
 		            $block_length = 68;
 		            $block = '<div class="overview-block">
-                <input type="hidden" name="id" value="16">
+                <input type="hidden" name="id" value="Top 25 Forms">
 				<h4>Last 25 Forms<img class="inline-img pull-right drag_handle" src="../img/icons/drag_handle.png"></h4>';
 		            $tickets = $dbc->query("SELECT `tickets`.*, `forms`.`pdf_type`, `ticket_pdf`.`pdf_name` FROM (SELECT MAX(`id`) `formid`, `ticketid`, `pdf_type` FROM `ticket_pdf_field_values` WHERE `deleted`=0 GROUP BY `ticketid`, `pdf_type`) `forms` LEFT JOIN `tickets` ON `forms`.`ticketid`=`tickets`.`ticketid` LEFT JOIN `ticket_pdf` ON `forms`.`pdf_type`=`ticket_pdf`.`id` WHERE `tickets`.`ticketid` > 0 AND `tickets`.`ticket_type` IN ('".implode("','",$ticket_conf_list)."') $match_business ORDER BY `formid` DESC LIMIT 0,25");
 		            while($ticket = $tickets->fetch_assoc()) {
@@ -1584,11 +1633,12 @@ IF(!IFRAME_PAGE) { ?>
 		        $a = 0;
 		        while($form = $forms->fetch_assoc()) {
 		            if($listarr!='0') {$disp17 = 'none';}
-		            if($listarr == '17-'.$a){$disp17 = 'block';}
+		            if($listarr == 'Top 25 Form '.$a){$disp17 = 'block';}
 		            if(in_array('Top 25 Form '.$form['id'],$db_summary) && $disp17 == 'block') {
+		                array_push($all_summary,$a);
 		                $block_length = 68;
 		                $block = '<div class="overview-block">
-                    <input type="hidden" name="id" value="17-'.$a.'">
+                    <input type="hidden" name="id" value="Top 25 Form '.$a.'">
 					<h4>Last 25 '.$form['pdf_name'].(in_array('ALL',$db_sort) ? '<a class="pull-right small" href="" onclick="$(\'[data-type=form_'.$form['id'].'] [data-status=ALL_STATUS]\').click().closest(\'[data-type]\').find(\'[data-toggle=collapse]\').first().filter(\'.collapsed\').click(); return false;">View All</a>' : '').'<img class="inline-img pull-right drag_handle" src="../img/icons/drag_handle.png"></h4>';
 		                $tickets = $dbc->query("SELECT `tickets`.*, `revision`, `last_revision` FROM (SELECT MAX(`id`) `formid`, `ticketid`, `pdf_type`, MAX(`revision`) `revision` FROM `ticket_pdf_field_values` WHERE `deleted`=0 GROUP BY `ticketid`, `pdf_type`".($form['revisions'] > 0 ? ", `revision`" : "").") `forms` LEFT JOIN (SELECT `ticketid`, `pdf_type`, MAX(`revision`) `last_revision` FROM `ticket_pdf_field_values` WHERE `deleted`=0 GROUP BY `ticketid`, `pdf_type`) `revisions` ON `forms`.`pdf_type`=`revisions`.`pdf_type` AND `forms`.`ticketid`=`revisions`.`ticketid` LEFT JOIN `tickets` ON `forms`.`ticketid`=`tickets`.`ticketid` WHERE `forms`.`pdf_type`='".$form['id']."' AND `tickets`.`ticketid` > 0 AND `tickets`.`ticket_type` IN ('".implode("','",$ticket_conf_list)."') $match_business ORDER BY `formid` DESC LIMIT 0,25");
 		                while($ticket = $tickets->fetch_assoc()) {
@@ -1613,16 +1663,15 @@ IF(!IFRAME_PAGE) { ?>
 		            } $a++;
 		        }
 		        $display_column = 0;
-		        $displayed_length = 0; 
-		        
-		        
+		        $displayed_length = 0;
+
+
 		    }
 		}
-		
 		?>
 		<div class="sort-block-group ui-sortable">
 			<div class="col-sm-6 block-group" id="sort_div">
-				<?php foreach($blocks as $block_count => $block) { 
+				<?php foreach($blocks as $block_count => $block) {
 					if(($block_count+1)/(round(count($blocks)/2)+1) == 1) {
 						$displayed_length = 0;
 						$display_column = 1;
@@ -1649,4 +1698,3 @@ IF(!IFRAME_PAGE) { ?>
 	});
 
 </script>
-

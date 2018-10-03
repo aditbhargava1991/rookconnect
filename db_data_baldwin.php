@@ -3,7 +3,7 @@
 
     //Baldwin's Database Changes
     echo "Baldwin's DB Changes:<br />\n";
-    
+
     //2018-06-15 - TIcket #7838 - Calendar Lock Icon
     if(!mysqli_query($dbc, "ALTER TABLE `ticket_schedule` ADD `calendar_history` text NOT NULL")) {
         echo "Error: ".mysqli_error($dbc)."<br />\n";
@@ -924,6 +924,244 @@
         echo "Error: ".mysqli_error($dbc)."<br />\n";
     }
     //2018-09-18 - Ticket #9010 - Shift Heading
+
+
+    //2018-09-18 - Ticket #8755 - Sales Lead Info Gathering
+    if(!mysqli_query($dbc, "ALTER TABLE `infogathering_pdf` ADD `salesid` int(11) NOT NULL")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `infogathering_pdf` ADD `deleted` int(1) NOT NULL DEFAULT 0")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+
+    //2018-09-19 - Ticket #8929 - Calendar Onlin Staff
+    if(!mysqli_query($dbc, "CREATE TABLE `calendar_last_active` (
+        `calendarlastactiveid` int(11) NOT NULL,
+        `type` varchar(500) NOT NULL,
+        `contactid` int(11) NOT NULL,
+        `last_active` datetime NOT NULL)")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `calendar_last_active`
+        ADD PRIMARY KEY (`calendarlastactiveid`)")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `calendar_last_active`
+        MODIFY `calendarlastactiveid` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-09-19 - Ticket #8929 - Calendar Onlin Staff
+
+    //2018-09-19 - Ticket #9060 - Ticket History Icon
+    $updated_already = get_config($dbc, 'updated_ticket9060_tickethistory');
+    if(empty($updated_already)) {
+        $ticket_fields = ','.get_field_config($dbc, 'ticket_fields').',';
+        $ticket_tabs = explode(',',get_config($dbc, 'ticket_tabs'));
+        foreach($ticket_tabs as $type) {
+            $ticket_fields .= get_config($dbc, 'ticket_fields_'.config_safe_str($type)).',';
+        }
+        $history_fields = [];
+        if(strpos($ticket_fields, ',History,') !== FALSE) {
+            $history_fields[] = 'Ticket History';
+        }
+        if(strpos($ticket_fields, ',Customer History Business Ticket Type,') !== FALSE) {
+            $history_fields[] = 'Customer History Business Ticket Type';
+        }
+        if(strpos($ticket_fields, ',Customer History Business Project Type,') !== FALSE) {
+            $history_fields[] = 'Customer History Business Project Type';
+        }
+        if(strpos($ticket_fields, ',Customer History Business Ticket Project Type,') !== FALSE) {
+            $history_fields[] = 'Customer History Business Ticket Project Type';
+        }
+        if(strpos($ticket_fields, ',Customer History Customer Ticket Type,') !== FALSE) {
+            $history_fields[] = 'Customer History Customer Ticket Type';
+        }
+        if(strpos($ticket_fields, ',Customer History Customer Project Type,') !== FALSE) {
+            $history_fields[] = 'Customer History Customer Project Type';
+        }
+        if(strpos($ticket_fields, ',Customer History Customer Ticket Project Type,') !== FALSE) {
+            $history_fields[] = 'Customer History Customer Ticket Project Type';
+        }
+        $history_fields = implode(',', $history_fields);
+        if(!empty($history_fields)) {
+            set_config($dbc, 'ticket_history_fields', $history_fields);
+            $ticket_quick_actions = get_config($dbc, 'quick_action_icons');
+            set_config($dbc, 'quick_action_icons', $ticket_quick_actions.',history');
+        }
+        set_config($dbc, 'updated_ticket9060_tickethistory', 1);
+    }
+    //2018-09-19 - Ticket #9060 - Ticket History Icon
+
+    //2018-09-19 - Ticket #8929 - Calendar Onlin Staff
+    if(!mysqli_query($dbc, "CREATE TABLE `calendar_last_active` (
+        `calendarlastactiveid` int(11) NOT NULL,
+        `type` varchar(500) NOT NULL,
+        `contactid` int(11) NOT NULL,
+        `last_active` datetime NOT NULL)")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `calendar_last_active`
+        ADD PRIMARY KEY (`calendarlastactiveid`)")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `calendar_last_active`
+        MODIFY `calendarlastactiveid` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-09-19 - Ticket #8929 - Calendar Onlin Staff
+
+    //2018-09-25 - Ticket #9310 - Bell Notification
+    if(!mysqli_query($dbc, "CREATE TABLE `field_config_ticket_alerts` (
+        `fieldconfigid` int(11) NOT NULL,
+        `ticket_type` varchar(500) NOT NULL,
+        `enabled` int(1) NOT NULL DEFAULT 0,
+        `status` varchar(500) NOT NULL,
+        `contactid` text NOT NULL)")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `field_config_ticket_alerts`
+        ADD PRIMARY KEY (`fieldconfigid`)")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `field_config_ticket_alerts`
+        MODIFY `fieldconfigid` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "CREATE TABLE `ticket_alerts` (
+        `id` int(11) NOT NULL,
+        `ticketid` int(11) NOT NULL,
+        `sent` int(1) NOT NULL DEFAULT 0)")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `ticket_alerts`
+        ADD PRIMARY KEY (`id`)")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `ticket_alerts`
+        MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-09-25 - Ticket #9310 - Bell Notification
+
+
+ //2018-09-19 - Ticket #9060 - Ticket History Icon
+    $updated_already = get_config($dbc, 'updated_ticket9060_tickethistory');
+    if(empty($updated_already)) {
+        $ticket_fields = ','.get_field_config($dbc, 'ticket_fields').',';
+        $ticket_tabs = explode(',',get_config($dbc, 'ticket_tabs'));
+        foreach($ticket_tabs as $type) {
+            $ticket_fields .= get_config($dbc, 'ticket_fields_'.config_safe_str($type)).',';
+        }
+        $history_fields = [];
+        if(strpos($ticket_fields, ',History,') !== FALSE) {
+            $history_fields[] = 'Ticket History';
+        }
+        if(strpos($ticket_fields, ',Customer History Business Ticket Type,') !== FALSE) {
+            $history_fields[] = 'Customer History Business Ticket Type';
+        }
+        if(strpos($ticket_fields, ',Customer History Business Project Type,') !== FALSE) {
+            $history_fields[] = 'Customer History Business Project Type';
+        }
+        if(strpos($ticket_fields, ',Customer History Business Ticket Project Type,') !== FALSE) {
+            $history_fields[] = 'Customer History Business Ticket Project Type';
+        }
+        if(strpos($ticket_fields, ',Customer History Customer Ticket Type,') !== FALSE) {
+            $history_fields[] = 'Customer History Customer Ticket Type';
+        }
+        if(strpos($ticket_fields, ',Customer History Customer Project Type,') !== FALSE) {
+            $history_fields[] = 'Customer History Customer Project Type';
+        }
+        if(strpos($ticket_fields, ',Customer History Customer Ticket Project Type,') !== FALSE) {
+            $history_fields[] = 'Customer History Customer Ticket Project Type';
+        }
+        $history_fields = implode(',', $history_fields);
+        if(!empty($history_fields)) {
+            set_config($dbc, 'ticket_history_fields', $history_fields);
+            $ticket_quick_actions = get_config($dbc, 'quick_action_icons');
+            set_config($dbc, 'quick_action_icons', $ticket_quick_actions.',history');
+        }
+        set_config($dbc, 'updated_ticket9060_tickethistory', 1);
+    }
+    //2018-09-19 - Ticket #9060 - Ticket History Icon
+
+    //2018-09-19 - Ticket #8929 - Calendar Onlin Staff
+    if(!mysqli_query($dbc, "CREATE TABLE `calendar_last_active` (
+        `calendarlastactiveid` int(11) NOT NULL,
+        `type` varchar(500) NOT NULL,
+        `contactid` int(11) NOT NULL,
+        `last_active` datetime NOT NULL)")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `calendar_last_active`
+        ADD PRIMARY KEY (`calendarlastactiveid`)")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `calendar_last_active`
+        MODIFY `calendarlastactiveid` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-09-19 - Ticket #8929 - Calendar Onlin Staff
+
+    //2018-09-20 - Ticket #8804 - Notable Happenings
+    $updated_already = get_config($dbc, 'updated_ticket8804_increp');
+    if(empty($updated_already)) {
+        set_config($dbc, 'incident_report_tabs', get_config($dbc, 'incident_report_summary'));
+        set_config($dbc, 'updated_ticket8804_increp', 1);
+    }
+    //2018-09-20 - Ticket #8804 - Notable Happenings
+
+ //2018-09-25 - Ticket #9310 - Bell Notification
+    if(!mysqli_query($dbc, "CREATE TABLE `field_config_ticket_alerts` (
+        `fieldconfigid` int(11) NOT NULL,
+        `ticket_type` varchar(500) NOT NULL,
+        `enabled` int(1) NOT NULL DEFAULT 0,
+        `status` varchar(500) NOT NULL,
+        `contactid` text NOT NULL)")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `field_config_ticket_alerts`
+        ADD PRIMARY KEY (`fieldconfigid`)")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `field_config_ticket_alerts`
+        MODIFY `fieldconfigid` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "CREATE TABLE `ticket_alerts` (
+        `id` int(11) NOT NULL,
+        `ticketid` int(11) NOT NULL,
+        `sent` int(1) NOT NULL DEFAULT 0)")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `ticket_alerts`
+        ADD PRIMARY KEY (`id`)")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `ticket_alerts`
+        MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-09-25 - Ticket #9310 - Bell Notification
+
+    //2018-09-26 - Ticket #5816 - Ticket PDFs
+    if(!mysqli_query($dbc, "ALTER TABLE `ticket_pdf` ADD `page_orientation` varchar(500) AFTER `pdf_name`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-09-26 - Ticket #5816 - Ticket PDFs
+
+    //2018-10-01 - Ticket #9354 - Dispatch
+    if(!mysqli_query($dbc, "ALTER TABLE `ticket_attached` ADD `completed_time` datetime NOT NULL AFTER `completed`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "CREATE TRIGGER `ticket_attached_completed_time` BEFORE UPDATE ON `ticket_attached`
+         FOR EACH ROW BEGIN
+            IF NEW.`completed` != OLD.`completed` THEN
+                SET NEW.`completed_time` = CURRENT_TIMESTAMP;
+            END IF;
+        END")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-10-01 - Ticket #9354 - Dispatch
 
     echo "Baldwin's DB Changes Done<br />\n";
 ?>

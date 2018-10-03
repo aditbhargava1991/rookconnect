@@ -360,6 +360,7 @@ if(basename($_SERVER['SCRIPT_FILENAME']) == 'edit_ticket_tab.php' && ($_GET['tic
 		$spent_time = $get_ticket['spent_time'];
 		$total_days = $get_ticket['total_days'];
 		$contactid = $get_ticket['contactid']; ?>
+		<script type="text/javascript" src="ticket.js"></script>
 		<script>
 		$(document).ready(function() {
 			$('.start_time').val(<?= $time_seconds ?>);
@@ -586,10 +587,23 @@ if(basename($_SERVER['SCRIPT_FILENAME']) == 'edit_ticket_tab.php' && ($_GET['tic
 		if($get_ticket['status'] == $admin_group['status']) {
 			$wait_on_approval = true;
 		}
-		$value_config_all = $value_config;
-		if(!empty($admin_group['unlocked_fields']) && !$wait_on_approval && $get_ticket['status'] != 'Archive' && !$force_readonly) {
-			$value_config = $admin_group['unlocked_fields'];
-		}
+        $value_config_all = $value_config;
+        if(!empty($admin_group['unlocked_fields']) && !$wait_on_approval && $get_ticket['status'] != 'Archive' && !$force_readonly) {
+            $value_config = ','.$admin_group['unlocked_fields'].',';
+        }
+        if(empty(trim($value_config,','))) {
+            $value_config = $value_config_all;
+        } else {
+            if(strpos($value_config, ','."Hide Trash Icon".',') !== FALSE) {
+                $hide_trash_icon = 1;
+            }
+            foreach($action_mode_ignore_fields as $action_mode_ignore_field) {
+                if(strpos(','.$value_config_all.',',','.$action_mode_ignore_field.',') !== FALSE) {
+                    $value_config .= ','.$action_mode_ignore_field;
+                }
+            }
+            $value_config = ','.implode(',',array_intersect(explode(',',$value_config), explode(',',$value_config_all))).',';
+        }
 	} else {
 		$admin_group = [];
 	}	
@@ -609,7 +623,7 @@ if(basename($_SERVER['SCRIPT_FILENAME']) == 'edit_ticket_tab.php' && ($_GET['tic
 	if(!empty($get_ticket['status']) && strpos($uneditable_statuses, ','.$get_ticket['status'].',') !== FALSE) {
 		$strict_view = 1;
 	}
-	if(($get_ticket['to_do_date'] > date('Y-m-d') && strpos($value_config,',Ticket Edit Cutoff,') !== FALSE && $config_access < 1) || $strict_view > 0 || $wait_on_approval) {
+	if(($get_ticket['to_do_date'] > date('Y-m-d') && strpos($value_config,',Ticket Edit Cutoff,') !== FALSE && $config_access < 1) || $strict_view > 0 || ($wait_on_approval && strpos(','.$admin_group.',',','.$_SESSION['contactid'].',') !== false)) {
 		$access_project = false;
 		$access_staff = false;
 		$access_contacts = false;

@@ -167,6 +167,7 @@ if($siteid == 'recent') {
 					$dbc->query("UPDATE `tickets` LEFT JOIN `ticket_attached` ON `tickets`.`ticketid`=`ticket_attached`.`ticketid` SET `tickets`.`siteid`='' WHERE `ticket_attached`.`id`='$line_id'");
 				}
 				$weight = [];
+				$weights = [];
 				$inv_weight_units = explode('#*#',$row['weight_units']);
 				foreach(explode('#*#',$row['weight']) as $id => $inv_weight) {
 					if(in_array('weight convert kg to lb',$manifest_fields) && $inv_weight_units[$id] == 'kg') {
@@ -174,6 +175,7 @@ if($siteid == 'recent') {
 						$inv_weight_units[$id] = 'lbs';
 					}
 					$weight[] = $inv_weight.' '.$inv_weight_units[$id];
+					$weights[$inv_weight_units[$id]] += $inv_weight;
 					if(in_array('total weight lb',$manifest_fields)) {
 						if($inv_weight_units[$id] == 'kg') {
 							$total_weight += ($inv_weight*2.20462262185);
@@ -184,21 +186,45 @@ if($siteid == 'recent') {
 				}
 				$weight = implode('<br />', $weight);
 			} else {
-				$row = ['qty'=>'','siteid'=>$siteid];
+				$row = '';
 				$weight = '';
+				$weights = [];
 			}
 
-			$lines[] = ['file'=>$row['ticket_label'], 'po'=>implode('<br />',array_filter(explode('#*#',$row['po_num']))), 'vendor'=>($row['vendor'] > 0 ? get_contact($dbc, $row['vendor'],'name_company') : ''), 'line'=>(empty($row['po_line']) ? 'N/A' : $row['po_line']), 'qty'=>($row['qty'] > 0 ? round($row['qty'],3) : ''), 'manual_qty'=>$manual_qty[$i], 'site'=>($row['siteid'] == $siteid ? $manifest_label : ($row['siteid'] > 0 ? get_contact($dbc, $row['siteid']) : 'UNASSIGNED')), 'notes'=>$row['notes'], 'weight'=>$weight];
+			if(!empty($row)) {
+				if(in_array('group pieces po',$manifest_fields)) {
+					$po_num_key = implode('<br />',array_filter(explode('#*#',$row['po_num'])));
+					$lines[$po_num_key]['file'][] = $row['ticket_label'];
+					$lines[$po_num_key]['po'] = $po_num_key;
+					$lines[$po_num_key]['vendor'][] = $row['vendor'] > 0 ? get_contact($dbc, $row['vendor'],'name_company') : '';
+					$lines[$po_num_key]['line'][] = (empty($row['po_line']) ? 'N/A' : $row['po_line']);
+					if($row['qty'] > 0) {
+						$lines[$po_num_key]['qty'] += $row['qty'];
+					}
+					if($manual_qty[$i] > 0) {
+						$lines[$po_num_key]['manual_qty'] += $manual_qty[$i];
+					}
+					$lines[$po_num_key]['site'][] = ($row['siteid'] == $siteid ? $manifest_label : ($row['siteid'] > 0 ? get_contact($dbc, $row['siteid']) : 'UNASSIGNED'));
+					$lines[$po_num_key]['notes'][] = $row['notes'];
+					foreach($weights as $weight_unit => $weight_num) {
+						if(!empty($weight_unit) || $weight_num > 0) {
+							$lines[$po_num_key]['weight'][$weight_unit] += $weight_num;
+						}
+					}
+				} else {
+					$lines[] = ['file'=>$row['ticket_label'], 'po'=>implode('<br />',array_filter(explode('#*#',$row['po_num']))), 'vendor'=>($row['vendor'] > 0 ? get_contact($dbc, $row['vendor'],'name_company') : ''), 'line'=>(empty($row['po_line']) ? 'N/A' : $row['po_line']), 'qty'=>($row['qty'] > 0 ? round($row['qty'],3) : ''), 'manual_qty'=>$manual_qty[$i], 'site'=>($row['siteid'] == $siteid ? $manifest_label : ($row['siteid'] > 0 ? get_contact($dbc, $row['siteid']) : 'UNASSIGNED')), 'notes'=>$row['notes'], 'weight'=>$weight];	
+				}
 
-			if(in_array('pdf_collapse',$manifest_fields)) {
-				$columns['po'] += (!empty($row['po_num']) ? 1 : 0);
-				$columns['vendor'] += ($row['vendor'] > 0 ? 1 : 0);
-				$columns['line'] += (!empty($row['po_line']) ? 1 : 0);
-				$columns['qty'] += ($row['qty'] > 0 ? 1 : 0);
-				$columns['manual_qty'] += ($manual_qty[$i] > 0 ? 1 : 0);
-				$columns['site'] += ($row['siteid'] > 0 ? 1 : 0);
-				$columns['notes'] += (!empty($row['notes']) ? 1 : 0);
-				$columns['weight'] += (!empty($weight) ? 1 : 0);
+				if(in_array('pdf_collapse',$manifest_fields)) {
+					$columns['po'] += (!empty($row['po_num']) ? 1 : 0);
+					$columns['vendor'] += ($row['vendor'] > 0 ? 1 : 0);
+					$columns['line'] += (!empty($row['po_line']) ? 1 : 0);
+					$columns['qty'] += ($row['qty'] > 0 ? 1 : 0);
+					$columns['manual_qty'] += ($manual_qty[$i] > 0 ? 1 : 0);
+					$columns['site'] += ($row['siteid'] > 0 ? 1 : 0);
+					$columns['notes'] += (!empty($row['notes']) ? 1 : 0);
+					$columns['weight'] += (!empty($weight) ? 1 : 0);
+				}
 			}
 		}
 		$total_weight = number_format($total_weight,2);
@@ -227,7 +253,22 @@ if($siteid == 'recent') {
 			if($siteid > 0) {
 				$site_notes = html_entity_decode($dbc->query("SELECT `notes` FROM `contacts_description` WHERE `contactid`='$siteid'")->fetch_assoc()['notes']);
 			}
-			foreach($lines as $i => $row) {
+			$i = 0;
+			foreach($lines as $key => $row) {
+				if(in_array('group pieces po',$manifest_fields)) {
+					$row['file'] = implode('<br />', array_unique(array_filter($row['file'])));
+					$row['vendor'] = implode('<br />', array_unique(array_filter($row['vendor'])));
+					$row['line'] = implode('<br />', array_unique(array_filter($row['line'])));
+					$row['qty'] = ($row['qty'] > 0 ? round($row['qty'],3) : '');
+					$row['manual_qty'] = ($row['manual_qty'] > 0 ? round($row['manual_qty'],3) : '');
+					$row['site'] = implode('<br />', array_unique(array_filter($row['site'])));
+					$row['notes'] = implode('<br />', array_unique(array_filter($row['notes'])));
+					$row_weight = [];
+					foreach($row['weight'] as $weight_unit => $weight_num) {
+						$row_weight[] = $weight_num.' '.$weight_unit;
+					}
+					$row['weight'] = implode('<br />', $row_weight);
+				}
 				$html .= '<tr style="background-color:'.($i % 2 == 0 ? $row_colour_1 : $row_colour_2).'"><td style="font-size:5px;" colspan="'.$col_count.'">&nbsp;</td></tr><tr style="background-color:'.($i % 2 == 0 ? $row_colour_1 : $row_colour_2).'">
 					'.(in_array('file',$manifest_fields) ? '<td data-title="FILE #" style="text-align:center;">'.$row['file'].'</td>' : '').'
 					'.(in_array('po',$manifest_fields) && $columns['po'] > 0 ? '<td data-title="PO" style="text-align:center;">'.$row['po'].'</td>' : '').'
@@ -240,6 +281,7 @@ if($siteid == 'recent') {
 					'.(in_array('notes',$manifest_fields) && $columns['notes'] > 0 ? '<td data-title="NOTES" style="text-align:center;">'.html_entity_decode($row['notes']).'</td>' : '').'
 				</tr>
 				<tr style="background-color:'.($i % 2 == 0 ? $row_colour_1 : $row_colour_2).'"><td style="font-size:5px;" colspan="'.$col_count.'">&nbsp;</td></tr>';
+				$i++;
 			}
 			$html .= '<tr>
 				'.(in_array('file',$manifest_fields) ? '<td style="border-top: 1px solid black;"></td>' : '').'

@@ -16,7 +16,7 @@
             $each_package[] = '';
             $each_package_cost = array_filter(explode(',', $package_cost));
             foreach($each_package as $loop => $package) {
-                $package_cost = $each_package_cost[$loop];
+                $package_cost = $each_package_cost[$loop] * $discount_percent;
                 $package_cat = mysqli_fetch_array(mysqli_query($dbc, "SELECT `category` FROM `package` WHERE `packageid`='$package'"))['category']; ?>
                 <div class="additional_package form-group clearfix" style="<?= $_GET['inv_mode'] == 'adjust' ? 'display:none;' : '' ?>">
                     <div class="col-sm-4"><label class="show-on-mob">Package Category:</label>
@@ -51,7 +51,7 @@
                     <div class="col-sm-2"><label class="show-on-mob">Fee:</label>
                         <?php if($_GET['inv_mode'] == 'adjust') { ?>
                             <input name="package_cost[]" id="<?php echo 'package_cost_'.$loop; ?>" onchange="countTotalPrice()" value="<?php echo $package_cost + 0; ?>" type="hidden" class="package_cost" />
-                            <?= $package_cost + 0 ?>
+                            <?= number_format($package_cost + 0,2) ?>
                         <?php } else { ?>
                             <input name="package_cost[]" id="<?php echo 'package_cost_'.$loop; ?>" onchange="countTotalPrice()" value="<?php echo $package_cost + 0; ?>" type="number" step="any" readonly class="form-control package_cost" />
                         <?php } ?>

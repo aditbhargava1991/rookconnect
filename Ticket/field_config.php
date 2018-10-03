@@ -27,6 +27,9 @@ switch($_GET['settings']) {
 	case 'types':
 		$page_title = TICKET_NOUN.' Tabs';
 		break;
+	case 'alerts':
+		$page_title = TICKET_NOUN.' Tab Alerts';
+		break;
 	case 'status':
 		$page_title = 'Statuses';
 		break;
@@ -48,6 +51,9 @@ switch($_GET['settings']) {
 	case 'importing':
 		$page_title = 'Import Templates';
 		break;
+	case 'intake':
+		$page_title = 'Intake Fields';
+		break;
 	case 'summary_security':
 		$page_title = 'Summary Access';
 		break;
@@ -63,6 +69,9 @@ switch($_GET['settings']) {
 	case 'manifests':
 		$page_title = 'Manifest Fields';
 		break;
+	case 'mandatory_fields':
+		$page_title = TICKET_NOUN . ' Mandatory Fields';
+		break;
 	default:
 		$page_title = TICKET_NOUN.' Fields - '.(empty($_GET['type_name']) ? 'All '.TICKET_NOUN : $ticket_tabs[$_GET['type_name']]).' Fields';;
 		break;
@@ -70,7 +79,7 @@ switch($_GET['settings']) {
 ?>
 <script>
 $(document).ready(function() {
-	$('.panel-heading').click(loadPanel);
+	$('.panel-heading').not('.no_load').click(loadPanel);
 });
 function loadPanel() {
 	$('.panel-body').html('Loading...');
@@ -120,6 +129,21 @@ function loadPanel() {
 		<div class="panel panel-default">
 			<div class="panel-heading">
 				<h4 class="panel-title">
+					<a data-toggle="collapse" data-parent="#settings_accordions" href="#collapse_mandatory_fields">
+						<?= TICKET_NOUN ?> Mandatory Fields<span class="glyphicon glyphicon-plus"></span>
+					</a>
+				</h4>
+			</div>
+
+			<div id="collapse_fields" class="panel-collapse collapse">
+				<div class="panel-body" data-file="field_config_mandatory_fields.php">
+					Loading...
+				</div>
+			</div>
+		</div>
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<h4 class="panel-title">
 					<a data-toggle="collapse" data-parent="#settings_accordions" href="#collapse_action">
 						Action Mode Fields<span class="glyphicon glyphicon-plus"></span>
 					</a>
@@ -158,6 +182,21 @@ function loadPanel() {
 
 			<div id="collapse_status_fields" class="panel-collapse collapse">
 				<div class="panel-body" data-file="field_config_status_fields.php">
+					Loading...
+				</div>
+			</div>
+		</div>
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<h4 class="panel-title">
+					<a data-toggle="collapse" data-parent="#settings_accordions" href="#collapse_intake">
+						Intake Fields<span class="glyphicon glyphicon-plus"></span>
+					</a>
+				</h4>
+			</div>
+
+			<div id="collapse_intake" class="panel-collapse collapse">
+				<div class="panel-body" data-file="field_config_intake.php">
 					Loading...
 				</div>
 			</div>
@@ -218,6 +257,21 @@ function loadPanel() {
 
 			<div id="collapse_ticket_types" class="panel-collapse collapse">
 				<div class="panel-body" data-file="field_config_types.php">
+					Loading...
+				</div>
+			</div>
+		</div>
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<h4 class="panel-title">
+					<a data-toggle="collapse" data-parent="#settings_accordions" href="#collapse_ticket_alerts">
+						<?= TICKET_NOUN ?> Tab Alerts<span class="glyphicon glyphicon-plus"></span>
+					</a>
+				</h4>
+			</div>
+
+			<div id="collapse_ticket_alerts" class="panel-collapse collapse">
+				<div class="panel-body" data-file="field_config_alerts.php">
 					Loading...
 				</div>
 			</div>
@@ -395,13 +449,16 @@ function loadPanel() {
 		<?php if(empty($_GET['tile_name'])) { ?>
 			<a href="?settings=dashboard"><li class="<?= $_GET['settings'] == 'dashboard' ? 'active blue' : '' ?>">Dashboard Fields</li></a>
 			<a href="?settings=fields"><li class="<?= empty($_GET['settings']) || $_GET['settings'] == 'fields' ? 'active blue' : '' ?>"><?= TICKET_NOUN ?> Fields</li></a>
+			<a href="?settings=mandatory_fields"><li class="<?= $_GET['settings'] == 'mandatory_fields' ? 'active blue' : '' ?>"><?= TICKET_NOUN ?> Mandatory Fields</li></a>
 			<a href="?settings=action"><li class="<?= $_GET['settings'] == 'action' ? 'active blue' : '' ?>">Action Mode Fields</li></a>
 			<a href="?settings=overview"><li class="<?= $_GET['settings'] == 'overview' ? 'active blue' : '' ?>">Overview Fields</li></a>
 			<a href="?settings=status_fields"><li class="<?= $_GET['settings'] == 'status_fields' ? 'active blue' : '' ?>">Status Fields</li></a>
+			<a href="?settings=intake"><li class="<?= $_GET['settings'] == 'intake' ? 'active blue' : '' ?>">Intake Fields</li></a>
 			<a href="?settings=summary_security"><li class="<?= $_GET['settings'] == 'summary_security' ? 'active blue' : '' ?>">Summary Access</li></a>
 			<a href="?settings=manifests"><li class="<?= $_GET['settings'] == 'manifests' ? 'active blue' : '' ?>">Manifest Fields</li></a>
 			<a href="?settings=pdf"><li class="<?= $_GET['settings'] == 'pdf' ? 'active blue' : '' ?>">PDF Options</li></a>
 			<a href="?settings=types"><li class="<?= $_GET['settings'] == 'types' ? 'active blue' : '' ?>"><?= TICKET_NOUN ?> Tabs</li></a>
+			<a href="?settings=alerts"><li class="<?= $_GET['settings'] == 'alerts' ? 'active blue' : '' ?>"><?= TICKET_NOUN ?> Tab Alerts</li></a>
 			<a href="?settings=status"><li class="<?= $_GET['settings'] == 'status' ? 'active blue' : '' ?>">Statuses</li></a>
 			<a href="?settings=tile"><li class="<?= $_GET['settings'] == 'tile' ? 'active blue' : '' ?>">Tile Settings</li></a>
 			<a href="?settings=tile_split"><li class="<?= $_GET['settings'] == 'tile_split' ? 'active blue' : '' ?>">Tile Splitting</li></a>
@@ -432,6 +489,9 @@ function loadPanel() {
 			case 'dashboard':
 				include('field_config_dashboard.php');
 				break;
+			case 'intake':
+				include('field_config_intake.php');
+				break;
 			case 'summary_security':
 				include('field_config_summary_security.php');
 				break;
@@ -455,6 +515,9 @@ function loadPanel() {
 				break;
 			case 'types':
 				include('field_config_types.php');
+				break;
+			case 'alerts':
+				include('field_config_alerts.php');
 				break;
 			case 'status':
 				include('field_config_status.php');
@@ -497,6 +560,10 @@ function loadPanel() {
 				break;
 			case 'checklist':
 				include('field_config_checklist.php');
+				break;
+			case 'mandatory_fields':
+				$mandatory = 1;
+				include('field_config_fields.php');
 				break;
 			default:
 				include('field_config_fields.php');
