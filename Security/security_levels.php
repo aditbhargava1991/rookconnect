@@ -180,7 +180,7 @@ function add_custom_row() {
 							<?php echo security_level_function($row['identifier'], $$row['identifier'], ""); ?>
 							<td width="5%">
 								<?php if($counter == $security_level_count_array['level_count']): ?>
-									<img src="../img/icons/ROOK-add-icon.png" class="inline-img pull-right" onclick="add_option();">
+									<!--<img src="../img/icons/ROOK-add-icon.png" class="inline-img pull-right" onclick="add_option();">-->
 								<?php endif; ?>
 								<img src="../img/icons/drag_handle.png" class="inline-img drag-handle pull-right">
 							</td>

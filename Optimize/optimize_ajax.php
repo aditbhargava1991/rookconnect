@@ -3,6 +3,7 @@ ob_clean();
 
 if($_GET['action'] == 'add_macro') {
 	set_config($dbc, 'upload_macros', filter_var(implode('#*#',$_POST['value']),FILTER_SANITIZE_STRING));
+	set_config($dbc, 'upload_macro_businesses', filter_var(implode('#*#',$_POST['businesses']),FILTER_SANITIZE_STRING));
 }
 if($_GET['action'] == 'bb_macro_warehouse_assignments') {
 	set_config($dbc, 'bb_macro_warehouse_assignments', filter_var(implode('#*#',$_POST['value']),FILTER_SANITIZE_STRING));
@@ -56,6 +57,9 @@ else if($_GET['action'] == 'assign_ticket_deliveries') {
 	}
 	$start_time = date('H:i',strtotime($start_time));
 	if($increment == '') {
+		$increment = get_config($dbc, 'scheduling_increments').' minutes';
+	}
+	if($increment == '') {
 		$increment = '30 minutes';
 	}
 	$available_increment = get_config($dbc, 'delivery_timeframe_default');
@@ -69,8 +73,9 @@ else if($_GET['action'] == 'assign_ticket_deliveries') {
         $start_available = $start_time;
 		$end_available = date('H:i',strtotime($start_time.' + '.$available_increment.' hours'));
 		$dbc->query("UPDATE `ticket_schedule` SET `to_do_start_time`='$start_time', `to_do_end_time`='$end_time', `start_available`='$start_available', `end_available`='$end_available', `equipmentid`='$equipmentid' WHERE `id`='".$stop['id']."'");
-		$start_time = date('H:i',strtotime($start_time) + ($increment_time * ceil($est_time * 3600 / $increment_time)));
+        $date = get_field_value('to_do_date','ticket_schedule','id',$stop['id']);
 	}
+    echo $date;
 }
 else if($_GET['action'] == 'archive') {
     $id = filter_var($_POST['id'],FILTER_SANITIZE_STRING);

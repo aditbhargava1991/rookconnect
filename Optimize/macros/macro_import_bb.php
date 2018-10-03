@@ -101,7 +101,7 @@ if(isset($_POST['upload_file']) && !empty($_FILES['csv_file']['tmp_name'])) {
 				} else if(!empty($business_warehouse)) {
 					$dbc->query("INSERT INTO `ticket_schedule` (`ticketid`,`type`,`to_do_date`,`to_do_start_time`,`client_name`,`address`,`city`,`postal_code`,`order_number`,`status`) VALUES ('$ticketid','".$business_warehouse['warehouse_name']."','".$value['date']."','".$warehouse_start_time."','".$business_name."','".$business_warehouse['address']."','".$business_warehouse['city']."','".$business_warehouse['postal_code']."','".$key."','$default_status')");
 				}
-				$dbc->query("INSERT INTO `ticket_schedule` (`ticketid`,`to_do_date`,`client_name`,`address`,`city`,`details`,`order_number`,`serviceid`,`est_time`,`map_link`,`notes`,`status`) VALUES ('$ticketid','".$value['date']."','".$value['customer_name']."','".$value['address']."','".$value['city']."','".$value['phone']."','".$key."','$serviceid','$service_est_time','".'https://www.google.ca/maps/place/'.urlencode($value['address']).','.urlencode($value['city'])."','&lt;p&gt;".$value['sku']."&lt;/p&gt;&lt;p&gt;".$value['comments']."&lt;/p&gt;','$default_status')");
+				$dbc->query("INSERT INTO `ticket_schedule` (`type`, `ticketid`,`to_do_date`,`client_name`,`address`,`city`,`details`,`order_number`,`serviceid`,`est_time`,`map_link`,`notes`,`status`) VALUES ('".get_config($dbc, 'delivery_type_default')."', '$ticketid','".$value['date']."','".$value['customer_name']."','".$value['address']."','".$value['city']."','".$value['phone']."','".$key."','$serviceid','$service_est_time','".'https://www.google.ca/maps/place/'.urlencode($value['address']).','.urlencode($value['city'])."','&lt;p&gt;".$value['sku']."&lt;/p&gt;&lt;p&gt;".$value['comments']."&lt;/p&gt;','$default_status')");
 				if(!empty($warehouses[$value['origin_city']]) && !empty($value['origin_city'])) {
 					$dbc->query("INSERT INTO `ticket_schedule` (`ticketid`,`type`,`to_do_date`,`client_name`,`address`,`city`,`postal_code`,`order_number`,`status`) VALUES ('$ticketid','".$warehouses[$value['origin_city']]['warehouse_name']."','".$value['date']."','".$business_name."','".$warehouses[$value['origin_city']]['address']."','".$warehouses[$value['origin_city']]['city']."','".$warehouses[$value['origin_city']]['postal_code']."','".$key."','$default_status')");
 				} else if(!empty($business_warehouse)) {
@@ -137,16 +137,12 @@ if(isset($_POST['upload_file']) && !empty($_FILES['csv_file']['tmp_name'])) {
 			<label class="form-checkbox"><input type="radio" name="duplicate" value="no_dupe">No Duplicates</label>
 			<label class="form-checkbox"><input type="radio" name="duplicate" value="all_dupes" checked>Allow Duplicates</label><br>
 			<select class="chosen-select-deselect" data-placeholder="Select <?= BUSINESS_CAT ?>" name="businessid"><option />
-				<?php foreach(sort_contacts_query($dbc->query("SELECT `name`, `contactid` FROM `contacts` WHERE `category`='".BUSINESS_CAT."' AND `deleted`=0 AND `status` > 0")) as $business) { ?>
-					<option value="<?= $business['contactid'] ?>"><?= $business['name'] ?></option>
+				<?php foreach(sort_contacts_query($dbc->query("SELECT `name`, `first_name`, `last_name`, `contactid` FROM `contacts` WHERE `category`='".BUSINESS_CAT."' AND `deleted`=0 AND `status` > 0 AND (`classification` IN ('".implode("','",$cur_bus)."') OR `contactid` IN ('".implode("','",$cur_bus)."') OR '' IN ('".implode("','",$cur_bus)."') OR 'ALL' IN ('".implode("','",$cur_bus)."'))")) as $business) { ?>
+					<option value="<?= $business['contactid'] ?>"><?= $business['full_name'] ?></option>
 				<?php } ?>
 			</select>
 			<input type="file" name="csv_file">
-			<input type="hidden" name="ticket_type" value="<?php foreach($macro_list as $macro) {
-				if($macro[0] == $_GET['macro']) {
-					echo $macro[1];
-				}
-			} ?>">
+			<input type="hidden" name="ticket_type" value="<?= $cur_macro[1] ?>">
 			<input type="submit" name="upload_file" value="Submit" class="btn brand-btn">
 		</p>
 	</ol>

@@ -21,6 +21,10 @@ if(isset($_POST['upload_file']) && !empty($_FILES['csv_file']['tmp_name'])) {
 	$classification = $business['classification'];
 	$date = '';
 	$ticket_type = filter_var($_POST['ticket_type'],FILTER_SANITIZE_STRING);
+    $duration = strtotime(get_config($dbc, 'scheduling_increments').' minutes') - strtotime('0 minutes');
+    if(!($duration > 0)) {
+        $duration = 900;
+    }
 
 	$current_order = '';
 	$ticket_list = [];
@@ -39,13 +43,19 @@ if(isset($_POST['upload_file']) && !empty($_FILES['csv_file']['tmp_name'])) {
 		$est_time = filter_var($csv[14],FILTER_SANITIZE_STRING);
 		$date = empty($to_do_date) ? $date : $to_do_date;
 		if($salesorderid == $current_order) {
-			$to_do_start_time = date('H:i', strtotime($to_do_start_time) + ($increment_time * ceil($service_est_time * 3600 / $increment_time)));
+
+			$to_do_start_time = date('H:i',strtotime($to_do_start_time) + $duration * ceil((strtotime($est_time) - strtotime('00:00')) / $duration));
+            $to_do_end_time = date('H:i',strtotime($to_do_start_time) + strtotime($est_time) - strtotime('00:00'));
+
 			echo "<!--Same Ticket...";
 		} else {
 			$current_order = $salesorderid;
 			$to_do_start_time = '08:00';
-			echo "<!--INSERT INTO `tickets` (`ticket_type`,`businessid`,`region`,`classification`, `salesorderid`, `created_by`, `ticket_label`, `ticket_label_date`, `heading`,`status`) VALUES ('$ticket_type','$businessid','$region','$classification','$salesorderid','".$_SESSION['contactid']."','$business_name - $salesorderid',NOW(),'$business_name - $salesorderid','$default_status')";
-			$dbc->query("INSERT INTO `tickets` (`ticket_type`,`businessid`,`region`,`classification`, `salesorderid`, `created_by`, `ticket_label`, `ticket_label_date`, `heading`,`status`) VALUES ('$ticket_type','$businessid','$region','$classification','$salesorderid','".$_SESSION['contactid']."','$business_name - $salesorderid',NOW(),'$business_name - $salesorderid','$default_status')");
+
+            $to_do_end_time = date('H:i',strtotime($to_do_start_time) + strtotime($est_time) - strtotime('00:00'));
+			echo "<!--INSERT INTO `tickets` (`ticket_type`,`businessid`,`region`,`classification`, `salesorderid`, `created_by`, `ticket_label`, `ticket_label_date`, `heading`) VALUES ('$ticket_type','$businessid','$region','$classification','$salesorderid','".$_SESSION['contactid']."','$business_name - $salesorderid',NOW(),'$business_name - $salesorderid')";
+			$dbc->query("INSERT INTO `tickets` (`ticket_type`,`businessid`,`region`,`classification`, `salesorderid`, `created_by`, `ticket_label`, `ticket_label_date`, `heading`) VALUES ('$ticket_type','$businessid','$region','$classification','$salesorderid','".$_SESSION['contactid']."','$business_name - $salesorderid',NOW(),'$business_name - $salesorderid')");
+
 			$ticketid = $dbc->insert_id;
 			$ticket_list[] = $ticketid;
 			$dbc->query("INSERT INTO `ticket_history` (`ticketid`,`userid`,`src`,`description`) VALUES ($ticketid,".$_SESSION['contactid'].",'optimizer','Sleep Country macro imported ".TICKET_NOUN." $ticketid')");
@@ -57,16 +67,21 @@ if(isset($_POST['upload_file']) && !empty($_FILES['csv_file']['tmp_name'])) {
         if($prior_attempts > 0) {
             $order_number = $order_number.'-'.($prior_attempts + 1);
         }
+
         $google_link = 'https://www.google.ca/maps/place/'.urlencode($address).','.urlencode($city);
-		echo "INSERT INTO `ticket_schedule` (`ticketid`,`order_number`,`client_name`,`address`,`city`,`map_link`,`to_do_date`,`to_do_start_time`,`to_do_end_time`,`details`,`cust_est`,`est_time`,`start_available`,`end_available`,`serviceid`,`type`,`status`) VALUES ('$ticketid','$order_number','$client_name','$address','$city','$google_link','$to_do_date','$to_do_start_time','$to_do_end_time','$details','$est_time','$service_est_time','$start_available','$end_available','$default_services','Drop Off','$default_status')-->";
-		$dbc->query("INSERT INTO `ticket_schedule` (`ticketid`,`order_number`,`client_name`,`address`,`city`,`map_link`,`to_do_date`,`to_do_start_time`,`to_do_end_time`,`details`,`cust_est`,`est_time`,`start_available`,`end_available`,`serviceid`,`type`,`status`) VALUES ('$ticketid','$order_number','$client_name','$address','$city','$google_link','$to_do_date','$to_do_start_time','$to_do_end_time','$details','$est_time','$service_est_time','$start_available','$end_available','$default_services','Drop Off','$default_status')");
+		echo "INSERT INTO `ticket_schedule` (`ticketid`,`order_number`,`client_name`,`address`,`city`,`map_link`,`to_do_date`,`to_do_start_time`,`to_do_end_time`,`details`,`cust_est`,`est_time`,`start_available`,`end_available`,`serviceid`,`type`,`status`) VALUES ('$ticketid','$order_number','$client_name','$address','$city','$google_link','$to_do_date','$to_do_start_time','$to_do_end_time','$details','$est_time','$service_est_time','$start_available','$end_available','$default_services','".get_config($dbc, 'delivery_type_default')."','$default_status')-->";
+		$dbc->query("INSERT INTO `ticket_schedule` (`ticketid`,`order_number`,`client_name`,`address`,`city`,`map_link`,`to_do_date`,`to_do_start_time`,`to_do_end_time`,`details`,`cust_est`,`est_time`,`start_available`,`end_available`,`serviceid`,`type`,`status`) VALUES ('$ticketid','$order_number','$client_name','$address','$city','$google_link','$to_do_date','$to_do_start_time','$to_do_end_time','$details','$est_time','$service_est_time','$start_available','$end_available','$default_services','".get_config($dbc, 'delivery_type_default')."','$default_status')");
 	}
 	fclose($handle); ?>
     <script>
 	alert('The CSV has been imported!');
     </script>
 <?php }
-if((isset($_POST['upload_file']) && !empty($_FILES['csv_file']['tmp_name'])) || $_GET['access'] == 'prior') { ?>
+if((isset($_POST['upload_file']) && !empty($_FILES['csv_file']['tmp_name'])) || $_GET['access'] == 'prior') {
+    if(empty($date) && !empty($_GET['date'])) {
+        $date = $_GET['date'];
+    } ?>
+    <script src="../Calendar/map_sorting.js"></script>
 	<script>
 	function get_details() {
 		equip_scroll = $('.equip_list').scrollTop();
@@ -92,7 +107,8 @@ if((isset($_POST['upload_file']) && !empty($_FILES['csv_file']['tmp_name'])) || 
 							ticket: ticketid,
 							start: $('[name=day_start_time]').val(),
 							increment: '30 minutes'
-						}, function(response) {
+						}, function(date) {
+                            sort_by_map(date, equipment, '', '', true);
 							$('.ticket_list').data('ids',$('.ticket_list').data('ids').filter(function(str) { return str != ticketid; }));
 							get_details();
 							$('[name=day_start_time]').val('');
@@ -137,16 +153,12 @@ if((isset($_POST['upload_file']) && !empty($_FILES['csv_file']['tmp_name'])) || 
 			<br>
 			<p>
 				<select class="chosen-select-deselect" data-placeholder="Select <?= BUSINESS_CAT ?>" name="businessid"><option />
-					<?php foreach(sort_contacts_query($dbc->query("SELECT `name`, `contactid` FROM `contacts` WHERE `category`='".BUSINESS_CAT."' AND `deleted`=0 AND `status` > 0")) as $business) { ?>
-						<option value="<?= $business['contactid'] ?>"><?= $business['name'] ?></option>
+					<?php foreach(sort_contacts_query($dbc->query("SELECT `name`, `first_name`, `last_name`, `contactid` FROM `contacts` WHERE `category`='".BUSINESS_CAT."' AND `deleted`=0 AND `status` > 0 AND (`classification` IN ('".implode("','",$cur_bus)."') OR `contactid` IN ('".implode("','",$cur_bus)."') OR '' IN ('".implode("','",$cur_bus)."') OR 'ALL' IN ('".implode("','",$cur_bus)."'))")) as $business) { ?>
+						<option value="<?= $business['contactid'] ?>"><?= $business['full_name'] ?></option>
 					<?php } ?>
 				</select>
 				<input type="file" name="csv_file" class="form-control">
-				<input type="hidden" name="ticket_type" value="<?php foreach($macro_list as $macro) {
-					if($macro[0] == $_GET['macro']) {
-						echo $macro[1];
-					}
-				} ?>">
+				<input type="hidden" name="ticket_type" value="<?= $cur_macro[1] ?>">
 				<input type="submit" name="upload_file" value="Submit" class="btn brand-btn">
 			</p>
 		</ol>

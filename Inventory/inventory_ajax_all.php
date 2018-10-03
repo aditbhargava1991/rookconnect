@@ -175,6 +175,18 @@ if($_GET['fill'] == 'show_digi_count') {
     }
 }
 
+if($_GET['fill'] == 'default_digi_count_tab') {
+	$value = $_GET['value'];
+    $get_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT COUNT(configid) AS configid FROM general_configuration WHERE name='default_digi_count_tab'"));
+    if($get_config['configid'] > 0) {
+        $query_update_employee = "UPDATE `general_configuration` SET value = '$value' WHERE name='default_digi_count_tab'";
+        $result_update_employee = mysqli_query($dbc, $query_update_employee);
+    } else {
+        $query_insert_config = "INSERT INTO `general_configuration` (`name`, `value`) VALUES ('default_digi_count_tab', '$value')";
+        $result_insert_config = mysqli_query($dbc, $query_insert_config);
+    }
+}
+
 if($_GET['fill'] == 'show_impexp_inv') {
 	$value = $_GET['value'];
     $get_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT COUNT(configid) AS configid FROM general_configuration WHERE name='show_impexp_inv'"));

@@ -382,7 +382,14 @@
 			echo "Error: ".mysqli_error($dbc)."<br />\n";
 		}
 
-
+        // October 1, 2018 - Ticket 9483
+		if(!mysqli_query($dbc, "ALTER TABLE `tickets` ADD `sort_status` TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 AFTER `status`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+		if(!mysqli_query($dbc, "ALTER TABLE `ticket_schedule` ADD `sort_status` TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 AFTER `status`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+        // Ticket 9343
 		
 		set_config($dbc, 'db_version_jonathan', 8);
     }

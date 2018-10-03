@@ -196,6 +196,10 @@ $approv_count = $admin_group['precedence'] > 1 ? count(array_filter(explode(',',
                                 $services_cost[] = number_format(($qty[$i] > 0 ? $qty[$i] : 1) * ($service_rate > 0 ? $service_rate : $service['cust_price']),2);
                             }
                         }
+                        if(in_array($sched_line['status'],array_merge(['Complete','Completed','Done','Finished','Archive','Archived'],explode('#*#,',get_config($dbc, 'ticket_archive_status'))))) {
+                            $completed_stops++;
+                        }
+
                     } ?>
                     <tr>
                         <td data-title="Date"><?= empty($ticket['ticket_date']) ? implode(', ',array_unique($date_list)) : $ticket['ticket_date'] ?></td>

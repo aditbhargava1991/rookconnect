@@ -111,6 +111,10 @@ if($_GET['fill'] == 'task_board_type') {
     $task_board_type = $_GET['task_board_type'];
 	echo '<option value=""></option>';
 
+    if($task_board_type == 'Shared') {
+        $task_board_type = 'Company';
+    }
+
     $query = mysqli_query($dbc, "SELECT taskboardid, board_name FROM task_board WHERE deleted = 0 AND board_security = '$task_board_type' AND company_staff_sharing LIKE '%,". $_SESSION['contactid'] .",%'");
     while($row = mysqli_fetch_array($query)) { ?>
         <option value="<?= $row['taskboardid'] ?>"><?= $row['board_name'] ?></option><?php
@@ -528,6 +532,16 @@ if($_GET['fill'] == 'task_quick_time') {
 	$result = mysqli_query($dbc, $query_time);
 	insert_day_overview($dbc, $_SESSION['contactid'], 'Task', date('Y-m-d'), '', "Updated Task #$taskid - Added Time : ".$_POST['time']);
 	echo 'Added '.$_POST['time']." - $total_time total";
+}
+
+if($_GET['fill'] == 'task_estimated_time') {
+	$taskid = $_POST['id'];
+	$time = $_POST['time'];
+    $contactid = $_SESSION['contactid'];
+	$query_time = "UPDATE `tasklist` SET `estimated_time` = '$time', `updated_by` = '$contactid' WHERE tasklistid='$taskid'";
+	$result = mysqli_query($dbc, $query_time);
+	insert_day_overview($dbc, $_SESSION['contactid'], 'Task', date('Y-m-d'), '', "Updated Task #$taskid - Estimated Time : ".$_POST['time']);
+	echo 'Added '.$_POST['time'];
 }
 
 if($_GET['fill'] == 'mark_done') {

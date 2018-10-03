@@ -394,20 +394,12 @@ function calendarTicketLabel($dbc, $ticket, $max_time, $start_time, $end_time, $
 	(in_array('site_address',$calendar_ticket_card_fields) ? '<br />'.'Site Address: '.$site_address : '').
 	(in_array('service_template',$calendar_ticket_card_fields) ? '<br />'.'Service Template: '.$service_template : '').
 	(in_array('start_date',$calendar_ticket_card_fields) ? '<br />'.'Date: '.$ticket['to_do_date'] : '').
-	(in_array('time',$calendar_ticket_card_fields) ? '<br />'.(!empty($max_time) && $max_time != '00:00:00' ? "(".$max_time.") " : '').$start_time." - ".$end_time : '');
+	(in_array('time',$calendar_ticket_card_fields) ? '<br />'.(!empty($max_time) && $max_time != '00:00:00' ? "(".$max_time.") " : '').$start_time." - ".$end_time : '').
+	(in_array('eta',$calendar_ticket_card_fields) ? '<br />ETA: '.(!empty($max_time) && $max_time != '00:00:00' ? "(".$max_time.") " : '').$start_time." - ".$end_time : '');
 	if(in_array('available',$calendar_ticket_card_fields)) {
-		if($ticket['pickup_start_available'].$ticket['pickup_end_available'] != '') {
-			$row_html .= '<br />'."Available ";
-			if($ticket['pickup_end_available'] == '') {
-				$row_html .= "After ".$ticket['pickup_start_available'];
-			} else if($ticket['pickup_start_available'] == '') {
-				$row_html .= "Before ".$ticket['pickup_end_available'];
-			} else {
-				$row_html .= "Between ".$ticket['pickup_start_available']." and ".$ticket['pickup_end_available'];
-			}
-		}
+		$row_html .= '<br />Time Frame: '.$ticket['availability'];
 	}
-	$row_html .= (in_array('address',$calendar_ticket_card_fields) ? '<br />'.$ticket['pickup_name'].($ticket['pickup_name'] != '' ? '<br />' : ' ').$ticket['client_name'].($ticket['client_name'] != '' ? '<br />' : ' ').$ticket['pickup_address'].($ticket['pickup_address'] != '' ? '<br />' : ' ').$ticket['pickup_city'] : '');
+	$row_html .= (in_array('address',$calendar_ticket_card_fields) ? '<br />'.$ticket['pickup_name'].($ticket['pickup_name'] != '' ? '<br />' : ' ').$ticket['pickup_address'].($ticket['pickup_address'] != '' ? '<br />' : ' ').$ticket['pickup_city'] : '');
 	if(in_array('status',$calendar_ticket_card_fields)) {
 		$row_html .= '<br />'."Status: ".$ticket['status'];
 	}

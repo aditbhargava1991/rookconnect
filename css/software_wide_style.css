@@ -1124,6 +1124,7 @@ right: 0;
 
 .offset-top-5 { margin-top:5px; }
 .offset-top-7 { margin-top:7px; }
+.offset-top-12 { margin-top:12px; }
 .offset-top-15 { margin-top:15px; }
 .offset-top-20 { margin-top:20px; }
 .offset-top-30 { margin-top:30px; }
@@ -1142,6 +1143,8 @@ right: 0;
 .offset-right-10 { margin-right:10px; }
 .offset-right-15 { margin-right:15px; }
 .offset-right-20 { margin-right:20px; }
+
+.mobile-offset-top-5, .mobile-offset-top-10, .mobile-offset-top-15, .mobile-offset-top-20, .mobile-offset-top-30 { margin-top:0px; }
 
 .block-top-5 { display:block; margin-top:5px; }
 
@@ -1477,6 +1480,12 @@ footer#footer { margin:0; padding:0; }
     	float: right;
     	margin-right: 0.5em;
     }
+    
+    .mobile-offset-top-5 { margin-top:5px; }
+    .mobile-offset-top-10 { margin-top:10px; }
+    .mobile-offset-top-15 { margin-top:15px; }
+    .mobile-offset-top-20 { margin-top:20px; }
+    .mobile-offset-top-30 { margin-top:30px; }
 }
 @media(min-width:768px) {
 	.show-on-mob { display:none; }
@@ -3392,3 +3401,92 @@ position: relative;
 	text-align: center;
 	line-height: 10px;
 }
+.dispatch-equipment-list {
+	overflow: auto;
+	width: auto;
+	white-space:nowrap;
+}
+.dispatch-equipment-group {
+	display: inline-block;
+	border: 1px solid #E1E1E1;
+	margin: 0.5em;
+	vertical-align: top;
+	white-space: normal;
+}
+.dispatch-equipment-content {
+	overflow: auto;
+}
+.dispatch-equipment-title {
+	padding: 1em;
+	border-bottom: 1px solid #E1E1E1;
+	color: #fafafa !important;
+}
+.dispatch-equipment-title a {
+	color: #fafafa !important;
+}
+.dispatch-equipment-block {
+	margin: 0.5em;
+	padding: 0.5em;
+	background-color: #FFFFFF;
+	border: 1px solid #ACA9A9;
+}
+.dispatch-equipment-camera,.dispatch-equipment-signature {
+	opacity: 0.3;
+}
+.dispatch-equipment-camera.active,.dispatch-equipment-signature.active {
+	opacity: 1;
+}
+
+.dispatch-checkmark-ticket {
+    content: '';
+	background-image: url("../img/iconmonstr-check-mark-17.svg");
+	background-repeat: no-repeat;
+	background-position: center;
+	background-size: contain;
+    overflow: hidden;
+}
+.dispatch-summary-block {
+	height: 30vh;
+	display: inline-block;
+	border: 1px solid #E1E1E1;
+	margin: 0.25em;
+	padding: 0.5em;
+	vertical-align: top;
+	white-space: normal;
+}
+@media(max-width:767px) {
+	.dispatch-summary-block {
+		height: 100%;
+	}
+}
+.dispatch-summary-star {
+	padding: 0.5em;
+}
+.dispatch-summary-block {
+	overflow: auto;
+}
+
+/*
+ * jQuery-Circle-Plugin v0.1 by Jamal hassouni
+ * https://github.com/jamalhassouni
+ */
+.radial-chart { position:relative; height:100px; width:100px; margin:0 auto; }
+    .radial-chart div { position:absolute; height:100px; width:100px; border-radius:50%; }
+        .radial-chart div span { position:absolute; font-family:Arial; font-size:25px; line-height:75px; height:75px; width:75px; left:12.5px; top:12.5px; text-align:center; border-radius:50%; background-color:white; }
+.radial-chart .background { background-color:#b3cef6; }
+.radial-chart .rotate { clip:rect(0 50px 100px 0); background-color:#4b86db; }
+.radial-chart .left { clip:rect(0 50px 100px 0); opacity:1; background-color:#b3cef6; }
+.radial-chart .right { clip:rect(0 50px 100px 0); transform:rotate(180deg); opacity:0; background-color:#4b86db; }
+.radial-chart-desc { height:100px; line-height:100px; }
+    .radial-chart-desc span { display:inline-block; line-height:normal; vertical-align:middle; }
+@keyframes
+    toggle {
+        0% { opacity:0; }
+        100% { opacity:1; }
+    }
+
+.active_blocks .block-item.active:hover {
+	cursor: pointer;
+}
+
+#back_to_top { position:fixed; bottom:80px; right:35px; z-index:1; }

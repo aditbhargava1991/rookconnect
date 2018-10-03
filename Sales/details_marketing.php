@@ -115,7 +115,7 @@ function approvebutton(sel) {
             
             <div class="col-sm-1 pad-5" id="pdfshow_<?= $id_loop; ?>"><?php
                 while($row = mysqli_fetch_array($query)) {
-                    echo '<a href="'. WEBSITE_URL .'/Documents/download/'. $row['document_link'] .'" title="'.$row['document_link'].'" target="_blank" class="no-toggle"><img class="inline-img" src="../img/icons/eyeball.png"></a>';
+                    echo '<a href="'. WEBSITE_URL .'/Documents/download/'. $row['document_link'] .'" title="'.$row['document_link'].'" target="_blank" class="no-toggle"><img class="inline-img" src="../img/person.PNG"></a>';
                 } ?>
             </div>
             

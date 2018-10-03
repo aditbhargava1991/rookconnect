@@ -141,7 +141,28 @@ function popUpClosed() {
 
                     <img class="no-toggle statusIcon pull-right no-margin inline-img" title="" src="" />
                 </div>
-                <div class="scale-to-fill"><h1 class="gap-left"><a href="index.php?category=All&tab=Summary"><?= TASK_TILE ?></a></h1></div>
+                <?php
+                $heading = $_GET['tab'];
+                if($heading == 'Private') {
+                    $heading = 'Private Tasks';
+                }
+                if($heading == 'Company') {
+                    $heading = 'Shared Tasks';
+                }
+                if($heading == 'path') {
+                    $heading = 'Project Tasks';
+                }
+                if($heading == 'Client') {
+                    $heading = 'Contact Tasks';
+                }
+                if($heading == 'sales') {
+                    $heading = 'Sales Tasks';
+                }
+                if($heading == 'Summary') {
+                    $heading = 'Summary';
+                }
+                ?>
+                <div class="scale-to-fill"><h1 class="gap-left"><a href="index.php?category=All&tab=Summary"><?= TASK_TILE ?> : </a><?php echo $heading;?></h1></div>
                 <div class="clearfix"></div>
             </div><!-- .tile-header -->
 
@@ -603,12 +624,15 @@ function popUpClosed() {
                             $title = 'My '.TASK_TILE;
                         }
 
-                        if ( $url_tab == 'path' ) {
+                        /*if ( $url_tab == 'path' ) {
 
                         } else {
 
                             echo '<div class="row">';
-                                echo '<div class="col-sm-6"><h3>'. ($title=='Search' ? $title .': '. $term : $title .': '. $board_name['board_name']) .'</h3></div>';
+                                //echo '<div class="col-sm-6"><h3>'. ($title=='Search' ? $title .': '. $term : $title .': '. $board_name['board_name']) .'</h3></div>';
+
+                                 echo '<div class="col-sm-6"><h3>'. ($title=='Search' ? $title .': '. $term : $board_name['board_name']) .'</h3></div>';
+
                                 echo '<div class="col-sm-6 text-right">';
                                     if ( $url_tab!='Search' && $url_tab!='Summary' && $url_tab!='Reporting' ) {
                                         echo '<div class="gap-top gap-right" style="font-size:1.5em;">'; ?>
@@ -629,6 +653,7 @@ function popUpClosed() {
                             echo '</div>';
 
                         }
+                        */
 
                         if ( !empty($notes_subtab) ) {
                             $notes = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT note FROM notes_setting WHERE subtab='$notes_subtab'"));
@@ -656,17 +681,18 @@ function popUpClosed() {
                         $security['edit'] = 1;
                         include('../Project/edit_project_path.php');
                     } else { ?>
-                        <div class="standard-dashboard-body-content"><?php
+                        <!--<div class="standard-dashboard-body-content"> --><?php
                             if ( $url_tab=='Search' ) {
                                 include('tasks_search.php');
                             } else { ?>
-                                <div class="dashboard-item"><?php
+                                <!-- <div class="dashboard-item"> -->
+                                <?php
                                     if ( $_GET['category'] != 'All' && empty($url_milestone) ) {
                                         include('tasks_dashboard.php'); // Private Task,
                                     } elseif ( $url_tab=='Reporting' ) {
                                         include('tab_reporting.php');
                                     } elseif ( $url_milestone!='' ) {
-                                        include('task_milestones.php');
+                                        //include('task_milestones.php');
                                     } elseif ( $url_tab=='Summary' ) { // Summary tab
                                         include('tab_summary.php');
                                     } elseif ( $url_tab=='Client' ) {
@@ -675,9 +701,9 @@ function popUpClosed() {
                                         echo '<h4 class="gap-left">Select or create a '.TASK_NOUN .' Board.</h4>';
                                     } ?>
                                     <div class="clearfix"></div>
-                                </div><?php
+                                <!--</div> --><?php
                             } ?>
-                        </div><!-- .standard-dashboard-body-content -->
+                        <!--</div> --><!-- .standard-dashboard-body-content -->
                     <?php } ?>
 
                 </div><!-- .main-screen -->
