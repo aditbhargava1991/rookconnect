@@ -786,7 +786,7 @@ $(document).on('click', '#back_to_top', function(e) {
    $('.standard-body').animate({scrollTop: 0}, 400);
 });
 function send_creator_email() {
-    <?php if(($_GET['new_ticket'] == 'true' || !($ticketid > 0)) && strpos($value_config, ','."Email Creator".',') !== false && !empty($_SESSION['email_address'])) {
+    <?php if(!($ticketid > 0) && strpos($value_config, ','."Email Creator".',') !== false && !empty($_SESSION['email_address'])) {
         $ticket_new_email_subject = get_config($dbc, 'ticket_new_email_subject'.($ticket_type == '' ? '' : '_'.$ticket_type));
         if(empty($ticket_new_email_subject) && !empty($ticket_type)) {
             $ticket_new_email_subject = get_config($dbc, 'ticket_new_email_subject');
