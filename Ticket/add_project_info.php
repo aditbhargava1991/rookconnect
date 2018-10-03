@@ -497,22 +497,25 @@ $value_mandatory_config = explode(',',get_mandatory_field_config($dbc, 'tickets'
 				<label for="site_name" class="col-sm-4 control-label"><?php echo (in_array('PI Status', $value_mandatory_config) ? '<span class="text-red">* </span>' : ''); ?>Status:</label>
 				<div class="col-sm-8">
                     <?php $invoice_status = '';
-                    if(get_config($dbc, 'ticket_invoice_status') > 0) {
-                        $invoice = $dbc->query("SELECT * FROM `invoice` WHERE `deleted`=0 AND CONCAT(',',`ticketid`,',') LIKE '%,$ticketid,%'")->fetch_assoc();
-                        switch($invoice['status']) {
-                            case 'Completed':
-                                $invoice_status = 'Paid';
-                                break;
-                            case 'Void':
-                                $invoice_status = 'Voided';
-                                break;
-                            case 'Saved':
-                                $invoice_status = 'Unbilled';
-                                break;
-                            case 'Posted':
-                            default:
-                                $invoice_status = 'Accounts Receivable';
-                                break;
+                    if(get_config($dbc, 'ticket_invoice_status') > 0 && $ticketid > 0) {
+                        $invoice = $dbc->query("SELECT * FROM `invoice` WHERE `deleted`=0 AND CONCAT(',',`ticketid`,',') LIKE '%,$ticketid,%'");
+                        if($invoice->num_rows > 0) {
+                            $invoice = $invoice->fetch_assoc();
+                            switch($invoice['status']) {
+                                case 'Completed':
+                                    $invoice_status = 'Paid';
+                                    break;
+                                case 'Void':
+                                    $invoice_status = 'Voided';
+                                    break;
+                                case 'Saved':
+                                    $invoice_status = 'Unbilled';
+                                    break;
+                                case 'Posted':
+                                default:
+                                    $invoice_status = 'Accounts Receivable';
+                                    break;
+                            }
                         }
                     }
                     if(!empty($invoice_status)) {

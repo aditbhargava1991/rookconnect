@@ -77,8 +77,6 @@ if(explode(':',$get_ticket['rate_card'])[1] == 'company') {
 $clientid = '';
 $businessid = '';
 $heading_auto = 1;
-$default_status = get_config($dbc, "ticket_default_status");
-$status = empty($default_status) ? 'Time Estimate Needed' : $default_status;
 if(!empty($_GET['supportid'])) {
 	$supportid = $_GET['supportid'];
 	$company_name = get_support($dbc, $supportid, 'company_name');
@@ -224,6 +222,12 @@ if(!empty($_GET['edit'])) {
 <?php } else if(!empty($_GET['type'])) {
 	$ticket_type = $_GET['type'];
 }
+
+$default_status = get_config($dbc, "ticket_default_status_".$ticket_type);
+if(empty($default_status)) {
+    $default_status = get_config($dbc, "ticket_default_status");
+}
+$status = empty($status) ? (empty($default_status) ? 'Time Estimate Needed' : $default_status) : $status;
 if(!empty(MATCH_CONTACTS) && !in_array($get_ticket['businessid'],explode(',',MATCH_CONTACTS)) && !in_array_any(array_filter(explode(',',$get_ticket['clientid'])),explode(',',MATCH_CONTACTS)) && $ticketid > 0) {
 	ob_clean();
 	header('Location: index.php');
