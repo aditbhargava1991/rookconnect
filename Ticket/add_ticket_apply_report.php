@@ -5,7 +5,7 @@ do { ?>
 	<?php if($access_all > 0) { ?>
 		<div class="multi-block">
 			<?php foreach($field_sort_order as $field_sort_field) { ?>
-				<?php if(strpos($value_config,',Equipment,') !== FALSE && $field_sort_field == 'Equipment') { ?>
+				<?php if(strpos($value_config,',Application Equipment,') !== FALSE && $field_sort_field == 'Application Equipment') { ?>
 					<div class="form-group">
 						<label class="control-label col-sm-4">Equipment Description:</label>
 						<div class="col-sm-8">
@@ -14,7 +14,7 @@ do { ?>
 					</div>
 					<div class="clearfix"></div>
 				<?php } ?>
-				<?php if(strpos($value_config,',Wind Speed,') !== FALSE && $field_sort_field == 'Wind Speed') { ?>
+				<?php if(strpos($value_config,',Application Wind Speed,') !== FALSE && $field_sort_field == 'Application Wind Speed') { ?>
 					<div class="form-group">
 						<label class="control-label col-sm-4">Wind Speed:</label>
 						<div class="col-sm-8">
@@ -23,7 +23,7 @@ do { ?>
 					</div>
 					<div class="clearfix"></div>
 				<?php } ?>
-				<?php if(strpos($value_config,',Temperature,') !== FALSE && $field_sort_field == 'Temperature') { ?>
+				<?php if(strpos($value_config,',Application Temperature,') !== FALSE && $field_sort_field == 'Application Temperature') { ?>
 					<div class="form-group">
 						<label class="control-label col-sm-4">Temperature:</label>
 						<div class="col-sm-8">
@@ -32,7 +32,7 @@ do { ?>
 					</div>
 					<div class="clearfix"></div>
 				<?php } ?>
-				<?php if(strpos($value_config,',Humidity,') !== FALSE && $field_sort_field == 'Humidity') { ?>
+				<?php if(strpos($value_config,',Application Humidity,') !== FALSE && $field_sort_field == 'Application Humidity') { ?>
 					<div class="form-group">
 						<label class="control-label col-sm-4">Humidity:</label>
 						<div class="col-sm-8">
@@ -41,7 +41,7 @@ do { ?>
 					</div>
 					<div class="clearfix"></div>
 				<?php } ?>
-				<?php if(strpos($value_config,',Wind Direction,') !== FALSE && $field_sort_field == 'Wind Direction') { ?>
+				<?php if(strpos($value_config,',Application Wind Direction,') !== FALSE && $field_sort_field == 'Application Wind Direction') { ?>
 					<div class="form-group">
 						<label class="control-label col-sm-4">Wind Direction:</label>
 						<div class="col-sm-8">
@@ -50,7 +50,7 @@ do { ?>
 					</div>
 					<div class="clearfix"></div>
 				<?php } ?>
-				<?php if(strpos($value_config,',Soil,') !== FALSE && $field_sort_field == 'Soil') { ?>
+				<?php if(strpos($value_config,',Application Soil,') !== FALSE && $field_sort_field == 'Application Soil') { ?>
 					<div class="form-group">
 						<label class="control-label col-sm-4">Soil:</label>
 						<div class="col-sm-8">
@@ -67,7 +67,7 @@ do { ?>
 		</div>
 	<?php } else { ?>
 		<?php foreach($field_sort_order as $field_sort_field) { ?>
-			<?php if(strpos($value_config,',Equipment,') !== FALSE && $field_sort_field == 'Equipment') { ?>
+			<?php if(strpos($value_config,',Application Equipment,') !== FALSE && $field_sort_field == 'Application Equipment') { ?>
 				<div class="form-group">
 					<label class="control-label col-sm-4">Equipment Description:</label>
 					<div class="col-sm-8">
@@ -77,7 +77,7 @@ do { ?>
 				<div class="clearfix"></div>
 				<?php $pdf_contents[] = ['Equipment Description', $apply_report['position']]; ?>
 			<?php } ?>
-			<?php if(strpos($value_config,',Wind Speed,') !== FALSE && $field_sort_field == 'Wind Speed') { ?>
+			<?php if(strpos($value_config,',Application Wind Speed,') !== FALSE && $field_sort_field == 'Application Wind Speed') { ?>
 				<div class="form-group">
 					<label class="control-label col-sm-4">Wind Speed:</label>
 					<div class="col-sm-8">
@@ -87,7 +87,7 @@ do { ?>
 				<div class="clearfix"></div>
 				<?php $pdf_contents[] = ['Wind Speed', $apply_report['weight']]; ?>
 			<?php } ?>
-			<?php if(strpos($value_config,',Temperature,') !== FALSE && $field_sort_field == 'Temperature') { ?>
+			<?php if(strpos($value_config,',Application Temperature,') !== FALSE && $field_sort_field == 'Application Temperature') { ?>
 				<div class="form-group">
 					<label class="control-label col-sm-4">Temperature:</label>
 					<div class="col-sm-8">
@@ -97,7 +97,7 @@ do { ?>
 				<div class="clearfix"></div>
 				<?php $pdf_contents[] = ['Temperature', $apply_report['dimensions']]; ?>
 			<?php } ?>
-			<?php if(strpos($value_config,',Humidity,') !== FALSE && $field_sort_field == 'Humidity') { ?>
+			<?php if(strpos($value_config,',Application Humidity,') !== FALSE && $field_sort_field == 'Application Humidity') { ?>
 				<div class="form-group">
 					<label class="control-label col-sm-4">Humidity:</label>
 					<div class="col-sm-8">
@@ -107,7 +107,7 @@ do { ?>
 				<div class="clearfix"></div>
 				<?php $pdf_contents[] = ['Humidity', $apply_report['description']]; ?>
 			<?php } ?>
-			<?php if(strpos($value_config,',Wind Direction,') !== FALSE && $field_sort_field == 'Wind Direction') { ?>
+			<?php if(strpos($value_config,',Application Wind Direction,') !== FALSE && $field_sort_field == 'Application Wind Direction') { ?>
 				<div class="form-group">
 					<label class="control-label col-sm-4">Wind Direction:</label>
 					<div class="col-sm-8">
@@ -117,7 +117,7 @@ do { ?>
 				<div class="clearfix"></div>
 				<?php $pdf_contents[] = ['Wind Direction', $apply_report['weight_units']]; ?>
 			<?php } ?>
-			<?php if(strpos($value_config,',Soil,') !== FALSE && $field_sort_field == 'Soil') { ?>
+			<?php if(strpos($value_config,',Application Soil,') !== FALSE && $field_sort_field == 'Application Soil') { ?>
 				<div class="form-group">
 					<label class="control-label col-sm-4">Soil:</label>
 					<div class="col-sm-8">
