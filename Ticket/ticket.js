@@ -639,12 +639,12 @@ function saveFieldMethod(field) {
 				success: function(response) {
 					updateTicketLabel();
 					if(field_name == 'status' && response == 'created_unscheduled_stop') {
-						if($(field).closest('.tab-section').prop('id').indexOf('customer_notes') == -1) {
+						if($(field).closest('.tab-section').prop('id') != undefined && $(field).closest('.tab-section').prop('id').indexOf('customer_notes') == -1) {
 	                        reloadTab('ticket_customer_notes');
 	                    }
 						reload_delivery();
 					} else if(field_name == 'status') {
-						if($(field).closest('.tab-section').prop('id').indexOf('customer_notes') == -1) {
+						if($(field).closest('.tab-section').prop('id') != undefined && $(field).closest('.tab-section').prop('id').indexOf('customer_notes') == -1) {
 	                        reloadTab('ticket_customer_notes');
 	                    }
                     } else if(table_name == 'ticket_attached' && field_name == 'piece_type') {
