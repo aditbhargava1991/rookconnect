@@ -526,7 +526,7 @@ if(!empty($_GET['add_service_iframe'])) { ?>
 								<?php } ?>
 
 								<?php if(strpos($value_config,',Service Direct Time,') !== FALSE && $field_sort_field == 'Service Direct Time') { ?>
-									<div class="col-sm-<?= floor(12 / $service_fields) - (++$col_num == $service_fields && floor(12 / $service_fields) == (12 / $service_fields) ? 1 : 0) ?>"><label class="show-on-mob">Indirect Time:</label>
+									<div class="col-sm-<?= floor(12 / $service_fields) - (++$col_num == $service_fields && floor(12 / $service_fields) == (12 / $service_fields) ? 1 : 0) ?>"><label class="show-on-mob">Direct Time:</label>
 										<select data-placeholder="Select a Time..." name="service_direct_time" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" data-concat="," class="chosen-select-deselect form-control">
 											<option value=""></option>
 											<?php for($hours = 0.25; $hours <= 3; $hours += 0.25) { ?>
@@ -564,7 +564,7 @@ if(!empty($_GET['add_service_iframe'])) { ?>
 								<?php } ?>
 								<?php if((strpos($value_config,',Service Fuel Charge,') !== FALSE && $field_sort_field == 'Service Fuel Charge')) { ?>
 									<div class="col-sm-<?= floor(12 / $service_fields) - (++$col_num == $service_fields && floor(12 / $service_fields) == (12 / $service_fields) ? 1 : 0) ?>"><label class="show-on-mob">Fuel Surcharge:</label>
-										<input type="number" min=0 step="any" class="form-control" name="service_fuel_charge" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" data-concat="," value="<?= explode(',',$get_ticket['service_fuel_charge'])[$i] ?: 0 ?>">
+										<input type="number" min=0 step="any" class="form-control" name="service_fuel_charge" data-group="service" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" data-concat="," value="<?= explode(',',$get_ticket['service_fuel_charge'])[$i] ?: 0 ?>">
 									</div>
 								<?php } ?>
 								<?php if((strpos($value_config,',Service Quantity,') !== FALSE && $field_sort_field == 'Service Quantity') || (strpos($value_config,',Service # of Rooms,') !== FALSE && $field_sort_field == 'Service # of Rooms')) { ?>
@@ -696,7 +696,7 @@ if(!empty($_GET['add_service_iframe'])) { ?>
 									<div class="form-group">
 									  <label for="site_name" class="col-sm-4 control-label">Fuel Surcharge:</label>
 									  <div class="col-sm-8">
-										<input type="number" min=0 step="any" class="form-control" name="service_fuel_charge" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" data-concat="," value="<?= explode(',',$get_ticket['service_fuel_charge'])[$i] ?: 0 ?>">
+										<input type="number" min=0 step="any" class="form-control" name="service_fuel_charge" data-group="service" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" data-concat="," value="<?= explode(',',$get_ticket['service_fuel_charge'])[$i] ?: 0 ?>">
 									  </div>
 									</div>
 								<?php } ?>

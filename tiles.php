@@ -187,7 +187,8 @@ if($_SESSION['tile_list_updated'] + 30 < time() || $_SERVER['PHP_SELF'] == '/Set
 			'vendors',
 			'quote',
 			'cost_estimate',
-			'documents_all' ],
+			'documents_all',
+			'dispatch' ],
 		$documents_all_tile_list);
 	// }
 	$user_tile_list = array_unique(array_merge($user_tile_list, $all_tiles));

@@ -7,6 +7,25 @@ $(document).ready(function() {
 	});
 });
 
+function clearCompletedProjectTask(sel) {
+	var projectid = sel.value;
+
+	if(confirm("Are you sure you want to clear all the completed tasks on this board?")) { //&& confirm("Are you sure you want to clear all the completed tasks on this board?")) {
+        $.ajax({
+            type: "GET",
+            url: "../Tasks_Updated/task_ajax_all.php?fill=clear_project_completed_task&projectid="+projectid,
+            dataType: "html",   //expect html to be returned
+            success: function(response){
+				alert('Completed task Deleted.');
+                window.location.reload();
+            }
+        });
+        //window.location.reload();
+	} else {
+		return false;
+	}
+}
+
 function task_status(sel) {
     var status = sel.value;
 	var tasklistid = sel.id.split('_')[1];
@@ -340,7 +359,7 @@ function saveFieldMethod(field) {
 		},
 		success: function(response) {
 			if(response > 0 && name == 'link') {
-				window.location.reload();
+				// reloadDocuments();
 			} else if(response > 0 && table == 'project') {
 				$('[data-table=project]').data('id',response);
 				$('[name=projectid]').val(response);
@@ -415,6 +434,45 @@ function waitForSave(btn,btname,funct) {
 	}
     return true;
 }
+function presave() {
+	var flag = 0;
+	var firsttarget = '';
+	$('.required').each(function() {
+			var target = this;
+				if($(target).val() != null && $(target).val().length === 0) {
+					if(flag == 0) {
+						$firsttarget = $(this);
+					}
+
+					if($(target).is('select')) {
+						var select2 = $(target).next('.select2');
+						$(select2).find('.select2-selection').css('background-color', 'red');
+						$(select2).find('.select2-selection__placeholder').css('color', 'white');
+					} else {
+						$(target).css('background-color', 'red');
+					}
+
+					flag = 1;
+			}
+			else {
+				if($(target).is('select')) {
+					var select2 = $(target).next('.select2');
+					$(select2).find('.select2-selection').css('background-color', 'white');
+				} else {
+					$(target).css('background-color', 'white');
+				}
+			}
+	});
+
+	var currenttop = $firsttarget.offset().top;
+	if(flag == 1) {
+			alert("Please fill in the required fields");
+			$('.main-screen .main-screen').scrollTop($('.standard-body-content').scrollTop() + currenttop - 30);
+			return false;
+	}
+
+	return true;
+}
 function setSelectOnChange() {
 	$('select[name="status[]"]').on('change', function() { selectStatus(this); });
 }
@@ -446,7 +504,7 @@ function getDeliverables(mode) {
 }
 function deliverable_email() {
 	var deliverables = $('.deliver_list [name=list]').val().split(',');
-	
+
 }
 function savePathName(type, name, i, projectid) {
 	$.post('projects_ajax.php?action=set_path_names', {type:type,name:name,key:i,project:projectid});

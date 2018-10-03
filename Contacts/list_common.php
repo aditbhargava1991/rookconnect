@@ -386,11 +386,24 @@ if(strpos($contacts_summary_config,'Per Category') !== false) {
         echo '<div class="col-sm-6">';
             echo '<div class="overview-block">';
                 echo '<h4>'.$list_name.'</h4>';
-                $active_count = mysqli_fetch_array(mysqli_query($dbc, "SELECT COUNT(`contactid`) `count` FROM `contacts` WHERE `deleted`=0 AND `tile_name`='".FOLDER_NAME."' AND `category`='$list_name' AND `status`=1"));
-                echo 'Active : '.$active_count['count'];
-                echo '<br>';
-                $inactive_count = mysqli_fetch_array(mysqli_query($dbc, "SELECT COUNT(`contactid`) `count` FROM `contacts` WHERE `deleted`=0 AND `tile_name`='".FOLDER_NAME."' AND `category`='$list_name' AND `status`=0"));
-                echo 'Inactive : '.$inactive_count['count'];
+                $active_count = mysqli_fetch_array(mysqli_query($dbc, "SELECT COUNT(`contactid`) `count` FROM `contacts` WHERE `deleted`=0 AND `tile_name`='".FOLDER_NAME."' AND `category`='$list_name' AND `status`=1"))['count'];
+                $inactive_count = mysqli_fetch_array(mysqli_query($dbc, "SELECT COUNT(`contactid`) `count` FROM `contacts` WHERE `deleted`=0 AND `tile_name`='".FOLDER_NAME."' AND `category`='$list_name' AND `status`=0"))['count'];
+                $all_count = $active_count + $inactive_count;
+                $active_percent = $all_count == 0 ? '00' : number_format((($active_count / $all_count) * 100), 0);
+                
+                $theme_color = get_calendar_today_color($dbc);
+                ?>
+                <div class="row">
+                    <div class="col-xs-6">
+                        <div class="radial_chart radial-chart" data-percent="<?= $active_percent ?>" data-duration="500" data-color="#bdc3c7,#<?= $theme_color ?>"></div>
+                    </div>
+                    <div class="col-xs-6 radial-chart-desc">
+                        <span>
+                            Active: <?= $active_count ?><br />
+                            Inactive: <?= $inactive_count ?>
+                        </span>
+                    </div>
+                </div><?php
             echo '</div>';
         echo '</div>';
     }

@@ -32,6 +32,7 @@ foreach(explode(',',get_config($dbc, '%_classification', true, ',')) as $i => $c
     }
 }
 $allowed_classifications = $contact_classifications; ?>
+<script src="../Calendar/map_sorting.js"></script>
 <script>
 $(document).ready(function() {
 	$('[name=region]').change(filterRegions);
@@ -70,7 +71,7 @@ function filterClass() {
 function get_ticket_list() {
 	$('.draw_sort').empty();
 	var equip_scroll = $('.equip_list').scrollTop();
-	$('.equip_list').html('<h4>Loading Equipment...</h4>').load('assign_equipment_list.php?date='+encodeURI($('[name=date]').val())+'&region='+encodeURI(opt_region)+'&location='+encodeURI(opt_location)+'&classification='+encodeURI(opt_classification), function() { setTicketSave(); $('.equip_list').scrollTop(equip_scroll); });
+	$('.equip_list').html('<h4>Loading Equipment...</h4>').load('assign_equipment_list.php?sorticons=true&date='+encodeURI($('[name=date]').val())+'&region='+encodeURI(opt_region)+'&location='+encodeURI(opt_location)+'&classification='+encodeURI(opt_classification), function() { setTicketSave(); $('.equip_list').scrollTop(equip_scroll); });
     get_map_view();
 	$('.ticket_list').html('<h4>Loading <?= TICKET_TILE ?>...</h4>').load('assign_ticket_list.php?date='+encodeURI($('[name=date]').val())+'&region='+encodeURI(opt_region)+'&location='+encodeURI(opt_location)+'&classification='+encodeURI(opt_classification), setTicketSave);
 	lockTickets();
@@ -106,11 +107,11 @@ function setTicketSave() {
 function initOptions() {
     $('.ticket[data-table][data-id]').off('mouseenter');
     $('.ticket[data-table][data-id]').mouseenter(function() {
-        $('.ticket[data-table='+$(this).data('table')+'][data-id='+$(this).data('id')+']').addClass('active').addClass('theme-color-icon').css('z-index',1);
+        $('.ticket[data-table='+$(this).data('table')+'][data-id='+$(this).data('id')+']').addClass('active').css('z-index',1);
     });
     $('.ticket[data-table][data-id]').off('mouseleave');
     $('.ticket[data-table][data-id]').mouseleave(function() {
-        $('.ticket[data-table='+$(this).data('table')+'][data-id='+$(this).data('id')+']').removeClass('active').removeClass('theme-color-icon').css('z-index',0);
+        $('.ticket[data-table='+$(this).data('table')+'][data-id='+$(this).data('id')+']').removeClass('active').css('z-index',0);
     });
     try {
 		$('.assign_list_box').sortable('destroy');

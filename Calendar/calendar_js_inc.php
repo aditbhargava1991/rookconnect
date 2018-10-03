@@ -64,6 +64,12 @@ $(document).on("overlayIFrameSliderLoad", function(e) {
 		}
 	});
 });
+$(document).on('click', '.active_blocks .block-item.active', function() {
+	var parent = $(this).closest('.active_blocks');
+	var accordion = $(parent).data('accordion');
+	var activevalue = $(this).data('activevalue');
+	$('#'+accordion).find('.block-item.active[data-activevalue="'+activevalue+'"]').closest('a').click();
+});
 var auto_refresh_calendar = '';
 function setAutoRefresh() {
 	clearTimeout(auto_refresh_calendar);
@@ -1119,6 +1125,7 @@ function load_items(item_row, date, contact, insert_type = 'next', block_type = 
 		}
 	}
     initTooltips();
+    resize_rows();
 	return deferred.promise();
 }
 function destroy_items(contact, block_type) {

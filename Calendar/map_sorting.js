@@ -2,7 +2,7 @@ function get_addresses(sort_date, equipmentid) {
     define_addresses(sort_date, equipmentid, '', '');
     return;
 	// $.ajax({
-		// url: 'calendar_ajax_all.php?fill=mapping_address',
+		// url: '../Calendar/calendar_ajax_all.php?fill=mapping_address',
 		// method: 'POST',
 		// data: {
 			// date: sort_date,
@@ -53,7 +53,7 @@ function get_addresses(sort_date, equipmentid) {
 }
 
 function define_addresses(date, equipmentid, origin, destination) {
-	overlayIFrameSlider('map_set_addresses.php?date='+date+'&equipment='+equipmentid,'auto',false,true);
+	overlayIFrameSlider('../Calendar/map_set_addresses.php?date='+date+'&equipment='+equipmentid,'auto',false,true);
     return;
 	// overlayIFrameSlider('map_set_addresses.php?origin='+encodeURI(origin)+'&destination='+encodeURI(destination));
 	// $('.iframe_overlay .iframe iframe').load(function() {
@@ -63,16 +63,17 @@ function define_addresses(date, equipmentid, origin, destination) {
 	// });
 }
 
-function sort_by_map(date, equipmentid, origin_address, destination_address) {
+function sort_by_map(date, equipmentid, origin_address, destination_address, no_order_change) {
 	var ticket_addresses = [];
 	var tickets = [];
 	var stops = [];
 	$.ajax({
-		url: 'calendar_ajax_all.php?fill=get_sortable_tickets',
+		url: '../Calendar/calendar_ajax_all.php?fill=get_sortable_tickets',
 		method: 'POST',
 		data: {
 			date: date,
-			equipment: equipmentid
+			equipment: equipmentid,
+            include_complete: (no_order_change == undefined || no_order_change == false ? true : false)
 		},
 		dataType: 'text',
 		success: function(response) {
@@ -85,58 +86,76 @@ function sort_by_map(date, equipmentid, origin_address, destination_address) {
 				}
 			});
 			var mapService = new google.maps.DirectionsService;
-			mapService.route({
-				origin: origin_address,
-				destination: destination_address,
-				travelMode: 'DRIVING',
-				optimizeWaypoints: true,
-				waypoints: ticket_addresses
-			}, function(response, status) {
-				if(status === 'NOT_FOUND') {
-					alert('Please check the addresses you have provided. The map was unable to locate one or more of the addresses, either for the starting address, the ending address, or the pickup or delivery addresses for your sort requests.');
-				} else if(status !== 'OK') {
-					alert('Unable to sort. A note has been sent to support. Please try again later.');
-					console.log(status);
-					$.ajax({
-						url: '../ajax_all.php?fill=send_email',
-						medthod: 'POST',
-						data: {
-							send_to: 'info@rookconnect.com',
-							subject: 'Google API '+status,
-							body: 'This is to let you know that an error occurred while accessing the Google API. The listed error is '+status+'.'
-						}
-					});
-				} else {
-					var ticket_order = [];
-					var stop_order = [];
-					response.routes[0].waypoint_order.forEach(function(el) {
-						ticket_order.push(tickets[el]);
-						stop_order.push(stops[el]);
-					});
-					$.ajax({
-						url: 'calendar_ajax_all.php?fill=sort_tickets',
-						method: 'POST',
-						data: {
-                            date: date,
-                            equipment: equipmentid,
-							start_address: origin_address,
-							end_address: destination_address,
-							ticket_sort: ticket_order,
-                            stop_sort: stop_order
-						},
-						success: function(response) {
-							window.location.reload();
-						}
-					});
-				}
-			});
+            if(origin_address == '' || origin_address == undefined) {
+                origin_address = ticket_addresses[0].location;
+            }
+            if(destination_address == '' || destination_address == undefined) {
+                destination_address = ticket_addresses[ticket_addresses.length - 1].location;
+            }
+            if(origin_address == '' || destination_address == '' || origin_address == undefined || destination_address == undefined) {
+                sorting_done = 2;
+            } else {
+                mapService.route({
+                    origin: origin_address,
+                    destination: destination_address,
+                    travelMode: 'DRIVING',
+                    optimizeWaypoints: (no_order_change == undefined || no_order_change == false ? true : false),
+                    waypoints: ticket_addresses
+                }, function(response, status) {
+                    if(status === 'NOT_FOUND') {
+                        alert('Please check the addresses you have provided. The map was unable to locate one or more of the addresses, either for the starting address, the ending address, or the pickup or delivery addresses for your sort requests.');
+                    } else if(status !== 'OK') {
+                        alert('Unable to sort. A note has been sent to support. Please try again later.');
+                        console.log(status);
+                        $.ajax({
+                            url: '../ajax_all.php?fill=send_email',
+                            medthod: 'POST',
+                            data: {
+                                send_to: 'info@rookconnect.com',
+                                subject: 'Google API '+status,
+                                body: 'This is to let you know that an error occurred while accessing the Google API. The listed error is '+status+'.'
+                            }
+                        });
+                    } else {
+                        var ticket_order = [];
+                        var stop_order = [];
+                        var drive_time = [];
+                        var i = 0;
+                        response.routes[0].waypoint_order.forEach(function(el) {
+                            ticket_order.push(tickets[el]);
+                            stop_order.push(stops[el]);
+                            drive_time.push(response.routes[0].legs[i++].duration.value);
+                        });
+                        $.ajax({
+                            url: '../Calendar/calendar_ajax_all.php?fill=sort_tickets',
+                            method: 'POST',
+                            data: {
+                                date: date,
+                                equipment: equipmentid,
+                                start_address: origin_address,
+                                end_address: destination_address,
+                                ticket_sort: ticket_order,
+                                stop_sort: stop_order,
+                                drive_time: drive_time,
+                                from_current: (no_order_change == undefined || no_order_change == false ? false : true)
+                            },
+                            success: function(response) {
+                                sorting_done = 2;
+                                if(no_order_change == false || no_order_change == undefined) {
+                                    window.location.reload();
+                                }
+                            }
+                        });
+                    }
+                });
+            }
 		}
 	});
 }
 
 function get_day_map(date, equipmentid) {
 	$.ajax({
-		url: 'calendar_ajax_all.php?fill=get_ticket_addresses',
+		url: '../Calendar/calendar_ajax_all.php?fill=get_ticket_addresses',
 		method: 'POST',
 		data: {
 			date: date,

@@ -543,7 +543,7 @@ if($_GET['action'] == 'update_fields') {
 	} else if(in_array($table_name,['tickets','ticket_schedule']) && in_array($field_name,['est_time','max_time'])) {
         $start = get_field_value('to_do_start_time',$table_name,$id_field,$id);
         if(!empty($start)) {
-            $end = date('H:i:s', strtotime($start.' + '.(floor($value) * 1).' hour '.floor($value * 60).' minute '.($value % 60).' second'));
+            $end = date('H:i:s', strtotime($start) + ($value * 3600));
             set_field_value($end,'to_do_end_time',$table_name,$id_field,$id);
         }
     } else if(in_array($table_name,['tickets','ticket_schedule']) && in_array($field_name,['to_do_start_time'])) {
@@ -1673,6 +1673,7 @@ if($_GET['action'] == 'update_fields') {
 		set_config($dbc, 'ticket_staff_travel_default', filter_var($_POST['ticket_staff_travel_default'],FILTER_SANITIZE_STRING));
 		set_config($dbc, 'ticket_guardian_contact', filter_var($_POST['ticket_guardian_contact_value'],FILTER_SANITIZE_STRING));
 		set_config($dbc, 'ticket_recurrence_sync_upto', filter_var($_POST['ticket_recurrence_sync_upto'],FILTER_SANITIZE_STRING));
+		set_config($dbc, 'delivery_type_default', filter_var($_POST['delivery_type_default'],FILTER_SANITIZE_STRING));
 	}
 
 } else if($_GET['action'] == 'ticket_field_config') {
@@ -3385,6 +3386,7 @@ if($_GET['action'] == 'update_fields') {
 		sync_recurring_tickets($dbc, $ticketid);
 	}
 
+
 } else if($_GET['action'] == 'ticket_click_history') {
 	$ticketid = $_POST['ticketid'];
 	$section = $_POST['section'];
@@ -3403,4 +3405,15 @@ if($_GET['action'] == 'update_fields') {
 		mysqli_query($dbc, "UPDATE `field_config_ticket_alerts` SET `enabled`='$enabled', `status`='$status', `contactid`='$staffid' WHERE `ticket_type`='$ticket_tab'");
 	}
 }
+if($_GET['action'] == 'get_ticket_client') {
+	$ticketid = $_GET['ticketid'];
+	if($ticketid > 0) {
+		$ticket = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticketid` = '$ticketid'"));
+		$clientid = array_filter(explode(',',$ticket['clientid']))[0];
+		if($clientid > 0) {
+			echo $clientid;
+		}
+	}
+}
 ?>
+

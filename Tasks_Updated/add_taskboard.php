@@ -11,10 +11,10 @@ if (isset($_POST['add_tab'])) {
     $board_security = filter_var($_POST['board_security'],FILTER_SANITIZE_STRING);
     $board_security = ($board_security=='Shared') ? 'Company' : $board_security;
 
-    if($board_security == 'Private') {
+    if($board_security == 'Private' || $board_security == 'Client') {
         $company_staff_sharing = ','.$_SESSION['contactid'].',';
     } else {
-	    $company_staff_sharing = ','.$_SESSION['contactid'].','.implode(',',$_POST['company_staff_sharing']).',';
+	    $company_staff_sharing = ','.implode(',',$_POST['company_staff_sharing']).',';
 
         //$company_staff_sharing = ','.implode(',',$_POST['company_staff_sharing']).',';
     }
@@ -119,7 +119,7 @@ $(document).ready(function() {
         $( "#contactid_show" ).hide();
         $( "#company_staff_sharing" ).hide();
         $('.task-board-name').show();
-    } else if(taskboard == 'Company') {
+    } else if(taskboard == 'Shared') {
         $( "#company_staff_sharing" ).show();
         $( "#businessid_show" ).hide();
         $( "#contactid_show" ).hide();
@@ -147,7 +147,7 @@ $(document).ready(function() {
             $('#businessid_show').show();
             $('#contactid_show').show();
             $('.task-board-name').hide();
-        } else if ( $('#board_security option:selected').val()=='Company' ) {
+        } else if ( $('#board_security option:selected').val()=='Shared' ) {
             $('#company_staff_sharing').show();
             $('#businessid_show').hide();
             $('#contactid_show').hide();

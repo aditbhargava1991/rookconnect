@@ -298,6 +298,17 @@ function setActions() {
 	$('.info-block-header [name=sort').off('change').change(function() {
 		$.post('../Project/projects_ajax.php?action=milestone_edit', { id: $(this).closest('.info-block-header').find('[name=milestone_name]').data('id'), field: 'sort', value: this.value });
 	});
+    
+    $('.dashboard-list.item_list').each(function() {
+        var count = $(this).find('li.dashboard-item').length;
+        var add_block = $(this).find('li.dashboard-item.add_block');
+        if ( count > 1 ) {
+            $(add_block).hide();
+        }
+    });
+    $('.milestone_options').off('click').click(function() {
+        $(this).closest('.dashboard-list').find('.dashboard-list .add_block').toggle();
+    });
 
     /* Timer */
     $('.start-timer-btn').on('click', function() {
@@ -421,14 +432,15 @@ $status_complete = $task_statuses[count($task_statuses) - 1];
 $status_incomplete = $task_statuses[0];
 $ticket_security = get_security($dbc, 'ticket');
 $ticket_field_config = array_filter(explode(',',mysqli_fetch_assoc(mysqli_query($dbc,"SELECT `tickets_dashboard` FROM field_config"))['tickets_dashboard']));
+
 if(isset($_POST['clear']) || isset($_POST['clear_x']) || isset($_POST['clear_y'])) {
 	$editid = $_GET['edit'];
-        $date_of_archival = date('Y-m-d');
-	$select_query = "select count(*) as clear_count from tasklist where projectid=$editid and status='".$status_complete."'";
+    $date_of_archival = date('Y-m-d');
+	$select_query = "SELECT count(*) as clear_count FROM tasklist WHERE projectid=`$editid` AND status='Done' AND deleted = 0";
 	$count_query = mysqli_fetch_assoc(mysqli_query($dbc, $select_query));
-	$query = "update tasklist set deleted=1, `date_of_archival` = '$date_of_archival' where projectid=$editid and status='".$status_complete."'";
+	$query = "UPDATE tasklist SET deleted=1, `date_of_archival` = '$date_of_archival' WHERE projectid=`$editid` AND status='Done' AND deleted = 0";
 	$update_clear_completed = mysqli_query($dbc, $query);
-	echo '<script>alert("Archived '. $count_query['clear_count'] .' Tasks, which were completed.")</script>';
+	echo '<script>alert("Archived '. $count_query['clear_count'] .' Tasks, which were completed."); window.location.reload();</script>';
 }
 
 if(!isset($projectid)) {
@@ -737,7 +749,7 @@ if($_GET['tab'] != 'scrum_board' && !in_array($pathid,['AllSB','SB'])) {
 				</select></div>
 				<img class="inline-img pull-right no-toggle black-color small" src="../img/project-path.png" title="Select the <?= PROJECT_NOUN ?> Path" onclick="$('.path_select').show(); $(this).hide();">
 			<?php } ?>
-			<input type="image" src="../img/clear-checklist.png" name="clear" title="Clear Completed Tasks" class="no-toggle inline-img black-color pull-right small" alt="Submit"/>
+			<input type="image" src="../img/clear-checklist.png" onclick="clearCompletedProjectTask(this);" name="clear1" title="Clear Completed Tasks" value="<?php echo $projectid; ?>" class="no-toggle inline-img black-color pull-right small" alt="Submit"/>
 		<?php } ?>
         <div class="clearfix"></div>
 		</h3></form>
@@ -855,6 +867,7 @@ $unassigned_sql = "SELECT 'Ticket', `ticketid` FROM tickets WHERE projectid='$pr
 					<div class="info-block-header"><h4><?= in_array($_GET['tab'],['path','path_external_path']) && $pathid != 'MS' ? '<a target="_parent" href="?edit='.$projectid.'&tab='.$tab_id.'&pathid='.$_GET['pathid'].'">'.$milestone_row['label'].'</a>' : '<span>'.$milestone_row['label'].'</span>' ?>
 						<?= $milestone != 'Unassigned' && $security['edit'] > 0 && $pathid != 'MS' ? '<img class="small no-gap-top milestone_name cursor-hand inline-img no-toggle" src="../img/icons/ROOK-edit-icon.png" title="Edit">' : '' ?>
 						<?= $milestone != 'Unassigned' && in_array($_GET['tab'],['path','path_external_path']) && $security['edit'] > 0 && $pathid != 'MS' ? '<img class="small no-gap-top milestone_drag cursor-hand inline-img pull-right no-toggle" src="../img/icons/drag_handle.png" title="Drag">
+							<img class="small milestone_options cursor-hand no-gap-top inline-img pull-right no-toggle" src="../img/icons/ROOK-3dot-icon.png" title="Show/Hide Options">
 							<img class="small milestone_rem cursor-hand no-gap-top inline-img pull-right" src="../img/remove.png">
 							<img class="small milestone_add cursor-hand no-gap-top inline-img pull-right" src="../img/icons/ROOK-add-icon.png">
 							<input type="hidden" name="sort" value="'.$milestone_row['sort'].'">' : '' ?></h4>
@@ -877,7 +890,7 @@ $unassigned_sql = "SELECT 'Ticket', `ticketid` FROM tickets WHERE projectid='$pr
 
                                     if(in_array('Tasks',$tab_config) || in_array('Checklists',$tab_config)) { ?>
 
-									<a href="" onclick="addIntakeForm(this); return false;" data-milestone="<?= $milestone_row['milestone'] ?>" class="btn brand-btn pull-right">Intake +</a>
+									<!-- <a href="" onclick="addIntakeForm(this); return false;" data-milestone="<?= $milestone_row['milestone'] ?>" class="btn brand-btn pull-right">Intake +</a> -->
                                     <?php
                                     $slider_layout = !empty(get_config($dbc, 'tasks_slider_layout')) ? get_config($dbc, 'tasks_slider_layout') : 'accordion';
 

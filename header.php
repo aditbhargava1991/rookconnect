@@ -164,6 +164,12 @@ if($software_config == 'swr') {
 <!-- <link rel="stylesheet" href="<?php //echo WEBSITE_URL;?>/gantti-master/styles/css/screen.css" /> -->
 
 <script src="<?= WEBSITE_URL; ?>/js/isMobile.js"></script>
+<script src="<?= WEBSITE_URL; ?>/js/circlos.js"></script>
+<script>
+$(document).ready(function(){
+    $(".radial_chart").circlos();
+});
+</script>
 <script src="<?= WEBSITE_URL;?>/js/custom.js"></script>
 <script src="<?= WEBSITE_URL;?>/js/ajax_functions.js"></script>
 <script> setInterval(function() { $.ajax({ url: '<?= WEBSITE_URL ?>/refresh_session.php' }); }, 1200000); </script>

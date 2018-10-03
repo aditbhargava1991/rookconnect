@@ -259,9 +259,35 @@ if(!empty($_POST['search_start_date']) && !empty($_POST['search_end_date'])) {
 						$services_cost[] = number_format(($qty[$i] > 0 ? $qty[$i] : 1) * ($service_rate > 0 ? $service_rate : $service['cust_price']),2);
 					}
 				}
+                $status_list = [];
+                $date_list = [];
+                $sql = "SELECT * FROM `ticket_schedule` WHERE `ticketid` = '{$invoice['ticketid']}' AND `deleted` = 0 AND `type` NOT IN ('origin','destination')";
+                if($project_admin_multiday_tickets == 1) {
+                    $sql .= " AND `to_do_date` = '{$invoice['to_do_start_date']}'";
+                }
+                $query = mysqli_query($dbc, $sql);
+                while($sched_line = $query->fetch_assoc()) {
+                    $status_list[] = (empty($sched_line['client_name']) ? $sched_line['location_name'] : $sched_line['client_name']).': '.$sched_line['status'];
+                    $date_list[] = $sched_line['to_do_date'];
+                    foreach(explode(',',$sched_line['serviceid']) as $i => $service) {
+                        if($service > 0) {
+                            $service = $dbc->query("SELECT `services`.`serviceid`, `services`.`heading`, `rate`.`cust_price` FROM `services` LEFT JOIN `company_rate_card` `rate` ON `services`.`serviceid`=`rate`.`item_id` AND `rate`.`tile_name` LIKE 'Services' WHERE `services`.`serviceid`='$service'")->fetch_assoc();
+                            $service_rate = 0;
+                            foreach(explode('**',$cust_rate_card['services']) as $service_cust_rate) {
+                                $service_cust_rate = explode('#',$service_cust_rate);
+                                if($service_cust_rate[0] == $service['serviceid']) {
+                                    $service_rate = $service_cust_rate[1];
+                                }
+                            }
+                            $services[] = $service['heading'].($qty[$i] > 0 ? ' x '.$qty[$i] : '');
+                            $services_cost_num[] = ($qty[$i] > 0 ? $qty[$i] : 1) * ($service_rate > 0 ? $service_rate : $service['cust_price']);
+                            $services_cost[] = number_format(($qty[$i] > 0 ? $qty[$i] : 1) * ($service_rate > 0 ? $service_rate : $service['cust_price']),2);
+                        }
+                    }
+                }
 				$pdf_name = '../Invoice/Download/invoice_'.$invoice['invoiceid'].'.pdf'; ?>
 				<tr>
-					<td data-title="Date"><?= $invoice['ticket_date'] ?></td>
+					<td data-title="Date"><?= empty($invoice['to_do_start_date']) ? implode(', ',array_unique($date_list)) : $invoice['to_do_start_date'] ?></td>
 					<td data-title="<?= TICKET_NOUN ?>"><?php if($tile_security['edit'] > 0) { ?><a href="<?= WEBSITE_URL ?>/Ticket/index.php?edit=<?= $invoice['ticketid'] ?>" onclick="overlayIFrameSlider(this.href+'&calendar_view=true','auto',true,true); return false;"><?= get_ticket_label($dbc, $invoice) ?></a><?php } else { echo get_ticket_label($dbc, $invoice); } ?></td>
 					<?php if(strpos($value_config, ',Services,') !== FALSE) {
 						foreach($services_cost_num as $cost_amt) {

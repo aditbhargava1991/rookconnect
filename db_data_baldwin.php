@@ -1043,6 +1043,7 @@
     }
     //2018-09-25 - Ticket #9310 - Bell Notification
 
+
  //2018-09-19 - Ticket #9060 - Ticket History Icon
     $updated_already = get_config($dbc, 'updated_ticket9060_tickethistory');
     if(empty($updated_already)) {
@@ -1141,6 +1142,26 @@
         echo "Error: ".mysqli_error($dbc)."<br />\n";
     }
     //2018-09-25 - Ticket #9310 - Bell Notification
+
+    //2018-09-26 - Ticket #5816 - Ticket PDFs
+    if(!mysqli_query($dbc, "ALTER TABLE `ticket_pdf` ADD `page_orientation` varchar(500) AFTER `pdf_name`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-09-26 - Ticket #5816 - Ticket PDFs
+
+    //2018-10-01 - Ticket #9354 - Dispatch
+    if(!mysqli_query($dbc, "ALTER TABLE `ticket_attached` ADD `completed_time` datetime NOT NULL AFTER `completed`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "CREATE TRIGGER `ticket_attached_completed_time` BEFORE UPDATE ON `ticket_attached`
+         FOR EACH ROW BEGIN
+            IF NEW.`completed` != OLD.`completed` THEN
+                SET NEW.`completed_time` = CURRENT_TIMESTAMP;
+            END IF;
+        END")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-10-01 - Ticket #9354 - Dispatch
 
     echo "Baldwin's DB Changes Done<br />\n";
 ?>

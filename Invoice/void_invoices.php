@@ -256,7 +256,7 @@ function show_hide_email() {
     </form>
 
     <div class="clearfix"></div>
-
+    
     <form method="POST" action="" name="send_email" class="form-horizontal">
         <?php
         // Display Pager

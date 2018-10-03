@@ -37,6 +37,8 @@ if(!empty($_GET['from_alert'])) {
 		<script type="text/javascript">
 			$(document).ready(function() {
 				alert("<?= $staff_labels ?> has taken responsibility of this <?= TICKET_NOUN ?>.");
+            
+                
 			});
 		</script>
 	<?php }
@@ -219,7 +221,9 @@ if(!empty($_GET['edit'])) {
 	<input type="hidden" class="start_time" value="<?php echo $time_seconds ?>">
 	<input type="hidden" id="login_contactid" value="<?php echo $_SESSION['contactid'] ?>" />
 	<input type="hidden" id="timer_type" value="<?php echo $timer_type ?>" />
-<?php }
+<?php } else if(!empty($_GET['type'])) {
+	$ticket_type = $_GET['type'];
+}
 if(!empty(MATCH_CONTACTS) && !in_array($get_ticket['businessid'],explode(',',MATCH_CONTACTS)) && !in_array_any(array_filter(explode(',',$get_ticket['clientid'])),explode(',',MATCH_CONTACTS)) && $ticketid > 0) {
 	ob_clean();
 	header('Location: index.php');
@@ -631,7 +635,7 @@ if($get_ticket['main_ticketid'] > 0 && $get_ticket['is_recurrence'] == 1 && !$fo
 $quick_action_html = '';
 if(!($strict_view > 0) && !isset($_GET['intake_key'])) {
 	$quick_actions = explode(',',get_config($dbc, 'quick_action_icons'));
-	$quick_action_html .= '<div class="action-icons pull-right">';
+	$quick_action_html .= '<div class="action-icons pull-right" data-colour="'.$get_ticket['flag_colour'].'" data-table="tickets" data-id-field="ticketid">';
 	$quick_action_html .= (strpos($value_config,',Create Recurrence Button,') !== FALSE ? '<img src="'.WEBSITE_URL.'/img/month-overview-blue.png" class="inline-img no-toggle" title="Recurring '.TICKET_TILE .'" onclick="dialogCreateRecurrence(this);">' : '');
 	$quick_action_html .= (in_array('flag_manual',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-flag-icon.png" class="inline-img manual-flag-icon no-toggle" title="Flag This!">' : '');
 	$quick_action_html .= (!in_array('flag_manual',$quick_actions) && in_array('flag',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-flag-icon.png" class="inline-img flag-icon no-toggle" title="Flag This!">' : '');
@@ -749,9 +753,11 @@ $(document).ready(function() {
             $('.menu-bar').fadeIn("fast");
             $('.menu-content:visible').fadeOut("fast");
             $('.menu_button:hidden').fadeIn("fast");
+            $('#back_to_top').fadeIn("fast");
         } else {
             $('.menu-bar').fadeOut("fast");
             $('.menu-content').fadeOut("fast");
+            $('#back_to_top').fadeOut("fast");
         }
     });
 	if(ticketid > 0) {
@@ -773,6 +779,10 @@ $(document).on('click', '.menu_button', function() {
     });
     $('.menu-content').fadeIn("fast");
     $('.menu_button').hide();
+});
+$(document).on('click', '#back_to_top', function(e) {
+   e.preventDefault();
+   $('.standard-body').animate({scrollTop: 0}, 400);
 });
 function loadPanel() {
 	if(!$(this).hasClass('higher_level_heading')) {
@@ -810,6 +820,7 @@ function setActions() {
 	});
 	$('.flag-icon').off('click').click(function() {
 		var ticketid = $('#ticketid').val();
+		var item = $(this).closest('.action-icons');
 		$.ajax({
 			url: 'ticket_ajax_all.php?action=quick_actions',
 			method: 'POST',
@@ -822,14 +833,15 @@ function setActions() {
 			},
 			success: function(response) {
 				item.data('colour',response.substr(0,6));
-				item.css('background-color','#'+response.substr(0,6));
-				item.find('.flag-label').html(response.substr(6));
+				// item.css('background-color','#'+response.substr(0,6));
+				// item.find('.flag-label').html(response.substr(6));
+				setManualFlag('', response.substr(0,6), response.substr(6));
 			}
 		});
 	});
 	$('.attach-icon').off('click').click(function() {
 		var ticketid = $('#ticketid').val();
-		var item = $(this).closest('.action_items');
+		var item = $(this).closest('.action-icons');
 		item.find('[type=file]').off('change').change(function() {
 			var fileData = new FormData();
 			fileData.append('file',$(this)[0].files[0]);
@@ -1175,7 +1187,7 @@ var setHeading = function() {
 					$flag_comment = $ticket_flag_names[$get_ticket['flag_colour']];
 				} ?>
 			<?php } ?>
-			<span class="block-label flag-label-block" style="<?= $get_ticket['flag_colour'] != '' && $get_ticket['flag_colour'] != 'FFFFFF' ? '' : 'dispaly:none;' ?>background-color:#<?= $get_ticket['flag_colour'] ?>;">Flagged<?= empty($flag_comment) ? '' : ': '.$flag_comment ?></span></h3>
+			<span class="block-label flag-label-block" style="<?= $get_ticket['flag_colour'] != '' && $get_ticket['flag_colour'] != 'FFFFFF' ? '' : 'display:none;' ?>background-color:#<?= $get_ticket['flag_colour'] ?>;">Flagged<?= empty($flag_comment) ? '' : ': '.$flag_comment ?></span></h3>
 			<hr>
 		</div>
 	<?php }
@@ -2008,7 +2020,7 @@ var setHeading = function() {
                 <div class="panel panel-default">
                     <div class="panel-heading mobile_load">
                         <h4 class="panel-title">
-                            <a data-toggle="collapse" data-parent="#mobile_tabs<?= $heading_id ?>" <?= $indent_accordion_text ?> href="#collapse_ticket_delivery_<?= $ticket_stop['id'] ?>">
+                            <a data-toggle="collapse" data-parent="#mobile_tabs<?= $heading_id ?>" <?= $indent_accordion_text ?> href="#collapse_ticket_delivery">
 
                                 <?= (!empty($renamed_accordion) ? $renamed_accordion : 'Delivery Details') ?><span class="glyphicon glyphicon-plus"></span>
                             </a>
@@ -2583,6 +2595,24 @@ var setHeading = function() {
 				</div>
 			<?php } ?>
 
+			<?php if (strpos($value_config, ','."Application Report".',') !== FALSE && $sort_field == 'Application Report') { ?>
+				<div class="panel panel-default">
+					<div class="panel-heading mobile_load">
+						<h4 class="panel-title">
+							<a data-toggle="collapse" data-parent="#mobile_tabs<?= $heading_id ?>" <?= $indent_accordion_text ?> href="#collapse_ticket_apply_report">
+								<?= !empty($renamed_accordion) ? $renamed_accordion : 'Application Report' ?><span class="glyphicon glyphicon-plus"></span>
+							</a>
+						</h4>
+					</div>
+
+					<div id="collapse_ticket_apply_report" class="panel-collapse collapse">
+						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?<?= isset($_GET['intake_key']) ? 'intake_key='.$_GET['intake_key'].'&' : '' ?>ticketid=<?= $ticketid ?>&tab=ticket_apply_report">
+							Loading...
+						</div>
+					</div>
+				</div>
+			<?php } ?>
+
 			<?php if (strpos($value_config, ','."Intake".',') !== FALSE && $sort_field == 'Intake') { ?>
 				<div class="panel panel-default">
 					<div class="panel-heading mobile_load">
@@ -2694,7 +2724,6 @@ var setHeading = function() {
 			<?php if (strpos($value_config, ','."Customer Notes".',') !== FALSE && $sort_field == 'Customer Notes') {
                 $stopid = filter_var($_GET['stop'],FILTER_SANITIZE_STRING);
                 $stop_list = $dbc->query("SELECT * FROM `ticket_schedule` WHERE `ticketid`='$ticketid' AND `deleted`=0 AND '$stopid' IN (`id`,'')");
-
                 if($stop_list->num_rows > 0) { ?>
                     <div class="panel panel-default">
                         <div class="panel-heading mobile_load higher_level_heading">
@@ -2731,8 +2760,8 @@ var setHeading = function() {
                     <div class="panel panel-default">
                         <div class="panel-heading mobile_load">
                             <h4 class="panel-title">
-                                <a data-toggle="collapse" data-parent="#mobile_tabs<?= $heading_id ?>" <?= $indent_accordion_text ?> href="#collapse_ticket_customer_notes_<?= $ticket_stop['id'] ?>">
-                                    <?= (!empty($renamed_accordion) ? $renamed_accordion : 'Customer Notes').($ticket_stop['id'] > 0 ? ': '.(empty($ticket_stop['client_name']) ? $ticket_stop['location_name'] : $ticket_stop['client_name']) : '') ?><span class="glyphicon glyphicon-plus"></span>
+                                <a data-toggle="collapse" data-parent="#mobile_tabs<?= $heading_id ?>" <?= $indent_accordion_text ?> href="#collapse_ticket_customer_notes">
+                                    <?= (!empty($renamed_accordion) ? $renamed_accordion : 'Customer Notes') ?><span class="glyphicon glyphicon-plus"></span>
 
                                 </a>
                             </h4>
@@ -2759,7 +2788,7 @@ var setHeading = function() {
 		<div class="clearfix"></div>
 		<div class="gap-top add_gap_here">
 			<?php if(strpos($value_config,',Finish Button Hide,') === FALSE && !isset($_GET['intake_key'])) { ?>
-				<a href="index.php" class="pull-right btn brand-btn finish_btn" onclick="<?= (strpos($value_config, ','."Timer".',') !== FALSE) ? 'stopTimers();' : '' ?><?= (strpos($value_config, ','."Check Out".',') !== FALSE || strpos($value_config, ','."Complete Combine Checkout Summary".',') !== FALSE) ? 'return checkoutAll(this);' : '' ?>" <?= strpos($value_config, ','."Finish Check Out Require Signature".',') !== FALSE ? 'data-require-signature="1"' : '' ?> <?= strpos($value_config, ','."Finish Create Recurring Ticket".',') !== FALSE ? 'data-recurring-ticket="1"' : '' ?>>Finish</a>
+				<a href="index.php" class="pull-right btn brand-btn finish_btn" onclick="<?= $update_time == 'auto_sort' ? "if(sorting_done != 2) { return getDriveTime(this, '".date('Y-m-d')."', '".($stopid > 0 ? get_field_value('equipmentid','ticket_schedule','id',$stopid) : $get_ticket['equipmentid'])."'); }" : '' ?><?= (strpos($value_config, ','."Timer".',') !== FALSE) ? 'stopTimers();' : '' ?><?= (strpos($value_config, ','."Check Out".',') !== FALSE || strpos($value_config, ','."Complete Combine Checkout Summary".',') !== FALSE) ? 'return checkoutAll(this);' : '' ?>" <?= strpos($value_config, ','."Finish Check Out Require Signature".',') !== FALSE ? 'data-require-signature="1"' : '' ?> <?= strpos($value_config, ','."Finish Create Recurring Ticket".',') !== FALSE ? 'data-recurring-ticket="1"' : '' ?>>Finish</a>
 			<?php } ?>
 			<?php if($access_any && !isset($_GET['intake_key'])) { ?>
 				<a href="<?= $back_url ?>" class="pull-right gap-right"><img class="no-toggle" src="<?= WEBSITE_URL ?>/img/icons/save.png" alt="Save" width="36" title="Save" /></a>
@@ -2812,7 +2841,7 @@ var setHeading = function() {
 						</div>
 					<?php } ?>
 					<?= '<div class="pull-right" style="position: relative; bottom: 0.3em;">'.$quick_action_html.'</div>' ?>
-					<span class="flag-label" style="<?= $get_ticket['flag_colour'] != '' && $get_ticket['flag_colour'] != 'FFFFFF' ? '' : 'dispaly:none;' ?>background-color:#<?= $get_ticket['flag_colour'] ?>;"><?= $flag_comment ?></span>
+					<span class="flag-label" style="<?= $get_ticket['flag_colour'] != '' && $get_ticket['flag_colour'] != 'FFFFFF' ? '' : 'display:none;' ?>background-color:#<?= $get_ticket['flag_colour'] ?>;"><?= $flag_comment ?></span>
 					<span class="sync_recurrences_note" style="display: none; color: red;"><div class="clearfix"></div><b>You are editing all Recurrences of this <?= TICKET_NOUN?>. Please refresh the page if you would like to edit only this occurrence.</b></span>
 				</h3>
                 <div class="menu-bar" style="display:none; position:fixed; right:20px; z-index:1;">
@@ -2889,7 +2918,7 @@ var setHeading = function() {
 			<?php if($wait_on_approval) {
 				echo '<h4>Awaiting Admin Approval</h4>';
 			} ?>
-			<?php if(count($ticket_tabs) > 1 && !($_GET['action_mode'] > 0 || $_GET['overview_mode'] > 0) && $tile_security['edit'] > 0 && !($strict_view > 0)) { ?>
+			<?php if((count($ticket_tabs) > 1 && !($_GET['action_mode'] > 0 || $_GET['overview_mode'] > 0) && $tile_security['edit'] > 0 && !($strict_view > 0)) || isset($_GET['intake_key'])) { ?>
 				<div class="tab-section col-sm-12" id="tab_section_ticket_type" <?= isset($_GET['intake_key']) ? 'style="display:none;"' : '' ?>>
 					<h3><?= TICKET_NOUN ?> Tab</h3>
 					<label for="ticket_type" class="col-sm-4 control-label" style="text-align: left;"><?= TICKET_NOUN ?> Tab:</label>
@@ -3298,6 +3327,11 @@ var setHeading = function() {
 					$acc_label = 'Chemicals';
 					include('edit_ticket_tab.php');
 				}
+				if (strpos($value_config, ','."Application Report".',') !== FALSE && $sort_field == 'Application Report') {
+					$_GET['tab'] = 'ticket_apply_report';
+					$acc_label = 'Application Report';
+					include('edit_ticket_tab.php');
+				}
 				if (strpos($value_config, ','."Intake".',') !== FALSE && $sort_field == 'Intake') {
 					$_GET['tab'] = 'ticket_intake';
 					$acc_label = 'Intake';
@@ -3315,6 +3349,8 @@ var setHeading = function() {
 				}
 				$collapse_i++;
 			} ?>
+            
+            <img id="back_to_top" src="../img/icons/ROOK-BackToTop-icon.png" class="no-toggle cursor-hand back-to-top" title="Back To Top" width="30" />
 <?php } ?>
 			<?php if($ticket_layout == 'Accordions' && $include_hidden != 'true') { ?>
 				</div>
@@ -3328,7 +3364,7 @@ var setHeading = function() {
 				$body = 'A '.TICKET_NOUN.' has been submitted for approval. Please log in and review it.<br/><br/>
 					<b><a target="_blank" href="'.WEBSITE_URL.'/Ticket/index.php?tab=administration_'.$admin_group['id'].'_pending__">Approvals</a></b><br/>
 					<a target="_blank" href="'.WEBSITE_URL.'/Ticket/index.php?edit="></a>'; ?>
-				<a class="btn brand-btn pull-right cursor-hand collapsed" data-toggle="collapse" data-target="#approval_submit" onclick="updateApprovalIDLabel()">Submit for Approval</a>
+				<a class="btn brand-btn pull-right cursor-hand collapsed" data-toggle="collapse" data-target="#approval_submit" data-sort="<?= $update_time ?>" onclick="<?= $update_time == 'auto_sort' ? "if(sorting_done != 2) { return getDriveTime(this, '".date('Y-m-d')."', '".($stopid > 0 ? get_field_value('equipmentid','ticket_schedule','id',$stopid) : $get_ticket['equipmentid'])."'); }" : '' ?> updateApprovalIDLabel()">Submit for Approval</a>
 				<script>
 				function updateApprovalIDLabel() {
 					$('#approval_submit [name=approval_subject]').val($('.ticketid_span').text()+' has been submitted for approval');
@@ -3371,7 +3407,7 @@ var setHeading = function() {
 			<?php } ?>
 			<div class="gap-top add_gap_here" <?= $calendar_ticket_slider == 'accordion' ? 'style="display:none;"' : '' ?>>
 				<?php if(strpos($value_config,',Finish Button Hide,') === FALSE && !isset($_GET['intake_key'])) { ?>
-					<a href="<?= empty($ticket_next_step_timesheet) ? 'index.php' : 'next_ticket_step.php?action_mode='.$_GET['action_mode'] ?>" <?= empty($ticket_next_step_timesheet) ? '' : 'target="_top"' ?> class="pull-right btn brand-btn finish_btn" onclick="<?= (strpos($value_config, ','."Timer".',') !== FALSE) ? 'stopTimers();' : '' ?><?= (strpos($value_config, ','."Check Out".',') !== FALSE || strpos($value_config, ','."Complete Combine Checkout Summary".',') !== FALSE) ? 'return checkoutAll(this);' : '' ?>" <?= strpos($value_config, ','."Finish Check Out Require Signature".',') !== FALSE ? 'data-require-signature="1"' : '' ?> <?= strpos($value_config, ','."Finish Create Recurring Ticket".',') !== FALSE ? 'data-recurring-ticket="1"' : '' ?>>Finish</a>
+					<a href="<?= empty($ticket_next_step_timesheet) ? 'index.php' : 'next_ticket_step.php?action_mode='.$_GET['action_mode'] ?>" <?= empty($ticket_next_step_timesheet) ? '' : 'target="_top"' ?> class="pull-right btn brand-btn finish_btn" onclick="<?= $update_time == 'auto_sort' ? "if(sorting_done != 2) { return getDriveTime(this, '".date('Y-m-d')."', '".($stopid > 0 ? get_field_value('equipmentid','ticket_schedule','id',$stopid) : $get_ticket['equipmentid'])."'); }" : '' ?><?= (strpos($value_config, ','."Timer".',') !== FALSE) ? 'stopTimers();' : '' ?><?= (strpos($value_config, ','."Check Out".',') !== FALSE || strpos($value_config, ','."Complete Combine Checkout Summary".',') !== FALSE) ? 'return checkoutAll(this);' : '' ?>" <?= strpos($value_config, ','."Finish Check Out Require Signature".',') !== FALSE ? 'data-require-signature="1"' : '' ?> <?= strpos($value_config, ','."Finish Create Recurring Ticket".',') !== FALSE ? 'data-recurring-ticket="1"' : '' ?>>Finish</a>
 				<?php } ?>
 				<?php if($access_any && !isset($_GET['intake_key'])) { ?>
 					<a href="<?= $back_url ?>" class="pull-right gap-right"><img class="no-toggle" src="<?= WEBSITE_URL ?>/img/icons/save.png" alt="Save" width="36" title="Save" /></a>

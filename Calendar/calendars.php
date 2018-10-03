@@ -77,6 +77,29 @@ if(!empty($calendar_auto_refresh)) {
 }
 
 // Calendar Main Screen ?>
+<script>
+function resize_rows() {
+    <?php if(get_config($dbc, 'auto_show_time') == 'true') { ?>
+        var top = $('td.today-active a[data-currenttime]').filter(function() { return Date.parse($(this).data('currentdate')+' '+$(this).data('currenttime')) < Date.now(); }).last().offset().top;
+        $('.calendar_view').scrollTop(top);
+    <?php } ?>
+    <?php if(get_config($dbc, 'auto_size_calendar_blocks') == 'true') { ?>
+        var min_size = 0;
+        $('.used-block').each(function() {
+            var blocks = $(this).data('blocks');
+            if(blocks == 0) {
+                blocks = 1;
+            }
+            if(min_size < $(this).find('span').innerHeight() / blocks + 5) {
+                min_size = $(this).find('span').innerHeight() / blocks + 5;
+            }
+        });
+        $('.calendar_view td').innerHeight(min_size).find('div.used_block').each(function() {
+            $(this).innerHeight($(this).data('blocks') * min_size);
+        });
+    <?php } ?>
+}
+</script>
 </head>
 <body>
 <?php include_once ('../navigation.php');
