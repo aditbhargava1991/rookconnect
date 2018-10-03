@@ -144,7 +144,7 @@ function dispatch_ticket_label($dbc, $ticket, $stop_number) {
 	if(in_array('star_rating',$dispatch_tile_ticket_card_fields)) {
 		$customer_notes = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `ticket_attached` WHERE `ticketid` = '".$ticket['ticketid']."' AND `src_table` = 'customer_approve' AND `line_id` = '".$ticket['stop_id']."' AND `deleted` = 0"));
 		$rating_html = '';
-		if(!empty($customer_notes['rate'])) {
+		if($customer_notes['rate'] > 0) {
 			$rating = $customer_notes['rate'];
             $rating_html = '<div class="star_rating_hover_html" style="display: none;">';
             for($i = 0; $i < 5; $i++) {
