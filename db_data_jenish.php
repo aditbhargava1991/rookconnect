@@ -19,7 +19,9 @@ if(!mysqli_query($dbc, "CREATE TABLE `field_config_mandatory_project` LIKE `fiel
   echo "Error: ".mysqli_error($dbc)."<br />\n";
 }
 
-
+if(!mysqli_query($dbc, "ALTER TABLE `general_configuration` ADD `mandatory` BOOLEAN DEFAULT 0")) {
+  echo "Error: ".mysqli_error($dbc)."<br />\n";
+}
 
 echo "<br> ======Jenish's db changes Done======<br>";
 ?>
