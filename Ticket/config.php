@@ -22,6 +22,11 @@ if(!empty($_GET['tile_group'])) {
     }
     $current_tile = 'tile_group='.$_GET['tile_group'].'&';
     $ticket_type = empty($_GET['type']) ? get_config($dbc, 'default_ticket_type') : filter_var($_GET['type'],FILTER_SANITIZE_STRING);
+    if(empty($ticket_type) || !in_array($ticket_type,$ticket_types)) {
+        if(count($ticket_types) == 1) {
+            $ticket_type = $ticket_types[0];
+        }
+    }
     if(empty($ticket_tabs[$ticket_type])) {
         $ticket_type = explode('|',$tile_config[2])[0];
     }
