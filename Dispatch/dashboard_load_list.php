@@ -5,6 +5,8 @@ ob_clean();
 
 $daily_date = $_POST['date'];
 $active_equipment = json_decode($_POST['active_equipment']);
+
+
 $equip_list = mysqli_fetch_all(mysqli_query($dbc, "SELECT *, CONCAT(' #', `unit_number`) label FROM `equipment` WHERE `deleted`=0 ".$equip_cat_query." $allowed_equipment_query $customer_query ORDER BY `label`"),MYSQLI_ASSOC);
 
 //POPULATE
@@ -30,6 +32,13 @@ foreach($equip_list as $equipment) {
     $ontime_summary = [];
     $star_summary = '';
     $star_contacts = [];
+	$completed_tickets = 0;
+	$total_tickets = 0;
+
+	$assigned_team = $dbc->query("SELECT * FROM `equipment_assignment_staff` WHERE `equipment_assignmentid`='$equipment_assignmentid' AND `deleted`=0");
+	while($contact = $assigned_team->fetch_assoc()) {
+		$star_contacts[] = $contact['contactid'];
+	}
 
 	$warehouse_query = '';
 	$warehouse_times = [];
@@ -50,6 +59,11 @@ foreach($equip_list as $equipment) {
         		$summary_result['status_summary'][$ticket['status']]['count']++;
         		$summary_result['status_summary'][$ticket['status']]['color'] = $ticket_status_color[$ticket['status']];
         		$summary_result['status_summary'][$ticket['status']]['status'] = $ticket['status'];
+
+        		$total_tickets++;
+        		if(in_array($ticket['status'],$calendar_checkmark_status)) {
+        			$completed_tickets++;
+        		}
         	}
         }
         foreach($warehouse_times as $start_time => $addresses) {
@@ -88,6 +102,11 @@ foreach($equip_list as $equipment) {
         		$summary_result['status_summary'][$ticket['status']]['count']++;
         		$summary_result['status_summary'][$ticket['status']]['color'] = $ticket_status_color[$ticket['status']];
         		$summary_result['status_summary'][$ticket['status']]['status'] = $ticket['status'];
+
+        		$total_tickets++;
+        		if(in_array($ticket['status'],$calendar_checkmark_status)) {
+        			$completed_tickets++;
+        		}
         	}
         }
         foreach($pickup_times as $start_time => $addresses) {
@@ -105,6 +124,14 @@ foreach($equip_list as $equipment) {
 				$ticket_times[$start_time][] = $row_html;
 			}
         }
+	}
+
+	$all_stop_numbers = [];
+	$stop_numbers_sql = "SELECT `ticket_schedule`.`id` `stop_id`, `tickets`.`ticketid` FROM `tickets` LEFT JOIN `ticket_schedule` ON `tickets`.`ticketid`=`ticket_schedule`.`ticketid` AND `ticket_schedule`.`deleted`=0 WHERE ('".$daily_date."' BETWEEN `tickets`.`to_do_date` AND `tickets`.`to_do_end_date` OR '".$daily_date."' BETWEEN `ticket_schedule`.`to_do_date` AND IFNULL(`ticket_schedule`.`to_do_end_date`,`ticket_schedule`.`to_do_date`)) AND (IFNULL(`ticket_schedule`.`equipmentid`,`tickets`.`equipmentid`)='".$equipment['equipmentid']."') AND `tickets`.`deleted` = 0 AND `tickets`.`status` NOT IN ('Archive', 'Done')".$warehouse_query.$pickup_query." ORDER BY IFNULL(NULLIF(`ticket_schedule`.`to_do_start_time`,''),IFNULL(NULLIF(`tickets`.`start_time`,'00:00'),`tickets`.`to_do_start_time`)) ASC";
+	$stop_numbers = mysqli_fetch_all(mysqli_query($dbc, $stop_numbers_sql),MYSQLI_ASSOC);
+	$stop_num = 1;
+	foreach($stop_numbers as $stop) {
+		$all_stop_numbers[($stop['stop_id'] > 0 ? 'ticket_schedule,'.$stop['stop_id'] : 'tickets,'.$stop['ticketid'])] = $stop_num++;
 	}
 
 	$all_tickets_sql = "SELECT `tickets`.*, `ticket_schedule`.`id` `stop_id`, IFNULL(`ticket_schedule`.`to_do_date`,`tickets`.`to_do_date`) `to_do_date`, IFNULL(`ticket_schedule`.`to_do_start_time`,`tickets`.`to_do_start_time`) `to_do_start_time`, IFNULL(`ticket_schedule`.`scheduled_lock`,0) `scheduled_lock`, IFNULL(`ticket_schedule`.`to_do_end_time`,`tickets`.`to_do_end_time`) `to_do_end_time`, IFNULL(`ticket_schedule`.`equipmentid`,`tickets`.`equipmentid`) `equipmentid`, IFNULL(`ticket_schedule`.`equipment_assignmentid`,`tickets`.`equipment_assignmentid`) `equipment_assignmentid`, IFNULL(`ticket_schedule`.`teamid`,`tickets`.`teamid`) `teamid`, IFNULL(`ticket_schedule`.`contactid`,`tickets`.`contactid`) `contactid`, IF(`ticket_schedule`.`id` IS NULL,'ticket','ticket_schedule') `ticket_table`, IFNULL(`ticket_schedule`.`id`, 0) `ticket_scheduleid`, IFNULL(`ticket_schedule`.`last_updated_time`,`tickets`.`last_updated_time`) `last_updated_time`, CONCAT(' - ',IFNULL(NULLIF(`ticket_schedule`.`location_name`,''),`ticket_schedule`.`client_name`)) `location_description`, IFNULL(`ticket_schedule`.`scheduled_lock`,0) `scheduled_lock`, `ticket_schedule`.`type` `delivery_type`, IFNULL(`ticket_schedule`.`status`, `tickets`.`status`) `status`, `ticket_schedule`.`location_name`, `ticket_schedule`.`client_name`, IFNULL(`ticket_schedule`.`address`,`tickets`.`pickup_address`) `pickup_address`, IFNULL(`ticket_schedule`.`city`,`tickets`.`pickup_city`) `pickup_city`, `ticket_schedule`.`notes` `delivery_notes`, `tickets`.`businessid`, CONCAT(`start_available`,' - ',`end_available`) `availability`, `ticket_schedule`.`end_available` FROM `tickets` LEFT JOIN `ticket_schedule` ON `tickets`.`ticketid`=`ticket_schedule`.`ticketid` AND `ticket_schedule`.`deleted`=0 WHERE ('".$daily_date."' BETWEEN `tickets`.`to_do_date` AND `tickets`.`to_do_end_date` OR '".$daily_date."' BETWEEN `ticket_schedule`.`to_do_date` AND IFNULL(`ticket_schedule`.`to_do_end_date`,`ticket_schedule`.`to_do_date`)) AND (IFNULL(`ticket_schedule`.`equipmentid`,`tickets`.`equipmentid`)='".$equipment['equipmentid']."') AND `tickets`.`deleted` = 0 AND `tickets`.`status` NOT IN ('Archive', 'Done')".$warehouse_query.$pickup_query.$allowed_regions_query.$allowed_locations_query.$allowed_classifications_query.$ticket_customer_query." ORDER BY IFNULL(NULLIF(`ticket_schedule`.`to_do_start_time`,''),IFNULL(NULLIF(`tickets`.`start_time`,'00:00'),`tickets`.`to_do_start_time`)) ASC";
@@ -128,9 +155,9 @@ foreach($equip_list as $equipment) {
 				$icon_background = " background-image: url(\"".$status_icon."\"); background-repeat: no-repeat; height: 100%; background-size: contain; background-position: center;";
 	    	} else {
 		    	if($status_icon == 'initials') {
-					$icon_img = '<span class="id-circle-small pull-right" style="background-color: #6DCFF6; font-family: \'Open Sans\';">'.get_initials($ticket['status']).'</span>';
+					$icon_img = '<span class="no-toggle id-circle-small pull-right" style="background-color: #6DCFF6; font-family: \'Open Sans\';" title="'.$ticket['status'].'>'.get_initials($ticket['status']).'</span>';
 		    	} else {
-			        $icon_img = '<img src="'.$status_icon.'" class="pull-right" style="max-height: 20px;">';
+			        $icon_img = '<img src="'.$status_icon.'" class="no-toggle pull-right" style="max-height: 20px;" title="'.$ticket['status'].'">';
 			    }
 			}
 	    } else {
@@ -152,10 +179,21 @@ foreach($equip_list as $equipment) {
 		if($ticket_status_color_code == 1 && !empty($ticket_status_color[$status])) {
 			$row_html .= '<div class="ticket-status-color" style="background-color: '.$ticket_status_color[$status].';"></div>';
 		}
-		$row_html .= dispatch_ticket_label($dbc, $ticket);
+		$stop_number = '';
+		if($ticket['stop_id'] > 0) {
+			$stop_number = $all_stop_numbers['ticket_schedule,'.$ticket['stop_id']];
+		} else {
+			$stop_number = $all_stop_numbers['tickets,'.$ticket['ticketid']];
+		}
+		$row_html .= dispatch_ticket_label($dbc, $ticket, $stop_number);
 		$row_html .= "</div>";
 		if($edit_access > 0) {
 			$row_html .= '</a>';
+		}
+
+		$total_tickets++;
+		if(in_array($ticket['status'],$calendar_checkmark_status)) {
+			$completed_tickets++;
 		}
 
 		$ticket_times[date('H:i', strtotime($ticket['to_do_start_time']))][] = $row_html;
@@ -204,16 +242,17 @@ foreach($equip_list as $equipment) {
 		if(empty($equipment_html)) {
 			$equipment_html = '<div style="margin: 0.5em; padding: 0.5em;">No '.TICKET_TILE.' Found.</div>';
 		}
+		$staff_html = [];
+		foreach(array_filter(array_unique($star_contacts)) as $star_contact) {
+			$staff_html[] = ($staff_view_access > 0 ? '<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Staff/staff_edit.php?view_only=id_card&contactid='.$star_contact.'\', \'auto\', true, true); return false;">' : '').get_contact($dbc, $star_contact).($staff_view_access > 0 ? '</a>' : '');
+		}
+		$staff_html = implode('<br />', $staff_html);
 		$equipment_html = '<div data-equipment="'.$equipment['equipmentid'].'" class="dispatch-equipment-group">
-	            <div class="dispatch-equipment-title" style="background-color: #'.$title_color.'"><a href="" onclick="view_summary(\''.$equipment['equipmentid'].'\'); return false;"><img class="inline-img pull-right btn-horizontal-collapse no-toggle" src="../img/icons/pie-chart.png" title="View Summary" style="margin: 0;"></a><b>'.($equipment_edit_access > 0 ? '<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Equipment/edit_equipment.php?edit='.$equipment['equipmentid'].'&iframe_slider=1\', \'auto\', true, true); return false;">' : '').$equipment['label'].($equipment_edit_access > 0 ? '</a>' : '').'</b></div>
+	            <div class="dispatch-equipment-title" style="background-color: #'.$title_color.'"><a href="" onclick="view_summary(\''.$equipment['equipmentid'].'\'); return false;"><img class="inline-img pull-right btn-horizontal-collapse no-toggle" src="../img/icons/pie-chart.png" title="View Summary" style="margin: 0;"></a><b>'.($equipment_edit_access > 0 ? '<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Equipment/edit_equipment.php?edit='.$equipment['equipmentid'].'&iframe_slider=1\', \'auto\', true, true); return false;">' : '').$equipment['label'].($equipment_edit_access > 0 ? '</a>' : '').'</b><div class="dispatch-equipment-staff">'.$staff_html.'<br />(Completed '.$completed_tickets.' of '.$total_tickets.' '.TICKET_TILE.')</div></div>
 	            <div class="dispatch-equipment-content">'.$equipment_html.'</div>
 	        </div>';
 
 		//Summary blocks
-		$assigned_team = $dbc->query("SELECT * FROM `equipment_assignment_staff` WHERE `equipment_assignmentid`='$equipment_assignmentid' AND `deleted`=0");
-		while($contact = $assigned_team->fetch_assoc()) {
-			$star_contacts[] = $contact['contactid'];
-		}
 	    $star_html = '';
 		foreach(array_filter(array_unique($star_contacts)) as $star_contact) {
 			if($star_contact > 0) {
