@@ -143,9 +143,11 @@ function dispatch_ticket_label($dbc, $ticket, $stop_number) {
 	}
 	if(in_array('star_rating',$dispatch_tile_ticket_card_fields)) {
 		$rating_html = '';
-		if($customer_notes['rate'] > 0) {
+		if($customer_notes['rate'] > 0 || $customer_notes['contact_info'] > 0) {
+            $rating_html .= '<div class="star_rating_hover_html" style="display: none;">';
+
 			$rating = $customer_notes['rate'];
-            $rating_html = '<div class="star_rating_hover_html" style="display: none;">';
+            $rating_html .= '<span><b>Delivery Team:</b><br />';
             for($i = 0; $i < 5; $i++) {
             	if($rating >= 1) {
             		$rating_html .= '<img class="inline-img" src="../img/icons/star.png">';
@@ -156,6 +158,22 @@ function dispatch_ticket_label($dbc, $ticket, $stop_number) {
             	}
             	$rating -= 1;
             }
+            $rating_html .= '</span>';
+
+			$rating = $customer_notes['contact_info'];
+            $rating_html .= '<br /><span><b>Delivery Service:</b><br />';
+            for($i = 0; $i < 5; $i++) {
+            	if($rating >= 1) {
+            		$rating_html .= '<img class="inline-img" src="../img/icons/star.png">';
+            	} else if($rating >= 0.5) {
+            		$rating_html .= '<img class="inline-img" src="../img/icons/star_half.png">';
+            	} else {
+            		$rating_html .= '<img class="inline-img" src="../img/icons/star_empty.png">';
+            	}
+            	$rating -= 1;
+            }
+            $rating_html .= '</span>';
+
             $rating_html .= '</div>';
 		}
 		$rating_class = '';
