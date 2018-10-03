@@ -27,7 +27,7 @@ $(document).on('click', '.active_li .active_li_item', function() {
 });
 function resize_blocks() {
 	$('.dispatch-equipment-group').css('min-height', 0);
-	height_diff = $(window).height() - $('.standard-body-content').offset().top - $('footer:visible').height() - $('.double-scroller').height();
+	height_diff = $(window).height() - $('.standard-body-content').offset().top - $('footer:visible').height() - ($('.double-scroller').outerHeight() * 2);
 	if($('.standard-body-content').width() < 768) {
 		block_width = 'calc(100% - 1em)';
 	} else if($('.standard-body-content').width() < 1280) {
