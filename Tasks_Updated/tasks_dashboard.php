@@ -862,7 +862,7 @@ function addIntakeForm(btn) {
                                             <a  href="../Tasks_Updated/add_task_full_view.php?type=<?=$row['status']?>&tasklistid=<?=$row['tasklistid']?>"><?= TASK_NOUN ?> #<?= $row['tasklistid'] ?> </a>
                                             <?php } ?>
 											<br><span><?= $row['heading']; ?></span>
-                                            </div>
+                                            </div> 
                                         </h4>
                                     </div>
                                     <span class="pull-right action-icons offset-top-5 t_drag" data-task="<?= $row['tasklistid'] ?>">

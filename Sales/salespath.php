@@ -878,7 +878,7 @@ function checklist_attach_file(checklist) {
                         <?php }
                         echo '</select></div><div class="clearfix"></div>'; ?>
 
-                        <div class="row">
+                        <div class="row"> 
 							
                             <h4 style="<?= $style_strikethrough ?>"><input type="checkbox" name="status" value="<?= $row['tasklistid'] ?>" class="form-checkbox no-margin pull-left" onchange="mark_done(this);" <?= ( $row['status'] == $status_complete ) ? 'checked' : '' ?> />
                                 <div class="col-sm-5">

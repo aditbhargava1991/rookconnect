@@ -281,7 +281,7 @@ if($type == 'Ticket') {
         }
 
 
-       $label .= '<br>'.html_entity_decode($item['heading']).'</div>
+       $label .= '<br>'.html_entity_decode($item['heading']).'</div> 
 		<input type="hidden" name="comment" value="" data-name="comment" data-table="taskcomments" data-id-field="taskcommid" data-id="" data-type="'.$item['tasklistid'].'" data-type-field="tasklistid">';
 
 	$contents = '<div class="action_notifications">';
