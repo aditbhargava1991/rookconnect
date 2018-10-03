@@ -60,7 +60,7 @@ $col_spanned = $columns; ?>
 	<div class="form-group">
 		<script>
 		$(document).ready(function() {
-			$('[data-table]').off('change', saveField).change(saveField).off('blur',unsaved).blur(unsaved).off('focus',unsaved).focus(unsaved);
+			$('[data-table]').off('change', saveField).change(saveField);
 		});
 		function saveFieldMethod(src) {
 			var table = $(src).data('table');

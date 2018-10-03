@@ -2,6 +2,8 @@
 <?php $estimateid = filter_var($_GET['edit'],FILTER_SANITIZE_STRING);
 $estimate = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `estimate` WHERE `estimateid`='$estimateid'"));
 $config = explode(',',mysqli_fetch_array(mysqli_query($dbc,"SELECT `config_fields` FROM `field_config_estimate`"))[0]);
+
+$_GET['rate'] = $current_rate;
 $rates = [];
 $query = mysqli_query($dbc, "SELECT `rate_card` FROM `estimate_scope` WHERE `estimateid`='$estimateid' GROUP BY `rate_card`");
 if(mysqli_num_rows($query) > 0) {
@@ -13,18 +15,18 @@ if(mysqli_num_rows($query) > 0) {
 }
 $current_rate = (!empty($_GET['rate']) ? $_GET['rate'] : key($rates));
 $_GET['rate'] = $current_rate;
-$headings = [];
 //$query = mysqli_query($dbc, "SELECT `heading`, `scope_name` FROM `estimate_scope` WHERE `estimateid`='$estimateid' AND `rate_card`='".implode(':',$rates[$current_rate])."' AND `src_table` != '' AND (`src_id` > 0 OR `description` != '') AND `deleted`=0 GROUP BY `heading` ORDER BY MIN(`sort_order`)");
 $us_exchange = json_decode(file_get_contents('https://www.bankofcanada.ca/valet/observations/group/FX_RATES_DAILY/json'), TRUE);
 
-$query = mysqli_query($dbc, "SELECT IFNULL(`scope_name`,'') FROM `estimate_scope` WHERE `estimateid`='$estimateid' AND `src_table` != '' AND `deleted`=0 GROUP BY IFNULL(`scope_name`,'') ORDER BY MIN(`sort_order`)");
+$scope_list = [];
+$query = mysqli_query($dbc, "SELECT `scope_name` FROM `estimate_scope` WHERE `estimateid`='$estimateid' AND `deleted`=0 GROUP BY IFNULL(`scope_name`,'') ORDER BY MIN(`sort_order`)");
 $scope_name = '';
 if(mysqli_num_rows($query) > 0) {
 	while($row = mysqli_fetch_array($query)) {
-		$headings[config_safe_str($row[0])] = $row[0];
+		$scope_list[config_safe_str($row[0])] = $row[0];
 	}
 } else {
-	$headings['scope_1'] = 'Scope 1';
+	$scope_list['scope_1'] = 'Scope 1';
 } ?>
 <script>
 profile_tab = [];
@@ -305,9 +307,8 @@ function add_line() {
 			</div>
 			<div id="no-more-tables">
 				<?php
-                foreach($headings as $head_id => $heading) {
-                    if($head_id == $_GET['status']) {
-						$scope = $heading;
+                foreach($scope_list as $scope_id => $scope) {
+                    if($scope_id == $_GET['status']) {
 					    include('edit_headings.php');
                     }
 				} ?>
