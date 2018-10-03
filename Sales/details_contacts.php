@@ -45,11 +45,19 @@ var reload_contacts = function() {
 		<div class="col-xs-12 col-sm-1">
             <img class="inline-img cursor-hand pull-right no-toggle" title="Remove this <?= CONTACTS_NOUN ?> from this Sales Lead" src="../img/remove.png" onclick="rem_row(this);">
             <img class="inline-img cursor-hand pull-right no-toggle" title="Add another <?= CONTACTS_NOUN ?> to this Sales Lead" src="../img/icons/ROOK-add-icon.png" onclick="add_row(this);">
-			<a href="../Contacts/contacts_inbox.php?fields=all_fields&edit=<?= $contactid ?>" class="no-toggle" title="<?= get_contact($dbc, $contactid) ?>" onclick="overlayIFrameSlider(this.href.replace(/edit=.*/,'edit='+$('#contacts_list').find('option:selected').first().val()),'auto',true,true); return false;"><img src="../img/icons/eyeball.png" class="inline-img"></a>
+			<a href="../Contacts/contacts_inbox.php?fields=all_fields&edit=<?= $contactid ?>" class="no-toggle" title="<?= get_contact($dbc, $contactid) ?>" onclick="overlayIFrameSlider(this.href.replace(/edit=.*/,'edit='+$('#contacts_list').find('option:selected').first().val()),'auto',true,true); return false;"><img src="../img/person.PNG" class="inline-img"></a>
 		</div>
         <div class="clearfix"></div>
     
-        <div class="accordion-block-details-heading sub_details"><h4><?= get_contact($dbc, $contactid, 'name_company') ?></h4></div>
+        <div class="accordion-block-details-heading sub_details">
+            <?php if(get_contact($dbc, $contactid, 'name_company')!=''){
+            ?>
+            <script type="text/javascript">
+                $('#salesLeadContact-tab-label').html("<?php echo get_contact($dbc, $contactid, 'name_company') ?>");
+            </script>
+            <?php } ?>
+            <h4><?= get_contact($dbc, $contactid, 'name_company') ?></h4>
+        </div>
         
         <div class="row sub_details">
             <div class="col-xs-12 col-sm-11 gap-md-left-15">
