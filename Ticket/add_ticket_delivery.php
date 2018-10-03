@@ -276,6 +276,20 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 				</div>
 			<?php } else { ?>
 				<?php $ticket_stops = mysqli_query($dbc, "SELECT * FROM `ticket_schedule` WHERE `ticketid`='$ticketid' AND `deleted`=0 AND `type` != 'origin' AND `type` != 'destination' $stop_id ORDER BY `sort`");
+                if($ticket_stops->num_rows == 0) {
+                    $delivery_default_tabs = get_config($dbc, 'delivery_default_tabs'.($ticket_type == '' ? '' : '_'.$ticket_type));
+                    if(empty($delivery_default_tabs) && !empty($ticket_type)) {
+                        $delivery_default_tabs = get_config($dbc, 'delivery_default_tabs');
+                    }
+                    if(!empty($delivery_default_tabs)) {
+                        $delivery_default_tabs = explode(',',$delivery_default_tabs);
+                        $delivery_default_sql = [];
+                        foreach($delivery_default_tabs as $delivery_default_tab) {
+                            $delivery_default_sql[] = "SELECT '$delivery_default_tab' `type`";
+                        }
+                        $ticket_stops = mysqli_query($dbc, implode(' UNION ',$delivery_default_sql));
+                    }
+                }
 				if($_GET['new_ticket_calendar'] == 'true' && empty($_GET['edit'])) {
 					$stop['equipmentid'] = $_GET['equipmentid'];
 					$stop['to_do_date'] = $_GET['current_date'];
@@ -495,6 +509,8 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 											<input type="text" name="postal_code" class="form-control" data-table="ticket_schedule" data-id="<?= $stop['id'] ?>" data-id-field="id" value="<?= $stop['postal_code'] ?>">
 										</div>
 									</div>
+								<?php } ?>
+								<?php if (strpos($value_config, ','."Delivery Pickup Address Google".',') !== FALSE && $field_sort_field == 'Delivery Pickup Address Google') { ?>
 									<div class="form-group">
 										<label class="col-sm-4 control-label"><span class="popover-examples list-inline">
 												<a data-toggle="tooltip" data-placement="top" title="" data-original-title="The address must match Google maps format or the link will not populate properly."><img src="../img/info.png" width="20"></a>
@@ -827,7 +843,7 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 				<?php if (strpos($value_config, ','."Delivery Pickup Dropoff Map".',') !== FALSE && $get_ticket['main_ticketid'] == 0) { ?>
 				<div class="form-group">
 					<label class="col-sm-4 control-label">Pickup to Delivery Directions:</label>
-					<div class="col-sm-8 route_map_div">
+					<div class="col-sm-12 route_map_div">
 						<?php $_GET['map_action'] = 'pickup_delivery';
 						include('add_ticket_maps.php');
 						unset($_GET['map_action']); ?>
@@ -948,6 +964,8 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 										<?= $stop['postal_code'] ?>
 									</div>
 								</div>
+							<?php } ?>
+							<?php if (strpos($value_config, ','."Delivery Pickup Address Google".',') !== FALSE && $field_sort_field == 'Delivery Pickup Address Google') { ?>
 								<div class="form-group">
 									<label class="col-sm-4 control-label">Google Maps Link:</label>
 									<div class="col-sm-8">

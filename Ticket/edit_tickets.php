@@ -658,6 +658,7 @@ var no_verify = <?= IFRAME_PAGE ? 'true' : 'false' ?>;
 $(document).ready(function() {
 	setActions();
 	window.onbeforeunload = function() {
+        send_creator_email();
 		return checkMandatoryFields();
 	}
 	$('#mobile_tabs .panel-heading').off('click',loadPanel).click(loadPanel);
@@ -784,6 +785,24 @@ $(document).on('click', '#back_to_top', function(e) {
    e.preventDefault();
    $('.standard-body').animate({scrollTop: 0}, 400);
 });
+function send_creator_email() {
+    <?php if(($_GET['new_ticket'] == 'true' || !($ticketid > 0)) && strpos($value_config, ','."Email Creator".',') !== false && !empty($_SESSION['email_address'])) {
+        $ticket_new_email_subject = get_config($dbc, 'ticket_new_email_subject'.($ticket_type == '' ? '' : '_'.$ticket_type));
+        if(empty($ticket_new_email_subject) && !empty($ticket_type)) {
+            $ticket_new_email_subject = get_config($dbc, 'ticket_new_email_subject');
+        }
+        $ticket_new_email_body = get_config($dbc, 'ticket_new_email_body'.($ticket_type == '' ? '' : '_'.$ticket_type));
+        if(empty($ticket_new_email_body) && !empty($ticket_type)) {
+            $ticket_new_email_body = get_config($dbc, 'ticket_new_email_body');
+        } ?>
+        $.post('../ajax_all.php?fill=send_email', {
+            send_every_email: 'true',
+            send_to: '<?= decryptIt($_SESSION['email_address']) ?>',
+            subject: '<?= $ticket_new_email_subject ?>',
+            body: '<?= htmlentities($ticket_new_email_body.'<br /><a href="'.WEBSITE_URL.'/Ticket/index.php?edit=TICKETID">Click Here</a> to view the '.TICKET_NOUN) ?>'.replace('TICKETID',$('[name=ticketid]').val())
+        });
+    <?php } ?>
+}
 function loadPanel() {
 	if(!$(this).hasClass('higher_level_heading')) {
 		$(this).off('click',loadPanel);
