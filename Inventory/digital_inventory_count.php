@@ -485,7 +485,7 @@ checkAuthorised('inventory');
 								</div>
 								<div class="col-lg-2 col-md-3 col-sm-3 col-xs-8" style='margin-bottom:10px;'>
 									<select name="category_search" class="chosen-select-deselect form-control category_actual" width="380"><?php
-                                        $selected_recent = ($_POST['category_search'] == '3456780123456971232' || $_GET['category'] == '3456780123456971232' || $db_value == '3456780123456971232') ? 'selected' : '';
+                                        $selected_recent = ($_POST['category_search'] == '3456780123456971232' || $_GET['category'] == '3456780123456971232' || $db_value == '3456780123456971232' || (empty($_POST['category_search']) && empty($_GET['category']) && empty($db_value))) ? 'selected' : '';
                                         $selected_all = ($_POST['category_search'] == '3456780123456971230' || $_GET['category'] == '3456780123456971230' || $db_value == '3456780123456971230') ? 'selected' : ''; ?>
                                         <option value="3456780123456971232" <?= $selected_recent ?>>Most Recently Added (25 Rows)</option>
                                         <option value="3456780123456971230" <?= $selected_all ?>>All Tabs</option>
