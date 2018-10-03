@@ -474,6 +474,10 @@ foreach($sort_order as $sort_field) { ?>
 		<a href="" data-tab-target="ticket_chemicals"><li class="<?= $_GET['tab'] == 'ticket_chemicals' ? 'active blue' : '' ?>"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Chemicals' ?></li></a>
 	<?php } ?>
 
+	<?php if (strpos($value_config, ','."Application Report".',') !== FALSE && $sort_field == 'Application Report') { ?>
+		<a href="" data-tab-target="ticket_apply_report"><li class="<?= $_GET['tab'] == 'ticket_apply_report' ? 'active blue' : '' ?>"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Application Report' ?></li></a>
+	<?php } ?>
+
 	<?php if (strpos($value_config, ','."Intake".',') !== FALSE && $sort_field == 'Intake') { ?>
 		<a href="" data-tab-target="ticket_intake"><li class="<?= $_GET['tab'] == 'ticket_intake' ? 'active blue' : '' ?>"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Intake' ?></li></a>
 	<?php } ?>
