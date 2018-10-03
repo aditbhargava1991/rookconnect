@@ -360,6 +360,7 @@ if(basename($_SERVER['SCRIPT_FILENAME']) == 'edit_ticket_tab.php' && ($_GET['tic
 		$spent_time = $get_ticket['spent_time'];
 		$total_days = $get_ticket['total_days'];
 		$contactid = $get_ticket['contactid']; ?>
+		<script type="text/javascript" src="ticket.js"></script>
 		<script>
 		$(document).ready(function() {
 			$('.start_time').val(<?= $time_seconds ?>);
@@ -622,7 +623,7 @@ if(basename($_SERVER['SCRIPT_FILENAME']) == 'edit_ticket_tab.php' && ($_GET['tic
 	if(!empty($get_ticket['status']) && strpos($uneditable_statuses, ','.$get_ticket['status'].',') !== FALSE) {
 		$strict_view = 1;
 	}
-	if(($get_ticket['to_do_date'] > date('Y-m-d') && strpos($value_config,',Ticket Edit Cutoff,') !== FALSE && $config_access < 1) || $strict_view > 0 || $wait_on_approval) {
+	if(($get_ticket['to_do_date'] > date('Y-m-d') && strpos($value_config,',Ticket Edit Cutoff,') !== FALSE && $config_access < 1) || $strict_view > 0 || ($wait_on_approval && strpos(','.$admin_group.',',','.$_SESSION['contactid'].',') !== false)) {
 		$access_project = false;
 		$access_staff = false;
 		$access_contacts = false;

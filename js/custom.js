@@ -933,13 +933,12 @@ function overlayIFrameDiv(url, no_reload) {
 	});
 }
 
-function overlayIFrameSlider(url, width, no_confirm, no_reload, height, change_close) {
+function overlayIFrameSlider(url, width, no_confirm, no_reload, height, change_close, force_open = '') {
 	var target = '';
 	if(window.event != undefined) {
 		target = window.event.target;
 	}
-
-	if(!$(target).hasClass('no-slider')) {
+	if(!$(target).hasClass('no-slider') || force_open == 'true') {
 		var iframe = $('.iframe_overlay');
 		if(window.top != window) {
 			var baseIframe = $(window.top.document).find('.iframe_overlay');
@@ -1122,7 +1121,7 @@ function addTimes(timeA, timeB) {
 			timeA[0] = timeA[0] * 1 - 12;
 		}
 	}
-	return timeA.join(':')+' '+AMtimeA[1];
+	return timeA.join(':')+(AMtimeA[1] != undefined ? ' '+AMtimeA[1] : '');
 }
 function getQueryStringArray(url) {
 	var query_string_arr = {};

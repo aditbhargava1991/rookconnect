@@ -667,36 +667,6 @@ function createShiftFor(input) {
                 </div>
             <?php } ?>
 
-
-            <div class="staff_div form-group" <?= !empty($security_level) ? 'style="display:none;"' : '' ?>>
-                <label for="contactid" class="col-xs-4">Staff:</label>
-                <div class="col-xs-8">
-                    <select data-placeholder="Select Staff" name="shift_contactid" class="chosen-select-deselect">
-                        <option></option>
-                        <?php
-                            $query = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `deleted` = 0 AND `status` = 1"),MYSQLI_ASSOC));
-                            foreach ($query as $id) {
-                                echo '<option value="'.$id.'"'.($id == $contactid ? ' selected' : '').'>'.get_contact($dbc, $id).'</option>';
-                            }
-                        ?>
-                    </select>
-
-                <div class="form-group security_level_div" <?= empty($security_level) ? 'style="display:none;"' : '' ?>>
-                    <label for="contactid" class="col-xs-4">Security Level:</label>
-                    <div class="col-xs-8">
-                        <select data-placeholder="Select Security Level" name="shift_security_level" class="chosen-select-deselect">
-                            <option></option>
-                            <?php $on_security = get_security_levels($dbc);
-                            foreach($on_security as $security_label => $security_value) {
-                                echo '<option value="'.$security_value.'"'.($security_value == $security_level ? ' selected' : '').'>'.$security_label.'</option>';
-                            }
-                            ?>
-                        </select>
-                    </div>
-
-                </div>
-            <?php } ?>
-
             <div class="staff_div form-group" <?= !empty($security_level) ? 'style="display:none;"' : '' ?>>
                 <label for="contactid" class="col-xs-4">Staff:</label>
                 <div class="col-xs-8">
@@ -794,7 +764,7 @@ function createShiftFor(input) {
                         <div class="clearfix"></div>
                     </div>
                 </div>
-                
+
                 <?php if (strpos($enabled_fields, ',dayoff_type,') !== FALSE) { ?>
                     <div class="col-xs-6">
                         <div class="form-group">
@@ -891,7 +861,7 @@ function createShiftFor(input) {
                             <div class="pull-left pad-left pad-right"> - </div>
                             <div class="pull-left"><input type="text" placeholder="End Time" name="shift_break_endtime" class="form-control datetimepicker" value="<?= $break_endtime ?>"></div>
                         </div>
-                        
+
                         <div class="clearfix"></div>
                         <hr class="offset-bottom-5">
                     </div>

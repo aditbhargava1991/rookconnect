@@ -52,7 +52,7 @@ if(!empty($_GET['action']) && $_GET['action'] == 'invoice_values') {
 		echo $line_id;
 	}
 	mysqli_query($dbc, "UPDATE `invoice_payment` LEFT JOIN `invoice` ON `invoice_payment`.`invoiceid`=`invoice`.`invoiceid` LEFT JOIN `invoice_lines` ON `invoice_lines`.`line_id`=`invoice_payment`.`line_id` SET `invoice_payment`.`contactid`=`invoice`.`patientid`, `invoice_payment`.`deleted`=IF(`invoice_payment`.`deleted`=0,IFNULL(`invoice_lines`.`deleted`,`invoice`.`deleted`),1) WHERE `invoice`.`invoiceid`='$invoiceid'");
-	
+
 	//Prevent changes to invoices from previous days
 	$current_invoice = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `invoiceid` FROM `invoice` WHERE '$invoiceid' IN (`invoiceid`, `invoiceid_src`) AND `invoice_date`=DATE(NOW())"));
 	if($current_invoice['invoiceid'] > 0) {
@@ -62,7 +62,7 @@ if(!empty($_GET['action']) && $_GET['action'] == 'invoice_values') {
 		$invoiceid = mysqli_insert_id($dbc);
 	}
 	$invoiceid_src = $current_invoice['invoiceid'];
-	
+
 	//Update inventory quantity
 	if($table_name == 'invoice_lines' && $field_name='quantity' && $line_id > 0) {
 		$line = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT SUM(`quantity`) qty, `item`.`item_id`, `item`.`unit_price` FROM `invoice_lines` line LEFT JOIN `invoice_lines` item ON line.`item_id`=item.`item_id` AND line.`category`=item.`category` AND line.`invoiceid`=item.`invoiceid` WHERE item.`line_id`='$line_id' GROUP BY item.`item_id`"));
@@ -71,7 +71,7 @@ if(!empty($_GET['action']) && $_GET['action'] == 'invoice_values') {
 		$price = $line['unit_price'];
 		mysqli_query($dbc, "UPDATE `inventory` SET `current_stock` = `current_stock` - $change WHERE `inventoryid` = '$inventory'");
 		mysqli_query($dbc, "INSERT INTO `report_inventory` (`invoiceid`, `inventoryid`, `type`, `quantity`, `sell_price`, `today_date`) VALUES ('$invoiceid', '$inventory', '', '$change', '$price', DATE(NOW()))");
-		
+
 		//Send an e-mail if the item is low on stock --DISABLED
 		// $item = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `current_stock`, `min_bin` FROM `inventory` WHERE `inventoryid`='$inventory'"));
 		// if($item['current_stock'] < $item['min_bin']) {
@@ -97,7 +97,7 @@ if(!empty($_GET['action']) && $_GET['action'] == 'invoice_values') {
 		}
 		echo $line_id;
 	}
-	
+
 	if(is_array($field_value)) {
 		$field_value = implode(',',$field_value).',';
 	} else if($table_name == 'invoice_lines' && in_array($field_name, ['quantity','sub_total','pst','gst','total'])) {
@@ -209,7 +209,8 @@ if(!empty($_GET['action']) && $_GET['action'] == 'invoice_values') {
 			<div class="form-group clearfix hide-titles-mob">
 				<label class="col-sm-3 text-center">Category</label>
 				<label class="col-sm-5 text-center">Service Name</label>
-				<label class="col-sm-4 text-center">Fee</label>
+				<label class="col-sm-2 text-center">Qty</label>
+				<label class="col-sm-2 text-center">Fee</label>
 			</div>
 		<?php }
         $businessid = $ticket['businessid'];
@@ -224,7 +225,7 @@ if(!empty($_GET['action']) && $_GET['action'] == 'invoice_values') {
 		foreach(explode(',',$ticket['serviceid']) as $i => $service) {
 			if($service > 0) {
                 $serviceid[] = $service;
-				$srv_qty[] = explode(',',$ticket['service_qty'])[$i];
+				$srv_qty[] = explode(',',$ticket['service_qty'])[$i] > 0 ? explode(',',$ticket['service_qty'])[$i] : 1;
 				$srv_fuel[] = explode(',',$ticket['service_fuel_charge'])[$i];
 				$srv_discount[] = explode(',',$ticket['service_discount'])[$i];
 				$srv_dis_type[] = explode(',',$ticket['service_discount_type'])[$i];
@@ -236,9 +237,9 @@ if(!empty($_GET['action']) && $_GET['action'] == 'invoice_values') {
                 if($service > 0) {
                     $serviceid[] = $service;
                     $srv_qty[] = 1;
-                    $srv_fuel[] = 0;
-                    $srv_discount[] = 0;
-                    $srv_dis_type[] = '$';
+                    $srv_fuel[] = explode(',',$ticket['surcharge'])[$i];
+                    $srv_discount[] = explode(',',$ticket['service_discount'])[$i];
+                    $srv_dis_type[] = explode(',',$ticket['service_discount_type'])[$i];
                 }
             }
         }
@@ -257,22 +258,25 @@ if(!empty($_GET['action']) && $_GET['action'] == 'invoice_values') {
             if($price == 0) {
                 $price = $_SERVER['DBC']->query("SELECT `cust_price` FROM `company_rate_card` WHERE `item_id`='$service' AND `tile_name` LIKE 'Services' AND `deleted`=0 AND IFNULL(NULLIF(`end_date`,'0000-00-00'),'9999-99-99') > NOW() ORDER BY `start_date` DESC")->fetch_assoc()['cust_price'];
             }
-            $price_total = ($price * $qty + $fuel);
-            $price_total -= ($dis_type == '%' ? $discount / 100 * $price_total : $discount);
+            $price += ($fuel / $qty);
+            $price -= (($dis_type == '%' ? $discount / 100 * $price_total : $discount) / $qty);
             $service_details = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `services` WHERE `serviceid` = '$service'")); ?>
             <div class="dis_service form-group">
                 <div class="col-sm-3">
                     <input type="text" readonly name="service_cat[]" value="<?= $service_details['category'] ?>" class="form-control">
                 </div>
                 <div class="col-sm-5">
-                    <input type="text" readonly name="service_name[]" value="<?= $service_details['heading'].($qty > 1 ? ' X '.$qty : '') ?>" class="form-control">
+                    <input type="text" readonly name="service_name[]" value="<?= $service_details['heading'] ?>" class="form-control">
                 </div>
-                <div class="col-sm-4">
-                    <input type="text" readonly name="fee[]" value="<?= $price_total ?>" class="form-control fee" />
+                <div class="col-sm-2">
+                    <input type="text" readonly name="srv_qty[]" value="<?= $qty ?>" class="form-control qty" />
+                </div>
+                <div class="col-sm-2">
+                    <input type="text" readonly name="fee[]" value="<?= $price ?>" class="form-control fee" />
                 </div>
                 <input type="hidden" name="service_ticketid[]" value="<?= $ticketid ?>">
                 <input type="hidden" readonly name="serviceid[]" value="<?= $service ?>" class="form-control serviceid">
-                <input type="hidden" readonly name="gst_exempt[]" value="0" class="form-control gstexempt" />
+                <input type="hidden" readonly name="gst_exempt[]" value="<?= $service_details['gst_exempt'] ?>" class="form-control gstexempt" />
             </div>
         <?php }
 		$ticket_lines = $dbc->query("SELECT * FROM `ticket_attached` WHERE `ticketid`='$ticketid' AND `deleted`=0 AND `src_table` LIKE 'Staff%'");
@@ -974,4 +978,6 @@ if(!empty($_GET['action']) && $_GET['action'] == 'export_pos_file') {
 		header('Content-Disposition: attachment; filename=invoice_'.$invoiceid.'.xml');
 	}
 	echo $html;die;
+} else if($_GET['action'] == 'get_tax_exempt') {
+    echo get_field_value('client_tax_exemption', 'contacts', 'contactid', $_POST['contactid']);
 }

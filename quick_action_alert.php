@@ -23,6 +23,10 @@ if(isset($_POST['submit'])) {
             $tab = $result['board_security'];
 	        $link = WEBSITE_URL."/Tasks_Updated/index.php?category=".$id."&tab=".$tab;
 	        $sql = mysqli_query($dbc, "INSERT INTO `alerts` (`alert_date`, `alert_link`, `alert_text`, `alert_user`) VALUES ('$date', '$link', 'Task Alert', '$staff')");
+
+			$note = "<em>Alert Assigned to ".get_contact($dbc, $staff)." by ".get_contact($dbc, $_SESSION['contactid'])." [PROFILE ".$_SESSION['contactid']."]</em>";
+			mysqli_query($dbc, "INSERT INTO `task_comments` (`tasklistid`, `comment`, `created_by`, `created_date`) VALUES ('$id','".filter_var(htmlentities($note),FILTER_SANITIZE_STRING)."','".$_SESSION['contactid']."','".date('Y-m-d')."')");
+
             break;
 
         default:

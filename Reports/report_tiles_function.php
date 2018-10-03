@@ -23,20 +23,11 @@ function reports_tiles($dbc) {
         $('[name=printpdf]').closest('form').prop('target', '_blank');
     }
     function email_doc(report){
-        var documents=[];
-        var id = $(report).attr('id');
-        var date = '<?= str_replace('-', '_', date('Y-m-d')) ?>';
-        if ( id == 'ticket_activity_report' ) {
-            var report_pdf = '../Reports/Download/activity_report_'+date+'.pdf';
-            <?php $report_pdf = '../Reports/Download/activity_report_'. str_replace('-', '_', date('Y-m-d')) .'.pdf'; ?>
-            <?php if ( file_exists($report_pdf) ) { ?>
-                documents.push(report_pdf);
-                overlayIFrameSlider('../Email Communication/add_email.php?type=external&attach_docs='+documents.join('#*#'), 'auto', false, true);
-            <?php } else { ?>
-                alert('Please generate the report first.');
-            <?php } ?>
-        }
-
+        var url = window.location.href;
+        var subject = $(report).data('title');
+        var body = '<a href="'+encodeURIComponent(url)+'" target="_blank">View Report</a>'
+        //overlayIFrameSlider('../Email Communication/add_email.php?type=external&subject='+subject+'&body='+body, 'auto', false, true);
+        overlayIFrameSlider('../quick_action_email.php?subject='+subject+'&body='+body, 'auto', true, true);
     }
     </script>
     <div class="main-screen">
@@ -322,7 +313,7 @@ function reports_tiles($dbc) {
                         <?php if ( $_GET['report'] == 'Ticket Activity Report' ) { ?>
                             <div class="pull-right">
 
-                                <a class="cursor-hand printpdf" onclick="printPDF();"><img src="../img/pdf.png" class="no-toggle" title="Print Report" /></a>
+                                <a class="cursor-hand printpdf" onclick="printPDF();"><img src="../img/icons/pdf.png" class="no-toggle" title="Print Report" width="25" /></a>
                                 <img src="../img/icons/ROOK-email-icon.png" id="<?= strtolower(str_replace(' ', '_', $_GET['report'])) ?>" class="no-toggle cursor-hand offset-left-5" title="Email Report" width="25" onclick="email_doc(this);" data-title="<?= $title ?>" />
                                 <a href="../quick_action_reminders.php?tile=reports" onclick="overlayIFrameSlider(this.href,'auto',true,true); return false;"><img class="no-toggle" title="Create Reminder" width="25" src="../img/icons/ROOK-reminder-icon.png" /></a>
 

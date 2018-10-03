@@ -148,23 +148,64 @@ $approv_count = $admin_group['precedence'] > 1 ? count(array_filter(explode(',',
                             $services_cost_num[] = ($qty[$i] > 0 ? $qty[$i] : 1) * ($service_rate > 0 ? $service_rate : $service['cust_price']);
                             $services_cost[] = number_format(($qty[$i] > 0 ? $qty[$i] : 1) * ($service_rate > 0 ? $service_rate : $service['cust_price']),2);
                         }
+					}
+                    $deliveries = $dbc->query("SELECT * FROM `ticket_schedule` WHERE `deleted`=0 AND `ticketid`='".$ticket['ticketid']."' ORDER BY `sort`");
+                    while($delivery = $deliveries->fetch_assoc()) {
+                        foreach(explode(',',$delivery['serviceid']) as $i => $service) {
+                            if($service > 0) {
+                                $service = $dbc->query("SELECT `services`.`serviceid`, `services`.`heading`, `rate`.`cust_price` FROM `services` LEFT JOIN `company_rate_card` `rate` ON `services`.`serviceid`=`rate`.`item_id` AND `rate`.`tile_name` LIKE 'Services' WHERE `services`.`serviceid`='$service'")->fetch_assoc();
+                                $service_rate = 0;
+                                foreach(explode('**',$cust_rate_card['services']) as $service_cust_rate) {
+                                    $service_cust_rate = explode('#',$service_cust_rate);
+                                    if($service_cust_rate[0] == $service['serviceid']) {
+                                        $service_rate = $service_cust_rate[1];
+                                    }
+                                }
+                                $services[] = (empty($delivery['client_name']) ? $delivery['location_name'] : $delivery['client_name']).': '.$service['heading'];
+                                $services_cost_num[] = 1 * ($service_rate > 0 ? $service_rate : $service['cust_price']);
+                                $services_cost[] = number_format(1 * ($service_rate > 0 ? $service_rate : $service['cust_price']),2);
+                            }
+                        }
                     }
                     $status_list = [];
                     $date_list = [];
+                    $completed_stops = 0;
                     $sql = "SELECT * FROM `ticket_schedule` WHERE `ticketid` = '{$ticket['ticketid']}' AND `deleted` = 0 AND `type` NOT IN ('origin','destination')";
                     if($project_admin_multiday_tickets == 1) {
                         $sql .= " AND `to_do_date` = '{$ticket['ticket_date']}'";
                     }
                     $query = mysqli_query($dbc, $sql);
                     while($sched_line = $query->fetch_assoc()) {
-                        $status_list[] = (empty($sched_line['client_name']) ? $sched_line['location_name'] : $sched_line['client_name']).': '.$sched_line['status'];
+                        $status_list[] = '<a href="../Ticket/index.php?edit='.$sched_line['ticketid'].'&stop='.$sched_line['id'].'" onclick="overlayIFrameSlider(this.href+\'&calendar_view=true\',\'auto\',true,true); return false;">'.(empty($sched_line['client_name']) ? $sched_line['location_name'] : $sched_line['client_name']).': '.$sched_line['status'].'</a>';
                         $date_list[] = $sched_line['to_do_date'];
+                        if(in_array($sched_line['status'],array_merge(['Complete','Completed','Done','Finished','Archive','Archived'],explode('#*#,',get_config($dbc, 'ticket_archive_status'))))) {
+                            $completed_stops++;
+                        }
+                        foreach(explode(',',$sched_line['serviceid']) as $i => $service) {
+                            if($service > 0) {
+                                $service = $dbc->query("SELECT `services`.`serviceid`, `services`.`heading`, `rate`.`cust_price` FROM `services` LEFT JOIN `company_rate_card` `rate` ON `services`.`serviceid`=`rate`.`item_id` AND `rate`.`tile_name` LIKE 'Services' WHERE `services`.`serviceid`='$service'")->fetch_assoc();
+                                $service_rate = 0;
+                                foreach(explode('**',$cust_rate_card['services']) as $service_cust_rate) {
+                                    $service_cust_rate = explode('#',$service_cust_rate);
+                                    if($service_cust_rate[0] == $service['serviceid']) {
+                                        $service_rate = $service_cust_rate[1];
+                                    }
+                                }
+                                $services[] = $service['heading'].($qty[$i] > 0 ? ' x '.$qty[$i] : '');
+                                $services_cost_num[] = ($qty[$i] > 0 ? $qty[$i] : 1) * ($service_rate > 0 ? $service_rate : $service['cust_price']);
+                                $services_cost[] = number_format(($qty[$i] > 0 ? $qty[$i] : 1) * ($service_rate > 0 ? $service_rate : $service['cust_price']),2);
+                            }
+                        }
+                        if(in_array($sched_line['status'],array_merge(['Complete','Completed','Done','Finished','Archive','Archived'],explode('#*#,',get_config($dbc, 'ticket_archive_status'))))) {
+                            $completed_stops++;
+                        }
+
                     } ?>
                     <tr>
                         <td data-title="Date"><?= empty($ticket['ticket_date']) ? implode(', ',array_unique($date_list)) : $ticket['ticket_date'] ?></td>
                         <td data-title="<?= empty($ticket_noun) ? TICKET_NOUN : $ticket_noun ?>"><a href="../Ticket/index.php?edit=<?= $ticket['ticketid'] ?>" onclick="overlayIFrameSlider(this.href+'&calendar_view=true'); return false;"><?= get_ticket_label($dbc, $ticket) ?></a></td>
                         <?php if(strpos($value_config, ',Status Summary,') !== FALSE) { ?>
-                            <td data-title="Status Summary"><?= implode('<br />',$status_list) ?></td>
+                            <td data-title="Status Summary"><?= $completed_stops ?> of <?= count($status_list) ?> Stops Completed<br /><?= implode('<br />',$status_list) ?></td>
                         <?php } ?>
                         <?php if(strpos($value_config, ',Services,') !== FALSE) {
                             foreach($services_cost_num as $cost_amt) {
