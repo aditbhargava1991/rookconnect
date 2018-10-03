@@ -288,6 +288,7 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
                             $delivery_default_sql[] = "SELECT '$delivery_default_tab' `type`";
                         }
                         $ticket_stops = mysqli_query($dbc, implode(' UNION ',$delivery_default_sql));
+                        echo "<!--".implode(' UNION ',$delivery_default_sql)."-->";
                     }
                 }
 				if($_GET['new_ticket_calendar'] == 'true' && empty($_GET['edit'])) {
@@ -753,10 +754,10 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 												<a data-toggle="tooltip" data-placement="top" title="" data-original-title="This is the Time Frame of the Delivery, which includes the Available Start Time up to the Available End Time"><img src="../img/info.png" width="20"></a>
 											</span>&nbsp;Delivery Time Frame:</label>
 										<div class="col-sm-4">
-											<input type="text" name="start_available" class="form-control datetimepicker<?= $calendar_window > 0 ? '-'.$calendar_window : '' ?>" placeholder="Availability Start Time" data-table="ticket_schedule" data-id="<?= $stop['id'] ?>" data-id-field="id" value="<?= $stop['start_available'] != '' ? date('g:i a',strtotime($stop['start_available'])) : '' ?>">
+											<input type="text" name="start_available" readonly class="form-control datetimepicker<?= $calendar_window > 0 ? '-'.$calendar_window : '' ?>" placeholder="Availability Start Time" data-table="ticket_schedule" data-id="<?= $stop['id'] ?>" data-id-field="id" value="<?= $stop['start_available'] != '' ? date('g:i a',strtotime($stop['start_available'])) : '' ?>">
 										</div>
 										<div class="col-sm-4">
-											<input type="text" name="end_available" class="form-control datetimepicker<?= $calendar_window > 0 ? '-'.$calendar_window : '' ?>" placeholder="Availability End Time" data-table="ticket_schedule" data-id="<?= $stop['id'] ?>" data-id-field="id" value="<?= $stop['end_available'] != '' ? date('g:i a',strtotime($stop['end_available'])) : '' ?>">
+											<input type="text" name="end_available" readonly class="form-control datetimepicker<?= $calendar_window > 0 ? '-'.$calendar_window : '' ?>" placeholder="Availability End Time" data-table="ticket_schedule" data-id="<?= $stop['id'] ?>" data-id-field="id" value="<?= $stop['end_available'] != '' ? date('g:i a',strtotime($stop['end_available'])) : '' ?>">
 										</div>
 									</div>
 								<?php } ?>
