@@ -501,7 +501,7 @@ function get_config($dbc, $name, $multi = false, $separator = ',') {
 		} else if($name == 'invoice_payment_types') {
 			return 'Master Card,Visa,Debit Card,Cash,Cheque,Amex,Direct Deposit,Gift Certificate Redeem,Pro-Bono';
 		} else if($name == 'invoice_dashboard') {
-			return 'invoiceid,invoice_date,customer,total_price,payment_type,invoice_pdf,comment,status,send,delivery';
+			return 'invoiceid,invoice_date,customer,total_price,payment_type,invoice_pdf,comment,status,send,delivery,invoice_xsl,invoice_xml';
 		} else if($name == 'max_timer') {
 			return 28800;
 		} else if($name == 'appt_day_start') {
