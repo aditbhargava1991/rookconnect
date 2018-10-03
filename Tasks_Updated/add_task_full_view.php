@@ -158,9 +158,9 @@ if (isset($_POST['tasklist'])) {
     // Track Time
     $track_time = $_POST['track_time'];
     if( $track_time!='0' && $track_time!='00:00:00' && $track_time!='' ) {
-        mysqli_query($dbc, "INSERT INTO `tasklist_time` (`tasklistid`, `work_time`, `src`, `contactid`, `timer_date`) VALUES ('$tasklistid', '$track_time', 'A', '{$_SESSION['contactid']}', '$created_date')");
-        insert_day_overview($dbc, $_SESSION['contactid'], 'Task', date('Y-m-d'), '', "Updated Task #$tasklistid - Added Time : $track_time");
-        mysqli_query($dbc, "UPDATE `tasklist` SET `work_time`=ADDTIME(`work_time`,'$track_time') WHERE `tasklistid`='$tasklistid'");
+        //mysqli_query($dbc, "INSERT INTO `tasklist_time` (`tasklistid`, `work_time`, `src`, `contactid`, `timer_date`) VALUES ('$tasklistid', '$track_time', 'A', '{$_SESSION['contactid']}', '$created_date')");
+        //insert_day_overview($dbc, $_SESSION['contactid'], 'Task', date('Y-m-d'), '', "Updated Task #$tasklistid - Added Time : $track_time");
+        //mysqli_query($dbc, "UPDATE `tasklist` SET `work_time`=ADDTIME(`work_time`,'$track_time') WHERE `tasklistid`='$tasklistid'");
     }
 
 	$update_task = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tasklist` WHERE `tasklistid`='$tasklistid'"));
@@ -179,8 +179,8 @@ if (isset($_POST['tasklist'])) {
 		} else if($field == 'work_time' && $value != $current_task[$field]) {
 			$added_time = date('H:i', strtotime($value) - strtotime($current_task[$field]) + strtotime('today'));
 			$changes[] = "Added Time: ".$added_time;
-			insert_day_overview($dbc, $_SESSION['contactid'], 'Task', date('Y-m-d'), '', 'Added time to Task #'.$tasklistid.': '.$added_time, $tasklistid);
-			mysqli_query($dbc, "INSERT INTO `tasklist_time` (`tasklistid`, `work_time`, `contactid`, `timer_date`) VALUES ('$tasklistid', '$added_time', '".$_SESSION['contactid']."', '".date('Y-m-d')."')");
+			//insert_day_overview($dbc, $_SESSION['contactid'], 'Task', date('Y-m-d'), '', 'Added time to Task #'.$tasklistid.': '.$added_time, $tasklistid);
+			//mysqli_query($dbc, "INSERT INTO `tasklist_time` (`tasklistid`, `work_time`, `contactid`, `timer_date`) VALUES ('$tasklistid', '$added_time', '".$_SESSION['contactid']."', '".date('Y-m-d')."')");
 		}
 	}
 
@@ -721,6 +721,29 @@ if (isset($_POST['tasklist'])) {
         //$(task).timepicker('show');
     }
 
+    function quick_estimated_time(task) {
+        task_id = $('[name=tasklistid]').val();
+        $(task).timepicker('option', 'onClose', function(time) {
+            var time = $(task).val();
+            if(time != '' && time != '00:00') {
+                $.ajax({
+                    method: 'POST',
+                    url: '../Tasks_Updated/task_ajax_all.php?fill=task_estimated_time',
+                    data: { id: task_id, time: time+':00' },
+                    complete: function(result) {
+                        $.ajax({
+                            method: 'POST',
+                            url: '../Tasks_Updated/task_ajax_all.php?fill=taskreply',
+                            data: { taskid: task_id, reply: 'Time Estimated '+time+':00' },
+                            complete: function(result) {}
+                        });
+                    }
+                });
+            }
+        });
+        //$(task).timepicker('show');
+    }
+
     function manual_add_time(task) {
         taskid = $(task).data('taskid');
         timer = $(task).attr('name');
@@ -913,10 +936,13 @@ function deletestartTicketStaff(button) {
                             $task_category = $get_task['category'];
                             $task_status = $get_task['status'];
                             $task_tododate = $get_task['task_tododate'];
+                            $task_estimatedtime = $get_task['estimated_time'];
                             $task_path = $get_task['task_path'];
                             $project_milestone = $get_task['project_milestone'];
                             $task_board = $get_task['task_board'];
                             $task_milestone_timeline = $get_task['task_milestone_timeline'];
+                            $task_updateddate = $get_task['updated_date'];
+                            $task_updatedby = $get_task['updated_by'];
 
                             $get_taskboard = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT board_security FROM task_board WHERE taskboardid='$task_board'"));
                             $board_security = $get_taskboard['board_security'];
@@ -1455,6 +1481,16 @@ function deletestartTicketStaff(button) {
                                         <th>Date</th>
                                         <th>Uploaded By</th>
                                         </tr>";
+
+                                        if($task_estimatedtime != '00:00:00') {
+                                        echo '<tr>';
+                                        echo '<td data-title="Document">'.$task_estimatedtime.'</td>';
+                                        echo '<td data-title="Document">Estimated Time</td>';
+                                        echo '<td data-title="Date">'.$task_updateddate.'</td>';
+                                        echo '<td data-title="Uploaded By">'.get_staff($dbc, $task_updatedby).'</td>';
+                                        echo '</tr>';
+                                        }
+
                                         while($row = mysqli_fetch_array($result)) {
                                             echo '<tr>';
                                             echo '<td data-title="Document">'.$row['work_time'].'</td>';
@@ -1471,12 +1507,22 @@ function deletestartTicketStaff(button) {
                                     }
                                 } ?>
 
+                            <div class="form-group clearfix">
+                                <label for="first_name" class="col-xs-6 col-sm-3 control-label text-right"><?php echo (strpos($task_mandatory_fields, ',Add Time,') !== FALSE ? '<font color="red">* </font>' : ''); ?>Estimated Time:</label>
+                                <div class="col-xs-6 col-sm-3">
+                                    <input name="task_estimated_time" type="text" value="00:00" class="<?php echo (strpos($task_mandatory_fields, ',Add Time,') !== FALSE ? 'required' : ''); ?> timepicker form-control" onchange="quick_estimated_time(this);" />
+                                </div>
+                            </div>
+
                                 <div class="form-group clearfix">
                                     <label for="first_name" class="col-xs-6 col-sm-3 control-label text-right"><!-- <img src="../img/icons/ROOK-timer-icon.png" class="inline-img" />--> Add Time:</label>
                                     <div class="col-xs-6 col-sm-3">
                                         <!-- <input name="task_work_time" type="text" value="00:00" data-table="tasklist" data-field="work_time" class="timepicker form-control" /> -->
                                         <input name="task_work_time" type="text" value="00:00" class="timepicker form-control" onchange="quick_add_time(this);" />
                                     </div>
+                                </div>
+
+                                <div class="form-group clearfix">
                                     <label for="first_name" class="col-xs-6 col-sm-3 control-label text-right"><!-- <img src="../img/icons/ROOK-timer2-icon.png" class="inline-img" /> --> Track Time:</label>
                                     <div class="col-xs-6 col-sm-3">
                                         <input type="text" name="timer_<?= $tasklistid ?>" id="timer_value" class="form-control timer" placeholder="0 sec" />

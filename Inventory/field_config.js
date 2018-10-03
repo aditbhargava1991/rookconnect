@@ -46,6 +46,15 @@ $(document).ready(function() {
 		}
 		});
 	});
+	$('select[name="default_digi_count_tab"]').on('change', function() {
+		var value = encodeURIComponent(this.value);
+		$.ajax({
+            type: "GET",
+            url: "inventory_ajax_all.php?fill=default_digi_count_tab&value="+value,
+            dataType: "html",
+            success: function(response){}
+		});
+	});
 	$('input.show_impexp_inv').on('change', function() {
 		if($(this).prop('checked') == true){
 			var value = $(this).attr('value');

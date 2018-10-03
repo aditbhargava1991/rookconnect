@@ -228,6 +228,7 @@ switch($_GET['type']) {
             $_GET['mode'] = 'staff';
         }
         $wait_list = get_config($dbc, 'my_wait_list');
+        $combine_shift_items = get_config($dbc, 'my_combine_shift_items');
         $use_shift_tickets = get_config($dbc, 'my_use_shift_tickets');
         if($_GET['view'] != 'monthly') {
             $use_unbooked = get_config($dbc, 'my_use_unbooked');
@@ -263,6 +264,7 @@ switch($_GET['type']) {
             $_GET['mode'] = 'staff';
         }
         $wait_list = get_config($dbc, 'uni_wait_list');
+        $combine_shift_items = get_config($dbc, 'uni_combine_shift_items');
         $use_shift_tickets = get_config($dbc, 'uni_use_shift_tickets');
         if($_GET['view'] != 'monthly') {
             $use_unbooked = get_config($dbc, 'uni_use_unbooked');

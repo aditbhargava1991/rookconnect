@@ -87,6 +87,7 @@ if (isset($_POST['tasklist'])) {
     $task_category = $_POST['task_category'];
 
     $task_work_time = $_POST['task_work_time'];
+    $task_estimated_time = $_POST['task_estimated_time'];
 
     $task_from_tasktile = $_POST['task_from_tasktile'];
 	$current_task = [];
@@ -94,7 +95,7 @@ if (isset($_POST['tasklist'])) {
     $flag_colour = $_POST['flag'];
 
     if(empty($_POST['tasklistid'])) {
-        $query_insert_ca = "INSERT INTO `tasklist` (`ticketid`, `businessid`, `clientid`, `salesid`, `projectid`, `project_milestone`, `client_projectid`, `task`, `contactid`, `alerts_enabled`, `created_date`, `created_by`, `task_tododate`, `status`, `category`, `heading`, `work_time`, `task_path`, `task_board`, `task_milestone_timeline`, `external`, `flag_colour`) VALUES ('$ticketid', '$task_businessid', '$task_clientid', '$task_salesid', '$task_projectid', '$project_milestone', '$task_client_projectid', '$task', '$task_contactid', '$alerts_enabled', '$created_date', '$created_by', '$task_tododate', '$task_status', '$task_category', '$task_heading', '$task_work_time', '$task_path', '$task_board', '$task_milestone_timeline', '$task_external', '$flag_colour')";
+        $query_insert_ca = "INSERT INTO `tasklist` (`ticketid`, `businessid`, `clientid`, `salesid`, `projectid`, `project_milestone`, `client_projectid`, `task`, `contactid`, `alerts_enabled`, `created_date`, `created_by`, `task_tododate`, `status`, `category`, `heading`, `work_time`, `task_path`, `task_board`, `task_milestone_timeline`, `external`, `flag_colour`, `estimated_time`) VALUES ('$ticketid', '$task_businessid', '$task_clientid', '$task_salesid', '$task_projectid', '$project_milestone', '$task_client_projectid', '$task', '$task_contactid', '$alerts_enabled', '$created_date', '$created_by', '$task_tododate', '$task_status', '$task_category', '$task_heading', '$task_work_time', '$task_path', '$task_board', '$task_milestone_timeline', '$task_external', '$flag_colour', '$task_estimated_time')";
         $result_insert_ca = mysqli_query($dbc, $query_insert_ca);
 		$tasklistid = mysqli_insert_id($dbc);
 
@@ -104,7 +105,7 @@ if (isset($_POST['tasklist'])) {
     } else {
         $tasklistid = $_POST['tasklistid'];
 		$current_task = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tasklist` WHERE `tasklistid`='$tasklistid'"));
-        $query_update_vendor = "UPDATE `tasklist` SET `businessid` = '$task_businessid', `clientid` = '$task_clientid', `salesid` = '$task_salesid', `projectid` = '$task_projectid', `project_milestone`='$project_milestone', `client_projectid` = '$task_client_projectid', `task` = '$task', `contactid` = '$task_contactid', `alerts_enabled` = '$alerts_enabled', `task_tododate` = '$task_tododate', `status` = '$task_status', `category` = '$task_category', `heading` = '$task_heading', `work_time` = '$task_work_time', `task_path` = '$task_path', `task_board` = '$task_board', `task_milestone_timeline` = '$task_milestone_timeline', `external` = '$task_external' WHERE `tasklistid` = '$tasklistid'";
+        $query_update_vendor = "UPDATE `tasklist` SET `businessid` = '$task_businessid', `clientid` = '$task_clientid', `salesid` = '$task_salesid', `projectid` = '$task_projectid', `project_milestone`='$project_milestone', `client_projectid` = '$task_client_projectid', `task` = '$task', `contactid` = '$task_contactid', `alerts_enabled` = '$alerts_enabled', `task_tododate` = '$task_tododate', `status` = '$task_status', `category` = '$task_category', `heading` = '$task_heading', `work_time` = '$task_work_time', `task_path` = '$task_path', `task_board` = '$task_board', `task_milestone_timeline` = '$task_milestone_timeline', `external` = '$task_external', `estimated_time` = '$task_estimated_time' WHERE `tasklistid` = '$tasklistid'";
 
         $result_update_vendor = mysqli_query($dbc, $query_update_vendor);
 
@@ -143,9 +144,9 @@ if (isset($_POST['tasklist'])) {
     // Track Time
     $track_time = $_POST['track_time'];
     if( $track_time!='0' && $track_time!='00:00:00' && $track_time!='' ) {
-        mysqli_query($dbc, "INSERT INTO `tasklist_time` (`tasklistid`, `work_time`, `src`, `contactid`, `timer_date`) VALUES ('$tasklistid', '$track_time', 'A', '{$_SESSION['contactid']}', '$created_date')");
-        insert_day_overview($dbc, $_SESSION['contactid'], 'Task', date('Y-m-d'), '', "Updated Task #$tasklistid - Added Time : $track_time");
-        mysqli_query($dbc, "UPDATE `tasklist` SET `work_time`=ADDTIME(`work_time`,'$track_time') WHERE `tasklistid`='$tasklistid'");
+        //mysqli_query($dbc, "INSERT INTO `tasklist_time` (`tasklistid`, `work_time`, `src`, `contactid`, `timer_date`) VALUES ('$tasklistid', '$track_time', 'A', '{$_SESSION['contactid']}', '$created_date')");
+        //insert_day_overview($dbc, $_SESSION['contactid'], 'Task', date('Y-m-d'), '', "Updated Task #$tasklistid - Added Time : $track_time");
+        //mysqli_query($dbc, "UPDATE `tasklist` SET `work_time`=ADDTIME(`work_time`,'$track_time') WHERE `tasklistid`='$tasklistid'");
     }
 
 	$update_task = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tasklist` WHERE `tasklistid`='$tasklistid'"));
@@ -164,8 +165,8 @@ if (isset($_POST['tasklist'])) {
 		} else if($field == 'work_time' && $value != $current_task[$field]) {
 			$added_time = date('H:i', strtotime($value) - strtotime($current_task[$field]) + strtotime('today'));
 			$changes[] = "Added Time: ".$added_time;
-			insert_day_overview($dbc, $_SESSION['contactid'], 'Task', date('Y-m-d'), '', 'Added time to Task #'.$tasklistid.': '.$added_time, $tasklistid);
-			mysqli_query($dbc, "INSERT INTO `tasklist_time` (`tasklistid`, `work_time`, `contactid`, `timer_date`) VALUES ('$tasklistid', '$added_time', '".$_SESSION['contactid']."', '".date('Y-m-d')."')");
+			//insert_day_overview($dbc, $_SESSION['contactid'], 'Task', date('Y-m-d'), '', 'Added time to Task #'.$tasklistid.': '.$added_time, $tasklistid);
+			//mysqli_query($dbc, "INSERT INTO `tasklist_time` (`tasklistid`, `work_time`, `contactid`, `timer_date`) VALUES ('$tasklistid', '$added_time', '".$_SESSION['contactid']."', '".date('Y-m-d')."')");
 		}
 	}
 
@@ -666,6 +667,29 @@ function quick_add_time(task) {
 	//$(task).timepicker('show');
 }
 
+function quick_estimated_time(task) {
+    task_id = $('[name=tasklistid]').val();
+	$(task).timepicker('option', 'onClose', function(time) {
+        var time = $(task).val();
+		if(time != '' && time != '00:00') {
+			$.ajax({
+				method: 'POST',
+				url: '../Tasks_Updated/task_ajax_all.php?fill=task_estimated_time',
+				data: { id: task_id, time: time+':00' },
+				complete: function(result) {
+                    $.ajax({
+                        method: 'POST',
+                        url: '../Tasks_Updated/task_ajax_all.php?fill=taskreply',
+                        data: { taskid: task_id, reply: 'Time Estimated '+time+':00' },
+                        complete: function(result) {}
+                    });
+                }
+			});
+		}
+	});
+	//$(task).timepicker('show');
+}
+
 function manual_add_time(task) {
 	taskid = $(task).data('taskid');
     timer = $(task).attr('name');
@@ -833,10 +857,13 @@ function mark_done(sel) {
                 $task_category = $get_task['category'];
                 $task_status = $get_task['status'];
                 $task_tododate = $get_task['task_tododate'];
+                $task_estimatedtime = $get_task['estimated_time'];
                 $task_path = $get_task['task_path'];
                 $project_milestone = $get_task['project_milestone'];
                 $task_board = $get_task['task_board'];
                 $task_milestone_timeline = $get_task['task_milestone_timeline'];
+                $task_updateddate = $get_task['updated_date'];
+                $task_updatedby = $get_task['updated_by'];
 
                 $get_taskboard = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT board_security FROM task_board WHERE taskboardid='$task_board'"));
                 $board_security = $get_taskboard['board_security'];
@@ -1343,7 +1370,7 @@ function mark_done(sel) {
                 <div class="col-sm-8">
 					<?php $groups = $dbc->query("SELECT `category` FROM `task_types` WHERE `deleted`=0 GROUP BY `category` ORDER BY MIN(`sort`), MIN(`id`)");
 					if($groups->num_rows > 0) { ?>
-						<select name="heading_src" class="<?php echo (strpos($task_mandatory_fields, ',Task Name,') !== FALSE ? 'required' : ''); ?> chosen-select-deselect"><option />
+						<select name="heading_src" class="chosen-select-deselect"><option />
 							<?php while($task_group = $groups->fetch_assoc()) { ?>
 								<optgroup label="<?= $task_group['category'] ?>">
 									<?php $task_names = $dbc->query("SELECT `id`, `description` FROM `task_types` WHERE `deleted`=0 AND `category`='{$task_group['category']}' ORDER BY `sort`, `id`");
@@ -1500,7 +1527,7 @@ function mark_done(sel) {
                         $query_check_credentials = "SELECT * FROM tasklist_time WHERE tasklistid='$tasklistid' ORDER BY time_id DESC";
                         $result = mysqli_query($dbc, $query_check_credentials);
                         $num_rows = mysqli_num_rows($result);
-                        if($num_rows > 0) {
+                        //if($num_rows > 0) {
                             echo "<table class='table table-bordered'>
                             <tr>
                             <th>Time</th>
@@ -1508,6 +1535,16 @@ function mark_done(sel) {
                             <th>Date</th>
                             <th>Uploaded By</th>
                             </tr>";
+
+                            if($task_estimatedtime != '00:00:00') {
+                            echo '<tr>';
+                            echo '<td data-title="Document">'.$task_estimatedtime.'</td>';
+                            echo '<td data-title="Document">Estimated Time</td>';
+                            echo '<td data-title="Date">'.$task_updateddate.'</td>';
+                            echo '<td data-title="Uploaded By">'.get_staff($dbc, $task_updatedby).'</td>';
+                            echo '</tr>';
+                            }
+
                             while($row = mysqli_fetch_array($result)) {
                                 echo '<tr>';
                                 echo '<td data-title="Document">'.$row['work_time'].'</td>';
@@ -1521,10 +1558,17 @@ function mark_done(sel) {
                                 echo '</tr>';
                             }
                             echo '</table>';
-                        }
+                        //}
                     } ?>
 
             <?php if(strpos($task_fields, ',Add Time,') !== FALSE) { ?>
+            <div class="form-group clearfix">
+                <label for="first_name" class="col-sm-4"><?php echo (strpos($task_mandatory_fields, ',Add Time,') !== FALSE ? '<font color="red">* </font>' : ''); ?>Estimated Time:</label>
+                <div class="col-sm-8">
+                    <input name="task_estimated_time" type="text" value="00:00" class="<?php echo (strpos($task_mandatory_fields, ',Add Time,') !== FALSE ? 'required' : ''); ?> timepicker form-control" onchange="quick_estimated_time(this);" />
+                </div>
+            </div>
+
             <div class="form-group clearfix">
                 <label for="first_name" class="col-sm-4"><?php echo (strpos($task_mandatory_fields, ',Add Time,') !== FALSE ? '<font color="red">* </font>' : ''); ?>Add Time:</label>
                 <div class="col-sm-8">

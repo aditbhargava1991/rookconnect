@@ -54,6 +54,13 @@ if (isset($_POST['add_tab'])) {
 	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$_POST['my_increments']."' WHERE `name`='my_increments'");
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'my_wait_list' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='my_wait_list') num WHERE num.rows=0");
 	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".implode(',',$_POST['my_wait_list'])."' WHERE `name`='my_wait_list'");
+	if (!empty($_POST['my_combine_shift_items'])) {
+		$my_combine_shift_items = $_POST['my_combine_shift_items'];
+	} else {
+		$my_combine_shift_items = '';
+	}
+	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'my_combine_shift_items' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='my_combine_shift_items') num WHERE num.rows=0");
+	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$my_combine_shift_items."' WHERE `name`='my_combine_shift_items'");
 	if (!empty($_POST['my_use_shift_tickets'])) {
 		$my_use_shift_tickets = $_POST['my_use_shift_tickets'];
 	} else {
@@ -147,6 +154,13 @@ if (isset($_POST['add_tab'])) {
 	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$_POST['uni_increments']."' WHERE `name`='uni_increments'");
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'uni_wait_list' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='uni_wait_list') num WHERE num.rows=0");
 	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".implode(',',$_POST['uni_wait_list'])."' WHERE `name`='uni_wait_list'");
+	if (!empty($_POST['uni_combine_shift_items'])) {
+		$uni_combine_shift_items = $_POST['uni_combine_shift_items'];
+	} else {
+		$uni_combine_shift_items = '';
+	}
+	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'uni_combine_shift_items' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='uni_combine_shift_items') num WHERE num.rows=0");
+	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$uni_combine_shift_items."' WHERE `name`='uni_combine_shift_items'");
 	if (!empty($_POST['uni_use_shift_tickets'])) {
 		$uni_use_shift_tickets = $_POST['uni_use_shift_tickets'];
 	} else {
@@ -1385,6 +1399,13 @@ function deleteLogo(logo) {
 									<label class="form-checkbox"><input type="checkbox" name="my_wait_list[]" <?= in_array('appt', $my_wait_list) ? 'checked' : '' ?> value="appt"> Appointments</label>
 								</div>
 							</div>
+							<div class="form-group">
+								<label class="col-sm-4 control-label">My Calendar Blocks Month View - Combine Shifts with Items:</label>
+								<div class="col-sm-8">
+									<?php $my_combine_shift_items = get_config($dbc, 'my_combine_shift_items'); ?>
+									<label class="form-checkbox"><input type="checkbox" name="my_combine_shift_items" <?= $my_combine_shift_items == 1 ? 'checked' : '' ?> value="1"></label>
+								</div>
+							</div>
 							<div class="form-group shift_tickets_block" <?= (in_array('ticket', $my_wait_list) ? '' : 'style="display:none;"') ?>>
 								<label class="col-sm-4 control-label">My Calendar Use Shift <?= TICKET_TILE ?>:</label>
 								<div class="col-sm-8">
@@ -1563,6 +1584,13 @@ function deleteLogo(logo) {
 									<?php $uni_wait_list = explode(',',get_config($dbc, 'uni_wait_list')); ?>
 									<label class="form-checkbox"><input type="checkbox" name="uni_wait_list[]" <?= in_array('ticket', $uni_wait_list) ? 'checked' : '' ?> value="ticket"> <?= TICKET_TILE ?></label>
 									<label class="form-checkbox"><input type="checkbox" name="uni_wait_list[]" <?= in_array('appt', $uni_wait_list) ? 'checked' : '' ?> value="appt"> Appointments</label>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-4 control-label">Universal Calendar Blocks Month View - Combine Shifts with Items:</label>
+								<div class="col-sm-8">
+									<?php $uni_combine_shift_items = get_config($dbc, 'uni_combine_shift_items'); ?>
+									<label class="form-checkbox"><input type="checkbox" name="uni_combine_shift_items" <?= $uni_combine_shift_items == 1 ? 'checked' : '' ?> value="1"></label>
 								</div>
 							</div>
 							<div class="form-group shift_tickets_block" <?= (in_array('ticket', $uni_wait_list) ? '' : 'style="display:none;"') ?>>
