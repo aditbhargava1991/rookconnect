@@ -1,4 +1,4 @@
-<?= (!empty($renamed_accordion) ? '<h3>'.$renamed_accordion.'</h3>' : '<h3>Chemicals</h3>') ?>
+<?= (!empty($renamed_accordion) ? '<h3>'.$renamed_accordion.'</h3>' : '<h3>Application Report</h3>') ?>
 <?php $apply_reports = $dbc->query("SELECT * FROM `ticket_attached` WHERE `ticketid`='$ticketid' AND `ticketid` > 0 AND `deleted`=0 AND `src_table`='apply_report'");
 $apply_report = $apply_reports->fetch_assoc();
 do { ?>
