@@ -155,7 +155,7 @@ foreach($equip_list as $equipment) {
 				$icon_background = " background-image: url(\"".$status_icon."\"); background-repeat: no-repeat; height: 100%; background-size: contain; background-position: center;";
 	    	} else {
 		    	if($status_icon == 'initials') {
-					$icon_img = '<span class="no-toggle id-circle-small pull-right" style="background-color: #6DCFF6; font-family: \'Open Sans\';" title="'.$ticket['status'].'>'.get_initials($ticket['status']).'</span>';
+					$icon_img = '<span class="no-toggle id-circle-small pull-right" style="background-color: #6DCFF6; font-family: \'Open Sans\';" title="'.$ticket['status'].'">'.get_initials($ticket['status']).'</span>';
 		    	} else {
 			        $icon_img = '<img src="'.$status_icon.'" class="no-toggle pull-right" style="max-height: 20px;" title="'.$ticket['status'].'">';
 			    }
