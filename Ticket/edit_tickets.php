@@ -228,6 +228,9 @@ if(empty($default_status)) {
     $default_status = get_config($dbc, "ticket_default_status");
 }
 $status = empty($status) ? (empty($default_status) ? 'Time Estimate Needed' : $default_status) : $status;
+if(!empty($status) && $ticketid > 0 && !check_subtab_persmission($dbc, 'ticket', ROLE, 'ticket_status'.config_safe_str($status))) {
+    $force_readonly = true;
+}
 if(empty($ticket_status)) {
     $ticket_status = config_safe_str($status);
 }
