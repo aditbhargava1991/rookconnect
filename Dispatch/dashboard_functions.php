@@ -11,6 +11,8 @@ function dispatch_ticket_label($dbc, $ticket, $stop_number) {
 	if(vuaed_visible_function($dbc, 'ticket') > 0) {
 		$clickable_html .= 'onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Ticket/edit_ticket_tab.php?tab=ticket_customer_notes&ticketid='.$ticket['ticketid'].'&stop='.$ticket['stop_id'].'\', \'auto\', true, true, \'auto\', false, \'true\'); return false;"';
 	}
+	$customer_notes = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `ticket_attached` WHERE `ticketid` = '".$ticket['ticketid']."' AND `src_table` = 'customer_approve' AND `line_id` = '".$ticket['stop_id']."' AND `deleted` = 0"));
+
 	$dispatch_tile_ticket_card_fields = explode(',',get_config($dbc, 'dispatch_tile_ticket_card_fields'));
 
 	$start_time = date('h:i a', strtotime($ticket['to_do_start_time']));
@@ -79,7 +81,6 @@ function dispatch_ticket_label($dbc, $ticket, $stop_number) {
 	}
 	$row_html .= '<div class="clearfix"></div>';
 	if(in_array('camera',$dispatch_tile_ticket_card_fields)) {
-		$customer_notes = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `ticket_attached` WHERE `ticketid` = '".$ticket['ticketid']."' AND `src_table` = 'customer_approve' AND `line_id` = '".$ticket['stop_id']."' AND `deleted` = 0"));
 		$existing_photos = [];
 
 		if(file_exists('../Ticket/download/'.$customer_notes['location_to']) && !empty($customer_notes['location_to'])) {
@@ -134,7 +135,6 @@ function dispatch_ticket_label($dbc, $ticket, $stop_number) {
 		}
 	}
 	if(in_array('signature',$dispatch_tile_ticket_card_fields)) {
-		$customer_notes = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `ticket_attached` WHERE `ticketid` = '".$ticket['ticketid']."' AND `src_table` = 'customer_approve' AND `line_id` = '".$ticket['stop_id']."' AND `deleted` = 0"));
 		$signature_class = '';
 		if(file_exists('../Ticket/export/customer_sign_'.$customer_notes['id'].'.png')) {
 			$signature_class = 'active';
@@ -142,7 +142,6 @@ function dispatch_ticket_label($dbc, $ticket, $stop_number) {
 		$row_html .= '<img '.$clickable_html.' src="../img/icons/ROOK-signature-icon.png" class="no-slider inline-img dispatch-equipment-signature '.$signature_class.'" onmouseover="display_signature(this);" onmouseout="hide_signature();" data-file="'.WEBSITE_URL.'/Ticket/export/customer_sign_'.$customer_notes['id'].'.png">';
 	}
 	if(in_array('star_rating',$dispatch_tile_ticket_card_fields)) {
-		$customer_notes = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `ticket_attached` WHERE `ticketid` = '".$ticket['ticketid']."' AND `src_table` = 'customer_approve' AND `line_id` = '".$ticket['stop_id']."' AND `deleted` = 0"));
 		$rating_html = '';
 		if($customer_notes['rate'] > 0) {
 			$rating = $customer_notes['rate'];
@@ -167,7 +166,6 @@ function dispatch_ticket_label($dbc, $ticket, $stop_number) {
 		$row_html .= '<img '.$clickable_html.' src="../img/icons/ROOK-star-icon.png" class="no-slider inline-img dispatch-equipment-rating '.$rating_class.'" onmouseover="display_star_rating(this);" onmouseout="hide_star_rating();">'.$rating_html;
 	}
 	if(in_array('customer_notes_hover',$dispatch_tile_ticket_card_fields)) {
-		$customer_notes = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `ticket_attached` WHERE `ticketid` = '".$ticket['ticketid']."' AND `src_table` = 'customer_approve' AND `line_id` = '".$ticket['stop_id']."' AND `deleted` = 0"));
 		$notes_html = [];
 		if(!empty($customer_notes['location_from'])) {
 			$notes_html[] = '<b>Driver Notes: </b><br />'.trim(trim(html_entity_decode($customer_notes['location_from']),'<p>'),'</p>');
