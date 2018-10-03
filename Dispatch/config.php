@@ -4,6 +4,8 @@ $reset_active = get_config($dbc, 'dispatch_tile_reset_active');
 $edit_access = vuaed_visible_function($dbc, 'dispatch');
 $ticket_view_access = tile_visible($dbc, 'ticket');
 $equipment_edit_access = vuaed_visible_function($dbc, 'equipment');
+$staff_view_access = tile_visible($dbc, 'staff');
+
 $search_fields = array_filter(explode(',',get_config($dbc, 'dispatch_tile_search_fields')));
 $completed_ticket_status = get_config($dbc, 'auto_archive_complete_tickets');
 $combine_warehouses = get_config($dbc, 'dispatch_tile_combine_warehouse');

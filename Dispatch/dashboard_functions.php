@@ -6,7 +6,13 @@ function get_customer_equipment($dbc, $start_date, $end_date) {
 	}
 	return $equipmentids;
 }
-function dispatch_ticket_label($dbc, $ticket) {
+function dispatch_ticket_label($dbc, $ticket, $stop_number) {
+	$clickable_html = '';
+	if(vuaed_visible_function($dbc, 'ticket') > 0) {
+		$clickable_html .= 'onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Ticket/edit_ticket_tab.php?tab=ticket_customer_notes&ticketid='.$ticket['ticketid'].'&stop='.$ticket['stop_id'].'\', \'auto\', true, true, \'auto\', false, \'true\'); return false;"';
+	}
+	$customer_notes = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `ticket_attached` WHERE `ticketid` = '".$ticket['ticketid']."' AND `src_table` = 'customer_approve' AND `line_id` = '".$ticket['stop_id']."' AND `deleted` = 0"));
+
 	$dispatch_tile_ticket_card_fields = explode(',',get_config($dbc, 'dispatch_tile_ticket_card_fields'));
 
 	$start_time = date('h:i a', strtotime($ticket['to_do_start_time']));
@@ -43,7 +49,7 @@ function dispatch_ticket_label($dbc, $ticket) {
 	}
 	$assigned_staff = implode(', ',$assigned_staff);
 	
-	$row_html = '<b>'.get_ticket_label($dbc, $ticket).$ticket['location_description'].'</b>'.
+	$row_html = '<b>'.(!empty($stop_number) ? $stop_number.'. ' : '').get_ticket_label($dbc, $ticket).$ticket['location_description'].'</b>'.
 	(in_array('project',$dispatch_tile_ticket_card_fields) ? '<br />'.PROJECT_NOUN.' #'.$ticket['projectid'].' '.$ticket['project_name'].'<br />' : '').
 	(in_array('customer',$dispatch_tile_ticket_card_fields) ? '<br />'.'Customer: '.get_contact($dbc, $ticket['businessid'], 'name') : '').
 	(in_array('client',$dispatch_tile_ticket_card_fields) ? '<br />'.'Client: '.$clients : '').
@@ -75,25 +81,115 @@ function dispatch_ticket_label($dbc, $ticket) {
 	}
 	$row_html .= '<div class="clearfix"></div>';
 	if(in_array('camera',$dispatch_tile_ticket_card_fields)) {
-		$customer_notes = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `ticket_attached` WHERE `ticketid` = '".$ticket['ticketid']."' AND `src_table` = 'customer_approve' AND `line_id` = '".$ticket['stop_id']."' AND `deleted` = 0"));
-		$camera_class = '';
+		$existing_photos = [];
+
 		if(file_exists('../Ticket/download/'.$customer_notes['location_to']) && !empty($customer_notes['location_to'])) {
-			$camera_class = 'active';
+			$photo_file = $customer_notes['location_to'];
+			$thumbnail_file = explode('.',$photo_file);
+			array_pop($thumbnail_file);
+			$thumbnail_file = implode('.',$thumbnail_file).'_thumbnail.jpg';
+			if(file_exists('../Ticket/download/'.$thumbnail_file)) {
+				$photo_file = $thumbnail_file;
+			}
+			$existing_photos['Photo of Property'] = WEBSITE_URL.'/Ticket/download/'.$photo_file;
 		}
-		$row_html .= '<img src="../img/icons/ROOK-camera-icon.png" class="inline-img dispatch-equipment-camera '.$camera_class.'" onmouseover="display_camera(this);" onmouseout="hide_camera();" data-file="'.WEBSITE_URL.'/Ticket/download/'.$customer_notes['location_to'].'">';
+		if(file_exists('../Ticket/download/'.$customer_notes['weight_units']) && !empty($customer_notes['weight_units'])) {
+			$photo_file = $customer_notes['weight_units'];
+			$thumbnail_file = explode('.',$photo_file);
+			array_pop($thumbnail_file);
+			$thumbnail_file = implode('.',$thumbnail_file).'_thumbnail.jpg';
+			if(file_exists('../Ticket/download/'.$thumbnail_file)) {
+				$photo_file = $thumbnail_file;
+			}
+			$existing_photos['Property Damage Photo'] = WEBSITE_URL.'/Ticket/download/'.$photo_file;
+		}
+		if(file_exists('../Ticket/download/'.$customer_notes['dimension_units']) && !empty($customer_notes['dimension_units'])) {
+			$photo_file = $customer_notes['dimension_units'];
+			$thumbnail_file = explode('.',$photo_file);
+			array_pop($thumbnail_file);
+			$thumbnail_file = implode('.',$thumbnail_file).'_thumbnail.jpg';
+			if(file_exists('../Ticket/download/'.$thumbnail_file)) {
+				$photo_file = $thumbnail_file;
+			}
+			$existing_photos['Product Damage Photo'] = WEBSITE_URL.'/Ticket/download/'.$photo_file;
+		}
+		if(file_exists('../Ticket/download/'.$customer_notes['dimensions']) && !empty($customer_notes['dimensions'])) {
+			$photo_file = $customer_notes['dimensions'];
+			$thumbnail_file = explode('.',$photo_file);
+			array_pop($thumbnail_file);
+			$thumbnail_file = implode('.',$thumbnail_file).'_thumbnail.jpg';
+			if(file_exists('../Ticket/download/'.$thumbnail_file)) {
+				$photo_file = $thumbnail_file;
+			}
+			$existing_photos['Product Damage Close Up'] = WEBSITE_URL.'/Ticket/download/'.$photo_file;
+		}
+
+		$camera_class = '';
+		if(!empty($existing_photos)) {
+			$camera_class = 'active';
+		} else {
+			$existing_photos = [''];
+		}
+		foreach($existing_photos as $photo_label => $photo_file) {
+			$row_html .= '<img '.$clickable_html.' src="../img/icons/ROOK-camera-icon.png" class="no-slider inline-img dispatch-equipment-camera '.$camera_class.'" onmouseover="display_camera(this);" onmouseout="hide_camera();" data-label="'.$photo_label.'" data-file="'.$photo_file.'">';	
+		}
 	}
 	if(in_array('signature',$dispatch_tile_ticket_card_fields)) {
-		$customer_notes = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `ticket_attached` WHERE `ticketid` = '".$ticket['ticketid']."' AND `src_table` = 'customer_approve' AND `line_id` = '".$ticket['stop_id']."' AND `deleted` = 0"));
 		$signature_class = '';
 		if(file_exists('../Ticket/export/customer_sign_'.$customer_notes['id'].'.png')) {
 			$signature_class = 'active';
 		}
-		$clickable_html = '';
-		if(vuaed_visible_function($dbc, 'ticket') > 0) {
-			$clickable_html .= 'onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Ticket/edit_ticket_tab.php?tab=ticket_customer_notes&ticketid='.$ticket['ticketid'].'&stop='.$ticket['stop_id'].'\', \'auto\', true, true, \'auto\', false, \'true\'); return false;"';
-		}
-		$row_html .= '<img '.$clickable_html.' src="../img/icons/ROOK-star-icon.png" class="no-slider inline-img dispatch-equipment-signature '.$signature_class.'" onmouseover="display_signature(this);" onmouseout="hide_signature();" data-file="'.WEBSITE_URL.'/Ticket/export/customer_sign_'.$customer_notes['id'].'.png">';
+		$row_html .= '<img '.$clickable_html.' src="../img/icons/ROOK-signature-icon.png" class="no-slider inline-img dispatch-equipment-signature '.$signature_class.'" onmouseover="display_signature(this);" onmouseout="hide_signature();" data-file="'.WEBSITE_URL.'/Ticket/export/customer_sign_'.$customer_notes['id'].'.png">';
 	}
+	if(in_array('star_rating',$dispatch_tile_ticket_card_fields)) {
+		$rating_html = '';
+		if($customer_notes['rate'] > 0) {
+			$rating = $customer_notes['rate'];
+            $rating_html = '<div class="star_rating_hover_html" style="display: none;">';
+            for($i = 0; $i < 5; $i++) {
+            	if($rating >= 1) {
+            		$rating_html .= '<img class="inline-img" src="../img/icons/star.png">';
+            	} else if($rating >= 0.5) {
+            		$rating_html .= '<img class="inline-img" src="../img/icons/star_half.png">';
+            	} else {
+            		$rating_html .= '<img class="inline-img" src="../img/icons/star_empty.png">';
+            	}
+            	$rating -= 1;
+            }
+            $rating_html .= '</div>';
+		}
+		$rating_class = '';
+		if(!empty($rating_html)) {
+			$rating_class = 'active';
+		}
+
+		$row_html .= '<img '.$clickable_html.' src="../img/icons/ROOK-star-icon.png" class="no-slider inline-img dispatch-equipment-rating '.$rating_class.'" onmouseover="display_star_rating(this);" onmouseout="hide_star_rating();">'.$rating_html;
+	}
+	if(in_array('customer_notes_hover',$dispatch_tile_ticket_card_fields)) {
+		$notes_html = [];
+		if(!empty($customer_notes['location_from'])) {
+			$notes_html[] = '<b>Driver Notes: </b><br />'.trim(trim(html_entity_decode($customer_notes['location_from']),'<p>'),'</p>');
+		}
+		if(!empty($customer_notes['description'])) {
+			$notes_html[] = '<b>Property Damage Notes: </b><br />'.trim(trim(html_entity_decode($customer_notes['description']),'<p>'),'</p>');
+		}
+		if(!empty($customer_notes['notes'])) {
+			$notes_html[] = '<b>Product Damage Notes: </b><br />'.trim(trim(html_entity_decode($customer_notes['notes']),'<p>'),'</p>');
+		}
+		if(!empty($customer_notes['weight'])) {
+			$notes_html[] = '<b>Additional Comments: </b><br />'.trim(trim(html_entity_decode($customer_notes['weight']),'<p>'),'</p>');
+		}
+		$notes_html = implode('<br />', $notes_html);
+
+		$notes_class = '';
+		if(!empty($notes_html)) {
+			$notes_class = 'active';
+			$notes_html = '<div class="customer_notes_hover_html" style="display: none;">'.$notes_html.'</div>';
+		}
+
+		$row_html .= '<img '.$clickable_html.' src="../img/icons/ROOK-reply-icon.png" class="no-slider inline-img dispatch-equipment-customer-notes '.$notes_class.'" onmouseover="display_customer_notes(this);" onmouseout="hide_customer_notes();">'.$notes_html;
+	}
+	$row_html .= '<span class="bottom-right">'.$ticket['status'].'</span>';
 
 	return $row_html;
 }
