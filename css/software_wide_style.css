@@ -3429,11 +3429,12 @@ position: relative;
 	padding: 0.5em;
 	background-color: #FFFFFF;
 	border: 1px solid #ACA9A9;
+	position: relative;
 }
-.dispatch-equipment-camera,.dispatch-equipment-signature {
+.dispatch-equipment-camera,.dispatch-equipment-signature,.dispatch-equipment-rating,.dispatch-equipment-customer-notes {
 	opacity: 0.3;
 }
-.dispatch-equipment-camera.active,.dispatch-equipment-signature.active {
+.dispatch-equipment-camera.active,.dispatch-equipment-signature.active,.dispatch-equipment-rating.active,.dispatch-equipment-customer-notes.active {
 	opacity: 1;
 }
 
@@ -3464,6 +3465,18 @@ position: relative;
 }
 .dispatch-summary-block {
 	overflow: auto;
+}
+.dispatch-legend-block {
+	padding: 3px;
+}
+.dispatch-legend-img {
+	width: 20px;
+	height: auto;
+}
+.bottom-right {
+	position: absolute;
+	right: 5px;
+	bottom: 5px;
 }
 
 /*

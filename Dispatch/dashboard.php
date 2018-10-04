@@ -1,6 +1,12 @@
 <?php include_once ('../include.php');
 include_once('../Dispatch/dashboard_functions.php');
 include_once('../Dispatch/config.php');
+$ticket_statuses = explode(',', get_config($dbc, 'ticket_status'));
+$ticket_status_legend = '<b>Status Color Code:</b><br>';
+foreach ($ticket_statuses as $ticket_status) {
+    $ticket_status_color_detail = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_ticket_status_color` WHERE `status` = '$ticket_status'"))['color'];
+    $ticket_status_legend .= '<label><div class="ticket-status-color" style="background-color: '.$ticket_status_color_detail.';"></div>'.$ticket_status.'</label><br />';
+}
 checkAuthorised('dispatch');
 ?>
 <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
@@ -8,6 +14,8 @@ checkAuthorised('dispatch');
 
 <div id="camera_hover" class="block-button" style="position:absolute; z-index:9999; display:none;">Loading...</div>
 <div id="signature_hover" class="block-button" style="position:absolute; z-index:9999; display:none;">Loading...</div>
+<div id="star_rating_hover" class="block-button" style="position:absolute; z-index:9999; display:none;">Loading...</div>
+<div id="customer_notes_hover" class="block-button" style="position:absolute; z-index:9999; display:none;">Loading...</div>
 
 <div id="accordion" class="tile-sidebar sidebar sidebar standard-collapsible">
     <ul>
@@ -69,7 +77,7 @@ checkAuthorised('dispatch');
 </div>
 
 <div class="scale-to-fill has-main-screen" style="padding: 0;">
-    <div class="main-screen standard-body form-horizontal">
+    <div class="main-screen standard-body form-horizontal" style="float: left;">
 
         <div class="standard-body-title">
             <h3>Dispatch Schedule - <?= !empty($_GET['date']) ? $_GET['date'] : date('Y-m-d') ?></h3>
@@ -77,8 +85,11 @@ checkAuthorised('dispatch');
 
         <div class="standard-body-content">
             <div class="menu-bar" style="position: fixed; right: 20px; z-index: 1; top: 125px; display: block;">
-                <div class="menu-content" style="display: none;"></div>
                 <img src="../img/icons/ROOK-3dot-icon.png" width="30" class="no-toggle cursor-hand pull-right menu_button offset-right-10 theme-color-icon" title="" data-original-title="Search <?= TICKET_TILE ?>" onclick="show_search_fields();">
+                <div class="block-button offset-right-10 dispatch-legend-block pull-right" style="position: relative;">
+                    <div class="block-button dispatch-status-legend" style="display: none; width: 20em; position: absolute; top: 50%; right: 50%;"><?= $ticket_status_legend ?></div>
+                    <img src="../img/legend-icon.png" class="dispatch-legend-img">
+                </div>
             </div>
             <div class="search-fields" style="padding: 1em; display: none;">
                 <h4>Search Filters</h4>
@@ -172,8 +183,9 @@ checkAuthorised('dispatch');
                 </div> -->
                 <div class="double-scroller"><div></div></div>
                 <div class="dispatch-equipment-list"></div>
-                <div class="dispatch-equipment-list-none" style="padding: 1em; display: none;">No <?= $equipment_label ?> Selected</div>
+                <div class="dispatch-equipment-list-none" style="padding: 1em;">No <?= $equipment_label ?> Selected</div>
             </div>
         </div>
     </div>
+    <div class="loading_overlay" style="display: none; margin-left: -15px; margin-top: -20px;"><div class="loading_wheel"></div></div>
 </div>

@@ -93,7 +93,7 @@ if (isset($_POST['tasklist'])) {
     if($task_tododate == '') {
         $task_tododate = date('Y-m-d');
     }
-    $task_status = $_POST['task_status'];
+    $task_status = $_POST['status'];
     if($task_status == '') {
         $task_status = 'To Do';
     }

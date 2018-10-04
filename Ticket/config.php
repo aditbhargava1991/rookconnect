@@ -22,6 +22,11 @@ if(!empty($_GET['tile_group'])) {
     }
     $current_tile = 'tile_group='.$_GET['tile_group'].'&';
     $ticket_type = empty($_GET['type']) ? get_config($dbc, 'default_ticket_type') : filter_var($_GET['type'],FILTER_SANITIZE_STRING);
+    if(empty($ticket_type) || !in_array($ticket_type,$ticket_types)) {
+        if(count($ticket_types) == 1) {
+            $ticket_type = $ticket_types[0];
+        }
+    }
     if(empty($ticket_tabs[$ticket_type])) {
         $ticket_type = explode('|',$tile_config[2])[0];
     }
@@ -50,7 +55,7 @@ if(!empty($_GET['tile_group'])) {
     $security = $tile_security = get_security($dbc, 'ticket_type_'.$ticket_type);
 } else {
 	checkAuthorised('ticket');
-    foreach(array_filter($ticket_types) as $ticket_tab) {
+    foreach($ticket_types as $ticket_tab) {
         $ticket_tabs[config_safe_str($ticket_tab)] = $ticket_tab;
         $ticket_conf_list[] = config_safe_str($ticket_tab);
     }
@@ -61,7 +66,16 @@ if(!empty($_GET['tile_group'])) {
     $security = $tile_security = get_security($dbc, 'ticket');
 }
 
+foreach($ticket_tabs as $type_id => $type_name) {
+    if(!check_subtab_persmission($dbc, 'ticket', ROLE, 'ticket_type_'.$type_id)) {
+        unset($ticket_tabs[$type_id]);
+    }
+}
+
 // Get Security Options
+if(!isset($ticket_tabs[$ticket_type])) {
+    $ticket_type = config_safe_str(array_values($ticket_tabs)[0]);
+}
 $strict_view = strictview_visible_function($dbc, 'ticket');
 $ticket_layout = get_config($dbc, 'ticket_layout');
 if($strict_view > 0) {
