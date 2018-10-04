@@ -238,7 +238,7 @@ if(isset($_POST['update'])) {
 	$pdf->writeHTML($html, true, false, true, false, '');
 	$pdf->Output('manifest/manifest_'.$manifestid.'_'.$revision.'.pdf', 'F');
 	echo "<script>
-	window.open('manifest/manifest_".$manifestid."_".$revision.".pdf');
+	window.top.open('manifest/manifest_".$manifestid."_".$revision.".pdf', '_blank');
 	window.location.replace('?tile_name=".$_GET['tile_name']."&tab=manifest&site=recent');
 	</script>";
 	// echo $html;
