@@ -18,15 +18,15 @@ if(!($estimateid > 0)) {
 
     if ( $scope_count > 0 ) {
         while($row = mysqli_fetch_array($query)) {
-            $headings[config_safe_str($row[0])] = $row[0];
+            $scope_list[config_safe_str($row[0])] = $row[0];
         }
     } else {
-        $headings['scope'] = 'Scope';
+        $scope_list['scope'] = 'Scope 1';
     }
 
     if ( $scope_count > 1 ) {
-        foreach($headings as $head_id => $heading) { ?>
-            <a href="?edit=<?= $_GET['edit'] ?>&tab=scope&status=<?= $head_id ?>"><span class="block-clear <?= ($_GET['tab'] == 'scope' && $_GET['status'] == $head_id) ? 'active' : '' ?>"><?= $heading ?></span></a><?php
+        foreach($scope_list as $scope_id => $scope) { ?>
+            <a href="?edit=<?= $_GET['edit'] ?>&tab=scope&status=<?= $scope_id ?>"><span class="block-clear <?= ($_GET['tab'] == 'scope' && $_GET['status'] == $scope_id) ? 'active' : '' ?>"><?= $scope ?></span></a><?php
         }
     } ?>
 

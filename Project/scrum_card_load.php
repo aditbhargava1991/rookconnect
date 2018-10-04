@@ -67,6 +67,7 @@ if($type == 'Ticket') {
 	} else {
 		$div_width = '';
 	}
+
 	/* $contents = '<span class="pull-right small">';
 	if(!in_array('Staff',$ticket_field_config) && count($ticket_field_config) > 0) {
 		foreach(array_unique(explode(',',$item['contactid'].','.$item['internal_qa_contactid'].','.$item['deliverable_contactid'])) as $assignid) {
@@ -74,7 +75,8 @@ if($type == 'Ticket') {
 				$contents .= profile_id($dbc, $assignid, false);
 			}
 		}
-	} */
+	}*/
+
 	$contents .= '</span><div class="clearfix"></div></h3>';
 	if(in_array('Business',$ticket_field_config) || count($ticket_field_config) == 0) {
 		$contents .= '<div class="'.$div_width.' form-group">
@@ -270,23 +272,23 @@ if($type == 'Ticket') {
 		(in_array('archive',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/trash-icon-red.png" class="inline-img archive-icon" title="Archive">' : '').'</span>';
 
 	$label = '<input type="checkbox" name="status" onchange="mark_done(this);" '.($item['status'] == 'Done' ? 'checked disabled' : '').' value="'.$item['tasklistid'].'" class="form-checkbox no-margin small pull-left" '.(!($security['edit'] > 0) ? 'readonly disabled' : '').'>
+
 		<div class="pull-left" style="max-width: calc(100% - 4em);margin:0 0.5em;">';
 
         $slider_layout = !empty(get_config($dbc, 'tasks_slider_layout')) ? get_config($dbc, 'tasks_slider_layout') : 'accordion';
 
         if($slider_layout == 'accordion') {
-
             if($item['status'] == 'Done') {
                 $label .= '<strike><a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Tasks_Updated/add_task.php?type='.$item['status'].'&projectid='.$item['projectid'].'&tasklistid='.$item['tasklistid'].'\', \'50%\', false, false, $(\'.iframe_overlay\').closest(\'.container\').outerHeight() + 20); return false;">Task #'.$item['tasklistid'].': </a></strike>';
             } else {
                 $label .= '<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Tasks_Updated/add_task.php?type='.$item['status'].'&projectid='.$item['projectid'].'&tasklistid='.$item['tasklistid'].'\', \'50%\', false, false, $(\'.iframe_overlay\').closest(\'.container\').outerHeight() + 20); return false;">Task #'.$item['tasklistid'].': </a>';
             }
-
         } else {
-            $label .= '<a href="../Tasks_Updated/add_task_full_view.php?type='.$item['status'].'&projectid='.$item['projectid'].'&tasklistid='.$item['tasklistid'].'">Task #'.$item['tasklistid'].': </a>';
+            $label .= '<a href="../Tasks_Updated/add_task_full_view.php?type='.$item['status'].'&projectid='.$item['projectid'].'&tasklistid='.$item['tasklistid'].'">Task #'.$item['tasklistid'].' </a>';
         }
 
-       $label .= html_entity_decode($item['heading']).'</div>
+       $label .= '<br>'.html_entity_decode($item['heading']).'</div> 
+
 		<input type="hidden" name="comment" value="" data-name="comment" data-table="taskcomments" data-id-field="taskcommid" data-id="" data-type="'.$item['tasklistid'].'" data-type-field="tasklistid">';
 
 	$contents = '<div class="action_notifications">';
@@ -418,6 +420,7 @@ if($type == 'Ticket') {
 		<button class="btn brand-btn pull-right" name="flag_cancel" onclick="return false;" style="display:none;">Cancel</button>
 		<button class="btn brand-btn pull-right" name="flag_off" onclick="return false;" style="display:none;">Remove Flag</button>
 	<?php } ?>
+
     <?php
     if($type == 'Task') {
         include('../Tasks_Updated/dashboard_fields.php');

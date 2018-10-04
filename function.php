@@ -501,7 +501,7 @@ function get_config($dbc, $name, $multi = false, $separator = ',') {
 		} else if($name == 'invoice_payment_types') {
 			return 'Master Card,Visa,Debit Card,Cash,Cheque,Amex,Direct Deposit,Gift Certificate Redeem,Pro-Bono';
 		} else if($name == 'invoice_dashboard') {
-			return 'invoiceid,invoice_date,customer,total_price,payment_type,invoice_pdf,comment,status,send,delivery';
+			return 'invoiceid,invoice_date,customer,total_price,payment_type,invoice_pdf,comment,status,send,delivery,invoice_xsl,invoice_xml';
 		} else if($name == 'max_timer') {
 			return 28800;
 		} else if($name == 'appt_day_start') {
@@ -3115,6 +3115,45 @@ function resize_image_convert_png($newWidth, $newHeight, $targetFile, $originalF
             $image_create_func = 'imagecreatefromgif';
             $image_save_func = 'imagepng';
             $new_image_ext = 'png';
+            break;
+
+        default:
+            throw new Exception('Unknown image type.');
+    }
+
+    $img = $image_create_func($originalFile);
+    list($width, $height) = getimagesize($originalFile);
+
+    $tmp = imagecreatetruecolor($newWidth, $newHeight);
+    imagecopyresampled($tmp, $img, 0, 0, 0, 0, $newWidth, $newHeight, $width, $height);
+
+    if (file_exists($targetFile)) {
+        unlink($targetFile);
+    }
+    $image_save_func($tmp, "$targetFile.$new_image_ext");
+    return "$targetFile.$new_image_ext";
+}
+function resize_image_convert_jpg($newWidth, $newHeight, $targetFile, $originalFile) {
+    $info = getimagesize($originalFile);
+    $mime = $info['mime'];
+
+    switch ($mime) {
+        case 'image/jpeg':
+            $image_create_func = 'imagecreatefromjpeg';
+            $image_save_func = 'imagejpeg';
+            $new_image_ext = 'jpg';
+            break;
+
+        case 'image/png':
+            $image_create_func = 'imagecreatefrompng';
+            $image_save_func = 'imagejpeg';
+            $new_image_ext = 'jpg';
+            break;
+
+        case 'image/gif':
+            $image_create_func = 'imagecreatefromgif';
+            $image_save_func = 'imagejpeg';
+            $new_image_ext = 'jpg';
             break;
 
         default:

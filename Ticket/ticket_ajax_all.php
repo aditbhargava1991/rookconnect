@@ -1168,6 +1168,27 @@ if($_GET['action'] == 'update_fields') {
 		} else {
 			mysqli_query($dbc, "INSERT INTO `$table_name` (`ticketid`,`document`,`label`,`created_by`,`created_date`) VALUES ('$ticketid','$filename','$basename','".$_SESSION['contactid']."',DATE(NOW()))");
 		}
+
+		//Create smaller thumbnail with max height or width of 800
+		$info = getimagesize('download/'.$filename);
+	    $mime = $info['mime'];
+	    if($mime == 'image/jpeg' || $mime == 'image/png' || $mime == 'image/gif') {
+			list($image_width, $image_height) = getimagesize('download/'.$filename);
+			$new_height = $image_height;
+			$new_width = $image_width;
+			if($image_height > 800) {
+				$new_width = ($new_width / $new_height) * 800;
+				$new_height = 800;
+			}
+			if($new_width > 800) {
+				$new_height = ($new_height / $new_width) * 800;
+				$new_width = 800;
+			}
+			$new_file_name = explode('.',$filename);
+			array_pop($new_file_name);
+			$new_file_name = implode('.',$new_file_name);
+			resize_image_convert_jpg($new_width, $new_height, 'download/'.$new_file_name.'_thumbnail', 'download/'.$filename);
+	    }
 	}
 } else if($_GET['action'] == 'send_email') {
 	$table_name = filter_var($_POST['table'],FILTER_SANITIZE_STRING);
@@ -1525,6 +1546,10 @@ if($_GET['action'] == 'update_fields') {
 		set_config($dbc, $_POST['rate_card_contact'], filter_var($_POST['rate_card_contact_value'],FILTER_SANITIZE_STRING), 1);
 		set_config($dbc, $_POST['ticket_chemical_label'], filter_var($_POST['ticket_chemical_label_value'],FILTER_SANITIZE_STRING), 1);
 		set_config($dbc, $_POST['delivery_type_contacts'], filter_var($_POST['delivery_type_contacts_value'],FILTER_SANITIZE_STRING), 1);
+		set_config($dbc, $_POST['ticket_default_status'], filter_var($_POST['ticket_default_status_value'],FILTER_SANITIZE_STRING), 1);
+		set_config($dbc, $_POST['ticket_new_email_subject'], filter_var($_POST['ticket_new_email_subject_value'],FILTER_SANITIZE_STRING), 1);
+		set_config($dbc, $_POST['ticket_new_email_body'], filter_var($_POST['ticket_new_email_body_value'],FILTER_SANITIZE_STRING), 1);
+		set_config($dbc, $_POST['delivery_default_tabs'], filter_var($_POST['delivery_default_tabs_value'],FILTER_SANITIZE_STRING), 1);
 		set_config($dbc, 'auto_archive_complete_tickets', filter_var($_POST['auto_archive_complete_tickets'],FILTER_SANITIZE_STRING), 1);
 		set_config($dbc, 'delivery_km_service', filter_var($_POST['delivery_km_service'],FILTER_SANITIZE_STRING), 1);
 		set_config($dbc, 'incomplete_inventory_reminder_email', filter_var($_POST['incomplete_inventory_reminder_email'],FILTER_SANITIZE_STRING), 1);
@@ -1620,6 +1645,10 @@ if($_GET['action'] == 'update_fields') {
 		set_config($dbc, $_POST['rate_card_contact'], filter_var($_POST['rate_card_contact_value'],FILTER_SANITIZE_STRING));
 		set_config($dbc, $_POST['ticket_chemical_label'], filter_var($_POST['ticket_chemical_label_value'],FILTER_SANITIZE_STRING));
 		set_config($dbc, $_POST['delivery_type_contacts'], filter_var($_POST['delivery_type_contacts_value'],FILTER_SANITIZE_STRING));
+		set_config($dbc, $_POST['ticket_default_status'], filter_var($_POST['ticket_default_status_value'],FILTER_SANITIZE_STRING));
+		set_config($dbc, $_POST['ticket_new_email_subject'], filter_var($_POST['ticket_new_email_subject_value'],FILTER_SANITIZE_STRING));
+		set_config($dbc, $_POST['ticket_new_email_body'], filter_var($_POST['ticket_new_email_body_value'],FILTER_SANITIZE_STRING));
+		set_config($dbc, $_POST['delivery_default_tabs'], filter_var($_POST['delivery_default_tabs_value'],FILTER_SANITIZE_STRING));
 		set_config($dbc, 'auto_archive_complete_tickets', filter_var($_POST['auto_archive_complete_tickets'],FILTER_SANITIZE_STRING));
 		set_config($dbc, 'delivery_km_service', filter_var($_POST['delivery_km_service'],FILTER_SANITIZE_STRING));
 		set_config($dbc, 'incomplete_inventory_reminder_email', filter_var($_POST['incomplete_inventory_reminder_email'],FILTER_SANITIZE_STRING));
