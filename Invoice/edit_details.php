@@ -232,7 +232,7 @@ function view_profile(img) {
                     <option value=""></option>
                     <?php $query = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc,"SELECT contactid, first_name, last_name FROM contacts WHERE category IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND deleted=0"),MYSQLI_ASSOC));
                     foreach($query as $row) {
-                        echo "<option ".($get_invoice['therapistsid'] == $row ? 'selected' : '')." value='". $row."'>".get_contact($dbc, $row).'</option>';
+                        echo "<option ".($get_invoice['therapistsid'] == $row || (empty($get_invoice['therapistsid']) && $row == $_SESSION['contactid']) ? 'selected' : '')." value='". $row."'>".get_contact($dbc, $row).'</option>';
                     } ?>
                 </select>
             </div>

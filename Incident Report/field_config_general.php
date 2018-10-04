@@ -58,7 +58,7 @@
 	set_config($dbc, 'incident_report_tabs', implode(',',$_POST['incident_report_tabs']));
 	set_config($dbc, 'incident_report_summary', implode(',',$_POST['incident_report_summary']));
 	//Tile Settings
-	
+
     echo '<script type="text/javascript"> window.location.replace(""); </script>';
 } ?>
 <input type="hidden" name="full_type" value="<?= $main_type ?>">

@@ -22,8 +22,8 @@
 						<input type="number" min=0 step="0.01" name="fee_amt" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" data-concat="," value="<?= explode(',',$get_ticket['fee_amt'])[$i] ?>" class="form-control">
 					</div>
 					<div class="col-sm-1">
-						<img class="inline-img pull-right" onclick="addMulti(this);" src="../img/icons/ROOK-add-icon.png">
-						<img class="inline-img pull-right" onclick="remMulti(this);" src="../img/remove.png">
+						<img class="inline-img pull-right" data-history-label="Fee" onclick="addMulti(this);" src="../img/icons/ROOK-add-icon.png">
+						<img class="inline-img pull-right" data-history-label="Fee" onclick="remMulti(this);" src="../img/remove.png">
 					</div>
 					<div class="clearfix"></div>
 				<?php } else { ?>

@@ -1432,3 +1432,15 @@ function loadUnbookedList(anchor) {
 		$(anchor).addClass('active');
 	}
 }
+
+function removeTicketSchedule(ticketid, stopid) {
+    $.post('calendar_ajax_all.php?action=removeSchedule', {
+        ticketid: ticketid,
+        stopid: stopid
+    }, function(response) {
+        $('[data-ticket='+ticketid+']'+(stopid > 0 ? '[data-ticketscheduleid='+stopid+']' : '')).each(function() {
+            var td = $(this).closest('td');
+            retrieve_items($('[id^='+$('#retrieve_collapse').val()+']').find('.block-item[data-'+$('#retrieve_contact').val()+'='+$(td).data('contact')+']').closest('a'),$(td).data('date'))
+        });
+    });
+}

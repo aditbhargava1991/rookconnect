@@ -1,6 +1,7 @@
 <?php
 //This is the list of all accordions in Tickets. This will be the default order of accordions in a Ticket. Each different Ticket type will have it's own setting for accordion sort order. The setting for the sort order will be compared against this array and if there are any missing fields in the sort order config it will add it to the list so no accordions will be missed.
 $accordion_list = [
+	'Customer History' => ['Customer History Business Ticket Type','Customer History Business Project Type','Customer History Business Ticket Project Type','Customer History Customer Ticket Type','Customer History Customer Project Type','Customer History Customer Ticket Project Type','Customer History Field Display Notes','Customer History Field Service Template'],
 	'Information' => ['PI Business','PI Name','PI Guardian','PI AFE','PI Project','PI Pieces','PI Sites','PI Rate Card','PI Customer Order','PI Sales Order','PI Invoice','PI Order','PI Purchase Order','PI WTS Order','PI Cross Ref','PI Invoiced Out','PI Work Order','PI Scheduled Date','PI Date of Entry','PI Time of Entry','PI Agent','PI Status','PI Ban','PI Vendor','PI Operator','PI Waste Manifest','PI Reference Ticket','PI TDG Doc Num','PI VTI Num','PI TEXT FIELD'],
 	'Purchase Order List' => ['PO List','PO Slider Icons'],
 	'Customer Orders' => ['CO List','CO Slider Icons'],
@@ -39,6 +40,7 @@ $accordion_list = [
 	'Miscellaneous' => ['Miscellaneous Inline','Miscellaneous Name','Miscellaneous Price','Miscellaneous Quantity','Miscellaneous Total','Miscellaneous Billing'],
 	'Purchase Orders' => [],
 	'Attached Purchase Orders' => ['PO Name','PO 3rd Party','PO Invoice','PO Price','PO Mark Up','PO Total'],
+	'Delivery Summary' => ['Delivery Summary Stop','Delivery Summary Client','Delivery Summary Address','Delivery Summary Services','Delivery Summary Status'],
 	'Delivery' => ['Assigned Equipment','Delivery Stops','Delivery Stops Order','Delivery Stops Volume','Delivery Pickup Equipment Category','Delivery Pickup Equipment Make','Delivery Pickup Equipment Model','Delivery Pickup Equipment','Delivery Pickup','Delivery Pickup Address','Delivery Pickup Coordinates','Delivery Pickup Client','Delivery Pickup Customer','Delivery Pickup Phone','Delivery Pickup Phone2','Delivery Pickup Type','Delivery Pickup Volume','Delivery Pickup Cube','Delivery Pickup ETA','Delivery Pickup Customer Est Time','Delivery Pickup Estimate','Delivery Pickup Date','Delivery Pickup Order','Delivery Pickup Timeframe','Delivery Pickup Arrival','Delivery Pickup Departure','Delivery Pickup Description','Delivery Pickup Upload','Delivery Pickup Service List','Delivery Pickup Default Services','Delivery Pickup Warehouse Only','Delivery Pickup Populate Warehouse Address','Delivery Pickup Status','Delivery Pickup Populate Google Link','Delivery Pickup Notes','Delivery Pickup Dropoff Map','Delivery Calendar History'],
 	'Delivery Summary' => ['Delivery Summary Stop','Delivery Summary Client','Delivery Summary Address','Delivery Summary Services','Delivery Summary Status'],
 	'Transport' => ['Transport Origin Contact','Transport Origin Name','Transport Origin','Transport Origin Country','Transport Origin Save Contact','Transport Origin Link','Transport Origin Warehouse','Transport Origin Arrival','Transport Origin Departure','Transport Destination Contact','Transport Destination Name','Transport Destination','Transport Destination Country','Transport Destination Save Contact','Transport Destination Link','Transport Destination Warehouse','Transport Destination Arrival','Transport Destination Departure','Transport Carrier','Transport Type','Transport Number','Transport Billed','Transport Container','Transport Manifest','Transport Ship Date','Transport Arrive Date','Transport Warehouse'],
@@ -49,7 +51,7 @@ $accordion_list = [
 	'Check Out' => ['Checkout Hide All Button','Checkout Show Checked In Only','Checkout Staff','Checkout Staff_Tasks','Checkout Delivery','Checkout Clients','Checkout Members','Checkout material','Checkout equipment','Checkout Notes'],
 	'Staff Check Out' => ['Staff Checkout Hide All Button','Staff Checkout Staff','Staff Checkout Notes'],
 	'Deliverables' => ['Deliverable Status','Deliverable To Do','Deliverable Repeat','Deliverable Internal','Deliverable Customer'],
-	'Billing' => ['Billing Services','Billing Staff','Billing Inventory','Billing Misc','Billing Discount','Billing Total Discount','Billing Total'],
+	'Billing' => ['Billing Services','Billing Staff','Billing Inventory','Billing Misc','Billing Surcharge','Billing Discount','Billing Total Discount','Billing Total'],
 	'Addendum' => [],
 	'Client Log' => [],
 	'Debrief' => [],
@@ -68,6 +70,7 @@ $accordion_list = [
 	'Incident Reports' => [],
 	'Pressure' => ['Pressure Pressure Test','Pressure PSV SET','Pressure Purge Closed'],
 	'Chemicals' => ['Chemical Location','Chemical Hours','Chemical Hrs Cost','Chemical Volume','Chemical Vol Cost','Chemical Total Cost'],
+	'Application Report' => ['Application Equipment','Application Wind Speed','Application Humidity','Application Temperature','Application Wind Direction','Application Soil'],
 	'Intake' => [],
 	'History' => [],
 	'Work History' => ['Work History Services','Work History Service Sub Totals','Work History Staff Tasks','Work History Materials']

@@ -16,7 +16,7 @@ error_reporting(0);
 $purchaser_config = explode(',',get_config($dbc, 'invoice_purchase_contact'));
 $purchaser_label = count($purchaser_config) > 1 ? 'Customer' : $purchaser_config[0];
  ?>
- 
+
 <script type="text/javascript">
 $(document).ready(function() {
 	$(window).resize(function() {
@@ -126,37 +126,6 @@ function add_reminder(invoiceid) {
 
 
     $patient_clause = !empty($patient) ? "AND patientid = '$patientid'" : '';
-
-    /*$patient_clause = !empty($patient) ? "AND patientid = '$patientid'" : '';
-
-
-    $today_date = date('Y-m-d');
-    $as_at_date = $_GET['search_to'] != '' ? $_GET['search_to'] : $today_date;
-    $last29 = date('Y-m-d', strtotime($as_at_date.' - 29 days'));
-    $last30 = date('Y-m-d', strtotime($as_at_date.' - 30 days'));
-    $last59 = date('Y-m-d', strtotime($as_at_date.' - 59 days'));
-    $last60 = date('Y-m-d', strtotime($as_at_date.' - 60 days'));
-    $last89 = date('Y-m-d', strtotime($as_at_date.' - 89 days'));
-    $last90 = date('Y-m-d', strtotime($as_at_date.' - 90 days'));
-    $last119 = date('Y-m-d', strtotime($as_at_date.' - 119 days'));
-    $last120 = date('Y-m-d', strtotime($as_at_date.' - 120 days'));
-    $ar_types = "'On Account', 'Net 30', 'Net 30 Days', 'Net 60', 'Net 60 Days', 'Net 90', 'Net 90 Days', 'Net 120', 'Net 120 Days', ''";
-
-    $total_30 = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT SUM(patient_price) AS `all_payment` FROM invoice_patient WHERE (DATE(invoice_date) >= '".$starttime."' AND DATE(invoice_date) <= '".$endtime."') AND DATE(invoice_date) >= '".$last29."' $patient_clause AND (paid_date > '$as_at_date' OR IFNULL(`paid`,'') IN ($ar_types))"));
-    $total_last30 = $total_30['all_payment'];
-
-    $total_3059 = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT SUM(patient_price) AS `all_payment` FROM invoice_patient WHERE (DATE(invoice_date) >= '".$starttime."' AND DATE(invoice_date) <= '".$endtime."') AND (DATE(invoice_date) >= '".$last59."' AND DATE(invoice_date) < '".$last29."') $patient_clause AND (paid_date > '$as_at_date' OR IFNULL(`paid`,'') IN ($ar_types))"));
-    $total_last3059 = $total_3059['all_payment'];
-
-    $total_6089 = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT SUM(patient_price) AS `all_payment` FROM invoice_patient WHERE (DATE(invoice_date) >= '".$starttime."' AND DATE(invoice_date) <= '".$endtime."') AND (DATE(invoice_date) >= '".$last89."' AND DATE(invoice_date) < '".$last59."') $patient_clause AND (paid_date > '$as_at_date' OR IFNULL(`paid`,'') IN ($ar_types))"));
-    $total_last6089 = $total_6089['all_payment'];
-
-    $total_90119 = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT SUM(patient_price) AS `all_payment` FROM invoice_patient WHERE (DATE(invoice_date) >= '".$starttime."' AND DATE(invoice_date) <= '".$endtime."') AND (DATE(invoice_date) >= '".$last119."' AND DATE(invoice_date) < '".$last89."') $patient_clause AND (paid_date > '$as_at_date' OR IFNULL(`paid`,'') IN ($ar_types))"));
-    $total_last90119 = $total_90119['all_payment'];
-
-    $total_120 = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT SUM(patient_price) AS `all_payment` FROM invoice_patient WHERE (DATE(invoice_date) >= '".$starttime."' AND DATE(invoice_date) <= '".$endtime."') AND (DATE(invoice_date) < '".$last119."') $patient_clause AND (paid_date > '$as_at_date' OR IFNULL(`paid`,'') IN ($ar_types))"));
-    $total_last120 = $total_120['all_payment'];*/
-
 
     $ar_types = "'On Account', 'Net 30', 'Net 30 Days', 'Net 60', 'Net 60 Days', 'Net 90', 'Net 90 Days', 'Net 120', 'Net 120 Days', ''";
 
@@ -327,7 +296,7 @@ function add_reminder(invoiceid) {
         <?php
             echo report_receivables($dbc, $starttime, $endtime, '', '', '', $patient, $invoice_no);
         ?>
-        
+
         <?php $show_statement = ($patient > 0);
         if($show_statement) {
             $category = get_field_value('category','contacts','contactid',$patient);
@@ -344,7 +313,7 @@ function add_reminder(invoiceid) {
 function report_receivables($dbc, $starttime, $endtime, $table_style, $table_row_style, $grand_total_style, $patient, $invoice_no) {
     $purchaser_config = explode(',',get_config($dbc, 'invoice_purchase_contact'));
     $purchaser_label = count($purchaser_config) > 1 ? 'Customer' : $purchaser_config[0];
-    
+
     if($starttime == 0000-00-00) {
         $starttime = '0000-00-00';
     }

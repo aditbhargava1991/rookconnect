@@ -22,8 +22,8 @@ do {
 				<div class="col-sm-1">
 					<a href="" onclick="viewProfile(this); return false;"><img class="inline-img pull-right no-toggle" src="../img/person.PNG" title="View Profile"></a>
 					<input type="hidden" name="deleted" data-table="ticket_attached" data-id="<?= $waitlist['id'] ?>" data-id-field="id" data-type="Wait List" data-type-field="src_table" value="0">
-					<img class="inline-img pull-right" onclick="addMulti(this);" src="../img/icons/ROOK-add-icon.png">
-					<img class="inline-img pull-right" onclick="remMulti(this);" src="../img/remove.png">
+					<img class="inline-img pull-right" data-history-label="Wait List" onclick="addMulti(this);" src="../img/icons/ROOK-add-icon.png">
+					<img class="inline-img pull-right" data-history-label="Wait List" onclick="remMulti(this);" src="../img/remove.png">
 					<?php if($waitlist['category'] == 'Members') { ?>
 						<span class="show-on-mob pull-left" onclick="$(this).closest('div').find('img').last().click();">More details</span>
 						<img class="inline-img pull-left black-color counterclockwise" onclick="$(this).toggleClass('counterclockwise').closest('.multi-block').find('.member_info').toggle();" src="../img/icons/dropdown-arrow.png"><?php } ?>
@@ -156,8 +156,8 @@ do {
 															<input type="hidden" name="description" data-table="ticket_attached" data-id="<?= $checkin['id'] ?>" data-id-field="id" data-concat="," value="<?= $show_hide[$i] ?>">
 															<input type="hidden" name="deleted" value="<?= $show_hide[$i] ?>" onchange="$(this).closest('div').find('[name=description]').val(this.value).change();">
 															<button class="btn brand-btn pull-right" onclick="return false;">Save</button>
-															<img class="inline-img pull-right" onclick="addMulti(this);" src="../img/icons/ROOK-add-icon.png">
-															<img class="inline-img pull-right" onclick="remMulti(this);" src="../img/remove.png">
+															<img class="inline-img pull-right" data-history-label="Emergency Contact" onclick="addMulti(this);" src="../img/icons/ROOK-add-icon.png">
+															<img class="inline-img pull-right" data-history-label="Emergency Contact" onclick="remMulti(this);" src="../img/remove.png">
 														</div>
 													<?php } ?>
 												</div>

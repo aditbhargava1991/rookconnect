@@ -100,6 +100,7 @@ $(document).ready(function() {
         }
     );
 
+
     $('.all_view').click(function(event) {  //on click
         var arr = $('.patientid_for_invoice').val().split('_');
         if(this.checked) { // check select status
@@ -257,16 +258,16 @@ function show_hide_email() {
             </div>
         </div>
     </form>
-    
+
     <div class="clearfix"></div>
-    
+
     <form method="POST" action="" name="send_email" class="form-horizontal">
         <?php
         // Display Pager
 
         $rowsPerPagee = ITEMS_PER_PAGE;
         $pageNumm  = 1;
-                               
+
         if(isset($_GET['pagee'])) {
             $pageNumm = $_GET['pagee'];
         }
@@ -385,8 +386,15 @@ function show_hide_email() {
                         echo '<a class="pull-left" target="_blank" href="'.$invoice_pdf.'"><img src="'.WEBSITE_URL.'/img/icons/pdf.png" title="Invoice PDF" class="no-toggle inline-img" /></a>';
                     }
 
+                    /*
                     if($invoice['invoiceid_src'] > 0 && file_exists('../'.FOLDER_NAME.'/Download/invoice_'.$invoice['invoiceid_src'].'.pdf')) {
                         echo '<a class="pull-left" target="_blank" href="'.'../'.FOLDER_NAME.'/Download/invoice_'.$invoice['invoiceid_src'].'.pdf'.'"><img src="'.WEBSITE_URL.'/img/icons/pdf.png" title="Primary Invoice PDF" class="no-toggle inline-img" /></a>';
+                    }
+                    */
+                    if($invoice['invoiceid_src'] > 0 && file_exists('download/invoice_'.$invoice['invoiceid_src'].'.pdf')) {
+                        echo '<a target="_blank" href="'.'download/invoice_'.$invoice['invoiceid_src'].'.pdf'.'">Primary Invoice #'.$invoice['invoiceid_src'].' <img src="'.WEBSITE_URL.'/img/icons/pdf.png" title="Primary Invoice PDF" class="no-toggle inline-img" /></a><br />';
+                    } else if($invoice['invoiceid_src'] > 0 && file_exists('Download/invoice_'.$invoice['invoiceid_src'].'.pdf')) {
+                        echo '<a target="_blank" href="'.'Download/invoice_'.$invoice['invoiceid_src'].'.pdf'.'">Primary Invoice #'.$invoice['invoiceid_src'].' <img src="'.WEBSITE_URL.'/img/icons/pdf.png" title="Primary Invoice PDF" class="no-toggle inline-img" /></a><br />';
                     }
                 }
                 if($invoiceLayout=='cnt1'){
@@ -493,3 +501,4 @@ function exportInvoiceData(invoiceId, format) {
     });
 }
 </script>
+

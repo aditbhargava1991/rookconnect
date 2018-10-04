@@ -2,6 +2,9 @@
     include ('../include.php');
 checkAuthorised('tasks');
 ?>
+<div class="standard-dashboard-body-content">
+<div class="dashboard-item">
+
 <div class="container"><?php
     $table_row_style = '';
     $table_style = '';
@@ -160,3 +163,6 @@ checkAuthorised('tasks');
     echo '</div><!-- #no-more-tables -->';
     ?>
 </div><!-- .container -->
+
+</div>
+</div>

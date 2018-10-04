@@ -976,6 +976,12 @@ function go_to_dashboard(target) {
 				<?php echo security_tile_config_function('communication', get_privileges_staff($dbc, 'communication',$level), 0, $level_url); ?>
 			</tr>
 			<?php } ?>
+			<?php if (strpos($on_security, ',dispatch,') !== FALSE) { ?>
+			<tr data-dashboard='<?= (in_array('dispatch', $dashboard_list) ? 'current' : '') ?>'>
+				<td data-title="Dispatch">Dispatch</td>
+				<?php echo security_tile_config_function('dispatch', get_privileges_staff($dbc, 'dispatch',$level), 0, $level_url); ?>
+			</tr>
+			<?php } ?>
 			<?php if (strpos($on_security, ',email_communication,') !== FALSE) { ?>
 			<tr data-dashboard='<?= (in_array('email_communication', $dashboard_list) ? 'current' : '') ?>'>
 				<td data-title="Comment">Email Communication</td>

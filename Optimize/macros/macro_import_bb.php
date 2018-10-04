@@ -4,7 +4,16 @@ error_reporting(0);
 
 if(isset($_POST['upload_file']) && !empty($_FILES['csv_file']['tmp_name'])) {
 	$default_status = get_config($dbc, 'ticket_default_status');
-	$warehouse_start_time = get_config($dbc, 'ticket_warehouse_start_time');
+	$businessid = filter_var($_POST['businessid'],FILTER_SANITIZE_STRING);
+	$default_services = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `services_service_templates` WHERE `deleted`=0 AND `contactid`='$businessid'"))['serviceid'];
+    $service_est_time = 0;
+    foreach(explode(',',$default_services) as $serviceid) {
+        $est_hours = explode(':',$dbc->query("SELECT `estimated_hours` FROM `services` WHERE `serviceid`='$serviceid'")->fetch_assoc()['estimated_hours']);
+        $service_est_time += $est_hours[0] * 1 + $est_hours[1] / 60 + $est_hours[2] / 3600;
+    }
+    $increment_time = get_config($dbc, 'scheduling_increments');
+    $increment_time = ($increment_time > 0 ? $increment_time * 60 : 1800);
+    $warehouse_start_time = get_config($dbc, 'ticket_warehouse_start_time');
 	$warehouses = [];
 	$warehouse_assignments = explode('#*#', get_config($dbc, 'bb_macro_warehouse_assignments'));
 	foreach($warehouse_assignments as $warehouse_assignment) {
@@ -24,11 +33,10 @@ if(isset($_POST['upload_file']) && !empty($_FILES['csv_file']['tmp_name'])) {
 
 	$file_name = $_FILES['csv_file']['tmp_name'];
 	$delimiter = filter_var($_POST['delimiter'],FILTER_SANITIZE_STRING);
-	$businessid = filter_var($_POST['businessid'],FILTER_SANITIZE_STRING);
 	$business = $dbc->query("SELECT * FROM `contacts` WHERE `contactid`='$businessid'")->fetch_assoc();
 	$business_name = decryptIt($business['name']);
 	$region = $business['region'];
-	$classification = $business['classification'];
+	$classification = array_values(array_filter(explode(',',$business['classification'])))[0];
 	$ticket_type = filter_var($_POST['ticket_type'],FILTER_SANITIZE_STRING);
 	if($delimiter == 'comma') {
 		$delimiter = ", ";
@@ -75,7 +83,7 @@ if(isset($_POST['upload_file']) && !empty($_FILES['csv_file']['tmp_name'])) {
 				if(!empty($warehouses[$value['origin_city']]) && !empty($value['origin_city'])) {
 					$dbc->query("INSERT INTO `ticket_schedule` (`ticketid`,`type`,`to_do_date`,`to_do_start_time`,`client_name`,`address`,`city`,`postal_code`,`order_number`,`status`) VALUES ('$ticketid','".$warehouses[$value['origin_city']]['warehouse_name']."','".$value['date']."','".$warehouse_start_time."','".$business_name."','".$warehouses[$value['origin_city']]['address']."','".$warehouses[$value['origin_city']]['city']."','".$warehouses[$value['origin_city']]['postal_code']."','".$key."','$default_status')");
 				}
-				$dbc->query("INSERT INTO `ticket_schedule` (`ticketid`,`to_do_date`,`client_name`,`address`,`city`,`details`,`order_number`,`notes`,`status`) VALUES ('$ticketid','".$value['date']."','".$value['customer_name']."','".$value['address']."','".$value['city']."','".$value['phone']."','".$key."','&lt;p&gt;".$value['sku']."&lt;/p&gt;&lt;p&gt;".$value['comments']."&lt;/p&gt;','$default_status')");
+				$dbc->query("INSERT INTO `ticket_schedule` (`type`, `ticketid`,`to_do_date`,`client_name`,`address`,`city`,`details`,`order_number`,`serviceid`,`est_time`,`map_link`,`notes`,`status`) VALUES ('".get_config($dbc, 'delivery_type_default')."', '$ticketid','".$value['date']."','".$value['customer_name']."','".$value['address']."','".$value['city']."','".$value['phone']."','".$key."','$serviceid','$service_est_time','".'https://www.google.ca/maps/place/'.urlencode($value['address']).','.urlencode($value['city'])."','&lt;p&gt;".$value['sku']."&lt;/p&gt;&lt;p&gt;".$value['comments']."&lt;/p&gt;','$default_status')");
 				$dbc->query("INSERT INTO `ticket_history` (`ticketid`,`userid`,`src`,`description`) VALUES ('$ticketid',".$_SESSION['contactid'].",'optimizer','Best Buy macro imported ".TICKET_NOUN." $ticketid')");
 			}
 		}
@@ -94,21 +102,17 @@ if(isset($_POST['upload_file']) && !empty($_FILES['csv_file']['tmp_name'])) {
 		<li>Press the Submit button to run the macro and import the <?= TICKET_TILE ?> into the software.</li>
 		<br>
 		<p>
-			<label class="form-checkbox"><input type="radio" name="delimiter" value="newline" checked>New Line</label>
-			<label class="form-checkbox"><input type="radio" name="delimiter" value="comma">Comma</label><br>
-			<label class="form-checkbox"><input type="radio" name="duplicate" value="no_dupe" checked>No Duplicates</label>
-			<label class="form-checkbox"><input type="radio" name="duplicate" value="all_dupes">Allow Duplicates</label><br>
+			<label class="form-checkbox"><input type="radio" name="delimiter" value="newline">New Line</label>
+			<label class="form-checkbox"><input type="radio" name="delimiter" value="comma" checked>Comma</label><br>
+			<label class="form-checkbox"><input type="radio" name="duplicate" value="no_dupe">No Duplicates</label>
+			<label class="form-checkbox"><input type="radio" name="duplicate" value="all_dupes" checked>Allow Duplicates</label><br>
 			<select class="chosen-select-deselect" data-placeholder="Select <?= BUSINESS_CAT ?>" name="businessid"><option />
-				<?php foreach(sort_contacts_query($dbc->query("SELECT `name`, `contactid` FROM `contacts` WHERE `category`='".BUSINESS_CAT."' AND `deleted`=0 AND `status` > 0")) as $business) { ?>
-					<option value="<?= $business['contactid'] ?>"><?= $business['name'] ?></option>
+				<?php foreach(sort_contacts_query($dbc->query("SELECT `name`, `first_name`, `last_name`, `contactid` FROM `contacts` WHERE `category`='".BUSINESS_CAT."' AND `deleted`=0 AND `status` > 0 AND (`classification` IN ('".implode("','",$cur_bus)."') OR `contactid` IN ('".implode("','",$cur_bus)."') OR '' IN ('".implode("','",$cur_bus)."') OR 'ALL' IN ('".implode("','",$cur_bus)."'))")) as $business) { ?>
+					<option value="<?= $business['contactid'] ?>"><?= $business['full_name'] ?></option>
 				<?php } ?>
 			</select>
 			<input type="file" name="csv_file">
-			<input type="hidden" name="ticket_type" value="<?php foreach($macro_list as $macro) {
-				if($macro[0] == $_GET['macro']) {
-					echo $macro[1];
-				}
-			} ?>">
+			<input type="hidden" name="ticket_type" value="<?= $cur_macro[1] ?>">
 			<input type="submit" name="upload_file" value="Submit" class="btn brand-btn">
 		</p>
 	</ol>
