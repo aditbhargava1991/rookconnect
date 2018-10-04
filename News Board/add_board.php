@@ -163,7 +163,7 @@ checkAuthorised('newsboard');
                     <input type="text" name="board_name" class="form-control" style="display:none;" />
                 </div>
             </div>
-            
+               
             <div class="form-group">
                 <div class="col-sm-12 staff_container">
                     <label class="control-label">

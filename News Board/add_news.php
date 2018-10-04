@@ -215,7 +215,7 @@ $newsboardid = isset($_GET['news']) ? preg_replace('/[^0-9]/', '', $_GET['news']
                 $description = $news['description']; ?>
                 <input type="hidden" id="newsboardid" name="newsboardid" value="<?= $newsboardid ?>" /><?php
             } ?>
-
+   
             <?php if ( $rookconnect=='rook' || $rookconnect=='localhost' ) { ?>
                 <div class="form-group">
                     <div class="col-sm-12">
