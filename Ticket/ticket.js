@@ -683,7 +683,7 @@ function saveFieldMethod(field) {
 						}
 					}
                     if(field_name == 'status' && table_name == 'tickets') {
-                        status_reload = true;
+                        status_reload = status_value == field.value;
                     }
 					if(response > 0) {
 						if(table_name == 'contacts' && field_name == 'site_name') {
