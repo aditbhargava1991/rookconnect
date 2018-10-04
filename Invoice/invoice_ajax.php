@@ -402,17 +402,20 @@ if(!empty($_GET['action']) && $_GET['action'] == 'export_pos_file') {
 	}
 	$payment_type = explode('#*#', $point_of_sell['payment_type']);
 
-	$logo = get_config($dbc, 'invoice_logo');
+	$invoice_logo = get_config($dbc, 'invoice_logo');
 	if(!empty($point_of_sell['type']) && !empty(get_config($dbc, 'invoice_logo_'.$point_of_sell['type']))) {
-	    $logo = get_config($dbc, 'invoice_logo_'.$point_of_sell['type']);
+	    $invoice_logo = get_config($dbc, 'invoice_logo_'.$point_of_sell['type']);
 	}
-	$logo = 'download/'.$logo;
+	$logo = 'download/'.$invoice_logo;
 	if(!file_exists($logo)) {
 	    $logo = '../POSAdvanced/'.$logo;
 	    if(!file_exists($logo)) {
 	        $logo = '';
 	    }
+	}else{
+		
 	}
+	echo $logo;die;
 	$invoice_header = get_config($dbc, 'invoice_header');
 	if(!empty($point_of_sell['type']) && !empty(get_config($dbc, 'invoice_header_'.$point_of_sell['type']))) {
 	    $invoice_header = get_config($dbc, 'invoice_header_'.$point_of_sell['type']);
@@ -426,86 +429,26 @@ if(!empty($_GET['action']) && $_GET['action'] == 'export_pos_file') {
 	DEFINE('SHIP_DATE', $point_of_sell['ship_date']);
 	DEFINE('SALESPERSON', decryptIt($_SESSION['first_name']).' '.decryptIt($_SESSION['last_name']));
 	DEFINE('PAYMENT_TYPE', $payment_type[0]);
-	include_once('../tcpdf/tcpdf.php');
-	// PDF
-	class MYPDF extends TCPDF {
-		//Page header
-		public function Header() {
-			$image_file = POS_LOGO;
-			if(file_get_contents($image_file)) {
-				$image_file = $image_file;
-			} else {
-				$image_file = '../Point of Sale/'.$image_file;
-			}
 
-			
-			if(file_get_contents($image_file)) {
-				$this->Image($image_file, 0, 3, '', 40, '', '', 'T', false, 300, 'L', false, false, 0, false, false, false);
-			}
-
-			$this->SetFont('helvetica', '', 9);
-
-				//$footer_text = '<p style="text-align:right;">Date : ' .INVOICE_DATE.'<br>Invoice# : '.INVOICEID.'<br>Ship Date : ' .SHIP_DATE.'<br>Sales Person : ' .SALESPERSON.'<br>Payment Type : ' .PAYMENT_TYPE.'<br>Shipping Method : '.$point_of_sell['delivery_type'].'</p>';
-				$footer_text = '<table border="0"><tr><td style="width:100%; text-align:center" colspan="12">'.$image_file.'</td></tr><tr><td style="width:100%; text-align:center" colspan="12">'.INVOICE_HEADER.'</td></tr></table>';
-
-			$this->writeHTMLCell(0, 0, 0 , 10, $footer_text, 0, 0, false, "R", true);
-		}
-
-
-		  protected $last_page_flag = false;
-
-		  public function Close() {
-			$this->last_page_flag = true;
-			parent::Close();
-		  }
-
-
-		// Page footer
-		public function Footer() {
-			// Position at 15 mm from bottom /* CHANGED (SetY used to be -25) */
-			$this->SetY(-27);
-			// Set font
-			$this->SetFont('helvetica', 'I', 8);
-			// Page number
-				if ($this->last_page_flag) {
-				  // ... footer for the last page ...
-				  //<table width="400px" style="border-bottom:1px solid black;text-align:left;font-style: normal !important;font-size:9"><tr><td style="text-align:left;font-style: normal !important;font-size:9">
-		//Signature</td></tr></table>
-				  //$footer_text = '<br><br><center><p style="text-align:center;">Transfer Funds to '.COMPANY_SOFTWARE_NAME.'<br>Thank you for your business!</p></center><br>'.INVOICE_FOOTER;
-				} else {
-				  // ... footer for the normal page ...
-				  $footer_text = INVOICE_FOOTER;
-				}
-
-			$this->writeHTMLCell(0, 0, '', '', $footer_text, 0, 0, false, "L", true);
-		}
-	}
-
-	$pdf = new MYPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
-
-	$pdf->SetHeaderData(PDF_HEADER_LOGO, PDF_HEADER_LOGO_WIDTH, false, false);
-	$pdf->setFooterData(array(0,64,0), array(0,64,128));
-
-	$pdf->SetMargins(PDF_MARGIN_LEFT, 50, PDF_MARGIN_RIGHT);
-	$pdf->SetHeaderMargin(PDF_MARGIN_HEADER);
-	$pdf->SetFooterMargin(PDF_MARGIN_FOOTER);
-
-	$pdf->SetAutoPageBreak(TRUE, PDF_MARGIN_BOTTOM);
-
-	$pdf->AddPage();
-	$pdf->SetFont('helvetica', '', 9);
-	//$pdf->AddPage();
 	$html = '';
 
+	$image_file = POS_LOGO;
+	if(file_get_contents($image_file)) {
+		$image_file = $image_file;
+	} else {
+		$image_file = '../Point of Sale/'.$image_file;
+	}
+
 	$html .= '<table style="width:100%;" id="invoiceData">
 				<tr rowspan="2">
-					<th colspan="12" style="text-align:center;"><p style="text-align:center;">'.$image_file.'</p><h1 style="text-align:center;">Invoice</h1></th>
+					<th colspan="12" style="text-align:center;"><h1 style="text-align:center;">Invoice</h1></th>
 				</tr>
 			</table>';
-	$stripAddress = strip_tags((string)html_entity_decode($invoice_header));
+	$stripAddress = html_entity_decode($invoice_header, ENT_QUOTES, "UTF-8");
 	$html .= '<table style="width:100%;" id="invoiceData">
 				<tr rowspan="2">
-					<td align="right" colspan="12" style="text-align:right;">'.$stripAddress.'</td>
+					<td colspan="6" align="left"><img src="'.$image_file.'" width="100px"/></td>
+					<td align="right" colspan="6" style="text-align:right;">'.$stripAddress.'</td>
 				</tr>
 			</table>';
 
@@ -747,6 +690,7 @@ if(!empty($_GET['action']) && $_GET['action'] == 'export_pos_file') {
 		$html .= $comment.'<br>';
 		$html = str_replace('[[FINAL_PRICE]]','$'.number_format($point_of_sell['final_price'] - $total_returned_amt,2),$html);
 
+		echo $html;die;
 		header("Content-type: application/vnd.ms-excel");
 		header('Content-Disposition: attachment; filename=invoice_'.$invoiceid.'.xls');
 	}

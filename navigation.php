@@ -279,12 +279,12 @@ if(!isset($_SESSION['fullscreen'])) {
                                     $logo_upload_icon = get_config($dbc, 'logo_upload_icon');
                                     if($logo_upload_icon == '') {
                                         if($logo_upload == '') {
-                                            // echo '<img src="'.WEBSITE_URL.'/img/logo.png" height="30" alt="Home" class="no-toggle" title="Home" data-placement="bottom" />';
+                                            echo '<img src="'.WEBSITE_URL.'/img/logo.png" height="30" alt="Home" class="no-toggle" title="Home" data-placement="bottom" />';
                                         } else {
-                                            // echo '<img src="'.WEBSITE_URL.'/Settings/download/'.$logo_upload.'" height="30" alt="Home" class="no-toggle" title="Home" data-placement="bottom" />';
+                                            echo '<img src="'.WEBSITE_URL.'/Settings/download/'.$logo_upload.'" height="30" alt="Home" class="no-toggle" title="Home" data-placement="bottom" />';
                                         }
                                     } else {
-                                        // echo '<img src="'.WEBSITE_URL.'/Settings/download/'.$logo_upload_icon.'" height="30" alt="Home" class="no-toggle" title="Home" data-placement="bottom" />';
+                                        echo '<img src="'.WEBSITE_URL.'/Settings/download/'.$logo_upload_icon.'" height="30" alt="Home" class="no-toggle" title="Home" data-placement="bottom" />';
                                     } ?>
                                 </a>
                                 <img title="" src="" class="status_loader statusIcon no-margin">
