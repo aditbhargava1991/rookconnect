@@ -563,9 +563,11 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 											}
 											if(checked.checked) {
 												tinyMCE.editors[div.find('.email_body').attr('id')].setContent(str.replace('[[ETA]]',eta));
+                                                div.find('.email_body').val(str.replace('[[ETA]]',eta));
 												div.find('.email_div').show();
 											} else {
 												tinyMCE.editors[div.find('.email_body').attr('id')].setContent(str.substring(0,str.search('will occur '))+'will occur [[ETA]]'+str.search('. Please be ready'));
+                                                div.find('.email_body').val(str.substring(0,str.search('will occur '))+'will occur [[ETA]]'+str.search('. Please be ready'));
 												div.find('.email_div').hide();
 											}
 										}
@@ -826,15 +828,17 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 										</div>
 									</div>
 								<?php } ?>
+								<?php if(strpos($value_config, ','."Delivery Completed Check".',') !== FALSE && $field_sort_field == 'Delivery Completed Check') { ?>
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label">Completed Stop:</label>
+                                        <div class="col-sm-6">
+                                            <label class="form-checkbox"><input type="checkbox" name="complete" data-table="ticket_schedule" data-id="<?= $stop['id'] ?>" data-id-field="id" value="1" <?= $stop['complete'] == 1 ? 'checked' : '' ?>>Completed</label>
+                                        </div>
+                                        <input type="hidden" name="deleted" value="0" data-table="ticket_schedule" data-id="<?= $stop['id'] ?>" data-id-field="id">
+                                        <div class="col-sm-2"><img class="inline-img small black-color pull-right" src="../img/icons/ROOK-add-icon.png" data-history-label="Delivery Stop" onclick="addScheduledStop();"><img class="inline-img small pull-right" src="../img/remove.png" data-history-label="Delivery Stop" onclick="remScheduledStop(this);"></div>
+                                    </div>
+								<?php } ?>
 							<?php } ?>
-							<div class="form-group">
-								<label class="col-sm-4 control-label">Completed Stop:</label>
-								<div class="col-sm-6">
-									<label class="form-checkbox"><input type="checkbox" name="complete" data-table="ticket_schedule" data-id="<?= $stop['id'] ?>" data-id-field="id" value="1" <?= $stop['complete'] == 1 ? 'checked' : '' ?>>Completed</label>
-								</div>
-								<input type="hidden" name="deleted" value="0" data-table="ticket_schedule" data-id="<?= $stop['id'] ?>" data-id-field="id">
-								<div class="col-sm-2"><img class="inline-img small black-color pull-right" src="../img/icons/ROOK-add-icon.png" data-history-label="Delivery Stop" onclick="addScheduledStop();"><img class="inline-img small pull-right" src="../img/remove.png" data-history-label="Delivery Stop" onclick="remScheduledStop(this);"></div>
-							</div>
 						</div>
 						<hr>
 					<?php } else {
@@ -1190,15 +1194,18 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 									</div>
 								</div>
 							<?php } ?>
+                            <?php if(strpos($value_config, ','."Delivery Completed Check".',') !== FALSE && $field_sort_field == 'Delivery Completed Check') { ?>
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label">Completed Stop:</label>
+                                    <div class="col-sm-6">
+                                        <label class="form-checkbox"><input type="checkbox" name="complete" data-table="ticket_schedule" data-id="<?= $stop['id'] ?>" data-id-field="id" value="1" <?= $stop['complete'] == 1 ? 'checked' : '' ?>>Completed</label>
+                                    </div>
+                                    <input type="hidden" name="deleted" value="0" data-table="ticket_schedule" data-id="<?= $stop['id'] ?>" data-id-field="id">
+                                    <div class="col-sm-2"><img class="inline-img small black-color pull-right" src="../img/icons/ROOK-add-icon.png" data-history-label="Delivery Stop" onclick="addScheduledStop();"><img class="inline-img small pull-right" src="../img/remove.png" data-history-label="Delivery Stop" onclick="remScheduledStop(this);"></div>
+                                </div>
+                            <?php } ?>
 						<?php } ?>
 						<?php } ?>
-						<div class="form-group">
-							<label class="col-sm-4 control-label">Completed Stop:</label>
-							<div class="col-sm-6">
-								<label class="form-checkbox"><input type="checkbox" name="complete" data-table="ticket_schedule" data-id="<?= $stop['id'] ?>" data-id-field="id" value="1" <?= $stop['complete'] == 1 ? 'checked' : '' ?> <?= $strict_view > 0 ? 'readonly disabled' : '' ?>>Completed</label>
-							</div>
-							<div class="col-sm-2"><?php if(!($strict_view > 0)) { ?><img class="inline-img small black-color pull-right" src="../img/icons/ROOK-add-icon.png" data-history-label="Delivery Stop" onclick="addScheduledStop();"><?php } ?><!--<img class="inline-img small pull-right" src="../img/remove.png" onclick="remScheduledStop();">--></div>
-						</div>
 						<hr>
 					<?php } ?>
 				<?php } while($stop = mysqli_fetch_assoc($ticket_stops)); ?>

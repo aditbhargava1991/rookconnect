@@ -331,8 +331,17 @@ if(!empty($ticket_status)) {
 				$value_config .= ','.$action_mode_ignore_field;
 			}
 		}
-		$value_config = ','.implode(',',array_intersect(explode(',',$value_config), explode(',',$value_config_all))).',';
-	}
+		$value_config = ','.implode(',',array_intersect(explode(',',$value_config), explode(',',$value_config_all))).','; ?>
+        <script>
+        var status_reload = false;
+        var status_value = '<?= $status ?>';
+        completed_last = function() {
+            if(status_reload == true) {
+                window.location.reload();
+            }
+        }
+        </script>
+    <?php }
 }
 
 //Intake Fields
@@ -808,8 +817,8 @@ function send_creator_email() {
         $.post('../ajax_all.php?fill=send_email', {
             send_every_email: 'true',
             send_to: '<?= decryptIt($_SESSION['email_address']) ?>',
-            subject: '<?= $ticket_new_email_subject ?>',
-            body: '<?= htmlentities($ticket_new_email_body.'<br /><a href="'.WEBSITE_URL.'/Ticket/index.php?edit=TICKETID">Click Here</a> to view the '.TICKET_NOUN) ?>'.replace('TICKETID',$('[name=ticketid]').val())
+            subject: '<?= $ticket_new_email_subject ?>'.replace('[TICKET]',$('.ticketid_span').text()),
+            body: '<?= htmlentities($ticket_new_email_body.'<br /><a href="'.WEBSITE_URL.'/Ticket/index.php?edit=TICKETID">Click Here</a> to view the '.TICKET_NOUN) ?>'.replace('TICKETID',$('[name=ticketid]').val()).replace('[TICKET]',$('.ticketid_span').text())
         });
     <?php } ?>
 }
@@ -2817,7 +2826,7 @@ var setHeading = function() {
 		<div class="clearfix"></div>
 		<div class="gap-top add_gap_here">
 			<?php if(strpos($value_config,',Finish Button Hide,') === FALSE && !isset($_GET['intake_key'])) { ?>
-				<a href="index.php" class="pull-right btn brand-btn finish_btn" onclick="<?= $update_time == 'auto_sort' ? "if(sorting_done != 2) { return getDriveTime(this, '".date('Y-m-d')."', '".($stopid > 0 ? get_field_value('equipmentid','ticket_schedule','id',$stopid) : $get_ticket['equipmentid'])."'); }" : '' ?><?= (strpos($value_config, ','."Timer".',') !== FALSE) ? 'stopTimers();' : '' ?><?= (strpos($value_config, ','."Check Out".',') !== FALSE || strpos($value_config, ','."Complete Combine Checkout Summary".',') !== FALSE) ? 'return checkoutAll(this);' : '' ?>" <?= strpos($value_config, ','."Finish Check Out Require Signature".',') !== FALSE ? 'data-require-signature="1"' : '' ?> <?= strpos($value_config, ','."Finish Create Recurring Ticket".',') !== FALSE ? 'data-recurring-ticket="1"' : '' ?>>Finish</a>
+				<a href="index.php" class="pull-right btn brand-btn finish_btn" onclick="<?= $update_time == 'auto_sort' && $ticketid > 0 && $_GET['new_ticket'] != 'true' && $_GET['action_mode'] == 1 ? "if(sorting_done != 2) { return getDriveTime(this, '".date('Y-m-d')."', '".($stopid > 0 ? get_field_value('equipmentid','ticket_schedule','id',$stopid) : $get_ticket['equipmentid'])."'); }" : '' ?><?= (strpos($value_config, ','."Timer".',') !== FALSE) ? 'stopTimers();' : '' ?><?= (strpos($value_config, ','."Check Out".',') !== FALSE || strpos($value_config, ','."Complete Combine Checkout Summary".',') !== FALSE) ? 'return checkoutAll(this);' : '' ?>" <?= strpos($value_config, ','."Finish Check Out Require Signature".',') !== FALSE ? 'data-require-signature="1"' : '' ?> <?= strpos($value_config, ','."Finish Create Recurring Ticket".',') !== FALSE ? 'data-recurring-ticket="1"' : '' ?>>Finish</a>
 			<?php } ?>
 			<?php if($access_any && !isset($_GET['intake_key'])) { ?>
 				<a href="<?= $back_url ?>" class="pull-right gap-right"><img class="no-toggle" src="<?= WEBSITE_URL ?>/img/icons/save.png" alt="Save" width="36" title="Save" /></a>
@@ -3393,7 +3402,7 @@ var setHeading = function() {
 				$body = 'A '.TICKET_NOUN.' has been submitted for approval. Please log in and review it.<br/><br/>
 					<b><a target="_blank" href="'.WEBSITE_URL.'/Ticket/index.php?tab=administration_'.$admin_group['id'].'_pending__">Approvals</a></b><br/>
 					<a target="_blank" href="'.WEBSITE_URL.'/Ticket/index.php?edit="></a>'; ?>
-				<a class="btn brand-btn pull-right cursor-hand collapsed" data-toggle="collapse" data-target="#approval_submit" data-sort="<?= $update_time ?>" onclick="<?= $update_time == 'auto_sort' ? "if(sorting_done != 2) { return getDriveTime(this, '".date('Y-m-d')."', '".($stopid > 0 ? get_field_value('equipmentid','ticket_schedule','id',$stopid) : $get_ticket['equipmentid'])."'); }" : '' ?> updateApprovalIDLabel()">Submit for Approval</a>
+				<a class="btn brand-btn pull-right cursor-hand collapsed" data-toggle="collapse" data-target="#approval_submit" data-sort="<?= $update_time ?>" onclick="<?= $update_time == 'auto_sort' && $_GET['action_mode'] == 1 ? "if(sorting_done != 2) { return getDriveTime(this, '".date('Y-m-d')."', '".($stopid > 0 ? get_field_value('equipmentid','ticket_schedule','id',$stopid) : $get_ticket['equipmentid'])."'); }" : '' ?> updateApprovalIDLabel()">Submit for Approval</a>
 				<script>
 				function updateApprovalIDLabel() {
 					$('#approval_submit [name=approval_subject]').val($('.ticketid_span').text()+' has been submitted for approval');
@@ -3436,7 +3445,7 @@ var setHeading = function() {
 			<?php } ?>
 			<div class="gap-top add_gap_here" <?= $calendar_ticket_slider == 'accordion' ? 'style="display:none;"' : '' ?>>
 				<?php if(strpos($value_config,',Finish Button Hide,') === FALSE && !isset($_GET['intake_key'])) { ?>
-					<a href="<?= empty($ticket_next_step_timesheet) ? 'index.php' : 'next_ticket_step.php?action_mode='.$_GET['action_mode'] ?>" <?= empty($ticket_next_step_timesheet) ? '' : 'target="_top"' ?> class="pull-right btn brand-btn finish_btn" onclick="<?= $update_time == 'auto_sort' ? "if(sorting_done != 2) { return getDriveTime(this, '".date('Y-m-d')."', '".($stopid > 0 ? get_field_value('equipmentid','ticket_schedule','id',$stopid) : $get_ticket['equipmentid'])."'); }" : '' ?><?= (strpos($value_config, ','."Timer".',') !== FALSE) ? 'stopTimers();' : '' ?><?= (strpos($value_config, ','."Check Out".',') !== FALSE || strpos($value_config, ','."Complete Combine Checkout Summary".',') !== FALSE) ? 'return checkoutAll(this);' : '' ?>" <?= strpos($value_config, ','."Finish Check Out Require Signature".',') !== FALSE ? 'data-require-signature="1"' : '' ?> <?= strpos($value_config, ','."Finish Create Recurring Ticket".',') !== FALSE ? 'data-recurring-ticket="1"' : '' ?>>Finish</a>
+					<a href="<?= empty($ticket_next_step_timesheet) || !($ticketid > 0) || $_GET['new_ticket'] == 'true' || $_GET['action_mode'] == 0 ? 'index.php' : 'next_ticket_step.php?action_mode='.$_GET['action_mode'] ?>" <?= empty($ticket_next_step_timesheet) || !($ticketid > 0) || $_GET['new_ticket'] == 'true' ? '' : 'target="_top"' ?> class="pull-right btn brand-btn finish_btn" onclick="<?= $update_time == 'auto_sort' && ($ticketid > 0) && $_GET['new_ticket'] != 'true' && $_GET['action_mode'] == 1 ? "if(sorting_done != 2) { return getDriveTime(this, '".date('Y-m-d')."', '".($stopid > 0 ? get_field_value('equipmentid','ticket_schedule','id',$stopid) : $get_ticket['equipmentid'])."'); }" : '' ?><?= (strpos($value_config, ','."Timer".',') !== FALSE) ? 'stopTimers();' : '' ?><?= (strpos($value_config, ','."Check Out".',') !== FALSE || strpos($value_config, ','."Complete Combine Checkout Summary".',') !== FALSE) ? 'return checkoutAll(this);' : '' ?>" <?= strpos($value_config, ','."Finish Check Out Require Signature".',') !== FALSE ? 'data-require-signature="1"' : '' ?> <?= strpos($value_config, ','."Finish Create Recurring Ticket".',') !== FALSE ? 'data-recurring-ticket="1"' : '' ?>>Finish</a>
 				<?php } ?>
 				<?php if($access_any && !isset($_GET['intake_key'])) { ?>
 					<a href="<?= $back_url ?>" class="pull-right gap-right"><img class="no-toggle" src="<?= WEBSITE_URL ?>/img/icons/save.png" alt="Save" width="36" title="Save" /></a>

@@ -373,6 +373,10 @@ function saveFieldMethod(field) {
 	if(field.target != undefined) {
 		field = field.target;
 	}
+    if(field.name == 'ticket_type' && $(field).data('table') == 'tickets' && ticketid == '0') {
+        window.location.replace(window.location.href.replace('type=','type='+field.value+'&'));
+        return;
+    }
 	if($('#new_ticket_from_calendar').val() == '1') {
 		$('#new_ticket_from_calendar').val(0);
 		saveNewTicketFromCalendar(field);
@@ -678,6 +682,9 @@ function saveFieldMethod(field) {
 							$('[name=total_shipment_weight]').after('<span class="text-red">The shipment weight was '+$('[name=weight][data-type=inventory_shipment]').val()+'</span>');
 						}
 					}
+                    if(field_name == 'status' && table_name == 'tickets') {
+                        status_reload = status_value != field.value;
+                    }
 					if(response > 0) {
 						if(table_name == 'contacts' && field_name == 'site_name') {
 							$(field).closest('.site_group').find('[name=siteid],[name="siteid[]"]').find('option[value="MANUAL"]').prop('selected', false);

@@ -139,14 +139,14 @@ if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode && !$int
 			<span class="popover-examples"><a data-toggle="tooltip" data-original-title="Send an email to the user that created the <?= TICKET_NOUN ?> when it is created."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Send Email to Creator of new <?= TICKET_NOUN ?></label>
 		<div class="form-group">
 			<?php $ticket_new_email_subject = get_config($dbc, 'ticket_new_email_subject'); ?>
-			<label class="col-sm-4 control-label">Subject for Email for new <?= TICKET_TILE ?><?= $ticket_new_email_subject != '' && $tab != '' ? ' (Default: '.$ticket_new_email_subject.')' : '' ?>:</label>
+			<label class="col-sm-4 control-label">Subject for Email for new <?= TICKET_TILE ?><?= $ticket_new_email_subject != '' && $tab != '' ? ' (Default: '.$ticket_new_email_subject.')' : '' ?>:<br /><em>You can add [TICKET] to have the <?= TICKET_NOUN ?> label populated into the subject.</em></label>
 			<div class="col-sm-8">
 				<input type="text" name="ticket_new_email_subject<?= $tab == '' ? '' : '_'.$tab ?>" placeholder="New Email Subject" class="form-control" value="<?= get_config($dbc, 'ticket_new_email_subject'.($tab == '' ? '' : '_'.$tab)) ?>">
 			</div>
 		</div>
 		<div class="form-group">
 			<?php $ticket_new_email_body = get_config($dbc, 'ticket_new_email_body'); ?>
-			<label class="col-sm-4 control-label">Body for Email for new <?= TICKET_TILE ?><?= $ticket_new_email_body != '' && $tab != '' ? ' (Default set for all '.TICKET_TILE.')' : '' ?>:</label>
+			<label class="col-sm-4 control-label">Body for Email for new <?= TICKET_TILE ?><?= $ticket_new_email_body != '' && $tab != '' ? ' (Default set for all '.TICKET_TILE.')' : '' ?>:<br /><em>You can add [TICKET] to have the <?= TICKET_NOUN ?> label populated into the body.</em></label>
 			<div class="col-sm-8">
 				<textarea name="ticket_new_email_body<?= $tab == '' ? '' : '_'.$tab ?>" placeholder="New Email Subject" class="form-control"><?= get_config($dbc, 'ticket_new_email_body'.($tab == '' ? '' : '_'.$tab)) ?></textarea>
 			</div>
