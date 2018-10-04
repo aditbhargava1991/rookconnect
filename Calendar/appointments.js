@@ -1206,22 +1206,24 @@ function expandBlock() {
 			$(this).closest('.used-block').clearQueue().stop().animate({
 				'min-height': $(this).height() + 5
 			});
-			$(this).closest('td').css({
-				zIndex: 2
-			});
 		}
+        $(this).closest('td').css({
+            zIndex: 2
+        });
 		clearTimeout(force_resize_blocks);
 	}, function() {
 		$(this).closest('.used-block').clearQueue().stop().animate({
 			'min-height': '0'
-		}, 'normal', function() {
-			$(this).closest('td').css({
-				zIndex: 1
-			});
-		});
+		}, 'normal');
+        $(this).closest('td').css({
+            zIndex: 1
+        });
 		clearTimeout(force_resize_blocks);
+        $('.used-block').each(function() {
+            $(this).closest('td').css('z-index', 1);
+        });
 		force_resize_blocks = setTimeout(function() {
-			reload_resize_all();
+            reload_resize_all();
 		}, 1000);
 	});
 }
