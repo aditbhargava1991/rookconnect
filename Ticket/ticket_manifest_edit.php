@@ -160,7 +160,8 @@ if(isset($_POST['update'])) {
 		if($siteid > 0) {
 			$site_notes = html_entity_decode($dbc->query("SELECT `notes` FROM `contacts_description` WHERE `contactid`='$siteid'")->fetch_assoc()['notes']);
 		}
-		foreach($lines as $i => $row) {
+		$i = 0;
+		foreach($lines as $key => $row) {
 			if(in_array('group pieces po',$manifest_fields)) {
 				$row['file'] = implode('<br />', array_unique(array_filter($row['file'])));
 				$row['vendor'] = implode('<br />', array_unique(array_filter($row['vendor'])));
@@ -187,6 +188,7 @@ if(isset($_POST['update'])) {
 				'.(in_array('notes',$manifest_fields) && $columns['notes'] > 0 ? '<td data-title="NOTES" style="text-align:center;">'.html_entity_decode($row['notes']).'</td>' : '').'
 			</tr>
 			<tr style="background-color:'.($i % 2 == 0 ? $row_colour_1 : $row_colour_2).'"><td style="font-size:5px;" colspan="'.$col_count.'">&nbsp;</td></tr>';
+			$i++;
 		}
 		$html .= '<tr style="border-top: 1px solid black;">
 			'.(in_array('file',$manifest_fields) ? '<td style="border-top: 1px solid black;"></td>' : '').'
