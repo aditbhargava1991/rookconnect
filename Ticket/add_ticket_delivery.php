@@ -563,9 +563,11 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 											}
 											if(checked.checked) {
 												tinyMCE.editors[div.find('.email_body').attr('id')].setContent(str.replace('[[ETA]]',eta));
+                                                div.find('.email_body').val(str.replace('[[ETA]]',eta));
 												div.find('.email_div').show();
 											} else {
 												tinyMCE.editors[div.find('.email_body').attr('id')].setContent(str.substring(0,str.search('will occur '))+'will occur [[ETA]]'+str.search('. Please be ready'));
+                                                div.find('.email_body').val(str.substring(0,str.search('will occur '))+'will occur [[ETA]]'+str.search('. Please be ready'));
 												div.find('.email_div').hide();
 											}
 										}
