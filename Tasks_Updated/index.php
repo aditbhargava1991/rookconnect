@@ -463,7 +463,7 @@ function popUpClosed() {
 									echo '<ul id="board_'.$tab.'" class="top-ul collapse '.(trim($_GET['tab']) == $tab ? 'in' : '').'">';
 										$result = sort_contacts_query($dbc->query("SELECT `sales`.`salesid`, `contacts`.`first_name`, `contacts`.`last_name`, `bus`.`name`, IFNULL(`taskboard_seen`.`seen_date`,'0000-00-00') `seen` FROM `sales` LEFT JOIN `contacts` ON `sales`.`contactid`=`contacts`.`contactid` LEFT JOIN `contacts` `bus` ON `sales`.`businessid`=`bus`.`contactid` LEFT JOIN `taskboard_seen` ON `taskboard_seen`.`taskboardid`=`sales`.`salesid` AND `taskboard_seen`.`tab`='sales' WHERE `sales`.`deleted`=0"));
 										foreach($result as $row) {
-											$get_count = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT count(tl.tasklistid) as task_count, SUM(IF(IFNULL(`updated_date`,`created_date`) > '{$row['seen']}',1,0)) as `unseen` FROM tasklist tl WHERE tl.salesid='{$row['salesid']}' AND tl.deleted=0"));
+											$get_count = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT count(tl.tasklistid) as task_count, SUM(IF(IFNULL(`updated_date`,`created_date`) > '{$row['seen']}',1,0)) as `unseen` FROM tasklist tl WHERE tl.salesid='{$row['salesid']}' AND tl.deleted=0 AND tl.archived_date IS NULL"));
 											$task_count = ($get_count['task_count'] > 0) ? $get_count['task_count'] : 0;
 
 											echo '<a href="?category='. $row['salesid'] .'&tab='.$tab.'"><li class="'.($_GET['category']==$row['salesid'] && $_GET['tab'] == $tab ? 'active' : '').'">'.$row['name'].($row['name'] != '' && $row['first_name'].$row['last_name'] != '' ? ': ' : '').$row['first_name'].' '.$row['last_name'].'<span class="pull-right pad-right">'. $get_count['task_count'] .($_GET['category']!=$row['taskboardid'] && $get_count['unseen'] > 0 ? ' (<span class="text-red no-toggle" title="There are '.$get_count['unseen'].' tasks that have been added or changed since you last viewed this board.">'.$get_count['unseen'].'</span>)' : '').'</span></li></a>';
@@ -482,7 +482,7 @@ function popUpClosed() {
                                     $shared_task_staff = '';
 
                                     while ( $row=mysqli_fetch_assoc($result) ) {
-                                        $get_count = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT count(tl.tasklistid) as task_count, SUM(IF(IFNULL(`updated_date`,`created_date`) > '{$row['seen']}',1,0)) as `unseen` FROM tasklist tl JOIN task_board tb ON (tl.task_board=tb.taskboardid) WHERE tl.task_board='{$row['taskboardid']}' AND tb.board_security='$tab' AND tl.task_milestone_timeline<>'' AND tl.deleted=0 AND tb.deleted=0"));
+                                        $get_count = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT count(tl.tasklistid) as task_count, SUM(IF(IFNULL(`updated_date`,`created_date`) > '{$row['seen']}',1,0)) as `unseen` FROM tasklist tl JOIN task_board tb ON (tl.task_board=tb.taskboardid) WHERE tl.task_board='{$row['taskboardid']}' AND tb.board_security='$tab' AND tl.deleted=0 AND tb.deleted=0 AND tl.archived_Date IS NULL"));
 
                                         $task_count = ($get_count['task_count'] > 0) ? $get_count['task_count'] : 0;
 
