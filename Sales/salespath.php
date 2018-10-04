@@ -800,7 +800,7 @@ function checklist_attach_file(checklist) {
                             echo in_array('time', $quick_actions) ? '<span onclick="task_track_time(this); return false;"><img src="../img/icons/ROOK-timer-icon.png" class="inline-img no-toggle" onclick="return false;" title="Track Time"></span>' : '';
                             echo in_array('archive', $quick_actions) ? '<span onclick="task_archive(this); return false;"><img src="../img/icons/ROOK-trash-icon.png" class="inline-img no-toggle" onclick="return false;" title="Archive"></span>' : '';
                         echo '</span>';
-
+                        echo '<div class="clearfix"></div>';
                         echo '<div class="clearfix"></div>';
                         $documents = mysqli_query($dbc, "SELECT `created_by`, `created_date`, `document` FROM `task_document` WHERE `tasklistid`='{$row['tasklistid']}' ORDER BY `taskdocid` DESC");
                         if ( $documents->num_rows > 0 ) { ?>
