@@ -2340,7 +2340,11 @@ if($_GET['action'] == 'update_fields') {
 	$ticketid = filter_var($_POST['ticketid'], FILTER_SANITIZE_STRING);
 	$identifier = filter_var($_POST['identifier'], FILTER_SANITIZE_STRING);
 	$id = filter_var($_POST['id'], FILTER_SANITIZE_STRING);
-	$dbc->query("UPDATE `$table_name` SET `$field_name`='$value' WHERE `ticketid`='$ticketid' AND `$identifier`='$id'");
+	if($table_name == 'tickets') {
+		$dbc->query("UPDATE `$table_name` SET `$field_name`='$value' WHERE `ticketid`='$ticketid'");
+	} else {
+		$dbc->query("UPDATE `$table_name` SET `$field_name`='$value' WHERE `ticketid`='$ticketid' AND `$identifier`='$id'");
+	}
 	mysqli_query($dbc, "INSERT INTO `ticket_history` (`ticketid`, `userid`, `description`) VALUES ('$ticketid','{$_SESSION['contactid']}','Row #$id of $table_name updated: $field_name updated to $value)");
 } else if($_GET['action'] == 'quick_actions') {
 	$id = filter_var($_POST['id'],FILTER_SANITIZE_STRING);
