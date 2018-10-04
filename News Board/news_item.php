@@ -44,7 +44,7 @@ if ( !empty($url_newsid) ) {
                     <?php if ( vuaed_visible_function($dbc, 'newsboard') == 1 ) { ?>
                         <span class="header-icon"><a class="cursor-hand" onclick="overlayIFrameSlider('add_news.php?news=<?= $url_newsid ?>', 'auto', true, false, 'auto', true);"><img src="../img/icons/ROOK-edit-icon.png" class="no-toggle" title="Edit" /></a></span>
                     <?php } ?>
-                    <span class="header-icon"><a class="cursor-hand" onclick="overlayIFrameSlider('../quick_action_notes.php?tile=newsboard&id=<?= $url_newsid ?>&type=<?= $url_type ?>', 'auto', true, false, 'auto', true);"><img src="../img/icons/ROOK-reply-icon.png" class="no-toggle" title="Add Note" /></a></span>
+                    <span class="header-icon"><a class="cursor-hand" onclick="overlayIFrameSlider('../quick_action_notes.php?tile=newsboard&id=<?= $url_newsid ?>&type=<?= $url_type ?>', 'auto', true, false, 'auto', false);"><img src="../img/icons/ROOK-reply-icon.png" class="no-toggle" title="Add Note" /></a></span>
                     <?php if ( vuaed_visible_function($dbc, 'newsboard') == 1 ) { ?>
                         <span class="header-icon"><img src="../img/icons/ROOK-trash-icon.png" class="no-toggle cursor-hand archive_newsitem" title="Archive" data-id="<?= $url_newsid ?>" data-type="<?= $row['newsboard_type']; ?>" /></span>
                     <?php } ?>
