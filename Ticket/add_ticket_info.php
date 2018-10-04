@@ -134,6 +134,11 @@ function chooseServices() {
 			time_estimate = '00:00';
 		}
 		$(this).closest('.multi-block').find('[name="service_estimated_hours"]').val(time_estimate);
+        $('[name=est_time]').each(function() {
+            if($(this).closest('.scheduled_stop').find('[name=type]').val() == 'Pick Up' || $(this).closest('.scheduled_stop').find('[name=type] option:selected').data('warehouse') == 'yes') {
+                $(this).val(time_estimate).change();
+            }
+        });
 		total_cost += ($(this).find('option:selected').data('rate-price') * qty);
 	});
 	$('[name=services_cost]').val(total_cost).change();

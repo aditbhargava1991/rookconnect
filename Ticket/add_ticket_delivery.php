@@ -320,6 +320,9 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 					$stop_i++;
 					if($stop['id'] == $_GET['stop'] || !($_GET['stop'] > 0)) { ?>
 						<div id="tab_section_ticket_delivery_<?= $stop['id'] ?>" class="tab-section scheduled_stop">
+                            <?php if (strpos($value_config, ','."Delivery Pickup Estimate".',') === FALSE) { ?>
+                                <input type="hidden" name="est_time" data-table="ticket_schedule" data-id="<?= $stop['id'] ?>" data-id-field="id" value="<?= time_decimal2time($stop['est_time'],true) ?>">
+                            <?php } ?>
 							<?php if(strpos($value_config, ',Delivery Pickup') !== FALSE && $get_ticket['main_ticketid'] == 0) { ?>
 								<h4>Scheduled Stop <span class="block_count"><?= ++$stop_count ?> of <?= $ticket_stops->num_rows ?></span><img class="inline-img small pull-right stop_sort" src="../img/icons/drag_handle.png"></h4>
 								<input type="hidden" name="sort" data-table="ticket_schedule" data-id="<?= $stop['id'] ?>" data-id-field="id" value="<?= $stop['sort'] ?>">
@@ -510,6 +513,9 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 											<input type="text" name="postal_code" class="form-control" data-table="ticket_schedule" data-id="<?= $stop['id'] ?>" data-id-field="id" value="<?= $stop['postal_code'] ?>">
 										</div>
 									</div>
+                                    <?php if (strpos($value_config, ','."Delivery Pickup Address Google".',') === FALSE) { ?>
+                                        <input type="hidden" name="map_link" data-auto-fill="<?= strpos($value_config,',Delivery Pickup Populate Google Link,') !== FALSE ? 'auto' : '' ?>" data-table="ticket_schedule" data-id="<?= $stop['id'] ?>" data-id-field="id" value="<?= $stop['map_link'] ?>">
+                                    <?php } ?>
 								<?php } ?>
 								<?php if (strpos($value_config, ','."Delivery Pickup Address Google".',') !== FALSE && $field_sort_field == 'Delivery Pickup Address Google') { ?>
 									<div class="form-group">
