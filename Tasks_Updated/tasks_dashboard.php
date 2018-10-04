@@ -23,6 +23,7 @@ $dbc->query("UPDATE `taskboard_seen` SET `seen_date`=CURRENT_TIMESTAMP WHERE `co
 <style>
 .note_block ul, .note_block ul li { margin-left:0; padding-left:0; }
 .new_task_box { border:1px solid #ACA9A9; margin:6px !important; padding:10px !important; }
+.flag_color_box{background-color: #fff;padding: 10px;min-width: 250px;position: absolute;left: 0;top: 40px;z-index: 1;border: 2px solid #878787;}
 </style>
 <script type="text/javascript" src="tasks.js"></script>
 <script>
@@ -340,8 +341,13 @@ function flag_item_manual1(task) {
 	});
 }
 
-function flag_item(task) {
-	task_id = $(task).parents('span').data('task');
+function flag_item_box(taskid){
+	$('#flag_color_box_'+taskid).show();
+}
+
+function flag_item(task,flag_colour) {
+	//task_id = $(task).parents('span').data('task');
+	task_id = $('#flag_color_box_'+task).next('span').data('task');
 	var type = 'task';
 	if(task_id.toString().substring(0,5) == 'BOARD') {
 		var type = 'task_board';
@@ -349,15 +355,19 @@ function flag_item(task) {
 	}
 	$.ajax({
 		method: "POST",
-		url: "task_ajax_all.php?fill=taskflag",
-		data: { type: type, id: task_id },
+		//url: "task_ajax_all.php?fill=taskflag",
+		url: "task_ajax_all.php?fill=taskflagcolorbox",
+		data: { type: type, id: task_id, new_colour:flag_colour },
 		complete: function(result) {
 			console.log(result.responseText);
 			if(type == 'task') {
-				$(task).closest('li').css('background-color',(result.responseText == '' ? '' : '#'+result.responseText));
+				//$(task).closest('li').css('background-color',(result.responseText == '' ? '' : '#'+result.responseText));
+				$('#'+task_id).css('background-color',(result.responseText == '' ? '' : '#'+result.responseText));
 			} else {
-				$(task).closest('form').css('background-color',(result.responseText == '' ? '' : '#'+result.responseText));
+				//$(task).closest('form').css('background-color',(result.responseText == '' ? '' : '#'+result.responseText));
+				$('#'+task_id).closest('form').css('background-color',(result.responseText == '' ? '' : '#'+result.responseText));
 			}
+			$('#flag_color_box_'+task_id).hide();
 		}
 	});
 }
@@ -939,7 +949,24 @@ function addIntakeForm(btn) {
                                         // }
                                          ?>
                                     </div>
-                                    <div class="clearfix"></div><?php
+                                    
+                                    <div class="clearfix"></div>
+                                    
+                                    <div style="position: relative; display:none" id="flag_color_box_<?php echo $row['tasklistid']?>">
+                                    	<div class="form-group flag_color_box">                                    	
+                                    		<label class="col-sm-5 control-label" style="text-align: left;">Flag Colour:</label>
+                                    		<div class="col-sm-7">
+                                                <select name='flag_colour' class="form-control" style="background-color:#<?= $row['flag_colour'] ?>;font-weight:bold;" onchange="flag_item('<?php echo $row['tasklistid']?>',this.value);">
+                                                    <option value="" style="background-color:#FFFFFF;">No Flag</option>
+                                                    <?php foreach(explode(',', get_config($dbc, "ticket_colour_flags")) as $flag_colour) { ?>
+                                                        <option <?= $row['flag_colour'] == $flag_colour ? 'selected' : '' ?> value="<?= $flag_colour ?>" style="background-color:#<?= $flag_colour ?>;"><?= $flag_colour ?></option>
+                                                    <?php } ?>
+                                                </select>
+                                            </div>
+                                            <div class="col-sm-12"><input style="margin-top:20px" type="button" class="btn brand-btn pull-right" value="Close" onclick="$('#flag_color_box_<?php echo $row['tasklistid']?>').hide()"></div>
+                                		</div>
+                                	</div>
+                                    <?php
 
                                     echo '<span class="pull-right action-icons double-gap-bottom gap-top" style="width: 100%;" data-task="'.$row['tasklistid'].'">';
                                         $mobile_url_tab = trim($_GET['tab']);
@@ -952,7 +979,7 @@ function addIntakeForm(btn) {
                                         }
                                         */
                                         echo in_array('flag_manual', $quick_actions) ? '<span title="Flag This!" onclick="flag_item_manual(this); return false;"><img title="Flag This!" src="../img/icons/ROOK-flag-icon.png" class="inline-img no-toggle" onclick="return false;"></span>' : '';
-                                        echo !in_array('flag_manual', $quick_actions) && in_array('flag', $quick_actions) ? '<span title="Flag This!" onclick="flag_item(this); return false;"><img src="../img/icons/ROOK-flag-icon.png" class="inline-img no-toggle" title="Flag This!" onclick="return false;"></span>' : '';
+                                        echo in_array('flag', $quick_actions) ? '<span title="Highlight" onclick=flag_item_box("'.$row['tasklistid'].'"); return false;><img src="../img/icons/color-wheel.png" class="inline-img no-toggle" title="Highlight" onclick="return false;"></span>' : '';
 
                                         echo $row['projectid'] > 0 && in_array('sync', $quick_actions) ? '<span title="Sync to External Path" onclick="sync_task(this); return false;"><img title="Sync to External Path" src="../img/icons/ROOK-sync-icon.png" class="inline-img no-toggle" onclick="return false;"></span>' : '';
                                         echo in_array('alert', $quick_actions) ? '<span title="Send Alert" onclick="send_task_alert(this); return false;"><img src="../img/icons/ROOK-alert-icon.png" title="Send Alert" class="inline-img no-toggle" onclick="return false;"></span>' : '';
