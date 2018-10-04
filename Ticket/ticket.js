@@ -373,6 +373,10 @@ function saveFieldMethod(field) {
 	if(field.target != undefined) {
 		field = field.target;
 	}
+    if(field.name == 'ticket_type' && $(field).data('table') == 'tickets' && ticketid == '0') {
+        window.location.replace(window.location.href.replace('type=','type=best_buy_same_day__calgary&'));
+        return;
+    }
 	if($('#new_ticket_from_calendar').val() == '1') {
 		$('#new_ticket_from_calendar').val(0);
 		saveNewTicketFromCalendar(field);
