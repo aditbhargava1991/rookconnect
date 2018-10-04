@@ -152,6 +152,7 @@ function retrieve_buttons() {
 		active_equipment.push($(this).data('equipment'));
 	});
 	active_equipment = JSON.stringify(active_equipment);
+	$('.dispatch-equipment-buttons').html('Loading...');
 	$.ajax({
 		url: '../Dispatch/dashboard_load_buttons.php',
 		method: 'POST',
