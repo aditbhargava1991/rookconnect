@@ -64,6 +64,10 @@ function define_addresses(date, equipmentid, origin, destination) {
 }
 
 function sort_by_map(date, equipmentid, origin_address, destination_address, no_order_change) {
+    if(!(equipmentid > 0) || date != (new Date()).getFullYear()+'-'+('0'+(new Date()).getMonth()).substr(-2)+'-'+('0'+(new Date()).getDate()).substr(-2)) {
+        sorting_done = 2;
+        return;
+    }
 	var ticket_addresses = [];
 	var tickets = [];
 	var stops = [];
@@ -103,8 +107,10 @@ function sort_by_map(date, equipmentid, origin_address, destination_address, no_
                     waypoints: ticket_addresses
                 }, function(response, status) {
                     if(status === 'NOT_FOUND') {
+                        sorting_done = 2;
                         alert('Please check the addresses you have provided. The map was unable to locate one or more of the addresses, either for the starting address, the ending address, or the pickup or delivery addresses for your sort requests.');
                     } else if(status !== 'OK') {
+                        sorting_done = 2;
                         alert('Unable to sort. A note has been sent to support. Please try again later.');
                         console.log(status);
                         $.ajax({
