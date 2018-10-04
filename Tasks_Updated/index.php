@@ -466,9 +466,9 @@ function popUpClosed() {
 											$get_count = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT count(tl.tasklistid) as task_count, SUM(IF(IFNULL(`updated_date`,`created_date`) > '{$row['seen']}',1,0)) as `unseen` FROM tasklist tl WHERE tl.salesid='{$row['salesid']}' AND tl.deleted=0 AND tl.archived_date IS NULL AND task_milestone_timeline = ''"));
 											$task_count = ($get_count['task_count'] > 0) ? $get_count['task_count'] : 0;
 
-                                            //if($row['name'] != '') {
+                                            if($row['name'] != '' || $row['first_name'] != '') {
 											    echo '<a href="?category='. $row['salesid'] .'&tab='.$tab.'"><li class="'.($_GET['category']==$row['salesid'] && $_GET['tab'] == $tab ? 'active' : '').'">'.$row['name'].($row['name'] != '' && $row['first_name'].$row['last_name'] != '' ? ': ' : '').$row['first_name'].' '.$row['last_name'].'<span class="pull-right pad-right">'. $get_count['task_count'] .($_GET['category']!=$row['taskboardid'] && $get_count['unseen'] > 0 ? ' (<span class="text-red no-toggle" title="There are '.$get_count['unseen'].' tasks that have been added or changed since you last viewed this board.">'.$get_count['unseen'].'</span>)' : '').'</span></li></a>';
-                                            //}
+                                            }
 										}
 									echo '</ul>';
 								echo '</li>';
