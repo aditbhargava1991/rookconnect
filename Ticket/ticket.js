@@ -3563,7 +3563,7 @@ function initSelectOnChanges() {
 	$('select#po_contactid').change(function() {
 		set_new_who();
 	});
-	$('select[name=carrier],select[name=agentid],select[name=vendor],select[name=warehouse_location],select[name=item_id][data-type=shipping_list],select[name=item_id][data-type=other_list],select[name=item_id][data-type=residue]').off('change',manualSelect).change(manualSelect);
+	$('select[name=carrier],select[name=agentid],select[name=notifyid],select[name=vendor],select[name=warehouse_location],select[name=item_id][data-type=shipping_list],select[name=item_id][data-type=other_list],select[name=item_id][data-type=residue]').off('change',manualSelect).change(manualSelect);
 	$('#collapse_inventory select,#tab_section_ticket_inventory select,#collapse_inventory_detailed select,#tab_section_ticket_inventory_detailed select').off('change',filterInventory).change(filterInventory);
 	$('.sign_off_click').off('click',sign_off_complete).click(sign_off_complete);
 	$('.force_sign_off_click').off('click',sign_off_complete_force).click(sign_off_complete_force);

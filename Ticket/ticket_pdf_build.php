@@ -33,10 +33,10 @@ if(isset($_POST['custom_form'])) {
 			});
 			block.find('input,textarea').last().val(text);
 		}
-		function updateTicket(select, field) {
+		function updateTicket(select, field, table_name) {
 			if(confirm("Click OK to update the <?= TICKET_NOUN ?> with this contact?")) {
 				$.post('ticket_ajax_all.php?action=manual_update', {
-					table_name: 'ticket_schedule',
+					table_name: table_name,
 					field_name: field.split('-')[1],
 					value: select.value,
 					ticketid: <?= $ticketid ?>,
@@ -418,7 +418,7 @@ if(isset($_POST['custom_form'])) {
 						$contact_option = array_search('contacts',$options);
 						if($contact_option !== FALSE) {
 							?>
-							<select class="chosen-select-deselect" data-placeholder="Select <?= $options[$contact_options+2] ?>" onchange="updateTicket(this, '<?= $options[$contact_options+1] ?>')"><option />
+							<select class="chosen-select-deselect" data-placeholder="Select <?= $options[$contact_options+2] ?>" onchange="updateTicket(this, '<?= $options[$contact_options+1] ?>', 'ticket_schedule')"><option />
 								<?php foreach(sort_contacts_query($dbc->query("SELECT `contactid`, `name`, `first_name`, `last_name`, `ship_to_address`, `ship_city`, `ship_state`, `ship_zip`, `office_phone` FROM `contacts` WHERE `category`='".$options[$contact_options+2]."' AND `deleted`=0 AND `status` > 0")) as $contact) {
 									$output = '';
 									foreach(explode('+',$options[$contact_options+3]) as $option_line) {
