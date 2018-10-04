@@ -30,9 +30,6 @@ checkAuthorised('tasks'); ?>
                     $get_count = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT count(tl.tasklistid) task_count FROM tasklist tl JOIN task_board tb ON (tl.task_board=tb.taskboardid) WHERE (tl.created_by = ({$_SESSION['contactid']}) OR tl.contactid IN (". $_SESSION['contactid'] .")) AND (tb.board_security='Client' AND tb.company_staff_sharing LIKE '%,". $_SESSION['contactid'] .",%') AND (tl.archived_date IS NULL OR tl.archived_date='0000-00-00') AND tl.deleted=0 AND tb.deleted=0 ORDER BY tl.task_tododate"));
                 }  elseif ( $enabled_tab=='Sales Tasks') {
                     $enabled_tab = 'Sales '.TASK_TILE;
-
-                    echo "SELECT count(tl.tasklistid) task_count FROM tasklist tl WHERE tl.salesid > 0 AND (tl.archived_date IS NULL OR tl.archived_date='0000-00-00') AND tl.deleted=0 AND tl.task_milestone_timeline = ''";
-
                     $get_count = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT count(tl.tasklistid) task_count FROM tasklist tl WHERE tl.salesid > 0 AND (tl.archived_date IS NULL OR tl.archived_date='0000-00-00') AND tl.deleted=0 AND tl.task_milestone_timeline = ''"));
                 } else {
                     //$board_security = str_replace(' Tasks', '', $enabled_tab);
