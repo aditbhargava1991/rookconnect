@@ -77,7 +77,7 @@ checkAuthorised('dispatch');
 </div>
 
 <div class="scale-to-fill has-main-screen" style="padding: 0;">
-    <div class="main-screen standard-body form-horizontal">
+    <div class="main-screen standard-body form-horizontal" style="float: left;">
 
         <div class="standard-body-title">
             <h3>Dispatch Schedule - <?= !empty($_GET['date']) ? $_GET['date'] : date('Y-m-d') ?></h3>
@@ -183,8 +183,9 @@ checkAuthorised('dispatch');
                 </div> -->
                 <div class="double-scroller"><div></div></div>
                 <div class="dispatch-equipment-list"></div>
-                <div class="dispatch-equipment-list-none" style="padding: 1em; display: none;">No <?= $equipment_label ?> Selected</div>
+                <div class="dispatch-equipment-list-none" style="padding: 1em;">No <?= $equipment_label ?> Selected</div>
             </div>
         </div>
     </div>
+    <div class="loading_overlay" style="display: none; margin-left: -15px; margin-top: -20px;"><div class="loading_wheel"></div></div>
 </div>
