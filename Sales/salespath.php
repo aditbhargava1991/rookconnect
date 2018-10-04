@@ -735,7 +735,7 @@ function checklist_attach_file(checklist) {
 							<div class="clearfix"></div>
 						</div><?php
 
-						echo '<li class="new_task_box no-sort"><input onChange="changeEndAme(this)" data-milestone="'.$cat_tab.'" name="add_task" placeholder="Quick Add" id="add_new_task '.$status.' '.$task_path.' '.$taskboardid.'" type="text" class="form-control" style="max-width:96%;" /></li>';
+						echo '<li class="new_task_box no-sort"><input onChange="changeEndAme(this)" data-milestone="'.$cat_tab.'" name="add_task" placeholder="Quick Add 123" id="add_new_task '.$status.' '.$task_path.' '.$taskboardid.'" type="text" class="form-control" style="max-width:96%;" /></li>';
 
                     while($row = mysqli_fetch_array( $task_result )) {
                         if ( $row['status']==$status_complete ) {
