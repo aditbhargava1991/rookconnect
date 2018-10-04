@@ -408,12 +408,12 @@ if(!empty($_GET['action']) && $_GET['action'] == 'export_pos_file') {
 	}
 	$logo = 'download/'.$invoice_logo;
 	if(!file_exists($logo)) {
-	    $logo = '../POSAdvanced/'.$logo;
+	    $logo = dirname(__DIR__).'/POSAdvanced/'.$logo;
 	    if(!file_exists($logo)) {
 	        $logo = '';
 	    }
 	}else{
-		
+		$logo = dirname(__FILE__).'/'.$logo;
 	}
 	echo $logo;die;
 	$invoice_header = get_config($dbc, 'invoice_header');
