@@ -77,7 +77,7 @@ if (isset($_POST['tasklist'])) {
     $task = filter_var(htmlentities($_POST['task']),FILTER_SANITIZE_STRING);
 	$alerts_enabled = implode(',',$_POST['alerts_enabled']);
     $task_tododate = $_POST['task_tododate'];
-    $task_status = $_POST['task_status'];
+    $task_status = $_POST['status'];
     if($task_status == '') {
         $task_status = 'To Do';
     }

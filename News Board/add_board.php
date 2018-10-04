@@ -141,8 +141,8 @@ checkAuthorised('newsboard');
         <form id="form1" name="form1" method="post"	action="" enctype="multipart/form-data" class="form-horizontal" role="form">
             <div class="form-group">
                 <label class="col-sm-4 control-label">
+                    News Board<span class="red">*</span>: 
                     <span class="popover-examples list-inline" style="margin:0 5px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Select the News Board this news item should go under."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
-                    News Board<span class="red">*</span>:
                 </label>
                 <div class="col-sm-8">
                     <div class="col-xs-12 no-pad-left board_container">
@@ -166,8 +166,8 @@ checkAuthorised('newsboard');
             
             <div class="form-group">
                 <label class="col-sm-4 control-label">
+                    Share with Staff<span class="red">*</span>: 
                     <span class="popover-examples list-inline" style="margin:0 5px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Select the News Board this news item should go under."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
-                    Share with Staff<span class="red">*</span>:
                 </label>
                 <div class="col-sm-8 staff_container">
                     <?php foreach(explode(',',trim($contactid,',')) as $line_contactid) { ?>

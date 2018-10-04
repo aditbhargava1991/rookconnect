@@ -87,12 +87,12 @@ function blankPDFForm() {
 						if(in_array('PDF',$db_config)) {
 							echo '<a href="../Ticket/ticket_pdf.php?'.$current_tile.'ticketid=&ticket_type='.$ticket_type.'" onclick="blankPDFForm(); return false;" class="btn brand-btn pull-right hide-titles-mob">Blank '.$ticket_noun.' Form <img src="../img/pdf.png" class="inline-img smaller"></a>';
 							if($_GET['edit'] > 0) {
-								echo '<a href="../Ticket/ticket_pdf.php?'.$current_tile.'ticketid='.$_GET['edit'].'&ticket_type='.$ticket_type.'" class="btn brand-btn pull-right hide-titles-mob">Print Current '.$ticket_noun.' <img src="../img/pdf.png" class="inline-img smaller"></a>';
+								echo '<a href="../Ticket/ticket_pdf.php?'.$current_tile.'ticketid='.$_GET['edit'].'&ticket_type='.$ticket_type.'" target="_blank" class="btn brand-btn pull-right hide-titles-mob">Print Current '.$ticket_noun.' <img src="../img/pdf.png" class="inline-img smaller"></a>';
 							}
 						}
 						if(in_array('Export Ticket Log',$db_config)) {
 							$ticket_log_template = !empty(get_config($dbc, 'ticket_log_template')) ? get_config($dbc, 'ticket_log_template') : 'template_a';
-							echo '<a href="../Ticket/ticket_log_templates/'.$ticket_log_template.'_pdf.php?'.$current_tile.'ticketid=" class="btn brand-btn pull-right hide-titles-mob">Blank '.$ticket_noun.' Log <img src="../img/pdf.png" class="inline-img smaller"></a>';
+							echo '<a href="../Ticket/ticket_log_templates/'.$ticket_log_template.'_pdf.php?'.$current_tile.'ticketid=" target="_blank" class="btn brand-btn pull-right hide-titles-mob">Blank '.$ticket_noun.' Log <img src="../img/pdf.png" class="inline-img smaller"></a>';
 						}
 	                    if($security['edit'] > 0) {
 							echo "<div class='pull-right gap-left'><a href='?".$current_tile."edit=0&type=".$ticket_type."' class='new-btn'><button class='btn brand-btn hide-titles-mob'>New ".$ticket_noun."</button>";
