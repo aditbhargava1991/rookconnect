@@ -774,7 +774,7 @@ if($_GET['tab'] != 'scrum_board' && !in_array($pathid,['AllSB','SB'])) {
                 */
 
 $unassigned_sql = "SELECT 'Ticket', `ticketid` FROM tickets WHERE projectid='$projectid' AND `projectid` > 0 AND `deleted`=0 AND `status` != 'Archive' AND (`status` = '' OR IFNULL(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(milestone_timeline, '&gt;','>'), '&lt;','<'), '&nbsp;',' '), '&amp;','&'), '&quot;','\"'),'') NOT IN (SELECT `milestone` FROM `project_path_custom_milestones` WHERE `deleted`=0 AND `projectid`='$projectid') OR IFNULL(to_do_date,'0000-00-00') = '0000-00-00' OR REPLACE(IFNULL(contactid,''),',','') = '') UNION
-				SELECT 'Task', `tasklistid` FROM tasklist WHERE projectid='$projectid' AND `projectid` > 0 AND `deleted`=0 AND `status` != 'Archive' AND (task_tododate < CURRENT_DATE() OR IFNULL(task_tododate,'0000-00-00') = '0000-00-00') UNION
+				SELECT 'Task', `tasklistid` FROM tasklist WHERE projectid='$projectid' AND `projectid` > 0 AND `deleted`=0 AND archived_date IS NULL AND (task_tododate < CURRENT_DATE() OR IFNULL(task_tododate,'0000-00-00') = '0000-00-00') UNION
 				SELECT 'Intake', `intakeid` FROM intake WHERE projectid='$projectid' AND `projectid` > 0 AND `deleted`=0 AND (`project_milestone` = '' OR IFNULL(project_milestone,'') NOT IN (SELECT `milestone` FROM `project_path_custom_milestones` WHERE `deleted`=0 AND `projectid`='$projectid'))";
 
             /*
