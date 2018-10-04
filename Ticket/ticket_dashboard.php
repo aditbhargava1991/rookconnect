@@ -370,7 +370,7 @@ function showResults(result_list, target, search_id) {
 			}));
 		} else if(ticket != undefined && ticket.id > 0) {
 			target.append('<div class="dashboard-item form-horizontal">'+
-					'<h3><a href="'+(ticket.file != '' ? ticket.file : '../Ticket/download/'+$('.active.blue').closest('[data-type]').data('form')+'_'+ticket.revision+'_'+ticket.id+'.pdf')+'">'+ticket.label+'</a>'+<?php if($tile_security['edit'] > 0) { ?>
+					'<h3><a target="_blank" href="'+(ticket.file != '' ? ticket.file : '../Ticket/download/'+$('.active.blue').closest('[data-type]').data('form')+'_'+ticket.revision+'_'+ticket.id+'.pdf')+'">'+ticket.label+'</a>'+<?php if($tile_security['edit'] > 0) { ?>
 						'<?= ($tile_security['config'] > 0 ? '<a href="" onclick="remForm(\'+$(\'.active.blue\').closest(\'[data-type]\').data(\'type\').substr(5)+\',\'+ticket.id+\',\'+ticket.revision+\',this); return false;" class="pull-right small pad-10">Archive</a>' : '') ?><a href="?<?= $current_tile ?>custom_form='+$('.active.blue').closest('[data-type]').data('type').substr(5)+'&revision='+ticket.revision+'&ticketid='+ticket.id+'&pdf_mode=edit" class="pull-right small pad-10">Edit</a><div class="clearfix"></div>'+
 					<?php } else { ?>
 						''+
@@ -1616,7 +1616,7 @@ IF(!IFRAME_PAGE) { ?>
 				<h4>Last 25 Forms<img class="inline-img pull-right drag_handle" src="../img/icons/drag_handle.png"></h4>';
 		            $tickets = $dbc->query("SELECT `tickets`.*, `forms`.`pdf_type`, `ticket_pdf`.`pdf_name` FROM (SELECT MAX(`id`) `formid`, `ticketid`, `pdf_type` FROM `ticket_pdf_field_values` WHERE `deleted`=0 GROUP BY `ticketid`, `pdf_type`) `forms` LEFT JOIN `tickets` ON `forms`.`ticketid`=`tickets`.`ticketid` LEFT JOIN `ticket_pdf` ON `forms`.`pdf_type`=`ticket_pdf`.`id` WHERE `tickets`.`ticketid` > 0 AND `tickets`.`ticket_type` IN ('".implode("','",$ticket_conf_list)."') $match_business ORDER BY `formid` DESC LIMIT 0,25");
 		            while($ticket = $tickets->fetch_assoc()) {
-		                $block .= '<p><a href="../Ticket/download/'.config_safe_str($ticket['pdf_name']).'_'.$ticket['ticketid'].'.pdf">'.get_ticket_label($dbc, $ticket).' - '.$ticket['pdf_name'].'</a>';
+		                $block .= '<p><a target="_blank" href="../Ticket/download/'.config_safe_str($ticket['pdf_name']).'_'.$ticket['ticketid'].'.pdf">'.get_ticket_label($dbc, $ticket).' - '.$ticket['pdf_name'].'</a>';
 		                if($tile_security['edit'] > 0) {
 		                    if($summary_urls == 'slider') {
 		                        $block .= '<a href="" onclick="overlayIFrameSlider(\'?'.$current_tile.'custom_form='.$ticket['pdf_type'].'&ticketid='.$ticket['ticketid'].'&pdf_mode=edit\'); return false;" class="pull-right small">Edit</a>';
@@ -1648,7 +1648,7 @@ IF(!IFRAME_PAGE) { ?>
 		                    if(!file_exists($link)) {
 		                        $link = '../Ticket/ticket_pdf_custom.php?'.$current_tile.'ticketid='.$ticket['ticketid'].'&form='.$form['id'].'&revision='.$ticket['revision'];
 		                    }
-		                    $block .= '<p><a href="'.$link.'">'.get_ticket_label($dbc, $ticket).($form['revisions'] > 0 ? ' Revision #'.$ticket['revision'].' of '.$ticket['last_revision'] : '').'</a>';
+		                    $block .= '<p><a target="_blank" href="'.$link.'">'.get_ticket_label($dbc, $ticket).($form['revisions'] > 0 ? ' Revision #'.$ticket['revision'].' of '.$ticket['last_revision'] : '').'</a>';
 		                    if($tile_security['edit'] > 0) {
 		                        if($summary_urls == 'slider') {
 		                            $block .= '<a href="" onclick="overlayIFrameSlider(\'?'.$current_tile.'custom_form='.$form['id'].'&revision='.$ticket['revision'].'&ticketid='.$ticket['ticketid'].'&pdf_mode=edit\'); return false;" class="pull-right small">Edit</a>';
