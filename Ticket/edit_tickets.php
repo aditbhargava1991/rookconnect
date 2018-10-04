@@ -334,6 +334,7 @@ if(!empty($ticket_status)) {
 		$value_config = ','.implode(',',array_intersect(explode(',',$value_config), explode(',',$value_config_all))).','; ?>
         <script>
         var status_reload = false;
+        var status_value = '<?= $status ?>';
         completed_last = function() {
             if(status_reload == true) {
                 window.location.reload();
