@@ -331,8 +331,16 @@ if(!empty($ticket_status)) {
 				$value_config .= ','.$action_mode_ignore_field;
 			}
 		}
-		$value_config = ','.implode(',',array_intersect(explode(',',$value_config), explode(',',$value_config_all))).',';
-	}
+		$value_config = ','.implode(',',array_intersect(explode(',',$value_config), explode(',',$value_config_all))).','; ?>
+        <script>
+        var status_reload = false;
+        completed_last = function() {
+            if(status_reload == true) {
+                window.location.reload();
+            }
+        }
+        </script>
+    <?php }
 }
 
 //Intake Fields
@@ -808,8 +816,8 @@ function send_creator_email() {
         $.post('../ajax_all.php?fill=send_email', {
             send_every_email: 'true',
             send_to: '<?= decryptIt($_SESSION['email_address']) ?>',
-            subject: '<?= $ticket_new_email_subject ?>',
-            body: '<?= htmlentities($ticket_new_email_body.'<br /><a href="'.WEBSITE_URL.'/Ticket/index.php?edit=TICKETID">Click Here</a> to view the '.TICKET_NOUN) ?>'.replace('TICKETID',$('[name=ticketid]').val())
+            subject: '<?= $ticket_new_email_subject ?>'.replace('[TICKET]',$('.ticketid_span').text()),
+            body: '<?= htmlentities($ticket_new_email_body.'<br /><a href="'.WEBSITE_URL.'/Ticket/index.php?edit=TICKETID">Click Here</a> to view the '.TICKET_NOUN) ?>'.replace('TICKETID',$('[name=ticketid]').val()).replace('[TICKET]',$('.ticketid_span').text())
         });
     <?php } ?>
 }
