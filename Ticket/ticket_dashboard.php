@@ -1635,7 +1635,7 @@ IF(!IFRAME_PAGE) { ?>
 		        $a = 0;
 		        while($form = $forms->fetch_assoc()) {
 		            if($listarr!='0') {$disp17 = 'none';}
-		            if($listarr == 'Top 25 Form '.$a){$disp17 = 'block';}
+		            if($listarr == 'Top 25 Form '.$form['id']){$disp17 = 'block';}
 		            if(in_array('Top 25 Form '.$form['id'],$db_summary) && $disp17 == 'block') {
 		                array_push($all_summary,$a);
 		                $block_length = 68;
