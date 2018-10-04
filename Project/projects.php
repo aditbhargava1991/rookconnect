@@ -155,6 +155,7 @@ if(!IFRAME_PAGE) { ?>
 			} ?>
 			<?php if(!IFRAME_PAGE) { ?>
 			</div>
+			<div class="loading_overlay" style="display: none; margin-left: -15px; margin-top: -20px;"><div class="loading_wheel"></div></div>
 		</div>
 	</div>
 <?php } ?>
