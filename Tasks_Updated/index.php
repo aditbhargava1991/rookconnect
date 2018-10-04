@@ -389,7 +389,7 @@ function popUpClosed() {
                                 echo '<ul id="my_tasks" class="top-ul collapse '.(trim($_GET['tab']) == 'Private' ? 'in' : '').'">';
                                     while ( $row_mytasks=mysqli_fetch_assoc($result_mytasks) ) {
 
-                                        $get_count = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT count(tl.tasklistid) as task_count, SUM(IF(IFNULL(`updated_date`,`created_date`) > '{$row_mytasks['seen']}',1,0)) as `unseen` FROM tasklist tl JOIN task_board tb ON (tl.task_board=tb.taskboardid) WHERE tl.task_board='{$row_mytasks['taskboardid']}' AND tb.board_security='Private' AND tl.created_by = (". $_SESSION['contactid'] .") AND tl.deleted=0 AND tb.deleted=0"));
+                                        $get_count = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT count(tl.tasklistid) as task_count, SUM(IF(IFNULL(`updated_date`,`created_date`) > '{$row_mytasks['seen']}',1,0)) as `unseen` FROM tasklist tl JOIN task_board tb ON (tl.task_board=tb.taskboardid) WHERE tl.task_board='{$row_mytasks['taskboardid']}' AND tb.board_security='Private' AND tl.created_by = (". $_SESSION['contactid'] .") AND tl.deleted=0 AND tb.deleted=0 AND tl.archived_date IS NULL"));
                                         $task_count = ($get_count['task_count'] > 0) ? $get_count['task_count'] : 0;
 
                                         echo '<a href="?category='. $row_mytasks['taskboardid'] .'&tab='. $row_mytasks['board_security'] .'">
