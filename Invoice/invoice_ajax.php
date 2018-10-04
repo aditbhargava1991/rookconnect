@@ -415,7 +415,7 @@ if(!empty($_GET['action']) && $_GET['action'] == 'export_pos_file') {
 	}else{
 		$logo = dirname(__FILE__).'/'.$logo;
 	}
-	echo $logo;die;
+	
 	$invoice_header = get_config($dbc, 'invoice_header');
 	if(!empty($point_of_sell['type']) && !empty(get_config($dbc, 'invoice_header_'.$point_of_sell['type']))) {
 	    $invoice_header = get_config($dbc, 'invoice_header_'.$point_of_sell['type']);
@@ -436,21 +436,19 @@ if(!empty($_GET['action']) && $_GET['action'] == 'export_pos_file') {
 	if(file_get_contents($image_file)) {
 		$image_file = $image_file;
 	} else {
-		$image_file = '../Point of Sale/'.$image_file;
+		$image_file = dirname(__DIR__).'/Point of Sale/'.$image_file;
 	}
 
-	$html .= '<table style="width:100%;" id="invoiceData">
-				<tr rowspan="2">
-					<th colspan="12" style="text-align:center;"><h1 style="text-align:center;">Invoice</h1></th>
-				</tr>
-			</table>';
+	$dataimg = file_get_contents($image_file);
+	$imgbase64 = 'data:image/' . $type . ';base64,' . base64_encode($dataimg);
+
 	$stripAddress = html_entity_decode($invoice_header, ENT_QUOTES, "UTF-8");
 	$html .= '<table style="width:100%;" id="invoiceData">
 				<tr rowspan="2">
-					<td colspan="6" align="left"><img src="'.$image_file.'" width="100px"/></td>
+					<td colspan="6" align="left"><img src="'.$imgbase64.'"/></td>
 					<td align="right" colspan="6" style="text-align:right;">'.$stripAddress.'</td>
 				</tr>
-			</table>';
+			</table></br>';
 
 	if($_GET['format']=='xsl'){
 		//$html .= '<p style="text-align:left;">Box 2052, Sundre, AB, T0M 1X0<br>Phone: 403-638-4030<br>Fax: 403-638-4001<br>Email: info@highlandprojects.com<br>Work Ticket# : </p>';
@@ -466,7 +464,7 @@ if(!empty($_GET['action']) && $_GET['action'] == 'export_pos_file') {
 						</td>
 						
 						<td colspan ="6" style="text-align:right;">
-							<table style="width:100%;"><tr><td align="right" colspan ="6">INVOICE # : '.$invoiceid.'</td></tr><tr><td align="right"  colspan ="6" style="text-align:center;">INVOICE DATE : '.$point_of_sell['invoice_date'].'<br>DUE DATE : '.$point_of_sell['due_date'].'</td></tr>
+							<table style="width:100%;"><tr><td align="right" colspan ="6">INVOICE # : '.$invoiceid.'</td></tr><tr><td align="right"  colspan ="6">INVOICE DATE : '.$point_of_sell['invoice_date'].'<br>DUE DATE : '.$point_of_sell['due_date'].'</td></tr>
 							</table>
 						</td>
 					</tr>
@@ -690,7 +688,6 @@ if(!empty($_GET['action']) && $_GET['action'] == 'export_pos_file') {
 		$html .= $comment.'<br>';
 		$html = str_replace('[[FINAL_PRICE]]','$'.number_format($point_of_sell['final_price'] - $total_returned_amt,2),$html);
 
-		echo $html;die;
 		header("Content-type: application/vnd.ms-excel");
 		header('Content-Disposition: attachment; filename=invoice_'.$invoiceid.'.xls');
 	}
