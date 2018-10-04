@@ -90,6 +90,10 @@ function resize_rows() {
                 min_size = $(this).find('span').innerHeight() / blocks + 5;
             }
         });
+        var max_size = $('.calendar_view').height() / 2;
+        if(min_size > max_size) {
+        	min_size = max_size;
+        }
         $('.calendar_view td').innerHeight(min_size).find('div.used_block').each(function() {
             $(this).innerHeight($(this).data('blocks') * min_size);
         });
