@@ -108,7 +108,7 @@
 	<h3><?= PROJECT_NOUN ?> Documents</h3>
 	<div class="notice double-gap-top double-gap-bottom popover-examples">
 		<div class="col-sm-1 notice-icon"><img src="<?= WEBSITE_URL ?>/img/info.png" class="wiggle-me" width="25"></div>
-		<div class="col-sm-11"><span class="notice-name">NOTE: </span>Add and view all documents and links added to this project. Multiple documents can be selected by clicking on the Browse button, and then clicking on Ctrl button while selecting the files. Multiple links can be added pressing Enter key after typing each link. Documents and Links are auto saved when you select/type them.</div>
+		<div class="col-sm-11"><span class="notice-name">NOTE: </span>Add and view all documents and links added to this project.</div>
 		<div class="clearfix"></div>
 	</div>
 	<div id="no_more_tables">
