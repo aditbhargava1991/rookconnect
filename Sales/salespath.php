@@ -735,7 +735,7 @@ function checklist_attach_file(checklist) {
 							<div class="clearfix"></div>
 						</div><?php
 
-						echo '<li class="new_task_box no-sort"><input onChange="changeEndAme(this)" data-milestone="'.$cat_tab.'" name="add_task" placeholder="Quick Add 123" id="add_new_task '.$status.' '.$task_path.' '.$taskboardid.'" type="text" class="form-control" style="max-width:96%;" /></li>';
+						echo '<li class="new_task_box no-sort"><input onChange="changeEndAme(this)" data-milestone="'.$cat_tab.'" name="add_task" placeholder="Quick Add" id="add_new_task '.$status.' '.$task_path.' '.$taskboardid.'" type="text" class="form-control" style="max-width:96%;" /></li>';
 
                     while($row = mysqli_fetch_array( $task_result )) {
                         if ( $row['status']==$status_complete ) {
@@ -876,72 +876,7 @@ function checklist_attach_file(checklist) {
                         foreach(array_unique(array_filter(explode('#*#',mysqli_fetch_assoc(mysqli_query($dbc, "SELECT GROUP_CONCAT(`project_path_milestone`.`milestone` SEPARATOR '#*#') `milestones` FROM `project` LEFT JOIN `project_path_milestone` ON CONCAT(',',`project`.`external_path`,',') LIKE CONCAT('%,',`project_path_milestone`.`project_path_milestone`,',%') WHERE `projectid`='".$row['projectid']."'"))['milestones']))) as $external_milestone) { ?>
                                 <option <?= $external_milestone == $row['external'] ? 'selected' : '' ?> value="<?= $external_milestone ?>"><?= $external_milestone ?></option>
                         <?php }
-                        echo '</select></div><div class="clearfix"></div>'; ?>
-
-                        <div class="row"> 
-							
-                            <h4 style="<?= $style_strikethrough ?>"><input type="checkbox" name="status" value="<?= $row['tasklistid'] ?>" class="form-checkbox no-margin pull-left" onchange="mark_done(this);" <?= ( $row['status'] == $status_complete ) ? 'checked' : '' ?> />
-                                <div class="col-sm-5">
-                                    <a href="" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Tasks/add_task.php?type=<?=$row['status']?>&tasklistid=<?=$row['tasklistid']?>', '50%', false, false, $('.iframe_overlay').closest('.container').outerHeight() + 20); return false;">
-                                    	Task #<?= $row['tasklistid'] ?>
-                                    </a><br>
-                                <?= ($url_tab=='Business') ? get_contact($dbc, $businessid, 'name') . ': ' : '' ?><?= ($url_tab=='Client') ? get_contact($dbc, $clientid) . ': ' : '' ?><?=limit_text($row['heading'], 5 )?>
-                        		</div>
-                        		<div>
-                        <?php
-                        echo '<span class="pull-right small">';
-                        if ( $row['company_staff_sharing'] ) {
-                            foreach ( array_filter(explode(',', $row['company_staff_sharing'])) as $staffid ) {
-                                profile_id($dbc, $staffid);
-                            }
-                        } else {
-                            profile_id($dbc, $row['contactid']);
-                        }
-                        echo '</span></div></h4></span></div>';
-
-                        echo '<div class="clearfix"></div>';
-
-                        $documents = mysqli_query($dbc, "SELECT `created_by`, `created_date`, `document` FROM `task_document` WHERE `tasklistid`='{$row['tasklistid']}' ORDER BY `taskdocid` DESC");
-                        if ( $documents->num_rows > 0 ) { ?>
-                            <div class="form-group clearfix">
-                                <div class="updates_<?= $row['tasklistid'] ?> col-sm-12"><?php
-                                    while ( $row_doc=mysqli_fetch_assoc($documents) ) { ?>
-                                        <div class="note_block row">
-                                            <div class="col-xs-1"><?= profile_id($dbc, $row_doc['created_by']); ?></div>
-                                            <div class="col-xs-11" style="<?= $style_strikethrough ?>">
-                                                <div><a href="../Tasks_Updated/download/<?= $row_doc['document'] ?>"><?= $row_doc['document'] ?></a></div>
-                                                <div><em>Added by <?= get_contact($dbc, $row_doc['created_by']); ?> on <?= $row_doc['created_date']; ?></em></div>
-                                            </div>
-                                            <div class="clearfix"></div>
-                                        </div>
-                                        <hr class="margin-vertical" /><?php
-                                    } ?>
-                                </div>
-                                <div class="clearfix"></div>
-                            </div><?php
-                        }
-                        $comments = mysqli_query($dbc, "SELECT `created_by`, `created_date`, `comment` FROM `task_comments` WHERE `tasklistid`='{$row['tasklistid']}' AND `deleted`=0 ORDER BY `taskcommid` DESC");
-                        if ( $comments->num_rows > 0 ) {
-                            $odd_even = 0; ?>
-                            <div class="form-group clearfix">
-                                <div class="updates_<?= $row['tasklistid'] ?> col-sm-12"><?php
-                                    while ( $row_comment=mysqli_fetch_assoc($comments) ) {
-                  $bg_class = $odd_even % 2 == 0 ? 'row-even-bg' : 'row-odd-bg'; ?>
-                                        <div class="note_block row <?= $bg_class ?>">
-                                            <div class="col-xs-1"><?= profile_id($dbc, $row_comment['created_by']); ?></div>
-                                            <div class="col-xs-11" style="<?= $style_strikethrough ?>">
-                                                <div><?= html_entity_decode($row_comment['comment']); ?></div>
-                                                <div><em>Added by <?= get_contact($dbc, $row_comment['created_by']); ?> on <?= $row_comment['created_date']; ?></em></div>
-                                            </div>
-                                            <div class="clearfix"></div>
-                                        </div><?php
-                                        $odd_even++;
-                                    } ?>
-                                </div>
-                                <div class="clearfix"></div>
-                            </div><?php
-                        }
-
+                        echo '</select></div><div class="clearfix"></div>';
 
                         echo '</li>';
                     }
