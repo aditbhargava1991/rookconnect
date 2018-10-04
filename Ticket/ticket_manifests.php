@@ -417,7 +417,7 @@ if($siteid == 'recent') {
 			<table class="table table-bordered">
 				<tr>
 					<?php if(in_array('file',$manifest_fields)) { ?><th><?= empty($ticket_noun) ? TICKET_NOUN : $ticket_noun ?></th><?php } ?>
-					<th><?= SITES_CAT ?></th>
+					<?php if(in_array('site',$manifest_fields)) { ?><th><?= SITES_CAT ?></th><?php } ?>
 					<?php if(in_array('po',$manifest_fields)) { ?><th>PO</th><?php } ?>
 					<?php if(in_array('line',$manifest_fields)) { ?><th>Line Item</th><?php } ?>
 					<?php if(in_array('vendor',$manifest_fields)) { ?><th>Vendor / Shipper</th><?php } ?>
@@ -430,11 +430,11 @@ if($siteid == 'recent') {
 				<?php while($ticket = $ticket_list->fetch_assoc()) { ?>
 					<tr>
 						<?php if(in_array('file',$manifest_fields)) { ?><td data-title="<?= empty($ticket_noun) ? TICKET_NOUN : $ticket_noun ?>"><?php if($tile_security['edit'] > 0) { ?><a href="index.php?edit=<?= $ticket['ticketid'] ?>" onclick="overlayIFrameSlider(this.href+'&calendar_view=true','auto',true,true); return false;"><?= get_ticket_label($dbc, $ticket) ?></a><?php } else { echo get_ticket_label($dbc, $ticket); } ?></td><?php } ?>
-						<td data-title="<?= SITES_CAT ?>"><div class="col-xs-10"><select name="siteid" multiple data-table="<?= in_array('group pieces',$manifest_fields) ? 'tickets' : 'ticket_attached' ?>" data-id="<?= in_array('group pieces',$manifest_fields) ? $ticket['ticketid'] : $ticket['id'] ?>" data-id-field="<?= in_array('group pieces',$manifest_fields) ? 'ticketid' : 'id' ?>" class="chosen-select-deselect" data-placeholder="Select <?= SITES_CAT ?>"><option />
+						<?php if(in_array('site',$manifest_fields)) { ?><td data-title="<?= SITES_CAT ?>"><div class="col-xs-10"><select name="siteid" multiple data-table="<?= in_array('group pieces',$manifest_fields) ? 'tickets' : 'ticket_attached' ?>" data-id="<?= in_array('group pieces',$manifest_fields) ? $ticket['ticketid'] : $ticket['id'] ?>" data-id-field="<?= in_array('group pieces',$manifest_fields) ? 'ticketid' : 'id' ?>" class="chosen-select-deselect" data-placeholder="Select <?= SITES_CAT ?>"><option />
 							<?php foreach($site_list as $site) { ?>
 								<option <?= in_array($site['contactid'],explode(',',$ticket['siteid'])) ? 'selected' : '' ?> value="<?= $site['contactid'] ?>"><?= $site['full_name'] ?></option>
 							<?php } ?>
-						</select></div><div class="col-xs-2"><a href="" onclick="viewSite(this); return false;"><img class="inline-img pull-right no-toggle" src="../img/person.PNG" title="View Profile"></a></td>
+						</select></div><div class="col-xs-2"><a href="" onclick="viewSite(this); return false;"><img class="inline-img pull-right no-toggle" src="../img/person.PNG" title="View Profile"></a></td><?php } ?>
 						<?php if(in_array('po',$manifest_fields)) { ?><td data-title="PO">
 							<?php foreach(explode('#*#',$ticket['po_num']) as $po_num) { ?>
 								<a href="line_item_views.php?po=<?= $po_num ?>" onclick="overlayIFrameSlider(this.href,'auto',true,true); return false;"><?= $po_num ?></a><br />
