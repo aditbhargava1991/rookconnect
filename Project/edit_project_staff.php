@@ -98,7 +98,7 @@ $project = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `project` WHERE 
 		}
 		function removeTeam(img) {
 			if($('[name="project_team[]"]').length <= 1) {
-				addClient();
+				addTeam();
 			}
 			$(img).closest('.form-group').remove();
 			$('[name="project_team[]"]').last().change();

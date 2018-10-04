@@ -291,7 +291,7 @@ $field_mandatory_config = array_filter(array_unique(array_merge(explode(',',mysq
 		</div>
 		<div class="col-sm-1">
 			<?php if($security['edit'] > 0) { ?>
-				<img class="inline-img pull-right no-toggle new" src="../img/icons/ROOK-add-icon.png" title="Create a new <?= BUSINESS_CAT ?> for this <?= PROJECT_NOUN ?>" onclick="newContact(this, '<?= BUSINESS_CAT ?>');" style="<?= $project['businessid'] > 0 ? '' : 'display:none;' ?>">
+				<img class="inline-img pull-right no-toggle new" src="../img/icons/ROOK-add-icon.png" title="Create a new <?= BUSINESS_CAT ?> for this <?= PROJECT_NOUN ?>" onclick="newContact(this, '<?= BUSINESS_CAT ?>');" style="<?= $project['businessid'] > 0 ? 'display:none;' : '' ?>">
 			<?php } ?>
 			<img class="inline-img pull-right no-toggle current" src="../img/person.PNG" title="View this contact's profile" onclick="viewProfile(this, '<?= BUSINESS_CAT ?>');" style="<?= $project['businessid'] > 0 ? '' : 'display:none;' ?>">
 		</div>
