@@ -42,7 +42,7 @@ checkAuthorised('dispatch');
 				            <span class="popover-examples list-inline pull-right" style="margin:5px 5px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Click here for the settings within this tile. Any changes made will appear on your dashboard."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
 					    <?php } ?>
 					    <?php if(!isset($_GET['settings'])) { ?>
-						    <a href="" onclick="view_summary('ALL'); return false;"><img class="inline-img pull-right btn-horizontal-collapse no-toggle gap-right" src="../img/icons/pie-chart.png" title="" data-original-title="View Summary"></a>
+						    <a href="" onclick="retrieve_summary('ALL'); return false;"><img class="inline-img pull-right btn-horizontal-collapse no-toggle gap-right" src="../img/icons/pie-chart.png" title="" data-original-title="View Summary"></a>
 						<?php } ?>
 			        </div>
 				</div>
