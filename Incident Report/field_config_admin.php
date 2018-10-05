@@ -1,5 +1,8 @@
 <?php if (isset($_POST['submit'])) {
-	//Administration
+	//Administration Settings
+	set_config($dbc, 'incident_report_admin_fields', filter_var(implode(',', array_filter($_POST['admin_fields'])),FILTER_SANITIZE_STRING));
+
+	//Administration Access
 	set_config($dbc, 'incident_report_admin_security', filter_var(implode(',', array_filter($_POST['admin_security'])),FILTER_SANITIZE_STRING));
 	set_config($dbc, 'incident_report_admin_staff', filter_var(implode(',', array_filter($_POST['admin_staff'])),FILTER_SANITIZE_STRING));
 
@@ -8,10 +11,7 @@
 	set_config($dbc, 'incident_report_manager_approvals_tab', filter_var($_POST['manager_approvals_tab']));
 	set_config($dbc, 'incident_report_manager_security', filter_var(implode(',', array_filter($_POST['manager_security'])),FILTER_SANITIZE_STRING));
 	set_config($dbc, 'incident_report_manager_staff', filter_var(implode(',', array_filter($_POST['manager_staff'])),FILTER_SANITIZE_STRING));
-}
-$admin_securitys = explode(',',get_config($dbc, 'incident_report_admin_security'));
-$admin_staffs = explode(',',get_config($dbc, 'incident_report_admin_staff'));
-?>
+} ?>
 <script type="text/javascript">
 function add_option(copy_class) {
 	destroyInputs('.'+copy_class);
@@ -31,6 +31,18 @@ function remove_option(img, copy_class) {
 }
 </script>
 <div class="gap-top">
+	<?php $admin_fields = explode(',',get_config($dbc, 'incident_report_admin_fields')); ?>
+	<h4>Administration Settings</h4>
+	<div class="form-group">
+		<label class="col-sm-4 control-label">Administration Fields:</label>
+		<div class="col-sm-8">
+			<label class="form-checkbox"><input type="checkbox" name="admin_fields[]" value="notes" <?= in_array('notes',$admin_fields) ? 'checked' : ''?>> Notes</label>
+		</div>
+	</div>
+	<hr />
+
+	<?php $admin_securitys = explode(',',get_config($dbc, 'incident_report_admin_security'));
+	$admin_staffs = explode(',',get_config($dbc, 'incident_report_admin_staff')); ?>
 	<h4>Administration Access</h4>
 	<?php foreach($admin_securitys as $admin_security) { ?>
 		<div class="form-group admin_security">
@@ -67,6 +79,7 @@ function remove_option(img, copy_class) {
 		</div>
 	<?php } ?>
 	<hr />
+	
 	<?php $manager_approvals = get_config($dbc, 'incident_report_manager_approvals');
 	$manager_approvals_tab = !empty(get_config($dbc, 'incident_report_manager_approvals_tab')) ? get_config($dbc, 'incident_report_manager_approvals_tab') : 'Manager Approvals';
 	$manager_securitys = explode(',',get_config($dbc, 'incident_report_manager_security'));

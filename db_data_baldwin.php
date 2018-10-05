@@ -1170,6 +1170,26 @@
     if(!mysqli_query($dbc, "ALTER TABLE `incident_report` ADD `manager_approved_by` int(11) NOT NULL DEFAULT 0 AFTER `manager_status`")) {
         echo "Error: ".mysqli_error($dbc)."<br />\n";
     }
+    if(!mysqli_query($dbc, "CREATE TABLE `incident_report_comment` (
+        `id` int(11) NOT NULL,
+        `incidentreportid` int(11) NOT NULL,
+        `type` varchar(100),
+        `comment` text,
+        `created_date` date NOT NULL,
+        `created_by` int(11) NOT NULL,
+        `seen_by` text,
+        `deleted` int(1) NOT NULL DEFAULT 0,
+        `date_of_archival` date)")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `incident_report_comment`
+        ADD PRIMARY KEY (`id`)")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `incident_report_comment`
+        MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
     //2018-10-01 - Ticket #8812 - Incident Reports
 
     echo "Baldwin's DB Changes Done<br />\n";
