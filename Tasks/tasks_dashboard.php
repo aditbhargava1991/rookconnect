@@ -966,7 +966,7 @@ function addIntakeForm(btn) {
                                                     <option value="" style="background-color:#FFFFFF;">No Flag</option>
                                                     <?php foreach(explode(',', get_config($dbc, "ticket_colour_flags")) as $flag_colour) { ?>
                                                         <option <?= $row['flag_colour'] == $flag_colour ? 'selected' : '' ?> value="<?= $flag_colour ?>" style="background-color:#<?= $flag_colour ?>;"><?= $flag_colour ?></option>
-                                                    <?php } ?>
+                                                    <?php } ?> 
                                                 </select> -->
                                                 <input id="demo_<?php echo $row['tasklistid']?>" type="text" class="form-control demo_cpicker" value="<?php echo $row['flag_colour']?>" />
                                             </div>
