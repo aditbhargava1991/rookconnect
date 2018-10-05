@@ -761,7 +761,7 @@ foreach($calendar_table[0][0] as $calendar_row => $calendar_cell) {
 
 					$echo_url = "<a href='' onclick='overlayIFrameSlider(\"".WEBSITE_URL."/Calendar/shifts.php?".http_build_query($page_query)."\"); return false;'>";
 
-					$row_html .= ($edit_access == 1 ? $echo_url : "")."<div class='used-block' data-contact='$contact_id' data-blocks='$rows' data-row='$calendar_row' data-shift='".$shift['shiftid']."' data-recurring='$recurring' data-currentdate='$current_day' ";
+					$row_html .= ((empty($lock_date) || $shift['startdate'] >= $lock_date) && $edit_access == 1 ? $echo_url : "")."<div class='used-block ".($shift['startdate'] < $lock_date && !empty($lock_date) ? 'no_change' : '')."' data-contact='$contact_id' data-blocks='$rows' data-row='$calendar_row' data-shift='".$shift['shiftid']."' data-recurring='$recurring' data-currentdate='$current_day' ";
 					$row_html .= "data-duration='$duration' style='height: calc(".$rows." * (1em + 15px) - 1px); overflow-y: hidden; top: 0; left: 0; margin: 0; padding: 0.2em; position: absolute; width: 100%;".$shift_styling."'>";
 					$row_html .= "<span class='shift' style='display: block; float: left; width: calc(100% - 2em);'>".$warning_icon;
 					if(!empty($shift['heading'])) {
@@ -776,7 +776,13 @@ foreach($calendar_table[0][0] as $calendar_row => $calendar_cell) {
 					if(!empty($shift['notes'])) {
 						$row_html .= '<b>Notes: '.html_entity_decode($shift['notes']).'</b ><br />';
 					}
-					$row_html .= "</span><div class='drag-handle full-height' title='Drag Me!'><img class='drag-handle no-toggle' src='".WEBSITE_URL."/img/icons/drag_handle.png' style='filter: brightness(200%); float: right; width: 2em;' title='Drag'></div></div>".($edit_access == 1 ? "</a>" : "");
+					$row_html .= "</span>";
+					if($shift['startdate'] < $lock_date && !empty($lock_date)) {
+						$row_html .= "<div class='drag-handle full-height' title='Date is passed the Lock Date.'><img class='black-color pull-right inline-img' src='".WEBSITE_URL."/img/icons/lock.png'></div>";
+					} else {
+						$row_html .= "<div class='drag-handle full-height' title='Drag Me!'><img class='drag-handle no-toggle' src='".WEBSITE_URL."/img/icons/drag_handle.png' style='filter: brightness(200%); float: right; width: 2em;' title='Drag'></div></div>";
+					}
+					$row_html .= "</div>".($edit_access == 1 ? "</a>" : "");
 					unset($page_query['shiftid']);
 				}
 				

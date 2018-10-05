@@ -384,7 +384,7 @@ if($('[name="edit_access"]').val() == 1) {
 	var resizeTimeout;
 	var resizeSave;
 	function itemsResizable() {
-		$('div.used-block:not(.ui-resizable)').resizable({
+		$('div.used-block:not(.ui-resizable,.no_change)').resizable({
 			handles: 's',
 			start: function(e, block) {
 				$(this).css('min-height', '0px');
