@@ -81,11 +81,9 @@
 				}
 
 echo '123<br>';
-				$results_general	= mysqli_query($dbc_htg, $query_general);
+				$results_general = mysqli_query($dbc_htg, $query_general);
 echo '123<br>';
-				echo $num_rows_general	= mysqli_num_rows($results_general);
-
-				if ( $num_rows_general > 0 ) {
+				echo $num_rows_general = mysqli_num_rows($results_general);
 
 					// Add Pagination
 					if ( isset ( $query_pagination ) ) {
@@ -167,9 +165,6 @@ echo '123<br>';
 						echo display_pagination($dbc_htg, $query_pagination, $pageNum, $rowsPerPage);
 					}
 
-				} else {
-					echo "<h2>No Records Found.</h2>";
-				}
 			?>
         </div><!-- .no-more-tables -->
 
