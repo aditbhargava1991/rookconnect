@@ -42,7 +42,7 @@
 			move_uploaded_file ( $_FILES['image']['tmp_name'], 'download/' . $_FILES['image']['name'] );
 		}
 
-        $image_full_path = $_SERVER['HTTP_HOST'].'/How%20To%20Guide/download/'.$_FILES['image']['name'];
+        $image_full_path = 'http://'.$_SERVER['HTTP_HOST'].'/How%20To%20Guide/download/'.$_FILES['image']['name'];
 
 		if ( $type_url=='note' ) {
             if ( empty($noteid) ) {
