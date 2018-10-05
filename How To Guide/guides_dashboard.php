@@ -3,7 +3,7 @@
 	 * Software Guide Dashboard
 	 */
 	error_reporting(0);
-	if(!isset($_GET['from_manual']) && $_GET['from_manual'] != 1)
+	//if(!isset($_GET['from_manual']) && $_GET['from_manual'] != 1)
 	include ('../include.php');
     include ('check_security.php');
     include ('../database_connection_htg.php');
@@ -80,7 +80,9 @@
 					$query_pagination = "SELECT COUNT(`guideid`) AS numrows FROM `how_to_guide` WHERE `deleted`=0 ORDER BY `tile`";
 				}
 
+echo '123<br>';
 				$results_general	= mysqli_query($dbc_htg, $query_general);
+echo '123<br>';
 				echo $num_rows_general	= mysqli_num_rows($results_general);
 
 				if ( $num_rows_general > 0 ) {
