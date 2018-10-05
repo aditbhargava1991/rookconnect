@@ -3,6 +3,20 @@
 Customer Listing
 */
 include ('../include.php');
+$manager_securitys = explode(',',get_config($dbc, 'incident_report_manager_security'));
+$manager_staffs = explode(',',get_config($dbc, 'incident_report_manager_staff'));
+$manager_access = false;
+if(in_array($_SESSION['contactid'],$manager_staffs)) {
+    $manager_access = true;
+}
+foreach(array_filter(explode(',', $_SESSION['role'])) as $session_role) {
+    if(in_array($session_role, $manager_securitys)) {
+        $manager_access = true;
+    }
+}
+if(!$manager_access) {
+    header('Location: incident_report.php');
+}
 ?>
 <script>
 function setStatus(select) {
