@@ -111,8 +111,8 @@ $lead_convert_to = get_config($dbc, 'lead_convert_to'); ?>
                     <div class="clearfix"></div>
 
                     <div class="col-xs-12 preview-block-details-full">
-                        <div class="col-xs-12 col-sm-2 col-md-1"><b>Notes:</b></div>
-                        <div class="col-xs-12 col-sm-10 col-md-11"><?php
+                        <div class="col-xs-12 col-sm-2 col-md-2"><b>Notes:</b></div>
+                        <div class="col-xs-12 col-sm-10 col-md-10"><?php
                             $comments = mysqli_query($dbc, "SELECT * FROM `sales_notes` WHERE `salesid`='{$salesid}' ORDER BY `salesnoteid` DESC");
                             if ( $comments->num_rows > 0 ) {
                                 $odd_even = 0;
@@ -130,8 +130,8 @@ $lead_convert_to = get_config($dbc, 'lead_convert_to'); ?>
                     <div class="clearfix"></div>
 
                     <div class="col-xs-12 preview-block-details-full">
-                        <div class="col-xs-12 col-sm-2 col-md-1"><b>Reminders:</b></div>
-                        <div class="col-xs-12 col-sm-10 col-md-11"><?php
+                        <div class="col-xs-12 col-sm-2 col-md-2"><b>Reminders:</b></div>
+                        <div class="col-xs-12 col-sm-10 col-md-10"><?php
                             $comments = mysqli_query($dbc, "SELECT contactid, reminder_date FROM `reminders` WHERE src_table = 'sales' AND `src_tableid`='{$salesid}' AND reminder_date >= CURDATE() ORDER BY `reminder_date`");
                             if ( $comments->num_rows > 0 ) {
                                 echo '<ul>';
@@ -197,6 +197,28 @@ $lead_convert_to = get_config($dbc, 'lead_convert_to'); ?>
                         </div>
                         <div class="clearfix"></div><?php
                     } ?>
+
+
+                    <div class="clearfix"></div>
+
+                    <div class="col-xs-12 preview-block-details-full">
+                        <div class="col-xs-12 col-sm-2 col-md-2"><b>Attached files:</b></div>
+                        <div class="col-xs-12 col-sm-10 col-md-10"><?php
+                            $documents = mysqli_query($dbc, "SELECT document, salesdocid FROM `sales_document` WHERE salesid = '{$salesid}' AND `document` !='' ORDER BY `salesdocid` DESC");
+                            if ( $documents->num_rows > 0 ) {
+                                echo '<ul>';
+                                while ( $row=mysqli_fetch_assoc($documents) ) {
+                                    $file = $_SERVER["DOCUMENT_ROOT"].'/Sales/download/'.$row['document'];
+                                    if(file_exists($file)){
+                                        echo '<li>'. $row['document'] .'<a href="'.WEBSITE_URL.'/Sales/download/'.$row['document'].'" target="_blank" class="text-blue"> - View</a></li>';
+                                    }
+                                }
+                                echo '</ul>';
+                            } else {
+                                echo '-';
+                            } ?>
+                        </div>
+                    </div>
                 </div><!-- .preview-block-details --><?php
             }
 
