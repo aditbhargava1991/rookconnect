@@ -181,7 +181,7 @@ include ('../database_connection_htg.php');
 
                                     echo '<div class="standard-body-content" style="padding: 1em;">';
                                         echo html_entity_decode($row['description']);
-                                        echo "<img src='".$row['image_full_path']."' class='inline-img no-toggle' title='Software Guide Image'>";
+                                        echo "<img src='".$row['image_full_path']."' width='100%' title='Software Guide Image'>";
                                     echo '</div>';
                                 }
                             }
