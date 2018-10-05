@@ -1263,7 +1263,7 @@ var setHeading = function() {
 	<?php if($calendar_ticket_slider == 'accordion') {
 		$get_query = $_GET; ?>
 		<div class="pull-right gap-left gap-top">
-			<a href="" class="btn brand-btn" onclick="openFullView(); return false;">Open Full Window</a>
+			<a href="" onclick="openFullView(); return false;"><img src="../img/icons/ROOK-FullScreen-icon.png" alt="Open Full Window" title="Open Full Window" class="no-toggle" width="25" /></a>
 		</div>
 	<?php } ?>
 	<div class="<?= $calendar_ticket_slider != 'accordion' ? 'show-on-mob' : '' ?>">
@@ -2935,7 +2935,7 @@ var setHeading = function() {
 						<?php } ?>
 						<?php $get_query = $_GET; ?>
 							<div class="pull-right gap-left">
-								<a href="" class="btn brand-btn" onclick="openFullView(); return false;">Open Full Window</a>
+								<a href="" onclick="openFullView(); return false;"><img src="../img/icons/ROOK-FullScreen-icon.png" alt="Open Full Window" title="Open Full Window" class="no-toggle" width="25" /></a>
 							</div>
 						<?php if(strpos($value_config,',Quick Reminder Button,') !== FALSE && !($strict_view > 0) && !isset($_GET['intake_key'])) { ?>
 					        <div class="pull-right gap-top">
