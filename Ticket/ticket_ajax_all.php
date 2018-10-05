@@ -81,7 +81,64 @@ if($_GET['fill'] == 'client_project_path_milestone') {
         $j++;
     }
 }
-
+if($_GET['fill'] == 'start_timer') {
+    $ticketid = filter_var($_GET['ticketid'],FILTER_SANITIZE_STRING);
+    $contactid = filter_var($_GET['contactid'],FILTER_SANITIZE_STRING);
+    $timer_date = date('Y-m-d');
+    $start_time = date('h:i A');
+    
+    $query_add_time = "INSERT INTO `ticket_time` (`ticketid`, `start_time`, `contactid`, `src`, `timer_date`) VALUES ('$ticketid', '$start_time', '$contactid', 'A', '$timer_date')";
+    $result_add_time = mysqli_query($dbc, $query_add_time);
+} else if($_GET['fill'] == 'stop_timer') {
+    $ticketid = filter_var($_GET['ticketid'],FILTER_SANITIZE_STRING);
+    $timer_value = filter_var($_GET['timer_value'],FILTER_SANITIZE_STRING);
+    $contactid = filter_var($_GET['contactid'],FILTER_SANITIZE_STRING);
+    $timer_date = date('Y-m-d');
+    $end_time = date('h:i A');
+    
+    if($timer_value != '0' && $timer_value != '00:00:00' && $timer_value != '') {
+        //$query_add_time = "INSERT INTO `tasklist_time` (`tasklistid`, `work_time`, `src`, `contactid`, `timer_date`) VALUES ('$taskid', '$timer_value', 'A', '$contactid', '$timer_date')";
+        $query_add_time = "UPDATE `ticket_time` SET `end_time` = '$end_time', `work_time`='$timer_value' WHERE `ticketid`='$ticketid' AND `contactid` = '$contactid' AND `timer_date` = '$timer_date' AND `src` = 'A' AND `start_time` IS NOT NULL AND `end_time` IS NULL";
+        $result_add_time = mysqli_query($dbc, $query_add_time);
+        
+        insert_day_overview($dbc, $contactid, 'Ticket', date('Y-m-d'), '', "Updated Ticket #$ticketid - Added Time : $timer_value");
+        
+        $query_update_time = "UPDATE `ticket` SET `work_time`=ADDTIME(`work_time`,'$timer_value') WHERE `ticketid`='$ticketid'";
+        $result_update_time = mysqli_query($dbc, $query_update_time);
+        
+        $query_add_time = "INSERT INTO `time_cards` (`staff`, `date`, `type_of_time`, `total_hrs`, `comment_box`) VALUES ('$contactid', '$timer_date', 'Regular Hrs.', '".((strtotime($timer_value) - strtotime('00:00:00'))/3600)."', 'Time Added on Task #$taskid')";
+        $result_add_time = mysqli_query($dbc, $query_add_time);
+    }
+}
+if($_GET['fill'] == 'ticket_quick_time') {
+    $ticketid = $_POST['id'];
+    $time = strtotime($_POST['time']);
+    $current_time = strtotime(mysqli_fetch_array(mysqli_query($dbc, "SELECT `work_time` FROM `tickets` WHERE `ticketid`='$ticketid'"))['work_time']);
+    $total_time = date('H:i:s', $time + $current_time - strtotime('00:00:00'));
+    $query_time = "UPDATE `tickets` SET `work_time` = '$total_time' WHERE ticketid='$ticketid'";
+    mysqli_query($dbc, "INSERT INTO `ticket_time` (`ticketid`, `work_time`, `src`, `contactid`, `timer_date`) VALUES ('$ticketid', '".$_POST['time']."', 'M', '".$_SESSION['contactid']."', '".date('Y-m-d')."')");
+    mysqli_query($dbc, "INSERT INTO `time_cards` (`staff`,`date`,`type_of_time`,`total_hrs`,`timer_tracked`,`comment_box`) VALUES ('".$_SESSION['contactid']."','".date('Y-m-d')."','Regular Hrs.','".(($time - strtotime('00:00:00')) / 3600)."','0','Time Added on Ticket #$ticketid')");
+    $result = mysqli_query($dbc, $query_time);
+    insert_day_overview($dbc, $_SESSION['contactid'], 'Ticket', date('Y-m-d'), '', "Updated Ticket #$ticketid - Added Time : ".$_POST['time']);
+    echo 'Added '.$_POST['time']." - $total_time total";
+}
+if($_GET['fill'] == 'ticketreply') {
+    $id = $_POST['taskid'];
+    //$reply = filter_var(htmlentities('<p>'.$_POST['reply'].'</p>'),FILTER_SANITIZE_STRING);
+    $reply = filter_var(htmlentities($_POST['reply']),FILTER_SANITIZE_STRING);
+    //$query = "UPDATE `tasklist` SET `task`=CONCAT(`task`,'$reply') WHERE `tasklistid`='$id'";
+    //$result = mysqli_query($dbc,$query);
+    
+    if ( isset($_POST['user']) ) {
+        $user = preg_replace('/[^0-9]/', '', $_POST['user']);
+        $reply .= get_contact($dbc, $user);
+    }
+    
+    $contactid = $_SESSION['contactid'];
+    $created_date = date('Y-m-d');
+    $insert = mysqli_query($dbc, "INSERT INTO `task_comments` (`ticketid`, `created_by`, `created_date`, `comment`) VALUES ('$id', '$contactid', '$created_date', '$reply')");
+    echo mysqli_error($dbc);
+}
 if($_GET['fill'] == 'task_path_milestone') {
     $task_path = $_GET['task_path'];
 	echo '<option value=""></option>';
