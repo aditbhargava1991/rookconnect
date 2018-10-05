@@ -42,6 +42,8 @@
 			move_uploaded_file ( $_FILES['image']['tmp_name'], 'download/' . $_FILES['image']['name'] );
 		}
 
+        $image_full_path = fopen($_FILES["image"]["tmp_name"], 'r');
+
 		if ( $type_url=='note' ) {
             if ( empty($noteid) ) {
                 // New Note
@@ -59,13 +61,13 @@
         } else {
             if ( empty($guideid) ) {
                 // New Software Guide
-                $query_insert	= "INSERT INTO `how_to_guide` (`tile`, `subtab`, `sort_order`, `description`, `image`) VALUES ('$tile', '$subtab', '$sort_order', '$description', '$image')";
+                $query_insert	= "INSERT INTO `how_to_guide` (`tile`, `subtab`, `sort_order`, `description`, `image`, `image_full_path`) VALUES ('$tile', '$subtab', '$sort_order', '$description', '$image', '$image_full_path')";
                 $result_insert	= mysqli_query ( $dbc_htg, $query_insert ) or die( mysqli_error($dbc_htg) );
                 $guideid = mysqli_insert_id($dbc_htg);
                 $url = 'added';
 
             } else {
-                $query_update	= "UPDATE `how_to_guide` SET `tile`='$tile', `subtab`='$subtab', `sort_order`='$sort_order', `description`='$description', `image`='$image' WHERE `guideid`='$guideid'";
+                $query_update	= "UPDATE `how_to_guide` SET `tile`='$tile', `subtab`='$subtab', `sort_order`='$sort_order', `description`='$description', `image`='$image', `image_full_path` = '$image_full_path' WHERE `guideid`='$guideid'";
                 $result_update	= mysqli_query ( $dbc_htg, $query_update );
                 $url = 'updated';
             }
