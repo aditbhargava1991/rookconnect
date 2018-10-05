@@ -85,11 +85,6 @@ echo '123<br>';
 echo '123<br>';
 				echo $num_rows_general = mysqli_num_rows($results_general);
 
-					// Add Pagination
-					if ( isset ( $query_pagination ) ) {
-						echo display_pagination($dbc_htg, $query_pagination, $pageNum, $rowsPerPage);
-					}
-
 					$get_field_config = mysqli_fetch_assoc ( mysqli_query ( $dbc, "SELECT `how_to_guide_dashboard` FROM `field_config`" ) );
 					$value_config = ',' . $get_field_config['how_to_guide_dashboard'] . ',';
 
