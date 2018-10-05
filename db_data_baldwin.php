@@ -1163,5 +1163,14 @@
     }
     //2018-10-01 - Ticket #9354 - Dispatch
 
+    //2018-10-01 - Ticket #8812 - Incident Reports
+    if(!mysqli_query($dbc, "ALTER TABLE `incident_report` ADD `manager_status` varchar(100) AFTER `approved_by`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `incident_report` ADD `manager_approved_by` int(11) NOT NULL DEFAULT 0 AFTER `manager_status`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-10-01 - Ticket #8812 - Incident Reports
+
     echo "Baldwin's DB Changes Done<br />\n";
 ?>
