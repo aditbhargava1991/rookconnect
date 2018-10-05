@@ -71,6 +71,8 @@ if($_GET['action'] == 'field_config') {
 	set_config($dbc, 'staff_schedule_autolock_dayofmonth', $staff_schedule_autolock_dayofmonth);
 	$staff_schedule_autolock_numdays = filter_var($_POST['staff_schedule_autolock_numdays'],FILTER_SANITIZE_STRING);
 	set_config($dbc, 'staff_schedule_autolock_numdays', $staff_schedule_autolock_numdays);
+	$staff_schedule_autolock_override_security = filter_var(implode(',',$_POST['staff_schedule_autolock_override_security']),FILTER_SANITIZE_STRING);
+	set_config($dbc, 'staff_schedule_autolock_override_security', $staff_schedule_autolock_override_security);
 
 	//Auto-Lock Reminder Emails
 	$staff_schedule_reminder_emails = filter_var($_POST['staff_schedule_reminder_emails'],FILTER_SANITIZE_STRING);

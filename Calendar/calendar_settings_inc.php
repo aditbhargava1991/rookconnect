@@ -116,6 +116,7 @@ if($calendar_ticket_diff_label == 1) {
 }
 $calendar_ticket_status_icon = get_config($dbc, 'calendar_ticket_status_icon');
 $calendar_ticket_card_fields = explode(',',get_config($dbc, 'calendar_ticket_card_fields'));
+$lock_date = get_staff_schedule_lock_date($dbc);
 if($_GET['type'] == '' || $_GET['view'] == '') {
     $default = get_config($dbc, 'calendar_default');
     $user_default = mysqli_fetch_array(mysqli_query($dbc, "SELECT IFNULL(`calendar_view`,'default') view FROM `user_settings` WHERE `contactid`='{$_SESSION['contactid']}'"))['view'];
