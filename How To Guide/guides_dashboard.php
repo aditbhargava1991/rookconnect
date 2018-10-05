@@ -73,10 +73,10 @@
 				$offset = ($pageNum - 1) * $rowsPerPage;
 
 				if ( isset ( $_GET['page'] ) ) {
-					$query_general = "SELECT * FROM `how_to_guide` WHERE `deleted`=0 ORDER BY `tile` LIMIT $offset, $rowsPerPage";
+					echo $query_general = "SELECT * FROM `how_to_guide` WHERE `deleted`=0 ORDER BY `tile` LIMIT $offset, $rowsPerPage";
 					$query_pagination = "SELECT COUNT(`guideid`) AS numrows FROM `how_to_guide` WHERE `deleted`=0 ORDER BY `tile`";
 				} else {
-					$query_general = "SELECT * FROM `how_to_guide` WHERE `deleted`=0 ORDER BY `tile` LIMIT $offset, $rowsPerPage";
+					echo $query_general = "SELECT * FROM `how_to_guide` WHERE `deleted`=0 ORDER BY `tile`";
 					$query_pagination = "SELECT COUNT(`guideid`) AS numrows FROM `how_to_guide` WHERE `deleted`=0 ORDER BY `tile`";
 				}
 
