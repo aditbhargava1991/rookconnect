@@ -81,7 +81,7 @@
 				}
 
 				$results_general	= mysqli_query($dbc_htg, $query_general);
-				$num_rows_general	= mysqli_num_rows ($results_general);
+				echo $num_rows_general	= mysqli_num_rows($results_general);
 
 				if ( $num_rows_general > 0 ) {
 
