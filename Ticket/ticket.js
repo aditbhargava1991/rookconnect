@@ -682,8 +682,10 @@ function saveFieldMethod(field) {
 							$('[name=total_shipment_weight]').after('<span class="text-red">The shipment weight was '+$('[name=weight][data-type=inventory_shipment]').val()+'</span>');
 						}
 					}
-                    if(field_name == 'status' && table_name == 'tickets') {
-                        status_reload = status_value != field.value;
+                    if(field_name == 'status' && table_name == 'tickts') {
+                    	if(status_value != undefined) {
+	                        status_reload = status_value != field.value;
+                    	}
                     }
 					if(response > 0) {
 						if(table_name == 'contacts' && field_name == 'site_name') {
