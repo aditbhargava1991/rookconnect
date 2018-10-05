@@ -10,7 +10,7 @@ if($_GET['summary'] == 'true') {
     $summary_only = true;
 }
 $contact = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `contacts` LEFT JOIN `contacts_cost` ON `contacts`.`contactid`=`contacts_cost`.`contactid` LEFT JOIN `contacts_dates` ON `contacts`.`contactid`=`contacts_dates`.`contactid` LEFT JOIN `contacts_description` ON `contacts`.`contactid`=`contacts_description`.`contactid` LEFT JOIN `contacts_medical` ON `contacts`.`contactid`=`contacts_medical`.`contactid` LEFT JOIN `contacts_upload` ON `contacts`.`contactid`=`contacts_upload`.`contactid` WHERE `contacts`.`contactid`='$contactid'"));
-$current_type = $contact['category'];
+$current_type = ($contactid > 0 ? get_contact($dbc, $contactid, 'category') : ($_GET['category'] != '' ? $_GET['category'] : explode(',',get_config($dbc,$folder_name.'_tabs'))[0]));
 $field_config = explode(',', mysqli_fetch_array(mysqli_query($dbc, "SELECT `contacts` FROM `field_config_contacts` WHERE '".FOLDER_NAME."' IN (`tile_name`,'invoice','posadvanced') AND `tab`='$current_type' AND `subtab` = '**no_subtab**'"))[0] . ',' . mysqli_fetch_array(mysqli_query($dbc, "SELECT `contacts` FROM `field_config_contacts` WHERE `tile_name`='".FOLDER_NAME."' AND `tab`='$current_type' AND `subtab` = 'additions'"))[0]);
 $id_card_fields = get_config($dbc, config_safe_str($contact['category']).'_id_card_fields');
 if($id_card_fields == '') {

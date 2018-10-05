@@ -49,7 +49,9 @@ var ajax_loads = [];
 $(document).ready(function() {
 	loadTickets();
     loadNote();
-	highlightHigherLevels();
+    <?php if($_GET['tab'] != 'manifest' && strpos($_GET['tab'], 'administration_') === FALSE && $_GET['tab'] != 'invoice') { ?>
+		highlightHigherLevels();
+	<?php } ?>
 	$('.search_list').keyup(function() {
 		if(current_ticket_search_key != this.value.toLowerCase()) {
 			loadTickets();
@@ -590,7 +592,7 @@ IF(!IFRAME_PAGE) { ?>
 			<li class="standard-sidebar-searchbox"><input type="text" class="form-control search_list" placeholder="Search <?= $ticket_tile ?>"></li>
 			<?php $active_tab = true;
 			if(!in_array('Disable',$db_summary)) { ?>
-				<li class="active blue cursor-hand summary_tab" onclick="$('.active.blue').removeClass('active').removeClass('blue'); $(this).addClass('active blue'); loadTickets(); loadNote('');">Summary</li>
+				<li class="<? $_GET['tab'] != 'manifest' && strpos($_GET['tab'], 'administration_') === FALSE && $_GET['tab'] != 'invoice' ? 'active blue' : '' ?> cursor-hand summary_tab" onclick="$('.active.blue').removeClass('active').removeClass('blue'); $(this).addClass('active blue'); loadTickets(); loadNote('');">Summary</li>
 				<?php $active_tab = false;
 			}
 			foreach($db_sort as $sort_tab) {
@@ -894,7 +896,7 @@ IF(!IFRAME_PAGE) { ?>
                             foreach($project_type_list as $type_id => $type_name) {
                                 if(in_array('project_type '.$type_id, $manifest_fields) || !in_array_starts('project_type ',$manifest_fields)) {
                                     if(!empty($type_name)) { ?>
-                                        <li class="sidebar-higher-level"><a class="cursor-hand <?= $_GET['type'] == $type_id ? 'active blue' : 'collapsed' ?>" data-toggle="collapse" data-target="#tab_manifests_type_<?= $type_id ?>"><?= $type_name ?><span class="arrow"></span></a>
+                                        <li><a class="cursor-hand <?= $_GET['type'] == $type_id ? 'active blue' : 'collapsed' ?>" data-toggle="collapse" data-target="#tab_manifests_type_<?= $type_id ?>"><?= $type_name ?><span class="arrow"></span></a>
                                             <ul id="tab_manifests_type_<?= $type_id ?>" class="collapse <?= $_GET['type'] == $type_id ? 'in' : '' ?>">
                                     <?php } ?>
                                     <?php foreach(sort_contacts_query($dbc->query("SELECT `contactid`, `category`, `last_name`, `first_name`, `name`, `site_name`, `display_name` FROM `contacts` WHERE `deleted`=0 AND `status` > 0 AND `category`='".SITES_CAT."' UNION SELECT 'na', 'AAA', '', '', '', 'Unassigned', ''")) as $site) {
