@@ -80,8 +80,8 @@
 					$query_pagination = "SELECT COUNT(`guideid`) AS numrows FROM `how_to_guide` WHERE `deleted`=0 ORDER BY `tile`";
 				}
 
-				$results_general	= mysqli_query ( $dbc_htg, $query_general );
-				$num_rows_general	= mysqli_num_rows ( $results_general );
+				$results_general	= mysqli_query($dbc_htg, $query_general);
+				$num_rows_general	= mysqli_num_rows ($results_general);
 
 				if ( $num_rows_general > 0 ) {
 
@@ -115,7 +115,7 @@
 							}
 						echo "</tr>";
 
-						while ( $row = mysqli_fetch_assoc ( $results_general ) ) {
+						while ($row = mysqli_fetch_assoc($results_general)) {
 							echo "<tr>";
 								if ( strpos ( $value_config, ',Tile,' ) !== FALSE ) {
 									echo '<td data-title="Tile">' . $row['tile'] . '</td>';
