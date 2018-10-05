@@ -2,7 +2,36 @@
 if(!$no_ob_clean) {
 	ob_clean();
 } ?>
-<script>initInputs();</script>
+<script>initInputs();
+function quick_add_time(ticket_id) {
+	//ticket_id = $(ticket).parents('span').data('task');
+	$('[name=task_time_'+ticket_id+']').timepicker('option', 'onClose', function(time) {
+		var time = $(this).val();
+		$(this).val('00:00');
+		if(time != '' && time != '00:00') {
+			$.ajax({
+				method: 'POST',
+				url: 'ticket_ajax_all.php?fill=ticket_quick_time',
+				data: { id: ticket_id, time: time+':00' },
+				complete: function(result) { console.log(result.responseText); window.location.reload();
+                    $.ajax({
+                        method: 'POST',
+                        url: 'ticket_ajax_all.php?fill=ticketreply',
+                        data: { taskid: ticket_id, reply: 'Time added '+time+':00' },
+                        complete: function(result) { console.log(result.responseText); window.location.reload(); }
+                    });
+                }
+			});
+		}
+	});
+	$('[name=task_time_'+ticket_id+']').timepicker('show');
+}
+
+function track_time(ticket) {
+   overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_timer.php?tile=ticket&id='+ticket, 'auto', false, false);
+}
+
+</script>
 <?php
 $strict_view = strictview_visible_function($dbc, 'ticket');
 $ticketid = filter_var($_GET['ticketid'],FILTER_SANITIZE_STRING);
@@ -82,8 +111,13 @@ if($ticket['flag_colour'] != '' && $ticket['flag_colour'] != 'FFFFFF') {
 			echo (in_array('attach',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-attachment-icon.png" class="inline-img attach-icon no-toggle" title="Attach File">' : '');
 			echo (in_array('reply',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-reply-icon.png" class="inline-img reply-icon no-toggle" title="Add Note">' : '');
 			echo (in_array('history',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/eyeball.png" class="inline-img history-icon no-toggle" title="History">' : '');
+			echo (in_array('time', $quick_actions) ? '<span title="Add Time" onclick=quick_add_time("'.$ticket['ticketid'].'"); return false;><img src="../img/icons/ROOK-timer-icon.png" class="inline-img" onclick="return false;"></span>' : '');
+			echo (in_array('timer', $quick_actions) ? '<span title="Track Time" onclick=track_time("'.$ticket['ticketid'].'"); return false;><img src="../img/icons/ROOK-timer2-icon.png" class="inline-img" onclick="return false;"></span>' : '');
 			echo (in_array('archive',$quick_actions) && $tile_security['edit'] > 0 ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-trash-icon.png" class="inline-img archive-icon no-toggle" title="Archive">' : '');
 
+			echo '<input type="text" name="reply_'.$ticket['ticketid'].'" style="display:none;" class="form-control" />';
+			echo '<input type="text" name="task_time_'.$ticket['ticketid'].'" style="display:none;" class="form-control timepicker" />';
+			
 			//echo (in_array('reply',$quick_actions) ? '<a href="../Ticket/ticket_pdf.php?action=notopen&ticketid='.$ticket['ticketid'].'"><img src="'.WEBSITE_URL.'/img/icons/ROOK-reply-icon.png" class="inline-img emailpdf-icon" title="Add Note"></a>' : '');
 
             //echo (in_array('reply',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-email-icon.png" class="inline-img emailpdf-icon" title="Email PDF">' : '');
