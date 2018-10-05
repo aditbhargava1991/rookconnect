@@ -3,7 +3,7 @@
 	 * Software Guide Dashboard
 	 */
 	error_reporting(0);
-	//if(!isset($_GET['from_manual']) && $_GET['from_manual'] != 1)
+	if(!isset($_GET['from_manual']) && $_GET['from_manual'] != 1)
 	include ('../include.php');
     include ('check_security.php');
     include ('../database_connection_htg.php');
@@ -73,17 +73,22 @@
 				$offset = ($pageNum - 1) * $rowsPerPage;
 
 				if ( isset ( $_GET['page'] ) ) {
-					echo $query_general = "SELECT * FROM `how_to_guide` WHERE `deleted`=0 ORDER BY `tile` LIMIT $offset, $rowsPerPage";
+					$query_general = "SELECT * FROM `how_to_guide` WHERE `deleted`=0 ORDER BY `tile` LIMIT $offset, $rowsPerPage";
 					$query_pagination = "SELECT COUNT(`guideid`) AS numrows FROM `how_to_guide` WHERE `deleted`=0 ORDER BY `tile`";
 				} else {
-					echo $query_general = "SELECT * FROM `how_to_guide` WHERE `deleted`=0 ORDER BY `tile`";
+					$query_general = "SELECT * FROM `how_to_guide` WHERE `deleted`=0 ORDER BY `tile` LIMIT $offset, $rowsPerPage";
 					$query_pagination = "SELECT COUNT(`guideid`) AS numrows FROM `how_to_guide` WHERE `deleted`=0 ORDER BY `tile`";
 				}
 
-echo '123<br>';
-				$results_general = mysqli_query($dbc_htg, $query_general);
-echo '123<br>';
-				echo $num_rows_general = mysqli_num_rows($results_general);
+				$results_general	= mysqli_query ( $dbc_htg, $query_general );
+				$num_rows_general	= mysqli_num_rows ( $results_general );
+
+				if ( $num_rows_general > 0 ) {
+
+					// Add Pagination
+					if ( isset ( $query_pagination ) ) {
+						echo display_pagination($dbc_htg, $query_pagination, $pageNum, $rowsPerPage);
+					}
 
 					$get_field_config = mysqli_fetch_assoc ( mysqli_query ( $dbc, "SELECT `how_to_guide_dashboard` FROM `field_config`" ) );
 					$value_config = ',' . $get_field_config['how_to_guide_dashboard'] . ',';
@@ -110,7 +115,7 @@ echo '123<br>';
 							}
 						echo "</tr>";
 
-						while ($row = mysqli_fetch_assoc($results_general)) {
+						while ( $row = mysqli_fetch_assoc ( $results_general ) ) {
 							echo "<tr>";
 								if ( strpos ( $value_config, ',Tile,' ) !== FALSE ) {
 									echo '<td data-title="Tile">' . $row['tile'] . '</td>';
@@ -160,6 +165,9 @@ echo '123<br>';
 						echo display_pagination($dbc_htg, $query_pagination, $pageNum, $rowsPerPage);
 					}
 
+				} else {
+					echo "<h2>No Records Found.</h2>";
+				}
 			?>
         </div><!-- .no-more-tables -->
 
