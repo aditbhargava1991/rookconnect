@@ -25,9 +25,13 @@ $dbc->query("UPDATE `taskboard_seen` SET `seen_date`=CURRENT_TIMESTAMP WHERE `co
 .new_task_box { border:1px solid #ACA9A9; margin:6px !important; padding:10px !important; }
 .flag_color_box{background-color: #fff;padding: 10px;min-width: 250px;position: absolute;left: 0;top: 40px;z-index: 1;border: 2px solid #878787;}
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-colorpicker/2.5.3/js/bootstrap-colorpicker.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-colorpicker/2.5.3/css/bootstrap-colorpicker.css" rel="stylesheet">
 <script type="text/javascript" src="tasks.js"></script>
 <script>
 $(document).ready(function() {
+	$('.demo_cpicker').colorpicker();
+	
 	$('.close_iframer').click(function(){
 		$('.iframe_holder').hide();
 		$('.hide_on_iframe').show();
@@ -345,9 +349,11 @@ function flag_item_box(taskid){
 	$('#flag_color_box_'+taskid).show();
 }
 
-function flag_item(task,flag_colour) {
+function flag_item(task) {
 	//task_id = $(task).parents('span').data('task');
 	task_id = $('#flag_color_box_'+task).next('span').data('task');
+	flag_colour = $('#demo_'+task_id).val();
+	flag_colour = flag_colour. substring(1, flag_colour. length);
 	var type = 'task';
 	if(task_id.toString().substring(0,5) == 'BOARD') {
 		var type = 'task_board';
@@ -956,14 +962,18 @@ function addIntakeForm(btn) {
                                     	<div class="form-group flag_color_box">                                    	
                                     		<label class="col-sm-5 control-label" style="text-align: left;">Flag Colour:</label>
                                     		<div class="col-sm-7">
-                                                <select name='flag_colour' class="form-control" style="background-color:#<?= $row['flag_colour'] ?>;font-weight:bold;" onchange="flag_item('<?php echo $row['tasklistid']?>',this.value);">
+                                                <!-- <select name='flag_colour' class="form-control" style="background-color:#<?= $row['flag_colour'] ?>;font-weight:bold;" onchange="flag_item('<?php echo $row['tasklistid']?>',this.value);">
                                                     <option value="" style="background-color:#FFFFFF;">No Flag</option>
                                                     <?php foreach(explode(',', get_config($dbc, "ticket_colour_flags")) as $flag_colour) { ?>
                                                         <option <?= $row['flag_colour'] == $flag_colour ? 'selected' : '' ?> value="<?= $flag_colour ?>" style="background-color:#<?= $flag_colour ?>;"><?= $flag_colour ?></option>
                                                     <?php } ?>
-                                                </select>
+                                                </select> -->
+                                                <input id="demo_<?php echo $row['tasklistid']?>" type="text" class="form-control demo_cpicker" value="<?php echo $row['flag_colour']?>" />
                                             </div>
-                                            <div class="col-sm-12"><input style="margin-top:20px" type="button" class="btn brand-btn pull-right" value="Close" onclick="$('#flag_color_box_<?php echo $row['tasklistid']?>').hide()"></div>
+                                            <div class="col-sm-12">
+                                            	<input style="margin-top:20px" type="button" value="Done" class="btn brand-btn pull-right" onclick="flag_item('<?php echo $row['tasklistid']?>');">
+                                            	<input style="margin-top:20px" type="button" class="btn brand-btn pull-right" value="Close" onclick="$('#flag_color_box_<?php echo $row['tasklistid']?>').hide()">
+                                            </div>
                                 		</div>
                                 	</div>
                                     <?php
