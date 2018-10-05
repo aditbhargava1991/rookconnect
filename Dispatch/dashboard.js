@@ -124,6 +124,7 @@ function retrieve_tickets(equipmentid = '') {
 		var next_item = function() { retrieve_tickets(equipmentid) };
 		loading_list.push(next_item);
 	} else {
+		still_loading_item = true;
 		loadingOverlayShow('.standard-body', $('.standard-body').height() + 20, $('.standard-body').width() + 20);
 		var date = $('[name="search_date"]').val();
 		if(equipmentid != undefined && equipmentid != '') {
@@ -197,33 +198,20 @@ function load_buttons() {
 	resize_blocks();
 	setTimeout(function() { resize_blocks(); loading_buttons = false; }, 500);
 }
-still_loading_ticket_item = false;
-loading_tickets_list = [];
 function load_tickets(equipmentid) {
-	if(still_loading_ticket_item) {
-		var next_ticket_item = function() { load_tickets(equipmentid) };
-		loading_tickets_list.push(next_ticket_item);
-	} else {
-		still_loading_ticket_item = true;
-		var item_row = $.grep(result_list['equipment'], function(row) {
-			return row['equipmentid'] == equipmentid;
-		});
+	var item_row = $.grep(result_list['equipment'], function(row) {
+		return row['equipmentid'] == equipmentid;
+	});
 
-		var group_exists = $('.dispatch-equipment-group[data-equipment="'+equipmentid+'"]');
-		if(group_exists.length > 0) {
-			$('.dispatch-equipment-group[data-equipment="'+equipmentid+'"]').replaceWith(item_row[0]['html']);
-		} else {
-			$('.dispatch-equipment-list').append(item_row[0]['html']);
-		}
-		
-		still_loading_ticket_item = false;
-		if(loading_tickets_list.length > 0) {
-			loading_tickets_list.shift()();
-		} else {
-			resize_blocks();
-			setTimeout(function() { resize_blocks(); }, 500);	
-		}
+	var group_exists = $('.dispatch-equipment-group[data-equipment="'+equipmentid+'"]');
+	if(group_exists.length > 0) {
+		$('.dispatch-equipment-group[data-equipment="'+equipmentid+'"]').replaceWith(item_row[0]['html']);
+	} else {
+		$('.dispatch-equipment-list').append(item_row[0]['html']);
 	}
+	
+	resize_blocks();
+	setTimeout(function() { resize_blocks(); }, 500);
 }
 function retrieve_summary(equipmentid) {
 	var date = $('[name="search_date"]').val();
