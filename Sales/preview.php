@@ -219,6 +219,37 @@ $lead_convert_to = get_config($dbc, 'lead_convert_to'); ?>
                             } ?>
                         </div>
                     </div>
+
+                    <div class="clearfix"></div>
+
+                    <div class="col-xs-12 preview-block-details-full">
+                        <div class="col-xs-12 col-sm-2 col-md-2"><b>Time tracking:</b></div>
+                        <div class="col-xs-12 col-sm-10 col-md-10">
+                            <div id="no-more-tables">
+                                <table class="table table-bordered">
+                                    <tr class="hidden-sm hidden-xs">
+                                        <th>User</th>
+                                        <th>Date</th>
+                                        <th>Time</th>
+                                    </tr>
+                                    <?php $total_time = 0;
+                                    $time_tracked = $dbc->query("SELECT * FROM `time_cards` WHERE `deleted`=0 AND `salesid`='$salesid' AND `salesid` > 0");
+                                    while($time_row = $time_tracked->fetch_assoc()) { ?>
+                                        <tr>
+                                            <td data-title="User"><?= get_contact($dbc, $time_row['staff']) ?></td>
+                                            <td data-title="Date"><?= $time_row['date'] ?></td>
+                                            <td data-title="Time"><?= time_decimal2time($time_row['total_hrs']) ?></td>
+                                        </tr>
+                                        <?php $total_time += $time_row['total_hrs'];
+                                    } ?>
+                                    <tr>
+                                        <td colspan="2">Total</td>
+                                        <td data-title="Total"><?= time_decimal2time($total_time) ?></td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
                 </div><!-- .preview-block-details --><?php
             }
 

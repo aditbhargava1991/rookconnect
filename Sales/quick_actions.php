@@ -16,6 +16,7 @@ var start_time = function() {
 
 var stop_time = function() {
     var item = $(this).closest('.info-block-detail,.standard-body-title');
+    var salesid = $(this).attr('data-salesId');
     item.find('.timer').timer('stop');
     $(this).hide();
     $(this).prev('.start').show();
@@ -26,7 +27,10 @@ var stop_time = function() {
         $.ajax({
             method: 'POST',
             url: 'sales_ajax_all.php?action=lead_time',
-            data: { id: item.data('id'), time: timer_value }
+            data: { id: salesid, time: timer_value },
+            success:function(response){
+                window.location.reload();
+            }
         });
     }
 }
@@ -48,7 +52,7 @@ var saveNote = function(sel) {
 	var item = $(sel).closest('.info-block-detail,.standard-body-title');
     //var salesid = item.data('id');
 	var salesid = $(sel).attr('data-salesId');
-    overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_notes.php?tile=sales&id='+salesid, 'auto', false, true);
+    overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_notes.php?tile=sales&id='+salesid, 'auto', false, false);
 }
 
 var viewHistory = function(sel) {
@@ -131,7 +135,10 @@ var addDocument = function(sel) {
 			processData: false,
 			method: "POST",
 			url: "sales_ajax_all.php?action=add_document",
-			data: fileData
+			data: fileData,
+            success:function(response){
+                window.location.reload();
+            }
 		});
 	}).click();
 }
@@ -171,7 +178,7 @@ var setReminder = function(sel) {
 	var item = $(sel).closest('.info-block-detail,.standard-body-title');
 	//var salesid = item.data('id');
     var salesid = $(sel).attr('data-salesId');
-	overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_reminders.php?tile=sales&id='+salesid,'auto',false,true);
+	overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_reminders.php?tile=sales&id='+salesid,'auto',false,false);
 }
 
 var addTime = function(sel) {
@@ -184,7 +191,10 @@ var addTime = function(sel) {
 			$.ajax({
 				method: 'POST',
 				url: 'sales_ajax_all.php?action=lead_time',
-				data: { id: salesid, time: time+':00' }
+				data: { id: salesid, time: time+':00' },
+                 success:function(response){
+                    window.location.reload();
+                }
 			});
 		}
 	});
@@ -289,7 +299,7 @@ $(document).on('change', '.dialog select[name=clientid]', function() { contactFi
     <div class="col-sm-3"><input type="text" name="timer" style="float:left;" class="form-control timer" placeholder="0 sec" /></div>
     <div class="col-sm-4">
         <button class="btn brand-btn pull-right start">Start</button>
-        <button class="btn brand-btn pull-right stop" style="display:none;">Stop</button>
+        <button class="btn brand-btn pull-right stop" style="display:none;" data-salesId="<?php echo $_GET['id']?>">Stop</button>
         <button class="btn brand-btn pull-right cancel" onclick="trackTime(this);">Cancel</button>
     </div>
     <div class="clearfix"></div>
