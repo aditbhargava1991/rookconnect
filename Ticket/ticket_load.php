@@ -2,6 +2,12 @@
 if(!$no_ob_clean) {
 	ob_clean();
 } ?>
+<style>
+#ui-datepicker-div{
+    top: 280px !import;
+    right:150px !important;
+}
+</style>
 <script>initInputs();
 function quick_add_time(ticket_id) {
 	//ticket_id = $(ticket).parents('span').data('task');
@@ -100,6 +106,11 @@ if($ticket['flag_colour'] != '' && $ticket['flag_colour'] != 'FFFFFF') {
 		<?= $tile_security['edit'] > 0 ? '</a>' : '' ?><?= !in_array('Hide Slider',$db_config) ? '<a href="../Ticket/index.php?tile_name='.$_GET['tile'].'&edit='.$ticket['ticketid'].'&action_mode=1&from='.urlencode($_GET['from']).'" '.(!in_array('Action Mode Button Eyeball',$db_config) ? 'class="btn brand-btn"' : '').' onclick="overlayIFrameSlider(this.href+\'&calendar_view=true\',\'auto\',false,true); return false;">'.(in_array('Action Mode Button Eyeball',$db_config) ? '<img src="../img/icons/eyeball.png" class="inline-img">' : (!empty(get_config($dbc, 'ticket_slider_button')) ? get_config($dbc, 'ticket_slider_button') : 'Sign In')).'</a>' : '' ?>
 		<?= $tile_security['edit'] > 0 ? '</a>' : '' ?><?= in_array('Overview Icon',$db_config) ? '<a href="../Ticket/index.php?tile_name='.$_GET['tile'].'&edit='.$ticket['ticketid'].'&overview_mode=1&from='.urlencode($_GET['from']).'" onclick="overlayIFrameSlider(this.href+\'&calendar_view=true\',\'auto\',false,true); return false;"><img src="../img/icons/eyeball.png" class="inline-img no-toggle" title="'.TICKET_NOUN.' Overview"></a>' : '' ?></h3>
 	<!-- Quick Action inputs -->
+	
+	<?php 
+	   echo '<input type="text" name="reply_'.$ticket['ticketid'].'" style="display:none;" class="form-control" />';
+	   echo '<input type="text" name="task_time_'.$ticket['ticketid'].'" style="display:none; float:right; width:200px" class="form-control timepicker" />';
+	?>
 
 	<?php if($tile_security['edit'] > 0) { ?>
 		<div class="action-icons">
@@ -111,13 +122,10 @@ if($ticket['flag_colour'] != '' && $ticket['flag_colour'] != 'FFFFFF') {
 			echo (in_array('attach',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-attachment-icon.png" class="inline-img attach-icon no-toggle" title="Attach File">' : '');
 			echo (in_array('reply',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-reply-icon.png" class="inline-img reply-icon no-toggle" title="Add Note">' : '');
 			echo (in_array('history',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/eyeball.png" class="inline-img history-icon no-toggle" title="History">' : '');
-			echo (in_array('time', $quick_actions) ? '<span title="Add Time" onclick=quick_add_time("'.$ticket['ticketid'].'"); return false;><img src="../img/icons/ROOK-timer-icon.png" class="inline-img" onclick="return false;"></span>' : '');
-			echo (in_array('timer', $quick_actions) ? '<span title="Track Time" onclick=track_time("'.$ticket['ticketid'].'"); return false;><img src="../img/icons/ROOK-timer2-icon.png" class="inline-img" onclick="return false;"></span>' : '');
+			echo (in_array('time', $quick_actions) ? '<span title="Add Time" onclick=quick_add_time("'.$ticket['ticketid'].'"); return false;><img src="../img/icons/ROOK-timer-icon.png" title="Add Time" class="inline-img" onclick="return false;"></span>' : '');
+			echo (in_array('timer', $quick_actions) ? '<span title="Track Time" onclick=track_time("'.$ticket['ticketid'].'"); return false;><img src="../img/icons/ROOK-timer2-icon.png" title="Track Time" class="inline-img" onclick="return false;"></span>' : '');
 			echo (in_array('archive',$quick_actions) && $tile_security['edit'] > 0 ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-trash-icon.png" class="inline-img archive-icon no-toggle" title="Archive">' : '');
 
-			echo '<input type="text" name="reply_'.$ticket['ticketid'].'" style="display:none;" class="form-control" />';
-			echo '<input type="text" name="task_time_'.$ticket['ticketid'].'" style="display:none;" class="form-control timepicker" />';
-			
 			//echo (in_array('reply',$quick_actions) ? '<a href="../Ticket/ticket_pdf.php?action=notopen&ticketid='.$ticket['ticketid'].'"><img src="'.WEBSITE_URL.'/img/icons/ROOK-reply-icon.png" class="inline-img emailpdf-icon" title="Add Note"></a>' : '');
 
             //echo (in_array('reply',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-email-icon.png" class="inline-img emailpdf-icon" title="Email PDF">' : '');
