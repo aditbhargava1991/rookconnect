@@ -374,7 +374,24 @@ function saveFieldMethod(field) {
 		field = field.target;
 	}
     if(field.name == 'ticket_type' && $(field).data('table') == 'tickets' && ticketid == '0') {
-        window.location.replace(window.location.href.replace('type=','type='+field.value+'&'));
+        // window.location.replace(window.location.href.replace('type=','type='+field.value+'&'));
+
+		var curr_url = window.location.search;
+		if(curr_url.indexOf('?') != -1) {
+			curr_url = curr_url.split('?')[1];
+		}
+		var query_string_arr = {};
+		var query_strings = curr_url.split('&');
+		query_strings.forEach(function(query_string) {
+			if(query_string.indexOf('=') != -1) {
+				var pair = query_string.split('=');
+				query_string_arr[pair[0]] = pair[1].replace(/\+/g, " ");
+			}
+		});
+		query_string_arr["type"] = field.value;
+		var new_url = "?"+$.param(query_string_arr);
+		window.history.replaceState(null, '', new_url);
+        window.location.reload();
         return;
     }
 	if($('#new_ticket_from_calendar').val() == '1') {
