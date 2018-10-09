@@ -195,7 +195,6 @@ function load_buttons() {
 	$('.equip_active_li ul').html('');
 	$('.equip_active_li ul').html(result_list['active_li']);
 
-	resize_blocks();
 	setTimeout(function() { resize_blocks(); loading_buttons = false; }, 500);
 }
 function load_tickets(equipmentid) {
@@ -203,14 +202,21 @@ function load_tickets(equipmentid) {
 		return row['equipmentid'] == equipmentid;
 	});
 
+	var button_a = $('.dispatch-equipment-buttons .dispatch-equipment-button-a[data-equipment="'+equipmentid+'"]');
+	var prev_equip = $(button_a).prev('.dispatch-equipment-button-a').data('equipment');
+	var next_equip = $(button_a).next('.dispatch-equipment-button-a').data('equipment');
+
 	var group_exists = $('.dispatch-equipment-group[data-equipment="'+equipmentid+'"]');
 	if(group_exists.length > 0) {
 		$('.dispatch-equipment-group[data-equipment="'+equipmentid+'"]').replaceWith(item_row[0]['html']);
+	} else if(prev_equip != undefined && $('.dispatch-equipment-group[data-equipment="'+prev_equip+'"]').length > 0) {
+		$('.dispatch-equipment-group[data-equipment="'+prev_equip+'"]').after(item_row[0]['html']);
+	} else if(next_equip != undefined && $('.dispatch-equipment-group[data-equipment="'+next_equip+'"]').length > 0) {
+		$('.dispatch-equipment-group[data-equipment="'+next_equip+'"]').before(item_row[0]['html']);
 	} else {
 		$('.dispatch-equipment-list').append(item_row[0]['html']);
 	}
 	
-	resize_blocks();
 	setTimeout(function() { resize_blocks(); }, 500);
 }
 function retrieve_summary(equipmentid) {
