@@ -37,7 +37,7 @@ $(document).ready(function() {
     $(window).resize(function() {
         var available_height = window.innerHeight - $('footer:visible').outerHeight() - $('.tile-sidebar').offset().top;
         if(available_height > 200) {
-            $('tile-container, .tile-sidebar, .tile-sidebar ul, .tile-content').height(available_height);
+            $('tile-container, .tile-sidebar, .tile-sidebar ul.sidebar, .tile-content').height(available_height);
             $('.tile-content .main-screen-white').height(available_height - 11);
         }
     }).resize();

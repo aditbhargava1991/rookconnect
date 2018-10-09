@@ -1,5 +1,37 @@
-<?php include_once('../include.php');
-$border_colour = '';
+<?php include_once('../include.php'); ?>
+<style>
+.new_task_box { border:1px solid #ACA9A9; margin:6px !important; padding:10px !important; }
+.flag_color_box{background-color: #fff;padding: 10px;min-width: 250px;position: absolute;left: 20px;top: 110px;z-index: 1;border: 2px solid #878787;}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-colorpicker/2.5.3/js/bootstrap-colorpicker.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-colorpicker/2.5.3/css/bootstrap-colorpicker.css" rel="stylesheet">
+<script>
+$(document).ready(function(){
+	$('.demo_cpicker').colorpicker();
+});
+
+function flag_item_box(taskid){
+	$('#flag_color_box_'+taskid).show();
+}
+function flag_item(task) {
+	//task_id = $(task).parents('span').data('task');
+	//task_id = $('#flag_color_box_'+task).next('span').data('task');
+	task_id = task;
+	flag_colour = $('#demo_'+task_id).val();
+	flag_colour = flag_colour. substring(1, flag_colour. length);
+	$.ajax({
+		method: "POST",
+		//url: "task_ajax_all.php?fill=taskflag",
+		url: "../Project/projects_ajax.php?action=project_actions",
+		data: { table:'tasklist', id_field:'tasklistid', field:'flag_colour', id: task_id, new_colour:flag_colour },
+		complete: function(result) {
+			$('li[data-id="'+task_id+'"]').css('background-color',(result.responseText == '' ? '' : '#'+result.responseText));
+			$('#flag_color_box_'+task_id).hide();
+		}
+	});
+}
+</script>
+<?php $border_colour = '';
 $label = $date = $link = $contents = $li_class = $flag_label = $item_external = '';
 if(!isset($item)) {
 	$item = ['Task',filter_var($_GET['taskid'],FILTER_SANITIZE_STRING)];
@@ -257,10 +289,29 @@ if($type == 'Ticket') {
 	$flag_text = $item['flag_label'];
 	$doc_table = "project_milestone_document";
 	$doc_folder = "../Tasks_Updated/download/";
-
+    ?>
+    <div style="position: relative; display:none" id="flag_color_box_<?php echo $item['tasklistid']?>">
+    	<div class="form-group flag_color_box">                                    	
+    		<label class="col-sm-5 control-label" style="text-align: left;">Flag Colour:</label>
+    		<div class="col-sm-7">
+                <!-- <select name='flag_colour' class="form-control" style="background-color:#<?= $item['flag_colour'] ?>;font-weight:bold;" onchange="flag_item('<?php echo $item['tasklistid']?>',this.value);">
+                    <option value="" style="background-color:#FFFFFF;">No Flag</option>
+                    <?php foreach(explode(',', get_config($dbc, "ticket_colour_flags")) as $flag_colour) { ?>
+                        <option <?= $item['flag_colour'] == $flag_colour ? 'selected' : '' ?> value="<?= $flag_colour ?>" style="background-color:#<?= $flag_colour ?>;"><?= $flag_colour ?></option>
+                    <?php } ?>
+                </select> -->
+                <input id="demo_<?php echo $item['tasklistid']?>" type="text" class="form-control demo_cpicker" value="<?php echo $item['flag_colour']?>" />
+            </div>
+            <div class="col-sm-12">
+            	<input style="margin-top:20px" type="button" value="Done" class="btn brand-btn pull-right" onclick="flag_item('<?php echo $item['tasklistid']?>');">
+            	<input style="margin-top:20px" type="button" class="btn brand-btn pull-right" value="Close" onclick="$('#flag_color_box_<?php echo $item['tasklistid']?>').hide()">
+            </div>
+		</div>
+	</div>
+    <?php
 	$actions = '<span class="pull-right action-icons double-gap-bottom gap-top" style="width: 100%;" data-task="'.$item['tasklistid'].'"><img src="../img/icons/ROOK-edit-icon.png" class="inline-img" title="Edit" onclick="overlayIFrameSlider(\'../Tasks_Updated/add_task.php?type='.$item['status'].'&tasklistid='.$item['tasklistid'].'\');">'.
 		(in_array('flag_manual',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-flag-icon.png" class="inline-img manual-flag-icon" title="Flag This!">' : '').
-		(!in_array('flag_manual',$quick_actions) && in_array('flag',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-flag-icon.png" class="inline-img flag-icon" title="Flag This!">' : '').
+		(in_array('flag',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/color-wheel.png" onclick=flag_item_box("'.$item['tasklistid'].'"); return false; class="inline-img" title="Highlight">' : '').
 		(!in_array('sync',$quick_actions) || substr($_GET['tab'],0,18) == 'path_external_path' ? '' : '<img src="'.WEBSITE_URL.'/img/icons/ROOK-sync-icon.png" data-assigned="'.$item['assign_client'].'" class="inline-img assign-icon" title="Assign to External Path">').
 		(in_array('alert',$quick_actions) ? '<span title="Send Alert" onclick="send_task_alert(this); return false;"><img src="../img/icons/ROOK-alert-icon.png" title="Send Alert" class="inline-img no-toggle" onclick="return false;"></span>' : '').
 		(in_array('email',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-email-icon.png" class="inline-img email-icon" title="Send Email">' : '').

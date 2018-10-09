@@ -1,7 +1,7 @@
 <?php
 $client_type = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `field_config_contacts_shifts`"))['contact_category'];
 $result = mysqli_query($dbc,"SELECT * FROM contacts WHERE category IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND deleted=0 AND `contactid` = '$contact_id'".$region_query);
-$lock_date = get_config($dbc, 'staff_schedule_lock_date');
+$lock_date = get_staff_schedule_lock_date($dbc);
 $old_staff = '';
 while($row = mysqli_fetch_array( $result )) {
     $contactid = $row['contactid'];
@@ -58,7 +58,7 @@ while($row = mysqli_fetch_array( $result )) {
 			$page_query = $_GET;
 			unset($page_query['shiftid']);
 			unset($page_query['current_day']);
-			$column .= ($row_shifts['startdate'] < $lock_date ? '<span class="sortable-blocks" ' : '<a class="sortable-blocks" ').($edit_access == 1 ? 'href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Calendar/shifts.php?'.http_build_query($page_query).'&shiftid='.$row_shifts['shiftid'].'&current_day='.$new_today_date.'\'); return false;"' : 'href="" onclick="return false;"').'style="display:block; margin: 0.5em; padding:5px; color:black; border-radius: 10px; background-color:'.$shift_bg_color.';" data-shift="'.$row_shifts['shiftid'].'" data-currentdate="'.$new_today_date.'" data-currentcontact="'.$staff.'" data-clientid="'.$row_shifts['clientid'].'" data-itemtype="shift">'.$warning_icon;
+			$column .= ($row_shifts['startdate'] < $lock_date && !empty($lock_date) ? '<span class="sortable-blocks" ' : '<a class="sortable-blocks" ').($edit_access == 1 ? 'href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Calendar/shifts.php?'.http_build_query($page_query).'&shiftid='.$row_shifts['shiftid'].'&current_day='.$new_today_date.'\'); return false;"' : 'href="" onclick="return false;"').'style="display:block; margin: 0.5em; padding:5px; color:black; border-radius: 10px; background-color:'.$shift_bg_color.';" data-shift="'.$row_shifts['shiftid'].'" data-currentdate="'.$new_today_date.'" data-currentcontact="'.$staff.'" data-clientid="'.$row_shifts['clientid'].'" data-itemtype="shift">'.$warning_icon;
             if(!empty($row_shifts['heading'])) {
                 $column .= $row_shifts['heading'].'<br />';
             }
@@ -69,7 +69,7 @@ while($row = mysqli_fetch_array( $result )) {
             if(!empty($row_shifts['notes'])) {
                 $column .= 'Notes: '.html_entity_decode($row_shifts['notes']);
             }
-			$column .= $row_shifts['startdate'] < $lock_date ? '</span>' : '</a>';
+			$column .= $row_shifts['startdate'] < $lock_date && !empty($lock_date) ? '</span>' : '</a>';
         }
         $column .= '</div>';
     }

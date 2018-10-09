@@ -3842,3 +3842,18 @@ function time_time2string($time) {
     $minutes = !empty($time - floor($time)) ? (($time - floor($time)) * 60).' Min' : '';
     return implode(' ', [$hours,$minutes]);
 }
+function get_staff_schedule_lock_date($dbc) {
+    $override_security = array_filter(explode(',',get_config($dbc, 'staff_schedule_autolock_override_security')));
+    $overrided = false;
+    foreach(array_filter(explode(',',$_SESSION['role'])) as $role) {
+        if(in_array($role, $override_security)) {
+            $overrided = true;
+        }
+    }
+
+    if($overrided) {
+        return '';
+    } else {
+        return get_config($dbc, 'staff_schedule_lock_date');
+    }
+}
