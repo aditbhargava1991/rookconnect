@@ -2886,9 +2886,10 @@ if($_GET['action'] == 'update_fields') {
 	$po_numbers = $dbc->query("SELECT `po_num` FROM `ticket_attached` WHERE `deleted`=0 AND `ticketid` > 0 AND `src_table` IN ('inventory_general','inventory') AND `ticketid`='$ticketid' AND IFNULL(`po_num`,'') != '' GROUP BY `po_num`");
 	$po_line_list = [];
 	while($po_num_line = $po_numbers->fetch_assoc()) {
-		$po_line_list[] = $po_num_line['po_num'];
+		$po_num_line['po_num'] = explode('#*#', $po_num_line['po_num']);
+		$po_line_list = array_merge($po_line_list, $po_num_line['po_num']);
 	}
-	$po_list = array_unique(array_merge($po_line_list,$ticket_po_list));
+	$po_list = array_filter(array_unique(array_merge($po_line_list,$ticket_po_list)));
 	sort($po_list);
 	echo json_encode($po_list);
 

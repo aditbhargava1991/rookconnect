@@ -1192,5 +1192,11 @@
     }
     //2018-10-01 - Ticket #8812 - Incident Reports
 
+    //2018-10-09 - Ticket #9570 - PO#
+    if(!mysqli_query($dbc, "ALTER TABLE `ticket_attached` CHANGE `po_num` `po_num` text")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-10-09 - Ticket #9570 - PO#
+
     echo "Baldwin's DB Changes Done<br />\n";
 ?>

@@ -1078,7 +1078,7 @@ function saveFieldMethod(field) {
 							}
 						});
           }
-					if(table_name == 'tickets' && field_name == 'purchase_order') {
+					if((table_name == 'tickets' && field_name == 'purchase_order') || (table_name == 'ticket_attached' && field_name == 'po_num')) {
 						reload_po_num_dropdown();
 					}
 					if(field_name == 'clientid' && typeof filterSitesByClient == 'function') {
@@ -2255,6 +2255,32 @@ function remMulti(img) {
 		block.hide();
 	}
 }
+function addMultiPO(img) {
+	destroyInputs('.po_nums_div');
+	var block = $(img).closest('.po_nums_div').find('.multi-block').last();
+	var clone = $(block).clone();
+
+	$(clone).find('.custom_po_num').hide();
+	$(clone).find('.po_num_group').show();
+	$(clone).find('input,textarea,select').val('');
+	$(clone).find('.po_num_group [name="po_num_disabled"]').attr('name','po_num');
+	$(clone).find('.custom_po_num [name="po_num"]').attr('name','po_num_disabled');
+
+	$(block).after(clone);
+	reload_po_num_dropdown();
+	initInputs('.po_nums_div');
+	setSave();
+	initSelectOnChanges();
+}
+function remMultiPO(img) {
+	if($(img).closest('.po_lines_div').find('.multi-block').length <= 1) {
+		addMultiPO(img);
+	}
+
+	var block = $(img).closest('.po_lines_div');
+	$(img).closest('.multi-block').remove();
+	$(block).find('[name="po_line"]').first().change();
+}
 function addMultiPOLine(img) {
 	destroyInputs('.po_lines_div');
 	var block = $(img).closest('.po_lines_div').find('.multi-block').last();
@@ -2749,13 +2775,16 @@ function siteSelect(select) {
 function poNumSelect(select) {
 	var value = $(select).find('option:selected').val();
 	if(value == 'MANUAL') {
-		$(select).closest('.form-group.po_num_group').hide();
-		$(select).closest('.form-group').next('.custom_po_num').show();
-		$(select).closest('.form-group').next('.custom_po_num').find('input').focus();
+		$(select).closest('.po_num_group').hide();
+		$(select).closest('.po_num_group').next('.custom_po_num').show();
+		$(select).closest('.po_num_group').find('[name="po_num"]').prop('name', 'po_num_disabled');
+		$(select).closest('.po_num_group').next('.custom_po_num').find('[name="po_num_disabled"]').prop('name', 'po_num');
 	} else {
-		$(select).closest('.form-group.po_num_group').show();
-		$(select).closest('.form-group').next('.custom_po_num').hide();
-		$(select).closest('.form-group').next('.custom_po_num').find('input').val('');
+		$(select).closest('.po_num_group').show();
+		$(select).closest('.po_num_group').next('.custom_po_num').hide();
+		$(select).closest('.po_num_group').next('.custom_po_num').find('input').val('');
+		$(select).closest('.po_num_group').find('[name="po_num_disabled"]').prop('name', 'po_num');
+		$(select).closest('.po_num_group').next('.custom_po_num').find('[name="po_num"]').prop('name', 'po_num_disabled');
 	}
 }
 function staff_list_add(input) {
