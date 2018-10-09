@@ -404,12 +404,12 @@ $field_config = explode(',',$config_row['expense_dashboard']); ?>
 		$filter_warnings = implode(',',$_POST['filter_warnings']);
 	}
 	if($date_start == '' || $date_start == '0000-00-00') {
-		$date_start = '0000-00-00';
+		$date_start = date('Y-m-01');
 	} else {
 		$html .= "<span class='block-label'>Filter: Expense Start Date: $date_start</span>";
 	}
 	if($date_end == '' || $date_end == '0000-00-00') {
-		$date_end = '9999-99-99';
+		$date_end = date('Y-m-t');
 	} else {
 		$html .= "<span class='block-label'>Filter: Expense End Date: $date_end</span>";
 	}
