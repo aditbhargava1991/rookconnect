@@ -186,6 +186,7 @@ $history_reports = [
 	'History Estimates History'=>['reports_estimates_history.php','Estimates History','History Estimates History','history_estimates_history'],
 	'History Products History'=>['reports_products_history.php','Products History','History Products History','history_products_history'],
 	'History Safety History'=>['reports_safety_history.php','Safety History','History Safety History','history_safety_history'],
+	'History DB Backup History'=>['reports_db_backup_history.php','DB Backup History','History DB Backup History','history_db_backup_history'],
 ];
 $estimates_reports = [
 	'Estimate Report'=>['reports_estimate_report.php','Estimate Report','Estimate Report','reports_estimate_report'],
