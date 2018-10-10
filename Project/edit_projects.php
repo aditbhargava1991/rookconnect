@@ -1053,7 +1053,8 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 		if(count($sub_tabs) > 0 && $projectid > 0) {
 			$ticket_bypass = false;
 			$show_sub = in_array($_GET['tab'],['summary', 'summary_project', 'summary_tickets', 'summary_tasks', 'summary_checklists', 'summary_projections']) || $no_sub_shown;
-			$no_sub_shown = false; ?>
+			$no_sub_shown = false;
+            $_GET['tab'] = ($_GET['tab'] == '' ? 'summary' : $_GET['tab']); ?>
 			<a href="?edit=<?= $_GET['edit'] ?>&tab=summary" onclick="$('.standard-collapsible ul ul:visible').not($(this).next('ul')).toggle().prev('a').find('li').toggleClass('collapsed'); $(this).next('ul').toggle(); $(this).find('li').toggleClass('collapsed'); return false;" style="<?= count($sub_tabs) > 0 ? '' : 'display:none;' ?>">
 				<li class="sidebar-higher-level <?= $show_sub ? 'active blue' : 'collapsed' ?>">Summary<span class="arrow"></span></li></a>
 			<ul id="ul_summ" style="<?= $show_sub ? (count($sub_tabs) > 0 ? '' : 'padding-left:0;') : 'display: none;' ?>">
