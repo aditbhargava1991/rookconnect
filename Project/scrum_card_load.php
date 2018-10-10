@@ -316,6 +316,7 @@ if($type == 'Ticket') {
 	<script>
 	var theInput = document.getElementById("colorpickerbtn_<?php echo $item['tasklistid']?>");
 	theInput.addEventListener("input", function() {
+		alert(theInput.value);
 		flag_item('<?php echo $item['tasklistid']?>',theInput.value);
 	}, false);
 	</script>
