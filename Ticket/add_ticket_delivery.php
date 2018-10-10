@@ -323,7 +323,10 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 							<?php if(strpos($value_config, ',Delivery Pickup') !== FALSE && $get_ticket['main_ticketid'] == 0) { ?>
 								<h4>Scheduled Stop <span class="block_count"><?= ++$stop_count ?> of <?= $ticket_stops->num_rows > 0 ? $ticket_stops->num_rows : 1 ?></span><img class="inline-img small pull-right stop_sort" src="../img/icons/drag_handle.png">
                                     <?php if(!($_GET['action_mode'] == 1)) { ?>
-                                        <div class="col-sm-2 pull-right"><img class="inline-img small black-color pull-right" src="../img/icons/ROOK-add-icon.png" data-history-label="Delivery Stop" onclick="addScheduledStop();"><img class="inline-img small pull-right" src="../img/remove.png" data-history-label="Delivery Stop" onclick="remScheduledStop(this);"></div>
+                                        <div class="col-sm-2 pull-right">
+                                            <img class="inline-img small pull-right" src="../img/remove.png" data-history-label="Delivery Stop" onclick="remScheduledStop(this);">
+                                            <img class="inline-img small black-color pull-right" src="../img/icons/ROOK-add-icon.png" data-history-label="Delivery Stop" onclick="addScheduledStop();">
+                                        </div>
                                     <?php } ?>
                                 </h4>
 								<input type="hidden" name="sort" data-table="ticket_schedule" data-id="<?= $stop['id'] ?>" data-id-field="id" value="<?= $stop['sort'] ?>">
