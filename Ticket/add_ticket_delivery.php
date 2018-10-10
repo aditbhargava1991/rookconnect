@@ -321,7 +321,7 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 					if($stop['id'] == $_GET['stop'] || !($_GET['stop'] > 0)) { ?>
 						<div id="tab_section_ticket_delivery_<?= $stop['id'] ?>" class="tab-section scheduled_stop">
 							<?php if(strpos($value_config, ',Delivery Pickup') !== FALSE && $get_ticket['main_ticketid'] == 0) { ?>
-								<h4>Scheduled Stop <span class="block_count"><?= ++$stop_count ?> of <?= $ticket_stops->num_rows ?></span><img class="inline-img small pull-right stop_sort" src="../img/icons/drag_handle.png"></h4>
+								<h4>Scheduled Stop <span class="block_count"><?= ++$stop_count ?> of <?= $ticket_stops->num_rows > 0 ? $ticket_stops->num_rows : 1 ?></span><img class="inline-img small pull-right stop_sort" src="../img/icons/drag_handle.png"></h4>
 								<input type="hidden" name="sort" data-table="ticket_schedule" data-id="<?= $stop['id'] ?>" data-id-field="id" value="<?= $stop['sort'] ?>">
 							<?php } ?>
 							<?php $equipment_list = mysqli_query($dbc, "SELECT * FROM `equipment` WHERE `equipmentid` = '{$stop['equipmentid']}'");
