@@ -10,7 +10,19 @@ if($_GET['action'] == 'field_config') {
 	mysqli_query($dbc, "INSERT INTO `field_config_contacts` (`tab`,`subtab`,`accordion`) SELECT '$tab', '$subtab', '$accordion' FROM (SELECT COUNT(*) rows FROM `field_config_contacts` WHERE `tab`='$tab' AND `subtab`='$subtab' AND `accordion`='$accordion') num WHERE num.rows = 0");
 	mysqli_query($dbc, "UPDATE `field_config_contacts` SET `$field`='$value' WHERE `tab`='$tab' AND `subtab`='$subtab' AND `accordion`='$accordion'");
 	echo "UPDATE `field_config_contacts` SET `$field`='$value' WHERE `tab`='$tab' AND `subtab`='$subtab' AND `accordion`='$accordion'";
-} else if($_GET['action'] == 'add_section') {
+}
+else if($_GET['action'] == 'mandatory_field_config') {
+	$tab = filter_var($_POST['tab'],FILTER_SANITIZE_STRING);
+	$subtab = filter_var($_POST['subtab'],FILTER_SANITIZE_STRING);
+	$accordion = filter_var($_POST['accordion'],FILTER_SANITIZE_STRING);
+	$field = filter_var($_POST['field'],FILTER_SANITIZE_STRING);
+	$value = filter_var($_POST['value'],FILTER_SANITIZE_STRING);
+	echo "INSERT INTO `field_config_mandatory_contacts` (`tab`,`subtab`,`accordion`) SELECT '$tab', '$subtab', '$accordion' FROM (SELECT COUNT(*) rows FROM `field_config_mandatory_contacts` WHERE `tab`='$tab' AND `subtab`='$subtab' AND `accordion`='$accordion') num WHERE num.rows = 0";
+	mysqli_query($dbc, "INSERT INTO `field_config_mandatory_contacts` (`tab`,`subtab`,`accordion`) SELECT '$tab', '$subtab', '$accordion' FROM (SELECT COUNT(*) rows FROM `field_config_mandatory_contacts` WHERE `tab`='$tab' AND `subtab`='$subtab' AND `accordion`='$accordion') num WHERE num.rows = 0");
+	mysqli_query($dbc, "UPDATE `field_config_mandatory_contacts` SET `$field`='$value' WHERE `tab`='$tab' AND `subtab`='$subtab' AND `accordion`='$accordion'");
+	echo "UPDATE `field_config_mandatory_contacts` SET `$field`='$value' WHERE `tab`='$tab' AND `subtab`='$subtab' AND `accordion`='$accordion'";
+}
+ else if($_GET['action'] == 'add_section') {
 	$tab = filter_var($_POST['tab'],FILTER_SANITIZE_STRING);
 	$subtab = filter_var($_POST['subtab'],FILTER_SANITIZE_STRING);
 	mysqli_query($dbc, "INSERT INTO `field_config_contacts` (`tab`,`subtab`,`accordion`) VALUES ('$tab','$subtab','New Section')");

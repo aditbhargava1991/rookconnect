@@ -2335,6 +2335,9 @@ if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode && !$int
 							<?php if($field_sort_field == 'Inventory General PO Number Dropdown') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Inventory General PO Number Dropdown", $all_config) ? 'checked disabled' : (in_array("Inventory General PO Number Dropdown", $value_config) ? "checked" : '') ?> value="Inventory General PO Number Dropdown" name="tickets[]"> Dropdown Purchase Order Number</label>
 							<?php } ?>
+							<?php if($field_sort_field == 'Inventory General PO Number Dropdown Multiple') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Inventory General PO Number Dropdown Multiple", $all_config) ? 'checked disabled' : (in_array("Inventory General PO Number Dropdown Multiple", $value_config) ? "checked" : '') ?> value="Inventory General PO Number Dropdown Multiple" name="tickets[]"> Dropdown Purchase Order Number - Multiple</label>
+							<?php } ?>
 							<?php if($field_sort_field == 'Inventory General PO Item') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Inventory General PO Item", $all_config) ? 'checked disabled' : (in_array("Inventory General PO Item", $value_config) ? "checked" : '') ?> value="Inventory General PO Item" name="tickets[]"> Purchase Order Item</label>
 							<?php } ?>

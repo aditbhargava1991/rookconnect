@@ -502,6 +502,19 @@ if($_GET['fill'] == 'taskflag') {
 		echo $new_colour;
 	}
 }
+if($_GET['fill'] == 'taskflagcolorbox') {
+    $item_id = $_POST['id'];
+    $type = $_POST['type'];
+    $new_colour = $_POST['new_colour'];
+    if($type == 'task') {
+        $result = mysqli_query($dbc, "UPDATE `tasklist` SET `flag_colour`='$new_colour' WHERE `tasklistid` = '$item_id'");
+        echo $new_colour;
+    }
+    else {
+        $result = mysqli_query($dbc, "UPDATE `task_board` SET `flag_colour`='$new_colour' WHERE `taskboardid` = '$item_id'");
+        echo $new_colour;
+    }
+}
 if($_GET['fill'] == 'task_upload') {
 	$id = $_GET['id'];
 	$type = $_GET['type'];
