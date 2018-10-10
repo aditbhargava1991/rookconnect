@@ -251,6 +251,7 @@ if(isset($_POST['custom_form'])) {
 									$include_po = '';
 									$include_po_confirm = '';
 									$po_list = [];
+									$general_po_nums = [];
 									$i = ($offset > 0 ? $offset : 0);
 									$general_rows = mysqli_query($dbc, "SELECT `ticket_attached`.`id`, `ticket_attached`.`item_id`, `ticket_attached`.`rate`, `ticket_attached`.`qty`, `ticket_attached`.`received`, `ticket_attached`.`used`, `ticket_attached`.`description`, `ticket_attached`.`status`, `ticket_attached`.`po_line`, `ticket_attached`.`piece_num`, `ticket_attached`.`piece_type`, `ticket_attached`.`used`, `ticket_attached`.`weight`, `ticket_attached`.`weight_units`, `ticket_attached`.`dimensions`, `ticket_attached`.`dimension_units`, `ticket_attached`.`discrepancy`, `ticket_attached`.`backorder`, `ticket_attached`.`position`, `ticket_attached`.`notes`, `ticket_attached`.`contact_info` FROM `ticket_attached` WHERE `ticket_attached`.`src_table`='inventory_general' AND `ticket_attached`.`ticketid`='$ticketid' AND `ticket_attached`.`ticketid` > 0 AND `ticket_attached`.`deleted`=0".$query_daily.$limit_query);
 									$general_count = mysqli_num_rows(mysqli_query($dbc, "SELECT `ticket_attached`.`id`, `ticket_attached`.`item_id`, `ticket_attached`.`rate`, `ticket_attached`.`qty`, `ticket_attached`.`received`, `ticket_attached`.`used`, `ticket_attached`.`description`, `ticket_attached`.`status`, `ticket_attached`.`po_line`, `ticket_attached`.`piece_num`, `ticket_attached`.`piece_type`, `ticket_attached`.`used`, `ticket_attached`.`weight`, `ticket_attached`.`weight_units`, `ticket_attached`.`dimensions`, `ticket_attached`.`dimension_units`, `ticket_attached`.`discrepancy`, `ticket_attached`.`backorder`, `ticket_attached`.`position`, `ticket_attached`.`notes`, `ticket_attached`.`contact_info` FROM `ticket_attached` WHERE `ticket_attached`.`src_table`='inventory_general' AND `ticket_attached`.`ticketid`='$ticketid' AND `ticket_attached`.`ticketid` > 0 AND `ticket_attached`.`deleted`=0".$query_daily));
@@ -286,10 +287,14 @@ if(isset($_POST['custom_form'])) {
 											}
 											$list_options[] = $value;
 										}
+										foreach(explode('#*#',$general_line['po_num']) as $general_po_num) {
+											$general_po_nums[] = $general_po_num;
+										}
 									} while($general_line = $general_rows->fetch_assoc());
+									$general_po_nums = implode('#*#', $general_po_nums);
 									$require_value = '';
 									if($include_po != '') {
-										$require_value = $include_po.': '.implode(', ',array_filter(explode('#*#',$get_ticket['purchase_order'])));
+										$require_value = $include_po.': '.implode(', ',array_unique(array_filter(explode('#*#',$get_ticket['purchase_order'].'#*#'.$general_po_nums))));
 									}
 									if($include_po_confirm != '') {
 										foreach(explode('#*#',$get_ticket['purchase_order']) as $po_row) {
@@ -309,7 +314,7 @@ if(isset($_POST['custom_form'])) {
 									if(in_array('confirm',$options)) {
 										$checked = explode(',',$dbc->query("SELECT `field_value` FROM `ticket_pdf_field_values` `values` WHERE `ticketid`='$ticketid' AND `pdf_type`='{$form['id']}' AND `field_name`='included_".$field['field_name']."' AND '$revision' IN (`values`.`revision`, '999999999') AND `deleted`=0")->fetch_assoc()['field_value']);
 										foreach($list_options as $i => $option) {
-											echo '<label class="form-checkbox"><input type="checkbox" name="included_'.$field['field_name'].'[]" data-limit-note="'.$limit_note.'" data-text="'.htmlentities($option).'" onchange="setText(this);" '.(in_array($include_id[$i],$checked) ? 'checked' : '').' value="'.$include_id[$i].'">'.$include_label[$i].'</label>';
+											echo '<label class="form-checkbox"><input type="checkbox" name="included_'.$field['field_name'].'[]" data-limit-note="'.($general_count > $limit ? $limit_note : '').'" data-text="'.htmlentities($option).'" onchange="setText(this);" '.(in_array($include_id[$i],$checked) ? 'checked' : '').' value="'.$include_id[$i].'">'.$include_label[$i].'</label>';
 										}
 										echo '<input type="checkbox" name="included_'.$field['field_name'].'[]" data-text="'.htmlentities($require_value).'" checked style="display:none;">';
 										$value = $require_value;
@@ -319,11 +324,11 @@ if(isset($_POST['custom_form'])) {
 									if(count($po_list) > 0) {
 										$checked = explode(',',$dbc->query("SELECT `field_value` FROM `ticket_pdf_field_values` `values` WHERE `ticketid`='$ticketid' AND `pdf_type`='{$form['id']}' AND `field_name`='included_".$field['field_name']."' AND '$revision' IN (`values`.`revision`, '999999999') AND `deleted`=0")->fetch_assoc()['field_value']);
 										foreach($po_list as $po_i => $option) {
-											echo '<label class="form-checkbox"><input type="checkbox" name="included_'.$field['field_name'].'[]" data-limit-note="'.$limit_note.'" data-text="'.htmlentities($option).'" onchange="setText(this);" value="'.$include_id[$po_i+$i].'">'.$option.'</label>';
+											echo '<label class="form-checkbox"><input type="checkbox" name="included_'.$field['field_name'].'[]"  data-limit-note="'.($general_count > $limit ? $limit_note : '').'" data-text="'.htmlentities($option).'" onchange="setText(this);" value="'.$include_id[$po_i+$i].'">'.$option.'</label>';
 										}
 										$value .= $require_value;
 									}
-									if(in_array('limit',$options) && $general_count >= $limit && !empty($limit_note)) {
+									if(in_array('limit',$options) && $general_count > $limit && !empty($limit_note)) {
 										$value .= "\n".$limit_note;
 										echo '<br /><b>'.$limit_note.'</b>';
 									}
