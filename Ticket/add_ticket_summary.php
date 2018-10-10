@@ -564,17 +564,25 @@ if(!empty($summary_hide_positions)) {
 				</tr>
 				<?php $summary_staff = mysqli_query($dbc, "SELECT * FROM `ticket_attached` WHERE `ticket_attached`.`item_id` > 0 AND `tile_name`='".FOLDER_NAME."' AND `ticketid`='$ticketid' AND `ticketid` > 0 AND `deleted`=0 $hide_positions AND `src_table` IN ('Staff','Staff_Tasks')".$query_daily);
 				 while($summary = mysqli_fetch_array($summary_staff)) {
-					 $staff_times = mysqli_query($dbc, "SELECT * FROM `ticket_attached` WHERE `src_table` = 'Multiple_Timesheet_Row' AND `item_id` = '".$staff['id']."' AND '".$staff['id']."' > 0 AND `deleted` = 0"); ?>
+					 $staff_times = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `ticket_attached` WHERE `src_table` = 'Multiple_Timesheet_Row' AND `item_id` = '".$summary['id']."' AND '".$summary['id']."' > 0 AND `deleted` = 0"),MYSQLI_ASSOC); ?>
 					<tr class="summary">
 						<td data-title="Staff"><?= get_contact($dbc, $summary['item_id']) ?>
 						<br><label class="form-checkbox"><input type="checkbox" name="discrepancy" <?= $summary['discrepancy'] == 1 ? 'checked' : '' ?> data-table="ticket_attached" data-id="<?= $summary['id'] ?>" data-id-field="id" data-type="Staff" data-type-field="src_table" value="1">Do Not Require Notes</label></td>
-						<td data-title="Planned Hours"><?= $get_ticket['start_time'].' - '.$get_ticket['end_time'] ?></td>
+						<td data-title="Planned Hours">
+							<?php $planned_html = [];
+							foreach($staff_times as $staff_time) {
+								$planned_html[] = $staff_time['date_stamp'].' '.$staff_time['start_time'].' - '.$staff_time['end_time'];
+							}
+							$planned_html = implode('<br />',$planned_html);
+							echo $planned_html;
+							?>
+						</td>
 						<td data-title="Tracked Hours">
 							<?php $tracked_hours = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `ticket_attached_checkin` WHERE `ticket_attached_id` = '".$summary['id']."'"),MYSQLI_ASSOC);
 							if(!empty($tracked_hours)) {
 								$tracked_html = [];
 								foreach($tracked_hours as $tracked_hour) {
-									$tracked_html[] = $tracked_hour['checked_in'].' - '.$tracked_hour['checked_out'];
+									$tracked_html[] = (!empty(str_replace('0000-00-00','',$tracked_hour['checked_in_date'])) ? $tracked_hour['checked_in_date'].' ' : '').$tracked_hour['checked_in'].' - '.(!empty(str_replace('0000-00-00','',$tracked_hour['checked_out_date'])) ? $tracked_hour['checked_out_date'].' ' : '').$tracked_hour['checked_out'];
 								}
 								$tracked_html = implode('<br />',$tracked_html);
 							} else {
@@ -589,7 +597,7 @@ if(!empty($summary_hide_positions)) {
 							if(!empty($tracked_hours)) {
 								$tracked_time = 0;
 								foreach($tracked_hours as $tracked_hour) {
-									$tracked_time += number_format((strtotime(date('Y-m-d').' '.$tracked_hour['checked_out']) - strtotime(date('Y-m-d').' '.$tracked_hour['checked_in']))/3600,2);
+									$tracked_time += number_format((strtotime((!empty(str_replace('0000-00-00','',$tracked_hour['checked_out_date'])) ? $tracked_hour['checked_out_date'] : date('Y-m-d')).' '.$tracked_hour['checked_out']) - strtotime((!empty(str_replace('0000-00-00','',$tracked_hour['checked_in_date'])) ? $tracked_hour['checked_in_date'] : date('Y-m-d')).' '.$tracked_hour['checked_in']))/3600,2);
 								}
 							} else if(!empty($summary['checked_out']) && !empty($summary['checked_in'])) {
 								$tracked_time = number_format((strtotime(date('Y-m-d').' '.$summary['checked_out']) - strtotime(date('Y-m-d').' '.$summary['checked_in']))/3600,2);
@@ -599,7 +607,9 @@ if(!empty($summary_hide_positions)) {
 							echo $tracked_time; ?>
 						</td>
 						<td data-title="Payable Hours" <?= check_subtab_persmission($dbc, 'ticket', ROLE, 'view_payable') ? '' : 'style="display:none;"' ?>>
-							<input data-table="ticket_attached" data-id="<?= $summary['id'] ?>" data-id-field="id" data-type="Staff" data-type-field="src_table" <?= strpos($value_config,',Time Tracking Edit Past Date') !== FALSE && $get_ticket['to_do_date'] != '' ? 'data-date="'.$get_ticket['to_do_date'].'"' : '' ?> type="number" name="time_set" value="<?= $summary['hours_set'] ?>" class="form-control" min="0" step="any">
+							<?php foreach($staff_times as $staff_time) { ?>
+								<input type="number" min=0 step="<?= $hour_increment ?>" name="hours_set" data-table="ticket_attached" data-id="<?= $staff_time['id'] ?>" data-id-field="id" data-type="Multiple_Timesheet_Row" data-type-field="src_table" class="form-control" value="<?= $staff_time['hours_set'] ?>">
+							<?php } ?>
 						</td>
 					</tr>
 				<?php } ?>

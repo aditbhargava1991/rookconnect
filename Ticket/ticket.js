@@ -1046,6 +1046,9 @@ function saveFieldMethod(field) {
 					if(field_name == 'clientid' && typeof filterSitesByClient == 'function') {
 						filterSitesByClient();
 					}
+					if(table_name == 'ticket_attached' && field_name == 'hours_set' && $(field).data('type') == 'Multiple_Timesheet_Row' && $(field).closest('.tab-section') != undefined && $(field).closest('.tab-section').prop('id') == 'tab_section_ticket_summary') {
+						$('.tab-section:not(#tab_section_ticket_summary').find('[name="hours_set"][data-table="ticket_attached"][data-type="Multiple_Timesheet_Row"][data-id="'+$(field).data('id')+'"]').val(field.value);
+					}
 					doneSaving();
 				}
 			});
