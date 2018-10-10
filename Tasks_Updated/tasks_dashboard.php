@@ -351,6 +351,7 @@ function flag_item_box(taskid){
 }
 
 function flag_item(task,flag_colour) {
+	alert(task); alert(flag_colour);
 	//task_id = $(task).parents('span').data('task');
 	//task_id = $('#flag_color_box_'+task).next('span').data('task');
 	//flag_colour = $('#demo_'+task_id).val();
