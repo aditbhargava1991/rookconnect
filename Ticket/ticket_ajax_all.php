@@ -1646,6 +1646,8 @@ if($_GET['action'] == 'update_fields') {
 		set_config($dbc, 'ticket_notify_list_items', filter_var(implode('#*#',$_POST['ticket_notify_list_items']),FILTER_SANITIZE_STRING), 1);
 		set_config($dbc, 'ticket_email_approval', filter_var($_POST['ticket_email_approval'],FILTER_SANITIZE_STRING), 1);
 		set_config($dbc, 'ticket_approval_status', filter_var($_POST['ticket_approval_status'],FILTER_SANITIZE_STRING), 1);
+		set_config($dbc, 'delivery_default_pickup_type', filter_var($_POST['delivery_default_pickup_type'],FILTER_SANITIZE_STRING), 1);
+		set_config($dbc, 'delivery_default_pickup_time', filter_var($_POST['delivery_default_pickup_time'],FILTER_SANITIZE_STRING), 1);
 		if($ticket_type == 'tickets') {
 			set_config($dbc, 'ticket_attached_charts', filter_var(implode(',',array_filter($_POST['attached_charts'])),FILTER_SANITIZE_STRING), 1);
 			set_config($dbc, 'ticket_auto_create_unscheduled', filter_var(implode(',',$_POST['auto_create_unscheduled'])),FILTER_SANITIZE_STRING);
@@ -1745,6 +1747,8 @@ if($_GET['action'] == 'update_fields') {
 		set_config($dbc, 'ticket_notify_list_items', filter_var(implode('#*#',$_POST['ticket_notify_list_items']),FILTER_SANITIZE_STRING));
 		set_config($dbc, 'ticket_email_approval', filter_var($_POST['ticket_email_approval'],FILTER_SANITIZE_STRING));
 		set_config($dbc, 'ticket_approval_status', filter_var($_POST['ticket_approval_status'],FILTER_SANITIZE_STRING));
+		set_config($dbc, 'delivery_default_pickup_type', filter_var($_POST['delivery_default_pickup_type'],FILTER_SANITIZE_STRING), 1);
+		set_config($dbc, 'delivery_default_pickup_time', filter_var($_POST['delivery_default_pickup_time'],FILTER_SANITIZE_STRING), 1);
 		if($ticket_type == 'tickets') {
 			set_config($dbc, 'ticket_attached_charts', filter_var(implode(',',array_filter($_POST['attached_charts'])),FILTER_SANITIZE_STRING));
 			set_config($dbc, 'ticket_auto_create_unscheduled', filter_var(implode(',',$_POST['auto_create_unscheduled'])),FILTER_SANITIZE_STRING);

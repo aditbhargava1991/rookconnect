@@ -2806,6 +2806,20 @@ if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode && !$int
 								</div>
 							</div>
 							<div class="form-group">
+								<label class="col-sm-4 control-label"><span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will automatically set the Delivery Duration for a Specific Delivery tab."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Delivery Default Estimate</label>
+								<div class="col-sm-4">
+                                    <?php $delivery_default_pickup_type = get_config($dbc, 'delivery_default_pickup_type'); ?>
+									<select name="delivery_default_pickup_type" data-placeholder="Select tab" class="chosen-select-deselect"><option />
+                                        <?php foreach(explode(',',get_config($dbc, 'delivery_types')) as $del_type) { ?>
+                                            <option <?= $del_type == $delivery_default_pickup_type ? 'selected' : '' ?> value="<?= $del_type ?>"><?= $del_type ?></option>
+                                        <?php } ?>
+                                    </select>
+								</div>
+								<div class="col-sm-4">
+									<input type="text" name="delivery_default_pickup_time" class="form-control timepicker" value="<?= get_config($dbc, 'delivery_default_pickup_time') ?>">
+								</div>
+							</div>
+							<div class="form-group">
 								<?php $delivery_default_tabs = get_config($dbc, 'delivery_default_tabs'); ?>
 								<label class="col-sm-4 control-label">Populate new <?= TICKET_NOUN ?> with a delivery for each of these tabs<?= $delivery_default_tabs != '' && $tab != '' ? ' (Default: '.$delivery_default_tabs.')' : '' ?>:</label>
 								<div class="col-sm-8">
