@@ -389,7 +389,7 @@ function saveFieldMethod(field) {
 			}
 		});
 		query_string_arr["type"] = field.value;
-		var new_url = "?"+$.param(query_string_arr);
+		var new_url = decodeURIComponent("?"+$.param(query_string_arr));
 		window.history.replaceState(null, '', new_url);
         window.location.reload();
         return;
