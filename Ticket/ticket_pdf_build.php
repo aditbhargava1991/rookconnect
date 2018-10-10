@@ -241,7 +241,7 @@ if(isset($_POST['custom_form'])) {
 										$limit = ($limit_details[1] >= 0 ? $limit_details[1] : 9999999);
 										$offset = ($limit_details[2] >= 0 ? $limit_details[2] : 0);
 										$limit_note = $limit_details[3];
-										$limit_query = "LIMIT $limit OFFSET $offset";
+										$limit_query = " LIMIT $limit OFFSET $offset";
 									}
 									$list_options = [];
 									$include_label = [];
