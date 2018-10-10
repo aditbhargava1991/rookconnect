@@ -37,8 +37,8 @@ if(!empty($_GET['from_alert'])) {
 		<script type="text/javascript">
 			$(document).ready(function() {
 				alert("<?= $staff_labels ?> has taken responsibility of this <?= TICKET_NOUN ?>.");
-            
-                
+
+
 			});
 		</script>
 	<?php }
@@ -2219,7 +2219,7 @@ var setHeading = function() {
 				</div>
 			<?php } ?>
 
-			<?php if (strpos($value_config, ','."Timer".',') !== FALSE && $sort_field == 'Timer') { ?>
+			<?php if (strpos($value_config, ','."Time Tracking Block".',') !== FALSE && $sort_field == 'Timer') { ?>
 				<div class="panel panel-default">
 					<div class="panel-heading mobile_load">
 						<h4 class="panel-title">
@@ -2237,7 +2237,7 @@ var setHeading = function() {
 				</div>
 			<?php } ?>
 
-			<?php if (strpos($value_config, ','."Timer".',') !== FALSE && $access_all > 0 && $sort_field == 'Timer') { ?>
+			<?php if (strpos($value_config, ','."Day Tracking Block".',') !== FALSE && $access_all > 0 && $sort_field == 'Timer') { ?>
 				<div class="panel panel-default">
 					<div class="panel-heading mobile_load">
 						<h4 class="panel-title">
@@ -3227,13 +3227,13 @@ var setHeading = function() {
 					$acc_label = 'Deliverables';
 					include('edit_ticket_tab.php');
 				}
-				if (strpos($value_config, ','."Timer".',') !== FALSE && $sort_field == 'Timer') {
+				if (strpos($value_config, ','."Time Tracking Block".',') !== FALSE && $sort_field == 'Timer') {
 					$_GET['tab'] = 'view_ticket_timer';
 					$acc_label = 'Time Tracking';
 					include('edit_ticket_tab.php');
 					$collapse_i++;
 				}
-				if (strpos($value_config, ','."Timer".',') !== FALSE && $access_all > 0 && $sort_field == 'Timer') {
+				if (strpos($value_config, ','."Day Tracking Block".',') !== FALSE && $access_all > 0 && $sort_field == 'Timer') {
 					$_GET['tab'] = 'view_day_tracking';
 					$acc_label = 'Day Tracking';
 					include('edit_ticket_tab.php');
@@ -3387,7 +3387,7 @@ var setHeading = function() {
 				}
 				$collapse_i++;
 			} ?>
-            
+
             <img id="back_to_top" src="../img/icons/ROOK-BackToTop-icon.png" class="no-toggle cursor-hand back-to-top" title="Back To Top" width="30" />
 <?php } ?>
 			<?php if($ticket_layout == 'Accordions' && $include_hidden != 'true') { ?>
