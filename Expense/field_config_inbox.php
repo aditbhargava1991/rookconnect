@@ -239,9 +239,6 @@ $expense_mode = $get_expense_config['expense_mode'];
 ?>
 <div class="has-main-screen scale-to-fill hide-titles-mob">
 <div class="main-screen standard-dashboard-body">
-    <div class="standard-body-title">
-        <h3>Settings - <span id="settingTitle">Categories</span>:</h3>
-    </div>
     <div class="standard-body-content full-height">
         <div class="dashboard-item dashboard-item2 full-height">
             <form id="form1" name="form1" method="post"	action="" enctype="multipart/form-data" class="form-horizontal" role="form">

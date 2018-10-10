@@ -369,7 +369,6 @@ $field_config = explode(',',$config_row['expense_dashboard']); ?>
 		</div>
 	</form>
 	<div class="report-display">
-		<a href="?<?= http_build_query($_GET) ?>&output=pdf"><img class="text-lg inline-img pull-right no-toggle" title="Download Report as PDF" src="../img/icons/ROOK-download-icon.png"></a>
 		<?= report_display($dbc) ?>
 	</div>
 </div>
@@ -379,7 +378,7 @@ $field_config = explode(',',$config_row['expense_dashboard']); ?>
 		'Flight,Hotel,Breakfast,Lunch,Dinner,Beverages,Transportation,Entertainment,Gas,Misc',
 		'Description,Date,Receipt,Type,Day Expense,Amount,Tax,Total', '0', 'GST', '5', 'PST', '0', 'HST', '0', 'Meals,Tip', 1"));
 	$field_config = explode(',',$config_row['expense_dashboard']);
-	$date_start = date('Y-01-01');
+	$date_start = date('Y-m-01');
 	$date_end = date('Y-m-t');
 	$filter_status = '';
 	$filter_staff = 0;
@@ -403,15 +402,29 @@ $field_config = explode(',',$config_row['expense_dashboard']); ?>
 		$filter_receipt = $_POST['filter_receipt'];
 		$filter_warnings = implode(',',$_POST['filter_warnings']);
 	}
+
+	if($_POST['filter_report_submit']) {
+		$date_start = $_POST['report_min_date'];
+		$date_end = $_POST['report_max_date'];
+		$reportType = $_POST['reportType'];
+		$_GET['view'] = $reportType;
+		?>
+		<script>
+			var newurl = window.location.protocol + "//" + window.location.host + window.location.pathname + '?tab=reports&view=<?php echo $reportType;?>';
+			window.history.pushState({ path: newurl }, '', newurl);
+		</script>
+		<?php
+	}
+
 	if($date_start == '' || $date_start == '0000-00-00') {
-		$date_start = date('Y-m-01');
+		$date_start = '0000-00-00';
 	} else {
-		$html .= "<span class='block-label'>Filter: Expense Start Date: $date_start</span>";
+		//$html .= "<span class='block-label'>Filter: Expense Start Date: $date_start</span>";
 	}
 	if($date_end == '' || $date_end == '0000-00-00') {
-		$date_end = date('Y-m-t');
+		$date_end = '9999-99-99';
 	} else {
-		$html .= "<span class='block-label'>Filter: Expense End Date: $date_end</span>";
+		//$html .= "<span class='block-label'>Filter: Expense End Date: $date_end</span>";
 	}
 	$filter_query = "`ex_date` BETWEEN '$date_start' AND '$date_end' AND `deleted`=0";
 	if($filter_status != '') {
@@ -462,10 +475,40 @@ $field_config = explode(',',$config_row['expense_dashboard']); ?>
 		$html .= "<span class='block-label'>Filter: No Receipt Attached</span>";
 		$filter_query .= " AND IFNULL(`ex_file`,'')=''";
 	}
-	$html .= '<div style="text-align: center;"><a href="?tab=reports&view=staff" '.(!isset($_GET['view']) || $_GET['view'] == 'staff' ? 'class="active"' : '').'>Staff</a> |
-		<a href="?tab=reports&view=category" '.($_GET['view'] == 'category' ? 'class="active"' : '').'>Category</a>'
-		.((in_array('Vendor',$field_config)) ? ' | <a href="?tab=reports&view=vendor"'.($_GET['view'] == 'vendor' ? 'class="active"' : '').'>Vendor</a>' : '')
-		.((in_array('Project',$field_config)) ? ' | <a href="?tab=reports&view=project"'.($_GET['view'] == 'project' ? 'class="active"' : '').'>'.PROJECT_TILE.'</a>' : '').'</div>';
+	$html .= '<form name="filter_report_form" action="" method="POST">
+		<label for="first_name" class="col-sm-2 control-label text-right">
+			<span class="popover-examples list-inline" style="margin:0 3px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Click here to set a date range for the expenses. Leaving the minimum date blank will allow you to select all expenses before a date."><img src="'.WEBSITE_URL.'/img/info.png" width="20"></a></span>
+			Minimum Date:
+		</label>
+		<div class="col-sm-4">
+			<input type="text" name="report_min_date" class="datepicker form-control" value="'.$date_start.'" />
+		</div>
+		<label for="first_name" class="col-sm-2 control-label text-right">
+			<span class="popover-examples list-inline" style="margin:0 3px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Click here to set a date range for the expenses. Leaving either the maximum date blank will allow you to select all expenses after a date."><img src="'.WEBSITE_URL.'/img/info.png" width="20"></a></span>
+			Maximum Date:
+		</label>
+		<div class="col-sm-4">
+			<input type="text" name="report_max_date" class="datepicker form-control" value="'.$date_end.'" />
+		</div>
+		<div class="clearfix"></div>
+		<div class="form-group">
+            <label class="col-sm-2 control-label"><span class="popover-examples list-inline" style="margin:0 3px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Select Report type"><img src="'.WEBSITE_URL.'/img/info.png" width="20"></a></span>Select</label>
+            <div class="col-sm-4">
+                <select name="reportType" class="chosen-select-deselect form-control">
+                    <option value="staff" '.(!isset($_GET['view']) || $_GET['view'] == 'staff' ? 'selected' : '').'>Staff</option>
+                    <option value="category" '.(!isset($_GET['view']) || $_GET['view'] == 'category' ? 'selected' : '').'>Category</option>
+                    <option value="project" '.(!isset($_GET['view']) || $_GET['view'] == 'project' ? 'selected' : '').'>Project</option>
+                    <option value="ticket" '.(!isset($_GET['view']) || $_GET['view'] == 'ticket' ? 'selected' : '').'>Ticket</option>
+                </select>
+            </div>
+        </div>
+        <div class="clearfix"></div>
+		<div class="col-sm-12">
+			<input type="submit" name="filter_report_submit" class="btn brand-btn mobile-block pull-right" value="Search">
+		</div>
+		<br>
+	</form>';
+	//$html .= '<div style="text-align: center;"><a href="?tab=reports&view=staff" '.(!isset($_GET['view']) || $_GET['view'] == 'staff' ? 'class="active"' : '').'>Staff</a> | <a href="?tab=reports&view=category" '.($_GET['view'] == 'category' ? 'class="active"' : '').'>Category</a>' .((in_array('Vendor',$field_config)) ? ' | <a href="?tab=reports&view=vendor"'.($_GET['view'] == 'vendor' ? 'class="active"' : '').'>Vendor</a>' : '') .((in_array('Project',$field_config)) ? ' | <a href="?tab=reports&view=project"'.($_GET['view'] == 'project' ? 'class="active"' : '').'>'.PROJECT_TILE.'</a>' : '').'</div>';
 	if(!isset($_GET['view']) || $_GET['view'] == 'staff') {
 		$html .= '<table class="table table-bordered new-table">
 			<tr class="hidden-xm hidden-xs">
@@ -558,6 +601,14 @@ $field_config = explode(',',$config_row['expense_dashboard']); ?>
 					</td>
 				</tr>';
 			}
+		$html .= '</table>';
+	} else if($_GET['view'] == 'ticket') {
+		$html .= '<table class="table table-bordered new-table">
+			<tr class="hidden-xm hidden-xs">
+				<th style="max-width: 25%; width: 15em;">'.TICKET_NOUN.'</th>
+				<th>Expense Amount</th>
+			</tr>';
+			
 		$html .= '</table>';
 	}
 	return $html;
