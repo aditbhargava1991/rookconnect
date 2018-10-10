@@ -2276,13 +2276,13 @@ function addMultiPO(img) {
 	initSelectOnChanges();
 }
 function remMultiPO(img) {
-	if($(img).closest('.po_lines_div').find('.multi-block').length <= 1) {
+	if($(img).closest('.po_nums_div').find('.multi-block').length <= 1) {
 		addMultiPO(img);
 	}
 
-	var block = $(img).closest('.po_lines_div');
+	var block = $(img).closest('.po_nums_div');
 	$(img).closest('.multi-block').remove();
-	$(block).find('[name="po_line"]').first().change();
+	$(block).find('[name="po_num"]').first().change();
 }
 function addMultiPOLine(img) {
 	destroyInputs('.po_lines_div');
