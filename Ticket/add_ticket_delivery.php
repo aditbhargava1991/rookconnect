@@ -836,7 +836,7 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
                                         </div>
                                     </div>
 								<?php } ?>
-                                <?php if(!($_GET['action_mode'] == 0)) { ?>
+                                <?php if(!($_GET['action_mode'] == 1)) { ?>
                                     <input type="hidden" name="deleted" value="0" data-table="ticket_schedule" data-id="<?= $stop['id'] ?>" data-id-field="id">
                                     <div class="col-sm-2"><img class="inline-img small black-color pull-right" src="../img/icons/ROOK-add-icon.png" data-history-label="Delivery Stop" onclick="addScheduledStop();"><img class="inline-img small pull-right" src="../img/remove.png" data-history-label="Delivery Stop" onclick="remScheduledStop(this);"></div>
                                 <?php } ?>
