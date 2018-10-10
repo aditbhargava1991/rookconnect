@@ -78,7 +78,7 @@ if(isset($_POST['custom_form'])) {
 				$options = explode(':',$field['options']);
 				$option_details = [];
 				foreach($options as $key => $option) {
-					$option_details[$key] = $option;
+					$option_details[explode('-',$option)[0]] = $option;
 					$options[$key] = explode('-',$option)[0];
 				}
 				$field_options = [];
