@@ -31,6 +31,9 @@ if(isset($_POST['custom_form'])) {
 				var data_text = $('<textarea />').html($(this).data('text')).text();
 				text = text+data_text+"\n";
 			});
+			if($(block).data('limit-note') != undefined && $(block).data('limit-note') != '') {
+				text = text+$(block).data('limit-note');
+			}
 			block.find('input,textarea').last().val(text);
 		}
 		function updateTicket(select, field) {
@@ -229,12 +232,15 @@ if(isset($_POST['custom_form'])) {
 									}
 									break;
 								case 'general-row':
+									$limit = '';
+									$offset = '';
+									$limit_note = '';
 									$limit_query = '';
 									if(in_array('limit',$options)) {
 										$limit_details = explode('-',$option_details['limit']);
-										$limit = ($limit_details[0] >= 0 ? $limit_details[0] : 9999999);
-										$offset = ($limit_details[1] >= 0 ? $limit_details[1] : 0);
-										$limit_note = $limit_details[2];
+										$limit = ($limit_details[1] >= 0 ? $limit_details[1] : 9999999);
+										$offset = ($limit_details[2] >= 0 ? $limit_details[2] : 0);
+										$limit_note = $limit_details[3];
 										$limit_query = " LIMIT $limit OFFSET $offset";
 									}
 									$list_options = [];
@@ -247,7 +253,7 @@ if(isset($_POST['custom_form'])) {
 									$po_list = [];
 									$i = 0;
 									$general_rows = mysqli_query($dbc, "SELECT `ticket_attached`.`id`, `ticket_attached`.`item_id`, `ticket_attached`.`rate`, `ticket_attached`.`qty`, `ticket_attached`.`received`, `ticket_attached`.`used`, `ticket_attached`.`description`, `ticket_attached`.`status`, `ticket_attached`.`po_line`, `ticket_attached`.`piece_num`, `ticket_attached`.`piece_type`, `ticket_attached`.`used`, `ticket_attached`.`weight`, `ticket_attached`.`weight_units`, `ticket_attached`.`dimensions`, `ticket_attached`.`dimension_units`, `ticket_attached`.`discrepancy`, `ticket_attached`.`backorder`, `ticket_attached`.`position`, `ticket_attached`.`notes`, `ticket_attached`.`contact_info` FROM `ticket_attached` WHERE `ticket_attached`.`src_table`='inventory_general' AND `ticket_attached`.`ticketid`='$ticketid' AND `ticket_attached`.`ticketid` > 0 AND `ticket_attached`.`deleted`=0".$query_daily.$limit_query);
-									$general_count = mysqli_num_rows($general_rows);
+									$general_count = mysqli_num_rows(mysqli_query($dbc, "SELECT `ticket_attached`.`id`, `ticket_attached`.`item_id`, `ticket_attached`.`rate`, `ticket_attached`.`qty`, `ticket_attached`.`received`, `ticket_attached`.`used`, `ticket_attached`.`description`, `ticket_attached`.`status`, `ticket_attached`.`po_line`, `ticket_attached`.`piece_num`, `ticket_attached`.`piece_type`, `ticket_attached`.`used`, `ticket_attached`.`weight`, `ticket_attached`.`weight_units`, `ticket_attached`.`dimensions`, `ticket_attached`.`dimension_units`, `ticket_attached`.`discrepancy`, `ticket_attached`.`backorder`, `ticket_attached`.`position`, `ticket_attached`.`notes`, `ticket_attached`.`contact_info` FROM `ticket_attached` WHERE `ticket_attached`.`src_table`='inventory_general' AND `ticket_attached`.`ticketid`='$ticketid' AND `ticket_attached`.`ticketid` > 0 AND `ticket_attached`.`deleted`=0".$query_daily));
 									$general_line = $general_rows->fetch_assoc();
 									do {
 										$value = '';
@@ -303,7 +309,7 @@ if(isset($_POST['custom_form'])) {
 									if(in_array('confirm',$options)) {
 										$checked = explode(',',$dbc->query("SELECT `field_value` FROM `ticket_pdf_field_values` `values` WHERE `ticketid`='$ticketid' AND `pdf_type`='{$form['id']}' AND `field_name`='included_".$field['field_name']."' AND '$revision' IN (`values`.`revision`, '999999999') AND `deleted`=0")->fetch_assoc());
 										foreach($list_options as $i => $option) {
-											echo '<label class="form-checkbox"><input type="checkbox" name="included_'.$field['field_name'].'" data-text="'.htmlentities($option).'" onchange="setText(this);" '.(in_array($include_id[$i],$checked) ? 'checked' : '').' value="'.$include_id[$i].'">'.$include_label[$i].'</label>';
+											echo '<label class="form-checkbox"><input type="checkbox" name="included_'.$field['field_name'].'" data-limit-note="'.$limit_note.'" data-text="'.htmlentities($option).'" onchange="setText(this);" '.(in_array($include_id[$i],$checked) ? 'checked' : '').' value="'.$include_id[$i].'">'.$include_label[$i].'</label>';
 										}
 										echo '<input type="checkbox" name="included_'.$field['field_name'].'" data-text="'.htmlentities($require_value).'" checked style="display:none;">';
 										$value = $require_value;
@@ -313,7 +319,7 @@ if(isset($_POST['custom_form'])) {
 									if(count($po_list) > 0) {
 										$checked = explode(',',$dbc->query("SELECT `field_value` FROM `ticket_pdf_field_values` `values` WHERE `ticketid`='$ticketid' AND `pdf_type`='{$form['id']}' AND `field_name`='included_".$field['field_name']."' AND '$revision' IN (`values`.`revision`, '999999999') AND `deleted`=0")->fetch_assoc());
 										foreach($po_list as $po_i => $option) {
-											echo '<label class="form-checkbox"><input type="checkbox" name="included_'.$field['field_name'].'" data-text="'.htmlentities($option).'" onchange="setText(this);" value="'.$include_id[$po_i+$i].'">'.$option.'</label>';
+											echo '<label class="form-checkbox"><input type="checkbox" name="included_'.$field['field_name'].'" data-limit-note="'.$limit_note.'" data-text="'.htmlentities($option).'" onchange="setText(this);" value="'.$include_id[$po_i+$i].'">'.$option.'</label>';
 										}
 										$value .= $require_value;
 									}
