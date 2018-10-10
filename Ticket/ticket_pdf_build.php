@@ -76,6 +76,11 @@ if(isset($_POST['custom_form'])) {
 			echo ' Origin: '.print_r($origin,true).' Destination: '.print_r($dest,true).' General: '.print_r($general,true).' Shipment: '.print_r($shipment,true)."-->";
 			while($field = $fields->fetch_assoc()) {
 				$options = explode(':',$field['options']);
+				$option_details = [];
+				foreach($options as $key => $option) {
+					$option_details[$option] = $option;
+					$options[$key] = explode('-',$option)[0];
+				}
 				$field_options = [];
 				if(in_array('mandatory',$options)) {
 					$field_options[] = 'required';
@@ -224,6 +229,14 @@ if(isset($_POST['custom_form'])) {
 									}
 									break;
 								case 'general-row':
+									$limit_query = '';
+									if(in_array('limit',$options)) {
+										$limit_details = explode('-',$option_details['limit']);
+										$limit = $limit_details[0];
+										$offset = $limit_details[1];
+										$limit_note = $limit_details[2];
+										$limit_query = " LIMIT $limit OFFSET $offset";
+									}
 									$list_options = [];
 									$include_label = [];
 									$include_id = [];
@@ -233,7 +246,8 @@ if(isset($_POST['custom_form'])) {
 									$include_po_confirm = '';
 									$po_list = [];
 									$i = 0;
-									$general_rows = mysqli_query($dbc, "SELECT `ticket_attached`.`id`, `ticket_attached`.`item_id`, `ticket_attached`.`rate`, `ticket_attached`.`qty`, `ticket_attached`.`received`, `ticket_attached`.`used`, `ticket_attached`.`description`, `ticket_attached`.`status`, `ticket_attached`.`po_line`, `ticket_attached`.`piece_num`, `ticket_attached`.`piece_type`, `ticket_attached`.`used`, `ticket_attached`.`weight`, `ticket_attached`.`weight_units`, `ticket_attached`.`dimensions`, `ticket_attached`.`dimension_units`, `ticket_attached`.`discrepancy`, `ticket_attached`.`backorder`, `ticket_attached`.`position`, `ticket_attached`.`notes`, `ticket_attached`.`contact_info` FROM `ticket_attached` WHERE `ticket_attached`.`src_table`='inventory_general' AND `ticket_attached`.`ticketid`='$ticketid' AND `ticket_attached`.`ticketid` > 0 AND `ticket_attached`.`deleted`=0".$query_daily);
+									$general_rows = mysqli_query($dbc, "SELECT `ticket_attached`.`id`, `ticket_attached`.`item_id`, `ticket_attached`.`rate`, `ticket_attached`.`qty`, `ticket_attached`.`received`, `ticket_attached`.`used`, `ticket_attached`.`description`, `ticket_attached`.`status`, `ticket_attached`.`po_line`, `ticket_attached`.`piece_num`, `ticket_attached`.`piece_type`, `ticket_attached`.`used`, `ticket_attached`.`weight`, `ticket_attached`.`weight_units`, `ticket_attached`.`dimensions`, `ticket_attached`.`dimension_units`, `ticket_attached`.`discrepancy`, `ticket_attached`.`backorder`, `ticket_attached`.`position`, `ticket_attached`.`notes`, `ticket_attached`.`contact_info` FROM `ticket_attached` WHERE `ticket_attached`.`src_table`='inventory_general' AND `ticket_attached`.`ticketid`='$ticketid' AND `ticket_attached`.`ticketid` > 0 AND `ticket_attached`.`deleted`=0".$query_daily.$limit_query);
+									$general_count = mysqli_num_rows($general_rows);
 									$general_line = $general_rows->fetch_assoc();
 									do {
 										$value = '';
@@ -302,6 +316,9 @@ if(isset($_POST['custom_form'])) {
 											echo '<label class="form-checkbox"><input type="checkbox" name="included_'.$field['field_name'].'" data-text="'.htmlentities($option).'" onchange="setText(this);" value="'.$include_id[$po_i+$i].'">'.$option.'</label>';
 										}
 										$value .= $require_value;
+									}
+									if(in_array('limit',$options) && $general_count >= $limit && !empty($limit_note)) {
+										$value .= "\n".$limit_note;
 									}
 									break;
 								case 'inventory-row':
