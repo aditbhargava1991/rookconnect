@@ -214,9 +214,10 @@ function send_email(button) {
 				body: $(button).closest('.email_div').find('.email_body').val()
 			},
 			success: function(response) {
-				if(response != '') {
-					alert(response);
-				}
+				//if(response != '') {
+					//alert(response);
+				//}
+				alert("Email Sent Successfully.");
 				$(button).closest('.email_div').hide().closest('.multi-block').find('[name=check_send_email]').removeAttr('checked');
 			}
 		});
@@ -247,9 +248,10 @@ function send_email(button) {
 				body: $(button).closest('.email_div').find('.email_body').val()
 			},
 			success: function(response) {
-				if(response != '') {
-					alert(response);
-				}
+				//if(response != '') {
+					//alert(response);
+				//}
+				alert("Email Sent Successfully.");
 				$(button).closest('.email_div').hide().closest('.scheduled_stop').find('[name=email]').closest('.form-group').find('[type=checkbox]').removeAttr('checked');
 			}
 		});
