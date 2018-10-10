@@ -102,20 +102,26 @@ if((isset($_POST['upload_file']) && !empty($_FILES['csv_file']['tmp_name'])) || 
 						$('.ui-datepicker-close').off('click');
 						var day = this.value;
 						this.value = '';
-						$.post('optimize_ajax.php?action=assign_ticket_deliveries', {
-							equipment: equipment,
-							ticket: ticketid,
-							start: $('[name=day_start_time]').val(),
-							increment: '30 minutes'
-						}, function(date) {
-                            sort_by_map(date, equipment, '', '', true);
-							$('.ticket_list').data('ids',$('.ticket_list').data('ids').filter(function(str) { return str != ticketid; }));
-							get_details();
-							$('[name=day_start_time]').val('');
-							initInputs();
-							ticketid = '';
-							equipment = '';
-						});
+						$.ajax({
+                            async: false,
+                            url: 'optimize_ajax.php?action=assign_ticket_deliveries',
+                            method: 'POST',
+                            data: {
+                                equipment: equipment,
+                                ticket: ticketid,
+                                start: $('[name=day_start_time]').val(),
+                                increment: '30 minutes'
+                            },
+                            success: function(date) {
+                                sort_by_map(date, equipment, '', '', true);
+                                $('.ticket_list').data('ids',$('.ticket_list').data('ids').filter(function(str) { return str != ticketid; }));
+                                get_details();
+                                $('[name=day_start_time]').val('');
+                                initInputs();
+                                ticketid = '';
+                                equipment = '';
+                            }
+                        });
 					});
 				}
 			},

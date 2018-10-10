@@ -79,10 +79,6 @@ if(!empty($calendar_auto_refresh)) {
 // Calendar Main Screen ?>
 <script>
 function resize_rows() {
-    <?php if(get_config($dbc, 'auto_show_time') == 'true') { ?>
-        var top = $('td.today-active a[data-currenttime]').filter(function() { return Date.parse($(this).data('currentdate')+' '+$(this).data('currenttime')) < Date.now(); }).last().offset().top;
-        $('.calendar_view').scrollTop(top);
-    <?php } ?>
     <?php if(get_config($dbc, 'auto_size_calendar_blocks') == 'true') { ?>
         var min_size = 0;
         $('.used-block').each(function() {
@@ -94,9 +90,19 @@ function resize_rows() {
                 min_size = $(this).find('span').innerHeight() / blocks + 5;
             }
         });
+        var max_size = $('.calendar_view').height() / 2;
+        if(min_size > max_size) {
+        	min_size = max_size;
+        }
         $('.calendar_view td').innerHeight(min_size).find('div.used_block').each(function() {
             $(this).innerHeight($(this).data('blocks') * min_size);
         });
+    <?php } ?>
+    <?php if(get_config($dbc, 'auto_show_time') == 'true') { ?>
+        var top = $('td.today-active a[data-currenttime]').filter(function() { return Date.parse($(this).data('currentdate')+' '+$(this).data('currenttime')) < Date.now(); }).last();
+        if(top.offset() != undefined) {
+            $('.calendar_view').scrollTop(top.offset().top);
+        }
     <?php } ?>
 }
 </script>

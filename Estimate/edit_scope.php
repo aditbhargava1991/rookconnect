@@ -122,7 +122,7 @@ function add_heading(scope) {
 			scope: scope
 		},
 		success: function(response) {
-			window.location.replace('?edit=<?= $estimateid ?>&status=templates');
+			window.location.replace('?edit=<?= $estimateid ?>&status=est_scope');
 		}
 	});
 }
@@ -139,7 +139,7 @@ function add_scope(scope) {
 			estimate: '<?= $estimateid ?>'
 		},
 		success: function(response) {
-			window.location.replace('?edit=<?= $estimateid ?>&status=templates');
+			window.location.replace('?edit=<?= $estimateid ?>&status=est_scope');
 		}
 	});
 }
@@ -193,31 +193,13 @@ function add_line() {
 	overlayIFrameSlider('estimate_scope_edit.php?estimateid=<?= $estimateid ?>&rate=<?= $_GET['rate'] ?>','75%');
 }
 </script>
-<div class="form-horizontal col-sm-12" data-tab-name="templates">
-	<h3 class="pull-left">Scope Templates</h3>
+<div class="form-horizontal col-sm-12" data-tab-name="est_scope">
+	<h3 class="pull-left"><?= rtrim(ESTIMATE_TILE, 's') ?> Scope</h3>
 	<!--<button class="btn brand-btn" onclick="overlayIFrameSlider('estimate_scope_edit.php?estimateid=<?= $estimateid ?>&src=true', '75%', true, true, 'auto', true); return false;">Load Scope Details</button>-->
 	<div class="pull-right gap-top"><a href="" onclick="overlayIFrameSlider('estimate_scope_edit.php?estimateid=<?= $estimateid ?>&src=true', '75%', true, true, 'auto', true); return false;"><img class="inline-img" src="../img/icons/ROOK-add-icon.png"></a></div>
 	<div class="clearfix"></div>
     
     <div class="scale-to-fill has-main-screen hide-titles-mob"><?php
-        include('../Rate Card/line_types.php');
-        $estimateid = filter_var($_GET['edit'],FILTER_SANITIZE_STRING);
-        $estimate = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `estimate` WHERE `estimateid`='$estimateid'"));
-        $config = explode(',',mysqli_fetch_array(mysqli_query($dbc,"SELECT `config_fields` FROM `field_config_estimate`"))[0]);
-		$us_exchange = json_decode(file_get_contents('https://www.bankofcanada.ca/valet/observations/group/FX_RATES_DAILY/json'), TRUE);
-
-        $rates = [];
-        $query = mysqli_query($dbc, "SELECT `rate_card` FROM `estimate_scope` WHERE `estimateid`='$estimateid' GROUP BY `rate_card`");
-        if(mysqli_num_rows($query) > 0) {
-            while($row = mysqli_fetch_array($query)) {
-                $rates[bin2hex($row[0])] = explode(':',$row[0]);
-            }
-        } else {
-            $rates[''] = '';
-        }
-        $current_rate = (!empty($_GET['rate']) ? $_GET['rate'] : key($rates));
-        $_GET['rate'] = $current_rate;
-        
         $scope_list = [];
         $query = mysqli_query($dbc, "SELECT `scope_name` FROM `estimate_scope` WHERE `estimateid`='$estimateid' AND `deleted`=0 GROUP BY IFNULL(`scope_name`,'') ORDER BY MIN(`sort_order`)");
         $scope_name = '';
@@ -227,20 +209,44 @@ function add_line() {
             }
         } else {
             $scope_list['scope_1'] = 'Scope 1';
-        } ?>
+        }
         
-        <!--<div class="standard-body-title"><h3>Estimate Scope <a href="estimate_scope_edit.php?estimateid=<?= $estimateid ?>&scope=<?= $_GET['status'] ?>" onclick="overlayIFrameSlider(this.href, '75%', true, false, 'auto', true); return false;"><img class="inline-img smaller" src="../img/icons/ROOK-edit-icon.png"></a></h3></div>-->
-        <div id="no-more-tables"><?php
-            foreach($scope_list as $scope_id => $scope) {
-                include('edit_headings.php');
-            } ?>
-        </div>
-        <?php //include('edit_summary.php'); ?>
+        if(count($scope_list) < 2) {
+            include('../Rate Card/line_types.php');
+            $estimateid = filter_var($_GET['edit'],FILTER_SANITIZE_STRING);
+            $estimate = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `estimate` WHERE `estimateid`='$estimateid'"));
+            $config = explode(',',mysqli_fetch_array(mysqli_query($dbc,"SELECT `config_fields` FROM `field_config_estimate`"))[0]);
+            $us_exchange = json_decode(file_get_contents('https://www.bankofcanada.ca/valet/observations/group/FX_RATES_DAILY/json'), TRUE);
+
+            $rates = [];
+            $query = mysqli_query($dbc, "SELECT `rate_card` FROM `estimate_scope` WHERE `estimateid`='$estimateid' GROUP BY `rate_card`");
+            if(mysqli_num_rows($query) > 0) {
+                while($row = mysqli_fetch_array($query)) {
+                    $rates[bin2hex($row[0])] = explode(':',$row[0]);
+                }
+            } else {
+                $rates[''] = '';
+            }
+            $current_rate = (!empty($_GET['rate']) ? $_GET['rate'] : key($rates));
+            $_GET['rate'] = $current_rate; ?>
+            
+            <!--<div class="standard-body-title"><h3>Estimate Scope <a href="estimate_scope_edit.php?estimateid=<?= $estimateid ?>&scope=<?= $_GET['status'] ?>" onclick="overlayIFrameSlider(this.href, '75%', true, false, 'auto', true); return false;"><img class="inline-img smaller" src="../img/icons/ROOK-edit-icon.png"></a></h3></div>-->
+            <div id="no-more-tables"><?php
+                foreach($scope_list as $scope_id => $scope) {
+                    include('edit_headings.php');
+                } ?>
+            </div>
+            <?php //include('edit_summary.php'); ?>
+        <?php } else {
+            foreach($scope_list as $scope_id => $scope) { ?>
+                <a href="?edit=<?= $_GET['edit'] ?>&tab=scope&status=<?= $scope_id ?>" class="pull-left"><?= $scope ?></a><br />
+            <?php }
+        } ?>
         
     </div>
     
     <hr />
 </div>
-<?php if(basename($_SERVER['SCRIPT_FILENAME']) == 'edit_templates.php') { ?>
+<?php if(basename($_SERVER['SCRIPT_FILENAME']) == 'edit_scope.php') { ?>
 	<div style="display:none;"><?php include('../footer.php'); ?></div>
 <?php } ?>

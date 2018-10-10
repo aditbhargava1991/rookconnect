@@ -176,7 +176,7 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 				<div class="panel-heading mobile_load">
 					<h4 class="panel-title">
 						<a data-toggle="collapse" data-parent="#project_accordions" href="#collapse_info">
-							Staff<span class="glyphicon glyphicon-plus"></span>
+							<?= PROJECT_NOUN ?> Staff<span class="glyphicon glyphicon-plus"></span>
 						</a>
 					</h4>
 				</div>
@@ -251,7 +251,7 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 				<div class="panel-heading mobile_load">
 					<h4 class="panel-title">
 						<a data-toggle="collapse" data-parent="#project_accordions" href="#collapse_docs">
-							Documents<span class="glyphicon glyphicon-plus"></span><span class="pull-right"><?= $project_counts['documents'] ?></span>
+							<?= PROJECT_NOUN ?> Documents<span class="glyphicon glyphicon-plus"></span><span class="pull-right"><?= $project_counts['documents'] ?></span>
 						</a>
 					</h4>
 				</div>
@@ -266,7 +266,7 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 				<div class="panel-heading mobile_load">
 					<h4 class="panel-title">
 						<a data-toggle="collapse" data-parent="#project_accordions" href="#collapse_dates">
-							Dates<span class="glyphicon glyphicon-plus"></span>
+							<?= PROJECT_NOUN ?> Dates<span class="glyphicon glyphicon-plus"></span>
 						</a>
 					</h4>
 				</div>
@@ -1115,7 +1115,8 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 									}
 								}
 							}
-							$path_milestones = $dbc->query("SELECT `milestones`.`milestone`,`milestones`.`label`,SUM(IF(`milestones`.`path_type`='E' AND `milestones`.`milestone`=`list`.`external`,1,IF(`milestones`.`path_type`='I' AND `milestones`.`milestone`=`list`.`milestone`,1,0))) `count` FROM `project_path_custom_milestones` `milestones` LEFT JOIN (SELECT `ticketid` `id`, '' `external`, `milestone_timeline` `milestone`, `projectid` FROM `tickets` WHERE `status` NOT IN ('Done','Archive','Archived') AND `deleted`=0 UNION SELECT `tasklistid` `id`, `external`, `project_milestone` `milestone`, `projectid` FROM `tasklist` WHERE `status` != 'Done' AND `deleted`=0) `list` ON `milestones`.`projectid`=`list`.`projectid` WHERE `milestones`.`projectid`='$projectid' AND `milestones`.`pathid`='$projectpathid' AND `milestones`.`path_type`='I' AND `deleted`=0 GROUP BY `milestones`.`projectid`, `milestones`.`milestone`, `milestones`.`pathid`, `milestones`.`path_type` ORDER BY `milestones`.`sort`, `milestones`.`id`");
+
+							$path_milestones = $dbc->query("SELECT `milestones`.`milestone`,`milestones`.`label`,SUM(IF(`milestones`.`path_type`='E' AND `milestones`.`milestone`=`list`.`external`,1,IF(`milestones`.`path_type`='I' AND `milestones`.`milestone`=`list`.`milestone`,1,0))) `count` FROM `project_path_custom_milestones` `milestones` LEFT JOIN (SELECT `ticketid` `id`, '' `external`, `milestone_timeline` `milestone`, `projectid` FROM `tickets` WHERE `status` NOT IN ('Done','Archive','Archived') AND `deleted`=0 UNION SELECT `tasklistid` `id`, `external`, `project_milestone` `milestone`, `projectid` FROM `tasklist` WHERE archived_date IS NULL AND `deleted`=0) `list` ON `milestones`.`projectid`=`list`.`projectid` WHERE `milestones`.`projectid`='$projectid' AND `milestones`.`pathid`='$projectpathid' AND `milestones`.`path_type`='I' AND `deleted`=0 GROUP BY `milestones`.`projectid`, `milestones`.`milestone`, `milestones`.`pathid`, `milestones`.`path_type` ORDER BY `milestones`.`sort`, `milestones`.`id`");
 							while($path_milestone = $path_milestones->fetch_assoc()) {
 								if($path_milestone['milestone'] != '') {
 									$tab_count = $path_milestone['count'];
@@ -1230,15 +1231,15 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 				<a href="?edit=<?= $_GET['edit'] ?>&tab=info" onclick="$('.standard-collapsible ul ul:visible').not($(this).next('ul')).toggle().prev('a').find('li').toggleClass('collapsed'); $(this).next('ul').toggle(); $(this).find('li').toggleClass('collapsed'); return false;" style="<?= count($sub_tabs) > 0 ? '' : 'display:none;' ?>">
 					<li class="sidebar-higher-level <?= $show_sub || $_GET['edit'] == 0 ? 'active blue' : 'collapsed' ?>"><?= PROJECT_NOUN ?> Details<span class="arrow"></span></li></a>
 				<ul id="ul_details" style="<?= $show_sub || $_GET['edit'] == 0 ? (count($sub_tabs) > 0 ? '' : 'padding-left:0;') : 'display: none;' ?>">
-					<?php if(in_array('Information',$tab_config) || $_GET['edit'] == 0) { $_GET['tab'] = ($_GET['tab'] == '' ? 'info' : $_GET['tab']); $next_tab = (!$next_set ? 'info' : $next_tab); $next_set = ($prev_set && !$show_sub ? true : false); $prev_set = ($_GET['tab'] == 'info' ? true : $prev_set); $previous_tab = ($prev_set ? $previous_tab : 'info'); ?><a href="?edit=<?= $_GET['edit'] ?>&tab=info"><li class="sidebar-lower-level <?= $_GET['tab'] == 'info' ? 'active blue' : '' ?>"><?= PROJECT_NOUN ?> Information</li></a><?php } ?>
+					<?php if(in_array('Information',$tab_config) || $_GET['edit'] == 0) { $_GET['tab'] = ($_GET['tab'] == '' ? 'info' : $_GET['tab']); $next_tab = (!$next_set ? 'info' : $next_tab); $next_set = ($prev_set && !$show_sub ? true : false); $prev_set = ($_GET['tab'] == 'info' ? true : $prev_set); $previous_tab = ($prev_set ? $previous_tab : 'info'); ?><a href="?edit=<?= $_GET['edit'] ?>&tab=info"><li class="sidebar-lower-level <?= $_GET['tab'] == 'info' ? 'active blue' : '' ?>">Information</li></a><?php } ?>
 					<?php if(mysqli_fetch_array(mysqli_query($dbc, "SELECT COUNT(*) FROM `estimate` WHERE `projectid`='$projectid' AND `projectid` > 0 AND `deleted`=0"))[0] > 0) {
 						$estimate_list = true; ?>
 						<?php if(in_array('Estimate Info',$tab_config)) { $_GET['tab'] = ($_GET['tab'] == '' ? 'estimate' : $_GET['tab']); $next_tab = (!$next_set ? 'estimate' : $next_tab); $next_set = ($prev_set && !$show_sub ? true : false); $prev_set = ($_GET['tab'] == 'estimate' ? true : $prev_set); $previous_tab = ($prev_set ? $previous_tab : 'estimate'); ?><a href="?edit=<?= $_GET['edit'] ?>&tab=estimate"><li class="sidebar-lower-level <?= $_GET['tab'] == 'estimate' ? 'active blue' : '' ?>">Estimate Details</li></a><?php } ?>
 					<?php } ?>
 					<?php if(in_array('Staff',$tab_config)) { $_GET['tab'] = ($_GET['tab'] == '' ? 'path' : $_GET['tab']); $next_tab = (!$next_set ? 'staff' : $next_tab); $next_set = ($prev_set && !$show_sub ? true : false); $prev_set = ($_GET['tab'] == 'staff' ? true : $prev_set); $previous_tab = ($prev_set ? $previous_tab : 'staff'); ?><a href="?edit=<?= $_GET['edit'] ?>&tab=staff"><li class="sidebar-lower-level <?= $_GET['tab'] == 'staff' ? 'active blue' : '' ?>">Staff <span class="pull-right"><?= $project_counts['staff'] ?></span></li></a><?php } ?>
-					<?php if(in_array('Details Path',$tab_config)) { $_GET['tab'] = ($_GET['tab'] == '' ? 'details_path' : $_GET['tab']); $next_tab = (!$next_set ? 'details_path' : $next_tab); $next_set = ($prev_set && !$show_sub ? true : false); $prev_set = ($_GET['tab'] == 'details_path' ? true : $prev_set); $previous_tab = ($prev_set ? $previous_tab : 'details_path'); ?><a href="?edit=<?= $_GET['edit'] ?>&tab=details_path"><li class="sidebar-lower-level <?= $_GET['tab'] == 'details_path' ? 'active blue' : '' ?>"><?= PROJECT_NOUN ?> Path Template <span class="pull-right"><?= $project_counts['paths'] ?></span></li></a><?php } ?>
-					<?php if(in_array('Notes',$tab_config)) { $_GET['tab'] = ($_GET['tab'] == '' ? 'notes' : $_GET['tab']); $next_tab = (!$next_set ? 'notes' : $next_tab); $next_set = ($prev_set && !$show_sub ? true : false); $prev_set = ($_GET['tab'] == 'notes' ? true : $prev_set); $previous_tab = ($prev_set ? $previous_tab : 'notes'); ?><a href="?edit=<?= $_GET['edit'] ?>&tab=notes"><li class="sidebar-lower-level <?= $_GET['tab'] == 'notes' ? 'active blue' : '' ?>"><?= PROJECT_NOUN ?> Notes <span class="pull-right"><?= $project_counts['notes'] ?></span></li></a><?php } ?>
-					<?php if(in_array('Details',$tab_config)) { $_GET['tab'] = ($_GET['tab'] == '' ? 'details' : $_GET['tab']); $next_tab = (!$next_set ? 'details' : $next_tab); $next_set = ($prev_set && !$show_sub ? true : false); $prev_set = ($_GET['tab'] == 'details' ? true : $prev_set); $previous_tab = ($prev_set ? $previous_tab : 'details'); ?><a href="?edit=<?= $_GET['edit'] ?>&tab=details"><li class="sidebar-lower-level <?= $_GET['tab'] == 'details' ? 'active blue' : '' ?>"><?= PROJECT_NOUN ?> Details <span class="pull-right"><?= $project_counts['details'] ?></span></li></a><?php } ?>
+					<?php if(in_array('Details Path',$tab_config)) { $_GET['tab'] = ($_GET['tab'] == '' ? 'details_path' : $_GET['tab']); $next_tab = (!$next_set ? 'details_path' : $next_tab); $next_set = ($prev_set && !$show_sub ? true : false); $prev_set = ($_GET['tab'] == 'details_path' ? true : $prev_set); $previous_tab = ($prev_set ? $previous_tab : 'details_path'); ?><a href="?edit=<?= $_GET['edit'] ?>&tab=details_path"><li class="sidebar-lower-level <?= $_GET['tab'] == 'details_path' ? 'active blue' : '' ?>">Path Template <span class="pull-right"><?= $project_counts['paths'] ?></span></li></a><?php } ?>
+					<?php if(in_array('Notes',$tab_config)) { $_GET['tab'] = ($_GET['tab'] == '' ? 'notes' : $_GET['tab']); $next_tab = (!$next_set ? 'notes' : $next_tab); $next_set = ($prev_set && !$show_sub ? true : false); $prev_set = ($_GET['tab'] == 'notes' ? true : $prev_set); $previous_tab = ($prev_set ? $previous_tab : 'notes'); ?><a href="?edit=<?= $_GET['edit'] ?>&tab=notes"><li class="sidebar-lower-level <?= $_GET['tab'] == 'notes' ? 'active blue' : '' ?>">Notes <span class="pull-right"><?= $project_counts['notes'] ?></span></li></a><?php } ?>
+					<?php if(in_array('Details',$tab_config)) { $_GET['tab'] = ($_GET['tab'] == '' ? 'details' : $_GET['tab']); $next_tab = (!$next_set ? 'details' : $next_tab); $next_set = ($prev_set && !$show_sub ? true : false); $prev_set = ($_GET['tab'] == 'details' ? true : $prev_set); $previous_tab = ($prev_set ? $previous_tab : 'details'); ?><a href="?edit=<?= $_GET['edit'] ?>&tab=details"><li class="sidebar-lower-level <?= $_GET['tab'] == 'details' ? 'active blue' : '' ?>">Details <span class="pull-right"><?= $project_counts['details'] ?></span></li></a><?php } ?>
 					<?php if(in_array('Documents',$tab_config)) { $_GET['tab'] = ($_GET['tab'] == '' ? 'documents' : $_GET['tab']); $next_tab = (!$next_set ? 'documents' : $next_tab); $next_set = ($prev_set && !$show_sub ? true : false); $prev_set = ($_GET['tab'] == 'documents' ? true : $prev_set); $previous_tab = ($prev_set ? $previous_tab : 'documents'); ?><a href="?edit=<?= $_GET['edit'] ?>&tab=documents"><li class="sidebar-lower-level <?= $_GET['tab'] == 'documents' ? 'active blue' : '' ?>">Documents <span class="pull-right"><?= $project_counts['documents'] ?></span></li></a><?php } ?>
 					<?php if(in_array('Dates',$tab_config)) { $_GET['tab'] = ($_GET['tab'] == '' ? 'dates' : $_GET['tab']); $next_tab = (!$next_set ? 'dates' : $next_tab); $next_set = ($prev_set && !$show_sub ? true : false); $prev_set = ($_GET['tab'] == 'dates' ? true : $prev_set); $previous_tab = ($prev_set ? $previous_tab : 'dates'); ?><a href="?edit=<?= $_GET['edit'] ?>&tab=dates"><li class="sidebar-lower-level <?= $_GET['tab'] == 'dates' ? 'active blue' : '' ?>">Dates</li></a><?php }
 					if(count($user_forms) > 0 && $_GET['edit'] > 0) {

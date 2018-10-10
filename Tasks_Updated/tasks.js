@@ -45,6 +45,7 @@ function mark_task_staff(sel) {
         url: "../Tasks_Updated/task_ajax_all.php?fill=mark_staff&tasklistid="+tasklistid+'&staff='+staff,
         dataType: "html",
         success: function(response) {
+			window.location.reload();
 		}
     });
 }

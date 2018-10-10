@@ -97,6 +97,18 @@ if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode && !$int
 			</div>
 		</div>
 		<div class="form-group">
+			<?php $ticket_default_status = get_config($dbc, 'ticket_default_status'); ?>
+			<label class="col-sm-4 control-label">Default status for a new <?= TICKET_NOUN ?><?= $ticket_default_status != '' && $tab != '' ? ' (Default: '.$ticket_default_status.')' : '' ?>:</label>
+			<div class="col-sm-8">
+				<select name="ticket_default_status<?= $tab == '' ? '' : '_'.$tab ?>" data-placeholder="Select Status" class="chosen-select-deselect"><option></option>
+					<?php $tab_ticket_default_status = get_config($dbc, 'ticket_default_status'.($tab == '' ? '' : '_'.$tab));
+					foreach(explode(',',get_config($dbc, 'ticket_status')) as $status) { ?>
+						<option <?= $status == $tab_ticket_default_status ? 'selected' : '' ?> value="<?= $status ?>"><?= $status ?></option>
+					<?php } ?>
+				</select>
+			</div>
+		</div>
+		<div class="form-group">
 			<?php $rate_card_contact = get_config($dbc, 'rate_card_contact'); ?>
 			<label class="col-sm-4 control-label"><span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will specify the contact for which the rate card will pull."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Preferred Customer Rate Card Contact Field
 				<?= $rate_card_contact != '' && $tab != '' ? '(Default: '.($rate_card_contact == 'businessid' ? BUSINESS_CAT : ($rate_card_contact == 'agentid' ? 'Additional Contact' : ($rate_card_contact == 'origin:vendor' ? 'Origin - Contact' : ($rate_card_contact == 'destination:vendor' ? 'Destination - Contact' : ($rate_card_contact == 'origin:carrier' ? 'Transport Carrier' : ''))))).')' : '' ?>:</label>
@@ -121,6 +133,22 @@ if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode && !$int
 						<option <?= $status == $ticket_recurring_status ? 'selected' : '' ?> value="<?= $status ?>"><?= $status ?></option>
 					<?php } ?>
 				</select>
+			</div>
+		</div>
+		<label class="form-checkbox any-width"><input type="checkbox" <?= in_array("Email Creator", $all_config) ? 'checked disabled' : (in_array("Email Creator", $value_config) ? "checked" : '') ?> value="Email Creator" name="tickets[]">
+			<span class="popover-examples"><a data-toggle="tooltip" data-original-title="Send an email to the user that created the <?= TICKET_NOUN ?> when it is created."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Send Email to Creator of new <?= TICKET_NOUN ?></label>
+		<div class="form-group">
+			<?php $ticket_new_email_subject = get_config($dbc, 'ticket_new_email_subject'); ?>
+			<label class="col-sm-4 control-label">Subject for Email for new <?= TICKET_TILE ?><?= $ticket_new_email_subject != '' && $tab != '' ? ' (Default: '.$ticket_new_email_subject.')' : '' ?>:<br /><em>You can add [TICKET] to have the <?= TICKET_NOUN ?> label populated into the subject.</em></label>
+			<div class="col-sm-8">
+				<input type="text" name="ticket_new_email_subject<?= $tab == '' ? '' : '_'.$tab ?>" placeholder="New Email Subject" class="form-control" value="<?= get_config($dbc, 'ticket_new_email_subject'.($tab == '' ? '' : '_'.$tab)) ?>">
+			</div>
+		</div>
+		<div class="form-group">
+			<?php $ticket_new_email_body = get_config($dbc, 'ticket_new_email_body'); ?>
+			<label class="col-sm-4 control-label">Body for Email for new <?= TICKET_TILE ?><?= $ticket_new_email_body != '' && $tab != '' ? ' (Default set for all '.TICKET_TILE.')' : '' ?>:<br /><em>You can add [TICKET] to have the <?= TICKET_NOUN ?> label populated into the body.</em></label>
+			<div class="col-sm-8">
+				<textarea name="ticket_new_email_body<?= $tab == '' ? '' : '_'.$tab ?>" placeholder="New Email Subject" class="form-control"><?= get_config($dbc, 'ticket_new_email_body'.($tab == '' ? '' : '_'.$tab)) ?></textarea>
 			</div>
 		</div>
 	</div>
@@ -2637,6 +2665,9 @@ if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode && !$int
 							<?php if($field_sort_field == 'Delivery Pickup Address') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Delivery Stops", array_merge($all_config,$value_config)) ? 'disabled' : (in_array("Delivery Pickup Address", $all_config) ? 'checked disabled' : (in_array("Delivery Pickup Address", $value_config) ? "checked" : '')) ?> value="Delivery Pickup Address" name="tickets[]"> Multi-Stop Address</label>
 							<?php } ?>
+							<?php if($field_sort_field == 'Delivery Pickup Address Google') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Delivery Stops", array_merge($all_config,$value_config)) ? 'disabled' : (in_array("Delivery Pickup Address Google", $all_config) ? 'checked disabled' : (in_array("Delivery Pickup Address Google", $value_config) ? "checked" : '')) ?> value="Delivery Pickup Address Google" name="tickets[]"> Multi-Stop Google Map Link</label>
+							<?php } ?>
 							<?php if($field_sort_field == 'Delivery Pickup Coordinates') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Delivery Stops", array_merge($all_config,$value_config)) ? 'disabled' : (in_array("Delivery Pickup Coordinates", $all_config) ? 'checked disabled' : (in_array("Delivery Pickup Coordinates", $value_config) ? "checked" : '')) ?> value="Delivery Pickup Coordinates" name="tickets[]"> Multi-Stop Lat/Lng Coordinates</label>
 							<?php } ?>
@@ -2761,6 +2792,13 @@ if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode && !$int
 								<label class="col-sm-4 control-label">Delivery Tabs</label>
 								<div class="col-sm-8">
 									<input type="text" name="delivery_types" class="form-control" value="<?= get_config($dbc, 'delivery_types') ?>" onchange="loadDefaultDeliveryDropdown();">
+								</div>
+							</div>
+							<div class="form-group">
+								<?php $delivery_default_tabs = get_config($dbc, 'delivery_default_tabs'); ?>
+								<label class="col-sm-4 control-label">Populate new <?= TICKET_NOUN ?> with a delivery for each of these tabs<?= $delivery_default_tabs != '' && $tab != '' ? ' (Default: '.$delivery_default_tabs.')' : '' ?>:</label>
+								<div class="col-sm-8">
+									<input type="text" name="delivery_default_tabs<?= $tab == '' ? '' : '_'.$tab ?>" placeholder="Enter Tabs" class="form-control" value="<?= get_config($dbc, 'delivery_default_tabs'.($tab == '' ? '' : '_'.$tab)) ?>">
 								</div>
 							</div>
 							<div class="form-group">
@@ -3959,6 +3997,47 @@ if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode && !$int
 							<?php } ?>
 						<?php } ?>
 						</div>
+					</div>
+				</div>
+			</div>
+		<?php }
+
+		if($sort_field == 'Application Report') { ?>
+			<div class="form-group sort_order_accordion" data-accordion="Application Report">
+				<label class="col-sm-4 control-label accordion_label"><span class="accordion_label_text"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Application Report' ?></span>:<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode && !$intake_mode) { ?> <a href="" onclick="editAccordion(this); return false;"><span class="subscript-edit">EDIT</span></a>
+					<span class="dataToggle cursor-hand no-toggle <?= in_array('ticket_chemicals',$all_unlocked_tabs) ? 'disabled' : '' ?>" title="Locking a tab will hide the contents of that tab on all new <?= TICKET_TILE ?>. A user with access to edit the <?= TICKET_NOUN ?> can then unlock that tab for that <?= TICKET_NOUN ?>.<?= in_array('ticket_chemicals',$all_unlocked_tabs) ? ' This tab has been locked for all '.TICKET_TILE.'.' : '' ?>">
+						<input type="hidden" name="ticket_tab_locks<?= empty($tab) ? '' : '_'.$tab ?>" value="ticket_chemicals" data-toggle="<?= in_array('ticket_chemicals',$unlocked_tabs) ? 1 : 0 ?>">
+						<img class="inline-img" style="<?= in_array('ticket_chemicals',array_merge($unlocked_tabs,$all_unlocked_tabs)) ? '' : 'display:none;' ?>" src="../img/icons/lock.png">
+						<img class="inline-img" style="<?= in_array('ticket_chemicals',array_merge($unlocked_tabs,$all_unlocked_tabs)) ? 'display:none;' : '' ?>" src="../img/icons/lock-open.png"></span><?php } ?></label>
+				<div class="col-sm-4 accordion_rename" style="display: none;">
+					<input type="text" name="renamed_accordion[]" value="<?= !empty($renamed_accordion) ? $renamed_accordion : 'Application Report' ?>" onfocusout="updateAccordion(this);" class="form-control">
+				</div>
+				<div class="col-sm-8">
+					<label class="form-checkbox"><input type="checkbox" <?= in_array("Application Report", $all_config) ? 'checked disabled' : (in_array("Application Report", $value_config) ? "checked" : '') ?> value="Application Report" name="tickets[]"> Enable</label>
+					<div class="block-group">
+						<div class="fields_sortable">
+						<?php foreach ($field_sort_order as $field_sort_field) { ?>
+							<?php if($field_sort_field == 'Application Equipment') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Application Equipment", $all_config) ? 'checked disabled' : (in_array("Application Equipment", $value_config) ? "checked" : '') ?> value="Application Equipment" name="tickets[]"> Equipment Description</label>
+							<?php } ?>
+							<?php if($field_sort_field == 'Application Wind Speed') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Application Wind Speed", $all_config) ? 'checked disabled' : (in_array("Application Wind Speed", $value_config) ? "checked" : '') ?> value="Application Wind Speed" name="tickets[]"> Wind Speed</label>
+							<?php } ?>
+							<?php if($field_sort_field == 'Application Humidity') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Application Humidity", $all_config) ? 'checked disabled' : (in_array("Application Humidity", $value_config) ? "checked" : '') ?> value="Application Humidity" name="tickets[]"> Humidity</label>
+							<?php } ?>
+							<?php if($field_sort_field == 'Application Temperature') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Application Temperature", $all_config) ? 'checked disabled' : (in_array("Application Temperature", $value_config) ? "checked" : '') ?> value="Application Temperature" name="tickets[]"> Temperature</label>
+							<?php } ?>
+							<?php if($field_sort_field == 'Application Wind Direction') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Application Wind Direction", $all_config) ? 'checked disabled' : (in_array("Application Wind Direction", $value_config) ? "checked" : '') ?> value="Application Wind Direction" name="tickets[]"> Wind Direction</label>
+							<?php } ?>
+							<?php if($field_sort_field == 'Application Soil') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Application Soil", $all_config) ? 'checked disabled' : (in_array("Application Soil", $value_config) ? "checked" : '') ?> value="Application Soil" name="tickets[]"> Soil</label>
+							<?php } ?>
+						<?php } ?>
+						</div>
+						<div class="clearfix"></div>
 					</div>
 				</div>
 			</div>

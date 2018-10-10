@@ -15,37 +15,37 @@ $purchaser_config = explode(',',get_config($dbc, 'invoice_purchase_contact'));
 $purchaser_label = count($purchaser_config) > 1 ? 'Customer' : $purchaser_config[0];
 
 if (isset($_POST['send_email'])) {
-	$email_list = $_POST['recipient'];
-	$subject = $_POST['subject'];
-	$body = $_POST['body'];
-	$sender = [$_POST['sender'] => $_POST['sender_name']];
-	$customers = $_POST['customer'];
-	$invoices = $_POST['pdf_send'];
+    $email_list = $_POST['recipient'];
+    $subject = $_POST['subject'];
+    $body = $_POST['body'];
+    $sender = [$_POST['sender'] => $_POST['sender_name']];
+    $customers = $_POST['customer'];
+    $invoices = $_POST['pdf_send'];
 
-	foreach($invoices as $invoice) {
-		$invoice = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `invoice` WHERE `invoiceid`='$invoice'"));
-		$to = $email_list;
-		if($customers == 'customer') {
-			$to .= ','.get_email($dbc, $invoice['patientid']);
-		}
-		$to = filter_var_array(explode(',', $to), FILTER_VALIDATE_EMAIL);
-		if(count($to) > 0) {
-			$file = 'download/invoice_'.$invoice['invoiceid'].'.pdf';
-			if(file_exists($file)) {
-				try {
-					send_email($sender, $to, '', '', $subject, $body, $file);
-				} catch(Exception $e) {
-					echo "<script> alert('Unable to send email for Invoice #".$invoice['posid'].". Please check your email addresses or try again later.'); </script>";
-				}
-			} else {
-				echo "<script> alert('Unable to find invoice. Please recreate the invoice.'); </script>";
-			}
-		}
-	}
-	echo "<script> window.location.replace(''); </script>";
+    foreach($invoices as $invoice) {
+        $invoice = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `invoice` WHERE `invoiceid`='$invoice'"));
+        $to = $email_list;
+        if($customers == 'customer') {
+            $to .= ','.get_email($dbc, $invoice['patientid']);
+        }
+        $to = filter_var_array(explode(',', $to), FILTER_VALIDATE_EMAIL);
+        if(count($to) > 0) {
+            $file = 'download/invoice_'.$invoice['invoiceid'].'.pdf';
+            if(file_exists($file)) {
+                try {
+                    send_email($sender, $to, '', '', $subject, $body, $file);
+                } catch(Exception $e) {
+                    echo "<script> alert('Unable to send email for Invoice #".$invoice['posid'].". Please check your email addresses or try again later.'); </script>";
+                }
+            } else {
+                echo "<script> alert('Unable to find invoice. Please recreate the invoice.'); </script>";
+            }
+        }
+    }
+    echo "<script> window.location.replace(''); </script>";
 }
 if((!empty($_GET['action'])) && ($_GET['action'] == 'delete')) {
-	$invoiceid = $_GET['invoiceid'];
+    $invoiceid = $_GET['invoiceid'];
 
     $sql = mysqli_query($dbc, "DELETE FROM invoice WHERE invoiceid='$invoiceid'");
     $sql = mysqli_query($dbc, "DELETE FROM invoice_patient WHERE invoiceid='$invoiceid'");
@@ -54,54 +54,55 @@ if((!empty($_GET['action'])) && ($_GET['action'] == 'delete')) {
 
 if((!empty($_GET['action'])) && ($_GET['action'] == 'email')) {
 
-	$invoiceid = $_GET['invoiceid'];
-	$patientid = $_GET['patientid'];
+    $invoiceid = $_GET['invoiceid'];
+    $patientid = $_GET['patientid'];
 
-	$name_of_file = 'invoice_'.$invoiceid.'.pdf';
+    $name_of_file = 'invoice_'.$invoiceid.'.pdf';
 
     $to = get_email($dbc, $patientid);
     $subject = 'Physiotherapy Invoice';
-	$body = 'Please find attached your invoice from Physiotherapy';
+    $body = 'Please find attached your invoice from Physiotherapy';
     $attachment = 'download/'.$name_of_file;
 
     send_email('', $to, '', '', $subject, $body, $attachment);
 
     echo '<script type="text/javascript"> alert("Invoice Successfully Sent to Patient."); window.location.replace("today_invoice.php"); </script>';
 
-	//header('Location: unpaid_invoice.php');
+    //header('Location: unpaid_invoice.php');
     // Send Email to Client
 }
 ?>
 <script type="text/javascript" src="../Invoice/invoice.js"></script>
 <script type="text/javascript">
 $(document).ready(function() {
-	$(window).resize(function() {
+    $(window).resize(function() {
         var available_height = window.innerHeight - $('footer:visible').height() - $('.tile-header').height() - $('.standard-body-title').height() - 5;
         if(available_height > 200) {
             $('#invoice_div .standard-body').height(available_height);
         }
     }).resize();
+    
+    $('.selectall').click(
+        function() {
+            if($('.selectall').hasClass("deselectall")) {
+                $(".selectall").removeClass('deselectall');
+                $('.pdf_send').prop('checked', false);
+                $(".selectall").text('Select all');
+                $('.selectall').prop('title', 'This will select all rows on the current page.');
+            } else {
+                $(".selectall").addClass('deselectall');
+                $('.pdf_send').prop('checked', true);
+                $(".selectall").text('Deselect all');
+                $('.selectall').prop('title', 'This will deselect all rows on the current page.');
+            }
 
-	$('.selectall').click(
-		function() {
-			if($('.selectall').hasClass("deselectall")) {
-				$(".selectall").removeClass('deselectall');
-				$('.pdf_send').prop('checked', false);
-				$(".selectall").text('Select all');
-				$('.selectall').prop('title', 'This will select all rows on the current page.');
-			} else {
-				$(".selectall").addClass('deselectall');
-				$('.pdf_send').prop('checked', true);
-				$(".selectall").text('Deselect all');
-				$('.selectall').prop('title', 'This will deselect all rows on the current page.');
-			}
+            show_hide_email();
+        }
+    );
 
-			show_hide_email();
-		}
-	);
 
     $('.all_view').click(function(event) {  //on click
-		var arr = $('.patientid_for_invoice').val().split('_');
+        var arr = $('.patientid_for_invoice').val().split('_');
         if(this.checked) { // check select status
             $('.privileges_view_'+arr[1]).each(function() { //loop through each checkbox
                 this.checked = true;  //select all checkboxes with class "checkbox1"
@@ -116,22 +117,22 @@ $(document).ready(function() {
 $(document).on('change', 'select[name="status[]"]', function() { changeStatus(this); });
 
 function changeStatus(sel) {
-	$.ajax({
-		type: "GET",
-		url: "../Invoice/invoice_ajax.php?action=update_status&invoice="+$(sel).data('invoiceid')+"&status="+sel.value,
-		dataType: "html",
-		success: function(response){
-			window.location.reload();
-		}
-	});
+    $.ajax({
+        type: "GET",
+        url: "../Invoice/invoice_ajax.php?action=update_status&invoice="+$(sel).data('invoiceid')+"&status="+sel.value,
+        dataType: "html",
+        success: function(response){
+            window.location.reload();
+        }
+    });
 }
 function show_hide_email() {
-	var status = $('[name="pdf_send[]"]:checked').length;
-	if(status > 0) {
-		$('[name=send_email_div]').show();
-	} else {
-		$('[name=send_email_div]').hide();
-	}
+    var status = $('[name="pdf_send[]"]:checked').length;
+    if(status > 0) {
+        $('[name=send_email_div]').show();
+    } else {
+        $('[name=send_email_div]').hide();
+    }
 }
 </script>
 
@@ -201,6 +202,7 @@ function show_hide_email() {
 
     <form name="invoice" method="GET" action="" class="form-horizontal" role="form">
         <?php $value_config = ','.get_config($dbc, 'invoice_dashboard').','; ?>
+        <?php $xsl_xml_value_config = ','.get_config($dbc, 'invoice_dashboard_xsl_xml').','; ?>
         <input type="hidden" name="tab" value="all" />
         <div class="form-group search-group double-gap-top">
             <div class="col-xs-12">
@@ -300,7 +302,7 @@ function show_hide_email() {
                 echo display_pagination($dbc, $query, $pageNum, $rowsPerPage);
             // Pagination Finish //
 
-            echo "<br /><div id='no-more-tables'><table class='table table-bordered table-striped'>";
+            echo "<br /><div id='no-more-tables'><table class='table table-bordered table-striped' id='invoiceData'>";
                 echo "<thead>";
                     echo "<tr class='hidden-xs hidden-sm'>";
                         if (strpos($value_config, ','."invoiceid".',') !== FALSE) {
@@ -322,7 +324,7 @@ function show_hide_email() {
                             echo '<th>Delivery/Shipping Type</th>';
                         }
                         if (strpos($value_config, ','."invoice_pdf".',') !== FALSE) {
-                            echo '<th>Invoice PDF</th>';
+                            echo '<th>Invoice</th>';
                         }
                         if (strpos($value_config, ','."comment".',') !== FALSE) {
                             echo '<th>Comment</th>';
@@ -338,6 +340,7 @@ function show_hide_email() {
 
             $src_row = false;
             $src_ids = [];
+            $invoiceLayout = get_config($dbc, 'invoice_design');
             while($src_row || $invoice = mysqli_fetch_array( $result ))
             {
                 if(!$src_row && in_array($invoice['invoiceid'],$src_ids)) {
@@ -376,18 +379,33 @@ function show_hide_email() {
                 if (strpos($value_config, ','."delivery".',') !== FALSE) {
                     echo '<td data-title="Delivery/Shipping Type">' . $invoice['delivery_type'] . '</td>';
                 }
+                echo '<td data-title="Invoice">';
+                echo 'Invoice#'.$invoice['invoiceid'];
                 if (strpos($value_config, ','."invoice_pdf".',') !== FALSE) {
-                    echo '<td data-title="Invoice PDF">';
                     if(file_exists($invoice_pdf)) {
-                        echo '<a target="_blank" href="'.$invoice_pdf.'">Invoice #'.$invoice['invoiceid'].' <img src="'.WEBSITE_URL.'/img/icons/pdf.png" title="Invoice PDF" class="no-toggle inline-img" /></a><br />';
+                        echo '<a class="pull-left" target="_blank" href="'.$invoice_pdf.'"><img src="'.WEBSITE_URL.'/img/icons/pdf.png" title="Invoice PDF" class="no-toggle inline-img" /></a>';
                     }
+
+                    /*
+                    if($invoice['invoiceid_src'] > 0 && file_exists('../'.FOLDER_NAME.'/Download/invoice_'.$invoice['invoiceid_src'].'.pdf')) {
+                        echo '<a class="pull-left" target="_blank" href="'.'../'.FOLDER_NAME.'/Download/invoice_'.$invoice['invoiceid_src'].'.pdf'.'"><img src="'.WEBSITE_URL.'/img/icons/pdf.png" title="Primary Invoice PDF" class="no-toggle inline-img" /></a>';
+                    }
+                    */
                     if($invoice['invoiceid_src'] > 0 && file_exists('download/invoice_'.$invoice['invoiceid_src'].'.pdf')) {
                         echo '<a target="_blank" href="'.'download/invoice_'.$invoice['invoiceid_src'].'.pdf'.'">Primary Invoice #'.$invoice['invoiceid_src'].' <img src="'.WEBSITE_URL.'/img/icons/pdf.png" title="Primary Invoice PDF" class="no-toggle inline-img" /></a><br />';
                     } else if($invoice['invoiceid_src'] > 0 && file_exists('Download/invoice_'.$invoice['invoiceid_src'].'.pdf')) {
                         echo '<a target="_blank" href="'.'Download/invoice_'.$invoice['invoiceid_src'].'.pdf'.'">Primary Invoice #'.$invoice['invoiceid_src'].' <img src="'.WEBSITE_URL.'/img/icons/pdf.png" title="Primary Invoice PDF" class="no-toggle inline-img" /></a><br />';
                     }
-                    echo '</td>';
                 }
+                if($invoiceLayout=='cnt1'){
+                    if (strpos($xsl_xml_value_config, ','."invoice_xsl".',') !== FALSE) {
+                        echo '<a class="pull-left" target="_blank" href="../Invoice/invoice_ajax.php?action=export_pos_file&invoice='.$invoice['invoiceid'].'&format=xsl"><img src="'.WEBSITE_URL.'/img/icons/POS_XSL.png" title="Invoice XSL" class="no-toggle inline-img" /></a>';
+                    }
+                    if (strpos($xsl_xml_value_config, ','."invoice_xml".',') !== FALSE) {
+                        echo '<a class="pull-left" target="_blank" href="../Invoice/invoice_ajax.php?action=export_pos_file&invoice='.$invoice['invoiceid'].'&format=xml"><img src="'.WEBSITE_URL.'/img/icons/POS_XML.png" title="Invoice XML" class="no-toggle inline-img" /></a>';
+                    }
+                }
+                echo '</td>';
                 if (strpos($value_config, ','."comment".',') !== FALSE) {
                     echo '<td data-title="Comment">' .  html_entity_decode($invoice['comment']) . '</td>';
                 }
@@ -469,3 +487,18 @@ function show_hide_email() {
 
     </form>
 </div><!-- .standard-body-content -->
+
+<div>  
+<script type="text/javascript">  
+function exportInvoiceData(invoiceId, format) {
+    $.ajax({
+        type: "GET",
+        url: "../Invoice/invoice_ajax.php?action=export_pos_file&invoice="+invoiceId+"&format="+format,
+        dataType: "html",
+        success: function(response){
+           console.log(response)
+        }
+    });
+}
+</script>
+

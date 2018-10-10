@@ -27,7 +27,9 @@ checkAuthorised('dispatch'); ?>
             'delivery_notes'=>'Delivery Notes',
             'status'=>'Status',
             'camera'=>'Camera Upload Hover',
-            'signature'=>'Signature Hover'
+            'signature'=>'Signature Hover',
+            'star_rating'=>'Star Rating Hover',
+            'customer_notes_hover'=>'Customer Notes Hover'
         ];
         $dispatch_tile_ticket_card_fields = explode(',',get_config($dbc, 'dispatch_tile_ticket_card_fields'));
         foreach($ticket_label_fields as $label_key => $label_field) { ?>

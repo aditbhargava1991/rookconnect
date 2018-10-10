@@ -272,8 +272,11 @@ $expense_mode = $get_expense_config['expense_mode'];
 			$('.category_div table').append('<tr><td><input type="hidden" name="cat_id[]" value=""><input type="hidden" name="cat_heading[]" value="New Heading"><input type="hidden" name="cat_amount[]" value=0><input type="text" name="category[]" class="form-control"></td><td><input type="number" min=0 step=1000 name="heading_code[]" class="form-control"></td><td></td></tr>');
 		}
 		function remove_category(button) {
-			$('input[name="category[]"][data-category="'+$(input).data('category')+'"]').closest('.panel').remove();
-			$(button).closest('tr').remove();
+			console.log(button);
+			$('input[data-category="'+button+'"]').closest('.panel').remove();
+			$('input[data-category="'+button+'"]').closest('tr').remove();
+			//$('input[name="src_category[]"][data-category="'+$(input).data('category')+'"]').closest('.panel').remove();
+			//$(button).closest('tr').remove();
 		}
 		</script>
 		<table class="table table-bordered">
@@ -287,7 +290,7 @@ $expense_mode = $get_expense_config['expense_mode'];
 			<tr>
 				<td data-title="Category"><input type="text" name="src_category[]" data-category="cat_name_<?= $category['category'] ?>" value="<?= $category['category'] ?>" class="form-control" onchange="set_category(this);"></td>
 				<td data-title="EC Code"><input type="number" min="0" step="1000" data-category="cat_name_<?= $category['category'] ?>" value="<?= $category['EC'] ?>" class="form-control" onchange="set_category_code(this);"></td>
-				<td data-title=""><button data-category="cat_name_<?= $category['category'] ?>" onclick="removeCategory(this); return false;" class="btn brand-btn">Delete</button></td>
+				<td data-title=""><button data-category="cat_name_<?= $category['category'] ?>" onclick="remove_category('cat_name_<?= $category['category'] ?>'); return false;" class="btn brand-btn">Delete</button></td>
 			</tr>
 		<?php } while($category = mysqli_fetch_array($categories_result)); ?>
 		</table>

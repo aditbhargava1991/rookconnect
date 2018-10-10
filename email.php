@@ -21,7 +21,7 @@ function send_email($from, $to, $cc, $bcc, $subject, $body, $attachment = '') {
 	// Setup the sending address and reply address
 	$sender = [];
 	if(EMAIL_SERVER != 'smtp.gmail.com') {
-		$sender = EMAIL_UESR;
+		$sender = EMAIL_USER;
 		if($from == '') {
 			$replyTo = EMAIL_ADDRESS;
 		} else if(is_array($from)) {

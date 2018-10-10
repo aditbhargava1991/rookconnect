@@ -77,8 +77,6 @@ if(explode(':',$get_ticket['rate_card'])[1] == 'company') {
 $clientid = '';
 $businessid = '';
 $heading_auto = 1;
-$default_status = get_config($dbc, "ticket_default_status");
-$status = empty($default_status) ? 'Time Estimate Needed' : $default_status;
 if(!empty($_GET['supportid'])) {
 	$supportid = $_GET['supportid'];
 	$company_name = get_support($dbc, $supportid, 'company_name');
@@ -224,6 +222,18 @@ if(!empty($_GET['edit'])) {
 <?php } else if(!empty($_GET['type'])) {
 	$ticket_type = $_GET['type'];
 }
+
+$default_status = get_config($dbc, "ticket_default_status_".$ticket_type);
+if(empty($default_status)) {
+    $default_status = get_config($dbc, "ticket_default_status");
+}
+$status = empty($status) ? (empty($default_status) ? 'Time Estimate Needed' : $default_status) : $status;
+if(!empty($status) && $ticketid > 0 && !check_subtab_persmission($dbc, 'ticket', ROLE, 'ticket_status'.config_safe_str($status))) {
+    $force_readonly = true;
+}
+if(empty($ticket_status)) {
+    $ticket_status = config_safe_str($status);
+}
 if(!empty(MATCH_CONTACTS) && !in_array($get_ticket['businessid'],explode(',',MATCH_CONTACTS)) && !in_array_any(array_filter(explode(',',$get_ticket['clientid'])),explode(',',MATCH_CONTACTS)) && $ticketid > 0) {
 	ob_clean();
 	header('Location: index.php');
@@ -321,8 +331,17 @@ if(!empty($ticket_status)) {
 				$value_config .= ','.$action_mode_ignore_field;
 			}
 		}
-		$value_config = ','.implode(',',array_intersect(explode(',',$value_config), explode(',',$value_config_all))).',';
-	}
+		$value_config = ','.implode(',',array_intersect(explode(',',$value_config), explode(',',$value_config_all))).','; ?>
+        <script>
+        var status_reload = false;
+        var status_value = '<?= $status ?>';
+        completed_last = function() {
+            if(status_reload == true) {
+                window.location.reload();
+            }
+        }
+        </script>
+    <?php }
 }
 
 //Intake Fields
@@ -658,6 +677,7 @@ var no_verify = <?= IFRAME_PAGE ? 'true' : 'false' ?>;
 $(document).ready(function() {
 	setActions();
 	window.onbeforeunload = function() {
+        send_creator_email();
 		return checkMandatoryFields();
 	}
 	$('#mobile_tabs .panel-heading').off('click',loadPanel).click(loadPanel);
@@ -784,6 +804,24 @@ $(document).on('click', '#back_to_top', function(e) {
    e.preventDefault();
    $('.standard-body').animate({scrollTop: 0}, 400);
 });
+function send_creator_email() {
+    <?php if(!($ticketid > 0) && strpos($value_config, ','."Email Creator".',') !== false && !empty($_SESSION['email_address'])) {
+        $ticket_new_email_subject = get_config($dbc, 'ticket_new_email_subject'.($ticket_type == '' ? '' : '_'.$ticket_type));
+        if(empty($ticket_new_email_subject) && !empty($ticket_type)) {
+            $ticket_new_email_subject = get_config($dbc, 'ticket_new_email_subject');
+        }
+        $ticket_new_email_body = get_config($dbc, 'ticket_new_email_body'.($ticket_type == '' ? '' : '_'.$ticket_type));
+        if(empty($ticket_new_email_body) && !empty($ticket_type)) {
+            $ticket_new_email_body = get_config($dbc, 'ticket_new_email_body');
+        } ?>
+        $.post('../ajax_all.php?fill=send_email', {
+            send_every_email: 'true',
+            send_to: '<?= decryptIt($_SESSION['email_address']) ?>',
+            subject: '<?= $ticket_new_email_subject ?>'.replace('[TICKET]',$('.ticketid_span').text()),
+            body: '<?= htmlentities($ticket_new_email_body.'<br /><a href="'.WEBSITE_URL.'/Ticket/index.php?edit=TICKETID">Click Here</a> to view the '.TICKET_NOUN) ?>'.replace('TICKETID',$('[name=ticketid]').val()).replace('[TICKET]',$('.ticketid_span').text())
+        });
+    <?php } ?>
+}
 function loadPanel() {
 	if(!$(this).hasClass('higher_level_heading')) {
 		$(this).off('click',loadPanel);
@@ -938,7 +976,7 @@ function fillCustomForm(a) {
 		if(target == 'slider') {
 			overlayIFrameSlider(href, 'auto', true, true);
 		} else {
-			window.location.href = href;
+			window.open(href, '_blank');
 		}
 	}
 }
@@ -1225,7 +1263,7 @@ var setHeading = function() {
 	<?php if($calendar_ticket_slider == 'accordion') {
 		$get_query = $_GET; ?>
 		<div class="pull-right gap-left gap-top">
-			<a href="" class="btn brand-btn" onclick="openFullView(); return false;">Open Full Window</a>
+			<a href="" onclick="openFullView(); return false;"><img src="../img/icons/ROOK-FullScreen-icon.png" alt="Open Full Window" title="Open Full Window" class="no-toggle" width="25" /></a>
 		</div>
 	<?php } ?>
 	<div class="<?= $calendar_ticket_slider != 'accordion' ? 'show-on-mob' : '' ?>">
@@ -2595,6 +2633,24 @@ var setHeading = function() {
 				</div>
 			<?php } ?>
 
+			<?php if (strpos($value_config, ','."Application Report".',') !== FALSE && $sort_field == 'Application Report') { ?>
+				<div class="panel panel-default">
+					<div class="panel-heading mobile_load">
+						<h4 class="panel-title">
+							<a data-toggle="collapse" data-parent="#mobile_tabs<?= $heading_id ?>" <?= $indent_accordion_text ?> href="#collapse_ticket_apply_report">
+								<?= !empty($renamed_accordion) ? $renamed_accordion : 'Application Report' ?><span class="glyphicon glyphicon-plus"></span>
+							</a>
+						</h4>
+					</div>
+
+					<div id="collapse_ticket_apply_report" class="panel-collapse collapse">
+						<div class="panel-body" data-accordion="<?= $sort_field ?>" data-file-name="edit_ticket_tab.php?<?= isset($_GET['intake_key']) ? 'intake_key='.$_GET['intake_key'].'&' : '' ?>ticketid=<?= $ticketid ?>&tab=ticket_apply_report">
+							Loading...
+						</div>
+					</div>
+				</div>
+			<?php } ?>
+
 			<?php if (strpos($value_config, ','."Intake".',') !== FALSE && $sort_field == 'Intake') { ?>
 				<div class="panel panel-default">
 					<div class="panel-heading mobile_load">
@@ -2770,7 +2826,7 @@ var setHeading = function() {
 		<div class="clearfix"></div>
 		<div class="gap-top add_gap_here">
 			<?php if(strpos($value_config,',Finish Button Hide,') === FALSE && !isset($_GET['intake_key'])) { ?>
-				<a href="index.php" class="pull-right btn brand-btn finish_btn" onclick="<?= $update_time == 'auto_sort' ? "if(sorting_done != 2) { return getDriveTime(this, '".date('Y-m-d')."', '".($stopid > 0 ? get_field_value('equipmentid','ticket_schedule','id',$stopid) : $get_ticket['equipmentid'])."'); }" : '' ?><?= (strpos($value_config, ','."Timer".',') !== FALSE) ? 'stopTimers();' : '' ?><?= (strpos($value_config, ','."Check Out".',') !== FALSE || strpos($value_config, ','."Complete Combine Checkout Summary".',') !== FALSE) ? 'return checkoutAll(this);' : '' ?>" <?= strpos($value_config, ','."Finish Check Out Require Signature".',') !== FALSE ? 'data-require-signature="1"' : '' ?> <?= strpos($value_config, ','."Finish Create Recurring Ticket".',') !== FALSE ? 'data-recurring-ticket="1"' : '' ?>>Finish</a>
+				<a href="index.php" class="pull-right btn brand-btn finish_btn" onclick="<?= $update_time == 'auto_sort' && $ticketid > 0 && $_GET['new_ticket'] != 'true' && $_GET['action_mode'] == 1 ? "if(sorting_done != 2) { return getDriveTime(this, '".date('Y-m-d')."', '".($stopid > 0 ? get_field_value('equipmentid','ticket_schedule','id',$stopid) : $get_ticket['equipmentid'])."'); }" : '' ?><?= (strpos($value_config, ','."Timer".',') !== FALSE) ? 'stopTimers();' : '' ?><?= (strpos($value_config, ','."Check Out".',') !== FALSE || strpos($value_config, ','."Complete Combine Checkout Summary".',') !== FALSE) ? 'return checkoutAll(this);' : '' ?>" <?= strpos($value_config, ','."Finish Check Out Require Signature".',') !== FALSE ? 'data-require-signature="1"' : '' ?> <?= strpos($value_config, ','."Finish Create Recurring Ticket".',') !== FALSE ? 'data-recurring-ticket="1"' : '' ?>>Finish</a>
 			<?php } ?>
 			<?php if($access_any && !isset($_GET['intake_key'])) { ?>
 				<a href="<?= $back_url ?>" class="pull-right gap-right"><img class="no-toggle" src="<?= WEBSITE_URL ?>/img/icons/save.png" alt="Save" width="36" title="Save" /></a>
@@ -2789,7 +2845,7 @@ var setHeading = function() {
 				<?php } ?>
 				<?php $pdfs = $dbc->query("SELECT `id`, `pdf_name`, `target` FROM `ticket_pdf` WHERE `deleted`=0 AND CONCAT(',',IFNULL(NULLIF(`ticket_types`,''),'$ticket_type'),',') LIKE '%,$ticket_type,%'");
 				while($pdf = $pdfs->fetch_assoc()) { ?>
-					<a href="../Ticket/index.php?custom_form=<?= $pdf['id'] ?>&ticketid=<?= $ticketid > 0 ? $ticketid : '' ?>" target="_blank" class="pull-right btn brand-btn margin-horizontal" onclick="<?= $pdf['target'] == 'slider' ? "overlayIFrameSlider(this.href, 'auto', true, true); return false;" : "" ?>"><?= $pdf['pdf_name'] ?></a>
+					<a href="../Ticket/index.php?custom_form=<?= $pdf['id'] ?>&ticketid=<?= $ticketid > 0 ? $ticketid : '' ?>" target="_blank" class="pull-right btn brand-btn margin-horizontal" data-target="<?= $pdf['target'] ?>" onclick="fillCustomForm(this); return false;"><?= $pdf['pdf_name'] ?></a>
 				<?php } ?>
 			<?php } ?>
 			<?php if(strpos($value_config,',Export Ticket Log,') !== FALSE && !empty($ticketid) && !isset($_GET['intake_key'])) {
@@ -2879,7 +2935,7 @@ var setHeading = function() {
 						<?php } ?>
 						<?php $get_query = $_GET; ?>
 							<div class="pull-right gap-left">
-								<a href="" class="btn brand-btn" onclick="openFullView(); return false;">Open Full Window</a>
+								<a href="" onclick="openFullView(); return false;"><img src="../img/icons/ROOK-FullScreen-icon.png" alt="Open Full Window" title="Open Full Window" class="no-toggle" width="25" /></a>
 							</div>
 						<?php if(strpos($value_config,',Quick Reminder Button,') !== FALSE && !($strict_view > 0) && !isset($_GET['intake_key'])) { ?>
 					        <div class="pull-right gap-top">
@@ -3309,6 +3365,11 @@ var setHeading = function() {
 					$acc_label = 'Chemicals';
 					include('edit_ticket_tab.php');
 				}
+				if (strpos($value_config, ','."Application Report".',') !== FALSE && $sort_field == 'Application Report') {
+					$_GET['tab'] = 'ticket_apply_report';
+					$acc_label = 'Application Report';
+					include('edit_ticket_tab.php');
+				}
 				if (strpos($value_config, ','."Intake".',') !== FALSE && $sort_field == 'Intake') {
 					$_GET['tab'] = 'ticket_intake';
 					$acc_label = 'Intake';
@@ -3341,7 +3402,7 @@ var setHeading = function() {
 				$body = 'A '.TICKET_NOUN.' has been submitted for approval. Please log in and review it.<br/><br/>
 					<b><a target="_blank" href="'.WEBSITE_URL.'/Ticket/index.php?tab=administration_'.$admin_group['id'].'_pending__">Approvals</a></b><br/>
 					<a target="_blank" href="'.WEBSITE_URL.'/Ticket/index.php?edit="></a>'; ?>
-				<a class="btn brand-btn pull-right cursor-hand collapsed" data-toggle="collapse" data-target="#approval_submit" data-sort="<?= $update_time ?>" onclick="<?= $update_time == 'auto_sort' ? "if(sorting_done != 2) { return getDriveTime(this, '".date('Y-m-d')."', '".($stopid > 0 ? get_field_value('equipmentid','ticket_schedule','id',$stopid) : $get_ticket['equipmentid'])."'); }" : '' ?> updateApprovalIDLabel()">Submit for Approval</a>
+				<a class="btn brand-btn pull-right cursor-hand collapsed" data-toggle="collapse" data-target="#approval_submit" data-sort="<?= $update_time ?>" onclick="<?= $update_time == 'auto_sort' && $_GET['action_mode'] == 1 ? "if(sorting_done != 2) { return getDriveTime(this, '".date('Y-m-d')."', '".($stopid > 0 ? get_field_value('equipmentid','ticket_schedule','id',$stopid) : $get_ticket['equipmentid'])."'); }" : '' ?> updateApprovalIDLabel()">Submit for Approval</a>
 				<script>
 				function updateApprovalIDLabel() {
 					$('#approval_submit [name=approval_subject]').val($('.ticketid_span').text()+' has been submitted for approval');
@@ -3384,7 +3445,7 @@ var setHeading = function() {
 			<?php } ?>
 			<div class="gap-top add_gap_here" <?= $calendar_ticket_slider == 'accordion' ? 'style="display:none;"' : '' ?>>
 				<?php if(strpos($value_config,',Finish Button Hide,') === FALSE && !isset($_GET['intake_key'])) { ?>
-					<a href="<?= empty($ticket_next_step_timesheet) ? 'index.php' : 'next_ticket_step.php?action_mode='.$_GET['action_mode'] ?>" <?= empty($ticket_next_step_timesheet) ? '' : 'target="_top"' ?> class="pull-right btn brand-btn finish_btn" onclick="<?= $update_time == 'auto_sort' ? "if(sorting_done != 2) { return getDriveTime(this, '".date('Y-m-d')."', '".($stopid > 0 ? get_field_value('equipmentid','ticket_schedule','id',$stopid) : $get_ticket['equipmentid'])."'); }" : '' ?><?= (strpos($value_config, ','."Timer".',') !== FALSE) ? 'stopTimers();' : '' ?><?= (strpos($value_config, ','."Check Out".',') !== FALSE || strpos($value_config, ','."Complete Combine Checkout Summary".',') !== FALSE) ? 'return checkoutAll(this);' : '' ?>" <?= strpos($value_config, ','."Finish Check Out Require Signature".',') !== FALSE ? 'data-require-signature="1"' : '' ?> <?= strpos($value_config, ','."Finish Create Recurring Ticket".',') !== FALSE ? 'data-recurring-ticket="1"' : '' ?>>Finish</a>
+					<a href="<?= empty($ticket_next_step_timesheet) || !($ticketid > 0) || $_GET['new_ticket'] == 'true' || $_GET['action_mode'] == 0 ? 'index.php' : 'next_ticket_step.php?action_mode='.$_GET['action_mode'] ?>" <?= empty($ticket_next_step_timesheet) || !($ticketid > 0) || $_GET['new_ticket'] == 'true' ? '' : 'target="_top"' ?> class="pull-right btn brand-btn finish_btn" onclick="<?= $update_time == 'auto_sort' && ($ticketid > 0) && $_GET['new_ticket'] != 'true' && $_GET['action_mode'] == 1 ? "if(sorting_done != 2) { return getDriveTime(this, '".date('Y-m-d')."', '".($stopid > 0 ? get_field_value('equipmentid','ticket_schedule','id',$stopid) : $get_ticket['equipmentid'])."'); }" : '' ?><?= (strpos($value_config, ','."Timer".',') !== FALSE) ? 'stopTimers();' : '' ?><?= (strpos($value_config, ','."Check Out".',') !== FALSE || strpos($value_config, ','."Complete Combine Checkout Summary".',') !== FALSE) ? 'return checkoutAll(this);' : '' ?>" <?= strpos($value_config, ','."Finish Check Out Require Signature".',') !== FALSE ? 'data-require-signature="1"' : '' ?> <?= strpos($value_config, ','."Finish Create Recurring Ticket".',') !== FALSE ? 'data-recurring-ticket="1"' : '' ?>>Finish</a>
 				<?php } ?>
 				<?php if($access_any && !isset($_GET['intake_key'])) { ?>
 					<a href="<?= $back_url ?>" class="pull-right gap-right"><img class="no-toggle" src="<?= WEBSITE_URL ?>/img/icons/save.png" alt="Save" width="36" title="Save" /></a>
