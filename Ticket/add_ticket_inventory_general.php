@@ -1,3 +1,36 @@
+<?php if($_GET['copy_all_pieces'] == 1) {
+	$general_inventory_list = mysqli_query($dbc, "SELECT `ticket_attached`.* FROM `ticket_attached` LEFT JOIN `inventory` ON `ticket_attached`.`item_id`=`inventory`.`inventoryid` WHERE `ticket_attached`.`src_table`='inventory_general' AND (IFNULL(`ticket_attached`.`description`,'') != 'import' OR IFNULL(`ticket_attached`.`piece_type`,'') != '') AND `ticket_attached`.`ticketid`='$ticketid' AND `ticket_attached`.`ticketid` > 0 AND `ticket_attached`.`deleted`=0".$query_daily);
+	$first_piece = mysqli_fetch_assoc($general_inventory_list);
+    $ticket_attached_columns = mysqli_fetch_all(mysqli_query($dbc, "SHOW COLUMNS FROM `ticket_attached` WHERE `Field` NOT IN ('id','ticketid','used','contact_info')"),MYSQLI_ASSOC);
+    $ticket_attached_query = [];
+    $ticket_attached_query[] = "`contact_info` = 1";
+    foreach($ticket_attached_columns as $ticket_column) {
+        $ticket_attached_query[] = "`".$ticket_column['Field']."` = '".$first_piece[$ticket_column['Field']]."'";
+    }
+    $ticket_attached_query = implode(', ', $ticket_attached_query);
+	while($other_piece = mysqli_fetch_assoc($general_inventory_list)) {
+        mysqli_query($dbc, "UPDATE `ticket_attached` SET $ticket_attached_query WHERE `id` = '".$other_piece['id']."'");
+	} ?>
+	<script type="text/javascript">
+	$(document).ready(function() {
+		var curr_url = window.location.search;
+		if(curr_url.indexOf('?') != -1) {
+			curr_url = curr_url.split('?')[1];
+		}
+		var query_string_arr = {};
+		var query_strings = curr_url.split('&');
+		query_strings.forEach(function(query_string) {
+			if(query_string.indexOf('=') != -1) {
+				var pair = query_string.split('=');
+				query_string_arr[pair[0]] = pair[1].replace(/\+/g, " ");
+			}
+		});
+		delete query_string_arr["copy_all_pieces"];
+		var new_url = decodeURIComponent("?"+$.param(query_string_arr));
+		window.history.replaceState(null, '', new_url);
+	});
+	</script>
+<?php } ?>
 <script>
 $(document).ready(function() {
 	$('.multi_dimensions .col-sm-2 input,.multi_dimensions .col-sm-2 select').off('change',setMultiDimensions).change(setMultiDimensions);
@@ -18,14 +51,22 @@ function copyPiece(event) {
 
 }
 function copyAllPiece() {
-	var i = 0;
-	$('.tab-section[data-type=general]:visible [data-type=inventory_general][name=contact_info]').each(function() {
-
-		if(!this.checked) {
-			$(this).prop('checked',true).change();
+	var curr_url = window.location.search;
+	if(curr_url.indexOf('?') != -1) {
+		curr_url = curr_url.split('?')[1];
+	}
+	var query_string_arr = {};
+	var query_strings = curr_url.split('&');
+	query_strings.forEach(function(query_string) {
+		if(query_string.indexOf('=') != -1) {
+			var pair = query_string.split('=');
+			query_string_arr[pair[0]] = pair[1].replace(/\+/g, " ");
 		}
-
 	});
+	query_string_arr["copy_all_pieces"] = 1;
+	var new_url = decodeURIComponent("?"+$.param(query_string_arr));
+	window.history.replaceState(null, '', new_url);
+    window.location.reload();
 }
 function copyPieceOne(target) {
 	var first_piece = $('.tab-section[data-type=general]:first').find('[data-table=ticket_attached][data-type=inventory_general][name!=contact_info]');
