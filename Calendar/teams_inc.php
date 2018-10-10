@@ -1,5 +1,5 @@
 <?php include_once('../include.php');
-checkAuthorised('calendar_rook');
+checkAuthorised();
 include_once('../Calendar/calendar_functions_inc.php');
 
 $teamid = '';
