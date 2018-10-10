@@ -3,21 +3,23 @@
 .new_task_box { border:1px solid #ACA9A9; margin:6px !important; padding:10px !important; }
 .flag_color_box{background-color: #fff;padding: 10px;min-width: 250px;position: absolute;left: 20px;top: 110px;z-index: 1;border: 2px solid #878787;}
 </style>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-colorpicker/2.5.3/js/bootstrap-colorpicker.js"></script>
-<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-colorpicker/2.5.3/css/bootstrap-colorpicker.css" rel="stylesheet">
+<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-colorpicker/2.5.3/js/bootstrap-colorpicker.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-colorpicker/2.5.3/css/bootstrap-colorpicker.css" rel="stylesheet"> -->
 <script>
-$(document).ready(function(){
-	$('.demo_cpicker').colorpicker();
-});
+//$(document).ready(function(){
+	//$('.demo_cpicker').colorpicker();
+//});
 
 function flag_item_box(taskid){
-	$('#flag_color_box_'+taskid).show();
+	//$('#flag_color_box_'+taskid).show();
+	$('#colorpickerbtn_'+taskid)[0].click();
 }
-function flag_item(task) {
+
+function flag_item(task,flag_colour) {
 	//task_id = $(task).parents('span').data('task');
 	//task_id = $('#flag_color_box_'+task).next('span').data('task');
 	task_id = task;
-	flag_colour = $('#demo_'+task_id).val();
+	//flag_colour = $('#demo_'+task_id).val();
 	flag_colour = flag_colour. substring(1, flag_colour. length);
 	$.ajax({
 		method: "POST",
@@ -26,7 +28,7 @@ function flag_item(task) {
 		data: { table:'tasklist', id_field:'tasklistid', field:'flag_colour', id: task_id, new_colour:flag_colour },
 		complete: function(result) {
 			$('li[data-id="'+task_id+'"]').css('background-color',(result.responseText == '' ? '' : '#'+result.responseText));
-			$('#flag_color_box_'+task_id).hide();
+			//$('#flag_color_box_'+task_id).hide();
 		}
 	});
 }
@@ -290,7 +292,7 @@ if($type == 'Ticket') {
 	$doc_table = "project_milestone_document";
 	$doc_folder = "../Tasks_Updated/download/";
     ?>
-    <div style="position: relative; display:none" id="flag_color_box_<?php echo $item['tasklistid']?>">
+    <!-- <div style="position: relative; display:none" id="flag_color_box_<?php echo $item['tasklistid']?>">
     	<div class="form-group flag_color_box">                                    	
     		<label class="col-sm-5 control-label" style="text-align: left;">Flag Colour:</label>
     		<div class="col-sm-7">
@@ -299,7 +301,7 @@ if($type == 'Ticket') {
                     <?php foreach(explode(',', get_config($dbc, "ticket_colour_flags")) as $flag_colour) { ?>
                         <option <?= $item['flag_colour'] == $flag_colour ? 'selected' : '' ?> value="<?= $flag_colour ?>" style="background-color:#<?= $flag_colour ?>;"><?= $flag_colour ?></option>
                     <?php } ?>
-                </select> -->
+                </select> ->
                 <input id="demo_<?php echo $item['tasklistid']?>" type="text" class="form-control demo_cpicker" value="<?php echo $item['flag_colour']?>" />
             </div>
             <div class="col-sm-12">
@@ -307,7 +309,17 @@ if($type == 'Ticket') {
             	<input style="margin-top:20px" type="button" class="btn brand-btn pull-right" value="Close" onclick="$('#flag_color_box_<?php echo $item['tasklistid']?>').hide()">
             </div>
 		</div>
-	</div>
+	</div> -->
+	
+	<input type="color" style="display:none" id="colorpickerbtn_<?php echo $item['tasklistid']?>" value="<?php echo '#'.$item['flag_colour']?>">
+	
+	<script>
+	var theInput = document.getElementById("colorpickerbtn_<?php echo $item['tasklistid']?>");
+	theInput.addEventListener("input", function() {
+		flag_item('<?php echo $item['tasklistid']?>',theInput.value);
+	}, false);
+	</script>
+	
     <?php
 	$actions = '<span class="pull-right action-icons double-gap-bottom gap-top" style="width: 100%;" data-task="'.$item['tasklistid'].'"><img src="../img/icons/ROOK-edit-icon.png" class="inline-img" title="Edit" onclick="overlayIFrameSlider(\'../Tasks_Updated/add_task.php?type='.$item['status'].'&tasklistid='.$item['tasklistid'].'\');">'.
 		(in_array('flag_manual',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-flag-icon.png" class="inline-img manual-flag-icon" title="Flag This!">' : '').
