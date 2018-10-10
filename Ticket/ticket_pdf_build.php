@@ -31,8 +31,8 @@ if(isset($_POST['custom_form'])) {
 				var data_text = $('<textarea />').html($(this).data('text')).text();
 				text = text+data_text+"\n";
 			});
-			if($(block).data('limit-note') != undefined && $(block).data('limit-note') != '') {
-				text = text+$(block).data('limit-note');
+			if($(input).data('limit-note') != undefined && $(input).data('limit-note') != '') {
+				text = text+$(input).data('limit-note');
 			}
 			block.find('input,textarea').last().val(text);
 		}
