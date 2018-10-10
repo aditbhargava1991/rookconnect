@@ -16,7 +16,7 @@ if(basename($_SERVER['SCRIPT_FILENAME']) != 'newsboard.php') {
     }
 } ?>
 <a href="<?php echo WEBSITE_URL;?>/News Board/index.php" class="newsboard-button">
-    <img src="<?= WEBSITE_URL ?>/img/newsboard-icon.png" title="Newsboard" class="inline-img no-toggle" data-placement="bottom">
+    <img src="<?= WEBSITE_URL ?>/img/newsboard-icon.png" title="News Board" class="inline-img no-toggle" data-placement="bottom">
     <?php if($nb_count > 0) { ?>
         <span class="planner-icon-notifications no-toggle" title="Notifications" data-placement="bottom" style="<?= $nb_count > 99 ? 'font-size:6px;' : '' ?>"><?= $nb_count > 99 ? '99+' : $nb_count ?></span>
     <?php } ?>

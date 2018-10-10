@@ -38,6 +38,8 @@ $(document).ready(function() {
 $(document).on('change', '.tab-section[data-type=general]:first [data-table]', copyPiece);
 var copying_pieces = '';
 function copyPiece(event) {
+	copy_pieces = [];
+	copying_piece = false;
 	var field = event.target;
 
 	clearTimeout(copying_pieces);
@@ -68,39 +70,92 @@ function copyAllPiece() {
 	window.history.replaceState(null, '', new_url);
     window.location.reload();
 }
+var copy_pieces = [];
+var copying_piece = false;
 function copyPieceOne(target) {
-	var first_piece = $('.tab-section[data-type=general]:first').find('[data-table=ticket_attached][data-type=inventory_general][name!=contact_info]');
-	var line_rows = $('.tab-section[data-type=general]:first').find('.po_lines_div .multi-block');
-	if(line_rows.length > 0) {
-		while($(target).closest('.tab-section').find('.po_lines_div .multi-block').length < line_rows.length) {
-			$(target).closest('.tab-section').find('.add_po_line').last().click();
-		}
-		while($(target).closest('.tab-section').find('.po_lines_div .mutli-block').length > line_rows.length) {
-			$(target).closest('.tab-section').find('.rem_po_line').last().click();
-		}
-		var i = 0;
-		$(target).closest('.tab-section').find('.po_lines_div .multi-block').each(function() {
-			if(($(line_rows.get(i)).closest('.multi-block').find('.po_line_div:visible').hasClass('po_line_range') && $(this).find('.po_line_div:visible').hasClass('po_line_single')) || ($(line_rows.get(i)).closest('.multi-block').find('.po_line_div:visible').hasClass('po_line_single') && $(this).find('.po_line_div:visible').hasClass('po_line_range'))) {
-				$(this).find('.range_po_line').click();
-			}
-			i++;
-		});
-	}
-	var i = 0;
-	$(target).closest('.tab-section').find('[data-table=ticket_attached][data-type=inventory_general][name!=contact_info]').each(function() {
-		if($(this).closest('.form-group').is(':visible') && $(this).val() != first_piece.get(i).value) {
-			$(this).val(first_piece.get(i).value).change();
-			if($(this).hasClass('po_line_value') && $(this).val() != undefined && $(this).val().indexOf('-') != -1) {
-				var line_range = $(this).val().split('-');
-				$(this).closest('.multi-block').find('[name="po_line_range_min"]').val(line_range[0]).trigger('change.select2');
-				$(this).closest('.multi-block').find('[name="po_line_range_max"]').val(line_range[1]).trigger('change.select2');
-			} else if($(this).is('textarea')) {
-				tinymce.get($(this).prop('id')).setContent($(this).val());
+	if(copying_piece) {
+		var next_item = function() { copyPieceOne(target); };
+		copy_pieces.push(next_item);
+	} else {
+		copying_piece = true;
 
-			}
+		var first_piece = $('.tab-section[data-type=general]:first').find('[data-table=ticket_attached][data-type=inventory_general][name!=contact_info]');
+
+		var counting_lines = false;
+		var line_rows = $('.tab-section[data-type=general]:first').find('.po_lines_div .multi-block');
+		if(line_rows.length > 0 && $(target).closest('.tab-section').find('.po_lines_div .multi-block').length != line_rows.length) {
+			counting_lines = true;
+			var count_lines = setInterval(function() {
+				if($(target).closest('.tab-section').find('.po_lines_div .multi-block').length < line_rows.length) {
+					addMultiPOLine($(target).closest('.tab-section').find('.add_po_line').last());
+				} else if($(target).closest('.tab-section').find('.po_lines_div .multi-block').length > line_rows.length) {
+					remMultiPOLine($(target).closest('.tab-section').find('.rem_po_line').last());
+				} else {
+					counting_lines = false;
+					clearInterval(count_lines);
+				}
+			},10);
 		}
-		i++;
-	});
+
+		var checking_range = false;
+		if(line_rows.length > 0) {
+			checking_range = true;
+			var check_ranges = setInterval(function() {
+				if(!counting_lines) {
+					var i = 0;
+					$(target).closest('.tab-section').find('.po_lines_div .multi-block').each(function() {
+						if(($(line_rows.get(i)).closest('.multi-block').find('.po_line_div:visible').hasClass('po_line_range') && $(this).find('.po_line_div:visible').hasClass('po_line_single')) || ($(line_rows.get(i)).closest('.multi-block').find('.po_line_div:visible').hasClass('po_line_single') && $(this).find('.po_line_div:visible').hasClass('po_line_range'))) {
+							rangeMultiPOLine($(this).find('.range_po_line'));
+						}
+						i++;
+					});
+					checking_range = false;
+					clearInterval(check_ranges);
+				}
+			},10);
+		}
+
+		var counting_nums = false;
+		var num_rows = $('.tab-section[data-type=general]:first').find('.po_nums_div .multi-block');
+		if(num_rows.length > 0 && $(target).closest('.tab-section').find('.po_nums_div .multi-block').length != num_rows.length) {
+			counting_nums = true;
+			var count_nums = setInterval(function() {
+				if($(target).closest('.tab-section').find('.po_nums_div .multi-block').length < num_rows.length) {
+					addMultiPO($(target).closest('.tab-section').find('.add_po_num').last());
+				} else if($(target).closest('.tab-section').find('.po_nums_div .multi-block').length > num_rows.length) {
+					remMultiPO($(target).closest('.tab-section').find('.rem_po_num').last());
+				} else {
+					counting_nums = false;
+					clearInterval(count_nums);
+				}
+			},10);
+		}
+
+		var copy_check = setInterval(function() {
+			if(!counting_lines && !checking_range && !counting_nums) {
+				var i = 0;
+				$(target).closest('.tab-section').find('[data-table=ticket_attached][data-type=inventory_general][name!=contact_info]').each(function() {
+					if($(this).closest('.form-group').is(':visible') && $(this).val() != first_piece.get(i).value) {
+						$(this).val(first_piece.get(i).value).change();
+						if($(this).hasClass('po_line_value') && $(this).val() != undefined && $(this).val().indexOf('-') != -1) {
+							var line_range = $(this).val().split('-');
+							$(this).closest('.multi-block').find('[name="po_line_range_min"]').val(line_range[0]).trigger('change.select2');
+							$(this).closest('.multi-block').find('[name="po_line_range_max"]').val(line_range[1]).trigger('change.select2');
+						} else if($(this).is('textarea')) {
+							tinymce.get($(this).prop('id')).setContent($(this).val());
+
+						}
+					}
+					i++;
+				});
+				clearInterval(copy_check);
+				copying_piece = false;
+				if(copy_pieces.length > 0) {
+					copy_pieces.shift()();
+				}
+			}
+		},10);
+	}
 }
 function multiPieces(input) {
 	<?php if(strpos($value_config,',Inventory General Manual Add Pieces,') === FALSE) { ?>
@@ -461,8 +516,7 @@ do {
 						</div></div>
 					</div>
 					<div class="clearfix"></div>
-				<?php } ?>
-				<?php if(strpos($value_config,',Inventory General PO Number Dropdown,') !== FALSE && $field_sort_field == 'Inventory General PO Number Dropdown') { ?>
+				<?php } else if(strpos($value_config,',Inventory General PO Number Dropdown,') !== FALSE && $field_sort_field == 'Inventory General PO Number Dropdown') { ?>
 					<div class="form-group po_num_group" <?= $general_inventory['description'] == '' || $inventory['po_num'] != '' ? '' : 'style="display:none;"' ?>>
 						<label class="control-label col-sm-4">Purchase Order #:</label>
 						<div class="col-sm-8"><div class="col-sm-12">
@@ -493,6 +547,55 @@ do {
 						</div></div>
 					</div>
 					<div class="clearfix"></div>
+				<?php } else if(strpos($value_config,',Inventory General PO Number Dropdown Multiple,') !== FALSE && $field_sort_field == 'Inventory General PO Number Dropdown Multiple') { ?>
+					<div class="form-group" <?= $general_inventory['description'] == '' || $inventory['po_num'] != '' ? '' : 'style="display:none;"' ?>>
+						<label class="control-label col-sm-4">Purchase Order #:</label>
+						<div class="col-sm-8 po_nums_div">
+							<?php $po_nums = explode('#*#', $general_inventory['po_num']);
+							foreach($po_nums as $po_num) { ?>
+								<div class="multi-block">
+									<div class="po_num_group">
+										<div class="col-sm-10">
+											<select name="po_num" data-table="ticket_attached" data-id="<?= $general_inventory['id'] ?>" data-id-field="id" data-type="inventory_general" data-type-field="src_table" data-concat="#*#" class="chosen-select-deselect form-control po_num_dropdown" value="<?= $po_num ?>">
+												<option></option>
+												<option value="MANUAL">Custom Purchase Order #</option>
+												<?php $ticket_po_list = array_filter(explode('#*#',$get_ticket['purchase_order']));
+												$po_numbers = $dbc->query("SELECT `po_num` FROM `ticket_attached` WHERE `deleted`=0 AND `ticketid` > 0 AND `src_table` IN ('inventory_general','inventory') AND `ticketid`='$ticketid' AND IFNULL(`po_num`,'') != '' GROUP BY `po_num`");
+												$po_line_list = [];
+												while($po_num_line = $po_numbers->fetch_assoc()) {
+													$po_num_line['po_num'] = explode('#*#', $po_num_line['po_num']);
+													$po_line_list = array_merge($po_line_list, $po_num_line['po_num']);
+												}
+												$po_list = array_merge(array_unique(array_merge($po_line_list,$ticket_po_list)));
+												sort($po_list);
+												foreach($po_list as $po_num_line) {
+													echo '<option value="'.$po_num_line.'" '.($po_num_line == $po_num ? 'selected' : '').'>'.$po_num_line.'</option>';
+												}
+												if(!in_array($po_num,$po_list) && !empty($po_num)) {
+													echo '<option value="'.$po_num.'" selected>'.$po_num.'</option>';
+												} ?>
+											</select>
+										</div>
+										<div class="col-sm-2 pull-right">
+											<img class="inline-img pull-right rem_po_num" data-history-label="Purchase Order #" onclick="remMultiPO(this);" src="../img/remove.png">
+											<img class="inline-img pull-right add_po_num" data-history-label="Purchase Order #" onclick="addMultiPO(this);" src="../img/icons/ROOK-add-icon.png">
+										</div>
+										<div class="clearfix"></div>
+									</div>
+									<div class="custom_po_num" style="display:none;">
+										<div class="col-sm-10">
+											<input type="text" name="po_num_disabled" data-table="ticket_attached" data-id="<?= $general_inventory['id'] ?>" data-id-field="id" data-type="inventory_general" data-type-field="src_table" data-concat="#*#" class="form-control">
+										</div>
+										<div class="col-sm-2 pull-right">
+											<img class="inline-img pull-right rem_po_num" data-history-label="Purchase Order #" onclick="remMultiPO(this);" src="../img/remove.png">
+											<img class="inline-img pull-right add_po_num" data-history-label="Purchase Order #" onclick="addMultiPO(this);" src="../img/icons/ROOK-add-icon.png">
+										</div>
+										<div class="clearfix"></div>
+									</div>
+								</div>
+							<?php } ?>
+						</div>
+					</div>
 				<?php } ?>
 				<?php if(strpos($value_config,',Inventory General PO Line Read,') !== FALSE && $field_sort_field == 'Inventory General PO Line Read') { ?>
 					<div class="form-group" <?= $general_inventory['description'] == '' || $general_inventory['po_line'] != '' ? '' : 'style="display:none;"' ?>>
@@ -547,9 +650,9 @@ do {
 											</select>
 										</div>
 										<div class="col-sm-2 pull-right">
-											<img class="inline-img pull-right no-toggle theme-color-icon" onclick="rangeMultiPOLine(this);" src="../img/icons/range.png" title="Toggle Range">
-											<img class="inline-img pull-right" data-history-label="Purchase Order Line Item" onclick="addMultiPOLine(this);" src="../img/icons/ROOK-add-icon.png">
 											<img class="inline-img pull-right" data-history-label="Purchase Order Line Item" onclick="remMultiPOLine(this);" src="../img/remove.png">
+											<img class="inline-img pull-right" data-history-label="Purchase Order Line Item" onclick="addMultiPOLine(this);" src="../img/icons/ROOK-add-icon.png">
+											<img class="inline-img pull-right no-toggle theme-color-icon" onclick="rangeMultiPOLine(this);" src="../img/icons/range.png" title="Toggle Range">
 										</div>
 									</div>
 									<div class="clearfix"></div>
@@ -575,9 +678,9 @@ do {
 											</div>
 										</div>
 										<div class="col-sm-2 pull-right">
-											<img class="inline-img pull-right no-toggle theme-color-icon range_po_line" onclick="rangeMultiPOLine(this);" src="../img/icons/range.png" title="Toggle Range">
-											<img class="inline-img pull-right add_po_line" data-history-label="Purchase Order Line Item" onclick="addMultiPOLine(this);" src="../img/icons/ROOK-add-icon.png">
 											<img class="inline-img pull-right rem_po_line" data-history-label="Purchase Order Line Item" onclick="remMultiPOLine(this);" src="../img/remove.png">
+											<img class="inline-img pull-right add_po_line" data-history-label="Purchase Order Line Item" onclick="addMultiPOLine(this);" src="../img/icons/ROOK-add-icon.png">
+											<img class="inline-img pull-right no-toggle theme-color-icon range_po_line" onclick="rangeMultiPOLine(this);" src="../img/icons/range.png" title="Toggle Range">
 										</div>
 									</div>
 								</div>

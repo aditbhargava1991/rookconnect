@@ -1,5 +1,5 @@
 <?php include_once('../include.php');
-checkAuthorised('calendar_rook');
+checkAuthorised();
 include_once('../Calendar/calendar_functions_inc.php');
 if (isset($_POST['submit'])) {
     $team_team_name = filter_var($_POST['team_name'],FILTER_SANITIZE_STRING);

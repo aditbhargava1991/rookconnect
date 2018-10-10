@@ -2335,6 +2335,9 @@ if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode && !$int
 							<?php if($field_sort_field == 'Inventory General PO Number Dropdown') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Inventory General PO Number Dropdown", $all_config) ? 'checked disabled' : (in_array("Inventory General PO Number Dropdown", $value_config) ? "checked" : '') ?> value="Inventory General PO Number Dropdown" name="tickets[]"> Dropdown Purchase Order Number</label>
 							<?php } ?>
+							<?php if($field_sort_field == 'Inventory General PO Number Dropdown Multiple') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Inventory General PO Number Dropdown Multiple", $all_config) ? 'checked disabled' : (in_array("Inventory General PO Number Dropdown Multiple", $value_config) ? "checked" : '') ?> value="Inventory General PO Number Dropdown Multiple" name="tickets[]"> Dropdown Purchase Order Number - Multiple</label>
+							<?php } ?>
 							<?php if($field_sort_field == 'Inventory General PO Item') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Inventory General PO Item", $all_config) ? 'checked disabled' : (in_array("Inventory General PO Item", $value_config) ? "checked" : '') ?> value="Inventory General PO Item" name="tickets[]"> Purchase Order Item</label>
 							<?php } ?>
@@ -3682,6 +3685,9 @@ if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode && !$int
 							<?php } ?>
 							<?php if($field_sort_field == 'Planned Tracked Payable Staff') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Planned Tracked Payable Staff", $all_config) ? 'checked disabled' : (in_array("Planned Tracked Payable Staff", $value_config) ? "checked" : '') ?> value="Planned Tracked Payable Staff" name="tickets[]"> Planned/Tracked/Payable Hours Table - Staff</label>
+							<?php } ?>
+							<?php if($field_sort_field == 'Planned Tracked Payable Staff Multiple Times') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Planned Tracked Payable Staff Multiple Times", $all_config) ? 'checked disabled' : (in_array("Planned Tracked Payable Staff Multiple Times", $value_config) ? "checked" : '') ?> value="Planned Tracked Payable Staff Multiple Times" name="tickets[]"> Planned/Tracked/Payable Hours Table - Staff Multiple Dates/Times</label>
 							<?php } ?>
 							<?php if($field_sort_field == 'Planned Tracked Payable Members') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Planned Tracked Payable Members", $all_config) ? 'checked disabled' : (in_array("Planned Tracked Payable Members", $value_config) ? "checked" : '') ?> value="Planned Tracked Payable Members" name="tickets[]"> Planned/Tracked/Payable Hours Table - Members</label>
