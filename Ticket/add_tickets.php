@@ -867,7 +867,7 @@ checkAuthorised(); ?>
 	            </div>
 	            <?php } ?>
 
-	            <?php if (strpos($value_config, ','."Timer".',') !== FALSE && $sort_field == 'Timer') { ?>
+	            <?php if (strpos($value_config, ','."Time Tracking Block".',') !== FALSE && $sort_field == 'Timer') { ?>
 	            <div class="panel panel-default">
 	                <div class="panel-heading">
 	                    <h4 class="panel-title">
@@ -885,7 +885,7 @@ checkAuthorised(); ?>
 	            </div>
 	            <?php } ?>
 
-				<?php if (strpos($value_config, ','."Timer".',') !== FALSE && $access_all > 0 && $sort_field == 'Timer') { ?>
+				<?php if (strpos($value_config, ','."Day Tracking Block".',') !== FALSE && $access_all > 0 && $sort_field == 'Timer') { ?>
 				<div class="panel panel-default">
 					<div class="panel-heading">
 						<h4 class="panel-title">

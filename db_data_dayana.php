@@ -280,5 +280,9 @@ mysqli_query($dbc, "ALTER TABLE `tasklist` CHANGE `status` `status` VARCHAR(100)
 
 mysqli_query($dbc, "ALTER TABLE `tasklist` ADD `estimated_time` TIME NOT NULL DEFAULT '00:00:00' AFTER `date_of_archival`");
 
+mysqli_query($dbc, "UPDATE field_config
+SET tickets = REPLACE(tickets, ',Timer,', ',Timer,Time Tracking Block,Day Tracking Block,')
+WHERE tickets LIKE '%,Timer,%'");
+
     echo "Dayana's DB Changes Done<br />\n";
 ?>
