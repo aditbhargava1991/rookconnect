@@ -78,7 +78,7 @@ if(isset($_POST['custom_form'])) {
 				$options = explode(':',$field['options']);
 				$option_details = [];
 				foreach($options as $key => $option) {
-					$option_details[$option] = $option;
+					$option_details[$key] = $option;
 					$options[$key] = explode('-',$option)[0];
 				}
 				$field_options = [];
@@ -232,8 +232,8 @@ if(isset($_POST['custom_form'])) {
 									$limit_query = '';
 									if(in_array('limit',$options)) {
 										$limit_details = explode('-',$option_details['limit']);
-										$limit = $limit_details[0];
-										$offset = $limit_details[1];
+										$limit = ($limit_details[0] >= 0 ? $limit_details[0] : 9999999);
+										$offset = ($limit_details[1] >= 0 ? $limit_details[1] : 0);
 										$limit_note = $limit_details[2];
 										$limit_query = " LIMIT $limit OFFSET $offset";
 									}
