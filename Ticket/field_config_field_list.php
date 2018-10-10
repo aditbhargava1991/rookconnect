@@ -1847,6 +1847,14 @@ if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode && !$int
 					<div class="block-group">
 						<div class="fields_sortable">
 						<?php foreach ($field_sort_order as $field_sort_field) { ?>
+							<?php if($field_sort_field == 'Time Tracking Block') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Time Tracking Block", $all_config) ? 'checked disabled' : (in_array("Time Tracking Block", $value_config) ? "checked" : '') ?> value="Time Tracking Block" name="tickets[]"> Time Tracking</label>
+							<?php } ?>
+
+							<?php if($field_sort_field == 'Day Tracking Block') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Day Tracking Block", $all_config) ? 'checked disabled' : (in_array("Day Tracking Block", $value_config) ? "checked" : '') ?> value="Day Tracking Block" name="tickets[]"> Day Tracking</label>
+							<?php } ?>
+
 							<?php if($field_sort_field == 'Time Tracking Estimate Complete') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Time Tracking Estimate Complete", $all_config) ? 'checked disabled' : (in_array("Time Tracking Estimate Complete", $value_config) ? "checked" : '') ?> value="Time Tracking Estimate Complete" name="tickets[]"> Estimated Time to Complete</label>
 							<?php } ?>

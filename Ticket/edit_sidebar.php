@@ -361,11 +361,11 @@ foreach($sort_order as $sort_field) { ?>
 		<a href="" data-tab-target="view_ticket_deliverables"><li class="<?= $_GET['tab'] == 'view_ticket_deliverables' ? 'active blue' : '' ?>"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Deliverables' ?></li></a>
 	<?php } ?>
 
-	<?php if (strpos($value_config, ','."Timer".',') !== FALSE && $sort_field == 'Timer') { ?>
+	<?php if (strpos($value_config, ','."Time Tracking Block".',') !== FALSE && $sort_field == 'Timer') { ?>
 		<a href="" data-tab-target="view_ticket_timer"><li class="<?= $_GET['tab'] == 'view_ticket_timer' ? 'active blue' : '' ?>"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Time Tracking' ?></li></a>
 	<?php } ?>
 
-	<?php if (strpos($value_config, ','."Timer".',') !== FALSE && $access_all > 0 && $sort_field == 'Timer') { ?>
+	<?php if (strpos($value_config, ','."Day Tracking Block".',') !== FALSE && $access_all > 0 && $sort_field == 'Timer') { ?>
 		<a href="" data-tab-target="view_day_tracking"><li class="<?= $_GET['tab'] == 'view_day_tracking' ? 'active blue' : '' ?>"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Day Tracking' ?></li></a>
 	<?php } ?>
 
