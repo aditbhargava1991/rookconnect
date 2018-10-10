@@ -135,8 +135,10 @@ function chooseServices() {
 		}
 		$(this).closest('.multi-block').find('[name="service_estimated_hours"]').val(time_estimate);
         $('[name=est_time]').each(function() {
-            if($(this).closest('.scheduled_stop').find('[name=type]').val() == 'Pick Up' || $(this).closest('.scheduled_stop').find('[name=type] option:selected').data('warehouse') == 'yes') {
+            if($(this).closest('.scheduled_stop').find('[name=type]').val() != '<?= get_config($dbc, 'delivery_default_pickup_type') ?>' && $(this).closest('.scheduled_stop').find('[name=type] option:selected').data('warehouse') != 'yes') {
                 $(this).val(time_estimate).change();
+            } else if ($(this).closest('.scheduled_stop').find('[name=type]').val() == '<?= get_config($dbc, 'delivery_default_pickup_type') ?>' && $(this).closest('.scheduled_stop').find('[name=type] option:selected').data('warehouse') != 'yes') {
+                $(this).val('<?= time_decimal2time(get_config($dbc, 'delivery_default_pickup_time')) ?>').change();
             }
         });
 		total_cost += ($(this).find('option:selected').data('rate-price') * qty);
