@@ -309,9 +309,9 @@ if(isset($_POST['custom_form'])) {
 									if(in_array('confirm',$options)) {
 										$checked = explode(',',$dbc->query("SELECT `field_value` FROM `ticket_pdf_field_values` `values` WHERE `ticketid`='$ticketid' AND `pdf_type`='{$form['id']}' AND `field_name`='included_".$field['field_name']."' AND '$revision' IN (`values`.`revision`, '999999999') AND `deleted`=0")->fetch_assoc());
 										foreach($list_options as $i => $option) {
-											echo '<label class="form-checkbox"><input type="checkbox" name="included_'.$field['field_name'].'" data-limit-note="'.$limit_note.'" data-text="'.htmlentities($option).'" onchange="setText(this);" '.(in_array($include_id[$i],$checked) ? 'checked' : '').' value="'.$include_id[$i].'">'.$include_label[$i].'</label>';
+											echo '<label class="form-checkbox"><input type="checkbox" name="included_'.$field['field_name'].'[]" data-limit-note="'.$limit_note.'" data-text="'.htmlentities($option).'" onchange="setText(this);" '.(in_array($include_id[$i],$checked) ? 'checked' : '').' value="'.$include_id[$i].'">'.$include_label[$i].'</label>';
 										}
-										echo '<input type="checkbox" name="included_'.$field['field_name'].'" data-text="'.htmlentities($require_value).'" checked style="display:none;">';
+										echo '<input type="checkbox" name="included_'.$field['field_name'].'[]" data-text="'.htmlentities($require_value).'" checked style="display:none;">';
 										$value = $require_value;
 									} else {
 										$value = implode("\n",$list_options)."\n".$require_value;
@@ -319,7 +319,7 @@ if(isset($_POST['custom_form'])) {
 									if(count($po_list) > 0) {
 										$checked = explode(',',$dbc->query("SELECT `field_value` FROM `ticket_pdf_field_values` `values` WHERE `ticketid`='$ticketid' AND `pdf_type`='{$form['id']}' AND `field_name`='included_".$field['field_name']."' AND '$revision' IN (`values`.`revision`, '999999999') AND `deleted`=0")->fetch_assoc());
 										foreach($po_list as $po_i => $option) {
-											echo '<label class="form-checkbox"><input type="checkbox" name="included_'.$field['field_name'].'" data-limit-note="'.$limit_note.'" data-text="'.htmlentities($option).'" onchange="setText(this);" value="'.$include_id[$po_i+$i].'">'.$option.'</label>';
+											echo '<label class="form-checkbox"><input type="checkbox" name="included_'.$field['field_name'].'[]" data-limit-note="'.$limit_note.'" data-text="'.htmlentities($option).'" onchange="setText(this);" value="'.$include_id[$po_i+$i].'">'.$option.'</label>';
 										}
 										$value .= $require_value;
 									}
