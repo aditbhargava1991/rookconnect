@@ -3686,6 +3686,9 @@ if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode && !$int
 							<?php if($field_sort_field == 'Planned Tracked Payable Staff') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Planned Tracked Payable Staff", $all_config) ? 'checked disabled' : (in_array("Planned Tracked Payable Staff", $value_config) ? "checked" : '') ?> value="Planned Tracked Payable Staff" name="tickets[]"> Planned/Tracked/Payable Hours Table - Staff</label>
 							<?php } ?>
+							<?php if($field_sort_field == 'Planned Tracked Payable Staff Multiple Times') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Planned Tracked Payable Staff Multiple Times", $all_config) ? 'checked disabled' : (in_array("Planned Tracked Payable Staff Multiple Times", $value_config) ? "checked" : '') ?> value="Planned Tracked Payable Staff Multiple Times" name="tickets[]"> Planned/Tracked/Payable Hours Table - Staff Multiple Dates/Times</label>
+							<?php } ?>
 							<?php if($field_sort_field == 'Planned Tracked Payable Members') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Planned Tracked Payable Members", $all_config) ? 'checked disabled' : (in_array("Planned Tracked Payable Members", $value_config) ? "checked" : '') ?> value="Planned Tracked Payable Members" name="tickets[]"> Planned/Tracked/Payable Hours Table - Members</label>
 							<?php } ?>

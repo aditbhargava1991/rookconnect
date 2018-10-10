@@ -775,11 +775,13 @@ if($_GET['action'] == 'update_fields') {
 				mysqli_query($dbc, "UPDATE `ticket_attached` SET `completed`=0 WHERE `id`='$id'");
 			}
 		} else {
-			$hours = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `timer_start`, `hours_tracked` FROM `ticket_attached` WHERE `id`='$id'"));
+			$hours = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `timer_start`, `hours_tracked`, `date_stamp` FROM `ticket_attached` WHERE `id`='$id'"));
 			if($hours['timer_start'] > 0) {
+				$checked_in_date = $hours['date_stamp'];
+				$checked_out_date = date('Y-m-d');
 				$checked_in_time = date('h:i a', $hours['timer_start']);
 				$checked_out_time = date('h:i a');
-				mysqli_query($dbc, "INSERT INTO `ticket_attached_checkin` (`ticket_attached_id`, `checked_in`, `checked_out`) VALUES ('$id', '$checked_in_time', '$checked_out_time')");
+				mysqli_query($dbc, "INSERT INTO `ticket_attached_checkin` (`ticket_attached_id`, `checked_in_date`, `checked_in`, `checked_out_date`, `checked_out`) VALUES ('$id', '$checked_in_date', '$checked_in_time', '$checked_out_date', '$checked_out_time')");
 				$tracked = ($seconds - $hours['timer_start']) / 3600 + $hours['hours_tracked'];
 				mysqli_query($dbc, "UPDATE `ticket_attached` SET `hours_tracked`='$tracked', `timer_start`=0, `date_stamp`='".date('Y-m-d')."' WHERE `id`='$id'");
 				mysqli_query($dbc, "UPDATE `ticket_attached` SET `checked_out`='".date('h:i a')."' WHERE `id`='$id'");

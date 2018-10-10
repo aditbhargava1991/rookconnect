@@ -1198,5 +1198,14 @@
     }
     //2018-10-09 - Ticket #9570 - PO#
 
+    //2018-10-10 - Ticket #8789 - Check In Summary
+    if(!mysqli_query($dbc, "ALTER TABLE `ticket_attached_checkin` ADD `checked_in_date` date NOT NULL AFTER `ticket_attached_id`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `ticket_attached_checkin` ADD `checked_out_date` date NOT NULL AFTER `checked_in`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-10-10 - Ticket #8789 - Check In Summary
+
     echo "Baldwin's DB Changes Done<br />\n";
 ?>
