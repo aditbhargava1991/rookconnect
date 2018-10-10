@@ -82,6 +82,7 @@ if((isset($_POST['upload_file']) && !empty($_FILES['csv_file']['tmp_name'])) || 
         $date = $_GET['date'];
     } ?>
     <script src="../Calendar/map_sorting.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=<?= DIRECTIONS_KEY ?>"></script>
 	<script>
 	function get_details() {
 		equip_scroll = $('.equip_list').scrollTop();
@@ -100,8 +101,8 @@ if((isset($_POST['upload_file']) && !empty($_FILES['csv_file']['tmp_name'])) || 
 					$('[name=day_start_time]').focus();
 					$('.ui-datepicker-close').click(function() {
 						$('.ui-datepicker-close').off('click');
-						var day = this.value;
-						this.value = '';
+						var day_start = $('[name=day_start_time]').val();
+						$('[name=day_start_time]').val('00:00').change();
 						$.ajax({
                             async: false,
                             url: 'optimize_ajax.php?action=assign_ticket_deliveries',
@@ -109,14 +110,14 @@ if((isset($_POST['upload_file']) && !empty($_FILES['csv_file']['tmp_name'])) || 
                             data: {
                                 equipment: equipment,
                                 ticket: ticketid,
-                                start: $('[name=day_start_time]').val(),
+                                start: day_start,
                                 increment: '30 minutes'
                             },
                             success: function(date) {
-                                sort_by_map(date, equipment, '', '', true);
+                                sort_by_map(date, equipment, '', '', true, day_start);
                                 $('.ticket_list').data('ids',$('.ticket_list').data('ids').filter(function(str) { return str != ticketid; }));
                                 get_details();
-                                $('[name=day_start_time]').val('');
+                                $('[name=day_start_time]').val('00:00').change();
                                 initInputs();
                                 ticketid = '';
                                 equipment = '';
