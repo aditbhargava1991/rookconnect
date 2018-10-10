@@ -49,7 +49,7 @@ function copyPiece(event) {
 				$(this).change();
 			});
 		}
-	},500);
+	},50);
 
 }
 function copyAllPiece() {
