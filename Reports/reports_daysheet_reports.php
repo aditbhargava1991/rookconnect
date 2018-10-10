@@ -358,7 +358,7 @@ function report_receivables($dbc, $starttime, $endtime, $staff, $format, $ticket
 			$staff_total_spent = [];
 			$staff_total_all = [];
 
-			$total_tracked_time = $dbc->query("SELECT SEC_TO_TIME(SUM(TIME_TO_SEC(`time`))) `time` FROM (SELECT `time_length` `time` FROM `ticket_time_list` WHERE `created_by`='$cid' AND `created_date` LIKE '$date%' AND `ticket_time_list`.`deleted`=0 AND `time_type`='Manual Time' UNION SELECT `timer` `time` FROM `ticket_timer` WHERE `created_by`='$cid' AND `created_date` LIKE '$date%' AND `ticket_timer`.`deleted`=0) `time_list`")->fetch_assoc()['time'];
+			$total_tracked_time = $dbc->query("SELECT SEC_TO_TIME(SUM(TIME_TO_SEC(`time`))) `time` FROM (SELECT SEC_TO_TIME(`hours_tracked` * 3600) `time` FROM `ticket_attached` WHERE `src_table` IN ('Staff_Tasks','Staff') AND `item_id`='$cid' AND `date_stamp` LIKE '$date%' AND `deleted`=0 UNION SELECT `time_length` `time` FROM `ticket_time_list` WHERE `created_by`='$cid' AND `created_date` LIKE '$date%' AND `ticket_time_list`.`deleted`=0 AND `time_type`='Manual Time' UNION SELECT `timer` `time` FROM `ticket_timer` WHERE `created_by`='$cid' AND `created_date` LIKE '$date%' AND `ticket_timer`.`deleted`=0) `time_list`")->fetch_assoc()['time'];
 
 			if(in_array('daysheet_tickets',$report_fields)) {
             //Tickets
