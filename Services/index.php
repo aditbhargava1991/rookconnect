@@ -47,16 +47,16 @@ $(document).ready(function() {
             success: function(response){}
 		});
 	});
-    
+
     $('#accordions .panel-heading').on('touchstart',loadPanel).click(loadPanel);
-    
+
     /* if($(window).width() > 767) {
 		resizeScreen();
 		$(window).resize(function() {
 			resizeScreen();
 		});
 	} */
-    
+
     $(window).resize(function() {
 		$('.main-screen').css('padding-bottom',0);
 		if($('.main-screen .main-screen').is(':visible') && $('.sidebar').is(':visible')) {
@@ -107,7 +107,7 @@ function loadPanel() {
             success: function(response) {
                 $(panel).html(response);
             }
-        });   
+        });
     }
 }
 
@@ -140,28 +140,36 @@ function loadSearchService(string) {
     <div class="row">
 		<div class="main-screen"><?php
             include('tile_header.php'); ?>
-            
+
             <div class="tile-container" style="height: 100%;">
-                
+
                 <?php
                     $url_cat = hex2bin($_GET['cat']);
                     $url_type = hex2bin($_GET['type']);
                 ?>
-                
+
                 <!-- Sidebar -->
                 <div class="tile-sidebar sidebar sidebar-override hide-titles-mob standard-collapsible">
                     <ul>
                         <li class="standard-sidebar-searchbox search-box"><input type="text" class="search-text form-control" placeholder="Search Services" onkeyup="searchServices(this.value);" onchange="loadSearchService(this.value);" value="<?= $_GET['key'] ?>"></li><?php
-                        $query = mysqli_query($dbc, "SELECT DISTINCT(`category`) FROM `services` WHERE `category`!='' AND `deleted`=0 ORDER BY `category`");
+												$row_cat_subtab = '';
+												$row_cat = 'Summary';
+												$active  = 'collapsed';
+												if ( (!empty($url_cat)) && ($url_cat==$row_cat) && (!isset($_GET['currentlist'])) ) {
+														$active = 'active';
+												}
+
+												echo '<li class="sidebar-higher-level highest-level"><a class="cursor-hand '. $active .'" data-toggle="collapse" data-target="#type_'.$row_cat_subtab.'" href="?summary=true"><span class="sidebar-text">'. $row_cat .'</span><span class="arrow"></span></a></li>';
+												$query = mysqli_query($dbc, "SELECT DISTINCT(`category`) FROM `services` WHERE `category`!='' AND `deleted`=0 ORDER BY `category`");
                         while ( $row=mysqli_fetch_assoc($query) ){
                             $active  = 'collapsed';
                             $row_cat = $row['category'];
                             $row_cat_subtab = str_replace ( ['&', '/', ',', ' ', '___', '__'], ['', '_', '', '_', '_', '_'], $row['category'] );
-                            
+
                             if ( (!empty($url_cat)) && ($url_cat==$row_cat) && (!isset($_GET['currentlist'])) ) {
                                 $active = 'active';
                             }
-                            
+
                             if ( check_subtab_persmission($dbc, 'services', ROLE, $row_cat_subtab) === true ) {
                                 if(strpos($service_field_config,',Service Type,') !== false) {
                                     echo '<li class="sidebar-higher-level highest-level"><a class="cursor-hand '. $active .'" data-toggle="collapse" data-target="#type_'.$row_cat_subtab.'" href="javascript:void(0);"><span class="sidebar-text">'. $row_cat .'</span><span class="arrow"></span></a>';
@@ -182,12 +190,16 @@ function loadSearchService(string) {
                         } ?>
                     </ul>
                 </div><!-- .tile-sidebar -->
-                
+
                 <!-- Main Screen -->
                 <div class="scale-to-fill tile-content has-main-screen hide-on-mobile">
-                    <?php include('dashboard.php'); ?>
+										<?php if($_GET['summary'] == true): ?>
+												<?php include('summary.php'); ?>
+										<?php else: ?>
+                    	<?php include('dashboard.php'); ?>
+										<?php endif; ?>
                 </div><!-- .tile-content -->
-                
+
                 <div class="clearfix"></div>
             </div><!-- .tile-container -->
 
@@ -209,15 +221,15 @@ function loadSearchService(string) {
                             </div>
                         </div>
                     </div><?php
-                    
+
                     $query = mysqli_query($dbc, "SELECT DISTINCT(`category`) FROM `services` WHERE `category`!='' AND `deleted`=0 ORDER BY `category`");
                     $service_counter = 0;
-                    
+
                     while ( $row=mysqli_fetch_assoc($query) ){
                         $active  = '';
                         $row_cat = $row['category'];
                         $row_cat_subtab = str_replace ( ['&', '/', ',', ' ', '___', '__'], ['', '_', '', '_', '_', '_'], $row['category'] );
-                        
+
                         if ( check_subtab_persmission($dbc, 'services', ROLE, $row_cat_subtab) === true ) { ?>
                             <div class="panel panel-default">
                                 <div class="panel-heading higher_level_heading">
@@ -255,7 +267,7 @@ function loadSearchService(string) {
                                     </div>
                                 </div>
                             </div><?php
-                            
+
                             $service_counter++;
                         }
                     } ?>
