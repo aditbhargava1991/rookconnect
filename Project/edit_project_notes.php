@@ -92,7 +92,7 @@ function addNewNote() {
               </div>
               <div class="col-sm-1">
                 <img class="inline-img pull-right no-toggle cursor-hand" src="../img/remove.png" title="Remove this <?= CONTACTS_NOUN ?> from the note" onclick="removeTag(this);">
-                <img class="inline-img pull-right no-toggle cursor-hand current" src="../img/icons/ROOK-add-icon.png" title="Select an additional <?= CONTACTS_NOUN ?> on the note" onclick="addTag();" style="<?= $project_team > 0 ? '' : 'display:none;' ?>">
+                <img class="inline-img pull-right no-toggle cursor-hand current" src="../img/icons/ROOK-add-icon.png" title="Select an additional <?= CONTACTS_NOUN ?> on the note" onclick="addTag();">
               </div>
               <script>
                 function addTag() {
