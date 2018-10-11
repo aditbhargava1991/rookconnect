@@ -370,6 +370,9 @@ if (isset($_POST['submit'])) {
             <label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."Ticket Activity Report".',') !== FALSE) { echo " checked"; } ?> value="Ticket Activity Report" name="reports_dashboard[]"> <?= TICKET_NOUN ?> Activity Report per Customer</label>
         </div>
         <div class="col-sm-4">
+            <label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."Ticket Activity Extra Report".',') !== FALSE) { echo " checked"; } ?> value="Ticket Activity Extra Report" name="reports_dashboard[]"> <?= TICKET_NOUN ?> Activity Report for Extra Billing</label>
+        </div>
+        <div class="col-sm-4">
             <label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."Ticket by Task".',') !== FALSE) { echo " checked"; } ?> value="Ticket by Task" name="reports_dashboard[]"> <?= TICKET_NOUN ?> by Task</label>
         </div>
         <div class="col-sm-4">

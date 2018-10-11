@@ -50,6 +50,7 @@ $operations_reports = [
 	'Time Sheet'=>['report_operations_time_sheet.php','Time Sheets Report','Time Sheet','time_sheet'],
 	'Ticket by Task'=>['report_operation_ticket_by_task.php',TICKET_NOUN.' by Task','Ticket by Task','ticket_by_task'],
 	'Ticket Activity Report'=>['report_operation_ticket_tasks.php',TICKET_NOUN.' Activity Report per Customer','Ticket Activity Report','ticket_activity_report'],
+	'Ticket Activity Extra Report'=>['report_operation_ticket_extra.php',TICKET_NOUN.' Activity Report for Extra Billing','Ticket Activity Extra Report','ticket_activity_extra_report'],
 	'Rate Card Report'=>['report_operations_rate_cards.php','Rate Cards Report','Rate Card Report','rate_card_report'],
 	'Import Summary'=>['report_import_summary.php','Import Summary Report','Import Summary','import_summary'],
 	'Import Details'=>['report_import_details.php','Detailed Import Report','Import Details','import_details'],
