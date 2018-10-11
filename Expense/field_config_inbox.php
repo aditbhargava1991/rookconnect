@@ -214,8 +214,6 @@ if (isset($_POST['submit'])) {
 		}
 	}
 	// Categories
-
-    echo '<script type="text/javascript"> window.location.replace("?filter_id=all"); </script>';
 }
 
 // Variables
@@ -242,6 +240,7 @@ $expense_mode = $get_expense_config['expense_mode'];
     <div class="standard-body-content full-height">
         <div class="dashboard-item dashboard-item2 full-height">
             <form id="form1" name="form1" method="post"	action="" enctype="multipart/form-data" class="form-horizontal" role="form">
+            <input type="hidden" name="settingTabId" value="categorySettingTab">
             <div class="col-sm-12 setting-fields">
             	<div class="category_div" style="">
             		<script>
@@ -758,3 +757,9 @@ $expense_mode = $get_expense_config['expense_mode'];
 </div><!-- .expense-settings-container -->
 </div>
 </div>
+<script type="text/javascript">
+    var selectedSettingTab = '<?php echo $_POST['settingTabId'];?>';
+    if(selectedSettingTab!=''){
+        $("#"+selectedSettingTab)[0].click();
+    }
+</script>

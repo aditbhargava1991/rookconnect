@@ -402,18 +402,26 @@ $field_config = explode(',',$config_row['expense_dashboard']); ?>
 		$filter_receipt = $_POST['filter_receipt'];
 		$filter_warnings = implode(',',$_POST['filter_warnings']);
 	}
-
+	$filter_query = '';
 	if($_POST['filter_report_submit']) {
 		$date_start = $_POST['report_min_date'];
 		$date_end = $_POST['report_max_date'];
-		$reportType = $_POST['reportType'];
-		$_GET['view'] = $reportType;
-		?>
-		<script>
-			var newurl = window.location.protocol + "//" + window.location.host + window.location.pathname + '?tab=reports&view=<?php echo $reportType;?>';
-			window.history.pushState({ path: newurl }, '', newurl);
-		</script>
-		<?php
+		$search_ByProject = $_POST['search_ByProject'];
+		if($search_ByProject!=''){
+			$filter_query .= (!empty($filter_query) ? 'AND' : '')." `projectid` = '$search_ByProject'";
+		}
+		$search_ByTicket = $_POST['search_ByTicket'];
+		if($search_ByTicket!=''){
+			$filter_query .= (!empty($filter_query) ? 'AND' : '')." `ticketid` = '$search_ByTicket'";
+		}
+		$search_ByStaff = $_POST['search_ByStaff'];
+		if($search_ByStaff!=''){
+			$filter_query .= (!empty($filter_query) ? 'AND' : '')." `staff` = '$search_ByStaff'";
+		}
+		$search_ByCategory = $_POST['search_ByCategory'];
+		if($search_ByCategory!=''){
+			$filter_query .= (!empty($filter_query) ? 'AND' : '')." `category` = '$search_ByCategory'";
+		}
 	}
 
 	if($date_start == '' || $date_start == '0000-00-00') {
@@ -426,7 +434,7 @@ $field_config = explode(',',$config_row['expense_dashboard']); ?>
 	} else {
 		//$html .= "<span class='block-label'>Filter: Expense End Date: $date_end</span>";
 	}
-	$filter_query = "`ex_date` BETWEEN '$date_start' AND '$date_end' AND `deleted`=0";
+	$filter_query .= (!empty($filter_query) ? 'AND' : '')."`ex_date` BETWEEN '$date_start' AND '$date_end' AND `deleted`=0";
 	if($filter_status != '') {
 		$html .= "<span class='block-label'>Filter: Status: $filter_status</span>";
 		$filter_query .= " AND `status`='$filter_status'";
@@ -476,45 +484,96 @@ $field_config = explode(',',$config_row['expense_dashboard']); ?>
 		$filter_query .= " AND IFNULL(`ex_file`,'')=''";
 	}
 	$html .= '<form name="filter_report_form" action="" method="POST">
-		<label for="first_name" class="col-sm-2 control-label text-right">
+	<div class="col-sm-6">
+		<label for="first_name" class="col-sm-4 control-label text-right">
 			<span class="popover-examples list-inline" style="margin:0 3px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Click here to set a date range for the expenses. Leaving the minimum date blank will allow you to select all expenses before a date."><img src="'.WEBSITE_URL.'/img/info.png" width="20"></a></span>
-			Minimum Date:
+			From:
 		</label>
-		<div class="col-sm-4">
+		<div class="col-sm-8">
 			<input type="text" name="report_min_date" class="datepicker form-control" value="'.$date_start.'" />
 		</div>
-		<label for="first_name" class="col-sm-2 control-label text-right">
+	</div>
+	<div class="col-sm-6">
+		<label for="first_name" class="col-sm-4 control-label text-right">
 			<span class="popover-examples list-inline" style="margin:0 3px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Click here to set a date range for the expenses. Leaving either the maximum date blank will allow you to select all expenses after a date."><img src="'.WEBSITE_URL.'/img/info.png" width="20"></a></span>
-			Maximum Date:
+			Until:
 		</label>
-		<div class="col-sm-4">
+		<div class="col-sm-8">
 			<input type="text" name="report_max_date" class="datepicker form-control" value="'.$date_end.'" />
 		</div>
-		<div class="clearfix"></div>
-		<div class="form-group">
-            <label class="col-sm-2 control-label"><span class="popover-examples list-inline" style="margin:0 3px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Select Report type"><img src="'.WEBSITE_URL.'/img/info.png" width="20"></a></span>Select</label>
-            <div class="col-sm-4">
-                <select name="reportType" class="chosen-select-deselect form-control">
-                    <option value="staff" '.(!isset($_GET['view']) || $_GET['view'] == 'staff' ? 'selected' : '').'>Staff</option>
-                    <option value="category" '.(!isset($_GET['view']) || $_GET['view'] == 'category' ? 'selected' : '').'>Category</option>
-                    <option value="project" '.(!isset($_GET['view']) || $_GET['view'] == 'project' ? 'selected' : '').'>Project</option>
-                    <option value="ticket" '.(!isset($_GET['view']) || $_GET['view'] == 'ticket' ? 'selected' : '').'>Ticket</option>
-                </select>
-            </div>
-        </div>
-        <div class="clearfix"></div>
-		<div class="col-sm-12">
+	</div>
+        <div class="clearfix"></div>';
+
+        $html .= '<div class="col-sm-6">
+			<label for="search_ticket" class="col-sm-4 control-label"><span class="popover-examples list-inline" style="margin:0 3px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Select Ticket"><img src="'.WEBSITE_URL.'/img/info.png" width="20"></a></span> Search By '. TICKET_NOUN .':</label>
+			<div class="col-sm-8">
+				<select data-placeholder="Select a '. TICKET_NOUN .' #" name="search_ByTicket" class="chosen-select-deselect form-control">
+					<option value=""></option>';?>
+					<?php
+					$query = mysqli_query($dbc,"SELECT `ticketid`, `heading` FROM `tickets` WHERE `deleted`=0 ORDER BY `ticketid`");
+					while($row = mysqli_fetch_array($query)) {
+						$html .= '<option '.(($row['ticketid'] == $_POST['search_ByTicket']) ? "selected" : "").' value="'.$row['ticketid'].'">'.TICKET_NOUN.' #'.$row['ticketid'].' '.$row['heading'].'</option>';
+					 }
+				$html .= '</select>
+			</div>
+		</div>';
+
+		$html .= '<div class="col-sm-6">
+			<label for="search_ticket" class="col-sm-4 control-label"><span class="popover-examples list-inline" style="margin:0 3px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Select Category"><img src="'.WEBSITE_URL.'/img/info.png" width="20"></a></span> Search By Category:</label>
+			<div class="col-sm-8">
+				<select data-placeholder="Select a Category#" name="search_ByCategory" class="chosen-select-deselect form-control">
+					<option value=""></option>';?>
+					<?php 
+					$query = mysqli_query($dbc, "SELECT DISTINCT(CONCAT(EC,': ',`category`)) cat, `category` FROM `expense_categories` ORDER BY cat");
+					while($query_cat = mysqli_fetch_array($query)) {
+						$html .= "<option ".($query_cat['category'] == $_POST['search_ByCategory'] ? 'selected' : '')." value='".$query_cat['category']."'>".$query_cat['cat']."</option>";
+					}
+				$html .= '</select>
+			</div>
+		</div><div class="clearfix"></div>';
+
+		$html .= '<div class="col-sm-6">
+			<label for="search_ticket" class="col-sm-4 control-label"><span class="popover-examples list-inline" style="margin:0 3px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Select Project"><img src="'.WEBSITE_URL.'/img/info.png" width="20"></a></span> Search By '. PROJECT_NOUN .':</label>
+			<div class="col-sm-8">
+				<select data-placeholder="Select a '. PROJECT_NOUN .' #" name="search_ByProject" class="chosen-select-deselect form-control">
+					<option value=""></option>';?>
+					<?php 
+					$query = mysqli_query($dbc, "SELECT * FROM `project` WHERE `deleted`=0 AND `projectid` IN (SELECT `projectid` FROM `expense` WHERE `deleted`=0)");
+					while($row = mysqli_fetch_array($query)) {
+						$html .= "<option ".(($row['projectid'] == $_POST['search_ByProject']) ? 'selected' : '')." value='".$row['projectid']."'>".get_project_label($dbc, $row)."</option>";
+					}
+				$html .= '</select>
+			</div>
+		</div>';
+
+		$html .= '<div class="col-sm-6">
+			<label for="search_ticket" class="col-sm-4 control-label"><span class="popover-examples list-inline" style="margin:0 3px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Select Staff"><img src="'.WEBSITE_URL.'/img/info.png" width="20"></a></span> Search By Staff:</label>
+			<div class="col-sm-8">
+				<select data-placeholder="Select a Staff#" name="search_ByStaff" class="chosen-select-deselect form-control">
+					<option value=""></option>';?>
+					<?php 
+					$query = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name` FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `deleted`=0 AND `status`=1 AND `show_hide_user`=1"),MYSQLI_ASSOC));
+						foreach($query as $query_contactid) {
+							$html .= "<option ".(($query_contactid == $_POST['search_ByStaff']) ? 'selected' : '')." value='".$query_contactid."'>".get_contact($dbc, $query_contactid)."</option>";
+						}
+				$html .= '</select>
+			</div>
+		</div><div class="clearfix"></div>';
+
+		$html .= '<div class="col-sm-12" style="padding: 5px 0 5px 0;">
 			<input type="submit" name="filter_report_submit" class="btn brand-btn mobile-block pull-right" value="Search">
 		</div>
 		<br>
 	</form>';
+
 	//$html .= '<div style="text-align: center;"><a href="?tab=reports&view=staff" '.(!isset($_GET['view']) || $_GET['view'] == 'staff' ? 'class="active"' : '').'>Staff</a> | <a href="?tab=reports&view=category" '.($_GET['view'] == 'category' ? 'class="active"' : '').'>Category</a>' .((in_array('Vendor',$field_config)) ? ' | <a href="?tab=reports&view=vendor"'.($_GET['view'] == 'vendor' ? 'class="active"' : '').'>Vendor</a>' : '') .((in_array('Project',$field_config)) ? ' | <a href="?tab=reports&view=project"'.($_GET['view'] == 'project' ? 'class="active"' : '').'>'.PROJECT_TILE.'</a>' : '').'</div>';
-	if(!isset($_GET['view']) || $_GET['view'] == 'staff') {
-		$html .= '<table class="table table-bordered new-table">
+	
+	$html .= '<table class="table table-bordered new-table">
 			<tr class="hidden-xm hidden-xs">
-				<th style="max-width: 25%; width: 200px;">Staff</th>
+				<th style="max-width: 25%; width: 15em;">Staff</th>
 				<th>Expense Amount</th>
 			</tr>';
+
 			$expense_report = mysqli_query($dbc, "SELECT `staff`, SUM(`total`) expense_sum FROM `expense` WHERE $filter_query GROUP BY `staff` ORDER BY expense_sum DESC");
 			$max_expenses = 0;
 			while($report = mysqli_fetch_array($expense_report)) {
@@ -530,9 +589,9 @@ $field_config = explode(',',$config_row['expense_dashboard']); ?>
 					</td>
 				</tr>';
 			}
-		$html .= '</table>';
-	} else if($_GET['view'] == 'category') {
-		$html .= '<table class="table table-bordered new-table">
+			$html .= '</table>';
+
+			$html .= '<table class="table table-bordered new-table">
 			<tr class="hidden-xm hidden-xs">
 				<th style="max-width: 25%; width: 15em;">Category</th>
 				<th>Expense Amount</th>
@@ -557,8 +616,32 @@ $field_config = explode(',',$config_row['expense_dashboard']); ?>
 			foreach($lines as $line) {
 				$html .= $line;
 			}
-		$html .= '</table>';
-	} else if($_GET['view'] == 'vendor') {
+			$html .= '</table>';
+
+			$html .= '<table class="table table-bordered new-table">
+			<tr class="hidden-xm hidden-xs">
+				<th style="max-width: 25%; width: 15em;">'.PROJECT_NOUN.'</th>
+				<th>Expense Amount</th>
+			</tr>';
+			$expense_report = mysqli_query($dbc, "SELECT `projectid`, SUM(`total`) `expense_sum` FROM `expense` WHERE $filter_query GROUP BY `projectid` ORDER BY expense_sum DESC");
+			$max_expenses = 0;
+			while($report = mysqli_fetch_array($expense_report)) {
+				if($report['expense_sum'] > $max_expenses) {
+					$report_level = floor($report['expense_sum'] / 10);
+					$max_expenses = ceil($report['expense_sum'] / $report_level) * $report_level;
+				}
+				$html .= '<tr>
+					<td data-title="'.PROJECT_NOUN.'" style="max-width: 25%; width: 20em;">'.($report['projectid'] > 0 ? get_project_label($dbc, mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `project` WHERE `projectid`='".$report['projectid']."'"))) : 'N/A').'</td>
+					<td data-title="Expense Amount" style="background-color: #AAA; padding: 0 0 0 0;">
+						<div style="background-color: #6DCFF6; line-height: 2.5em; width:'.($report['expense_sum'] / $max_expenses * 100).'%;">&nbsp;</div>
+						<div style="margin: -1.75em 1em 0;"><b>$'.number_format($report['expense_sum'],2).'</b></div>
+					</td>
+				</tr>';
+			}
+
+			$html .= '</table>';
+
+	if($_GET['view'] == 'vendor') {
 		$html .= '<table class="table table-bordered new-table">
 			<tr class="hidden-xm hidden-xs">
 				<th style="max-width: 25%; width: 15em;">Vendor</th>
@@ -579,36 +662,6 @@ $field_config = explode(',',$config_row['expense_dashboard']); ?>
 					</td>
 				</tr>';
 			}
-		$html .= '</table>';
-	} else if($_GET['view'] == 'project') {
-		$html .= '<table class="table table-bordered new-table">
-			<tr class="hidden-xm hidden-xs">
-				<th style="max-width: 25%; width: 15em;">'.PROJECT_NOUN.'</th>
-				<th>Expense Amount</th>
-			</tr>';
-			$expense_report = mysqli_query($dbc, "SELECT `projectid`, SUM(`total`) `expense_sum` FROM `expense` WHERE $filter_query GROUP BY `projectid` ORDER BY expense_sum DESC");
-			$max_expenses = 0;
-			while($report = mysqli_fetch_array($expense_report)) {
-				if($report['expense_sum'] > $max_expenses) {
-					$report_level = floor($report['expense_sum'] / 10);
-					$max_expenses = ceil($report['expense_sum'] / $report_level) * $report_level;
-				}
-				$html .= '<tr>
-					<td data-title="'.PROJECT_NOUN.'" style="max-width: 25%; width: 20em;">'.($report['projectid'] > 0 ? get_project_label($dbc, mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `project` WHERE `projectid`='".$report['projectid']."'"))) : 'N/A').'</td>
-					<td data-title="Expense Amount" style="background-color: #AAA; padding: 0 0 0 0;">
-						<div style="background-color: #6DCFF6; line-height: 2.5em; width:'.($report['expense_sum'] / $max_expenses * 100).'%;">&nbsp;</div>
-						<div style="margin: -1.75em 1em 0;"><b>$'.number_format($report['expense_sum'],2).'</b></div>
-					</td>
-				</tr>';
-			}
-		$html .= '</table>';
-	} else if($_GET['view'] == 'ticket') {
-		$html .= '<table class="table table-bordered new-table">
-			<tr class="hidden-xm hidden-xs">
-				<th style="max-width: 25%; width: 15em;">'.TICKET_NOUN.'</th>
-				<th>Expense Amount</th>
-			</tr>';
-			
 		$html .= '</table>';
 	}
 	return $html;
