@@ -50,7 +50,13 @@ function loadPanel() {
 <?php } ?>
 </head>
 <body>
-<?php include_once ('../navigation.php'); ?>
+<?php include_once ('../navigation.php');
+$request_tab_name = 'Feedback &amp; Ideas';
+foreach($ticket_types as $type) {
+    if(config_safe_str($type) == $request_tab) {
+        $request_tab_name = $type;
+    }
+} ?>
 
 <div class="container">
 	<div class="iframe_overlay" style="display:none;">
@@ -104,7 +110,14 @@ function loadPanel() {
 			</div>
 			<div class="tile-container" style="height: 100%;">
 	            <div class="scale-to-fill has-main-screen tile-content hide-titles-mob">
-					<div class="standard-body-title"><h3><?= $current_tab == 'field_config' ? 'Settings' : 'User: '.$user_name ?></h3></div>
+					<div class="standard-body-title"><h3><?= $current_tab == 'field_config' ? 'Settings' : 'User: '.$user_name ?>
+                        <?php if($_GET['tab'] == 'requests' && $_GET['type'] != 'new') { ?>
+                            <img src="../img/icons/ROOK-3dot-icon.png" class="no-toggle cursor-hand offset-left-5 theme-color-icon pull-right" title="" width="25" data-title="Show/Hide Search" onclick="$('.search-group').toggle();">
+                        <?php } ?>
+                        <?php if($_GET['tab'] == 'requests' && $_GET['type'] != 'new' && $_GET['type'] != 'closed') { ?>
+                            <a href="?tab=requests&type=new&new_type=<?=  $request_tab ?>&source=tab" class="btn brand-btn pull-right">New <?= $request_tab_name ?></a>
+                        <?php } ?>
+                    </h3></div>
 					<?php if(!$dbc_support) { ?>
 						<div class="notice double-gap-bottom">
 							<img src="<?= WEBSITE_URL; ?>/img/error.png" class="wiggle-me" style="width:3em;">
