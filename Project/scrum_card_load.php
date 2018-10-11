@@ -1,13 +1,7 @@
 <?php include_once('../include.php'); ?>
-<style>
-.new_task_box { border:1px solid #ACA9A9; margin:6px !important; padding:10px !important; }
-.flag_color_box{background-color: #fff;padding: 10px;min-width: 250px;position: absolute;left: 20px;top: 110px;z-index: 1;border: 2px solid #878787;}
-</style>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-colorpicker/2.5.3/js/bootstrap-colorpicker.js"></script>
-<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-colorpicker/2.5.3/css/bootstrap-colorpicker.css" rel="stylesheet">
 <script>
 $(document).ready(function(){
-	$('.demo_cpicker').colorpicker();
+	//$('.demo_cpicker').colorpicker();
 });
 
 function flag_item_box(taskid){
@@ -27,6 +21,28 @@ function flag_item(task) {
 		complete: function(result) {
 			$('li[data-id="'+task_id+'"]').css('background-color',(result.responseText == '' ? '' : '#'+result.responseText));
 			$('#flag_color_box_'+task_id).hide();
+		}
+	});
+}
+
+function highlight_item(task) {
+    $('.color_picker').click();
+}
+
+function choose_color(sel) {
+	var typeId = sel.id;
+	var arr = typeId.split('_');
+
+    var task_id = arr[1];
+    var taskcolor = sel.value;
+	var taskcolor = taskcolor.replace("#", "");
+
+	$.ajax({    //create an ajax request to load_page.php
+		type: "GET",
+		url: "task_ajax_all.php?fill=task_highlight&tasklistid="+arr[1]+'&taskcolor='+taskcolor,
+		dataType: "html",   //expect html to be returned
+		success: function(response){
+			location.reload();
 		}
 	});
 }
@@ -291,7 +307,7 @@ if($type == 'Ticket') {
 	$doc_folder = "../Tasks_Updated/download/";
     ?>
     <div style="position: relative; display:none" id="flag_color_box_<?php echo $item['tasklistid']?>">
-    	<div class="form-group flag_color_box">                                    	
+    	<div class="form-group flag_color_box">
     		<label class="col-sm-5 control-label" style="text-align: left;">Flag Colour:</label>
     		<div class="col-sm-7">
                 <!-- <select name='flag_colour' class="form-control" style="background-color:#<?= $item['flag_colour'] ?>;font-weight:bold;" onchange="flag_item('<?php echo $item['tasklistid']?>',this.value);">
@@ -309,9 +325,18 @@ if($type == 'Ticket') {
 		</div>
 	</div>
     <?php
-	$actions = '<span class="pull-right action-icons double-gap-bottom gap-top" style="width: 100%;" data-task="'.$item['tasklistid'].'"><img src="../img/icons/ROOK-edit-icon.png" class="inline-img" title="Edit" onclick="overlayIFrameSlider(\'../Tasks_Updated/add_task.php?type='.$item['status'].'&tasklistid='.$item['tasklistid'].'\');">'.
+    $task_statuses = explode(',',get_config($dbc, 'task_status'));
+    $status_complete = $task_statuses[count($task_statuses) - 1];
+    if ( $item['status']==$status_complete ) {
+        $style_strikethrough = 'text-decoration:line-through; filter: gray; -webkit-filter: grayscale(1); filter: grayscale(1);';
+    } else {
+        $style_strikethrough = '';
+    }
+
+	$actions = '<span class="pull-right action-icons double-gap-bottom gap-top" style="width: 100%; '.$style_strikethrough.'" data-task="'.$item['tasklistid'].'"><img src="../img/icons/ROOK-edit-icon.png" class="inline-img" title="Edit" onclick="overlayIFrameSlider(\'../Tasks_Updated/add_task.php?type='.$item['status'].'&tasklistid='.$item['tasklistid'].'\');">'.
 		(in_array('flag_manual',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-flag-icon.png" class="inline-img manual-flag-icon" title="Flag This!">' : '').
-		(in_array('flag',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/color-wheel.png" onclick=flag_item_box("'.$item['tasklistid'].'"); return false; class="inline-img" title="Highlight">' : '').
+
+    	(in_array('flag',$quick_actions) ? '<span title="Highlight" onclick="highlight_item(this); return false;"><img src="'.WEBSITE_URL.'/img/icons/color-wheel.png" class="inline-img" title="Highlight"></span>' : '').
 		(!in_array('sync',$quick_actions) || substr($_GET['tab'],0,18) == 'path_external_path' ? '' : '<img src="'.WEBSITE_URL.'/img/icons/ROOK-sync-icon.png" data-assigned="'.$item['assign_client'].'" class="inline-img assign-icon" title="Assign to External Path">').
 		(in_array('alert',$quick_actions) ? '<span title="Send Alert" onclick="send_task_alert(this); return false;"><img src="../img/icons/ROOK-alert-icon.png" title="Send Alert" class="inline-img no-toggle" onclick="return false;"></span>' : '').
 		(in_array('email',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-email-icon.png" class="inline-img email-icon" title="Send Email">' : '').
@@ -322,23 +347,21 @@ if($type == 'Ticket') {
 		(in_array('timer',$quick_actions) ? '<span title="Track Time" onclick="track_time(this); return false;"><img src="../img/icons/ROOK-timer2-icon.png" title="Track Time" class="inline-img no-toggle" onclick="return false;"></span>' : '').
 		(in_array('archive',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/trash-icon-red.png" class="inline-img archive-icon" title="Archive">' : '').'</span>';
 
-	$label = '<input type="checkbox" name="status" onchange="mark_done(this);" '.($item['status'] == 'Done' ? 'checked disabled' : '').' value="'.$item['tasklistid'].'" class="form-checkbox no-margin small pull-left" '.(!($security['edit'] > 0) ? 'readonly disabled' : '').'>
+    $actions .= '<input type="color" onchange="choose_color(this); return false;" class="color_picker" id="color_'.$item['tasklistid'].'"" name="color_'.$item['tasklistid'].'" style="display:none;" value="#f6b73c" />';
+
+	$label = '<input type="checkbox" name="status" onchange="mark_done(this);" '.($item['status'] == 'Complete' || $item['status'] == 'Done' || $item['status'] == 'Finish' ? 'checked' : '').' value="'.$item['tasklistid'].'" class="form-checkbox no-margin small pull-left" '.(!($security['edit'] > 0) ? 'readonly disabled' : '').'>
 
 		<div class="pull-left" style="max-width: calc(100% - 4em);margin:0 0.5em;">';
 
         $slider_layout = !empty(get_config($dbc, 'tasks_slider_layout')) ? get_config($dbc, 'tasks_slider_layout') : 'accordion';
 
         if($slider_layout == 'accordion') {
-            if($item['status'] == 'Done') {
-                $label .= '<strike><a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Tasks_Updated/add_task.php?type='.$item['status'].'&projectid='.$item['projectid'].'&tasklistid='.$item['tasklistid'].'\', \'50%\', false, false, $(\'.iframe_overlay\').closest(\'.container\').outerHeight() + 20); return false;">Task #'.$item['tasklistid'].': </a></strike>';
-            } else {
-                $label .= '<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Tasks_Updated/add_task.php?type='.$item['status'].'&projectid='.$item['projectid'].'&tasklistid='.$item['tasklistid'].'\', \'50%\', false, false, $(\'.iframe_overlay\').closest(\'.container\').outerHeight() + 20); return false;">Task #'.$item['tasklistid'].': </a>';
-            }
+            $label .= '<a style='.$style_strikethrough.' href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Tasks_Updated/add_task.php?type='.$item['status'].'&projectid='.$item['projectid'].'&tasklistid='.$item['tasklistid'].'\', \'50%\', false, false, $(\'.iframe_overlay\').closest(\'.container\').outerHeight() + 20); return false;">Task #'.$item['tasklistid'].': </a>';
         } else {
-            $label .= '<a href="../Tasks_Updated/add_task_full_view.php?type='.$item['status'].'&projectid='.$item['projectid'].'&tasklistid='.$item['tasklistid'].'">Task #'.$item['tasklistid'].' </a>';
+            $label .= '<a style='.$style_strikethrough.' href="../Tasks_Updated/add_task_full_view.php?type='.$item['status'].'&projectid='.$item['projectid'].'&tasklistid='.$item['tasklistid'].'">Task #'.$item['tasklistid'].' </a>';
         }
 
-       $label .= '<br>'.html_entity_decode($item['heading']).'</div> 
+       $label .= '<br><span style="'.$style_strikethrough.'">'.html_entity_decode($item['heading']).'</span></div>
 
 		<input type="hidden" name="comment" value="" data-name="comment" data-table="taskcomments" data-id-field="taskcommid" data-id="" data-type="'.$item['tasklistid'].'" data-type-field="tasklistid">';
 
@@ -350,15 +373,17 @@ if($type == 'Ticket') {
         $comment = explode(':',$item_comment['comment']);
 		if($comment[0] == 'document' && $comment[1] > 0 && count($comment) == 2) {
 			$document = $dbc->query("SELECT * FROM `task_document` WHERE `taskdocid`='".$comment[1]."'")->fetch_assoc();
-			$contents .= '<div class="'.$bg_class.'"><small>'.profile_id($dbc, $item_comment['created_by'], false).'<span style="display:inline-block; width:calc(100% - 3em);" class="pull-right"><a target="_parent" href="../Tasks_Updated/download/'.$document['document'].'">'.$document['document'].'</a>';
-			$contents .= '<em class="block-top-5">Added by '.get_contact($dbc, $document['created_by']).' at '.$document['created_date'].'</em></span></small><span class="clearfix"></span></div>';
+			$contents .= '<div style="'.$style_strikethrough.'" class="'.$bg_class.'"><small>'.profile_id($dbc, $item_comment['created_by'], false).'<span style="display:inline-block; width:calc(100% - 3em);" class="pull-right"><a target="_parent" style="'.$style_strikethrough.'" href="../Tasks_Updated/download/'.$document['document'].'">'.$document['document'].'</a>';
+			//$contents .= '<em class="block-top-5" style="'.$style_strikethrough.'">Added by '.get_contact($dbc, $document['created_by']).' at '.$document['created_date'].'</em>';
+            $contents .= '</span></small><span class="clearfix"></span></div>';
 		} else {
-			$contents .= '<div class="'.$bg_class.'"><small>'.profile_id($dbc, $item_comment['created_by'], false).'<span style="display:inline-block; width:calc(100% - 3em);" class="pull-right">'.preg_replace_callback('/\[PROFILE ([0-9]+)\]/',profile_callback,html_entity_decode($item_comment['comment']));
-			$contents .= '<em class="block-top-5">Added by '.get_contact($dbc, $item_comment['created_by']).' at '.$item_comment['created_date'].'</em></span></small><span class="clearfix"></span></div>';
+			$contents .= '<div style="'.$style_strikethrough.'" class="'.$bg_class.'"><small>'.profile_id($dbc, $item_comment['created_by'], false).'<span style="display:inline-block; width:calc(100% - 3em); '.$style_strikethrough.'" class="pull-right">'.preg_replace_callback('/\[PROFILE ([0-9]+)\]/',profile_callback,html_entity_decode($item_comment['comment']));
+			//$contents .= '<em class="block-top-5" style="'.$style_strikethrough.'">Added by '.get_contact($dbc, $item_comment['created_by']).' at '.$item_comment['created_date'].'</em>';
+            $contents .= '</span></small><span class="clearfix"></span></div>';
 		}
         $odd_even++;
 	}
-	$contents .= '</div><!-- .action_notifications -->';
+	$contents .= '</div>';
 } else if($type == 'Intake') {
 	$item = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `intake` WHERE `intakeid`='".$item[1]."'"));
 	$intake_form = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `intake_forms` WHERE `intakeformid` = '".$item['intakeformid']."'"));
@@ -433,16 +458,23 @@ if($type == 'Ticket') {
         <span class="pull-right">
             <?php foreach(array_unique($team) as $team_id) {
                 if($team_id > 0) {
-                    echo '<div class="" style="margin-top: -0.5em; font-size: 0.8em; display:inline;">'.profile_id($dbc, $team_id, false).'</div>';
+                    echo '<div class="" style="margin-top: -0.5em; font-size: 0.8em; display:inline; '.$style_strikethrough.'">'.profile_id($dbc, $team_id, false).'</div>';
                 }
             } ?>
-            <?= ((($_GET['tab'] == 'path' && $_GET['pathid'] != 'MS') || $_GET['tab'] == 'path_external_path' || $_GET['tab'] == 'scrum_board') ? '<img class="milestone-handle cursor-hand no-toggle" src="../img/icons/drag_handle.png" style="height:1em;" title="Drag">' : '') ?>
+            <?= ((($_GET['tab'] == 'path' && $_GET['pathid'] != 'MS') || $_GET['tab'] == 'path_external_path' || $_GET['tab'] == 'scrum_board') ? '<img class="milestone-handle cursor-hand no-toggle" src="../img/icons/drag_handle.png" style="height:1em; '.$style_strikethrough.'" title="Drag">' : '') ?>
         </span>
         <div class="scale-to-fill no-overflow-y" style=""><?= $label ?></div>
     <div class="clearfix"></div></h4>
 	<?php if($security['edit'] > 0) { ?>
 		<div class="action-icons pad-bottom"><?= $actions ?></div>
 	<?php } ?>
+
+    <?php
+    if($type == 'Task') {
+        include('../Tasks_Updated/dashboard_fields.php');
+    }
+    ?>
+    <br>
 
 	<?php if(explode('#*#', $contents)[0] == 'INCLUDE_CHECKLIST') {
 		$checklistid = explode('#*#', $contents)[1];
@@ -471,12 +503,6 @@ if($type == 'Ticket') {
 		<button class="btn brand-btn pull-right" name="flag_cancel" onclick="return false;" style="display:none;">Cancel</button>
 		<button class="btn brand-btn pull-right" name="flag_off" onclick="return false;" style="display:none;">Remove Flag</button>
 	<?php } ?>
-
-    <?php
-    if($type == 'Task') {
-        include('../Tasks_Updated/dashboard_fields.php');
-    }
-    ?>
 
 	<input type='text' name='reply' value='' data-table='<?= $type == 'Task' ? 'task_comments' : '' ?>' data-name='<?= $type == 'Task' ? 'comment' : 'comment' ?>' class="form-control" style="display:none;">
 	<input type='text' name='work_time' value='' data-table='<?= $type == 'Task' ? 'tasklist_time' : 'tasklist' ?>' class="form-control timepicker time-field" style="border:0;height:0;margin:0;padding:0;width:0;">
