@@ -80,7 +80,9 @@ function send_email($from, $to, $cc, $bcc, $subject, $body, $attachment = '') {
 	// Add attachments
     Swift_Preferences::getInstance()->setCacheType('null');
 	foreach(array_filter(explode('*#FFM#*', $attachment)) as $attach) {
-		$message->attach(Swift_Attachment::fromPath($attach), "application/octet-stream");
+        if(file_exists($attach) && $attach != '') {
+            $message->attach(Swift_Attachment::fromPath($attach), "application/octet-stream");
+        }
 	}
 
 	// Send the message

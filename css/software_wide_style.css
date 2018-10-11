@@ -2444,10 +2444,10 @@ ul.guide-index li { font-weight:bold; list-style-type:none; margin-top:20px; mar
 .no-scroll {
 	overflow: hidden !important;
 }
-.no-margin {
+.no-margin, .no-margin li {
 	margin: 0 !important;
 }
-.no-pad {
+.no-pad, .no-pad li {
 	padding: 0 !important;
 }
 .no-pad-left {
