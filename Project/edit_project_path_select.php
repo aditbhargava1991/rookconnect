@@ -1,6 +1,6 @@
 <?php include_once('../include.php');
 if(!isset($security)) {
-	$security = get_security($dbc, $tile);
+	$security = get_security($dbc, (empty($_GET['tile_name']) ? 'project' : $_GET['tile_name']));
 	$strict_view = strictview_visible_function($dbc, 'project');
 	if($strict_view > 0) {
 		$security['edit'] = 0;
@@ -160,4 +160,6 @@ if($security['edit'] > 0) {
             ';
 		} ?>
 	</div></div>
+<?php } else { ?>
+    <h4>You do not have access to edit this Path</h4>
 <?php } ?>
