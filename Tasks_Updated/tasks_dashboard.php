@@ -417,7 +417,6 @@ function mark_done(sel) {
     } else {
         status = '<?= $status_incomplete ?>';
     }
-
     $.ajax({
         type: "GET",
         url: "task_ajax_all.php?fill=mark_done&taskid="+task_id+'&status='+status,
@@ -878,7 +877,7 @@ function addIntakeForm(btn) {
 
 							while($row = mysqli_fetch_array( $result )) {
 								if ( $row['status']==$status_complete ) {
-									$style_strikethrough = 'text-decoration:line-through;';
+									$style_strikethrough = 'text-decoration:line-through; filter: gray; -webkit-filter: grayscale(1); filter: grayscale(1);';
 								} else {
 									$style_strikethrough = '';
 								}
@@ -909,7 +908,7 @@ function addIntakeForm(btn) {
                                     //echo '</span>'; ?>
                                     <div class="row pull-left t_name">
                                         <h4 style="<?= $style_strikethrough ?>">
-                                            <input type="checkbox" name="status" value="<?= $row['tasklistid'] ?>" class="form-checkbox no-margin small pull-left" onchange="mark_done(this);" <?= ( $row['status'] == 'Complete' || $row['status'] == 'Done' || $row['status'] == 'Finish' ) ? 'checked disabled' : '' ?> />
+                                            <input type="checkbox" name="status" value="<?= $row['tasklistid'] ?>" class="form-checkbox no-margin small pull-left" onchange="mark_done(this);" <?= ( $row['status'] == 'Complete' || $row['status'] == 'Done' || $row['status'] == 'Finish' ) ? 'checked' : '' ?> />
                                             <div class="pull-left gap-left">
 
                                             <?php
@@ -917,19 +916,19 @@ function addIntakeForm(btn) {
 
                                             if($slider_layout == 'accordion') {
                                             ?>
-                                            <a href="" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Tasks_Updated/add_task.php?type=<?=$row['status']?>&tasklistid=<?=$row['tasklistid']?>', '50%', false, false, $('.iframe_overlay').closest('.container').outerHeight() + 20); return false;"><?= TASK_NOUN ?> #<?= $row['tasklistid'] ?> </a>
+                                            <a href="" style="<?= $style_strikethrough ?>" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Tasks_Updated/add_task.php?type=<?=$row['status']?>&tasklistid=<?=$row['tasklistid']?>', '50%', false, false, $('.iframe_overlay').closest('.container').outerHeight() + 20); return false;"><?= TASK_NOUN ?> #<?= $row['tasklistid'] ?> </a>
                                             <?php } else { ?>
-                                            <a  href="../Tasks_Updated/add_task_full_view.php?type=<?=$row['status']?>&tasklistid=<?=$row['tasklistid']?>"><?= TASK_NOUN ?> #<?= $row['tasklistid'] ?> </a>
+                                            <a style="<?= $style_strikethrough ?>" href="../Tasks_Updated/add_task_full_view.php?type=<?=$row['status']?>&tasklistid=<?=$row['tasklistid']?>"><?= TASK_NOUN ?> #<?= $row['tasklistid'] ?> </a>
                                             <?php } ?>
-											<br><span><?= $row['heading']; ?></span>
+											<br><span style="<?= $style_strikethrough ?>"><?= $row['heading']; ?></span>
                                             </div>
                                         </h4>
 
                                     </div>
-                                    <span class="pull-right action-icons offset-top-5 t_drag" data-task="<?= $row['tasklistid'] ?>">
+                                    <span style="<?= $style_strikethrough ?>" class="pull-right action-icons offset-top-5 t_drag" data-task="<?= $row['tasklistid'] ?>">
                                         <img class="drag_handle pull-right inline-img offset-top-7 no-toggle" src="../img/icons/drag_handle.png" title="Drag" />
                                     </span>
-                                    <div class="small pull-right offset-top-5 t_staff"><?php
+                                    <div style="<?= $style_strikethrough ?>" class="small pull-right offset-top-5 t_staff"><?php
                                         /*if ( $row['company_staff_sharing'] ) {
                                             $c_ex = explode(',', $row['company_staff_sharing']);
                                             $c_unique = array_unique($c_ex);
@@ -978,10 +977,10 @@ function addIntakeForm(btn) {
                                 	</div>
                                     <?php
 
-                                    echo '<span class="pull-right action-icons double-gap-bottom gap-top" style="width: 100%;" data-task="'.$row['tasklistid'].'">';
+                                    echo '<span class="pull-right action-icons double-gap-bottom gap-top" style="width: 100%; '.$style_strikethrough.'" data-task="'.$row['tasklistid'].'">';
                                         $mobile_url_tab = trim($_GET['tab']);
                                         if ( $url_tab=='Project' || $mobile_url_tab=='Project' ) { ?>
-                                            <span style="display:inline-block; text-align:center; width:11%"><a href="../Project/projects.php?edit=<?= $row['projectid'] ?>" title="View Project" style="background-color:#fff; border:1px solid #3ac4f2; border-radius:50%; color:#3ac4f2 !important; display:inline-block; height:1.5em; width:1.5em;">?</a></span><?php
+                                            <span style="display:inline-block; text-align:center; width:11%;"><a href="../Project/projects.php?edit=<?= $row['projectid'] ?>" title="View Project" style="background-color:#fff; border:1px solid #3ac4f2; border-radius:50%; color:#3ac4f2 !important; display:inline-block; height:1.5em; width:1.5em;">?</a></span><?php
                                         }
                                         /*
                                         if (in_array('edit', $quick_actions)) { ?>
