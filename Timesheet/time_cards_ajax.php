@@ -276,6 +276,7 @@ else if($_GET['action'] == 'stop_holiday_update_noti') {
     $type_of_time = filter_var($_POST['type_of_time'],FILTER_SANITIZE_STRING);
     $field = filter_var($_POST['field'],FILTER_SANITIZE_STRING);
     $value = filter_var($_POST['value'],FILTER_SANITIZE_STRING);
+    $history_hours = filter_var($_POST['value'],FILTER_SANITIZE_STRING);
     if($field == 'total_hrs') {
         $value = explode(':',$value);
         $value = $value[0] + ($value[1] / 60);
@@ -319,7 +320,7 @@ else if($_GET['action'] == 'stop_holiday_update_noti') {
 		$time_card = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `time_cards` WHERE `time_cards_id` = '$id'"));
 		if($field == 'total_hrs' && number_format($value,1) != number_format($time_card['total_hrs'],1)) {
 			//$comment_history .= $session_user.' updated '.$field.' from '.$time_card['total_hrs'].' to '.$total_hrs.'.<br>';
-            $comment_history .= $session_user.' updated total hours to '.number_format($value,1).'.<br>';
+            $comment_history .= $session_user.' updated total hours to '.$history_hours.'.<br>';
 		}
 		if($type_of_time != $time_card['type_of_time']) {
 			//$comment_history .= $session_user.' updated Type of Time from '.$time_card['type_of_time'].' to '.$type_of_time.'.<br>';
