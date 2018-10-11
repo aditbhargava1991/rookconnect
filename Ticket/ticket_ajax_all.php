@@ -1703,6 +1703,7 @@ if($_GET['action'] == 'update_fields') {
 		set_config($dbc, 'ticket_guardian_contact', filter_var($_POST['ticket_guardian_contact_value'],FILTER_SANITIZE_STRING));
 		set_config($dbc, 'ticket_recurrence_sync_upto', filter_var($_POST['ticket_recurrence_sync_upto'],FILTER_SANITIZE_STRING));
 		set_config($dbc, 'delivery_type_default', filter_var($_POST['delivery_type_default'],FILTER_SANITIZE_STRING));
+		set_config($dbc, 'delivery_restrict_contacts'.(!empty($_POST['tab']) ? '_'.$_POST['tab'] : ''), filter_var(implode(',',$_POST['delivery_restrict_contacts']),FILTER_SANITIZE_STRING));
 	}
 
 } else if($_GET['action'] == 'ticket_field_config') {
@@ -3443,6 +3444,79 @@ if($_GET['action'] == 'get_ticket_client') {
 			echo $clientid;
 		}
 	}
+} else if($_GET['action'] == 'get_restrict_contacts_list') {
+	$tab = $_POST['tab'];
+	$category = $_POST['category'];
+	$delivery_restrict_contacts = explode(',',get_config($dbc, 'delivery_restrict_contacts'));
+	$tab_delivery_restrict_contacts = explode(',',get_config($dbc, 'delivery_restrict_contacts'.($tab == '' ? '' : '_'.$tab)));
+	$all_contacts = sort_contacts_query(mysqli_query($dbc, "SELECT * FROM `contacts` WHERE `deleted` = 0 AND `status` > 0 AND `category` = '".$category."'"));
+	foreach($all_contacts as $delivery_contact) { ?>
+		<label class="form-checkbox"><input type="checkbox" name="delivery_restrict_contacts<?= $tab == '' ? '' : '_'.$tab ?>" value="<?= $delivery_contact['contactid'] ?>" <?= in_array($delivery_contact['contactid'],$delivery_restrict_contacts) && !empty($tab) ? 'checked disabled' : '' ?> <?= in_array($delivery_contact['contactid'],$tab_delivery_restrict_contacts) ? 'checked' : '' ?>> <?= $delivery_contact['full_name'] ?></label>
+	<?php }
+} else if($_GET['action'] == 'get_hours_of_operation') {
+	$ticketid = $_POST['ticketid'];
+	$ticket_type = get_field_value('ticket_type','tickets','ticketid',$ticketid);
+	$warehouseid = $_POST['warehouseid'];
+	$to_do_date = $_POST['to_do_date'];
+	$to_do_start_time = $_POST['to_do_start_time'];
+	$result = [];
+	if(!empty($to_do_date)) {
+		$warehouse = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `hours_of_operation` FROM `contacts` WHERE `contactid` = '$warehouseid'"));
+		$day_i = date('w',strtotime($to_do_date));
+		$hours = explode('-',explode(',',$warehouse['hours_of_operation'])[$day_i]);
+		$start_time = !empty($hours[0]) ? date('H:i', strtotime($hours[0])) : '';
+		$end_time = !empty($hours[1]) ? date('H:i', strtotime($hours[1])) : '';
+		if(!empty($start_time) && !empty($end_time)) {
+			if(strtotime($to_do_start_time) < strtotime($start_time)) {
+				$to_do_start_time = date('h:i a',strtotime($start_time));
+			}
+			if(strtotime($to_do_start_time) > strtotime($end_time)) {
+				$to_do_start_time = date('h:i a',strtotime($end_time));
+			}
+			$delivery_restrictions = '';
+			foreach(array_filter(explode(',', ROLE)) as $contact_role) {
+				$restriction_config = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `field_config_ticket_delivery_restrictions` WHERE CONCAT(',',`security_level`,',') LIKE '%,$contact_role,%' AND `ticket_type` = '$ticket_type'"));
+				if(!empty($restriction_config)) {
+					if($restriction_config['to_do_date_min'] != '') {
+						$delivery_restrictions['to_do_date_min'] = date('Y-m-d', strtotime(date('Y-m-d').($restriction_config['to_do_date_min'] >= 0 ? '+' : '').$restriction_config['to_do_date_min'].' Days'));
+					}
+					if($restriction_config['to_do_date_max'] != '') {
+						$delivery_restrictions['to_do_date_max'] = date('Y-m-d', strtotime(date('Y-m-d').($restriction_config['to_do_date_max'] >= 0 ? '+' : '').$restriction_config['to_do_date_max'].' Days'));
+					}
+					if($restriction_config['to_do_start_time_min'] != '') {
+						$delivery_restrictions['to_do_start_time_min'] = date('H:i', strtotime(date('H:i').($restriction_config['to_do_start_time_min'] >= 0 ? '+' : '').$restriction_config['to_do_start_time_min'].' Hours'));
+					}
+					if($restriction_config['to_do_start_time_max'] != '') {
+						$delivery_restrictions['to_do_start_time_max'] = date('H:i', strtotime(date('H:i').($restriction_config['to_do_start_time_max'] >= 0 ? '+' : '').$restriction_config['to_do_start_time_max'].' Hours'));
+					}
+					break;
+				}
+			}
+			if(!empty($delivery_restrictions['to_do_start_time_min']) && strtotime($start_time) < strtotime($delivery_restrictions['to_do_start_time_min'])) {
+				$start_time = date('H:i',strtotime($delivery_restrictions['to_do_start_time_min']));
+			}
+			if(!empty($delivery_restrictions['to_do_start_time_max']) && strtotime($end_time) > strtotime($delivery_restrictions['to_do_start_time_max'])) {
+				$end_time = date('H:i',strtotime($delivery_restrictions['to_do_start_time_max']));
+			}
+		}
+		if($hours[0] == 'closed') {
+			$start_time = 'closed';
+		}
+		$result = [start_time=>$start_time, end_time=>$end_time, to_do_start_time=>$to_do_start_time];
+	} else {
+		$result = [start_time=>'', end_time=>'', to_do_start_time=>''];
+	}
+	echo json_encode($result);
+} else if($_GET['action'] == 'save_delivery_restriction') {
+	$tab = $_POST['tab'];
+	$security_level = $_POST['security_level'];
+	$to_do_date_min = $_POST['to_do_date_min'];
+	$to_do_date_max = $_POST['to_do_date_max'];
+	$to_do_start_time_min = $_POST['to_do_start_time_min'];
+	$to_do_start_time_max = $_POST['to_do_start_time_max'];
+
+	mysqli_query($dbc, "INSERT INTO `field_config_ticket_delivery_restrictions` (`ticket_type`) SELECT '$tab' FROM (SELECT COUNT(*) rows FROM `field_config_ticket_delivery_restrictions` WHERE `ticket_type` = '$tab') num WHERE num.rows=0");
+	mysqli_query($dbc, "UPDATE `field_config_ticket_delivery_restrictions` SET `security_level` = '$security_level', `to_do_date_min` = '$to_do_date_min', `to_do_date_max` = '$to_do_date_max', `to_do_start_time_min` = '$to_do_start_time_min', `to_do_start_time_max` = '$to_do_start_time_max' WHERE `ticket_type` = '$tab'");
 }
 ?>
 

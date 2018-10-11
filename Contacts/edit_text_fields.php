@@ -2748,4 +2748,47 @@
 			} ?>
 		</select>
 	</div>
+<?php } else if($field_option == 'Hours of Operation') {
+	$days_of_week = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+	$hours_of_operation = explode(',', $contact['hours_of_operation']); ?>
+	<script type="text/javascript">
+	function setHoursOfOperation(input) {
+		var table = $(input).closest('.hours_of_operation');
+		var hours_of_operation = [];
+		$(table).find('.day_row').each(function() {
+			if($(this).find('[name="day_hours_closed"]').is(':checked')) {
+				hours_of_operation.push('closed');
+				$(this).find('[name="day_hours_start"],[name="day_hours_end"]').val('').prop('disabled', true);
+			} else {
+				hours_of_operation.push($(this).find('[name="day_hours_start"]').val()+'-'+$(this).find('[name="day_hours_end"]').val());
+				$(this).find('[name="day_hours_start"],[name="day_hours_end"]').prop('disabled', false);
+			}
+		});
+		hours_of_operation = hours_of_operation.join(',');
+		$('[name="hours_of_operation"]').val(hours_of_operation).change();
+	}
+	</script>
+	<label class="col-sm-4 control-label">Hours of Operation:</label>
+	<div class="col-sm-8">
+		<div id="no-more-tables">
+			<table class="table table-bordered hours_of_operation">
+				<input type="hidden" name="hours_of_operation" data-field="hours_of_operation" data-table="contacts" value="<?= $contact['hours_of_operation'] ?>">
+				<tr class="hidden-xs">
+					<th>Day</th>
+					<th>Closed</th>
+					<th>Start Time</th>
+					<th>End Time</th>
+				</tr>
+				<?php for($day_i = 0; $day_i < 7; $day_i++) { ?>
+					<tr class="day_row">
+						<input type="hidden" name="day_hours" value="<?= $hours_of_operation[$day_i] ?>">
+						<td data-title="Day"><?= $days_of_week[$day_i] ?></td>
+						<td data-title="Closed"><label class="form-checkbox"><input type="checkbox" name="day_hours_closed" value="closed" <?= $hours_of_operation[$day_i] == 'closed' ? 'checked' : '' ?> onchange="setHoursOfOperation(this);"></label></td>
+						<td data-title="Start Time"><input type="text" name="day_hours_start" class="form-control datetimepicker" value="<?= $hours_of_operation[$day_i] == 'closed' ? '' : explode('-',$hours_of_operation[$day_i])[0] ?>" onchange="setHoursOfOperation(this);" <?= $hours_of_operation[$day_i] == 'closed' ? 'disabled' : '' ?>></td>
+						<td data-title="End Time"><input type="text" name="day_hours_end" class="form-control datetimepicker" value="<?= $hours_of_operation[$day_i] == 'closed' ? '' : explode('-',$hours_of_operation[$day_i])[1] ?>" onchange="setHoursOfOperation(this);" <?= $hours_of_operation[$day_i] == 'closed' ? 'disabled' : '' ?>></td>
+					</tr>
+				<?php } ?>
+			</table>
+		</div>
+	</div>
 <?php } ?>
