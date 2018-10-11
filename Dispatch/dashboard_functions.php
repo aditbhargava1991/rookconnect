@@ -135,6 +135,16 @@ function dispatch_ticket_label($dbc, $ticket, $stop_number) {
 		}
 	}
 	if(in_array('signature',$dispatch_tile_ticket_card_fields)) {
+		if($customer_notes['signature'] != '') {
+			if(!file_exists('../Ticket/export/customer_sign_'.$customer_notes['id'].'.png')) {
+				if(!file_exists('export')) {
+					mkdir('export',0777,true);
+				}
+				include_once('../phpsign/signature-to-image.php');
+				$signature = sigJsonToImage(html_entity_decode($customer_notes['signature']));
+				imagepng($signature, '../Ticket/export/customer_sign_'.$customer_notes['id'].'.png');
+			}
+		}
 		$signature_class = '';
 		if(file_exists('../Ticket/export/customer_sign_'.$customer_notes['id'].'.png')) {
 			$signature_class = 'active';
