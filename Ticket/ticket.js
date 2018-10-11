@@ -2,6 +2,9 @@ ticket_wait = false;
 ticket_lock_interval = '';
 ticket_reload_tabs = '';
 ticket_excess_confirm = true;
+address_validation = [''];
+use_google_suggest = false;
+suggest_from_google = true;
 ticket_reloading_service_checklist = '';
 finishing_ticket = false;
 $(document).ready(function() {
@@ -601,16 +604,24 @@ function saveFieldMethod(field) {
 				$(field).closest('.multi-block').find('[name=total]').first().val(save_value * $(field).closest('.multi-block').find('[name=qty]').val());
 			} else if((field_name == 'address' || field_name == 'city' || field_name == 'postal_code') && table_name == 'ticket_schedule' && block.find('[name=map_link]').first().data('auto-fill') == 'auto') {
 				block.find('[name=map_link]').first().val('https://www.google.ca/maps/place/'+encodeURI(block.find('[name=address]').val()+','+block.find('[name=city]').val()+','+block.find('[name=postal_code]').val())).change();
-				if($(field).closest('.scheduled_stop').find('[name="type"]') == undefined || $(field).closest('.scheduled_stop').find('[name="type"] option:selected').data('warehouse') != 'yes') {
+				if($(field).closest('.scheduled_stop').find('[name="type"]') == undefined || $(field).closest('.scheduled_stop').find('[name="type"] option:selected').data('warehouse') != 'yes' && suggest_from_google) {
 					$.post('ticket_ajax_all.php?action=validate_address', { address: block.find('[name=address]').val(), city: block.find('[name=city]').val(), postal: block.find('[name=postal_code]').val() }, function(response) {
-						response = response.split('|');
-						if(response.join('') != '' && (response[0] != block.find('[name=address]').val() || response[1] != block.find('[name=city]').val() || response[2] != block.find('[name=postal_code]').val()) && confirm('We suggest the following corrections to your address: '+response.join(', ')+'. Would you like to use this suggestion? Using the current address may fail to display in Google Maps.')) {
-							block.find('[name=address]').val(response[0]).change();
-							block.find('[name=city]').val(response[1]).change();
-							block.find('[name=postal_code]').val(response[2]).change();
-						} else if(response.join('') == '') {
-							alert('The address provided may not be valid. It will not be found in Google Maps.');
-						}
+						address_validation = response.split('|');
+                        setTimeout(function() {
+                            if(address_validation.join('') != '' && (address_validation[0] != block.find('[name=address]').val() || address_validation[1] != block.find('[name=city]').val() || address_validation[2] != block.find('[name=postal_code]').val()) && (use_google_suggest === true || confirm('We suggest the following corrections to your address: '+address_validation.join(', ')+'. Would you like to use this suggestion? Using the current address may fail to display in Google Maps.'))) {
+                                block.find('[name=address]').val(address_validation[0]).change();
+                                block.find('[name=city]').val(address_validation[1]).change();
+                                block.find('[name=postal_code]').val(address_validation[2]).change();
+                                use_google_suggest = true;
+                                suggest_from_google = false;
+                                setTimeout(function() {
+                                    suggest_from_google = true;
+                                }, 15000);
+                            } else if(address_validation.join('') == '' && use_google_suggest != 'no_update') {
+                                alert('The address provided may not be valid. It will not be found in Google Maps.');
+                                use_google_suggest = 'no_update';
+                            }
+                        }, 250);
 					});
 				}
 			} else if(field_name == 'type' && table_name == 'ticket_schedule') {
