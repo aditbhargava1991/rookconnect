@@ -23,6 +23,7 @@ function updateQueryStringParameter(uri, key, value) {
 // Javascript Stored User Preferences
 var time_format_style = '<?= TIME_FORMAT ?>';
 var time_format_seconds = '<?= TIME_FORMAT_SEC ?>';
+var time_out_notified = false;
 </script>
 
 <!-- css -->
