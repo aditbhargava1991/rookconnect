@@ -319,14 +319,14 @@ else if($_GET['action'] == 'stop_holiday_update_noti') {
 		$time_card = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `time_cards` WHERE `time_cards_id` = '$id'"));
 		if($field == 'total_hrs' && number_format($value,1) != number_format($time_card['total_hrs'],1)) {
 			//$comment_history .= $session_user.' updated '.$field.' from '.$time_card['total_hrs'].' to '.$total_hrs.'.<br>';
-            $comment_history .= $session_user.' updated total hours.<br>';
+            $comment_history .= $session_user.' updated total hours to '.$value.'.<br>';
 		}
 		if($type_of_time != $time_card['type_of_time']) {
 			$comment_history .= $session_user.' updated Type of Time from '.$time_card['type_of_time'].' to '.$type_of_time.'.<br>';
 		}
         $dbc->query("UPDATE `time_cards` SET `$field`='$value', `".($page == 'time_cards.php' ? '' : 'manager_')."highlight`=1 WHERE `time_cards_id`='$id'");
     } else {
-        $comment_history = $session_user.' added Time.<br>';
+        $comment_history = $session_user.' added Time '.$value.'.<br>';
         $dbc->query("INSERT INTO `time_cards` (`business`,`projectid`,`ticketid`,`date`,`clientid`,`ticket_attached_id`,`staff`,`type_of_time`,`$field`) VALUES ('$siteid','$projectid','$ticketid','$date','$clientid','$attach_id','$staff','$type','$value')");
         echo $id = $dbc->insert_id;
     }
