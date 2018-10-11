@@ -849,6 +849,131 @@ function deletestartTicketStaff(button) {
             success: function(response){}
         });
     }
+
+function flag_item_manual(task) {
+       task_id = $(task).parents('span').data('task');
+       if(task_id.toString().substring(0,5) == 'BOARD') {
+               task_id = task_id.substring(5);
+       }
+       overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_flags.php?tile=tasks&id='+task_id, 'auto', false, false);
+}
+
+function highlight_item(task) {
+    $('.color_picker').click();
+}
+
+function choose_color(sel) {
+	var typeId = sel.id;
+	var arr = typeId.split('_');
+
+    var task_id = arr[1];
+    var taskcolor = sel.value;
+	var taskcolor = taskcolor.replace("#", "");
+
+	$.ajax({    //create an ajax request to load_page.php
+		type: "GET",
+		url: "task_ajax_all.php?fill=task_highlight&tasklistid="+arr[1]+'&taskcolor='+taskcolor,
+		dataType: "html",   //expect html to be returned
+		success: function(response){
+			location.reload();
+		}
+	});
+}
+
+function send_email(task) {
+	task_id = $(task).parents('span').data('task');
+	var type = 'task';
+	if(task_id.toString().substring(0,5) == 'BOARD') {
+		var type = 'task board';
+		task_id = task_id.substring(5);
+	}
+	overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_email.php?tile=tasks&id='+task_id+'&from_task=task&type='+type, 'auto', false, false);
+}
+
+function send_task_alert(task) {
+       task_id = $(task).parents('span').data('task');
+       if(task_id.toString().substring(0,5) == 'BOARD') {
+               task_id = task_id.substring(5);
+       }
+       overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_alert.php?tile=tasks&id='+task_id, 'auto', false, false);
+}
+
+function send_task_reminder(task) {
+       task_id = $(task).parents('span').data('task');
+       if(task_id.toString().substring(0,5) == 'BOARD') {
+               task_id = task_id.substring(5);
+       }
+       overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_reminders.php?tile=tasks&id='+task_id, 'auto', false, false);
+}
+
+function attach_file(task) {
+	task_id = $(task).parents('span').data('task');
+	var type = 'task';
+	if(task_id.toString().substring(0,5) == 'BOARD') {
+		var type = 'task_board';
+		task_id = task_id.substring(5);
+	}
+	var file_id = 'attach_'+(type == 'task' ? '' : 'board_')+task_id;
+	$('[name='+file_id+']').change(function() {
+		var fileData = new FormData();
+		fileData.append('file',$('[name='+file_id+']')[0].files[0]);
+		$.ajax({
+			contentType: false,
+			processData: false,
+			type: "POST",
+			url: "task_ajax_all.php?fill=task_upload&type="+type+"&id="+task_id,
+			data: fileData,
+			complete: function(result) {
+				console.log(result.responseText);
+				window.location.reload();
+				//alert('Your file has been uploaded.');
+			}
+		});
+	});
+	$('[name='+file_id+']').click();
+}
+
+function send_note(task) {
+       task_id = $(task).parents('span').data('task');
+       if(task_id.toString().substring(0,5) == 'BOARD') {
+               task_id = task_id.substring(5);
+       }
+       overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_notes.php?tile=tasks&id='+task_id, 'auto', false, false);
+}
+
+function quick_icon_add_time(task) {
+	task_id = $(task).parents('span').data('task');
+	$('[name=task_time_'+task_id+']').timepicker('option', 'onClose', function(time) {
+		var time = $(this).val();
+		$(this).val('00:00');
+		if(time != '' && time != '00:00') {
+			$.ajax({
+				method: 'POST',
+				url: 'task_ajax_all.php?fill=task_quick_time',
+				data: { id: task_id, time: time+':00' },
+				complete: function(result) { console.log(result.responseText); window.location.reload();
+                    $.ajax({
+                        method: 'POST',
+                        url: 'task_ajax_all.php?fill=taskreply',
+                        data: { taskid: task_id, reply: 'Time added '+time+':00' },
+                        complete: function(result) { console.log(result.responseText); window.location.reload(); }
+                    });
+                }
+			});
+		}
+	});
+	$('[name=task_time_'+task_id+']').timepicker('show');
+}
+
+function track_icon_time(task) {
+    var task_id = $(task).parents('span').data('task');
+   if(task_id.toString().substring(0,5) == 'BOARD') {
+           task_id = task_id.substring(5);
+   }
+   overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_timer.php?tile=tasks&id='+task_id, 'auto', false, false);
+
+    //$('.timer_block_'+task_id).toggle();
+}
 </script>
 
 </head>
@@ -1021,7 +1146,36 @@ function deletestartTicketStaff(button) {
                             <h3 class="pull-left"><?= !empty($_GET['tasklistid']) ? 'Edit' : 'Add' ?> Task<?= !empty($_GET['tasklistid']) ? ' #'.$_GET['tasklistid'].': '.$task_heading : '' ?></h3>
                             <div class="pull-right">
                                 <?php if(!empty($_GET['tasklistid'])) { ?>
-                                    <button name="" type="button" value="" class="delete_task pull-right image-btn no-toggle header-icon pad-right offset-top-5" title="Archive"><img class="no-margin small" src="../img/icons/ROOK-trash-icon.png" alt="Archive Task"></button>
+
+                                <?php
+                                    echo '<span class="action-icons double-gap-bottom gap-top" data-task="'.$_GET['tasklistid'].'">';
+                                        $quick_actions = explode(',',get_config($dbc, 'task_quick_action_icons'));
+
+                                        echo in_array('flag_manual', $quick_actions) ? '<span title="Flag This!" onclick="flag_item_manual(this); return false;"><img title="Flag This!" src="../img/icons/ROOK-flag-icon.png" class="inline-img no-toggle" onclick="return false;"></span>' : '';
+                                        echo in_array('flag', $quick_actions) ? '<span title="Highlight" onclick="highlight_item(this); return false;"><img src="../img/icons/color-wheel.png" class="inline-img no-toggle" title="Highlight" onclick="return false;"></span>' : '';
+
+                                        echo $row['projectid'] > 0 && in_array('sync', $quick_actions) ? '<span title="Sync to External Path" onclick="sync_task(this); return false;"><img title="Sync to External Path" src="../img/icons/ROOK-sync-icon.png" class="inline-img no-toggle" onclick="return false;"></span>' : '';
+                                        echo in_array('alert', $quick_actions) ? '<span title="Send Alert" onclick="send_task_alert(this); return false;"><img src="../img/icons/ROOK-alert-icon.png" title="Send Alert" class="inline-img no-toggle" onclick="return false;"></span>' : '';
+                                        echo in_array('email', $quick_actions) ? '<span title="Send Email" onclick="send_email(this); return false;"><img src="../img/icons/ROOK-email-icon.png" title="Send Email" class="inline-img no-toggle" onclick="return false;"></span>' : '';
+
+                                        echo in_array('reminder', $quick_actions) ? '<span title="Schedule Reminder" onclick="send_task_reminder(this); return false;"><img title="Schedule Reminder" src="../img/icons/ROOK-reminder-icon.png" class="inline-img no-toggle" onclick="return false;"></span>' : '';
+
+                                        echo in_array('attach', $quick_actions) ? '<span title="Attach File(s)" onclick="attach_file(this); return false;"><img src="../img/icons/ROOK-attachment-icon.png" title="Attach File(s)" class="inline-img no-toggle" onclick="return false;"></span>' : '';
+
+                                        echo in_array('reply', $quick_actions) ? '<span title="Add Note" onclick="send_note(this); return false;"><img src="../img/icons/ROOK-reply-icon.png" title="Add Note" class="inline-img no-toggle" onclick="return false;"></span>' : '';
+
+                                        echo in_array('time', $quick_actions) ? '<span title="Add Time" onclick="quick_icon_add_time(this); return false;"><img src="../img/icons/ROOK-timer-icon.png" title="Add Time" class="inline-img no-toggle" onclick="return false;"></span>' : '';
+                                        echo in_array('timer', $quick_actions) ? '<span title="Track Time" onclick="track_icon_time(this); return false;"><img src="../img/icons/ROOK-timer2-icon.png" title="Track Time" class="inline-img no-toggle" onclick="return false;"></span>' : '';
+                                    echo '</span>';
+
+                                    echo '<input type="color" onchange="choose_color(this); return false;" class="color_picker" id="color_'.$_GET['tasklistid'].'"" name="color_'.$_GET['tasklistid'].'" style="display:none;" value="#f6b73c" />';
+
+                                    echo '<input type="text" name="task_time_'.$_GET['tasklistid'].'" style="display:none;" class="form-control timepicker" />';
+                                    echo '<input type="text" name="reminder_'.$_GET['tasklistid'].'" style="display:none;" class="form-control datepicker" />';
+                                    echo '<input type="file" name="attach_'.$_GET['tasklistid'].'" style="display:none;" class="form-control" />';
+                                ?>
+
+                                    <!-- <button name="" type="button" value="" class="delete_task image-btn no-toggle header-icon pad-right offset-top-5" title="Archive"><img class="no-margin small" src="../img/icons/ROOK-trash-icon.png" alt="Archive Task"></button> -->
                                 <?php } ?>
                             </div>
                             <div class="clearfix"></div>

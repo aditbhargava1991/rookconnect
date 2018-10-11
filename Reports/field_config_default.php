@@ -83,6 +83,7 @@ if (isset($_POST['submit'])) {
                     <option value="Ticket Time Summary" <?= $mobile_landing_subtab_config['value']=='Ticket Time Summary' ? 'selected="selected"' : '' ?>><?= TICKET_NOUN ?> Time Summary</option>
                     <option value="Ticket Deleted Notes" <?= $mobile_landing_subtab_config['value']=='Ticket Deleted Notes' ? 'selected="selected"' : '' ?>>Archived <?= TICKET_NOUN ?> Notes</option>
                     <option value="Ticket Activity Report" <?= $mobile_landing_subtab_config['value']=='Ticket Activity Report' ? 'selected="selected"' : '' ?>><?= TICKET_NOUN ?> Activity Report per Customer</option>
+                    <option value="Ticket Activity Extra Report" <?= $mobile_landing_subtab_config['value']=='Ticket Activity Extra Report' ? 'selected="selected"' : '' ?>><?= TICKET_NOUN ?> Activity Report for Extra Billing</option>
                     <option value="Rate Card Report" <?= $mobile_landing_subtab_config['value']=='Rate Card Report' ? 'selected="selected"' : '' ?>>Rate Cards Report</option>
                     <option value="Import Summary" <?= $mobile_landing_subtab_config['value']=='Import Summary' ? 'selected="selected"' : '' ?>>Import Summary Report</option>
                     <option value="Import Details" <?= $mobile_landing_subtab_config['value']=='Import Details' ? 'selected="selected"' : '' ?>>Detailed Import Report</option>
@@ -246,6 +247,7 @@ if (isset($_POST['submit'])) {
                     <option value="Ticket Time Summary" <?= $desktop_landing_subtab_config['value']=='Ticket Time Summary' ? 'selected="selected"' : '' ?>><?= TICKET_NOUN ?> Time Summary</option>
                     <option value="Ticket Deleted Notes" <?= $desktop_landing_subtab_config['value']=='Ticket Deleted Notes' ? 'selected="selected"' : '' ?>>Archived <?= TICKET_NOUN ?> Notes</option>
                     <option value="Ticket Activity Report" <?= $desktop_landing_subtab_config['value']=='Ticket Activity Report' ? 'selected="selected"' : '' ?>><?= TICKET_NOUN ?> Activity Report per Customer</option>
+                    <option value="Ticket Activity Extra Report" <?= $desktop_landing_subtab_config['value']=='Ticket Activity Extra Report' ? 'selected="selected"' : '' ?>><?= TICKET_NOUN ?> Activity Report for Extra Billing</option>
                     <option value="Rate Card Report" <?= $desktop_landing_subtab_config['value']=='Rate Card Report' ? 'selected="selected"' : '' ?>>Rate Cards Report</option>
                     <option value="Import Summary" <?= $desktop_landing_subtab_config['value']=='Import Summary' ? 'selected="selected"' : '' ?>>Import Summary Report</option>
                     <option value="Import Details" <?= $desktop_landing_subtab_config['value']=='Import Details' ? 'selected="selected"' : '' ?>>Detailed Import Report</option>
@@ -379,6 +381,7 @@ if (isset($_POST['submit'])) {
                   <option value="History Estimates History" <?= $desktop_landing_subtab_config['value']=='History Estimates History' ? 'selected="selected"' : '' ?>>Estimates History</option>
                   <option value="History Products History" <?= $desktop_landing_subtab_config['value']=='History Products History' ? 'selected="selected"' : '' ?>>Products History</option>
                   <option value="History Safety History" <?= $desktop_landing_subtab_config['value']=='History Safety History' ? 'selected="selected"' : '' ?>>Safety History</option>
+                  <option value="History DB Backup History" <?= $desktop_landing_subtab_config['value']=='History DB Backup History' ? 'selected="selected"' : '' ?>>DB Backup History</option>
               </optgroup>
               <optgroup label="Estimates">
                   <option value="Estimate Report" <?= $desktop_landing_subtab_config['value']=='Estimate Report' ? 'selected="selected"' : '' ?>>Estimate Report</option>

@@ -277,6 +277,8 @@ function saveFields() {
 		ticket_summary_hide_positions: ticket_summary_hide_positions,
 		ticket_delivery_time_mintime: $('[name="ticket_delivery_time_mintime"]').val(),
 		ticket_delivery_time_maxtime: $('[name="ticket_delivery_time_maxtime"]').val(),
+		delivery_default_pickup_type: $('[name="delivery_default_pickup_type"]').val(),
+		delivery_default_pickup_time: $('[name="delivery_default_pickup_time"]').val(),
 		ticket_recurring_status: ticket_recurring_status,
 		ticket_material_increment: ticket_material_increment,
 		ticket_notes_alert_role: ticket_notes_alert_role,

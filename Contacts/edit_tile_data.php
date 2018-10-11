@@ -421,11 +421,11 @@
 	<div class="pad-5 gap-bottom">
         <b>Total Time Tracked:
         <?php
-            $total_time = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT SUM(`timer_tracked`) `total_time` FROM `time_cards` WHERE `customer`='$contactid'"));
+            $total_time = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT SUM(`timer_tracked`) `total_time` FROM `time_cards` WHERE `customer`='$contactid' AND `customer` > 0 AND `deleted`=0"));
             echo !empty($total_time['total_time']) ? time_decimal2time($total_time['total_time']) : '0:00';
         ?></b>
     </div>
-    <?php $result = mysqli_query($dbc, "SELECT `t`.`tasklistid`, `t`.`clientid`, `t`.`businessid`, `t`.`heading`, `t`.`created_date`, `t`.`task_tododate`, `b`.`board_security` FROM `tasklist` `t` JOIN `task_board` `b` ON (`t`.`task_board`=`b`.`taskboardid`) WHERE (`t`.`clientid`='$contactid' OR `t`.`businessid`='$contactid') AND `t`.`deleted`=0");
+    <?php $result = mysqli_query($dbc, "SELECT `t`.`tasklistid`, `t`.`clientid`, `t`.`businessid`, `t`.`heading`, `t`.`created_date`, `t`.`task_tododate`, `b`.`board_security` FROM `tasklist` `t` JOIN `task_board` `b` ON (`t`.`task_board`=`b`.`taskboardid`) WHERE ((`t`.`clientid`='$contactid' AND `t`.`clientid` > 0) OR (`t`.`businessid`='$contactid' AND `t`.`businessid` > 0)) AND `t`.`deleted`=0");
     if ( mysqli_num_rows($result) > 0 ) {
 		echo '<ul>';
         while ( $row_tasks=mysqli_fetch_assoc($result) ) { ?>
@@ -2269,7 +2269,7 @@
 		<?php include('../Contacts/edit_addition_match.php'); ?>
 	</div>
 <?php } else if ($field_option == "Customer Rate Card Addition" && vuaed_visible_function($dbc,'rate_card')) {
-	$rate_card_list = mysqli_query($dbc, "SELECT * FROM `rate_card` WHERE `clientid` ='$contactid' AND `deleted` = 0 AND DATE(NOW()) BETWEEN `start_date` AND IFNULL(NULLIF(`end_date`,'0000-00-00'),'9999-12-31')"); ?>
+	$rate_card_list = mysqli_query($dbc, "SELECT * FROM `rate_card` WHERE `clientid` ='$contactid' AND `clientid` > 0 AND `deleted` = 0 AND DATE(NOW()) BETWEEN `start_date` AND IFNULL(NULLIF(`end_date`,'0000-00-00'),'9999-12-31')"); ?>
 	<a href="../Rate Card/ratecards.php?type=customer&card=customer&status=add&clientid=<?= $contactid ?>" class="btn brand-btn pull-right" onclick="overlayIFrameSlider(this.href, 'auto', false, true); return false;">Add New</a>
 	<?php if(mysqli_num_rows($rate_card_list) > 0) { ?>
 		<table class="table table-bordered">
@@ -2293,7 +2293,7 @@
 	} ?>
 	<a href="../Rate Card/ratecards.php?type=customer&card=customer&status=add&clientid=<?= $contactid ?>" class="btn brand-btn pull-right" onclick="overlayIFrameSlider(this.href, 'auto', false, true); return false;">Add New</a>
 <?php } else if ($field_option == "Customer Rate Card Fields" || $field_option == "Customer Rate Card Totalled" || $field_option == "Customer Rate Card Totalled Group Cat Type") {
-	$rate_card = mysqli_query($dbc, "SELECT * FROM `rate_card` WHERE `clientid` ='$contactid' AND `deleted` = 0 AND DATE(NOW()) BETWEEN `start_date` AND IFNULL(NULLIF(`end_date`,'0000-00-00'),'9999-12-31')")->fetch_assoc();
+	$rate_card = mysqli_query($dbc, "SELECT * FROM `rate_card` WHERE `clientid` ='$contactid' AND `clientid` > 0 AND `deleted` = 0 AND DATE(NOW()) BETWEEN `start_date` AND IFNULL(NULLIF(`end_date`,'0000-00-00'),'9999-12-31')")->fetch_assoc();
 	$service_fields = explode(',',get_field_config($dbc, 'services'));
 	$service_templates = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `services_service_templates` WHERE `deleted` = 0 AND `contactid` = 0"),MYSQLI_ASSOC); ?>
 	<div class="form-group">

@@ -2343,6 +2343,9 @@ if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode && !$int
 							<?php if($field_sort_field == 'Inventory General PO Number Dropdown') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Inventory General PO Number Dropdown", $all_config) ? 'checked disabled' : (in_array("Inventory General PO Number Dropdown", $value_config) ? "checked" : '') ?> value="Inventory General PO Number Dropdown" name="tickets[]"> Dropdown Purchase Order Number</label>
 							<?php } ?>
+							<?php if($field_sort_field == 'Inventory General PO Number Dropdown Multiple') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Inventory General PO Number Dropdown Multiple", $all_config) ? 'checked disabled' : (in_array("Inventory General PO Number Dropdown Multiple", $value_config) ? "checked" : '') ?> value="Inventory General PO Number Dropdown Multiple" name="tickets[]"> Dropdown Purchase Order Number - Multiple</label>
+							<?php } ?>
 							<?php if($field_sort_field == 'Inventory General PO Item') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Inventory General PO Item", $all_config) ? 'checked disabled' : (in_array("Inventory General PO Item", $value_config) ? "checked" : '') ?> value="Inventory General PO Item" name="tickets[]"> Purchase Order Item</label>
 							<?php } ?>
@@ -2803,6 +2806,20 @@ if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode && !$int
 								<label class="col-sm-4 control-label">Delivery Tabs</label>
 								<div class="col-sm-8">
 									<input type="text" name="delivery_types" class="form-control" value="<?= get_config($dbc, 'delivery_types') ?>" onchange="loadDefaultDeliveryDropdown();">
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-4 control-label"><span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will automatically set the Delivery Duration for a Specific Delivery tab."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Delivery Default Estimate</label>
+								<div class="col-sm-4">
+                                    <?php $delivery_default_pickup_type = get_config($dbc, 'delivery_default_pickup_type'); ?>
+									<select name="delivery_default_pickup_type" data-placeholder="Select tab" class="chosen-select-deselect"><option />
+                                        <?php foreach(explode(',',get_config($dbc, 'delivery_types')) as $del_type) { ?>
+                                            <option <?= $del_type == $delivery_default_pickup_type ? 'selected' : '' ?> value="<?= $del_type ?>"><?= $del_type ?></option>
+                                        <?php } ?>
+                                    </select>
+								</div>
+								<div class="col-sm-4">
+									<input type="text" name="delivery_default_pickup_time" class="form-control timepicker" value="<?= get_config($dbc, 'delivery_default_pickup_time') ?>">
 								</div>
 							</div>
 							<div class="form-group">
@@ -3777,6 +3794,9 @@ if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode && !$int
 							<?php } ?>
 							<?php if($field_sort_field == 'Planned Tracked Payable Staff') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Planned Tracked Payable Staff", $all_config) ? 'checked disabled' : (in_array("Planned Tracked Payable Staff", $value_config) ? "checked" : '') ?> value="Planned Tracked Payable Staff" name="tickets[]"> Planned/Tracked/Payable Hours Table - Staff</label>
+							<?php } ?>
+							<?php if($field_sort_field == 'Planned Tracked Payable Staff Multiple Times') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Planned Tracked Payable Staff Multiple Times", $all_config) ? 'checked disabled' : (in_array("Planned Tracked Payable Staff Multiple Times", $value_config) ? "checked" : '') ?> value="Planned Tracked Payable Staff Multiple Times" name="tickets[]"> Planned/Tracked/Payable Hours Table - Staff Multiple Dates/Times</label>
 							<?php } ?>
 							<?php if($field_sort_field == 'Planned Tracked Payable Members') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Planned Tracked Payable Members", $all_config) ? 'checked disabled' : (in_array("Planned Tracked Payable Members", $value_config) ? "checked" : '') ?> value="Planned Tracked Payable Members" name="tickets[]"> Planned/Tracked/Payable Hours Table - Members</label>

@@ -3,18 +3,18 @@
 Customer Listing
 */
 include ('../include.php');
-$admin_securitys = explode(',',get_config($dbc, 'incident_report_admin_security'));
-$admin_staffs = explode(',',get_config($dbc, 'incident_report_admin_staff'));
-$admin_access = false;
-if(in_array($_SESSION['contactid'],$admin_staffs)) {
-    $admin_access = true;
+$manager_securitys = explode(',',get_config($dbc, 'incident_report_manager_security'));
+$manager_staffs = explode(',',get_config($dbc, 'incident_report_manager_staff'));
+$manager_access = false;
+if(in_array($_SESSION['contactid'],$manager_staffs)) {
+    $manager_access = true;
 }
 foreach(array_filter(explode(',', $_SESSION['role'])) as $session_role) {
-    if(in_array($session_role, $admin_securitys)) {
-        $admin_access = true;
+    if(in_array($session_role, $manager_securitys)) {
+        $manager_access = true;
     }
 }
-if(!$admin_access) {
+if(!$manager_access) {
     header('Location: incident_report.php');
 }
 ?>
@@ -29,7 +29,7 @@ $(document).ready(function() {
     }).resize();
 });
 function setStatus(select) {
-	$.post('incident_report_ajax.php?action=admin_status', { id: $(select).data('id'), status: select.value });
+    $.post('incident_report_ajax.php?action=manager_status', { id: $(select).data('id'), status: select.value });
 }
 </script>
 </head>
@@ -51,6 +51,7 @@ foreach($project_tabs as $item) {
     $project_vars[preg_replace('/[^a-z_]/','',str_replace(' ','_',strtolower($item)))] = $item;
 }
 $page_status = filter_var($_GET['status'],FILTER_SANITIZE_STRING);
+$manager_approvals_tab = !empty(get_config($dbc, 'incident_report_manager_approvals_tab')) ? get_config($dbc, 'incident_report_manager_approvals_tab') : 'Manager Approvals';
 ?>
 <div class="container">
     <div class="iframe_overlay" style="display:none; margin-top: -20px;margin-left:-15px;">
@@ -81,14 +82,9 @@ $page_status = filter_var($_GET['status'],FILTER_SANITIZE_STRING);
                         <form name="form_sites" method="post" action="" class="form-inline" role="form">
                             <div id="no-more-tables">
                                 <div class="preview-block">
-                                    <div class="preview-block-header"><h4>Administration - <?= empty($current_type) ? 'All '.INC_REP_TILE : $current_type ?></h4></div>
+                                    <div class="preview-block-header"><h4><?= $manager_approvals_tab ?> - <?= empty($current_type) ? 'All '.INC_REP_TILE : $current_type ?></h4></div>
                                 </div>
                             <?php
-                            $manager_approvals = get_config($dbc, 'incident_report_manager_approvals');
-                            if($manager_approvals == 1) {
-                                $manager_query = " AND (`manager_status` = 'Done' OR IFNULL(`status`,'') NOT IN ('', 'Pending'))";
-                            }
-
                             /* Pagination Counting */
                             $rowsPerPage = 25;
                             $pageNum = 1;
@@ -100,18 +96,18 @@ $page_status = filter_var($_GET['status'],FILTER_SANITIZE_STRING);
                             $offset = ($pageNum - 1) * $rowsPerPage;
 
                             if(!empty($_POST['search_incident_reports'])) {
-                                $query_check_credentials = "SELECT * FROM incident_report WHERE (IFNULL(`status`,'') = '$page_status' OR ('$page_status' = 'Pending' AND IFNULL(`status`,'') = '')) AND `deleted`=0 $view_sql $type_query $manager_query";
+                                $query_check_credentials = "SELECT * FROM incident_report WHERE (IFNULL(`manager_status`,'') = '$page_status' OR ('$page_status' = 'Pending' AND IFNULL(`manager_status`,'') = '')) AND `deleted`=0 AND IFNULL(`status`,'') IN ('', 'Pending') $view_sql $type_query";
                             } else {
-                                $query_check_credentials = "SELECT * FROM incident_report WHERE (IFNULL(`status`,'') = '$page_status' OR ('$page_status' = 'Pending' AND IFNULL(`status`,'') = '')) AND `deleted`=0 $view_sql $type_query $manager_query LIMIT $offset, $rowsPerPage";
-                                $query = "SELECT count(*) as numrows FROM incident_report WHERE (IFNULL(`status`,'') = '$page_status' OR ('$page_status' = 'Pending' AND IFNULL(`status`,'') = '')) AND `deleted`=0 $view_sql $type_query $manager_query";
+                                $query_check_credentials = "SELECT * FROM incident_report WHERE (IFNULL(`manager_status`,'') = '$page_status' OR ('$page_status' = 'Pending' AND IFNULL(`manager_status`,'') = '')) AND `deleted`=0 AND IFNULL(`status`,'') IN ('', 'Pending') $view_sql $type_query LIMIT $offset, $rowsPerPage";
+                                $query = "SELECT count(*) as numrows FROM incident_report WHERE (IFNULL(`manager_status`,'') = '$page_status' OR ('$page_status' = 'Pending' AND IFNULL(`manager_status`,'') = '')) AND `deleted`=0 AND IFNULL(`status`,'') IN ('', 'Pending') $view_sql $type_query";
                             }
 
                             $result = mysqli_query($dbc, $query_check_credentials);
 
                             $num_rows = mysqli_num_rows($result);
 
-                            $status_field = 'status';
-                            $approved_by_field = 'approved_by';
+                            $status_field = 'manager_status';
+                            $approved_by_field = 'manager_approved_by';
 
                             include('../Incident Report/approvals.php');
 
