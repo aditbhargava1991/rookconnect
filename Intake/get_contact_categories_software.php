@@ -321,12 +321,24 @@ if(isset($_POST['complete_form'])) {
                 $cat_text = 'Please select a Contact category:';
                 echo '<p class="gap-left">'. $cat_text .'</p>';
 
-				$all_tiles['contacts'] = array_unique(array_filter(explode(',', get_config($dbc, 'contacts_tabs'))));
-				$all_tiles['contactsrolodex'] = array_unique(array_filter(explode(',', get_config($dbc, 'contactsrolodex_tabs'))));
-				$all_tiles['contacts3'] = array_unique(array_filter(explode(',', get_config($dbc, 'contacts3_tabs'))));
-				$all_tiles['clientinfo'] = array_unique(array_filter(explode(',', get_config($dbc, 'clientinfo_tabs'))));
-				$all_tiles['members'] = array_unique(array_filter(explode(',', get_config($dbc, 'members_tabs'))));
-				$all_tiles['vendors'] = array_unique(array_filter(explode(',', get_config($dbc, 'vendors_tabs'))));
+                if(tile_enabled($dbc, 'contacts') || tile_enabled($dbc, 'contacts_inbox')) {
+					$all_tiles['contacts'] = array_unique(array_filter(explode(',', get_config($dbc, 'contacts_tabs'))));
+                }
+                if(tile_enabled($dbc, 'contacts_rolodex')) {
+					$all_tiles['contactsrolodex'] = array_unique(array_filter(explode(',', get_config($dbc, 'contactsrolodex_tabs'))));
+                }
+                if(tile_enabled($dbc, 'contacts3')) {
+					$all_tiles['contacts3'] = array_unique(array_filter(explode(',', get_config($dbc, 'contacts3_tabs'))));
+				}
+                if(tile_enabled($dbc, 'client_info')) {
+					$all_tiles['clientinfo'] = array_unique(array_filter(explode(',', get_config($dbc, 'clientinfo_tabs'))));
+				}
+                if(tile_enabled($dbc, 'members')) {
+					$all_tiles['members'] = array_unique(array_filter(explode(',', get_config($dbc, 'members_tabs'))));
+				}
+                if(tile_enabled($dbc, 'vendors')) {
+					$all_tiles['vendors'] = array_unique(array_filter(explode(',', get_config($dbc, 'vendors_tabs'))));
+				}
 				?>
 
 				<div class="gap-left">
