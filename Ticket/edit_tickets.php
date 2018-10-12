@@ -3476,5 +3476,8 @@ var setHeading = function() {
 		</div>
 <?php if(empty($_GET['calendar_view'])) { ?>
 		</div>
-<?php } ?>
+<?php }
+
+echo 'edit ticket file - '.$_GET['date'];
+?>
 </div>
