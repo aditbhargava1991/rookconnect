@@ -1051,7 +1051,7 @@ checkAuthorised(); ?>
 
 						<div id="collapse_summary" class="panel-collapse collapse">
 							<div class="panel-body">
-								<?php include('add_ticket_summary.php'); ?>
+								<?php //include('add_ticket_summary.php'); ?>
 							</div>
 						</div>
 					</div>
