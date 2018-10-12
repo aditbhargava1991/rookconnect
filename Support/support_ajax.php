@@ -1,11 +1,10 @@
-<?php include('../include.php');
-$dbc_support = mysqli_connect('localhost', 'ffm_rook_user', 'mIghtyLion!542', 'ffm_rook_db');
+<?php include_once('config.php');
 if($user == 'ROOK Connect' && $url == 'https://ffm.rookconnect.com') {
 	$user = $_SESSION['contactid'];
 	$user_name = get_contact($dbc, $user);
 	$user_category = get_contact($dbc, $user, 'category');
 } else {
-	$user = mysqli_fetch_array(mysqli_query($dbc_support, "SELECT `contactid` FROM `contacts` WHERE `name`='".encryptIt($user)."'"))['contactid'];
+	$user = mysqli_fetch_array(mysqli_query($dbc_support, "SELECT * FROM `contacts` WHERE ('".WEBSITE_URL."' LIKE CONCAT('%',`website`) AND IFNULL(`website`,'') NOT LIKE '') OR `name`='".encryptIt($user)."' ORDER BY `name`='".encryptIt($user)."'"))['contactid'];
 	$user_category = 'REMOTE_'.get_contact($dbc, $_SESSION['contactid'], 'category');
 	if($user_category != 'REMOTE_Staff') {
 		$user_category = 'USER_CUSTOMER';
@@ -208,4 +207,7 @@ else if($_GET['action'] == 'comm_settings') {
 		set_config($dbc, 'support_alert_'.$type_id, $_POST['alerts'][$i]);
 		set_config($dbc, 'support_note_'.$type_id, $_POST['notes'][$i]);
 	}
+}
+else if($_GET['action'] == 'tab_settings') {
+	set_config($dbc, 'cust_support_tab_list', implode(',',$_POST['tab_list']));
 }
