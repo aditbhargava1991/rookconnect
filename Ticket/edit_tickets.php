@@ -829,7 +829,7 @@ function loadPanel() {
 		var accordion = $(panel).data('accordion');
 		panel.html('Loading...');
 		$.ajax({
-			url: panel.data('file-name')+'<?= $ticketid > 0 ? '' : '&'.http_build_query($_GET) ?>&action_mode=<?= $_GET['action_mode'] ?>&date=<?= $_GET['date'] ?>&&overview_mode=<?= $_GET['overview_mode'] ?>&ticketid='+ticketid,
+			url: panel.data('file-name')+'<?= $ticketid > 0 ? '' : '&'.http_build_query($_GET) ?>&action_mode=<?= $_GET['action_mode'] ?>&date=<?= $_GET['date'] ?>&overview_mode=<?= $_GET['overview_mode'] ?>&ticketid='+ticketid,
 			method: 'POST',
 			data: { accordion: accordion },
 			response: 'html',
@@ -3476,8 +3476,5 @@ var setHeading = function() {
 		</div>
 <?php if(empty($_GET['calendar_view'])) { ?>
 		</div>
-<?php }
-
-echo 'edit ticket file - '.$_GET['date'];
-?>
+<?php } ?>
 </div>
