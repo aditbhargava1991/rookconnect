@@ -125,8 +125,6 @@ function blankPDFForm() {
 
 			<div class="clearfix"></div>
 			<?php if(isset($_GET['edit'])) {
-                    echo 'inxex file - '.$_GET['date'];
-
 				echo '<input type="hidden" name="global_ticket_noun" value="'.$ticket_noun.'">';
 				include('edit_tickets.php');
 				if(empty($ticketid) && $calendar_ticket_slider == 'accordion') {

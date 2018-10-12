@@ -74,16 +74,8 @@ if(basename($_SERVER['SCRIPT_FILENAME']) == 'add_ticket_summary.php') {
 	$sort_field = 'Summary';
 	$renamed_accordion = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_ticket_accordion_names` WHERE `ticket_type` = '".(empty($get_ticket['ticket_type']) ? 'tickets' : 'tickets_'.$get_ticket['ticket_type'])."' AND `accordion` = '".$sort_field."'"))['accordion_name'];
 }
-
-echo 'my - '.$_GET['current_date'];
-
 if(!empty($_GET['date'])) {
 	$current_date = filter_var($_GET['date'],FILTER_SANITIZE_STRING);
-	$query_daily = " AND `date_stamp`='".$current_date."' ";
-}
-
-if(!empty($_GET['current_date'])) {
-	$current_date = filter_var($_GET['current_date'],FILTER_SANITIZE_STRING);
 	$query_daily = " AND `date_stamp`='".$current_date."' ";
 }
 
@@ -121,10 +113,7 @@ if(!empty($summary_hide_positions)) {
 			<div class="col-sm-1 text-center hide-titles-mob">Time</div>
 			<div class="col-sm-3 text-center hide-titles-mob">Task</div>
 			<div class="clearfix"></div>
-			<?php
-    echo "SELECT * FROM `ticket_attached` WHERE `ticket_attached`.`item_id` > 0 AND `tile_name`='".FOLDER_NAME."' AND `ticketid`='$ticketid' AND `ticketid` > 0 AND `deleted`=0 $hide_positions AND `src_table` IN ('Staff','Staff_Tasks')".$query_daily;
-
-    $summary_staff = mysqli_query($dbc, "SELECT * FROM `ticket_attached` WHERE `ticket_attached`.`item_id` > 0 AND `tile_name`='".FOLDER_NAME."' AND `ticketid`='$ticketid' AND `ticketid` > 0 AND `deleted`=0 $hide_positions AND `src_table` IN ('Staff','Staff_Tasks')".$query_daily);
+			<?php $summary_staff = mysqli_query($dbc, "SELECT * FROM `ticket_attached` WHERE `ticket_attached`.`item_id` > 0 AND `tile_name`='".FOLDER_NAME."' AND `ticketid`='$ticketid' AND `ticketid` > 0 AND `deleted`=0 $hide_positions AND `src_table` IN ('Staff','Staff_Tasks')".$query_daily);
 			if($summary_staff->num_rows > 0) {
 				while($summary = mysqli_fetch_array($summary_staff)) { ?>
 					<div class="form-group summary multi-block">
