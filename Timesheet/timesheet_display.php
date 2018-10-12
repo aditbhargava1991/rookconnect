@@ -170,7 +170,7 @@ var checkTimeOverlaps = function() {
                         end_time2 = new Date(date+' '+$(tr2).find('[name="end_time"]').val())
                         if((start_time.getTime() > start_time2.getTime() && start_time.getTime() < end_time2.getTime()) || (end_time.getTime() > start_time2.getTime() && end_time.getTime() < end_time2.getTime())) {
                             $(tr).css('background-color', 'red');
-                            $(tr).find('.overlap_time').css("display","block");
+                            //$(tr).find('.overlap_time').css("display","block");
                         }
                     }
                 });
@@ -191,6 +191,7 @@ var useProfileSig = function(chk) {
 }
 </script>
 <?php // Create Table ?>
+
 <input type="hidden" name="current_page" value="<?= $current_page ?>">
 <div id="no-more-tables">
     <table class='table table-bordered'>
@@ -360,19 +361,7 @@ var useProfileSig = function(chk) {
                         }
                     }
                 }
-
-                //$hl_colour = ($row['MANAGER'] > 0 && $mg_highlight != '#000000' && $mg_highlight != '' ? 'background-color:'.$mg_highlight.';' : ($row['HIGHLIGHT'] > 0 && $highlight != '#000000' && $highlight != '' ? 'background-color:'.$highlight.';' : ''));
-
-                if($row['MANAGER'] > 0 && $mg_highlight != '#000000' && $mg_highlight != '') {
-                    //$hl_colour = "background-color: ".$mg_highlight.";";
-                    $hl_colour = 'style="background-color: yellow;"';
-
-                }
-                if($row['HIGHLIGHT'] > 0 && $highlight != '#000000' && $highlight != '') {
-                    //$hl_colour = "background-color: ".$highlight.";";
-                    $hl_colour = 'style="background-color: green;"';
-                }
-
+                $hl_colour = ($row['MANAGER'] > 0 && $mg_highlight != '#000000' && $mg_highlight != '' ? 'background-color:'.$mg_highlight.';' : ($row['HIGHLIGHT'] > 0 && $highlight != '#000000' && $highlight != '' ? 'background-color:'.$highlight.';' : ''));
                 $show_separator = 0;
                 $hrs = ['REG'=>$row['REG_HRS'],'DIRECT'=>$row['DIRECT_HRS'],'INDIRECT'=>$row['INDIRCET_HRS'],'EXTRA'=>$row['EXTRA_HRS'],'RELIEF'=>$row['RELIEF_HRS'],'SLEEP'=>$row['SLEEP_HRS'],'SICK_ADJ'=>$row['SICK_ADJ'],
                     'SICK'=>$row['SICK_HRS'],'STAT_AVAIL'=>$row['STAT_AVAIL'],'STAT'=>$row['STAT_HRS'],'VACA_AVAIL'=>$row['VACA_AVAIL'],'VACA'=>$row['VACA_HRS'],'BREAKS'=>$row['BREAKS']];
@@ -557,8 +546,7 @@ var useProfileSig = function(chk) {
             foreach($position_list as $position) {
                 $position_options .= '<option '.($position[0] == $time_type ? 'selected' : '').' value="'.$position[0].'">'.$position[0].'</option>';
             }
-
-            echo '<tr '.$hl_colour.' class="'.($show_separator==1 && !in_array('total_per_day',$value_config) ? 'theme-color-border-bottom' : '').'">
+            echo '<tr style="'.$hl_colour.'" class="'.($show_separator==1 && !in_array('total_per_day',$value_config) ? 'theme-color-border-bottom' : '').'">
                 <input type="hidden" name="date" value="'.$date.'">
                 <input type="hidden" name="staff" value="'.$search_staff.'">
                 <input type="hidden" name="siteid" value="'.$search_site.'">
@@ -567,7 +555,7 @@ var useProfileSig = function(chk) {
                 <input type="hidden" name="ticketid" value="'.$search_ticket.'">
                 <input type="hidden" name="deleted" value="0">
                 <input type="hidden" name="ticketattachedid" value="'.$ticket_attached_id.'">
-                <td data-title="Date" style="text-align:center">'.(in_array('editable_dates',$value_config) ? '<input type="text" name="date" '.$mod.' value="'.$date.'" class="form-control '.($mod != 'readonly' ? 'datepicker' : 'no-datepicker').'">' : $date).'<div class="overlap_time">Overlapping Time Conflict</div>'.$hl_colour.'</td>
+                <td data-title="Date" style="text-align:center">'.(in_array('editable_dates',$value_config) ? '<input type="text" name="date" '.$mod.' value="'.$date.'" class="form-control '.($mod != 'readonly' ? 'datepicker' : 'no-datepicker').'">' : $date).'<div class="overlap_time">Overlapping Time Conflict</div></td>
                 '.(in_array('schedule',$value_config) ? '<td data-title="Schedule">'.$hours.'</td>' : '').'
                 '.(in_array('scheduled',$value_config) ? '<td data-title="Scheduled Hours"></td>' : '').'
                 '.(in_array('ticketid',$value_config) ? '<td data-title="'.TICKET_NOUN.'">'.$ticket_labels.'</td>' : '').'
@@ -600,7 +588,7 @@ var useProfileSig = function(chk) {
                 '.(in_array('vaca_hrs',$value_config) ? '<td data-title="Vacation Hours" style="text-align:center"><input type="hidden" name="time_cards_id" value="'.$ids['VACA_AVAIL'].'"><input type="hidden" name="type_of_time" value="Vac Hrs."><input type="text" '.($mod == 'readonly' ? 'readonly' : '').' name="total_hrs" value="'.(empty($hrs['VACA_AVAIL']) ? '' : ($timesheet_time_format == 'decimal' ? number_format($hrs['VACA_AVAIL'],2) : time_decimal2time($hrs['VACA_AVAIL']))).'" class="form-control '.($mod == 'readonly' ? 'no-timepicker' : 'timepicker').'"></td>' : '').'
                 '.(in_array('vaca_used',$value_config) ? '<td data-title="Vacation Hours Taken" style="text-align:center"><input type="hidden" name="time_cards_id" value="'.$ids['VACA'].'"><input type="hidden" name="type_of_time" value="Vac Hrs.Taken"><input type="text" '.($mod == 'readonly' ? 'readonly' : '').' name="total_hrs" value="'.(empty($hrs['VACA']) ? '' : ($timesheet_time_format == 'decimal' ? number_format($hrs['VACA'],2) : time_decimal2time($hrs['VACA']))).'" class="form-control '.($mod == 'readonly' ? 'no-timepicker' : 'timepicker').'"></td>' : '').'
                 '.(in_array('breaks',$value_config) ? '<td data-title="Breaks" style="text-align:center">'.(empty($hrs['BREAKS']) ? '' : ($timesheet_time_format == 'decimal' ? number_format($hrs['BREAKS'],2) : time_decimal2time($hrs['BREAKS']))).'</td>' : '').'
-                '.(in_array('view_ticket',$value_config) ? '<td data-title="'.TICKET_NOUN.'" style="text-align:center">'.(!empty($attached_ticketid) ? '<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Ticket/index.php?edit='.$attached_ticketid.'&calendar_view=true\',\'auto\',false,true, $(\'#timesheet_div\').outerHeight()); return false;" data-ticketid="'.$attached_ticketid.'" class="view_ticket" '.($attached_ticketid > 0 ? '' : 'style="display:none;"').'>View</a>' : '').'</td>' : '').'
+                '.(in_array('view_ticket',$value_config) ? '<td data-title="'.TICKET_NOUN.'" style="text-align:center">'.(!empty($attached_ticketid) ? '<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Ticket/index.php?edit='.$attached_ticketid.'&date='.$date.'&calendar_view=true\',\'auto\',false,true, $(\'#timesheet_div\').outerHeight()); return false;" data-ticketid="'.$attached_ticketid.'" class="view_ticket" '.($attached_ticketid > 0 ? '' : 'style="display:none;"').'>View</a>' : '').'</td>' : '').'
                 '.(strpos($timesheet_payroll_fields, ',Expenses Owed,') !== FALSE ? '<td data-title="Expenses Owed">$'.($expenses_owed > 0 ? number_format($expenses_owed,2) : '0.00').'</td>' : '').'
                 '.(strpos($timesheet_payroll_fields, ',Mileage,') !== FALSE ? '<td data-title="Mileage">'.($mileage > 0 ? number_format($mileage,2) : '0.00').'</td>' : '').'
                 '.(strpos($timesheet_payroll_fields, ',Mileage Rate,') !== FALSE ? '<td data-title="Mileage Rate">$'.($mileage_rate > 0 ? number_format($mileage_rate,2) : '0.00').'</td>' : '').'
