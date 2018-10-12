@@ -113,7 +113,10 @@ if(!empty($summary_hide_positions)) {
 			<div class="col-sm-1 text-center hide-titles-mob">Time</div>
 			<div class="col-sm-3 text-center hide-titles-mob">Task</div>
 			<div class="clearfix"></div>
-			<?php $summary_staff = mysqli_query($dbc, "SELECT * FROM `ticket_attached` WHERE `ticket_attached`.`item_id` > 0 AND `tile_name`='".FOLDER_NAME."' AND `ticketid`='$ticketid' AND `ticketid` > 0 AND `deleted`=0 $hide_positions AND `src_table` IN ('Staff','Staff_Tasks')".$query_daily);
+			<?php
+    echo "SELECT * FROM `ticket_attached` WHERE `ticket_attached`.`item_id` > 0 AND `tile_name`='".FOLDER_NAME."' AND `ticketid`='$ticketid' AND `ticketid` > 0 AND `deleted`=0 $hide_positions AND `src_table` IN ('Staff','Staff_Tasks')".$query_daily;
+
+    $summary_staff = mysqli_query($dbc, "SELECT * FROM `ticket_attached` WHERE `ticket_attached`.`item_id` > 0 AND `tile_name`='".FOLDER_NAME."' AND `ticketid`='$ticketid' AND `ticketid` > 0 AND `deleted`=0 $hide_positions AND `src_table` IN ('Staff','Staff_Tasks')".$query_daily);
 			if($summary_staff->num_rows > 0) {
 				while($summary = mysqli_fetch_array($summary_staff)) { ?>
 					<div class="form-group summary multi-block">
