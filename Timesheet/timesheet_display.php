@@ -386,6 +386,8 @@ var useProfileSig = function(chk) {
                 $start_time = !empty($row['start_time']) ? date('h:i a', strtotime($row['start_time'])) : '';
                 $end_time = !empty($row['end_time']) ? date('h:i a', strtotime($row['end_time'])) : '';
                 $approv = $row['approv'];
+                $approve_by = $row['approve_by'];
+                $approve_date = $row['approve_date'];
                 if($current_page == 'payroll.php' && $approv == 'P') {
                     $mod = 'readonly';
                 } else if($current_page == 'time_cards.php' && $approv != 'N') {
@@ -583,8 +585,8 @@ var useProfileSig = function(chk) {
                 '.(strpos($timesheet_payroll_fields, ',Mileage Total,') !== FALSE ? '<td data-title="Mileage Total">$'.($mileage_cost > 0 ? number_format($mileage_cost,2) : '0.00').'</td>' : '').'
 
                 '.($timesheet_approval_status_comments == 1 ? '<td data-title="Status">'.$approval_status.'</td>' : '').'
-                '.($timesheet_approval_initials == 1 ? '<td data-title="Approval">'.get_contact($dbc, $row['approve_by']).'</td>' : '').'
-                '.($timesheet_approval_date == 1 ? '<td data-title="Approval Date">'.$row['approve_date'].'</td>' : '').'
+                '.($timesheet_approval_initials == 1 ? '<td data-title="Approval">'.get_contact($dbc, $approve_by).'</td>' : '').'
+                '.($timesheet_approval_date == 1 ? '<td data-title="Approval Date">'.$approve_date.'</td>' : '').'
 
                 '.(in_array('comment_box',$value_config) ? '<td data-title="Comments"><span>'.$comments.'</span><img class="inline-img comment-row pull-right no-toggle" src="../img/icons/ROOK-reply-icon.png" title="Add Note"><input type="text" class="form-control" name="comment_box" value="'.$row['COMMENTS'].'" style="display:none;">'.($current_page != 'time_cards.php' && $mod == 'readonly' && $approv == 'Y' ? '<img class="inline-img edit-row pull-right no-toggle" src="../img/icons/ROOK-edit-icon.png" title="Edit">' : '').(in_array($layout,['multi_line','ticket_task','position_dropdown']) ? '<img class="inline-img rem-row pull-right" src="../img/remove.png"><img class="inline-img add-row pull-right no-toggle" src="../img/icons/ROOK-add-icon.png" title="Edit">' : '').'</td>' : '').'
                 '.(in_array('signature',$value_config) && $current_page == 'time_cards.php' ? '<td data-title="Signature" style="text-align:center" class="'.($show_separator==1 ? 'theme-color-border-bottom' : '').'">'.(!empty($all_signatures[$date]) ? '<img src="../Timesheet/download/'.$all_signatures[$date].'" style="height: 50%; width: auto;">' : ($security['edit'] > 0 ? '<label class="form-checkbox"><input type="checkbox" name="add_signature" onclick="addSignature(this);" value="'.$date.'"></label>' : '')).'</td>' : '').'
