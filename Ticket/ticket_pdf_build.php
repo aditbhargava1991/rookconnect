@@ -94,6 +94,9 @@ if(isset($_POST['custom_form'])) {
 							$value = '';
 							$onchange = '';
 							switch($values[0]) {
+								case 'ticket_label':
+									$value = get_ticket_label($dbc, $get_ticket);
+									break;
 								case 'ticket':
 									$value = $get_ticket[$values[1]];
 									break;
