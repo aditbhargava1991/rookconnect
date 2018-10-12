@@ -42,7 +42,10 @@ if($_GET['revision'] > 0 && $form['pdf_name'] != '' && $ticketid > 0 && file_exi
 			$revision = $field['revision'];
 			$pdf->SetXY($field['x'],$field['y']);
 			$pdf->SetFont('helvetica', '', $field['font_size']);
-			if(in_array(explode(':',$field['default_value'])[0], ['checkbox','checkbox_residue','checkbox_other_products','checkbox_shipping_list'])) {
+			if($field['input_class'] == 'signature') {
+				$sig_html = '<img src="download/sign_'.$form['id'].'_'.$field['field_name'].'_'.$ticketid.'_'.$revision.'.png" height="'.($field['height']*2.54).'" width="'.($field['width']*2.54).'">';
+				$pdf->writeHTMLCell($width, $height, $field['x'], $field['y'], $sig_html);
+			} else if(in_array(explode(':',$field['default_value'])[0], ['checkbox','checkbox_residue','checkbox_other_products','checkbox_shipping_list'])) {
 				$value_check = explode('-',explode(':',$field['default_value'])[1])[1];
 				$pdf->TextField($field['field_name'], $field['width'], $field['height'], ['multiline'=>true,'lineWidth'=>0,'borderStyle'=>'none','defaultStyle'=>['textFont'=>['fontSize'=>'auto'],'textAlign'=>'center']], ['v'=>($field['field_value'] == $value_check ? 'X' : '')]);
 			} else if($field['input_class'] == 'revisionField') {
