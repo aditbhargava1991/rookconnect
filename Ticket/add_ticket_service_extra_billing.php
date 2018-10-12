@@ -30,7 +30,7 @@ if(strpos($value_config, ',Service Extra Billing Display Only If Exists,') !== F
                     $pdf_content .= "<em>Added by ".get_contact($dbc, $row['created_by'])." at ".$row['created_date'].'</em>';
                 $pdf_content = '</div>';
 				$pdf_contents[] = ['Extra Billing', $pdf_content];
-                
+
                 $odd_even++;
 			}
 		} else {

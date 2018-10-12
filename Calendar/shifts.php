@@ -596,7 +596,7 @@ function createShiftFor(input) {
 }
 </script>
 
-<?php $lock_date = get_config($dbc, 'staff_schedule_lock_date'); ?>
+<?php $lock_date = get_staff_schedule_lock_date($dbc); ?>
 
 <h3 class="gap-left gap-right">
     <?= $shift_heading ?>
@@ -711,7 +711,7 @@ function createShiftFor(input) {
             <hr>
 
             <?php if (strpos($enabled_fields, ',dates,') !== FALSE) {
-        		$lock_date = get_config($dbc, 'staff_schedule_lock_date'); ?>
+        		$lock_date = get_staff_schedule_lock_date($dbc); ?>
                 <div class="form-group">
                     <div class="col-sm-4">
                         <div class="pull-left" style="width:25px;"><img src="../img/month-overview-blue.png" alt="Date" width="18" /></div>
@@ -764,7 +764,7 @@ function createShiftFor(input) {
                         <div class="clearfix"></div>
                     </div>
                 </div>
-                
+
                 <?php if (strpos($enabled_fields, ',dayoff_type,') !== FALSE) { ?>
                     <div class="col-xs-6">
                         <div class="form-group">
@@ -861,7 +861,7 @@ function createShiftFor(input) {
                             <div class="pull-left pad-left pad-right"> - </div>
                             <div class="pull-left"><input type="text" placeholder="End Time" name="shift_break_endtime" class="form-control datetimepicker" value="<?= $break_endtime ?>"></div>
                         </div>
-                        
+
                         <div class="clearfix"></div>
                         <hr class="offset-bottom-5">
                     </div>
@@ -877,9 +877,9 @@ function createShiftFor(input) {
 
             <div class="pull-right" style="padding-top: 1em;">
                 <a href="?<?= http_build_query($page_query) ?>" class="btn brand-btn mobile-anchor">Cancel</a>
-                <?php if($recurring == 'yes' && ($startdate >= $lock_date || $startdate == '')) { ?>
+                <?php if($recurring == 'yes' && ($startdate >= $lock_date || $startdate == '' || empty($lock_date))) { ?>
                     <button type="submit" name="submit" value="calendar_shifts" class="btn brand-btn">Submit</button>
-                <?php } else if($startdate >= $lock_date || $startdate == '') { ?>
+                <?php } else if($startdate >= $lock_date || $startdate == '' || empty($lock_date)) { ?>
                     <button type="submit" name="submit" value="calendar_shifts" class="btn brand-btn">Submit</button>
                 <?php } ?>
                 <?php

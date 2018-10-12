@@ -37,7 +37,7 @@ foreach($ticket_list as $ticketid) {
 			$inv_service_ticketid[] = $ticketid;
 			$inv_service_stopid[] = 0;
 			$inv_service_qty[] = $qty;
-			$price_total = ($price * $qty + $fuel);
+			$price_total = ($price * $qty * ($fuel / 100 + 100));
 			$price_total -= ($dis_type == '%' ? $discount / 100 * $price_total : $discount);
 			$inv_service_fee[] = $price_total;
 			$total_price += $price_total;
@@ -46,9 +46,9 @@ foreach($ticket_list as $ticketid) {
 		$tickets = $dbc->query("SELECT * FROM `ticket_schedule` WHERE `ticketid`='$ticketid' AND `deleted`=0 ORDER BY `sort`");
         while($ticket = $tickets->fetch_assoc()) {
             foreach(explode(',',$ticket['serviceid']) as $i => $service) {
-                $fuel = explode(',',$ticket['service_fuel_charge'])[$i + $srv_i];
-                $discount = explode(',',$stop['service_discount'])[$i];
-                $dis_type = explode(',',$stop['service_discount_type'])[$i];
+                $fuel = explode(',',$ticket['surcharge'])[$i];
+                $discount = explode(',',$ticket['service_discount'])[$i];
+                $dis_type = explode(',',$ticket['service_discount_type'])[$i];
                 $price = 0;
                 $customer_rate = $dbc->query("SELECT `services` FROM `rate_card` WHERE `clientid`='".$ticket['businessid']."' AND `deleted`=0 AND `on_off`=1")->fetch_assoc();
                 foreach(explode('**',$customer_rate['services']) as $service_rate) {
@@ -63,9 +63,11 @@ foreach($ticket_list as $ticketid) {
                 }
                 $inv_services[] = $service;
                 $inv_service_ticketid[] = $ticketid;
+
+
                 $inv_service_stopid[] = $ticket['id'];
                 $inv_service_qty[] = 1;
-                $price_total = ($price + $fuel);
+                $price_total = ($price + ($fuel / 100 + 100));
                 $price_total -= ($dis_type == '%' ? $discount / 100 * $price_total : $discount);
                 $inv_service_fee[] = $price_total;
                 $total_price += $price_total;

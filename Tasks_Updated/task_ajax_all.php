@@ -111,6 +111,10 @@ if($_GET['fill'] == 'task_board_type') {
     $task_board_type = $_GET['task_board_type'];
 	echo '<option value=""></option>';
 
+    if($task_board_type == 'Shared') {
+        $task_board_type = 'Company';
+    }
+
     $query = mysqli_query($dbc, "SELECT taskboardid, board_name FROM task_board WHERE deleted = 0 AND board_security = '$task_board_type' AND company_staff_sharing LIKE '%,". $_SESSION['contactid'] .",%'");
     while($row = mysqli_fetch_array($query)) { ?>
         <option value="<?= $row['taskboardid'] ?>"><?= $row['board_name'] ?></option><?php
@@ -176,7 +180,17 @@ if($_GET['fill'] == 'mark_date') {
 	    $task_tododate = $_GET['todo_date'];
     $query_update_project = "UPDATE `tasklist` SET `task_tododate`='$task_tododate' WHERE `tasklistid` = '$tasklistid'";
 	$result_update_project = mysqli_query($dbc, $query_update_project);
-    echo $query_update_project;
+}
+
+if($_GET['fill'] == 'task_status') {
+    $tasklistid = $_GET['tasklistid'];
+    $status = $_GET['status'];
+	$status = str_replace("FFMEND","&",$status);
+    $status = str_replace("FFMSPACE"," ",$status);
+    $status = str_replace("FFMHASH","#",$status);
+
+    echo $query_update_project = "UPDATE `tasklist` SET `status`='$status' WHERE `tasklistid` = '$tasklistid'";
+	$result_update_project = mysqli_query($dbc, $query_update_project);
 }
 
 if($_GET['fill'] == 'mark_staff') {
@@ -184,7 +198,6 @@ if($_GET['fill'] == 'mark_staff') {
 	$staff = $_GET['staff'];
     $query_update_project = "UPDATE `tasklist` SET `contactid`='$staff' WHERE `tasklistid` = '$tasklistid'";
 	$result_update_project = mysqli_query($dbc, $query_update_project);
-    echo $query_update_project;
 }
 
 if($_GET['fill'] == 'delete_task') {
@@ -197,9 +210,12 @@ if($_GET['fill'] == 'delete_task') {
 if($_GET['fill'] == 'delete_board') {
     $boardid = $_GET['boardid'];
 	if($boardid > 0) {
-    $archived_date = date('Y-m-d');
-		$query_update_project = "UPDATE `task_board` SET `deleted`=1, `archived_date` = '$archived_date' WHERE `taskboardid` = '$boardid'";
+        $archived_date = date('Y-m-d');
+		$query_update_project = "UPDATE `task_board` SET `deleted`=1, `date_of_archival` = '$archived_date' WHERE `taskboardid` = '$boardid'";
 		$result_update_project = mysqli_query($dbc, $query_update_project);
+
+        $query_update_project = "UPDATE `tasklist` SET `deleted`=1, `archived_date` = '$archived_date' WHERE `task_board` = '$boardid'";
+	    $result_update_project = mysqli_query($dbc, $query_update_project);
 	}
 	echo "deleted";
 }
@@ -258,8 +274,12 @@ if($_GET['fill'] == 'add_task') {
     $created_date = date('Y-m-d');
 
     if($heading != '') {
-        echo $query_insert_log = "INSERT INTO `tasklist` (`task_milestone_timeline`, `task_path`, `heading`, `contactid`, `task_board`, `salesid`, `created_date`, `created_by`, `status_date`) VALUES ('$task_milestone_timeline', '$task_path', '$heading', '$contactid', '$taskboardid', '$salesid', '$created_date', '$contactid', '$created_date')";
+        echo $query_insert_log = "INSERT INTO `tasklist` (`task_milestone_timeline`, `task_path`, `heading`, `contactid`, `task_board`, `salesid`, `created_date`, `created_by`, `status_date`, `task_tododate`, `status`) VALUES ('$task_milestone_timeline', '$task_path', '$heading', '$contactid', '$taskboardid', '$salesid', '$created_date', '$contactid', '$created_date', '$created_date', 'To Be Scheduled')";
         $result_insert_log = mysqli_query($dbc, $query_insert_log);
+        $last_id = mysqli_insert_id($dbc);
+
+        $note = "<em>Added by ".get_contact($dbc, $_SESSION['contactid'])." [PROFILE ".$_SESSION['contactid']."]</em> on ".$created_date;
+        mysqli_query($dbc, "INSERT INTO `task_comments` (`tasklistid`, `comment`, `created_by`, `created_date`) VALUES ('$last_id','".filter_var(htmlentities($note),FILTER_SANITIZE_STRING)."','".$_SESSION['contactid']."','".date('Y-m-d')."')");
     }
 }
 if($_GET['fill'] == 'ticket') {
@@ -514,10 +534,22 @@ if($_GET['fill'] == 'task_quick_time') {
 	echo 'Added '.$_POST['time']." - $total_time total";
 }
 
+if($_GET['fill'] == 'task_estimated_time') {
+	$taskid = $_POST['id'];
+	$time = $_POST['time'];
+    $contactid = $_SESSION['contactid'];
+	$query_time = "UPDATE `tasklist` SET `estimated_time` = '$time', `updated_by` = '$contactid' WHERE tasklistid='$taskid'";
+	$result = mysqli_query($dbc, $query_time);
+	insert_day_overview($dbc, $_SESSION['contactid'], 'Task', date('Y-m-d'), '', "Updated Task #$taskid - Estimated Time : ".$_POST['time']);
+	echo 'Added '.$_POST['time'];
+}
+
 if($_GET['fill'] == 'mark_done') {
 	$taskid = preg_replace('/[^0-9]/', '', $_GET['taskid']);
     $status = filter_var($_GET['status'], FILTER_SANITIZE_STRING);
-	$result = mysqli_query($dbc, "UPDATE `tasklist` SET `status`='$status' WHERE `tasklistid`='$taskid'");
+    if($status == 'Done') {
+	    $result = mysqli_query($dbc, "UPDATE `tasklist` SET `status`='$status' WHERE `tasklistid`='$taskid'");
+    }
 	if (mysqli_affected_rows($dbc) > 0) {
         $contactid = $_SESSION['contactid'];
         $created_date = date('Y-m-d');
@@ -544,6 +576,13 @@ if($_GET['fill'] == 'clear_completed') {
     $status = filter_var($_GET['status'],FILTER_SANITIZE_STRING);
 	$result = mysqli_query($dbc, "UPDATE `tasklist` SET `deleted`='1', `archived_date` = '$archived_date' WHERE `task_board`='$task_board_id' AND `status`='$status'");
 }
+
+if($_GET['fill'] == 'clear_project_completed_task') {
+	$projectid = filter_var($_GET['projectid'],FILTER_SANITIZE_STRING);
+    $archived_date = date('Y-m-d');
+	$result = mysqli_query($dbc, "UPDATE `tasklist` SET `deleted`='1', `archived_date` = '$archived_date' WHERE `projectid`='$projectid' AND `status`='Done' AND deleted = 0");
+}
+
 if($_GET['fill'] == 'clear_completed_auto') {
     $status = filter_var($_GET['status'],FILTER_SANITIZE_STRING);
     $archived_date = date('Y-m-d');

@@ -46,6 +46,9 @@ if($equipment_list->num_rows > 0) {
                 <h4><?= $equip['label'] ?></h4>
                 <?= $team_name ?>
                 <?= $equip['assigned'].' '.TICKET_TILE ?>
+                <?php if($_GET['sorticons'] == 'true') { ?>
+                    <img src="../img/sort-icon.png" class="pull-right inline-img" onclick="get_addresses('<?= $date ?>', '<?= $equip['equipmentid'] ?>'); return false;">
+                <?php } ?>
             </div>
         <?php }
     }

@@ -446,7 +446,7 @@ $html .= '
 			$html .= '<tr><td style="text-align:right;" width="75%"><strong>Discount</strong></td><td border="1" width="25%" style="text-align:right;">$'.number_format($get_invoice['discount'], 2).'</td></tr>';
             $html .= '<tr><td style="text-align:right;" width="75%"><strong>Total After Discount</strong></td><td border="1" width="25%" style="text-align:right;">$'.number_format($get_invoice['total_price'] - $get_invoice['discount'], 2).'</td></tr>';
 		}
-        
+
 		if($get_invoice['delivery'] !='' && $get_invoice['delivery'] != 0) {
 			$html .= '<tr><td style="text-align:right;" width="75%"><strong>Delivery</strong></td><td border="1" width="25%" style="text-align:right;">$'.number_format($get_invoice['delivery'], 2).'</td></tr>';
 		}

@@ -103,61 +103,62 @@ if(empty($_GET['subtabid']) && empty($_GET['edit']) && empty($_GET['view']) && e
 	</div>
 	<div class="row hide_on_iframe">
 		<div class="main-screen">
-			<div class="tile-header standard-header"><div class="scale-to-fill">
-				<h1 class="gap-left <?= (empty($_GET['view']) && empty($_GET['edit']) && empty($_GET['edittab']) ? '' : 'hide-titles-mob') ?>"><a href="?">Checklists</a>
-					<?php
-					if($security['config'] == 1) {
-						echo '<div class="pull-right">';
-							echo '<span class="popover-examples list-inline" style="margin:0 0 0 5px;"><a data-toggle="tooltip" data-placement="top" title="Click here for the settings within this tile. Any changes will appear on your dashboard.">';
-							echo '<img src="' . WEBSITE_URL . '/img/info.png" width="20"></a></span>';
-							echo '<a href="field_config.php" class="mobile-block"><img title="Tile Settings" src="../img/icons/settings-4.png" class="settings-classic wiggle-me inline-img" width="30" style="margin-top:0"></a>';
-						echo '</div>';
-					}
-					if($security['edit'] > 0) { ?>
-						<div class="pull-right show-on-mob">
-							<span class="popover-examples list-inline" style="margin:5px 5px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Click here to add a Checklist."><img src="<?= WEBSITE_URL ?>/img/info.png" width="20"></a></span>
-							<a href="?edit=NEW"><img src="../img/icons/ROOK-add-icon.png" class="small inline-img"></a>
-						</div><?php
-					} ?>
-                    
-					<!--
-                    <div class="pull-right hide-titles-mob">
-						<a href="" class="btn brand-btn mobile-block gap-bottom pull-right offset-right-5" onclick="$('.not_filter').toggle(); $('.filter_box').toggle().focus(); $(this).text($(this).text() == 'Filter Checklists' ? 'Close Filter Options' : 'Filter Checklists'); filter_checklists(''); return false;">Filter Checklists</a>
-					</div>
-                    -->
+			<div class="tile-header standard-header">
+                <div class="row">
+                    <div class="col-xs-6 col-sm-7"><h1 class="<?= (empty($_GET['view']) && empty($_GET['edit']) && empty($_GET['edittab']) ? '' : '') ?>"><a href="?">Checklists</a></h1></div>
+                    <div class="col-xs-6 col-sm-5"><?php
+                        if($security['config'] == 1) {
+                            echo '<div class="pull-right">';
+                                /*echo '<span class="popover-examples list-inline hide-titles-mob" style="margin:0 0 0 5px;"><a data-toggle="tooltip" data-placement="top" title="Click here for the settings within this tile. Any changes will appear on your dashboard.">';
+                                echo '<img src="' . WEBSITE_URL . '/img/info.png" width="20"></a></span>';*/
+                                echo '<a href="field_config.php" class="mobile-block"><img title="Tile Settings" src="../img/icons/settings-4.png" class="no-toggle settings-classic wiggle-me offset-top-12 gap-right" width="30"></a>';
+                            echo '</div>';
+                        }
+                        if($security['edit'] > 0) { ?>
+                            <div class="pull-right show-on-mob offset-top-12 offset-left-5 gap-right">
+                                <!--<span class="popover-examples list-inline" style="margin:5px 5px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Click here to add a Checklist."><img src="<?= WEBSITE_URL ?>/img/info.png" width="20"></a></span>-->
+                                <a href="?edit=NEW"><img src="../img/icons/ROOK-add-icon.png" class="no-toggle" title="Add Checklist"></a>
+                            </div><?php
+                        } ?>
+                        
+                        <!--
+                        <div class="pull-right hide-titles-mob">
+                            <a href="" class="btn brand-btn mobile-block gap-bottom pull-right offset-right-5" onclick="$('.not_filter').toggle(); $('.filter_box').toggle().focus(); $(this).text($(this).text() == 'Filter Checklists' ? 'Close Filter Options' : 'Filter Checklists'); filter_checklists(''); return false;">Filter Checklists</a>
+                        </div>
+                        -->
 
-					<?php if($security['edit'] > 0) { ?>
-						<div class="pull-right not_filter hide-titles-mob">
-							<a href="?edit=NEW" class="btn brand-btn mobile-block gap-bottom pull-right offset-right-5">Add Checklist</a>
-							<span class="popover-examples list-inline pull-right" style="margin:0 2px 0 5px;"><a data-toggle="tooltip" data-placement="top" title="Click here to add a Checklist."><img src="<?= WEBSITE_URL ?>/img/info.png" width="20"></a></span>
-						</div>
-					<?php } ?>
+                        <?php if($security['edit'] > 0) { ?>
+                            <div class="pull-right not_filter hide-titles-mob gap-top">
+                                <a href="?edit=NEW" class="btn brand-btn mobile-block pull-right gap-right">Add Checklist</a>
+                                <span class="popover-examples list-inline pull-right" style="margin:5px 2px 0 5px;"><a data-toggle="tooltip" data-placement="top" title="Click here to add a Checklist."><img src="<?= WEBSITE_URL ?>/img/info.png" width="20"></a></span>
+                            </div>
+                        <?php } ?>
 
-					<div class='pull-right not_filter report_link'>
-						<span class='popover-examples list-inline'><a data-toggle='tooltip' data-placement='top' title='Click here to see all Checklist activity.'><img src='<?= WEBSITE_URL ?>/img/info.png' width='20'></a></span>
-						<?php if ( strpos($tab_config, 'reporting') !== false && check_subtab_persmission($dbc, 'checklist', ROLE, 'reporting')===true ) { ?>
-							<a href='?reports=view'><img src="../img/icons/pie-chart.png" alt="Reporting" title="Reporting" class="show-on-mob offset-right-5" /></a>
-                            <a href='?reports=view'><button type='button' class='btn brand-btn mobile-block icon-pie-chart hide-titles-mob <?= (!empty($_GET['reports']) ? 'active_tab' : '') ?>'>Reporting</button></a>
-						<?php } else { ?>
-							<img src="../img/icons/pie-chart.png" alt="Reporting" title="Reporting" class="show-on-mob offset-right-5" />
-                            <button type="button" class="btn disabled-btn mobile-block icon-pie-chart hide-titles-mob">Reporting</button>
-						<?php } ?>
-					</div>
+                        <div class='pull-right not_filter report_link'>
+                            <!-- <span class='popover-examples list-inline  hide-titles-mob'><a data-toggle='tooltip' data-placement='top' title='Click here to see all Checklist activity.'><img src='<?= WEBSITE_URL ?>/img/info.png' width='20'></a></span> -->
+                            <?php if ( strpos($tab_config, 'reporting') !== false && check_subtab_persmission($dbc, 'checklist', ROLE, 'reporting')===true ) { ?>
+                                <a href='?reports=view'><img src="../img/icons/pie-chart.png" alt="Reporting" title="Reporting" class="no-toggle offset-top-15 offset-right-5" /></a>
+                                <!-- <a href='?reports=view'><button type='button' class='btn brand-btn mobile-block icon-pie-chart hide-titles-mob gap-top <?= (!empty($_GET['reports']) ? 'active_tab' : '') ?>'>Reporting</button></a> -->
+                            <?php } else { ?>
+                                <img src="../img/icons/pie-chart.png" alt="Reporting" title="Reporting" class="cursor-hand no-toggle offset-top-15 offset-right-5" />
+                                <!-- <button type="button" class="btn disabled-btn mobile-block icon-pie-chart hide-titles-mob gap-top">Reporting</button> -->
+                            <?php } ?>
+                        </div>
 
-                    <?php
-                    /* $get_checklist = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT COUNT(checklistid) AS checklistid FROM checklist WHERE checklist_tile=1"));
-                    if($get_checklist['checklistid'] > 0) {
-                       echo 	'<a href="checklist_tile.php" class="btn brand-btn mobile-block gap-bottom pull-right offset-right-5">Back to Dashboard</a>';
-                    } */
-                    ?>
+                        <?php
+                        /* $get_checklist = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT COUNT(checklistid) AS checklistid FROM checklist WHERE checklist_tile=1"));
+                        if($get_checklist['checklistid'] > 0) {
+                           echo 	'<a href="checklist_tile.php" class="btn brand-btn mobile-block gap-bottom pull-right offset-right-5">Back to Dashboard</a>';
+                        } */
+                        ?>
 
-                    <!--
-					<label class="filter_box" style="display:none;">Type to Filter Checklists by Name, User, <?= $_GET['subtabid'] == 'project' ? 'Project, ' : '' ?>or Category:</label>
-					<input type="text" class="filter_box form-control pull-right" style="display:none;" onkeyup="filter_checklists(this.value);" />
-                    -->
-					<div class="clearfix"></div>
-
-				</h1><?php
+                        <!--
+                        <label class="filter_box" style="display:none;">Type to Filter Checklists by Name, User, <?= $_GET['subtabid'] == 'project' ? 'Project, ' : '' ?>or Category:</label>
+                        <input type="text" class="filter_box form-control pull-right" style="display:none;" onkeyup="filter_checklists(this.value);" />
+                        -->
+                        <div class="clearfix"></div>
+                    </div>
+                </div><?php
 
                 $notes = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT note FROM notes_setting WHERE subtab='checklist_checklist'"));
                 $note = $notes['note'];
@@ -185,10 +186,10 @@ if(empty($_GET['subtabid']) && empty($_GET['edit']) && empty($_GET['view']) && e
 					<div class="clearfix"></div>
 				</div>
                 -->
-			</div></div>
+			</div>
 
 			<!-- Mobile View -->
-            <div class="sidebar show-on-mob panel-group block-panels col-xs-12" <?= (empty($_GET['view']) && empty($_GET['edit']) && empty($_GET['edittab']) && empty($_GET['reports']) ? '' : 'style="display:none;"') ?> id="category_accordions">
+            <div class="sidebar show-on-mob panel-group block-panels col-xs-12 auto-height" <?= (empty($_GET['view']) && empty($_GET['edit']) && empty($_GET['edittab']) && empty($_GET['reports']) ? '' : 'style="display:none;"') ?> id="category_accordions">
 				<div class="panel panel-default <?= (in_array('favourites',$hidden_categories) ? 'non-visible" style="display:none;' : '') ?>">
 					<div class="panel-heading">
 						<h4 class="panel-title">

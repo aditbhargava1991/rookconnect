@@ -8,9 +8,7 @@ if (isset($_POST['save_btn'])) {
 		mkdir('download', 0777, true);
 	}
     include('add_update_invoice.php');
-
-    echo '<script type="text/javascript"> alert("Invoice Successfully Saved"); window.location.replace("index.php?tab=today"); </script>';
-
+    echo '<script type="text/javascript"> alert("Invoice Successfully Saved"); window.location.replace("index.php"); </script>';
 }
 
 if (isset($_POST['submit_btn'])) {
@@ -114,21 +112,15 @@ if (isset($_POST['submit_btn'])) {
         </script>';
     } else if($invoicefrom == 'calendar') {
         echo '<script type="text/javascript"> window.top.close(); window.opener.location.reload(); </script>';
-    } else { ?>
-        <script>
-        <?php if($search_user != '') { ?>
-            alert("Invoice Updated.");
-            window.location.replace("invoice_list.php?search_user=<?= $search_user ?>");
-        <?php } else if($search_invoice != '') { ?>
-            alert("Invoice Updated.");
-            window.location.replace("invoice_list.php?search_invoice=<?= $search_invoice ?>");
-        <?php } else { ?>
-            alert("Invoice Generated.");
-            window.location.replace("index.php?tab=today");
-
-        <?php } ?>
-        if('<?= $invoiceid ?>' * 1 > 0) {
-            window.open("download/invoice_<?= $invoiceid ?>.pdf", "fullscreen=yes");
+    } else {
+        if($search_user != '') {
+            echo '<script type="text/javascript"> alert("Invoice Updated."); window.location.replace("index.php?tab=all&search_user='.$search_user.'");</script>';
+        } else if($search_invoice != '') {
+            echo '<script type="text/javascript"> alert("Invoice Updated."); window.location.replace("index.php?tab=all&search_invoice='.$search_invoice.'");</script>';
+        } else {
+            echo '<script type="text/javascript"> alert("Invoice Generated."); window.location.replace("index.php");
+            window.open("download/invoice_'.$invoiceid.'.pdf", "fullscreen=yes");
+            </script>';
         }
         </script>
     <?php }
@@ -170,8 +162,8 @@ if (isset($_POST['submit_pay'])) {
 			$result_update_patient = mysqli_query($dbc, $query_update_patient);
 		}
 		if ($from == 'patient') {
-            echo '<script type="text/javascript"> alert("Invoice Successfully Paid."); window.location.replace("index.php?tab=today?patientid='.$patientid.'"); </script>';
+            echo '<script type="text/javascript"> alert("Invoice Successfully Paid."); window.location.replace("index.php?tab=today&patientid='.$patientid.'"); </script>';
 		} else {
-            echo '<script type="text/javascript"> alert("Invoice Successfully Paid."); window.location.replace("index.php?tab=today"); </script>';
+            echo '<script type="text/javascript"> alert("Invoice Successfully Paid."); window.location.replace("index.php"); </script>';
 		}
 }

@@ -219,8 +219,8 @@ $newsboardid = isset($_GET['news']) ? preg_replace('/[^0-9]/', '', $_GET['news']
             <?php if ( $rookconnect=='rook' || $rookconnect=='localhost' ) { ?>
                 <div class="form-group">
                     <label class="col-sm-4 control-label">
+                        News Board Type<span class="red">*</span>: 
                         <span class="popover-examples list-inline" style="margin:0 5px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Select the type from the dropdown menu. Add Softwarewide News Boards only from FFM Software."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
-                        News Board Type<span class="red">*</span>:
                     </label>
                     <div class="col-sm-8">
                         <select id="newsboard_type" name="newsboard_type" class="chosen-select-deselect form-control" required>
@@ -238,8 +238,8 @@ $newsboardid = isset($_GET['news']) ? preg_replace('/[^0-9]/', '', $_GET['news']
             
             <div class="form-group">
                 <label class="col-sm-4 control-label">
+                    News Board<span class="red">*</span>: 
                     <span class="popover-examples list-inline" style="margin:0 5px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Select the News Board this news item should go under."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
-                    News Board<span class="red">*</span>:
                 </label>
                 <div class="col-sm-8">
                     <select id="newsboard_board" name="newsboard_board" class="chosen-select-deselect form-control" required>
@@ -263,7 +263,7 @@ $newsboardid = isset($_GET['news']) ? preg_replace('/[^0-9]/', '', $_GET['news']
             </div>
             
             <div class="form-group">
-                <label for="company_name" class="col-sm-4 control-label"><span class="popover-examples list-inline" style="margin:0 5px 0 0;"><a data-toggle="tooltip" data-placement="top" title="These are the tags this news item should go under. Add or remove as necessary."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>Tags<span class="red">*</span>:</label>
+                <label for="company_name" class="col-sm-4 control-label">Sub Tabs<span class="red">*</span>: <span class="popover-examples list-inline" style="margin:0 5px 0 0;"><a data-toggle="tooltip" data-placement="top" title="These are the Sub Tabs this news item should go under. Add or remove as necessary."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span></label>
                 <div class="col-sm-8 tags_container">
                     <?php
                         foreach ( explode(',', $tags) as $tag ) {
@@ -280,7 +280,7 @@ $newsboardid = isset($_GET['news']) ? preg_replace('/[^0-9]/', '', $_GET['news']
             </div>
             
             <div class="form-group">
-                <label for="company_name" class="col-sm-4 control-label"><span class="popover-examples list-inline" style="margin:0 5px 0 0;"><a data-toggle="tooltip" data-placement="top" title="This is the title of the news item that will display on the New Board dashboard."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>Title<span class="red">*</span>:</label>
+                <label for="company_name" class="col-sm-4 control-label">Title<span class="red">*</span>: <span class="popover-examples list-inline" style="margin:0 5px 0 0;"><a data-toggle="tooltip" data-placement="top" title="This is the title of the news item that will display on the New Board dashboard."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span></label>
                 <div class="col-sm-8">
                     <input name="title" value="<?= $title; ?>" type="text" id="title" class="form-control" />
                 </div>
@@ -288,8 +288,8 @@ $newsboardid = isset($_GET['news']) ? preg_replace('/[^0-9]/', '', $_GET['news']
                 
             <div class="form-group">
                 <label for="additional_note" class="col-sm-4 control-label">
+                    Header Image: 
                     <span class="popover-examples list-inline" style="margin:0 5px 0 0;"><a data-toggle="tooltip" data-placement="top" title="File name cannot contain apostrophes, quotations or commas."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
-                    Header Image:
                 </label>
                 <div class="col-sm-8"><?php
                     if(!empty($newsboardid)) {
@@ -324,7 +324,7 @@ $newsboardid = isset($_GET['news']) ? preg_replace('/[^0-9]/', '', $_GET['news']
             </div>
             
             <div class="form-group">
-                <label for="first_name[]" class="col-sm-4 control-label"><span class="popover-examples list-inline" style="margin:0 5px 0 0;"><a data-toggle="tooltip" data-placement="top" title="This is where the body of your message will go."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>Description:</label>
+                <label for="first_name[]" class="col-sm-4 control-label">Description: <span class="popover-examples list-inline" style="margin:0 5px 0 0;"><a data-toggle="tooltip" data-placement="top" title="This is where the body of your message will go."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span></label>
                 <div class="col-sm-8">
                     <textarea name="description" rows="5" cols="50" class="form-control"><?= html_entity_decode($description); ?></textarea>
                 </div>

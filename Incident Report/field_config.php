@@ -97,7 +97,7 @@ if($_GET['tab'] == 'general') {
                         <button type="submit" id="submit" name="submit" value="Submit" class="btn brand-btn">Submit</button>
                     </div>
                 </form>
-                
+
                 <div class="clearfix"></div>
             </div><!-- .tile-container -->
 

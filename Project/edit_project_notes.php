@@ -67,20 +67,20 @@ function addNewNote() {
             echo '<button class="btn brand-btn" onclick="addNewNote(); return false;">Add Note</button>';
         } ?>
     </div>
-    
+
 	<?php if($security['edit'] > 0) { ?>
         <div class="add_note" style="display:none;">
             <div class="col-sm-8 pull-right text-md">
-                <img class="inline-img cursor-hand" src="../img/icons/ROOK-share-icon.png" onclick="$('.tag_group').toggle();">
-                <img class="inline-img cursor-hand" src="../img/icons/ROOK-email-icon.png" onclick="show_email_options(this);">
-                <img class="inline-img cursor-hand" src="../img/icons/ROOK-reminder-icon.png" onclick="addReminder();">
+                <img class="inline-img cursor-hand no-toggle" src="../img/icons/ROOK-share-icon.png" onclick="$('.tag_group').toggle();" title="Share with Users">
+                <img class="inline-img cursor-hand no-toggle" src="../img/icons/ROOK-email-icon.png" onclick="show_email_options(this);" title="Send Email">
+                <img class="inline-img cursor-hand no-toggle" src="../img/icons/ROOK-reminder-icon.png" onclick="addReminder();" title="Schedule Reminder">
             </div>
             <div class="clearfix"></div>
 
             <div class="form-group tag_group" style="display:none;">
               <label for="site_name" class="col-sm-4 control-label">Tag:</label>
-              <div class="col-sm-8">
-                <select data-placeholder="Select <?= $comment_category ?>..." name="email_comment" data-table="project_comment" data-id="" data-id-field="projectcommid" data-project="<?= $projectid ?>" data-type="project_note" class="chosen-select-deselect form-control email_recipient" width="380">
+              <div class="col-sm-7">
+                <select data-placeholder="Select <?= $comment_category ?>..." name="email_comment" data-concat="," data-table="project_comment" data-id="" data-id-field="projectcommid" data-project="<?= $projectid ?>" data-type="project_note" class="chosen-select-deselect form-control email_recipient" width="380">
                   <option value=""></option>
                   <?php
                     $query = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc,"SELECT contactid, first_name, last_name FROM contacts WHERE category IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND deleted=0 AND `status` > 0"),MYSQLI_ASSOC));
@@ -90,6 +90,27 @@ function addNewNote() {
                   ?>
                 </select>
               </div>
+              <div class="col-sm-1">
+                <img class="inline-img pull-right no-toggle cursor-hand" src="../img/remove.png" title="Remove this <?= CONTACTS_NOUN ?> from the note" onclick="removeTag(this);">
+                <img class="inline-img pull-right no-toggle cursor-hand current" src="../img/icons/ROOK-add-icon.png" title="Select an additional <?= CONTACTS_NOUN ?> on the note" onclick="addTag();" style="<?= $project_team > 0 ? '' : 'display:none;' ?>">
+              </div>
+              <script>
+                function addTag() {
+                    var last = $('.tag_group').last();
+                    var clone = last.clone();
+                    clone.find('select').val('');
+                    resetChosen(clone.find('.chosen-select-deselect'));
+                    last.after(clone);
+                    $('[data-table]').change(saveField);
+                }
+                function removeTag(img) {
+                    if($('.tag_group').length <= 1) {
+                        addTag();
+                    }
+                    $(img).closest('.tag_group').remove();
+                    $('[name="email_comment[]"]').last().change();
+                }
+              </script>
             </div>
 
             <?php $subject = 'Note added on '.PROJECT_NOUN.' for you to Review';
@@ -198,7 +219,7 @@ function addNewNote() {
                 <button class="btn brand-btn pull-right" data-table="project_comment" data-id-field="projectcommid" data-id="" data-field="comment" onclick="send_email(this); return false;">Send Email</button>
                 <div class="clearfix"></div>
             </div>
-            
+
             <div class="form-group">
                 <label for="site_name" class="col-sm-4 control-label">Add Note:</label>
                 <div class="col-sm-8">

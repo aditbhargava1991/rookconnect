@@ -22,6 +22,8 @@ $lead_convert_to = get_config($dbc, 'lead_convert_to'); ?>
 	                <div class="pull-right"><input type="button" onclick="javascript:window.top.location = '<?= WEBSITE_URL; ?>/Sales/sale.php?p=details&id=<?=$salesid;?>&a=staffinfo';" value="Open Full Window" class="btn brand-btn btn-small" /></div>
 	            <?php } else { ?>
 	                <div class="pull-right"><input type="button" onclick="javascript:window.location.replace('<?= WEBSITE_URL; ?>/Sales/sale.php?p=details&id=<?=$salesid;?>&a=staffinfo');" value="Edit" class="btn brand-btn btn-small" /></div>
+                    <div class="pull-right"><?php include('quick_actions.php'); ?></div>
+                    <span class="flag-label" data-colour="<?= $flag_colour ?>"><?= $flag_label ?></span>
 	            <?php } ?>
             </div>
             <div class="clearfix"></div>
@@ -37,7 +39,7 @@ $lead_convert_to = get_config($dbc, 'lead_convert_to'); ?>
                             <div class="col-xs-4 default-color">Business:</div>
                             <div class="col-xs-8"><?php
                                 $business_name = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `name` FROM `contacts` WHERE `contactid`={$row['businessid']}"))['name']; ?>
-                                <a href="../Contacts/contacts_inbox.php?fields=all_fields&edit=<?= $row['businessid'] ?>" class="no-toggle" title="<?= get_contact($dbc, $row['businessid'], 'name_company') ?>" onclick="overlayIFrameSlider(this.href,'auto',true,true); return false;"><?= decryptIt($business_name) ?><img src="../img/icons/eyeball.png" class="inline-img"></a>
+                                <a href="../Contacts/contacts_inbox.php?fields=all_fields&edit=<?= $row['businessid'] ?>" class="no-toggle" title="<?= get_contact($dbc, $row['businessid'], 'name_company') ?>" onclick="overlayIFrameSlider(this.href,'auto',true,true); return false;"><?= decryptIt($business_name) ?><img src="../img/person.PNG" class="inline-img"></a>
                             </div>
                         </div>
                         <div class="row">
@@ -46,7 +48,7 @@ $lead_convert_to = get_config($dbc, 'lead_convert_to'); ?>
                                 $contacts = '';
                                 foreach ( explode(',', $row['contactid']) as $contact ) {
                                     if ( get_contact($dbc, $contact) != '-' ) {
-                                        $contacts .= '<a href="../Contacts/contacts_inbox.php?fields=all_fields&edit='.$contact.'" class="no-toggle" title="'.get_contact($dbc, $contact).'" onclick="overlayIFrameSlider(this.href,\'auto\',true,true); return false;">'.get_contact($dbc, $contact) . '<img src="../img/icons/eyeball.png" class="inline-img"></a><br />';
+                                        $contacts .= '<a href="../Contacts/contacts_inbox.php?fields=all_fields&edit='.$contact.'" class="no-toggle" title="'.get_contact($dbc, $contact).'" onclick="overlayIFrameSlider(this.href,\'auto\',true,true); return false;">'.get_contact($dbc, $contact) . '<img src="../img/person.PNG" class="inline-img"></a><br />';
                                     }
                                 }
                                 echo rtrim($contacts, ', '); ?>

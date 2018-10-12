@@ -92,19 +92,19 @@ if($ticket_status_color_code_legend == 1) {
     $ticket_status_legend = '<b>Status Color Code:</b><br>';
     foreach ($ticket_statuses as $ticket_status) {
         $ticket_status_color_detail = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_ticket_status_color` WHERE `status` = '$ticket_status'"))['color'];
-        $ticket_status_legend .= '<label><div class="ticket-status-color" style="background-color: '.$ticket_status_color_detail.';"></div>'.$ticket_status.'</label>&nbsp;&nbsp;';
+        $ticket_status_legend .= '<label><div class="ticket-status-color" style="background-color: '.$ticket_status_color_detail.';"></div>'.$ticket_status.'</label><br />';
     }
 	/*$ticket_status_color_detail = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_ticket_status_color` WHERE `status` = 'Today'"))['color'];
 	if($ticket_status_color_detail != '') {*/
-		$ticket_status_legend .= '<label><img class="inline-img smaller" src="../img/block/green.png"> Today + Following Day</label>&nbsp;&nbsp;';
+		$ticket_status_legend .= '<label><img class="inline-img smaller" src="../img/block/green.png"> Today + Following Day</label><br />';
 	/*}
 	$ticket_status_color_detail = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_ticket_status_color` WHERE `status` = 'Recent'"))['color'];
 	if($ticket_status_color_detail != '') {*/
-		$ticket_status_legend .= '<label><img class="inline-img smaller" src="../img/block/orange	.png"> Last 2 Days</label>&nbsp;&nbsp;';
+		$ticket_status_legend .= '<label><img class="inline-img smaller" src="../img/block/orange	.png"> Last 2 Days</label><br />';
 	/*}
 	$ticket_status_color_detail = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_ticket_status_color` WHERE `status` = 'Old'"))['color'];
 	if($ticket_status_color_detail != '') {*/
-		$ticket_status_legend .= '<label><img class="inline-img smaller" src="../img/block/red.png"> Older than 2 Day</label>&nbsp;&nbsp;';
+		$ticket_status_legend .= '<label><img class="inline-img smaller" src="../img/block/red.png"> Older than 2 Day</label><br />';
 	/*}*/
 }
 $shift_conflicts_button = !empty(mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_contacts_shifts` WHERE CONCAT(',',`enabled_fields`,',') LIKE '%,conflicts_button,%'"))) ? 1 : 0;
@@ -116,6 +116,7 @@ if($calendar_ticket_diff_label == 1) {
 }
 $calendar_ticket_status_icon = get_config($dbc, 'calendar_ticket_status_icon');
 $calendar_ticket_card_fields = explode(',',get_config($dbc, 'calendar_ticket_card_fields'));
+$lock_date = get_staff_schedule_lock_date($dbc);
 if($_GET['type'] == '' || $_GET['view'] == '') {
     $default = get_config($dbc, 'calendar_default');
     $user_default = mysqli_fetch_array(mysqli_query($dbc, "SELECT IFNULL(`calendar_view`,'default') view FROM `user_settings` WHERE `contactid`='{$_SESSION['contactid']}'"))['view'];
@@ -228,6 +229,7 @@ switch($_GET['type']) {
             $_GET['mode'] = 'staff';
         }
         $wait_list = get_config($dbc, 'my_wait_list');
+        $combine_shift_items = get_config($dbc, 'my_combine_shift_items');
         $use_shift_tickets = get_config($dbc, 'my_use_shift_tickets');
         if($_GET['view'] != 'monthly') {
             $use_unbooked = get_config($dbc, 'my_use_unbooked');
@@ -263,6 +265,7 @@ switch($_GET['type']) {
             $_GET['mode'] = 'staff';
         }
         $wait_list = get_config($dbc, 'uni_wait_list');
+        $combine_shift_items = get_config($dbc, 'uni_combine_shift_items');
         $use_shift_tickets = get_config($dbc, 'uni_use_shift_tickets');
         if($_GET['view'] != 'monthly') {
             $use_unbooked = get_config($dbc, 'uni_use_unbooked');

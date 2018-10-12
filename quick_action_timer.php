@@ -8,10 +8,11 @@ include_once('include.php');
 checkAuthorised();
 $html = '';
 
-$id = filter_var($_GET['id'],FILTER_SANITIZE_STRING);
+//$id = filter_var($_GET['id'],FILTER_SANITIZE_STRING);
 if(isset($_POST['submit'])) {
 	$contactid = $_SESSION['contactid'];
 	$tile = filter_var($_POST['tile'],FILTER_SANITIZE_STRING);
+    $id = preg_replace('/[^0-9]/', '', $_POST['id']);
 	$timer_value = filter_var($_POST['timer_value'],FILTER_SANITIZE_STRING);
     $timer_date = date('Y-m-d');
 
@@ -49,6 +50,16 @@ if(isset($_POST['submit'])) {
 
             }
 
+            break;
+            
+        case 'email':
+            $communication_id = $id;
+            
+            if($timer_value != '0' && $timer_value != '00:00:00' && $timer_value != '') {
+                mysqli_query($dbc, "INSERT INTO `email_communication_timer` (`communication_id`, `timer`, `timer_type`, `created_by`, `created_date`) VALUES ('$communication_id', '$timer_value', 'Work', '$contactid', '$timer_date')");
+                mysqli_query($dbc, "INSERT INTO `time_cards` (`staff`, `date`, `type_of_time`, `total_hrs`, `timer_tracked`, `comment_box`) VALUES ('$contactid', '$timer_date', 'Regular Hrs.', '".((strtotime($timer_value) - strtotime('00:00:00')) / 3600)."', '0', 'Time Tracked on Email')");
+                insert_day_overview($dbc, $contactid, 'Email Communication', $timer_date, '', "Tracked Time : $timer_value");
+            }
             break;
 
         default:
@@ -97,6 +108,7 @@ $(document).ready(function() {
             <div class="clearfix"></div>
             <hr />
             <input type="hidden" name="tile" value="<?= $_GET['tile'] ?>" />
+            <input type="hidden" name="id" value="<?= preg_replace('/[^0-9]/', '', $_GET['id']); ?>" />
 
                 <div class="form-group">
                     <label class="col-sm-3 control-label">Timer:</label>

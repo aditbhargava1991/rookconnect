@@ -6,7 +6,7 @@
  * Query Variables Accepted: news
  * Scripts on index.php
  */
- 
+
 include('../include.php');
 include('../database_connection_htg.php');
 
@@ -18,14 +18,14 @@ $dbc_news = ($url_type == 'sw') ? $dbc_htg : $dbc;
 
 if ( !empty($url_newsid) ) {
     $news = mysqli_query($dbc_news, "SELECT `b`.`board_name`, `b`.`shared_staff`, `n`.`newsboardid`, `n`.`newsboard_type`, `n`.`tags`, `n`.`title`, `n`.`description`, `img`.`document_link` FROM `newsboard` `n` LEFT JOIN `newsboard_uploads` `img` ON (`n`.`newsboardid` = `img`.`newsboardid`) LEFT JOIN `newsboard_boards` `b` ON (`n`.`boardid` = `b`.`boardid`) WHERE `n`.`newsboardid`='$url_newsid' AND `n`.`deleted`=0");
-    
+
     if ( $news->num_rows > 0 ) {
         // Insert to newsboard_seen on the local software as this news item is seen by the user now
         $query_mod_insert = $url_type=='sw' ? ", `newsboard_src`" : '';
         $query_mod_select = $url_type=='sw' ? ", 'sw'" : '';
         $query_mod_from = $url_type=='sw' ? "AND `newsboard_src`='sw'" : '';
         mysqli_query($dbc, "INSERT INTO `newsboard_seen` (`newsboardid`, `contactid`".$query_mod_insert.") SELECT '".$url_newsid."', '".$_SESSION['contactid']."'".$query_mod_select." FROM (SELECT COUNT(*) `rows` FROM `newsboard_seen` WHERE `newsboardid`='".$url_newsid."' AND `contactid`='".$_SESSION['contactid']."' ".$query_mod_from.") `count` WHERE `count`.`rows`=0");
-        
+
         while ( $row = mysqli_fetch_assoc($news) ) { ?>
             <div class="standard-body-title">
                 <div class="col-xs-9">
@@ -44,14 +44,14 @@ if ( !empty($url_newsid) ) {
                     <?php if ( vuaed_visible_function($dbc, 'newsboard') == 1 ) { ?>
                         <span class="header-icon"><a class="cursor-hand" onclick="overlayIFrameSlider('add_news.php?news=<?= $url_newsid ?>', 'auto', true, false, 'auto', true);"><img src="../img/icons/ROOK-edit-icon.png" class="no-toggle" title="Edit" /></a></span>
                     <?php } ?>
-                    <span class="header-icon"><a class="cursor-hand" onclick="overlayIFrameSlider('../quick_action_notes.php?tile=newsboard&id=<?= $url_newsid ?>&type=<?= $url_type ?>', 'auto', true, false, 'auto', true);"><img src="../img/icons/ROOK-reply-icon.png" class="no-toggle" title="Add Note" /></a></span>
+                    <span class="header-icon"><a class="cursor-hand" onclick="overlayIFrameSlider('../quick_action_notes.php?tile=newsboard&id=<?= $url_newsid ?>&type=<?= $url_type ?>', 'auto', true, false, 'auto', false);"><img src="../img/icons/ROOK-reply-icon.png" class="no-toggle" title="Add Note" /></a></span>
                     <?php if ( vuaed_visible_function($dbc, 'newsboard') == 1 ) { ?>
                         <span class="header-icon"><img src="../img/icons/ROOK-trash-icon.png" class="no-toggle cursor-hand archive_newsitem" title="Archive" data-id="<?= $url_newsid ?>" data-type="<?= $row['newsboard_type']; ?>" /></span>
                     <?php } ?>
                 </div>
                 <div class="clearfix"></div>
             </div>
-            
+
             <div class="standard-body-content double-padded">
                 <div><?php
                     if ( !empty($row['document_link']) ) { ?>
@@ -59,7 +59,7 @@ if ( !empty($url_newsid) ) {
                     } ?>
                     <div class="gap-top"><?= html_entity_decode($row['description']) ?></div>
                 </div>
-                
+
                 <div class="row gap-top">
                     <div class="col-sm-12">
                         <h4>Comments</h4>
@@ -76,7 +76,7 @@ if ( !empty($url_newsid) ) {
                         ?><input type="hidden" name="nb_software_name" value="" /><?php
                     }
                     $comments = mysqli_query($dbc_news, "SELECT `nbcommentid`, `contactid`, `created_date`, `comment` FROM `newsboard_comments` WHERE `newsboardid`='$url_newsid' AND `deleted`=0 $sw_query ORDER BY `nbcommentid` DESC");
-                    
+
                     if ( $comments->num_rows > 0 ) { ?>
                         <div class="form-group clearfix full-width">
                             <div class="col-sm-12"><?php
@@ -98,7 +98,7 @@ if ( !empty($url_newsid) ) {
                 </div>
             </div><?php
         }
-    
+
     } else { ?>
         <div class="standard-body-title">
             <h3>Not Found</h3>

@@ -37,9 +37,11 @@ if(in_array('Scope Billing',$config) && !in_array_starts('Billing Frequency',$he
 	$heading_order[] = 'Billing Frequency***Billing Frequency';
 }
 $columns = 0;
+$displayed_column = [];
 foreach($heading_order as $heading_title) {
-	if(strpos_any(['UOM','Quantity','Description','Detail','Billing Frequency','Estimate Price','Total'],explode('***',$heading_title)[0])) {
+	if(strpos_any(['UOM','Quantity','Description','Detail','Billing Frequency','Estimate Price','Total'],explode('***',$heading_title)[0]) && !in_array(explode('***',$heading_title)[0],$displayed_column)) {
 		$columns++;
+        $displayed_column[] = explode('***',$heading_title)[0];
 	}
 }
 // $columns = count($heading_order);
@@ -56,11 +58,11 @@ foreach($heading_order as $heading_title) {
 	// $columns--;
 // }
 $col_spanned = $columns; ?>
-<div class="form-horizontal col-sm-12" data-tab-name="<?= $scope_id ?>">
+<div class="form-horizontal col-sm-12" data-tab-name="<?= config_safe_str($heading) ?>">
 	<div class="form-group">
 		<script>
 		$(document).ready(function() {
-			$('[data-table]').off('change', saveField).change(saveField).off('blur',unsaved).blur(unsaved).off('focus',unsaved).focus(unsaved);
+			$('[data-table]').off('change', saveField).change(saveField);
 		});
 		function saveFieldMethod(src) {
 			var table = $(src).data('table');
@@ -203,22 +205,28 @@ $col_spanned = $columns; ?>
 			}
 		}
 		</script>
-		<hr>
-		<div class="sort_table">
+		<div class="sort_table" id="no-more-tables">
+            <a name="<?= config_safe_str($heading) ?>"></a>
 			<div class="pull-right">
 				<img src="../img/icons/drag_handle.png" class="inline-img pull-right scope-handle no-toggle" title="Drag">
 				<img src="../img/icons/ROOK-add-icon.png" class="inline-img pull-right cursor-hand" onclick="add_scope();">
 				<img src="../img/remove.png" class="inline-img pull-right cursor-hand" onclick="rem_scope(this);">
 			</div>
-			<h3 class="scale-to-fill no-margin pad-bottom"><input type="text" placeholder="Scope Description" name="scope_name" value="<?= $scope ?>" onchange="set_scopes(this);" data-placeholder="Scope Name" data-init="<?= $scope ?>" class="form-control"></h3>
+			<h3 class="scale-to-fill no-margin pad-bottom">
+                <label class="col-sm-4">Scope Name:</label>
+                <div class="col-sm-8"><input type="text" placeholder="Scope Description" name="scope_name" value="<?= $scope ?>" onchange="set_scopes(this);" data-placeholder="Scope Name" data-init="<?= $scope ?>" class="form-control"></div>
+            </h3>
 			<?php $heading_list = $dbc->query("SELECT `heading` FROM `estimate_scope` WHERE `estimateid`='$estimateid' AND `scope_name`='$scope' AND `deleted`=0 GROUP BY `heading` ORDER BY MIN(`sort_order`)");
 			$heading = $heading_list->fetch_assoc();
 			do {
 				$us_pricing = mysqli_query($dbc, "SELECT `pricing` FROM `estimate_scope` WHERE `estimateid`='$estimateid' AND `estimateid` > 0 AND `scope_name`='$scope' AND `heading`='".$heading['heading']."' AND `pricing` = 'usd_cpu' AND `deleted`=0 GROUP BY `pricing`")->num_rows; ?>
 			<table class="table table-bordered">
 				<tr>
-					<td colspan="<?= $col_spanned+($us_pricing > 0 ? 1 : 0) ?>">
-						<h3 class="no-margin"><input type="text" placeholder="Heading" name="heading" value="<?= empty($heading['heading']) ? 'Heading 1' : $heading['heading'] ?>" onchange="set_headings(this);" data-init="<?= $heading['heading'] ?>" class="form-control"></h3>
+					<td colspan="<?= $col_spanned+($us_pricing > 0 ? 1 : 0) ?>" data-title="Heading">
+						<h3 class="no-margin">
+                            <label class="col-sm-4 hide-titles-mob">Heading:</label>
+                            <div class="col-sm-8"><input type="text" placeholder="Heading" name="heading" value="<?= empty($heading['heading']) ? 'Heading 1' : $heading['heading'] ?>" onchange="set_headings(this);" data-init="<?= $heading['heading'] ?>" class="form-control"></div>
+                        </h3>
 					</td>
 					<td>
 						<img src="../img/icons/drag_handle.png" class="inline-img pull-right heading-handle no-toggle" title="Drag">
@@ -230,19 +238,21 @@ $col_spanned = $columns; ?>
 					</td>
 				</tr>
 				<tr class="hidden-sm hidden-xs">
-					<?php foreach($heading_order as $order_info) {
+					<?php $displayed_column = [];
+                    foreach($heading_order as $order_info) {
 						$order_info = explode('***',$order_info);
-						if(!in_array($order_info[0],['UOM','Quantity','Description','Detail','Billing Frequency','Estimate Price','Total'])) {
+						if(!in_array($order_info[0],['UOM','Quantity','Description','Detail','Billing Frequency','Estimate Price','Total']) || in_array($order_info[0],$displayed_column)) {
 							continue;
 						}
+                        $displayed_column[] = $order_info[0];
 						echo "<th>".(empty($order_info[1]) ? $order_info[0] : $order_info[1])."</th>";
-            if($order_info[0] == 'Estimate Price' && $us_pricing > 0 && $us_rate_no_auto != 'true') {
-              echo "<th>USD Price</th>";
-            } else if($order_info[0] == 'Estimate Price' && $us_pricing > 0) {
-              echo "<th>CAD Price</th>";
-            }
+                        if($order_info[0] == 'Estimate Price' && $us_pricing > 0 && $us_rate_no_auto != 'true') {
+                          echo "<th>USD Price</th>";
+                        } else if($order_info[0] == 'Estimate Price' && $us_pricing > 0) {
+                          echo "<th>CAD Price</th>";
+                        }
 					} ?>
-					<th data-columns='<?= $columns ?>' data-width='1'></th>
+					<th data-columns='<?= $columns ?>' data-width='1' style="width:8em;"></th>
 				</tr>
 				<?php $lines = mysqli_query($dbc, "SELECT * FROM `estimate_scope` WHERE `estimateid`='$estimateid' AND `estimateid` > 0 AND `scope_name`='$scope' AND `heading`='".$heading['heading']."' AND `deleted`=0 ORDER BY `sort_order`");
 				$line = mysqli_fetch_array($lines);
@@ -270,11 +280,13 @@ $col_spanned = $columns; ?>
 									<?= html_entity_decode($line['description']) ?>
 								</td>
 							<?php } else {
+                                $displayed_column = [];
 								foreach($heading_order as $order_info) {
 									$order_info = explode('***',$order_info);
-									if(!in_array($order_info[0],['UOM','Quantity','Description','Detail','Billing Frequency','Estimate Price','Total'])) {
+									if(!in_array($order_info[0],['UOM','Quantity','Description','Detail','Billing Frequency','Estimate Price','Total']) || in_array($order_info[0],$displayed_column)) {
 										continue;
 									}
+                                    $displayed_column[] = $order_info[0];
 									echo "<td data-title='".(empty($order_info[1]) ? $order_info[0] : $order_info[1])."'>";
 									switch($order_info[0]) {
 										case 'UOM': ?>
@@ -357,6 +369,7 @@ $col_spanned = $columns; ?>
 			</table>
 			<?php } while($heading = $heading_list->fetch_assoc()); ?>
 		</div>
+		<hr>
 	</div>
 </div>
 <?php if(basename($_SERVER['SCRIPT_FILENAME']) == 'edit_headings.php') { ?>

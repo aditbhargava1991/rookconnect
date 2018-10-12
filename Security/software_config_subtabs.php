@@ -1328,6 +1328,9 @@ checkAuthorised('security');
 						<?php foreach(array_filter(explode(',',get_config($dbc, 'ticket_tabs'))) as $ticket_subtab) { ?>
 							<tr><td>Subtab: <?= $ticket_subtab ?></td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'ticket_type_'.config_safe_str($ticket_subtab) ); ?></tr>
 						<?php } ?>
+						<?php foreach(array_filter(explode(',',get_config($dbc, 'ticket_status'))) as $status) { ?>
+							<tr><td>Status: <?= $status ?></td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'ticket_status'.config_safe_str($status) ); ?></tr>
+						<?php } ?>
 						<tr><td>Print PDF</td><?php echo subtab_config_function($dbc, $tile, $level_url, 'view_pdf'); ?></tr>
 						<tr><td>View <?= PROJECT_NOUN ?> Information</td><?php echo subtab_config_function($dbc, $tile, $level_url, 'view_project_info'); ?></tr>
 						<tr><td>View <?= PROJECT_NOUN ?> Details</td><?php echo subtab_config_function($dbc, $tile, $level_url, 'view_project_details'); ?></tr>

@@ -444,7 +444,7 @@ if($num_rows7 > 0) {
 			$html .= '<th width="10%">Stops</th>';
 		}
 
-        /* 
+        /*
 		if(in_array('customer_code',$custom_ticket_fields)) {
 			$service_width_diff += 10;
 			$html .= '<th width="10%">Customer Code</th>';
@@ -524,7 +524,7 @@ if($num_rows7 > 0) {
             if($service_id > 0) {
                 $html .= '<td>';
                 $service = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `services` WHERE `serviceid` = '$service_id'"));
-                $result2 = mysqli_query($dbc, "SELECT * FROM invoice_lines WHERE invoiceid='$invoiceid' AND category = 'service' AND item_id = '$service_id' AND `ticketid` = '".$ticketid['ticketid']."'".(in_array('delivery_group',$invoice_custom_ticket_fields) ? " AND `stop_id`='".$ticketid['stop_id']."'" : ''));
+                $result2 = mysqli_query($dbc, "SELECT * FROM invoice_lines WHERE invoiceid='$invoiceid' AND category = 'service' AND item_id = '$service_id' AND `ticketid` = '".$ticket['ticketid']."'");
                 while($row = mysqli_fetch_assoc($result2)) {
                     $inventoryid = $row['item_id'];
                     $price = $row['unit_price'];
@@ -543,6 +543,7 @@ if($num_rows7 > 0) {
                 }
                 $html .= '</td>';
                 $item_id_query .= " AND item_id NOT IN ('".$service_id."')";
+
             } else if(explode('|',$service_id)[0] == 'multi_srv_group') {
                 $html .= '<td>';
                 $service_id = explode('|',$service_id);
@@ -570,8 +571,8 @@ if($num_rows7 > 0) {
                         }
                     }
                     $item_id_query .= " AND item_id NOT IN (".$service_id.")";
-                    $html .= '</td>';
                 }
+                $html .= '</td>';
             }
 		}
 		$html .= '<td>';

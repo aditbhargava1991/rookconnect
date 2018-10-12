@@ -1,7 +1,7 @@
 <?php include_once('../include.php');
 include_once('../Ticket/field_list.php');
 include_once('../Ticket/config.php');
-if(empty($ticketid)) {
+if(empty($ticketid) && !isset($value_config)) {
 	$access_view_project_info = check_subtab_persmission($dbc, 'ticket', ROLE, 'view_project_info');
 	$access_view_project_details = check_subtab_persmission($dbc, 'ticket', ROLE, 'view_project_details');
 	$access_view_staff = check_subtab_persmission($dbc, 'ticket', ROLE, 'view_staff');
@@ -9,10 +9,14 @@ if(empty($ticketid)) {
 	$access_view_complete = check_subtab_persmission($dbc, 'ticket', ROLE, 'view_complete');
 	$access_view_notifications = check_subtab_persmission($dbc, 'ticket', ROLE, 'view_notifications');
 	$ticketid = filter_var($_GET['ticketid'],FILTER_SANITIZE_STRING);
-	$get_ticket = $dbc->query("SELECT * FROM `tickets` WHERE `ticketid`='$ticketid'")->fetch_assoc();
-	$value_config = get_field_config($dbc, 'tickets');
+	$value_config = ','.get_field_config($dbc, 'tickets').',';
 	$sort_order = explode(',',get_config($dbc, 'ticket_sortorder'));
-	$ticket_type = empty($get_ticket['ticket_type']) ? $ticket_type : $get_ticket['ticket_type'];
+	if($ticketid > 0) {
+		$get_ticket = $dbc->query("SELECT * FROM `tickets` WHERE `ticketid`='$ticketid'")->fetch_assoc();
+		$ticket_type = empty($get_ticket['ticket_type']) ? $ticket_type : $get_ticket['ticket_type'];
+	} else if(!empty($_GET['type'])) {
+		$ticket_type = $_GET['type'];
+	}
 	if(!empty($ticket_type)) {
 		$value_config .= get_config($dbc, 'ticket_fields_'.$ticket_type).',';
 		$sort_order = explode(',',get_config($dbc, 'ticket_sortorder_'.$ticket_type));
@@ -34,6 +38,28 @@ if(empty($ticketid)) {
 					$value_config .= ','.$action_mode_ignore_field;
 				}
 			}
+		}
+	}
+
+	//Intake Fields
+	if(isset($_GET['intake_key'])) {
+		$value_config_all = $value_config;
+		$value_config = ','.get_config($dbc, 'ticket_intake_fields').',';
+		if(!empty($ticket_type)) {
+			$value_config .= get_config($dbc, 'ticket_intake_fields_'.$ticket_type).',';
+		}
+		if(empty(trim($value_config,','))) {
+			$value_config = $value_config_all;
+		} else {
+			if(strpos($value_config, ','."Hide Trash Icon".',') !== FALSE) {
+				$hide_trash_icon = 1;
+			}
+			foreach($action_mode_ignore_fields as $action_mode_ignore_field) {
+				if(strpos(','.$value_config_all.',',','.$action_mode_ignore_field.',') !== FALSE) {
+					$value_config .= ','.$action_mode_ignore_field;
+				}
+			}
+			$value_config = ','.implode(',',array_intersect(explode(',',$value_config), explode(',',$value_config_all))).',';
 		}
 	}
 
@@ -335,11 +361,11 @@ foreach($sort_order as $sort_field) { ?>
 		<a href="" data-tab-target="view_ticket_deliverables"><li class="<?= $_GET['tab'] == 'view_ticket_deliverables' ? 'active blue' : '' ?>"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Deliverables' ?></li></a>
 	<?php } ?>
 
-	<?php if (strpos($value_config, ','."Timer".',') !== FALSE && $sort_field == 'Timer') { ?>
+	<?php if (strpos($value_config, ','."Time Tracking Block".',') !== FALSE && $sort_field == 'Timer') { ?>
 		<a href="" data-tab-target="view_ticket_timer"><li class="<?= $_GET['tab'] == 'view_ticket_timer' ? 'active blue' : '' ?>"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Time Tracking' ?></li></a>
 	<?php } ?>
 
-	<?php if (strpos($value_config, ','."Timer".',') !== FALSE && $access_all > 0 && $sort_field == 'Timer') { ?>
+	<?php if (strpos($value_config, ','."Day Tracking Block".',') !== FALSE && $access_all > 0 && $sort_field == 'Timer') { ?>
 		<a href="" data-tab-target="view_day_tracking"><li class="<?= $_GET['tab'] == 'view_day_tracking' ? 'active blue' : '' ?>"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Day Tracking' ?></li></a>
 	<?php } ?>
 
@@ -450,6 +476,10 @@ foreach($sort_order as $sort_field) { ?>
 
 	<?php if (strpos($value_config, ','."Chemicals".',') !== FALSE && $sort_field == 'Chemicals') { ?>
 		<a href="" data-tab-target="ticket_chemicals"><li class="<?= $_GET['tab'] == 'ticket_chemicals' ? 'active blue' : '' ?>"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Chemicals' ?></li></a>
+	<?php } ?>
+
+	<?php if (strpos($value_config, ','."Application Report".',') !== FALSE && $sort_field == 'Application Report') { ?>
+		<a href="" data-tab-target="ticket_apply_report"><li class="<?= $_GET['tab'] == 'ticket_apply_report' ? 'active blue' : '' ?>"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Application Report' ?></li></a>
 	<?php } ?>
 
 	<?php if (strpos($value_config, ','."Intake".',') !== FALSE && $sort_field == 'Intake') { ?>

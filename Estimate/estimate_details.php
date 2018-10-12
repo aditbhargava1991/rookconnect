@@ -5,7 +5,7 @@ profile_tab = [];
 var lock_timeout;
 $(document).ready(function() {
 	$('.panel-heading').click(loadPanel);
-	$('input,select,textarea').not('.chosen-container input').change(saveField).keyup(syncUnsaved);
+	$('[data-table]').change(saveField);
 	$('.main-screen .main-screen').scroll(scrollScreen);
 	$('.preview-bar').load('estimates_overview.php?view=<?= $estimateid ?>&sideview=true');
 	<?php if($_GET['status'] != '') { ?>
@@ -110,7 +110,7 @@ function loadPanel() {
 		response: 'html',
 		success: function(response) {
 			$(body).html(response);
-			$('input,select,textarea').not('.chosen-container input').off('change', saveField).change(saveField).keyup(syncUnsaved);
+			$('[data-table]').off('change', saveField).change(saveField);
 		}
 	});
 }
@@ -231,7 +231,7 @@ function loadPanel() {
 		<div class="panel-heading">
 			<h4 class="panel-title">
 				<a data-toggle="collapse" data-parent="#estimate_accordions" href="#collapse_templates">
-					Scope Templates<span class="glyphicon glyphicon-plus"></span>
+					<?= rtrim(ESTIMATE_TILE, 's') ?> Scope<span class="glyphicon glyphicon-plus"></span>
 				</a>
 			</h4>
 		</div>
@@ -279,7 +279,7 @@ function loadPanel() {
 		<a href="?edit=<?= $_GET['edit'] ?>&status=information" onclick="return moveToTab('information')"><li class="<?= $_GET['status'] == '' ? 'active blue' : '' ?>"><?= rtrim(ESTIMATE_TILE, 's') ?> Information</li></a>
 		<a href="?edit=<?= $_GET['edit'] ?>&status=dates" onclick="return moveToTab('dates')"><li class="<?= $_GET['status'] == 'dates' ? 'active blue' : '' ?>">Deliverables</li></a>
 		<a href="?edit=<?= $_GET['edit'] ?>&status=staff" onclick="return moveToTab('staff')"><li class="<?= $_GET['status'] == 'staff' ? 'active blue' : '' ?>">Staff Collaboration</li></a>
-		<a href="?edit=<?= $_GET['edit'] ?>&status=templates" onclick="return moveToTab('templates')"><li class="<?= $_GET['status'] == 'templates' ? 'active blue' : '' ?>">Scope Templates</li></a>
+		<a href="?edit=<?= $_GET['edit'] ?>&status=est_scope" onclick="return moveToTab('est_scope')"><li class="<?= $_GET['status'] == 'est_scope' ? 'active blue' : '' ?>"><?= rtrim(ESTIMATE_TILE, 's') ?> Scope</li></a>
 		<a href="?edit=<?= $_GET['edit'] ?>&status=details" onclick="return moveToTab('details')"><li class="<?= $_GET['status'] == 'details' ? 'active blue' : '' ?>">Notes</li></a>
 		<!--
         <a href="?edit=<?= $_GET['edit'] ?>&status=display_options" onclick="return moveToTab('display_options')"><li class="<?= $_GET['status'] == 'display_options' ? 'active blue' : '' ?>">Options</li></a>
@@ -297,7 +297,7 @@ function loadPanel() {
 			include('edit_information.php');
 			include('edit_dates.php');
 			include('edit_staff.php');
-			include('edit_templates.php');
+			include('edit_scope.php');
 			include('edit_details.php');
 			//include('edit_display_options.php');
 			include('edit_documents.php'); ?>

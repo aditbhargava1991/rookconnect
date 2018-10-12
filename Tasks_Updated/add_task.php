@@ -1,4 +1,5 @@
 <?php
+
 /*
  * Add Task
  * Called From
@@ -76,7 +77,7 @@ if (isset($_POST['tasklist'])) {
     $task = filter_var(htmlentities($_POST['task']),FILTER_SANITIZE_STRING);
 	$alerts_enabled = implode(',',$_POST['alerts_enabled']);
     $task_tododate = $_POST['task_tododate'];
-    $task_status = $_POST['task_status'];
+    $task_status = $_POST['status'];
     if($task_status == '') {
         $task_status = 'To Do';
     }
@@ -86,6 +87,7 @@ if (isset($_POST['tasklist'])) {
     $task_category = $_POST['task_category'];
 
     $task_work_time = $_POST['task_work_time'];
+    $task_estimated_time = $_POST['task_estimated_time'];
 
     $task_from_tasktile = $_POST['task_from_tasktile'];
 	$current_task = [];
@@ -93,7 +95,7 @@ if (isset($_POST['tasklist'])) {
     $flag_colour = $_POST['flag'];
 
     if(empty($_POST['tasklistid'])) {
-        $query_insert_ca = "INSERT INTO `tasklist` (`ticketid`, `businessid`, `clientid`, `salesid`, `projectid`, `project_milestone`, `client_projectid`, `task`, `contactid`, `alerts_enabled`, `created_date`, `created_by`, `task_tododate`, `status`, `category`, `heading`, `work_time`, `task_path`, `task_board`, `task_milestone_timeline`, `external`, `flag_colour`) VALUES ('$ticketid', '$task_businessid', '$task_clientid', '$task_salesid', '$task_projectid', '$project_milestone', '$task_client_projectid', '$task', '$task_contactid', '$alerts_enabled', '$created_date', '$created_by', '$task_tododate', '$task_status', '$task_category', '$task_heading', '$task_work_time', '$task_path', '$task_board', '$task_milestone_timeline', '$task_external', '$flag_colour')";
+        $query_insert_ca = "INSERT INTO `tasklist` (`ticketid`, `businessid`, `clientid`, `salesid`, `projectid`, `project_milestone`, `client_projectid`, `task`, `contactid`, `alerts_enabled`, `created_date`, `created_by`, `task_tododate`, `status`, `category`, `heading`, `work_time`, `task_path`, `task_board`, `task_milestone_timeline`, `external`, `flag_colour`, `estimated_time`) VALUES ('$ticketid', '$task_businessid', '$task_clientid', '$task_salesid', '$task_projectid', '$project_milestone', '$task_client_projectid', '$task', '$task_contactid', '$alerts_enabled', '$created_date', '$created_by', '$task_tododate', '$task_status', '$task_category', '$task_heading', '$task_work_time', '$task_path', '$task_board', '$task_milestone_timeline', '$task_external', '$flag_colour', '$task_estimated_time')";
         $result_insert_ca = mysqli_query($dbc, $query_insert_ca);
 		$tasklistid = mysqli_insert_id($dbc);
 
@@ -103,7 +105,7 @@ if (isset($_POST['tasklist'])) {
     } else {
         $tasklistid = $_POST['tasklistid'];
 		$current_task = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tasklist` WHERE `tasklistid`='$tasklistid'"));
-        $query_update_vendor = "UPDATE `tasklist` SET `businessid` = '$task_businessid', `clientid` = '$task_clientid', `salesid` = '$task_salesid', `projectid` = '$task_projectid', `project_milestone`='$project_milestone', `client_projectid` = '$task_client_projectid', `task` = '$task', `contactid` = '$task_contactid', `alerts_enabled` = '$alerts_enabled', `task_tododate` = '$task_tododate', `status` = '$task_status', `category` = '$task_category', `heading` = '$task_heading', `work_time` = '$task_work_time', `task_path` = '$task_path', `task_board` = '$task_board', `task_milestone_timeline` = '$task_milestone_timeline', `external` = '$task_external', `archived_date` = '$archived_date' WHERE `tasklistid` = '$tasklistid'";
+        $query_update_vendor = "UPDATE `tasklist` SET `businessid` = '$task_businessid', `clientid` = '$task_clientid', `salesid` = '$task_salesid', `projectid` = '$task_projectid', `project_milestone`='$project_milestone', `client_projectid` = '$task_client_projectid', `task` = '$task', `contactid` = '$task_contactid', `alerts_enabled` = '$alerts_enabled', `task_tododate` = '$task_tododate', `status` = '$task_status', `category` = '$task_category', `heading` = '$task_heading', `work_time` = '$task_work_time', `task_path` = '$task_path', `task_board` = '$task_board', `task_milestone_timeline` = '$task_milestone_timeline', `external` = '$task_external', `estimated_time` = '$task_estimated_time' WHERE `tasklistid` = '$tasklistid'";
 
         $result_update_vendor = mysqli_query($dbc, $query_update_vendor);
 
@@ -142,9 +144,9 @@ if (isset($_POST['tasklist'])) {
     // Track Time
     $track_time = $_POST['track_time'];
     if( $track_time!='0' && $track_time!='00:00:00' && $track_time!='' ) {
-        mysqli_query($dbc, "INSERT INTO `tasklist_time` (`tasklistid`, `work_time`, `src`, `contactid`, `timer_date`) VALUES ('$tasklistid', '$track_time', 'A', '{$_SESSION['contactid']}', '$created_date')");
-        insert_day_overview($dbc, $_SESSION['contactid'], 'Task', date('Y-m-d'), '', "Updated Task #$tasklistid - Added Time : $track_time");
-        mysqli_query($dbc, "UPDATE `tasklist` SET `work_time`=ADDTIME(`work_time`,'$track_time') WHERE `tasklistid`='$tasklistid'");
+        //mysqli_query($dbc, "INSERT INTO `tasklist_time` (`tasklistid`, `work_time`, `src`, `contactid`, `timer_date`) VALUES ('$tasklistid', '$track_time', 'A', '{$_SESSION['contactid']}', '$created_date')");
+        //insert_day_overview($dbc, $_SESSION['contactid'], 'Task', date('Y-m-d'), '', "Updated Task #$tasklistid - Added Time : $track_time");
+        //mysqli_query($dbc, "UPDATE `tasklist` SET `work_time`=ADDTIME(`work_time`,'$track_time') WHERE `tasklistid`='$tasklistid'");
     }
 
 	$update_task = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tasklist` WHERE `tasklistid`='$tasklistid'"));
@@ -163,8 +165,8 @@ if (isset($_POST['tasklist'])) {
 		} else if($field == 'work_time' && $value != $current_task[$field]) {
 			$added_time = date('H:i', strtotime($value) - strtotime($current_task[$field]) + strtotime('today'));
 			$changes[] = "Added Time: ".$added_time;
-			insert_day_overview($dbc, $_SESSION['contactid'], 'Task', date('Y-m-d'), '', 'Added time to Task #'.$tasklistid.': '.$added_time, $tasklistid);
-			mysqli_query($dbc, "INSERT INTO `tasklist_time` (`tasklistid`, `work_time`, `contactid`, `timer_date`) VALUES ('$tasklistid', '$added_time', '".$_SESSION['contactid']."', '".date('Y-m-d')."')");
+			//insert_day_overview($dbc, $_SESSION['contactid'], 'Task', date('Y-m-d'), '', 'Added time to Task #'.$tasklistid.': '.$added_time, $tasklistid);
+			//mysqli_query($dbc, "INSERT INTO `tasklist_time` (`tasklistid`, `work_time`, `contactid`, `timer_date`) VALUES ('$tasklistid', '$added_time', '".$_SESSION['contactid']."', '".date('Y-m-d')."')");
 		}
 	}
 
@@ -186,7 +188,9 @@ if (isset($_POST['tasklist'])) {
 
 	// Record Changes
 	$changes = htmlentities(implode('<br />',$changes));
-    $task_comment = htmlentities($_POST['task_comment']);
+    $task_comment = filter_var(htmlentities($_POST['task_comment']),FILTER_SANITIZE_STRING);
+
+    //$task_comment = htmlentities($_POST['task_comment']);
     if ( !empty($task_comment) ) {
         mysqli_query($dbc, "INSERT INTO `task_comments` (`tasklistid`, `created_by`, `created_date`, `comment`) VALUES ('$tasklistid', '".$_SESSION['contactid']."', DATE(NOW()), '$task_comment')");
     }
@@ -295,7 +299,7 @@ $(document).ready(function () {
             $('.contact_section_display').hide();
             $('.sales_section_display').hide();
             $('.taskpath_section_display').show();
-        } else if(task_board_type == 'Company') {
+        } else if(task_board_type == 'Shared') {
             $('.hide_task_board_name').show();
             $('.project_section_display').hide();
             $('.contact_section_display').hide();
@@ -523,7 +527,6 @@ $(document).ready(function () {
         });
         $(this).addClass('hidden');
         $(this).next('.stop-timer-btn').removeClass('hidden');
-
         var taskid = $(this).data('id');
 
         var contactid = '<?= $_SESSION['contactid'] ?>';
@@ -536,7 +539,6 @@ $(document).ready(function () {
                 }
             });
         }
-
     });
 
     $('.full-btn').on('click', function() {
@@ -665,6 +667,29 @@ function quick_add_time(task) {
 	//$(task).timepicker('show');
 }
 
+function quick_estimated_time(task) {
+    task_id = $('[name=tasklistid]').val();
+	$(task).timepicker('option', 'onClose', function(time) {
+        var time = $(task).val();
+		if(time != '' && time != '00:00') {
+			$.ajax({
+				method: 'POST',
+				url: '../Tasks_Updated/task_ajax_all.php?fill=task_estimated_time',
+				data: { id: task_id, time: time+':00' },
+				complete: function(result) {
+                    $.ajax({
+                        method: 'POST',
+                        url: '../Tasks_Updated/task_ajax_all.php?fill=taskreply',
+                        data: { taskid: task_id, reply: 'Time Estimated '+time+':00' },
+                        complete: function(result) {}
+                    });
+                }
+			});
+		}
+	});
+	//$(task).timepicker('show');
+}
+
 function manual_add_time(task) {
 	taskid = $(task).data('taskid');
     timer = $(task).attr('name');
@@ -776,7 +801,7 @@ function mark_done(sel) {
 <body>
 <?php
     include_once ('../navigation.php');
-    checkAuthorised('tasks_updated');
+    checkAuthorised('tasks');
     $back_url = (isset($_SERVER['HTTPS']) ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
 ?>
 <div class="container">
@@ -832,10 +857,13 @@ function mark_done(sel) {
                 $task_category = $get_task['category'];
                 $task_status = $get_task['status'];
                 $task_tododate = $get_task['task_tododate'];
+                $task_estimatedtime = $get_task['estimated_time'];
                 $task_path = $get_task['task_path'];
                 $project_milestone = $get_task['project_milestone'];
                 $task_board = $get_task['task_board'];
                 $task_milestone_timeline = $get_task['task_milestone_timeline'];
+                $task_updateddate = $get_task['updated_date'];
+                $task_updatedby = $get_task['updated_by'];
 
                 $get_taskboard = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT board_security FROM task_board WHERE taskboardid='$task_board'"));
                 $board_security = $get_taskboard['board_security'];
@@ -854,7 +882,8 @@ function mark_done(sel) {
                 }
                 */
 
-            } else if(!empty($_GET['projectid'])) {
+            }
+            if(!empty($_GET['projectid'])) {
                 $task_projectid = $_GET['projectid'];
                 $project = mysqli_fetch_array(mysqli_query($dbc, "SELECT `businessid`, `clientid`, `project_path` FROM `project` WHERE `projectid`='$task_projectid'"));
                 $task_businessid = $project['businessid'];
@@ -915,9 +944,9 @@ function mark_done(sel) {
                 <?= (!empty($_GET['tasklistid']) ? 'Edit' : 'Add a') ?> <?= $url_tab ?> Task <?= ( !empty($tasklistid) ) ? '#'.$tasklistid : ''; */ ?>
             </h3>-->
             <h3 class="inline"><?= !empty($_GET['tasklistid']) ? 'Edit' : 'Add' ?> <?= TASK_NOUN ?><?= !empty($_GET['tasklistid']) ? ' #'.$_GET['tasklistid'].': '.$task_heading : '' ?></h3>
-            <div class="pull-right"><a href=""><img src="../img/icons/ROOK-status-rejected.jpg" alt="Close" title="Close" class="inline-img  no-toggle" data-placement="bottom" /></a></div>
+            <div class="pull-right"><a href=""><img src="../img/icons/ROOK-status-rejected.jpg" alt="Close" title="Close" class="no-toggle" data-placement="bottom" width="25" /></a></div>
 
-            <div class="pull-right"><img src="../img/icons/full_screen.png" alt="View Full Screen" title="View Full Screen" class="inline-img no-toggle full-btn cursor-hand" data-placement="bottom" /></div>
+            <div class="pull-right"><img src="../img/icons/ROOK-FullScreen-icon.png" alt="View Full Screen" title="View Full Screen" class="no-toggle full-btn cursor-hand offset-right-5" data-placement="bottom" width="25" /></div>
 
             <?php /* if(!empty($_GET['tasklistid'])) { ?><button name="" type='button' value="" class="delete_task pull-right image-btn" style="margin-top:3px;"><img class="no-margin small" src="../img/icons/trash-icon-red.png" alt="Delete Task" width="25"></button><?php } */ ?>
 
@@ -1023,8 +1052,10 @@ function mark_done(sel) {
                                 } else {
                                     $selected = '';
                                 }
-                                echo "<option ".$selected." value='". $row['projectid']."'>".$row['project_name'].'</option>';
-                            } ?>
+                                if($row['project_name'] != '') {
+                                    echo "<option ".$selected." value='". $row['projectid']."'>".$row['project_name'].'</option>';
+                                }
+                                } ?>
                         </select>
                     </div>
                 </div>
@@ -1052,17 +1083,21 @@ function mark_done(sel) {
                     <select data-placeholder="Select a <?= TASK_NOUN ?> Path..." id="task_path" name="task_path" data-table="tasklist" data-field="task_path" class="chosen-select-deselect form-control" width="380">
                         <option value=""></option><?php
                         $project_path_milestones = [];
-                        if($task_projectid > 0) {
+
+                            $query = mysqli_query($dbc,"SELECT project_path_milestone, project_path FROM project_path_milestone");
+                            while($row = mysqli_fetch_array($query)) { ?>
+                                <option <?php if ($row['project_path_milestone'] == $task_path) { echo " selected"; } ?> value='<?php echo  $row['project_path_milestone']; ?>' ><?php echo $row['project_path']; ?></option><?php
+                            }
+                            $project_path_milestones = get_project_paths($task_projectid);
+
+                            /* if($task_projectid > 0) {
                             $project_path_milestones = get_project_paths($task_projectid);
                             foreach($project_path_milestones as $path) { ?>
                                 <option <?= $task_path == $path['path_id'] ? 'selected' : '' ?> value='<?= $path['path_id'] ?>'><?= $path['path_name'] ?></option>
                             <?php }
                         } else {
-                            $query = mysqli_query($dbc,"SELECT project_path_milestone, project_path FROM project_path_milestone");
-                            while($row = mysqli_fetch_array($query)) { ?>
-                                <option <?php if ($row['project_path_milestone'] == $task_path) { echo " selected"; } ?> value='<?php echo  $row['project_path_milestone']; ?>' ><?php echo $row['project_path']; ?></option><?php
-                            }
-                        } ?>
+                            */
+                         ?>
                     </select>
                 </div>
             </div>
@@ -1073,6 +1108,10 @@ function mark_done(sel) {
                    		$task_milestone_timeline = str_replace("FFMEND","&",$task_milestone_timeline);
                         $task_milestone_timeline = str_replace("FFMSPACE"," ",$task_milestone_timeline);
                         $task_milestone_timeline = str_replace("FFMHASH","#",$task_milestone_timeline);
+
+                        $project_milestone = str_replace("FFMEND","&",$project_milestone);
+                        $project_milestone = str_replace("FFMSPACE"," ",$project_milestone);
+                        $project_milestone = str_replace("FFMHASH","#",$project_milestone);
                 ?>
                     <select data-placeholder="Select a Milestone & Timeline..." name="task_milestone_timeline" id="task_milestone_timeline" data-table="tasklist" data-field="task_milestone_timeline"  class="chosen-select-deselect form-control" width="580">
                         <option value=""></option>
@@ -1080,7 +1119,7 @@ function mark_done(sel) {
                             foreach($project_path_milestones as $path) {
                                 if($path['path_id'] == $task_path) {
                                     foreach($path['milestones'] as $milestone) { ?>
-                                        <option <?= $task_milestone_timeline == $milestone['milestone'] ? 'selected' : '' ?> value="<?= $milestone['milestone'] ?>"><?= $milestone['label'] ?></option>
+                                        <option <?= $project_milestone == $milestone['milestone'] ? 'selected' : '' ?> value="<?= $milestone['milestone'] ?>"><?= $milestone['label'] ?></option>
                                     <?php }
                                 }
                             }
@@ -1231,25 +1270,15 @@ function mark_done(sel) {
                     <div id="collapse_task_details" class="panel-collapse collapse">
                         <div class="panel-body">
 
-            <!--
-            <div class="form-group clearfix">
-                <?= $slider_layout != 'accordion' ? '<h4>Task'. ( !empty($tasklistid) ) ? ' #'.$tasklistid : ':'.' Details</h4>' : '' ?>
-                <label for="first_name" class="col-sm-4">Completed:</label>
-                <div class="col-sm-8">
-                    <input type="checkbox" name="status" value="<?= $tasklistid ?>" class="form-checkbox no-margin" onchange="mark_done(this);" <?= ($task_status==$status_complete) ? 'checked' : '' ?> />
-                </div>
-            </div>
-            -->
-
                         <?php if(strpos($task_fields, ',Task Name,') !== FALSE) { ?>
-            <div class="form-group clearfix">
-                <label for="first_name" class="col-sm-4"><?php echo (strpos($task_mandatory_fields, ',Task Name,') !== FALSE ? '<font color="red">* </font>' : ''); ?>
-                    <!-- <img src="../img/icons/ROOK-edit-icon.png" class="inline-img" /> --> Task Name:
-                </label>
-                <div class="col-sm-8">
-                    <input type="text" name="task_heading" value="<?= $task_heading ?>" data-table="tasklist" data-field="heading" class="form-control" width="380" />
-                </div>
-            </div>
+                    <div class="form-group clearfix">
+                        <label for="first_name" class="col-sm-4"><?php echo (strpos($task_mandatory_fields, ',Task Name,') !== FALSE ? '<font color="red">* </font>' : ''); ?>
+                            <!-- <img src="../img/icons/ROOK-edit-icon.png" class="inline-img" /> --> Task Name:
+                        </label>
+                        <div class="col-sm-8">
+                            <input type="text" name="task_heading" value="<?= $task_heading ?>" data-table="tasklist" data-field="heading" class="form-control" width="380" />
+                        </div>
+                    </div>
                         <?php } ?>
 
                         <?php if(strpos($task_fields, ',Status,') !== FALSE) { ?>
@@ -1277,6 +1306,16 @@ function mark_done(sel) {
                 </div>
             </div>
                         <?php } ?>
+
+            <!--
+            <div class="form-group clearfix">
+                <?= $slider_layout != 'accordion' ? '<h4>Task'. ( !empty($tasklistid) ) ? ' #'.$tasklistid : ':'.' Details</h4>' : '' ?>
+                <label for="first_name" class="col-sm-4">Completed:</label>
+                <div class="col-sm-8">
+                    <input type="checkbox" name="status" value="<?= $tasklistid ?>" class="form-checkbox no-margin" onchange="mark_done(this);" <?= ($task_status==$status_complete) ? 'checked' : '' ?> />
+                </div>
+            </div>
+            -->
 
                         <?php if(strpos($task_fields, ',To Do Date,') !== FALSE) {
                         if($task_tododate == '' && (empty($_GET['tasklistid']))) {
@@ -1325,13 +1364,13 @@ function mark_done(sel) {
 
                         <?php if(strpos($task_fields, ',Task Name,') !== FALSE) { ?>
             <div class="form-group clearfix">
-                <label for="first_name" class="col-sm-4"><?php echo (strpos($task_mandatory_fields, ',Task Name,') !== FALSE ? '<font color="red">* </font>' : ''); ?>
-                    <!-- <img src="../img/icons/ROOK-edit-icon.png" class="inline-img" /> --> Task Billing:
+                <label for="first_name" class="col-sm-4">
+                    <?= TASK_NOUN ?> Billing:
                 </label>
                 <div class="col-sm-8">
 					<?php $groups = $dbc->query("SELECT `category` FROM `task_types` WHERE `deleted`=0 GROUP BY `category` ORDER BY MIN(`sort`), MIN(`id`)");
 					if($groups->num_rows > 0) { ?>
-						<select name="heading_src" class="<?php echo (strpos($task_mandatory_fields, ',Task Name,') !== FALSE ? 'required' : ''); ?> chosen-select-deselect"><option />
+						<select name="heading_src" class="chosen-select-deselect"><option />
 							<?php while($task_group = $groups->fetch_assoc()) { ?>
 								<optgroup label="<?= $task_group['category'] ?>">
 									<?php $task_names = $dbc->query("SELECT `id`, `description` FROM `task_types` WHERE `deleted`=0 AND `category`='{$task_group['category']}' ORDER BY `sort`, `id`");
@@ -1347,16 +1386,15 @@ function mark_done(sel) {
                         <?php } ?>
 
                         <?php if(strpos($task_fields, ',Flag This,') !== FALSE) { ?>
-
-            <div class="form-group clearfix">
-                <label for="first_name" class="col-sm-4"><?php echo (strpos($task_mandatory_fields, ',Flag This,') !== FALSE ? '<font color="red">* </font>' : ''); ?>
-                    <!-- <img src="../img/icons/ROOK-flag-icon.png" class="inline-img" /> --> Flag This:
-                </label>
-                <div class="col-sm-8">
-                    <a class="btn brand-btn" data-tasklistid="<?= $tasklistid ?>" onclick="flag_item(this);">Flag</a>
-                    <input type="hidden" name="flag" value="" />
-                </div>
-            </div>
+                            <div class="form-group clearfix">
+                                <label for="first_name" class="col-sm-4"><?php echo (strpos($task_mandatory_fields, ',Flag This,') !== FALSE ? '<font color="red">* </font>' : ''); ?>
+                                    <!-- <img src="../img/icons/ROOK-flag-icon.png" class="inline-img" /> --> Flag This:
+                                </label>
+                                <div class="col-sm-8">
+                                    <a class="btn brand-btn" data-tasklistid="<?= $tasklistid ?>" onclick="flag_item(this);">Flag</a>
+                                    <input type="hidden" name="flag" value="" />
+                                </div>
+                            </div>
                         <?php } ?>
 
                         <?php if(strpos($task_fields, ',Send Alert,') !== FALSE) { ?>
@@ -1489,7 +1527,7 @@ function mark_done(sel) {
                         $query_check_credentials = "SELECT * FROM tasklist_time WHERE tasklistid='$tasklistid' ORDER BY time_id DESC";
                         $result = mysqli_query($dbc, $query_check_credentials);
                         $num_rows = mysqli_num_rows($result);
-                        if($num_rows > 0) {
+                        //if($num_rows > 0) {
                             echo "<table class='table table-bordered'>
                             <tr>
                             <th>Time</th>
@@ -1497,6 +1535,16 @@ function mark_done(sel) {
                             <th>Date</th>
                             <th>Uploaded By</th>
                             </tr>";
+
+                            if($task_estimatedtime != '00:00:00') {
+                            echo '<tr>';
+                            echo '<td data-title="Document">'.$task_estimatedtime.'</td>';
+                            echo '<td data-title="Document">Estimated Time</td>';
+                            echo '<td data-title="Date">'.$task_updateddate.'</td>';
+                            echo '<td data-title="Uploaded By">'.get_staff($dbc, $task_updatedby).'</td>';
+                            echo '</tr>';
+                            }
+
                             while($row = mysqli_fetch_array($result)) {
                                 echo '<tr>';
                                 echo '<td data-title="Document">'.$row['work_time'].'</td>';
@@ -1510,11 +1558,16 @@ function mark_done(sel) {
                                 echo '</tr>';
                             }
                             echo '</table>';
-                        }
+                        //}
                     } ?>
 
-
             <?php if(strpos($task_fields, ',Add Time,') !== FALSE) { ?>
+            <div class="form-group clearfix">
+                <label for="first_name" class="col-sm-4"><?php echo (strpos($task_mandatory_fields, ',Add Time,') !== FALSE ? '<font color="red">* </font>' : ''); ?>Estimated Time:</label>
+                <div class="col-sm-8">
+                    <input name="task_estimated_time" type="text" value="00:00" class="<?php echo (strpos($task_mandatory_fields, ',Add Time,') !== FALSE ? 'required' : ''); ?> timepicker form-control" onchange="quick_estimated_time(this);" />
+                </div>
+            </div>
 
             <div class="form-group clearfix">
                 <label for="first_name" class="col-sm-4"><?php echo (strpos($task_mandatory_fields, ',Add Time,') !== FALSE ? '<font color="red">* </font>' : ''); ?>Add Time:</label>

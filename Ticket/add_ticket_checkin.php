@@ -166,7 +166,7 @@ foreach ($field_sort_order as $field_sort_order) {
 											<label class="col-sm-4">Dosage</label>
 											<label class="col-sm-3">Time</label>
 										</div>
-										<?php 
+										<?php
 										if (strpos($value_config, ',Medication Multiple Days,') !== false) {
 											if(!empty($get_ticket['to_do_date'])) {
 												$ticket_start_date = $get_ticket['to_do_date'];

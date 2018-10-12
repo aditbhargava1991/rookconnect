@@ -229,7 +229,7 @@ $result = mysqli_query($dbc, "SELECT * FROM invoice_lines WHERE invoiceid='$invo
 $num_rows3 = mysqli_num_rows($result);
 if($num_rows3 > 0) {
 	if($num_rows > 0 || $num_rows2 > 0) { $html .= '<br>'; }
-	
+
     $html .= '<h3>Product(s)</h3><table border="0" cellpadding="2">';
         while ( $row=mysqli_fetch_array($result) ) {
             $inventoryid = $row['item_id'];
@@ -260,7 +260,7 @@ $result = mysqli_query($dbc, "SELECT * FROM invoice_lines WHERE invoiceid='$invo
 $num_rows4 = mysqli_num_rows($result);
 if($num_rows4 > 0) {
 	if($num_rows > 0 || $num_rows2 > 0 || $num_rows3 > 0) { $html .= '<br>'; }
-	
+
     $html .= '<h3>Service(s)</h3><table border="0" cellpadding="2">';
         while ( $row=mysqli_fetch_array($result) ) {
             $inventoryid = $row['item_id'];
