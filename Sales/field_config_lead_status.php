@@ -26,7 +26,7 @@ function saveFields() {
 		url: 'sales_ajax_all.php?action=setting_lead_status',
         data: {
             sales_lead_status: $('[name=sales_lead_status]').val(),
-            lead_status_defualt: $('[name=lead_status_default]').val(),
+            lead_status_default: $('[name=lead_status_default]').val(),
             lead_status_won: $('[name=lead_status_won]').val(),
             lead_status_lost: $('[name=lead_status_lost]').val(),
             lead_status_retained: $('[name=lead_status_retained]').val(),
