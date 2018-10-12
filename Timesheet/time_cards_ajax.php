@@ -306,7 +306,7 @@ else if($_GET['action'] == 'stop_holiday_update_noti') {
             $approval_status = 'Paid';
         }
 
-        $comment_history .= $session_user.' updated status to '.$approval_status.'.<br>';
+        //$comment_history .= $session_user.' updated status to '.$approval_status.'.<br>';
         $dbc->query("UPDATE `time_cards` SET `approv`='$value', `approve_by` = '$approve_by', `approve_date` = '$approve_date', `comment_box` = '".$time_card['comment_box'].htmlentities($comment_history)."' WHERE `staff`='$staff' AND `date`='$date' AND IFNULL(`business`,'') LIKE '%$siteid%' AND `approv`='$prior' AND `deleted`=0");
         return;
     }
