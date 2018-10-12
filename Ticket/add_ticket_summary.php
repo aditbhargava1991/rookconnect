@@ -75,10 +75,15 @@ if(basename($_SERVER['SCRIPT_FILENAME']) == 'add_ticket_summary.php') {
 	$renamed_accordion = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_ticket_accordion_names` WHERE `ticket_type` = '".(empty($get_ticket['ticket_type']) ? 'tickets' : 'tickets_'.$get_ticket['ticket_type'])."' AND `accordion` = '".$sort_field."'"))['accordion_name'];
 }
 
-echo 'my - '.$_GET['date'];
+echo 'my - '.$_GET['current_date'];
 
 if(!empty($_GET['date'])) {
 	$current_date = filter_var($_GET['date'],FILTER_SANITIZE_STRING);
+	$query_daily = " AND `date_stamp`='".$current_date."' ";
+}
+
+if(!empty($_GET['current_date'])) {
+	$current_date = filter_var($_GET['current_date'],FILTER_SANITIZE_STRING);
 	$query_daily = " AND `date_stamp`='".$current_date."' ";
 }
 
