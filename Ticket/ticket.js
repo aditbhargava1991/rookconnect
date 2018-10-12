@@ -102,6 +102,11 @@ $(document).on('click', 'img[src*="remove.png"][data-history-label]', function()
 	var section = $(this).closest('.tab-section').find('h3').first().text();
 	addClickHistory('Remove', label, section);
 });
+$(document).on('click', '[data-history-label]:not([src*="remove.png"],[src*="ROOK-add-icon.png"])', function() {
+	var label = $(this).data('history-label');
+	var section = $(this).closest('.tab-section').find('h3').first().text();
+	addClickHistory('Function', label, section);
+});
 function addClickHistory(icon, label, section) {
 	$.ajax({
 		url: '../Ticket/ticket_ajax_all.php?action=ticket_click_history',

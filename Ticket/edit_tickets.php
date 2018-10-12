@@ -2826,31 +2826,31 @@ var setHeading = function() {
 		<div class="clearfix"></div>
 		<div class="gap-top add_gap_here">
 			<?php if(strpos($value_config,',Finish Button Hide,') === FALSE && !isset($_GET['intake_key'])) { ?>
-				<a href="index.php" class="pull-right btn brand-btn finish_btn" onclick="<?= $update_time == 'auto_sort' && $ticketid > 0 && $_GET['new_ticket'] != 'true' && $_GET['action_mode'] == 1 ? "if(sorting_done != 2) { return getDriveTime(this, '".date('Y-m-d')."', '".($stopid > 0 ? get_field_value('equipmentid','ticket_schedule','id',$stopid) : $get_ticket['equipmentid'])."'); }" : '' ?><?= (strpos($value_config, ','."Timer".',') !== FALSE) ? 'stopTimers();' : '' ?><?= (strpos($value_config, ','."Check Out".',') !== FALSE || strpos($value_config, ','."Complete Combine Checkout Summary".',') !== FALSE) ? 'return checkoutAll(this);' : '' ?>" <?= strpos($value_config, ','."Finish Check Out Require Signature".',') !== FALSE ? 'data-require-signature="1"' : '' ?> <?= strpos($value_config, ','."Finish Create Recurring Ticket".',') !== FALSE ? 'data-recurring-ticket="1"' : '' ?>>Finish</a>
+				<a href="index.php" class="pull-right btn brand-btn finish_btn" data-history-label="Finish <?= TICKET_NOUN ?>" onclick="<?= $update_time == 'auto_sort' && $ticketid > 0 && $_GET['new_ticket'] != 'true' && $_GET['action_mode'] == 1 ? "if(sorting_done != 2) { return getDriveTime(this, '".date('Y-m-d')."', '".($stopid > 0 ? get_field_value('equipmentid','ticket_schedule','id',$stopid) : $get_ticket['equipmentid'])."'); }" : '' ?><?= (strpos($value_config, ','."Timer".',') !== FALSE) ? 'stopTimers();' : '' ?><?= (strpos($value_config, ','."Check Out".',') !== FALSE || strpos($value_config, ','."Complete Combine Checkout Summary".',') !== FALSE) ? 'return checkoutAll(this);' : '' ?>" <?= strpos($value_config, ','."Finish Check Out Require Signature".',') !== FALSE ? 'data-require-signature="1"' : '' ?> <?= strpos($value_config, ','."Finish Create Recurring Ticket".',') !== FALSE ? 'data-recurring-ticket="1"' : '' ?>>Finish</a>
 			<?php } ?>
 			<?php if($access_any && !isset($_GET['intake_key'])) { ?>
 				<a href="<?= $back_url ?>" class="pull-right gap-right"><img class="no-toggle" src="<?= WEBSITE_URL ?>/img/icons/save.png" alt="Save" width="36" title="Save" /></a>
 				<?php if($hide_trash_icon != 1) { ?><a href="<?php echo $back_url; ?>" class="pull-left gap-left" onclick="<?= strpos($value_config, ',Delete Button Add Note,') ? 'dialogDeleteNote(this); return false;' : 'return archive();' ?>"><img class="no-toggle" src="<?= WEBSITE_URL; ?>/img/icons/ROOK-trash-icon.png" alt="Archive" width="36" title="Archive" /></a><?php } ?>
 
 				<?php if(strpos($value_config,',Create Recurrence Button,') !== FALSE && $_GET['action_mode'] != 1 && $_GET['overview_mode'] != 1) { ?>
-					<a href="<?= $back_url ?>" class="pull-right btn brand-btn" onclick="dialogCreateRecurrence(this); return false">Create Recurrence</a>
+					<a href="<?= $back_url ?>" class="pull-right btn brand-btn" data-history-label="Create Recurrence" onclick="dialogCreateRecurrence(this); return false">Create Recurrence</a>
 				<?php } ?>
 
 				<?php if(strpos($value_config,',Additional,') !== FALSE) { ?>
-					<a href="index.php?edit=0&addition_to=current_ticket" class="pull-right addition_button btn brand-btn" onclick="return addition();">Additional</a>
+					<a href="index.php?edit=0&addition_to=current_ticket" class="pull-right addition_button btn brand-btn" data-history-label="Create Addition" onclick="return addition();">Additional</a>
 				<?php } ?>
 				<?php if(strpos($value_config,',Multiple,') !== FALSE) { ?>
-					<a href="index.php?edit=0&addition_to=current_ticket" class="pull-right multiple_button btn brand-btn" onclick="return multiple_tickets($('[name=multiple_ticket_count]').val(), ticketid);">Multiple <?= TICKET_TILE ?></a>
+					<a href="index.php?edit=0&addition_to=current_ticket" class="pull-right multiple_button btn brand-btn" data-history-label="Create Multiple" onclick="return multiple_tickets($('[name=multiple_ticket_count]').val(), ticketid);">Multiple <?= TICKET_TILE ?></a>
 					<div class="col-sm-1 pull-right"><input type="number" value="1" min="1" step="1" class="form-control" name="multiple_ticket_count"></div>
 				<?php } ?>
 				<?php $pdfs = $dbc->query("SELECT `id`, `pdf_name`, `target` FROM `ticket_pdf` WHERE `deleted`=0 AND CONCAT(',',IFNULL(NULLIF(`ticket_types`,''),'$ticket_type'),',') LIKE '%,$ticket_type,%'");
 				while($pdf = $pdfs->fetch_assoc()) { ?>
-					<a href="../Ticket/index.php?custom_form=<?= $pdf['id'] ?>&ticketid=<?= $ticketid > 0 ? $ticketid : '' ?>" target="_blank" class="pull-right btn brand-btn margin-horizontal" data-target="<?= $pdf['target'] ?>" onclick="fillCustomForm(this); return false;"><?= $pdf['pdf_name'] ?></a>
+					<a href="../Ticket/index.php?custom_form=<?= $pdf['id'] ?>&ticketid=<?= $ticketid > 0 ? $ticketid : '' ?>" target="_blank" data-history-label="Create <?= $pdf['pdf_name'] ?> from <?= TICKET_NOUN ?>" class="pull-right btn brand-btn margin-horizontal" data-target="<?= $pdf['target'] ?>" onclick="fillCustomForm(this); return false;"><?= $pdf['pdf_name'] ?></a>
 				<?php } ?>
 			<?php } ?>
 			<?php if(strpos($value_config,',Export Ticket Log,') !== FALSE && !empty($ticketid) && !isset($_GET['intake_key'])) {
 				$ticket_log_template = !empty(get_config($dbc, 'ticket_log_template')) ? get_config($dbc, 'ticket_log_template') : 'template_a'; ?>
-				<a href="../Ticket/ticket_log_templates/<?= $ticket_log_template ?>_pdf.php?ticketid=<?= $ticketid > 0 ? $ticketid : '' ?>" target="_blank" class="pull-right btn brand-btn">Export <?= TICKET_NOUN ?> Log</a>
+				<a href="../Ticket/ticket_log_templates/<?= $ticket_log_template ?>_pdf.php?ticketid=<?= $ticketid > 0 ? $ticketid : '' ?>" target="_blank" data-history-label="Export <?= TICKET_NOUN ?> Log" class="pull-right btn brand-btn">Export <?= TICKET_NOUN ?> Log</a>
 			<?php } ?>
 			<div class="clearfix"></div>
 		</div>
@@ -3445,31 +3445,31 @@ var setHeading = function() {
 			<?php } ?>
 			<div class="gap-top add_gap_here" <?= $calendar_ticket_slider == 'accordion' ? 'style="display:none;"' : '' ?>>
 				<?php if(strpos($value_config,',Finish Button Hide,') === FALSE && !isset($_GET['intake_key'])) { ?>
-					<a href="<?= empty($ticket_next_step_timesheet) || !($ticketid > 0) || $_GET['new_ticket'] == 'true' || $_GET['action_mode'] == 0 ? 'index.php' : 'next_ticket_step.php?action_mode='.$_GET['action_mode'] ?>" <?= empty($ticket_next_step_timesheet) || !($ticketid > 0) || $_GET['new_ticket'] == 'true' ? '' : 'target="_top"' ?> class="pull-right btn brand-btn finish_btn" onclick="<?= $update_time == 'auto_sort' && ($ticketid > 0) && $_GET['new_ticket'] != 'true' && $_GET['action_mode'] == 1 ? "if(sorting_done != 2) { return getDriveTime(this, '".date('Y-m-d')."', '".($stopid > 0 ? get_field_value('equipmentid','ticket_schedule','id',$stopid) : $get_ticket['equipmentid'])."'); }" : '' ?><?= (strpos($value_config, ','."Timer".',') !== FALSE) ? 'stopTimers();' : '' ?><?= (strpos($value_config, ','."Check Out".',') !== FALSE || strpos($value_config, ','."Complete Combine Checkout Summary".',') !== FALSE) ? 'return checkoutAll(this);' : '' ?>" <?= strpos($value_config, ','."Finish Check Out Require Signature".',') !== FALSE ? 'data-require-signature="1"' : '' ?> <?= strpos($value_config, ','."Finish Create Recurring Ticket".',') !== FALSE ? 'data-recurring-ticket="1"' : '' ?>>Finish</a>
+					<a href="<?= empty($ticket_next_step_timesheet) || !($ticketid > 0) || $_GET['new_ticket'] == 'true' || $_GET['action_mode'] == 0 ? 'index.php' : 'next_ticket_step.php?action_mode='.$_GET['action_mode'] ?>" <?= empty($ticket_next_step_timesheet) || !($ticketid > 0) || $_GET['new_ticket'] == 'true' ? '' : 'target="_top"' ?> class="pull-right btn brand-btn finish_btn" data-history-label="Finish <?= TICKET_NOUN ?>" onclick="<?= $update_time == 'auto_sort' && ($ticketid > 0) && $_GET['new_ticket'] != 'true' && $_GET['action_mode'] == 1 ? "if(sorting_done != 2) { return getDriveTime(this, '".date('Y-m-d')."', '".($stopid > 0 ? get_field_value('equipmentid','ticket_schedule','id',$stopid) : $get_ticket['equipmentid'])."'); }" : '' ?><?= (strpos($value_config, ','."Timer".',') !== FALSE) ? 'stopTimers();' : '' ?><?= (strpos($value_config, ','."Check Out".',') !== FALSE || strpos($value_config, ','."Complete Combine Checkout Summary".',') !== FALSE) ? 'return checkoutAll(this);' : '' ?>" <?= strpos($value_config, ','."Finish Check Out Require Signature".',') !== FALSE ? 'data-require-signature="1"' : '' ?> <?= strpos($value_config, ','."Finish Create Recurring Ticket".',') !== FALSE ? 'data-recurring-ticket="1"' : '' ?>>Finish</a>
 				<?php } ?>
 				<?php if($access_any && !isset($_GET['intake_key'])) { ?>
-					<a href="<?= $back_url ?>" class="pull-right gap-right"><img class="no-toggle" src="<?= WEBSITE_URL ?>/img/icons/save.png" alt="Save" width="36" title="Save" /></a>
-					<?php if($hide_trash_icon != 1) { ?><a href="<?php echo $back_url; ?>" class="pull-left gap-left" onclick="<?= strpos($value_config, ',Delete Button Add Note,') ? 'dialogDeleteNote(this); return false;' : 'return archive();' ?>"><img class="no-toggle" src="<?= WEBSITE_URL; ?>/img/icons/ROOK-trash-icon.png" alt="Archive" title="Archive" width="36" /></a><?php } ?>
+					<a href="<?= $back_url ?>" class="pull-right gap-right"><img class="no-toggle" src="<?= WEBSITE_URL ?>/img/icons/save.png" alt="Save" width="36" data-history-label="Save <?= TICKET_NOUN ?>" title="Save" /></a>
+					<?php if($hide_trash_icon != 1) { ?><a href="<?php echo $back_url; ?>" class="pull-left gap-left" data-history-label="Archive <?= TICKET_NOUN ?>" onclick="<?= strpos($value_config, ',Delete Button Add Note,') ? 'dialogDeleteNote(this); return false;' : 'return archive();' ?>"><img class="no-toggle" src="<?= WEBSITE_URL; ?>/img/icons/ROOK-trash-icon.png" alt="Archive" title="Archive" width="36" /></a><?php } ?>
 
 					<?php if(strpos($value_config,',Create Recurrence Button,') !== FALSE && $_GET['action_mode'] != 1 && $_GET['overview_mode'] != 1) { ?>
-						<a href="<?= $back_url ?>" class="pull-right btn brand-btn" onclick="dialogCreateRecurrence(this); return false">Create Recurrence</a>
+						<a href="<?= $back_url ?>" class="pull-right btn brand-btn" data-history-label="Create Recurrence" onclick="dialogCreateRecurrence(this); return false">Create Recurrence</a>
 					<?php } ?>
 
 					<?php if(strpos($value_config,',Additional,') !== FALSE) { ?>
-						<a href="index.php?edit=0&addition_to=current_ticket" class="pull-right addition_button btn brand-btn" onclick="return addition();">Additional</a>
+						<a href="index.php?edit=0&addition_to=current_ticket" class="pull-right addition_button btn brand-btn" data-history-label="Create Addition" onclick="return addition();">Additional</a>
 					<?php } ?>
 					<?php if(strpos($value_config,',Multiple,') !== FALSE) { ?>
-						<a href="index.php?edit=0&addition_to=current_ticket" class="pull-right multiple_button btn brand-btn" onclick="return multiple_tickets($('[name=multiple_ticket_count]').val(), ticketid);">Multiple <?= TICKET_TILE ?></a>
+						<a href="index.php?edit=0&addition_to=current_ticket" class="pull-right multiple_button btn brand-btn" data-history-label="Create Multiple" onclick="return multiple_tickets($('[name=multiple_ticket_count]').val(), ticketid);">Multiple <?= TICKET_TILE ?></a>
 						<div class="col-sm-1 pull-right"><input type="number" value="1" min="1" step="1" class="form-control" name="multiple_ticket_count"></div>
 					<?php } ?>
 					<?php $pdfs = $dbc->query("SELECT `id`, `pdf_name`, `target` FROM `ticket_pdf` WHERE `deleted`=0 AND CONCAT(',',IFNULL(NULLIF(`ticket_types`,''),'$ticket_type'),',') LIKE '%,$ticket_type,%'");
 					while($pdf = $pdfs->fetch_assoc()) { ?>
-						<a href="../Ticket/index.php?custom_form=<?= $pdf['id'] ?>&ticketid=<?= $ticketid > 0 ? $ticketid : '' ?>" target="_blank" class="pull-right btn brand-btn margin-horizontal" data-target="<?= $pdf['target'] ?>" onclick="fillCustomForm(this); return false;"><?= $pdf['pdf_name'] ?></a>
+						<a href="../Ticket/index.php?custom_form=<?= $pdf['id'] ?>&ticketid=<?= $ticketid > 0 ? $ticketid : '' ?>" target="_blank" data-history-label="Create <?= $pdf['pdf_name'] ?> from <?= TICKET_NOUN ?>" class="pull-right btn brand-btn margin-horizontal" data-target="<?= $pdf['target'] ?>" onclick="fillCustomForm(this); return false;"><?= $pdf['pdf_name'] ?></a>
 					<?php } ?>
 				<?php } ?>
 				<?php if(strpos($value_config,',Export Ticket Log,') !== FALSE && !empty($ticketid) && !isset($_GET['intake_key'])) {
 					$ticket_log_template = !empty(get_config($dbc, 'ticket_log_template')) ? get_config($dbc, 'ticket_log_template') : 'template_a'; ?>
-					<a href="../Ticket/ticket_log_templates/<?= $ticket_log_template ?>_pdf.php?ticketid=<?= $ticketid > 0 ? $ticketid : '' ?>" target="_blank" class="pull-right btn brand-btn">Export <?= TICKET_NOUN ?> Log</a>
+					<a href="../Ticket/ticket_log_templates/<?= $ticket_log_template ?>_pdf.php?ticketid=<?= $ticketid > 0 ? $ticketid : '' ?>" target="_blank" data-history-label="Export <?= TICKET_NOUN ?> Log" class="pull-right btn brand-btn">Export <?= TICKET_NOUN ?> Log</a>
 				<?php } ?>
 				<div class="clearfix"></div>
 			</div>

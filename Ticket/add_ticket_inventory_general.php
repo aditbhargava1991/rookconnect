@@ -203,7 +203,7 @@ if(strpos($value_config,',Inventory General Shipment Count Weight,') !== FALSE) 
 					</select>
 				</div>
 				<?php if(strpos($value_config,',Inventory General Manual Add Pieces,') !== FALSE) { ?>
-					<button class="btn brand-btn pull-right" onclick="addPieces(this); return false;">Add Pieces</button>
+					<button class="btn brand-btn pull-right" data-history-label="Update Piece Count Manually" onclick="addPieces(this); return false;">Add Pieces</button>
 				<?php } ?>
 			</div>
 		</div>
