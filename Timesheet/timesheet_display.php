@@ -270,6 +270,11 @@ var useProfileSig = function(chk) {
             <?php if(strpos($timesheet_payroll_fields, ',Mileage,') !== FALSE) { ?><th style='text-align:center; vertical-align:bottom; width:2em;'><div>Mileage</div></th><?php } ?>
             <?php if(strpos($timesheet_payroll_fields, ',Mileage Rate,') !== FALSE) { ?><th style='text-align:center; vertical-align:bottom; width:2em;'><div>Mileage Rate</div></th><?php } ?>
             <?php if(strpos($timesheet_payroll_fields, ',Mileage Total,') !== FALSE) { ?><th style='text-align:center; vertical-align:bottom; width:2em;'><div>Mileage Total</div></th><?php } ?>
+
+            <?php if($timesheet_approval_status_comments == 1) { ?><th style='text-align:center; vertical-align:bottom; width:5em;'><div>Status</div></th><?php } ?>
+            <?php if($timesheet_approval_initials == 1) { ?><th style='text-align:center; vertical-align:bottom; width:5em;'><div>Approved By</div></th><?php } ?>
+            <?php if($timesheet_approval_date == 1) { ?><th style='text-align:center; vertical-align:bottom; width:5em;'><div>Approved Date</div></th><?php } ?>
+
             <?php // if(in_array('comment_box',$value_config)) { ?><th style='text-align:center; vertical-align:bottom;'><div>Function</div></th><?php //} ?>
             <?php if($current_page == 'time_cards.php' && in_array('signature',$value_config)) { ?><th style="width:6em;"><div>Parent/Guardian Signature</div></th><?php } ?>
             <?php if($current_page != 'time_cards.php') { ?><th style="width:6em;"><span class="popover-examples list-inline tooltip-navigation"><a style="top:0;" class="info_i_sm" data-toggle="tooltip" data-placement="top" title=""
@@ -294,7 +299,7 @@ var useProfileSig = function(chk) {
             SUM(IF(`type_of_time`='Vac Hrs.',`total_hrs`,0)) VACA_AVAIL, SUM(IF(`type_of_time`='Vac Hrs.Taken',`total_hrs`,0)) VACA_HRS,
             SUM(IF(`type_of_time`='Direct Hrs.',`total_hrs`,0)) DIRECT_HRS, SUM(IF(`type_of_time`='Indirect Hrs.',`total_hrs`,0)) INDIRECT_HRS,
             SUM(`highlight`) HIGHLIGHT, SUM(`manager_highlight`) MANAGER,
-            GROUP_CONCAT(DISTINCT `comment_box` SEPARATOR ', ') COMMENTS, SUM(`timer_tracked`) TRACKED_HRS, SUM(IF(`type_of_time`='Break',`total_hrs`,0)) BREAKS, `type_of_time`, `ticket_attached_id`, `ticketid`, `start_time`, `end_time`, `approv`
+            GROUP_CONCAT(DISTINCT `comment_box` SEPARATOR ', ') COMMENTS, SUM(`timer_tracked`) TRACKED_HRS, SUM(IF(`type_of_time`='Break',`total_hrs`,0)) BREAKS, `type_of_time`, `ticket_attached_id`, `ticketid`, `start_time`, `end_time`, `approv`, `approve_by`, `approve_date`
             FROM `time_cards` WHERE `staff`='$search_staff' AND `date` >= '$search_start_date' AND `date` <= '$search_end_date' AND IFNULL(`business`,'') LIKE '%$search_site%' $sql_approv AND `deleted`=0 GROUP BY `date`";
         $post_i = '';
         if(in_array($layout,['position_dropdown', 'ticket_task','multi_line'])) {
@@ -387,6 +392,14 @@ var useProfileSig = function(chk) {
                 } else if($current_page != 'time_cards.php' && $current_page != 'payroll.php' && $approv != 'N') {
                     $mod = 'readonly';
                 }
+                if($approv == 'N') {
+                    $approval_status = 'Pending';
+                } else if($approv == 'Y') {
+                    $approval_status = 'Approved';
+                } else if($approv == 'P') {
+                    $approval_status = 'Paid';
+                }
+
                 if(in_array($layout,['position_dropdown', 'ticket_task','multi_line'])) {
                     switch($time_type) {
                         case 'Direct Hrs.':
@@ -567,6 +580,11 @@ var useProfileSig = function(chk) {
                 '.(strpos($timesheet_payroll_fields, ',Mileage,') !== FALSE ? '<td data-title="Mileage">'.($mileage > 0 ? number_format($mileage,2) : '0.00').'</td>' : '').'
                 '.(strpos($timesheet_payroll_fields, ',Mileage Rate,') !== FALSE ? '<td data-title="Mileage Rate">$'.($mileage_rate > 0 ? number_format($mileage_rate,2) : '0.00').'</td>' : '').'
                 '.(strpos($timesheet_payroll_fields, ',Mileage Total,') !== FALSE ? '<td data-title="Mileage Total">$'.($mileage_cost > 0 ? number_format($mileage_cost,2) : '0.00').'</td>' : '').'
+
+                '.($timesheet_approval_status_comments == 1 ? '<td data-title="Status">'.$approval_status.'</td>' : '').'
+                '.($timesheet_approval_initials == 1 ? '<td data-title="Approval">'.get_contact($dbc, $row['approve_by']).'</td>' : '').'
+                '.($timesheet_approval_date == 1 ? '<td data-title="Approval Date">'.$row['approve_date'].'</td>' : '').'
+
                 '.(in_array('comment_box',$value_config) ? '<td data-title="Comments"><span>'.$comments.'</span><img class="inline-img comment-row pull-right no-toggle" src="../img/icons/ROOK-reply-icon.png" title="Add Note"><input type="text" class="form-control" name="comment_box" value="'.$row['COMMENTS'].'" style="display:none;">'.($current_page != 'time_cards.php' && $mod == 'readonly' && $approv == 'Y' ? '<img class="inline-img edit-row pull-right no-toggle" src="../img/icons/ROOK-edit-icon.png" title="Edit">' : '').(in_array($layout,['multi_line','ticket_task','position_dropdown']) ? '<img class="inline-img rem-row pull-right" src="../img/remove.png"><img class="inline-img add-row pull-right no-toggle" src="../img/icons/ROOK-add-icon.png" title="Edit">' : '').'</td>' : '').'
                 '.(in_array('signature',$value_config) && $current_page == 'time_cards.php' ? '<td data-title="Signature" style="text-align:center" class="'.($show_separator==1 ? 'theme-color-border-bottom' : '').'">'.(!empty($all_signatures[$date]) ? '<img src="../Timesheet/download/'.$all_signatures[$date].'" style="height: 50%; width: auto;">' : ($security['edit'] > 0 ? '<label class="form-checkbox"><input type="checkbox" name="add_signature" onclick="addSignature(this);" value="'.$date.'"></label>' : '')).'</td>' : '').'
                 '.($current_page != 'time_cards.php' ? '<td data-title="Select to Mark Paid"><label '.($mod == 'readonly' ? 'class="readonly-block"' : '').'><input type="checkbox" name="approv" data-uncheck="'.($current_page == 'payroll.php' ? 'Y' : 'N').'" value="'.($current_page == 'payroll.php' ? 'P' : 'Y').'" '.($mod == 'readonly' ? ($current_page == 'payroll.php' && $approv == 'P' ? 'checked' : ($current_page != 'payroll.php' && $approv == 'Y' ? 'checked' : '')).' readonly' : '').' /></label><img src="../img/empty.png" class="statusIcon inline-img no-toggle no-margin"></td>' : '');
