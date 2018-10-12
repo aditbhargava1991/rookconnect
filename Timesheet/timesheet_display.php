@@ -231,10 +231,11 @@ var useProfileSig = function(chk) {
             <?php if(strpos($timesheet_payroll_fields, ',Mileage Rate,') !== FALSE) { ?><th style='text-align:center;'></th><?php } ?>
             <?php if(strpos($timesheet_payroll_fields, ',Mileage Total,') !== FALSE) { ?><th style='text-align:center;'></th><?php } ?>
             <?php if(strpos($timesheet_payroll_fields, ',Mileage Total,') !== FALSE) { ?><td style='text-align:center;'></td><?php } ?>
-
+            <?php if($current_page != 'time_cards.php') { ?>
             <?php if($timesheet_approval_status_comments == 1) { ?><td style='text-align:center;'></td><?php } ?>
             <?php if($timesheet_approval_initials == 1) { ?><td style='text-align:center;'></td><?php } ?>
             <?php if($timesheet_approval_date == 1) { ?><td style='text-align:center;'></td><?php } ?>
+            <?php } ?>
             <td colspan="<?= (in_array('comment_box',$value_config) ? 1 : 0) + ($current_page != 'time_cards.php' ? 1 : (in_array('signature',$value_config) ? 1 : 0)) ?>"></td>
         </tr>
         <tr class='hidden-xs hidden-sm'>
@@ -276,9 +277,11 @@ var useProfileSig = function(chk) {
             <?php if(strpos($timesheet_payroll_fields, ',Mileage Rate,') !== FALSE) { ?><th style='text-align:center; vertical-align:bottom; width:2em;'><div>Mileage Rate</div></th><?php } ?>
             <?php if(strpos($timesheet_payroll_fields, ',Mileage Total,') !== FALSE) { ?><th style='text-align:center; vertical-align:bottom; width:2em;'><div>Mileage Total</div></th><?php } ?>
 
+            <?php if($current_page != 'time_cards.php') { ?>
             <?php if($timesheet_approval_status_comments == 1) { ?><th style='text-align:center; vertical-align:bottom; width:5em;'><div>Status</div></th><?php } ?>
             <?php if($timesheet_approval_initials == 1) { ?><th style='text-align:center; vertical-align:bottom; width:5em;'><div>Approved By</div></th><?php } ?>
             <?php if($timesheet_approval_date == 1) { ?><th style='text-align:center; vertical-align:bottom; width:5em;'><div>Approved Date</div></th><?php } ?>
+            <?php } ?>
 
             <?php // if(in_array('comment_box',$value_config)) { ?><th style='text-align:center; vertical-align:bottom;'><div>Function</div></th><?php //} ?>
             <?php if($current_page == 'time_cards.php' && in_array('signature',$value_config)) { ?><th style="width:6em;"><div>Parent/Guardian Signature</div></th><?php } ?>
@@ -586,13 +589,15 @@ var useProfileSig = function(chk) {
                 '.(strpos($timesheet_payroll_fields, ',Expenses Owed,') !== FALSE ? '<td data-title="Expenses Owed">$'.($expenses_owed > 0 ? number_format($expenses_owed,2) : '0.00').'</td>' : '').'
                 '.(strpos($timesheet_payroll_fields, ',Mileage,') !== FALSE ? '<td data-title="Mileage">'.($mileage > 0 ? number_format($mileage,2) : '0.00').'</td>' : '').'
                 '.(strpos($timesheet_payroll_fields, ',Mileage Rate,') !== FALSE ? '<td data-title="Mileage Rate">$'.($mileage_rate > 0 ? number_format($mileage_rate,2) : '0.00').'</td>' : '').'
-                '.(strpos($timesheet_payroll_fields, ',Mileage Total,') !== FALSE ? '<td data-title="Mileage Total">$'.($mileage_cost > 0 ? number_format($mileage_cost,2) : '0.00').'</td>' : '').'
+                '.(strpos($timesheet_payroll_fields, ',Mileage Total,') !== FALSE ? '<td data-title="Mileage Total">$'.($mileage_cost > 0 ? number_format($mileage_cost,2) : '0.00').'</td>' : '');
 
-                '.($timesheet_approval_status_comments == 1 ? '<td data-title="Status">'.$approval_status.'</td>' : '').'
+                 if($current_page != 'time_cards.php') {
+                    echo ($timesheet_approval_status_comments == 1 ? '<td data-title="Status">'.$approval_status.'</td>' : '').'
                 '.($timesheet_approval_initials == 1 ? '<td data-title="Approval">'.get_contact($dbc, $approve_by).'</td>' : '').'
-                '.($timesheet_approval_date == 1 ? '<td data-title="Approval Date">'.$approve_date.'</td>' : '').'
+                '.($timesheet_approval_date == 1 ? '<td data-title="Approval Date">'.$approve_date.'</td>' : '');
+                 }
 
-                '.(in_array('comment_box',$value_config) ? '<td data-title="Comments"><span>'.$comments.'</span><img class="inline-img comment-row pull-right no-toggle" src="../img/icons/ROOK-reply-icon.png" title="Add Note"><input type="text" class="form-control" name="comment_box" value="'.$row['COMMENTS'].'" style="display:none;">'.($current_page != 'time_cards.php' && $mod == 'readonly' && $approv == 'Y' ? '<img class="inline-img edit-row pull-right no-toggle" src="../img/icons/ROOK-edit-icon.png" title="Edit">' : '').(in_array($layout,['multi_line','ticket_task','position_dropdown']) ? '<img class="inline-img rem-row pull-right" src="../img/remove.png"><img class="inline-img add-row pull-right no-toggle" src="../img/icons/ROOK-add-icon.png" title="Edit">' : '').'</td>' : '').'
+                echo (in_array('comment_box',$value_config) ? '<td data-title="Comments"><span>'.$comments.'</span><img class="inline-img comment-row pull-right no-toggle" src="../img/icons/ROOK-reply-icon.png" title="Add Note"><input type="text" class="form-control" name="comment_box" value="'.$row['COMMENTS'].'" style="display:none;">'.($current_page != 'time_cards.php' && $mod == 'readonly' && $approv == 'Y' ? '<img class="inline-img edit-row pull-right no-toggle" src="../img/icons/ROOK-edit-icon.png" title="Edit">' : '').(in_array($layout,['multi_line','ticket_task','position_dropdown']) ? '<img class="inline-img rem-row pull-right" src="../img/remove.png"><img class="inline-img add-row pull-right no-toggle" src="../img/icons/ROOK-add-icon.png" title="Edit">' : '').'</td>' : '').'
                 '.(in_array('signature',$value_config) && $current_page == 'time_cards.php' ? '<td data-title="Signature" style="text-align:center" class="'.($show_separator==1 ? 'theme-color-border-bottom' : '').'">'.(!empty($all_signatures[$date]) ? '<img src="../Timesheet/download/'.$all_signatures[$date].'" style="height: 50%; width: auto;">' : ($security['edit'] > 0 ? '<label class="form-checkbox"><input type="checkbox" name="add_signature" onclick="addSignature(this);" value="'.$date.'"></label>' : '')).'</td>' : '').'
                 '.($current_page != 'time_cards.php' ? '<td data-title="Select to Mark Paid"><label '.($mod == 'readonly' ? 'class="readonly-block"' : '').'><input type="checkbox" name="approv" data-uncheck="'.($current_page == 'payroll.php' ? 'Y' : 'N').'" value="'.($current_page == 'payroll.php' ? 'P' : 'Y').'" '.($mod == 'readonly' ? ($current_page == 'payroll.php' && $approv == 'P' ? 'checked' : ($current_page != 'payroll.php' && $approv == 'Y' ? 'checked' : '')).' readonly' : '').' /></label><img src="../img/empty.png" class="statusIcon inline-img no-toggle no-margin"></td>' : '');
             echo '</tr>';
@@ -618,11 +623,15 @@ var useProfileSig = function(chk) {
                     '.(strpos($timesheet_payroll_fields, ',Expenses Owed,') !== FALSE ? '<td data-title="Total Expenses Owed">$'.($expenses_owed > 0 ? number_format($expenses_owed,2) : '0.00').'</td>' : '').'
                     '.(strpos($timesheet_payroll_fields, ',Mileage,') !== FALSE ? '<td data-title="Total Mileage">'.($mileage_total > 0 ? number_format($mileage_total,2) : '0.00').'</td>' : '').'
                     '.(strpos($timesheet_payroll_fields, ',Mileage Rate,') !== FALSE ? '<td data-title="Total Mileage Rate">$'.($mileage_rate_total > 0 ? number_format($mileage_rate_total,2) : '0.00').'</td>' : '').'
-                    '.(strpos($timesheet_payroll_fields, ',Mileage Total,') !== FALSE ? '<td data-title="Total Mileage Cost">$'.($mileage_cost_total > 0 ? number_format($mileage_cost_total,2) : '0.00').'</td>' : '').'
-                    '.($timesheet_approval_status_comments == 1 ? '<td data-title="Status"></td>' : '').'
+                    '.(strpos($timesheet_payroll_fields, ',Mileage Total,') !== FALSE ? '<td data-title="Total Mileage Cost">$'.($mileage_cost_total > 0 ? number_format($mileage_cost_total,2) : '0.00').'</td>' : '');
+
+                    if($current_page != 'time_cards.php') {
+                    echo ($timesheet_approval_status_comments == 1 ? '<td data-title="Status"></td>' : '').'
                     '.($timesheet_approval_initials == 1 ? '<td data-title="Approval"></td>' : '').'
-                    '.($timesheet_approval_date == 1 ? '<td data-title="Approval Date"></td>' : '').'
-                    <td data-title="" colspan="'.((in_array('comment_box',$value_config) ? 1 : 0) + ($current_page != 'time_cards.php' ? 1 : (in_array('signature',$value_config) ? 1 : 0))).'"></td>
+                    '.($timesheet_approval_date == 1 ? '<td data-title="Approval Date"></td>' : '');
+                    }
+
+                    echo '<td data-title="" colspan="'.((in_array('comment_box',$value_config) ? 1 : 0) + ($current_page != 'time_cards.php' ? 1 : (in_array('signature',$value_config) ? 1 : 0))).'"></td>
                 </tr>';
             }
             if(!in_array($layout,['position_dropdown', 'ticket_task','multi_line']) || $date != $row['date']) {
@@ -653,11 +662,15 @@ var useProfileSig = function(chk) {
             '.(strpos($timesheet_payroll_fields, ',Expenses Owed,') !== FALSE ? '<td data-title="Total Expenses Owed">$'.($expenses_owed > 0 ? number_format($expenses_owed,2) : '0.00').'</td>' : '').'
             '.(strpos($timesheet_payroll_fields, ',Mileage,') !== FALSE ? '<td data-title="Total Mileage">'.($mileage_total > 0 ? number_format($mileage_total,2) : '0.00').'</td>' : '').'
             '.(strpos($timesheet_payroll_fields, ',Mileage Rate,') !== FALSE ? '<td data-title="Total Mileage Rate">$'.($mileage_rate_total > 0 ? number_format($mileage_rate_total,2) : '0.00').'</td>' : '').'
-            '.(strpos($timesheet_payroll_fields, ',Mileage Total,') !== FALSE ? '<td data-title="Total Mileage Cost">$'.($mileage_cost_total > 0 ? number_format($mileage_cost_total,2) : '0.00').'</td>' : '').'
-            '.($timesheet_approval_status_comments == 1 ? '<td data-title="Status"></td>' : '').'
+            '.(strpos($timesheet_payroll_fields, ',Mileage Total,') !== FALSE ? '<td data-title="Total Mileage Cost">$'.($mileage_cost_total > 0 ? number_format($mileage_cost_total,2) : '0.00').'</td>' : '');
+
+            if($current_page != 'time_cards.php') {
+           echo ($timesheet_approval_status_comments == 1 ? '<td data-title="Status"></td>' : '').'
             '.($timesheet_approval_initials == 1 ? '<td data-title="Approval"></td>' : '').'
-            '.($timesheet_approval_date == 1 ? '<td data-title="Approval Date"></td>' : '').'
-            <td data-title="" colspan="'.((in_array('comment_box',$value_config) ? 1 : 0) + ($current_page != 'time_cards.php' ? 1 : (in_array('signature',$value_config) ? 1 : 0))).'"></td>
+            '.($timesheet_approval_date == 1 ? '<td data-title="Approval Date"></td>' : '');
+            }
+
+            echo '<td data-title="" colspan="'.((in_array('comment_box',$value_config) ? 1 : 0) + ($current_page != 'time_cards.php' ? 1 : (in_array('signature',$value_config) ? 1 : 0))).'"></td>
         </tr>';
         echo '<tr>
             <td colspan="'.$colspan.'">Year-to-date Totals</td>
@@ -680,11 +693,15 @@ var useProfileSig = function(chk) {
             '.(strpos($timesheet_payroll_fields, ',Expenses Owed,') !== FALSE ? '<td data-title=""></td>' : '').'
             '.(strpos($timesheet_payroll_fields, ',Mileage,') !== FALSE ? '<td data-title=""></td>' : '').'
             '.(strpos($timesheet_payroll_fields, ',Mileage Rate,') !== FALSE ? '<td data-title=""></td>' : '').'
-            '.(strpos($timesheet_payroll_fields, ',Mileage Total,') !== FALSE ? '<td data-title=""></td>' : '').'
-            '.($timesheet_approval_status_comments == 1 ? '<td data-title="Status"></td>' : '').'
+            '.(strpos($timesheet_payroll_fields, ',Mileage Total,') !== FALSE ? '<td data-title=""></td>' : '');
+
+            if($current_page != 'time_cards.php') {
+            echo ($timesheet_approval_status_comments == 1 ? '<td data-title="Status"></td>' : '').'
             '.($timesheet_approval_initials == 1 ? '<td data-title="Approval"></td>' : '').'
-            '.($timesheet_approval_date == 1 ? '<td data-title="Approval Date"></td>' : '').'
-            <td colspan="'.((in_array('comment_box',$value_config) ? 1 : 0) + ($current_page != 'time_cards.php' ? 1 : (in_array('signature',$value_config) ? 1 : 0))).'"></td>
+            '.($timesheet_approval_date == 1 ? '<td data-title="Approval Date"></td>' : '');
+            }
+
+            echo '<td colspan="'.((in_array('comment_box',$value_config) ? 1 : 0) + ($current_page != 'time_cards.php' ? 1 : (in_array('signature',$value_config) ? 1 : 0))).'"></td>
         </tr>'; ?>
         <?php while($row = mysqli_fetch_array( $result ))
         {
