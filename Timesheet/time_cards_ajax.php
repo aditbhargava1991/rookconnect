@@ -335,8 +335,8 @@ else if($_GET['action'] == 'stop_holiday_update_noti') {
             $approval_status = 'Paid';
         }
 
-        $comment_history .= $session_user.' updated status to '.$approval_status.'.<br>';
-        $dbc->query("UPDATE `time_cards` SET `approv`='$value', `approve_by` = '$approve_by', `approve_date` = '$approve_date', `comment_box` = '".$time_card['comment_box'].htmlentities($comment_history)."' WHERE `time_cards_id`='$id'");
+        $comment_history1 = $session_user.' updated status to '.$approval_status.'.<br>';
+        $dbc->query("UPDATE `time_cards` SET `approv`='$value', `approve_by` = '$approve_by', `approve_date` = '$approve_date', `comment_box` = '".$time_card['comment_box'].htmlentities($comment_history1)."' WHERE `time_cards_id`='$id'");
 
         //$dbc->query("UPDATE `time_cards` SET `$field`='$value' WHERE `time_cards_id`='$id'");
     } else if($id > 0) {
