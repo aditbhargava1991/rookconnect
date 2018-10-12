@@ -293,10 +293,21 @@ else if($_GET['action'] == 'stop_holiday_update_noti') {
     $page = filter_var($_POST['page'],FILTER_SANITIZE_STRING);
 	$comment_history = '';
 	$session_user = get_contact($dbc, $_SESSION['contactid']);
+    $approve_by = $_SESSION['contactid'];
+    $approve_date = date('Y-m-d');
     if($_POST['save_type'] == 'multi' && $field == 'approv') {
         $prior = filter_var($_POST['prior_approv'],FILTER_SANITIZE_STRING);
-        $comment_history .= $session_user.' updated '.$field.' from '.$prior.' to '.$value.'.<br>';
-        $dbc->query("UPDATE `time_cards` SET `approv`='$value', `comment_box` = '".$time_card['comment_box'].htmlentities($comment_history)."' WHERE `staff`='$staff' AND `date`='$date' AND IFNULL(`business`,'') LIKE '%$siteid%' AND `approv`='$prior' AND `deleted`=0");
+
+        if($value == 'N') {
+            $approval_status = 'Pending';
+        } else if($value == 'Y') {
+            $approval_status = 'Approved';
+        } else if($value == 'P') {
+            $approval_status = 'Paid';
+        }
+
+        $comment_history .= $session_user.' updated status to '.$approval_status.'.<br>';
+        $dbc->query("UPDATE `time_cards` SET `approv`='$value', `approve_by` = '$approve_by', `approve_date` = '$approve_date', `comment_box` = '".$time_card['comment_box'].htmlentities($comment_history)."' WHERE `staff`='$staff' AND `date`='$date' AND IFNULL(`business`,'') LIKE '%$siteid%' AND `approv`='$prior' AND `deleted`=0");
         return;
     }
     if(!($id > 0) && $layout == '') {
