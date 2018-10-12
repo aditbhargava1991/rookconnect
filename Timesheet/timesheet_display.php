@@ -171,7 +171,6 @@ var checkTimeOverlaps = function() {
                         if((start_time.getTime() > start_time2.getTime() && start_time.getTime() < end_time2.getTime()) || (end_time.getTime() > start_time2.getTime() && end_time.getTime() < end_time2.getTime())) {
                             $(tr).css('background-color', 'red');
                             $(tr).find('.overlap_time').css("display","block");
-                            //$('tr td .overlap_time').show();
                         }
                     }
                 });
@@ -362,6 +361,8 @@ var useProfileSig = function(chk) {
                     }
                 }
                 $hl_colour = ($row['MANAGER'] > 0 && $mg_highlight != '#000000' && $mg_highlight != '' ? 'background-color:'.$mg_highlight.';' : ($row['HIGHLIGHT'] > 0 && $highlight != '#000000' && $highlight != '' ? 'background-color:'.$highlight.';' : ''));
+
+                echo $hl_colour;
                 $show_separator = 0;
                 $hrs = ['REG'=>$row['REG_HRS'],'DIRECT'=>$row['DIRECT_HRS'],'INDIRECT'=>$row['INDIRCET_HRS'],'EXTRA'=>$row['EXTRA_HRS'],'RELIEF'=>$row['RELIEF_HRS'],'SLEEP'=>$row['SLEEP_HRS'],'SICK_ADJ'=>$row['SICK_ADJ'],
                     'SICK'=>$row['SICK_HRS'],'STAT_AVAIL'=>$row['STAT_AVAIL'],'STAT'=>$row['STAT_HRS'],'VACA_AVAIL'=>$row['VACA_AVAIL'],'VACA'=>$row['VACA_HRS'],'BREAKS'=>$row['BREAKS']];
@@ -555,7 +556,7 @@ var useProfileSig = function(chk) {
                 <input type="hidden" name="ticketid" value="'.$search_ticket.'">
                 <input type="hidden" name="deleted" value="0">
                 <input type="hidden" name="ticketattachedid" value="'.$ticket_attached_id.'">
-                <td data-title="Date" style="text-align:center">'.(in_array('editable_dates',$value_config) ? '<input type="text" name="date" '.$mod.' value="'.$date.'" class="form-control '.($mod != 'readonly' ? 'datepicker' : 'no-datepicker').'">' : $date).'<div class="overlap_time">Overlapping Time Conflict</div></td>
+                <td data-title="Date" style="text-align:center">'.(in_array('editable_dates',$value_config) ? '<input type="text" name="date" '.$mod.' value="'.$date.'" class="form-control '.($mod != 'readonly' ? 'datepicker' : 'no-datepicker').'">' : $date).'<div class="overlap_time">Overlapping Time Conflict</div>'.$hl_colour.'</td>
                 '.(in_array('schedule',$value_config) ? '<td data-title="Schedule">'.$hours.'</td>' : '').'
                 '.(in_array('scheduled',$value_config) ? '<td data-title="Scheduled Hours"></td>' : '').'
                 '.(in_array('ticketid',$value_config) ? '<td data-title="'.TICKET_NOUN.'">'.$ticket_labels.'</td>' : '').'
