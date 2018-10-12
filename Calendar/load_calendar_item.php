@@ -624,9 +624,9 @@ if(($_GET['type'] == 'uni' || $_GET['type'] == 'my') && empty($_GET['shiftid']) 
 					$current_ticketids[] = ($ticket['stop_id'] > 0 ? 'ticket_schedule-'.$ticket['stop_id'] : 'tickets-'.$ticket['ticketid']);
 					$current_ticket = ['ticket_equip', 'warehouse', $current_warehouse, $current_count, $current_ticketids, $ticket];
 					unset($warehouse_tickets[$key]);
-					$calendar_table[$calendar_date][$equipment['equipmentid']]['total_tickets']++;
+					//$calendar_table[$calendar_date][$equipment['equipmentid']]['total_tickets']++;
 					if(in_array($ticket['status'],$calendar_checkmark_status)) {
-						$calendar_table[$calendar_date][$equipment['equipmentid']]['completed_tickets']++;
+					//	$calendar_table[$calendar_date][$equipment['equipmentid']]['completed_tickets']++;
 					}
 				}
 			}
