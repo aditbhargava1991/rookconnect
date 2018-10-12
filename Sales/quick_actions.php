@@ -201,13 +201,18 @@ var addTime = function(sel) {
 	item.find('[name=time_add]').timepicker('show');
 }
 
-var trackTime = function(sel) {
+/*var trackTime = function(sel) {
 	var item = $(sel).closest('.info-block-detail,.standard-body-title');
     var salesid = $(sel).attr('data-salesId');
     item.find('.timer').timer('remove');
     item.find('.start').show();
     item.find('.stop').hide();
 	item.find('.track_time').toggle();
+}*/
+
+function trackTime(sel) {
+    var salesid = $(sel).attr('data-salesId');
+    overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_timer.php?tile=sales&id='+salesid, 'auto', false, false);
 }
 
 var openProjectDialog = function(sel) {
