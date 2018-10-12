@@ -343,6 +343,16 @@
 			echo "Error: ".mysqli_error($dbc)."<br />\n";
 		}
     
+
+        //September 20, 2018
+		if(!mysqli_query($dbc, "ALTER TABLE `ticket_schedule` ADD `surcharge` TEXT AFTER `serviceid`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+		if(!mysqli_query($dbc, "ALTER TABLE `ticket_schedule` ADD `service_discount` TEXT AFTER `serviceid`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+		if(!mysqli_query($dbc, "ALTER TABLE `ticket_schedule` ADD `service_discount_type` TEXT AFTER `serviceid`")) {
+
         //September 11, 2018
 		if(!mysqli_query($dbc, "ALTER TABLE `match_contact` ADD `tile_list` TEXT AFTER `staff_contact`")) {
 			echo "Error: ".mysqli_error($dbc)."<br />\n";
