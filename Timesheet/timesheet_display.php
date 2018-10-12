@@ -602,7 +602,7 @@ var useProfileSig = function(chk) {
                  }
 
                 if($end_time_from != '') {
-                    $end_time_from = '<br>Time Ended from '.$end_time_from;
+                    $end_time_from = '<br><b>Time Stopped by '.$end_time_from.'</b>';
                 }
                 echo (in_array('comment_box',$value_config) ? '<td data-title="Comments"><span>'.$comments.$end_time_from.'</span><img class="inline-img comment-row pull-right no-toggle" src="../img/icons/ROOK-reply-icon.png" title="Add Note"><input type="text" class="form-control" name="comment_box" value="'.$row['COMMENTS'].'" style="display:none;">'.($current_page != 'time_cards.php' && $mod == 'readonly' && $approv == 'Y' ? '<img class="inline-img edit-row pull-right no-toggle" src="../img/icons/ROOK-edit-icon.png" title="Edit">' : '').(in_array($layout,['multi_line','ticket_task','position_dropdown']) ? '<img class="inline-img rem-row pull-right" src="../img/remove.png"><img class="inline-img add-row pull-right no-toggle" src="../img/icons/ROOK-add-icon.png" title="Edit">' : '').'</td>' : '').'
                 '.(in_array('signature',$value_config) && $current_page == 'time_cards.php' ? '<td data-title="Signature" style="text-align:center" class="'.($show_separator==1 ? 'theme-color-border-bottom' : '').'">'.(!empty($all_signatures[$date]) ? '<img src="../Timesheet/download/'.$all_signatures[$date].'" style="height: 50%; width: auto;">' : ($security['edit'] > 0 ? '<label class="form-checkbox"><input type="checkbox" name="add_signature" onclick="addSignature(this);" value="'.$date.'"></label>' : '')).'</td>' : '').'
