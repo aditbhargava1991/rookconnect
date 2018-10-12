@@ -26,6 +26,7 @@ function saveFields() {
 		url: 'sales_ajax_all.php?action=setting_lead_status',
         data: {
             sales_lead_status: $('[name=sales_lead_status]').val(),
+            lead_status_defualt: $('[name=lead_status_default]').val(),
             lead_status_won: $('[name=lead_status_won]').val(),
             lead_status_lost: $('[name=lead_status_lost]').val(),
             lead_status_retained: $('[name=lead_status_retained]').val(),
@@ -53,6 +54,20 @@ function saveFields() {
             <label for="company_name" class="col-sm-4 control-label">Lead Status:</label>
             <div class="col-sm-8">
               <input name="sales_lead_status" value="<?= get_config($dbc, 'sales_lead_status'); ?>" type="text" class="form-control">
+            </div>
+        </div>
+
+         <div class="form-group">
+            <label for="company_name" class="col-sm-4 control-label"><span class="popover-examples list-inline"><a style="margin:0 5px 0 0;" data-toggle="tooltip" data-placement="top" title="Select the default Lead Status that will be used on new <?= SALES_TILE ?>."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span> Default Status:</label>
+            <div class="col-sm-8"><?php
+                $get_config_default_status = get_config($dbc, 'lead_status_default'); ?>
+                <select name="lead_status_default" class="form-control">
+                    <option value="">Select Status</option><?php
+                    foreach($lead_statuses as $value):
+                        $selected = ($get_config_default_status == $value) ? 'selected="selected"' : ''; ?>
+                        <option <?= $selected; ?> value="<?= $value; ?>"><?= $value; ?></option><?php
+                    endforeach; ?>
+                </select>
             </div>
         </div>
 
