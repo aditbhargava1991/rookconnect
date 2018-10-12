@@ -33,11 +33,10 @@ function mark_task_date(sel) {
 
 function mark_task_staff(sel) {
 	var tasklistid = sel.id.split('_')[1];
-
 	var staff = [];
 
-	$(sel).find('option:selected').each(function() {
-			staff.push(this.value);
+	$('[name="task_userid[]"]').find('option:selected').each(function() {
+        staff.push(this.value);
 	});
 
     $.ajax({
@@ -295,4 +294,21 @@ function handleClick(sel) {
 			location.reload();
 		}
 	});
+}
+
+function addStaff() {
+    var block = $('div.add_staff').last();
+    destroyInputs('.add_staff');
+    clone = block.clone();
+    clone.find('.form-control').val('');
+    block.after(clone);
+    initInputs('.add_staff');
+}
+
+function removeStaff(button) {
+    if($('div.add_staff').length <= 1) {
+        addStaff();
+    }
+    $(button).closest('div.add_staff').remove();
+    $('div.add_staff').first().find('[name="task_userid[]"]').change();
 }
