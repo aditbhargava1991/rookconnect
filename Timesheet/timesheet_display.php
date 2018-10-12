@@ -50,6 +50,7 @@ $colspan = 1 + (in_array('schedule',$value_config) ? 1 : 0) + (in_array('schedul
     + (in_array('task_select',$value_config) ? 1 : 0) + (in_array('position_select',$value_config) ? 1 : 0) + (in_array('total_tracked_hrs_task',$value_config) ? 1 : 0); ?>
 <script>
 $(document).ready(function() {
+    $('.overlap_time').hide();
     checkTimeOverlaps();
     initLines();
     $('[name=ticketid]').each(function() {
@@ -553,7 +554,7 @@ var useProfileSig = function(chk) {
                 <input type="hidden" name="ticketid" value="'.$search_ticket.'">
                 <input type="hidden" name="deleted" value="0">
                 <input type="hidden" name="ticketattachedid" value="'.$ticket_attached_id.'">
-                <td data-title="Date" style="text-align:center">'.(in_array('editable_dates',$value_config) ? '<input type="text" name="date" '.$mod.' value="'.$date.'" class="form-control '.($mod != 'readonly' ? 'datepicker' : 'no-datepicker').'">' : $date).'<span style="visibility: hidden;" class="overlap_time">Overlapping Time Conflict</span></td>
+                <td data-title="Date" style="text-align:center">'.(in_array('editable_dates',$value_config) ? '<input type="text" name="date" '.$mod.' value="'.$date.'" class="form-control '.($mod != 'readonly' ? 'datepicker' : 'no-datepicker').'">' : $date).'<div class="overlap_time">Overlapping Time Conflict</div></td>
                 '.(in_array('schedule',$value_config) ? '<td data-title="Schedule">'.$hours.'</td>' : '').'
                 '.(in_array('scheduled',$value_config) ? '<td data-title="Scheduled Hours"></td>' : '').'
                 '.(in_array('ticketid',$value_config) ? '<td data-title="'.TICKET_NOUN.'">'.$ticket_labels.'</td>' : '').'
