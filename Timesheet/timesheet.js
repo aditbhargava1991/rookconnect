@@ -123,7 +123,6 @@ function saveFieldMethod(field) {
             ticketid: line.find('[name=ticketid]').val(),
             prior_approv: field.checked ? line.find('[data-uncheck]').data('uncheck') : field.value
         }, doneSaving);
-		location.reload();
     }
 }
 function displayPDFOptions(a) {
