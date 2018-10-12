@@ -68,7 +68,7 @@ if(isset($_POST['submit'])) {
             
             if($timer_value != '0' && $timer_value != '00:00:00' && $timer_value != '') {
                 
-                $query_add_time = "UPDATE `ticket_time` SET `end_time` = '$end_time', `timer`='$timer_value' WHERE `ticketid`='$ticketid' AND `contactid` = '$contactid' AND `timer_date` = '$timer_date' AND `src` = 'A' AND `start_time` IS NOT NULL AND `end_time` IS NULL";
+                $query_add_time = "UPDATE `ticket_timer` SET `end_time` = '$end_time', `timer`='$timer_value' WHERE `ticketid`='$ticketid' AND `created_by` = '$contactid' AND `created_date` = '$timer_date' AND `start_time` IS NOT NULL AND `end_time` IS NULL";
                 $result_add_time = mysqli_query($dbc, $query_add_time);
                 
                 $query_add_time = "INSERT INTO `time_cards` (`staff`, `date`, `type_of_time`, `total_hrs`, `comment_box`) VALUES ('$contactid', '$timer_date', 'Regular Hrs.', '".((strtotime($timer_value) - strtotime('00:00:00'))/3600)."', 'Time Added on Ticket #$ticketid')";

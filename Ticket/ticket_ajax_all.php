@@ -87,7 +87,8 @@ if($_GET['fill'] == 'start_timer') {
     $timer_date = date('Y-m-d');
     $start_time = date('h:i A');
     
-    $query_add_time = "INSERT INTO `ticket_time` (`ticketid`, `start_time`, `contactid`, `src`, `timer_date`) VALUES ('$ticketid', '$start_time', '$contactid', 'A', '$timer_date')";
+    //$query_add_time = "INSERT INTO `ticket_time` (`ticketid`, `start_time`, `contactid`, `src`, `timer_date`) VALUES ('$ticketid', '$start_time', '$contactid', 'A', '$timer_date')";
+    $query_add_time = "INSERT INTO `ticket_timer` (`ticketid`, `start_time`, `created_by`, `created_date`, `timer_type`) VALUES ('$ticketid', '$start_time', '$contactid', '$timer_date', 'Work')";
     $result_add_time = mysqli_query($dbc, $query_add_time);
 } else if($_GET['fill'] == 'stop_timer') {
     $ticketid = filter_var($_GET['ticketid'],FILTER_SANITIZE_STRING);
@@ -98,7 +99,7 @@ if($_GET['fill'] == 'start_timer') {
     
     if($timer_value != '0' && $timer_value != '00:00:00' && $timer_value != '') {
         //$query_add_time = "INSERT INTO `tasklist_time` (`tasklistid`, `work_time`, `src`, `contactid`, `timer_date`) VALUES ('$taskid', '$timer_value', 'A', '$contactid', '$timer_date')";
-        $query_add_time = "UPDATE `ticket_time` SET `end_time` = '$end_time', `work_time`='$timer_value' WHERE `ticketid`='$ticketid' AND `contactid` = '$contactid' AND `timer_date` = '$timer_date' AND `src` = 'A' AND `start_time` IS NOT NULL AND `end_time` IS NULL";
+        $query_add_time = "UPDATE `ticket_timer` SET `end_time` = '$end_time', `timer`='$timer_value' WHERE `ticketid`='$ticketid' AND `created_by` = '$contactid' AND `created_date` = '$timer_date' AND `start_time` IS NOT NULL AND `end_time` IS NULL";
         $result_add_time = mysqli_query($dbc, $query_add_time);
         
         insert_day_overview($dbc, $contactid, 'Ticket', date('Y-m-d'), '', "Updated Ticket #$ticketid - Added Time : $timer_value");
