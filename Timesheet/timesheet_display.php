@@ -170,8 +170,8 @@ var checkTimeOverlaps = function() {
                         end_time2 = new Date(date+' '+$(tr2).find('[name="end_time"]').val())
                         if((start_time.getTime() > start_time2.getTime() && start_time.getTime() < end_time2.getTime()) || (end_time.getTime() > start_time2.getTime() && end_time.getTime() < end_time2.getTime())) {
                             $(tr).css('background-color', 'red');
-                            $('tr.overlap_time').css("display","block");
-                            $('tr.overlap_time').show();
+                            $('tr td .overlap_time').css("display","block");
+                            $('tr td .overlap_time').show();
                         }
                     }
                 });
