@@ -463,8 +463,8 @@ function removeNewRow2(button) {
     -->
 
     <div class="row">
-        <h3 class="col-xs-11 pad-left">Settings: <?= isset($_GET['edit']) && $_GET['edit']=='NEW' ? 'Add' : 'Edit' ?> <?= $checklist_name ?></h3>
-        <div class="col-xs-1 gap-top"><img src="<?= WEBSITE_URL ?>/img/icons/ROOK-status-rejected.jpg" class="no-toggle cursor-hand inline-img" alt="Close" title="Close" data-placement="bottom" /></div>
+        <h3 class="col-xs-10 pad-left">Settings: <?= isset($_GET['edit']) && $_GET['edit']=='NEW' ? 'Add' : 'Edit' ?> <?= $checklist_name ?></h3>
+        <div class="col-xs-2 text-right gap-top"><a href="<?= $url ?>"><img src="<?= WEBSITE_URL ?>/img/icons/ROOK-status-rejected.jpg" class="no-toggle cursor-hand inline-img gap-right" alt="Close" title="Close" data-placement="bottom" /></a></div>
     </div>
 
     <div class="row">

@@ -273,5 +273,16 @@ mysqli_query($dbc, "ALTER TABLE `sales` ADD `number_of_days` INT(10) NOT NULL DE
 mysqli_query($dbc, "ALTER TABLE `sales` ADD `number_of_days_start_date` DATE NULL AFTER `number_of_days`");
 mysqli_query($dbc, "ALTER TABLE `contacts` ADD `serviceid` INT(10) NULL AFTER `vaca_pay`");
 
+mysqli_query($dbc, "ALTER TABLE `tasklist_time` ADD `start_time` VARCHAR(50) NULL AFTER `tasklistid`, ADD
+`end_time` VARCHAR(50) NULL AFTER `start_time`");
+
+mysqli_query($dbc, "ALTER TABLE `tasklist` CHANGE `status` `status` VARCHAR(100) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL");
+
+mysqli_query($dbc, "ALTER TABLE `tasklist` ADD `estimated_time` TIME NOT NULL DEFAULT '00:00:00' AFTER `date_of_archival`");
+
+mysqli_query($dbc, "UPDATE field_config
+SET tickets = REPLACE(tickets, ',Timer,', ',Timer,Time Tracking Block,Day Tracking Block,')
+WHERE tickets LIKE '%,Timer,%'");
+
     echo "Dayana's DB Changes Done<br />\n";
 ?>

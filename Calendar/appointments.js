@@ -384,7 +384,7 @@ if($('[name="edit_access"]').val() == 1) {
 	var resizeTimeout;
 	var resizeSave;
 	function itemsResizable() {
-		$('div.used-block:not(.ui-resizable)').resizable({
+		$('div.used-block:not(.ui-resizable,.no_change)').resizable({
 			handles: 's',
 			start: function(e, block) {
 				$(this).css('min-height', '0px');
@@ -1206,22 +1206,24 @@ function expandBlock() {
 			$(this).closest('.used-block').clearQueue().stop().animate({
 				'min-height': $(this).height() + 5
 			});
-			$(this).closest('td').css({
-				zIndex: 2
-			});
 		}
+        $(this).closest('td').css({
+            zIndex: 2
+        });
 		clearTimeout(force_resize_blocks);
 	}, function() {
 		$(this).closest('.used-block').clearQueue().stop().animate({
 			'min-height': '0'
-		}, 'normal', function() {
-			$(this).closest('td').css({
-				zIndex: 1
-			});
-		});
+		}, 'normal');
+        $(this).closest('td').css({
+            zIndex: 1
+        });
 		clearTimeout(force_resize_blocks);
+        $('.used-block').each(function() {
+            $(this).closest('td').css('z-index', 1);
+        });
 		force_resize_blocks = setTimeout(function() {
-			reload_resize_all();
+            reload_resize_all();
 		}, 1000);
 	});
 }
@@ -1431,4 +1433,16 @@ function loadUnbookedList(anchor) {
 		});
 		$(anchor).addClass('active');
 	}
+}
+
+function removeTicketSchedule(ticketid, stopid) {
+    $.post('calendar_ajax_all.php?action=removeSchedule', {
+        ticketid: ticketid,
+        stopid: stopid
+    }, function(response) {
+        $('[data-ticket='+ticketid+']'+(stopid > 0 ? '[data-ticketscheduleid='+stopid+']' : '')).each(function() {
+            var td = $(this).closest('td');
+            retrieve_items($('[id^='+$('#retrieve_collapse').val()+']').find('.block-item[data-'+$('#retrieve_contact').val()+'='+$(td).data('contact')+']').closest('a'),$(td).data('date'))
+        });
+    });
 }

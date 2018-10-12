@@ -135,6 +135,7 @@ $all_tiles_list = array_merge([
         'vendors',
 		'quote',
 		'cost_estimate',
-		'documents_all' ],
+		'documents_all',
+		'dispatch' ],
 	$documents_all_tile_list);
 ?>

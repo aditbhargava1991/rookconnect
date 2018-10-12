@@ -2,11 +2,13 @@
 $total_price = 0;
 $inv_services = [];
 $inv_service_ticketid = [];
+$inv_service_stopid = [];
 $inv_service_qty = [];
 $inv_service_fee = [];
 $services_price = 0;
 $misc_item = [];
 $misc_ticketid = [];
+$misc_stopid = [];
 $misc_price = [];
 $misc_qty = [];
 $misc_total = [];
@@ -33,6 +35,7 @@ foreach($ticket_list as $ticketid) {
 			}
 			$inv_services[] = $service;
 			$inv_service_ticketid[] = $ticketid;
+			$inv_service_stopid[] = 0;
 			$inv_service_qty[] = $qty;
 			$price_total = ($price * $qty * ($fuel / 100 + 100));
 			$price_total -= ($dis_type == '%' ? $discount / 100 * $price_total : $discount);
@@ -60,6 +63,9 @@ foreach($ticket_list as $ticketid) {
                 }
                 $inv_services[] = $service;
                 $inv_service_ticketid[] = $ticketid;
+
+
+                $inv_service_stopid[] = $ticket['id'];
                 $inv_service_qty[] = 1;
                 $price_total = ($price + ($fuel / 100 + 100));
                 $price_total -= ($dis_type == '%' ? $discount / 100 * $price_total : $discount);
@@ -76,6 +82,7 @@ foreach($ticket_list as $ticketid) {
 			$price = $price['cust_price'] > 0 ? $price['cust_price'] : $price['hourly'];
 			$misc_item[] = $description;
 			$misc_ticketid[] = $ticketid;
+			$misc_stopid[] = 0;
 			$misc_qty[] = $qty;
 			$misc_price[] = $price;
 			$misc_total[] = $price * $qty;
@@ -88,6 +95,7 @@ foreach($ticket_list as $ticketid) {
 			$price = $line['rate'];
 			$misc_item[] = $description;
 			$misc_ticketid[] = $ticketid;
+			$misc_stopid[] = 0;
 			$misc_price[] = $price;
 			$misc_qty[] = $qty;
 			$misc_total[] = $price * $qty;

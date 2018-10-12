@@ -386,11 +386,24 @@ if(strpos($contacts_summary_config,'Per Category') !== false) {
         echo '<div class="col-sm-6">';
             echo '<div class="overview-block">';
                 echo '<h4>'.$list_name.'</h4>';
-                $active_count = mysqli_fetch_array(mysqli_query($dbc, "SELECT COUNT(`contactid`) `count` FROM `contacts` WHERE `deleted`=0 AND `tile_name`='".FOLDER_NAME."' AND `category`='$list_name' AND `status`=1"));
-                echo 'Active : '.$active_count['count'];
-                echo '<br>';
-                $inactive_count = mysqli_fetch_array(mysqli_query($dbc, "SELECT COUNT(`contactid`) `count` FROM `contacts` WHERE `deleted`=0 AND `tile_name`='".FOLDER_NAME."' AND `category`='$list_name' AND `status`=0"));
-                echo 'Inactive : '.$inactive_count['count'];
+                $active_count = mysqli_fetch_array(mysqli_query($dbc, "SELECT COUNT(`contactid`) `count` FROM `contacts` WHERE `deleted`=0 AND `tile_name`='".FOLDER_NAME."' AND `category`='$list_name' AND `status`=1"))['count'];
+                $inactive_count = mysqli_fetch_array(mysqli_query($dbc, "SELECT COUNT(`contactid`) `count` FROM `contacts` WHERE `deleted`=0 AND `tile_name`='".FOLDER_NAME."' AND `category`='$list_name' AND `status`=0"))['count'];
+                $all_count = $active_count + $inactive_count;
+                $active_percent = $all_count == 0 ? '00' : number_format((($active_count / $all_count) * 100), 0);
+                
+                $theme_color = get_calendar_today_color($dbc);
+                ?>
+                <div class="row">
+                    <div class="col-xs-6">
+                        <div class="radial_chart radial-chart" data-percent="<?= $active_percent ?>" data-duration="500" data-color="#bdc3c7,#<?= $theme_color ?>"></div>
+                    </div>
+                    <div class="col-xs-6 radial-chart-desc">
+                        <span>
+                            Active: <?= $active_count ?><br />
+                            Inactive: <?= $inactive_count ?>
+                        </span>
+                    </div>
+                </div><?php
             echo '</div>';
         echo '</div>';
     }
@@ -473,16 +486,16 @@ $get_current_url = "$_SERVER[REQUEST_URI]";
 if(strpos($contacts_summary_config,'Per Archived Data') !== false) {
     echo '<h3 class="double-gap-left">'.CONTACTS_TILE.' Per Archived Data</h3>';
 	$query = mysqli_query($dbc,"SELECT contactid, `name`, `first_name`, `last_name` FROM `contacts` WHERE `deleted`=1 AND `tile_name`='".FOLDER_NAME."'");
-	while($row = mysqli_fetch_array($query)) {
-        if($row['name'] != '' || $row['first_name'] != '') {
 		echo '<div class="col-sm-6">';
             echo '<div class="overview-block">';
-                echo decryptIt($row['name']).decryptIt($row['first_name']).' '.decryptIt($row['last_name']);
-                echo ' : <a href=\'../delete_restore.php?action=restore&from='.$get_current_url.'&contactid='.$row['contactid'].'\' onclick="return confirm(\'Are you sure?\')">Restore</a>';
+                while($row = mysqli_fetch_array($query)) {
+                    if($row['name'] != '' || $row['first_name'] != '') {
+                            echo decryptIt($row['name']).decryptIt($row['first_name']).' '.decryptIt($row['last_name']);
+                            echo ' : <a href=\'../delete_restore.php?action=restore&from='.$get_current_url.'&contactid='.$row['contactid'].'\' onclick="return confirm(\'Are you sure?\')">Restore</a><br>';
+                    }
+                }
             echo '</div>';
         echo '</div>';
-        }
-	}
     echo '<div class="clearfix"></div>';
 }
 /*
@@ -510,4 +523,4 @@ if(strpos($contacts_summary_config,'Per Archived Data') !== false) {
 */
 
  } ?>
-</div> 
+</div>

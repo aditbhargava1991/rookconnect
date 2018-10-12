@@ -111,7 +111,7 @@ var projectFilter = function() {
 				</div>
 				<div class="col-sm-1">
 					<a href="" onclick="viewProfile(this); return false;"><img class="inline-img pull-right no-toggle" src="../img/person.PNG" title="View Profile"></a>
-					<a href="" onclick="$(this).closest('.form-group').find('select').val('ADD_NEW').change(); return false;"><img class="inline-img pull-right" src="../img/icons/ROOK-add-icon.png"></a>
+					<a href="" onclick="$(this).closest('.form-group').find('select').val('ADD_NEW').change(); return false;"><img class="inline-img pull-right" data-history-label="New Business" src="../img/icons/ROOK-add-icon.png"></a>
 				</div>
 			</div>
 		<?php } ?>
@@ -131,7 +131,7 @@ var projectFilter = function() {
 				</div>
 				<div class="col-sm-1">
 					<a href="" onclick="viewProfile(this); return false;"><img class="inline-img pull-right no-toggle" src="../img/person.PNG" title="View Profile"></a>
-					<a href="" onclick="$(this).closest('.form-group').find('select').val('ADD_NEW').change(); return false;"><img class="inline-img pull-right" src="../img/icons/ROOK-add-icon.png"></a>
+					<a href="" onclick="$(this).closest('.form-group').find('select').val('ADD_NEW').change(); return false;"><img class="inline-img pull-right" data-history-label="New Contact" src="../img/icons/ROOK-add-icon.png"></a>
 				</div>
 			</div>
 		<?php } ?>
@@ -232,7 +232,7 @@ var projectFilter = function() {
 			<div class="form-group clearfix">
 				<label for="first_name" class="col-sm-4 control-label text-right">Scheduled Start Date &amp; Time:</label>
 				<div class="col-sm-8">
-					<input type="text" name="start_date_time" onchange="updateStartDateTime(this);" value="<?= $get_ticket['to_do_date'].' '.$get_ticket['start_time'] ?>" class="form-control dateandtimepicker"> 
+					<input type="text" name="start_date_time" onchange="updateStartDateTime(this);" value="<?= $get_ticket['to_do_date'].' '.$get_ticket['start_time'] ?>" class="form-control dateandtimepicker">
 					<input name="to_do_date" type="hidden" autocomplete="off" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" class="datepicker form-control" value="<?= $get_ticket['to_do_date'] ?>">
 					<input name="start_time" type="hidden" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" class="datetimepicker-15 form-control" value="<?= $get_ticket['start_time'] ?>">
 				</div>
@@ -252,7 +252,7 @@ var projectFilter = function() {
 			<div class="form-group clearfix">
 				<label for="first_name" class="col-sm-4 control-label text-right">Scheduled End Date &amp; Time:</label>
 				<div class="col-sm-8">
-					<input type="text" name="end_date_time" onchange="updateEndDateTime(this);" value="<?= $get_ticket['to_do_end_date'].' '.$get_ticket['end_time'] ?>" class="form-control dateandtimepicker"> 
+					<input type="text" name="end_date_time" onchange="updateEndDateTime(this);" value="<?= $get_ticket['to_do_end_date'].' '.$get_ticket['end_time'] ?>" class="form-control dateandtimepicker">
 					<input name="to_do_end_date" type="hidden" autocomplete="off" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" class="datepicker form-control" value="<?= $get_ticket['to_do_end_date'] ?>">
 					<input name="end_time" type="hidden" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" class="datetimepicker-15 form-control" value="<?= $get_ticket['end_time'] ?>">
 				</div>
@@ -376,16 +376,21 @@ var projectFilter = function() {
 					<select data-placeholder="Select a Status..." name="status" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" id="status" class="chosen-select-deselect form-control input-sm">
 					  <option value=""></option>
 					  <?php
-						$tabs = get_config($dbc, 'ticket_status');
-						$each_tab = explode(',', $tabs);
-						foreach ($each_tab as $cat_tab) {
-							if ($status == $cat_tab) {
-								$selected = 'selected="selected"';
-							} else {
-								$selected = '';
-							}
-							echo "<option ".$selected." value='". $cat_tab."'>".$cat_tab.'</option>';
-						}
+                        $tabs = get_config($dbc, 'ticket_status');
+                        $each_tab = explode(',', $tabs);
+                        $status_list = [];
+                        foreach ($each_tab as $cat_tab) {
+                            if(check_subtab_persmission($dbc, 'ticket', ROLE, 'ticket_status'.config_safe_str($cat_tab))) {
+                                $status_list[] = $cat_tab;
+                            }
+                        }
+                        if(!in_array($status, $status_list) && $status != '') { ?>
+                            <option selected value="<?= $status ?>"><?= $status ?></option>
+                        <?php } else {
+                            foreach($status_list as $status_option) { ?>
+                                <option <?= $status_option == $status ? 'selected' : '' ?> value="<?= $status_option ?>"><?= $status_option ?></option>
+                            <?php }
+                        }
 					  ?>
 					</select>
 				</div>

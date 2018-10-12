@@ -100,8 +100,8 @@ $ar_reports = [
 	'Customer Balance by Invoice'=>['report_customer_balance_detail.php','Customer Balance by Invoice','Customer Balance by Invoice','ar_customer_invoice'],
 	'Collections Report by Customer'=>['report_collections_report.php','Collections Report by Customer','Collections Report by Customer','ar_customer_collections'],
 	'Invoice List'=>['report_invoice_list.php','Invoice List','Invoice List','invoice_list'],
-	'POS Receivables (Basic)'=>['report_pos_receivables.php','POS Receivables (Basic)','POS Receivables (Basic)','receivables'],
-	'POS Receivables (Advanced)'=>['report_pos_receivables_advanced.php','POS Receivables (Advanced)','POS Receivables (Advanced)','receivables'],
+	/* 'POS Receivables (Basic)'=>['report_pos_receivables.php','POS Receivables (Basic)','POS Receivables (Basic)','receivables'], */
+	'POS Receivables'=>['report_pos_receivables_advanced.php','POS Receivables','POS Receivables','receivables'],
 	'UI Invoice Report'=>['ui_invoice_reports.php','UI Invoice Report','UI Invoice Report','ar_ui_invoice']
 ];
 $pnl_reports = [

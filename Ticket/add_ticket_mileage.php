@@ -95,8 +95,8 @@ do {
 				</div><?php } ?>
 			<div class="col-sm-1 pull-right">
 					<input type="hidden" name="deleted" data-table="mileage" data-id="<?= $mileage['id'] ?>" data-id-field="id" data-attach="<?= $ticketid ?>" data-attach-field="ticketid" value="0">
-				<img class="inline-img pull-right" src="../img/icons/ROOK-add-icon.png" onclick="addMulti(this);">
-				<img class="inline-img pull-right" src="../img/remove.png" onclick="remMulti(this);">
+				<img class="inline-img pull-right" src="../img/icons/ROOK-add-icon.png" data-history-label="Mileage" onclick="addMulti(this);">
+				<img class="inline-img pull-right" src="../img/remove.png" data-history-label="Mileage" onclick="remMulti(this);">
 			</div>
 			<div class="clearfix"></div>
 		</div>

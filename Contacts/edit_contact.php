@@ -831,7 +831,7 @@ function removeContactForm(a, pdf_id) {
 	</div>
 </div>
 <?php //if(!IFRAME_PAGE && !isset($_GET['fields'])) {
-	if(!isset($mandatory_config)) {
+    if(!isset($mandatory_config)) {
 		if(IFRAME_PAGE) { ?>
 		    <div class="main-screen standard-body <?= $slider_layout == 'accordion' ? 'iframe_edit' : '' ?>" style="display: none; width: 100%; margin: 0;">
 		        <div class="standard-body-title" style="<?= $_GET['fields'] == 'fields_only' ? 'display:none;' : '' ?>">
@@ -1472,4 +1472,4 @@ function contact_call($dbc, $select_id, $select_name, $contact_value,$multiple, 
             <input type="text" name="<?= str_replace('[]','',$select_name) ?>_new_contact<?= preg_replace('/[^\[\]]/','',$select_name) ?>" data-field="<?php echo $data_field; ?>" data-table="individual_support_plan" data-row-field="individualsupportplanid" data-row-id="<?php echo $data_row_id; ?>" data-contactid-field="support_contact" class="form-control" style="display:none;">
         </div>
     </div>
-<?php } ?> 
+<?php } ?>

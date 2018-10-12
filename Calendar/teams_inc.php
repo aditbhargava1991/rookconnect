@@ -1,5 +1,5 @@
 <?php include_once('../include.php');
-checkAuthorised('calendar_rook');
+checkAuthorised();
 include_once('../Calendar/calendar_functions_inc.php');
 
 $teamid = '';
@@ -111,12 +111,16 @@ if($_GET['subtab'] == 'schedule') {
 <hr />
 
 <?php if (strpos($team_fields, ',team_name,') !== FALSE) { ?>
-<label for="team_name" class="super-label">Team Name:
-<input type="text" name="team_name" class="form-control" value="<?= $team_team_name ?>"></label>
+<div class="form-group">
+    <label for="team_name" class="col-sm-4">Team Name:</label>
+    <div class="col-sm-8">
+        <input type="text" name="team_name" class="form-control" value="<?= $team_team_name ?>"></label>
+    </div>
+</div>
 <?php } ?>
 
 <?php
-$assign_contacts = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `teams_staff` WHERE `teamid` = '$teamid' AND `deleted` = 0"),MYSQLI_ASSOC);
+$assign_contacts = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `teams_staff` WHERE `teamid` = '$teamid' AND `deleted` = 0 AND '$teamid' > 0"),MYSQLI_ASSOC);
 for ($team_i = 0; $team_i < count($assign_contacts) || $team_i < 1; $team_i++) { ?>
     <div class="contact-block">
         <?php if($position_enabled == 1) { ?>
@@ -235,7 +239,9 @@ for ($team_i = 0; $team_i < count($assign_contacts) || $team_i < 1; $team_i++) {
 </div>
 <?php } ?>
 
-<hr />
+<?php if (strpos($team_fields, ',region,') !== FALSE || strpos($team_fields, ',location,') !== FALSE || strpos($team_fields, ',classification,') !== FALSE) { ?>
+    <hr />
+<?php } ?>
 
 <?php if (strpos($team_fields, ',start_date,') !== FALSE) { ?>
 <div class="form-group">

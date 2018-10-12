@@ -526,7 +526,7 @@ if(!empty($_GET['add_service_iframe'])) { ?>
 								<?php } ?>
 
 								<?php if(strpos($value_config,',Service Direct Time,') !== FALSE && $field_sort_field == 'Service Direct Time') { ?>
-									<div class="col-sm-<?= floor(12 / $service_fields) - (++$col_num == $service_fields && floor(12 / $service_fields) == (12 / $service_fields) ? 1 : 0) ?>"><label class="show-on-mob">Indirect Time:</label>
+									<div class="col-sm-<?= floor(12 / $service_fields) - (++$col_num == $service_fields && floor(12 / $service_fields) == (12 / $service_fields) ? 1 : 0) ?>"><label class="show-on-mob">Direct Time:</label>
 										<select data-placeholder="Select a Time..." name="service_direct_time" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" data-concat="," class="chosen-select-deselect form-control">
 											<option value=""></option>
 											<?php for($hours = 0.25; $hours <= 3; $hours += 0.25) { ?>
@@ -575,8 +575,8 @@ if(!empty($_GET['add_service_iframe'])) { ?>
 							<?php } ?>
 							<?php if(strpos($value_config,',Service Multiple,') !== FALSE) { ?>
 								<div class="col-sm-1">
-									<img class="inline-img pull-right" onclick="addMulti(this);" src="../img/icons/ROOK-add-icon.png">
-									<img class="inline-img pull-right" onclick="remMulti(this);" src="../img/remove.png">
+									<img class="inline-img pull-right" data-history-label="Service" onclick="addMulti(this);" src="../img/icons/ROOK-add-icon.png">
+									<img class="inline-img pull-right" data-history-label="Service" onclick="remMulti(this);" src="../img/remove.png">
 								</div>
 							<?php } ?>
 						<?php } else { ?>
@@ -664,8 +664,8 @@ if(!empty($_GET['add_service_iframe'])) { ?>
 									  </div>
 									  <?php if(strpos($value_config,',Service Multiple,') !== FALSE) { ?>
 										<div class="col-sm-2">
-											<img class="inline-img pull-right" onclick="addMulti(this);" src="../img/icons/ROOK-add-icon.png">
-											<img class="inline-img pull-right" onclick="remMulti(this);" src="../img/remove.png">
+											<img class="inline-img pull-right" data-history-label="Service" onclick="addMulti(this);" src="../img/icons/ROOK-add-icon.png">
+											<img class="inline-img pull-right" data-history-label="Service" onclick="remMulti(this);" src="../img/remove.png">
                                             <a href="" onclick="viewService(this); return false;"><img class="inline-img" src="../img/icons/eyeball.png"></a>
 
 										</div>

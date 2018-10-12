@@ -3,6 +3,8 @@
 Delete and Restore FFM
 */
 include ('include.php');
+include ('database_connection_htg.php');
+
 error_reporting(0);
 ?>
 

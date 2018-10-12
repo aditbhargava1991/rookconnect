@@ -167,6 +167,7 @@ if($siteid == 'recent') {
 					$dbc->query("UPDATE `tickets` LEFT JOIN `ticket_attached` ON `tickets`.`ticketid`=`ticket_attached`.`ticketid` SET `tickets`.`siteid`='' WHERE `ticket_attached`.`id`='$line_id'");
 				}
 				$weight = [];
+				$weights = [];
 				$inv_weight_units = explode('#*#',$row['weight_units']);
 				foreach(explode('#*#',$row['weight']) as $id => $inv_weight) {
 					if(in_array('weight convert kg to lb',$manifest_fields) && $inv_weight_units[$id] == 'kg') {
@@ -174,6 +175,7 @@ if($siteid == 'recent') {
 						$inv_weight_units[$id] = 'lbs';
 					}
 					$weight[] = $inv_weight.' '.$inv_weight_units[$id];
+					$weights[$inv_weight_units[$id]] += $inv_weight;
 					if(in_array('total weight lb',$manifest_fields)) {
 						if($inv_weight_units[$id] == 'kg') {
 							$total_weight += ($inv_weight*2.20462262185);
@@ -184,21 +186,45 @@ if($siteid == 'recent') {
 				}
 				$weight = implode('<br />', $weight);
 			} else {
-				$row = ['qty'=>'','siteid'=>$siteid];
+				$row = '';
 				$weight = '';
+				$weights = [];
 			}
 
-			$lines[] = ['file'=>$row['ticket_label'], 'po'=>implode('<br />',array_filter(explode('#*#',$row['po_num']))), 'vendor'=>($row['vendor'] > 0 ? get_contact($dbc, $row['vendor'],'name_company') : ''), 'line'=>(empty($row['po_line']) ? 'N/A' : $row['po_line']), 'qty'=>($row['qty'] > 0 ? round($row['qty'],3) : ''), 'manual_qty'=>$manual_qty[$i], 'site'=>($row['siteid'] == $siteid ? $manifest_label : ($row['siteid'] > 0 ? get_contact($dbc, $row['siteid']) : 'UNASSIGNED')), 'notes'=>$row['notes'], 'weight'=>$weight];
+			if(!empty($row)) {
+				if(in_array('group pieces po',$manifest_fields)) {
+					$po_num_key = implode('<br />',array_filter(explode('#*#',$row['po_num'])));
+					$lines[$po_num_key]['file'][] = $row['ticket_label'];
+					$lines[$po_num_key]['po'] = $po_num_key;
+					$lines[$po_num_key]['vendor'][] = $row['vendor'] > 0 ? get_contact($dbc, $row['vendor'],'name_company') : '';
+					$lines[$po_num_key]['line'][] = (empty($row['po_line']) ? 'N/A' : $row['po_line']);
+					if($row['qty'] > 0) {
+						$lines[$po_num_key]['qty'] += $row['qty'];
+					}
+					if($manual_qty[$i] > 0) {
+						$lines[$po_num_key]['manual_qty'] += $manual_qty[$i];
+					}
+					$lines[$po_num_key]['site'][] = ($row['siteid'] == $siteid ? $manifest_label : ($row['siteid'] > 0 ? get_contact($dbc, $row['siteid']) : 'UNASSIGNED'));
+					$lines[$po_num_key]['notes'][] = $row['notes'];
+					foreach($weights as $weight_unit => $weight_num) {
+						if(!empty($weight_unit) || $weight_num > 0) {
+							$lines[$po_num_key]['weight'][$weight_unit] += $weight_num;
+						}
+					}
+				} else {
+					$lines[] = ['file'=>$row['ticket_label'], 'po'=>implode('<br />',array_filter(explode('#*#',$row['po_num']))), 'vendor'=>($row['vendor'] > 0 ? get_contact($dbc, $row['vendor'],'name_company') : ''), 'line'=>(empty($row['po_line']) ? 'N/A' : $row['po_line']), 'qty'=>($row['qty'] > 0 ? round($row['qty'],3) : ''), 'manual_qty'=>$manual_qty[$i], 'site'=>($row['siteid'] == $siteid ? $manifest_label : ($row['siteid'] > 0 ? get_contact($dbc, $row['siteid']) : 'UNASSIGNED')), 'notes'=>$row['notes'], 'weight'=>$weight];	
+				}
 
-			if(in_array('pdf_collapse',$manifest_fields)) {
-				$columns['po'] += (!empty($row['po_num']) ? 1 : 0);
-				$columns['vendor'] += ($row['vendor'] > 0 ? 1 : 0);
-				$columns['line'] += (!empty($row['po_line']) ? 1 : 0);
-				$columns['qty'] += ($row['qty'] > 0 ? 1 : 0);
-				$columns['manual_qty'] += ($manual_qty[$i] > 0 ? 1 : 0);
-				$columns['site'] += ($row['siteid'] > 0 ? 1 : 0);
-				$columns['notes'] += (!empty($row['notes']) ? 1 : 0);
-				$columns['weight'] += (!empty($weight) ? 1 : 0);
+				if(in_array('pdf_collapse',$manifest_fields)) {
+					$columns['po'] += (!empty($row['po_num']) ? 1 : 0);
+					$columns['vendor'] += ($row['vendor'] > 0 ? 1 : 0);
+					$columns['line'] += (!empty($row['po_line']) ? 1 : 0);
+					$columns['qty'] += ($row['qty'] > 0 ? 1 : 0);
+					$columns['manual_qty'] += ($manual_qty[$i] > 0 ? 1 : 0);
+					$columns['site'] += ($row['siteid'] > 0 ? 1 : 0);
+					$columns['notes'] += (!empty($row['notes']) ? 1 : 0);
+					$columns['weight'] += (!empty($weight) ? 1 : 0);
+				}
 			}
 		}
 		$total_weight = number_format($total_weight,2);
@@ -227,7 +253,22 @@ if($siteid == 'recent') {
 			if($siteid > 0) {
 				$site_notes = html_entity_decode($dbc->query("SELECT `notes` FROM `contacts_description` WHERE `contactid`='$siteid'")->fetch_assoc()['notes']);
 			}
-			foreach($lines as $i => $row) {
+			$i = 0;
+			foreach($lines as $key => $row) {
+				if(in_array('group pieces po',$manifest_fields)) {
+					$row['file'] = implode('<br />', array_unique(array_filter($row['file'])));
+					$row['vendor'] = implode('<br />', array_unique(array_filter($row['vendor'])));
+					$row['line'] = implode('<br />', array_unique(array_filter($row['line'])));
+					$row['qty'] = ($row['qty'] > 0 ? round($row['qty'],3) : '');
+					$row['manual_qty'] = ($row['manual_qty'] > 0 ? round($row['manual_qty'],3) : '');
+					$row['site'] = implode('<br />', array_unique(array_filter($row['site'])));
+					$row['notes'] = implode('<br />', array_unique(array_filter($row['notes'])));
+					$row_weight = [];
+					foreach($row['weight'] as $weight_unit => $weight_num) {
+						$row_weight[] = $weight_num.' '.$weight_unit;
+					}
+					$row['weight'] = implode('<br />', $row_weight);
+				}
 				$html .= '<tr style="background-color:'.($i % 2 == 0 ? $row_colour_1 : $row_colour_2).'"><td style="font-size:5px;" colspan="'.$col_count.'">&nbsp;</td></tr><tr style="background-color:'.($i % 2 == 0 ? $row_colour_1 : $row_colour_2).'">
 					'.(in_array('file',$manifest_fields) ? '<td data-title="FILE #" style="text-align:center;">'.$row['file'].'</td>' : '').'
 					'.(in_array('po',$manifest_fields) && $columns['po'] > 0 ? '<td data-title="PO" style="text-align:center;">'.$row['po'].'</td>' : '').'
@@ -240,6 +281,7 @@ if($siteid == 'recent') {
 					'.(in_array('notes',$manifest_fields) && $columns['notes'] > 0 ? '<td data-title="NOTES" style="text-align:center;">'.html_entity_decode($row['notes']).'</td>' : '').'
 				</tr>
 				<tr style="background-color:'.($i % 2 == 0 ? $row_colour_1 : $row_colour_2).'"><td style="font-size:5px;" colspan="'.$col_count.'">&nbsp;</td></tr>';
+				$i++;
 			}
 			$html .= '<tr>
 				'.(in_array('file',$manifest_fields) ? '<td style="border-top: 1px solid black;"></td>' : '').'
@@ -291,7 +333,7 @@ if($siteid == 'recent') {
 		$pdf->writeHTML($html, true, false, true, false, '');
 		$pdf->Output('manifest/manifest_'.$manifestid.'.pdf', 'F');
 		echo "<script>
-		window.open('manifest/manifest_".$manifestid.".pdf');
+		window.top.open('manifest/manifest_".$manifestid.".pdf', '_blank');
 		window.location.replace('?tile_name=".$_GET['tile_name']."&tab=manifest&site=recent');
 		</script>";
 		// echo $html;
@@ -375,7 +417,7 @@ if($siteid == 'recent') {
 			<table class="table table-bordered">
 				<tr>
 					<?php if(in_array('file',$manifest_fields)) { ?><th><?= empty($ticket_noun) ? TICKET_NOUN : $ticket_noun ?></th><?php } ?>
-					<th><?= SITES_CAT ?></th>
+					<?php if(in_array('site',$manifest_fields)) { ?><th><?= SITES_CAT ?></th><?php } ?>
 					<?php if(in_array('po',$manifest_fields)) { ?><th>PO</th><?php } ?>
 					<?php if(in_array('line',$manifest_fields)) { ?><th>Line Item</th><?php } ?>
 					<?php if(in_array('vendor',$manifest_fields)) { ?><th>Vendor / Shipper</th><?php } ?>
@@ -388,11 +430,11 @@ if($siteid == 'recent') {
 				<?php while($ticket = $ticket_list->fetch_assoc()) { ?>
 					<tr>
 						<?php if(in_array('file',$manifest_fields)) { ?><td data-title="<?= empty($ticket_noun) ? TICKET_NOUN : $ticket_noun ?>"><?php if($tile_security['edit'] > 0) { ?><a href="index.php?edit=<?= $ticket['ticketid'] ?>" onclick="overlayIFrameSlider(this.href+'&calendar_view=true','auto',true,true); return false;"><?= get_ticket_label($dbc, $ticket) ?></a><?php } else { echo get_ticket_label($dbc, $ticket); } ?></td><?php } ?>
-						<td data-title="<?= SITES_CAT ?>"><div class="col-xs-10"><select name="siteid" multiple data-table="<?= in_array('group pieces',$manifest_fields) ? 'tickets' : 'ticket_attached' ?>" data-id="<?= in_array('group pieces',$manifest_fields) ? $ticket['ticketid'] : $ticket['id'] ?>" data-id-field="<?= in_array('group pieces',$manifest_fields) ? 'ticketid' : 'id' ?>" class="chosen-select-deselect" data-placeholder="Select <?= SITES_CAT ?>"><option />
+						<?php if(in_array('site',$manifest_fields)) { ?><td data-title="<?= SITES_CAT ?>"><div class="col-xs-10"><select name="siteid" multiple data-table="<?= in_array('group pieces',$manifest_fields) ? 'tickets' : 'ticket_attached' ?>" data-id="<?= in_array('group pieces',$manifest_fields) ? $ticket['ticketid'] : $ticket['id'] ?>" data-id-field="<?= in_array('group pieces',$manifest_fields) ? 'ticketid' : 'id' ?>" class="chosen-select-deselect" data-placeholder="Select <?= SITES_CAT ?>"><option />
 							<?php foreach($site_list as $site) { ?>
 								<option <?= in_array($site['contactid'],explode(',',$ticket['siteid'])) ? 'selected' : '' ?> value="<?= $site['contactid'] ?>"><?= $site['full_name'] ?></option>
 							<?php } ?>
-						</select></div><div class="col-xs-2"><a href="" onclick="viewSite(this); return false;"><img class="inline-img pull-right no-toggle" src="../img/person.PNG" title="View Profile"></a></td>
+						</select></div><div class="col-xs-2"><a href="" onclick="viewSite(this); return false;"><img class="inline-img pull-right no-toggle" src="../img/person.PNG" title="View Profile"></a></td><?php } ?>
 						<?php if(in_array('po',$manifest_fields)) { ?><td data-title="PO">
 							<?php foreach(explode('#*#',$ticket['po_num']) as $po_num) { ?>
 								<a href="line_item_views.php?po=<?= $po_num ?>" onclick="overlayIFrameSlider(this.href,'auto',true,true); return false;"><?= $po_num ?></a><br />

@@ -373,9 +373,37 @@
 		if(!mysqli_query($dbc, "UPDATE `tickets` SET `communication_tags`=`clientid` WHERE `communication_tags` IS NULL AND `clientid` IS NOT NULL AND `clientid` != '' AND `deleted`=0 AND `status` != 'Archive'")) {
 			echo "Error: ".mysqli_error($dbc)."<br />\n";
 		}
+        
+        // September 25, 2018 - Ticket 9343
+		if(!mysqli_query($dbc, "ALTER TABLE `invoice_lines` ADD `stop_id` INT(11) UNSIGNED NOT NULL DEFAULT 0 AFTER `ticketid`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+        // Ticket 9343
+
+    
+        //September 20, 2018
+		if(!mysqli_query($dbc, "ALTER TABLE `ticket_schedule` ADD `surcharge` TEXT AFTER `serviceid`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+		if(!mysqli_query($dbc, "ALTER TABLE `ticket_schedule` ADD `service_discount` TEXT AFTER `serviceid`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+		if(!mysqli_query($dbc, "ALTER TABLE `ticket_schedule` ADD `service_discount_type` TEXT AFTER `serviceid`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+
+        // October 1, 2018 - Ticket 9483
+		if(!mysqli_query($dbc, "ALTER TABLE `tickets` ADD `sort_status` TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 AFTER `status`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+		if(!mysqli_query($dbc, "ALTER TABLE `ticket_schedule` ADD `sort_status` TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 AFTER `status`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+        // Ticket 9343
 		
 		set_config($dbc, 'db_version_jonathan', 8);
-	}
+    }
+
 	
 	if(get_config($dbc, 'update_timesheet_config') < 1) {
 		// July 9, 2018
@@ -400,6 +428,16 @@
 			echo "Error: ".mysqli_error($dbc)."<br />\n";
 		}
 		set_config($dbc, 'update_timesheet_layout_fields', 1);
+	}
+	if(get_config($dbc, 'update_delivery_google') < 1) {
+		// September 19, 2018
+		if(!mysqli_query($dbc, "UPDATE `general_configuration` SET `value`=REPLACE(`value`,'Delivery Pickup Address','Delivery Pickup Address,Delivery Pickup Address Google') WHERE `name` LIKE 'ticket_%'")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+		if(!mysqli_query($dbc, "UPDATE `field_config` SET `tickets`=REPLACE(`tickets`,'Delivery Pickup Address','Delivery Pickup Address,Delivery Pickup Address Google')")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+		set_config($dbc, 'update_delivery_google', 1);
 	}
 	
 	echo "Jonathan's DB Changes Done<br />\n";
