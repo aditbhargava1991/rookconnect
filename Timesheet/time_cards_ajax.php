@@ -319,14 +319,26 @@ else if($_GET['action'] == 'stop_holiday_update_noti') {
     }
     if($id > 0 && $field == 'approv') {
 		$time_card = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `time_cards` WHERE `time_cards_id` = '$id'"));
-		if($field == 'total_hrs' && number_format($value,1) != number_format($time_card['total_hrs'],1)) {
+		//if($field == 'total_hrs' && number_format($value,1) != number_format($time_card['total_hrs'],1)) {
 			//$comment_history .= $session_user.' updated '.$field.' from '.$time_card['total_hrs'].' to '.$total_hrs.'.<br>';
-            $comment_history .= $session_user.' updated hours for approval.<br>';
-		}
-		if($type_of_time != $time_card['type_of_time']) {
+            //$comment_history .= $session_user.' updated hours for approval.<br>';
+		//}
+		/*if($type_of_time != $time_card['type_of_time']) {
 			$comment_history .= $session_user.' updated Type of Time from '.$time_card['type_of_time'].' to '.$type_of_time.'.<br>';
-		}
-        $dbc->query("UPDATE `time_cards` SET `$field`='$value' WHERE `time_cards_id`='$id'");
+		}*/
+
+        if($value == 'N') {
+            $approval_status = 'Pending';
+        } else if($value == 'Y') {
+            $approval_status = 'Approved';
+        } else if($value == 'P') {
+            $approval_status = 'Paid';
+        }
+
+        $comment_history .= $session_user.' updated status to '.$approval_status.'.<br>';
+        $dbc->query("UPDATE `time_cards` SET `approv`='$value', `approve_by` = '$approve_by', `approve_date` = '$approve_date', `comment_box` = '".$time_card['comment_box'].htmlentities($comment_history)."' WHERE `time_cards_id`='$id'");
+
+        //$dbc->query("UPDATE `time_cards` SET `$field`='$value' WHERE `time_cards_id`='$id'");
     } else if($id > 0) {
 		$time_card = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `time_cards` WHERE `time_cards_id` = '$id'"));
 		if($field == 'total_hrs' && number_format($value,1) != number_format($time_card['total_hrs'],1)) {
