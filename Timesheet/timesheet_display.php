@@ -231,6 +231,10 @@ var useProfileSig = function(chk) {
             <?php if(strpos($timesheet_payroll_fields, ',Mileage Rate,') !== FALSE) { ?><th style='text-align:center;'></th><?php } ?>
             <?php if(strpos($timesheet_payroll_fields, ',Mileage Total,') !== FALSE) { ?><th style='text-align:center;'></th><?php } ?>
             <?php if(strpos($timesheet_payroll_fields, ',Mileage Total,') !== FALSE) { ?><td style='text-align:center;'></td><?php } ?>
+
+            <?php if($timesheet_approval_status_comments == 1) { ?><td style='text-align:center;'></td><?php } ?>
+            <?php if($timesheet_approval_initials == 1) { ?><td style='text-align:center;'></td><?php } ?>
+            <?php if($timesheet_approval_date == 1) { ?><td style='text-align:center;'></td><?php } ?>
             <td colspan="<?= (in_array('comment_box',$value_config) ? 1 : 0) + ($current_page != 'time_cards.php' ? 1 : (in_array('signature',$value_config) ? 1 : 0)) ?>"></td>
         </tr>
         <tr class='hidden-xs hidden-sm'>
@@ -615,6 +619,9 @@ var useProfileSig = function(chk) {
                     '.(strpos($timesheet_payroll_fields, ',Mileage,') !== FALSE ? '<td data-title="Total Mileage">'.($mileage_total > 0 ? number_format($mileage_total,2) : '0.00').'</td>' : '').'
                     '.(strpos($timesheet_payroll_fields, ',Mileage Rate,') !== FALSE ? '<td data-title="Total Mileage Rate">$'.($mileage_rate_total > 0 ? number_format($mileage_rate_total,2) : '0.00').'</td>' : '').'
                     '.(strpos($timesheet_payroll_fields, ',Mileage Total,') !== FALSE ? '<td data-title="Total Mileage Cost">$'.($mileage_cost_total > 0 ? number_format($mileage_cost_total,2) : '0.00').'</td>' : '').'
+                    '.($timesheet_approval_status_comments == 1 ? '<td data-title="Status"></td>' : '').'
+                    '.($timesheet_approval_initials == 1 ? '<td data-title="Approval"></td>' : '').'
+                    '.($timesheet_approval_date == 1 ? '<td data-title="Approval Date"></td>' : '').'
                     <td data-title="" colspan="'.((in_array('comment_box',$value_config) ? 1 : 0) + ($current_page != 'time_cards.php' ? 1 : (in_array('signature',$value_config) ? 1 : 0))).'"></td>
                 </tr>';
             }
