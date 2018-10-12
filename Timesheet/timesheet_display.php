@@ -364,10 +364,13 @@ var useProfileSig = function(chk) {
                 //$hl_colour = ($row['MANAGER'] > 0 && $mg_highlight != '#000000' && $mg_highlight != '' ? 'background-color:'.$mg_highlight.';' : ($row['HIGHLIGHT'] > 0 && $highlight != '#000000' && $highlight != '' ? 'background-color:'.$highlight.';' : ''));
 
                 if($row['MANAGER'] > 0 && $mg_highlight != '#000000' && $mg_highlight != '') {
-                    $hl_colour = "background-color: ".$mg_highlight.";";
+                    //$hl_colour = "background-color: ".$mg_highlight.";";
+                    $hl_colour = 'style="background-color: yellow;"';
+
                 }
                 if($row['HIGHLIGHT'] > 0 && $highlight != '#000000' && $highlight != '') {
-                    $hl_colour = "background-color: ".$highlight.";";
+                    //$hl_colour = "background-color: ".$highlight.";";
+                    $hl_colour = 'style="background-color: green;"';
                 }
 
                 $show_separator = 0;
@@ -554,7 +557,8 @@ var useProfileSig = function(chk) {
             foreach($position_list as $position) {
                 $position_options .= '<option '.($position[0] == $time_type ? 'selected' : '').' value="'.$position[0].'">'.$position[0].'</option>';
             }
-            echo '<tr style='.$hl_colour.' class="'.($show_separator==1 && !in_array('total_per_day',$value_config) ? 'theme-color-border-bottom' : '').'">
+
+            echo '<tr '.$hl_colour.' class="'.($show_separator==1 && !in_array('total_per_day',$value_config) ? 'theme-color-border-bottom' : '').'">
                 <input type="hidden" name="date" value="'.$date.'">
                 <input type="hidden" name="staff" value="'.$search_staff.'">
                 <input type="hidden" name="siteid" value="'.$search_site.'">
