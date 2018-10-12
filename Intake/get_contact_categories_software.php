@@ -68,7 +68,8 @@ if(isset($_POST['complete_form'])) {
 		if($salesid == 'NEW_SALES') {
 			$primary_staff = filter_var($_POST['sales_primary_staff'],FILTER_SANITIZE_STRING);
 			$share_lead = filter_var(implode(',', $_POST['sales_share_lead']),FILTER_SANITIZE_STRING);
-			mysqli_query($dbc, "INSERT INTO `sales` (`primary_staff`, `share_lead`, `created_date`,`lead_created_by`) VALUES ('$primary_staff', '$share_lead', '".date('Y-m-d')."','".get_contact($dbc, $_SESSION['contactid'])."')");
+			$status = !empty(get_config($dbc, 'lead_status_default')) ? get_config($dbc, 'lead_status_default') : (!empty(array_filter(explode(',',get_config($dbc, 'sales_lead_status')))[0]) ? array_filter(explode(',',get_config($dbc, 'sales_lead_status')))[0] : 'Pending');
+			mysqli_query($dbc, "INSERT INTO `sales` (`primary_staff`, `share_lead`, `created_date`,`lead_created_by`, `status`) VALUES ('$primary_staff', '$share_lead', '".date('Y-m-d')."','".get_contact($dbc, $_SESSION['contactid'])."', '$status')");
 			$salesid = mysqli_insert_id($dbc);
 		}
 		mysqli_query($dbc, "UPDATE `intake` SET `salesid` = '$salesid', `assigned_date` = '$assigned_date' WHERE `intakeid` = '$intakeid'");
