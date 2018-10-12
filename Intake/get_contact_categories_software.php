@@ -68,7 +68,8 @@ if(isset($_POST['complete_form'])) {
 		if($salesid == 'NEW_SALES') {
 			$primary_staff = filter_var($_POST['sales_primary_staff'],FILTER_SANITIZE_STRING);
 			$share_lead = filter_var(implode(',', $_POST['sales_share_lead']),FILTER_SANITIZE_STRING);
-			mysqli_query($dbc, "INSERT INTO `sales` (`primary_staff`, `share_lead`, `created_date`,`lead_created_by`) VALUES ('$primary_staff', '$share_lead', '".date('Y-m-d')."','".get_contact($dbc, $_SESSION['contactid'])."')");
+			$status = !empty(get_config($dbc, 'lead_status_default')) ? get_config($dbc, 'lead_status_default') : (!empty(array_filter(explode(',',get_config($dbc, 'sales_lead_status')))[0]) ? array_filter(explode(',',get_config($dbc, 'sales_lead_status')))[0] : 'Pending');
+			mysqli_query($dbc, "INSERT INTO `sales` (`primary_staff`, `share_lead`, `created_date`,`lead_created_by`, `status`) VALUES ('$primary_staff', '$share_lead', '".date('Y-m-d')."','".get_contact($dbc, $_SESSION['contactid'])."', '$status')");
 			$salesid = mysqli_insert_id($dbc);
 		}
 		mysqli_query($dbc, "UPDATE `intake` SET `salesid` = '$salesid', `assigned_date` = '$assigned_date' WHERE `intakeid` = '$intakeid'");
@@ -345,8 +346,8 @@ if(isset($_POST['complete_form'])) {
 					<?php /* Select the Contact */
 					if ( $action == 'assign' || $action == 'project' || $action == 'sales' || $action == 'ticket' ) { ?>
 						<br /><br />
-						<p>Select the <?= $contact_type; ?> you want this Intake Form Submission to assign to:</p>
-						<select name="contact_list" id="contact_list" data-placeholder="Select a <?= $contact_type; ?>" width="380" class="chosen-select-deselect form-control">
+						<p>Select the Contact you want this Intake Form Submission to assign to:</p>
+						<select name="contact_list" id="contact_list" data-placeholder="Select a Contact" width="380" class="chosen-select-deselect form-control">
 						</select>
 						<br /><br />
 						<p><label class="form-checkbox" style="max-width: none;"><input type="checkbox" name="contact_update_info" value="1"> Update Contact Information With Form Details</label></p><?php
