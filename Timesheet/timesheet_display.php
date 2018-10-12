@@ -26,6 +26,7 @@ if(!in_array('reg_hrs',$value_config) && !in_array('direct_hrs',$value_config) &
 $timesheet_payroll_fields = ($current_page == 'payroll.php' ? ','.get_config($dbc, 'timesheet_payroll_fields').',' : ',,');
 $timesheet_comment_placeholder = get_config($dbc, 'timesheet_comment_placeholder');
 $timesheet_approval_initials = get_config($dbc, 'timesheet_approval_initials');
+$timesheet_approval_date = get_config($dbc, 'timesheet_approval_date');
 $timesheet_approval_status_comments = get_config($dbc, 'timesheet_approval_status_comments');
 $timesheet_start_tile = get_config($dbc, 'timesheet_start_tile');
 $timesheet_time_format = get_config($dbc, 'timesheet_time_format');
