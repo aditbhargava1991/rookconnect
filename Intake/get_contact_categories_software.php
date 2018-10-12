@@ -346,8 +346,8 @@ if(isset($_POST['complete_form'])) {
 					<?php /* Select the Contact */
 					if ( $action == 'assign' || $action == 'project' || $action == 'sales' || $action == 'ticket' ) { ?>
 						<br /><br />
-						<p>Select the <?= $contact_type; ?> you want this Intake Form Submission to assign to:</p>
-						<select name="contact_list" id="contact_list" data-placeholder="Select a <?= $contact_type; ?>" width="380" class="chosen-select-deselect form-control">
+						<p>Select the Contact you want this Intake Form Submission to assign to:</p>
+						<select name="contact_list" id="contact_list" data-placeholder="Select a Contact" width="380" class="chosen-select-deselect form-control">
 						</select>
 						<br /><br />
 						<p><label class="form-checkbox" style="max-width: none;"><input type="checkbox" name="contact_update_info" value="1"> Update Contact Information With Form Details</label></p><?php
