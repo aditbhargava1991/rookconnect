@@ -1868,8 +1868,6 @@ function reload_checkin_staff_checkout() {
 	});
 }
 function reload_summary() {
-	alert(<?php echo 'mymy'; ?>);
-
 	if(!finishing_ticket) {
 		destroyInputs($('#collapse_summary,#tab_section_ticket_summary'));
 		$.ajax({
