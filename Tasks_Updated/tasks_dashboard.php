@@ -31,9 +31,7 @@ $(document).ready(function() {
 		$('.iframe_holder').hide();
 		$('.hide_on_iframe').show();
 	});
-
-
-
+    
     $('.milestone_select').on('change', function(){
         if($(this).val() != '') {
             $(location).attr('href', $(this).val());
@@ -55,6 +53,17 @@ $(document).ready(function() {
 
     $('li.t_item').each(function() {
         $(this).find('.t_name').width( $(this).width() - $(this).find('.t_staff').outerWidth() - $(this).find('.t_drag').outerWidth() - 10 );
+    });
+    
+    $('.sortable_milestone').each(function() {
+        var count = $(this).find('ul li.t_item').length;
+        var add_block = $(this).find('ul li.new_task_box');
+        if ( count > 0 ) {
+            $(add_block).hide();
+        }
+    });
+    $('.milestone_options').off('click').click(function() {
+        $(this).closest('.sortable_milestone').find('.new_task_box').toggle();
     });
 
 });
@@ -560,7 +569,7 @@ function addIntakeForm(btn) {
 }
 </script>
 <?php
-        echo '<div class="row">';
+        echo '<div class="row dashboard_heading">';
             //echo '<div class="col-sm-6"><h3>'. ($title=='Search' ? $title .': '. $term : $title .': '. $board_name['board_name']) .'</h3></div>';
 
 
@@ -577,21 +586,21 @@ function addIntakeForm(btn) {
                 $board_name = get_client($dbc, $businessid);
             }
             ?>
-            <div class="col-sm-6"><h3><?php echo $board_name .' : '.$path_name; ?>
+            <div class="col-sm-6"><h3 class="offset-left-5"><?php echo $board_name .': '.$path_name; ?>
             <img class="inline-img cursor-hand small no-toggle" src="../img/icons/ROOK-edit-icon.png" onclick="$(this).hide();$(this).next('span').show().find('input').focus();" title="Edit"><span class="col-sm-4 pull-right" style="display:none;"><input onblur="savePathName(this.value); $(this).parent().hide().prev().show().prev().text(this.value);" type="text" value="<?php echo $path_name; ?>" class="form-control"></span></h3></div>
 
-            <div class="col-sm-6 text-right"><span class="pull-right text-right double-gap-top" style="" data-task="BOARD<?php echo $_GET['category']; ?>">
+            <div class="col-sm-6 text-right"><span class="pull-right text-right" data-task="BOARD<?php echo $_GET['category']; ?>">
             <?php
                 if ( $url_tab!='Search' && $url_tab!='Summary' && $url_tab!='Reporting' ) {
-                    echo '<div class="gap-top gap-right" style="font-size:1.5em;">'; ?>
-                      <img class="no-toggle" title="<?= TASK_NOUN ?> Board History" style="cursor:pointer; padding: 0.25em 0.5em; height:2.5em;" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Tasks_Updated/task_history.php?label=<?=$label?>&taskboardid=<?=$taskboardid?>','auto',true,true);" src="../img/icons/eyeball.png">
-                      <a href=""><img src="../img/clear-checklist.png" class="no-toggle" alt="Clear Completed Tasks" title="Clear Completed Tasks" style="height:2em;" onclick="clearCompleted(this);" /></a>
+                    echo '<div class="gap-top gap-right">'; ?>
+                      <img class="no-toggle cursor-hand" title="<?= TASK_NOUN ?> Board History" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Tasks_Updated/task_history.php?label=<?=$label?>&taskboardid=<?=$taskboardid?>','auto',true,true);" src="../img/icons/eyeball.png" width="25" />
+                      <a href=""><img src="../img/clear-checklist.png" class="no-toggle cursor-hand offset-left-5" alt="Clear Completed Tasks" title="Clear Completed Tasks" onclick="clearCompleted(this);" width="25" /></a>
                     <?php
                     if ( !empty($_GET['category']) && !empty($_GET['tab']) && $_GET['tab'] != 'sales') { ?>
-                        <span class="no-toggle" style="cursor:pointer; padding: 0.25em 0.5em;" title="Edit <?= TASK_NOUN ?> Board" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Tasks_Updated/add_taskboard.php?taskboardid=<?=$_GET['category']?>', '50%', false, false, $('.iframe_overlay').closest('.container').outerHeight() + 20); return false;"><img src="<?php echo WEBSITE_URL; ?>/img/icons/ROOK-edit-icon.png" style="height:2em;"></span>
+                        <span class="no-toggle cursor-hand offset-left-5" title="Edit <?= TASK_NOUN ?> Board" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Tasks_Updated/add_taskboard.php?taskboardid=<?=$_GET['category']?>', '50%', false, false, $('.iframe_overlay').closest('.container').outerHeight() + 20); return false;"><img src="<?php echo WEBSITE_URL; ?>/img/icons/ROOK-edit-icon.png" width="25" /></span>
                     <?php }
                         if ( !empty($_GET['category']) && !empty($_GET['tab']) && in_array('archive', $quick_actions) && $_GET['tab'] != 'sales') { ?>
-                            <span class="no-toggle" style="cursor:pointer; padding: 0.25em 0.5em 0.25em 0;" title="Archive <?= TASK_NOUN ?> Board" onclick="task_archive(this); return false;"><img src="<?php echo WEBSITE_URL; ?>/img/icons/trash-icon-red.png" style="height:2em;"></span><?php
+                            <span class="no-toggle cursor-hand offset-left-5" title="Archive <?= TASK_NOUN ?> Board" onclick="task_archive(this); return false;"><img src="<?php echo WEBSITE_URL; ?>/img/icons/trash-icon-red.png" width="25" /></span><?php
                         }
 
                         /*
@@ -628,9 +637,9 @@ function addIntakeForm(btn) {
                 -->
 
 <div class="standard-dashboard-body-content">
-<div class="dashboard-item">
+<div class="dashboard-item no-gap-pad">
 
-<div class="container">
+<div class="container no-padding">
 	<div class="iframe_holder" style="display:none;">
 		<img src="<?php echo WEBSITE_URL; ?>/img/icons/close.png" class="close_iframer" width="45px" style="position:relative; right:10px; float:right; top:58px; cursor:pointer;">
 		<span class="iframe_title" style="color:white; font-weight:bold; position:relative; top:58px; left:20px; font-size:30px;"></span>
@@ -698,7 +707,7 @@ function addIntakeForm(btn) {
 
                 <div class="clearfix"></div>
 
-                <div id="scrum_tickets" class="scrum_tickets"><?php
+                <div id="scrum_tickets" class="scrum_tickets no-overflow-y" style="padding:0 8px;"><?php
 					$taskboardid = filter_var($_GET['category']);
                     if($_GET['tab'] == 'sales') {
 						$task_path = get_field_value('sales_path', 'sales', 'salesid', $taskboardid);
@@ -828,7 +837,7 @@ function addIntakeForm(btn) {
 								$alert = '&nbsp;<img src="../img/alert.png" border="0" alt="" />';
 							} */
 
-							echo '<ul id="sortable'.$i.'" class="sortable_milestone connectedSortable '.$status.' '.$class_on.' '.($i > 0 ? 'hidden-xs' : '').'" style="padding-top:0;">'; ?>
+							echo '<div id="sortable'.$i.'" class="sortable_milestone connectedSortable '.$status.' '.$class_on.' '.($i > 0 ? 'hidden-xs' : '').'" style="padding-top:0;">'; ?>
 
 							<div class="info-block-header">
 								<h4 class="pull-left">
@@ -839,8 +848,7 @@ function addIntakeForm(btn) {
                                 <div class="milestone_actions pull-right offset-top-5">
 									<img class="small no-gap-top milestone_drag cursor-hand inline-img pull-right no-toggle" style="padding-top:2px;" src="../img/icons/drag_handle.png" title="Drag">
 									<img class="small milestone_rem cursor-hand no-gap-top inline-img pull-right" src="../img/remove.png">
-									<img class="small milestone_add cursor-hand no-gap-top inline-img pull-right" src="../img/icons/ROOK-add-icon.png">
-
+									<img class="small milestone_add cursor-hand no-gap-top pull-right" src="../img/icons/ROOK-add-icon.png" width="20">
 									<input type="hidden" name="sort" value="<?= $milestone_row['sort'] ?>">
                                 </div>
                                 <div class="clearfix"></div>
@@ -851,14 +859,42 @@ function addIntakeForm(btn) {
                                     }
                                 ?>
                                 <input type="text" name="milestone_name" data-milestone="<?= $cat_tab ?>" data-id="<?= $milestone_row['id'] ?>" data-table="<?= $milestone_row['table'] ?>" value="<?= $label ?>" style="display:none;" class="form-control">
-                                <div class="small">TASKS: <?= $task_count ?></div>
+                                <div class="pull-left small">TASKS: <?= $task_count ?></div>
+                                <div class="pull-right" style="margin-top:-6px;"><img src="../img/icons/ROOK-3dot-icon.png" alt="Show/Hide Options" title="Show/Hide Options" class="no-toggle cursor-hand milestone_options" width="20" /></div>
+                                <div class="clearfix"></div>
 								<!--
 								</a>
 								-->
 								<div class="clearfix"></div>
-							</div><?php
+							</div>
+                            <ul class="scrollable_unit no-gap-pad overflow-y"><?php
 							/* echo '<li class="ui-state-default ui-state-disabled no-sort '.$class_on_2.'">';
 							echo $alert.$cat_tab.'<br>'.$timeline[$i].'</li>'; */
+                            
+							echo '<li class="new_task_box no-sort">
+								<input onChange="changeEndAme(this)" name="add_task" placeholder="Quick Add Task" id="add_new_task '.$status.' '.$task_path.' '.$task_board.' '.$salesid.'" type="text" class="form-control" /><br /><br />'; ?>
+
+                    <?php if(get_config($dbc, 'task_include_intake') == 1) { ?>
+					<a href="" onclick="addIntakeForm(this); return false;" data-milestone="<?= $milestone_row['milestone'] ?>" class="btn brand-btn pull-right">Intake +</a>
+                    <?php } ?>
+                    <?php if(get_config($dbc, 'task_include_checklists') == 1) {
+                    ?>
+                    <a href="" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Checklist/edit_checklist.php?edit=NEW&iframe_slider=1&add_to_taskboard=1&task_milestone_timeline=<?=$status?>&task_path=<?=$task_path?>&task_board=<?=$task_board?>', '50%', false, false, $('.iframe_overlay').closest('.container').outerHeight() + 20); return false;" class="btn brand-btn pull-right">Checklist +</a>
+                    <?php } ?>
+
+                    <?php
+                    $slider_layout = !empty(get_config($dbc, 'tasks_slider_layout')) ? get_config($dbc, 'tasks_slider_layout') : 'accordion';
+
+                    if($slider_layout == 'accordion') {
+                    ?>
+
+                    <a href="" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Tasks_Updated/add_task.php?tab=<?=$_GET['tab']?>&task_milestone_timeline=<?=$status?>&task_path=<?=$task_path?>&task_board=<?=$task_board?>&salesid=<?=$_GET['category']?>', '50%', false, false, $('.iframe_overlay').closest('.container').outerHeight() + 20); return false;" class="btn brand-btn pull-right"><?= TASK_NOUN ?> +</a>
+
+                    <?php } else { ?>
+                    <a href="../Tasks_Updated/add_task_full_view.php?tab=<?=$_GET['tab']?>&task_milestone_timeline=<?=$status?>&task_path=<?=$task_path?>&task_board=<?=$task_board?>&salesid=<?=$_GET['category']?>" class="btn brand-btn pull-right"><?= TASK_NOUN ?> +</a>
+                    <?php } ?>
+
+                            </li><?php
 
 							while($row = mysqli_fetch_array( $result )) {
 								if ( $row['status']==$status_complete ) {
@@ -894,26 +930,20 @@ function addIntakeForm(btn) {
                                     <div class="row pull-left t_name">
                                         <h4 style="<?= $style_strikethrough ?>">
                                             <input type="checkbox" name="status" value="<?= $row['tasklistid'] ?>" class="form-checkbox no-margin small pull-left" onchange="mark_done(this);" <?= ( $row['status'] == 'Complete' || $row['status'] == 'Done' || $row['status'] == 'Finish' ) ? 'checked disabled' : '' ?> />
-                                            <div class="pull-left gap-left">
-
-                                            <?php
-                                            $slider_layout = !empty(get_config($dbc, 'tasks_slider_layout')) ? get_config($dbc, 'tasks_slider_layout') : 'accordion';
-
-                                            if($slider_layout == 'accordion') {
-                                            ?>
-                                            <a href="" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Tasks_Updated/add_task.php?type=<?=$row['status']?>&tasklistid=<?=$row['tasklistid']?>', '50%', false, false, $('.iframe_overlay').closest('.container').outerHeight() + 20); return false;"><?= TASK_NOUN ?> #<?= $row['tasklistid'] ?> </a>
-                                            <?php } else { ?>
-                                            <a  href="../Tasks_Updated/add_task_full_view.php?type=<?=$row['status']?>&tasklistid=<?=$row['tasklistid']?>"><?= TASK_NOUN ?> #<?= $row['tasklistid'] ?> </a>
-                                            <?php } ?>
-											<br><span><?= $row['heading']; ?></span>
+                                            <div class="pull-left gap-left"><?php
+                                                $slider_layout = !empty(get_config($dbc, 'tasks_slider_layout')) ? get_config($dbc, 'tasks_slider_layout') : 'accordion';
+                                                if($slider_layout == 'accordion') { ?>
+                                                    <a href="" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Tasks_Updated/add_task.php?type=<?=$row['status']?>&tasklistid=<?=$row['tasklistid']?>', '50%', false, false, $('.iframe_overlay').closest('.container').outerHeight() + 20); return false;"><?= TASK_NOUN ?> #<?= $row['tasklistid'] ?> </a><?php
+                                                } else { ?>
+                                                    <a  href="../Tasks_Updated/add_task_full_view.php?type=<?=$row['status']?>&tasklistid=<?=$row['tasklistid']?>"><?= TASK_NOUN ?> #<?= $row['tasklistid'] ?></a><?php
+                                                } ?>
                                             </div>
                                         </h4>
-
                                     </div>
                                     <span class="pull-right action-icons offset-top-5 t_drag" data-task="<?= $row['tasklistid'] ?>">
-                                        <img class="drag_handle pull-right inline-img offset-top-7 no-toggle" src="../img/icons/drag_handle.png" title="Drag" />
+                                        <img class="drag_handle pull-right inline-img no-toggle" src="../img/icons/drag_handle.png" title="Drag" />
                                     </span>
-                                    <div class="small pull-right offset-top-5 t_staff"><?php
+                                    <div class="pull-right t_staff"><?php
                                         /*if ( $row['company_staff_sharing'] ) {
                                             $c_ex = explode(',', $row['company_staff_sharing']);
                                             $c_unique = array_unique($c_ex);
@@ -939,9 +969,10 @@ function addIntakeForm(btn) {
                                         // }
                                          ?>
                                     </div>
-                                    <div class="clearfix"></div><?php
+                                    <div class="clearfix"></div>
+                                    <h4><?= $row['heading']; ?></h4><?php
 
-                                    echo '<span class="pull-right action-icons double-gap-bottom gap-top" style="width: 100%;" data-task="'.$row['tasklistid'].'">';
+                                    echo '<span class="pull-right action-icons double-gap-bottom full-width" data-task="'.$row['tasklistid'].'">';
                                         $mobile_url_tab = trim($_GET['tab']);
                                         if ( $url_tab=='Project' || $mobile_url_tab=='Project' ) { ?>
                                             <span style="display:inline-block; text-align:center; width:11%"><a href="../Project/projects.php?edit=<?= $row['projectid'] ?>" title="View Project" style="background-color:#fff; border:1px solid #3ac4f2; border-radius:50%; color:#3ac4f2 !important; display:inline-block; height:1.5em; width:1.5em;">?</a></span><?php
@@ -1031,7 +1062,7 @@ function addIntakeForm(btn) {
                                         <div class="form-group clearfix full-width">
                                             <div class="updates_<?= $row['tasklistid'] ?> col-sm-12"><?php
                                                 while ( $row_doc=mysqli_fetch_assoc($documents) ) { ?>
-                                                    <div class="note_block row">
+                                                    <div class="note_block row" style="padding:5px 10px 0 10px;">
                                                         <div class="col-xs-2 col-sm-1"><?= profile_id($dbc, $row_doc['created_by']); ?></div>
                                                         <div class="col-xs-10 col-sm-11" style="<?= $style_strikethrough ?>">
                                                             <div><a target="_blank" href="../Tasks_Updated/download/<?= $row_doc['document'] ?>"><?= $row_doc['document'] ?></a></div>
@@ -1080,35 +1111,9 @@ function addIntakeForm(btn) {
                             $salesid = 0;
                             if(!empty($_GET['tab']) && $_GET['tab'] == 'sales') {
                                 $salesid = $_GET['category'];
-                            }
-							echo '<li class="new_task_box no-sort">
-								<input onChange="changeEndAme(this)" name="add_task" placeholder="Quick Add Task" id="add_new_task '.$status.' '.$task_path.' '.$task_board.' '.$salesid.'" type="text" class="form-control" /><br /><br />';
+                            } ?>
 
-                            ?>
-
-							<!-- <li class="no-sort"> -->
-
-                    <?php if(get_config($dbc, 'task_include_intake') == 1) { ?>
-					<a href="" onclick="addIntakeForm(this); return false;" data-milestone="<?= $milestone_row['milestone'] ?>" class="btn brand-btn pull-right">Add Intake</a>
-                    <?php } ?>
-                    <?php if(get_config($dbc, 'task_include_checklists') == 1) {
-                    ?>
-                    <a href="" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Checklist/edit_checklist.php?edit=NEW&iframe_slider=1&add_to_taskboard=1&task_milestone_timeline=<?=$status?>&task_path=<?=$task_path?>&task_board=<?=$task_board?>', '50%', false, false, $('.iframe_overlay').closest('.container').outerHeight() + 20); return false;" class="btn brand-btn pull-right">Add Checklist</a>
-                    <?php } ?>
-
-                    <?php
-                    $slider_layout = !empty(get_config($dbc, 'tasks_slider_layout')) ? get_config($dbc, 'tasks_slider_layout') : 'accordion';
-
-                    if($slider_layout == 'accordion') {
-                    ?>
-
-                    <a href="" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Tasks_Updated/add_task.php?tab=<?=$_GET['tab']?>&task_milestone_timeline=<?=$status?>&task_path=<?=$task_path?>&task_board=<?=$task_board?>&salesid=<?=$_GET['category']?>', '50%', false, false, $('.iframe_overlay').closest('.container').outerHeight() + 20); return false;" class="btn brand-btn pull-right">Add <?= TASK_NOUN ?></a>
-
-                    <?php } else { ?>
-                    <a href="../Tasks_Updated/add_task_full_view.php?tab=<?=$_GET['tab']?>&task_milestone_timeline=<?=$status?>&task_path=<?=$task_path?>&task_board=<?=$task_board?>&salesid=<?=$_GET['category']?>" class="btn brand-btn pull-right">Add <?= TASK_NOUN ?></a>
-                    <?php } ?>
-
-                            </li><?php
+							<!-- <li class="no-sort"> --><?php
 
 							if(get_config($dbc, 'task_include_checklists') == 1) {
                                 while($row = mysqli_fetch_array( $checklist_result )) {
@@ -1174,6 +1179,7 @@ function addIntakeForm(btn) {
 							}
 
 							echo '</ul>';
+							echo '</div><!-- #sortable -->';
 							$i++;
 						}
 					} else {
