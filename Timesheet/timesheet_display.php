@@ -169,7 +169,7 @@ var checkTimeOverlaps = function() {
                         end_time2 = new Date(date+' '+$(tr2).find('[name="end_time"]').val())
                         if((start_time.getTime() > start_time2.getTime() && start_time.getTime() < end_time2.getTime()) || (end_time.getTime() > start_time2.getTime() && end_time.getTime() < end_time2.getTime())) {
                             $(tr).css('background-color', 'red');
-                            $('.overlap_time').show();
+                            //$('.overlap_time').show();
                         }
                     }
                 });
@@ -553,7 +553,7 @@ var useProfileSig = function(chk) {
                 <input type="hidden" name="ticketid" value="'.$search_ticket.'">
                 <input type="hidden" name="deleted" value="0">
                 <input type="hidden" name="ticketattachedid" value="'.$ticket_attached_id.'">
-                <td data-title="Date" style="text-align:center">'.(in_array('editable_dates',$value_config) ? '<input type="text" name="date" '.$mod.' value="'.$date.'" class="form-control '.($mod != 'readonly' ? 'datepicker' : 'no-datepicker').'">' : $date).'<span style="display: none;" class="overlap_time">Overlapping Time Conflict</span></td>
+                <td data-title="Date" style="text-align:center">'.(in_array('editable_dates',$value_config) ? '<input type="text" name="date" '.$mod.' value="'.$date.'" class="form-control '.($mod != 'readonly' ? 'datepicker' : 'no-datepicker').'">' : $date).'<span style="display: none; visibility: hidden;" class="overlap_time">Overlapping Time Conflict</span></td>
                 '.(in_array('schedule',$value_config) ? '<td data-title="Schedule">'.$hours.'</td>' : '').'
                 '.(in_array('scheduled',$value_config) ? '<td data-title="Scheduled Hours"></td>' : '').'
                 '.(in_array('ticketid',$value_config) ? '<td data-title="'.TICKET_NOUN.'">'.$ticket_labels.'</td>' : '').'
