@@ -7,9 +7,14 @@ $ticket_status_color = explode(',',get_config($dbc, 'ticket_status_color')); ?>
 <script>
 $(document).ready(function() {
 	$('input').change(saveTypes);
-	$('.main-screen').sortable({
+	$('.ticket_group').sortable({
 		handle: '.drag-handle',
-		items: '.type-option',
+		items: '.ticket_status',
+		update: saveTypes
+	});
+	$('.task_group').sortable({
+		handle: '.drag-handle',
+		items: '.task_status',
 		update: saveTypes
 	});
 });
@@ -121,53 +126,61 @@ function getInitials(string) {
 		</ul>
 	</div>
 </div>
-<h3><?= TICKET_NOUN ?> Statuses</h3>
-<?php foreach($ticket_status as $i => $status) { ?>
-	<div class="form-group ticket_status">
-		<label class="col-sm-3"><span class="popover-examples"><a data-toggle="tooltip" data-original-title="These statuses allow you to organize your <?= TICKET_TILE ?> by moving them from status to status."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span><?= TICKET_NOUN ?> Status:</label>
-		<div class="col-sm-4">
-			<input type="text" name="ticket_status[]" class="form-control" value="<?= $status ?>">
-		</div>
-		<div class="col-sm-2" style="text-align: center;">
-			<input type="hidden" name="ticket_status_icons[]" value="<?= $ticket_status_icons[$i] ?>">
-			<span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will allow you to associate an icon or initials with a particular status, making it easier to see at a glance where your <?= TICKET_TILE ?> are."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>
-			<span class="show-on-mob"><b>Icon:</b> </span><a href="" class="icon_link" onclick="chooseStatusIcon(this); return false;">
-				<?php if(empty(get_ticket_status_icon($dbc, $status))) {
-					echo '<button class="btn brand-btn">Choose Icon</button>';
-				} else if(get_ticket_status_icon($dbc, $status) == 'initials') {
-					echo '<span class="id-circle-small" style="margin: 0.5em; background-color: #6DCFF6; font-family: \'Open Sans\';">'.get_initials($status).'</span>';
-				} else {
-					echo '<img src="'.get_ticket_status_icon($dbc, $status).'" class="inline-img">';
-				} ?>
-			</a>
-		</div>
-		<div class="col-sm-1">
-                <input type="color" name="ticket_status_color[]" class="form-control" value="<?= $ticket_status_color[$i] ?>">
-		</div>
-		<div class="col-sm-1">
-			<img src="../img/icons/drag_handle.png" style="height: 1.5em; margin: 0 0.25em;" class="pull-right drag-handle">
-			<img src="../img/icons/ROOK-add-icon.png" style="height: 1.5em; margin: 0 0.25em;" class="pull-right" onclick="addOpt('ticket_status');">
-			<img src="../img/remove.png" style="height: 1.5em; margin: 0 0.25em;" class="pull-right" onclick="removeOpt(this, 'ticket_status');">
-		</div>
-		<div class="clearfix"></div>
-	</div>
-<?php } ?>
+<div class="ticket_group">
+    <h3><?= TICKET_NOUN ?> Statuses</h3>
+    <?php foreach($ticket_status as $i => $status) { ?>
+        <div class="form-group ticket_status">
+            <div style="width:7em;" class="pull-right">
+                <img src="../img/icons/drag_handle.png" class="inline-img pull-right drag-handle">
+                <img src="../img/remove.png" class="inline-img pull-right" onclick="removeOpt(this, 'ticket_status');">
+                <img src="../img/icons/ROOK-add-icon.png" class="inline-img pull-right" onclick="addOpt('ticket_status');">
+            </div>
+            <div class="scale-to-fill">
+                <label class="col-sm-3"><span class="popover-examples"><a data-toggle="tooltip" data-original-title="These statuses allow you to organize your <?= TICKET_TILE ?> by moving them from status to status."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span><?= TICKET_NOUN ?> Status:</label>
+                <div class="col-sm-5">
+                    <input type="text" name="ticket_status[]" class="form-control" value="<?= $status ?>">
+                </div>
+                <div class="col-sm-2" style="text-align: center;">
+                    <input type="hidden" name="ticket_status_icons[]" value="<?= $ticket_status_icons[$i] ?>">
+                    <span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will allow you to associate an icon or initials with a particular status, making it easier to see at a glance where your <?= TICKET_TILE ?> are."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>
+                    <span class="show-on-mob"><b>Icon:</b> </span><a href="" class="icon_link" onclick="chooseStatusIcon(this); return false;">
+                        <?php if(empty(get_ticket_status_icon($dbc, $status))) {
+                            echo '<button class="btn brand-btn">Choose Icon</button>';
+                        } else if(get_ticket_status_icon($dbc, $status) == 'initials') {
+                            echo '<span class="id-circle-small" style="margin: 0.5em; background-color: #6DCFF6; font-family: \'Open Sans\';">'.get_initials($status).'</span>';
+                        } else {
+                            echo '<img src="'.get_ticket_status_icon($dbc, $status).'" class="inline-img">';
+                        } ?>
+                    </a>
+                </div>
+                <div class="col-sm-2">
+                        <input type="color" name="ticket_status_color[]" class="form-control" value="<?= $ticket_status_color[$i] ?>">
+                </div>
+            </div>
+            <div class="clearfix"></div>
+        </div>
+    <?php } ?>
+</div>
 <hr>
-<h3>Task Statuses</h3>
-<?php foreach($task_status as $status) { ?>
-	<div class="form-group task_status">
-		<label class="col-sm-3">Task Status:</label>
-		<div class="col-sm-8">
-			<input type="text" name="task_status[]" class="form-control" value="<?= $status ?>">
-		</div>
-		<div class="col-sm-1">
-			<img src="../img/icons/drag_handle.png" style="height: 1.5em; margin: 0 0.25em;" class="pull-right drag-handle">
-			<img src="../img/icons/ROOK-add-icon.png" style="height: 1.5em; margin: 0 0.25em;" class="pull-right" onclick="addOpt('task_status');">
-			<img src="../img/remove.png" style="height: 1.5em; margin: 0 0.25em;" class="pull-right" onclick="removeOpt(this, 'task_status');">
-		</div>
-		<div class="clearfix"></div>
-	</div>
-<?php } ?>
+<div class="task_group">
+    <h3>Task Statuses</h3>
+    <?php foreach($task_status as $status) { ?>
+        <div class="form-group task_status">
+            <div style="width:7em;" class="pull-right">
+                <img src="../img/icons/drag_handle.png"  class="inline-img pull-right drag-handle">
+                <img src="../img/remove.png" class="inline-img pull-right" onclick="removeOpt(this, 'task_status');">
+                <img src="../img/icons/ROOK-add-icon.png" class="inline-img pull-right" onclick="addOpt('task_status');">
+            </div>
+            <div class="scale-to-fill">
+                <label class="col-sm-3">Task Status:</label>
+                <div class="col-sm-9">
+                    <input type="text" name="task_status[]" class="form-control" value="<?= $status ?>">
+                </div>
+            </div>
+            <div class="clearfix"></div>
+        </div>
+    <?php } ?>
+</div>
 <?php if(basename($_SERVER['SCRIPT_FILENAME']) == 'field_config_types.php') { ?>
 	<div style="display:none;"><?php include('../footer.php'); ?></div>
 <?php } ?>

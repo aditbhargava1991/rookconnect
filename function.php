@@ -598,6 +598,13 @@ function get_config($dbc, $name, $multi = false, $separator = ',') {
 			return 'Sales Leads';
 		} else if($name == 'ticket_archive_status') {
 			return 'Archive#*#Archived';
+		} else if($name == 'cust_support_tab_list') {
+            $value = ['services','scrum','new','feedback'];
+            foreach(explode(',',get_config($dbc, 'ticket_tabs')) as $ticket_tab) {
+                $value[] = config_safe_str($ticket_tab);
+            }
+            $value[] = 'closed';
+			return implode(',',$value);
 		}
 	}
 

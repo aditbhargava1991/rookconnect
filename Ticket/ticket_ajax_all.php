@@ -3069,5 +3069,3 @@ if($_GET['action'] == 'get_ticket_client') {
 		}
 	}
 }
-?>
-
