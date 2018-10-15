@@ -8,17 +8,8 @@
 
     <div class="row">
         <label for="site_name" class="col-sm-3" style="<?= $style_strikethrough ?>">Staff:</label>
-        <div class="col-sm-9" style="<?= $style_strikethrough ?>">
-            <!--
-            <select multiple onchange="mark_task_staff(this);" data-placeholder="Select Staff" name="task_userid" data-table="tasklist" data-field="contactid" class="chosen-select-deselect form-control" id="staff_<?php echo $item['tasklistid']; ?>">
-                <?php $staff_list = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name` FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `deleted`=0 AND `status`>0"),MYSQLI_ASSOC));
-                foreach($staff_list as $staff_id) { ?>
-                     <!-- <option <?= ($staff_id == $_SESSION['contactid'] ? "selected" : '') ?> value='<?=  $staff_id; ?>' ><?= get_contact($dbc, $staff_id) ?></option> --
-                    <option <?= (strpos(','.$item['contactid'].',', ','.$staff_id.',') !== false) ? ' selected' : ''; ?> value="<?= $staff_id; ?>"><?= get_contact($dbc, $staff_id); ?></option>
-                <?php } ?>
-            </select>
-            -->
 
+        <div class="col-sm-9" style="<?= $style_strikethrough ?>">
             <div class="row" style="<?= $style_strikethrough ?>"><?php
                 $task_contactids = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `contactid` FROM `tasklist` WHERE tasklistid='{$item['tasklistid']}' AND `deleted`=0"))['contactid'];
                 foreach(explode(',',trim($task_contactids,',')) as $task_contactid) { ?>
@@ -49,7 +40,8 @@
     <div class="row" style="<?= $style_strikethrough ?>">
         <label for="first_name" class="col-sm-3" style="<?= $style_strikethrough ?>">Status:</label>
         <div class="col-sm-9" style="<?= $style_strikethrough ?>">
-            <select style="<?= $style_strikethrough ?>" onchange="task_status(this);" data-placeholder="Select a Status..." name="status" class="<?php echo (strpos($task_mandatory_fields, ',Status,') !== FALSE ? 'required' : ''); ?> chosen-select-deselect form-control" id="status_<?php echo $item['tasklistid']; ?>">
+
+            <select style="<?= $style_strikethrough ?>" onchange="task_status(this);" data-placeholder="Select a Status..." name="status" data-table="tasklist" data-field="status" class="<?php echo (strpos($task_mandatory_fields, ',Status,') !== FALSE ? 'required' : ''); ?> chosen-select-deselect form-control" id="status_<?php echo $item['tasklistid']; ?>">
                 <option value=""></option>
               <?php
                 $tabs = get_config($dbc, 'ticket_status');

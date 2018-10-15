@@ -966,22 +966,31 @@ function addIntakeForm(btn) {
                                     //echo '</span>'; ?>
                                     <div class="row pull-left t_name">
                                         <?= $row['flag_label'] ?>
-                                        <h4 style="<?= $style_strikethrough ?>">
-                                            <input type="checkbox" name="status" value="<?= $row['tasklistid'] ?>" class="form-checkbox no-margin small pull-left" onchange="mark_done(this);" <?= ( $row['status'] == 'Complete' || $row['status'] == 'Done' || $row['status'] == 'Finish' ) ? 'checked disabled' : '' ?> />
-                                            <div class="pull-left gap-left"><?php
-                                                $slider_layout = !empty(get_config($dbc, 'tasks_slider_layout')) ? get_config($dbc, 'tasks_slider_layout') : 'accordion';
-                                                if($slider_layout == 'accordion') { ?>
-                                                    <a href="" style="<?= $style_strikethrough ?>" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Tasks_Updated/add_task.php?type=<?=$row['status']?>&tasklistid=<?=$row['tasklistid']?>', '50%', false, false, $('.iframe_overlay').closest('.container').outerHeight() + 20); return false;"><?= TASK_NOUN ?> #<?= $row['tasklistid'] ?> </a><?php
-                                                } else { ?>
-                                                    <a style="<?= $style_strikethrough ?>" href="../Tasks_Updated/add_task_full_view.php?type=<?=$row['status']?>&tasklistid=<?=$row['tasklistid']?>"><?= TASK_NOUN ?> #<?= $row['tasklistid'] ?></a><?php
-                                                } ?>
+                                        <h4 style="<?= $style_strikethrough ?>">                                                                                                                              
+                                              
+                                            <input type="checkbox" name="status" value="<?= $row['tasklistid'] ?>" class="form-checkbox no-margin small pull-left" onchange="mark_done(this);" <?= ( $row['status'] == 'Complete' || $row['status'] == 'Done' || $row['status'] == 'Finish') ? 'checked' : '' ?> />
+                                            <div class="pull-left gap-left">
+
+                                            <?php
+                                            $slider_layout = !empty(get_config($dbc, 'tasks_slider_layout')) ? get_config($dbc, 'tasks_slider_layout') : 'accordion';
+
+                                            if($slider_layout == 'accordion') {
+                                            ?>
+                                            <a href="" style="<?= $style_strikethrough ?>" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Tasks_Updated/add_task.php?type=<?=$row['status']?>&tasklistid=<?=$row['tasklistid']?>', '50%', false, false, $('.iframe_overlay').closest('.container').outerHeight() + 20); return false;"><?= TASK_NOUN ?> #<?= $row['tasklistid'] ?> </a>
+                                            <?php } else { ?>
+                                            <a style="<?= $style_strikethrough ?>" href="../Tasks_Updated/add_task_full_view.php?type=<?=$row['status']?>&tasklistid=<?=$row['tasklistid']?>"><?= TASK_NOUN ?> #<?= $row['tasklistid'] ?> </a>
+                                            <?php } ?>
+											<br><span style="<?= $style_strikethrough ?>"><?= $row['heading']; ?></span>
+
                                             </div>
                                         </h4>
                                     </div>
                                     <span style="<?= $style_strikethrough ?>" class="pull-right action-icons offset-top-5 t_drag" data-task="<?= $row['tasklistid'] ?>">
+
                                         <img class="drag_handle pull-right inline-img no-toggle" src="../img/icons/drag_handle.png" title="Drag" />
                                     </span>
                                     <div class="pull-right t_staff" style="<?= $style_strikethrough ?>"><?php
+
                                         /*if ( $row['company_staff_sharing'] ) {
                                             $c_ex = explode(',', $row['company_staff_sharing']);
                                             $c_unique = array_unique($c_ex);
@@ -1007,31 +1016,13 @@ function addIntakeForm(btn) {
                                         // }
                                          ?>
                                     </div>
-
+                  
                                     <div class="clearfix"></div>
-                                    <h4><?= $row['heading']; ?></h4><?php
+                                    <h4><?= $row['heading']; ?></h4>
 
-                                    echo '<span class="pull-right action-icons double-gap-bottom full-width" data-task="'.$row['tasklistid'].'">'; ?>
-<!--
-
-                                    <div class="clearfix"></div>
-
-                                    <div style="position: relative; display:none" id="flag_color_box_<?php //echo $row['tasklistid']?>">
-                                    	<div class="form-group flag_color_box">
-                                    		<label class="col-sm-5 control-label" style="text-align: left;">Flag Colour:</label>
-                                    		<div class="col-sm-7">
-
-                                            <input id="demo_<?php //echo $row['tasklistid']?>" type="text" class="form-control demo_cpicker" value="<?php //echo $row['flag_colour']?>" />
-                                            </div>
-                                            <div class="col-sm-12">
-                                            	<input style="margin-top:20px" type="button" value="Done" class="btn brand-btn pull-right" onclick="flag_item('<?php //echo $row['tasklistid']?>');">
-                                            	<input style="margin-top:20px" type="button" class="btn brand-btn pull-right" value="Close" onclick="$('#flag_color_box_<?php //echo $row['tasklistid']?>').hide()">
-                                            </div>
-                                		</div>
-                                	</div> -->
                                     <?php
 
-                        //            echo '<span class="pull-right action-icons double-gap-bottom gap-top" style="width: 100%; '.$style_strikethrough.'" data-task="'.$row['tasklistid'].'">';
+                                    echo '<span class="pull-right action-icons double-gap-bottom full-width" data-task="'.$row['tasklistid'].'">'; 
 
                                         $mobile_url_tab = trim($_GET['tab']);
                                         if ( $url_tab=='Project' || $mobile_url_tab=='Project' ) { ?>
