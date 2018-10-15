@@ -124,10 +124,11 @@ if($_GET['action'] == 'mark_favourite') {
 	$field = filter_var($_POST['field'],FILTER_SANITIZE_STRING);
 	$value = filter_var($_POST['value'],FILTER_SANITIZE_STRING);
 	$pid = filter_var($_POST['projectid'],FILTER_SANITIZE_STRING);
+	$new_colour = filter_var($_POST['new_colour'],FILTER_SANITIZE_STRING);
 	if($field == 'flag_colour') {
 		$colours = [];
 		$labels = [];
-		if($table == 'task_list') {
+		/*if($table == 'task_list') {
 			$colours = explode(',', mysqli_fetch_array(mysqli_query($dbc, "SELECT `flag_colours` FROM `task_dashboard`"))['flag_colours']);
 			$labels = explode('#*#', $get_config['flag_names']);
 		} else {
@@ -137,13 +138,13 @@ if($_GET['action'] == 'mark_favourite') {
 		$colour_key = array_search($value, $colours);
 		$new_colour = ($colour_key === FALSE ? $colours[0] : ($colour_key + 1 < count($colours) ? $colours[$colour_key + 1] : ($table == 'tasklist' ? 'F2F2F2' : 'FFFFFF')));
 		$label = ($colour_key === FALSE ? $labels[0] : ($colour_key + 1 < count($colours) ? $labels[$colour_key + 1] : ''));
-		echo $new_colour.html_entity_decode($label);
+		echo $new_colour.html_entity_decode($label);*/
 		mysqli_query($dbc, "UPDATE `$table` SET `flag_colour`='$new_colour' WHERE `$id_field`='$id'");
 
         $note = '<em>Flag added by '.get_contact($dbc, $_SESSION['contactid']).' [PROFILE '.$_SESSION['contactid'].']: '.$value.'</em>';
 
         mysqli_query($dbc, "INSERT INTO `task_comments` (`tasklistid`, `comment`, `created_by`, `created_date`) VALUES ('$refid','".filter_var(htmlentities($note),FILTER_SANITIZE_STRING)."','".$_SESSION['contactid']."','".date('Y-m-d')."')");
-
+        echo $new_colour;
 	} else if($field == 'flag_manual') {
 		$colour = filter_var($_POST['colour'],FILTER_SANITIZE_STRING);
 		$label = filter_var($_POST['label'],FILTER_SANITIZE_STRING);

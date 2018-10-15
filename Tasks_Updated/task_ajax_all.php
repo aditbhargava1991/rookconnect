@@ -479,6 +479,13 @@ if($_GET['fill'] == 'taskflagmanual') {
 	$end = filter_var($_POST['end'],FILTER_SANITIZE_STRING);
 	mysqli_query($dbc, "UPDATE `tasklist` SET `flag_colour`='$value',`flag_label`='$label',`flag_start`='$start',`flag_end`='$end' WHERE `tasklistid`='$id'");
 }
+if($_GET['fill'] == 'task_highlight') {
+	$tasklistid = $_GET['tasklistid'];
+	$taskcolor = $_GET['taskcolor'];
+    echo "UPDATE `tasklist` SET `flag_colour`='$taskcolor' WHERE `tasklistid`='$tasklistid'";
+	mysqli_query($dbc, "UPDATE `tasklist` SET `flag_colour`='$taskcolor' WHERE `tasklistid`='$tasklistid'");
+}
+
 if($_GET['fill'] == 'taskflag') {
 	$item_id = $_POST['id'];
 	$type = $_POST['type'];
@@ -501,6 +508,19 @@ if($_GET['fill'] == 'taskflag') {
 		$result = mysqli_query($dbc, "UPDATE `task_board` SET `flag_colour`='$new_colour' WHERE `taskboardid` = '$item_id'");
 		echo $new_colour;
 	}
+}
+if($_GET['fill'] == 'taskflagcolorbox') {
+    $item_id = $_POST['id'];
+    $type = $_POST['type'];
+    $new_colour = $_POST['new_colour'];
+    if($type == 'task') {
+        $result = mysqli_query($dbc, "UPDATE `tasklist` SET `flag_colour`='$new_colour' WHERE `tasklistid` = '$item_id'");
+        echo $new_colour;
+    }
+    else {
+        $result = mysqli_query($dbc, "UPDATE `task_board` SET `flag_colour`='$new_colour' WHERE `taskboardid` = '$item_id'");
+        echo $new_colour;
+    }
 }
 if($_GET['fill'] == 'task_upload') {
 	$id = $_GET['id'];

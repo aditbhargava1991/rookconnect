@@ -66,6 +66,6 @@ if($_GET['revision'] > 0 && $form['pdf_name'] != '' && $ticketid > 0 && file_exi
 	$pdf->Output($file_name, 'F');
 	echo "<script>
 	window.top.open('".$file_name."', '_blank');
-	window.location.replace('".WEBSITE_URL."/Ticket/index.php?custom_form=".$form['id']."&ticketid=".$ticketid."');
+	window.location.replace('".WEBSITE_URL."/Ticket/index.php?custom_form=".$form['id']."&ticketid=".$ticketid."&revision=".$revision."&pdf_mode=edit');
 	</script>";
 }
