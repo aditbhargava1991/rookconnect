@@ -270,7 +270,7 @@ var useProfileSig = function(chk) {
             <?php if(strpos($timesheet_payroll_fields, ',Mileage,') !== FALSE) { ?><th style='text-align:center; vertical-align:bottom; width:2em;'><div>Mileage</div></th><?php } ?>
             <?php if(strpos($timesheet_payroll_fields, ',Mileage Rate,') !== FALSE) { ?><th style='text-align:center; vertical-align:bottom; width:2em;'><div>Mileage Rate</div></th><?php } ?>
             <?php if(strpos($timesheet_payroll_fields, ',Mileage Total,') !== FALSE) { ?><th style='text-align:center; vertical-align:bottom; width:2em;'><div>Mileage Total</div></th><?php } ?>
-            <?php if(in_array('comment_box',$value_config)) { ?><th style='text-align:center; vertical-align:bottom;'><div>Comments</div></th><?php } ?>
+            <?php // if(in_array('comment_box',$value_config)) { ?><th style='text-align:center; vertical-align:bottom;'><div>Function</div></th><?php //} ?>
             <?php if($current_page == 'time_cards.php' && in_array('signature',$value_config)) { ?><th style="width:6em;"><div>Parent/Guardian Signature</div></th><?php } ?>
             <?php if($current_page != 'time_cards.php') { ?><th style="width:6em;"><span class="popover-examples list-inline tooltip-navigation"><a style="top:0;" class="info_i_sm" data-toggle="tooltip" data-placement="top" title=""
                 data-original-title="Check the boxes on multiple lines, then click Sign and click <?= $current_page == 'payroll.php' ? 'Mark Paid' : 'Approve' ?>."><img src="<?php echo WEBSITE_URL; ?>/img/info.png" width="20"></a></span><?= $current_page == 'payroll.php' ? 'Paid' : 'Approve' ?>
@@ -477,7 +477,7 @@ var useProfileSig = function(chk) {
                 //Mileage Calculated Cost
                 $mileage_cost = $mileage * $mileage_rate;
                 $mileage_cost_total += $mileage_cost;
-                
+
                 $row = mysqli_fetch_array($result);
                 if($row['date'] != $date) {
                     $show_separator = 1;
@@ -511,11 +511,11 @@ var useProfileSig = function(chk) {
             $ticket_options = '';
             foreach($ticket_list as $ticket) {
                 $ticket_options .= "<option data-tasks='".json_encode(explode(',', $ticket['task_available']))."' ".($ticket['ticketid'] == $attached_ticketid ? 'selected' : '').' value="'.$ticket['ticketid'].'">'.get_ticket_label($dbc, $ticket).'</option>';
-            }			
+            }
             $task_options = '';
             foreach($task_list as $task) {
                 $task_options .= '<option '.($time_type == $task['description'] ? 'selected' : '').' value="'.$task['description'].'">'.$task['description'].'</option>';
-            }			
+            }
             $position_options = '';
             foreach($position_list as $position) {
                 $position_options .= '<option '.($position[0] == $time_type ? 'selected' : '').' value="'.$position[0].'">'.$position[0].'</option>';
@@ -567,7 +567,7 @@ var useProfileSig = function(chk) {
                 '.(strpos($timesheet_payroll_fields, ',Mileage,') !== FALSE ? '<td data-title="Mileage">'.($mileage > 0 ? number_format($mileage,2) : '0.00').'</td>' : '').'
                 '.(strpos($timesheet_payroll_fields, ',Mileage Rate,') !== FALSE ? '<td data-title="Mileage Rate">$'.($mileage_rate > 0 ? number_format($mileage_rate,2) : '0.00').'</td>' : '').'
                 '.(strpos($timesheet_payroll_fields, ',Mileage Total,') !== FALSE ? '<td data-title="Mileage Total">$'.($mileage_cost > 0 ? number_format($mileage_cost,2) : '0.00').'</td>' : '').'
-                '.(in_array('comment_box',$value_config) ? '<td data-title="Comments"><span>'.$comments.'</span><img class="inline-img comment-row pull-right no-toggle" src="../img/icons/ROOK-reply-icon.png" title="Add Note"><input type="text" class="form-control" name="comment_box" value="'.$row['COMMENTS'].'" style="display:none;">'.($current_page != 'time_cards.php' && $mod == 'readonly' && $approv == 'Y' ? '<img class="inline-img edit-row pull-right no-toggle" src="../img/icons/ROOK-edit-icon.png" title="Edit">' : '').(in_array($layout,['multi_line','ticket_task','position_dropdown']) ? '<img class="inline-img add-row pull-right no-toggle" src="../img/icons/ROOK-add-icon.png" title="Edit"><img class="inline-img rem-row pull-right" src="../img/remove.png">' : '').'</td>' : '').'
+                '.(in_array('comment_box',$value_config) ? '<td data-title="Comments"><span>'.$comments.'</span><img class="inline-img comment-row pull-right no-toggle" src="../img/icons/ROOK-reply-icon.png" title="Add Note"><input type="text" class="form-control" name="comment_box" value="'.$row['COMMENTS'].'" style="display:none;">'.($current_page != 'time_cards.php' && $mod == 'readonly' && $approv == 'Y' ? '<img class="inline-img edit-row pull-right no-toggle" src="../img/icons/ROOK-edit-icon.png" title="Edit">' : '').(in_array($layout,['multi_line','ticket_task','position_dropdown']) ? '<img class="inline-img rem-row pull-right" src="../img/remove.png"><img class="inline-img add-row pull-right no-toggle" src="../img/icons/ROOK-add-icon.png" title="Edit">' : '').'</td>' : '').'
                 '.(in_array('signature',$value_config) && $current_page == 'time_cards.php' ? '<td data-title="Signature" style="text-align:center" class="'.($show_separator==1 ? 'theme-color-border-bottom' : '').'">'.(!empty($all_signatures[$date]) ? '<img src="../Timesheet/download/'.$all_signatures[$date].'" style="height: 50%; width: auto;">' : ($security['edit'] > 0 ? '<label class="form-checkbox"><input type="checkbox" name="add_signature" onclick="addSignature(this);" value="'.$date.'"></label>' : '')).'</td>' : '').'
                 '.($current_page != 'time_cards.php' ? '<td data-title="Select to Mark Paid"><label '.($mod == 'readonly' ? 'class="readonly-block"' : '').'><input type="checkbox" name="approv" data-uncheck="'.($current_page == 'payroll.php' ? 'Y' : 'N').'" value="'.($current_page == 'payroll.php' ? 'P' : 'Y').'" '.($mod == 'readonly' ? ($current_page == 'payroll.php' && $approv == 'P' ? 'checked' : ($current_page != 'payroll.php' && $approv == 'Y' ? 'checked' : '')).' readonly' : '').' /></label><img src="../img/empty.png" class="statusIcon inline-img no-toggle no-margin"></td>' : '');
             echo '</tr>';
