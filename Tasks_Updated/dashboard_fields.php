@@ -7,8 +7,8 @@
     </div>
 
     <div class="row">
-        <label for="site_name" class="col-sm-3" style="<?= $style_strikethrough ?>>Staff:</label>
-        <div class="col-sm-9" style="<?= $style_strikethrough ?>>
+        <label for="site_name" class="col-sm-3" style="<?= $style_strikethrough ?>">Staff:</label>
+        <div class="col-sm-9" style="<?= $style_strikethrough ?>">
             <!--
             <select multiple onchange="mark_task_staff(this);" data-placeholder="Select Staff" name="task_userid" data-table="tasklist" data-field="contactid" class="chosen-select-deselect form-control" id="staff_<?php echo $item['tasklistid']; ?>">
                 <?php $staff_list = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name` FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `deleted`=0 AND `status`>0"),MYSQLI_ASSOC));
@@ -18,14 +18,14 @@
                 <?php } ?>
             </select>
             -->
-            
-            <div class="row" style="<?= $style_strikethrough ?>><?php
+
+            <div class="row" style="<?= $style_strikethrough ?>"><?php
                 $task_contactids = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `contactid` FROM `tasklist` WHERE tasklistid='{$item['tasklistid']}' AND `deleted`=0"))['contactid'];
                 foreach(explode(',',trim($task_contactids,',')) as $task_contactid) { ?>
                     <div class="add_staff">
                         <div class="clearfix"></div>
                         <div class="col-xs-9 no-pad-left">
-                            <select style="<?= $style_strikethrough ?> onchange="mark_task_staff(this);" data-placeholder="Select a Staff" name="task_userid[]" data-table="tasklist" data-field="contactid" class="chosen-select-deselect form-control" id="staff_<?= $item['tasklistid'] ?>">
+                            <select style="<?= $style_strikethrough ?>" onchange="mark_task_staff(this);" data-placeholder="Select a Staff" name="task_userid[]" data-table="tasklist" data-field="contactid" class="chosen-select-deselect form-control" id="staff_<?= $item['tasklistid'] ?>">
                                 <option value=""></option><?php
                                 $staff_list = sort_contacts_query(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name` FROM `contacts` WHERE `deleted`=0 AND `status` > 0 AND `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY.""));
                                 foreach($staff_list as $staff_id) {
@@ -41,7 +41,7 @@
                     </div><?php
                 } ?>
             </div>
-            
+
         </div>
     </div>
 
