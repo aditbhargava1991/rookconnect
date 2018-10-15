@@ -18,6 +18,21 @@ function task_status(sel) {
     });
 }
 
+function saveTaskDefaultStatus(sel) {
+    var status = sel.value;
+	var status = status.replace(" ", "FFMSPACE");
+	var status = status.replace("&", "FFMEND");
+	var status = status.replace("#", "FFMHASH");
+    $.ajax({
+        type: "GET",
+        url: "../Tasks_Updated/task_ajax_all.php?fill=task_default_status&task_default_status="+status,
+        dataType: "html",
+		success: function(response){
+			//window.location.reload();
+		}
+    });
+}
+
 function mark_task_date(sel) {
     var todo_date = sel.value;
 	var tasklistid = sel.id.split('_')[1];
@@ -35,7 +50,7 @@ function mark_task_staff(sel) {
 	var tasklistid = sel.id.split('_')[1];
 	var staff = [];
 
-	$('[name="task_userid[]"]').find('option:selected').each(function() {
+	$('#taskid_'+tasklistid+' [name="task_userid[]"]').find('option:selected').each(function() {
         staff.push(this.value);
 	});
 
@@ -44,7 +59,7 @@ function mark_task_staff(sel) {
         url: "../Tasks_Updated/task_ajax_all.php?fill=mark_staff&tasklistid="+tasklistid+'&staff='+staff,
         dataType: "html",
         success: function(response) {
-			window.location.reload();
+			//window.location.reload();
 		}
     });
 }
@@ -297,8 +312,10 @@ function handleClick(sel) {
 	});
 }
 
-function addStaff() {
-    var block = $('div.add_staff').last();
+function addStaff(sel) {
+	var taskid = $(sel).data('taskid');
+    //var block = $('div.add_staff').last();
+	var block = $('div#taskid_'+taskid).last();
     destroyInputs('.add_staff');
     clone = block.clone();
     clone.find('.form-control').val('');
@@ -310,6 +327,8 @@ function removeStaff(button) {
     if($('div.add_staff').length <= 1) {
         addStaff();
     }
-    $(button).closest('div.add_staff').remove();
+	var taskid = $(button).data('taskid');
+
+    $(button).closest('div#taskid_'+taskid).remove();
     $('div.add_staff').first().find('[name="task_userid[]"]').change();
 }

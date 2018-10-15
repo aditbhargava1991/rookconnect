@@ -239,6 +239,49 @@ if(!empty($_POST['submit'])) {
                     </div>
                 </div>
 
+
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h4 class="panel-title">
+                            <a data-toggle="collapse" data-parent="#accordion2" href="#collapse_fields29">
+                               Default Status<span class="glyphicon glyphicon-plus"></span>
+                            </a>
+                        </h4>
+                    </div>
+
+                    <div id="collapse_fields29" class="panel-collapse collapse">
+                        <div class="panel-body">
+                            <?php $task_default_status = get_config($dbc, 'task_default_status'); ?>
+                            <div class="form-group">
+                                <label for="first_name" class="col-sm-4">Status:</label>
+                                <div class="col-sm-8">
+                                    <select onchange="saveTaskDefaultStatus(this)" data-placeholder="Select a Status..." name="task_default_status" class="chosen-select-deselect form-control" width="380">
+                                        <option value=""></option>
+                                      <?php
+                                        $tabs = get_config($dbc, 'ticket_status');
+                                        $each_tab = explode(',', $tabs);
+                                        if($task_default_status == '') {
+                                            $task_default_status = 'Doing Today';
+                                        }
+                                        foreach ($each_tab as $cat_tab) {
+                                            if ($task_default_status == $cat_tab) {
+                                                $selected = 'selected="selected"';
+                                            } else {
+                                                $selected = '';
+                                            }
+                                            echo "<option ".$selected." value='". $cat_tab."'>".$cat_tab.'</option>';
+                                        }
+                                      ?>
+                                    </select>
+                                </div>
+                            </div>
+
+
+                       </div>
+                    </div>
+                </div>
+
+
 				<div class="panel panel-default">
                     <div class="panel-heading">
                         <h4 class="panel-title">

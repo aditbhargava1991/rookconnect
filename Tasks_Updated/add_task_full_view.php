@@ -1436,7 +1436,7 @@ function track_icon_time(task) {
                                             $tabs = get_config($dbc, 'ticket_status');
                                             $each_tab = explode(',', $tabs);
                                             if($task_status == '') {
-                                                $task_status = 'To Be Scheduled';
+                                                $task_status = get_config($dbc, 'task_default_status');
                                             }
                                             foreach ($each_tab as $cat_tab) {
                                                 if ($task_status == $cat_tab) {

@@ -10,6 +10,15 @@ if($_GET['fill'] == 'setting_task_checklist') {
     set_config($dbc, 'task_include_checklists', $checklist);
 }
 
+if($_GET['fill'] == 'task_default_status') {
+    $status = $_GET['task_default_status'];
+	$status = str_replace("FFMEND","&",$status);
+    $status = str_replace("FFMSPACE"," ",$status);
+    $status = str_replace("FFMHASH","#",$status);
+
+    set_config($dbc, 'task_default_status', $status);
+}
+
 if($_GET['fill'] == 'setting_task_intake') {
     $intake = $_GET['intake'];
     set_config($dbc, 'task_include_intake', $intake);
@@ -272,9 +281,9 @@ if($_GET['fill'] == 'add_task') {
 
     $heading = filter_var($heading,FILTER_SANITIZE_STRING);
     $created_date = date('Y-m-d');
-
+    $default_task = get_config($dbc, 'task_default_status');
     if($heading != '') {
-        echo $query_insert_log = "INSERT INTO `tasklist` (`task_milestone_timeline`, `task_path`, `heading`, `contactid`, `task_board`, `salesid`, `created_date`, `created_by`, `status_date`, `task_tododate`, `status`) VALUES ('$task_milestone_timeline', '$task_path', '$heading', '$contactid', '$taskboardid', '$salesid', '$created_date', '$contactid', '$created_date', '$created_date', 'To Be Scheduled')";
+        echo $query_insert_log = "INSERT INTO `tasklist` (`task_milestone_timeline`, `task_path`, `heading`, `contactid`, `task_board`, `salesid`, `created_date`, `created_by`, `status_date`, `task_tododate`, `status`) VALUES ('$task_milestone_timeline', '$task_path', '$heading', '$contactid', '$taskboardid', '$salesid', '$created_date', '$contactid', '$created_date', '$created_date', '$default_task')";
         $result_insert_log = mysqli_query($dbc, $query_insert_log);
         $last_id = mysqli_insert_id($dbc);
 
