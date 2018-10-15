@@ -188,7 +188,7 @@ if($access_any > 0 || $_GET['force_allow'] == 1) {
 					<textarea name="body" class="form-control"><?php echo $body; ?></textarea>
 				</div>
 			</div>
-			<button class="btn brand-btn pull-right" name="submit" value="email">Send Email</button>
+			<button class="btn brand-btn pull-right" name="submit" data-history-label="Send Note as Email" value="email">Send Email</button>
 		</div>
 		<a class="btn brand-btn pull-left" href="../blank_loading_page.php">Cancel</a>
 		<button class="btn brand-btn pull-right" name="submit" value="add">Add Note</button>

@@ -2,10 +2,20 @@
 $ticketid = filter_var($_GET['ticketid'],FILTER_SANITIZE_STRING);
 $form = filter_var($_POST['custom_form'], FILTER_SANITIZE_STRING);
 if(isset($_POST['custom_form'])) {
+	require_once('../phpsign/signature-to-image.php');
 	$ticketid = filter_var($_GET['ticketid'], FILTER_SANITIZE_STRING);
 	$revision = 1 + mysqli_fetch_array(mysqli_query($dbc, "SELECT MAX(`revision`) `revision` FROM `ticket_pdf_field_values` WHERE `ticketid`='$ticketid' AND `pdf_type`='$form' AND `deleted`=0"))['revision'];
+	if($_POST['revision_mode'] == 'edit') {
+		$revision = $_POST['revision_number'];
+		mysqli_query($dbc, "UPDATE `ticket_pdf_field_values` SET `deleted` = 1 WHERE `ticketid` = '$ticketid' AND `pdf_type` = '$form' AND `revision` = '$revision'");
+	}
 	foreach($_POST as $field => $value) {
-		if($field != 'custom_form') {
+		if(strpos($field, 'ffmsignature_') !== FALSE) { 
+			$field = explode('ffmsignature_', $field)[1];
+            imagepng(sigJsonToImage($value), 'download/sign_'.$form.'_'.$field.'_'.$ticketid.'_'.$revision.'.png');
+			$value = filter_var($value, FILTER_SANITIZE_STRING);
+			$dbc->query("INSERT INTO `ticket_pdf_field_values` (`ticketid`, `pdf_type`, `revision`, `field_name`, `field_value`) VALUES ('$ticketid', '$form', '$revision', '$field', '$value')");
+		} else if($field != 'custom_form') {
 			$field = filter_var($field, FILTER_SANITIZE_STRING);
 			if(is_array($value)) {
 				$value = implode(',',$value);
@@ -72,6 +82,9 @@ if(isset($_POST['custom_form'])) {
 		$pdf_pages = $dbc->query("SELECT `page` FROM `ticket_pdf_fields` WHERE `pdf_type`='{$form['id']}' AND `deleted`=0 GROUP BY `page`");
 		echo '<form method="POST" action="" class="form-horizontal">';
 		echo "<h2 class='pad-5'>".$form['pdf_name'].": $ticket</h2>";
+		echo '<input type="hidden" name="revision_mode" value="'.$_GET['revision_mode'].'">';
+		echo '<input type="hidden" name="revision_number" value="'.$_GET['revision'].'">';
+
 		while($page = $pdf_pages->fetch_assoc()['page']) {
 			echo "<h3 class='pad-10'>Page ".$page."</h3>";
 			echo "<!--SELECT `fields`.*, `values`.`field_value`, `values`.`revision` FROM `ticket_pdf_fields` `fields` LEFT JOIN `ticket_pdf_field_values` `values` ON `fields`.`pdf_type`=`values`.`pdf_type` AND `fields`.`field_name`=`values`.`field_name` AND `values`.`ticketid`='$ticketid' AND $revision IN (`values`.`revision`,999999999) AND `values`.`deleted`=0 LEFT JOIN `ticket_pdf_field_values` `older` ON `values`.`ticketid`=`older`.`ticketid` AND `values`.`pdf_type`=`older`.`pdf_type` AND `values`.`field_name`=`older`.`field_name` AND `values`.`id` < `older`.`id` AND `older`.`revision` <= $revision AND `older`.`deleted`=0 WHERE `older`.`id` IS NULL AND `fields`.`pdf_type`='{$form['id']}' AND `fields`.`page`='$page' AND `fields`.`input_class` NOT IN ('editLink','revisionField') AND `fields`.`deleted`=0 ORDER BY `fields`.`sort`,`fields`.`id`";
@@ -102,6 +115,24 @@ if(isset($_POST['custom_form'])) {
 							$value = '';
 							$onchange = '';
 							switch($values[0]) {
+								case 'session_user':
+									$session_user = array_shift(sort_contacts_query(mysqli_query($dbc, "SELECT * FROM `contacts` WHERE `contactid` = '".$_SESSION['contactid']."'")));
+									foreach(explode('+',$values[1]) as $row => $field_line) {
+										if($row > 0 && trim($value,"\n") == $value) {
+											$value .= "\n";
+										}
+										foreach(explode(',',$field_line) as $field_detail) {
+											if(array_key_exists($field_detail,$session_user)) {
+												$value .= $session_user[$field_detail];
+											} else {
+												$value .= $field_detail.' ';
+											}
+										}
+									}
+									break;
+								case 'ticket_label':
+									$value = get_ticket_label($dbc, $get_ticket);
+									break;
 								case 'ticket':
 									$value = $get_ticket[$values[1]];
 									break;
@@ -205,13 +236,19 @@ if(isset($_POST['custom_form'])) {
 												if(count($field_detail) > 1) {
 													$field_id = $shipment[$field_detail[0]];
 													$value .= get_contact($dbc, $shipment[$field_detail[0]], ($field_detail[1] == 'full_name' ? '' : $field_detail[1])).' ';
-												} else if($field_detail[0] == 'cube_size') {
+												} else if(explode('*#*',$field_detail[0])[0] == 'cube_size') {
+													$size_details = explode('*#*',$field_detail[0]);
+													$field_detail[0] = $size_details[0];
 													$cube = 0;
 													$cube_dim = '';
 													$general_rows = mysqli_query($dbc, "SELECT `ticket_attached`.`dimensions`, `ticket_attached`.`dimension_units` FROM `ticket_attached` WHERE `ticket_attached`.`src_table`='inventory_general' AND `ticket_attached`.`ticketid`='$ticketid' AND `ticket_attached`.`ticketid` > 0 AND `ticket_attached`.`deleted`=0".$query_daily);
 													while($general_line = $general_rows->fetch_assoc()) {
 														$line_cube = 1;
 														foreach(explode('x',$general_line['dimensions']) as $dim_i => $dim) {
+															if($size_details[1] == 'cu_ft') {
+																$dim = $dim / ($general_line['dimension_units'] == 'mm' ? 25.4 : ($general_line['dimension_units'] == 'cm' ? 2.54 : 1));
+																$general_line['dimension_units'] = 'in';
+															}
 															if($dim_i < 3) {
 																$line_cube *= $dim / ($general_line['dimension_units'] == 'in' ? 12 : ($general_line['dimension_units'] == 'mm' ? 1000 : ($general_line['dimension_units'] == 'cm' ? 100 : 1)));
 															}
@@ -220,6 +257,51 @@ if(isset($_POST['custom_form'])) {
 														$cube += $line_cube;
 													}
 													$value .= round($cube,2).' '.$cube_dim.' ';
+												} else if(explode('*#*',$field_detail[0])[0] == 'dimensions_inch') {
+													$size_details = explode('*#*',$field_detail[0]);
+													$field_detail[0] = $size_details[0];
+													$quantity_line = [];
+													$length_line = [];
+													$width_line = [];
+													$height_line = [];
+													$general_rows = mysqli_query($dbc, "SELECT COUNT(`ticket_attached`.`id`) `num_rows`, `ticket_attached`.`dimensions`, `ticket_attached`.`dimension_units` FROM `ticket_attached` WHERE `ticket_attached`.`src_table`='inventory_general' AND `ticket_attached`.`ticketid`='$ticketid' AND `ticket_attached`.`ticketid` > 0 AND `ticket_attached`.`deleted`=0".$query_daily." GROUP BY CONCAT(IFNULL(`ticket_attached`.`dimensions`,''),IFNULL(`ticket_attached`.`dimension_units`,''))");
+													while($general_line = $general_rows->fetch_assoc()) {
+														$length_inch = 0;
+														$width_inch = 0;
+														$height_inch = 0;
+														foreach(explode('x',$general_line['dimensions']) as $dim_i => $dim) {
+															if($dim_i == 0) {
+																$length_inch = $dim / ($general_line['dimension_units'] == 'mm' ? 25.4 : ($general_line['dimension_units'] == 'cm' ? 2.54 : 1));
+															} else if($dim_i == 1) {
+																$width_inch = $dim / ($general_line['dimension_units'] == 'mm' ? 25.4 : ($general_line['dimension_units'] == 'cm' ? 2.54 : 1));
+															} else if($dim_i == 2) {
+																$height_inch = $dim / ($general_line['dimension_units'] == 'mm' ? 25.4 : ($general_line['dimension_units'] == 'cm' ? 2.54 : 1));
+															}
+														}
+														$length_line[] = round($length_inch,2);
+														$width_line[] = round($width_inch,2);
+														$height_line[] = round($height_inch,2);
+														$quantity_line[] = $general_line['num_rows'];
+													}
+													if($size_details[1] == 'length_inch') {
+														$value .= implode("\n",$length_line);
+													} else if($size_details[1] == 'width_inch') {
+														$value .= implode("\n",$width_line);
+													} else if($size_details[1] == 'height_inch') {
+														$value .= implode("\n",$height_line);
+													} else if($size_details[1] == 'quantity') {
+														$value .= implode("\n",$quantity_line);
+													}
+												} else if($field_detail[0] == 'piece_types') {
+													$general_rows = mysqli_query($dbc, "SELECT DISTINCT `ticket_attached`.`piece_type` FROM `ticket_attached` WHERE `ticket_attached`.`src_table`='inventory_general' AND `ticket_attached`.`ticketid`='$ticketid' AND `ticket_attached`.`ticketid` > 0 AND `ticket_attached`.`deleted`=0 AND IFNULL(`piece_type`,'') != ''".$query_daily);
+													$piece_types = [];
+													while($general_line = $general_rows->fetch_assoc()) {
+														$piece_types[] = $general_line['piece_type'];
+													}
+													$piece_types = implode(', ', $piece_types);
+													$value .= $piece_types;
+												} else if($field_detail[0] == 'total_length') {
+
 												} else if(!array_key_exists($field_detail[0],$shipment)) {
 													$value = trim($value).trim(str_replace(['FFMCOMMA','FFMCOLON','FFMDASH','FFMPLUS','FFMHASH','FFMSINQUOT'],[',',':','-','+','#',"'"],implode('-',$field_detail)),"'");
 												} else {
@@ -489,7 +571,11 @@ if(isset($_POST['custom_form'])) {
 									break;
 							}
 						}
-						if(in_array($values[0], ['checkbox','checkbox_residue','checkbox_other_products','checkbox_shipping_list'])) {
+						if($field['input_class'] == 'signature') {
+							$output_name = 'ffmsignature_'.$field['field_name'];
+							$output_value = $value;
+							include('../phpsign/sign_multiple.php');
+						} else if(in_array($values[0], ['checkbox','checkbox_residue','checkbox_other_products','checkbox_shipping_list'])) {
 							echo '<label class="form-checkbox"><input type="checkbox" name="'.$field['field_name'].'" value="'.$value.'" '.$checkbox_checked.' onchange="updateChecked(this);"><input type="hidden" name="'.$field['field_name'].'" class="hidden_checkbox" value="" '.(empty($checkbox_checked) ? '' : 'disabled').'></label>';
 						} else if($field['height'] > 7) {
 							echo '<textarea class="form-control noMceEditor" '.implode(' ',$field_options).' rows="6" '.$onchange.' name="'.$field['field_name'].'">'.$value.'</textarea>';

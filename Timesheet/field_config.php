@@ -114,6 +114,8 @@ if (isset($_POST['submit']) && $_POST['submit'] == 'fields') {
 	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='$highlight_manager' WHERE `name`='timesheet_manager'");
 	$timesheet_approval_initials = filter_var($_POST['timesheet_approval_initials'],FILTER_SANITIZE_STRING);
 	set_config($dbc, 'timesheet_approval_initials', $timesheet_approval_initials);
+	$timesheet_approval_date = filter_var($_POST['timesheet_approval_date'],FILTER_SANITIZE_STRING);
+	set_config($dbc, 'timesheet_approval_date', $timesheet_approval_date);
 	$timesheet_approval_status_comments = filter_var($_POST['timesheet_approval_status_comments'],FILTER_SANITIZE_STRING);
 	set_config($dbc, 'timesheet_approval_status_comments', $timesheet_approval_status_comments);
 	$timesheet_approval_import_export = filter_var($_POST['timesheet_approval_import_export'],FILTER_SANITIZE_STRING);
@@ -430,6 +432,14 @@ if($_GET['tab'] == 'approvals') {
 							<input type="color" value="<?= $highlight_manager ?>" name="highlight_manager" class="form-control">
 						</div>
 					</div>
+
+					<div class="form-group">
+						<label class="col-sm-4 control-label">Show Approval Status:</label>
+						<div class="col-sm-8">
+							<?php $timesheet_approval_status_comments = get_config($dbc, 'timesheet_approval_status_comments'); ?>
+							<label class="form-checkbox"><input type="checkbox" value="1" name="timesheet_approval_status_comments" <?= $timesheet_approval_status_comments == 1 ? 'checked' : '' ?>> Enable</label>
+						</div>
+					</div>
 					<div class="form-group">
 						<label class="col-sm-4 control-label">Show Approval Initials:</label>
 						<div class="col-sm-8">
@@ -438,10 +448,10 @@ if($_GET['tab'] == 'approvals') {
 						</div>
 					</div>
 					<div class="form-group">
-						<label class="col-sm-4 control-label">Show Approval Status In Comments:</label>
+						<label class="col-sm-4 control-label">Show Approval Date:</label>
 						<div class="col-sm-8">
-							<?php $timesheet_approval_status_comments = get_config($dbc, 'timesheet_approval_status_comments'); ?>
-							<label class="form-checkbox"><input type="checkbox" value="1" name="timesheet_approval_status_comments" <?= $timesheet_approval_status_comments == 1 ? 'checked' : '' ?>> Enable</label>
+							<?php $timesheet_approval_date = get_config($dbc, 'timesheet_approval_date'); ?>
+							<label class="form-checkbox"><input type="checkbox" value="1" name="timesheet_approval_date" <?= $timesheet_approval_date == 1 ? 'checked' : '' ?>> Enable</label>
 						</div>
 					</div>
 					<div class="form-group">

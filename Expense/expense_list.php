@@ -1,5 +1,8 @@
 <?php 
-$filter_date = "";
+$filter_date = '';
+if(!isset($_GET['filter_id']) && !isset($_POST['expense_min_date'])){
+	$filter_date = " and submit_date >= '".date('Y-m-01')."' and submit_date <= '".date('Y-m-t')."'";
+}
 if($_POST['expense_min_date']!=""){
     $filter_date .= " and submit_date >= '".$_POST['expense_min_date']."' ";
 }
@@ -258,14 +261,14 @@ $(document).ready(function() {
 					<div class="form-group clearfix">
 						<label for="first_name" class="col-sm-4 control-label text-right">
 							<span class="popover-examples list-inline" style="margin:0 3px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Click here to set a date range for the expenses. Leaving the minimum date blank will allow you to select all expenses before a date."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
-							Minimum Date:
+							From:
 						</label>
 						<div class="col-sm-8">
 							<input type="text" name="filter_min_date" class="datepicker form-control" value="<?= $filter_min_date ?>" />
 						</div><div class="clearfix"></div>
 						<label for="first_name" class="col-sm-4 control-label text-right">
 							<span class="popover-examples list-inline" style="margin:0 3px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Click here to set a date range for the expenses. Leaving either the maximum date blank will allow you to select all expenses after a date."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
-							Maximum Date:
+							Until:
 						</label>
 						<div class="col-sm-8">
 							<input type="text" name="filter_max_date" class="datepicker form-control" value="<?= $filter_max_date ?>" />
@@ -491,25 +494,27 @@ $(document).ready(function() {
 if($_GET['filter_id'] == '' || $_GET['filter_id'] == 'all'){
 ?>
 <div class="clearfix">&nbsp;</div>
-<form name="filter_form" action="" method="POST">
-	<label for="first_name" class="col-sm-2 control-label text-right">
-		<span class="popover-examples list-inline" style="margin:0 3px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Click here to set a date range for the expenses. Leaving the minimum date blank will allow you to select all expenses before a date."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
-		Minimum Date:
-	</label>
-	<div class="col-sm-3">
-		<input type="text" name="expense_min_date" class="datepicker form-control" value="<?= $_POST['expense_min_date'] ?>" />
-	</div>
-	<label for="first_name" class="col-sm-2 control-label text-right">
-		<span class="popover-examples list-inline" style="margin:0 3px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Click here to set a date range for the expenses. Leaving either the maximum date blank will allow you to select all expenses after a date."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
-		Maximum Date:
-	</label>
-	<div class="col-sm-3">
-		<input type="text" name="expense_max_date" class="datepicker form-control" value="<?= $_POST['expense_max_date'] ?>" />
-	</div>
-	<div class="col-sm-2">
-		<input type="submit" name="filter_submit" class="btn brand-btn mobile-block" value="Apply">
-	</div>
-</form>
+<div class="row">
+	<form name="filter_form" action="" method="POST">
+		<label for="first_name" class="col-sm-2 control-label text-right">
+			<span class="popover-examples list-inline" style="margin:0 3px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Click here to set a date range for the expenses. Leaving the minimum date blank will allow you to select all expenses before a date."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
+			From:
+		</label>
+		<div class="col-sm-3">
+			<input type="text" name="expense_min_date" class="datepicker form-control" value="<?= (!isset($_POST['expense_min_date']) && $_GET['filter_id']!='all' ? date('Y-m-01') : $_POST['expense_min_date']) ?>" />
+		</div>
+		<label for="first_name" class="col-sm-2 control-label text-right">
+			<span class="popover-examples list-inline" style="margin:0 3px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Click here to set a date range for the expenses. Leaving either the maximum date blank will allow you to select all expenses after a date."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
+			Until:
+		</label>
+		<div class="col-sm-3">
+			<input type="text" name="expense_max_date" class="datepicker form-control" value="<?= (!isset($_POST['expense_max_date']) && $_GET['filter_id']!='all' ? date('Y-m-t') : $_POST['expense_max_date']) ?>" />
+		</div>
+		<div class="col-sm-2">
+			<input type="submit" name="filter_submit" class="btn brand-btn mobile-block" value="Apply">
+		</div>
+	</form>
+</div>
 <div class="clearfix">&nbsp;</div>
 <?php
 }
@@ -555,7 +560,7 @@ while($expense = mysqli_fetch_array($expense_list)) {
 			echo "'>Show All</li></ul>";
 		}
 		$status = $expense['ex_status'];
-		echo "<ul class='chained-list' style='max-width: 50em;'>";
+		echo "<ul class='chained-list'>";
 		if($status == 'Submitted') {
 			echo "<li ".($_GET['filter_id'] == 'approved' || $_GET['filter_id'] == 'paid' ? 'style="display:none;"' : '').">Expenses Awaiting Approval (".$status_count['submitted'].")";
 			echo "<a href='expense_pdf.php?min_date=".$filter_min_date."&max_date=".$filter_max_date."&status=Submitted' class='export'><img src='../img/icons/ROOK-download-icon.png' class='inline-img' title='Export PDF'></a></li>";

@@ -84,17 +84,7 @@ $titles = [
 							<th>User</th>
 							<th>Description</th>
 						</tr>
-						<tr>
-							<?php $ticket = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `created_by`, `created_date` FROM `tickets` WHERE `ticketid`='$ticketid' AND `ticketid` > 0"));
-							$name = get_contact($dbc, $ticket['created_by']);
-							if($name == '' || $name == '-') {
-								$name = 'Admin';
-							} ?>
-							<td data-title="Date"><?= $ticket['created_date'] ?></td>
-							<td data-title="User"><?= $name ?></td>
-							<td data-title="Description"><?= TICKET_NOUN ?> Created</td>
-						</tr>
-						<?php $result_tickets = mysqli_query($dbc, "SELECT * FROM ticket_history WHERE ticketid ='$ticketid' AND `ticketid` > 0 ORDER BY `date` ASC");
+						<?php $result_tickets = mysqli_query($dbc, "SELECT * FROM ticket_history WHERE ticketid ='$ticketid' AND `ticketid` > 0 ORDER BY `date` DESC");
 						while($history = mysqli_fetch_assoc($result_tickets)) {
 							$name = get_contact($dbc, $history['userid']);
 							if($name == '' || $name == '-') {
@@ -111,6 +101,16 @@ $titles = [
 								<td data-title="Description"><?= html_entity_decode($description); ?></td>
 							</tr>
 						<?php } ?>
+						<tr>
+							<?php $ticket = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `created_by`, `created_date` FROM `tickets` WHERE `ticketid`='$ticketid' AND `ticketid` > 0"));
+							$name = get_contact($dbc, $ticket['created_by']);
+							if($name == '' || $name == '-') {
+								$name = 'Admin';
+							} ?>
+							<td data-title="Date"><?= $ticket['created_date'] ?></td>
+							<td data-title="User"><?= $name ?></td>
+							<td data-title="Description"><?= TICKET_NOUN ?> Created</td>
+						</tr>
 					</table>
 	        	<?php } else {
 	        		echo '<div class="customer_div">';
