@@ -131,7 +131,7 @@
 								}
 								if ( strpos ( $value_config, ',Image,' ) !== FALSE ) {
 									if ( !empty ( $row['image'] ) ) {
-										echo '<td data-title="Image"><a href="download/' . $row['image'] . '" target="view">View</a></td>';
+										echo '<td data-title="Image"><a href="'.$row['image_full_path'].'" target="view">View</a></td>';
 									} else {
 										echo '<td data-title="Image" align="center">-</td>';
 									}

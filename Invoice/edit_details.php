@@ -214,25 +214,32 @@ function view_profile(img) {
         </div>
     </div>
 
-    <div class="form-group" <?= (in_array('staff',$field_config) ? '' : 'style="display:none;"') ?>>
+    <?php $staff_label = 'Staff';
+    $staff_list = [];
+    if(in_array('vendor',$field_config)) {
+        $staff_label = 'Vendor';
+        $staff_list = sort_contacts_query(mysqli_query($dbc,"SELECT contactid, first_name, last_name, name FROM contacts WHERE category IN ('".implode("','",explode(',',get_config($dbc, 'vendors_tabs')))."') AND deleted=0 AND (`name` NOT LIKE '' OR `first_name` NOT LIKE '' OR `last_name` NOT LIKE '')"));
+    } else {
+        $staff_list = sort_contacts_query(mysqli_query($dbc,"SELECT contactid, first_name, last_name FROM contacts WHERE category IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND deleted=0"));
+    } ?>
+    <div class="form-group" <?= (in_array('staff',$field_config) || in_array('vendor',$field_config) ? '' : 'style="display:none;"') ?>>
         <?php if($_GET['inv_mode'] == 'adjust') { ?>
             <div class="form-group">
-                <label for="site_name" class="col-sm-3 control-label">Invoiced Staff:</label>
+                <label for="site_name" class="col-sm-3 control-label">Invoiced <?= $staff_label ?>:</label>
                 <div class="col-sm-9 control-label" style="text-align:left;"><?= $staff ?></div>
             </div>
         <?php } ?>
         <div class="adjust_block">
             <label for="site_name" class="col-sm-3 control-label">
             <span class="popover-examples list-inline">
-                <a href="#job_file" data-toggle="tooltip" data-placement="top" title="Select the staff providing treatment."><img src="<?php echo WEBSITE_URL;?>/img/info.png" width="20"></a>
+                <a href="#job_file" data-toggle="tooltip" data-placement="top" title="Select the <?= $staff_label ?> providing services."><img src="<?php echo WEBSITE_URL;?>/img/info.png" width="20"></a>
             </span>
-            Staff:</label>
+            <?= $staff_label ?>:</label>
             <div class="col-sm-8">
-                <select id="therapistsid" data-placeholder="Select Staff..." name="therapistsid" class="chosen-select-deselect form-control" width="380">
+                <select id="therapistsid" data-placeholder="Select <?= $staff_label ?>..." name="therapistsid" class="chosen-select-deselect form-control" width="380">
                     <option value=""></option>
-                    <?php $query = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc,"SELECT contactid, first_name, last_name FROM contacts WHERE category IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND deleted=0"),MYSQLI_ASSOC));
-                    foreach($query as $row) {
-                        echo "<option ".($get_invoice['therapistsid'] == $row || (empty($get_invoice['therapistsid']) && $row == $_SESSION['contactid']) ? 'selected' : '')." value='". $row."'>".get_contact($dbc, $row).'</option>';
+                    <?php foreach($staff_list as $row) {
+                        echo "<option ".($get_invoice['therapistsid'] == $row['contactid'] || (empty($get_invoice['therapistsid']) && $row['contactid'] == $_SESSION['contactid']) ? 'selected' : '')." value='". $row['contactid']."'>".$row['full_name'].'</option>';
                     } ?>
                 </select>
             </div>

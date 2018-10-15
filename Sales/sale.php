@@ -311,7 +311,7 @@ $(document).ready(function() {
                             <a href="<?php echo WEBSITE_URL.'/Sales/sale.php?p=preview&id='.$salesid;?>"><li class="<?= $_GET['p'] == 'preview' ? 'active' : '' ?>">Summary</li></a>
                         <?php }
                         if (strpos($value_config, ',Sales Path,') !== false) { ?>
-                            <a href="#salespath"><li class="collapsed cursor-hand <?= $_GET['p'] == 'salespath' ? 'active' : '' ?>" data-toggle="collapse" data-target="#collapse_salespath" id="nav_salespath"><?= SALES_NOUN ?> Task Path</li></a><?php
+                            <a href="#salespath"><li class="collapsed cursor-hand <?= $_GET['p'] == 'salespath' ? 'active' : '' ?>" data-toggle="collapse" data-target="#collapse_salespath" id="nav_salespath"><?= SALES_NOUN ?> Tasks Path</li></a><?php
                         }
                         if (strpos($value_config, ',Staff Information,') !== false) { ?>
                             <a href="#staffinfo"><li class="collapsed cursor-hand" data-toggle="collapse" data-target="#collapse_staff_information" id="nav_staffinfo">Staff Information</li></a>

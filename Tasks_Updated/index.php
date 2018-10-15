@@ -23,14 +23,29 @@ $(document).ready(function() {
 		$('.main-screen').css('padding-bottom',0);
 		if($('.main-screen .main-screen').is(':visible')) {
 			var available_height = window.innerHeight - $('footer:visible').outerHeight() - $('.sidebar:visible').offset().top;
+            var note_height = '';
+            var note_height_project = '';
+            if ( $('.standard-dashboard-body-title .notice').is(':visible') ) {
+                note_height = -10;
+                note_height_project = 15;
+            } else {
+                note_height = 25;
+                note_height_project = 50;
+            }
 			if(available_height > 200) {
-				$('.main-screen .main-screen').outerHeight(available_height).css('overflow-y','auto');
+				$('.main-screen .main-screen, .has-main-screen .main-screen').outerHeight(available_height).css('overflow-y','auto');
 				$('.sidebar').outerHeight(available_height).css('overflow-y','auto');
 				$('.search-results').outerHeight(available_height).css('overflow-y','auto');
-                $('.main-screen .standard-dashboard-body-content').outerHeight(available_height - $('.standard-dashboard-body-title').height());
+                //$('.main-screen .standard-dashboard-body-content').outerHeight(available_height - $('.standard-dashboard-body-title').height());
+                $('#scrum_tickets').outerHeight($('.has-main-screen .main-screen').outerHeight() - $('.standard-dashboard-body-title:visible').outerHeight() - $('.standard-body-title:visible').outerHeight() - $('.dashboard_heading').outerHeight() - $('footer:visible').outerHeight() + note_height);
+                $('.has-dashboard.dashboard-container.ui-sortable').outerHeight($('.has-main-screen .main-screen').outerHeight() - $('.standard-dashboard-body-title:visible').outerHeight() - $('.standard-body-title').outerHeight() - $('footer:visible').outerHeight() + note_height_project);
+                $('.scrollable_unit').outerHeight($('#scrum_tickets').outerHeight() - $('.info-block-header').outerHeight() - 25);
+                $('.has-dashboard.dashboard-container.ui-sortable').css({'padding-bottom':'0', 'padding-top':'8px'});
+                $('.has-dashboard .dashboard-list').css({'margin-bottom':'-10px', 'overflow-y':'hidden'});
+                $('.has-dashboard .dashboard-list ul.dashboard-list').css('overflow-y','scroll');
 			}
-            var sidebar_height = $('.tile-sidebar').outerHeight(true);
-            $('.has-main-screen .main-screen').css('min-height', sidebar_height);
+            //var sidebar_height = $('.tile-sidebar').outerHeight(true);
+            //$('.has-main-screen .main-screen').css('min-height', sidebar_height);
 		}
 	}).resize();
 
@@ -162,7 +177,7 @@ function popUpClosed() {
                     $heading = 'Summary';
                 }
                 ?>
-                <div class="scale-to-fill"><h1 class="gap-left"><a href="index.php?category=All&tab=Summary"><?= TASK_TILE ?> : </a><?php echo $heading;?></h1></div>
+                <div class="scale-to-fill"><h1 class="gap-left"><a href="index.php?category=All&tab=Summary"><?= TASK_TILE ?>: </a><?php echo $heading;?></h1></div>
                 <div class="clearfix"></div>
             </div><!-- .tile-header -->
 
@@ -548,7 +563,7 @@ function popUpClosed() {
                                         echo '<a href="?category='. $projectid .'&tab=path&pathid=I|'.$projectpathid.'&edit='.$projectid.'">';
 
                                         $ex_projectpathid = explode('|',$_GET['pathid']);
-                                        echo '<li data-target="#board923_'.$project_path.'" class="sidebar-lower-level  '.(($ex_projectpathid[1]==$projectpathid) && (trim($_GET['edit'])==$projectid) ? 'active' : 'collapsed').'" style="padding-left: 50px;">'. $main_path;
+                                        echo '<li data-target="#board923_'.$project_path.'" class="sidebar-lower-level  '.(($ex_projectpathid[1]==$projectpathid) && (trim($_GET['edit'])==$projectid) ? 'active' : 'collapsed').'">'. $main_path;
 
                                         echo '<span class="pull-right pad-right">'. $task_count .($_GET['category']!=$row['taskboardid'] && $get_count['unseen'] > 0 ? ' (<span class="text-red no-toggle" title="There are '.$get_count['unseen'].' tasks that have been added or changed since you last viewed this board.">'.$get_count['unseen'].'</span>)' : '').'</span></li></a>';
 
@@ -597,7 +612,7 @@ function popUpClosed() {
 
             <div class="main-content-screen scale-to-fill has-main-screen hide-titles-mob">
                 <div class="loading_overlay" style="display:none;"><div class="loading_wheel"></div></div>
-                <div class="main-screen standard-dashboard-body override-main-screen form-horizontal">
+                <div class="main-screen standard-dashboard-body override-main-screen form-horizontal no-overflow">
 
                     <div class="standard-dashboard-body-title"><?php
                         $url_cat = filter_var($_GET['category'], FILTER_VALIDATE_INT);

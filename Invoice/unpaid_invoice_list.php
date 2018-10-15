@@ -465,7 +465,7 @@ function show_hide_email() {
                     echo '<td data-title="Invoice Date" style="white-space: nowrap; ">'.$invoice['invoice_date'].'</td>';
                 }
                 if (strpos($value_config, ','."customer".',') !== FALSE) {
-                    echo '<td data-title="'.$purchaser_label.'"><a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/'.CONTACTS_TILE.'/contacts_inbox.php?edit='.$contactid.'\', \'auto\', false, true, $(\'#invoice_div\').outerHeight()+20); return false;">' . get_contact($dbc, $contactid) . '</a></td>';
+                    echo '<td data-title="'.$purchaser_label.'"><a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Contacts/contacts_inbox.php?edit='.$contactid.'\', \'auto\', false, true, $(\'#invoice_div\').outerHeight()+20); return false;">' . get_contact($dbc, $contactid) . '</a></td>';
                 }
                 if (strpos($value_config, ','."total_price".',') !== FALSE) {
                     echo '<td data-title="Total Price" align="right">$' . number_format($invoice['final_price'],2) . '</td>';

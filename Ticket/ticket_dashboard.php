@@ -331,6 +331,7 @@ function loadTickets() {
 					});
 				}
 			});*/
+			initTooltips();
 		<?php } else if(empty($_GET['tab'])) { ?>
 			$('.main-content-screen .main-screen .standard-dashboard-body-title h3').text('All <?= $ticket_tile ?>');
 			var arr = [];
@@ -372,12 +373,14 @@ function showResults(result_list, target, search_id) {
 			}));
 		} else if(ticket != undefined && ticket.id > 0) {
 			target.append('<div class="dashboard-item form-horizontal">'+
-					'<h3><a target="_blank" href="'+(ticket.file != '' ? ticket.file : '../Ticket/download/'+$('.active.blue').closest('[data-type]').data('form')+'_'+ticket.revision+'_'+ticket.id+'.pdf')+'">'+ticket.label+'</a>'+<?php if($tile_security['edit'] > 0) { ?>
-						'<?= ($tile_security['config'] > 0 ? '<a href="" onclick="remForm(\'+$(\'.active.blue\').closest(\'[data-type]\').data(\'type\').substr(5)+\',\'+ticket.id+\',\'+ticket.revision+\',this); return false;" class="pull-right small pad-10">Archive</a>' : '') ?><a href="?<?= $current_tile ?>custom_form='+$('.active.blue').closest('[data-type]').data('type').substr(5)+'&revision='+ticket.revision+'&ticketid='+ticket.id+'&pdf_mode=edit" class="pull-right small pad-10">Edit</a><div class="clearfix"></div>'+
+					'<h3><a target="_blank" href="'+(ticket.file != '' ? ticket.file : '../Ticket/download/'+$('.active.blue').closest('[data-type]').data('form')+'_'+ticket.revision+'_'+ticket.id+'.pdf')+'">'+ticket.label+'</a>'+
+					<?php if($tile_security['edit'] > 0) { ?>'<div class="pull-right"><a href="?<?= $current_tile ?>custom_form='+$('.active.blue').closest('[data-type]').data('type').substr(5)+'&revision='+ticket.revision+'&ticketid='+ticket.id+'&pdf_mode=edit&revision_mode=edit" class="small pad-10"><img src="<?= WEBSITE_URL ?>/img/icons/ROOK-edit-icon.png" class="inline-img theme-color-icon no-toggle" title="Edit Revision"></a><a href="?<?= $current_tile ?>custom_form='+$('.active.blue').closest('[data-type]').data('type').substr(5)+'&revision='+ticket.revision+'&ticketid='+ticket.id+'&pdf_mode=edit&revision_mode=new" class="small pad-10"><img src="<?= WEBSITE_URL ?>/img/icons/ROOK-add-icon.png" class="inline-img theme-color-icon no-toggle" title="Create Revision"></a><a href="" onclick="overlayIFrameSlider(\'<?= WEBSITE_URL ?>/Ticket/ticket_pdf_revisions.php?<?= $current_tile ?>form='+$('.active.blue').closest('[data-type]').data('type').substr(5)+'&ticketid='+ticket.id+'\', \'auto\', false, true); return false;" class="small pad-10"><img src="<?= WEBSITE_URL ?>/img/icons/eyeball.png" class="inline-img theme-color-icon no-toggle" title="View Revisions"></a>'+
+						'<?= ($tile_security['config'] > 0 ? '<a href="" onclick="remForm(\'+$(\'.active.blue\').closest(\'[data-type]\').data(\'type\').substr(5)+\',\'+ticket.id+\',\'+ticket.revision+\',$(this).closest(\\\'.dashboard-item\\\')); return false;" class="small pad-10"><img src="'.WEBSITE_URL.'/img/icons/ROOK-trash-icon.png" class="inline-img no-toggle" title="Archive Revision"></a>' : '') ?></div><div class="clearfix"></div>'+
 					<?php } else { ?>
 						''+
-					<?php } ?>'</div>');
+					<?php } ?>'</h3></div>');
 			continue_loading = showResults(result_list, target, search_id);
+			initTooltips();
 		}
 	} else if(result_list.length > 0) {
 		continue_loading = setTimeout(function() { showResults(result_list, target, search_id); }, 1000);
@@ -528,10 +531,21 @@ function setActions() {
 	});
 }
 function setManualFlag(ticketid, colour, label) {
-	var item = $('.dashboard-item[data-id="'+ticketid+'"]');
-	item.data('colour',colour);
-	item.css('background-color','#'+colour);
-	item.find('.flag-label').text(label);
+	var item = $('.dashboard-item[data-id="'+ticketid+'"]').find('.flag-label-block');
+	if(colour == 'FFFFFF') {
+		colour = '';
+	}
+	if(colour != '') {
+		$(item).show();
+		$(item).css('background-color', '#'+colour);
+		if(label != '') {
+			$(item).text('Flagged: '+label);
+		} else {
+			$(item).text('Flagged');
+		}
+	} else {
+		$(item).hide();
+	}
 }
 function setStatus(select) {
 	$.ajax({    //create an ajax request to load_page.php
@@ -1616,15 +1630,16 @@ IF(!IFRAME_PAGE) { ?>
 		            $block = '<div class="overview-block">
                 <input type="hidden" name="id" value="Top 25 Forms">
 				<h4>Last 25 Forms<img class="inline-img pull-right drag_handle" src="../img/icons/drag_handle.png"></h4>';
-		            $tickets = $dbc->query("SELECT `tickets`.*, `forms`.`pdf_type`, `ticket_pdf`.`pdf_name` FROM (SELECT MAX(`id`) `formid`, `ticketid`, `pdf_type` FROM `ticket_pdf_field_values` WHERE `deleted`=0 GROUP BY `ticketid`, `pdf_type`) `forms` LEFT JOIN `tickets` ON `forms`.`ticketid`=`tickets`.`ticketid` LEFT JOIN `ticket_pdf` ON `forms`.`pdf_type`=`ticket_pdf`.`id` WHERE `tickets`.`ticketid` > 0 AND `tickets`.`ticket_type` IN ('".implode("','",$ticket_conf_list)."') $match_business ORDER BY `formid` DESC LIMIT 0,25");
+		                // $tickets = $dbc->query("SELECT `tickets`.*, `revision`, `last_revision` FROM (SELECT MAX(`id`) `formid`, `ticketid`, `pdf_type`, MAX(`revision`) `revision` FROM `ticket_pdf_field_values` WHERE `deleted`=0 GROUP BY `ticketid`, `pdf_type`".($form['revisions'] > 0 ? ", `revision`" : "").") `forms` LEFT JOIN (SELECT `ticketid`, `pdf_type`, MAX(`revision`) `last_revision` FROM `ticket_pdf_field_values` WHERE `deleted`=0 GROUP BY `ticketid`, `pdf_type`) `revisions` ON `forms`.`pdf_type`=`revisions`.`pdf_type` AND `forms`.`ticketid`=`revisions`.`ticketid` LEFT JOIN `tickets` ON `forms`.`ticketid`=`tickets`.`ticketid` WHERE `forms`.`pdf_type`='".$form['id']."' AND `tickets`.`ticketid` > 0 AND `tickets`.`ticket_type` IN ('".implode("','",$ticket_conf_list)."') $match_business ORDER BY `formid` DESC LIMIT 0,25");
+		            $tickets = $dbc->query("SELECT `tickets`.*, `forms`.`pdf_type`, `ticket_pdf`.`pdf_name`, `revision`, `last_revision` FROM (SELECT MAX(`id`) `formid`, `ticketid`, `pdf_type`, MAX(`revision`) `revision` FROM `ticket_pdf_field_values` WHERE `deleted`=0 GROUP BY `ticketid`, `pdf_type`) `forms` LEFT JOIN (SELECT `ticketid`, `pdf_type`, MAX(`revision`) `last_revision` FROM `ticket_pdf_field_values` WHERE `deleted`=0 GROUP BY `ticketid`, `pdf_type`) `revisions` ON `forms`.`pdf_type`=`revisions`.`pdf_type` AND `forms`.`ticketid`=`revisions`.`ticketid` LEFT JOIN `tickets` ON `forms`.`ticketid`=`tickets`.`ticketid` LEFT JOIN `ticket_pdf` ON `forms`.`pdf_type`=`ticket_pdf`.`id` WHERE `tickets`.`ticketid` > 0 AND `tickets`.`ticket_type` IN ('".implode("','",$ticket_conf_list)."') $match_business ORDER BY `formid` DESC LIMIT 0,25");
 		            while($ticket = $tickets->fetch_assoc()) {
 		                $block .= '<p><a target="_blank" href="../Ticket/download/'.config_safe_str($ticket['pdf_name']).'_'.$ticket['ticketid'].'.pdf">'.get_ticket_label($dbc, $ticket).' - '.$ticket['pdf_name'].'</a>';
 		                if($tile_security['edit'] > 0) {
-		                    if($summary_urls == 'slider') {
-		                        $block .= '<a href="" onclick="overlayIFrameSlider(\'?'.$current_tile.'custom_form='.$ticket['pdf_type'].'&ticketid='.$ticket['ticketid'].'&pdf_mode=edit\'); return false;" class="pull-right small">Edit</a>';
-		                    } else {
-		                        $block .= '<a href="?'.$current_tile.'custom_form='.$ticket['pdf_type'].'&ticketid='.$ticket['ticketid'].'&pdf_mode=edit" class="pull-right small">Edit</a>';
-		                    }
+	                        if($summary_urls == 'slider') {
+	                            $block .= '<span class="pull-right"><a href="" onclick="overlayIFrameSlider(\'?'.$current_tile.'custom_form='.$ticket['pdf_type'].'&revision='.$ticket['revision'].'&ticketid='.$ticket['ticketid'].'&pdf_mode=edit&revision_mode=edit\'); return false;" class="small"><img src="'.WEBSITE_URL.'/img/icons/ROOK-edit-icon.png" class="inline-img theme-color-icon no-toggle" title="Edit Revision"></a><a href="" onclick="overlayIFrameSlider(\'?'.$current_tile.'custom_form='.$ticket['pdf_type'].'&revision='.$ticket['revision'].'&ticketid='.$ticket['ticketid'].'&pdf_mode=edit&revision_mode=edit\'); return false;" class="small"><img src="'.WEBSITE_URL.'/img/icons/ROOK-add-icon.png" class="inline-img theme-color-icon no-toggle" title="Create Revision"></a><a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Ticket/ticket_pdf_revisions.php?'.$current_tile.'form='.$ticket['pdf_type'].'&ticketid='.$ticket['ticketid'].'\', \'auto\', false, true); return false;" class="small"><img src="'.WEBSITE_URL.'/img/icons/eyeball.png" class="inline-img theme-color-icon no-toggle" title="View Revisions"></a>'.($tile_security['config'] > 0 ? '<a href="" onclick="remForm(\''.$ticket['pdf_type'].'\',\''.$ticket['ticketid'].'\',\''.$ticket['revision'].'\',$(this).closest(\'p\')); return false;" class="pull-right small"><img src="'.WEBSITE_URL.'/img/icons/ROOK-trash-icon.png" class="inline-img no-toggle" title="Archive Revision"></a>' : '').'</span>';
+	                        } else {
+	                            $block .= '<span class="pull-right"><a href="?'.$current_tile.'custom_form='.$ticket['pdf_type'].'&revision='.$ticket['revision'].'&ticketid='.$ticket['ticketid'].'&pdf_mode=edit" class="small"><img src="'.WEBSITE_URL.'/img/icons/ROOK-edit-icon.png" class="inline-img theme-color-icon no-toggle" title="Edit Revision"></a><a href="?'.$current_tile.'custom_form='.$ticket['pdf_type'].'&revision='.$ticket['revision'].'&ticketid='.$ticket['ticketid'].'&pdf_mode=new" class="small"><img src="'.WEBSITE_URL.'/img/icons/ROOK-add-icon.png" class="inline-img theme-color-icon no-toggle" title="Create Revision"></a><a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Ticket/ticket_pdf_revisions.php?'.$current_tile.'form='.$ticket['pdf_type'].'&ticketid='.$ticket['ticketid'].'\', \'auto\', false, true); return false;" class="small"><img src="'.WEBSITE_URL.'/img/icons/eyeball.png" class="inline-img theme-color-icon no-toggle" title="View Revisions"></a>'.($tile_security['config'] > 0 ? '<a href="" onclick="remForm(\''.$ticket['pdf_type'].'\',\''.$ticket['ticketid'].'\',\''.$ticket['revision'].'\',$(this).closest(\'p\')); return false;" class="pull-right small"><img src="'.WEBSITE_URL.'/img/icons/ROOK-trash-icon.png" class="inline-img no-toggle" title="Archive Revision"></a>' : '').'</span>';
+	                        }
 		                }
 		                $block .= '</p>';
 		                $block_length += 17;
@@ -1653,9 +1668,9 @@ IF(!IFRAME_PAGE) { ?>
 		                    $block .= '<p><a target="_blank" href="'.$link.'">'.get_ticket_label($dbc, $ticket).($form['revisions'] > 0 ? ' Revision #'.$ticket['revision'].' of '.$ticket['last_revision'] : '').'</a>';
 		                    if($tile_security['edit'] > 0) {
 		                        if($summary_urls == 'slider') {
-		                            $block .= '<a href="" onclick="overlayIFrameSlider(\'?'.$current_tile.'custom_form='.$form['id'].'&revision='.$ticket['revision'].'&ticketid='.$ticket['ticketid'].'&pdf_mode=edit\'); return false;" class="pull-right small">Edit</a>';
+		                            $block .= '<span class="pull-right"><a href="" onclick="overlayIFrameSlider(\'?'.$current_tile.'custom_form='.$form['id'].'&revision='.$ticket['revision'].'&ticketid='.$ticket['ticketid'].'&pdf_mode=edit&revision_mode=edit\'); return false;" class="small"><img src="'.WEBSITE_URL.'/img/icons/ROOK-edit-icon.png" class="inline-img theme-color-icon no-toggle" title="Edit Revision"></a><a href="" onclick="overlayIFrameSlider(\'?'.$current_tile.'custom_form='.$form['id'].'&revision='.$ticket['revision'].'&ticketid='.$ticket['ticketid'].'&pdf_mode=edit&revision_mode=edit\'); return false;" class="small"><img src="'.WEBSITE_URL.'/img/icons/ROOK-add-icon.png" class="inline-img theme-color-icon no-toggle" title="Create Revision"></a><a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Ticket/ticket_pdf_revisions.php?'.$current_tile.'form='.$form['id'].'&ticketid='.$ticket['ticketid'].'\', \'auto\', false, true); return false;" class="small"><img src="'.WEBSITE_URL.'/img/icons/eyeball.png" class="inline-img theme-color-icon no-toggle" title="View Revisions"></a>'.($tile_security['config'] > 0 ? '<a href="" onclick="remForm(\''.$form['id'].'\',\''.$ticket['ticketid'].'\',\''.$ticket['revision'].'\',$(this).closest(\'p\')); return false;" class="pull-right small"><img src="'.WEBSITE_URL.'/img/icons/ROOK-trash-icon.png" class="inline-img no-toggle" title="Archive Revision"></a>' : '').'</span>';
 		                        } else {
-		                            $block .= '<a href="?'.$current_tile.'custom_form='.$form['id'].'&revision='.$ticket['revision'].'&ticketid='.$ticket['ticketid'].'&pdf_mode=edit" class="pull-right small">Edit</a>';
+		                            $block .= '<span class="pull-right"><a href="?'.$current_tile.'custom_form='.$form['id'].'&revision='.$ticket['revision'].'&ticketid='.$ticket['ticketid'].'&pdf_mode=edit" class="small"><img src="'.WEBSITE_URL.'/img/icons/ROOK-edit-icon.png" class="inline-img theme-color-icon no-toggle" title="Edit Revision"></a><a href="?'.$current_tile.'custom_form='.$form['id'].'&revision='.$ticket['revision'].'&ticketid='.$ticket['ticketid'].'&pdf_mode=new" class="small"><img src="'.WEBSITE_URL.'/img/icons/ROOK-add-icon.png" class="inline-img theme-color-icon no-toggle" title="Create Revision"></a><a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Ticket/ticket_pdf_revisions.php?'.$current_tile.'form='.$form['id'].'&ticketid='.$ticket['ticketid'].'\', \'auto\', false, true); return false;" class="small"><img src="'.WEBSITE_URL.'/img/icons/eyeball.png" class="inline-img theme-color-icon no-toggle" title="View Revisions"></a>'.($tile_security['config'] > 0 ? '<a href="" onclick="remForm(\''.$form['id'].'\',\''.$ticket['ticketid'].'\',\''.$ticket['revision'].'\',$(this).closest(\'p\')); return false;" class="pull-right small"><img src="'.WEBSITE_URL.'/img/icons/ROOK-trash-icon.png" class="inline-img no-toggle" title="Archive Revision"></a>' : '').'</span>';
 		                        }
 		                    }
 		                    $block .= '</p>';

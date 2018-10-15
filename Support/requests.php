@@ -1,4 +1,4 @@
-<?php include_once('../include.php');
+<?php include_once('config.php');
 if(!isset($request_tab)) {
 	$request_tab = (!empty($_GET['type']) ? $_GET['type'] : 'closed');
 	$dbc_support = mysqli_connect('localhost', 'ffm_rook_user', 'mIghtyLion!542', 'ffm_rook_db');
@@ -29,6 +29,7 @@ if($request_tab == 'new'): ?>
 		$cc = filter_var(implode(';',$_POST['ccemail']),FILTER_SANITIZE_STRING);
 		$heading = filter_var($_POST['heading'],FILTER_SANITIZE_STRING);
 		$details = filter_var(htmlentities($_POST['details']),FILTER_SANITIZE_STRING);
+        $link_list = [];
 		$plan = filter_var(htmlentities($_POST['plan']),FILTER_SANITIZE_STRING);
 		$discovery = filter_var(htmlentities($_POST['discovery']),FILTER_SANITIZE_STRING);
 		$action = filter_var(htmlentities($_POST['action']),FILTER_SANITIZE_STRING);
@@ -59,9 +60,13 @@ if($request_tab == 'new'): ?>
 		}
 		foreach($_POST['links'] as $link) {
 			if($link != '') {
+                if(strpos($link,'http') === false) {
+                    $link = 'http://'.$link;
+                }
 				if(!mysqli_query($dbc_support, "INSERT INTO `support_uploads` (`supportid`, `document`, `created_by`) VALUES ('$supportid', '$link', '".get_contact($dbc, $_SESSION['contactid'])."')")) {
 					$errors .= "Error Recording Attachment: ".mysqli_error($dbc_support)."\n";
 				}
+                $link_list[] = '<a href="'.$link.'">'.$link.'</a>';
 			}
 		}
 
@@ -139,6 +144,10 @@ if($request_tab == 'new'): ?>
 					Details<hr>
 					".html_entity_decode($details);
 			}
+            if(!empty($link_list)) {
+                $body .= '<p><b>Links:</b><br />'.implode('<br />',$link_list).'</p>';
+                $cust_body .= '<p><b>Links:</b><br />'.implode('<br />',$link_list).'</p>';
+            }
 			
 			// Email to FFM staff.
 			$default = get_config($dbc_support, 'support_recipients_default');
@@ -192,6 +201,24 @@ if($request_tab == 'new'): ?>
 		$(block).after(clone);
 		$('[name="ccemail[]"]:visible').last().focus();
 	}
+	function rem_uploader(button) {
+        if($('[name="documents[]"]:visible').length <= 1) {
+            add_uploader(button);
+        }
+		$(button).closest('.form-group').remove();
+	}
+	function rem_link(button) {
+        if($('[name="links[]"]:visible').length <= 1) {
+            add_link(button);
+        }
+		$(button).closest('.form-group').remove();
+	}
+	function rem_cc(button) {
+        if($('[name="ccemail[]"]:visible').length <= 1) {
+            add_cc(button);
+        }
+		$(button).closest('.form-group').remove();
+	}
 	function validate(form) {
 		tinymce.triggerSave();
 		if($('[name=email]').val() == '') {
@@ -226,8 +253,6 @@ if($request_tab == 'new'): ?>
 		<div class="clearfix"></div>
 	</div>
 	<form class="form" method="POST" action="" enctype="multipart/form-data" onsubmit="return validate(this);">
-		<h1 class="triple-pad-bottom">Submit Support Request</h1>
-		
 		<div class="form-group clearfix">
 			<label class="col-sm-4" for="type">Request Type:</label>
             <?php if(empty($new_type) || empty($source)) { ?>
@@ -290,6 +315,7 @@ if($request_tab == 'new'): ?>
 					<input type="text" name="ccemail[]" id="ccemail" value="" class="form-control">
 				</div>
 				<div class="col-sm-1">
+					<img onclick="rem_cc(this); return false;" class="inline-img cursor-hand pull-right" src="../img/remove.png">
 					<img onclick="add_cc(this); return false;" class="inline-img cursor-hand pull-right" src="../img/icons/ROOK-add-icon.png">
 				</div>
 			</div>
@@ -321,6 +347,7 @@ if($request_tab == 'new'): ?>
 					<input type="file" multiple name="documents[]" data-filename-placement="inside" class="form-control">
 				</div>
 				<div class="col-sm-1">
+					<img onclick="rem_uploader(this); return false;" class="inline-img cursor-hand pull-right" src="../img/remove.png">
 					<img onclick="add_uploader(this); return false;" class="inline-img cursor-hand pull-right" src="../img/icons/ROOK-add-icon.png">
 				</div>
 			</div>
@@ -330,6 +357,7 @@ if($request_tab == 'new'): ?>
 					<input type="text" name="links[]" class="form-control">
 				</div>
 				<div class="col-sm-1">
+					<img onclick="rem_link(this); return false;" class="inline-img cursor-hand pull-right" src="../img/remove.png">
 					<img onclick="add_link(this); return false;" class="inline-img cursor-hand pull-right" src="../img/icons/ROOK-add-icon.png">
 				</div>
 			</div>
@@ -370,6 +398,7 @@ if($request_tab == 'new'): ?>
 					<input type="text" name="ccemail[]" id="ccemail" value="" class="form-control">
 				</div>
 				<div class="col-sm-1">
+					<img onclick="rem_cc(this); return false;" class="inline-img cursor-hand pull-right" src="../img/remove.png">
 					<img onclick="add_cc(this); return false;" class="inline-img cursor-hand pull-right" src="../img/icons/ROOK-add-icon.png">
 				</div>
 			</div>
@@ -405,6 +434,7 @@ if($request_tab == 'new'): ?>
 					<input type="file" multiple name="documents[]" data-filename-placement="inside" class="form-control">
 				</div>
 				<div class="col-sm-1">
+					<img onclick="rem_uploader(this); return false;" class="inline-img cursor-hand pull-right" src="../img/remove.png">
 					<img onclick="add_uploader(this); return false;" class="inline-img cursor-hand pull-right" src="../img/icons/ROOK-add-icon.png">
 				</div>
 			</div>
@@ -414,6 +444,7 @@ if($request_tab == 'new'): ?>
 					<input type="text" name="links[]" class="form-control">
 				</div>
 				<div class="col-sm-1">
+					<img onclick="rem_link(this); return false;" class="inline-img cursor-hand pull-right" src="../img/remove.png">
 					<img onclick="add_link(this); return false;" class="inline-img cursor-hand pull-right" src="../img/icons/ROOK-add-icon.png">
 				</div>
 			</div>
@@ -454,6 +485,7 @@ if($request_tab == 'new'): ?>
 					<input type="text" name="ccemail[]" id="ccemail" value="" class="form-control">
 				</div>
 				<div class="col-sm-1">
+					<img onclick="rem_cc(this); return false;" class="inline-img cursor-hand pull-right" src="../img/remove.png">
 					<img onclick="add_cc(this); return false;" class="inline-img cursor-hand pull-right" src="../img/icons/ROOK-add-icon.png">
 				</div>
 			</div>
@@ -489,6 +521,7 @@ if($request_tab == 'new'): ?>
 					<input type="file" multiple name="documents[]" data-filename-placement="inside" class="form-control">
 				</div>
 				<div class="col-sm-1">
+					<img onclick="rem_uploader(this); return false;" class="inline-img cursor-hand pull-right" src="../img/remove.png">
 					<img onclick="add_uploader(this); return false;" class="inline-img cursor-hand pull-right" src="../img/icons/ROOK-add-icon.png">
 				</div>
 				<div class="clearfix"></div>
@@ -499,13 +532,14 @@ if($request_tab == 'new'): ?>
 					<input type="text" name="links[]" class="form-control">
 				</div>
 				<div class="col-sm-1">
+					<img onclick="rem_link(this); return false;" class="inline-img cursor-hand pull-right" src="../img/remove.png">
 					<img onclick="add_link(this); return false;" class="inline-img cursor-hand pull-right" src="../img/icons/ROOK-add-icon.png">
 				</div>
 			</div>
 		<?php endif; ?>
 		
-		<button type="submit" name="new_request" value="new" class="btn brand-btn pull-right">Submit Request</button>
-		<div class="clearfix"></div>
+		<button type="submit" name="new_request" value="new" class="btn brand-btn pull-right double-gap-bottom">Submit Request</button>
+        <div class="clearfix"></div>
 	</form>
 <?php elseif($request_tab == 'closed'): ?>
 	<div class="notice double-gap-bottom popover-examples">
@@ -599,7 +633,7 @@ if($request_tab == 'new'): ?>
 		<div class="clearfix"></div>
 	</div>
 	</form>
-	<?php $support_list = mysqli_query($dbc_support, "SELECT * FROM `support` WHERE (`businessid`='$user' OR `contactid`='$user' OR '$user_category' IN (".STAFF_CATS.")) AND `deleted`=1 AND `archived_date` > '$date'".$search_string);
+	<?php $support_list = mysqli_query($dbc_support, "SELECT * FROM `support` WHERE (`businessid`='$user' OR `contactid`='$user' OR '$user_category' IN (".STAFF_CATS.")) AND `deleted`=1 AND `archived_date` > '$date'".$search_string." ORDER BY `archived_date` DESC, `supportid` DESC");
     if(mysqli_num_rows($support_list) > 0) { ?>
         <div class="has-dashboard dashboard-container">
             <div class="item-list">
@@ -630,7 +664,7 @@ if($request_tab == 'new'): ?>
                         $documents = mysqli_query($dbc_support, "SELECT * FROM support_uploads WHERE supportid='".$row['supportid']."'");
                         while($doc = mysqli_fetch_array($documents)) {
                             $link = $doc['document'];
-                            echo '<br /><a href="'.$link.'">'.$link.' (Attached by '.$doc['created_by'].' on '.$doc['created_date'].')</a>';
+                            echo '<br /><a target="_blank" href="'.(strpos($link,'http') === false ? 'http://' : '').$link.'">'.(strpos($link, WEBSITE_URL.'/Support/download/') !== false ? str_replace(WEBSITE_URL.'/Support/download/', '', $link) : $link).' (Attached by '.$doc['created_by'].' on '.$doc['created_date'].')</a>';
                         }
                         echo '</span></li>';
                     } ?>
@@ -638,7 +672,7 @@ if($request_tab == 'new'): ?>
             </div>
         </div>
 	<?php } else {
-		echo "<h3>No Support Requests Found</h3>";
+		echo "<h4 class='pad-10'>No Support Requests Found</h4>";
 	} ?>
 <?php else: ?>
 	<div class="notice double-gap-bottom popover-examples">
@@ -733,7 +767,7 @@ if($request_tab == 'new'): ?>
 		<div class="clearfix"></div>
 	</div>
 	</form>
-	<?php $support_list = mysqli_query($dbc_support, "SELECT * FROM `support` WHERE (`businessid`='$user' OR `contactid`='$user' OR '$user_category' IN (".STAFF_CATS.")) AND `support_type`='$request_tab' AND `deleted`=0".$search_string);
+	<?php $support_list = mysqli_query($dbc_support, "SELECT * FROM `support` WHERE (`businessid`='$user' OR `contactid`='$user' OR '$user_category' IN (".STAFF_CATS.")) AND `support_type`='$request_tab' AND `deleted`=0".$search_string." ORDER BY `current_date` DESC, `supportid` DESC");
 	$staff_list = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT `first_name`, `last_name`, `contactid` FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND `deleted`=0 AND `status`>0"),MYSQLI_ASSOC));
 	if(mysqli_num_rows($support_list) > 0) { ?>
         <div class="has-dashboard dashboard-container">
@@ -781,7 +815,7 @@ if($request_tab == 'new'): ?>
                         $documents = mysqli_query($dbc_support, "SELECT * FROM support_uploads WHERE supportid='".$row['supportid']."'");
                         while($doc = mysqli_fetch_array($documents)) {
                             $link = $doc['document'];
-                            echo '<br /><a href="'.$link.'">'.$link.' (Attached by '.$doc['created_by'].' on '.$doc['created_date'].')</a>';
+                            echo '<br /><a target="_blank" href="'.(strpos($link,'http') === false ? 'http://' : '').$link.'">'.(strpos($link, WEBSITE_URL.'/Support/download/') !== false ? str_replace(WEBSITE_URL.'/Support/download/', '', $link) : $link).' (Attached by '.$doc['created_by'].' on '.$doc['created_date'].')</a>';
                         }
                         echo '</span></li>';
                     } ?>
@@ -789,7 +823,7 @@ if($request_tab == 'new'): ?>
             </div>
         </div>
 	<?php } else {
-		echo "<h3>No $request_tab_name Found</h3>";
+		echo "<h4 class='pad-10'>No $request_tab_name Found</h4>";
 	} ?>
 <?php endif; ?>
 <script>

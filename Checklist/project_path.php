@@ -4,6 +4,7 @@ $checklistid = empty($checklistid) ? filter_var($_GET['checklistid'],FILTER_SANI
 if($projectid > 0) {
     $project_paths = get_project_paths($projectid);
     $checklist_milestone = get_field_value('project_milestone','checklist','checklistid',$checklistid);
+    $checklist_milestone = empty($checklist_milestone) ? urldecode($_GET['project_milestone']) : $checklist_milestone;
     if(count($project_paths) > 1) {
         $checklist_path_id = 0;
         foreach($project_paths as $path_details) {

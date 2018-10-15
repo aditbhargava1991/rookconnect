@@ -787,7 +787,6 @@ if(isset($_GET['export']) && $_GET['export']=='csv') {
 
 $value = $config['settings']['Choose Fields for Time Sheets Dashboard'];
 ?>
-
 <script type="text/javascript" src="../Timesheet/timesheet.js"></script>
 <script type="text/javascript">
 function viewTicket(a) {
@@ -997,6 +996,21 @@ function addSignature(chk) {
 
 	<div class="pull-right" style="height:1.5em; margin:0.5em;"><a target="_blank" href="../Timesheet/time_cards.php?export=pdf&search_site=<?php echo $search_site; ?>&search_staff=<?php echo $search_staff; ?>&search_start_date=<?php echo $search_start_date; ?>&search_end_date=<?php echo $search_end_date; ?>" onclick="displayPDFOptions(this); return false;"><img src="<?php echo WEBSITE_URL; ?>/img/pdf.png" style="height:100%; margin:0;" class="no-toggle" title="PDF" /></a>
 	- <a href="../Timesheet/time_cards.php?export=csv&search_site=<?php echo $search_site; ?>&search_staff=<?php echo $search_staff; ?>&search_start_date=<?php echo $search_start_date; ?>&search_end_date=<?php echo $search_end_date; ?>"><img src="<?php echo WEBSITE_URL; ?>/img/csv.png" style="height:100%; margin:0;" class="no-toggle" title="CSV" /></a></div>
+    <?php
+    $highlight = get_config($dbc, 'timesheet_highlight');
+    $mg_highlight = get_config($dbc, 'timesheet_manager');
+
+    $timesheet_legend = '<b>Color Code:</b><br>';
+        $timesheet_legend .= '<label><div class="ticket-status-color" style="background-color: red;"></div>Overlapping Time Conflict</label><br />';
+        $timesheet_legend .= '<label><div class="ticket-status-color" style="background-color: '.$mg_highlight.';"></div>Edit by Manager</label><br />';
+        $timesheet_legend .= '<label><div class="ticket-status-color" style="background-color: '.$highlight.';"></div>Edit by User</label><br />';
+    ?>
+
+    <div class="block-button offset-right-10 dispatch-legend-block pull-right" style="position: relative;">
+        <div class="block-button dispatch-status-legend" style="display: none; width: 20em; position: absolute; top: 50%; right: 50%;"><?= $timesheet_legend ?></div>
+        <img src="../img/legend-icon.png" class="dispatch-legend-img">
+    </div>
+
 	<div class="clearfix"></div>
 
     <form name="timesheet" method="POST" action="add_time_cards.php">

@@ -243,6 +243,7 @@ function DoubleScroll(element) {
 	scrollbar.style.overflowY= 'hidden';
 	scrollbar.style.width= '';
 	scrollbar.firstChild.style.width= element.scrollWidth+'px';
+	scrollbar.firstChild.style.height= '0px';
 	scrollbar.firstChild.style.paddingTop= '1px';
 	scrollbar.firstChild.appendChild(document.createTextNode('\xA0'));
 	scrollbar.onscroll= function() {

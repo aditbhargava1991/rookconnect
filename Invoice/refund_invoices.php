@@ -405,7 +405,7 @@ function view_summary() {
 
             if($row['patientid'] != 0) {
                 //echo '<td><a href="../Contacts/add_contacts.php?category=Patient&contactid='.$row['patientid'].'&from_url='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']).'">'.get_contact($dbc, $row['patientid']). '</a></td>';
-                echo '<td data-title="'.$purchaser_label.'"><a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/'.CONTACTS_TILE.'/contacts_inbox.php?edit='.$row['patientid'].'\', \'auto\', false, true, $(\'#invoice_div\').outerHeight()+20); return false;">'. get_contact($dbc, $row['patientid']) .'</a></td>';
+                echo '<td data-title="'.$purchaser_label.'"><a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Contacts/contacts_inbox.php?edit='.$row['patientid'].'\', \'auto\', false, true, $(\'#invoice_div\').outerHeight()+20); return false;">'. get_contact($dbc, $row['patientid']) .'</a></td>';
             } else {
                 echo '<td data-title="'.$purchaser_label.'">-</td>';
             }

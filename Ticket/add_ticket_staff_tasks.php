@@ -51,7 +51,7 @@ foreach($main_tasks as $i => $task_name) {
 			<button class="btn brand-btn pull-left assign_staff_task" onclick="add_staff_task('<?= strpos($value_config,',Ticket Tasks Auto Load New,') !== FALSE ? 'open_ticket' : 'checkin' ?>');">Get to Work</button>
 		<?php } ?>
 		<?php if($extra_tasks > 0) { ?>
-			<button class="btn brand-btn pull-right" onclick="$('[name=staff_assigned_task][data-task-type]').removeAttr('disabled'); $('.billing_group h4,.billing_group label').show(); $(this).hide(); return false;">Extra Billing</button>
+			<button class="btn brand-btn pull-right" data-history-label="Extra Billing Option" onclick="$('[name=staff_assigned_task][data-task-type]').removeAttr('disabled'); $('.billing_group h4,.billing_group label').show(); $(this).hide(); return false;">Extra Billing</button>
 		<?php } ?>
 	</div>
 	<script>

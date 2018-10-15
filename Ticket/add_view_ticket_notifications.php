@@ -176,6 +176,6 @@ function send_notification() {
 
 	</div>
 
-	<button class="btn brand-btn pull-right notify_button" onclick="send_notification(); return false;">Send Notification</button>
+	<button class="btn brand-btn pull-right notify_button" data-history-label="Add Notification" onclick="send_notification(); return false;">Send Notification</button>
 	<div class="clearfix"></div>
 <?php } ?>

@@ -21,8 +21,8 @@
                 </select>
             </div>
             <div class="col-sm-1">
-                <img class="pull-right inline-img cursor-hand no-toggle" src="../img/remove.png" title="Remove <?= CONTACTS_NOUN ?>" data-history-label="Communication" onclick="remMulti(this);">
-                <img class="pull-right inline-img cursor-hand no-toggle" src="../img/icons/ROOK-add-icon.png" title="Add <?= CONTACTS_NOUN ?>" data-history-label="Communication" onclick="addMulti(this);">
+                <img class="pull-right inline-img cursor-hand no-toggle" src="../img/remove.png" data-history-label="Communication Tag" title="Remove <?= CONTACTS_NOUN ?>" data-history-label="Communication" onclick="remMulti(this);">
+                <img class="pull-right inline-img cursor-hand no-toggle" src="../img/icons/ROOK-add-icon.png" data-history-label="Communication Tag" title="Add <?= CONTACTS_NOUN ?>" data-history-label="Communication" onclick="addMulti(this);">
             </div>
         </div>
     <?php }
