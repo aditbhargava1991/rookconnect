@@ -173,10 +173,10 @@ if(isset($_POST['printpdf'])) {
 			<th width="10%">Performance Bonus</th>
 			</tr>';
 
-			$service_list = mysqli_query($dbc, "SELECT `serviceid`, `fee`, `admin_fee`, COUNT(*) `total_appt` FROM `invoice_compensation` WHERE `therapistsid`='$contactid' AND `service_date` BETWEEN '$stat_start' AND '$stat_end' GROUP BY `serviceid`, `fee`, `admin_fee`");
+			$service_list = mysqli_query($dbc, "SELECT `item_id`, `fee`, `admin_fee`, COUNT(*) `total_appt` FROM `invoice_compensation` WHERE `contactid`='$contactid' AND `service_date` BETWEEN '$stat_start' AND '$stat_end' AND `item_type`='services' GROUP BY `item_id`, `fee`, `admin_fee`");
 			while($service_row = mysqli_fetch_array($service_list)) {
 				// Base Pay
-				$current_serviceid = $service_row['serviceid'];
+				$current_serviceid = $service_row['item_id'];
 				$current_service_info = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `services` WHERE `serviceid`='$current_serviceid'"));
 				$current_fee = $service_row['fee'];
 				$current_admin = $service_row['admin_fee'];

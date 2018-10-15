@@ -36,7 +36,7 @@ $(document).ready(function() {
 <?php } ?>
 </head>
 <body>
-<?php 
+<?php
 if(empty($_GET['intake_key']) || !empty($_SESSION['contactid'])) {
 	include_once ('../navigation.php');
 }

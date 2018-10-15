@@ -24,7 +24,7 @@ if(mysqli_num_rows($attached_checklists) > 0) {
 	echo "<h3>No Checklists Found.";
 } ?>
 <div class="clearfix"></div>
-<a href="" onclick="overlayIFrameSlider('<?= WEBSITE_URL ?>/Checklist/edit_checklist.php?edit=NEW&ticketid=<?= $ticketid ?>&from_url=<?= urlencode(WEBSITE_URL.'/Ticket/index.php?edit='.$ticketid) ?>&reload_ticket_checklists=1', 'auto', false, true); return false;" class="btn brand-btn pull-right">Add Checklist</a>
+<a href="" onclick="overlayIFrameSlider('<?= WEBSITE_URL ?>/Checklist/edit_checklist.php?edit=NEW&ticketid=<?= $ticketid ?>&from_url=<?= urlencode(WEBSITE_URL.'/Ticket/index.php?edit='.$ticketid) ?>&reload_ticket_checklists=1', 'auto', false, true); return false;" data-history-label="New Checklist" class="btn brand-btn pull-right">Add Checklist</a>
 <script>
 function checklistChange(sel) {
 	var stage = sel.value;

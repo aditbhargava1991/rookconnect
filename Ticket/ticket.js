@@ -2,6 +2,9 @@ ticket_wait = false;
 ticket_lock_interval = '';
 ticket_reload_tabs = '';
 ticket_excess_confirm = true;
+address_validation = [''];
+use_google_suggest = false;
+suggest_from_google = true;
 ticket_reloading_service_checklist = '';
 finishing_ticket = false;
 $(document).ready(function() {
@@ -101,6 +104,11 @@ $(document).on('click', 'img[src*="remove.png"][data-history-label]', function()
 	var label = $(this).data('history-label');
 	var section = $(this).closest('.tab-section').find('h3').first().text();
 	addClickHistory('Remove', label, section);
+});
+$(document).on('click', '[data-history-label]:not([src*="remove.png"],[src*="ROOK-add-icon.png"])', function() {
+	var label = $(this).data('history-label');
+	var section = $(this).closest('.tab-section').find('h3').first().text();
+	addClickHistory('Function', label, section);
 });
 function addClickHistory(icon, label, section) {
 	$.ajax({
@@ -391,7 +399,7 @@ function saveFieldMethod(field) {
 			}
 		});
 		query_string_arr["type"] = field.value;
-		var new_url = "?"+$.param(query_string_arr);
+		var new_url = decodeURIComponent("?"+$.param(query_string_arr));
 		window.history.replaceState(null, '', new_url);
         window.location.reload();
         return;
@@ -601,16 +609,24 @@ function saveFieldMethod(field) {
 				$(field).closest('.multi-block').find('[name=total]').first().val(save_value * $(field).closest('.multi-block').find('[name=qty]').val());
 			} else if((field_name == 'address' || field_name == 'city' || field_name == 'postal_code') && table_name == 'ticket_schedule' && block.find('[name=map_link]').first().data('auto-fill') == 'auto') {
 				block.find('[name=map_link]').first().val('https://www.google.ca/maps/place/'+encodeURI(block.find('[name=address]').val()+','+block.find('[name=city]').val()+','+block.find('[name=postal_code]').val())).change();
-				if($(field).closest('.scheduled_stop').find('[name="type"]') == undefined || $(field).closest('.scheduled_stop').find('[name="type"] option:selected').data('warehouse') != 'yes') {
+				if($(field).closest('.scheduled_stop').find('[name="type"]') == undefined || $(field).closest('.scheduled_stop').find('[name="type"] option:selected').data('warehouse') != 'yes' && suggest_from_google) {
 					$.post('ticket_ajax_all.php?action=validate_address', { address: block.find('[name=address]').val(), city: block.find('[name=city]').val(), postal: block.find('[name=postal_code]').val() }, function(response) {
-						response = response.split('|');
-						if(response.join('') != '' && (response[0] != block.find('[name=address]').val() || response[1] != block.find('[name=city]').val() || response[2] != block.find('[name=postal_code]').val()) && confirm('We suggest the following corrections to your address: '+response.join(', ')+'. Would you like to use this suggestion? Using the current address may fail to display in Google Maps.')) {
-							block.find('[name=address]').val(response[0]).change();
-							block.find('[name=city]').val(response[1]).change();
-							block.find('[name=postal_code]').val(response[2]).change();
-						} else if(response.join('') == '') {
-							alert('The address provided may not be valid. It will not be found in Google Maps.');
-						}
+						address_validation = response.split('|');
+                        setTimeout(function() {
+                            if(address_validation.join('') != '' && (address_validation[0] != block.find('[name=address]').val() || address_validation[1] != block.find('[name=city]').val() || address_validation[2] != block.find('[name=postal_code]').val()) && (use_google_suggest === true || confirm('We suggest the following corrections to your address: '+address_validation.join(', ')+'. Would you like to use this suggestion? Using the current address may fail to display in Google Maps.'))) {
+                                block.find('[name=address]').val(address_validation[0]).change();
+                                block.find('[name=city]').val(address_validation[1]).change();
+                                block.find('[name=postal_code]').val(address_validation[2]).change();
+                                use_google_suggest = true;
+                                suggest_from_google = false;
+                                setTimeout(function() {
+                                    suggest_from_google = true;
+                                }, 15000);
+                            } else if(address_validation.join('') == '' && use_google_suggest != 'no_update') {
+                                alert('The address provided may not be valid. It will not be found in Google Maps.');
+                                use_google_suggest = 'no_update';
+                            }
+                        }, 250);
 					});
 				}
 			} else if(field_name == 'type' && table_name == 'ticket_schedule') {
@@ -1080,11 +1096,14 @@ function saveFieldMethod(field) {
 							}
 						});
           }
-					if(table_name == 'tickets' && field_name == 'purchase_order') {
+					if((table_name == 'tickets' && field_name == 'purchase_order') || (table_name == 'ticket_attached' && field_name == 'po_num')) {
 						reload_po_num_dropdown();
 					}
 					if(field_name == 'clientid' && typeof filterSitesByClient == 'function') {
 						filterSitesByClient();
+					}
+					if(table_name == 'ticket_attached' && field_name == 'hours_set' && $(field).data('type') == 'Multiple_Timesheet_Row' && $(field).closest('.tab-section') != undefined && $(field).closest('.tab-section').prop('id') == 'tab_section_ticket_summary') {
+						$('.tab-section:not(#tab_section_ticket_summary').find('[name="hours_set"][data-table="ticket_attached"][data-type="Multiple_Timesheet_Row"][data-id="'+$(field).data('id')+'"]').val(field.value);
 					}
 					doneSaving();
 				}
@@ -2257,6 +2276,32 @@ function remMulti(img) {
 		block.hide();
 	}
 }
+function addMultiPO(img) {
+	destroyInputs('.po_nums_div');
+	var block = $(img).closest('.po_nums_div').find('.multi-block').last();
+	var clone = $(block).clone();
+
+	$(clone).find('.custom_po_num').hide();
+	$(clone).find('.po_num_group').show();
+	$(clone).find('input,textarea,select').val('');
+	$(clone).find('.po_num_group [name="po_num_disabled"]').attr('name','po_num');
+	$(clone).find('.custom_po_num [name="po_num"]').attr('name','po_num_disabled');
+
+	$(block).after(clone);
+	reload_po_num_dropdown();
+	initInputs('.po_nums_div');
+	setSave();
+	initSelectOnChanges();
+}
+function remMultiPO(img) {
+	if($(img).closest('.po_nums_div').find('.multi-block').length <= 1) {
+		addMultiPO(img);
+	}
+
+	var block = $(img).closest('.po_nums_div');
+	$(img).closest('.multi-block').remove();
+	$(block).find('[name="po_num"]').first().change();
+}
 function addMultiPOLine(img) {
 	destroyInputs('.po_lines_div');
 	var block = $(img).closest('.po_lines_div').find('.multi-block').last();
@@ -2751,13 +2796,16 @@ function siteSelect(select) {
 function poNumSelect(select) {
 	var value = $(select).find('option:selected').val();
 	if(value == 'MANUAL') {
-		$(select).closest('.form-group.po_num_group').hide();
-		$(select).closest('.form-group').next('.custom_po_num').show();
-		$(select).closest('.form-group').next('.custom_po_num').find('input').focus();
+		$(select).closest('.po_num_group').hide();
+		$(select).closest('.po_num_group').next('.custom_po_num').show();
+		$(select).closest('.po_num_group').find('[name="po_num"]').prop('name', 'po_num_disabled');
+		$(select).closest('.po_num_group').next('.custom_po_num').find('[name="po_num_disabled"]').prop('name', 'po_num');
 	} else {
-		$(select).closest('.form-group.po_num_group').show();
-		$(select).closest('.form-group').next('.custom_po_num').hide();
-		$(select).closest('.form-group').next('.custom_po_num').find('input').val('');
+		$(select).closest('.po_num_group').show();
+		$(select).closest('.po_num_group').next('.custom_po_num').hide();
+		$(select).closest('.po_num_group').next('.custom_po_num').find('input').val('');
+		$(select).closest('.po_num_group').find('[name="po_num_disabled"]').prop('name', 'po_num');
+		$(select).closest('.po_num_group').next('.custom_po_num').find('[name="po_num"]').prop('name', 'po_num_disabled');
 	}
 }
 function staff_list_add(input) {
@@ -3512,6 +3560,57 @@ function filterStaffNoShift() {
 		}
 	});
 }
+function setHoursOfOperation(select) {
+	if(ticketid > 0) {
+		if($(select).data('hours-of-operation') == 1) {
+			var block = $(select).closest('.scheduled_stop');
+			if($(block).find('[name="to_do_start_time"]').data('disabled') != 1) {
+				if($(select).find('option:selected').data('warehouseid') > 0) {
+					var warehouseid = $(select).find('option:selected').data('warehouseid');
+					var to_do_date = $(block).find('[name="to_do_date"]').val();
+					var to_do_start_time = $(block).find('[name="to_do_start_time"]').val();
+					$.ajax({
+						url :'../Ticket/ticket_ajax_all.php?action=get_hours_of_operation',
+						method: 'POST',
+						data: {
+							ticketid: ticketid,
+							warehouseid: warehouseid,
+							to_do_date: to_do_date,
+							to_do_start_time: to_do_start_time
+						},
+						success: function(response) {
+							var response = JSON.parse(response);
+							if(response.start_time == 'closed') {
+								$(block).find('[name="to_do_start_time"]').val('Closed').change().prop('disabled', true);
+							} else {
+								if(response.start_time == '') {
+									response.start_time = $(block).find('[name="to_do_start_time"]').data('default-datetimepicker-mintime');
+									response.end_time = $(block).find('[name="to_do_start_time"]').data('default-datetimepicker-maxtime');
+								}
+								destroyInputs('.stop_scheduled_time');
+								$(block).find('[name="to_do_start_time"]').prop('disabled', false);
+								$(block).find('[name="to_do_start_time"]').data('datetimepicker-mintime', response.start_time);
+								$(block).find('[name="to_do_start_time"]').data('datetimepicker-maxtime', response.end_time);
+								initInputs('.stop_scheduled_time');
+								if(response.to_do_start_time != to_do_start_time && response.to_do_start_time != '') {
+									$(block).find('[name="to_do_start_time"]').val(response.to_do_start_time).change();
+								}
+							}
+						}
+					});
+				} else {
+					start_time = $(block).find('[name="to_do_start_time"]').data('default-datetimepicker-mintime');
+					end_time = $(block).find('[name="to_do_start_time"]').data('default-datetimepicker-maxtime');
+					destroyInputs('.stop_scheduled_time');
+					$(block).find('[name="to_do_start_time"]').prop('disabled', false);
+					$(block).find('[name="to_do_start_time"]').data('datetimepicker-mintime', start_time);
+					$(block).find('[name="to_do_start_time"]').data('datetimepicker-maxtime', end_time);
+					initInputs('.stop_scheduled_time');
+				}
+			}
+		}
+	}
+}
 function initSelectOnChanges() {
 	try {
 		setServiceFilters();
@@ -3629,5 +3728,12 @@ function initSelectOnChanges() {
 	});
 	$('select[name="po_line_range_min"],select[name="po_line_range_max"]').change(function() {
 		poLineRangeChange(this);
+	});
+	$('select[name="type"][data-table="ticket_schedule"]').change(function() {
+		setHoursOfOperation(this);
+	});
+	$('[name="to_do_date"][data-table="ticket_schedule"]').change(function() {
+		var stop_type = $(this).closest('.scheduled_stop').find('select[name="type"][data-table="ticket_schedule"]');
+		setHoursOfOperation(stop_type);
 	});
 }

@@ -24,7 +24,7 @@ $(document).ready(function() {
 			}
 		}
 	}).resize();
-}); 
+});
 </script>
 </head>
 <body>

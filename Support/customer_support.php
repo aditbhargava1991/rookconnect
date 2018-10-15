@@ -65,6 +65,11 @@ if($request_tab == 'closed') {
     $request_tab_name = 'Closed';
 } else if($request_tab == 'new') {
     $request_tab_name = 'Submit New';
+    foreach($ticket_types as $type_name) {
+        if($_GET['new_type'] == config_safe_str($type_name)) {
+            $request_tab_name .= ' '.$type_name;
+        }
+    }
 } ?>
 
 <div class="container">
@@ -178,6 +183,7 @@ if($request_tab == 'closed') {
                                 <div class="form-horizontal col-sm-12"><?php include($current_tab.'.php'); ?></div>
                             </div>
                         <?php } ?>
+                        <div class="clearfix"></div>
                     </div>
 				</div>
 	            <div id="mobile" class="show-on-mob full-width panel-group block-panels">

@@ -14,7 +14,7 @@ $task_statuses = explode(',',get_config($dbc, 'task_status'));
 $status_complete = $task_statuses[count($task_statuses) - 1];
 $status_incomplete = $task_statuses[0];
 if(empty($url_tab)) {
-	$url_tab = $_GET['tab'];
+    $url_tab = $_GET['tab'];
 }
 $dbc->query("INSERT INTO `taskboard_seen` (`taskboardid`, `tab`, `contactid`) SELECT '$taskboardid', '$url_tab', '{$_SESSION['contactid']}' FROM (SELECT COUNT(*) `rows` FROM `taskboard_seen` WHERE `taskboardid`='$taskboardid' AND IFNULL(`tab`,'".($url_tab == 'sales' ? '' : $url_tab)."') = '$url_tab' AND `contactid`='{$_SESSION['contactid']}') `num` WHERE `num`.`rows`=0");
 $dbc->query("UPDATE `taskboard_seen` SET `seen_date`=CURRENT_TIMESTAMP WHERE `contactid`='{$_SESSION['contactid']}' AND `taskboardid`='$taskboardid' AND IFNULL(`tab`,'".($url_tab == 'sales' ? '' : $url_tab)."')='$url_tab'");

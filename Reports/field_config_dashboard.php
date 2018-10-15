@@ -183,6 +183,9 @@ if (isset($_POST['submit'])) {
       <div class="col-sm-4">
             <label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."History Products History".',') !== FALSE) { echo " checked"; } ?> value="History Products History" name="reports_dashboard[]"> Products History</label>
         </div>
+      <div class="col-sm-4">
+            <label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."History DB Backup History".',') !== FALSE) { echo " checked"; } ?> value="History DB Backup History" name="reports_dashboard[]"> DB Backup History</label>
+        </div>
     <div class="clearfix"></div>
 
     <h3>Marketing</h3>
@@ -368,6 +371,9 @@ if (isset($_POST['submit'])) {
         </div>
         <div class="col-sm-4">
             <label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."Ticket Activity Report".',') !== FALSE) { echo " checked"; } ?> value="Ticket Activity Report" name="reports_dashboard[]"> <?= TICKET_NOUN ?> Activity Report per Customer</label>
+        </div>
+        <div class="col-sm-4">
+            <label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."Ticket Activity Extra Report".',') !== FALSE) { echo " checked"; } ?> value="Ticket Activity Extra Report" name="reports_dashboard[]"> <?= TICKET_NOUN ?> Activity Report for Extra Billing</label>
         </div>
         <div class="col-sm-4">
             <label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."Ticket by Task".',') !== FALSE) { echo " checked"; } ?> value="Ticket by Task" name="reports_dashboard[]"> <?= TICKET_NOUN ?> by Task</label>
@@ -605,6 +611,9 @@ if (isset($_POST['submit'])) {
 	</div>
   <div class="col-sm-4">
 		<label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."History Safety History".',') !== FALSE) { echo " checked"; } ?> value="History Safety History" name="reports_dashboard[]"> Safety History</label>
+	</div>
+  <div class="col-sm-4">
+		<label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."History DB Backup History".',') !== FALSE) { echo " checked"; } ?> value="History DB Backup History" name="reports_dashboard[]"> DB Backup History</label>
 	</div>
   <div class="clearfix"></div>
 
