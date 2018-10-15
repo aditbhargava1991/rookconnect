@@ -1,11 +1,11 @@
 <?php
 // Services Stat
-$service_list = mysqli_query($dbc, "SELECT `serviceid`, `fee`, `admin_fee`, COUNT(*) `total_appt` FROM `invoice_compensation` WHERE `therapistsid`='$therapistid' AND `service_date` BETWEEN '$stat_start' AND '$stat_end' GROUP BY `serviceid`, `fee`, `admin_fee`");
+$service_list = mysqli_query($dbc, "SELECT `item_id`, `fee`, `admin_fee`, COUNT(*) `total_appt` FROM `invoice_compensation` WHERE `contactid`='$therapistid' AND `service_date` BETWEEN '$stat_start' AND '$stat_end' AND `item_type`='services' GROUP BY `item_id`, `fee`, `admin_fee`");
 $stat_base_service = 0;
 $stat_performance_service = 0;
 while($service_row = mysqli_fetch_array($service_list)) {
 	// Base Pay
-	$current_serviceid = $service_row['serviceid'];
+	$current_serviceid = $service_row['item_id'];
 	$current_fee = $service_row['fee'];
 	$current_admin = $service_row['admin_fee'];
 	$current_final = $current_fee - $current_admin;
