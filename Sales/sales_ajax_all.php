@@ -563,6 +563,7 @@ if($_GET['action'] == 'setting_lead_status') {
         }
     }
 	set_config($dbc, 'sales_lead_status', filter_var($_POST['sales_lead_status'],FILTER_SANITIZE_STRING));
+	set_config($dbc, 'lead_status_default', filter_var($_POST['lead_status_default'],FILTER_SANITIZE_STRING));
 	set_config($dbc, 'lead_status_won', filter_var($_POST['lead_status_won'],FILTER_SANITIZE_STRING));
 	set_config($dbc, 'lead_status_lost', filter_var($_POST['lead_status_lost'],FILTER_SANITIZE_STRING));
 	set_config($dbc, 'lead_status_retained', filter_var($_POST['lead_status_retained'],FILTER_SANITIZE_STRING));

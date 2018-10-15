@@ -479,6 +479,13 @@ if($_GET['fill'] == 'taskflagmanual') {
 	$end = filter_var($_POST['end'],FILTER_SANITIZE_STRING);
 	mysqli_query($dbc, "UPDATE `tasklist` SET `flag_colour`='$value',`flag_label`='$label',`flag_start`='$start',`flag_end`='$end' WHERE `tasklistid`='$id'");
 }
+if($_GET['fill'] == 'task_highlight') {
+	$tasklistid = $_GET['tasklistid'];
+	$taskcolor = $_GET['taskcolor'];
+    echo "UPDATE `tasklist` SET `flag_colour`='$taskcolor' WHERE `tasklistid`='$tasklistid'";
+	mysqli_query($dbc, "UPDATE `tasklist` SET `flag_colour`='$taskcolor' WHERE `tasklistid`='$tasklistid'");
+}
+
 if($_GET['fill'] == 'taskflag') {
 	$item_id = $_POST['id'];
 	$type = $_POST['type'];
@@ -560,13 +567,13 @@ if($_GET['fill'] == 'task_estimated_time') {
 if($_GET['fill'] == 'mark_done') {
 	$taskid = preg_replace('/[^0-9]/', '', $_GET['taskid']);
     $status = filter_var($_GET['status'], FILTER_SANITIZE_STRING);
-    if($status == 'Done') {
+    //if($status == 'Done' || $status == 'Complete' || $status == 'Finish') {
 	    $result = mysqli_query($dbc, "UPDATE `tasklist` SET `status`='$status' WHERE `tasklistid`='$taskid'");
-    }
+    //}
 	if (mysqli_affected_rows($dbc) > 0) {
         $contactid = $_SESSION['contactid'];
         $created_date = date('Y-m-d');
-        $reply = 'Task marked as '. $status;
+        $reply = 'Task marked as '. $status. ' by '.decryptIt($_SESSION['first_name']).' '.decryptIt($_SESSION['last_name']);
         $insert = mysqli_query($dbc, "INSERT INTO `task_comments` (`tasklistid`, `created_by`, `created_date`, `comment`) VALUES ('$taskid', '$contactid', '$created_date', '$reply')");
     }
 }

@@ -113,7 +113,7 @@
 						<textarea name="ticket_comment_email_body[]" class="form-control email_body"><?php echo $body; ?></textarea>
 					</div>
 				</div>
-				<button class="btn brand-btn pull-right" onclick="send_comment_email" data-table="ticket_comment" data-id-field="ticketcommid" data-id="" data-field="comment" onclick="send_email(this); return false;">Send Email</button>
+				<button class="btn brand-btn pull-right" onclick="send_comment_email" data-table="ticket_comment" data-id-field="ticketcommid" data-id="" data-field="comment" data-history-label="Send Day Note Email" onclick="send_email(this); return false;">Send Email</button>
 			</div>
 		</div>
 	<?php }

@@ -1,4 +1,4 @@
-<?php include_once('../include.php');
+<?php include_once('config.php');
 if($user_category == 'Staff') {
 	echo "<a href='add_services.php' class='btn brand-btn pull-right'>Add Service Information</a>";
 } ?><h2>Services</h2>

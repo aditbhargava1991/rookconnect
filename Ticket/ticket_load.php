@@ -50,25 +50,25 @@ if($db_config == '') {
 	$db_config = 'Business,Contact,Heading,Services,Status,Deliverable Date';
 }
 $db_config = explode(',',$db_config);
-$flag_label = '';
+$flag_comment = '';
+if(time() < strtotime(str_replace('0000-00-00',date('Y-m-d'),$ticket['flag_start'])) || time() > strtotime(str_replace('9999',date('Y'),$ticket['flag_end']).' + 1 day')) {
+	$ticket['flag_colour'] = '';
+}
 if($ticket['flag_colour'] != '' && $ticket['flag_colour'] != 'FFFFFF') {
-	if(in_array('flag_manual',$quick_actions)) {
-		if(time() < strtotime($ticket['flag_start']) || time() > strtotime($ticket['flag_end'].' + 1 day')) {
-			$ticket['flag_colour'] = '';
-		} else {
-			$flag_label = html_entity_decode($dbc->query("SELECT `comment` FROM `ticket_comment` WHERE `deleted`=0 AND `ticketid`='$ticketid' AND `type`='flag_comment' ORDER BY `ticketcommid` DESC")->fetch_assoc()['comment']);
-		}
+	$quick_action_icons = explode(',',get_config($dbc, 'quick_action_icons'));
+	if(in_array('flag_manual',$quick_action_icons)) {
+		$flag_comment = html_entity_decode($dbc->query("SELECT `comment` FROM `ticket_comment` WHERE `deleted`=0 AND `ticketid`='$ticketid' AND `type`='flag_comment' ORDER BY `ticketcommid` DESC")->fetch_assoc()['comment']);
 	} else {
 		$ticket_flag_names = [''=>''];
 		$flag_names = explode('#*#', get_config($dbc, 'ticket_colour_flag_names'));
 		foreach(explode(',',get_config($dbc, 'ticket_colour_flags')) as $i => $colour) {
 			$ticket_flag_names[$colour] = $flag_names[$i];
 		}
-		$flag_label = $ticket_flag_names[$ticket['flag_colour']];
+		$flag_comment = $ticket_flag_names[$ticket['flag_colour']];
 	}
 } ?>
-<div class="dashboard-item" data-id="<?= $ticketid ?>" data-colour="<?= $ticket['flag_colour'] ?>" data-table="tickets" data-id-field="ticketid" style="<?= $ticket['flag_colour'] != '' ? 'background-color: #'.$ticket['flag_colour'].';' : '' ?>">
-	<span class="flag-label"><?= $flag_label ?></span>
+<div class="dashboard-item" data-id="<?= $ticketid ?>" data-colour="<?= $ticket['flag_colour'] ?>" data-table="tickets" data-id-field="ticketid">
+	<span class="block-label flag-label-block" style="font-weight: bold; <?= $ticket['flag_colour'] != '' && $ticket['flag_colour'] != 'FFFFFF' ? '' : 'display:none;' ?>background-color:#<?= $ticket['flag_colour'] ?>;">Flagged<?= empty($flag_comment) ? '' : ': '.$flag_comment ?></span>
 	<?php if(in_array('Extra Billing',$db_config)) {
 		$extra_billing = $dbc->query("SELECT COUNT(*) `num` FROM `ticket_comment` WHERE `ticketid` = '$ticketid' AND '$ticketid' > 0 AND `type` = 'service_extra_billing' AND `deleted` = 0 ORDER BY `ticketcommid` DESC")->fetch_assoc();
 	} else {
@@ -144,7 +144,7 @@ if($ticket['flag_colour'] != '' && $ticket['flag_colour'] != 'FFFFFF') {
 	<?php if(in_array('flag_manual',$quick_actions)) {
 		$colours = explode(',', get_config($dbc, "ticket_colour_flags")); ?>
 		<span class="col-sm-3 text-center flag_field_labels" style="display:none;">Label</span><span class="col-sm-3 text-center flag_field_labels" style="display:none;">Colour</span><span class="col-sm-3 text-center flag_field_labels" style="display:none;">Start Date</span><span class="col-sm-3 text-center flag_field_labels" style="display:none;">End Date</span>
-		<div class="col-sm-3"><input type='text' name='label' value='<?= $flag_label ?>' class="form-control" style="display:none;"></div>
+		<div class="col-sm-3"><input type='text' name='label' value='<?= $flag_comment ?>' class="form-control" style="display:none;"></div>
 		<div class="col-sm-3"><select name='colour' class="form-control" style="display:none;background-color:#<?= $ticket['flag_colour'] ?>;font-weight:bold;" onchange="$(this).css('background-color','#'+$(this).find('option:selected').val());">
 				<option value="FFFFFF" style="background-color:#FFFFFF;">No Flag</option>
 				<?php foreach($colours as $flag_colour) { ?>

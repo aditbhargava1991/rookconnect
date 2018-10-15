@@ -40,6 +40,20 @@ else if($_GET['action'] == 'assign_ticket') {
 	//Update warehouse stop to match above equipment and date
 	$dbc->query("UPDATE `ticket_schedule` SET `status`='$default_status', `to_do_date`='$date', `equipmentid`='$equipmentid' WHERE `deleted` = 0 AND `ticketid` = '$ticketid' AND (`type` = 'warehouse' OR IFNULL(NULLIF(CONCAT(IFNULL(`ticket_schedule`.`address`,''),IFNULL(`ticket_schedule`.`city`,'')),''),'') IN (SELECT CONCAT(IFNULL(`address`,''),IFNULL(`city`,'')) FROM `contacts` WHERE `category`='Warehouses'))");
 	//Update first warehouse stop to warehouse start time
+	$warehouse_hours = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `contacts`.`hours_of_operation` FROM `ticket_schedule` LEFT JOIN `contacts` ON IFNULL(NULLIF(CONCAT(IFNULL(`ticket_schedule`.`address`,''),IFNULL(`ticket_schedule`.`city`,'')),''),'') = CONCAT(IFNULL(`contacts`.`address`,''),IFNULL(`contacts`.`city`,'')) AND `contacts`.`category`='Warehouses' WHERE `ticket_schedule`.`deleted` = 0 AND `ticket_schedule`.`ticketid` = '$ticketid' AND (`ticket_schedule`.`type` = 'warehouse' OR IFNULL(NULLIF(CONCAT(IFNULL(`ticket_schedule`.`address`,''),IFNULL(`ticket_schedule`.`city`,'')),''),'') IN (SELECT CONCAT(IFNULL(`address`,''),IFNULL(`city`,'')) FROM `contacts` WHERE `category`='Warehouses')) ORDER BY `id` ASC LIMIT 1"))['hours_of_operation'];
+	$day_i = date('w',strtotime($date));
+	$hours = explode('-',explode(',',$warehouse_hours)[$day_i]);
+	$hop_start_time = !empty($hours[0]) ? date('H:i', strtotime($hours[0])) : '';
+	$hop_end_time = !empty($hours[1]) ? date('H:i', strtotime($hours[1])) : '';
+	if(!empty($hop_start_time) && !empty($hop_end_time)) {
+		if(strtotime($warehouse_start_time) < strtotime($hop_start_time)) {
+			$warehouse_start_time = date('h:i a',strtotime($hop_start_time));
+		}
+		if(strtotime($warehouse_start_time) > strtotime($hop_end_time)) {
+			$warehouse_start_time = date('h:i a',strtotime($hop_end_time));
+		}
+	}
+
 	$dbc->query("UPDATE `ticket_schedule` SET `to_do_start_time` = '$warehouse_start_time' WHERE `deleted` = 0 AND `ticketid` = '$ticketid' AND `id` = (SELECT `id` FROM (SELECT `id` FROM `ticket_schedule` WHERE `deleted` = 0 AND `ticketid` = '$ticketid' AND (`type` = 'warehouse' OR IFNULL(NULLIF(CONCAT(IFNULL(`ticket_schedule`.`address`,''),IFNULL(`ticket_schedule`.`city`,'')),''),'') IN (SELECT CONCAT(IFNULL(`address`,''),IFNULL(`city`,'')) FROM `contacts` WHERE `category`='Warehouses')) ORDER BY `id` ASC LIMIT 1) as `schedule_check`)");
 	//Update last warehouse stop (if exists) to 30 minutes after the latest stop of the day for all stops of that day for that equipment
 	$warehouse_end_time = date('H:i', strtotime($start_time) + 1800);

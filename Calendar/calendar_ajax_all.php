@@ -2378,6 +2378,19 @@ if($_GET['fill'] == 'delete_shift') {
     if($warehouses->num_rows > 0 && $_POST['from_current'] == false) {
         $start_time = get_config($dbc, 'ticket_warehouse_start_time');
         while($warehouse = $warehouses->fetch_assoc()) {
+			$warehouse_hours = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `contacts`.`hours_of_operation` FROM `ticket_schedule` LEFT JOIN `contacts` ON IFNULL(NULLIF(CONCAT(IFNULL(`ticket_schedule`.`address`,''),IFNULL(`ticket_schedule`.`city`,'')),''),'') = CONCAT(IFNULL(`contacts`.`address`,''),IFNULL(`contacts`.`city`,'')) AND `contacts`.`category`='Warehouses' WHERE `ticket_schedule`.`id` = '".$warehouse['id']."'"))['hours_of_operation'];
+			$day_i = date('w',strtotime($date));
+			$hours = explode('-',explode(',',$warehouse_hours)[$day_i]);
+			$hop_start_time = !empty($hours[0]) ? date('H:i', strtotime($hours[0])) : '';
+			$hop_end_time = !empty($hours[1]) ? date('H:i', strtotime($hours[1])) : '';
+			if(!empty($hop_start_time) && !empty($hop_end_time)) {
+				if(strtotime($start_time) < strtotime($hop_start_time)) {
+					$start_time = date('h:i a',strtotime($hop_start_time));
+				}
+				if(strtotime($start_time) > strtotime($hop_end_time)) {
+					$start_time = date('h:i a',strtotime($hop_end_time));
+				}
+			}
             if($warehouse['id'] > 0) {
                 $length = get_field_value('est_time','ticket_schedule','id',$warehouse['id']);
                 if(empty($length)) {

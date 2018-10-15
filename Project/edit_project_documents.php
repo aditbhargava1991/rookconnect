@@ -150,7 +150,7 @@
 			<?php } ?>
             </table>
         <?php } else { ?>
-            <a href="" class="btn brand-btn pull-left" onclick="$('.add_doc').show(); return false;">Add Document or Link</a>
+            <a href="" class="btn brand-btn pull-left" onclick="$('.add_doc').show(); $(this).hide(); return false;">Add Document or Link</a>
         <?php } ?>
 	</div>
 	<?php if($security['edit'] > 0) { ?>
@@ -190,7 +190,7 @@
                 </div>
                 <a href="" class="btn brand-btn pull-right" onclick="saveLink(); return false;">Save Link</a>
             </div>
-            <?php $row_sales_docs_query = mysqli_query($dbc, "SELECT salesdocid, document_type, document FROM sales_document WHERE salesid='$salesid'");
+            <?php $row_sales_docs_query = mysqli_query($dbc, "SELECT salesdocid, document_type, document FROM sales_document WHERE salesid='$salesid' AND `salesid` > 0 AND `deleted`=0");
             if ($row_sales_docs_query->num_rows>0) {
                 echo '<ul>';
                 while ($row_sales_doc=mysqli_fetch_assoc($row_sales_docs_query)) { ?>

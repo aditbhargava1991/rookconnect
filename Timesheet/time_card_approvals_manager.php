@@ -253,8 +253,7 @@ function send_csv(a) {
 						</div>
 	                <?php } ?>
                 </div>
-</form>
-        <br><br><br>
+        </form>
 
 			<?php if(get_config($dbc, 'timesheet_approval_import_export') == '1') { ?>
              <form id="form_csv" name="form_csv" action="time_cards_csv.php?import_csv=1&back_url=<?= urlencode($_SERVER['REQUEST_URI']) ?>" method="POST" enctype="multipart/form-data" class="form-horizontal" role="form">
@@ -274,6 +273,22 @@ function send_csv(a) {
 			if(!in_array('reg_hrs',$value_config) && !in_array('direct_hrs',$value_config) && !in_array('payable_hrs',$value_config)) {
 				$value_config = array_merge($value_config,['reg_hrs','extra_hrs','relief_hrs','sleep_hrs','sick_hrs','sick_used','stat_hrs','stat_used','vaca_hrs','vaca_used']);
 			} ?>
+
+            <?php
+            $highlight = get_config($dbc, 'timesheet_highlight');
+            $mg_highlight = get_config($dbc, 'timesheet_manager');
+
+            $timesheet_legend = '<b>Color Code:</b><br>';
+                $timesheet_legend .= '<label><div class="ticket-status-color" style="background-color: red;"></div>Overlapping Time Conflict</label><br />';
+                $timesheet_legend .= '<label><div class="ticket-status-color" style="background-color: '.$mg_highlight.';"></div>Edit by Manager</label><br />';
+                $timesheet_legend .= '<label><div class="ticket-status-color" style="background-color: '.$highlight.';"></div>Edit by User</label><br />';
+            ?>
+
+            <div class="block-button offset-right-10 dispatch-legend-block pull-right" style="position: relative;">
+                <div class="block-button dispatch-status-legend" style="display: none; width: 20em; position: absolute; top: 50%; right: 50%;"><?= $timesheet_legend ?></div>
+                <img src="../img/legend-icon.png" class="dispatch-legend-img">
+            </div>
+            <div class="clearfix"></div>
 
 			<?php if(in_array('approve_all', $value_config)) { ?>
 	            <div class="pull-right">

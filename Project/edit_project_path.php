@@ -1,18 +1,25 @@
 <?php error_reporting(0);
-include_once('../include.php'); ?>
+include_once('../include.php');
+$task_statuses = explode(',',get_config($dbc, 'task_status'));
+$status_complete = $task_statuses[count($task_statuses) - 1];
+$status_incomplete = $task_statuses[0];
+?>
 <script>
 
 function mark_done(sel) {
     var task_id = sel.value;
     var status = '';
     if ( $(sel).is(':checked') ) {
-        status = 'Done';
+        status = '<?= $status_complete ?>';
+    } else {
+        status = '<?= $status_incomplete ?>';
     }
     $.ajax({
         type: "GET",
         url: "../Tasks_Updated/task_ajax_all.php?fill=mark_done&taskid="+task_id+'&status='+status,
         dataType: "html",
         success: function(response){
+            window.location.reload();
         }
     });
 }

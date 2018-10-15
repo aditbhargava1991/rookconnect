@@ -1207,5 +1207,29 @@
     }
     //2018-10-10 - Ticket #8789 - Check In Summary
 
+    //2018-10-11 - Ticket #9653 - Best Buy Changes
+    if(!mysqli_query($dbc, "ALTER TABLE `contacts` ADD `hours_of_operation` varchar(500)")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "CREATE TABLE `field_config_ticket_delivery_restrictions` (
+        `fieldconfigid` int(11) NOT NULL,
+        `ticket_type` varchar(40),
+        `security_level` varchar(500),
+        `to_do_date_min` varchar(500),
+        `to_do_date_max` varchar(500),
+        `to_do_start_time_min` varchar(500),
+        `to_do_start_time_max` varchar(500))")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `field_config_ticket_delivery_restrictions`
+        ADD PRIMARY KEY (`fieldconfigid`)")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `field_config_ticket_delivery_restrictions`
+        MODIFY `fieldconfigid` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-10-11 - Ticket #9653 - Best Buy Changes
+
     echo "Baldwin's DB Changes Done<br />\n";
 ?>
