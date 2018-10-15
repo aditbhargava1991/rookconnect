@@ -290,5 +290,7 @@ mysqli_query($dbc, "ALTER TABLE `time_cards` ADD `approve_date` DATE NULL AFTER 
 
 mysqli_query($dbc, "ALTER TABLE `time_cards` ADD `end_time_from` VARCHAR(1000) NULL AFTER `end_time`");
 
+mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`, `value`) VALUES ('task_default_status', 'Doing Today')");
+
     echo "Dayana's DB Changes Done<br />\n";
 ?>

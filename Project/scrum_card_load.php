@@ -1,4 +1,5 @@
 <?php include_once('../include.php'); ?>
+<script src="../Project/project.js"></script>
 <script>
 $(document).ready(function(){
 	//$('.demo_cpicker').colorpicker();

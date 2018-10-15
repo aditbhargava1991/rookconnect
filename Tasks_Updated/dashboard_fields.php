@@ -13,9 +13,10 @@
             <div class="row" style="<?= $style_strikethrough ?>"><?php
                 $task_contactids = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `contactid` FROM `tasklist` WHERE tasklistid='{$item['tasklistid']}' AND `deleted`=0"))['contactid'];
                 foreach(explode(',',trim($task_contactids,',')) as $task_contactid) { ?>
-                    <div class="add_staff">
+                    <div id="taskid_<?= $item['tasklistid'] ?>" class="add_staff">
                         <div class="clearfix"></div>
                         <div class="col-xs-9 no-pad-left">
+
                             <select style="<?= $style_strikethrough ?>" onchange="mark_task_staff(this);" data-placeholder="Select a Staff" name="task_userid[]" data-table="tasklist" data-field="contactid" class="chosen-select-deselect form-control" id="staff_<?= $item['tasklistid'] ?>">
                                 <option value=""></option><?php
                                 $staff_list = sort_contacts_query(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name` FROM `contacts` WHERE `deleted`=0 AND `status` > 0 AND `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY.""));
@@ -26,8 +27,8 @@
                             </select>
                         </div>
                         <div class="col-xs-3">
-                            <img class="inline-img pull-right cursor-hand" onclick="removeStaff(this);" src="../img/remove.png" />
-                            <img class="inline-img pull-right cursor-hand" onclick="addStaff(this);" src="../img/icons/ROOK-add-icon.png" />
+                            <img class="inline-img pull-right cursor-hand" data-taskid="<?= $item['tasklistid'] ?>" onclick="removeStaff(this);" src="../img/remove.png" />
+                            <img class="inline-img pull-right cursor-hand" data-taskid="<?= $item['tasklistid'] ?>" onclick="addStaff(this);" src="../img/icons/ROOK-add-icon.png" />
                         </div>
                     </div><?php
                 } ?>
@@ -46,7 +47,7 @@
                 $tabs = get_config($dbc, 'ticket_status');
                 $each_tab = explode(',', $tabs);
                 if($item['status'] == '') {
-                    $item['status'] = 'To Be Scheduled';
+                    $item['status'] = get_config($dbc, 'task_default_status');
                 }
                 $selected_cat_tab = $cat_tab;
                 foreach ($each_tab as $selected_cat_tab) {

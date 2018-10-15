@@ -36,7 +36,7 @@ $(document).ready(function() {
 		$('.iframe_holder').hide();
 		$('.hide_on_iframe').show();
 	});
-    
+
     $('.milestone_select').on('change', function(){
         if($(this).val() != '') {
             $(location).attr('href', $(this).val());
@@ -59,7 +59,7 @@ $(document).ready(function() {
     $('li.t_item').each(function() {
         $(this).find('.t_name').width( $(this).width() - $(this).find('.t_staff').outerWidth() - $(this).find('.t_drag').outerWidth() - 10 );
     });
-    
+
     $('.sortable_milestone').each(function() {
         var count = $(this).find('ul li.t_item').length;
         var add_block = $(this).find('ul li.new_task_box');
@@ -907,9 +907,9 @@ function addIntakeForm(btn) {
                             <ul class="scrollable_unit no-gap-pad overflow-y"><?php
 							/* echo '<li class="ui-state-default ui-state-disabled no-sort '.$class_on_2.'">';
 							echo $alert.$cat_tab.'<br>'.$timeline[$i].'</li>'; */
-                            
+
 							echo '<li class="new_task_box no-sort">
-								<input onChange="changeEndAme(this)" name="add_task" placeholder="Quick Add Task" id="add_new_task '.$status.' '.$task_path.' '.$task_board.' '.$salesid.'" type="text" class="form-control" /><br /><br />'; ?>
+								<input onChange="changeEndAme(this)" name="add_task" placeholder="Quick Add Task" id="add_new_task '.$status.' '.$task_path.' '.$taskboardid.' '.$salesid.'" type="text" class="form-control" /><br /><br />'; ?>
 
                     <?php if(get_config($dbc, 'task_include_intake') == 1) { ?>
 					<a href="" onclick="addIntakeForm(this); return false;" data-milestone="<?= $milestone_row['milestone'] ?>" class="btn brand-btn pull-right">Intake +</a>
@@ -1016,7 +1016,6 @@ function addIntakeForm(btn) {
                                         // }
                                          ?>
                                     </div>
-
                   
                                     <div class="clearfix"></div>
                                     <h4><?= $row['heading']; ?></h4>
