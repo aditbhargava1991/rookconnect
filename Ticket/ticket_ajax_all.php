@@ -1178,9 +1178,9 @@ if($_GET['action'] == 'update_fields') {
 					$type_label = $type;
 				}
 			}
-			$subject = 'New '.$type_label.' has been created - '.get_ticket_label($dbc, $get_ticket);
-			$body = "You are receiving this email because you are tagged to be alerted when a new ".$type_label." is created.
-				To review this ".TICKET_NOUN.", <a href='".WEBSITE_URL."/Ticket/index.php?edit=".$get_ticket['ticketid']."&tile_name=".$get_ticket['ticket_type']."&from_alert=1'>click here</a>.";
+			$subject = str_replace(['[TICKET]'],[get_ticket_label($dbc, $get_ticket)],$field_config['subject']);
+            $body = str_replace(['[TICKET]'],[get_ticket_label($dbc, $get_ticket)],html_entity_decode($field_config['body']));
+			$body .= "To review this ".TICKET_NOUN.", <a href='".WEBSITE_URL."/Ticket/index.php?edit=".$get_ticket['ticketid']."&tile_name=".$get_ticket['ticket_type']."&from_alert=1'>click here</a>.";
 			foreach(explode(',', $field_config['contactid']) as $staffid) {
 				if($staffid > 0) {
 					$email = get_email($dbc, $staffid);
@@ -3055,10 +3055,12 @@ if($_GET['action'] == 'update_fields') {
 	$ticket_tab = $_POST['ticket_tab'];
 	if(!empty($ticket_tab)) {
 		$enabled = $_POST['enabled'];
+		$subject = filter_var($_POST['subject'],FILTER_SANITIZE_STRING);
+		$body = filter_var(htmlentities($_POST['body']),FILTER_SANITIZE_STRING);
 		$status = $_POST['status'];
 		$staffid = $_POST['staffid'];
 		mysqli_query($dbc, "INSERT INTO `field_config_ticket_alerts` (`ticket_type`) SELECT '$ticket_tab' FROM (SELECT COUNT(*) rows FROM `field_config_ticket_alerts` WHERE `ticket_type`='$ticket_tab') num WHERE num.rows=0");
-		mysqli_query($dbc, "UPDATE `field_config_ticket_alerts` SET `enabled`='$enabled', `status`='$status', `contactid`='$staffid' WHERE `ticket_type`='$ticket_tab'");
+		mysqli_query($dbc, "UPDATE `field_config_ticket_alerts` SET `enabled`='$enabled', `subject`='$subject', `body`='$body', `status`='$status', `contactid`='$staffid' WHERE `ticket_type`='$ticket_tab'");
 	}
 }
 if($_GET['action'] == 'get_ticket_client') {

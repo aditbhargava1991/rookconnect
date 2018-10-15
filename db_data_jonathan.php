@@ -342,6 +342,7 @@
 		if(!mysqli_query($dbc, "ALTER TABLE `project` ADD `deadline` VARCHAR(10) AFTER `followup`")) {
 			echo "Error: ".mysqli_error($dbc)."<br />\n";
 		}
+
         //September 11, 2018
 		if(!mysqli_query($dbc, "ALTER TABLE `match_contact` ADD `tile_list` TEXT AFTER `staff_contact`")) {
 			echo "Error: ".mysqli_error($dbc)."<br />\n";
@@ -421,6 +422,19 @@
 			echo "Error: ".mysqli_error($dbc)."<br />\n";
 		}
         // Ticket 9129
+
+        // October 15, 2018 - Ticket 9586
+		if(!mysqli_query($dbc, "ALTER TABLE `field_config_ticket_alerts` ADD `subject` TEXT AFTER `status`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		} else {
+            mysqli_query($dbc, "UPDATE `field_config_ticket_alerts` SET `subject`='New ".TICKET_NOUN." has been created - [TICKET]'");
+        }
+		if(!mysqli_query($dbc, "ALTER TABLE `field_config_ticket_alerts` ADD `body` TEXT AFTER `status`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		} else {
+            mysqli_query($dbc, "UPDATE `field_config_ticket_alerts` SET `body`='&lt;p&gt;You are receiving this email because you are tagged to be alerted when a new ".TICKET_NOUN." of this type is created.'&lt;/p&gt;");
+        }
+        // Ticket 9586
 		
 		set_config($dbc, 'db_version_jonathan', 8);
     }
