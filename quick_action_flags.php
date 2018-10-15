@@ -76,9 +76,14 @@ if(isset($_POST['submit'])) {
             mysqli_query($dbc, "UPDATE `ticket_comment` SET `deleted`=1, `date_of_archival`=DATE(NOW()) WHERE `ticketid`='$id' AND `type`='flag_comment'");
             if(!empty($flag_label)) {
                 mysqli_query($dbc, "INSERT INTO `ticket_comment` (`ticketid`,`type`,`comment`,`created_date`,`created_by`) VALUES ('$id','flag_comment','$flag_label',DATE(NOW()),'".$_SESSION['contactid']."')");
-            }
-            echo '<script type="text/javascript"> window.parent.setManualFlag(\''.$ticketid.'\', \''.$flag_colour.'\', \''.$flag_label.'\'); </script>';
-            break;
+            } ?>
+            <script type="text/javascript">
+                window.parent.setManualFlag('<?=$ticketid ?>', '<?= $flag_colour ?>', '<?= $flag_label ?>');
+                if(typeof window.parent.$('.iframe_overlay iframe')[0].contentWindow.setManualFlag != 'undefined') {
+                    window.parent.$('.iframe_overlay iframe')[0].contentWindow.setManualFlag('<?=$ticketid ?>', '<?= $flag_colour ?>', '<?= $flag_label ?>');
+                }
+            </script>
+            <?php break;
 
         case 'tasks':
             $tasklistid = $id;
