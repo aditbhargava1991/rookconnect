@@ -38,7 +38,7 @@ function task_status(sel) {
         url: "../Tasks_Updated/task_ajax_all.php?fill=task_status&tasklistid="+tasklistid+'&status='+status,
         dataType: "html",
 		success: function(response){
-			window.location.reload();
+			//window.location.reload();
 		}
     });
 }
@@ -52,18 +52,17 @@ function mark_task_date(sel) {
         url: "../Tasks_Updated/task_ajax_all.php?fill=mark_date&tasklistid="+tasklistid+'&todo_date='+todo_date,
         dataType: "html",
         success: function(response){
-			window.location.reload();
+			//window.location.reload();
 		}
     });
 }
 
 function mark_task_staff(sel) {
 	var tasklistid = sel.id.split('_')[1];
-
 	var staff = [];
 
-	$(sel).find('option:selected').each(function() {
-			staff.push(this.value);
+	$('#taskid_'+tasklistid+' [name="task_userid[]"]').find('option:selected').each(function() {
+        staff.push(this.value);
 	});
 
     $.ajax({
@@ -71,9 +70,10 @@ function mark_task_staff(sel) {
         url: "../Tasks_Updated/task_ajax_all.php?fill=mark_staff&tasklistid="+tasklistid+'&staff='+staff,
         dataType: "html",
         success: function(response) {
-			window.location.reload();
+			//window.location.reload();
 		}
     });
+
 }
 
 function viewProfile(img, category) {
@@ -519,4 +519,25 @@ function getProjectLabel(id) {
 function toggleProjectTracking() {
 	$('.time_tracking').text($('.time_tracking').text() == 'Stop Tracking Time' ? 'Get To Work' : 'Stop Tracking Time');
 	$.post('../Project/projects_ajax.php?action=toggle_time_tracking', { projectid: projectid });
+}
+
+function addStaff(sel) {
+	var taskid = $(sel).data('taskid');
+    //var block = $('div.add_staff').last();
+	var block = $('div#taskid_'+taskid).last();
+    destroyInputs('.add_staff');
+    clone = block.clone();
+    clone.find('.form-control').val('');
+    block.after(clone);
+    initInputs('.add_staff');
+}
+
+function removeStaff(button) {
+    if($('div.add_staff').length <= 1) {
+        addStaff();
+    }
+	var taskid = $(button).data('taskid');
+
+    $(button).closest('div#taskid_'+taskid).remove();
+    $('div.add_staff').first().find('[name="task_userid[]"]').change();
 }

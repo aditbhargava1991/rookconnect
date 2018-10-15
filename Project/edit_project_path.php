@@ -837,7 +837,7 @@ $unassigned_sql = "SELECT 'Ticket', `ticketid` FROM tickets WHERE projectid='$pr
 					$html_milestone = htmlentities($milestone);
                     if (strpos($_SERVER['REQUEST_URI'],'/Tasks_Updated/') !== false) {
 
-                        $sql = "SELECT 'Task', `tasklistid` FROM tasklist WHERE projectid='$projectid' AND `deleted`=0 AND archived_date IS NULL AND project_milestone IN ('$milestone','$html_milestone')";
+                        $sql = "SELECT 'Task', `tasklistid` FROM tasklist WHERE projectid='$projectid' AND `deleted`=0 AND archived_date IS NULL AND project_milestone IN ('$milestone','$html_milestone') ORDER BY tasklistid DESC";
 
                         $count = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT COUNT(*) `tasks` FROM tasklist WHERE projectid='$projectid' AND `deleted`=0 AND archived_date IS NULL AND project_milestone IN ('$milestone','$html_milestone')"));
                         //echo $count['tasks'];
@@ -890,7 +890,6 @@ $unassigned_sql = "SELECT 'Ticket', `ticketid` FROM tickets WHERE projectid='$pr
 									<?php if(in_array('Tasks',$tab_config) || in_array('Checklists',$tab_config)) { ?><input type="text" placeholder="Quick Add Task" name="task" onblur="addTask(this);" class="new_task form-control"><br /><?php } ?>
 									<?php if(in_array('Intake',$tab_config)) { ?><a target="_parent" href="" onclick="addIntakeForm(this); return false;" data-milestone="<?= $milestone ?>" class="btn brand-btn pull-right">Intake +</a><?php } ?>
 									<?php if(in_array('Tickets',$tab_config)) { ?><a target="_parent" href="../Ticket/index.php?&edit=0&projectid=<?= $projectid ?>&milestone_timeline=<?= urlencode($milestone) ?>&from=<?= urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']) ?>" onclick="overlayIFrameSlider(this.href+'&calendar_view=true','auto',true,false,'auto'); return false;" class="btn brand-btn pull-right"><?= TICKET_NOUN ?> +</a><?php } ?>
-
 
 									<?php
                                     $add_milestone = str_replace("&","FFMEND",$milestone);
