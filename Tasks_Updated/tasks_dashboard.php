@@ -1011,21 +1011,21 @@ function addIntakeForm(btn) {
                                     <div class="clearfix"></div>
                                     <h4><?= $row['heading']; ?></h4><?php
 
-                                    echo '<span class="pull-right action-icons double-gap-bottom full-width" data-task="'.$row['tasklistid'].'">';
+                                    echo '<span class="pull-right action-icons double-gap-bottom full-width" data-task="'.$row['tasklistid'].'">'; ?>
 <!--
 
                                     <div class="clearfix"></div>
 
-                                    <div style="position: relative; display:none" id="flag_color_box_<?php echo $row['tasklistid']?>">
+                                    <div style="position: relative; display:none" id="flag_color_box_<?php //echo $row['tasklistid']?>">
                                     	<div class="form-group flag_color_box">
                                     		<label class="col-sm-5 control-label" style="text-align: left;">Flag Colour:</label>
                                     		<div class="col-sm-7">
 
-                                            <input id="demo_<?php echo $row['tasklistid']?>" type="text" class="form-control demo_cpicker" value="<?php echo $row['flag_colour']?>" />
+                                            <input id="demo_<?php //echo $row['tasklistid']?>" type="text" class="form-control demo_cpicker" value="<?php //echo $row['flag_colour']?>" />
                                             </div>
                                             <div class="col-sm-12">
-                                            	<input style="margin-top:20px" type="button" value="Done" class="btn brand-btn pull-right" onclick="flag_item('<?php echo $row['tasklistid']?>');">
-                                            	<input style="margin-top:20px" type="button" class="btn brand-btn pull-right" value="Close" onclick="$('#flag_color_box_<?php echo $row['tasklistid']?>').hide()">
+                                            	<input style="margin-top:20px" type="button" value="Done" class="btn brand-btn pull-right" onclick="flag_item('<?php //echo $row['tasklistid']?>');">
+                                            	<input style="margin-top:20px" type="button" class="btn brand-btn pull-right" value="Close" onclick="$('#flag_color_box_<?php //echo $row['tasklistid']?>').hide()">
                                             </div>
                                 		</div>
                                 	</div> -->
