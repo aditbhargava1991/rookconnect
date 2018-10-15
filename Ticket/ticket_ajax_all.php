@@ -87,7 +87,6 @@ if($_GET['fill'] == 'start_timer') {
     $contactid = filter_var($_GET['contactid'],FILTER_SANITIZE_STRING);
     $timer_date = date('Y-m-d');
     $start_time = date('h:i A');
-
     $query_add_time = "INSERT INTO `ticket_time` (`ticketid`, `start_time`, `contactid`, `src`, `timer_date`) VALUES ('$ticketid', '$start_time', '$contactid', 'A', '$timer_date')";
     $result_add_time = mysqli_query($dbc, $query_add_time);
 } else if($_GET['fill'] == 'stop_timer') {
@@ -96,7 +95,6 @@ if($_GET['fill'] == 'start_timer') {
     $contactid = filter_var($_GET['contactid'],FILTER_SANITIZE_STRING);
     $timer_date = date('Y-m-d');
     $end_time = date('h:i A');
-
     if($timer_value != '0' && $timer_value != '00:00:00' && $timer_value != '') {
         //$query_add_time = "INSERT INTO `tasklist_time` (`tasklistid`, `work_time`, `src`, `contactid`, `timer_date`) VALUES ('$taskid', '$timer_value', 'A', '$contactid', '$timer_date')";
         $query_add_time = "UPDATE `ticket_time` SET `end_time` = '$end_time', `work_time`='$timer_value' WHERE `ticketid`='$ticketid' AND `contactid` = '$contactid' AND `timer_date` = '$timer_date' AND `src` = 'A' AND `start_time` IS NOT NULL AND `end_time` IS NULL";
@@ -106,6 +104,7 @@ if($_GET['fill'] == 'start_timer') {
 
         $query_update_time = "UPDATE `ticket` SET `work_time`=ADDTIME(`work_time`,'$timer_value') WHERE `ticketid`='$ticketid'";
         $result_update_time = mysqli_query($dbc, $query_update_time);
+
 
         $query_add_time = "INSERT INTO `time_cards` (`staff`, `date`, `type_of_time`, `total_hrs`, `comment_box`) VALUES ('$contactid', '$timer_date', 'Regular Hrs.', '".((strtotime($timer_value) - strtotime('00:00:00'))/3600)."', 'Time Added on Task #$taskid')";
         $result_add_time = mysqli_query($dbc, $query_add_time);
@@ -129,12 +128,10 @@ if($_GET['fill'] == 'ticketreply') {
     $reply = filter_var(htmlentities($_POST['reply']),FILTER_SANITIZE_STRING);
     //$query = "UPDATE `tasklist` SET `task`=CONCAT(`task`,'$reply') WHERE `tasklistid`='$id'";
     //$result = mysqli_query($dbc,$query);
-
     if ( isset($_POST['user']) ) {
         $user = preg_replace('/[^0-9]/', '', $_POST['user']);
         $reply .= get_contact($dbc, $user);
     }
-
     $contactid = $_SESSION['contactid'];
     $created_date = date('Y-m-d');
     $insert = mysqli_query($dbc, "INSERT INTO `task_comments` (`ticketid`, `created_by`, `created_date`, `comment`) VALUES ('$id', '$contactid', '$created_date', '$reply')");
