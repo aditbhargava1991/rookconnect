@@ -263,7 +263,7 @@ if(!empty($_POST['search_start_date']) && !empty($_POST['search_end_date'])) {
                 $date_list = [];
                 $sql = "SELECT * FROM `ticket_schedule` WHERE `ticketid` = '{$invoice['ticketid']}' AND `deleted` = 0 AND `type` NOT IN ('origin','destination')";
                 if($project_admin_multiday_tickets == 1) {
-                    $sql .= " AND `to_do_date` = '{$invoice['to_do_start_date']}'";
+                    $sql .= " AND `to_do_date` = '{$invoice['to_do_date']}'";
                 }
                 $query = mysqli_query($dbc, $sql);
                 while($sched_line = $query->fetch_assoc()) {
@@ -287,7 +287,7 @@ if(!empty($_POST['search_start_date']) && !empty($_POST['search_end_date'])) {
                 }
 				$pdf_name = '../Invoice/Download/invoice_'.$invoice['invoiceid'].'.pdf'; ?>
 				<tr>
-					<td data-title="Date"><?= empty($invoice['to_do_start_date']) ? implode(', ',array_unique($date_list)) : $invoice['to_do_start_date'] ?></td>
+					<td data-title="Date"><?= empty($invoice['to_do_date']) ? implode(', ',array_unique($date_list)) : $invoice['to_do_date'] ?></td>
 					<td data-title="<?= TICKET_NOUN ?>"><?php if($tile_security['edit'] > 0) { ?><a href="<?= WEBSITE_URL ?>/Ticket/index.php?edit=<?= $invoice['ticketid'] ?>" onclick="overlayIFrameSlider(this.href+'&calendar_view=true','auto',true,true); return false;"><?= get_ticket_label($dbc, $invoice) ?></a><?php } else { echo get_ticket_label($dbc, $invoice); } ?></td>
 					<?php if(strpos($value_config, ',Services,') !== FALSE) {
 						foreach($services_cost_num as $cost_amt) {
