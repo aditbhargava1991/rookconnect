@@ -3146,5 +3146,3 @@ if($_GET['action'] == 'get_ticket_client') {
 	mysqli_query($dbc, "INSERT INTO `field_config_ticket_delivery_restrictions` (`ticket_type`) SELECT '$tab' FROM (SELECT COUNT(*) rows FROM `field_config_ticket_delivery_restrictions` WHERE `ticket_type` = '$tab') num WHERE num.rows=0");
 	mysqli_query($dbc, "UPDATE `field_config_ticket_delivery_restrictions` SET `security_level` = '$security_level', `to_do_date_min` = '$to_do_date_min', `to_do_date_max` = '$to_do_date_max', `to_do_start_time_min` = '$to_do_start_time_min', `to_do_start_time_max` = '$to_do_start_time_max' WHERE `ticket_type` = '$tab'");
 }
-?>
-

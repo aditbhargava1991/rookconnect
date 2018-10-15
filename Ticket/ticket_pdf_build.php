@@ -5,6 +5,10 @@ if(isset($_POST['custom_form'])) {
 	require_once('../phpsign/signature-to-image.php');
 	$ticketid = filter_var($_GET['ticketid'], FILTER_SANITIZE_STRING);
 	$revision = 1 + mysqli_fetch_array(mysqli_query($dbc, "SELECT MAX(`revision`) `revision` FROM `ticket_pdf_field_values` WHERE `ticketid`='$ticketid' AND `pdf_type`='$form' AND `deleted`=0"))['revision'];
+	if($_POST['revision_mode'] == 'edit') {
+		$revision = $_POST['revision_number'];
+		mysqli_query($dbc, "UPDATE `ticket_pdf_field_values` SET `deleted` = 1 WHERE `ticketid` = '$ticketid' AND `pdf_type` = '$form' AND `revision` = '$revision'");
+	}
 	foreach($_POST as $field => $value) {
 		if(strpos($field, 'ffmsignature_') !== FALSE) { 
 			$field = explode('ffmsignature_', $field)[1];
@@ -78,6 +82,9 @@ if(isset($_POST['custom_form'])) {
 		$pdf_pages = $dbc->query("SELECT `page` FROM `ticket_pdf_fields` WHERE `pdf_type`='{$form['id']}' AND `deleted`=0 GROUP BY `page`");
 		echo '<form method="POST" action="" class="form-horizontal">';
 		echo "<h2 class='pad-5'>".$form['pdf_name'].": $ticket</h2>";
+		echo '<input type="hidden" name="revision_mode" value="'.$_GET['revision_mode'].'">';
+		echo '<input type="hidden" name="revision_number" value="'.$_GET['revision'].'">';
+
 		while($page = $pdf_pages->fetch_assoc()['page']) {
 			echo "<h3 class='pad-10'>Page ".$page."</h3>";
 			echo "<!--SELECT `fields`.*, `values`.`field_value`, `values`.`revision` FROM `ticket_pdf_fields` `fields` LEFT JOIN `ticket_pdf_field_values` `values` ON `fields`.`pdf_type`=`values`.`pdf_type` AND `fields`.`field_name`=`values`.`field_name` AND `values`.`ticketid`='$ticketid' AND $revision IN (`values`.`revision`,999999999) AND `values`.`deleted`=0 LEFT JOIN `ticket_pdf_field_values` `older` ON `values`.`ticketid`=`older`.`ticketid` AND `values`.`pdf_type`=`older`.`pdf_type` AND `values`.`field_name`=`older`.`field_name` AND `values`.`id` < `older`.`id` AND `older`.`revision` <= $revision AND `older`.`deleted`=0 WHERE `older`.`id` IS NULL AND `fields`.`pdf_type`='{$form['id']}' AND `fields`.`page`='$page' AND `fields`.`input_class` NOT IN ('editLink','revisionField') AND `fields`.`deleted`=0 ORDER BY `fields`.`sort`,`fields`.`id`";
