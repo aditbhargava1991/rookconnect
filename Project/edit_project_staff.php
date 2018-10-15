@@ -82,11 +82,19 @@ $project = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `project` WHERE 
 					<img class="inline-img pull-right no-toggle cursor-hand current" src="../img/person.PNG" title="View this <?= CONTACTS_NOUN ?>'s profile" onclick="viewProfile(this, 'no_reload');" style="<?= $project_team > 0 ? '' : 'display:none;' ?>">
 					<?php if($security['edit'] > 0) { ?>
 						<img class="inline-img pull-right no-toggle cursor-hand" src="../img/remove.png" title="Remove this <?= CONTACTS_NOUN ?> from the team" onclick="removeTeam(this);">
-						<img class="inline-img pull-right no-toggle cursor-hand current" src="../img/icons/ROOK-add-icon.png" title="Select an additional <?= CONTACTS_NOUN ?> on the Team for this <?= PROJECT_NOUN ?>" onclick="addTeam();" style="<?= $project_team > 0 ? '' : 'display:none;' ?>">
+						<img class="inline-img pull-right no-toggle cursor-hand current" src="../img/icons/ROOK-add-icon.png" title="Select an additional <?= CONTACTS_NOUN ?> on the Team for this <?= PROJECT_NOUN ?>" onclick="addTeam();">
 					<?php } ?>
                 </div>
             </div>
         <?php } ?>
+		<?php foreach(get_teams($dbc, " AND IF(`end_date` = '0000-00-00','9999-12-31',`end_date`) >= '".date('Y-m-d')."'") as $team) {
+			$team_staff = get_team_contactids($dbc, $team['teamid']);
+			if(count($team_staff) > 1) { ?>
+				<div class="form-group">
+					<button class="btn brand-btn pull-right" data-group='<?= json_encode($team_staff) ?>' onclick="assignGroup(this);">Assign <?= get_team_name($dbc, $team['teamid']).(!empty($team['team_name']) ? ': '.get_team_name($dbc, $team['teamid'], ', ', 1) : '') ?></button>
+				</div>
+			<?php }
+		} ?>
 		<script>
 		function addTeam() {
 			var last = $('[name="project_team[]"]').last().closest('.form-group');
@@ -101,6 +109,22 @@ $project = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `project` WHERE 
 				addTeam();
 			}
 			$(img).closest('.form-group').remove();
+			$('[name="project_team[]"]').last().change();
+		}
+		function assignGroup(group) {
+			group_list = $(group).data('group');
+			group_list.forEach(function(staff_id) {
+				if($('[name="project_team[]"]').filter(function() { return $(this).val() == staff_id; }).length == 0) {
+					var empty_select = $('[name="project_team[]"]').filter(function() { return $(this).val() == undefined || $(this).val() == ''; }).first();
+					if(empty_select.length > 0) {
+						$(empty_select).val(staff_id);
+						$(empty_select).trigger('change.select2');
+					} else {
+						addTeam();
+						$('[name="project_team[]"]').last().val(staff_id).trigger('change.select2');
+					}
+				}
+			});
 			$('[name="project_team[]"]').last().change();
 		}
 		</script>

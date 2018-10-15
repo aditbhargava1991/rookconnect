@@ -25,7 +25,8 @@
                     <div id="taskid_<?= $item['tasklistid'] ?>" class="add_staff">
                         <div class="clearfix"></div>
                         <div class="col-xs-9 no-pad-left">
-                            <select style="<?= $style_strikethrough ?>" onchange="mark_task_staff(this);" data-placeholder="Select a Staff" name="task_userid[]" class="chosen-select-deselect form-control" id="staff_<?= $item['tasklistid'] ?>">
+
+                            <select style="<?= $style_strikethrough ?>" onchange="mark_task_staff(this);" data-placeholder="Select a Staff" name="task_userid[]" data-table="tasklist" data-field="contactid" class="chosen-select-deselect form-control" id="staff_<?= $item['tasklistid'] ?>">
                                 <option value=""></option><?php
                                 $staff_list = sort_contacts_query(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name` FROM `contacts` WHERE `deleted`=0 AND `status` > 0 AND `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY.""));
                                 foreach($staff_list as $staff_id) {
