@@ -368,7 +368,7 @@ function show_hide_email() {
                     echo '<td data-title="Invoice Date" style="white-space: nowrap; ">'.$invoice['invoice_date'].'</td>';
                 }
                 if (strpos($value_config, ','."customer".',') !== FALSE) {
-                    echo '<td data-title="'.$purchaser_label.'"><a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/'.CONTACTS_TILE.'/contacts_inbox.php?edit='.$invoice['patientid'].'\', \'auto\', false, true, $(\'#invoice_div\').outerHeight()+20); return false;">' . get_contact($dbc, $contactid, 'name_company') . '</a></td>';
+                    echo '<td data-title="'.$purchaser_label.'"><a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Contacts/contacts_inbox.php?edit='.$invoice['patientid'].'\', \'auto\', false, true, $(\'#invoice_div\').outerHeight()+20); return false;">' . get_contact($dbc, $contactid, 'name_company') . '</a></td>';
                 }
                 if (strpos($value_config, ','."total_price".',') !== FALSE) {
                     echo '<td data-title="Total Price" align="right">$' . number_format($invoice['final_price'],2) . '</td>';
@@ -380,7 +380,7 @@ function show_hide_email() {
                     echo '<td data-title="Delivery/Shipping Type">' . $invoice['delivery_type'] . '</td>';
                 }
                 echo '<td data-title="Invoice">';
-                echo 'Invoice#'.$invoice['invoiceid'];
+                echo 'Invoice#'.$invoice['invoiceid'].'</br>';
                 if (strpos($value_config, ','."invoice_pdf".',') !== FALSE) {
                     if(file_exists($invoice_pdf)) {
                         echo '<a class="pull-left" target="_blank" href="'.$invoice_pdf.'"><img src="'.WEBSITE_URL.'/img/icons/pdf.png" title="Invoice PDF" class="no-toggle inline-img" /></a>';

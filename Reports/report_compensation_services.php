@@ -5,7 +5,7 @@
 //$start_time_int = strtotime($starttime1);
 //$end_time_int = strtotime($endtime1);
 
-$report_validation = mysqli_query($dbc,"SELECT *, GROUP_CONCAT(`invoiceid`) AS invoices, SUM(qty) AS count FROM invoice_compensation WHERE therapistsid='$therapistid' AND (service_date >= '$starttime' AND service_date <= '$endtime') AND invoiceid IN (SELECT `invoiceid` FROM `invoice` WHERE `invoice_type` IN ($invoicetype)) GROUP BY serviceid, fee, admin_fee");
+$report_validation = mysqli_query($dbc,"SELECT *, GROUP_CONCAT(`invoiceid`) AS invoices, SUM(qty) AS count FROM invoice_compensation WHERE contactid='$therapistid' AND (service_date >= '$starttime' AND service_date <= '$endtime') AND invoiceid IN (SELECT `invoiceid` FROM `invoice` WHERE `invoice_type` IN ($invoicetype)) AND `item_type`='services' GROUP BY item_id, fee, admin_fee");
 
 $report_data .= '<h4>'.get_contact($dbc, $therapistid).' -  Services Compensation</h4>';
 $report_data .= '<table border="1px" class="table table-bordered" style="'.$table_style.'">';
@@ -29,7 +29,7 @@ $total_base_service = 0;
 $final_total_appt = 0;
 
 while($row_tab = mysqli_fetch_array($report_validation)) {
-    $all_service = $row_tab['serviceid'];
+    $all_service = $row_tab['item_id'];
 
     $fee = $row_tab['fee'];
     $admin_price = $row_tab['admin_fee'];

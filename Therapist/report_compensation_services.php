@@ -5,7 +5,7 @@
 //$start_time_int = strtotime($starttime1);
 //$end_time_int = strtotime($endtime1);
 
-$report_validation = mysqli_query($dbc,"SELECT *, count(*) AS count FROM invoice_compensation WHERE therapistsid='$therapistid' AND (service_date >= '$starttime' AND service_date <= '$endtime') GROUP BY serviceid, fee, admin_fee");
+$report_validation = mysqli_query($dbc,"SELECT *, count(*) AS count FROM invoice_compensation WHERE contactid='$therapistid' AND (service_date >= '$starttime' AND service_date <= '$endtime') GROUP BY serviceid, fee, admin_fee");
 
 $report_data .= '<h4>'.get_contact($dbc, $therapistid).' -  Services Compensation</h4>';
 $report_data .= '<table border="1px" class="table table-bordered" style="'.$table_style.'">';

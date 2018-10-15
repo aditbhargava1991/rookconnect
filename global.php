@@ -63,9 +63,12 @@ if(!isset($_SESSION['user_name']) && !isset($guest_access) && $guest_access != t
     ob_clean();
     $url = (isset($_SERVER["HTTPS"]) ? 'https://' : 'http://').$_SERVER['SERVER_NAME'];
     if($_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest') {
-        echo '<script> 
-            alert("Your session has timed out. Please log in and try again.");
-            window.top.location.replace("'.$url.'/index.php?location="+encodeURIComponent(window.top.location.href));
+        echo '<script>
+            if(!time_out_notified) {
+                alert("Your session has timed out. Please log in and try again.");
+                window.top.location.replace("'.$url.'/index.php?location="+encodeURIComponent(window.top.location.href));
+            }
+            time_out_notified = true;
         </script>';
         exit();
     } else {

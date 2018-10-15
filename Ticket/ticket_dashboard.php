@@ -528,10 +528,21 @@ function setActions() {
 	});
 }
 function setManualFlag(ticketid, colour, label) {
-	var item = $('.dashboard-item[data-id="'+ticketid+'"]');
-	item.data('colour',colour);
-	item.css('background-color','#'+colour);
-	item.find('.flag-label').text(label);
+	var item = $('.dashboard-item[data-id="'+ticketid+'"]').find('.flag-label-block');
+	if(colour == 'FFFFFF') {
+		colour = '';
+	}
+	if(colour != '') {
+		$(item).show();
+		$(item).css('background-color', '#'+colour);
+		if(label != '') {
+			$(item).text('Flagged: '+label);
+		} else {
+			$(item).text('Flagged');
+		}
+	} else {
+		$(item).hide();
+	}
 }
 function setStatus(select) {
 	$.ajax({    //create an ajax request to load_page.php

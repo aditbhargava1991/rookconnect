@@ -2343,6 +2343,9 @@ if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode && !$int
 							<?php if($field_sort_field == 'Inventory General PO Number Dropdown') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Inventory General PO Number Dropdown", $all_config) ? 'checked disabled' : (in_array("Inventory General PO Number Dropdown", $value_config) ? "checked" : '') ?> value="Inventory General PO Number Dropdown" name="tickets[]"> Dropdown Purchase Order Number</label>
 							<?php } ?>
+							<?php if($field_sort_field == 'Inventory General PO Number Dropdown Multiple') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Inventory General PO Number Dropdown Multiple", $all_config) ? 'checked disabled' : (in_array("Inventory General PO Number Dropdown Multiple", $value_config) ? "checked" : '') ?> value="Inventory General PO Number Dropdown Multiple" name="tickets[]"> Dropdown Purchase Order Number - Multiple</label>
+							<?php } ?>
 							<?php if($field_sort_field == 'Inventory General PO Item') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Inventory General PO Item", $all_config) ? 'checked disabled' : (in_array("Inventory General PO Item", $value_config) ? "checked" : '') ?> value="Inventory General PO Item" name="tickets[]"> Purchase Order Item</label>
 							<?php } ?>
@@ -2769,6 +2772,9 @@ if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode && !$int
 							<?php if($field_sort_field == 'Delivery Pickup Dropoff Map') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Delivery Stops", array_merge($all_config,$value_config)) ? 'disabled' : (in_array("Delivery Pickup Dropoff Map", $all_config) ? 'checked disabled' : (in_array("Delivery Pickup Dropoff Map", $value_config) ? "checked" : '')) ?> value="Delivery Pickup Dropoff Map" name="tickets[]"> Map of Multi-Stop Locations</label>
 							<?php } ?>
+							<?php if($field_sort_field == 'Delivery Warehouse Hours of Operation') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Delivery Stops", array_merge($all_config,$value_config)) ? 'disabled' : (in_array("Delivery Warehouse Hours of Operation", $all_config) ? 'checked disabled' : (in_array("Delivery Warehouse Hours of Operation", $value_config) ? "checked" : '')) ?> value="Delivery Warehouse Hours of Operation" name="tickets[]"> Warehouse Limit to Hours of Operation</label>
+							<?php } ?>
 						<?php } ?>
 						</div>
 						<?php if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode && !$intake_mode) { ?>
@@ -2803,6 +2809,20 @@ if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode && !$int
 								</div>
 							</div>
 							<div class="form-group">
+								<label class="col-sm-4 control-label"><span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will automatically set the Delivery Duration for a Specific Delivery tab."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Delivery Default Estimate</label>
+								<div class="col-sm-4">
+                                    <?php $delivery_default_pickup_type = get_config($dbc, 'delivery_default_pickup_type'); ?>
+									<select name="delivery_default_pickup_type" data-placeholder="Select tab" class="chosen-select-deselect"><option />
+                                        <?php foreach(explode(',',get_config($dbc, 'delivery_types')) as $del_type) { ?>
+                                            <option <?= $del_type == $delivery_default_pickup_type ? 'selected' : '' ?> value="<?= $del_type ?>"><?= $del_type ?></option>
+                                        <?php } ?>
+                                    </select>
+								</div>
+								<div class="col-sm-4">
+									<input type="text" name="delivery_default_pickup_time" class="form-control timepicker" value="<?= get_config($dbc, 'delivery_default_pickup_time') ?>">
+								</div>
+							</div>
+							<div class="form-group">
 								<?php $delivery_default_tabs = get_config($dbc, 'delivery_default_tabs'); ?>
 								<label class="col-sm-4 control-label">Populate new <?= TICKET_NOUN ?> with a delivery for each of these tabs<?= $delivery_default_tabs != '' && $tab != '' ? ' (Default: '.$delivery_default_tabs.')' : '' ?>:</label>
 								<div class="col-sm-8">
@@ -2825,12 +2845,23 @@ if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode && !$int
 								<?php $delivery_type_contacts = get_config($dbc, 'delivery_type_contacts'); ?>
 								<label class="col-sm-4 control-label">Populate Delivery Tabs with <?= CONTACTS_TILE ?>, such as Sites, Warehouses<?= $delivery_type_contacts != '' && $tab != '' ? ' (Default: '.$delivery_type_contacts.')' : '' ?>:</label>
 								<div class="col-sm-8">
-									<select name="delivery_type_contacts<?= $tab == '' ? '' : '_'.$tab ?>" data-placeholder="Select Tab" class="chosen-select-deselect"><option></option>
+									<select name="delivery_type_contacts<?= $tab == '' ? '' : '_'.$tab ?>" data-placeholder="Select Tab" class="chosen-select-deselect" data-default="<?= !empty($tab) ? $delivery_type_contacts : '' ?>" onchange="getRestrictContactsList(this);"><option></option>
 										<?php $tab_delivery_type_contacts = get_config($dbc, 'delivery_type_contacts'.($tab == '' ? '' : '_'.$tab));
 										foreach(explode(',',get_config($dbc, 'all_contact_tabs')) as $contact_cat) { ?>
 											<option <?= $contact_cat == $tab_delivery_type_contacts ? 'selected' : '' ?> value="<?= $contact_cat ?>"><?= $contact_cat ?></option>
 										<?php } ?>
 									</select>
+								</div>
+							</div>
+							<div class="form-group delivery_restrict_contacts" <?= empty($tab_delivery_type_contacts) && empty($delivery_type_contacts) ? 'style="display:none;"' : '' ?>>
+								<?php $delivery_restrict_contacts = explode(',',get_config($dbc, 'delivery_restrict_contacts')); ?>
+								<label class="col-sm-4 control-label">Restrict <?= !empty($tab_delivery_type_contacts) ? $tab_delivery_type_contacts : $delivery_type_contacts ?></label>
+								<div class="col-sm-8 delivery_restrict_contacts_div">
+									<?php $tab_delivery_restrict_contacts = explode(',',get_config($dbc, 'delivery_restrict_contacts'.($tab == '' ? '' : '_'.$tab)));
+									$all_contacts = sort_contacts_query(mysqli_query($dbc, "SELECT * FROM `contacts` WHERE `deleted` = 0 AND `status` > 0 AND `category` = '".(!empty($tab_delivery_type_contacts) ? $tab_delivery_type_contacts : $delivery_type_contacts)."'"));
+									foreach($all_contacts as $delivery_contact) { ?>
+										<label class="form-checkbox"><input type="checkbox" name="delivery_restrict_contacts<?= $tab == '' ? '' : '_'.$tab ?>" value="<?= $delivery_contact['contactid'] ?>" <?= in_array($delivery_contact['contactid'],$delivery_restrict_contacts) && !empty($tab) ? 'checked disabled' : '' ?> <?= in_array($delivery_contact['contactid'],$tab_delivery_restrict_contacts) ? 'checked' : '' ?>> <?= $delivery_contact['full_name'] ?></label>
+									<?php } ?>
 								</div>
 							</div>
 							<div class="form-group">
@@ -2859,6 +2890,79 @@ if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode && !$int
 							</div>
 							<div class="delivery_type_colors">
 								<?php include('../Ticket/field_config_field_list_delivery_colors.php'); ?>
+							</div>
+							<div class="block-group delivery_restriction_div">
+								<?php $delivery_restrictions = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `field_config_ticket_delivery_restrictions` WHERE `ticket_type` = '$tab'")); ?>
+								<h3>Security Level Restrictions</h3>
+								<div class="form-group">
+									<label class="col-sm-4 control-label">Security Levels:</label>
+									<div class="col-sm-8">
+										<?php foreach(explode(',', $delivery_restrictions['security_level']) as $restriction_level) { ?>
+											<div class="delivery_restriction_role">
+												<div class="col-sm-10" style="padding: 0;">
+													<select name="delivery_restriction_security_level" class="chosen-select-deselect">
+														<option></option>
+														<?php $on_security = get_security_levels($dbc);
+														foreach($on_security as $category => $value) {
+															if($value != 'super') {
+																echo '<option value="'.$value.'" '.($restriction_level == $value ? 'selected' : '').'>'.$category.'</option>';
+															}
+														} ?>
+													</select>
+												</div>
+												<div class="col-sm-2" style="padding: 0;">
+													<img src="../img/remove.png" class="inline-img pull-right" onclick="removeDeliveryRestriction(this);">
+													<img src="../img/icons/ROOK-add-icon.png" class="inline-img pull-right" onclick="addDeliveryRestriction();">
+												</div>
+												<div class="clearfix"></div>
+											</div>
+										<?php } ?>
+									</div>
+								</div>
+								<div class="form-group">
+									<label class="col-sm-4 control-label">Scheduled Date Minimum:</label>
+									<div class="col-sm-8">
+										<select name="delivery_restriction_to_do_date_min" class="chosen-select-deselect">
+											<option></option>
+											<?php for($day_i = -31; $day_i <= 31; $day_i++) {
+												echo '<option value="'.$day_i.'" '.($delivery_restrictions['to_do_date_min'] == $day_i && $delivery_restrictions['to_do_date_min'] != '' ? 'selected' : '').'>'.($day_i == 0 ? 'Current Day' : ($day_i > 0 ? '+'.$day_i.' Days' : $day_i.' Days')).'</option>';
+											} ?>
+										</select>
+									</div>
+								</div>
+								<div class="form-group">
+									<label class="col-sm-4 control-label">Scheduled Date Maximum:</label>
+									<div class="col-sm-8">
+										<select name="delivery_restriction_to_do_date_max" class="chosen-select-deselect">
+											<option></option>
+											<?php for($day_i = -31; $day_i <= 31; $day_i++) {
+												echo '<option value="'.$day_i.'" '.($delivery_restrictions['to_do_date_max'] == $day_i && $delivery_restrictions['to_do_date_max'] != '' ? 'selected' : '').'>'.($day_i == 0 ? 'Current Day' : ($day_i > 0 ? '+'.$day_i.' Days' : $day_i.' Days')).'</option>';
+											} ?>
+										</select>
+									</div>
+								</div>
+								<div class="form-group">
+									<label class="col-sm-4 control-label">Scheduled Time Minimum:</label>
+									<div class="col-sm-8">
+										<select name="delivery_restriction_to_do_start_time_min" class="chosen-select-deselect">
+											<option></option>
+											<?php for($hours_i = -24; $hours_i <= 24; $hours_i++) {
+												echo '<option value="'.$hours_i.'" '.($delivery_restrictions['to_do_start_time_min'] == $hours_i && $delivery_restrictions['to_do_start_time_min'] != '' ? 'selected' : '').'>'.($hours_i == 0 ? 'Current Time' : ($hours_i > 0 ? '+'.$hours_i.' Hours' : $hours_i.' Hours')).'</option>';
+											} ?>
+										</select>
+									</div>
+								</div>
+								<div class="form-group">
+									<label class="col-sm-4 control-label">Scheduled Time Maximum:</label>
+									<div class="col-sm-8">
+										<select name="delivery_restriction_to_do_start_time_max" class="chosen-select-deselect">
+											<option></option>
+											<?php for($hours_i = -24; $hours_i <= 24; $hours_i++) {
+												echo '<option value="'.$hours_i.'" '.($delivery_restrictions['to_do_start_time_max'] == $hours_i && $delivery_restrictions['to_do_start_time_max'] != '' ? 'selected' : '').'>'.($hours_i == 0 ? 'Current Time' : ($hours_i > 0 ? '+'.$hours_i.' Hours' : $hours_i.' Hours')).'</option>';
+											} ?>
+										</select>
+									</div>
+								</div>
 							</div>
 						<?php } ?>
 					</div>
@@ -3690,6 +3794,9 @@ if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode && !$int
 							<?php } ?>
 							<?php if($field_sort_field == 'Planned Tracked Payable Staff') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Planned Tracked Payable Staff", $all_config) ? 'checked disabled' : (in_array("Planned Tracked Payable Staff", $value_config) ? "checked" : '') ?> value="Planned Tracked Payable Staff" name="tickets[]"> Planned/Tracked/Payable Hours Table - Staff</label>
+							<?php } ?>
+							<?php if($field_sort_field == 'Planned Tracked Payable Staff Multiple Times') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Planned Tracked Payable Staff Multiple Times", $all_config) ? 'checked disabled' : (in_array("Planned Tracked Payable Staff Multiple Times", $value_config) ? "checked" : '') ?> value="Planned Tracked Payable Staff Multiple Times" name="tickets[]"> Planned/Tracked/Payable Hours Table - Staff Multiple Dates/Times</label>
 							<?php } ?>
 							<?php if($field_sort_field == 'Planned Tracked Payable Members') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Planned Tracked Payable Members", $all_config) ? 'checked disabled' : (in_array("Planned Tracked Payable Members", $value_config) ? "checked" : '') ?> value="Planned Tracked Payable Members" name="tickets[]"> Planned/Tracked/Payable Hours Table - Members</label>
