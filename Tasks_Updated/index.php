@@ -23,13 +23,22 @@ $(document).ready(function() {
 		$('.main-screen').css('padding-bottom',0);
 		if($('.main-screen .main-screen').is(':visible')) {
 			var available_height = window.innerHeight - $('footer:visible').outerHeight() - $('.sidebar:visible').offset().top;
+            var note_height = '';
+            var note_height_project = '';
+            if ( $('.standard-dashboard-body-title .notice').is(':visible') ) {
+                note_height = -10;
+                note_height_project = 15;
+            } else {
+                note_height = 25;
+                note_height_project = 50;
+            }
 			if(available_height > 200) {
 				$('.main-screen .main-screen, .has-main-screen .main-screen').outerHeight(available_height).css('overflow-y','auto');
 				$('.sidebar').outerHeight(available_height).css('overflow-y','auto');
 				$('.search-results').outerHeight(available_height).css('overflow-y','auto');
-                $('.main-screen .standard-dashboard-body-content').outerHeight(available_height - $('.standard-dashboard-body-title').height());
-                $('#scrum_tickets').outerHeight($('.has-main-screen .main-screen').outerHeight() - $('.standard-dashboard-body-title').outerHeight() - $('.standard-body-title').outerHeight() - $('.dashboard_heading').outerHeight() - $('footer:visible').outerHeight() - 17);
-                $('.has-dashboard.dashboard-container.ui-sortable').outerHeight($('.has-main-screen .main-screen').outerHeight() - $('.standard-body-title').outerHeight() - $('footer:visible').outerHeight() - 45);
+                //$('.main-screen .standard-dashboard-body-content').outerHeight(available_height - $('.standard-dashboard-body-title').height());
+                $('#scrum_tickets').outerHeight($('.has-main-screen .main-screen').outerHeight() - $('.standard-dashboard-body-title:visible').outerHeight() - $('.standard-body-title:visible').outerHeight() - $('.dashboard_heading').outerHeight() - $('footer:visible').outerHeight() + note_height);
+                $('.has-dashboard.dashboard-container.ui-sortable').outerHeight($('.has-main-screen .main-screen').outerHeight() - $('.standard-dashboard-body-title:visible').outerHeight() - $('.standard-body-title').outerHeight() - $('footer:visible').outerHeight() + note_height_project);
                 $('.scrollable_unit').outerHeight($('#scrum_tickets').outerHeight() - $('.info-block-header').outerHeight() - 25);
                 $('.has-dashboard.dashboard-container.ui-sortable').css({'padding-bottom':'0', 'padding-top':'8px'});
                 $('.has-dashboard .dashboard-list').css({'margin-bottom':'-10px', 'overflow-y':'hidden'});
