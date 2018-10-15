@@ -342,7 +342,6 @@
 		if(!mysqli_query($dbc, "ALTER TABLE `project` ADD `deadline` VARCHAR(10) AFTER `followup`")) {
 			echo "Error: ".mysqli_error($dbc)."<br />\n";
 		}
-    
         //September 11, 2018
 		if(!mysqli_query($dbc, "ALTER TABLE `match_contact` ADD `tile_list` TEXT AFTER `staff_contact`")) {
 			echo "Error: ".mysqli_error($dbc)."<br />\n";
@@ -390,6 +389,38 @@
 			echo "Error: ".mysqli_error($dbc)."<br />\n";
 		}
         // Ticket 9343
+
+        // October 12, 2018 - Ticket 9129
+		if(!mysqli_query($dbc, "ALTER TABLE `invoice_compensation` CHANGE `serviceid` `item_id` INT(11) UNSIGNED NOT NULL DEFAULT 0")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+		if(!mysqli_query($dbc, "ALTER TABLE `invoice_compensation` CHANGE `therapistsid` `contactid` INT(11) UNSIGNED NOT NULL DEFAULT 0")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+		if(!mysqli_query($dbc, "ALTER TABLE `invoice_compensation` ADD `item_type` VARCHAR(20) NOT NULL DEFAULT 'services' AFTER `item_id`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		} else {
+            mysqli_query($dbc, "UPDATE `invoice_compensation` SET `item_type`='services' WHERE `item_type` IS NULL OR `item_type` = ''");
+        }
+		if(!mysqli_query($dbc, "ALTER TABLE `invoice_compensation` ADD `line_id` INT(11) NOT NULL DEFAULT 0 AFTER `invoiceid`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+		if(!mysqli_query($dbc, "ALTER TABLE `invoice_compensation` ADD `comp_percent` DECIMAL(5,2) NOT NULL DEFAULT 100 AFTER `admin_fee`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+		if(!mysqli_query($dbc, "ALTER TABLE `invoice_compensation` ADD `compensation` DECIMAL(10,2) NOT NULL DEFAULT 0 AFTER `comp_percent`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+		if(!mysqli_query($dbc, "CREATE TABLE IF NOT EXISTS `rate_compensation` (
+            `id` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+            `rate_card` INT(11) UNSIGNED NOT NULL DEFAULT 0,
+            `item_type` VARCHAR(20) NOT NULL DEFAULT '',
+            `comp_percent` DECIMAL(5,2) NOT NULL DEFAULT 100,
+            `deleted` TINYINT(1) NOT NULL DEFAULT 0
+        )")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+        // Ticket 9129
 		
 		set_config($dbc, 'db_version_jonathan', 8);
     }

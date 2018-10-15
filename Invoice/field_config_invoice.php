@@ -982,7 +982,8 @@ if(!empty($invoice_types)) { ?>
 					<label class="form-checkbox"><input <?= (in_array('po_num',$invoice_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_fields[]" value="po_num"> PO #</label>
 					<label class="form-checkbox"><input <?= (in_array('area',$invoice_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_fields[]" value="area"> Area</label>
 					<label class="form-checkbox"><input <?= (in_array('injury',$invoice_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_fields[]" value="injury"> Injury</label>
-					<label class="form-checkbox"><input <?= (in_array('staff',$invoice_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_fields[]" value="staff"> Staff (Providing Service)</label>
+					<label class="form-checkbox"><input <?= (in_array('staff',$invoice_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_fields[]" value="staff" onclick="if(this.checked) { $('[name^=invoice_fields][value=vendor]').removeAttr('checked'); }"> Staff (Providing Service)</label>
+					<label class="form-checkbox"><input <?= (in_array('vendor',$invoice_fields) && !in_array('staff',$invoice_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_fields[]" value="vendor" onclick="if(this.checked) { $('[name^=invoice_fields][value=staff]').removeAttr('checked'); }"> Vendor (for Compensation)</label>
 					<label class="form-checkbox"><input <?= (in_array('appt_type',$invoice_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_fields[]" value="appt_type"> Appointment Type</label>
 					<label class="form-checkbox"><input <?= (in_array('treatment',$invoice_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_fields[]" value="treatment"> Treatment Plan</label>
 					<label class="form-checkbox"><input <?= (in_array('service_date',$invoice_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_fields[]" value="service_date"> Service Date</label>
@@ -1036,7 +1037,7 @@ if(!empty($invoice_types)) { ?>
 					<label class="form-checkbox"><input <?= (in_array('tips',$invoice_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_fields[]" value="tips"> Gratuity</label>
 					<label class="form-checkbox"><input <?= (in_array('next_appt',$invoice_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_fields[]" value="next_appt"> Next Appointment</label>
 					<label class="form-checkbox"><input <?= (in_array('survey',$invoice_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_fields[]" value="survey"> Send Survey</label>
-					<label class="form-checkbox"><input <?= (in_array('request_recommend',$invoice_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_fields[]" value="request_recommend"> Request Recommendation Report</label>
+					<label class="form-checkbox"><input <?= (in_array('request_recommend',$invoice_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_fields[]" value="request_recommend"> Request Recommendation</label>
 					<label class="form-checkbox"><input <?= (in_array('followup',$invoice_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_fields[]" value="followup"> Send Follow Up Email</label>
                     <label class="form-checkbox"><input <?= (in_array('giftcard',$invoice_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_fields[]" value="giftcard"> Gift Card</label>
                     <label class="form-checkbox"><input <?= (in_array('reference',$invoice_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_fields[]" value="reference"> Reference</label>

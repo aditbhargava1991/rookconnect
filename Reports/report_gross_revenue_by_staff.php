@@ -265,7 +265,7 @@ function count_revenue($dbc,$starttime, $endtime, $therapistsid) {
     return $total_base_service;*/
 
 
-    $report_validation = mysqli_query($dbc,"SELECT *, count(*) AS count FROM invoice_compensation WHERE therapistsid='$therapistsid' AND (service_date >= '$starttime' AND service_date <= '$endtime') GROUP BY serviceid, fee, admin_fee");
+    $report_validation = mysqli_query($dbc,"SELECT *, count(*) AS count FROM invoice_compensation WHERE contactid='$therapistsid' AND (service_date >= '$starttime' AND service_date <= '$endtime') AND `item_type`='services' GROUP BY item_id, fee, admin_fee");
 
     $total_base_service = 0;
 
@@ -318,7 +318,7 @@ function count_adminfee($dbc,$starttime, $endtime, $therapistsid) {
 
     */
 
-    $report_validation = mysqli_query($dbc,"SELECT *, count(*) AS count FROM invoice_compensation WHERE therapistsid='$therapistsid' AND (service_date >= '$starttime' AND service_date <= '$endtime') GROUP BY serviceid, fee, admin_fee");
+    $report_validation = mysqli_query($dbc,"SELECT *, count(*) AS count FROM invoice_compensation WHERE contactid='$therapistsid' AND (service_date >= '$starttime' AND service_date <= '$endtime') AND `item_type`='services' GROUP BY item_id, fee, admin_fee");
 
     $final_af = 0;
 
@@ -380,7 +380,7 @@ function count_comp($dbc,$starttime, $endtime, $therapistsid) {
     $get_contact = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT base_pay FROM compensation WHERE contactid='$therapistsid' AND '$starttime' BETWEEN start_date AND end_date"));
     $base_pay = explode('*#*',$get_contact['base_pay']);
 
-    $report_validation = mysqli_query($dbc,"SELECT *, count(*) AS count FROM invoice_compensation WHERE therapistsid='$therapistsid' AND (service_date >= '$starttime' AND service_date <= '$endtime') GROUP BY serviceid, fee, admin_fee");
+    $report_validation = mysqli_query($dbc,"SELECT *, count(*) AS count FROM invoice_compensation WHERE contactid='$therapistsid' AND (service_date >= '$starttime' AND service_date <= '$endtime') AND `item_type`='services' GROUP BY item_id, fee, admin_fee");
 
     $total_base_service = 0;
 
