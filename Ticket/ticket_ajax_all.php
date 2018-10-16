@@ -2956,7 +2956,7 @@ if($_GET['action'] == 'update_fields') {
 		}
 		$staff_list = array_unique(array_filter($staff_list));
 
-		$day_of_week = date('l',$to_do_date);
+		$day_of_week = date('l',strtotime($to_do_date));
 
 		$message = [];
 		foreach($staff_list as $staffid) {
@@ -2999,7 +2999,7 @@ if($_GET['action'] == 'update_fields') {
 	if((strpos($value_config, ',Staff Hide No Shift,') !== FALSE || strpos($value_config, ',Staff Hide Days Off,') !== FALSE) && !empty(str_replace('0000-00-00','',$to_do_date))) {
 		$staff_list = mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name`, `position`, `positions_allowed` FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `deleted`=0 AND `status`>0");
 		$staff_no_shifts = [];
-		$day_of_week = date('l',$to_do_date);
+		$day_of_week = date('l',strtotime($to_do_date));
 		while($row = mysqli_fetch_assoc($staff_list)) {
 			$daysoff = checkShiftIntervals($dbc, $row['contactid'], $day_of_week, $to_do_date, 'daysoff');
 			if(!empty($daysoff)) {
