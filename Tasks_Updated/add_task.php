@@ -1218,7 +1218,10 @@ function track_icon_time(task) {
                         </div>
                     </div>
                 </div>
-
+                <?php
+                $project_path_milestones = [];
+                $project_path_milestones = get_project_paths($task_projectid);
+                ?>
                 <div class="panel panel-default taskpath_section_display" style="<?= $taskpath_section_display ?>">
                     <div class="panel-heading">
                         <h4 class="panel-title">
@@ -1235,13 +1238,11 @@ function track_icon_time(task) {
                 <div class="col-sm-8">
                     <select data-placeholder="Select a <?= TASK_NOUN ?> Path..." id="task_path" name="task_path" data-table="tasklist" data-field="task_path" class="chosen-select-deselect form-control" width="380">
                         <option value=""></option><?php
-                        $project_path_milestones = [];
-
                             $query = mysqli_query($dbc,"SELECT project_path_milestone, project_path FROM project_path_milestone");
                             while($row = mysqli_fetch_array($query)) { ?>
                                 <option <?php if ($row['project_path_milestone'] == $task_path) { echo " selected"; } ?> value='<?php echo  $row['project_path_milestone']; ?>' ><?php echo $row['project_path']; ?></option><?php
                             }
-                            $project_path_milestones = get_project_paths($task_projectid);
+
 
                             /* if($task_projectid > 0) {
                             $project_path_milestones = get_project_paths($task_projectid);
@@ -1262,17 +1263,26 @@ function track_icon_time(task) {
                         $task_milestone_timeline = str_replace("FFMSPACE"," ",$task_milestone_timeline);
                         $task_milestone_timeline = str_replace("FFMHASH","#",$task_milestone_timeline);
 
-                        $project_milestone = str_replace("FFMEND","&",$project_milestone);
-                        $project_milestone = str_replace("FFMSPACE"," ",$project_milestone);
-                        $project_milestone = str_replace("FFMHASH","#",$project_milestone);
+                        $project_milestone = str_replace("&","FFMEND",$project_milestone);
+                        $project_milestone = str_replace(" ","FFMSPACE",$project_milestone);
+                        $project_milestone = str_replace("#","FFMHASH",$project_milestone);
+                        $project_milestone = str_replace("amp;","",$project_milestone);
+
                 ?>
                     <select data-placeholder="Select a Milestone & Timeline..." name="task_milestone_timeline" id="task_milestone_timeline" data-table="tasklist" data-field="task_milestone_timeline"  class="chosen-select-deselect form-control" width="580">
                         <option value=""></option>
                         <?php if($task_projectid > 0) {
                             foreach($project_path_milestones as $path) {
                                 if($path['path_id'] == $task_path) {
-                                    foreach($path['milestones'] as $milestone) { ?>
-                                        <option <?= $project_milestone == $milestone['milestone'] ? 'selected' : '' ?> value="<?= $milestone['milestone'] ?>"><?= $milestone['label'] ?></option>
+                                    foreach($path['milestones'] as $milestone) {
+                                        $f_milestone = $milestone['milestone'];
+
+                                        $f_milestone = str_replace("&","FFMEND",$f_milestone);
+                                        $f_milestone = str_replace(" ","FFMSPACE",$f_milestone);
+                                        $f_milestone = str_replace("#","FFMHASH",$f_milestone);
+
+                                        ?>
+                                        <option <?php if($project_milestone == $f_milestone) { echo " selected"; } ?> value="<?= $milestone['milestone'] ?>"><?= $milestone['label'] ?></option>
                                     <?php }
                                 }
                             }

@@ -1295,17 +1295,25 @@ function track_icon_time(task) {
                                             $task_milestone_timeline = str_replace("FFMSPACE"," ",$task_milestone_timeline);
                                             $task_milestone_timeline = str_replace("FFMHASH","#",$task_milestone_timeline);
 
-                                            $project_milestone = str_replace("FFMEND","&",$project_milestone);
-                                            $project_milestone = str_replace("FFMSPACE"," ",$project_milestone);
-                                            $project_milestone = str_replace("FFMHASH","#",$project_milestone);
+                                            $project_milestone = str_replace("&","FFMEND",$project_milestone);
+                                            $project_milestone = str_replace(" ","FFMSPACE",$project_milestone);
+                                            $project_milestone = str_replace("#","FFMHASH",$project_milestone);
+                                            $project_milestone = str_replace("amp;","",$project_milestone);
                                         ?>
                                             <select data-placeholder="Select a Milestone & Timeline..." name="task_milestone_timeline" id="task_milestone_timeline" data-table="tasklist" data-field="task_milestone_timeline"  class="chosen-select-deselect form-control" width="580">
                                                 <option value=""></option>
                                                 <?php if($task_projectid > 0) {
                                                     foreach($project_path_milestones as $path) {
                                                         if($path['path_id'] == $task_path) {
-                                                            foreach($path['milestones'] as $milestone) { ?>
-                                                                <option <?= $project_milestone == $milestone['milestone'] ? 'selected' : '' ?> value="<?= $milestone['milestone'] ?>"><?= $milestone['label'] ?></option>
+                                                            foreach($path['milestones'] as $milestone) {
+                                                                $f_milestone = $milestone['milestone'];
+
+                                                                $f_milestone = str_replace("&","FFMEND",$f_milestone);
+                                                                $f_milestone = str_replace(" ","FFMSPACE",$f_milestone);
+                                                                $f_milestone = str_replace("#","FFMHASH",$f_milestone);
+
+                                                                ?>
+                                                                <option <?php if($project_milestone == $f_milestone) { echo " selected"; } ?> value="<?= $milestone['milestone'] ?>"><?= $milestone['label'] ?></option>
                                                             <?php }
                                                         }
                                                     }
