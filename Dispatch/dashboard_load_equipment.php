@@ -37,10 +37,12 @@ if($combine_warehouses == 1) {
     		}
     		$warehouse_times[date('H:i', strtotime($ticket['to_do_start_time']))][$ticket['warehouse_full_address']][] = ($ticket['stop_id'] > 0 ? 'ticket_schedule-'.$ticket['stop_id'] : 'tickets-'.$ticket['ticketid']);
 
-    		$total_tickets++;
-    		if(in_array($ticket['status'],$calendar_checkmark_status)) {
-    			$completed_tickets++;
-    		}
+    		if($dont_count_warehouse != 1) {
+	    		$total_tickets++;
+	    		if(in_array($ticket['status'],$calendar_checkmark_status)) {
+	    			$completed_tickets++;
+	    		}
+	    	}
     	}
     }
     foreach($warehouse_times as $start_time => $addresses) {

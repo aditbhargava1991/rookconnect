@@ -137,3 +137,4 @@ if($is_customer) {
 	$customer_equipments = get_customer_equipment($dbc, $daily_date, $daily_date);
 	$customer_query .= " AND `equipmentid` IN (".implode(',', $customer_equipments).")";
 }
+$dont_count_warehouse = get_config($dbc, 'dispatch_tile_dont_count_warehouse');
