@@ -31,5 +31,21 @@ if(!mysqli_query($dbc, "CREATE TABLE `db_backup_history` LIKE `checklist_history
   echo "Error: ".mysqli_error($dbc)."<br />\n";
 }
 
+if(!mysqli_query($dbc, "ALTER TABLE `email_communication` ADD `draft` BOOLEAN DEFAULT 0")) {
+  echo "Error: ".mysqli_error($dbc)."<br />\n";
+}
+
+/*if(!mysqli_query($dbc, "CREATE TABLE `email_communication_draft`
+  ( `email_draft_number` INT(11) NOT NULL AUTO_INCREMENT , `from_email` TEXT NULL DEFAULT NULL ,
+  `from_name` TEXT NULL DEFAULT NULL , `to_emails` TEXT NULL DEFAULT NULL ,
+  `cc_emails` TEXT NULL DEFAULT NULL , `subject` TEXT NULL DEFAULT NULL ,
+  `send_body` TEXT NULL DEFAULT NULL , `meeting_attachment` TEXT NULL DEFAULT NULL ,
+  PRIMARY KEY (`email_draft_number`))")) {
+  echo "Error: ".mysqli_error($dbc)."<br />\n";
+}*/
+
+
+
+
 echo "<br> ======Jenish's db changes Done======<br>";
 ?>
