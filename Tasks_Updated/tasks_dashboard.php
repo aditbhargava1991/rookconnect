@@ -311,21 +311,19 @@ function flag_item_manual(task) {
        overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_flags.php?tile=tasks&id='+task_id, 'auto', false, false);
 }
 
-function highlight_item(task) {
-    $('.color_picker').click();
+function highlight_item(sel) {
+    var task_id = $(sel).parents('span').data('task');
+    $('#color_'+task_id).click();
 }
 
 function choose_color(sel) {
-	var typeId = sel.id;
-	var arr = typeId.split('_');
-
-    var task_id = arr[1];
+	var task_id = $(sel).parents('span').data('task');
     var taskcolor = sel.value;
 	var taskcolor = taskcolor.replace("#", "");
 
 	$.ajax({    //create an ajax request to load_page.php
 		type: "GET",
-		url: "task_ajax_all.php?fill=task_highlight&tasklistid="+arr[1]+'&taskcolor='+taskcolor,
+		url: "task_ajax_all.php?fill=task_highlight&tasklistid="+task_id+'&taskcolor='+taskcolor,
 		dataType: "html",   //expect html to be returned
 		success: function(response){
 			location.reload();
@@ -1029,7 +1027,11 @@ function addIntakeForm(btn) {
                                             <span style="display:inline-block; text-align:center; width:11%;"><a href="../Project/projects.php?edit=<?= $row['projectid'] ?>" title="View Project" style="background-color:#fff; border:1px solid #3ac4f2; border-radius:50%; color:#3ac4f2 !important; display:inline-block; height:1.5em; width:1.5em;">?</a></span><?php
                                         }
                                         echo in_array('flag_manual', $quick_actions) ? '<span title="Flag This!" onclick="flag_item_manual(this); return false;"><img title="Flag This!" src="../img/icons/ROOK-flag-icon.png" class="inline-img no-toggle" onclick="return false;"></span>' : '';
+
                                         echo in_array('flag', $quick_actions) ? '<span title="Highlight" onclick="highlight_item(this); return false;"><img src="../img/icons/color-wheel.png" class="inline-img no-toggle" title="Highlight" onclick="return false;"></span>' : '';
+
+                                        echo '<input type="color" class="color_picker" onchange="choose_color(this); return false;" id="color_'.$row['tasklistid'].'"" data-taskid="'.$row['tasklistid'].'" name="color_'.$row['tasklistid'].'" style="display:none;" value="#f6b73c" />';
+
 
                                         echo $row['projectid'] > 0 && in_array('sync', $quick_actions) ? '<span title="Sync to External Path" onclick="sync_task(this); return false;"><img title="Sync to External Path" src="../img/icons/ROOK-sync-icon.png" class="inline-img no-toggle" onclick="return false;"></span>' : '';
                                         echo in_array('alert', $quick_actions) ? '<span title="Send Alert" onclick="send_task_alert(this); return false;"><img src="../img/icons/ROOK-alert-icon.png" title="Send Alert" class="inline-img no-toggle" onclick="return false;"></span>' : '';
@@ -1049,6 +1051,7 @@ function addIntakeForm(btn) {
 
                                         <?php
                                         echo in_array('archive', $quick_actions) ? '<span title="Archive Task" onclick="task_archive(this); return false;"><img src="../img/icons/trash-icon-red.png" title="Archive Task" class="inline-img no-toggle" onclick="return false;"></span>' : '';
+
                                     echo '</span>';
 
 
@@ -1071,7 +1074,6 @@ function addIntakeForm(btn) {
                                     echo '<input type="text" name="task_time_'.$row['tasklistid'].'" style="display:none;" class="form-control timepicker" />'; ?>
 
                                     <?php
-                                    echo '<input type="color" onchange="choose_color(this); return false;" class="color_picker" id="color_'.$row['tasklistid'].'"" name="color_'.$row['tasklistid'].'" style="display:none;" value="#f6b73c" />';
 
                                     echo '<input type="text" name="reminder_'.$row['tasklistid'].'" style="display:none;" class="form-control datepicker" />';
                                     echo '<input type="file" name="attach_'.$row['tasklistid'].'" style="display:none;" class="form-control" />';
