@@ -435,6 +435,7 @@ switch($_GET['type']) {
             }
         }
         $export_time_table = get_config($dbc, 'scheduling_export_time_table');
+        $dont_count_warehouse = get_config($dbc, 'scheduling_dont_count_warehouse');
         break;
     case 'estimates':
         $config_type = 'estimates';

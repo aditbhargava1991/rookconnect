@@ -594,6 +594,13 @@ if (isset($_POST['add_tab'])) {
 	}
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'scheduling_combine_pickup' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='scheduling_combine_pickup') num WHERE num.rows=0");
 	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$scheduling_combine_pickup."' WHERE `name`='scheduling_combine_pickup'");
+	if (!empty($_POST['scheduling_dont_count_warehouse'])) {
+		$scheduling_dont_count_warehouse = $_POST['scheduling_dont_count_warehouse'];
+	} else {
+		$scheduling_dont_count_warehouse = '';
+	}
+	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'scheduling_dont_count_warehouse' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='scheduling_dont_count_warehouse') num WHERE num.rows=0");
+	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$scheduling_dont_count_warehouse."' WHERE `name`='scheduling_dont_count_warehouse'");
 	if (!empty($_POST['scheduling_combine_time'])) {
 		$scheduling_combine_time = $_POST['scheduling_combine_time'];
 	} else {
@@ -2379,6 +2386,13 @@ function deleteLogo(logo) {
 								<div class="col-sm-8">
 									<?php $scheduling_combine_pickup = get_config($dbc, 'scheduling_combine_pickup'); ?>
 									<label class="form-checkbox"><input type="checkbox" name="scheduling_combine_pickup" <?= $scheduling_combine_pickup == 1 ? 'checked' : '' ?> value="1"></label>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-4 control-label">Don't Count Warehouse As A Delivery Stop:</label>
+								<div class="col-sm-8">
+									<?php $scheduling_dont_count_warehouse = get_config($dbc, 'scheduling_dont_count_warehouse'); ?>
+									<label class="form-checkbox"><input type="checkbox" name="scheduling_dont_count_warehouse" <?= $scheduling_dont_count_warehouse == 1 ? 'checked' : '' ?> value="1"></label>
 								</div>
 							</div>
 							<div class="form-group">
