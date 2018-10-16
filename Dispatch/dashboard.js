@@ -191,7 +191,7 @@ function load_buttons() {
 	$('.dispatch-equipment-buttons').html('');
 	var current_region = '';
 	result_list['buttons'].forEach(function(button) {
-		if(current_region != button['region']['label']) {
+		if(current_region != button['region']['label'] && $('[name="group_regions"]').val() == 1) {
 			current_region = button['region']['label'];
 			$('.dispatch-equipment-buttons').append(button['region']['html']);	
 		}
