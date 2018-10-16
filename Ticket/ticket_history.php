@@ -90,7 +90,7 @@ $titles = [
 							if($name == '' || $name == '-') {
 								$name = 'Admin';
 							} ?>
-							<td data-title="Date"><?= $ticket['created_date'] ?></td>
+							<td data-title="Date"><?= convert_timestamp_mysql($dbc, $ticket['created_date'], true) ?></td>
 							<td data-title="User"><?= $name ?></td>
 							<td data-title="Description"><?= TICKET_NOUN ?> Created</td>
 						</tr>
@@ -106,7 +106,7 @@ $titles = [
 								$description = $history['description'];
 							} ?>
 							<tr>
-								<td data-title="Date"><?= $history['date'] ?></td>
+								<td data-title="Date"><?= convert_timestamp_mysql($dbc, $history['date'], true) ?></td>
 								<td data-title="User"><?= $name ?></td>
 								<td data-title="Description"><?= html_entity_decode($description); ?></td>
 							</tr>
