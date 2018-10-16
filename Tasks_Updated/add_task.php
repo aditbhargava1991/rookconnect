@@ -434,7 +434,7 @@ $(document).ready(function () {
 				dataType: "html",   //expect html to be returned
 				success: function(response){
 					alert('You have successfully deleted this task.');
-					window.location.href = "add_task.php";
+					window.location.href = "index.php?category=All&tab=Summary";
 
 				}
 			});
@@ -1539,21 +1539,21 @@ function track_icon_time(task) {
                         <?php } ?>
 
                         <?php if(strpos($task_fields, ',Flag This,') !== FALSE) { ?>
-                            <div class="form-group clearfix">
+                            <!-- <div class="form-group clearfix">
                                 <label for="first_name" class="col-sm-4"><?php echo (strpos($task_mandatory_fields, ',Flag This,') !== FALSE ? '<font color="red">* </font>' : ''); ?>
-                                    <!-- <img src="../img/icons/ROOK-flag-icon.png" class="inline-img" /> --> Flag This:
+                                    Flag This:
                                 </label>
                                 <div class="col-sm-8">
                                     <a class="btn brand-btn" data-tasklistid="<?= $tasklistid ?>" onclick="flag_item(this);">Flag</a>
                                     <input type="hidden" name="flag" value="" />
                                 </div>
-                            </div>
+                            </div> -->
                         <?php } ?>
 
                         <?php if(strpos($task_fields, ',Send Alert,') !== FALSE) { ?>
-			<div class="form-group">
+			<!-- <div class="form-group">
 				<label for="site_name" class="col-sm-4"><?php echo (strpos($task_mandatory_fields, ',Send Alert,') !== FALSE ? '<font color="red">* </font>' : ''); ?>
-                    <!-- <img src="../img/icons/ROOK-alert-icon.png" class="inline-img" />-->  Send Alert:
+                     Send Alert:
                 </label>
 				<div class="col-sm-8">
 					<select data-placeholder="Select Staff..." multiple name="alerts_enabled[]" data-table="tasklist" data-field="alerts_enabled" class="<?php echo (strpos($task_mandatory_fields, ',Send Alert,') !== FALSE ? 'required' : ''); ?> chosen-select-deselect form-control" width="380">
@@ -1563,13 +1563,13 @@ function track_icon_time(task) {
 						<?php } ?>
 					</select>
 				</div>
-			</div>
+			</div> -->
                         <?php } ?>
 
                         <?php if(strpos($task_fields, ',Send Email,') !== FALSE) { ?>
-			<div class="form-group">
+			<!-- <div class="form-group">
 				<label for="site_name" class="col-sm-4"><?php echo (strpos($task_mandatory_fields, ',Send Email,') !== FALSE ? '<font color="red">* </font>' : ''); ?>
-                    <!-- <img src="../img/icons/ROOK-email-icon.png" class="inline-img" /> --> Send Email:
+                    Send Email:
                 </label>
 				<div class="col-sm-8">
 					<select data-placeholder="Select Staff..." multiple name="emails_enabled[]" class="<?php echo (strpos($task_mandatory_fields, ',Send Email,') !== FALSE ? 'required' : ''); ?> chosen-select-deselect form-control" width="380">
@@ -1579,18 +1579,18 @@ function track_icon_time(task) {
 						<?php } ?>
 					</select>
 				</div>
-			</div>
+			</div> -->
                         <?php } ?>
 
                         <?php if(strpos($task_fields, ',Schedule Reminder,') !== FALSE) { ?>
-			<div class="form-group">
+			<!-- <div class="form-group">
 				<label for="site_name" class="col-sm-4"><?php echo (strpos($task_mandatory_fields, ',Schedule Reminder,') !== FALSE ? '<font color="red">* </font>' : ''); ?>
-                    <!-- <img src="../img/icons/ROOK-reminder-icon.png" class="inline-img" /> --> Schedule Reminder:
+                    Schedule Reminder:
                 </label>
 				<div class="col-sm-8">
 					<input type="text" class="<?php echo (strpos($task_mandatory_fields, ',Schedule Reminder,') !== FALSE ? 'required' : ''); ?> form-control datepicker" name="schedule_reminder" />
 				</div>
-			</div>
+			</div> -->
                         <?php } ?>
 
                         <?php if(strpos($task_fields, ',Attach File,') !== FALSE) { ?>
