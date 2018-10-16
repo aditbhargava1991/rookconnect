@@ -3474,6 +3474,10 @@ position: relative;
 	width: 20px;
 	height: auto;
 }
+.dispatch-region-block {
+	display: block;
+	padding: 0.65em 1em;
+}
 .bottom-right {
 	position: absolute;
 	right: 5px;

@@ -34,6 +34,13 @@ checkAuthorised('dispatch'); ?>
     </div>
 </div>
 <div class="form-group">
+    <label class="col-sm-4 control-label">Group Equipment by Region:</label>
+    <div class="col-sm-8">
+        <?php $dispatch_tile_group_regions = get_config($dbc, 'dispatch_tile_group_regions'); ?>
+        <label class="form-checkbox"><input type="checkbox" name="dispatch_tile_group_regions" <?= $dispatch_tile_group_regions == 1 ? 'checked' : '' ?> value="1"></label>
+    </div>
+</div>
+<div class="form-group">
     <label class="col-sm-4 control-label">Combine Warehouse Stops:</label>
     <div class="col-sm-8">
         <?php $dispatch_tile_combine_warehouse = get_config($dbc, 'dispatch_tile_combine_warehouse'); ?>
