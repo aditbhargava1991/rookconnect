@@ -105,6 +105,18 @@ function resize_rows() {
         }
     <?php } ?>
 }
+var unbooked_reload = '';
+$(document).on("overlayIFrameSliderLoad", function() {
+	clearInterval(unbooked_reload);
+	if(window.parent.$('#unbooked_list').is(':visible') && typeof window.parent.retrieveUnbookedData != 'undefined') {
+		unbooked_reload = setInterval(function() {
+			if(!(window.parent.$('.iframe_overlay').is(':visible'))) {
+				clearInterval(unbooked_reload);
+				window.parent.retrieveUnbookedData();
+			}
+		},1000);
+	}
+});
 </script>
 </head>
 <body>

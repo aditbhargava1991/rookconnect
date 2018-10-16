@@ -356,6 +356,242 @@ if (isset($_POST['submit_status'])) {
 
 }
 
+if(isset($_GET['pdf_foreman_sheet'])) {
+    ob_clean();
+    include_once('../tcpdf/tcpdf.php');
+	DEFINE('WT_LOGO', $wt_logo);
+
+	class MYPDF extends TCPDF {
+
+		public function Header() {
+			$image_file = 'download/'.WT_LOGO;
+			$this->SetFont('helvetica', '', 15);
+			$footer_text = 'FOREMAN SHEET';
+			$this->writeHTMLCell(0, 0, -140, 10, $footer_text, 0, 0, false, "L", true);
+			$this->SetFont('helvetica', '', 9);
+			$footer_text = '<strong>Please complete this document and submit to the office</strong><br>For additional details, please use an additional sheet';
+			$this->writeHTMLCell(0, 0, 10, 20, $footer_text, 0, 0, false, "L", true);
+		}
+
+		// Page footer
+		public function Footer() {
+			// Position at 15 mm from bottom
+			$this->SetY(-15);
+			$this->SetFont('helvetica', '', 9);
+			$footer_text = 'Page '.$this->getAliasNumPage().' of '.$this->getAliasNbPages();
+			$this->writeHTMLCell(0, 0, '', '', $footer_text, 0, 0, false, "L", true);
+		}
+    }
+
+	$pdf = new MYPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
+
+	$pdf->SetHeaderData(PDF_HEADER_LOGO, PDF_HEADER_LOGO_WIDTH, false, false);
+	$pdf->setFooterData(array(0,64,0), array(0,64,128));
+
+	$pdf->SetMargins(PDF_MARGIN_LEFT, 35, PDF_MARGIN_RIGHT);
+	$pdf->SetHeaderMargin(PDF_MARGIN_HEADER);
+	$pdf->SetFooterMargin(PDF_MARGIN_FOOTER);
+	$pdf->SetAutoPageBreak(TRUE, PDF_MARGIN_BOTTOM);
+
+	$pdf->AddPage();
+	$pdf->SetFont('helvetica', '', 9);
+    $html = '<h1>Foreman Sheet</h1>
+    <table style="width:100%;" border="1" cellspacing="0" cellpadding="3">
+        <tr>
+            <td style="font-weight:bold;width:22%;">Job #:</td>
+            <td colspan="6" style="width:78%;"></td>
+        </tr>
+        <tr>
+            <td style="font-weight:bold;">Date:</td>
+            <td colspan="6"></td>
+        </tr>
+        <tr>
+            <td style="font-weight:bold;">AFE #:</td>
+            <td colspan="6"></td>
+        </tr>
+        <tr>
+            <td style="font-weight:bold;">Additional Info:</td>
+            <td colspan="6"></td>
+        </tr>
+        <tr>
+            <td style="font-weight:bold;">Customer Site Location:</td>
+            <td colspan="6"></td>
+        </tr>
+        <tr>
+            <td style="font-weight:bold;height:45px;">Description:</td>
+            <td colspan="6" style="height:45px;"></td>
+        </tr>
+        <tr>
+            <td colspan="7"></td>
+        </tr>
+        <tr>
+            <td style="font-weight:bold;width:22%;"></td>
+            <td style="font-weight:bold;width:24%;">Name</td>
+            <td style="font-weight:bold;width:16%;">Position</td>
+            <td style="font-weight:bold;width:9%;">Regular<br />Hrs</td>
+            <td style="font-weight:bold;width:9%;">Overtime</td>
+            <td style="font-weight:bold;width:8%;">Travel</td>
+            <td style="font-weight:bold;width:12%;">Subsistence<br />Pay</td>
+        </tr>
+        <tr>
+            <td style="font-weight:bold;">Crew:</td>
+            <td style="font-weight:bold;"></td>
+            <td style="font-weight:bold;"></td>
+            <td style="font-weight:bold;"></td>
+            <td style="font-weight:bold;"></td>
+            <td style="font-weight:bold;"></td>
+            <td style="font-weight:bold;"></td>
+        </tr>
+        <tr>
+            <td style="font-weight:bold;">Crew:</td>
+            <td style="font-weight:bold;"></td>
+            <td style="font-weight:bold;"></td>
+            <td style="font-weight:bold;"></td>
+            <td style="font-weight:bold;"></td>
+            <td style="font-weight:bold;"></td>
+            <td style="font-weight:bold;"></td>
+        </tr>
+        <tr>
+            <td style="font-weight:bold;">Crew:</td>
+            <td style="font-weight:bold;"></td>
+            <td style="font-weight:bold;"></td>
+            <td style="font-weight:bold;"></td>
+            <td style="font-weight:bold;"></td>
+            <td style="font-weight:bold;"></td>
+            <td style="font-weight:bold;"></td>
+        </tr>
+        <tr>
+            <td style="font-weight:bold;">Crew:</td>
+            <td style="font-weight:bold;"></td>
+            <td style="font-weight:bold;"></td>
+            <td style="font-weight:bold;"></td>
+            <td style="font-weight:bold;"></td>
+            <td style="font-weight:bold;"></td>
+            <td style="font-weight:bold;"></td>
+        </tr>
+        <tr>
+            <td style="font-weight:bold;">Crew:</td>
+            <td style="font-weight:bold;"></td>
+            <td style="font-weight:bold;"></td>
+            <td style="font-weight:bold;"></td>
+            <td style="font-weight:bold;"></td>
+            <td style="font-weight:bold;"></td>
+            <td style="font-weight:bold;"></td>
+        </tr>
+        <tr>
+            <td style="font-weight:bold;">Crew:</td>
+            <td style="font-weight:bold;"></td>
+            <td style="font-weight:bold;"></td>
+            <td style="font-weight:bold;"></td>
+            <td style="font-weight:bold;"></td>
+            <td style="font-weight:bold;"></td>
+            <td style="font-weight:bold;"></td>
+        </tr>
+        <tr>
+            <td style="font-weight:bold;">Crew:</td>
+            <td style="font-weight:bold;"></td>
+            <td style="font-weight:bold;"></td>
+            <td style="font-weight:bold;"></td>
+            <td style="font-weight:bold;"></td>
+            <td style="font-weight:bold;"></td>
+            <td style="font-weight:bold;"></td>
+        </tr>
+        <tr>
+            <td colspan="7"></td>
+        </tr>
+        <tr>
+            <td style="font-weight:bold;"></td>
+            <td style="font-weight:bold;" colspan="2">Equipment</td>
+            <td style="font-weight:bold;" colspan="2">Billing Rate<br />(Daily / Hourly)</td>
+            <td style="font-weight:bold;" colspan="2">Hours</td>
+        </tr>
+        <tr>
+            <td style="font-weight:bold;">Equipment:</td>
+            <td style="font-weight:bold;" colspan="2"></td>
+            <td style="font-weight:bold;" colspan="2"></td>
+            <td style="font-weight:bold;" colspan="2"></td>
+        </tr>
+        <tr>
+            <td style="font-weight:bold;">Equipment:</td>
+            <td style="font-weight:bold;" colspan="2"></td>
+            <td style="font-weight:bold;" colspan="2"></td>
+            <td style="font-weight:bold;" colspan="2"></td>
+        </tr>
+        <tr>
+            <td style="font-weight:bold;">Equipment:</td>
+            <td style="font-weight:bold;" colspan="2"></td>
+            <td style="font-weight:bold;" colspan="2"></td>
+            <td style="font-weight:bold;" colspan="2"></td>
+        </tr>
+        <tr>
+            <td style="font-weight:bold;">Equipment:</td>
+            <td style="font-weight:bold;" colspan="2"></td>
+            <td style="font-weight:bold;" colspan="2"></td>
+            <td style="font-weight:bold;" colspan="2"></td>
+        </tr>
+        <tr>
+            <td style="font-weight:bold;">Equipment:</td>
+            <td style="font-weight:bold;" colspan="2"></td>
+            <td style="font-weight:bold;" colspan="2"></td>
+            <td style="font-weight:bold;" colspan="2"></td>
+        </tr>
+        <tr>
+            <td style="font-weight:bold;">Equipment:</td>
+            <td style="font-weight:bold;" colspan="2"></td>
+            <td style="font-weight:bold;" colspan="2"></td>
+            <td style="font-weight:bold;" colspan="2"></td>
+        </tr>
+        <tr>
+            <td colspan="7"></td>
+        </tr>
+        <tr>
+            <td style="font-weight:bold;"></td>
+            <td style="font-weight:bold;" colspan="2">Description</td>
+            <td style="font-weight:bold;">Quantity</td>
+            <td style="font-weight:bold;">Unit Price</td>
+            <td style="font-weight:bold;" colspan="2">Amount<br />(Mark Up 15%)</td>
+        </tr>
+        <tr>
+            <td style="font-weight:bold;">Stock / Material:</td>
+            <td style="font-weight:bold;" colspan="2"></td>
+            <td style="font-weight:bold;"></td>
+            <td style="font-weight:bold;"></td>
+            <td style="font-weight:bold;" colspan="2"></td>
+        </tr>
+        <tr>
+            <td style="font-weight:bold;">Stock / Material:</td>
+            <td style="font-weight:bold;" colspan="2"></td>
+            <td style="font-weight:bold;"></td>
+            <td style="font-weight:bold;"></td>
+            <td style="font-weight:bold;" colspan="2"></td>
+        </tr>
+        <tr>
+            <td style="font-weight:bold;">Stock / Material:</td>
+            <td style="font-weight:bold;" colspan="2"></td>
+            <td style="font-weight:bold;"></td>
+            <td style="font-weight:bold;"></td>
+            <td style="font-weight:bold;" colspan="2"></td>
+        </tr>
+        <tr>
+            <td colspan="7"></td>
+        </tr>
+        <tr>
+            <td style="font-weight:bold;height:45px;">Comments:</td>
+            <td style="font-weight:bold;height:45px;" colspan="6"></td>
+        </tr>
+        <tr>
+            <td style="font-weight:bold;">Submitter\'s Name:</td>
+            <td style="font-weight:bold;" colspan="6"></td>
+        </tr>
+        <tr>
+            <td style="font-weight:bold;">Submitter\'s Email:</td>
+            <td style="font-weight:bold;" colspan="6"></td>
+        </tr>
+    </table>';
+	$pdf->writeHTML($html, true, false, true, false, '');
+	$pdf->Output('field_foreman_sheet_blank.pdf', 'I');
+}
+
 $edit_result = mysqli_fetch_array(mysqli_query($dbc, "select field_list from field_config_field_jobs where tab='foreman'"));
 $edit_config = $edit_result['field_list'];
 if(str_replace(',','',$edit_config) == '') {
