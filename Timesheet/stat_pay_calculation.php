@@ -19,7 +19,7 @@ function saveStatPay(sel) {
 </script>
 </head>
 <body>
-<?php 
+<?php
 include_once ('../navigation.php');
 checkAuthorised('timesheet');
 include 'config.php';
@@ -74,9 +74,19 @@ $value = $config['settings']['Choose Fields for Holidays Dashboard'];
                             </ol>
                         </td>
                     </tr>
+
+                    <tr>
+                        <td data-title="Stat Pay">Alberta Standard Salary</td>
+                        <td data-title="Calculation">
+                            <ol>
+                                <li># of Hours Per Week" / "# of Days Per Week</li>
+                            </ol>
+                        </td>
+                    </tr>
+
                 </table>
 
-                <?php 
+                <?php
                 // Pagination Config
                 $rowsPerPage = 25;
                 $pageNum = 1;
@@ -116,6 +126,7 @@ $value = $config['settings']['Choose Fields for Holidays Dashboard'];
                                     <option <?= empty($row['vaca_pay']) ? 'selected' : '' ?>>No Pay</option>
                                     <option value="Alberta Standard 4%" <?= $row['vaca_pay'] == 'Alberta Standard 4%' ? 'selected' : '' ?>>Alberta Standard 4%</option>
                                     <option value="Alberta Standard 6%" <?= $row['vaca_pay'] == 'Alberta Standard 6%' ? 'selected' : '' ?>>Alberta Standard 6%</option>
+                                    <option value="Alberta Standard Salary" <?= $row['vaca_pay'] == 'Alberta Standard Salary' ? 'selected' : '' ?>>Alberta Standard Salary</option>
                                 </select>
                             </td>
                             <td data-title="Stat Pay Calculation">
@@ -123,6 +134,7 @@ $value = $config['settings']['Choose Fields for Holidays Dashboard'];
                                     <option <?= empty($row['stat_pay']) ? 'selected' : '' ?>>No Pay</option>
                                     <option value="Alberta Standard 4%" <?= $row['stat_pay'] == 'Alberta Standard 4%' ? 'selected' : '' ?>>Alberta Standard 4%</option>
                                     <option value="Alberta Standard 6%" <?= $row['stat_pay'] == 'Alberta Standard 6%' ? 'selected' : '' ?>>Alberta Standard 6%</option>
+                                    <option value="Alberta Standard Salary" <?= $row['stat_pay'] == 'Alberta Standard Salary' ? 'selected' : '' ?>>Alberta Standard Salary</option>
                                 </select>
                             </td>
                         </tr>
