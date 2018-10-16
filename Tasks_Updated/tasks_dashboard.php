@@ -966,8 +966,8 @@ function addIntakeForm(btn) {
                                     //echo '</span>'; ?>
                                     <div class="row pull-left t_name">
                                         <?= $row['flag_label'] ?>
-                                        <h4 style="<?= $style_strikethrough ?>">                                                                                                                              
-                                              
+                                        <h4 style="<?= $style_strikethrough ?>">
+
                                             <input type="checkbox" name="status" value="<?= $row['tasklistid'] ?>" class="form-checkbox no-margin small pull-left" onchange="mark_done(this);" <?= ( $row['status'] == 'Complete' || $row['status'] == 'Done' || $row['status'] == 'Finish') ? 'checked' : '' ?> />
                                             <div class="pull-left gap-left">
 
@@ -980,7 +980,7 @@ function addIntakeForm(btn) {
                                             <?php } else { ?>
                                             <a style="<?= $style_strikethrough ?>" href="../Tasks_Updated/add_task_full_view.php?type=<?=$row['status']?>&tasklistid=<?=$row['tasklistid']?>"><?= TASK_NOUN ?> #<?= $row['tasklistid'] ?> </a>
                                             <?php } ?>
-											<br><span style="<?= $style_strikethrough ?>"><?= $row['heading']; ?></span>
+
 
                                             </div>
                                         </h4>
@@ -1016,13 +1016,13 @@ function addIntakeForm(btn) {
                                         // }
                                          ?>
                                     </div>
-                  
+
                                     <div class="clearfix"></div>
-                                    <h4><?= $row['heading']; ?></h4>
+                                    <h4><span style="<?= $style_strikethrough ?>"><?= $row['heading']; ?></span></h4>
 
                                     <?php
 
-                                    echo '<span class="pull-right action-icons double-gap-bottom full-width" data-task="'.$row['tasklistid'].'">'; 
+                                    echo '<span class="pull-right action-icons double-gap-bottom full-width" data-task="'.$row['tasklistid'].'">';
 
                                         $mobile_url_tab = trim($_GET['tab']);
                                         if ( $url_tab=='Project' || $mobile_url_tab=='Project' ) { ?>
