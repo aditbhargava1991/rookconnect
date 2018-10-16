@@ -1231,6 +1231,12 @@ var setHeading = function() {
 			<hr>
 		</div>
 	<?php }
+    if($calendar_ticket_slider == 'accordion') {
+		$get_query = $_GET; ?>
+		<div class="pull-right">
+			<a href="" onclick="openFullView(); return false;"><img src="../img/icons/ROOK-FullScreen-icon.png" alt="Open Full Window" title="Open Full Window" class="no-toggle inline-img" width="25" /></a>
+		</div>
+	<?php }
 	echo '<div class="pull-right '.($calendar_ticket_slider != 'accordion' ? 'show-on-mob' : '').'">'.$quick_action_html.'</div>';
 	if(count($ticket_tabs) > 1 && !($_GET['action_mode'] > 0 || $_GET['overview_mode'] > 0) && $tile_security['edit'] > 0 && !($strict_view > 0)) { ?>
 		<div class="form-group clearfix <?= $calendar_ticket_slider != 'accordion' ? 'show-on-mob' : '' ?>" <?= isset($_GET['intake_key']) ? 'style="display:none;"' : '' ?>>
@@ -1262,12 +1268,6 @@ var setHeading = function() {
 			<a href="?<?= http_build_query($get_query); ?>" class="btn brand-btn" onclick="viewFullTicket(this); return false;">View Full <?= TICKET_NOUN ?></a>
 		</div>
 	<?php }*/ ?>
-	<?php if($calendar_ticket_slider == 'accordion') {
-		$get_query = $_GET; ?>
-		<div class="pull-right">
-			<a href="" onclick="openFullView(); return false;"><img src="../img/icons/ROOK-FullScreen-icon.png" alt="Open Full Window" title="Open Full Window" class="no-toggle inline-img" width="25" /></a>
-		</div>
-	<?php } ?>
 	<div class="<?= $calendar_ticket_slider != 'accordion' ? 'show-on-mob' : '' ?>">
 		<span class="sync_recurrences_note" style="display: none; color: red;"><b>You are editing all Recurrences of this <?= TICKET_NOUN?>. Please refresh the page if you would like to edit only this occurrence.</b></span>
 	</div>
