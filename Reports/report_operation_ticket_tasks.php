@@ -460,7 +460,7 @@ function report_output($dbc, $starttime, $endtime, $createstart, $createend, $bu
 							$report_data .= '</tr>';
 							$report_data .= '<tr>
 								<td style="width:10%;">'.($show_times == 'show' ? 'Total Hours' : 'End Time').':</td>
-								<td style="width:10%;">'.($show_times == 'show' ? number_format($detail['hours'],2) : $detail['end']).':</td>
+								<td style="width:10%;">'.($show_times == 'show' ? number_format($detail['hours'],2) : $detail['end']).'</td>
                                 <td style="width:10%;">'.($hide_wo != 'hide' && $show_times != 'show' ? TICKET_NOUN.':' : '').'</td>';
 								$report_data .= ($show_tmes == 'show' ? '' : '<td style="width:35%;" colspan="2" rowspan="2">'.($hide_wo != 'hide' && $show_times != 'show' ? implode(', ',$tickets) : '').'</td>');
 							$report_data .= '</tr>';
