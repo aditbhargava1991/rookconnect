@@ -3098,6 +3098,25 @@ if($_GET['action'] == 'get_ticket_client') {
 			if(strtotime($to_do_start_time) > strtotime($end_time)) {
 				$to_do_start_time = date('h:i a',strtotime($end_time));
 			}
+		}
+		if($hours[0] == 'closed') {
+			$start_time = 'closed';
+		}
+		$result = [start_time=>$start_time, end_time=>$end_time, to_do_start_time=>$to_do_start_time];
+	} else {
+		$result = [start_time=>'', end_time=>'', to_do_start_time=>''];
+	}
+	echo json_encode($result);
+} else if($_GET['action'] == 'get_restricted_hours') {
+	$ticketid = $_POST['ticketid'];
+	$ticket_type = get_field_value('ticket_type','tickets','ticketid',$ticketid);
+	$to_do_date = $_POST['to_do_date'];
+	$to_do_start_time = $_POST['to_do_start_time'];
+	$start_time = !empty($_POST['start_time']) ? date('H:i', strtotime($_POST['start_time'])) : '';
+	$end_time = !empty($_POST['end_time']) ? date('H:i', strtotime($_POST['end_time'])) : '';
+	$result = [];
+	if(!empty($to_do_date)) {
+		if(!empty($start_time) && !empty($end_time)) {
 			$delivery_restrictions = '';
 			foreach(array_filter(explode(',', ROLE)) as $contact_role) {
 				$restriction_config = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `field_config_ticket_delivery_restrictions` WHERE CONCAT(',',`security_level`,',') LIKE '%,$contact_role,%' AND `ticket_type` = '$ticket_type'"));
@@ -3117,19 +3136,22 @@ if($_GET['action'] == 'get_ticket_client') {
 					break;
 				}
 			}
-			if(!empty($delivery_restrictions['to_do_start_time_min']) && strtotime($start_time) < strtotime($delivery_restrictions['to_do_start_time_min'])) {
+			if(!empty($delivery_restrictions['to_do_start_time_min']) && strtotime($start_time) < strtotime($delivery_restrictions['to_do_start_time_min']) && ($to_do_date == $delivery_restrictions['to_do_date_min'] || empty($delivery_restrictions['to_do_date_min']))) {
 				$start_time = date('H:i',strtotime($delivery_restrictions['to_do_start_time_min']));
 			}
-			if(!empty($delivery_restrictions['to_do_start_time_max']) && strtotime($end_time) > strtotime($delivery_restrictions['to_do_start_time_max'])) {
+			if(!empty($delivery_restrictions['to_do_start_time_max']) && strtotime($end_time) > strtotime($delivery_restrictions['to_do_start_time_max']) && ($to_do_date == $delivery_restrictions['to_do_date_max'] || empty($delivery_restrictions['to_do_date_max']))) {
 				$end_time = date('H:i',strtotime($delivery_restrictions['to_do_start_time_max']));
 			}
-		}
-		if($hours[0] == 'closed') {
-			$start_time = 'closed';
+			if(strtotime($to_do_start_time) < strtotime($start_time)) {
+				$to_do_start_time = date('h:i a',strtotime($start_time));
+			}
+			if(strtotime($to_do_start_time) > strtotime($end_time)) {
+				$to_do_start_time = date('h:i a',strtotime($end_time));
+			}
 		}
 		$result = [start_time=>$start_time, end_time=>$end_time, to_do_start_time=>$to_do_start_time];
 	} else {
-		$result = [start_time=>'', end_time=>'', to_do_start_time=>''];
+		$result = [start_time=>$start_time, end_time=>$end_time, to_do_start_time=>''];
 	}
 	echo json_encode($result);
 } else if($_GET['action'] == 'save_delivery_restriction') {

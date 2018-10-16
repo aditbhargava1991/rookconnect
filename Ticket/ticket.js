@@ -3590,6 +3590,7 @@ function setHoursOfOperation(select) {
 								if(response.to_do_start_time != to_do_start_time && response.to_do_start_time != '') {
 									$(block).find('[name="to_do_start_time"]').val(response.to_do_start_time).change();
 								}
+								setRestrictedHours($(block).find('[name="to_do_start_time"]'), response.start_time, response.end_time);
 							}
 						}
 					});
@@ -3601,8 +3602,50 @@ function setHoursOfOperation(select) {
 					$(block).find('[name="to_do_start_time"]').data('datetimepicker-mintime', start_time);
 					$(block).find('[name="to_do_start_time"]').data('datetimepicker-maxtime', end_time);
 					initInputs('.stop_scheduled_time');
+					setRestrictedHours($(block).find('[name="to_do_start_time"]'), start_time, end_time);
 				}
 			}
+		}
+	}
+}
+function setRestrictedHours(input, start_time = '', end_time = '') {
+	if(ticketid > 0) {
+		var block = $(input).closest('.scheduled_stop');
+		if($(block).find('[name="to_do_start_time"]').data('disabled') != 1) {
+			if(start_time == '') {
+				start_time = $(block).find('[name="to_do_start_time"]').data('default-datetimepicker-mintime');
+			}
+			if(end_time == '') {
+				end_time = $(block).find('[name="to_do_start_time"]').data('default-datetimepicker-maxtime');
+			}
+			var to_do_date = $(block).find('[name="to_do_date"]').val();
+			var to_do_start_time = $(block).find('[name="to_do_start_time"]').val();
+			$.ajax({
+				url :'../Ticket/ticket_ajax_all.php?action=get_restricted_hours',
+				method: 'POST',
+				data: {
+					ticketid: ticketid,
+					to_do_date: to_do_date,
+					to_do_start_time: to_do_start_time,
+					start_time: start_time,
+					end_time: end_time
+				},
+				success: function(response) {
+					var response = JSON.parse(response);
+					if(response.start_time == '') {
+						response.start_time = $(block).find('[name="to_do_start_time"]').data('default-datetimepicker-mintime');
+						response.end_time = $(block).find('[name="to_do_start_time"]').data('default-datetimepicker-maxtime');
+					}
+					destroyInputs('.stop_scheduled_time');
+					$(block).find('[name="to_do_start_time"]').prop('disabled', false);
+					$(block).find('[name="to_do_start_time"]').data('datetimepicker-mintime', response.start_time);
+					$(block).find('[name="to_do_start_time"]').data('datetimepicker-maxtime', response.end_time);
+					initInputs('.stop_scheduled_time');
+					if(response.to_do_start_time != to_do_start_time && response.to_do_start_time != '') {
+						$(block).find('[name="to_do_start_time"]').val(response.to_do_start_time).change();
+					}
+				}
+			});
 		}
 	}
 }
@@ -3730,5 +3773,8 @@ function initSelectOnChanges() {
 	$('[name="to_do_date"][data-table="ticket_schedule"]').change(function() {
 		var stop_type = $(this).closest('.scheduled_stop').find('select[name="type"][data-table="ticket_schedule"]');
 		setHoursOfOperation(stop_type);
+		if($(stop_type).data('hours-of-operation') != 1) {
+			setRestrictedHours($(this).closest('.scheduled_stop').find('[name="to_do_start_time"]'));
+		}
 	});
 }

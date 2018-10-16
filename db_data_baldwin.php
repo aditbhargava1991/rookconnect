@@ -1229,6 +1229,9 @@
         MODIFY `fieldconfigid` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1")) {
         echo "Error: ".mysqli_error($dbc)."<br />\n";
     }
+    if(!mysqli_query($dbc, "ALTER TABLE `ticket_schedule` CHANGE `type` `type` varchar(500)")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
     //2018-10-11 - Ticket #9653 - Best Buy Changes
 
     echo "Baldwin's DB Changes Done<br />\n";
