@@ -138,3 +138,4 @@ if($is_customer) {
 	$customer_query .= " AND `equipmentid` IN (".implode(',', $customer_equipments).")";
 }
 $dont_count_warehouse = get_config($dbc, 'dispatch_tile_dont_count_warehouse');
+$group_regions = get_config($dbc, 'dispatch_tile_group_regions');

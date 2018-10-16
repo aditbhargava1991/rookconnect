@@ -189,8 +189,13 @@ function retrieve_buttons() {
 }
 function load_buttons() {
 	$('.dispatch-equipment-buttons').html('');
+	var current_region = '';
 	result_list['buttons'].forEach(function(button) {
-		$('.dispatch-equipment-buttons').append(button);
+		if(current_region != button['region']['label']) {
+			current_region = button['region']['label'];
+			$('.dispatch-equipment-buttons').append(button['region']['html']);	
+		}
+		$('.dispatch-equipment-buttons').append(button['html']);
 	});
 	$('.equip_active_li ul').html('');
 	$('.equip_active_li ul').html(result_list['active_li']);
@@ -483,6 +488,16 @@ function filter_equipment() {
 	} else {
 		$('.dispatch-equipment-block').show();
 	}
+
+	$('.dispatch-region-block').hide();
+	$('.dispatch-region-block').each(function() {
+		var block = this;
+		$(this).nextAll('.dispatch-equipment-button-a').each(function() {
+			if($(this).css('display') != 'none') {
+				$(block).show();
+			}
+		});
+	});
 
 	initTooltips();
 	resize_blocks();
