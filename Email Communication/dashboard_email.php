@@ -223,7 +223,7 @@ $from = FOLDER_NAME;
 function sendmail(commid) {
   $.ajax({    //create an ajax request to load_page.php
     type: "GET",
-    url: "../Email Communication/ticket_ajax_all.php?fill=send_email&commid="+commid,
+    url: "project_ajax_all.php?fill=send_email&commid="+commid,
     dataType: "html",   //expect html to be returned
     success: function(response){
       location. reload(true);
