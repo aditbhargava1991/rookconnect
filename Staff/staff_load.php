@@ -8,7 +8,7 @@ $row = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `contacts` WHERE `co
 
 <div class="dashboard-item override-dashboard-item set-relative">
 	<div class="col-sm-6">
-		<img src="../img/person.PNG" class="inline-img"><?= ($security_access['edit'] > 0 || ($view_id && $security_access['visible'] > 0) ? "<a href='staff_edit.php?contactid=".$row['contactid']."&from_url=".rawurlencode($_SERVER['REQUEST_URI'])."'>" : '').decryptIt($row['first_name']).' '.decryptIt($row['last_name']).($security_access['edit'] > 0 ? '</a>' : '&nbsp;') ?>
+		<img src="../img/person.PNG" class="inline-img"><?= ($security_access['edit'] > 0 || ($view_id && $security_access['visible'] > 0) ? "<a href='staff_edit.php?contactid=".$row['contactid']."&from_url=".rawurlencode($_SERVER['HTTP_REFERER'])."'>" : '').decryptIt($row['first_name']).' '.decryptIt($row['last_name']).($security_access['edit'] > 0 ? '</a>' : '&nbsp;') ?>
 		<?php if(!($security_access['edit'] > 0) && $row['contactid'] == $_SESSION['contactid']) { ?>
 			<a href="<?= WEBSITE_URL ?>/Profile/my_profile.php?edit_contact=true&from_staff_tile=true" title="Edit My Profile"><img src="../img/icons/ROOK-edit-icon.png" class="inline-img"></a>
 		<?php } ?>
@@ -125,7 +125,7 @@ $row = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `contacts` WHERE `co
 			}
 			if($security_access['edit'] > 0) {
 				$function_urls[] = '<a href="staff_edit.php?status='.($row['status'] == 1 ? 'suspend' : 'activate').'&contactid='.$row['contactid'].'" onclick="return confirm(\'Are you sure you want to '.($row['status'] == 1 ? 'suspend' : 'activate').' this user?\');">'.($row['status'] == 0 ? 'Activate' : 'Deactivate').'</a>';
-				$function_urls[] = '<a href="staff_edit.php?contactid='.$row['contactid']."&from_url=".rawurlencode($_SERVER['REQUEST_URI']).'">Edit</a>';
+				$function_urls[] = '<a href="staff_edit.php?contactid='.$row['contactid']."&from_url=".rawurlencode($_SERVER['HTTP_REFERER']).'">Edit</a>';
 			}
 			if($security_access['archive'] > 0) {
 				$function_urls[] = '<a href="staff_edit.php?status=archive&contactid='.$row['contactid'].'" onclick="return confirm(\'Are you sure you want to archive this user?\');">Archive</a>';
