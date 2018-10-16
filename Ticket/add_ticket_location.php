@@ -16,10 +16,17 @@ function filterSitesByClient() {
 				if(response > 0) {
 					var clientid = response;
 					$('[name="siteid"] option').hide();
-					if(($('[name="siteid"]').val() == undefined || $('[name="siteid"]').val() == '') && clientid != undefined && clientid > 0) {
-						$('[name="siteid"] option[data-businessid="'+clientid+'"]').first().prop('selected', true);
-						$('[name="siteid"]').trigger('change.select2').change();
+					if(clientid != undefined && clientid > 0) {
+						$('[name="siteid"] option[data-businessid="'+clientid+'"]').show();
+						if(($('[name="siteid"]').val() == undefined || $('[name="siteid"]').val() == '')) {
+							$('[name="siteid"] option[data-businessid="'+clientid+'"]').first().prop('selected', true);
+							$('[name="siteid"]').trigger('change.select2').change();
+						}
+					} else {
+						$('[name="siteid"] option').show();
 					}
+				} else {
+					$('[name="siteid"] option').show();
 				}
 			}
 		});
