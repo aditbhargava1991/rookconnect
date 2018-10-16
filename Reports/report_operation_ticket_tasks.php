@@ -424,7 +424,7 @@ function report_output($dbc, $starttime, $endtime, $createstart, $createend, $bu
 									if(empty($tickets[$ticket])) {
 										$tickets[$ticket] = get_ticket_label($dbc, $dbc->query("SELECT * FROM `tickets` WHERE `ticketid`='$ticket'")->fetch_assoc());
 									}
-                                    $staff_time_list = $dbc->query("SELECT `staff`, `time_cards`.`start_time` `in`, `time_cards`.`end_time` `out` FROM `time_cards` WHERE `time_cards`.`ticketid`='$ticket' AND `time_cards`.`date`='".$date['date_stamp']."' ORDER BY `time_cards`.`date` ASC, `time_cards`.`id` ASC");
+                                    $staff_time_list = $dbc->query("SELECT `staff`, `time_cards`.`start_time` `in`, `time_cards`.`end_time` `out` FROM `time_cards` WHERE `time_cards`.`ticketid`='$ticket' AND `time_cards`.`date`='".$date['date_stamp']."' ORDER BY `time_cards`.`date` ASC, `time_cards`.`time_cards_id` ASC");
                                     while($staff_time_detail = $staff_time_list->fetch_assoc()) {
                                         $staff_times[$staff_time_detail['staff']][] = $staff_time_detail['in'].' - '.$staff_time_detail['out'];
                                     }
