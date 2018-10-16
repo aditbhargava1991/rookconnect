@@ -3,7 +3,7 @@
 Dashboard
 */
 include_once('../include.php');
-error_reporting(0);
+error_reporting();
 $ticketid = filter_var($_GET['ticketid'],FILTER_SANITIZE_STRING);
 $get_ticket = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticketid` = '$ticketid' AND '$ticketid' > 0"));
 $ticket_type = $get_ticket['ticket_type'];
