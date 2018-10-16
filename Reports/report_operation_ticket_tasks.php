@@ -424,9 +424,9 @@ function report_output($dbc, $starttime, $endtime, $createstart, $createend, $bu
 									if(empty($tickets[$ticket])) {
 										$tickets[$ticket] = get_ticket_label($dbc, $dbc->query("SELECT * FROM `tickets` WHERE `ticketid`='$ticket'")->fetch_assoc());
 									}
-                                    $staff_time_list = $dbc->query("SELECT `item_id`, IFNULL(`ticket_attached_checkin`.`checked_in`,`ticket_attached`.`checked_in`) `in`, IFNULL(`ticket_attached_checkin`.`checked_out`,`ticket_attached`.`checked_out`) `out` FROM `ticket_attached` LEFT JOIN `ticket_attached_checkin` ON `ticket_attached`.`id`=`ticket_attached_checkin`.`ticket_attached_id` WHERE `ticket_attached`.`src_table` IN ('Staff','Staff_Tasks') AND `ticket_attached`.`ticketid`='$ticket' AND `ticket_attached`.`date_stamp`='".$date['date_stamp']."' AND `ticket_attached`.`deleted`=0 ORDER BY `ticket_attached`.`date_stamp` ASC, `ticket_attached_checkin`.`id` ASC");
+                                    $staff_time_list = $dbc->query("SELECT `staff`, `time_cards`.`start_time` `in`, `time_cards`.`end_time` `out` FROM `time_cards` WHERE `time_cards`.`ticketid`='$ticket' AND `time_cards`.`date`='".$date['date_stamp']."' ORDER BY `time_cards`.`date` ASC, `time_cards`.`time_cards_id` ASC");
                                     while($staff_time_detail = $staff_time_list->fetch_assoc()) {
-                                        $staff_times[$staff_time_detail['item_id']][] = $staff_time_detail['in'].' - '.$staff_time_detail['out'];
+                                        $staff_times[$staff_time_detail['staff']][] = $staff_time_detail['in'].' - '.$staff_time_detail['out'];
                                     }
 									$type = get_field_value('ticket_type', 'tickets', 'ticketid', $ticket);
 									if($type != '') {
