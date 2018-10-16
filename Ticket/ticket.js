@@ -3581,6 +3581,7 @@ function setHoursOfOperation(select) {
 						success: function(response) {
 							var response = JSON.parse(response);
 							if(response.start_time == 'closed') {
+								$(block).find('[name="to_do_start_time"]').removeClass('datetimepicker-15');
 								$(block).find('[name="to_do_start_time"]').val('Closed').change().prop('disabled', true);
 							} else {
 								if(response.start_time == '') {
@@ -3588,6 +3589,7 @@ function setHoursOfOperation(select) {
 									response.end_time = $(block).find('[name="to_do_start_time"]').data('default-datetimepicker-maxtime');
 								}
 								destroyInputs('.stop_scheduled_time');
+								$(block).find('[name="to_do_start_time"]').addClass('datetimepicker-15');
 								$(block).find('[name="to_do_start_time"]').prop('disabled', false);
 								$(block).find('[name="to_do_start_time"]').data('datetimepicker-mintime', response.start_time);
 								$(block).find('[name="to_do_start_time"]').data('datetimepicker-maxtime', response.end_time);
@@ -3616,7 +3618,7 @@ function setHoursOfOperation(select) {
 function setRestrictedHours(input, start_time = '', end_time = '') {
 	if(ticketid > 0) {
 		var block = $(input).closest('.scheduled_stop');
-		if($(block).find('[name="to_do_start_time"]').data('disabled') != 1) {
+		if($(block).find('[name="to_do_start_time"]').data('disabled') != 1 && $(block).find('[name="to_do_start_time"]').val() != 'Closed') {
 			if(start_time == '') {
 				start_time = $(block).find('[name="to_do_start_time"]').data('default-datetimepicker-mintime');
 			}
