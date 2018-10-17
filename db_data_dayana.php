@@ -298,5 +298,16 @@ if($layout == 'position_dropdown' || $layout == 'ticket_task') {
 	set_config($dbc, 'timesheet_layout', 'multi_line');
 }
 
+mysqli_query($dbc, "ALTER TABLE `client_documents_uploads` ADD `document_link_name` VARCHAR(500) NULL AFTER `document_link`");
+
+mysqli_query($dbc, "ALTER TABLE `custom_documents_uploads` ADD `document_link_name` VARCHAR(500) NULL AFTER `document_link`");
+
+mysqli_query($dbc, "ALTER TABLE `internal_documents_uploads` ADD `document_link_name` VARCHAR(500) NULL AFTER `document_link`");
+
+mysqli_query($dbc, "ALTER TABLE `staff_documents_uploads` ADD `document_link_name` VARCHAR(500) NULL AFTER `document_link`");
+
+mysqli_query($dbc, "ALTER TABLE `marketing_material_uploads` ADD `document_link_name` VARCHAR(500) NULL AFTER `document_link`");
+
+
     echo "Dayana's DB Changes Done<br />\n";
 ?>
