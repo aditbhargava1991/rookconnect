@@ -2,7 +2,7 @@
 /*
  * Newsboad Main Page
  */
- 
+
 error_reporting(0);
 include('../include.php');
 include('../database_connection_htg.php');
@@ -22,16 +22,16 @@ $rookconnect = get_software_name();
                 var sidebar_height = $('.tile-sidebar').outerHeight(true);
             }
         }).resize();
-        
+
         $('.panel-heading.mobile_load').click(loadPanel);
-        
+
         $('.search-text').keypress(function(e) {
             if (e.which==13) {
                 var search = this.value;
                 window.location.replace('index.php?s='+search);
             }
         });
-        
+
         $('.archive_newsitem').on('click', function() {
             var ans = confirm('Are you sure you want to delete this news item?');
             if ( ans == true ) {
@@ -47,7 +47,7 @@ $rookconnect = get_software_name();
                 });
             }
         });
-        
+
         $('.archive_board').on('click', function() {
             var boardid = '<?= preg_replace('/[^0-9]/', '', $_GET['board']); ?>';
             if ( boardid == '' || typeof boardid == 'undefined' ) {
@@ -67,16 +67,16 @@ $rookconnect = get_software_name();
             }
         });
     });
-    
+
     $(document).on('click', '.panel-heading.mobile_tag_load', loadPanelData);
     $(document).on('click', '.panel-body .nb-block a', loadPanelItem);
-    
+
     function loadPanel() {
         var panel = $(this).closest('.panel').find('.panel-body');
         var board = panel.data('board');
         var type = panel.data('type');
         panel.html('');
-        
+
         $.ajax({
             url: 'news_ajax_all.php?fill=load_panel&board='+board+'&type='+type,
             method: 'GET',
@@ -92,7 +92,7 @@ $rookconnect = get_software_name();
         var tag = panel.data('tag');
         var type = panel.data('type');
         panel.html('');
-        
+
         $.ajax({
             url: 'news_ajax_all.php?fill=load_panel_data&board='+board+'&tag='+tag+'&type='+type+'&mobile=yes',
             method: 'GET',
@@ -111,7 +111,7 @@ $rookconnect = get_software_name();
         var news = urlParams.get('news');
         var type = urlParams.get('type');
         panel.html('');
-        
+
         $.ajax({
             url: 'news_ajax_all.php?fill=load_panel_item&board='+board+'&tag='+tag+'&news='+news+'&type='+type+'&mobile=yes',
             method: 'GET',
@@ -123,7 +123,7 @@ $rookconnect = get_software_name();
                 //panel.closest('.panel').find('.panel-title span').removeClass('glyphicon-plus').addClass('glyphicon-minus');
             }
         });
-        
+
         return false;
     }
 </script>
@@ -132,7 +132,7 @@ $rookconnect = get_software_name();
 <body>
 <?php
     include_once ('../navigation.php');
-    checkAuthorised('software_guide');
+    checkAuthorised('newsboard');
 ?>
 <div class="container">
 	<div class="iframe_overlay" style="display:none;">
@@ -143,7 +143,7 @@ $rookconnect = get_software_name();
 	</div>
 	<div class="row">
 		<div class="main-screen">
-            
+
             <!-- Tile Header -->
             <div class="tile-header standard-header">
                 <div class="row">
@@ -152,7 +152,7 @@ $rookconnect = get_software_name();
                         if ( vuaed_visible_function($dbc, 'newsboard') == 1 ) { ?>
                             <a href="field_config_newsboard.php" class="mobile-block pull-right gap-right offset-left-5"><img style="width:30px;" title="Tile Settings" src="../img/icons/settings-4.png" class="settings-classic wiggle-me"></a>
                             <button class="pull-right btn brand-btn offset-left-5" onclick="overlayIFrameSlider('add_board.php', 'auto', true, false);">Add News Board</button>
-                            <button class="pull-right btn brand-btn" onclick="overlayIFrameSlider('add_news.php', 'auto', true, false);">Add News</button><?php
+                            <button class="pull-right btn brand-btn" onclick="overlayIFrameSlider('add_news.php', 'auto', true, false);">Add News Post</button><?php
                         } ?>
                     </div>
                 </div>
@@ -265,7 +265,7 @@ $rookconnect = get_software_name();
                     } ?>
                 </div>
             </div><!-- .has-main-screen -->
-            
+
 		</div><!-- .main-screen -->
 	</div><!-- .row -->
 </div><!-- .container -->

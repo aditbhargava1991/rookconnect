@@ -90,7 +90,7 @@ if($all_service != '') {
 
 //$report_validation = mysqli_query($dbc,"SELECT *, SUM(quantity) AS count FROM invoice_lines WHERE `category`='service' AND `invoiceid` IN (SELECT `invoiceid` FROM `invoice_compensation` WHERE therapistsid='$therapistid' AND (service_date >= '$starttime' AND service_date <= '$endtime')) GROUP BY item_id, unit_price, admin_fee");
 
-$report_validation = mysqli_query($dbc, "SELECT il.item_id, il.unit_price, il.admin_fee, ic.qty count FROM invoice_lines il, invoice_compensation ic WHERE (il.invoiceid=ic.invoiceid AND il.item_id=ic.serviceid) AND ic.therapistsid='$therapistid' AND (ic.service_date BETWEEN '$starttime' AND '$endtime')");
+$report_validation = mysqli_query($dbc, "SELECT il.item_id, il.unit_price, il.admin_fee, ic.qty count FROM invoice_lines il, invoice_compensation ic WHERE (il.invoiceid=ic.invoiceid AND il.item_id=ic.item_id) AND ic.contactid='$therapistid' AND (ic.service_date BETWEEN '$starttime' AND '$endtime') AND `ic`.`item_type`='services'");
 
 $report_data .= '<h4>'.get_contact($dbc, $therapistid).' -  Services Revenue</h4>';
 $report_data .= '<table border="1px" class="table table-bordered" style="'.$table_style.'">';

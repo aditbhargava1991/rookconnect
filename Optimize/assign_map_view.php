@@ -45,8 +45,8 @@ if($map_url != '') {
 	var width = $('.map_view').width() / 2;
 	</script>
 	<img style="margin:auto;" src="<?= $map_url ?>" class="map_img">
-    <img class="inline-img cursor-hand no-toggle" title="Zoom In Map" style="position:absolute;top:calc(<?= $_GET['y'] ?>px - 4.5em);left:calc(<?= $_GET['x'] ?>px + 20% - 2.5em);" onclick="if(zoom < 16) { zoom++; get_map_view(); } else { console.log('Maximum Zoom Reached!'); }" src="../img/icons/zoom-in.png">
-    <img class="inline-img cursor-hand no-toggle" title="Zoom Out Map" style="position:absolute;top:calc(<?= $_GET['y'] ?>px - 2.5em);left:calc(<?= $_GET['x'] ?>px + 20% - 2.5em);" onclick="if(zoom > 6) { zoom--; get_map_view(); } else { console.log('Minimum Zoom Reached!'); }" src="../img/icons/zoom-out.png">
+    <img class="inline-img cursor-hand no-toggle" title="Zoom In Map" style="position:absolute;top:calc(<?= $_GET['y'] ?>px - 4.5em);left:calc(<?= $_GET['x'] ?>px + 20% - 2.5em);" onclick="if(zoom < 16) { zoom++; get_map_view(); } else { console.log('Maximum Zoom Reached!'); }" src="../img/icons/ROOK-ZoomIn-icon.png">
+    <img class="inline-img cursor-hand no-toggle" title="Zoom Out Map" style="position:absolute;top:calc(<?= $_GET['y'] ?>px - 2.5em);left:calc(<?= $_GET['x'] ?>px + 20% - 2.5em);" onclick="if(zoom > 6) { zoom--; get_map_view(); } else { console.log('Minimum Zoom Reached!'); }" src="../img/icons/ROOK-ZoomOut-icon.png">
 	<?php while($ticket = $ticket_list->fetch_assoc()) {
 		$ch = curl_init();
 		curl_setopt($ch, CURLOPT_URL, 'https://maps.google.com/maps/api/geocode/xml?address='.urlencode($ticket['address']).'&key='.EMBED_MAPS_KEY);

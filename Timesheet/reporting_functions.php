@@ -7,6 +7,109 @@ define('COLSPAN', 1 + (in_array('schedule',$value_config) ? 1 : 0) + (in_array('
     + ($layout == 'position_dropdown') + (in_array('total_tracked_hrs',$value_config) && in_array($layout,['position_dropdown', 'ticket_task']) ? 1 : 0)
     + (in_array($layout,['position_dropdown', 'ticket_task']) ? 1 : 0));
 
+function get_hours_report_summary($dbc, $staff, $search_start_date, $search_end_date, $search_position, $search_project, $search_ticket, $report_format = '', $hours_types, $override_value_config = '') {
+  $filter_query = '';
+  if(!empty($search_project)) {
+    $filter_query .= " AND `projectid` = '$search_project'";
+  }
+  if(!empty($search_ticket)) {
+    $filter_query .= " AND `ticketid` = '$search_ticket'";
+  }
+
+	if($staff == '') {
+    if(empty($search_project) && empty($search_ticket) && empty($search_position)) {
+  		return '';
+    } else {
+      $filter_position_query = '';
+
+      if(!empty($search_position)) {
+        $tickets_sql = mysqli_fetch_all(mysqli_query($dbc, "SELECT DISTINCT(`ticketid`) FROM `ticket_attached` WHERE `deleted` = 0 AND `position` = '$search_position' AND (`src_table` = 'Staff_tasks' OR `src_table` = 'Staff')"),MYSQLI_ASSOC);
+        $tickets_position = [];
+        foreach ($tickets_sql as $ticket_sql) {
+          $tickets_position[] = $ticket_sql['ticketid'];
+        }
+        $tickets_position = "'".implode("'",$tickets_position)."'";
+        $filter_position_query = " AND `ticketid` IN ($tickets_position)";
+      }
+      $staff_with_filters = mysqli_fetch_all(mysqli_query($dbc, "SELECT DISTINCT `staff` FROM `time_cards` WHERE `date` < '$search_start_date' AND `date` >= '$start_of_year' AND `deleted`=0 $filter_query $filter_position_query"),MYSQLI_ASSOC);
+      foreach($staff_with_filters as $search_staff) {
+        $staff_list[] = ['contactid'=>$search_staff['staff'],'first_name'=>'','last_name'=>get_contact($dbc, $search_staff['staff'])];
+      }
+    }
+  } else {
+    $staff_list = [];
+    foreach (explode(',',$staff) as $search_staff) {
+      if($search_staff > 0) {
+        $staff_list[] = $search_staff;
+      }
+    }
+  }
+	include_once('../Calendar/calendar_functions_inc.php');
+	$layout = get_config($dbc, 'timesheet_layout');
+	$highlight = get_config($dbc, 'timesheet_highlight');
+	$mg_highlight = get_config($dbc, 'timesheet_manager');
+	$submit_mode = get_config($dbc, 'timesheet_submit_mode');
+	$value_config = explode(',',get_field_config($dbc, 'time_cards'));
+	$timesheet_comment_placeholder = get_config($dbc, 'timesheet_comment_placeholder');
+	$timesheet_start_tile = get_config($dbc, 'timesheet_start_tile');
+	$timesheet_rounding = get_config($dbc, 'timesheet_rounding');
+	$timesheet_rounded_increment = get_config($_SERVER['DBC'], 'timesheet_rounded_increment') / 60;
+	if(!in_array('reg_hrs',$value_config) && !in_array('direct_hrs',$value_config) && !in_array('payable_hrs',$value_config)) {
+		$value_config = array_merge($value_config,['reg_hrs','extra_hrs','relief_hrs','sleep_hrs','sick_hrs','sick_used','stat_hrs','stat_used','vaca_hrs','vaca_used']);
+	}
+	if(!empty($override_value_config)) {
+		$value_config = explode(',',$override_value_config);
+	}
+	$timesheet_time_format = get_config($dbc, 'timesheet_time_format');
+
+    $search_staff = implode(',',$staff_list);
+
+    $filter_position_query = '';
+    if(!empty($search_position)) {
+      $tickets_sql = mysqli_fetch_all(mysqli_query($dbc, "SELECT DISTINCT(`ticketid`) FROM `ticket_attached` WHERE `deleted` = 0 AND `position` = '$search_position' AND (`src_table` = 'Staff_tasks' OR `src_table` = 'Staff') AND `item_id` = '$search_staff'"),MYSQLI_ASSOC);
+      $tickets_position = [];
+      foreach ($tickets_sql as $ticket_sql) {
+        $tickets_position[] = $ticket_sql['ticketid'];
+      }
+      $tickets_position = "'".implode("'",$tickets_position)."'";
+      $filter_position_query = " AND `ticketid` IN ($tickets_position)";
+    }
+
+    $payable_hrs = 0;
+    $tracked = 0;
+    if ( empty($search_site) ) {
+        $sql = "SELECT SUM(`timer_tracked`) `tracked`, SUM(`total_hrs`) `payable`, `type_of_time` FROM `time_cards` WHERE `staff` IN ($search_staff) AND `date` >= '$search_start_date' AND `date` <= '$search_end_date' AND `deleted`=0 $filter_query $filter_position_query GROUP BY `type_of_time`";
+    } else {
+        $sql = "SELECT SUM(`timer_tracked`) `tracked`, SUM(`total_hrs`) `payable`, `type_of_time` FROM `time_cards` WHERE `staff` IN ($search_staff) AND `date` >= '$search_start_date' AND `date` <= '$search_end_date' AND IFNULL(`business`,'') LIKE '%$search_site%' AND `deleted`=0 $filter_query $filter_position_query GROUP BY `type_of_time`";
+    }
+    $result = $dbc->query($sql);
+    if($result->num_rows == 0) {
+        return '';
+    }
+    $report_block = '<table class="table table-bordered">
+        <tr class="hidden-sm hidden-xs">
+            <th>Type of Time</th>
+            <th>Payable Hours</th>
+            <!--<th>Tracked Hours</th>-->
+        </tr>';
+        while($row = mysqli_fetch_array($result)) {
+            $report_block .= '<tr>
+                <td data-title="Type of Time">'.$row['type_of_time'].'</td>
+                <td data-title="Payable Hours">'.time_decimal2time($row['payable']).'</td>
+                <!--<td data-title="Tracked Hours">'.time_decimal2time($row['tracked']).'</td>-->
+            </tr>';
+            $payable_hrs += $row['payable'];
+            $tracked += $row['tracked'];
+        }
+        $report_block .= '<tr style="font-weight:bold;">
+                <td>Total:</td>
+                <td data-title="Total Payable">'.time_decimal2time($payable_hrs).'</td>
+                <!--<td data-title="Total Tracked">'.time_decimal2time($tracked).'</td>-->
+            </tr>
+        </table>';
+	return $report_block;
+}
+
 function get_hours_report($dbc, $staff, $search_start_date, $search_end_date, $search_position, $search_project, $search_ticket, $report_format = '', $hours_types, $override_value_config = '') {
   $filter_query = '';
   if(!empty($search_project)) {

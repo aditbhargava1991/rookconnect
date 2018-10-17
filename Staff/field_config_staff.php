@@ -142,7 +142,7 @@ if (isset($_POST['inv_field'])) {
 				foreach($headers as $i => $col) {
 					$values[filter_var($col,FILTER_SANITIZE_STRING)] = filter_var(htmlentities(isEncrypted($col) ? encryptIt($row[$i]) : $row[$i],FILTER_SANITIZE_STRING));
 				}
-				
+
 				$contactid = $values['contactid'];
 				if(empty($contactid)) {
 					mysqli_query($dbc, "INSERT INTO `contacts` VALUES ()");
@@ -701,7 +701,7 @@ function delete_accordion() {
 	if(isset($_GET['template'])) {
 		$template = $_GET['template'];
 	} ?>
-	
+
 	<form id="form1" name="form1" method="post"	action="" enctype="multipart/form-data" class="form-horizontal" role="form">
 
 		<div class="clearfix"></div>

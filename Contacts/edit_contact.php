@@ -831,7 +831,7 @@ function removeContactForm(a, pdf_id) {
 	</div>
 </div>
 <?php //if(!IFRAME_PAGE && !isset($_GET['fields'])) {
-	if(!isset($mandatory_config)) {
+    if(!isset($mandatory_config)) {
 		if(IFRAME_PAGE) { ?>
 		    <div class="main-screen standard-body <?= $slider_layout == 'accordion' ? 'iframe_edit' : '' ?>" style="display: none; width: 100%; margin: 0;">
 		        <div class="standard-body-title" style="<?= $_GET['fields'] == 'fields_only' ? 'display:none;' : '' ?>">

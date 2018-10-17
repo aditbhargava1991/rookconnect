@@ -145,7 +145,7 @@ function loadUrlWithCurrentDate(a) {
 		if(href.indexOf('?') != -1) {
 			href = href.split('?')[0];
 		}
-		var newUrl = href+"?"+$.param(params);
+		var newUrl = decodeURIComponent(href+"?"+$.param(params));
 
 		$(a).prop('href', newUrl);
 	}
@@ -166,7 +166,7 @@ function setUrlWithCurrentDate() {
 	});
 	query_string_arr["date"] = $('#calendar_start').val();
 	query_string_arr["view"] = $('#calendar_view').val();
-	var new_url = "?"+$.param(query_string_arr);
+	var new_url = decodeURIComponent("?"+$.param(query_string_arr));
 	window.history.replaceState(null, '', new_url);
 }
 <?php $calendar_ticket_hover_staff = get_config($dbc, 'calendar_ticket_hover_staff'); ?>
@@ -1125,6 +1125,7 @@ function load_items(item_row, date, contact, insert_type = 'next', block_type = 
 		}
 	}
     initTooltips();
+    resize_rows();
 	return deferred.promise();
 }
 function destroy_items(contact, block_type) {

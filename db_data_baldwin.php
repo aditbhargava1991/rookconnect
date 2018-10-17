@@ -1,3 +1,4 @@
+
 <?php
 /* Update Databases */
 
@@ -1149,5 +1150,89 @@
     }
     //2018-09-26 - Ticket #5816 - Ticket PDFs
 
+    //2018-10-01 - Ticket #9354 - Dispatch
+    if(!mysqli_query($dbc, "ALTER TABLE `ticket_attached` ADD `completed_time` datetime NOT NULL AFTER `completed`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "CREATE TRIGGER `ticket_attached_completed_time` BEFORE UPDATE ON `ticket_attached`
+         FOR EACH ROW BEGIN
+            IF NEW.`completed` != OLD.`completed` THEN
+                SET NEW.`completed_time` = CURRENT_TIMESTAMP;
+            END IF;
+        END")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-10-01 - Ticket #9354 - Dispatch
+
+    //2018-10-01 - Ticket #8812 - Incident Reports
+    if(!mysqli_query($dbc, "ALTER TABLE `incident_report` ADD `manager_status` varchar(100) AFTER `approved_by`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `incident_report` ADD `manager_approved_by` int(11) NOT NULL DEFAULT 0 AFTER `manager_status`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "CREATE TABLE `incident_report_comment` (
+        `id` int(11) NOT NULL,
+        `incidentreportid` int(11) NOT NULL,
+        `type` varchar(100),
+        `comment` text,
+        `created_date` date NOT NULL,
+        `created_by` int(11) NOT NULL,
+        `seen_by` text,
+        `deleted` int(1) NOT NULL DEFAULT 0,
+        `date_of_archival` date)")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `incident_report_comment`
+        ADD PRIMARY KEY (`id`)")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `incident_report_comment`
+        MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-10-01 - Ticket #8812 - Incident Reports
+
+    //2018-10-09 - Ticket #9570 - PO#
+    if(!mysqli_query($dbc, "ALTER TABLE `ticket_attached` CHANGE `po_num` `po_num` text")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-10-09 - Ticket #9570 - PO#
+
+    //2018-10-10 - Ticket #8789 - Check In Summary
+    if(!mysqli_query($dbc, "ALTER TABLE `ticket_attached_checkin` ADD `checked_in_date` date NOT NULL AFTER `ticket_attached_id`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `ticket_attached_checkin` ADD `checked_out_date` date NOT NULL AFTER `checked_in`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-10-10 - Ticket #8789 - Check In Summary
+
+    //2018-10-11 - Ticket #9653 - Best Buy Changes
+    if(!mysqli_query($dbc, "ALTER TABLE `contacts` ADD `hours_of_operation` varchar(500)")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "CREATE TABLE `field_config_ticket_delivery_restrictions` (
+        `fieldconfigid` int(11) NOT NULL,
+        `ticket_type` varchar(40),
+        `security_level` varchar(500),
+        `to_do_date_min` varchar(500),
+        `to_do_date_max` varchar(500),
+        `to_do_start_time_min` varchar(500),
+        `to_do_start_time_max` varchar(500))")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `field_config_ticket_delivery_restrictions`
+        ADD PRIMARY KEY (`fieldconfigid`)")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `field_config_ticket_delivery_restrictions`
+        MODIFY `fieldconfigid` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `ticket_schedule` CHANGE `type` `type` varchar(500)")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-10-11 - Ticket #9653 - Best Buy Changes
+
     echo "Baldwin's DB Changes Done<br />\n";
-?>

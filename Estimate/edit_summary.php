@@ -58,6 +58,7 @@ $margin = $profit / $total_cost * 100; ?>
 var total_cost = '0<?= $total_cost ?>';
 var total_price = '0<?= $total_price - ($summary['discount_type'] == '%' ? ($summary['discount'] * $total_price / 100) : $summary['discount']) ?>';
 </script>
+<a name="summary"></a>
 <div class="form-horizontal col-sm-12" data-tab-name="summary">
 	<h3>Summary</h3>
 	<div class="form-group">

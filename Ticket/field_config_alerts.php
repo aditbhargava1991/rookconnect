@@ -28,6 +28,8 @@ function saveAlerts() {
 			ticket_tab: $('[name="ticket_tab"]').val(),
 			enabled: enabled,
 			status: status,
+			subject: $('[name=subject]').val(),
+			body: $('[name=body]').val(),
 			staffid: staffid
 		}
 	});
@@ -41,7 +43,7 @@ function addStaff() {
 	$('input,select:not([name="ticket_tab"])').change(saveAlerts);
 	initInputs('.staff_div');
 }
-function removeType(a) {
+function removeStaff(a) {
 	if($('.staff_div').length <= 1) {
 		addStaff();
 	}
@@ -68,6 +70,20 @@ function removeType(a) {
 		<label class="col-sm-4"><img src="<?= WEBSITE_URL ?>/img/icons/alarm-1.png" class="no-toggle inline-img" title="Enable Alerts"> Enable Alerts:</label>
 		<div class="col-sm-8">
 			<label class="form-checkbox"><input type="checkbox" name="enabled" class="form-control" value="1" <?= $field_config['enabled'] == 1 ? 'checked' : '' ?>></label>
+		</div>
+	</div>
+	<div class="form-group">
+		<label class="col-sm-4">Subject:<br /><em>You can add [TICKET] to have the <?= TICKET_NOUN ?> label populated into the subject.</em></label>
+		<div class="col-sm-8">
+			<input type="text" name="subject" class="form-control" value="<?= $field_config['subject'] ?>">
+		</div>
+	</div>
+	<div class="form-group">
+		<label class="col-sm-4">Body:<br /><em>You can add [TICKET] to have the <?= TICKET_NOUN ?> label populated into the body.</em></label>
+		<div class="col-sm-8">
+			<textarea name="body" class="form-control"><?= $field_config['body'] ?></textarea>
+            <em>The following will be added to the end of your email:</em><br />
+            To review this <?= TICKET_NOUN ?>, <a href=''>click here</a>.
 		</div>
 	</div>
 	<div class="form-group">

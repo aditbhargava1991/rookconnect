@@ -1,7 +1,7 @@
 <?= (!empty($renamed_accordion) ? '<h3>'.$renamed_accordion.'</h3>' : '<h3>'.INC_REP_TILE.'</h3>') ?>
 <?php $get_field_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT incident_report_dashboard, incident_types FROM field_config_incident_report"));
 if(vuaed_visible_function($dbc, 'incident_report') == 1) {
-	echo '<a href="../Incident Report/add_incident_report.php?ticketid='.$ticketid.'" onclick="overlayIFrameSlider(this.href,\'75%\',false,true,\'auto\',true); return false;" class="btn brand-btn pull-right">Add '.INC_REP_NOUN.'</a>';
+	echo '<a href="../Incident Report/add_incident_report.php?ticketid='.$ticketid.'" onclick="overlayIFrameSlider(this.href,\'75%\',false,true,\'auto\',true); return false;" data-history-label="Start '.INC_REP_NOUN.'" class="btn brand-btn pull-right">Add '.INC_REP_NOUN.'</a>';
 }
 echo '<div class="clearfix"></div>';
 $value_config_ir = ','.$get_field_config['incident_report_dashboard'].',';

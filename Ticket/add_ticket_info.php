@@ -134,6 +134,13 @@ function chooseServices() {
 			time_estimate = '00:00';
 		}
 		$(this).closest('.multi-block').find('[name="service_estimated_hours"]').val(time_estimate);
+        $('[name=est_time]').each(function() {
+            if($(this).closest('.scheduled_stop').find('[name=type]').val() != '<?= get_config($dbc, 'delivery_default_pickup_type') ?>' && $(this).closest('.scheduled_stop').find('[name=type] option:selected').data('warehouse') != 'yes') {
+                $(this).val(time_estimate).change();
+            } else if ($(this).closest('.scheduled_stop').find('[name=type]').val() == '<?= get_config($dbc, 'delivery_default_pickup_type') ?>' && $(this).closest('.scheduled_stop').find('[name=type] option:selected').data('warehouse') != 'yes') {
+                $(this).val('<?= time_decimal2time(get_config($dbc, 'delivery_default_pickup_time')) ?>').change();
+            }
+        });
 		total_cost += ($(this).find('option:selected').data('rate-price') * qty);
 	});
 	$('[name=services_cost]').val(total_cost).change();
@@ -526,7 +533,7 @@ if(!empty($_GET['add_service_iframe'])) { ?>
 								<?php } ?>
 
 								<?php if(strpos($value_config,',Service Direct Time,') !== FALSE && $field_sort_field == 'Service Direct Time') { ?>
-									<div class="col-sm-<?= floor(12 / $service_fields) - (++$col_num == $service_fields && floor(12 / $service_fields) == (12 / $service_fields) ? 1 : 0) ?>"><label class="show-on-mob">Indirect Time:</label>
+									<div class="col-sm-<?= floor(12 / $service_fields) - (++$col_num == $service_fields && floor(12 / $service_fields) == (12 / $service_fields) ? 1 : 0) ?>"><label class="show-on-mob">Direct Time:</label>
 										<select data-placeholder="Select a Time..." name="service_direct_time" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" data-concat="," class="chosen-select-deselect form-control">
 											<option value=""></option>
 											<?php for($hours = 0.25; $hours <= 3; $hours += 0.25) { ?>
@@ -856,13 +863,14 @@ if(!empty($_GET['add_service_iframe'])) { ?>
 
 		    <?php if(strpos($value_config,',Details Where,') !== FALSE && $field_sort_field == 'Details Where') { ?>
 		        <div class="form-group">
-		            <label for="site_name" class="col-sm-4 control-label"><span class="popover-examples list-inline"><a data-toggle="tooltip" data-placement="top" title="Tile Name, Tab, and Subtab for each part of the software that should be affected"><img src="../img/info.png" width="20"></a></span> Tile Name:</label>
+		            <label for="site_name" class="col-sm-4 control-label"><span class="popover-examples list-inline"><a data-toggle="tooltip" data-placement="top" title="Tile Name of the software that should be affected."><img src="../img/info.png" width="20"></a></span> Tile Name:</label>
 		            <div class="col-sm-8">
 		                <input name="details_where" class="form-control" type="text" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" value="<?= $details_where ?>" />
 		            </div>
 		        </div>
 		    <?php } ?>
-		    <?php if(strpos($value_config,',Details Tile,') !== FALSE && $field_sort_field == 'Details Tile') { ?>
+		    <!--
+            <?php if(strpos($value_config,',Details Tile,') !== FALSE && $field_sort_field == 'Details Tile') { ?>
 		        <div class="form-group">
 		            <label for="site_name" class="col-sm-4 control-label"><span class="popover-examples list-inline"><a data-toggle="tooltip" data-placement="top" title="Tile Name of the software that should be affected"><img src="../img/info.png" width="20"></a></span> Tile Name:</label>
 		            <div class="col-sm-8">
@@ -878,9 +886,10 @@ if(!empty($_GET['add_service_iframe'])) { ?>
 		            </div>
 		        </div>
 		    <?php } ?>
+            -->
 		    <?php if(strpos($value_config,',Details Who,') !== FALSE && $field_sort_field == 'Details Who') { ?>
 		        <div class="form-group">
-		            <label for="site_name" class="col-sm-4 control-label"><span class="popover-examples list-inline"><a data-toggle="tooltip" data-placement="top" title="Any customers that will or may use this feature"><img src="../img/info.png" width="20"></a></span> Sub tile/Tab name:</label>
+		            <label for="site_name" class="col-sm-4 control-label"><span class="popover-examples list-inline"><a data-toggle="tooltip" data-placement="top" title="Tab, and Sub Tab for each part of the software that should be affected."><img src="../img/info.png" width="20"></a></span> Tab/Sub Tab:</label>
 		            <div class="col-sm-8">
 		                <input name="details_who" class="form-control" type="text" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" value="<?= $details_who ?>" />
 		            </div>
@@ -888,7 +897,7 @@ if(!empty($_GET['add_service_iframe'])) { ?>
 		    <?php } ?>
 		    <?php if(strpos($value_config,',Details Why,') !== FALSE && $field_sort_field == 'Details Why') { ?>
 		        <div class="form-group">
-		            <label for="site_name" class="col-sm-12 control-label"><span class="popover-examples list-inline"><a data-toggle="tooltip" data-placement="top" title="How do they want to use the feature, or what do they want it for"><img src="../img/info.png" width="20"></a></span> URL/Page:</label>
+		            <label for="site_name" class="col-sm-12 control-label"><span class="popover-examples list-inline"><a data-toggle="tooltip" data-placement="top" title="Software URL of the exact page this is for."><img src="../img/info.png" width="20"></a></span> URL/Page:</label>
 		            <div class="col-sm-12">
 		                <textarea name="details_why" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" id="details_why" rows="4" cols="50" class="form-control" ><?= $details_why; ?></textarea>
 		            </div>
@@ -896,7 +905,7 @@ if(!empty($_GET['add_service_iframe'])) { ?>
 		    <?php } ?>
 		    <?php if(strpos($value_config,',Details What,') !== FALSE && $field_sort_field == 'Details What') { ?>
 		        <div class="form-group">
-		            <label for="site_name" class="col-sm-12 control-label"><span class="popover-examples list-inline"><a data-toggle="tooltip" data-placement="top" title="Details of what needs to be done, changed, or added"><img src="../img/info.png" width="20"></a></span> What:</label>
+		            <label for="site_name" class="col-sm-12 control-label"><span class="popover-examples list-inline"><a data-toggle="tooltip" data-placement="top" title="Details of what needs to be done, changed, or added."><img src="../img/info.png" width="20"></a></span> What:</label>
 		            <div class="col-sm-12">
 		                <textarea name="details_what" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" id="details_what" rows="4" cols="50" class="form-control" ><?= $details_what; ?></textarea>
 		            </div>
@@ -966,7 +975,7 @@ if(!empty($_GET['add_service_iframe'])) { ?>
 		<?php } ?>
 	    <?php if(strpos($value_config,',Details Where,') !== FALSE && $field_sort_field == 'Details Where') { ?>
 	        <div class="form-group">
-	            <label for="site_name" class="col-sm-4 control-label"><span class="popover-examples list-inline"><a data-toggle="tooltip" data-placement="top" title="Tile Name, Tab, and Subtab for each part of the software that should be affected"><img src="../img/info.png" width="20"></a></span> Tile Name:</label>
+	            <label for="site_name" class="col-sm-4 control-label"><span class="popover-examples list-inline"><a data-toggle="tooltip" data-placement="top" title="Name of the Tile(s) this is for."><img src="../img/info.png" width="20"></a></span> Tile Name:</label>
 	            <div class="col-sm-8">
 	                <?= $details_where ?>"
 	            </div>

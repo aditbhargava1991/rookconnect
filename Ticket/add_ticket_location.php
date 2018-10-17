@@ -1,21 +1,36 @@
 <?php if(strpos($value_config, ',Location Filter By Client,') !== FALSE) { ?>
 <script type="text/javascript">
 $(document).ready(function() {
-	$('[name="clientid"]').off('change',filterSitesByClient).change(filterSitesByClient);
+	// $('[name="clientid"]').off('change',filterSitesByClient).change(filterSitesByClient);
 	if(ticketid > 0) {
 		filterSitesByClient();
 	}
 });
 function filterSitesByClient() {
-	$('[name="siteid"] option').hide();
-	$('[name="clientid"]').each(function() {
-		var clientid = $(this).val();
-		$('[name="siteid"] option[data-businessid="'+clientid+'"]').show();
-		if(($('[name="siteid"]').val() == undefined || $('[name="siteid"]').val() == '') && clientid != undefined && clientid > 0) {
-			$('[name="siteid"] option[data-businessid="'+clientid+'"]').first().prop('selected', true);
-		}
-	});
-	$('[name="siteid"]').trigger('change.select2').change();
+	var ticketid = $('#ticketid').val();
+	if(ticketid > 0) {
+		$.ajax({
+			url: '../Ticket/ticket_ajax_all.php?action=get_ticket_client&ticketid='+ticketid,
+			method: 'GET',
+			success: function(response) {
+				if(response > 0) {
+					var clientid = response;
+					$('[name="siteid"] option').hide();
+					if(clientid != undefined && clientid > 0) {
+						$('[name="siteid"] option[data-businessid="'+clientid+'"]').show();
+						if(($('[name="siteid"]').val() == undefined || $('[name="siteid"]').val() == '')) {
+							$('[name="siteid"] option[data-businessid="'+clientid+'"]').first().prop('selected', true);
+							$('[name="siteid"]').trigger('change.select2').change();
+						}
+					} else {
+						$('[name="siteid"] option').show();
+					}
+				} else {
+					$('[name="siteid"] option').show();
+				}
+			}
+		});
+	}
 }
 </script>
 <?php } ?>

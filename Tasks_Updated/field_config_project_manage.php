@@ -239,6 +239,49 @@ if(!empty($_POST['submit'])) {
                     </div>
                 </div>
 
+
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h4 class="panel-title">
+                            <a data-toggle="collapse" data-parent="#accordion2" href="#collapse_fields29">
+                               Default Status<span class="glyphicon glyphicon-plus"></span>
+                            </a>
+                        </h4>
+                    </div>
+
+                    <div id="collapse_fields29" class="panel-collapse collapse">
+                        <div class="panel-body">
+                            <?php $task_default_status = get_config($dbc, 'task_default_status'); ?>
+                            <div class="form-group">
+                                <label for="first_name" class="col-sm-4">Status:</label>
+                                <div class="col-sm-8">
+                                    <select onchange="saveTaskDefaultStatus(this)" data-placeholder="Select a Status..." name="task_default_status" class="chosen-select-deselect form-control" width="380">
+                                        <option value=""></option>
+                                      <?php
+                                        $tabs = get_config($dbc, 'ticket_status');
+                                        $each_tab = explode(',', $tabs);
+                                        if($task_default_status == '') {
+                                            $task_default_status = 'Doing Today';
+                                        }
+                                        foreach ($each_tab as $cat_tab) {
+                                            if ($task_default_status == $cat_tab) {
+                                                $selected = 'selected="selected"';
+                                            } else {
+                                                $selected = '';
+                                            }
+                                            echo "<option ".$selected." value='". $cat_tab."'>".$cat_tab.'</option>';
+                                        }
+                                      ?>
+                                    </select>
+                                </div>
+                            </div>
+
+
+                       </div>
+                    </div>
+                </div>
+
+
 				<div class="panel panel-default">
                     <div class="panel-heading">
                         <h4 class="panel-title">
@@ -370,8 +413,8 @@ if(!empty($_POST['submit'])) {
 									<?php $task_quick_action_icons = explode(',',get_config($dbc, 'task_quick_action_icons')); ?>
 										<label class="form-checkbox"><input type="checkbox" onchange="saveQuickIcon(this)" name="task_quick_action_icons[]" <?= in_array('edit',$task_quick_action_icons) ? 'checked' : '' ?> value="edit"> <img class="inline-img" src="../img/icons/ROOK-edit-icon.png"> Edit</label>
 										<label class="form-checkbox"><input type="checkbox" onchange="saveQuickIcon(this)" name="task_quick_action_icons[]" <?= in_array('sync',$task_quick_action_icons) ? 'checked' : '' ?> value="sync"> <img class="inline-img" src="../img/icons/ROOK-sync-icon.png"> Sync External Path</label>
-										<label class="form-checkbox"><input type="checkbox" onchange="saveQuickIcon(this)" name="task_quick_action_icons[]" <?= !in_array('flag_manual',$task_quick_action_icons) && in_array('flag',$task_quick_action_icons) ? 'checked' : '' ?> value="flag" onclick="$('[name^=task_quick_action_icons][value=flag_manual]').removeAttr('checked');"> <img class="inline-img" src="../img/icons/ROOK-flag-icon.png"> Flag</label>
-										<label class="form-checkbox"><input type="checkbox" onchange="saveQuickIcon(this)" name="task_quick_action_icons[]" <?= in_array('flag_manual',$task_quick_action_icons) ? 'checked' : '' ?> value="flag_manual" onclick="$('[name^=task_quick_action_icons][value=flag]').removeAttr('checked');"> <img class="inline-img" src="../img/icons/ROOK-flag-icon.png"> Manually Flag with Label</label>
+										<label class="form-checkbox"><input type="checkbox" onchange="saveQuickIcon(this)" name="task_quick_action_icons[]" <?= in_array('flag',$task_quick_action_icons) ? 'checked' : '' ?> value="flag"> <img class="inline-img" src="../img/icons/color-wheel.png"> Highlight</label>
+										<label class="form-checkbox"><input type="checkbox" onchange="saveQuickIcon(this)" name="task_quick_action_icons[]" <?= in_array('flag_manual',$task_quick_action_icons) ? 'checked' : '' ?> value="flag_manual"> <img class="inline-img" src="../img/icons/ROOK-flag-icon.png"> Manually Flag with Label</label>
 										<label class="form-checkbox"><input type="checkbox" onchange="saveQuickIcon(this)" name="task_quick_action_icons[]" <?= in_array('reply',$task_quick_action_icons) ? 'checked' : '' ?> value="reply"> <img class="inline-img" src="../img/icons/ROOK-reply-icon.png"> Reply</label>
 										<label class="form-checkbox"><input type="checkbox" onchange="saveQuickIcon(this)" name="task_quick_action_icons[]" <?= in_array('attach',$task_quick_action_icons) ? 'checked' : '' ?> value="attach"> <img class="inline-img" src="../img/icons/ROOK-attachment-icon.png"> Attach</label>
 										<label class="form-checkbox"><input type="checkbox" onchange="saveQuickIcon(this)" name="task_quick_action_icons[]" <?= in_array('alert',$task_quick_action_icons) ? 'checked' : '' ?> value="alert"> <img class="inline-img" src="../img/icons/ROOK-alert-icon.png"> Alerts</label>

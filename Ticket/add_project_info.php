@@ -497,22 +497,25 @@ $value_mandatory_config = explode(',',get_mandatory_field_config($dbc, 'tickets'
 				<label for="site_name" class="col-sm-4 control-label"><?php echo (in_array('PI Status', $value_mandatory_config) ? '<span class="text-red">* </span>' : ''); ?>Status:</label>
 				<div class="col-sm-8">
                     <?php $invoice_status = '';
-                    if(get_config($dbc, 'ticket_invoice_status') > 0) {
-                        $invoice = $dbc->query("SELECT * FROM `invoice` WHERE `deleted`=0 AND CONCAT(',',`ticketid`,',') LIKE '%,$ticketid,%'")->fetch_assoc();
-                        switch($invoice['status']) {
-                            case 'Completed':
-                                $invoice_status = 'Paid';
-                                break;
-                            case 'Void':
-                                $invoice_status = 'Voided';
-                                break;
-                            case 'Saved':
-                                $invoice_status = 'Unbilled';
-                                break;
-                            case 'Posted':
-                            default:
-                                $invoice_status = 'Accounts Receivable';
-                                break;
+                    if(get_config($dbc, 'ticket_invoice_status') > 0 && $ticketid > 0) {
+                        $invoice = $dbc->query("SELECT * FROM `invoice` WHERE `deleted`=0 AND CONCAT(',',`ticketid`,',') LIKE '%,$ticketid,%'");
+                        if($invoice->num_rows > 0) {
+                            $invoice = $invoice->fetch_assoc();
+                            switch($invoice['status']) {
+                                case 'Completed':
+                                    $invoice_status = 'Paid';
+                                    break;
+                                case 'Void':
+                                    $invoice_status = 'Voided';
+                                    break;
+                                case 'Saved':
+                                    $invoice_status = 'Unbilled';
+                                    break;
+                                case 'Posted':
+                                default:
+                                    $invoice_status = 'Accounts Receivable';
+                                    break;
+                            }
                         }
                     }
                     if(!empty($invoice_status)) {
@@ -522,16 +525,21 @@ $value_mandatory_config = explode(',',get_mandatory_field_config($dbc, 'tickets'
 					<select data-placeholder="Select a Status..." name="status" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" id="status" class="chosen-select-deselect form-control <?php echo (in_array('PI Status', $value_mandatory_config) ? 'required' : ''); ?> input-sm">
 					  <option value=""></option>
 					  <?php
-						$tabs = get_config($dbc, 'ticket_status');
-						$each_tab = explode(',', $tabs);
-						foreach ($each_tab as $cat_tab) {
-							if ($status == $cat_tab) {
-								$selected = 'selected="selected"';
-							} else {
-								$selected = '';
-							}
-							echo "<option ".$selected." value='". $cat_tab."'>".$cat_tab.'</option>';
-						}
+                        $tabs = get_config($dbc, 'ticket_status');
+                        $each_tab = explode(',', $tabs);
+                        $status_list = [];
+                        foreach ($each_tab as $cat_tab) {
+                            if(check_subtab_persmission($dbc, 'ticket', ROLE, 'ticket_status'.config_safe_str($cat_tab))) {
+                                $status_list[] = $cat_tab;
+                            }
+                        }
+                        if(!in_array($status, $status_list) && $status != '') { ?>
+                            <option selected value="<?= $status ?>"><?= $status ?></option>
+                        <?php } else {
+                            foreach($status_list as $status_option) { ?>
+                                <option <?= $status_option == $status ? 'selected' : '' ?> value="<?= $status_option ?>"><?= $status_option ?></option>
+                            <?php }
+                        }
 					  ?>
 					</select>
 				</div>

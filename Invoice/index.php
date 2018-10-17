@@ -80,13 +80,13 @@
                     <div class="pull-right gap-top"><?php
                         if ( config_visible_function($dbc, (FOLDER_NAME == 'posadvanced' ? 'posadvanced' : 'check_out')) == 1 ) { ?>
                             <a href="field_config_invoice.php" class="mobile-block pull-right gap-right offset-left-5"><img style="width:30px;" title="Tile Settings" src="../img/icons/settings-4.png" class="settings-classic wiggle-me no-toggle"></a><?php
-                            if ( in_array('sell', $tab_list) ) {
-                                if ( in_array('touch',$ux_options) ) { ?>
-                                    <a href='create_invoice.php'><span class="hide-titles-mob btn brand-btn <?= strpos($_SERVER['PHP_SELF'],'/create_invoice.php') !== FALSE ? 'active_tab' : '' ?>">New Invoice (Keyboard)</span><img src="../img/icons/ROOK-add-icon.png" class="show-on-mob no-toggle header-icon" style="margin-top:-3px;" title="New Invoice (Keyboard)" /></a>
-                                    <a href='touch_main.php'><span class="hide-titles-mob btn brand-btn <?= strpos($_SERVER['PHP_SELF'],'/touch_main.php') !== FALSE ? 'active_tab' : '' ?>">New Invoice (Touchscreen)</span><img src="../img/icons/ROOK-add-icon.png" class="show-on-mob no-toggle header-icon" style="margin-top:-3px;" title="New Invoice (Touchscreen)" /></a><?php
-                                } else { ?>
-                                    <a href='create_invoice.php'><span class="hide-titles-mob btn brand-btn <?= strpos($_SERVER['PHP_SELF'],'/create_invoice.php') !== FALSE ? 'active_tab' : '' ?>">New Invoice</span><img src="../img/icons/ROOK-add-icon.png" class="show-on-mob no-toggle header-icon" style="margin-top:-3px;" title="New Invoice" /></a><?php
-                                }
+                        }
+                        if ( in_array('sell', $tab_list) && vuaed_visible_function($dbc, (FOLDER_NAME == 'posadvanced' ? 'posadvanced' : 'check_out')) == 1 ) {
+                            if ( in_array('touch',$ux_options) ) { ?>
+                                <a href='create_invoice.php'><span class="hide-titles-mob btn brand-btn <?= strpos($_SERVER['PHP_SELF'],'/create_invoice.php') !== FALSE ? 'active_tab' : '' ?>">New Invoice (Keyboard)</span><img src="../img/icons/ROOK-add-icon.png" class="show-on-mob no-toggle header-icon" style="margin-top:-3px;" title="New Invoice (Keyboard)" /></a>
+                                <a href='touch_main.php'><span class="hide-titles-mob btn brand-btn <?= strpos($_SERVER['PHP_SELF'],'/touch_main.php') !== FALSE ? 'active_tab' : '' ?>">New Invoice (Touchscreen)</span><img src="../img/icons/ROOK-add-icon.png" class="show-on-mob no-toggle header-icon" style="margin-top:-3px;" title="New Invoice (Touchscreen)" /></a><?php
+                            } else { ?>
+                                <a href='create_invoice.php'><span class="hide-titles-mob btn brand-btn <?= strpos($_SERVER['PHP_SELF'],'/create_invoice.php') !== FALSE ? 'active_tab' : '' ?>">New Invoice</span><img src="../img/icons/ROOK-add-icon.png" class="show-on-mob no-toggle header-icon" style="margin-top:-3px;" title="New Invoice" /></a><?php
                             }
                         } ?>
                     </div>

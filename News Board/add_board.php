@@ -140,11 +140,11 @@ checkAuthorised('newsboard');
         
         <form id="form1" name="form1" method="post"	action="" enctype="multipart/form-data" class="form-horizontal" role="form">
             <div class="form-group">
-                <label class="col-sm-4 control-label">
-                    <span class="popover-examples list-inline" style="margin:0 5px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Select the News Board this news item should go under."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
-                    News Board<span class="red">*</span>:
-                </label>
-                <div class="col-sm-8">
+                <div class="col-sm-12">
+                    <label class="control-label">
+                        <span class="popover-examples list-inline" style="margin:0 5px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Select the News Board this news item should go under."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
+                        News Board<span class="red">*</span>:
+                    </label>
                     <div class="col-xs-12 no-pad-left board_container">
                         <select id="newsboard_board" name="newsboard_board" class="chosen-select-deselect form-control" required>
                             <option value=""></option>
@@ -163,13 +163,13 @@ checkAuthorised('newsboard');
                     <input type="text" name="board_name" class="form-control" style="display:none;" />
                 </div>
             </div>
-            
+               
             <div class="form-group">
-                <label class="col-sm-4 control-label">
-                    <span class="popover-examples list-inline" style="margin:0 5px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Select the News Board this news item should go under."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
-                    Share with Staff<span class="red">*</span>:
-                </label>
-                <div class="col-sm-8 staff_container">
+                <div class="col-sm-12 staff_container">
+                    <label class="control-label">
+                        <span class="popover-examples list-inline" style="margin:0 5px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Select the News Board this news item should go under."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
+                        Share with Staff<span class="red">*</span>: 
+                    </label>
                     <?php foreach(explode(',',trim($contactid,',')) as $line_contactid) { ?>
                         <div class="add_staff">
                             <div class="clearfix"></div>

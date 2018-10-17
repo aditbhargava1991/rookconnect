@@ -501,7 +501,7 @@ function get_config($dbc, $name, $multi = false, $separator = ',') {
 		} else if($name == 'invoice_payment_types') {
 			return 'Master Card,Visa,Debit Card,Cash,Cheque,Amex,Direct Deposit,Gift Certificate Redeem,Pro-Bono';
 		} else if($name == 'invoice_dashboard') {
-			return 'invoiceid,invoice_date,customer,total_price,payment_type,invoice_pdf,comment,status,send,delivery';
+			return 'invoiceid,invoice_date,customer,total_price,payment_type,invoice_pdf,comment,status,send,delivery,invoice_xsl,invoice_xml';
 		} else if($name == 'max_timer') {
 			return 28800;
 		} else if($name == 'appt_day_start') {
@@ -598,6 +598,13 @@ function get_config($dbc, $name, $multi = false, $separator = ',') {
 			return 'Sales Leads';
 		} else if($name == 'ticket_archive_status') {
 			return 'Archive#*#Archived';
+		} else if($name == 'cust_support_tab_list') {
+            $value = ['services','scrum','new','feedback'];
+            foreach(explode(',',get_config($dbc, 'ticket_tabs')) as $ticket_tab) {
+                $value[] = config_safe_str($ticket_tab);
+            }
+            $value[] = 'closed';
+			return implode(',',$value);
 		}
 	}
 
@@ -821,6 +828,9 @@ function get_project_paths($projectid) {
             if($pathid > 0) {
                 $path['path_id'] = $pathid;
                 $path['path_name'] = explode('#*#',$paths['project_path_name'])[$i];
+                if(empty($path['path_name'])) {
+                    $path['path_name'] = get_field_value('project_path','project_path_milestone','project_path_milestone',$pathid);
+                }
 
               // Add default milestones, if they have not yet been added
                 $milestones = explode('#*#',get_field_value('milestone','project_path_milestone','project_path_milestone',$pathid));
@@ -983,6 +993,10 @@ function get_package($dbc, $packageid, $field_name) {
 }
 function get_promotion($dbc, $promotionid, $field_name) {
     $get_promotion =	mysqli_fetch_assoc(mysqli_query($dbc,"SELECT $field_name FROM promotion WHERE	promotionid='$promotionid'"));
+    return $get_promotion[$field_name];
+}
+function get_sales($dbc, $salesid, $field_name) {
+    $get_promotion =	mysqli_fetch_assoc(mysqli_query($dbc,"SELECT $field_name FROM sales WHERE	salesid='$salesid'"));
     return $get_promotion[$field_name];
 }
 function get_custom($dbc, $customid, $field_name) {
@@ -3126,6 +3140,45 @@ function resize_image_convert_png($newWidth, $newHeight, $targetFile, $originalF
     $image_save_func($tmp, "$targetFile.$new_image_ext");
     return "$targetFile.$new_image_ext";
 }
+function resize_image_convert_jpg($newWidth, $newHeight, $targetFile, $originalFile) {
+    $info = getimagesize($originalFile);
+    $mime = $info['mime'];
+
+    switch ($mime) {
+        case 'image/jpeg':
+            $image_create_func = 'imagecreatefromjpeg';
+            $image_save_func = 'imagejpeg';
+            $new_image_ext = 'jpg';
+            break;
+
+        case 'image/png':
+            $image_create_func = 'imagecreatefrompng';
+            $image_save_func = 'imagejpeg';
+            $new_image_ext = 'jpg';
+            break;
+
+        case 'image/gif':
+            $image_create_func = 'imagecreatefromgif';
+            $image_save_func = 'imagejpeg';
+            $new_image_ext = 'jpg';
+            break;
+
+        default:
+            throw new Exception('Unknown image type.');
+    }
+
+    $img = $image_create_func($originalFile);
+    list($width, $height) = getimagesize($originalFile);
+
+    $tmp = imagecreatetruecolor($newWidth, $newHeight);
+    imagecopyresampled($tmp, $img, 0, 0, 0, 0, $newWidth, $newHeight, $width, $height);
+
+    if (file_exists($targetFile)) {
+        unlink($targetFile);
+    }
+    $image_save_func($tmp, "$targetFile.$new_image_ext");
+    return "$targetFile.$new_image_ext";
+}
 function get_reminder_url($dbc, $reminder, $slider = 0) {
     $check_project = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `reminder_type`, `body` FROM `reminders` WHERE `reminderid`='".$reminder['reminderid']."' AND (`reminder_type`='QUICK' OR `reminder_type` LIKE 'PROJECT%')"));
     $reminder_projectid = '';
@@ -3530,7 +3583,7 @@ function get_delivery_color($dbc, $type) {
     $color = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_ticket_delivery_color` WHERE `delivery` = '$type'"))['color'];
     return $color;
 }
-function convert_timestamp_mysql($dbc, $timestamp) {
+function convert_timestamp_mysql($dbc, $timestamp, $local = false) {
     $mysql_time_offset = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT TIMEDIFF(NOW(), UTC_TIMESTAMP) `time_offset`"))['time_offset'];
     $time_arr = explode(':', $mysql_time_offset);
     $mysql_offset_seconds = ($time_arr[0] * 3600) + ($time_arr[1] * 60) + $time_arr[2];
@@ -3539,7 +3592,7 @@ function convert_timestamp_mysql($dbc, $timestamp) {
     $datenow = new DateTime("now", $timezone);
     $offset_seconds = $timezone->getOffset($datenow);
 
-    $offset_diff = $mysql_offset_seconds - $offset_seconds;
+    $offset_diff = $mysql_offset_seconds - ($local ? $_SESSION['time_offset'] : $offset_seconds);
     $new_timestamp = date('Y-m-d H:i:s', strtotime($timestamp) + $offset_diff);
 
     return $new_timestamp;
@@ -3795,4 +3848,19 @@ function time_time2string($time) {
     $hours = !empty(floor($time)) ? floor($time).' Hr' : '';
     $minutes = !empty($time - floor($time)) ? (($time - floor($time)) * 60).' Min' : '';
     return implode(' ', [$hours,$minutes]);
+}
+function get_staff_schedule_lock_date($dbc) {
+    $override_security = array_filter(explode(',',get_config($dbc, 'staff_schedule_autolock_override_security')));
+    $overrided = false;
+    foreach(array_filter(explode(',',$_SESSION['role'])) as $role) {
+        if(in_array($role, $override_security)) {
+            $overrided = true;
+        }
+    }
+
+    if($overrided) {
+        return '';
+    } else {
+        return get_config($dbc, 'staff_schedule_lock_date');
+    }
 }

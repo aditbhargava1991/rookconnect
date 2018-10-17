@@ -23,7 +23,12 @@ if(isset($_POST['submit'])) {
         $flag_start = filter_var($_POST['flag_start'],FILTER_SANITIZE_STRING);
         $flag_end = filter_var($_POST['flag_end'],FILTER_SANITIZE_STRING);
         $flag_user = filter_var(implode(',',$_POST['flag_user']),FILTER_SANITIZE_STRING);
+
+        if($flag_end == '' || $flag_end == '0000-00-00') {
+            $flag_end = '9999-12-31';
+        }
     }
+
 	$error = '';
 
     switch ($tile) {
@@ -71,9 +76,14 @@ if(isset($_POST['submit'])) {
             mysqli_query($dbc, "UPDATE `ticket_comment` SET `deleted`=1, `date_of_archival`=DATE(NOW()) WHERE `ticketid`='$id' AND `type`='flag_comment'");
             if(!empty($flag_label)) {
                 mysqli_query($dbc, "INSERT INTO `ticket_comment` (`ticketid`,`type`,`comment`,`created_date`,`created_by`) VALUES ('$id','flag_comment','$flag_label',DATE(NOW()),'".$_SESSION['contactid']."')");
-            }
-            echo '<script type="text/javascript"> window.parent.setManualFlag(\''.$ticketid.'\', \''.$flag_colour.'\', \''.$flag_label.'\'); </script>';
-            break;
+            } ?>
+            <script type="text/javascript">
+                window.parent.setManualFlag('<?=$ticketid ?>', '<?= $flag_colour ?>', '<?= $flag_label ?>');
+                if(typeof window.parent.$('.iframe_overlay iframe')[0].contentWindow.setManualFlag != 'undefined') {
+                    window.parent.$('.iframe_overlay iframe')[0].contentWindow.setManualFlag('<?=$ticketid ?>', '<?= $flag_colour ?>', '<?= $flag_label ?>');
+                }
+            </script>
+            <?php break;
 
         case 'tasks':
             $tasklistid = $id;
@@ -136,13 +146,13 @@ if(isset($_POST['submit'])) {
             echo '<script type="text/javascript"> window.parent.setManualFlag(\''.$checklistid.'\', \''.$flag_colour.'\', \''.$flag_label.'\'); </script>';
             ?>
             <?php break;
-        
+
         case 'equipment':
             $checklistid = $id;
             mysqli_query($dbc, "UPDATE `equipment` SET `flag_colour`='$flag_colour', `flag_start`='$flag_start', `flag_end`='$flag_end', `flag_label`='$flag_label' WHERE `equipmentid`='$id'");
             echo '<script type="text/javascript"> window.parent.setManualFlag(\''.$checklistid.'\', \''.$flag_colour.'\', \''.$flag_label.'\'); </script>';
         	?>
-            
+
             <?php break;
         case 'common_checklist_flag':
             $checklistid = $id;
@@ -198,7 +208,16 @@ if(isset($_POST['submit'])) {
 
     default:
         break;
-} ?>
+}
+
+if(empty($row['flag_start']) || $row['flag_start'] == '0000-00-00') {
+    $row['flag_start'] = date('Y-m-d');
+}
+
+if(empty($row['flag_end']) || $row['flag_end'] == '0000-00-00') {
+    $row['flag_start'] = '';
+}
+?>
 
 <div class="container">
 	<div class="row">

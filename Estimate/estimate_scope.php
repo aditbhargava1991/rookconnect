@@ -2,6 +2,8 @@
 <?php $estimateid = filter_var($_GET['edit'],FILTER_SANITIZE_STRING);
 $estimate = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `estimate` WHERE `estimateid`='$estimateid'"));
 $config = explode(',',mysqli_fetch_array(mysqli_query($dbc,"SELECT `config_fields` FROM `field_config_estimate`"))[0]);
+
+$_GET['rate'] = $current_rate;
 $rates = [];
 $query = mysqli_query($dbc, "SELECT `rate_card` FROM `estimate_scope` WHERE `estimateid`='$estimateid' GROUP BY `rate_card`");
 if(mysqli_num_rows($query) > 0) {
@@ -13,18 +15,24 @@ if(mysqli_num_rows($query) > 0) {
 }
 $current_rate = (!empty($_GET['rate']) ? $_GET['rate'] : key($rates));
 $_GET['rate'] = $current_rate;
-$headings = [];
 //$query = mysqli_query($dbc, "SELECT `heading`, `scope_name` FROM `estimate_scope` WHERE `estimateid`='$estimateid' AND `rate_card`='".implode(':',$rates[$current_rate])."' AND `src_table` != '' AND (`src_id` > 0 OR `description` != '') AND `deleted`=0 GROUP BY `heading` ORDER BY MIN(`sort_order`)");
 $us_exchange = json_decode(file_get_contents('https://www.bankofcanada.ca/valet/observations/group/FX_RATES_DAILY/json'), TRUE);
 
-$query = mysqli_query($dbc, "SELECT IFNULL(`scope_name`,'') FROM `estimate_scope` WHERE `estimateid`='$estimateid' AND `src_table` != '' AND `deleted`=0 GROUP BY IFNULL(`scope_name`,'') ORDER BY MIN(`sort_order`)");
+$scope_list = [];
+$query = mysqli_query($dbc, "SELECT `scope_name` FROM `estimate_scope` WHERE `estimateid`='$estimateid' AND `deleted`=0 GROUP BY IFNULL(`scope_name`,'') ORDER BY MIN(`sort_order`)");
 $scope_name = '';
 if(mysqli_num_rows($query) > 0) {
 	while($row = mysqli_fetch_array($query)) {
-		$headings[config_safe_str($row[0])] = $row[0];
+		$scope_list[config_safe_str($row[0])] = $row[0];
 	}
 } else {
-	$headings['scope_1'] = 'Scope 1';
+	$scope_list['scope_1'] = 'Scope 1';
+}
+
+$headings = [];
+$heading_query = $dbc->query("SELECT `heading` FROM `estimate_scope` WHERE `estimateid`='$estimateid' AND `deleted`=0 AND `scope_name`='".$scope_list[$_GET['status']]."' GROUP BY `heading` ORDER BY MIN(`sort_order`)");
+while($heading_name = $heading_query->fetch_array()[0]) {
+    $headings[config_safe_str($heading_name)] = $heading_name;
 } ?>
 <script>
 profile_tab = [];
@@ -37,7 +45,7 @@ $(document).ready(function() {
 	<?php if($_GET['status'] != '') { ?>
 		setTimeout(function() {
 			$('.form-group:has(textarea)').css('height','18em');
-			$('.main-screen .main-screen').scrollTop($('[data-tab-name=<?= $_GET['status'] ?>]').offset().top - $('.main-screen .main-screen').offset().top);
+			// $('.main-screen .main-screen').scrollTop($('[data-tab-name=<?= $_GET['status'] ?>]').offset().top - $('.main-screen .main-screen').offset().top);
 			scrollScreen();
 		}, 10);
 	<?php } ?>
@@ -150,7 +158,7 @@ function lockTabs() {
 			$(this).find('input,select,a').off('click').click(function() { this.blur(); return false; }).off('keyup').keyup(function() { this.blur(); return false; }).off('keypress').keypress(function() { this.blur(); return false; });
 		} else {
 			$(this).find('input,select,a').off('click').off('keyup').off('keypress');
-			$('a[href$="status='+$(this).data('tab-name')+'"] li').addClass('active blue');
+			$('a[href="#'+$(this).data('tab-name')+'"] li').addClass('active blue');
 		}
 	});
 	if($('#view_profile').is(':visible')) {
@@ -277,16 +285,16 @@ function add_line() {
 	<ul>
 		<a href="?view=<?= $_GET['edit'] ?>"><li><img src="../img/icons/dropdown-arrow.png" class="smaller inline-img black-color clockwise">Back to Overview</li></a>
 		<?php foreach($headings as $head_id => $heading) { ?>
-			<a href="?edit=<?= $_GET['edit'] ?>&tab=scope&status=<?= $head_id ?>"><li class="<?= $_GET['status'] == '' ? 'active blue' : '' ?>"><?= $heading ?></li></a>
+			<a href="#<?= $head_id ?>"><li class="<?= $_GET['status'] == '' ? 'active blue' : '' ?>"><?= $heading ?></li></a>
 		<?php } ?>
-		<a href="?edit=<?= $_GET['edit'] ?>&tab=scope&rate=<?= $_GET['rate'] ?>&status=summary"><li class="<?= $_GET['status'] == '' ? 'active blue' : '' ?>">Summary</li></a>
+		<a href="#summary"><li class="<?= $_GET['status'] == '' ? 'active blue' : '' ?>">Summary</li></a>
 	</ul>
 </div>
 <div class='scale-to-fill has-main-screen hide-titles-mob'>
 	<div class='main-screen default_screen form-horizontal standard-body'>
 		<div class="standard-body-title"><h3><?= rtrim(ESTIMATE_TILE, 's') ?> Scope <a href="estimate_scope_edit.php?estimateid=<?= $estimateid ?>&scope=<?= $_GET['status'] ?>" onclick="overlayIFrameSlider(this.href, '75%', true, false, 'auto', true); return false;"><img class="inline-img smaller no-toggle" src="../img/icons/ROOK-edit-icon.png" title="Edit"></a></h3></div>
 		<div class="standard-dashboard-body-content pad-top pad-left pad-right">
-			<div class="form-group">
+			<div class="form-group" id="no-more-tables>
 				<?php foreach($rates as $rate_id => $rate) {
 					if($rate_id != '') { ?>
 						<a href="?edit=<?= $_GET['edit'] ?>&tab=scope&rate=<?= $rate_id ?>" class="folder-tab <?= $_GET['rate'] == $rate_id ? 'active' : '' ?>">
@@ -303,15 +311,11 @@ function add_line() {
 					<?php }
 				} ?>
 			</div>
-			<div id="no-more-tables">
-				<?php
-                foreach($headings as $head_id => $heading) {
-                    if($head_id == $_GET['status']) {
-						$scope = $heading;
-					    include('edit_headings.php');
-                    }
-				} ?>
-			</div>
+            <?php foreach($scope_list as $scope_id => $scope) {
+                if($scope_id == $_GET['status']) {
+                    include('edit_headings.php');
+                }
+            } ?>
 			<?php include('edit_summary.php'); ?>
 			<a href="?edit=<?= $estimateid ?>&tab=preview" class="btn brand-btn pull-right">Go To PDF Preview</a>
 			<a href="?edit=<?= $estimateid ?>" class="btn brand-btn pull-right">Back to <?= rtrim(ESTIMATE_TILE, 's') ?> Details</a>

@@ -38,7 +38,7 @@ function task_status(sel) {
         url: "../Tasks_Updated/task_ajax_all.php?fill=task_status&tasklistid="+tasklistid+'&status='+status,
         dataType: "html",
 		success: function(response){
-			window.location.reload();
+			//window.location.reload();
 		}
     });
 }
@@ -52,18 +52,17 @@ function mark_task_date(sel) {
         url: "../Tasks_Updated/task_ajax_all.php?fill=mark_date&tasklistid="+tasklistid+'&todo_date='+todo_date,
         dataType: "html",
         success: function(response){
-			window.location.reload();
+			//window.location.reload();
 		}
     });
 }
 
 function mark_task_staff(sel) {
 	var tasklistid = sel.id.split('_')[1];
-
 	var staff = [];
 
-	$(sel).find('option:selected').each(function() {
-			staff.push(this.value);
+	$('#taskid_'+tasklistid+' [name="task_userid[]"]').find('option:selected').each(function() {
+        staff.push(this.value);
 	});
 
     $.ajax({
@@ -71,26 +70,29 @@ function mark_task_staff(sel) {
         url: "../Tasks_Updated/task_ajax_all.php?fill=mark_staff&tasklistid="+tasklistid+'&staff='+staff,
         dataType: "html",
         success: function(response) {
-			window.location.reload();
+			//window.location.reload();
 		}
     });
+
 }
 
 function viewProfile(img, category) {
 	contact = $(img).closest('.form-group').find('option:selected').first().val();
 	if(contact > 0) {
 		overlayIFrameSlider('../Contacts/contacts_inbox.php?fields=all_fields&edit='+contact, '75%', true, true);
-        var options = $(img).closest('.form-group').find('select').first();
-		var iframe_check = setInterval(function() {
-			if(!$('.iframe_overlay iframe').is(':visible')) {
-				$.post('projects_ajax.php?action=get_category_list', { category: category }, function(response) {
-					$(options).html(response);
-					$(options).trigger('change.select2');
-					$(options).val(contact).change();
-				});
-				clearInterval(iframe_check);
-			}
-		}, 500);
+        if(category != 'no_reload') {
+            var options = $(img).closest('.form-group').find('select').first();
+            var iframe_check = setInterval(function() {
+                if(!$('.iframe_overlay iframe').is(':visible')) {
+                    $.post('projects_ajax.php?action=get_category_list', { category: category }, function(response) {
+                        $(options).html(response);
+                        $(options).trigger('change.select2');
+                        $(options).val(contact).change();
+                    });
+                    clearInterval(iframe_check);
+                }
+            }, 500);
+        }
 	} else {
         alert("Please select a contact before attempting to view their profile.");
     }
@@ -359,7 +361,7 @@ function saveFieldMethod(field) {
 		},
 		success: function(response) {
 			if(response > 0 && name == 'link') {
-				window.location.reload();
+				// reloadDocuments();
 			} else if(response > 0 && table == 'project') {
 				$('[data-table=project]').data('id',response);
 				$('[name=projectid]').val(response);
@@ -434,6 +436,45 @@ function waitForSave(btn,btname,funct) {
 	}
     return true;
 }
+function presave() {
+	var flag = 0;
+	var firsttarget = '';
+	$('.required').each(function() {
+			var target = this;
+				if($(target).val() != null && $(target).val().length === 0) {
+					if(flag == 0) {
+						$firsttarget = $(this);
+					}
+
+					if($(target).is('select')) {
+						var select2 = $(target).next('.select2');
+						$(select2).find('.select2-selection').css('background-color', 'red');
+						$(select2).find('.select2-selection__placeholder').css('color', 'white');
+					} else {
+						$(target).css('background-color', 'red');
+					}
+
+					flag = 1;
+			}
+			else {
+				if($(target).is('select')) {
+					var select2 = $(target).next('.select2');
+					$(select2).find('.select2-selection').css('background-color', 'white');
+				} else {
+					$(target).css('background-color', 'white');
+				}
+			}
+	});
+
+	var currenttop = $firsttarget.offset().top;
+	if(flag == 1) {
+			alert("Please fill in the required fields");
+			$('.main-screen .main-screen').scrollTop($('.standard-body-content').scrollTop() + currenttop - 30);
+			return false;
+	}
+
+	return true;
+}
 function setSelectOnChange() {
 	$('select[name="status[]"]').on('change', function() { selectStatus(this); });
 }
@@ -465,7 +506,7 @@ function getDeliverables(mode) {
 }
 function deliverable_email() {
 	var deliverables = $('.deliver_list [name=list]').val().split(',');
-	
+
 }
 function savePathName(type, name, i, projectid) {
 	$.post('projects_ajax.php?action=set_path_names', {type:type,name:name,key:i,project:projectid});
@@ -478,4 +519,25 @@ function getProjectLabel(id) {
 function toggleProjectTracking() {
 	$('.time_tracking').text($('.time_tracking').text() == 'Stop Tracking Time' ? 'Get To Work' : 'Stop Tracking Time');
 	$.post('../Project/projects_ajax.php?action=toggle_time_tracking', { projectid: projectid });
+}
+
+function addStaff(sel) {
+	var taskid = $(sel).data('taskid');
+    //var block = $('div.add_staff').last();
+	var block = $('div#taskid_'+taskid).last();
+    destroyInputs('.add_staff');
+    clone = block.clone();
+    clone.find('.form-control').val('');
+    block.after(clone);
+    initInputs('.add_staff');
+}
+
+function removeStaff(button) {
+    if($('div.add_staff').length <= 1) {
+        addStaff();
+    }
+	var taskid = $(button).data('taskid');
+
+    $(button).closest('div#taskid_'+taskid).remove();
+    $('div.add_staff').first().find('[name="task_userid[]"]').change();
 }

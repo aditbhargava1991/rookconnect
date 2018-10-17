@@ -1,4 +1,8 @@
 $(document).ready(function() {
+
+	$('.dispatch-legend-block').on('mouseover', function() { toggle_ticket_legend('show') });
+	$('.dispatch-legend-block').on('mouseout', function() { toggle_ticket_legend('hide') });
+
 	if($('[name="timesheet_time_format"]').val() != undefined && $('[name="timesheet_time_format"]').val() == 'decimal') {
 		$('.timesheet_div .timepicker').each(function() {
 			$(this).timepicker('destroy');
@@ -6,6 +10,14 @@ $(document).ready(function() {
 		});
 	}
 });
+
+function toggle_ticket_legend(display) {
+	if(display == 'show') {
+		$('.dispatch-status-legend').show();
+	} else {
+		$('.dispatch-status-legend').hide();
+	}
+}
 function calculateHoursByStartEndTimes(input) {
 	var block = $(input).closest('tr');
 	var start_time = $(block).find('[name="start_time"]').val();

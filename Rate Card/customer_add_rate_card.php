@@ -231,6 +231,18 @@ if (isset($_POST['submit'])) {
         $history = "Rate card entry is been updated with Rate Card Name - $rate_card_name. <br />";
 				add_update_history($dbc, 'ratecard_history', $history, '', $before_change);
     }
+    
+    foreach($_POST['comp_item'] as $i => $comp_item) {
+        $comp_item = filter_var($comp_item,FILTER_SANITIZE_STRING);
+        $comp_rate = filter_var($_POST['comp_percent'][$i],FILTER_SANITIZE_STRING);
+        $comp_id = filter_var($_POST['comp_id'][$i],FILTER_SANITIZE_STRING);
+        $deleted = filter_var($_POST['comp_deleted'][$i],FILTER_SANITIZE_STRING);
+        if($comp_id > 0) {
+            $dbc->query("UPDATE `rate_compensation` SET `rate_card`='$ratecardid', `item_type`='$comp_item', `comp_percent`='$comp_rate', `deleted`='$deleted' WHERE `id`='$comp_id'");
+        } else if(!empty($comp_item) && !empty($comp_rate)) {
+            $dbc->query("INSERT INTO `rate_compensation` (`rate_card`, `item_type`, `comp_percent`, `deleted`) VALUES ('$ratecardid', '$comp_item', '$comp_rate', '$deleted')");
+        }
+    }
 
     echo '<script type="text/javascript"> window.location.replace("?card=customer&type=customer&category='.config_safe_str(get_contact($dbc, $clientid, 'category')).'"); </script>';
 }
@@ -826,7 +838,24 @@ function deleteRatecard(sel, hide, blank) {
         </div>
         <?php */} ?>
 
+        <?php if (strpos($value_config, ','."Compensation".',') !== FALSE) { ?>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h4 class="panel-title">
+                        <a data-toggle="collapse" data-parent="#accordion2" href="#collapse_comp" >Compensation<span class="glyphicon glyphicon-plus"></span></a>
+                    </h4>
+                </div>
+
+                <div id="collapse_comp" class="panel-collapse collapse">
+                    <div class="panel-body">
+                        <?php include ('add_rate_card_comp.php'); ?>
+                    </div>
+                </div>
+            </div>
+        <?php } ?>
+
     </div>
+
 
     <div class="form-group">
         <div class="col-sm-12">

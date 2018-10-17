@@ -1,5 +1,5 @@
 <?php include_once('../include.php');
-checkAuthorised('calendar_rook');
+checkAuthorised();
 include_once('../Calendar/calendar_functions_inc.php');
 
 $teamid = '';
@@ -112,8 +112,8 @@ if($_GET['subtab'] == 'schedule') {
 
 <?php if (strpos($team_fields, ',team_name,') !== FALSE) { ?>
 <div class="form-group">
-    <label for="team_name" class="col-sm-4">Team Name:</label>
-    <div class="col-sm-8">
+    <label for="team_name" class="col-xs-4">Team Name:</label>
+    <div class="col-xs-8">
         <input type="text" name="team_name" class="form-control" value="<?= $team_team_name ?>"></label>
     </div>
 </div>
