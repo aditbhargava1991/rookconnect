@@ -5,7 +5,6 @@
  */
 
 include_once('include.php');
-echo 'mymy';
 checkAuthorised();
 $html = '';
 
@@ -75,6 +74,8 @@ if(isset($_POST['submit'])) {
                 $id = filter_var($salesid ,FILTER_SANITIZE_STRING);
                 $time = filter_var($timer_value ,FILTER_SANITIZE_STRING);
                 $dbc->query("INSERT INTO `time_cards` (`salesid`,`staff`,`date`,`total_hrs`,`type_of_time`,`comment_box`) VALUES ('$id','{$_SESSION['contactid']}',DATE(NOW()),TIME_TO_SEC('$time')/3600,'Regular Hrs.','Time added from Sales Lead $id')");
+            }
+            break;
 
         case 'ticket':
             $ticketid = $id;
