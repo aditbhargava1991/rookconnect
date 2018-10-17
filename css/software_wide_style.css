@@ -3272,7 +3272,7 @@ li.sidebar-lower-level.active,li.sidebar-lower-level.active span {
 	text-align: center;
 	line-height: 10px;
 }
-body.innerframe { background-image:none; }
+body.innerframe { background-image:none; background-color: #fff; }
 
 .hide-header-footer { margin-top:10px; }
     .pullup { background-color:#eee; border:1px solid #666; cursor:pointer; margin-top:2px; margin-right:8px; padding:5px; }
