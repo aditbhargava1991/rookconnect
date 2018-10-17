@@ -614,7 +614,7 @@ if(isset($_POST['custom_form'])) {
 				</div>';
 			}
 		}
-		echo '<button name="custom_form" value="'.$form['id'].'" class="btn brand-btn pull-right" type="submit" onclick="if($(\'[required]\').filter(function() { return this.value == \'\'; }).length > 0) { alert(\'Please complete all required fields.\'); return false; } else { return confirm(\''.($_GET['revision_mode'] == 'edit' ? 'The Changes You Have Made Will Replace This Revision\'s Document. Click Okay if this is Correct.' : 'The Changes You Have Made Will Create a New Revision Document. Click Okay if this is Correct').'\'); }">Save</button>
+		echo '<button name="custom_form" value="'.$form['id'].'" class="btn brand-btn pull-right" type="submit" onclick="if($(\'[required]\').filter(function() { return this.value == \'\'; }).length > 0) { alert(\'Please complete all required fields.\'); return false; } else { return confirm(\''.($_GET['revision_mode'] == 'edit' ? 'The Changes You Have Made Will Replace This Revisions Document. Click Okay if this is Correct.' : 'The Changes You Have Made Will Create a New Revision Document. Click Okay if this is Correct').'\'); }">Save</button>
 		<div class="clearfix"></div>
 		</form>';
 	}
