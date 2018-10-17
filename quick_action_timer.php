@@ -5,6 +5,7 @@
  */
 
 include_once('include.php');
+echo 'mymy';
 checkAuthorised();
 $html = '';
 
