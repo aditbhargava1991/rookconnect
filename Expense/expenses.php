@@ -80,7 +80,7 @@ $tab_config = ','.get_config($dbc, 'expense_tabs').','; ?>
 				<div class="tile-sidebar standard-collapsible hide-titles-mob double-gap-top"  style="overflow-y:auto;">
 					<ul>
 						<?php if($_GET['tab'] == 'settings'){ ?>
-							<a href="<?php echo WEBSITE_URL?>/Expense/expenses.php"><li class="">Back to Dashboard</li></a>
+							<a href="<?php echo WEBSITE_URL?>/Expense/expenses.php?filter_id=all"><li class="">Back to Dashboard</li></a>
 							<a href="" onclick="$('.setting-fields>div:visible').hide(); $('.category_div').show(); $('.active.blue').removeClass('active blue'); $(this).find('li').addClass('active blue'); $('#settingTitle').html($(this).text());$('[name=settingTabId]').val($(this).attr('id')); return false;" id="categorySettingTab"><li class="active blue">Categories</li></a>
 							<a href="" onclick="$('.setting-fields>div:visible').hide(); $('.heading_div').show(); $('.active.blue').removeClass('active blue'); $(this).find('li').addClass('active blue');$('#settingTitle').html($(this).text());$('[name=settingTabId]').val($(this).attr('id')); return false;" id="headingSettingTab"><li class="">Headings</li></a>
 							<a href="" onclick="$('.setting-fields>div:visible').hide(); $('.manage_levels').show(); $('.active.blue').removeClass('active blue'); $(this).find('li').addClass('active blue');$('#settingTitle').html($(this).text());$('[name=settingTabId]').val($(this).attr('id')); return false;" id="approvalSettingTab"><li class="">Level of Approval</li></a>

@@ -188,9 +188,6 @@ $config['settings']['Choose Fields for Time Sheets']['data'] = array(
 			array('Search by Staff', 'dropdown', 'search_staff'),
 			array('Position Drop Down', 'hidden', 'position'),
 			array('Type of Time', 'dropdown', 'type_of_time'),
-			array('Address', 'text', 'address'),
-			array('Phone', 'text', 'phone'),
-			array('Email', 'text', 'email'),
 			array('Payment', 'text', 'payment'),
 			array('Confirmation', 'text', 'confirm'),
 			array('Frequency', 'text', 'frequency'),
@@ -399,7 +396,7 @@ function get_tabs($tab = '', $subtab = '', $custom = array())
 				} else {
 					$url = !empty($contents[$default_tab]) ? $contents[$default_tab] : $contents['Custom'];
 				}
-				
+
                 if ( check_subtab_persmission($dbc, 'timesheet', ROLE, $title_subtab) === true ) {
                     $html .= "<a href='".$url."'><button type='button' class='btn brand-btn mobile-block ".$active."' >".($title == 'Manager Approvals' ? $timesheet_manager_approvals : ($title == 'Holidays' ? 'Stat Holidays' : $title))."</button></a>";
                 } else {
@@ -498,7 +495,7 @@ function move_files($files) {
 function prepare_insert($ins_data = array(), $table = '') {
 	$columns = $values = [];
 	foreach($_POST as $field => $value) {
-		if(in_array($field, ['time_cards_id','business','projectid','ticketid','agendameetingid','staff','contact_staff','date','start_time','end_time','type_of_time','timeframe','time_slot','frequency','confirm','payment','email','phone','address','timer_start','total_hrs','timer_tracked','highlight','manager_highlight','comment_box','manager_name','date_manager','manager_signature','coordinator_name','date_coordinator','coordinator_signature','approv','location','customer','day','shift_tracked','day_tracking_type','created_by','clientid','deleted','name','paid'])) {
+		if(in_array($field, ['time_cards_id','business','projectid','ticketid','agendameetingid','staff','contact_staff','date','start_time','end_time','type_of_time','timeframe','time_slot','frequency','confirm','payment','timer_start','total_hrs','timer_tracked','highlight','manager_highlight','comment_box','manager_name','date_manager','manager_signature','coordinator_name','date_coordinator','coordinator_signature','approv','location','customer','day','shift_tracked','day_tracking_type','created_by','clientid','deleted','name','paid'])) {
 			$columns[] = "`$field`";
 			$values[] = "'".filter_var($value,FILTER_SANITIZE_STRING)."'";
 		}
@@ -1052,6 +1049,23 @@ function set_stat_hours($dbc, $staffid, $start_date, $end_date) {
 						}
 					}
 					break;
+
+
+				case 'Alberta Standard Salary':
+					$end_date = $holiday['date'];
+
+					    $days_per_week = get_contact($dbc, $staffid, 'days_per_week');
+					    $hours_per_week = get_contact($dbc, $staffid, 'hours_per_week');
+						$stat_hrs = ($hours_per_week/$days_per_week);
+
+						$time_card = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `time_cards` WHERE `type_of_time` = 'Stat Hrs.' AND `staff` = '$staffid' AND `date` = '$end_date' AND `holidayid` ='".$holiday['holidays_id']."'"));
+						if(!empty($time_card)) {
+							mysqli_query($dbc, "UPDATE `time_cards` SET `total_hrs` = '$stat_hrs' WHERE `time_cards_id` = '".$time_card['time_cards_id']."'");
+						} else {
+							mysqli_query($dbc, "INSERT INTO `time_cards` (`holidayid`,`date`,`staff`,`type_of_time`,`total_hrs`,`comment_box`) VALUES ('".$holiday['holidays_id']."','$end_date','$staffid','Stat Hrs.','$stat_hrs','Stat Hours added automatically based on calculation. Hours may change as previous hours get altered/approved.')");
+						}
+					break;
+
 			}
 			switch($contact['vaca_pay']) {
 				case 'Alberta Standard 4%':
@@ -1084,6 +1098,22 @@ function set_stat_hours($dbc, $staffid, $start_date, $end_date) {
 						}
 					}
 					break;
+
+				case 'Alberta Standard Salary':
+					$end_date = $holiday['date'];
+
+					    $days_per_week = get_contact($dbc, $staffid, 'days_per_week');
+					    $hours_per_week = get_contact($dbc, $staffid, 'hours_per_week');
+						$vaca_hrs = ($hours_per_week/$days_per_week);
+
+						$time_card = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `time_cards` WHERE `type_of_time` = 'Vac Hrs.' AND `staff` = '$staffid' AND `date` = '$end_date' AND `deleted` = 0 AND `holidayid` ='".$holiday['holidays_id']."'"));
+						if(!empty($time_card)) {
+							mysqli_query($dbc, "UPDATE `time_cards` SET `total_hrs` = '$vaca_hrs' WHERE `time_cards_id` = '".$time_card['time_cards_id']."'");
+						} else {
+							mysqli_query($dbc, "INSERT INTO `time_cards` (`holidayid`,`date`,`staff`,`type_of_time`,`total_hrs`,`comment_box`) VALUES ('".$holiday['holidays_id']."','$end_date','$staffid','Vac Hrs.','$vaca_hrs','Vacation Hours added automatically based on calculation. Hours may change as previous hours get altered/approved.')");
+						}
+					break;
+
 			}
 		}
 	}

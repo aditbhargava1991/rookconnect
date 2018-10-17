@@ -296,7 +296,7 @@ function bus_filter(select) {
 					<?php if($disable_staff != '') { ?>
 						<label class="form-checkbox any-width"><input name="disable_staff[]" type="checkbox" checked value="<?= $disable_staff ?>">Keep Selected Staff Hidden from Report</label>
 					<?php } ?>
-					<label class="form-checkbox any-width"><input name="show_all_times" type="checkbox" <?= $show_times == 'show' ? 'checked' : '' ?> value="show">Show All Distinct Check In / Check Out Times on Report</label>
+					<label class="form-checkbox"><input name="show_all_times" type="checkbox" <?= $show_times == 'show' ? 'checked' : '' ?> value="show">Distinct Times per Task and Staff</label>
 				</div>
 				<button type="submit" name="search_email_submit" value="Search" class="btn brand-btn mobile-block pull-right">Submit</button>
                 <div class="clearfix"></div>
@@ -358,7 +358,7 @@ function report_output($dbc, $starttime, $endtime, $createstart, $createend, $bu
 	} else if(!is_array($siteid) && $siteid > 0) {
 		$site_list[] = $siteid;
 	} else {
-		$site_ids = $dbc->query("SELECT `tickets`.`siteid` FROM `ticket_attached` `time` LEFT JOIN `tickets` ON `time`.`ticketid`=`tickets`.`ticketid` LEFT JOIN `project` ON `tickets`.`projectid`=`project`.`projectid` WHERE `time`.`deleted`=0 AND `tickets`.`deleted`=0 AND IFNULL(`project`.`deleted`,0)=0 AND `time`.`src_table` LIKE 'Staff%' AND `time`.`date_stamp` BETWEEN '$starttime' AND '$endtime' AND `tickets`.`created_date` BETWEEN '$createstart' AND '$createend' AND '$ticketid' IN (`time`.`ticketid`,'') AND '$projectid' IN (`tickets`.`projectid`,'') AND CONCAT(',',IFNULL(`tickets`.`businessid`,''),',',IFNULL(`tickets`.`clientid`,''),',',IFNULL(`project`.`clientid`,''),',',IFNULL(`project`.`businessid`,''),',') LIKE '%,".($businessid ?: '%').",%' AND '#".($disable_staff ?: '')."#' NOT LIKE CONCAT('%#',`tickets`.`siteid`,'|',`time`.`date_stamp`,'|',`time`.`item_id`,'#%') GROUP BY `tickets`.`siteid`");
+		$site_ids = $dbc->query("SELECT `tickets`.`siteid` FROM `ticket_attached` `time` LEFT JOIN `tickets` ON `time`.`ticketid`=`tickets`.`ticketid` LEFT JOIN `project` ON `tickets`.`projectid`=`project`.`projectid` WHERE `time`.`deleted`=0 AND `tickets`.`deleted`=0 AND IFNULL(`project`.`deleted`,0)=0 AND `time`.`src_table` LIKE 'Staff%' AND `time`.`date_stamp` BETWEEN '$starttime' AND '$endtime' AND IFNULL(NULLIF(`tickets`.`created_date`,0),'2000-01-01') BETWEEN '$createstart' AND '$createend' AND '$ticketid' IN (`time`.`ticketid`,'') AND '$projectid' IN (`tickets`.`projectid`,'') AND CONCAT(',',IFNULL(`tickets`.`businessid`,''),',',IFNULL(`tickets`.`clientid`,''),',',IFNULL(`project`.`clientid`,''),',',IFNULL(`project`.`businessid`,''),',') LIKE '%,".($businessid ?: '%').",%' AND '#".($disable_staff ?: '')."#' NOT LIKE CONCAT('%#',`tickets`.`siteid`,'|',`time`.`date_stamp`,'|',`time`.`item_id`,'#%') GROUP BY `tickets`.`siteid`");
 		if($site_ids->num_rows > 0) {
 			while($siteid = $site_ids->fetch_assoc()) {
                 foreach(explode(',',$siteid['siteid']) as $site_id) {
@@ -390,7 +390,7 @@ function report_output($dbc, $starttime, $endtime, $createstart, $createend, $bu
 					</tr>
 				</table>';
 			}
-			$date_range = $dbc->query("SELECT SUM(IFNULL(`time_cards`.`total_hrs`,0)) `hours`, `time_cards`.`date` `date_stamp` FROM `time_cards` LEFT JOIN `tickets` ON `tickets`.`ticketid` = `time_cards`.`ticketid` LEFT JOIN `ticket_attached` `time` ON `time`.`id` = `time_cards`.`ticket_attached_id` LEFT JOIN `project` ON `tickets`.`projectid`=`project`.`projectid` WHERE `time_cards`.`ticketid` > 0 AND IFNULL(`time`.`deleted`,0)=0 AND `tickets`.`deleted`=0 AND `time_cards`.`deleted`=0 AND IFNULL(`project`.`deleted`,0)=0 AND `time_cards`.`date` BETWEEN '$starttime' AND '$endtime' AND `tickets`.`created_date` BETWEEN '$createstart' AND '$createend' AND '$ticketid' IN (`time_cards`.`ticketid`,'') AND '$projectid' IN (`tickets`.`projectid`,'') AND CONCAT(',',IFNULL(`tickets`.`siteid`,''),',',IFNULL(`project`.`siteid`,''),',') LIKE '%,$siteid,%' AND CONCAT(',',IFNULL(`tickets`.`businessid`,''),',',IFNULL(`tickets`.`clientid`,''),',',IFNULL(`project`.`clientid`,''),',',IFNULL(`project`.`businessid`,''),',') LIKE '%,".($businessid ?: '%').",%' AND '#".($disable_staff ?: '%')."#' NOT LIKE CONCAT('%#',`tickets`.`siteid`,'|',`time_cards`.`date`,'|',`time_cards`.`staff`,'#%') GROUP BY `time_cards`.`date`");
+			$date_range = $dbc->query("SELECT SUM(IFNULL(`time_cards`.`total_hrs`,0)) `hours`, `time_cards`.`date` `date_stamp` FROM `time_cards` LEFT JOIN `tickets` ON `tickets`.`ticketid` = `time_cards`.`ticketid` LEFT JOIN `ticket_attached` `time` ON `time`.`id` = `time_cards`.`ticket_attached_id` LEFT JOIN `project` ON `tickets`.`projectid`=`project`.`projectid` WHERE `time_cards`.`ticketid` > 0 AND IFNULL(`time`.`deleted`,0)=0 AND `tickets`.`deleted`=0 AND `time_cards`.`deleted`=0 AND IFNULL(`project`.`deleted`,0)=0 AND `time_cards`.`date` BETWEEN '$starttime' AND '$endtime' AND IFNULL(NULLIF(`tickets`.`created_date`,0),'2000-01-01') BETWEEN '$createstart' AND '$createend' AND '$ticketid' IN (`time_cards`.`ticketid`,'') AND '$projectid' IN (`tickets`.`projectid`,'') AND CONCAT(',',IFNULL(`tickets`.`siteid`,''),',',IFNULL(`project`.`siteid`,''),',') LIKE '%,$siteid,%' AND CONCAT(',',IFNULL(`tickets`.`businessid`,''),',',IFNULL(`tickets`.`clientid`,''),',',IFNULL(`project`.`clientid`,''),',',IFNULL(`project`.`businessid`,''),',') LIKE '%,".($businessid ?: '%').",%' AND '#".($disable_staff ?: '%')."#' NOT LIKE CONCAT('%#',`tickets`.`siteid`,'|',`time_cards`.`date`,'|',`time_cards`.`staff`,'#%') GROUP BY `time_cards`.`date`");
 			if($date_range->num_rows > 0) {
 				$site_head .= '<table border="0" class="table no-border" width="100%" style="'.$table_style.'">';
 				$ticket_types = explode(',',get_config($dbc, 'ticket_tabs'));
@@ -403,7 +403,7 @@ function report_output($dbc, $starttime, $endtime, $createstart, $createend, $bu
 						<td colspan="2" style="background-color:#CCCCCC;border:0 solid black;">'.date('D-M-j-Y',strtotime($date['date_stamp'])).'</td>
 						<td style="background-color:#CCCCCC;border:0 solid black;text-align:right;" colspan="3">Total Man Hours for day: '.number_format($date['hours'],2).'</td>
 					</tr>';
-					$details = $dbc->query("SELECT GROUP_CONCAT(`time_cards`.`staff`) `staff`, SUM(IFNULL(`time_cards`.`total_hrs`,0)) `hours`, TIME_FORMAT(MIN(IFNULL(STR_TO_DATE(`time_cards`.`start_time`, '%l:%i %p'),STR_TO_DATE(`time_cards`.`start_time`, '%H:%i'))),'%h:%i %p') `start`, TIME_FORMAT(MAX(IFNULL(STR_TO_DATE(`time_cards`.`end_time`, '%l:%i %p'),STR_TO_DATE(`time_cards`.`end_time`, '%H:%i'))),'%h:%i %p') `end`, GROUP_CONCAT(`time_cards`.`ticketid`) `tickets` FROM `time_cards` LEFT JOIN `tickets` ON `tickets`.`ticketid` = `time_cards`.`ticketid` LEFT JOIN `ticket_attached` `time` ON `time`.`id` = `time_cards`.`ticket_attached_id` LEFT JOIN `project` ON `tickets`.`projectid`=`project`.`projectid` WHERE `time_cards`.`ticketid` > 0 AND IFNULL(`time`.`deleted`,0)=0 AND `tickets`.`deleted`=0 AND `time_cards`.`deleted`=0 AND IFNULL(`project`.`deleted`,0)=0 AND '$ticketid' IN (`time_cards`.`ticketid`,'') AND '$projectid' IN (`tickets`.`projectid`,'') AND CONCAT(',',IFNULL(`tickets`.`siteid`,''),',',IFNULL(`project`.`siteid`,''),',') LIKE '%,$siteid,%' AND CONCAT(',',IFNULL(`tickets`.`businessid`,''),',',IFNULL(`tickets`.`clientid`,''),',',IFNULL(`project`.`clientid`,''),',',IFNULL(`project`.`businessid`,''),',') LIKE '%,".($businessid ?: '%').",%' AND `time_cards`.`date`='{$date['date_stamp']}' AND '#".($disable_staff ?: '%')."#' NOT LIKE CONCAT('%#',`tickets`.`siteid`,'|',`time_cards`.`date`,'|',`time_cards`.`staff`,'#%') AND `time_cards`.`staff` > 0".(!in_array('ticket_activity_staff_group', $report_fields) ? " GROUP BY `time_cards`.`staff`" : " GROUP BY `time_cards`.`ticketid`"));
+					$details = $dbc->query("SELECT GROUP_CONCAT(`time_cards`.`staff`) `staff`, SUM(IFNULL(`time_cards`.`total_hrs`,0)) `hours`, TIME_FORMAT(MIN(IFNULL(STR_TO_DATE(`time_cards`.`start_time`, '%l:%i %p'),STR_TO_DATE(`time_cards`.`start_time`, '%H:%i'))),'%h:%i %p') `start`, TIME_FORMAT(MAX(IFNULL(STR_TO_DATE(`time_cards`.`end_time`, '%l:%i %p'),STR_TO_DATE(`time_cards`.`end_time`, '%H:%i'))),'%h:%i %p') `end`, GROUP_CONCAT(`time_cards`.`type_of_time`) `task_list`, GROUP_CONCAT(`time_cards`.`ticketid`) `tickets` FROM `time_cards` LEFT JOIN `tickets` ON `tickets`.`ticketid` = `time_cards`.`ticketid` LEFT JOIN `ticket_attached` `time` ON `time`.`id` = `time_cards`.`ticket_attached_id` LEFT JOIN `project` ON `tickets`.`projectid`=`project`.`projectid` WHERE `time_cards`.`ticketid` > 0 AND IFNULL(`time`.`deleted`,0)=0 AND `tickets`.`deleted`=0 AND `time_cards`.`deleted`=0 AND IFNULL(`project`.`deleted`,0)=0 AND '$ticketid' IN (`time_cards`.`ticketid`,'') AND '$projectid' IN (`tickets`.`projectid`,'') AND CONCAT(',',IFNULL(`tickets`.`siteid`,''),',',IFNULL(`project`.`siteid`,''),',') LIKE '%,$siteid,%' AND CONCAT(',',IFNULL(`tickets`.`businessid`,''),',',IFNULL(`tickets`.`clientid`,''),',',IFNULL(`project`.`clientid`,''),',',IFNULL(`project`.`businessid`,''),',') LIKE '%,".($businessid ?: '%').",%' AND `time_cards`.`date`='{$date['date_stamp']}' AND '#".($disable_staff ?: '%')."#' NOT LIKE CONCAT('%#',`tickets`.`siteid`,'|',`time_cards`.`date`,'|',`time_cards`.`staff`,'#%') AND `time_cards`.`staff` > 0".(!in_array('ticket_activity_staff_group', $report_fields) ? " GROUP BY `time_cards`.`staff`" : " GROUP BY `time_cards`.`ticketid`".($show_times == 'show' ? ', `time`.`item_id`, `time_cards`.`type_of_time`, `time_cards`.`time_cards_id`' : '')));
 					while($detail = $details->fetch_assoc()) {
 						$cur_row++;
 						if($cur_row > $offset && $cur_row <= $offset + $rowsPerPage) {
@@ -440,55 +440,61 @@ function report_output($dbc, $starttime, $endtime, $createstart, $createend, $bu
 							}
 							$report_data .= '<tr>
 								<td style="width:10%;">Task Name:</td>
-								<td style="width:45%;">'.implode(', ',array_unique($types)).'</td>
-								<td style="width:10%;">'.($hide_staff != 'hide' ? 'Staff:' : ($show_times == 'show' ? 'Times on Site:' : '')).'</td>
-								<td style="width:35%;" colspan="2" '.($show_times == 'show' ? 'rowspan="4"' : '').'>';
-								foreach(array_filter(array_unique(explode(',',$detail['staff']))) as $staff) {
-									$report_data .= '<label class="form-checkbox any-width">'.($hide_staff != 'hide' ? '<input type="checkbox" class="inline" style="display:none;" name="disable_staff[]" value="'.$siteid.'|'.$date['date_stamp'].'|'.$staff.'">'.get_contact($dbc, $staff) : '').'</label> ';
-                                    if($show_times == 'show') {
-                                        $report_data .= implode('; ', $staff_times[$staff]).' ';
+								<td style="width:45%;">'.($show_times == 'show' ? $detail['task_list'] : implode(', ',array_unique($types))).'</td>
+								<td style="width:10%;">'.($hide_staff != 'hide' ? 'Staff:' : ($show_times == 'show' ? 'Cost Code:' : '')).'</td>
+								<td style="width:35%;" colspan="2">';
+                                if($show_times == 'show' && $hide_staff == 'hide') {
+                                    $report_data .= implode(', ',array_unique($types));
+                                } else {
+                                    foreach(array_filter(array_unique(explode(',',$detail['staff']))) as $staff) {
+                                        $report_data .= '<label class="form-checkbox any-width">'.($hide_staff != 'hide' ? '<input type="checkbox" class="inline" style="display:none;" name="disable_staff[]" value="'.$siteid.'|'.$date['date_stamp'].'|'.$staff.'">'.get_contact($dbc, $staff) : '').'</label> ';
                                     }
-									$staff_list[] = $staff;
-								}
+                                }
+                                foreach(array_filter(array_unique(explode(',',$detail['staff']))) as $staff) {
+                                    $staff_list[] = $staff;
+                                }
 								$report_data .= '</td>
 							</tr>';
 							$report_data .= '<tr>
-								<td style="width:10%;">'.($hide_wo != 'hide' && $show_times == 'show' ? TICKET_NOUN.':' : ($show_times != 'show' ? 'Start Time:' : '')).'</td>
-								<td style="width:10%;">'.($hide_wo != 'hide' && $show_times == 'show' ? implode(', ',$tickets) : ($show_times != 'show' ? $detail['start'] : '')).'</td>
-                                <td style="width:10%;">'.($show_times != 'show' ? 'Total Hours:' : '').'</td>';
-								$report_data .= ($show_times == 'show' ? '' : '<td style="width:35%;">'.($show_times != 'show' ? number_format($detail['hours'],2) : '').'</td>');
+								<td>Start Time:</td>
+								<td>'.$detail['start'].'</td>
+                                <td>Total Hours:</td>';
+                            $report_data .= '<td>'.number_format($detail['hours'],2).'</td>';
 							$report_data .= '</tr>';
 							$report_data .= '<tr>
-								<td style="width:10%;">'.($show_times == 'show' ? 'Total Hours' : 'End Time').':</td>
-								<td style="width:10%;">'.($show_times == 'show' ? number_format($detail['hours'],2) : $detail['end']).'</td>
-                                <td style="width:10%;">'.($hide_wo != 'hide' && $show_times != 'show' ? TICKET_NOUN.':' : '').'</td>';
-								$report_data .= ($show_tmes == 'show' ? '' : '<td style="width:35%;" colspan="2" rowspan="2">'.($hide_wo != 'hide' && $show_times != 'show' ? implode(', ',$tickets) : '').'</td>');
+								<td>End Time:</td>
+								<td>'.$detail['end'].'</td>
+                                <td>'.($hide_wo != 'hide' ? TICKET_NOUN.':' : '').'</td>';
+                            $report_data .= '<td colspan="2" rowspan="2">'.($hide_wo != 'hide' ? implode(', ',$tickets) : '').'</td>';
 							$report_data .= '</tr>';
 							$report_data .= '<tr>
-								<td style="width:10%;">Total Staff on Site:</td>
-								<td style="width:45%;">'.(count(array_filter(array_unique(explode(',',$detail['staff']))))).'</td>
-								<td style="width:10%;"></td>
+								<td>Total Staff on Site:</td>
+								<td>'.(count(array_filter(array_unique(explode(',',$detail['staff']))))).'</td>
+								<td></td>
 							</tr>';
 							$report_data .= '<tr>
-								<td style="width:10%;">Notes:</td>
+								<td>Notes:</td>
 								<td colspan="3">'.implode(', ',$notes).'</td>
 							</tr>';
 							// Task Title
-							$report_data .= '<tr>
-								<td></td>
-								<td colspan="2" style="background-color:#CCCCCC;border:0 solid black;">Service</td>
-								<td style="background-color:#CCCCCC;border:0 solid black;" colspan="2">Total Hours</td>
-							</tr>';
-							// Tasks List
-							$detail_task = $dbc->query("SELECT `time_cards`.`type_of_time`, SUM(IFNULL(`time_cards`.`total_hrs`,0)) `hours` FROM `time_cards` WHERE `time_cards`.`ticketid` > 0 AND `time_cards`.`date`='".$date['date_stamp']."' AND `time_cards`.`deleted`=0 AND `time_cards`.`staff` IN (".$detail['staff'].") AND `time_cards`.`ticketid` IN (".$detail['tickets'].") GROUP BY `time_cards`.`type_of_time`");
-							while($task = $detail_task->fetch_assoc()) {
-								$report_data .= '<tr>
-									<td></td>
-									<td colspan="2">'.$task['type_of_time'].'</td>
-									<td colspan="2">'.number_format($task['hours'],2).'</td>
-								</tr>';
-								$sum_hours += $task['hours'];
-							}
+                            if($show_times != 'show') {
+                                $report_data .= '<tr>
+                                    <td></td>
+                                    <td colspan="2" style="background-color:#CCCCCC;border:0 solid black;">Service</td>
+                                    <td style="background-color:#CCCCCC;border:0 solid black;" colspan="2">Total Hours</td>
+                                </tr>';
+                                // Tasks List
+                                $detail_task = $dbc->query("SELECT `time_cards`.`type_of_time`, SUM(IFNULL(`time_cards`.`total_hrs`,0)) `hours` FROM `time_cards` WHERE `time_cards`.`ticketid` > 0 AND `time_cards`.`date`='".$date['date_stamp']."' AND `time_cards`.`deleted`=0 AND `time_cards`.`staff` IN (".$detail['staff'].") AND `time_cards`.`ticketid` IN (".$detail['tickets'].") GROUP BY `time_cards`.`type_of_time`");
+                                while($task = $detail_task->fetch_assoc()) {
+                                    $report_data .= '<tr>
+                                        <td></td>
+                                        <td colspan="2">'.$task['type_of_time'].'</td>
+                                        <td colspan="2">'.number_format($task['hours'],2).'</td>
+                                    </tr>';
+                                    $sum_hours += $task['hours'];
+                                }
+                            }
+                            $sum_hours += $detail['hours'];
 							$report_data .= '<tr><td colspan="5" style="border-bottom:1px solid black;"></td></tr>';
 						}
 					}

@@ -499,7 +499,7 @@ if(!$current_heading_closed) { ?>
 		</ul>
 	</li>
 <?php } ?>
-<li>Created<?= ($created_by > 0 ? ' by '.get_staff($dbc, $created_by).'<br />' : '').' on '.($created_date ?: date('Y-m-d')) ?></li>
+<li>Created<?= ($created_by > 0 ? ' by '.get_staff($dbc, $created_by).'<br />' : '').' on '.(!empty($created_date) ? convert_timestamp_mysql($dbc, $created_date, true) : date('Y-m-d')) ?></li>
 <?php if(time() < strtotime(str_replace('0000-00-00',date('Y-m-d'),$get_ticket['flag_start'])) || time() > strtotime(str_replace('9999',date('Y'),$get_ticket['flag_end']).' + 1 day')) {
 	$get_ticket['flag_colour'] = '';
 }

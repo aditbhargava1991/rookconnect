@@ -44,11 +44,11 @@ function toggle_columns(type = global_type) {
 		clear_all_data();
 	}
 	if(type == 'staff') {
-		$('#collapse_equipment').find('.block-item').removeClass('active');
+		$('[id^=collapse_equipment]').find('.block-item').removeClass('active');
 		$('#collapse_teams').find('.block-item').removeClass('active');
 		global_type = 'staff';
 	} else if(type == 'team') {
-		$('#collapse_equipment').find('.block-item').removeClass('active');
+		$('[id^=collapse_equipment]').find('.block-item').removeClass('active');
 		$('[id^=collapse_staff]').find('.block-item').removeClass('active');
 		$('[id^=collapse_contractors]').find('.block-item').removeClass('active');
 		global_type = 'team';
@@ -155,7 +155,7 @@ function toggle_columns(type = global_type) {
 		}
 	});
 	// Hide equipments that are not attached to selected clients/regions/classifications/location
-	$('#collapse_equipment').find('.block-item').each(function() {
+	$('[id^=collapse_equipment]').find('.block-item').each(function() {
 		var region_pass = true;
 		var location_pass = true;
 		var classification_pass = true;
@@ -310,8 +310,8 @@ function toggle_columns(type = global_type) {
 			if(type == 'team') {
 				var equipmentids = $(this).data('equipment').toString().split(',');
 				equipmentids.forEach(function(equipmentid) {
-					if(equipmentid > 0 && $('#collapse_equipment').find('.block-item[data-equipment='+equipmentid+']').length > 0) {
-						var block = $('#collapse_equipment').find('.block-item[data-equipment='+equipmentid+']');
+					if(equipmentid > 0 && $('[id^=collapse_equipment]').find('.block-item[data-equipment='+equipmentid+']').length > 0) {
+						var block = $('[id^=collapse_equipment]').find('.block-item[data-equipment='+equipmentid+']');
 						if($(block).css('display') != 'none') {
 							block.addClass('active');
 							retrieve_items($(block).closest('a'));	
@@ -389,8 +389,8 @@ function toggle_columns(type = global_type) {
 			if(type == 'staff') {
 				var equipmentids = $(this).data('equipment').toString().split(',');
 				equipmentids.forEach(function(equipmentid) {
-					if(equipmentid > 0 && $('#collapse_equipment').find('.block-item[data-equipment='+equipmentid+']').length > 0) {
-						var block = $('#collapse_equipment').find('.block-item[data-equipment='+equipmentid+']');
+					if(equipmentid > 0 && $('[id^=collapse_equipment]').find('.block-item[data-equipment='+equipmentid+']').length > 0) {
+						var block = $('[id^=collapse_equipment]').find('.block-item[data-equipment='+equipmentid+']');
 						if($(block).css('display') != 'none') {
 							block.addClass('active');
 							retrieve_items($(block).closest('a'));	
@@ -413,7 +413,7 @@ function toggle_columns(type = global_type) {
 	});
 
 	// Show selected equipment on calendar view
-	$('#collapse_equipment').find('.block-item.active').each(function() {
+	$('[id^=collapse_equipment]').find('.block-item.active').each(function() {
 		var equipment_id = $(this).data('equipment');
 		if (equipment_id > 0) {
 			visibles.push(equipment_id);
@@ -454,7 +454,7 @@ function toggle_columns(type = global_type) {
 	// 	});
 	// } else {
 		// Show selected equipment on calendar view
-		$('#collapse_equipment').find('.block-item.active').each(function() {
+		$('[id^=collapse_equipment]').find('.block-item.active').each(function() {
 			var equipment_id = $(this).data('equipment');
 			if (equipment_id > 0) {
 				$('.calendar_view table td, .calendar_view table th').filter(function() { return $(this).data('contact') == equipment_id; }).show();

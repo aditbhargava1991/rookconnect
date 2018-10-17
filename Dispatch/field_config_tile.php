@@ -34,6 +34,13 @@ checkAuthorised('dispatch'); ?>
     </div>
 </div>
 <div class="form-group">
+    <label class="col-sm-4 control-label">Group Equipment by Region:</label>
+    <div class="col-sm-8">
+        <?php $dispatch_tile_group_regions = get_config($dbc, 'dispatch_tile_group_regions'); ?>
+        <label class="form-checkbox"><input type="checkbox" name="dispatch_tile_group_regions" <?= $dispatch_tile_group_regions == 1 ? 'checked' : '' ?> value="1"></label>
+    </div>
+</div>
+<div class="form-group">
     <label class="col-sm-4 control-label">Combine Warehouse Stops:</label>
     <div class="col-sm-8">
         <?php $dispatch_tile_combine_warehouse = get_config($dbc, 'dispatch_tile_combine_warehouse'); ?>
@@ -45,6 +52,13 @@ checkAuthorised('dispatch'); ?>
     <div class="col-sm-8">
         <?php $dispatch_tile_combine_pickup = get_config($dbc, 'dispatch_tile_combine_pickup'); ?>
         <label class="form-checkbox"><input type="checkbox" name="dispatch_tile_combine_pickup" <?= $dispatch_tile_combine_pickup == 1 ? 'checked' : '' ?> value="1"></label>
+    </div>
+</div>
+<div class="form-group">
+    <label class="col-sm-4 control-label">Don't Count Warehouse As Delivery Stop:</label>
+    <div class="col-sm-8">
+        <?php $dispatch_tile_dont_count_warehouse = get_config($dbc, 'dispatch_tile_dont_count_warehouse'); ?>
+        <label class="form-checkbox"><input type="checkbox" name="dispatch_tile_dont_count_warehouse" <?= $dispatch_tile_dont_count_warehouse == 1 ? 'checked' : '' ?> value="1"></label>
     </div>
 </div>
 <div class="form-group">

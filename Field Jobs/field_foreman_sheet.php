@@ -190,6 +190,7 @@ function actionDate(sel) {
 
        <?php
         echo '<a href="add_field_foreman_sheet.php" class="btn brand-btn pull-right">Add Foreman Sheet</a>';
+        echo '<a href="add_field_foreman_sheet.php?pdf_foreman_sheet=new" class="btn brand-btn pull-right">Blank Foreman Sheet PDF</a>';
         ?>
 
     <div id="no-more-tables">
@@ -380,6 +381,7 @@ function actionDate(sel) {
 
         echo '</table></div>';
         echo '<a href="add_field_foreman_sheet.php" class="btn brand-btn pull-right">Add Foreman Sheet</a>';
+        echo '<a href="add_field_foreman_sheet.php?pdf_foreman_sheet=new" class="btn brand-btn pull-right">Blank Foreman Sheet PDF</a>';
 
         if($fs_name_search == '') {
             echo display_pagination($dbc, $query, $pageNum, $rowsPerPage);

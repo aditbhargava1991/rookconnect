@@ -21,7 +21,23 @@ if($id_card_fields == '') {
     } else {
         $id_card_fields = explode(',',$id_card_fields);
     }
-} ?>
+}
+if(in_array_any(['Star Rating'], $id_card_fields)) {
+    $rating = mysqli_fetch_array(mysqli_query($dbc, "SELECT COUNT(`ticket_schedule`.`id`) `num_rows`, `ticket_schedule`.`id`, `ticket_attached`.`rate`, AVG(`ticket_attached`.`rate`) `avg_rating` FROM `ticket_schedule` LEFT JOIN `equipment_assignment` ON `equipment_assignment`.`equipmentid` = `ticket_schedule`.`equipmentid` LEFT JOIN `equipment_assignment_staff` ON `equipment_assignment_staff`.`equipment_assignmentid` = `equipment_assignment`.`equipment_assignmentid` LEFT JOIN `ticket_attached` ON `ticket_attached`.`src_table`='customer_approve' AND `ticket_attached`.`line_id`=`ticket_schedule`.`id` WHERE `ticket_schedule`.`to_do_date` BETWEEN `equipment_assignment`.`start_date` AND IFNULL(NULLIF(`equipment_assignment`.`end_date`,'0000-00-00'),'9999-12-31') AND CONCAT(',',`equipment_assignment`.`hide_days`,',') NOT LIKE CONCAT('%,',`ticket_schedule`.`to_do_date`,',%') AND `equipment_assignment_staff`.`contactid` = '".$contact['contactid']."' AND `equipment_assignment_staff`.`deleted` = 0 AND `ticket_schedule`.`deleted` = 0 AND `equipment_assignment`.`deleted` = 0 AND `ticket_attached`.`rate` != 0"));
+    $rating_html = '';
+    for($i = 0; $i < 5; $i++) {
+        if($rating['avg_rating'] >= 1) {
+            $rating_html .= '<img class="inline-img" src="../img/icons/star.png">';
+        } else if($rating['avg_rating'] >= 0.5) {
+            $rating_html .= '<img class="inline-img" src="../img/icons/star_half.png">';
+        } else {
+            $rating_html .= '<img class="inline-img" src="../img/icons/star_empty.png">';
+        }
+        $rating['avg_rating'] -= 1;
+    }
+    $rating_html = '<div class="small">'.$rating_html.'<br />'.$rating['num_rows'].' Deliveries Completed</div>';
+}
+?>
 <div class="col-sm-12">
 	<?php if(!($summary_only === true)) {
         if($contact['category'] != 'Staff' && vuaed_visible_function($dbc, $security_folder) > 0) { ?><button onclick="copyContact(this); return false;" class="btn brand-btn pull-right gap-top">Copy Contact</button><button onclick="<?= IFRAME_PAGE ? "$('#profile_accordions').show(); $('.iframe_edit').show(); $('#view_profile').hide();" : " edit_profile();" ?> return false;" class="btn brand-btn pull-right gap-top">Edit Contact</button><?= IFRAME_PAGE ? '<a href="" onclick="openFullView(); return false;" class="btn brand-btn pull-right gap-top">Open Full Window</a>' : '' ?><?php }
@@ -43,12 +59,12 @@ if($id_card_fields == '') {
                     } else {
                         $contact_url = '../Profile/';
                     }
-                    echo '<img class="id-circle no-toggle" src="'.$contact_url.'download/'.$contact['contactimage'].'" title="'.decryptIt($contact['name']).decryptIt($contact['first_name']).' '.decryptIt($contact['last_name']).'">';
+                    echo '<img class="id-circle no-toggle pull-left" src="'.$contact_url.'download/'.$contact['contactimage'].'" title="'.decryptIt($contact['name']).decryptIt($contact['first_name']).' '.decryptIt($contact['last_name']).'">';
                 } else {
-                    profile_id($dbc, $contactid);
+                    profile_id($dbc, $contactid, true, 'pull-left');
                 }
             } ?>
-            <?= get_client($dbc, $contactid).' '.get_contact($dbc, $contactid) ?></h3>
+            <?= get_client($dbc, $contactid).' '.get_contact($dbc, $contactid) ?><?= $rating_html ?></h3>
             <style>
             .dashboard-profile-icon { height:auto; margin-right:8px; width:20px; }
             .dashboard-social-icon { height:auto; margin-right:3px; width:25px; }
