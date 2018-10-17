@@ -468,22 +468,17 @@ if(count($equipment_categories) > 0) {
 					<div class="panel-body" style="overflow-y: auto; padding: 0;">
 						<?php $active_equipment = array_filter(explode(',',get_user_settings()['appt_calendar_equipment']));
 						$equip_list = mysqli_fetch_all(mysqli_query($dbc, "SELECT *, CONCAT(`category`, ' #', `unit_number`) label FROM `equipment` WHERE `deleted`=0 ".$equip_cat_query." $allowed_equipment_query ORDER BY `label`"),MYSQLI_ASSOC);
-						$date_query = date('Y-m-d');
-						if(!empty($_GET['date'])) {
-							$date_query = date('Y-m-d', strtotime($_GET['date']));
-						}
-						$date_month_start = date('Y-m-01', strtotime($date_query));
-						$date_month_end = date('Y-m-t', strtotime($date_query));
+	                    $region = false;
+	                    $region_list = explode(',',get_config($dbc, '%_region', true));
+	                    $region_colours = explode(',',get_config($dbc, '%_region_colour', true));
 						foreach($equip_list as $equipment) {
-							$equip_assign = mysqli_fetch_array(mysqli_query($dbc, "SELECT GROUP_CONCAT(DISTINCT `clientid` SEPARATOR ',') as client_list, GROUP_CONCAT(DISTINCT `region` SEPARATOR '*#*') as region_list, GROUP_CONCAT(DISTINCT `location` SEPARATOR '*#*') as location_list, GROUP_CONCAT(DISTINCT `classification` SEPARATOR '*#*') as classification_list FROM `equipment_assignment` WHERE `equipmentid` = '".$equipment['equipmentid']."' AND `deleted` = 0 AND (DATE(`start_date`) BETWEEN '$date_month_start' AND '$date_month_end' OR DATE(`end_date`) BETWEEN '$date_month_start' AND '$date_month_end')"));
-							$equip_regions = $equipment['region'].'*#*'.$equip_assign['region_list'];
-							$equip_locations = $equipment['location'].'*#*'.$equip_assign['location_list'];
-							$equip_classifications = $equipment['classification'].'*#*'.$equip_assign['classification_list'];
+							$equip_regions = $equipment['region'];
+							$equip_locations = $equipment['location'];
+							$equip_classifications = $equipment['classification'];
 							
 							$equip_regions = implode('*#*', array_filter(array_unique(explode('*#*', $equip_regions))));
 							$equip_locations = implode('*#*', array_filter(array_unique(explode('*#*', $equip_locations))));
 							$equip_classifications = implode('*#*', array_filter(array_unique(explode('*#*', $equip_classifications))));
-							$clientids = $equip_assign['client_list'];
 
 							$classification_label = '';
 							if($equip_display_classification_ticket == 1) {
@@ -494,9 +489,30 @@ if(count($equipment_categories) > 0) {
 							} else if($equip_display_classification == 1 && !empty($equip_classifications)) {
 								$classification_label = ' - '.str_replace('*#*', ', ', $equip_classifications);
 							}
-							// $equip_regions = implode('*#*',array_filter(array_unique([$equipment['region'], $equip_assign['region']])));
-							// $equip_locations = implode('*#*',array_filter(array_unique([$equipment['location'], $equip_assign['location']])));
-							// $equip_classifications = implode('*#*',array_filter(array_unique([$equipment['classification'], $equip_assign['classification']])));
+
+							$classification_label = '';
+							if($equip_display_classification_ticket == 1) {
+								$equip_classifications = getEquipmentTicketClassification($dbc, $equipment['equipmentid'], $date_month_start, $date_month_end);
+								if(!empty($equip_classifications)) {
+									$classification_label = ' - '.implode(', ', $equip_classifications);
+								}
+							} else if($equip_display_classification == 1 && !empty($equip_classifications)) {
+								$classification_label = ' - '.str_replace('*#*', ', ', $equip_classifications);
+							}
+	                        if(in_array('region_sort',$equip_options) && $region != $equipment['region']) {
+	                            $region = $equipment['region'];
+	                            $region_colour = '';
+	                            if($region == '') {
+	                                $region_label = 'No Region';
+	                            } else {
+	                                $region_label = implode(', ',explode('*#*',$region));
+	                                $region_key = array_search($region, $region_list);
+	                                if($region_key !== false) {
+	                                    $region_colour = 'background-color:'.$region_colours[$region_key].';';
+	                                }
+	                            }
+	                            echo '<div class="block-item small" style="'.$region_colour.'" data-region="'.$region.'">'.$region_label.'</div>';
+	                        }
 							echo "<a href='' onclick='$(this).find(\".block-item\").toggleClass(\"active\"); toggle_columns(\"\"); return false;'><div class='block-item ".(in_array($equipment['equipmentid'],$active_equipment) ? 'active' : '')."' data-equipment='".$equipment['equipmentid']."' data-client='".$clientids."' data-region='".$equip_regions."' data-classification='".$equip_classifications."' data-location='".$equip_locations."' data-activevalue='".$equipment['equipmentid']."'>".$equipment['label'].$classification_label."</div></a>";
 						} ?>
 					</div>
@@ -752,8 +768,11 @@ if(count($equipment_categories) > 0) {
 		<div class="loading_overlay" style="display: none;"><div class="loading_wheel"></div></div>
 
 		<a href="" onclick="changeDate('', 'prev'); return false;"><div class="block-button" style="margin: 0;"><img src="../img/icons/back-arrow.png" style="height: 1em;">&nbsp;</div></a>
-		<div class="block-button">Month</div>
+		<div class="block-button"><?= $_GET['view'] == 'monthly' ? 'Month' : ($_GET['view'] == 'weekly' ? 'Week' : 'Day') ?></div>
 		<a href="" onclick="changeDate('', 'next'); return false;"><div class="block-button">&nbsp;<img src="../img/icons/next-arrow.png" style="height: 1em;"></div></a>
+		<a href="?type=schedule&view=daily&mode=<?= $_GET['mode'] ?>"><div class="block-button <?= $_GET['view'] == 'daily' ? 'active blue' : '' ?>" style="margin-left: 1em;">Day</div></a>
+		<a href="?type=schedule&view=weekly&mode=<?= $_GET['mode'] ?>"><div class="block-button <?= $_GET['view'] == 'weekly' ? 'active blue' : '' ?>">Week</div></a>
+		<a href="?type=schedule&view=monthly&mode=<?= $_GET['mode'] ?>"><div class="block-button <?= $_GET['view'] == 'monthly' ? 'active blue' : '' ?>">Month</div></a>
 		<div class="block-button selected_class_logos" style="margin-left: 1em; padding: 0 0.5em 0 0.5em; display: table; display: none;">
 			<div style="display: table-cell; vertical-align: middle;">
 				Selected Classifications: 

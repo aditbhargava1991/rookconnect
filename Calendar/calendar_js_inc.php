@@ -23,7 +23,7 @@ $(document).ready(function() {
 	<?php } ?>
 	$('.block-button.legend-block').on('mouseover', function() { toggleTicketLegend('show') });
 	$('.block-button.legend-block').on('mouseout', function() { toggleTicketLegend('hide') });
-	<?php if($_GET['view'] != 'monthly' && $_GET['mode'] != 'staff_summary' && $_GET['mode'] != 'ticket_summary' && $_GET['mode'] != 'day_summary') { ?>
+	<?php if($_GET['view'] != 'monthly' && $_GET['mode'] != 'staff_summary' && $_GET['mode'] != 'ticket_summary' && $_GET['mode'] != 'day_summary' && $_GET['mode'] != 'summary') { ?>
 		calendarScrollLoad();
 	<?php } ?>
 
@@ -689,7 +689,7 @@ function reload_equipment_assignment(equipmentid = '') {
 				reset_active.resolve();
 			}
 		});
-	<?php } else if($_GET['type'] == 'schedule' && $_GET['mode'] != 'staff' && $_GET['mode'] != 'contractors' && $_GET['view'] != 'monthly') { ?>
+	<?php } else if($_GET['type'] == 'schedule' && $_GET['mode'] != 'staff' && $_GET['mode'] != 'contractors' && $_GET['view'] != 'monthly' && $_GET['mode'] != 'summary') { ?>
 		var equipmentids = [];
 		if(equipmentid != '') {
 			equipmentids.push(equipmentid);
