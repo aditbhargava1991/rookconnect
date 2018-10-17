@@ -289,7 +289,7 @@ function dispatchNewWorkOrder(data) {
 	var classification = $('#collapse_classifications .block-item.active').first().data('classification');
 	var equipmentid = $(data).data('equipmentid');
 	if(equipmentid == '' || equipmentid == undefined) {
-		equipmentid = $('#collapse_equipment .block-item.active').first().data('equipment');
+		equipmentid = $('[id^=collapse_equipment] .block-item.active').first().data('equipment');
 	}
 	var equipment_assignmentid = $(data).data('equipment_assignmentid');
 	var current_time = $(data).data('currenttime') != undefined ? $(data).data('currenttime') : '';
@@ -694,7 +694,7 @@ function reload_equipment_assignment(equipmentid = '') {
 		if(equipmentid != '') {
 			equipmentids.push(equipmentid);
 		} else {
-			$('#collapse_equipment .block-item').each(function() {
+			$('[id^=collapse_equipment] .block-item').each(function() {
 				if($(this).data('equipment') != undefined && $(this).data('equipment') > 0) {
 					equipmentids.push($(this).data('equipment'));
 				}
@@ -710,7 +710,7 @@ function reload_equipment_assignment(equipmentid = '') {
 				data: { equipmentid: equipmentid, date: date, view: view },
 				dataType: 'html',
 				success: function(response) {
-					$('#collapse_equipment .block-item[data-equipment='+equipmentid+']').closest('a').replaceWith(response);
+					$('[id^=collapse_equipment] .block-item[data-equipment='+equipmentid+']').closest('a').replaceWith(response);
 				}
 			}));
 		});
