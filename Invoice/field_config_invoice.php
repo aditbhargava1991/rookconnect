@@ -19,6 +19,8 @@ $pos_advanced_noun = 'Point of Sale';
 if (isset($_POST['submit'])) {
     set_config($dbc, 'invoice_dashboard_xsl_xml'.config_safe_str($invoice_type), filter_var(implode(',', $_POST['invoice_dashboard_xsl_xml']),FILTER_SANITIZE_STRING));
 
+    set_config($dbc, 'invoice_dashboard', implode(',',$_POST['invoice_dashboard']));
+
     //print_R((!empty($_POST['invoice_dashboard_xsl_xml']) ? implode(',', $_POST['invoice_dashboard_xsl_xml']) : ''));die;
     if(!empty($_POST['invoice_type'])) {
         $invoice_type = $_POST['invoice_type'];
@@ -958,6 +960,12 @@ if(!empty($invoice_types)) { ?>
     							</td>
 
     						</tr>
+                            <tr>
+    							<td>
+    								<input type="checkbox" <?php if (strpos($value_config, ','."Customer Billing Status".',') !== FALSE) { echo " checked"; } ?> value="Customer Billing Status" name="invoice_dashboard[]">&nbsp;&nbsp;Customer Billing Status
+    							</td>
+
+                            </tr>
     					</table>
     				</div>
     			</div>

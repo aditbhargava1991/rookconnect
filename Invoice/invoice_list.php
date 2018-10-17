@@ -81,7 +81,7 @@ $(document).ready(function() {
             $('#invoice_div .standard-body').height(available_height);
         }
     }).resize();
-    
+
     $('.selectall').click(
         function() {
             if($('.selectall').hasClass("deselectall")) {
@@ -323,6 +323,9 @@ function show_hide_email() {
                         if (strpos($value_config, ','."delivery".',') !== FALSE) {
                             echo '<th>Delivery/Shipping Type</th>';
                         }
+                        if (strpos($value_config, ','."Customer Billing Status".',') !== FALSE) {
+                            echo '<th>Customer Billing Status</th>';
+                        }
                         if (strpos($value_config, ','."invoice_pdf".',') !== FALSE) {
                             echo '<th>Invoice</th>';
                         }
@@ -378,6 +381,10 @@ function show_hide_email() {
                 }
                 if (strpos($value_config, ','."delivery".',') !== FALSE) {
                     echo '<td data-title="Delivery/Shipping Type">' . $invoice['delivery_type'] . '</td>';
+                }
+
+                if (strpos($value_config, ','."Customer Billing Status".',') !== FALSE) {
+                    echo '<td data-title="Delivery/Shipping Type">' . $invoice['customer_billing_status'] . '</td>';
                 }
                 echo '<td data-title="Invoice">';
                 echo 'Invoice#'.$invoice['invoiceid'].'</br>';
@@ -488,8 +495,8 @@ function show_hide_email() {
     </form>
 </div><!-- .standard-body-content -->
 
-<div>  
-<script type="text/javascript">  
+<div>
+<script type="text/javascript">
 function exportInvoiceData(invoiceId, format) {
     $.ajax({
         type: "GET",
