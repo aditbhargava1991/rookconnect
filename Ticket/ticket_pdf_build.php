@@ -46,18 +46,20 @@ if(isset($_POST['custom_form'])) {
 			}
 			block.find('input,textarea').last().val(text);
 		}
-		function updateTicket(select, field) {
-			if(confirm("Click OK to update the <?= TICKET_NOUN ?> with this contact?")) {
-				$.post('ticket_ajax_all.php?action=manual_update', {
-					table_name: 'ticket_schedule',
-					field_name: field.split('-')[1],
-					value: select.value,
-					ticketid: <?= $ticketid ?>,
-					identifier: 'type',
-					id: field.split('-')[0]
-				});
+		function updateTicket(select, field, update_ticket = 1) {
+			if(update_ticket != 1) {
+				if(confirm("Click OK to update the <?= TICKET_NOUN ?> with this contact?")) {
+					$.post('ticket_ajax_all.php?action=manual_update', {
+						table_name: 'ticket_schedule',
+						field_name: field.split('-')[1],
+						value: select.value,
+						ticketid: <?= $ticketid ?>,
+						identifier: 'type',
+						id: field.split('-')[0]
+					});
+				}
 			}
-			$(select).nextAll('input,textarea').first().val($(select).find('option:selected').data('output'));
+			$(select).nextAll('input,textarea').first().val($(select).find('option:selected').data('output')).change();
 		}
 		function updateChecked(input) {
 			if($(input).is(':checked')) {
@@ -529,10 +531,36 @@ if(isset($_POST['custom_form'])) {
 						$contact_option = array_search('contacts',$options);
 						if($contact_option !== FALSE) {
 							?>
-							<select class="chosen-select-deselect" data-placeholder="Select <?= $options[$contact_options+2] ?>" onchange="updateTicket(this, '<?= $options[$contact_options+1] ?>')"><option />
+							<select class="contact_select chosen-select-deselect" data-placeholder="Select <?= $options[$contact_options+2] ?>" onchange="updateTicket(this, '<?= $options[$contact_options+1] ?>')"><option />
 								<?php foreach(sort_contacts_query($dbc->query("SELECT `contactid`, `name`, `first_name`, `last_name`, `ship_to_address`, `ship_city`, `ship_state`, `ship_zip`, `office_phone` FROM `contacts` WHERE `category`='".$options[$contact_options+2]."' AND `deleted`=0 AND `status` > 0")) as $contact) {
 									$output = '';
 									foreach(explode('+',$options[$contact_options+3]) as $option_line) {
+										foreach(explode(',',$option_line) as $option_field) {
+											if($option_field == 'full_name') {
+												$output .= $contact['name'].' '.$contact['first_name'].' '.$contact['last_name'].' ';
+											} else {
+												$output .= $contact[$option_field].' ';
+											}
+										}
+										$output = trim($output)."\n";
+									} ?>
+									<option <?= $contact['contactid'] == $field_id ? 'selected' : '' ?> value="<?= $contact['name'].' '.$contact['first_name'].' '.$contact['last_name'] ?>" data-output="<?= trim($output) ?>"><?= $contact['name'].' '.$contact['first_name'].' '.$contact['last_name'] ?></option>
+								<?php } ?>
+							</select>
+						<?php }
+						$contact_reference = array_search('contactsreference',$options);
+						if($contact_reference !== FALSE) {
+							?>
+							<script type="text/javascript">
+							$(document).on('change', '[name="<?= $options[$contact_options+1] ?>"]', function() {
+								var select_value = $(this).closest('.form-group').find('.contact_select').val()
+								$('[name="<?= $field['field_name'] ?>"]').closest('.form-group').find('.hidden_select').val(this.value).change();
+							});
+							</script>
+							<select class="hidden_select" data-placeholder="Select <?= $options[$contact_options+3] ?>" onchange="updateTicket(this, '<?= $options[$contact_options+2] ?>', 0)" style="display: none;"><option />
+								<?php foreach(sort_contacts_query($dbc->query("SELECT `contactid`, `name`, `first_name`, `last_name`, `ship_to_address`, `ship_city`, `ship_state`, `ship_zip`, `office_phone` FROM `contacts` WHERE `category`='".$options[$contact_options+3]."' AND `deleted`=0 AND `status` > 0")) as $contact) {
+									$output = '';
+									foreach(explode('+',$options[$contact_options+4]) as $option_line) {
 										foreach(explode(',',$option_line) as $option_field) {
 											if($option_field == 'full_name') {
 												$output .= $contact['name'].' '.$contact['first_name'].' '.$contact['last_name'].' ';
