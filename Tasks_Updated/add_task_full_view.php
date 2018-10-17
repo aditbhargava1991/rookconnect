@@ -488,6 +488,7 @@ if (isset($_POST['tasklist'])) {
                     success: function(response){
                         alert('You have successfully deleted this task.');
                         window.location.href = "index.php?category=All&tab=Summary";
+
                     }
                 });
             }
@@ -855,7 +856,7 @@ function flag_item_manual(task) {
        if(task_id.toString().substring(0,5) == 'BOARD') {
                task_id = task_id.substring(5);
        }
-       overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_flags.php?tile=tasks&id='+task_id, 'auto', false, false);
+       overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_flags.php?tile=tasks&id='+task_id, 'auto', true, true);
 }
 
 function highlight_item(task) {
@@ -984,6 +985,14 @@ function track_icon_time(task) {
     $back_url = (isset($_SERVER['HTTPS']) ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
 ?>
 <div class="container">
+
+	<div class="iframe_overlay" style="display:none; margin-top:-20px; padding-bottom:20px;">
+		<div class="iframe">
+			<div class="iframe_loading">Loading...</div>
+			<iframe name="edit_board" src=""></iframe>
+		</div>
+	</div>
+
 	<div class="row">
         <div class="main-screen">
 
@@ -1166,11 +1175,13 @@ function track_icon_time(task) {
 
                                         echo in_array('time', $quick_actions) ? '<span title="Add Time" onclick="quick_icon_add_time(this); return false;"><img src="../img/icons/ROOK-timer-icon.png" title="Add Time" class="inline-img no-toggle" onclick="return false;"></span>' : '';
                                         echo in_array('timer', $quick_actions) ? '<span title="Track Time" onclick="track_icon_time(this); return false;"><img src="../img/icons/ROOK-timer2-icon.png" title="Track Time" class="inline-img no-toggle" onclick="return false;"></span>' : '';
+                                        echo '<button name="" type="button" value="" class="delete_task image-btn"><img class="inline-img no-toggle" src="../img/icons/trash-icon-red.png" alt="Delete Task"></button>';
+
                                     echo '</span>';
 
                                     echo '<input type="color" onchange="choose_color(this); return false;" class="color_picker" id="color_'.$_GET['tasklistid'].'"" name="color_'.$_GET['tasklistid'].'" style="display:none;" value="#f6b73c" />';
 
-                                    echo '<input type="text" name="task_time_'.$_GET['tasklistid'].'" style="display:none;" class="form-control timepicker" />';
+                                    echo '<input type="text" name="task_time_'.$_GET['tasklistid'].'" style="visibility: hidden;" class="form-control timepicker" />';
                                     echo '<input type="text" name="reminder_'.$_GET['tasklistid'].'" style="display:none;" class="form-control datepicker" />';
                                     echo '<input type="file" name="attach_'.$_GET['tasklistid'].'" style="display:none;" class="form-control" />';
                                 ?>
@@ -1284,17 +1295,25 @@ function track_icon_time(task) {
                                             $task_milestone_timeline = str_replace("FFMSPACE"," ",$task_milestone_timeline);
                                             $task_milestone_timeline = str_replace("FFMHASH","#",$task_milestone_timeline);
 
-                                            $project_milestone = str_replace("FFMEND","&",$project_milestone);
-                                            $project_milestone = str_replace("FFMSPACE"," ",$project_milestone);
-                                            $project_milestone = str_replace("FFMHASH","#",$project_milestone);
+                                            $project_milestone = str_replace("&","FFMEND",$project_milestone);
+                                            $project_milestone = str_replace(" ","FFMSPACE",$project_milestone);
+                                            $project_milestone = str_replace("#","FFMHASH",$project_milestone);
+                                            $project_milestone = str_replace("amp;","",$project_milestone);
                                         ?>
                                             <select data-placeholder="Select a Milestone & Timeline..." name="task_milestone_timeline" id="task_milestone_timeline" data-table="tasklist" data-field="task_milestone_timeline"  class="chosen-select-deselect form-control" width="580">
                                                 <option value=""></option>
                                                 <?php if($task_projectid > 0) {
                                                     foreach($project_path_milestones as $path) {
                                                         if($path['path_id'] == $task_path) {
-                                                            foreach($path['milestones'] as $milestone) { ?>
-                                                                <option <?= $project_milestone == $milestone['milestone'] ? 'selected' : '' ?> value="<?= $milestone['milestone'] ?>"><?= $milestone['label'] ?></option>
+                                                            foreach($path['milestones'] as $milestone) {
+                                                                $f_milestone = $milestone['milestone'];
+
+                                                                $f_milestone = str_replace("&","FFMEND",$f_milestone);
+                                                                $f_milestone = str_replace(" ","FFMSPACE",$f_milestone);
+                                                                $f_milestone = str_replace("#","FFMHASH",$f_milestone);
+
+                                                                ?>
+                                                                <option <?php if($project_milestone == $f_milestone) { echo " selected"; } ?> value="<?= $milestone['milestone'] ?>"><?= $milestone['label'] ?></option>
                                                             <?php }
                                                         }
                                                     }
@@ -1511,9 +1530,10 @@ function track_icon_time(task) {
                                     </div>
                                 </div>
 
+                                <!--
                                 <div class="form-group clearfix">
                                     <label for="first_name" class="col-sm-4 control-label">
-                                        <!-- <img src="../img/icons/ROOK-flag-icon.png" class="inline-img" /> --> Flag This:
+                                        Flag This:
                                     </label>
                                     <div class="col-sm-8">
                                         <a class="btn brand-btn" data-tasklistid="<?= $tasklistid ?>" onclick="flag_item(this);">Flag</a>
@@ -1523,7 +1543,7 @@ function track_icon_time(task) {
 
                                 <div class="form-group">
                                     <label for="site_name" class="col-sm-4 control-label">
-                                        <!-- <img src="../img/icons/ROOK-alert-icon.png" class="inline-img" />-->  Send Alert:
+                                        Send Alert:
                                     </label>
                                     <div class="col-sm-8">
                                         <select data-placeholder="Select Staff..." multiple name="alerts_enabled[]" data-table="tasklist" data-field="alerts_enabled" class="chosen-select-deselect form-control" width="380">
@@ -1537,7 +1557,7 @@ function track_icon_time(task) {
                                 </div>
                                 <div class="form-group">
                                     <label for="site_name" class="col-sm-4 control-label">
-                                        <!-- <img src="../img/icons/ROOK-email-icon.png" class="inline-img" /> --> Send Email:
+                                         Send Email:
                                     </label>
                                     <div class="col-sm-8">
                                         <select data-placeholder="Select Staff..." multiple name="emails_enabled[]" class="chosen-select-deselect form-control" width="380">
@@ -1551,12 +1571,14 @@ function track_icon_time(task) {
                                 </div>
                                 <div class="form-group">
                                     <label for="site_name" class="col-sm-4 control-label">
-                                        <!-- <img src="../img/icons/ROOK-reminder-icon.png" class="inline-img" /> --> Schedule Reminder:
+                                        Schedule Reminder:
                                     </label>
                                     <div class="col-sm-8">
                                         <input type="text" class="form-control datepicker" name="schedule_reminder" />
                                     </div>
                                 </div>
+                                -->
+
                                 <div class="form-group">
                                     <label for="additional_note" class="col-sm-4 control-label">
                                        <!-- <img src="../img/icons/ROOK-attachment-icon.png" class="inline-img" />--> Attach File(s):
@@ -1606,10 +1628,10 @@ function track_icon_time(task) {
                                     </div>
                                 </div>
                                 <div class="form-group clearfix">
-                                    <label for="task_comment" class="col-sm-4 control-label text-right">
+                                    <label for="task_comment" class="col-sm-12 control-label text-right">
                                         <!-- <img src="../img/icons/ROOK-reply-icon.png" class="inline-img" /> --> Comments:
                                     </label>
-                                    <div class="col-sm-8">
+                                    <div class="col-sm-12">
                                         <!-- <input type="text" name="task_comment" id="task_comment" class="form-control" width="65536" /> -->
                                         <textarea name="task_comment" id="task_comment" class="form-control"></textarea>
                                     </div>
@@ -1687,9 +1709,8 @@ function track_icon_time(task) {
                             </div><!-- .accordion-block-details -->
 
                             <div class="form-group padded">
-                                <?php if(!empty($_GET['tasklistid'])) { ?>
-                                    <button name="" type="button" value="" class="delete_task pull-left image-btn no-toggle" title="Archive"><img class="no-margin small" src="../img/icons/ROOK-trash-icon.png" alt="Archive Task" width="30"></button>
-                                <?php } ?>
+                                <?php if(!empty($_GET['tasklistid'])) { ?><button name="" type='button' value="" class="delete_task image-btn no-toggle" title="Archive"><img class="no-margin small" src="../img/icons/trash-icon-red.png" alt="Archive Task" width="30"></button><?php } ?>
+
                                 <button name="tasklist" value="tasklist" class="btn brand-btn pull-right stop-timer-submit">Submit</button>
 
                                 <img class="no-toggle pull-right theme-color-icon save-btn gap-right" src="../img/icons/save.png" alt="Save" width="36" title="" data-original-title="Save">

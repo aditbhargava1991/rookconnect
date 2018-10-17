@@ -434,7 +434,7 @@ $(document).ready(function () {
 				dataType: "html",   //expect html to be returned
 				success: function(response){
 					alert('You have successfully deleted this task.');
-					window.location.href = "add_task.php";
+					window.location.href = "index.php?category=All&tab=Summary";
 
 				}
 			});
@@ -1218,7 +1218,10 @@ function track_icon_time(task) {
                         </div>
                     </div>
                 </div>
-
+                <?php
+                $project_path_milestones = [];
+                $project_path_milestones = get_project_paths($task_projectid);
+                ?>
                 <div class="panel panel-default taskpath_section_display" style="<?= $taskpath_section_display ?>">
                     <div class="panel-heading">
                         <h4 class="panel-title">
@@ -1235,13 +1238,11 @@ function track_icon_time(task) {
                 <div class="col-sm-8">
                     <select data-placeholder="Select a <?= TASK_NOUN ?> Path..." id="task_path" name="task_path" data-table="tasklist" data-field="task_path" class="chosen-select-deselect form-control" width="380">
                         <option value=""></option><?php
-                        $project_path_milestones = [];
-
                             $query = mysqli_query($dbc,"SELECT project_path_milestone, project_path FROM project_path_milestone");
                             while($row = mysqli_fetch_array($query)) { ?>
                                 <option <?php if ($row['project_path_milestone'] == $task_path) { echo " selected"; } ?> value='<?php echo  $row['project_path_milestone']; ?>' ><?php echo $row['project_path']; ?></option><?php
                             }
-                            $project_path_milestones = get_project_paths($task_projectid);
+
 
                             /* if($task_projectid > 0) {
                             $project_path_milestones = get_project_paths($task_projectid);
@@ -1262,17 +1263,26 @@ function track_icon_time(task) {
                         $task_milestone_timeline = str_replace("FFMSPACE"," ",$task_milestone_timeline);
                         $task_milestone_timeline = str_replace("FFMHASH","#",$task_milestone_timeline);
 
-                        $project_milestone = str_replace("FFMEND","&",$project_milestone);
-                        $project_milestone = str_replace("FFMSPACE"," ",$project_milestone);
-                        $project_milestone = str_replace("FFMHASH","#",$project_milestone);
+                        $project_milestone = str_replace("&","FFMEND",$project_milestone);
+                        $project_milestone = str_replace(" ","FFMSPACE",$project_milestone);
+                        $project_milestone = str_replace("#","FFMHASH",$project_milestone);
+                        $project_milestone = str_replace("amp;","",$project_milestone);
+
                 ?>
                     <select data-placeholder="Select a Milestone & Timeline..." name="task_milestone_timeline" id="task_milestone_timeline" data-table="tasklist" data-field="task_milestone_timeline"  class="chosen-select-deselect form-control" width="580">
                         <option value=""></option>
                         <?php if($task_projectid > 0) {
                             foreach($project_path_milestones as $path) {
                                 if($path['path_id'] == $task_path) {
-                                    foreach($path['milestones'] as $milestone) { ?>
-                                        <option <?= $project_milestone == $milestone['milestone'] ? 'selected' : '' ?> value="<?= $milestone['milestone'] ?>"><?= $milestone['label'] ?></option>
+                                    foreach($path['milestones'] as $milestone) {
+                                        $f_milestone = $milestone['milestone'];
+
+                                        $f_milestone = str_replace("&","FFMEND",$f_milestone);
+                                        $f_milestone = str_replace(" ","FFMSPACE",$f_milestone);
+                                        $f_milestone = str_replace("#","FFMHASH",$f_milestone);
+
+                                        ?>
+                                        <option <?php if($project_milestone == $f_milestone) { echo " selected"; } ?> value="<?= $milestone['milestone'] ?>"><?= $milestone['label'] ?></option>
                                     <?php }
                                 }
                             }
@@ -1539,21 +1549,21 @@ function track_icon_time(task) {
                         <?php } ?>
 
                         <?php if(strpos($task_fields, ',Flag This,') !== FALSE) { ?>
-                            <div class="form-group clearfix">
+                            <!-- <div class="form-group clearfix">
                                 <label for="first_name" class="col-sm-4"><?php echo (strpos($task_mandatory_fields, ',Flag This,') !== FALSE ? '<font color="red">* </font>' : ''); ?>
-                                    <!-- <img src="../img/icons/ROOK-flag-icon.png" class="inline-img" /> --> Flag This:
+                                    Flag This:
                                 </label>
                                 <div class="col-sm-8">
                                     <a class="btn brand-btn" data-tasklistid="<?= $tasklistid ?>" onclick="flag_item(this);">Flag</a>
                                     <input type="hidden" name="flag" value="" />
                                 </div>
-                            </div>
+                            </div> -->
                         <?php } ?>
 
                         <?php if(strpos($task_fields, ',Send Alert,') !== FALSE) { ?>
-			<div class="form-group">
+			<!-- <div class="form-group">
 				<label for="site_name" class="col-sm-4"><?php echo (strpos($task_mandatory_fields, ',Send Alert,') !== FALSE ? '<font color="red">* </font>' : ''); ?>
-                    <!-- <img src="../img/icons/ROOK-alert-icon.png" class="inline-img" />-->  Send Alert:
+                     Send Alert:
                 </label>
 				<div class="col-sm-8">
 					<select data-placeholder="Select Staff..." multiple name="alerts_enabled[]" data-table="tasklist" data-field="alerts_enabled" class="<?php echo (strpos($task_mandatory_fields, ',Send Alert,') !== FALSE ? 'required' : ''); ?> chosen-select-deselect form-control" width="380">
@@ -1563,13 +1573,13 @@ function track_icon_time(task) {
 						<?php } ?>
 					</select>
 				</div>
-			</div>
+			</div> -->
                         <?php } ?>
 
                         <?php if(strpos($task_fields, ',Send Email,') !== FALSE) { ?>
-			<div class="form-group">
+			<!-- <div class="form-group">
 				<label for="site_name" class="col-sm-4"><?php echo (strpos($task_mandatory_fields, ',Send Email,') !== FALSE ? '<font color="red">* </font>' : ''); ?>
-                    <!-- <img src="../img/icons/ROOK-email-icon.png" class="inline-img" /> --> Send Email:
+                    Send Email:
                 </label>
 				<div class="col-sm-8">
 					<select data-placeholder="Select Staff..." multiple name="emails_enabled[]" class="<?php echo (strpos($task_mandatory_fields, ',Send Email,') !== FALSE ? 'required' : ''); ?> chosen-select-deselect form-control" width="380">
@@ -1579,18 +1589,18 @@ function track_icon_time(task) {
 						<?php } ?>
 					</select>
 				</div>
-			</div>
+			</div> -->
                         <?php } ?>
 
                         <?php if(strpos($task_fields, ',Schedule Reminder,') !== FALSE) { ?>
-			<div class="form-group">
+			<!-- <div class="form-group">
 				<label for="site_name" class="col-sm-4"><?php echo (strpos($task_mandatory_fields, ',Schedule Reminder,') !== FALSE ? '<font color="red">* </font>' : ''); ?>
-                    <!-- <img src="../img/icons/ROOK-reminder-icon.png" class="inline-img" /> --> Schedule Reminder:
+                    Schedule Reminder:
                 </label>
 				<div class="col-sm-8">
 					<input type="text" class="<?php echo (strpos($task_mandatory_fields, ',Schedule Reminder,') !== FALSE ? 'required' : ''); ?> form-control datepicker" name="schedule_reminder" />
 				</div>
-			</div>
+			</div> -->
                         <?php } ?>
 
                         <?php if(strpos($task_fields, ',Attach File,') !== FALSE) { ?>

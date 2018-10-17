@@ -279,7 +279,7 @@ if(!empty($_POST['search_start_date']) && !empty($_POST['search_end_date'])) {
                                     $service_rate = $service_cust_rate[1];
                                 }
                             }
-                            $services[] = $service['heading'].($qty[$i] > 0 ? ' x '.$qty[$i] : '');
+                            $services[] = (empty($sched_line['client_name']) ? $sched_line['location_name'] : $sched_line['client_name']).': '.$service['heading'].($qty[$i] > 0 ? ' x '.$qty[$i] : '');
                             $services_cost_num[] = ($qty[$i] > 0 ? $qty[$i] : 1) * ($service_rate > 0 ? $service_rate : $service['cust_price']);
                             $services_cost[] = number_format(($qty[$i] > 0 ? $qty[$i] : 1) * ($service_rate > 0 ? $service_rate : $service['cust_price']),2);
                         }

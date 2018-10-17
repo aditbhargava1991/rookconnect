@@ -258,8 +258,8 @@ var useProfileSig = function(chk) {
             <?php if(in_array('task_select',$value_config)) { ?><th style='text-align:center; vertical-align:bottom; width:12em;'><div>Task</div></th><?php } ?>
             <?php if(in_array('position_select',$value_config)) { ?><th style='text-align:center; vertical-align:bottom; width:12em;'><div>Position</div></th><?php } ?>
             <?php if(in_array('total_tracked_hrs_task',$value_config)) { ?><th style='text-align:center; vertical-align:bottom; width:6em;'><div>Time Tracked</div></th><?php } ?>
-            <?php if(in_array('total_hrs',$value_config)) { ?><th style='text-align:center; vertical-align:bottom; width:6em;'><div>Hours</div></th><?php } ?>
-            <?php if(in_array('total_hrs',$value_config) || in_array('reg_hrs',$value_config) || in_array('payable_hrs',$value_config)) { ?><th style='text-align:center; vertical-align:bottom; width:2em;'><div><?= in_array('payable_hrs',$value_config) ? 'Payable' : (in_array('total_hrs',$value_config) ? 'Total Hours' : 'Regular') ?><br />Hours</div></th><?php } ?>
+            <!-- <?php if(in_array('total_hrs',$value_config)) { ?><th style='text-align:center; vertical-align:bottom; width:6em;'><div>Hours</div></th><?php } ?> -->
+            <?php if(in_array('total_hrs',$value_config) || in_array('reg_hrs',$value_config) || in_array('payable_hrs',$value_config)) { ?><th style='text-align:center; vertical-align:bottom; width:2em;'><div><?= in_array('payable_hrs',$value_config) ? 'Payable' : (in_array('total_hrs',$value_config) ? 'Total' : 'Regular') ?><br />Hours</div></th><?php } ?>
             <?php if(in_array('start_day_tile_separate',$value_config)) { ?><th style='text-align:center; vertical-align:bottom; width:2em;'><div><?= $timesheet_start_tile ?></div></th><?php } ?>
             <?php if(in_array('direct_hrs',$value_config)) { ?><th style='text-align:center; vertical-align:bottom; width:2em;'><div>Direct<br />Hours</div></th><?php } ?>
             <?php if(in_array('indirect_hrs',$value_config)) { ?><th style='text-align:center; vertical-align:bottom; width:2em;'><div>Indirect<br />Hours</div></th><?php } ?>

@@ -6,7 +6,7 @@ ob_clean();
 $daily_date = $_POST['date'];
 $active_equipment = json_decode($_POST['active_equipment']);
 
-$equip_list = mysqli_fetch_all(mysqli_query($dbc, "SELECT *, CONCAT(' #', `unit_number`) label FROM `equipment` WHERE `deleted`=0 ".$equip_cat_query." $allowed_equipment_query $customer_query ORDER BY `label`"),MYSQLI_ASSOC);
+$equip_list = mysqli_fetch_all(mysqli_query($dbc, "SELECT *, CONCAT(' #', `unit_number`) label, `region` FROM `equipment` WHERE `deleted`=0 ".$equip_cat_query." $allowed_equipment_query $customer_query ORDER BY ".($group_regions == 1 ? "IFNULL(NULLIF(`region`,''),'ZZZ'), " : '')." `label`"),MYSQLI_ASSOC);
 
 //POPULATE
 $equipment_buttons = [];
@@ -28,8 +28,18 @@ foreach($equip_list as $equipment) {
 
 	if(get_config($dbc, 'dispatch_tile_hide_empty') != 1 || !empty($tickets)) {
 		$title_color = substr(md5(encryptIt($equipment['equipmentid'])), 0, 6);
+		$region_label = (empty($equipment['region']) ? 'No Region' : implode(', ',explode('*#*', $equipment['region'])));
+		$region_key = array_search($equipment['region'], $contact_regions);
+		$region_colour = $region_colours[$region_key];
+		$region_html = '<div class="dispatch-region-block small" style="border: 0; background-color: '.$region_colour.'" data-region="'.$equipment['region'].'">'.$region_label.'</div>';
 
-		$equipment_buttons[] = '<a href="" data-region=\''.json_encode($equip_regions).'\' data-location=\''.json_encode($equip_locations).'\' data-classification=\''.json_encode($equip_classifications).'\' data-equipment="'.$equipment['equipmentid'].'" data-activevalue="'.$equipment['equipmentid'].'" class="dispatch-equipment-button-a" onclick="select_equipment(this); return false;"><div class="pull-left" style="background-color: #'.$title_color.'; width: 20px; height: 20px; margin: 5px;"></div><li data-equipment="'.$equipment['equipmentid'].'" class="dispatch-equipment-button '.(($reset_active != 1 && (empty($active_equipment) || in_array($equipment['equipmentid'], $active_equipment))) || ($reset_active == 1 && !empty($tickets)) ? 'active blue' : '').'">'.$equipment['label'].'</li><div class="clearfix"></div></a>';
+		$equipment_buttons[] = [
+			'region'=>[
+				'label'=>$region_label,
+				'color'=>$region_colour,
+				'html'=>$region_html
+			],
+			'html'=>'<a href="" data-region=\''.json_encode($equip_regions).'\' data-location=\''.json_encode($equip_locations).'\' data-classification=\''.json_encode($equip_classifications).'\' data-equipment="'.$equipment['equipmentid'].'" data-activevalue="'.$equipment['equipmentid'].'" class="dispatch-equipment-button-a" onclick="select_equipment(this); return false;"><div class="pull-left" style="background-color: #'.$title_color.'; width: 20px; height: 20px; margin: 5px;"></div><li data-equipment="'.$equipment['equipmentid'].'" class="dispatch-equipment-button '.(($reset_active != 1 && (empty($active_equipment) || in_array($equipment['equipmentid'], $active_equipment))) || ($reset_active == 1 && !empty($tickets)) ? 'active blue' : '').'">'.$equipment['label'].'</li><div class="clearfix"></div></a>'];
 		$equipment_active_li[] = '<a data-activevalue="'.$equipment['equipmentid'].'" class="active_li_item" style="cursor: pointer;"><li class="active blue">'.$equipment['label'].'</li></a>';
 	}
 }

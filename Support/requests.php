@@ -624,10 +624,10 @@ if($request_tab == 'new'): ?>
 		</div>
 		<div class="form-group col-sm-12">
 			<div class="pull-right">
-				<span class="popover-examples list-inline"><a data-toggle="tooltip" data-placement="top" title="Click here after you have entered search criteria."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
-				<button type="submit" name="search" value="Search" class="btn brand-btn mobile-block">Search</button>
 				<span class="popover-examples list-inline"><a data-toggle="tooltip" data-placement="top" title="Click to refresh the page and see closed requests from the past two months."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
 				<a href="" class="btn brand-btn mobile-block">Display All</a>
+				<span class="popover-examples list-inline"><a data-toggle="tooltip" data-placement="top" title="Click here after you have entered search criteria."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
+				<button type="submit" name="search" value="Search" class="btn brand-btn mobile-block">Search</button>
 			</div>
 		</div><!-- .form-group -->
 		<div class="clearfix"></div>
@@ -758,10 +758,10 @@ if($request_tab == 'new'): ?>
 		</div>
 		<div class="form-group col-sm-12">
 			<div class="pull-right">
-				<span class="popover-examples list-inline"><a data-toggle="tooltip" data-placement="top" title="Click here after you have entered search criteria."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
-				<button type="submit" name="search" value="Search" class="btn brand-btn mobile-block">Search</button>
 				<span class="popover-examples list-inline"><a data-toggle="tooltip" data-placement="top" title="Click to refresh the page and see all active requests."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
 				<a href="" class="btn brand-btn mobile-block">Display All</a>
+				<span class="popover-examples list-inline"><a data-toggle="tooltip" data-placement="top" title="Click here after you have entered search criteria."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
+				<button type="submit" name="search" value="Search" class="btn brand-btn mobile-block">Search</button>
 			</div>
 		</div><!-- .form-group -->
 		<div class="clearfix"></div>
@@ -800,12 +800,13 @@ if($request_tab == 'new'): ?>
                             <?php if($row['ticketid'] > 0) {
                                 echo '<a href="'.WEBSITE_URL.'/Ticket/index.php?edit='.$row['ticketid'].'&from='.urlencode(WEBSITE_URL.'/Support/customer_support.php?tab=requests&type='.$request_tab.'#'.$row['supportid']).'">Open '.TICKET_NOUN.' #'.$row['ticketid'].'</a>';
                             } else {
-                                echo '<button value="'.$row['supportid'].'" class="btn brand-btn pull-right" onclick="create_ticket(this); return false;">Create and Edit '.TICKET_NOUN.'</button>';
+                                echo '<br /><button value="'.$row['supportid'].'" class="btn brand-btn pull-right" onclick="create_ticket(this); return false;">Create and Edit '.TICKET_NOUN.'</button>';
                             } ?>
                             <input type="text" name="reply_<?= $row['supportid'] ?>" style="display:none; margin-top: 2em;" class="form-control" />
                             <input type="text" name="checklist_time_<?= $row['supportid'] ?>" style="display:none; margin-top: 2em;" class="form-control timepicker" />
                             <input type="text" name="reminder_<?= $row['supportid'] ?>" style="display:none; margin-top: 2em;" class="form-control datepicker" />
                             <input type="file" name="attach_<?= $row['supportid'] ?>" style="display:none;" class="form-control" />
+                            <div class="clearfix"></div>
                         <?php }
                         echo '<span class="display-field"><b>Date of Request: '.$row['current_date']."</b><br />
                         Software Link: <a href='".$row['software_url']."'>".$row['software_url']."</a><br />
