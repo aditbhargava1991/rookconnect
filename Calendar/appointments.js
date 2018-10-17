@@ -1150,7 +1150,7 @@ function resize_calendar_view() {
 			$('.sidebar.panel-group .panel-body').outerHeight($('.sidebar.panel-group').outerHeight() - sidebar_headings);
 		}
 
-		$('.calendar_view').height('calc(80% + 4em)');
+		$('.calendar_view').height('calc(85% + 4em)');
 		// $('.calendar_view').outerHeight($('.calendar_view').outerHeight() - $('.ticket-status-legend').outerHeight(true));
 
 		var time_blocks = [];
