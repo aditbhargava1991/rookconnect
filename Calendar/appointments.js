@@ -1469,3 +1469,85 @@ function setDaysheetReminder(input) {
         }
     });
 }
+
+// Functions for the hover icons for Customer Sign Off on Deliveries
+function display_camera(img) {
+	if($(img).hasClass('active')) {
+	    var left  = ($(img).offset().left + 25) + "px";
+	    var top  = $(img).offset().top + "px";
+
+		if($('#camera_hover').not(':visible')) {
+		    $('#camera_hover').css('left', left);
+		    $('#camera_hover').css('top', top);
+			$('#camera_hover').show().html('Loading...');
+			$('#camera_hover').html('<p><b>'+$(img).data('label')+'</b></p><img src="'+$(img).data('file')+'" style="max-width: 300px; max-height: 300px; width: auto; height: auto;">');
+		}
+	} else {
+		hide_camera();
+	}
+}
+function hide_camera() {
+	$('#camera_hover').hide().html('Loading...');
+}
+function display_signature(img) {
+	if($(img).hasClass('active')) {
+	    var left  = ($(img).offset().left + 25) + "px";
+	    var top  = $(img).offset().top + "px";
+
+		if($('#signature_hover').not(':visible')) {
+		    $('#signature_hover').css('left', left);
+		    $('#signature_hover').css('top', top);
+			$('#signature_hover').show().html('Loading...');
+			$('#signature_hover').html('<img src="'+$(img).data('file')+'" style="max-width: 300px; max-height: 300px; width: auto; height: auto;">');
+		}
+	} else {
+		hide_camera();
+	}
+}
+function hide_signature() {
+	$('#signature_hover').hide().html('Loading...');
+}
+function display_star_rating(img) {
+	if($(img).hasClass('active')) {
+	    var left  = ($(img).offset().left + 25) + "px";
+	    var top  = $(img).offset().top + "px";
+	    var rating_html = $(img).closest('.used-block').find('.star_rating_hover_html').clone();
+	    $(rating_html).css('display', '');
+
+		if($('#star_rating_hover').not(':visible')) {
+		    $('#star_rating_hover').css('left', left);
+		    $('#star_rating_hover').css('top', top);
+			$('#star_rating_hover').show().html('Loading...');
+			$('#star_rating_hover').html(rating_html);
+		}
+	} else {
+		hide_star_rating();
+	}
+}
+function hide_star_rating() {
+	$('#star_rating_hover').hide().html('Loading...');
+}
+function display_customer_notes(img) {
+	if($(img).hasClass('active')) {
+	    var left  = ($(img).offset().left + 25) + "px";
+	    var top  = $(img).offset().top + "px";
+	    var notes_html = $(img).closest('.used-block').find('.customer_notes_hover_html').clone();
+	    $(notes_html).css('display', '');
+
+		if($('#customer_notes_hover').not(':visible')) {
+		    $('#customer_notes_hover').css('left', left);
+		    $('#customer_notes_hover').css('top', top);
+			$('#customer_notes_hover').show().html('Loading...');
+			$('#customer_notes_hover').html(notes_html);
+		}
+	} else {
+		hide_customer_notes();
+	}
+}
+function hide_customer_notes() {
+	$('#customer_notes_hover').hide().html('Loading...');
+}
+function view_customer_notes(url) {
+	overlayIFrameSlider(url, 'auto', true, true);
+	return false;
+}

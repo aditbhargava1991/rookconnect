@@ -607,9 +607,11 @@ if(($_GET['type'] == 'uni' || $_GET['type'] == 'my') && empty($_GET['shiftid']) 
 					$current_ticketids[] = ($ticket['stop_id'] > 0 ? 'ticket_schedule-'.$ticket['stop_id'] : 'tickets-'.$ticket['ticketid']);
 					$current_ticket = ['ticket_equip', 'warehouse', $current_warehouse, $current_count, $current_ticketids, $ticket];
 					unset($warehouse_tickets[$key]);
-					//$calendar_table[$calendar_date][$equipment['equipmentid']]['total_tickets']++;
-					if(in_array($ticket['status'],$calendar_checkmark_status)) {
-					//	$calendar_table[$calendar_date][$equipment['equipmentid']]['completed_tickets']++;
+					if($dont_count_warehouse != 1) {
+						$calendar_table[$calendar_date][$equipment['equipmentid']]['total_tickets']++;
+						if(in_array($ticket['status'],$calendar_checkmark_status)) {
+							$calendar_table[$calendar_date][$equipment['equipmentid']]['completed_tickets']++;
+						}
 					}
 				}
 			}
@@ -644,19 +646,24 @@ if(($_GET['type'] == 'uni' || $_GET['type'] == 'my') && empty($_GET['shiftid']) 
 			break;
 		}
 	}
-	foreach($warehouse_tickets as $ticket) {
-		$tickets[] = $ticket;
-	}
 	foreach($pickup_tickets as $ticket) {
 		$tickets[] = $ticket;
 	}
-
 	$tickets_not_scheduled = [];
 	foreach ($tickets as $ticket) {
 		$tickets_not_scheduled[] = ['id'=>$ticket['ticketid'],'stop'=>$ticket['id']];
 		$calendar_table[$calendar_date][$equipment['equipmentid']]['total_tickets']++;
 		if(in_array($ticket['status'],$calendar_checkmark_status)) {
 			$calendar_table[$calendar_date][$equipment['equipmentid']]['completed_tickets']++;
+		}
+	}
+	foreach($warehouse_tickets as $ticket) {
+		$tickets_not_scheduled[] = ['id'=>$ticket['ticketid'],'stop'=>$ticket['id']];
+		if($dont_count_warehouse != 1) {
+			$calendar_table[$calendar_date][$equipment['equipmentid']]['total_tickets']++;
+			if(in_array($ticket['status'],$calendar_checkmark_status)) {
+				$calendar_table[$calendar_date][$equipment['equipmentid']]['completed_tickets']++;
+			}
 		}
 	}
 	$ticket_notes[$calendar_date][$equipment['equipmentid']] = $tickets_not_scheduled;

@@ -3,7 +3,7 @@
 Dashboard
 */
 include_once('../include.php');
-error_reporting(0);
+error_reporting();
 $ticketid = filter_var($_GET['ticketid'],FILTER_SANITIZE_STRING);
 $get_ticket = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticketid` = '$ticketid' AND '$ticketid' > 0"));
 $ticket_type = $get_ticket['ticket_type'];
@@ -84,7 +84,6 @@ $titles = [
 							<th>User</th>
 							<th>Description</th>
 						</tr>
-						<?php $result_tickets = mysqli_query($dbc, "SELECT * FROM ticket_history WHERE ticketid ='$ticketid' AND `ticketid` > 0 ORDER BY `date` DESC");
 						<tr>
 							<?php $ticket = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `created_by`, `created_date` FROM `tickets` WHERE `ticketid`='$ticketid' AND `ticketid` > 0"));
 							$name = get_contact($dbc, $ticket['created_by']);
@@ -143,7 +142,7 @@ $titles = [
     	<?php } ?>
 	</div>
 </div>
-<?php 
+<?php
 function get_ticket_block($dbc, $ticket, $history_fields) {
 	$html = '';
 	$field_exists = false;

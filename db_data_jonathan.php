@@ -435,6 +435,15 @@
             mysqli_query($dbc, "UPDATE `field_config_ticket_alerts` SET `body`='&lt;p&gt;You are receiving this email because you are tagged to be alerted when a new ".TICKET_NOUN." of this type is created.'&lt;/p&gt;");
         }
         // Ticket 9586
+
+        // October 16, 2018 - Ticket 9744
+		if(!mysqli_query($dbc, "ALTER TABLE `equipment` ADD `part_serials` TEXT AFTER `serial_number`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+		if(!mysqli_query($dbc, "ALTER TABLE `equipment` ADD `part_serial_names` TEXT AFTER `serial_number`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+        // Ticket 9744
 		
 		set_config($dbc, 'db_version_jonathan', 8);
     }

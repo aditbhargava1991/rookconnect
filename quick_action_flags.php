@@ -29,6 +29,8 @@ if(isset($_POST['submit'])) {
         }
     }
 
+    $flag_colour = str_replace("#","",$flag_colour);
+
 	$error = '';
 
     switch ($tile) {
@@ -237,12 +239,7 @@ if(empty($row['flag_end']) || $row['flag_end'] == '0000-00-00') {
         	<div class="form-group">
         		<label class="col-sm-4 control-label">Flag Colour:</label>
         		<div class="col-sm-8">
-                    <select name='flag_colour' class="form-control" style="background-color:#<?= $row['flag_colour'] ?>;font-weight:bold;" onchange="$(this).css('background-color','#'+$(this).find('option:selected').val());">
-                        <option value="" style="background-color:#FFFFFF;">No Flag</option>
-                        <?php foreach(explode(',', get_config($dbc, "ticket_colour_flags")) as $flag_colour) { ?>
-                            <option <?= $row['flag_colour'] == $flag_colour ? 'selected' : '' ?> value="<?= $flag_colour ?>" style="background-color:#<?= $flag_colour ?>;"><?= $flag_colour ?></option>
-                        <?php } ?>
-                    </select>
+                    <input type="color" class="color_picker" name="flag_colour" value="#<?= $row['flag_colour'] ?>" />
                 </div>
         	</div>
         	<div class="form-group">
