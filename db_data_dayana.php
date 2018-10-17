@@ -292,7 +292,14 @@ mysqli_query($dbc, "ALTER TABLE `time_cards` ADD `end_time_from` VARCHAR(1000) N
 
 mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`, `value`) VALUES ('task_default_status', 'Doing Today')");
 
+$layout = get_config($dbc, 'timesheet_layout');
+
+if($layout == 'position_dropdown' || $layout == 'ticket_task') {
+	set_config($dbc, 'timesheet_layout', 'multi_line');
+}
+
 mysqli_query($dbc, "ALTER TABLE `contacts` ADD `days_per_week` INT(10) NULL AFTER `hours_of_operation`, ADD `hours_per_week` INT(10) NULL AFTER `days_per_week`");
+
 
     echo "Dayana's DB Changes Done<br />\n";
 ?>

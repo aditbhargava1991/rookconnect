@@ -657,8 +657,8 @@ if($_GET['tab'] == 'approvals') {
 					echo "<label><input ".($layout == ''?'checked':'')." type='radio' name='timesheet_layout' value=''>&nbsp;&nbsp;Default Layout</label>&nbsp;&nbsp;";
 					echo "<label><input ".($layout == 'multi_line'?'checked':'')." type='radio' name='timesheet_layout' value='multi_line'>&nbsp;&nbsp;Show Multiple Lines</label>&nbsp;&nbsp;";
 					// echo "<label><input ".($layout == 'position_columns'?'checked':'')." type='radio' name='timesheet_layout' value='position_columns'>&nbsp;&nbsp;Time Sheet with Position Columns</label>&nbsp;&nbsp;";
-					echo "<label><input ".($layout == 'position_dropdown'?'checked':'')." type='radio' name='timesheet_layout' value='position_dropdown'>&nbsp;&nbsp;Time Sheet with Position Drop Down</label>&nbsp;&nbsp;";
-					echo "<label><input ".($layout == 'ticket_task'?'checked':'')." type='radio' name='timesheet_layout' value='ticket_task'>&nbsp;&nbsp;Time Sheet with ".TICKET_NOUN." Tasks</label>&nbsp;&nbsp;";
+					//echo "<label><input ".($layout == 'position_dropdown'?'checked':'')." type='radio' name='timesheet_layout' value='position_dropdown'>&nbsp;&nbsp;Time Sheet with Position Drop Down</label>&nbsp;&nbsp;";
+					//echo "<label><input ".($layout == 'ticket_task'?'checked':'')." type='radio' name='timesheet_layout' value='ticket_task'>&nbsp;&nbsp;Time Sheet with ".TICKET_NOUN." Tasks</label>&nbsp;&nbsp;";
 					echo "<label><input ".($layout == 'rate_card'?'checked':'')." type='radio' name='timesheet_layout' value='rate_card'>&nbsp;&nbsp;Rate Card Category Layout</label>&nbsp;&nbsp;";
 					echo "<label><input ".($layout == 'rate_card_tickets'?'checked':'')." type='radio' name='timesheet_layout' value='rate_card_tickets'>&nbsp;&nbsp;Rate Card Category Per ".TICKET_NOUN."</label>&nbsp;&nbsp;";
 					echo "<label><input ".($layout == 'table_add_button'?'checked':'')." type='radio' name='timesheet_layout' value='table_add_button'>&nbsp;&nbsp;Table Layout with Add Button</label>&nbsp;&nbsp;"; ?>
