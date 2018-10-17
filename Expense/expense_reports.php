@@ -508,7 +508,7 @@ $field_config = explode(',',$config_row['expense_dashboard']); ?>
 			<label for="search_ticket" class="col-sm-4 control-label"><span class="popover-examples list-inline" style="margin:0 3px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Select Ticket"><img src="'.WEBSITE_URL.'/img/info.png" width="20"></a></span> Search By '. TICKET_NOUN .':</label>
 			<div class="col-sm-8">
 				<select data-placeholder="Select a '. TICKET_NOUN .' #" name="search_ByTicket" class="chosen-select-deselect form-control">
-					<option value=""></option>';?>
+					<option value="">Select Ticket</option>';?>
 					<?php
 					$query = mysqli_query($dbc,"SELECT `ticketid`, `heading` FROM `tickets` WHERE `deleted`=0 ORDER BY `ticketid`");
 					while($row = mysqli_fetch_array($query)) {
@@ -522,7 +522,7 @@ $field_config = explode(',',$config_row['expense_dashboard']); ?>
 			<label for="search_ticket" class="col-sm-4 control-label"><span class="popover-examples list-inline" style="margin:0 3px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Select Category"><img src="'.WEBSITE_URL.'/img/info.png" width="20"></a></span> Search By Category:</label>
 			<div class="col-sm-8">
 				<select data-placeholder="Select a Category#" name="search_ByCategory" class="chosen-select-deselect form-control">
-					<option value=""></option>';?>
+					<option value="">Select Category</option>';?>
 					<?php 
 					$query = mysqli_query($dbc, "SELECT DISTINCT(CONCAT(EC,': ',`category`)) cat, `category` FROM `expense_categories` ORDER BY cat");
 					while($query_cat = mysqli_fetch_array($query)) {
@@ -536,7 +536,7 @@ $field_config = explode(',',$config_row['expense_dashboard']); ?>
 			<label for="search_ticket" class="col-sm-4 control-label"><span class="popover-examples list-inline" style="margin:0 3px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Select Project"><img src="'.WEBSITE_URL.'/img/info.png" width="20"></a></span> Search By '. PROJECT_NOUN .':</label>
 			<div class="col-sm-8">
 				<select data-placeholder="Select a '. PROJECT_NOUN .' #" name="search_ByProject" class="chosen-select-deselect form-control">
-					<option value=""></option>';?>
+					<option value="">Select Project</option>';?>
 					<?php 
 					$query = mysqli_query($dbc, "SELECT * FROM `project` WHERE `deleted`=0 AND `projectid` IN (SELECT `projectid` FROM `expense` WHERE `deleted`=0)");
 					while($row = mysqli_fetch_array($query)) {
@@ -550,7 +550,7 @@ $field_config = explode(',',$config_row['expense_dashboard']); ?>
 			<label for="search_ticket" class="col-sm-4 control-label"><span class="popover-examples list-inline" style="margin:0 3px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Select Staff"><img src="'.WEBSITE_URL.'/img/info.png" width="20"></a></span> Search By Staff:</label>
 			<div class="col-sm-8">
 				<select data-placeholder="Select a Staff#" name="search_ByStaff" class="chosen-select-deselect form-control">
-					<option value=""></option>';?>
+					<option value="">Select Staff</option>';?>
 					<?php 
 					$query = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name` FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `deleted`=0 AND `status`=1 AND `show_hide_user`=1"),MYSQLI_ASSOC));
 						foreach($query as $query_contactid) {
@@ -589,13 +589,7 @@ $field_config = explode(',',$config_row['expense_dashboard']); ?>
 					</td>
 				</tr>';
 			}
-			$html .= '</table>';
-
-			$html .= '<table class="table table-bordered new-table">
-			<tr class="hidden-xm hidden-xs">
-				<th style="max-width: 25%; width: 15em;">Category</th>
-				<th>Expense Amount</th>
-			</tr>';
+			
 			$expense_report = mysqli_query($dbc, "SELECT CONCAT(IFNULL(CONCAT(`categories`.`EC`,': '),''),IFNULL(`expense`.`category`,'')) `category`, SUM(`total`) expense_sum, CONCAT(LPAD(0,100,IFNULL(`categories`.`EC`,'')),IFNULL(`expense`.`category`,'')) expense_sort FROM `expense` LEFT JOIN (SELECT `EC`, `category` FROM `expense_categories` GROUP BY `category`) `categories` ON `expense`.`category`=`categories`.`category` WHERE $filter_query GROUP BY IFNULL(`expense`.`category`,'') ORDER BY expense_sum DESC");
 			$max_expenses = 0;
 			$lines = [];
@@ -616,13 +610,7 @@ $field_config = explode(',',$config_row['expense_dashboard']); ?>
 			foreach($lines as $line) {
 				$html .= $line;
 			}
-			$html .= '</table>';
-
-			$html .= '<table class="table table-bordered new-table">
-			<tr class="hidden-xm hidden-xs">
-				<th style="max-width: 25%; width: 15em;">'.PROJECT_NOUN.'</th>
-				<th>Expense Amount</th>
-			</tr>';
+			
 			$expense_report = mysqli_query($dbc, "SELECT `projectid`, SUM(`total`) `expense_sum` FROM `expense` WHERE $filter_query GROUP BY `projectid` ORDER BY expense_sum DESC");
 			$max_expenses = 0;
 			while($report = mysqli_fetch_array($expense_report)) {

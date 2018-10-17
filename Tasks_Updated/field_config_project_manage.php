@@ -432,7 +432,7 @@ if(!empty($_POST['submit'])) {
 				<?php $get_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT * FROM task_dashboard"));
 				$flag_colours = $get_config['flag_colours'];
 				$flag_names = explode('#*#', $get_config['flag_names']); ?>
-                <div class="panel panel-default">
+                <!-- <div class="panel panel-default">
                     <div class="panel-heading">
                         <h4 class="panel-title">
                             <a data-toggle="collapse" data-parent="#accordion2" href="#collapse_flags">
@@ -480,6 +480,8 @@ if(!empty($_POST['submit'])) {
                         </div>
                     </div>
                 </div>
+                -->
+
                 <?php } else if($_GET['category'] == 'add_tab') { ?>
                 <div class="panel panel-default">
                     <div class="panel-heading">

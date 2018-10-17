@@ -12,6 +12,7 @@ checkAuthorised('dispatch');
 <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 <script type="text/javascript" src="../Dispatch/dashboard.js"></script>
 
+<input type="hidden" name="group_regions" value="<?= $group_regions ?>">
 <div id="camera_hover" class="block-button" style="position:absolute; z-index:9999; display:none;">Loading...</div>
 <div id="signature_hover" class="block-button" style="position:absolute; z-index:9999; display:none;">Loading...</div>
 <div id="star_rating_hover" class="block-button" style="position:absolute; z-index:9999; display:none;">Loading...</div>

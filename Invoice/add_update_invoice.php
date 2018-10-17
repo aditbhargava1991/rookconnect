@@ -820,7 +820,7 @@ if($invoice_mode != 'Adjustment') {
 			if($sid != '') {
 				$f = $service_all_fee[$s_row];
 				$result = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT r.admin_fee, s.gst_exempt FROM services s, company_rate_card r WHERE s.serviceid='$sid' AND s.serviceid = r.serviceid AND '$today_date' >= r.start_date AND ('$today_date' <= r.end_date OR IFNULL(r.end_date,'0000-00-00') = '0000-00-00')"));
-                $comp_rate = $dbc->query("SELECT `comp_percent` FROM `rate_compensation` LEFT JOIN `rate_card` ON `rate_compensation`.`rate_card`=`rate_card`.`ratecardid` WHERE `rate_card`.`clientid`='$therapistsid' AND `rate_card`.`clientid` > 0 AND `rate_card`.`deleted`=0 AND `rate_card`.`on_off` > 0 AND `rate_compensation`.`item_type`='services' AND `rate_compensation`.`deleted`=0 AND '$service_date' BETWEEN `rate_card`.`start_date` AND `rate_card`.`end_date` UNION SELECT '100' `comp_percent`")->fetch_assoc()['comp_percent'];
+                $comp_rate = $dbc->query("SELECT `comp_percent` FROM `rate_compensation` LEFT JOIN `rate_card` ON `rate_compensation`.`rate_card`=`rate_card`.`ratecardid` WHERE `rate_card`.`clientid`='$therapistsid' AND `rate_card`.`clientid` > 0 AND `rate_card`.`deleted`=0 AND `rate_card`.`on_off` > 0 AND `rate_compensation`.`item_type`='services' AND `rate_compensation`.`deleted`=0 AND '$service_date' BETWEEN IFNULL(`rate_card`.`start_date`,'0000-00-00') AND IFNULL(NULLIF(`rate_card`.`end_date`,'0000-00-00'),'9999-12-31') UNION SELECT '100' `comp_percent`")->fetch_assoc()['comp_percent'];
 				$af = $result['admin_fee'];
 				$total_pro_bono_amt = $service_all_pro_bono[$s_row] - ($result['gst_exempt'] == 1 ? 0 : $f * $_POST['tax_rate'] / 100);
 				if($f != $total_pro_bono_amt) {
@@ -840,20 +840,20 @@ if($invoice_mode != 'Adjustment') {
 			if($invid != '') {
 				$comp_total = explode(',',$sell_price)[$i];
                 $comp_qty = explode(',',$quantity)[$i];
-                $comp_rate = $dbc->query("SELECT `comp_percent` FROM `rate_compensation` LEFT JOIN `rate_card` ON `rate_compensation`.`rate_card`=`rate_card`.`ratecardid` WHERE `rate_card`.`clientid`='$therapistsid' AND `rate_card`.`clientid` > 0 AND `rate_card`.`deleted`=0 AND `rate_card`.`on_off` > 0 AND `rate_compensation`.`item_type`='inventory' AND `rate_compensation`.`deleted`=0 AND '$service_date' BETWEEN `rate_card`.`start_date` AND `rate_card`.`end_date` UNION SELECT '100' `comp_percent`")->fetch_assoc()['comp_percent'];
+                $comp_rate = $dbc->query("SELECT `comp_percent` FROM `rate_compensation` LEFT JOIN `rate_card` ON `rate_compensation`.`rate_card`=`rate_card`.`ratecardid` WHERE `rate_card`.`clientid`='$therapistsid' AND `rate_card`.`clientid` > 0 AND `rate_card`.`deleted`=0 AND `rate_card`.`on_off` > 0 AND `rate_compensation`.`item_type`='inventory' AND `rate_compensation`.`deleted`=0 AND '$service_date' BETWEEN IFNULL(`rate_card`.`start_date`,'0000-00-00') AND IFNULL(NULLIF(`rate_card`.`end_date`,'0000-00-00'),'9999-12-31') UNION SELECT '100' `comp_percent`")->fetch_assoc()['comp_percent'];
                 $comp_amt = $comp_total * ($comp_rate / 100);
                 $query_comp_insert = "INSERT INTO `invoice_compensation` (`invoiceid`, `contactid`, `item_type`, `item_id`, `fee`, `admin_fee`, `qty`, `comp_percent`, `compensation`, `service_date`) VALUES ('$invoiceid', '$therapistsid', 'inventory', '$invid', '$comp_total', '0', '$comp_qty', '$comp_rate', '$comp_amt', '$today_date')";
                 $result_comp = mysqli_query($dbc, $query_comp_insert);
 			}
 		}
 		//Compensation - Miscellaneous
-		foreach(explode(',',$inventoryid) as $i => $invid) {
-			if($invid != '') {
+		foreach(explode(',',$misc_items) as $i => $misc) {
+			if($misc != '') {
 				$comp_total = explode(',',$misc_price)[$i];
                 $comp_qty = explode(',',$misc_qty)[$i];
-                $comp_rate = $dbc->query("SELECT `comp_percent` FROM `rate_compensation` LEFT JOIN `rate_card` ON `rate_compensation`.`rate_card`=`rate_card`.`ratecardid` WHERE `rate_card`.`clientid`='$therapistsid' AND `rate_card`.`clientid` > 0 AND `rate_card`.`deleted`=0 AND `rate_card`.`on_off` > 0 AND `rate_compensation`.`item_type`='misc' AND `rate_compensation`.`deleted`=0 AND '$service_date' BETWEEN `rate_card`.`start_date` AND `rate_card`.`end_date` UNION SELECT '100' `comp_percent`")->fetch_assoc()['comp_percent'];
+                $comp_rate = $dbc->query("SELECT `comp_percent` FROM `rate_compensation` LEFT JOIN `rate_card` ON `rate_compensation`.`rate_card`=`rate_card`.`ratecardid` WHERE `rate_card`.`clientid`='$therapistsid' AND `rate_card`.`clientid` > 0 AND `rate_card`.`deleted`=0 AND `rate_card`.`on_off` > 0 AND `rate_compensation`.`item_type`='misc' AND `rate_compensation`.`deleted`=0 AND '$service_date' BETWEEN IFNULL(`rate_card`.`start_date`,'0000-00-00') AND IFNULL(NULLIF(`rate_card`.`end_date`,'0000-00-00'),'9999-12-31') UNION SELECT '100' `comp_percent`")->fetch_assoc()['comp_percent'];
                 $comp_amt = $comp_total * ($comp_rate / 100);
-                $query_comp_insert = "INSERT INTO `invoice_compensation` (`invoiceid`, `contactid`, `item_type`, `item_id`, `fee`, `admin_fee`, `qty`, `comp_percent`, `compensation`, `service_date`) VALUES ('$invoiceid', '$therapistsid', 'misc', '$invid', '$comp_total', '0', '$comp_qty', '$comp_rate', '$comp_amt', '$today_date')";
+                $query_comp_insert = "INSERT INTO `invoice_compensation` (`invoiceid`, `contactid`, `item_type`, `item_id`, `fee`, `admin_fee`, `qty`, `comp_percent`, `compensation`, `service_date`) VALUES ('$invoiceid', '$therapistsid', 'misc', '0', '$comp_total', '0', '$comp_qty', '$comp_rate', '$comp_amt', '$today_date')";
                 $result_comp = mysqli_query($dbc, $query_comp_insert);
 			}
 		}
@@ -2504,7 +2504,7 @@ if($invoice_mode != 'Adjustment') {
 				$f = $service_fees[$i];
 				$result = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT r.admin_fee, s.gst_exempt FROM services s, company_rate_card r WHERE s.serviceid='$sid' AND s.serviceid = r.item_id AND r.tile_name LIKE 'Services' AND '$today_date' >= r.start_date AND ('$today_date' <= r.end_date OR IFNULL(r.end_date,'0000-00-00') = '0000-00-00')"));
 				$admin = $result['admin_fee'];
-                $comp_rate = $dbc->query("SELECT `comp_percent` FROM `rate_compensation` LEFT JOIN `rate_card` ON `rate_compensation`.`rate_card`=`rate_card`.`ratecardid` WHERE `rate_card`.`clientid`='$therapistsid' AND `rate_card`.`clientid` > 0 AND `rate_card`.`deleted`=0 AND `rate_card`.`on_off` > 0 AND `rate_compensation`.`item_type`='services' AND `rate_compensation`.`deleted`=0 AND '$service_date' BETWEEN `rate_card`.`start_date` AND `rate_card`.`end_date` UNION SELECT '100' `comp_percent`")->fetch_assoc()['comp_percent'];
+                $comp_rate = $dbc->query("SELECT `comp_percent` FROM `rate_compensation` LEFT JOIN `rate_card` ON `rate_compensation`.`rate_card`=`rate_card`.`ratecardid` WHERE `rate_card`.`clientid`='$therapistsid' AND `rate_card`.`clientid` > 0 AND `rate_card`.`deleted`=0 AND `rate_card`.`on_off` > 0 AND `rate_compensation`.`item_type`='services' AND `rate_compensation`.`deleted`=0 AND '$service_date' BETWEEN IFNULL(`rate_card`.`start_date`,'0000-00-00') AND IFNULL(NULLIF(`rate_card`.`end_date`,'0000-00-00'),'9999-12-31') UNION SELECT '100' `comp_percent`")->fetch_assoc()['comp_percent'];
 				$total_pro_bono_amt = $service_all_pro_bono[$i] - ($result['gst_exempt'] == 1 ? 0 : $f * $_POST['tax_rate'] / 100);
 				if($f != $total_pro_bono_amt) {
 					$f -= $total_pro_bono_amt;
@@ -2522,20 +2522,20 @@ if($invoice_mode != 'Adjustment') {
 			if($invid != '') {
 				$comp_total = explode(',',$sell_price)[$i];
                 $comp_qty = explode(',',$quantity)[$i];
-                $comp_rate = $dbc->query("SELECT `comp_percent` FROM `rate_compensation` LEFT JOIN `rate_card` ON `rate_compensation`.`rate_card`=`rate_card`.`ratecardid` WHERE `rate_card`.`clientid`='$therapistsid' AND `rate_card`.`clientid` > 0 AND `rate_card`.`deleted`=0 AND `rate_card`.`on_off` > 0 AND `rate_compensation`.`item_type`='inventory' AND `rate_compensation`.`deleted`=0 AND '$service_date' BETWEEN `rate_card`.`start_date` AND `rate_card`.`end_date` UNION SELECT '100' `comp_percent`")->fetch_assoc()['comp_percent'];
+                $comp_rate = $dbc->query("SELECT `comp_percent` FROM `rate_compensation` LEFT JOIN `rate_card` ON `rate_compensation`.`rate_card`=`rate_card`.`ratecardid` WHERE `rate_card`.`clientid`='$therapistsid' AND `rate_card`.`clientid` > 0 AND `rate_card`.`deleted`=0 AND `rate_card`.`on_off` > 0 AND `rate_compensation`.`item_type`='inventory' AND `rate_compensation`.`deleted`=0 AND '$service_date' BETWEEN IFNULL(`rate_card`.`start_date`,'0000-00-00') AND IFNULL(NULLIF(`rate_card`.`end_date`,'0000-00-00'),'9999-12-31') UNION SELECT '100' `comp_percent`")->fetch_assoc()['comp_percent'];
                 $comp_amt = $comp_total * ($comp_rate / 100);
                 $query_comp_insert = "INSERT INTO `invoice_compensation` (`invoiceid`, `contactid`, `item_type`, `item_id`, `fee`, `admin_fee`, `qty`, `comp_percent`, `compensation`, `service_date`) VALUES ('$invoiceid', '$therapistsid', 'inventory', '$invid', '$comp_total', '0', '$comp_qty', '$comp_rate', '$comp_amt', '$today_date')";
                 $result_comp = mysqli_query($dbc, $query_comp_insert);
 			}
 		}
 		//Adjustment Compensation - Miscellaneous
-		foreach(explode(',',$inventoryid) as $i => $invid) {
-			if($invid != '') {
+		foreach(explode(',',$misc_items) as $i => $misc) {
+			if($misc != '') {
 				$comp_total = explode(',',$misc_price)[$i];
                 $comp_qty = explode(',',$misc_qty)[$i];
-                $comp_rate = $dbc->query("SELECT `comp_percent` FROM `rate_compensation` LEFT JOIN `rate_card` ON `rate_compensation`.`rate_card`=`rate_card`.`ratecardid` WHERE `rate_card`.`clientid`='$therapistsid' AND `rate_card`.`clientid` > 0 AND `rate_card`.`deleted`=0 AND `rate_card`.`on_off` > 0 AND `rate_compensation`.`item_type`='misc' AND `rate_compensation`.`deleted`=0 AND '$service_date' BETWEEN `rate_card`.`start_date` AND `rate_card`.`end_date` UNION SELECT '100' `comp_percent`")->fetch_assoc()['comp_percent'];
+                $comp_rate = $dbc->query("SELECT `comp_percent` FROM `rate_compensation` LEFT JOIN `rate_card` ON `rate_compensation`.`rate_card`=`rate_card`.`ratecardid` WHERE `rate_card`.`clientid`='$therapistsid' AND `rate_card`.`clientid` > 0 AND `rate_card`.`deleted`=0 AND `rate_card`.`on_off` > 0 AND `rate_compensation`.`item_type`='misc' AND `rate_compensation`.`deleted`=0 AND '$service_date' BETWEEN IFNULL(`rate_card`.`start_date`,'0000-00-00') AND IFNULL(NULLIF(`rate_card`.`end_date`,'0000-00-00'),'9999-12-31') UNION SELECT '100' `comp_percent`")->fetch_assoc()['comp_percent'];
                 $comp_amt = $comp_total * ($comp_rate / 100);
-                $query_comp_insert = "INSERT INTO `invoice_compensation` (`invoiceid`, `contactid`, `item_type`, `item_id`, `fee`, `admin_fee`, `qty`, `comp_percent`, `compensation`, `service_date`) VALUES ('$invoiceid', '$therapistsid', 'misc', '$invid', '$comp_total', '0', '$comp_qty', '$comp_rate', '$comp_amt', '$today_date')";
+                $query_comp_insert = "INSERT INTO `invoice_compensation` (`invoiceid`, `contactid`, `item_type`, `item_id`, `fee`, `admin_fee`, `qty`, `comp_percent`, `compensation`, `service_date`) VALUES ('$invoiceid', '$therapistsid', 'misc', '0', '$comp_total', '0', '$comp_qty', '$comp_rate', '$comp_amt', '$today_date')";
                 $result_comp = mysqli_query($dbc, $query_comp_insert);
 			}
 		}
