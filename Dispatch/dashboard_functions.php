@@ -11,7 +11,6 @@ function dispatch_ticket_label($dbc, $ticket, $stop_number) {
 	if(vuaed_visible_function($dbc, 'ticket') > 0) {
 		$clickable_html .= 'onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Ticket/edit_ticket_tab.php?tab=ticket_customer_notes&ticketid='.$ticket['ticketid'].'&stop='.$ticket['stop_id'].'\', \'auto\', true, true, \'auto\', false, \'true\'); return false;"';
 	}
-	$customer_notes = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `ticket_attached` WHERE `ticketid` = '".$ticket['ticketid']."' AND `src_table` = 'customer_approve' AND `line_id` = '".$ticket['stop_id']."' AND `deleted` = 0"));
 
 	$dispatch_tile_ticket_card_fields = explode(',',get_config($dbc, 'dispatch_tile_ticket_card_fields'));
 
@@ -80,6 +79,15 @@ function dispatch_ticket_label($dbc, $ticket, $stop_number) {
 		$row_html .= '<br />Delivery Notes: '.html_entity_decode($ticket['delivery_notes']);
 	}
 	$row_html .= '<div class="clearfix"></div>';
+	$row_html .= '<span class="bottom-right">'.$ticket['status'].'</span>';
+    $row_html .= dispatch_delivery_hover_icons($dbc, $ticket, $stop_number, $clickable_html, $dispatch_tile_ticket_card_fields);
+
+	return $row_html;
+}
+
+function dispatch_delivery_hover_icons($dbc, $ticket, $stop_number, $clickable_html, $dispatch_tile_ticket_card_fields) {
+    $row_html = '';
+	$customer_notes = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `ticket_attached` WHERE `ticketid` = '".$ticket['ticketid']."' AND `src_table` = 'customer_approve' AND `line_id` = '".$ticket['stop_id']."' AND `deleted` = 0"));
 	if(in_array('camera',$dispatch_tile_ticket_card_fields)) {
 		$existing_photos = [];
 
@@ -217,7 +225,5 @@ function dispatch_ticket_label($dbc, $ticket, $stop_number) {
 
 		$row_html .= '<img '.$clickable_html.' src="../img/icons/ROOK-reply-icon.png" class="no-slider inline-img dispatch-equipment-customer-notes '.$notes_class.'" onmouseover="display_customer_notes(this);" onmouseout="hide_customer_notes();">'.$notes_html;
 	}
-	$row_html .= '<span class="bottom-right">'.$ticket['status'].'</span>';
-
-	return $row_html;
+    return $row_html;
 }
