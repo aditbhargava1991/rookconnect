@@ -945,7 +945,11 @@ function addIntakeForm(btn) {
 								}
 
                                 if ( $row['task_milestone_timeline']==$cat_tab ) {
-                                    echo '<li id="'.$row['tasklistid'].'" data-table="tasklist" data-id-field="tasklistid" class="ui-state-default t_item '.$class_on.'" style="margin-top:4px; '.($row['flag_colour'] == '' ? '' : 'background-color: #'.$row['flag_colour'].';').($border_colour == '' ? '' : 'border-style:solid;border-color: '.$border_colour.';border-width:3px;').'">';
+                                    $bg_color = '';
+                                    if($row['flag_label'] == '' && $row['flag_colour'] != '') {
+                                        $bg_color = $row['flag_colour'];
+                                    }
+                                    echo '<li id="'.$row['tasklistid'].'" data-table="tasklist" data-id-field="tasklistid" class="ui-state-default t_item '.$class_on.'" style="margin-top:4px; background-color: #'.$bg_color.';'.($border_colour == '' ? '' : 'border-style:solid;border-color: '.$border_colour.';border-width:3px;').'">';
 
                                     $businessid = $url_tab=='Business' ? $row['businessid'] : '';
                                     $clientid = $url_tab=='Client' ? $row['clientid'] : '';
@@ -963,7 +967,10 @@ function addIntakeForm(btn) {
                                         //echo '<img class="drag_handle pull-right inline-img" src="../img/icons/drag_handle.png" />';
                                     //echo '</span>'; ?>
                                     <div class="row pull-left t_name">
-                                        <?= $row['flag_label'] ?>
+                                        <?php
+                                        if($row['flag_label'] != '') { ?>
+                                        <span class="block-label flag-label-block" style="font-weight: bold; background-color: rgb(0, 255, 128);">Flagged: <?= $row['flag_label'] ?></span>
+                                        <?php } ?>
                                         <h4 style="<?= $style_strikethrough ?>">
 
                                             <input type="checkbox" name="status" value="<?= $row['tasklistid'] ?>" class="form-checkbox no-margin small pull-left" onchange="mark_done(this);" <?= ( $row['status'] == 'Complete' || $row['status'] == 'Done' || $row['status'] == 'Finish') ? 'checked' : '' ?> />
