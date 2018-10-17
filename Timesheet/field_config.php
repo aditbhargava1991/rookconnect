@@ -5,6 +5,7 @@ include 'config.php';
 $_GET['from_url'] = 'index.php'.(!empty($_GET['from_url']) ? '?url='.$_GET['from_url'] : '');
 
 if (isset($_POST['submit']) && $_POST['submit'] == 'reporting') {
+    set_config($dbc, 'timesheet_report_options', implode(',',$_POST['timesheet_report_options']));
     $timesheet_reporting_styling = filter_var($_POST['timesheet_reporting_styling'],FILTER_SANITIZE_STRING);
     $get_field_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT COUNT(configid) AS configid FROM general_configuration WHERE `name` = 'timesheet_reporting_styling'"));
 
@@ -847,6 +848,7 @@ if($_GET['tab'] == 'approvals') {
 
 <?php elseif($_GET['tab'] == 'reporting'):
 	$timesheet_reporting_styling = get_config($dbc,'timesheet_reporting_styling');
+	$timesheet_report_options = explode(',',get_config($dbc,'timesheet_report_options'));
     ?>
 	<div class="panel-group" id="accordion2">
 		<div class="panel panel-default">
@@ -865,6 +867,13 @@ if($_GET['tab'] == 'approvals') {
                       <div class="col-sm-8">
                         <label class="form-checkbox"><input type="radio" name="timesheet_reporting_styling" <?= $timesheet_reporting_styling == 'Default' ? 'checked' : '' ?> data-table="tickets" data-id="<?= $timesheet_reporting_styling ?>" data-id-field="timesheet_reporting_styling" class="form-control" value="Default"> Default</label>
                         <label class="form-checkbox"><input type="radio" name="timesheet_reporting_styling" <?= $timesheet_reporting_styling == 'EGS' ? 'checked' : '' ?> data-table="tickets" data-id="<?= $timesheet_reporting_styling ?>" data-id-field="timesheet_reporting_styling" class="form-control" value="EGS"> Total Time Tracked</label>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <label for="site_name" class="col-sm-4 control-label">Options:</label>
+                      <div class="col-sm-8">
+                        <label class="form-checkbox"><input type="checkbox" name="timesheet_report_options[]" <?= in_array('summary',$timesheet_report_options) ? 'checked' : '' ?> class="form-control" value="summary"> Display Summary</label>
                       </div>
                     </div>
 
