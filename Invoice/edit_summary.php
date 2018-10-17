@@ -154,6 +154,20 @@
     </div>
     <?php } ?>
 
+    <?php if (in_array('Customer Billing Status',$field_config) && $_GET['inv_mode'] != 'adjust') { ?>
+    <div class="form-group">
+        <label for="giftcard" class="col-sm-3 control-label">
+        Customer Billing Status:</label>
+        <div class="col-sm-9">
+            <select class="chosen-select-deselect" name="customer_billing_status"><option></option>
+                    <option value="Pending">Pending</option>
+                    <option value="Approved">Approved</option>
+                    <option value="Declined">Declined</option>
+            </select>
+        </div>
+    </div>
+    <?php } ?>
+
     <div class="form-group" <?= (in_array('next_appt',$field_config) ? '' : 'style="display:none;"') ?>>
         <label for="site_name" class="col-sm-3 control-label">
         <span class="popover-examples list-inline">

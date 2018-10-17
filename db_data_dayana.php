@@ -292,5 +292,7 @@ mysqli_query($dbc, "ALTER TABLE `time_cards` ADD `end_time_from` VARCHAR(1000) N
 
 mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`, `value`) VALUES ('task_default_status', 'Doing Today')");
 
+mysqli_query($dbc, "ALTER TABLE `invoice` ADD `customer_billing_status` VARCHAR(200) NULL DEFAULT 'Pending' AFTER `patient_payment_receipt`");
+
     echo "Dayana's DB Changes Done<br />\n";
 ?>
