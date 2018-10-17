@@ -5,7 +5,7 @@ include_once('config.php');
 ob_clean();
 $ticketid = filter_var($_GET['ticketid'],FILTER_SANITIZE_STRING);
 $form = $dbc->query("SELECT * FROM `ticket_pdf` WHERE `id`='".filter_var($_GET['form'],FILTER_SANITIZE_STRING)."'")->fetch_assoc();
-if($_GET['revision'] > 0 && $form['pdf_name'] != '' && $ticketid > 0 && file_exists('download/'.config_safe_str($form['pdf_name']).'_'.$_GET['revision'].'_'.$ticketid.'.pdf')) {
+if($_GET['revision'] > 0 && $form['pdf_name'] != '' && $ticketid > 0 && file_exists('download/'.config_safe_str($form['pdf_name']).'_'.$_GET['revision'].'_'.$ticketid.'.pdf') && $_GET['revision_mode'] != 'edit') {
 	echo "<script> window.top.location.href = 'download/".config_safe_str($form['pdf_name']).'_'.$_GET['revision'].'_'.$ticketid.".pdf'; </script>";
 } else if(!empty($_GET['form'])) {
 	DEFINE("PDF_IMAGES", $form['pages']);
