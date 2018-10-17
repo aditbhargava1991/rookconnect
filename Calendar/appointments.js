@@ -1446,3 +1446,26 @@ function removeTicketSchedule(ticketid, stopid) {
         });
     });
 }
+function setDaysheetReminder(input) {
+    var daysheet_reminder = $(input);
+    var daysheetreminderid = input.value;
+    var done = 0;
+    if ($(input).is(':checked')) {
+        done = 1;
+    }
+    $.ajax({
+        url: '../Profile/profile_ajax.php?fill=daysheet_reminders',
+        method: 'POST',
+        data: {
+            daysheetreminderid: daysheetreminderid,
+            done: done
+        },
+        success: function(response) {
+            if (done == 1) {
+                daysheet_reminder.closest('.daysheet_row').find('span').css('text-decoration', 'line-through');
+            } else {
+                daysheet_reminder.closest('.daysheet_row').find('span').css('text-decoration', 'none');
+            }
+        }
+    });
+}
