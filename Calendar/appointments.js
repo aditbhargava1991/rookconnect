@@ -1150,7 +1150,9 @@ function resize_calendar_view() {
 			$('.sidebar.panel-group .panel-body').outerHeight($('.sidebar.panel-group').outerHeight() - sidebar_headings);
 		}
 
-		$('.calendar_view').height('calc(85% + 4em)');
+		var height = $('.calendar-screen .scale-to-fill').outerHeight();
+		$('.calendar_view').height('calc('+$('.calendar-screen .scale-to-fill').outerHeight()+'px - 4em)');
+		$('.collapsible .sidebar').height('calc('+($('.calendar_view').height() - $('.search-text').outerHeight())+'px - 1.5em - 1px)');
 		// $('.calendar_view').outerHeight($('.calendar_view').outerHeight() - $('.ticket-status-legend').outerHeight(true));
 
 		var time_blocks = [];
