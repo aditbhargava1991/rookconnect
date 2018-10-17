@@ -188,6 +188,7 @@ $ticket_status_color_code_legend = get_config($dbc, 'ticket_status_color_code_le
         'start_date'=>'Date',
         'ticket_notes'=>TICKET_NOUN.' Notes',
         'delivery_notes'=>'Delivery Notes',
+        'delivery_sign_off'=>'Delivery Sign Off',
         'status'=>'Status'
     ]; ?>
     <div class="panel panel-default">

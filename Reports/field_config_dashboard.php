@@ -289,7 +289,7 @@ if (isset($_POST['submit'])) {
             <label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."Field Jobs".',') !== FALSE) { echo " checked"; } ?> value="Field Jobs" name="reports_dashboard[]"> Field Jobs</label>
         </div>
         <div class="col-sm-4">
-            <label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."Site Work Time".',') !== FALSE) { echo " checked"; } ?> value="Site Work Time" name="reports_dashboard[]"> Site Work Order Time on Site</label>
+            <label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."Site Work Time".',') !== FALSE) { echo " checked"; } ?> value="Site Work Time" name="reports_dashboard[]"> Time on Site</label>
         </div>
         <div class="col-sm-4">
             <label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."Equipment List".',') !== FALSE) { echo " checked"; } ?> value="Equipment List" name="reports_dashboard[]"> Equipment List</label>
@@ -298,7 +298,7 @@ if (isset($_POST['submit'])) {
             <label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."Shop Work Orders".',') !== FALSE) { echo " checked"; } ?> value="Shop Work Orders" name="reports_dashboard[]"> Shop Work Orders</label>
         </div>
         <div class="col-sm-4">
-            <label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."Site Work Driving".',') !== FALSE) { echo " checked"; } ?> value="Site Work Driving" name="reports_dashboard[]"> Site Work Order Driving Logs</label>
+            <label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."Site Work Driving".',') !== FALSE) { echo " checked"; } ?> value="Site Work Driving" name="reports_dashboard[]"> Safety Driving Logs</label>
         </div>
         <div class="col-sm-4">
             <label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."Shop Work Order Task Time".',') !== FALSE) { echo " checked"; } ?> value="Shop Work Order Task Time" name="reports_dashboard[]"> Shop Work Order Task Time</label>

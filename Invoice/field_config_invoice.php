@@ -19,6 +19,8 @@ $pos_advanced_noun = 'Point of Sale';
 if (isset($_POST['submit'])) {
     set_config($dbc, 'invoice_dashboard_xsl_xml'.config_safe_str($invoice_type), filter_var(implode(',', $_POST['invoice_dashboard_xsl_xml']),FILTER_SANITIZE_STRING));
 
+    set_config($dbc, 'invoice_dashboard', implode(',',$_POST['invoice_dashboard']));
+
     //print_R((!empty($_POST['invoice_dashboard_xsl_xml']) ? implode(',', $_POST['invoice_dashboard_xsl_xml']) : ''));die;
     if(!empty($_POST['invoice_type'])) {
         $invoice_type = $_POST['invoice_type'];
@@ -958,6 +960,12 @@ if(!empty($invoice_types)) { ?>
     							</td>
 
     						</tr>
+                            <tr>
+    							<td>
+    								<input type="checkbox" <?php if (strpos($value_config, ','."Customer Billing Status".',') !== FALSE) { echo " checked"; } ?> value="Customer Billing Status" name="invoice_dashboard[]">&nbsp;&nbsp;Customer Billing Status
+    							</td>
+
+                            </tr>
     					</table>
     				</div>
     			</div>
@@ -1041,6 +1049,7 @@ if(!empty($invoice_types)) { ?>
 					<label class="form-checkbox"><input <?= (in_array('followup',$invoice_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_fields[]" value="followup"> Send Follow Up Email</label>
                     <label class="form-checkbox"><input <?= (in_array('giftcard',$invoice_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_fields[]" value="giftcard"> Gift Card</label>
                     <label class="form-checkbox"><input <?= (in_array('reference',$invoice_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_fields[]" value="reference"> Reference</label>
+                    <label class="form-checkbox"><input <?= (in_array('Customer Billing Status',$invoice_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_fields[]" value="Customer Billing Status"> Customer Billing Status</label>
 
                     <div class="form-group double-gap-top">
                         <div class="col-sm-6">

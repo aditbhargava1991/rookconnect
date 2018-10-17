@@ -1049,6 +1049,23 @@ function set_stat_hours($dbc, $staffid, $start_date, $end_date) {
 						}
 					}
 					break;
+
+
+				case 'Alberta Standard Salary':
+					$end_date = $holiday['date'];
+
+					    $days_per_week = get_contact($dbc, $staffid, 'days_per_week');
+					    $hours_per_week = get_contact($dbc, $staffid, 'hours_per_week');
+						$stat_hrs = ($hours_per_week/$days_per_week);
+
+						$time_card = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `time_cards` WHERE `type_of_time` = 'Stat Hrs.' AND `staff` = '$staffid' AND `date` = '$end_date' AND `holidayid` ='".$holiday['holidays_id']."'"));
+						if(!empty($time_card)) {
+							mysqli_query($dbc, "UPDATE `time_cards` SET `total_hrs` = '$stat_hrs' WHERE `time_cards_id` = '".$time_card['time_cards_id']."'");
+						} else {
+							mysqli_query($dbc, "INSERT INTO `time_cards` (`holidayid`,`date`,`staff`,`type_of_time`,`total_hrs`,`comment_box`) VALUES ('".$holiday['holidays_id']."','$end_date','$staffid','Stat Hrs.','$stat_hrs','Stat Hours added automatically based on calculation. Hours may change as previous hours get altered/approved.')");
+						}
+					break;
+
 			}
 			switch($contact['vaca_pay']) {
 				case 'Alberta Standard 4%':
@@ -1081,6 +1098,22 @@ function set_stat_hours($dbc, $staffid, $start_date, $end_date) {
 						}
 					}
 					break;
+
+				case 'Alberta Standard Salary':
+					$end_date = $holiday['date'];
+
+					    $days_per_week = get_contact($dbc, $staffid, 'days_per_week');
+					    $hours_per_week = get_contact($dbc, $staffid, 'hours_per_week');
+						$vaca_hrs = ($hours_per_week/$days_per_week);
+
+						$time_card = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `time_cards` WHERE `type_of_time` = 'Vac Hrs.' AND `staff` = '$staffid' AND `date` = '$end_date' AND `deleted` = 0 AND `holidayid` ='".$holiday['holidays_id']."'"));
+						if(!empty($time_card)) {
+							mysqli_query($dbc, "UPDATE `time_cards` SET `total_hrs` = '$vaca_hrs' WHERE `time_cards_id` = '".$time_card['time_cards_id']."'");
+						} else {
+							mysqli_query($dbc, "INSERT INTO `time_cards` (`holidayid`,`date`,`staff`,`type_of_time`,`total_hrs`,`comment_box`) VALUES ('".$holiday['holidays_id']."','$end_date','$staffid','Vac Hrs.','$vaca_hrs','Vacation Hours added automatically based on calculation. Hours may change as previous hours get altered/approved.')");
+						}
+					break;
+
 			}
 		}
 	}

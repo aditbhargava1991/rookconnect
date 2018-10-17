@@ -23,7 +23,7 @@ $(document).ready(function() {
 	<?php } ?>
 	$('.block-button.legend-block').on('mouseover', function() { toggleTicketLegend('show') });
 	$('.block-button.legend-block').on('mouseout', function() { toggleTicketLegend('hide') });
-	<?php if($_GET['view'] != 'monthly' && $_GET['mode'] != 'staff_summary' && $_GET['mode'] != 'ticket_summary' && $_GET['mode'] != 'day_summary') { ?>
+	<?php if($_GET['view'] != 'monthly' && $_GET['mode'] != 'staff_summary' && $_GET['mode'] != 'ticket_summary' && $_GET['mode'] != 'day_summary' && $_GET['mode'] != 'summary') { ?>
 		calendarScrollLoad();
 	<?php } ?>
 
@@ -289,7 +289,7 @@ function dispatchNewWorkOrder(data) {
 	var classification = $('#collapse_classifications .block-item.active').first().data('classification');
 	var equipmentid = $(data).data('equipmentid');
 	if(equipmentid == '' || equipmentid == undefined) {
-		equipmentid = $('#collapse_equipment .block-item.active').first().data('equipment');
+		equipmentid = $('[id^=collapse_equipment] .block-item.active').first().data('equipment');
 	}
 	var equipment_assignmentid = $(data).data('equipment_assignmentid');
 	var current_time = $(data).data('currenttime') != undefined ? $(data).data('currenttime') : '';
@@ -689,12 +689,12 @@ function reload_equipment_assignment(equipmentid = '') {
 				reset_active.resolve();
 			}
 		});
-	<?php } else if($_GET['type'] == 'schedule' && $_GET['mode'] != 'staff' && $_GET['mode'] != 'contractors' && $_GET['view'] != 'monthly') { ?>
+	<?php } else if($_GET['type'] == 'schedule' && $_GET['mode'] != 'staff' && $_GET['mode'] != 'contractors' && $_GET['view'] != 'monthly' && $_GET['mode'] != 'summary') { ?>
 		var equipmentids = [];
 		if(equipmentid != '') {
 			equipmentids.push(equipmentid);
 		} else {
-			$('#collapse_equipment .block-item').each(function() {
+			$('[id^=collapse_equipment] .block-item').each(function() {
 				if($(this).data('equipment') != undefined && $(this).data('equipment') > 0) {
 					equipmentids.push($(this).data('equipment'));
 				}
@@ -710,7 +710,7 @@ function reload_equipment_assignment(equipmentid = '') {
 				data: { equipmentid: equipmentid, date: date, view: view },
 				dataType: 'html',
 				success: function(response) {
-					$('#collapse_equipment .block-item[data-equipment='+equipmentid+']').closest('a').replaceWith(response);
+					$('[id^=collapse_equipment] .block-item[data-equipment='+equipmentid+']').closest('a').replaceWith(response);
 				}
 			}));
 		});

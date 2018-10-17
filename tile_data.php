@@ -104,7 +104,7 @@ function tile_data($dbc, $tile_name, $is_mobile = FALSE) {
 			case 'newsboard': return ['link'=>"News Board/index.php",'name'=>'News Board']; break;
 			case 'calendar_rook': return ['link'=>"Calendar/calendars.php",'name'=>'Calendar']; break;
 			case 'field_job': return ['link'=>"Field Jobs/field_sites.php",'name'=>'Field Jobs']; break;
-			case 'expense': return ['link'=>"Expense/expenses.php",'name'=>'Expenses']; break;
+			case 'expense': return ['link'=>"Expense/expenses.php?filter_id=all",'name'=>'Expenses']; break;
 			case 'payables': return ['link'=>"Payables/payables.php",'name'=>"Payables"]; break;
 			case 'billing': return ['link'=>"Project Billing/project_billing.php",'name'=>"Project Billing & Invoices"]; break;
 			case 'report':
