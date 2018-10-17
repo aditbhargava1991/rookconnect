@@ -487,8 +487,8 @@ function report_output($dbc, $starttime, $endtime, $createstart, $createend, $bu
 									<td colspan="2">'.$task['type_of_time'].'</td>
 									<td colspan="2">'.number_format($task['hours'],2).'</td>
 								</tr>';
-								$sum_hours += $task['hours'];
 							}
+                            $sum_hours += $detail['hours'];
 							$report_data .= '<tr><td colspan="5" style="border-bottom:1px solid black;"></td></tr>';
 						}
 					}
