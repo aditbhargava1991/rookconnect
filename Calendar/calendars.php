@@ -284,6 +284,10 @@ checkAuthorised('calendar_rook');
 	</div>
 	<div class="row hide_on_iframe">
 		<div class="main-screen" style="background-color: #fff; border-width: 0; margin-top: -20px;">
+            <div id="camera_hover" class="block-button" style="position:absolute; z-index:9999; display:none;">Loading...</div>
+            <div id="signature_hover" class="block-button" style="position:absolute; z-index:9999; display:none;">Loading...</div>
+            <div id="star_rating_hover" class="block-button" style="position:absolute; z-index:9999; display:none;">Loading...</div>
+            <div id="customer_notes_hover" class="block-button" style="position:absolute; z-index:9999; display:none;">Loading...</div>
 			<div class="subtab-menu pull-left">
 				<a href="" onclick="toggleMenu(this); return false;"><span class="block-item"><?= $calendar_label ?><img src="<?= WEBSITE_URL ?>/img/icons/dropdown-arrow.png" style="height: 1em; margin: 0.25em 0;" class="counterclockwise pull-right"></span></a>
 				<?php if($_GET['type'] != 'my' && in_array('My Calendar', $calendar_types) && check_subtab_persmission($dbc, 'calendar_rook', ROLE, 'My Calendar')) { ?><a href="?type=my&view=<?= $_GET['view'] ?>&region=<?= $_GET['region'] ?>"><span class="block-item">My Calendar</span></a><?php } ?>
