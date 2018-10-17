@@ -195,6 +195,6 @@ function resize_calendar_view_monthly () {
 	$('.calendar_view table td, .calendar_view table th').css('width',width);
 	$('.calendar_view table tbody tr').first().find('td').css('padding-top',$('.calendar_view table thead tr th').outerHeight() + 8);
 	
-	$('.calendar_view').height('calc(80% + 4em)');
+	$('.calendar_view').height('calc(85% + 4em)');
 	// $('.calendar_view').outerHeight($('.calendar_view').outerHeight() - $('.ticket-status-legend').outerHeight(true));
 }
