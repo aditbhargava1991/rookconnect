@@ -416,6 +416,15 @@ function calendarTicketLabel($dbc, $ticket, $max_time, $start_time, $end_time, $
 	if(in_array('delivery_notes',$calendar_ticket_card_fields) && !empty($ticket['delivery_notes'])) {
 		$row_html .= '<br />Delivery Notes: '.html_entity_decode($ticket['delivery_notes']);
 	}
+	if(in_array('delivery_sign_off',$calendar_ticket_card_fields) && !empty($ticket['stop_id'])) {
+        $dispatch_tile_ticket_card_fields = get_config($dbc, 'dispatch_tile_ticket_card_fields');
+        if(empty($dispatch_tile_ticket_card_fields)) {
+            $dispatch_tile_ticket_card_fields = 'camera,signature,star_rating,customer_notes_hover';
+        }
+        $dispatch_tile_ticket_card_fields = explode(',', $dispatch_tile_ticket_card_fields);
+        include_once('../Dispatch/dashboard_functions.php');
+		$row_html .= '<br />'.dispatch_delivery_hover_icons($dbc, $ticket, $ticket['stop_id'], (vuaed_visible_function($dbc, 'ticket') > 0 ? 'onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Ticket/edit_ticket_tab.php?tab=ticket_customer_notes&ticketid='.$ticket['ticketid'].'&stop='.$ticket['stop_id'].'\', \'auto\', true, true, \'auto\', false, \'true\'); return false;"' : ''), $dispatch_tile_ticket_card_fields);
+	}
 
 	return $row_html;
 }
