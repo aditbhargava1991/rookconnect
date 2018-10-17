@@ -292,5 +292,11 @@ mysqli_query($dbc, "ALTER TABLE `time_cards` ADD `end_time_from` VARCHAR(1000) N
 
 mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`, `value`) VALUES ('task_default_status', 'Doing Today')");
 
+$layout = get_config($dbc, 'timesheet_layout');
+
+if($layout == 'position_dropdown' || $layout == 'ticket_task') {
+	set_config($dbc, 'timesheet_layout', 'multi_line');
+}
+
     echo "Dayana's DB Changes Done<br />\n";
 ?>
