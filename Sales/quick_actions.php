@@ -340,7 +340,7 @@ $(document).on('change', '.dialog select[name=clientid]', function() { contactFi
         <a href="Add Time" onclick="addTime(this); return false;" data-salesId="<?php echo $_GET['id']?>"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-timer-icon.png" class="inline-img no-toggle" title="Add Time" /></a>
     <?php } ?>
     <?php if(in_array('timer',$quick_actions)) { ?>
-        <a href="Track Time" onclick="trackTime(this); return false;" data-salesId="<?php echo $_GET['id']?>"s><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-timer2-icon.png" class="inline-img no-toggle" title="Track Time" /></a>
+        <a href="Track Time" onclick="trackTime(this); return false;" data-salesId="<?php echo $_GET['id']?>"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-timer2-icon.png" class="inline-img no-toggle" title="Track Time" /></a>
     <?php } ?>
     <a href="View History" onclick="viewHistory(this); return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/eyeball.png" class="inline-img no-toggle" title="View History" /></a>
     <?php if(in_array('archive',$quick_actions)) { ?>
