@@ -3635,8 +3635,8 @@ function setRestrictedHours(input, start_time = '', end_time = '') {
 				success: function(response) {
 					var response = JSON.parse(response);
 					if(response.start_time == '') {
-						response.start_time = $(block).find('[name="to_do_start_time"]').data('default-datetimepicker-mintime');
-						response.end_time = $(block).find('[name="to_do_start_time"]').data('default-datetimepicker-maxtime');
+						response.start_time = start_time;
+						response.end_time = end_time;
 					}
 					destroyInputs('.stop_scheduled_time');
 					$(block).find('[name="to_do_start_time"]').prop('disabled', false);
@@ -3769,10 +3769,10 @@ function initSelectOnChanges() {
 	$('select[name="po_line_range_min"],select[name="po_line_range_max"]').change(function() {
 		poLineRangeChange(this);
 	});
-	$('select[name="type"][data-table="ticket_schedule"]').change(function() {
+	$('select[name="type"][data-table="ticket_schedule"]').off('change').change(function() {
 		setHoursOfOperation(this);
 	});
-	$('[name="to_do_date"][data-table="ticket_schedule"]').change(function() {
+	$('[name="to_do_date"][data-table="ticket_schedule"]').off('change').change(function() {
 		var stop_type = $(this).closest('.scheduled_stop').find('select[name="type"][data-table="ticket_schedule"]');
 		setHoursOfOperation(stop_type);
 		if($(stop_type).data('hours-of-operation') != 1) {
