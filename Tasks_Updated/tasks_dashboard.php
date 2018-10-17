@@ -969,7 +969,7 @@ function addIntakeForm(btn) {
                                     <div class="row pull-left t_name">
                                         <?php
                                         if($row['flag_label'] != '') { ?>
-                                        <span class="block-label flag-label-block" style="font-weight: bold; background-color: rgb(0, 255, 128);">Flagged: <?= $row['flag_label'] ?></span>
+                                        <span class="block-label flag-label-block" style="font-weight: bold; background-color: <?php echo $row['flag_colour']; ?>">Flagged: <?= $row['flag_label'] ?></span>
                                         <?php } ?>
                                         <h4 style="<?= $style_strikethrough ?>">
 
