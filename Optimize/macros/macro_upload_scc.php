@@ -165,6 +165,24 @@ if((isset($_POST['upload_file']) && !empty($_FILES['csv_file']['tmp_name'])) || 
 		get_details();
 	});
 	</script>
+    <?php $current_offset = '';
+    foreach(array_filter(explode(',',$region)) as $cur_region) {
+        foreach(explode(',',get_config($dbc, 'contacts_region')) as $i => $region_name) {
+            if($region_name == $cur_region && $region_name != '') {
+                $current_offset = explode(',',get_config($dbc, 'region_time_offset'))[$i];
+            }
+        }
+    }
+    foreach(array_filter(explode(',',$classification)) as $cur_class) {
+        foreach(explode(',',get_config($dbc, 'contacts_classification')) as $i => $class_name) {
+            if($class_name == $cur_class && $class_name != '') {
+                $current_offset = explode(',',get_config($dbc, 'classification_time_offset'))[$i];
+            }
+        }
+    }
+    $current_offset = get_offset_from_zone($current_offset);
+    $default_offset = get_offset_from_zone(''); ?>
+     <?php // echo $date == date('Y-m-d') ? 'data-datetimepicker-mintime="'.date('H:i', time() - $default_offset + $current_offset).'"' : ''; ?>
 	<input type="text" style="height:0;width:0;border:0; padding:0;" class="datetimepicker" name="day_start_time">
 	<h4 class="no-gap"><?= !empty($date) ? 'Date: '.$date.' ' : ''?><?= !empty($region) ? 'Region: '.$region.' ' : ''?><?= !empty($classification) ? 'Classification: '.$classification.' ' : ''?></h4>
 	<div class="assign_list_box" style="height: 20em;position:relative;width:calc(100% - 2px);">
