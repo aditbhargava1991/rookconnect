@@ -3583,7 +3583,7 @@ function get_delivery_color($dbc, $type) {
     $color = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_ticket_delivery_color` WHERE `delivery` = '$type'"))['color'];
     return $color;
 }
-function convert_timestamp_mysql($dbc, $timestamp) {
+function convert_timestamp_mysql($dbc, $timestamp, $local = false) {
     $mysql_time_offset = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT TIMEDIFF(NOW(), UTC_TIMESTAMP) `time_offset`"))['time_offset'];
     $time_arr = explode(':', $mysql_time_offset);
     $mysql_offset_seconds = ($time_arr[0] * 3600) + ($time_arr[1] * 60) + $time_arr[2];
@@ -3592,7 +3592,7 @@ function convert_timestamp_mysql($dbc, $timestamp) {
     $datenow = new DateTime("now", $timezone);
     $offset_seconds = $timezone->getOffset($datenow);
 
-    $offset_diff = $mysql_offset_seconds - $offset_seconds;
+    $offset_diff = $mysql_offset_seconds - ($local ? $_SESSION['time_offset'] : $offset_seconds);
     $new_timestamp = date('Y-m-d H:i:s', strtotime($timestamp) + $offset_diff);
 
     return $new_timestamp;

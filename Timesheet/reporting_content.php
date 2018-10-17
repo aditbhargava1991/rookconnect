@@ -272,6 +272,9 @@ function viewTicket(a) {
         } else {
             echo get_hours_report($dbc, $search_staff, $search_start_date, $search_end_date, $search_position, $search_project, $search_ticket, '', $config['hours_types']);
         }
+        if(in_array('summary',explode(',',get_config($dbc, 'timesheet_report_options')))) {
+            echo get_hours_report_summary($dbc, $search_staff, $search_start_date, $search_end_date, $search_position, $search_project, $search_ticket, '', $config['hours_types']);
+        }
         ?>
 
 	</div>
