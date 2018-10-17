@@ -3,7 +3,7 @@
 Dashboard
 */
 include ('../include.php');
-include_once('../manual_reporting_functions.php');
+include_once('../Information Gathering/manual_reporting_functions.php');
 checkAuthorised('infogathering');
 error_reporting(0);
 ?>
@@ -196,7 +196,7 @@ error_reporting(0);
 
                                 $query_check_credentials = "SELECT m.*, ms.*  FROM infogathering_pdf ms, infogathering m WHERE m.deleted=0 AND m.infogatheringid = ms.infogatheringid AND (ms.created_by = '$contactid' OR m.category='$category' OR m.heading='$heading' OR ms.today_date='$s_start_date')";
                             } else if(empty($_GET['action'])) {
-                                $query_check_credentials = "SELECT i.*, p.*, GROUP_CONCAT(p.fieldlevelriskid SEPARATOR ',') AS all_order  FROM infogathering i, infogathering_pdf p WHERE deleted=0 AND i.infogatheringid = p.infogatheringid GROUP BY p.infogatheringid, p.company ORDER BY p.infopdfid DESC";
+                                $query_check_credentials = "SELECT i.*, p.*, GROUP_CONCAT(p.fieldlevelriskid SEPARATOR ',') AS all_order  FROM infogathering i, infogathering_pdf p WHERE i.deleted=0 AND i.infogatheringid = p.infogatheringid GROUP BY p.infogatheringid, p.company ORDER BY p.infopdfid DESC";
                                 //$query_check_credentials = "SELECT *, GROUP_CONCAT(fieldlevelriskid SEPARATOR ',') AS all_order  FROM infogathering_pdf GROUP BY infogatheringid,company ORDER BY infopdfid DESC";
                             }
 
