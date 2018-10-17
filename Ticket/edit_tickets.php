@@ -1245,7 +1245,9 @@ var setHeading = function() {
 				</select>
 			</div>
 		</div>
-	<?php } ?>
+	<?php } else if(count($ticket_tabs) == 1) { ?>
+        <input type="hidden" name="ticket_type" id="ticket_type" data-placeholder="Select a Tab..." data-initial="<?= $ticket_type ?>" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" value="<?php foreach($ticket_tabs as $type_id => $type_name) { echo $type_id; } ?>">
+    <?php } ?>
 	<?php if($_GET['action_mode'] == 1 && $calendar_ticket_slider == 'accordion') {
 		$get_query = $_GET;
 		unset($get_query['action_mode']); ?>
