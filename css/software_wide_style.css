@@ -716,7 +716,7 @@ div.calendar-screen {
     height:85%;
 }
 .calendar-screen .calendar_view {
-	height:calc(80% + 4em);
+	height:calc(85% + 4em);
 }
 .calendar-screen .panel-body-height { height:84.3%; }
 .calendar-screen .block-label { min-width:auto !important; }
