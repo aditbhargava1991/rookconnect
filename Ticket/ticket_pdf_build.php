@@ -24,7 +24,7 @@ if(isset($_POST['custom_form'])) {
 			$dbc->query("INSERT INTO `ticket_pdf_field_values` (`ticketid`, `pdf_type`, `revision`, `field_name`, `field_value`) VALUES ('$ticketid', '$form', '$revision', '$field', '$value')");
 		}
 	}
-	echo "<script> window.location.replace('ticket_pdf_custom.php?form=$form&ticketid=$ticketid&revision=$revision'); </script>";
+	echo "<script> window.location.replace('ticket_pdf_custom.php?form=$form&ticketid=$ticketid&revision=$revision&revision_mode=".$_POST['revision_mode']."'); </script>";
 } else if($ticketid > 0) {
 	$get_ticket = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticketid`='$ticketid'"));
 	$ticket = get_ticket_label($dbc, $get_ticket);
