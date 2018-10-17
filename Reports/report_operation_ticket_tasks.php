@@ -448,8 +448,10 @@ function report_output($dbc, $starttime, $endtime, $createstart, $createend, $bu
                                 } else {
                                     foreach(array_filter(array_unique(explode(',',$detail['staff']))) as $staff) {
                                         $report_data .= '<label class="form-checkbox any-width">'.($hide_staff != 'hide' ? '<input type="checkbox" class="inline" style="display:none;" name="disable_staff[]" value="'.$siteid.'|'.$date['date_stamp'].'|'.$staff.'">'.get_contact($dbc, $staff) : '').'</label> ';
-                                        $staff_list[] = $staff;
                                     }
+                                }
+                                foreach(array_filter(array_unique(explode(',',$detail['staff']))) as $staff) {
+                                    $staff_list[] = $staff;
                                 }
 								$report_data .= '</td>
 							</tr>';
