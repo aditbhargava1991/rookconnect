@@ -384,7 +384,7 @@ function show_hide_email() {
                 }
 
                 if (strpos($value_config, ','."Customer Billing Status".',') !== FALSE) {
-                    echo '<td data-title="Delivery/Shipping Type">' . $invoice['customer_billing_status'] . '</td>';
+                    echo '<td data-title="Customer Billing Status">' . $invoice['customer_billing_status'] . '</td>';
                 }
                 echo '<td data-title="Invoice">';
                 echo 'Invoice#'.$invoice['invoiceid'].'</br>';
