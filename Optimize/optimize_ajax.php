@@ -105,3 +105,6 @@ else if($_GET['action'] == 'archive') {
     $dbc->query("UPDATE `$table` SET `deleted`=0 WHERE `$field`='$id'");
     $dbc->query("INSERT INTO `ticket_history` (`ticketid`,`userid`,`src`,`description`) VALUES ('$ticketid','".$_SESSION['contactid']."','Trip Optimizer','Row #$id of $table archived')");
 }
+else if($_GET['action'] == 'tile_settings') {
+	set_config($dbc, 'optimize_dont_count_warehouse', filter_var($_POST['optimize_dont_count_warehouse'],FILTER_SANITIZE_STRING));
+}

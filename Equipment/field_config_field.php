@@ -153,6 +153,7 @@ $(document).ready(function() {
 				<div class="panel-body">
 
 				<input type="checkbox" <?php if (strpos($equipment_config, ','."Serial #".',') !== FALSE) { echo " checked"; } ?> value="Serial #" style="height: 20px; width: 20px;" name="equipment[]">&nbsp;&nbsp;Serial #
+				<input type="checkbox" <?php if (strpos($equipment_config, ','."Part Serial".',') !== FALSE) { echo " checked"; } ?> value="Part Serial" style="height: 20px; width: 20px;" name="equipment[]">&nbsp;&nbsp;Part / Engine Serial #
 				<input type="checkbox" <?php if (strpos($equipment_config, ','."Unit #".',') !== FALSE) { echo " checked"; } ?> value="Unit #" style="height: 20px; width: 20px;" name="equipment[]">&nbsp;&nbsp;Unit #
 				<input type="checkbox" <?php if (strpos($equipment_config, ','."VIN #".',') !== FALSE) { echo " checked"; } ?> value="VIN #" style="height: 20px; width: 20px;" name="equipment[]">&nbsp;&nbsp;VIN #
 				<input type="checkbox" <?php if (strpos($equipment_config, ','."Licence Plate".',') !== FALSE) { echo " checked"; } ?> value="Licence Plate" style="height: 20px; width: 20px;" name="equipment[]">&nbsp;&nbsp;Licence Plate

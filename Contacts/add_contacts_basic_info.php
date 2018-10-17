@@ -2001,6 +2001,26 @@
             </div>
         <?php } ?>
 
+        <?php
+        $temp_field = 'Days Per Week'; ?><?php if (strpos($value_config, ','."Days Per Week".',') !== FALSE) { ?>
+            <div class="form-group">
+            <label for="days_per_week" class="col-sm-4 control-label"><?php if (strpos($contacts_mandatory_config, ','."$temp_field".',') !== FALSE) { echo "<font color='red'>* </font>"; } ?># of Days Per Week:</label>
+            <div class="col-sm-8"> <?php if (strpos($contacts_mandatory_config, ','."$temp_field".',') !== FALSE) { $required = 'required'; } else { $required = ''; } ?>
+              <input <?php echo (strpos($edit_config, ','."Days Per Week".',') === false ? 'readonly' : ''); ?> name="days_per_week" value="<?php echo $days_per_week; ?>" type="number" class="form-control <?php echo $required; ?>"></p>
+            </div>
+            </div>
+        <?php } ?>
+
+        <?php
+        $temp_field = 'Hours Per Week'; ?><?php if (strpos($value_config, ','."Hours Per Week".',') !== FALSE) { ?>
+            <div class="form-group">
+            <label for="hours_per_week" class="col-sm-4 control-label"><?php if (strpos($contacts_mandatory_config, ','."$temp_field".',') !== FALSE) { echo "<font color='red'>* </font>"; } ?># of Hours Per Week:</label>
+            <div class="col-sm-8"> <?php if (strpos($contacts_mandatory_config, ','."$temp_field".',') !== FALSE) { $required = 'required'; } else { $required = ''; } ?>
+              <input <?php echo (strpos($edit_config, ','."Hours Per Week".',') === false ? 'readonly' : ''); ?> name="hours_per_week" value="<?php echo $hours_per_week; ?>" type="number" class="form-control <?php echo $required; ?>"></p>
+            </div>
+            </div>
+        <?php } ?>
+
         <?php $temp_field = 'School'; ?><?php if (strpos($value_config, ','."School".',') !== FALSE) { ?>
             <div class="form-group">
             <label for="school" class="col-sm-4 control-label"><?php if (strpos($contacts_mandatory_config, ','."$temp_field".',') !== FALSE) { echo "<font color='red'>* </font>"; } ?>School:</label>

@@ -188,6 +188,26 @@ if (isset($_POST['add_ir']) || isset($_POST['save_ir'])) {
 		$pdf_notes = $pdf_config['pdf_notes'];
 		$value_config = ','.$current_config['incident_report'].',';
 		DEFINE(PDF_LOGO,$pdf_logo);
+		$logo_height = 0;
+		$logo_width = 0;
+		if(file_exists($pdf_logo)) {
+			list($image_width, $image_height) = getimagesize($pdf_logo);
+			$logo_height = $image_height;
+			$logo_width = $image_width;
+			if($image_height > 180) {
+				$logo_width = (180 / $logo_height) * 100;
+				$logo_height = 180;
+			}
+			if($logo_width > 360) {
+				$logo_height = (360 / $logo_width) * 100;
+				$logo_width = 360;
+			}
+			$logo_height = $logo_height / 7.2;
+			$logo_width = $logo_width / 7.2;
+		}
+		DEFINE(PDF_LOGO_LOGO_HEIGHT, $logo_height);
+		DEFINE(PDF_LOGO_LOGO_WIDTH, $logo_width);
+
 		DEFINE(PDF_HEADER,html_entity_decode($pdf_header));
 		DEFINE(PDF_TITLE,html_entity_decode($pdf_title));
 		DEFINE(PDF_FOOTER,html_entity_decode($pdf_footer));
@@ -197,13 +217,11 @@ if (isset($_POST['add_ir']) || isset($_POST['save_ir'])) {
 			//Page header
 			public function Header() {
 				$image_file = PDF_LOGO;
-				$this->Image($image_file, 10, 10, 60, '', 'PNG', '', 'C', false, 300, '', false, false, 0, false, false, false);
+				$this->Image($image_file, 10, 10, PDF_LOGO_LOGO_WIDTH, PDF_LOGO_LOGO_HEIGHT, 'PNG', '', 'C', false, 300, '', false, false, 0, false, false, false);
 				$this->SetY(0);
 				$this->WriteHTMLCell(0, 0, 70, 10, PDF_HEADER, 0, 0, 0, true, 'R');
-				list($img_width, $img_height, $img_type, $attr) = getimagesize(PDF_LOGO);
-				$img_height /= ($img_width / 60);
 				$this->SetFont('helvetica', '', 13);
-				$this->SetY($img_height + 10);
+				$this->SetY(PDF_LOGO_LOGO_HEIGHT + 10);
 				$this->WriteHTMLCell(0, 0, 10, '', '<h3>'.PDF_TITLE.'</h3>', 0, 0, 0, true, 'C');
 			}
 
@@ -723,7 +741,7 @@ if (isset($_POST['add_ir']) || isset($_POST['save_ir'])) {
 		echo "<script> $(window.top.document).find('iframe[src*=Ticket]').get(0).contentWindow.reloadTab('view_ticket_incident_reports'); window.parent.reloadTab('view_ticket_incident_reports'); </script>";
 	} else {
 		echo "<script> active_accordion = '".$_POST['active_accordion']."'; </script>";
-		echo '<script type="text/javascript">window.location.replace("?incidentreportid='.$incidentreportid.'&active_accordion='.$_POST['active_accordion'].'&tagging_click='.$_POST['quick_action_tagging'].'&flagging_click='+$_POST['quick_action_flagging'].'"); </script>';
+		echo '<script type="text/javascript">window.location.replace("?incidentreportid='.$incidentreportid.'&active_accordion='.$_POST['active_accordion'].'&tagging_click='.$_POST['quick_action_tagging'].'&flagging_click='.$_POST['quick_action_flagging'].'"); </script>';
 	}
 }
 ?>
