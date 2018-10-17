@@ -212,6 +212,7 @@ var addTime = function(sel) {
 
 function trackTime(sel) {
     var salesid = $(sel).attr('data-salesId');
+    alert(salesid);
     overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_timer.php?tile=sales&id='+salesid, 'auto', false, false);
 }
 
