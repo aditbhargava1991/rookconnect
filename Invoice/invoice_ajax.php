@@ -1,4 +1,4 @@
-<?php 
+<?php
 include('../include.php');
 ob_clean();
 
@@ -419,7 +419,7 @@ if(!empty($_GET['action']) && $_GET['action'] == 'export_pos_file') {
 	}else{
 		$logo = dirname(__FILE__).'/'.$logo;
 	}
-	
+
 	$invoice_header = get_config($dbc, 'invoice_header');
 	if(!empty($point_of_sell['type']) && !empty(get_config($dbc, 'invoice_header_'.$point_of_sell['type']))) {
 	    $invoice_header = get_config($dbc, 'invoice_header_'.$point_of_sell['type']);
@@ -467,7 +467,7 @@ if(!empty($_GET['action']) && $_GET['action'] == 'export_pos_file') {
 							<table style="width:100%;"><tr><td colspan="6">BILL TO :</td></tr><tr><td colspan="6">'.decryptIt($customer['name']).' '.decryptIt($customer['first_name']).' '.decryptIt($customer['last_name']).($customer['mailing_address']!='' ? '<br>'.$customer['mailing_address']:'').($customer['city']!='' ? '<br>'.$customer['city'].', '.$customer['state'].' '.$customer['zip_code']:'').(decryptIt($customer['cell_phone'])!='' ? '<br>'.decryptIt($customer['cell_phone']):'').(decryptIt($customer['email_address'])!='' ? '<br>'.decryptIt($customer['email_address']):'').'</td></tr>
 							</table>
 						</td>
-						
+
 						<td colspan ="6" style="text-align:right;">
 							<table style="width:100%;"><tr><td align="right" colspan ="6">INVOICE # : '.$invoiceid.'</td></tr><tr><td align="right"  colspan ="6">INVOICE DATE : '.$point_of_sell['invoice_date'].'<br>DUE DATE : '.$point_of_sell['due_date'].'</td></tr>
 							</table>
@@ -516,7 +516,7 @@ if(!empty($_GET['action']) && $_GET['action'] == 'export_pos_file') {
 						$html .= '<td style="text-align:right; " colspan="2" align="right">$'.number_format($amount,2).'</td>';
 					$html .= '</tr>';
 				}
-		        
+
 		        $returned_amt += $price * $returned;
 			}
 
@@ -670,7 +670,7 @@ if(!empty($_GET['action']) && $_GET['action'] == 'export_pos_file') {
 					$html .= $pdf_tax;
 					//$html .= '<tr><td style="text-align:right;" width="75%"><strong>Tax</strong></td><td width="25%" style="text-align:right;">'.$pdf_tax.'</td></tr>';
 				}
-		        
+
 				$total_returned_amt = 0;
 		        if($returned_amt != 0) {
 					$total_tax_rate = ($gst_rate/100) + ($pst_rate/100);
@@ -678,7 +678,7 @@ if(!empty($_GET['action']) && $_GET['action'] == 'export_pos_file') {
 		            $html .= '<tr><td align="right" width="90%" colspan="10"><strong>Returned Total (Including Tax)</strong></td><td align="right" border="1" width="10%" style="" colspan="2">$'.$total_returned_amt.'</td></tr>';
 				}
 
-		        
+
 				$html .= '<tr><td align="right" width="90%" colspan="10"><strong>Total</strong></td><td align="right" border="1" width="10%" style="" colspan="2">$'.number_format($point_of_sell['final_price'] - $total_returned_amt, 2).'</td></tr>';
 				if($point_of_sell['deposit_paid'] > 0) {
 					$html .='<tr><td align="right" width="90%" colspan="10"><strong>Deposit Paid</strong></td><td align="right" border="1" width="10%" style="" colspan="2">$'.$point_of_sell['deposit_paid'].'</td></tr>';
@@ -744,7 +744,7 @@ if(!empty($_GET['action']) && $_GET['action'] == 'export_pos_file') {
 		$returned_amt = 0;
 		$num_rows = mysqli_num_rows($result);
 		$num_rows2 = mysqli_num_rows($result2);
-		
+
 		if($num_rows > 0 || $num_rows2 > 0) {
 			$j = $countItems;
 			while ( $row = mysqli_fetch_array ( $result ) ) {
@@ -925,7 +925,7 @@ if(!empty($_GET['action']) && $_GET['action'] == 'export_pos_file') {
 			$html .= $pdf_tax;
 			//$tax = $xml->addChild('tax', $pdf_tax);
 		}
-        
+
 		$total_returned_amt = 0;
         if($returned_amt != 0) {
 			$total_tax_rate = ($gst_rate/100) + ($pst_rate/100);
