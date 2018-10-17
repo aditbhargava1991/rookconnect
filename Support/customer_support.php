@@ -60,11 +60,11 @@ foreach($ticket_types as $type) {
     }
 }
 if($request_tab == 'closed') {
-    $request_tab_name = 'Closed';
+    $request_tab_name = 'Closed Requests';
 } else if($request_tab == 'closed') {
-    $request_tab_name = 'Closed';
+    $request_tab_name = 'Closed Requests';
 } else if($request_tab == 'new') {
-    $request_tab_name = 'Submit New';
+    $request_tab_name = 'Add New Request';
     foreach($ticket_types as $type_name) {
         if($_GET['new_type'] == config_safe_str($type_name)) {
             $request_tab_name .= ' '.$type_name;
@@ -159,7 +159,7 @@ if($request_tab == 'closed') {
 						case 'services':
                             echo "FFM Services"; break;
 						case 'requests':
-                            echo "Support Requests: ".$request_tab_name; break;
+                            echo $request_tab_name; break;
 						case 'meetings':
                             echo "Agendas & Meetings Dashboard"; break;
 						case 'documents':
