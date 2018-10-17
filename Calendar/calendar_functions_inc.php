@@ -196,7 +196,7 @@ function getEquipmentAssignmentBlock($dbc, $equipmentid, $view, $date) {
 	if($reset_active == 1) {
 		$active_equipment = [];
 	}
-	$equipment = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT *, CONCAT(`category`, ' #', `unit_number`) label FROM `equipment` WHERE `equipmentid` = '$equipmentid'"));
+	$equipment = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT *, CONCAT(' #', `unit_number`) label FROM `equipment` WHERE `equipmentid` = '$equipmentid'"));
 	switch($view) {
 		case 'weekly':
 			$calendar_start = $date;
