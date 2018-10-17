@@ -1236,7 +1236,9 @@ var setHeading = function() {
 			<hr>
 		</div>
 	<?php }
-	echo $quick_action_html.'<div class="clearfix"></div>';
+    if(IFRAME_PAGE) {
+        echo $quick_action_html.'<div class="clearfix"></div>';
+    }
 	if(count($ticket_tabs) > 1 && !($_GET['action_mode'] > 0 || $_GET['overview_mode'] > 0) && $tile_security['edit'] > 0 && !($strict_view > 0)) { ?>
 		<div class="form-group clearfix <?= $calendar_ticket_slider != 'accordion' ? 'show-on-mob' : '' ?>" <?= isset($_GET['intake_key']) ? 'style="display:none;"' : '' ?>>
 			<label for="ticket_type" class="col-sm-4 control-label text-right"><?= TICKET_NOUN ?> Tab:</label>
