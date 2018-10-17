@@ -1601,7 +1601,7 @@ if(!isset($equipment)) {
 		        	if($edit_access != 1) {
 		        		$reminder_label = strip_tags($reminder_label);
 		        	}
-		        	$reminder_html[] = '<div style="font-weight: normal;" class="daysheet_row"><input style="position: relative; vertical-align: middle; top: -0.25em; width: 1.5em; height: 1.5em;" type="checkbox" name="daysheet_reminder" value="'.$daysheet_reminder['daysheetreminderid'].'" '.($daysheet_reminder['done'] == 1 ? 'checked="checked"' : '').' onclick="setDaysheetReminder(this);">&nbsp;&nbsp;<span '.($daysheet_reminder['done'] == 1 ? 'style="text-decoration: line-through;"' : '').'>'.$reminder_label.'</span></div>';
+		        	$reminder_html[] = '<div style="font-weight: normal;" class="daysheet_row">'.($_SESSION['contactid'] == $contact_id ? '<input style="position: relative; vertical-align: middle; top: -0.25em; width: 1.5em; height: 1.5em;" type="checkbox" name="daysheet_reminder" value="'.$daysheet_reminder['daysheetreminderid'].'" '.($daysheet_reminder['done'] == 1 ? 'checked="checked"' : '').' onclick="setDaysheetReminder(this);">&nbsp;&nbsp;' : '').'<span '.($daysheet_reminder['done'] == 1 ? 'style="text-decoration: line-through;"' : '').'>'.$reminder_label.'</span></div>';
 		        }
 		    }
 		}
