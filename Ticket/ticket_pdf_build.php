@@ -554,7 +554,7 @@ if(isset($_POST['custom_form'])) {
 							<script type="text/javascript">
 							$(document).on('change', '[name="<?= $options[$contact_options+1] ?>"]', function() {
 								var select_value = $(this).closest('.form-group').find('.contact_select').val()
-								$('[name="<?= $field['field_name'] ?>"]').closest('.form-group').find('.hidden_select').val(this.value).change();
+								$('[name="<?= $field['field_name'] ?>"]').closest('.form-group').find('.hidden_select').val(select_value).change();
 							});
 							</script>
 							<select class="hidden_select" data-placeholder="Select <?= $options[$contact_options+3] ?>" onchange="updateTicket(this, '<?= $options[$contact_options+2] ?>', 0)" style="display: none;"><option />
