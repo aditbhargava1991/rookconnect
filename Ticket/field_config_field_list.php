@@ -1537,20 +1537,22 @@ if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode && !$int
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Service Description", $all_config) ? 'checked disabled' : (in_array("Service Description", $value_config) ? "checked" : '') ?> value="Service Description" name="tickets[]">
 									<span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will allow you to specify general details for the <?= TICKET_NOUN ?>."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Description</label>
 							<?php } ?>
+                            <!--
 							<?php if($field_sort_field == 'Details Tile') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Details Tile", $all_config) ? 'checked disabled' : (in_array("Details Tile", $value_config) ? "checked" : '') ?> value="Details Tile" name="tickets[]"> Tile Name</label>
 							<?php } ?>
 							<?php if($field_sort_field == 'Details Tab') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Details Tab", $all_config) ? 'checked disabled' : (in_array("Details Tab", $value_config) ? "checked" : '') ?> value="Details Tab" name="tickets[]"> Tab / Sub Tab</label>
 							<?php } ?>
+                            -->
 							<?php if($field_sort_field == 'Details Where') { ?>
-								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Details Where", $all_config) ? 'checked disabled' : (in_array("Details Where", $value_config) ? "checked" : '') ?> value="Details Where" name="tickets[]"> Where</label>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Details Where", $all_config) ? 'checked disabled' : (in_array("Details Where", $value_config) ? "checked" : '') ?> value="Details Where" name="tickets[]"> Tile Name</label>
 							<?php } ?>
 							<?php if($field_sort_field == 'Details Who') { ?>
-								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Details Who", $all_config) ? 'checked disabled' : (in_array("Details Who", $value_config) ? "checked" : '') ?> value="Details Who" name="tickets[]"> Who</label>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Details Who", $all_config) ? 'checked disabled' : (in_array("Details Who", $value_config) ? "checked" : '') ?> value="Details Who" name="tickets[]"> Tab/Sub Tab</label>
 							<?php } ?>
 							<?php if($field_sort_field == 'Details Why') { ?>
-								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Details Why", $all_config) ? 'checked disabled' : (in_array("Details Why", $value_config) ? "checked" : '') ?> value="Details Why" name="tickets[]"> Why</label>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Details Why", $all_config) ? 'checked disabled' : (in_array("Details Why", $value_config) ? "checked" : '') ?> value="Details Why" name="tickets[]"> URL/Page</label>
 							<?php } ?>
 							<?php if($field_sort_field == 'Details What') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Details What", $all_config) ? 'checked disabled' : (in_array("Details What", $value_config) ? "checked" : '') ?> value="Details What" name="tickets[]"> What</label>

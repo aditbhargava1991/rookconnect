@@ -110,22 +110,39 @@ if (isset($_POST['submit'])) {
             // $email_body .= htmlentities('<p><a href="'.WEBSITE_URL.'/external_response.php?r='.encryptIt(json_encode(['ticketid'=>$ticketid])).'" target="_blank">Click here</a> to view the '.TICKET_NOUN.'</p>');
 		}
 
-        if (empty($from_email)) {
-            $from_email = '';
+    if($_POST['submit'] == 'draft') {
+      /*$email_subject = $_POST['subject'];
+      $meeting_email = implode(",", $meeting_arr_email);
+      $meeting_cc_email = implode(",", $meeting_cc_arr_email);
+      $query_insert_email_comm = "INSERT INTO `email_communication_draft` (`from_email`, `from_name`, `to_emails`, `cc_emails`, `subject`, `send_body`,`meeting_attachment`)
+      VALUES ('$from_email', '$from_name', '$meeting_email', '$meeting_cc_email', '$email_subject', '$send_body',  '$send_body')";
+      $result_insert_email_comm = mysqli_query($dbc, $query_insert_email_comm);*/
+    }
+    else {
+      if (empty($from_email)) {
+          $from_email = '';
+      }
+      try {
+        send_email([$from_email => $from_name], $meeting_arr_email, $meeting_cc_arr_email , '', $_POST['subject'], $send_body, $meeting_attachment);
+        if($salesid > 0) {
+            add_update_history($dbc, 'sales', "Sent Email to Lead: ".$_POST['subject'], '', '', $salesid);
         }
-		try {
-            send_email([$from_email => $from_name], $meeting_arr_email, $meeting_cc_arr_email , '', $_POST['subject'], $send_body, $meeting_attachment);
-            if($salesid > 0) {
-                add_update_history($dbc, 'sales', "Sent Email to Lead: ".$_POST['subject'], '', '', $salesid);
-            }
-		} catch(Exception $e) {
-			echo "<script> alert('Unable to send the email: ".$e->getMessage()."'); </script>";
-		}
+      } catch(Exception $e) {
+        echo "<script> alert('Unable to send the email: ".$e->getMessage()."'); </script>";
+      }
+    }
     }
     // Meeting Note Email
 
     if(empty($_POST['email_communicationid']) || count($meeting_arr_email) > 0 || count($meeting_cc_arr_email) > 0) {
-        $query_insert_ca = 'INSERT INTO `email_communication` (`communication_type`, `businessid`, `contactid`, `salesid`, `projectid`, `ticketid`, `client_projectid`, `subject`, `email_body`, `to_contact`, `cc_contact`, `to_staff`, `cc_staff`, `new_emailid`, `today_date`, `created_by`, `follow_up_by`, `follow_up_date`, `from_email`, `from_name`) VALUES ("'.$communication_type.'", "'.$businessid.'", "'.$contactid.'",  "'.$salesid.'", "'. $projectid.'", "'. $ticketid.'", "'. $client_projectid.'",  "'.$subject.'",  "'.$email_body.'", "'.$to_contact.'", "'.$cc_contact.'", "'.$to_staff.'", "'.$cc_staff.'", "'.$new_emailid.'", "'.$today_date.'", "'.$created_by.'", "'.$follow_up_by.'", "'.$follow_up_date.'", "'.$from_email.'", "'.$from_name.'")';
+        if($_POST['submit'] == 'draft') {
+          $draft = 1;
+        }
+        else {
+          $draft = 0;
+        }
+
+        $query_insert_ca = 'INSERT INTO `email_communication` (`communication_type`, `businessid`, `contactid`, `salesid`, `projectid`, `ticketid`, `client_projectid`, `subject`, `email_body`, `to_contact`, `cc_contact`, `to_staff`, `cc_staff`, `new_emailid`, `today_date`, `created_by`, `follow_up_by`, `follow_up_date`, `from_email`, `from_name`,`draft`) VALUES ("'.$communication_type.'", "'.$businessid.'", "'.$contactid.'",  "'.$salesid.'", "'. $projectid.'", "'. $ticketid.'", "'. $client_projectid.'",  "'.$subject.'",  "'.$email_body.'", "'.$to_contact.'", "'.$cc_contact.'", "'.$to_staff.'", "'.$cc_staff.'", "'.$new_emailid.'", "'.$today_date.'", "'.$created_by.'", "'.$follow_up_by.'", "'.$follow_up_date.'", "'.$from_email.'", "'.$from_name.'", "'.$draft.'")';
 
         $result_insert_ca = mysqli_query($dbc, $query_insert_ca);
         $email_communicationid = mysqli_insert_id($dbc);
@@ -148,11 +165,11 @@ if (isset($_POST['submit'])) {
 			$overview .= ' - Added Time : '.$_POST['timer'];
 		}
     }
-    
+
     if ( !empty($follow_up_by) && !empty($follow_up_date) ) {
         mysqli_query($dbc, "INSERT INTO `reminders` (`contactid`, `reminder_date`, `subject`, `src_table`, `src_tableid` ) VALUES ('$follow_up_by', '$follow_up_date', '$subject', 'email_communication', '$email_communicationid')");
     }
-    
+
 	//Connect the attachments to the current communication
 	mysqli_query($dbc, "UPDATE `email_communicationid_upload` SET `email_communicationid`='$email_communicationid' WHERE `email_communicationid`=0 AND `created_by`='$created_by' AND `created_date`='$today_date'");
 	echo insert_day_overview($dbc, $created_by, 'Communication', date('Y-m-d'), '', $overview);
@@ -427,7 +444,7 @@ if (isset($_POST['submit'])) {
                     </div>
                 </div>
                 -->
-                
+
                 <?php //if (strpos($value_config, ','."Communication Timer".',') !== FALSE) { ?>
                     <!--
                     <div class="panel panel-default">
@@ -451,6 +468,7 @@ if (isset($_POST['submit'])) {
             </div><!-- .panel-group .block-panels .main-screen -->
 
             <div class="form-group">
+                <button type="submit" name="submit" value="draft" class="btn brand-btn pull-right">Save as Draft</button>
                 <button type="submit" name="submit" value="submit" class="btn brand-btn pull-right">Submit</button>
                 <a href="" class="btn brand-btn pull-right">Cancel</a>
             </div>
