@@ -186,6 +186,9 @@ if (isset($_POST['submit'])) {
       <div class="col-sm-4">
             <label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."History DB Backup History".',') !== FALSE) { echo " checked"; } ?> value="History DB Backup History" name="reports_dashboard[]"> DB Backup History</label>
         </div>
+      <div class="col-sm-4">
+            <label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."History Field Jobs History".',') !== FALSE) { echo " checked"; } ?> value="History Field Jobs History" name="reports_dashboard[]"> Field Jobs History</label>
+        </div>
     <div class="clearfix"></div>
 
     <h3>Marketing</h3>
@@ -615,6 +618,10 @@ if (isset($_POST['submit'])) {
   <div class="col-sm-4">
 		<label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."History DB Backup History".',') !== FALSE) { echo " checked"; } ?> value="History DB Backup History" name="reports_dashboard[]"> DB Backup History</label>
 	</div>
+  <div class="col-sm-4">
+		<label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."History Field Jobs History".',') !== FALSE) { echo " checked"; } ?> value="History Field Jobs History" name="reports_dashboard[]"> Field Jobs History</label>
+	</div>
+
   <div class="clearfix"></div>
 
     <div class="form-group pull-right">
