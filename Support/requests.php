@@ -642,10 +642,10 @@ if($request_tab == 'new'): ?>
                 </div>
                 <ul class="connectedChecklist full-width">
                     <?php while($row = mysqli_fetch_array($support_list)) {
-                        echo '<li id="'.$row['supportid'].'" class="dashboard-item" style="'.($row['flag_colour'] == '' ? '' : 'background-color: #'.$row['flag_colour'].';').' border: solid #FF0000 2px; margin-bottom: 1em;">';
+                        echo '<li id="'.$row['supportid'].'" class="dashboard-item padded" style="'.($row['flag_colour'] == '' ? '' : 'background-color: #'.$row['flag_colour'].';').' border: solid #FF0000 2px; margin-bottom: 1em;">';
                         echo '<span>';
                         if($user_category == 'Staff') { ?>
-                            <span class="action-icons" data-support="<?= $row['supportid'] ?>">
+                            <span class="action-icons pad-bottom" data-support="<?= $row['supportid'] ?>">
                                 <img src="<?= WEBSITE_URL ?>/img/icons/ROOK-flag-icon.png" class="no-toggle inline-img cursor-hand" title="Flag This!" onclick="flag_item(this);">
                                 <img src="<?= WEBSITE_URL ?>/img/icons/ROOK-attachment-icon.png" class="no-toggle inline-img cursor-hand" title="Attach File" onclick="attach_file(this);">
                                 <img src="<?= WEBSITE_URL ?>/img/icons/ROOK-reply-icon.png" class="no-toggle inline-img cursor-hand" title="Reply" onclick="send_reply(this);">
@@ -778,10 +778,10 @@ if($request_tab == 'new'): ?>
                 <ul class="connectedChecklist full-width">
                     <?php while($row = mysqli_fetch_array($support_list)) {
                         echo '<a name="'.$row['supportid'].'"></a>
-                        <li id="'.$row['supportid'].'" class="dashboard-item" style="'.($row['flag_colour'] == '' ? '' : 'background-color: #'.$row['flag_colour'].';').' border: solid #FF0000 2px; margin-bottom: 1em;">';
+                        <li id="'.$row['supportid'].'" class="dashboard-item padded" style="'.($row['flag_colour'] == '' ? '' : 'background-color: #'.$row['flag_colour'].';').' border: solid #FF0000 2px; margin-bottom: 1em;">';
                         echo '<span>';
                         if($user_category == 'Staff') { ?>
-                            <span class="action-icons" data-support="<?= $row['supportid'] ?>">
+                            <span class="action-icons pad-bottom" data-support="<?= $row['supportid'] ?>">
                                 <img src="<?= WEBSITE_URL ?>/img/icons/ROOK-flag-icon.png" class="inline-img cursor-hand no-toggle" title="Flag This!" onclick="flag_item(this);">
                                 <img src="<?= WEBSITE_URL ?>/img/icons/ROOK-attachment-icon.png" class="inline-img cursor-hand no-toggle" title="Upload File" onclick="attach_file(this);">
                                 <img src="<?= WEBSITE_URL ?>/img/icons/ROOK-reply-icon.png" class="inline-img cursor-hand no-toggle" title="Add Comment" onclick="send_reply(this);">
