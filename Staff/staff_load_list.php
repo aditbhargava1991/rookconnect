@@ -22,10 +22,16 @@ foreach($staff_list as $staff) {
 			}
 		}
 	}
+	$staff_categories = [];
+	foreach(explode(',', $staff['staff_category']) as $staff_category) {
+		if(!empty($staff_category)) {
+			$staff_categories[] = $staff_category
+		}
+	}
 	$staffs[] = [
 		'id'=>$staff['contactid'],
 		'status'=>$staff['status'],
-		'staff_category'=>array_filter(explode(',',$staff['staff_category'])),
+		'staff_category'=>$staff_categories,
 		'match_contacts'=>$match_contacts,
 		'search_string'=>strtolower($staff['contactid'].$staff['first_name'].$staff['last_name'].$staff['name'].$staff['email_address'].$staff['office_phone'].$staff['role'])
 	];
