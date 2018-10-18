@@ -6,7 +6,7 @@ include ('../include.php');
 checkAuthorised('match');
 if (isset($_POST['add_match'])) {
 
-    $support_contact_category = $_POST['support_contact_category'];
+    $support_contact_category = implode(',',$_POST['support_contact_category']);
     $support_contact = implode(',', $_POST['support_contact']);
     $staff_contact_category = $_POST['staff_contact_category'];
     $staff_contact = implode(',', $_POST['staff_contact']);
@@ -95,12 +95,16 @@ $(document).ready(function() {
         }
     });
 
-    $('select[name="support_contact_category"]').change();
+    $('select[name="support_contact_category[]"]').change();
 });
-$(document).on('change', 'select[name="support_contact_category"]', function() { selectContactCategory(this); });
+$(document).on('change', 'select[name="support_contact_category[]"]', function() { selectContactCategory(this); });
 
 function selectContactCategory(sel) {
-	var stage = sel.value;
+	var stage = [];
+    $(sel).find('option:selected').each(function() {
+        stage.push(this.value);
+    });
+    stage = stage.join(',');
 	var typeId = sel.id;
 	var arr = typeId.split('_');
     var selected_contacts = [];
@@ -183,24 +187,23 @@ function selectContactCategory(sel) {
                 <div class="form-group clearfix">
                     <label class="col-sm-4 control-label">Contact Category:</label>
                     <div class="col-sm-8">
-                        <select data-placeholder="Select Category..." id="contact_category_0" name="support_contact_category" class="chosen-select-deselect form-control" width="380">
+                        <select data-placeholder="Select Category..." id="contact_category_0" name="support_contact_category[]" multiple class="chosen-select-deselect form-control" width="380">
                             <option value=""></option>
                             <?php
                             $each_tab = array_column(mysqli_fetch_all(mysqli_query($dbc, "SELECT DISTINCT `category` FROM `contacts` WHERE `deleted` = 0 AND `status` = 1 ORDER BY `category`"),MYSQLI_ASSOC),'category');
                             foreach ($each_tab as $cat_tab) {
                                 ?>
-                                <option <?= $support_contact_category == $cat_tab ? 'selected' : '' ?> value="<?= $cat_tab ?>"><?= $cat_tab ?></option>
+                                <option <?= strpos(','.$support_contact_category.',', ','.$cat_tab.',') !== FALSE ? 'selected' : '' ?> value="<?= $cat_tab ?>"><?= $cat_tab ?></option>
                             <?php } ?>
                         </select>
                     </div>
                 </div>
-
                 <div class="form-group clearfix">
                     <label for="fax_number" class="col-sm-4 control-label">Contact:</label>
                     <div class="col-sm-8">
                         <select multiple data-placeholder="Select Contact..." name="support_contact[]" id="contact_0" class="chosen-select-deselect form-control" width="380">
                             <?php if(!empty($support_contact)) {
-                                $query = sort_contacts_query(mysqli_query($dbc, "SELECT * FROM `contacts` WHERE `category` = '$support_contact_category' AND `deleted`=0 AND `status`=1"));
+                                $query = sort_contacts_query(mysqli_query($dbc, "SELECT * FROM `contacts` WHERE `category` IN ('".implode("','",explode(',',$support_contact_category))."') AND `deleted`=0 AND `status`=1"));
                                 foreach($query as $row) {
                                     echo '<option value="'.$row['contactid'].'" '.(in_array($row['contactid'], $support_contact) ? 'selected' : '').'>'.$row['full_name'].'</option>';
                                 }

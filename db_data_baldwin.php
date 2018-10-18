@@ -1235,4 +1235,19 @@
     }
     //2018-10-11 - Ticket #9653 - Best Buy Changes
 
+    //2018-10-18 - Task 7695 - CDS Match
+    if(!mysqli_query($dbc, "ALTER TABLE `match_contact` CHANGE `support_contact` `support_contact` text")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `match_contact` CHANGE `support_contact_category` `support_contact_category` text")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `match_contact` CHANGE `staff_contact_category` `staff_contact_category` text")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    if(!mysqli_query($dbc, "ALTER TABLE `match_contact` CHANGE `staff_contact` `staff_contact` text")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-10-18 - Task 7695 - CDS Match
+
     echo "Baldwin's DB Changes Done<br />\n";
