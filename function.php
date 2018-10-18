@@ -283,9 +283,14 @@ function get_marketing_material_uploads($dbc, $certuploadid, $field_name) {
     return $get_staff[$field_name];
 }
 function get_tasklist($dbc, $type, $board_name, $field_name) {
-    $get_staff =	mysqli_fetch_assoc(mysqli_query($dbc,"SELECT $field_name FROM	field_config_communication WHERE board_name='$board_name' AND type='$type'"));
+    $get_staff =	mysqli_fetch_assoc(mysqli_query($dbc,"SELECT $field_name FROM field_config_communication WHERE board_name='$board_name' AND type='$type'"));
     return $get_staff[$field_name];
 }
+function get_tasklist_tabledata($dbc, $tasklistid, $field_name) {
+    $get_staff =	mysqli_fetch_assoc(mysqli_query($dbc,"SELECT $field_name FROM	tasklist WHERE	tasklistid='$tasklistid'"));
+    return $get_staff[$field_name];
+}
+
 function get_field_config_contacts($dbc, $accordion, $field_name, $tab, $subtab = '') {
     $get_staff =	mysqli_fetch_assoc(mysqli_query($dbc,"SELECT `$field_name` FROM	field_config_contacts WHERE (tile_name = '".FOLDER_NAME."' OR (tile_name='contacts' AND '".FOLDER_NAME."'='staff')) AND accordion='$accordion' AND tab='$tab' AND (IFNULL(subtab,'') = '$subtab' OR '$subtab' = '')"));
     return $get_staff[$field_name];
