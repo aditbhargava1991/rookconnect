@@ -608,7 +608,7 @@ function addIntakeForm(btn) {
             //echo '<div class="col-sm-6"><h3>'. ($title=='Search' ? $title .': '. $term : $title .': '. $board_name['board_name']) .'</h3></div>';
 
 
-            $task_board = mysqli_fetch_array(mysqli_query($dbc, "SELECT `taskboardid`, `flag_colour`, `task_path_name` FROM `task_board` WHERE `taskboardid`='{$_GET['category']}'"));
+            $task_board = mysqli_fetch_array(mysqli_query($dbc, "SELECT `taskboardid`, `flag_colour`, `task_path_name` , `company_staff_sharing` FROM `task_board` WHERE `taskboardid`='{$_GET['category']}'"));
             $task_flag = $task_board['flag_colour'];
             if ( !empty($taskboardid) ) {
                 $task_path = get_task_board($dbc, $taskboardid, 'task_path');
@@ -625,7 +625,26 @@ function addIntakeForm(btn) {
             }
             ?>
             <div class="col-sm-6"><h3 class="offset-left-5"><?php echo $board_name .': '.$path_name; ?>
-            <img class="inline-img cursor-hand small no-toggle" src="../img/icons/ROOK-edit-icon.png" onclick="$(this).hide();$(this).next('span').show().find('input').focus();" title="Edit"><span class="col-sm-4 pull-right" style="display:none;"><input onblur="savePathName(this.value); $(this).parent().hide().prev().show().prev().text(this.value);" type="text" value="<?php echo $path_name; ?>" class="form-control"></span></h3></div>
+            <img class="inline-img cursor-hand small no-toggle" src="../img/icons/ROOK-edit-icon.png" onclick="$(this).hide();$(this).next('span').show().find('input').focus();" title="Edit"><span class="col-sm-4 pull-right" style="display:none;"><input onblur="savePathName(this.value); $(this).parent().hide().prev().show().prev().text(this.value);" type="text" value="<?php echo $path_name; ?>" class="form-control"></span>
+
+            <?php
+            if($_GET['tab'] == 'Company') {
+                if(!empty($task_board['company_staff_sharing'])) {
+                    $cids_ex = explode(',', $task_board['company_staff_sharing']);
+                    $cids_unique = array_unique($cids_ex);
+                    $i=0;
+                    foreach (array_filter($cids_unique) as $staffcid ) {
+                        $i++;
+                        if($i>5){
+                            break;
+                        }
+                        profile_id($dbc, $staffcid);
+                    }
+                }
+            }
+            ?>
+            </h3>
+            </div>
 
             <div class="col-sm-6 text-right"><span class="pull-right text-right" data-task="BOARD<?php echo $_GET['category']; ?>">
             <?php
