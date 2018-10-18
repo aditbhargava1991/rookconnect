@@ -301,6 +301,11 @@ if($layout == 'position_dropdown' || $layout == 'ticket_task') {
 mysqli_query($dbc, "ALTER TABLE `contacts` ADD `days_per_week` INT(10) NULL AFTER `hours_of_operation`, ADD `hours_per_week` INT(10) NULL AFTER `days_per_week`");
 
 mysqli_query($dbc, "ALTER TABLE `invoice` ADD `customer_billing_status` VARCHAR(200) NULL DEFAULT 'Pending' AFTER `patient_payment_receipt`");
+
+
+mysqli_query($dbc, "ALTER TABLE `task_board` ADD `flag_label` VARCHAR(200) NULL AFTER `date_of_archival`, ADD `flag_start` DATE NULL AFTER `flag_label`, ADD `flag_end` DATE NULL AFTER `flag_start`");
+
+
     echo "Dayana's DB Changes Done<br />\n";
 
 ?>
