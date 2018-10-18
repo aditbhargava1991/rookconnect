@@ -427,32 +427,6 @@ $value_mandatory_config = explode(',',get_mandatory_field_config($dbc, 'tickets'
 				</div>
 			</div>
 		<?php } ?>
-		<?php if ( strpos($value_config, ',PI Notify Party,') !== false && $field_sort_field == 'PI Notify Party' ) {
-			$default_contact_category = get_config($dbc, 'ticket_notify_contact');
-			$contact_category = ($ticket_type == '' ? $default_contact_category : get_config($dbc, 'ticket_notify_contact_'.$ticket_type)); ?>
-			<div class="form-group">
-				  <label for="site_name" class="col-sm-4 control-label"><?php echo (in_array('PI Notify Party', $value_mandatory_config) ? '<span class="text-red">* </span>' : ''); ?>Notify Party:</label>
-				  <div class="col-sm-7 select-div" style="<?= trim($get_ticket['notifyid'],',') > 0 || $get_ticket['notifyid'] == '' ? '' : 'display:none;' ?>">
-					<select data-placeholder="Select <?= $contact_category ?>..." name="notifyid" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" data-category="<?= (!empty($contact_category) ? $contact_category : '%') ?>" class="chosen-select-deselect form-control <?php echo (in_array('PI Notify Party', $value_mandatory_config) ? 'required' : ''); ?>" width="380">
-					  <option value=""></option>
-					  <?php $staff_query = sort_contacts_query(mysqli_query($dbc,"SELECT contactid, first_name, last_name, name FROM contacts WHERE deleted=0 AND status>0".(!empty($contact_category) ? "AND category='".$contact_category."'" : '')));
-						foreach($staff_query as $row) { ?>
-							<option <?= trim($get_ticket['notifyid'],',')==$row['contactid'] ? "selected" : '' ?> value="<?php echo $row['contactid']; ?>"><?php echo $row['name'].' '.$row['first_name'].' '.$row['last_name']; ?></option>
-						<?php } ?>
-						<option value="ADD_NEW">Add New <?= $contact_category ?></option>
-						<option value="MANUAL">One Time <?= $contact_category ?></option>
-					</select>
-				  </div>
-				  <div class="col-sm-1 select-div" style="<?= trim($get_ticket['notifyid'],',') > 0 || $get_ticket['notifyid'] == '' ? '' : 'display:none;' ?>">
-					<a href="" onclick="viewProfile(this); return false;"><img class="inline-img pull-right no-toggle" src="../img/person.PNG" title="View Profile"></a>
-					<a href="" onclick="$(this).closest('.form-group').find('select').val('ADD_NEW').change(); return false;"><img class="inline-img pull-right" data-history-label="New <?= $contact_category ?>" src="../img/icons/ROOK-add-icon.png"></a>
-				  </div>
-				<div class="col-sm-8 manual-div" style="<?= trim($get_ticket['notifyid'],',') > 0 || $get_ticket['notifyid'] == '' ? 'display:none;' : '' ?>">
-					<input type="text" name="notifyid" class="form-control <?php echo (in_array('PI Business', $value_mandatory_config) ? 'required' : ''); ?>" data-one-time="true" data-category="<?= (!empty($contact_category) ? $contact_category : '%') ?>" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" value="<?= $get_ticket['notifyid'] > 0 ? '' : $get_ticket['notifyid'] ?>">
-					<label class="form-checkbox"><input checked type="checkbox" name="one_time" onchange="if(!this.checked) { $(this).closest('.form-group').find('.select-div').show(); $(this).closest('.manual-div').hide(); }"> One Time Only <?= $contact_category ?></label>
-				</div>
-			</div>
-		<?php } ?>
 		<?php if ( strpos($value_config, ',PI Ban,') !== false && $field_sort_field == 'PI Ban' ) {
 			$contact_category = 'Ban'; ?>
 			<div class="form-group">
