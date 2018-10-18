@@ -2564,7 +2564,7 @@ if($_GET['action'] == 'update_fields') {
 	}
 } else if($_GET['action'] == 'list_customer_service_templates') {
 	$contact = filter_var($_GET['contactid'],FILTER_SANITIZE_STRING);
-    $template_list = explode(',',get_contact($dbc, $businessid, 'service_templates'));
+    $template_list = explode(',',get_contact($dbc, $contact, 'service_templates'));
 	echo mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `services_service_templates` WHERE `deleted`=0 AND `contactid`='$contact' AND `templateid` IN ('".implode("','",$template_list)."') OR '".implode(',',$template_list)."' = ''"))['serviceid'];
 } else if($_GET['action'] == 'get_customer_service_templates') {
 	echo '<option></option>';
