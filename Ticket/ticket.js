@@ -970,10 +970,24 @@ function saveFieldMethod(field) {
                                 action: 'list_customer_service_templates'
                             }, function(response) {
                                 $('[name=default_services]').val(response);
-                                $('[name=default_services]').each(function() {
-                                    var services = this.value.trim(',').split(',');
+                                if($('[name=default_services]').length > 0) {
+                                    $('[name=default_services]').each(function() {
+                                        var services = this.value.trim(',').split(',');
+                                        for(var i = 0; i < services.length; i++) {
+                                            $('.scheduled_stop [name=serviceid]').last().each(function() {
+                                                if(services[i] > 0) {
+                                                    if(i > 0) {
+                                                        addMulti(this);
+                                                    }
+                                                    $(this).val(services[i]).change();
+                                                }
+                                            });
+                                        }
+                                    });
+                                } else {
+                                    var services = response.trim(',').split(',');
                                     for(var i = 0; i < services.length; i++) {
-                                        $('.scheduled_stop [name=serviceid]').last().each(function() {
+                                        $('.serviceid').last().each(function() {
                                             if(services[i] > 0) {
                                                 if(i > 0) {
                                                     addMulti(this);
@@ -982,7 +996,7 @@ function saveFieldMethod(field) {
                                             }
                                         });
                                     }
-                                });
+                                }
                             });
                         });
                     } else if(field_name == 'serviceid' || field_name == 'service_qty') {
