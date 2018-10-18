@@ -25,7 +25,7 @@ foreach($staff_list as $staff) {
 	$staff_categories = [];
 	foreach(explode(',', $staff['staff_category']) as $staff_category) {
 		if(!empty($staff_category)) {
-			$staff_categories[] = $staff_category
+			$staff_categories[] = $staff_category;
 		}
 	}
 	$staffs[] = [
