@@ -1472,22 +1472,33 @@ if($_GET['action'] == 'update_fields') {
 	}
 } else if($_GET['action'] == 'business_services_fetch') {
 	$businessid = filter_var($_GET['business'],FILTER_SANITIZE_STRING);
-    $serviceid = get_contact($dbc, $businessid, 'serviceid');
+    $template_list = get_contact($dbc, $businessid, 'service_templates');
+    $service_list = [];
+    foreach(explode(',',$template_list) as $templateid) {
+        if($templateid > 0) {
+            foreach(explode(',',get_field_value('serviceid','services_service_templates','templateid',$templateid)) as $service) {
+                $service_list[] = $service;
+            }
+        }
+    }
 	$rate_contact = get_config($dbc, 'rate_card_contact_'.$tab) ?: get_config($dbc, 'rate_card_contact');
 
 	$services = explode('**',mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `services` FROM `rate_card` WHERE `clientid` = '$businessid' AND `deleted`=0 AND DATE(NOW()) BETWEEN `start_date` AND IFNULL(NULLIF(`end_date`,'0000-00-00'),'9999-12-31') ORDER BY `clientid`='$rate_contact' DESC"))['services']);
-	foreach($services as $service) {
-		$service = explode('#',$service);
-		if($service[0] ==  $serviceid) {
-			$row_price = $service[1];
-		}
+    foreach($service_list as &$serviceid) {
+        foreach($services as $service) {
+            $service = explode('#',$service);
+            if($service[0] ==  $serviceid) {
+                $serviceid .= 'FFM'.$row_price;
+            }
+        }
 	}
+    echo implode('#*#',$service_list);
 
-	$services = mysqli_query($dbc, "SELECT `serviceid`, `heading` FROM `services` WHERE `serviceid`= '$serviceid'");
+	/* $services = mysqli_query($dbc, "SELECT `serviceid`, `heading` FROM `services` WHERE `serviceid`= '$serviceid'");
 	while($service = mysqli_fetch_assoc($services)) {
 		//echo "<option data-rate-price='".$row_price."' value='".$serviceid."'>". get_services($dbc, $serviceid, 'heading')."</option>";
         echo $serviceid.'FFM'.$row_price;
-	}
+	} */
 } else if($_GET['action'] == 'addition') {
 	$ticketid = filter_var($_GET['src_id'],FILTER_SANITIZE_STRING);
 	mysqli_query($dbc, "INSERT INTO `tickets` (`ticket_type`, `category`, `businessid`, `clientid`, `siteid`, `location`, `location_address`, `location_google`, `address`, `google_maps`, `site_location`, `lsd`, `location_notes`, `projectid`, `afe_number`, `heading`) SELECT `ticket_type`, `category`, `businessid`, `clientid`, `siteid`, `location`, `location_address`, `location_google`, `address`, `google_maps`, `site_location`, `lsd`, `location_notes`, `projectid`, `afe_number`, CONCAT('Addition to ".TICKET_NOUN." #',`ticketid`,' - ',`heading`) FROM `tickets` WHERE `ticketid`='$ticketid'");
