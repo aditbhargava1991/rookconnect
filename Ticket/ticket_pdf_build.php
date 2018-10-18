@@ -301,7 +301,7 @@ if(isset($_POST['custom_form'])) {
 													while($general_line = $general_rows->fetch_assoc()) {
 														$piece_types[] = $general_line['qty'].' x '.$general_line['piece_type'];
 													}
-													$piece_types = implode(', ', $piece_types);
+													$piece_types = implode("\n ", $piece_types);
 													$value .= $piece_types;
 												} else if($field_detail[0] == 'piece_types_count_dim') {
 													$general_rows = mysqli_query($dbc, "SELECT `ticket_attached`.`piece_type`, SUM(`qty`) `qty`, `ticket_attached`.`dimensions`, `ticket_attached`.`dimension_units` FROM `ticket_attached` WHERE `ticket_attached`.`src_table`='inventory_general' AND `ticket_attached`.`ticketid`='$ticketid' AND `ticket_attached`.`ticketid` > 0 AND `ticket_attached`.`deleted`=0".$query_daily." GROUP BY CONCAT(IFNULL(`ticket_attached`.`piece_type`,''),IFNULL(`ticket_attached`.`dimensions`,''),IFNULL(`ticket_attached`.`dimension_units`,''))");
@@ -321,7 +321,7 @@ if(isset($_POST['custom_form'])) {
 														}
 														$piece_types[] = $general_line['qty'].' x '.$length_inch."'x".$width_inch."'x".$height_inch."' ".$general_line['piece_type'];
 													}
-													$piece_types = implode(', ', $piece_types);
+													$piece_types = implode("\n ", $piece_types);
 													$value .= $piece_types;
 												} else if($field_detail[0] == 'piece_types') {
 													$general_rows = mysqli_query($dbc, "SELECT DISTINCT `ticket_attached`.`piece_type` FROM `ticket_attached` WHERE `ticket_attached`.`src_table`='inventory_general' AND `ticket_attached`.`ticketid`='$ticketid' AND `ticket_attached`.`ticketid` > 0 AND `ticket_attached`.`deleted`=0 AND IFNULL(`piece_type`,'') != ''".$query_daily);
