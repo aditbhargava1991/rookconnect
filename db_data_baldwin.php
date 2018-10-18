@@ -1234,7 +1234,6 @@
         echo "Error: ".mysqli_error($dbc)."<br />\n";
     }
     //2018-10-11 - Ticket #9653 - Best Buy Changes
-
     //2018-10-18 - Task 7695 - CDS Match
     if(!mysqli_query($dbc, "ALTER TABLE `match_contact` CHANGE `support_contact` `support_contact` text")) {
         echo "Error: ".mysqli_error($dbc)."<br />\n";
@@ -1249,5 +1248,11 @@
         echo "Error: ".mysqli_error($dbc)."<br />\n";
     }
     //2018-10-18 - Task 7695 - CDS Match
+
+    //2018-10-04 - Ticket #5845 - Ocean BOL
+    if(!mysqli_query($dbc, "ALTER TABLE `tickets` ADD `notifyid` VARCHAR(500) AFTER `agentid`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-10-04 - Ticket #5845 - Ocean BOL
 
     echo "Baldwin's DB Changes Done<br />\n";
