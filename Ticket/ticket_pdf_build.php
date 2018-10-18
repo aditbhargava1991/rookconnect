@@ -295,6 +295,14 @@ if(isset($_POST['custom_form'])) {
 													} else if($size_details[1] == 'quantity') {
 														$value .= implode("\n",$quantity_line);
 													}
+												} else if($field_detail[0] == 'piece_types_count') {
+													$general_rows = mysqli_query($dbc, "SELECT `ticket_attached`.`piece_type`, SUM(`qty`) `qty` FROM `ticket_attached` WHERE `ticket_attached`.`src_table`='inventory_general' AND `ticket_attached`.`ticketid`='$ticketid' AND `ticket_attached`.`ticketid` > 0 AND `ticket_attached`.`deleted`=0 AND IFNULL(`piece_type`,'') != ''".$query_daily." GROUP BY `ticket_attached`.`piece_type`");
+													$piece_types = [];
+													while($general_line = $general_rows->fetch_assoc()) {
+														$piece_types[] = $general_line['qty'].'x'.$general_line['piece_type'];
+													}
+													$piece_types = implode(', ', $piece_types);
+													$value .= $piece_types;
 												} else if($field_detail[0] == 'piece_types') {
 													$general_rows = mysqli_query($dbc, "SELECT DISTINCT `ticket_attached`.`piece_type` FROM `ticket_attached` WHERE `ticket_attached`.`src_table`='inventory_general' AND `ticket_attached`.`ticketid`='$ticketid' AND `ticket_attached`.`ticketid` > 0 AND `ticket_attached`.`deleted`=0 AND IFNULL(`piece_type`,'') != ''".$query_daily);
 													$piece_types = [];
